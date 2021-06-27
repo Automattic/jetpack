@@ -86,7 +86,9 @@ class WPCOM_JSON_API_Update_Site_Logo_Endpoint extends WPCOM_JSON_API_Endpoint {
 	}
 
 	function get_current_settings() {
+		remove_action( 'option_site_logo', 'jetpack_site_logo_block_compat' );
 		$logo_settings = get_option( 'site_logo' );
+		add_action( 'option_site_logo', 'jetpack_site_logo_block_compat' );
 		if ( ! is_array( $logo_settings ) ) {
 			$logo_settings = array();
 		}

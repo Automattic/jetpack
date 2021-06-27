@@ -85,7 +85,9 @@ class Site_Logo_Image_Control extends WP_Customize_Control {
 	 * @return boolean
 	 */
 	public function has_site_logo() {
+		remove_action( 'option_site_logo', 'jetpack_site_logo_block_compat' );
 		$logo = get_option( 'site_logo' );
+		add_action( 'option_site_logo', 'jetpack_site_logo_block_compat' );
 
 		if ( empty( $logo['url'] ) ) {
 			return false;

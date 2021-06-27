@@ -507,7 +507,9 @@ abstract class SAL_Site {
 		);
 
 		// Get current site logo values.
+		remove_action( 'option_site_logo', 'jetpack_site_logo_block_compat' );
 		$logo = get_option( 'site_logo' );
+		add_action( 'option_site_logo', 'jetpack_site_logo_block_compat' );
 
 		// Update the response array if there's a site logo currenty active.
 		if ( $logo && 0 != $logo['id'] ) {

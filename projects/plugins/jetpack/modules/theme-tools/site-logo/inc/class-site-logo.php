@@ -36,7 +36,9 @@ class Site_Logo {
 	 * @uses get_option()
 	 */
 	private function __construct() {
+		remove_action( 'option_site_logo', 'jetpack_site_logo_block_compat' );
 		$this->logo = get_option( 'site_logo', null );
+		add_action( 'option_site_logo', 'jetpack_site_logo_block_compat' );
 	}
 
 	/**
@@ -63,6 +65,13 @@ class Site_Logo {
 		add_filter( 'body_class', array( $this, 'body_classes' ) );
 		add_filter( 'image_size_names_choose', array( $this, 'media_manager_image_sizes' ) );
 		add_filter( 'display_media_states', array( $this, 'add_media_state' ) );
+
+		// Remove the Core actions that sync the site_logo option to the theme mod used for the Site Logo block.
+		// The Site Logo block expects the option to be just the attachment ID.
+		remove_action( 'update_option_site_logo', '_sync_site_logo_to_custom_logo' );
+		remove_action( 'setup_theme', '_sync_custom_logo_to_site_logo_on_setup_theme' );
+
+		add_filter( 'customize_sanitize_js_site_logo', array( $this, 'filter_site_logo_in_customizer' ), 10, 0 );
 	}
 
 	/**
@@ -358,6 +367,16 @@ class Site_Logo {
 		}
 
 		return $input;
+	}
+
+	/**
+	 * Ensure the Site Logo customizer control receives the full array of settings,
+	 * rather than only an attachment ID.
+	 *
+	 * @return array
+	 */
+	public function filter_site_logo_in_customizer() {
+		return $this->logo;
 	}
 }
 
