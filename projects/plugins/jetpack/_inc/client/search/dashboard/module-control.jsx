@@ -34,7 +34,11 @@ import InstantSearchUpsellNudge from './instant-search-upsell-nudge';
 import { getSiteID } from '../../state/site';
 
 const SEARCH_DESCRIPTION = __(
-	'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.',
+	'Jetpack Search is an incredibly powerful and customizable replacement for the search capability built into WordPress that helps your visitors find the right content.',
+	'jetpack'
+);
+const INSTANT_SEARCH_DESCRIPTION = __(
+	'Instant search will allow your visitors to get search results as soon as they start typing. If deactivated, Jetpack Search will still optimize your search results but visitors will have to submit a search query before seeing any results.',
 	'jetpack'
 );
 const SEARCH_SUPPORT = __( 'Search supports many customizations. ', 'jetpack' );
@@ -156,10 +160,7 @@ function Search( props ) {
 							</CompactFormToggle>
 							<div className="jp-form-setting-description">
 								<p className="jp-form-setting-explanation jp-form-search-setting-explanation">
-									{ __(
-										'Allow your visitors to get search results as soon as they start typing.',
-										'jetpack'
-									) }
+									{ INSTANT_SEARCH_DESCRIPTION }
 								</p>
 								{ showInstantSearchUpsellNudge ? (
 									<InstantSearchUpsellNudge href={ props.upgradeUrl } />
