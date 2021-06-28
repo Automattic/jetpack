@@ -1048,6 +1048,10 @@
 
 		function fetchComments( attachmentId, offset ) {
 			var shouldClear = offset === undefined;
+			var commentsIndicator = carousel.info.querySelector(
+				'.jp-carousel-icon .icon-comment-indicator'
+			);
+			domUtil.hide( commentsIndicator );
 
 			clearInterval( commentInterval );
 
@@ -1061,6 +1065,7 @@
 
 			var comments = carousel.info.querySelector( '.jp-carousel-comments' );
 			var commentsLoading = carousel.info.querySelector( '#jp-carousel-comments-loading' );
+
 			domUtil.show( commentsLoading );
 
 			if ( shouldClear ) {
@@ -1141,7 +1146,11 @@
 					}, 300 );
 				}
 
-				domUtil.show( comments );
+				if ( data.length > 0 ) {
+					domUtil.show( commentsIndicator );
+					domUtil.show( comments );
+				}
+
 				domUtil.hide( commentsLoading );
 			};
 

@@ -1058,6 +1058,14 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	display: inline-block;
 }
 
+.jp-carousel-icon-comments .icon-comment-indicator {
+    display: none;
+}
+
+.jp-carousel-icon-comments .icon-comment-indicator.jp-carousel-show {
+    display: block;
+}
+
 /** Icons End **/
 
 /* Small screens */
