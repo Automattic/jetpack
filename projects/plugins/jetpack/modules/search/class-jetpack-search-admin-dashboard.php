@@ -49,10 +49,6 @@ class Jetpack_Search_Admin_Dashboard {
 	 * Adds an admin sidebar link pointing to the Search page.
 	 */
 	public function add_submenu_and_scripts() {
-		if ( ! $this->should_show_link() ) {
-			return;
-		}
-
 		// TODO: Set a different submenu parent slug if WPCOM.
 		$hook = add_submenu_page(
 			'jetpack',
