@@ -321,7 +321,6 @@
 	"projects/plugins/jetpack/modules/theme-tools/random-redirect.php",
 	"projects/plugins/jetpack/modules/theme-tools/responsive-videos.php",
 	"projects/plugins/jetpack/modules/theme-tools/site-logo.php",
-	"projects/plugins/jetpack/modules/theme-tools/site-logo/inc/class-site-logo-control.php",
 	"projects/plugins/jetpack/modules/theme-tools/site-logo/inc/class-site-logo.php",
 	"projects/plugins/jetpack/modules/theme-tools/site-logo/inc/functions.php",
 	"projects/plugins/jetpack/modules/theme-tools/social-links.php",
