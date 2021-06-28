@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+add jetpack_idc_disconnect hook to properly disconnect based on IDC settings and clear IDC options.
