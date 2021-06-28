@@ -17,41 +17,29 @@
 		pointer-events: none;
 	}
 
-	.jetpack-search-color-inputs {
-		display: flex;
-		flex-flow: wrap;
-		margin-bottom: 1em;
-
-		label {
-			width: 100%;
-		}
-		input[type='color'] {
-			align-self: center;
-			margin-right: 0.25em;
-		}
-	}
-
 	.jp-search-dashboard__top {
 		background-color: #f9f9f6;
 		display: flex;
 		align-items: center;
 		flex-flow: column;
-		.jp-search-dashboard__title {
-			width: 100%;
-			max-width: 65rem;
-			h1 {
-				max-width: 15em;
-				line-height: 1.2em;
-			}
+	}
 
-			@media ( max-width: 1250px ) {
-				max-width: 95%;
-			}
+	.jp-search-dashboard__title {
+		width: 100%;
+		max-width: 65rem;
+		h1 {
+			max-width: 15em;
+			line-height: 1.2em;
 		}
-		.jp-search-dashboard__search-dialog {
-			width: 90%;
-			max-width: 60rem;
+
+		@media ( max-width: 1250px ) {
+			max-width: 95%;
 		}
+	}
+
+	.jp-search-dashboard__search-dialog {
+		width: 90%;
+		max-width: 60rem;
 	}
 
 	.jp-search-dashboard__bottom {
