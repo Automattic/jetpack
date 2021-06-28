@@ -1,0 +1,72 @@
+.jp-form-settings-group {
+	display: flex;
+	align-items: flex-start;
+	max-height: 60vh;
+	min-height: 50vh;
+	width: 100%;
+
+	.dops-card {
+		width: 60%;
+		box-shadow: none;
+		.jp-form-setting-search-toggle {
+			margin-top: 2em;
+			font-size: 1.5em;
+			font-weight: bold;
+
+			.jp-form-setting-description {
+				margin-left: 2em;
+
+				.jp-form-setting-explanation {
+					margin-top: 1em;
+				}
+
+				.form-toggle:checked + .form-toggle__label .form-toggle__switch {
+					background: #069e08;
+				}
+
+				.jp-form-setting-cfa-buttons {
+					display: flex;
+					flex-direction: row;
+					align-content: space-between;
+					margin-top: 1em;
+
+					.jp-form-setting-cfa-button {
+						&.jp-form-setting-cfa-customize-button {
+							background-color: #000;
+							border-color: #000;
+							color: #fff;
+						}
+
+						&:disabled,
+						&[disabled] {
+							background-color: #dcdcde;
+							border-color: #dcdcde;
+							color: #a7aaad;
+							cursor: not-allowed;
+						}
+
+						&.jp-form-setting-cfa-customize-button {
+							&:disabled,
+							&[disabled] {
+								background-color: #dcdcde;
+							}
+						}
+
+						&.jp-form-setting-cfa-edit-widgets-button {
+							margin-left: 1em;
+							color: #000;
+							background: transparent;
+							border-color: #000;
+							&.jp-form-setting-cfa-customize-button {
+								&:disabled,
+								&[disabled] {
+									background: transparent;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

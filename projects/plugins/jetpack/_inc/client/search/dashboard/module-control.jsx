@@ -12,9 +12,11 @@ import QuerySite from 'components/data/query-site';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsGroup from 'components/settings-group';
+import Button from 'components/button';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import getRedirectUrl from 'lib/jp-redirect';
 import { getPlanClass } from 'lib/plans/constants';
+import './module-control.scss';
 
 /**
  * State dependencies
@@ -73,6 +75,12 @@ function Search( props ) {
 	const togglingModule = !! props.isSavingAnyOption( 'search' );
 	const togglingInstantSearch = !! props.isSavingAnyOption( 'instant_search_enabled' );
 	const isSavingEitherOption = togglingModule || togglingInstantSearch;
+
+	const isInstantSearchCFAButtonDisabled =
+		isSavingEitherOption ||
+		! isModuleEnabled ||
+		! isInstantSearchEnabled ||
+		! props.hasActiveSearchPurchase;
 	return (
 		<Fragment>
 			<QuerySite />
@@ -102,9 +110,11 @@ function Search( props ) {
 							>
 								{ __( 'Enable Jetpack Search', 'jetpack' ) }
 							</ModuleToggle>
-							<p className="jp-form-setting-explanation jp-form-search-setting-explanation">
-								{ SEARCH_DESCRIPTION }
-							</p>
+							<div className="jp-form-setting-description">
+								<p className="jp-form-setting-explanation jp-form-search-setting-explanation">
+									{ SEARCH_DESCRIPTION }
+								</p>
+							</div>
 						</div>
 						<div className="jp-form-setting-search-toggle jp-form-instant-search-toggle">
 							<CompactFormToggle
@@ -115,12 +125,35 @@ function Search( props ) {
 							>
 								{ __( 'Enable instant search experience (recommended)', 'jetpack' ) }
 							</CompactFormToggle>
-							<p className="jp-form-setting-explanation jp-form-search-setting-explanation">
-								{ __(
-									'Allow your visitors to get search results as soon as they start typing.',
-									'jetpack'
-								) }
-							</p>
+							<div className="jp-form-setting-description">
+								<p className="jp-form-setting-explanation jp-form-search-setting-explanation">
+									{ __(
+										'Allow your visitors to get search results as soon as they start typing.',
+										'jetpack'
+									) }
+								</p>
+								<div className="jp-form-setting-cfa-buttons">
+									<Button
+										className="jp-form-setting-cfa-button jp-form-setting-cfa-customize-button"
+										href={
+											! isInstantSearchCFAButtonDisabled &&
+											'customize.php?autofocus[section]=jetpack_search'
+										}
+										disabled={ isInstantSearchCFAButtonDisabled }
+									>
+										{ __( 'Customize search results', 'jetpack' ) }
+									</Button>
+									<Button
+										className="jp-form-setting-cfa-button jp-form-setting-cfa-edit-widgets-button"
+										href={
+											! isInstantSearchCFAButtonDisabled && 'customize.php?autofocus[panel]=widgets'
+										}
+										disabled={ isInstantSearchCFAButtonDisabled }
+									>
+										{ __( 'Edit sidebar widgets', 'jetpack' ) }
+									</Button>
+								</div>
+							</div>
 						</div>
 					</Fragment>
 				) }

@@ -136,11 +136,9 @@ class Jetpack_Search_Admin_Dashboard {
 	}
 
 	/**
-	 * Determine if the link should appear in the sidebar.
-	 *
-	 * @return boolean
+	 * Hide the WP version in the footer
 	 */
-	private function should_show_link() {
-		return Jetpack_Plan::supports( 'search' );
+	public function remove_admin_dashboard_footer_right() {
+		remove_filter( 'update_footer', 'core_update_footer' );
 	}
 }

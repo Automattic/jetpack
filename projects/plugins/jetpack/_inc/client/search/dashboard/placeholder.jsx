@@ -3,8 +3,6 @@
  */
 import React from 'react';
 
-const PLACEHOLDER_BACKGROUND_COLOR = 'rgb(234, 239, 242)';
-
 const TextRowPlaceHolder = props => {
 	const defaultStyles = {
 		display: 'inline-block',
@@ -12,7 +10,7 @@ const TextRowPlaceHolder = props => {
 		maxHeight: '1.5em',
 		width: '100%',
 		height: '1em',
-		backgroundColor: PLACEHOLDER_BACKGROUND_COLOR,
+		backgroundColor: '#E9EFF3',
 		// marginTop: '0.1em',
 	};
 
