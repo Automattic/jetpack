@@ -145,7 +145,7 @@ class Site_Logo {
 			array(
 				'settings'            => 'site_logo',
 				'selector'            => '.site-logo-link',
-				'render_callback'     => array( $this, 'render_partial' ),
+				'render_callback'     => 'jetpack_get_site_logo',
 				'container_inclusive' => true,
 			)
 		);
@@ -361,15 +361,6 @@ class Site_Logo {
 		}
 
 		return $input;
-	}
-
-	/**
-	 * Render the updated logo in the Customizer preview.
-	 *
-	 * @return string|false
-	 */
-	public function render_partial() {
-		return jetpack_get_site_logo();
 	}
 }
 
