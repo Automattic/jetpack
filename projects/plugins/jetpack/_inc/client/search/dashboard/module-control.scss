@@ -6,7 +6,8 @@
 	width: 100%;
 
 	.dops-card {
-		width: 60%;
+		min-width: 60%;
+		max-width: 100%;
 		box-shadow: none;
 		.jp-form-setting-search-toggle {
 			margin-top: 2em;
@@ -27,10 +28,12 @@
 				.jp-form-setting-cfa-buttons {
 					display: flex;
 					flex-direction: row;
+					flex-wrap: wrap;
 					align-content: space-between;
 					margin-top: 1em;
 
 					.jp-form-setting-cfa-button {
+						margin: 0.25em 1em;
 						&.jp-form-setting-cfa-customize-button {
 							background-color: #000;
 							border-color: #000;
@@ -53,7 +56,6 @@
 						}
 
 						&.jp-form-setting-cfa-edit-widgets-button {
-							margin-left: 1em;
 							color: #000;
 							background: transparent;
 							border-color: #000;
