@@ -281,9 +281,7 @@ class REST_Controller {
 		// Fetch the requested object.
 		$object = $wpdb->get_row(
 			$wpdb->prepare(
-				'select * from `%s` where `%s` = %d',
-				$table,
-				$id_field,
+				'SELECT * FROM `' . $table . '` WHERE `' . $id_field . '` = %d', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 				$object_id
 			)
 		);
@@ -306,9 +304,7 @@ class REST_Controller {
 
 			$result['children'] = $wpdb->get_results(
 				$wpdb->prepare(
-					'select * from `%s` where `%s` = %d',
-					$child_table,
-					$child_id_field,
+					'SELECT * FROM `' . $child_table . '` where `' . $child_id_field . '` = %d', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 					$object_id
 				)
 			);
