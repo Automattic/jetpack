@@ -3,6 +3,8 @@
  */
 import { __ } from '@wordpress/i18n';
 
+export const MULTISITE_NO_GROUP_VALUE = '__NO_GROUP__';
+
 export const SERVER_OBJECT_NAME = 'JetpackInstantSearchOptions';
 export const OVERLAY_CLASS_NAME = 'jetpack-instant-search__overlay';
 export const SORT_DIRECTION_ASC = 'ASC';

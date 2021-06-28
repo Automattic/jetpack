@@ -6,7 +6,7 @@ This plugin can be used **alongside [the Jetpack plugin](https://wordpress.org/p
 - Feature branches ([branches currently being worked on in the Jetpack repository](https://github.com/Automattic/Jetpack/pulls))
 - SVN Tags ([any existing tag in Jetpack's SVN repo](https://plugins.svn.wordpress.org/jetpack/tags/)): this allows you to install past versions of Jetpack on your site if necessary.
 
-![Screenshot](https://github.com/Automattic/jetpack-beta/raw/master/screenshot.png "Jetpack Beta UI")
+![Screenshot](./docs/images/screenshot.png "Jetpack Beta UI")
 
 -------
 

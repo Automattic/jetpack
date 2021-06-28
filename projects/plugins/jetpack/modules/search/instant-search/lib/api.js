@@ -10,7 +10,12 @@ import lru from 'tiny-lru/lib/tiny-lru.esm';
  * Internal dependencies
  */
 import { getFilterKeys } from './filters';
-import { MINUTE_IN_MILLISECONDS, RESULT_FORMAT_PRODUCT, SERVER_OBJECT_NAME } from './constants';
+import {
+	MINUTE_IN_MILLISECONDS,
+	MULTISITE_NO_GROUP_VALUE,
+	RESULT_FORMAT_PRODUCT,
+	SERVER_OBJECT_NAME,
+} from './constants';
 
 let abortController;
 
@@ -137,10 +142,10 @@ const filterKeyToEsFilter = new Map( [
  */
 function buildStaticFilters( staticFilters ) {
 	const selectedFilters = {};
-	Object.keys( staticFilters ).forEach( ( key ) => {
+	Object.keys( staticFilters ).forEach( key => {
 		const value = staticFilters[ key ];
 		if ( key === 'group_id' ) {
-			if ( value !== '__NO_GROUP__' ) {
+			if ( value !== MULTISITE_NO_GROUP_VALUE ) {
 				// Do not set filter if for no_groups, it should just use current blog.
 				selectedFilters[ key ] = value;
 			}
@@ -263,6 +268,17 @@ function generateApiQueryString( {
 		] );
 	}
 
+	/**
+	 * Fetch additional fields for multi site results
+	 */
+	if (
+		staticFilters &&
+		staticFilters.group_id &&
+		staticFilters.group_id !== MULTISITE_NO_GROUP_VALUE
+	) {
+		fields = fields.concat( [ 'author', 'blog_name', 'blog_icon_url' ] );
+	}
+
 	let params = {
 		aggregations,
 		fields,
@@ -277,13 +293,11 @@ function generateApiQueryString( {
 	if ( staticFilters && Object.keys( staticFilters ).length > 0 ) {
 		params = {
 			...params,
-			...buildStaticFilters( staticFilters )
+			...buildStaticFilters( staticFilters ),
 		};
 	}
 
-	return encode(
-		flatten( params )
-	);
+	return encode( flatten( params ) );
 }
 /* eslint-enable jsdoc/require-param,jsdoc/check-param-names */
 

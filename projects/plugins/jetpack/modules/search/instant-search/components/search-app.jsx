@@ -17,10 +17,18 @@ import CustomizerEventHandler from './customizer-event-handler';
 import DomEventHandler from './dom-event-handler';
 import Overlay from './overlay';
 import SearchResults from './search-results';
+import {
+	disableAnalytics,
+	identifySite,
+	initializeTracks,
+	resetTrackingCookies,
+} from '../lib/tracks';
+import { MULTISITE_NO_GROUP_VALUE, RESULT_FORMAT_EXPANDED } from '../lib/constants';
 import { getAvailableStaticFilters } from '../lib/filters';
 import { getResultFormatQuery, restorePreviousHref } from '../lib/query-string';
 import {
 	clearQueryValues,
+	disableQueryStringIntegration,
 	initializeQueryValues,
 	makeSearchRequest,
 	setFilter,
@@ -45,17 +53,35 @@ import './search-app.scss';
 
 class SearchApp extends Component {
 	static defaultProps = {
+		overlayOptions: {},
 		widgets: [],
 	};
 
 	constructor() {
 		super( ...arguments );
+
 		this.state = {
-			overlayOptions: { ...this.props.initialOverlayOptions },
 			isVisible: !! this.props.initialIsVisible, // initialIsVisible can be undefined
+			overlayOptionsCustomizerOverride: {},
 		};
+
 		this.getResults = debounce( this.getResults, 200 );
-		this.props.initializeQueryValues();
+		this.props.enableAnalytics ? this.initializeAnalytics() : disableAnalytics();
+
+		if ( this.props.shouldIntegrateWithDom ) {
+			this.props.initializeQueryValues();
+		} else {
+			this.props.disableQueryStringIntegration();
+		}
+	}
+
+	static getDerivedStateFromProps( props, state ) {
+		return {
+			overlayOptions: {
+				...props.overlayOptions,
+				...state.overlayOptionsCustomizerOverride,
+			},
+		};
 	}
 
 	componentDidMount() {
@@ -71,20 +97,36 @@ class SearchApp extends Component {
 		}
 	}
 
-	componentDidUpdate( prevProps ) {
+	componentDidUpdate( prevProps, prevState ) {
 		if (
 			prevProps.searchQuery !== this.props.searchQuery ||
 			prevProps.sort !== this.props.sort ||
 			// Note the special handling for filters prop, which use object values.
 			stringify( prevProps.filters ) !== stringify( this.props.filters ) ||
-			prevProps.staticFilters !== this.props.staticFilters
+			stringify( prevProps.staticFilters ) !== stringify( this.props.staticFilters )
 		) {
 			this.onChangeQueryString( this.props.isHistoryNavigation );
+		}
+
+		// These conditions can only occur in the Gutenberg preview context.
+		if ( prevState.overlayOptions.defaultSort !== this.state.overlayOptions.defaultSort ) {
+			this.props.setSort( this.state.overlayOptions.defaultSort );
+		}
+		if (
+			prevState.overlayOptions.excludedPostTypes !== this.state.overlayOptions.excludedPostTypes
+		) {
+			this.getResults();
 		}
 	}
 
 	componentWillUnmount() {
 		this.restoreBodyScroll();
+	}
+
+	initializeAnalytics() {
+		initializeTracks();
+		resetTrackingCookies();
+		identifySite( this.props.options.siteId );
 	}
 
 	preventBodyScroll() {
@@ -98,6 +140,16 @@ class SearchApp extends Component {
 	getResultFormat = () => {
 		// Override the result format from the query string if result_format= is specified
 		const resultFormatQuery = getResultFormatQuery();
+
+		// Override the result format if group static filter is selected, always use expanded.
+		const isMultiSite =
+			this.props.staticFilters &&
+			this.props.staticFilters.group_id &&
+			this.props.staticFilters.group_id !== MULTISITE_NO_GROUP_VALUE;
+		if ( isMultiSite ) {
+			return RESULT_FORMAT_EXPANDED;
+		}
+
 		return resultFormatQuery || this.state.overlayOptions.resultFormat;
 	};
 
@@ -177,7 +229,7 @@ class SearchApp extends Component {
 		this.props.makeSearchRequest( {
 			// Skip aggregations when requesting for paged results
 			aggregations: pageHandle ? {} : this.props.aggregations,
-			excludedPostTypes: this.props.options.excludedPostTypes,
+			excludedPostTypes: this.state.overlayOptions.excludedPostTypes,
 			filter: this.props.filters,
 			staticFilters: this.props.staticFilters,
 			pageHandle,
@@ -193,7 +245,12 @@ class SearchApp extends Component {
 
 	updateOverlayOptions = ( newOverlayOptions, callback ) => {
 		this.setState(
-			state => ( { overlayOptions: { ...state.overlayOptions, ...newOverlayOptions } } ),
+			state => ( {
+				overlayOptionsCustomizerOverride: {
+					...state.overlayOptionsCustomizerOverride,
+					...newOverlayOptions,
+				},
+			} ),
 			callback
 		);
 	};
@@ -279,11 +336,12 @@ export default connect(
 		isLoading: isLoading( state ),
 		response: getResponse( state ),
 		searchQuery: getSearchQuery( state ),
-		sort: getSort( state, props.defaultSort ),
+		sort: getSort( state, props.overlayOptions.defaultSort ),
 		widgetOutsideOverlay: getWidgetOutsideOverlay( state ),
 	} ),
 	{
 		clearQueryValues,
+		disableQueryStringIntegration,
 		initializeQueryValues,
 		makeSearchRequest,
 		setStaticFilter,
