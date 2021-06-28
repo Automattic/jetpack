@@ -70,10 +70,8 @@ export default function SearchResultExpanded( props ) {
 				>
 					<div className="jetpack-instant-search__search-result-expanded__image-container">
 						{ firstImage ? (
-							// NOTE: Wouldn't it be amazing if we filled the container's background
-							//       with the primary color of the image?
 							<PhotonImage
-								alt={ highlight.title }
+								alt={ fields[ 'title.default' ] }
 								className="jetpack-instant-search__search-result-expanded__image"
 								isPhotonEnabled={ props.isPhotonEnabled }
 								src={ `//${ firstImage }` }

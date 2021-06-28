@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6f7ed992099ce2ee6be6a5c90690d47d",
+    "content-hash": "1825afe8f594335c1acba90ffaab4974",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -422,14 +422,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "8f2bc4718b6a6c498000a1a062a6fbd9422b8bd3"
+                "reference": "dc44867537000ed73492293090e6c5c157b934c2"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-heartbeat": "^1.3",
                 "automattic/jetpack-options": "^1.13",
-                "automattic/jetpack-redirect": "^1.6",
+                "automattic/jetpack-redirect": "^1.7",
                 "automattic/jetpack-roles": "^1.4",
                 "automattic/jetpack-status": "^1.8",
                 "automattic/jetpack-terms-of-service": "^1.9",
@@ -807,7 +807,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "ad4a6d699988fd7488bdfa107357cc96de81b76a"
+                "reference": "b5249654d1ae821c25b58afe2441b4f42a749ed6"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -817,7 +817,7 @@
                 "automattic/jetpack-logo": "^1.5",
                 "automattic/jetpack-options": "^1.13",
                 "automattic/jetpack-partner": "^1.5",
-                "automattic/jetpack-redirect": "^1.6",
+                "automattic/jetpack-redirect": "^1.7",
                 "automattic/jetpack-status": "^1.8",
                 "automattic/jetpack-tracking": "^1.13"
             },
@@ -1200,7 +1200,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/redirect",
-                "reference": "3b8e138b90448c4c537dbdd205d8b01adf0c2a6d"
+                "reference": "d938cb5a235ca9ec3033ef813e707150e734b012"
             },
             "require": {
                 "automattic/jetpack-status": "^1.8"
@@ -1218,7 +1218,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-redirect/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.6.x-dev"
+                    "dev-master": "1.7.x-dev"
                 }
             },
             "autoload": {

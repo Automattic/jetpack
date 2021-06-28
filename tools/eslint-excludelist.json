@@ -163,7 +163,6 @@
 	"projects/plugins/jetpack/modules/search/instant-search/lib/array-overlap.js",
 	"projects/plugins/jetpack/modules/search/instant-search/lib/colors.js",
 	"projects/plugins/jetpack/modules/search/instant-search/lib/dom.js",
-	"projects/plugins/jetpack/modules/search/instant-search/lib/tracks.js",
 	"projects/plugins/jetpack/modules/shortcodes/js/jmpress.js",
 	"projects/plugins/jetpack/modules/shortcodes/js/recipes-printthis.js",
 	"projects/plugins/jetpack/modules/shortcodes/js/slideshow-shortcode.js",
