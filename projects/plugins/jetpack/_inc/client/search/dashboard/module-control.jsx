@@ -17,6 +17,7 @@ import { withModuleSettingsFormHelpers } from 'components/module-settings/with-m
 import getRedirectUrl from 'lib/jp-redirect';
 import { getPlanClass } from 'lib/plans/constants';
 import './module-control.scss';
+import { getUpgradeUrl } from 'state/initial-state';
 
 /**
  * State dependencies
@@ -29,6 +30,8 @@ import {
 	isFetchingSitePurchases,
 } from 'state/site';
 import { hasUpdatedSetting, isSettingActivated, isUpdatingSetting } from 'state/settings';
+import InstantSearchUpsellNudge from './instant-search-upsell-nudge';
+import { getSiteID } from '../../state/site';
 
 const SEARCH_DESCRIPTION = __(
 	'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.',
@@ -81,6 +84,32 @@ function Search( props ) {
 		! isModuleEnabled ||
 		! isInstantSearchEnabled ||
 		! props.hasActiveSearchPurchase;
+
+	const showInstantSearchUpsellNudge = props.isBusinessPlan && ! props.hasActiveSearchPurchase;
+
+	const renderInstantSearchCFAButtons = () => {
+		return (
+			<div className="jp-form-setting-cfa-buttons">
+				<Button
+					className="jp-form-setting-cfa-button jp-form-setting-cfa-customize-button"
+					href={
+						! isInstantSearchCFAButtonDisabled && 'customize.php?autofocus[section]=jetpack_search'
+					}
+					disabled={ isInstantSearchCFAButtonDisabled }
+				>
+					{ __( 'Customize search results', 'jetpack' ) }
+				</Button>
+				<Button
+					className="jp-form-setting-cfa-button jp-form-setting-cfa-edit-widgets-button"
+					href={ ! isInstantSearchCFAButtonDisabled && 'customize.php?autofocus[panel]=widgets' }
+					disabled={ isInstantSearchCFAButtonDisabled }
+				>
+					{ __( 'Edit sidebar widgets', 'jetpack' ) }
+				</Button>
+			</div>
+		);
+	};
+
 	return (
 		<Fragment>
 			<QuerySite />
@@ -132,27 +161,11 @@ function Search( props ) {
 										'jetpack'
 									) }
 								</p>
-								<div className="jp-form-setting-cfa-buttons">
-									<Button
-										className="jp-form-setting-cfa-button jp-form-setting-cfa-customize-button"
-										href={
-											! isInstantSearchCFAButtonDisabled &&
-											'customize.php?autofocus[section]=jetpack_search'
-										}
-										disabled={ isInstantSearchCFAButtonDisabled }
-									>
-										{ __( 'Customize search results', 'jetpack' ) }
-									</Button>
-									<Button
-										className="jp-form-setting-cfa-button jp-form-setting-cfa-edit-widgets-button"
-										href={
-											! isInstantSearchCFAButtonDisabled && 'customize.php?autofocus[panel]=widgets'
-										}
-										disabled={ isInstantSearchCFAButtonDisabled }
-									>
-										{ __( 'Edit sidebar widgets', 'jetpack' ) }
-									</Button>
-								</div>
+								{ showInstantSearchUpsellNudge ? (
+									<InstantSearchUpsellNudge href={ props.upgradeUrl } />
+								) : (
+									renderInstantSearchCFAButtons()
+								) }
 							</div>
 						</div>
 					</Fragment>
@@ -173,5 +186,7 @@ export default connect( state => {
 			! isSettingActivated( state, 'search' ) &&
 			! isUpdatingSetting( state, 'search' ) &&
 			false === hasUpdatedSetting( state, 'search' ),
+		siteID: getSiteID( state ),
+		upgradeUrl: getUpgradeUrl( state, 'jetpack-search' ),
 	};
 } )( withModuleSettingsFormHelpers( Search ) );

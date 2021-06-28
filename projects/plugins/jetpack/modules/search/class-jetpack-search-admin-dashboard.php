@@ -130,11 +130,4 @@ class Jetpack_Search_Admin_Dashboard {
 			'before'
 		);
 	}
-
-	/**
-	 * Hide the WP version in the footer
-	 */
-	public function remove_admin_dashboard_footer_right() {
-		remove_filter( 'update_footer', 'core_update_footer' );
-	}
 }
