@@ -94,7 +94,7 @@ export class DashConnections extends Component {
 					</div>
 					{ this.props.userCanDisconnectSite && (
 						<div className="jp-connection-settings__actions">
-							<ConnectButton asLink />
+							<ConnectButton asLink autoOpenModal={ true } />
 						</div>
 					) }
 				</div>

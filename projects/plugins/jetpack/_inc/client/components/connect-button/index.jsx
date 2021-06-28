@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { getFragment } from '@wordpress/url';
 
 /**
  * Internal dependencies
@@ -45,6 +46,7 @@ export class ConnectButton extends React.Component {
 		connectLegend: PropTypes.string,
 		connectInPlace: PropTypes.bool,
 		customConnect: PropTypes.func,
+		autoOpenModal: PropTypes.bool,
 	};
 
 	static defaultProps = {
@@ -52,11 +54,15 @@ export class ConnectButton extends React.Component {
 		from: '',
 		asLink: false,
 		connectInPlace: true,
+		autoOpenModal: false,
 	};
 
-	state = {
-		showModal: false,
-	};
+	constructor( props ) {
+		super( props );
+		this.state = {
+			showModal: props.autoOpenModal && '#/disconnect' === getFragment( window.location.href ),
+		};
+	}
 
 	handleOpenModal = e => {
 		analytics.tracks.recordJetpackClick( 'manage_site_connection' );
