@@ -799,11 +799,9 @@
 		}
 
 		function calculateMaxSlideDimensions() {
-			var screenHeightPercent = 80;
-
 			return {
-				width: window.innerWidth - screenPadding * 2,
-				height: Math.floor( ( window.innerHeight / 100 ) * screenHeightPercent - 60 ),
+				width: window.innerWidth,
+				height: window.innerHeight - 64, //subtract height of bottom info bar,
 			};
 		}
 
