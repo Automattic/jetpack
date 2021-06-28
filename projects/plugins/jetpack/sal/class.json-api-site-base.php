@@ -499,29 +499,10 @@ abstract class SAL_Site {
 
 	function get_logo() {
 
-		// Set an empty response array.
-		$logo_setting = array(
-			'id'    => (int) 0,
-			'sizes' => array(),
-			'url'   => '',
-		);
-
 		// Get current site logo values.
-		remove_action( 'option_site_logo', 'jetpack_site_logo_block_compat' );
 		$logo = get_option( 'site_logo' );
-		add_action( 'option_site_logo', 'jetpack_site_logo_block_compat' );
 
-		// Update the response array if there's a site logo currenty active.
-		if ( $logo && 0 != $logo['id'] ) {
-			$logo_setting['id']  = $logo['id'];
-			$logo_setting['url'] = $logo['url'];
-
-			foreach ( $logo['sizes'] as $size => $properties ) {
-				$logo_setting['sizes'][ $size ] = $properties;
-			}
-		}
-
-		return $logo_setting;
+		return $logo ? $logo : 0;
 	}
 
 	function get_timezone() {

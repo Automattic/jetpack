@@ -11,7 +11,7 @@ class Site_Logo {
 	private static $instance;
 
 	/**
-	 * Stores our current logo settings.
+	 * Stores the attachment ID of the site logo.
 	 */
 	public $logo;
 
@@ -36,9 +36,7 @@ class Site_Logo {
 	 * @uses get_option()
 	 */
 	private function __construct() {
-		remove_action( 'option_site_logo', 'jetpack_site_logo_block_compat' );
 		$this->logo = get_option( 'site_logo', null );
-		add_action( 'option_site_logo', 'jetpack_site_logo_block_compat' );
 	}
 
 	/**
@@ -70,8 +68,6 @@ class Site_Logo {
 		// The Site Logo block expects the option to be just the attachment ID.
 		remove_action( 'update_option_site_logo', '_sync_site_logo_to_custom_logo' );
 		remove_action( 'setup_theme', '_sync_custom_logo_to_site_logo_on_setup_theme' );
-
-		add_filter( 'customize_sanitize_js_site_logo', array( $this, 'filter_site_logo_in_customizer' ), 10, 0 );
 	}
 
 	/**
@@ -85,9 +81,6 @@ class Site_Logo {
 	 * @uses Site_Logo::sanitize_checkbox()
 	 */
 	public function customize_register( $wp_customize ) {
-		// Include our custom control.
-		require dirname( __FILE__ ) . '/class-site-logo-control.php';
-
 		// Add a setting to hide header text if the theme isn't supporting the feature itself
 		if ( ! current_theme_supports( 'custom-header' ) ) {
 			$wp_customize->add_setting(
@@ -118,27 +111,47 @@ class Site_Logo {
 			'site_logo',
 			array(
 				'capability'        => 'manage_options',
-				'default'           => array(
-					'id'    => 0,
-					'sizes' => array(),
-					'url'   => false,
-				),
+				'default'           => 0,
 				'sanitize_callback' => array( $this, 'sanitize_logo_setting' ),
 				'transport'         => 'postMessage',
 				'type'              => 'option',
 			)
 		);
 
+		$size_settings = $this->get_size_settings();
+		$width         = isset( $size_settings['width'] ) ? $size_settings['width'] : null;
+		$height        = isset( $size_settings['height'] ) ? $size_settings['height'] : null;
+
 		// Add our image uploader.
 		$wp_customize->add_control(
-			new Site_Logo_Image_Control(
+			new WP_Customize_Cropped_Image_Control(
 				$wp_customize,
 				'site_logo',
 				array(
-					'label'    => __( 'Logo', 'jetpack' ),
-					'section'  => 'title_tagline',
-					'settings' => 'site_logo',
+					'label'         => __( 'Logo', 'jetpack' ),
+					'section'       => 'title_tagline',
+					'settings'      => 'site_logo',
+					'width'         => $width,
+					'height'        => $height,
+					'button_labels' => array(
+						'select'       => __( 'Add logo', 'jetpack' ),
+						'change'       => __( 'Change logo', 'jetpack' ),
+						'remove'       => __( 'Remove logo', 'jetpack' ),
+						'placeholder'  => __( 'No logo set', 'jetpack' ),
+						'frame_title'  => __( 'Set as logo', 'jetpack' ),
+						'frame_button' => __( 'Choose logo', 'jetpack' ),
+					),
 				)
+			)
+		);
+
+		$wp_customize->selective_refresh->add_partial(
+			'site_logo',
+			array(
+				'settings'            => 'site_logo',
+				'selector'            => '.site-logo-link',
+				'render_callback'     => array( $this, 'render_partial' ),
+				'container_inclusive' => true,
 			)
 		);
 	}
@@ -153,8 +166,6 @@ class Site_Logo {
 	 * @uses wp_localize_script()
 	 */
 	public function preview_enqueue() {
-		wp_enqueue_script( 'site-logo-preview', plugins_url( '../js/site-logo.js', __FILE__ ), array( 'media-views' ), '', true );
-
 		// Don't bother passing in header text classes if the theme supports custom headers.
 		if ( ! current_theme_supports( 'custom-header' ) ) {
 			$classes = jetpack_sanitize_header_text_classes( $this->header_text_classes() );
@@ -276,7 +287,7 @@ class Site_Logo {
 			global $post;
 
 			// If our attachment ID and the site logo ID match, this image is the site logo.
-			if ( $post->ID == $this->logo['id'] ) {
+			if ( $post && $post->ID === $this->logo ) {
 				$media_states[] = __( 'Site Logo', 'jetpack' );
 			}
 		}
@@ -291,7 +302,7 @@ class Site_Logo {
 	 * @uses Site_Logo::remove_site_logo()
 	 */
 	public function reset_on_attachment_delete( $post_id ) {
-		if ( $this->logo['id'] == $post_id ) {
+		if ( $this->logo === $post_id ) {
 			$this->remove_site_logo();
 		}
 	}
@@ -303,7 +314,7 @@ class Site_Logo {
 	 * @return boolean True if there is an active logo, false otherwise
 	 */
 	public function has_site_logo() {
-		return ( isset( $this->logo['id'] ) && 0 !== $this->logo['id'] ) ? true : false;
+		return ( isset( $this->logo ) && 0 !== $this->logo ) ? true : false;
 	}
 
 	/**
@@ -312,14 +323,7 @@ class Site_Logo {
 	 * @uses update_option()
 	 */
 	public function remove_site_logo() {
-		update_option(
-			'site_logo',
-			array(
-				'id'    => (int) 0,
-				'sizes' => array(),
-				'url'   => '',
-			)
-		);
+		delete_option( 'site_logo' );
 	}
 
 	/**
@@ -354,29 +358,34 @@ class Site_Logo {
 	 * @return mixed 1 if checked, empty string if not checked.
 	 */
 	public function sanitize_logo_setting( $input ) {
-		$input['id']  = absint( $input['id'] );
-		$input['url'] = esc_url_raw( $input['url'] );
+		$input = absint( $input );
 
 		// If the new setting doesn't point to a valid attachment, just reset the whole thing.
-		if ( false == wp_get_attachment_image_src( $input['id'] ) ) {
-			$input = array(
-				'id'    => (int) 0,
-				'sizes' => array(),
-				'url'   => '',
-			);
+		if ( false === wp_get_attachment_image_src( $input ) ) {
+			$input = 0;
 		}
 
 		return $input;
 	}
 
 	/**
-	 * Ensure the Site Logo customizer control receives the full array of settings,
-	 * rather than only an attachment ID.
+	 * Gets the settings for the image sizes specified by the theme.
 	 *
 	 * @return array
 	 */
-	public function filter_site_logo_in_customizer() {
-		return $this->logo;
+	public function get_size_settings() {
+		$size_name = $this->theme_size();
+		$all_sizes = wp_get_registered_image_subsizes();
+		return isset( $all_sizes[ $size_name ] ) ? $all_sizes[ $size_name ] : null;
+	}
+
+	/**
+	 * Render the updated logo in the Customizer preview.
+	 *
+	 * @return string|false
+	 */
+	public function render_partial() {
+		return jetpack_get_site_logo();
 	}
 }
 
