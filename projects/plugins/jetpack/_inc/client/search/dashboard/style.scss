@@ -32,7 +32,7 @@
 	}
 
 	.jp-search-dashboard__top {
-		background-color: #F9F9F6;
+		background-color: #f9f9f6;
 		display: flex;
 		align-items: center;
 		flex-flow: column;
@@ -42,6 +42,10 @@
 			h1 {
 				width: 15em;
 				line-height: 1.2em;
+			}
+
+			@media ( max-width: 1250px ) {
+				max-width: 95%;
 			}
 		}
 		.jp-search-dashboard__search-dialog {
