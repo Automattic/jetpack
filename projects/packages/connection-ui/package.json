@@ -36,7 +36,7 @@
 		"jest": "26.6.3"
 	},
 	"engines": {
-		"node": "^14.16.0",
+		"node": "^14.16.1",
 		"pnpm": "^6.5.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
