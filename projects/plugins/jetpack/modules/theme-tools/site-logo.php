@@ -58,7 +58,7 @@ add_action( 'init', 'site_logo_init' );
  */
 function jetpack_site_logo_block_compat( $site_logo ) {
 	if ( isset( $site_logo['id'] ) ) {
-		remove_filter( 'option_site_logo', 'jetpack_site_logo_block_compat' );
+		remove_filter( 'option_site_logo', 'jetpack_site_logo_block_compat', 1 );
 		update_option( 'site_logo', $site_logo['id'] );
 		return $site_logo['id'];
 	}
