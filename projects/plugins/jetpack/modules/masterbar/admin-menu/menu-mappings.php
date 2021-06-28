@@ -6,7 +6,6 @@
  */
 
 $common_mappings = array(
-	'dashboard.php'                                  => 'https://wordpress.com/home/',
 	'upload.php?post_type=attachment'                => 'https://wordpress.com/media/',
 	'edit.php?post_type=post'                        => 'https://wordpress.com/posts/',
 	'edit-comments.php'                              => 'https://wordpress.com/comments/',
