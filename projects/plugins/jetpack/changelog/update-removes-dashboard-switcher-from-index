@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Removes dashboard switcher from index.php to improve parity with Calypso.
