@@ -13,15 +13,15 @@
 			font-size: 1.5em;
 			font-weight: bold;
 
+			.form-toggle:checked + .form-toggle__label .form-toggle__switch {
+				background: #069e08;
+			}
+
 			.jp-form-setting-description {
 				margin-left: 2em;
 
 				.jp-form-setting-explanation {
 					margin-top: 1em;
-				}
-
-				.form-toggle:checked + .form-toggle__label .form-toggle__switch {
-					background: #069e08;
 				}
 
 				.jp-form-setting-cfa-buttons {
