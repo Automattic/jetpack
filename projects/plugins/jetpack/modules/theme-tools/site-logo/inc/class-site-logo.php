@@ -63,11 +63,6 @@ class Site_Logo {
 		add_filter( 'body_class', array( $this, 'body_classes' ) );
 		add_filter( 'image_size_names_choose', array( $this, 'media_manager_image_sizes' ) );
 		add_filter( 'display_media_states', array( $this, 'add_media_state' ) );
-
-		// Remove the Core actions that sync the site_logo option to the theme mod used for the Site Logo block.
-		// The Site Logo block expects the option to be just the attachment ID.
-		remove_action( 'update_option_site_logo', '_sync_site_logo_to_custom_logo' );
-		remove_action( 'setup_theme', '_sync_custom_logo_to_site_logo_on_setup_theme' );
 	}
 
 	/**
@@ -118,7 +113,7 @@ class Site_Logo {
 			)
 		);
 
-		$size_settings = $this->get_size_settings();
+		$size_settings = jetpack_get_site_logo_dimensions();
 		$width         = isset( $size_settings['width'] ) ? $size_settings['width'] : null;
 		$height        = isset( $size_settings['height'] ) ? $size_settings['height'] : null;
 
@@ -366,17 +361,6 @@ class Site_Logo {
 		}
 
 		return $input;
-	}
-
-	/**
-	 * Gets the settings for the image sizes specified by the theme.
-	 *
-	 * @return array
-	 */
-	public function get_size_settings() {
-		$size_name = $this->theme_size();
-		$all_sizes = wp_get_registered_image_subsizes();
-		return isset( $all_sizes[ $size_name ] ) ? $all_sizes[ $size_name ] : null;
 	}
 
 	/**
