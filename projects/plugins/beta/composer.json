@@ -7,9 +7,10 @@
 	"support": {
 		"issues": "https://github.com/Automattic/jetpack/issues"
 	},
-	"require": {},
+	"require": {
+		"automattic/jetpack-autoloader": "2.10.x-dev"
+	},
 	"require-dev": {
-		"automattic/jetpack-autoloader": "2.10.x-dev",
 		"automattic/jetpack-changelogger": "1.2.x-dev"
 	},
 	"scripts": {
