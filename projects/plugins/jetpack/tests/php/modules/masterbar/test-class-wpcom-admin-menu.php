@@ -100,7 +100,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::get_preferred_view
 	 */
 	public function test_get_preferred_view() {
-		static::$admin_menu->set_preferred_view( 'plugins.php', 'unknown' );
+		static::$admin_menu->set_preferred_view( 'themes.php', 'unknown' );
 		$this->assertSame( 'default', static::$admin_menu->get_preferred_view( 'themes.php' ) );
 		static::$admin_menu->set_preferred_view( 'plugins.php', 'classic' );
 		$this->assertSame( 'default', static::$admin_menu->get_preferred_view( 'plugins.php' ) );

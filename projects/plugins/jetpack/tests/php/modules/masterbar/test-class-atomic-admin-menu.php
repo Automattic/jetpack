@@ -252,9 +252,6 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::get_preferred_view
 	 */
 	public function test_get_preferred_view() {
-		$this->assertSame( 'classic', static::$admin_menu->get_preferred_view( 'edit.php' ) );
-		$this->assertSame( 'classic', static::$admin_menu->get_preferred_view( 'edit.php?post_type=page' ) );
-		$this->assertSame( 'classic', static::$admin_menu->get_preferred_view( 'edit-comments.php' ) );
 		$this->assertSame( 'classic', static::$admin_menu->get_preferred_view( 'plugins.php' ) );
 		$this->assertSame( 'classic', static::$admin_menu->get_preferred_view( 'export.php' ) );
 		$this->assertSame( 'classic', static::$admin_menu->get_preferred_view( 'customize.php' ) );
@@ -292,44 +289,6 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_options_menu();
 		$this->assertSame( 'https://wordpress.com/hosting-config/' . static::$domain, $submenu['options-general.php'][11][2] );
-		$this->assertSame( 'options-writing.php', array_pop( $submenu['options-general.php'] )[2] );
-
-		// Reset.
-		$submenu = static::$submenu_data;
-
-		static::$admin_menu->set_preferred_view( 'options-writing.php', 'classic' );
-		static::$admin_menu->add_options_menu();
-		$this->assertNotSame( 'options-writing.php', array_pop( $submenu['options-general.php'] )[2] );
-	}
-
-	/**
-	 * Tests add_appearance_menu
-	 *
-	 * @covers ::add_appearance_menu
-	 */
-	public function test_add_appearance_menu() {
-		global $submenu;
-
-		static::$admin_menu->add_appearance_menu();
-
-		// Multisite users don't have the `install_themes` capability by default,
-		// so we have to make a dynamic check based on whether the current user can
-		// install themes.
-		if ( current_user_can( 'install_themes' ) ) {
-			$this->assertSame( 'theme-install.php', $submenu['themes.php'][1][2] );
-		}
-	}
-
-	/**
-	 * Tests add_users_menu
-	 *
-	 * @covers ::add_users_menu
-	 */
-	public function test_add_users_menu() {
-		global $submenu;
-
-		static::$admin_menu->add_users_menu();
-		$this->assertSame( 'users.php', $submenu['users.php'][2][2] );
 	}
 
 	/**

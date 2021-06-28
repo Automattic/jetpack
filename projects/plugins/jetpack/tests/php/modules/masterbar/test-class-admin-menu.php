@@ -125,8 +125,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::get_preferred_view
 	 */
 	public function test_get_preferred_view() {
-		static::$admin_menu->set_preferred_view( 'index.php', 'unknown' );
-		$this->assertSame( 'default', static::$admin_menu->get_preferred_view( 'index.php' ) );
 		static::$admin_menu->set_preferred_view( 'users.php', 'unknown' );
 		$this->assertSame( 'default', static::$admin_menu->get_preferred_view( 'users.php' ) );
 		static::$admin_menu->set_preferred_view( 'options-general.php', 'unknown' );
@@ -421,7 +419,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_options_menu();
 
 		$this->assertSame( 'https://wordpress.com/settings/general/' . static::$domain, $submenu['options-general.php'][0][2] );
-		$this->assertSame( 'options-general.php', $submenu['options-general.php'][1][2] );
 	}
 
 	/**

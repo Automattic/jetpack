@@ -60,7 +60,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	public function get_preferred_view( $screen, $fallback_global_preference = true ) {
 		// When no preferred view has been set for Themes, keep the previous behavior that forced the default view
 		// regardless of the global preference.
-		if ( ! $fallback_global_preference && 'themes.php' === $screen ) {
+		if ( $fallback_global_preference && 'themes.php' === $screen ) {
 			$preferred_view = parent::get_preferred_view( $screen, false );
 			if ( self::UNKNOWN_VIEW === $preferred_view ) {
 				return self::DEFAULT_VIEW;

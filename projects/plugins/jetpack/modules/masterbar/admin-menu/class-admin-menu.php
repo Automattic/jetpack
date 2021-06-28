@@ -58,11 +58,11 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * @return string
 	 */
 	public function get_preferred_view( $screen, $fallback_global_preference = true ) {
-		// When no preferred view has been set for "My Home", "Users > All Users", or "Settings > General", keep the
-		// previous behavior that forced the default view regardless of the global preference.
+		// When no preferred view has been set for "Users > All Users" or "Settings > General", keep the previous
+		// behavior that forced the default view regardless of the global preference.
 		if (
 			$fallback_global_preference &&
-			in_array( $screen, array( 'index.php', 'users.php', 'options-general.php' ), true )
+			in_array( $screen, array( 'users.php', 'options-general.php' ), true )
 		) {
 			$preferred_view = parent::get_preferred_view( $screen, false );
 			if ( self::UNKNOWN_VIEW === $preferred_view ) {
@@ -104,10 +104,6 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * Adds My Home menu.
 	 */
 	public function add_my_home_menu() {
-		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'index.php' ) ) {
-			return;
-		}
-
 		$this->update_menu( 'index.php', 'https://wordpress.com/home/' . $this->domain, __( 'My Home', 'jetpack' ), 'manage_options', 'dashicons-admin-home' );
 	}
 
@@ -424,12 +420,6 @@ class Admin_Menu extends Base_Admin_Menu {
 		}
 
 		$this->update_submenus( 'options-general.php', $submenus_to_update );
-
-		// When no preferred view has been set for "Settings > General", keep the previous behavior that created a
-		// duplicate menu linking to WP Admin regardless of the global preference.
-		if ( self::UNKNOWN_VIEW === $this->get_preferred_view( 'options-general.php', false ) ) {
-			add_submenu_page( 'options-general.php', esc_attr__( 'Advanced General', 'jetpack' ), __( 'Advanced General', 'jetpack' ), 'manage_options', 'options-general.php', null, 1 );
-		}
 	}
 
 	/**
