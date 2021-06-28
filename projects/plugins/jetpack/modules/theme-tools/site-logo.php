@@ -51,14 +51,18 @@ add_action( 'init', 'site_logo_init' );
  * The attachment ID is the format used for the site_logo option by the Site Logo block,
  * and the updated Jetpack site-logo feature.
  *
+ * @since 9.9.0
+ *
  * @param int|array $site_logo Option.
  * @return int
  */
 function jetpack_site_logo_block_compat( $site_logo ) {
-	if ( is_array( $site_logo ) && isset( $site_logo['id'] ) ) {
+	if ( isset( $site_logo['id'] ) ) {
+		remove_filter( 'option_site_logo', 'jetpack_site_logo_block_compat' );
+		update_option( 'site_logo', $site_logo['id'] );
 		return $site_logo['id'];
 	}
 
 	return $site_logo;
 }
-add_action( 'option_site_logo', 'jetpack_site_logo_block_compat' );
+add_filter( 'option_site_logo', 'jetpack_site_logo_block_compat', 1 );
