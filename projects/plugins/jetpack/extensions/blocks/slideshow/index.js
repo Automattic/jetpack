@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __, _x } from '@wordpress/i18n';
-import { Path, SVG } from '@wordpress/components';
+import { Path, Rect, SVG } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -21,9 +21,24 @@ import slideshowExample2 from './slideshow_example-2.jpg';
 import slideshowExample3 from './slideshow_example-3.jpg';
 
 export const icon = (
-	<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-		<Path d="M0 0h24v24H0z" fill="none" />
-		<Path d="M10 8v8l5-4-5-4zm9-5H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z" />
+	<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+		<Path
+			d="M21 8V19C21 20.1046 20.1057 21 19.0011 21C15.8975 21 9.87435 21 6 21"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="1.5"
+		/>
+		<Rect
+			x="3.75"
+			y="3.75"
+			width="13.5"
+			height="13.5"
+			rx="0.875"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="1.5"
+		/>
+		<Path d="M9 14L12 11L9 8" fill="none" stroke="currentColor" strokeWidth="1.5" />
 	</SVG>
 );
 

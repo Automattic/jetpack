@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Changed redirect lib to accept any param. relaced harcoded redirect link to use the lib  instead

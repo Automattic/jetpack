@@ -11,7 +11,7 @@
 		"automattic/jetpack-status": "^1.8",
 		"automattic/jetpack-terms-of-service": "^1.9",
 		"automattic/jetpack-tracking": "^1.13",
-		"automattic/jetpack-redirect": "^1.6"
+		"automattic/jetpack-redirect": "^1.7"
 	},
 	"require-dev": {
 		"automattic/wordbless": "@dev",

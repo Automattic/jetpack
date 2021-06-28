@@ -25,9 +25,9 @@ function getDateOptions( interval ) {
 
 // TODO: Fix this in the API
 // TODO: Remove once format is fixed in the API
-function fixDateFormat( dateString ) {
+export const fixDateFormat = dateString => {
 	return dateString.split( ' ' ).join( 'T' );
-}
+};
 
 export default class SearchFilter extends Component {
 	filtersList = createRef();
@@ -57,7 +57,7 @@ export default class SearchFilter extends Component {
 		this.props.onChange( this.getIdentifier(), getCheckedInputNames( this.filtersList.current ) );
 	};
 
-	toggleStaticFilter = ( event ) => {
+	toggleStaticFilter = event => {
 		this.props.onChange( this.getIdentifier(), event.target.value );
 	};
 
@@ -134,7 +134,7 @@ export default class SearchFilter extends Component {
 		);
 	};
 
-	renderGroup = ( group ) => {
+	renderGroup = group => {
 		return (
 			<div>
 				<input
