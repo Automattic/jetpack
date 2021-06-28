@@ -28,8 +28,6 @@ export function getThemeOptions( searchOptions ) {
  * @returns {string} - String without HTML
  */
 export function stripHTML( input ) {
-	const div = document.createElement( 'div' );
-	div.innerHTML = input;
-
-	return div.textContent || div.innerText || '';
+	const doc = new DOMParser().parseFromString( input, 'text/html' );
+	return doc?.body?.textContent || '';
 }
