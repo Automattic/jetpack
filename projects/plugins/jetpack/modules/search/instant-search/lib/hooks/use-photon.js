@@ -12,6 +12,9 @@ import { useEffect, useState } from 'react';
  * @returns {string} - Image URL without any query strings.
  */
 function stripQueryString( url ) {
+	if ( ! url ) {
+		return '';
+	}
 	return url.split( '?', 1 )[ 0 ];
 }
 
