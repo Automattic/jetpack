@@ -46,7 +46,7 @@ export class ConnectButton extends React.Component {
 		connectLegend: PropTypes.string,
 		connectInPlace: PropTypes.bool,
 		customConnect: PropTypes.func,
-		autoOpenModal: PropTypes.bool,
+		autoOpenInDisconnectRoute: PropTypes.bool,
 	};
 
 	static defaultProps = {
@@ -54,13 +54,14 @@ export class ConnectButton extends React.Component {
 		from: '',
 		asLink: false,
 		connectInPlace: true,
-		autoOpenModal: false,
+		autoOpenInDisconnectRoute: false,
 	};
 
 	constructor( props ) {
 		super( props );
 		this.state = {
-			showModal: props.autoOpenModal && '#/disconnect' === getFragment( window.location.href ),
+			showModal:
+				props.autoOpenInDisconnectRoute && '#/disconnect' === getFragment( window.location.href ),
 		};
 	}
 
