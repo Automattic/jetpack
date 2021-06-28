@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Since Gutenberg #31873 we can specify Site Editor assets to enqueue in the register block function. We need to specify wp-mediaelement styles for the podcast player.

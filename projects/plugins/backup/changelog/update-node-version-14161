@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update node version requirement to 14.16.1

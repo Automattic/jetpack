@@ -50,6 +50,9 @@ function register_block() {
 				),
 			),
 			'render_callback' => __NAMESPACE__ . '\render_block',
+			// Since Gutenberg #31873.
+			'style'           => 'wp-mediaelement',
+
 		)
 	);
 }
