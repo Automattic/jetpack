@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Instant Search: ensure HTML is stripped from alt text
+Instant Search: ensure alt text does not contain mark element

@@ -20,14 +20,3 @@ export function getThemeOptions( searchOptions ) {
 	};
 	return searchOptions.theme_options ? { ...options, ...searchOptions.theme_options } : options;
 }
-
-/**
- * Remove HTML elements from a string.
- *
- * @param {string} input - String potentially containing HTML
- * @returns {string} - String without HTML
- */
-export function stripHTML( input ) {
-	const doc = new DOMParser().parseFromString( input, 'text/html' );
-	return doc?.body?.textContent || '';
-}

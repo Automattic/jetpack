@@ -33,12 +33,3 @@ test( 'returns the original URL for a SVG image', () => {
 	const { getByRole } = render( <PhotonImage src={ imageUrl } isPhotonEnabled={ true } /> );
 	expect( getByRole( 'img' ).src ).toEqual( imageUrl );
 } );
-
-test( 'strips any HTML elements included in the alt text', () => {
-	const imageUrl = 'http://example.com/okapi.svg';
-	const alt = '<mark>fantastic</mark> sandwich';
-	const { getByRole } = render(
-		<PhotonImage src={ imageUrl } isPhotonEnabled={ true } alt={ alt } />
-	);
-	expect( getByRole( 'img' ).alt ).toEqual( 'fantastic sandwich' );
-} );
