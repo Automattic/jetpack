@@ -1,4 +1,4 @@
-@import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
+@import './variables.scss';
 
 $sidebar-width: 220px;
 $close-button-size: 60px;
@@ -71,7 +71,7 @@ $color-text-lighter: $studio-gray-50;
 						margin-left: 0.5em;
 					}
 					.jp-search-dashboard-mocked-search__result-sort-selected {
-						color: #069e08;
+						color: $color-jetpack-green;
 					}
 				}
 			}

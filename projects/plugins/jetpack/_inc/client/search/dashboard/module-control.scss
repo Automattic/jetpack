@@ -1,73 +1,80 @@
-.jp-form-settings-group {
+@import './variables.scss';
+
+$color-button-background: #000;
+$color-button-text: #fff;
+$color-button-background-disabled: #dcdcde;
+$color-button-text-disabled: #a7aaad;
+
+.jp-form-search-settings-group {
 	display: flex;
 	align-items: flex-start;
 	max-height: 60vh;
 	min-height: 50vh;
 	width: 100%;
-
 	.dops-card {
 		min-width: 60%;
 		max-width: 100%;
 		box-shadow: none;
-		.jp-form-setting-search-toggle {
-			margin-top: 2em;
-			font-size: 1.5em;
-			font-weight: bold;
+	}
+}
 
-			.form-toggle:checked + .form-toggle__label .form-toggle__switch {
-				background: #069e08;
-			}
+.jp-search-search-toggle {
+	margin-top: 2em;
+	font-size: 1.5em;
+	font-weight: bold;
 
-			.jp-form-setting-description {
-				margin-left: 2em;
+	.form-toggle:checked + .form-toggle__label .form-toggle__switch {
+		background: $color-jetpack-green;
+	}
+}
 
-				.jp-form-setting-explanation {
-					margin-top: 1em;
-				}
+.jp-search-search-toggle__description {
+	margin-left: 2em;
 
-				.jp-form-setting-cfa-buttons {
-					display: flex;
-					flex-direction: row;
-					flex-wrap: wrap;
-					align-content: space-between;
-					margin-top: 1em;
+	.jp-form-setting-explanation {
+		margin-top: 1em;
+	}
 
-					.jp-form-setting-cfa-button {
-						margin: 0.25em 1em;
-						&.jp-form-setting-cfa-customize-button {
-							background-color: #000;
-							border-color: #000;
-							color: #fff;
-						}
+	.jp-form-setting-cfa-buttons {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		align-content: space-between;
+		margin-top: 1em;
+	}
+}
 
-						&:disabled,
-						&[disabled] {
-							background-color: #dcdcde;
-							border-color: #dcdcde;
-							color: #a7aaad;
-							cursor: not-allowed;
-						}
+.jp-form-setting-cfa-button {
+	margin: 0.25em 1em;
+	&.jp-form-setting-cfa-customize-button {
+		background-color: $color-button-background;
+		border-color: $color-button-background;
+		color: $color-button-text;
+	}
 
-						&.jp-form-setting-cfa-customize-button {
-							&:disabled,
-							&[disabled] {
-								background-color: #dcdcde;
-							}
-						}
+	&:disabled,
+	&[disabled] {
+		background-color: $color-button-background-disabled;
+		border-color: $color-button-background-disabled;
+		color: $color-button-text-disabled;
+		cursor: not-allowed;
+	}
 
-						&.jp-form-setting-cfa-edit-widgets-button {
-							color: #000;
-							background: transparent;
-							border-color: #000;
-							&.jp-form-setting-cfa-customize-button {
-								&:disabled,
-								&[disabled] {
-									background: transparent;
-								}
-							}
-						}
-					}
-				}
+	&.jp-form-setting-cfa-customize-button {
+		&:disabled,
+		&[disabled] {
+			background-color: $color-button-background-disabled;
+		}
+	}
+
+	&.jp-form-setting-cfa-edit-widgets-button {
+		color: $color-button-background;
+		background: transparent;
+		border-color: $color-button-background;
+		&.jp-form-setting-cfa-customize-button {
+			&:disabled,
+			&[disabled] {
+				background: transparent;
 			}
 		}
 	}

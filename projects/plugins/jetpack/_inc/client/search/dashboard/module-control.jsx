@@ -125,6 +125,7 @@ function Search( props ) {
 					text: SEARCH_SUPPORT,
 					link: getRedirectUrl( 'jetpack-support-search' ),
 				} }
+				className={ [ 'jp-form-search-settings-group' ] }
 			>
 				<p>{ props.inOfflineMode && __( 'Unavailable in Offline Mode', 'jetpack' ) }</p>
 
@@ -132,7 +133,7 @@ function Search( props ) {
 
 				{ ! props.isLoading && ( props.isBusinessPlan || props.hasActiveSearchPurchase ) && (
 					<Fragment>
-						<div className="jp-form-setting-search-toggle jp-form-search-module-toggle">
+						<div className="jp-search-search-toggle jp-search-search-toggle--search">
 							<ModuleToggle
 								activated={ isModuleEnabled }
 								compact
@@ -143,13 +144,13 @@ function Search( props ) {
 							>
 								{ __( 'Enable Jetpack Search', 'jetpack' ) }
 							</ModuleToggle>
-							<div className="jp-form-setting-description">
+							<div className="jp-search-search-toggle__description">
 								<p className="jp-form-setting-explanation jp-form-search-setting-explanation">
 									{ SEARCH_DESCRIPTION }
 								</p>
 							</div>
 						</div>
-						<div className="jp-form-setting-search-toggle jp-form-instant-search-toggle">
+						<div className="jp-search-search-toggle jp-search-search-toggle--instant-search">
 							<CompactFormToggle
 								checked={ isModuleEnabled && isInstantSearchEnabled }
 								disabled={ isSavingEitherOption || ! props.hasActiveSearchPurchase }
@@ -158,7 +159,7 @@ function Search( props ) {
 							>
 								{ __( 'Enable instant search experience (recommended)', 'jetpack' ) }
 							</CompactFormToggle>
-							<div className="jp-form-setting-description">
+							<div className="jp-search-search-toggle__description">
 								<p className="jp-form-setting-explanation jp-form-search-setting-explanation">
 									{ INSTANT_SEARCH_DESCRIPTION }
 								</p>
