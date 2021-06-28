@@ -29,6 +29,20 @@ class Plugin {
 	protected $slug;
 
 	/**
+	 * Plugin name (for display).
+	 *
+	 * @var string
+	 */
+	protected $name;
+
+	/**
+	 * Plugin file name.
+	 *
+	 * @var string
+	 */
+	protected $plugin_file;
+
+	/**
 	 * GitHub source repo slug.
 	 *
 	 * @var string
@@ -60,22 +74,27 @@ class Plugin {
 	 * Get instances for all known plugins.
 	 *
 	 * @param bool $no_cache Set true to bypass the transients cache.
-	 * @return Plugin[]|false
+	 * @return Plugin[]
+	 * @throws PluginDataException If the plugin data cannot be fetched or is invalid.
 	 */
 	public static function get_all_plugins( $no_cache = false ) {
 		if ( null === self::$instances ) {
 			$data = Utils::get_remote_data( JETPACK_BETA_PLUGINS_URL, 'plugins_json', $no_cache );
-			if ( ! is_array( $data ) ) {
-				return false;
+			if ( ! is_object( $data ) ) {
+				throw new PluginDataException( __( 'Failed to download list of plugins. Check your Internet connection.', 'jetpack-beta' ) );
 			}
 
 			$plugins = array();
 			foreach ( $data as $slug => $info ) {
 				try {
-					$plugins[ $slug ] = new self( $slug, $info );
+					$plugins[ $slug ] = new self( $slug, (array) $info );
 				} catch ( InvalidArgumentException $ex ) {
-					// Log?
-					return false;
+					throw new PluginDataException(
+						// translators: %1$s: Plugin slug. %2$s: Error message.
+						sprintf( __( 'Invalid data for plugin %1$s: %2$s', 'jetpack-beta' ), $slug, $ex->getMessage() ),
+						0,
+						$ex
+					);
 				}
 			}
 			self::$instances = $plugins;
@@ -89,14 +108,12 @@ class Plugin {
 	 *
 	 * @param string $slug WordPress plugin slug.
 	 * @param bool   $no_cache Set true to bypass the transients cache.
-	 * @return Plugin|false
+	 * @return Plugin|null
+	 * @throws PluginDataException If the plugin data cannot be fetched or is invalid.
 	 */
 	public static function get_plugin( $slug, $no_cache = false ) {
 		$plugins = self::get_all_plugins( $no_cache );
-		if ( is_array( $plugins ) && isset( $plugins[ $slug ] ) ) {
-			return $plugins[ $slug ];
-		}
-		return false;
+		return isset( $plugins[ $slug ] ) ? $plugins[ $slug ] : null;
 	}
 
 	/**
@@ -109,6 +126,8 @@ class Plugin {
 	public function __construct( $slug, array $config ) {
 		$this->slug = $slug;
 		foreach ( array(
+			'name'         => array( $this, 'is_nonempty_string' ),
+			'plugin_file'  => array( $this, 'is_nonempty_string' ),
 			'repo'         => array( $this, 'is_repo' ),
 			'mirror'       => array( $this, 'is_repo' ),
 			'manifest_url' => array( $this, 'is_valid_url' ),
@@ -121,6 +140,16 @@ class Plugin {
 			}
 			$this->{$k} = $config[ $k ];
 		}
+	}
+
+	/**
+	 * Validate as a non-empty string.
+	 *
+	 * @param string $v Value.
+	 * @return bool
+	 */
+	protected function is_nonempty_string( $v ) {
+		return is_string( $v ) && '' !== $v;
 	}
 
 	/**
@@ -140,31 +169,84 @@ class Plugin {
 	 * @return bool
 	 */
 	protected function is_valid_url( &$v ) {
-		static $flags = null;
-
-		if ( null === $flags ) {
-			$flags = FILTER_FLAG_PATH_REQUIRED;
-			if ( defined( 'FILTER_FLAG_SCHEME_REQUIRED' ) ) {
-				// phpcs:ignore PHPCompatibility.Constants.RemovedConstants
-				$flags |= FILTER_FLAG_SCHEME_REQUIRED | FILTER_FLAG_HOST_REQUIRED;
-			}
-		}
-
-		$v = filter_var( $v, FILTER_VALIDATE_URL, $flags );
+		$v = filter_var( $v, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED );
 		return $v && substr( $v, 0, 8 ) === 'https://';
+	}
+
+	/**
+	 * Get the name of the plugin.
+	 *
+	 * @return string
+	 */
+	public function get_name() {
+		return $this->name;
+	}
+
+	/**
+	 * Get the plugin slug.
+	 *
+	 * @return string
+	 */
+	public function plugin_slug() {
+		return $this->slug;
+	}
+
+	/**
+	 * Get the dev plugin slug.
+	 *
+	 * @return string
+	 */
+	public function dev_plugin_slug() {
+		return "{$this->slug}-dev";
+	}
+
+	/**
+	 * Get the plugin file name.
+	 *
+	 * @return string
+	 */
+	public function plugin_file() {
+		return $this->plugin_slug() . '/' . $this->plugin_file;
+	}
+
+	/**
+	 * Get the dev plugin file name.
+	 *
+	 * @return string
+	 */
+	public function dev_plugin_file() {
+		return $this->dev_plugin_slug() . '/' . $this->plugin_file;
 	}
 
 	/**
 	 * Get the manifest data (i.e. branches) for the plugin.
 	 *
 	 * @param bool $no_cache Set true to bypass the transients cache.
-	 * @return array|false
+	 * @return object
+	 * @throws PluginDataException If the plugin manifest cannot be fetched or is invalid.
 	 */
 	public function get_manifest( $no_cache = false ) {
 		if ( null === $this->manifest_data ) {
-			$this->manifest_data = Utils::get_remote_data( $this->manifest_url, "manifest_$this->slug", $no_cache );
+			$data = Utils::get_remote_data( $this->manifest_url, "manifest_$this->slug", $no_cache );
+			if ( ! is_object( $data ) ) {
+				throw new PluginDataException(
+					// translators: %s: Plugin slug.
+					sprintf( __( 'Failed to download manifest for plugin \'%s\'. Check your Internet connection.', 'jetpack-beta' ), $this->slug )
+				);
+			}
+			$this->manifest_data = $data;
 		}
 		return $this->manifest_data;
+	}
+
+	/**
+	 * Get the name of the active branch, if any.
+	 *
+	 * @return string|null
+	 */
+	public function active_branch() {
+		$status = get_option( "jetpack_beta_status_{$this->slug}", null );
+		return isset( $status->active_branch ) ? $status->active_branch : null;
 	}
 
 }

@@ -41,6 +41,16 @@ class Utils {
 	protected static $option_email_notif = 'jp_beta_email_notifications';
 
 	/**
+	 * Normalize a branch name.
+	 *
+	 * @param string $branch Branch name.
+	 * @return string Normalized branch name.
+	 */
+	public static function normalize_branch_name( $branch ) {
+		return preg_replace( '#^\.|[/\p{Cc}\p{Cn}\p{Co}\p{Cs}]#u', '_', $branch );
+	}
+
+	/**
 	 * Checks if passed plugin matches JP or JP Dev paths.
 	 *
 	 * @param string $plugin - A plugin path.
