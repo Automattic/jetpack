@@ -7,6 +7,7 @@ import React, { useEffect, useRef, useState } from 'react';
  * Internal dependencies
  */
 import { usePhoton } from '../lib/hooks/use-photon';
+import { stripHTML } from '../lib/dom';
 
 const PhotonImage = props => {
 	const {
@@ -49,7 +50,7 @@ const PhotonImage = props => {
 		};
 	}, [ lazyLoad, src ] );
 
-	return <img alt={ alt } ref={ image } src={ lazySrc } { ...otherProps } />;
+	return <img alt={ stripHTML( alt ) } ref={ image } src={ lazySrc } { ...otherProps } />;
 };
 
 export default PhotonImage;
