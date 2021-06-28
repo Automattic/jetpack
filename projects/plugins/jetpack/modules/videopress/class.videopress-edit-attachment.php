@@ -63,86 +63,59 @@ class VideoPress_Edit_Attachment {
 	 * @param array      $post
 	 * @param array|null $attachment
 	 *
+	 * Disable phpcs rule for nonce verification since it's already done by Core.
+	 * @phpcs:disable WordPress.Security.NonceVerification
+	 *
 	 * @return array
 	 */
 	public function save_fields( $post, $attachment = null ) {
-		if ( $attachment === null && isset( $_POST['attachment'] ) ) {
+		if ( null === $attachment && isset( $_POST['attachment'] ) ) {
 			$attachment = $_POST['attachment'];
 		}
 
-		if ( ! isset( $attachment['is_videopress_attachment'] ) || $attachment['is_videopress_attachment'] !== 'yes' ) {
+		if ( ! isset( $attachment['is_videopress_attachment'] ) || 'yes' !== $attachment['is_videopress_attachment'] ) {
 			return $post;
 		}
-
-		$post_id = absint( $post['ID'] );
-
-		$meta = wp_get_attachment_metadata( $post_id );
 
 		// If this has not been processed by videopress, we can skip the rest.
 		if ( ! is_videopress_attachment( $post['ID'] ) ) {
+			$post['errors']['videopress']['errors'][] = __( 'The media you are trying to update is not processed by VideoPress.', 'jetpack' );
 			return $post;
 		}
 
-		$values = array();
+		$post_title    = isset( $_POST['post_title'] ) ? $_POST['post_title'] : null;
+		$post_excerpt  = isset( $_POST['post_excerpt'] ) ? $_POST['post_excerpt'] : null;
+		$rating        = isset( $attachment['rating'] ) ? $attachment['rating'] : null;
+		$display_embed = isset( $attachment['display_embed'] ) ? $attachment['display_embed'] : 0;
 
-		// Add the video title & description in, so that we save it properly.
-		if ( isset( $_POST['post_title'] ) ) {
-			$values['title'] = trim( strip_tags( $_POST['post_title'] ) );
-		}
-
-		if ( isset( $_POST['post_excerpt'] ) ) {
-			$values['description'] = trim( strip_tags( $_POST['post_excerpt'] ) );
-		}
-
-		if ( isset( $attachment['rating'] ) ) {
-			$rating = $attachment['rating'];
-
-			if ( ! empty( $rating ) && videopress_is_valid_video_rating( $rating ) ) {
-				$values['rating'] = $rating;
-			}
-		}
-
-		// We set a default here, as if it isn't selected, then we'll turn it off.
-		$values['display_embed'] = 0;
-		if ( isset( $attachment['display_embed'] ) ) {
-			$display_embed = $attachment['display_embed'];
-
-			$values['display_embed'] = 'on' === $display_embed ? 1 : 0;
-		}
-
-		$args = array(
-			'method' => 'POST',
+		$result = Videopress_Attachment_Metadata::persist_metadata(
+			$post['ID'],
+			get_post_meta( $post['ID'], 'videopress_guid', true ),
+			$post_title,
+			null, // @todo: Check why we haven't sent the caption in the first place.
+			$post_excerpt,
+			$rating,
+			$this->normalize_display_embed_value( $display_embed )
 		);
 
-		$guid = get_post_meta( $post_id, 'videopress_guid', true );
-
-		$endpoint = "videos/{$guid}";
-		$result   = Client::wpcom_json_api_request_as_blog( $endpoint, Client::WPCOM_JSON_API_VERSION, $args, $values );
-
 		if ( is_wp_error( $result ) ) {
-			$post['errors']['videopress']['errors'][] = __( 'There was an issue saving your updates to the VideoPress service. Please try again later.', 'jetpack' );
-			return $post;
-		}
-
-		if ( isset( $values['display_embed'] ) ) {
-			$meta['videopress']['display_embed'] = $values['display_embed'];
-		}
-
-		if ( isset( $values['rating'] ) ) {
-			$meta['videopress']['rating'] = $values['rating'];
-		}
-
-		wp_update_attachment_metadata( $post_id, $meta );
-
-		$response = json_decode( $result['body'], true );
-
-		if ( 'true' !== $response ) {
+			$post['errors']['videopress']['errors'][] = $result->get_error_message();
 			return $post;
 		}
 
 		return $post;
 	}
 
+	/**
+	 * Convert the string values of display_embed option to the format that they will be stored in db.
+	 *
+	 * @param string $display_embed The denormalized version.
+	 *
+	 * @return int
+	 */
+	private function normalize_display_embed_value( $display_embed ) {
+		return 'on' === $display_embed ? 1 : 0;
+	}
 
 	/**
 	 * Get the upload api path.
