@@ -6,7 +6,8 @@ $color-modal-background: $studio-white;
 $color-layout-borders: $studio-wordpress-blue-0;
 $color-text-lighter: $studio-gray-50;
 
-.jp-search-dashboard-mocked-search__dialog-container {
+/* Mocked Search Container */
+.jp-mocked-instant-search {
 	background: $color-modal-background;
 	border-radius: 3px;
 	margin: 0 auto;
@@ -14,115 +15,115 @@ $color-text-lighter: $studio-gray-50;
 	height: 70vh;
 	box-shadow: rgba( 0, 0, 0, 0.35 ) 0px 5px 25px;
 	user-select: none;
+}
 
-	.jp-search-dashboard-mocked-search__search-controls {
-		display: flex;
-		flex-flow: row nowrap;
-		align-items: center;
-		border-bottom: 1px solid $color-layout-borders;
-		.jp-search-dashboard-mocked-search__search-icon {
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			width: $close-button-size;
-			height: $close-button-size;
-		}
-		.jp-search-dashboard-mocked-search__search-mock-input {
-			width: calc( 100% - #{$close-button-size} - #{$close-button-size} );
-		}
-		.jp-search-dashboard-mocked-search__close-button {
-			display: flex;
-			align-items: center;
-			width: $close-button-size;
-			height: $close-button-size;
-			justify-content: center;
-			line-height: 1;
-			border-left: 1px solid $color-layout-borders;
-			background-color: transparent !important;
+/* Search Controls */
+.jp-mocked-instant-search__search-controls {
+	display: flex;
+	flex-flow: row nowrap;
+	align-items: center;
+	border-bottom: 1px solid $color-layout-borders;
+}
+.jp-mocked-instant-search__search-icon {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: $close-button-size;
+	height: $close-button-size;
+}
+.jp-mocked-instant-search__search-mock-input {
+	width: calc( 100% - #{$close-button-size} - #{$close-button-size} );
+}
+.jp-mocked-instant-search__close-button {
+	display: flex;
+	align-items: center;
+	width: $close-button-size;
+	height: $close-button-size;
+	justify-content: center;
+	line-height: 1;
+	border-left: 1px solid $color-layout-borders;
+	background-color: transparent !important;
 
-			svg.gridicon {
-				fill: $color-text-lighter;
-			}
+	svg.gridicon {
+		fill: $color-text-lighter;
+	}
+}
+
+/* Search Result */
+.jp-mocked-instant-search__search-results {
+	display: flex;
+	position: relative;
+}
+.jp-mocked-instant-search__search-results-primary {
+	padding-left: 4em;
+	padding-top: 1em;
+	max-width: calc( 100% - #{$sidebar-width} );
+	width: 100%;
+}
+.jp-mocked-instant-search__search-results-header {
+	margin: 1em;
+	display: flex;
+	flex-direction: row nowrap;
+	justify-content: space-between;
+
+	.jp-mocked-instant-search__result-statistics {
+		font-size: 1em;
+		font-weight: bold;
+	}
+	.jp-mocked-instant-search__result-sort-list {
+		span {
+			font-size: 1em;
+			margin-left: 0.5em;
+		}
+		.jp-mocked-instant-search__result-sort-selected {
+			color: $color-jetpack-green;
 		}
 	}
+}
+.jp-mocked-instant-search__search-result {
+	margin-top: 1em;
+}
 
-	.jp-search-dashboard-mocked-search__search-results {
-		display: flex;
-		position: relative;
-
-		.jp-search-dashboard-mocked-search__search-results-primary {
-			padding-left: 4em;
-			padding-top: 1em;
-			max-width: calc( 100% - #{$sidebar-width} );
-			width: 100%;
-			.jp-search-dashboard-mocked-search__search-results-header {
-				margin: 1em;
-				display: flex;
-				flex-direction: row nowrap;
-				justify-content: space-between;
-
-				.jp-search-dashboard-mocked-search__result-statistics {
-					font-size: 1em;
-					font-weight: bold;
-				}
-				.jp-search-dashboard-mocked-search__result-sort-list {
-					span {
-						font-size: 1em;
-						margin-left: 0.5em;
-					}
-					.jp-search-dashboard-mocked-search__result-sort-selected {
-						color: $color-jetpack-green;
-					}
-				}
-			}
-			.jp-search-dashboard-mocked-search__search-result {
-				margin-top: 1em;
-			}
+/**
+* Sidebar
+*/
+.jp-mocked-instant-search__search-results-secondary {
+	display: none;
+	@media ( min-width: 670px ) {
+		padding-left: 4em;
+		padding-top: 1em;
+		background: none;
+		border-left: 1px solid $color-layout-borders;
+		border-radius: 0;
+		bottom: 0;
+		box-shadow: none;
+		display: block;
+		flex: none;
+		position: static;
+		width: $sidebar-width;
+		min-height: 70vh;
+	}
+}
+.jp-mocked-instant-search__search-filter-header {
+	font-weight: bold;
+	margin: 1em 0;
+}
+.jp-mocked-instant-search__search-filter {
+	label {
+		cursor: default;
+		input[type='checkbox'] {
+			border: 1px solid lavender;
+			border-radius: 5px;
+			cursor: default;
 		}
-		.jp-search-dashboard-mocked-search__search-results-secondary {
-			display: none;
-		}
-		@media ( min-width: 670px ) {
-			.jp-search-dashboard-mocked-search__search-results-secondary {
-				padding-left: 4em;
-				padding-top: 1em;
-				background: none;
-				border-left: 1px solid $color-layout-borders;
-				border-radius: 0;
-				bottom: 0;
-				box-shadow: none;
-				display: block;
-				flex: none;
-				position: static;
-				width: $sidebar-width;
-				min-height: 70vh;
-
-				.jp-search-dashboard-mocked-search__search-filter-header {
-					font-weight: bold;
-					margin: 1em 0;
-				}
-
-				.jp-search-dashboard-mocked-search__search-filter {
-					label {
-						cursor: default;
-						input[type='checkbox'] {
-							border: 1px solid lavender;
-							border-radius: 5px;
-							cursor: default;
-						}
-					}
-				}
-
-				& .jp-search-dashboard-mocked-search__search-filter {
-					span {
-						display: inline-block;
-						margin-left: 1em;
-						line-height: 1.35;
-						background-color: lavender;
-						width: 50em;
-					}
-				}
-			}
-		}
+	}
+}
+.jp-mocked-instant-search__search-filter {
+	span {
+		display: inline-block;
+		margin-left: 1em;
+		line-height: 1.35;
+		background-color: lavender;
+		width: 50em;
 	}
 }

@@ -18,7 +18,7 @@ import './mocked-instant-search.scss';
  */
 export default function MockedInstantSearch() {
 	const renderFilterOption = label => (
-		<div className="jp-search-dashboard-mocked-search__search-filter">
+		<div className="jp-mocked-instant-search__search-filter">
 			<label>
 				<input type="checkbox" disabled="disabled" />{ ' ' }
 				<TextRowPlaceHolder style={ { width: '30%' } } />
@@ -26,7 +26,7 @@ export default function MockedInstantSearch() {
 		</div>
 	);
 	const renderSearchResult = () => (
-		<div className="jp-search-dashboard-mocked-search__search-result">
+		<div className="jp-mocked-instant-search__search-result">
 			<TextRowPlaceHolder
 				style={ { height: '2.5em', width: '30%', margin: '0.1em 0.1em 1em 0.1em' } }
 			/>
@@ -35,43 +35,39 @@ export default function MockedInstantSearch() {
 		</div>
 	);
 	return (
-		<div className="jp-search-dashboard-mocked-search__dialog-container">
-			<div className="jp-search-dashboard-mocked-search__search-controls">
-				<div className="jp-search-dashboard-mocked-search__search-icon">
+		<div className="jp-mocked-instant-search">
+			<div className="jp-mocked-instant-search__search-controls">
+				<div className="jp-mocked-instant-search__search-icon">
 					<Gridicon icon="search" size={ 24 } />
 				</div>
-				<div className="jp-search-dashboard-mocked-search__search-mock-input">
+				<div className="jp-mocked-instant-search__search-mock-input">
 					<TextRowPlaceHolder style={ { height: '50px', width: '80%' } } />
 				</div>
-				<div className="jp-search-dashboard-mocked-search__close-button">
+				<div className="jp-mocked-instant-search__close-button">
 					<Gridicon icon="cross" size="24" aria-hidden="true" focusable="false" />
 				</div>
 			</div>
-			<div className="jp-search-dashboard-mocked-search__search-results">
-				<div className="jp-search-dashboard-mocked-search__search-results-primary">
-					<div className="jp-search-dashboard-mocked-search__search-results-header">
-						<div className="jp-search-dashboard-mocked-search__result-statistics">
+			<div className="jp-mocked-instant-search__search-results">
+				<div className="jp-mocked-instant-search__search-results-primary">
+					<div className="jp-mocked-instant-search__search-results-header">
+						<div className="jp-mocked-instant-search__result-statistics">
 							{ __( 'Found 27 results', 'jetpack' ) }
 						</div>
-						<div className="jp-search-dashboard-mocked-search__result-sort-list">
-							<span className="jp-search-dashboard-mocked-search__result-sort-selected">
-								Relevance
-							</span>
+						<div className="jp-mocked-instant-search__result-sort-list">
+							<span className="jp-mocked-instant-search__result-sort-selected">Relevance</span>
 							<span>&middot;</span>
 							<span>Newest</span>
 							<span>&middot;</span>
 							<span>Oldest</span>
 						</div>
 					</div>
-					<div className="jp-search-dashboard-mocked-search__search-results-content">
+					<div className="jp-mocked-instant-search__search-results-content">
 						{ Array.apply( null, Array( 3 ) ).map( renderSearchResult ) }
 					</div>
 				</div>
-				<div className="jp-search-dashboard-mocked-search__search-results-secondary">
-					<div className="jp-search-dashboard-mocked-search__search-filter-header">
-						Filter Options
-					</div>
-					<div className="jp-search-dashboard-mocked-search__search-filter-list">
+				<div className="jp-mocked-instant-search__search-results-secondary">
+					<div className="jp-mocked-instant-search__search-filter-header">Filter Options</div>
+					<div className="jp-mocked-instant-search__search-filter-list">
 						{ Array.apply( null, Array( 2 ) ).map( renderFilterOption ) }
 					</div>
 				</div>

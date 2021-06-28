@@ -35,7 +35,7 @@ function SearchDashboard( props ) {
 
 	// NOTE: API root and nonce must be set before any components are mounted!
 	const { apiRootUrl, apiNonce, setInitialState: dispatchedSetInitialState } = props;
-	const isInstantSearch = false;
+	const isInstantSearch = true;
 
 	useComponentWillMount( () => {
 		apiRootUrl && restApi.setApiRoot( apiRootUrl );
