@@ -22,7 +22,8 @@
  * Activate the Site Logo plugin.
  *
  * @uses current_theme_supports()
- * @since 3.2
+ * @since 3.2.0
+ * @since 9.9.0 Uses Core site_logo option format universally.
  */
 function site_logo_init() {
 	// For transferring existing site logo from Jetpack -> Core
