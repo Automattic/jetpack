@@ -309,7 +309,7 @@ class Site_Logo {
 	 * @return boolean True if there is an active logo, false otherwise
 	 */
 	public function has_site_logo() {
-		return ( isset( $this->logo ) && 0 !== $this->logo ) ? true : false;
+		return (bool) $this->logo;
 	}
 
 	/**
