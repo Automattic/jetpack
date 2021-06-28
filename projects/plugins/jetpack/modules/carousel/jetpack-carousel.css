@@ -44,6 +44,10 @@
 	background: #000;
 }
 
+.jp-carousel-overlay * {
+	box-sizing: border-box;
+}
+
 .swiper-container .swiper-button-prev {
 	left: 40px;
 }
