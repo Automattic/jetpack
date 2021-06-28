@@ -437,3 +437,34 @@
 		margin-top: 12px;
 	}
 }
+
+/* Fixes the order of screen options,
+ * showing the dashboard switcher button always first.
+*/
+#adv-settings {
+	display: flex;
+	flex-direction: column;
+}
+
+/* Switcher should always be in the top */
+#adv-settings #dashboard-switcher {
+	order: 0;
+}
+
+#adv-settings .dashboard-switcher-text {
+	margin-top: 0;
+}
+
+#adv-settings .dashboard-switcher-button {
+	padding: 3px 16px;
+}
+
+/* Core registered options should be after the switcher */
+#adv-settings fieldset {
+	order: 1;
+}
+
+/* Submit button should always be in the bottom */
+#adv-settings .submit {
+	order: 2;
+}

@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Added display_embed and rating properties from VideoPress in the update and get media API endpoints.

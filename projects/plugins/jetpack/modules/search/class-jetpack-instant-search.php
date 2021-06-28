@@ -59,6 +59,9 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	public function load_php() {
 		$this->base_load_php();
 
+		require_once __DIR__ . '/class-jetpack-search-settings.php';
+		new Jetpack_Search_Settings();
+
 		if ( class_exists( 'WP_Customize_Manager' ) ) {
 			require_once __DIR__ . '/class-jetpack-search-customize.php';
 			new Jetpack_Search_Customize();
@@ -143,125 +146,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 * Passes all options to the JS app.
 	 */
 	protected function inject_javascript_options() {
-		$widget_options = Jetpack_Search_Helpers::get_widgets_from_option();
-		if ( is_array( $widget_options ) ) {
-			$widget_options = end( $widget_options );
-		}
-
-		$overlay_widget_ids      = is_active_sidebar( 'jetpack-instant-search-sidebar' ) ?
-			wp_get_sidebars_widgets()['jetpack-instant-search-sidebar'] : array();
-		$filters                 = Jetpack_Search_Helpers::get_filters_from_widgets();
-		$widgets                 = array();
-		$widgets_outside_overlay = array();
-		foreach ( $filters as $key => &$filter ) {
-			$filter['filter_id'] = $key;
-
-			if ( in_array( $filter['widget_id'], $overlay_widget_ids, true ) ) {
-				if ( ! isset( $widgets[ $filter['widget_id'] ] ) ) {
-					$widgets[ $filter['widget_id'] ]['filters']   = array();
-					$widgets[ $filter['widget_id'] ]['widget_id'] = $filter['widget_id'];
-				}
-				$widgets[ $filter['widget_id'] ]['filters'][] = $filter;
-			} else {
-				if ( ! isset( $widgets_outside_overlay[ $filter['widget_id'] ] ) ) {
-					$widgets_outside_overlay[ $filter['widget_id'] ]['filters']   = array();
-					$widgets_outside_overlay[ $filter['widget_id'] ]['widget_id'] = $filter['widget_id'];
-				}
-				$widgets_outside_overlay[ $filter['widget_id'] ]['filters'][] = $filter;
-			}
-		}
-		unset( $filter );
-
-		$has_non_search_widgets = false;
-		foreach ( $overlay_widget_ids as $overlay_widget_id ) {
-			if ( strpos( $overlay_widget_id, Jetpack_Search_Helpers::FILTER_WIDGET_BASE ) === false ) {
-				$has_non_search_widgets = true;
-				break;
-			}
-		}
-
-		$post_type_objs   = get_post_types( array( 'exclude_from_search' => false ), 'objects' );
-		$post_type_labels = array();
-		foreach ( $post_type_objs as $key => $obj ) {
-			$post_type_labels[ $key ] = array(
-				'singular_name' => $obj->labels->singular_name,
-				'name'          => $obj->labels->name,
-			);
-		}
-
-		$prefix         = Jetpack_Search_Options::OPTION_PREFIX;
-		$posts_per_page = (int) get_option( 'posts_per_page' );
-		if ( ( $posts_per_page > 20 ) || ( $posts_per_page <= 0 ) ) {
-			$posts_per_page = 20;
-		}
-
-		$excluded_post_types   = get_option( $prefix . 'excluded_post_types' ) ? explode( ',', get_option( $prefix . 'excluded_post_types', '' ) ) : array();
-		$post_types            = array_values(
-			get_post_types(
-				array(
-					'exclude_from_search' => false,
-					'public'              => true,
-				)
-			)
-		);
-		$unexcluded_post_types = array_diff( $post_types, $excluded_post_types );
-		// NOTE: If all post types are being excluded, ignore the option value.
-		if ( count( $unexcluded_post_types ) === 0 ) {
-			$excluded_post_types = array();
-		}
-
-		$is_wpcom                  = defined( 'IS_WPCOM' ) && IS_WPCOM;
-		$is_private_site           = '-1' === get_option( 'blog_public' );
-		$is_jetpack_photon_enabled = method_exists( 'Jetpack', 'is_module_active' ) && Jetpack::is_module_active( 'photon' );
-
-		$options = array(
-			'overlayOptions'        => array(
-				'colorTheme'      => get_option( $prefix . 'color_theme', 'light' ),
-				'enableInfScroll' => get_option( $prefix . 'inf_scroll', '1' ) === '1',
-				'enableSort'      => get_option( $prefix . 'enable_sort', '1' ) === '1',
-				'highlightColor'  => get_option( $prefix . 'highlight_color', '#FFC' ),
-				'overlayTrigger'  => get_option( $prefix . 'overlay_trigger', 'immediate' ),
-				'resultFormat'    => get_option( $prefix . 'result_format', Jetpack_Search_Options::RESULT_FORMAT_MINIMAL ),
-				'showPoweredBy'   => get_option( $prefix . 'show_powered_by', '1' ) === '1',
-			),
-
-			// core config.
-			'homeUrl'               => home_url(),
-			'locale'                => str_replace( '_', '-', Jetpack_Search_Helpers::is_valid_locale( get_locale() ) ? get_locale() : 'en_US' ),
-			'postsPerPage'          => $posts_per_page,
-			'siteId'                => $this->jetpack_blog_id,
-			'postTypes'             => $post_type_labels,
-			'webpackPublicPath'     => plugins_url( '_inc/build/instant-search/', JETPACK__PLUGIN_FILE ),
-			'isPhotonEnabled'       => ( $is_wpcom || $is_jetpack_photon_enabled ) && ! $is_private_site,
-
-			// config values related to private site support.
-			'apiRoot'               => esc_url_raw( rest_url() ),
-			'apiNonce'              => wp_create_nonce( 'wp_rest' ),
-			'isPrivateSite'         => $is_private_site,
-			'isWpcom'               => $is_wpcom,
-
-			// search options.
-			'defaultSort'           => get_option( $prefix . 'default_sort', 'relevance' ),
-			'excludedPostTypes'     => $excluded_post_types,
-
-			// widget info.
-			'hasOverlayWidgets'     => count( $overlay_widget_ids ) > 0,
-			'widgets'               => array_values( $widgets ),
-			'widgetsOutsideOverlay' => array_values( $widgets_outside_overlay ),
-			'hasNonSearchWidgets'   => $has_non_search_widgets,
-		);
-
-		/**
-		 * Customize Instant Search Options.
-		 *
-		 * @module search
-		 *
-		 * @since 7.7.0
-		 *
-		 * @param array $options Array of parameters used in Instant Search queries.
-		 */
-		$options = apply_filters( 'jetpack_instant_search_options', $options );
-
+		$options = Jetpack_Search_Helpers::generate_initial_javascript_state();
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
 		wp_add_inline_script( 'jetpack-instant-search', 'var JetpackInstantSearchOptions=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $options ) ) . '"));', 'before' );
 	}

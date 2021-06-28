@@ -10,6 +10,11 @@ const {
 const path = require( 'path' );
 const webpack = require( 'webpack' );
 
+/**
+ * Internal dependencies
+ */
+const { definePaletteColorsAsStaticVariables } = require( './webpack.helpers' );
+
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
 const baseWebpackConfig = getBaseWebpackConfig(
@@ -76,21 +81,6 @@ module.exports = {
 	},
 	devtool: isDevelopment ? 'source-map' : false,
 	plugins: [
-		new webpack.DefinePlugin( {
-			// Replace palette colors as individual literals in the bundle.
-			PALETTE: ( () => {
-				const colors = require( '@automattic/color-studio' ).colors;
-				const stringifiedColors = {};
-
-				// DefinePlugin replaces the values as unescaped text.
-				// We therefore need to double-quote each value, to ensure it ends up as a string.
-				for ( const color in colors ) {
-					stringifiedColors[ color ] = `"${ colors[ color ] }"`;
-				}
-
-				return stringifiedColors;
-			} )(),
-		} ),
 		...baseWebpackConfig.plugins,
 		// Replace 'debug' module with a dummy implementation in production
 		...( isDevelopment
@@ -107,6 +97,7 @@ module.exports = {
 			requestToExternal,
 			requestToHandle: defaultRequestToHandle,
 		} ),
+		definePaletteColorsAsStaticVariables(),
 	],
 	optimization: {
 		splitChunks: {

@@ -13,7 +13,6 @@ use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Device_Detection;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
 
 /**
@@ -476,9 +475,7 @@ class Post_Connection_JITM extends JITM {
 			);
 
 			$url_params = array(
-				'source' => "jitm-$envelope->id",
-				'site'   => ( new Status() )->get_site_suffix(),
-				'u'      => $user->ID,
+				'u' => $user->ID,
 			);
 
 			// Get affiliate code and add it to the array of URL parameters.
@@ -490,9 +487,9 @@ class Post_Connection_JITM extends JITM {
 			// Check if the current user has connected their WP.com account
 			// and if not add this information to the the array of URL parameters.
 			if ( ! ( new Manager() )->is_user_connected( $user->ID ) ) {
-				$url_params['unlinked'] = 1;
+				$url_params['query'] = 'unlinked=1';
 			}
-			$envelope->url = add_query_arg( $url_params, 'https://jetpack.com/redirect/' );
+			$envelope->url = esc_url( Redirect::get_url( "jitm-$envelope->id", $url_params ) );
 
 			$stats = new A8c_Mc_Stats();
 

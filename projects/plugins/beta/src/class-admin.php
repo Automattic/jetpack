@@ -5,38 +5,45 @@
  * @package automattic/jetpack-beta
  */
 
-/** Class Jetpack_Beta_Admin */
-class Jetpack_Beta_Admin {
+namespace Automattic\JetpackBeta;
+
+use Jetpack;
+use WPCom_Markdown;
+
+/**
+ * Handles the Jetpack Beta plugin Admin functions.
+ */
+class Admin {
 
 	/** Initialize admin hooks. */
 	public static function init() {
-		add_action( 'admin_menu', array( __CLASS__, 'add_actions' ), 998 );
-		add_action( 'network_admin_menu', array( __CLASS__, 'add_actions' ), 998 );
-		add_action( 'admin_notices', array( __CLASS__, 'render_banner' ) );
+		add_action( 'admin_menu', array( self::class, 'add_actions' ), 998 );
+		add_action( 'network_admin_menu', array( self::class, 'add_actions' ), 998 );
+		add_action( 'admin_notices', array( self::class, 'render_banner' ) );
 	}
 
 	/** Attach hooks common to all Jetpack admin pages. */
 	public static function add_actions() {
 		$hook = self::get_page_hook();
-		add_action( "load-$hook", array( __CLASS__, 'admin_page_load' ) );
-		add_action( "admin_print_styles-$hook", array( __CLASS__, 'admin_styles' ) );
-		add_action( "admin_print_scripts-$hook", array( __CLASS__, 'admin_scripts' ) );
-		add_filter( 'plugin_action_links_' . JPBETA__PLUGIN_FOLDER . '/jetpack-beta.php', array( __CLASS__, 'admin_plugin_settings_link' ) );
+		add_action( "load-$hook", array( self::class, 'admin_page_load' ) );
+		add_action( "admin_print_styles-$hook", array( self::class, 'admin_styles' ) );
+		add_action( "admin_print_scripts-$hook", array( self::class, 'admin_scripts' ) );
+		add_filter( 'plugin_action_links_' . JPBETA__PLUGIN_FOLDER . '/jetpack-beta.php', array( self::class, 'admin_plugin_settings_link' ) );
 	}
 
 	/** Get page hook */
 	public static function get_page_hook() {
-		if ( Jetpack_Beta::is_network_active() && ! is_network_admin() ) {
+		if ( Utils::is_network_active() && ! is_network_admin() ) {
 			return;
 		}
-		if ( class_exists( 'Jetpack' ) ) {
+		if ( class_exists( Jetpack::class ) ) {
 			return add_submenu_page(
 				'jetpack',
 				'Jetpack Beta',
 				'Jetpack Beta',
 				'update_plugins',
 				'jetpack-beta',
-				array( __CLASS__, 'render' )
+				array( self::class, 'render' )
 			);
 		}
 
@@ -45,14 +52,14 @@ class Jetpack_Beta_Admin {
 			'Jetpack Beta',
 			'update_plugins',
 			'jetpack-beta',
-			array( __CLASS__, 'render' )
+			array( self::class, 'render' )
 		);
 	}
 
 	/** Always grab and render the latest version. */
 	public static function render() {
-		Jetpack_Beta::get_beta_manifest( true );
-		require_once JPBETA__PLUGIN_DIR . 'admin/main.php';
+		Utils::get_beta_manifest( true );
+		require_once JPBETA__PLUGIN_DIR . 'src/admin/main.php';
 	}
 
 	/** Return the beta plugin's settings link. */
@@ -81,7 +88,7 @@ class Jetpack_Beta_Admin {
 			$branch  = esc_html( $_GET['activate-branch'] );
 			$section = esc_html( $_GET['section'] );
 
-			Jetpack_Beta::install_and_activate( $branch, $section );
+			Utils::install_and_activate( $branch, $section );
 		}
 
 		// Update to the latest version.
@@ -89,25 +96,25 @@ class Jetpack_Beta_Admin {
 			$branch  = esc_html( $_GET['update-branch'] );
 			$section = esc_html( $_GET['section'] );
 
-			Jetpack_Beta::update_plugin( $branch, $section );
+			Utils::update_plugin( $branch, $section );
 		}
 
 		// Toggle autoupdates.
 		if ( self::is_toggle_action( 'autoupdates' ) ) {
-			$autoupdate = (bool) Jetpack_Beta::is_set_to_autoupdate();
+			$autoupdate = (bool) Utils::is_set_to_autoupdate();
 			update_option( 'jp_beta_autoupdate', (int) ! $autoupdate );
 
-			if ( Jetpack_Beta::is_set_to_autoupdate() ) {
-				Jetpack_Beta::maybe_schedule_autoupdate();
+			if ( Utils::is_set_to_autoupdate() ) {
+				Hooks::maybe_schedule_autoupdate();
 			}
 		}
 
 		// Toggle email notifications.
 		if ( self::is_toggle_action( 'email_notifications' ) ) {
-			$enable_email_notifications = (bool) Jetpack_Beta::is_set_to_email_notifications();
+			$enable_email_notifications = (bool) Utils::is_set_to_email_notifications();
 			update_option( 'jp_beta_email_notifications', (int) ! $enable_email_notifications );
 		}
-		wp_safe_redirect( Jetpack_Beta::admin_url() );
+		wp_safe_redirect( Utils::admin_url() );
 
 		exit();
 	}
@@ -134,7 +141,7 @@ class Jetpack_Beta_Admin {
 			return;
 		}
 
-		if ( Jetpack_Beta::get_option() ) {
+		if ( Utils::get_option() ) {
 			return;
 		}
 
@@ -143,12 +150,12 @@ class Jetpack_Beta_Admin {
 
 	/** Enqueue admin styling from admin.css */
 	public static function admin_styles() {
-		wp_enqueue_style( 'jetpack-beta-admin', plugins_url( 'admin/admin.css', JPBETA__PLUGIN_FILE ), array(), JPBETA_VERSION );
+		wp_enqueue_style( 'jetpack-beta-admin', plugins_url( 'admin/admin.css', __FILE__ ), array(), JPBETA_VERSION );
 	}
 
 	/** Enqueue scripts from admin.js */
 	public static function admin_scripts() {
-		wp_enqueue_script( 'jetpack-admin-js', plugins_url( 'admin/admin.js', JPBETA__PLUGIN_FILE ), array(), JPBETA_VERSION, true );
+		wp_enqueue_script( 'jetpack-admin-js', plugins_url( 'admin/admin.js', __FILE__ ), array(), JPBETA_VERSION, true );
 		wp_localize_script(
 			'jetpack-admin-js',
 			'JetpackBeta',
@@ -163,7 +170,7 @@ class Jetpack_Beta_Admin {
 
 	/** Determine what we're going to test (pr, master, rc) */
 	public static function to_test_content() {
-		list( $branch, $section ) = Jetpack_Beta::get_branch_and_section();
+		list( $branch, $section ) = Utils::get_branch_and_section();
 		switch ( $section ) {
 			case 'pr':
 				return self::to_test_pr_content( $branch );
@@ -194,7 +201,7 @@ class Jetpack_Beta_Admin {
 
 	/** Return testing instructions for release candidate branch */
 	public static function to_test_file_content() {
-		$test_file = WP_PLUGIN_DIR . '/' . Jetpack_Beta::get_plugin_slug() . '/to-test.md';
+		$test_file = WP_PLUGIN_DIR . '/' . Utils::get_plugin_slug() . '/to-test.md';
 		if ( ! file_exists( $test_file ) ) {
 			return;
 		}
@@ -210,13 +217,13 @@ class Jetpack_Beta_Admin {
 	 * @param string $branch_key The branch we're switching to.
 	 * */
 	public static function to_test_pr_content( $branch_key ) {
-		$manifest = Jetpack_Beta::get_beta_manifest();
+		$manifest = Utils::get_beta_manifest();
 		$pr       = isset( $manifest->pr->{$branch_key}->pr ) ? $manifest->pr->{$branch_key}->pr : null;
 
 		if ( ! $pr ) {
 			return null;
 		}
-		$github_info = Jetpack_Beta::get_remote_data( JETPACK_GITHUB_API_URL . 'pulls/' . $pr, 'github_' . $pr );
+		$github_info = Utils::get_remote_data( JETPACK_GITHUB_API_URL . 'pulls/' . $pr, 'github_' . $pr );
 
 		return self::render_markdown( $github_info->body );
 	}
@@ -240,13 +247,13 @@ class Jetpack_Beta_Admin {
 		}
 
 		jetpack_require_lib( 'markdown' );
-		if ( ! class_exists( 'WPCom_Markdown' ) ) {
-			if ( ! include_once WP_PLUGIN_DIR . '/' . Jetpack_Beta::get_plugin_slug() . '/modules/markdown/easy-markdown.php' ) {
+		if ( ! class_exists( WPCom_Markdown::class ) ) {
+			if ( ! include_once WP_PLUGIN_DIR . '/' . Utils::get_plugin_slug() . '/modules/markdown/easy-markdown.php' ) {
 				include_once WP_PLUGIN_DIR . '/jetpack/modules/markdown/easy-markdown.php';
 			};
 		}
 
-		if ( ! class_exists( 'WPCom_Markdown' ) ) {
+		if ( ! class_exists( WPCom_Markdown::class ) ) {
 			return apply_filters( 'jetpack_beta_test_content', $content );
 		}
 		$rendered_html = WPCom_Markdown::get_instance()->transform(
@@ -317,7 +324,7 @@ class Jetpack_Beta_Admin {
 			?>
 			</p>
 			<?php if ( $is_notice ) { ?>
-			<a href="<?php echo esc_url( Jetpack_Beta::admin_url() ); ?>"><?php esc_html_e( 'Let\'s get testing!', 'jetpack-beta' ); ?></a>
+			<a href="<?php echo esc_url( Utils::admin_url() ); ?>"><?php esc_html_e( 'Let\'s get testing!', 'jetpack-beta' ); ?></a>
 			<?php } ?>
 
 		</div>
@@ -335,7 +342,7 @@ class Jetpack_Beta_Admin {
 	 */
 	public static function show_branch( $header, $branch_key, $branch = null, $section = null, $is_last = false ) {
 		if ( ! is_object( $branch ) ) {
-			$manifest = Jetpack_Beta::get_beta_manifest();
+			$manifest = Utils::get_beta_manifest();
 			if ( empty( $manifest->{$section} ) ) {
 				return;
 			}
@@ -348,7 +355,7 @@ class Jetpack_Beta_Admin {
 		if ( isset( $branch->pr ) && is_int( $branch->pr ) ) {
 			$pr = sprintf( 'data-pr="%s"', esc_attr( $branch->pr ) );
 			// translators: Translates the `More info` link.
-			$more_info = sprintf( __( '<a target="_blank" rel="external noopener noreferrer" href="%1$s">more info #%2$s</a> - ', 'jetpack-beta' ), Jetpack_Beta::get_url( $branch_key, $section ), $branch->pr );
+			$more_info = sprintf( __( '<a target="_blank" rel="external noopener noreferrer" href="%1$s">more info #%2$s</a> - ', 'jetpack-beta' ), Utils::get_url( $branch_key, $section ), $branch->pr );
 		}
 
 		$update_time = ( isset( $branch->update_date )
@@ -358,7 +365,7 @@ class Jetpack_Beta_Admin {
 		);
 
 		$branch_class                             = 'branch-card';
-		list( $current_branch, $current_section ) = Jetpack_Beta::get_branch_and_section();
+		list( $current_branch, $current_section ) = Utils::get_branch_and_section();
 		if ( $current_branch === $branch_key && $current_section === $section ) {
 			$action       = __( 'Active', 'jetpack-beta' );
 			$branch_class = 'branch-card-active';
@@ -407,7 +414,7 @@ class Jetpack_Beta_Admin {
 		}
 
 		$class_name                               = 'tag-card';
-		list( $current_branch, $current_section ) = Jetpack_Beta::get_branch_and_section();
+		list( $current_branch, $current_section ) = Utils::get_branch_and_section();
 		if ( $current_branch === $tag && $current_section === $section ) {
 			$action     = __( 'Active', 'jetpack-beta' );
 			$class_name = 'tag-card-active';
@@ -465,7 +472,7 @@ class Jetpack_Beta_Admin {
 			'section'         => $section,
 			'_nonce'          => wp_create_nonce( 'activate_branch' ),
 		);
-		$url   = Jetpack_Beta::admin_url( '?' . build_query( $query ) );
+		$url   = Utils::admin_url( '?' . build_query( $query ) );
 
 		return sprintf(
 			'<a href="%1$s" class="is-primary jp-form-button activate-branch dops-button is-compact jptracks" data-jptracks-name="%2$s" data-jptracks-prop="%3$s">%4$s</a>',
@@ -497,7 +504,7 @@ class Jetpack_Beta_Admin {
 		}
 		echo '<div id="section-' . esc_attr( $section ) . '">';
 
-		$manifest = Jetpack_Beta::get_beta_manifest();
+		$manifest = Utils::get_beta_manifest();
 		$count    = 0;
 		if ( empty( $manifest->{$section} ) ) {
 			return;
@@ -525,7 +532,7 @@ class Jetpack_Beta_Admin {
 		}
 		echo '<div id="section-' . esc_attr( $section ) . '">';
 
-		$manifest = Jetpack_Beta::get_org_data();
+		$manifest = Utils::get_org_data();
 		$count    = 0;
 		if ( empty( $manifest->versions ) ) {
 			return;
@@ -543,7 +550,7 @@ class Jetpack_Beta_Admin {
 
 	/** Display the stable branch */
 	public static function show_stable_branch() {
-		$org_data = Jetpack_Beta::get_org_data();
+		$org_data = Utils::get_org_data();
 
 		self::show_branch(
 			__( 'Latest Stable', 'jetpack-beta' ),
@@ -558,7 +565,7 @@ class Jetpack_Beta_Admin {
 
 	/** Show search bar for PRs */
 	public static function show_search_prs() {
-		$manifest = Jetpack_Beta::get_beta_manifest();
+		$manifest = Utils::get_beta_manifest();
 		if ( empty( $manifest->pr ) ) {
 			return;
 		}
@@ -595,7 +602,7 @@ class Jetpack_Beta_Admin {
 
 	/** Show search bar for tags */
 	public static function show_search_org_tags() {
-		$org_data = Jetpack_Beta::get_org_data();
+		$org_data = Utils::get_org_data();
 		if ( empty( $org_data->versions ) ) {
 			return;
 		}
@@ -632,16 +639,16 @@ class Jetpack_Beta_Admin {
 
 	/** Display autoupdate toggle */
 	public static function show_toggle_autoupdates() {
-		$autoupdate = (bool) Jetpack_Beta::is_set_to_autoupdate();
+		$autoupdate = (bool) Utils::is_set_to_autoupdate();
 		self::show_toggle( __( 'Autoupdates', 'jetpack-beta' ), 'autoupdates', $autoupdate );
 	}
 
 	/** Display email notification toggle */
 	public static function show_toggle_emails() {
-		if ( ! Jetpack_Beta::is_set_to_autoupdate() || defined( 'JETPACK_BETA_SKIP_EMAIL' ) ) {
+		if ( ! Utils::is_set_to_autoupdate() || defined( 'JETPACK_BETA_SKIP_EMAIL' ) ) {
 			return;
 		}
-		$email_notification = (bool) Jetpack_Beta::is_set_to_email_notifications();
+		$email_notification = (bool) Utils::is_set_to_email_notifications();
 		self::show_toggle( __( 'Email Notifications', 'jetpack-beta' ), 'email_notifications', $email_notification );
 	}
 
@@ -661,7 +668,7 @@ class Jetpack_Beta_Admin {
 
 		?>
 		<a
-			href="<?php echo esc_url( Jetpack_Beta::admin_url( '?' . build_query( $query ) ) ); ?>"
+			href="<?php echo esc_url( Utils::admin_url( '?' . build_query( $query ) ) ); ?>"
 			class="form-toggle__label <?php echo ( $value ? 'is-active' : '' ); ?>"
 			data-jptracks-name="jetpack_beta_toggle_<?php echo esc_attr( $option ); ?>"
 			data-jptracks-prop="<?php echo absint( ! $value ); ?>"
@@ -675,9 +682,9 @@ class Jetpack_Beta_Admin {
 
 	/** Check if Jetpack and branch versions are up to date */
 	public static function show_needed_updates() {
-		$should_update_stable_version = Jetpack_Beta::should_update_stable_version();
-		$should_update_dev_version    = Jetpack_Beta::should_update_dev_version();
-		$should_update_dev_to_master  = Jetpack_Beta::should_update_dev_to_master();
+		$should_update_stable_version = Utils::should_update_stable_version();
+		$should_update_dev_version    = Utils::should_update_dev_version();
+		$should_update_dev_to_master  = Utils::should_update_dev_to_master();
 
 		// Return if there are no updates available.
 		if ( ! $should_update_stable_version
@@ -701,9 +708,9 @@ class Jetpack_Beta_Admin {
 		}
 		// Jetpack Dev Folder not up to date?
 		if ( $should_update_dev_version ) {
-			list( $dev_branch, $dev_section ) = Jetpack_Beta::get_branch_and_section_dev();
+			list( $dev_branch, $dev_section ) = Utils::get_branch_and_section_dev();
 			self::update_card(
-				Jetpack_Beta::get_jetpack_plugin_pretty_version( true ),
+				Utils::get_jetpack_plugin_pretty_version( true ),
 				__( 'Is not running the latest version', 'jetpack-beta' ),
 				self::update_action_url( $dev_branch, $dev_section )
 			);
@@ -764,6 +771,6 @@ class Jetpack_Beta_Admin {
 			'_nonce'        => wp_create_nonce( 'update_branch' ),
 		);
 
-		return Jetpack_Beta::admin_url( '?' . build_query( $query ) );
+		return Utils::admin_url( '?' . build_query( $query ) );
 	}
 }

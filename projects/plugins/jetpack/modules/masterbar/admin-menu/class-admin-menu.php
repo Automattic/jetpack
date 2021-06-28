@@ -510,4 +510,55 @@ class Admin_Menu extends Base_Admin_Menu {
 	public function should_link_to_wp_admin() {
 		return get_user_option( 'jetpack_admin_menu_link_destination' );
 	}
+
+	/**
+	 * Returns the current slug from the URL.
+	 *
+	 * @param object $screen Screen object (undocumented).
+	 *
+	 * @return string
+	 */
+	public function get_current_slug( $screen ) {
+		$slug = "{$screen->base}.php";
+		if ( '' !== $screen->post_type ) {
+			$slug = add_query_arg( 'post_type', $screen->post_type, $slug );
+		}
+		if ( '' !== $screen->taxonomy ) {
+			$slug = add_query_arg( 'taxonomy', $screen->taxonomy, $slug );
+		}
+
+		return $slug;
+	}
+
+	/**
+	 * Prepend a dashboard swithcer to the "Screen Options" box of the current page.
+	 * Callback for the 'screen_settings' filter (available in WP 3.0 and up).
+	 *
+	 * @param string $current The currently added panels in screen options.
+	 * @param object $screen Screen object (undocumented).
+	 *
+	 * @return string The HTML code to append to "Screen Options"
+	 */
+	public function register_dashboard_switcher( $current, $screen ) {
+		$menu_mappings = require __DIR__ . '/menu-mappings.php';
+		$slug          = $this->get_current_slug( $screen );
+
+		// Let's show the switcher only in screens that we have a Calypso mapping to switch to.
+		if ( ! isset( $menu_mappings[ $slug ] ) ) {
+			return;
+		}
+
+		$contents = sprintf(
+			'<div id="dashboard-switcher"><h5>%s</h5><p class="dashboard-switcher-text">%s</p><a class="button button-primary dashboard-switcher-button" href="%s">%s</a></div>',
+			__( 'Screen features', 'jetpack' ),
+			__( 'Currently you are seeing the classic WP-Admin view of this page. Would you like to see the default WordPress.com view?', 'jetpack' ),
+			$menu_mappings[ $slug ] . $this->domain,
+			__( 'Use WordPress.com view', 'jetpack' )
+		);
+
+		// Prepend the Dashboard swither to the other custom panels.
+		$current = $contents . $current;
+
+		return $current;
+	}
 }
