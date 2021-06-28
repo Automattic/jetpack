@@ -564,12 +564,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		$screens = array(
 			(object) array(
-				'base'      => 'dashboard',
-				'post_type' => '',
-				'taxonomy'  => '',
-				'mapping'   => 'https://wordpress.com/home/',
-			),
-			(object) array(
 				'base'      => 'edit',
 				'post_type' => 'post',
 				'taxonomy'  => '',
