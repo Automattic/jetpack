@@ -242,48 +242,43 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 9.8.1 - 2021-06-08
-#### Bug fixes
-- Carousel: avoid JavaScript errors when trying to load the Carousel view when logged out of your WordPress site.
-- Related Posts: avoid squished images when image height isn't defined.
-- Story Block: allow multiple stories per post.
-- Story Block: allow selecting additional media items in media picker instead of only replacing the existing selection.
+### 9.9-beta - 2021-06-29
+#### Major Enhancements
+- Carousel: improve carousel usability, performance, accessibility, mobile friendliness.
+- Carousel: improve stability, fixes multiple bugs.
 
-### 9.8 - 2021-06-01
 #### Enhancements
-- Contact Form: the "Feedback > Export CSV" submenu entry has been removed. The export functionality is still available in "Feedback > Form Responses".
-- Form block: allow replacing the "Message Sent" heading with custom phrase.
-- Instagram Reel: add oEmbed support for Instagram Reel posts.
-- Instant Search: add 'open when visitor submits the form' overlay trigger.
-- Instant Search: apply configured highlight color to text highlights.
-- Site Verification Tools: adds an option for Facebook domain verification.
-- Story Block: add new block that enables you to use photos and videos to create engaging and tappable fullscreen slideshows.
+- Blocks: additional automated tests to improve reliability. 
+- Editor: added Social Preview panel to the pre-publish sidebar to increase visibility.
+- Dashboard: provide more useful information and an option to contact support when there are display issues in the Jetpack dashboard.
+- Instant Search: improve modal animation and transition speed.
+
+#### General
+- Jetpack now requires WordPress 5.7 in anticipation of WordPress 5.8 coming later this month.
 
 #### Improved compatibility
-- Blocks: ensure blocks are compatible with upcoming Full Site Editor feature.
-- Blocks: ensure tiled gallery and slideshow blocks do not output invalid CSS when used with AMP plugin.
-- Dashboard: hide Settings page for non-admin users when in site-only connection.
-- Instant Search: ensure search input is the correct width if an input max-width has been specified in the theme.
-- Related Posts: add height attribute to post images for better compatibility with page performance analysis tools.
-- Related Posts: avoid Fatal Errors when using plugins that may interact with WordPress' customizer in specific ways.
-- SEO Tools: ensure Jetpack SEO does not conflict with SEOPress.
-- Story Block: Improve accessibility and resolve z-index issues when playing in fullscreen.
+- Blocks: make sure connection notices in blocks work with the widget and customizer block editors.
+- Full Site Editing: disable admin bar in Jetpack notifications to prevent keystroke hijacking in the Site Editor.
+- Podcast Block: Ensure compatability with latest version of Gutenberg plugin and WordPress 5.8.
+- Search: improve Search Widget compatibility with WordPress 5.8 widget editor.
+- Shortcode Embeds: enable compatibility with WordPress' "Lazy Loading".
+- Slideshow Block: update icon.
+- Site Logo: improve compatibility with WordPress 5.8's new Site Logo block.
 
 #### Bug fixes
-- Carousel: harden fetching comments in Carousel view.
-- Contact Form: remove double quotes from names in email headers to improve compatibility with different emailing solutions for WordPress.
-- Dashboard: display the Sharing settings tab when editors only need to customize Publicize settings for their own account.
-- Dashboard: do not display Protect card for non-admin users while in site-only connection.
-- Dashboard: do not show multiple connection prompts in the Publicize settings card.
-- Dashboard: ensure connected user details properly displayed.
-- Dashboard: ensure that the Jetpack settings page can be accessed when using Jetpack's Offline mode.
-- Fixed regression introduced in posts page icon notification WP-Admin edit.php page.
-- General: ensures that the send_auth_cookies filter is respected.
-- Instant Search: don't photon-ize SVG images as they're not supported by Photon
-- Instant Search: fixes for design conflicts.
-- Instant Search: prevent standard sidebar widgets ending up in the search modal sidebar when switching themes.
-- Social Previews: don't show duplicate buttons when a featured image is selected.
-- Stats: fixes the date used to fetch the Top posts in the Top posts dashboard widget.
+- Custom CSS: allow leading decimal zeros.
+- WordPress.com API: properly allow requests to upgrade a plugin outside of autoupdates.
+- Blocks: GIF block supports the widget editor and customizer preview pane.
+- AMP: Fix top AMP ad unit from being cropped on mobile devices
+- Inline PDFs: Fix height of PDF embeds for greater theme compatability.
+- Instant Search: ensure alt text does not contain mark element.
+- Instant Search: prevent theme from overriding modal close button styles.
+- Instant Search: prevent overlay from opening when composing text using an input method editor for Chinese, Japanese, Korean, and Indic languages.
+- Instant Search: fix render-breaking typo for Expanded search results.
+- Instant Search: show correct count for paginated results.
+- Shortcode Embeds: correctly handle YouTube URLs that include a start time.
+- Story Block: improve navigation, fix issues with long press to pause and exiting story on last tap.
+- Payments Block: do not hide block configuration instructions when block is nested.
 
 --------
 
