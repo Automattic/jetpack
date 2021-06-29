@@ -276,7 +276,7 @@ describe( 'staticFilters Reducer', () => {
 				type: 'group',
 				values: [
 					{ name: 'All P2', value: 'p2' },
-					{ name: 'Lighthouse', value: 'lighthouse' }
+					{ name: 'Lighthouse', value: 'lighthouse' },
 				],
 			},
 		];
@@ -299,7 +299,7 @@ describe( 'staticFilters Reducer', () => {
 				type: 'group',
 				values: [
 					{ name: 'All P2', value: 'p2' },
-					{ name: 'Lighthouse', value: 'lighthouse' }
+					{ name: 'Lighthouse', value: 'lighthouse' },
 				],
 			},
 		];

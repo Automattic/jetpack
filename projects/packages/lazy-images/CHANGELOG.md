@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2021-06-29
+### Changed
+- Build using calypso-build, and use the intersection-observer npm module instead of bundling a copy.
+- Update docs to replace yarn with pnpm.
+- Update node version requirement to 14.16.1
+
 ## [1.4.4] - 2021-05-25
 ### Changed
 - Updated package dependencies.
@@ -86,6 +92,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Lazy Images: Move into a package
 
+[1.5.0]: https://github.com/Automattic/jetpack-lazy-images/compare/v1.4.4...v1.5.0
 [1.4.4]: https://github.com/Automattic/jetpack-lazy-images/compare/v1.4.3...v1.4.4
 [1.4.3]: https://github.com/Automattic/jetpack-lazy-images/compare/v1.4.2...v1.4.3
 [1.4.2]: https://github.com/Automattic/jetpack-lazy-images/compare/v1.4.1...v1.4.2

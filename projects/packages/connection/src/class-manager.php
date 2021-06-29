@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\A8c_Mc_Stats as A8c_Mc_Stats;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Heartbeat;
 use Automattic\Jetpack\Roles;
@@ -1922,9 +1923,42 @@ class Manager {
 	/**
 	 * Disconnects from the Jetpack servers.
 	 * Forgets all connection details and tells the Jetpack servers to do the same.
+	 *
+	 * @param boolean $disconnect_wpcom Should disconnect_site_wpcom be called.
 	 */
-	public function disconnect_site() {
+	public function disconnect_site( $disconnect_wpcom = true ) {
+		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
 
+		( new Nonce_Handler() )->clean_all();
+
+		// If the site is in an IDC because sync is not allowed,
+		// let's make sure to not disconnect the production site.
+		if ( $disconnect_wpcom ) {
+			$tracking = new Tracking();
+			$tracking->record_user_event( 'disconnect_site', array() );
+
+			$this->disconnect_site_wpcom( true );
+		}
+
+		$this->delete_all_connection_tokens( true );
+
+		$jetpack_unique_connection = \Jetpack_Options::get_option( 'unique_connection' );
+		if ( $jetpack_unique_connection ) {
+			// Check then record unique disconnection if site has never been disconnected previously.
+			if ( - 1 === $jetpack_unique_connection['disconnected'] ) {
+				$jetpack_unique_connection['disconnected'] = 1;
+			} else {
+				if ( 0 === $jetpack_unique_connection['disconnected'] ) {
+					$a8c_mc_stats_instance = new A8c_Mc_Stats();
+					$a8c_mc_stats_instance->add( 'connections', 'unique-disconnect' );
+					$a8c_mc_stats_instance->do_server_side_stats();
+				}
+				// increment number of times disconnected.
+				$jetpack_unique_connection['disconnected'] += 1;
+			}
+
+			\Jetpack_Options::update_option( 'unique_connection', $jetpack_unique_connection );
+		}
 	}
 
 	/**

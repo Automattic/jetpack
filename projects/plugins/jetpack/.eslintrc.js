@@ -1,8 +1,12 @@
 module.exports = {
-	// Use root level ESlint configuration.
-	// JavaScript files inside this folder are meant to be transpiled by Webpack.
+	// This project uses react, so load the shared react config.
 	root: true,
-	extends: [ '../../../.eslintrc.js' ],
+	extends: [ '../../../.eslintrc.react.js' ],
+	parserOptions: {
+		babelOptions: {
+			configFile: require.resolve( './babel.config.js' ),
+		},
+	},
 	settings: {
 		jest: {
 			version: 26,

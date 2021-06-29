@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Updates the webpack configuration for extensions to prevent JS conflicts with other plugins
