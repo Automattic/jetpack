@@ -3,13 +3,9 @@ module.exports = {
 	root: true,
 	extends: [ '../../../.eslintrc.react.js' ],
 	parserOptions: {
+		requireConfigFile: false,
 		babelOptions: {
-			configFile: require.resolve( './babel.config.js' ),
-		},
-	},
-	settings: {
-		jest: {
-			version: 26,
+			presets: [ '@babel/preset-react' ],
 		},
 	},
 };

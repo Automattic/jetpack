@@ -7,9 +7,4 @@ module.exports = {
 			configFile: require.resolve( './babel.config.js' ),
 		},
 	},
-	settings: {
-		jest: {
-			version: 26,
-		},
-	},
 };
