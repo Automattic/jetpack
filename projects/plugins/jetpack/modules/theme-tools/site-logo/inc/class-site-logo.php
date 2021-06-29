@@ -145,7 +145,7 @@ class Site_Logo {
 			array(
 				'settings'            => 'site_logo',
 				'selector'            => '.site-logo-link',
-				'render_callback'     => 'jetpack_get_site_logo',
+				'render_callback'     => array( $this, 'customizer_preview' ),
 				'container_inclusive' => true,
 			)
 		);
@@ -361,6 +361,17 @@ class Site_Logo {
 		}
 
 		return $input;
+	}
+
+	/**
+	 * This function returns the updated HTML in the Customizer preview when the logo is added, updated, or removed.
+	 *
+	 * @return string
+	 */
+	public function customizer_preview() {
+		ob_start();
+		jetpack_the_site_logo();
+		return ob_get_clean();
 	}
 }
 
