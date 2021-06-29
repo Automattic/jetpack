@@ -27,7 +27,7 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.1.1-alpha';
+	const PACKAGE_VERSION = '0.2.0-alpha';
 
 	/**
 	 * Instance of the object.
@@ -77,6 +77,9 @@ class Identity_Crisis {
 	 */
 	private function __construct() {
 		add_action( 'jetpack_sync_processed_actions', array( $this, 'maybe_clear_migrate_option' ) );
+		add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\IdentityCrisis\\REST_Endpoints', 'initialize_rest_api' ) );
+		add_action( 'jetpack_idc_disconnect', array( __CLASS__, 'do_jetpack_idc_disconnect' ) );
+
 		$urls_in_crisis = self::check_identity_crisis();
 		if ( false === $urls_in_crisis ) {
 			return;
@@ -84,6 +87,24 @@ class Identity_Crisis {
 
 		self::$wpcom_home_url = $urls_in_crisis['wpcom_home'];
 		add_action( 'init', array( $this, 'wordpress_init' ) );
+	}
+
+	/**
+	 * Disconnect current connection and clear IDC options.
+	 */
+	public static function do_jetpack_idc_disconnect() {
+		$connection = new Connection_Manager();
+
+		// If the site is in an IDC because sync is not allowed,
+		// let's make sure to not disconnect the production site.
+		if ( ! self::validate_sync_error_idc_option() ) {
+			$connection->disconnect_site( true );
+		} else {
+			$connection->disconnect_site( false );
+		}
+
+		// Clear IDC options.
+		self::clear_all_idc_options();
 	}
 
 	/**

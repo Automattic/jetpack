@@ -116,7 +116,12 @@ function hasStaticFilters( state ) {
  * @returns {object} hasActiveQuery - true if any search-related query value has been defined.
  */
 export function hasActiveQuery( state ) {
-	return getSearchQuery( state ) !== null || hasFilters( state ) || hasStaticFilters( state ) || state.sort !== null;
+	return (
+		getSearchQuery( state ) !== null ||
+		hasFilters( state ) ||
+		hasStaticFilters( state ) ||
+		state.sort !== null
+	);
 }
 
 /**

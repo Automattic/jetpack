@@ -129,7 +129,6 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 
 		this.global.context = await this.global.browser.newContext( pwContextOptions );
 		this.global.context.on( 'page', page => this.onNewPage( page ) );
-		this.global.context.on( 'close', () => this.onContextClose() );
 	}
 
 	async newPage() {
