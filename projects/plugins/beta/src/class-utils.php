@@ -449,16 +449,25 @@ class Utils {
 	}
 
 	/**
-	 * Delete set transients when plugin is deactivated.
+	 * Delete set transients, e.g. when plugin is deactivated.
 	 */
 	public static function delete_all_transiants() {
-		$prefix = 'jetpack_beta_';
+		global $wpdb;
 
-		delete_site_transient( $prefix . 'org_data' );
-		delete_site_transient( $prefix . 'manifest' );
+		// Multisite uses wp_sitemeta for transients. Non-multisite uses wp_options.
+		if ( is_multisite() ) {
+			$sql        = "SELECT meta_key AS n FROM {$wpdb->sitemeta} WHERE meta_key LIKE %s AND site_id = %d";
+			$extra_vals = array( get_current_network_id() );
+		} else {
+			$sql        = "SELECT option_name AS n FROM {$wpdb->options} WHERE option_name LIKE %s";
+			$extra_vals = array();
+		}
 
-		delete_site_transient( AutoupdateSelf::TRANSIENT_NAME );
-
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$results = $wpdb->get_results( $wpdb->prepare( $sql, $wpdb->esc_like( '_site_transient_jetpack_beta_' ) . '%', ...$extra_vals ) );
+		foreach ( $results as $row ) {
+			delete_site_transient( substr( $row->n, 16 ) );
+		}
 	}
 
 	/**

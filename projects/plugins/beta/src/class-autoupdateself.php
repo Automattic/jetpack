@@ -25,8 +25,6 @@ class AutoupdateSelf {
 	 */
 	private static $instance = null;
 
-	const TRANSIENT_NAME = 'JETPACK_BETA_LATEST_TAG';
-
 	/**
 	 * Configuration.
 	 *
@@ -87,7 +85,7 @@ class AutoupdateSelf {
 	 * @return string|false Prerelease version, or false on failure.
 	 */
 	private function get_latest_prerelease() {
-		$tagged_version = get_site_transient( self::TRANSIENT_NAME );
+		$tagged_version = get_site_transient( 'jetpack_beta_latest_tag' );
 		if ( $this->overrule_transients() || ! $tagged_version ) {
 			$raw_response = wp_remote_get( trailingslashit( $this->config['api_url'] ) . 'releases' );
 			if ( is_wp_error( $raw_response ) ) {
@@ -106,7 +104,7 @@ class AutoupdateSelf {
 			}
 			// Refresh every 6 hours.
 			if ( $tagged_version ) {
-				set_site_transient( self::TRANSIENT_NAME, $tagged_version, 60 * 60 * 6 );
+				set_site_transient( 'jetpack_beta_latest_tag', $tagged_version, 60 * 60 * 6 );
 			}
 		}
 		return $tagged_version;
@@ -127,7 +125,7 @@ class AutoupdateSelf {
 	 * @return object|false Data from GitHub's API, or false on error.
 	 */
 	private function get_github_data() {
-		$github_data = get_site_transient( md5( $this->config['slug'] ) . '_github_data' );
+		$github_data = get_site_transient( 'jetpack_beta_autoupdate_github_data' );
 		if ( $this->overrule_transients() || ! $github_data ) {
 			$github_data = wp_remote_get( $this->config['api_url'] );
 			if ( is_wp_error( $github_data ) ) {
@@ -135,7 +133,7 @@ class AutoupdateSelf {
 			}
 			$github_data = json_decode( $github_data['body'] );
 			// Refresh every 6 hours.
-			set_site_transient( md5( $this->config['slug'] ) . '_github_data', $github_data, 60 * 60 * 6 );
+			set_site_transient( 'jetpack_beta_autoupdate_github_data', $github_data, 60 * 60 * 6 );
 		}
 		return $github_data;
 	}
@@ -174,7 +172,7 @@ class AutoupdateSelf {
 			return $transient;
 		}
 		// Get the latest version.
-		delete_site_transient( self::TRANSIENT_NAME );
+		delete_site_transient( 'jetpack_beta_latest_tag' );
 
 		if ( $this->has_newer_version() ) {
 			$transient->response[ $this->config['plugin_file'] ] = (object) array(
