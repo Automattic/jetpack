@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add jetpack_idc_disonnect action to clear Sync options on disconnect.

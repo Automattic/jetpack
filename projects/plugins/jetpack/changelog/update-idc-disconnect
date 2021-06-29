@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-Remove jetpack_idc_disconnect hook as functionality has been migrated to packages.

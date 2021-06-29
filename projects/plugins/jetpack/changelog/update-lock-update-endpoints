@@ -1,4 +1,0 @@
-Significance: minor
-Type: compat
-
-Plugins Modify endpoint now supports per plugin locks.
