@@ -27,12 +27,6 @@ module.exports = {
 	...baseWebpackConfig,
 	resolve: {
 		...baseWebpackConfig.resolve,
-		alias: {
-			...baseWebpackConfig.resolve.alias,
-			react: 'preact/compat',
-			'react-dom/test-utils': 'preact/test-utils',
-			'react-dom': 'preact/compat', // Must be aliased after test-utils
-		},
 		modules: [
 			// Allow importing from instant search path
 			path.resolve( __dirname, '../node_modules' ),
