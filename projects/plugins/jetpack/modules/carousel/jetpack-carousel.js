@@ -727,14 +727,14 @@
 				captionHtml = domUtil.convertToPlainText( current.attrs.caption );
 
 				if ( domUtil.convertToPlainText( current.attrs.title ) === captionHtml ) {
-					var title = carousel.info.querySelector( '.jp-carousel-titleanddesc-title' );
+					var title = carousel.info.querySelector( '.jp-carousel-photo-title' );
 					domUtil.fadeOut( title, function () {
 						title.innerHTML = '';
 					} );
 				}
 
 				if ( domUtil.convertToPlainText( current.attrs.desc ) === captionHtml ) {
-					var desc = carousel.info.querySelector( '.jp-carousel-titleanddesc-desc' );
+					var desc = carousel.info.querySelector( '.jp-carousel-photo-description' );
 					domUtil.fadeOut( desc, function () {
 						desc.innerHTML = '';
 					} );
