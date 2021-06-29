@@ -12,7 +12,7 @@ $color-text-lighter: $studio-gray-50;
 	border-radius: 3px;
 	margin: 0 auto;
 	width: 100%;
-	height: 70vh;
+	height: 50vh;
 	box-shadow: rgba( 0, 0, 0, 0.35 ) 0px 5px 25px;
 	user-select: none;
 }
@@ -101,7 +101,6 @@ $color-text-lighter: $studio-gray-50;
 		flex: none;
 		position: static;
 		width: $sidebar-width;
-		min-height: 70vh;
 	}
 }
 .jp-mocked-instant-search__search-filter-header {
