@@ -1,3 +1,5 @@
+@import './_variables.scss';
+
 #jp-search-dashboard {
 	.hide-if-no-js {
 		text-align: center;
@@ -32,9 +34,13 @@
 			max-width: 15em;
 			line-height: 1.2em;
 		}
-
-		@media ( max-width: 1250px ) {
+		@include breakpoint( '<1040px' ) {
 			max-width: 95%;
+		}
+		@include breakpoint( '<480px' ) {
+			h1 {
+				font-size: 1.5em;
+			}
 		}
 	}
 
@@ -47,6 +53,7 @@
 		display: flex;
 		flex-flow: column;
 		justify-content: space-between;
+		align-items: center;
 		position: absolute;
 		bottom: -40px; // cover wp default footer
 		left: 0;

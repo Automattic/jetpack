@@ -2,6 +2,7 @@
 // Variables
 //
 @import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
+@import '../../scss/mixin_breakpoint.scss';
 
 // Breakpoints
 $break-sm: 576px;

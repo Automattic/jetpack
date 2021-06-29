@@ -6,12 +6,9 @@ $color-button-background-disabled: #dcdcde;
 $color-button-text-disabled: #a7aaad;
 
 .jp-form-search-settings-group {
-	display: flex;
-	align-items: flex-start;
 	width: 100%;
+	max-width: 55rem;
 	.dops-card {
-		min-width: 60%;
-		max-width: 100%;
 		box-shadow: none;
 	}
 }
@@ -35,15 +32,20 @@ $color-button-text-disabled: #a7aaad;
 
 	.jp-form-setting-cfa-buttons {
 		display: flex;
-		flex-direction: row;
 		flex-wrap: wrap;
-		align-content: space-between;
+		justify-content: space-between;
 		margin-top: 1em;
+		width: 100%;
+		max-width: 450px;
 	}
 }
 
 .jp-form-setting-cfa-button {
-	margin: 0.25em 1em;
+	display: block;
+	width: 15em;
+	text-align: center;
+
+	margin: 0.25em;
 	&.jp-form-setting-cfa-customize-button {
 		background-color: $color-button-background;
 		border-color: $color-button-background;
