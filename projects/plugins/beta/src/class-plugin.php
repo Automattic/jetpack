@@ -22,6 +22,13 @@ class Plugin {
 	protected static $instances = null;
 
 	/**
+	 * Plugin file map.
+	 *
+	 * @var string[]
+	 */
+	protected static $file_map = null;
+
+	/**
 	 * WordPress plugin slug.
 	 *
 	 * @var string
@@ -98,6 +105,19 @@ class Plugin {
 				}
 			}
 			self::$instances = $plugins;
+
+			// Save the list of plugins to an option, so that we don't have to potentially hit the network
+			// on every request if we only want the list of plugin files (since transients aren't guaranteed last even 1 second).
+			$map = array();
+			foreach ( $plugins as $plugin ) {
+				$plugin_file             = $plugin->plugin_file();
+				$dev_plugin_file         = $plugin->dev_plugin_file();
+				$map[ $plugin_file ]     = $dev_plugin_file;
+				$map[ $dev_plugin_file ] = $plugin_file;
+			}
+			ksort( $map );
+			update_option( 'jetpack_beta_plugin_file_map', $map );
+			self::$file_map = $map;
 		}
 
 		return self::$instances;
@@ -114,6 +134,22 @@ class Plugin {
 	public static function get_plugin( $slug, $no_cache = false ) {
 		$plugins = self::get_all_plugins( $no_cache );
 		return isset( $plugins[ $slug ] ) ? $plugins[ $slug ] : null;
+	}
+
+	/**
+	 * Get a map of plugin files.
+	 *
+	 * @return string[] Map from dev to non-dev plugin files, and vice versa.
+	 * @throws PluginDataException If the plugin data cannot be fetched or is invalid.
+	 */
+	public static function get_plugin_file_map() {
+		if ( null === self::$file_map ) {
+			self::$file_map = get_option( 'jetpack_beta_plugin_file_map', null );
+			if ( null === self::$file_map ) {
+				self::get_all_plugins();
+			}
+		}
+		return self::$file_map;
 	}
 
 	/**

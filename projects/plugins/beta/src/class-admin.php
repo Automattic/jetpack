@@ -25,17 +25,16 @@ class Admin {
 	/** Attach hooks common to all Jetpack admin pages. */
 	public static function add_actions() {
 		$hook = self::get_page_hook();
-		add_action( "load-$hook", array( self::class, 'admin_page_load' ) );
-		add_action( "admin_print_styles-$hook", array( self::class, 'admin_styles' ) );
-		add_action( "admin_print_scripts-$hook", array( self::class, 'admin_scripts' ) );
+		if ( false !== $hook ) {
+			add_action( "load-$hook", array( self::class, 'admin_page_load' ) );
+			add_action( "admin_print_styles-$hook", array( self::class, 'admin_styles' ) );
+			add_action( "admin_print_scripts-$hook", array( self::class, 'admin_scripts' ) );
+		}
 		add_filter( 'plugin_action_links_' . JPBETA__PLUGIN_FOLDER . '/jetpack-beta.php', array( self::class, 'admin_plugin_settings_link' ) );
 	}
 
 	/** Get page hook */
 	public static function get_page_hook() {
-		if ( Utils::is_network_active() && ! is_network_admin() ) {
-			return;
-		}
 		if ( class_exists( Jetpack::class ) ) {
 			return add_submenu_page(
 				'jetpack',
@@ -58,6 +57,10 @@ class Admin {
 
 	/** Always grab and render the latest version. */
 	public static function render() {
+		// TODO: The plan is to have two screens in here, one to select the plugin and one to manage it.
+		// Make sure links from the first to the second go via Network Admin for network-activated plugins,
+		// and that the second rejects if the plugin is network-activated but `! is_network_admin()`.
+
 		Utils::get_beta_manifest( true );
 		require_once __DIR__ . '/admin/main.php';
 	}
@@ -83,6 +86,9 @@ class Admin {
 		if ( ! isset( $_GET['_nonce'] ) ) {
 			return;
 		}
+
+		// TODO: Access control: If the plugin being managed is network-activated, reject if `! is_network_admin()` or something (for access control).
+
 		// Install and activate Jetpack Version.
 		if ( wp_verify_nonce( $_GET['_nonce'], 'activate_branch' ) && isset( $_GET['activate-branch'] ) && isset( $_GET['section'] ) ) {
 			$branch  = esc_html( $_GET['activate-branch'] );

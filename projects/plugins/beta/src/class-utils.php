@@ -83,9 +83,9 @@ class Utils {
 	 * @param string $query - Path relative to the admin URL.
 	 */
 	public static function admin_url( $query = '?page=jetpack-beta' ) {
-		return self::is_network_active()
-			? network_admin_url( 'admin.php' . $query )
-			: admin_url( 'admin.php' . $query );
+		// TODO: Make this take a query array, and do network_admin_url() if the query array specifies a plugin
+		// that is network-activated.
+		return admin_url( 'admin.php' . $query );
 	}
 
 	/**
@@ -641,7 +641,7 @@ class Utils {
 	/**
 	 * Check if plugin is network activated.
 	 */
-	public static function is_network_active() {
+	private static function is_network_active() {
 		if ( ! is_multisite() ) {
 			return false;
 		}

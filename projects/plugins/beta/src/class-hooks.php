@@ -83,11 +83,8 @@ class Hooks {
 
 		add_action( 'upgrader_process_complete', array( $this, 'upgrader_process_complete' ), 10, 2 );
 
-		add_filter( 'plugin_action_links_' . JETPACK_PLUGIN_FILE, array( $this, 'remove_activate_stable' ) );
-		add_filter( 'plugin_action_links_' . JETPACK_DEV_PLUGIN_FILE, array( $this, 'remove_activate_dev' ) );
-
-		add_filter( 'network_admin_plugin_action_links_' . JETPACK_PLUGIN_FILE, array( $this, 'remove_activate_stable' ) );
-		add_filter( 'network_admin_plugin_action_links_' . JETPACK_DEV_PLUGIN_FILE, array( $this, 'remove_activate_dev' ) );
+		add_filter( 'plugin_action_links', array( $this, 'remove_activate_link' ), 10, 2 );
+		add_filter( 'network_admin_plugin_action_links', array( $this, 'remove_activate_link' ), 10, 2 );
 
 		add_filter( 'all_plugins', array( $this, 'update_all_plugins' ) );
 
@@ -129,27 +126,36 @@ class Hooks {
 	 * If Jetpack or JP Dev plugin is network activated, update active_plugins option.
 	 */
 	public static function is_network_enabled() {
-		if ( Utils::is_network_active() ) {
+		if ( is_multisite() ) {
+			if ( ! function_exists( 'is_plugin_active_for_network' ) ) {
+				require_once ABSPATH . '/wp-admin/includes/plugin.php';
+			}
 			add_filter( 'option_active_plugins', array( self::class, 'override_active_plugins' ) );
 		}
 	}
 
 	/**
-	 * This filter is only applied if Jetpack is network activated,
-	 * makes sure that you can't have Jetpack or Jetpack Dev plugins versions loaded.
+	 * Filter: If a managed plugin is enabled sitewide, do not allow the other version to be enabled non-sitewide.
 	 *
-	 * @param array $active_plugins - Currently activated plugins.
+	 * This filter is only added when `is_multisite()`.
 	 *
+	 * Filter: option_active_plugins
+	 *
+	 * @param array $active_plugins Currently activated plugins.
 	 * @return array Updated array of active plugins.
 	 */
 	public static function override_active_plugins( $active_plugins ) {
-		$new_active_plugins = array();
-		foreach ( $active_plugins as $active_plugin ) {
-			if ( ! Utils::is_jetpack_plugin( $active_plugin ) ) {
-				$new_active_plugins[] = $active_plugin;
+		$remove = array();
+		foreach ( Plugin::get_plugin_file_map() as $a => $b ) {
+			if ( is_plugin_active_for_network( $a ) ) {
+				$remove[] = $a;
+				$remove[] = $b;
 			}
 		}
-		return $new_active_plugins;
+		if ( $remove ) {
+			$active_plugins = array_values( array_diff( $active_plugins, $remove ) );
+		}
+		return $active_plugins;
 	}
 
 	/**
@@ -166,25 +172,20 @@ class Hooks {
 	}
 
 	/**
-	 * Filter JP Dev plugin action links.
+	 * Filter: Replace activate links in the other copy of our activated plugins.
 	 *
-	 * @param array $actions - Array of plugin action links.
-	 */
-	public function remove_activate_dev( $actions ) {
-		if ( is_plugin_active( JETPACK_PLUGIN_FILE ) || Utils::is_network_active() ) {
-			$actions['activate'] = __( 'Plugin Already Active', 'jetpack-beta' );
-		}
-		return $actions;
-	}
-
-	/**
-	 * Filter JP Stable plugin action links.
+	 * Filter: plugin_action_links and network_admin_plugin_action_links
 	 *
-	 * @param array $actions - Array of plugin action links.
+	 * @param string[] $actions Array of plugin action links.
+	 * @param string   $plugin_file Plugin file.
+	 * @return $actions
 	 */
-	public function remove_activate_stable( $actions ) {
-		if ( is_plugin_active( JETPACK_DEV_PLUGIN_FILE ) || Utils::is_network_active() ) {
-			$actions['activate'] = __( 'Plugin Already Active', 'jetpack-beta' );
+	public function remove_activate_link( $actions, $plugin_file ) {
+		if ( isset( $actions['activate'] ) ) {
+			$map = Plugin::get_plugin_file_map();
+			if ( isset( $map[ $plugin_file ] ) && is_plugin_active( $map[ $plugin_file ] ) ) {
+				$actions['activate'] = __( 'Plugin Already Active', 'jetpack-beta' );
+			}
 		}
 		return $actions;
 	}
@@ -275,6 +276,7 @@ class Hooks {
 		add_action( 'shutdown', array( self::class, 'switch_active' ), 5 );
 		add_action( 'shutdown', array( self::class, 'remove_dev_plugin' ), 20 );
 		delete_option( self::$option );
+		delete_option( 'jetpack_beta_plugin_file_map' );
 	}
 
 	/**
