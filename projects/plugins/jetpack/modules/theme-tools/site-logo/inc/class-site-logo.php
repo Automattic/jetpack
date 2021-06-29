@@ -36,7 +36,7 @@ class Site_Logo {
 	 * @uses get_option()
 	 */
 	private function __construct() {
-		$this->logo = get_option( 'site_logo', null );
+		$this->logo = (int) get_option( 'site_logo', null );
 	}
 
 	/**
