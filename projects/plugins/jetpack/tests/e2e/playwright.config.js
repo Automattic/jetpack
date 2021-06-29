@@ -10,6 +10,7 @@ if ( HEADLESS !== 'false' && ! E2E_DEBUG ) {
 	};
 }
 
+// Comment to test PR gardening. Please remove me if you read me.
 module.exports = {
 	pwBrowserOptions: {
 		channel: '', // Leave blank for 'chromium'. For stock browsers: 'chrome', 'msedge'. See https://playwright.dev/docs/browsers/
