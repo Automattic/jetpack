@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { Octokit } from '@octokit/rest';
-import { createTokenAuth } from '@octokit/auth';
+import { createTokenAuth } from '@octokit/auth-token';
 import inquirer from 'inquirer';
 import Configstore from 'configstore';
 
@@ -20,7 +20,7 @@ export async function doesRepoExist( name, org = 'Automattic' ) {
 	const auth = await authenticate();
 	const octokit = new Octokit( { auth: auth.token } );
 	return (
-		octokit.repos
+		octokit.rest.repos
 			.get( { owner: org, repo: name } )
 			.then( resp => resp.status === 200 )
 			// eslint-disable-next-line no-unused-vars

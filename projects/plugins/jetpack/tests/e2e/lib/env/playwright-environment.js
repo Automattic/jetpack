@@ -8,6 +8,7 @@ const pwContextOptions = require( '../../playwright.config' ).pwContextOptions;
 const { fileNameFormatter } = require( '../utils-helper' );
 const { takeScreenshot } = require( '../reporters/screenshot' );
 const config = require( 'config' );
+const { ContentType } = require( 'jest-circus-allure-environment' );
 const AllureNodeEnvironment = require( 'jest-circus-allure-environment' ).default;
 const { E2E_DEBUG, PAUSE_ON_FAILURE } = process.env;
 
@@ -33,8 +34,6 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 		this.global.siteUrl = fs
 			.readFileSync( config.get( 'temp.tunnels' ), 'utf8' )
 			.replace( 'http:', 'https:' );
-
-		this.global.reporter = this.global.allure;
 	}
 
 	async teardown() {
@@ -43,8 +42,6 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 	}
 
 	async handleTestEvent( event, state ) {
-		await super.handleTestEvent( event, state );
-
 		let eventName;
 
 		if ( event.hook ) {
@@ -75,25 +72,25 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 			case 'run_describe_start':
 				break;
 			case 'test_start':
-				await this.newPage( eventName );
+				await this.newPage();
 				break;
 			case 'hook_start':
 				logger.info( `START: ${ eventName }` );
 				if ( event.hook.type === 'beforeAll' ) {
-					await this.newPage( eventName );
+					await this.newPage();
 				}
 				break;
 			case 'hook_success':
 				logger.info( chalk.green( `SUCCESS: ${ eventName }` ) );
 				if ( event.hook.type === 'beforeAll' ) {
-					await this.closePage();
+					await this.closePage( eventName );
 				}
 				break;
 			case 'hook_failure':
 				logger.info( chalk.red( `HOOK FAILED: ${ eventName }` ) );
 				await this.onFailure( eventName, event.hook.parent.name, event.hook.type, event.error );
 				if ( event.hook.type === 'beforeAll' ) {
-					await this.closePage();
+					await this.closePage( eventName );
 				}
 				break;
 			case 'test_fn_start':
@@ -107,7 +104,7 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 				await this.onFailure( eventName, event.test.parent.name, event.test.name, event.error );
 				break;
 			case 'test_done':
-				await this.closePage();
+				await this.closePage( eventName );
 				break;
 			case 'run_describe_finish':
 				break;
@@ -120,6 +117,11 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 			default:
 				break;
 		}
+
+		// important to be at the end otherwise videos won't get attached correctly in Allure reports
+		// allure reporter closes the tests events in super method and this need to happen
+		// after we close pages and save the videos or other resources we need attached
+		await super.handleTestEvent( event, state );
 	}
 
 	async newContext() {
@@ -127,18 +129,10 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 
 		this.global.context = await this.global.browser.newContext( pwContextOptions );
 		this.global.context.on( 'page', page => this.onNewPage( page ) );
-		this.global.context.on( 'close', () => this.onContextClose() );
-
-		// This will store the video files paths for each page in the current context
-		// We want to make sure it's empty when the context gets created
-		this.global.videoFiles = {};
 	}
 
-	async newPage( eventName = '' ) {
+	async newPage() {
 		this.global.page = await this.global.context.newPage();
-		// Even though this was already called by the page opened event
-		// we're calling it again with an event name to give the video file a nice name
-		await this.saveVideoFilePathsForPage( this.global.page, eventName );
 	}
 
 	async onNewPage( page ) {
@@ -162,40 +156,31 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 
 			logger.debug( `CONSOLE: ${ type.toUpperCase() }: ${ text }` );
 		} );
-
-		await this.saveVideoFilePathsForPage( page );
 	}
 
-	async closePage() {
+	async closePage( eventName ) {
 		await this.global.page.close();
-	}
 
-	async saveVideoFilePathsForPage( page, eventName = '' ) {
-		// Save the pair of the current page videoPath and the event name
-		// to use later in video files renaming
+		if ( this.global.page.video() ) {
+			const videoName = fileNameFormatter( `${ eventName }.webm`, true );
+			const videoPath = `${ config.get( 'dirs.videos' ) }/${ videoName }`;
 
-		try {
-			const srcVideoPath = await page.video().path();
-			const ext = path.extname( srcVideoPath );
-			const dir = path.dirname( srcVideoPath );
-			this.global.videoFiles[ srcVideoPath ] = path.join(
-				dir,
-				`${ fileNameFormatter( eventName ) }${ ext }`
-			);
-		} catch ( error ) {
-			logger.error( `Cannot get page's video file path! Is video capture active? \n ${ error }` );
-		}
-	}
-
-	async onContextClose() {
-		// Rename video files. This can only be done after browser context is closed
-		// Each page has its own video file
-		for ( const [ src, dst ] of Object.entries( this.global.videoFiles ) ) {
 			try {
-				fs.renameSync( src, dst );
-				logger.debug( `Video file saved as ${ dst }` );
+				await this.global.page.video().saveAs( videoPath );
+				logger.debug( `Video file saved: ${ videoPath }` );
 			} catch ( error ) {
-				logger.error( `Renaming video file failed! \n ${ error }` );
+				logger.error( `There was an error saving the video file!\n${ error }` );
+			}
+
+			try {
+				await this.global.allure.attachment(
+					videoName,
+					fs.readFileSync( videoPath ),
+					ContentType.WEBM
+				);
+				logger.debug( `Video file attached to report` );
+			} catch ( error ) {
+				logger.error( `There was an error attaching the video to test report!\n${ error }` );
 			}
 		}
 	}
@@ -212,7 +197,7 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 	async onFailure( eventFullName, parentName, eventName, error ) {
 		logger.error( chalk.red( `FAILURE: ${ error }` ) );
 
-		await this.saveScreenshot( eventFullName );
+		await this.saveScreenshots( eventFullName );
 		await this.logHTML( eventFullName );
 
 		if ( E2E_DEBUG && PAUSE_ON_FAILURE && this.global.page ) {
@@ -226,14 +211,10 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 	 * @param {string} fileName screenshot file name
 	 * @return {Promise<void>}
 	 */
-	async saveScreenshot( fileName ) {
-		const screenshots = [];
-
+	async saveScreenshots( fileName ) {
 		for ( const page of this.global.context.pages() ) {
-			screenshots.push( await takeScreenshot( page, fileName, this.global.allure ) );
+			await takeScreenshot( page, fileName, this.global.allure );
 		}
-
-		return screenshots;
 	}
 
 	/**

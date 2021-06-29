@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix autoloader issue in prodution build

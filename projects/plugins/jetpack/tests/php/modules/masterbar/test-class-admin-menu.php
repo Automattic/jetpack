@@ -404,7 +404,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_options_menu();
 
-		$this->assertSame( 'https://wordpress.com/settings/general/' . static::$domain, array_shift( $submenu['options-general.php'] )[2] );
+		$this->assertSame( 'https://wordpress.com/settings/general/' . static::$domain, $submenu['options-general.php'][0][2] );
 		$this->assertSame( 'options-general.php', $submenu['options-general.php'][1][2] );
 	}
 
@@ -547,5 +547,59 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 				array( '', 'read', 'test-slug', '', Base_Admin_Menu::HIDE_CSS_CLASS ),
 			),
 		);
+	}
+
+	/**
+	 * Check if the dashboard switcher is registered correctly.
+	 */
+	public function test_register_dashboard_switcher() {
+		$screen_without_switcher = (object) array(
+			'base'      => 'edit',
+			'post_type' => 'feedback',
+			'taxonomy'  => '',
+		);
+
+		$output = static::$admin_menu->register_dashboard_switcher( '', $screen_without_switcher );
+		$this->assertNull( $output );
+
+		$screens = array(
+			(object) array(
+				'base'      => 'edit',
+				'post_type' => 'post',
+				'taxonomy'  => '',
+				'mapping'   => 'https://wordpress.com/posts/',
+			),
+			(object) array(
+				'base'      => 'edit',
+				'post_type' => 'page',
+				'taxonomy'  => '',
+				'mapping'   => 'https://wordpress.com/pages/',
+			),
+			(object) array(
+				'base'      => 'edit',
+				'post_type' => 'jetpack-portfolio',
+				'taxonomy'  => '',
+				'mapping'   => 'https://wordpress.com/types/jetpack-portfolio/',
+			),
+			(object) array(
+				'base'      => 'edit-tags',
+				'post_type' => 'post',
+				'taxonomy'  => 'category',
+				'mapping'   => 'https://wordpress.com/settings/taxonomies/category/',
+			),
+		);
+
+		foreach ( $screens as $screen ) {
+			$output   = static::$admin_menu->register_dashboard_switcher( '', $screen );
+			$expected = sprintf(
+				'<div id="dashboard-switcher"><h5>%s</h5><p class="dashboard-switcher-text">%s</p><a class="button button-primary dashboard-switcher-button" href="%s">%s</a></div>',
+				__( 'Screen features', 'jetpack' ),
+				__( 'Currently you are seeing the classic WP-Admin view of this page. Would you like to see the default WordPress.com view?', 'jetpack' ),
+				$screen->mapping . static::$domain,
+				__( 'Use WordPress.com view', 'jetpack' )
+			);
+
+			$this->assertEquals( $expected, $output );
+		}
 	}
 }

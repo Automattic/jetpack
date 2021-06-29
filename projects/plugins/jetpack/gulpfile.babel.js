@@ -37,7 +37,7 @@ gulp.task( 'blocks:watch', function () {
 gulp.task( 'search:watch', function () {
 	const child = require( 'child_process' ).execFile( 'pnpm', [
 		'run',
-		'build-search:scripts',
+		'build-search',
 		'--',
 		'--watch',
 	] );

@@ -204,6 +204,7 @@ class Main extends React.Component {
 		switch ( route ) {
 			case '/dashboard':
 			case '/reconnect':
+			case '/disconnect':
 				pageComponent = (
 					<AtAGlance
 						siteRawUrl={ this.props.siteRawUrl }

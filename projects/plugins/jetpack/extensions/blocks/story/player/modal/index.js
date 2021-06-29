@@ -15,6 +15,8 @@ import * as ariaHelper from './aria-helper';
 let parentElement,
 	openModalCount = 0;
 
+const noop = () => {};
+
 class Modal extends Component {
 	constructor( props ) {
 		super( props );
@@ -64,6 +66,10 @@ class Modal extends Component {
 		}
 		this.node = document.createElement( 'div' );
 		parentElement.appendChild( this.node );
+		// Hack for webkit iOS to make sure touchstart and touchend events are
+		// propagated into the shadow DOM of the modals
+		this.node.ontouchstart = noop;
+		this.node.ontouchend = noop;
 	}
 
 	/**

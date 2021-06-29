@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Instant Search: prevent override of modal close button styles by theme

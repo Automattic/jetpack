@@ -577,7 +577,15 @@ class Jetpack_Gutenberg {
 		if ( self::block_has_asset( $style_relative_path ) ) {
 			$style_version = self::get_asset_version( $style_relative_path );
 			$view_style    = plugins_url( $style_relative_path, JETPACK__PLUGIN_FILE );
-			wp_enqueue_style( 'jetpack-block-' . $type, $view_style, array(), $style_version );
+
+			// If this is a customizer preview, render the style directly to the preview after autosave.
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( is_customize_preview() && ! empty( $_GET['customize_autosaved'] ) ) {
+				// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet
+				echo '<link rel="stylesheet" id="jetpack-block-' . esc_attr( $type ) . '" href="' . esc_attr( $view_style ) . '?ver=' . esc_attr( $style_version ) . '" media="all">';
+			} else {
+				wp_enqueue_style( 'jetpack-block-' . $type, $view_style, array(), $style_version );
+			}
 		}
 
 	}
@@ -611,7 +619,14 @@ class Jetpack_Gutenberg {
 		if ( ! Blocks::is_amp_request() && self::block_has_asset( $script_relative_path ) ) {
 			$script_version = self::get_asset_version( $script_relative_path );
 			$view_script    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
-			wp_enqueue_script( 'jetpack-block-' . $type, $view_script, $script_dependencies, $script_version, false );
+
+			// If this is a customizer preview, render the script directly to the preview after autosave.
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( is_customize_preview() && ! empty( $_GET['customize_autosaved'] ) ) {
+				echo '<script id="jetpack-block-' . esc_attr( $type ) . '" src="' . esc_attr( $view_script ) . '?ver=' . esc_attr( $script_version ) . '"></script>';
+			} else {
+				wp_enqueue_script( 'jetpack-block-' . $type, $view_script, $script_dependencies, $script_version, false );
+			}
 		}
 
 		wp_localize_script(

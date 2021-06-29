@@ -1,13 +1,14 @@
 {
-	"name": "automattic/jetpack-backup",
+	"name": "automattic/jetpack-backup-plugin",
 	"description": "Easily restore or download a backup of your site from a specific moment in time.",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-autoloader": "2.10.x-dev",
+		"automattic/jetpack-backup": "1.1.x-dev",
 		"automattic/jetpack-config": "1.4.x-dev",
-		"automattic/jetpack-connection": "1.28.x-dev",
-		"automattic/jetpack-connection-ui": "1.1.x-dev",
+		"automattic/jetpack-connection": "1.29.x-dev",
+		"automattic/jetpack-connection-ui": "1.2.x-dev",
 		"automattic/jetpack-sync": "1.23.x-dev"
 	},
 	"require-dev": {
@@ -41,7 +42,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
-		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_backupⓥ0_1_1_alpha"
+		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_backupⓥ0_2_0_alpha"
 	},
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-backup-plugin",

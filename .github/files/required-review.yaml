@@ -13,10 +13,18 @@
   teams:
    - jetpack-approvers
 
+# The Backup team reviews changes to the VaultPress and Backup plugin.
+- name: VaultPress and Backup
+  paths:
+   - 'projects/plugins/vaultpress/**'
+   - 'projects/plugins/backup/**'
+  teams:
+   - yamato-backup-and-security
+   - jetpack-approvers
+
 # Jetpack Approvers review everything that hasn't been specifically assigned above.
 # This needs to be last.
 - name: Default to Jetpack Approvers
   paths: unmatched
   teams:
    - jetpack-approvers
-

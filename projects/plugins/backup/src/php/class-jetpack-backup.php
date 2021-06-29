@@ -2,12 +2,14 @@
 /**
  * Primary class file for the Jetpack Backup plugin.
  *
- * @package automattic/jetpack-backup
+ * @package automattic/jetpack-backup-plugin
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 
 /**
  * Class Jetpack_Backup
@@ -17,6 +19,9 @@ class Jetpack_Backup {
 	 * Constructor.
 	 */
 	public function __construct() {
+		// Set up the REST authentication hooks.
+		Connection_Rest_Authentication::init();
+
 		add_action(
 			'admin_menu',
 			function () {

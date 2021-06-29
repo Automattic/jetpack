@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { JetpackConnection } from '@automattic/jetpack-connection';
+import { ConnectButton } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -21,10 +21,6 @@ import './style.scss';
 export default function Admin() {
 	const APINonce = useSelect( select => select( STORE_ID ).getAPINonce(), [] );
 	const APIRoot = useSelect( select => select( STORE_ID ).getAPIRoot(), [] );
-	const doNotUseConnectionIframe = useSelect(
-		select => select( STORE_ID ).getDoNotUseConnectionIframe(),
-		[]
-	);
 	const registrationNonce = useSelect( select => select( STORE_ID ).getRegistrationNonce(), [] );
 
 	const connectionStatus = useSelect( select => select( STORE_ID ).getConnectionStatus(), [] );
@@ -43,10 +39,9 @@ export default function Admin() {
 				) }
 			</div>
 
-			<JetpackConnection
+			<ConnectButton
 				apiRoot={ APIRoot }
 				apiNonce={ APINonce }
-				forceCalypsoFlow={ doNotUseConnectionIframe }
 				registrationNonce={ registrationNonce }
 				from="connection-ui"
 				redirectUri="tools.php?page=wpcom-connection-manager"
@@ -55,7 +50,7 @@ export default function Admin() {
 					setConnectionStatus( status );
 					return null;
 				} }
-			</JetpackConnection>
+			</ConnectButton>
 		</React.Fragment>
 	);
 }

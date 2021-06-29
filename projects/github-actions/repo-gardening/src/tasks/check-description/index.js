@@ -28,7 +28,7 @@ const getPluginNames = require( '../../get-plugin-names' );
  * @returns {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasUnverifiedCommit( octokit, owner, repo, number ) {
-	for await ( const response of octokit.paginate.iterator( octokit.pulls.listCommits, {
+	for await ( const response of octokit.paginate.iterator( octokit.rest.pulls.listCommits, {
 		owner,
 		repo,
 		pull_number: +number,
@@ -186,7 +186,7 @@ async function getCheckComment( octokit, owner, repo, number ) {
 
 	debug( `check-description: Looking for a previous comment from this task in our PR.` );
 
-	for await ( const response of octokit.paginate.iterator( octokit.issues.listComments, {
+	for await ( const response of octokit.paginate.iterator( octokit.rest.issues.listComments, {
 		owner,
 		repo,
 		issue_number: +number,
@@ -425,14 +425,14 @@ async function postComment( payload, octokit, comment ) {
 	// If there is a comment already, update it.
 	if ( existingComment !== 0 ) {
 		debug( `check-description: update comment ID ${ existingComment } with our new remarks` );
-		await octokit.issues.updateComment( {
+		await octokit.rest.issues.updateComment( {
 			...commentOpts,
 			comment_id: +existingComment,
 		} );
 	} else {
 		// If no comment was published before, publish one now.
 		debug( `check-description: Posting comment to PR #${ number }` );
-		await octokit.issues.createComment( {
+		await octokit.rest.issues.createComment( {
 			...commentOpts,
 			issue_number: +number,
 		} );
@@ -460,7 +460,7 @@ async function updateLabels( payload, octokit ) {
 	const hasNeedsReview = await hasNeedsReviewLabel( octokit, ownerLogin, repo, number );
 	if ( hasNeedsReview ) {
 		debug( `check-description: remove existing Needs review label.` );
-		await octokit.issues.removeLabel( {
+		await octokit.rest.issues.removeLabel( {
 			...labelOpts,
 			name: '[Status] Needs Review',
 		} );
@@ -470,7 +470,7 @@ async function updateLabels( payload, octokit ) {
 	const isInProgress = await hasProgressLabel( octokit, ownerLogin, repo, number );
 	if ( ! isInProgress ) {
 		debug( `check-description: add Needs Author Reply label.` );
-		await octokit.issues.addLabels( {
+		await octokit.rest.issues.addLabels( {
 			...labelOpts,
 			labels: [ '[Status] Needs Author Reply' ],
 		} );
@@ -511,6 +511,12 @@ When contributing to Jetpack, we have [a few suggestions](https://github.com/Aut
 
 
 This comment will be updated as you work on your PR and make changes. If you think that some of those checks are not needed for your PR, please explain why you think so. Thanks for cooperation :robot:
+
+******`;
+
+	comment += `
+
+The e2e test report can be found [here](https://automattic.github.io/jetpack-e2e-reports/${ number }/report/). Please note that it can take a few minutes after the e2e tests checks are complete for the report to be available.
 
 ******`;
 

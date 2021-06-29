@@ -47,6 +47,32 @@ export function getFilterKeys(
 }
 
 /**
+ * Get a list of provided static filters.
+ *
+ * @returns {Array} list of available static filters.
+ */
+export function getAvailableStaticFilters() {
+	if ( ! window[ SERVER_OBJECT_NAME ]?.staticFilters ) {
+		return [];
+	}
+
+	return window[ SERVER_OBJECT_NAME ].staticFilters;
+}
+
+/**
+ * Get static filter keys.
+ *
+ * @returns {Array} list of available static filters keys.
+ */
+export function getStaticFilterKeys() {
+	const staticFilters = getAvailableStaticFilters();
+	const keys = new Set();
+	staticFilters.forEach( filter => keys.add( filter.filter_id ) );
+
+	return [ ...keys ];
+}
+
+/**
  * Returns an array of filter keys selectable from within the overlay.
  *
  * @param {object[]} widgets - Array of Jetpack Search widget objects inside the overlay sidebar.
@@ -96,6 +122,8 @@ export function mapFilterToFilterKey( filter ) {
 		return `${ filter.taxonomy }`;
 	} else if ( filter.type === 'post_type' ) {
 		return 'post_types';
+	} else if ( filter.type === 'group' ) {
+		return filter.filter_id;
 	}
 	return null;
 }
@@ -124,6 +152,10 @@ export function mapFilterKeyToFilter( filterKey ) {
 		return {
 			type: 'post_type',
 		};
+	} else if ( filterKey === 'group' ) {
+		return {
+			type: 'group',
+		};
 	}
 
 	return {
@@ -145,5 +177,7 @@ export function mapFilterToType( filter ) {
 		return 'taxonomy';
 	} else if ( filter.type === 'post_type' ) {
 		return 'postType';
+	} else if ( filter.type === 'group' ) {
+		return 'group';
 	}
 }

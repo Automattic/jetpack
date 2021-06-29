@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Migrate jetpack/v4/identity-crisis endpoints into package.

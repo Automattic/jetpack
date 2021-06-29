@@ -24,7 +24,7 @@ async function getFiles( octokit, owner, repo, number ) {
 
 	debug( `get-files: Get list of files modified in ${ cacheKey }.` );
 
-	for await ( const response of octokit.paginate.iterator( octokit.pulls.listFiles, {
+	for await ( const response of octokit.paginate.iterator( octokit.rest.pulls.listFiles, {
 		owner,
 		repo,
 		pull_number: +number,
