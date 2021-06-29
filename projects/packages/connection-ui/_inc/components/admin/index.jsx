@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { ConnectScreen } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
@@ -26,6 +26,13 @@ export default function Admin() {
 	const connectionStatus = useSelect( select => select( STORE_ID ).getConnectionStatus(), [] );
 	const { setConnectionStatus } = useDispatch( STORE_ID );
 
+	const statusCallback = useCallback(
+		status => {
+			setConnectionStatus( status );
+		},
+		[ setConnectionStatus ]
+	);
+
 	return (
 		<React.Fragment>
 			<Header />
@@ -46,12 +53,8 @@ export default function Admin() {
 					registrationNonce={ registrationNonce }
 					from="connection-ui"
 					redirectUri="tools.php?page=wpcom-connection-manager"
-				>
-					{ status => {
-						setConnectionStatus( status );
-						return null;
-					} }
-				</ConnectScreen>
+					statusCallback={ statusCallback }
+				/>
 			) }
 		</React.Fragment>
 	);

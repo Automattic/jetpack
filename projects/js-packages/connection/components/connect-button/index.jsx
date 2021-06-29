@@ -23,6 +23,7 @@ import ConnectUser from '../connect-user';
  * @param {Function} props.onRegistered -- The callback to be called upon registration success.
  * @param {string} props.redirectUri -- The redirect admin URI.
  * @param {string} props.from -- Where the connection request is coming from.
+ * @param {Function} props.statusCallback -- Callback to pull connection status from the component.
  *
  * @returns {React.Component} The RNA connection component.
  */
@@ -43,7 +44,7 @@ const ConnectButton = props => {
 		registrationNonce,
 		redirectUri,
 		from,
-		children,
+		statusCallback,
 	} = props;
 
 	/**
@@ -118,15 +119,15 @@ const ConnectButton = props => {
 		]
 	);
 
-	const childrenCallback = useCallback( () => {
-		if ( children && {}.toString.call( children ) === '[object Function]' ) {
-			return children( connectionStatus );
+	const statusCallbackWrapped = useCallback( () => {
+		if ( statusCallback && {}.toString.call( statusCallback ) === '[object Function]' ) {
+			return statusCallback( connectionStatus );
 		}
-	}, [ connectionStatus, children ] );
+	}, [ connectionStatus, statusCallback ] );
 
 	return (
 		<div className="jp-connection-main">
-			{ childrenCallback() }
+			{ statusCallbackWrapped() }
 
 			{ isFetchingConnectionStatus && `Loading...` }
 

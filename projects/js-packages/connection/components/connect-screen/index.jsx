@@ -21,11 +21,21 @@ import { __ } from '@wordpress/i18n';
  * @param {string} props.redirectUri -- The redirect admin URI.
  * @param {string} props.from -- Where the connection request is coming from.
  * @param {string} props.title -- Page title.
+ * @param {Function} props.statusCallback -- Callback to pull connection status from the component.
  *
  * @returns {React.Component} The `ConnectScreen` component.
  */
 const ConnectScreen = props => {
-	const { title, body, apiRoot, apiNonce, registrationNonce, from, redirectUri, children } = props;
+	const {
+		title,
+		apiRoot,
+		apiNonce,
+		registrationNonce,
+		from,
+		redirectUri,
+		statusCallback,
+		children,
+	} = props;
 
 	return (
 		<div className="jp-connect-screen">
@@ -34,7 +44,7 @@ const ConnectScreen = props => {
 
 				<h2>{ title }</h2>
 
-				{ body }
+				{ children }
 			</div>
 			<div className="jp-connect-screen--right">
 				<ConnectButton
@@ -43,9 +53,8 @@ const ConnectScreen = props => {
 					registrationNonce={ registrationNonce }
 					from={ from }
 					redirectUri={ redirectUri }
-				>
-					{ children }
-				</ConnectButton>
+					statusCallback={ statusCallback }
+				/>
 			</div>
 		</div>
 	);
