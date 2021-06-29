@@ -55,7 +55,7 @@ class Jetpack_Search_Customberg {
 			return;
 		}
 
-		// TODO: Set a different submenu parent slug if WPCOM.
+		// Intentionally doesn't add a submenu via the null argument.
 		$hook = add_submenu_page(
 			null,
 			__( 'Search Settings', 'jetpack' ),
@@ -67,16 +67,6 @@ class Jetpack_Search_Customberg {
 		add_action( "admin_print_scripts-$hook", array( $this, 'load_admin_scripts' ) );
 		add_action( "admin_print_styles-$hook", array( $this, 'load_admin_styles' ) );
 	}
-
-	/**
-	 * Place the Jetpack Search menu item at the bottom of the Jetpack submenu.
-	 *
-	 * @return int Menu offset.
-	 */
-	// private function get_link_offset() {
-	// 	global $submenu;
-	// 	return count( $submenu['jetpack'] );
-	// }
 
 	/**
 	 * Prints the dashboard container.
