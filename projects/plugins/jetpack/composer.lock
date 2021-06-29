@@ -232,10 +232,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "c45b5ae92d4e766b6d8b0d2d24b6dd26f0152c4e"
+                "reference": "4b6a7e597e4d27c7075e366ca7e457d966bb61d0"
             },
             "require": {
-                "automattic/jetpack-connection": "^1.28",
+                "automattic/jetpack-connection": "^1.29",
                 "automattic/jetpack-sync": "^1.23"
             },
             "require-dev": {
