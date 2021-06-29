@@ -34,17 +34,24 @@ gulp.task( 'blocks:watch', function () {
 	} );
 } );
 
-gulp.task( 'search:watch', function () {
+gulp.task( 'search-app:watch', function () {
 	const child = require( 'child_process' ).execFile( 'pnpm', [
 		'run',
-		'build-search',
+		'build-search-app',
 		'--',
 		'--watch',
 	] );
+	child.stdout.on( 'data', data => log( data.toString() ) );
+} );
 
-	child.stdout.on( 'data', function ( data ) {
-		log( data.toString() );
-	} );
+gulp.task( 'search-configure:watch', function () {
+	const child = require( 'child_process' ).execFile( 'pnpm', [
+		'run',
+		'build-search-configure',
+		'--',
+		'--watch',
+	] );
+	child.stdout.on( 'data', data => log( data.toString() ) );
 } );
 
 gulp.task( 'php:module-headings', function ( callback ) {
@@ -78,7 +85,8 @@ gulp.task(
 		sass_watch_packages,
 		'old-styles:watch',
 		'blocks:watch',
-		'search:watch'
+		'search-app:watch',
+		'search-configure:watch'
 	)
 );
 
