@@ -44,6 +44,9 @@
 	}
 
 	.jp-search-dashboard__bottom {
+		display: flex;
+		flex-flow: column;
+		justify-content: space-between;
 		position: absolute;
 		bottom: -40px; // cover wp default footer
 		left: 0;

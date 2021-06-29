@@ -14,6 +14,7 @@ import { setInitialState, getApiNonce, getApiRootUrl } from 'state/initial-state
 import ModuleControl from './module-control';
 import MockedInstantSearch from './mocked-instant-search';
 import MockedSearch from './mocked-search';
+import SearchFooter from './search-footer';
 import './style.scss';
 
 const useComponentWillMount = func => {
@@ -58,6 +59,7 @@ function SearchDashboard( props ) {
 			</div>
 			<div className="jp-search-dashboard__bottom">
 				<ModuleControl />
+				<SearchFooter />
 			</div>
 		</Fragment>
 	);
