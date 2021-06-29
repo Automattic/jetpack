@@ -96,15 +96,15 @@ export default function Sidebar() {
 	return (
 		<ComplementaryArea
 			className="jp-search-customize-sidebar"
+			closeLabel={ __( 'Close settings', 'jetpack' ) }
 			header={ <Tabs currentArea={ currentArea } /> }
 			headerClassName="jp-search-customize-sidebar__panel-tabs"
+			icon={ cog }
+			identifier={ currentArea }
+			isActiveByDefault
+			scope={ COMPLEMENTARY_AREA_SCOPE }
 			/* translators: button label text should, if possible, be under 16 characters. */
 			title={ __( 'Settings', 'jetpack' ) }
-			closeLabel={ __( 'Close settings', 'jetpack' ) }
-			scope={ COMPLEMENTARY_AREA_SCOPE }
-			identifier={ currentArea }
-			icon={ cog }
-			isActiveByDefault
 		>
 			{ currentArea === JP_SEARCH_TAB_IDENTIFIER && <SidebarDescription /> }
 			{ currentArea === OPTIONS_TAB_IDENTIFIER && <SidebarOptions /> }
