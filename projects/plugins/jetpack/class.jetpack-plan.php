@@ -348,6 +348,9 @@ class Jetpack_Plan {
 /**
  * Modify the allowed mimes types when uploading files,
  * acoording to Jetpack module and/or feature.
+ *
+ * @param array Mime types provided by the `upload_mimes` filter.
+ * @return array Filtered mime types array.
  */
 function jetpack_filter_mimetypes_by_modules_and_features( $mimes ) {
 	// Not connected. Bail early.
@@ -361,15 +364,24 @@ function jetpack_filter_mimetypes_by_modules_and_features( $mimes ) {
 	};
 
 	// `videopress` feature is supported. Bail early.
-	if ( $support = Jetpack_Plan::supports( 'videopress' ) ) {
+	if ( Jetpack_Plan::supports( 'videopress' ) ) {
 		return $mimes;
 	};
 
 
 	// Remove `video/` mimes from the list.
-	return array_filter( $mimes, function ( $mime ) {
-		return ! preg_match( '@^video/@', $mime );
-	} );
+	return array_filter(
+		$mimes,
+		function ( $mime ) {
+			return ! preg_match(
+				'@^video/@',
+				$mime
+			);
+		}
+	);
 }
 
-add_filter( 'upload_mimes', 'jetpack_filter_mimetypes_by_modules_and_features' );
+add_filter(
+	'upload_mimes',
+	'jetpack_filter_mimetypes_by_modules_and_features'
+);
