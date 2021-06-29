@@ -59,7 +59,7 @@ class Admin {
 	/** Always grab and render the latest version. */
 	public static function render() {
 		Utils::get_beta_manifest( true );
-		require_once JPBETA__PLUGIN_DIR . 'src/admin/main.php';
+		require_once __DIR__ . '/admin/main.php';
 	}
 
 	/** Return the beta plugin's settings link. */
@@ -189,7 +189,7 @@ class Admin {
 	 * @since 2.5.0
 	 */
 	public static function to_test_general_rules_content() {
-		$test_rules = JPBETA__PLUGIN_DIR . '/docs/testing/testing-tips.md';
+		$test_rules = __DIR__ . '/../docs/testing/testing-tips.md';
 		if ( ! file_exists( $test_rules ) ) {
 			return;
 		}
