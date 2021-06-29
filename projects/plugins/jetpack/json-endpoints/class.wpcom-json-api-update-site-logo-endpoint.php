@@ -12,7 +12,6 @@ new WPCOM_JSON_API_Update_Site_Logo_Endpoint( array (
 	),
 	'request_format'  => array(
 		'id' => '(int) The ID of the logo post',
-		'url' => '(string) The URL of the logo post',
 	),
 	'response_format'  => array(
 		'id' => '(int) The ID of the logo post',
@@ -23,7 +22,6 @@ new WPCOM_JSON_API_Update_Site_Logo_Endpoint( array (
 		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
 		'body' => array(
 			'id' => 12345,
-			'url' => 'https://s.w.org/about/images/logos/codeispoetry-rgb.png',
 		),
 	),
 	'example_response' => '
