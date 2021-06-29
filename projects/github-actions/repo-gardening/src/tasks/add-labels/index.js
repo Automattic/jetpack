@@ -208,6 +208,12 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 		if ( compat ) {
 			keywords.add( 'Compatibility' );
 		}
+
+		// E2E tests.
+		const e2e = file.match( /^projects\/plugins\/jetpack\/tests\/e2e\// );
+		if ( e2e ) {
+			keywords.add( 'E2E Tests' );
+		}
 	} );
 
 	return [ ...keywords ];

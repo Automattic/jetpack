@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Migrate identity-crisis/migrate and identity-crisis/confirm-safe-mode endpoints to Identity Crisis package.

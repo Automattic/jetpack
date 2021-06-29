@@ -120,6 +120,18 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests get_preferred_view
+	 *
+	 * @covers ::get_preferred_view
+	 */
+	public function test_get_preferred_view() {
+		static::$admin_menu->set_preferred_view( 'users.php', 'unknown' );
+		$this->assertSame( 'default', static::$admin_menu->get_preferred_view( 'users.php' ) );
+		static::$admin_menu->set_preferred_view( 'options-general.php', 'unknown' );
+		$this->assertSame( 'default', static::$admin_menu->get_preferred_view( 'options-general.php' ) );
+	}
+
+	/**
 	 * Tests add_my_home_menu
 	 *
 	 * @covers ::add_my_home_menu
@@ -327,8 +339,10 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		$submenu = static::$submenu_data;
 
 		// Check submenu are kept when using WP Admin links.
-		static::$admin_menu->add_plugins_menu( true );
-		$this->assertNotEmpty( $submenu['plugins.php'] );
+		static::$admin_menu->set_preferred_view( 'plugins.php', 'classic' );
+		static::$admin_menu->add_plugins_menu();
+		$this->assertSame( 'plugins.php', $menu[65][2] );
+		$this->assertTrue( self::$admin_menu->has_visible_items( $submenu['plugins.php'] ) );
 	}
 
 	/**
@@ -405,7 +419,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_options_menu();
 
 		$this->assertSame( 'https://wordpress.com/settings/general/' . static::$domain, $submenu['options-general.php'][0][2] );
-		$this->assertSame( 'options-general.php', $submenu['options-general.php'][1][2] );
 	}
 
 	/**
@@ -431,7 +444,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 */
 	public function test_add_gutenberg_menus() {
 		global $menu;
-		static::$admin_menu->add_gutenberg_menus( false );
+		static::$admin_menu->add_gutenberg_menus();
 
 		// FSE is no longer where it was put by default.
 		$this->assertArrayNotHasKey( 100, $menu );

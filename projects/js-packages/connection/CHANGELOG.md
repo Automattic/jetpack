@@ -2,6 +2,12 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.4.0 - 2021-06-29
+### Changed
+- Remove In-Place Connection flow from the package.
+- Rename 'Main' component into 'ConnectButton'
+- Update node version requirement to 14.16.1
+
 ## 0.3.0 - 2021-06-15
 ### Added
 - Added dev dependency on react (in addition to existing peer dep) for tests to run.

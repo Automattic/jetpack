@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Clean up the code that used to be required for now removed In-Place Connection flow.
