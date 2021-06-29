@@ -5,6 +5,8 @@ namespace Automattic\Jetpack\Backup;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
+use WorDBless\Posts as WorDBless_Posts;
+use WorDBless\Users as WorDBless_Users;
 use WP_REST_Request;
 use WP_REST_Server;
 
@@ -32,6 +34,14 @@ class Test_REST_Controller extends TestCase {
 
 		$wp_rest_server = new WP_REST_Server();
 		$this->server   = $wp_rest_server;
+		$this->admin_id = wp_insert_user(
+			array(
+				'user_login' => 'dummy_user',
+				'user_pass'  => 'dummy_pass',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( 0 );
 
 		// Register REST routes.
 		add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Backup\\REST_Controller', 'register_rest_routes' ) );
@@ -45,6 +55,8 @@ class Test_REST_Controller extends TestCase {
 	 * @after
 	 */
 	public function tear_down() {
+		wp_set_current_user( 0 );
+
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		unset(
 			$_GET['_for'],
@@ -58,6 +70,8 @@ class Test_REST_Controller extends TestCase {
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		WorDBless_Options::init()->clear_options();
+		WorDBless_Posts::init()->clear_all_posts();
+		WorDBless_Users::init()->clear_all_users();
 	}
 
 	/**
@@ -74,8 +88,8 @@ class Test_REST_Controller extends TestCase {
 	 * Testing the `POST /jetpack/v4/backup-helper-script` endpoint with admin user.
 	 */
 	public function test_install_backup_helper_script_unauthorized() {
-		$user = wp_get_current_user();
-		$user->set_role( 'administrator' );
+		wp_set_current_user( $this->admin_id );
+
 		$body    = array(
 			'helper' => 'dummy',
 		);
@@ -83,18 +97,14 @@ class Test_REST_Controller extends TestCase {
 		$request->set_header( 'content-type', 'application/json' );
 		$request->set_body( wp_json_encode( $body ) );
 		$response = $this->server->dispatch( $request );
-		$this->assertEquals( 401, $response->get_status() );
+		$this->assertEquals( 403, $response->get_status() );
 		$this->assertEquals( 'You are not allowed to perform this action.', $response->get_data()['message'] );
-
-		// Cleanup.
-		$user->remove_role( 'administrator' );
 	}
 
 	/**
 	 * Testing the `POST /jetpack/v4/backup-helper-script` endpoint on success.
 	 */
 	public function test_install_backup_helper_script_success() {
-		wp_set_current_user( 0 );
 		$body = array(
 			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 			'helper' => base64_encode( "<?php /* Jetpack Backup Helper Script */\n" ),
@@ -129,8 +139,8 @@ class Test_REST_Controller extends TestCase {
 	 * Testing the `DELETE /jetpack/v4/backup-helper-script` endpoint with admin user.
 	 */
 	public function test_delete_backup_helper_script_unauthorized() {
-		$user = wp_get_current_user();
-		$user->set_role( 'administrator' );
+		wp_set_current_user( $this->admin_id );
+
 		$body = array(
 			'path' => 'dummy',
 		);
@@ -140,18 +150,14 @@ class Test_REST_Controller extends TestCase {
 		$request->set_body( wp_json_encode( $body ) );
 		$response = $this->server->dispatch( $request );
 
-		$this->assertEquals( 401, $response->get_status() );
+		$this->assertEquals( 403, $response->get_status() );
 		$this->assertEquals( 'You are not allowed to perform this action.', $response->get_data()['message'] );
-
-		// Cleanup.
-		$user->remove_role( 'administrator' );
 	}
 
 	/**
 	 * Testing the `DELETE /jetpack/v4/backup-helper-script` endpoint on success.
 	 */
 	public function test_delete_backup_helper_script_success() {
-		wp_set_current_user( 0 );
 		$body = array(
 			'path' => 'dummy',
 		);
@@ -164,6 +170,211 @@ class Test_REST_Controller extends TestCase {
 		$this->assertEquals( 200, $response->get_status() );
 
 		$this->assertTrue( $response->get_data()['success'] );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/database-object/backup` endpoint with invalid params.
+	 */
+	public function test_backup_database_object_invalid_params() {
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/database-object/backup' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertEquals( 'Missing parameter(s): object_type, object_id', $response->get_data()['message'] );
+
+		$request->set_query_params(
+			array(
+				'object_id'   => 123,
+				'object_type' => 'dummy',
+			)
+		);
+		$response      = $this->server->dispatch( $request );
+		$response_data = $response->get_data();
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertEquals( 'Invalid parameter(s): object_type', $response_data['message'] );
+		$this->assertEquals( 'The object_type argument should be one of woocommerce_attribute, woocommerce_downloadable_product_permission, woocommerce_order_item, woocommerce_payment_token, woocommerce_tax_rate, woocommerce_webhook', $response_data['data']['params']['object_type'] );
+
+		$request->set_query_params(
+			array(
+				'object_id'   => 'should_be_integer',
+				'object_type' => 'woocommerce_attribute',
+			)
+		);
+		$response      = $this->server->dispatch( $request );
+		$response_data = $response->get_data();
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertEquals( 'Invalid parameter(s): object_id', $response_data['message'] );
+		$this->assertEquals( 'object_id is not of type integer.', $response_data['data']['params']['object_id'] );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/database-object/backup` endpoint with admin user.
+	 */
+	public function test_backup_database_object_unauthorized() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/database-object/backup' );
+		$request->set_query_params(
+			array(
+				'object_id'   => 123,
+				'object_type' => 'woocommerce_attribute',
+			)
+		);
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 403, $response->get_status() );
+		$this->assertEquals( 'You are not allowed to perform this action.', $response->get_data()['message'] );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/database-object/backup` endpoint on success.
+	 */
+	public function test_backup_database_object_success() {
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/database-object/backup' );
+		$request->set_query_params(
+			array(
+				'object_id'   => 123,
+				'object_type' => 'woocommerce_attribute',
+			)
+		);
+
+		$response = $this->dispatch_request_signed_with_blog_token( $request );
+
+		$this->assertEquals( 404, $response->get_status() ); // success in this context.
+
+		$this->assertEquals( 'Object not found', $response->get_data()['message'] );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/options/backup` endpoint with invalid params.
+	 */
+	public function test_backup_options_invalid_params() {
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/options/backup' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertEquals( 'Missing parameter(s): name', $response->get_data()['message'] );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/options/backup` endpoint with admin user.
+	 */
+	public function test_backup_options_unauthorized() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/options/backup' );
+		$request->set_query_params(
+			array(
+				'name' => 'home',
+			)
+		);
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 403, $response->get_status() );
+		$this->assertEquals( 'You are not allowed to perform this action.', $response->get_data()['message'] );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/options/backup` endpoint on success.
+	 */
+	public function test_backup_options_success() {
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/options/backup' );
+		$request->set_query_params(
+			array(
+				'name' => 'home',
+			)
+		);
+
+		$response = $this->dispatch_request_signed_with_blog_token( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/comments/(?P<id>\d+)/backup` endpoint with admin user.
+	 */
+	public function test_backup_comment_unauthorized() {
+		wp_set_current_user( $this->admin_id );
+
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/comments/1234/backup' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 403, $response->get_status() );
+		$this->assertEquals( 'You are not allowed to perform this action.', $response->get_data()['message'] );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/comments/(?P<id>\d+)/backup` endpoint on success.
+	 */
+	public function test_backup_comment_success() {
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/comments/1234/backup' );
+
+		$response = $this->dispatch_request_signed_with_blog_token( $request );
+
+		$this->assertEquals( 404, $response->get_status() ); // success in this context.
+
+		$this->assertEquals( 'Comment not found', $response->get_data()['message'] );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/posts/(?P<id>\d+)/backup` endpoint with admin user.
+	 */
+	public function test_backup_post_unauthorized() {
+		wp_set_current_user( $this->admin_id );
+
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/posts/1/backup' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 403, $response->get_status() );
+		$this->assertEquals( 'You are not allowed to perform this action.', $response->get_data()['message'] );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/posts/(?P<id>\d+)/backup endpoint on success.
+	 */
+	public function test_backup_post_success() {
+		$post_id = wp_insert_post(
+			array(
+				'post_content' => 'dummy',
+			)
+		);
+
+		$request = new WP_REST_Request( 'GET', "/jetpack/v4/posts/{$post_id}/backup" );
+
+		$response = $this->dispatch_request_signed_with_blog_token( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+
+		$this->assertEquals( $post_id, $response->get_data()['post']['ID'] );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/users/(?P<id>\d+)/backup` endpoint with admin user.
+	 */
+	public function test_backup_user_unauthorized() {
+		wp_set_current_user( $this->admin_id );
+
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/users/1/backup' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 403, $response->get_status() );
+
+		$this->assertEquals( 'You are not allowed to perform this action.', $response->get_data()['message'] );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/users/(?P<id>\d+)/backup endpoint on success.
+	 */
+	public function test_backup_user_success() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'GET', "/jetpack/v4/users/{$this->admin_id}/backup" );
+
+		$response = $this->dispatch_request_signed_with_blog_token( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+
+		$this->assertEquals( $this->admin_id, $response->get_data()['user']['ID'] );
 	}
 
 	/**
@@ -228,7 +439,7 @@ class Test_REST_Controller extends TestCase {
 
 	/**
 	 * Intercept the `Jetpack_Options` call and mock the values.
-	 * Site level / user-less connection set-up.
+	 * Site-level connection set-up.
 	 *
 	 * @param mixed  $value The current option value.
 	 * @param string $name Option name.

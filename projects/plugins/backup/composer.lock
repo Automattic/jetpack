@@ -174,10 +174,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "01e388ade434bedd584d480ce74b3171c7997d25"
+                "reference": "4b6a7e597e4d27c7075e366ca7e457d966bb61d0"
             },
             "require": {
-                "automattic/jetpack-connection": "^1.29"
+                "automattic/jetpack-connection": "^1.29",
+                "automattic/jetpack-sync": "^1.23"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^1.2",
