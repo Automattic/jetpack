@@ -6,8 +6,13 @@ import React from 'react';
 /**
  * WordPress dependencies
  */
+import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { ComplementaryArea, InterfaceSkeleton } from '@wordpress/interface';
+import {
+	ComplementaryArea,
+	InterfaceSkeleton,
+	store as interfaceStore,
+} from '@wordpress/interface';
 
 /**
  * Internal dependencies
@@ -34,7 +39,11 @@ const interfaceLabels = {
  * @returns {React.Element} component instance
  */
 export default function Interface() {
-	const hasSidebarEnabled = true;
+	const { hasSidebarEnabled } = useSelect( select => ( {
+		hasSidebarEnabled: !! select( interfaceStore ).getActiveComplementaryArea(
+			COMPLEMENTARY_AREA_SCOPE
+		),
+	} ) );
 
 	return (
 		<InterfaceSkeleton
