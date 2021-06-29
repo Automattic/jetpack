@@ -498,11 +498,23 @@ abstract class SAL_Site {
 	}
 
 	function get_logo() {
+		// Set an empty response array.
+		$logo_setting = array(
+			'id'    => (int) 0,
+			'sizes' => array(),
+			'url'   => '',
+		);
 
 		// Get current site logo values.
-		$logo = get_option( 'site_logo' );
+		$logo_id = get_option( 'site_logo' );
 
-		return $logo ? $logo : 0;
+		// Update the response array if there's a site logo currenty active.
+		if ( $logo_id ) {
+			$logo_setting['id']  = $logo_id;
+			$logo_setting['url'] = wp_get_attachment_url( $logo_id );
+		}
+
+		return $logo_setting;
 	}
 
 	function get_timezone() {
