@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Shortcodes: Correctly handle YouTube URLs that include a start time.
