@@ -1,0 +1,36 @@
+@import '~@wordpress/base-styles/colors';
+
+.interface-interface-skeleton__content {
+	background: $gray-100;
+}
+
+.interface-interface-skeleton__content > .jp-search-customize-app-wrapper {
+	background: $gray-100;
+
+	.jp-search-customize-loading-spinner {
+		position: fixed;
+		left: 50%;
+		top: 50%;
+		transform: translate( -50%, -50% );
+	}
+
+	.jetpack-instant-search {
+		max-width: 90%;
+		margin: 2em auto;
+
+		position: static;
+		padding: 0;
+		background: none;
+
+		.jetpack-instant-search__search-results {
+			margin: 0;
+			max-height: 80vh;
+			max-width: initial;
+			overflow: scroll;
+		}
+
+		a {
+			pointer-events: none;
+		}
+	}
+}

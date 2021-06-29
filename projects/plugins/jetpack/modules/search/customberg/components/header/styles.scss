@@ -1,0 +1,47 @@
+@import '~@wordpress/base-styles/z-index';
+@import '~@wordpress/base-styles/colors';
+@import '~@wordpress/base-styles/variables';
+@import '~@wordpress/base-styles/breakpoints';
+@import '~@wordpress/base-styles/mixins';
+@import '~@wordpress/base-styles/animations';
+
+.jp-search-customize-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	height: $header-height;
+	padding: 0 $grid-unit-20;
+	overflow: auto;
+
+	@include break-small {
+		overflow: visible;
+	}
+}
+
+.jp-search-customize-header__navigable-toolbar-wrapper {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.jp-search-customize-header__title {
+	font-size: 20px;
+	padding: 0;
+	margin: 0 20px 0 0;
+}
+
+.jp-search-customize-header__actions {
+	display: flex;
+
+	.components-button {
+		margin-right: $grid-unit-05;
+
+		@include break-small() {
+			margin-right: $grid-unit-15;
+		}
+	}
+
+	.interface-pinned-items .components-button {
+		margin-right: 0;
+	}
+}
