@@ -49,7 +49,7 @@
 		"lodash": "4.17.21",
 		"mkdirp": "1.0.4",
 		"playwright": "1.12.2",
-		"pm2": "4.5.6",
+		"pm2": "5.1.0",
 		"rimraf": "3.0.2",
 		"shell-escape": "0.2.0",
 		"winston": "3.3.3",
