@@ -326,12 +326,7 @@ class REST_Controller {
 		// Disable Sync as this is a read-only operation and triggered by sync activity.
 		Sync_Actions::mark_sync_read_only();
 
-		$option_name = $request->get_param( 'name' );
-		if ( is_array( $option_name ) ) {
-			$option_names = $option_name;
-		} else {
-			$option_names = array( $option_name );
-		}
+		$option_names = (array) $request->get_param( 'name' );
 
 		$options = array_map( 'self::get_option_row', $option_names );
 		return array( 'options' => $options );
