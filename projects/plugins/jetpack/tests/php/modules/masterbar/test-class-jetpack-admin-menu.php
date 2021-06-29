@@ -110,7 +110,7 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_tools_menu() {
 		global $submenu;
 
-		static::$admin_menu->add_tools_menu( false, false );
+		static::$admin_menu->add_tools_menu();
 
 		// Check Import/Export menu always links to WP Admin.
 		$this->assertSame( 'export.php', array_pop( $submenu['tools.php'] )[2] );
@@ -138,7 +138,7 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_appearance_menu() {
 		global $submenu;
 
-		static::$admin_menu->add_appearance_menu( false, false );
+		static::$admin_menu->add_appearance_menu();
 
 		// Check Customize menu always links to WP Admin.
 		$this->assertSame( 'customize.php', array_pop( $submenu[ 'https://wordpress.com/themes/' . static::$domain ] )[2] );
@@ -204,7 +204,7 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_plugins_menu() {
 		global $menu;
 
-		static::$admin_menu->add_plugins_menu( true );
+		static::$admin_menu->add_plugins_menu();
 
 		// Check Plugins menu always links to Calypso.
 		$this->assertSame( 'https://wordpress.com/plugins/' . static::$domain, array_shift( $menu )[2] );

@@ -51,7 +51,7 @@ export function getFilterKeys(
  *
  * @returns {Array} list of available static filters.
  */
-export function getAvailableStaticFilters () {
+export function getAvailableStaticFilters() {
 	if ( ! window[ SERVER_OBJECT_NAME ]?.staticFilters ) {
 		return [];
 	}
@@ -67,8 +67,7 @@ export function getAvailableStaticFilters () {
 export function getStaticFilterKeys() {
 	const staticFilters = getAvailableStaticFilters();
 	const keys = new Set();
-	staticFilters
-		.forEach( filter => keys.add( filter.filter_id ) );
+	staticFilters.forEach( filter => keys.add( filter.filter_id ) );
 
 	return [ ...keys ];
 }

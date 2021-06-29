@@ -1446,6 +1446,18 @@ abstract class WPCOM_JSON_API_Endpoint {
 					$info = (object) $metadata['videopress'];
 				}
 
+				if ( isset( $info->rating ) ) {
+					$response['rating'] = $info->rating;
+				}
+
+				if ( isset( $info->display_embed ) ) {
+					$response['display_embed'] = (string) (int) $info->display_embed;
+					// If not, default to metadata (for WPCOM).
+				} elseif ( isset( $metadata['videopress']['display_embed'] ) ) {
+					// We convert it to int then to string so that (bool) false to become "0".
+					$response['display_embed'] = (string) (int) $metadata['videopress']['display_embed'];
+				}
+
 				// Thumbnails
 				if ( function_exists( 'video_format_done' ) && function_exists( 'video_image_url_by_guid' ) ) {
 					$response['thumbnails'] = array(

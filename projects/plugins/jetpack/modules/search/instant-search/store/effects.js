@@ -16,6 +16,7 @@ import {
 } from './actions';
 
 let requestCounter = 0;
+let queryStringIntegrationEnabled = true;
 
 /**
  * Effect handler which will fetch search results from the API.
@@ -105,7 +106,7 @@ function initializeQueryValues( action, store ) {
  * @param {object} action - Action which had initiated the effect handler.
  */
 function updateSearchQueryString( action ) {
-	if ( action.propagateToWindow === false ) {
+	if ( action.propagateToWindow === false || ! queryStringIntegrationEnabled ) {
 		return;
 	}
 
@@ -126,7 +127,7 @@ function updateSearchQueryString( action ) {
  * @param {object} action - Action which had initiated the effect handler.
  */
 function updateSortQueryString( action ) {
-	if ( action.propagateToWindow === false ) {
+	if ( action.propagateToWindow === false || ! queryStringIntegrationEnabled ) {
 		return;
 	}
 	if ( ! VALID_SORT_KEYS.includes( action.sort ) ) {
@@ -149,7 +150,7 @@ function updateSortQueryString( action ) {
  * @param {object} action - Action which had initiated the effect handler.
  */
 function updateFilterQueryString( action ) {
-	if ( action.propagateToWindow === false ) {
+	if ( action.propagateToWindow === false || ! queryStringIntegrationEnabled ) {
 		return;
 	}
 	if ( ! getFilterKeys().includes( action.name ) ) {
@@ -185,7 +186,7 @@ function updateStaticFilterQueryString( action ) {
  * @param {object} action - Action which had initiated the effect handler.
  */
 function clearFilterQueryString( action ) {
-	if ( action.propagateToWindow === false ) {
+	if ( action.propagateToWindow === false || ! queryStringIntegrationEnabled ) {
 		return;
 	}
 
@@ -195,8 +196,16 @@ function clearFilterQueryString( action ) {
 	setQuery( queryObject );
 }
 
+/**
+ * Effect handler to disable query string integration for all effects.
+ */
+function disableQueryStringIntegration() {
+	queryStringIntegrationEnabled = false;
+}
+
 export default {
 	CLEAR_FILTERS: clearFilterQueryString,
+	DISABLE_QUERY_STRING_INTEGRATION: disableQueryStringIntegration,
 	INITIALIZE_QUERY_VALUES: initializeQueryValues,
 	MAKE_SEARCH_REQUEST: makeSearchAPIRequest,
 	SET_FILTER: updateFilterQueryString,
