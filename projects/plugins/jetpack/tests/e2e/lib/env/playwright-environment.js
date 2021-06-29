@@ -83,14 +83,14 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 			case 'hook_success':
 				logger.info( chalk.green( `SUCCESS: ${ eventName }` ) );
 				if ( event.hook.type === 'beforeAll' ) {
-					await this.closePage( eventName );
+					await this.closePage( eventName, false );
 				}
 				break;
 			case 'hook_failure':
 				logger.info( chalk.red( `HOOK FAILED: ${ eventName }` ) );
 				await this.onFailure( eventName, event.hook.parent.name, event.hook.type, event.error );
 				if ( event.hook.type === 'beforeAll' ) {
-					await this.closePage( eventName );
+					await this.closePage( eventName, true );
 				}
 				break;
 			case 'test_fn_start':
@@ -104,7 +104,7 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 				await this.onFailure( eventName, event.test.parent.name, event.test.name, event.error );
 				break;
 			case 'test_done':
-				await this.closePage( eventName );
+				await this.closePage( eventName, event.test.errors.length > 0 );
 				break;
 			case 'run_describe_finish':
 				break;
@@ -158,10 +158,10 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 		} );
 	}
 
-	async closePage( eventName ) {
+	async closePage( eventName, saveVideo = true ) {
 		await this.global.page.close();
 
-		if ( this.global.page.video() ) {
+		if ( this.global.page.video() && saveVideo ) {
 			const videoName = fileNameFormatter( `${ eventName }.webm`, true );
 			const videoPath = `${ config.get( 'dirs.videos' ) }/${ videoName }`;
 
