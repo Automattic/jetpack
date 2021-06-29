@@ -56,7 +56,7 @@ class Test_REST_Controller extends TestCase {
 	 */
 	public function tear_down() {
 		wp_set_current_user( 0 );
-		WorDBless_Users::init()->clear_all_users();
+
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		unset(
 			$_GET['_for'],
@@ -237,7 +237,6 @@ class Test_REST_Controller extends TestCase {
 				'object_type' => 'woocommerce_attribute',
 			)
 		);
-		$response = $this->server->dispatch( $request );
 
 		$response = $this->dispatch_request_signed_with_blog_token( $request );
 
@@ -285,7 +284,6 @@ class Test_REST_Controller extends TestCase {
 				'name' => 'home',
 			)
 		);
-		$response = $this->server->dispatch( $request );
 
 		$response = $this->dispatch_request_signed_with_blog_token( $request );
 
@@ -310,8 +308,6 @@ class Test_REST_Controller extends TestCase {
 	 */
 	public function test_backup_comment_success() {
 		$request = new WP_REST_Request( 'GET', '/jetpack/v4/comments/1234/backup' );
-
-		$response = $this->server->dispatch( $request );
 
 		$response = $this->dispatch_request_signed_with_blog_token( $request );
 
@@ -345,8 +341,6 @@ class Test_REST_Controller extends TestCase {
 
 		$request = new WP_REST_Request( 'GET', "/jetpack/v4/posts/{$post_id}/backup" );
 
-		$response = $this->server->dispatch( $request );
-
 		$response = $this->dispatch_request_signed_with_blog_token( $request );
 
 		$this->assertEquals( 200, $response->get_status() );
@@ -375,8 +369,6 @@ class Test_REST_Controller extends TestCase {
 		wp_set_current_user( $this->admin_id );
 
 		$request = new WP_REST_Request( 'GET', "/jetpack/v4/users/{$this->admin_id}/backup" );
-
-		$response = $this->server->dispatch( $request );
 
 		$response = $this->dispatch_request_signed_with_blog_token( $request );
 
