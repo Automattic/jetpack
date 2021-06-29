@@ -25,6 +25,17 @@ import './styles.scss';
 // eslint-disable-next-line no-undef
 __webpack_public_path__ = window.JetpackInstantSearchOptions.webpackPublicPath;
 
+const PROPS_FROM_WINDOW = {
+	aggregations: buildFilterAggregations( [
+		...window[ SERVER_OBJECT_NAME ].widgets,
+		...window[ SERVER_OBJECT_NAME ].widgetsOutsideOverlay,
+	] ),
+	defaultSort: window[ SERVER_OBJECT_NAME ].defaultSort,
+	hasOverlayWidgets: !! window[ SERVER_OBJECT_NAME ].hasOverlayWidgets,
+	options: window[ SERVER_OBJECT_NAME ],
+	themeOptions: getThemeOptions( window[ SERVER_OBJECT_NAME ] ),
+};
+
 /**
  * Component for wrapping Jetpack Instant Search application.
  *
@@ -61,18 +72,6 @@ export default function AppWrapper() {
 	};
 	const { isLoading } = useSiteLoadingState();
 
-	const props = {
-		aggregations: buildFilterAggregations( [
-			...window[ SERVER_OBJECT_NAME ].widgets,
-			...window[ SERVER_OBJECT_NAME ].widgetsOutsideOverlay,
-		] ),
-		defaultSort: window[ SERVER_OBJECT_NAME ].defaultSort,
-		hasOverlayWidgets: !! window[ SERVER_OBJECT_NAME ].hasOverlayWidgets,
-		options: window[ SERVER_OBJECT_NAME ],
-		overlayOptions,
-		themeOptions: getThemeOptions( window[ SERVER_OBJECT_NAME ] ),
-	};
-
 	return (
 		<div className="jp-search-customize-app-wrapper">
 			{ isLoading ? (
@@ -86,13 +85,14 @@ export default function AppWrapper() {
 			) : (
 				<Provider store={ store }>
 					<SearchApp
+						{ ...PROPS_FROM_WINDOW }
 						enableAnalytics={ false }
 						initialIsVisible={ true }
 						initialShowResults={ true }
 						isInCustomizer={ false }
+						overlayOptions={ overlayOptions }
 						shouldCreatePortal={ false }
 						shouldIntegrateWithDom={ false }
-						{ ...props }
 					/>
 				</Provider>
 			) }
