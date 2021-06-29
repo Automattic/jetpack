@@ -1058,12 +1058,25 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	display: inline-block;
 }
 
-.jp-carousel-icon-comments .icon-comment-indicator {
+.jp-carousel-icon-comments .jp-carousel-has-comments-indicator {
     display: none;
+    font-size: 12px;
+    vertical-align: top;
+    margin-left: -16px;
+    line-height: 1;
+    padding: 2px 4px;
+    border-radius: 4px;
+    background: #fff;
+    color: #000;
 }
 
-.jp-carousel-icon-comments .icon-comment-indicator.jp-carousel-show {
-    display: block;
+.jp-carousel-light .jp-carousel-icon-comments .jp-carousel-has-comments-indicator {
+    background: #000;
+    color: #fff;
+}
+
+.jp-carousel-has-comments-indicator.jp-carousel-show {
+	display: inline-block;
 }
 
 /** Icons End **/
