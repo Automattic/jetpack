@@ -61,6 +61,7 @@ class Jetpack {
 	 */
 	public $concatenated_style_handles = array(
 		'jetpack-carousel',
+		'jetpack-carousel-swiper-css',
 		'grunion.css',
 		'the-neverending-homepage',
 		'jetpack_likes',
