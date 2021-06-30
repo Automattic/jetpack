@@ -566,6 +566,8 @@ a.jp-carousel-image-download:hover {
 	border: none !important;
 	padding: 0 !important;
 	background-color: transparent !important;
+	min-width: 64px;
+	min-height: 64px;
 	width: 64px;
 	height: 64px;
 }
