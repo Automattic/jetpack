@@ -1,20 +1,6 @@
 @import './_variables.scss';
 
 #jp-search-dashboard {
-	.hide-if-no-js, .loading-background {
-		text-align: center;
-		width: 100vw;
-		height: 100vh;
-		margin: 0;
-
-		.jp-search-loader {
-			position: fixed;
-			top: 50%;
-			left: 50%;
-			transform: translate( -50%, -50% );
-		}
-	}
-
 	.jp-masthead__logo-link {
 		pointer-events: none;
 	}
