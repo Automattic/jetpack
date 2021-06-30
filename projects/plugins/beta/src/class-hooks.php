@@ -675,29 +675,16 @@ class Hooks {
 	 * @param string $errstr  - Error message.
 	 * @param string $errfile - File name where the error happened.
 	 * @param int    $errline - Line in the code.
-	 *
 	 * @return bool Whether to make the default handler handle the error as well.
 	 */
 	public static function custom_error_handler( $errno, $errstr, $errfile, $errline ) {
-
-		if ( class_exists( Jetpack::class ) && method_exists( Jetpack::class, 'log' ) ) {
+		if ( method_exists( Jetpack::class, 'log' ) ) {
 			$error_string = sprintf( '%s, %s:%d', $errstr, $errfile, $errline );
 
 			// Only adding to log if the message is related to Jetpack.
 			if ( false !== stripos( $error_string, 'jetpack' ) ) {
 				Jetpack::log( $errno, $error_string );
 			}
-		}
-
-		/**
-		 * The error_reporting call returns current error reporting level as an integer. Bitwise
-		 * AND lets us determine whether the current error is included in the current error
-		 * reporting level
-		 */
-		if ( ! ( error_reporting() & $errno ) ) { // phpcs:ignore WordPress.PHP.DevelopmentFunctions.prevent_path_disclosure_error_reporting,WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_error_reporting
-
-			// If this error is not being reported in the current settings, stop reporting here by returning true.
-			return true;
 		}
 
 		// Returning false makes the error go through the standard error handler as well.
