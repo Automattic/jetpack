@@ -17,6 +17,17 @@
 	background-position: center;
 }
 
+/*
+To prevent flash of prev/next image scale transition after pinch zoom we need to hide them.
+Swiper does not add a class of `swiper-slide-zoomed` to slides on pinch and zoom
+so we have to target all affected elements in touch devices.
+*/
+
+.swiper-slide.swiper-slide-prev .swiper-zoom-container img,
+.swiper-slide.swiper-slide-next .swiper-zoom-container img {
+	transition: none !important;
+}
+
 .jp-carousel-overlay .swiper-button-prev:after,
 .jp-carousel-overlay .swiper-button-next:after {
 	color: #cccccc;
@@ -46,6 +57,14 @@
 
 .jp-carousel-overlay * {
 	box-sizing: border-box;
+}
+
+/* Fix for Twenty Nineteen theme compatibility */
+.jp-carousel-overlay h1:before,
+.jp-carousel-overlay h2:before,
+.jp-carousel-overlay h3:before {
+	content: none;
+	display: none;
 }
 
 .swiper-container .swiper-button-prev {
@@ -287,6 +306,7 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 .jp-carousel-pagination {
 	color: #fff;
 	font-size: 15px; /* same as .jp-carousel-info-footer .jp-carousel-photo-title  */
+	font-weight: normal;
 	white-space: nowrap;
 	display: none;
 	position: static !important;
@@ -559,6 +579,9 @@ a.jp-carousel-image-download:hover {
 	padding: 0 !important;
 	background-color: transparent !important;
 	min-width: 64px;
+	min-height: 64px;
+	width: 64px;
+	height: 64px;
 }
 
 .jp-carousel-comment .comment-date {
@@ -1055,6 +1078,29 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 }
 
 .jp-carousel-icon-comments.jp-carousel-show {
+	display: inline-block;
+}
+
+.jp-carousel-icon .jp-carousel-has-comments-indicator {
+	display: none;
+	font-size: 12px;
+	vertical-align: top;
+	margin-left: -16px;
+	line-height: 1;
+	padding: 2px 4px;
+	border-radius: 4px;
+	background: #fff;
+	color: #000;
+	font-weight: normal;
+	font-family: 'Helvetica Neue', sans-serif !important;
+}
+
+.jp-carousel-light .jp-carousel-icon .jp-carousel-has-comments-indicator {
+	background: #000;
+	color: #fff;
+}
+
+.jp-carousel-has-comments-indicator.jp-carousel-show {
 	display: inline-block;
 }
 
