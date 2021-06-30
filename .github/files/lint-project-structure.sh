@@ -32,6 +32,8 @@ for PROJECT in projects/*; do
 	fi
 done
 
+ROOT_PACKAGE_JSON_ENGINES="$(jq '.engines' package.json)"
+
 for PROJECT in projects/*/*; do
 	SLUG="${PROJECT#projects/}"
 	TYPE="${SLUG%/*}"
@@ -53,6 +55,25 @@ for PROJECT in projects/*/*; do
 	if [[ "$TYPE" == "packages" && "$(git check-attr export-ignore -- $PROJECT/.github/)" != *": export-ignore: set" ]]; then
 		EXIT=1
 		echo "::error file=$PROJECT/.gitattributes::$PROJECT/.github/ should have git attribute export-ignore."
+	fi
+
+	# - package.json engines should match monorepo root package.json engines
+	if [[ -e "$PROJECT/package.json" ]]; then
+		PACKAGE_JSON_ENGINES="$(jq '.engines' "$PROJECT/package.json")"
+		if [[ "$PACKAGE_JSON_ENGINES" != "$ROOT_PACKAGE_JSON_ENGINES" ]]; then
+			EXIT=1
+			LINE=$(jq --stream --arg obj "$PACKAGE_JSON_ENGINES" 'if length == 1 then .[0][:-1] else .[0] end | if . == ["engines"] then input_line_number - ( $obj | gsub( "[^\n]"; "" ) | length ) else empty end' "$PROJECT/package.json")
+			if [[ -n "$LINE" ]]; then
+				echo "---" # Bracket message containing newlines for better visibility in GH's logs.
+				echo "::error file=$PROJECT/package.json,line=$LINE::Engines must match those in the monorepo root package.json.%0A  \"engines\": ${ROOT_PACKAGE_JSON_ENGINES//$'\n'/%0A  }"
+				echo "---"
+			else
+				LINE=$(wc -l < "$PROJECT/package.json")
+				echo "---" # Bracket message containing newlines for better visibility in GH's logs.
+				echo "::error file=$PROJECT/package.json,line=$LINE::Engines must be specified, matching those in the monorepo root package.json.%0A  \"engines\": ${ROOT_PACKAGE_JSON_ENGINES//$'\n'/%0A  }"
+				echo "---"
+			fi
+		fi
 	fi
 
 	# - composer.json must exist.

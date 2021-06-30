@@ -250,7 +250,7 @@ async function getChangelogEntries( octokit, owner, repo, number ) {
 				path.resolve(
 					process.env.GITHUB_WORKSPACE + `/projects/${ project }`,
 					( json.extra && json.extra.changelogger && json.extra.changelogger[ 'changes-dir' ] ) ||
-					'changelog'
+						'changelog'
 				)
 			) + '/';
 		const found = files.find( file => file.startsWith( changelogDir ) );

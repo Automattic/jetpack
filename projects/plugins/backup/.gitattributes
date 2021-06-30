@@ -8,6 +8,7 @@ vendor/jetpack-autoloader/**                production-include
 
 # Files to exclude from mirror repo: Automattic/jetpack-backup-plugin
 .babelrc                                    production-exclude
+/.eslintrc.js                               production-exclude
 .gitattributes                              production-exclude
 .gitignore                                  production-exclude
 babel.config.js                             production-exclude
