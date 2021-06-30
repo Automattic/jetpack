@@ -51,7 +51,8 @@
 		"test-search-scripts": "jest modules/search",
 		"test-search-size": "NODE_ENV=production BABEL_ENV=production pnpm run build-search && size-limit",
 		"validate-es5": "pnpx eslint --parser-options=ecmaVersion:5 --no-eslintrc --no-ignore",
-		"watch": "pnpm run build && pnpx gulp watch"
+		"watch": "pnpm run build && pnpx gulp watch",
+		"watch-search": "pnpm run build-search && gulp search-app:watch search-configure:watch"
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
