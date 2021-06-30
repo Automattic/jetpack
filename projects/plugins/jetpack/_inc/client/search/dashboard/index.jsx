@@ -13,7 +13,14 @@ import Masthead from 'components/masthead';
 import { setInitialState, getApiNonce, getApiRootUrl } from 'state/initial-state';
 import ModuleControl from './module-control';
 import MockedInstantSearch from './mocked-instant-search';
+import { getPlanClass } from 'lib/plans/constants';
 import './style.scss';
+
+/**
+ * State dependencies
+ */
+import { getSitePlan, hasActiveSearchPurchase as selectHasActiveSearchPurchase } from 'state/site';
+import MockedSearch from './mocked-search';
 
 const useComponentWillMount = func => {
 	// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -34,6 +41,7 @@ function SearchDashboard( props ) {
 
 	// NOTE: API root and nonce must be set before any components are mounted!
 	const { apiRootUrl, apiNonce, setInitialState: dispatchedSetInitialState } = props;
+	const showMockedInstantSearch = ! props.isBusinessPlan && props.hasActiveSearchPurchase;
 
 	useComponentWillMount( () => {
 		apiRootUrl && restApi.setApiRoot( apiRootUrl );
@@ -51,7 +59,7 @@ function SearchDashboard( props ) {
 					</h1>
 				</div>
 				<div className="jp-search-dashboard__search-dialog">
-					<MockedInstantSearch />
+					{ showMockedInstantSearch ? <MockedInstantSearch /> : <MockedSearch /> }
 				</div>
 			</div>
 			<div className="jp-search-dashboard__bottom">
@@ -62,9 +70,14 @@ function SearchDashboard( props ) {
 }
 
 export default connect(
-	state => ( {
-		apiRootUrl: getApiRootUrl( state ),
-		apiNonce: getApiNonce( state ),
-	} ),
+	state => {
+		const planClass = getPlanClass( getSitePlan( state ).product_slug );
+		return {
+			apiRootUrl: getApiRootUrl( state ),
+			apiNonce: getApiNonce( state ),
+			isBusinessPlan: 'is-business-plan' === planClass,
+			hasActiveSearchPurchase: selectHasActiveSearchPurchase( state ),
+		};
+	},
 	{ setInitialState }
 )( SearchDashboard );
