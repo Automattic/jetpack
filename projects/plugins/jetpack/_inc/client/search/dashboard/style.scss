@@ -1,0 +1,70 @@
+@import './_variables.scss';
+
+#jp-search-dashboard {
+	.hide-if-no-js {
+		text-align: center;
+		width: 100vw;
+		height: 100vh;
+		margin: 0;
+
+		.jp-search-loader {
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate( -50%, -50% );
+		}
+	}
+
+	.jp-masthead__logo-link {
+		pointer-events: none;
+	}
+
+	.jp-search-dashboard__top {
+		background-color: #f9f9f6;
+		display: flex;
+		height: 80vh;
+		align-items: center;
+		flex-flow: column;
+	}
+
+	.jp-search-dashboard__title {
+		width: 100%;
+		max-width: 65rem;
+		h1 {
+			max-width: 15em;
+			line-height: 1.2em;
+		}
+		@include breakpoint( '<1040px' ) {
+			max-width: 95%;
+		}
+		@include breakpoint( '<480px' ) {
+			h1 {
+				font-size: 1.5em;
+			}
+		}
+	}
+
+	.jp-search-dashboard__search-dialog {
+		width: 90%;
+		max-width: 60rem;
+	}
+
+	.jp-search-dashboard__bottom {
+		display: flex;
+		flex-flow: column;
+		justify-content: space-between;
+		align-items: center;
+		position: absolute;
+		bottom: -40px; // cover wp default footer
+		left: 0;
+		width: 100%;
+		max-height: 60vh;
+		min-height: 50vh;
+		background-color: #fff;
+		z-index: 1;
+	}
+
+	@include breakpoint( '<480px' ) {
+		font-size: 0.75em;
+	}
+}
