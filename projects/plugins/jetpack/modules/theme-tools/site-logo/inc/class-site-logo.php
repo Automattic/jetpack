@@ -128,6 +128,8 @@ class Site_Logo {
 					'settings'      => 'site_logo',
 					'width'         => $width,
 					'height'        => $height,
+					'flex_width'    => true,
+					'flex_height'   => true,
 					'button_labels' => array(
 						'select'       => __( 'Add logo', 'jetpack' ),
 						'change'       => __( 'Change logo', 'jetpack' ),
