@@ -35,6 +35,11 @@ class Jetpack_Search_Dashboard_Page extends Jetpack_Admin_Page {
 	 * Create a menu item for the page and returns the hook.
 	 */
 	public function get_page_hook() {
+		// TODO: temporary flag for testing. Will be removed on the last PR merge.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! array_key_exists( 'a8ctest', $_GET ) ) {
+			return;
+		}
 		return add_submenu_page(
 			'jetpack',
 			__( 'Search Settings', 'jetpack' ),
@@ -43,7 +48,8 @@ class Jetpack_Search_Dashboard_Page extends Jetpack_Admin_Page {
 			'jetpack-search',
 			array( $this, 'render' ),
 			$this->get_link_offset()
-		);  }
+		);
+	}
 
 	/**
 	 * Enqueue and localize page specific scripts
