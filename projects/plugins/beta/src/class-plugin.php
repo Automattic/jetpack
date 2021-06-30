@@ -326,7 +326,7 @@ class Plugin {
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 		$creds = request_filesystem_credentials( site_url() . '/wp-admin/', '', false, false, array() );
 		if ( ! WP_Filesystem( $creds ) ) {
-			return new WP_Error( __( 'Jetpack Beta: No File System access', 'jetpack-beta' ) );
+			return new WP_Error( 'fs_api_error', __( 'Jetpack Beta: No File System access', 'jetpack-beta' ) );
 		}
 		global $wp_filesystem;
 		$info = json_decode( $wp_filesystem->get_contents( $file ) );

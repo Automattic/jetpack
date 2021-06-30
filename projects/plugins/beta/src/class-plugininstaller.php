@@ -191,14 +191,15 @@ class PluginInstaller {
 			case 'stable':
 				$which      = 'stable';
 				$wporg_data = $this->plugin->get_wporg_data();
-				if ( ! isset( $wporg_data->download_url ) ) {
+				if ( ! isset( $wporg_data->download_link ) ) {
 					return new WP_Error(
+						'stable_url_missing',
 						// translators: %s: Plugin slug.
 						sprintf( __( 'No stable download URL is available for %s.', 'jetpack-beta' ), $this->plugin->plugin_slug() )
 					);
 				}
 				$info   = (object) array(
-					'download_url' => $wporg_data->download_url,
+					'download_url' => $wporg_data->download_link,
 					'version'      => $wporg_data->version,
 				);
 				$source = 'release';
@@ -211,6 +212,7 @@ class PluginInstaller {
 				$manifest = $this->plugin->get_manifest();
 				if ( ! isset( $manifest->master->download_url ) ) {
 					return new WP_Error(
+						'master_missing',
 						// translators: %s: Plugin slug. Also, "master" is the branch name and should not be translated.
 						sprintf( __( 'No master build is available for %s.', 'jetpack-beta' ), $this->plugin->plugin_slug() )
 					);
@@ -221,9 +223,10 @@ class PluginInstaller {
 			case 'pr':
 				$which    = 'dev';
 				$manifest = $this->plugin->get_manifest();
-				$branch   = Utils::normalize_branch( $id );
+				$branch   = Utils::normalize_branch_name( $id );
 				if ( ! isset( $manifest->pr->{$branch}->download_url ) ) {
 					return new WP_Error(
+						'branch_missing',
 						// translators: %1$s: Branch name. %2$s: Plugin slug.
 						sprintf( __( 'No build is available for branch %1$s of %2$s.', 'jetpack-beta' ), $id, $this->plugin->plugin_slug() )
 					);
@@ -245,6 +248,7 @@ class PluginInstaller {
 					break;
 				}
 				return new WP_Error(
+					'rc_missing',
 					// translators: %s: Plugin slug.
 					sprintf( __( 'No release candidate build is available for %s.', 'jetpack-beta' ), $this->plugin->plugin_slug() )
 				);
@@ -254,6 +258,7 @@ class PluginInstaller {
 				$wporg_data = $this->plugin->get_wporg_data();
 				if ( ! isset( $wporg_data->versions->{$id} ) ) {
 					return new WP_Error(
+						'release_missing',
 						// translators: %1$s: Version number. %2$s: Plugin slug.
 						sprintf( __( 'Version %1$s does not exist for %2$s.', 'jetpack-beta' ), $id, $this->plugin->plugin_slug() )
 					);
@@ -285,15 +290,18 @@ class PluginInstaller {
 		// Download the required version of the plugin.
 		$temp_path = download_url( $info->download_url );
 		if ( is_wp_error( $temp_path ) ) {
-			// translators: %1$s: download url, %2$s: error message.
-			return new WP_Error( sprintf( __( 'Error Downloading: <a href="%1$s">%1$s</a> - Error: %2$s', 'jetpack-beta' ), $info->download_url, $temp_path->get_error_message() ) );
+			return new WP_Error(
+				'download_error',
+				// translators: %1$s: download url, %2$s: error message.
+				sprintf( __( 'Error Downloading: <a href="%1$s">%1$s</a> - Error: %2$s', 'jetpack-beta' ), $info->download_url, $temp_path->get_error_message() )
+			);
 		}
 
 		// Init the WP_Filesystem API.
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 		$creds = request_filesystem_credentials( site_url() . '/wp-admin/', '', false, false, array() );
 		if ( ! WP_Filesystem( $creds ) ) {
-			return new WP_Error( __( 'Jetpack Beta: No File System access', 'jetpack-beta' ) );
+			return new WP_Error( 'fs_api_error', __( 'Jetpack Beta: No File System access', 'jetpack-beta' ) );
 		}
 
 		// Unzip the downloaded plugin.
@@ -302,7 +310,7 @@ class PluginInstaller {
 		$result      = unzip_file( $temp_path, $plugin_path );
 		if ( is_wp_error( $result ) ) {
 			// translators: %1$s: error message.
-			return new WP_Error( sprintf( __( 'Error Unziping file: Error: %1$s', 'jetpack-beta' ), $result->get_error_message() ) );
+			return new WP_Error( 'unzip_error', sprintf( __( 'Error Unziping file: Error: %1$s', 'jetpack-beta' ), $result->get_error_message() ) );
 		}
 
 		// Record the source info, if it's a dev version.

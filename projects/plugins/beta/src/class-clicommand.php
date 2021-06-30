@@ -88,7 +88,8 @@ class CliCommand extends WP_CLI_Command {
 		}
 
 		$manifest      = $plugin->get_manifest();
-		$active_branch = $plugin->active_branch();
+		$dev_info      = $plugin->dev_info();
+		$active_branch = $dev_info ? $dev_info->branch : null;
 		$branches      = array( 'stable', 'master', 'rc' );
 		foreach ( $manifest->pr as $pr ) {
 			$branches[] = $pr->branch;
@@ -115,6 +116,8 @@ class CliCommand extends WP_CLI_Command {
 	 *
 	 *     wp jetpack-beta activate jetpack master
 	 *     wp jetpack-beta activate jetpack stable
+	 *     wp jetpack-beta activate jetpack rc
+	 *     wp jetpack-beta activate jetpack 9.8
 	 *     wp jetpack-beta activate jetpack update/some-branch
 	 *
 	 * @param array $args Arguments passed to CLI.
@@ -128,36 +131,50 @@ class CliCommand extends WP_CLI_Command {
 			WP_CLI::error( sprintf( __( 'Plugin \'%s\' is not known. Use `wp jetpack-beta list` to list known plugins', 'jetpack-beta' ), $args[0] ) );
 		}
 
-		switch ( $args[1] ) {
-			case 'master':
-				$source = 'master';
-				$id     = '';
-				// translators: %1$s: Plugin name.
-				$premsg = __( 'Activating %1$s master branch', 'jetpack-beta' );
-				// translators: %1$s: Plugin name.
-				$postmsg = __( '%1$s is now on the master branch', 'jetpack-beta' );
-				break;
-			case 'stable':
-				$source = 'master';
-				$id     = '';
-				// translators: %1$s: Plugin name.
-				$premsg = __( 'Activating %1$s latest release', 'jetpack-beta' );
-				// translators: %1$s: Plugin name.
-				$postmsg = __( '%1$s is now on the latest release', 'jetpack-beta' );
-				break;
-			default:
-				$source = 'pr';
-				$id     = $args[1];
-				// translators: %1$s: Plugin name. %2$s: Branch name.
-				$premsg = __( 'Activating %1$s branch %2$s', 'jetpack-beta' );
-				// translators: %1$s: Plugin name. %2$s: Branch name.
-				$postmsg = __( '%1$s is now on branch %2$s', 'jetpack-beta' );
-				break;
+		if ( 'master' === $args[1] ) {
+			$source = 'master';
+			$id     = '';
+			// translators: %1$s: Plugin name.
+			$premsg = __( 'Activating %1$s master branch', 'jetpack-beta' );
+			// translators: %1$s: Plugin name.
+			$postmsg = __( '%1$s is now on the master branch', 'jetpack-beta' );
+		} elseif ( 'stable' === $args[1] ) {
+			$source = 'stable';
+			$id     = '';
+			// translators: %1$s: Plugin name.
+			$premsg = __( 'Activating %1$s latest release', 'jetpack-beta' );
+			// translators: %1$s: Plugin name.
+			$postmsg = __( '%1$s is now on the latest release', 'jetpack-beta' );
+		} elseif ( 'rc' === $args[1] ) {
+			$source = 'rc';
+			$id     = '';
+			// translators: %1$s: Plugin name.
+			$premsg = __( 'Activating %1$s release candidate', 'jetpack-beta' );
+			// translators: %1$s: Plugin name.
+			$postmsg = __( '%1$s is now on the latest release candidate', 'jetpack-beta' );
+		} elseif ( preg_match( '/^\d+(?:\.\d+)(?:-beta\d*)?$/', $args[1] ) ) {
+			$source = 'release';
+			$id     = $args[1];
+			// translators: %1$s: Plugin name. %2$s: Version number.
+			$premsg = __( 'Activating %1$s release version %2$s', 'jetpack-beta' );
+			// translators: %1$s: Plugin name. %2$s: Version number.
+			$postmsg = __( '%1$s is now on release version %2$s', 'jetpack-beta' );
+		} else {
+			$source = 'pr';
+			$id     = $args[1];
+			// translators: %1$s: Plugin name. %2$s: Branch name.
+			$premsg = __( 'Activating %1$s branch %2$s', 'jetpack-beta' );
+			// translators: %1$s: Plugin name. %2$s: Branch name.
+			$postmsg = __( '%1$s is now on branch %2$s', 'jetpack-beta' );
 		}
 
 		WP_CLI::line( sprintf( $premsg, $plugin->get_name(), $id ) );
-		$plugin->install_and_activate( $source, $id );
-		WP_CLI::line( sprintf( $postmsg, $plugin->get_name(), $id ) );
+		$ret = $plugin->installer()->install_and_activate( $source, $id );
+		if ( is_wp_error( $ret ) ) {
+			WP_CLI::error( $ret->get_error_message() );
+		} else {
+			WP_CLI::line( sprintf( $postmsg, $plugin->get_name(), $id ) );
+		}
 	}
 
 	/**
