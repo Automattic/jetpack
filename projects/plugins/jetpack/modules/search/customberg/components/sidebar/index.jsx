@@ -16,13 +16,14 @@ import { useSelect, useDispatch } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { COMPLEMENTARY_AREA_SCOPE } from '../../lib/constants';
+import {
+	COMPLEMENTARY_AREA_SCOPE,
+	JP_SEARCH_TAB_IDENTIFIER,
+	OPTIONS_TAB_IDENTIFIER,
+} from '../../lib/constants';
 import SidebarDescription from './sidebar-description';
 import SidebarOptions from './sidebar-options';
 import './styles.scss';
-
-const JP_SEARCH_TAB_IDENTIFIER = 'jetpack-customize-search/info';
-const OPTIONS_TAB_IDENTIFIER = 'jetpack-customize-search/options';
 
 /**
  * Sidebar tabs.
