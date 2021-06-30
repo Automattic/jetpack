@@ -113,9 +113,16 @@ class Site_Logo {
 			)
 		);
 
-		$size_settings = jetpack_get_site_logo_dimensions();
-		$width         = isset( $size_settings['width'] ) ? $size_settings['width'] : null;
-		$height        = isset( $size_settings['height'] ) ? $size_settings['height'] : null;
+		// By default, not setting width and height will suggest a square crop.
+		$width     = null;
+		$height    = null;
+		$logo_size = jetpack_get_site_logo_dimensions();
+
+		// Only suggested a different crop if the theme declares both dimensions.
+		if ( false !== $logo_size && $logo_size['width'] && $logo_size['height'] ) {
+			$width  = $logo_size['width'];
+			$height = $logo_size['height'];
+		}
 
 		// Add our image uploader.
 		$wp_customize->add_control(
