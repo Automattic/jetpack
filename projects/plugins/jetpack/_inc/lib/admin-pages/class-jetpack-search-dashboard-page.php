@@ -69,11 +69,8 @@ class Jetpack_Search_Dashboard_Page extends Jetpack_Admin_Page {
 	 * Render Search setting elements
 	 */
 	public function page_render() {
-		$protocol   = is_ssl() ? 'https' : 'http';
-		$static_url = apply_filters( 'jetpack_static_url', "{$protocol}://en.wordpress.com/i/loading/loading-64.gif" );
 		?>
 		<div id="jp-search-dashboard" class="jp-search-dashboard">
-			<div class="hide-if-no-js"><img class="jp-search-loader" width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php echo esc_url( $static_url ); ?>" /></div>
 			<div class="hide-if-js"><?php esc_html_e( 'Your Search dashboard requires JavaScript to function properly.', 'jetpack' ); ?></div>
 		</div>
 		<?php

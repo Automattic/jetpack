@@ -1,7 +1,7 @@
 @import './_variables.scss';
 
 #jp-search-dashboard {
-	.hide-if-no-js {
+	.hide-if-no-js, .loading-background {
 		text-align: center;
 		width: 100vw;
 		height: 100vh;

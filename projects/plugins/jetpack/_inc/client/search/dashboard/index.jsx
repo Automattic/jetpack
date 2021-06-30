@@ -10,7 +10,7 @@ import { __ } from '@wordpress/i18n';
  */
 import restApi from 'rest-api';
 import Masthead from 'components/masthead';
-import { setInitialState, getApiNonce, getApiRootUrl } from 'state/initial-state';
+import LoadingPlaceHolder from 'components/loading-placeholder';
 import ModuleControl from './module-control';
 import MockedInstantSearch from './mocked-instant-search';
 import { getPlanClass } from 'lib/plans/constants';
@@ -19,8 +19,12 @@ import './style.scss';
 /**
  * State dependencies
  */
-import { getSitePlan, hasActiveSearchPurchase as selectHasActiveSearchPurchase } from 'state/site';
-import MockedSearch from './mocked-search';
+import {
+	getSitePlan,
+	hasActiveSearchPurchase as selectHasActiveSearchPurchase,
+	isFetchingSitePurchases,
+} from 'state/site';
+import { setInitialState, getApiNonce, getApiRootUrl } from 'state/initial-state';
 
 const useComponentWillMount = func => {
 	// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -34,14 +38,8 @@ const useComponentWillMount = func => {
  * @returns {React.Component} Search dashboard component.
  */
 function SearchDashboard( props ) {
-	// TODO: Re-enable once react-redux@7 is live on repo.
-	// const apiRootUrl = useSelector( state => getApiRootUrl( state ) );
-	// const apiNonce = useSelector( state => getApiNonce( state ) );
-	// const setInitialState = useDispatch( dispatch => dispatch( setInitialStateAction() ) );
-
 	// NOTE: API root and nonce must be set before any components are mounted!
 	const { apiRootUrl, apiNonce, setInitialState: dispatchedSetInitialState } = props;
-	const showMockedInstantSearch = ! props.isBusinessPlan && props.hasActiveSearchPurchase;
 
 	useComponentWillMount( () => {
 		apiRootUrl && restApi.setApiRoot( apiRootUrl );
@@ -51,20 +49,28 @@ function SearchDashboard( props ) {
 
 	return (
 		<Fragment>
-			<Masthead></Masthead>
-			<div className="jp-search-dashboard__top">
-				<div className="jp-search-dashboard__title">
-					<h1>
-						{ __( "Help your visitors find exactly what they're looking for, fast", 'jetpack' ) }
-					</h1>
-				</div>
-				<div className="jp-search-dashboard__search-dialog">
-					{ showMockedInstantSearch ? <MockedInstantSearch /> : <MockedSearch /> }
-				</div>
-			</div>
-			<div className="jp-search-dashboard__bottom">
-				<ModuleControl />
-			</div>
+			{ props.isLoading && <LoadingPlaceHolder /> }
+			{ ! props.isLoading && (
+				<Fragment>
+					<Masthead></Masthead>
+					<div className="jp-search-dashboard__top">
+						<div className="jp-search-dashboard__title">
+							<h1>
+								{ __(
+									"Help your visitors find exactly what they're looking for, fast",
+									'jetpack'
+								) }
+							</h1>
+						</div>
+						<div className="jp-search-dashboard__search-dialog">
+							<MockedInstantSearch />
+						</div>
+					</div>
+					<div className="jp-search-dashboard__bottom">
+						<ModuleControl />
+					</div>
+				</Fragment>
+			) }
 		</Fragment>
 	);
 }
@@ -76,6 +82,7 @@ export default connect(
 			apiRootUrl: getApiRootUrl( state ),
 			apiNonce: getApiNonce( state ),
 			isBusinessPlan: 'is-business-plan' === planClass,
+			isLoading: isFetchingSitePurchases( state ),
 			hasActiveSearchPurchase: selectHasActiveSearchPurchase( state ),
 		};
 	},
