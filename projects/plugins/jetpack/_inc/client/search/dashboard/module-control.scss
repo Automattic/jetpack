@@ -41,15 +41,14 @@ $color-button-text-disabled: #a7aaad;
 }
 
 .jp-form-setting-cfa-button {
-	display: block;
 	width: 15em;
 	text-align: center;
+	border-color: $color-button-background;
 
 	margin: 0.25em;
 	&.jp-form-setting-cfa-customize-button {
-		background-color: $color-button-background;
-		border-color: $color-button-background;
 		color: $color-button-text;
+		background-color: $color-button-background;
 	}
 
 	&:disabled,
@@ -60,22 +59,13 @@ $color-button-text-disabled: #a7aaad;
 		cursor: not-allowed;
 	}
 
-	&.jp-form-setting-cfa-customize-button {
-		&:disabled,
-		&[disabled] {
-			background-color: $color-button-background-disabled;
-		}
-	}
-
 	&.jp-form-setting-cfa-edit-widgets-button {
 		color: $color-button-background;
 		background: transparent;
-		border-color: $color-button-background;
-		&.jp-form-setting-cfa-customize-button {
-			&:disabled,
-			&[disabled] {
-				background: transparent;
-			}
+		&:disabled,
+		&[disabled] {
+			color: $color-button-text-disabled;
+			background: transparent;
 		}
 	}
 }
