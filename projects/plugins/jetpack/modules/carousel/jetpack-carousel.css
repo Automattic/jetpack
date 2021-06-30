@@ -59,6 +59,14 @@ so we have to target all affected elements in touch devices.
 	box-sizing: border-box;
 }
 
+/* Fix for Twenty Nineteen theme compatibility */
+.jp-carousel-overlay h1:before,
+.jp-carousel-overlay h2:before,
+.jp-carousel-overlay h3:before {
+	content: none;
+	display: none;
+}
+
 .swiper-container .swiper-button-prev {
 	left: 40px;
 }
@@ -571,6 +579,9 @@ a.jp-carousel-image-download:hover {
 	padding: 0 !important;
 	background-color: transparent !important;
 	min-width: 64px;
+	min-height: 64px;
+	width: 64px;
+	height: 64px;
 }
 
 .jp-carousel-comment .comment-date {
