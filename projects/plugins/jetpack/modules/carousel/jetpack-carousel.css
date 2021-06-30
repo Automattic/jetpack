@@ -33,6 +33,7 @@ so we have to target all affected elements in touch devices.
 	transition: 0.5s opacity ease-out;
 	height: initial;
 	width: initial;
+	padding: 20px 40px;
 }
 
 .jp-carousel-overlay .swiper-button-prev:hover,
@@ -872,9 +873,19 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	background: #fff;
 }
 
-.jp-carousel-light .jp-carousel-next-button:hover span,
-.jp-carousel-light .jp-carousel-previous-button:hover span {
-	opacity: 0.8;
+.jp-carousel-light.jp-carousel-overlay .swiper-button-prev,
+.jp-carousel-light.jp-carousel-overlay .swiper-button-next {
+	opacity: 1;
+}
+
+.jp-carousel-light.jp-carousel-overlay .swiper-button-prev:hover,
+.jp-carousel-light.jp-carousel-overlay .swiper-button-next:hover {
+	opacity: 0.5;
+}
+
+.jp-carousel-light.jp-carousel-overlay .swiper-button-prev svg,
+.jp-carousel-light.jp-carousel-overlay .swiper-button-next svg {
+	fill: #000;
 }
 
 .jp-carousel-light .jp-carousel-close-hint:hover,
