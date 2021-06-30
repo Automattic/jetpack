@@ -94,6 +94,7 @@ class Admin {
 			$branch  = esc_html( $_GET['activate-branch'] );
 			$section = esc_html( $_GET['section'] );
 
+			// XXX: Get a Plugin, then call ->install_and_activate() on it.
 			Utils::install_and_activate( $branch, $section );
 		}
 
@@ -102,6 +103,7 @@ class Admin {
 			$branch  = esc_html( $_GET['update-branch'] );
 			$section = esc_html( $_GET['section'] );
 
+			// XXX: Get a Plugin, then call ->update() on it.
 			Utils::update_plugin( $branch, $section );
 		}
 

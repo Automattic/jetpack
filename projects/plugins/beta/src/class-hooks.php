@@ -271,23 +271,41 @@ class Hooks {
 			return;
 		}
 
+		$plugins = Plugin::get_all_plugins();
+		add_action(
+			'shutdown',
+			static function () use ( $plugins ) {
+				foreach ( $plugins as $plugin ) {
+					$plugin->installer()->select_active( 'stable' );
+				}
+			},
+			5
+		);
+		add_action(
+			'shutdown',
+			static function () use ( $plugins ) {
+				self::remove_dev_plugins( $plugins );
+			},
+			20
+		);
+
 		self::clear_autoupdate_cron();
 		Utils::delete_all_transiants();
-		add_action( 'shutdown', array( self::class, 'switch_active' ), 5 );
-		add_action( 'shutdown', array( self::class, 'remove_dev_plugin' ), 20 );
-		delete_option( self::$option );
 		delete_option( 'jetpack_beta_plugin_file_map' );
 	}
 
 	/**
-	 * When Jetpack Beta plugin is deactivated, remove the jetpack-dev plugin directory and cleanup.
+	 * When Jetpack Beta plugin is deactivated, remove any dev plugins.
+	 *
+	 * @param Plugin[] $plugins Plugins to remove.
 	 */
-	public static function remove_dev_plugin() {
+	private static function remove_dev_plugins( array $plugins ) {
+		// Don't do it on multisite, in case some other site still has it active.
 		if ( is_multisite() ) {
 			return;
 		}
 
-		// Delete the jetpack dev plugin.
+		// Initialize the WP_Filesystem API.
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 		$creds = request_filesystem_credentials( site_url() . '/wp-admin/', '', false, false, array() );
 		if ( ! WP_Filesystem( $creds ) ) {
@@ -299,13 +317,13 @@ class Hooks {
 			return;
 		}
 
-		$working_dir = WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . JETPACK_DEV_PLUGIN_SLUG;
-		// Delete the folder JETPACK_BETA_PLUGIN_FOLDER.
-		if ( $wp_filesystem->is_dir( $working_dir ) ) {
-			$wp_filesystem->delete( $working_dir, true );
+		// Delete dev plugin dirs.
+		foreach ( $plugins as $plugin ) {
+			$working_dir = WP_PLUGIN_DIR . '/' . $plugin->dev_plugin_slug();
+			if ( $wp_filesystem->is_dir( $working_dir ) ) {
+				$wp_filesystem->delete( $working_dir, true );
+			}
 		}
-		// Since we are removing this dev plugin we should also clean up this data.
-		delete_option( self::$option_dev_installed );
 	}
 
 	/**
@@ -434,14 +452,6 @@ class Hooks {
 		} else {
 			return new WP_Error();
 		}
-	}
-
-	/**
-	 * Switch active JP plugin version when JP Beta plugin is deactivated.
-	 * This needs to happen on `shutdown`, otherwise it doesn't work.
-	 */
-	public static function switch_active() {
-		Utils::replace_active_plugin( JETPACK_DEV_PLUGIN_FILE, JETPACK_PLUGIN_FILE );
 	}
 
 	/**

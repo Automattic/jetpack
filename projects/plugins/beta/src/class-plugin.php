@@ -73,9 +73,23 @@ class Plugin {
 	/**
 	 * Manifest data.
 	 *
-	 * @var array|null
+	 * @var object|null
 	 */
 	protected $manifest_data = null;
+
+	/**
+	 * WordPress.org data.
+	 *
+	 * @var object|null
+	 */
+	protected $wporg_data = null;
+
+	/**
+	 * Installer.
+	 *
+	 * @var PluginInstaller|null
+	 */
+	protected $installer = null;
 
 	/**
 	 * Get instances for all known plugins.
@@ -276,13 +290,59 @@ class Plugin {
 	}
 
 	/**
-	 * Get the name of the active branch, if any.
+	 * Get the WordPress.org plugin data for the plugin.
 	 *
-	 * @return string|null
+	 * @param bool $no_cache Set true to bypass the transients cache.
+	 * @return object
+	 * @throws PluginDataException If the data cannot be fetched or is invalid.
 	 */
-	public function active_branch() {
-		$status = get_option( "jetpack_beta_status_{$this->slug}", null );
-		return isset( $status->active_branch ) ? $status->active_branch : null;
+	public function get_wporg_data( $no_cache = false ) {
+		if ( null === $this->wporg_data ) {
+			$url  = sprintf( 'https://api.wordpress.org/plugins/info/1.0/%s.json', $this->slug );
+			$data = Utils::get_remote_data( $url, "wporg_data_$this->slug", $no_cache );
+			if ( ! is_object( $data ) ) {
+				throw new PluginDataException(
+					// translators: %s: Plugin slug.
+					sprintf( __( 'Failed to download WordPress.org data for plugin \'%s\'. Check your Internet connection.', 'jetpack-beta' ), $this->slug )
+				);
+			}
+			$this->wporg_data = $data;
+		}
+		return $this->wporg_data;
+	}
+
+	/**
+	 * Get the information for the installed dev version of the plugin.
+	 *
+	 * @return object|null
+	 */
+	public function dev_info() {
+		$file = WP_PLUGIN_DIR . "/{$this->dev_plugin_slug()}/.jpbeta.json";
+		if ( ! file_exists( $file ) ) {
+			return null;
+		}
+
+		// Initialize the WP_Filesystem API.
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		$creds = request_filesystem_credentials( site_url() . '/wp-admin/', '', false, false, array() );
+		if ( ! WP_Filesystem( $creds ) ) {
+			return new WP_Error( __( 'Jetpack Beta: No File System access', 'jetpack-beta' ) );
+		}
+		global $wp_filesystem;
+		$info = json_decode( $wp_filesystem->get_contents( $file ) );
+		return is_object( $info ) ? $info : null;
+	}
+
+	/**
+	 * Get the PluginInstaller for this plugin.
+	 *
+	 * @return PluginInstaller
+	 */
+	public function installer() {
+		if ( ! $this->installer ) {
+			$this->installer = new PluginInstaller( $this );
+		}
+		return $this->installer;
 	}
 
 }
