@@ -25,15 +25,15 @@ const VALID_POST_TYPE_NAMES = Object.keys( VALID_POST_TYPES );
  */
 export default function ExcludedPostTypesControl( { disabled, value, onChange } ) {
 	const selectedValues = useMemo( () => {
-		if ( ! value || typeof value !== 'string' ) {
+		if ( ! value || ! Array.isArray( value ) ) {
 			return new Set();
 		}
-		return new Set( value?.split( ',' ) );
+		return new Set( value );
 	}, [ value ] );
 	const changeHandler = key => isSelected => {
 		const newValue = new Set( selectedValues );
 		isSelected ? newValue.add( key ) : newValue.delete( key );
-		onChange( [ ...newValue ].join( ',' ) );
+		onChange( [ ...newValue ] );
 	};
 
 	const isLastUnchecked = selectedValues.size === VALID_POST_TYPE_NAMES.length - 1;

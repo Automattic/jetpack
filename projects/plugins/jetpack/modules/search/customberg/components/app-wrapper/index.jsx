@@ -44,6 +44,7 @@ const PROPS_FROM_WINDOW = {
 export default function AppWrapper() {
 	const {
 		color,
+		excludedPostTypes,
 		infiniteScroll,
 		resultFormat,
 		showLogo,
@@ -59,13 +60,14 @@ export default function AppWrapper() {
 		...pickBy(
 			{
 				colorTheme: theme,
+				defaultSort: sort,
 				enableInfScroll: infiniteScroll,
 				enableSort: sortEnabled,
+				excludedPostTypes,
 				highlightColor: color,
 				overlayTrigger: trigger,
 				resultFormat,
 				showPoweredBy: showLogo,
-				defaultSort: sort,
 			},
 			value => typeof value !== 'undefined'
 		),

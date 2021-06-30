@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import { useMemo } from 'react';
+
+/**
  * WordPress dependencies
  */
 import { useEntityProp } from '@wordpress/core-data';
@@ -33,11 +38,18 @@ export default function useSearchOptions() {
 		'site',
 		'jetpack_search_show_powered_by'
 	);
-	const [ excludedPostTypes, setExcludedPostTypes ] = useEntityProp(
+
+	const [ excludedPostTypesCsv, setExcludedPostTypesCsv ] = useEntityProp(
 		'root',
 		'site',
 		'jetpack_search_excluded_post_types'
 	);
+	// Excluded Post Types is stored as a CSV string in site options. Convert into
+	const excludedPostTypes = useMemo( () => excludedPostTypesCsv?.split( ',' ), [
+		excludedPostTypesCsv,
+	] );
+	const setExcludedPostTypes = postTypesArr => setExcludedPostTypesCsv( postTypesArr.join( ',' ) );
+
 	return {
 		color,
 		excludedPostTypes,
