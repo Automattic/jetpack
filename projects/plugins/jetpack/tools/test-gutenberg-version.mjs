@@ -4,12 +4,13 @@ import fs from 'fs-extra';
 const version = process.argv.slice( 2 )[ 0 ];
 cloneRepo( version );
 installGutenbergDependencies();
-buildGutenbergPackages();
-await moveGutenbergPackages();
-updatePackageJsonDependencies();
-updateJetpackDependencies();
-installAdditionalGutenbergDependencies();
-runBlockValidationTests();
+// buildGutenbergPackages();
+// moveGutenbergPackages().then( () => {
+// 	updatePackageJsonDependencies();
+// 	updateJetpackDependencies();
+// 	installAdditionalGutenbergDependencies();
+// 	runBlockValidationTests();
+// } );
 
 function cloneRepo( version = 'trunk' ) {
 	console.log( `Cloning ${ version } from gutenberg repo` );
@@ -30,12 +31,9 @@ function buildGutenbergPackages() {
 	spawnSync( 'npm', [ 'run', 'build:packages' ], { stdio: 'inherit', cwd: './temp' } );
 }
 
-async function moveGutenbergPackages() {
+function moveGutenbergPackages() {
 	console.log( 'Moving Gutenberg packages' );
-	return fs.move( './temp/packages', '../packages', err => {
-		if ( err ) return console.error( err );
-		console.log( 'success!' );
-	} );
+	return fs.move( './temp/packages', '../packages' );
 }
 
 function updatePackageJsonDependencies() {
@@ -84,6 +82,7 @@ function updatePackageJsonDependencies() {
 function updateJetpackDependencies() {
 	console.log( 'Updating Jetpack dependencies' );
 	spawnSync( 'pnpm', [ 'install' ], { stdio: 'inherit', cwd: '../' } );
+	console.log( 'Done Updating Jetpack dependencies' );
 }
 
 function installAdditionalGutenbergDependencies() {
@@ -101,9 +100,10 @@ function installAdditionalGutenbergDependencies() {
 		],
 		{ stdio: 'inherit', cwd: '../' }
 	);
+	console.log( 'Finished installing additional Gutenberg dependencies' );
 }
 
 function runBlockValidationTests() {
-	console.log( 'Updating Jetpack dependencies' );
+	console.log( 'Running block validation tests' );
 	spawnSync( 'pnpm', [ 'fixtures:test' ], { stdio: 'inherit', cwd: '../' } );
 }
