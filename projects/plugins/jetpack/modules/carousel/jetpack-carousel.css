@@ -298,6 +298,7 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 .jp-carousel-pagination {
 	color: #fff;
 	font-size: 15px; /* same as .jp-carousel-info-footer .jp-carousel-photo-title  */
+	font-weight: normal;
 	white-space: nowrap;
 	display: none;
 	position: static !important;

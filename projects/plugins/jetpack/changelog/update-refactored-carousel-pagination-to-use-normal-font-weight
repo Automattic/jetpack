@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Carousel: Set pagination font weight to normal to avoid conflicts with theme styles.
