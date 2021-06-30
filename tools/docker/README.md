@@ -91,16 +91,6 @@ The default config file `tools/docker/jetpack-docker-config-default.yml` include
 * `volumeMappings` - list of key value pairs which defines local directory mappings with following structure: local_path: wordpress_container_path
 * `extras` - basically any other configuration that is supported by `docker-compose`
 
-### Building on M1 Macs
-
-If you're using the new [M1/Apple Silicon version of Docker](https://docs.docker.com/docker-for-mac/apple-m1/), you will need to add the following to your `tools/docker/compose-extras.yml` file to ensure a successful build:
-
-```
-services:
-  db:
-    platform: linux/x86_64
-```
-
 ## Working with containers
 
 ### Quick install WordPress
