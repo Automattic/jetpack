@@ -63,4 +63,8 @@
 		background-color: #fff;
 		z-index: 1;
 	}
+
+	@include breakpoint( '<480px' ) {
+		font-size: 0.75em;
+	}
 }

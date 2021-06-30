@@ -28,7 +28,7 @@ export default function MockedInstantSearch() {
 	const renderSearchResult = () => (
 		<div className="jp-mocked-instant-search__search-result">
 			<TextRowPlaceHolder
-				style={ { height: '2.5em', width: '30%', margin: '0.1em 0.1em 1em 0.1em' } }
+				style={ { height: '2.5em', width: '50%', margin: '0.1em 0.1em 1em 0.1em' } }
 			/>
 			<TextRowPlaceHolder style={ { height: '1em', width: '90%', margin: '0.1em' } } />
 			<TextRowPlaceHolder style={ { height: '1em', width: '70%', margin: '0.1em' } } />

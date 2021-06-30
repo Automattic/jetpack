@@ -2,6 +2,7 @@
 
 $sidebar-width: 220px;
 $close-button-size: 60px;
+$close-button-size-mobile: 45px;
 $color-modal-background: $studio-white;
 $color-layout-borders: $studio-wordpress-blue-0;
 $color-text-lighter: $studio-gray-50;
@@ -21,6 +22,7 @@ $color-text-lighter: $studio-gray-50;
 .jp-mocked-instant-search__search-controls {
 	display: flex;
 	flex-flow: row nowrap;
+	justify-content: space-between;
 	align-items: center;
 	border-bottom: 1px solid $color-layout-borders;
 }
@@ -30,6 +32,10 @@ $color-text-lighter: $studio-gray-50;
 	align-items: center;
 	width: $close-button-size;
 	height: $close-button-size;
+	@include breakpoint( '<660px' ) {
+		width: $close-button-size-mobile;
+		height: $close-button-size-mobile;
+	}
 }
 .jp-mocked-instant-search__search-mock-input {
 	width: calc( 100% - #{$close-button-size} - #{$close-button-size} );
@@ -47,6 +53,10 @@ $color-text-lighter: $studio-gray-50;
 	svg.gridicon {
 		fill: $color-text-lighter;
 	}
+	@include breakpoint( '<660px' ) {
+		width: $close-button-size-mobile;
+		height: $close-button-size-mobile;
+	}
 }
 
 /* Search Result */
@@ -55,16 +65,19 @@ $color-text-lighter: $studio-gray-50;
 	position: relative;
 }
 .jp-mocked-instant-search__search-results-primary {
+	width: 100%;
 	padding-left: 4em;
 	padding-top: 1em;
-	max-width: calc( 100% - #{$sidebar-width} );
-	width: 100%;
+
+	@include breakpoint( '>660px' ) {
+		max-width: calc( 100% - #{$sidebar-width} );
+	}
 }
 .jp-mocked-instant-search__search-results-header {
 	margin: 1em;
 	display: flex;
-	flex-direction: row nowrap;
 	justify-content: space-between;
+	align-items: center;
 
 	.jp-mocked-instant-search__result-statistics {
 		font-size: 1em;
@@ -88,19 +101,20 @@ $color-text-lighter: $studio-gray-50;
 * Sidebar
 */
 .jp-mocked-instant-search__search-results-secondary {
-	display: none;
-	@media ( min-width: 670px ) {
-		padding-left: 4em;
-		padding-top: 1em;
-		background: none;
-		border-left: 1px solid $color-layout-borders;
-		border-radius: 0;
-		bottom: 0;
-		box-shadow: none;
-		display: block;
-		flex: none;
-		position: static;
-		width: $sidebar-width;
+	padding-left: 2em;
+	padding-top: 1em;
+	background: none;
+	border-left: 1px solid $color-layout-borders;
+	border-radius: 0;
+	bottom: 0;
+	box-shadow: none;
+	display: block;
+	flex: none;
+	position: static;
+	width: $sidebar-width;
+
+	@include breakpoint( '<660px' ) {
+		display: none;
 	}
 }
 .jp-mocked-instant-search__search-filter-header {
