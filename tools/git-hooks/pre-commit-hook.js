@@ -211,7 +211,7 @@ function runPHPLinter( toLintFiles ) {
 		return;
 	}
 
-	const phpLintResult = spawnSync( 'composer', [ 'php:lint', '--files', ...toLintFiles ], {
+	const phpLintResult = spawnSync( 'composer', [ 'php:lint', '--', '--files', ...toLintFiles ], {
 		shell: true,
 		stdio: 'inherit',
 	} );
