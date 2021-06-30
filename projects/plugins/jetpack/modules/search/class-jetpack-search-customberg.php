@@ -95,6 +95,7 @@ class Jetpack_Search_Customberg {
 			plugins_url( '_inc/build/instant-search/jp-search-configure-main.bundle.css', JETPACK__PLUGIN_FILE ),
 			array(
 				'wp-components',
+				'wp-block-editor',
 			),
 			JETPACK__VERSION
 		);
