@@ -1412,7 +1412,7 @@
 				},
 				preventClicks: false,
 				preventClicksPropagation: false,
-				threshold: 10,
+				threshold: 5,
 			} );
 
 			swiper.on( 'slideChange', function () {
