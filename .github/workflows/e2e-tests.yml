@@ -214,7 +214,7 @@ jobs:
     if: ${{ ! cancelled() }}
     needs: e2e-tests
 
-    steps:
+    steps: # comment to have a change - remove me
       - name: Trigger test report workflow
         run: |
           if [ "$GITHUB_EVENT_NAME" == pull_request ]; then
