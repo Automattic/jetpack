@@ -485,6 +485,8 @@ class Table_Checksum {
 			$parent_table_obj    = new Table_Checksum( $this->parent_table );
 			$parent_filter_query = $parent_table_obj->build_filter_statement( null, null, null, 'parent_table' );
 
+			// It is possible to have the GROUP By cause multiple rows to be returned for the same row.
+			// To get distinct entries we use a correlatd subquery back on the parent table using the primary key.
 			$join_statement = "
 			    INNER JOIN {$parent_table_obj->table} as parent_table
 			    ON (
