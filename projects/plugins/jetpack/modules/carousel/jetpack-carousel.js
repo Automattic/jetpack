@@ -1048,6 +1048,11 @@
 
 		function fetchComments( attachmentId, offset ) {
 			var shouldClear = offset === undefined;
+			var commentsIndicator = carousel.info.querySelector(
+				'.jp-carousel-icon-comments .jp-carousel-has-comments-indicator'
+			);
+
+			commentsIndicator.classList.remove( 'jp-carousel-show' );
 
 			clearInterval( commentInterval );
 
@@ -1141,7 +1146,12 @@
 					}, 300 );
 				}
 
-				domUtil.show( comments );
+				if ( data.length > 0 ) {
+					domUtil.show( comments );
+					commentsIndicator.innerText = data.length;
+					commentsIndicator.classList.add( 'jp-carousel-show' );
+				}
+
 				domUtil.hide( commentsLoading );
 			};
 
