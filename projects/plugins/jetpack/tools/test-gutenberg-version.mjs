@@ -1,17 +1,18 @@
 import { spawnSync } from 'child_process';
 import fs from 'fs-extra';
 
-cloneRepo( 'trunk' );
+const version = process.argv.slice( 2 )[ 0 ];
+cloneRepo( version );
 installGutenbergDependencies();
 buildGutenbergPackages();
-moveGutenbergPackages();
+await moveGutenbergPackages();
 updatePackageJsonDependencies();
 updateJetpackDependencies();
 installAdditionalGutenbergDependencies();
 runBlockValidationTests();
 
 function cloneRepo( version = 'trunk' ) {
-	console.log( 'Cloning the gutenberg repo' );
+	console.log( `Cloning ${ version } from gutenberg repo` );
 	spawnSync(
 		'git',
 		[ 'clone', 'git@github.com:WordPress/gutenberg.git', './temp', '--branch', version ],
@@ -29,9 +30,9 @@ function buildGutenbergPackages() {
 	spawnSync( 'npm', [ 'run', 'build:packages' ], { stdio: 'inherit', cwd: './temp' } );
 }
 
-function moveGutenbergPackages() {
+async function moveGutenbergPackages() {
 	console.log( 'Moving Gutenberg packages' );
-	fs.move( './temp/packages', '../packages', err => {
+	return fs.move( './temp/packages', '../packages', err => {
 		if ( err ) return console.error( err );
 		console.log( 'success!' );
 	} );
@@ -43,14 +44,14 @@ function updatePackageJsonDependencies() {
 	const jetpackPackageJson = JSON.parse( fs.readFileSync( '../package.json' ) );
 
 	const wordPressDeps = Object.fromEntries(
-		Object.entries( gutenbergPackageJson.dependencies ).filter( ( [ key ] ) =>
-			key.includes( '@wordpress' )
+		Object.entries( gutenbergPackageJson.dependencies ).filter(
+			( [ key ] ) => key.includes( '@wordpress' ) || key.includes( '@emotion' )
 		)
 	);
 
 	const wordPressDevDeps = Object.fromEntries(
-		Object.entries( gutenbergPackageJson.devDependencies ).filter( ( [ key ] ) =>
-			key.includes( '@wordpress' )
+		Object.entries( gutenbergPackageJson.devDependencies ).filter(
+			( [ key ] ) => key.includes( '@wordpress' ) || key.includes( '@emotion' )
 		)
 	);
 
