@@ -1512,7 +1512,7 @@
 				threshold: 5,
 			} );
 
-			swiper.on( 'slideChange', function () {
+			swiper.on( 'slideChange', function ( swiper ) {
 				var index;
 				// Swiper indexes slides from 1, plus when looping to left last slide ends up
 				// as 0 and looping to right first slide as total slides + 1. These are adjusted
@@ -1525,6 +1525,28 @@
 					index = swiper.activeIndex - 1;
 				}
 				selectSlideAtIndex( index );
+
+				carousel.overlay.classList.remove( 'jp-carousel-hide-controls' );
+			} );
+
+			swiper.on( 'zoomChange', function ( swiper, scale ) {
+				if ( scale > 1 ) {
+					carousel.overlay.classList.add( 'jp-carousel-hide-controls' );
+				} else {
+					carousel.overlay.classList.remove( 'jp-carousel-hide-controls' );
+				}
+			} );
+
+			swiper.on( 'doubleTap', function ( swiper ) {
+				if ( swiper.zoom.scale > 1 ) {
+					carousel.overlay.classList.add( 'jp-carousel-hide-controls' );
+				} else {
+					carousel.overlay.classList.remove( 'jp-carousel-hide-controls' );
+				}
+			} );
+
+			swiper.on( 'tap', function () {
+				carousel.overlay.classList.remove( 'jp-carousel-hide-controls' );
 			} );
 
 			domUtil.fadeIn( carousel.overlay, function () {

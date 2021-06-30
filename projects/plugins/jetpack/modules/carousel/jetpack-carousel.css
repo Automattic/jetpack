@@ -29,6 +29,10 @@
 	width: 100vw;
 }
 
+.jp-carousel-hide-controls .swiper-container {
+	overflow: visible;
+}
+
 .jp-carousel-overlay .swiper-zoom-container {
 	background-size: 200%;
 	background-repeat: no-repeat;
@@ -144,6 +148,10 @@ so we have to target all affected elements in touch devices.
 	-webkit-font-smoothing: subpixel-antialiased !important;
 	z-index: 100;
 	background-color: #000;
+}
+
+.jp-carousel-hide-controls .jp-carousel-info {
+    visibility: hidden;
 }
 
 .jp-carousel-info-footer {
@@ -272,6 +280,10 @@ div.jp-carousel-buttons a:hover {
 	z-index: 15;
 	color: #fff;
 	cursor: pointer;
+}
+
+.jp-carousel-hide-controls .jp-carousel-close-hint {
+    visibility: hidden;
 }
 
 .jp-carousel-transitions .jp-carousel-close-hint {
