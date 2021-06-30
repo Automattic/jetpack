@@ -15,9 +15,6 @@
 	$breakpoint: map-get( $breakpoints, to-lower-case( str-slice( $breakpoint-string, 2 ) ) );
 
 	@media ( $predicate: #{ $breakpoint } ) {
-		input: $breakpoint-string;
-		first-char: str-slice( $breakpoint-string, 1, 2 );
-		predicate: $predicate;
 		@content;
 	}
 }
