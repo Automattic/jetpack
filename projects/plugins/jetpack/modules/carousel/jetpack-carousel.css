@@ -22,22 +22,21 @@ To prevent flash of prev/next image scale transition after pinch zoom we need to
 Swiper does not add a class of `swiper-slide-zoomed` to slides on pinch and zoom
 so we have to target all affected elements in touch devices.
 */
-
 .swiper-slide.swiper-slide-prev .swiper-zoom-container img,
 .swiper-slide.swiper-slide-next .swiper-zoom-container img {
 	transition: none !important;
 }
 
-.jp-carousel-overlay .swiper-button-prev:after,
-.jp-carousel-overlay .swiper-button-next:after {
-	color: #cccccc;
+.jp-carousel-overlay .swiper-button-prev,
+.jp-carousel-overlay .swiper-button-next {
 	opacity: 0.5;
-	font-size: 3rem;
 	transition: 0.5s opacity ease-out;
+	height: initial;
+	width: initial;
 }
 
-.jp-carousel-overlay .swiper-button-prev:hover:after,
-.jp-carousel-overlay .swiper-button-next:hover:after {
+.jp-carousel-overlay .swiper-button-prev:hover,
+.jp-carousel-overlay .swiper-button-next:hover {
 	opacity: 1;
 }
 
@@ -48,6 +47,8 @@ so we have to target all affected elements in touch devices.
 
 .jp-carousel-overlay .swiper-button-prev svg,
 .jp-carousel-overlay .swiper-button-next svg {
+	height: 40px;
+	width: 40px;
 	fill: #ccc;
 }
 
@@ -612,8 +613,8 @@ a.jp-carousel-image-download:hover {
 }
 
 #jp-carousel-comment-form.jp-carousel-is-disabled {
-    opacity: 0.5;
-    pointer-events: none;
+	opacity: 0.5;
+	pointer-events: none;
 }
 
 textarea#jp-carousel-comment-form-comment-field {
@@ -714,11 +715,11 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	-webkit-animation: load8 1.1s infinite linear;
 	animation: load8 1.1s infinite linear;
 	margin: 0 auto;
-    position: absolute; /* relative to .jp-carousel-comment-form-container */
-    top: 40%;
-    left: 0;
-    bottom: 0;
-    right: 0;
+	position: absolute; /* relative to .jp-carousel-comment-form-container */
+	top: 40%;
+	left: 0;
+	bottom: 0;
+	right: 0;
 }
 
 @-webkit-keyframes load8 {
@@ -811,7 +812,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 #jp-carousel-comment-form-button-submit:active,
 #jp-carousel-comment-form-button-submit:focus {
 	background: white;
-    color: rgba( 34, 34, 34, 0.9 );
+	color: rgba( 34, 34, 34, 0.9 );
 }
 
 #jp-carousel-comment-form-container {
@@ -1057,7 +1058,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	display: block;
 	text-align: right;
 	margin: 0 20px 0 30px;
-    white-space: nowrap;
+	white-space: nowrap;
 }
 
 .jp-carousel-icon-btn {
