@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.23.0] - 2021-06-29
+### Added
+- Add jetpack_idc_disonnect action to clear Sync options on disconnect.
+- Add support to callables to sync/object endpoint.
+- Enable sync/object endpoint support for theme-info.
+- Enhance updates module to support get_objects_by_id.
+- Expand sync/object to support constants.
+- Extend sync/object to support callables.
+- Implement v4 REST endpoints.
+- Initialize the IDC package in the Sync package.
+
+### Removed
+- Remove product_cat from blocked taxonomies
+
 ## [1.22.0] - 2021-06-15
 ### Changed
 - Sync: Adding the Identity_Crisis package.
@@ -392,6 +406,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[1.23.0]: https://github.com/Automattic/jetpack-sync/compare/v1.22.0...v1.23.0
 [1.22.0]: https://github.com/Automattic/jetpack-sync/compare/v1.21.3...v1.22.0
 [1.21.3]: https://github.com/Automattic/jetpack-sync/compare/v1.21.2...v1.21.3
 [1.21.2]: https://github.com/Automattic/jetpack-sync/compare/v1.21.1...v1.21.2

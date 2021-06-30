@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Adjust the RNA Connection usage because 'Main' component has been removed to 'ConnectButton'
