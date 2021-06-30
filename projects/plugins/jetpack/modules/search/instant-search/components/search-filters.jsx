@@ -60,20 +60,22 @@ class SearchFilters extends Component {
 			/>
 		);
 
-	renderStaticFilterComponent = ( configuration ) => {
+	renderStaticFilterComponent = configuration => {
 		if ( configuration.hasOwnProperty( 'visible' ) && ! configuration.visible ) {
 			return null;
 		}
 
-		return <SearchFilter
-			aggregation={ [] }
-			configuration={ configuration }
-			locale={ this.props.locale }
-			onChange={ this.onChangeStaticFilter }
-			postTypes={ this.props.postTypes }
-			type={ mapFilterToType( configuration ) }
-			value={ this.props.staticFilters[ mapFilterToFilterKey( configuration ) ] }
-		/>;
+		return (
+			<SearchFilter
+				aggregation={ [] }
+				configuration={ configuration }
+				locale={ this.props.locale }
+				onChange={ this.onChangeStaticFilter }
+				postTypes={ this.props.postTypes }
+				type={ mapFilterToType( configuration ) }
+				value={ this.props.staticFilters[ mapFilterToFilterKey( configuration ) ] }
+			/>
+		);
 	};
 
 	render() {
@@ -103,7 +105,9 @@ class SearchFilters extends Component {
 					</a>
 				) }
 
-				{ this.props.widget?.filters && this.props.widget.filters.length > 0 && availableStaticFilters.map( this.renderStaticFilterComponent ) }
+				{ this.props.widget?.filters &&
+					this.props.widget.filters.length > 0 &&
+					availableStaticFilters.map( this.renderStaticFilterComponent ) }
 
 				{ this.props.widget?.filters
 					?.map( configuration =>

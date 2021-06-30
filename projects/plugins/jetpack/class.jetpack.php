@@ -419,6 +419,7 @@ class Jetpack {
 		if ( ! self::$instance ) {
 			self::$instance = new Jetpack();
 			add_action( 'plugins_loaded', array( self::$instance, 'plugin_upgrade' ) );
+			add_action( 'jetpack_idc_disconnect', array( __CLASS__, 'on_idc_disconnect' ) );
 		}
 
 		return self::$instance;
@@ -3448,56 +3449,34 @@ p {
 	}
 
 	/**
+	 * Set activated option to 4 on jetpack_idc_disconnect action.
+	 */
+	public static function on_idc_disconnect() {
+		\Jetpack_Options::update_option( 'activated', 4 );
+	}
+
+	/**
 	 * Disconnects from the Jetpack servers.
 	 * Forgets all connection details and tells the Jetpack servers to do the same.
 	 *
 	 * @static
 	 */
 	public static function disconnect( $update_activated_state = true ) {
-		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
 
 		$connection = self::connection();
 
-		( new Nonce_Handler() )->clean_all();
-
 		// If the site is in an IDC because sync is not allowed,
 		// let's make sure to not disconnect the production site.
-		if ( ! Identity_Crisis::validate_sync_error_idc_option() ) {
-			$tracking = new Tracking();
-			$tracking->record_user_event( 'disconnect_site', array() );
+		$connection->disconnect_site( ! Identity_Crisis::validate_sync_error_idc_option() );
 
-			$connection->disconnect_site_wpcom( true );
-		}
-
-		$connection->delete_all_connection_tokens( true );
 		Identity_Crisis::clear_all_idc_options();
 
 		if ( $update_activated_state ) {
 			Jetpack_Options::update_option( 'activated', 4 );
 		}
 
-		if ( $jetpack_unique_connection = Jetpack_Options::get_option( 'unique_connection' ) ) {
-			// Check then record unique disconnection if site has never been disconnected previously
-			if ( - 1 == $jetpack_unique_connection['disconnected'] ) {
-				$jetpack_unique_connection['disconnected'] = 1;
-			} else {
-				if ( 0 == $jetpack_unique_connection['disconnected'] ) {
-					// track unique disconnect
-					$jetpack = self::init();
-
-					$jetpack->stat( 'connections', 'unique-disconnect' );
-					$jetpack->do_stats( 'server_side' );
-				}
-				// increment number of times disconnected
-				$jetpack_unique_connection['disconnected'] += 1;
-			}
-
-			Jetpack_Options::update_option( 'unique_connection', $jetpack_unique_connection );
-		}
-
 		// Delete all the sync related data. Since it could be taking up space.
 		Sender::get_instance()->uninstall();
-
 	}
 
 	/**

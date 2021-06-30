@@ -1066,7 +1066,6 @@
 
 			var comments = carousel.info.querySelector( '.jp-carousel-comments' );
 			var commentsLoading = carousel.info.querySelector( '#jp-carousel-comments-loading' );
-
 			domUtil.show( commentsLoading );
 
 			if ( shouldClear ) {
