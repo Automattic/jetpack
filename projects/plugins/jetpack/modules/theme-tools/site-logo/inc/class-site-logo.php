@@ -327,7 +327,7 @@ class Site_Logo {
 	 * @uses update_option()
 	 */
 	public function remove_site_logo() {
-		delete_option( 'site_logo' );
+		update_option( 'site_logo', null );
 	}
 
 	/**

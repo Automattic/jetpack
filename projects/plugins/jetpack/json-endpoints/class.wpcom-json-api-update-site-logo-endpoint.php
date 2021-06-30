@@ -12,6 +12,7 @@ new WPCOM_JSON_API_Update_Site_Logo_Endpoint( array (
 	),
 	'request_format'  => array(
 		'id' => '(int) The ID of the logo post',
+		'url' => '(string) The URL of the logo post (deprecated)',
 	),
 	'response_format'  => array(
 		'id' => '(int) The ID of the logo post',
