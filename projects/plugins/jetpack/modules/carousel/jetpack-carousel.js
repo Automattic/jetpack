@@ -1410,6 +1410,9 @@
 						selectSlideAtIndex( settings.startIndex );
 					},
 				},
+				preventClicks: false,
+				preventClicksPropagation: false,
+				threshold: 5,
 			} );
 
 			swiper.on( 'slideChange', function () {

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Carousel: Fix intermittent issue with unresponsive prev button.
