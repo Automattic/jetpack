@@ -17,6 +17,17 @@
 	background-position: center;
 }
 
+/*
+    To prevent flash of prev/next image scale transition after pinch zoom we need to hide them.
+    Swiper does not add a class of `swiper-slide-zoomed` to slides on pinch and zoom
+    so we have to target all affected elements in touch devices.
+*/
+
+.swiper-slide.swiper-slide-prev .swiper-zoom-container img,
+.swiper-slide.swiper-slide-next .swiper-zoom-container img {
+    transition: none !important;
+}
+
 .jp-carousel-overlay .swiper-button-prev:after,
 .jp-carousel-overlay .swiper-button-next:after {
 	color: #cccccc;
