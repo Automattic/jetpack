@@ -486,13 +486,16 @@ class Table_Checksum {
 			$parent_filter_query = $parent_table_obj->build_filter_statement( null, null, null, 'parent_table' );
 
 			$join_statement = "
-				INNER JOIN
-				( 
-				  SELECT DISTINCT parent_table.{$this->parent_join_field}
-				  FROM {$parent_table_obj->table} as parent_table
-				  WHERE {$parent_filter_query}
-				)
-				AS parent_table ON {$this->table}.{$this->table_join_field} = parent_table.{$this->parent_join_field}
+			    INNER JOIN {$parent_table_obj->table} as parent_table
+			    ON (
+			        {$this->table}.{$this->table_join_field} = parent_table.{$this->parent_join_field}
+			        AND {$parent_filter_query}
+			        AND parent_table.{$parent_table_obj->range_field} = (
+			            SELECT min( parent_table_cs.{$parent_table_obj->range_field} )
+			            FROM {$parent_table_obj->table} as parent_table_cs
+			            WHERE parent_table_cs.{$this->parent_join_field} = {$this->table}.{$this->table_join_field}
+			        )
+			    )
 			";
 		}
 
