@@ -52,7 +52,7 @@
 .jp-carousel-overlay h1:before,
 .jp-carousel-overlay h2:before,
 .jp-carousel-overlay h3:before {
-	content: '';
+	content: none;
 	display: none;
 }
 
