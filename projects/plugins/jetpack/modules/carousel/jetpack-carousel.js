@@ -1345,6 +1345,9 @@
 					domUtil.hide( loader );
 					openCarousel( gallery, options );
 				};
+				jsScript.onerror = function () {
+					domUtil.hide( loader );
+				};
 				document.head.appendChild( jsScript );
 				return;
 			}
