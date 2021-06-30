@@ -41,6 +41,21 @@ so we have to target all affected elements in touch devices.
 	opacity: 1;
 }
 
+.jp-carousel-overlay .swiper-button-prev:after,
+.jp-carousel-overlay .swiper-button-next:after {
+	content: none;
+}
+
+.jp-carousel-overlay .swiper-button-prev svg,
+.jp-carousel-overlay .swiper-button-next svg {
+	fill: #ccc;
+}
+
+.jp-carousel-overlay .swiper-button-prev svg:hover,
+.jp-carousel-overlay .swiper-button-next svg:hover {
+	fill: #fff;
+}
+
 .jp-carousel-overlay {
 	font-family: 'Helvetica Neue', sans-serif !important;
 	z-index: 10;
