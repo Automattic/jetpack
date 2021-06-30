@@ -1,23 +1,24 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useEffect } from 'react';
 
 /**
  * WordPress dependencies
  */
-import { useSelect } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import {
 	ComplementaryArea,
 	InterfaceSkeleton,
 	store as interfaceStore,
 } from '@wordpress/interface';
+import { store as viewportStore } from '@wordpress/viewport';
 
 /**
  * Internal dependencies
  */
-import { COMPLEMENTARY_AREA_SCOPE } from '../../lib/constants';
+import { COMPLEMENTARY_AREA_SCOPE, OPTIONS_TAB_IDENTIFIER } from '../../lib/constants';
 import AppWrapper from '../app-wrapper';
 import Header from '../header';
 import './styles.scss';
@@ -39,11 +40,19 @@ const interfaceLabels = {
  * @returns {React.Element} component instance
  */
 export default function Interface() {
-	const { hasSidebarEnabled } = useSelect( select => ( {
+	const { hasSidebarEnabled, isLargeViewport } = useSelect( select => ( {
+		isLargeViewport: select( viewportStore ).isViewportMatch( 'large' ),
 		hasSidebarEnabled: !! select( interfaceStore ).getActiveComplementaryArea(
 			COMPLEMENTARY_AREA_SCOPE
 		),
 	} ) );
+
+	const { enableComplementaryArea, disableComplementaryArea } = useDispatch( interfaceStore );
+	useEffect( () => {
+		isLargeViewport
+			? enableComplementaryArea( COMPLEMENTARY_AREA_SCOPE, OPTIONS_TAB_IDENTIFIER )
+			: disableComplementaryArea( COMPLEMENTARY_AREA_SCOPE );
+	}, [ enableComplementaryArea, disableComplementaryArea, isLargeViewport ] );
 
 	return (
 		<InterfaceSkeleton
