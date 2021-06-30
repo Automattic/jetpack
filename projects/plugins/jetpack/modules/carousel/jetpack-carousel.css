@@ -1081,6 +1081,29 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	display: inline-block;
 }
 
+.jp-carousel-icon .jp-carousel-has-comments-indicator {
+	display: none;
+	font-size: 12px;
+	vertical-align: top;
+	margin-left: -16px;
+	line-height: 1;
+	padding: 2px 4px;
+	border-radius: 4px;
+	background: #fff;
+	color: #000;
+	font-weight: normal;
+	font-family: 'Helvetica Neue', sans-serif !important;
+}
+
+.jp-carousel-light .jp-carousel-icon .jp-carousel-has-comments-indicator {
+	background: #000;
+	color: #fff;
+}
+
+.jp-carousel-has-comments-indicator.jp-carousel-show {
+	display: inline-block;
+}
+
 /** Icons End **/
 
 /* Small screens */
