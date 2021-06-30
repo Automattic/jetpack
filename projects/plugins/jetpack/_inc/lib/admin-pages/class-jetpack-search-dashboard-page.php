@@ -35,9 +35,8 @@ class Jetpack_Search_Dashboard_Page extends Jetpack_Admin_Page {
 	 * Create a menu item for the page and returns the hook.
 	 */
 	public function get_page_hook() {
-		// TODO: temporary flag for testing. Will be removed on the last PR merge.
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! array_key_exists( 'a8ctest', $_GET ) ) {
+
+		if ( ! $this->should_add_sub_menu() ) {
 			return;
 		}
 		return add_submenu_page(
@@ -78,6 +77,17 @@ class Jetpack_Search_Dashboard_Page extends Jetpack_Admin_Page {
 			<div class="hide-if-js"><?php esc_html_e( 'Your Search dashboard requires JavaScript to function properly.', 'jetpack' ); ?></div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Test whether we should show Search menu.
+	 *
+	 * @return {boolean} Show search sub menu or not.
+	 */
+	protected function should_add_sub_menu() {
+		// TODO: temporary flag for testing. Will be removed on the last PR merge.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		return Jetpack_Plan::supports( 'search' ) && array_key_exists( 'a8ctest', $_GET );
 	}
 
 	/**
