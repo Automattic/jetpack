@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -28,7 +29,7 @@ export function SearchFooter( props ) {
 		<div className="jp-search-dashboard-footer">
 			<div className="jp-search-dashboard-footer__footer-left">
 				<span className="jp-search-dashboard-footer__logo"></span>
-				<span>Jetpack Search</span>
+				<span>{ __( 'Jetpack Search', 'jetpack' ) }</span>
 			</div>
 			<div className="jp-search-dashboard-footer__footer-right">
 				<AnAutomatticAirlineSVG href={ aboutPageUrl } />

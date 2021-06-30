@@ -54,11 +54,13 @@ export default function MockedInstantSearch() {
 							{ __( 'Found 27 results', 'jetpack' ) }
 						</div>
 						<div className="jp-mocked-instant-search__result-sort-list">
-							<span className="jp-mocked-instant-search__result-sort-selected">Relevance</span>
+							<span className="jp-mocked-instant-search__result-sort-selected">
+								{ __( 'Relevance', 'jetpack' ) }
+							</span>
 							<span>&middot;</span>
-							<span>Newest</span>
+							<span>{ __( 'Newest', 'jetpack' ) }</span>
 							<span>&middot;</span>
-							<span>Oldest</span>
+							<span>{ __( 'Oldest', 'jetpack' ) }</span>
 						</div>
 					</div>
 					<div className="jp-mocked-instant-search__search-results-content">
