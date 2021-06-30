@@ -16,7 +16,5 @@
 
 // Include everything.
 require_once __DIR__ . '/search/class.jetpack-search.php';
-require_once __DIR__ . '/search/class-jetpack-search-admin-dashboard.php';
 
 Jetpack_Search::instance();
-Jetpack_Search_Admin_Dashboard::instance();

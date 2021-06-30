@@ -16,51 +16,62 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-redux-sta
  *
  * @package Automattic\Jetpack\Search
  */
-class Jetpack_Search_Admin_Dashboard {
+class Jetpack_Search_Setting_Page extends Jetpack_Admin_Page {
 	/**
-	 * The singleton instance of this class.
+	 * Show the settings page only when Jetpack is connected or in dev mode.
 	 *
-	 * @var Admin_Dashboard
+	 * @var bool If the page should be shown.
 	 */
-	protected static $instance;
+	protected $dont_show_if_not_active = true;
 
 	/**
-	 * Get the singleton instance of the class.
+	 * Add page specific actions given the page hook.
 	 *
-	 * @return Admin_Dashboard
+	 * @param {object} $hook The page hook.
 	 */
-	public static function instance() {
-		if ( ! isset( self::$instance ) ) {
-			self::$instance = new static();
-			self::$instance->init_hooks();
-		}
-
-		return self::$instance;
-	}
+	public function add_page_actions( $hook ) {}
 
 	/**
-	 * Adds action hooks.
+	 * Create a menu item for the page and returns the hook.
 	 */
-	public function init_hooks() {
-		add_action( 'admin_menu', array( $this, 'add_submenu_and_scripts' ), 999 );
-	}
-
-	/**
-	 * Adds an admin sidebar link pointing to the Search page.
-	 */
-	public function add_submenu_and_scripts() {
-		// TODO: Set a different submenu parent slug if WPCOM.
-		$hook = add_submenu_page(
+	public function get_page_hook() {
+		return add_submenu_page(
 			'jetpack',
 			__( 'Search Settings', 'jetpack' ),
 			__( 'Search', 'jetpack' ),
 			'manage_options',
 			'jetpack-search',
-			array( $this, 'jetpack_search_admin_page' ),
+			array( $this, 'render' ),
 			$this->get_link_offset()
-		);
-		add_action( "admin_print_styles-$hook", array( $this, 'load_admin_styles' ) );
-		add_action( "admin_print_scripts-$hook", array( $this, 'load_admin_scripts' ) );
+		);  }
+
+	/**
+	 * Enqueue and localize page specific scripts
+	 */
+	public function page_admin_scripts() {
+		$this->load_admin_styles();
+		$this->load_admin_scripts();
+	}
+
+	/**
+	 * Override render funtion
+	 */
+	public function render() {
+		$this->page_render();
+	}
+
+	/**
+	 * Render Search setting elements
+	 */
+	public function page_render() {
+		$protocol   = is_ssl() ? 'https' : 'http';
+		$static_url = apply_filters( 'jetpack_static_url', "{$protocol}://en.wordpress.com/i/loading/loading-64.gif" );
+		?>
+		<div id="jp-search-dashboard" class="jp-search-dashboard">
+			<div class="hide-if-no-js"><img class="jp-search-loader" width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php echo esc_url( $static_url ); ?>" /></div>
+			<div class="hide-if-js"><?php esc_html_e( 'Your Search dashboard requires JavaScript to function properly.', 'jetpack' ); ?></div>
+		</div>
+		<?php
 	}
 
 	/**
@@ -71,22 +82,6 @@ class Jetpack_Search_Admin_Dashboard {
 	private function get_link_offset() {
 		global $submenu;
 		return count( $submenu['jetpack'] );
-	}
-
-	/**
-	 * Prints the dashboard container.
-	 *
-	 * @access public
-	 */
-	public function jetpack_search_admin_page() {
-		$protocol   = is_ssl() ? 'https' : 'http';
-		$static_url = apply_filters( 'jetpack_static_url', "{$protocol}://en.wordpress.com/i/loading/loading-64.gif" );
-		?>
-			<div id="jp-search-dashboard" class="jp-search-dashboard">
-				<div class="hide-if-no-js"><img class="jp-search-loader" width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php echo esc_url( $static_url ); ?>" /></div>
-				<div class="hide-if-js"><?php esc_html_e( 'Your Search dashboard requires JavaScript to function properly.', 'jetpack' ); ?></div>
-			</div>
-		<?php
 	}
 
 	/**
