@@ -43,7 +43,7 @@ so we have to target all affected elements in touch devices.
 
 .jp-carousel-overlay {
 	font-family: 'Helvetica Neue', sans-serif !important;
-	z-index: 10;
+	z-index: 2147483647;
 	overflow-x: hidden;
 	overflow-y: auto;
 	direction: ltr;
