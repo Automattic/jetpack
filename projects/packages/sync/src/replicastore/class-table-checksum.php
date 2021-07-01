@@ -224,7 +224,7 @@ class Table_Checksum {
 				'range_field'     => 'term_taxonomy_id',
 				'key_fields'      => array( 'term_taxonomy_id' ),
 				'checksum_fields' => array( 'term_taxonomy_id', 'term_id', 'taxonomy', 'description', 'parent' ),
-				'filter_values'   => Sync\Settings::get_blacklisted_taxonomies_structured(),
+				'filter_values'   => Sync\Settings::get_allowed_taxonomies_structured(),
 			),
 			'links'              => $wpdb->links, // TODO describe in the array format or add exceptions.
 			'options'            => $wpdb->options, // TODO describe in the array format or add exceptions.
