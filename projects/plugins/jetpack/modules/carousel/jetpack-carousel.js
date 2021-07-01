@@ -309,7 +309,7 @@
 				carousel.overlay = document.querySelector( '.jp-carousel-overlay' );
 				carousel.container = carousel.overlay.querySelector( '.jp-carousel-wrap' );
 				carousel.gallery = carousel.container.querySelector( '.jp-carousel' );
-				carousel.info = document.querySelector( '.jp-carousel-info' );
+				carousel.info = carousel.overlay.querySelector( '.jp-carousel-info' );
 				carousel.caption = carousel.info.querySelector( '.jp-carousel-caption' );
 				carousel.commentField = carousel.overlay.querySelector(
 					'#jp-carousel-comment-form-comment-field'
@@ -1447,10 +1447,12 @@
 
 		// Register the event listener for starting the gallery
 		document.body.addEventListener( 'click', function ( e ) {
-			var isIE11 = window.navigator.userAgent.match( /Trident\/7\./ );
+			var isCompatible =
+				window.CSS && window.CSS.supports && window.CSS.supports( 'display', 'grid' );
+
 			// IE11 support is being dropped in August 2021. The new swiper.js libray is not IE11 compat
 			// so just default to opening individual image attachment/media pages for IE.
-			if ( isIE11 ) {
+			if ( ! isCompatible ) {
 				return;
 			}
 
