@@ -13,17 +13,12 @@ import Masthead from 'components/masthead';
 import LoadingPlaceHolder from 'components/loading-placeholder';
 import ModuleControl from './module-control';
 import MockedInstantSearch from './mocked-instant-search';
-import { getPlanClass } from 'lib/plans/constants';
 import './style.scss';
 
 /**
  * State dependencies
  */
-import {
-	getSitePlan,
-	hasActiveSearchPurchase as selectHasActiveSearchPurchase,
-	isFetchingSitePurchases,
-} from 'state/site';
+import { isFetchingSitePurchases } from 'state/site';
 import { setInitialState, getApiNonce, getApiRootUrl } from 'state/initial-state';
 
 const useComponentWillMount = func => {
@@ -77,13 +72,10 @@ function SearchDashboard( props ) {
 
 export default connect(
 	state => {
-		const planClass = getPlanClass( getSitePlan( state ).product_slug );
 		return {
 			apiRootUrl: getApiRootUrl( state ),
 			apiNonce: getApiNonce( state ),
-			isBusinessPlan: 'is-business-plan' === planClass,
 			isLoading: isFetchingSitePurchases( state ),
-			hasActiveSearchPurchase: selectHasActiveSearchPurchase( state ),
 		};
 	},
 	{ setInitialState }
