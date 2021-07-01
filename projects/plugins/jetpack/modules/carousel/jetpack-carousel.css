@@ -1172,6 +1172,10 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 		background-color: #000;
 	}
 
+	.jp-carousel-light .jp-carousel-wrap {
+		background-color: #fff;
+	}
+
 	.jp-carousel-fadeaway {
 		display: none;
 	}
