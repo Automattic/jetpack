@@ -40,7 +40,10 @@ function reset() {
 		fs.rmdirSync( './packages', { recursive: true } );
 	}
 
-	spawnSync( 'git', [ 'checkout', '--', './package.json' ], { stdio: 'inherit' } );
+	spawnSync( 'git', [ 'checkout', './projects/plugins/jetpack/package.json', './pnpm-lock.yaml' ], {
+		stdio: 'inherit',
+		cwd: '../../../',
+	} );
 }
 
 function cloneRepo( version = 'trunk' ) {
