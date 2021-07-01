@@ -1097,6 +1097,10 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	font-style: normal;
 }
 
+.jp-carousel-icon svg {
+	display: inline-block;
+}
+
 .jp-carousel-icon-btn.jp-carousel-selected .jp-carousel-icon {
 	color: #000;
 	fill: #000;
