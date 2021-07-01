@@ -837,9 +837,9 @@
 			var mediumWidth = parseInt( mediumSizeParts[ 0 ], 10 );
 			var mediumHeight = parseInt( mediumSizeParts[ 1 ], 10 );
 
-			// Assign max width and height.
-			args.origMaxWidth = args.maxWidth;
-			args.origMaxHeight = args.maxHeight;
+			// Assign max width and height -- @3x to support hiPPI/Retina devices when zooming in.
+			args.origMaxWidth = args.maxWidth * 3;
+			args.origMaxHeight = args.maxHeight * 3;
 
 			// Give devices with a higher devicePixelRatio higher-res images (Retina display = 2, Android phones = 1.5, etc)
 			if ( typeof window.devicePixelRatio !== 'undefined' && window.devicePixelRatio > 1 ) {
