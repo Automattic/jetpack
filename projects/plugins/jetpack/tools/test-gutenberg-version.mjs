@@ -2,15 +2,19 @@ import { spawnSync } from 'child_process';
 import fs from 'fs-extra';
 
 const version = process.argv.slice( 2 )[ 0 ];
+const commit = process.argv.slice( 2 )[ 1 ];
 cloneRepo( version );
+if ( commit ) {
+	checkoutCommit( commit );
+}
 installGutenbergDependencies();
-// buildGutenbergPackages();
-// moveGutenbergPackages().then( () => {
-// 	updatePackageJsonDependencies();
-// 	updateJetpackDependencies();
-// 	installAdditionalGutenbergDependencies();
-// 	runBlockValidationTests();
-// } );
+buildGutenbergPackages();
+moveGutenbergPackages().then( () => {
+	updatePackageJsonDependencies();
+	updateJetpackDependencies();
+	installAdditionalGutenbergDependencies();
+	runBlockValidationTests();
+} );
 
 function cloneRepo( version = 'trunk' ) {
 	console.log( `Cloning ${ version } from gutenberg repo` );
@@ -19,6 +23,11 @@ function cloneRepo( version = 'trunk' ) {
 		[ 'clone', 'git@github.com:WordPress/gutenberg.git', './temp', '--branch', version ],
 		{ stdio: 'inherit' }
 	);
+}
+
+function checkoutCommit( commit ) {
+	console.log( `Checking out commit ${ commit } from gutenberg repo` );
+	spawnSync( 'git', [ 'checkout', commit ], { stdio: 'inherit', cwd: './temp' } );
 }
 
 function installGutenbergDependencies() {
