@@ -7,6 +7,7 @@
 
 namespace Automattic\JetpackBeta;
 
+use Composer\Semver\Comparator as Semver;
 use InvalidArgumentException;
 use WP_Error;
 
@@ -29,6 +30,28 @@ class PluginInstaller {
 	 */
 	public function __construct( Plugin $plugin ) {
 		$this->plugin = $plugin;
+	}
+
+	/**
+	 * Get the information for the installed dev version of the plugin.
+	 *
+	 * @return object|null
+	 */
+	public function dev_info() {
+		$file = WP_PLUGIN_DIR . "/{$this->plugin->dev_plugin_slug()}/.jpbeta.json";
+		if ( ! file_exists( $file ) ) {
+			return null;
+		}
+
+		// Initialize the WP_Filesystem API.
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		$creds = request_filesystem_credentials( site_url() . '/wp-admin/', '', false, false, array() );
+		if ( ! WP_Filesystem( $creds ) ) {
+			return new WP_Error( 'fs_api_error', __( 'Jetpack Beta: No File System access', 'jetpack-beta' ) );
+		}
+		global $wp_filesystem;
+		$info = json_decode( $wp_filesystem->get_contents( $file ) );
+		return is_object( $info ) ? $info : null;
 	}
 
 	/**
@@ -125,7 +148,7 @@ class PluginInstaller {
 
 		// Get info for the currently installed version. Return early if that version is what we need.
 		if ( 'dev' === $which ) {
-			$fs_info = $this->plugin->dev_info();
+			$fs_info = $this->dev_info();
 		} else {
 			$file = WP_PLUGIN_DIR . '/' . $this->plugin->plugin_file();
 			if ( file_exists( $file ) ) {
@@ -178,6 +201,133 @@ class PluginInstaller {
 	}
 
 	/**
+	 * Get the WordPress upgrader response for the plugin, if any.
+	 *
+	 * @return null|object
+	 */
+	public function dev_upgrader_response() {
+		$dev_info = $this->dev_info();
+		if ( ! $dev_info ) {
+			// We can't know how to upgrade if there's no info.
+			return array( null, null );
+		}
+		$manifest = $this->plugin->get_manifest( true );
+		$slug     = $this->plugin->dev_plugin_slug();
+		$info     = null;
+
+		if ( 'pr' === $dev_info->source && ! isset( $manifest->pr->{$dev_info->id} ) && isset( $manifest->master ) ) {
+			// It's a PR that is gone. Update to master.
+			list( , $info ) = $this->get_which_and_info( 'master', '' );
+		} elseif ( 'pr' === $dev_info->source && isset( $manifest->pr->{$dev_info->id} ) &&
+			Semver::greaterThan( $manifest->pr->{$dev_info->id}->version, $dev_info->version )
+		) {
+			// It's a PR that has been updated.
+			list( , $info ) = $this->get_which_and_info( 'pr', $dev_info->id );
+		} elseif ( 'rc' === $dev_info->source && isset( $manifest->rc->download_url ) &&
+			Semver::greaterThan( $manifest->rc->version, $dev_info->version )
+		) {
+			// It's an RC that has a new version.
+			list( , $info ) = $this->get_which_and_info( 'rc', '' );
+		}
+
+		if ( $info ) {
+			return array(
+				(object) array(
+					'id'          => $slug,
+					'plugin'      => $slug,
+					'slug'        => $slug,
+					'new_version' => $info->version,
+					'package'     => $info->download_url,
+					'url'         => $info->plugin_url,
+					'jpbeta_info' => $info,
+				),
+				null,
+			);
+		} else {
+			return array(
+				null,
+				(object) array(
+					'id'          => $slug,
+					'plugin'      => $slug,
+					'slug'        => $slug,
+					'new_version' => $dev_info->version,
+					'url'         => $dev_info->plugin_url,
+					'package'     => $dev_info->download_url,
+				),
+			);
+		}
+	}
+
+	/**
+	 * Get a WordPress API response for the dev plugin, if any.
+	 *
+	 * @param false|object|array $default Default value, if we can't fake up a response.
+	 * @return false|object|array
+	 */
+	public function dev_plugins_api_response( $default = false ) {
+		$dev_info = $this->dev_info();
+		if ( ! $dev_info ) {
+			return $default;
+		}
+		$file = WP_PLUGIN_DIR . '/' . $this->plugin->dev_plugin_file();
+		if ( ! file_exists( $file ) ) {
+			return $default;
+		}
+		$tmp = get_plugin_data( $file, false, false );
+
+		$slug = $this->plugin->dev_plugin_slug();
+		$name = "{$this->plugin->get_name()} | {$this->dev_pretty_version()}";
+		return (object) array(
+			'slug'          => $slug,
+			'plugin'        => $slug,
+			'name'          => $name,
+			'plugin_name'   => $name,
+			'version'       => $dev_info->version,
+			'author'        => $tmp['Author'],
+			'homepage'      => $this->plugin->beta_homepage_url(),
+			'downloaded'    => false,
+			'last_updated'  => date_create( $dev_info->update_date, timezone_open( 'UTC' ) )->format( 'Y-m-d g:i a \G\M\T' ),
+			'sections'      => array( 'description' => Admin::to_test_content() ), // XXX: Fix this.
+			'download_link' => $dev_info->download_url,
+		);
+	}
+
+	/**
+	 * Get a "pretty" version of the current plugin version.
+	 *
+	 * @return string|null
+	 */
+	public function dev_pretty_version() {
+		$dev_info = $this->dev_info();
+		if ( ! $dev_info ) {
+			$file = WP_PLUGIN_DIR . '/' . $this->plugin->dev_plugin_file();
+			if ( file_exists( $file ) ) {
+				$tmp = get_plugin_data( $file, false, false );
+				return esc_html( $tmp['Version'] );
+			}
+			return null;
+		}
+
+		switch ( $dev_info->source ) {
+			case 'master':
+				return __( 'Bleeding Edge', 'jetpack-beta' );
+
+			case 'rc':
+				return __( 'Release Candidate', 'jetpack-beta' );
+
+			case 'pr':
+				return sprintf(
+					// translators: %1$s: Branch name.
+					__( 'Feature Branch: %1$s', 'jetpack-beta' ),
+					esc_html( $dev_info->branch )
+				);
+
+			default:
+				return esc_html( $dev_info->version );
+		}
+	}
+
+	/**
 	 * Get the "which" and info for the requested source and ID.
 	 *
 	 * @param string $source Source of installation: "stable", "master", "rc", "pr", or "release".
@@ -217,7 +367,8 @@ class PluginInstaller {
 						sprintf( __( 'No master build is available for %s.', 'jetpack-beta' ), $this->plugin->plugin_slug() )
 					);
 				}
-				$info = $manifest->master;
+				$info             = $manifest->master;
+				$info->plugin_url = sprintf( 'https://github.com/%s', $this->plugin->mirror() );
 				break;
 
 			case 'pr':
@@ -231,20 +382,17 @@ class PluginInstaller {
 						sprintf( __( 'No build is available for branch %1$s of %2$s.', 'jetpack-beta' ), $id, $this->plugin->plugin_slug() )
 					);
 				}
-				$info = $manifest->pr->{$branch};
-				$id   = $branch;
+				$info             = $manifest->pr->{$branch};
+				$info->plugin_url = sprintf( 'https://github.com/%s/pull/%d', $this->plugin->repo(), $info->pr );
+				$id               = $branch;
 				break;
 
 			case 'rc':
 				$which    = 'dev';
 				$manifest = $this->plugin->get_manifest();
 				if ( isset( $manifest->rc->download_url ) ) {
-					$info = $manifest->rc;
-					break;
-				}
-				// Possible alternative manifest layout?
-				if ( isset( $manifest->rc->{$id}->download_url ) ) {
-					$info = $manifest->rc->{$id};
+					$info             = $manifest->rc;
+					$info->plugin_url = sprintf( 'https://github.com/%s/tree/%s', $this->plugin->mirror(), $info->branch );
 					break;
 				}
 				return new WP_Error(
@@ -324,7 +472,7 @@ class PluginInstaller {
 	/**
 	 * Action: Clears the autoloader transient.
 	 *
-	 * Actions: shutdown
+	 * Action for `shutdown`.
 	 */
 	public static function clear_autoloader_plugin_cache() {
 		delete_transient( 'jetpack_autoloader_plugin_paths' );

@@ -38,8 +38,6 @@ define( 'JPBETA_VERSION', '3.0.0-alpha' );
 
 define( 'JETPACK_BETA_PLUGINS_URL', 'https://betadownload.jetpack.me/plugins.json' );
 
-defined( 'JETPACK_GREEN' ) || define( 'JETPACK_GREEN', '#2fb41f' );
-
 // XXX: These constants need to be deleted.
 define( 'JETPACK_BETA_MANIFEST_URL', 'https://betadownload.jetpack.me/jetpack-branches.json' );
 define( 'JETPACK_ORG_API_URL', 'https://api.wordpress.org/plugins/info/1.0/jetpack.json' );

@@ -71,6 +71,20 @@ class Plugin {
 	protected $manifest_url;
 
 	/**
+	 * Beta homepage URL.
+	 *
+	 * @var string
+	 */
+	protected $beta_homepage_url;
+
+	/**
+	 * Bug report URL.
+	 *
+	 * @var string
+	 */
+	protected $bug_report_url;
+
+	/**
 	 * Manifest data.
 	 *
 	 * @var object|null
@@ -124,10 +138,9 @@ class Plugin {
 			// on every request if we only want the list of plugin files (since transients aren't guaranteed last even 1 second).
 			$map = array();
 			foreach ( $plugins as $plugin ) {
-				$plugin_file             = $plugin->plugin_file();
-				$dev_plugin_file         = $plugin->dev_plugin_file();
-				$map[ $plugin_file ]     = $dev_plugin_file;
-				$map[ $dev_plugin_file ] = $plugin_file;
+				$plugin_file         = $plugin->plugin_file();
+				$dev_plugin_file     = $plugin->dev_plugin_file();
+				$map[ $plugin_file ] = $dev_plugin_file;
 			}
 			ksort( $map );
 			update_option( 'jetpack_beta_plugin_file_map', $map );
@@ -176,11 +189,13 @@ class Plugin {
 	public function __construct( $slug, array $config ) {
 		$this->slug = $slug;
 		foreach ( array(
-			'name'         => array( $this, 'is_nonempty_string' ),
-			'plugin_file'  => array( $this, 'is_nonempty_string' ),
-			'repo'         => array( $this, 'is_repo' ),
-			'mirror'       => array( $this, 'is_repo' ),
-			'manifest_url' => array( $this, 'is_valid_url' ),
+			'name'              => array( $this, 'is_nonempty_string' ),
+			'plugin_file'       => array( $this, 'is_nonempty_string' ),
+			'repo'              => array( $this, 'is_repo' ),
+			'mirror'            => array( $this, 'is_repo' ),
+			'manifest_url'      => array( $this, 'is_valid_url' ),
+			'beta_homepage_url' => array( $this, 'is_valid_url' ),
+			'bug_report_url'    => array( $this, 'is_valid_url' ),
 		) as $k => $validator ) {
 			if ( ! isset( $config[ $k ] ) ) {
 				throw new InvalidArgumentException( "Missing configuration field $k" );
@@ -230,6 +245,42 @@ class Plugin {
 	 */
 	public function get_name() {
 		return $this->name;
+	}
+
+	/**
+	 * Get the GitHub slug for the plugin's repo.
+	 *
+	 * @return string
+	 */
+	public function repo() {
+		return $this->repo;
+	}
+
+	/**
+	 * Get the GitHub slug for the plugin's mirror repo.
+	 *
+	 * @return string
+	 */
+	public function mirror_repo() {
+		return $this->mirror;
+	}
+
+	/**
+	 * Get the Beta homepage URL.
+	 *
+	 * @return string
+	 */
+	public function beta_homepage_url() {
+		return $this->beta_homepage_url;
+	}
+
+	/**
+	 * Get the bug report URL.
+	 *
+	 * @return string
+	 */
+	public function bug_report_url() {
+		return $this->bug_report_url;
 	}
 
 	/**
@@ -309,28 +360,6 @@ class Plugin {
 			$this->wporg_data = $data;
 		}
 		return $this->wporg_data;
-	}
-
-	/**
-	 * Get the information for the installed dev version of the plugin.
-	 *
-	 * @return object|null
-	 */
-	public function dev_info() {
-		$file = WP_PLUGIN_DIR . "/{$this->dev_plugin_slug()}/.jpbeta.json";
-		if ( ! file_exists( $file ) ) {
-			return null;
-		}
-
-		// Initialize the WP_Filesystem API.
-		require_once ABSPATH . 'wp-admin/includes/file.php';
-		$creds = request_filesystem_credentials( site_url() . '/wp-admin/', '', false, false, array() );
-		if ( ! WP_Filesystem( $creds ) ) {
-			return new WP_Error( 'fs_api_error', __( 'Jetpack Beta: No File System access', 'jetpack-beta' ) );
-		}
-		global $wp_filesystem;
-		$info = json_decode( $wp_filesystem->get_contents( $file ) );
-		return is_object( $info ) ? $info : null;
 	}
 
 	/**

@@ -88,7 +88,7 @@ class CliCommand extends WP_CLI_Command {
 		}
 
 		$manifest      = $plugin->get_manifest();
-		$dev_info      = $plugin->dev_info();
+		$dev_info      = $plugin->installer()->dev_info();
 		$active_branch = $dev_info ? $dev_info->branch : null;
 		$branches      = array( 'stable', 'master', 'rc' );
 		foreach ( $manifest->pr as $pr ) {

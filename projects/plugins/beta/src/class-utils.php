@@ -159,6 +159,16 @@ class Utils {
 	}
 
 	/**
+	 * List options to sync.
+	 */
+	public static function options_to_sync() {
+		return array(
+			self::$option_autoupdate,
+			self::$option_email_notif,
+		);
+	}
+
+	/**
 	 * Get WP Option: jetpack_beta_active
 	 */
 	public static function get_option() {

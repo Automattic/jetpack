@@ -8,7 +8,8 @@
 		"issues": "https://github.com/Automattic/jetpack/issues"
 	},
 	"require": {
-		"automattic/jetpack-autoloader": "2.10.x-dev"
+		"automattic/jetpack-autoloader": "2.10.x-dev",
+		"composer/semver": "3.2.5"
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "1.2.x-dev"
