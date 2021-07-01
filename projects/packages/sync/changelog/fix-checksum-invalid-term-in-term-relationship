@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Update term_taxonomy checksum query to an allowed list vs disallowed
