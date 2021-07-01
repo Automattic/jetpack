@@ -10,7 +10,7 @@
 		"@automattic/eslint-changed": "workspace:1.0.1-alpha",
 		"@babel/core": "7.14.6",
 		"@babel/eslint-parser": "7.14.5",
-		"@wordpress/eslint-plugin": "7.4.0",
+		"@wordpress/eslint-plugin": "9.0.6",
 		"eslint": "7.25.0",
 		"eslint-config-prettier": "8.3.0",
 		"eslint-config-wpcalypso": "6.1.0",
