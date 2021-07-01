@@ -6,7 +6,7 @@ import React, { useMemo } from 'react';
 /**
  * WordPress dependencies
  */
-import { CheckboxControl } from '@wordpress/components';
+import { CheckboxControl, Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /* eslint-disable react/jsx-no-bind */
@@ -38,20 +38,20 @@ export default function ExcludedPostTypesControl( { disabled, value, onChange } 
 
 	const isLastUnchecked = selectedValues.size === VALID_POST_TYPE_NAMES.length - 1;
 	return (
-		<div className="jp-search-customize-excluded-post-types-input">
+		<div className="jp-search-customize-excluded-post-types-input components-base-control">
 			<div className="jp-search-customize-excluded-post-types-label">
 				{ __( 'Excluded post types', 'jetpack' ) }
 			</div>
+			{ isLastUnchecked && (
+				<Notice isDismissible={ false } status="info">
+					{ /* translators: for excluded post types control; one post type must remain included. */ }
+					{ __( 'You must leave at least one post type unchecked.', 'jetpack' ) }
+				</Notice>
+			) }
 			{ VALID_POST_TYPE_NAMES.map( type => (
 				<CheckboxControl
 					checked={ selectedValues.has( type ) }
 					disabled={ disabled || ( ! selectedValues.has( type ) && isLastUnchecked ) }
-					help={
-						! selectedValues.has( type ) &&
-						isLastUnchecked &&
-						/* translators: for excluded post types control; one post type must remain included. */
-						__( 'You must leave at least one post type unchecked.', 'jetpack' )
-					}
 					key={ type }
 					label={ VALID_POST_TYPES[ type ].label }
 					onChange={ changeHandler( type ) }

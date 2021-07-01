@@ -28,7 +28,7 @@ import ThemeIcon from './theme-icon';
  */
 export default function ThemeControl( { disabled, value, onChange } ) {
 	return (
-		<div className="jp-search-customize-theme-buttons">
+		<div className="jp-search-customize-theme-buttons components-base-control">
 			<Button
 				className={ classNames( {
 					'jp-search-customize-theme-button--selected': value === 'light',

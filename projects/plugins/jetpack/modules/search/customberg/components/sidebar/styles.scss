@@ -156,6 +156,12 @@
 	}
 }
 
+.jp-search-customize-sidebar-options {
+	.components-base-control {
+		margin-bottom: $grid-unit-15;
+	}
+}
+
 .jp-search-customize-sidebar-options--is-disabled {
 	input {
 		pointer-events: none;
@@ -189,6 +195,16 @@
 	cursor: not-allowed;
 }
 
-.jp-search-customize-excluded-post-types-label {
-	line-height: 2.5;
+.jp-search-customize-excluded-post-types-input {
+	margin-top: $grid-unit;
+
+	.jp-search-customize-excluded-post-types-label {
+		margin-bottom: $grid-unit;
+	}
+
+	.components-notice {
+		margin: $grid-unit 0;
+		padding-top: $grid-unit-05;
+		padding-bottom: $grid-unit-05;
+	}
 }
