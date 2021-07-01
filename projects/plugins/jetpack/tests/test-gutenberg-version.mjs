@@ -86,7 +86,7 @@ function buildGutenbergPackages() {
 
 function moveGutenbergPackages() {
 	console.log( 'Moving Gutenberg packages' );
-	return fs.move( './tests/temp-gutenberg-checkout/packages', '../packages' );
+	return fs.move( './tests/temp-gutenberg-checkout/packages', './packages' );
 }
 
 function updatePackageJsonDependencies() {
