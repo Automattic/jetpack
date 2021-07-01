@@ -38,6 +38,7 @@
 		"fixtures:regenerate": "REGENERATE_FIXTURES=y GENERATE_MISSING_FIXTURES=y pnpx jest",
 		"fixtures:generate": "GENERATE_MISSING_FIXTURES=y pnpx jest",
 		"fixtures:test": "jest validate.js",
+		"fixtures:test:gbv": "node tests/test-gutenberg-version.mjs",
 		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
 		"test-adminpage": "pnpm run test-client && pnpm run test-gui",
 		"test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client js-test-runner glob:_inc/client/state/**/test/*.js",

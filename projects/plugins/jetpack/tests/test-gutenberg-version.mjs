@@ -1,54 +1,100 @@
 import { spawnSync } from 'child_process';
 import fs from 'fs-extra';
 
-const version = process.argv.slice( 2 )[ 0 ];
+const task = process.argv.slice( 2 )[ 0 ];
 const commit = process.argv.slice( 2 )[ 1 ];
-cloneRepo( version );
-if ( commit ) {
-	checkoutCommit( commit );
+
+switch ( task ) {
+	case 'reset':
+		reset();
+		break;
+
+	case 'test-validation':
+		runBlockValidationTests();
+		break;
+
+	default:
+		const version = task;
+		cloneRepo( version );
+		if ( commit ) {
+			checkoutCommit( commit );
+		}
+		installGutenbergDependencies();
+		buildGutenbergPackages();
+		moveGutenbergPackages().then( () => {
+			updatePackageJsonDependencies();
+			updateJetpackDependencies();
+			installAdditionalGutenbergDependencies();
+			runBlockValidationTests();
+		} );
 }
-installGutenbergDependencies();
-buildGutenbergPackages();
-moveGutenbergPackages().then( () => {
-	updatePackageJsonDependencies();
-	updateJetpackDependencies();
-	installAdditionalGutenbergDependencies();
-	runBlockValidationTests();
-} );
+
+function reset() {
+	console.log( 'Restoring jetpack repo' );
+
+	if ( fs.existsSync( './tests/temp-gutenberg-checkout' ) ) {
+		fs.rmdirSync( './tests/temp-gutenberg-checkout', { recursive: true } );
+	}
+
+	if ( fs.existsSync( './packages' ) ) {
+		fs.rmdirSync( './packages', { recursive: true } );
+	}
+
+	spawnSync( 'git', [ 'checkout', '--', './package.json' ], { stdio: 'inherit' } );
+}
 
 function cloneRepo( version = 'trunk' ) {
 	console.log( `Cloning ${ version } from gutenberg repo` );
+
+	if ( fs.existsSync( './tests/temp-gutenberg-checkout' ) ) {
+		fs.rmdirSync( './tests/temp-gutenberg-checkout', { recursive: true } );
+	}
+
 	spawnSync(
 		'git',
-		[ 'clone', 'git@github.com:WordPress/gutenberg.git', './temp', '--branch', version ],
+		[
+			'clone',
+			'git@github.com:WordPress/gutenberg.git',
+			'./tests/temp-gutenberg-checkout',
+			'--branch',
+			version,
+		],
 		{ stdio: 'inherit' }
 	);
 }
 
 function checkoutCommit( commit ) {
 	console.log( `Checking out commit ${ commit } from gutenberg repo` );
-	spawnSync( 'git', [ 'checkout', commit ], { stdio: 'inherit', cwd: './temp' } );
+	spawnSync( 'git', [ 'checkout', commit ], {
+		stdio: 'inherit',
+		cwd: './tests/temp-gutenberg-checkout',
+	} );
 }
 
 function installGutenbergDependencies() {
 	console.log( 'Installing Gutenberg dependencies' );
-	spawnSync( 'npm', [ 'install' ], { stdio: 'inherit', cwd: './temp' } );
+	spawnSync( 'npm', [ 'install' ], { stdio: 'inherit', cwd: './tests/temp-gutenberg-checkout' } );
 }
 
 function buildGutenbergPackages() {
 	console.log( 'Building Gutenberg packages' );
-	spawnSync( 'npm', [ 'run', 'build:packages' ], { stdio: 'inherit', cwd: './temp' } );
+	spawnSync( 'npm', [ 'run', 'build:packages' ], {
+		stdio: 'inherit',
+		cwd: './tests/temp-gutenberg-checkout',
+	} );
 }
 
 function moveGutenbergPackages() {
 	console.log( 'Moving Gutenberg packages' );
-	return fs.move( './temp/packages', '../packages' );
+	return fs.move( './tests/temp-gutenberg-checkout/packages', '../packages' );
 }
 
 function updatePackageJsonDependencies() {
 	console.log( 'Updating Gutenberg package.json dependencies' );
-	const gutenbergPackageJson = JSON.parse( fs.readFileSync( './temp/package.json' ) );
-	const jetpackPackageJson = JSON.parse( fs.readFileSync( '../package.json' ) );
+	const gutenbergPackageJson = JSON.parse(
+		fs.readFileSync( './tests/temp-gutenberg-checkout/package.json' )
+	);
+	const jetpackPackageJson = JSON.parse( fs.readFileSync( './package.json' ) );
 
 	const wordPressDeps = Object.fromEntries(
 		Object.entries( gutenbergPackageJson.dependencies ).filter(
@@ -82,7 +128,7 @@ function updatePackageJsonDependencies() {
 	};
 
 	try {
-		fs.writeFileSync( '../package.json', JSON.stringify( jetpackPackageJson ) );
+		fs.writeFileSync( './package.json', JSON.stringify( jetpackPackageJson ) );
 	} catch ( err ) {
 		console.error( err );
 	}
@@ -90,7 +136,7 @@ function updatePackageJsonDependencies() {
 
 function updateJetpackDependencies() {
 	console.log( 'Updating Jetpack dependencies' );
-	spawnSync( 'pnpm', [ 'install' ], { stdio: 'inherit', cwd: '../' } );
+	spawnSync( 'pnpm', [ 'install' ], { stdio: 'inherit' } );
 	console.log( 'Done Updating Jetpack dependencies' );
 }
 
@@ -107,12 +153,12 @@ function installAdditionalGutenbergDependencies() {
 			'traverse',
 			'css-mediaquery',
 		],
-		{ stdio: 'inherit', cwd: '../' }
+		{ stdio: 'inherit' }
 	);
 	console.log( 'Finished installing additional Gutenberg dependencies' );
 }
 
 function runBlockValidationTests() {
 	console.log( 'Running block validation tests' );
-	spawnSync( 'pnpm', [ 'fixtures:test' ], { stdio: 'inherit', cwd: '../' } );
+	spawnSync( 'pnpm', [ 'fixtures:test' ], { stdio: 'inherit' } );
 }
