@@ -22,23 +22,40 @@ To prevent flash of prev/next image scale transition after pinch zoom we need to
 Swiper does not add a class of `swiper-slide-zoomed` to slides on pinch and zoom
 so we have to target all affected elements in touch devices.
 */
-
 .swiper-slide.swiper-slide-prev .swiper-zoom-container img,
 .swiper-slide.swiper-slide-next .swiper-zoom-container img {
 	transition: none !important;
 }
 
-.jp-carousel-overlay .swiper-button-prev:after,
-.jp-carousel-overlay .swiper-button-next:after {
-	color: #cccccc;
+.jp-carousel-overlay .swiper-button-prev,
+.jp-carousel-overlay .swiper-button-next {
 	opacity: 0.5;
-	font-size: 3rem;
 	transition: 0.5s opacity ease-out;
+	height: initial;
+	width: initial;
+	padding: 20px 40px;
 }
 
-.jp-carousel-overlay .swiper-button-prev:hover:after,
-.jp-carousel-overlay .swiper-button-next:hover:after {
+.jp-carousel-overlay .swiper-button-prev:hover,
+.jp-carousel-overlay .swiper-button-next:hover {
 	opacity: 1;
+}
+
+.jp-carousel-overlay .swiper-button-prev:after,
+.jp-carousel-overlay .swiper-button-next:after {
+	content: none;
+}
+
+.jp-carousel-overlay .swiper-button-prev svg,
+.jp-carousel-overlay .swiper-button-next svg {
+	height: 40px;
+	width: 40px;
+	fill: #ccc;
+}
+
+.jp-carousel-overlay .swiper-button-prev svg:hover,
+.jp-carousel-overlay .swiper-button-next svg:hover {
+	fill: #fff;
 }
 
 .jp-carousel-overlay {
@@ -68,10 +85,10 @@ so we have to target all affected elements in touch devices.
 }
 
 .swiper-container .swiper-button-prev {
-	left: 40px;
+	left: 0px;
 }
 .swiper-container .swiper-button-next {
-	right: 40px;
+	right: 0px;
 }
 
 .jp-carousel-container {
@@ -851,9 +868,19 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	background: #fff;
 }
 
-.jp-carousel-light .jp-carousel-next-button:hover span,
-.jp-carousel-light .jp-carousel-previous-button:hover span {
-	opacity: 0.8;
+.jp-carousel-light.jp-carousel-overlay .swiper-button-prev,
+.jp-carousel-light.jp-carousel-overlay .swiper-button-next {
+	opacity: 1;
+}
+
+.jp-carousel-light.jp-carousel-overlay .swiper-button-prev:hover,
+.jp-carousel-light.jp-carousel-overlay .swiper-button-next:hover {
+	opacity: 0.5;
+}
+
+.jp-carousel-light.jp-carousel-overlay .swiper-button-prev svg,
+.jp-carousel-light.jp-carousel-overlay .swiper-button-next svg {
+	fill: #000;
 }
 
 .jp-carousel-light .jp-carousel-close-hint:hover,
@@ -1068,6 +1095,10 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	line-height: 1;
 	font-weight: 400;
 	font-style: normal;
+}
+
+.jp-carousel-icon svg {
+	display: inline-block;
 }
 
 .jp-carousel-icon-btn.jp-carousel-selected .jp-carousel-icon {
