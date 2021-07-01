@@ -85,10 +85,10 @@ so we have to target all affected elements in touch devices.
 }
 
 .swiper-container .swiper-button-prev {
-	left: 40px;
+	left: 0px;
 }
 .swiper-container .swiper-button-next {
-	right: 40px;
+	right: 0px;
 }
 
 .jp-carousel-container {
