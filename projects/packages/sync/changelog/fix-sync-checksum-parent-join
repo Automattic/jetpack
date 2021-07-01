@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Checksum parent_table joins need distinct selection to account for possibility of multiple rows.
