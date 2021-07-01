@@ -230,10 +230,6 @@ div.jp-carousel-buttons a:hover {
 	color: #fff;
 }
 
-body.admin-bar .jp-carousel-close-hint {
-	top: 50px;
-}
-
 .jp-carousel-transitions .jp-carousel-close-hint {
 	-webkit-transition: color 200ms linear;
 	-moz-transition: color 200ms linear;
