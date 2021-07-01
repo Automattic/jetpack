@@ -2,7 +2,5 @@
 // Variables
 //
 @import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
-@import '../../scss/mixin_breakpoint.scss';
-
-// Colors
-$color-jetpack-green: #069e08;
+@import '_inc/client/scss/mixin_breakpoint.scss';
+@import '_inc/client/scss/variables/_colors.scss';
