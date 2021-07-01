@@ -475,12 +475,11 @@ class Admin {
 			$section = 'rc';
 		}
 		$query = array(
-			'page'            => 'jetpack-beta',
 			'activate-branch' => $branch,
 			'section'         => $section,
 			'_nonce'          => wp_create_nonce( 'activate_branch' ),
 		);
-		$url   = Utils::admin_url( '?' . build_query( $query ) );
+		$url   = Utils::admin_url( $query );
 
 		return sprintf(
 			'<a href="%1$s" class="is-primary jp-form-button activate-branch dops-button is-compact jptracks" data-jptracks-name="%2$s" data-jptracks-prop="%3$s">%4$s</a>',
@@ -669,14 +668,13 @@ class Admin {
 	 */
 	public static function show_toggle( $name, $option, $value ) {
 		$query = array(
-			'page'    => 'jetpack-beta',
 			'_action' => 'toggle_enable_' . $option,
 			'_nonce'  => wp_create_nonce( 'enable_' . $option ),
 		);
 
 		?>
 		<a
-			href="<?php echo esc_url( Utils::admin_url( '?' . build_query( $query ) ) ); ?>"
+			href="<?php echo esc_url( Utils::admin_url( $query ) ); ?>"
 			class="form-toggle__label <?php echo ( $value ? 'is-active' : '' ); ?>"
 			data-jptracks-name="jetpack_beta_toggle_<?php echo esc_attr( $option ); ?>"
 			data-jptracks-prop="<?php echo absint( ! $value ); ?>"
@@ -773,12 +771,11 @@ class Admin {
 	 */
 	public static function update_action_url( $branch, $section ) {
 		$query = array(
-			'page'          => 'jetpack-beta',
 			'update-branch' => $branch,
 			'section'       => $section,
 			'_nonce'        => wp_create_nonce( 'update_branch' ),
 		);
 
-		return Utils::admin_url( '?' . build_query( $query ) );
+		return Utils::admin_url( $query );
 	}
 }

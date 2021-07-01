@@ -80,12 +80,31 @@ class Utils {
 	/**
 	 * Builds URL to the admin area for the current site and specified query param.
 	 *
-	 * @param string $query - Path relative to the admin URL.
+	 * @param array $query Query string data.
 	 */
-	public static function admin_url( $query = '?page=jetpack-beta' ) {
-		// TODO: Make this take a query array, and do network_admin_url() if the query array specifies a plugin
-		// that is network-activated.
-		return admin_url( 'admin.php' . $query );
+	public static function admin_url( $query = array() ) {
+		$query = array_merge( array( 'page' => 'jetpack-beta' ), $query );
+
+		// If it's multisite, and a plugin is specified, and the plugin is network-activated,
+		// link to the network URL instead of the regular one.
+		if ( is_multisite() && isset( $query['plugin'] ) ) {
+			$prefix = $query['plugin'] . '/';
+			$l      = strlen( $prefix );
+			foreach ( Plugin::get_plugin_file_map() as $nondev => $dev ) {
+				if ( substr( $nondev, 0, $l ) !== $prefix ) {
+					continue;
+				}
+				if ( ! function_exists( 'is_plugin_active_for_network' ) ) {
+					require_once ABSPATH . '/wp-admin/includes/plugin.php';
+				}
+				if ( is_plugin_active_for_network( $nondev ) || is_plugin_active_for_network( $dev ) ) {
+					return network_admin_url( 'admin.php?' . http_build_query( $query ) );
+				}
+				break;
+			}
+		}
+
+		return admin_url( 'admin.php?' . http_build_query( $query ) );
 	}
 
 	/**
