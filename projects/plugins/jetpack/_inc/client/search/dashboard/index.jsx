@@ -39,12 +39,12 @@ const useComponentWillMount = func => {
  */
 function SearchDashboard( props ) {
 	// NOTE: API root and nonce must be set before any components are mounted!
-	const { apiRootUrl, apiNonce, setInitialState: dispatchedSetInitialState } = props;
+	const { apiRootUrl, apiNonce, setInitialState: setSearchDashboardInitialState } = props;
 
 	useComponentWillMount( () => {
 		apiRootUrl && restApi.setApiRoot( apiRootUrl );
 		apiNonce && restApi.setApiNonce( apiNonce );
-		dispatchedSetInitialState && dispatchedSetInitialState();
+		setSearchDashboardInitialState && setSearchDashboardInitialState();
 	} );
 
 	return (
