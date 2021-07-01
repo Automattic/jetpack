@@ -12,9 +12,9 @@ import TextRowPlaceHolder from './placeholder';
 import './mocked-instant-search.scss';
 
 /**
- * Generate mocked search dialog
+ * Generate mocked instant search dialog
  *
- * @returns {React.Component}	Mocked Search dialog component.
+ * @returns {React.Component}	Mocked Search instant dialog component.
  */
 export default function MockedInstantSearch() {
 	const renderFilterOption = label => (

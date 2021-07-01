@@ -62,7 +62,7 @@ function SearchDashboard( props ) {
 								) }
 							</h1>
 						</div>
-						<div className="jp-search-dashboard__search-dialog">
+						<div className="jp-search-dashboard__mocked-search-interface">
 							<MockedInstantSearch />
 						</div>
 					</div>
