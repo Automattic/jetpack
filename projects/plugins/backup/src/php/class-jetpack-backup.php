@@ -139,7 +139,8 @@ class Jetpack_Backup {
 	 * Register REST API
 	 */
 	public function register_rest_routes() {
-		// Install a Helper Script to assist Jetpack Backup fetch data.
+
+		// Get information on most recent 10 backups.
 		register_rest_route(
 			'jetpack/v4',
 			'/backups',
@@ -149,6 +150,18 @@ class Jetpack_Backup {
 				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
 			)
 		);
+
+		// Get site backup/scan/anti-spam capabilities.
+		register_rest_route(
+			'jetpack/v4',
+			'/backup-capabilities',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_backup_capabilities',
+				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
+			)
+		);
+
 	}
 
 	/**
@@ -192,4 +205,35 @@ class Jetpack_Backup {
 		);
 	}
 
+	/**
+	 * Get an array of backup/scan/anti-spam site capabilities
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return array An array of capabilities
+	 */
+	public static function get_backup_capabilities() {
+		$blog_id = \Jetpack_Options::get_option( 'id' );
+
+		$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
+			'/sites/' . $blog_id . '/rewind/capabilities',
+			'v2',
+			array(),
+			null,
+			'wpcom'
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return null;
+		}
+
+		if ( 200 !== $response['response']['code'] ) {
+			return null;
+		}
+
+		return rest_ensure_response(
+			json_decode( $response['body'], true )
+		);
+	}
 }

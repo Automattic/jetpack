@@ -58,6 +58,11 @@ function JetpackRestApiClient( root, nonce ) {
 
 		fetchRecentBackups: () =>
 			getRequest( `${ apiRoot }jetpack/v4/backups`, getParams ).then( parseJsonResponse ),
+
+		fetchCapabilities: () =>
+			getRequest( `${ apiRoot }jetpack/v4/backup-capabilities`, getParams ).then(
+				parseJsonResponse
+			),
 	};
 
 	/**
