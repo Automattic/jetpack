@@ -29,7 +29,7 @@ function init() {
 	);
 }
 
-// Initialize Instant Search when DOMContentLoaded is fired, or immediately if it already has been.
+// Initialize the dashboard when DOMContentLoaded is fired, or immediately if it already has been.
 if ( document.readyState !== 'loading' ) {
 	init();
 } else {
