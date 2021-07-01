@@ -17,3 +17,11 @@ if ( ! window.matchMedia ) {
 		} ) ),
 	} );
 }
+
+// Currently needed for testing jetpack blocks against new versions of Gutenberg.
+if ( ! window.CSS ) {
+	window.CSS = {
+		escape: () => false,
+		supports: () => false,
+	};
+}

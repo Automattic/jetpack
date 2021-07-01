@@ -148,13 +148,15 @@ function installAdditionalGutenbergDependencies() {
 	spawnSync(
 		'pnpm',
 		[
-			'install',
+			'add',
 			'showdown',
 			'simple-html-tokenizer',
 			'hpq',
 			'react-autosize-textarea',
 			'traverse',
 			'css-mediaquery',
+			'@emotion/styled',
+			'@emotion/react',
 		],
 		{ stdio: 'inherit' }
 	);
