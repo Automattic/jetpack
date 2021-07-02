@@ -28,7 +28,6 @@ const admincss = [
 	'modules/post-by-email/post-by-email.css',
 	'modules/protect/protect-dashboard-widget.css',
 	'modules/sharedaddy/admin-sharing.css',
-	'modules/theme-tools/site-logo/css/site-logo-control.css',
 	'modules/videopress/videopress-admin.css',
 	'modules/videopress/css/editor.css',
 	'modules/videopress/css/videopress-editor-style.css',
