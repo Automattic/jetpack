@@ -42,6 +42,27 @@ abstract class Base_Admin_Menu {
 	const HIDE_CSS_CLASS = 'hide-if-js';
 
 	/**
+	 * Identifier denoting that the default WordPress.com view should be used for a certain screen.
+	 *
+	 * @var string
+	 */
+	const DEFAULT_VIEW = 'default';
+
+	/**
+	 * Identifier denoting that the classic WP Admin view should be used for a certain screen.
+	 *
+	 * @var string
+	 */
+	const CLASSIC_VIEW = 'classic';
+
+	/**
+	 * Identifier denoting no preferred view has been set for a certain screen.
+	 *
+	 * @var string
+	 */
+	const UNKNOWN_VIEW = 'unknown';
+
+	/**
 	 * Base_Admin_Menu constructor.
 	 */
 	protected function __construct() {
@@ -55,6 +76,7 @@ abstract class Base_Admin_Menu {
 			add_filter( 'admin_menu', array( $this, 'override_svg_icons' ), 99999 );
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ), 11 );
 			add_action( 'admin_head', array( $this, 'set_site_icon_inline_styles' ) );
+			add_filter( 'screen_settings', array( $this, 'register_dashboard_switcher' ), 99999, 2 );
 		}
 	}
 
@@ -514,6 +536,55 @@ abstract class Base_Admin_Menu {
 	}
 
 	/**
+	 * Sets the given view as preferred for the givens screen.
+	 *
+	 * @param string $screen Screen identifier.
+	 * @param string $view Preferred view.
+	 */
+	public function set_preferred_view( $screen, $view ) {
+		$preferred_views            = $this->get_preferred_views();
+		$preferred_views[ $screen ] = $view;
+		update_user_option( get_current_user_id(), 'jetpack_admin_menu_preferred_views', $preferred_views );
+	}
+
+	/**
+	 * Get the preferred views for all screens.
+	 *
+	 * @return array
+	 */
+	public function get_preferred_views() {
+		$preferred_views = get_user_option( 'jetpack_admin_menu_preferred_views' );
+
+		if ( ! $preferred_views ) {
+			return array();
+		}
+
+		return $preferred_views;
+	}
+
+	/**
+	 * Get the preferred view for the given screen.
+	 *
+	 * @param string $screen Screen identifier.
+	 * @param bool   $fallback_global_preference (Optional) Whether the global preference for all screens should be used
+	 *                                           as fallback if there is no specific preference for the given screen.
+	 *                                           Default: true.
+	 * @return string
+	 */
+	public function get_preferred_view( $screen, $fallback_global_preference = true ) {
+		$preferred_views = $this->get_preferred_views();
+
+		if ( ! isset( $preferred_views[ $screen ] ) ) {
+			if ( ! $fallback_global_preference ) {
+				return self::UNKNOWN_VIEW;
+			}
+			return $this->should_link_to_wp_admin() ? self::CLASSIC_VIEW : self::DEFAULT_VIEW;
+		}
+
+		return $preferred_views[ $screen ];
+	}
+
+	/**
 	 * Whether to use wp-admin pages rather than Calypso.
 	 *
 	 * Options:
@@ -522,7 +593,9 @@ abstract class Base_Admin_Menu {
 	 *
 	 * @return bool
 	 */
-	abstract public function should_link_to_wp_admin();
+	public function should_link_to_wp_admin() {
+		return get_user_option( 'jetpack_admin_menu_link_destination' );
+	}
 
 	/**
 	 * Create the desired menu output.

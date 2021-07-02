@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add backup-helper-script endpoints under the jetpack/v4 namespace.

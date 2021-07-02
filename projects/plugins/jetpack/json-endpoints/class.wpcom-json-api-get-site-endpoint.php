@@ -167,6 +167,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'capabilities',
 		'plan',
 		'products',
+		'zendesk_site_meta',
 	);
 
 	protected static $jetpack_response_option_additions = array(
@@ -720,6 +721,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			unset( $response->is_multisite );
 			unset( $response->plan );
 			unset( $response->products );
+			unset( $response->zendesk_site_meta );
 		}
 
 		// render additional options

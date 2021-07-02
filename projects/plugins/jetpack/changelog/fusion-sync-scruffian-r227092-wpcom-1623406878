@@ -1,4 +1,0 @@
-Significance: minor
-Type: bugfix
-
-Inline PDFs: Fix the height to 800px to overcome theme specific CSS.

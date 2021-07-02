@@ -1,6 +1,6 @@
 {
 	"name": "jetpack-connection-manager-ui",
-	"version": "1.2.0-alpha",
+	"version": "1.2.0",
 	"description": "Jetpack Connection Manager UI",
 	"main": "_inc/admin.jsx",
 	"repository": "https://github.com/Automattic/jetpack-connection-ui",
@@ -35,7 +35,7 @@
 		"jest": "26.6.3"
 	},
 	"engines": {
-		"node": "^14.16.0",
+		"node": "^14.16.1",
 		"pnpm": "^6.5.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
