@@ -35,8 +35,8 @@ export default function SaveButton() {
 		}
 		recordEvent( `${ eventPrefix }_save_button_click`, {
 			initialSettings: JSON.stringify( window[ SERVER_OBJECT_NAME ].overlayOptions ),
-			savedSettings: JSON.stringify( editedSettings ),
-			savedSettingNames: Object.keys( editedSettings ).join( ',' ),
+			changedSettings: JSON.stringify( editedSettings ),
+			changedSettingNames: Object.keys( editedSettings ).join( ',' ),
 		} );
 		saveRecords( ...args );
 	};
