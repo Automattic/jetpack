@@ -234,7 +234,6 @@ jobs:
           \"run_id\": \"$GITHUB_RUN_ID\",
           \"run_number\": \"$GITHUB_RUN_NUMBER\",
           \"branch\": \"$BRANCH\",
-          \"pr\": \"${{ github.event.pull_request.number }}\",
           \"pr_title\": \"${{ github.event.pull_request.title }}\",
           \"pr_number\": \"${{ github.event.pull_request.number }}\"
           }}"
