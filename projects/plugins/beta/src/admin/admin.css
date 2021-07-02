@@ -511,8 +511,8 @@ button.dops-foldable-card__action {
 	display: flex;
 	-ms-flex-align: center;
 	align-items: center;
-	-ms-flex: 1 1;
-	flex: 1 1;
+	-ms-flex: 0 1;
+	flex: 0 1;
 	-ms-flex-pack: end;
 	justify-content: flex-end;
 }

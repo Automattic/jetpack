@@ -176,14 +176,14 @@ class PluginInstaller {
 	}
 
 	/**
-	 * Update the plugin.
+	 * Get branch info for a source and ID.
 	 *
 	 * @param string $source Source of installation: "stable", "master", "rc", "pr", or "release".
 	 * @param string $id When `$source` is "pr", the PR branch name. When "release", the version.
-	 * @return null|WP_Error
+	 * @return object|WP_Error
 	 * @throws InvalidArgumentException If `$source` is invalid.
 	 */
-	public function update( $source, $id ) {
+	public function source_info( $source, $id ) {
 		// Load the info array and identify if it's "dev" or "stable".
 		$ret = $this->get_which_and_info( $source, $id );
 		if ( is_wp_error( $ret ) ) {
@@ -191,13 +191,10 @@ class PluginInstaller {
 		}
 		list( $which, $info ) = $ret;
 
-		// Download and install.
-		$ret = $this->install( $which, $info );
-		if ( is_wp_error( $ret ) ) {
-			return $ret;
-		}
+		$info->which          = $which;
+		$info->pretty_version = $this->pretty_version( $info );
 
-		return null;
+		return $info;
 	}
 
 	/**
@@ -293,7 +290,26 @@ class PluginInstaller {
 	}
 
 	/**
-	 * Get a "pretty" version of the current plugin version.
+	 * Get a "pretty" version of the current stable plugin version.
+	 *
+	 * @return string|null
+	 */
+	public function stable_pretty_version() {
+		$file = WP_PLUGIN_DIR . '/' . $this->plugin->plugin_file();
+		if ( ! file_exists( $file ) ) {
+			return null;
+		}
+		$tmp = get_plugin_data( $file, false, false );
+		return $this->pretty_version(
+			(object) array(
+				'source'  => 'release',
+				'version' => $tmp['Version'],
+			)
+		);
+	}
+
+	/**
+	 * Get a "pretty" version of the current dev plugin version.
 	 *
 	 * @return string|null
 	 */
@@ -303,12 +319,21 @@ class PluginInstaller {
 			$file = WP_PLUGIN_DIR . '/' . $this->plugin->dev_plugin_file();
 			if ( file_exists( $file ) ) {
 				$tmp = get_plugin_data( $file, false, false );
-				return esc_html( $tmp['Version'] );
+				return $tmp['Version'];
 			}
 			return null;
 		}
+		return $this->pretty_version( $dev_info );
+	}
 
-		switch ( $dev_info->source ) {
+	/**
+	 * Get a "pretty" version for the specified info object.
+	 *
+	 * @param object $info Info.
+	 * @return string
+	 */
+	private function pretty_version( $info ) {
+		switch ( $info->source ) {
 			case 'master':
 				return __( 'Bleeding Edge', 'jetpack-beta' );
 
@@ -319,11 +344,15 @@ class PluginInstaller {
 				return sprintf(
 					// translators: %1$s: Branch name.
 					__( 'Feature Branch: %1$s', 'jetpack-beta' ),
-					esc_html( $dev_info->branch )
+					$info->branch
 				);
 
+			case 'release':
+				// translators: %s: Plugin version.
+				return sprintf( __( 'Release version %s', 'jetpack-beta' ), $info->version );
+
 			default:
-				return esc_html( $dev_info->version );
+				return $info->version;
 		}
 	}
 
@@ -351,6 +380,7 @@ class PluginInstaller {
 				$info   = (object) array(
 					'download_url' => $wporg_data->download_link,
 					'version'      => $wporg_data->version,
+					'update_date'  => date_create( $wporg_data->last_updated, timezone_open( 'UTC' ) )->format( 'Y-m-d H:i:s' ),
 				);
 				$source = 'release';
 				$id     = $wporg_data->version;
@@ -368,7 +398,7 @@ class PluginInstaller {
 					);
 				}
 				$info             = $manifest->master;
-				$info->plugin_url = sprintf( 'https://github.com/%s', $this->plugin->mirror() );
+				$info->plugin_url = sprintf( 'https://github.com/%s', $this->plugin->mirror_repo() );
 				break;
 
 			case 'pr':
@@ -392,7 +422,7 @@ class PluginInstaller {
 				$manifest = $this->plugin->get_manifest();
 				if ( isset( $manifest->rc->download_url ) ) {
 					$info             = $manifest->rc;
-					$info->plugin_url = sprintf( 'https://github.com/%s/tree/%s', $this->plugin->mirror(), $info->branch );
+					$info->plugin_url = sprintf( 'https://github.com/%s/tree/%s', $this->plugin->mirror_repo(), $info->branch );
 					break;
 				}
 				return new WP_Error(

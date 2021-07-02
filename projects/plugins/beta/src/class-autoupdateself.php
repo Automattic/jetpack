@@ -7,6 +7,7 @@
 
 namespace Automattic\JetpackBeta;
 
+use Composer\Semver\Comparator as Semver;
 use WP_Error;
 
 /**
@@ -148,9 +149,7 @@ class AutoupdateSelf {
 			$this->set_update_args();
 		}
 
-		// PHP's version_compare is buggy if you give it unexpected input, but will work for the kinds
-		// of version numbers we expect to see here (`/^\d+\.\d+\.\d+(?:-alpha\d*|-beta\d*)$/`).
-		return version_compare( $this->config['new_version'], $this->config['version'], '>' );
+		return Semver::greaterThan( $this->config['new_version'], $this->config['version'] );
 	}
 
 	/**

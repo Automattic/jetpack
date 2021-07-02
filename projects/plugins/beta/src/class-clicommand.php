@@ -75,7 +75,7 @@ class CliCommand extends WP_CLI_Command {
 				$l = max( $l, strlen( $slug ) );
 			}
 			WP_CLI::line( 'Available plugins: ' );
-			foreach ( Plugin::get_all_plugins( true ) as $slug => $plugin ) {
+			foreach ( $plugins as $slug => $plugin ) {
 				WP_CLI::line( sprintf( "  %-{$l}s - %s", $slug, $plugin->get_name() ) );
 			}
 			return;

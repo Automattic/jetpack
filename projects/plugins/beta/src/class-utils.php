@@ -671,4 +671,49 @@ class Utils {
 	public static function is_dir_empty( $dir ) {
 		return ( count( scandir( $dir ) ) === 2 );
 	}
+
+	/**
+	 * Test whether the Beta Tester has been used.
+	 *
+	 * In other words, if any -dev version has been downloaded yet.
+	 *
+	 * @return bool
+	 */
+	public static function has_been_used() {
+		foreach ( Plugin::get_plugin_file_map() as $dev ) {
+			if ( file_exists( WP_PLUGIN_DIR . "/$dev" ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Lists plugins needing an update.
+	 *
+	 * @param bool $include_stable Set true to include stable versions.
+	 * @return object[] Keys are plugin files, values are the plugin objects.
+	 */
+	public static function plugins_needing_update( $include_stable = false ) {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/update.php';
+
+		// Determine the plugins needing updating.
+		wp_clean_plugins_cache();
+		ob_start();
+		wp_update_plugins();
+		ob_end_clean();
+		$updates = get_plugin_updates();
+
+		// See if any of our plugins are to be updated.
+		$our_plugins = Plugin::get_plugin_file_map();
+		if ( $include_stable ) {
+			$our_plugins += array_flip( $our_plugins );
+		}
+		$our_plugins[] = JPBETA__PLUGIN_FOLDER . '/jetpack-beta.php';
+
+		return array_intersect_key( $updates, array_flip( $our_plugins ) );
+	}
+
 }

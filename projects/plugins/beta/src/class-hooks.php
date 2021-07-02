@@ -345,11 +345,8 @@ class Hooks {
 		$any_dev = false;
 		foreach ( Plugin::get_all_plugins() as $slug => $plugin ) {
 			if ( is_plugin_active( $plugin->plugin_file() ) ) {
-				$is_dev = false;
-				$file   = WP_PLUGIN_DIR . '/' . $plugin->plugin_file();
-				$tmp    = get_plugin_data( $file, false, false );
-				// translators: %s: Plugin version.
-				$version  = sprintf( __( 'Release version %s', 'jetpack-beta' ), $tmp['Version'] );
+				$is_dev   = false;
+				$version  = $plugin->installer()->stable_pretty_version();
 				$dev_info = null;
 			} elseif ( is_plugin_active( $plugin->dev_plugin_file() ) ) {
 				$is_dev   = true;
@@ -452,26 +449,7 @@ class Hooks {
 			return;
 		}
 
-		require_once ABSPATH . 'wp-admin/includes/file.php';
-		require_once ABSPATH . 'wp-admin/includes/plugin.php';
-		require_once ABSPATH . 'wp-admin/includes/update.php';
-		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
-
-		// Determine the plugins needing updating.
-		wp_clean_plugins_cache();
-		ob_start();
-		wp_update_plugins();
-		ob_end_clean();
-
-		// See if any of our plugins are to be updated.
-		$updates = get_plugin_updates();
-		$plugins = array_intersect(
-			array_keys( $updates ),
-			Plugin::get_plugin_file_map()
-		);
-		if ( AutoupdateSelf::instance()->has_newer_version() ) {
-			$plugins[] = JPBETA__PLUGIN_FOLDER . '/jetpack-beta.php';
-		}
+		$plugins = array_keys( Utils::plugins_needing_update() );
 		if ( ! $plugins ) {
 			return;
 		}
@@ -481,6 +459,7 @@ class Hooks {
 		remove_action( 'upgrader_process_complete', 'wp_version_check' );
 		remove_action( 'upgrader_process_complete', 'wp_update_themes' );
 
+		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 		$skin     = new WP_Ajax_Upgrader_Skin();
 		$upgrader = new Plugin_Upgrader( $skin );
 		$upgrader->init();
