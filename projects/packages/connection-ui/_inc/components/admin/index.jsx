@@ -12,10 +12,7 @@ import { __ } from '@wordpress/i18n';
 import { STORE_ID } from '../../store';
 import Header from '../header';
 import './style.scss';
-import Image1 from './assets/image-1.png';
-import Image2 from './assets/image-2.png';
-import Image3 from './assets/image-3.png';
-import Image4 from './assets/image-4.png';
+import ConnectRight from './assets/connect-right.png';
 
 /**
  * The Connection IU Admin App.
@@ -59,7 +56,7 @@ export default function Admin() {
 					from="connection-ui"
 					redirectUri="tools.php?page=wpcom-connection-manager"
 					statusCallback={ statusCallback }
-					images={ [ Image1, Image2, Image3, Image4 ] }
+					images={ [ ConnectRight ] }
 					assetBaseUrl={ assetBuildUrl }
 				>
 					<p>
