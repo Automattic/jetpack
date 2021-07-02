@@ -12,7 +12,7 @@ class Jetpack_Widget_Conditions {
 	public static function init() {
 		global $pagenow;
 
-		if ( is_customize_preview() || 'widgets.php' === $pagenow || 'themes.php' === $pagenow ) {
+		if ( is_customize_preview() || 'widgets.php' === $pagenow || 'themes.php' === $pagenow || str_starts_with( $_SERVER['REQUEST_URI'], '/wp-json/wp/v2/widget-types' ) ) {
 			add_action( 'sidebar_admin_setup', array( __CLASS__, 'widget_admin_setup' ) );
 			add_filter( 'widget_update_callback', array( __CLASS__, 'widget_update' ), 10, 3 );
 			add_action( 'in_widget_form', array( __CLASS__, 'widget_conditions_admin' ), 10, 3 );
