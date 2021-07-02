@@ -2,14 +2,16 @@
  * External dependencies
  */
 import React from 'react';
+import PropTypes from 'prop-types';
+import { __ } from '@wordpress/i18n';
 import { JetpackLogo } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import ConnectButton from '../connect-button';
-import PropTypes from 'prop-types';
-import { __ } from '@wordpress/i18n';
+import ImageSlider from './image-slider';
+import './style.scss';
 
 /**
  * The Connection Screen component.
@@ -22,6 +24,8 @@ import { __ } from '@wordpress/i18n';
  * @param {string} props.from -- Where the connection request is coming from.
  * @param {string} props.title -- Page title.
  * @param {Function} props.statusCallback -- Callback to pull connection status from the component.
+ * @param {Array} props.images -- Images to display on the right side.
+ * @param {string} props.assetBaseUrl -- The assets base URL
  *
  * @returns {React.Component} The `ConnectScreen` component.
  */
@@ -34,19 +38,24 @@ const ConnectScreen = props => {
 		from,
 		redirectUri,
 		statusCallback,
+		images,
 		children,
+		assetBaseUrl,
 	} = props;
 
+	const showImageSlider = images.length && assetBaseUrl;
+
 	return (
-		<div className="jp-connect-screen">
+		<div
+			className={ 'jp-connect-screen' + ( showImageSlider && ' jp-connect-screen--two-columns' ) }
+		>
 			<div className="jp-connect-screen--left">
 				<JetpackLogo />
 
 				<h2>{ title }</h2>
 
 				{ children }
-			</div>
-			<div className="jp-connect-screen--right">
+
 				<ConnectButton
 					apiRoot={ apiRoot }
 					apiNonce={ apiNonce }
@@ -54,8 +63,17 @@ const ConnectScreen = props => {
 					from={ from }
 					redirectUri={ redirectUri }
 					statusCallback={ statusCallback }
+					connectLabel={ __( 'Set up Jetpack', 'jetpack' ) }
 				/>
 			</div>
+
+			{ showImageSlider && (
+				<div className="jp-connect-screen--right">
+					<ImageSlider images={ images } assetBaseUrl={ assetBaseUrl } />
+				</div>
+			) }
+
+			<div className="jp-connect-screen--clearfix"></div>
 		</div>
 	);
 };
@@ -68,6 +86,9 @@ ConnectScreen.propTypes = {
 	from: PropTypes.string,
 	redirectUri: PropTypes.string.isRequired,
 	registrationNonce: PropTypes.string.isRequired,
+	statusCallback: PropTypes.func,
+	images: PropTypes.arrayOf( PropTypes.string ),
+	assetBaseUrl: PropTypes.string,
 };
 
 ConnectScreen.defaultProps = {

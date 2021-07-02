@@ -11,6 +11,7 @@ import PropTypes from 'prop-types';
  */
 import restApi from '../../tools/jetpack-rest-api-client';
 import ConnectUser from '../connect-user';
+import './style.scss';
 
 /**
  * The RNA connection component.
@@ -126,7 +127,7 @@ const ConnectButton = props => {
 	}, [ connectionStatus, statusCallback ] );
 
 	return (
-		<div className="jp-connection-main">
+		<div className="jp-connect-button">
 			{ statusCallbackWrapped() }
 
 			{ isFetchingConnectionStatus && `Loading...` }
@@ -134,6 +135,7 @@ const ConnectButton = props => {
 			{ ( ! connectionStatus.isRegistered || ! connectionStatus.isUserConnected ) &&
 				! isFetchingConnectionStatus && (
 					<Button
+						className="jp-connect-button--button"
 						label={ connectLabel }
 						onClick={ registerSite }
 						isPrimary

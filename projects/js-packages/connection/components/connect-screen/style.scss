@@ -1,0 +1,64 @@
+.jp-connect-screen {
+	background: #FFFFFF;
+	box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+	border-radius: 4px;
+
+	.jp-connect-screen--left, .jp-connect-screen--right {
+		box-sizing: border-box;
+	}
+
+	.jp-connect-screen--left {
+		padding: 64px 96px;
+
+		h2 {
+			font-family: SF Pro Display;
+			font-style: normal;
+			font-weight: bold;
+			font-size: 36px;
+			line-height: 40px;
+			color: #000;
+		}
+
+		p, li {
+			font-family: SF Pro Text;
+			font-style: normal;
+			font-weight: normal;
+			font-size: 16px;
+			line-height: 24px;
+		}
+
+		p {
+			color: #101517;
+		}
+
+		ul {
+			list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADuSURBVHgB7ZS9DYJAFIDfHT93JSMwAiPoAmhpR22lTqBbmJggbqCyAJZ0xg1YwQ4MeB5GjPIT8KCTL6Hhke9LHgcAPT2NcahOHDLL35agC7hcZeABoIlsStfETfxshKEtbzno/ArQDR0+xwjakJPjCIbhNAy6CTSQp4ityNE0FdC+Tl4eWFMdauWRB4wZdfJiYKMYCmFnZUutLuSFAJHkAQKk8RezK0QE5Clf30Hixr5kyrwBPARjPJKD+zG+iMpTSk+RatMVnyyfDzC2YBhbIvLKQD7y4md5SuWvgq/rlK1LVN4IYpM5rTu6Pf/NA02TfHxOAFa6AAAAAElFTkSuQmCC);
+			list-style-position: inside;
+
+			li {
+				color: #000;
+			}
+		}
+	}
+
+	.jp-connect-screen--right {
+		padding: 64px 0;
+	}
+
+	&.jp-connect-screen--two-columns {
+		.jp-connect-screen--left {
+			float: left;
+			width: 50%;
+		}
+
+		.jp-connect-screen--right {
+			float: right;
+			width: 49%;
+			background: #F9F9F6;
+		}
+	}
+
+	.jp-connect-screen--clearfix {
+		clear: both;
+	}
+}
