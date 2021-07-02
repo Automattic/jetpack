@@ -112,6 +112,8 @@ class Jetpack_Search_Customberg {
 			$script_dependencies = $asset_manifest['dependencies'];
 		}
 
+		wp_enqueue_script( 'jp-search-customization-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+
 		wp_enqueue_script(
 			'jp-search-customization',
 			plugins_url( '_inc/build/instant-search/jp-search-configure-main.bundle.js', JETPACK__PLUGIN_FILE ),
