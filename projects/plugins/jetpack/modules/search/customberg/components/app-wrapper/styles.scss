@@ -1,5 +1,4 @@
-@import '~@wordpress/base-styles/colors';
-@import '~@wordpress/base-styles/variables';
+@import '../../lib/base-styles';
 @import '../../../instant-search/lib/styles/helper';
 
 .interface-interface-skeleton__content {
@@ -40,7 +39,7 @@
 	.jetpack-instant-search__search-results-primary {
 		max-width: 100%;
 		@include break( '>xl' ) {
-			max-width: calc( 100% - $sidebar-width );
+			max-width: calc( 100% - #{$sidebar-width} );
 		}
 	}
 	.jetpack-instant-search__search-results-secondary {

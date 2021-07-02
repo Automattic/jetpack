@@ -1,9 +1,4 @@
-@import '~@wordpress/base-styles/z-index';
-@import '~@wordpress/base-styles/colors';
-@import '~@wordpress/base-styles/variables';
-@import '~@wordpress/base-styles/breakpoints';
-@import '~@wordpress/base-styles/mixins';
-@import '~@wordpress/base-styles/animations';
+@import '../../lib/base-styles';
 
 .components-panel__header.jp-search-customize-sidebar__panel-tabs {
 	justify-content: flex-start;

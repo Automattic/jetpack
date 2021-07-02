@@ -1,10 +1,4 @@
-@import '~@wordpress/base-styles/z-index';
-@import '~@wordpress/base-styles/colors';
-@import '~@wordpress/base-styles/variables';
-@import '~@wordpress/base-styles/breakpoints';
-@import '~@wordpress/base-styles/mixins';
-@import '~@wordpress/base-styles/animations';
-
+@import './lib/base-styles';
 @import '~@wordpress/interface/src/style';
 
 // In order to use mix-blend-mode, this element needs to have an explicitly set background-color
