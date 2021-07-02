@@ -307,7 +307,7 @@ importers:
       '@testing-library/react-hooks': 4.0.0
       '@testing-library/user-event': 12.8.3
       '@wordpress/annotations': 1.12.2
-      '@wordpress/base-styles': 3.5.3
+      '@wordpress/base-styles': 2.0.1
       '@wordpress/blocks': 6.12.3
       '@wordpress/browserslist-config': 2.6.0
       '@wordpress/components': 9.2.6
@@ -431,7 +431,7 @@ importers:
       '@automattic/viewport': 1.0.0
       '@babel/runtime': 7.12.18
       '@wordpress/annotations': 1.12.2_react@16.14.0
-      '@wordpress/base-styles': 3.5.3
+      '@wordpress/base-styles': 2.0.1
       '@wordpress/blocks': 6.12.3_react@16.14.0
       '@wordpress/browserslist-config': 2.6.0
       '@wordpress/compose': 3.11.0
@@ -4497,8 +4497,8 @@ packages:
     dependencies:
       '@babel/core': 7.13.14
 
-  /@wordpress/base-styles/3.5.3:
-    resolution: {integrity: sha512-xHTYc3mJFPtQJH5x6vj42VegSkalKf4LIonHnC3e77zV5oKOcmYltgruGPW4a6uXrek3tqiBLC8+4cL7DYcXmQ==}
+  /@wordpress/base-styles/2.0.1:
+    resolution: {integrity: sha512-nwm0OK/AkxkTkdvZTMeBxkO01RXFYP8TXdqAsx6Fn022o7YV40V89yLr7zTRoQ8MSNy6c/WmRxnLKapLdUCDUg==}
     dev: false
 
   /@wordpress/blob/2.13.2:

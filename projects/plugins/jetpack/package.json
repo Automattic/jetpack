@@ -70,7 +70,7 @@
 		"@automattic/viewport": "1.0.0",
 		"@babel/runtime": "7.12.18",
 		"@wordpress/annotations": "1.12.2",
-		"@wordpress/base-styles": "3.5.3",
+		"@wordpress/base-styles": "2.0.1",
 		"@wordpress/blocks": "6.12.3",
 		"@wordpress/browserslist-config": "2.6.0",
 		"@wordpress/compose": "3.11.0",
