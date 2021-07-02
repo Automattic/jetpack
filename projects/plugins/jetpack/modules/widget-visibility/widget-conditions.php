@@ -10,11 +10,13 @@ class Jetpack_Widget_Conditions {
 	static $passed_template_redirect = false;
 
 	public static function init() {
-		if ( is_admin() ) {
+		global $pagenow;
+
+		if ( is_customize_preview() || 'widgets.php' === $pagenow || 'themes.php' === $pagenow ) {
 			add_action( 'sidebar_admin_setup', array( __CLASS__, 'widget_admin_setup' ) );
 			add_filter( 'widget_update_callback', array( __CLASS__, 'widget_update' ), 10, 3 );
 			add_action( 'in_widget_form', array( __CLASS__, 'widget_conditions_admin' ), 10, 3 );
-		} elseif ( ! in_array( $GLOBALS['pagenow'], array( 'wp-login.php', 'wp-register.php' ) ) ) {
+		} elseif ( ! in_array( $pagenow, array( 'wp-login.php', 'wp-register.php' ), true ) ) {
 			add_filter( 'widget_display_callback', array( __CLASS__, 'filter_widget' ) );
 			add_filter( 'sidebars_widgets', array( __CLASS__, 'sidebars_widgets' ) );
 			add_action( 'template_redirect', array( __CLASS__, 'template_redirect' ) );
@@ -22,11 +24,6 @@ class Jetpack_Widget_Conditions {
 	}
 
 	public static function widget_admin_setup() {
-		// Return early if we are not in the block editor.
-		if ( wp_should_load_block_editor_scripts_and_styles() ) {
-			return;
-		}
-
 		wp_enqueue_style( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.css', __FILE__ ) );
 		wp_style_add_data( 'widget-conditions', 'rtl', 'replace' );
 		wp_enqueue_script(
