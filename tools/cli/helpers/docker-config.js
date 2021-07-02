@@ -7,6 +7,7 @@ import path from 'path';
 import { merge } from 'lodash';
 
 export const dockerFolder = `tools/docker`;
+const overrideConfigFile = '.docker-env.json';
 
 const mergeDockerVolumeMappings = ( mainMapping, overrideMapping ) => {
 	const volumesMapping = overrideMapping.slice(); // make a copy of an array;
@@ -22,19 +23,69 @@ const mergeDockerVolumeMappings = ( mainMapping, overrideMapping ) => {
 	return volumesMapping;
 };
 
+/**
+ * DEPRECATED. Parses compose-volumes.yml and adds it's contents into docker config
+ *
+ * @param {object} config - Docker configuration
+ * @returns {object} config
+ */
+const getDeprecatedVolumesMapping = config => {
+	const volumesFile = `${ dockerFolder }/compose-volumes.yml`;
+	const volumes = yaml.load( readFileSync( volumesFile, 'utf8' ) );
+
+	// convert array of docker volumes into a object of local/docker paths
+	const volumesObj = volumes.reduce( ( acc, volume ) => {
+		const [ localPath, dockerPath ] = volume.split( ':' );
+		let relPath = path.relative( '.', 'tools/docker/' + localPath );
+		if ( ! relPath ) {
+			relPath = '.';
+		}
+		acc[ relPath ] = dockerPath;
+		return acc;
+	}, {} );
+
+	config.dev = {};
+	config.dev.mappings = volumesObj;
+	return config;
+};
+
+/**
+ * DEPRECATED. Parses compose-extras.yml and adds it's contents into docker config
+ *
+ * @param {object} config - Docker configuration
+ * @returns {object} config
+ */
+const getDeprecatedExtras = config => {
+	const extrasFile = `${ dockerFolder }/compose-extras.yml`;
+	const extras = yaml.load( readFileSync( extrasFile, 'utf8' ) );
+	delete extras.version;
+	config.dev.extras = extras;
+	return config;
+};
+
+/**
+ * Compose a config object using multiple sources.
+ * To keep the backward compatibility, it pulls configuration from compose-volumes and compose-extras files
+ * Below is a list of sources in order of priority (from low to high):
+ * - .docker-env-default.json - default Docker configuration
+ * - compose-volumes.yml - (Deprecated) User-defined volume mapping overrides
+ * - compose-extras.yml - (Deprecated) User-defined docker-compose overrides
+ * - .docker-env.yml - User-defined Docker configuration
+ *
+ * @returns {object} config
+ */
 const getConfig = () => {
-	const defaultConfigFile = `${ dockerFolder }/.docker-env-default.json`;
-	const overrideConfigFile = `.docker-env.json`;
+	const configFile = `${ dockerFolder }/.docker-env-default.json`;
+	let json = JSON.parse( readFileSync( configFile, 'utf8' ) );
 
-	const defaultConfig = JSON.parse( readFileSync( defaultConfigFile, 'utf8' ) );
+	// compose-volumes and compose-extras are deprecated. TODO: Remove it in few months.
+	json = getDeprecatedVolumesMapping( json );
+	json = getDeprecatedExtras( json );
 
-	let overrideConfig = {};
 	if ( existsSync( overrideConfigFile ) ) {
-		overrideConfig = JSON.parse( readFileSync( overrideConfigFile, 'utf8' ) );
+		const overrideConfig = JSON.parse( readFileSync( overrideConfigFile, 'utf8' ) );
+		json = merge( json, overrideConfig );
 	}
-
-	const json = merge( defaultConfig, overrideConfig );
-	console.log( json );
 
 	// For end user convenience, .docker-env expect to have mappings relative to repo root, but in docker-compose file we actually want to have these mappings relative to tools/docker.
 	// Below we magically replacing the mappings to match docker expectations.
@@ -54,7 +105,7 @@ const getConfig = () => {
 };
 
 /**
- * Generates Mappings compose file based on docker-env.json config files
+ * Generates docker-compose file with pre-configured volume mappings
  *
  * @param {object} argv - Yargs
  */
@@ -71,11 +122,6 @@ export const setMappings = argv => {
 			config[ argv.type ].mappings
 		);
 	}
-
-	// compose-volumes are deprecated. TODO: Remove it in few months.
-	const volumesFile = `${ dockerFolder }/compose-volumes.yml`;
-	const volumes = yaml.load( readFileSync( volumesFile, 'utf8' ) );
-	volumesMapping = mergeDockerVolumeMappings( volumesMapping, volumes );
 
 	const mappingsCompose = {
 		version: '3.3',
