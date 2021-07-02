@@ -74,7 +74,7 @@
 		"@wordpress/blocks": "6.12.3",
 		"@wordpress/browserslist-config": "2.6.0",
 		"@wordpress/compose": "3.11.0",
-		"@wordpress/data": "5.1.2",
+		"@wordpress/data": "4.14.2",
 		"@wordpress/date": "3.11.1",
 		"@wordpress/element": "2.18.0",
 		"@wordpress/hooks": "2.12.3",
