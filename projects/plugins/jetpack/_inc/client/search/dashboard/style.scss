@@ -20,13 +20,9 @@
 			max-width: 15em;
 			line-height: 1.2em;
 		}
-		@include breakpoint( '<1040px' ) {
-			max-width: 95%;
-		}
-		@include breakpoint( '<480px' ) {
-			h1 {
-				font-size: 1.5em;
-			}
+		// Align with header.
+		@media ( max-width: 1250px ) {
+			width: 95%;
 		}
 	}
 
@@ -51,6 +47,7 @@
 	}
 
 	@include breakpoint( '<480px' ) {
-		font-size: 0.75em;
+		font-size: 80%;
+		justify-content: flex-start;
 	}
 }
