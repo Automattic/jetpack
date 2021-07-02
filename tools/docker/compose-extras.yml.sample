@@ -1,3 +1,9 @@
+########
+#
+# This file is deprecated. Please use `.docker-env.json` config for any custom mappings
+#
+########
+
 version: '3.3'
 #services:
 #  wordpress:
