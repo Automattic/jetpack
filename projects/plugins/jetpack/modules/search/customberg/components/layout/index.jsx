@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useEffect } from 'react';
 
 /**
  * WordPress dependencies
@@ -13,7 +13,9 @@ import { PluginArea } from '@wordpress/plugins';
  * Internal dependencies
  */
 import Interface from './interface';
+import { eventPrefix, initialize, identifySite, recordEvent } from '../../lib/analytics';
 import Sidebar from '../sidebar';
+import { SERVER_OBJECT_NAME } from '../../../instant-search/lib/constants';
 import './styles.scss';
 
 /**
@@ -22,6 +24,12 @@ import './styles.scss';
  * @returns {React.Element} component instance
  */
 export default function Layout() {
+	useEffect( () => {
+		initialize();
+		identifySite( window[ SERVER_OBJECT_NAME ].siteId );
+		recordEvent( `${ eventPrefix }_page_view` );
+	}, [] );
+
 	return (
 		<SlotFillProvider>
 			<Interface />
