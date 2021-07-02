@@ -34,7 +34,7 @@
 	.jp-search-dashboard__bottom {
 		display: flex;
 		flex-flow: column;
-		justify-content: space-between;
+		justify-content: space-around;
 		align-items: center;
 		position: absolute;
 		bottom: -60px; // cover wp admin footer
@@ -48,6 +48,5 @@
 
 	@include breakpoint( '<480px' ) {
 		font-size: 80%;
-		justify-content: flex-start;
 	}
 }
