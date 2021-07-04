@@ -70,7 +70,9 @@ export default function MockedInstantSearch() {
 					</div>
 				</div>
 				<div className="jp-mocked-instant-search__search-results-secondary">
-					<div className="jp-mocked-instant-search__search-filter-header">Filter Options</div>
+					<div className="jp-mocked-instant-search__search-filter-header">
+						{ __( 'Filter Options', 'jetpack' ) }
+					</div>
 					<div className="jp-mocked-instant-search__search-filter-list">
 						{ Array.apply( null, Array( 2 ) ).map( renderFilterOption ) }
 					</div>
