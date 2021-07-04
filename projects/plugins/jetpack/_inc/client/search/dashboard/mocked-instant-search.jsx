@@ -17,7 +17,7 @@ import './mocked-instant-search.scss';
  * @returns {React.Component}	Mocked Search instant dialog component.
  */
 export default function MockedInstantSearch() {
-	const renderFilterOption = label => (
+	const renderFilterOption = () => (
 		<div className="jp-mocked-instant-search__search-filter">
 			<label>
 				<input type="checkbox" disabled="disabled" />{ ' ' }
@@ -25,8 +25,9 @@ export default function MockedInstantSearch() {
 			</label>
 		</div>
 	);
-	const renderSearchResult = () => (
-		<div className="jp-mocked-instant-search__search-result">
+
+	const renderSearchResult = ( val, key ) => (
+		<div className="jp-mocked-instant-search__search-result" key={ key }>
 			<TextRowPlaceHolder
 				style={ { height: '2.5em', width: '50%', margin: '0.1em 0.1em 1em 0.1em' } }
 			/>
@@ -34,6 +35,7 @@ export default function MockedInstantSearch() {
 			<TextRowPlaceHolder style={ { height: '1em', width: '70%', margin: '0.1em' } } />
 		</div>
 	);
+
 	return (
 		<div className="jp-mocked-instant-search" aria-hidden="true">
 			<div className="jp-mocked-instant-search__search-controls">
