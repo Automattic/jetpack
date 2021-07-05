@@ -44,6 +44,11 @@
 		min-height: 50vh;
 		background-color: #fff;
 		z-index: 1;
+
+		@include breakpoint( '<480px' ) {
+			max-height: 40vh;
+			min-height: 35vh;
+		}
 	}
 
 	@include breakpoint( '<480px' ) {

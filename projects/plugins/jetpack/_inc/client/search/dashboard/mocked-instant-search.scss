@@ -66,30 +66,41 @@ $color-text-lighter: $studio-gray-50;
 }
 .jp-mocked-instant-search__search-results-primary {
 	width: 100%;
-	padding-left: 4em;
-	padding-top: 1em;
+	padding: 1em 4em;
 
 	@include breakpoint( '>660px' ) {
 		max-width: calc( 100% - #{$sidebar-width} );
 	}
+	@include breakpoint( '<660px' ) {
+		padding: 2em;
+	}
 }
 .jp-mocked-instant-search__search-results-header {
-	margin: 1em;
 	display: flex;
+	flex-flow: row wrap;
 	justify-content: space-between;
 	align-items: center;
 
 	.jp-mocked-instant-search__result-statistics {
 		font-size: 1em;
 		font-weight: bold;
+		@include breakpoint( '<480px' ) {
+			width: 100%;
+		}
 	}
 	.jp-mocked-instant-search__result-sort-list {
 		span {
 			font-size: 1em;
 			margin-left: 0.5em;
+			&:first-child {
+				margin-left: 0;
+			}
 		}
 		.jp-mocked-instant-search__result-sort-selected {
 			color: $color-plan;
+		}
+		@include breakpoint( '<480px' ) {
+			width: 100%;
 		}
 	}
 }
