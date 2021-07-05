@@ -74,12 +74,32 @@
 	top: 0;
 	left: 0;
 }
+.wp-block-legacy-widget .widget-conditional .condition-control .delete-condition,
 .widget-conditional .condition-control .delete-condition {
 	left: 0;
 	color: #f11;
 }
 .widget-conditional .condition-control .add-condition {
 	right: 0;
+}
+
+
+.wp-block-legacy-widget .widget-conditional .widget-conditional-inner a.dashicons {
+	font-family: dashicons;
+}
+
+.wp-block-legacy-widget .widget-conditional .widget-conditional-inner a {
+	top:1.5rem
+}
+
+
+.wp-block-legacy-widget .widget-conditional .widget-conditional-inner select {
+	display:initial;
+	width:auto;
+}
+
+.editor-styles-wrapper .wp-block-legacy-widget .widget-conditional  .alignleft {
+	margin-left:20px
 }
 
 .widget-conditional .condition:last-child .condition-conjunction,
@@ -114,4 +134,11 @@
 	.widget-conditional .condition-control a {
 		top: 20px;
 	}
+}
+
+.wp-block-legacy-widget .widget-conditional-inner {
+	/*
+	 * fonts of labels are reset to 13px in gutenberg editor for legacy widgets, ensure a consistent look on non-labels
+	 */
+	font-size: 13px;
 }
