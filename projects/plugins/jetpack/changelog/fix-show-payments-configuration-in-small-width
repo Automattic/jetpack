@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-[Payments]: Do not hide block configuration instructions when block is nested.
