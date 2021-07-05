@@ -25,7 +25,7 @@ switch ( task ) {
 			updatePackageJsonDependencies();
 			updateJetpackDependencies();
 			installAdditionalGutenbergDependencies();
-			runBlockValidationTests();
+			runBlockValidationAndUnitTests();
 		} );
 }
 
@@ -163,7 +163,7 @@ function installAdditionalGutenbergDependencies() {
 	console.log( 'Finished installing additional Gutenberg dependencies' );
 }
 
-function runBlockValidationTests() {
+function runBlockValidationAndUnitTests() {
 	console.log( 'Running block validation tests' );
-	spawnSync( 'pnpm', [ 'fixtures:test' ], { stdio: 'inherit' } );
+	spawnSync( 'pnpm', [ 'test-extensions' ], { stdio: 'inherit' } );
 }
