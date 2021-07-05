@@ -1411,7 +1411,7 @@
 
 			initCarouselSlides( gallery.querySelectorAll( settings.imgSelector ), settings.startIndex );
 
-			swiper = new window.Swiper( '.swiper-container', {
+			swiper = new window.Swiper( '.jp-carousel-swiper-container', {
 				centeredSlides: true,
 				zoom: true,
 				loop: carousel.slides.length > 1 ? true : false,
