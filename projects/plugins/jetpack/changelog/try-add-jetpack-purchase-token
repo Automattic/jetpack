@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Added 'purchasetoken' query param to all url's leading to checkout for allowing logged out user purchases on WordPress.com.

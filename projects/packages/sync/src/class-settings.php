@@ -317,6 +317,27 @@ class Settings {
 	}
 
 	/**
+	 * Returns structured SQL clause for allowed taxonomies.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return array taxonomies filter values
+	 */
+	public static function get_allowed_taxonomies_structured() {
+		global $wp_taxonomies;
+
+		$allowed_taxonomies = array_keys( $wp_taxonomies );
+		$allowed_taxonomies = array_diff( $allowed_taxonomies, self::get_setting( 'taxonomies_blacklist' ) );
+		return array(
+			'taxonomy' => array(
+				'operator' => 'IN',
+				'values'   => array_map( 'esc_sql', $allowed_taxonomies ),
+			),
+		);
+	}
+
+	/**
 	 * Returns escaped SQL for blacklisted comment meta.
 	 * Can be injected directly into a WHERE clause.
 	 *
