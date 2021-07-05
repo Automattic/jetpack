@@ -27,7 +27,13 @@ describe( 'CalendlyBlockControls', () => {
 		const wrapper = screen.getByText( 'Edit' );
 
 		expect( wrapper ).toBeInTheDocument();
-		expect( wrapper.firstChild ).toHaveAttribute( 'type', 'button' );
+		// Format of toolbar button changed - older versions are wrapped in a
+		// div.
+		try {
+			expect( wrapper.firstChild ).toHaveAttribute( 'type', 'button' );
+		} catch ( er ) {
+			expect( wrapper ).toHaveAttribute( 'type', 'button' );
+		}
 	} );
 
 	test( 'triggers onEditClick when user clicks button', () => {
@@ -63,7 +69,7 @@ describe( 'CalendlyInspectorControls', () => {
 		setEmbedCode.mockClear();
 	} );
 
-	const renderExpandedSettings = ( props ) => {
+	const renderExpandedSettings = props => {
 		render( <CalendlyInspectorControls { ...props } /> );
 		userEvent.click( screen.getByText( 'Calendar settings' ) );
 	};
@@ -144,7 +150,8 @@ describe( 'CalendlyInspectorControls', () => {
 	test( 'displays notice and link when URL present', () => {
 		renderExpandedSettings( defaultProps );
 
-		const colorHelpUrl = 'https://help.calendly.com/hc/en-us/community/posts/360033166114-Embed-Widget-Color-Customization-Available-Now-';
+		const colorHelpUrl =
+			'https://help.calendly.com/hc/en-us/community/posts/360033166114-Embed-Widget-Color-Customization-Available-Now-';
 		const noticeClass = `${ defaultProps.defaultClassName }-color-notice`;
 		const linkText = 'Follow these instructions to change the colors in this block.';
 		const link = screen.getByText( linkText );
@@ -157,7 +164,9 @@ describe( 'CalendlyInspectorControls', () => {
 	test( 'omits notice when no URL', () => {
 		const noticeClass = `.${ defaultProps.defaultClassName }-color-notice`;
 		const attributes = { ...defaultAttributes, url: undefined };
-		const { container } = render( <CalendlyInspectorControls { ...{ ...defaultProps, attributes } } /> );
+		const { container } = render(
+			<CalendlyInspectorControls { ...{ ...defaultProps, attributes } } />
+		);
 
 		userEvent.click( screen.getByText( 'Calendar settings' ) );
 
