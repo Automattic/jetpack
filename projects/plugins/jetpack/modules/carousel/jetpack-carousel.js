@@ -837,8 +837,9 @@
 			var mediumWidth = parseInt( mediumSizeParts[ 0 ], 10 );
 			var mediumHeight = parseInt( mediumSizeParts[ 1 ], 10 );
 
-			args.origMaxWidth = args.maxWidth;
-			args.origMaxHeight = args.maxHeight;
+			// Assign max width and height -- @3x to support hiPPI/Retina devices when zooming in.
+			args.origMaxWidth = args.maxWidth * 3;
+			args.origMaxHeight = args.maxHeight * 3;
 
 			// Give devices with a higher devicePixelRatio higher-res images (Retina display = 2, Android phones = 1.5, etc)
 			if ( typeof window.devicePixelRatio !== 'undefined' && window.devicePixelRatio > 1 ) {
@@ -864,13 +865,6 @@
 					// If we have a really large image load a smaller version
 					// that is closer to the viewable size
 					if ( args.origWidth > args.maxWidth || args.origHeight > args.maxHeight ) {
-						// If the image is smaller than 1000px in width or height, @2x it so
-						// we get a high enough resolution for zooming.
-						if ( args.origMaxWidth < 1000 || args.origMaxWidth < 1000 ) {
-							args.origMaxWidth = args.maxWidth * 2;
-							args.origMaxHeight = args.maxHeight * 2;
-						}
-
 						origPhotonUrl += '?fit=' + args.origMaxWidth + '%2C' + args.origMaxHeight;
 					}
 				}
@@ -1351,9 +1345,6 @@
 					domUtil.hide( loader );
 					openCarousel( gallery, options );
 				};
-				jsScript.onerror = function () {
-					domUtil.hide( loader );
-				};
 				document.head.appendChild( jsScript );
 				return;
 			}
@@ -1411,10 +1402,11 @@
 
 			initCarouselSlides( gallery.querySelectorAll( settings.imgSelector ), settings.startIndex );
 
-			swiper = new window.Swiper( '.swiper-container', {
+			swiper = new window.Swiper( '.swiper-carousel-container', {
 				centeredSlides: true,
 				zoom: true,
 				loop: carousel.slides.length > 1 ? true : false,
+				wrapperClass: 'swiper-carousel-wrapper',
 				pagination: {
 					el: '.swiper-pagination',
 					clickable: true,

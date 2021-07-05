@@ -6,7 +6,7 @@
 	line-height: inherit;
 }
 
-.swiper-container {
+.swiper-carousel-container {
 	height: auto;
 	width: 100vw;
 }
@@ -84,10 +84,10 @@ so we have to target all affected elements in touch devices.
 	display: none;
 }
 
-.swiper-container .swiper-button-prev {
+.swiper-carousel-container .swiper-button-prev {
 	left: 0px;
 }
-.swiper-container .swiper-button-next {
+.swiper-carousel-container .swiper-button-next {
 	right: 0px;
 }
 
@@ -1138,8 +1138,8 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 /* Small screens */
 @media only screen and ( max-width: 760px ) {
-	.swiper-container .swiper-button-next,
-	.swiper-container .swiper-button-prev {
+	.swiper-carousel-container .swiper-button-next,
+	.swiper-carousel-container .swiper-button-prev {
 		display: none !important;
 	}
 
