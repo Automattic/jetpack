@@ -47,7 +47,9 @@ const ConnectScreen = props => {
 
 	return (
 		<div
-			className={ 'jp-connect-screen' + ( showImageSlider && ' jp-connect-screen--two-columns' ) }
+			className={
+				'jp-connect-screen' + ( showImageSlider ? ' jp-connect-screen--two-columns' : '' )
+			}
 		>
 			<div className="jp-connect-screen--left">
 				<JetpackLogo />
@@ -93,6 +95,7 @@ ConnectScreen.propTypes = {
 
 ConnectScreen.defaultProps = {
 	title: __( 'Over 5 million WordPress sites are faster and more secure', 'jetpack' ),
+	images: [],
 };
 
 export default ConnectScreen;
