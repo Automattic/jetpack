@@ -407,9 +407,25 @@
 				// Prevent native browser zooming
 				carousel.overlay.addEventListener( 'touchstart', function ( e ) {
 					if ( e.touches.length > 1 ) {
-						e.preventDefault();
+						if ( ! domUtil.closest( e.target, '.swiper-zoom-container' ) ) {
+							e.preventDefault();
+						}
 					}
 				} );
+
+				// Allow Swiper to handle double tap zoom.
+				var lastTouchEnd = 0;
+				carousel.overlay.addEventListener(
+					'touchend',
+					function ( event ) {
+						var now = new Date().getTime();
+						if ( now - lastTouchEnd <= 300 ) {
+							event.preventDefault();
+						}
+						lastTouchEnd = now;
+					},
+					false
+				);
 			}
 		}
 
