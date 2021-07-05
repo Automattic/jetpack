@@ -12,7 +12,9 @@ class Jetpack_Widget_Conditions {
 	public static function init() {
 		global $pagenow;
 
-		if ( is_customize_preview() || 'widgets.php' === $pagenow || 'themes.php' === $pagenow || str_starts_with( $_SERVER['REQUEST_URI'], '/wp-json/wp/v2/widget-types' ) ) {
+		if ( is_customize_preview() || 'widgets.php' === $pagenow || 'themes.php' === $pagenow ||
+			 str_starts_with( $_SERVER['REQUEST_URI'], '/wp-json/wp/v2/widget-types' ) ||	// Widget editing via API in gutenberg widgets
+			 str_starts_with($_SERVER['REQUEST_URI'], '/wp-json/batch/v1' )) {	// Saving widgets via API in gutenberg widgets
 			add_action( 'sidebar_admin_setup', array( __CLASS__, 'widget_admin_setup' ) );
 			add_filter( 'widget_update_callback', array( __CLASS__, 'widget_update' ), 10, 3 );
 			add_action( 'in_widget_form', array( __CLASS__, 'widget_conditions_admin' ), 10, 3 );
@@ -460,6 +462,7 @@ class Jetpack_Widget_Conditions {
 	/**
 	 * On an AJAX update of the widget settings, process the display conditions.
 	 *
+	 * @param array $instance The current instance's settings
 	 * @param array $new_instance New settings for this instance as input by the user.
 	 * @param array $old_instance Old settings for this instance.
 	 * @return array Modified settings.
@@ -484,7 +487,7 @@ class Jetpack_Widget_Conditions {
 
 		if ( ! empty( $conditions['rules'] ) ) {
 			$instance['conditions'] = $conditions;
-		} else {
+		} elseif ( empty( $new_instance['conditions']['rules'] ) ) {
 			unset( $instance['conditions'] );
 		}
 
