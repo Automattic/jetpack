@@ -10,7 +10,7 @@ switch ( task ) {
 		break;
 
 	case 'test-validation':
-		runBlockValidationTests();
+		runBlockValidationAndUnitTests();
 		break;
 
 	default:
