@@ -5,7 +5,8 @@ import {
 	getAccountCredentials,
 	provisionJetpackStartConnection,
 } from '../utils-helper';
-import { loginToWpComIfNeeded, loginToWpSite, isBlogTokenSet } from '../flows/jetpack-connect';
+import { isBlogTokenSet } from '../flows/jetpack-connect';
+import { loginToWpSite, loginToWpCom } from '../flows/log-in';
 import config from 'config';
 
 async function maybePreConnect() {
@@ -13,7 +14,7 @@ async function maybePreConnect() {
 	const mockPlanData = true;
 	const plan = 'free';
 
-	await loginToWpComIfNeeded( wpComUser, mockPlanData );
+	await loginToWpCom( wpComUser, mockPlanData );
 	await loginToWpSite( mockPlanData );
 
 	if ( process.env.SKIP_CONNECT ) {
