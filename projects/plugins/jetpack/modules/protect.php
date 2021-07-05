@@ -379,9 +379,10 @@ class Jetpack_Protect_Module {
 	/**
 	 * Get all IP headers so that we can process on our server...
 	 *
-	 * @return string
+	 * @return array
 	 */
 	function get_headers() {
+		$output             = array();
 		$ip_related_headers = array (
 			'GD_PHP_HANDLER',
 			'HTTP_AKAMAI_ORIGIN_HOP',

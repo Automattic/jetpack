@@ -100,7 +100,7 @@ export const Protect = withModuleSettingsFormHelpers(
 					<SettingsGroup
 						hasChild
 						disableInOfflineMode
-						disableInUserlessMode
+						disableInSiteConnectionMode
 						module={ this.props.getModule( 'protect' ) }
 						className="foldable-wrapper"
 					>
@@ -176,7 +176,7 @@ export const Protect = withModuleSettingsFormHelpers(
 						<ConnectUserBar
 							feature="protect"
 							featureLabel={ __( 'Protect', 'jetpack' ) }
-							text={ __( 'Sign in to set up brute force attack protection.', 'jetpack' ) }
+							text={ __( 'Connect to set up brute force attack protection.', 'jetpack' ) }
 						/>
 					) }
 				</SettingsCard>

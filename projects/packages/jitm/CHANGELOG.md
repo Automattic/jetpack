@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.16.1] - 2021-06-29
+### Changed
+- Update package dependencies.
+- Update node version requirement to 14.16.1
+- Update the usage of Redirect lib and passes the unlinked param as a query argument.
+
+## [1.16.0] - 2021-05-25
+### Added
+- JITM: allow the plugin to set the icon for pre-connection JITMs.
+- JITM: move sync updated option hook to the JITM package.
+
+### Changed
+- JITM: prevent JITMs from being registered more than once.
+- JITM: remove jetpack-constants dependency from composer.json
+- JITM: set the default values of the jetpack_just_in_time_msgs and jetpack_just_in_time_msg_cache filters to true.
+- JITM: Use an action instead of a property to prevent JITMs from being registered multiple times
+- JITM: Use the Device_Detection package to determine if the device is mobile.
+- Updated package dependencies
+- update jetpack-redirect dependency
+
+## [1.15.1] - 2021-05-03
+### Changed
+- JITM: Use manager::get_authorization_url to obtain the authorization url in the user deletion notice.
+
+## [1.15.0] - 2021-04-27
+### Added
+- Move JITM's REST API endpoints into the package
+
+### Changed
+- Always display pre-connection JITMs, without the need to set a filter.
+- Avoid wrapping text in the main CTA button.
+- Bump JITM package version requirement.
+- JITM: Update CTA redirect url with unlinked query arg to indicate current user is not connected.
+- Update package dependencies.
+- Use the a8c-mc-stats package to generate stats.
+
 ## [1.14.1] - 2021-03-30
 ### Added
 - Composer alias for dev-master, to improve dependencies
@@ -248,6 +284,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update Jetpack to use new JITM package
 
+[1.16.1]: https://github.com/Automattic/jetpack-jitm/compare/v1.16.0...v1.16.1
+[1.16.0]: https://github.com/Automattic/jetpack-jitm/compare/v1.15.1...v1.16.0
+[1.15.1]: https://github.com/Automattic/jetpack-jitm/compare/v1.15.0...v1.15.1
+[1.15.0]: https://github.com/Automattic/jetpack-jitm/compare/v1.14.1...v1.15.0
 [1.14.1]: https://github.com/Automattic/jetpack-jitm/compare/v1.14.0...v1.14.1
 [1.14.0]: https://github.com/Automattic/jetpack-jitm/compare/v1.13.5...v1.14.0
 [1.13.5]: https://github.com/Automattic/jetpack-jitm/compare/v1.13.4...v1.13.5

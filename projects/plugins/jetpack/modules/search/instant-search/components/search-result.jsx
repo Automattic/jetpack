@@ -1,9 +1,7 @@
-/** @jsx h */
-
 /**
  * External dependencies
  */
-import { h, Component } from 'preact';
+import React, { Component } from 'react';
 
 /**
  * Internal dependencies
@@ -12,7 +10,11 @@ import SearchResultMinimal from './search-result-minimal';
 import SearchResultExpanded from './search-result-expanded';
 import SearchResultProduct from './search-result-product';
 import { recordTrainTracksRender, recordTrainTracksInteract } from '../lib/tracks';
-import { RESULT_FORMAT_EXPANDED, RESULT_FORMAT_PRODUCT } from '../lib/constants';
+import {
+	MULTISITE_NO_GROUP_VALUE,
+	RESULT_FORMAT_EXPANDED,
+	RESULT_FORMAT_PRODUCT,
+} from '../lib/constants';
 import './search-result.scss';
 
 class SearchResult extends Component {
@@ -51,7 +53,17 @@ class SearchResult extends Component {
 		if ( this.props.resultFormat === RESULT_FORMAT_PRODUCT ) {
 			return <SearchResultProduct onClick={ this.onClick } { ...this.props } />;
 		} else if ( this.props.resultFormat === RESULT_FORMAT_EXPANDED ) {
-			return <SearchResultExpanded onClick={ this.onClick } { ...this.props } />;
+			const isMultiSite =
+				this.props.staticFilters &&
+				this.props.staticFilters.group_id &&
+				this.props.staticFilters.group_id !== MULTISITE_NO_GROUP_VALUE;
+			return (
+				<SearchResultExpanded
+					onClick={ this.onClick }
+					{ ...this.props }
+					isMultiSite={ isMultiSite }
+				/>
+			);
 		}
 
 		return <SearchResultMinimal onClick={ this.onClick } { ...this.props } />;

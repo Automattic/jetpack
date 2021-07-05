@@ -260,6 +260,7 @@ class Sender {
 		if ( ! $sync_module ) {
 			return;
 		}
+		// Full Sync Disabled.
 		if ( ! Settings::get_setting( 'full_sync_sender_enabled' ) ) {
 			return;
 		}
@@ -267,6 +268,12 @@ class Sender {
 		// Don't sync if request is marked as read only.
 		if ( Constants::is_true( 'JETPACK_SYNC_READ_ONLY' ) ) {
 			return new \WP_Error( 'jetpack_sync_read_only' );
+		}
+
+		// Sync not started or Sync finished.
+		$status = $sync_module->get_status();
+		if ( false === $status['started'] || ( ! empty( $status['started'] ) && ! empty( $status['finished'] ) ) ) {
+			return false;
 		}
 
 		$this->continue_full_sync_enqueue();
@@ -397,6 +404,10 @@ class Sender {
 		$upload_size   = 0;
 		$items_to_send = array();
 		$items         = is_array( $buffer_or_items ) ? $buffer_or_items : $buffer_or_items->get_items();
+		if ( ! is_array( $items ) ) {
+			$items = array();
+		}
+
 		// Set up current screen to avoid errors rendering content.
 		require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
 		require_once ABSPATH . 'wp-admin/includes/screen.php';

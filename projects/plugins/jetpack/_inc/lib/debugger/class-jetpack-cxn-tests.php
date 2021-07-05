@@ -298,11 +298,11 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 				)
 			);
 		}
-		if ( ! ( new Connection_Manager() )->get_connection_owner_id() && ( new Status() )->is_no_user_testing_mode() ) {
+		if ( ! ( new Connection_Manager() )->get_connection_owner_id() ) {
 			return self::skipped_test(
 				array(
 					'name'              => $name,
-					'short_description' => __( 'Jetpack is running in userless mode. No master user to check.', 'jetpack' ),
+					'short_description' => __( 'Jetpack is running without a connected user. No master user to check.', 'jetpack' ),
 				)
 			);
 		}
@@ -336,11 +336,11 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 				)
 			);
 		}
-		if ( ! ( new Connection_Manager() )->get_connection_owner_id() && ( new Status() )->is_no_user_testing_mode() ) {
+		if ( ! ( new Connection_Manager() )->get_connection_owner_id() ) {
 			return self::skipped_test(
 				array(
 					'name'              => $name,
-					'short_description' => __( 'Jetpack is running in userless mode. No master user to check.', 'jetpack' ),
+					'short_description' => __( 'Jetpack is running without a connected user. No master user to check.', 'jetpack' ),
 				)
 			);
 		}
@@ -816,7 +816,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 					esc_html__( 'Error', 'jetpack' )
 				);
 				$description .= wp_kses(
-					__( 'Jetpack has detected that data is not properly in sync which may be impacting some of your site’s functionality. <strong>Click <a id="full_sync_request_link" href="#">here</a> to start a full sync</strong> to align Jetpack with your site data. If you still notice this error after running a full sync, please contact support for additional assistance.', 'jetpack' ),
+					__( 'Jetpack has detected that data is not properly in sync which may be impacting some of your site’s functionality. <strong>Click <a id="full_sync_request_link" href="#">here</a> to start a fix</strong> to align Jetpack with your site data. If you still notice this error after running the fix process, please contact support for additional assistance.', 'jetpack' ),
 					array(
 						'a'      => array(
 							'id'   => array(),
@@ -834,7 +834,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 						'severity'          => 'critical',
 						'action'            => Redirect::get_url( 'jetpack-contact-support' ),
 						'action_label'      => __( 'Contact Jetpack Support', 'jetpack' ),
-						'short_description' => __( 'Jetpack has detected that data is not properly in sync which may be impacting some of your site’s functionality. We recommend a full sync to align Jetpack with your site data. If you still notice this error after running a full sync, please contact support for additional assistance.', 'jetpack' ),
+						'short_description' => __( 'Jetpack has detected that data is not properly in sync which may be impacting some of your site’s functionality. We recommend performing a fix to align Jetpack with your site data. If you still notice this error after running the fix process, please contact support for additional assistance.', 'jetpack' ),
 						'long_description'  => $description,
 					)
 				);

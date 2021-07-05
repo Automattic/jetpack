@@ -1,9 +1,8 @@
-/** @jsx h */
 /**
  * External dependencies
  */
 import { _n, sprintf } from '@wordpress/i18n';
-import { h } from 'preact';
+import React from 'react';
 
 /**
  * Internal dependencies

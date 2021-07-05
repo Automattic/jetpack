@@ -5,7 +5,6 @@
 /**
  * WordPress dependencies
  */
-import { createElement } from '@wordpress/element';
 import { SVG } from '@wordpress/components';
 
 /**

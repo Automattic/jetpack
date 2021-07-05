@@ -7,7 +7,7 @@ import { debounce, noop } from 'lodash';
 /**
  * WordPress dependencies
  */
-import { useCallback, useEffect, useState, useRef, useReducer } from '@wordpress/element';
+import { useCallback, useEffect, useState, useRef, useReducer, useMemo } from '@wordpress/element';
 import {
 	Button,
 	ExternalLink,
@@ -109,54 +109,55 @@ const PodcastPlayerEdit = ( {
 		checkUrl: url || '',
 	} );
 
-	const fetchFeed = useCallback(
-		debounce( requestParams => {
-			dispatch( { type: actions.START_FETCH } );
-			cancellableFetch.current?.cancel();
-			cancellableFetch.current = makeCancellable(
-				fetchPodcastFeed( { ...requestParams, fetchEpisodeOptions: true } )
-			);
+	const fetchFeed = useMemo(
+		() =>
+			debounce( requestParams => {
+				dispatch( { type: actions.START_FETCH } );
+				cancellableFetch.current?.cancel();
+				cancellableFetch.current = makeCancellable(
+					fetchPodcastFeed( { ...requestParams, fetchEpisodeOptions: true } )
+				);
 
-			cancellableFetch.current.promise.then(
-				response => {
-					removeAllNotices();
-					if ( response?.isCanceled ) {
-						debug( 'Block was unmounted during fetch', response );
-						return; // bail if canceled to avoid setting state
-					}
+				cancellableFetch.current.promise.then(
+					response => {
+						removeAllNotices();
+						if ( response?.isCanceled ) {
+							debug( 'Block was unmounted during fetch', response );
+							return; // bail if canceled to avoid setting state
+						}
 
-					// Check what type of response we got and act accordingly.
-					switch ( response?.type ) {
-						case PODCAST_FEED:
-							setAttributes( {
-								url: requestParams.url,
-								selectedEpisodes: requestParams.guids.map( guid => ( { guid } ) ),
-							} );
-							return dispatch( { type: actions.FEED_RECEIVED, payload: response.data } );
-						case EMBED_BLOCK:
-							return replaceWithEmbedBlock();
-					}
-				},
-				error => {
-					if ( error?.isCanceled ) {
-						debug( 'Block was unmounted during fetch', error );
-						return; // bail if canceled to avoid setting state
-					}
+						// Check what type of response we got and act accordingly.
+						switch ( response?.type ) {
+							case PODCAST_FEED:
+								setAttributes( {
+									url: requestParams.url,
+									selectedEpisodes: requestParams.guids.map( guid => ( { guid } ) ),
+								} );
+								return dispatch( { type: actions.FEED_RECEIVED, payload: response.data } );
+							case EMBED_BLOCK:
+								return replaceWithEmbedBlock();
+						}
+					},
+					error => {
+						if ( error?.isCanceled ) {
+							debug( 'Block was unmounted during fetch', error );
+							return; // bail if canceled to avoid setting state
+						}
 
-					// Show error and allow to edit URL.
-					debug( 'feed error', error );
-					removeAllNotices();
-					createErrorNotice(
-						// Error messages already come localized.
-						error.message ||
-							// Fallback to a generic message.
-							__( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
-					);
-					dispatch( { type: actions.START_EDITING } );
-				}
-			);
-		}, 300 ),
-		[ replaceWithEmbedBlock, setAttributes ]
+						// Show error and allow to edit URL.
+						debug( 'feed error', error );
+						removeAllNotices();
+						createErrorNotice(
+							// Error messages already come localized.
+							error.message ||
+								// Fallback to a generic message.
+								__( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
+						);
+						dispatch( { type: actions.START_EDITING } );
+					}
+				);
+			}, 300 ),
+		[ replaceWithEmbedBlock, setAttributes, createErrorNotice, removeAllNotices ]
 	);
 
 	// Call once on mount or unmount (the return callback).

@@ -29,6 +29,7 @@ import {
 	isPriceValid,
 	minimumTransactionAmountForCurrency,
 } from '../../shared/currencies';
+import getConnectUrl from '../../shared/get-connect-url';
 import { icon, removeInvalidProducts } from '.';
 import { PanelControls, ToolbarControls } from './controls';
 import { formatPriceForNumberInputValue, formatProductAmount } from './util';
@@ -487,9 +488,8 @@ export class MembershipsButtonEdit extends Component {
 		const blockControls = (
 			<BlockControls>
 				<ToolbarControls
-					autosaveAndRedirect={ this.props.autosaveAndRedirect }
 					connected={ connected !== API_STATE_NOTCONNECTED }
-					connectURL={ connectURL }
+					connectURL={ getConnectUrl( this.props.postId, connectURL ) }
 					hasUpgradeNudge={ this.hasUpgradeNudge }
 					shouldUpgrade={ this.state.shouldUpgrade }
 				/>

@@ -6,6 +6,7 @@ use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\JITMS\Pre_Connection_JITM;
 use Brain\Monkey;
 use Brain\Monkey\Actions;
+use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase;
@@ -36,23 +37,24 @@ class Test_Jetpack_JITM extends TestCase {
 		Monkey\tearDown();
 	}
 
-	public function test_jitm_disabled_by_default() {
+	public function test_jitm_enabled_by_default() {
 		Functions\expect( 'apply_filters' )
 			->once()
-			->with(	'jetpack_just_in_time_msgs', false );
-
-		$jitm = new JITM();
-		$this->assertFalse( $jitm->register() );
-	}
-
-	public function test_jitm_enabled_by_filter() {
-		Functions\expect( 'apply_filters' )
-			->once()
-			->with( 'jetpack_just_in_time_msgs', false )
+			->with(	'jetpack_just_in_time_msgs', true )
 			->andReturn( true );
 
 		$jitm = new JITM();
-		$this->assertTrue( $jitm->register() );
+		$this->assertTrue( $jitm->jitms_enabled() );
+	}
+
+	public function test_jitm_disabled_by_filter() {
+		Functions\expect( 'apply_filters' )
+			->once()
+			->with( 'jetpack_just_in_time_msgs', true )
+			->andReturn( false );
+
+		$jitm = new JITM();
+		$this->assertFalse( $jitm->jitms_enabled() );
 	}
 
 	/**
@@ -110,6 +112,30 @@ class Test_Jetpack_JITM extends TestCase {
 
 		// Do the action that we asserted was added.
 		$jitm->jitm_enqueue_files();
+	}
+
+	/**
+	 * Test that the jetpack_registered_jitms action in JITM::register
+	 * is fired only once, regardless of how many times the JITM::register
+	 * method is called.
+	 */
+	public function test_register_jitm_action_fires_once() {
+		Functions\expect( 'get_option' )
+			->with( 'id' )
+			->andReturn( 123 );
+
+		Filters\expectApplied( 'jetpack_is_local_site' )
+			->andReturn( false);
+
+		Actions\expectAdded( 'current_screen' );
+		JITM::configure();
+		$this->assertSame( 1, did_action( 'jetpack_registered_jitms' ) );
+
+		// The current_screen action callback should be added only once.
+		Actions\expectAdded( 'current_screen' )->never();
+		JITM::configure();
+		// The jetpack_registered_jitms action should fire only once.
+		$this->assertSame( 1, did_action( 'jetpack_registered_jitms' ) );
 	}
 
 }

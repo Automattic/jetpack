@@ -53,7 +53,7 @@ class Pre_Connection_JITM extends JITM {
 				'message'     => $message['message'],
 				'description' => $message['description'],
 				'list'        => array(),
-				'icon'        => 'jetpack',
+				'icon'        => $this->get_message_icon( $message ),
 			);
 
 			$formatted_messages[] = $obj;
@@ -90,6 +90,34 @@ class Pre_Connection_JITM extends JITM {
 		}
 
 		return $messages;
+	}
+
+	/**
+	 * Get the icon for the message.
+	 *
+	 * The message may contain an 'icon' key. If the value of the 'icon' key matches a supported icon (or empty string), the value is used.
+	 * If the message does not contain an icon key or if the value does not match a supported icon, the Jetpack icon is used by default.
+	 *
+	 * @param array $message A pre-connection JITM.
+	 *
+	 * @return string The icon to use in the JITM.
+	 */
+	private function get_message_icon( $message ) {
+		// Default to the Jetpack icon.
+		$icon = 'jetpack';
+
+		if ( ! isset( $message['icon'] ) ) {
+			return $icon;
+		}
+
+		$supported_icons = $this->get_supported_icons();
+
+		if ( in_array( $message['icon'], $supported_icons, true ) ) {
+			// Only use the message icon if it's a supported icon or an empty string (for no icon).
+			$icon = $message['icon'];
+		}
+
+		return $icon;
 	}
 
 	/**

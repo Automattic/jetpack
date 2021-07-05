@@ -10,9 +10,9 @@ namespace Automattic\Jetpack\JITMS;
 use Automattic\Jetpack\A8c_Mc_Stats;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Device_Detection;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
 
 /**
@@ -284,7 +284,8 @@ class Post_Connection_JITM extends JITM {
 			<?php
 		} else {
 			echo '<p>' . esc_html__( 'Every Jetpack site needs at least one connected admin for the features to work properly. Please connect to your WordPress.com account via the button below. Once you connect, you may refresh this page to see an option to change the connection owner.', 'jetpack' ) . '</p>';
-			$connect_url = \Jetpack::init()->build_connect_url( false, false, 'delete_connection_owner_notice' );
+			$connect_url = $connection_manager->get_authorization_url();
+			$connect_url = add_query_arg( 'from', 'delete_connection_owner_notice', $connect_url );
 			echo "<a href='" . esc_url( $connect_url ) . "' target='_blank' rel='noopener noreferrer' class='button-primary'>" . esc_html__( 'Connect to WordPress.com', 'jetpack' ) . '</a>';
 		}
 
@@ -378,7 +379,7 @@ class Post_Connection_JITM extends JITM {
 				'external_user_id' => urlencode_deep( $user->ID ),
 				'user_roles'       => urlencode_deep( $user_roles ),
 				'query_string'     => urlencode_deep( $query ),
-				'mobile_browser'   => jetpack_is_mobile( 'smart' ) ? 1 : 0,
+				'mobile_browser'   => Device_Detection::is_smartphone() ? 1 : 0,
 				'_locale'          => get_user_locale(),
 			),
 			sprintf( '/sites/%d/jitm/%s', $site_id, $message_path )
@@ -390,8 +391,14 @@ class Post_Connection_JITM extends JITM {
 		// If something is in the cache and it was put in the cache after the last sync we care about, use it.
 		$use_cache = false;
 
-		/** This filter is documented in class.jetpack.php */
-		if ( apply_filters( 'jetpack_just_in_time_msg_cache', false ) ) {
+		/**
+		 * Filter to turn off jitm caching
+		 *
+		 * @since 5.4.0
+		 *
+		 * @param bool true Whether to cache just in time messages
+		 */
+		if ( apply_filters( 'jetpack_just_in_time_msg_cache', true ) ) {
 			$use_cache = true;
 		}
 
@@ -468,9 +475,7 @@ class Post_Connection_JITM extends JITM {
 			);
 
 			$url_params = array(
-				'source' => "jitm-$envelope->id",
-				'site'   => ( new Status() )->get_site_suffix(),
-				'u'      => $user->ID,
+				'u' => $user->ID,
 			);
 
 			// Get affiliate code and add it to the array of URL parameters.
@@ -482,9 +487,9 @@ class Post_Connection_JITM extends JITM {
 			// Check if the current user has connected their WP.com account
 			// and if not add this information to the the array of URL parameters.
 			if ( ! ( new Manager() )->is_user_connected( $user->ID ) ) {
-				$url_params['unlinked'] = 1;
+				$url_params['query'] = 'unlinked=1';
 			}
-			$envelope->url = add_query_arg( $url_params, 'https://jetpack.com/redirect/' );
+			$envelope->url = esc_url( Redirect::get_url( "jitm-$envelope->id", $url_params ) );
 
 			$stats = new A8c_Mc_Stats();
 

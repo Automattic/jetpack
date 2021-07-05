@@ -7,7 +7,12 @@
 	display: contents;
 }
 
+.wp-story-app {
+	padding: 10px;
+}
+
 .wp-story-container {
+	display: block;
 	height: 320px;
 	width: 180px;
 	margin-left: auto;
@@ -22,6 +27,8 @@
 	-webkit-tap-highlight-color: transparent;
 	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
 	transition: box-shadow 0.3s ease-in-out, transform 0.3s cubic-bezier(0.18, 0.14, 0.25, 1);
+	break-inside: avoid;
+	page-break-inside: avoid;
 
 	figure {
 		transition: transform 0.3s cubic-bezier(0.18, 0.14, 0.25, 1);
@@ -29,9 +36,9 @@
 
 	&:hover {
 		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-		transform: scale(1.03, 1.03);
+		transform: scale3d(1.03, 1.03, 1);
 		figure {
-			transform: scale(1.07, 1.07);
+			transform: scale3d(1.07, 1.07, 1);
 		}
 	}
 
@@ -40,9 +47,7 @@
 		text-shadow: none;
 		background-color: transparent;
 		border: 0;
-	}
-
-	button {
+		outline-width: 0;
 		cursor:pointer;
 	}
 
@@ -65,7 +70,7 @@
 	.wp-story-wrapper {
 		display: block;
 		position: absolute;
-		height: auto;
+		height: 100%;
 		bottom: 0;
 		top: 0;
 		left: 0;
@@ -99,8 +104,12 @@
 			align-items: center;
 			justify-content: center;
 
-			&.transparent {
+			&.semi-transparent {
 				background-color: #4845427f;
+			}
+
+			&.transparent {
+				background-color: transparent;
 			}
 
 			@keyframes rotate-spinner {
@@ -275,11 +284,6 @@
 			padding: 6px 0;
 			vertical-align: top;
 
-			&:focus {
-				outline: none;
-				outline-offset: 0;
-			}
-
 			.wp-story-pagination-bullet-bar {
 				min-width: 12px;
 				width: 100%;
@@ -292,7 +296,7 @@
 				opacity: 1;
 				height: 4px;
 				background-color: $wp-story-pagination-bullet-progress-color;
-				transition: width 50ms;
+				transition: width 0.1s ease;
 			}
 		}
 
@@ -383,10 +387,13 @@
 		left: 0;
 		right: 0;
 		margin: 0;
+		padding: 0;
 		z-index: 9999999999;
 		width: 100% !important;
 		max-width: 100% !important;
 		height: 100%;
+		user-select: none;
+		-webkit-touch-callout: none;
 	}
 
 	&.wp-story-container {
@@ -420,6 +427,7 @@
 		}
 
 		.wp-story-wrapper {
+			height: auto;
 			margin-top: 84px;
 			margin-bottom: 84px;
 			border-radius: 0;

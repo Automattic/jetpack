@@ -7,7 +7,7 @@ module.exports = {
 		'plugin:jest/recommended',
 	],
 	env: {
-		// jest: true,
+		jest: true,
 		browser: true,
 	},
 	globals: {
@@ -18,7 +18,7 @@ module.exports = {
 		reporter: true,
 		jpConnect: true,
 		siteUrl: true,
-		prerequisites: true,
+		allure: true,
 	},
 	settings: {
 		jest: {
@@ -27,8 +27,7 @@ module.exports = {
 	},
 	rules: {
 		'arrow-parens': [ 0, 'as-needed' ],
-		'wpcalypso/import-docblock': 0,
 		'no-console': 0,
-		'jest/no-jasmine-globals': 0,
+		'jsdoc/check-tag-names': [ 'error', { definedTags: [ 'group' ] } ],
 	},
 };

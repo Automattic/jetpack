@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-JITM: Update CTA redirect url with unlinked query arg to indicate current user is not connected.

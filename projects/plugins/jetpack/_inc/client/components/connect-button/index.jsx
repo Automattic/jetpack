@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { getFragment } from '@wordpress/url';
 
 /**
  * Internal dependencies
@@ -45,6 +46,7 @@ export class ConnectButton extends React.Component {
 		connectLegend: PropTypes.string,
 		connectInPlace: PropTypes.bool,
 		customConnect: PropTypes.func,
+		autoOpenInDisconnectRoute: PropTypes.bool,
 	};
 
 	static defaultProps = {
@@ -52,11 +54,16 @@ export class ConnectButton extends React.Component {
 		from: '',
 		asLink: false,
 		connectInPlace: true,
+		autoOpenInDisconnectRoute: false,
 	};
 
-	state = {
-		showModal: false,
-	};
+	constructor( props ) {
+		super( props );
+		this.state = {
+			showModal:
+				props.autoOpenInDisconnectRoute && '#/disconnect' === getFragment( window.location.href ),
+		};
+	}
 
 	handleOpenModal = e => {
 		analytics.tracks.recordJetpackClick( 'manage_site_connection' );
@@ -104,7 +111,7 @@ export class ConnectButton extends React.Component {
 						onClick={ this.props.unlinkUser }
 						disabled={ this.props.isUnlinking }
 					>
-						{ this.props.connectLegend || __( 'Unlink me from WordPress.com', 'jetpack' ) }
+						{ this.props.connectLegend || __( 'Disconnect your WordPress.com account', 'jetpack' ) }
 					</a>
 				</div>
 			);
@@ -121,7 +128,8 @@ export class ConnectButton extends React.Component {
 				href: connectUrl,
 				disabled: this.props.fetchingConnectUrl || this.props.isAuthorizing,
 			},
-			connectLegend = this.props.connectLegend || __( 'Link to WordPress.com', 'jetpack' );
+			connectLegend =
+				this.props.connectLegend || __( 'Connect your WordPress.com account', 'jetpack' );
 
 		// Secondary users in-place connection flow
 

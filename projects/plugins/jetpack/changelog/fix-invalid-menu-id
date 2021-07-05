@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Sanitize the hookname used to generate menu item IDs

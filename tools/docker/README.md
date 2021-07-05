@@ -10,7 +10,7 @@ Unified environment for developing Jetpack using Docker containers providing fol
 * WP-CLI installed.
 * MailDev to catch all the emails leaving WordPress so that you can observe them from browser.
 * phpMyAdmin to aid in viewing the database.
-* Handy NPM/Yarn shorthand commands like `yarn docker:up` and `yarn docker:phpunit` to simplify the usage.
+* Handy shorthand commands like `jetpack docker up` and `jetpack docker phpunit` to simplify the usage.
 
 ## To get started
 
@@ -20,7 +20,7 @@ _**All commands mentioned in this document should be run from the base Jetpack d
 
 * [Docker](https://hub.docker.com/search/?type=edition&offering=community)
 * [NodeJS](https://nodejs.org)
-* [Yarn](https://yarnpkg.com/) — please make sure your version is higher than what is noted in the [development environment documentation](../../docs/development-environment.md#minimum-required-versions): `yarn --version`
+* [Pnpm](https://pnpm.io/)
 * Optionally [Ngrok](https://ngrok.com) client and account or some other service for creating a local HTTP tunnel. It’s fine to stay on the free pricing tier with Ngrok.
 
 Install prerequisites; you will need to open up Docker to install its dependencies.
@@ -40,7 +40,7 @@ Anything you put in `.env` overrides values in `default.env`. You should modify 
 
 Finally, spin up the containers:
 ```sh
-yarn docker:up
+jetpack docker up
 ```
 
 Non-installed WordPress is running at [http://localhost](http://localhost) now.
@@ -58,12 +58,12 @@ WordPress’ `WP_SITEURL` and `WP_HOME` constants are configured to be dynamic i
 ## Custom mounts, environment Variables, `.env` Files, and Ports
 
 You can control some of the behavior of Jetpack's Docker configuration with environment variables. Note, though, that there are two types of environments:
-1. The host environment in which the `yarn docker:*` (`docker-compose`) commands run when creating/managing the containers.
+1. The host environment in which the `jetpack docker *` (`docker-compose`) commands run when creating/managing the containers.
 2. The containers' environments.
 
 ### Host Environment
 
-You can set the following variables on a per-command basis (`PORT_WORDPRESS=8000 yarn docker:up`) or, preferably, in a `./.env` file in Jetpack's root directory.
+You can set the following variables on a per-command basis (`PORT_WORDPRESS=8000 jetpack docker up`) or, preferably, in a `./.env` file in Jetpack's root directory.
 
 * `PORT_WORDPRESS`: (default=`80`) The port on your host machine connected to the WordPress container's HTTP server.
 * `PORT_MAILDEV`: (default=`1080`) The port on your host machine connected to the MailDev container's MailDev HTTP server.
@@ -98,7 +98,7 @@ services:
 You can just quickly install WordPress and activate Jetpack via command line. Ensure you have your domain modified in `.env` file, spin up the containers and then run:
 
 ```sh
-yarn docker:install
+jetpack docker install
 ```
 
 This will give you a single site with user/pass `wordpress` (unless you changed these from `./tools/docker/.env` file). You will still have to connect Jetpack to WordPress.com manually.
@@ -106,19 +106,19 @@ This will give you a single site with user/pass `wordpress` (unless you changed 
 To convert installed single site into a multisite, run:
 
 ```sh
-yarn docker:multisite-convert
+jetpack docker multisite-convert
 ```
 
 To remove WordPress installation and start over, run:
 
 ```sh
-yarn docker:uninstall
+jetpack docker uninstall
 ```
 
 ### Start containers
 
 ```sh
-yarn docker:up
+jetpack docker up
 ```
 
 Start three containers (WordPress, MySQL and MailDev) defined in `docker-composer.yml`. Wrapper for `docker-composer up`.
@@ -128,19 +128,19 @@ This command will rebuild the WordPress container if you made any changes to `do
 For running the containers in the background, use:
 
 ```sh
-yarn docker:up -- -d
+jetpack docker up -d
 ```
 
 ### Stop containers
 
 ```sh
-yarn docker:stop
+jetpack docker stop
 ```
 
-Stops all containers. Wrapper for `docker-composer stop`.
+Stops all containers. Wrapper for `docker-compose stop`.
 
 ```sh
-yarn docker:down
+jetpack docker down
 ```
 
 Will stop all of the containers created by this docker-compose configuration and remove them, too. It won’t remove the images. Just the containers that have just been stopped.
@@ -150,18 +150,18 @@ Will stop all of the containers created by this docker-compose configuration and
 These commands require the WordPress container to be running.
 
 ```sh
-yarn docker:phpunit
+jetpack docker phpunit
 ```
 
 This will run unit tests for Jetpack. You can pass arguments to `phpunit` like so:
 
 ```sh
-yarn docker:phpunit --filter=Protect
+jetpack docker phpunit -- --filter=Protect
 ```
 
 This command runs the tests as a multi site install
 ```sh
-yarn docker:phpunit:multisite --filter=Protect
+jetpack docker phpunit-multisite -- --filter=Protect
 ```
 
 To run tests for specific packages, you can run the tests locally, from within the package's directory:
@@ -175,7 +175,7 @@ composer phpunit
 To remove all docker images, all MySQL data, and all docker-related files from your local machine run:
 
 ```sh
-yarn docker:clean
+jetpack docker clean
 ```
 
 **Note:** this command does not work in Windows.
@@ -185,22 +185,22 @@ yarn docker:clean
 You can run [WP CLI](https://make.wordpress.org/cli/) commands inside WordPress container:
 
 ```sh
-yarn docker:wp COMMAND
+jetpack docker wp COMMAND
 ```
 
 For example run [`cron event list`](https://developer.wordpress.org/cli/commands/cron/event/list/):
 
 ```sh
-yarn docker:wp cron event list
+jetpack docker wp cron event list
 ```
 
 [`shell`](https://developer.wordpress.org/cli/commands/shell/) is a handy WP-CLI command you can use like so:
 
 ```bash
-yarn docker:wp shell
+jetpack docker wp shell
 ```
 
-By default it will use rich REPL [`PsySH`](https://psysh.org/), to run the default REPL use `yarn docker:wp shell --basic`
+By default it will use rich REPL [`PsySH`](https://psysh.org/), to run the default REPL use `jetpack docker wp shell --basic`
 
 Shell allows you to evaluate PHP code while having your installed WordPress loaded, so you could do things like:
 
@@ -227,7 +227,7 @@ You can also access it via phpMyAdmin at [http://localhost:8181](http://localhos
 
 Another way to accessing the database is MySQL client using the following command:
 ```sh
-yarn docker:db
+jetpack docker db
 ```
 This command utilizes credentials from the config file (`~/.my.cnf`) to log you into MySQL without entering any connection information.
 
@@ -259,7 +259,29 @@ You can add your custom Jetpack constants (such as `JETPACK__SANDBOX_DOMAIN`) to
 define( 'JETPACK__SANDBOX_DOMAIN', '{your sandbox}.wordpress.com' );
 ```
 
+## Jurassic Tube Tunneling Service
+If you are an Automattician, you can use Jurassic Tube tunneling service with functionality similar to Ngrok.
+
+As it is developed internally, you can review the source code and participate in adding new features.
+
+* Start the tunnel: `jetpack docker jt-up your-username your-subdomain`
+* Break the connection: `jetpack docker jt-down`
+
+You can also set default values:
+
+```shell script
+jetpack docker jt-config username your-username
+jetpack docker jt-config subdomain your-subdomain
+```
+That will let you omit those parameters while initiating the connection:
+```shell script
+jetpack docker jt-up
+```
+
+More information: PCYsg-snO-p2.
 ## Using Ngrok with Jetpack
+
+Note: While Ngrok is technically supported for everyone, Jurassic Tube should be considered as preferred tunneling solution for Automatticians.
 
 To be able to connect Jetpack you will need a domain - you can use [Ngrok.com](https://ngrok.com/) to assign one.
 
@@ -283,45 +305,12 @@ tunnels:
     proto: http
 ```
 
-You can start your ngrok tunnel like so:
+ngrok support is integrated into a jetpack cli, so to start a docker container with mapped tunnel, simply run:
 ```bash
-./ngrok start jetpack
+jetpack docker up --ngrok
 ```
 
-These two commands are all you need to run to get Docker running when you start your computer:
-```bash
-./ngrok start jetpack
-yarn docker:up -d
-```
-### Docker Ngrok
-
-Alternative to the above configuration file is running ngrok in the container with docker-compose file. That starts ngrok inside a container and you don't have to install it or configure as a standalone software on your machine.
-
-**1. Configure environment**
-
-Add these variables to your `tools/docker/.env` file:
-
-This configures `example.us.ngrok.io` reserved domain that is available on my basic plan.
-Possible values for `NGROK_REGION` are:  (United States, default), eu (Europe), ap (Asia/Pacific) or au (Australia).
-[Read more about ngrok regions](https://ngrok.com/docs#global-locations)
-```
-NGROK_AUTH=<your auth key>
-NGROK_SUBDOMAIN=example
-NGROK_REGION=us
-```
-
-**2. Start docker with Ngrok**
-
-Start container with `yarn docker:ngrok-up -d`
-Stop container with `yarn docker:ngrok-down -d`
-
-All the other docker-compose commands can be invoked via `yarn docker:ngrok COMMAND`
-
-### Configuration file
-
-If you need more granular control over the Ngrok tunnel, you could create a configuration file. See [default configuration file location](https://ngrok.com/docs#default-config-location) from Ngrok Docs or use `-config=your_config_file.yml` argument with `ngrok` to use your configuration file.
-
-## Ngrok SFTP Tunnel with Jetpack
+### Ngrok SFTP Tunnel with Jetpack
 A sample config for adding an sftp tunnel to your Ngrok setup would look like this:
 
 ```
@@ -341,7 +330,7 @@ See more configuration options from [Ngrok documentation](https://ngrok.com/docs
 
 You can now start both tunnels:
 ```bash
-ngrok start jetpack jetpack-sftp
+jetpack docker up --ngrok sftp
 ```
 
 You can inspect traffic between your WordPress/Jetpack container and WordPress.com using [the inspector](https://ngrok.com/docs#inspect).
@@ -357,42 +346,21 @@ You should now be able to configure [Jetpack Backup & Scan](https://jetpack.com/
 - Server password: `wordpress`
 - WordPress installation path: `/var/www/html`
 
-## Jurassic Tube Tunneling Service
-If you are an Automattician, you can use Jurassic Tube tunneling service with functionality similar to Ngrok.
-
-As it is developed internally, you can review the source code and participate in adding new features.
-
-* Start the tunnel: `yarn docker:jt-up your-username your-subdomain`
-* Break the connection: `yarn docker:jt-down`
-
-You can also set default values:
-
-```shell script
-yarn docker:jt-config username your-username
-yarn docker:jt-config subdomain your-subdomain
-```
-That will let you omit those parameters while initiating the connection:
-```shell script
-yarn docker:jt-up
-```
-
-More information: PCYsg-snO-p2.
-
 ## Custom plugins & themes in the container
 
 Jetpack Docker environment can be wonderful for developing your own plugins and themes, too.
 
 Since everything under `mu-plugins` and `wordpress/wp-content` is git-ignored, you'll want to keep those folders outside Jetpack repository folder and link them as volumes to your Docker instance.
 
-1. First ensure your containers are stopped (`yarn docker:stop`).
-2. Edit `tools/docker/compose-volumes.yml`. This file will be generated when running `yarn docker:up`, containing content from a sample file `tools/docker/compose-volumes.yml.sample`. But you can also copy it by hand. Changes to this file won't be tracked by git.
+1. First ensure your containers are stopped (`jetpack docker stop`).
+2. Edit `tools/docker/compose-volumes.yml`. This file will be generated when running `jetpack docker up`, containing content from a sample file `tools/docker/compose-volumes.yml.sample`. But you can also copy it by hand. Changes to this file won't be tracked by git.
 3. Start containers and include your custom volumes by running:
    ```bash
-   yarn docker:up
+   jetpack docker up
    ```
 
 Note that any folder within the `projects/plugins` directory will be automatically linked.
-If you're starting a new monorepo plugin, you may need to `yarn docker:stop` and `yarn docker:up` to re-run the initial linking step so it can be added.
+If you're starting a new monorepo plugin, you may need to `jetpack docker stop` and `jetpack docker up` to re-run the initial linking step so it can be added.
 
 ## Debugging
 
@@ -405,7 +373,7 @@ Logs are stored in your file system under `./tools/docker/logs` directory.
 To `tail -f` the PHP error log, run:
 
 ```sh
-yarn docker:tail
+jetpack docker tail
 ```
 
 #### MySQL Slow Query Log
@@ -428,7 +396,7 @@ To debug emails via web-interface, open [http://localhost:1080](http://localhost
 You can use the [WP CLI](https://make.wordpress.org/cli/) to update the version of WordPress running inside the Docker container. Example command:
 
 ```
-yarn docker:wp core update --version=5.3.4 --force
+jetpack docker wp core update --version=5.3.4 --force
 ```
 
 This is useful if you want to check your code is compatible with the minimum version of WP Jetpack supports, which can be found in the [readme.txt](../readme.txt). We always support the latest patched version of the branch we specify as "Requires at least" in the readme file. You can match it with the exact version on the [WordPress Releases page](https://wordpress.org/download/releases/).

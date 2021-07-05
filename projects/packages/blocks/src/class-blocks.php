@@ -63,6 +63,20 @@ class Blocks {
 		if ( ! self::is_standalone_block() ) {
 			// If the block is dynamic, and a Jetpack block, wrap the render_callback to check availability.
 			if ( ! empty( $args['plan_check'] ) ) {
+				// Set up attributes.
+				if ( ! isset( $args['attributes'] ) ) {
+					$args['attributes'] = array();
+				}
+				$args['attributes'] = array_merge(
+					$args['attributes'],
+					array(
+						// Indicates that this block should display an upgrade nudge on the frontend when applicable.
+						'shouldDisplayFrontendBanner' => array(
+							'type'    => 'boolean',
+							'default' => true,
+						),
+					)
+				);
 				if ( isset( $args['render_callback'] ) ) {
 					$args['render_callback'] = Jetpack_Gutenberg::get_render_callback_with_availability_check( $feature_name, $args['render_callback'] );
 				}
@@ -232,6 +246,26 @@ class Blocks {
 
 		/** This filter is documented in 3rd-party/class.jetpack-amp-support.php */
 		return apply_filters( 'jetpack_is_amp_request', $is_amp_request );
+	}
+
+	/**
+	 * Is the current theme an FSE/Site Editor theme.
+	 *
+	 * @since 9.8.0
+	 *
+	 * @return bool True if the current theme is an FSE/Site Editor theme.
+	 */
+	public static function is_fse_theme() {
+		$is_fse_theme = function_exists( 'gutenberg_is_fse_theme' ) && gutenberg_is_fse_theme();
+
+		/**
+		 * Returns true if the current theme is an FSE/Site Editor theme.
+		 *
+		 * @since 9.8.0
+		 *
+		 * @param boolean $is_fse_theme Is the theme an FSE theme.
+		 */
+		return apply_filters( 'jetpack_is_fse_theme', $is_fse_theme );
 	}
 
 	/**

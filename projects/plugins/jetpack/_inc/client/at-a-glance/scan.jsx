@@ -25,7 +25,11 @@ import {
 	getVaultPressScanThreatCount,
 	getVaultPressData,
 } from 'state/at-a-glance';
-import { isOfflineMode } from 'state/connection';
+import {
+	getConnectUrl,
+	hasConnectedOwner as hasConnectedOwnerSelector,
+	isOfflineMode,
+} from 'state/connection';
 import DashItem from 'components/dash-item';
 import { get, isArray } from 'lodash';
 import { getUpgradeUrl, isAtomicSite, showBackups } from 'state/initial-state';
@@ -90,6 +94,8 @@ class DashScan extends Component {
 		isVaultPressInstalled: PropTypes.bool.isRequired,
 		fetchingSiteData: PropTypes.bool.isRequired,
 		upgradeUrl: PropTypes.string.isRequired,
+		connectUrl: PropTypes.string.isRequired,
+		hasConnectedOwner: PropTypes.bool.isRequired,
 	};
 
 	static defaultProps = {
@@ -131,7 +137,7 @@ class DashScan extends Component {
 	};
 
 	getVPContent() {
-		const { vaultPressData } = this.props;
+		const { vaultPressData, hasConnectedOwner } = this.props;
 
 		// The VaultPress plugin is active but not registered, or we can't connect
 		if ( vaultPressData?.code === 'not_registered' ) {
@@ -189,7 +195,7 @@ class DashScan extends Component {
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
 				status: 'no-pro-uninstalled-or-inactive',
-				overrideContent: this.getUpgradeBanner(),
+				overrideContent: hasConnectedOwner ? this.getUpgradeBanner() : this.getConnectBanner(),
 			} );
 		}
 
@@ -251,6 +257,23 @@ class DashScan extends Component {
 				) }
 				disableHref="false"
 				href={ this.props.upgradeUrl }
+				eventFeature="scan"
+				path="dashboard"
+				plan={ getJetpackProductUpsellByFeature( FEATURE_SECURITY_SCANNING_JETPACK ) }
+			/>
+		);
+	}
+
+	getConnectBanner() {
+		return (
+			<JetpackBanner
+				callToAction={ __( 'Connect', 'jetpack' ) }
+				title={ __(
+					'Connect your WordPress.com account to upgrade to Jetpack Scan and protect your site from security threats with automated scanning.',
+					'jetpack'
+				) }
+				disableHref="false"
+				href={ this.props.connectUrl }
 				eventFeature="scan"
 				path="dashboard"
 				plan={ getJetpackProductUpsellByFeature( FEATURE_SECURITY_SCANNING_JETPACK ) }
@@ -353,9 +376,11 @@ class DashScan extends Component {
 	}
 
 	getUpgradeContent() {
+		const { hasConnectedOwner } = this.props;
+
 		return renderCard( {
 			className: 'jp-dash-item__is-inactive',
-			overrideContent: this.getUpgradeBanner(),
+			overrideContent: hasConnectedOwner ? this.getUpgradeBanner() : this.getConnectBanner(),
 		} );
 	}
 
@@ -421,6 +446,8 @@ export default connect(
 			planClass: getPlanClass( get( sitePlan, 'product_slug', '' ) ),
 			showBackups: showBackups( state ),
 			upgradeUrl: getUpgradeUrl( state, 'aag-scan' ),
+			connectUrl: getConnectUrl( state ),
+			hasConnectedOwner: hasConnectedOwnerSelector( state ),
 		};
 	},
 	{

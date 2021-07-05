@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Add inline styles to dashboard header for site icon when nav unification is enabled to prevent site icon images overlaying the users interface making it unusable when nav unification styles are prevented from loading.

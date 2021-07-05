@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Avoid PHP Notices in jetpack_blog_display_custom_excerpt() when run outside of the loop / without post context.

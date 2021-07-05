@@ -22,7 +22,12 @@ gulp.task( 'old-styles:watch', function () {
 } );
 
 gulp.task( 'blocks:watch', function () {
-	const child = require( 'child_process' ).execFile( 'yarn', [ 'build-extensions', '--watch' ] );
+	const child = require( 'child_process' ).execFile( 'pnpm', [
+		'run',
+		'build-extensions',
+		'--',
+		'--watch',
+	] );
 
 	child.stdout.on( 'data', function ( data ) {
 		log( data.toString() );
@@ -30,8 +35,10 @@ gulp.task( 'blocks:watch', function () {
 } );
 
 gulp.task( 'search:watch', function () {
-	const child = require( 'child_process' ).execFile( 'yarn', [
-		'build-search:scripts',
+	const child = require( 'child_process' ).execFile( 'pnpm', [
+		'run',
+		'build-search',
+		'--',
 		'--watch',
 	] );
 

@@ -1,6 +1,9 @@
 /* global GitHub */
 const debug = require( './debug' );
 
+// Cache for getFiles.
+const cache = {};
+
 /**
  * Get list of files modified in PR.
  *
@@ -13,10 +16,15 @@ const debug = require( './debug' );
  */
 async function getFiles( octokit, owner, repo, number ) {
 	const fileList = [];
+	const cacheKey = `${ owner }/${ repo } #${ number }`;
+	if ( cache[ cacheKey ] ) {
+		debug( `get-files: Returning list of files modified ${ cacheKey } from cache.` );
+		return cache[ cacheKey ];
+	}
 
-	debug( 'add-labels: Get list of files modified in this PR.' );
+	debug( `get-files: Get list of files modified in ${ cacheKey }.` );
 
-	for await ( const response of octokit.paginate.iterator( octokit.pulls.listFiles, {
+	for await ( const response of octokit.paginate.iterator( octokit.rest.pulls.listFiles, {
 		owner,
 		repo,
 		pull_number: +number,
@@ -27,6 +35,7 @@ async function getFiles( octokit, owner, repo, number ) {
 		} );
 	}
 
+	cache[ cacheKey ] = fileList;
 	return fileList;
 }
 

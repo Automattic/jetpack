@@ -2,6 +2,7 @@
 
 cd "$( dirname "${BASH_SOURCE[0]}" )/.."
 . tools/includes/chalk-lite.sh
+. .github/versions.sh
 
 SUPPORT_BASE_URL=https://github.com/Automattic/jetpack/blob/master/docs/development-environment-cli-support.md
 
@@ -14,8 +15,7 @@ function command_exists_as_alias {
 function version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"; }
 
 function node_version_is_proper {
-	REQUIRED=`cat .nvmrc`
-	version_gt `node -v |cut -b 2-` $REQUIRED
+	version_gt `node -v |cut -b 2-` $NODE_VERSION
 }
 
 function which {
@@ -113,7 +113,7 @@ main() {
 
 	assert command_is_available node
 	assert node_version_is_proper
-	assert command_is_available yarn
+	assert command_is_available pnpm
 	check  nvm_is_available || check command_is_available n
 	assert node_modules_are_available
 

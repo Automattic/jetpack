@@ -29,7 +29,6 @@ export const Publicize = withModuleSettingsFormHelpers(
 			const unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'publicize' ),
 				isLinked = this.props.isLinked,
 				isOfflineMode = this.props.isOfflineMode,
-				connectUrl = this.props.connectUrl,
 				siteRawUrl = this.props.siteRawUrl,
 				isActive = this.props.getOptionValue( 'publicize' ),
 				userCanManageModules = this.props.userCanManageModules;
@@ -39,27 +38,19 @@ export const Publicize = withModuleSettingsFormHelpers(
 					return;
 				}
 
-				return isLinked ? (
-					<Card
-						compact
-						className="jp-settings-card__configure-link"
-						onClick={ this.trackClickConfigure }
-						target="_blank"
-						rel="noopener noreferrer"
-						href={ getRedirectUrl( 'calypso-marketing-connections', { site: siteRawUrl } ) }
-					>
-						{ __( 'Connect your social media accounts', 'jetpack' ) }
-					</Card>
-				) : (
-					<Card
-						compact
-						className="jp-settings-card__configure-link"
-						target="_blank"
-						rel="noopener noreferrer"
-						href={ `${ connectUrl }&from=unlinked-user-connect-publicize` }
-					>
-						{ __( 'Create a Jetpack account to use this feature', 'jetpack' ) }
-					</Card>
+				return (
+					isLinked && (
+						<Card
+							compact
+							className="jp-settings-card__configure-link"
+							onClick={ this.trackClickConfigure }
+							target="_blank"
+							rel="noopener noreferrer"
+							href={ getRedirectUrl( 'calypso-marketing-connections', { site: siteRawUrl } ) }
+						>
+							{ __( 'Connect your social media accounts', 'jetpack' ) }
+						</Card>
+					)
 				);
 			};
 
@@ -77,7 +68,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 					{ userCanManageModules && (
 						<SettingsGroup
 							disableInOfflineMode
-							disableInUserlessMode
+							disableInSiteConnectionMode
 							module={ { module: 'publicize' } }
 							support={ {
 								text: __(
@@ -109,7 +100,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 						<ConnectUserBar
 							feature="publicize"
 							featureLabel={ __( 'Publicize', 'jetpack' ) }
-							text={ __( 'Sign in to connect your social media accounts.', 'jetpack' ) }
+							text={ __( 'Connect to add your social media accounts.', 'jetpack' ) }
 						/>
 					) }
 

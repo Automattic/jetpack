@@ -1,10 +1,7 @@
-/** @jsx h */
-
 /**
  * External dependencies
  */
-import { h } from 'preact';
-import { createPortal } from 'preact/compat';
+import React, { createPortal } from 'react';
 import SearchFilters from './search-filters';
 import WidgetAreaContainer from './widget-area-container';
 
@@ -21,6 +18,7 @@ const Sidebar = props => {
 			     this component will just show the title and clear filters button. */ }
 			<SearchFilters
 				filters={ props.filters }
+				staticFilters={ props.staticFilters }
 				loading={ props.isLoading }
 				locale={ props.locale }
 				postTypes={ props.postTypes }
@@ -38,6 +36,7 @@ const Sidebar = props => {
 					>
 						<SearchFilters
 							filters={ props.filters }
+							staticFilters={ props.staticFilters }
 							loading={ props.isLoading }
 							locale={ props.locale }
 							postTypes={ props.postTypes }

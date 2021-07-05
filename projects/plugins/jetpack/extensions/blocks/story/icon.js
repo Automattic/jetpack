@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { Path, Rect, G } from '@wordpress/components';
+import { Path, G } from '@wordpress/components';
 /**
  * Internal dependencies
  */

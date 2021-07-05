@@ -143,6 +143,7 @@ class Error_Handler {
 		add_filter( 'jetpack_connection_disconnect_site_wpcom', array( $this, 'delete_all_errors_and_return_unfiltered_value' ) );
 		add_filter( 'jetpack_connection_delete_all_tokens', array( $this, 'delete_all_errors_and_return_unfiltered_value' ) );
 		add_action( 'jetpack_unlinked_user', array( $this, 'delete_all_errors' ) );
+		add_action( 'jetpack_updated_user_token', array( $this, 'delete_all_errors' ) );
 	}
 
 	/**

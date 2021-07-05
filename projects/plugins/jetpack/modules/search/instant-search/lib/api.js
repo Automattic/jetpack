@@ -10,7 +10,12 @@ import lru from 'tiny-lru/lib/tiny-lru.esm';
  * Internal dependencies
  */
 import { getFilterKeys } from './filters';
-import { MINUTE_IN_MILLISECONDS, RESULT_FORMAT_PRODUCT, SERVER_OBJECT_NAME } from './constants';
+import {
+	MINUTE_IN_MILLISECONDS,
+	MULTISITE_NO_GROUP_VALUE,
+	RESULT_FORMAT_PRODUCT,
+	SERVER_OBJECT_NAME,
+} from './constants';
 
 let abortController;
 
@@ -77,7 +82,7 @@ const DATE_REGEX = /(\d{4})-(\d{2})-(\d{2})/;
  * @param {string} type - Date range type (year vs month).
  * @returns {object} date filter.
  */
-function generateDateRangeFilter( fieldName, input, type ) {
+export function generateDateRangeFilter( fieldName, input, type ) {
 	let year, month;
 	if ( type === 'year' ) {
 		[ , year, , ] = input.match( DATE_REGEX );
@@ -89,8 +94,10 @@ function generateDateRangeFilter( fieldName, input, type ) {
 	let startDate = '';
 	let endDate = '';
 	if ( month ) {
+		const nextMonth = +month + 1;
+		const nextMonthPadded = nextMonth < 10 ? `0${ nextMonth }` : `${ nextMonth }`;
 		startDate = `${ year }-${ month }-01`;
-		endDate = `${ year }-${ +month + 1 }-01`;
+		endDate = nextMonth <= 12 ? `${ year }-${ nextMonthPadded }-01` : `${ +year + 1 }-01-01`;
 	} else if ( year ) {
 		startDate = `${ year }-01-01`;
 		endDate = `${ +year + 1 }-01-01`;
@@ -126,6 +133,26 @@ const filterKeyToEsFilter = new Map( [
 		datestring => generateDateRangeFilter( 'date_gmt', datestring, 'year' ),
 	],
 ] );
+
+/**
+ * Build static filters object
+ *
+ * @param {object} staticFilters - list of static filter key-value.
+ * @returns {object} - list of selected static filters.
+ */
+function buildStaticFilters( staticFilters ) {
+	const selectedFilters = {};
+	Object.keys( staticFilters ).forEach( key => {
+		const value = staticFilters[ key ];
+		if ( key === 'group_id' ) {
+			if ( value !== MULTISITE_NO_GROUP_VALUE ) {
+				// Do not set filter if for no_groups, it should just use current blog.
+				selectedFilters[ key ] = value;
+			}
+		}
+	} );
+	return selectedFilters;
+}
 
 /**
  * Build an ElasticSerach filter object.
@@ -199,6 +226,7 @@ function generateApiQueryString( {
 	aggregations,
 	excludedPostTypes,
 	filter,
+	staticFilters,
 	pageHandle,
 	query,
 	resultFormat,
@@ -240,18 +268,36 @@ function generateApiQueryString( {
 		] );
 	}
 
-	return encode(
-		flatten( {
-			aggregations,
-			fields,
-			highlight_fields: highlightFields,
-			filter: buildFilterObject( filter, adminQueryFilter, excludedPostTypes ),
-			query: encodeURIComponent( query ),
-			sort: mapSortToApiValue( sort ),
-			page_handle: pageHandle,
-			size: postsPerPage,
-		} )
-	);
+	/**
+	 * Fetch additional fields for multi site results
+	 */
+	if (
+		staticFilters &&
+		staticFilters.group_id &&
+		staticFilters.group_id !== MULTISITE_NO_GROUP_VALUE
+	) {
+		fields = fields.concat( [ 'author', 'blog_name', 'blog_icon_url' ] );
+	}
+
+	let params = {
+		aggregations,
+		fields,
+		highlight_fields: highlightFields,
+		filter: buildFilterObject( filter, adminQueryFilter, excludedPostTypes ),
+		query: encodeURIComponent( query ),
+		sort: mapSortToApiValue( sort ),
+		page_handle: pageHandle,
+		size: postsPerPage,
+	};
+
+	if ( staticFilters && Object.keys( staticFilters ).length > 0 ) {
+		params = {
+			...params,
+			...buildStaticFilters( staticFilters ),
+		};
+	}
+
+	return encode( flatten( params ) );
 }
 /* eslint-enable jsdoc/require-param,jsdoc/check-param-names */
 

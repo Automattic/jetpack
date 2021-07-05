@@ -7,7 +7,7 @@
  */
 
 /** Include comment-likes.php module */
-require dirname( __FILE__ ) . '/../../../../modules/comment-likes.php';
+require __DIR__ . '/../../../../modules/comment-likes.php';
 
 /**
  * Test class for Jetpack_Comment_Likes.

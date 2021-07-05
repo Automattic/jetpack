@@ -2,8 +2,6 @@ const { createLogger, format, transports, addColors } = require( 'winston' );
 const config = require( 'config' );
 const path = require( 'path' );
 
-const LEVEL = Symbol.for( 'level' );
-
 const myCustomLevels = {
 	levels: {
 		error: 3,
@@ -15,7 +13,6 @@ const myCustomLevels = {
 		prerequisites: 9,
 		cli: 10,
 		debug: 11,
-		slack: 12,
 	},
 	colors: {
 		action: 'cyan',
@@ -31,19 +28,6 @@ let consoleLogLevel = process.env.CONSOLE_LOG_LEVEL || 'debug';
 
 if ( process.env.CI ) {
 	consoleLogLevel = 'error';
-}
-
-/**
- * Log only the messages the match `level`.
- *
- * @param {string} level
- */
-function filterOnly( level ) {
-	return format( function ( info ) {
-		if ( info[ LEVEL ] === level ) {
-			return info;
-		}
-	} )();
 }
 
 const stringFormat = format.combine(
@@ -72,47 +56,10 @@ const logger = ( module.exports = createLogger( {
 		format.json()
 	),
 	transports: [
-		//
-		// - Write to all logs with level `info` and below to `quick-start-combined.log`.
-		// - Write all logs error (and below) to `quick-start-error.log`.
-		//
 		new transports.File( {
-			filename: path.resolve( config.get( 'dirs.logs' ), 'e2e-json.log' ),
-			format: format.uncolorize(),
-		} ),
-		new transports.File( {
-			filename: path.resolve( config.get( 'dirs.logs' ), 'e2e-simple.log' ),
+			filename: path.resolve( config.get( 'dirs.logs' ), 'e2e-debug.log' ),
 			format: stringFormat,
 			level: 'debug',
-		} ),
-		// Slack specific logging transport that is used later to send a report to slack.
-		new transports.File( {
-			filename: path.resolve( config.get( 'dirs.logs' ), 'e2e-slack.log' ),
-			level: 'slack',
-
-			format: format.combine(
-				filterOnly( 'slack' ),
-				format.printf( info => {
-					if ( typeof info.message === 'object' ) {
-						const obj = info.message;
-
-						info = Object.assign( info, obj );
-						delete info.message;
-						if ( info.error ) {
-							// Manually serialize error object, since `stringify` can not handle it
-							const error = {
-								name: info.error.name,
-								message: info.error.message,
-								stack: info.error.stack,
-							};
-							info.error = error;
-						}
-					}
-
-					return JSON.stringify( info );
-				} ),
-				format.uncolorize()
-			),
 		} ),
 
 		new transports.Console( {

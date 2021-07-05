@@ -11,7 +11,7 @@ export default class InPlaceAuthorizeFrame extends WpPage {
 	static async init( page ) {
 		const loadingSelector = '.jp-connect-full__button-container-loading';
 		const thisPage = new this( page );
-		await thisPage.waitForElementToBeHidden( loadingSelector );
+		await thisPage.waitForElementToBeHidden( loadingSelector, 35000 );
 		return thisPage;
 	}
 
@@ -27,7 +27,14 @@ export default class InPlaceAuthorizeFrame extends WpPage {
 		return this.waitToDisappear();
 	}
 
+	async continueWithout() {
+		const continueSelector = '#jp-authenticate-no_user_test_mode a.jp-no-user-mode-button';
+		const iframe = await this.getFrame();
+		await iframe.click( continueSelector );
+		return this.waitToDisappear();
+	}
+
 	async waitToDisappear() {
-		return await this.waitForElementToBeHidden( this.selectors[ 0 ] );
+		return await this.waitForElementToBeHidden( this.selectors[ 0 ], 40000 );
 	}
 }

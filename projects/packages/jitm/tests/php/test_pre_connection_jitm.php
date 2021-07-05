@@ -180,6 +180,66 @@ class Test_Pre_Connection_JITM extends TestCase {
 		$this->assertSame( $this->test_jitms[0]['id'], $messages[0]->id );
 	}
 
+	/**
+	 * Test the pre-connection JITM icon values.
+	 *
+	 * @param string|null $message_icon_value The message's icon value or null if it's doesn't have one.
+	 * @param string      $expected_icon      The expected icon value input for the generate_icon method.
+	 *
+	 * @dataProvider data_provider_test_message_icon_values
+	 */
+	public function test_message_icon_values( $message_icon_value, $expected_icon ) {
+		$this->set_user_cap_conditions();
+
+		if ( null !== $message_icon_value ) {
+			$this->test_jitms[0]['icon'] = $message_icon_value;
+		}
+
+		Filters\expectApplied( 'jetpack_pre_connection_jitms' )
+			->once()
+			->with( array() )
+			->andReturn( $this->test_jitms );
+
+		$jitm = \Mockery::mock( Pre_Connection_JITM::class )->makePartial();
+		$jitm
+			->expects( 'generate_icon' )
+			->once()
+			->with( $expected_icon, false );
+
+		$jitm->get_messages( '/wp:plugins:admin_notices/', '', false );
+	}
+
+	/**
+	 * Data provider for the test_message_icon_values method.
+	 *
+	 * @return array The test data. The structure of each test data element is:
+	 *     { test data name } =>
+	 *         array(
+	 *             { the message's icon value, null if it doesn't have one },
+	 *             { the expected icon value input for the generate_icon method },
+	 *         )
+	 */
+	public function data_provider_test_message_icon_values() {
+		return array(
+			'default icon' => array(
+				null,
+				'jetpack',
+			),
+			'supported icon' => array(
+				'woocommerce',
+				'woocommerce',
+			),
+			'empty string' => array(
+				'',
+				'',
+			),
+			'unsupported icon' => array(
+				'not_supported',
+				'jetpack',
+			),
+		);
+	}
+
 	private function set_user_cap_conditions() {
 		Functions\expect( 'current_user_can' )
 			->once()

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Site Editor Compatibility: Ensure Jetpack Button block always enqueues core Button block styles as a dependency.

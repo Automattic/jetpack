@@ -5,6 +5,54 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.23.1] - 2021-07-01
+### Changed
+- Checksum parent_table joins need distinct selection to account for possibility of multiple rows.
+
+### Fixed
+- Update term_taxonomy checksum query to an allowed list vs disallowed
+
+## [1.23.0] - 2021-06-29
+### Added
+- Add jetpack_idc_disonnect action to clear Sync options on disconnect.
+- Add support to callables to sync/object endpoint.
+- Enable sync/object endpoint support for theme-info.
+- Enhance updates module to support get_objects_by_id.
+- Expand sync/object to support constants.
+- Extend sync/object to support callables.
+- Implement v4 REST endpoints.
+- Initialize the IDC package in the Sync package.
+
+### Removed
+- Remove product_cat from blocked taxonomies
+
+## [1.22.0] - 2021-06-15
+### Changed
+- Sync: Adding the Identity_Crisis package.
+- Updated package dependencies.
+
+### Deprecated
+- Deprecated URL methods in `Automattic\Jetpack\Sync\Functions` in favor of `Automattic\Jetpack\Connection\Urls`.
+
+## [1.21.3] - 2021-05-25
+### Changed
+- Performance: If no Full Sync is in process early return before we update options.
+
+### Fixed
+- Janitorial: avoid PHP notices in some edge-cases
+- Update Meta Module so get_object_by_id returns all meta values.
+
+## [1.21.2] - 2021-04-27
+### Added
+- Added the password-checker package the the Sync package composer.json file.
+
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Sync: removed references to the JETPACK__PLUGIN_DIR constant.
+- Sync Checksums : updated postmeta range query performance #19337.
+
 ## [1.21.1] - 2021-03-30
 ### Added
 - Composer alias for dev-master, to improve dependencies
@@ -365,6 +413,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[1.23.1]: https://github.com/Automattic/jetpack-sync/compare/v1.23.0...v1.23.1
+[1.23.0]: https://github.com/Automattic/jetpack-sync/compare/v1.22.0...v1.23.0
+[1.22.0]: https://github.com/Automattic/jetpack-sync/compare/v1.21.3...v1.22.0
+[1.21.3]: https://github.com/Automattic/jetpack-sync/compare/v1.21.2...v1.21.3
+[1.21.2]: https://github.com/Automattic/jetpack-sync/compare/v1.21.1...v1.21.2
 [1.21.1]: https://github.com/Automattic/jetpack-sync/compare/v1.21.0...v1.21.1
 [1.21.0]: https://github.com/Automattic/jetpack-sync/compare/v1.20.2...v1.21.0
 [1.20.2]: https://github.com/Automattic/jetpack-sync/compare/v1.20.1...v1.20.2

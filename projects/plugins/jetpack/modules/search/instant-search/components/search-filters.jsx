@@ -1,9 +1,7 @@
-/** @jsx h */
-
 /**
  * External dependencies
  */
-import { h, Component } from 'preact';
+import React, { Component } from 'react';
 import { __ } from '@wordpress/i18n';
 import { connect } from 'react-redux';
 
@@ -11,8 +9,9 @@ import { connect } from 'react-redux';
  * Internal dependencies
  */
 import SearchFilter from './search-filter';
-import { mapFilterToFilterKey, mapFilterToType } from '../lib/filters';
-import { clearFilters, setFilter } from '../store/actions';
+import { mapFilterToFilterKey, mapFilterToType, getAvailableStaticFilters } from '../lib/filters';
+import { clearFilters, setFilter, setStaticFilter } from '../store/actions';
+import { recordStaticFilterSelect } from '../lib/tracks';
 import './search-filters.scss';
 
 class SearchFilters extends Component {
@@ -23,6 +22,12 @@ class SearchFilters extends Component {
 
 	onChangeFilter = ( filterName, filterValue ) => {
 		this.props.setFilter( filterName, filterValue );
+		this.props.onChange && this.props.onChange();
+	};
+
+	onChangeStaticFilter = ( filterName, filterValue ) => {
+		recordStaticFilterSelect( { filterName, filterValue } );
+		this.props.setStaticFilter( filterName, filterValue );
 		this.props.onChange && this.props.onChange();
 	};
 
@@ -55,11 +60,30 @@ class SearchFilters extends Component {
 			/>
 		);
 
+	renderStaticFilterComponent = configuration => {
+		if ( configuration.hasOwnProperty( 'visible' ) && ! configuration.visible ) {
+			return null;
+		}
+
+		return (
+			<SearchFilter
+				aggregation={ [] }
+				configuration={ configuration }
+				locale={ this.props.locale }
+				onChange={ this.onChangeStaticFilter }
+				postTypes={ this.props.postTypes }
+				type={ mapFilterToType( configuration ) }
+				value={ this.props.staticFilters[ mapFilterToFilterKey( configuration ) ] }
+			/>
+		);
+	};
+
 	render() {
 		if ( ! this.props.widget ) {
 			return null;
 		}
 
+		const availableStaticFilters = getAvailableStaticFilters();
 		const aggregations = this.props.results?.aggregations;
 		return (
 			<div className="jetpack-instant-search__search-filters">
@@ -80,6 +104,11 @@ class SearchFilters extends Component {
 						{ __( 'Clear filters', 'jetpack' ) }
 					</a>
 				) }
+
+				{ this.props.widget?.filters &&
+					this.props.widget.filters.length > 0 &&
+					availableStaticFilters.map( this.renderStaticFilterComponent ) }
+
 				{ this.props.widget?.filters
 					?.map( configuration =>
 						aggregations
@@ -97,4 +126,4 @@ class SearchFilters extends Component {
 	}
 }
 
-export default connect( null, { clearFilters, setFilter } )( SearchFilters );
+export default connect( null, { clearFilters, setFilter, setStaticFilter } )( SearchFilters );

@@ -16,8 +16,12 @@ module.exports = {
 	globalTeardown: '<rootDir>/lib/env/global-teardown.js',
 	setupFilesAfterEnv: [ '<rootDir>/lib/env/test-setup.js', '<rootDir>/jest.setup.js' ],
 	testRunner: 'jest-circus/runner',
+	runner: 'groups',
 	globals: {
 		siteUrl: resolveSiteUrl(),
+	},
+	testEnvironmentOptions: {
+		resultsDir: 'output/allure-results',
 	},
 	reporters: [
 		'default',

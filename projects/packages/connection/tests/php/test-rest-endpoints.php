@@ -4,10 +4,14 @@ namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Connection\Plugin as Connection_Plugin;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
+use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Redirect;
+use Jetpack_Options;
 use PHPUnit\Framework\TestCase;
 use Requests_Utility_CaseInsensitiveDictionary;
 use WorDBless\Options as WorDBless_Options;
+use WorDBless\Users as WorDBless_Users;
 use WP_REST_Request;
 use WP_REST_Server;
 use WP_User;
@@ -39,6 +43,13 @@ class Test_REST_Endpoints extends TestCase {
 	private $api_host_original;
 
 	/**
+	 * The secondary user id.
+	 *
+	 * @var int
+	 */
+	private static $secondary_user_id;
+
+	/**
 	 * Setting up the test.
 	 *
 	 * @before
@@ -57,6 +68,15 @@ class Test_REST_Endpoints extends TestCase {
 		$user = wp_get_current_user();
 		$user->add_cap( 'jetpack_reconnect' );
 		$user->add_cap( 'jetpack_connect' );
+		$user->add_cap( 'jetpack_disconnect' );
+
+		self::$secondary_user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_is_user_connected_with_user_id_logged_in',
+				'user_pass'  => '123',
+				'role'       => 'administrator',
+			)
+		);
 
 		$this->api_host_original                                  = Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
 		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = 'https://public-api.wordpress.com';
@@ -76,19 +96,25 @@ class Test_REST_Endpoints extends TestCase {
 
 		$user = wp_get_current_user();
 		$user->remove_cap( 'jetpack_reconnect' );
+		$user->remove_cap( 'jetpack_connect' );
+		$user->remove_cap( 'jetpack_disconnect' );
 
 		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = $this->api_host_original;
 
 		delete_transient( 'jetpack_assumed_site_creation_date' );
 
 		WorDBless_Options::init()->clear_options();
+		WorDBless_Users::init()->clear_all_users();
+
+		unset( $_SERVER['REQUEST_METHOD'] );
+		$_GET = array();
 	}
 
 	/**
 	 * Testing the `/jetpack/v4/remote_authorize` endpoint.
 	 */
 	public function test_remote_authorize() {
-		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_userless_options' ), 10, 2 );
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10, 2 );
 		add_filter( 'pre_http_request', array( $this, 'intercept_auth_token_request' ), 10, 3 );
 
 		wp_cache_set(
@@ -136,7 +162,7 @@ class Test_REST_Endpoints extends TestCase {
 		remove_filter( 'user_has_cap', $user_caps_filter );
 		remove_filter( 'pre_option_' . Secrets::LEGACY_SECRETS_OPTION_NAME, $options_filter );
 		remove_filter( 'pre_http_request', array( $this, 'intercept_auth_token_request' ) );
-		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_userless_options' ) );
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ) );
 
 		wp_cache_delete( self::USER_ID, 'users' );
 
@@ -295,10 +321,10 @@ class Test_REST_Endpoints extends TestCase {
 	}
 
 	/**
-	 * Testing the `connection/reconnect` endpoint, userless (full reconnect).
+	 * Testing the `connection/reconnect` endpoint, site_connection (full reconnect).
 	 */
-	public function test_connection_reconnect_userless() {
-		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_userless_options' ), 10, 2 );
+	public function test_connection_reconnect_site_connection() {
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10, 2 );
 		add_filter( 'jetpack_connection_disconnect_site_wpcom', '__return_false' );
 		add_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10, 3 );
 
@@ -307,7 +333,7 @@ class Test_REST_Endpoints extends TestCase {
 
 		remove_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10 );
 		remove_filter( 'jetpack_connection_disconnect_site_wpcom', '__return_false' );
-		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_userless_options' ) );
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ) );
 
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertEquals( 'completed', $data['status'] );
@@ -349,12 +375,226 @@ class Test_REST_Endpoints extends TestCase {
 
 		remove_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10 );
 
+		// Manually clears filter added by Manager::register().
+		remove_filter( 'jetpack_use_iframe_authorization_flow', '__return_false', 20 );
+
 		$this->assertEquals( 200, $response->get_status() );
-		$this->assertSame( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize_iframe/' ) );
+		$this->assertSame( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize/' ) );
+
+		// Asserts jetpack_register_site_rest_response filter is being properly hooked to add data from wpcom register endpoint response.
+		$this->assertFalse( $data['allowInplaceAuthorization'] );
+		$this->assertSame( '', $data['alternateAuthorizeUrl'] );
 	}
 
 	/**
-	 * This filter callback allow us to skip the database query by `Jetpack_Options` to retrieve the option.
+	 * Testing the `connection/register` endpoint with allow_inplace_authorization as true.
+	 */
+	public function test_connection_register_allow_inplace() {
+		add_filter( 'pre_http_request', array( static::class, 'intercept_register_request_with_allow_inplace' ), 10, 3 );
+
+		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/register' );
+		$this->request->set_header( 'Content-Type', 'application/json' );
+
+		$this->request->set_body( wp_json_encode( array( 'registration_nonce' => wp_create_nonce( 'jetpack-registration-nonce' ) ) ) );
+
+		$response = $this->server->dispatch( $this->request );
+		$data     = $response->get_data();
+
+		remove_filter( 'pre_http_request', array( static::class, 'intercept_register_request_with_allow_inplace' ), 10 );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertSame( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize_iframe/' ) );
+
+		// Asserts jetpack_register_site_rest_response filter is being properly hooked to add data from wpcom register endpoint response.
+		$this->assertTrue( $data['allowInplaceAuthorization'] );
+		$this->assertSame( '', $data['alternateAuthorizeUrl'] );
+	}
+
+	/**
+	 * Testing the `connection/register` endpoint with alternate_authorization_url
+	 */
+	public function test_connection_register_with_alternate_auth_url() {
+		add_filter( 'pre_http_request', array( static::class, 'intercept_register_request_with_alternate_auth_url' ), 10, 3 );
+
+		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/register' );
+		$this->request->set_header( 'Content-Type', 'application/json' );
+
+		$this->request->set_body( wp_json_encode( array( 'registration_nonce' => wp_create_nonce( 'jetpack-registration-nonce' ) ) ) );
+
+		$response = $this->server->dispatch( $this->request );
+		$data     = $response->get_data();
+
+		remove_filter( 'pre_http_request', array( static::class, 'intercept_register_request_with_alternate_auth_url' ), 10 );
+
+		// Manually clears filter added by Manager::register().
+		remove_filter( 'jetpack_use_iframe_authorization_flow', '__return_false', 20 );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertSame( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize/' ) );
+
+		// Asserts jetpack_register_site_rest_response filter is being properly hooked to add data from wpcom register endpoint response.
+		$this->assertFalse( $data['allowInplaceAuthorization'] );
+		$this->assertSame( Redirect::get_url( 'https://dummy.com' ), $data['alternateAuthorizeUrl'] );
+	}
+
+	/**
+	 * Testing the `user-token` endpoint without authentication.
+	 * Response: failed authorization.
+	 */
+	public function test_set_user_token_unauthenticated() {
+		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/user-token' );
+		$this->request->set_header( 'Content-Type', 'application/json' );
+
+		$this->request->set_body( wp_json_encode( array( 'user_token' => 'test.test.1' ) ) );
+
+		$response = $this->server->dispatch( $this->request );
+		$data     = $response->get_data();
+
+		static::assertEquals( 'invalid_permission_update_user_token', $data['code'] );
+		static::assertEquals( 401, $data['data']['status'] );
+	}
+
+	/**
+	 * Testing the `user-token` endpoint using blog token authorization.
+	 * Response: user token updated.
+	 */
+	public function test_set_user_token_success() {
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10, 2 );
+
+		$action_hook_id    = null;
+		$action_hook_token = null;
+		$action_hook       = function ( $user_id, $user_token ) use ( &$action_hook_id, &$action_hook_token ) {
+			$action_hook_id    = $user_id;
+			$action_hook_token = $user_token;
+		};
+
+		add_action( 'jetpack_updated_user_token', $action_hook, 10, 2 );
+
+		$token     = 'new:1:0';
+		$timestamp = (string) time();
+		$nonce     = 'testing123';
+		$body_hash = '';
+
+		wp_cache_set(
+			1,
+			(object) array(
+				'ID'         => 1,
+				'user_email' => 'sample@example.org',
+			),
+			'users'
+		);
+
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+
+		$_GET['_for']      = 'jetpack';
+		$_GET['token']     = $token;
+		$_GET['timestamp'] = $timestamp;
+		$_GET['nonce']     = $nonce;
+		$_GET['body-hash'] = $body_hash;
+		// This is intentionally using base64_encode().
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		$_GET['signature'] = base64_encode(
+			hash_hmac(
+				'sha1',
+				implode(
+					"\n",
+					$data  = array(
+						$token,
+						$timestamp,
+						$nonce,
+						$body_hash,
+						'POST',
+						'anything.example',
+						'80',
+						'',
+					)
+				) . "\n",
+				'blogtoken',
+				true
+			)
+		);
+
+		Connection_Rest_Authentication::init()->wp_rest_authenticate( false );
+
+		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/user-token' );
+		$this->request->set_header( 'Content-Type', 'application/json' );
+
+		$user_token = 'test.test.1';
+
+		$this->request->set_body( wp_json_encode( array( 'user_token' => $user_token ) ) );
+
+		$response = $this->server->dispatch( $this->request );
+		$data     = $response->get_data();
+
+		remove_action( 'jetpack_updated_user_token', $action_hook );
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ) );
+		wp_cache_delete( 1, 'users' );
+
+		static::assertTrue( $data['success'] );
+		static::assertEquals( 200, $response->status );
+		static::assertEquals( array( 1 => $user_token ), Jetpack_Options::get_option( 'user_tokens' ) );
+		static::assertSame( 1, $action_hook_id, "The 'jetpack_update_user_token_success' action was not properly executed." );
+		static::assertEquals( $user_token, $action_hook_token, "The 'jetpack_update_user_token_success' action was not properly executed." );
+	}
+
+	/**
+	 * Testing the `connection/owner` endpoint on failure.
+	 */
+	public function test_update_connection_owner_failures() {
+		// Mock full connection established.
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
+
+		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner' );
+		$this->request->set_header( 'Content-Type', 'application/json' );
+
+		// Attempt owner change without setting an owner.
+		$response = $this->server->dispatch( $this->request );
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertEquals( 'Missing parameter(s): owner', $response->get_data()['message'] );
+
+		// Attempt owner change with bad user.
+		$this->request->set_body( wp_json_encode( array( 'owner' => 999 ) ) );
+		$response = $this->server->dispatch( $this->request );
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertEquals( 'New owner is not admin', $response->get_data()['message'] );
+
+		// Change owner to valid user but XML-RPC request to WPCOM failed.
+		add_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_failure' ), 10, 3 );
+
+		$this->request->set_body( wp_json_encode( array( 'owner' => self::$secondary_user_id ) ) );
+		$response = $this->server->dispatch( $this->request );
+
+		remove_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_failure' ), 10 );
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
+
+		$this->assertEquals( 500, $response->get_status() );
+		$this->assertEquals( 'Could not confirm new owner.', $response->get_data()['message'] );
+	}
+
+	/**
+	 * Testing the `connection/owner` endpoint on success.
+	 */
+	public function test_update_connection_owner_success() {
+		// Change owner to valid user.
+		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner' );
+		$this->request->set_header( 'Content-Type', 'application/json' );
+		$this->request->set_body( wp_json_encode( array( 'owner' => self::$secondary_user_id ) ) );
+
+		// Mock full connection established.
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
+		// Mock owner successfully updated on WPCOM.
+		add_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
+		$response = $this->server->dispatch( $this->request );
+
+		remove_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10 );
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( self::$secondary_user_id, Jetpack_Options::get_option( 'master_user' ), 'Connection owner should be updated.' );
+	}
+
+	/**
+	 * This filter callback allows us to skip the database query by `Jetpack_Options` to retrieve the option.
 	 *
 	 * @param array $options List of options already skipping the database request.
 	 *
@@ -380,12 +620,59 @@ class Test_REST_Endpoints extends TestCase {
 			return $response;
 		}
 
+		return self::get_register_request_mock_response();
+	}
+
+	/**
+	 * Intercept the `jetpack.register` API request sent to WP.com, and mock the response with allow_inplace_authorization as true.
+	 *
+	 * @param bool|array $response The existing response.
+	 * @param array      $args The request arguments.
+	 * @param string     $url The request URL.
+	 *
+	 * @return array
+	 */
+	public static function intercept_register_request_with_allow_inplace( $response, $args, $url ) {
+		if ( false === strpos( $url, 'jetpack.register' ) ) {
+			return $response;
+		}
+
+		return self::get_register_request_mock_response( true );
+	}
+
+	/**
+	 * Intercept the `jetpack.register` API request sent to WP.com, and mock the response with a value in alternate_authorization_url key.
+	 *
+	 * @param bool|array $response The existing response.
+	 * @param array      $args The request arguments.
+	 * @param string     $url The request URL.
+	 *
+	 * @return array
+	 */
+	public static function intercept_register_request_with_alternate_auth_url( $response, $args, $url ) {
+		if ( false === strpos( $url, 'jetpack.register' ) ) {
+			return $response;
+		}
+
+		return self::get_register_request_mock_response( false, 'https://dummy.com' );
+	}
+
+	/**
+	 * Gets a mocked REST response from jetpack.register WPCOM endpoint
+	 *
+	 * @param boolean $allow_inplace_authorization the value of allow_inplace_authorization returned by the server.
+	 * @param string  $alternate_authorization_url the value of alternate_authorization_url returned by the server.
+	 * @return array
+	 */
+	private static function get_register_request_mock_response( $allow_inplace_authorization = false, $alternate_authorization_url = '' ) {
 		return array(
 			'headers'  => new Requests_Utility_CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
 			'body'     => wp_json_encode(
 				array(
-					'jetpack_id'     => '12345',
-					'jetpack_secret' => 'sample_secret',
+					'jetpack_id'                  => '12345',
+					'jetpack_secret'              => 'sample_secret',
+					'allow_inplace_authorization' => $allow_inplace_authorization,
+					'alternate_authorization_url' => $alternate_authorization_url,
 				)
 			),
 			'response' => array(
@@ -592,6 +879,60 @@ class Test_REST_Endpoints extends TestCase {
 	}
 
 	/**
+	 * Used to simulate a successful response to any XML-RPC request.
+	 * Should be hooked on the `pre_http_request` filter.
+	 *
+	 * @param false  $preempt A preemptive return value of an HTTP request.
+	 * @param array  $args    HTTP request arguments.
+	 * @param string $url     The request URL.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function mock_xmlrpc_success( $preempt, $args, $url ) {
+		if ( strpos( $url, 'https://jetpack.wordpress.com/xmlrpc.php' ) !== false ) {
+			$response = array();
+
+			$response['body'] = '
+				<methodResponse>
+					<params>
+						<param>
+							<value>1</value>
+						</param>
+					</params>
+				</methodResponse>
+			';
+
+			$response['response']['code'] = 200;
+			return $response;
+		}
+
+		return $preempt;
+	}
+
+	/**
+	 * Used to simulate a failed response to any XML-RPC request.
+	 * Should be hooked on the `pre_http_request` filter.
+	 *
+	 * @param false  $preempt A preemptive return value of an HTTP request.
+	 * @param array  $args    HTTP request arguments.
+	 * @param string $url     The request URL.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function mock_xmlrpc_failure( $preempt, $args, $url ) {
+		if ( strpos( $url, 'https://jetpack.wordpress.com/xmlrpc.php' ) !== false ) {
+			$response = array();
+
+			$response['body'] = '';
+
+			$response['response']['code'] = 500;
+			return $response;
+		}
+
+		return $preempt;
+	}
+
+	/**
 	 * Intercept the `Jetpack_Options` call and mock the values.
 	 * Site level / user-less connection set-up.
 	 *
@@ -600,7 +941,7 @@ class Test_REST_Endpoints extends TestCase {
 	 *
 	 * @return mixed
 	 */
-	public function mock_jetpack_userless_options( $value, $name ) {
+	public function mock_jetpack_site_connection_options( $value, $name ) {
 		switch ( $name ) {
 			case 'blog_token':
 				return self::BLOG_TOKEN;
@@ -630,7 +971,8 @@ class Test_REST_Endpoints extends TestCase {
 				return self::USER_ID;
 			case 'user_tokens':
 				return array(
-					self::USER_ID => 'new.usertoken.' . self::USER_ID,
+					self::USER_ID            => 'new.usertoken.' . self::USER_ID,
+					self::$secondary_user_id => 'new2.secondarytoken.' . self::$secondary_user_id,
 				);
 		}
 

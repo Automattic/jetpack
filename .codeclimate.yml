@@ -1,6 +1,0 @@
----
-prepare:
-  fetch:
-    - url: "https://raw.githubusercontent.com/automattic/jetpack/master/.github/codeclimate-base.yml"
-      path: "codeclimate-base.yml"
-

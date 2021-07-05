@@ -4,6 +4,7 @@
 import React from 'react';
 import { expect } from 'chai';
 import { shallow } from 'enzyme';
+import ShallowRenderer from 'react-test-renderer/shallow';
 
 /**
  * Internal dependencies
@@ -20,7 +21,9 @@ describe( 'InPlaceConnection', () => {
 	};
 
 	describe( 'Loading state', () => {
-		const wrapper = shallow( <InPlaceConnection { ...testProps } isLoading={ true } /> );
+		const renderer = new ShallowRenderer();
+		renderer.render( <InPlaceConnection { ...testProps } isLoading={ true } /> );
+		const wrapper = shallow( renderer.getRenderOutput() );
 
 		it( 'renders a "loading..." message', () => {
 			expect( wrapper.find( 'p' ).text() ).to.be.equal( 'Loading…' );
@@ -28,11 +31,13 @@ describe( 'InPlaceConnection', () => {
 	} );
 
 	describe( 'When the connect url is fetched', () => {
-		const wrapper = shallow( <InPlaceConnection { ...testProps } /> );
+		const renderer = new ShallowRenderer();
+		renderer.render( <InPlaceConnection { ...testProps } /> );
+		const wrapper = shallow( renderer.getRenderOutput() );
 
 		it( 'has a link to jetpack.wordpress.com', () => {
 			expect( wrapper.find( 'iframe' ).props().src ).to.be.equal(
-				'https://jetpack.wordpress.com/jetpack.authorize_iframe/1/?&iframe_height=220&iframe_source=testing'
+				'https://jetpack.wordpress.com/jetpack.authorize_iframe/1/?&iframe_height=300&iframe_source=testing'
 			);
 		} );
 
@@ -40,13 +45,15 @@ describe( 'InPlaceConnection', () => {
 			expect( wrapper.find( 'iframe' ).props().width ).to.be.equal( '100%' );
 		} );
 
-		it( 'has 220 height', () => {
-			expect( wrapper.find( 'iframe' ).props().height ).to.be.equal( '220' );
+		it( 'has 300 height', () => {
+			expect( wrapper.find( 'iframe' ).props().height ).to.be.equal( '300' );
 		} );
 	} );
 
 	describe( 'Secondary user, add "tos" flag to URL', () => {
-		const wrapper = shallow( <InPlaceConnection { ...testProps } displayTOS={ true } /> );
+		const renderer = new ShallowRenderer();
+		renderer.render( <InPlaceConnection { ...testProps } displayTOS={ true } /> );
+		const wrapper = shallow( renderer.getRenderOutput() );
 
 		it( 'has a link to jetpack.wordpress.com', () => {
 			expect( wrapper.find( 'iframe' ).props().src ).to.be.contain( '&display-tos' );

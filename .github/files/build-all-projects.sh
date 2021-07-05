@@ -19,9 +19,9 @@ fi
 echo "::set-output name=build-base::$BUILD_BASE"
 [[ -n "$GITHUB_ENV" ]] && echo "BUILD_BASE=$BUILD_BASE" >> $GITHUB_ENV
 
-# Install Yarn generally, and changelogger.
+# Install JS generally, and changelogger.
 echo "::group::Monorepo setup"
-yarn install
+pnpm install
 echo "::endgroup::"
 echo "::group::Changelogger setup"
 (cd projects/packages/changelogger && composer install)
@@ -65,12 +65,16 @@ for SLUG in "${SLUGS[@]}"; do
 		echo "$JSON" > composer.json
 		if [[ -e "composer.lock" ]]; then
 			OLDLOCK=$(<composer.lock)
-			composer update --root-reqs --no-install
+			PACKAGES=()
+			mapfile -t PACKAGES < <( composer info --locked --name-only | sed -e 's/ *$//' | grep --fixed-strings --line-regexp --file=<( jq --argjson repo "$REPO" -rn '$repo.options.versions // {} | keys[]' ) )
+			if [[ ${#PACKAGES[@]} -gt 0 ]]; then
+				composer update --no-install "${PACKAGES[@]}"
+			fi
 		else
 			OLDLOCK=
 		fi
 	fi
-	if (cd $BASE && yarn jetpack build "${SLUG}" -v --production); then
+	if (cd $BASE && pnpx jetpack build "${SLUG}" -v --production); then
 		FAIL=false
 	else
 		FAIL=true
@@ -137,15 +141,34 @@ for SLUG in "${SLUGS[@]}"; do
 		cp -r "$BASE/.github/files/gh-autotagger/." "$BUILD_DIR/.github/."
 	fi
 
+	# Copy license.
+	LICENSE=$(jq -r '.license // ""' composer.json)
+	if [[ -n "$LICENSE" ]]; then
+		echo "License: $LICENSE"
+		if cp "$BASE/.github/licenses/$LICENSE.txt" "$BUILD_DIR/LICENSE.txt"; then
+			echo "License file copied."
+		else
+			echo "::error file=projects/$SLUG/composer.json::License value not approved."
+			EXIT=1
+			continue
+		fi
+	else
+		echo "No license declared."
+		# TODO: Make this an error?
+	fi
+
+	# Copy SECURITY.md
+	cp "$BASE/SECURITY.md" "$BUILD_DIR/SECURITY.md"
+
 	# Copy only wanted files, based on .gitignore and .gitattributes.
 	{
 		# Include unignored files by default.
-		git ls-files
+		git -c core.quotepath=off ls-files
 		# Include ignored files that are tagged as production-include.
-		git ls-files --others --ignored --exclude-standard | git check-attr --stdin production-include | sed -n 's/: production-include: \(unspecified\|unset\)$//;t;s/: production-include: .*//p'
+		git -c core.quotepath=off ls-files --others --ignored --exclude-standard | git -c core.quotepath=off check-attr --stdin production-include | sed -n 's/: production-include: \(unspecified\|unset\)$//;t;s/: production-include: .*//p'
 	} |
 		# Remove all files tagged with production-exclude. This can override production-include.
-		git check-attr --stdin production-exclude | sed -n 's/: production-exclude: \(unspecified\|unset\)$//p' |
+		git -c core.quotepath=off check-attr --stdin production-exclude | sed -n 's/: production-exclude: \(unspecified\|unset\)$//p' |
 		# Copy the resulting list of files into the clone.
 		xargs cp --parents --target-directory="$BUILD_DIR"
 
