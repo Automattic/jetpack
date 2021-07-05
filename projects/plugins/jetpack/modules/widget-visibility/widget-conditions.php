@@ -292,7 +292,7 @@ class Jetpack_Widget_Conditions {
 	/**
 	 * Add the widget conditions to each widget in the admin.
 	 *
-	 * @param $widget unused.
+	 * @param WP_Widget $widget Widget to add conditions settings to.
 	 * @param $return unused.
 	 * @param array         $instance The widget settings.
 	 */
@@ -357,7 +357,7 @@ class Jetpack_Widget_Conditions {
 				<a href="#" class="button display-options"><?php _e( 'Visibility', 'jetpack' ); ?></a><?php } ?>
 			<div class="widget-conditional-inner">
 				<div class="condition-top">
-					<?php printf( _x( '%s if:', 'placeholder: dropdown menu to select widget visibility; hide if or show if', 'jetpack' ), '<select name="conditions[action]"><option value="show" ' . selected( $conditions['action'], 'show', false ) . '>' . esc_html_x( 'Show', 'Used in the "%s if:" translation for the widget visibility dropdown', 'jetpack' ) . '</option><option value="hide" ' . selected( $conditions['action'], 'hide', false ) . '>' . esc_html_x( 'Hide', 'Used in the "%s if:" translation for the widget visibility dropdown', 'jetpack' ) . '</option></select>' ); ?>
+					<?php printf( _x( '%s if:', 'placeholder: dropdown menu to select widget visibility; hide if or show if', 'jetpack' ), '<select name="' .  esc_attr( $widget->get_field_name( 'conditions[action]' ) ) . '"><option value="show" ' . selected( $conditions['action'], 'show', false ) . '>' . esc_html_x( 'Show', 'Used in the "%s if:" translation for the widget visibility dropdown', 'jetpack' ) . '</option><option value="hide" ' . selected( $conditions['action'], 'hide', false ) . '>' . esc_html_x( 'Hide', 'Used in the "%s if:" translation for the widget visibility dropdown', 'jetpack' ) . '</option></select>' ); ?>
 				</div><!-- .condition-top -->
 
 				<div class="conditions">
@@ -375,7 +375,7 @@ class Jetpack_Widget_Conditions {
 						?>
 						<div class="condition" data-rule-major="<?php echo esc_attr( $rule['major'] ); ?>" data-rule-minor="<?php echo esc_attr( $rule['minor'] ); ?>" data-rule-has-children="<?php echo esc_attr( $rule['has_children'] ); ?>">
 							<div class="selection alignleft">
-								<select class="conditions-rule-major" name="conditions[rules_major][]">
+								<select class="conditions-rule-major" name="<?php echo esc_attr( $widget->get_field_name( 'conditions[rules_major][]' ) ); ?>">
 									<option value="" <?php selected( '', $rule['major'] ); ?>><?php echo esc_html_x( '-- Select --', 'Used as the default option in a dropdown list', 'jetpack' ); ?></option>
 									<option value="category" <?php selected( 'category', $rule['major'] ); ?>><?php esc_html_e( 'Category', 'jetpack' ); ?></option>
 									<option value="author" <?php selected( 'author', $rule['major'] ); ?>><?php echo esc_html_x( 'Author', 'Noun, as in: "The author of this post is..."', 'jetpack' ); ?></option>
@@ -395,7 +395,7 @@ class Jetpack_Widget_Conditions {
 
 								<?php _ex( 'is', 'Widget Visibility: {Rule Major [Page]} is {Rule Minor [Search results]}', 'jetpack' ); ?>
 
-								<select class="conditions-rule-minor" name="conditions[rules_minor][]"
+								<select class="conditions-rule-minor" name="<?php echo esc_attr( $widget->get_field_name( 'conditions[rules_minor][]' ) ); ?>"
 								<?php
 								if ( ! $rule['major'] ) {
 									?>
@@ -415,7 +415,7 @@ class Jetpack_Widget_Conditions {
 									?>
 									 style="display: none;"<?php } ?>>
 									<label>
-										<input type="checkbox" name="conditions[page_children][<?php echo $rule_index; ?>]" value="has" <?php checked( $rule['has_children'], true ); ?> />
+										<input type="checkbox" name="<?php echo esc_attr( $widget->get_field_name( "conditions[page_children][$rule_index]" ) );?>" value="has" <?php checked( $rule['has_children'], true ); ?> />
 										<?php echo esc_html_x( 'Include children', 'Checkbox on Widget Visibility if children of the selected page should be included in the visibility rule.', 'jetpack' ); ?>
 									</label>
 								</span>
@@ -444,7 +444,7 @@ class Jetpack_Widget_Conditions {
 						<label>
 							<input
 								type="checkbox"
-								name="conditions[match_all]"
+								name="<?php echo esc_attr( $widget->get_field_name( 'conditions[match_all]' ) ); ?>"
 								value="1"
 								class="conditions-match-all"
 								<?php checked( $conditions['match_all'], '1' ); ?> />
@@ -465,24 +465,20 @@ class Jetpack_Widget_Conditions {
 	 * @return array Modified settings.
 	 */
 	public static function widget_update( $instance, $new_instance, $old_instance ) {
-		if ( empty( $_POST['conditions'] ) ) {
-			return $instance;
-		}
-
 		$conditions              = array();
-		$conditions['action']    = $_POST['conditions']['action'];
-		$conditions['match_all'] = ( isset( $_POST['conditions']['match_all'] ) ? '1' : '0' );
+		$conditions['action']    = $instance['conditions']['action'];
+		$conditions['match_all'] = ( isset( $instance['conditions']['match_all'] ) ? '1' : '0' );
 		$conditions['rules']     = array();
 
-		foreach ( $_POST['conditions']['rules_major'] as $index => $major_rule ) {
+		foreach ( $instance['conditions']['rules_major'] as $index => $major_rule ) {
 			if ( ! $major_rule ) {
 				continue;
 			}
 
 			$conditions['rules'][] = array(
 				'major'        => $major_rule,
-				'minor'        => isset( $_POST['conditions']['rules_minor'][ $index ] ) ? $_POST['conditions']['rules_minor'][ $index ] : '',
-				'has_children' => isset( $_POST['conditions']['page_children'][ $index ] ) ? true : false,
+				'minor'        => isset( $instance['conditions']['rules_minor'][ $index ] ) ? $instance['conditions']['rules_minor'][ $index ] : '',
+				'has_children' => isset( $instance['conditions']['page_children'][ $index ] ) ? true : false,
 			);
 		}
 
