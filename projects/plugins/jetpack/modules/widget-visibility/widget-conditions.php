@@ -327,6 +327,9 @@ class Jetpack_Widget_Conditions {
 			class="
 				widget-conditional
 				<?php
+				// $_POST['widget-conditions-visible'] is used in the classic widget experience to decide whether to
+				// display the visibility panel open, e.g. when saving. In the gutenberg widget experience the POST
+				// value will always be empty, but this is fine - it doesn't rerender the HTML when saving anyway.
 				if (
 						empty( $_POST['widget-conditions-visible'] )
 						|| $_POST['widget-conditions-visible'] == '0'
