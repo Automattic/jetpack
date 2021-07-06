@@ -419,6 +419,8 @@ class Admin_Menu extends Base_Admin_Menu {
 			$submenus_to_update['options-discussion.php'] = 'https://wordpress.com/settings/discussion/' . $this->domain;
 		}
 
+		add_submenu_page( 'options-general.php', esc_attr__( 'Performance', 'jetpack' ), __( 'Performance', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/performance/' . $this->domain, null, 1 );
+
 		$this->update_submenus( 'options-general.php', $submenus_to_update );
 	}
 
