@@ -9,11 +9,6 @@ import React from 'react';
 import { render } from '@wordpress/element';
 
 /**
- * Internal dependencies
- */
-import './styles.scss';
-
-/**
  * Collapses wp-admin's sidebar menu for additional space.
  */
 function collapseWpAdminSidebar() {
