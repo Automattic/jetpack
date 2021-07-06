@@ -230,7 +230,7 @@ class Admin {
 	}
 
 	/**
-	 * Determine what we're going to test (pr, master, rc).
+	 * Determine content for "To test" and "What changed" boxes.
 	 *
 	 * @param Plugin $plugin Plugin being processed.
 	 * @return (string|null)[] HTML and diff summary.
@@ -249,18 +249,19 @@ class Admin {
 		}
 
 		if ( 'pr' === $info->source ) {
-			$github_info = Utils::get_remote_data( sprintf( 'https://api.github.com/repos/%s/pulls/%d', $plugin->repo(), $info->pr ), "github/pulls/$info->pr" );
-			if ( ! isset( $github_info->body ) ) {
+			$res = Utils::get_remote_data( sprintf( 'https://api.github.com/repos/%s/pulls/%d', $plugin->repo(), $info->pr ), "github/pulls/$info->pr" );
+			if ( ! isset( $res->body ) ) {
 				return array( 'GitHub commit info is unavailable.', null );
 			}
-			$html        = Utils::render_markdown( $plugin, $github_info->body );
-			$github_info = Utils::get_remote_data( sprintf( 'https://api.github.com/repos/%s/pulls/%d/files', $plugin->repo(), $info->pr ), "github/pulls/$info->pr/files" );
-			$diff        = null;
-			if ( is_array( $github_info ) ) {
+			$html = Utils::render_markdown( $plugin, $res->body );
+
+			$res  = Utils::get_remote_data( sprintf( 'https://api.github.com/repos/%s/pulls/%d/files', $plugin->repo(), $info->pr ), "github/pulls/$info->pr/files" );
+			$diff = null;
+			if ( is_array( $res ) ) {
 				// translators: %d: number of files changed.
-				$diff  = '<div>' . sprintf( _n( '%d file changed ', '%d files changed', count( $github_info ), 'jetpack-beta' ), count( $github_info ) ) . "<br />\n";
+				$diff  = '<div>' . sprintf( _n( '%d file changed ', '%d files changed', count( $res ), 'jetpack-beta' ), count( $res ) ) . "<br />\n";
 				$diff .= "<ul class=\"ul-square jpbeta-file-list\">\n";
-				foreach ( $github_info as $file ) {
+				foreach ( $res as $file ) {
 					$added_deleted_changed = array();
 					if ( $file->additions ) {
 						$added_deleted_changed[] = '+' . $file->additions;
@@ -272,6 +273,7 @@ class Admin {
 				}
 				$diff .= "</ul></div>\n\n";
 			}
+
 			return array( $html, $diff );
 		}
 
