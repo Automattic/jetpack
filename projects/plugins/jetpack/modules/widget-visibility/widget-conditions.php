@@ -32,6 +32,9 @@ class Jetpack_Widget_Conditions {
 		}
 	}
 
+	/**
+	 * Prepare the interface for editing widgets - loading css, javascript & data
+	 */
 	public static function widget_admin_setup() {
 		wp_enqueue_style( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.css', __FILE__ ), array( 'widgets' ), JETPACK__VERSION );
 		wp_style_add_data( 'widget-conditions', 'rtl', 'replace' );
@@ -302,8 +305,8 @@ class Jetpack_Widget_Conditions {
 	 * Add the widget conditions to each widget in the admin.
 	 *
 	 * @param WP_Widget $widget Widget to add conditions settings to.
-	 * @param $return unused.
-	 * @param array         $instance The widget settings.
+	 * @param null      $return unused.
+	 * @param array     $instance The widget settings.
 	 */
 	public static function widget_conditions_admin( $widget, $return, $instance ) {
 		$conditions = array();
@@ -366,10 +369,19 @@ class Jetpack_Widget_Conditions {
 			<?php
 			if ( ! isset( $_POST['widget-conditions-visible'] ) ) {
 				?>
-				<a href="#" class="button display-options"><?php _e( 'Visibility', 'jetpack' ); ?></a><?php } ?>
+				<a href="#" class="button display-options"><?php esc_html_e( 'Visibility', 'jetpack' ); ?></a><?php } ?>
 			<div class="widget-conditional-inner">
 				<div class="condition-top">
-					<?php printf( _x( '%s if:', 'placeholder: dropdown menu to select widget visibility; hide if or show if', 'jetpack' ), '<select name="' .  esc_attr( $widget->get_field_name( 'conditions[action]' ) ) . '"><option value="show" ' . selected( $conditions['action'], 'show', false ) . '>' . esc_html_x( 'Show', 'Used in the "%s if:" translation for the widget visibility dropdown', 'jetpack' ) . '</option><option value="hide" ' . selected( $conditions['action'], 'hide', false ) . '>' . esc_html_x( 'Hide', 'Used in the "%s if:" translation for the widget visibility dropdown', 'jetpack' ) . '</option></select>' ); ?>
+					<?php
+						printf(
+							// translators: %s is a HTML select widget for widget visibility, 'show' and 'hide' are it's options. It will read like 'show if' or 'hide if'.
+							esc_html_x( '%s if:', 'placeholder: dropdown menu to select widget visibility; hide if or show if', 'jetpack' ),
+							'<select name="' . esc_attr( $widget->get_field_name( 'conditions[action]' ) ) . '">
+											<option value="show" ' . selected( $conditions['action'], 'show', false ) . '>' . esc_html_x( 'Show', 'Used in the "%s if:" translation for the widget visibility dropdown', 'jetpack' ) . '</option>
+											<option value="hide" ' . selected( $conditions['action'], 'hide', false ) . '>' . esc_html_x( 'Hide', 'Used in the "%s if:" translation for the widget visibility dropdown', 'jetpack' ) . '</option>
+										</select>'
+						);
+					?>
 				</div><!-- .condition-top -->
 
 				<div class="conditions">
@@ -472,7 +484,7 @@ class Jetpack_Widget_Conditions {
 	/**
 	 * On an AJAX update of the widget settings, process the display conditions.
 	 *
-	 * @param array $instance The current instance's settings
+	 * @param array $instance The current instance's settings.
 	 * @param array $new_instance New settings for this instance as input by the user.
 	 * @param array $old_instance Old settings for this instance.
 	 * @return array Modified settings.
@@ -490,9 +502,9 @@ class Jetpack_Widget_Conditions {
 				}
 
 				$conditions['rules'][] = array(
-						'major'        => $major_rule,
-						'minor'        => isset( $new_instance['conditions']['rules_minor'][ $index ] ) ? $new_instance['conditions']['rules_minor'][ $index ] : '',
-						'has_children' => isset( $new_instance['conditions']['page_children'][ $index ] ) ? true : false,
+					'major'        => $major_rule,
+					'minor'        => isset( $new_instance['conditions']['rules_minor'][ $index ] ) ? $new_instance['conditions']['rules_minor'][ $index ] : '',
+					'has_children' => isset( $new_instance['conditions']['page_children'][ $index ] ) ? true : false,
 				);
 			}
 		}
