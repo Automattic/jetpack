@@ -5,5 +5,6 @@ module.exports = {
 	extends: [ '../../.eslintrc.js' ],
 	rules: {
 		'jsdoc/check-tag-names': [ 1, { definedTags: [ 'jsx' ] } ],
+		'react/jsx-no-bind': 0,
 	},
 };
