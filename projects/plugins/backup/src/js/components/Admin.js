@@ -62,7 +62,7 @@ const Admin = () => {
 		}
 
 		if ( ! capabilitiesLoaded ) {
-			return <div>Loading Capabilities</div>;
+			return <div></div>;
 		}
 
 		if ( ! connectionStatus.isUserConnected || ! connectionStatus.isRegistered ) {
