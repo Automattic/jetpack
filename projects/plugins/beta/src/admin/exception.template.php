@@ -5,11 +5,18 @@
  * @package automattic/jetpack-beta
  */
 
+// Check that the file is not accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 // @global Exception $exception Exception to display.
 if ( ! isset( $exception ) ) {
 	throw new InvalidArgumentException( 'Template parameter $exception missing' );
 }
 $exception = $exception; // Dummy assignment to fool VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable.
+
+// -------------
 
 ?>
 <div class="notice notice-error">

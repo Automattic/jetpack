@@ -9,12 +9,19 @@ use Automattic\JetpackBeta\Admin;
 use Automattic\JetpackBeta\Utils;
 use Composer\Semver\Semver;
 
+// Check that the file is not accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 // @global \Automattic\JetpackBeta\Plugin $plugin Plugin being managed.
 if ( ! isset( $plugin ) ) {
 	throw new InvalidArgumentException( 'Template parameter $plugin missing' );
 }
 // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 $plugin = $plugin; // Dummy assignment to fool VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable.
+
+// -------------
 
 $manifest   = $plugin->get_manifest( true );
 $wporg_data = $plugin->get_wporg_data( true );

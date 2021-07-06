@@ -7,6 +7,11 @@
 
 use Automattic\JetpackBeta\Admin;
 
+// Check that the file is not accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 ?>
 	<span class="dops-foldable-card__secondary">
 		<?php Admin::show_toggle_emails(); ?>

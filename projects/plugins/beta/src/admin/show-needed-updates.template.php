@@ -8,8 +8,15 @@
 use Automattic\JetpackBeta\Plugin;
 use Automattic\JetpackBeta\Utils;
 
+// Check that the file is not accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 // @global Plugin|null $plugin The plugin being managed, if any. May be unset, not just null.
 $plugin = isset( $plugin ) ? $plugin : null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
+// -------------
 
 // TODO: Once we drop PHP 5.6 support, we can do `( function () { ... } )();` instead of assigning to `$tmp`.
 $tmp = function ( $plugin ) {

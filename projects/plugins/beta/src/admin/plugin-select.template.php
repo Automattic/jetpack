@@ -8,6 +8,13 @@
 use Automattic\JetpackBeta\Plugin;
 use Automattic\JetpackBeta\Utils;
 
+// Check that the file is not accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+// -------------
+
 // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 $plugins = Plugin::get_all_plugins( true );
 end( $plugins );

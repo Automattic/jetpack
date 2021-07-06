@@ -7,6 +7,11 @@
 
 use Automattic\JetpackBeta\Utils;
 
+// Check that the file is not accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 ?>
 <div class="jetpack-beta__master-head">
 	<div class="jetpack-beta-container">

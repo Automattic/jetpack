@@ -7,7 +7,14 @@
 
 use Automattic\JetpackBeta\Utils;
 
+// Check that the file is not accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 global $current_screen;
+
+// -------------
 
 $is_notice = ( 'plugins' === $current_screen->base ? true : false );
 

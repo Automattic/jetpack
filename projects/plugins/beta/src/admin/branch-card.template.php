@@ -7,6 +7,11 @@
 
 use Automattic\JetpackBeta\Utils;
 
+// Check that the file is not accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 // @global \Automattic\JetpackBeta\Plugin $plugin Plugin being managed.
 if ( ! isset( $plugin ) ) {
 	throw new InvalidArgumentException( 'Template parameter $plugin missing' );
