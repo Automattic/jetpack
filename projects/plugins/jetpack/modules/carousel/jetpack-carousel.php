@@ -380,12 +380,20 @@ class Jetpack_Carousel {
 		<div class="jp-carousel-container<?php echo( $is_light ? ' jp-carousel-light' : '' ); ?>">
 			<!-- The Carousel Swiper -->
 			<div
-				class="jp-carousel-wrap swiper-container jp-carousel-transitions"
+				class="jp-carousel-wrap swiper-container jp-carousel-swiper-container jp-carousel-transitions"
 				itemscope
 				itemtype="https://schema.org/ImageGallery">
 				<div class="jp-carousel swiper-wrapper"></div>
-				<div class="swiper-button-prev"></div>
-				<div class="swiper-button-next"></div>
+				<div class="jp-swiper-button-prev swiper-button-prev">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+						<path d="M10.4772727,0.477272727 C10.7408632,0.740863176 10.7408632,1.16822773 10.4772727,1.43181818 L1.90909091,10 L10.4772727,18.5681818 C10.7408632,18.8317723 10.7408632,19.2591368 10.4772727,19.5227273 C10.2136823,19.7863177 9.78631772,19.7863177 9.52272727,19.5227273 L0.707106781,10.7071068 C0.316582489,10.3165825 0.316582489,9.68341751 0.707106781,9.29289322 L9.52272727,0.477272727 C9.78631772,0.213682278 10.2136823,0.213682278 10.4772727,0.477272727 Z" transform="translate(4)"/>
+					</svg>
+				</div>
+				<div class="jp-swiper-button-next swiper-button-next">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+						<path d="M1.37727273,19.5227273 C1.11368228,19.2591368 1.11368228,18.8317723 1.37727273,18.5681818 L9.94545455,10 L1.37727273,1.43181818 C1.11368228,1.16822773 1.11368228,0.740863176 1.37727273,0.477272727 C1.64086318,0.213682278 2.06822773,0.213682278 2.33181818,0.477272727 L11.1474387,9.29289322 C11.537963,9.68341751 11.537963,10.3165825 11.1474387,10.7071068 L2.33181818,19.5227273 C2.06822773,19.7863177 1.64086318,19.7863177 1.37727273,19.5227273 Z" transform="translate(4)"/>
+					</svg>
+				</div>
 			</div>
 			<!-- The main close buton -->
 			<div class="jp-carousel-close-hint"><span>&times;</span></div>
@@ -411,6 +419,7 @@ class Jetpack_Carousel {
 						<a href="#" class="jp-carousel-icon-btn jp-carousel-icon-comments" aria-label="<?php esc_attr_e( 'Toggle photo comments visibility', 'jetpack' ); ?>">
 							<span class="jp-carousel-icon">
 								<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="32" height="32" role="img" aria-hidden="true" focusable="false"><path d="M18 4H6c-1.1 0-2 .9-2 2v12.9c0 .6.5 1.1 1.1 1.1.3 0 .5-.1.8-.3L8.5 17H18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm.5 11c0 .3-.2.5-.5.5H7.9l-2.4 2.4V6c0-.3.2-.5.5-.5h12c.3 0 .5.2.5.5v9z"></path></svg>
+								<span class="jp-carousel-has-comments-indicator" aria-label="<?php esc_attr_e( 'This image has comments.', 'jetpack' ); ?>"></span>
 							</span>
 						</a>
 						<?php endif; ?>
