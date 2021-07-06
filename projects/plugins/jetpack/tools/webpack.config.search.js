@@ -6,7 +6,7 @@ const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extrac
 const {
 	defaultRequestToExternal,
 	defaultRequestToHandle,
-} = require( '@wordpress/dependency-extraction-webpack-plugin/util' );
+} = require( '@wordpress/dependency-extraction-webpack-plugin/lib/util' );
 const path = require( 'path' );
 const webpack = require( 'webpack' );
 

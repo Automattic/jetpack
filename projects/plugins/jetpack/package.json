@@ -161,7 +161,7 @@
 		"@testing-library/user-event": "12.8.3",
 		"@wordpress/components": "9.2.6",
 		"@wordpress/core-data": "2.12.3",
-		"@wordpress/dependency-extraction-webpack-plugin": "2.4.0",
+		"@wordpress/dependency-extraction-webpack-plugin": "3.1.4",
 		"@wordpress/editor": "9.12.7",
 		"@wordpress/server-side-render": "1.8.6",
 		"chai": "4.3.4",
