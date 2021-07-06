@@ -9,8 +9,8 @@
 	},
 	"require": {
 		"automattic/jetpack-autoloader": "2.10.x-dev",
-		"erusev/parsedown": "1.7.4",
-		"composer/semver": "3.2.5"
+		"composer/semver": "3.2.5",
+		"erusev/parsedown": "1.7.4"
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "1.2.x-dev"
