@@ -359,7 +359,7 @@ function jetpack_filter_mimetypes_by_modules_and_features( $mimes ) {
 	}
 
 	// `videopress` module is not active, Bail early.
-	if ( Jetpack::is_module_active( 'videopress' ) ) {
+	if ( ! Jetpack::is_module_active( 'videopress' ) ) {
 		return $mimes;
 	};
 
