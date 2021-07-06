@@ -1027,8 +1027,10 @@
 				original = currentSlide.attrs.origFile.replace( /\?.+$/, '' );
 			}
 
+			var downloadText = carousel.info.querySelector( '.jp-carousel-download-text' );
 			var permalink = carousel.info.querySelector( '.jp-carousel-image-download' );
-			permalink.innerHTML = util.applyReplacements(
+
+			downloadText.innerHTML = util.applyReplacements(
 				jetpackCarouselStrings.download_original,
 				origSize
 			);
