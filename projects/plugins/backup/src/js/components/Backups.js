@@ -4,12 +4,12 @@
 import React, { useState, useEffect } from 'react';
 import { getDate, date, dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
+import apiFetch from '@wordpress/api-fetch';
 
 /**
  * Internal dependencies
  */
 import StatBlock from './StatBlock';
-import restApi from '../tools/jetpack-rest-api-client';
 import './backups-style.scss';
 import PostsIcon from './posts.svg';
 import CloudIcon from './cloud.svg';
@@ -17,7 +17,7 @@ import UploadsIcon from './uploads.svg';
 import PluginsIcon from './plugins.svg';
 import ThemesIcon from './themes.svg';
 
-const Backups = props => {
+const Backups = () => {
 	// State information
 	const [ progress, setProgress ] = useState( null );
 	const [ trackProgress, setTrackProgress ] = useState( 0 );
@@ -48,9 +48,7 @@ const Backups = props => {
 
 	// Loads data on startup and whenever trackProgress updates.
 	useEffect( () => {
-		restApi.setApiRoot( props.apiRoot );
-		restApi.setApiNonce( props.apiNonce );
-		restApi.fetchRecentBackups().then(
+		apiFetch( { path: '/jetpack/v4/backups' } ).then(
 			res => {
 				// If we have no backups don't load up stats.
 				if ( res.length === 0 ) {

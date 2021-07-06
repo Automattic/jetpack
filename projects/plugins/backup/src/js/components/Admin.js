@@ -3,20 +3,16 @@
  */
 import React, { useState, useEffect } from 'react';
 import { __ } from '@wordpress/i18n';
+import apiFetch from '@wordpress/api-fetch';
 
 /**
  * Internal dependencies
  */
 import Backups from './Backups';
-import restApi from '../tools/jetpack-rest-api-client';
-import { useSelect } from '@wordpress/data';
-import { STORE_ID } from '../store';
 import useConnection from '../hooks/useConnection';
 import './admin-style.scss';
 
 const Admin = () => {
-	const APINonce = useSelect( select => select( STORE_ID ).getAPINonce(), [] );
-	const APIRoot = useSelect( select => select( STORE_ID ).getAPIRoot(), [] );
 	const [ connectionStatus, renderJetpackConnection ] = useConnection();
 	const [ capabilities, setCapabilities ] = useState( null );
 	const [ capabilitiesError, setCapabilitiesError ] = useState( null );
@@ -33,9 +29,7 @@ const Admin = () => {
 	}, [ connectionStatus ] );
 
 	useEffect( () => {
-		restApi.setApiRoot( APIRoot );
-		restApi.setApiNonce( APINonce );
-		restApi.fetchCapabilities().then(
+		apiFetch( { path: 'jetpack/v4/backup-capabilities' } ).then(
 			res => {
 				setCapabilities( res.capabilities );
 				setCapabilitiesLoaded( true );
@@ -45,7 +39,7 @@ const Admin = () => {
 				setCapabilitiesError( 'Failed to fetch site capabilities' );
 			}
 		);
-	}, [ APIRoot, APINonce ] );
+	}, [] );
 
 	const renderPromptForConnection = () => {
 		return (
@@ -77,7 +71,7 @@ const Admin = () => {
 
 		// Has backup
 		if ( capabilities !== null && capabilities.includes( 'backup' ) ) {
-			return <Backups apiRoot={ APIRoot } apiNonce={ APINonce } />;
+			return <Backups />;
 		}
 
 		// Render an error state, this shouldn't occurr since we've passed userConnected checks
