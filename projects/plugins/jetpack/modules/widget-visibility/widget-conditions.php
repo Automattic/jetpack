@@ -439,7 +439,7 @@ class Jetpack_Widget_Conditions {
 									?>
 									 style="display: none;"<?php } ?>>
 									<label>
-										<input type="checkbox" name="<?php echo esc_attr( $widget->get_field_name( "conditions[page_children][$rule_index]" ) );?>" value="has" <?php checked( $rule['has_children'], true ); ?> />
+										<input type="checkbox" name="<?php echo esc_attr( $widget->get_field_name( "conditions[page_children][$rule_index]" ) ); ?>" value="has" <?php checked( $rule['has_children'], true ); ?> />
 										<?php echo esc_html_x( 'Include children', 'Checkbox on Widget Visibility if children of the selected page should be included in the visibility rule.', 'jetpack' ); ?>
 									</label>
 								</span>
