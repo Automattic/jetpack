@@ -100,7 +100,7 @@ function onBuild( done, err, stats ) {
 	const supportedModulesSource = `modules/@(${ supportedModules.join( '|' ) })/**/*.js`;
 
 	// Uglify other JS from _inc and supported modules
-	const sources = [ '_inc/*.js', supportedModulesSource, '!modules/**/test-*.js' ];
+	const sources = [ '_inc/*.js', supportedModulesSource, '!modules/**/test-*.js', '!modules/carousel/src/*.*' ];
 
 	// Don't process minified JS in _inc or modules directories
 	const sourceNegations = [ '!_inc/*.min.js', '!modules/**/*.min.js' ];
