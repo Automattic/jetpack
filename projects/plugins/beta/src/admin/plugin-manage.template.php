@@ -32,8 +32,9 @@ if ( is_plugin_active( $plugin->plugin_file() ) ) {
 		$version       = $branch->pretty_version;
 	} else {
 		$active_branch = (object) array(
-			'source' => 'unknown',
-			'id'     => $tmp['Version'],
+			'source'  => 'unknown',
+			'id'      => $tmp['Version'],
+			'version' => $tmp['Version'],
 		);
 		$version       = $plugin->installer()->stable_pretty_version();
 	}
@@ -79,7 +80,7 @@ if ( is_plugin_active( $plugin->plugin_file() ) ) {
 					<a type="button" href="<?php echo esc_url( $plugin->bug_report_url() ); ?>"
 						class="is-primary jp-form-button dops-button is-primary is-compact jptracks"
 						data-jptracks-name="jetpack_beta_submit_report"
-						data-jptracks-prop="<?php echo esc_attr( Utils::get_jetpack_plugin_version() ); ?>"
+						data-jptracks-prop="<?php echo esc_attr( $plugin->plugin_slug() . ' ' . $active_branch->version ); ?>"
 					>
 						<?php esc_html_e( 'Report it!', 'jetpack-beta' ); ?>
 					</a>
