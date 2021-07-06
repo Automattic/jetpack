@@ -49,3 +49,20 @@ export function getBackgroundImage( imgEl ) {
 
 	return url;
 }
+
+export function calculatePadding( screenPadding ) {
+	const baseScreenPadding = 110;
+	screenPadding = baseScreenPadding;
+
+	if ( window.innerWidth <= 760 ) {
+		screenPadding = Math.round( ( window.innerWidth / 760 ) * baseScreenPadding );
+		const isTouch =
+			'ontouchstart' in window || ( window.DocumentTouch && document instanceof DocumentTouch );
+
+		if ( screenPadding < 40 && isTouch ) {
+			screenPadding = 0;
+		}
+	}
+
+	return screenPadding;
+}

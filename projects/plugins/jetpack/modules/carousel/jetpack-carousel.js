@@ -600,7 +600,7 @@
 		}
 
 		/**
-		 * Handles clicks to icons and othegetBackgroundImager action elements in the icon container.
+		 * Handles clicks to icons and other action elements in the icon container.
 		 * @param {MouseEvent|TouchEvent|KeyBoardEvent} Event object.
 		 */
 		function handleFooterElementClick( e ) {

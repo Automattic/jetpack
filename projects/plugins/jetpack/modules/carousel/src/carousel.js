@@ -5,6 +5,7 @@
  */
 import * as util from './util';
 import * as domUtil from './domUtil';
+import { fetchComments, postComment } from './comments';
 
 /**
  * Internal dependencies
@@ -78,21 +79,6 @@ export function init() {
 		isUserTyping = false;
 	}
 
-	function calculatePadding() {
-		const baseScreenPadding = 110;
-		screenPadding = baseScreenPadding;
-
-		if ( window.innerWidth <= 760 ) {
-			screenPadding = Math.round( ( window.innerWidth / 760 ) * baseScreenPadding );
-			const isTouch =
-				'ontouchstart' in window || ( window.DocumentTouch && document instanceof DocumentTouch );
-
-			if ( screenPadding < 40 && isTouch ) {
-				screenPadding = 0;
-			}
-		}
-	}
-
 	function initializeCarousel() {
 		if ( ! carousel.overlay ) {
 			carousel.overlay = document.querySelector( '.jp-carousel-overlay' );
@@ -111,7 +97,7 @@ export function init() {
 			);
 			carousel.urlField = carousel.overlay.querySelector( '#jp-carousel-comment-form-url-field' );
 
-			calculatePadding();
+			screenPadding = util.calculatePadding( screenPadding );
 
 			[
 				carousel.commentField,
@@ -211,14 +197,12 @@ export function init() {
 		domUtil.show(
 			carousel.container.querySelector( '#jp-carousel-comment-form-submit-and-info-wrapper' )
 		);
-		const field = carousel.commentField;
-		field.focus();
+		carousel.commentField.focus();
 	}
 
 	function handleCommentLoginClick() {
 		const slide = carousel.currentSlide;
 		const attachmentId = slide ? slide.attrs.attachmentId : '0';
-
 		window.location.href = jetpackCarouselStrings.login_url + '%23jp-carousel-' + attachmentId;
 	}
 
@@ -234,108 +218,80 @@ export function init() {
 	}
 
 	function handleCommentFormClick( e ) {
-			const target = e.target;
-			const data = domUtil.getJSONAttribute( carousel.container, 'data-carousel-extra' ) || {};
-			const attachmentId = carousel.currentSlide.attrs.attachmentId;
-			const wrapper = document.querySelector( '#jp-carousel-comment-form-submit-and-info-wrapper' );
-			const spinner = document.querySelector( '#jp-carousel-comment-form-spinner' );
-			const submit = document.querySelector( '#jp-carousel-comment-form-button-submit' );
-			const form = document.querySelector( '#jp-carousel-comment-form' );
+		const target = e.target;
+		const data = domUtil.getJSONAttribute( carousel.container, 'data-carousel-extra' ) || {};
+		const attachmentId = carousel.currentSlide.attrs.attachmentId;
+		const wrapper = document.querySelector( '#jp-carousel-comment-form-submit-and-info-wrapper' );
+		const spinner = document.querySelector( '#jp-carousel-comment-form-spinner' );
+		const submit = document.querySelector( '#jp-carousel-comment-form-button-submit' );
+		const form = document.querySelector( '#jp-carousel-comment-form' );
 
-			if (
-				carousel.commentField &&
-				carousel.commentField.getAttribute( 'id' ) === target.getAttribute( 'id' )
-			) {
-				// For first page load
-				disableKeyboardNavigation();
-				domUtil.show( wrapper );
-			} else if ( domUtil.matches( target, 'input[type="submit"]' ) ) {
-				e.preventDefault();
-				e.stopPropagation();
+		if (
+			carousel.commentField &&
+			carousel.commentField.getAttribute( 'id' ) === target.getAttribute( 'id' )
+		) {
+			// For first page load
+			disableKeyboardNavigation();
+			domUtil.show( wrapper );
+		} else if ( domUtil.matches( target, 'input[type="submit"]' ) ) {
+			e.preventDefault();
+			e.stopPropagation();
 
-				domUtil.show( spinner );
-				form.classList.add( 'jp-carousel-is-disabled' );
+			domUtil.show( spinner );
+			form.classList.add( 'jp-carousel-is-disabled' );
 
-				const ajaxData = {
-					action: 'post_attachment_comment',
-					nonce: jetpackCarouselStrings.nonce,
-					blog_id: data.blog_id,
-					id: attachmentId,
-					comment: carousel.commentField.value,
-				};
+			const ajaxData = {
+				action: 'post_attachment_comment',
+				nonce: jetpackCarouselStrings.nonce,
+				blog_id: data.blog_id,
+				id: attachmentId,
+				comment: carousel.commentField.value,
+			};
 
-				if ( ! ajaxData.comment.length ) {
-					updatePostResults( jetpackCarouselStrings.no_comment_text, false );
-					return;
-				}
-
-				if ( Number( jetpackCarouselStrings.is_logged_in ) !== 1 ) {
-					ajaxData.email = carousel.emailField.value;
-					ajaxData.author = carousel.authorField.value;
-					ajaxData.url = carousel.urlField.value;
-
-					if ( Number( jetpackCarouselStrings.require_name_email ) === 1 ) {
-						if ( ! ajaxData.email.length || ! ajaxData.email.match( '@' ) ) {
-							updatePostResults( jetpackCarouselStrings.no_comment_email, false );
-							return;
-						} else if ( ! ajaxData.author.length ) {
-							updatePostResults( jetpackCarouselStrings.no_comment_author, false );
-							return;
-						}
-					}
-				}
-
-				const xhr = new XMLHttpRequest();
-				xhr.open( 'POST', jetpackCarouselStrings.ajaxurl, true );
-				xhr.setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
-				xhr.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' );
-
-				xhr.onreadystatechange = function () {
-					if (
-						this.readyState === XMLHttpRequest.DONE &&
-						this.status >= 200 &&
-						this.status < 300
-					) {
-						let response;
-						try {
-							response = JSON.parse( this.response );
-						} catch ( error ) {
-							updatePostResults( jetpackCarouselStrings.comment_post_error, false );
-							return;
-						}
-						if ( response.comment_status === 'approved' ) {
-							updatePostResults( jetpackCarouselStrings.comment_approved, true );
-						} else if ( response.comment_status === 'unapproved' ) {
-							updatePostResults( jetpackCarouselStrings.comment_unapproved, true );
-						} else {
-							// 'deleted', 'spam', false
-							updatePostResults( jetpackCarouselStrings.comment_post_error, false );
-						}
-						clearCommentTextAreaValue();
-						fetchComments( attachmentId );
-						submit.value = jetpackCarouselStrings.post_comment;
-						domUtil.hide( spinner );
-						form.classList.remove( 'jp-carousel-is-disabled' );
-					} else {
-						// TODO: Add error handling and display here
-						updatePostResults( jetpackCarouselStrings.comment_post_error, false );
-					}
-				};
-
-				const params = [];
-				for ( const item in ajaxData ) {
-					if ( item ) {
-						// Encode each form element into a URI-compatible string.
-						const encoded = encodeURIComponent( item ) + '=' + encodeURIComponent( ajaxData[ item ] );
-						// In x-www-form-urlencoded, spaces should be `+`, not `%20`.
-						params.push( encoded.replace( /%20/g, '+' ) );
-					}
-				}
-				const encodedData = params.join( '&' );
-
-				xhr.send( encodedData );
+			if (! ajaxData.comment.length) {
+				updatePostResults( jetpackCarouselStrings.no_comment_text, false );
+				return;
 			}
+
+			if ( Number( jetpackCarouselStrings.is_logged_in ) !== 1 ) {
+				ajaxData.email = carousel.emailField.value;
+				ajaxData.author = carousel.authorField.value;
+				ajaxData.url = carousel.urlField.value;
+
+				if ( Number( jetpackCarouselStrings.require_name_email ) === 1 ) {
+					if ( ! ajaxData.email.length || ! ajaxData.email.match( '@' ) ) {
+						updatePostResults( jetpackCarouselStrings.no_comment_email, false );
+						return;
+					} else if ( ! ajaxData.author.length ) {
+						updatePostResults( jetpackCarouselStrings.no_comment_author, false );
+						return;
+					}
+				}
+			}
+
+			const onError = function () {
+				updatePostResults( jetpackCarouselStrings.comment_post_error, false );
+			};
+
+			const onSuccess = function ( data ) {
+				if (data.comment_status === 'approved') {
+					updatePostResults( jetpackCarouselStrings.comment_approved, true );
+				} else if (response.comment_status === 'unapproved') {
+					updatePostResults( jetpackCarouselStrings.comment_unapproved, true );
+				} else {
+					// 'deleted', 'spam', false
+					onError();
+				}
+				clearCommentTextAreaValue();
+				loadComments( attachmentId );
+				submit.value = jetpackCarouselStrings.post_comment;
+				domUtil.hide( spinner );
+				form.classList.remove( 'jp-carousel-is-disabled' );
+			};
+
+			postComment( jetpackCarouselStrings.ajaxurl, ajaxData, onSuccess, onError );
 		}
+	}
 
 	/**
 	 * Handles clicks to icons and other action elements in the icon container.
@@ -508,7 +464,7 @@ export function init() {
 
 			if ( Number( jetpackCarouselStrings.display_comments ) === 1 ) {
 				testCommentsOpened( carousel.slides[ index ].attrs.commentsOpened );
-				fetchComments( attachmentId );
+				loadComments( attachmentId );
 				domUtil.hide( carousel.info.querySelector( '#jp-carousel-comment-post-results' ) );
 			}
 
@@ -851,7 +807,7 @@ export function init() {
 		}
 	}
 
-	function fetchComments( attachmentId, offset ) {
+	function loadComments( attachmentId, offset ) {
 		const shouldClear = offset === undefined;
 		const commentsIndicator = carousel.info.querySelector(
 			'.jp-carousel-icon-comments .jp-carousel-has-comments-indicator'
@@ -878,7 +834,6 @@ export function init() {
 			comments.innerHTML = '';
 		}
 
-		const xhr = new XMLHttpRequest();
 		const url =
 			jetpackCarouselStrings.ajaxurl +
 			'?action=get_attachment_comments' +
@@ -888,33 +843,14 @@ export function init() {
 			attachmentId +
 			'&offset=' +
 			offset;
-		xhr.open( 'GET', url );
-		xhr.setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
 
-		const onError = function () {
-			domUtil.fadeIn( comments );
-			domUtil.fadeOut( commentsLoading );
-		};
-
-		xhr.onload = function () {
+		const onSuccess = function ( data ) {
 			// Ignore the results if they arrive late and we're now on a different slide.
 			if (
 				! carousel.currentSlide ||
 				carousel.currentSlide.attrs.attachmentId !== attachmentId
 			) {
 				return;
-			}
-
-			const isSuccess = xhr.status >= 200 && xhr.status < 300;
-			let data;
-			try {
-				data = JSON.parse( xhr.responseText );
-			} catch ( e ) {
-				// Do nothing.
-			}
-
-			if ( ! isSuccess || ! data || ! Array.isArray( data ) ) {
-				return onError();
 			}
 
 			if ( shouldClear ) {
@@ -945,7 +881,7 @@ export function init() {
 				clearInterval( commentInterval );
 				commentInterval = setInterval( function () {
 					if ( carousel.container.scrollTop + 150 > window.innerHeight ) {
-						fetchComments( attachmentId, offset + 10 );
+						loadComments( attachmentId, offset + 10 );
 						clearInterval( commentInterval );
 					}
 				}, 300 );
@@ -960,9 +896,12 @@ export function init() {
 			domUtil.hide( commentsLoading );
 		};
 
-		xhr.onerror = onError;
+		const onError = function () {
+			domUtil.fadeIn( comments );
+			domUtil.fadeOut( commentsLoading );
+		};
 
-		xhr.send();
+		fetchComments( url, onSuccess, onError );
 	}
 
 	function clearCommentTextAreaValue() {
