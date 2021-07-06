@@ -2769,8 +2769,17 @@ class Jetpack {
 	 * @return bool Whether the file has no module info.
 	 */
 	private static function has_no_module_info( $slug ) {
-		$module_function_slugs = array( 'geo-location', 'minileven', 'module-extras', 'module-headings', 'module-info', 'plugin-search', 'theme-tools' );
-		if ( in_array( $slug, $module_function_slugs, true ) ) {
+		$no_info_slugs = array(
+			'geo-location',
+			'minileven',
+			'module-extras',
+			'module-headings',
+			'module-info',
+			'plugin-search',
+			'theme-tools',
+		);
+
+		if ( in_array( $slug, $no_info_slugs, true ) ) {
 			return true;
 		}
 
