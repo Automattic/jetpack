@@ -11,10 +11,10 @@ export function disableAnalytics() {
 /**
  * Initalizes Tracks.
  *
- * @param {boolean} forceEnableAnalytcs - Forcibly enable analytics, ignoring the isAnalyticsEnabled flag.
+ * @param {boolean} forceEnableAnalytics - Forcibly enable analytics, ignoring the isAnalyticsEnabled flag.
  */
-export function initializeTracks( forceEnableAnalytcs = false ) {
-	if ( forceEnableAnalytcs || isAnalyticsEnabled ) {
+export function initializeTracks( forceEnableAnalytics = false ) {
+	if ( forceEnableAnalytics || isAnalyticsEnabled ) {
 		window._tkq = window._tkq || [];
 	}
 }
@@ -22,20 +22,20 @@ export function initializeTracks( forceEnableAnalytcs = false ) {
 /**
  * Resets current user's tracked identity.
  *
- * @param {boolean} forceEnableAnalytcs - Forcibly enable analytics, ignoring the isAnalyticsEnabled flag.
+ * @param {boolean} forceEnableAnalytics - Forcibly enable analytics, ignoring the isAnalyticsEnabled flag.
  */
-export function resetTrackingCookies( forceEnableAnalytcs = false ) {
-	( forceEnableAnalytcs || isAnalyticsEnabled ) && window._tkq.push( [ 'clearIdentity' ] );
+export function resetTrackingCookies( forceEnableAnalytics = false ) {
+	( forceEnableAnalytics || isAnalyticsEnabled ) && window._tkq.push( [ 'clearIdentity' ] );
 }
 
 /**
  * Associates the current site with events fired in the future.
  *
  * @param {number|string} siteId - Current site identifier.
- * @param {boolean} forceEnableAnalytcs - Forcibly enable analytics, ignoring the isAnalyticsEnabled flag.
+ * @param {boolean} forceEnableAnalytics - Forcibly enable analytics, ignoring the isAnalyticsEnabled flag.
  */
-export function identifySite( siteId, forceEnableAnalytcs = false ) {
-	if ( forceEnableAnalytcs || isAnalyticsEnabled ) {
+export function identifySite( siteId, forceEnableAnalytics = false ) {
+	if ( forceEnableAnalytics || isAnalyticsEnabled ) {
 		globalProperties.blog_id = siteId;
 	}
 }
@@ -45,10 +45,10 @@ export function identifySite( siteId, forceEnableAnalytcs = false ) {
  *
  * @param {string} eventName - Name of the event.
  * @param {object} properties - Event properties.
- * @param {boolean} forceEnableAnalytcs - Forcibly enable analytics, ignoring the isAnalyticsEnabled flag.
+ * @param {boolean} forceEnableAnalytics - Forcibly enable analytics, ignoring the isAnalyticsEnabled flag.
  */
-export function recordEvent( eventName, properties, forceEnableAnalytcs = false ) {
-	( forceEnableAnalytcs || isAnalyticsEnabled ) &&
+export function recordEvent( eventName, properties, forceEnableAnalytics = false ) {
+	( forceEnableAnalytics || isAnalyticsEnabled ) &&
 		window._tkq.push( [ 'recordEvent', eventName, { ...globalProperties, ...properties } ] );
 }
 
@@ -56,28 +56,28 @@ export function recordEvent( eventName, properties, forceEnableAnalytcs = false 
  * Fires a TrainTracks render event to Tracks.
  *
  * @param {object} properties - Event properties.
- * @param {boolean} forceEnableAnalytcs - Forcibly enable analytics, ignoring the isAnalyticsEnabled flag.
+ * @param {boolean} forceEnableAnalytics - Forcibly enable analytics, ignoring the isAnalyticsEnabled flag.
  */
-export function recordTrainTracksRender( properties, forceEnableAnalytcs = false ) {
-	recordEvent( 'jetpack_instant_search_traintracks_render', properties, forceEnableAnalytcs );
+export function recordTrainTracksRender( properties, forceEnableAnalytics = false ) {
+	recordEvent( 'jetpack_instant_search_traintracks_render', properties, forceEnableAnalytics );
 }
 
 /**
  * Fires a TrainTracks interaction event to Tracks.
  *
  * @param {object} properties - Event properties.
- * @param {boolean} forceEnableAnalytcs - Forcibly enable analytics, ignoring the isAnalyticsEnabled flag.
+ * @param {boolean} forceEnableAnalytics - Forcibly enable analytics, ignoring the isAnalyticsEnabled flag.
  */
-export function recordTrainTracksInteract( properties, forceEnableAnalytcs = false ) {
-	recordEvent( 'jetpack_instant_search_traintracks_interact', properties, forceEnableAnalytcs );
+export function recordTrainTracksInteract( properties, forceEnableAnalytics = false ) {
+	recordEvent( 'jetpack_instant_search_traintracks_interact', properties, forceEnableAnalytics );
 }
 
 /**
  * Fires a static filter selection event to Tracks.
  *
  * @param {object} properties - Event properties to send to Tracks.
- * @param {boolean} forceEnableAnalytcs - Forcibly enable analytics, ignoring the isAnalyticsEnabled flag.
+ * @param {boolean} forceEnableAnalytics - Forcibly enable analytics, ignoring the isAnalyticsEnabled flag.
  */
-export function recordStaticFilterSelect( properties, forceEnableAnalytcs = false ) {
-	recordEvent( 'jetpack_instant_search_static_filter_select', properties, forceEnableAnalytcs );
+export function recordStaticFilterSelect( properties, forceEnableAnalytics = false ) {
+	recordEvent( 'jetpack_instant_search_static_filter_select', properties, forceEnableAnalytics );
 }
