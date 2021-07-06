@@ -12,7 +12,7 @@ class Jetpack_Widget_Conditions {
 	public static function init() {
 		global $pagenow;
 
-		if ( is_customize_preview() || 'widgets.php' === $pagenow || 'themes.php' === $pagenow ||
+		if ( is_customize_preview() || 'widgets.php' === $pagenow ||
 			 // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			( 'admin-ajax.php' === $pagenow && array_key_exists( 'action', $_POST ) && 'save-widget' === $_POST['action'] ) || // Saving widgets on classic widget admin.
 			0 === strpos( $_SERVER['REQUEST_URI'], '/wp-json/wp/v2/widget-types' ) // Widget editing via API in gutenberg widgets.
