@@ -44,6 +44,15 @@ class WP_Test_Jetpack_Site_Json_Api_Endpoints extends WP_UnitTestCase {
 	public function test_get_site() {
 		global $blog_id;
 
+		// Fetch as admin so that options is also present in the response.
+		$admin = $this->factory->user->create_and_get(
+			array(
+				'role' => 'administrator',
+			)
+		);
+
+		wp_set_current_user( $admin->ID );
+
 		$endpoint = new WPCOM_JSON_API_GET_Site_Endpoint(
 			array(
 				'description'             => 'Get information about a site.',
@@ -72,7 +81,7 @@ class WP_Test_Jetpack_Site_Json_Api_Endpoints extends WP_UnitTestCase {
 		$this->assertTrue( $response['jetpack'] );
 		$this->assertTrue( $response['jetpack_connection'] );
 
-		$options = $response['options'];
+		$options = (array) $response['options'];
 		$this->assertContains( 'jetpack_connection_active_plugins', $options );
 	}
 }
