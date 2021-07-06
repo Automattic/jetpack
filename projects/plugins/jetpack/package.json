@@ -80,6 +80,7 @@
 		"@wordpress/hooks": "2.12.3",
 		"@wordpress/i18n": "3.9.0",
 		"@wordpress/icons": "2.7.0",
+		"@wordpress/interface": "3.1.2",
 		"@wordpress/url": "2.11.0",
 		"abortcontroller-polyfill": "1.7.1",
 		"bounding-client-rect": "1.0.5",
