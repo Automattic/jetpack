@@ -11,7 +11,8 @@ use Automattic\JetpackBeta\Utils;
 // @global Plugin|null $plugin The plugin being managed, if any. May be unset, not just null.
 $plugin = isset( $plugin ) ? $plugin : null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
-( function ( $plugin ) {
+// TODO: Once we drop PHP 5.6 support, we can do `( function () { ... } )();` instead of assigning to `$tmp`.
+$tmp = function ( $plugin ) {
 	$updates = Utils::plugins_needing_update( true );
 	if ( isset( $plugin ) ) {
 		$updates = array_intersect_key(
@@ -70,4 +71,5 @@ $plugin = isset( $plugin ) ? $plugin : null; // phpcs:ignore WordPress.WP.Global
 		<?php } ?>
 	</div>
 	<?php
-} )( $plugin );
+};
+$tmp( $plugin );
