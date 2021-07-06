@@ -23,6 +23,7 @@
 }
 .widget-conditional {
 	margin-bottom: 12px;
+	margin-top: 10px;
 }
 .widget-conditional .conditions{
 	margin-bottom: 12px;
@@ -74,7 +75,7 @@
 	top: 0;
 	left: 0;
 }
-.wp-block-legacy-widget .widget-conditional .condition-control .delete-condition,
+.wp-block-legacy-widget__edit-form .widget-inside.widget-inside .widget-conditional .condition-control .delete-condition,
 .widget-conditional .condition-control .delete-condition {
 	left: 0;
 	color: #f11;
@@ -83,22 +84,27 @@
 	right: 0;
 }
 
-
-.wp-block-legacy-widget .widget-conditional .widget-conditional-inner a.dashicons {
+.wp-block-legacy-widget__edit-form .widget-inside.widget-inside .widget-conditional .widget-conditional-inner a.dashicons {
 	font-family: dashicons;
 }
 
-.wp-block-legacy-widget .widget-conditional .widget-conditional-inner a {
+.wp-block-legacy-widget__edit-form .widget-inside.widget-inside .widget-conditional .widget-conditional-inner a {
 	top:1.5rem
 }
 
-
-.wp-block-legacy-widget .widget-conditional .widget-conditional-inner select {
+.wp-block-legacy-widget__edit-form .widget-inside.widget-inside .widget-conditional-inner select {
 	display:initial;
 	width:auto;
+	background-color: #fff;
 }
 
-.editor-styles-wrapper .wp-block-legacy-widget .widget-conditional  .alignleft {
+.wp-block-legacy-widget__edit-form .widget-inside.widget-inside .widget-conditional .widget-conditional-inner select:disabled {
+	color: #a7aaad;
+	border-color: #dcdcde;
+	background-color: #f6f7f7;
+}
+
+.editor-styles-wrapper .wp-block-legacy-widget__edit-form .widget-inside.widget-inside .widget-conditional  .alignleft {
 	margin-left:20px
 }
 
@@ -136,7 +142,7 @@
 	}
 }
 
-.wp-block-legacy-widget .widget-conditional-inner {
+.wp-block-legacy-widget__edit-form .widget-inside.widget-inside .widget-conditional-inner {
 	/*
 	 * fonts of labels are reset to 13px in gutenberg editor for legacy widgets, ensure a consistent look on non-labels
 	 */

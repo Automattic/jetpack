@@ -27,7 +27,7 @@ class Jetpack_Widget_Conditions {
 	}
 
 	public static function widget_admin_setup() {
-		wp_enqueue_style( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.css', __FILE__ ) );
+		wp_enqueue_style( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.css', __FILE__ ), array( 'widgets' ), JETPACK__VERSION );
 		wp_style_add_data( 'widget-conditions', 'rtl', 'replace' );
 		wp_enqueue_script(
 			'widget-conditions',
