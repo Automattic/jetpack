@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { useState, useEffect } from 'react';
-import moment from 'moment';
+import { getDate, date, dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -92,7 +92,7 @@ const Backups = props => {
 						uploads: latestBackup.stats.uploads.count,
 						posts: latestBackup.stats.tables[ postsTable ].post_published,
 					} );
-					setLatestTime( latestBackup.last_updated );
+					setLatestTime( date( 'c', latestBackup.last_updated + '+00:00' ) );
 				}
 
 				// Setup data for IN_PROGRESS.
@@ -259,6 +259,18 @@ const Backups = props => {
 		);
 	};
 
+	const formatDateString = dateString => {
+		const todayString = __( 'Today', 'jetpack-backup' );
+		const todayDate = getDate();
+		let backupDate = todayString;
+		if ( dateI18n( 'zY', todayDate ) !== dateI18n( 'zY', dateString ) ) {
+			backupDate = dateI18n( 'M j', dateString );
+		}
+		const backupTime = dateI18n( 'g:i A', dateString );
+
+		return backupDate + ', ' + backupTime;
+	};
+
 	const renderCompleteBackup = () => {
 		return (
 			<div className="jp-row">
@@ -267,7 +279,7 @@ const Backups = props => {
 						<img src={ CloudIcon } alt="Jetpack Logo" />
 						<h2>{ __( 'Latest Backup', 'jetpack-backup' ) }</h2>
 					</div>
-					<h1>{ moment.utc( latestTime ).fromNow() }</h1>
+					<h1>{ formatDateString( latestTime ) }</h1>
 					<a
 						class="button is-full-width"
 						href={ 'https://cloud.jetpack.com/backup/' + domain }

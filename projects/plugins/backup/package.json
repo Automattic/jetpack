@@ -30,8 +30,8 @@
 		"@automattic/jetpack-connection": "workspace:^0.4.0-alpha",
 		"@wordpress/components": "14.1.4",
 		"@wordpress/data": "4.27.3",
+		"@wordpress/date": "4.1.1",
 		"@wordpress/i18n": "3.20.0",
-		"moment": "2.29.1",
 		"react": "16.14.0",
 		"react-dom": "16.14.0"
 	},
