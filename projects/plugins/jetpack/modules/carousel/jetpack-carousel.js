@@ -309,7 +309,7 @@
 				carousel.overlay = document.querySelector( '.jp-carousel-overlay' );
 				carousel.container = carousel.overlay.querySelector( '.jp-carousel-wrap' );
 				carousel.gallery = carousel.container.querySelector( '.jp-carousel' );
-				carousel.info = document.querySelector( '.jp-carousel-info' );
+				carousel.info = carousel.overlay.querySelector( '.jp-carousel-info' );
 				carousel.caption = carousel.info.querySelector( '.jp-carousel-caption' );
 				carousel.commentField = carousel.overlay.querySelector(
 					'#jp-carousel-comment-form-comment-field'
@@ -837,7 +837,6 @@
 			var mediumWidth = parseInt( mediumSizeParts[ 0 ], 10 );
 			var mediumHeight = parseInt( mediumSizeParts[ 1 ], 10 );
 
-			// Assign max width and height.
 			args.origMaxWidth = args.maxWidth;
 			args.origMaxHeight = args.maxHeight;
 
@@ -865,6 +864,13 @@
 					// If we have a really large image load a smaller version
 					// that is closer to the viewable size
 					if ( args.origWidth > args.maxWidth || args.origHeight > args.maxHeight ) {
+						// If the image is smaller than 1000px in width or height, @2x it so
+						// we get a high enough resolution for zooming.
+						if ( args.origMaxWidth < 1000 || args.origMaxWidth < 1000 ) {
+							args.origMaxWidth = args.maxWidth * 2;
+							args.origMaxHeight = args.maxHeight * 2;
+						}
+
 						origPhotonUrl += '?fit=' + args.origMaxWidth + '%2C' + args.origMaxHeight;
 					}
 				}
@@ -1048,6 +1054,11 @@
 
 		function fetchComments( attachmentId, offset ) {
 			var shouldClear = offset === undefined;
+			var commentsIndicator = carousel.info.querySelector(
+				'.jp-carousel-icon-comments .jp-carousel-has-comments-indicator'
+			);
+
+			commentsIndicator.classList.remove( 'jp-carousel-show' );
 
 			clearInterval( commentInterval );
 
@@ -1141,7 +1152,12 @@
 					}, 300 );
 				}
 
-				domUtil.show( comments );
+				if ( data.length > 0 ) {
+					domUtil.show( comments );
+					commentsIndicator.innerText = data.length;
+					commentsIndicator.classList.add( 'jp-carousel-show' );
+				}
+
 				domUtil.hide( commentsLoading );
 			};
 
@@ -1335,6 +1351,9 @@
 					domUtil.hide( loader );
 					openCarousel( gallery, options );
 				};
+				jsScript.onerror = function () {
+					domUtil.hide( loader );
+				};
 				document.head.appendChild( jsScript );
 				return;
 			}
@@ -1437,10 +1456,12 @@
 
 		// Register the event listener for starting the gallery
 		document.body.addEventListener( 'click', function ( e ) {
-			var isIE11 = window.navigator.userAgent.match( /Trident\/7\./ );
+			var isCompatible =
+				window.CSS && window.CSS.supports && window.CSS.supports( 'display', 'grid' );
+
 			// IE11 support is being dropped in August 2021. The new swiper.js libray is not IE11 compat
 			// so just default to opening individual image attachment/media pages for IE.
-			if ( isIE11 ) {
+			if ( ! isCompatible ) {
 				return;
 			}
 
