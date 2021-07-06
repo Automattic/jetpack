@@ -11,20 +11,26 @@
 .jp-search-search-toggle {
 	margin-top: 2em;
 	font-size: 1.5em;
-	font-weight: bold;
+
+	.form-toggle__label-content {
+		font-weight: bold;
+	}
 
 	.form-toggle:checked + .form-toggle__label .form-toggle__switch {
 		background: $color-plan;
 	}
+
 	.form-toggle__switch:focus {
 		box-shadow: 0 0 0 2px $blue-medium;
 	}
 }
 
 .jp-search-search-toggle__description {
-	margin-left: 2em;
+	margin-left: 36px; // same as label
+	margin-top: 0.5em;
+}
 
-	.jp-form-setting-explanation {
-		margin-top: 1em;
-	}
+p.jp-form-search-setting__explanation {
+	color: #2c3338;
+	font-weight: 250;
 }

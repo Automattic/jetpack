@@ -111,9 +111,7 @@ function Search( props ) {
 								{ __( 'Enable Jetpack Search', 'jetpack' ) }
 							</ModuleToggle>
 							<div className="jp-search-search-toggle__description">
-								<p className="jp-form-setting-explanation jp-form-search-setting-explanation">
-									{ SEARCH_DESCRIPTION }
-								</p>
+								<p className="jp-form-search-setting__explanation">{ SEARCH_DESCRIPTION }</p>
 							</div>
 						</div>
 						<div className="jp-search-search-toggle jp-search-search-toggle--instant-search">
@@ -126,7 +124,7 @@ function Search( props ) {
 								{ __( 'Enable instant search experience (recommended)', 'jetpack' ) }
 							</CompactFormToggle>
 							<div className="jp-search-search-toggle__description">
-								<p className="jp-form-setting-explanation jp-form-search-setting-explanation">
+								<p className="jp-form-search-setting__explanation">
 									{ INSTANT_SEARCH_DESCRIPTION }
 								</p>
 							</div>
