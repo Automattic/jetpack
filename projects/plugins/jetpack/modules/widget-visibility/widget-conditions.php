@@ -13,9 +13,10 @@ class Jetpack_Widget_Conditions {
 		global $pagenow;
 
 		if ( is_customize_preview() || 'widgets.php' === $pagenow || 'themes.php' === $pagenow ||
-			 ('admin-ajax.php' === $pagenow && array_key_exists( 'action', $_POST ) && 'save-widget' === $_POST['action'] ) ||	// Saving widgets on classic widget admin
-			 str_starts_with( $_SERVER['REQUEST_URI'], '/wp-json/wp/v2/widget-types' ) ||	// Widget editing via API in gutenberg widgets
-			 str_starts_with($_SERVER['REQUEST_URI'], '/wp-json/batch/v1' )) {	// Saving widgets via API in gutenberg widgets
+			 // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			( 'admin-ajax.php' === $pagenow && array_key_exists( 'action', $_POST ) && 'save-widget' === $_POST['action'] ) || // Saving widgets on classic widget admin.
+			0 === strpos( $_SERVER['REQUEST_URI'], '/wp-json/wp/v2/widget-types' ) // Widget editing via API in gutenberg widgets.
+		) {
 			add_action( 'sidebar_admin_setup', array( __CLASS__, 'widget_admin_setup' ) );
 			add_filter( 'widget_update_callback', array( __CLASS__, 'widget_update' ), 10, 3 );
 			add_action( 'in_widget_form', array( __CLASS__, 'widget_conditions_admin' ), 10, 3 );
@@ -23,6 +24,11 @@ class Jetpack_Widget_Conditions {
 			add_filter( 'widget_display_callback', array( __CLASS__, 'filter_widget' ) );
 			add_filter( 'sidebars_widgets', array( __CLASS__, 'sidebars_widgets' ) );
 			add_action( 'template_redirect', array( __CLASS__, 'template_redirect' ) );
+		}
+
+		// Saving widgets via API in gutenberg widgets.
+		if ( 0 === strpos( $_SERVER['REQUEST_URI'], 'wp-json/batch/v1' ) ) {
+			add_filter( 'widget_update_callback', array( __CLASS__, 'widget_update' ), 10, 3 );
 		}
 	}
 
