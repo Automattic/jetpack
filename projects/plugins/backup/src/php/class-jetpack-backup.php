@@ -173,8 +173,7 @@ class Jetpack_Backup {
 	 * @return true|WP_Error
 	 */
 	public static function backups_permissions_callback() {
-		// TODO: Make this reasonably refuse requests not coming from an admin.
-		return true;
+		return current_user_can( 'manage_options' );
 	}
 
 	/**
