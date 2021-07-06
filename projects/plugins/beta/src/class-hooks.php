@@ -84,7 +84,7 @@ class Hooks {
 
 			// If the dev version is active, populate it into the transient.
 			if ( is_plugin_active( $dev ) ) {
-				list( $response, $no_update ) = Plugin::get_plugin( dirname( $nondev ) )->installer()->dev_upgrader_response();
+				list( $response, $no_update ) = Plugin::get_plugin( dirname( $nondev ) )->dev_upgrader_response();
 				if ( $response ) {
 					$transient->response[ $dev ] = $response;
 				}
@@ -228,7 +228,7 @@ class Hooks {
 
 		// Get the plugin, and return a mocked-up API response.
 		$plugin = Plugin::get_plugin( substr( $args->slug, 0, -4 ) );
-		return $plugin ? $plugin->installer()->dev_plugins_api_response( $result ) : $result;
+		return $plugin ? $plugin->dev_plugins_api_response( $result ) : $result;
 	}
 
 	/**
@@ -258,7 +258,7 @@ class Hooks {
 			'shutdown',
 			static function () use ( $plugins ) {
 				foreach ( $plugins as $plugin ) {
-					$plugin->installer()->select_active( 'stable' );
+					$plugin->select_active( 'stable' );
 				}
 			},
 			5
@@ -346,13 +346,13 @@ class Hooks {
 		foreach ( Plugin::get_all_plugins() as $slug => $plugin ) {
 			if ( is_plugin_active( $plugin->plugin_file() ) ) {
 				$is_dev   = false;
-				$version  = $plugin->installer()->stable_pretty_version();
+				$version  = $plugin->stable_pretty_version();
 				$dev_info = null;
 			} elseif ( is_plugin_active( $plugin->dev_plugin_file() ) ) {
 				$is_dev   = true;
 				$any_dev  = true;
-				$version  = $plugin->installer()->dev_pretty_version();
-				$dev_info = $plugin->installer()->dev_info();
+				$version  = $plugin->dev_pretty_version();
+				$dev_info = $plugin->dev_info();
 			} else {
 				continue;
 			}
@@ -527,11 +527,11 @@ class Hooks {
 			$message .= sprintf(
 				$fmt,
 				$plugin->get_name(),
-				$plugin->installer()->dev_pretty_version(),
+				$plugin->dev_pretty_version(),
 				$tmp['Version']
 			);
 
-			$dev_info = $plugin->installer()->dev_info();
+			$dev_info = $plugin->dev_info();
 			if ( $dev_info && $dev_info->plugin_url ) {
 				$message .= "   $dev_info->plugin_url\n";
 			}

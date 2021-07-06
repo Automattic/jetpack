@@ -88,7 +88,7 @@ class CliCommand extends WP_CLI_Command {
 		}
 
 		$manifest      = $plugin->get_manifest();
-		$dev_info      = $plugin->installer()->dev_info();
+		$dev_info      = $plugin->dev_info();
 		$active_branch = $dev_info ? $dev_info->branch : null;
 		$branches      = array( 'stable', 'master', 'rc' );
 		foreach ( $manifest->pr as $pr ) {
@@ -169,7 +169,7 @@ class CliCommand extends WP_CLI_Command {
 		}
 
 		WP_CLI::line( sprintf( $premsg, $plugin->get_name(), $id ) );
-		$ret = $plugin->installer()->install_and_activate( $source, $id );
+		$ret = $plugin->install_and_activate( $source, $id );
 		if ( is_wp_error( $ret ) ) {
 			WP_CLI::error( $ret->get_error_message() );
 		} else {

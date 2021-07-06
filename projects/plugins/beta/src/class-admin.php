@@ -145,7 +145,7 @@ class Admin {
 		// Install and activate Jetpack Version.
 		if ( wp_verify_nonce( $_GET['_wpnonce'], 'activate_branch' ) && isset( $_GET['activate-branch'] ) && $plugin ) {
 			list( $source, $id ) = explode( ':', $_GET['activate-branch'], 2 );
-			$res                 = $plugin->installer()->install_and_activate( $source, $id );
+			$res                 = $plugin->install_and_activate( $source, $id );
 			if ( is_wp_error( $res ) ) {
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				wp_die( $res );
@@ -243,7 +243,7 @@ class Admin {
 			);
 		} elseif ( is_plugin_active( $plugin->dev_plugin_file() ) ) {
 			$path = WP_PLUGIN_DIR . '/' . $plugin->dev_plugin_slug();
-			$info = $plugin->installer()->dev_info();
+			$info = $plugin->dev_info();
 		} else {
 			return array( null, null );
 		}

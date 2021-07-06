@@ -39,10 +39,10 @@ $last_slug = key( $plugins );
 		$classes = array( 'dops-foldable-card', 'has-expanded-summary', 'dops-card' );
 		if ( is_plugin_active( $plugin->plugin_file() ) ) {
 			$classes[] = 'plugin-stable';
-			$version   = $plugin->installer()->stable_pretty_version();
+			$version   = $plugin->stable_pretty_version();
 		} elseif ( is_plugin_active( $plugin->dev_plugin_file() ) ) {
 			$classes[] = 'plugin-dev';
-			$version   = $plugin->installer()->dev_pretty_version();
+			$version   = $plugin->dev_pretty_version();
 		} else {
 			$classes[] = 'plugin-inactive';
 			$version   = __( 'Plugin is not active', 'jetpack-beta' );

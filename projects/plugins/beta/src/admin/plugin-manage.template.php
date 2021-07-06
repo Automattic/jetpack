@@ -33,7 +33,7 @@ $active_branch = (object) array(
 $version       = null;
 if ( is_plugin_active( $plugin->plugin_file() ) ) {
 	$tmp    = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin->plugin_file(), false, false );
-	$branch = $plugin->installer()->source_info( 'release', $tmp['Version'] );
+	$branch = $plugin->source_info( 'release', $tmp['Version'] );
 	if ( $branch && ! is_wp_error( $branch ) ) {
 		$active_branch = $branch;
 		$version       = $branch->pretty_version;
@@ -43,11 +43,11 @@ if ( is_plugin_active( $plugin->plugin_file() ) ) {
 			'id'      => $tmp['Version'],
 			'version' => $tmp['Version'],
 		);
-		$version       = $plugin->installer()->stable_pretty_version();
+		$version       = $plugin->stable_pretty_version();
 	}
 } elseif ( is_plugin_active( $plugin->dev_plugin_file() ) ) {
-	$active_branch                 = $plugin->installer()->dev_info();
-	$active_branch->pretty_version = $plugin->installer()->dev_pretty_version();
+	$active_branch                 = $plugin->dev_info();
+	$active_branch->pretty_version = $plugin->dev_pretty_version();
 	$version                       = $active_branch->pretty_version . ' | ' . $active_branch->version;
 }
 
@@ -98,7 +98,7 @@ if ( is_plugin_active( $plugin->plugin_file() ) ) {
 	<?php } ?>
 	<div class="jetpack-beta__wrap">
 		<?php
-		$branch = $plugin->installer()->source_info( 'stable', '' );
+		$branch = $plugin->source_info( 'stable', '' );
 		if ( $branch && ! is_wp_error( $branch ) ) {
 			$branch->pretty_version = __( 'Latest Stable', 'jetpack-beta' );
 			require __DIR__ . '/branch-card.template.php';
@@ -111,13 +111,13 @@ if ( is_plugin_active( $plugin->plugin_file() ) ) {
 		}
 		?>
 		<?php
-		$branch = $plugin->installer()->source_info( 'rc', '' );
+		$branch = $plugin->source_info( 'rc', '' );
 		if ( $branch && ! is_wp_error( $branch ) ) {
 			require __DIR__ . '/branch-card.template.php';
 		}
 		?>
 		<?php
-		$branch = $plugin->installer()->source_info( 'master', '' );
+		$branch = $plugin->source_info( 'master', '' );
 		if ( $branch && ! is_wp_error( $branch ) ) {
 			require __DIR__ . '/branch-card.template.php';
 		}
@@ -165,7 +165,7 @@ if ( is_plugin_active( $plugin->plugin_file() ) ) {
 			end( $manifest->pr );
 			$last = key( $manifest->pr );
 			foreach ( $manifest->pr as $k => $pr ) {
-				$branch = $plugin->installer()->source_info( 'pr', $pr->branch );
+				$branch = $plugin->source_info( 'pr', $pr->branch );
 				if ( $branch && ! is_wp_error( $branch ) ) {
 					// Add spaces around the branch name for historical reasons.
 					$branch->pretty_version = strtr(
@@ -226,7 +226,7 @@ if ( is_plugin_active( $plugin->plugin_file() ) ) {
 			end( $versions );
 			$last = key( $versions );
 			foreach ( $versions as $k => $v ) {
-				$branch = $plugin->installer()->source_info( 'release', $v );
+				$branch = $plugin->source_info( 'release', $v );
 				if ( $branch && ! is_wp_error( $branch ) ) {
 					unset( $branch->updated_date );
 					$branch->pretty_version = $branch->version;

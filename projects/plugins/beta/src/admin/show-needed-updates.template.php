@@ -51,7 +51,7 @@ $tmp = function ( $plugin ) {
 					$slug  = substr( $slug, 0, -4 );
 				}
 				$plugin = Plugin::get_plugin( $slug );
-				$name   = $plugin->get_name() . ' | ' . ( $isdev ? $plugin->installer()->dev_pretty_version() : $plugin->installer()->stable_pretty_version() );
+				$name   = $plugin->get_name() . ' | ' . ( $isdev ? $plugin->dev_pretty_version() : $plugin->stable_pretty_version() );
 			}
 
 			$url = wp_nonce_url( self_admin_url( 'update.php?action=upgrade-plugin&plugin=' . rawurlencode( $file ) ), 'upgrade-plugin_' . $file );
