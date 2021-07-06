@@ -259,7 +259,7 @@ class MyPlanBody extends React.Component {
 						</p>
 						<Button
 							onClick={ this.handleButtonClickForTracking( 'view_search_customizer' ) }
-							href={ this.props.siteAdminUrl + 'admin.php?page=jetpack-search-customize' }
+							href={ this.props.siteAdminUrl + 'customize.php?autofocus[section]=jetpack_search' }
 						>
 							{ __( 'Customize Search', 'jetpack' ) }
 						</Button>
