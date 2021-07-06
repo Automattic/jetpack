@@ -13,6 +13,7 @@ class Jetpack_Widget_Conditions {
 		global $pagenow;
 
 		if ( is_customize_preview() || 'widgets.php' === $pagenow || 'themes.php' === $pagenow ||
+			 ('admin-ajax.php' === $pagenow && array_key_exists( 'action', $_POST ) && 'save-widget' === $_POST['action'] ) ||	// Saving widgets on classic widget admin
 			 str_starts_with( $_SERVER['REQUEST_URI'], '/wp-json/wp/v2/widget-types' ) ||	// Widget editing via API in gutenberg widgets
 			 str_starts_with($_SERVER['REQUEST_URI'], '/wp-json/batch/v1' )) {	// Saving widgets via API in gutenberg widgets
 			add_action( 'sidebar_admin_setup', array( __CLASS__, 'widget_admin_setup' ) );
@@ -469,20 +470,22 @@ class Jetpack_Widget_Conditions {
 	 */
 	public static function widget_update( $instance, $new_instance, $old_instance ) {
 		$conditions              = array();
-		$conditions['action']    = $instance['conditions']['action'];
-		$conditions['match_all'] = ( isset( $instance['conditions']['match_all'] ) ? '1' : '0' );
-		$conditions['rules']     = array();
+		$conditions['action']    = $new_instance['conditions']['action'];
+		$conditions['match_all'] = ( isset( $new_instance['conditions']['match_all'] ) ? '1' : '0' );
+		$conditions['rules']     = isset( $new_instance['conditions']['rules'] ) ? $new_instance['conditions']['rules'] : array();
 
-		foreach ( $instance['conditions']['rules_major'] as $index => $major_rule ) {
-			if ( ! $major_rule ) {
-				continue;
+		if ( isset( $new_instance['conditions']['rules_major'] ) ) {
+			foreach ( $new_instance['conditions']['rules_major'] as $index => $major_rule ) {
+				if ( ! $major_rule ) {
+					continue;
+				}
+
+				$conditions['rules'][] = array(
+						'major'        => $major_rule,
+						'minor'        => isset( $new_instance['conditions']['rules_minor'][ $index ] ) ? $new_instance['conditions']['rules_minor'][ $index ] : '',
+						'has_children' => isset( $new_instance['conditions']['page_children'][ $index ] ) ? true : false,
+				);
 			}
-
-			$conditions['rules'][] = array(
-				'major'        => $major_rule,
-				'minor'        => isset( $instance['conditions']['rules_minor'][ $index ] ) ? $instance['conditions']['rules_minor'][ $index ] : '',
-				'has_children' => isset( $instance['conditions']['page_children'][ $index ] ) ? true : false,
-			);
 		}
 
 		if ( ! empty( $conditions['rules'] ) ) {
