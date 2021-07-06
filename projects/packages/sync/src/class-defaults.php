@@ -504,7 +504,6 @@ class Defaults {
 		'post_time',
 		'postmeta',
 		'posts_per_page',
-		'product_cat',
 		'product_search_form',
 		'profile_url',
 		'pung',
