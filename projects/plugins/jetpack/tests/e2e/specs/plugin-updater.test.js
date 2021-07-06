@@ -1,4 +1,3 @@
-import { step } from '../lib/env/test-setup';
 import { doInPlaceConnection } from '../lib/flows/jetpack-connect';
 import {
 	execWpCommand,
@@ -10,6 +9,7 @@ import Sidebar from '../lib/pages/wp-admin/sidebar';
 import PluginsPage from '../lib/pages/wp-admin/plugins';
 import DashboardPage from '../lib/pages/wp-admin/dashboard';
 import JetpackPage from '../lib/pages/wp-admin/jetpack';
+import {testStep} from "../lib/reporters/reporter";
 
 // Disable pre-connect for this test suite
 process.env.SKIP_CONNECT = true;
@@ -43,12 +43,12 @@ describe( 'Jetpack updater', () => {
 	} );
 
 	it( 'Plugin updater', async () => {
-		await step( 'Can login and navigate to Plugins page', async () => {
+		await testStep( 'Can login and navigate to Plugins page', async () => {
 			await ( await Sidebar.init( page ) ).selectInstalledPlugins();
 			await PluginsPage.init( page );
 		} );
 
-		await step( 'Can update Jetpack', async () => {
+		await testStep( 'Can update Jetpack', async () => {
 			const pluginsPage = await PluginsPage.init( page );
 			const versionBefore = await pluginsPage.getJetpackVersion();
 			await pluginsPage.updateJetpack();
@@ -56,7 +56,7 @@ describe( 'Jetpack updater', () => {
 			expect( versionBefore ).not.toBe( versionAfter );
 		} );
 
-		await step( 'Can connect Jetpack', async () => {
+		await testStep( 'Can connect Jetpack', async () => {
 			await ( await Sidebar.init( page ) ).selectJetpack();
 			await doInPlaceConnection();
 			const jetpackPage = await JetpackPage.init( page );
