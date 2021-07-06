@@ -35,14 +35,16 @@ class Themes extends Module {
 		add_action( 'upgrader_process_complete', array( $this, 'check_upgrader' ), 10, 2 );
 		add_action( 'jetpack_installed_theme', $callable, 10, 2 );
 		add_action( 'jetpack_updated_themes', $callable, 10, 2 );
-		add_action( 'delete_site_transient_update_themes', array( $this, 'detect_theme_deletion' ) );
-		add_action( 'jetpack_deleted_theme', $callable, 10, 2 );
 		add_filter( 'wp_redirect', array( $this, 'detect_theme_edit' ) );
 		add_action( 'jetpack_edited_theme', $callable, 10, 2 );
 		add_action( 'wp_ajax_edit-theme-plugin-file', array( $this, 'theme_edit_ajax' ), 0 );
 		add_action( 'update_site_option_allowedthemes', array( $this, 'sync_network_allowed_themes_change' ), 10, 4 );
 		add_action( 'jetpack_network_disabled_themes', $callable, 10, 2 );
 		add_action( 'jetpack_network_enabled_themes', $callable, 10, 2 );
+
+		// @todo Switch to use the new `deleted_theme` hook once WP 5.8 is the minimum version. See https://core.trac.wordpress.org/changeset/50826
+		add_action( 'delete_site_transient_update_themes', array( $this, 'detect_theme_deletion' ) );
+		add_action( 'jetpack_deleted_theme', $callable, 10, 2 );
 
 		// Sidebar updates.
 		add_action( 'update_option_sidebars_widgets', array( $this, 'sync_sidebar_widgets_actions' ), 10, 2 );
