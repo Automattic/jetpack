@@ -10,6 +10,10 @@
 		display: flex;
 		align-items: center;
 		flex-flow: column;
+
+		@media screen and ( min-width: 480px ) and ( min-height: 700px ) {
+			height: 55vh;
+		}
 	}
 
 	.jp-search-dashboard__title {
@@ -28,6 +32,7 @@
 	.jp-search-dashboard__mocked-search-interface {
 		width: 90%;
 		max-width: 60rem;
+		height: 100%;
 	}
 
 	.jp-search-dashboard__bottom {
