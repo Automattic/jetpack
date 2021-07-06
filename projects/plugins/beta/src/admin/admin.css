@@ -1217,3 +1217,24 @@ button.dops-foldable-card__action {
 		height: 46px;
 	}
 }
+
+.jpbeta-file-list {
+	display: inline-block;
+	white-space: nowrap;
+}
+
+.jpbeta-file-list > li > .container {
+	width: 100%;
+	box-sizing: border-box;
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-align: center;
+	align-items: center;
+	-ms-flex-pack: justify;
+	justify-content: space-between;
+}
+
+.jpbeta-file-list > li > .container > span {
+	-ms-flex: 0 0 auto;
+	flex: 0 0 auto;
+}

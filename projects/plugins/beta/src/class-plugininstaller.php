@@ -272,6 +272,15 @@ class PluginInstaller {
 		}
 		$tmp = get_plugin_data( $file, false, false );
 
+		// Read the plugin's to-test.md, or our generic testing tips should that not exist.
+		$file = WP_PLUGIN_DIR . '/' . $this->plugin->dev_plugin_slug() . '/to-test.md';
+		if ( ! file_exists( $file ) ) {
+			$file = __DIR__ . '/../docs/testing/testing-tips.md';
+		}
+		WP_Filesystem();
+		global $wp_filesystem;
+		$content = Utils::render_markdown( $this->plugin, $wp_filesystem->get_contents( $file ) );
+
 		$slug = $this->plugin->dev_plugin_slug();
 		$name = "{$this->plugin->get_name()} | {$this->dev_pretty_version()}";
 		return (object) array(
@@ -284,7 +293,7 @@ class PluginInstaller {
 			'homepage'      => $this->plugin->beta_homepage_url(),
 			'downloaded'    => false,
 			'last_updated'  => date_create( $dev_info->update_date, timezone_open( 'UTC' ) )->format( 'Y-m-d g:i a \G\M\T' ),
-			'sections'      => array( 'description' => Admin::to_test_content() ), // XXX: Fix this.
+			'sections'      => array( 'description' => $content ),
 			'download_link' => $dev_info->download_url,
 		);
 	}

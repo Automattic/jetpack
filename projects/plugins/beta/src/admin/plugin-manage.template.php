@@ -94,6 +94,12 @@ if ( is_plugin_active( $plugin->plugin_file() ) ) {
 		if ( $branch && ! is_wp_error( $branch ) ) {
 			$branch->pretty_version = __( 'Latest Stable', 'jetpack-beta' );
 			require __DIR__ . '/branch-card.template.php';
+
+			// Fixup `$active_branch` so it doesn't show up as "active" under releases below.
+			if ( $active_branch->source === $branch->source && $active_branch->id === $branch->id ) {
+				$active_branch->source = 'stable';
+				$active_branch->id     = '';
+			}
 		}
 		?>
 		<?php
@@ -226,8 +232,7 @@ if ( is_plugin_active( $plugin->plugin_file() ) ) {
 	</div>
 
 	<?php
-	// XXX Pass plugin here or something.
-	$to_test = Admin::to_test_content();
+	list( $to_test, $what_changed ) = Admin::to_test_content( $plugin );
 	if ( $to_test ) {
 		?>
 		<div class="dops-foldable-card is-expanded has-expanded-summary dops-card is-compact">
@@ -242,11 +247,9 @@ if ( is_plugin_active( $plugin->plugin_file() ) ) {
 				<?php echo wp_kses_post( $to_test ); ?>
 			</div>
 		</div>
-	<?php } ?>
+		<?php
+	}
 
-	<?php
-	// XXX Pass plugin here or something.
-	$what_changed = Utils::what_changed();
 	if ( $what_changed ) {
 		?>
 		<div class="dops-foldable-card is-expanded has-expanded-summary dops-card is-compact">
@@ -258,7 +261,7 @@ if ( is_plugin_active( $plugin->plugin_file() ) ) {
 				</span>
 			</div>
 			<div class="dops-foldable-card__content">
-				<?php echo esc_html( Admin::render_markdown( $what_changed ) ); ?>
+				<?php echo wp_kses_post( $what_changed ); ?>
 			</div>
 		</div>
 	<?php } ?>

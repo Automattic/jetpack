@@ -716,4 +716,17 @@ class Utils {
 		return array_intersect_key( $updates, array_flip( $our_plugins ) );
 	}
 
+	/**
+	 * Rendering markdown for testing instructions.
+	 *
+	 * @param Plugin $plugin Plugin being processed.
+	 * @param string $content Markdown content to render.
+	 * @return string HTML.
+	 */
+	public static function render_markdown( Plugin $plugin, $content ) {
+		return ParsedownExt::instance()
+			->setPRLinkFormat( "https://github.com/{$plugin->repo()}/pull/%d" )
+			->text( $content );
+	}
+
 }

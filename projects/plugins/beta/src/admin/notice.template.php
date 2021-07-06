@@ -5,6 +5,8 @@
  * @package automattic/jetpack-beta
  */
 
+use Automattic\JetpackBeta\Utils;
+
 global $current_screen;
 
 $is_notice = ( 'plugins' === $current_screen->base ? true : false );

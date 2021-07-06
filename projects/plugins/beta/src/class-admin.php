@@ -8,7 +8,6 @@
 namespace Automattic\JetpackBeta;
 
 use Jetpack;
-use WPCom_Markdown;
 
 /**
  * Handles the Jetpack Beta plugin Admin functions.
@@ -233,115 +232,57 @@ class Admin {
 	/**
 	 * Determine what we're going to test (pr, master, rc).
 	 *
-	 * XXX Figure out how to fix this up.
+	 * @param Plugin $plugin Plugin being processed.
+	 * @return (string|null)[] HTML and diff summary.
 	 */
-	public static function to_test_content() {
-		list( $branch, $section ) = Utils::get_branch_and_section();
-		switch ( $section ) {
-			case 'pr':
-				return self::to_test_pr_content( $branch );
-			case 'rc':
-				return self::to_test_file_content();
-			default: // Master "bleeding edge" or latest stable.
-				return self::to_test_general_rules_content();
-
+	public static function to_test_content( Plugin $plugin ) {
+		if ( is_plugin_active( $plugin->plugin_file() ) ) {
+			$path = WP_PLUGIN_DIR . '/' . $plugin->plugin_slug();
+			$info = (object) array(
+				'source' => 'stable',
+			);
+		} elseif ( is_plugin_active( $plugin->dev_plugin_file() ) ) {
+			$path = WP_PLUGIN_DIR . '/' . $plugin->dev_plugin_slug();
+			$info = $plugin->installer()->dev_info();
+		} else {
+			return array( null, null );
 		}
-	}
 
-	/**
-	 * General rules and recommendations for new Beta Testers.
-	 * Displayed when no specific branch is picked.
-	 *
-	 * XXX Figure out how to fix this up.
-	 */
-	private static function to_test_general_rules_content() {
-		$test_rules = __DIR__ . '/../docs/testing/testing-tips.md';
-		if ( ! file_exists( $test_rules ) ) {
-			return;
+		if ( 'pr' === $info->source ) {
+			$github_info = Utils::get_remote_data( sprintf( 'https://api.github.com/repos/%s/pulls/%d', $plugin->repo(), $info->pr ), "github/pulls/$info->pr" );
+			if ( ! isset( $github_info->body ) ) {
+				return array( 'GitHub commit info is unavailable.', null );
+			}
+			$html        = Utils::render_markdown( $plugin, $github_info->body );
+			$github_info = Utils::get_remote_data( sprintf( 'https://api.github.com/repos/%s/pulls/%d/files', $plugin->repo(), $info->pr ), "github/pulls/$info->pr/files" );
+			$diff        = null;
+			if ( is_array( $github_info ) ) {
+				// translators: %d: number of files changed.
+				$diff  = '<div>' . sprintf( _n( '%d file changed ', '%d files changed', count( $github_info ), 'jetpack-beta' ), count( $github_info ) ) . "<br />\n";
+				$diff .= "<ul class=\"ul-square jpbeta-file-list\">\n";
+				foreach ( $github_info as $file ) {
+					$added_deleted_changed = array();
+					if ( $file->additions ) {
+						$added_deleted_changed[] = '+' . $file->additions;
+					}
+					if ( $file->deletions ) {
+						$added_deleted_changed[] = '-' . $file->deletions;
+					}
+					$diff .= sprintf( '<li><span class="container"><span class="filename">%s</span><span class="status">&nbsp;(%s %s)</span></span></li>', esc_html( $file->filename ), esc_html( $file->status ), implode( ' ', $added_deleted_changed ) ) . "\n";
+				}
+				$diff .= "</ul></div>\n\n";
+			}
+			return array( $html, $diff );
 		}
+
 		WP_Filesystem();
 		global $wp_filesystem;
-		$content = $wp_filesystem->get_contents( $test_rules );
-		return self::render_markdown( $content );
-	}
 
-	/**
-	 * Return testing instructions for release candidate branch.
-	 *
-	 * XXX Figure out how to fix this up.
-	 */
-	private static function to_test_file_content() {
-		$test_file = WP_PLUGIN_DIR . '/' . Utils::get_plugin_slug() . '/to-test.md';
-		if ( ! file_exists( $test_file ) ) {
-			return;
+		$file = $path . '/to-test.md';
+		if ( ! file_exists( $file ) ) {
+			$file = __DIR__ . '/../docs/testing/testing-tips.md';
 		}
-		WP_Filesystem();
-		global $wp_filesystem;
-		$content = $wp_filesystem->get_contents( $test_file );
-		return self::render_markdown( $content );
-	}
-
-	/**
-	 * Get PR information for what we want to test
-	 *
-	 * XXX Figure out how to fix this up.
-	 *
-	 * @param string $branch_key The branch we're switching to.
-	 * */
-	private static function to_test_pr_content( $branch_key ) {
-		$manifest = Utils::get_beta_manifest();
-		$pr       = isset( $manifest->pr->{$branch_key}->pr ) ? $manifest->pr->{$branch_key}->pr : null;
-
-		if ( ! $pr ) {
-			return null;
-		}
-		$github_info = Utils::get_remote_data( JETPACK_GITHUB_API_URL . 'pulls/' . $pr, 'github_' . $pr );
-
-		return self::render_markdown( $github_info->body );
-	}
-
-	/**
-	 * Rendering markdown for testing instructions
-	 *
-	 * @param string $content - Content from testing instructions for the branch we're testing.
-	 */
-	public static function render_markdown( $content ) {
-
-		add_filter( 'jetpack_beta_test_content', 'wptexturize' );
-		add_filter( 'jetpack_beta_test_content', 'convert_smilies' );
-		add_filter( 'jetpack_beta_test_content', 'convert_chars' );
-		add_filter( 'jetpack_beta_test_content', 'wpautop' );
-		add_filter( 'jetpack_beta_test_content', 'shortcode_unautop' );
-		add_filter( 'jetpack_beta_test_content', 'prepend_attachment' );
-
-		if ( ! function_exists( 'jetpack_require_lib' ) ) {
-			return apply_filters( 'jetpack_beta_test_content', $content );
-		}
-
-		jetpack_require_lib( 'markdown' );
-		if ( ! class_exists( WPCom_Markdown::class ) ) {
-			if ( ! include_once WP_PLUGIN_DIR . '/' . Utils::get_plugin_slug() . '/modules/markdown/easy-markdown.php' ) {
-				include_once WP_PLUGIN_DIR . '/jetpack/modules/markdown/easy-markdown.php';
-			};
-		}
-
-		if ( ! class_exists( WPCom_Markdown::class ) ) {
-			return apply_filters( 'jetpack_beta_test_content', $content );
-		}
-		$rendered_html = WPCom_Markdown::get_instance()->transform(
-			$content,
-			array(
-				'id'      => false,
-				'unslash' => false,
-			)
-		);
-
-		// Lets convert #hash numbers into links to issues.
-		$rendered_html = preg_replace( '/\#([0-9]+)/', '<a href="https://github.com/Automattic/jetpack/issues/$1">#$1</a>', $rendered_html );
-
-		$rendered_html = apply_filters( 'jetpack_beta_test_content', $rendered_html );
-
-		return $rendered_html;
+		return array( Utils::render_markdown( $plugin, $wp_filesystem->get_contents( $file ) ), null );
 	}
 
 	/**
