@@ -1,37 +1,41 @@
+/* global wpcom, jetpackCarouselStrings, DocumentTouch */
+
 /**
  * Internal dependencies
  */
 import * as util from './util';
 import * as domUtil from './domUtil';
-import * as touchUtil from './touchUtil';
 
-export default function init() {
-	var resizeTimeout;
-	var commentInterval;
-	var screenPadding;
-	var originalOverflow;
-	var originalHOverflow;
-	var scrollPos;
+/**
+ * Internal dependencies
+ */
+import Swiper from 'swiper';
+import SwiperCore, { A11y, Navigation, Pagination, Zoom } from 'swiper/core';
 
-	var lastKnownLocationHash = '';
-	var isUserTyping = false;
+// Configure Swiper to use modules.
+SwiperCore.use( [ A11y, Navigation, Pagination, Zoom ] );
 
-	var gallerySelector =
+export function init() {
+	let swiper;
+	let commentInterval;
+	let screenPadding;
+	let originalOverflow;
+	let originalHOverflow;
+	let scrollPos;
+	let lastKnownLocationHash = '';
+	let isUserTyping = false;
+	const gallerySelector =
 		'div.gallery, div.tiled-gallery, ul.wp-block-gallery, ul.blocks-gallery-grid, ' +
 		'figure.blocks-gallery-grid, div.wp-block-jetpack-tiled-gallery, a.single-image-gallery';
-
-	var itemSelector =
+	const itemSelector =
 		'.gallery-item, .tiled-gallery-item, .blocks-gallery-item, ' +
 		' .tiled-gallery__item, .wp-block-image';
-
-	var carousel = {};
-
-	var stat =
+	const carousel = {};
+	const stat =
 		typeof wpcom !== 'undefined' && wpcom.carousel && wpcom.carousel.stat
 			? wpcom.carousel.stat
 			: util.noop;
-
-	var pageview =
+	const pageview =
 		typeof wpcom !== 'undefined' && wpcom.carousel && wpcom.carousel.pageview
 			? wpcom.carousel.pageview
 			: util.noop;
@@ -75,12 +79,12 @@ export default function init() {
 	}
 
 	function calculatePadding() {
-		var baseScreenPadding = 110;
+		const baseScreenPadding = 110;
 		screenPadding = baseScreenPadding;
 
 		if ( window.innerWidth <= 760 ) {
 			screenPadding = Math.round( ( window.innerWidth / 760 ) * baseScreenPadding );
-			var isTouch =
+			const isTouch =
 				'ontouchstart' in window || ( window.DocumentTouch && document instanceof DocumentTouch );
 
 			if ( screenPadding < 40 && isTouch ) {
@@ -89,43 +93,25 @@ export default function init() {
 		}
 	}
 
-	function resizeListener() {
-		clearTimeout( resizeTimeout );
-		resizeTimeout = setTimeout( function () {
-			calculatePadding();
-			fitSlides( carousel.slides );
-			updateSlidePositions();
-			fitMeta();
-		}, 200 );
-	}
-
-	function fitMeta() {
-		carousel.info.style.left = screenPadding + 'px';
-		carousel.info.style.right = screenPadding + 'px';
-	}
-
 	function initializeCarousel() {
 		if ( ! carousel.overlay ) {
-			carousel.container = document.querySelector( '.jp-carousel-wrap' );
-			carousel.overlay = carousel.container.querySelector( '.jp-carousel-overlay' );
+			carousel.overlay = document.querySelector( '.jp-carousel-overlay' );
+			carousel.container = carousel.overlay.querySelector( '.jp-carousel-wrap' );
 			carousel.gallery = carousel.container.querySelector( '.jp-carousel' );
-			carousel.info = carousel.container.querySelector( '.jp-carousel-info' );
-			carousel.caption = carousel.container.querySelector( '.jp-carousel-caption' );
-			carousel.nextButton = carousel.container.querySelector( '.jp-carousel-next-button' );
-			carousel.prevButton = carousel.container.querySelector( '.jp-carousel-previous-button' );
-			carousel.commentField = carousel.container.querySelector(
+			carousel.info = carousel.overlay.querySelector( '.jp-carousel-info' );
+			carousel.caption = carousel.info.querySelector( '.jp-carousel-caption' );
+			carousel.commentField = carousel.overlay.querySelector(
 				'#jp-carousel-comment-form-comment-field'
 			);
-			carousel.emailField = carousel.container.querySelector(
+			carousel.emailField = carousel.overlay.querySelector(
 				'#jp-carousel-comment-form-email-field'
 			);
-			carousel.authorField = carousel.container.querySelector(
+			carousel.authorField = carousel.overlay.querySelector(
 				'#jp-carousel-comment-form-author-field'
 			);
-			carousel.urlField = carousel.container.querySelector( '#jp-carousel-comment-form-url-field' );
+			carousel.urlField = carousel.overlay.querySelector( '#jp-carousel-comment-form-url-field' );
 
 			calculatePadding();
-			fitMeta();
 
 			[
 				carousel.commentField,
@@ -139,14 +125,14 @@ export default function init() {
 				}
 			} );
 
-			carousel.container.addEventListener( 'click', function ( e ) {
-				var target = e.target;
-				var isTargetCloseHint = !! domUtil.closest( target, '.jp-carousel-close-hint' );
-				var isSmallScreen = !! window.matchMedia( '(max-device-width: 760px)' ).matches;
+			carousel.overlay.addEventListener( 'click', function ( e ) {
+				const target = e.target;
+				const isTargetCloseHint = !! domUtil.closest( target, '.jp-carousel-close-hint' );
+				const isSmallScreen = !! window.matchMedia( '(max-device-width: 760px)' ).matches;
 
-				if ( target === carousel.gallery ) {
+				if ( target === carousel.overlay ) {
 					if ( isSmallScreen ) {
-						handleCarouselGalleryTouch( e );
+						return;
 					} else {
 						closeCarousel();
 					}
@@ -160,81 +146,60 @@ export default function init() {
 					handleCommentLoginClick( e );
 				} else if ( domUtil.closest( target, '#jp-carousel-comment-form-container' ) ) {
 					handleCommentFormClick( e );
+				} else if (
+					domUtil.closest( target, '.jp-carousel-photo-icons-container' ) ||
+					target.classList.contains( 'jp-carousel-photo-title' )
+				) {
+					handleFooterElementClick( e );
 				} else if ( ! domUtil.closest( target, '.jp-carousel-info' ) ) {
-					if ( isSmallScreen ) {
-						handleCarouselGalleryTouch( e );
-					} else {
-						moveToNextSlide();
-					}
+					return;
 				}
 			} );
 
 			window.addEventListener( 'keydown', handleKeyboardEvent );
 
-			carousel.container.addEventListener( 'jp_carousel.beforeOpen', function () {
-				window.addEventListener( 'resize', resizeListener );
-				resizeListener();
-			} );
-
-			carousel.container.addEventListener( 'jp_carousel.afterOpen', function () {
+			carousel.overlay.addEventListener( 'jp_carousel.afterOpen', function () {
 				enableKeyboardNavigation();
+				// Show dot pagination if slide count is <= 5, otherwise show n/total.
+				if ( carousel.slides.length <= 5 ) {
+					domUtil.show( carousel.info.querySelector( '.jp-swiper-pagination' ) );
+				} else {
+					domUtil.show( carousel.info.querySelector( '.jp-carousel-pagination' ) );
+				}
 			} );
 
-			carousel.container.addEventListener( 'jp_carousel.beforeClose', function () {
+			carousel.overlay.addEventListener( 'jp_carousel.beforeClose', function () {
 				disableKeyboardNavigation();
-				window.removeEventListener( 'resize', resizeListener );
-				domUtil.hide( carousel.prevButton );
-				domUtil.hide( carousel.nextButton );
 
 				// Fixes some themes where closing carousel brings view back to top.
 				document.documentElement.style.removeProperty( 'height' );
+
+				// Hide pagination.
+				domUtil.hide( carousel.info.querySelector( '.jp-swiper-pagination' ) );
+				domUtil.hide( carousel.info.querySelector( '.jp-carousel-pagination' ) );
 			} );
 
-			carousel.container.addEventListener( 'jp_carousel.afterClose', function () {
-				if ( window.location.hash && history.back ) {
-					history.back();
+			carousel.overlay.addEventListener( 'jp_carousel.afterClose', function () {
+				// don't force the browser back when the carousel closes.
+				if ( window.history.pushState ) {
+					history.pushState(
+						'',
+						document.title,
+						window.location.pathname + window.location.search
+					);
+				} else {
+					window.location.href = '';
 				}
 				lastKnownLocationHash = '';
 				carousel.isOpen = false;
 			} );
 
-			touchUtil.addWipeHandler( {
-				root: carousel.container,
-				wipeLeft: function ( e ) {
+			// Prevent native browser zooming
+			carousel.overlay.addEventListener( 'touchstart', function ( e ) {
+				if ( e.touches.length > 1 ) {
 					e.preventDefault();
-					moveToNextSlide();
-				},
-				wipeRight: function ( e ) {
-					e.preventDefault();
-					moveToPreviousSlide();
-				},
+				}
 			} );
-
-			carousel.nextButton.addEventListener( 'click', function ( e ) {
-				e.preventDefault();
-				e.stopPropagation();
-				moveToNextSlide();
-			} );
-
-			carousel.prevButton.addEventListener( 'click', function ( e ) {
-				e.preventDefault();
-				e.stopPropagation();
-				moveToPreviousSlide();
-			} );
-		}
-	}
-
-	function handleCarouselGalleryTouch( e ) {
-		if ( typeof e.pageX === 'undefined' ) {
-			return;
-		}
-
-		if ( e.pageX <= 70 ) {
-			moveToPreviousSlide();
-		}
-
-		if ( window.innerWidth - e.pageX <= 70 ) {
-			moveToNextSlide();
 		}
 	}
 
@@ -246,127 +211,194 @@ export default function init() {
 		domUtil.show(
 			carousel.container.querySelector( '#jp-carousel-comment-form-submit-and-info-wrapper' )
 		);
-		var field = carousel.commentField;
+		const field = carousel.commentField;
 		field.focus();
 	}
 
 	function handleCommentLoginClick() {
-		var slide = carousel.currentSlide;
-		var attachmentId = slide ? slide.attrs.attachmentId : '0';
+		const slide = carousel.currentSlide;
+		const attachmentId = slide ? slide.attrs.attachmentId : '0';
 
 		window.location.href = jetpackCarouselStrings.login_url + '%23jp-carousel-' + attachmentId;
 	}
 
 	function updatePostResults( msg, isSuccess ) {
-		var results = carousel.container.querySelector( '#jp-carousel-comment-post-results' );
-		var elClass = 'jp-carousel-comment-post-' + ( isSuccess ? 'success' : 'error' );
+		const results = carousel.overlay.querySelector( '#jp-carousel-comment-post-results' );
+		const elClass = 'jp-carousel-comment-post-' + ( isSuccess ? 'success' : 'error' );
 		results.innerHTML = '<span class="' + elClass + '">' + msg + '</span>';
-		domUtil.hide( carousel.container.querySelector( '#jp-carousel-comment-form-spinner' ) );
+		domUtil.hide( carousel.overlay.querySelector( '#jp-carousel-comment-form-spinner' ) );
+		carousel.overlay
+			.querySelector( '#jp-carousel-comment-form' )
+			.classList.remove( 'jp-carousel-is-disabled' );
 		domUtil.show( results );
 	}
 
 	function handleCommentFormClick( e ) {
-		var target = e.target;
-		var data = domUtil.getJSONAttribute( carousel.container, 'data-carousel-extra' ) || {};
-		var attachmentId = carousel.currentSlide.attrs.attachmentId;
+			const target = e.target;
+			const data = domUtil.getJSONAttribute( carousel.container, 'data-carousel-extra' ) || {};
+			const attachmentId = carousel.currentSlide.attrs.attachmentId;
+			const wrapper = document.querySelector( '#jp-carousel-comment-form-submit-and-info-wrapper' );
+			const spinner = document.querySelector( '#jp-carousel-comment-form-spinner' );
+			const submit = document.querySelector( '#jp-carousel-comment-form-button-submit' );
+			const form = document.querySelector( '#jp-carousel-comment-form' );
 
-		var wrapper = document.querySelector( '#jp-carousel-comment-form-submit-and-info-wrapper' );
-		var spinner = document.querySelector( '#jp-carousel-comment-form-spinner' );
-		var submit = document.querySelector( '#jp-carousel-comment-form-button-submit' );
+			if (
+				carousel.commentField &&
+				carousel.commentField.getAttribute( 'id' ) === target.getAttribute( 'id' )
+			) {
+				// For first page load
+				disableKeyboardNavigation();
+				domUtil.show( wrapper );
+			} else if ( domUtil.matches( target, 'input[type="submit"]' ) ) {
+				e.preventDefault();
+				e.stopPropagation();
+
+				domUtil.show( spinner );
+				form.classList.add( 'jp-carousel-is-disabled' );
+
+				const ajaxData = {
+					action: 'post_attachment_comment',
+					nonce: jetpackCarouselStrings.nonce,
+					blog_id: data.blog_id,
+					id: attachmentId,
+					comment: carousel.commentField.value,
+				};
+
+				if ( ! ajaxData.comment.length ) {
+					updatePostResults( jetpackCarouselStrings.no_comment_text, false );
+					return;
+				}
+
+				if ( Number( jetpackCarouselStrings.is_logged_in ) !== 1 ) {
+					ajaxData.email = carousel.emailField.value;
+					ajaxData.author = carousel.authorField.value;
+					ajaxData.url = carousel.urlField.value;
+
+					if ( Number( jetpackCarouselStrings.require_name_email ) === 1 ) {
+						if ( ! ajaxData.email.length || ! ajaxData.email.match( '@' ) ) {
+							updatePostResults( jetpackCarouselStrings.no_comment_email, false );
+							return;
+						} else if ( ! ajaxData.author.length ) {
+							updatePostResults( jetpackCarouselStrings.no_comment_author, false );
+							return;
+						}
+					}
+				}
+
+				const xhr = new XMLHttpRequest();
+				xhr.open( 'POST', jetpackCarouselStrings.ajaxurl, true );
+				xhr.setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
+				xhr.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' );
+
+				xhr.onreadystatechange = function () {
+					if (
+						this.readyState === XMLHttpRequest.DONE &&
+						this.status >= 200 &&
+						this.status < 300
+					) {
+						let response;
+						try {
+							response = JSON.parse( this.response );
+						} catch ( error ) {
+							updatePostResults( jetpackCarouselStrings.comment_post_error, false );
+							return;
+						}
+						if ( response.comment_status === 'approved' ) {
+							updatePostResults( jetpackCarouselStrings.comment_approved, true );
+						} else if ( response.comment_status === 'unapproved' ) {
+							updatePostResults( jetpackCarouselStrings.comment_unapproved, true );
+						} else {
+							// 'deleted', 'spam', false
+							updatePostResults( jetpackCarouselStrings.comment_post_error, false );
+						}
+						clearCommentTextAreaValue();
+						fetchComments( attachmentId );
+						submit.value = jetpackCarouselStrings.post_comment;
+						domUtil.hide( spinner );
+						form.classList.remove( 'jp-carousel-is-disabled' );
+					} else {
+						// TODO: Add error handling and display here
+						updatePostResults( jetpackCarouselStrings.comment_post_error, false );
+					}
+				};
+
+				const params = [];
+				for ( const item in ajaxData ) {
+					if ( item ) {
+						// Encode each form element into a URI-compatible string.
+						const encoded = encodeURIComponent( item ) + '=' + encodeURIComponent( ajaxData[ item ] );
+						// In x-www-form-urlencoded, spaces should be `+`, not `%20`.
+						params.push( encoded.replace( /%20/g, '+' ) );
+					}
+				}
+				const encodedData = params.join( '&' );
+
+				xhr.send( encodedData );
+			}
+		}
+
+	/**
+	 * Handles clicks to icons and other action elements in the icon container.
+	 * @param {MouseEvent|TouchEvent|KeyBoardEvent} Event object.
+	 */
+	function handleFooterElementClick( e ) {
+		e.preventDefault();
+
+		const target = e.target;
+		const extraInfoContainer = carousel.info.querySelector( '.jp-carousel-info-extra' );
+		const photoMetaContainer = carousel.info.querySelector( '.jp-carousel-image-meta' );
+		const commentsContainer = carousel.info.querySelector( '.jp-carousel-comments-wrapper' );
+		const infoIcon = carousel.info.querySelector( '.jp-carousel-icon-info' );
+		const commentsIcon = carousel.info.querySelector( '.jp-carousel-icon-comments' );
 
 		if (
-			carousel.commentField &&
-			carousel.commentField.getAttribute( 'id' ) === target.getAttribute( 'id' )
+			domUtil.closest( target, '.jp-carousel-icon-info' ) ||
+			target.classList.contains( 'jp-carousel-photo-title' )
 		) {
-			// For first page load
-			disableKeyboardNavigation();
-			domUtil.show( wrapper );
-		} else if ( domUtil.matches( target, 'input[type="submit"]' ) ) {
-			e.preventDefault();
-			e.stopPropagation();
-
-			domUtil.show( spinner );
-
-			var ajaxData = {
-				action: 'post_attachment_comment',
-				nonce: jetpackCarouselStrings.nonce,
-				blog_id: data.blog_id,
-				id: attachmentId,
-				comment: carousel.commentField.value,
-			};
-
-			if ( ! ajaxData.comment.length ) {
-				updatePostResults( jetpackCarouselStrings.no_comment_text, false );
-				return;
+			if ( commentsIcon ) {
+				commentsIcon.classList.remove( 'jp-carousel-selected' );
 			}
+			infoIcon.classList.toggle( 'jp-carousel-selected' );
 
-			if ( Number( jetpackCarouselStrings.is_logged_in ) !== 1 ) {
-				ajaxData.email = carousel.emailField.value;
-				ajaxData.author = carousel.authorField.value;
-				ajaxData.url = carousel.urlField.value;
-
-				if ( Number( jetpackCarouselStrings.require_name_email ) === 1 ) {
-					if ( ! ajaxData.email.length || ! ajaxData.email.match( '@' ) ) {
-						updatePostResults( jetpackCarouselStrings.no_comment_email, false );
-						return;
-					} else if ( ! ajaxData.author.length ) {
-						updatePostResults( jetpackCarouselStrings.no_comment_author, false );
-						return;
-					}
-				}
+			if ( commentsContainer ) {
+				commentsContainer.classList.remove( 'jp-carousel-show' );
 			}
-
-			var xhr = new XMLHttpRequest();
-			xhr.open( 'POST', jetpackCarouselStrings.ajaxurl, true );
-			xhr.setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
-			xhr.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' );
-
-			xhr.onreadystatechange = function () {
-				if ( this.readyState === XMLHttpRequest.DONE && this.status >= 200 && this.status < 300 ) {
-					var response;
-					try {
-						response = JSON.parse( this.response );
-					} catch ( error ) {
-						updatePostResults( jetpackCarouselStrings.comment_post_error, false );
-						return;
-					}
-					if ( response.comment_status === 'approved' ) {
-						updatePostResults( jetpackCarouselStrings.comment_approved, true );
-					} else if ( response.comment_status === 'unapproved' ) {
-						updatePostResults( jetpackCarouselStrings.comment_unapproved, true );
-					} else {
-						// 'deleted', 'spam', false
-						updatePostResults( jetpackCarouselStrings.comment_post_error, false );
-					}
-					clearCommentTextAreaValue();
-					fetchComments( attachmentId );
-					submit.value = jetpackCarouselStrings.post_comment;
-					domUtil.hide( spinner );
+			if ( photoMetaContainer ) {
+				photoMetaContainer.classList.toggle( 'jp-carousel-show' );
+				if ( photoMetaContainer.classList.contains( 'jp-carousel-show' ) ) {
+					extraInfoContainer.classList.add( 'jp-carousel-show' );
+					domUtil.scrollToElement( extraInfoContainer );
 				} else {
-					// TODO: Add error handling and display here
-					updatePostResults( jetpackCarouselStrings.comment_post_error, false );
-				}
-			};
-
-			var params = [];
-			for ( var item in ajaxData ) {
-				if ( item ) {
-					// Encode each form element into a URI-compatible string.
-					var encoded = encodeURIComponent( item ) + '=' + encodeURIComponent( ajaxData[ item ] );
-					// In x-www-form-urlencoded, spaces should be `+`, not `%20`.
-					params.push( encoded.replace( /%20/g, '+' ) );
+					extraInfoContainer.classList.remove( 'jp-carousel-show' );
 				}
 			}
-			var encodedData = params.join( '&' );
+		}
 
-			xhr.send( encodedData );
+		if ( domUtil.closest( target, '.jp-carousel-icon-comments' ) ) {
+			if ( infoIcon ) {
+				infoIcon.classList.remove( 'jp-carousel-selected' );
+			}
+			commentsIcon.classList.toggle( 'jp-carousel-selected' );
+
+			if ( photoMetaContainer ) {
+				photoMetaContainer.classList.remove( 'jp-carousel-show' );
+			}
+			if ( commentsContainer ) {
+				commentsContainer.classList.toggle( 'jp-carousel-show' );
+				if ( commentsContainer.classList.contains( 'jp-carousel-show' ) ) {
+					extraInfoContainer.classList.add( 'jp-carousel-show' );
+					domUtil.scrollToElement( extraInfoContainer );
+				} else {
+					extraInfoContainer.classList.remove( 'jp-carousel-show' );
+				}
+			}
 		}
 	}
 
 	function processSingleImageGallery() {
-		var images = document.querySelectorAll( 'a img[data-attachment-id]' );
+		const images = document.querySelectorAll( 'a img[data-attachment-id]' );
 		Array.prototype.forEach.call( images, function ( image ) {
-			var container = image.parentElement;
+			const container = image.parentElement;
 
 			// Skip if image was already added to gallery by shortcode.
 			if ( container.parentElement.classList.contains( 'gallery-icon' ) ) {
@@ -378,7 +410,7 @@ export default function init() {
 				return;
 			}
 
-			var valid = false;
+			let valid = false;
 
 			// If link points to 'Media File' (ignoring GET parameters) and flag is set, allow it.
 			if (
@@ -418,173 +450,116 @@ export default function init() {
 	function openOrSelectSlide( gal, index ) {
 		if ( ! carousel.isOpen ) {
 			// The `open` method selects the correct slide during the initialization.
-			openCarousel( gal, { startIndex: index } );
+			loadSwiper( gal, { startIndex: index } );
 		} else {
 			selectSlideAtIndex( index );
+			// We have to force swiper to slide to the index onHasChange.
+			swiper.slideTo( index + 1 );
 		}
 	}
 
 	function selectSlideAtIndex( index ) {
-		if ( ! index || index < 0 || index > carousel.slides.length ) {
-			index = 0;
-		}
-
-		if ( carousel.currentSlide ) {
-			carousel.lastSlide = carousel.currentSlide;
-			carousel.currentSlide.el.classList.remove( 'selected' );
-		}
-
-		carousel.currentSlide = carousel.slides[ index ];
-
-		var current = carousel.currentSlide;
-		var attachmentId = current.attrs.attachmentId;
-		var prev = getPrevSlide( carousel.currentSlide );
-		var next = getNextSlide( carousel.currentSlide );
-		var previousPrevious = getPrevSlide( prev );
-		var nextNext = getNextSlide( next );
-		var captionHtml;
-
-		carousel.slides.forEach( function ( slide ) {
-			slide.el.style.position = 'fixed';
-		} );
-		current.el.classList.add( 'selected' );
-		current.el.style.position = 'relative';
-
-		// Center the main image.
-		loadFullImage( carousel.slides[ index ] );
-
-		domUtil.hide( carousel.caption );
-
-		if ( ! next || ( next.index < current.index && carousel.slides.length <= 2 ) ) {
-			domUtil.hide( carousel.nextButton );
-		} else {
-			domUtil.show( carousel.nextButton );
-		}
-
-		if ( ! prev || ( prev.index > current.index && carousel.slides.length <= 2 ) ) {
-			domUtil.hide( carousel.prevButton );
-		} else {
-			domUtil.show( carousel.prevButton );
-		}
-
-		var inUse = util.unique( [ current, prev, previousPrevious, next, nextNext ] );
-		loadSlides( inUse );
-
-		carousel.slides.forEach( function ( slide ) {
-			if ( inUse.indexOf( slide ) === -1 ) {
-				domUtil.hide( slide.el );
+			if ( ! index || index < 0 || index > carousel.slides.length ) {
+				index = 0;
 			}
-		} );
+			carousel.currentSlide = carousel.slides[ index ];
 
-		updateSlidePositions();
-		domUtil.emitEvent( carousel.container, 'jp_carousel.selectSlide', current.el );
+			const current = carousel.currentSlide;
+			const attachmentId = current.attrs.attachmentId;
+			let captionHtml;
+			const extraInfoContainer = carousel.info.querySelector( '.jp-carousel-info-extra' );
+			const photoMetaContainer = carousel.info.querySelector( '.jp-carousel-image-meta' );
+			const commentsContainer = carousel.info.querySelector( '.jp-carousel-comments-wrapper' );
+			const infoIcon = carousel.info.querySelector( '.jp-carousel-icon-info' );
+			const commentsIcon = carousel.info.querySelector( '.jp-carousel-icon-comments' );
 
-		updateTitleAndDesc( { title: current.attrs.title, desc: current.attrs.desc } );
+			// Hide comments and photo info
+			if ( extraInfoContainer ) {
+				extraInfoContainer.classList.remove( 'jp-carousel-show' );
+			}
+			if ( photoMetaContainer ) {
+				photoMetaContainer.classList.remove( 'jp-carousel-show' );
+			}
+			if ( infoIcon ) {
+				infoIcon.classList.remove( 'jp-carousel-selected' );
+			}
+			if ( commentsContainer ) {
+				commentsContainer.classList.remove( 'jp-carousel-show' );
+			}
+			if ( commentsIcon ) {
+				commentsIcon.classList.remove( 'jp-carousel-selected' );
+			}
 
-		var imageMeta = carousel.slides[ index ].attrs.imageMeta;
-		updateExif( imageMeta );
-		updateFullSizeLink( current );
+			loadFullImage( carousel.slides[ index ] );
 
-		if ( Number( jetpackCarouselStrings.display_comments ) === 1 ) {
-			testCommentsOpened( carousel.slides[ index ].attrs.commentsOpened );
-			fetchComments( attachmentId );
-			domUtil.hide( carousel.container.querySelector( '#jp-carousel-comment-post-results' ) );
-		}
+			if (
+				Number( jetpackCarouselStrings.display_background_image ) === 1 &&
+				! carousel.slides[ index ].backgroundImage
+			) {
+				loadBackgroundImage( carousel.slides[ index ] );
+			}
 
-		if ( current.attrs.caption ) {
-			captionHtml = domUtil.convertToPlainText( current.attrs.caption );
+			domUtil.hide( carousel.caption );
+			updateTitleAndDesc( { title: current.attrs.title, desc: current.attrs.desc } );
 
-			if ( domUtil.convertToPlainText( current.attrs.title ) === captionHtml ) {
-				var title = carousel.container.querySelector( '.jp-carousel-titleanddesc-title' );
-				domUtil.fadeOut( title, function () {
-					title.innerHTML = '';
+			const imageMeta = carousel.slides[ index ].attrs.imageMeta;
+			updateExif( imageMeta );
+			updateFullSizeLink( current );
+
+			if ( Number( jetpackCarouselStrings.display_comments ) === 1 ) {
+				testCommentsOpened( carousel.slides[ index ].attrs.commentsOpened );
+				fetchComments( attachmentId );
+				domUtil.hide( carousel.info.querySelector( '#jp-carousel-comment-post-results' ) );
+			}
+
+			if ( current.attrs.caption ) {
+				captionHtml = domUtil.convertToPlainText( current.attrs.caption );
+
+				if ( domUtil.convertToPlainText( current.attrs.title ) === captionHtml ) {
+					const title = carousel.info.querySelector( '.jp-carousel-photo-title' );
+					domUtil.fadeOut( title, function () {
+						title.innerHTML = '';
+					} );
+				}
+
+				if ( domUtil.convertToPlainText( current.attrs.desc ) === captionHtml ) {
+					const desc = carousel.info.querySelector( '.jp-carousel-photo-description' );
+					domUtil.fadeOut( desc, function () {
+						desc.innerHTML = '';
+					} );
+				}
+
+				carousel.caption.innerHTML = current.attrs.caption;
+				domUtil.fadeIn( carousel.caption );
+			} else {
+				domUtil.fadeOut( carousel.caption, function () {
+					carousel.caption.innerHTML = '';
 				} );
 			}
 
-			if ( domUtil.convertToPlainText( current.attrs.desc ) === captionHtml ) {
-				var desc = carousel.container.querySelector( '.jp-carousel-titleanddesc-desc' );
-				domUtil.fadeOut( desc, function () {
-					desc.innerHTML = '';
-				} );
+			// Update pagination in footer.
+			const pagination = carousel.info.querySelector( '.jp-carousel-pagination' );
+			if ( pagination && carousel.slides.length > 5 ) {
+				var currentPage = index + 1;
+				pagination.innerHTML = '<span>' + currentPage + ' / ' + carousel.slides.length + '</span>';
 			}
 
-			carousel.caption.innerHTML = current.attrs.caption;
-			domUtil.fadeIn( carousel.caption );
-		} else {
-			domUtil.fadeOut( carousel.caption, function () {
-				carousel.caption.innerHTML = '';
-			} );
-		}
-
-		// Record pageview in WP Stats, for each new image loaded full-screen.
-		if ( jetpackCarouselStrings.stats ) {
-			new Image().src =
-				document.location.protocol +
-				'//pixel.wp.com/g.gif?' +
-				jetpackCarouselStrings.stats +
-				'&post=' +
-				encodeURIComponent( attachmentId ) +
-				'&rand=' +
-				Math.random();
-		}
-
-		pageview( attachmentId );
-
-		// Load previous and next slides, while trying to ensure that the current one is first.
-		setTimeout( function () {
-			if ( next ) {
-				loadFullImage( next );
+			// Record pageview in WP Stats, for each new image loaded full-screen.
+			if ( jetpackCarouselStrings.stats ) {
+				new Image().src =
+					document.location.protocol +
+					'//pixel.wp.com/g.gif?' +
+					jetpackCarouselStrings.stats +
+					'&post=' +
+					encodeURIComponent( attachmentId ) +
+					'&rand=' +
+					Math.random();
 			}
-			if ( prev ) {
-				loadFullImage( next );
-			}
-		} );
 
-		window.location.hash = lastKnownLocationHash = '#jp-carousel-' + attachmentId;
-	}
+			pageview( attachmentId );
 
-	function moveToNextSlide() {
-		moveToPreviousOrNextSlide( getNextSlide );
-	}
-
-	function moveToPreviousSlide() {
-		moveToPreviousOrNextSlide( getPrevSlide );
-	}
-
-	function moveToPreviousOrNextSlide( slideSelectionMethod ) {
-		if ( carousel.slides.length <= 1 ) {
-			return false;
+			window.location.hash = lastKnownLocationHash = '#jp-carousel-' + attachmentId;
 		}
-
-		var newIndex = slideSelectionMethod( carousel.currentSlide ).index;
-
-		if ( newIndex >= 0 ) {
-			domUtil.scrollToY( carousel.container, 0 );
-			clearCommentTextAreaValue();
-			selectSlideAtIndex( newIndex );
-			stat( [ 'previous', 'view_image' ] );
-		}
-	}
-
-	function getNextSlide( slide ) {
-		var isLast = slide && slide.index === carousel.slides.length - 1;
-
-		if ( slide === undefined || ( carousel.slides.length > 2 && isLast ) ) {
-			return carousel.slides[ 0 ];
-		}
-
-		return carousel.slides[ slide.index + 1 ];
-	}
-
-	function getPrevSlide( slide ) {
-		var isFirst = slide && slide.index === 0;
-
-		if ( slide === undefined || ( carousel.slides.length > 2 && isFirst ) ) {
-			return carousel.slides[ carousel.slides.length - 1 ];
-		}
-
-		return carousel.slides[ slide.index - 1 ];
-	}
 
 	function restoreScroll() {
 		window.scrollTo( window.scrollX || window.pageXOffset || 0, scrollPos || 0 );
@@ -598,177 +573,25 @@ export default function init() {
 
 		disableKeyboardNavigation();
 
-		domUtil.emitEvent( carousel.container, 'jp_carousel.beforeClose' );
-
+		domUtil.emitEvent( carousel.overlay, 'jp_carousel.beforeClose' );
 		restoreScroll();
+		swiper.destroy();
+		carousel.isOpen = false;
+		// Clear slide data for DOM garbage collection.
+		carousel.slides = [];
+		carousel.currentSlide = undefined;
+		carousel.gallery.innerHTML = '';
 
-		domUtil.fadeOut( carousel.container, function () {
-			// Clear slide data for DOM garbage collection.
-			carousel.slides = [];
-			carousel.currentSlide = undefined;
-			carousel.gallery.innerHTML = '';
-
-			restoreScroll();
-
-			domUtil.emitEvent( carousel.container, 'jp_carousel.afterClose' );
+		domUtil.fadeOut( carousel.overlay, function () {
+			domUtil.emitEvent( carousel.overlay, 'jp_carousel.afterClose' );
 		} );
-	}
-
-	function setSlidePosition( slideEl, x ) {
-		if ( ! slideEl ) {
-			return;
-		}
-		slideEl.style.transform = 'translate3d(' + x + 'px,0,0)';
-	}
-
-	function getSlideWidth( slide ) {
-		return parseInt( getComputedStyle( slide.el ).width, 10 );
-	}
-
-	function updateSlidePositions() {
-		var current = carousel.currentSlide;
-		var last = carousel.lastSlide;
-
-		var galleryWidth = carousel.gallery.offsetWidth;
-		var currentWidth = getSlideWidth( current );
-
-		var previous = getPrevSlide( current );
-		var next = getNextSlide( current );
-		var previousPrevious = getPrevSlide( previous );
-		var nextNext = getNextSlide( next );
-
-		var left = Math.floor( ( galleryWidth - currentWidth ) * 0.5 );
-
-		setSlidePosition( current.el, left );
-		domUtil.show( current.el );
-
-		// minimum width
-		fitInfo();
-
-		// prep the slides
-		var direction = current && last && last.index < current.index ? 1 : -1;
-
-		if ( carousel.slides.length > 1 ) {
-			// Since we preload the `previousPrevious` and `nextNext` slides, we need
-			// to make sure they technically visible in the DOM, but invisible to the
-			// user. To hide them from the user, we position them outside the edges
-			// of the window.
-			//
-			// This section of code only applies when there are more than three
-			// slides. Otherwise, the `previousPrevious` and `nextNext` slides will
-			// overlap with the `previous` and `next` slides which must be visible
-			// regardless.
-			if ( direction === 1 ) {
-				if ( nextNext !== previous ) {
-					setSlidePosition( nextNext.el, galleryWidth + getSlideWidth( next ) );
-					domUtil.show( nextNext.el );
-				}
-
-				if ( previousPrevious !== next ) {
-					setSlidePosition(
-						previousPrevious.el,
-						-getSlideWidth( previousPrevious ) - currentWidth
-					);
-					domUtil.show( previousPrevious.el );
-				}
-			} else {
-				if ( nextNext !== previous ) {
-					setSlidePosition( nextNext.el, galleryWidth + currentWidth );
-					domUtil.show( nextNext.el );
-				}
-			}
-
-			setSlidePosition(
-				previous.el,
-				Math.floor( -getSlideWidth( previous ) + screenPadding * 0.75 )
-			);
-			domUtil.show( previous.el );
-
-			setSlidePosition( next.el, Math.ceil( galleryWidth - screenPadding * 0.75 ) );
-			domUtil.show( next.el );
-		}
 	}
 
 	function calculateMaxSlideDimensions() {
-		var screenHeightPercent = 80;
-
 		return {
-			width: window.innerWidth - screenPadding * 2,
-			height: Math.floor( ( window.innerHeight / 100 ) * screenHeightPercent - 60 ),
+			width: window.innerWidth,
+			height: window.innerHeight - 64, //subtract height of bottom info bar,
 		};
-	}
-
-	function calculateBestFit( slide ) {
-		var max = calculateMaxSlideDimensions();
-		var origRatio = slide.attrs.origWidth / slide.attrs.origHeight,
-			wRatio = 1,
-			hRatio = 1,
-			width,
-			height;
-
-		if ( slide.attrs.origWidth > max.width ) {
-			wRatio = max.width / slide.attrs.origWidth;
-		}
-		if ( slide.attrs.origHeight > max.height ) {
-			hRatio = max.height / slide.attrs.origHeight;
-		}
-
-		if ( wRatio < hRatio ) {
-			width = max.width;
-			height = Math.floor( width / origRatio );
-		} else if ( hRatio < wRatio ) {
-			height = max.height;
-			width = Math.floor( height * origRatio );
-		} else {
-			width = slide.attrs.origWidth;
-			height = slide.attrs.origHeight;
-		}
-
-		return {
-			width: width,
-			height: height,
-		};
-	}
-
-	function loadSlides( slides ) {
-		for ( var i = 0; i < slides.length; i++ ) {
-			var slide = slides[ i ];
-			var img = slide.el.querySelector( 'img' );
-
-			var loadHandler = function () {
-				// set the width/height of the image if it's too big
-				fitSlides( [ slide ] );
-			};
-			img.addEventListener( 'load', loadHandler );
-		}
-	}
-
-	function fitInfo() {
-		var size = calculateBestFit( carousel.currentSlide );
-
-		var photoInfos = carousel.container.querySelectorAll( '.jp-carousel-photo-info' );
-		Array.prototype.forEach.call( photoInfos, function ( photoInfo ) {
-			photoInfo.style.left = Math.floor( ( carousel.info.offsetWidth - size.width ) * 0.5 ) + 'px';
-			photoInfo.style.width = Math.floor( size.width ) + 'px';
-		} );
-	}
-
-	function fitSlides( slides ) {
-		if ( ! slides ) {
-			return;
-		}
-
-		slides.forEach( function ( slide ) {
-			var dimensions = calculateBestFit( slide );
-			var max = calculateMaxSlideDimensions();
-
-			dimensions.left = 0;
-			dimensions.top = Math.floor( ( max.height - dimensions.height ) * 0.5 ) + 40;
-
-			for ( var dimension in dimensions ) {
-				slide.el.style.setProperty( dimension, dimensions[ dimension ] + 'px' );
-			}
-		} );
 	}
 
 	function selectBestImageUrl( args ) {
@@ -790,20 +613,17 @@ export default function init() {
 
 		// Check if the image is being served by Photon (using a regular expression on the hostname).
 
-		var imageLinkParser = document.createElement( 'a' );
+		const imageLinkParser = document.createElement( 'a' );
 		imageLinkParser.href = args.largeFile;
 
-		var isPhotonUrl = /^i[0-2]\.wp\.com$/i.test( imageLinkParser.hostname );
+		const isPhotonUrl = /^i[0-2]\.wp\.com$/i.test( imageLinkParser.hostname );
+		const mediumSizeParts = getImageSizeParts( args.mediumFile, args.origWidth, isPhotonUrl );
+		const largeSizeParts = getImageSizeParts( args.largeFile, args.origWidth, isPhotonUrl );
+		const largeWidth = parseInt( largeSizeParts[ 0 ], 10 );
+		const largeHeight = parseInt( largeSizeParts[ 1 ], 10 );
+		const mediumWidth = parseInt( mediumSizeParts[ 0 ], 10 );
+		const mediumHeight = parseInt( mediumSizeParts[ 1 ], 10 );
 
-		var mediumSizeParts = getImageSizeParts( args.mediumFile, args.origWidth, isPhotonUrl );
-		var largeSizeParts = getImageSizeParts( args.largeFile, args.origWidth, isPhotonUrl );
-
-		var largeWidth = parseInt( largeSizeParts[ 0 ], 10 );
-		var largeHeight = parseInt( largeSizeParts[ 1 ], 10 );
-		var mediumWidth = parseInt( mediumSizeParts[ 0 ], 10 );
-		var mediumHeight = parseInt( mediumSizeParts[ 1 ], 10 );
-
-		// Assign max width and height.
 		args.origMaxWidth = args.maxWidth;
 		args.origMaxHeight = args.maxHeight;
 
@@ -824,13 +644,20 @@ export default function init() {
 		if ( isPhotonUrl ) {
 			// args.origFile doesn't point to a Photon url, so in this case we use args.largeFile
 			// to return the photon url of the original image.
-			var largeFileIndex = args.largeFile.lastIndexOf( '?' );
-			var origPhotonUrl = args.largeFile;
+			const largeFileIndex = args.largeFile.lastIndexOf( '?' );
+			let origPhotonUrl = args.largeFile;
 			if ( largeFileIndex !== -1 ) {
 				origPhotonUrl = args.largeFile.substring( 0, largeFileIndex );
 				// If we have a really large image load a smaller version
 				// that is closer to the viewable size
 				if ( args.origWidth > args.maxWidth || args.origHeight > args.maxHeight ) {
+					// If the image is smaller than 1000px in width or height, @2x it so
+					// we get a high enough resolution for zooming.
+					if ( args.origMaxWidth < 1000 || args.origMaxWidth < 1000 ) {
+						args.origMaxWidth = args.maxWidth * 2;
+						args.origMaxHeight = args.maxHeight * 2;
+					}
+
 					origPhotonUrl += '?fit=' + args.origMaxWidth + '%2C' + args.origMaxHeight;
 				}
 			}
@@ -841,12 +668,20 @@ export default function init() {
 	}
 
 	function getImageSizeParts( file, origWidth, isPhotonUrl ) {
-		var size = isPhotonUrl
+		if ( ! file ) {
+			return;
+		}
+
+		const size = isPhotonUrl
 			? file.replace( /.*=([\d]+%2C[\d]+).*$/, '$1' )
 			: file.replace( /.*-([\d]+x[\d]+)\..+$/, '$1' );
 
-		var sizeParts =
-			size !== file ? ( isPhotonUrl ? size.split( '%2C' ) : size.split( 'x' ) ) : [ origWidth, 0 ];
+		const sizeParts =
+			size !== file
+				? isPhotonUrl
+					? size.split( '%2C' )
+					: size.split( 'x' )
+				: [ origWidth, 0 ];
 
 		// If one of the dimensions is set to 9999, then the actual value of that dimension can't be retrieved from the url.
 		// In that case, we set the value to 0.
@@ -867,7 +702,7 @@ export default function init() {
 	 * @return String
 	 */
 	function formatShutterSpeed( speed ) {
-		var denominator;
+		let denominator;
 
 		// round to one decimal if value > 1s by multiplying it by 10, rounding, then dividing by 10 again
 		if ( speed >= 1 ) {
@@ -884,6 +719,9 @@ export default function init() {
 	}
 
 	function parseTitleOrDesc( value ) {
+		if ( ! value ) {
+			return;
+		}
 		if ( ! value.match( ' ' ) && value.match( '_' ) ) {
 			return '';
 		}
@@ -892,13 +730,20 @@ export default function init() {
 	}
 
 	function updateTitleAndDesc( data ) {
-		var title = '';
-		var desc = '';
-		var markup = '';
-		var target;
+		let title = '';
+		let desc = '';
+		let titleElements;
+		let descriptionElement;
+		let i;
 
-		target = carousel.container.querySelector( '.jp-carousel-titleanddesc' );
-		domUtil.hide( target );
+		titleElements = document.querySelectorAll( '.jp-carousel-photo-title' );
+		descriptionElement = document.querySelector( '.jp-carousel-photo-description' );
+
+		for ( i = 0; i < titleElements.length; i++ ) {
+			domUtil.hide( titleElements[ i ] );
+		}
+
+		domUtil.hide( descriptionElement );
 
 		title = parseTitleOrDesc( data.title ) || '';
 		desc = parseTitleOrDesc( data.desc ) || '';
@@ -906,14 +751,19 @@ export default function init() {
 		if ( title || desc ) {
 			// Convert from HTML to plain text (including HTML entities decode, etc)
 			if ( domUtil.convertToPlainText( title ) === domUtil.convertToPlainText( desc ) ) {
-				title = '';
+				desc = '';
 			}
 
-			markup = title ? '<div class="jp-carousel-titleanddesc-title">' + title + '</div>' : '';
-			markup += desc ? '<div class="jp-carousel-titleanddesc-desc">' + desc + '</div>' : '';
+			if ( desc ) {
+				descriptionElement.innerHTML = desc;
+				domUtil.show( descriptionElement );
+			}
 
-			target.innerHTML = markup;
-			domUtil.fadeIn( target );
+			// Need maximum browser support, hence the for loop over NodeList.
+			for ( i = 0; i < titleElements.length; i++ ) {
+				titleElements[ i ].innerHTML = title;
+				domUtil.show( titleElements[ i ] );
+			}
 		}
 	}
 
@@ -923,12 +773,12 @@ export default function init() {
 			return false;
 		}
 
-		var ul = carousel.info.querySelector( '.jp-carousel-image-meta ul.jp-carousel-image-exif' );
-		var html = '';
+		const ul = carousel.info.querySelector( '.jp-carousel-image-meta ul.jp-carousel-image-exif' );
+		let html = '';
 
-		for ( var key in meta ) {
-			var val = meta[ key ];
-			var metaKeys = jetpackCarouselStrings.meta_data || [];
+		for ( const key in meta ) {
+			let val = meta[ key ];
+			const metaKeys = jetpackCarouselStrings.meta_data || [];
 
 			if ( parseFloat( val ) === 0 || ! val.length || metaKeys.indexOf( key ) === -1 ) {
 				continue;
@@ -946,7 +796,7 @@ export default function init() {
 					break;
 			}
 
-			html += '<li><h5>' + jetpackCarouselStrings[ key ] + '</h5>' + val + '</li>';
+			html += `<li><h5>${ jetpackCarouselStrings[ key ] }</h5>${ val }</li>`;
 		}
 
 		ul.innerHTML = html;
@@ -958,20 +808,25 @@ export default function init() {
 		if ( ! currentSlide ) {
 			return false;
 		}
-		var original;
-		var origSize = [ currentSlide.attrs.origWidth, currentSlide.attrs.origHeight ];
-		var imageLinkParser = document.createElement( 'a' );
 
-		imageLinkParser.href = currentSlide.attrs.src.replace( /\?.+$/, '' );
+		let original;
+		const origSize = [ currentSlide.attrs.origWidth, currentSlide.attrs.origHeight ];
+		const imageLinkParser = document.createElement( 'a' );
+
+		if ( currentSlide.attrs && currentSlide.attrs.src ) {
+			imageLinkParser.href = currentSlide.attrs.src.replace( /\?.+$/, '' );
+		}
 
 		// Is this a Photon URL?
 		if ( imageLinkParser.hostname.match( /^i[\d]{1}\.wp\.com$/i ) !== null ) {
 			original = imageLinkParser.href;
 		} else {
-			original = currentSlide.attrs.origFile.replace( /\?.+$/, '' );
+			if ( currentSlide.attrs && currentSlide.attrs.origFile ) {
+				original = currentSlide.attrs.origFile.replace( /\?.+$/, '' );
+			}
 		}
 
-		var permalink = carousel.info.querySelector( '.jp-carousel-image-download' );
+		const permalink = carousel.info.querySelector( '.jp-carousel-image-download' );
 		permalink.innerHTML = util.applyReplacements(
 			jetpackCarouselStrings.download_original,
 			origSize
@@ -981,11 +836,11 @@ export default function init() {
 	}
 
 	function testCommentsOpened( opened ) {
-		var commentForm = carousel.container.querySelector( '.jp-carousel-comment-form-container' );
-		var commentLink = carousel.container.querySelector( '.jp-carousel-commentlink' );
-		var buttons = carousel.container.querySelector( '.jp-carousel-buttons' );
-		var control = Number( jetpackCarouselStrings.is_logged_in ) === 1 ? commentLink : buttons;
-		var isOpened = parseInt( opened, 10 ) === 1;
+		const commentForm = carousel.container.querySelector( '.jp-carousel-comment-form-container' );
+		const commentLink = carousel.container.querySelector( '.jp-carousel-commentlink' );
+		const buttons = carousel.container.querySelector( '.jp-carousel-buttons' );
+		const control = Number( jetpackCarouselStrings.is_logged_in ) === 1 ? commentLink : buttons;
+		const isOpened = parseInt( opened, 10 ) === 1;
 
 		if ( isOpened ) {
 			domUtil.fadeIn( control );
@@ -997,7 +852,12 @@ export default function init() {
 	}
 
 	function fetchComments( attachmentId, offset ) {
-		var shouldClear = offset === undefined;
+		const shouldClear = offset === undefined;
+		const commentsIndicator = carousel.info.querySelector(
+			'.jp-carousel-icon-comments .jp-carousel-has-comments-indicator'
+		);
+
+		commentsIndicator.classList.remove( 'jp-carousel-show' );
 
 		clearInterval( commentInterval );
 
@@ -1009,8 +869,8 @@ export default function init() {
 			offset = 0;
 		}
 
-		var comments = carousel.container.querySelector( '.jp-carousel-comments' );
-		var commentsLoading = carousel.container.querySelector( '#jp-carousel-comments-loading' );
+		const comments = carousel.info.querySelector( '.jp-carousel-comments' );
+		const commentsLoading = carousel.info.querySelector( '#jp-carousel-comments-loading' );
 		domUtil.show( commentsLoading );
 
 		if ( shouldClear ) {
@@ -1018,8 +878,8 @@ export default function init() {
 			comments.innerHTML = '';
 		}
 
-		var xhr = new XMLHttpRequest();
-		var url =
+		const xhr = new XMLHttpRequest();
+		const url =
 			jetpackCarouselStrings.ajaxurl +
 			'?action=get_attachment_comments' +
 			'&nonce=' +
@@ -1031,19 +891,22 @@ export default function init() {
 		xhr.open( 'GET', url );
 		xhr.setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
 
-		var onError = function () {
+		const onError = function () {
 			domUtil.fadeIn( comments );
 			domUtil.fadeOut( commentsLoading );
 		};
 
 		xhr.onload = function () {
 			// Ignore the results if they arrive late and we're now on a different slide.
-			if ( ! carousel.currentSlide || carousel.currentSlide.attrs.attachmentId !== attachmentId ) {
+			if (
+				! carousel.currentSlide ||
+				carousel.currentSlide.attrs.attachmentId !== attachmentId
+			) {
 				return;
 			}
 
-			var isSuccess = xhr.status >= 200 && xhr.status < 300;
-			var data;
+			const isSuccess = xhr.status >= 200 && xhr.status < 300;
+			let data;
 			try {
 				data = JSON.parse( xhr.responseText );
 			} catch ( e ) {
@@ -1058,22 +921,22 @@ export default function init() {
 				comments.innerHTML = '';
 			}
 
-			for ( var i = 0; i < data.length; i++ ) {
-				var entry = data[ i ];
-				var comment = document.createElement( 'div' );
+			for ( let i = 0; i < data.length; i++ ) {
+				const entry = data[ i ];
+				const comment = document.createElement( 'div' );
 				comment.classList.add( 'jp-carousel-comment' );
 				comment.setAttribute( 'id', 'jp-carousel-comment-' + entry.id );
 				comment.innerHTML =
 					'<div class="comment-gravatar">' +
 					entry.gravatar_markup +
 					'</div>' +
+					'<div class="comment-content">' +
 					'<div class="comment-author">' +
 					entry.author_markup +
 					'</div>' +
 					'<div class="comment-date">' +
 					entry.date_gmt +
 					'</div>' +
-					'<div class="comment-content">' +
 					entry.content +
 					'</div>';
 				comments.appendChild( comment );
@@ -1088,7 +951,12 @@ export default function init() {
 				}, 300 );
 			}
 
-			domUtil.show( comments );
+			if ( data.length > 0 ) {
+				domUtil.show( comments );
+				commentsIndicator.innerText = data.length;
+				commentsIndicator.classList.add( 'jp-carousel-show' );
+			}
+
 			domUtil.hide( commentsLoading );
 		};
 
@@ -1104,22 +972,13 @@ export default function init() {
 	}
 
 	function loadFullImage( slide ) {
-		var el = slide.el;
-		var attrs = slide.attrs;
-		var image = el.querySelector( 'img' );
+		const el = slide.el;
+		const attrs = slide.attrs;
+		const image = el.querySelector( 'img' );
 
 		if ( ! image.hasAttribute( 'data-loaded' ) ) {
-			// If the width of the slide is smaller than the width of the "thumbnail" we're already using,
-			// don't load the full image.
-
-			var loadListener = function () {
-				image.removeEventListener( 'load', loadListener );
-				el.style.backgroundImage = '';
-			};
-			image.addEventListener( 'load', loadListener );
-
-			var hasPreview = !! attrs.previewImage;
-			var thumbSize = attrs.thumbSize;
+			const hasPreview = !! attrs.previewImage;
+			const thumbSize = attrs.thumbSize;
 
 			if ( ! hasPreview || ( thumbSize && el.offsetWidth > thumbSize.width ) ) {
 				image.src = attrs.src;
@@ -1132,15 +991,43 @@ export default function init() {
 		}
 	}
 
+	function loadBackgroundImage( slide ) {
+		let currentSlide = slide.el;
+
+		if ( swiper && swiper.slides ) {
+			currentSlide = swiper.slides[ swiper.activeIndex ];
+		}
+
+		const image = slide.attrs.originalElement;
+		const isLoaded = image.complete && image.naturalHeight !== 0;
+
+		if ( isLoaded ) {
+			applyBackgroundImage( slide, currentSlide, image );
+			return;
+		}
+
+		image.onload = function () {
+			applyBackgroundImage( slide, currentSlide, image );
+		};
+	}
+
+	function applyBackgroundImage( slide, currentSlide, image ) {
+		const url = util.getBackgroundImage( image );
+		slide.backgroundImage = url;
+		currentSlide.style.backgroundImage = `url(${ url })`;
+		currentSlide.style.backgroundSize = 'cover';
+	}
+
 	function getOriginalDimensions( el ) {
-		var size = el.getAttribute( 'data-orig-size' ) || '';
+		const size = el.getAttribute( 'data-orig-size' ) || '';
 
 		if ( size ) {
-			var parts = size.split( ',' );
+			const parts = size.split( ',' );
 			return { width: parseInt( parts[ 0 ], 10 ), height: parseInt( parts[ 1 ], 10 ) };
 		} else {
 			return {
-				width: el.getAttribute( 'data-original-width' ) || el.getAttribute( 'width' ) || undefined,
+				width:
+					el.getAttribute( 'data-original-width' ) || el.getAttribute( 'width' ) || undefined,
 				height:
 					el.getAttribute( 'data-original-height' ) || el.getAttribute( 'height' ) || undefined,
 			};
@@ -1150,62 +1037,56 @@ export default function init() {
 	function initCarouselSlides( items, startIndex ) {
 		carousel.slides = [];
 
-		if ( items.length < 2 ) {
-			domUtil.hide( carousel.nextButton );
-			domUtil.hide( carousel.prevButton );
-		} else {
-			domUtil.show( carousel.nextButton );
-			domUtil.show( carousel.prevButton );
-		}
-
-		var max = calculateMaxSlideDimensions();
+		const max = calculateMaxSlideDimensions();
 
 		// If the startIndex is not 0 then preload the clicked image first.
 		if ( startIndex !== 0 ) {
-			var img = new Image();
+			const img = new Image();
 			img.src = items[ startIndex ].getAttribute( 'data-gallery-src' );
 		}
 
-		var useInPageThumbnails = !! domUtil.closest( items[ 0 ], '.tiled-gallery.type-rectangular' );
+		const useInPageThumbnails = !! domUtil.closest( items[ 0 ], '.tiled-gallery.type-rectangular' );
 
 		// create the 'slide'
 		Array.prototype.forEach.call( items, function ( item, i ) {
-			var galleryItem = domUtil.closest( item, '.gallery-item' );
-			var captionEl = galleryItem && galleryItem.querySelector( '.gallery-caption' );
-			var permalinkEl = domUtil.closest( item, 'a' );
+			const galleryItem = domUtil.closest( item, '.gallery-item' );
+			const captionEl = galleryItem && galleryItem.querySelector( '.gallery-caption' );
+			const permalinkEl = domUtil.closest( item, 'a' );
+			const origFile = item.getAttribute( 'data-orig-file' ) || item.getAttribute( 'src-orig' );
 
-			var attrs = {
-				attachmentId: item.getAttribute( 'data-attachment-id' ) || '0',
+			const attrs = {
+				originalElement: item,
+				attachmentId:
+					item.getAttribute( 'data-attachment-id' ) || item.getAttribute( 'data-id' ) || '0',
 				commentsOpened: item.getAttribute( 'data-comments-opened' ) || '0',
 				imageMeta: domUtil.getJSONAttribute( item, 'data-image-meta' ) || {},
 				title: item.getAttribute( 'data-image-title' ) || '',
 				desc: item.getAttribute( 'data-image-description' ) || '',
 				mediumFile: item.getAttribute( 'data-medium-file' ) || '',
 				largeFile: item.getAttribute( 'data-large-file' ) || '',
-				origFile: item.getAttribute( 'data-orig-file' ) || '',
+				origFile: origFile || '',
 				thumbSize: { width: item.naturalWidth, height: item.naturalHeight },
 				caption: ( captionEl && captionEl.innerHTML ) || '',
 				permalink: permalinkEl && permalinkEl.getAttribute( 'href' ),
+				src: origFile || item.getAttribute( 'src' ) || '',
 			};
 
-			var tiledGalleryItem = domUtil.closest( item, '.tiled-gallery-item' );
-			var tiledCaptionEl =
+			const tiledGalleryItem = domUtil.closest( item, '.tiled-gallery-item' );
+			const tiledCaptionEl =
 				tiledGalleryItem && tiledGalleryItem.querySelector( '.tiled-gallery-caption' );
-			var tiledCaption = tiledCaptionEl && tiledCaptionEl.innerHTML;
+			const tiledCaption = tiledCaptionEl && tiledCaptionEl.innerHTML;
 			if ( tiledCaption ) {
 				attrs.caption = tiledCaption;
 			}
 
-			var origDimensions = getOriginalDimensions( item );
+			const origDimensions = getOriginalDimensions( item );
 
-			attrs.origWidth = origDimensions.width;
-			attrs.origHeight = origDimensions.height;
+			attrs.origWidth = origDimensions.width || attrs.thumbSize.width;
+			attrs.origHeight = origDimensions.height || attrs.thumbSize.height;
 
 			if ( typeof wpcom !== 'undefined' && wpcom.carousel && wpcom.carousel.generateImgSrc ) {
 				attrs.src = wpcom.carousel.generateImgSrc( item, max );
 			} else {
-				attrs.src = item.getAttribute( 'data-orig-file' );
-
 				attrs.src = selectBestImageUrl( {
 					origFile: attrs.src,
 					origWidth: attrs.origWidth,
@@ -1227,23 +1108,22 @@ export default function init() {
 
 				// Initially, the image is a 1x1 transparent gif.
 				// The preview is shown as a background image on the slide itself.
-				var image = new Image();
-				image.src =
-					'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-				image.style.width = '100%';
-				image.style.height = '100%';
+				const image = new Image();
+				image.src = attrs.src;
 
-				var slideEl = document.createElement( 'div' );
-				slideEl.classList.add( 'jp-carousel-slide' );
+				const slideEl = document.createElement( 'div' );
+				slideEl.classList.add( 'swiper-slide' );
 				slideEl.setAttribute( 'itemprop', 'associatedMedia' );
 				slideEl.setAttribute( 'itemscope', '' );
 				slideEl.setAttribute( 'itemtype', 'https://schema.org/ImageObject' );
-				domUtil.hide( slideEl );
 
-				slideEl.style.left = i < startIndex ? -1000 : carousel.gallery.offsetWidth;
+				const zoomEl = document.createElement( 'div' );
+				zoomEl.classList.add( 'swiper-zoom-container' );
+
 				carousel.gallery.appendChild( slideEl );
-				slideEl.appendChild( image );
 
+				slideEl.appendChild( zoomEl );
+				zoomEl.appendChild( image );
 				slideEl.setAttribute( 'data-attachment-id', attrs.attachmentId );
 				slideEl.setAttribute( 'data-permalink', attrs.permalink );
 				slideEl.setAttribute( 'data-orig-file', attrs.origFile );
@@ -1251,26 +1131,44 @@ export default function init() {
 				if ( useInPageThumbnails ) {
 					// Use the image already loaded in the gallery as a preview.
 					attrs.previewImage = attrs.src;
-					slideEl.style.backgroundImage = 'url("' + attrs.src + '")';
-					slideEl.style.backgroundSize = '100% 100%';
-					slideEl.style.backgroundPosition = 'center center';
 				}
 
-				var slide = { el: slideEl, attrs: attrs, index: i };
+				const slide = { el: slideEl, attrs: attrs, index: i };
 				carousel.slides.push( slide );
-				fitSlides( [ slide ] );
 			}
 		} );
 	}
 
+	function loadSwiper( gallery, options ) {
+		if ( ! Swiper ) {
+			const loader = document.querySelector( '#jp-carousel-loading-overlay' );
+			domUtil.show( loader );
+
+			const jsScript = document.createElement( 'script' );
+			jsScript.id = 'jetpack-carousel-swiper-js';
+			jsScript.src = window.jetpackSwiperLibraryPath.url;
+			jsScript.async = true;
+			jsScript.onload = function () {
+				domUtil.hide( loader );
+				openCarousel( gallery, options );
+			};
+			jsScript.onerror = function () {
+				domUtil.hide( loader );
+			};
+			document.head.appendChild( jsScript );
+			return;
+		}
+		openCarousel( gallery, options );
+	}
+
 	function openCarousel( gallery, options ) {
-		var settings = {
+		const settings = {
 			imgSelector:
-				'.gallery-item [data-attachment-id], .tiled-gallery-item [data-attachment-id], img[data-attachment-id]',
+				'.gallery-item [data-attachment-id], .tiled-gallery-item [data-attachment-id], img[data-attachment-id], img[data-id]',
 			startIndex: 0,
 		};
 
-		var data = domUtil.getJSONAttribute( gallery, 'data-carousel-extra' );
+		const data = domUtil.getJSONAttribute( gallery, 'data-carousel-extra' );
 
 		if ( ! data ) {
 			return; // don't run if the default gallery functions weren't used
@@ -1281,7 +1179,6 @@ export default function init() {
 		if ( carousel.isOpen ) {
 			return; // don't open if already opened
 		}
-
 		carousel.isOpen = true;
 
 		// make sure to stop the page from scrolling behind the carousel overlay, so we don't trigger
@@ -1298,7 +1195,7 @@ export default function init() {
 
 		// If options exist, lets merge them
 		// with our default settings
-		for ( var option in options || {} ) {
+		for ( const option in options || {} ) {
 			settings[ option ] = options[ option ];
 		}
 
@@ -1306,34 +1203,84 @@ export default function init() {
 			settings.startIndex = 0; // -1 returned if can't find index, so start from beginning
 		}
 
-		domUtil.emitEvent( carousel.container, 'jp_carousel.beforeOpen' );
+		domUtil.emitEvent( carousel.overlay, 'jp_carousel.beforeOpen' );
+		carousel.gallery.innerHTML = '';
 
-		domUtil.fadeIn( carousel.container, function () {
-			domUtil.emitEvent( carousel.container, 'jp_carousel.afterOpen' );
+		// Need to set the overlay manually to block or swiper does't initialise properly.
+		carousel.overlay.style.opacity = 1;
+		carousel.overlay.style.display = 'block';
+
+		initCarouselSlides( gallery.querySelectorAll( settings.imgSelector ), settings.startIndex );
+
+		swiper = new Swiper( '.jp-carousel-swiper-container', {
+			centeredSlides: true,
+			zoom: true,
+			loop: carousel.slides.length > 1 ? true : false,
+			pagination: {
+				el: '.jp-swiper-pagination',
+				clickable: true,
+			},
+			navigation: {
+				nextEl: '.jp-swiper-button-next',
+				prevEl: '.jp-swiper-button-prev',
+			},
+			initialSlide: settings.startIndex,
+			on: {
+				init: function () {
+					selectSlideAtIndex( settings.startIndex );
+				},
+			},
+			preventClicks: false,
+			preventClicksPropagation: false,
+			threshold: 5,
 		} );
 
-		carousel.gallery.innerHTML = '';
-		initCarouselSlides( gallery.querySelectorAll( settings.imgSelector ), settings.startIndex );
-		selectSlideAtIndex( settings.startIndex );
+		swiper.on( 'slideChange', function () {
+			let index;
+			// Swiper indexes slides from 1, plus when looping to left last slide ends up
+			// as 0 and looping to right first slide as total slides + 1. These are adjusted
+			// here to match index of carousel.slides.
+			if ( swiper.activeIndex === 0 ) {
+				index = carousel.slides.length - 1;
+			} else if ( swiper.activeIndex === carousel.slides.length + 1 ) {
+				index = 0;
+			} else {
+				index = swiper.activeIndex - 1;
+			}
+			selectSlideAtIndex( index );
+		} );
+
+		domUtil.fadeIn( carousel.overlay, function () {
+			domUtil.emitEvent( carousel.overlay, 'jp_carousel.afterOpen' );
+		} );
 	}
 
 	// Register the event listener for starting the gallery
 	document.body.addEventListener( 'click', function ( e ) {
-		var target = e.target;
-		var gallery = domUtil.closest( target, gallerySelector );
+		const isCompatible =
+			window.CSS && window.CSS.supports && window.CSS.supports( 'display', 'grid' );
+
+		// IE11 support is being dropped in August 2021. The new swiper.js libray is not IE11 compat
+		// so just default to opening individual image attachment/media pages for IE.
+		if ( ! isCompatible ) {
+			return;
+		}
+
+		const target = e.target;
+		const gallery = domUtil.closest( target, gallerySelector );
 
 		if ( gallery ) {
 			if ( ! testForData( gallery ) ) {
 				return;
 			}
 
-			var parent = target.parentElement;
-			var grandparent = parent.parentElement;
+			const parent = target.parentElement;
+			const grandparent = parent.parentElement;
 
 			// If Gallery is made up of individual Image blocks check for custom link before
 			// loading carousel.
 			if ( grandparent && grandparent.classList.contains( 'wp-block-image' ) ) {
-				var parentHref = parent.getAttribute( 'href' );
+				const parentHref = parent.getAttribute( 'href' );
 
 				// If the link does not point to the attachment or media file then assume Image has
 				// a custom link so don't load the carousel.
@@ -1366,10 +1313,9 @@ export default function init() {
 			// with .gallery or .tiled-gallery class
 			e.stopPropagation();
 
-			var item = domUtil.closest( target, itemSelector );
-			var index = Array.prototype.indexOf.call( gallery.querySelectorAll( itemSelector ), item );
-
-			openCarousel( gallery, { startIndex: index } );
+			const item = domUtil.closest( target, itemSelector );
+			const index = Array.prototype.indexOf.call( gallery.querySelectorAll( itemSelector ), item );
+			loadSwiper( gallery, { startIndex: index } );
 		}
 	} );
 
@@ -1384,7 +1330,7 @@ export default function init() {
 	// Makes carousel work on page load and when back button leads to same URL with carousel hash
 	// (i.e. no actual document.ready trigger).
 	window.addEventListener( 'hashchange', function () {
-		var hashRegExp = /jp-carousel-(\d+)/;
+		const hashRegExp = /jp-carousel-(\d+)/;
 
 		if ( ! window.location.hash || ! hashRegExp.test( window.location.hash ) ) {
 			if ( carousel.isOpen ) {
@@ -1404,19 +1350,22 @@ export default function init() {
 		}
 
 		lastKnownLocationHash = window.location.hash;
-		var matchList = window.location.hash.match( hashRegExp );
-		var attachmentId = parseInt( matchList[ 1 ], 10 );
-		var galleries = document.querySelectorAll( gallerySelector );
+		const matchList = window.location.hash.match( hashRegExp );
+		const attachmentId = parseInt( matchList[ 1 ], 10 );
+		const galleries = document.querySelectorAll( gallerySelector );
 
 		// Find the first thumbnail that matches the attachment ID in the location
 		// hash, then open the gallery that contains it.
-		for ( var i = 0; i < galleries.length; i++ ) {
-			var gallery = galleries[ i ];
-			var selected;
+		for ( let i = 0; i < galleries.length; i++ ) {
+			const gallery = galleries[ i ];
+			let selected;
 
-			var images = gallery.querySelectorAll( 'img' );
-			for ( var j = 0; j < images.length; j++ ) {
-				if ( parseInt( images[ j ].getAttribute( 'data-attachment-id' ), 10 ) === attachmentId ) {
+			const images = gallery.querySelectorAll( 'img' );
+			for ( let j = 0; j < images.length; j++ ) {
+				if (
+					parseInt( images[ j ].getAttribute( 'data-attachment-id' ), 10 ) === attachmentId ||
+					parseInt( images[ j ].getAttribute( 'data-id' ), 10 ) === attachmentId
+				) {
 					selected = j;
 					break;
 				}

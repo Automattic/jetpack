@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 
-import init from './carousel';
+import { init } from './carousel';
 
 if ( document.readyState !== 'loading' ) {
 	init();

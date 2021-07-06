@@ -110,18 +110,6 @@ export function emitEvent( el, type, detail ) {
 	el.dispatchEvent( e );
 }
 
-export function scrollToY( el, top ) {
-	if ( ! el ) {
-		return;
-	}
-
-	if ( typeof el.scrollTo === 'function' && 'scrollBehavior' in document.documentElement.style ) {
-		el.scrollTo( { top: top, behavior: 'smooth' } );
-	} else {
-		el.scrollTop = top;
-	}
-}
-
 export function scrollToElement( el ) {
 	if ( ! el || typeof el.scrollIntoView !== 'function' ) {
 		return;

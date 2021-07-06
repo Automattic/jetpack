@@ -1,17 +1,9 @@
 export function noop() {}
 
-export function unique( array ) {
-	const newArray = [];
-	array.forEach( function ( item ) {
-		if ( item !== undefined && newArray.indexOf( item ) === -1 ) {
-			newArray.push( item );
-		}
-	} );
-
-	return newArray;
-}
-
 export function texturize( text ) {
+	if ( ! text ) {
+		return;
+	}
 	// Ensure we get a string.
 	text = text + '';
 	text = text
@@ -25,11 +17,12 @@ export function texturize( text ) {
 		.replace( /[\u201D]/g, '&#8221;' );
 	// Untexturize allowed HTML tags params double-quotes.
 	text = text.replace( /([\w]+)=&#[\d]+;(.+?)&#[\d]+;/g, '$1="$2"' );
+
 	return text.trim();
 }
 
 export function applyReplacements( text, replacements ) {
-	if ( ! text ) {
+	if ( typeof text !== 'string' ) {
 		return;
 	}
 	if ( ! replacements ) {
@@ -38,4 +31,21 @@ export function applyReplacements( text, replacements ) {
 	return text.replace( /{(\d+)}/g, function ( match, number ) {
 		return typeof replacements[ number ] !== 'undefined' ? replacements[ number ] : match;
 	} );
+}
+
+export function getBackgroundImage( imgEl ) {
+	const canvas = document.createElement( 'canvas' );
+	const context = canvas.getContext && canvas.getContext( '2d' );
+
+	if ( ! imgEl ) {
+		return;
+	}
+
+	context.filter = 'blur(20px) ';
+	context.drawImage( imgEl, 0, 0 );
+
+	const url = canvas.toDataURL( 'image/png' );
+	canvas = null;
+
+	return url;
 }
