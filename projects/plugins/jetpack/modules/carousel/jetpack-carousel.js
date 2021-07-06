@@ -1416,12 +1416,12 @@
 				zoom: true,
 				loop: carousel.slides.length > 1 ? true : false,
 				pagination: {
-					el: '.swiper-pagination',
+					el: '.jp-swiper-pagination',
 					clickable: true,
 				},
 				navigation: {
-					nextEl: '.swiper-button-next',
-					prevEl: '.swiper-button-prev',
+					nextEl: '.jp-swiper-button-next',
+					prevEl: '.jp-swiper-button-prev',
 				},
 				initialSlide: settings.startIndex,
 				on: {
