@@ -274,7 +274,7 @@ const Backups = () => {
 			<div className="jp-row">
 				<div className="lg-col-span-3 md-col-span-4 sm-col-span-4">
 					<div className="backup__latest">
-						<img src={ CloudIcon } alt="Jetpack Logo" />
+						<img src={ CloudIcon } alt="" />
 						<h2>{ __( 'Latest Backup', 'jetpack-backup' ) }</h2>
 					</div>
 					<h1>{ formatDateString( latestTime ) }</h1>
@@ -289,16 +289,32 @@ const Backups = () => {
 				</div>
 				<div className="lg-col-span-1 md-col-span-4 sm-col-span-0"></div>
 				<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
-					<StatBlock icon={ PostsIcon } label="Posts" value={ stats.posts } />
+					<StatBlock
+						icon={ PostsIcon }
+						label={ __( 'Posts', 'jetpack-backup' ) }
+						value={ stats.posts }
+					/>
 				</div>
 				<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
-					<StatBlock icon={ UploadsIcon } label="Uploads" value={ stats.uploads } />
+					<StatBlock
+						icon={ UploadsIcon }
+						label={ __( 'Uploads', 'jetpack-backup' ) }
+						value={ stats.uploads }
+					/>
 				</div>
 				<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
-					<StatBlock icon={ PluginsIcon } label="Plugins" value={ stats.plugins } />
+					<StatBlock
+						icon={ PluginsIcon }
+						label={ __( 'Plugins', 'jetpack-backup' ) }
+						value={ stats.plugins }
+					/>
 				</div>
 				<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
-					<StatBlock icon={ ThemesIcon } label="Themes" value={ stats.themes } />
+					<StatBlock
+						icon={ ThemesIcon }
+						label={ __( 'Themes', 'jetpack-backup' ) }
+						value={ stats.themes }
+					/>
 				</div>
 			</div>
 		);
