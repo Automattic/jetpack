@@ -45,7 +45,7 @@ class Jetpack_Widget_Conditions {
 				'modules/widget-visibility/widget-conditions/widget-conditions.js'
 			),
 			array( 'jquery', 'jquery-ui-core' ),
-			20191128,
+			JETPACK__VERSION,
 			true
 		);
 
