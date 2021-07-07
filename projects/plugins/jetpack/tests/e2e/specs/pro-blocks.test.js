@@ -6,6 +6,7 @@ import { activateModule, execMultipleWpCommands } from '../lib/utils-helper';
 import SimplePaymentBlock from '../lib/pages/wp-admin/blocks/simple-payments';
 import WordAdsBlock from '../lib/pages/wp-admin/blocks/word-ads';
 import { step } from '../lib/env/test-setup';
+import { prerequisites } from '../lib/env/prerequisites';
 
 /**
  *
@@ -18,7 +19,8 @@ describe( 'Paid blocks', () => {
 	let blockEditor;
 
 	beforeAll( async () => {
-		await syncJetpackPlanData( 'complete' );
+		await prerequisites( { connected: true, plan: 'complete' } );
+		// await syncJetpackPlanData( 'complete' );
 		await activateModule( page, 'publicize' );
 		await activateModule( page, 'wordads' );
 	} );

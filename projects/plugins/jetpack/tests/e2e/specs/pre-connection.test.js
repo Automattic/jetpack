@@ -16,12 +16,11 @@ process.env.SKIP_CONNECT = true;
  */
 describe( 'Jetpack pre-connection', () => {
 	beforeAll( async () => {
-		await prerequisites( { connected: false, plan: 'free' } );
-		await execMultipleWpCommands(
-			'wp option delete jetpack_private_options',
-			'wp option delete jetpack_sync_error_idc'
-		);
-		await page.reload();
+		await prerequisites( { connected: false } );
+		// await execMultipleWpCommands(
+		// 	'wp option delete jetpack_private_options',
+		// 	'wp option delete jetpack_sync_error_idc'
+		// );
 	} );
 
 	beforeEach( async () => {

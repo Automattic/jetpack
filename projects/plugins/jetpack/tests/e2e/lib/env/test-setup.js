@@ -8,6 +8,7 @@ import {
 import { isBlogTokenSet } from '../flows/jetpack-connect';
 import { loginToWpSite, loginToWpCom } from '../flows/log-in';
 import config from 'config';
+import { prerequisites } from './prerequisites';
 
 async function maybePreConnect() {
 	const wpComUser = 'defaultUser';
@@ -37,5 +38,5 @@ export const step = async ( stepName, fn ) => {
 };
 
 beforeAll( async () => {
-	await maybePreConnect();
+	await prerequisites( { loggedIn: true, wpComLoggedIn: true } );
 } );

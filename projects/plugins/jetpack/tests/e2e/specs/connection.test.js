@@ -2,10 +2,9 @@ import { step } from '../lib/env/test-setup';
 import {
 	doInPlaceConnection,
 	doSiteLevelConnection,
-	loginToWpComIfNeeded,
-	loginToWpSite,
 	doClassicConnection,
 } from '../lib/flows/jetpack-connect';
+import { loginToWpSite, loginToWpCom } from '../lib/flows/log-in';
 import { resetWordpressInstall } from '../lib/utils-helper';
 import Sidebar from '../lib/pages/wp-admin/sidebar';
 import JetpackPage from '../lib/pages/wp-admin/jetpack';
@@ -20,7 +19,7 @@ process.env.SKIP_CONNECT = true;
  */
 describe( 'Connection', () => {
 	beforeEach( async () => {
-		await loginToWpComIfNeeded( 'defaultUser', true );
+		await loginToWpCom( 'defaultUser', true );
 		await loginToWpSite( true );
 		await DashboardPage.visit( page );
 		await ( await Sidebar.init( page ) ).selectJetpack();
