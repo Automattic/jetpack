@@ -35,12 +35,6 @@ div.jp-carousel-fadeaway {
 	height: 15px;
 }
 
-.jp-carousel-next-button span,
-.jp-carousel-previous-button span {
-	background: url(.././images/arrows.png) no-repeat center center;
-	background-size: 200px 126px;
-}
-
 .jp-carousel-msg {
 	font-family: "Open Sans", sans-serif;
 	font-style: normal;
@@ -54,17 +48,6 @@ div.jp-carousel-fadeaway {
 	border-right: 4px solid #ffba00;
 	-webkit-box-shadow: 0 1px 1px 0 rgba(0,0,0,0.1);
 	box-shadow: 0 1px 1px 0 rgba(0,0,0,0.1);
-}
-
-@media
-only screen and (-webkit-min-device-pixel-ratio: 1.5),
-only screen and (-o-min-device-pixel-ratio: 3/2),
-only screen and (min--moz-device-pixel-ratio: 1.5),
-only screen and (min-device-pixel-ratio: 1.5) {
-	.jp-carousel-next-button span,
-	.jp-carousel-previous-button span {
-		background-image: url(.././images/arrows-2x.png);
-	}
 }
 
 .jp-carousel-wrap {
@@ -339,19 +322,6 @@ div.jp-carousel-buttons a:hover {
 .jp-carousel-close-hint:hover span {
 	border-color: #fff;
 }
-
-div.jp-carousel-buttons a.jp-carousel-reblog,
-div.jp-carousel-buttons a.jp-carousel-commentlink,
-a.jp-carousel-image-download {
-	background: url(.././images/carousel-sprite.png?5) no-repeat;
-	background-size: 16px 200px;
-}
-
-div.jp-carousel-buttons a.jp-carousel-reblog,
-div.jp-carousel-buttons a.jp-carousel-commentlink {
-	margin: 0 0 0 14px !important;
-}
-
 div.jp-carousel-buttons a.jp-carousel-reblog.reblogged {
 	background-color: #303030;
 	padding-left: 8px !important;
@@ -375,11 +345,6 @@ div.jp-carousel-buttons a.jp-carousel-reblog.reblogged:hover {
 	color: #999;
 }
 
-div.jp-carousel-buttons a.jp-carousel-commentlink {
-	background-position: 0px -156px;
-	padding-right: 19px !important;
-}
-
 div.jp-carousel-buttons a.jp-carousel-reblog.reblogged:hover {
 	cursor: default;
 }
@@ -387,18 +352,6 @@ div.jp-carousel-buttons a.jp-carousel-reblog.reblogged:hover {
 div.jp-carousel-buttons a.jp-carousel-reblog:hover {
 	background-position: 6px -56px;
 	color: #68c9e8;
-}
-
-@media
-only screen and (-webkit-min-device-pixel-ratio: 1.5),
-only screen and (-o-min-device-pixel-ratio: 3/2),
-only screen and (min--moz-device-pixel-ratio: 1.5),
-only screen and (min-device-pixel-ratio: 1.5) {
-	div.jp-carousel-buttons a.jp-carousel-reblog,
-	div.jp-carousel-buttons a.jp-carousel-commentlink,
-	a.jp-carousel-image-download {
-		background-image: url(.././images/carousel-sprite-2x.png?5);
-	}
 }
 
 /* reblog */
@@ -993,10 +946,6 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 .jp-carousel-light div.jp-carousel-buttons a.jp-carousel-reblog.reblogged {
 	background-color: #2ea2cc;
 	color: #fff;
-}
-
-.jp-carousel-light div.jp-carousel-buttons a.jp-carousel-commentlink {
-	background-position: 0px -176px;
 }
 
 .jp-carousel-light div.jp-carousel-buttons a.jp-carousel-reblog.reblogged {

@@ -1,4 +1,4 @@
-/* 
+/*
  * Temporary fix below for issue introduced to Newspack blocks, can be removed once
  * once Newspack blocks includes this override
 */
@@ -279,22 +279,6 @@ div.jp-carousel-buttons a:hover {
 
 .jp-carousel-close-hint:hover span {
 	border-color: #fff;
-}
-
-div.jp-carousel-buttons a.jp-carousel-commentlink,
-div.jp-carousel-buttons a.jp-carousel-commentlink {
-	margin: 0 14px 0 0 !important;
-	background-position: 0px -156px;
-	padding-left: 19px !important;
-}
-
-@media only screen and ( -webkit-min-device-pixel-ratio: 1.5 ),
-	only screen and ( -o-min-device-pixel-ratio: 3/2 ),
-	only screen and ( min--moz-device-pixel-ratio: 1.5 ),
-	only screen and ( min-device-pixel-ratio: 1.5 ) {
-	div.jp-carousel-buttons a.jp-carousel-commentlink {
-		background-image: url( ./images/carousel-sprite-2x.png?5 );
-	}
 }
 
 /** Pagination Start **/
@@ -921,10 +905,6 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 .jp-carousel-light div.jp-carousel-buttons a:hover {
 	text-decoration: none;
 	color: #f1831e;
-}
-
-.jp-carousel-light div.jp-carousel-buttons a.jp-carousel-commentlink {
-	background-position: 0px -176px;
 }
 
 .jp-carousel-light #jp-carousel-comment-form-button-submit {
