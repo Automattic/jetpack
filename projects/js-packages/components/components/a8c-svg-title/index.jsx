@@ -13,7 +13,7 @@ import React from 'react';
  * @returns {React.Component} A8cSvgTitle component.
  */
 export default function A8cSvgTitle( {
-	href = 'https://www.automattic.com',
+	href = 'https://www.jetpack.com',
 	title = 'An Automattic Airline',
 	height = 7,
 	...otherProps
