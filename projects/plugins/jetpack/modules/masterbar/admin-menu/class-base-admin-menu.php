@@ -76,7 +76,9 @@ abstract class Base_Admin_Menu {
 			add_filter( 'admin_menu', array( $this, 'override_svg_icons' ), 99999 );
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ), 11 );
 			add_action( 'admin_head', array( $this, 'set_site_icon_inline_styles' ) );
-			add_filter( 'screen_settings', array( $this, 'register_dashboard_switcher' ), 99999, 2 );
+			add_filter( 'screen_settings', array( $this, 'register_dashboard_switcher' ), 99999 );
+			add_action( 'admin_menu', array( $this, 'handle_preferred_view' ), 99997 );
+			add_action( 'wp_ajax_set_preferred_view', array( $this, 'handle_preferred_view' ) );
 		}
 	}
 
@@ -272,6 +274,14 @@ abstract class Base_Admin_Menu {
 			array(),
 			JETPACK__VERSION,
 			true
+		);
+
+		wp_localize_script(
+			'jetpack-admin-menu',
+			'jpAdminMenu',
+			array(
+				'screen' => $this->get_current_screen(),
+			)
 		);
 	}
 
@@ -582,6 +592,46 @@ abstract class Base_Admin_Menu {
 		}
 
 		return $preferred_views[ $screen ];
+	}
+
+	/**
+	 * Gets the identifier of the current screen.
+	 *
+	 * @return string
+	 */
+	public function get_current_screen() {
+		// phpcs:disable WordPress.Security.NonceVerification
+		global $pagenow;
+		$screen = isset( $_REQUEST['screen'] ) ? $_REQUEST['screen'] : $pagenow;
+		if ( isset( $_GET['post_type'] ) ) {
+			$screen = add_query_arg( 'post_type', $_GET['post_type'], $screen );
+		}
+		if ( isset( $_GET['taxonomy'] ) ) {
+			$screen = add_query_arg( 'taxonomy', $_GET['taxonomy'], $screen );
+		}
+		if ( isset( $_GET['page'] ) ) {
+			$screen = add_query_arg( 'page', $_GET['page'], $screen );
+		}
+		return $screen;
+		// phpcs:enable WordPress.Security.NonceVerification
+	}
+
+	/**
+	 * Stores the preferred view for the current screen.
+	 */
+	public function handle_preferred_view() {
+		// phpcs:disable WordPress.Security.NonceVerification
+		if (
+			! isset( $_GET['preferred-view'] ) ||
+			! in_array( $_GET['preferred-view'], array( self::DEFAULT_VIEW, self::CLASSIC_VIEW ), true )
+		) {
+			return;
+		}
+		$this->set_preferred_view( $this->get_current_screen(), $_GET['preferred-view'] );
+		if ( wp_doing_ajax() ) {
+			wp_die();
+		}
+		// phpcs:enable WordPress.Security.NonceVerification
 	}
 
 	/**

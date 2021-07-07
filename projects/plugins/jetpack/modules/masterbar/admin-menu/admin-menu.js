@@ -1,10 +1,11 @@
-/* global ajaxurl */
+/* global ajaxurl, jpAdminMenu */
 
 ( function () {
 	function init() {
 		var adminbar = document.querySelector( '#wpadminbar' );
 		var wpwrap = document.querySelector( '#wpwrap' );
 		var adminMenu = document.querySelector( '#adminmenu' );
+		var switcher = document.querySelector( '#dashboard-switcher .dashboard-switcher-button' );
 
 		if ( ! adminbar ) {
 			return;
@@ -58,15 +59,40 @@
 				} );
 			}
 		}
+
+		if ( switcher ) {
+			switcher.addEventListener( 'click', setDefaultViewAsPreferred );
+		}
+	}
+
+	function makeAjaxRequest( method, url, contentType, body ) {
+		var xhr = new XMLHttpRequest();
+		xhr.open( method, url, true );
+		xhr.setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
+		if ( contentType ) {
+			xhr.setRequestHeader( 'Content-Type', contentType );
+		}
+		xhr.withCredentials = true;
+		xhr.send( body );
 	}
 
 	function saveSidebarIsExpanded( expanded ) {
-		var xhr = new XMLHttpRequest();
-		xhr.open( 'POST', ajaxurl, true );
-		xhr.setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
-		xhr.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' );
-		xhr.withCredentials = true;
-		xhr.send( 'action=sidebar_state&expanded=' + expanded );
+		makeAjaxRequest(
+			'POST',
+			ajaxurl,
+			'application/x-www-form-urlencoded; charset=UTF-8',
+			'action=sidebar_state&expanded=' + expanded
+		);
+	}
+
+	function setDefaultViewAsPreferred() {
+		makeAjaxRequest(
+			'GET',
+			ajaxurl +
+				'?action=set_preferred_view&screen=' +
+				jpAdminMenu.screen +
+				'&preferred-view=default'
+		);
 	}
 
 	if ( document.readyState === 'loading' ) {
