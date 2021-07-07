@@ -114,9 +114,9 @@ jobs:
       - name: Extract build archive
         run: tar --xz -xvvf build.tar.xz
 
-      - name: Determine plugins
+      - name: Determine plugins to publish
         run: |
-          jq -r 'if .extra["mirror-repo"] and .extra["wp-plugin-slug"] then [ ( input_filename | sub( "/composer\\.json$"; "" ) ), .extra["mirror-repo"], .extra["wp-plugin-slug"] ] else empty end | @tsv' monorepo/projects/plugins/*/composer.json > plugins.tsv
+          jq -r 'if .extra["mirror-repo"] and ( .extra["beta-plugin-slug"] // .extra["wp-plugin-slug"] ) then [ ( input_filename | sub( "/composer\\.json$"; "" ) ), .extra["mirror-repo"], .extra["beta-plugin-slug"] // .extra["wp-plugin-slug"] ] else empty end | @tsv' monorepo/projects/plugins/*/composer.json > plugins.tsv
           cat plugins.tsv
           if [[ ! -s plugins.tsv ]]; then
             echo "No plugins were detected?!"

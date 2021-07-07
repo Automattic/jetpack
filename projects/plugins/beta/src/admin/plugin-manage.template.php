@@ -26,25 +26,28 @@ $plugin = $plugin; // Dummy assignment to fool VariableAnalysis.CodeAnalysis.Var
 $manifest   = $plugin->get_manifest( true );
 $wporg_data = $plugin->get_wporg_data( true );
 
+$existing_branch = null;
+if ( file_exists( WP_PLUGIN_DIR . '/' . $plugin->plugin_file() ) ) {
+	$tmp             = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin->plugin_file(), false, false );
+	$existing_branch = $plugin->source_info( 'release', $tmp['Version'] );
+	if ( ! $existing_branch || is_wp_error( $existing_branch ) ) {
+		$existing_branch = (object) array(
+			'source'         => 'unknown',
+			'id'             => $tmp['Version'],
+			'version'        => $tmp['Version'],
+			'pretty_version' => $plugin->stable_pretty_version(),
+		);
+	}
+}
+
 $active_branch = (object) array(
 	'source' => null,
 	'id'     => null,
 );
 $version       = null;
 if ( is_plugin_active( $plugin->plugin_file() ) ) {
-	$tmp    = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin->plugin_file(), false, false );
-	$branch = $plugin->source_info( 'release', $tmp['Version'] );
-	if ( $branch && ! is_wp_error( $branch ) ) {
-		$active_branch = $branch;
-		$version       = $branch->pretty_version;
-	} else {
-		$active_branch = (object) array(
-			'source'  => 'unknown',
-			'id'      => $tmp['Version'],
-			'version' => $tmp['Version'],
-		);
-		$version       = $plugin->stable_pretty_version();
-	}
+	$active_branch = $existing_branch;
+	$version       = $active_branch->pretty_version;
 } elseif ( is_plugin_active( $plugin->dev_plugin_file() ) ) {
 	$active_branch                 = $plugin->dev_info();
 	$active_branch->pretty_version = $plugin->dev_pretty_version();
@@ -98,6 +101,13 @@ if ( is_plugin_active( $plugin->plugin_file() ) ) {
 	<?php } ?>
 	<div class="jetpack-beta__wrap">
 		<?php
+		if ( $existing_branch && 'unknown' === $existing_branch->source ) {
+			$branch                 = clone $existing_branch;
+			$branch->pretty_version = __( 'Existing Version', 'jetpack-beta' );
+			require __DIR__ . '/branch-card.template.php';
+		}
+		?>
+		<?php
 		$branch = $plugin->source_info( 'stable', '' );
 		if ( $branch && ! is_wp_error( $branch ) ) {
 			$branch->pretty_version = __( 'Latest Stable', 'jetpack-beta' );
@@ -123,7 +133,7 @@ if ( is_plugin_active( $plugin->plugin_file() ) ) {
 		}
 		?>
 
-		<?php if ( empty( $manifest->pr ) ) { ?>
+		<?php if ( empty( $manifest->pr ) || ! (array) $manifest->pr ) { ?>
 		<div id="section-pr">
 			<?php
 			if ( 'pr' === $active_branch->source ) {
@@ -183,7 +193,7 @@ if ( is_plugin_active( $plugin->plugin_file() ) ) {
 		</div>
 		<?php } ?>
 
-		<?php if ( empty( $wporg_data->versions ) ) { ?>
+		<?php if ( empty( $wporg_data->versions ) || ! (array) $wporg_data->versions ) { ?>
 		<div id="section-releases">
 			<?php
 			if ( 'release' === $active_branch->source && $wporg_data->version !== $active_branch->id ) {

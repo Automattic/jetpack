@@ -47,7 +47,7 @@ if ( isset( $branch->pr ) && is_int( $branch->pr ) ) {
 		esc_html( $branch->version ),
 		esc_attr( $branch->version )
 	);
-} elseif ( 'rc' === $branch->source || 'master' === $branch->source ) {
+} elseif ( 'rc' === $branch->source || 'master' === $branch->source || 'unknown' === $branch->source ) {
 	$more_info[] = sprintf(
 		// translators: %s: Version number.
 		__( 'Version %s', 'jetpack-beta' ),

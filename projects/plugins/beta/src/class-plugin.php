@@ -87,6 +87,13 @@ class Plugin {
 	protected $bug_report_url;
 
 	/**
+	 * If the plugin is not published to the WordPress Plugin Repository.
+	 *
+	 * @var bool
+	 */
+	protected $unpublished = false;
+
+	/**
 	 * Manifest data.
 	 *
 	 * @var object|null
@@ -200,6 +207,8 @@ class Plugin {
 			}
 			$this->{$k} = $config[ $k ];
 		}
+
+		$this->unpublished = ! empty( $config['unpublished'] );
 	}
 
 	/**
@@ -343,6 +352,10 @@ class Plugin {
 	 * @throws PluginDataException If the data cannot be fetched or is invalid.
 	 */
 	public function get_wporg_data( $no_cache = false ) {
+		if ( $this->unpublished ) {
+			return (object) array();
+		}
+
 		if ( null === $this->wporg_data ) {
 			$url  = sprintf( 'https://api.wordpress.org/plugins/info/1.0/%s.json', $this->slug );
 			$data = Utils::get_remote_data( $url, "wporg_data_$this->slug", $no_cache );
