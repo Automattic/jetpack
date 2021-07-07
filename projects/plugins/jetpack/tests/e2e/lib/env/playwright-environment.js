@@ -158,7 +158,7 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 		} );
 
 		page.on( 'pageerror', exception => {
-			logger.error( `Page error: Uncaught exception: "${ exception }"` );
+			logger.error( `Page error: "${ exception }"` );
 		} );
 
 		page.on( 'requestfailed', request => {
