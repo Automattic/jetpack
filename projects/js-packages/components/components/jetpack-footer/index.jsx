@@ -17,7 +17,7 @@ import './style.scss';
  * @param {object} props - Component properties.
  * @param {object} props.aboutPageUrl - Link for 'An Automattic Airline'.
  * @param {object} props.moduelName - Name of the moduel, e.g. 'Jetpack Search'.
- * @param {object} props.className - className of the wrapper, default: `jp-dashboard-footer`.
+ * @param {object} props.className - additional className of the wrapper, default only: `jp-dashboard-footer`.
  *
  * @returns {React.Component} JetpackFooter component.
  */

@@ -2,21 +2,22 @@
  * External dependencies
  */
 import React from 'react';
+import classnames from 'classnames';
 
 /**
  * AutomatticBylineLogo component definition.
  *
  * @param {object} props - Component properties.
  * @param {string} props.title - Title for SVG.
- * @param {number} props.height - height for SVG.
- * @param {number} props.className - className for the a wrapper, default: `jp-automattic-byline-logo`.
+ * @param {number} props.height - Height for SVG.
+ * @param {number} props.className - Additional className for the a wrapper, default only: `jp-automattic-byline-logo`.
  *
  * @returns {React.Component} AutomatticBylineLogo component.
  */
 export default function AutomatticBylineLogo( {
 	title = 'An Automattic Airline',
 	height = 7,
-	className = 'jp-automattic-byline-logo',
+	className = '',
 	...otherProps
 } ) {
 	return (
@@ -28,7 +29,7 @@ export default function AutomatticBylineLogo( {
 			enableBackground="new 0 0 935 38.2"
 			aria-labelledby="jp-automattic-byline-logo-title"
 			height={ height }
-			className={ className }
+			className={ classnames( 'jp-automattic-byline-logo', className ) }
 			{ ...otherProps }
 		>
 			<title id="jp-automattic-byline-logo-title">{ title }</title>
