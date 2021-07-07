@@ -37,4 +37,9 @@ for FILE in $(git -c core.quotepath=off ls-files 'pnpm-lock.yaml' '**/pnpm-lock.
 	cd "$BASE"
 done
 
+# XXX
+pnpm add --workspace-root ci-info
+node -e 'const x = require( "ci-info" ); console.log( x );'
+CI= GITHUB_ACTIONS= node -e 'const x = require( "ci-info" ); console.log( x );'
+
 exit $EXIT
