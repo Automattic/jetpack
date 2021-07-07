@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import React, { useState, useEffect } from 'react';
 import { getDate, date, dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
@@ -17,18 +16,20 @@ import UploadsIcon from './uploads.svg';
 import PluginsIcon from './plugins.svg';
 import ThemesIcon from './themes.svg';
 
+/* global wp */
+/* eslint react/react-in-jsx-scope: 0 */
 const Backups = () => {
 	// State information
-	const [ progress, setProgress ] = useState( null );
-	const [ trackProgress, setTrackProgress ] = useState( 0 );
-	const [ latestTime, setLatestTime ] = useState( '' );
-	const [ stats, setStats ] = useState( {
+	const [ progress, setProgress ] = wp.element.useState( null );
+	const [ trackProgress, setTrackProgress ] = wp.element.useState( 0 );
+	const [ latestTime, setLatestTime ] = wp.element.useState( '' );
+	const [ stats, setStats ] = wp.element.useState( {
 		posts: 0,
 		uploads: 0,
 		plugins: 0,
 		themes: 0,
 	} );
-	const [ domain, setDomain ] = useState( '' );
+	const [ domain, setDomain ] = wp.element.useState( '' );
 
 	const BACKUP_STATE = {
 		LOADING: 0,
@@ -37,17 +38,17 @@ const Backups = () => {
 		COMPLETE: 3,
 	};
 
-	const [ backupState, setBackupState ] = useState( BACKUP_STATE.LOADING );
+	const [ backupState, setBackupState ] = wp.element.useState( BACKUP_STATE.LOADING );
 
 	const progressInterval = 1 * 1000; // How often to poll for backup progress updates.
 
 	// One time loading
-	useEffect( () => {
+	wp.element.useEffect( () => {
 		setDomain( window.location.hostname );
 	}, [] );
 
 	// Loads data on startup and whenever trackProgress updates.
-	useEffect( () => {
+	wp.element.useEffect( () => {
 		apiFetch( { path: '/jetpack/v4/backups' } ).then(
 			res => {
 				// If we have no backups don't load up stats.

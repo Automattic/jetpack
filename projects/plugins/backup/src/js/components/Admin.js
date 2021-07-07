@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useState, useEffect } from 'react';
+import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 
@@ -12,23 +12,25 @@ import Backups from './Backups';
 import useConnection from '../hooks/useConnection';
 import './admin-style.scss';
 
+/* global wp */
+/* eslint react/react-in-jsx-scope: 0 */
 const Admin = () => {
 	const [ connectionStatus, renderJetpackConnection ] = useConnection();
-	const [ capabilities, setCapabilities ] = useState( null );
-	const [ capabilitiesError, setCapabilitiesError ] = useState( null );
+	const [ capabilities, setCapabilities ] = wp.element.useState( null );
+	const [ capabilitiesError, setCapabilitiesError ] = wp.element.useState( null );
 
-	const [ connectionLoaded, setConnectionLoaded ] = useState( false );
-	const [ capabilitiesLoaded, setCapabilitiesLoaded ] = useState( false );
+	const [ connectionLoaded, setConnectionLoaded ] = wp.element.useState( false );
+	const [ capabilitiesLoaded, setCapabilitiesLoaded ] = wp.element.useState( false );
 
 	const domain = window.location.hostname;
 
-	useEffect( () => {
+	wp.element.useEffect( () => {
 		if ( 0 < Object.keys( connectionStatus ).length ) {
 			setConnectionLoaded( true );
 		}
 	}, [ connectionStatus ] );
 
-	useEffect( () => {
+	wp.element.useEffect( () => {
 		apiFetch( { path: 'jetpack/v4/backup-capabilities' } ).then(
 			res => {
 				setCapabilities( res.capabilities );
@@ -43,7 +45,7 @@ const Admin = () => {
 
 	const renderPromptForConnection = () => {
 		return (
-			<React.Fragment>
+			<Fragment>
 				<p className="notice notice-error">
 					{ __(
 						'Jetpack Backup requires a user connection to WordPress.com to be able to backup your website.',
@@ -51,7 +53,7 @@ const Admin = () => {
 					) }
 				</p>
 				{ renderJetpackConnection() }
-			</React.Fragment>
+			</Fragment>
 		);
 	};
 
