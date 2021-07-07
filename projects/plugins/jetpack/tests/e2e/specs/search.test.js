@@ -13,6 +13,7 @@ import {
 	disableInstantSearch,
 	disableSearchModule,
 } from '../lib/search-helper';
+import { prerequisites } from '../lib/env/prerequisites';
 
 /**
  *
@@ -25,8 +26,10 @@ describe( 'Search', () => {
 	let backupSidebarsWidgets;
 
 	beforeAll( async () => {
+		await prerequisites( { connected: true, plan: 'complete' } );
+
 		backupSidebarsWidgets = await getSidebarsWidgets();
-		await syncJetpackPlanData( 'complete' );
+		// await syncJetpackPlanData( 'complete' );
 		await activateModule( page, 'search' );
 		await enableInstantSearch();
 		await setupSidebarsWidgets();

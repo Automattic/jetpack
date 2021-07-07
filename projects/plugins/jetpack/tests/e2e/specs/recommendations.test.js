@@ -1,5 +1,7 @@
 import { step } from '../lib/env/test-setup';
 import RecommendationsPage from '../lib/pages/wp-admin/recommendations';
+import { prerequisites } from '../lib/env/prerequisites';
+import { activateModule } from '../lib/utils-helper';
 
 /**
  *
@@ -8,6 +10,10 @@ import RecommendationsPage from '../lib/pages/wp-admin/recommendations';
  *
  */
 describe( 'Recommendations (Jetpack Assistant)', () => {
+	beforeAll( async () => {
+		await prerequisites( { connected: true } );
+	} );
+
 	it( 'Recommendations (Jetpack Assistant)', async () => {
 		let recommendationsPage;
 
