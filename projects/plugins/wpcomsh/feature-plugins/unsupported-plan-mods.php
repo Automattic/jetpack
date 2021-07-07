@@ -7,6 +7,8 @@
  * @package wpcomsh
  */
 
+define( 'ALLOWED_MIMES', 'jpg jpeg png gif pdf doc ppt odt pptx docx pps ppsx xls xlsx key' );
+
 /**
  * If this site has an unsupported WPCOM plan, remove the Settings > Permalinks submenu item.
  */
@@ -40,3 +42,22 @@ function wpcomsh_disable_permalink_page_unsupported_plan() {
     }
 }
 add_action( 'load-options-permalink.php', 'wpcomsh_disable_permalink_page_unsupported_plan' );
+
+function wpcomsh_restrict_mimetypes_unsupported_plan( $mimes ) {
+	if ( Atomic_Plan_Manager::has_atomic_supported_plan() ) {
+		return $mimes;
+	}
+	$site_exts = explode( ' ', ALLOWED_MIMES );
+	$free_mimes = [];
+	foreach ( $site_exts as $ext ) {
+		foreach ( $mimes as $ext_pattern => $mime ) {
+			if ( $ext != '' && strpos( $ext_pattern, $ext ) !== false ) {
+				$free_mimes[ $ext_pattern ] = $mime;
+			}
+		}
+	}
+
+	return $free_mimes;
+}
+
+add_filter( 'upload_mimes', 'wpcomsh_restrict_mimetypes_unsupported_plan', 3 );
