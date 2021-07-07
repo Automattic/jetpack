@@ -1,3 +1,17 @@
+/* 
+ * Temporary fix below for issue introduced to Newspack blocks, can be removed once
+ * once Newspack blocks includes this override
+*/
+.wp-block-newspack-blocks-carousel .swiper-button-prev:after,
+.swiper-container-rtl .swiper-button-next:after {
+	content: none;
+}
+.wp-block-newspack-blocks-carousel .swiper-button-next:after,
+.swiper-container-rtl .swiper-button-prev:after {
+	content: none;
+}
+/* end of temporary fix */
+
 [data-carousel-extra]:not( .jp-carousel-wrap ) {
 	cursor: pointer;
 }
@@ -6,7 +20,7 @@
 	line-height: inherit;
 }
 
-.swiper-container {
+.jp-carousel-wrap.swiper-container {
 	height: auto;
 	width: 100vw;
 }
@@ -22,8 +36,8 @@ To prevent flash of prev/next image scale transition after pinch zoom we need to
 Swiper does not add a class of `swiper-slide-zoomed` to slides on pinch and zoom
 so we have to target all affected elements in touch devices.
 */
-.swiper-slide.swiper-slide-prev .swiper-zoom-container img,
-.swiper-slide.swiper-slide-next .swiper-zoom-container img {
+.jp-carousel-overlay .swiper-slide.swiper-slide-prev .swiper-zoom-container img,
+.jp-carousel-overlay .swiper-slide.swiper-slide-next .swiper-zoom-container img {
 	transition: none !important;
 }
 
@@ -34,6 +48,7 @@ so we have to target all affected elements in touch devices.
 	height: initial;
 	width: initial;
 	padding: 20px 40px;
+	background-image: none;
 }
 
 .jp-carousel-overlay .swiper-button-prev:hover,
@@ -84,10 +99,10 @@ so we have to target all affected elements in touch devices.
 	display: none;
 }
 
-.swiper-container .swiper-button-prev {
+.jp-carousel-overlay .swiper-container .swiper-button-prev {
 	left: 0px;
 }
-.swiper-container .swiper-button-next {
+.jp-carousel-overlay .swiper-container .swiper-button-next {
 	right: 0px;
 }
 
@@ -1138,8 +1153,8 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 /* Small screens */
 @media only screen and ( max-width: 760px ) {
-	.swiper-container .swiper-button-next,
-	.swiper-container .swiper-button-prev {
+	.jp-carousel-overlay .swiper-container .swiper-button-next,
+	.jp-carousel-overlay .swiper-container .swiper-button-prev {
 		display: none !important;
 	}
 
