@@ -49,9 +49,19 @@ if ( is_plugin_active( $plugin->plugin_file() ) ) {
 	$active_branch = $existing_branch;
 	$version       = $active_branch->pretty_version;
 } elseif ( is_plugin_active( $plugin->dev_plugin_file() ) ) {
-	$active_branch                 = $plugin->dev_info();
-	$active_branch->pretty_version = $plugin->dev_pretty_version();
-	$version                       = $active_branch->pretty_version . ' | ' . $active_branch->version;
+	$active_branch = $plugin->dev_info();
+	if ( $active_branch ) {
+		$active_branch->pretty_version = $plugin->dev_pretty_version();
+	} else {
+		$tmp           = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin->dev_plugin_file(), false, false );
+		$active_branch = (object) array(
+			'source'         => 'unknown',
+			'id'             => $tmp['Version'],
+			'version'        => $tmp['Version'],
+			'pretty_version' => __( 'Unknown Development Version', 'jetpack-beta' ),
+		);
+	}
+	$version = $active_branch->pretty_version . ' | ' . $active_branch->version;
 }
 
 ?>

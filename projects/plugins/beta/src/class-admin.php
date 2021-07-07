@@ -244,6 +244,16 @@ class Admin {
 		} elseif ( is_plugin_active( $plugin->dev_plugin_file() ) ) {
 			$path = WP_PLUGIN_DIR . '/' . $plugin->dev_plugin_slug();
 			$info = $plugin->dev_info();
+			if ( ! $info ) {
+				return array(
+					sprintf(
+						// translators: %s: Plugin name.
+						__( 'This development instance of %s seems to be from an old verison of Jetpack Beta Tester, or has otherwise lost essential metadata. You should use Jetpack Beta Tester to reinstall the desired PR, Release Candidate, or Bleeding Edge version.', 'jetpack-beta' ),
+						$plugin->get_name()
+					),
+					null,
+				);
+			}
 		} else {
 			return array( null, null );
 		}
