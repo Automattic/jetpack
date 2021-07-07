@@ -204,6 +204,10 @@
 			return dummy.innerHTML;
 		}
 
+		function stripHTML( text ) {
+			return text.replace( /<[^>]*>?/gm, '' );
+		}
+
 		return {
 			closest: closest,
 			matches: matches,
@@ -214,6 +218,7 @@
 			scrollToElement: scrollToElement,
 			getJSONAttribute: getJSONAttribute,
 			convertToPlainText: convertToPlainText,
+			stripHTML: stripHTML,
 			emitEvent: emitEvent,
 		};
 	} )();
@@ -697,7 +702,11 @@
 			}
 
 			domUtil.hide( carousel.caption );
-			updateTitleAndDesc( { title: current.attrs.title, desc: current.attrs.desc } );
+			updateTitleCaptionAndDesc( {
+				caption: current.attrs.caption,
+				title: current.attrs.title,
+				desc: current.attrs.desc,
+			} );
 
 			var imageMeta = carousel.slides[ index ].attrs.imageMeta;
 			updateExif( imageMeta );
@@ -713,7 +722,7 @@
 				captionHtml = domUtil.convertToPlainText( current.attrs.caption );
 
 				if ( domUtil.convertToPlainText( current.attrs.title ) === captionHtml ) {
-					var title = carousel.info.querySelector( '.jp-carousel-photo-title' );
+					var title = carousel.info.querySelector( '.jp-carousel-photo-caption' );
 					domUtil.fadeOut( title, function () {
 						title.innerHTML = '';
 					} );
@@ -921,27 +930,32 @@
 			return value;
 		}
 
-		function updateTitleAndDesc( data ) {
+		function updateTitleCaptionAndDesc( data ) {
+			var caption = '';
 			var title = '';
 			var desc = '';
-			var titleElements;
+			var captionElement;
+			var titleElement;
 			var descriptionElement;
-			var i;
 
-			titleElements = document.querySelectorAll( '.jp-carousel-photo-title' );
-			descriptionElement = document.querySelector( '.jp-carousel-photo-description' );
+			captionElement = carousel.overlay.querySelector( '.jp-carousel-photo-caption' );
+			titleElement = carousel.overlay.querySelector( '.jp-carousel-photo-title' );
+			descriptionElement = carousel.overlay.querySelector( '.jp-carousel-photo-description' );
 
-			for ( i = 0; i < titleElements.length; i++ ) {
-				domUtil.hide( titleElements[ i ] );
-			}
-
+			domUtil.hide( captionElement );
+			domUtil.hide( titleElement );
 			domUtil.hide( descriptionElement );
 
+			caption = parseTitleOrDesc( data.caption ) || '';
 			title = parseTitleOrDesc( data.title ) || '';
 			desc = parseTitleOrDesc( data.desc ) || '';
 
-			if ( title || desc ) {
-				// Convert from HTML to plain text (including HTML entities decode, etc)
+			if ( caption || title || desc ) {
+				if ( caption ) {
+					captionElement.innerHTML = domUtil.stripHTML( caption );
+					domUtil.show( captionElement );
+				}
+
 				if ( domUtil.convertToPlainText( title ) === domUtil.convertToPlainText( desc ) ) {
 					desc = '';
 				}
@@ -951,10 +965,9 @@
 					domUtil.show( descriptionElement );
 				}
 
-				// Need maximum browser support, hence the for loop over NodeList.
-				for ( i = 0; i < titleElements.length; i++ ) {
-					titleElements[ i ].innerHTML = title;
-					domUtil.show( titleElements[ i ] );
+				if ( title ) {
+					titleElement.innerHTML = domUtil.convertToPlainText( title );
+					domUtil.show( titleElement );
 				}
 			}
 		}
@@ -1233,8 +1246,6 @@
 
 			// create the 'slide'
 			Array.prototype.forEach.call( items, function ( item, i ) {
-				var galleryItem = domUtil.closest( item, '.gallery-item' );
-				var captionEl = galleryItem && galleryItem.querySelector( '.gallery-caption' );
 				var permalinkEl = domUtil.closest( item, 'a' );
 				var origFile = item.getAttribute( 'data-orig-file' ) || item.getAttribute( 'src-orig' );
 
@@ -1250,7 +1261,7 @@
 					largeFile: item.getAttribute( 'data-large-file' ) || '',
 					origFile: origFile || '',
 					thumbSize: { width: item.naturalWidth, height: item.naturalHeight },
-					caption: ( captionEl && captionEl.innerHTML ) || '',
+					caption: item.getAttribute( 'data-image-caption' ) || '',
 					permalink: permalinkEl && permalinkEl.getAttribute( 'href' ),
 					src: origFile || item.getAttribute( 'src' ) || '',
 				};

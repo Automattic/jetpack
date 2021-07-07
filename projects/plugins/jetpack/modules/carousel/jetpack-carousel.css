@@ -153,7 +153,7 @@ so we have to target all affected elements in touch devices.
 .jp-carousel-info-extra {
 	display: none;
 	background-color: #000;
-	padding: 15px 35px 35px 35px;
+	padding: 35px;
 	width: 100vw;
 	border-top: 1px solid #222;
 }
@@ -338,7 +338,8 @@ div.jp-carousel-buttons a:hover {
 	margin: 0;
 }
 
-.jp-carousel-photo-title {
+.jp-carousel-photo-title,
+.jp-carousel-photo-caption {
 	background: none !important;
 	border: none !important;
 	display: inline-block;
@@ -353,7 +354,7 @@ div.jp-carousel-buttons a:hover {
 	color: #fff;
 }
 
-.jp-carousel-info-footer .jp-carousel-photo-title {
+.jp-carousel-info-footer .jp-carousel-photo-caption {
 	text-align: center;
 	font-size: 15px; /* same as .jp-carousel-pagination */
 	white-space: nowrap;
@@ -363,10 +364,15 @@ div.jp-carousel-buttons a:hover {
 	text-overflow: ellipsis;
 }
 
+.jp-carousel-photo-title {
+	font-size: 32px;
+	margin-bottom: 2px;
+}
+
 .jp-carousel-photo-description {
 	color: #999;
 	font-size: 16px;
-	margin-bottom: 0;
+	margin: 25px 0;
 	width: 100%;
 }
 
@@ -418,6 +424,10 @@ div.jp-carousel-buttons a:hover {
 .jp-carousel-comments-wrapper h1:before,
 .jp-carousel-comments-wrapper h1:after {
 	content: none !important;
+}
+
+.jp-carousel-caption {
+	font-size: 14px;
 }
 /** Title and Desc End **/
 
