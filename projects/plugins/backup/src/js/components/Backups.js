@@ -4,6 +4,7 @@
 import { getDate, date, dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
+import { createInterpolateElement } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -131,14 +132,21 @@ const Backups = () => {
 						) }
 					</p>
 					<p>
-						{ __(
-							'In the meanwhile, you can start getting familiar with your ',
-							'jetpack-backup'
+						{ createInterpolateElement(
+							__(
+								'In the meanwhile, you can start getting familiar with your <a>backup management on Jetpack.com</a>.',
+								'jetpack-backup'
+							),
+							{
+								a: (
+									<a
+										href={ 'https://cloud.jetpack.com/backup/' + domain }
+										target="_blank"
+										rel="noreferrer"
+									/>
+								),
+							}
 						) }
-						<a href={ 'https://cloud.jetpack.com/backup/' + domain }>
-							{ __( 'backup management on Jetpack.com', 'jetpack-backup' ) }
-						</a>
-						.
 					</p>
 				</div>
 				<div class="lg-col-span-1 md-col-span-4 sm-col-span-0"></div>
@@ -327,22 +335,38 @@ const Backups = () => {
 				<div class="lg-col-span-5 md-col-span-4 sm-col-span-4">
 					<h1>{ __( "We're having trouble backing up your site", 'jetpack-backup' ) }</h1>
 					<p>
-						{ __( 'Check that your Jetpack Connection is healthy with the ', 'jepack-backup' ) }
-						<a
-							href={ 'https://tools.jetpack.com/debug/?url=' + domain }
-							target="_blank"
-							rel="noreferrer"
-						>
-							{ __( 'Jetpack Debugger', 'jetpack-backup' ) }
-						</a>
-						.
+						{ createInterpolateElement(
+							__(
+								'Check that your Jetpack Connection is healthy with the <a>Jetpack Debugger</a>.',
+								'jetpack-backup'
+							),
+							{
+								a: (
+									<a
+										href={ 'https://tools.jetpack.com/debug/?url=' + domain }
+										target="_blank"
+										rel="noreferrer"
+									/>
+								),
+							}
+						) }
 					</p>
 					<p>
-						{ __( 'You can also find more information in your ', 'jetpack-backup' ) }
-						<a href={ 'https://cloud.jetpack.com/backup/' + domain }>
-							{ __( 'backup management on Jetpack.com', 'jetpack-backup' ) }
-						</a>
-						.
+						{ createInterpolateElement(
+							__(
+								'You can also find more information in your <a>backup management on Jetpack.com</a>.',
+								'jetpack-backup'
+							),
+							{
+								a: (
+									<a
+										href={ 'https://cloud.jetpack.com/backup/' + domain }
+										target="_blank"
+										rel="noreferrer"
+									/>
+								),
+							}
+						) }
 					</p>
 				</div>
 				<div class="lg-col-span-1 md-col-span-4 sm-col-span-0"></div>
