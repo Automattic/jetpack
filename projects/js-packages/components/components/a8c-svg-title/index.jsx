@@ -15,7 +15,7 @@ import React from 'react';
 export default function A8cSvgTitle( {
 	href = 'https://www.automattic.com',
 	title = 'An Automattic Airline',
-	height = 8,
+	height = 7,
 	...otherProps
 } ) {
 	return (
