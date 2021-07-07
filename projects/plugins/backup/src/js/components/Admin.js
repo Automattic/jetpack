@@ -4,6 +4,7 @@
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
+import { useSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -11,6 +12,7 @@ import apiFetch from '@wordpress/api-fetch';
 import Backups from './Backups';
 import useConnection from '../hooks/useConnection';
 import './admin-style.scss';
+import { STORE_ID } from '../store';
 
 /* global wp */
 /* eslint react/react-in-jsx-scope: 0 */
@@ -18,11 +20,10 @@ const Admin = () => {
 	const [ connectionStatus, renderJetpackConnection ] = useConnection();
 	const [ capabilities, setCapabilities ] = wp.element.useState( null );
 	const [ capabilitiesError, setCapabilitiesError ] = wp.element.useState( null );
-
 	const [ connectionLoaded, setConnectionLoaded ] = wp.element.useState( false );
 	const [ capabilitiesLoaded, setCapabilitiesLoaded ] = wp.element.useState( false );
 
-	const domain = window.location.hostname;
+	const domain = useSelect( select => select( STORE_ID ).getRawUrl(), [] );
 
 	wp.element.useEffect( () => {
 		if ( 0 < Object.keys( connectionStatus ).length ) {
