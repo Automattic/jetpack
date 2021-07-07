@@ -6,7 +6,7 @@ It takes width and height properties but defaults to 7 in height.
 #### How to use:
 
 ```js
-<JetpackLogo height={ 7 } className="jp-a8c-svg-title" />
+<A8cSvgTitle height={ 7 } className="jp-a8c-svg-title" />
 ```
 
 #### Props
