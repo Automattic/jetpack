@@ -1,6 +1,6 @@
 <?php
 /**
- * A class that adds a search dashboard to wp-admin.
+ * A class that adds a search customization interface to wp-admin.
  *
  * @package automattic/jetpack
  */
@@ -14,7 +14,7 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-admin-pag
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-redux-state-helper.php';
 
 /**
- * Responsible for adding a search dashboard to wp-admin.
+ * Responsible for adding a search customization interface to wp-admin.
  *
  * @package Automattic\Jetpack\Search
  */
@@ -29,7 +29,7 @@ class Jetpack_Search_Customberg {
 	/**
 	 * Get the singleton instance of the class.
 	 *
-	 * @return Admin_Dashboard
+	 * @return Jetpack_Search_Customberg
 	 */
 	public static function instance() {
 		if ( ! isset( self::$instance ) ) {
@@ -48,14 +48,14 @@ class Jetpack_Search_Customberg {
 	}
 
 	/**
-	 * Adds an admin sidebar link pointing to the Search page.
+	 * Adds a wp-admin page without adding a sidebar submenu item.
 	 */
-	public function add_submenu_and_scripts() {
-		if ( ! $this->should_show_link() ) {
+	public function add_wp_admin_page() {
+		if ( ! $this->should_add_page() ) {
 			return;
 		}
 
-		// Intentionally doesn't add a submenu via the null argument.
+		// Intentionally omits adding a submenu via the first null argument.
 		$hook = add_submenu_page(
 			null,
 			__( 'Search Settings', 'jetpack' ),
@@ -79,7 +79,7 @@ class Jetpack_Search_Customberg {
 		?>
 			<div id="jp-search-customization" class="jp-search-customization-dashboard">
 				<div class="hide-if-no-js"><img class="jp-search-loader" width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php echo esc_url( $static_url ); ?>" /></div>
-				<div class="hide-if-js"><?php esc_html_e( 'Your Search dashboard requires JavaScript to function properly.', 'jetpack' ); ?><div />
+				<div class="hide-if-js"><?php esc_html_e( 'Your Search customization page requires JavaScript to function properly.', 'jetpack' ); ?><div />
 			</div>
 		<?php
 	}
@@ -134,11 +134,11 @@ class Jetpack_Search_Customberg {
 	}
 
 	/**
-	 * Determine if the link should appear in the sidebar.
+	 * Determine if the requisite page should be added to wp-admin.
 	 *
 	 * @return boolean
 	 */
-	private function should_show_link() {
+	private function should_add_page() {
 		return Jetpack_Plan::supports( 'search' );
 	}
 }

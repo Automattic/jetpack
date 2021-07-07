@@ -16,7 +16,7 @@ function collapseWpAdminSidebar() {
 }
 
 /**
- * Initilizes the widgets screen
+ * Initializes the widgets screen
  *
  * @param {string} id - Id of the root element to render the screen.
  */

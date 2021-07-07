@@ -10,4 +10,4 @@ This package will be built via `pnpm run build-search-configure`, which is invok
 
 Customberg is styled after many other existing block editors, like the WordPress Widgets editor and the WordPress Post editor. While it is architected to allow for block editing in the future, specifically in the Jetpack Search sidebar, it currently does not support any block editing features at the time of writing.
 
-Customberg allows Jetpack Search site owners to change and preview Jetpack Search configuration changes. We enable this Customizer-like experience by rendering the complete Instant Search Preact application in a React context. This interoperability is inherent in most Preact applications; Instant Search is no exception.
+Customberg allows Jetpack Search site owners to change and preview Jetpack Search configuration changes. We enable this Customizer-like experience by rendering the complete Instant Search Preact application in a React context. The components are interoperable between Preact and React.
