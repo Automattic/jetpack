@@ -304,7 +304,7 @@ importers:
       '@testing-library/jest-dom': 5.12.0
       '@testing-library/preact': 2.0.1
       '@testing-library/react': 11.2.7
-      '@testing-library/react-hooks': 4.0.0
+      '@testing-library/react-hooks': 4.0.1
       '@testing-library/user-event': 12.8.3
       '@wordpress/annotations': 1.12.2
       '@wordpress/base-styles': 2.0.1
@@ -522,7 +522,7 @@ importers:
       '@testing-library/jest-dom': 5.12.0
       '@testing-library/preact': 2.0.1_preact@10.5.7
       '@testing-library/react': 11.2.7_react-dom@16.14.0+react@16.14.0
-      '@testing-library/react-hooks': 4.0.0_98e0eb37a9f7280a1c5a6c886619f5b4
+      '@testing-library/react-hooks': 4.0.1_98e0eb37a9f7280a1c5a6c886619f5b4
       '@testing-library/user-event': 12.8.3
       '@wordpress/components': 9.2.6_react-dom@16.14.0+react@16.14.0
       '@wordpress/core-data': 2.12.3_react@16.14.0
@@ -3879,13 +3879,13 @@ packages:
       preact: 10.5.7
     dev: true
 
-  /@testing-library/react-hooks/4.0.0_98e0eb37a9f7280a1c5a6c886619f5b4:
-    resolution: {integrity: sha512-AWIR4M1Fz4dYzuKytkWtabcrwpevq7zj9dImuBOcmrpl3VkjOBDa7Q/62fwK/M30ae5XI25mDSpQ29vzC7A5Lw==}
+  /@testing-library/react-hooks/4.0.1_98e0eb37a9f7280a1c5a6c886619f5b4:
+    resolution: {integrity: sha512-DufI8Q2GOM7W2yFEEfz85VNVNaHZL0tPZyBT6ytV7HK+1A4frL1ty+W5NBE0u0K3EFV/Pg5O28HGNEtp9D5EyA==}
     peerDependencies:
       react: '>=16.9.0'
       react-test-renderer: '>=16.9.0'
     dependencies:
-      '@babel/runtime': 7.13.10
+      '@babel/runtime': 7.14.0
       '@types/react': 16.14.6
       '@types/react-test-renderer': 17.0.1
       react: 16.14.0
