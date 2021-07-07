@@ -8,7 +8,7 @@ import classnames from 'classnames';
 /**
  * Internal dependencies
  */
-import A8cSvgTitle from '../a8c-svg-title';
+import AutomatticBylineLogo from '../automattic-byline-logo';
 import './style.scss';
 
 /**
@@ -35,7 +35,7 @@ export default function JetpackFooter( {
 			</div>
 			<div className="jp-dashboard-footer__footer-right">
 				<a href={ aboutPageUrl }>
-					<A8cSvgTitle title={ __( 'An Automattic Airline', 'jetpack' ) } />
+					<AutomatticBylineLogo title={ __( 'An Automattic Airline', 'jetpack' ) } />
 				</a>
 			</div>
 		</div>

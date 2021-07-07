@@ -9,21 +9,21 @@ import ShallowRenderer from 'react-test-renderer/shallow';
 /**
  * Internal dependencies
  */
-import A8cSvgTitle from '../index';
+import AutomatticBylineLogo from '../index';
 
-describe( 'A8cSvgTitle', () => {
+describe( 'AutomatticBylineLogo', () => {
 	const testProps = {
 		className: 'sample-classname',
 	};
 
-	describe( 'Render the A8cSvgTitle component', () => {
+	describe( 'Render the AutomatticBylineLogo component', () => {
 		const renderer = new ShallowRenderer();
-		renderer.render( <A8cSvgTitle { ...testProps } /> );
+		renderer.render( <AutomatticBylineLogo { ...testProps } /> );
 
 		const wrapper = shallow( renderer.getRenderOutput() );
 
 		it( 'component exists', () => {
-			expect( wrapper.find( 'A8cSvgTitle' ) ).to.exist;
+			expect( wrapper.find( 'AutomatticBylineLogo' ) ).to.exist;
 		} );
 
 		it( 'validate the class name', () => {
