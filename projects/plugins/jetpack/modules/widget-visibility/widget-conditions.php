@@ -27,7 +27,7 @@ class Jetpack_Widget_Conditions {
 		}
 
 		// Saving widgets via API in gutenberg widgets.
-		if ( 0 === strpos( $_SERVER['REQUEST_URI'], 'wp-json/batch/v1' ) ) {
+		if ( 0 === strpos( $_SERVER['REQUEST_URI'], '/wp-json/batch/v1' ) ) {
 			add_filter( 'widget_update_callback', array( __CLASS__, 'widget_update' ), 10, 3 );
 		}
 	}
