@@ -16,14 +16,14 @@ import './style.scss';
  *
  * @param {object} props - Component properties.
  * @param {object} props.aboutPageUrl - Link for 'An Automattic Airline'.
- * @param {object} props.moduelName - Name of the moduel, e.g. 'Jetpack Search'.
+ * @param {object} props.moduleName - Name of the moduel, e.g. 'Jetpack Search'.
  * @param {object} props.className - additional className of the wrapper, default only: `jp-dashboard-footer`.
  *
  * @returns {React.Component} JetpackFooter component.
  */
 export default function JetpackFooter( {
 	aboutPageUrl,
-	moduelName = 'Jetpack',
+	moduleName = 'Jetpack',
 	className = '',
 	...otherProps
 } ) {
@@ -31,7 +31,7 @@ export default function JetpackFooter( {
 		<div className={ classnames( 'jp-dashboard-footer', className ) } { ...otherProps }>
 			<div className="jp-dashboard-footer__footer-left">
 				<span className="jp-dashboard-footer__logo"></span>
-				<span>{ moduelName }</span>
+				<span>{ moduleName }</span>
 			</div>
 			<div className="jp-dashboard-footer__footer-right">
 				<a href={ aboutPageUrl }>
