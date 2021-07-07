@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import classnames from 'classnames';
+import { __ } from '@wordpress/i18n';
 
 /**
  * AutomatticBylineLogo component definition.
@@ -15,7 +16,7 @@ import classnames from 'classnames';
  * @returns {React.Component} AutomatticBylineLogo component.
  */
 export default function AutomatticBylineLogo( {
-	title = 'An Automattic Airline',
+	title = __( 'An Automattic Airline' ),
 	height = 7,
 	className = '',
 	...otherProps
