@@ -1,8 +1,8 @@
 # WP Super Cache #
 * Contributors: donncha, automattic
 * Tags: performance, caching, wp-cache, wp-super-cache, cache
-* Tested up to: 5.7.1
-* Stable tag: 1.7.3
+* Tested up to: 5.7.2
+* Stable tag: 1.7.4
 * Requires at least: 3.1
 * Requires PHP: 5.2.4
 * License: GPLv2 or later
@@ -268,6 +268,12 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 ## Changelog ##
+
+### 1.7.4 ###
+* Make config file path configurable, props @sebastianpopp #755
+* Stop a very rare/difficult attack when updating wp-config.php, props @guyasyou for reporting. #780
+* Add textbox to add tracking parameters to ignore when caching. props @markfinst, @radex02 #777
+* Add "Rejected Cookies" setting to the advanced settings page. #774
 
 ### 1.7.3 ###
 * Sanitize the settings that are written to the config file #763
@@ -761,4 +767,4 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 ## Upgrade Notice ##
-Security and bugfix release. Security issue isn't too serious but you should upgrade.
+Security and new feature release. Security issue is very difficult to perform but you should upgrade.
