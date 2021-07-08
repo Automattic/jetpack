@@ -29,7 +29,7 @@
 		"eslint": "7.25.0"
 	},
 	"engines": {
-		"node": "^14.17.2",
+		"node": "^14.17.3",
 		"pnpm": "^6.5.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
