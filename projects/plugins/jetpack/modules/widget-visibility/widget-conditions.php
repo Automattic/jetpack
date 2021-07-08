@@ -12,23 +12,85 @@ class Jetpack_Widget_Conditions {
 	public static function init() {
 		global $pagenow;
 
-		if ( is_customize_preview() || 'widgets.php' === $pagenow ||
-			 // phpcs:ignore WordPress.Security.NonceVerification.Missing
-			( 'admin-ajax.php' === $pagenow && array_key_exists( 'action', $_POST ) && 'save-widget' === $_POST['action'] ) || // Saving widgets on classic widget admin.
-			0 === strpos( $_SERVER['REQUEST_URI'], '/wp-json/wp/v2/widget-types' ) // Widget editing via API in gutenberg widgets.
+		// Previews don't need widget editing loaded and also don't want to run the filter - it might mean the preview
+		// is empty which would be confusing.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['legacy-widget-preview'] ) ) {
+			return;
+		}
+
+		// Not making use of the heartbeat functionality at all.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( isset( $_POST['action'] ) && 'heartbeat' === $_POST['action'] ) {
+			return;
+		}
+
+		// API call to *list* the widget types doesn't use editing visibility or display widgets.
+		if ( false !== strpos( $_SERVER['REQUEST_URI'], '/wp-json/wp/v2/widget-types?' ) ) {
+			return;
+		}
+
+		$add_data_assets_to_page = false;
+		$add_html_to_form        = false;
+		$handle_widget_updates   = false;
+
+		$using_classic_experience = ( ! function_exists( 'wp_use_widgets_block_editor' ) || ! wp_use_widgets_block_editor() );
+		if ( $using_classic_experience &&
+			(
+				is_customize_preview() || 'widgets.php' === $pagenow ||
+				// phpcs:ignore WordPress.Security.NonceVerification.Missing
+				( 'admin-ajax.php' === $pagenow && array_key_exists( 'action', $_POST ) && 'save-widget' === $_POST['action'] )
+			)
 		) {
-			add_action( 'sidebar_admin_setup', array( __CLASS__, 'widget_admin_setup' ) );
-			add_filter( 'widget_update_callback', array( __CLASS__, 'widget_update' ), 10, 3 );
+			$add_data_assets_to_page = true;
+			$add_html_to_form        = true;
+			$handle_widget_updates   = true;
+		} else {
+			// On a page that is hosting the API.
+			if ( is_customize_preview() || 'widgets.php' === $pagenow ) {
+				$add_data_assets_to_page = true;
+			}
+
+			// Encoding for a particular widget end point.
+			if ( 1 === preg_match( '|/wp-json/wp/v2/widget-types/.*/encode|', $_SERVER['REQUEST_URI'] ) ) {
+				$add_html_to_form      = true;
+				$handle_widget_updates = true;
+			}
+
+			// Batch API is usually saving but could be anything.
+			if ( false !== strpos( $_SERVER['REQUEST_URI'], '/wp-json/batch/v1' ) ) {
+				$handle_widget_updates = true;
+				$add_html_to_form      = true;
+			}
+
+			// Saving widgets via non-batch API. This isn't used within WordPress but could be used by third parties in theory.
+			if ( 'GET' !== $_SERVER['REQUEST_METHOD'] && false !== strpos( $_SERVER['REQUEST_URI'], '/wp/v2/widgets' ) ) {
+				$handle_widget_updates = true;
+				$add_html_to_form      = true;
+			}
+		}
+
+		if ( $add_html_to_form ) {
 			add_action( 'in_widget_form', array( __CLASS__, 'widget_conditions_admin' ), 10, 3 );
-		} elseif ( ! in_array( $pagenow, array( 'wp-login.php', 'wp-register.php' ), true ) ) {
+		}
+
+		if ( $handle_widget_updates ) {
+			add_filter( 'widget_update_callback', array( __CLASS__, 'widget_update' ), 10, 3 );
+		}
+
+		if ( $add_data_assets_to_page ) {
+			add_action( 'sidebar_admin_setup', array( __CLASS__, 'widget_admin_setup' ) );
+		}
+
+		if ( ! $add_html_to_form && ! $handle_widget_updates && ! $add_data_assets_to_page &&
+			! in_array( $pagenow, array( 'wp-login.php', 'wp-register.php' ), true ) &&
+			// Don't filter widgets when editing them - otherwise they could get filtered out and become impossible to edit.
+			( false === strpos( wp_get_raw_referer(), '/wp-admin/widgets.php' ) )
+		) {
+			// Not hit any known widget admin point, register widget display hooks instead.
 			add_filter( 'widget_display_callback', array( __CLASS__, 'filter_widget' ) );
 			add_filter( 'sidebars_widgets', array( __CLASS__, 'sidebars_widgets' ) );
 			add_action( 'template_redirect', array( __CLASS__, 'template_redirect' ) );
-		}
-
-		// Saving widgets via API in gutenberg widgets.
-		if ( 0 === strpos( $_SERVER['REQUEST_URI'], '/wp-json/batch/v1' ) ) {
-			add_filter( 'widget_update_callback', array( __CLASS__, 'widget_update' ), 10, 3 );
 		}
 	}
 
