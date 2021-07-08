@@ -668,7 +668,6 @@
 
 			var current = carousel.currentSlide;
 			var attachmentId = current.attrs.attachmentId;
-			var captionHtml;
 			var extraInfoContainer = carousel.info.querySelector( '.jp-carousel-info-extra' );
 			var photoMetaContainer = carousel.info.querySelector( '.jp-carousel-image-meta' );
 			var commentsContainer = carousel.info.querySelector( '.jp-carousel-comments-wrapper' );
@@ -716,31 +715,6 @@
 				testCommentsOpened( carousel.slides[ index ].attrs.commentsOpened );
 				fetchComments( attachmentId );
 				domUtil.hide( carousel.info.querySelector( '#jp-carousel-comment-post-results' ) );
-			}
-
-			if ( current.attrs.caption ) {
-				captionHtml = domUtil.convertToPlainText( current.attrs.caption );
-
-				if ( domUtil.convertToPlainText( current.attrs.title ) === captionHtml ) {
-					var title = carousel.info.querySelector( '.jp-carousel-photo-caption' );
-					domUtil.fadeOut( title, function () {
-						title.innerHTML = '';
-					} );
-				}
-
-				if ( domUtil.convertToPlainText( current.attrs.desc ) === captionHtml ) {
-					var desc = carousel.info.querySelector( '.jp-carousel-photo-description' );
-					domUtil.fadeOut( desc, function () {
-						desc.innerHTML = '';
-					} );
-				}
-
-				carousel.caption.innerHTML = current.attrs.caption;
-				domUtil.fadeIn( carousel.caption );
-			} else {
-				domUtil.fadeOut( carousel.caption, function () {
-					carousel.caption.innerHTML = '';
-				} );
 			}
 
 			// Update pagination in footer.
@@ -934,15 +908,19 @@
 			var caption = '';
 			var title = '';
 			var desc = '';
-			var captionElement;
+			var captionMainElement;
+			var captionInfoExtraElement;
 			var titleElement;
 			var descriptionElement;
 
-			captionElement = carousel.overlay.querySelector( '.jp-carousel-photo-caption' );
+			captionMainElement = carousel.overlay.querySelector( '.jp-carousel-photo-caption' );
+			captionInfoExtraElement = carousel.overlay.querySelector( '.jp-carousel-caption' );
+
 			titleElement = carousel.overlay.querySelector( '.jp-carousel-photo-title' );
 			descriptionElement = carousel.overlay.querySelector( '.jp-carousel-photo-description' );
 
-			domUtil.hide( captionElement );
+			domUtil.hide( captionMainElement );
+			domUtil.hide( captionInfoExtraElement );
 			domUtil.hide( titleElement );
 			domUtil.hide( descriptionElement );
 
@@ -952,11 +930,23 @@
 
 			if ( caption || title || desc ) {
 				if ( caption ) {
-					captionElement.innerHTML = domUtil.stripHTML( caption );
-					domUtil.show( captionElement );
+					var safeCaption = domUtil.stripHTML( caption );
+					captionMainElement.innerHTML = safeCaption;
+					captionInfoExtraElement.innerHTML = safeCaption;
+
+					domUtil.show( captionMainElement );
+					domUtil.show( captionInfoExtraElement );
 				}
 
-				if ( domUtil.convertToPlainText( title ) === domUtil.convertToPlainText( desc ) ) {
+				if ( domUtil.stripHTML( caption ) === domUtil.stripHTML( title ) ) {
+					title = '';
+				}
+
+				if ( domUtil.stripHTML( caption ) === domUtil.stripHTML( desc ) ) {
+					desc = '';
+				}
+
+				if ( domUtil.stripHTML( title ) === domUtil.stripHTML( desc ) ) {
 					desc = '';
 				}
 
