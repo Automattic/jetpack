@@ -176,7 +176,7 @@ class Jetpack_Stats_Report_Upsells {
 	 * @param string $callback The callback passed to the jetpack admin page.
 	 * @return void
 	 */
-	public function render( $callback ) {
+	public static function render( $callback ) {
 		if ( 'stats_reports_page' !== $callback ) {
 			return;
 		}
