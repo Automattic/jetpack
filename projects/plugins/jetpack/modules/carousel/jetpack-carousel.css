@@ -56,8 +56,10 @@ so we have to target all affected elements in touch devices.
 	opacity: 1;
 }
 
+.jp-carousel-overlay .swiper-button-next:after,
+.jp-carousel-overlay .swiper-container-rtl .swiper-button-next:after,
 .jp-carousel-overlay .swiper-button-prev:after,
-.jp-carousel-overlay .swiper-button-next:after {
+.jp-carousel-overlay .swiper-container-rtl .swiper-button-prev:after {
 	content: none;
 }
 
@@ -96,10 +98,16 @@ so we have to target all affected elements in touch devices.
 }
 
 .jp-carousel-overlay .swiper-container .swiper-button-prev {
-	left: 0px;
+	left: 0;
 }
+
 .jp-carousel-overlay .swiper-container .swiper-button-next {
-	right: 0px;
+	right: 0;
+}
+
+.jp-carousel-overlay .swiper-container.swiper-container-rtl .swiper-button-prev,
+.jp-carousel-overlay .swiper-container.swiper-container-rtl .swiper-button-next {
+    transform: scaleX( -1 );
 }
 
 .jp-carousel-container {
@@ -464,7 +472,6 @@ div.jp-carousel-buttons a:hover {
 }
 
 a.jp-carousel-image-download {
-	padding-left: 23px;
 	display: inline-block;
 	clear: both;
 	color: #999;
@@ -490,12 +497,6 @@ a.jp-carousel-image-download span.photo-size {
 
 a.jp-carousel-image-download span.photo-size-times {
 	padding: 0 1px 0 2px;
-}
-
-a.jp-carousel-image-download:hover {
-	background-position: 0 -122px;
-	color: #fff;
-	border: none !important;
 }
 
 /** Meta Box End **/
@@ -759,9 +760,6 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	border: none;
 	margin: 20px 0 0 0;
 	padding: 0;
-}
-
-#jp-carousel-comment-form-commenting-as fieldset {
 	clear: both;
 }
 
@@ -1036,7 +1034,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 }
 
 .jp-carousel-icon-btn {
-	padding: 16px 16px;
+	padding: 16px;
 	text-decoration: none;
 	border: none;
 	background: none;
@@ -1082,6 +1080,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	color: #000;
 	font-weight: normal;
 	font-family: 'Helvetica Neue', sans-serif !important;
+	position: relative;
 }
 
 .jp-carousel-light .jp-carousel-icon .jp-carousel-has-comments-indicator {
