@@ -5,6 +5,7 @@ const execSync = require( 'child_process' ).execSync;
 const spawnSync = require( 'child_process' ).spawnSync;
 const chalk = require( 'chalk' );
 const fs = require( 'fs' );
+const glob = require( 'glob' );
 let phpcsExcludelist = null;
 let eslintExcludelist = null;
 let exitCode = 0;
@@ -325,6 +326,32 @@ function runCheckRenovateIgnoreList() {
 }
 
 /**
+ * Lints GitHub Actions yaml files.
+ */
+function runCheckGitHubActionsYamlFiles() {
+	const options = {
+		cwd: __dirname + '/../../../',
+	};
+	const allFiles = new Set( [
+		...glob.sync( '.github/workflows/*.{yml,yaml}', options ),
+		...glob.sync( '.github/actions/*/action.{yml,yaml}', options ),
+		...glob.sync( 'projects/github-actions/*/action.{yml,yaml}', options ),
+	] );
+	const files = gitFiles.filter( f => allFiles.has( f ) );
+	if ( ! files.length ) {
+		return;
+	}
+
+	const result = spawnSync( './tools/js-tools/lint-gh-actions.js', files, {
+		shell: true,
+		stdio: 'inherit',
+	} );
+	if ( result && result.status ) {
+		checkFailed( '' );
+	}
+}
+
+/**
  * Exit script
  *
  * @param {number} exitCodePassed - Shell exit code.
@@ -338,6 +365,7 @@ function exit( exitCodePassed ) {
 
 runCheckCopiedFiles();
 runCheckRenovateIgnoreList();
+runCheckGitHubActionsYamlFiles();
 sortPackageJson( jsFiles );
 
 dirtyFiles.forEach( file =>

@@ -656,6 +656,7 @@ importers:
       prettier: npm:wp-prettier@2.0.5
       semver: 7.3.5
       sort-package-json: 1.50.0
+      yaml: 1.10.2
     devDependencies:
       '@automattic/eslint-changed': link:../../projects/js-packages/eslint-changed
       '@babel/core': 7.14.6
@@ -681,6 +682,7 @@ importers:
       prettier: /wp-prettier/2.0.5
       semver: 7.3.5
       sort-package-json: 1.50.0
+      yaml: 1.10.2
 
 packages:
 
