@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, within, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
 
@@ -151,10 +151,11 @@ describe( 'Inspector settings', () => {
             render( <ButtonControls { ...defaultProps } /> );
 
             const borderPanel = screen.getByText( 'Border Settings' ).closest( 'div' );
-            const input = within( borderPanel ).getAllByLabelText( 'Border radius' )[ 1 ];
+            const input = borderPanel.querySelector( 'input[type="number"]' );
+            input.focus();
+			fireEvent.change( input, { target: { value: '6' } } );
 
-            userEvent.type( input, '5' );
-            expect( setAttributes ).toHaveBeenCalledWith( { borderRadius: 5 } );
+            expect( setAttributes ).toHaveBeenCalledWith( { borderRadius: 6 } );
         } );
     } );
 } );
