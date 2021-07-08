@@ -69,6 +69,7 @@ class Jetpack_WPCOM_Block_Editor {
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ), 9 );
 		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_assets' ) );
 		add_filter( 'mce_external_plugins', array( $this, 'add_tinymce_plugins' ) );
+		// @todo simplify once 5.8 is the minimum supported version.
 		if ( version_compare( $wp_version, '5.8', '>=' ) ) {
 			add_filter( 'block_editor_settings_all', 'Jetpack\EditorType\remember_block_editor', 10, 2 );
 		} else {
