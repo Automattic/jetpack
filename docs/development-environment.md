@@ -165,7 +165,7 @@ cd jetpack
 
 To work on Jetpack you need to build PHP, JavaScript, and CSS components of the packages and the plugins' interfaces.
 
-[The Jetpack CLI tool](https://github.com/Automattic/jetpack/tree/master/tools/cli/README.md) will help you with all building steps.
+[The Jetpack CLI tool](https://github.com/Automattic/jetpack/blob/master/tools/cli/README.md) will help you with all building steps.
 
 There are three types of builds:
 
