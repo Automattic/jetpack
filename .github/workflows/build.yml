@@ -114,6 +114,13 @@ jobs:
       - name: Extract build archive
         run: tar --xz -xvvf build.tar.xz
 
+      - name: Filter mirror list for release branch
+        if: contains( github.ref, '/branch-' )
+        working-directory: monorepo
+        env:
+          BUILD_BASE: ${{ github.workspace }}/build
+        run: .github/files/filter-mirrors-for-release-branch.sh
+
       - name: Determine plugins
         run: |
           jq -r 'if .extra["mirror-repo"] and .extra["wp-plugin-slug"] then [ ( input_filename | sub( "/composer\\.json$"; "" ) ), .extra["mirror-repo"], .extra["wp-plugin-slug"] ] else empty end | @tsv' monorepo/projects/plugins/*/composer.json > plugins.tsv
@@ -145,6 +152,12 @@ jobs:
               continue
             fi
 
+            if ! grep -q --fixed-strings --line-regexp "$MIRROR" build/mirrors.txt; then
+              echo "Plugin is not being mirrored in this build, skipping."
+              echo "::endgroup::"
+              continue
+            fi
+
             # The Jetpack Beta Tester plugin needs the base directory name to be like "${SLUG}-dev", so copy it over.
             mv "build/$MIRROR" "work/${SLUG}-dev"
 
@@ -171,13 +184,13 @@ jobs:
             echo "::endgroup::"
           done < plugins.tsv
           if [[ "$PLUGIN_DATA" == "{}" ]]; then
-            echo "No plugins were built?!"
-            exit 1
+            echo "No plugins were built"
           fi
           echo "::set-output name=plugin-data::$PLUGIN_DATA"
 
       - name: Create plugins artifact
         uses: actions/upload-artifact@v2
+        if: steps.prepare.outputs.plugin-data != '{}'
         with:
           name: plugins
           path: zips
@@ -185,6 +198,7 @@ jobs:
           retention-days: 1
 
       - name: Inform Beta Download webhook
+        if: steps.prepare.outputs.plugin-data != '{}'
         env:
           SECRET: ${{ secrets.JPBETA_SECRET }}
           PLUGIN_DATA: ${{ steps.prepare.outputs.plugin-data }}

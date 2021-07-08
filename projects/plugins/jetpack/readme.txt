@@ -242,43 +242,50 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 9.9-beta - 2021-06-29
+### 9.9 - 2021-07-06
 #### Major Enhancements
 - Carousel: improve carousel usability, performance, accessibility, mobile friendliness.
 - Carousel: improve stability, fixes multiple bugs.
 
 #### Enhancements
-- Blocks: additional automated tests to improve reliability. 
-- Editor: added Social Preview panel to the pre-publish sidebar to increase visibility.
+- Blocks: additional automated tests to improve reliability.
+- Carousel: Add comment indicator icon to carousel comments icon.
 - Dashboard: provide more useful information and an option to contact support when there are display issues in the Jetpack dashboard.
+- Editor: added Social Preview panel to the pre-publish sidebar to increase visibility.
 - Instant Search: improve modal animation and transition speed.
-
-#### General
-- Jetpack now requires WordPress 5.7 in anticipation of WordPress 5.8 coming later this month.
 
 #### Improved compatibility
 - Blocks: make sure connection notices in blocks work with the widget and customizer block editors.
+- Carousel: Ensure refactored carousel is compatible with Twenty Nineteen theme styles.
 - Full Site Editing: disable admin bar in Jetpack notifications to prevent keystroke hijacking in the Site Editor.
 - Podcast Block: Ensure compatability with latest version of Gutenberg plugin and WordPress 5.8.
 - Search: improve Search Widget compatibility with WordPress 5.8 widget editor.
 - Shortcode Embeds: enable compatibility with WordPress' "Lazy Loading".
-- Slideshow Block: update icon.
 - Site Logo: improve compatibility with WordPress 5.8's new Site Logo block.
+- Slideshow Block: update icon.
 
 #### Bug fixes
-- Custom CSS: allow leading decimal zeros.
-- WordPress.com API: properly allow requests to upgrade a plugin outside of autoupdates.
-- Blocks: GIF block supports the widget editor and customizer preview pane.
 - AMP: Fix top AMP ad unit from being cropped on mobile devices
+- Blocks: GIF block supports the widget editor and customizer preview pane.
+- Carousel: Fix intermittent issue with unresponsive prev button.
+- Carousel: Fix image quality on carousel zoom.
+- Carousel: Set pagination font weight to normal to avoid conflicts with theme styles.
+- Carousel: disable transitions on prev/next images to prevent flash effect on pinch, zoom and swipe.
+- Custom CSS: allow leading decimal zeros.
 - Inline PDFs: Fix height of PDF embeds for greater theme compatability.
 - Instant Search: ensure alt text does not contain mark element.
-- Instant Search: prevent theme from overriding modal close button styles.
-- Instant Search: prevent overlay from opening when composing text using an input method editor for Chinese, Japanese, Korean, and Indic languages.
 - Instant Search: fix render-breaking typo for Expanded search results.
+- Instant Search: prevent overlay from opening when composing text using an input method editor for Chinese, Japanese, Korean, and Indic languages.
+- Instant Search: prevent theme from overriding modal close button styles.
 - Instant Search: show correct count for paginated results.
+- Payments Block: prevent hiding block configuration instructions when block is nested.
 - Shortcode Embeds: correctly handle YouTube URLs that include a start time.
 - Story Block: improve navigation, fix issues with long press to pause and exiting story on last tap.
-- Payments Block: do not hide block configuration instructions when block is nested.
+- Widgets: avoid PHP notice when using the Milestone Widget within the upcoming widget management screen in WordPress 5.8.
+- WordPress.com API: properly allow requests to upgrade a plugin outside of autoupdates.
+
+#### General
+- Jetpack now requires WordPress 5.7 in anticipation of WordPress 5.8 coming later this month.
 
 --------
 
