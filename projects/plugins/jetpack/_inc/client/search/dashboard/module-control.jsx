@@ -22,7 +22,7 @@ import './module-control.scss';
  * State dependencies
  */
 import { isOfflineMode } from 'state/connection';
-import { getUpgradeUrl } from 'state/initial-state';
+import { getUpgradeUrl, getSiteAdminUrl } from 'state/initial-state';
 import {
 	getSitePlan,
 	hasActiveSearchPurchase as selectHasActiveSearchPurchase,
@@ -40,8 +40,10 @@ const INSTANT_SEARCH_DESCRIPTION = __(
 	'jetpack'
 );
 const SEARCH_SUPPORT = __( 'Search supports many customizations. ', 'jetpack' );
-const SEARCH_CUSTOMIZE_URL = 'customize.php?autofocus[section]=jetpack_search';
-const WIDGETS_EDITOR_URL = 'customize.php?autofocus[panel]=widgets';
+// NOTE: remove a8ctest after all relative PRs merged.
+const RETURN_PATH = 'admin.php?page=jetpack-search&a8ctest';
+const SEARCH_CUSTOMIZE_URL = 'customize.php?autofocus[section]=jetpack_search&return=';
+const WIDGETS_EDITOR_URL = 'customize.php?autofocus[panel]=widgets&return=';
 
 /**
  * Search settings component to be used within the Performance section.
@@ -50,7 +52,7 @@ const WIDGETS_EDITOR_URL = 'customize.php?autofocus[panel]=widgets';
  * @returns {React.Component}	Search settings component.
  */
 function Search( props ) {
-	const { failedToEnableSearch, hasActiveSearchPurchase, updateOptions } = props;
+	const { failedToEnableSearch, hasActiveSearchPurchase, updateOptions, siteAdminUrl } = props;
 	const isModuleEnabled = props.getOptionValue( 'search' );
 	const isInstantSearchEnabled = props.getOptionValue( 'instant_search_enabled', 'search' );
 
@@ -88,20 +90,20 @@ function Search( props ) {
 		! isModuleEnabled ||
 		! isInstantSearchEnabled ||
 		! hasActiveSearchPurchase;
-
+	const returnUrl = encodeURIComponent( siteAdminUrl + RETURN_PATH );
 	const renderInstantSearchCFAButtons = () => {
 		return (
 			<div className="jp-form-search-cfa-buttons">
 				<Button
 					className="jp-form-search-cfa-button customize-search-button"
-					href={ ! isInstantSearchCFAButtonDisabled && SEARCH_CUSTOMIZE_URL }
+					href={ ! isInstantSearchCFAButtonDisabled && SEARCH_CUSTOMIZE_URL + returnUrl }
 					disabled={ isInstantSearchCFAButtonDisabled }
 				>
 					{ __( 'Customize search results', 'jetpack' ) }
 				</Button>
 				<Button
 					className="jp-form-search-cfa-button widgets-editor-button"
-					href={ ! isInstantSearchCFAButtonDisabled && WIDGETS_EDITOR_URL }
+					href={ ! isInstantSearchCFAButtonDisabled && WIDGETS_EDITOR_URL + returnUrl }
 					disabled={ isInstantSearchCFAButtonDisabled }
 				>
 					{ __( 'Edit sidebar widgets', 'jetpack' ) }
@@ -180,5 +182,6 @@ export default connect( state => {
 			false === hasUpdatedSetting( state, 'search' ),
 		siteID: getSiteID( state ),
 		upgradeUrl: getUpgradeUrl( state, 'jetpack-search' ),
+		siteAdminUrl: getSiteAdminUrl( state ),
 	};
 } )( withModuleSettingsFormHelpers( Search ) );
