@@ -1027,8 +1027,10 @@
 				original = currentSlide.attrs.origFile.replace( /\?.+$/, '' );
 			}
 
+			var downloadText = carousel.info.querySelector( '.jp-carousel-download-text' );
 			var permalink = carousel.info.querySelector( '.jp-carousel-image-download' );
-			permalink.innerHTML = util.applyReplacements(
+
+			downloadText.innerHTML = util.applyReplacements(
 				jetpackCarouselStrings.download_original,
 				origSize
 			);
@@ -1411,17 +1413,17 @@
 
 			initCarouselSlides( gallery.querySelectorAll( settings.imgSelector ), settings.startIndex );
 
-			swiper = new window.Swiper( '.swiper-container', {
+			swiper = new window.Swiper( '.jp-carousel-swiper-container', {
 				centeredSlides: true,
 				zoom: true,
 				loop: carousel.slides.length > 1 ? true : false,
 				pagination: {
-					el: '.swiper-pagination',
+					el: '.jp-swiper-pagination',
 					clickable: true,
 				},
 				navigation: {
-					nextEl: '.swiper-button-next',
-					prevEl: '.swiper-button-prev',
+					nextEl: '.jp-swiper-button-next',
+					prevEl: '.jp-swiper-button-prev',
 				},
 				initialSlide: settings.startIndex,
 				on: {
