@@ -181,6 +181,10 @@ class Jetpack_Stats_Report_Upsells {
 			return;
 		}
 
+		if ( ! defined( 'JETPACK_DEV_TEST_STATS_UPSELLS' ) || ! JETPACK_DEV_TEST_STATS_UPSELLS ) {
+			return;
+		}
+
 		self::print_styles();
 		self::print_header();
 		if ( ! self::has_security_plan() ) {
