@@ -354,6 +354,12 @@ abstract class Jetpack_Admin_Page {
 			?>
 			<!-- END OF CALLBACK -->
 
+			<div id="jp-stats-report-bottom">
+				<div class="wrap">
+					<?php do_action( 'jetpack_admin_pages_wrap_ui_after_callback', $callback, $args ); ?>
+				</div>
+			</div>
+
 			<div class="jp-footer">
 				<div class="jp-footer__a8c-attr-container">
 					<a href="<?php echo esc_url( $jetpack_about_url ); ?>">

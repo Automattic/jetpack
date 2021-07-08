@@ -495,7 +495,7 @@ function stats_reports_load() {
 function stats_reports_css() {
 	?>
 <style type="text/css">
-#jp-stats-wrap {
+#jp-stats-wrap, #jp-stats-report-bottom {
 	max-width: 1040px;
 	margin: 0 auto;
 	overflow: hidden;
