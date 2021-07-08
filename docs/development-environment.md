@@ -10,12 +10,13 @@
       * [Local web and database servers](#local-web-and-database-servers)
       * [Developing and contributing code to Jetpack from a Windows machine](#developing-and-contributing-code-to-jetpack-from-a-windows-machine)
    * [Installing development tools](#installing-development-tools)
-	  * [Quick way to check if your environment is ready for Jetpack development](#quick-way-to-check-if-your-environment-is-ready-for-jetpack-development)
+      * [Quick way to check if your environment is ready for Jetpack development](#quick-way-to-check-if-your-environment-is-ready-for-jetpack-development)
       * [NodeJS](#nodejs)
       * [Pnpm package manager](#pnpm)
       * [PHP](#php)
       * [Composer](#composer)
       * [PHPUnit](#phpunit)
+      * [jetpack CLI](#jetptack-cli)
 * [Start development](#development-workflow)
    * [Run a development build](#development-build)
    * [Run production build](#production-build)
@@ -85,17 +86,17 @@ Running the script will tell you if you have your environment already set up and
 
 If you're ready to start, you should see all green `SUCCESS` messages. If the script detect issues, you will see a a red `FAILED` note and a link that will help you figure out what you need to change/fix to address the issue.
 
-## Tools
+### Tools
 
-* ### Node.js
+* #### Node.js
 
 	Node.js is used in the build process of the Jetpack plugin. If it's not already installed on your system, you can [visit the Node.js website and install the latest Long Term Support (LTS) version.](https://nodejs.org/).
 
-* ### Pnpm
+* #### Pnpm
 
 	Pnpm is a Node.js package manager and it's used to install packages that are required to build the Jetpack plugin. To install it, either run `npm install -g pnpm` or you can [visit the Installation page of the project](https://pnpm.io/installation) for other methods.
 
-* ### PHP
+* #### PHP
 
 	PHP is a popular general-purpose scripting language that is especially suited to web development and it's at the core of the Jetpack plugin. 
 	
@@ -103,13 +104,13 @@ If you're ready to start, you should see all green `SUCCESS` messages. If the sc
 	
 	You can check out the [official installation instructions from the project website.](https://www.php.net/manual/en/install.php).
 
-* ### Composer
+* #### Composer
 
 	Jetpack includes a number of packages such as the `jetpack-logo` and to use these packages you need Composer, the PHP package manager.
 	
 	It's also necessary to use the PHP CodeSniffer that ensures your code follows code standards. 
 	
-	 * #### Installing Composer on macOS
+	 * ##### Installing Composer on macOS
 	
 		Composer can be installed using [Homebrew](https://brew.sh/). If you don't have Homebrew, install it with
 		
@@ -123,16 +124,20 @@ If you're ready to start, you should see all green `SUCCESS` messages. If the sc
 		brew install composer
 		```
 	
-	 * #### Installing Composer on other systems
+	 * ##### Installing Composer on other systems
 	
 		We recommend visiting the [official Composer download instructions](https://getcomposer.org/download/) to install composer on other operating systems. 
 		
 		Most Linux distributions may have an older version of Composer as an installable package, but installing from the official source ensures you have the most up to date version.
 		Note that [we recommend using the Windows Subsystem for Linux](#developing-and-contributing-code-to-jetpack-from-a-windows-machine) to run Composer and PHP.
 
-* ### PHPUnit
+* #### PHPUnit
 
 	PHPUnit is the unit test framework we use in Jetpack. You can install it by [visiting the official project web site](https://phpunit.de/) and follow the installation instructions there. 
+
+* #### jetpack CLI
+
+	The `jetpack` CLI tool is used to help with development in the Jetpack monorepo. Find out more and install it by following the instructions on the [Jetpack CLI page](https://github.com/Automattic/jetpack/blob/master/tools/cli/README.md).
 
 # Development workflow
 
@@ -146,7 +151,6 @@ To start work on the Jetpack plugin you need to follow these steps:
 
 ## Clone the repository
 
-Make sure you have `git`, `node`, `pnpm`, and a working WordPress installation.
 Clone this repository inside your Plugins directory.
 	
 ```sh
@@ -159,7 +163,9 @@ cd jetpack
 
 ## Building Jetpack
 
-To work on Jetpack you need to build the JavaScript and CSS components of the plugin's admin interface. This will generate the run time bundle (`_inc/build/admin.js`)
+To work on Jetpack you need to build PHP, JavaScript, and CSS components of the packages and the plugins' interfaces.
+
+[The Jetpack CLI tool](https://github.com/Automattic/jetpack/tree/master/tools/cli/README.md) will help you with all building steps.
 
 There are three types of builds:
 
@@ -167,21 +173,21 @@ There are three types of builds:
 	The standard development build will create un-minified versions of the JavaScript and CSS files. To build Jetpack like this run:
 	
 	```sh
-	pnpm build
+	jetpack build
 	```
 	
 * ### Continuous Development build
 	By default the development build above will run once and if you change any of the files, you need to run `pnpm build` again to see the changes on the site. If you want to avoid that, you can run a continuous build that will rebuild anytime it sees any changes on your local filesystem. To run it, use:
 	
 	```sh
-	pnpm watch
+	jetpack watch
 	```	
 
 * ### Production build
 	The production build will generate minified files without duplicated code (resulting from dependencies) and will also generate the matching source map and language files. To build it use:
 	
 	```sh
-	pnpm build-production-client
+	jetpack build --production
 	```
 
 ### A note on building Jetpack and Node.js versions
@@ -194,7 +200,7 @@ We recommend usage of [nvm](https://github.com/nvm-sh/nvm/) for managing differe
 run this command before building again. Otherwise you may experience errors on the command line while trying to build.
 
 ```sh
-pnpm distclean
+cd projects/plugins/jetpack && pnpm run clean
 ```
 
 ### Building additional Jetpack extensions

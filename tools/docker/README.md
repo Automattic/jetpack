@@ -18,38 +18,33 @@ _**All commands mentioned in this document should be run from the base Jetpack d
 
 ### Prerequisites
 
-* [Docker](https://hub.docker.com/search/?type=edition&offering=community)
-* [NodeJS](https://nodejs.org)
-* [Pnpm](https://pnpm.io/)
-* Optionally [Ngrok](https://ngrok.com) client and account or some other service for creating a local HTTP tunnel. It’s fine to stay on the free pricing tier with Ngrok.
+To use Jetpack's Docker environment, you will need:
 
-Install prerequisites; you will need to open up Docker to install its dependencies.
+- A [local copy of the Jetpack repository](https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md##clone-the-repository).
+- [Docker](https://hub.docker.com/search/?type=edition&offering=community) installed and running.
+- [Jetpack's required tools](https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#installing-development-tools).
 
-Start by cloning the Jetpack repository:
+Our Docker instance comes with a default settings file. You can modify those defaults by copyig the file:
 
-```sh
-git clone git@github.com:Automattic/jetpack.git && cd jetpack
-```
-
-Optionally, copy settings file to modify it:
 ```sh
 cp tools/docker/default.env tools/docker/.env
 ```
 
 Anything you put in `.env` overrides values in `default.env`. You should modify all the password fields for security, for example.
 
-Finally, spin up the containers:
+Once you're all set with the above, spin up the containers:
 ```sh
 jetpack docker up
 ```
 
 Non-installed WordPress is running at [http://localhost](http://localhost) now.
 
-You should establish a tunnel to your localhost with Ngrok or [other similar service](https://alternativeto.net/software/ngrok/) to be able to connect Jetpack. You cannot connect Jetpack when running WordPress via `http://localhost`. Read more from ["Using Ngrok with Jetpack"](#using-ngrok-with-jetpack) section below.
+At this point, we encourage you to set up a service that can create local HTTP tunnels, such as [the Jurassic Tube Tunneling Service](#jurassic-tube-tunneling-service) if you are an automattician, [ngrok](#using-ngrok-with-jetpack), or [another similar service](https://alternativeto.net/software/ngrok/). 
+With such a service, your site will be publicly accessible and you will be able to connect Jetpack to WordPress.com.
 
 _You are now ready to login to your new WordPress install and connect Jetpack, congratulations!_
 
-You should follow [Jetpack’s development documentation](../../docs/development-environment.md) for installing Jetpack’s dependencies and building files. Docker setup does not build these for you.
+You should follow [Jetpack’s development documentation](../../docs/development-environment.md#development-workflow) for installing Jetpack’s dependencies and building files. Docker setup does not build these for you.
 
 ## Good to know
 
@@ -279,6 +274,7 @@ jetpack docker jt-up
 ```
 
 More information: PCYsg-snO-p2.
+
 ## Using Ngrok with Jetpack
 
 Note: While Ngrok is technically supported for everyone, Jurassic Tube should be considered as preferred tunneling solution for Automatticians.
