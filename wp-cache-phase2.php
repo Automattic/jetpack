@@ -1265,7 +1265,13 @@ function wp_cache_replace_line( $old, $new, $my_file ) {
 		}
 	}
 
-	$tmp_config_filename = tempnam( $GLOBALS['cache_path'], 'wpsc' );
+	$tmp_config_filename = tempnam( $GLOBALS['cache_path'], md5( mt_rand( 0, 9999 ) ) );
+	if ( file_exists( $tmp_config_filename . '.php' ) ) {
+		unlink( $tmp_config_filename . '.php' );
+		if ( file_exists( $tmp_config_filename . '.php' ) ) {
+			die( __( 'WARNING: attempt to intercept updating of config file.', 'wp-super-cache' ) );
+		}
+	}
 	rename( $tmp_config_filename, $tmp_config_filename . ".php" );
 	$tmp_config_filename .= ".php";
 	wp_cache_debug( 'wp_cache_replace_line: writing to ' . $tmp_config_filename );
