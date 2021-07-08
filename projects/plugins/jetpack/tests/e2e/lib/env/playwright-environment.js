@@ -156,6 +156,14 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 
 			logger.debug( `CONSOLE: ${ type.toUpperCase() }: ${ text }` );
 		} );
+
+		page.on( 'pageerror', exception => {
+			logger.error( `Page error: "${ exception }"` );
+		} );
+
+		page.on( 'requestfailed', request => {
+			logger.error( `Request failed: ${ request.url() }  ${ request.failure().errorText }` );
+		} );
 	}
 
 	async closePage( eventName, saveVideo = true ) {

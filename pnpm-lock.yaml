@@ -96,7 +96,7 @@ importers:
 
   projects/js-packages/connection:
     specifiers:
-      '@automattic/jetpack-components': workspace:^0.1.0-alpha
+      '@automattic/jetpack-components': workspace:^0.2.0-alpha
       '@wordpress/browserslist-config': 3.0.1
       '@wordpress/components': 9.2.6
       '@wordpress/i18n': ^3.9.0
@@ -287,7 +287,7 @@ importers:
       '@automattic/color-studio': 2.5.0
       '@automattic/components': 1.0.0-alpha.3
       '@automattic/format-currency': 1.0.0-alpha.0
-      '@automattic/jetpack-components': workspace:^0.1.0-alpha
+      '@automattic/jetpack-components': workspace:^0.2.0-alpha
       '@automattic/jetpack-connection': workspace:^0.5.0-alpha
       '@automattic/popup-monitor': 1.0.0
       '@automattic/request-external-access': 1.0.0
@@ -304,7 +304,7 @@ importers:
       '@testing-library/jest-dom': 5.12.0
       '@testing-library/preact': 2.0.1
       '@testing-library/react': 11.2.7
-      '@testing-library/react-hooks': 4.0.0
+      '@testing-library/react-hooks': 4.0.1
       '@testing-library/user-event': 12.8.3
       '@wordpress/annotations': 1.12.2
       '@wordpress/base-styles': 2.0.1
@@ -522,7 +522,7 @@ importers:
       '@testing-library/jest-dom': 5.12.0
       '@testing-library/preact': 2.0.1_preact@10.5.7
       '@testing-library/react': 11.2.7_react-dom@16.14.0+react@16.14.0
-      '@testing-library/react-hooks': 4.0.0_98e0eb37a9f7280a1c5a6c886619f5b4
+      '@testing-library/react-hooks': 4.0.1_98e0eb37a9f7280a1c5a6c886619f5b4
       '@testing-library/user-event': 12.8.3
       '@wordpress/components': 9.2.6_react-dom@16.14.0+react@16.14.0
       '@wordpress/core-data': 2.12.3_react@16.14.0
@@ -559,7 +559,7 @@ importers:
   tools/cli:
     specifiers:
       '@octokit/auth-token': 2.4.5
-      '@octokit/rest': 18.6.0
+      '@octokit/rest': 18.6.7
       chai: 4.3.4
       chalk: 4.1.1
       configstore: 5.0.1
@@ -579,7 +579,7 @@ importers:
       yargs-parser: 20.2.4
     dependencies:
       '@octokit/auth-token': 2.4.5
-      '@octokit/rest': 18.6.0
+      '@octokit/rest': 18.6.7
       chalk: 4.1.1
       configstore: 5.0.1
       esm: 3.2.25
@@ -3647,6 +3647,10 @@ packages:
     resolution: {integrity: sha512-oJhK/yhl9Gt430OrZOzAl2wJqR0No9445vmZ9Ey8GjUZUpwuu/vmEFP0TDhDXdpGDoxD6/EIFHJEcY8nHXpDTA==}
     dev: false
 
+  /@octokit/openapi-types/8.2.1:
+    resolution: {integrity: sha512-BJz6kWuL3n+y+qM8Pv+UGbSxH6wxKf/SBs5yzGufMHwDefsa+Iq7ZGy1BINMD2z9SkXlIzk1qiu988rMuGXEMg==}
+    dev: false
+
   /@octokit/plugin-paginate-rest/2.13.5_@octokit+core@3.5.1:
     resolution: {integrity: sha512-3WSAKBLa1RaR/7GG+LQR/tAZ9fp9H9waE9aPXallidyci9oZsfgsLn5M836d3LuDC6Fcym+2idRTBpssHZePVg==}
     peerDependencies:
@@ -3674,6 +3678,16 @@ packages:
       deprecation: 2.3.1
     dev: false
 
+  /@octokit/plugin-rest-endpoint-methods/5.4.1_@octokit+core@3.5.1:
+    resolution: {integrity: sha512-Nx0g7I5ayAYghsLJP4Q1Ch2W9jYYM0FlWWWZocUro8rNxVwuZXGfFd7Rcqi9XDWepSXjg1WByiNJnZza2hIOvQ==}
+    peerDependencies:
+      '@octokit/core': '>=3'
+    dependencies:
+      '@octokit/core': 3.5.1
+      '@octokit/types': 6.18.1
+      deprecation: 2.3.1
+    dev: false
+
   /@octokit/request-error/2.1.0:
     resolution: {integrity: sha512-1VIvgXxs9WHSjicsRwq8PlR2LR2x6DwsJAaFgzdi0JfJoGSO8mYI/cHJQ+9FbN21aa+DrgNLnwObmyeSC8Rmpg==}
     dependencies:
@@ -3693,19 +3707,25 @@ packages:
       universal-user-agent: 6.0.0
     dev: false
 
-  /@octokit/rest/18.6.0:
-    resolution: {integrity: sha512-MdHuXHDJM7e5sUBe3K9tt7th0cs4csKU5Bb52LRi2oHAeIMrMZ4XqaTrEv660HoUPoM1iDlnj27Ab/Nh3MtwlA==}
+  /@octokit/rest/18.6.7:
+    resolution: {integrity: sha512-Kn6WrI2ZvmAztdx+HEaf88RuJn+LK72S8g6OpciE4kbZddAN84fu4fiPGxcEu052WmqKVnA/cnQsbNlrYC6rqQ==}
     dependencies:
       '@octokit/core': 3.5.1
       '@octokit/plugin-paginate-rest': 2.13.5_@octokit+core@3.5.1
       '@octokit/plugin-request-log': 1.0.4_@octokit+core@3.5.1
-      '@octokit/plugin-rest-endpoint-methods': 5.3.1_@octokit+core@3.5.1
+      '@octokit/plugin-rest-endpoint-methods': 5.4.1_@octokit+core@3.5.1
     dev: false
 
   /@octokit/types/6.16.4:
     resolution: {integrity: sha512-UxhWCdSzloULfUyamfOg4dJxV9B+XjgrIZscI0VCbp4eNrjmorGEw+4qdwcpTsu6DIrm9tQsFQS2pK5QkqQ04A==}
     dependencies:
       '@octokit/openapi-types': 7.3.2
+    dev: false
+
+  /@octokit/types/6.18.1:
+    resolution: {integrity: sha512-5YsddjO1U+xC8ZYKV8yZYebW55PCc7qiEEeZ+wZRr6qyclynzfyD65KZ5FdtIeP0/cANyFaD7hV69qElf1nMsQ==}
+    dependencies:
+      '@octokit/openapi-types': 8.2.1
     dev: false
 
   /@popperjs/core/2.9.2:
@@ -3859,13 +3879,13 @@ packages:
       preact: 10.5.7
     dev: true
 
-  /@testing-library/react-hooks/4.0.0_98e0eb37a9f7280a1c5a6c886619f5b4:
-    resolution: {integrity: sha512-AWIR4M1Fz4dYzuKytkWtabcrwpevq7zj9dImuBOcmrpl3VkjOBDa7Q/62fwK/M30ae5XI25mDSpQ29vzC7A5Lw==}
+  /@testing-library/react-hooks/4.0.1_98e0eb37a9f7280a1c5a6c886619f5b4:
+    resolution: {integrity: sha512-DufI8Q2GOM7W2yFEEfz85VNVNaHZL0tPZyBT6ytV7HK+1A4frL1ty+W5NBE0u0K3EFV/Pg5O28HGNEtp9D5EyA==}
     peerDependencies:
       react: '>=16.9.0'
       react-test-renderer: '>=16.9.0'
     dependencies:
-      '@babel/runtime': 7.13.10
+      '@babel/runtime': 7.14.0
       '@types/react': 16.14.6
       '@types/react-test-renderer': 17.0.1
       react: 16.14.0
