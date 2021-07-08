@@ -1,14 +1,14 @@
 /* global isRtl, widget_conditions_parent_pages, widget_conditions_data, jQuery */
 
 jQuery( function ( $ ) {
-	//  Gutenberg widgets + customizer screen.
+	//  Gutenberg widgets screen.
 	var widgets_shell = $( '#widgets-editor' );
 
 	if ( 0 === widgets_shell.length ) {
-		// Pre-gutenberg widget screen.
+		// Gutenberg + classic customizer
 		widgets_shell = $( 'div#widgets-right' );
 
-		// Pre-gutenberg customizer screen.
+		// For backwards compatibility
 		if ( 0 === widgets_shell.length ) {
 			widgets_shell = $( 'form#customize-controls' );
 		}
