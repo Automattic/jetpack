@@ -43,7 +43,11 @@ if ( ! defined( 'PHP_VERSION_ID' ) ) {
 function wpsc_init() {
 	global $wp_cache_config_file, $wp_cache_config_file_sample, $wpsc_advanced_cache_dist_filename, $wp_cache_check_wp_config, $wpsc_advanced_cache_filename;
 
-	$wp_cache_config_file = WP_CONTENT_DIR . '/wp-cache-config.php';
+  if ( !defined( 'WPCACHECONFIGPATH' ) ) {
+    define( 'WPCACHECONFIGPATH', WP_CONTENT_DIR );
+  } 
+
+	$wp_cache_config_file = WPCACHECONFIGPATH . '/wp-cache-config.php';
 
 	if ( !defined( 'WPCACHEHOME' ) ) {
 		define( 'WPCACHEHOME', dirname( __FILE__ ) . '/' );
@@ -3881,16 +3885,16 @@ function wp_cache_disable_plugin( $delete_config_file = true ) {
 	$file_not_deleted = false;
 	wpsc_remove_advanced_cache();
 	if ( @file_exists( WP_CONTENT_DIR . "/advanced-cache.php" ) ) {
-		$file_not_deleted[] = 'advanced-cache.php';
+		$file_not_deleted[] = WP_CONTENT_DIR . '/advanced-cache.php';
 	}
-	if ( $delete_config_file && @file_exists( WP_CONTENT_DIR . "/wp-cache-config.php" ) ) {
-		if ( false == unlink( WP_CONTENT_DIR . "/wp-cache-config.php" ) )
-			$file_not_deleted[] = 'wp-cache-config.php';
+	if ( $delete_config_file && @file_exists( WPCACHECONFIGPATH . "/wp-cache-config.php" ) ) {
+		if ( false == unlink( WPCACHECONFIGPATH . "/wp-cache-config.php" ) )
+			$file_not_deleted[] = WPCACHECONFIGPATH . '/wp-cache-config.php';
 	}
 	if ( $file_not_deleted ) {
 		$msg = __( "Dear User,\n\nWP Super Cache was removed from your blog or deactivated but some files could\nnot be deleted.\n\n", 'wp-super-cache' );
-		foreach( (array)$file_not_deleted as $filename ) {
-			$msg .=  WP_CONTENT_DIR . "/{$filename}\n";
+		foreach( (array)$file_not_deleted as $path ) {
+			$msg .=  "{$path}\n";
 		}
 		$msg .= "\n";
 		$msg .= sprintf( __( "You should delete these files manually.\nYou may need to change the permissions of the files or parent directory.\nYou can read more about this in the Codex at\n%s\n\nThank you.", 'wp-super-cache' ), 'https://codex.wordpress.org/Changing_File_Permissions#About_Chmod' );

@@ -5,7 +5,11 @@ if ( ! function_exists( 'wp_cache_phase2' ) ) {
 }
 
 // error_reporting(E_ERROR | E_PARSE); // uncomment to debug this file!
-if ( ! @include WP_CONTENT_DIR . '/wp-cache-config.php' ) {
+if ( !defined( 'WPCACHECONFIGPATH' ) ) {
+  define( 'WPCACHECONFIGPATH', WP_CONTENT_DIR );
+} 
+
+if ( ! @include WPCACHECONFIGPATH . '/wp-cache-config.php' ) {
 	return false;
 }
 
