@@ -43,6 +43,10 @@
 
 	.jp-connect-screen--right {
 		padding: 64px 0;
+
+		img {
+			max-width: 100%;
+		}
 	}
 
 	&.jp-connect-screen--two-columns {
