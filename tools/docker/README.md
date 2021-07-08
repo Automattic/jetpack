@@ -32,6 +32,8 @@ cp tools/docker/default.env tools/docker/.env
 
 Anything you put in `.env` overrides values in `default.env`. You should modify all the password fields for security, for example.
 
+## Quick start
+
 Once you're all set with the above, spin up the containers:
 ```sh
 jetpack docker up
