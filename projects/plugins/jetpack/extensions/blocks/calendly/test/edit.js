@@ -20,7 +20,7 @@ jest.mock( '@wordpress/block-editor', () => ( {
  * Internal dependencies
  */
 import testEmbedUrl from '../../../shared/test-embed-url';
-import CalendlyEdit from '../edit';
+import { CalendlyEdit } from '../edit';
 
 jest.mock( '../../../shared/test-embed-url', () => ( {
 	__esModule: true,
@@ -132,11 +132,11 @@ describe( 'CalendlyEdit', () => {
 		} );
 	} );
 
-	test( 'displays a spinner while the block is embedding', () => {
+	test( 'displays a spinner while the block is embedding', async () => {
 		const attributes = { ...defaultAttributes, url: 'https://calendly.com/invalid-url' };
 		render( <CalendlyEdit { ...{ ...defaultProps, attributes } } /> );
 
-		expect( screen.getByText( 'Embedding…' ) ).toBeInTheDocument();
+		await waitFor( () => expect( screen.getByText( 'Embedding…' ) ).toBeInTheDocument() );
 	} );
 
 	test( 'renders inline preview with iframe component', async () => {
