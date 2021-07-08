@@ -1,0 +1,37 @@
+@import './_variables.scss';
+
+.jp-form-search-settings-group {
+	width: 100%;
+	max-width: 55rem;
+	.dops-card {
+		box-shadow: none;
+	}
+}
+
+.jp-search-search-toggle {
+	margin-top: 2em;
+	font-size: 1.5em;
+
+	.form-toggle__label-content {
+		font-weight: bold;
+	}
+
+	.form-toggle:checked + .form-toggle__label .form-toggle__switch {
+		background: $color-plan;
+	}
+
+	.form-toggle__switch:focus {
+		box-shadow: 0 0 0 2px $blue-medium;
+	}
+}
+
+.jp-search-search-toggle__description {
+	margin-left: 36px; // same as label
+	margin-top: 0.5em;
+}
+
+p.jp-search-search-toggle__explanation {
+	color: #2c3338;
+	font-weight: 250;
+	font-size: 0.75rem;
+}
