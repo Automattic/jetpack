@@ -11,11 +11,14 @@ import { createInterpolateElement } from '@wordpress/element';
  */
 import StatBlock from './StatBlock';
 import './backups-style.scss';
-import PostsIcon from './posts.svg';
-import CloudIcon from './cloud.svg';
-import UploadsIcon from './uploads.svg';
-import PluginsIcon from './plugins.svg';
-import ThemesIcon from './themes.svg';
+import PostsIcon from './icons/posts.svg';
+import CloudIcon from './icons/cloud.svg';
+import UploadsIcon from './icons/uploads.svg';
+import PluginsIcon from './icons/plugins.svg';
+import ThemesIcon from './icons/themes.svg';
+import BackupAnim1 from './icons/backup-animation-1.svg';
+import BackupAnim2 from './icons/backup-animation-2.svg';
+import BackupAnim3 from './icons/backup-animation-3.svg';
 
 /* global wp */
 /* eslint react/react-in-jsx-scope: 0 */
@@ -72,7 +75,7 @@ const Backups = () => {
 				} );
 
 				// Only the first backup can be in progress.
-				if ( 'started' === res[ 0 ].status ) {
+				if ( 0 === res.length && 'started' === res[ 0 ].status ) {
 					latestBackup = res[ 0 ];
 					setBackupState( BACKUP_STATE.IN_PROGRESS );
 				}
@@ -151,116 +154,9 @@ const Backups = () => {
 				</div>
 				<div class="lg-col-span-1 md-col-span-4 sm-col-span-0"></div>
 				<div class="backup__animation lg-col-span-6 md-col-span-2 sm-col-span-2">
-					<svg
-						class="backup__animation-el-1"
-						width="176"
-						height="212"
-						fill="none"
-						xmlns="http://www.w3.org/2000/svg"
-					>
-						<g filter="url(#filter1_d)">
-							<rect x="40" y="40" width="96" height="132" rx="3" fill="#98C6D9"></rect>
-						</g>
-						<defs>
-							<filter
-								id="filter1_d"
-								x="0"
-								y="0"
-								width="176"
-								height="212"
-								filterUnits="userSpaceOnUse"
-								color-interpolation-filters="sRGB"
-							>
-								<feFlood flood-opacity="0" result="BackgroundImageFix"></feFlood>
-								<feColorMatrix
-									in="SourceAlpha"
-									values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-								></feColorMatrix>
-								<feOffset></feOffset>
-								<feGaussianBlur stdDeviation="20"></feGaussianBlur>
-								<feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.08 0"></feColorMatrix>
-								<feBlend in2="BackgroundImageFix" result="effect1_dropShadow"></feBlend>
-								<feBlend in="SourceGraphic" in2="effect1_dropShadow" result="shape"></feBlend>
-							</filter>
-						</defs>
-					</svg>
-
-					<svg
-						class="backup__animation-el-2"
-						width="248"
-						height="200"
-						fill="none"
-						xmlns="http://www.w3.org/2000/svg"
-					>
-						<g filter="url(#filter2_d)">
-							<rect x="40" y="40" width="168" height="120" rx="3" fill="#F2D76B"></rect>
-						</g>
-						<defs>
-							<filter
-								id="filter2_d"
-								x="0"
-								y="0"
-								width="248"
-								height="200"
-								filterUnits="userSpaceOnUse"
-								color-interpolation-filters="sRGB"
-							>
-								<feFlood flood-opacity="0" result="BackgroundImageFix"></feFlood>
-								<feColorMatrix
-									in="SourceAlpha"
-									values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-								></feColorMatrix>
-								<feOffset></feOffset>
-								<feGaussianBlur stdDeviation="20"></feGaussianBlur>
-								<feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.08 0"></feColorMatrix>
-								<feBlend in2="BackgroundImageFix" result="effect2_dropShadow"></feBlend>
-								<feBlend in="SourceGraphic" in2="effect2_dropShadow" result="shape"></feBlend>
-							</filter>
-						</defs>
-					</svg>
-
-					<svg
-						class="backup__animation-el-3"
-						width="536"
-						height="196"
-						fill="none"
-						xmlns="http://www.w3.org/2000/svg"
-					>
-						<g filter="url(#filter3_d)">
-							<rect x="40" y="40" width="456" height="116" rx="8" fill="#fff"></rect>
-						</g>
-						<path
-							d="M475.35 62.04A7.49 7.49 0 00468 56c-2.89 0-5.4 1.64-6.65 4.04A5.994 5.994 0 00456 66c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"
-							fill="#E9EFF5"
-						></path>
-						<circle cx="100" cy="98" r="36" fill="#F7A8C3"></circle>
-						<path
-							d="M160 84a6 6 0 016-6h174a6 6 0 110 12H166a6 6 0 01-6-6zM160 112a6 6 0 016-6h276a6 6 0 110 12H166a6 6 0 01-6-6z"
-							fill="#E9EFF5"
-						></path>
-						<defs>
-							<filter
-								id="filter3_d"
-								x="0"
-								y="0"
-								width="536"
-								height="196"
-								filterUnits="userSpaceOnUse"
-								color-interpolation-filters="sRGB"
-							>
-								<feFlood flood-opacity="0" result="BackgroundImageFix"></feFlood>
-								<feColorMatrix
-									in="SourceAlpha"
-									values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-								></feColorMatrix>
-								<feOffset></feOffset>
-								<feGaussianBlur stdDeviation="20"></feGaussianBlur>
-								<feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.08 0"></feColorMatrix>
-								<feBlend in2="BackgroundImageFix" result="effect3_dropShadow"></feBlend>
-								<feBlend in="SourceGraphic" in2="effect3_dropShadow" result="shape"></feBlend>
-							</filter>
-						</defs>
-					</svg>
+					<img className="backup__animation-el-1" src={ BackupAnim1 } alt="" />
+					<img className="backup__animation-el-2" src={ BackupAnim2 } alt="" />
+					<img className="backup__animation-el-3" src={ BackupAnim3 } alt="" />
 				</div>
 			</div>
 		);
