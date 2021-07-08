@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { forEach } from 'lodash';
 import domReady from '@wordpress/dom-ready';
 import ResizeObserver from 'resize-observer-polyfill';
 
@@ -18,8 +17,10 @@ import {
 
 if ( typeof window !== 'undefined' ) {
 	domReady( function () {
-		const slideshowBlocks = document.getElementsByClassName( 'wp-block-jetpack-slideshow' );
-		forEach( slideshowBlocks, slideshowBlock => {
+		const slideshowBlocks = Array.from(
+			document.getElementsByClassName( 'wp-block-jetpack-slideshow' )
+		);
+		slideshowBlocks.forEach( slideshowBlock => {
 			if ( slideshowBlock.getAttribute( 'data-jetpack-block-initialized' ) === 'true' ) {
 				return;
 			}
