@@ -200,7 +200,7 @@ We recommend usage of [nvm](https://github.com/nvm-sh/nvm/) for managing differe
 run this command before building again. Otherwise you may experience errors on the command line while trying to build.
 
 ```sh
-cd projects/plugins/jetpack && pnpm run clean
+jetpack clean --dist
 ```
 
 ### Building additional Jetpack extensions
