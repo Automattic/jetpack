@@ -29,7 +29,7 @@ class Initial_State {
 				'doNotUseConnectionIframe' => ! $this->can_use_connection_iframe(),
 			),
 			'jetpackStatus'  => array(
-				'rawUrl' => ( new Status() )->get_site_suffix(),
+				'calypsoSlug' => ( new Status() )->get_site_suffix(),
 			),
 		);
 	}

@@ -23,7 +23,7 @@ const Admin = () => {
 	const [ connectionLoaded, setConnectionLoaded ] = wp.element.useState( false );
 	const [ capabilitiesLoaded, setCapabilitiesLoaded ] = wp.element.useState( false );
 
-	const domain = useSelect( select => select( STORE_ID ).getRawUrl(), [] );
+	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 
 	wp.element.useEffect( () => {
 		if ( 0 < Object.keys( connectionStatus ).length ) {

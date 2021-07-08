@@ -5,10 +5,12 @@ import { getDate, date, dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 import { createInterpolateElement } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
+import { STORE_ID } from '../store';
 import StatBlock from './StatBlock';
 import './backups-style.scss';
 import PostsIcon from './icons/posts.svg';
@@ -33,7 +35,7 @@ const Backups = () => {
 		plugins: 0,
 		themes: 0,
 	} );
-	const [ domain, setDomain ] = wp.element.useState( '' );
+	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 
 	const BACKUP_STATE = {
 		LOADING: 0,
@@ -45,11 +47,6 @@ const Backups = () => {
 	const [ backupState, setBackupState ] = wp.element.useState( BACKUP_STATE.LOADING );
 
 	const progressInterval = 1 * 1000; // How often to poll for backup progress updates.
-
-	// One time loading
-	wp.element.useEffect( () => {
-		setDomain( window.location.hostname );
-	}, [] );
 
 	// Loads data on startup and whenever trackProgress updates.
 	wp.element.useEffect( () => {
@@ -143,7 +140,7 @@ const Backups = () => {
 							{
 								a: (
 									<a
-										href={ 'https://cloud.jetpack.com/backup/' + domain }
+										href={ `https://cloud.jetpack.com/backup/${ domain }` }
 										target="_blank"
 										rel="noreferrer"
 									/>
@@ -185,7 +182,7 @@ const Backups = () => {
 					<h1>{ formatDateString( latestTime ) }</h1>
 					<a
 						class="button is-full-width"
-						href={ 'https://cloud.jetpack.com/backup/' + domain }
+						href={ `https://cloud.jetpack.com/backup/${ domain }` }
 						target="_blank"
 						rel="noreferrer"
 					>
@@ -239,7 +236,7 @@ const Backups = () => {
 							{
 								a: (
 									<a
-										href={ 'https://tools.jetpack.com/debug/?url=' + domain }
+										href={ `https://tools.jetpack.com/debug/?url=${ domain }` }
 										target="_blank"
 										rel="noreferrer"
 									/>
@@ -256,7 +253,7 @@ const Backups = () => {
 							{
 								a: (
 									<a
-										href={ 'https://cloud.jetpack.com/backup/' + domain }
+										href={ `https://cloud.jetpack.com/backup/${ domain }` }
 										target="_blank"
 										rel="noreferrer"
 									/>

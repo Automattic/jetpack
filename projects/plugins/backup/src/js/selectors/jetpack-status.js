@@ -1,5 +1,5 @@
 const jetpackStatusSelectors = {
-	getRawUrl: state => state.jetpackStatus.rawUrl || {},
+	getCalypsoSlug: state => state.jetpackStatus.calypsoSlug || {},
 };
 
 export default jetpackStatusSelectors;
