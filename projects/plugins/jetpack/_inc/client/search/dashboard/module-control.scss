@@ -13,7 +13,7 @@ $color-button-text-disabled: #a7aaad;
 	}
 }
 
-.jp-search-search-toggle {
+.jp-form-search-settings-group__toggle {
 	margin-top: 2em;
 	font-size: 1.5em;
 
@@ -30,18 +30,18 @@ $color-button-text-disabled: #a7aaad;
 	}
 }
 
-.jp-search-search-toggle__description {
+.jp-form-search-settings-group__toggle-description {
 	margin-left: 36px; // same as label
 	margin-top: 0.5em;
 }
 
-p.jp-search-search-toggle__explanation {
+p.jp-form-search-settings-group__toggle-explanation {
 	color: #2c3338;
 	font-weight: 250;
 	font-size: 0.75rem;
 }
 
-.jp-form-search-cfa-buttons {
+.jp-form-search-settings-group__buttons {
 	display: flex;
 	flex-flow: row wrap;
 	justify-content: space-between;
@@ -50,13 +50,13 @@ p.jp-search-search-toggle__explanation {
 	max-width: 450px;
 }
 
-.jp-form-search-cfa-button {
+.jp-form-search-settings-group__button {
 	width: 15em;
 	margin: 0.25em;
 	text-align: center;
 	border-color: $color-button-background;
 
-	&.customize-search-button {
+	&.is-customize-search {
 		color: $color-button-text;
 		background-color: $color-button-background;
 	}
@@ -69,7 +69,7 @@ p.jp-search-search-toggle__explanation {
 		cursor: not-allowed;
 	}
 
-	&.widgets-editor-button {
+	&.is-widgets-editor {
 		color: $color-button-background;
 		background: transparent;
 		&:disabled,

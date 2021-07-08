@@ -85,26 +85,26 @@ function Search( props ) {
 	const togglingInstantSearch = !! props.isSavingAnyOption( 'instant_search_enabled' );
 	const isSavingEitherOption = togglingModule || togglingInstantSearch;
 
-	const isInstantSearchCFAButtonDisabled =
+	const isInstantSearchButtonDisabled =
 		isSavingEitherOption ||
 		! isModuleEnabled ||
 		! isInstantSearchEnabled ||
 		! hasActiveSearchPurchase;
 	const returnUrl = encodeURIComponent( siteAdminUrl + RETURN_PATH );
-	const renderInstantSearchCFAButtons = () => {
+	const renderInstantSearchButtons = () => {
 		return (
-			<div className="jp-form-search-cfa-buttons">
+			<div className="jp-form-search-settings-group__buttons">
 				<Button
-					className="jp-form-search-cfa-button customize-search-button"
-					href={ ! isInstantSearchCFAButtonDisabled && SEARCH_CUSTOMIZE_URL + returnUrl }
-					disabled={ isInstantSearchCFAButtonDisabled }
+					className="jp-form-search-settings-group__button is-customize-search"
+					href={ ! isInstantSearchButtonDisabled && SEARCH_CUSTOMIZE_URL + returnUrl }
+					disabled={ isInstantSearchButtonDisabled }
 				>
 					{ __( 'Customize search results', 'jetpack' ) }
 				</Button>
 				<Button
-					className="jp-form-search-cfa-button widgets-editor-button"
-					href={ ! isInstantSearchCFAButtonDisabled && WIDGETS_EDITOR_URL + returnUrl }
-					disabled={ isInstantSearchCFAButtonDisabled }
+					className="jp-form-search-settings-group__button is-widgets-editor"
+					href={ ! isInstantSearchButtonDisabled && WIDGETS_EDITOR_URL + returnUrl }
+					disabled={ isInstantSearchButtonDisabled }
 				>
 					{ __( 'Edit sidebar widgets', 'jetpack' ) }
 				</Button>
@@ -131,7 +131,7 @@ function Search( props ) {
 
 				{ ! props.isLoading && ( props.isBusinessPlan || props.hasActiveSearchPurchase ) && (
 					<Fragment>
-						<div className="jp-search-search-toggle jp-search-search-toggle--search">
+						<div className="jp-form-search-settings-group__toggle is-search">
 							<ModuleToggle
 								activated={ isModuleEnabled }
 								compact
@@ -142,11 +142,13 @@ function Search( props ) {
 							>
 								{ __( 'Enable Jetpack Search', 'jetpack' ) }
 							</ModuleToggle>
-							<div className="jp-search-search-toggle__description">
-								<p className="jp-search-search-toggle__explanation">{ SEARCH_DESCRIPTION }</p>
+							<div className="jp-form-search-settings-group__toggle-description">
+								<p className="jp-form-search-settings-group__toggle-explanation">
+									{ SEARCH_DESCRIPTION }
+								</p>
 							</div>
 						</div>
-						<div className="jp-search-search-toggle jp-search-search-toggle--instant-search">
+						<div className="jp-form-search-settings-group__toggle is-instant-search">
 							<CompactFormToggle
 								checked={ isModuleEnabled && isInstantSearchEnabled }
 								disabled={ isSavingEitherOption || ! props.hasActiveSearchPurchase }
@@ -155,11 +157,11 @@ function Search( props ) {
 							>
 								{ __( 'Enable instant search experience (recommended)', 'jetpack' ) }
 							</CompactFormToggle>
-							<div className="jp-search-search-toggle__description">
-								<p className="jp-search-search-toggle__explanation">
+							<div className="jp-form-search-settings-group__toggle-description">
+								<p className="jp-form-search-settings-group__toggle-explanation">
 									{ INSTANT_SEARCH_DESCRIPTION }
 								</p>
-								{ renderInstantSearchCFAButtons() }
+								{ renderInstantSearchButtons() }
 							</div>
 						</div>
 					</Fragment>
