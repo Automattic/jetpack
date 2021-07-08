@@ -4,6 +4,8 @@ import fs from 'fs-extra';
 const task = process.argv.slice( 2 )[ 0 ];
 const commit = process.argv.slice( 2 )[ 1 ];
 
+let gutenbergVersion;
+
 switch ( task ) {
 	case 'reset':
 		reset();
@@ -97,6 +99,8 @@ function updatePackageJsonDependencies() {
 	const gutenbergPackageJson = JSON.parse(
 		fs.readFileSync( './tests/temp-gutenberg-checkout/package.json' )
 	);
+	gutenbergVersion = gutenbergPackageJson.version;
+
 	const jetpackPackageJson = JSON.parse( fs.readFileSync( './package.json' ) );
 
 	const wordPressDeps = Object.fromEntries(
@@ -165,5 +169,9 @@ function installAdditionalGutenbergDependencies() {
 
 function runBlockValidationAndUnitTests() {
 	console.log( 'Running block validation tests' );
-	spawnSync( 'pnpm', [ 'test-extensions' ], { stdio: 'inherit' } );
+	const command = `test-extensions -- --globals='{\\"gutenbergVersion\\":\\"${ gutenbergVersion }\\"}'`;
+	spawnSync( 'pnpm', [ command ], {
+		stdio: 'inherit',
+		shell: true,
+	} );
 }

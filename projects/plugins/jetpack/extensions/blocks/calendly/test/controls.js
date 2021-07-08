@@ -27,13 +27,18 @@ describe( 'CalendlyBlockControls', () => {
 		const wrapper = screen.getByText( 'Edit' );
 
 		expect( wrapper ).toBeInTheDocument();
-		// Format of toolbar button changed - older versions are wrapped in a
-		// div.
-		try {
-			expect( wrapper.firstChild ).toHaveAttribute( 'type', 'button' );
-		} catch ( er ) {
-			expect( wrapper ).toHaveAttribute( 'type', 'button' );
-		}
+
+		const backwardsCompatExpectations = [
+			{
+				gutenbergVersion: '<= 9.9.0',
+				expectation: () => expect( wrapper.firstChild ).toHaveAttribute( 'type', 'button' ),
+			},
+			{
+				gutenbergVersion: '>= 10.9.0',
+				expectation: () => expect( wrapper ).toHaveAttribute( 'type', 'button' ),
+			},
+		];
+		runBackwardsCompatExpections( backwardsCompatExpectations, 'displays edit toolbar button' );
 	} );
 
 	test( 'triggers onEditClick when user clicks button', () => {
