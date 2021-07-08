@@ -8,29 +8,10 @@
 	wp.customize.bind( 'ready', function() {
 		var logoThumbnail, logoControlId = '#customize-control-' + LogoTool.controlId;
 
-		if ( wp.customize( 'site_logo' ) ) {
-			// Jetpack logo, which has a slightly different HTML structure.
-			logoThumbnail = $( logoControlId + ' .site-logo-thumbnail' );
-			wp.customize( 'site_logo' ).bind( 'change', function( to, from ) {
-				if ( ! to.url ) {
-					insertLogoButton( logoControlId );
-					showLogoDescription( logoControlId );
-				} else {
-					removeLogoButton( logoControlId );
-					hideLogoDescription( logoControlId );
-				}
-			});
-
-			if ( ! logoThumbnail || ! logoThumbnail.attr( 'src' ) ) {
-				insertLogoButton( logoControlId );
-				showLogoDescription( logoControlId );
-			} else {
-				hideLogoDescription( logoControlId );
-			}
-		} else if ( wp.customize( LogoTool.controlId ) ) {
-			// Core `custom-logo` or a theme specific logo that uses the same type of customize control.
+		// Could be a Core custom-logo, Jetpack site-logo, or a theme specific logo that uses the same image control.
+		if ( wp.customize( LogoTool.settingId ) ) {
 			logoThumbnail = $( logoControlId + ' .thumbnail' );
-			wp.customize( LogoTool.controlId ).bind( 'change', function( to, from ) {
+			wp.customize( LogoTool.settingId ).bind( 'change', function( to, from ) {
 				if ( ! to ) {
 					insertLogoButton( logoControlId );
 					showLogoDescription( logoControlId );

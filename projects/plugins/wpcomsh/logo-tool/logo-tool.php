@@ -33,7 +33,7 @@ function add_logotool_button( $wp_customize ) {
 	if ( current_theme_supports( 'custom-logo' ) ) {
 		// WP Core logo integration.
 		$logo_control = $wp_customize->get_control( 'custom_logo' );
-	} else if ( current_theme_supports( 'site-logo' ) ) {
+	} elseif ( current_theme_supports( 'site-logo' ) ) {
 		// Jetpack logo integration.
 		$logo_control = $wp_customize->get_control( 'site_logo' );
 	} else {
@@ -41,7 +41,7 @@ function add_logotool_button( $wp_customize ) {
 		foreach ( $wp_customize->controls() as $control ) {
 			if (
 				// Control has the name logo in it.
-				strpos( $control->id, 'logo' ) &&
+				false !== strpos( $control->id, 'logo' ) &&
 				// Control is not a `site_logo` or `custom_logo` (those are handled above).
 				! in_array( $control->id, [ 'custom_logo', 'site_logo' ], true ) &&
 				// Control is an instance of `WP_Customize_Image_Control` so we know how the UI is rendered to add the button.
@@ -53,7 +53,13 @@ function add_logotool_button( $wp_customize ) {
 		}
 	}
 
+	// Make sure we have a valid Customize Control.
 	if ( ! is_a( $logo_control, 'WP_Customize_Control' ) ) {
+		return;
+	}
+
+	// And we have a valid setting attached to the control.
+	if ( ! is_a( $logo_control->setting, 'WP_Customize_Setting' ) ) {
 		return;
 	}
 
@@ -62,13 +68,11 @@ function add_logotool_button( $wp_customize ) {
 	$wp_customize->add_control( $logo_control );
 
 	add_action( 'customize_controls_enqueue_scripts', function() use ( $logo_control ) {
-		wp_enqueue_style( 'wpcom-logo-tool', plugins_url( 'css/customizer.css', __FILE__ ), [], '20191003' );
-		wp_style_add_data( 'wpcom-logo-tool', 'rtl', 'replace' );
-
-		wp_enqueue_script( 'wpcom-logo-tool', plugins_url( 'js/customizer.js', __FILE__ ), [ 'customize-controls' ], '20191003', true );
+		wp_enqueue_script( 'wpcom-logo-tool', plugins_url( 'js/customizer.js', __FILE__ ), [ 'customize-controls' ], '20210706', true );
 		wp_localize_script( 'wpcom-logo-tool', '_LogoTool_', [
 			'l10n' => [ 'create' => __( 'Create logo', 'wpcomsh' ) ],
 			'controlId' => $logo_control->id,
+			'settingId' => $logo_control->setting->id,
 		] );
 	} );
 
