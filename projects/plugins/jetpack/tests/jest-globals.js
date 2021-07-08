@@ -30,8 +30,8 @@ if ( ! window.CSS ) {
 window.runBackwardsCompatExpections = testCases => {
 	// global.gutenbergVersion is only set when running the jetpack block tests against
 	// different gutenberg versions with `pnpm fixtures:test:gbv`. In other instances
-	// set it a default of 9.9.0
-	const currentVersion = global.gutenbergVersion ? global.gutenbergVersion : '9.9.0';
+	// set it a default of 10.8.0, which is one less than when this method was introduced
+	const currentVersion = global.gutenbergVersion ? global.gutenbergVersion : '10.8.0';
 
 	testCases.forEach( testCase => {
 		if ( semver.satisfies( currentVersion, testCase.gutenbergVersion ) ) {

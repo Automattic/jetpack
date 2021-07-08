@@ -30,7 +30,7 @@ describe( 'CalendlyBlockControls', () => {
 
 		const backwardsCompatExpectations = [
 			{
-				gutenbergVersion: '<= 9.9.0',
+				gutenbergVersion: '< 10.9.0',
 				expectation: () => expect( wrapper.firstChild ).toHaveAttribute( 'type', 'button' ),
 			},
 			{
