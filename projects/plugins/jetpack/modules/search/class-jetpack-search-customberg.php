@@ -44,7 +44,7 @@ class Jetpack_Search_Customberg {
 	 * Adds action hooks.
 	 */
 	public function init_hooks() {
-		add_action( 'admin_menu', array( $this, 'add_submenu_and_scripts' ), 999 );
+		add_action( 'admin_menu', array( $this, 'add_wp_admin_page' ), 999 );
 	}
 
 	/**
@@ -74,6 +74,7 @@ class Jetpack_Search_Customberg {
 	 * @access public
 	 */
 	public function jetpack_search_admin_page() {
+		// TODO: Spin this function off into a static helper function in a helper class for code reuse.
 		$protocol   = is_ssl() ? 'https' : 'http';
 		$static_url = apply_filters( 'jetpack_static_url', "{$protocol}://en.wordpress.com/i/loading/loading-64.gif" );
 		?>
