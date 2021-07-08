@@ -1,5 +1,10 @@
 @import './_variables.scss';
 
+$color-button-background: $black;
+$color-button-text: $white;
+$color-button-background-disabled: #dcdcde;
+$color-button-text-disabled: #a7aaad;
+
 .jp-form-search-settings-group {
 	width: 100%;
 	max-width: 55rem;
@@ -34,4 +39,43 @@ p.jp-search-search-toggle__explanation {
 	color: #2c3338;
 	font-weight: 250;
 	font-size: 0.75rem;
+}
+
+.jp-form-search-cfa-buttons {
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: space-between;
+	margin-top: 1em;
+	width: 100%;
+	max-width: 450px;
+}
+
+.jp-form-search-cfa-button {
+	width: 15em;
+	margin: 0.25em;
+	text-align: center;
+	border-color: $color-button-background;
+
+	&.customize-search-button {
+		color: $color-button-text;
+		background-color: $color-button-background;
+	}
+
+	&:disabled,
+	&[disabled] {
+		background-color: $color-button-background-disabled;
+		border-color: $color-button-background-disabled;
+		color: $color-button-text-disabled;
+		cursor: not-allowed;
+	}
+
+	&.widgets-editor-button {
+		color: $color-button-background;
+		background: transparent;
+		&:disabled,
+		&[disabled] {
+			color: $color-button-text-disabled;
+			background: transparent;
+		}
+	}
 }

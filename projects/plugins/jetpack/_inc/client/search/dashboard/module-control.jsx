@@ -13,6 +13,7 @@ import CompactFormToggle from 'components/form/form-toggle/compact';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsGroup from 'components/settings-group';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import Button from 'components/button';
 import getRedirectUrl from 'lib/jp-redirect';
 import { getPlanClass } from 'lib/plans/constants';
 import './module-control.scss';
@@ -39,6 +40,8 @@ const INSTANT_SEARCH_DESCRIPTION = __(
 	'jetpack'
 );
 const SEARCH_SUPPORT = __( 'Search supports many customizations. ', 'jetpack' );
+const SEARCH_CUSTOMIZE_URL = 'customize.php?autofocus[section]=jetpack_search';
+const WIDGETS_EDITOR_URL = 'customize.php?autofocus[panel]=widgets';
 
 /**
  * Search settings component to be used within the Performance section.
@@ -79,6 +82,33 @@ function Search( props ) {
 	const togglingModule = !! props.isSavingAnyOption( 'search' );
 	const togglingInstantSearch = !! props.isSavingAnyOption( 'instant_search_enabled' );
 	const isSavingEitherOption = togglingModule || togglingInstantSearch;
+
+	const isInstantSearchCFAButtonDisabled =
+		isSavingEitherOption ||
+		! isModuleEnabled ||
+		! isInstantSearchEnabled ||
+		! hasActiveSearchPurchase;
+
+	const renderInstantSearchCFAButtons = () => {
+		return (
+			<div className="jp-form-search-cfa-buttons">
+				<Button
+					className="jp-form-search-cfa-button customize-search-button"
+					href={ ! isInstantSearchCFAButtonDisabled && SEARCH_CUSTOMIZE_URL }
+					disabled={ isInstantSearchCFAButtonDisabled }
+				>
+					{ __( 'Customize search results', 'jetpack' ) }
+				</Button>
+				<Button
+					className="jp-form-search-cfa-button widgets-editor-button"
+					href={ ! isInstantSearchCFAButtonDisabled && WIDGETS_EDITOR_URL }
+					disabled={ isInstantSearchCFAButtonDisabled }
+				>
+					{ __( 'Edit sidebar widgets', 'jetpack' ) }
+				</Button>
+			</div>
+		);
+	};
 
 	return (
 		<Fragment>
@@ -127,6 +157,7 @@ function Search( props ) {
 								<p className="jp-search-search-toggle__explanation">
 									{ INSTANT_SEARCH_DESCRIPTION }
 								</p>
+								{ renderInstantSearchCFAButtons() }
 							</div>
 						</div>
 					</Fragment>
