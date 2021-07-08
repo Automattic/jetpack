@@ -332,7 +332,7 @@ div.jp-carousel-buttons a:hover {
 /** Title and Desc Start **/
 .jp-carousel-info-footer .jp-carousel-photo-title-container {
 	flex-basis: 50vw;
-	flex: 1;
+	flex: 4;
 	justify-content: center;
 	overflow: hidden;
 	margin: 0;
