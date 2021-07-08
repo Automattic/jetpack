@@ -132,7 +132,7 @@ function get_wpcachehome() {
 		} elseif ( is_file( dirname( __FILE__ ) . '/wp-super-cache/wp-cache-config-sample.php' ) ) {
 			define( 'WPCACHEHOME', dirname( __FILE__ ) . '/wp-super-cache/' );
 		} else {
-			die( sprintf( esc_html__( 'Please create %s /wp-cache-config.php from wp-super-cache/wp-cache-config-sample.php', 'wp-super-cache' ), esc_attr( WP_CONTENT_DIR ) ) );
+			die( sprintf( esc_html__( 'Please create %s/wp-cache-config.php from wp-super-cache/wp-cache-config-sample.php', 'wp-super-cache' ), esc_attr( WPCACHECONFIGPATH ) ) );
 		}
 	}
 }
@@ -354,11 +354,11 @@ function wp_cache_manager_error_checks() {
 		if ( !defined( 'SUBMITDISABLED' ) )
 			define( "SUBMITDISABLED", 'disabled style="color: #aaa" ' );
 		?><div class="notice notice-error"><h4><?php _e( 'Read Only Mode. Configuration cannot be changed.', 'wp-super-cache' ); ?></h4>
-		<p><?php printf( __( 'The WP Super Cache configuration file is <code>%s/wp-cache-config.php</code> and cannot be modified. That file must be writeable by the web server to make any changes.', 'wp-super-cache' ), WP_CONTENT_DIR ); ?>
+		<p><?php printf( __( 'The WP Super Cache configuration file is <code>%s/wp-cache-config.php</code> and cannot be modified. That file must be writeable by the web server to make any changes.', 'wp-super-cache' ), WPCACHECONFIGPATH ); ?>
 		<?php _e( 'A simple way of doing that is by changing the permissions temporarily using the CHMOD command or through your ftp client. Make sure it&#8217;s globally writeable and it should be fine.', 'wp-super-cache' ); ?></p>
 		<p><?php _e( '<a href="https://codex.wordpress.org/Changing_File_Permissions">This page</a> explains how to change file permissions.', 'wp-super-cache' ); ?></p>
-		<?php _e( 'Writeable:', 'wp-super-cache' ); ?> <code>chmod 666 <?php echo WP_CONTENT_DIR; ?>/wp-cache-config.php</code><br />
-		<?php _e( 'Read-only:', 'wp-super-cache' ); ?> <code>chmod 644 <?php echo WP_CONTENT_DIR; ?>/wp-cache-config.php</code></p>
+		<?php _e( 'Writeable:', 'wp-super-cache' ); ?> <code>chmod 666 <?php echo WPCACHECONFIGPATH; ?>/wp-cache-config.php</code><br />
+		<?php _e( 'Read-only:', 'wp-super-cache' ); ?> <code>chmod 644 <?php echo WPCACHECONFIGPATH; ?>/wp-cache-config.php</code></p>
 		</div><?php
 	} elseif ( !defined( 'SUBMITDISABLED' ) ) {
 		define( "SUBMITDISABLED", ' ' );
@@ -1178,6 +1178,7 @@ table.wpsc-settings-table {
 				<li><?php printf( __( 'If uninstalling this plugin, make sure the directory <em>%s</em> is writeable by the webserver so the files <em>advanced-cache.php</em> and <em>cache-config.php</em> can be deleted automatically. (Making sure those files are writeable is probably a good idea!)', 'wp-super-cache' ), esc_attr( WP_CONTENT_DIR ) ); ?></li>
 				<li><?php printf( __( 'Please see the <a href="%1$s/wp-super-cache/readme.txt">readme.txt</a> for instructions on uninstalling this script. Look for the heading, "How to uninstall WP Super Cache".', 'wp-super-cache' ), plugins_url() ); ?></li>
 				<li><?php echo '<em>' . sprintf( __( 'Need help? Check the <a href="%1$s">Super Cache readme file</a>. It includes installation documentation, a FAQ and Troubleshooting tips. The <a href="%2$s">support forum</a> is also available. Your question may already have been answered.', 'wp-super-cache' ), 'https://wordpress.org/plugins/wp-super-cache/', 'https://wordpress.org/support/topic-tag/wp-super-cache/?forum_id=10' ) . '</em>'; ?></li>
+				<li><?php _e( 'The location of the plugin configuration file can be changed by defining the WPCACHECONFIGPATH constant in wp-config.php. If not defined it will be set to WP_CONTENT_DIR.', 'wp-super-cache' ); ?></li>
 			</ol>
 
 			<?php
