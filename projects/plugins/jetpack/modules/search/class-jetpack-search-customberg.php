@@ -134,9 +134,6 @@ class Jetpack_Search_Customberg {
 			'jp-search-customization',
 			"window.jetpackSearchCustomizeInit( 'jp-search-customization' )"
 		);
-
-		// Inject valid post type definitions.
-		wp_add_inline_script( 'jp-search-customization', 'var JetpackInstantSearchValidPostTypes=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( get_post_types( array( 'exclude_from_search' => false ), 'objects' ) ) ) . '"));', 'before' );
 	}
 
 	/**
