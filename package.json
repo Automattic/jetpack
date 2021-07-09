@@ -74,24 +74,16 @@
 	},
 	"husky": {
 		"hooks": {
-			"pre-commit": "node tools/git-hooks/pre-commit-hook.js",
-			"prepare-commit-msg": "node tools/git-hooks/prepare-commit-msg.js",
-			"post-checkout": "./tools/git-hooks/post-merge-checkout-hook.sh",
-			"post-merge": "./tools/git-hooks/post-merge-checkout-hook.sh"
+			"pre-commit": "node tools/js-tools/git-hooks/pre-commit-hook.js",
+			"prepare-commit-msg": "node tools/js-tools/git-hooks/prepare-commit-msg.js",
+			"post-checkout": "./tools/js-tools/git-hooks/post-merge-checkout-hook.sh",
+			"post-merge": "./tools/js-tools/git-hooks/post-merge-checkout-hook.sh"
 		}
 	},
-	"dependencies": {
-		"chalk": "4.1.1"
-	},
 	"devDependencies": {
-		"glob": "7.1.6",
 		"husky": "4.3.8",
 		"jetpack-cli": "workspace:1.0.0",
-		"jetpack-eslint": "workspace:*",
-		"parse-diff": "0.8.1",
-		"prettier": "npm:wp-prettier@2.0.5",
-		"semver": "7.3.5",
-		"sort-package-json": "1.50.0"
+		"jetpack-js-tools": "workspace:*"
 	},
 	"engines": {
 		"node": "^14.17.3",
