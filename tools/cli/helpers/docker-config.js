@@ -8,6 +8,7 @@ import { merge } from 'lodash';
 
 export const dockerFolder = `tools/docker`;
 const overrideConfigFile = 'jetpack-docker-config.json';
+const defaultConfigFile = `${ dockerFolder }/jetpack-docker-config-default.json`;
 
 const mergeDockerVolumeMappings = ( mainMapping, overrideMapping ) => {
 	const volumesMapping = overrideMapping.slice(); // make a copy of an array;
@@ -75,8 +76,7 @@ const getDeprecatedExtras = config => {
  * @returns {object} config
  */
 const getConfig = () => {
-	const configFile = `${ dockerFolder }/jetpack-docker-config-default.json`;
-	let json = JSON.parse( readFileSync( configFile, 'utf8' ) );
+	let json = JSON.parse( readFileSync( defaultConfigFile, 'utf8' ) );
 
 	// compose-volumes and compose-extras are deprecated. TODO: Remove it in few months.
 	json = getDeprecatedVolumesMapping( json );
