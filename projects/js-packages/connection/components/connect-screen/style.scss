@@ -1,4 +1,5 @@
 .jp-connect-screen {
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen-Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif;
 	background: #FFFFFF;
 	box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
 	border-radius: 4px;
@@ -11,7 +12,6 @@
 		padding: 64px 96px;
 
 		h2 {
-			font-family: SF Pro Display;
 			font-style: normal;
 			font-weight: bold;
 			font-size: 36px;
@@ -20,7 +20,6 @@
 		}
 
 		p, li {
-			font-family: SF Pro Text;
 			font-style: normal;
 			font-weight: normal;
 			font-size: 16px;
@@ -32,12 +31,18 @@
 		}
 
 		ul {
-			list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADuSURBVHgB7ZS9DYJAFIDfHT93JSMwAiPoAmhpR22lTqBbmJggbqCyAJZ0xg1YwQ4MeB5GjPIT8KCTL6Hhke9LHgcAPT2NcahOHDLL35agC7hcZeABoIlsStfETfxshKEtbzno/ArQDR0+xwjakJPjCIbhNAy6CTSQp4ityNE0FdC+Tl4eWFMdauWRB4wZdfJiYKMYCmFnZUutLuSFAJHkAQKk8RezK0QE5Clf30Hixr5kyrwBPARjPJKD+zG+iMpTSk+RatMVnyyfDzC2YBhbIvLKQD7y4md5SuWvgq/rlK1LVN4IYpM5rTu6Pf/NA02TfHxOAFa6AAAAAElFTkSuQmCC);
-			list-style-position: inside;
+			list-style-type: none;
 
 			li {
+				background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADuSURBVHgB7ZS9DYJAFIDfHT93JSMwAiPoAmhpR22lTqBbmJggbqCyAJZ0xg1YwQ4MeB5GjPIT8KCTL6Hhke9LHgcAPT2NcahOHDLL35agC7hcZeABoIlsStfETfxshKEtbzno/ArQDR0+xwjakJPjCIbhNAy6CTSQp4ityNE0FdC+Tl4eWFMdauWRB4wZdfJiYKMYCmFnZUutLuSFAJHkAQKk8RezK0QE5Clf30Hixr5kyrwBPARjPJKD+zG+iMpTSk+RatMVnyyfDzC2YBhbIvLKQD7y4md5SuWvgq/rlK1LVN4IYpM5rTu6Pf/NA02TfHxOAFa6AAAAAElFTkSuQmCC) no-repeat;
+				padding-left: 30px;
 				color: #000;
+				margin-bottom: 9px;
 			}
+		}
+
+		.jp-connect-button {
+			margin-top: 40px;
 		}
 	}
 
