@@ -64,6 +64,9 @@ function stats_load() {
 	add_filter( 'manage_pages_columns', 'jetpack_stats_post_table' );
 	add_action( 'manage_posts_custom_column', 'jetpack_stats_post_table_cell', 10, 2 );
 	add_action( 'manage_pages_custom_column', 'jetpack_stats_post_table_cell', 10, 2 );
+
+	require_once __DIR__ . '/stats/class-jetpack-stats-upgrade-nudges.php';
+	Jetpack_Stats_Upgrade_Nudges::init();
 }
 
 /**

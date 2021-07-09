@@ -10,7 +10,7 @@ use Automattic\Jetpack\Jetpack_CRM_Data;
 /**
  * Class that adds a new section to the Stats Report page
  */
-class Jetpack_Stats_Report_Upsells {
+class Jetpack_Stats_Upgrade_Nudges {
 
 	/**
 	 * Indicates whether the class initialized or not

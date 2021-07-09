@@ -57,9 +57,6 @@ require_once JETPACK__PLUGIN_DIR . 'modules/module-headings.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-connection-banner.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-plan.php';
 
-require_once JETPACK__PLUGIN_DIR . 'class-jetpack-stats-report-upsells.php';
-Jetpack_Stats_Report_Upsells::init();
-
 require_once JETPACK__PLUGIN_DIR . 'class-jetpack-xmlrpc-methods.php';
 Jetpack_XMLRPC_Methods::init();
 
