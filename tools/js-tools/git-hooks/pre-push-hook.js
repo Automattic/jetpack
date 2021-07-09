@@ -20,3 +20,4 @@ const allProjects = require( '../../cli/helpers/projectHelpers' ).allProjects;
     // If there isn't, prompt for one
 
 console.log( allProjects() );
+process.exit('Not yet');
