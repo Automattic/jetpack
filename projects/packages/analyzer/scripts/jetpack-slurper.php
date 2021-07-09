@@ -59,8 +59,8 @@ foreach ( glob( $slurper_path . '/*' ) as $folder_name ) {
 	$warnings->output();
 	$warnings->save( __DIR__ . '/' . basename( $folder_name ) . '.csv', false );
 
-	unset( $invocations );
-	unset( $warnings );
+	// Faster to GC all the data before the next iteration.
+	unset( $invocations, $warnings );
 }
 
 // phpcs:enable
