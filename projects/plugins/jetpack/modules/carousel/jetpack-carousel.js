@@ -183,6 +183,55 @@
 			}
 		}
 
+		// TODO: This should ultimately replace scrollToElement.
+		function scrollToThen( el, container, callback ) {
+			if ( ! el || ! container ) {
+				if ( callback ) {
+					return callback();
+				}
+				return;
+			}
+
+			// TODO: Remove this if not used.
+			// From: https://easings.net/#easeInOutSine
+			function easeInOutSine( num ) {
+				return -( Math.cos( Math.PI * num ) - 1 ) / 2;
+			}
+
+			// From: https://easings.net/#easeInOutQuad
+			function easeInOutQuad( num ) {
+				return num < 0.5 ? 2 * num * num : 1 - Math.pow( -2 * num + 2, 2 ) / 2;
+			}
+
+			var startTime = Date.now();
+			var duration = 500;
+
+			var distance = el.offsetTop - container.scrollTop;
+			distance = Math.min( distance, container.scrollHeight - window.innerHeight );
+
+			var originalPosition = container.scrollTop;
+
+			function runScroll() {
+				var now = Date.now();
+
+				var progress = easeInOutQuad( ( now - startTime ) / duration );
+
+				progress = progress > 1 ? 1 : progress;
+				var newVal = progress * distance;
+
+				container.scrollTop = originalPosition + newVal;
+
+				if ( now <= startTime + duration ) {
+					return requestAnimationFrame( runScroll );
+				}
+				if ( callback ) {
+					callback();
+				}
+			}
+
+			runScroll();
+		}
+
 		function getJSONAttribute( el, attr ) {
 			if ( ! el || ! el.hasAttribute( attr ) ) {
 				return undefined;
@@ -213,6 +262,7 @@
 			fadeIn: fadeIn,
 			fadeOut: fadeOut,
 			scrollToElement: scrollToElement,
+			scrollToThen: scrollToThen,
 			getJSONAttribute: getJSONAttribute,
 			convertToPlainText: convertToPlainText,
 			stripHTML: stripHTML,
@@ -550,10 +600,7 @@
 			var infoIcon = carousel.info.querySelector( '.jp-carousel-icon-info' );
 			var commentsIcon = carousel.info.querySelector( '.jp-carousel-icon-comments' );
 
-			if (
-				domUtil.closest( target, '.jp-carousel-icon-info' ) ||
-				target.classList.contains( 'jp-carousel-photo-title' )
-			) {
+			function handleInfoToggle() {
 				if ( commentsIcon ) {
 					commentsIcon.classList.remove( 'jp-carousel-selected' );
 				}
@@ -566,14 +613,13 @@
 					photoMetaContainer.classList.toggle( 'jp-carousel-show' );
 					if ( photoMetaContainer.classList.contains( 'jp-carousel-show' ) ) {
 						extraInfoContainer.classList.add( 'jp-carousel-show' );
-						domUtil.scrollToElement( extraInfoContainer );
 					} else {
 						extraInfoContainer.classList.remove( 'jp-carousel-show' );
 					}
 				}
 			}
 
-			if ( domUtil.closest( target, '.jp-carousel-icon-comments' ) ) {
+			function handleCommentToggle() {
 				if ( infoIcon ) {
 					infoIcon.classList.remove( 'jp-carousel-selected' );
 				}
@@ -586,10 +632,30 @@
 					commentsContainer.classList.toggle( 'jp-carousel-show' );
 					if ( commentsContainer.classList.contains( 'jp-carousel-show' ) ) {
 						extraInfoContainer.classList.add( 'jp-carousel-show' );
-						domUtil.scrollToElement( extraInfoContainer );
 					} else {
 						extraInfoContainer.classList.remove( 'jp-carousel-show' );
 					}
+				}
+			}
+
+			if (
+				domUtil.closest( target, '.jp-carousel-icon-info' ) ||
+				target.classList.contains( 'jp-carousel-photo-title' )
+			) {
+				if ( photoMetaContainer && photoMetaContainer.classList.contains( 'jp-carousel-show' ) ) {
+					domUtil.scrollToThen( carousel.overlay, carousel.overlay, handleInfoToggle );
+				} else {
+					handleInfoToggle();
+					domUtil.scrollToThen( extraInfoContainer, carousel.overlay );
+				}
+			}
+
+			if ( domUtil.closest( target, '.jp-carousel-icon-comments' ) ) {
+				if ( commentsContainer && commentsContainer.classList.contains( 'jp-carousel-show' ) ) {
+					domUtil.scrollToThen( carousel.overlay, carousel.overlay, handleCommentToggle );
+				} else {
+					handleCommentToggle();
+					domUtil.scrollToThen( extraInfoContainer, carousel.overlay );
 				}
 			}
 		}
