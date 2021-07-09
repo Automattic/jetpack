@@ -4,11 +4,29 @@
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import yaml from 'js-yaml';
 import path from 'path';
-import { merge } from 'lodash';
 
 export const dockerFolder = `tools/docker`;
 const overrideConfigFile = 'jetpack-docker-config.json';
 const defaultConfigFile = `${ dockerFolder }/jetpack-docker-config-default.json`;
+
+/**
+ * Recursively merges two plain JSON objects. It would not work on complex objects, circular links, etc.
+ *
+ * @param {object} a - First object
+ * @param {object} b - Second object
+ * @returns {object} Merged object
+ */
+function mergeJson( a, b ) {
+	if ( a instanceof Object && b instanceof Object && Array.isArray( a ) === Array.isArray( b ) ) {
+		const ret = Array.isArray( a ) ? [ ...a ] : { ...a };
+		for ( const k of Object.keys( b ) ) {
+			ret[ k ] = mergeJson( ret[ k ], b[ k ] );
+		}
+		return ret;
+	}
+
+	return b;
+}
 
 const mergeDockerVolumeMappings = ( mainMapping, overrideMapping ) => {
 	const volumesMapping = overrideMapping.slice(); // make a copy of an array;
@@ -84,7 +102,8 @@ const getConfig = () => {
 
 	if ( existsSync( overrideConfigFile ) ) {
 		const overrideConfig = JSON.parse( readFileSync( overrideConfigFile, 'utf8' ) );
-		json = merge( json, overrideConfig );
+		json = mergeJson( json, overrideConfig );
+		// json = merge( json, overrideConfig );
 	}
 
 	// For end user convenience, jetpack-docker-config expect to have mappings relative to repo root, but in docker-compose file we actually want to have these mappings relative to tools/docker.
