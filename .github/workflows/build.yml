@@ -86,7 +86,9 @@ jobs:
       # This is the official workaround: https://github.com/actions/upload-artifact#maintaining-file-permissions-and-case-sensitive-files
       # It'll also make it faster to upload and download though, so maybe it's a win anyway.
       - name: Create archive
-        run: tar --owner=0 --group=0 --xz -cvvf build.tar.xz -C "${{ steps.build.outputs.build-base }}" --transform 's,^\.,build,' .
+        env:
+          BUILD_BASE: ${{ steps.build.outputs.build-base }}
+        run: tar --owner=0 --group=0 --xz -cvvf build.tar.xz -C "$BUILD_BASE" --transform 's,^\.,build,' .
 
       - name: Store build as artifact
         uses: actions/upload-artifact@v2
@@ -113,6 +115,13 @@ jobs:
           name: jetpack-build
       - name: Extract build archive
         run: tar --xz -xvvf build.tar.xz
+
+      - name: Filter mirror list for release branch
+        if: contains( github.ref, '/branch-' )
+        working-directory: monorepo
+        env:
+          BUILD_BASE: ${{ github.workspace }}/build
+        run: .github/files/filter-mirrors-for-release-branch.sh
 
       - name: Determine plugins to publish
         run: |
@@ -145,6 +154,12 @@ jobs:
               continue
             fi
 
+            if ! grep -q --fixed-strings --line-regexp "$MIRROR" build/mirrors.txt; then
+              echo "Plugin is not being mirrored in this build, skipping."
+              echo "::endgroup::"
+              continue
+            fi
+
             # The Jetpack Beta Tester plugin needs the base directory name to be like "${SLUG}-dev", so copy it over.
             mv "build/$MIRROR" "work/${SLUG}-dev"
 
@@ -171,13 +186,13 @@ jobs:
             echo "::endgroup::"
           done < plugins.tsv
           if [[ "$PLUGIN_DATA" == "{}" ]]; then
-            echo "No plugins were built?!"
-            exit 1
+            echo "No plugins were built"
           fi
           echo "::set-output name=plugin-data::$PLUGIN_DATA"
 
       - name: Create plugins artifact
         uses: actions/upload-artifact@v2
+        if: steps.prepare.outputs.plugin-data != '{}'
         with:
           name: plugins
           path: zips
@@ -185,6 +200,7 @@ jobs:
           retention-days: 1
 
       - name: Inform Beta Download webhook
+        if: steps.prepare.outputs.plugin-data != '{}'
         env:
           SECRET: ${{ secrets.JPBETA_SECRET }}
           PLUGIN_DATA: ${{ steps.prepare.outputs.plugin-data }}
