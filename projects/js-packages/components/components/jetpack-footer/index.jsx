@@ -23,7 +23,7 @@ import './style.scss';
  */
 export default function JetpackFooter( {
 	aboutPageUrl,
-	moduleName = 'Jetpack',
+	moduleName = __( 'Jetpack', 'jetpack' ),
 	className = '',
 	...otherProps
 } ) {
