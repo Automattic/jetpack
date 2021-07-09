@@ -17,7 +17,7 @@ let exitCode = 0;
 function loadPhpcsExcludeList() {
 	if ( null === phpcsExcludelist ) {
 		phpcsExcludelist = JSON.parse(
-			fs.readFileSync( __dirname + '/../phpcs-excludelist.json', 'utf8' )
+			fs.readFileSync( __dirname + '/../../phpcs-excludelist.json', 'utf8' )
 		);
 	}
 	return phpcsExcludelist;
@@ -31,7 +31,7 @@ function loadPhpcsExcludeList() {
 function loadEslintExcludeList() {
 	if ( null === eslintExcludelist ) {
 		eslintExcludelist = JSON.parse(
-			fs.readFileSync( __dirname + '/../eslint-excludelist.json', 'utf8' )
+			fs.readFileSync( __dirname + '/../../eslint-excludelist.json', 'utf8' )
 		);
 	}
 	return eslintExcludelist;
@@ -119,10 +119,10 @@ function sortPackageJson( jsFiles ) {
 }
 
 const gitFiles = parseGitDiffToPathArray(
-	'git -c core.quotepath=off diff --cached --name-only --diff-filter=ACM'
+	'git -c core.quotepath=off diff --cached --name-only --diff-filter=ACMR'
 ).filter( Boolean );
 const dirtyFiles = parseGitDiffToPathArray(
-	'git -c core.quotepath=off diff --name-only --diff-filter=ACM'
+	'git -c core.quotepath=off diff --name-only --diff-filter=ACMR'
 ).filter( Boolean );
 const jsFiles = gitFiles.filter( filterJsFiles );
 const phpFiles = gitFiles.filter( name => name.endsWith( '.php' ) );
@@ -160,7 +160,7 @@ function runEslint( toLintFiles ) {
 
 	// Apply .eslintignore.
 	const ignore = require( 'ignore' )();
-	ignore.add( fs.readFileSync( __dirname + '/../../.eslintignore', 'utf8' ) );
+	ignore.add( fs.readFileSync( __dirname + '/../../../.eslintignore', 'utf8' ) );
 	toLintFiles = ignore.filter( toLintFiles );
 	if ( ! toLintFiles.length ) {
 		return;
@@ -315,7 +315,7 @@ function runCheckCopiedFiles() {
  * Check that renovate's ignore list is up to date.
  */
 function runCheckRenovateIgnoreList() {
-	const result = spawnSync( './tools/check-renovate-ignore-list.js', [], {
+	const result = spawnSync( './tools/js-tools/check-renovate-ignore-list.js', [], {
 		shell: true,
 		stdio: 'inherit',
 	} );
