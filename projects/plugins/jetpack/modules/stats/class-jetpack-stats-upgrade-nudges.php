@@ -1,6 +1,6 @@
 <?php
 /**
- * Adds a section with upsell CTAs to the Status Report page
+ * Adds a section with Upgrade nudges to the Status Report page
  *
  * @package jetpack
  */
@@ -99,7 +99,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 	}
 
 	/**
-	 * Outputs the header of the Upsells Secion
+	 * Outputs the header of the Upgrade Secion
 	 *
 	 * @return void
 	 */
@@ -123,14 +123,14 @@ class Jetpack_Stats_Upgrade_Nudges {
 	}
 
 	/**
-	 * Outputs the custom css rules of the Upsells Section
+	 * Outputs the custom css rules of the Upgrade Section
 	 *
 	 * @return void
 	 */
 	private static function print_styles() {
 		?>
 		<style>
-			.dops-banner.dops-card.jp-stats-report-upsells-subitem {
+			.dops-banner.dops-card.jp-stats-report-upgrade-subitem {
 				padding-left: 40px;
 			}
 		</style>
@@ -138,7 +138,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 	}
 
 	/**
-	 * Outputs one Upsell item
+	 * Outputs one Upgrade item
 	 *
 	 * @param string  $title The title of the item.
 	 * @param string  $icon The path of the icon, relative to Jetpack images folder.
@@ -147,7 +147,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 	 * @return void
 	 */
 	private static function print_item( $title, $icon, $subitem = false, $button_label = null ) {
-		$additional_classes = $subitem ? 'jp-stats-report-upsells-subitem' : '';
+		$additional_classes = $subitem ? 'jp-stats-report-upgrade-subitem' : '';
 		$button_class       = $subitem ? 'is-secondary' : 'is-primary';
 		$icon_url           = plugins_url( '', JETPACK__PLUGIN_FILE ) . '/images/' . $icon;
 		$button_label       = is_null( $button_label ) ? __( 'Upgrade', 'jetpack' ) : $button_label;
@@ -182,7 +182,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 			return;
 		}
 
-		if ( ! defined( 'JETPACK_DEV_TEST_STATS_UPSELLS' ) || ! JETPACK_DEV_TEST_STATS_UPSELLS ) {
+		if ( ! defined( 'JETPACK_DEV_TEST_STATS_UPGRADE_NUDGES' ) || ! JETPACK_DEV_TEST_STATS_UPGRADE_NUDGES ) {
 			return;
 		}
 
