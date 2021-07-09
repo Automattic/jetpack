@@ -9,8 +9,14 @@ const chalk = require( 'chalk' );
 const fs = require( 'fs' );
 const allProjects = require( '../../cli/helpers/projectHelpers' ).allProjects;
 
-// Check the diff for files changed
-// store the results in git diff --name-only
-// See if any of the files changed require a changelog
-// Check the diff for a changelog file
+
+// Get a list of files that were just committed and total files from the diff.
+    // If none of the files require a changelog, bail.
+// Check just committed files
+    // If it contains a changelog, bail
+
+// If there is no changelog, check the diff against master
+    // If the diff contains a file in the changelog folder, can assume they added a changelog file
+    // If there isn't, prompt for one
+
 console.log( allProjects() );
