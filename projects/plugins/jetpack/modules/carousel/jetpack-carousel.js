@@ -837,9 +837,8 @@
 			var mediumWidth = parseInt( mediumSizeParts[ 0 ], 10 );
 			var mediumHeight = parseInt( mediumSizeParts[ 1 ], 10 );
 
-			// Assign max width and height -- @3x to support hiPPI/Retina devices when zooming in.
-			args.origMaxWidth = args.maxWidth * 3;
-			args.origMaxHeight = args.maxHeight * 3;
+			args.origMaxWidth = args.maxWidth;
+			args.origMaxHeight = args.maxHeight;
 
 			// Give devices with a higher devicePixelRatio higher-res images (Retina display = 2, Android phones = 1.5, etc)
 			if ( typeof window.devicePixelRatio !== 'undefined' && window.devicePixelRatio > 1 ) {
@@ -865,6 +864,13 @@
 					// If we have a really large image load a smaller version
 					// that is closer to the viewable size
 					if ( args.origWidth > args.maxWidth || args.origHeight > args.maxHeight ) {
+						// If the image is smaller than 1000px in width or height, @2x it so
+						// we get a high enough resolution for zooming.
+						if ( args.origMaxWidth < 1000 || args.origMaxWidth < 1000 ) {
+							args.origMaxWidth = args.maxWidth * 2;
+							args.origMaxHeight = args.maxHeight * 2;
+						}
+
 						origPhotonUrl += '?fit=' + args.origMaxWidth + '%2C' + args.origMaxHeight;
 					}
 				}
@@ -1021,8 +1027,10 @@
 				original = currentSlide.attrs.origFile.replace( /\?.+$/, '' );
 			}
 
+			var downloadText = carousel.info.querySelector( '.jp-carousel-download-text' );
 			var permalink = carousel.info.querySelector( '.jp-carousel-image-download' );
-			permalink.innerHTML = util.applyReplacements(
+
+			downloadText.innerHTML = util.applyReplacements(
 				jetpackCarouselStrings.download_original,
 				origSize
 			);
@@ -1345,6 +1353,9 @@
 					domUtil.hide( loader );
 					openCarousel( gallery, options );
 				};
+				jsScript.onerror = function () {
+					domUtil.hide( loader );
+				};
 				document.head.appendChild( jsScript );
 				return;
 			}
@@ -1402,17 +1413,17 @@
 
 			initCarouselSlides( gallery.querySelectorAll( settings.imgSelector ), settings.startIndex );
 
-			swiper = new window.Swiper( '.swiper-container', {
+			swiper = new window.Swiper( '.jp-carousel-swiper-container', {
 				centeredSlides: true,
 				zoom: true,
 				loop: carousel.slides.length > 1 ? true : false,
 				pagination: {
-					el: '.swiper-pagination',
+					el: '.jp-swiper-pagination',
 					clickable: true,
 				},
 				navigation: {
-					nextEl: '.swiper-button-next',
-					prevEl: '.swiper-button-prev',
+					nextEl: '.jp-swiper-button-next',
+					prevEl: '.jp-swiper-button-prev',
 				},
 				initialSlide: settings.startIndex,
 				on: {
