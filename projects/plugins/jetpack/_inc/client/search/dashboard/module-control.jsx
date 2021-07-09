@@ -85,26 +85,27 @@ function Search( props ) {
 	const togglingInstantSearch = !! props.isSavingAnyOption( 'instant_search_enabled' );
 	const isSavingEitherOption = togglingModule || togglingInstantSearch;
 
-	const isInstantSearchButtonDisabled =
+	const isInstantSearchCusomizeButtonDisabled =
 		isSavingEitherOption ||
 		! isModuleEnabled ||
 		! isInstantSearchEnabled ||
 		! hasActiveSearchPurchase;
+	const isWidgetsEditorButtonDisabled = isSavingEitherOption || ! isModuleEnabled;
 	const returnUrl = encodeURIComponent( siteAdminUrl + RETURN_PATH );
 	const renderInstantSearchButtons = () => {
 		return (
 			<div className="jp-form-search-settings-group__buttons">
 				<Button
 					className="jp-form-search-settings-group__button is-customize-search"
-					href={ ! isInstantSearchButtonDisabled && SEARCH_CUSTOMIZE_URL + returnUrl }
-					disabled={ isInstantSearchButtonDisabled }
+					href={ ! isInstantSearchCusomizeButtonDisabled && SEARCH_CUSTOMIZE_URL + returnUrl }
+					disabled={ isInstantSearchCusomizeButtonDisabled }
 				>
 					{ __( 'Customize search results', 'jetpack' ) }
 				</Button>
 				<Button
 					className="jp-form-search-settings-group__button is-widgets-editor"
-					href={ ! isInstantSearchButtonDisabled && WIDGETS_EDITOR_URL + returnUrl }
-					disabled={ isInstantSearchButtonDisabled }
+					href={ ! isWidgetsEditorButtonDisabled && WIDGETS_EDITOR_URL + returnUrl }
+					disabled={ isWidgetsEditorButtonDisabled }
 				>
 					{ __( 'Edit sidebar widgets', 'jetpack' ) }
 				</Button>
