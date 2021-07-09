@@ -16,7 +16,7 @@ import { __ } from '@wordpress/i18n';
  * @returns {React.Component} AutomatticBylineLogo component.
  */
 export default function AutomatticBylineLogo( {
-	title = __( 'An Automattic Airline' ),
+	title = __( 'An Automattic Airline', 'jetpack' ),
 	height = 7,
 	className = '',
 	...otherProps
