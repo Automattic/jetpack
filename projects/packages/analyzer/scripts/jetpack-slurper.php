@@ -1,3 +1,4 @@
+#!/usr/bin/php -d memory_limit=2048M
 <?php
 /**
  * A script to scan the entire WordPress.org plugins directory for breaking changes between
@@ -57,6 +58,9 @@ foreach ( glob( $slurper_path . '/*' ) as $folder_name ) {
 	$warnings->generate( $invocations, $differences );
 	$warnings->output();
 	$warnings->save( __DIR__ . '/' . basename( $folder_name ) . '.csv', false );
+
+	unset( $invocations );
+	unset( $warnings );
 }
 
 // phpcs:enable

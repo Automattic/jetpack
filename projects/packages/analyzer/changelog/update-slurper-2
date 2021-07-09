@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Slurper Script now uses a shebang to preset a 2 GB memory limit
