@@ -12,26 +12,13 @@ importers:
 
   .:
     specifiers:
-      chalk: 4.1.1
-      glob: 7.1.6
       husky: 4.3.8
       jetpack-cli: workspace:1.0.0
-      jetpack-eslint: workspace:*
-      parse-diff: 0.8.1
-      prettier: npm:wp-prettier@2.0.5
-      semver: 7.3.5
-      sort-package-json: 1.50.0
-    dependencies:
-      chalk: 4.1.1
+      jetpack-js-tools: workspace:*
     devDependencies:
-      glob: 7.1.6
       husky: 4.3.8
       jetpack-cli: link:tools/cli
-      jetpack-eslint: link:tools/eslint
-      parse-diff: 0.8.1
-      prettier: /wp-prettier/2.0.5
-      semver: 7.3.5
-      sort-package-json: 1.50.0
+      jetpack-js-tools: link:tools/js-tools
 
   projects/github-actions/repo-gardening:
     specifiers:
@@ -605,44 +592,6 @@ importers:
       mocha: 8.2.1
       yargs-parser: 20.2.4
 
-  tools/eslint:
-    specifiers:
-      '@automattic/eslint-changed': workspace:1.0.1-alpha
-      '@babel/core': 7.14.6
-      '@babel/eslint-parser': 7.14.5
-      '@wordpress/eslint-plugin': 7.4.0
-      eslint: 7.25.0
-      eslint-config-prettier: 8.3.0
-      eslint-config-wpcalypso: 6.1.0
-      eslint-loader: 4.0.2
-      eslint-plugin-es5: 1.5.0
-      eslint-plugin-inclusive-language: 1.2.1
-      eslint-plugin-jest: 24.3.6
-      eslint-plugin-jsdoc: 32.3.3
-      eslint-plugin-jsx-a11y: 6.4.1
-      eslint-plugin-lodash: 7.2.0
-      eslint-plugin-prettier: 3.4.0
-      eslint-plugin-react: 7.23.2
-      eslint-plugin-wpcalypso: 5.0.0
-    devDependencies:
-      '@automattic/eslint-changed': link:../../projects/js-packages/eslint-changed
-      '@babel/core': 7.14.6
-      '@babel/eslint-parser': 7.14.5_@babel+core@7.14.6+eslint@7.25.0
-      '@wordpress/eslint-plugin': 7.4.0_eslint@7.25.0
-      eslint: 7.25.0
-      eslint-config-prettier: 8.3.0_eslint@7.25.0
-      eslint-config-wpcalypso: 6.1.0_6d3db79ccf2b505de9219d0afc266b20
-      eslint-loader: 4.0.2_eslint@7.25.0
-      eslint-plugin-es5: 1.5.0_eslint@7.25.0
-      eslint-plugin-inclusive-language: 1.2.1
-      eslint-plugin-jest: 24.3.6_eslint@7.25.0
-      eslint-plugin-jsdoc: 32.3.3_eslint@7.25.0
-      eslint-plugin-jsx-a11y: 6.4.1_eslint@7.25.0
-      eslint-plugin-lodash: 7.2.0_eslint@7.25.0
-      eslint-plugin-prettier: 3.4.0_e9d1ac6628d83db1359573269b37032a
-      eslint-plugin-react: 7.23.2_eslint@7.25.0
-      eslint-plugin-wpcalypso: 5.0.0_eslint@7.25.0
-
   tools/js-test-runner:
     specifiers:
       '@babel/core': 7.12.10
@@ -680,6 +629,58 @@ importers:
       nock: 13.0.7
       sinon: 9.2.4
       sinon-chai: 3.5.0_chai@4.3.4+sinon@9.2.4
+
+  tools/js-tools:
+    specifiers:
+      '@automattic/eslint-changed': workspace:1.0.1-alpha
+      '@babel/core': 7.14.6
+      '@babel/eslint-parser': 7.14.5
+      '@wordpress/eslint-plugin': 7.4.0
+      chalk: 4.1.1
+      eslint: 7.25.0
+      eslint-config-prettier: 8.3.0
+      eslint-config-wpcalypso: 6.1.0
+      eslint-loader: 4.0.2
+      eslint-plugin-es5: 1.5.0
+      eslint-plugin-inclusive-language: 1.2.1
+      eslint-plugin-jest: 24.3.6
+      eslint-plugin-jsdoc: 32.3.3
+      eslint-plugin-jsx-a11y: 6.4.1
+      eslint-plugin-lodash: 7.2.0
+      eslint-plugin-prettier: 3.4.0
+      eslint-plugin-react: 7.23.2
+      eslint-plugin-wpcalypso: 5.0.0
+      glob: 7.1.6
+      ignore: 5.1.8
+      parse-diff: 0.8.1
+      prettier: npm:wp-prettier@2.0.5
+      semver: 7.3.5
+      sort-package-json: 1.50.0
+    devDependencies:
+      '@automattic/eslint-changed': link:../../projects/js-packages/eslint-changed
+      '@babel/core': 7.14.6
+      '@babel/eslint-parser': 7.14.5_@babel+core@7.14.6+eslint@7.25.0
+      '@wordpress/eslint-plugin': 7.4.0_eslint@7.25.0
+      chalk: 4.1.1
+      eslint: 7.25.0
+      eslint-config-prettier: 8.3.0_eslint@7.25.0
+      eslint-config-wpcalypso: 6.1.0_6d3db79ccf2b505de9219d0afc266b20
+      eslint-loader: 4.0.2_eslint@7.25.0
+      eslint-plugin-es5: 1.5.0_eslint@7.25.0
+      eslint-plugin-inclusive-language: 1.2.1
+      eslint-plugin-jest: 24.3.6_eslint@7.25.0
+      eslint-plugin-jsdoc: 32.3.3_eslint@7.25.0
+      eslint-plugin-jsx-a11y: 6.4.1_eslint@7.25.0
+      eslint-plugin-lodash: 7.2.0_eslint@7.25.0
+      eslint-plugin-prettier: 3.4.0_29601d46fa20d533a3a9bdbfa88bed36
+      eslint-plugin-react: 7.23.2_eslint@7.25.0
+      eslint-plugin-wpcalypso: 5.0.0_eslint@7.25.0
+      glob: 7.1.6
+      ignore: 5.1.8
+      parse-diff: 0.8.1
+      prettier: /wp-prettier/2.0.5
+      semver: 7.3.5
+      sort-package-json: 1.50.0
 
 packages:
 
@@ -1013,7 +1014,7 @@ packages:
   /@babel/code-frame/7.12.11:
     resolution: {integrity: sha512-Zt1yodBx1UcyiePMSkWnU4hPqhwq7hGi2nFL1LeA3EUl+q2LQx16MISgJ0+z7dnmgvP9QtIleuETGOiOH1RcIw==}
     dependencies:
-      '@babel/highlight': 7.13.10
+      '@babel/highlight': 7.14.5
     dev: true
 
   /@babel/code-frame/7.12.13:
@@ -1096,10 +1097,10 @@ packages:
       '@babel/template': 7.14.5
       '@babel/traverse': 7.14.7
       '@babel/types': 7.14.5
-      convert-source-map: 1.7.0
-      debug: 4.3.1
+      convert-source-map: 1.8.0
+      debug: 4.3.2
       gensync: 1.0.0-beta.2
-      json5: 2.1.3
+      json5: 2.2.0
       semver: 6.3.0
       source-map: 0.5.7
     transitivePeerDependencies:
@@ -3122,7 +3123,7 @@ packages:
       '@babel/helper-split-export-declaration': 7.14.5
       '@babel/parser': 7.14.7
       '@babel/types': 7.14.5
-      debug: 4.3.1
+      debug: 4.3.2
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
@@ -3284,7 +3285,7 @@ packages:
     engines: {node: ^10.12.0 || >=12.0.0}
     dependencies:
       ajv: 6.12.6
-      debug: 4.3.1
+      debug: 4.3.2
       espree: 7.3.1
       globals: 12.4.0
       ignore: 4.0.6
@@ -4151,7 +4152,7 @@ packages:
       typescript:
         optional: true
     dependencies:
-      debug: 4.3.1
+      debug: 4.3.2
       eslint-visitor-keys: 1.3.0
       glob: 7.1.6
       is-glob: 4.0.1
@@ -4173,7 +4174,7 @@ packages:
     dependencies:
       '@typescript-eslint/types': 4.26.0
       '@typescript-eslint/visitor-keys': 4.26.0
-      debug: 4.3.1
+      debug: 4.3.2
       globby: 11.0.3
       is-glob: 4.0.1
       semver: 7.3.5
@@ -4187,7 +4188,7 @@ packages:
     engines: {node: ^8.10.0 || ^10.13.0 || >=11.10.1}
     dependencies:
       '@typescript-eslint/types': 4.26.0
-      eslint-visitor-keys: 2.0.0
+      eslint-visitor-keys: 2.1.0
     dev: true
 
   /@ungap/promise-all-settled/1.1.2:
@@ -5405,7 +5406,7 @@ packages:
       eslint-plugin-jest: 23.20.0_eslint@7.25.0
       eslint-plugin-jsdoc: 30.7.13_eslint@7.25.0
       eslint-plugin-jsx-a11y: 6.4.1_eslint@7.25.0
-      eslint-plugin-prettier: 3.4.0_78f889a4d298e472d2ac774dc8d2052c
+      eslint-plugin-prettier: 3.4.0_106fe4c2d8b17897212c9dcbb448a167
       eslint-plugin-react: 7.23.2_eslint@7.25.0
       eslint-plugin-react-hooks: 4.2.0_eslint@7.25.0
       globals: 12.4.0
@@ -6346,9 +6347,9 @@ packages:
     dependencies:
       call-bind: 1.0.2
       define-properties: 1.1.3
-      es-abstract: 1.18.0
+      es-abstract: 1.18.3
       get-intrinsic: 1.1.1
-      is-string: 1.0.5
+      is-string: 1.0.6
     dev: true
 
   /array-initial/1.1.0:
@@ -6420,7 +6421,7 @@ packages:
     dependencies:
       call-bind: 1.0.2
       define-properties: 1.1.3
-      es-abstract: 1.18.0
+      es-abstract: 1.18.3
       function-bind: 1.1.1
     dev: true
 
@@ -6573,10 +6574,10 @@ packages:
     peerDependencies:
       eslint: '>= 4.12.1'
     dependencies:
-      '@babel/code-frame': 7.12.13
-      '@babel/parser': 7.14.1
-      '@babel/traverse': 7.14.0
-      '@babel/types': 7.14.1
+      '@babel/code-frame': 7.14.5
+      '@babel/parser': 7.14.7
+      '@babel/traverse': 7.14.7
+      '@babel/types': 7.14.5
       eslint: 7.25.0
       eslint-visitor-keys: 1.3.0
       resolve: 1.20.0
@@ -8028,7 +8029,7 @@ packages:
       import-fresh: 3.3.0
       parse-json: 5.2.0
       path-type: 4.0.0
-      yaml: 1.10.0
+      yaml: 1.10.2
     dev: true
 
   /crc32/0.2.2:
@@ -8471,7 +8472,6 @@ packages:
         optional: true
     dependencies:
       ms: 2.1.2
-    dev: false
 
   /decamelize/1.2.0:
     resolution: {integrity: sha1-9lNNFRSCabIDUue+4m9QH5oZEpA=}
@@ -9334,7 +9334,7 @@ packages:
       eslint: ^6.0.0 || ^7.0.0
     dependencies:
       comment-parser: 0.7.6
-      debug: 4.3.1
+      debug: 4.3.2
       eslint: 7.25.0
       jsdoctypeparser: 9.0.0
       lodash: 4.17.21
@@ -9352,7 +9352,7 @@ packages:
       eslint: ^6.0.0 || ^7.0.0
     dependencies:
       comment-parser: 1.1.5
-      debug: 4.3.1
+      debug: 4.3.2
       eslint: 7.25.0
       jsdoctypeparser: 9.0.0
       lodash: 4.17.21
@@ -9393,7 +9393,7 @@ packages:
       lodash: 4.17.21
     dev: true
 
-  /eslint-plugin-prettier/3.4.0_78f889a4d298e472d2ac774dc8d2052c:
+  /eslint-plugin-prettier/3.4.0_106fe4c2d8b17897212c9dcbb448a167:
     resolution: {integrity: sha512-UDK6rJT6INSfcOo545jiaOwB701uAIt2/dR7WnFQoGCVl1/EMqdANBmwUaqqQ45aXprsTGzSa39LI1PyuRBxxw==}
     engines: {node: '>=6.0.0'}
     peerDependencies:
@@ -9410,7 +9410,7 @@ packages:
       prettier-linter-helpers: 1.0.0
     dev: true
 
-  /eslint-plugin-prettier/3.4.0_e9d1ac6628d83db1359573269b37032a:
+  /eslint-plugin-prettier/3.4.0_29601d46fa20d533a3a9bdbfa88bed36:
     resolution: {integrity: sha512-UDK6rJT6INSfcOo545jiaOwB701uAIt2/dR7WnFQoGCVl1/EMqdANBmwUaqqQ45aXprsTGzSa39LI1PyuRBxxw==}
     engines: {node: '>=6.0.0'}
     peerDependencies:
@@ -9423,6 +9423,7 @@ packages:
     dependencies:
       eslint: 7.25.0
       eslint-config-prettier: 8.3.0_eslint@7.25.0
+      prettier: /wp-prettier/2.0.5
       prettier-linter-helpers: 1.0.0
     dev: true
 
@@ -9450,7 +9451,7 @@ packages:
       minimatch: 3.0.4
       object.entries: 1.1.3
       object.fromentries: 2.0.4
-      object.values: 1.1.3
+      object.values: 1.1.4
       prop-types: 15.7.2
       resolve: 2.0.0-next.3
       string.prototype.matchall: 4.0.4
@@ -9494,17 +9495,12 @@ packages:
       eslint: '>=5'
     dependencies:
       eslint: 7.25.0
-      eslint-visitor-keys: 2.0.0
+      eslint-visitor-keys: 2.1.0
     dev: true
 
   /eslint-visitor-keys/1.3.0:
     resolution: {integrity: sha512-6J72N8UNa462wa/KFODt/PJ3IU60SDpC3QXC1Hjc1BXXpfL2C9R5+AU7jhe0F6GREqVMh4Juu+NY7xn+6dipUQ==}
     engines: {node: '>=4'}
-    dev: true
-
-  /eslint-visitor-keys/2.0.0:
-    resolution: {integrity: sha512-QudtT6av5WXels9WjIM7qz1XD1cWGvX4gGXvp/zBn9nXG02D0utdU3Em2m/QjTnrsk6bBjmCygl3rmj118msQQ==}
-    engines: {node: '>=10'}
     dev: true
 
   /eslint-visitor-keys/2.1.0:
@@ -9522,12 +9518,12 @@ packages:
       ajv: 6.12.6
       chalk: 4.1.1
       cross-spawn: 7.0.3
-      debug: 4.3.1
+      debug: 4.3.2
       doctrine: 3.0.0
       enquirer: 2.3.6
       eslint-scope: 5.1.1
       eslint-utils: 2.1.0
-      eslint-visitor-keys: 2.0.0
+      eslint-visitor-keys: 2.1.0
       espree: 7.3.1
       esquery: 1.4.0
       esutils: 2.0.3
@@ -13594,7 +13590,7 @@ packages:
     dependencies:
       call-bind: 1.0.2
       define-properties: 1.1.3
-      es-abstract: 1.18.0
+      es-abstract: 1.18.3
       has: 1.0.3
 
   /object.fromentries/2.0.4:
@@ -13603,7 +13599,7 @@ packages:
     dependencies:
       call-bind: 1.0.2
       define-properties: 1.1.3
-      es-abstract: 1.18.0
+      es-abstract: 1.18.3
       has: 1.0.3
 
   /object.getownpropertydescriptors/2.1.2:
@@ -15642,7 +15638,7 @@ packages:
     resolution: {integrity: sha512-W8LucSynKUIDu9ylraa7ueVZ7hc0uAgJBxVsQSKOXOyle8a93qXhcz+XAXZ8bIq2d6i4Ehddn6Evt+0/UwKk6Q==}
     dependencies:
       is-core-module: 2.4.0
-      path-parse: 1.0.6
+      path-parse: 1.0.7
     dev: true
 
   /restore-cursor/2.0.0:
@@ -16034,7 +16030,7 @@ packages:
     dependencies:
       call-bind: 1.0.2
       get-intrinsic: 1.1.1
-      object-inspect: 1.9.0
+      object-inspect: 1.10.3
     dev: true
 
   /signal-exit/3.0.3:
@@ -16441,7 +16437,7 @@ packages:
     dependencies:
       call-bind: 1.0.2
       define-properties: 1.1.3
-      es-abstract: 1.18.0
+      es-abstract: 1.18.3
       has-symbols: 1.0.2
       internal-slot: 1.0.3
       regexp.prototype.flags: 1.3.1
@@ -18127,11 +18123,6 @@ packages:
 
   /yallist/4.0.0:
     resolution: {integrity: sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==}
-
-  /yaml/1.10.0:
-    resolution: {integrity: sha512-yr2icI4glYaNG+KWONODapy2/jDdMSDnrONSjblABjD9B4Z5LgiircSt8m8sRZFNi08kG9Sm0uSHtEmP3zaEGg==}
-    engines: {node: '>= 6'}
-    dev: true
 
   /yaml/1.10.2:
     resolution: {integrity: sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==}

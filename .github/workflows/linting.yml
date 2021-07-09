@@ -105,7 +105,7 @@ jobs:
               - 'tools/eslint-excludelist.json'
             misc_excludelist:
               - 'tools/cleanup-excludelists.sh'
-              - '.github/files/check-excludelist-diff.js'
+              - 'tools/js-tools/check-excludelist-diff.js'
             misc:
               # If the workflow itself changed, everything should re-run.
               - '.github/workflows/linting.yml'
@@ -616,7 +616,7 @@ jobs:
       - name: Cleanup excludelists
         run: tools/cleanup-excludelists.sh
       - name: Check for changes to exclude lists
-        run: .github/files/check-excludelist-diff.js
+        run: tools/js-tools/check-excludelist-diff.js
 
   ### Checks that changelogger change files are being created.
   # No good equivalent, since it depends on the diff.
