@@ -7,7 +7,7 @@ import path from 'path';
 import { merge } from 'lodash';
 
 export const dockerFolder = `tools/docker`;
-const overrideConfigFile = '.docker-env.json';
+const overrideConfigFile = 'jetpack-docker-config.json';
 
 const mergeDockerVolumeMappings = ( mainMapping, overrideMapping ) => {
 	const volumesMapping = overrideMapping.slice(); // make a copy of an array;
@@ -67,15 +67,15 @@ const getDeprecatedExtras = config => {
  * Compose a config object using multiple sources.
  * To keep the backward compatibility, it pulls configuration from compose-volumes and compose-extras files
  * Below is a list of sources in order of priority (from low to high):
- * - .docker-env-default.json - default Docker configuration
+ * - jetpack-docker-config-default.json - default Docker configuration
  * - compose-volumes.yml - (Deprecated) User-defined volume mapping overrides
  * - compose-extras.yml - (Deprecated) User-defined docker-compose overrides
- * - .docker-env.yml - User-defined Docker configuration
+ * - jetpack-docker-config.yml - User-defined Docker configuration
  *
  * @returns {object} config
  */
 const getConfig = () => {
-	const configFile = `${ dockerFolder }/.docker-env-default.json`;
+	const configFile = `${ dockerFolder }/jetpack-docker-config-default.json`;
 	let json = JSON.parse( readFileSync( configFile, 'utf8' ) );
 
 	// compose-volumes and compose-extras are deprecated. TODO: Remove it in few months.
@@ -87,7 +87,7 @@ const getConfig = () => {
 		json = merge( json, overrideConfig );
 	}
 
-	// For end user convenience, .docker-env expect to have mappings relative to repo root, but in docker-compose file we actually want to have these mappings relative to tools/docker.
+	// For end user convenience, jetpack-docker-config expect to have mappings relative to repo root, but in docker-compose file we actually want to have these mappings relative to tools/docker.
 	// Below we magically replacing the mappings to match docker expectations.
 	const types = Object.keys( json );
 	types.forEach( type => {
@@ -145,7 +145,7 @@ export const setMappings = argv => {
 };
 
 /**
- * Generates Extras compose file based on docker-env.json config files
+ * Generates Extras compose file based on jetpack-docker-config.json config files
  *
  * @param {object} argv - Yargs
  */

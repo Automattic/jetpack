@@ -29,7 +29,7 @@ npm-debug.log
 .pnpm-debug.log
 phpcs.xml
 .phpunit.result.cache
-.docker-env.json
+jetpack-docker-config.json
 
 ## Things for docker-composer
 /tools/docker/data/*
