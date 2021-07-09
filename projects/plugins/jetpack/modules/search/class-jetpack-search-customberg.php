@@ -75,8 +75,7 @@ class Jetpack_Search_Customberg {
 	 */
 	public function jetpack_search_admin_page() {
 		// TODO: Spin this function off into a static helper function in a helper class for code reuse.
-		$protocol   = is_ssl() ? 'https' : 'http';
-		$static_url = apply_filters( 'jetpack_static_url', "{$protocol}://en.wordpress.com/i/loading/loading-64.gif" );
+		$static_url = apply_filters( 'jetpack_static_url', '//en.wordpress.com/i/loading/loading-64.gif' );
 		?>
 			<div id="jp-search-customization" class="jp-search-customization-dashboard">
 				<div class="hide-if-no-js"><img class="jp-search-loader" width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php echo esc_url( $static_url ); ?>" /></div>
