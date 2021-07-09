@@ -36,17 +36,10 @@ function mergeJson( a, b ) {
  * @returns {Array} merged array.
  */
 function mergeDockerVolumeMappings( mainMapping, overrideMapping ) {
-	const volumesMapping = overrideMapping.slice(); // make a copy of an array;
-
-	const typeLocPaths = overrideMapping.map( map => map.split( ':' )[ 0 ] );
-	const defaultLocPaths = mainMapping.map( map => map.split( ':' )[ 0 ] );
-	defaultLocPaths.forEach( ( defaultPath, id ) => {
-		if ( ! typeLocPaths.includes( defaultPath ) ) {
-			volumesMapping.unshift( mainMapping[ id ] );
-		}
-	} );
-
-	return volumesMapping;
+	const map = {};
+	mainMapping.forEach( v => map[ v.split( ':' )[ 0 ] ] = v );
+	overrideMapping.forEach( v => map[ v.split( ':' )[ 0 ] ] = v );
+	return Object.values( map );
 }
 
 /**
