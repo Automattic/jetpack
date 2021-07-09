@@ -20,11 +20,9 @@ $color-button-text-disabled: #a7aaad;
 	.form-toggle__label-content {
 		font-weight: bold;
 	}
-
 	.form-toggle:checked + .form-toggle__label .form-toggle__switch {
 		background: $color-plan;
 	}
-
 	.form-toggle__switch:focus {
 		box-shadow: 0 0 0 2px $blue-medium;
 	}
