@@ -123,6 +123,8 @@ class Jetpack_Search_Customberg {
 			true
 		);
 
+		wp_set_script_translations( 'jp-search-customization', 'jetpack' );
+
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
 		wp_add_inline_script( 'jp-search-customization', 'var JetpackInstantSearchOptions=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Jetpack_Search_Helpers::generate_initial_javascript_state() ) ) . '"));', 'before' );
 		wp_add_inline_script(
