@@ -86,7 +86,9 @@ jobs:
       # This is the official workaround: https://github.com/actions/upload-artifact#maintaining-file-permissions-and-case-sensitive-files
       # It'll also make it faster to upload and download though, so maybe it's a win anyway.
       - name: Create archive
-        run: tar --owner=0 --group=0 --xz -cvvf build.tar.xz -C "${{ steps.build.outputs.build-base }}" --transform 's,^\.,build,' .
+        env:
+          BUILD_BASE: ${{ steps.build.outputs.build-base }}
+        run: tar --owner=0 --group=0 --xz -cvvf build.tar.xz -C "$BUILD_BASE" --transform 's,^\.,build,' .
 
       - name: Store build as artifact
         uses: actions/upload-artifact@v2
