@@ -7,7 +7,7 @@ const glob = require( 'glob' );
 const process = require( 'process' );
 let exitCode = 0;
 
-process.chdir( __dirname + '/..' );
+process.chdir( __dirname + '/../..' );
 
 const line =
 	fs
