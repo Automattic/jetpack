@@ -87,7 +87,7 @@ class Jetpack_Widget_Conditions {
 			// Don't filter widgets when editing them - otherwise they could get filtered out and become impossible to edit.
 			( false === strpos( wp_get_raw_referer(), '/wp-admin/widgets.php' ) )
 		) {
-			// Not hit any known widget admin point, register widget display hooks instead.
+			// Not hit any known widget admin endpoint, register widget display hooks instead.
 			add_filter( 'widget_display_callback', array( __CLASS__, 'filter_widget' ) );
 			add_filter( 'sidebars_widgets', array( __CLASS__, 'sidebars_widgets' ) );
 			add_action( 'template_redirect', array( __CLASS__, 'template_redirect' ) );
