@@ -73,7 +73,7 @@ const getDeprecatedVolumesMapping = config => {
 		return acc;
 	}, {} );
 
-	return mergeJson( config, { dev: { mappings: volumesObj } } );
+	return mergeJson( config, { dev: { volumeMappings: volumesObj } } );
 };
 
 /**
@@ -127,14 +127,16 @@ const getConfig = () => {
 	// Below we magically replacing the mappings to match docker expectations.
 	const types = Object.keys( json );
 	types.forEach( type => {
-		const paths = Object.entries( json[ type ].mappings ).map( ( [ localPath, dockerPath ] ) => {
-			let relPath = path.relative( dockerFolder, localPath );
-			if ( ! relPath.startsWith( '.' ) ) {
-				relPath = './' + relPath;
+		const paths = Object.entries( json[ type ].volumeMappings ).map(
+			( [ localPath, dockerPath ] ) => {
+				let relPath = path.relative( dockerFolder, localPath );
+				if ( ! relPath.startsWith( '.' ) ) {
+					relPath = './' + relPath;
+				}
+				return `${ relPath }:${ dockerPath }`;
 			}
-			return `${ relPath }:${ dockerPath }`;
-		} );
-		json[ type ].mappings = paths;
+		);
+		json[ type ].volumeMappings = paths;
 	} );
 
 	return json;
@@ -147,14 +149,14 @@ const getConfig = () => {
  * @param {object} config - Configuration object
  */
 const setMappings = ( argv, config ) => {
-	let volumesMapping = config.default.mappings;
+	let volumesMapping = config.default.volumeMappings;
 
 	// In case custom mapping overrides the default one, lets properly handle it.
 	// Above logic covers only local path overrides.
-	if ( config[ argv.type ] && config[ argv.type ].mappings ) {
+	if ( config[ argv.type ] && config[ argv.type ].volumeMappings ) {
 		volumesMapping = mergeDockerVolumeMappings(
-			config.default.mappings,
-			config[ argv.type ].mappings
+			config.default.volumeMappings,
+			config[ argv.type ].volumeMappings
 		);
 	}
 
