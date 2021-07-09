@@ -7,8 +7,7 @@ const execSync = require( 'child_process' ).execSync;
 const spawnSync = require( 'child_process' ).spawnSync;
 const chalk = require( 'chalk' );
 const fs = require( 'fs' );
-const allProjects = require( '../cli/helpers/projectHelpers' ).allProjects;
-//import { allProjects, allProjectsByType } from '../cli/helpers/projectHelpers.js';
+const allProjects = require( '../../cli/helpers/projectHelpers' ).allProjects;
 
 // Check the diff for files changed
 // store the results in git diff --name-only
