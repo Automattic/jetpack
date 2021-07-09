@@ -85,7 +85,7 @@ function Search( props ) {
 	const togglingInstantSearch = !! props.isSavingAnyOption( 'instant_search_enabled' );
 	const isSavingEitherOption = togglingModule || togglingInstantSearch;
 
-	const isInstantSearchCusomizeButtonDisabled =
+	const isInstantSearchCustomizeButtonDisabled =
 		isSavingEitherOption ||
 		! isModuleEnabled ||
 		! isInstantSearchEnabled ||
@@ -97,8 +97,8 @@ function Search( props ) {
 			<div className="jp-form-search-settings-group__buttons">
 				<Button
 					className="jp-form-search-settings-group__button is-customize-search"
-					href={ ! isInstantSearchCusomizeButtonDisabled && SEARCH_CUSTOMIZE_URL + returnUrl }
-					disabled={ isInstantSearchCusomizeButtonDisabled }
+					href={ ! isInstantSearchCustomizeButtonDisabled && SEARCH_CUSTOMIZE_URL + returnUrl }
+					disabled={ isInstantSearchCustomizeButtonDisabled }
 				>
 					{ __( 'Customize search results', 'jetpack' ) }
 				</Button>
