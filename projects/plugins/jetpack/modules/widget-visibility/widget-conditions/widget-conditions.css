@@ -69,6 +69,11 @@
 	text-indent: -9999px;
 	z-index: 1;
 }
+
+.wp-block-legacy-widget__edit-form .widget-conditional .condition-control a {
+	top: 20px;
+}
+
 .widget-conditional .condition-control a:before {
 	position: absolute;
 	text-indent: 0;
@@ -86,10 +91,6 @@
 
 .wp-block-legacy-widget__edit-form .widget-inside.widget-inside .widget-conditional .widget-conditional-inner a.dashicons {
 	font-family: dashicons;
-}
-
-.wp-block-legacy-widget__edit-form .widget-inside.widget-inside .widget-conditional .widget-conditional-inner a {
-	top:1.5rem
 }
 
 .wp-block-legacy-widget__edit-form .widget-inside.widget-inside .widget-conditional-inner select {
