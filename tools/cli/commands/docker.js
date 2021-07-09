@@ -4,7 +4,7 @@
 import { spawnSync } from 'child_process';
 import chalk from 'chalk';
 import { createWriteStream, existsSync } from 'fs';
-import { dockerFolder, setExtrasConfig, setMappings } from '../helpers/docker-config';
+import { dockerFolder, setConfig } from '../helpers/docker-config';
 
 /**
  * Sets default options that are common for most of the commands
@@ -234,8 +234,7 @@ const defaultDockerCmdHandler = argv => {
 	printPreCmdMsg( argv );
 
 	executor( argv, setEnv );
-	executor( argv, setMappings );
-	executor( argv, setExtrasConfig );
+	executor( argv, setConfig );
 
 	const opts = buildDefaultCmd( argv );
 	const envOpts = buildEnv( argv );

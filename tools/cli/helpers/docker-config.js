@@ -4,6 +4,7 @@
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import yaml from 'js-yaml';
 import path from 'path';
+import chalk from 'chalk';
 
 export const dockerFolder = `tools/docker`;
 const overrideConfigFile = 'jetpack-docker-config.json';
@@ -37,8 +38,8 @@ function mergeJson( a, b ) {
  */
 function mergeDockerVolumeMappings( mainMapping, overrideMapping ) {
 	const map = {};
-	mainMapping.forEach( v => map[ v.split( ':' )[ 0 ] ] = v );
-	overrideMapping.forEach( v => map[ v.split( ':' )[ 0 ] ] = v );
+	mainMapping.forEach( v => ( map[ v.split( ':' )[ 0 ] ] = v ) );
+	overrideMapping.forEach( v => ( map[ v.split( ':' )[ 0 ] ] = v ) );
 	return Object.values( map );
 }
 
@@ -50,7 +51,16 @@ function mergeDockerVolumeMappings( mainMapping, overrideMapping ) {
  */
 const getDeprecatedVolumesMapping = config => {
 	const volumesFile = `${ dockerFolder }/compose-volumes.yml`;
+	if ( ! existsSync( volumesFile ) ) {
+		return config;
+	}
+
 	const volumes = yaml.load( readFileSync( volumesFile, 'utf8' ) );
+	console.warn(
+		chalk.yellow(
+			`[WARNING] Using configuration defined in ${ volumesFile }. This approach in deprecated in favor of 'jetpack-docker-config.json'. This configuration method would be removed in further versions`
+		)
+	);
 
 	// convert array of docker volumes into a object of local/docker paths
 	const volumesObj = volumes.reduce( ( acc, volume ) => {
@@ -63,9 +73,7 @@ const getDeprecatedVolumesMapping = config => {
 		return acc;
 	}, {} );
 
-	config.dev = {};
-	config.dev.mappings = volumesObj;
-	return config;
+	return mergeJson( config, { dev: { mappings: volumesObj } } );
 };
 
 /**
@@ -76,10 +84,19 @@ const getDeprecatedVolumesMapping = config => {
  */
 const getDeprecatedExtras = config => {
 	const extrasFile = `${ dockerFolder }/compose-extras.yml`;
+	if ( ! existsSync( extrasFile ) ) {
+		return config;
+	}
+
 	const extras = yaml.load( readFileSync( extrasFile, 'utf8' ) );
+	console.warn(
+		chalk.yellow(
+			`[WARNING] Using configuration defined in ${ extrasFile }. This approach in deprecated in favor of 'jetpack-docker-config.json'. This configuration method would be removed in further versions`
+		)
+	);
 	delete extras.version;
-	config.dev.extras = extras;
-	return config;
+
+	return mergeJson( config, { dev: { extras: extras } } );
 };
 
 /**
@@ -127,10 +144,9 @@ const getConfig = () => {
  * Generates docker-compose file with pre-configured volume mappings
  *
  * @param {object} argv - Yargs
+ * @param {object} config - Configuration object
  */
-export const setMappings = argv => {
-	const config = getConfig();
-
+const setMappings = ( argv, config ) => {
 	let volumesMapping = config.default.mappings;
 
 	// In case custom mapping overrides the default one, lets properly handle it.
@@ -167,10 +183,9 @@ export const setMappings = argv => {
  * Generates Extras compose file based on jetpack-docker-config.json config files
  *
  * @param {object} argv - Yargs
+ * @param {object} config - Configuration object
  */
-export const setExtrasConfig = argv => {
-	const config = getConfig();
-
+const setExtrasConfig = ( argv, config ) => {
 	let extrasCompose = {
 		version: '3.3',
 	};
@@ -182,3 +197,15 @@ export const setExtrasConfig = argv => {
 	const extrasBuiltFile = `${ dockerFolder }/compose-extras.built.yml`;
 	writeFileSync( extrasBuiltFile, yaml.dump( extrasCompose ) );
 };
+
+/**
+ * Generates required configuration files according to passed argv flags
+ *
+ * @param {object} argv - Argv
+ */
+export function setConfig( argv ) {
+	const config = getConfig();
+
+	setMappings( argv, config );
+	setExtrasConfig( argv, config );
+}
