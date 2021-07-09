@@ -28,7 +28,14 @@ function mergeJson( a, b ) {
 	return b;
 }
 
-const mergeDockerVolumeMappings = ( mainMapping, overrideMapping ) => {
+/**
+ * Merges two arrays of volume mappings, comparing only local paths of the mapping.
+ *
+ * @param {Array} mainMapping - array of default volume mappings
+ * @param {Array} overrideMapping - array of override volume mappings
+ * @returns {Array} merged array.
+ */
+function mergeDockerVolumeMappings( mainMapping, overrideMapping ) {
 	const volumesMapping = overrideMapping.slice(); // make a copy of an array;
 
 	const typeLocPaths = overrideMapping.map( map => map.split( ':' )[ 0 ] );
@@ -40,7 +47,7 @@ const mergeDockerVolumeMappings = ( mainMapping, overrideMapping ) => {
 	} );
 
 	return volumesMapping;
-};
+}
 
 /**
  * DEPRECATED. Parses compose-volumes.yml and adds it's contents into docker config
