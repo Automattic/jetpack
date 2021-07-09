@@ -31,10 +31,10 @@
 
 require dirname( __DIR__ ) . '/vendor/autoload.php';
 
-$jetpack_new_path = '/path/to/new/jetpack';
-$jetpack_old_path = '/path/to/old/jetpack';
-$slurper_path     = '/path/to/slurper/plugins';
-$jetpack_exclude  = array( '.git', 'vendor', 'tests', 'docker', 'bin', 'scss', 'images', 'docs', 'languages', 'node_modules' );
+$jetpack_new_path = '/code/jetpack-dev'; // new Jetpack.
+$jetpack_old_path = '/code/jetpack-svn/tags/9.8.1'; // old Jetpack.
+$slurper_path     = '/code/WordPress-Plugin-Directory-Slurper/plugins'; // Slurper plugin location.
+$jetpack_exclude  = array( '.git', 'tests', 'tools', 'bin', 'scss', 'images', 'docs', 'languages', 'node_modules' );
 
 echo "Scanning new declarations\n";
 $jetpack_new_declarations = new Automattic\Jetpack\Analyzer\Declarations();
