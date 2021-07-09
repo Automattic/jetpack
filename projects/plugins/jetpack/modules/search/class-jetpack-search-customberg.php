@@ -7,9 +7,12 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
+use Jetpack;
 use Jetpack_Plan;
 use Jetpack_Search_Helpers;
+
 
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-admin-page.php';
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-redux-state-helper.php';
@@ -142,6 +145,12 @@ class Jetpack_Search_Customberg {
 	 * @return boolean
 	 */
 	private function should_add_page() {
-		return Jetpack_Plan::supports( 'search' );
+		$is_offline_mode = ( new Status() )->is_offline_mode();
+		return (
+			! $is_offline_mode && // Must be online.
+			Jetpack::is_connection_ready() && // Must be connected.
+			current_user_can( 'manage_options' ) && // Must be an admin.
+			Jetpack_Plan::supports( 'search' ) // Must have plan supporting Jetpack (Instant) Search.
+		);
 	}
 }
