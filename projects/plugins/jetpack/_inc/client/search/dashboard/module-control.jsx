@@ -3,7 +3,7 @@
  */
 import React, { Fragment, useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { __ } from '@wordpress/i18n';
+import { sprintf, __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -42,8 +42,8 @@ const INSTANT_SEARCH_DESCRIPTION = __(
 const SEARCH_SUPPORT = __( 'Search supports many customizations. ', 'jetpack' );
 // NOTE: remove a8ctest after all relative PRs merged.
 const RETURN_PATH = 'admin.php?page=jetpack-search&a8ctest';
-const SEARCH_CUSTOMIZE_URL = 'customize.php?autofocus[section]=jetpack_search&return=';
-const WIDGETS_EDITOR_URL = 'customize.php?autofocus[panel]=widgets&return=';
+const SEARCH_CUSTOMIZE_URL = 'customize.php?autofocus[section]=jetpack_search&return=%s';
+const WIDGETS_EDITOR_URL = 'customize.php?autofocus[panel]=widgets&return=%s';
 
 /**
  * Search settings component to be used within the Performance section.
@@ -97,14 +97,16 @@ function Search( props ) {
 			<div className="jp-form-search-settings-group__buttons">
 				<Button
 					className="jp-form-search-settings-group__button is-customize-search"
-					href={ ! isInstantSearchCustomizeButtonDisabled && SEARCH_CUSTOMIZE_URL + returnUrl }
+					href={
+						! isInstantSearchCustomizeButtonDisabled && sprintf( SEARCH_CUSTOMIZE_URL, returnUrl )
+					}
 					disabled={ isInstantSearchCustomizeButtonDisabled }
 				>
 					{ __( 'Customize search results', 'jetpack' ) }
 				</Button>
 				<Button
 					className="jp-form-search-settings-group__button is-widgets-editor"
-					href={ ! isWidgetsEditorButtonDisabled && WIDGETS_EDITOR_URL + returnUrl }
+					href={ ! isWidgetsEditorButtonDisabled && sprintf( WIDGETS_EDITOR_URL, returnUrl ) }
 					disabled={ isWidgetsEditorButtonDisabled }
 				>
 					{ __( 'Edit sidebar widgets', 'jetpack' ) }
