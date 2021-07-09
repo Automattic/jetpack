@@ -43,7 +43,7 @@ function mergeDockerVolumeMappings( mainMapping, overrideMapping ) {
 }
 
 /**
- * DEPRECATED. Parses compose-volumes.yml and adds it's contents into docker config
+ * Parses deprecated compose-volumes.yml and adds its contents into docker config.
  *
  * @param {object} config - Docker configuration
  * @returns {object} config
@@ -55,7 +55,7 @@ const getDeprecatedVolumesMapping = config => {
 	// convert array of docker volumes into a object of local/docker paths
 	const volumesObj = volumes.reduce( ( acc, volume ) => {
 		const [ localPath, dockerPath ] = volume.split( ':' );
-		let relPath = path.relative( '.', 'tools/docker/' + localPath );
+		let relPath = path.relative( '.', path.resolve( dockerFolder, localPath ) );
 		if ( ! relPath ) {
 			relPath = '.';
 		}
@@ -69,7 +69,7 @@ const getDeprecatedVolumesMapping = config => {
 };
 
 /**
- * DEPRECATED. Parses compose-extras.yml and adds it's contents into docker config
+ * Parses deprecated compose-extras.yml and adds its contents into docker config.
  *
  * @param {object} config - Docker configuration
  * @returns {object} config
@@ -154,7 +154,7 @@ export const setMappings = argv => {
 	if ( argv.type === 'dev' ) {
 		mappingsCompose.services.sftp = {
 			volumes: volumesMapping.map( vol =>
-				vol.replace( /\/var\/www\/html/, '/home/wordpress/var/www/html' )
+				vol.startsWith( '/var/www/html' ) ? '/home/wordpress' + vol : vol
 			),
 		};
 	}
@@ -180,6 +180,5 @@ export const setExtrasConfig = argv => {
 	}
 
 	const extrasBuiltFile = `${ dockerFolder }/compose-extras.built.yml`;
-	console.log( extrasBuiltFile );
 	writeFileSync( extrasBuiltFile, yaml.dump( extrasCompose ) );
 };
