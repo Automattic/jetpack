@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Tracking;
 use Jetpack_Plan;
 use Jetpack_Search_Helpers;
 
@@ -112,7 +113,7 @@ class Jetpack_Search_Customberg {
 			$script_dependencies = $asset_manifest['dependencies'];
 		}
 
-		wp_enqueue_script( 'jp-search-customization-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+		Tracking::register_tracks_functions_scripts( true );
 
 		wp_enqueue_script(
 			'jp-search-customization',
