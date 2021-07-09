@@ -177,7 +177,8 @@ class Jetpack_Stats_Upgrade_Nudges {
 	 * @return void
 	 */
 	public static function render( $callback ) {
-		if ( 'stats_reports_page' !== $callback ) {
+		/** This filter is documented in _inc/lib/admin-pages/class.jetpack-react-page.php */
+		if ( 'stats_reports_page' !== $callback || ! apply_filters( 'jetpack_show_promotions', true ) ) {
 			return;
 		}
 
