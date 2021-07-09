@@ -31,9 +31,9 @@
 
 require dirname( __DIR__ ) . '/vendor/autoload.php';
 
-$jetpack_new_path = '/code/jetpack-dev'; // new Jetpack.
-$jetpack_old_path = '/code/jetpack-svn/tags/9.8.1'; // old Jetpack.
-$slurper_path     = '/code/WordPress-Plugin-Directory-Slurper/plugins'; // Slurper plugin location.
+$jetpack_new_path = '/tmp/jetpack-dev'; // new Jetpack.
+$jetpack_old_path = '/Users/kraft/code/jetpack-svn/tags/9.8.1'; // old Jetpack.
+$slurper_path     = '/Users/kraft/code/WordPress-Plugin-Directory-Slurper/plugins'; // Slurper plugin location.
 $jetpack_exclude  = array( '.git', 'tests', 'tools', 'bin', 'scss', 'images', 'docs', 'languages', 'node_modules' );
 
 echo "Scanning new declarations\n";
