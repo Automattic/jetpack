@@ -8,7 +8,7 @@ It takes moduleName and URL to show in the footer.
 ```js
 <JetpackFooter
 	moduleName="Jetpack Search"
-	a8cLogoHerf="https://www.jetpack.com"
+	a8cLogoHref="https://www.jetpack.com"
 	className="jp-dashboard-footer"
 />
 ```
