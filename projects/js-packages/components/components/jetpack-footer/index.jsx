@@ -22,7 +22,7 @@ import './style.scss';
  * @returns {React.Component} JetpackFooter component.
  */
 export default function JetpackFooter( {
-	a8cLogoHerf,
+	a8cLogoHref,
 	moduleName = __( 'Jetpack', 'jetpack' ),
 	className = '',
 	...otherProps
