@@ -291,7 +291,7 @@ function jetpackLoadLikeWidgetIframe( wrapperID ) {
 		postLikesFrame.frameBorder = '0';
 		postLikesFrame.scrolling = 'no';
 		postLikesFrame.title = 'Like or Reblog';
-		postLikesFrame.setAttribute("aria-hidden", true);
+		postLikesFrame.setAttribute('aria-hidden', true);
 
 		if ( $wrapper.hasClass( 'slim-likes-widget' ) ) {
 			postLikesFrame.height = '22px';
