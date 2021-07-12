@@ -689,10 +689,10 @@ class Jetpack_Carousel {
 		$large_file_info = wp_get_attachment_image_src( $attachment_id, 'large' );
 		$large_file      = isset( $large_file_info[0] ) ? $large_file_info[0] : '';
 
-		$attachment			 = get_post( $attachment_id );
-		$attachment_title	 = wptexturize( $attachment->post_title );
-		$attachment_desc	 = wpautop( wptexturize( $attachment->post_content ) );
-		$attachment_caption  = wpautop( wptexturize( $attachment->post_excerpt ) );
+		$attachment         = get_post( $attachment_id );
+		$attachment_title   = ! empty( $attachment ) ? wptexturize( $attachment->post_title ) : '';
+		$attachment_desc    = ! empty( $attachment ) ? wpautop( wptexturize( $attachment->post_content ) ) : '';
+		$attachment_caption = ! empty( $attachment ) ? wpautop( wptexturize( $attachment->post_excerpt ) ) : '';
 
 		// Not yet providing geo-data, need to "fuzzify" for privacy
 		if ( ! empty( $img_meta ) ) {
@@ -711,7 +711,7 @@ class Jetpack_Carousel {
 		$img_meta = json_encode( array_map( 'strval', array_filter( $img_meta, 'is_scalar' ) ) );
 
 		$attr['data-attachment-id']     = $attachment_id;
-		$attr['data-permalink']         = esc_attr( get_permalink( $attachment->ID ) );
+		$attr['data-permalink']         = esc_attr( get_permalink( $attachment_id ) );
 		$attr['data-orig-file']         = esc_attr( $orig_file );
 		$attr['data-orig-size']         = $size;
 		$attr['data-comments-opened']   = $comments_opened;
