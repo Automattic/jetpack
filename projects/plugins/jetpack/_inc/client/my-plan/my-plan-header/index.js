@@ -113,26 +113,13 @@ class MyPlanHeader extends React.Component {
 					title: __( 'Jetpack Professional', 'jetpack' ),
 				};
 
-			case 'is-daily-security-plan':
+			case 'is-security-plan':
+			case 'is-security-pro-plan':
 				return {
 					...productProps,
 					details: expiration,
-					tagLine: __(
-						'Enjoy the peace of mind of complete site protection. Great for brochure sites, restaurants, blogs, and resume sites.',
-						'jetpack'
-					),
-					title: __( 'Jetpack Security Daily', 'jetpack' ),
-				};
-
-			case 'is-realtime-security-plan':
-				return {
-					...productProps,
-					details: expiration,
-					tagLine: __(
-						'Additional security for sites with 24/7 activity. Recommended for eCommerce stores, news organizations, and online forums.',
-						'jetpack'
-					),
-					title: __( 'Jetpack Security Real-Time', 'jetpack' ),
+					tagLine: __( 'Enjoy the peace of mind of complete site protection.', 'jetpack' ),
+					title: __( 'Jetpack Security', 'jetpack' ),
 				};
 
 			case 'is-complete-plan':
@@ -146,27 +133,13 @@ class MyPlanHeader extends React.Component {
 					title: __( 'Jetpack Complete', 'jetpack' ),
 				};
 
-			case 'is-daily-backup-plan':
-				return {
-					...productProps,
-					details: expiration,
-					tagLine: __(
-						'Your data is being securely backed up every day with a 30-day archive.',
-						'jetpack'
-					),
-					title: createInterpolateElement( __( 'Jetpack Backup <em>Daily</em>', 'jetpack' ), {
-						em: <em />,
-					} ),
-				};
-
-			case 'is-realtime-backup-plan':
+			case 'is-backup-plan':
+			case 'is-backup-pro-plan':
 				return {
 					...productProps,
 					details: expiration,
 					tagLine: __( 'Your data is being securely backed up as you edit.', 'jetpack' ),
-					title: createInterpolateElement( __( 'Jetpack Backup <em>Real-Time</em>', 'jetpack' ), {
-						em: <em />,
-					} ),
+					title: __( 'Jetpack Backup', 'jetpack' ),
 				};
 
 			case 'is-search-plan':
@@ -199,6 +172,50 @@ class MyPlanHeader extends React.Component {
 						'jetpack'
 					),
 					title: __( 'Jetpack Anti-Spam', 'jetpack' ),
+				};
+
+			// DEPRECATED: Daily and Real-time variations are no longer sold.
+			// Remove after all customers are migrated to new products.
+			case 'is-daily-security-plan':
+				return {
+					...productProps,
+					details: expiration,
+					tagLine: __(
+						'Enjoy the peace of mind of complete site protection. Great for brochure sites, restaurants, blogs, and resume sites.',
+						'jetpack'
+					),
+					title: __( 'Jetpack Security Daily', 'jetpack' ),
+				};
+			case 'is-realtime-security-plan':
+				return {
+					...productProps,
+					details: expiration,
+					tagLine: __(
+						'Additional security for sites with 24/7 activity. Recommended for eCommerce stores, news organizations, and online forums.',
+						'jetpack'
+					),
+					title: __( 'Jetpack Security Real-Time', 'jetpack' ),
+				};
+			case 'is-daily-backup-plan':
+				return {
+					...productProps,
+					details: expiration,
+					tagLine: __(
+						'Your data is being securely backed up every day with a 30-day archive.',
+						'jetpack'
+					),
+					title: createInterpolateElement( __( 'Jetpack Backup <em>Daily</em>', 'jetpack' ), {
+						em: <em />,
+					} ),
+				};
+			case 'is-realtime-backup-plan':
+				return {
+					...productProps,
+					details: expiration,
+					tagLine: __( 'Your data is being securely backed up as you edit.', 'jetpack' ),
+					title: createInterpolateElement( __( 'Jetpack Backup <em>Real-Time</em>', 'jetpack' ), {
+						em: <em />,
+					} ),
 				};
 
 			default:
