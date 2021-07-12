@@ -235,10 +235,6 @@ class Jetpack_RelatedPosts {
 			return '';
 		}
 
-		// For client-side rendering, enqueue both the styles and the scripts for fetching related posts.
-		// This supports related posts added via the shortcode, or via the hook for non-AMP requests.
-		$this->_enqueue_assets( true, true );
-
 		/**
 		 * Filter the Related Posts headline.
 		 *
@@ -367,10 +363,6 @@ EOT;
 	 * @return string
 	 */
 	public function render_block( $attributes ) {
-		// Enqueue styles for Related Posts. We do not need to enqueue the scripts, as the related posts are
-		// fetched server-side.
-		$this->_enqueue_assets( false, true );
-
 		$block_attributes = array(
 			'headline'        => isset( $attributes['headline'] ) ? $attributes['headline'] : null,
 			'show_thumbnails' => isset( $attributes['displayThumbnails'] ) && $attributes['displayThumbnails'],
@@ -1649,6 +1641,12 @@ EOT;
 	 * @return null
 	 */
 	protected function _action_frontend_init_page() {
+		$enqueue_script = (
+			! ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) &&
+			! has_block( 'jetpack/related-posts' ) &&
+			! Blocks::is_fse_theme()
+		);
+		$this->_enqueue_assets( $enqueue_script, true );
 		$this->_setup_shortcode();
 
 		add_filter( 'the_content', array( $this, 'filter_add_target_to_dom' ), 40 );
