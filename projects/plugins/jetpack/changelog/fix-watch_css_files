@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Adds admin / frontend CSS files to the build watcher.
