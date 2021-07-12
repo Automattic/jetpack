@@ -149,7 +149,7 @@ class Jetpack_Search_Customberg {
 		return (
 			! $is_offline_mode && // Must be online.
 			Jetpack::is_connection_ready() && // Must be connected.
-			defined( 'Jetpack_Plan' ) && Jetpack_Plan::supports( 'search' ) // Must have plan supporting Jetpack (Instant) Search.
+			method_exists( 'Jetpack_Plan', 'supports' ) && Jetpack_Plan::supports( 'search' ) // Must have plan supporting Jetpack (Instant) Search.
 		);
 	}
 }
