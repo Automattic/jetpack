@@ -8,7 +8,9 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { JetpackFooter } from '@automattic/jetpack-components';
 import restApi from 'rest-api';
+import getRedirectUrl from 'lib/jp-redirect';
 import Masthead from 'components/masthead';
 import LoadingPlaceHolder from 'components/loading-placeholder';
 import ModuleControl from './module-control';
@@ -19,7 +21,8 @@ import './style.scss';
  * State dependencies
  */
 import { isFetchingSitePurchases } from 'state/site';
-import { setInitialState, getApiNonce, getApiRootUrl } from 'state/initial-state';
+import { setInitialState, getApiNonce, getApiRootUrl, getSiteAdminUrl } from 'state/initial-state';
+import { getSiteConnectionStatus } from 'state/connection';
 
 const useComponentWillMount = func => {
 	// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -34,13 +37,23 @@ const useComponentWillMount = func => {
  */
 function SearchDashboard( props ) {
 	// NOTE: API root and nonce must be set before any components are mounted!
-	const { apiRootUrl, apiNonce, setInitialState: setSearchDashboardInitialState } = props;
+	const {
+		apiRootUrl,
+		apiNonce,
+		setInitialState: setSearchDashboardInitialState,
+		siteConnectionStatus,
+		siteAdminUrl,
+	} = props;
 
 	useComponentWillMount( () => {
 		apiRootUrl && restApi.setApiRoot( apiRootUrl );
 		apiNonce && restApi.setApiNonce( apiNonce );
 		setSearchDashboardInitialState && setSearchDashboardInitialState();
 	} );
+
+	const aboutPageUrl = siteConnectionStatus
+		? siteAdminUrl + 'admin.php?page=jetpack_about'
+		: getRedirectUrl( 'jetpack' );
 
 	return (
 		<Fragment>
@@ -63,6 +76,10 @@ function SearchDashboard( props ) {
 					</div>
 					<div className="jp-search-dashboard__bottom">
 						<ModuleControl />
+						<JetpackFooter
+							a8cLogoHref={ aboutPageUrl }
+							moduleName={ __( 'Jetpack Search', 'jetpack' ) }
+						/>
 					</div>
 				</Fragment>
 			) }
@@ -76,6 +93,8 @@ export default connect(
 			apiRootUrl: getApiRootUrl( state ),
 			apiNonce: getApiNonce( state ),
 			isLoading: isFetchingSitePurchases( state ),
+			siteAdminUrl: getSiteAdminUrl( state ),
+			siteConnectionStatus: getSiteConnectionStatus( state ),
 		};
 	},
 	{ setInitialState }
