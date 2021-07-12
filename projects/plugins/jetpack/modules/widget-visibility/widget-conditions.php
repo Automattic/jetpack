@@ -3,17 +3,30 @@
 use Automattic\Jetpack\Assets;
 
 /**
- * Hide or show widgets conditionally.
+ * Hide or show legacy widgets conditionally.
+ *
+ * This class has two responsiblities - administrating the conditions in which legacy widgets may be hidden or shown
+ * and hiding/showing the legacy widgets on the front-end of the site, depending upon the evaluation of those conditions.
+ *
+ * Administrating the conditions can be done in one of four different WordPress screens, plus direct use of the API and
+ * is supplemented with a legacy widget preview screen. The four different admin screens are
+ *
+ * Gutenberg widget experience - widget admin (widgets.php + API + legacy widget preview)
+ * Gutenberg widget experience - Customizer (customizer screen/API + API + legacy widget preview)
+ * Classic widget experience - widget admin (widgets.php + admin-ajax XHR requests)
+ * Classic widget experience - Customizer (customizer screen/API)
+ *
+ * An introduction to the API endpoints can be found here: https://make.wordpress.org/core/2021/06/29/rest-api-changes-in-wordpress-5-8/
  */
-
 class Jetpack_Widget_Conditions {
 	static $passed_template_redirect = false;
 
 	public static function init() {
 		global $pagenow;
 
-		// Previews don't need widget editing loaded and also don't want to run the filter - it might mean the preview
-		// is empty which would be confusing.
+		// The Gutenberg based widget experience will show a preview of legacy widgets by including a URL beginning
+		// widgets.php?legacy-widget-preview inside an iframe. Previews don't need widget editing loaded and also don't
+		// want to run the filter - if the widget is filtered out it'll be empty, which would be confusing.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['legacy-widget-preview'] ) ) {
 			return;
@@ -46,7 +59,7 @@ class Jetpack_Widget_Conditions {
 			$add_html_to_form        = true;
 			$handle_widget_updates   = true;
 		} else {
-			// On a page that is hosting the API.
+			// On a screen that is hosting the API in the gutenberg editing experience.
 			if ( is_customize_preview() || 'widgets.php' === $pagenow ) {
 				$add_data_assets_to_page = true;
 			}
