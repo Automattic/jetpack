@@ -110,7 +110,7 @@ class Jetpack_Search_Customberg {
 	 */
 	public function load_admin_scripts() {
 		$script_deps_path    = JETPACK__PLUGIN_DIR . '_inc/build/instant-search/jp-search-configure-main.bundle.asset.php';
-		$script_dependencies = array( 'react', 'wp-i18n', 'wp-polyfill' );
+		$script_dependencies = array();
 		if ( file_exists( $script_deps_path ) ) {
 			$asset_manifest      = include $script_deps_path;
 			$script_dependencies = $asset_manifest['dependencies'];
