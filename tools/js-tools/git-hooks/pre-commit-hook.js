@@ -5,6 +5,7 @@ const execSync = require( 'child_process' ).execSync;
 const spawnSync = require( 'child_process' ).spawnSync;
 const chalk = require( 'chalk' );
 const fs = require( 'fs' );
+const glob = require( 'glob' );
 let phpcsExcludelist = null;
 let eslintExcludelist = null;
 let exitCode = 0;
@@ -17,7 +18,7 @@ let exitCode = 0;
 function loadPhpcsExcludeList() {
 	if ( null === phpcsExcludelist ) {
 		phpcsExcludelist = JSON.parse(
-			fs.readFileSync( __dirname + '/../phpcs-excludelist.json', 'utf8' )
+			fs.readFileSync( __dirname + '/../../phpcs-excludelist.json', 'utf8' )
 		);
 	}
 	return phpcsExcludelist;
@@ -31,7 +32,7 @@ function loadPhpcsExcludeList() {
 function loadEslintExcludeList() {
 	if ( null === eslintExcludelist ) {
 		eslintExcludelist = JSON.parse(
-			fs.readFileSync( __dirname + '/../eslint-excludelist.json', 'utf8' )
+			fs.readFileSync( __dirname + '/../../eslint-excludelist.json', 'utf8' )
 		);
 	}
 	return eslintExcludelist;
@@ -119,10 +120,10 @@ function sortPackageJson( jsFiles ) {
 }
 
 const gitFiles = parseGitDiffToPathArray(
-	'git -c core.quotepath=off diff --cached --name-only --diff-filter=ACM'
+	'git -c core.quotepath=off diff --cached --name-only --diff-filter=ACMR'
 ).filter( Boolean );
 const dirtyFiles = parseGitDiffToPathArray(
-	'git -c core.quotepath=off diff --name-only --diff-filter=ACM'
+	'git -c core.quotepath=off diff --name-only --diff-filter=ACMR'
 ).filter( Boolean );
 const jsFiles = gitFiles.filter( filterJsFiles );
 const phpFiles = gitFiles.filter( name => name.endsWith( '.php' ) );
@@ -160,7 +161,7 @@ function runEslint( toLintFiles ) {
 
 	// Apply .eslintignore.
 	const ignore = require( 'ignore' )();
-	ignore.add( fs.readFileSync( __dirname + '/../../.eslintignore', 'utf8' ) );
+	ignore.add( fs.readFileSync( __dirname + '/../../../.eslintignore', 'utf8' ) );
 	toLintFiles = ignore.filter( toLintFiles );
 	if ( ! toLintFiles.length ) {
 		return;
@@ -315,7 +316,33 @@ function runCheckCopiedFiles() {
  * Check that renovate's ignore list is up to date.
  */
 function runCheckRenovateIgnoreList() {
-	const result = spawnSync( './tools/check-renovate-ignore-list.js', [], {
+	const result = spawnSync( './tools/js-tools/check-renovate-ignore-list.js', [], {
+		shell: true,
+		stdio: 'inherit',
+	} );
+	if ( result && result.status ) {
+		checkFailed( '' );
+	}
+}
+
+/**
+ * Lints GitHub Actions yaml files.
+ */
+function runCheckGitHubActionsYamlFiles() {
+	const options = {
+		cwd: __dirname + '/../../../',
+	};
+	const allFiles = new Set( [
+		...glob.sync( '.github/workflows/*.{yml,yaml}', options ),
+		...glob.sync( '.github/actions/*/action.{yml,yaml}', options ),
+		...glob.sync( 'projects/github-actions/*/action.{yml,yaml}', options ),
+	] );
+	const files = gitFiles.filter( f => allFiles.has( f ) );
+	if ( ! files.length ) {
+		return;
+	}
+
+	const result = spawnSync( './tools/js-tools/lint-gh-actions.js', files, {
 		shell: true,
 		stdio: 'inherit',
 	} );
@@ -338,6 +365,7 @@ function exit( exitCodePassed ) {
 
 runCheckCopiedFiles();
 runCheckRenovateIgnoreList();
+runCheckGitHubActionsYamlFiles();
 sortPackageJson( jsFiles );
 
 dirtyFiles.forEach( file =>
