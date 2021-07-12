@@ -60,7 +60,7 @@ class Jetpack_Search_Customberg {
 			null,
 			__( 'Search Settings', 'jetpack' ),
 			__( 'Search', 'jetpack' ),
-			'manage_options',
+			'manage_options', // Must be an admin.
 			'jetpack-search-customize',
 			array( $this, 'jetpack_search_admin_page' )
 		);
@@ -143,13 +143,12 @@ class Jetpack_Search_Customberg {
 	 *
 	 * @return boolean
 	 */
-	private function should_add_page() {
+	protected function should_add_page() {
 		$is_offline_mode = ( new Status() )->is_offline_mode();
 		return (
 			! $is_offline_mode && // Must be online.
 			Jetpack::is_connection_ready() && // Must be connected.
-			current_user_can( 'manage_options' ) && // Must be an admin.
-			Jetpack_Plan::supports( 'search' ) // Must have plan supporting Jetpack (Instant) Search.
+			defined( 'Jetpack_Plan' ) && Jetpack_Plan::supports( 'search' ) // Must have plan supporting Jetpack (Instant) Search.
 		);
 	}
 }
