@@ -69,8 +69,6 @@ class Jetpack_Search_Customberg {
 
 	/**
 	 * Prints the dashboard container.
-	 *
-	 * @access public
 	 */
 	public function jetpack_search_admin_page() {
 		// TODO: Spin this function off into a static helper function in a helper class for code reuse.
@@ -92,6 +90,9 @@ class Jetpack_Search_Customberg {
 
 	/**
 	 * Loads script and style assets according to parameters provided.
+	 *
+	 * @param string $path_prefix - Path prefix for built assets.
+	 * @param string $plugin_base_path - Base path for plugin files.
 	 */
 	public function load_assets_with_parameters( $path_prefix, $plugin_base_path ) {
 		$style_relative_path    = $path_prefix . '_inc/build/instant-search/jp-search-configure-main.bundle.css';
@@ -99,7 +100,7 @@ class Jetpack_Search_Customberg {
 		$script_relative_path   = $path_prefix . '_inc/build/instant-search/jp-search-configure-main.bundle.js';
 
 		//
-		// Load styles
+		// Load styles.
 		\Jetpack_Admin_Page::load_wrapper_styles();
 		wp_enqueue_style(
 			'jp-search-customize',
@@ -112,10 +113,10 @@ class Jetpack_Search_Customberg {
 		);
 
 		//
-		// Load scripts
+		// Load scripts.
 		$script_dependencies = array();
 		if ( file_exists( $manifest_relative_path ) ) {
-			$asset_manifest      = include $script_deps_path;
+			$asset_manifest      = include $script_dependencies;
 			$script_dependencies = $asset_manifest['dependencies'];
 		}
 
