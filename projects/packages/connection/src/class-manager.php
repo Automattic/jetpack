@@ -567,7 +567,7 @@ class Manager {
 	 * @return bool
 	 */
 	public function has_connected_user() {
-		return (bool) count( $this->get_tokens()->get_connected_users( 'any', true ) );
+		return (bool) count( $this->get_tokens()->get_connected_users( 'any', 1 ) );
 	}
 
 	/**
