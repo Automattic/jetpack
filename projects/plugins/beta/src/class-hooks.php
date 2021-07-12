@@ -320,6 +320,8 @@ class Hooks {
 			return;
 		}
 
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+
 		// If no managed plugins are active, we don't want to display anything.
 		$any = array();
 		foreach ( Plugin::get_plugin_file_map() as $nondev => $dev ) {
