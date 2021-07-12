@@ -498,8 +498,8 @@ class Tokens {
 	 * Returns an array of user_id's that have user tokens for communicating with wpcom.
 	 * Able to select by specific capability.
 	 *
-	 * @param string $capability The capability of the user.
-	 * @param int|null   $limit How many connected users to get before returning. 
+	 * @param string   $capability The capability of the user.
+	 * @param int|null $limit How many connected users to get before returning.
 	 * @return array Array of WP_User objects if found.
 	 */
 	public function get_connected_users( $capability = 'any', $limit = null ) {
