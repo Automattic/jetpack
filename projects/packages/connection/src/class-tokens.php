@@ -587,4 +587,29 @@ class Tokens {
 
 		return join( ' ', $header_pieces );
 	}
+
+	/**
+	 * Gets the list of user tokens
+	 *
+	 * @since 9.9.1
+	 *
+	 * @return bool|array An array of user tokens where keys are user IDs and values are the tokens. False if no user token is found.
+	 */
+	public function get_user_tokens() {
+		return Jetpack_Options::get_option( 'user_tokens' );
+	}
+
+	/**
+	 * Updates the option that stores the user tokens
+	 *
+	 * @since 9.9.1
+	 *
+	 * @param array $tokens An array of user tokens where keys are user IDs and values are the tokens.
+	 * @return bool Was the option successfully updated?
+	 *
+	 * @todo add validate the input.
+	 */
+	public function update_user_tokens( $tokens ) {
+		return Jetpack_Options::update_option( 'user_tokens', $tokens );
+	}
 }
