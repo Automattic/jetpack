@@ -1641,15 +1641,24 @@ EOT;
 	 * @return null
 	 */
 	protected function _action_frontend_init_page() {
-		$enqueue_script = (
+		$this->_enqueue_assets( true, true );
+		$this->_setup_shortcode();
+
+		add_filter( 'the_content', array( $this, 'filter_add_target_to_dom' ), 40 );
+	}
+
+
+	/**
+	 * Determines if the scripts need be enqueued.
+	 *
+	 * @return bool
+	 */
+	protected function _requires_scripts() {
+		return (
 			! ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) &&
 			! has_block( 'jetpack/related-posts' ) &&
 			! Blocks::is_fse_theme()
 		);
-		$this->_enqueue_assets( $enqueue_script, true );
-		$this->_setup_shortcode();
-
-		add_filter( 'the_content', array( $this, 'filter_add_target_to_dom' ), 40 );
 	}
 
 	/**
@@ -1660,7 +1669,8 @@ EOT;
 	 */
 	protected function _enqueue_assets( $script, $style ) {
 		$dependencies = is_customize_preview() ? array( 'customize-base' ) : array();
-		if ( $script ) {
+		// Do not enqueue scripts unless they are required.
+		if ( $script && _requires_scripts() ) {
 			wp_enqueue_script(
 				'jetpack_related-posts',
 				Assets::get_file_url_for_environment(
