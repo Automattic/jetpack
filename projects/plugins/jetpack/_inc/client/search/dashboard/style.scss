@@ -46,12 +46,12 @@
 		top: 25rem;
 		min-height: 20rem;
 
-		background-color: #fff;
+		background-color: $white;
 		z-index: 1;
-
-		@media screen and ( min-width: 480px ) and ( min-height: 700px ) {
+		// In order to show WP footer, we need to sync the breakpoint.
+		@media screen and ( min-width: 782px ) and ( min-height: 700px ) {
 			top: 50vh;
-			height: 48vh;
+			height: calc( 48vh - 51px );
 		}
 	}
 
