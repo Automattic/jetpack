@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Added second parameter to Tokens::get_connected_users to allow any connected user to be returned.
