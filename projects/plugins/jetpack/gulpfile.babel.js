@@ -8,8 +8,11 @@ import { spawn } from 'child_process';
 /**
  * Internal dependencies
  */
-import frontendcss from './tools/builder/frontend-css';
-import admincss from './tools/builder/admin-css';
+import frontendcss, {
+	frontendCSSSeparateFilesList,
+	frontendCSSConcatFilesList,
+} from './tools/builder/frontend-css';
+import admincss, { adminCSSFiles } from './tools/builder/admin-css';
 import { watch as react_watch, build as react_build } from './tools/builder/react';
 import {
 	watch as sass_watch,
@@ -18,7 +21,15 @@ import {
 } from './tools/builder/sass';
 
 gulp.task( 'old-styles:watch', function () {
-	return gulp.watch( 'scss/**/*.scss', gulp.parallel( 'old-styles' ) );
+	return gulp.watch(
+		[
+			'scss/**/*.scss',
+			...adminCSSFiles,
+			...frontendCSSSeparateFilesList,
+			...frontendCSSConcatFilesList,
+		],
+		gulp.parallel( 'old-styles' )
+	);
 } );
 
 gulp.task( 'blocks:watch', function () {
