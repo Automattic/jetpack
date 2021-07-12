@@ -16,6 +16,7 @@ import SettingsGroup from 'components/settings-group';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import Button from 'components/button';
 import { getPlanClass } from 'lib/plans/constants';
+import InstantSearchUpsellNudge from './instant-search-upsell-nudge';
 import './module-control.scss';
 
 /**
@@ -84,6 +85,7 @@ function Search( props ) {
 	const togglingModule = !! props.isSavingAnyOption( 'search' );
 	const togglingInstantSearch = !! props.isSavingAnyOption( 'instant_search_enabled' );
 	const isSavingEitherOption = togglingModule || togglingInstantSearch;
+	const hasOnlyLegacySearch = props.isBusinessPlan && ! props.hasActiveSearchPurchase;
 
 	const isInstantSearchCustomizeButtonDisabled =
 		isSavingEitherOption ||
@@ -161,10 +163,15 @@ function Search( props ) {
 								{ __( 'Enable instant search experience (recommended)', 'jetpack' ) }
 							</CompactFormToggle>
 							<div className="jp-form-search-settings-group__toggle-description">
-								<p className="jp-form-search-settings-group__toggle-explanation">
-									{ INSTANT_SEARCH_DESCRIPTION }
-								</p>
-								{ renderInstantSearchButtons() }
+								{ ! hasOnlyLegacySearch && (
+									<Fragment>
+										<p className="jp-form-search-settings-group__toggle-explanation">
+											{ INSTANT_SEARCH_DESCRIPTION }
+										</p>
+										{ renderInstantSearchButtons() }
+									</Fragment>
+								) }
+								{ hasOnlyLegacySearch && <InstantSearchUpsellNudge href={ props.upgradeUrl } /> }
 							</div>
 						</div>
 					</Fragment>
