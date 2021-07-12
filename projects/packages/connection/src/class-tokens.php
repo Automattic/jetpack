@@ -498,39 +498,16 @@ class Tokens {
 	 * Returns an array of user_id's that have user tokens for communicating with wpcom.
 	 * Able to select by specific capability.
 	 *
-	 * @since 9.9.1 Added $limit parameter.
+	 * @deprecated 9.9.1
+	 * @see Manager::get_connected_users
 	 *
 	 * @param string   $capability The capability of the user.
 	 * @param int|null $limit How many connected users to get before returning.
 	 * @return array Array of WP_User objects if found.
 	 */
 	public function get_connected_users( $capability = 'any', $limit = null ) {
-		$connected_users = array();
-		$user_tokens     = Jetpack_Options::get_option( 'user_tokens' );
-
-		if ( ! is_array( $user_tokens ) || empty( $user_tokens ) ) {
-			return $connected_users;
-		}
-		$connected_user_ids = array_keys( $user_tokens );
-
-		if ( ! empty( $connected_user_ids ) ) {
-			foreach ( $connected_user_ids as $id ) {
-				// Check for capability.
-				if ( 'any' !== $capability && ! user_can( $id, $capability ) ) {
-					continue;
-				}
-
-				$user_data = get_userdata( $id );
-				if ( $user_data instanceof \WP_User ) {
-					$connected_users[] = $user_data;
-					if ( $limit && count( $connected_users ) >= $limit ) {
-						return $connected_users;
-					}
-				}
-			}
-		}
-
-		return $connected_users;
+		_deprecated_function( __METHOD__, 'jetpack-9.9.1' );
+		return ( new Manager( 'jetpack' ) )->get_connected_users( $capability, $limit );
 	}
 
 	/**
