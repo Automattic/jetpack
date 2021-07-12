@@ -33,7 +33,7 @@ class Jetpack_Search_Customberg {
 	 */
 	public static function instance() {
 		if ( ! isset( self::$instance ) ) {
-			self::$instance = new Jetpack_Search_Customberg();
+			self::$instance = new static();
 			self::$instance->init_hooks();
 		}
 
