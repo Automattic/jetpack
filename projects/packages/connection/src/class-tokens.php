@@ -259,7 +259,7 @@ class Tokens {
 	 */
 	public function update_user_token( $user_id, $token, $is_master_user ) {
 		// Not designed for concurrent updates.
-		$user_tokens = Jetpack_Options::get_option( 'user_tokens' );
+		$user_tokens = $this->get_user_tokens();
 		if ( ! is_array( $user_tokens ) ) {
 			$user_tokens = array();
 		}
@@ -356,7 +356,7 @@ class Tokens {
 	public function get_access_token( $user_id = false, $token_key = false, $suppress_errors = true ) {
 		$possible_special_tokens = array();
 		$possible_normal_tokens  = array();
-		$user_tokens             = Jetpack_Options::get_option( 'user_tokens' );
+		$user_tokens             = $this->get_user_tokens();
 
 		if ( $user_id ) {
 			if ( ! $user_tokens ) {
@@ -474,7 +474,7 @@ class Tokens {
 	 * @return Boolean Whether the disconnection of the user was successful.
 	 */
 	public function disconnect_user( $user_id, $can_overwrite_primary_user = false ) {
-		$tokens = Jetpack_Options::get_option( 'user_tokens' );
+		$tokens = $this->get_user_tokens();
 		if ( ! $tokens ) {
 			return false;
 		}
@@ -489,7 +489,7 @@ class Tokens {
 
 		unset( $tokens[ $user_id ] );
 
-		Jetpack_Options::update_option( 'user_tokens', $tokens );
+		$this->update_user_tokens( $tokens );
 
 		return true;
 	}
