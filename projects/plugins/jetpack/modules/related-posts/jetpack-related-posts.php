@@ -1647,7 +1647,6 @@ EOT;
 		add_filter( 'the_content', array( $this, 'filter_add_target_to_dom' ), 40 );
 	}
 
-
 	/**
 	 * Determines if the scripts need be enqueued.
 	 *
@@ -1670,7 +1669,7 @@ EOT;
 	protected function _enqueue_assets( $script, $style ) {
 		$dependencies = is_customize_preview() ? array( 'customize-base' ) : array();
 		// Do not enqueue scripts unless they are required.
-		if ( $script && _requires_scripts() ) {
+		if ( $script && $this->_requires_scripts() ) {
 			wp_enqueue_script(
 				'jetpack_related-posts',
 				Assets::get_file_url_for_environment(
