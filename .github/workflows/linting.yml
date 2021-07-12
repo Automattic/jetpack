@@ -453,7 +453,11 @@ jobs:
           which jq
           jq --version
 
-      - run: pnpm install
+      - name: Monorepo pnpm install
+        run: pnpm install
+      - name: Jetpack E2E tests pnpm install
+        working-directory: projects/plugins/jetpack/tests/e2e
+        run: pnpm install
       - run: pnpx jetpack install --all -v # Ensure there are no unresolved import errors.
       - run: pnpm run lint-required
 
@@ -533,7 +537,11 @@ jobs:
           which jq
           jq --version
 
-      - run: pnpm install
+      - name: Monorepo pnpm install
+        run: pnpm install
+      - name: Jetpack E2E tests pnpm install
+        working-directory: projects/plugins/jetpack/tests/e2e
+        run: pnpm install
       - run: pnpx jetpack install --all -v # Ensure there are no unresolved import errors.
       - name: Run eslint-changed
         env:
@@ -665,7 +673,11 @@ jobs:
           jq --version
 
       - run: composer install
-      - run: pnpm install
+      - name: Monorepo pnpm install
+        run: pnpm install
+      - name: Jetpack E2E tests pnpm install
+        working-directory: projects/plugins/jetpack/tests/e2e
+        run: pnpm install
       - run: pnpx jetpack install --all -v # Ensure there are no unresolved import errors.
 
       - name: Cleanup excludelists
