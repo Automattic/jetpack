@@ -85,6 +85,7 @@ function Search( props ) {
 	const togglingModule = !! props.isSavingAnyOption( 'search' );
 	const togglingInstantSearch = !! props.isSavingAnyOption( 'instant_search_enabled' );
 	const isSavingEitherOption = togglingModule || togglingInstantSearch;
+	// Site has Legacy Search included in Business plan but doesn't have Jetpack Search subscription.
 	const hasOnlyLegacySearch = props.isBusinessPlan && ! props.hasActiveSearchPurchase;
 
 	const isInstantSearchCustomizeButtonDisabled =
