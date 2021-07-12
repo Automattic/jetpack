@@ -499,9 +499,10 @@ class Tokens {
 	 * Able to select by specific capability.
 	 *
 	 * @param string $capability The capability of the user.
+	 * @param bool $is_any_user_connected Set to true to return when a single connected user is found
 	 * @return array Array of WP_User objects if found.
 	 */
-	public function get_connected_users( $capability = 'any' ) {
+	public function get_connected_users( $capability = 'any', $is_any_user_connected = false ) {
 		$connected_users = array();
 		$user_tokens     = Jetpack_Options::get_option( 'user_tokens' );
 
@@ -520,6 +521,9 @@ class Tokens {
 				$user_data = get_userdata( $id );
 				if ( $user_data instanceof \WP_User ) {
 					$connected_users[] = $user_data;
+					if ( $is_any_user_connected ) {
+						return $connected_users;
+					}
 				}
 			}
 		}
