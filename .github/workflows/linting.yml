@@ -68,6 +68,7 @@ jobs:
               # If any JS file changed, they need checking.
               - added|modified:
                 - '**.cjs'
+                - '**.mjs'
                 - '**.js'
                 - '**.jsx'
             excludelist:
