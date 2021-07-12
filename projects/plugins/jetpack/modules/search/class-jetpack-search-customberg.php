@@ -13,10 +13,6 @@ use Jetpack;
 use Jetpack_Plan;
 use Jetpack_Search_Helpers;
 
-
-require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-admin-page.php';
-require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-redux-state-helper.php';
-
 /**
  * Responsible for adding a search customization interface to wp-admin.
  *
