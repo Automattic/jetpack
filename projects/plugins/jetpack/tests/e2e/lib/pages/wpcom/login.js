@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import getRedirectUrl from '../../../../../_inc/client/lib/jp-redirect';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies

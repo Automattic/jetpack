@@ -11,6 +11,7 @@ import { get } from 'lodash';
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -20,7 +21,6 @@ import Card from 'components/card';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import DashItem from 'components/dash-item';
 import { getAkismetData } from 'state/at-a-glance';
-import getRedirectUrl from 'lib/jp-redirect';
 import { getSitePlan } from 'state/site';
 import { getApiNonce, getUpgradeUrl } from 'state/initial-state';
 import { getJetpackProductUpsellByFeature, FEATURE_SPAM_AKISMET_PLUS } from 'lib/plans/constants';
