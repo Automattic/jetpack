@@ -35,7 +35,7 @@ export default function JetpackFooter( {
 			</div>
 			<div className="jp-dashboard-footer__footer-right">
 				<a href={ a8cLogoHref }>
-					<AutomatticBylineLogo title={ __( 'An Automattic Airline', 'jetpack' ) } />
+					<AutomatticBylineLogo />
 				</a>
 			</div>
 		</div>
