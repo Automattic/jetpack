@@ -930,9 +930,8 @@
 
 			if ( caption || title || desc ) {
 				if ( caption ) {
-					var safeCaption = domUtil.stripHTML( caption );
-					captionMainElement.innerHTML = safeCaption;
-					captionInfoExtraElement.innerHTML = safeCaption;
+					captionMainElement.innerHTML = caption;
+					captionInfoExtraElement.innerHTML = caption;
 
 					domUtil.show( captionMainElement );
 					domUtil.show( captionInfoExtraElement );
