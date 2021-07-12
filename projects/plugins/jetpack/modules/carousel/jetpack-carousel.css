@@ -107,7 +107,7 @@ so we have to target all affected elements in touch devices.
 
 .jp-carousel-overlay .swiper-container.swiper-container-rtl .swiper-button-prev,
 .jp-carousel-overlay .swiper-container.swiper-container-rtl .swiper-button-next {
-    transform: scaleX( -1 );
+	transform: scaleX( -1 );
 }
 
 .jp-carousel-container {
