@@ -1652,7 +1652,7 @@ EOT;
 	 *
 	 * @return bool
 	 */
-	protected function _requires_scripts() {
+	protected function requires_scripts() {
 		return (
 			! ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) &&
 			! has_block( 'jetpack/related-posts' ) &&
@@ -1669,7 +1669,7 @@ EOT;
 	protected function _enqueue_assets( $script, $style ) {
 		$dependencies = is_customize_preview() ? array( 'customize-base' ) : array();
 		// Do not enqueue scripts unless they are required.
-		if ( $script && $this->_requires_scripts() ) {
+		if ( $script && $this->requires_scripts() ) {
 			wp_enqueue_script(
 				'jetpack_related-posts',
 				Assets::get_file_url_for_environment(
