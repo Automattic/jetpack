@@ -184,11 +184,31 @@
 				return;
 			}
 
+			// For iOS Safari compatibility, use JS to set the minimum height.
+			var extraInfoArea = container.querySelector( '.jp-carousel-info-extra' );
+			if ( extraInfoArea ) {
+				extraInfoArea.style.minHeight = window.innerHeight - 64 + 'px';
+			}
+			var extraInfoContentArea = container.querySelector( '.jp-carousel-info-content-wrapper' );
+			var extraInfoContentAreaHeight = extraInfoContentArea
+				? extraInfoContentArea.offsetHeight
+				: window.innerHeight;
+
+			var isScrolling = true;
 			var startTime = Date.now();
 			var duration = 500;
 			var originalPosition = container.scrollTop;
-			var distance = el.offsetTop - container.scrollTop;
+			var targetPosition = Math.max(
+				0,
+				el.offsetTop -
+					Math.max( 0, window.innerHeight - ( extraInfoContentAreaHeight + 64 + 15 + 35 ) ) // Subtract footer height plus content area padding.
+			);
+			var distance = targetPosition - container.scrollTop;
 			distance = Math.min( distance, container.scrollHeight - window.innerHeight );
+
+			function stopScroll() {
+				isScrolling = false;
+			}
 
 			function runScroll() {
 				var now = Date.now();
@@ -198,14 +218,18 @@
 				var newVal = progress * distance;
 				container.scrollTop = originalPosition + newVal;
 
-				if ( now <= startTime + duration ) {
+				if ( now <= startTime + duration && isScrolling ) {
 					return requestAnimationFrame( runScroll );
 				}
 				if ( callback ) {
 					callback();
 				}
+				isScrolling = false;
+				container.removeEventListener( 'wheel', stopScroll );
 			}
 
+			// Allow scroll to be cancelled by user interaction.
+			container.addEventListener( 'wheel', stopScroll );
 			runScroll();
 		}
 
