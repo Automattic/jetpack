@@ -158,20 +158,15 @@ const composeExecutor = ( argv, opts, envOpts ) => {
 /**
  * Builds an array of compose files matching configuration options.
  *
- * @param {object} argv - Yargs
  * @returns {Array} Array of shell arguments
  */
-const buildComposeFiles = argv => {
+const buildComposeFiles = () => {
 	const defaultCompose = [ `-f${ dockerFolder }/docker-compose.yml` ];
 	const extendFiles = [
 		`-f${ dockerFolder }/compose-mappings.built.yml`,
 		`-f${ dockerFolder }/compose-extras.built.yml`,
 	];
-	const compose = defaultCompose;
-	if ( argv.type !== 'e2e' ) {
-		compose.push( `-f${ dockerFolder }/docker-compose.dev.yml` );
-	}
-	return compose.concat( extendFiles );
+	return defaultCompose.concat( extendFiles );
 };
 
 /**
@@ -181,7 +176,7 @@ const buildComposeFiles = argv => {
  * @returns {Array} Array of options required for specified command
  */
 const buildDefaultCmd = argv => {
-	const opts = buildComposeFiles( argv );
+	const opts = buildComposeFiles();
 	if ( argv._[ 1 ] === 'up' ) {
 		opts.push( 'up' );
 		if ( argv.detached ) {
@@ -252,7 +247,7 @@ const defaultDockerCmdHandler = argv => {
  * @returns {Array} Array of options required for specified command
  */
 const buildExecCmd = argv => {
-	const opts = buildComposeFiles( argv );
+	const opts = buildComposeFiles();
 	opts.push( 'exec', 'wordpress' );
 	const cmd = argv._[ 1 ];
 
