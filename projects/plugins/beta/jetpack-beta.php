@@ -55,7 +55,7 @@ if ( is_readable( $jetpack_beta_autoloader ) ) {
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			sprintf(
-			/* translators: Placeholder is a link to a support document. */
+				/* translators: Placeholder is a link to a support document. */
 				__( 'Your installation of Jetpack Beta is incomplete. If you installed Jetpack Beta from GitHub, please refer to this document to set up your development environment: %1$s', 'jetpack-beta' ),
 				'https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md'
 			)
@@ -63,9 +63,9 @@ if ( is_readable( $jetpack_beta_autoloader ) ) {
 	}
 
 	/**
-	 * Outputs an admin notice for folks running Jetpack without having run composer install.
+	 * Outputs an admin notice for folks running Jetpack Beta without having run composer install.
 	 *
-	 * @since 7.4.0
+	 * @since 3.0.0
 	 */
 	function jetpack_beta_admin_missing_autoloader() {
 		?>
@@ -74,8 +74,8 @@ if ( is_readable( $jetpack_beta_autoloader ) ) {
 				<?php
 				printf(
 					wp_kses(
-					/* translators: Placeholder is a link to a support document. */
-						__( 'Your installation of Jetpack Beta is incomplete. If you installed Jetpack Beta from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment.', 'jetpack' ),
+						/* translators: Placeholder is a link to a support document. */
+						__( 'Your installation of Jetpack Beta is incomplete. If you installed Jetpack Beta from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment.', 'jetpack-beta' ),
 						array(
 							'a' => array(
 								'href'   => array(),
