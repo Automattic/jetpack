@@ -7,8 +7,8 @@ import path from 'path';
 import chalk from 'chalk';
 
 export const dockerFolder = `tools/docker`;
-const overrideConfigFile = 'jetpack-docker-config.json';
-const defaultConfigFile = `${ dockerFolder }/jetpack-docker-config-default.json`;
+const overrideConfigFile = `${ dockerFolder }/jetpack-docker-config.yml`;
+const defaultConfigFile = `${ dockerFolder }/jetpack-docker-config-default.yml`;
 
 /**
  * Recursively merges two plain JSON objects. It would not work on complex objects, circular links, etc.
@@ -111,14 +111,14 @@ const getDeprecatedExtras = config => {
  * @returns {object} config
  */
 const getConfig = () => {
-	let json = JSON.parse( readFileSync( defaultConfigFile, 'utf8' ) );
+	let json = yaml.load( readFileSync( defaultConfigFile, 'utf8' ) );
 
 	// compose-volumes and compose-extras are deprecated. TODO: Remove it in few months.
 	json = getDeprecatedVolumesMapping( json );
 	json = getDeprecatedExtras( json );
 
 	if ( existsSync( overrideConfigFile ) ) {
-		const overrideConfig = JSON.parse( readFileSync( overrideConfigFile, 'utf8' ) );
+		const overrideConfig = yaml.load( readFileSync( overrideConfigFile, 'utf8' ) );
 		json = mergeJson( json, overrideConfig );
 		// json = merge( json, overrideConfig );
 	}

@@ -16,6 +16,7 @@ vendor/
 /tools/docker/compose-volumes.built.yml
 /tools/docker/compose-extras.built.yml
 /tools/docker/compose-mappings.built.yml
+/tools/docker/jetpack-docker-config.yml
 
 # File for personal customiziations, if desired.
 /tools/docker/mu-plugins/0-sandbox.php
@@ -29,7 +30,6 @@ npm-debug.log
 .pnpm-debug.log
 phpcs.xml
 .phpunit.result.cache
-jetpack-docker-config.json
 
 ## Things for docker-composer
 /tools/docker/data/*
