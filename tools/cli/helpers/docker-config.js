@@ -58,7 +58,7 @@ const getDeprecatedVolumesMapping = config => {
 	const volumes = yaml.load( readFileSync( volumesFile, 'utf8' ) );
 	console.warn(
 		chalk.yellow(
-			`[WARNING] Using configuration defined in ${ volumesFile }. This approach in deprecated in favor of 'jetpack-docker-config.json'. This configuration method would be removed in further versions`
+			`[WARNING] Using configuration defined in ${ volumesFile }. This approach in deprecated in favor of 'jetpack-docker-config.json'. This configuration method will be removed in a future version`
 		)
 	);
 
@@ -91,7 +91,7 @@ const getDeprecatedExtras = config => {
 	const extras = yaml.load( readFileSync( extrasFile, 'utf8' ) );
 	console.warn(
 		chalk.yellow(
-			`[WARNING] Using configuration defined in ${ extrasFile }. This approach in deprecated in favor of 'jetpack-docker-config.json'. This configuration method would be removed in further versions`
+			`[WARNING] Using configuration defined in ${ extrasFile }. This approach in deprecated in favor of 'jetpack-docker-config.json'. This configuration method will be removed in a future version`
 		)
 	);
 	delete extras.version;
@@ -120,7 +120,6 @@ const getConfig = () => {
 	if ( existsSync( overrideConfigFile ) ) {
 		const overrideConfig = yaml.load( readFileSync( overrideConfigFile, 'utf8' ) );
 		json = mergeJson( json, overrideConfig );
-		// json = merge( json, overrideConfig );
 	}
 
 	// For end user convenience, jetpack-docker-config expect to have mappings relative to repo root, but in docker-compose file we actually want to have these mappings relative to tools/docker.
