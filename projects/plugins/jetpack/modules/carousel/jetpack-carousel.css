@@ -364,6 +364,10 @@ div.jp-carousel-buttons a:hover {
 	text-overflow: ellipsis;
 }
 
+.jp-carousel-info-footer .jp-carousel-photo-caption p {
+	margin: 0;
+}
+
 .jp-carousel-photo-title {
 	font-size: 32px;
 	margin-bottom: 2px;
@@ -431,6 +435,7 @@ div.jp-carousel-buttons a:hover {
 	font-weight: normal;
 	margin: 0;
 }
+
 /** Title and Desc End **/
 
 /** Meta Box Start **/

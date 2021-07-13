@@ -1246,11 +1246,24 @@
 			Array.prototype.forEach.call( items, function ( item, i ) {
 				var permalinkEl = domUtil.closest( item, 'a' );
 				var origFile = item.getAttribute( 'data-orig-file' ) || item.getAttribute( 'src-orig' );
+				var attrID =
+					item.getAttribute( 'data-attachment-id' ) || item.getAttribute( 'data-id' ) || '0';
+
+				var caption = '';
+				if ( item.getAttribute( 'data-image-caption' ) ) {
+					caption = item.getAttribute( 'data-image-caption' );
+				} else {
+					var domCaption = document.querySelector(
+						'img[data-attachment-id="' + attrID + '"] + figcaption'
+					);
+					if ( domCaption ) {
+						caption = domCaption.innerHTML;
+					}
+				}
 
 				var attrs = {
 					originalElement: item,
-					attachmentId:
-						item.getAttribute( 'data-attachment-id' ) || item.getAttribute( 'data-id' ) || '0',
+					attachmentId: attrID,
 					commentsOpened: item.getAttribute( 'data-comments-opened' ) || '0',
 					imageMeta: domUtil.getJSONAttribute( item, 'data-image-meta' ) || {},
 					title: item.getAttribute( 'data-image-title' ) || '',
@@ -1259,7 +1272,7 @@
 					largeFile: item.getAttribute( 'data-large-file' ) || '',
 					origFile: origFile || '',
 					thumbSize: { width: item.naturalWidth, height: item.naturalHeight },
-					caption: item.getAttribute( 'data-image-caption' ) || '',
+					caption: caption,
 					permalink: permalinkEl && permalinkEl.getAttribute( 'href' ),
 					src: origFile || item.getAttribute( 'src' ) || '',
 				};
