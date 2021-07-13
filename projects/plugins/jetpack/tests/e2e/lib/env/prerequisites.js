@@ -95,20 +95,10 @@ export async function ensurePlan( plan = undefined ) {
 	await syncJetpackPlanData( plan, true );
 }
 
-export async function ensureUserIsLoggedIn( loggedIn = undefined ) {
-	// if ( loggedIn ) {
-	// 	logger.prerequisites( 'Ensuring user is logged in' );
-	// } else {
-	// 	logger.prerequisites( 'Ensuring user is logged out' );
-	// }
+export async function ensureUserIsLoggedIn() {
 	await loginToWpSite( true );
 }
 
-export async function ensureWpComUserIsLoggedIn( loggedIn = undefined ) {
+export async function ensureWpComUserIsLoggedIn() {
 	await loginToWpCom( 'defaultUser', true );
-	// if ( loggedIn ) {
-	// 	logger.prerequisites( 'Ensuring wordpress.com user is logged in' );
-	// } else {
-	// 	logger.prerequisites( 'Ensuring wordpress.com user is logged out' );
-	// }
 }
