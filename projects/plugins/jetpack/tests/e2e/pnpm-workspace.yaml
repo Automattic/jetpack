@@ -1,3 +1,1 @@
-packages:
-  - '../../../../js-packages/*'
-  - '../../../../../tools/js-test-runner'
+# This file is only created so that tests don't look up the pnpm-workspace.yaml in the root

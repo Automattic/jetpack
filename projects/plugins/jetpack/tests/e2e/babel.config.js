@@ -7,8 +7,6 @@ module.exports = {
 					node: 'current',
 				},
 			},
-			'@babel/preset-react',
 		],
 	],
-	plugins: [ '@babel/plugin-transform-react-jsx', 'babel-plugin-transform-scss' ],
 };
