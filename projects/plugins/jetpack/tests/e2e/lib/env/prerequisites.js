@@ -1,6 +1,7 @@
 import logger from '../logger';
 import { isBlogTokenSet, syncJetpackPlanData } from '../flows/jetpack-connect';
 import {
+	activateModule,
 	execMultipleWpCommands,
 	execWpCommand,
 	getAccountCredentials,
@@ -17,6 +18,7 @@ export async function prerequisites(
 		wpComLoggedIn: undefined,
 		connected: undefined,
 		plan: undefined, // 'free', 'complete', etc
+		modules: [], // [ { search: true } ]
 		clean: undefined, // reset env
 	}
 ) {
@@ -25,6 +27,7 @@ export async function prerequisites(
 		wpComLoggedIn: () => ensureWpComUserIsLoggedIn( state.loggedId ),
 		connected: () => ensureConnectedState( state.connected ),
 		plan: () => ensurePlan( state.plan ),
+		modules: () => ensureModulesState( state.modules ),
 		clean: () => ensureCleanState( state.clean ),
 	};
 
@@ -101,4 +104,26 @@ export async function ensureUserIsLoggedIn() {
 
 export async function ensureWpComUserIsLoggedIn() {
 	await loginToWpCom( 'defaultUser', true );
+}
+
+export async function ensureModulesState( modules = [] ) {
+	for ( const module of modules ) {
+		const moduleName = Object.keys( module )[ 0 ];
+
+		if ( module.moduleName ) {
+			await execWpCommand( `wp jetpack module activate ${ moduleName }` );
+			expect( isModuleActive( moduleName ) ).toBeTruthy();
+		} else {
+			await execWpCommand( `wp jetpack module deactivate ${ moduleName }` );
+			expect( isModuleActive( moduleName ) ).toBeFalsy();
+		}
+	}
+}
+
+async function isModuleActive( module ) {
+	const modulesList = JSON.parse(
+		await execWpCommand( 'wp option get jetpack_active_modules --format=json' )
+	);
+
+	return modulesList.includes( module );
 }

@@ -26,11 +26,10 @@ describe( 'Search', () => {
 	let backupSidebarsWidgets;
 
 	beforeAll( async () => {
-		await prerequisites( { connected: true, plan: 'complete' } );
+		await prerequisites( { connected: true, plan: 'complete', modules: [ { search: true } ] } );
 
 		backupSidebarsWidgets = await getSidebarsWidgets();
-		// await syncJetpackPlanData( 'complete' );
-		await activateModule( page, 'search' );
+		// await activateModule( page, 'search' );
 		await enableInstantSearch();
 		await setupSidebarsWidgets();
 		await setupSearchWidget();
@@ -38,7 +37,8 @@ describe( 'Search', () => {
 
 	afterAll( async () => {
 		await setupSidebarsWidgets( backupSidebarsWidgets );
-		await disableSearchModule();
+		await prerequisites( { modules: [ { search: false } ] } );
+		// await disableSearchModule();
 		await disableInstantSearch();
 	} );
 

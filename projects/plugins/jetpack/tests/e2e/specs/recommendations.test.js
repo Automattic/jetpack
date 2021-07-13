@@ -1,7 +1,6 @@
 import { step } from '../lib/env/test-setup';
 import RecommendationsPage from '../lib/pages/wp-admin/recommendations';
 import { prerequisites } from '../lib/env/prerequisites';
-import { activateModule } from '../lib/utils-helper';
 
 /**
  *
