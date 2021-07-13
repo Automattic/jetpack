@@ -56,8 +56,10 @@ so we have to target all affected elements in touch devices.
 	opacity: 1;
 }
 
+.jp-carousel-overlay .swiper-button-next:after,
+.jp-carousel-overlay .swiper-container-rtl .swiper-button-next:after,
 .jp-carousel-overlay .swiper-button-prev:after,
-.jp-carousel-overlay .swiper-button-next:after {
+.jp-carousel-overlay .swiper-container-rtl .swiper-button-prev:after {
 	content: none;
 }
 
@@ -96,10 +98,16 @@ so we have to target all affected elements in touch devices.
 }
 
 .jp-carousel-overlay .swiper-container .swiper-button-prev {
-	left: 0px;
+	left: 0;
 }
+
 .jp-carousel-overlay .swiper-container .swiper-button-next {
-	right: 0px;
+	right: 0;
+}
+
+.jp-carousel-overlay .swiper-container.swiper-container-rtl .swiper-button-prev,
+.jp-carousel-overlay .swiper-container.swiper-container-rtl .swiper-button-next {
+	transform: scaleX( -1 );
 }
 
 .jp-carousel-container {
@@ -279,22 +287,6 @@ div.jp-carousel-buttons a:hover {
 
 .jp-carousel-close-hint:hover span {
 	border-color: #fff;
-}
-
-div.jp-carousel-buttons a.jp-carousel-commentlink,
-div.jp-carousel-buttons a.jp-carousel-commentlink {
-	margin: 0 14px 0 0 !important;
-	background-position: 0px -156px;
-	padding-left: 19px !important;
-}
-
-@media only screen and ( -webkit-min-device-pixel-ratio: 1.5 ),
-	only screen and ( -o-min-device-pixel-ratio: 3/2 ),
-	only screen and ( min--moz-device-pixel-ratio: 1.5 ),
-	only screen and ( min-device-pixel-ratio: 1.5 ) {
-	div.jp-carousel-buttons a.jp-carousel-commentlink {
-		background-image: url( ./images/carousel-sprite-2x.png?5 );
-	}
 }
 
 /** Pagination Start **/
@@ -480,7 +472,6 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 }
 
 a.jp-carousel-image-download {
-	padding-left: 23px;
 	display: inline-block;
 	clear: both;
 	color: #999;
@@ -506,12 +497,6 @@ a.jp-carousel-image-download span.photo-size {
 
 a.jp-carousel-image-download span.photo-size-times {
 	padding: 0 1px 0 2px;
-}
-
-a.jp-carousel-image-download:hover {
-	background-position: 0 -122px;
-	color: #fff;
-	border: none !important;
 }
 
 /** Meta Box End **/
@@ -775,9 +760,6 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	border: none;
 	margin: 20px 0 0 0;
 	padding: 0;
-}
-
-#jp-carousel-comment-form-commenting-as fieldset {
 	clear: both;
 }
 
@@ -923,10 +905,6 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	color: #f1831e;
 }
 
-.jp-carousel-light div.jp-carousel-buttons a.jp-carousel-commentlink {
-	background-position: 0px -176px;
-}
-
 .jp-carousel-light #jp-carousel-comment-form-button-submit {
 	color: black;
 	border: solid 1px black;
@@ -1056,7 +1034,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 }
 
 .jp-carousel-icon-btn {
-	padding: 16px 16px;
+	padding: 16px;
 	text-decoration: none;
 	border: none;
 	background: none;
@@ -1103,6 +1081,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	color: #000;
 	font-weight: normal;
 	font-family: 'Helvetica Neue', sans-serif !important;
+	position: relative;
 }
 
 .jp-carousel-light .jp-carousel-icon .jp-carousel-has-comments-indicator {
