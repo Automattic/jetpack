@@ -955,7 +955,16 @@
 				}
 
 				if ( title ) {
-					titleElement.innerHTML = domUtil.convertToPlainText( title );
+					var plainTitle = domUtil.convertToPlainText( title );
+					titleElement.innerHTML = plainTitle;
+
+					if ( ! caption ) {
+						captionMainElement.innerHTML = plainTitle;
+						captionInfoExtraElement.innerHTML = plainTitle;
+
+						domUtil.show( captionMainElement );
+					}
+
 					domUtil.show( titleElement );
 				}
 			}
