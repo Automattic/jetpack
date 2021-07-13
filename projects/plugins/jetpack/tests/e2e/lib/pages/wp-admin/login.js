@@ -17,16 +17,16 @@ export default class WPLoginPage extends WpPage {
 		return ! ( await new PageActions( page ).isElementVisible( '#user_login' ) );
 	}
 
+	static async isJetpackSSO( page ) {
+		return ! ( await new PageActions( page ).isElementVisible( 'jetpack-sso-wrap' ) );
+	}
+
 	async login(
 		username = config.WP_ADMIN_USER.username,
 		password = config.WP_ADMIN_USER.password,
 		{ retry = true } = {}
 	) {
 		logger.step( 'Log in to wp-admin' );
-		const ssoLoginButton = '.jetpack-sso.button';
-		if ( ( await this.page.$( ssoLoginButton ) ) !== null ) {
-			await this.toggleSSOLogin();
-		}
 
 		await this.fill( '#user_login', username );
 		await this.fill( '#user_pass', password );
@@ -61,5 +61,10 @@ export default class WPLoginPage extends WpPage {
 		logger.step( 'Toggle SSO login' );
 		const ssoToggleButton = '.jetpack-sso-toggle';
 		return await this.click( ssoToggleButton );
+	}
+
+	async skipSSO() {
+		logger.step( 'Skipping SSO login' );
+		return await this.click( 'a.jetpack-sso-toggle.wpcom' );
 	}
 }

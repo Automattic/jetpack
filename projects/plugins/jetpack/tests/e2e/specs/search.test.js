@@ -1,8 +1,6 @@
 /**
  * Internal dependencies
  */
-import { syncJetpackPlanData } from '../lib/flows/jetpack-connect';
-import { activateModule } from '../lib/utils-helper';
 import Homepage from '../lib/pages/search-homepage';
 import { step } from '../lib/env/test-setup';
 import {
@@ -11,7 +9,6 @@ import {
 	setupSidebarsWidgets,
 	setupSearchWidget,
 	disableInstantSearch,
-	disableSearchModule,
 } from '../lib/search-helper';
 import { prerequisites } from '../lib/env/prerequisites';
 
@@ -26,10 +23,9 @@ describe( 'Search', () => {
 	let backupSidebarsWidgets;
 
 	beforeAll( async () => {
-		await prerequisites( { connected: true, plan: 'complete', modules: [ { search: true } ] } );
+		await prerequisites( { connected: true, plan: 'complete', modules: { active: [ 'search' ] } } );
 
 		backupSidebarsWidgets = await getSidebarsWidgets();
-		// await activateModule( page, 'search' );
 		await enableInstantSearch();
 		await setupSidebarsWidgets();
 		await setupSearchWidget();
@@ -38,7 +34,6 @@ describe( 'Search', () => {
 	afterAll( async () => {
 		await setupSidebarsWidgets( backupSidebarsWidgets );
 		await prerequisites( { modules: [ { search: false } ] } );
-		// await disableSearchModule();
 		await disableInstantSearch();
 	} );
 
