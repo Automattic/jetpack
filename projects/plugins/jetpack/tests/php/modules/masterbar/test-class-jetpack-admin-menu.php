@@ -10,6 +10,7 @@ use Automattic\Jetpack\Status;
 
 require_jetpack_file( 'modules/masterbar/admin-menu/class-jetpack-admin-menu.php' );
 require_jetpack_file( 'tests/php/modules/masterbar/data/admin-menu.php' );
+require_jetpack_file( 'modules/masterbar/admin-menu/class-dashboard-switcher.php' );
 
 /**
  * Class Test_Jetpack_Admin_Menu.
