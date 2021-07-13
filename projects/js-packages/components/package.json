@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "0.1.0",
+	"version": "0.2.0-alpha",
 	"description": "Jetpack Components Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -8,6 +8,7 @@
 		"@wordpress/browserslist-config": "3.0.1",
 		"@wordpress/components": "9.2.6",
 		"@wordpress/i18n": "^3.9.0",
+		"classnames": "2.3.1",
 		"lodash": "4.17.21",
 		"prop-types": "^15.7.2"
 	},
