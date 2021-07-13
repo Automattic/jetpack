@@ -1248,17 +1248,14 @@
 				var origFile = item.getAttribute( 'data-orig-file' ) || item.getAttribute( 'src-orig' );
 				var attrID =
 					item.getAttribute( 'data-attachment-id' ) || item.getAttribute( 'data-id' ) || '0';
+				var caption = document.querySelector(
+					'img[data-attachment-id="' + attrID + '"] + figcaption'
+				);
 
-				var caption = '';
-				if ( item.getAttribute( 'data-image-caption' ) ) {
-					caption = item.getAttribute( 'data-image-caption' );
+				if ( caption ) {
+					caption = caption.innerHTML;
 				} else {
-					var domCaption = document.querySelector(
-						'img[data-attachment-id="' + attrID + '"] + figcaption'
-					);
-					if ( domCaption ) {
-						caption = domCaption.innerHTML;
-					}
+					caption = item.getAttribute( 'data-image-caption' );
 				}
 
 				var attrs = {
@@ -1272,7 +1269,7 @@
 					largeFile: item.getAttribute( 'data-large-file' ) || '',
 					origFile: origFile || '',
 					thumbSize: { width: item.naturalWidth, height: item.naturalHeight },
-					caption: caption,
+					caption: caption || '',
 					permalink: permalinkEl && permalinkEl.getAttribute( 'href' ),
 					src: origFile || item.getAttribute( 'src' ) || '',
 				};
