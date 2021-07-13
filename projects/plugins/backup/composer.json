@@ -7,7 +7,7 @@
 		"automattic/jetpack-autoloader": "2.10.x-dev",
 		"automattic/jetpack-backup": "1.1.x-dev",
 		"automattic/jetpack-config": "1.4.x-dev",
-		"automattic/jetpack-connection": "1.29.x-dev",
+		"automattic/jetpack-connection": "1.30.x-dev",
 		"automattic/jetpack-connection-ui": "1.2.x-dev",
 		"automattic/jetpack-sync": "1.24.x-dev",
 		"automattic/jetpack-status": "1.8.x-dev"
