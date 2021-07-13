@@ -350,8 +350,6 @@
 						closeCarousel();
 					} else if ( target.classList.contains( 'jp-carousel-image-download' ) ) {
 						stat( 'download_original_click' );
-					} else if ( target.classList.contains( 'jp-carousel-commentlink' ) ) {
-						handleCommentLinkClick( e );
 					} else if ( target.classList.contains( 'jp-carousel-comment-login' ) ) {
 						handleCommentLoginClick( e );
 					} else if ( domUtil.closest( target, '#jp-carousel-comment-form-container' ) ) {
@@ -411,18 +409,6 @@
 					}
 				} );
 			}
-		}
-
-		function handleCommentLinkClick( e ) {
-			e.preventDefault();
-			e.stopPropagation();
-			disableKeyboardNavigation();
-			domUtil.scrollToElement( carousel.info );
-			domUtil.show(
-				carousel.overlay.querySelector( '#jp-carousel-comment-form-submit-and-info-wrapper' )
-			);
-			var field = carousel.commentField;
-			field.focus();
 		}
 
 		function handleCommentLoginClick() {
@@ -1040,16 +1026,11 @@
 
 		function testCommentsOpened( opened ) {
 			var commentForm = carousel.container.querySelector( '.jp-carousel-comment-form-container' );
-			var commentLink = carousel.container.querySelector( '.jp-carousel-commentlink' );
-			var buttons = carousel.container.querySelector( '.jp-carousel-buttons' );
-			var control = Number( jetpackCarouselStrings.is_logged_in ) === 1 ? commentLink : buttons;
 			var isOpened = parseInt( opened, 10 ) === 1;
 
 			if ( isOpened ) {
-				domUtil.fadeIn( control );
 				domUtil.fadeIn( commentForm );
 			} else {
-				domUtil.fadeOut( control );
 				domUtil.fadeOut( commentForm );
 			}
 		}
