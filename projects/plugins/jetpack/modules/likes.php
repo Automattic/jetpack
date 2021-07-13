@@ -498,7 +498,8 @@ class Jetpack_Likes {
 			apply_filters( 'jetpack_sharing_headline_html', '<h3 class="sd-title">%s</h3>', esc_html__( 'Like this:', 'jetpack' ), 'likes' ),
 			esc_html__( 'Like this:', 'jetpack' )
 		);
-		$title    = esc_html__( 'Like or Reblog', 'jetpack' );
+
+		$title = esc_html__( 'Like or Reblog', 'jetpack' );
 
 		$html  = "<div class='sharedaddy sd-block sd-like jetpack-likes-widget-wrapper jetpack-likes-widget-unloaded' id='$wrapper' data-src='$src' data-name='$name' data-title='$title'>";
 		$html .= $headline;
