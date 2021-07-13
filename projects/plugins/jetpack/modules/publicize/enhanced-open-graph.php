@@ -17,7 +17,7 @@ function enhanced_og_image( $tags ) {
 	global $post;
 
 	// Bail if we do not have info about the post.
-	if ( empty( $post ) || ! is_a( $post, 'WP_Post' ) ) {
+	if ( ! $post instanceof WP_Post ) {
 		return $tags;
 	}
 
@@ -47,7 +47,7 @@ function enhanced_og_gallery( $tags ) {
 	global $post;
 
 	// Bail if we do not have info about the post.
-	if ( empty( $post ) || ! is_a( $post, 'WP_Post' ) ) {
+	if ( ! $post instanceof WP_Post ) {
 		return $tags;
 	}
 
@@ -86,7 +86,7 @@ function enhanced_og_video( $tags ) {
 	global $post;
 
 	// Bail if we do not have info about the post.
-	if ( empty( $post ) || ! is_a( $post, 'WP_Post' ) ) {
+	if ( ! $post instanceof WP_Post ) {
 		return $tags;
 	}
 
