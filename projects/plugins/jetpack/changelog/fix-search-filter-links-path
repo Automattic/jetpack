@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Instant Search: make sure ?s= is set when using filter links

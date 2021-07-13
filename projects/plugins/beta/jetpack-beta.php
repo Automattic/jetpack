@@ -33,31 +33,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * How this plugin works.
- * Jetpack beta manages files inside jetpack-dev folder this folder should contain
- */
-define( 'JPBETA__PLUGIN_FOLDER', basename( __DIR__ ) );
-define( 'JPBETA__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-define( 'JPBETA__PLUGIN_FILE', __FILE__ );
+define( 'JPBETA__PLUGIN_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
 define( 'JPBETA_VERSION', '3.0.0-alpha' );
 
-define( 'JPBETA_DEFAULT_BRANCH', 'rc_only' );
-
-define( 'JETPACK_BETA_MANIFEST_URL', 'https://betadownload.jetpack.me/jetpack-branches.json' );
-define( 'JETPACK_ORG_API_URL', 'https://api.wordpress.org/plugins/info/1.0/jetpack.json' );
-define( 'JETPACK_GITHUB_API_URL', 'https://api.github.com/repos/Automattic/Jetpack/' );
-define( 'JETPACK_GITHUB_URL', 'https://github.com/Automattic/jetpack' );
-define( 'JETPACK_DEFAULT_URL', 'https://jetpack.com' );
-
-define( 'JETPACK_DEV_PLUGIN_SLUG', 'jetpack-dev' );
-
-define( 'JETPACK_PLUGIN_FILE', 'jetpack/jetpack.php' );
-define( 'JETPACK_DEV_PLUGIN_FILE', 'jetpack-dev/jetpack.php' );
-
-define( 'JETPACK_BETA_REPORT_URL', 'https://jetpack.com/contact-support/beta-group/' );
-
-defined( 'JETPACK_GREEN' ) || define( 'JETPACK_GREEN', '#2fb41f' );
+define( 'JETPACK_BETA_PLUGINS_URL', 'https://betadownload.jetpack.me/plugins.json' );
 
 require_once plugin_dir_path( __FILE__ ) . '/vendor/autoload_packages.php';
 

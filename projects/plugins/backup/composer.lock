@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "537de7399ca4c9715b62e97e3886856f",
+    "content-hash": "8f8c16c1382edd950e126dc0546bd4c7",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -174,11 +174,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "4b6a7e597e4d27c7075e366ca7e457d966bb61d0"
+                "reference": "2d524c944dce1d16251b20059b45a000036977ff"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.29",
-                "automattic/jetpack-sync": "^1.23"
+                "automattic/jetpack-sync": "^1.24"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^1.2",
@@ -906,7 +906,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "6c1077dd77635019c8a1d1fd3e7aa6e0b754ff2f"
+                "reference": "42a700a2516ad91c31ffc7a3af8952440c1599d0"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.29",
@@ -931,7 +931,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.23.x-dev"
+                    "dev-master": "1.24.x-dev"
                 }
             },
             "autoload": {
