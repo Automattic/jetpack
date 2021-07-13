@@ -291,7 +291,6 @@ function jetpackLoadLikeWidgetIframe( wrapperID ) {
 		postLikesFrame.frameBorder = '0';
 		postLikesFrame.scrolling = 'no';
 		postLikesFrame.title = $wrapper.data( 'title' );
-		postLikesFrame.setAttribute( 'aria-hidden', true );
 
 		if ( $wrapper.hasClass( 'slim-likes-widget' ) ) {
 			postLikesFrame.height = '22px';
