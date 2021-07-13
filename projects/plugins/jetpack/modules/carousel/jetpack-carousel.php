@@ -718,7 +718,7 @@ class Jetpack_Carousel {
 		$attr['data-image-meta']        = esc_attr( $img_meta );
 		$attr['data-image-title']       = esc_attr( htmlspecialchars( $attachment_title ) );
 		$attr['data-image-description'] = esc_attr( htmlspecialchars( $attachment_desc ) );
-		$attr['data-image-caption'] 	= esc_attr( htmlspecialchars( $attachment_caption ) );
+		$attr['data-image-caption']     = esc_attr( htmlspecialchars( $attachment_caption ) );
 		$attr['data-medium-file']       = esc_attr( $medium_file );
 		$attr['data-large-file']        = esc_attr( $large_file );
 
