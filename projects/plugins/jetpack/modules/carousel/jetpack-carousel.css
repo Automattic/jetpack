@@ -1,4 +1,4 @@
-/* 
+/*
  * Temporary fix below for issue introduced to Newspack blocks, can be removed once
  * once Newspack blocks includes this override
 */
@@ -1072,6 +1072,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	font-weight: 400;
 	font-style: normal;
 	border-radius: 4px;
+	width: 31px; /* Prevent comments indicator from changing icon width */
 	padding: 4px 3px 3px;
 }
 
