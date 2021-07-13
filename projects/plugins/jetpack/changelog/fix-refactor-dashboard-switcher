@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Refactored the dashboard quick switcher in order to load it for sites with SSO disabled.
