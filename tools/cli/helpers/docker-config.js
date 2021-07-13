@@ -26,6 +26,10 @@ function mergeJson( a, b ) {
 		return ret;
 	}
 
+	if ( b === null ) {
+		return a;
+	}
+
 	return b;
 }
 
@@ -103,7 +107,7 @@ const getDeprecatedExtras = config => {
  * Compose a config object using multiple sources.
  * To keep the backward compatibility, it pulls configuration from compose-volumes and compose-extras files
  * Below is a list of sources in order of priority (from low to high):
- * - jetpack-docker-config-default.json - default Docker configuration
+ * - jetpack-docker-config-default.yml - default Docker configuration
  * - compose-volumes.yml - (Deprecated) User-defined volume mapping overrides
  * - compose-extras.yml - (Deprecated) User-defined docker-compose overrides
  * - jetpack-docker-config.yml - User-defined Docker configuration
