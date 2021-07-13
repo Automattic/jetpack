@@ -4,6 +4,7 @@
 import React, { Fragment, useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { sprintf, __ } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -14,7 +15,6 @@ import { ModuleToggle } from 'components/module-toggle';
 import SettingsGroup from 'components/settings-group';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import Button from 'components/button';
-import getRedirectUrl from 'lib/jp-redirect';
 import { getPlanClass } from 'lib/plans/constants';
 import './module-control.scss';
 
@@ -124,7 +124,7 @@ function Search( props ) {
 				module={ { module: 'search' } }
 				support={ {
 					text: SEARCH_SUPPORT,
-					link: getRedirectUrl( 'jetpack-support-search' ),
+					link: getRedirectUrl( 'jetpack-support-search' ) + 'asdf',
 				} }
 				className={ [ 'jp-form-search-settings-group' ] }
 			>

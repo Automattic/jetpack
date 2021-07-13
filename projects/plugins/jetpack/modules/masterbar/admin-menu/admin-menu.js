@@ -97,7 +97,7 @@
 	}
 
 	function setFocusOnActiveMenuItem() {
-		var currentMenuItem = document.querySelector('.wp-submenu .current > a');
+		var currentMenuItem = document.querySelector( '.wp-submenu .current > a' );
 
 		if ( ! currentMenuItem ) {
 			return;
