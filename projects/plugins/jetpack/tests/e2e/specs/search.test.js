@@ -33,7 +33,7 @@ describe( 'Search', () => {
 
 	afterAll( async () => {
 		await setupSidebarsWidgets( backupSidebarsWidgets );
-		await prerequisites( { modules: [ { search: false } ] } );
+		await prerequisites( { modules: { inactive: [ 'search' ] } } );
 		await disableInstantSearch();
 	} );
 

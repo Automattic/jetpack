@@ -123,7 +123,7 @@ export async function activateModules( modulesList ) {
 	for ( const module of modulesList ) {
 		logger.prerequisites( `Activating module ${ module }` );
 		const result = await execWpCommand( `wp jetpack module activate ${ module }` );
-		expect( result ).toMatch( `/Success: ${ module } has been activated./i` );
+		expect( result ).toMatch( new RegExp( `Success: ${ module } has been activated.`, 'i' ) );
 	}
 }
 
@@ -131,6 +131,6 @@ export async function deactivateModules( modulesList ) {
 	for ( const module of modulesList ) {
 		logger.prerequisites( `Deactivating module ${ module }` );
 		const result = await execWpCommand( `wp jetpack module deactivate ${ module }` );
-		expect( result ).toMatch( `/Success: ${ module } has been deactivated./i` );
+		expect( result ).toMatch( new RegExp( `Success: ${ module } has been deactivated.`, 'i' ) );
 	}
 }
