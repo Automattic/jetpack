@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Performance of Sync checksums degraded with the update to correlated subquery. This restricts its usage to term_taxonomy joins only."

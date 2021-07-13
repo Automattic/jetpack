@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Moved the get_connected_users logic back to the Manager class
