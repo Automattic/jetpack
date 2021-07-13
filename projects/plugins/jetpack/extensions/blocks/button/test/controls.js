@@ -148,13 +148,12 @@ describe( 'Inspector settings', () => {
         } );
 
         test( 'sets the border radius attribute', () => {
-            render( <ButtonControls { ...defaultProps } /> );
+			render( <ButtonControls { ...defaultProps } /> );
 
-            const borderPanel = screen.getByText( 'Border Settings' ).closest( 'div' );
-            const input = borderPanel.querySelector( 'input[type="number"]' );
-            input.focus();
-			fireEvent.change( input, { target: { value: '6' } } );
-
+			const borderPanel = screen.getByText('Border Settings').closest('div');
+			const input = borderPanel.querySelector( 'input[type="number"]' );
+			input.focus();
+			fireEvent.change(input, { target: { value: '6' } });
             expect( setAttributes ).toHaveBeenCalledWith( { borderRadius: 6 } );
         } );
     } );
