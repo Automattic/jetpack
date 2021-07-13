@@ -12,10 +12,7 @@
 		function texturize( text ) {
 			// Ensure we get a string.
 			text = text + '';
-			text = text
-				.replace( /'/g, '&#8217;' )
-				.replace( /&#039;/g, '&#8217;' )
-				.replace( /[\u2019]/g, '&#8217;' );
+			text = text.replace( /'/g, '&#8217;' ).replace( /&#039;/g, '&#8217;' );
 			text = text
 				.replace( /"/g, '&#8221;' )
 				.replace( /&#034;/g, '&#8221;' )
