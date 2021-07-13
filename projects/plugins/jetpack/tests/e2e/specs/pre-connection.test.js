@@ -2,7 +2,7 @@ import Sidebar from '../lib/pages/wp-admin/sidebar';
 import PluginsPage from '../lib/pages/wp-admin/plugins';
 import DashboardPage from '../lib/pages/wp-admin/dashboard';
 import JetpackPage from '../lib/pages/wp-admin/jetpack';
-import { execMultipleWpCommands, execWpCommand } from '../lib/utils-helper';
+import { execWpCommand } from '../lib/utils-helper';
 import path from 'path';
 import config from 'config';
 import { prerequisites } from '../lib/env/prerequisites';

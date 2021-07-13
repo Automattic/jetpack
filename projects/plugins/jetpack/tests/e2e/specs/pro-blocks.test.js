@@ -1,7 +1,6 @@
 import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
 import PostFrontendPage from '../lib/pages/postFrontend';
 import MailchimpBlock from '../lib/pages/wp-admin/blocks/mailchimp';
-import { syncJetpackPlanData } from '../lib/flows/jetpack-connect';
 import { activateModule, execMultipleWpCommands } from '../lib/utils-helper';
 import SimplePaymentBlock from '../lib/pages/wp-admin/blocks/simple-payments';
 import WordAdsBlock from '../lib/pages/wp-admin/blocks/word-ads';
@@ -20,7 +19,6 @@ describe( 'Paid blocks', () => {
 
 	beforeAll( async () => {
 		await prerequisites( { connected: true, plan: 'complete' } );
-		// await syncJetpackPlanData( 'complete' );
 		await activateModule( page, 'publicize' );
 		await activateModule( page, 'wordads' );
 	} );

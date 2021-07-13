@@ -1,36 +1,5 @@
-import fs from 'fs';
 import logger from '../logger';
-import {
-	execWpCommand,
-	getAccountCredentials,
-	provisionJetpackStartConnection,
-} from '../utils-helper';
-import { isBlogTokenSet } from '../flows/jetpack-connect';
-import { loginToWpSite, loginToWpCom } from '../flows/log-in';
-import config from 'config';
 import { prerequisites } from './prerequisites';
-
-async function maybePreConnect() {
-	const wpComUser = 'defaultUser';
-	const mockPlanData = true;
-	const plan = 'free';
-
-	await loginToWpCom( wpComUser, mockPlanData );
-	await loginToWpSite( mockPlanData );
-
-	if ( process.env.SKIP_CONNECT ) {
-		return;
-	}
-
-	if ( ! ( await isBlogTokenSet() ) ) {
-		const userId = getAccountCredentials( 'defaultUser' )[ 2 ];
-		return await provisionJetpackStartConnection( userId, plan );
-	}
-
-	// We are connected. Let's save the existing connection options just in case.
-	const result = await execWpCommand( 'wp option get jetpack_private_options --format=json' );
-	fs.writeFileSync( config.get( 'temp.jetpackPrivateOptions' ), result.trim() );
-}
 
 export const step = async ( stepName, fn ) => {
 	logger.step( `Step: ${ stepName }` );
