@@ -114,9 +114,10 @@ class Jetpack_Search_Customberg {
 
 		//
 		// Load scripts.
+		$manifest_path       = plugin_dir_path( $plugin_base_path ) . $manifest_relative_path;
 		$script_dependencies = array();
-		if ( file_exists( $manifest_relative_path ) ) {
-			$asset_manifest      = include $script_dependencies;
+		if ( file_exists( $manifest_path ) ) {
+			$asset_manifest      = include $manifest_path;
 			$script_dependencies = $asset_manifest['dependencies'];
 		}
 
