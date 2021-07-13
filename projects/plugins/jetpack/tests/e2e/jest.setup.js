@@ -1,5 +1,7 @@
 const { E2E_TIMEOUT, E2E_DEBUG, E2E_RETRY_TIMES } = process.env;
 
+var document = {}; // eslint-disable-line no-var, no-unused-vars
+
 // The Jest timeout is increased because these tests are a bit slow
 jest.setTimeout( E2E_TIMEOUT || 300000 );
 if ( E2E_DEBUG ) {
