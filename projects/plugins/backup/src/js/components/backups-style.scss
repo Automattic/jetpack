@@ -52,6 +52,12 @@
 	background: var( --jp-green-primary );
 }
 
+.backup__latest {
+	+ h1 {
+		white-space: nowrap;
+	}
+}
+
 .backup__animation {
 	position: relative;
 }
