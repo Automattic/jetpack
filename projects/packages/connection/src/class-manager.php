@@ -567,18 +567,46 @@ class Manager {
 	 * @return bool
 	 */
 	public function has_connected_user() {
-		return (bool) count( $this->get_connected_users() );
+		return (bool) count( $this->get_connected_users( 'any', 1 ) );
 	}
 
 	/**
-	 * Returns an array of user_id's that have user tokens for communicating with wpcom.
+	 * Returns an array of users that have user tokens for communicating with wpcom.
 	 * Able to select by specific capability.
 	 *
-	 * @param string $capability The capability of the user.
-	 * @return array Array of WP_User objects if found.
+	 * @since 9.9.1 Added $limit parameter.
+	 *
+	 * @param string   $capability The capability of the user.
+	 * @param int|null $limit How many connected users to get before returning.
+	 * @return WP_User[] Array of WP_User objects if found.
 	 */
-	public function get_connected_users( $capability = 'any' ) {
-		return $this->get_tokens()->get_connected_users( $capability );
+	public function get_connected_users( $capability = 'any', $limit = null ) {
+		$connected_users = array();
+		$user_tokens     = $this->get_tokens()->get_user_tokens();
+
+		if ( ! is_array( $user_tokens ) || empty( $user_tokens ) ) {
+			return $connected_users;
+		}
+		$connected_user_ids = array_keys( $user_tokens );
+
+		if ( ! empty( $connected_user_ids ) ) {
+			foreach ( $connected_user_ids as $id ) {
+				// Check for capability.
+				if ( 'any' !== $capability && ! user_can( $id, $capability ) ) {
+					continue;
+				}
+
+				$user_data = get_userdata( $id );
+				if ( $user_data instanceof \WP_User ) {
+					$connected_users[] = $user_data;
+					if ( $limit && count( $connected_users ) >= $limit ) {
+						return $connected_users;
+					}
+				}
+			}
+		}
+
+		return $connected_users;
 	}
 
 	/**

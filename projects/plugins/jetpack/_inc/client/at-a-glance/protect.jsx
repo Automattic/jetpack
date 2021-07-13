@@ -10,13 +10,13 @@ import { connect } from 'react-redux';
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import DashItem from 'components/dash-item';
 import { getProtectCount } from 'state/at-a-glance';
-import getRedirectUrl from 'lib/jp-redirect';
 import { isOfflineMode, hasConnectedOwner, authorizeUserInPlace } from 'state/connection';
 import { isModuleAvailable } from 'state/modules';
 import { numberFormat } from 'components/number-format';
