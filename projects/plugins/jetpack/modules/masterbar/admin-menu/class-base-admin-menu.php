@@ -63,11 +63,19 @@ abstract class Base_Admin_Menu {
 	const UNKNOWN_VIEW = 'unknown';
 
 	/**
+	 * The Dashboard switcher object.
+	 *
+	 * @var Dashboard_Switcher
+	 */
+	public $switcher;
+
+	/**
 	 * Base_Admin_Menu constructor.
 	 */
 	protected function __construct() {
 		$this->is_api_request = defined( 'REST_REQUEST' ) && REST_REQUEST || 0 === strpos( $_SERVER['REQUEST_URI'], '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' );
 		$this->domain         = ( new Status() )->get_site_suffix();
+		$this->switcher       = new Dashboard_Switcher( $this->domain );
 
 		add_action( 'admin_menu', array( $this, 'reregister_menu_items' ), 99998 );
 		add_action( 'admin_menu', array( $this, 'hide_parent_of_hidden_submenus' ), 99999 );
@@ -76,7 +84,6 @@ abstract class Base_Admin_Menu {
 			add_filter( 'admin_menu', array( $this, 'override_svg_icons' ), 99999 );
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ), 11 );
 			add_action( 'admin_head', array( $this, 'set_site_icon_inline_styles' ) );
-			add_filter( 'screen_settings', array( $this, 'register_dashboard_switcher' ), 99999 );
 			add_action( 'admin_menu', array( $this, 'handle_preferred_view' ), 99997 );
 			add_action( 'wp_ajax_set_preferred_view', array( $this, 'handle_preferred_view' ) );
 		}
@@ -597,23 +604,14 @@ abstract class Base_Admin_Menu {
 	/**
 	 * Gets the identifier of the current screen.
 	 *
+	 * @deprecated Use the Dashboard_Switcher object instead.
+	 *
+	 * @todo: Replace the calls of this method with $this->switcher->get_current_screen().
+	 *
 	 * @return string
 	 */
 	public function get_current_screen() {
-		// phpcs:disable WordPress.Security.NonceVerification
-		global $pagenow;
-		$screen = isset( $_REQUEST['screen'] ) ? $_REQUEST['screen'] : $pagenow;
-		if ( isset( $_GET['post_type'] ) ) {
-			$screen = add_query_arg( 'post_type', $_GET['post_type'], $screen );
-		}
-		if ( isset( $_GET['taxonomy'] ) ) {
-			$screen = add_query_arg( 'taxonomy', $_GET['taxonomy'], $screen );
-		}
-		if ( isset( $_GET['page'] ) ) {
-			$screen = add_query_arg( 'page', $_GET['page'], $screen );
-		}
-		return $screen;
-		// phpcs:enable WordPress.Security.NonceVerification
+		return $this->switcher->get_current_screen();
 	}
 
 	/**

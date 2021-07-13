@@ -7,6 +7,35 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
+use Automattic\Jetpack\Status;
+
+require_once __DIR__ . '/class-dashboard-switcher.php';
+
+/**
+ * Check if the current request is an API request or not.
+ *
+ * @return bool
+ */
+function is_api_request() {
+	return ( defined( 'REST_REQUEST' ) && REST_REQUEST ) || 0 === strpos( $_SERVER['REQUEST_URI'], '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' );
+}
+
+/**
+ * Check if the current site is a domain only site.
+ *
+ * @return bool
+ */
+function is_domain_only_site() {
+	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+		return false;
+	}
+
+	$blog_id      = get_current_blog_id();
+	$blog_options = get_blog_option( $blog_id, 'options' );
+
+	return ! empty( $blog_options['is_domain_only'] );
+}
+
 /**
  * Checks whether the navigation customizations should be performed for the given class.
  *
@@ -19,7 +48,7 @@ function should_customize_nav( $admin_menu_class ) {
 		return false;
 	}
 
-	$is_api_request = defined( 'REST_REQUEST' ) && REST_REQUEST || 0 === strpos( $_SERVER['REQUEST_URI'], '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' );
+	$is_api_request = is_api_request();
 
 	// No nav customizations on WP Admin of Atomic sites when SSO is disabled.
 	if ( Atomic_Admin_Menu::class === $admin_menu_class && ! $is_api_request && ! \Jetpack::is_module_active( 'sso' ) ) {
@@ -51,9 +80,7 @@ function get_admin_menu_class() {
 		$blog_id = get_current_blog_id();
 
 		// Domain-only sites.
-		$blog_options   = get_blog_option( $blog_id, 'options' );
-		$is_domain_only = ! empty( $blog_options['is_domain_only'] );
-		if ( $is_domain_only ) {
+		if ( is_domain_only_site() ) {
 			require_once __DIR__ . '/class-domain-only-admin-menu.php';
 			return Domain_Only_Admin_Menu::class;
 		}
@@ -87,4 +114,20 @@ function get_admin_menu_class() {
 $admin_menu_class = apply_filters( 'jetpack_admin_menu_class', get_admin_menu_class() );
 if ( should_customize_nav( $admin_menu_class ) ) {
 	$admin_menu_class::get_instance();
+}
+
+/**
+ * Register the Dashboard Quick switcher in the WP-Admin interface.
+ *
+ * @param string $current The current screen of the WP-Admin page.
+ */
+function register_dashboard_switcher( $current ) {
+	$dashboard_switcher = new Dashboard_Switcher( ( new Status() )->get_site_suffix() );
+
+	return $dashboard_switcher->register_dashboard_switcher( $current );
+}
+
+// Register the switch only for non-API requests and for sites that are not domain-only.
+if ( ! is_api_request() && ! is_domain_only_site() ) {
+	\add_filter( 'screen_settings', 'Automattic\Jetpack\Dashboard_Customizations\register_dashboard_switcher', 99999 );
 }
