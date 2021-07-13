@@ -9,21 +9,21 @@ import ShallowRenderer from 'react-test-renderer/shallow';
 /**
  * Internal dependencies
  */
-import JetpackLogoOnly from '../index';
+import JetpackSymbol from '../index';
 
-describe( 'JetpackLogoOnly', () => {
+describe( 'JetpackSymbol', () => {
 	const testProps = {
 		className: 'sample-classname',
 	};
 
-	describe( 'Render the JetpackLogoOnly component', () => {
+	describe( 'Render the JetpackSymbol component', () => {
 		const renderer = new ShallowRenderer();
-		renderer.render( <JetpackLogoOnly { ...testProps } /> );
+		renderer.render( <JetpackSymbol { ...testProps } /> );
 
 		const wrapper = shallow( renderer.getRenderOutput() );
 
 		it( 'component exists', () => {
-			expect( wrapper.find( 'JetpackLogoOnly' ) ).to.exist;
+			expect( wrapper.find( 'JetpackSymbol' ) ).to.exist;
 		} );
 
 		it( 'validate the class name', () => {
