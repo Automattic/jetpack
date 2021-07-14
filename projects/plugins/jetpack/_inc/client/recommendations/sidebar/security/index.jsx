@@ -4,6 +4,7 @@
 import { __ } from '@wordpress/i18n';
 import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -13,7 +14,6 @@ import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
-import getRedirectUrl from 'lib/jp-redirect';
 import { getSiteRawUrl } from 'state/initial-state';
 
 const SecurityComponent = props => {
