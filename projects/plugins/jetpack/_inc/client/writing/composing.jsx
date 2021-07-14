@@ -4,12 +4,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { __, _x } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import { FormFieldset } from 'components/forms';
-import getRedirectUrl from 'lib/jp-redirect';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { ModuleToggle } from 'components/module-toggle';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';

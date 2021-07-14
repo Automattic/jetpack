@@ -9,6 +9,7 @@ import { connect } from 'react-redux';
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -20,7 +21,6 @@ import {
 	getJetpackStateNoticesErrorDescription,
 	getJetpackStateNoticesMessageContent,
 } from 'state/jetpack-notices';
-import getRedirectUrl from 'lib/jp-redirect';
 import NoticeAction from 'components/notice/notice-action.jsx';
 import SimpleNotice from 'components/notice';
 import UpgradeNoticeContent from 'components/upgrade-notice-content';

@@ -11,13 +11,13 @@ import { connect } from 'react-redux';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getFragment } from '@wordpress/url';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
 import Button from 'components/button';
-import getRedirectUrl from 'lib/jp-redirect';
 import {
 	getSiteConnectionStatus as _getSiteConnectionStatus,
 	disconnectSite,

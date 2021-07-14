@@ -1,4 +1,4 @@
-/* 
+/*
  * Temporary fix below for issue introduced to Newspack blocks, can be removed once
  * once Newspack blocks includes this override
 */
@@ -56,8 +56,10 @@ so we have to target all affected elements in touch devices.
 	opacity: 1;
 }
 
+.jp-carousel-overlay .swiper-button-next:after,
+.jp-carousel-overlay .swiper-container-rtl .swiper-button-next:after,
 .jp-carousel-overlay .swiper-button-prev:after,
-.jp-carousel-overlay .swiper-button-next:after {
+.jp-carousel-overlay .swiper-container-rtl .swiper-button-prev:after {
 	content: none;
 }
 
@@ -96,10 +98,16 @@ so we have to target all affected elements in touch devices.
 }
 
 .jp-carousel-overlay .swiper-container .swiper-button-prev {
-	left: 0px;
+	left: 0;
 }
+
 .jp-carousel-overlay .swiper-container .swiper-button-next {
-	right: 0px;
+	right: 0;
+}
+
+.jp-carousel-overlay .swiper-container.swiper-container-rtl .swiper-button-prev,
+.jp-carousel-overlay .swiper-container.swiper-container-rtl .swiper-button-next {
+	transform: scaleX( -1 );
 }
 
 .jp-carousel-container {
@@ -145,7 +153,7 @@ so we have to target all affected elements in touch devices.
 .jp-carousel-info-extra {
 	display: none;
 	background-color: #000;
-	padding: 15px 35px 35px 35px;
+	padding: 35px;
 	width: 100vw;
 	border-top: 1px solid #222;
 }
@@ -281,22 +289,6 @@ div.jp-carousel-buttons a:hover {
 	border-color: #fff;
 }
 
-div.jp-carousel-buttons a.jp-carousel-commentlink,
-div.jp-carousel-buttons a.jp-carousel-commentlink {
-	margin: 0 14px 0 0 !important;
-	background-position: 0px -156px;
-	padding-left: 19px !important;
-}
-
-@media only screen and ( -webkit-min-device-pixel-ratio: 1.5 ),
-	only screen and ( -o-min-device-pixel-ratio: 3/2 ),
-	only screen and ( min--moz-device-pixel-ratio: 1.5 ),
-	only screen and ( min-device-pixel-ratio: 1.5 ) {
-	div.jp-carousel-buttons a.jp-carousel-commentlink {
-		background-image: url( ./images/carousel-sprite-2x.png?5 );
-	}
-}
-
 /** Pagination Start **/
 .jp-carousel-pagination-container {
 	flex: 1;
@@ -340,13 +332,14 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 /** Title and Desc Start **/
 .jp-carousel-info-footer .jp-carousel-photo-title-container {
 	flex-basis: 50vw;
-	flex: 1;
+	flex: 4;
 	justify-content: center;
 	overflow: hidden;
 	margin: 0;
 }
 
-.jp-carousel-photo-title {
+.jp-carousel-photo-title,
+.jp-carousel-photo-caption {
 	background: none !important;
 	border: none !important;
 	display: inline-block;
@@ -361,7 +354,7 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 	color: #fff;
 }
 
-.jp-carousel-info-footer .jp-carousel-photo-title {
+.jp-carousel-info-footer .jp-carousel-photo-caption {
 	text-align: center;
 	font-size: 15px; /* same as .jp-carousel-pagination */
 	white-space: nowrap;
@@ -371,10 +364,19 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 	text-overflow: ellipsis;
 }
 
+.jp-carousel-info-footer .jp-carousel-photo-caption p {
+	margin: 0;
+}
+
+.jp-carousel-photo-title {
+	font-size: 32px;
+	margin-bottom: 2px;
+}
+
 .jp-carousel-photo-description {
 	color: #999;
 	font-size: 16px;
-	margin-bottom: 0;
+	margin: 25px 0;
 	width: 100%;
 }
 
@@ -427,6 +429,13 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 .jp-carousel-comments-wrapper h1:after {
 	content: none !important;
 }
+
+.jp-carousel-caption {
+	font-size: 14px;
+	font-weight: normal;
+	margin: 0;
+}
+
 /** Title and Desc End **/
 
 /** Meta Box Start **/
@@ -480,7 +489,6 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 }
 
 a.jp-carousel-image-download {
-	padding-left: 23px;
 	display: inline-block;
 	clear: both;
 	color: #999;
@@ -506,12 +514,6 @@ a.jp-carousel-image-download span.photo-size {
 
 a.jp-carousel-image-download span.photo-size-times {
 	padding: 0 1px 0 2px;
-}
-
-a.jp-carousel-image-download:hover {
-	background-position: 0 -122px;
-	color: #fff;
-	border: none !important;
 }
 
 /** Meta Box End **/
@@ -775,9 +777,6 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	border: none;
 	margin: 20px 0 0 0;
 	padding: 0;
-}
-
-#jp-carousel-comment-form-commenting-as fieldset {
 	clear: both;
 }
 
@@ -923,10 +922,6 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	color: #f1831e;
 }
 
-.jp-carousel-light div.jp-carousel-buttons a.jp-carousel-commentlink {
-	background-position: 0px -176px;
-}
-
 .jp-carousel-light #jp-carousel-comment-form-button-submit {
 	color: black;
 	border: solid 1px black;
@@ -1056,7 +1051,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 }
 
 .jp-carousel-icon-btn {
-	padding: 16px 16px;
+	padding: 16px;
 	text-decoration: none;
 	border: none;
 	background: none;
@@ -1072,6 +1067,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	font-weight: 400;
 	font-style: normal;
 	border-radius: 4px;
+	width: 31px; /* Prevent comments indicator from changing icon width */
 	padding: 4px 3px 3px;
 }
 
@@ -1102,6 +1098,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	color: #000;
 	font-weight: normal;
 	font-family: 'Helvetica Neue', sans-serif !important;
+	position: relative;
 }
 
 .jp-carousel-light .jp-carousel-icon .jp-carousel-has-comments-indicator {
