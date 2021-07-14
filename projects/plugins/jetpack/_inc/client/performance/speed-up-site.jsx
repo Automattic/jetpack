@@ -4,6 +4,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { __, sprintf } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -12,7 +13,6 @@ import analytics from 'lib/analytics';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset } from 'components/forms';
 import { getModule, getModuleOverride } from 'state/modules';
-import getRedirectUrl from 'lib/jp-redirect';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';

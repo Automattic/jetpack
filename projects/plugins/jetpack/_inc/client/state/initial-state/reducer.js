@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { assign, get, merge } from 'lodash';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -10,7 +11,6 @@ import { JETPACK_SET_INITIAL_STATE, MOCK_SWITCH_USER_PERMISSIONS } from 'state/a
 import { getPlanDuration } from 'state/plans/reducer';
 import { getSiteProducts } from 'state/site-products';
 import { isCurrentUserLinked } from 'state/connection';
-import getRedirectUrl from 'lib/jp-redirect';
 
 export const initialState = ( state = window.Initial_State, action ) => {
 	switch ( action.type ) {
