@@ -708,7 +708,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	-webkit-animation: load8 1.1s infinite linear;
 	animation: load8 1.1s infinite linear;
 	margin: 0 auto;
-	top: 40%;
+	top: calc( 50% - 15px );
 	left: 0;
 	bottom: 0;
 	right: 0;
