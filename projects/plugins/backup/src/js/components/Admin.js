@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Fragment } from '@wordpress/element';
+import { Fragment, useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect } from '@wordpress/data';
@@ -14,24 +14,23 @@ import useConnection from '../hooks/useConnection';
 import './admin-style.scss';
 import { STORE_ID } from '../store';
 
-/* global wp */
 /* eslint react/react-in-jsx-scope: 0 */
 const Admin = () => {
 	const [ connectionStatus, renderJetpackConnection ] = useConnection();
-	const [ capabilities, setCapabilities ] = wp.element.useState( null );
-	const [ capabilitiesError, setCapabilitiesError ] = wp.element.useState( null );
-	const [ connectionLoaded, setConnectionLoaded ] = wp.element.useState( false );
-	const [ capabilitiesLoaded, setCapabilitiesLoaded ] = wp.element.useState( false );
+	const [ capabilities, setCapabilities ] = useState( null );
+	const [ capabilitiesError, setCapabilitiesError ] = useState( null );
+	const [ connectionLoaded, setConnectionLoaded ] = useState( false );
+	const [ capabilitiesLoaded, setCapabilitiesLoaded ] = useState( false );
 
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 
-	wp.element.useEffect( () => {
+	useEffect( () => {
 		if ( 0 < Object.keys( connectionStatus ).length ) {
 			setConnectionLoaded( true );
 		}
 	}, [ connectionStatus ] );
 
-	wp.element.useEffect( () => {
+	useEffect( () => {
 		apiFetch( { path: 'jetpack/v4/backup-capabilities' } ).then(
 			res => {
 				setCapabilities( res.capabilities );
@@ -82,7 +81,7 @@ const Admin = () => {
 			return <div>{ capabilitiesError }</div>;
 		}
 
-		return <div>No Backup Capabilities</div>;
+		return <div>{ __( 'No Backup Capabilities', 'jetpack-backup' ) }</div>;
 	};
 
 	const renderHeader = () => {
