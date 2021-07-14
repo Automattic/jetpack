@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Blocks: do not load blocks that need post information in the upcoming block-based widget editor.
