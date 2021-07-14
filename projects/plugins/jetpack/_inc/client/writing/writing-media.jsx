@@ -5,13 +5,13 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { __ } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset, FormLegend, FormLabel, FormSelect } from 'components/forms';
-import getRedirectUrl from 'lib/jp-redirect';
 import { ModuleToggle } from 'components/module-toggle';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';

@@ -64,14 +64,14 @@ const Backups = () => {
 						return;
 					}
 
-					if ( 'finished' === backup.status ) {
+					if ( 'finished' === backup.status && backup.stats ) {
 						latestBackup = backup;
 						setBackupState( BACKUP_STATE.COMPLETE );
 					}
 				} );
 
 				// Only the first backup can be in progress.
-				if ( 0 === res.length && 'started' === res[ 0 ].status ) {
+				if ( null === latestBackup && 'started' === res[ 0 ].status ) {
 					latestBackup = res[ 0 ];
 					setBackupState( BACKUP_STATE.IN_PROGRESS );
 				}

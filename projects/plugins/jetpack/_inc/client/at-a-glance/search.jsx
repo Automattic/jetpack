@@ -11,6 +11,7 @@ import { noop } from 'lodash';
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -23,7 +24,6 @@ import {
 	getJetpackProductUpsellByFeature,
 	FEATURE_SEARCH_JETPACK,
 } from 'lib/plans/constants';
-import getRedirectUrl from 'lib/jp-redirect';
 import { getSitePlan, hasActiveSearchPurchase, isFetchingSitePurchases } from 'state/site';
 import { getUpgradeUrl } from 'state/initial-state';
 import { getConnectUrl, hasConnectedOwner, isOfflineMode } from 'state/connection';

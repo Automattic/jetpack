@@ -84,11 +84,34 @@ const Admin = () => {
 		return <div>{ __( 'No Backup Capabilities', 'jetpack-backup' ) }</div>;
 	};
 
-	return (
-		<div id="jetpack-backup-admin-container" className="jp-content">
+	const renderHeader = () => {
+		// TODO: Integrate Jetpack Header
+		return (
 			<div className="jp-header">
 				<h1>Jetpack Backup Plugin - Placeholder Header</h1>
 			</div>
+		);
+	};
+
+	const renderFooter = () => {
+		// TODO: Integrate Jetpack Footer
+		return <div className="jp-footer">Jetpack Backup 1.0 - Placeholder Footer</div>;
+	};
+
+	const renderManageConnection = () => {
+		// TODO: Integrate connection management from Connection Package
+		return (
+			<Fragment>
+				<h2>{ __( 'Manage your connection', 'jetpack-backup' ) }</h2>
+				<p className="notice notice-success">
+					{ __( 'Site and User Connected.', 'jetpack-backup' ) }
+				</p>
+			</Fragment>
+		);
+	};
+
+	const renderContent = () => {
+		return (
 			<div className="content">
 				<div>
 					<div className="jp-hero">{ renderLoadedState() }</div>
@@ -142,25 +165,29 @@ const Admin = () => {
 									</p>
 								</div>
 							</div>
-							<div className="jp-row">
-								<div class="lg-col-span-6 md-col-span-4 sm-col-span-4"></div>
-								<div class="lg-col-span-1 md-col-span-1 sm-col-span-0"></div>
-								<div class="lg-col-span-5 md-col-span-3 sm-col-span-4">
-									{ /* This should be replaced by "Manage Connection" Block from Connection Package */ }
-									{ connectionLoaded &&
-										connectionStatus.isUserConnected &&
-										connectionStatus.isRegistered && (
-											<p className="notice notice-success">
-												{ __( 'Site and User Connected.', 'jetpack-backup' ) }
-											</p>
-										) }
-								</div>
-							</div>
+							{ connectionLoaded &&
+								connectionStatus.isUserConnected &&
+								connectionStatus.isRegistered && (
+									<div className="jp-row">
+										<div class="lg-col-span-6 md-col-span-4 sm-col-span-4"></div>
+										<div class="lg-col-span-1 md-col-span-1 sm-col-span-0"></div>
+										<div class="lg-col-span-5 md-col-span-3 sm-col-span-4">
+											{ renderManageConnection() }
+										</div>
+									</div>
+								) }
 						</div>
 					</div>
 				</div>
 			</div>
-			<div className="jp-footer">Jetpack Backup 1.0 - Placeholder Footer</div>
+		);
+	};
+
+	return (
+		<div id="jetpack-backup-admin-container" className="jp-content">
+			{ renderHeader() }
+			{ renderContent() }
+			{ renderFooter() }
 		</div>
 	);
 };
