@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Provide a soft failure if activating an unbuilt development version of the Beta plugin
