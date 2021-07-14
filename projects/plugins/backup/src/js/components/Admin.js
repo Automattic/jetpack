@@ -5,6 +5,7 @@ import { Fragment, useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect } from '@wordpress/data';
+import { JetpackFooter } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -123,8 +124,15 @@ const Admin = () => {
 	};
 
 	const renderFooter = () => {
-		// TODO: Integrate Jetpack Footer
-		return <div className="jp-footer">Jetpack Backup 1.0 - Placeholder Footer</div>;
+		return (
+			<div className="jp-wrap">
+				<div className="jp-row">
+					<div class="lg-col-span-12 md-col-span-8 sm-col-span-4">
+						<JetpackFooter moduleName="Jetpack Backup" a8cLogoHref="https://www.jetpack.com" />
+					</div>
+				</div>
+			</div>
+		);
 	};
 
 	const renderManageConnection = () => {
