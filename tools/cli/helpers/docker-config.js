@@ -201,7 +201,6 @@ const setExtrasConfig = ( argv, config ) => {
 	if ( config.default && config.default.extras ) {
 		extrasCompose = mergeJson( extrasCompose, config.default.extras );
 	}
-	
 	if ( config[ argv.type ] && config[ argv.type ].extras ) {
 		extrasCompose = mergeJson( extrasCompose, config[ argv.type ].extras );
 	}
