@@ -10,7 +10,7 @@ import classnames from 'classnames';
  */
 import AutomatticBylineLogo from '../automattic-byline-logo';
 import './style.scss';
-import JetpackSymbol from '../jetpack-symbol';
+import JetpackLogo from '../jetpack-logo';
 
 /**
  * JetpackFooter component definition.
@@ -31,7 +31,7 @@ export default function JetpackFooter( {
 	return (
 		<div className={ classnames( 'jp-dashboard-footer', className ) } { ...otherProps }>
 			<div className="jp-dashboard-footer__footer-left">
-				<JetpackSymbol color="#000" className="jp-dashboard-footer__jetpack-symbol" />
+				<JetpackLogo logoColor="#000" className="jp-dashboard-footer__jetpack-symbol" />
 				<span className="jp-dashboard-footer__module-name">{ moduleName }</span>
 			</div>
 			<div className="jp-dashboard-footer__footer-right">
