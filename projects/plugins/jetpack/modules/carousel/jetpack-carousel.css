@@ -807,7 +807,6 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 #jp-carousel-comment-form-container {
 	margin-bottom: 15px;
-	overflow: auto;
 	width: 100%;
 	margin-top: 20px;
 	color: #999;
