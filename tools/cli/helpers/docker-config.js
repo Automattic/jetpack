@@ -130,6 +130,9 @@ const getConfig = () => {
 	// Below we magically replacing the mappings to match docker expectations.
 	const types = Object.keys( json );
 	types.forEach( type => {
+		if ( ! json[ type ].volumeMappings ) {
+			return;
+		}
 		const paths = Object.entries( json[ type ].volumeMappings ).map(
 			( [ localPath, dockerPath ] ) => {
 				let relPath = path.relative( dockerFolder, localPath );
