@@ -16,7 +16,7 @@ import { STORE_ID } from '../store';
 
 /* eslint react/react-in-jsx-scope: 0 */
 const Admin = () => {
-	const [ connectionStatus, renderJetpackConnection ] = useConnection();
+	const [ connectionStatus, renderConnectScreen ] = useConnection();
 	const [ capabilities, setCapabilities ] = useState( null );
 	const [ capabilitiesError, setCapabilitiesError ] = useState( null );
 	const [ connectionLoaded, setConnectionLoaded ] = useState( false );
@@ -52,7 +52,7 @@ const Admin = () => {
 						'jetpack-backup'
 					) }
 				</p>
-				{ renderJetpackConnection() }
+				{ renderConnectScreen() }
 			</Fragment>
 		);
 	};
@@ -89,7 +89,7 @@ const Admin = () => {
 	const renderLoadedState = () => {
 		// Loading state
 		if ( ! connectionLoaded ) {
-			return renderJetpackConnection();
+			return renderConnectScreen();
 		}
 
 		if ( ! capabilitiesLoaded ) {

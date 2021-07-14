@@ -3,14 +3,14 @@
  */
 import connectionSelectors from './connection-status';
 import APISelectors from './api';
-import connectionData from './connection-data';
 import jetpackStatusSelectors from './jetpack-status';
+import assetsSelectors from './assets';
 
 const selectors = {
 	...connectionSelectors,
 	...APISelectors,
-	...connectionData,
 	...jetpackStatusSelectors,
+	...assetsSelectors,
 };
 
 export default selectors;
