@@ -11,10 +11,6 @@ export async function loginToWpSite( mockPlanData ) {
 	// To prevent unnecessary log in we navigate to Dashboard and check if logged in
 	await DashboardPage.visit( page, false );
 
-	if ( await WPLoginPage.isJetpackSSO( page ) ) {
-		await ( await WPLoginPage.init( page ) ).skipSSO();
-	}
-
 	if ( await WPLoginPage.isLoggedIn( page ) ) {
 		logger.step( 'Already logged in!' );
 	} else {
