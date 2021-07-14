@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Removing static images and related code. Also ensuring that arrows look and work correctly in RTL.

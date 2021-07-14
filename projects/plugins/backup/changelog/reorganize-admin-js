@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Reorganized Admin.js to facilitate integration

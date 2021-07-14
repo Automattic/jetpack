@@ -59,6 +59,5 @@
 		"node": "^14.17.3",
 		"pnpm": "^6.5.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
-	},
-	"dependencies": {}
+	}
 }

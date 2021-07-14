@@ -207,6 +207,72 @@ export class DevCard extends React.Component {
 						</label>
 					</li>
 					<li>
+						<label htmlFor="jetpack_security">
+							<input
+								type="radio"
+								id="jetpack_security"
+								value="jetpack_security"
+								name="jetpack_security"
+								checked={ 'is-security-plan' === planClass }
+								onChange={ this.onPlanChange }
+							/>
+							Security (200 GB)
+						</label>
+					</li>
+					<li>
+						<label htmlFor="jetpack_security_pro">
+							<input
+								type="radio"
+								id="jetpack_security_pro"
+								value="jetpack_security_pro"
+								name="jetpack_security_pro"
+								checked={ 'is-security-pro-plan' === planClass }
+								onChange={ this.onPlanChange }
+							/>
+							Security (2 TB)
+						</label>
+					</li>
+					<li>
+						<label htmlFor="jetpack_complete">
+							<input
+								type="radio"
+								id="jetpack_complete"
+								value="jetpack_complete"
+								name="jetpack_complete"
+								checked={ 'is-complete-plan' === planClass }
+								onChange={ this.onPlanChange }
+							/>
+							Complete
+						</label>
+					</li>
+					<li>
+						<label htmlFor="jetpack_backup">
+							<input
+								type="radio"
+								id="jetpack_backup"
+								value="jetpack_backup"
+								name="jetpack_backup"
+								checked={ 'is-backup-plan' === planClass }
+								onChange={ this.onPlanChange }
+							/>
+							Backup (200 GB)
+						</label>
+					</li>
+					<li>
+						<label htmlFor="jetpack_backup_pro">
+							<input
+								type="radio"
+								id="jetpack_backup_pro"
+								value="jetpack_backup_pro"
+								name="jetpack_backup_pro"
+								checked={ 'is-backup-pro-plan' === planClass }
+								onChange={ this.onPlanChange }
+							/>
+							Backup (2 TB)
+						</label>
+					</li>
+					<li className="jp-dev-card__deprecated-plans-list-header">&mdash; DEPRECATED &mdash;</li>
+					<li>
 						<label htmlFor="jetpack_security_daily">
 							<input
 								type="radio"
@@ -233,19 +299,6 @@ export class DevCard extends React.Component {
 						</label>
 					</li>
 					<li>
-						<label htmlFor="jetpack_complete">
-							<input
-								type="radio"
-								id="jetpack_complete"
-								value="jetpack_complete"
-								name="jetpack_complete"
-								checked={ 'is-complete-plan' === planClass }
-								onChange={ this.onPlanChange }
-							/>
-							Complete
-						</label>
-					</li>
-					<li>
 						<label htmlFor="jetpack_backup_daily">
 							<input
 								type="radio"
@@ -255,7 +308,7 @@ export class DevCard extends React.Component {
 								checked={ 'is-daily-backup-plan' === planClass }
 								onChange={ this.onPlanChange }
 							/>
-							Jetpack Backup Daily
+							Backup Daily
 						</label>
 					</li>
 					<li>
@@ -268,7 +321,7 @@ export class DevCard extends React.Component {
 								checked={ 'is-realtime-backup-plan' === planClass }
 								onChange={ this.onPlanChange }
 							/>
-							Jetpack Backup Reatime
+							Backup Real-time
 						</label>
 					</li>
 				</ul>

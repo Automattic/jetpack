@@ -4,7 +4,7 @@
 import { getDate, date, dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
-import { createInterpolateElement } from '@wordpress/element';
+import { createInterpolateElement, useState, useEffect } from '@wordpress/element';
 import { useSelect } from '@wordpress/data';
 
 /**
@@ -22,14 +22,13 @@ import BackupAnim1 from './icons/backup-animation-1.svg';
 import BackupAnim2 from './icons/backup-animation-2.svg';
 import BackupAnim3 from './icons/backup-animation-3.svg';
 
-/* global wp */
 /* eslint react/react-in-jsx-scope: 0 */
 const Backups = () => {
 	// State information
-	const [ progress, setProgress ] = wp.element.useState( null );
-	const [ trackProgress, setTrackProgress ] = wp.element.useState( 0 );
-	const [ latestTime, setLatestTime ] = wp.element.useState( '' );
-	const [ stats, setStats ] = wp.element.useState( {
+	const [ progress, setProgress ] = useState( null );
+	const [ trackProgress, setTrackProgress ] = useState( 0 );
+	const [ latestTime, setLatestTime ] = useState( '' );
+	const [ stats, setStats ] = useState( {
 		posts: 0,
 		uploads: 0,
 		plugins: 0,
@@ -44,12 +43,12 @@ const Backups = () => {
 		COMPLETE: 3,
 	};
 
-	const [ backupState, setBackupState ] = wp.element.useState( BACKUP_STATE.LOADING );
+	const [ backupState, setBackupState ] = useState( BACKUP_STATE.LOADING );
 
 	const progressInterval = 1 * 1000; // How often to poll for backup progress updates.
 
 	// Loads data on startup and whenever trackProgress updates.
-	wp.element.useEffect( () => {
+	useEffect( () => {
 		apiFetch( { path: '/jetpack/v4/backups' } ).then(
 			res => {
 				// If we have no backups don't load up stats.
@@ -65,14 +64,14 @@ const Backups = () => {
 						return;
 					}
 
-					if ( 'finished' === backup.status ) {
+					if ( 'finished' === backup.status && backup.stats ) {
 						latestBackup = backup;
 						setBackupState( BACKUP_STATE.COMPLETE );
 					}
 				} );
 
 				// Only the first backup can be in progress.
-				if ( 0 === res.length && 'started' === res[ 0 ].status ) {
+				if ( null === latestBackup && 'started' === res[ 0 ].status ) {
 					latestBackup = res[ 0 ];
 					setBackupState( BACKUP_STATE.IN_PROGRESS );
 				}

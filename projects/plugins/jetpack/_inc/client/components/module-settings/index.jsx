@@ -8,13 +8,13 @@ import React from 'react';
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import Card from 'components/card';
 import { FormFieldset, FormLegend, FormButton } from 'components/forms';
-import getRedirectUrl from 'lib/jp-redirect';
 import {
 	ModuleSettingRadios,
 	ModuleSettingCheckbox,
