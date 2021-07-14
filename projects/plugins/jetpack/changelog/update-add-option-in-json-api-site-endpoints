@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Add jetpack_connection_active_plugins option in JSON API site endpoint response options.

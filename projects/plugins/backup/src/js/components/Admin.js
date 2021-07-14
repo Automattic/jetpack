@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Fragment } from '@wordpress/element';
+import { Fragment, useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect } from '@wordpress/data';
@@ -14,24 +14,23 @@ import useConnection from '../hooks/useConnection';
 import './admin-style.scss';
 import { STORE_ID } from '../store';
 
-/* global wp */
 /* eslint react/react-in-jsx-scope: 0 */
 const Admin = () => {
 	const [ connectionStatus, renderJetpackConnection ] = useConnection();
-	const [ capabilities, setCapabilities ] = wp.element.useState( null );
-	const [ capabilitiesError, setCapabilitiesError ] = wp.element.useState( null );
-	const [ connectionLoaded, setConnectionLoaded ] = wp.element.useState( false );
-	const [ capabilitiesLoaded, setCapabilitiesLoaded ] = wp.element.useState( false );
+	const [ capabilities, setCapabilities ] = useState( null );
+	const [ capabilitiesError, setCapabilitiesError ] = useState( null );
+	const [ connectionLoaded, setConnectionLoaded ] = useState( false );
+	const [ capabilitiesLoaded, setCapabilitiesLoaded ] = useState( false );
 
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 
-	wp.element.useEffect( () => {
+	useEffect( () => {
 		if ( 0 < Object.keys( connectionStatus ).length ) {
 			setConnectionLoaded( true );
 		}
 	}, [ connectionStatus ] );
 
-	wp.element.useEffect( () => {
+	useEffect( () => {
 		apiFetch( { path: 'jetpack/v4/backup-capabilities' } ).then(
 			res => {
 				setCapabilities( res.capabilities );
@@ -82,14 +81,37 @@ const Admin = () => {
 			return <div>{ capabilitiesError }</div>;
 		}
 
-		return <div>No Backup Capabilities</div>;
+		return <div>{ __( 'No Backup Capabilities', 'jetpack-backup' ) }</div>;
 	};
 
-	return (
-		<div id="jetpack-backup-admin-container" className="jp-content">
+	const renderHeader = () => {
+		// TODO: Integrate Jetpack Header
+		return (
 			<div className="jp-header">
 				<h1>Jetpack Backup Plugin - Placeholder Header</h1>
 			</div>
+		);
+	};
+
+	const renderFooter = () => {
+		// TODO: Integrate Jetpack Footer
+		return <div className="jp-footer">Jetpack Backup 1.0 - Placeholder Footer</div>;
+	};
+
+	const renderManageConnection = () => {
+		// TODO: Integrate connection management from Connection Package
+		return (
+			<Fragment>
+				<h2>{ __( 'Manage your connection', 'jetpack-backup' ) }</h2>
+				<p className="notice notice-success">
+					{ __( 'Site and User Connected.', 'jetpack-backup' ) }
+				</p>
+			</Fragment>
+		);
+	};
+
+	const renderContent = () => {
+		return (
 			<div className="content">
 				<div>
 					<div className="jp-hero">{ renderLoadedState() }</div>
@@ -143,25 +165,29 @@ const Admin = () => {
 									</p>
 								</div>
 							</div>
-							<div className="jp-row">
-								<div class="lg-col-span-6 md-col-span-4 sm-col-span-4"></div>
-								<div class="lg-col-span-1 md-col-span-1 sm-col-span-0"></div>
-								<div class="lg-col-span-5 md-col-span-3 sm-col-span-4">
-									{ /* This should be replaced by "Manage Connection" Block from Connection Package */ }
-									{ connectionLoaded &&
-										connectionStatus.isUserConnected &&
-										connectionStatus.isRegistered && (
-											<p className="notice notice-success">
-												{ __( 'Site and User Connected.', 'jetpack-backup' ) }
-											</p>
-										) }
-								</div>
-							</div>
+							{ connectionLoaded &&
+								connectionStatus.isUserConnected &&
+								connectionStatus.isRegistered && (
+									<div className="jp-row">
+										<div class="lg-col-span-6 md-col-span-4 sm-col-span-4"></div>
+										<div class="lg-col-span-1 md-col-span-1 sm-col-span-0"></div>
+										<div class="lg-col-span-5 md-col-span-3 sm-col-span-4">
+											{ renderManageConnection() }
+										</div>
+									</div>
+								) }
 						</div>
 					</div>
 				</div>
 			</div>
-			<div className="jp-footer">Jetpack Backup 1.0 - Placeholder Footer</div>
+		);
+	};
+
+	return (
+		<div id="jetpack-backup-admin-container" className="jp-content">
+			{ renderHeader() }
+			{ renderContent() }
+			{ renderFooter() }
 		</div>
 	);
 };

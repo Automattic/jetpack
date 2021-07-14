@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { ConnectButton } from '@automattic/jetpack-connection';
 
@@ -26,6 +26,13 @@ export default function useConnection() {
 	const connectionStatus = useSelect( select => select( STORE_ID ).getConnectionStatus(), [] );
 	const { setConnectionStatus } = useDispatch( STORE_ID );
 
+	const statusCallback = useCallback(
+		status => {
+			setConnectionStatus( status );
+		},
+		[ setConnectionStatus ]
+	);
+
 	const renderConnectButton = () => {
 		return (
 			<ConnectButton
@@ -35,12 +42,8 @@ export default function useConnection() {
 				registrationNonce={ registrationNonce }
 				from="jetpack-backup"
 				redirectUri="admin.php?page=jetpack-backup"
-			>
-				{ status => {
-					setConnectionStatus( status );
-					return null;
-				} }
-			</ConnectButton>
+				statusCallback={ statusCallback }
+			/>
 		);
 	};
 

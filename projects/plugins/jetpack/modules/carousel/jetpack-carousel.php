@@ -424,7 +424,7 @@ class Jetpack_Carousel {
 						<div class="jp-carousel-pagination"></div>
 					</div>
 					<div class="jp-carousel-photo-title-container">
-						<h2 class="jp-carousel-photo-title"></h2>
+						<h2 class="jp-carousel-photo-caption"></h2>
 					</div>
 					<div class="jp-carousel-photo-icons-container">
 						<?php if ( $localize_strings['display_exif'] ) : ?>
@@ -541,10 +541,11 @@ class Jetpack_Carousel {
 						</div>
 						<div class="jp-carousel-image-meta">
 							<div class="jp-carousel-title-and-caption">
-								<div class="jp-carousel-photo-description"></div>
 								<div class="jp-carousel-photo-info">
 									<h3 class="jp-carousel-caption" itemprop="caption description"></h3>
 								</div>
+
+								<div class="jp-carousel-photo-description"></div>
 							</div>
 							<ul class="jp-carousel-image-exif" style="display: none;"></ul>
 							<a class="jp-carousel-image-download" target="_blank" style="display: none;">
@@ -688,9 +689,11 @@ class Jetpack_Carousel {
 		$large_file_info = wp_get_attachment_image_src( $attachment_id, 'large' );
 		$large_file      = isset( $large_file_info[0] ) ? $large_file_info[0] : '';
 
-		$attachment       = get_post( $attachment_id );
-		$attachment_title = wptexturize( $attachment->post_title );
-		$attachment_desc  = wpautop( wptexturize( $attachment->post_content ) );
+		$attachment         = get_post( $attachment_id );
+		$attachment_title   = ! empty( $attachment ) ? wptexturize( $attachment->post_title ) : '';
+		$attachment_desc    = ! empty( $attachment ) ? wpautop( wptexturize( $attachment->post_content ) ) : '';
+		$attachment_caption = ! empty( $attachment ) ? wpautop( wptexturize( $attachment->post_excerpt ) ) : '';
+
 		// Not yet providing geo-data, need to "fuzzify" for privacy
 		if ( ! empty( $img_meta ) ) {
 			foreach ( $img_meta as $k => $v ) {
@@ -708,13 +711,14 @@ class Jetpack_Carousel {
 		$img_meta = json_encode( array_map( 'strval', array_filter( $img_meta, 'is_scalar' ) ) );
 
 		$attr['data-attachment-id']     = $attachment_id;
-		$attr['data-permalink']         = esc_attr( get_permalink( $attachment->ID ) );
+		$attr['data-permalink']         = esc_attr( get_permalink( $attachment_id ) );
 		$attr['data-orig-file']         = esc_attr( $orig_file );
 		$attr['data-orig-size']         = $size;
 		$attr['data-comments-opened']   = $comments_opened;
 		$attr['data-image-meta']        = esc_attr( $img_meta );
 		$attr['data-image-title']       = esc_attr( htmlspecialchars( $attachment_title ) );
 		$attr['data-image-description'] = esc_attr( htmlspecialchars( $attachment_desc ) );
+		$attr['data-image-caption']     = esc_attr( htmlspecialchars( $attachment_caption ) );
 		$attr['data-medium-file']       = esc_attr( $medium_file );
 		$attr['data-large-file']        = esc_attr( $large_file );
 
