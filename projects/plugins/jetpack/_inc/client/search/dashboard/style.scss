@@ -11,9 +11,10 @@
 		align-items: center;
 		flex-flow: column;
 
-		@media screen and ( min-width: 480px ) and ( min-height: 700px ) {
-			height: 55vh;
-		}
+		min-height: 300px;
+		max-height: 500px;
+		height: 45vh;
+		overflow: hidden;
 	}
 
 	.jp-search-dashboard__title {
@@ -40,19 +41,10 @@
 		flex-flow: column;
 		justify-content: space-around;
 		align-items: center;
-		position: absolute;
-		left: 0;
 		width: 100%;
-		top: 25rem;
-		min-height: 20rem;
+		min-height: 30rem;
 
 		background-color: $white;
-		z-index: 1;
-		// In order to show WP footer, we need to sync the breakpoint.
-		@media screen and ( min-width: 782px ) and ( min-height: 700px ) {
-			top: 50vh;
-			height: calc( 48vh - 51px );
-		}
 	}
 
 	@include breakpoint( '<480px' ) {
