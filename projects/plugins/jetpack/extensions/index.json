@@ -39,15 +39,8 @@
 		"videopress",
 		"wordads"
 	],
-	"beta": [
-		"amazon"
-	],
-	"experimental": [
-		"anchor-fm",
-		"premium-content",
-		"conversation",
-		"dialogue"
-	],
+	"beta": [ "amazon" ],
+	"experimental": [ "anchor-fm", "premium-content", "conversation", "dialogue" ],
 	"no-post-editor": [
 		"business-hours",
 		"button",
@@ -70,10 +63,7 @@
 		"repeat-visitor",
 		"revue",
 		"simple-payments",
-		"slideshow",
 		"subscriptions",
-		"tiled-gallery",
-		"videopress",
 		"wordads"
 	]
 }
