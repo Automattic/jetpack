@@ -1,0 +1,31 @@
+.jp-dashboard-footer {
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: space-between;
+	align-items: center;
+	width: 100%;
+	max-width: 65rem;
+
+	color: #000;
+
+	// Align with header.
+	@media ( max-width: 1250px ) {
+		width: 95%;
+	}
+	@media ( max-width: 480px ) {
+		justify-content: space-around;
+	}
+}
+.jp-dashboard-footer__footer-left {
+	font-size: 0.875em;
+	& span {
+		vertical-align: middle;
+		line-height: 1.2em;
+	}
+}
+.jp-dashboard-footer__logo:before {
+	font-family: jetpack;
+	font-size: 1.2em;
+	content: '\f100';
+	margin: 10px 5px;
+}

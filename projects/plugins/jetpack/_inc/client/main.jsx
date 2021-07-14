@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { withRouter, Prompt } from 'react-router-dom';
 import { __ } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -47,7 +48,6 @@ import JetpackNotices from 'components/jetpack-notices';
 import AdminNotices from 'components/admin-notices';
 import Tracker from 'components/tracker';
 import analytics from 'lib/analytics';
-import getRedirectUrl from 'lib/jp-redirect';
 import restApi from 'rest-api';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import { getRewindStatus } from 'state/rewind';
