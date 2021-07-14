@@ -22,8 +22,8 @@ class JetpackLogo extends React.Component {
 	};
 
 	render() {
-		const viewBox = this.props.showText ? '0 0 118 32' : '0 0 32 32';
 		const { logoColor, showText, className, ...otherProps } = this.props;
+		const viewBox = showText ? '0 0 118 32' : '0 0 32 32';
 
 		return (
 			<svg
