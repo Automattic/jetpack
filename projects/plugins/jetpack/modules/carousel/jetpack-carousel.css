@@ -10,6 +10,10 @@
 .swiper-container-rtl .swiper-button-prev:after {
 	content: none;
 }
+.jp-carousel-overlay .swiper-button-prev, .jp-carousel-overlay .swiper-container-rtl .swiper-button-next,
+.jp-carousel-overlay .swiper-button-next, .jp-carousel-overlay .swiper-container-rtl .swiper-button-prev {
+	background-image: none;
+}
 /* end of temporary fix */
 
 [data-carousel-extra]:not( .jp-carousel-wrap ) {
@@ -98,11 +102,13 @@ so we have to target all affected elements in touch devices.
 }
 
 .jp-carousel-overlay .swiper-container .swiper-button-prev {
-	left: 0;
+	right: 0;
+	left: auto;
 }
 
 .jp-carousel-overlay .swiper-container .swiper-button-next {
-	right: 0;
+	left: 0;
+	right: auto;
 }
 
 .jp-carousel-overlay .swiper-container.swiper-container-rtl .swiper-button-prev,
