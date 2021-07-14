@@ -10,13 +10,13 @@ import { connect } from 'react-redux';
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import ConnectionBanner from 'components/connection-banner';
 import DismissableNotices from './dismissable';
-import getRedirectUrl from 'lib/jp-redirect';
 import {
 	getSiteConnectionStatus,
 	getSiteOfflineMode,

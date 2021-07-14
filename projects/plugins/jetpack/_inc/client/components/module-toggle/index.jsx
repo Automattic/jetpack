@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -17,7 +18,6 @@ import { __ } from '@wordpress/i18n';
 import analytics from 'lib/analytics';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import { getModuleOverride } from 'state/modules';
-import getRedirectUrl from 'lib/jp-redirect';
 
 class ModuleToggleComponent extends Component {
 	static displayName = 'ModuleToggle';
