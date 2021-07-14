@@ -796,6 +796,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	border-radius: 3px;
 	padding: 8px 16px;
 	font-size: 14px;
+	color: white;
 }
 
 #jp-carousel-comment-form-button-submit:active,
@@ -811,6 +812,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	margin-top: 20px;
 	color: #999;
 	position: relative;
+	overflow: hidden;
 }
 
 #jp-carousel-comment-post-results {
