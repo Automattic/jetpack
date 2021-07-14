@@ -1043,6 +1043,13 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	opacity: 0.5;
 }
 
+.jp-carousel-light #jp-carousel-comment-form-spinner {
+	border-top: 4px solid rgba( 0, 0, 0, 0.2 );
+	border-right: 4px solid rgba( 0, 0, 0, 0.2 );
+	border-bottom: 4px solid rgba( 0, 0, 0, 0.2 );
+	border-left: 4px solid #000000;
+}
+
 /** Icons Start **/
 .jp-carousel-photo-icons-container {
 	flex: 1;
