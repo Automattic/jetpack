@@ -1,9 +1,4 @@
 /**
- * External dependencies
- */
-import getRedirectUrl from '../../../../../_inc/client/lib/jp-redirect';
-
-/**
  * Internal dependencies
  */
 import WpPage from '../wp-page';
@@ -12,7 +7,7 @@ import { getAccountCredentials } from '../../utils-helper';
 
 export default class LoginPage extends WpPage {
 	constructor( page ) {
-		const url = getRedirectUrl( 'wpcom-log-in' );
+		const url = 'https://jetpack.com/redirect/?source=wpcom-log-in';
 		super( page, {
 			expectedSelectors: [ '.wp-login__container' ],
 			url,

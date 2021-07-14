@@ -37,8 +37,11 @@ class Jetpack_Admin {
 		jetpack_require_lib( 'admin-pages/class-jetpack-about-page' );
 		$this->jetpack_about = new Jetpack_About_Page();
 
+		jetpack_require_lib( 'admin-pages/class-jetpack-search-dashboard-page' );
+		$this->jetpack_search = new Jetpack_Search_Dashboard_Page();
+
 		add_action( 'admin_menu', array( $this->jetpack_react, 'add_actions' ), 998 );
-		add_action( 'admin_menu', array( $this->jetpack_react, 'add_actions' ), 998 );
+		add_action( 'admin_menu', array( $this->jetpack_search, 'add_actions' ), 999 );
 		add_action( 'jetpack_admin_menu', array( $this->jetpack_react, 'jetpack_add_dashboard_sub_nav_item' ) );
 		add_action( 'jetpack_admin_menu', array( $this->jetpack_react, 'jetpack_add_settings_sub_nav_item' ) );
 		add_action( 'jetpack_admin_menu', array( $this, 'admin_menu_debugger' ) );

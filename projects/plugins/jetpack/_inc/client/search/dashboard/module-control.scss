@@ -1,0 +1,79 @@
+@import './_variables.scss';
+
+$color-button-background: $black;
+$color-button-text: $white;
+$color-button-background-disabled: #dcdcde;
+$color-button-text-disabled: #a7aaad;
+
+.jp-form-search-settings-group {
+	width: 100%;
+	max-width: 55rem;
+	.dops-card {
+		box-shadow: none;
+	}
+}
+
+.jp-form-search-settings-group__toggle {
+	margin-top: 2em;
+	font-size: 1.5em;
+
+	.form-toggle__label-content {
+		font-weight: bold;
+	}
+	.form-toggle:checked + .form-toggle__label .form-toggle__switch {
+		background: $color-plan;
+	}
+	.form-toggle__switch:focus {
+		box-shadow: 0 0 0 2px $blue-medium;
+	}
+}
+
+.jp-form-search-settings-group__toggle-description {
+	margin-left: 36px; // same as label
+	margin-top: 0.5em;
+}
+
+p.jp-form-search-settings-group__toggle-explanation {
+	color: #2c3338;
+	font-weight: 250;
+	font-size: 0.875rem;
+}
+
+.jp-form-search-settings-group__buttons {
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: space-between;
+	margin-top: 1em;
+	width: 100%;
+	max-width: 450px;
+}
+
+.jp-form-search-settings-group__button {
+	width: 15em;
+	margin: 0.25em;
+	text-align: center;
+	border-color: $color-button-background;
+
+	&.is-customize-search {
+		color: $color-button-text;
+		background-color: $color-button-background;
+	}
+
+	&:disabled,
+	&[disabled] {
+		background-color: $color-button-background-disabled;
+		border-color: $color-button-background-disabled;
+		color: $color-button-text-disabled;
+		cursor: not-allowed;
+	}
+
+	&.is-widgets-editor {
+		color: $color-button-background;
+		background: transparent;
+		&:disabled,
+		&[disabled] {
+			color: $color-button-text-disabled;
+			background: transparent;
+		}
+	}
+}

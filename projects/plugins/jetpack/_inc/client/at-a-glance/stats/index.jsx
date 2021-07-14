@@ -13,6 +13,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { Spinner } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -25,7 +26,6 @@ import DashSectionHeader from 'components/dash-section-header';
 import DashStatsBottom from './dash-stats-bottom';
 import { emptyStatsCardDismissed } from 'state/settings';
 import { getInitialStateStatsData, getDateFormat } from 'state/initial-state';
-import getRedirectUrl from 'lib/jp-redirect';
 import { getStatsData, statsSwitchTab, fetchStatsData, getActiveStatsTab } from 'state/at-a-glance';
 import { imagePath } from 'constants/urls';
 import { isOfflineMode, isCurrentUserLinked, getConnectUrl } from 'state/connection';
