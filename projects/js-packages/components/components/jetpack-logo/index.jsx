@@ -3,6 +3,7 @@
  */
 import PropTypes from 'prop-types';
 import React, { Fragment } from 'react';
+import classnames from 'classnames';
 
 class JetpackLogo extends React.Component {
 	static propTypes = {
@@ -14,19 +15,27 @@ class JetpackLogo extends React.Component {
 	};
 
 	static defaultProps = {
-		className: 'jetpack-logo',
+		className: '',
 		height: 32,
-		showLogoText: true,
+		showText: true,
 		logoColor: '#00BE28',
 	};
 
 	render() {
 		const viewBox = this.props.showText ? '0 0 118 32' : '0 0 32 32';
+		const { logoColor, showText, className, ...otherProps } = this.props;
 
 		return (
-			<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox={ viewBox } { ...this.props }>
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				x="0px"
+				y="0px"
+				viewBox={ viewBox }
+				className={ classnames( 'jetpack-logo', className ) }
+				{ ...otherProps }
+			>
 				<path
-					fill={ this.props.logoColor }
+					fill={ logoColor }
 					d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z M15,19H7l8-16V19z M17,29V13h8L17,29z"
 				/>
 				showText && (
