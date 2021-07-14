@@ -10,12 +10,12 @@ import { connect } from 'react-redux';
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import DashItem from 'components/dash-item';
-import getRedirectUrl from 'lib/jp-redirect';
 import { isModuleAvailable } from 'state/modules';
 import { isOfflineMode } from 'state/connection';
 

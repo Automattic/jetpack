@@ -18,6 +18,7 @@
 			}
 		}
 
+		setFocusOnActiveMenuItem();
 		setAriaExpanded( 'false' );
 
 		var adminbarBlog = adminbar.querySelector( '#wp-admin-bar-blog' );
@@ -93,6 +94,16 @@
 				jpAdminMenu.screen +
 				'&preferred-view=default'
 		);
+	}
+
+	function setFocusOnActiveMenuItem() {
+		var currentMenuItem = document.querySelector( '.wp-submenu .current > a' );
+
+		if ( ! currentMenuItem ) {
+			return;
+		}
+
+		currentMenuItem.focus();
 	}
 
 	if ( document.readyState === 'loading' ) {
