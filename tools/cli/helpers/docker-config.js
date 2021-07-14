@@ -198,8 +198,12 @@ const setExtrasConfig = ( argv, config ) => {
 		version: '3.3',
 	};
 
+	if ( config.default && config.default.extras ) {
+		extrasCompose = mergeJson( extrasCompose, config.default.extras );
+	}
+	
 	if ( config[ argv.type ] && config[ argv.type ].extras ) {
-		extrasCompose = Object.assign( extrasCompose, config[ argv.type ].extras );
+		extrasCompose = mergeJson( extrasCompose, config[ argv.type ].extras );
 	}
 
 	const extrasBuiltFile = `${ dockerFolder }/compose-extras.built.yml`;
