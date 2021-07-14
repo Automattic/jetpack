@@ -5,7 +5,7 @@ import { Fragment, useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect } from '@wordpress/data';
-import { JetpackFooter } from '@automattic/jetpack-components';
+import { JetpackFooter, JetpackLogo } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -13,6 +13,7 @@ import { JetpackFooter } from '@automattic/jetpack-components';
 import Backups from './Backups';
 import useConnection from '../hooks/useConnection';
 import './admin-style.scss';
+import './masthead/masthead-style.scss';
 import { STORE_ID } from '../store';
 
 /* eslint react/react-in-jsx-scope: 0 */
@@ -115,10 +116,19 @@ const Admin = () => {
 	};
 
 	const renderHeader = () => {
-		// TODO: Integrate Jetpack Header
 		return (
-			<div className="jp-header">
-				<h1>Jetpack Backup Plugin - Placeholder Header</h1>
+			<div className="jp-wrap">
+				<div className="jp-row">
+					<div class="lg-col-span-12 md-col-span-8 sm-col-span-4">
+						<div className="jp-masthead">
+							<div className="jp-masthead__inside-container">
+								<div className="jp-masthead__logo-container">
+									<JetpackLogo className="jetpack-logo__masthead" />
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 		);
 	};
