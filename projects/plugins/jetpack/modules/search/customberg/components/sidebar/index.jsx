@@ -29,7 +29,7 @@ import './styles.scss';
  *
  * @param {object} props - Component properties
  * @param {string} props.currentArea - Current area.
- * @returns {React.Element} component instance
+ * @returns {Element} component instance
  */
 function Tabs( { currentArea } ) {
 	return (
@@ -59,7 +59,7 @@ function Tabs( { currentArea } ) {
  * @param {string} props.identifier - Identifier.
  * @param {string} props.label - Label.
  * @param {boolean} props.isActive - Whether the tab is active.
- * @returns {React.Element} component instance
+ * @returns {Element} component instance
  */
 function Tab( { identifier, label, isActive } ) {
 	const { enableComplementaryArea } = useDispatch( interfaceStore );
@@ -83,7 +83,7 @@ function Tab( { identifier, label, isActive } ) {
 /**
  * Sidebar implemented via ComplementaryArea component. Renders using the slot/fill paradigm.
  *
- * @returns {React.Element} component instance
+ * @returns {Element} component instance
  */
 export default function Sidebar() {
 	const currentArea = useSelect( select => {

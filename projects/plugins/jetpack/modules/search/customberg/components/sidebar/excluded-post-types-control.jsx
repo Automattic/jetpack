@@ -17,7 +17,7 @@ const VALID_POST_TYPE_NAMES = Object.keys( VALID_POST_TYPES );
  * @param {boolean} props.disabled - disables the control.
  * @param {Function} props.onChange - invoked with a new color when the selected color has changed.
  * @param {string} props.value - excluded post types as a CSV.
- * @returns {React.Element} component instance
+ * @returns {Element} component instance
  */
 export default function ExcludedPostTypesControl( { disabled, value, onChange } ) {
 	const selectedValues = useMemo( () => {

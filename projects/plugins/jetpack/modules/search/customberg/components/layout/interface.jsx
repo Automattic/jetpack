@@ -33,7 +33,7 @@ const interfaceLabels = {
 /**
  * Wraps the InterfaceSkeleton component with necessary parameters.
  *
- * @returns {React.Element} component instance
+ * @returns {Element} component instance
  */
 export default function Interface() {
 	const { hasSidebarEnabled, isLargeViewport } = useSelect( select => ( {

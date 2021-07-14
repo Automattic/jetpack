@@ -30,7 +30,7 @@ import ThemeControl from './theme-control';
 /**
  * Customization/configuration tab for the sidebar.
  *
- * @returns {React.Element} component instance
+ * @returns {Element} component instance
  */
 export default function SidebarOptions() {
 	const {

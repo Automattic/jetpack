@@ -14,7 +14,7 @@ import { SERVER_OBJECT_NAME } from '../../../instant-search/lib/constants';
 /**
  * Component for saving pending entity record changes.
  *
- * @returns {React.Element} component instance
+ * @returns {Element} component instance
  */
 export default function SaveButton() {
 	const {

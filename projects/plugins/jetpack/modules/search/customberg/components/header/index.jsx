@@ -16,7 +16,7 @@ import './styles.scss';
 /**
  * Component for showing the Gutenberg-style header.
  *
- * @returns {React.Element} component instance
+ * @returns {Element} component instance
  */
 function Header() {
 	const isMediumViewport = useViewportMatch( 'medium' );

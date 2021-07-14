@@ -3,7 +3,7 @@
  *
  * @param {object} props - component properties.
  * @param {string} props.theme - 'dark' or 'light'.
- * @returns {React.Element} component instance
+ * @returns {Element} component instance
  */
 export default function ThemeIcon( { theme } ) {
 	const fill = theme === 'dark' ? '#000' : '#fff';

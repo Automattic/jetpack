@@ -19,7 +19,7 @@ const DEFAULT_COLORS = [
  * @param {boolean} props.disabled - disables the control.
  * @param {Function} props.onChange - invoked with a new color when the selected color has changed.
  * @param {string} props.value - color value prefixed with #.
- * @returns {React.Element} component instance
+ * @returns {Element} component instance
  */
 export default function ColorControl( { disabled, value, onChange } ) {
 	return (

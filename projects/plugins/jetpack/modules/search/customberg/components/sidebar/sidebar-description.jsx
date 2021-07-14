@@ -10,7 +10,7 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Description tab for the sidebar.
  *
- * @returns {React.Element} component instance
+ * @returns {Element} component instance
  */
 export default function SidebarDescription() {
 	return (

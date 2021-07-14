@@ -23,7 +23,7 @@ import ThemeIcon from './theme-icon';
  * @param {boolean} props.disabled - disables the control.
  * @param {Function} props.onChange - invoked with new theme value when a button is pressed.
  * @param {string} props.value - 'dark' or 'light'.
- * @returns {React.Element} component instance
+ * @returns {Element} component instance
  */
 export default function ThemeControl( { disabled, value, onChange } ) {
 	return (

@@ -17,7 +17,7 @@ import './styles.scss';
 /**
  * Top-level component for the Gutenberg-style Jetpack Search customization interface.
  *
- * @returns {React.Element} component instance
+ * @returns {Element} component instance
  */
 export default function Layout() {
 	useEffect( () => {
