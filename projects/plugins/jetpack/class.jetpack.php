@@ -2670,7 +2670,7 @@ class Jetpack {
 	public static function get_module( $module ) {
 		static $modules_details;
 
-		if ( static::has_no_module_info( $module ) ) {
+		if ( jetpack_has_no_module_info( $module ) ) {
 			return false;
 		}
 
@@ -2681,7 +2681,7 @@ class Jetpack {
 		} else {
 			$mod = jetpack_get_module_info( $module );
 
-			if ( empty( $mod['name'] ) ) {
+			if ( ! isset( $mod ) ) {
 				// Try to get the module info from the file as a fallback.
 				$mod = self::get_file_data( $file, jetpack_get_all_module_header_names() );
 
@@ -2759,31 +2759,6 @@ class Jetpack {
 		 * @param string  $file   The path to the module source file.
 		 */
 		return apply_filters( 'jetpack_get_module', $mod, $module, $file );
-	}
-
-	/**
-	 * Returns whether the file associated with the given slug has no module info.
-	 *
-	 * @param string $slug The slug name.
-	 *
-	 * @return bool Whether the file has no module info.
-	 */
-	private static function has_no_module_info( $slug ) {
-		$no_info_slugs = array(
-			'geo-location',
-			'minileven',
-			'module-extras',
-			'module-headings',
-			'module-info',
-			'plugin-search',
-			'theme-tools',
-		);
-
-		if ( in_array( $slug, $no_info_slugs, true ) ) {
-			return true;
-		}
-
-		return false;
 	}
 
 	/**
