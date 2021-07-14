@@ -827,6 +827,8 @@ class Jetpack_Gutenberg {
 	 * @return string $block_varation production|beta|experimental
 	 */
 	public static function blocks_variation() {
+		global $pagenow;
+
 		// Default to production blocks.
 		$block_varation = 'production';
 
@@ -839,6 +841,14 @@ class Jetpack_Gutenberg {
 		 */
 		if ( Constants::is_true( 'JETPACK_EXPERIMENTAL_BLOCKS' ) ) {
 			$block_varation = 'experimental';
+		}
+
+		/*
+		 * When in the block-based widget editor,
+		 * we cannot use the variation that uses blocks that rely on post information.
+		 */
+		if ( is_customize_preview() || 'widgets.php' === $pagenow ) {
+			$block_varation = 'no-post-editor';
 		}
 
 		/**
