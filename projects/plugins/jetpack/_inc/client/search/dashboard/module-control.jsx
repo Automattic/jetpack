@@ -23,7 +23,7 @@ import './module-control.scss';
  * State dependencies
  */
 import { isOfflineMode } from 'state/connection';
-import { getUpgradeUrl, getSiteAdminUrl } from 'state/initial-state';
+import { getUpgradeUrl, getSiteAdminUrl, arePromotionsActive } from 'state/initial-state';
 import {
 	getSitePlan,
 	hasActiveSearchPurchase as selectHasActiveSearchPurchase,
@@ -53,7 +53,13 @@ const WIDGETS_EDITOR_URL = 'customize.php?autofocus[panel]=widgets&return=%s';
  * @returns {React.Component}	Search settings component.
  */
 function Search( props ) {
-	const { failedToEnableSearch, hasActiveSearchPurchase, updateOptions, siteAdminUrl } = props;
+	const {
+		failedToEnableSearch,
+		hasActiveSearchPurchase,
+		updateOptions,
+		siteAdminUrl,
+		isInstantSearchPromotionActive,
+	} = props;
 	const isModuleEnabled = props.getOptionValue( 'search' );
 	const isInstantSearchEnabled = props.getOptionValue( 'instant_search_enabled', 'search' );
 
@@ -172,7 +178,9 @@ function Search( props ) {
 										{ renderInstantSearchButtons() }
 									</Fragment>
 								) }
-								{ hasOnlyLegacySearch && <InstantSearchUpsellNudge href={ props.upgradeUrl } /> }
+								{ hasOnlyLegacySearch && isInstantSearchPromotionActive && (
+									<InstantSearchUpsellNudge href={ props.upgradeUrl } />
+								) }
 							</div>
 						</div>
 					</Fragment>
@@ -196,5 +204,6 @@ export default connect( state => {
 		siteID: getSiteID( state ),
 		upgradeUrl: getUpgradeUrl( state, 'jetpack-search' ),
 		siteAdminUrl: getSiteAdminUrl( state ),
+		isInstantSearchPromotionActive: arePromotionsActive( state ),
 	};
 } )( withModuleSettingsFormHelpers( Search ) );
