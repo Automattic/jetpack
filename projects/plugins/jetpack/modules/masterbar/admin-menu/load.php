@@ -22,12 +22,12 @@ function should_customize_nav( $admin_menu_class ) {
 	$is_api_request = defined( 'REST_REQUEST' ) && REST_REQUEST || 0 === strpos( $_SERVER['REQUEST_URI'], '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' );
 
 	// No nav customizations on WP Admin of Atomic sites when SSO is disabled.
-	if ( is_subclass_of( $admin_menu_class, Atomic_Admin_Menu::class ) && ! $is_api_request && ! \Jetpack::is_module_active( 'sso' ) ) {
+	if ( is_a( $admin_menu_class, Atomic_Admin_Menu::class, true ) && ! $is_api_request && ! \Jetpack::is_module_active( 'sso' ) ) {
 		return false;
 	}
 
 	// No nav customizations on WP Admin of Jetpack sites.
-	if ( is_subclass_of( $admin_menu_class, Jetpack_Admin_Menu::class ) && ! $is_api_request ) {
+	if ( is_a( $admin_menu_class, Jetpack_Admin_Menu::class, true ) && ! $is_api_request ) {
 		return false;
 	}
 
