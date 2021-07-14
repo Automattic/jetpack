@@ -97,9 +97,7 @@ class Jetpack_Widget_Conditions {
 		}
 
 		if ( ! $add_html_to_form && ! $handle_widget_updates && ! $add_data_assets_to_page &&
-			! in_array( $pagenow, array( 'wp-login.php', 'wp-register.php' ), true ) &&
-			// Don't filter widgets when editing them - otherwise they could get filtered out and become impossible to edit.
-			( false === strpos( wp_get_raw_referer(), '/wp-admin/widgets.php' ) )
+			! in_array( $pagenow, array( 'wp-login.php', 'wp-register.php' ), true )
 		) {
 			// Not hit any known widget admin endpoint, register widget display hooks instead.
 			add_filter( 'widget_display_callback', array( __CLASS__, 'filter_widget' ) );
@@ -704,6 +702,12 @@ class Jetpack_Widget_Conditions {
 		global $wp_query;
 
 		if ( empty( $instance['conditions'] ) || empty( $instance['conditions']['rules'] ) ) {
+			return $instance;
+		}
+
+		// Don't filter widgets from the REST API when it's called via the widgets admin page - otherwise they could get
+		// filtered out and become impossible to edit.
+		if ( strpos( wp_get_raw_referer(), '/wp-admin/widgets.php' ) && false !== strpos( $_SERVER['REQUEST_URI'], '/wp-json/' ) ) {
 			return $instance;
 		}
 
