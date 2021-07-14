@@ -31,7 +31,12 @@ export default function JetpackFooter( {
 	return (
 		<div className={ classnames( 'jp-dashboard-footer', className ) } { ...otherProps }>
 			<div className="jp-dashboard-footer__footer-left">
-				<JetpackLogo logoColor="#000" className="jp-dashboard-footer__jetpack-symbol" />
+				<JetpackLogo
+					logoColor="#000"
+					showText={ false }
+					height="16"
+					className="jp-dashboard-footer__jetpack-symbol"
+				/>
 				<span className="jp-dashboard-footer__module-name">{ moduleName }</span>
 			</div>
 			<div className="jp-dashboard-footer__footer-right">
