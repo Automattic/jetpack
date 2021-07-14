@@ -102,13 +102,13 @@ so we have to target all affected elements in touch devices.
 }
 
 .jp-carousel-overlay .swiper-container .swiper-button-prev {
-	right: 0;
-	left: auto;
+	left: 0;
+	right: auto;
 }
 
 .jp-carousel-overlay .swiper-container .swiper-button-next {
-	left: 0;
-	right: auto;
+	right: 0;
+	left: auto;
 }
 
 .jp-carousel-overlay .swiper-container.swiper-container-rtl .swiper-button-prev,
