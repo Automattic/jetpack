@@ -81,3 +81,8 @@ body.infinity-end .site-main > div:last-of-type > article:last-of-type .entry-fo
 	background-color: var(--global--color-background);
 	border-color: var(--global--color-secondary);
 }
+
+/* Customizer */
+.widget-area [data-customize-partial-type="widget"] {
+	overflow: hidden;
+}
