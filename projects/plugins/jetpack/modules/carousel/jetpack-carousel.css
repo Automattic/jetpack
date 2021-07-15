@@ -862,6 +862,43 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	margin-top: 20px;
 }
 
+/* ----- Click transition  ----- */
+
+.jp-carousel-image-clicked-container {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding-bottom: 64px;
+    margin: auto;
+    opacity: 1;
+    z-index: 2147483648;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: rgba( 0, 0, 0, 0.5 );
+    transition-property: width;
+}
+
+.jp-carousel-image-clicked-container img {
+    max-height: 50%;
+    transform-origin: center;
+	transition: transform 0.2s ease-out, opacity 0.1s ease-in;
+	transform: scale( 0 );
+	opacity: 0;
+}
+
+.jp-carousel-image-clicked-container img.jp-carousel-clicked-image-grow {
+	max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    height: 100%;
+    transform: scale( 1 );
+    opacity: 1;
+}
+
 /* ----- Light variant ----- */
 
 .jp-carousel-light.jp-carousel-overlay svg {

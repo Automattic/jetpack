@@ -1591,6 +1591,24 @@
 				e.stopPropagation();
 
 				var item = domUtil.closest( target, itemSelector );
+
+				// @todo Here is where we grab the clicked image and ENHANCE THAT YO
+
+				var clickedImage = item.querySelector( 'img' );
+
+				if ( clickedImage ) {
+					var clonedImageContainer = document.createElement( 'div' );
+					clonedImageContainer.className = 'jp-carousel-image-clicked-container';
+					var clonedImage = clickedImage.cloneNode();
+					clonedImageContainer.appendChild( clonedImage );
+					item.parentNode.appendChild( clonedImageContainer );
+					// next tick.
+					setTimeout( function() {
+						clonedImage.className = 'jp-carousel-clicked-image-grow';
+					}, 1 );
+				}
+
+
 				var index = Array.prototype.indexOf.call( gallery.querySelectorAll( itemSelector ), item );
 				loadSwiper( gallery, { startIndex: index } );
 			}
