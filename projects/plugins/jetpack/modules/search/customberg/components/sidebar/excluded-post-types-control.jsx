@@ -8,7 +8,6 @@ import { __ } from '@wordpress/i18n';
 /* eslint-disable react/jsx-no-bind */
 
 const VALID_POST_TYPES = global.JetpackInstantSearchOptions.postTypes;
-const VALID_POST_TYPE_NAMES = Object.keys( VALID_POST_TYPES );
 
 /**
  * Control for modifying excluded post types.
@@ -16,23 +15,31 @@ const VALID_POST_TYPE_NAMES = Object.keys( VALID_POST_TYPES );
  * @param {object} props - component properties.
  * @param {boolean} props.disabled - disables the control.
  * @param {Function} props.onChange - invoked with a new color when the selected color has changed.
+ * @param {object} props.validPostTypes - { [ postTypeId ]: { name: string, singular_name: string } }.
  * @param {string} props.value - excluded post types as a CSV.
  * @returns {Element} component instance
  */
-export default function ExcludedPostTypesControl( { disabled, value, onChange } ) {
+export default function ExcludedPostTypesControl( {
+	disabled,
+	onChange,
+	validPostTypes = VALID_POST_TYPES,
+	value,
+} ) {
+	const validPostTypeNames = useMemo( () => Object.keys( validPostTypes ), [ validPostTypes ] );
 	const selectedValues = useMemo( () => {
 		if ( ! value || ! Array.isArray( value ) ) {
 			return new Set();
 		}
 		return new Set( value );
 	}, [ value ] );
+	const isLastUnchecked = selectedValues.size === validPostTypeNames.length - 1;
+
 	const changeHandler = key => isSelected => {
 		const newValue = new Set( selectedValues );
 		isSelected ? newValue.add( key ) : newValue.delete( key );
 		onChange( [ ...newValue ] );
 	};
 
-	const isLastUnchecked = selectedValues.size === VALID_POST_TYPE_NAMES.length - 1;
 	return (
 		<div className="jp-search-customize-excluded-post-types-input components-base-control">
 			<div className="jp-search-customize-excluded-post-types-label">
@@ -44,7 +51,7 @@ export default function ExcludedPostTypesControl( { disabled, value, onChange } 
 					{ __( 'You must leave at least one post type unchecked.', 'jetpack' ) }
 				</Notice>
 			) }
-			{ VALID_POST_TYPE_NAMES.map( type => (
+			{ validPostTypeNames.map( type => (
 				<CheckboxControl
 					checked={ selectedValues.has( type ) }
 					disabled={ disabled || ( ! selectedValues.has( type ) && isLastUnchecked ) }
