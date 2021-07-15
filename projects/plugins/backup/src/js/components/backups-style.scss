@@ -51,8 +51,22 @@
 	width: 0%;
 	background: var( --jp-green-primary );
 }
-
 .backup__latest {
+	display: flex;
+	align-items: center;
+	margin-bottom: 8px;
+
+	svg, img {
+		min-width: 32px;
+		min-height: 32px;
+	}
+
+	h2 {
+		margin: 0;
+		margin-left: 12px;
+		vertical-align: -1px;
+	}
+
 	+ h1 {
 		white-space: nowrap;
 	}
