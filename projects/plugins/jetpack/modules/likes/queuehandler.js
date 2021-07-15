@@ -283,21 +283,19 @@ function jetpackLoadLikeWidgetIframe( wrapperID ) {
 	if ( placeholder.hasClass( 'post-likes-widget-placeholder' ) ) {
 		var postLikesFrame = document.createElement( 'iframe' );
 
-		postLikesFrame[ 'class' ] = 'post-likes-widget jetpack-likes-widget';
+		postLikesFrame.classList.add( 'post-likes-widget', 'jetpack-likes-widget' );
 		postLikesFrame.name = $wrapper.data( 'name' );
 		postLikesFrame.src = $wrapper.data( 'src' );
-		postLikesFrame.height = '18px';
-		postLikesFrame.width = '200px';
+		postLikesFrame.height = '55px';
+		postLikesFrame.width = '100%';
 		postLikesFrame.frameBorder = '0';
 		postLikesFrame.scrolling = 'no';
+		postLikesFrame.title = $wrapper.data( 'title' );
 
 		if ( $wrapper.hasClass( 'slim-likes-widget' ) ) {
 			postLikesFrame.height = '22px';
 			postLikesFrame.width = '68px';
 			postLikesFrame.scrolling = 'no';
-		} else {
-			postLikesFrame.height = '55px';
-			postLikesFrame.width = '100%';
 		}
 
 		placeholder.after( postLikesFrame );
