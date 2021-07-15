@@ -6,7 +6,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import Gridicon from '../../../../modules/search/instant-search/components/gridicon';
+import Gridicon from 'components/gridicon';
 import TextRowPlaceHolder from './placeholder';
 import './mocked-legacy-search.scss';
 
