@@ -17,7 +17,7 @@ import { getPlanClass } from 'lib/plans/constants';
 import { getSitePlan, hasActiveSearchPurchase as selectHasActiveSearchPurchase } from 'state/site';
 
 /**
- *Mocked Search component, which shows mocked Instant Search or legacy Search interface.
+ * Mocked Search component, which shows mocked Instant Search or legacy Search interface.
  *
  * @param {object} props - Component properties.
  * @returns {React.Component} Mocked Search interface component.
