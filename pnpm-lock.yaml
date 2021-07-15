@@ -363,7 +363,7 @@ importers:
       jsdom: 16.4.0
       jsdom-global: 3.0.2
       lodash: 4.17.21
-      mapbox-gl: 1.13.0
+      maplibre-gl: 1.15.2
       markdown-it: 12.0.4
       mocha: 8.2.1
       mockery: 2.1.0
@@ -470,7 +470,7 @@ importers:
       gulp-sourcemaps: 3.0.0
       jsdom: 16.4.0
       jsdom-global: 3.0.2_jsdom@16.4.0
-      mapbox-gl: 1.13.0
+      maplibre-gl: 1.15.2
       markdown-it: 12.0.4
       node-sass: 4.14.1
       page: 1.7.1
@@ -679,7 +679,7 @@ importers:
       eslint-plugin-jsdoc: 32.3.3_eslint@7.25.0
       eslint-plugin-jsx-a11y: 6.4.1_eslint@7.25.0
       eslint-plugin-lodash: 7.2.0_eslint@7.25.0
-      eslint-plugin-prettier: 3.4.0_1fb0897f48b0b69453836be230262d22
+      eslint-plugin-prettier: 3.4.0_29601d46fa20d533a3a9bdbfa88bed36
       eslint-plugin-react: 7.23.2_eslint@7.25.0
       eslint-plugin-wpcalypso: 5.0.0_eslint@7.25.0
       glob: 7.1.6
@@ -3553,12 +3553,10 @@ packages:
     engines: {node: '>= 0.6'}
     dev: false
 
-  /@mapbox/mapbox-gl-supported/1.5.0_mapbox-gl@1.13.0:
+  /@mapbox/mapbox-gl-supported/1.5.0:
     resolution: {integrity: sha512-/PT1P6DNf7vjEEiPkVIRJkvibbqWtqnyGaBz3nfRdcxclNSnSdaLU5tfAgcD7I8Yt5i+L19s406YLl1koLnLbg==}
     peerDependencies:
       mapbox-gl: '>=0.32.1 <2.0.0'
-    dependencies:
-      mapbox-gl: 1.13.0
     dev: false
 
   /@mapbox/point-geometry/0.1.0:
@@ -5548,7 +5546,7 @@ packages:
       eslint-plugin-jest: 23.20.0_eslint@7.25.0
       eslint-plugin-jsdoc: 30.7.13_eslint@7.25.0
       eslint-plugin-jsx-a11y: 6.4.1_eslint@7.25.0
-      eslint-plugin-prettier: 3.4.0_78f889a4d298e472d2ac774dc8d2052c
+      eslint-plugin-prettier: 3.4.0_106fe4c2d8b17897212c9dcbb448a167
       eslint-plugin-react: 7.23.2_eslint@7.25.0
       eslint-plugin-react-hooks: 4.2.0_eslint@7.25.0
       globals: 12.4.0
@@ -9660,24 +9658,7 @@ packages:
       lodash: 4.17.21
     dev: true
 
-  /eslint-plugin-prettier/3.4.0_1fb0897f48b0b69453836be230262d22:
-    resolution: {integrity: sha512-UDK6rJT6INSfcOo545jiaOwB701uAIt2/dR7WnFQoGCVl1/EMqdANBmwUaqqQ45aXprsTGzSa39LI1PyuRBxxw==}
-    engines: {node: '>=6.0.0'}
-    peerDependencies:
-      eslint: '>=5.0.0'
-      eslint-config-prettier: '*'
-      prettier: '>=1.13.0'
-    peerDependenciesMeta:
-      eslint-config-prettier:
-        optional: true
-    dependencies:
-      eslint: 7.25.0
-      eslint-config-prettier: 8.3.0_eslint@7.25.0
-      prettier: /wp-prettier/2.0.5
-      prettier-linter-helpers: 1.0.0
-    dev: true
-
-  /eslint-plugin-prettier/3.4.0_78f889a4d298e472d2ac774dc8d2052c:
+  /eslint-plugin-prettier/3.4.0_106fe4c2d8b17897212c9dcbb448a167:
     resolution: {integrity: sha512-UDK6rJT6INSfcOo545jiaOwB701uAIt2/dR7WnFQoGCVl1/EMqdANBmwUaqqQ45aXprsTGzSa39LI1PyuRBxxw==}
     engines: {node: '>=6.0.0'}
     peerDependencies:
@@ -9691,6 +9672,23 @@ packages:
       eslint: 7.25.0
       eslint-config-prettier: 6.15.0_eslint@7.25.0
       prettier: /wp-prettier/2.2.1-beta-1
+      prettier-linter-helpers: 1.0.0
+    dev: true
+
+  /eslint-plugin-prettier/3.4.0_29601d46fa20d533a3a9bdbfa88bed36:
+    resolution: {integrity: sha512-UDK6rJT6INSfcOo545jiaOwB701uAIt2/dR7WnFQoGCVl1/EMqdANBmwUaqqQ45aXprsTGzSa39LI1PyuRBxxw==}
+    engines: {node: '>=6.0.0'}
+    peerDependencies:
+      eslint: '>=5.0.0'
+      eslint-config-prettier: '*'
+      prettier: '>=1.13.0'
+    peerDependenciesMeta:
+      eslint-config-prettier:
+        optional: true
+    dependencies:
+      eslint: 7.25.0
+      eslint-config-prettier: 8.3.0_eslint@7.25.0
+      prettier: /wp-prettier/2.0.5
       prettier-linter-helpers: 1.0.0
     dev: true
 
@@ -13102,14 +13100,14 @@ packages:
     dependencies:
       object-visit: 1.0.1
 
-  /mapbox-gl/1.13.0:
-    resolution: {integrity: sha512-g8zlzuJxYJqbOPXT19/UBYpVrcefBQ06F/Cbj0fyEfFnFesDcU3cFTxd75/FZ6Upx2ZEjCsD61CHxrcxZidVpA==}
+  /maplibre-gl/1.15.2:
+    resolution: {integrity: sha512-uPeV530apb4JfX3cRFfE+awFnbcJTOnCv2QvY4mw4huiInbybElWYkNzTs324YLSADq0f4bidRoYcR81ho3aLA==}
     engines: {node: '>=6.4.0'}
     dependencies:
       '@mapbox/geojson-rewind': 0.5.0
       '@mapbox/geojson-types': 1.0.2
       '@mapbox/jsonlint-lines-primitives': 2.0.2
-      '@mapbox/mapbox-gl-supported': 1.5.0_mapbox-gl@1.13.0
+      '@mapbox/mapbox-gl-supported': 1.5.0
       '@mapbox/point-geometry': 0.1.0
       '@mapbox/tiny-sdf': 1.2.5
       '@mapbox/unitbezier': 0.0.0
@@ -13129,6 +13127,8 @@ packages:
       supercluster: 7.1.3
       tinyqueue: 2.0.3
       vt-pbf: 3.1.1
+    transitivePeerDependencies:
+      - mapbox-gl
     dev: false
 
   /markdown-it/12.0.4:
