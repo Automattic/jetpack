@@ -22,25 +22,23 @@ function Header() {
 	const isMediumViewport = useViewportMatch( 'medium' );
 
 	return (
-		<>
-			<div className="jp-search-customize-header">
-				<div className="jp-search-customize-header__navigable-toolbar-wrapper">
-					{ isMediumViewport ? (
-						<h1 className="jp-search-customize-header__title">
-							{ __( 'Jetpack Search', 'jetpack' ) }
-						</h1>
-					) : (
-						<VisuallyHidden as="h1" className="jp-search-customize-header__title">
-							{ __( 'Jetpack Search', 'jetpack' ) }
-						</VisuallyHidden>
-					) }
-				</div>
-				<div className="jp-search-customize-header__actions">
-					<SaveButton />
-					<PinnedItems.Slot scope={ COMPLEMENTARY_AREA_SCOPE } />
-				</div>
+		<div className="jp-search-customize-header">
+			<div className="jp-search-customize-header__navigable-toolbar-wrapper">
+				{ isMediumViewport ? (
+					<h1 className="jp-search-customize-header__title">
+						{ __( 'Jetpack Search', 'jetpack' ) }
+					</h1>
+				) : (
+					<VisuallyHidden as="h1" className="jp-search-customize-header__title">
+						{ __( 'Jetpack Search', 'jetpack' ) }
+					</VisuallyHidden>
+				) }
 			</div>
-		</>
+			<div className="jp-search-customize-header__actions">
+				<SaveButton />
+				<PinnedItems.Slot scope={ COMPLEMENTARY_AREA_SCOPE } />
+			</div>
+		</div>
 	);
 }
 
