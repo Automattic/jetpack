@@ -485,18 +485,25 @@ class Table_Checksum {
 			$parent_table_obj    = new Table_Checksum( $this->parent_table );
 			$parent_filter_query = $parent_table_obj->build_filter_statement( null, null, null, 'parent_table' );
 
-			// It is possible to have the GROUP By cause multiple rows to be returned for the same row.
+			// It is possible to have the GROUP By cause multiple rows to be returned for the same row for term_taxonomy.
 			// To get distinct entries we use a correlatd subquery back on the parent table using the primary key.
+			$additional_unique_clause = '';
+			if ( 'term_taxonomy' === $this->parent_table ) {
+				$additional_unique_clause = "
+				AND parent_table.{$parent_table_obj->range_field} = (
+				SELECT min( parent_table_cs.{$parent_table_obj->range_field} )
+			            FROM {$parent_table_obj->table} as parent_table_cs
+			            WHERE parent_table_cs.{$this->parent_join_field} = {$this->table}.{$this->table_join_field}
+			        )
+				";
+			}
+
 			$join_statement = "
 			    INNER JOIN {$parent_table_obj->table} as parent_table
 			    ON (
 			        {$this->table}.{$this->table_join_field} = parent_table.{$this->parent_join_field}
 			        AND {$parent_filter_query}
-			        AND parent_table.{$parent_table_obj->range_field} = (
-			            SELECT min( parent_table_cs.{$parent_table_obj->range_field} )
-			            FROM {$parent_table_obj->table} as parent_table_cs
-			            WHERE parent_table_cs.{$this->parent_join_field} = {$this->table}.{$this->table_join_field}
-			        )
+			        $additional_unique_clause
 			    )
 			";
 		}

@@ -73,13 +73,23 @@ You can set the following variables on a per-command basis (`PORT_WORDPRESS=8000
 ### Container Environments
 
 Configurable settings are documented in the [`./tools/docker/default.env` file](https://github.com/Automattic/jetpack/blob/master/docker/default.env).
-Customizations should go into a `./tools/docker/.env` file you create, though, not in the `./docker/default.env` file.
+Customizations should go into a `./tools/docker/.env` file you create, though, not in the `./tools/docker/default.env` file.
 
-### Mounting extra directories into the container
+### Docker configurations
 
-You can use the file `tools/docker/compose-extras.yml` to add mounts or alter the configuration provided by `docker/docker-compose.yml`.
+Jetpack Docker provides two types of configurations: `dev` and `e2e`. These configurations define lists of services to start, volumes to map, etc. Both of them extend default configuration `tools/docker/docker-compose.yml` via the config file: `tools/docker/jetpack-docker-config-default.yml`. 
 
-You can use the file `tools/docker/compose-volumes.yml` to add additional mounts for WordPress plugins and themes. Refer to the section [Custom plugins & themes in the container](#custom-plugins--themes-in-the-container) for more details.
+* `dev` configuration is used by default, and is aimed for Jetpack development.
+* `e2e` configuration is created specifically for Jetpack E2E tests.
+
+Users can extended these configurations further via override config file `tools/docker/jetpack-docker-config.yml`, which is git-ignored.
+
+#### Jetpack Docker config structure
+
+The default config file `tools/docker/jetpack-docker-config-default.yml` includes inline comments explaining the structure of config, but here's quick overview. The configuration is grouped per environment type: `default`, `dev`, `e2e`. Each type may define `volumeMappings` and `extras`:
+
+* `volumeMappings` - list of key value pairs which defines local directory mappings with following structure: local_path: wordpress_container_path
+* `extras` - basically any other configuration that is supported by `docker-compose` 
 
 ### Building on M1 Macs
 
