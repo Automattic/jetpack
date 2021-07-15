@@ -283,7 +283,7 @@ function jetpackLoadLikeWidgetIframe( wrapperID ) {
 	if ( placeholder.hasClass( 'post-likes-widget-placeholder' ) ) {
 		var postLikesFrame = document.createElement( 'iframe' );
 
-		postLikesFrame[ 'class' ] = 'post-likes-widget jetpack-likes-widget';
+		postLikesFrame.classList.add( 'post-likes-widget', 'jetpack-likes-widget' );
 		postLikesFrame.name = $wrapper.data( 'name' );
 		postLikesFrame.src = $wrapper.data( 'src' );
 		postLikesFrame.height = '18px';
