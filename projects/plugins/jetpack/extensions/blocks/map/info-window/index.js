@@ -6,9 +6,9 @@ import { Component, createPortal } from '@wordpress/element';
 
 export class InfoWindow extends Component {
 	componentDidMount() {
-		const { mapboxgl } = this.props;
+		const { maplibregl } = this.props;
 		this.el = document.createElement( 'DIV' );
-		this.infowindow = new mapboxgl.Popup( {
+		this.infowindow = new maplibregl.Popup( {
 			closeButton: true,
 			closeOnClick: false,
 			offset: {
@@ -46,7 +46,7 @@ InfoWindow.defaultProps = {
 	unsetActiveMarker: () => {},
 	activeMarker: null,
 	map: null,
-	mapboxgl: null,
+	maplibregl: null,
 };
 
 export default InfoWindow;
