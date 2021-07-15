@@ -10,8 +10,10 @@
 .swiper-container-rtl .swiper-button-prev:after {
 	content: none;
 }
-.jp-carousel-overlay .swiper-button-prev, .jp-carousel-overlay .swiper-container-rtl .swiper-button-next,
-.jp-carousel-overlay .swiper-button-next, .jp-carousel-overlay .swiper-container-rtl .swiper-button-prev {
+.jp-carousel-overlay .swiper-button-prev,
+.jp-carousel-overlay .swiper-container-rtl .swiper-button-next,
+.jp-carousel-overlay .swiper-button-next,
+.jp-carousel-overlay .swiper-container-rtl .swiper-button-prev {
 	background-image: none;
 }
 /* end of temporary fix */
@@ -148,10 +150,12 @@ so we have to target all affected elements in touch devices.
 	-webkit-font-smoothing: subpixel-antialiased !important;
 	z-index: 100;
 	background-color: #000;
+	transition: opacity 200ms ease-out;
+	opacity: 1;
 }
 
 .jp-carousel-hide-controls .jp-carousel-info {
-    visibility: hidden;
+	opacity: 0;
 }
 
 .jp-carousel-info-footer {
@@ -280,10 +284,11 @@ div.jp-carousel-buttons a:hover {
 	z-index: 15;
 	color: #fff;
 	cursor: pointer;
+	transition: opacity 200ms ease-out;
 }
 
 .jp-carousel-hide-controls .jp-carousel-close-hint {
-    visibility: hidden;
+	opacity: 0;
 }
 
 .jp-carousel-transitions .jp-carousel-close-hint {
