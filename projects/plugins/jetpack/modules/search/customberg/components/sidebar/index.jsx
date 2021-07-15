@@ -28,24 +28,24 @@ import './styles.scss';
  * Sidebar tabs.
  *
  * @param {object} props - Component properties
- * @param {string} props.currentArea - Current area.
+ * @param {string} props.currentTab - Currently selected tab ID.
  * @returns {Element} component instance
  */
-function Tabs( { currentArea } ) {
+function Tabs( { currentTab } ) {
 	return (
 		<ul>
 			<li>
 				<Tab
 					identifier={ JP_SEARCH_TAB_IDENTIFIER }
 					label={ __( 'Jetpack Search', 'jetpack' ) }
-					isActive={ currentArea === JP_SEARCH_TAB_IDENTIFIER }
+					isActive={ currentTab === JP_SEARCH_TAB_IDENTIFIER }
 				/>
 			</li>
 			<li>
 				<Tab
 					identifier={ OPTIONS_TAB_IDENTIFIER }
 					label={ __( 'Options', 'jetpack' ) }
-					isActive={ currentArea === OPTIONS_TAB_IDENTIFIER }
+					isActive={ currentTab === OPTIONS_TAB_IDENTIFIER }
 				/>
 			</li>
 		</ul>
@@ -86,7 +86,7 @@ function Tab( { identifier, label, isActive } ) {
  * @returns {Element} component instance
  */
 export default function Sidebar() {
-	const currentArea = useSelect( select => {
+	const currentTab = useSelect( select => {
 		const { getActiveComplementaryArea } = select( interfaceStore );
 		return getActiveComplementaryArea( COMPLEMENTARY_AREA_SCOPE )
 			? getActiveComplementaryArea( COMPLEMENTARY_AREA_SCOPE )
@@ -97,17 +97,17 @@ export default function Sidebar() {
 		<ComplementaryArea
 			className="jp-search-customize-sidebar"
 			closeLabel={ __( 'Close settings', 'jetpack' ) }
-			header={ <Tabs currentArea={ currentArea } /> }
+			header={ <Tabs currentTab={ currentTab } /> }
 			headerClassName="jp-search-customize-sidebar__panel-tabs"
 			icon={ cog }
-			identifier={ currentArea }
+			identifier={ currentTab }
 			isActiveByDefault
 			scope={ COMPLEMENTARY_AREA_SCOPE }
 			/* translators: button label text should, if possible, be under 16 characters. */
 			title={ __( 'Settings', 'jetpack' ) }
 		>
-			{ currentArea === JP_SEARCH_TAB_IDENTIFIER && <SidebarDescription /> }
-			{ currentArea === OPTIONS_TAB_IDENTIFIER && <SidebarOptions /> }
+			{ currentTab === JP_SEARCH_TAB_IDENTIFIER && <SidebarDescription /> }
+			{ currentTab === OPTIONS_TAB_IDENTIFIER && <SidebarOptions /> }
 		</ComplementaryArea>
 	);
 }
