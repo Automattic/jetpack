@@ -13,6 +13,7 @@ function usage {
 
 		Prepare a release of the specified project and everything it depends on.
 		 - Run \`changelogger write\`
+		 - Run \`tools/replace-next-version-tag.sh\`
 		 - Run \`tools/project-version.sh\`
 
 		Pass \`-b\` to prepare a beta release by passing \`--prerelease=beta\` to changelogger.
@@ -123,6 +124,9 @@ function releaseProject {
 	# Fetch version from changelogger.
 	debug "${I}  $CL version current"
 	local VER=$($CL version current)
+
+	# Replace $$next-version$$
+	"$BASE"/tools/replace-next-version-tag.sh "$SLUG" "${VER%-beta}"
 
 	# Update versions.
 	ARGS=()
