@@ -1,0 +1,26 @@
+.jp-dashboard-footer {
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: space-between;
+	align-items: center;
+	width: 100%;
+	max-width: 65rem;
+
+	color: #000;
+
+	// Align with header.
+	@media ( max-width: 1250px ) {
+		width: 95%;
+	}
+	@media ( max-width: 480px ) {
+		justify-content: space-around;
+	}
+}
+.jp-dashboard-footer__module-name,
+.jp-dashboard-footer__jetpack-symbol {
+	vertical-align: middle;
+	display: inline-block;
+}
+.jp-dashboard-footer__module-name {
+	margin-left: 5px;
+}

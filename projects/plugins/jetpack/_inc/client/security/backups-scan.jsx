@@ -11,6 +11,7 @@ import { get, includes } from 'lodash';
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -18,7 +19,6 @@ import { __, _x, _n, sprintf } from '@wordpress/i18n';
 import analytics from 'lib/analytics';
 import Banner from 'components/banner';
 import Card from 'components/card';
-import getRedirectUrl from 'lib/jp-redirect';
 import { getPlanClass, FEATURE_SECURITY_SCANNING_JETPACK } from 'lib/plans/constants';
 import { getVaultPressData, getVaultPressScanThreatCount } from 'state/at-a-glance';
 import { getSitePlan } from 'state/site';
