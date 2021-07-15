@@ -15,7 +15,7 @@ import './mocked-legacy-search.scss';
  *
  * @returns {React.Component}	Mocked Search dialog component.
  */
-export default function MockedSearch() {
+export default function MockedLegacySearch() {
 	return (
 		<div className="jp-mocked-legacy-search">
 			<div className="jp-mocked-legacy-search__search-controls">
