@@ -286,8 +286,8 @@ function jetpackLoadLikeWidgetIframe( wrapperID ) {
 		postLikesFrame.classList.add( 'post-likes-widget', 'jetpack-likes-widget' );
 		postLikesFrame.name = $wrapper.data( 'name' );
 		postLikesFrame.src = $wrapper.data( 'src' );
-		postLikesFrame.height = '18px';
-		postLikesFrame.width = '200px';
+		postLikesFrame.height = '55px';
+		postLikesFrame.width = '100%';
 		postLikesFrame.frameBorder = '0';
 		postLikesFrame.scrolling = 'no';
 		postLikesFrame.title = $wrapper.data( 'title' );
@@ -296,9 +296,6 @@ function jetpackLoadLikeWidgetIframe( wrapperID ) {
 			postLikesFrame.height = '22px';
 			postLikesFrame.width = '68px';
 			postLikesFrame.scrolling = 'no';
-		} else {
-			postLikesFrame.height = '55px';
-			postLikesFrame.width = '100%';
 		}
 
 		placeholder.after( postLikesFrame );
