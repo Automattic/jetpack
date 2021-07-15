@@ -1,4 +1,0 @@
-Significance: major
-Type: changed
-
-Reorganized the code. Most notably, all the classes were renamed. The user interfaces remain the same, though.
