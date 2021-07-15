@@ -33,6 +33,12 @@ function wpcomsh_use_nav_unification_hotfixes( $admin_menu_class ) {
 		 * Hotfix of https://github.com/Automattic/jetpack/pull/20228.
 		 */
 		protected function __construct() {
+			$is_api_request = ( defined( 'REST_REQUEST' ) && REST_REQUEST ) || 0 === strpos( $_SERVER['REQUEST_URI'], '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' );
+
+			if ( ! $is_api_request && ! Jetpack::is_module_active( 'sso' ) ) {
+				return;
+			}
+
 			parent::__construct();
 
 			if ( ! $this->is_api_request ) {
