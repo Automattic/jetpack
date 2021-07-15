@@ -1532,21 +1532,27 @@
 			swiper.on( 'zoomChange', function ( swiper, scale ) {
 				if ( scale > 1 ) {
 					carousel.overlay.classList.add( 'jp-carousel-hide-controls' );
-				} else {
-					carousel.overlay.classList.remove( 'jp-carousel-hide-controls' );
+				}
+
+				if ( scale === 1 ) {
+					var zoomTimeout = setTimeout( function () {
+						carousel.overlay.classList.remove( 'jp-carousel-hide-controls' );
+						clearTimeout( zoomTimeout );
+					}, 200 );
 				}
 			} );
 
 			swiper.on( 'doubleTap', function ( swiper ) {
 				if ( swiper.zoom.scale > 1 ) {
 					carousel.overlay.classList.add( 'jp-carousel-hide-controls' );
-				} else {
-					carousel.overlay.classList.remove( 'jp-carousel-hide-controls' );
 				}
-			} );
 
-			swiper.on( 'tap', function () {
-				carousel.overlay.classList.remove( 'jp-carousel-hide-controls' );
+				if ( swiper.zoom.scale === 1 ) {
+					var zoomTimeout = setTimeout( function () {
+						carousel.overlay.classList.remove( 'jp-carousel-hide-controls' );
+						clearTimeout( zoomTimeout );
+					}, 200 );
+				}
 			} );
 
 			domUtil.fadeIn( carousel.overlay, function () {
