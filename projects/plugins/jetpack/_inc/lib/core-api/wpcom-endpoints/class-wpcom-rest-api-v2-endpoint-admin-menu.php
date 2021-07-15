@@ -99,6 +99,8 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	public function prepare_menu_for_response( array $menu ) {
 		global $submenu;
 
+		do_action( 'admin_menu_rest_api' );
+		global $menu;
 		$data = array();
 
 		/**
