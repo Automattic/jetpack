@@ -201,7 +201,7 @@
 			var targetPosition = Math.max(
 				0,
 				el.offsetTop -
-					Math.max( 0, window.innerHeight - ( extraInfoContentAreaHeight + 64 + 15 + 35 ) ) // Subtract footer height plus content area padding.
+					Math.max( 0, window.innerHeight - ( extraInfoContentAreaHeight + 64 + 35 + 35 ) ) // Subtract footer height plus content area padding.
 			);
 			var distance = targetPosition - container.scrollTop;
 			distance = Math.min( distance, container.scrollHeight - window.innerHeight );
@@ -225,6 +225,9 @@
 					callback();
 				}
 				isScrolling = false;
+				if ( extraInfoArea ) {
+					extraInfoArea.style.minHeight = '';
+				}
 				container.removeEventListener( 'wheel', stopScroll );
 			}
 
