@@ -5,7 +5,9 @@
  * @package jetpack
  */
 
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Jetpack_CRM_Data;
+use Automattic\Jetpack\Redirect;
 
 /**
  * Class that adds a new section to the Stats Report page
@@ -42,6 +44,30 @@ class Jetpack_Stats_Upgrade_Nudges {
 	}
 
 	/**
+	 * Checks if a plugin is installed.
+	 *
+	 * @param string $plugin_file The plugin filename.
+	 * @return boolean
+	 */
+	private static function is_plugin_installed( $plugin_file ) {
+		jetpack_require_lib( 'plugins' );
+		$plugins = Jetpack_Plugins::get_plugins();
+		return isset( $plugins[ $plugin_file ] );
+	}
+
+	/**
+	 * Checks if a plugin is active.
+	 *
+	 * @param string $plugin_file The plugin filename.
+	 * @return boolean
+	 */
+	private static function is_plugin_active( $plugin_file ) {
+		jetpack_require_lib( 'plugins' );
+		$plugins = Jetpack_Plugins::get_plugins();
+		return isset( $plugins[ $plugin_file ] ) && isset( $plugins['active'] ) && $plugins['active'];
+	}
+
+	/**
 	 * Determines whether Scan is active
 	 *
 	 * @return boolean
@@ -49,25 +75,6 @@ class Jetpack_Stats_Upgrade_Nudges {
 	private static function is_scan_active() {
 		$scan_data = Jetpack_Core_Json_Api_Endpoints::scan_state();
 		return is_object( $scan_data ) && isset( $scan_data->state ) && 'unavailable' !== $scan_data->state;
-	}
-
-	/**
-	 * Determines whether CRM is installed
-	 *
-	 * @return boolean
-	 */
-	private static function is_crm_installed() {
-		$crm_data = ( new Jetpack_CRM_Data() )->get_crm_data();
-		return is_array( $crm_data ) && isset( $crm_data['crm_installed'] ) && $crm_data['crm_installed'];
-	}
-
-	/**
-	 * Determines whether Boost is active
-	 *
-	 * @return boolean
-	 */
-	private static function is_boost_active() {
-		return class_exists( 'Automattic\Jetpack_Boost\Jetpack_Boost' );
 	}
 
 	/**
@@ -138,15 +145,30 @@ class Jetpack_Stats_Upgrade_Nudges {
 	}
 
 	/**
+	 * Gets the upgrade Redirect link
+	 *
+	 * @param string $source The source of the redirect link.
+	 * @return string
+	 */
+	private static function get_upgrade_link( $source ) {
+		$args = array();
+		if ( ! ( new Manager( 'jetpack' ) )->has_connected_owner() ) {
+			$args['query'] = 'unlinked=1';
+		}
+		return Redirect::get_url( $source, $args );
+	}
+
+	/**
 	 * Outputs one Upgrade item
 	 *
 	 * @param string  $title The title of the item.
 	 * @param string  $icon The path of the icon, relative to Jetpack images folder.
+	 * @param string  $link The link of the button.
 	 * @param boolean $subitem Whether it is a subitem or not.
 	 * @param string  $button_label The button label.
 	 * @return void
 	 */
-	private static function print_item( $title, $icon, $subitem = false, $button_label = null ) {
+	private static function print_item( $title, $icon, $link, $subitem = false, $button_label = null ) {
 		$additional_classes = $subitem ? 'jp-stats-report-upgrade-subitem' : '';
 		$button_class       = $subitem ? 'is-secondary' : 'is-primary';
 		$icon_url           = plugins_url( '', JETPACK__PLUGIN_FILE ) . '/images/' . $icon;
@@ -161,13 +183,103 @@ class Jetpack_Stats_Upgrade_Nudges {
 						<div class="dops-banner__title"><?php echo esc_html( $title ); ?></div>
 					</div>
 					<div class="dops-banner__action">
-						<a href="#" type="button" class="dops-button is-compact <?php echo esc_attr( $button_class ); ?>">
+						<a href="<?php echo esc_attr( $link ); ?>" type="button" class="dops-button is-compact <?php echo esc_attr( $button_class ); ?>">
 						<?php echo esc_html( $button_label ); ?>
 						</a>
 					</div>
 				</div>
 			</div>
 		<?php
+	}
+
+	/**
+	 * Prints the Security item
+	 *
+	 * @return void
+	 */
+	private static function print_security() {
+		$upgrade_link = self::get_upgrade_link( 'stats-nudges-security' );
+		self::print_item( __( 'Security', 'jetpack' ), 'products/product-jetpack-backup.svg', $upgrade_link );
+	}
+
+	/**
+	 * Prints the Backup item
+	 *
+	 * @return void
+	 */
+	private static function print_backup() {
+		$upgrade_link = self::get_upgrade_link( 'stats-nudges-backup' );
+		self::print_item( __( 'Backup', 'jetpack' ), 'products/product-jetpack-backup.svg', $upgrade_link, true );
+	}
+
+	/**
+	 * Prints the Scan item
+	 *
+	 * @return void
+	 */
+	private static function print_scan() {
+		$upgrade_link = self::get_upgrade_link( 'stats-nudges-scan' );
+		self::print_item( __( 'Scan', 'jetpack' ), 'products/product-jetpack-scan.svg', $upgrade_link, true );
+	}
+
+	/**
+	 * Prints the Akismet item
+	 *
+	 * @return void
+	 */
+	private static function print_akismet() {
+		$upgrade_link = self::get_upgrade_link( 'stats-nudges-akismet' );
+		self::print_item( __( 'Anti-spam', 'jetpack' ), 'products/product-jetpack-anti-spam.svg', $upgrade_link, true );
+	}
+
+	/**
+	 * Prints the Search item
+	 *
+	 * @return void
+	 */
+	private static function print_search() {
+		$upgrade_link = self::get_upgrade_link( 'stats-nudges-search' );
+		self::print_item( __( 'Search', 'jetpack' ), 'products/product-jetpack-search.svg', $upgrade_link );
+	}
+
+	/**
+	 * Prints the Boost item
+	 *
+	 * @return void
+	 */
+	private static function print_boost() {
+		$plugin_file = 'jetpack-boost/jetpack-boost.php';
+		$plugin_slug = 'jetpack-boost';
+		if ( self::is_plugin_active( $plugin_file ) ) {
+			return;
+		} elseif ( self::is_plugin_installed( $plugin_file ) ) {
+			$label = __( 'Activate Boost', 'jetpack' );
+			$link  = wp_nonce_url( 'plugins.php?action=activate&amp;plugin=' . rawurlencode( $plugin_file ) . '&amp;plugin_status=all&amp;paged=1', 'activate-plugin_' . $plugin_file );
+		} else {
+			$label = __( 'Install Boost', 'jetpack' );
+			$link  = wp_nonce_url( self_admin_url( 'update.php?action=install-plugin&plugin=' . $plugin_slug ), 'install-plugin_' . $plugin_slug );
+		}
+		self::print_item( __( 'Boost', 'jetpack' ), 'recommendations/site-accelerator-illustration.svg', $link, false, $label );
+	}
+
+	/**
+	 * Prints the CRM item
+	 *
+	 * @return void
+	 */
+	private static function print_crm() {
+		$plugin_file = Jetpack_CRM_Data::JETPACK_CRM_PLUGIN_SLUG;
+		$plugin_slug = substr( $plugin_file, 0, strpos( $plugin_file, '/' ) );
+		if ( self::is_plugin_active( $plugin_file ) ) {
+			return;
+		} elseif ( self::is_plugin_installed( $plugin_file ) ) {
+			$link  = wp_nonce_url( 'plugins.php?action=activate&amp;plugin=' . rawurlencode( $plugin_file ) . '&amp;plugin_status=all&amp;paged=1', 'activate-plugin_' . $plugin_file );
+			$label = __( 'Activate CRM', 'jetpack' );
+		} else {
+			$link  = wp_nonce_url( self_admin_url( 'update.php?action=install-plugin&plugin=' . $plugin_slug ), 'install-plugin_' . $plugin_slug );
+			$label = __( 'Install CRM', 'jetpack' );
+		}
+		self::print_item( __( 'CRM', 'jetpack' ), 'recommendations/creative-mail-illustration.svg', $link, false, $label );
 	}
 
 	/**
@@ -189,27 +301,22 @@ class Jetpack_Stats_Upgrade_Nudges {
 		self::print_styles();
 		self::print_header();
 		if ( ! self::has_security_plan() ) {
-			self::print_item( __( 'Security', 'jetpack' ), 'products/product-jetpack-backup.svg' );
+			self::print_security();
 			if ( ! self::is_backup_active() ) {
-				self::print_item( __( 'Backup', 'jetpack' ), 'products/product-jetpack-backup.svg', true );
+				self::print_backup();
 			}
 			if ( ! self::is_scan_active() ) {
-				self::print_item( __( 'Scan', 'jetpack' ), 'products/product-jetpack-scan.svg', true );
+				self::print_scan();
 			}
 			if ( self::is_akismet_active() ) {
-				self::print_item( __( 'Anti-spam', 'jetpack' ), 'products/product-jetpack-anti-spam.svg', true );
+				self::print_akismet();
 			}
 		}
 		if ( ! self::is_search_active() ) {
-			self::print_item( __( 'Search', 'jetpack' ), 'products/product-jetpack-search.svg' );
+			self::print_search();
 		}
-		if ( ! self::is_boost_active() ) {
-			self::print_item( __( 'Boost', 'jetpack' ), 'recommendations/site-accelerator-illustration.svg', false, __( 'Install Boost', 'jetpack' ) );
-		}
-		if ( ! self::is_crm_installed() ) {
-			self::print_item( __( 'CRM', 'jetpack' ), 'recommendations/creative-mail-illustration.svg', false, __( 'Install CRM', 'jetpack' ) );
-		}
-
+		self::print_boost();
+		self::print_crm();
 	}
 
 }
