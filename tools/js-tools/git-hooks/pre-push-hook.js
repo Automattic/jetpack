@@ -20,4 +20,4 @@ const requireChangelog = allProjects();
 // If the diff contains a file in the changelog folder, can assume they added a changelog file
 // If there isn't, prompt for one
 
-process.exit( 1 );
+process.exit( 0 );
