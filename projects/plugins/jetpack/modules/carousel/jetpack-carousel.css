@@ -1,3 +1,21 @@
+/*
+ * Temporary fix below for issue introduced to Newspack blocks, can be removed once
+ * once Newspack blocks includes this override
+*/
+.wp-block-newspack-blocks-carousel .swiper-button-prev:after,
+.swiper-container-rtl .swiper-button-next:after {
+	content: none;
+}
+.wp-block-newspack-blocks-carousel .swiper-button-next:after,
+.swiper-container-rtl .swiper-button-prev:after {
+	content: none;
+}
+.jp-carousel-overlay .swiper-button-prev, .jp-carousel-overlay .swiper-container-rtl .swiper-button-next,
+.jp-carousel-overlay .swiper-button-next, .jp-carousel-overlay .swiper-container-rtl .swiper-button-prev {
+	background-image: none;
+}
+/* end of temporary fix */
+
 [data-carousel-extra]:not( .jp-carousel-wrap ) {
 	cursor: pointer;
 }
@@ -6,7 +24,7 @@
 	line-height: inherit;
 }
 
-.swiper-container {
+.jp-carousel-wrap.swiper-container {
 	height: auto;
 	width: 100vw;
 }
@@ -22,8 +40,8 @@ To prevent flash of prev/next image scale transition after pinch zoom we need to
 Swiper does not add a class of `swiper-slide-zoomed` to slides on pinch and zoom
 so we have to target all affected elements in touch devices.
 */
-.swiper-slide.swiper-slide-prev .swiper-zoom-container img,
-.swiper-slide.swiper-slide-next .swiper-zoom-container img {
+.jp-carousel-overlay .swiper-slide.swiper-slide-prev .swiper-zoom-container img,
+.jp-carousel-overlay .swiper-slide.swiper-slide-next .swiper-zoom-container img {
 	transition: none !important;
 }
 
@@ -34,6 +52,7 @@ so we have to target all affected elements in touch devices.
 	height: initial;
 	width: initial;
 	padding: 20px 40px;
+	background-image: none;
 }
 
 .jp-carousel-overlay .swiper-button-prev:hover,
@@ -41,21 +60,19 @@ so we have to target all affected elements in touch devices.
 	opacity: 1;
 }
 
+.jp-carousel-overlay .swiper-button-next:after,
+.jp-carousel-overlay .swiper-container-rtl .swiper-button-next:after,
 .jp-carousel-overlay .swiper-button-prev:after,
-.jp-carousel-overlay .swiper-button-next:after {
+.jp-carousel-overlay .swiper-container-rtl .swiper-button-prev:after {
 	content: none;
 }
 
 .jp-carousel-overlay .swiper-button-prev svg,
 .jp-carousel-overlay .swiper-button-next svg {
-	height: 40px;
-	width: 40px;
-	fill: #ccc;
-}
-
-.jp-carousel-overlay .swiper-button-prev svg:hover,
-.jp-carousel-overlay .swiper-button-next svg:hover {
-	fill: #fff;
+	height: 30px;
+	width: 28px;
+	background: #000;
+	border-radius: 4px;
 }
 
 .jp-carousel-overlay {
@@ -84,11 +101,19 @@ so we have to target all affected elements in touch devices.
 	display: none;
 }
 
-.swiper-container .swiper-button-prev {
-	left: 0px;
+.jp-carousel-overlay .swiper-container .swiper-button-prev {
+	left: 0;
+	right: auto;
 }
-.swiper-container .swiper-button-next {
-	right: 0px;
+
+.jp-carousel-overlay .swiper-container .swiper-button-next {
+	right: 0;
+	left: auto;
+}
+
+.jp-carousel-overlay .swiper-container.swiper-container-rtl .swiper-button-prev,
+.jp-carousel-overlay .swiper-container.swiper-container-rtl .swiper-button-next {
+	transform: scaleX( -1 );
 }
 
 .jp-carousel-container {
@@ -134,7 +159,7 @@ so we have to target all affected elements in touch devices.
 .jp-carousel-info-extra {
 	display: none;
 	background-color: #000;
-	padding: 15px 35px 35px 35px;
+	padding: 35px;
 	width: 100vw;
 	border-top: 1px solid #222;
 }
@@ -148,12 +173,12 @@ so we have to target all affected elements in touch devices.
 }
 
 .jp-carousel-info ::selection {
-	background: #68c9e8; /* Safari */
+	background: #fff; /* Safari */
 	color: #fff;
 }
 
 .jp-carousel-info ::-moz-selection {
-	background: #68c9e8; /* Firefox */
+	background: #fff; /* Firefox */
 	color: #fff;
 }
 
@@ -212,7 +237,7 @@ div.jp-carousel-buttons a {
 }
 
 div.jp-carousel-buttons a:hover {
-	color: #68c9e8;
+	color: #fff;
 	border: none !important;
 }
 
@@ -239,12 +264,14 @@ div.jp-carousel-buttons a:hover {
 	letter-spacing: 0 !important;
 	position: fixed;
 	top: 20px;
-	right: 25px;
+	right: 30px;
+	padding: 10px;
 	text-align: right;
 	width: 45px;
 	height: 45px;
 	z-index: 15;
 	color: #fff;
+	cursor: pointer;
 }
 
 .jp-carousel-transitions .jp-carousel-close-hint {
@@ -254,59 +281,18 @@ div.jp-carousel-buttons a:hover {
 	transition: color 200ms linear;
 }
 
-.jp-carousel-close-hint span {
-	cursor: pointer;
-	background-color: transparent;
-	display: inline-block;
-	font: 400 36px/1 'Helvetica Neue', sans-serif !important;
-	line-height: 22px;
-	margin: 0;
-	text-align: center;
-	vertical-align: middle;
-	-moz-border-radius: 4px;
-	-webkit-border-radius: 4px;
+.jp-carousel-close-hint svg {
+	padding: 3px 2px;
+	background: #000;
 	border-radius: 4px;
-	font-size: 36px !important;
-	height: 44px;
-	width: 44px;
-}
-
-.jp-carousel-transitions .jp-carousel-close-hint span {
-	-webkit-transition: border-color 200ms linear;
-	-moz-transition: border-color 200ms linear;
-	-o-transition: border-color 200ms linear;
-	transition: border-color 200ms linear;
 }
 
 .jp-carousel-close-hint:hover {
-	cursor: default;
 	color: #fff;
 }
 
 .jp-carousel-close-hint:hover span {
 	border-color: #fff;
-}
-
-div.jp-carousel-buttons a.jp-carousel-commentlink,
-a.jp-carousel-image-download {
-	background: url( ./images/carousel-sprite.png?5 ) no-repeat;
-	background-size: 16px 200px;
-}
-
-div.jp-carousel-buttons a.jp-carousel-commentlink {
-	margin: 0 14px 0 0 !important;
-	background-position: 0px -156px;
-	padding-left: 19px !important;
-}
-
-@media only screen and ( -webkit-min-device-pixel-ratio: 1.5 ),
-	only screen and ( -o-min-device-pixel-ratio: 3/2 ),
-	only screen and ( min--moz-device-pixel-ratio: 1.5 ),
-	only screen and ( min-device-pixel-ratio: 1.5 ) {
-	div.jp-carousel-buttons a.jp-carousel-commentlink,
-	a.jp-carousel-image-download {
-		background-image: url( ./images/carousel-sprite-2x.png?5 );
-	}
 }
 
 /** Pagination Start **/
@@ -352,13 +338,14 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 /** Title and Desc Start **/
 .jp-carousel-info-footer .jp-carousel-photo-title-container {
 	flex-basis: 50vw;
-	flex: 1;
+	flex: 4;
 	justify-content: center;
 	overflow: hidden;
 	margin: 0;
 }
 
-.jp-carousel-photo-title {
+.jp-carousel-photo-title,
+.jp-carousel-photo-caption {
 	background: none !important;
 	border: none !important;
 	display: inline-block;
@@ -373,7 +360,7 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 	color: #fff;
 }
 
-.jp-carousel-info-footer .jp-carousel-photo-title {
+.jp-carousel-info-footer .jp-carousel-photo-caption {
 	text-align: center;
 	font-size: 15px; /* same as .jp-carousel-pagination */
 	white-space: nowrap;
@@ -383,10 +370,19 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 	text-overflow: ellipsis;
 }
 
+.jp-carousel-info-footer .jp-carousel-photo-caption p {
+	margin: 0;
+}
+
+.jp-carousel-photo-title {
+	font-size: 32px;
+	margin-bottom: 2px;
+}
+
 .jp-carousel-photo-description {
 	color: #999;
 	font-size: 16px;
-	margin-bottom: 0;
+	margin: 25px 0;
 	width: 100%;
 }
 
@@ -426,7 +422,7 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 .jp-carousel-photo-description p a:hover,
 .jp-carousel-comments p a:hover,
 .jp-carousel-info h2 a:hover {
-	color: #68c9e8 !important;
+	color: #fff !important;
 }
 
 .jp-carousel-photo-description p:empty {
@@ -439,6 +435,13 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 .jp-carousel-comments-wrapper h1:after {
 	content: none !important;
 }
+
+.jp-carousel-caption {
+	font-size: 14px;
+	font-weight: normal;
+	margin: 0;
+}
+
 /** Title and Desc End **/
 
 /** Meta Box Start **/
@@ -492,15 +495,20 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 }
 
 a.jp-carousel-image-download {
-	padding-left: 23px;
 	display: inline-block;
 	clear: both;
 	color: #999;
 	line-height: 1;
 	font-weight: 400;
-	font-size: 13px;
+	font-size: 14px;
 	text-decoration: none;
-	background-position: 0 -82px;
+}
+
+a.jp-carousel-image-download svg {
+	display: inline-block;
+	vertical-align: middle;
+	margin: 0 3px;
+	padding-bottom: 2px;
 }
 
 a.jp-carousel-image-download span.photo-size {
@@ -512,12 +520,6 @@ a.jp-carousel-image-download span.photo-size {
 
 a.jp-carousel-image-download span.photo-size-times {
 	padding: 0 1px 0 2px;
-}
-
-a.jp-carousel-image-download:hover {
-	background-position: 0 -122px;
-	color: #68c9e8;
-	border: none !important;
 }
 
 /** Meta Box End **/
@@ -535,7 +537,7 @@ a.jp-carousel-image-download:hover {
 .jp-carousel-comments p a:hover,
 .jp-carousel-comments p a:focus,
 .jp-carousel-comments p a:active {
-	color: #68c9e8 !important;
+	color: #fff !important;
 }
 
 .jp-carousel-comment {
@@ -712,7 +714,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	-webkit-animation: load8 1.1s infinite linear;
 	animation: load8 1.1s infinite linear;
 	margin: 0 auto;
-	top: 40%;
+	top: calc( 50% - 15px );
 	left: 0;
 	bottom: 0;
 	right: 0;
@@ -781,9 +783,6 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	border: none;
 	margin: 20px 0 0 0;
 	padding: 0;
-}
-
-#jp-carousel-comment-form-commenting-as fieldset {
 	clear: both;
 }
 
@@ -803,6 +802,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	border-radius: 3px;
 	padding: 8px 16px;
 	font-size: 14px;
+	color: white;
 }
 
 #jp-carousel-comment-form-button-submit:active,
@@ -813,11 +813,11 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 #jp-carousel-comment-form-container {
 	margin-bottom: 15px;
-	overflow: auto;
 	width: 100%;
 	margin-top: 20px;
 	color: #999;
 	position: relative;
+	overflow: hidden;
 }
 
 #jp-carousel-comment-post-results {
@@ -864,23 +864,24 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 /* ----- Light variant ----- */
 
-.jp-carousel-light.jp-carousel-overlay {
+.jp-carousel-light.jp-carousel-overlay svg {
 	background: #fff;
 }
 
-.jp-carousel-light.jp-carousel-overlay .swiper-button-prev,
-.jp-carousel-light.jp-carousel-overlay .swiper-button-next {
-	opacity: 1;
-}
-
-.jp-carousel-light.jp-carousel-overlay .swiper-button-prev:hover,
-.jp-carousel-light.jp-carousel-overlay .swiper-button-next:hover {
-	opacity: 0.5;
-}
-
-.jp-carousel-light.jp-carousel-overlay .swiper-button-prev svg,
-.jp-carousel-light.jp-carousel-overlay .swiper-button-next svg {
+.jp-carousel-light.jp-carousel-overlay rect {
 	fill: #000;
+}
+
+.jp-carousel-light.jp-carousel-overlay .jp-carousel-selected .jp-carousel-icon,
+.jp-carousel-light.jp-carousel-overlay .jp-carousel-selected .jp-carousel-icon svg {
+	background: #000;
+}
+.jp-carousel-light.jp-carousel-overlay .jp-carousel-selected rect {
+	fill: #fff;
+}
+
+.jp-carousel-light.jp-carousel-overlay {
+	background: #fff;
 }
 
 .jp-carousel-light .jp-carousel-close-hint:hover,
@@ -894,7 +895,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 .jp-carousel-light .jp-carousel-photo-description p a,
 .jp-carousel-light .jp-carousel-comments p a,
 .jp-carousel-light .jp-carousel-info h2 a {
-	color: #4f94d4 !important;
+	color: #000 !important;
 }
 
 .jp-carousel-light .jp-carousel-comments p a:hover,
@@ -903,7 +904,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 .jp-carousel-light .jp-carousel-photo-description p a:hover,
 .jp-carousel-light .jp-carousel-comments p a:hover,
 .jp-carousel-light .jp-carousel-info h2 a:hover {
-	color: #f1831e !important;
+	color: #000 !important;
 }
 
 .jp-carousel-light .jp-carousel-info h2,
@@ -926,10 +927,6 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 .jp-carousel-light div.jp-carousel-buttons a:hover {
 	text-decoration: none;
 	color: #f1831e;
-}
-
-.jp-carousel-light div.jp-carousel-buttons a.jp-carousel-commentlink {
-	background-position: 0px -176px;
 }
 
 .jp-carousel-light #jp-carousel-comment-form-button-submit {
@@ -1033,18 +1030,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 .jp-carousel-light .jp-carousel-info-extra {
 	background-color: #fff;
-}
-
-.jp-carousel-light .jp-carousel-icon {
-	color: #000;
-	fill: #000;
-	background-color: #fff;
-}
-
-.jp-carousel-light .jp-carousel-icon-btn.jp-carousel-selected .jp-carousel-icon {
-	color: #fff;
-	fill: #fff;
-	background-color: #000;
+	border-color: #ddd;
 }
 
 .jp-carousel-light .jp-carousel-pagination {
@@ -1062,6 +1048,13 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	opacity: 0.5;
 }
 
+.jp-carousel-light #jp-carousel-comment-form-spinner {
+	border-top: 4px solid rgba( 0, 0, 0, 0.2 );
+	border-right: 4px solid rgba( 0, 0, 0, 0.2 );
+	border-bottom: 4px solid rgba( 0, 0, 0, 0.2 );
+	border-left: 4px solid #000000;
+}
+
 /** Icons Start **/
 .jp-carousel-photo-icons-container {
 	flex: 1;
@@ -1072,7 +1065,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 }
 
 .jp-carousel-icon-btn {
-	padding: 16px 16px;
+	padding: 16px;
 	text-decoration: none;
 	border: none;
 	background: none;
@@ -1081,30 +1074,26 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 }
 
 .jp-carousel-icon {
-	color: #fff;
-	fill: #fff;
-	background-color: #000;
 	border: none;
-	border-radius: 2px;
 	pointer-events: none;
-	font-family: dashicons;
 	display: inline-block;
-	width: 32px;
-	height: 32px;
-	font-size: 30px;
-	line-height: 1;
+	line-height: 0;
 	font-weight: 400;
 	font-style: normal;
+	border-radius: 4px;
+	width: 31px; /* Prevent comments indicator from changing icon width */
+	padding: 4px 3px 3px;
 }
 
 .jp-carousel-icon svg {
 	display: inline-block;
 }
 
-.jp-carousel-icon-btn.jp-carousel-selected .jp-carousel-icon {
-	color: #000;
+.jp-carousel-selected .jp-carousel-icon {
+	background: #fff;
+}
+.jp-carousel-selected rect {
 	fill: #000;
-	background-color: #fff;
 }
 
 .jp-carousel-icon-comments.jp-carousel-show {
@@ -1123,6 +1112,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	color: #000;
 	font-weight: normal;
 	font-family: 'Helvetica Neue', sans-serif !important;
+	position: relative;
 }
 
 .jp-carousel-light .jp-carousel-icon .jp-carousel-has-comments-indicator {
@@ -1138,8 +1128,8 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 /* Small screens */
 @media only screen and ( max-width: 760px ) {
-	.swiper-container .swiper-button-next,
-	.swiper-container .swiper-button-prev {
+	.jp-carousel-overlay .swiper-container .swiper-button-next,
+	.jp-carousel-overlay .swiper-container .swiper-button-prev {
 		display: none !important;
 	}
 
@@ -1160,7 +1150,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 		font-size: 26px !important;
 		position: fixed !important;
 		top: 10px;
-		right: 15px;
+		right: 10px;
 	}
 
 	/* The admin bar is fixed at top: 0*/
@@ -1201,7 +1191,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	}
 
 	.jp-carousel-photo-icons-container {
-		margin: 0 15px 0 0;
+		margin: 0 10px 0 0;
 		white-space: nowrap;
 	}
 

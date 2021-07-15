@@ -12,10 +12,7 @@
 		function texturize( text ) {
 			// Ensure we get a string.
 			text = text + '';
-			text = text
-				.replace( /'/g, '&#8217;' )
-				.replace( /&#039;/g, '&#8217;' )
-				.replace( /[\u2019]/g, '&#8217;' );
+			text = text.replace( /'/g, '&#8217;' ).replace( /&#039;/g, '&#8217;' );
 			text = text
 				.replace( /"/g, '&#8221;' )
 				.replace( /&#034;/g, '&#8221;' )
@@ -204,6 +201,10 @@
 			return dummy.innerHTML;
 		}
 
+		function stripHTML( text ) {
+			return text.replace( /<[^>]*>?/gm, '' );
+		}
+
 		return {
 			closest: closest,
 			matches: matches,
@@ -214,6 +215,7 @@
 			scrollToElement: scrollToElement,
 			getJSONAttribute: getJSONAttribute,
 			convertToPlainText: convertToPlainText,
+			stripHTML: stripHTML,
 			emitEvent: emitEvent,
 		};
 	} )();
@@ -350,8 +352,6 @@
 						closeCarousel();
 					} else if ( target.classList.contains( 'jp-carousel-image-download' ) ) {
 						stat( 'download_original_click' );
-					} else if ( target.classList.contains( 'jp-carousel-commentlink' ) ) {
-						handleCommentLinkClick( e );
 					} else if ( target.classList.contains( 'jp-carousel-comment-login' ) ) {
 						handleCommentLoginClick( e );
 					} else if ( domUtil.closest( target, '#jp-carousel-comment-form-container' ) ) {
@@ -411,18 +411,6 @@
 					}
 				} );
 			}
-		}
-
-		function handleCommentLinkClick( e ) {
-			e.preventDefault();
-			e.stopPropagation();
-			disableKeyboardNavigation();
-			domUtil.scrollToElement( carousel.info );
-			domUtil.show(
-				carousel.overlay.querySelector( '#jp-carousel-comment-form-submit-and-info-wrapper' )
-			);
-			var field = carousel.commentField;
-			field.focus();
 		}
 
 		function handleCommentLoginClick() {
@@ -677,7 +665,6 @@
 
 			var current = carousel.currentSlide;
 			var attachmentId = current.attrs.attachmentId;
-			var captionHtml;
 			var extraInfoContainer = carousel.info.querySelector( '.jp-carousel-info-extra' );
 			var photoMetaContainer = carousel.info.querySelector( '.jp-carousel-image-meta' );
 			var commentsContainer = carousel.info.querySelector( '.jp-carousel-comments-wrapper' );
@@ -711,7 +698,11 @@
 			}
 
 			domUtil.hide( carousel.caption );
-			updateTitleAndDesc( { title: current.attrs.title, desc: current.attrs.desc } );
+			updateTitleCaptionAndDesc( {
+				caption: current.attrs.caption,
+				title: current.attrs.title,
+				desc: current.attrs.desc,
+			} );
 
 			var imageMeta = carousel.slides[ index ].attrs.imageMeta;
 			updateExif( imageMeta );
@@ -721,31 +712,6 @@
 				testCommentsOpened( carousel.slides[ index ].attrs.commentsOpened );
 				fetchComments( attachmentId );
 				domUtil.hide( carousel.info.querySelector( '#jp-carousel-comment-post-results' ) );
-			}
-
-			if ( current.attrs.caption ) {
-				captionHtml = domUtil.convertToPlainText( current.attrs.caption );
-
-				if ( domUtil.convertToPlainText( current.attrs.title ) === captionHtml ) {
-					var title = carousel.info.querySelector( '.jp-carousel-photo-title' );
-					domUtil.fadeOut( title, function () {
-						title.innerHTML = '';
-					} );
-				}
-
-				if ( domUtil.convertToPlainText( current.attrs.desc ) === captionHtml ) {
-					var desc = carousel.info.querySelector( '.jp-carousel-photo-description' );
-					domUtil.fadeOut( desc, function () {
-						desc.innerHTML = '';
-					} );
-				}
-
-				carousel.caption.innerHTML = current.attrs.caption;
-				domUtil.fadeIn( carousel.caption );
-			} else {
-				domUtil.fadeOut( carousel.caption, function () {
-					carousel.caption.innerHTML = '';
-				} );
 			}
 
 			// Update pagination in footer.
@@ -935,28 +901,48 @@
 			return value;
 		}
 
-		function updateTitleAndDesc( data ) {
+		function updateTitleCaptionAndDesc( data ) {
+			var caption = '';
 			var title = '';
 			var desc = '';
-			var titleElements;
+			var captionMainElement;
+			var captionInfoExtraElement;
+			var titleElement;
 			var descriptionElement;
-			var i;
 
-			titleElements = document.querySelectorAll( '.jp-carousel-photo-title' );
-			descriptionElement = document.querySelector( '.jp-carousel-photo-description' );
+			captionMainElement = carousel.overlay.querySelector( '.jp-carousel-photo-caption' );
+			captionInfoExtraElement = carousel.overlay.querySelector( '.jp-carousel-caption' );
 
-			for ( i = 0; i < titleElements.length; i++ ) {
-				domUtil.hide( titleElements[ i ] );
-			}
+			titleElement = carousel.overlay.querySelector( '.jp-carousel-photo-title' );
+			descriptionElement = carousel.overlay.querySelector( '.jp-carousel-photo-description' );
 
+			domUtil.hide( captionMainElement );
+			domUtil.hide( captionInfoExtraElement );
+			domUtil.hide( titleElement );
 			domUtil.hide( descriptionElement );
 
+			caption = parseTitleOrDesc( data.caption ) || '';
 			title = parseTitleOrDesc( data.title ) || '';
 			desc = parseTitleOrDesc( data.desc ) || '';
 
-			if ( title || desc ) {
-				// Convert from HTML to plain text (including HTML entities decode, etc)
-				if ( domUtil.convertToPlainText( title ) === domUtil.convertToPlainText( desc ) ) {
+			if ( caption || title || desc ) {
+				if ( caption ) {
+					captionMainElement.innerHTML = caption;
+					captionInfoExtraElement.innerHTML = caption;
+
+					domUtil.show( captionMainElement );
+					domUtil.show( captionInfoExtraElement );
+				}
+
+				if ( domUtil.stripHTML( caption ) === domUtil.stripHTML( title ) ) {
+					title = '';
+				}
+
+				if ( domUtil.stripHTML( caption ) === domUtil.stripHTML( desc ) ) {
+					desc = '';
+				}
+
+				if ( domUtil.stripHTML( title ) === domUtil.stripHTML( desc ) ) {
 					desc = '';
 				}
 
@@ -965,10 +951,18 @@
 					domUtil.show( descriptionElement );
 				}
 
-				// Need maximum browser support, hence the for loop over NodeList.
-				for ( i = 0; i < titleElements.length; i++ ) {
-					titleElements[ i ].innerHTML = title;
-					domUtil.show( titleElements[ i ] );
+				if ( title ) {
+					var plainTitle = domUtil.convertToPlainText( title );
+					titleElement.innerHTML = plainTitle;
+
+					if ( ! caption ) {
+						captionMainElement.innerHTML = plainTitle;
+						captionInfoExtraElement.innerHTML = plainTitle;
+
+						domUtil.show( captionMainElement );
+					}
+
+					domUtil.show( titleElement );
 				}
 			}
 		}
@@ -1027,8 +1021,10 @@
 				original = currentSlide.attrs.origFile.replace( /\?.+$/, '' );
 			}
 
+			var downloadText = carousel.info.querySelector( '.jp-carousel-download-text' );
 			var permalink = carousel.info.querySelector( '.jp-carousel-image-download' );
-			permalink.innerHTML = util.applyReplacements(
+
+			downloadText.innerHTML = util.applyReplacements(
 				jetpackCarouselStrings.download_original,
 				origSize
 			);
@@ -1038,16 +1034,11 @@
 
 		function testCommentsOpened( opened ) {
 			var commentForm = carousel.container.querySelector( '.jp-carousel-comment-form-container' );
-			var commentLink = carousel.container.querySelector( '.jp-carousel-commentlink' );
-			var buttons = carousel.container.querySelector( '.jp-carousel-buttons' );
-			var control = Number( jetpackCarouselStrings.is_logged_in ) === 1 ? commentLink : buttons;
 			var isOpened = parseInt( opened, 10 ) === 1;
 
 			if ( isOpened ) {
-				domUtil.fadeIn( control );
 				domUtil.fadeIn( commentForm );
 			} else {
-				domUtil.fadeOut( control );
 				domUtil.fadeOut( commentForm );
 			}
 		}
@@ -1250,15 +1241,23 @@
 
 			// create the 'slide'
 			Array.prototype.forEach.call( items, function ( item, i ) {
-				var galleryItem = domUtil.closest( item, '.gallery-item' );
-				var captionEl = galleryItem && galleryItem.querySelector( '.gallery-caption' );
 				var permalinkEl = domUtil.closest( item, 'a' );
 				var origFile = item.getAttribute( 'data-orig-file' ) || item.getAttribute( 'src-orig' );
+				var attrID =
+					item.getAttribute( 'data-attachment-id' ) || item.getAttribute( 'data-id' ) || '0';
+				var caption = document.querySelector(
+					'img[data-attachment-id="' + attrID + '"] + figcaption'
+				);
+
+				if ( caption ) {
+					caption = caption.innerHTML;
+				} else {
+					caption = item.getAttribute( 'data-image-caption' );
+				}
 
 				var attrs = {
 					originalElement: item,
-					attachmentId:
-						item.getAttribute( 'data-attachment-id' ) || item.getAttribute( 'data-id' ) || '0',
+					attachmentId: attrID,
 					commentsOpened: item.getAttribute( 'data-comments-opened' ) || '0',
 					imageMeta: domUtil.getJSONAttribute( item, 'data-image-meta' ) || {},
 					title: item.getAttribute( 'data-image-title' ) || '',
@@ -1267,7 +1266,7 @@
 					largeFile: item.getAttribute( 'data-large-file' ) || '',
 					origFile: origFile || '',
 					thumbSize: { width: item.naturalWidth, height: item.naturalHeight },
-					caption: ( captionEl && captionEl.innerHTML ) || '',
+					caption: caption || '',
 					permalink: permalinkEl && permalinkEl.getAttribute( 'href' ),
 					src: origFile || item.getAttribute( 'src' ) || '',
 				};

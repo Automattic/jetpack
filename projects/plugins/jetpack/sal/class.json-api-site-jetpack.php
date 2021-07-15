@@ -68,6 +68,17 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 		return get_theme_support( $feature_name );
 	}
 
+	/**
+	 * Fetch a list of active plugins that are using Jetpack Connection.
+	 *
+	 * @return array An array of active plugins (by slug) that are using Jetpack Connection.
+	 */
+	protected function get_connection_active_plugins() {
+		$plugins = $this->get_mock_option( 'connection_active_plugins' );
+
+		return is_array( $plugins ) ? array_keys( $plugins ) : array();
+	}
+
 	public function get_updates() {
 		return (array) Jetpack::get_updates();
 	}

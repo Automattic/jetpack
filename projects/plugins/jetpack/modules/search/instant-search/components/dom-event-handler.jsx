@@ -99,6 +99,7 @@ export default class DomEventHandler extends Component {
 				);
 			}
 		}
+		this.props.setSearchQuery( '' );
 		this.props.showResults();
 	};
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Allow the use of widget visibility conditions in gutenberg based widget editing

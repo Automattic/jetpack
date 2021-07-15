@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Make sure we show the caption of the image in carousel images.

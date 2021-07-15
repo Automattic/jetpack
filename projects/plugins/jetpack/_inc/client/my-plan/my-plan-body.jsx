@@ -5,6 +5,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { __ } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -13,7 +14,6 @@ import analytics from 'lib/analytics';
 import Button from 'components/button';
 import { getPlanClass } from 'lib/plans/constants';
 import { get, includes } from 'lodash';
-import getRedirectUrl from 'lib/jp-redirect';
 import { imagePath } from 'constants/urls';
 import {
 	fetchPluginsData,
