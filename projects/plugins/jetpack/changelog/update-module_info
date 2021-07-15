@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Modules: Include all module info in the module-headings.php file during the build step.
