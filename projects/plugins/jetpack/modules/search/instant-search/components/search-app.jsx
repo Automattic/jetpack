@@ -113,7 +113,8 @@ class SearchApp extends Component {
 			this.props.setSort( this.state.overlayOptions.defaultSort );
 		}
 		if (
-			prevState.overlayOptions.excludedPostTypes !== this.state.overlayOptions.excludedPostTypes
+			stringify( prevState.overlayOptions.excludedPostTypes ) !==
+			stringify( this.state.overlayOptions.excludedPostTypes )
 		) {
 			this.getResults();
 		}

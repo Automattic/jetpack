@@ -1,0 +1,4 @@
+Significance: minor
+Type: bugfix
+
+Carousel CSS tweaks to ensure text and comment loader spinners dislay correctly in dark and light theme views.
