@@ -24,12 +24,14 @@ import { getSitePlan, hasActiveSearchPurchase as selectHasActiveSearchPurchase }
  */
 function MockedSearch( props ) {
 	const { hasActiveSearchPurchase, isBusinessPlan } = props;
-	const shouldShowMockedInstantSearch = ! isBusinessPlan || hasActiveSearchPurchase;
+	// We only want to show the legacy search mock to users with bussiness plan but no search subscription.
+	// For all other cases, we show our Instant Search experience mock.
+	const shouldShowMockedLegacySearch = isBusinessPlan && ! hasActiveSearchPurchase;
 
 	return (
 		<Fragment>
-			{ shouldShowMockedInstantSearch && <MockedInstantSearch /> }
-			{ ! shouldShowMockedInstantSearch && <MockedLegacySearch /> }
+			{ shouldShowMockedLegacySearch && <MockedLegacySearch /> }
+			{ ! shouldShowMockedLegacySearch && <MockedInstantSearch /> }
 		</Fragment>
 	);
 }
