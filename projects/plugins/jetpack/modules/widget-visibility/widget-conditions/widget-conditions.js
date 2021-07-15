@@ -1,10 +1,17 @@
 /* global isRtl, widget_conditions_parent_pages, widget_conditions_data, jQuery */
 
 jQuery( function ( $ ) {
-	var widgets_shell = $( 'div#widgets-right' );
+	//  Gutenberg 'widgets.php' screen.
+	var widgets_shell = $( '#widgets-editor' );
 
-	if ( ! widgets_shell && ! widgets_shell.length ) {
-		widgets_shell = $( 'form#customize-controls' );
+	if ( 0 === widgets_shell.length ) {
+		// Legacy 'widgets.php' screen + customizer.
+		widgets_shell = $( 'div#widgets-right' );
+
+		// For backwards compatibility
+		if ( 0 === widgets_shell.length ) {
+			widgets_shell = $( 'form#customize-controls' );
+		}
 	}
 
 	function setWidgetMargin( $widget ) {
@@ -51,8 +58,15 @@ jQuery( function ( $ ) {
 	}
 
 	function moveWidgetVisibilityButton( $widget ) {
-		var $displayOptionsButton = $widget.find( 'a.display-options' ).first();
-		$displayOptionsButton.insertBefore( $widget.find( 'input.widget-control-save' ) );
+		var $displayOptionsButton = $widget.find( 'a.display-options' ).first(),
+			$relativeWidget = $widget.find( 'input.widget-control-save' );
+
+		if ( 0 === $relativeWidget.length ) {
+			// The save button doesn't exist in gutenberg widget editor, the conditional HTML ought to be displayed
+			// last inside the widget options, so display the button before that.
+			$relativeWidget = $widget.find( 'div.widget-conditional' );
+		}
+		$displayOptionsButton.insertBefore( $relativeWidget );
 
 		// Widgets with no configurable options don't show the Save button's container.
 		$displayOptionsButton

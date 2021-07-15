@@ -41,9 +41,7 @@
 			.components-form-token-field__input-container {
 				width: 100%;
 				@media screen and ( min-width: 480px ) {
-					width: 327px;
-
-					input[type=text].components-form-token-field__input {
+					input[type='text'].components-form-token-field__input {
 						min-height: 32px;
 					}
 				}
@@ -137,7 +135,7 @@
 	}
 }
 
-.wp-block[data-type="jetpack/opentable"] {
+.wp-block[data-type='jetpack/opentable'] {
 	.components-notice__content {
 		text-align: left;
 	}
