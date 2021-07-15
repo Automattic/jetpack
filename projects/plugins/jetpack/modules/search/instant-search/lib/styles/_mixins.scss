@@ -3,6 +3,22 @@
 //
 // Mixins
 //
+
+// @breakpoint is a string prefixed with < or > followed by a breakpoint size.
+// (e.g. ">sm" or "<large").
+@mixin break( $breakpoint-string ) {
+	$predicate: max-width;
+	@if str-slice( $breakpoint-string, 1, 1 ) == '>' {
+		$predicate: min-width;
+	}
+
+	$breakpoint: map-get( $breakpoints, to-lower-case( str-slice( $breakpoint-string, 2 ) ) );
+
+	@media ( $predicate: #{ $breakpoint } ) {
+		@content;
+	}
+}
+
 @mixin break-small-up() {
 	@media ( min-width: #{ ( $break-sm ) } ) {
 		@content;

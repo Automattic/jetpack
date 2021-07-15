@@ -14,6 +14,10 @@ vendor/
 /tools/docker/compose-extras.yml
 /tools/docker/compose-volumes.yml
 /tools/docker/compose-volumes.built.yml
+/tools/docker/compose-extras.built.yml
+/tools/docker/compose-mappings.built.yml
+/tools/docker/jetpack-docker-config.yml
+
 # File for personal customiziations, if desired.
 /tools/docker/mu-plugins/0-sandbox.php
 .idea
