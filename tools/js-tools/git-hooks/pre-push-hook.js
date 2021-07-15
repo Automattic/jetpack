@@ -8,16 +8,16 @@ const spawnSync = require( 'child_process' ).spawnSync;
 const chalk = require( 'chalk' );
 const fs = require( 'fs' );
 const allProjects = require( '../../cli/helpers/projectHelpers' ).allProjects;
-
+let exitCode = 0;
 
 // Get a list of files that were just committed and total files from the diff.
-    // If none of the files require a changelog, bail.
+// If none of the files require a changelog, bail.
+const requireChangelog = allProjects();
 // Check just committed files
-    // If it contains a changelog, bail
+// If it contains a changelog, bail
 
 // If there is no changelog, check the diff against master
-    // If the diff contains a file in the changelog folder, can assume they added a changelog file
-    // If there isn't, prompt for one
+// If the diff contains a file in the changelog folder, can assume they added a changelog file
+// If there isn't, prompt for one
 
-console.log( allProjects() );
-process.exit(1);
+process.exit( 1 );
