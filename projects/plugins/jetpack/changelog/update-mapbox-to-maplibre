@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Map: change dependency mapbox-gl to maplibre-gl
