@@ -196,7 +196,7 @@
 
 			var isScrolling = true;
 			var startTime = Date.now();
-			var duration = 500;
+			var duration = 300;
 			var originalPosition = container.scrollTop;
 			var targetPosition = Math.max(
 				0,
