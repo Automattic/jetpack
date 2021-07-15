@@ -38,26 +38,35 @@ function getDiffFiles() {
 // If none of the files require a changelog, bail.
 function checkNeedChangelog() {
     const re = /^projects\/([^/]+\/[^/]+)\//; // regex matches project file path, ie 'project/packages/connection/..'
+    const modifiedProjects = new Set();
 	for ( const file of diffFiles ) {
 		const match = file.match( re );
 		if ( match ) {
-			return true;
+			modifiedProjects.add( match[ 1 ] );
 		}
 	}
-    return false;
+    
+    return allProjects().filter( proj => modifiedProjects.has( proj ) );
 }
 
 // If files require a changelog, check and see if one is included already
 if ( needChangelog ) {
-
+    for ( const proj of needChangelog ){
+        const re = '^projects\/' + proj + '\/changelog\/([^\/]+)'
+        const regex = new RegExp( re );
+        console.log(regex);
+        for (const file of diffFiles ) {
+            const match = file.match( regex );
+            if ( match ) {
+                console.log( `Found changelog file for ${proj}` );
+            }
+        }
+    }
+    // See how many projects need a changelog file
+    // Check all diffed files and see if a changelog file has been added that matches one of the projects.
+    // Check all the diffed files and see if they match
+ 
 }
-// Check just committed files
-// If it contains a changelog, bail
 
-// If there is no changelog, check the diff against master
-// If the diff contains a file in the changelog folder, can assume they added a changelog file
 // If there isn't, prompt for one
-console.log(branch);
-console.log(diffFiles);
-console.log(needChangelog);
 process.exit( 1 );
