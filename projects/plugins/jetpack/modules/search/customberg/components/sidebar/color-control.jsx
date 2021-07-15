@@ -24,7 +24,7 @@ const DEFAULT_COLORS = [
 export default function ColorControl( { disabled, value, onChange } ) {
 	return (
 		<div className="jp-search-customize-color-input components-base-control">
-			<div className="jp-search-customize-color-input-label">
+			<div className="jp-search-customize-color-input__label">
 				<label htmlFor="jp-search-customize-highlight-color" title={ value }>
 					{ __( 'Highlight for search terms', 'jetpack' ) }
 				</label>{ ' ' }

@@ -125,7 +125,7 @@
 	display: flex;
 	flex-flow: wrap;
 
-	.jp-search-customize-color-input-label {
+	.jp-search-customize-color-input__label {
 		display: flex;
 		padding-bottom: 4px;
 	}
@@ -190,10 +190,10 @@
 	cursor: not-allowed;
 }
 
-.jp-search-customize-excluded-post-types-input {
+.jp-search-customize-excluded-post-types-control {
 	margin-top: $grid-unit;
 
-	.jp-search-customize-excluded-post-types-label {
+	.jp-search-customize-excluded-post-types-control__label {
 		margin-bottom: $grid-unit;
 	}
 
