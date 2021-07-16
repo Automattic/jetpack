@@ -90,7 +90,7 @@ If you're ready to start, you should see all green `SUCCESS` messages. If the sc
 
 * #### Node.js
 
-	Node.js is used in the build process of the Jetpack plugin. If it's not already installed on your system, you can [visit the Node.js website and install the latest Long Term Support (LTS) version.](https://nodejs.org/).
+	Node.js is used in the build process of the Jetpack plugin. If it's not already installed on your system, you can [visit the Node.js website and install the latest Long Term Support (LTS) version](https://nodejs.org/).
 
 * #### Pnpm
 
