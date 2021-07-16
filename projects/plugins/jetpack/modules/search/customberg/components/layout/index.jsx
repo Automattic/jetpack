@@ -3,7 +3,6 @@
  */
 import { Popover, SlotFillProvider } from '@wordpress/components';
 import { useEffect } from '@wordpress/element';
-import { PluginArea } from '@wordpress/plugins';
 
 /**
  * Internal dependencies
@@ -31,7 +30,6 @@ export default function Layout() {
 			<Interface />
 			<Sidebar />
 			<Popover.Slot />
-			<PluginArea />
 		</SlotFillProvider>
 	);
 }
