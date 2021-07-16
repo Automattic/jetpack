@@ -106,9 +106,7 @@ If you're ready to start, you should see all green `SUCCESS` messages. If the sc
 
 * #### Composer
 
-	Jetpack includes a number of packages such as the `jetpack-logo` and to use these packages you need Composer, the PHP package manager.
-	
-	It's also necessary to use the PHP CodeSniffer that ensures your code follows code standards. 
+	Composer is a PHP package manager and it's used to install packages that are required to run development tools and build projects.
 	
 	 * ##### Installing Composer on macOS
 	
