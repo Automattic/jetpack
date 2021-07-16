@@ -145,7 +145,10 @@ const Admin = () => {
 			<div className="jp-wrap">
 				<div className="jp-row">
 					<div class="lg-col-span-12 md-col-span-8 sm-col-span-4">
-						<JetpackFooter moduleName="Jetpack Backup" a8cLogoHref="https://www.jetpack.com" />
+						<JetpackFooter
+							moduleName={ __( 'Jetpack Backup', 'jetpack-backup' ) }
+							a8cLogoHref="https://www.jetpack.com"
+						/>
 					</div>
 				</div>
 			</div>
