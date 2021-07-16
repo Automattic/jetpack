@@ -136,10 +136,9 @@ if ( version_compare( $GLOBALS['wp_version'], JETPACK__MINIMUM_WP_VERSION, '<' )
  *   and where we add on to various hooks that we expect to always run.
  */
 $jetpack_autoloader           = JETPACK__PLUGIN_DIR . 'vendor/autoload_packages.php';
-$jetpack_module_headings_file = JETPACK__PLUGIN_DIR . 'modules/module-headings.php';
+$jetpack_module_headings_file = JETPACK__PLUGIN_DIR . 'modules/module-headings.php'; // This file is loaded later in load-jetpack.php, but let's check here to pause before half-loading Jetpack.
 if ( is_readable( $jetpack_autoloader ) && is_readable( $jetpack_module_headings_file ) ) {
 	require_once $jetpack_autoloader;
-	require_once $jetpack_module_headings_file;
 } else {
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
