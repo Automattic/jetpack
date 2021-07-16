@@ -139,24 +139,19 @@
 			el.style.transition = 'opacity 0.2s';
 			el.style.pointerEvents = 'none';
 
-			var finished = function ( e ) {
-				if ( e.target === el && e.propertyName === 'opacity' ) {
-					el.style.removeProperty( 'transition' );
-					el.style.removeProperty( 'opacity' );
-					el.style.removeProperty( 'pointer-events' );
-					el.removeEventListener( 'transitionend', finished );
-					el.removeEventListener( 'transitioncancel', finished );
-					callback();
-				}
+			var finished = function () {
+				el.style.removeProperty( 'transition' );
+				el.style.removeProperty( 'opacity' );
+				el.style.removeProperty( 'pointer-events' );
+				callback();
 			};
 
 			requestAnimationFrame( function () {
 				// Double rAF for browser compatibility.
 				requestAnimationFrame( function () {
-					el.addEventListener( 'transitionend', finished );
-					el.addEventListener( 'transitioncancel', finished );
 					// Trigger transition.
 					el.style.opacity = end;
+					setTimeout( finished, 200 );
 				} );
 			} );
 		}
