@@ -290,7 +290,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 	 */
 	public static function render( $callback ) {
 		/** This filter is documented in _inc/lib/admin-pages/class.jetpack-react-page.php */
-		if ( 'stats_reports_page' !== $callback || ! apply_filters( 'jetpack_show_promotions', true ) ) {
+		if ( 'stats_reports_page' !== $callback || ! apply_filters( 'jetpack_show_promotions', true ) || ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 
