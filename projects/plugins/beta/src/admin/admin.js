@@ -1,14 +1,9 @@
 ( function () {
-	// Avoid running on main plugin selection page.
-	if (
-		'/wp-admin/admin.php?page=jetpack-beta' ===
-		window.location.pathname + window.location.search
-	) {
-		return;
-	}
-
 	// Elements
-	let prs = document.getElementById( 'section-pr' ).querySelectorAll( '.branch-card' );
+	let prs = document.getElementById( 'section-pr' )?.querySelectorAll( '.branch-card' );
+	if ( ! prs ) {
+		return; // Return early if on main plugin selection screen.
+	}
 	const releases = document.getElementById( 'section-releases' ).querySelectorAll( '.branch-card' );
 	const search_input_prs = document.getElementById( 'search-component-prs' );
 	const search_input_releases = document.getElementById( 'search-component-releases' );
@@ -233,10 +228,6 @@
 	 * @param {object} element - DOM Element object.
 	 */
 	function hide( element ) {
-		if ( ! element ) {
-			return;
-		}
-
 		element.style.display = 'none';
 	}
 
