@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Update Options module to return jetpack_sync_settings_* values from the Settings class vs direct option lookup.
