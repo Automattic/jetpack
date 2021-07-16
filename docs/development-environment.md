@@ -135,7 +135,13 @@ You'll need all the tools below to work in the Jetpack monorepo.
 
 * #### PHPUnit
 
-	PHPUnit is the unit test framework we use in Jetpack. You can install it by [visiting the official project web site](https://phpunit.de/) and follow the installation instructions there. 
+	PHPUnit is the unit test framework we use in Jetpack.
+	
+	If you use [our Docker setup](../tools/docker/README.md), it will be available to you in the container.
+
+	If you use your own local setup, you will need different setups based on the project you're working on:
+	- Our Composer packages require PHPUnit as you install dependencies, so you do not need to install it on your system.
+	- Our plugins rely on a specific version of PHPUnit as well as a local installation of WordPress' test development environment.
 
 * #### jetpack CLI
 
