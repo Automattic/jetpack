@@ -10,6 +10,10 @@
 .swiper-container-rtl .swiper-button-prev:after {
 	content: none;
 }
+.jp-carousel-overlay .swiper-button-prev, .jp-carousel-overlay .swiper-container-rtl .swiper-button-next,
+.jp-carousel-overlay .swiper-button-next, .jp-carousel-overlay .swiper-container-rtl .swiper-button-prev {
+	background-image: none;
+}
 /* end of temporary fix */
 
 [data-carousel-extra]:not( .jp-carousel-wrap ) {
@@ -99,10 +103,12 @@ so we have to target all affected elements in touch devices.
 
 .jp-carousel-overlay .swiper-container .swiper-button-prev {
 	left: 0;
+	right: auto;
 }
 
 .jp-carousel-overlay .swiper-container .swiper-button-next {
 	right: 0;
+	left: auto;
 }
 
 .jp-carousel-overlay .swiper-container.swiper-container-rtl .swiper-button-prev,
@@ -708,7 +714,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	-webkit-animation: load8 1.1s infinite linear;
 	animation: load8 1.1s infinite linear;
 	margin: 0 auto;
-	top: 40%;
+	top: calc( 50% - 15px );
 	left: 0;
 	bottom: 0;
 	right: 0;
@@ -796,6 +802,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	border-radius: 3px;
 	padding: 8px 16px;
 	font-size: 14px;
+	color: white;
 }
 
 #jp-carousel-comment-form-button-submit:active,
@@ -806,11 +813,11 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 #jp-carousel-comment-form-container {
 	margin-bottom: 15px;
-	overflow: auto;
 	width: 100%;
 	margin-top: 20px;
 	color: #999;
 	position: relative;
+	overflow: hidden;
 }
 
 #jp-carousel-comment-post-results {
@@ -1039,6 +1046,13 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	.swiper-pagination-bullet:not( .swiper-pagination-bullet-active ) {
 	background: #000;
 	opacity: 0.5;
+}
+
+.jp-carousel-light #jp-carousel-comment-form-spinner {
+	border-top: 4px solid rgba( 0, 0, 0, 0.2 );
+	border-right: 4px solid rgba( 0, 0, 0, 0.2 );
+	border-bottom: 4px solid rgba( 0, 0, 0, 0.2 );
+	border-left: 4px solid #000000;
 }
 
 /** Icons Start **/

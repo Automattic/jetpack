@@ -3,10 +3,8 @@
  */
 import { spawnSync } from 'child_process';
 import chalk from 'chalk';
-import { createWriteStream, existsSync, copyFileSync, readFileSync, writeFileSync } from 'fs';
-import yaml from 'js-yaml';
-
-const dockerFolder = `tools/docker`;
+import { createWriteStream, existsSync } from 'fs';
+import { dockerFolder, setConfig } from '../helpers/docker-config';
 
 /**
  * Sets default options that are common for most of the commands
@@ -72,50 +70,6 @@ const setEnv = () => {
 	createWriteStream( `${ dockerFolder }/.env`, {
 		flags: 'a',
 	} );
-};
-
-/**
- * Creates a default extras file if needed.
- */
-const setExtras = () => {
-	const extrasFile = `${ dockerFolder }/compose-extras.yml`;
-	const extrasSampleFile = `${ dockerFolder }/compose-extras.yml.sample`;
-
-	if ( ! existsSync( extrasFile ) ) {
-		copyFileSync( extrasSampleFile, extrasFile );
-	}
-};
-
-/**
- * Generates Volumes compose file
- *
- * @param {object} argv - Yargs
- */
-const setVolumes = argv => {
-	const volumesFile = `${ dockerFolder }/compose-volumes.yml`;
-	const volumesBuiltFile = `${ dockerFolder }/compose-volumes.built.yml`;
-	const sampleFile = `${ dockerFolder }/compose-volumes.yml.sample`;
-
-	if ( ! existsSync( volumesFile ) ) {
-		copyFileSync( sampleFile, volumesFile );
-	}
-
-	const volumes = yaml.load( readFileSync( volumesFile, 'utf8' ) );
-	const volumesObj = {
-		version: '3.3',
-		services: { wordpress: { volumes } },
-	};
-
-	if ( argv.type === 'dev' ) {
-		// Update the abs path to wordpress installation
-		volumesObj.services.sftp = {
-			volumes: volumes.map( vol =>
-				vol.replace( /\/var\/www\/html/, '/home/wordpress/var/www/html' )
-			),
-		};
-	}
-
-	writeFileSync( volumesBuiltFile, yaml.dump( volumesObj ) );
 };
 
 /**
@@ -204,20 +158,15 @@ const composeExecutor = ( argv, opts, envOpts ) => {
 /**
  * Builds an array of compose files matching configuration options.
  *
- * @param {object} argv - Yargs
  * @returns {Array} Array of shell arguments
  */
-const buildComposeFiles = argv => {
+const buildComposeFiles = () => {
 	const defaultCompose = [ `-f${ dockerFolder }/docker-compose.yml` ];
 	const extendFiles = [
-		`-f${ dockerFolder }/compose-volumes.built.yml`,
-		`-f${ dockerFolder }/compose-extras.yml`,
+		`-f${ dockerFolder }/compose-mappings.built.yml`,
+		`-f${ dockerFolder }/compose-extras.built.yml`,
 	];
-	const compose = defaultCompose;
-	if ( argv.type !== 'e2e' ) {
-		compose.push( `-f${ dockerFolder }/docker-compose.dev.yml` );
-	}
-	return compose.concat( extendFiles );
+	return defaultCompose.concat( extendFiles );
 };
 
 /**
@@ -227,7 +176,7 @@ const buildComposeFiles = argv => {
  * @returns {Array} Array of options required for specified command
  */
 const buildDefaultCmd = argv => {
-	const opts = buildComposeFiles( argv );
+	const opts = buildComposeFiles();
 	if ( argv._[ 1 ] === 'up' ) {
 		opts.push( 'up' );
 		if ( argv.detached ) {
@@ -280,8 +229,7 @@ const defaultDockerCmdHandler = argv => {
 	printPreCmdMsg( argv );
 
 	executor( argv, setEnv );
-	executor( argv, setVolumes );
-	executor( argv, setExtras );
+	executor( argv, setConfig );
 
 	const opts = buildDefaultCmd( argv );
 	const envOpts = buildEnv( argv );
@@ -299,7 +247,7 @@ const defaultDockerCmdHandler = argv => {
  * @returns {Array} Array of options required for specified command
  */
 const buildExecCmd = argv => {
-	const opts = buildComposeFiles( argv );
+	const opts = buildComposeFiles();
 	opts.push( 'exec', 'wordpress' );
 	const cmd = argv._[ 1 ];
 
@@ -470,6 +418,7 @@ export function dockerDefine( yargs ) {
 						);
 					},
 				} )
+
 				// Wordpress exec commands
 				.command( {
 					command: 'exec',
