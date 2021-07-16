@@ -438,13 +438,13 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests add_gutenberg_menus
+	 * Tests update_gutenberg_menus
 	 *
-	 * @covers ::add_gutenberg_menus
+	 * @covers ::update_gutenberg_menus
 	 */
-	public function test_add_gutenberg_menus() {
+	public function test_update_gutenberg_menus() {
 		global $menu;
-		static::$admin_menu->add_gutenberg_menus();
+		static::$admin_menu->update_gutenberg_menus();
 
 		// FSE is no longer where it was put by default.
 		$this->assertArrayNotHasKey( 100, $menu );

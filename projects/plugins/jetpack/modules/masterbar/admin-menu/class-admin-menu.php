@@ -37,7 +37,7 @@ class Admin_Menu extends Base_Admin_Menu {
 		$this->add_tools_menu();
 		$this->add_options_menu();
 		$this->add_jetpack_menu();
-		$this->add_gutenberg_menus();
+		$this->update_gutenberg_menus();
 
 		// Remove Links Manager menu since its usage is discouraged. https://github.com/Automattic/wp-calypso/issues/51188.
 		// @see https://core.trac.wordpress.org/ticket/21307#comment:73.
@@ -455,36 +455,17 @@ class Admin_Menu extends Base_Admin_Menu {
 	}
 
 	/**
-	 * Re-adds the Site Editor menu where we want it.
+	 * Update Site Editor menu item's link and position.
 	 */
-	public function add_gutenberg_menus() {
+	public function update_gutenberg_menus() {
 		// We can bail if we don't meet the conditions of the Site Editor.
 		if ( ! ( function_exists( 'gutenberg_is_fse_theme' ) && gutenberg_is_fse_theme() ) ) {
 			return;
 		}
 
-		// Core Gutenberg registers without an explicit position.
-		remove_menu_page( 'gutenberg-edit-site' );
-		// Core Gutenberg tries to manage its position, foiling our best laid plans. Unfoil.
-		remove_filter( 'menu_order', 'gutenberg_menu_order' );
-
-		$wp_admin = self::CLASSIC_VIEW === $this->get_preferred_view( 'admin.php?page=gutenberg-edit-site' );
-
-		$link = $wp_admin ? 'gutenberg-edit-site' : 'https://wordpress.com/site-editor/' . $this->domain;
-
-		add_menu_page(
-			__( 'Site Editor (beta)', 'jetpack' ),
-			sprintf(
-				/* translators: %s: "beta" label. */
-				__( 'Site Editor %s', 'jetpack' ),
-				'<span class="awaiting-mod">' . __( 'beta', 'jetpack' ) . '</span>'
-			),
-			'edit_theme_options',
-			$link,
-			$wp_admin ? 'gutenberg_edit_site_page' : null,
-			'dashicons-layout',
-			59 // Just above Appearance.
-		);
+		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'admin.php?page=gutenberg-edit-site' ) ) {
+			$this->update_menu( 'gutenberg-edit-site', 'https://wordpress.com/site-editor/' . $this->domain, null, null, null, 59 );
+		}
 	}
 
 	/**
