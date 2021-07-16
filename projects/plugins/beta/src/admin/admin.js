@@ -1,4 +1,12 @@
 ( function () {
+	// Avoid running on main plugin selection page.
+	if (
+		'/wp-admin/admin.php?page=jetpack-beta' ===
+		window.location.pathname + window.location.search
+	) {
+		return;
+	}
+
 	// Elements
 	let prs = document.getElementById( 'section-pr' ).querySelectorAll( '.branch-card' );
 	const releases = document.getElementById( 'section-releases' ).querySelectorAll( '.branch-card' );
@@ -45,6 +53,10 @@
 	 * @param {object} input_area - Search input DOM Element object.
 	 */
 	function search_input_listener( input_area ) {
+		if ( ! input_area ) {
+			return;
+		}
+
 		input_area.addEventListener( 'keyup', function ( event ) {
 			const section_id = event.srcElement.id;
 			const search_for = pr_to_header( input_area.value );
@@ -107,6 +119,10 @@
 	 * @param {object} section - DOM Element object for a close search icon.
 	 */
 	function hide_search_close_link( section ) {
+		if ( ! section ) {
+			return;
+		}
+
 		hide( section );
 		section.addEventListener( 'click', function ( event ) {
 			if ( section.id === 'search-component-prs-close' ) {
@@ -217,6 +233,10 @@
 	 * @param {object} element - DOM Element object.
 	 */
 	function hide( element ) {
+		if ( ! element ) {
+			return;
+		}
+
 		element.style.display = 'none';
 	}
 
