@@ -50,9 +50,22 @@ class Tracking {
 	}
 
 	/**
+	 * Test
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return boolean
+	 */
+	public function test() {
+		return true;
+	}
+
+	/**
 	 * Universal method for for all tracking events triggered via the JavaScript client.
 	 *
 	 * @access public
+	 *
+	 * @deprecated $$next-version$$
 	 */
 	public function ajax_tracks() {
 		// Check for nonce.
@@ -91,6 +104,8 @@ class Tracking {
 	 * Register script necessary for tracking.
 	 *
 	 * @param boolean $enqueue Also enqueue? defaults to false.
+	 *
+	 * @deprecated since $$next-version$$
 	 */
 	public static function register_tracks_functions_scripts( $enqueue = false ) {
 
