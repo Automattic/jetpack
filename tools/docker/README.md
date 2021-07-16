@@ -14,8 +14,6 @@ Unified environment for developing Jetpack using Docker containers providing fol
 
 ## To get started
 
-_**All commands mentioned in this document should be run from the base Jetpack directory. Not from the `docker` directory!**_
-
 ### Prerequisites
 
 To use Jetpack's Docker environment, you will need:
@@ -133,7 +131,7 @@ jetpack docker uninstall
 jetpack docker up
 ```
 
-Start three containers (WordPress, MySQL and MailDev) defined in `docker-composer.yml`. Wrapper for `docker-composer up`.
+Start the containers (WordPress, MySQL and MailDev) defined in `docker-composer.yml`.
 
 This command will rebuild the WordPress container if you made any changes to `docker-composer.yml`.
 
@@ -225,15 +223,7 @@ Note that each `wp shell` session counts as a single request, causing unexpected
 
 ## MySQL database
 
-Connecting to your MySQL database from outside the container, use:
-
-- Host: `127.0.0.1`
-- Port: `3306`
-- User: `wordpress`
-- Pass: `wordpress`
-- Database: `wordpress`
-
-You can also see your database files via local file system at `./tools/docker/data/mysql`
+You can see your database files via local file system at `./tools/docker/data/mysql`
 
 You can also access it via phpMyAdmin at [http://localhost:8181](http://localhost:8181).
 
