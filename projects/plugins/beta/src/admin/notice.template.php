@@ -39,19 +39,6 @@ $is_notice = ( 'plugins' === $current_screen->base ? true : false );
 				margin-bottom:1em;
 			}
 		</style>
-
-		<?php
-		if ( isset( $plugin ) ) {
-			$plugin = $plugin; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-			?>
-			<div id="jetpack-beta-tester__breadcrumb">
-				<a href="<?php echo esc_url( Utils::admin_url() ); ?>">
-					<?php esc_html_e( 'Jetpack Beta Tester Home', 'jetpack-beta' ); ?>
-				</a>
-				<span>&nbsp;&gt; <?php echo esc_html( $plugin->get_name() ); ?></span>
-			</div>
-		<?php } ?>
-
 		<div id="jetpack-beta-tester__start" class="<?php echo ( $is_notice ? 'notice notice-updated' : 'dops-card' ); ?>">
 			<h1><?php esc_html_e( 'Welcome to Jetpack Beta Tester', 'jetpack-beta' ); ?></h1>
 			<p><?php esc_html_e( 'Thank you for helping to test our plugins!  We appreciate your time and effort.', 'jetpack-beta' ); ?></p>
