@@ -135,9 +135,11 @@ if ( version_compare( $GLOBALS['wp_version'], JETPACK__MINIMUM_WP_VERSION, '<' )
  * - If it succeeds, we require load-jetpack.php, where all legacy files are required,
  *   and where we add on to various hooks that we expect to always run.
  */
-$jetpack_autoloader = JETPACK__PLUGIN_DIR . 'vendor/autoload_packages.php';
-if ( is_readable( $jetpack_autoloader ) ) {
-	require $jetpack_autoloader;
+$jetpack_autoloader           = JETPACK__PLUGIN_DIR . 'vendor/autoload_packages.php';
+$jetpack_module_headings_file = JETPACK__PLUGIN_DIR . 'modules/module-headings.php';
+if ( is_readable( $jetpack_autoloader ) && is_readable( $jetpack_module_headings_file ) ) {
+	require_once $jetpack_autoloader;
+	require_once $jetpack_module_headings_file;
 } else {
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
@@ -154,7 +156,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 	 *
 	 * @since 7.4.0
 	 */
-	function jetpack_admin_missing_autoloader() {
+	function jetpack_admin_missing_files() {
 		?>
 		<div class="notice notice-error is-dismissible">
 			<p>
@@ -162,7 +164,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 				printf(
 					wp_kses(
 						/* translators: Placeholder is a link to a support document. */
-						__( 'Your installation of Jetpack is incomplete. If you installed Jetpack from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment.', 'jetpack' ),
+						__( 'Your installation of Jetpack is incomplete. If you installed Jetpack from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack must have Composer dependencies installed and built via the build command.', 'jetpack' ),
 						array(
 							'a' => array(
 								'href'   => array(),
@@ -179,7 +181,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 		<?php
 	}
 
-	add_action( 'admin_notices', 'jetpack_admin_missing_autoloader' );
+	add_action( 'admin_notices', 'jetpack_admin_missing_files' );
 	return;
 }
 

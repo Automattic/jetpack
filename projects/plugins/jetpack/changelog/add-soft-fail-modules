@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Development: Soft-fail if Jetpack is not built.
