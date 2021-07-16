@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Added an action to the Admin Menu endpoint so that it can be modified by a hook
