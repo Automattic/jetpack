@@ -64,7 +64,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 	 */
 	private static function is_plugin_active( $plugin_file ) {
 		$plugins = Jetpack_Plugins::get_plugins();
-		return isset( $plugins[ $plugin_file ] ) && isset( $plugins['active'] ) && $plugins['active'];
+		return isset( $plugins[ $plugin_file ] ) && isset( $plugins[ $plugin_file ]['active'] ) && $plugins[ $plugin_file ]['active'];
 	}
 
 	/**
