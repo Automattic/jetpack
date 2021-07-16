@@ -13,7 +13,7 @@ import restApi from 'rest-api';
 import Masthead from 'components/masthead';
 import LoadingPlaceHolder from 'components/loading-placeholder';
 import ModuleControl from './module-control';
-import MockedInstantSearch from './mocked-instant-search';
+import MockedSearch from './mocked-search';
 import './style.scss';
 
 /**
@@ -66,7 +66,7 @@ function SearchDashboard( props ) {
 							</h1>
 						</div>
 						<div className="jp-search-dashboard__mocked-search-interface">
-							<MockedInstantSearch />
+							<MockedSearch />
 						</div>
 					</div>
 					<div className="jp-search-dashboard__bottom">
