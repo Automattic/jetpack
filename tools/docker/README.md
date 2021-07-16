@@ -147,7 +147,7 @@ jetpack docker up -d
 jetpack docker stop
 ```
 
-Stops all containers. Wrapper for `docker-compose stop`.
+Stops all containers.
 
 ```sh
 jetpack docker down
