@@ -198,13 +198,6 @@ There are three types of builds:
 	jetpack build --production
 	```
 
-### Building additional Jetpack extensions
-
-Jetpack contains several extensions that have a separate build process. You can find information how to build them below: 
-
-* Jetpack Instant Search - [build instructions](../modules/search/instant-search/README.md)
-* Jetpack Block Editor Extensions - [build instructions](../extensions/README.md)
-
 ---
 
 # Unit-testing
