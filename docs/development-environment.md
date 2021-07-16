@@ -68,9 +68,9 @@ To get a local WordPress site up and running you need a web server (Apache, Ngin
 
 ### Minimum required versions
  * Node.js - LTS (Currently 14, see engines section of package.json)
- * Pnpm - 6.3.0 (See engines section of package.json)
+ * Pnpm - 6.5.0 (See engines section of package.json)
  * PHP - 7.4 (in case you're running WordPress locally)
- * Composer - 1.9.0
+ * Composer - 2.0.x
 
 ---
 
