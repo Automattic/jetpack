@@ -92,6 +92,8 @@ You'll need all the tools below to work in the Jetpack monorepo.
 
 	You'll find the minimum required version in the engines section of package.json.
 
+	We recommend usage of [nvm](https://github.com/nvm-sh/nvm/) for managing different Node versions on the same environment.
+
 * #### Pnpm
 
 	Pnpm is a Node.js package manager and it's used to install packages that are required to run development tools and build projects. To install it, either run `npm install -g pnpm` or you can [visit the Installation page of the project](https://pnpm.io/installation) for other methods.
@@ -195,19 +197,6 @@ There are three types of builds:
 	```sh
 	jetpack build --production
 	```
-
-### A note on building Jetpack and Node.js versions
-
-We try to frequently keep the Node version we use up to date. So, eventually you may need to refresh your package dependencies (i.e., the `node_modules` directories). This is because some dependencies are built specifically for the Node version you used when you installed them (either by running `pnpm build` or `pnpm install`).
-
-We recommend usage of [nvm](https://github.com/nvm-sh/nvm/) for managing different Node versions on the same environment.
-
-**Note:** If you have previously run the Jetpack build tasks (e.g. `pnpm build`), and didn't come back to it for a long time, you can
-run this command before building again. Otherwise you may experience errors on the command line while trying to build.
-
-```sh
-jetpack clean --dist
-```
 
 ### Building additional Jetpack extensions
 
