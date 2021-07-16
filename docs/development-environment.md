@@ -145,6 +145,8 @@ You'll need all the tools below to work in the Jetpack monorepo.
 	- Our Composer packages require PHPUnit as you install dependencies, so you do not need to install it on your system.
 	- Our plugins rely on a specific version of PHPUnit as well as a local installation of WordPress' test development environment.
 
+	See the [Unit-testing](#unit-testing) to find out more.
+
 * #### jetpack CLI
 
 	The `jetpack` CLI tool is used to help with development in the Jetpack monorepo. Find out more and install it by following the instructions on the [Jetpack CLI page](https://github.com/Automattic/jetpack/blob/master/tools/cli/README.md).
@@ -203,7 +205,7 @@ There are three types of builds:
 # Unit-testing
 
 
-Jetpack includes several [unit tests](https://github.com/Automattic/jetpack/tree/master/tests) that you can run in your local environment before submitting a new Pull Request.
+The Jetpack plugin includes several [unit tests](https://github.com/Automattic/jetpack/tree/master/projects/plugins/jetpack/tests) that you can run in your local environment before submitting a new Pull Request.
 
 If you're not familiar with PHP Unit Testing, you can also check [this tutorial](https://pippinsplugins.com/series/unit-tests-wordpress-plugins/)
 
