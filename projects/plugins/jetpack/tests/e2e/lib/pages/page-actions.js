@@ -25,7 +25,7 @@ export default class PageActions {
 	 * @param {Object} options object. see: https://playwright.dev/docs/api/class-page?_highlight=goto#pagegotourl-options
 	 * @return {Promise<void>}
 	 */
-	async goto( url, options = {} ) {
+	async goto( url, options = { waitUntil: 'domcontentloaded' } ) {
 		if ( ! url ) {
 			throw new Error( 'Cannot navigate! Page URL is not set' );
 		}

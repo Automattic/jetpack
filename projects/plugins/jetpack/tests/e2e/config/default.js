@@ -3,8 +3,10 @@ const configDir = './config';
 const tempDir = `${ configDir }/tmp`;
 const config = {
 	WP_ADMIN_USER: {
-		username: 'admin',
-		password: 'password',
+		// username: 'admin',
+		// password: 'password',
+		username: 'wordpress',
+		password: 'wordpress',
 	},
 	WP_BASE_URL: 'http://localhost',
 	testCardCredentials: {

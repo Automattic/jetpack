@@ -17,18 +17,23 @@ const { E2E_DEBUG } = process.env;
  */
 async function execShellCommand( cmd ) {
 	return new Promise( resolve => {
-		const cmdExec = exec( cmd, ( error, stdout ) => {
+		const result = [];
+		const cmdExec = exec( cmd, error => {
 			if ( error ) {
 				logger.warn( `CLI: ${ error.toString() }` );
 				return resolve( error );
 			}
-			return resolve( stdout );
+			// return resolve( stderr );
+			return resolve( result.join( '\n' ) );
 		} );
-		cmdExec.stdout.on( 'data', data => {
+		const output = data => {
 			// remove the new line at the end
-			data = data.replace( /\n$/, '' );
-			logger.cli( `${ data }` );
-		} );
+			// data = data.replace( /\n$/, '' );
+			logger.cli( data.replace( /\n$/, '' ) );
+			result.push( data );
+		};
+		cmdExec.stdout.on( 'data', output );
+		cmdExec.stderr.on( 'data', output );
 	} );
 }
 
@@ -38,7 +43,7 @@ function execSyncShellCommand( cmd ) {
 
 async function resetWordpressInstall() {
 	const cmd = './bin/env.sh reset';
-	await execShellCommand( cmd );
+	execSyncShellCommand( cmd );
 }
 
 async function prepareUpdaterTest() {
@@ -56,7 +61,7 @@ async function prepareUpdaterTest() {
  * @param {string} user   Local user name, id, or e-mail
  * @return {string} authentication URL
  */
-async function provisionJetpackStartConnection( userId, plan = 'free', user = 'admin' ) {
+async function provisionJetpackStartConnection( userId, plan = 'free', user = 'wordpress' ) {
 	logger.info( `Provisioning Jetpack start connection [userId: ${ userId }, plan: ${ plan }]` );
 	const [ clientID, clientSecret ] = config.get( 'jetpackStartSecrets' );
 
@@ -70,20 +75,8 @@ async function provisionJetpackStartConnection( userId, plan = 'free', user = 'a
 		throw new Error( 'Jetpack Start provision is failed. Response: ' + response );
 	}
 
-	const out = execSyncShellCommand(
-		shellescape( [
-			'pnpx',
-			'wp-env',
-			'run',
-			'tests-cli',
-			shellescape( [
-				'wp',
-				'--user=admin',
-				'jetpack',
-				'authorize_user',
-				`--token=${ json.access_token }`,
-			] ),
-		] )
+	const out = await execWpCommand(
+		`--user=${ user } jetpack authorize_user ` + shellescape( [ `--token=${ json.access_token }` ] )
 	);
 	logger.cli( out );
 
@@ -97,8 +90,8 @@ async function provisionJetpackStartConnection( userId, plan = 'free', user = 'a
  * @param {string} module Jetpack module name
  */
 async function activateModule( page, module ) {
-	const cliCmd = `wp jetpack module activate ${ module }`;
-	const activeModulesCmd = 'wp option get jetpack_active_modules --format=json';
+	const cliCmd = `jetpack module activate ${ module }`;
+	const activeModulesCmd = 'option get jetpack_active_modules --format=json';
 	await execWpCommand( cliCmd );
 
 	const modulesList = JSON.parse( await execWpCommand( activeModulesCmd ) );
@@ -115,13 +108,13 @@ async function activateModule( page, module ) {
 }
 
 async function execWpCommand( wpCmd ) {
-	const cmd = `pnpx wp-env run tests-cli "${ wpCmd }"`;
+	// const cmd = `pnpx wp-env run tests-cli "${ wpCmd }"`;
+	const cmd = `jetpack docker --type e2e --name t1 wp -- ${ wpCmd }`;
 	const result = await execShellCommand( cmd );
 
-	// By default, `wp-env run` adds a newline to the end of the output.
-	// Here we clean this up.
+	// Jetpack's `wp` command outputs a script header for some reason. Let's clean it up.
 	if ( typeof result !== 'object' && result.length > 0 ) {
-		return result.trim();
+		return result.replace( '#!/usr/bin/env php\n', '' ).trim();
 	}
 
 	return result;

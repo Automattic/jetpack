@@ -18,16 +18,16 @@ export async function persistPlanData( planType = 'jetpack_complete' ) {
 
 	fs.writeFileSync( planDatafilePath, JSON.stringify( planData ) );
 
-	const cmd = `wp option update ${ planDataOption } < ${ planDatafilePath }`;
+	const cmd = `option update ${ planDataOption } < ${ planDatafilePath }`;
 	await execWpCommand( cmd );
 }
 
 export async function activatePlanDataInterceptor() {
-	return await execWpCommand( 'wp plugin activate e2e-plan-data-interceptor' );
+	return await execWpCommand( 'plugin activate e2e-plan-data-interceptor' );
 }
 
 async function getSiteId() {
-	const output = await execWpCommand( 'wp jetpack options get id' );
+	const output = await execWpCommand( 'jetpack options get id' );
 	return output.split( ':' )[ 1 ].trim();
 }
 
@@ -541,8 +541,8 @@ export async function syncPlanData( page ) {
 		/* eslint-disable no-undef */
 		frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
 		/* eslint-enable no-undef */
-		bkPlan = JSON.parse( await execWpCommand( 'wp option get jetpack_active_plan --format=json' ) );
-		await execWpCommand( 'wp option get jetpack_active_modules --format=json' );
+		bkPlan = JSON.parse( await execWpCommand( 'option get jetpack_active_plan --format=json' ) );
+		await execWpCommand( 'option get jetpack_active_modules --format=json' );
 
 		logger.info( `PLANS: frontend: ${ frPlan }, backend: ${ bkPlan.product_slug }` );
 		isSame = frPlan.trim() === bkPlan.product_slug.trim();

@@ -95,7 +95,7 @@ export async function syncJetpackPlanData( plan, mockPlanData = true ) {
 			response => response.url().match( /v4\/site[^\/]/ ) && response.status() === 200,
 			{ timeout: 60 * 1000 }
 		);
-		await execWpCommand( 'wp cron event run jetpack_v2_heartbeat' );
+		await execWpCommand( 'cron event run jetpack_v2_heartbeat' );
 	}
 	await syncPlanData( page );
 	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
@@ -104,8 +104,8 @@ export async function syncJetpackPlanData( plan, mockPlanData = true ) {
 }
 
 export async function isBlogTokenSet() {
-	const cliCmd = 'wp jetpack options get blog_token';
+	const cliCmd = 'jetpack options get blog_token';
 	const result = await execWpCommand( cliCmd );
-
-	return ! ( typeof result === 'object' && result.code === 1 );
+	console.log( 'ZZZZZZZZ', result );
+	return ! result.includes( 'Error: Option not found or is empty' );
 }

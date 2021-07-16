@@ -18,7 +18,9 @@ start_env() {
 }
 
 reset_env() {
-	pnpx wp-env clean
+	jetpack docker --type e2e --name t1 -v wp -- db reset --yes
+	jetpack docker --type e2e --name t1 -v install
+	# pnpx wp-env clean
 	configure_wp_env
 }
 
@@ -30,8 +32,9 @@ gb_setup() {
 }
 
 configure_wp_env() {
-	pnpx wp-env run tests-wordpress ./wp-content/plugins/jetpack-dev/tests/e2e/bin/container-setup.sh wp-config
-	pnpx wp-env run tests-cli wp plugin activate jetpack-dev
+	# pnpx wp-env run tests-wordpress ./wp-content/plugins/jetpack-dev/tests/e2e/bin/container-setup.sh wp-config
+	jetpack docker --type e2e --name t1 wp plugin activate jetpack
+	jetpack docker --type e2e --name t1 wp plugin activate e2e-plan-data-interceptor
 
 	echo
 	echo "WordPress is ready!"

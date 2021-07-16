@@ -22,7 +22,7 @@ describe( 'Jetpack pre-connection', () => {
 
 	afterAll( async () => {
 		await execWpCommand(
-			`wp option update jetpack_private_options --format=json < ${ path.resolve(
+			`option update jetpack_private_options --format=json < ${ path.resolve(
 				config.get( 'temp.jetpackPrivateOptions' )
 			) }`
 		);
@@ -32,7 +32,7 @@ describe( 'Jetpack pre-connection', () => {
 		await ( await Sidebar.init( page ) ).selectInstalledPlugins();
 
 		const pluginsPage = await PluginsPage.init( page );
-		await execWpCommand( 'wp transient set activated_jetpack true 120' );
+		await execWpCommand( 'transient set activated_jetpack true 120' );
 		await pluginsPage.reload();
 
 		expect( await pluginsPage.isFullScreenPopupShown() ).toBeTruthy();

@@ -11,15 +11,15 @@ import { execWpCommand } from './utils-helper';
 import config from 'config';
 
 export async function enableInstantSearch() {
-	return execWpCommand( 'wp option update instant_search_enabled 1' );
+	return execWpCommand( 'option update instant_search_enabled 1' );
 }
 
 export async function disableInstantSearch() {
-	return execWpCommand( 'wp option update instant_search_enabled 0' );
+	return execWpCommand( 'option update instant_search_enabled 0' );
 }
 
 export async function setResultFormat( format = 'expanded' ) {
-	return execWpCommand( `wp option update jetpack_search_result_format ${ format }` );
+	return execWpCommand( `option update jetpack_search_result_format ${ format }` );
 }
 
 export async function getSidebarsWidgets() {

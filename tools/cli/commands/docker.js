@@ -247,13 +247,14 @@ const defaultDockerCmdHandler = argv => {
  * @returns {Array} Array of options required for specified command
  */
 const buildExecCmd = argv => {
-	const opts = buildComposeFiles();
-	opts.push( 'exec', 'wordpress' );
+	const opts = [ 'exec', 'wordpress' ];
 	const cmd = argv._[ 1 ];
 
 	if ( cmd === 'exec' ) {
 		opts.push( ...argv._.slice( 2 ) );
 	} else if ( cmd === 'install' ) {
+		// Adding -T to resolve an issue when running this command within node context (e2e)
+		opts.splice( 1, 0, '-T' );
 		opts.push( '/var/scripts/install.sh' );
 	} else if ( cmd === 'sh' ) {
 		opts.push( 'bash' );
@@ -276,6 +277,7 @@ const buildExecCmd = argv => {
 		);
 	} else if ( cmd === 'wp' ) {
 		const wpArgs = argv._.slice( 2 );
+		opts.splice( 1, 0, '-T' );
 		opts.push( 'wp', '--allow-root', '--path=/var/www/html/', ...wpArgs );
 	} else if ( cmd === 'tail' ) {
 		opts.push( '/var/scripts/tail.sh' );
@@ -294,7 +296,7 @@ const buildExecCmd = argv => {
 		opts.push( '/var/scripts/run-extras.sh' );
 	}
 
-	return opts;
+	return buildComposeFiles().concat( opts );
 };
 
 /**
