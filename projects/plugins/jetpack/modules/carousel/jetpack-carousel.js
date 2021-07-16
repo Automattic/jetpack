@@ -768,13 +768,7 @@
 			}
 
 			loadFullImage( carousel.slides[ index ] );
-
-			if (
-				Number( jetpackCarouselStrings.display_background_image ) === 1 &&
-				! carousel.slides[ index ].backgroundImage
-			) {
-				loadBackgroundImage( carousel.slides[ index ] );
-			}
+			loadBackgroundImage( carousel.slides[ index ] );
 
 			domUtil.hide( carousel.caption );
 			updateTitleCaptionAndDesc( {
@@ -1277,7 +1271,7 @@
 		}
 
 		function applyBackgroundImage( slide, currentSlide, image ) {
-			var url = util.getBackgroundImage( image );
+			var url = slide.backgroundImage ? slide.backgroundImage : util.getBackgroundImage( image );
 			slide.backgroundImage = url;
 			currentSlide.style.backgroundImage = 'url(' + url + ')';
 			currentSlide.style.backgroundSize = 'cover';
