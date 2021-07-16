@@ -1,0 +1,58 @@
+@import './_variables.scss';
+
+#jp-search-dashboard {
+	.jp-masthead__logo-link {
+		pointer-events: none;
+	}
+
+	.jp-search-dashboard__top {
+		background-color: #f9f9f6;
+		display: flex;
+		align-items: center;
+		flex-flow: column;
+
+		min-height: 300px;
+		max-height: 500px;
+		height: 45vh;
+		overflow: hidden;
+	}
+
+	.jp-search-dashboard__title {
+		width: 100%;
+		max-width: 65rem;
+		h1 {
+			max-width: 15em;
+			line-height: 1.2em;
+		}
+		// Align with header.
+		@media ( max-width: 1250px ) {
+			width: 95%;
+		}
+	}
+
+	.jp-search-dashboard__mocked-search-interface {
+		width: 90%;
+		max-width: 60rem;
+		height: 100%;
+
+		display: flex;
+		flex-flow: column;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.jp-search-dashboard__bottom {
+		display: flex;
+		flex-flow: column;
+		justify-content: space-around;
+		align-items: center;
+		width: 100%;
+		min-height: 24rem;
+
+		background-color: $white;
+	}
+
+	@include breakpoint( '<480px' ) {
+		font-size: 80%;
+	}
+}

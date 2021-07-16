@@ -327,13 +327,13 @@ class Jetpack_Carousel {
 			 */
 			$localize_strings = apply_filters( 'jp_carousel_localize_strings', $localize_strings );
 			wp_localize_script( 'jetpack-carousel', 'jetpackCarouselStrings', $localize_strings );
-			wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ), array(), $this->asset_version( JETPACK__VERSION ) );
 			wp_enqueue_style(
 				'jetpack-carousel-swiper-css',
 				plugins_url( 'swiper-bundle.css', __FILE__ ),
 				array(),
 				$this->asset_version( JETPACK__VERSION )
 			);
+			wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ), array(), $this->asset_version( JETPACK__VERSION ) );
 			wp_style_add_data( 'jetpack-carousel', 'rtl', 'replace' );
 
 			/**
@@ -385,18 +385,37 @@ class Jetpack_Carousel {
 				itemtype="https://schema.org/ImageGallery">
 				<div class="jp-carousel swiper-wrapper"></div>
 				<div class="jp-swiper-button-prev swiper-button-prev">
-					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-						<path d="M10.4772727,0.477272727 C10.7408632,0.740863176 10.7408632,1.16822773 10.4772727,1.43181818 L1.90909091,10 L10.4772727,18.5681818 C10.7408632,18.8317723 10.7408632,19.2591368 10.4772727,19.5227273 C10.2136823,19.7863177 9.78631772,19.7863177 9.52272727,19.5227273 L0.707106781,10.7071068 C0.316582489,10.3165825 0.316582489,9.68341751 0.707106781,9.29289322 L9.52272727,0.477272727 C9.78631772,0.213682278 10.2136823,0.213682278 10.4772727,0.477272727 Z" transform="translate(4)"/>
+					<svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<mask id="maskPrev" mask-type="alpha" maskUnits="userSpaceOnUse" x="8" y="6" width="9" height="12">
+							<path d="M16.2072 16.59L11.6496 12L16.2072 7.41L14.8041 6L8.8335 12L14.8041 18L16.2072 16.59Z" fill="white"/>
+						</mask>
+						<g mask="url(#maskPrev)">
+							<rect x="0.579102" width="23.8823" height="24" fill="#FFFFFF"/>
+						</g>
 					</svg>
 				</div>
 				<div class="jp-swiper-button-next swiper-button-next">
-					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-						<path d="M1.37727273,19.5227273 C1.11368228,19.2591368 1.11368228,18.8317723 1.37727273,18.5681818 L9.94545455,10 L1.37727273,1.43181818 C1.11368228,1.16822773 1.11368228,0.740863176 1.37727273,0.477272727 C1.64086318,0.213682278 2.06822773,0.213682278 2.33181818,0.477272727 L11.1474387,9.29289322 C11.537963,9.68341751 11.537963,10.3165825 11.1474387,10.7071068 L2.33181818,19.5227273 C2.06822773,19.7863177 1.64086318,19.7863177 1.37727273,19.5227273 Z" transform="translate(4)"/>
+					<svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<mask id="maskNext" mask-type="alpha" maskUnits="userSpaceOnUse" x="8" y="6" width="8" height="12">
+							<path d="M8.59814 16.59L13.1557 12L8.59814 7.41L10.0012 6L15.9718 12L10.0012 18L8.59814 16.59Z" fill="white"/>
+						</mask>
+						<g mask="url(#maskNext)">
+							<rect x="0.34375" width="23.8822" height="24" fill="#FFFFFF"/>
+						</g>
 					</svg>
 				</div>
 			</div>
 			<!-- The main close buton -->
-			<div class="jp-carousel-close-hint"><span>&times;</span></div>
+			<div class="jp-carousel-close-hint">
+				<svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<mask id="maskClose" mask-type="alpha" maskUnits="userSpaceOnUse" x="5" y="5" width="15" height="14">
+						<path d="M19.3166 6.41L17.9135 5L12.3509 10.59L6.78834 5L5.38525 6.41L10.9478 12L5.38525 17.59L6.78834 19L12.3509 13.41L17.9135 19L19.3166 17.59L13.754 12L19.3166 6.41Z" fill="white"/>
+					</mask>
+					<g mask="url(#maskClose)">
+						<rect x="0.409668" width="23.8823" height="24" fill="#FFFFFF"/>
+					</g>
+				</svg>
+			</div>
 			<!-- Image info, comments and meta -->
 			<div class="jp-carousel-info">
 				<div class="jp-carousel-info-footer">
@@ -405,20 +424,35 @@ class Jetpack_Carousel {
 						<div class="jp-carousel-pagination"></div>
 					</div>
 					<div class="jp-carousel-photo-title-container">
-						<h2 class="jp-carousel-photo-title"></h2>
+						<h2 class="jp-carousel-photo-caption"></h2>
 					</div>
 					<div class="jp-carousel-photo-icons-container">
 						<?php if ( $localize_strings['display_exif'] ) : ?>
 							<a href="#" class="jp-carousel-icon-btn jp-carousel-icon-info" aria-label="<?php esc_attr_e( 'Toggle photo metadata visibility', 'jetpack' ); ?>">
 								<span class="jp-carousel-icon">
-									<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32" role="img" aria-hidden="true" focusable="false"><path d="M12 3.2c-4.8 0-8.8 3.9-8.8 8.8 0 4.8 3.9 8.8 8.8 8.8 4.8 0 8.8-3.9 8.8-8.8 0-4.8-4-8.8-8.8-8.8zm0 16c-4 0-7.2-3.3-7.2-7.2C4.8 8 8 4.8 12 4.8s7.2 3.3 7.2 7.2c0 4-3.2 7.2-7.2 7.2zM11 17h2v-6h-2v6zm0-8h2V7h-2v2z"></path></svg>
+									<svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+										<mask id="maskInfo" mask-type="alpha" maskUnits="userSpaceOnUse" x="2" y="2" width="21" height="20">
+											<path fill-rule="evenodd" clip-rule="evenodd" d="M12.7537 2C7.26076 2 2.80273 6.48 2.80273 12C2.80273 17.52 7.26076 22 12.7537 22C18.2466 22 22.7046 17.52 22.7046 12C22.7046 6.48 18.2466 2 12.7537 2ZM11.7586 7V9H13.7488V7H11.7586ZM11.7586 11V17H13.7488V11H11.7586ZM4.79292 12C4.79292 16.41 8.36531 20 12.7537 20C17.142 20 20.7144 16.41 20.7144 12C20.7144 7.59 17.142 4 12.7537 4C8.36531 4 4.79292 7.59 4.79292 12Z" fill="white"/>
+										</mask>
+										<g mask="url(#maskInfo)">
+											<rect x="0.8125" width="23.8823" height="24" fill="#FFFFFF"/>
+										</g>
+									</svg>
 								</span>
 							</a>
 						<?php endif; ?>
 						<?php if ( $localize_strings['display_comments'] ) : ?>
 						<a href="#" class="jp-carousel-icon-btn jp-carousel-icon-comments" aria-label="<?php esc_attr_e( 'Toggle photo comments visibility', 'jetpack' ); ?>">
 							<span class="jp-carousel-icon">
-								<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="32" height="32" role="img" aria-hidden="true" focusable="false"><path d="M18 4H6c-1.1 0-2 .9-2 2v12.9c0 .6.5 1.1 1.1 1.1.3 0 .5-.1.8-.3L8.5 17H18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm.5 11c0 .3-.2.5-.5.5H7.9l-2.4 2.4V6c0-.3.2-.5.5-.5h12c.3 0 .5.2.5.5v9z"></path></svg>
+								<svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<mask id="maskComments" mask-type="alpha" maskUnits="userSpaceOnUse" x="2" y="2" width="21" height="20">
+										<path fill-rule="evenodd" clip-rule="evenodd" d="M4.3271 2H20.2486C21.3432 2 22.2388 2.9 22.2388 4V16C22.2388 17.1 21.3432 18 20.2486 18H6.31729L2.33691 22V4C2.33691 2.9 3.2325 2 4.3271 2ZM6.31729 16H20.2486V4H4.3271V18L6.31729 16Z" fill="white"/>
+									</mask>
+									<g mask="url(#maskComments)">
+										<rect x="0.34668" width="23.8823" height="24" fill="#FFFFFF"/>
+									</g>
+								</svg>
+
 								<span class="jp-carousel-has-comments-indicator" aria-label="<?php esc_attr_e( 'This image has comments.', 'jetpack' ); ?>"></span>
 							</span>
 						</a>
@@ -507,13 +541,24 @@ class Jetpack_Carousel {
 						</div>
 						<div class="jp-carousel-image-meta">
 							<div class="jp-carousel-title-and-caption">
-								<div class="jp-carousel-photo-description"></div>
 								<div class="jp-carousel-photo-info">
 									<h3 class="jp-carousel-caption" itemprop="caption description"></h3>
 								</div>
+
+								<div class="jp-carousel-photo-description"></div>
 							</div>
 							<ul class="jp-carousel-image-exif" style="display: none;"></ul>
-							<a class="jp-carousel-image-download" target="_blank" style="display: none;"></a>
+							<a class="jp-carousel-image-download" target="_blank" style="display: none;">
+								<svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<mask id="mask0" mask-type="alpha" maskUnits="userSpaceOnUse" x="3" y="3" width="19" height="18">
+										<path fill-rule="evenodd" clip-rule="evenodd" d="M5.84615 5V19H19.7775V12H21.7677V19C21.7677 20.1 20.8721 21 19.7775 21H5.84615C4.74159 21 3.85596 20.1 3.85596 19V5C3.85596 3.9 4.74159 3 5.84615 3H12.8118V5H5.84615ZM14.802 5V3H21.7677V10H19.7775V6.41L9.99569 16.24L8.59261 14.83L18.3744 5H14.802Z" fill="white"/>
+									</mask>
+									<g mask="url(#mask0)">
+										<rect x="0.870605" width="23.8823" height="24" fill="#FFFFFF"/>
+									</g>
+								</svg>
+								<span class="jp-carousel-download-text"></span>
+							</a>
 							<div class="jp-carousel-image-map" style="display: none;"></div>
 						</div>
 					</div>
@@ -644,9 +689,11 @@ class Jetpack_Carousel {
 		$large_file_info = wp_get_attachment_image_src( $attachment_id, 'large' );
 		$large_file      = isset( $large_file_info[0] ) ? $large_file_info[0] : '';
 
-		$attachment       = get_post( $attachment_id );
-		$attachment_title = wptexturize( $attachment->post_title );
-		$attachment_desc  = wpautop( wptexturize( $attachment->post_content ) );
+		$attachment         = get_post( $attachment_id );
+		$attachment_title   = ! empty( $attachment ) ? wptexturize( $attachment->post_title ) : '';
+		$attachment_desc    = ! empty( $attachment ) ? wpautop( wptexturize( $attachment->post_content ) ) : '';
+		$attachment_caption = ! empty( $attachment ) ? wpautop( wptexturize( $attachment->post_excerpt ) ) : '';
+
 		// Not yet providing geo-data, need to "fuzzify" for privacy
 		if ( ! empty( $img_meta ) ) {
 			foreach ( $img_meta as $k => $v ) {
@@ -664,13 +711,14 @@ class Jetpack_Carousel {
 		$img_meta = json_encode( array_map( 'strval', array_filter( $img_meta, 'is_scalar' ) ) );
 
 		$attr['data-attachment-id']     = $attachment_id;
-		$attr['data-permalink']         = esc_attr( get_permalink( $attachment->ID ) );
+		$attr['data-permalink']         = esc_attr( get_permalink( $attachment_id ) );
 		$attr['data-orig-file']         = esc_attr( $orig_file );
 		$attr['data-orig-size']         = $size;
 		$attr['data-comments-opened']   = $comments_opened;
 		$attr['data-image-meta']        = esc_attr( $img_meta );
 		$attr['data-image-title']       = esc_attr( htmlspecialchars( $attachment_title ) );
 		$attr['data-image-description'] = esc_attr( htmlspecialchars( $attachment_desc ) );
+		$attr['data-image-caption']     = esc_attr( htmlspecialchars( $attachment_caption ) );
 		$attr['data-medium-file']       = esc_attr( $medium_file );
 		$attr['data-large-file']        = esc_attr( $large_file );
 

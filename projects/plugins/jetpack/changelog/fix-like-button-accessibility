@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Like Button: Added title and aria-hidden attributes to the like button iframe
