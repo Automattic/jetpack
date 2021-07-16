@@ -3,7 +3,8 @@
  */
 import React, { Fragment, useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { __ } from '@wordpress/i18n';
+import { sprintf, __ } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -13,15 +14,16 @@ import CompactFormToggle from 'components/form/form-toggle/compact';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsGroup from 'components/settings-group';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
-import getRedirectUrl from 'lib/jp-redirect';
+import Button from 'components/button';
 import { getPlanClass } from 'lib/plans/constants';
+import InstantSearchUpsellNudge from './instant-search-upsell-nudge';
 import './module-control.scss';
 
 /**
  * State dependencies
  */
 import { isOfflineMode } from 'state/connection';
-import { getUpgradeUrl } from 'state/initial-state';
+import { getUpgradeUrl, getSiteAdminUrl, arePromotionsActive } from 'state/initial-state';
 import {
 	getSitePlan,
 	hasActiveSearchPurchase as selectHasActiveSearchPurchase,
@@ -39,6 +41,10 @@ const INSTANT_SEARCH_DESCRIPTION = __(
 	'jetpack'
 );
 const SEARCH_SUPPORT = __( 'Search supports many customizations. ', 'jetpack' );
+// NOTE: remove a8ctest after all relative PRs merged.
+const RETURN_PATH = 'admin.php?page=jetpack-search&a8ctest';
+const SEARCH_CUSTOMIZE_URL = 'customize.php?autofocus[section]=jetpack_search&return=%s';
+const WIDGETS_EDITOR_URL = 'customize.php?autofocus[panel]=widgets&return=%s';
 
 /**
  * Search settings component to be used within the Performance section.
@@ -47,7 +53,13 @@ const SEARCH_SUPPORT = __( 'Search supports many customizations. ', 'jetpack' );
  * @returns {React.Component}	Search settings component.
  */
 function Search( props ) {
-	const { failedToEnableSearch, hasActiveSearchPurchase, updateOptions } = props;
+	const {
+		failedToEnableSearch,
+		hasActiveSearchPurchase,
+		updateOptions,
+		siteAdminUrl,
+		isInstantSearchPromotionActive,
+	} = props;
 	const isModuleEnabled = props.getOptionValue( 'search' );
 	const isInstantSearchEnabled = props.getOptionValue( 'instant_search_enabled', 'search' );
 
@@ -79,6 +91,38 @@ function Search( props ) {
 	const togglingModule = !! props.isSavingAnyOption( 'search' );
 	const togglingInstantSearch = !! props.isSavingAnyOption( 'instant_search_enabled' );
 	const isSavingEitherOption = togglingModule || togglingInstantSearch;
+	// Site has Legacy Search included in Business plan but doesn't have Jetpack Search subscription.
+	const hasOnlyLegacySearch = props.isBusinessPlan && ! props.hasActiveSearchPurchase;
+
+	const isInstantSearchCustomizeButtonDisabled =
+		isSavingEitherOption ||
+		! isModuleEnabled ||
+		! isInstantSearchEnabled ||
+		! hasActiveSearchPurchase;
+	const isWidgetsEditorButtonDisabled = isSavingEitherOption || ! isModuleEnabled;
+	const returnUrl = encodeURIComponent( siteAdminUrl + RETURN_PATH );
+	const renderInstantSearchButtons = () => {
+		return (
+			<div className="jp-form-search-settings-group__buttons">
+				<Button
+					className="jp-form-search-settings-group__button is-customize-search"
+					href={
+						! isInstantSearchCustomizeButtonDisabled && sprintf( SEARCH_CUSTOMIZE_URL, returnUrl )
+					}
+					disabled={ isInstantSearchCustomizeButtonDisabled }
+				>
+					{ __( 'Customize search results', 'jetpack' ) }
+				</Button>
+				<Button
+					className="jp-form-search-settings-group__button is-widgets-editor"
+					href={ ! isWidgetsEditorButtonDisabled && sprintf( WIDGETS_EDITOR_URL, returnUrl ) }
+					disabled={ isWidgetsEditorButtonDisabled }
+				>
+					{ __( 'Edit sidebar widgets', 'jetpack' ) }
+				</Button>
+			</div>
+		);
+	};
 
 	return (
 		<Fragment>
@@ -89,7 +133,7 @@ function Search( props ) {
 				module={ { module: 'search' } }
 				support={ {
 					text: SEARCH_SUPPORT,
-					link: getRedirectUrl( 'jetpack-support-search' ),
+					link: getRedirectUrl( 'jetpack-support-search' ) + 'asdf',
 				} }
 				className={ [ 'jp-form-search-settings-group' ] }
 			>
@@ -99,7 +143,7 @@ function Search( props ) {
 
 				{ ! props.isLoading && ( props.isBusinessPlan || props.hasActiveSearchPurchase ) && (
 					<Fragment>
-						<div className="jp-search-search-toggle jp-search-search-toggle--search">
+						<div className="jp-form-search-settings-group__toggle is-search">
 							<ModuleToggle
 								activated={ isModuleEnabled }
 								compact
@@ -110,11 +154,13 @@ function Search( props ) {
 							>
 								{ __( 'Enable Jetpack Search', 'jetpack' ) }
 							</ModuleToggle>
-							<div className="jp-search-search-toggle__description">
-								<p className="jp-search-search-toggle__explanation">{ SEARCH_DESCRIPTION }</p>
+							<div className="jp-form-search-settings-group__toggle-description">
+								<p className="jp-form-search-settings-group__toggle-explanation">
+									{ SEARCH_DESCRIPTION }
+								</p>
 							</div>
 						</div>
-						<div className="jp-search-search-toggle jp-search-search-toggle--instant-search">
+						<div className="jp-form-search-settings-group__toggle is-instant-search">
 							<CompactFormToggle
 								checked={ isModuleEnabled && isInstantSearchEnabled }
 								disabled={ isSavingEitherOption || ! props.hasActiveSearchPurchase }
@@ -123,10 +169,18 @@ function Search( props ) {
 							>
 								{ __( 'Enable instant search experience (recommended)', 'jetpack' ) }
 							</CompactFormToggle>
-							<div className="jp-search-search-toggle__description">
-								<p className="jp-search-search-toggle__explanation">
-									{ INSTANT_SEARCH_DESCRIPTION }
-								</p>
+							<div className="jp-form-search-settings-group__toggle-description">
+								{ ! hasOnlyLegacySearch && (
+									<Fragment>
+										<p className="jp-form-search-settings-group__toggle-explanation">
+											{ INSTANT_SEARCH_DESCRIPTION }
+										</p>
+										{ renderInstantSearchButtons() }
+									</Fragment>
+								) }
+								{ hasOnlyLegacySearch && isInstantSearchPromotionActive && (
+									<InstantSearchUpsellNudge href={ props.upgradeUrl } />
+								) }
 							</div>
 						</div>
 					</Fragment>
@@ -149,5 +203,7 @@ export default connect( state => {
 			false === hasUpdatedSetting( state, 'search' ),
 		siteID: getSiteID( state ),
 		upgradeUrl: getUpgradeUrl( state, 'jetpack-search' ),
+		siteAdminUrl: getSiteAdminUrl( state ),
+		isInstantSearchPromotionActive: arePromotionsActive( state ),
 	};
 } )( withModuleSettingsFormHelpers( Search ) );

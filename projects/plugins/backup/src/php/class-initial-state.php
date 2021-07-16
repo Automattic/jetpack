@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
+use Automattic\Jetpack\Status;
 
 /**
  * The React initial state.
@@ -26,6 +27,9 @@ class Initial_State {
 			),
 			'connectionData' => array(
 				'doNotUseConnectionIframe' => ! $this->can_use_connection_iframe(),
+			),
+			'jetpackStatus'  => array(
+				'calypsoSlug' => ( new Status() )->get_site_suffix(),
 			),
 		);
 	}

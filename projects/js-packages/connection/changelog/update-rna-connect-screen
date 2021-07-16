@@ -1,0 +1,4 @@
+Significance: major
+Type: added
+
+Added the connection screen components, moved connection status callback to properties.
