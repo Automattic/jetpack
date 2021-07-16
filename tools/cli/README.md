@@ -42,7 +42,6 @@ The CLI commands can be run from anywhere, and the changes will be made in which
 This command lets you build a project in the monorepo by selecting a project from a list, or providing one as an argument.
 
 - Build the Jetpack plugin: `jetpack build plugins/jetpack`
-- Build the production version of Jetpack: `jetpack build plugins/jetpack -p`
 
 **Changelog**: Manage changelog files for a project.
 

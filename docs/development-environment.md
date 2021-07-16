@@ -21,7 +21,6 @@
       * [Check if your environment is ready for Jetpack development](#check-if-your-environment-is-ready-for-jetpack-development)
 * [Start development](#development-workflow)
    * [Run a development build](#development-build)
-   * [Run a production build](#production-build)
 * [Unit Testing](#unit-testing)
    * [PHP unit testing](#php-unit-tests)
    * [JavaScript unit testing](#javascript-unit-tests)
@@ -175,7 +174,7 @@ Once you have a local copy of Jetpack and all development tools installed, you c
 
 The Jetpack monorepo is home to different projects, with different needs. Some require that you build PHP, JavaScript, and CSS components. [The Jetpack CLI tool](https://github.com/Automattic/jetpack/blob/master/tools/cli/README.md) will help you with all building steps.
 
-There are three types of builds:
+There are different types of builds:
 
 * ### Development build
 	A standard development build will create un-minified versions of the JavaScript and CSS files. To build a project, run:
@@ -191,13 +190,6 @@ There are three types of builds:
 	
 	```sh
 	jetpack watch
-	```	
-
-* ### Production build
-	The production build will generate minified files without duplicated code (resulting from dependencies) and will also generate the matching source map and language files. To build it use:
-	
-	```sh
-	jetpack build --production
 	```
 
 ---
