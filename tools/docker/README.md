@@ -32,6 +32,8 @@ cp tools/docker/default.env tools/docker/.env
 
 Anything you put in `.env` overrides values in `default.env`. You should modify all the password fields for security, for example.
 
+**Note**: in older versions of docker-compose (earlier than 1.28), you'll need to place that file at the root of the monorepo.
+
 ## Quick start
 
 Once you're all set with the above, spin up the containers:
@@ -63,7 +65,7 @@ You can control some of the behavior of Jetpack's Docker configuration with envi
 
 ### Host Environment
 
-You can set the following variables on a per-command basis (`PORT_WORDPRESS=8000 jetpack docker up`) or, preferably, in a `./.env` file in Jetpack's root directory.
+You can set the following variables on a per-command basis (`PORT_WORDPRESS=8000 jetpack docker up`) or, preferably, in the `tools/docker/.env` file you set up earlier.
 
 * `PORT_WORDPRESS`: (default=`80`) The port on your host machine connected to the WordPress container's HTTP server.
 * `PORT_MAILDEV`: (default=`1080`) The port on your host machine connected to the MailDev container's MailDev HTTP server.
