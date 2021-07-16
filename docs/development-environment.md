@@ -94,7 +94,7 @@ If you're ready to start, you should see all green `SUCCESS` messages. If the sc
 
 * #### Pnpm
 
-	Pnpm is a Node.js package manager and it's used to install packages that are required to build the Jetpack plugin. To install it, either run `npm install -g pnpm` or you can [visit the Installation page of the project](https://pnpm.io/installation) for other methods.
+	Pnpm is a Node.js package manager and it's used to install packages that are required to run development tools and build projects. To install it, either run `npm install -g pnpm` or you can [visit the Installation page of the project](https://pnpm.io/installation) for other methods.
 
 * #### PHP
 
