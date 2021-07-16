@@ -39,7 +39,10 @@ Once you're all set with the above, spin up the containers:
 jetpack docker up
 ```
 
-Non-installed WordPress is running at [http://localhost](http://localhost) now.
+Non-installed WordPress is running at [http://localhost](http://localhost) now. To install WordPress and configure some useful defaults, run
+```sh
+jetpack docker install
+```
 
 At this point, we encourage you to set up a service that can create local HTTP tunnels, such as [the Jurassic Tube Tunneling Service](#jurassic-tube-tunneling-service) if you are an Automattician, [ngrok](#using-ngrok-with-jetpack), or [another similar service](https://alternativeto.net/software/ngrok/). 
 With such a service, your site will be publicly accessible and you will be able to connect Jetpack to WordPress.com.
