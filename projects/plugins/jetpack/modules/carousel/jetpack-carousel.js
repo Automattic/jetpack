@@ -176,6 +176,20 @@
 			return num < 0.5 ? 2 * num * num : 1 - Math.pow( -2 * num + 2, 2 ) / 2;
 		}
 
+		function getFooterClearance( container ) {
+			var footer = container.querySelector( '.jp-carousel-info-footer' );
+			var infoArea = container.querySelector( '.jp-carousel-info-extra' );
+			var contentArea = container.querySelector( '.jp-carousel-info-content-wrapper' );
+
+			if ( footer && infoArea && contentArea ) {
+				var styles = window.getComputedStyle( infoArea );
+				var padding = parseInt( styles.paddingTop, 10 ) + parseInt( styles.paddingBottom, 10 );
+				padding = isNaN( padding ) ? 0 : padding;
+				return contentArea.offsetHeight + footer.offsetHeight + padding;
+			}
+			return 0;
+		}
+
 		function scrollToElement( el, container, callback ) {
 			if ( ! el || ! container ) {
 				if ( callback ) {
@@ -185,14 +199,10 @@
 			}
 
 			// For iOS Safari compatibility, use JS to set the minimum height.
-			var extraInfoArea = container.querySelector( '.jp-carousel-info-extra' );
-			if ( extraInfoArea ) {
-				extraInfoArea.style.minHeight = window.innerHeight - 64 + 'px';
+			var infoArea = container.querySelector( '.jp-carousel-info-extra' );
+			if ( infoArea ) {
+				infoArea.style.minHeight = window.innerHeight - 64 + 'px';
 			}
-			var extraInfoContentArea = container.querySelector( '.jp-carousel-info-content-wrapper' );
-			var extraInfoContentAreaHeight = extraInfoContentArea
-				? extraInfoContentArea.offsetHeight
-				: window.innerHeight;
 
 			var isScrolling = true;
 			var startTime = Date.now();
@@ -200,8 +210,7 @@
 			var originalPosition = container.scrollTop;
 			var targetPosition = Math.max(
 				0,
-				el.offsetTop -
-					Math.max( 0, window.innerHeight - ( extraInfoContentAreaHeight + 64 + 35 + 35 ) ) // Subtract footer height plus content area padding.
+				el.offsetTop - Math.max( 0, window.innerHeight - getFooterClearance( container ) )
 			);
 			var distance = targetPosition - container.scrollTop;
 			distance = Math.min( distance, container.scrollHeight - window.innerHeight );
@@ -224,10 +233,10 @@
 				if ( callback ) {
 					callback();
 				}
-				isScrolling = false;
-				if ( extraInfoArea ) {
-					extraInfoArea.style.minHeight = '';
+				if ( infoArea ) {
+					infoArea.style.minHeight = '';
 				}
+				isScrolling = false;
 				container.removeEventListener( 'wheel', stopScroll );
 			}
 
