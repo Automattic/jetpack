@@ -1,81 +1,5 @@
 @import 'rna-styles';
 
-.backup-status {
-	width: 1128px;
-	margin: auto;
-	display: flex;
-	flex-direction: row;
-	padding-top: 48px;
-
-	.status {
-		flex: 4;
-		height: 160px;
-		margin: 24px;
-		img {
-			height: 24px;
-			width: 24px;
-			margin-right: 8px;
-			vertical-align: middle;
-		}
-		.title-text {
-			margin-bottom: 16px;
-		}
-		.large-text {
-			margin-bottom: 24px;
-		}
-	}
-
-	.stat-block {
-		flex: 1;
-		height: 160px;
-		margin-left: 24px;
-		background-color: white;
-	}
-
-	.stat-block:last-of-type {
-		margin-right:24px;
-	}
-
-	.backup-stat-blocks {
-		flex: 8;
-		display: flex;
-		flex-direction: row;
-	}
-
-	.components-button {
-		color: white;
-		background-color: black;
-		border-radius: 5px;
-	}
-
-	.title-text {
-		font-size: 24px;
-		line-height: 24px;			
-	}
-
-	.large-text {
-		font-size: 2em;
-		font-weight: bold;
-	}
-}
-
-.backup__latest {
-	display: flex;
-	align-items: center;
-	margin-bottom: 8px;
-
-	svg, img {
-		min-width: 32px;
-		min-height: 32px;
-	}
-
-	h2 {
-		margin: 0;
-		margin-left: 12px;
-		vertical-align: -1px;
-	}
-}
-
 .backup__card {
 	padding: 24px;
 	background:var( --jp-white );
@@ -126,6 +50,26 @@
 	left: 0;
 	width: 0%;
 	background: var( --jp-green-primary );
+}
+.backup__latest {
+	display: flex;
+	align-items: center;
+	margin-bottom: 8px;
+
+	svg, img {
+		min-width: 32px;
+		min-height: 32px;
+	}
+
+	h2 {
+		margin: 0;
+		margin-left: 12px;
+		vertical-align: -1px;
+	}
+
+	+ h1 {
+		white-space: nowrap;
+	}
 }
 
 .backup__animation {
