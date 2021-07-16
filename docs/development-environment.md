@@ -102,7 +102,7 @@ If you're ready to start, you should see all green `SUCCESS` messages. If the sc
 	
 	There are multiple ways to install PHP on your operating system, but as it's very dependent on your operating system and it's flavor, we're not going to cover it in this document at this time. 
 	
-	You can check out the [official installation instructions from the project website.](https://www.php.net/manual/en/install.php).
+	You can check out the [official installation instructions from the project website](https://www.php.net/manual/en/install.php).
 
 * #### Composer
 
