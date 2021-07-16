@@ -455,7 +455,7 @@ class Admin_Menu extends Base_Admin_Menu {
 	}
 
 	/**
-	 * Re-adds the Site Editor menu without the (beta) tag, and where we want it.
+	 * Re-adds the Site Editor menu where we want it.
 	 */
 	public function add_gutenberg_menus() {
 		// We can bail if we don't meet the conditions of the Site Editor.
@@ -463,7 +463,7 @@ class Admin_Menu extends Base_Admin_Menu {
 			return;
 		}
 
-		// Core Gutenberg registers without an explicit position, and we don't want the (beta) tag.
+		// Core Gutenberg registers without an explicit position.
 		remove_menu_page( 'gutenberg-edit-site' );
 		// Core Gutenberg tries to manage its position, foiling our best laid plans. Unfoil.
 		remove_filter( 'menu_order', 'gutenberg_menu_order' );
@@ -473,13 +473,17 @@ class Admin_Menu extends Base_Admin_Menu {
 		$link = $wp_admin ? 'gutenberg-edit-site' : 'https://wordpress.com/site-editor/' . $this->domain;
 
 		add_menu_page(
-			__( 'Site Editor', 'jetpack' ),
-			__( 'Site Editor', 'jetpack' ),
+			__( 'Site Editor (beta)', 'jetpack' ),
+			sprintf(
+				/* translators: %s: "beta" label. */
+				__( 'Site Editor %s', 'jetpack' ),
+				'<span class="awaiting-mod">' . __( 'beta', 'jetpack' ) . '</span>'
+			),
 			'edit_theme_options',
 			$link,
 			$wp_admin ? 'gutenberg_edit_site_page' : null,
 			'dashicons-layout',
-			61 // Just under Appearance.
+			59 // Just above Appearance.
 		);
 	}
 
