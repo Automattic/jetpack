@@ -77,7 +77,7 @@ export default function AppWrapper() {
 		<div className="jp-search-customize-app-wrapper">
 			{ isLoading ? (
 				<img
-					class="jp-search-customize-loading-spinner"
+					className="jp-search-customize-loading-spinner"
 					width="32"
 					height="32"
 					alt={ __( 'Loading', 'jetpack' ) }
