@@ -310,6 +310,13 @@ class Jetpack_WPCOM_Block_Editor {
 	 * Enqueues the WordPress.com block editor integration assets for the editor.
 	 */
 	public function enqueue_block_editor_assets() {
+		global $pagenow;
+
+		// Bail if we're not in the post editor, but on the widget settings screen.
+		if ( is_customize_preview() || 'widgets.php' === $pagenow ) {
+			return;
+		}
+
 		$debug   = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
 		$version = gmdate( 'Ymd' );
 

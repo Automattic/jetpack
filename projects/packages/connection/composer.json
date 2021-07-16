@@ -57,6 +57,9 @@
 	"extra": {
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-connection",
+		"version-constants": {
+			"::PACKAGE_VERSION": "src/class-package-version.php"
+		},
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
 		},
