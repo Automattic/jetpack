@@ -447,6 +447,12 @@
 					// Fixes some themes where closing carousel brings view back to top.
 					document.documentElement.style.removeProperty( 'height' );
 
+					var clonedImageContainer = document.querySelector( '.jp-carousel-image-clicked-container' );
+
+					if ( clonedImageContainer ) {
+						clonedImageContainer.remove();
+					}
+
 					// Hide pagination.
 					domUtil.hide( carousel.info.querySelector( '.jp-swiper-pagination' ) );
 					domUtil.hide( carousel.info.querySelector( '.jp-carousel-pagination' ) );
@@ -1415,6 +1421,22 @@
 					carousel.slides.push( slide );
 				}
 			} );
+
+			var clonedImageContainer = document.querySelector( '.jp-carousel-image-clicked-container' );
+
+			var newImage = new Image();
+
+			newImage.onload = function() {
+				if ( clonedImageContainer ) {
+					domUtil.fadeOut( clonedImageContainer, function() {
+						console.log( 'newImage loaded', newImage );
+						clonedImageContainer.remove();
+					} );
+				}
+			};
+
+
+			newImage.src = items[ startIndex ].getAttribute( 'data-gallery-src' );
 		}
 
 		function loadSwiper( gallery, options ) {
@@ -1592,22 +1614,48 @@
 
 				var item = domUtil.closest( target, itemSelector );
 
-				// @todo Here is where we grab the clicked image and ENHANCE THAT YO
+				// @todo ENHANCE THAT YO Here is where we grab the clicked image
+				if ( ! item ) {
+					return;
+				}
 
 				var clickedImage = item.querySelector( 'img' );
 
 				if ( clickedImage ) {
-					var clonedImageContainer = document.createElement( 'div' );
+					var clonedImageContainer = document.querySelector( '.jp-carousel-image-clicked-container' );
+					if ( clonedImageContainer ) { clonedImageContainer.remove(); }
+
+
+					clonedImageContainer = document.createElement( 'div' );
+					var clonedImageElement = document.createElement( 'img' );
 					clonedImageContainer.className = 'jp-carousel-image-clicked-container';
-					var clonedImage = clickedImage.cloneNode();
-					clonedImageContainer.appendChild( clonedImage );
-					item.parentNode.appendChild( clonedImageContainer );
+					clonedImageElement.src = clickedImage.src;
+					clonedImageElement.alt = clickedImage.alt;
+					clonedImageContainer.appendChild( clonedImageElement );
+					document.body.appendChild( clonedImageContainer );
+
+					var imgSrc = clickedImage.getAttribute( 'data-gallery-src' );
+					console.log( 'clickedImage.src;', imgSrc, clickedImage );
+
+					var newImage = new Image();
+
+					newImage.onload = function() {
+						if ( clonedImageContainer ) {
+							domUtil.fadeOut( clonedImageContainer, function() {
+								console.log( 'newImage loaded', newImage );
+								clonedImageContainer.remove();
+							} );
+						}
+					};
+
+
+					newImage.src = imgSrc;
+
 					// next tick.
 					setTimeout( function() {
-						clonedImage.className = 'jp-carousel-clicked-image-grow';
+						clonedImageElement.className = 'jp-carousel-clicked-image-grow';
 					}, 1 );
 				}
-
 
 				var index = Array.prototype.indexOf.call( gallery.querySelectorAll( itemSelector ), item );
 				loadSwiper( gallery, { startIndex: index } );
