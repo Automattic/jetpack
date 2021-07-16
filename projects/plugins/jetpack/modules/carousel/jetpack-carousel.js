@@ -35,27 +35,10 @@
 			} );
 		}
 
-		function getBackgroundImage( imgEl ) {
-			var canvas = document.createElement( 'canvas' ),
-				context = canvas.getContext && canvas.getContext( '2d' );
-
-			if ( ! imgEl ) {
-				return;
-			}
-
-			context.filter = 'blur(20px) ';
-			context.drawImage( imgEl, 0, 0 );
-			var url = canvas.toDataURL( 'image/png' );
-			canvas = null;
-
-			return url;
-		}
-
 		return {
 			noop: noop,
 			texturize: texturize,
 			applyReplacements: applyReplacements,
-			getBackgroundImage: getBackgroundImage,
 		};
 	} )();
 
@@ -1191,10 +1174,8 @@
 			};
 		}
 
-		function applyBackgroundImage( slide, currentSlide, image ) {
-			var url = slide.backgroundImage ? slide.backgroundImage : util.getBackgroundImage( image );
-			slide.backgroundImage = url;
-			currentSlide.style.backgroundImage = 'url(' + url + ')';
+		function applyBackgroundImage( slide, currentSlide ) {
+			currentSlide.style.backgroundImage = 'url(' + slide.attrs.mediumFile + ')';
 			currentSlide.style.backgroundSize = 'cover';
 		}
 
