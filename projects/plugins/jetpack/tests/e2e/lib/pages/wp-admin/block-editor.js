@@ -3,7 +3,6 @@
  */
 import WpPage from '../wp-page';
 import logger from '../../logger';
-import { testStep } from '../../reporters/reporter';
 
 export default class BlockEditorPage extends WpPage {
 	constructor( page ) {
@@ -67,20 +66,16 @@ export default class BlockEditorPage extends WpPage {
 	}
 
 	async searchForBlock( searchTerm ) {
-		await testStep( `Search for block: ${ searchTerm }`, async () => {
-			logger.step( `Search block: '${ searchTerm }'` );
-			await this.click( this.insertBlockBtnSel );
-			await this.type( this.searchBlockFldSel, searchTerm );
-		} );
+		logger.step( `Search block: '${ searchTerm }'` );
+		await this.click( this.insertBlockBtnSel );
+		await this.type( this.searchBlockFldSel, searchTerm );
 	}
 
 	async insertBlock( blockName, blockTitle ) {
 		await this.searchForBlock( blockTitle );
 
-		await testStep( `Insert block with name: ${ blockName }`, async () => {
-			logger.step( `Insert block {name: ${ blockName }, title: ${ blockTitle }` );
-			await this.click( this.blockSel( blockName ) );
-		} );
+		logger.step( `Insert block {name: ${ blockName }, title: ${ blockTitle }` );
+		await this.click( this.blockSel( blockName ) );
 		return await this.getInsertedBlock( blockName );
 	}
 
@@ -91,19 +86,15 @@ export default class BlockEditorPage extends WpPage {
 	}
 
 	async publishPost() {
-		await testStep( `Publish post`, async () => {
-			logger.step( `Publish post` );
-			await this.click( this.publishPanelToggleBtnSel );
-			await this.click( this.publishPostBtnSel );
-			await this.waitForElementToBeVisible( this.postPublishViewPostBtnSel );
-		} );
+		logger.step( `Publish post` );
+		await this.click( this.publishPanelToggleBtnSel );
+		await this.click( this.publishPostBtnSel );
+		await this.waitForElementToBeVisible( this.postPublishViewPostBtnSel );
 	}
 
 	async viewPost() {
-		await testStep( `View post`, async () => {
-			logger.step( `View post` );
-			await this.click( this.postPublishViewPostBtnSel );
-		} );
+		logger.step( `View post` );
+		await this.click( this.postPublishViewPostBtnSel );
 	}
 
 	async selectPostTitle() {

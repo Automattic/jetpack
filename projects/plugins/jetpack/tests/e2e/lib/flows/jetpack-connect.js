@@ -20,7 +20,6 @@ import { persistPlanData, syncPlanData } from '../plan-helper';
 import logger from '../logger';
 import InPlaceAuthorizeFrame from '../pages/wp-admin/in-place-authorize';
 import RecommendationsPage from '../pages/wp-admin/recommendations';
-import { testStep } from '../reporters/reporter';
 
 const cookie = config.get( 'storeSandboxCookieValue' );
 const cardCredentials = config.get( 'testCardCredentials' );
@@ -117,36 +116,32 @@ export async function syncJetpackPlanData( plan, mockPlanData = true ) {
 export async function loginToWpSite( mockPlanData ) {
 	// Navigating to login url will always display the login form even if the user is already logged in
 	// To prevent unnecessary log in we navigate to Dashboard and check if logged in
-	await testStep( 'Login', async () => {
-		await DashboardPage.visit( page, false );
+	await DashboardPage.visit( page, false );
 
-		if ( await WPLoginPage.isLoggedIn( page ) ) {
-			logger.step( 'Already logged in!' );
-		} else {
-			await ( await WPLoginPage.init( page ) ).login();
-		}
+	if ( await WPLoginPage.isLoggedIn( page ) ) {
+		logger.step( 'Already logged in!' );
+	} else {
+		await ( await WPLoginPage.init( page ) ).login();
+	}
 
-		if ( ! mockPlanData ) {
-			await ( await DashboardPage.init( page ) ).setSandboxModeForPayments(
-				cookie,
-				new URL( siteUrl ).host
-			);
-		}
-	} );
+	if ( ! mockPlanData ) {
+		await ( await DashboardPage.init( page ) ).setSandboxModeForPayments(
+			cookie,
+			new URL( siteUrl ).host
+		);
+	}
 }
 
 export async function loginToWpComIfNeeded( wpComUser, mockPlanData ) {
-	await testStep( 'Login to wordpress.com', async () => {
-		const login = await LoginPage.visit( page );
-		if ( ! mockPlanData ) {
-			await login.setSandboxModeForPayments( cookie );
-		}
-		if ( await login.isLoggedIn() ) {
-			return logger.step( 'Already logged into Wordpress.com' );
-		}
+	const login = await LoginPage.visit( page );
+	if ( ! mockPlanData ) {
+		await login.setSandboxModeForPayments( cookie );
+	}
+	if ( await login.isLoggedIn() ) {
+		return logger.step( 'Already logged into Wordpress.com' );
+	}
 
-		await login.login( wpComUser );
-	} );
+	await login.login( wpComUser );
 }
 
 export async function isBlogTokenSet() {
