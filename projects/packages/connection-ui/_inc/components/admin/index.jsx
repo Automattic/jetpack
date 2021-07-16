@@ -3,7 +3,7 @@
  */
 import React, { useCallback } from 'react';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { ConnectScreen } from '@automattic/jetpack-connection';
+import { ConnectionStatusCard, ConnectScreen } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -46,6 +46,10 @@ export default function Admin() {
 				{ connectionStatus.isRegistered && connectionStatus.isUserConnected && (
 					<strong>{ __( 'Site and User Connected', 'jetpack' ) }</strong>
 				) }
+				<ConnectionStatusCard
+					isRegistered={ connectionStatus.isRegistered }
+					isUserConnected={ connectionStatus.isUserConnected }
+				/>
 			</div>
 
 			{ ( ! connectionStatus.isRegistered || ! connectionStatus.isUserConnected ) && (
