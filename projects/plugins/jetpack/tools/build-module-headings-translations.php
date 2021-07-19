@@ -5,7 +5,7 @@
  * @package jetpack
  */
 
-// phpcs:disable WordPress.WP.AlternativeFunctions
+// phpcs:disable WordPress.WP.AlternativeFunctions, WordPress.PHP.DevelopmentFunctions.error_log_var_export
 
 $all_module_headers = array(
 	'name'                      => 'Module Name',
@@ -50,10 +50,11 @@ foreach ( $files as $file ) {
 	// Make sure we catch CR-only line endings.
 	$file_data = str_replace( "\r", "\n", $file_data );
 
+	$all_modules[ $module_slug ] = array_fill_keys( array_keys( $all_module_headers ), '' );
+
 	foreach ( $all_module_headers as $field => $regex ) {
 		if ( preg_match( '/^[ \t\/*#@]*' . preg_quote( $regex, '/' ) . ':(.*)$/mi', $file_data, $match ) && $match[1] ) {
 			$string = trim( preg_replace( '/\s*(?:\*\/|\?>).*/', '', $match[1] ) );
-			$string = addcslashes( $string, "''" );
 			if ( 'Module Tags' === $regex ) {
 				$module_tags = array_map( 'trim', explode( ',', $string ) );
 				foreach ( $module_tags as $module_tag ) {
@@ -65,8 +66,9 @@ foreach ( $files as $file ) {
 		}
 	}
 
-	if ( ! isset( $all_modules[ $module_slug ]['name'] ) ) {
-		// If the module info doesn't have a name, add the slug to the no info slugs list.
+	if ( '' === $all_modules[ $module_slug ]['name'] ) {
+		// If the module info doesn't have a name, add the slug to the no info slugs list instead.
+		unset( $all_modules[ $module_slug ] );
 		$no_info_slugs[] = $module_slug;
 	}
 }
@@ -80,9 +82,6 @@ $file_contents = "<?php
  *
  * @package automattic/jetpack
  */
-
-// Pointless to do two passes over everything just for alignment.
-// phpcs:disable WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned
 
 /**
  * For a given module, return an array with translated name and description.
@@ -106,18 +105,18 @@ foreach ( $all_modules as $module_key => $module_info ) {
 	$_file_contents = '';
 	foreach ( $i18n_headers as $field => $description ) {
 		if ( ! empty( $module_info[ $field ] ) ) {
-			$_file_contents .= "\t\t\t\t'{$field}' => _x( '{$module_info[$field]}', '{$description}', 'jetpack' ),\n";
+			$_file_contents .= sprintf( "\t\t\t\t%s => _x( %s, %s, 'jetpack' ),\n", var_export( $field, true ), var_export( $module_info[ $field ], true ), var_export( $description, true ) );
 		}
 	}
 
 	if ( $_file_contents ) {
-		$file_contents .= "\n\t\t\t'" . $module_key . "' => array(\n$_file_contents\t\t\t),\n";
+		$file_contents .= sprintf( "\n\t\t\t%s => array(\n%s\t\t\t),\n", var_export( $module_key, true ), $_file_contents );
 	}
 }
 
 $file_contents .= "\t\t);
 \t}";
-$file_contents .= "\n\treturn \$modules[ \$key ];
+$file_contents .= "\n\treturn isset( \$modules[ \$key ] ) ? \$modules[ \$key ] : null;
 }";
 
 /*
@@ -144,7 +143,7 @@ foreach ( $tags as $tag_name => $tag_files ) {
 	foreach ( $tag_files as $file ) {
 		$file_contents .= "\t\t\t// - {$file}\n";
 	}
-	$file_contents .= "\t\t\t'{$tag_name}' => _x( '{$tag_name}', 'Module Tag', 'jetpack' ),\n";
+	$file_contents .= sprintf( "\t\t\t%s => _x( %s, 'Module Tag', 'jetpack' ),\n", var_export( $tag_name, true ), var_export( $tag_name, true ) );
 }
 $file_contents .= "\t\t);
 \t}";
@@ -163,24 +162,8 @@ $file_contents .= "
  * return array|string An array containing the module info or an empty string if the given module isn't known.
  */
 function jetpack_get_module_info( \$key ) {
-\tstatic \$module_info = array(";
-
-foreach ( $all_modules as $module_key => $module_info ) {
-	$_file_contents = '';
-	foreach ( $all_module_headers as $field => $regex ) {
-		if ( ! empty( $module_info[ $field ] ) ) {
-			$_file_contents .= "\t\t\t'{$field}' => '{$module_info[$field]}',\n";
-		} else {
-			$_file_contents .= "\t\t\t'{$field}' => '',\n";
-		}
-	}
-
-	if ( $_file_contents ) {
-		$file_contents .= "\n\t\t'" . $module_key . "' => array(\n$_file_contents\t\t),\n";
-	}
-}
-$file_contents .= "\t);";
-$file_contents .= "\n\treturn isset( \$module_info[ \$key ] ) ? \$module_info[ \$key ] : null;
+\tstatic \$module_info = " . str_replace( "\n", "\n\t", var_export( $all_modules, true ) ) . ";
+\treturn isset( \$module_info[ \$key ] ) ? \$module_info[ \$key ] : null;
 }\n";
 
 /*
@@ -193,13 +176,7 @@ $file_contents .= "
  * @return array
  */
 function jetpack_get_all_module_header_names() {
-\treturn array(\n";
-
-foreach ( $all_module_headers as $field => $description ) {
-	$file_contents .= "\t\t'{$field}' => '{$description}',\n";
-}
-
-$file_contents .= "\t);
+\treturn " . str_replace( "\n", "\n\t", var_export( $all_module_headers, true ) ) . ";
 }\n";
 
 /*
@@ -214,19 +191,9 @@ $file_contents .= "
  * @return bool Whether the file has no module info.
  */
 function jetpack_has_no_module_info( \$slug ) {
-\t\$no_info_slugs = array(\n";
+\t\$no_info_slugs = " . str_replace( "\n", "\n\t", var_export( $no_info_slugs, true ) ) . ";
 
-foreach ( $no_info_slugs as $slug ) {
-	$file_contents .= "\t\t'{$slug}',\n";
-}
-
-$file_contents .= "\t);
-
-\tif ( in_array( \$slug, \$no_info_slugs, true ) ) {
-\t	return true;
-\t}
-
-\treturn false;
+\treturn in_array( \$slug, \$no_info_slugs, true );
 }\n";
 
 file_put_contents( "{$jp_dir}modules/module-headings.php", $file_contents );
