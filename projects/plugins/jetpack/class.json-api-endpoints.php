@@ -390,6 +390,45 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		return $return;
 	}
+	
+	/**
+	 * Queries attachments to see where they have been used on the site.
+	 *
+	 * Returns the title and link of places where the file has been attached.
+	 */
+	function query_attachment_id( $attachment_id ) {
+		$queries = array( wp_get_attachment_url( $attachment_id ) );
+
+		if ( wp_attachment_is_image( $attachment_id ) ) {
+			$meta = wp_get_attachment_metadata( $attachment_id );
+			
+			foreach ( $meta['sizes'] as $name => $info ) {
+				$queries[] = wp_upload_dir()['url'] . '/' . $info['file'];
+			}
+		}
+
+		$content_ids = array();
+
+		foreach ( $queries as $query ) {
+			$args = array(
+				's'            => $query,
+				'fields'       => 'ids',
+				'post_type'    => 'any',
+			);
+			
+			$content_query = new WP_Query( $args );
+			$content_ids = array_merge( $content_query->posts, $content_ids );
+		}
+
+		foreach ( $content_ids as $id ) {
+			$data[] = array(
+				'title' => get_the_title( $id ),
+				'url'   => get_permalink( $id ),
+			);
+		}
+
+		return $data;
+	}
 
 	/**
 	 * Casts $value according to $type.
@@ -1334,9 +1373,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		$attachment_file = get_attached_file( $media_item->ID );
 
-		$file      = basename( $attachment_file ? $attachment_file : $file );
-		$file_info = pathinfo( $file );
-		$ext       = isset( $file_info['extension'] ) ? $file_info['extension'] : null;
+		$file        = basename( $attachment_file ? $attachment_file : $file );
+		$file_info   = pathinfo( $file );
+		$ext         = isset( $file_info['extension'] ) ? $file_info['extension'] : null;
+		$parent_file = $media_item->post_parent;
 
 		// File operations are handled differently on WordPress.com.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -1349,22 +1389,25 @@ abstract class WPCOM_JSON_API_Endpoint {
 		}
 
 		$response = array(
-			'ID'          => $media_item->ID,
-			'URL'         => wp_get_attachment_url( $media_item->ID ),
-			'guid'        => $media_item->guid,
-			'date'        => (string) $this->format_date( $media_item->post_date_gmt, $media_item->post_date ),
-			'post_ID'     => $media_item->post_parent,
-			'author_ID'   => (int) $media_item->post_author,
-			'file'        => $file,
-			'mime_type'   => $media_item->post_mime_type,
-			'extension'   => $ext,
-			'title'       => $media_item->post_title,
-			'caption'     => $media_item->post_excerpt,
-			'description' => $media_item->post_content,
-			'alt'         => get_post_meta( $media_item->ID, '_wp_attachment_image_alt', true ),
-			'icon'        => wp_mime_type_icon( $media_item->ID ),
-			'size'        => size_format( (int) $filesize, 2 ),
-			'thumbnails'  => array(),
+			'ID'           => $media_item->ID,
+			'URL'          => wp_get_attachment_url( $media_item->ID ),
+			'guid'         => $media_item->guid,
+			'date'         => (string) $this->format_date( $media_item->post_date_gmt, $media_item->post_date ),
+			'post_ID'      => $media_item->post_parent,
+			'author_ID'    => (int) $media_item->post_author,
+			'file'         => $file,
+			'mime_type'    => $media_item->post_mime_type,
+			'extension'    => $ext,
+			'title'        => $media_item->post_title,
+			'caption'      => $media_item->post_excerpt,
+			'description'  => $media_item->post_content,
+			'alt'          => get_post_meta( $media_item->ID, '_wp_attachment_image_alt', true ),
+			'icon'         => wp_mime_type_icon( $media_item->ID ),
+			'size'         => size_format( (int) $filesize, 2 ),
+			'parent_title' => ! empty( $parent_file ) ? get_post( $parent_file )->post_title : null,
+			'parent_link'  => get_permalink( $parent_file ),
+			'attached_to'  => query_attachment_id( $media_item->ID ),
+			'thumbnails'   => array(),
 		);
 
 		if ( in_array( $ext, array( 'jpg', 'jpeg', 'png', 'gif' ) ) ) {
