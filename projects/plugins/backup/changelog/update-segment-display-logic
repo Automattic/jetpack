@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Changed backup storage and heartbeat info blocks to only display with a backup plan
