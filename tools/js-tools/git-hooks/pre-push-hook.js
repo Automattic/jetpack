@@ -11,7 +11,7 @@ const allProjects = require( '../../cli/helpers/projectHelpers' ).allProjects;
 let exitCode = 0;
 const branch = getCurrentBranch(); // current branch we're on
 const diffFiles = getDiffFiles(); // files that have been changed in this branch
-
+console.log( diffFiles );
 // Check if any touched files need a changelog file
 console.log( chalk.green( 'Checking if changelog files are needed. Just a sec...' ) );
 const needChangelog = checkNeedChangelog();
