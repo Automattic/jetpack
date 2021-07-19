@@ -40,7 +40,7 @@ if ( needChangelog.length ) {
 		chalk.rgb( 255, 136, 0 )( 'Looks like some projects still need changelog files: ' )
 	);
 	for ( const proj of needChangelog ) {
-		console.logchalk.rgb( ( 255, 136, 0 )( `     ${ proj }` ) );
+		console.log( chalk.rgb( 255, 136, 0 )( `     ${ proj }` ) );
 	}
 
 	console.log( chalk.bgRed( `Pre-push hook failed. Missing required changelog files.` ) );
