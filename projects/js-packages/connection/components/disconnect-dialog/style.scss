@@ -84,3 +84,14 @@
 		}
 	}
 }
+
+
+@media (min-width: 960px) {
+	.jp-disconnect-dialog {
+		min-width: 800px;
+	}
+
+	.jp-row {
+		margin-left: 0px;
+	}
+}
