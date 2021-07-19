@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Update Sync tests to include case for jetpack_sync_settings options.
