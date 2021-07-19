@@ -36,7 +36,7 @@ if ( needChangelog ) {
 
 // If there are projects that still need a changelog file, notify the pusher.
 if ( needChangelog.length ) {
-	console.log( chalk.green( 'Looks like some projects still need changelog files: ' ) );
+	console.log( chalk.orange( 'Looks like some projects still need changelog files: ' ) );
 	for ( const proj of needChangelog ) {
 		console.log( proj );
 	}
