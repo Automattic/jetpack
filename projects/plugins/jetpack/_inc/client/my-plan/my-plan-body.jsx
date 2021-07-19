@@ -115,7 +115,7 @@ class MyPlanBody extends React.Component {
 							onClick={ this.handleButtonClickForTracking( 'view_backup_dash' ) }
 							href={ getRedirectUrl( 'calypso-activity-log', { site: this.props.siteRawUrl } ) }
 						>
-							{ __( 'View Your Backups', 'jetpack' ) }
+							{ __( 'View your backups', 'jetpack' ) }
 						</Button>
 					</div>
 				</div>
@@ -139,7 +139,7 @@ class MyPlanBody extends React.Component {
 						</div>
 						<div className="jp-landing__plan-features-text">
 							<h3 className="jp-landing__plan-features-title">
-								{ __( 'Site Backups', 'jetpack' ) }
+								{ __( 'Site backups', 'jetpack' ) }
 							</h3>
 							<p>
 								{ __(
@@ -194,7 +194,7 @@ class MyPlanBody extends React.Component {
 					</div>
 					<div className="jp-landing__plan-features-text">
 						<h3 className="jp-landing__plan-features-title">
-							{ __( 'Site Security', 'jetpack' ) }
+							{ __( 'Site security', 'jetpack' ) }
 						</h3>
 						<p>{ description + __( ' (powered by VaultPress).', 'jetpack' ) }</p>
 						{ this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) &&
@@ -246,7 +246,7 @@ class MyPlanBody extends React.Component {
 			].includes( planClass )
 		) {
 			jetpackBackupCard = getJetpackBackupCard( {
-				title: __( 'Automated Real-time Backups', 'jetpack' ),
+				title: __( 'Automated real-time backups', 'jetpack' ),
 				description: __(
 					'We back up your website with every change you make, making it easy to fix your mistakes.',
 					'jetpack'
@@ -379,7 +379,7 @@ class MyPlanBody extends React.Component {
 									</div>
 									<div className="jp-landing__plan-features-text">
 										<h3 className="jp-landing__plan-features-title">
-											{ __( 'Video Hosting', 'jetpack' ) }
+											{ __( 'Video hosting', 'jetpack' ) }
 										</h3>
 										<p>
 											{ __(
@@ -529,7 +529,7 @@ class MyPlanBody extends React.Component {
 								</div>
 								<div className="jp-landing__plan-features-text">
 									<h3 className="jp-landing__plan-features-title">
-										{ __( 'Marketing Automation', 'jetpack' ) }
+										{ __( 'Marketing automation', 'jetpack' ) }
 									</h3>
 									<p>
 										{ __(
