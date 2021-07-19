@@ -1,15 +1,49 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
 /**
  * Internal dependencies
  */
+import restApi from '../../tools/jetpack-rest-api-client';
 import './style.scss';
 
 const ConnectionStatusCard = props => {
-	const { isRegistered, isUserConnected } = props;
+	const { isRegistered, isUserConnected, apiRoot, apiNonce } = props;
+
+	const [ isFetchingConnectionData, setIsFetchingConnectionData ] = useState( false ); // eslint-disable-line no-unused-vars
+	const [ connectionData, setConnectionData ] = useState( {} ); // eslint-disable-line no-unused-vars
+
+	const avatarRef = useRef();
+
+	/**
+	 * Initialize the REST API.
+	 */
+	useEffect( () => {
+		restApi.setApiRoot( apiRoot );
+		restApi.setApiNonce( apiNonce );
+	}, [ apiRoot, apiNonce ] );
+
+	/**
+	 * Fetch the connection data on the first render.
+	 * To be only run once.
+	 */
+	useEffect( () => {
+		setIsFetchingConnectionData( true );
+
+		restApi
+			.fetchSiteConnectionData()
+			.then( response => {
+				setIsFetchingConnectionData( false );
+				setConnectionData( response.currentUser );
+				avatarRef.current.style.backgroundImage = `url('${ response.currentUser.gravatar }')`;
+			} )
+			.catch( error => {
+				setIsFetchingConnectionData( false );
+				throw error;
+			} );
+	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	return (
 		<div className="jp-connection-status-card">
@@ -30,6 +64,7 @@ const ConnectionStatusCard = props => {
 					}
 				></div>
 				<div className="jp-connection-status-card--jetpack-logo"></div>
+				<div className="jp-connection-status-card--avatar" ref={ avatarRef }></div>
 			</div>
 
 			<ul className="jp-connection-status-card--list">

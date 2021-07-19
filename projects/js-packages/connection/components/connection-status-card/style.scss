@@ -38,6 +38,15 @@
 			margin-left: 11px;
 		}
 
+		.jp-connection-status-card--avatar {
+			border: 0;
+			border-radius: 20px;
+			width: 32px;
+			height: 32px;
+			background-repeat: no-repeat;
+			background-size: contain;
+		}
+
 		.jp-connection-status-card--line {
 			width: 67px;
 			height: 0;

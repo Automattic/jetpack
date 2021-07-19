@@ -49,6 +49,8 @@ export default function Admin() {
 				<ConnectionStatusCard
 					isRegistered={ connectionStatus.isRegistered }
 					isUserConnected={ connectionStatus.isUserConnected }
+					apiRoot={ APIRoot }
+					apiNonce={ APINonce }
 				/>
 			</div>
 
