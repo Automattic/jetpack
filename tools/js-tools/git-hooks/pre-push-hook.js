@@ -37,7 +37,7 @@ if ( needChangelog ) {
 // If there are projects that still need a changelog file, notify the pusher.
 if ( needChangelog.length ) {
 	console.log(
-		chalk.rgb( 255, 136, 0 )( 'Looks like some projects still need changelog files: ' )
+		chalk.rgb( 255, 136, 0 )( `Looks like some projects still need changelog files:\n` )
 	);
 	for ( const proj of needChangelog ) {
 		console.log( chalk.rgb( 255, 136, 0 )( `     ${ proj }` ) );
@@ -47,7 +47,7 @@ if ( needChangelog.length ) {
 			255,
 			136,
 			0
-		)( `Use 'jetpack changelog add' to add changelog files for the above projects.` )
+		)( `\nUse 'jetpack changelog add' to add changelog files for the above projects.` )
 	);
 	console.log( chalk.bgRed( `Pre-push hook failed. Missing required changelog files.` ) );
 	console.log(
