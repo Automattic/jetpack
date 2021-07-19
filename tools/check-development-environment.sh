@@ -66,6 +66,9 @@ function warning {
 
 # Compare two version numbers, semver style.
 #
+# Normally we'd just `pnpx semver`, but when testing if pnpm is even available
+# we can't rely on that.
+#
 # @param $1 First version.
 # @param $2 Second version.
 # @param $3 Pass "1" to test `>` rather than `>=`.
