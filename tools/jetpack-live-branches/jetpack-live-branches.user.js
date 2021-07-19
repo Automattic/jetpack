@@ -55,7 +55,7 @@
 						Object.keys( body.data ).forEach( k => {
 							const data = body.data[ k ];
 							plugins.push( {
-								name: `branches[${ k }]`,
+								name: `branches.${ k }`,
 								value: currentBranch,
 								label: encodeHtmlEntities( data.name ),
 								checked: data.labels && data.labels.some( l => labels.has( l ) ),
@@ -351,7 +351,7 @@
 			const $link = $( '#jetpack-beta-branch-link' );
 			const url = getLink();
 
-			if ( url.match( /[?&]branch(es\[[^&=]*\])?=/ ) ) {
+			if ( url.match( /[?&]branch(es\.[^&=]*)?=/ ) ) {
 				$link.attr( 'href', url ).text( url );
 			} else {
 				$link.attr( 'href', null ).text( 'Select at least one plugin to test' );
