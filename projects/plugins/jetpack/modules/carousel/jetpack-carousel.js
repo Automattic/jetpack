@@ -35,10 +35,53 @@
 			} );
 		}
 
+		function getBackgroundImage( imgEl ) {
+			var canvas = document.createElement( 'canvas' ),
+				context = canvas.getContext && canvas.getContext( '2d' );
+
+			if ( ! imgEl ) {
+				return;
+			}
+
+			// Adjust the canvas size.
+			canvas.width = window.innerWidth;
+			canvas.height = window.innerHeight;
+
+			var imageRatio = imgEl.naturalHeight / imgEl.naturalWidth;
+			var winRatio = window.innerHeight / window.innerWidth;
+
+			// Calculate adjusted image dimensions to cover the canvas.
+			var imageHeight = imgEl.naturalHeight;
+			var imageWidth = imgEl.naturalWidth;
+			if ( imageRatio > winRatio ) {
+				imageHeight = imgEl.naturalWidth * winRatio;
+			} else {
+				imageWidth = imgEl.naturalHeight / winRatio;
+			}
+
+			context.filter = 'blur(20px) ';
+			context.drawImage(
+				imgEl,
+				( imgEl.naturalWidth - imageWidth ) * 0.5,
+				( imgEl.naturalHeight - imageHeight ) * 0.5,
+				imageWidth,
+				imageHeight,
+				0,
+				0,
+				window.innerWidth,
+				window.innerHeight
+			);
+			var url = canvas.toDataURL( 'image/png' );
+			canvas = null;
+
+			return url;
+		}
+
 		return {
 			noop: noop,
 			texturize: texturize,
 			applyReplacements: applyReplacements,
+			getBackgroundImage: getBackgroundImage,
 		};
 	} )();
 
@@ -1174,8 +1217,10 @@
 			};
 		}
 
-		function applyBackgroundImage( slide, currentSlide ) {
-			currentSlide.style.backgroundImage = 'url(' + slide.attrs.mediumFile + ')';
+		function applyBackgroundImage( slide, currentSlide, image ) {
+			var url = slide.backgroundImage ? slide.backgroundImage : util.getBackgroundImage( image );
+			slide.backgroundImage = url;
+			currentSlide.style.backgroundImage = 'url(' + url + ')';
 			currentSlide.style.backgroundSize = 'cover';
 		}
 
