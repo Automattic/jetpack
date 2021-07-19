@@ -10,7 +10,7 @@ import { find, isEmpty } from 'lodash';
  * WordPress dependencies
  */
 import { createInterpolateElement } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -30,6 +30,9 @@ import {
 } from 'state/initial-state';
 import License from './license';
 import MyPlanCard from '../my-plan-card';
+
+const BACKUP_STORAGE_GB = 200;
+const BACKUP_PRO_STORAGE_TB = 2;
 
 class MyPlanHeader extends React.Component {
 	getProductProps( productSlug ) {
@@ -134,11 +137,32 @@ class MyPlanHeader extends React.Component {
 				};
 
 			case 'is-backup-plan':
+				return {
+					...productProps,
+					details: expiration,
+					tagLine: sprintf(
+						/* translators: %1$d is the number of gigabytes of storage space the the site has. */
+						__(
+							'Your data is being securely backed up as you edit. You have %1$dGB of storage space.',
+							'jetpack'
+						),
+						BACKUP_STORAGE_GB
+					),
+					title: __( 'Jetpack Backup', 'jetpack' ),
+				};
+
 			case 'is-backup-pro-plan':
 				return {
 					...productProps,
 					details: expiration,
-					tagLine: __( 'Your data is being securely backed up as you edit.', 'jetpack' ),
+					tagLine: sprintf(
+						/* translators: %1$d is the number of terabytes of storage space the the site has. */
+						__(
+							'Your data is being securely backed up as you edit. You have %1$dTB of storage space.',
+							'jetpack'
+						),
+						BACKUP_PRO_STORAGE_TB
+					),
 					title: __( 'Jetpack Backup', 'jetpack' ),
 				};
 
