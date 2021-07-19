@@ -34,6 +34,11 @@
 		width: 90%;
 		max-width: 60rem;
 		height: 100%;
+
+		display: flex;
+		flex-flow: column;
+		align-items: center;
+		justify-content: center;
 	}
 
 	.jp-search-dashboard__bottom {

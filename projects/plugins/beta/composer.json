@@ -49,9 +49,10 @@
 	"prefer-stable": true,
 	"config": {
 		"sort-packages": true,
-		"autoloader-suffix": "567fa3f555de8fd218dfdc1688bb97b5_betaⓥ3_0_0_alpha"
+		"autoloader-suffix": "567fa3f555de8fd218dfdc1688bb97b5_betaⓥ3_0_1"
 	},
 	"extra": {
+		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-beta",
 		"release-branch-prefix": "jetpack-beta",
 		"version-constants": {
