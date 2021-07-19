@@ -43,7 +43,7 @@ if ( needChangelog.length ) {
 
 	console.log(
 		chalk.red(
-			'Pre-push hook failed. Use `jetpack changelog add` to add changelog files for the above projects. Use `git push --no-verify` to skip this check and push anyway (but then the CI checks are gonna get you'
+			`Pre-push hook failed.\nUse 'jetpack changelog add' to add changelog files for the above projects.\nUse 'git push --no-verify' to skip this check and push anyway (but then the CI checks are gonna get you`
 		)
 	);
 
