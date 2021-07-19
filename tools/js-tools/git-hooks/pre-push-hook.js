@@ -7,14 +7,12 @@ const execSync = require( 'child_process' ).execSync;
 const chalk = require( 'chalk' );
 const allProjects = require( '../../cli/helpers/projectHelpers' ).allProjects;
 
+console.log( chalk.green( 'Checking if changelog files are needed. Just a sec...' ) );
 // Initialize variables
 let exitCode = 0;
-const branch = getCurrentBranch(); // current branch we're on
-const diffFiles = getDiffFiles(); // files that have been changed in this branch
-console.log( diffFiles );
-// Check if any touched files need a changelog file
-console.log( chalk.green( 'Checking if changelog files are needed. Just a sec...' ) );
-const needChangelog = checkNeedChangelog();
+const branch = getCurrentBranch(); // Current branch we're on
+const diffFiles = getDiffFiles(); // Files that have been changed in this branch
+const needChangelog = checkNeedChangelog(); // Check if any touched files need a changelog file
 
 // If files require a changelog, check and see if one is included already
 if ( needChangelog ) {
@@ -98,9 +96,7 @@ function checkNeedChangelog() {
 			modifiedProjects.add( match[ 1 ] );
 		}
 	}
-	console.log( modifiedProjects );
-	console.log( allProjects() );
 	return allProjects().filter( proj => modifiedProjects.has( proj ) );
 }
 
-process.exit( 1 );
+process.exit( exitCode );
