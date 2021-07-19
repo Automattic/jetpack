@@ -151,6 +151,7 @@ function Search( props ) {
 								slug="search"
 								toggleModule={ toggleSearchModule }
 								toggling={ togglingModule }
+								className="is-search-admin"
 							>
 								{ __( 'Enable Jetpack Search', 'jetpack' ) }
 							</ModuleToggle>
@@ -166,6 +167,7 @@ function Search( props ) {
 								disabled={ isSavingEitherOption || ! props.hasActiveSearchPurchase }
 								onChange={ toggleInstantSearch }
 								toggling={ togglingInstantSearch }
+								className="is-search-admin"
 							>
 								{ __( 'Enable instant search experience (recommended)', 'jetpack' ) }
 							</CompactFormToggle>

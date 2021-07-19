@@ -20,16 +20,10 @@ $color-button-text-disabled: #a7aaad;
 	.form-toggle__label-content {
 		font-weight: bold;
 	}
-	.form-toggle:checked + .form-toggle__label .form-toggle__switch {
-		background: $color-plan;
-	}
-	.form-toggle__switch:focus {
-		box-shadow: 0 0 0 2px $blue-medium;
-	}
 }
 
 .jp-form-search-settings-group__toggle-description {
-	margin-left: 36px; // same as label
+	margin-left: 45px; // same as label
 	margin-top: 0.5em;
 }
 
@@ -76,4 +70,44 @@ p.jp-form-search-settings-group__toggle-explanation {
 			background: transparent;
 		}
 	}
+}
+.form-toggle.is-search-admin.is-compact {
+	+ .form-toggle__label .form-toggle__switch {
+		border-radius: 8px;
+		width: 32px;
+		height: 16px;
+
+		&:before,
+		&:after {
+			width: 10px;
+			height: 10px;
+			background-color: $black;
+		}
+		background: $white;
+		border: 1px solid $black;
+
+		&:focus {
+			box-shadow: 0 0 0 2px $blue-medium;
+		}
+	}
+
+	&:checked {
+		+ .form-toggle__label .form-toggle__switch {
+			background: $color-plan;
+			border: none;
+
+			&:after {
+				left: 17px;
+				background-color: $white;
+			}
+		}
+	}
+}
+.form-toggle.is-compact.is-toggling + .form-toggle__label .form-toggle__switch:before,
+.form-toggle.is-compact.is-toggling + .form-toggle__label .form-toggle__switch:after {
+	left: 17px;
+}
+.form-toggle.is-compact.is-toggling:checked + .form-toggle__label .form-toggle__switch:before,
+.form-toggle.is-compact.is-toggling:checked + .form-toggle__label .form-toggle__switch:after {
+	left: 0;
 }
