@@ -152,26 +152,26 @@ function version_range {
 	elif version_compare "$VER" "$MAXVER"; then
 		if ! $MAXFATAL; then
 			if version_compare "$MINVER" "${MAXVER%.9999999}"; then
-				warning "ok (version $VER)" "$ANCHOR" "$NAME at $BIN is $VER. We've only tested with $NAME ${MAXVER%.9999999}."
+				warning "ok (version $VER)" "$ANCHOR" "$NAME at $BIN is version $VER. We've only tested with $NAME ${MAXVER%.9999999}."
 			else
-				warning "ok (version $VER)" "$ANCHOR" "$NAME at $BIN is $VER. We've only tested with $NAME up to ${MAXVER%.9999999}."
+				warning "ok (version $VER)" "$ANCHOR" "$NAME at $BIN is version $VER. We've only tested with $NAME up to ${MAXVER%.9999999}."
 			fi
 		elif [[ "${MAXVER%.9999999}" == "$MAXVER" ]]; then
-			failure "too new" "$ANCHOR" "$NAME at $BIN is $VER. Only $MINVER to $MAXVER are supported."
+			failure "too new" "$ANCHOR" "$NAME at $BIN is version $VER. Only $MINVER to $MAXVER are supported."
 		elif version_compare "$MINVER" "${MAXVER%.9999999}"; then
-			failure "too new" "$ANCHOR" "$NAME at $BIN is $VER. Only ${MAXVER%.9999999}.x is supported."
+			failure "too new" "$ANCHOR" "$NAME at $BIN is version $VER. Only ${MAXVER%.9999999}.x is supported."
 		else
-			failure "too new" "$ANCHOR" "$NAME at $BIN is $VER. Only $MINVER to ${MAXVER%.9999999}.x is supported."
+			failure "too new" "$ANCHOR" "$NAME at $BIN is version $VER. Only $MINVER to ${MAXVER%.9999999}.x is supported."
 		fi
 	elif version_compare "$VER" "$RECVER"; then
 		success "ok (version $VER)"
 	elif version_compare "$VER" "$MINVER"; then
-		warning "ok (version $VER)" "$ANCHOR" "$NAME at $BIN is $VER. Version $RECVER or later is recommended."
+		warning "ok (version $VER)" "$ANCHOR" "$NAME at $BIN is version $VER. Version $RECVER or later is recommended."
 	else
 		if [[ "$MINVER" == "$RECVER" ]]; then
-			failure "too old" "$ANCHOR" "$NAME at $BIN is $VER. Version $MINVER or later is required."
+			failure "too old" "$ANCHOR" "$NAME at $BIN is version $VER. Version $MINVER or later is required."
 		else
-			failure "too old" "$ANCHOR" "$NAME at $BIN is $VER. Version $MINVER or later is required; $RECVER or later is recommended."
+			failure "too old" "$ANCHOR" "$NAME at $BIN is version $VER. Version $MINVER or later is required; $RECVER or later is recommended."
 		fi
 	fi
 }
@@ -238,7 +238,7 @@ else
 		success "ok (version $VER)"
 		JQOK=true
 	else
-		failure "too old" '' "jq at $BIN is $VER. Version 1.6 or later is required."
+		failure "too old" '' "jq at $BIN is version $VER. Version 1.6 or later is required."
 	fi
 fi
 
@@ -259,13 +259,13 @@ if [[ -z "$BIN" ]]; then
 else
 	VER="$(php -r 'echo PHP_VERSION;')"
 	if php -r "exit( version_compare( PHP_VERSION, '$MAX_PHP_VERSION', '>=' ) ? 0 : 1 );"; then
-		warning "ok (version $VER)" 'php' "PHP at $BIN is $VER. We've only tested with PHP up to $MAX_PHP_VERSION."
+		warning "ok (version $VER)" 'php' "PHP at $BIN is version $VER. We've only tested with PHP up to $MAX_PHP_VERSION."
 	elif php -r "exit( version_compare( PHP_VERSION, '$PHP_VERSION', '>=' ) ? 0 : 1 );"; then
 		success "ok (version $VER)"
 	elif php -r "exit( version_compare( PHP_VERSION, '$MIN_PHP_VERSION', '>=' ) ? 0 : 1 );"; then
 		warning "ok (version $VER)" 'php' "Version $PHP_VERSION or later is recommended."
 	else
-		failure 'too old' 'php' "PHP at $BIN is $VER. Version $MIN_PHP_VERSION or later is required; $PHP_VERSION or later is recommended."
+		failure 'too old' 'php' "PHP at $BIN is version $VER. Version $MIN_PHP_VERSION or later is required; $PHP_VERSION or later is recommended."
 	fi
 fi
 
@@ -289,11 +289,11 @@ else
 	if [[ -z "$VER" ]]; then
 		warning 'unknown' 'phpunit' "PHPUnit version from $BIN could not be determined. Output was:" "" "  $(phpunit --version 2>&1)" "" "$THATS_OK"
 	elif version_compare "$VER" "8.0"; then
-		warning "too new" 'phpunit' "PHPUnit at $BIN is $VER. Only 5.4 to 7.5 are supported." "$THATS_OK"
+		warning "too new" 'phpunit' "PHPUnit at $BIN is version $VER. Only 5.4 to 7.5 are supported." "$THATS_OK"
 	elif version_compare "$VER" "5.4"; then
 		success "ok (version $VER)"
 	else
-		warning "too old" 'phpunit' "PHPUnit at $BIN is $VER. Only 5.4 to 7.5 are supported." "$THATS_OK"
+		warning "too old" 'phpunit' "PHPUnit at $BIN is version $VER. Only 5.4 to 7.5 are supported." "$THATS_OK"
 	fi
 fi
 
@@ -417,7 +417,7 @@ else
 		elif version_compare "$VER" "1.28"; then
 			success "yes (version $VER)"
 		else
-			warning "yes (version $VER)" '' "Docker-compose as $BIN is $VER. Version 1.28 or later is recommended."
+			warning "yes (version $VER)" '' "Docker-compose at $BIN is version $VER. Version 1.28 or later is recommended."
 		fi
 	fi
 
