@@ -458,14 +458,11 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * Update Site Editor menu item's link and position.
 	 */
 	public function add_gutenberg_menus() {
-		// We can bail if we don't meet the conditions of the Site Editor.
-		if ( ! ( function_exists( 'gutenberg_is_fse_theme' ) && gutenberg_is_fse_theme() ) ) {
+		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'admin.php?page=gutenberg-edit-site' ) ) {
 			return;
 		}
 
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'admin.php?page=gutenberg-edit-site' ) ) {
-			$this->update_menu( 'gutenberg-edit-site', 'https://wordpress.com/site-editor/' . $this->domain, null, null, null, 59 );
-		}
+		$this->update_menu( 'gutenberg-edit-site', 'https://wordpress.com/site-editor/' . $this->domain, null, null, null, 59 );
 	}
 
 	/**
