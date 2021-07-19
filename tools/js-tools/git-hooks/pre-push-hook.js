@@ -103,4 +103,4 @@ function checkNeedChangelog() {
 	return allProjects().filter( proj => modifiedProjects.has( proj ) );
 }
 
-process.exit( exitCode );
+process.exit( 1 );
