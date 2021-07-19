@@ -34,7 +34,7 @@ if ( needChangelog ) {
 		}
 	}
 	console.log( 'before filter', needChangelog );
-	needChangelog = needChangelog.filter( proj => changelogAdded.has( proj ) );
+	needChangelog = needChangelog.filter( proj => changelogAdded.has( ! proj ) );
 	console.log( 'after filer', needChangelog );
 }
 
