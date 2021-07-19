@@ -301,6 +301,17 @@ function wpcomsh_set_up_auto_update_policy() {
 }
 add_action( 'plugins_loaded', 'wpcomsh_set_up_auto_update_policy' );
 
+function wpcomsh_force_serial_plugin_auto_updates() {
+        if (
+                ! defined( 'JETPACK_PLUGIN_AUTOUPDATE' ) &&
+                0 === strncmp( $_SERVER['REQUEST_URI'], '/xmlrpc.php?', strlen( '/xmlrpc.php?' ) )
+        )  {
+                define( 'JETPACK_PLUGIN_AUTOUPDATE', true );
+        }
+}
+// Disable this until we start re-enabling plugin auto-updates
+//add_action( 'muplugins_loaded', 'wpcomsh_force_serial_plugin_auto_updates' );
+
 /**
  * Detects new plugins and defaults them to be auto-updated
  *
