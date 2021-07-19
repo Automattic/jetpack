@@ -94,24 +94,14 @@ so we have to target all affected elements in touch devices.
 }
 
 /* Blurred background images */
-.jp-carousel-overlay .swiper-zoom-container {
+.jp-carousel-overlay .jp-carousel-blurred-image .swiper-zoom-container {
 	transform: translate3d(0,0,0);
 	transform: translateZ(0);
 
-	background-size: 200%;
-	background-repeat: no-repeat;
-	background-position: center;
-	backdrop-filter: blur( 75px );
-	-webkit-backdrop-filter: blur( 75px ) saturate( 50% );
+	backdrop-filter: blur( 20px );
+	-webkit-backdrop-filter: blur( 20px );
 	will-change: transform;
 }
-
-/* Blurred background image support for Firefox */
-@supports not ((-webkit-backdrop-filter: none) or (backdrop-filter: none)) {
-	.jp-carousel-overlay .swiper-zoom-container::before  {
-	  filter: blur(75px);
-	  filter: url(#gaussian-blur-18);
-	  filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius='75'); } }
 
 /* Fix for Twenty Nineteen theme compatibility */
 .jp-carousel-overlay h1:before,

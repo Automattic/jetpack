@@ -35,7 +35,7 @@
 			} );
 		}
 
-		function getBackgroundImage( imgEl ) {
+		function getBackgroundImage( slideEl, imgEl ) {
 			var canvas = document.createElement( 'canvas' ),
 				context = canvas.getContext && canvas.getContext( '2d' );
 
@@ -57,6 +57,15 @@
 				imageHeight = imgEl.naturalWidth * winRatio;
 			} else {
 				imageWidth = imgEl.naturalHeight / winRatio;
+			}
+
+			// Apply image blur.
+			if ( context.filter !== undefined ) {
+				context.filter = 'blur(20px) ';
+			} else {
+				// Class used to apply CSS blur on Safari, where it is not supported by the canvas.
+				// Canvas blur is preferred for performance reasons on Chrome.
+				slideEl.classList.add( 'jp-carousel-blurred-image' );
 			}
 
 			context.filter = 'blur(20px) ';
@@ -1297,7 +1306,9 @@
 		}
 
 		function applyBackgroundImage( slide, currentSlide, image ) {
-			var url = slide.backgroundImage ? slide.backgroundImage : util.getBackgroundImage( image );
+			var url = slide.backgroundImage
+				? slide.backgroundImage
+				: util.getBackgroundImage( currentSlide, image );
 			slide.backgroundImage = url;
 			currentSlide.style.backgroundImage = 'url(' + url + ')';
 			currentSlide.style.backgroundSize = 'cover';
