@@ -628,6 +628,19 @@ abstract class Base_Admin_Menu {
 			return;
 		}
 		$this->set_preferred_view( $this->get_current_screen(), $_GET['preferred-view'] );
+
+		/**
+		 * Dashboard Quick switcher action triggered when a user switches to a different view.
+		 *
+		 * @module masterbar
+		 *
+		 * @since 9.9.1
+		 *
+		 * @param string The current screen of the user.
+		 * @param string The preferred view the user selected.
+		 */
+		\do_action( 'jetpack_dashboard_switcher_changed_view', $this->get_current_screen(), $_GET['preferred-view'] );
+
 		if ( wp_doing_ajax() ) {
 			wp_die();
 		}
