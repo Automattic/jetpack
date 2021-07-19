@@ -201,6 +201,7 @@
 			// For iOS Safari compatibility, use JS to set the minimum height.
 			var infoArea = container.querySelector( '.jp-carousel-info-extra' );
 			if ( infoArea ) {
+				// 64px is the same height as `.jp-carousel-info-footer` in the CSS.
 				infoArea.style.minHeight = window.innerHeight - 64 + 'px';
 			}
 
