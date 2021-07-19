@@ -330,11 +330,12 @@ else
 fi
 
 checking '[optional] nvm is available'
-BIN="$(command -v nvm)"
+# NVM is weird.
+BIN="$([[ -f ~/.nvm/nvm.sh ]] && source ~/.nvm/nvm.sh && command -v nvm)"
 if [[ -z "$BIN" ]]; then
 	warning "no" 'nodejs'
 else
-	success "yes"
+	success "yes" # Probably.
 fi
 
 echo ""
