@@ -33,7 +33,7 @@ export default function JetpackFooter( {
 				<JetpackLogo
 					logoColor="#000"
 					showText={ false }
-					height="16"
+					height="14"
 					className="jp-dashboard-footer__jetpack-symbol"
 				/>
 				<span className="jp-dashboard-footer__module-name">{ moduleName }</span>
