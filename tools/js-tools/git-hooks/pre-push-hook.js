@@ -14,11 +14,11 @@ const diffFiles = getDiffFiles(); // files that have been changed in this branch
 console.log( diffFiles );
 // Check if any touched files need a changelog file
 console.log( chalk.green( 'Checking if changelog files are needed. Just a sec...' ) );
-let needChangelog = checkNeedChangelog();
+const needChangelog = checkNeedChangelog();
 
 // If files require a changelog, check and see if one is included already
 if ( needChangelog ) {
-	const changelogAdded = new Set();
+	const hasChangelog = [];
 	// Iterate through projects that may need a changelog
 	for ( const proj of needChangelog ) {
 		const regexString = '^projects/' + proj + '/changelog/([^/]+)'; // regex matching a changelog file, ex: projects/plugins/jetpack/changelog/file_name
@@ -29,12 +29,15 @@ if ( needChangelog ) {
 			if ( match ) {
 				console.log( `Found changelog file for ${ proj }` );
 				// If match, add it to an array.
-				changelogAdded.add( proj );
+				hasChangelog.push( proj );
 			}
 		}
 	}
 	console.log( 'before filter', needChangelog );
-	needChangelog = needChangelog.filter( proj => changelogAdded.has( ! proj ) );
+	// Remove projects that need changelog if they already have one.
+	for ( const proj of hasChangelog ) {
+		needChangelog.splice( needChangelog.indexOf( proj ), 1 );
+	}
 	console.log( 'after filer', needChangelog );
 }
 
