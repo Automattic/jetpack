@@ -17,6 +17,7 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-redux-sta
  * @package Automattic\Jetpack\Search
  */
 class Jetpack_Search_Dashboard_Page extends Jetpack_Admin_Page {
+	const JETPACK_SEARCH_PLANS = array( 'jetpack_search', 'jetpack_complete' );
 	/**
 	 * Show the settings page only when Jetpack is connected or in dev mode.
 	 *
@@ -83,6 +84,7 @@ class Jetpack_Search_Dashboard_Page extends Jetpack_Admin_Page {
 	 */
 	protected function should_add_sub_menu() {
 		// TODO: temporary flag for testing. Will be removed on the last PR merge.
+		// TODO: When plan expired, `has_jetpack_search_product` could still be true.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		return Jetpack_Plan::supports( 'search' ) && array_key_exists( 'a8ctest', $_GET );
 	}
