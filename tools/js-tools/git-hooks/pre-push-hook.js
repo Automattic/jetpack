@@ -4,17 +4,18 @@
 require = require( 'esm' )( module /*, options*/ );
 /* eslint-disable no-console, no-process-exit */
 const execSync = require( 'child_process' ).execSync;
-const spawnSync = require( 'child_process' ).spawnSync;
 const chalk = require( 'chalk' );
-const inquirer = require( 'inquirer' );
 const allProjects = require( '../../cli/helpers/projectHelpers' ).allProjects;
 
 // Initialize variables
 let exitCode = 0;
-let branch = getCurrentBranch();
-const diffFiles = getDiffFiles();
-const needChangelog = checkNeedChangelog();
+const branch = getCurrentBranch(); // current branch we're on
+const diffFiles = getDiffFiles(); // files that have been changed in this branch
+
+// Check if any touched files need a changelog file
 console.log( chalk.green( 'Checking if changelog files are needed. Just a sec...' ) );
+const needChangelog = checkNeedChangelog();
+
 // If files require a changelog, check and see if one is included already
 if ( needChangelog ) {
 	// Iterate through projects that may need a changelog
@@ -40,24 +41,38 @@ if ( needChangelog.length ) {
 		console.log( proj );
 	}
 
-	// This just runs everything at once without waiting for a prompt. May have to try running the prompt in a child process?
-	( async function () {
-		const result = await promptForChangelog();
-		console.log( result );
-	} )();
+	console.log(
+		chalk.red(
+			'Pre-push hook failed. Use `jetpack changelog add` to add changelog files for the above projects. Use `git push --no-verify` to skip this check and push anyway (but then the CI checks are gonna get you'
+		)
+	);
+
+	exitCode = 1;
 }
 
-// Get the current branch name that we're on
+/**
+ * Get the current branch name that we're on.
+ *
+ * @returns {string} current branch that we're on.
+ */
 function getCurrentBranch() {
 	return execSync( `git branch --show-current` ).toString().trim();
 }
 
-// Get list of files that this branch has touched.
+/**
+ * Get list of files that this branch has touched.
+ *
+ * @returns {Array} List of files that are changed in this branch against master.
+ */
 function getDiffFiles() {
 	return execSync( `git diff master...${ branch } --name-only` ).toString().trim().split( '\n' );
 }
 
-// Return a list of projects that this diff has touched that require a changelog.
+/**
+ * Return a list of projects that this diff has touched that require a changelog.
+ *
+ * @returns {Array} List of files that require a changelog.
+ */
 function checkNeedChangelog() {
 	const re = /^projects\/([^/]+\/[^/]+)\//; // regex matches project file path, ie 'project/packages/connection/..'
 	const modifiedProjects = new Set();
@@ -71,15 +86,4 @@ function checkNeedChangelog() {
 	return allProjects().filter( proj => modifiedProjects.has( proj ) );
 }
 
-// Prompt if user wants to stop the push to add any changelog files.
-async function promptForChangelog() {
-	const confirm = execSync(
-		await inquirer.prompt( {
-			type: 'confirm',
-			name: 'confirm',
-			message: chalk.green( 'Would you like to add required changelog files before pushing?' ),
-		} )
-	);
-	return confirm;
-}
-process.exit( 1 );
+process.exit( exitCode );
