@@ -23,7 +23,7 @@ export default function MockedLegacySearch() {
 					<Gridicon icon="search" size={ 24 } />
 				</div>
 				<div className="jp-mocked-legacy-search__search-input">
-					<TextRowPlaceHolder style={ { height: '50px', width: '80%' } } />
+					<TextRowPlaceHolder style={ { height: '50px', width: '80%', 'max-width': '212px' } } />
 				</div>
 			</div>
 		</div>
