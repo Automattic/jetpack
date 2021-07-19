@@ -59,6 +59,20 @@ class Jetpack_Tracks_Client {
 	private static $terms_of_service = null;
 
 	/**
+	 * Stores the Jetpack Status object.
+	 *
+	 * @var null | \Automattic\Jetpack\Status
+	 */
+	private static $status = null;
+
+	/**
+	 * Store the Jetpack Tracking object.
+	 *
+	 * @var null | \Automattic\Jetpack\Tracking
+	 */
+	private static $tracks = null;
+
+	/**
 	 * Record an event.
 	 *
 	 * @param  mixed $event Event object to send to Tracks. An array will be cast to object. Required.
@@ -70,8 +84,16 @@ class Jetpack_Tracks_Client {
 			self::$terms_of_service = new \Automattic\Jetpack\Terms_Of_Service();
 		}
 
+		if ( null === self::$status ) {
+			self::$status = new \Automattic\Jetpack\Status();
+		}
+
+		if ( null === self::$tracks ) {
+			self::$tracks = new \Automattic\Jetpack\Tracking();
+		}
+
 		// Don't track users who have opted out or not agreed to our TOS, or are not running an active Jetpack.
-		if ( ! self::$terms_of_service->has_agreed() || ! empty( $_COOKIE['tk_opt-out'] ) ) {
+		if ( ! empty( $_COOKIE['tk_opt-out'] ) || ! self::$tracks->should_enable_tracking( self::$terms_of_service, self::$status ) ) {
 			return false;
 		}
 
