@@ -313,10 +313,10 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	/**
 	 * Also remove the Gutenberg plugin menu.
 	 */
-	public function update_gutenberg_menus() {
+	public function add_gutenberg_menus() {
 		// Always remove the Gutenberg menu.
 		remove_menu_page( 'gutenberg' );
-		parent::update_gutenberg_menus();
+		parent::add_gutenberg_menus();
 	}
 
 	/**

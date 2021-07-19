@@ -37,7 +37,7 @@ class Admin_Menu extends Base_Admin_Menu {
 		$this->add_tools_menu();
 		$this->add_options_menu();
 		$this->add_jetpack_menu();
-		$this->update_gutenberg_menus();
+		$this->add_gutenberg_menus();
 
 		// Remove Links Manager menu since its usage is discouraged. https://github.com/Automattic/wp-calypso/issues/51188.
 		// @see https://core.trac.wordpress.org/ticket/21307#comment:73.
@@ -457,7 +457,7 @@ class Admin_Menu extends Base_Admin_Menu {
 	/**
 	 * Update Site Editor menu item's link and position.
 	 */
-	public function update_gutenberg_menus() {
+	public function add_gutenberg_menus() {
 		// We can bail if we don't meet the conditions of the Site Editor.
 		if ( ! ( function_exists( 'gutenberg_is_fse_theme' ) && gutenberg_is_fse_theme() ) ) {
 			return;
