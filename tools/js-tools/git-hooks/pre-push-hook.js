@@ -28,7 +28,7 @@ if ( needChangelog ) {
 			if ( match ) {
 				console.log( `Found changelog file for ${ proj }` );
 				// If match, remove from needChangelog array.
-				//needChangelog.splice( needChangelog.indexOf(proj), 1);
+				needChangelog.splice( needChangelog.indexOf( proj ), 1 );
 			}
 		}
 	}
