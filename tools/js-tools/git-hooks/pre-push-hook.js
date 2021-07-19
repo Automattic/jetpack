@@ -31,12 +31,10 @@ if ( needChangelog ) {
 			}
 		}
 	}
-	console.log( 'before filter', needChangelog );
 	// Remove projects that need changelog if they already have one.
 	for ( const proj of hasChangelog ) {
 		needChangelog.splice( needChangelog.indexOf( proj ), 1 );
 	}
-	console.log( 'after filer', needChangelog );
 }
 
 // If there are projects that still need a changelog file, notify the pusher.
