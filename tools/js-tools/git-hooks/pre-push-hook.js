@@ -42,12 +42,17 @@ if ( needChangelog.length ) {
 	for ( const proj of needChangelog ) {
 		console.log( chalk.rgb( 255, 136, 0 )( `     ${ proj }` ) );
 	}
-
+	console.log(
+		chalk.rgb(
+			255,
+			136,
+			0
+		)( `Use 'jetpack changelog add' to add changelog files for the above projects.` )
+	);
 	console.log( chalk.bgRed( `Pre-push hook failed. Missing required changelog files.` ) );
-
 	console.log(
 		chalk.red(
-			`Use 'jetpack changelog add' to add changelog files for the above projects.\nUse 'git push --no-verify' to skip this check and push anyway (but then the GitHub action check is gonna get you!)`
+			`Use 'git push --no-verify' to skip this check and push anyway (but then the GitHub action check is gonna get you!)`
 		)
 	);
 
