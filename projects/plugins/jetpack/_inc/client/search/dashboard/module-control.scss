@@ -111,3 +111,7 @@ p.jp-form-search-settings-group__toggle-explanation {
 .form-toggle.is-compact.is-toggling:checked + .form-toggle__label .form-toggle__switch:after {
 	left: 0;
 }
+// text '(recommended)' should not be bold.
+.form-toggle__label-content span {
+	font-weight: normal;
+}

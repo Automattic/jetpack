@@ -169,7 +169,8 @@ function Search( props ) {
 								toggling={ togglingInstantSearch }
 								className="is-search-admin"
 							>
-								{ __( 'Enable instant search experience (recommended)', 'jetpack' ) }
+								{ __( 'Enable instant search experience ', 'jetpack' ) }
+								<span>{ __( '(recommended)', 'jetpack' ) }</span>
 							</CompactFormToggle>
 							<div className="jp-form-search-settings-group__toggle-description">
 								{ ! hasOnlyLegacySearch && (
