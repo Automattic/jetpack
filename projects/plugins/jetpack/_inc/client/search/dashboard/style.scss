@@ -44,15 +44,20 @@
 	.jp-search-dashboard__bottom {
 		display: flex;
 		flex-flow: column;
-		justify-content: space-around;
+		justify-content: space-between;
 		align-items: center;
 		width: 100%;
+		height: 48vh;
 		min-height: 24rem;
 
 		background-color: $white;
 	}
 
+	.jp-dashboard-footer {
+		margin-bottom: 20px;
+	}
+
 	@include breakpoint( '<480px' ) {
-		font-size: 80%;
+		font-size: 90%;
 	}
 }
