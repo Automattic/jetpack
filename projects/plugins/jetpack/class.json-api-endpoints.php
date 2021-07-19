@@ -390,36 +390,32 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		return $return;
 	}
-	
-	/**
-	 * Queries attachments to see where they have been used on the site.
-	 *
-	 * Returns the title and link of places where the file has been attached.
-	 */
+
+	// Queries attachments to see where they have been used on the site.
 	function query_attachment_id( $attachment_id ) {
 		$queries = array( wp_get_attachment_url( $attachment_id ) );
 
 		if ( wp_attachment_is_image( $attachment_id ) ) {
 			$meta = wp_get_attachment_metadata( $attachment_id );
-			
-			foreach ( $meta['sizes'] as $name => $info ) {
+
+			foreach ( $meta['sizes'] as $info ) {
 				$queries[] = wp_upload_dir()['url'] . '/' . $info['file'];
 			}
 		}
 
 		$content_ids = array();
-
 		foreach ( $queries as $query ) {
 			$args = array(
-				's'            => $query,
-				'fields'       => 'ids',
-				'post_type'    => 'any',
+				's'         => $query,
+				'fields'    => 'ids',
+				'post_type' => 'any',
 			);
-			
+
 			$content_query = new WP_Query( $args );
-			$content_ids = array_merge( $content_query->posts, $content_ids );
+			$content_ids   = array_merge( $content_query->posts, $content_ids );
 		}
 
+		$data = array();
 		foreach ( $content_ids as $id ) {
 			$data[] = array(
 				'title' => get_the_title( $id ),
