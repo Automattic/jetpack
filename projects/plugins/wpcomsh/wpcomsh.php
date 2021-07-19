@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.8.7
+ * Version: 2.8.8
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.8.7' );
+define( 'WPCOMSH_VERSION', '2.8.8' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -299,18 +299,20 @@ function wpcomsh_set_up_auto_update_policy() {
 		add_filter( 'plugins_auto_update_enabled', '__return_false' );
 	}
 }
-add_action( 'plugins_loaded', 'wpcomsh_set_up_auto_update_policy' );
 
-function wpcomsh_force_serial_plugin_auto_updates() {
-        if (
-                ! defined( 'JETPACK_PLUGIN_AUTOUPDATE' ) &&
-                0 === strncmp( $_SERVER['REQUEST_URI'], '/xmlrpc.php?', strlen( '/xmlrpc.php?' ) )
-        )  {
-                define( 'JETPACK_PLUGIN_AUTOUPDATE', true );
-        }
+// Re-enable plugin auto-updates for a limited percentage of sites. Currently: 0.1%
+if ( defined( 'ATOMIC_SITE_ID' ) && ( ATOMIC_SITE_ID % 1000 ) < 1 ) {
+	// Force Jetpack to update plugins one-at-a-time to avoid a site-breaking core concurrent update bug
+	if (
+		! defined( 'JETPACK_PLUGIN_AUTOUPDATE' ) &&
+		0 === strncmp( $_SERVER['REQUEST_URI'], '/xmlrpc.php?', strlen( '/xmlrpc.php?' ) )
+	)  {
+		define( 'JETPACK_PLUGIN_AUTOUPDATE', true );
+	}
+} else {
+	// Continue disabling plugin auto-updates for Jetpack-connected sites
+	add_action( 'plugins_loaded', 'wpcomsh_set_up_auto_update_policy' );
 }
-// Disable this until we start re-enabling plugin auto-updates
-//add_action( 'muplugins_loaded', 'wpcomsh_force_serial_plugin_auto_updates' );
 
 /**
  * Detects new plugins and defaults them to be auto-updated
