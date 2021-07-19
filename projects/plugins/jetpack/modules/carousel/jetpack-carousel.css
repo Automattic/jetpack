@@ -93,8 +93,11 @@ so we have to target all affected elements in touch devices.
 	box-sizing: border-box;
 }
 
-/* Blurred background images */
-.jp-carousel-overlay .jp-carousel-blurred-image .swiper-zoom-container {
+/*
+Blurred background images: apply blur with CSS if browser does not have
+support via the Canvas 2D API
+*/
+.jp-carousel-overlay .jp-carousel-canvas-blur-unsupported .swiper-zoom-container {
 	transform: translate3d(0,0,0);
 	transform: translateZ(0);
 
