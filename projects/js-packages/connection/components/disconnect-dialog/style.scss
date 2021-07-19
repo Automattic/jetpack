@@ -1,0 +1,86 @@
+@import '../rna-styles';
+
+.jp-disconnect-dialog {
+	h1 {
+		margin-top: 0;
+		line-height: 1.2;
+	}
+
+	&__link{
+		color: var( --jp-black );
+		text-decoration: underline;
+
+		&:hover {
+			color: var( --jp-black );
+			text-decoration-thickness: var( --jp-underline-thickness );
+		}
+
+		&:focus {
+			color: var( --jp-black );
+			box-shadow: none !important;
+		}
+	}
+
+	.components-modal{
+		&__content{
+			padding: 0;
+		}
+
+		&__header{
+			display: none;
+		}
+	}
+
+	.jp-row {
+		align-items: center;
+	}
+
+	&__content{
+		background: var( --jp-white-off );
+		margin: 0;
+		padding: 50px 24px;
+		border-bottom: 1px solid #ddd;
+		text-align: center;
+	}
+
+	&__actions{
+		background: var( --jp-white );
+		padding: 10px 24px;
+	}
+
+	&__btn-dismiss{
+		background: var( --jp-black ) !important;
+		margin-right: 10px;
+	}
+
+	&__btn-disconnect{
+		background: var( --jp-red ) !important;
+	}
+
+	&__btn-back-to-wp{
+		background: var( --jp-black ) !important;
+	}
+
+	&__button-wrap{
+		text-align: center;
+	}
+
+	&__error{
+		color: var( --jp-red );
+	}
+
+	&__success{
+
+		.components-modal{
+
+			&__content {
+				background: var( --jp-white );
+				padding: 50px;
+			}
+		}
+
+		h1 {
+			margin-top: 20px;
+		}
+	}
+}
