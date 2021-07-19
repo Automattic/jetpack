@@ -3,9 +3,15 @@
 // @namespace    https://wordpress.com/
 // @version      1.20
 // @description  Adds links to PRs pointing to Jurassic Ninja sites for live-testing a changeset
+// @grant        GM_xmlhttpRequest
+// @connect      jurassic.ninja
 // @require      https://code.jquery.com/jquery-3.3.1.min.js
 // @match        https://github.com/Automattic/jetpack/pull/*
 // ==/UserScript==
+
+// Need to declare "jQuery" for linting within TamperMonkey, but in the monorepo it's already declared.
+// eslint-disable-next-line no-redeclare
+/* global jQuery */
 
 ( function () {
 	const $ = jQuery.noConflict();
@@ -38,8 +44,7 @@
 				"<p><strong>This branch can't be tested live because it comes from a forked version of this repo.</strong></p>"
 			);
 		} else {
-			fetch( `${ host }/wp-json/jurassic.ninja/jetpack-beta/plugins` )
-				.then( response => response.json() )
+			dofetch( `${ host }/wp-json/jurassic.ninja/jetpack-beta/plugins` )
 				.then( body => {
 					const plugins = [];
 
@@ -197,6 +202,39 @@
 						`<p><strong>Error while fetching data for live testing: ${ encodeHtmlEntities( e.message ) }.</strong></p>`
 					);
 				} );
+		}
+
+		/**
+		 * Fetch a URL.
+		 *
+		 * TamperMonkey on Chrome can't use `fetch()` due to CSP.
+		 *
+		 * @param {string} url - URL.
+		 * @returns {Promise} Promise. Resolves with the JSON content from `url`.
+		 */
+		function dofetch( url ) {
+			const do_xmlhttpRequest = window.GM_xmlhttpRequest ?? window.GM?.xmlhttpRequest ?? null;
+			if ( do_xmlhttpRequest ) {
+				return new Promise( ( resolve, reject ) => {
+					do_xmlhttpRequest( {
+						method: 'GET',
+						url: url,
+						onload: r => {
+							if ( r.status < 100 || r.status > 599 ) {
+								reject( new TypeError( `Network request failed (status ${ r.status })` ) );
+								return;
+							}
+							resolve( JSON.parse( r.responseText ) );
+						},
+						ontimeout: () => reject( new TypeError( 'Network request timed out' ) ),
+						onabort: () => reject( new TypeError( 'Network request aborted' ) ),
+						onerror: () => reject( new TypeError( 'Network request failed' ) ),
+					} );
+				} );
+			}
+
+			// Fall back to fetch.
+			return fetch( url ).then( r => r.json() );
 		}
 
 		/**
