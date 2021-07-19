@@ -87,13 +87,16 @@ class Jetpack_Stats_Upgrade_Nudges {
 	}
 
 	/**
-	 * Determines whether the Site is on a Security Plan
+	 * Determines whether the Site is on a Security Plan. It will also return true if site is on Complete plan which includes Security.
 	 *
 	 * @return boolean
 	 */
 	private static function has_security_plan() {
 		$plan_data = Jetpack_Plan::get();
-		return is_array( $plan_data ) && isset( $plan_data['product_slug'] ) && wp_startswith( $plan_data['product_slug'], 'jetpack_security' );
+		if ( is_array( $plan_data ) && isset( $plan_data['product_slug'] ) ) {
+			return wp_startswith( $plan_data['product_slug'], 'jetpack_security' ) || wp_startswith( $plan_data['product_slug'], 'jetpack_complete' );
+		}
+		return false;
 	}
 
 	/**
