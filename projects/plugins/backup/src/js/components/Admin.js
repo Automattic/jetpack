@@ -53,20 +53,6 @@ const Admin = () => {
 		return capabilities !== null && capabilities.includes( 'backup' );
 	};
 
-	const renderPromptForConnection = () => {
-		return (
-			<Fragment>
-				<p className="notice notice-error">
-					{ __(
-						'Jetpack Backup requires a user connection to WordPress.com to be able to backup your website.',
-						'jetpack-backup'
-					) }
-				</p>
-				{ renderConnectScreen() }
-			</Fragment>
-		);
-	};
-
 	const renderNoBackupCapabilities = () => {
 		return (
 			<div className="jp-wrap">
@@ -107,7 +93,7 @@ const Admin = () => {
 		}
 
 		if ( ! connectionStatus.isUserConnected || ! connectionStatus.isRegistered ) {
-			return renderPromptForConnection();
+			return renderConnectScreen();
 		}
 
 		if ( hasBackupPlan() ) {
