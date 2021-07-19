@@ -67,6 +67,12 @@ if ( is_plugin_active( $plugin->plugin_file() ) ) {
 ?>
 <?php require __DIR__ . '/header.template.php'; ?>
 <div class="jetpack-beta-container" >
+	<div id="jetpack-beta-tester__breadcrumb">
+		<a href="<?php echo esc_url( Utils::admin_url() ); ?>">
+			<?php esc_html_e( 'Jetpack Beta Tester Home', 'jetpack-beta' ); ?>
+		</a>
+		<span>&nbsp;&gt; <?php echo esc_html( $plugin->get_name() ); ?></span>
+	</div>
 	<?php
 	if ( ! Utils::has_been_used() ) {
 		require __DIR__ . '/notice.template.php';

@@ -16,13 +16,14 @@ import SettingsGroup from 'components/settings-group';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import Button from 'components/button';
 import { getPlanClass } from 'lib/plans/constants';
+import InstantSearchUpsellNudge from './instant-search-upsell-nudge';
 import './module-control.scss';
 
 /**
  * State dependencies
  */
 import { isOfflineMode } from 'state/connection';
-import { getUpgradeUrl, getSiteAdminUrl } from 'state/initial-state';
+import { getUpgradeUrl, getSiteAdminUrl, arePromotionsActive } from 'state/initial-state';
 import {
 	getSitePlan,
 	hasActiveSearchPurchase as selectHasActiveSearchPurchase,
@@ -52,7 +53,13 @@ const WIDGETS_EDITOR_URL = 'customize.php?autofocus[panel]=widgets&return=%s';
  * @returns {React.Component}	Search settings component.
  */
 function Search( props ) {
-	const { failedToEnableSearch, hasActiveSearchPurchase, updateOptions, siteAdminUrl } = props;
+	const {
+		failedToEnableSearch,
+		hasActiveSearchPurchase,
+		updateOptions,
+		siteAdminUrl,
+		isInstantSearchPromotionActive,
+	} = props;
 	const isModuleEnabled = props.getOptionValue( 'search' );
 	const isInstantSearchEnabled = props.getOptionValue( 'instant_search_enabled', 'search' );
 
@@ -84,6 +91,8 @@ function Search( props ) {
 	const togglingModule = !! props.isSavingAnyOption( 'search' );
 	const togglingInstantSearch = !! props.isSavingAnyOption( 'instant_search_enabled' );
 	const isSavingEitherOption = togglingModule || togglingInstantSearch;
+	// Site has Legacy Search included in Business plan but doesn't have Jetpack Search subscription.
+	const hasOnlyLegacySearch = props.isBusinessPlan && ! props.hasActiveSearchPurchase;
 
 	const isInstantSearchCustomizeButtonDisabled =
 		isSavingEitherOption ||
@@ -161,10 +170,17 @@ function Search( props ) {
 								{ __( 'Enable instant search experience (recommended)', 'jetpack' ) }
 							</CompactFormToggle>
 							<div className="jp-form-search-settings-group__toggle-description">
-								<p className="jp-form-search-settings-group__toggle-explanation">
-									{ INSTANT_SEARCH_DESCRIPTION }
-								</p>
-								{ renderInstantSearchButtons() }
+								{ ! hasOnlyLegacySearch && (
+									<Fragment>
+										<p className="jp-form-search-settings-group__toggle-explanation">
+											{ INSTANT_SEARCH_DESCRIPTION }
+										</p>
+										{ renderInstantSearchButtons() }
+									</Fragment>
+								) }
+								{ hasOnlyLegacySearch && isInstantSearchPromotionActive && (
+									<InstantSearchUpsellNudge href={ props.upgradeUrl } />
+								) }
 							</div>
 						</div>
 					</Fragment>
@@ -188,5 +204,6 @@ export default connect( state => {
 		siteID: getSiteID( state ),
 		upgradeUrl: getUpgradeUrl( state, 'jetpack-search' ),
 		siteAdminUrl: getSiteAdminUrl( state ),
+		isInstantSearchPromotionActive: arePromotionsActive( state ),
 	};
 } )( withModuleSettingsFormHelpers( Search ) );

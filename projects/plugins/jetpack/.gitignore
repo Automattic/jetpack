@@ -16,5 +16,6 @@
 /modules/**/*.min.css.map
 /modules/**/*.min.css
 /modules/**/*-rtl.css
+/modules/module-headings.php
 /modules/photon-cdn/jetpack-manifest.php
 /tests/php/files/jetpack-150x150.jpg
