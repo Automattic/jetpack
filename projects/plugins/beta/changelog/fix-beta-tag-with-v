@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Correctly handle self-autoupgrades when the release tag begins with "v".
