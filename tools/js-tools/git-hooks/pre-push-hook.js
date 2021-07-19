@@ -98,7 +98,8 @@ function checkNeedChangelog() {
 			modifiedProjects.add( match[ 1 ] );
 		}
 	}
-
+	console.log( modifiedProjects );
+	console.log( allProjects() );
 	return allProjects().filter( proj => modifiedProjects.has( proj ) );
 }
 
