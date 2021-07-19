@@ -35,7 +35,7 @@
 			} );
 		}
 
-		function getBackgroundImage( slideEl, imgEl ) {
+		function getBackgroundImage( imgEl ) {
 			var canvas = document.createElement( 'canvas' ),
 				context = canvas.getContext && canvas.getContext( '2d' );
 
@@ -65,7 +65,9 @@
 			} else {
 				// Class used to apply CSS blur on Safari, where it is not supported by the canvas.
 				// Canvas blur is preferred for performance reasons on Chrome.
-				slideEl.classList.add( 'jp-carousel-blurred-image' );
+				document
+					.querySelector( '.jp-carousel' )
+					.classList.add( 'jp-carousel-canvas-blur-unsupported' );
 			}
 
 			context.filter = 'blur(20px) ';
@@ -1306,9 +1308,7 @@
 		}
 
 		function applyBackgroundImage( slide, currentSlide, image ) {
-			var url = slide.backgroundImage
-				? slide.backgroundImage
-				: util.getBackgroundImage( currentSlide, image );
+			var url = slide.backgroundImage ? slide.backgroundImage : util.getBackgroundImage( image );
 			slide.backgroundImage = url;
 			currentSlide.style.backgroundImage = 'url(' + url + ')';
 			currentSlide.style.backgroundSize = 'cover';
