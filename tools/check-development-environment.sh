@@ -231,7 +231,7 @@ JQOK=false
 if [[ -z "$BIN" ]]; then
 	failure "no jq found" ''
 else
-	VER="$(jq --version 2>/dev/null | sed -n -E 's/^jq-([0-9]+\.[0-9]+(\.[0-9a-zA-Z.-]+)?)$/\1/p')"
+	VER="$(jq --version 2>/dev/null | sed -n -E 's/^jq-([0-9]+\.[0-9]+([.-][0-9a-zA-Z.-]+)?)$/\1/p')"
 	if [[ -z "$VER" ]]; then
 		failure 'unknown' '' "jq version from $BIN could not be determined. Output was:" "" "  $(jq --version 2>&1)"
 	elif version_compare "$VER" "1.6"; then
