@@ -86,9 +86,13 @@
 }
 
 
-@media (min-width: 960px) {
-	.jp-disconnect-dialog {
+@media (min-width: 960px){
+	.jp-disconnect-dialog{
 		min-width: 800px;
+	}
+
+	&__success{
+		min-width: auto;
 	}
 
 	.jp-row {
