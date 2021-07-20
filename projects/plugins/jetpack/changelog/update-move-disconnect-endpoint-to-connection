@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Move site disconnection endpoint to Connection package.
