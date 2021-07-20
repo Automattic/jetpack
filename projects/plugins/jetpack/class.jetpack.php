@@ -796,6 +796,9 @@ class Jetpack {
 		// Actions for successful reconnect.
 		add_action( 'jetpack_reconnection_completed', array( $this, 'reconnection_completed' ) );
 
+		// Actions for successful disconnect.
+		add_action( 'jetpack_site_disconnected', array( $this, 'jetpack_site_disconnected' ) );
+
 		// Actions for licensing.
 		Licensing::instance()->initialize();
 
@@ -3467,11 +3470,18 @@ p {
 		// let's make sure to not disconnect the production site.
 		$connection->disconnect_site( ! Identity_Crisis::validate_sync_error_idc_option() );
 
-		Identity_Crisis::clear_all_idc_options();
-
 		if ( $update_activated_state ) {
 			Jetpack_Options::update_option( 'activated', 4 );
 		}
+	}
+
+	/**
+	 * Happens after a successfull disconnection.
+	 *
+	 * @static
+	 */
+	public static function jetpack_site_disconnected() {
+		Identity_Crisis::clear_all_idc_options();
 
 		// Delete all the sync related data. Since it could be taking up space.
 		Sender::get_instance()->uninstall();

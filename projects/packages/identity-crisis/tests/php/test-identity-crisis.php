@@ -10,11 +10,22 @@ namespace Automattic\Jetpack;
 
 use Jetpack_Options;
 use WorDBless\BaseTestCase;
+use WorDBless\Options as WorDBless_Options;
 
 /**
  * Test Identity_Crisis class
  */
 class Test_Identity_Crisis extends BaseTestCase {
+
+	/**
+	 * Returning the environment into its initial state.
+	 *
+	 * @after
+	 */
+	public function tear_down() {
+
+		WorDBless_Options::init()->clear_options();
+	}
 
 	/**
 	 * Test that clear_all_idc_options resets Options.
@@ -35,5 +46,29 @@ class Test_Identity_Crisis extends BaseTestCase {
 		foreach ( $options as $option ) {
 			$this->assertFalse( Jetpack_Options::get_option( $option ) );
 		}
+	}
+
+	/**
+	 * Test jetpack_connection_disconnect_site_wpcom_filter.
+	 */
+	public function test_jetpack_connection_disconnect_site_wpcom_filter() {
+		Identity_Crisis::init();
+
+		// No IDC.
+		$this->assertTrue(
+			apply_filters( 'jetpack_connection_disconnect_site_wpcom', false ),
+			'IDC should not block the site from disconnecting on WPCOM.'
+		);
+
+		// Mock IDC.
+		add_filter( 'jetpack_sync_error_idc_validation', '__return_true' );
+
+		$this->assertFalse(
+			apply_filters( 'jetpack_connection_disconnect_site_wpcom', true ),
+			'IDC should block the site from disconnecting on WPCOM.'
+		);
+
+		// Clean up.
+		remove_filter( 'jetpack_sync_error_idc_validation', '__return_true' );
 	}
 }
