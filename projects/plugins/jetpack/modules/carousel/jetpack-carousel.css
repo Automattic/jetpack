@@ -10,8 +10,10 @@
 .swiper-container-rtl .swiper-button-prev:after {
 	content: none;
 }
-.jp-carousel-overlay .swiper-button-prev, .jp-carousel-overlay .swiper-container-rtl .swiper-button-next,
-.jp-carousel-overlay .swiper-button-next, .jp-carousel-overlay .swiper-container-rtl .swiper-button-prev {
+.jp-carousel-overlay .swiper-button-prev,
+.jp-carousel-overlay .swiper-container-rtl .swiper-button-next,
+.jp-carousel-overlay .swiper-button-next,
+.jp-carousel-overlay .swiper-container-rtl .swiper-button-prev {
 	background-image: none;
 }
 /* end of temporary fix */
@@ -98,8 +100,8 @@ Blurred background images: apply blur with CSS if browser does not have
 support via the Canvas 2D API
 */
 .jp-carousel-overlay .jp-carousel-canvas-blur-unsupported .swiper-zoom-container {
-	transform: translate3d(0,0,0);
-	transform: translateZ(0);
+	transform: translate3d( 0, 0, 0 );
+	transform: translateZ( 0 );
 
 	backdrop-filter: blur( 20px );
 	-webkit-backdrop-filter: blur( 20px );
