@@ -61,7 +61,7 @@
 
 			// Apply image blur.
 			if ( context.filter !== undefined ) {
-				context.globalAlpha = 0.3;
+				context.filter = 'blur(30px) ';
 			} else {
 				// Class used to apply CSS blur on Safari, where it is not supported by the canvas.
 				// Canvas blur is preferred for performance reasons on Chrome.
@@ -70,7 +70,7 @@
 					.classList.add( 'jp-carousel-canvas-blur-unsupported' );
 			}
 
-			context.filter = 'blur(30px) ';
+			context.globalAlpha = 0.3;
 			context.drawImage(
 				imgEl,
 				( imgEl.naturalWidth - imageWidth ) * 0.5,
