@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Enqueue block dependencies for customizer block widget previews. Also removes invalid `isLarge` prop from the FormFileUpload component.
