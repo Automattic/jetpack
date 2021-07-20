@@ -312,7 +312,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 			if ( ! self::is_scan_active() ) {
 				self::print_scan();
 			}
-			if ( self::is_akismet_active() ) {
+			if ( ! self::is_akismet_active() ) {
 				self::print_akismet();
 			}
 		}
