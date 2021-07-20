@@ -1,0 +1,5 @@
+Significance: patch
+Type: bugfix
+Comment: Map block widget can't be loaded dynamically in customizer so display message instead
+
+

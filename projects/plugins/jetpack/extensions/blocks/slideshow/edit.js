@@ -192,7 +192,6 @@ export class SlideshowEdit extends Component {
 					<div className="wp-block-jetpack-slideshow__add-item">
 						<FormFileUpload
 							multiple
-							isLarge
 							className="wp-block-jetpack-slideshow__add-item-button"
 							onChange={ this.uploadFromFiles }
 							accept="image/*"

@@ -1,6 +1,9 @@
 ( function () {
 	// Elements
-	let prs = document.getElementById( 'section-pr' ).querySelectorAll( '.branch-card' );
+	let prs = document.getElementById( 'section-pr' )?.querySelectorAll( '.branch-card' );
+	if ( ! prs ) {
+		return; // Return early if on main plugin selection screen.
+	}
 	const releases = document.getElementById( 'section-releases' ).querySelectorAll( '.branch-card' );
 	const search_input_prs = document.getElementById( 'search-component-prs' );
 	const search_input_releases = document.getElementById( 'search-component-releases' );
@@ -45,6 +48,10 @@
 	 * @param {object} input_area - Search input DOM Element object.
 	 */
 	function search_input_listener( input_area ) {
+		if ( ! input_area ) {
+			return;
+		}
+
 		input_area.addEventListener( 'keyup', function ( event ) {
 			const section_id = event.srcElement.id;
 			const search_for = pr_to_header( input_area.value );
@@ -107,6 +114,10 @@
 	 * @param {object} section - DOM Element object for a close search icon.
 	 */
 	function hide_search_close_link( section ) {
+		if ( ! section ) {
+			return;
+		}
+
 		hide( section );
 		section.addEventListener( 'click', function ( event ) {
 			if ( section.id === 'search-component-prs-close' ) {

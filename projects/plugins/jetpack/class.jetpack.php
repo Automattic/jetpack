@@ -2686,7 +2686,7 @@ class Jetpack {
 		} else {
 			$mod = jetpack_get_module_info( $module );
 
-			if ( ! isset( $mod ) ) {
+			if ( null === $mod ) {
 				// Try to get the module info from the file as a fallback.
 				$mod = self::get_file_data( $file, jetpack_get_all_module_header_names() );
 
