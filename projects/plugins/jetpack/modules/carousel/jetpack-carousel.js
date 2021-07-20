@@ -61,7 +61,7 @@
 
 			// Apply image blur.
 			if ( context.filter !== undefined ) {
-				context.filter = 'blur(20px) ';
+				context.globalAlpha = 0.3;
 			} else {
 				// Class used to apply CSS blur on Safari, where it is not supported by the canvas.
 				// Canvas blur is preferred for performance reasons on Chrome.
@@ -70,7 +70,7 @@
 					.classList.add( 'jp-carousel-canvas-blur-unsupported' );
 			}
 
-			context.filter = 'blur(20px) ';
+			context.filter = 'blur(30px) ';
 			context.drawImage(
 				imgEl,
 				( imgEl.naturalWidth - imageWidth ) * 0.5,
@@ -1311,7 +1311,8 @@
 			var url = slide.backgroundImage ? slide.backgroundImage : util.getBackgroundImage( image );
 			slide.backgroundImage = url;
 			currentSlide.style.backgroundImage = 'url(' + url + ')';
-			currentSlide.style.backgroundSize = 'cover';
+			currentSlide.style.backgroundPosition = 'center center';
+			currentSlide.style.backgroundSize = '150% 150%';
 		}
 
 		function clearCommentTextAreaValue() {
