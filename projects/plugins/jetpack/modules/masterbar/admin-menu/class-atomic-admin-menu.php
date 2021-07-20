@@ -94,6 +94,14 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			return self::CLASSIC_VIEW;
 		}
 
+		/**
+		 * When Jetpack SSO is disabled, we need to force Calypso because it might create confusion to be redirected to WP-Admin.
+		 * Furthermore, because we don't display the quick switcher, users having an WP-Admin interface by default won't be able to go back to the Calyso version.
+		 */
+		if ( ! \Jetpack::is_module_active( 'sso' ) ) {
+			return self::DEFAULT_VIEW;
+		}
+
 		return parent::get_preferred_view( $screen, $fallback_global_preference );
 	}
 
