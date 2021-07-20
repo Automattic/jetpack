@@ -232,7 +232,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "3e79b8bd187df4a2659726affb0612c39fc1c05d"
+                "reference": "4a7ba20b295ba7a7a0f0a26a14db346236ddb029"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.30",
@@ -247,6 +247,9 @@
             "extra": {
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-backup",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-package-version.php"
+                },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-backup/compare/v${old}...v${new}"
                 },
@@ -423,7 +426,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "08957565f80c421bd110242c5730f3d7c170b272"
+                "reference": "be4296dc62f27520d9b2443114c4b60605f73829"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -446,6 +449,9 @@
             "extra": {
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-connection",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-package-version.php"
+                },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
@@ -1357,7 +1363,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "4276591594f079897e4a9b3387ddeed76a21d4b6"
+                "reference": "ba7c56236e958b56c0e6aebc47d2a742306b443b"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.30",
@@ -1378,6 +1384,9 @@
             "extra": {
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-sync",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-package-version.php"
+                },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },

@@ -24,13 +24,26 @@ function remember_classic_editor( $post ) {
 /**
  * Remember when the block editor was used to edit a post.
  *
- * @param  object $editor_settings This is hooked into a filter and this is the settings that are passed in.
- * @param  object $post            The post being editted.
- * @return object                  The unmodified $editor_settings parameter.
+ * @todo: simplify once WordPress 5.8 is the minimum required version.
+ *
+ * @param  array                           $editor_settings This is hooked into a filter and this is the settings that are passed in.
+ * @param  WP_Post|WP_Block_Editor_Context $post            In WP 5.7- the post being editted. In WP 5.8+, the block editor context.
+ *
+ * @return array The unmodified $editor_settings parameter.
  */
 function remember_block_editor( $editor_settings, $post ) {
-	$post_type = get_post_type( $post );
+	if (
+		! empty( $post->post ) &&
+		is_a( $post, 'WP_Block_Editor_Context' )
+	) {
+		$post = $post->post;
+	}
 
+	if ( empty( $post ) ) {
+		return $editor_settings;
+	}
+
+	$post_type = get_post_type( $post );
 	if ( $post_type && can_edit_post_type( $post_type ) ) {
 		remember_editor( $post->ID, 'block-editor' );
 	}

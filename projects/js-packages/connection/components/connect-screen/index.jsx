@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
 import { __ } from '@wordpress/i18n';
 import { JetpackLogo, getRedirectUrl } from '@automattic/jetpack-components';
@@ -44,12 +44,27 @@ const ConnectScreen = props => {
 		assetBaseUrl,
 	} = props;
 
-	const showImageSlider = images.length && assetBaseUrl;
+	const showImageSlider = images.length;
+
+	const [ connectionStatus, setConnectionStatus ] = useState( {} );
+
+	const statusHandler = useCallback(
+		status => {
+			setConnectionStatus( status );
+
+			if ( statusCallback && {}.toString.call( statusCallback ) === '[object Function]' ) {
+				return statusCallback( status );
+			}
+		},
+		[ statusCallback, setConnectionStatus ]
+	);
 
 	return (
 		<div
 			className={
-				'jp-connect-screen' + ( showImageSlider ? ' jp-connect-screen--two-columns' : '' )
+				'jp-connect-screen' +
+				( showImageSlider ? ' jp-connect-screen--two-columns' : '' ) +
+				( connectionStatus.hasOwnProperty( 'isRegistered' ) ? '' : ' jp-connect-screen--loading' )
 			}
 		>
 			<div className="jp-connect-screen--left">
@@ -65,7 +80,7 @@ const ConnectScreen = props => {
 					registrationNonce={ registrationNonce }
 					from={ from }
 					redirectUri={ redirectUri }
-					statusCallback={ statusCallback }
+					statusCallback={ statusHandler }
 					connectLabel={ __( 'Set up Jetpack', 'jetpack' ) }
 				/>
 
