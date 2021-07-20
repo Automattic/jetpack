@@ -71,7 +71,13 @@ class Dashboard_Switcher_Tracking {
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$event_props['blog_id'] = get_current_blog_id();
-			$wpcom_tracking         = $this->wpcom_tracking;
+
+			/**
+			 * Callable injected in the constructor with the static::wpcom_tracks_record_event() static method.
+			 *
+			 * @see wpcom_tracks_record_event A static method from this class that executes the actual WPCOM event record.
+			 */
+			$wpcom_tracking = $this->wpcom_tracking;
 			$wpcom_tracking( $event_props );
 		} else {
 			$this->record_jetpack_event( $event_props );

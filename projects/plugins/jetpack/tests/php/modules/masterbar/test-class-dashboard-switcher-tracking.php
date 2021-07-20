@@ -68,7 +68,7 @@ class Test_Dashboard_Switcher_Tracking extends \WP_UnitTestCase {
 			$this->assertEquals( $event_properties, $properties );
 		};
 
-		$dashboard_tracking = new Dashboard_Switcher_Tracking( $tracking, $wpcom_tracks, 'business', 2 );
+		$dashboard_tracking = new Dashboard_Switcher_Tracking( $tracking, $wpcom_tracks, 'business' );
 
 		$dashboard_tracking->record_switch_event( 'foo', 'bar' );
 	}
@@ -94,7 +94,7 @@ class Test_Dashboard_Switcher_Tracking extends \WP_UnitTestCase {
 			$this->assertEquals( $event_properties, $properties );
 		};
 
-		$dashboard_tracking = new Dashboard_Switcher_Tracking( $tracking, $wpcom_tracks, 'business', 2 );
+		$dashboard_tracking = new Dashboard_Switcher_Tracking( $tracking, $wpcom_tracks, 'business' );
 		$dashboard_tracking->record_switch_event( 'foo', 'bar' );
 	}
 }
