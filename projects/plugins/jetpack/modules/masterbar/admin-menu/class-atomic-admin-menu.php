@@ -268,9 +268,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function add_options_menu() {
 		parent::add_options_menu();
 
-		$show_security_nav_item = Jetpack_Plan::supports( 'security-settings' );
-
-		if ( $show_security_nav_item ) {
+		if ( Jetpack_Plan::supports( 'security-settings' ) ) {
 			add_submenu_page(
 				'options-general.php',
 				esc_attr__( 'Security', 'jetpack' ),
