@@ -18,7 +18,7 @@ import { STORE_ID } from '../store';
 
 /* eslint react/react-in-jsx-scope: 0 */
 const Admin = () => {
-	const [ connectionStatus, renderJetpackConnection ] = useConnection();
+	const [ connectionStatus, renderConnectScreen ] = useConnection();
 	const [ capabilities, setCapabilities ] = useState( null );
 	const [ capabilitiesError, setCapabilitiesError ] = useState( null );
 	const [ connectionLoaded, setConnectionLoaded ] = useState( false );
@@ -53,20 +53,6 @@ const Admin = () => {
 		return capabilities !== null && capabilities.includes( 'backup' );
 	};
 
-	const renderPromptForConnection = () => {
-		return (
-			<Fragment>
-				<p className="notice notice-error">
-					{ __(
-						'Jetpack Backup requires a user connection to WordPress.com to be able to backup your website.',
-						'jetpack-backup'
-					) }
-				</p>
-				{ renderJetpackConnection() }
-			</Fragment>
-		);
-	};
-
 	const renderNoBackupCapabilities = () => {
 		return (
 			<div className="jp-wrap">
@@ -99,7 +85,7 @@ const Admin = () => {
 	const renderLoadedState = () => {
 		// Loading state
 		if ( ! connectionLoaded ) {
-			return renderJetpackConnection();
+			return renderConnectScreen();
 		}
 
 		if ( ! capabilitiesLoaded ) {
@@ -107,7 +93,7 @@ const Admin = () => {
 		}
 
 		if ( ! connectionStatus.isUserConnected || ! connectionStatus.isRegistered ) {
-			return renderPromptForConnection();
+			return renderConnectScreen();
 		}
 
 		if ( hasBackupPlan() ) {
