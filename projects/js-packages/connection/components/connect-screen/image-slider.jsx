@@ -34,7 +34,11 @@ const ImageSlider = props => {
 
 ImageSlider.propTypes = {
 	images: PropTypes.arrayOf( PropTypes.string ).isRequired,
-	assetBaseUrl: PropTypes.string.isRequired,
+	assetBaseUrl: PropTypes.string,
+};
+
+ImageSlider.defaultProps = {
+	assetBaseUrl: '',
 };
 
 export default ImageSlider;
