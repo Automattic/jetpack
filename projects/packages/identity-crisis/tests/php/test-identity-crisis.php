@@ -10,21 +10,25 @@ namespace Automattic\Jetpack;
 
 use Jetpack_Options;
 use WorDBless\BaseTestCase;
-use WorDBless\Options as WorDBless_Options;
 
 /**
  * Test Identity_Crisis class
  */
 class Test_Identity_Crisis extends BaseTestCase {
-
 	/**
 	 * Returning the environment into its initial state.
 	 *
 	 * @after
 	 */
 	public function tear_down() {
+		// Reset IDC singleton.
+		$idc        = Identity_Crisis::init();
+		$reflection = new \ReflectionClass( $idc );
+		$instance   = $reflection->getProperty( 'instance' );
 
-		WorDBless_Options::init()->clear_options();
+		$instance->setAccessible( true );
+		$instance->setValue( null, null );
+		$instance->setAccessible( false );
 	}
 
 	/**
