@@ -64,7 +64,11 @@ class Jetpack_Search_Customberg {
 			'jetpack-search-customize',
 			array( $this, 'jetpack_search_admin_page' )
 		);
-		add_action( "admin_print_scripts-$hook", array( $this, 'load_assets' ) );
+
+		// Only load assets if Customberg is supported.
+		if ( $this->wp_supports_customberg() ) {
+			add_action( "admin_print_scripts-$hook", array( $this, 'load_assets' ) );
+		}
 	}
 
 	/**
@@ -74,11 +78,26 @@ class Jetpack_Search_Customberg {
 		// TODO: Spin this function off into a static helper function in a helper class for code reuse.
 		$static_url = apply_filters( 'jetpack_static_url', '//en.wordpress.com/i/loading/loading-64.gif' );
 		?>
-			<div id="jp-search-customization" class="jp-search-customization-dashboard">
-				<div class="hide-if-no-js"><img class="jp-search-loader" width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php echo esc_url( $static_url ); ?>" /></div>
-				<div class="hide-if-js"><?php esc_html_e( 'Your Search customization page requires JavaScript to function properly.', 'jetpack' ); ?><div />
+			<div id="jp-search-customization" class="jp-search-customization-dashboard" style="height: calc(100vh - 100px);">
+				<div class="hide-if-no-js" style="height: 100%;">
+					<img class="jp-search-loader" width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php echo esc_url( $static_url ); ?>" style="
+						position: absolute;
+						left: 50%;
+						top: 50%;
+					"/>
+				</div>
+				<div class="hide-if-js"><?php esc_html_e( 'Your Search customization page requires JavaScript to function properly.', 'jetpack' ); ?></div>
 			</div>
 		<?php
+
+		// Add a JS redirect if Customberg is not supported.
+		if ( ! $this->wp_supports_customberg() ) {
+			?>
+				<script>
+					window.location.href="/wp-admin/customize.php?autofocus[section]=jetpack_search";
+				</script>
+			<?php
+		}
 	}
 
 	/**
@@ -138,6 +157,16 @@ class Jetpack_Search_Customberg {
 			'jp-search-customization',
 			"window.jetpackSearchCustomizeInit( 'jp-search-customization' )"
 		);
+	}
+
+	/**
+	 * Determine if the current version of WordPress supports Customberg.
+	 *
+	 * @return boolean
+	 */
+	protected function wp_supports_customberg() {
+		// Must be WP 5.8-RC1 or greater.
+		return version_compare( get_bloginfo( 'version' ), '5.8-RC1', '>=' );
 	}
 
 	/**
