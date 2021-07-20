@@ -3,6 +3,7 @@
  */
 const path = require( 'path' );
 const getBaseWebpackConfig = require( '@automattic/calypso-build/webpack.config.js' );
+const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
 
 /**
  * Internal dependencies
@@ -36,5 +37,9 @@ module.exports = {
 	node: {
 		fs: 'empty',
 	},
-	plugins: [ ...baseWebpackConfig.plugins, definePaletteColorsAsStaticVariables() ],
+	plugins: [
+		...baseWebpackConfig.plugins,
+		new DependencyExtractionWebpackPlugin( { injectPolyfill: true } ),
+		definePaletteColorsAsStaticVariables(),
+	],
 };
