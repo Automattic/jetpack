@@ -626,7 +626,16 @@ class Jetpack_Gutenberg {
 			// If this is a customizer preview, enqueue the dependencies and render the script directly to the preview after autosave.
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			if ( is_customize_preview() && ! empty( $_GET['customize_autosaved'] ) ) {
-				echo '<script id="jetpack-block-' . esc_attr( $type ) . '" src="' . esc_attr( $view_script ) . '?ver=' . esc_attr( $script_version ) . '" defer></script>';
+				// The Map block is dependent on wp-element, and it doesn't appear to to be possible to load
+				// this dynamically into the customizer iframe currently.
+				if ( 'map' === $type ) {
+					echo '<div>' . esc_html_e( 'No map preview available. Publish and refresh to see this widget.', 'jetpack' ) . '</div>';
+					echo '<script>';
+					echo 'Array.from(document.getElementsByClassName(\'wp-block-jetpack-map\')).forEach(function(element){element.style.display = \'none\';})';
+					echo '</script>';
+				} else {
+					echo '<script id="jetpack-block-' . esc_attr( $type ) . '" src="' . esc_attr( $view_script ) . '?ver=' . esc_attr( $script_version ) . '"></script>';
+				}
 			}
 		}
 
