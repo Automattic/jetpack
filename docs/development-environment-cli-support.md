@@ -10,15 +10,9 @@ tools/check-development-environment.sh
 
 ### Command is available: jetpack
 
-The Jetpack CLI is used for management of monorepo projects.
+The Jetpack CLI is used for management of monorepo projects. To get started with it, run `pnpm cli-setup`.
 
-If you normally use just one Jetpack Monorepo checkout, you can add `jetpack` to your path by running
-```sh
-pnpm cli-setup
-```
-from the monorepo root.
-
-You can also use `pnpx --no jetpack` from (almost) anywhere in the monorepo. If you commonly use multiple checkouts, you might add this as a shell alias or a stub script in your path so as to always run the current checkout's instance.
+Learn more about it [here](https://github.com/Automattic/jetpack/tree/master/tools/cli/README.md).
 
 ### Bash version is proper
 
