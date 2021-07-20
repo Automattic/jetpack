@@ -45,6 +45,7 @@ class Jetpack_Search_Customberg {
 	 */
 	public function init_hooks() {
 		add_action( 'admin_menu', array( $this, 'add_wp_admin_page' ), 999 );
+		add_action( 'admin_footer', array( $this, 'add_redirect_if_necessary' ) );
 	}
 
 	/**
@@ -89,7 +90,9 @@ class Jetpack_Search_Customberg {
 				<div class="hide-if-js"><?php esc_html_e( 'Your Search customization page requires JavaScript to function properly.', 'jetpack' ); ?></div>
 			</div>
 		<?php
+	}
 
+	public function add_redirect_if_necessary() {
 		// Add a JS redirect if Customberg is not supported.
 		if ( ! $this->wp_supports_customberg() ) {
 			?>
