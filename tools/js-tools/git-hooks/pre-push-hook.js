@@ -4,19 +4,20 @@
 const execSync = require( 'child_process' ).execSync;
 const chalk = require( 'chalk' );
 const glob = require( 'glob' );
-const allProjects = glob
-	.sync( 'projects/*/*/composer.json', { cwd: __dirname + '/../../../' } )
-	.map( p => p.substring( 9, p.length - 14 ) );
 
-console.log( chalk.green( 'Checking if changelog files are needed. Just a sec...' ) );
 // Initialize variables
 let exitCode = 0;
 const branch = getCurrentBranch(); // Current branch we're on
 const diffFiles = getDiffFiles(); // Files that have been changed in this branch
 const needChangelog = checkNeedChangelog(); // Check if any touched files need a changelog file
+const allProjects = glob
+	.sync( 'projects/*/*/composer.json', { cwd: __dirname + '/../../../' } )
+	.map( p => p.substring( 9, p.length - 14 ) );
+
+console.log( chalk.green( 'Checking if changelog files are needed. Just a sec...' ) );
 
 // If files require a changelog, check and see if one is included already
-if ( needChangelog ) {
+if ( needChangelog.length ) {
 	const hasChangelog = [];
 	// Iterate through projects that may need a changelog
 	for ( const proj of needChangelog ) {
@@ -90,7 +91,7 @@ function checkNeedChangelog() {
 			modifiedProjects.add( match[ 1 ] );
 		}
 	}
-	return allProjects().filter( proj => modifiedProjects.has( proj ) );
+	return allProjects.filter( proj => modifiedProjects.has( proj ) );
 }
 
 process.exit( exitCode );
