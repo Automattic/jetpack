@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 
-// eslint-disable-next-line no-global-assign
-require = require( 'esm' )( module /*, options*/ );
 /* eslint-disable no-console, no-process-exit */
 const execSync = require( 'child_process' ).execSync;
 const chalk = require( 'chalk' );
-const allProjects = require( '../../cli/helpers/projectHelpers' ).allProjects;
+const glob = require( 'glob' );
+const allProjects = glob
+	.sync( 'projects/*/*/composer.json', { cwd: __dirname + '/../../../' } )
+	.map( p => p.substring( 9, p.length - 14 ) );
 
 console.log( chalk.green( 'Checking if changelog files are needed. Just a sec...' ) );
 // Initialize variables
