@@ -563,6 +563,11 @@ class Plugin {
 		) {
 			// It's an RC that has a new version.
 			list( , $info ) = $this->get_which_and_info( 'rc', '' );
+		} elseif ( 'master' === $dev_info->source && isset( $manifest->master ) &&
+			Semver::greaterThan( $manifest->master->version, $dev_info->version )
+		) {
+			// Master has been updated.
+			list( , $info ) = $this->get_which_and_info( 'master', '' );
 		}
 
 		if ( $info ) {
