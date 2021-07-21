@@ -1419,18 +1419,16 @@
 
 		function loadSwiper( gallery, options ) {
 			if ( ! window.Swiper ) {
-				var loader = document.querySelector( '#jp-carousel-loading-overlay' );
-				domUtil.show( loader );
+				toggleLoader( true );
 				var jsScript = document.createElement( 'script' );
 				jsScript.id = 'jetpack-carousel-swiper-js';
 				jsScript.src = window.jetpackSwiperLibraryPath.url;
 				jsScript.async = true;
 				jsScript.onload = function () {
-					domUtil.hide( loader );
 					openCarousel( gallery, options );
 				};
 				jsScript.onerror = function () {
-					domUtil.hide( loader );
+					toggleLoader();
 				};
 				document.head.appendChild( jsScript );
 				return;
@@ -1470,6 +1468,7 @@
 			carousel.container.setAttribute( 'data-carousel-extra', JSON.stringify( data ) );
 			stat( [ 'open', 'view_image' ] );
 
+			// Hide the gallery until the image transition is done.
 			carousel.gallery.style.visibility = 'hidden';
 
 			// If options exist, lets merge them
@@ -1529,35 +1528,29 @@
 				selectSlideAtIndex( index );
 			} );
 
+			if ( options.isClicked ) {
+				var currentSlideObj = carousel.slides[ options.startIndex ];
+				var currentSlideImage = currentSlideObj.el.querySelector( 'img' );
+				var iscurrentSlideImageLoaded =
+					currentSlideImage.complete && currentSlideImage.naturalHeight !== 0;
 
-
-			var currentSlideObj = carousel.slides[ options.startIndex ];
-			var currentSlideImage = currentSlideObj.el.querySelector( 'img' );
-			var iscurrentSlideImageLoaded = currentSlideImage.complete && currentSlideImage.naturalHeight !== 0;
-
-			if ( iscurrentSlideImageLoaded ) {
-				setTimeout( function() {
-					var clonedImageContainer = document.querySelector( '.jp-carousel-image-clicked-container' );
-					if ( clonedImageContainer ) {
-						clonedImageContainer.remove();
-						toggleLoader();
-					}
-					carousel.gallery.style.visibility = 'visible';
-				}, 500 );
-			} else {
-				toggleLoader( true );
-				var newImage = new Image();
-				newImage.onload = function() {
-					setTimeout( function() {
-						var clonedImageContainer = document.querySelector( '.jp-carousel-image-clicked-container' );
-						if ( clonedImageContainer ) {
-							clonedImageContainer.remove();
-						}
-						toggleLoader();
+				if ( iscurrentSlideImageLoaded ) {
+					hideImageTransition( function () {
 						carousel.gallery.style.visibility = 'visible';
-					}, 500 );
-				};
-				newImage.src = carousel.slides[ options.startIndex ].attrs.src;
+					} );
+				} else {
+					toggleLoader( true );
+					var newImage = new Image();
+					newImage.onload = function () {
+						hideImageTransition( function () {
+							carousel.gallery.style.visibility = 'visible';
+						} );
+					};
+					newImage.src = carousel.slides[ options.startIndex ].attrs.src;
+				}
+			} else {
+				toggleLoader();
+				carousel.gallery.style.visibility = 'visible';
 			}
 
 			domUtil.fadeIn( carousel.overlay, function () {
@@ -1566,34 +1559,10 @@
 		}
 
 		/**
-		* Displays the overlay background for the carousel.
-		*
-		* @param {boolean}  showOverlay Whether to show the overlay. Defaults to `false`.
-		* @param {Function} callback    Function to run after hide or show.
-		* */
-		function toggleOverlay( showOverlay, callback ) {
-			callback = callback || function() {};
-			carousel = carousel || {};
-			carousel.overlay = carousel.overlay || document.querySelector( '.jp-carousel-overlay' );
-			if ( showOverlay ) {
-				// Need to set the overlay manually to block or swiper does't initialise properly.
-				carousel.overlay.style.opacity = 1;
-				carousel.overlay.style.display = 'block';
-				domUtil.fadeIn( carousel.overlay, function () {
-					callback();
-				} );
-			} else {
-				domUtil.fadeOut( carousel.overlay, function () {
-					callback();
-				} );
-			}
-		}
-
-		/**
-		* Displays the main carousel loader spinner on the page.
-		*
-		* @param {boolean} showLoader Whether to show the loader. Defaults to `false`.
-		* */
+		 * Displays the main carousel loader spinner on the page.
+		 *
+		 * @param {boolean} showLoader Whether to show the loader. Defaults to `false`.
+		 * */
 		function toggleLoader( showLoader ) {
 			var loader = document.querySelector( '#jp-carousel-loading-overlay' );
 			if ( showLoader ) {
@@ -1604,12 +1573,30 @@
 		}
 
 		/**
-		* Kicks off an image transition from gallery to carousel.
-		* Used for when a gallery image is clicked.
-		*
-		* @param {HTMLElement} showLoader Whether to show the loader. Defaults to `false`.
-		* */
-		function toggleImageTransition( clickedItem ) {
+		 * Hides and removes the image transition element.
+		 *
+		 * @param {Function} callback Function to call after setTimeout has run.
+		 * */
+		function hideImageTransition( callback ) {
+			setTimeout( function () {
+				var clonedImageContainer = document.querySelector( '.jp-carousel-image-clicked-container' );
+				if ( clonedImageContainer ) {
+					clonedImageContainer.remove();
+					toggleLoader();
+				}
+				if ( callback ) {
+					callback();
+				}
+			}, 500 );
+		}
+
+		/**
+		 * Kicks off an image transition from gallery to carousel.
+		 * Used for when a gallery image is clicked.
+		 *
+		 * @param {HTMLElement} showLoader Whether to show the loader. Defaults to `false`.
+		 * */
+		function showImageTransition( clickedItem ) {
 			if ( ! clickedItem ) {
 				return;
 			}
@@ -1633,7 +1620,7 @@
 			document.body.appendChild( clonedImageContainer );
 
 			// next tick.
-			setTimeout( function() {
+			setTimeout( function () {
 				clonedImageElement.className = 'jp-carousel-clicked-image-grow';
 			}, 1 );
 		}
@@ -1698,8 +1685,8 @@
 
 				var item = domUtil.closest( target, itemSelector );
 				var index = Array.prototype.indexOf.call( gallery.querySelectorAll( itemSelector ), item );
-				toggleImageTransition( item );
-				loadSwiper( gallery, { startIndex: index } );
+				showImageTransition( item );
+				loadSwiper( gallery, { startIndex: index, isClicked: true } );
 			}
 		} );
 
