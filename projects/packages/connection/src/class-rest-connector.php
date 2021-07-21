@@ -92,17 +92,6 @@ class REST_Connector {
 			)
 		);
 
-		// Get current connection status of Jetpack.
-		register_rest_route(
-			'jetpack/v4',
-			'/connection/data',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( static::class, 'get_user_connection_data' ),
-				'permission_callback' => array( static::class, 'get_user_connection_data_permission_callback' ),
-			)
-		);
-
 		// Get list of plugins that use the Jetpack connection.
 		register_rest_route(
 			'jetpack/v4',
@@ -676,45 +665,5 @@ class REST_Connector {
 		}
 
 		return new WP_Error( 'invalid_user_permission_set_connection_owner', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
-	}
-
-	/**
-	 * Get miscellaneous user data related to the connection. Similar data available in old "My Jetpack".
-	 * Information about the master/primary user.
-	 * Information about the current user.
-	 *
-	 * @since 1.31.0
-	 *
-	 * @return object
-	 */
-	public static function get_user_connection_data() {
-		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php';
-
-		$manager = new Manager();
-
-		$connection_owner   = $manager->get_connection_owner();
-		$owner_display_name = false === $connection_owner ? null : $connection_owner->data->display_name;
-
-		$response = array(
-			'currentUser'     => $manager->get_all_current_user_data(),
-			'connectionOwner' => $owner_display_name,
-		);
-		return rest_ensure_response( $response );
-	}
-
-	/**
-	 * Verify that a user can get the data about the current user.
-	 * Only those who can connect.
-	 *
-	 * @since 4.3.0
-	 *
-	 * @return bool|WP_Error True if user is able to unlink.
-	 */
-	public static function get_user_connection_data_permission_callback() {
-		if ( current_user_can( 'jetpack_connect_user' ) ) {
-			return true;
-		}
-
-		return new WP_Error( 'invalid_user_permission_user_connection_data', static::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
 	}
 }

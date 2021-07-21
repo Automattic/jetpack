@@ -15,7 +15,6 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack_IXR_Client;
-use Jetpack_Options;
 use WP_Error;
 use WP_User;
 
@@ -2425,58 +2424,5 @@ class Manager {
 			}
 		}
 		return $stats;
-	}
-
-	/**
-	 * Gather data about the current user.
-	 *
-	 * @since 1.31.0
-	 *
-	 * @return array
-	 */
-	public function get_all_current_user_data() {
-		$current_user      = wp_get_current_user();
-		$is_user_connected = $this->is_user_connected( $current_user->ID );
-		$is_master_user    = $is_user_connected && (int) $current_user->ID && (int) Jetpack_Options::get_option( 'master_user' ) === (int) $current_user->ID;
-		$dotcom_data       = $this->get_connected_user_data();
-
-		// Add connected user gravatar to the returned dotcom_data.
-		$dotcom_data['avatar'] = ( ! empty( $dotcom_data['email'] ) ?
-			get_avatar_url(
-				$dotcom_data['email'],
-				array(
-					'size'    => 64,
-					'default' => 'mysteryman',
-				)
-			)
-			: false );
-
-		$current_user_data = array(
-			'isConnected' => $is_user_connected,
-			'isMaster'    => $is_master_user,
-			'username'    => $current_user->user_login,
-			'id'          => $current_user->ID,
-			'wpcomUser'   => $dotcom_data,
-			'gravatar'    => get_avatar_url( $current_user->ID, 64, 'mm', '', array( 'force_display' => true ) ),
-			'permissions' => array(
-				'admin_page'         => current_user_can( 'jetpack_admin_page' ),
-				'connect'            => current_user_can( 'jetpack_connect' ),
-				'connect_user'       => current_user_can( 'jetpack_connect_user' ),
-				'disconnect'         => current_user_can( 'jetpack_disconnect' ),
-				'manage_modules'     => current_user_can( 'jetpack_manage_modules' ),
-				'network_admin'      => current_user_can( 'jetpack_network_admin_page' ),
-				'network_sites_page' => current_user_can( 'jetpack_network_sites_page' ),
-				'edit_posts'         => current_user_can( 'edit_posts' ),
-				'publish_posts'      => current_user_can( 'publish_posts' ),
-				'manage_options'     => current_user_can( 'manage_options' ),
-				'view_stats'         => current_user_can( 'view_stats' ),
-				'manage_plugins'     => current_user_can( 'install_plugins' )
-					&& current_user_can( 'activate_plugins' )
-					&& current_user_can( 'update_plugins' )
-					&& current_user_can( 'delete_plugins' ),
-			),
-		);
-
-		return $current_user_data;
 	}
 }
