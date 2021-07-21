@@ -447,12 +447,6 @@
 					// Fixes some themes where closing carousel brings view back to top.
 					document.documentElement.style.removeProperty( 'height' );
 
-					var clonedImageContainer = document.querySelector( '.jp-carousel-image-clicked-container' );
-
-					if ( clonedImageContainer ) {
-						clonedImageContainer.remove();
-					}
-
 					// Hide pagination.
 					domUtil.hide( carousel.info.querySelector( '.jp-swiper-pagination' ) );
 					domUtil.hide( carousel.info.querySelector( '.jp-carousel-pagination' ) );
@@ -1421,22 +1415,6 @@
 					carousel.slides.push( slide );
 				}
 			} );
-
-			var clonedImageContainer = document.querySelector( '.jp-carousel-image-clicked-container' );
-
-			var newImage = new Image();
-
-			newImage.onload = function() {
-				if ( clonedImageContainer ) {
-					domUtil.fadeOut( clonedImageContainer, function() {
-						console.log( 'newImage loaded', newImage );
-						clonedImageContainer.remove();
-					} );
-				}
-			};
-
-
-			newImage.src = items[ startIndex ].getAttribute( 'data-gallery-src' );
 		}
 
 		function loadSwiper( gallery, options ) {
@@ -1491,6 +1469,8 @@
 
 			carousel.container.setAttribute( 'data-carousel-extra', JSON.stringify( data ) );
 			stat( [ 'open', 'view_image' ] );
+
+			carousel.gallery.style.visibility = 'hidden';
 
 			// If options exist, lets merge them
 			// with our default settings
@@ -1551,7 +1531,87 @@
 
 			domUtil.fadeIn( carousel.overlay, function () {
 				domUtil.emitEvent( carousel.overlay, 'jp_carousel.afterOpen' );
+				setTimeout( function() {
+					var clonedImageContainer = document.querySelector( '.jp-carousel-image-clicked-container' );
+					if ( clonedImageContainer ) {
+						clonedImageContainer.remove();
+					}
+					carousel.gallery.style.visibility = 'visible';
+				}, 500 );
 			} );
+		}
+
+		/**
+		* Displays the overlay background for the carousel.
+		*
+		* @param {boolean}  showOverlay Whether to show the overlay. Defaults to `false`.
+		* @param {Function} callback    Function to run after hide or show.
+		* */
+		function toggleOverlay( showOverlay, callback ) {
+			callback = callback || function() {};
+			carousel = carousel || {};
+			carousel.overlay = carousel.overlay || document.querySelector( '.jp-carousel-overlay' );
+			if ( showOverlay ) {
+				// Need to set the overlay manually to block or swiper does't initialise properly.
+				carousel.overlay.style.opacity = 1;
+				carousel.overlay.style.display = 'block';
+				domUtil.fadeIn( carousel.overlay, function () {
+					callback();
+				} );
+			} else {
+				domUtil.fadeOut( carousel.overlay, function () {
+					callback();
+				} );
+			}
+		}
+
+		/**
+		* Displays the main carousel loader spinner on the page.
+		*
+		* @param {boolean} showLoader Whether to show the loader. Defaults to `false`.
+		* */
+		function toggleLoader( showLoader ) {
+			var loader = document.querySelector( '#jp-carousel-loading-overlay' );
+			if ( showLoader ) {
+				domUtil.show( loader );
+			} else {
+				domUtil.hide( loader );
+			}
+		}
+
+		/**
+		* Kicks off an image transition from gallery to carousel.
+		* Used for when a gallery image is clicked.
+		*
+		* @param {HTMLElement} showLoader Whether to show the loader. Defaults to `false`.
+		* */
+		function toggleImageTransition( clickedItem ) {
+			if ( ! clickedItem ) {
+				return;
+			}
+			var clickedImage = clickedItem.querySelector( 'img' );
+
+			if ( ! clickedImage ) {
+				return;
+			}
+
+			var clonedImageContainer = document.querySelector( '.jp-carousel-image-clicked-container' );
+			if ( clonedImageContainer ) {
+				clonedImageContainer.remove();
+			}
+			clonedImageContainer = document.createElement( 'div' );
+
+			var clonedImageElement = document.createElement( 'img' );
+			clonedImageContainer.className = 'jp-carousel-image-clicked-container';
+			clonedImageElement.src = clickedImage.src;
+			clonedImageElement.alt = clickedImage.alt;
+			clonedImageContainer.appendChild( clonedImageElement );
+			document.body.appendChild( clonedImageContainer );
+
+			// next tick.
+			setTimeout( function() {
+				clonedImageElement.className = 'jp-carousel-clicked-image-grow';
+			}, 1 );
 		}
 
 		// Register the event listener for starting the gallery
@@ -1613,51 +1673,8 @@
 				e.stopPropagation();
 
 				var item = domUtil.closest( target, itemSelector );
-
-				// @todo ENHANCE THAT YO Here is where we grab the clicked image
-				if ( ! item ) {
-					return;
-				}
-
-				var clickedImage = item.querySelector( 'img' );
-
-				if ( clickedImage ) {
-					var clonedImageContainer = document.querySelector( '.jp-carousel-image-clicked-container' );
-					if ( clonedImageContainer ) { clonedImageContainer.remove(); }
-
-
-					clonedImageContainer = document.createElement( 'div' );
-					var clonedImageElement = document.createElement( 'img' );
-					clonedImageContainer.className = 'jp-carousel-image-clicked-container';
-					clonedImageElement.src = clickedImage.src;
-					clonedImageElement.alt = clickedImage.alt;
-					clonedImageContainer.appendChild( clonedImageElement );
-					document.body.appendChild( clonedImageContainer );
-
-					var imgSrc = clickedImage.getAttribute( 'data-gallery-src' );
-					console.log( 'clickedImage.src;', imgSrc, clickedImage );
-
-					var newImage = new Image();
-
-					newImage.onload = function() {
-						if ( clonedImageContainer ) {
-							domUtil.fadeOut( clonedImageContainer, function() {
-								console.log( 'newImage loaded', newImage );
-								clonedImageContainer.remove();
-							} );
-						}
-					};
-
-
-					newImage.src = imgSrc;
-
-					// next tick.
-					setTimeout( function() {
-						clonedImageElement.className = 'jp-carousel-clicked-image-grow';
-					}, 1 );
-				}
-
 				var index = Array.prototype.indexOf.call( gallery.querySelectorAll( itemSelector ), item );
+				toggleImageTransition( item );
 				loadSwiper( gallery, { startIndex: index } );
 			}
 		} );
