@@ -2,6 +2,28 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 9.9.1 - 2021-07-20
+### Enhancements
+- Carousel: improve carousel icons.
+
+### Improved compatibility
+- Carousel: ensure that arrows look and work correctly in right-to-left languages.
+
+### Bug fixes
+- Carousel: prevent comments indicator from bumping icon width of comments button.
+- Carousel: CSS tweaks to ensure text and comment loader spinners dislay correctly in dark and light theme views.
+- Carousel: ensures caption is shown in carousel images.
+- Carousel: ensure carousel CSS doesn't override other non-Jetpack carousel styling.
+- Widgets: allow the use of widget visibility conditions in gutenberg based widget editing.
+- Widgets: ensure block previews display in customizer for multiple blocks.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Updated package dependencies.
+- Compatibility: adds support for block_editor_settings_all when running WordPress 5.8 or higher.
+- WordPress.com Block Editor: do not use in the upcoming Block-based Widgets Editor
+- Nav Unification: stores the preferred view after a page switch using the new WP.com quick switcher
+- Symc: update Sync tests to include case for jetpack_sync_settings options.
+
 ## 9.9 - 2021-07-06
 ### Major Enhancements
 - Carousel: improve carousel usability, performance, accessibility, mobile friendliness.

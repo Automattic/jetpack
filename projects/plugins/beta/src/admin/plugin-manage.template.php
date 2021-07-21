@@ -67,6 +67,12 @@ if ( is_plugin_active( $plugin->plugin_file() ) ) {
 ?>
 <?php require __DIR__ . '/header.template.php'; ?>
 <div class="jetpack-beta-container" >
+	<div id="jetpack-beta-tester__breadcrumb">
+		<a href="<?php echo esc_url( Utils::admin_url() ); ?>">
+			<?php esc_html_e( 'Jetpack Beta Tester Home', 'jetpack-beta' ); ?>
+		</a>
+		<span>&nbsp;&gt; <?php echo esc_html( $plugin->get_name() ); ?></span>
+	</div>
 	<?php
 	if ( ! Utils::has_been_used() ) {
 		require __DIR__ . '/notice.template.php';
@@ -226,7 +232,7 @@ if ( is_plugin_active( $plugin->plugin_file() ) ) {
 							</svg>
 						</div>
 						<input aria-hidden="false" class="dops-search__input" id="search-component-releases"
-							placeholder="<?php esc_attr_e( 'Search for a releases', 'jetpack-beta' ); ?>" role="search" type="search" value="">
+							placeholder="<?php esc_attr_e( 'Search for a release', 'jetpack-beta' ); ?>" role="search" type="search" value="">
 						<span aria-controls="search-component" id="search-component-releases-close" aria-label="<?php esc_attr_e( 'Close Search', 'jetpack-beta' ); ?>" tabindex="0">
 							<svg class="gridicon gridicons-cross dops-search-close__icon" height="24"
 								viewbox="0 0 24 24" width="24">
