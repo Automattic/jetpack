@@ -6,6 +6,7 @@ import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 import { createInterpolateElement, useState, useEffect } from '@wordpress/element';
 import { useSelect } from '@wordpress/data';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -139,7 +140,7 @@ const Backups = () => {
 							{
 								a: (
 									<a
-										href={ `https://cloud.jetpack.com/backup/${ domain }` }
+										href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
 										target="_blank"
 										rel="noreferrer"
 									/>
@@ -181,7 +182,7 @@ const Backups = () => {
 					<h1>{ formatDateString( latestTime ) }</h1>
 					<a
 						class="button is-full-width"
-						href={ `https://cloud.jetpack.com/backup/${ domain }` }
+						href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
 						target="_blank"
 						rel="noreferrer"
 					>
@@ -235,7 +236,7 @@ const Backups = () => {
 							{
 								a: (
 									<a
-										href={ `https://tools.jetpack.com/debug/?url=${ domain }` }
+										href={ getRedirectUrl( 'backup-plugin-debug', { site: domain } ) }
 										target="_blank"
 										rel="noreferrer"
 									/>
@@ -252,7 +253,7 @@ const Backups = () => {
 							{
 								a: (
 									<a
-										href={ `https://cloud.jetpack.com/backup/${ domain }` }
+										href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
 										target="_blank"
 										rel="noreferrer"
 									/>
