@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Force Calypso interfaces for Atomic sites that have Jetpack SSO disabled.

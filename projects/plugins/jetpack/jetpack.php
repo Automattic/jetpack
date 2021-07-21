@@ -172,7 +172,7 @@ if ( is_readable( $jetpack_autoloader ) && is_readable( $jetpack_module_headings
 							),
 						)
 					),
-					'https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md'
+					'https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#building-your-project'
 				);
 				?>
 			</p>
