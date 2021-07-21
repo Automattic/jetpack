@@ -391,9 +391,20 @@ abstract class WPCOM_JSON_API_Endpoint {
 		return $return;
 	}
 
-	// Queries attachments to see where they have been used on the site.
-	function query_attachment_id( $attachment_id ) {
+	/**
+	 * Queries attachments to see where they have been used on the site. 
+	 *
+	 * @param $attachment_id (string) ID of media file.
+	 * @param $should_query (bool) Whether to query/search content for files.
+	 *
+	 * @return object
+	 */
+	public function query_attachment_id( $attachment_id, $should_query ) {
 		$queries = array( wp_get_attachment_url( $attachment_id ) );
+
+		if ( ! $should_query ) {
+			return get_post_meta( $attachment_id, 'attached_to', true );
+		}
 
 		if ( wp_attachment_is_image( $attachment_id ) ) {
 			$meta = wp_get_attachment_metadata( $attachment_id );
@@ -412,7 +423,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			);
 
 			$content_query = new WP_Query( $args );
-			$content_ids   = array_merge( $content_query->posts, $content_ids );
+			$content_ids   = array_unique( array_merge( $content_query->posts, $content_ids ) );
 		}
 
 		$data = array();
@@ -423,7 +434,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 			);
 		}
 
-		return $data;
+		update_post_meta( $attachment_id, 'attached_to', $data );
+
+		return get_post_meta( $attachment_id, 'attached_to' );
 	}
 
 	/**
@@ -1357,7 +1370,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		return (object) $response;
 	}
 
-	function get_media_item_v1_1( $media_id, $media_item = null, $file = null ) {
+	function get_media_item_v1_1( $media_id, $media_item = null, $file = null, $query_attached_files ) {
 
 		if ( ! $media_item ) {
 			$media_item = get_post( $media_id );
@@ -1402,7 +1415,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'size'         => size_format( (int) $filesize, 2 ),
 			'parent_title' => ! empty( $parent_file ) ? get_post( $parent_file )->post_title : null,
 			'parent_link'  => get_permalink( $parent_file ),
-			'attached_to'  => query_attachment_id( $media_item->ID ),
+			'attached_to'  => $this->query_attachment_id( $media_item->ID, $query_attached_files ),
 			'thumbnails'   => array(),
 		);
 
