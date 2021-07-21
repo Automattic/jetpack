@@ -87,14 +87,14 @@ class Jetpack_Stats_Upgrade_Nudges {
 	}
 
 	/**
-	 * Determines whether the Site is on a Security Plan. It will also return true if site is on Complete plan which includes Security.
+	 * Determines whether the Site is on a Security Plan. It will also return true if site has backup, scan and akismet.
 	 *
 	 * @return boolean
 	 */
 	private static function has_security_plan() {
 		$plan_data = Jetpack_Plan::get();
 		if ( is_array( $plan_data ) && isset( $plan_data['product_slug'] ) ) {
-			$has_plan = wp_startswith( $plan_data['product_slug'], 'jetpack_security' ) || wp_startswith( $plan_data['product_slug'], 'jetpack_complete' );
+			$has_plan = wp_startswith( $plan_data['product_slug'], 'jetpack_security' );
 			return (
 				$has_plan || (
 					self::is_backup_active() &&
@@ -102,6 +102,19 @@ class Jetpack_Stats_Upgrade_Nudges {
 					self::is_akismet_active()
 				)
 			);
+		}
+		return false;
+	}
+
+	/**
+	 * Determines whether the Site is on the Complete Plan.
+	 *
+	 * @return boolean
+	 */
+	private static function has_complete_plan() {
+		$plan_data = Jetpack_Plan::get();
+		if ( is_array( $plan_data ) && isset( $plan_data['product_slug'] ) ) {
+			return wp_startswith( $plan_data['product_slug'], 'jetpack_complete' );
 		}
 		return false;
 	}
@@ -318,6 +331,10 @@ class Jetpack_Stats_Upgrade_Nudges {
 		}
 
 		if ( ! defined( 'JETPACK_DEV_TEST_STATS_UPGRADE_NUDGES' ) || ! JETPACK_DEV_TEST_STATS_UPGRADE_NUDGES ) {
+			return;
+		}
+
+		if ( self::has_complete_plan() ) {
 			return;
 		}
 
