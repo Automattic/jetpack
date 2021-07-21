@@ -22,7 +22,7 @@ if ( needChangelog.size !== 0 ) {
 	for ( const proj of needChangelog) {
 		// See if any diffed files indicate a changelog file was added
 		for ( const file of diffFiles ) {
-			if ( file.startsWith( `/projects/${ proj }/changelog/` ) ) {
+			if ( file.startsWith( `projects/${ proj }/changelog/` ) ) {
 				console.log( `Found changelog file for ${ proj }` );
 				// If match, delete it from needChangelog
 				needChangelog.delete ( proj );
