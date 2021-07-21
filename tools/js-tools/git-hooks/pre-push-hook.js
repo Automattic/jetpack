@@ -7,15 +7,15 @@ const glob = require( 'glob' );
 
 // Initialize variables
 let exitCode = 0;
-const branch = getCurrentBranch(); // Current branch we're on
-const diffFiles = getDiffFiles(); // Files that have been changed in this branch
-const needChangelog = checkNeedChangelog(); // Check if any touched files need a changelog file
 const allProjects = glob
 	.sync( 'projects/*/*/composer.json', { cwd: __dirname + '/../../../' } )
 	.map( p => p.substring( 9, p.length - 14 ) );
+const branch = getCurrentBranch(); // Current branch we're on
+const diffFiles = getDiffFiles(); // Files that have been changed in this branch
+const needChangelog = checkNeedChangelog( allProjects ); // Check if any touched files need a changelog file
 
 console.log( chalk.green( 'Checking if changelog files are needed. Just a sec...' ) );
-console.log( allProjects );
+
 // If files require a changelog, check and see if one is included already
 if ( needChangelog.length ) {
 	const hasChangelog = [];
@@ -80,9 +80,11 @@ function getDiffFiles() {
 /**
  * Return a list of projects that this diff has touched that require a changelog.
  *
+ * @param {Array} projects - list of all projects in the monorepo.
+ *
  * @returns {Array} List of files that require a changelog.
  */
-function checkNeedChangelog() {
+function checkNeedChangelog( projects ) {
 	const re = /^projects\/([^/]+\/[^/]+)\//; // regex matches project file path, ie 'project/packages/connection/..'
 	const modifiedProjects = new Set();
 	for ( const file of diffFiles ) {
@@ -91,7 +93,8 @@ function checkNeedChangelog() {
 			modifiedProjects.add( match[ 1 ] );
 		}
 	}
-	return allProjects.filter( proj => modifiedProjects.has( proj ) );
+
+	return projects.filter( proj => modifiedProjects.has( proj ) );
 }
 
-process.exit( 1 );
+process.exit( exitCode );
