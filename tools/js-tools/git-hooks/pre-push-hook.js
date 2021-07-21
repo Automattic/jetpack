@@ -29,6 +29,7 @@ if ( needChangelog.length ) {
 				console.log( `Found changelog file for ${ proj }` );
 				// If match, add it to an array.
 				hasChangelog.push( proj );
+				break;
 			}
 		}
 	}
