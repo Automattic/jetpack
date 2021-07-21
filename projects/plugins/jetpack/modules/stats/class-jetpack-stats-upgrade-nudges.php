@@ -249,13 +249,15 @@ class Jetpack_Stats_Upgrade_Nudges {
 	/**
 	 * Prints the Boost item
 	 *
-	 * @return void
+	 * @param bool $print Whether to print the item output or just check whether it would be printed or not.
+	 *
+	 * @return bool
 	 */
-	private static function print_boost() {
+	private static function get_boost_output( $print = true ) {
 		$plugin_file = 'jetpack-boost/jetpack-boost.php';
 		$plugin_slug = 'jetpack-boost';
 		if ( self::is_plugin_active( $plugin_file ) ) {
-			return;
+			return false;
 		} elseif ( self::is_plugin_installed( $plugin_file ) ) {
 			$label = __( 'Activate Boost', 'jetpack' );
 			$link  = wp_nonce_url( 'plugins.php?action=activate&amp;plugin=' . rawurlencode( $plugin_file ) . '&amp;plugin_status=all&amp;paged=1', 'activate-plugin_' . $plugin_file );
@@ -263,19 +265,24 @@ class Jetpack_Stats_Upgrade_Nudges {
 			$label = __( 'Install Boost', 'jetpack' );
 			$link  = wp_nonce_url( self_admin_url( 'update.php?action=install-plugin&plugin=' . $plugin_slug ), 'install-plugin_' . $plugin_slug );
 		}
-		self::print_item( __( 'Boost', 'jetpack' ), 'recommendations/site-accelerator-illustration.svg', $link, 'boost', false, $label );
+		if ( $print ) {
+			self::print_item( __( 'Boost', 'jetpack' ), 'recommendations/site-accelerator-illustration.svg', $link, 'boost', false, $label );
+		}
+		return true;
 	}
 
 	/**
 	 * Prints the CRM item
 	 *
-	 * @return void
+	 * @param bool $print Whether to print the item output or just check whether it would be printed or not.
+	 *
+	 * @return bool
 	 */
-	private static function print_crm() {
+	private static function get_crm_output( $print = true ) {
 		$plugin_file = Jetpack_CRM_Data::JETPACK_CRM_PLUGIN_SLUG;
 		$plugin_slug = substr( $plugin_file, 0, strpos( $plugin_file, '/' ) );
 		if ( self::is_plugin_active( $plugin_file ) ) {
-			return;
+			return false;
 		} elseif ( self::is_plugin_installed( $plugin_file ) ) {
 			$link  = wp_nonce_url( 'plugins.php?action=activate&amp;plugin=' . rawurlencode( $plugin_file ) . '&amp;plugin_status=all&amp;paged=1', 'activate-plugin_' . $plugin_file );
 			$label = __( 'Activate CRM', 'jetpack' );
@@ -283,7 +290,10 @@ class Jetpack_Stats_Upgrade_Nudges {
 			$link  = wp_nonce_url( self_admin_url( 'update.php?action=install-plugin&plugin=' . $plugin_slug ), 'install-plugin_' . $plugin_slug );
 			$label = __( 'Install CRM', 'jetpack' );
 		}
-		self::print_item( __( 'CRM', 'jetpack' ), 'recommendations/creative-mail-illustration.svg', $link, 'crm', false, $label );
+		if ( $print ) {
+			self::print_item( __( 'CRM', 'jetpack' ), 'recommendations/creative-mail-illustration.svg', $link, 'crm', false, $label );
+		}
+		return true;
 	}
 
 	/**
@@ -299,6 +309,20 @@ class Jetpack_Stats_Upgrade_Nudges {
 		}
 
 		if ( ! defined( 'JETPACK_DEV_TEST_STATS_UPGRADE_NUDGES' ) || ! JETPACK_DEV_TEST_STATS_UPGRADE_NUDGES ) {
+			return;
+		}
+
+		if (
+			self::has_security_plan() &&
+			self::is_backup_active() &&
+			self::is_scan_active() &&
+			self::is_akismet_active() &&
+			self::is_search_active() &&
+			self::is_backup_active() &&
+			self::is_backup_active() &&
+			self::get_boost_output( false ) &&
+			self::get_crm_output( false )
+		) {
 			return;
 		}
 
@@ -319,8 +343,8 @@ class Jetpack_Stats_Upgrade_Nudges {
 		if ( ! self::is_search_active() ) {
 			self::print_search();
 		}
-		self::print_boost();
-		self::print_crm();
+		self::get_boost_output();
+		self::get_crm_output();
 	}
 
 }
