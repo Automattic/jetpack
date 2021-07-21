@@ -94,7 +94,14 @@ class Jetpack_Stats_Upgrade_Nudges {
 	private static function has_security_plan() {
 		$plan_data = Jetpack_Plan::get();
 		if ( is_array( $plan_data ) && isset( $plan_data['product_slug'] ) ) {
-			return wp_startswith( $plan_data['product_slug'], 'jetpack_security' ) || wp_startswith( $plan_data['product_slug'], 'jetpack_complete' );
+			$has_plan = wp_startswith( $plan_data['product_slug'], 'jetpack_security' ) || wp_startswith( $plan_data['product_slug'], 'jetpack_complete' );
+			return (
+				$has_plan || (
+					self::is_backup_active() &&
+					self::is_scan_active() &&
+					self::is_akismet_active()
+				)
+			);
 		}
 		return false;
 	}
