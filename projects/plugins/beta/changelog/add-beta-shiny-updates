@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Use WP core's ajax updater to apply updates.

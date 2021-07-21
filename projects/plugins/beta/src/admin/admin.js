@@ -206,7 +206,12 @@
 	 * @returns {string} The massaged search string.
 	 */
 	function pr_to_header( search ) {
-		return search.replace( /\//g, ' / ' ).replace( /-/g, ' ' ).replace( /  +/g, ' ' ).toLowerCase().trim();
+		return search
+			.replace( /\//g, ' / ' )
+			.replace( /-/g, ' ' )
+			.replace( /  +/g, ' ' )
+			.toLowerCase()
+			.trim();
 	}
 
 	/**
@@ -228,7 +233,7 @@
 	 * @param {object} element - DOM Element object.
 	 */
 	function hide( element ) {
-		element.style.display = 'none';
+		element.classList.add( 'branch-card-hide' );
 	}
 
 	/**
@@ -237,7 +242,7 @@
 	 * @param {object} element - DOM Element object.
 	 */
 	function show( element ) {
-		element.style.display = '';
+		element.classList.remove( 'branch-card-hide' );
 	}
 
 	/**
