@@ -31,12 +31,6 @@
 	width: 100vw;
 }
 
-.jp-carousel-overlay .swiper-zoom-container {
-	background-size: 200%;
-	background-repeat: no-repeat;
-	background-position: center;
-}
-
 /*
 To prevent flash of prev/next image scale transition after pinch zoom we need to hide them.
 Swiper does not add a class of `swiper-slide-zoomed` to slides on pinch and zoom
@@ -93,19 +87,6 @@ so we have to target all affected elements in touch devices.
 
 .jp-carousel-overlay * {
 	box-sizing: border-box;
-}
-
-/*
-Blurred background images: apply blur with CSS if browser does not have
-support via the Canvas 2D API
-*/
-.jp-carousel-overlay .jp-carousel-canvas-blur-unsupported .swiper-zoom-container {
-	transform: translate3d( 0, 0, 0 );
-	transform: translateZ( 0 );
-
-	backdrop-filter: blur( 20px );
-	-webkit-backdrop-filter: blur( 20px );
-	will-change: transform;
 }
 
 /* Fix for Twenty Nineteen theme compatibility */
