@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Detect when "Bleeding Edge" needs an update.

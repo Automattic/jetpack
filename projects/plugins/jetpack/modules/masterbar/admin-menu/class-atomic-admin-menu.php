@@ -94,6 +94,14 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			return self::CLASSIC_VIEW;
 		}
 
+		/**
+		 * When Jetpack SSO is disabled, we need to force Calypso because it might create confusion to be redirected to WP-Admin.
+		 * Furthermore, because we don't display the quick switcher, users having an WP-Admin interface by default won't be able to go back to the Calyso version.
+		 */
+		if ( ! \Jetpack::is_module_active( 'sso' ) ) {
+			return self::DEFAULT_VIEW;
+		}
+
 		return parent::get_preferred_view( $screen, $fallback_global_preference );
 	}
 
@@ -268,7 +276,17 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function add_options_menu() {
 		parent::add_options_menu();
 
-		add_submenu_page( 'options-general.php', esc_attr__( 'Security', 'jetpack' ), __( 'Security', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/security/' . $this->domain, null, 2 );
+		if ( Jetpack_Plan::supports( 'security-settings' ) ) {
+			add_submenu_page(
+				'options-general.php',
+				esc_attr__( 'Security', 'jetpack' ),
+				__( 'Security', 'jetpack' ),
+				'manage_options',
+				'https://wordpress.com/settings/security/' . $this->domain,
+				null,
+				2
+			);
+		}
 		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 11 );
 		add_submenu_page( 'options-general.php', esc_attr__( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/jetpack/' . $this->domain, null, 12 );
 
