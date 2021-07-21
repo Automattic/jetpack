@@ -35,64 +35,40 @@
 			} );
 		}
 
-		function getBackgroundImage( imgEl ) {
+		function getAverageColor( imgEl ) {
 			var canvas = document.createElement( 'canvas' ),
-				context = canvas.getContext && canvas.getContext( '2d' );
-
+				context = canvas.getContext && canvas.getContext( '2d' ),
+				imgData,
+				width,
+				height,
+				length,
+				rgb = { r: 0, g: 0, b: 0 },
+				count = 0;
 			if ( ! imgEl ) {
-				return;
+				return rgb;
 			}
-
-			// Adjust the canvas size.
-			canvas.width = window.innerWidth;
-			canvas.height = window.innerHeight;
-
-			var imageRatio = imgEl.naturalHeight / imgEl.naturalWidth;
-			var winRatio = window.innerHeight / window.innerWidth;
-
-			// Calculate adjusted image dimensions to cover the canvas.
-			var imageHeight = imgEl.naturalHeight;
-			var imageWidth = imgEl.naturalWidth;
-			if ( imageRatio > winRatio ) {
-				imageHeight = imgEl.naturalWidth * winRatio;
-			} else {
-				imageWidth = imgEl.naturalHeight / winRatio;
+			height = canvas.height = imgEl.naturalHeight || imgEl.offsetHeight || imgEl.height;
+			width = canvas.width = imgEl.naturalWidth || imgEl.offsetWidth || imgEl.width;
+			context.drawImage( imgEl, 0, 0 );
+			imgData = context.getImageData( 0, 0, width, height );
+			length = imgData.data.length;
+			for ( var i = 0; i < length; i += 4 ) {
+				rgb.r += imgData.data[ i ];
+				rgb.g += imgData.data[ i + 1 ];
+				rgb.b += imgData.data[ i + 2 ];
+				count++;
 			}
-
-			// Apply image blur.
-			if ( context.filter !== undefined ) {
-				context.filter = 'blur(30px) ';
-			} else {
-				// Class used to apply CSS blur on Safari, where it is not supported by the canvas.
-				// Canvas blur is preferred for performance reasons on Chrome.
-				document
-					.querySelector( '.jp-carousel' )
-					.classList.add( 'jp-carousel-canvas-blur-unsupported' );
-			}
-
-			context.globalAlpha = 0.3;
-			context.drawImage(
-				imgEl,
-				( imgEl.naturalWidth - imageWidth ) * 0.5,
-				( imgEl.naturalHeight - imageHeight ) * 0.5,
-				imageWidth,
-				imageHeight,
-				0,
-				0,
-				window.innerWidth,
-				window.innerHeight
-			);
-			var url = canvas.toDataURL( 'image/png' );
-			canvas = null;
-
-			return url;
+			rgb.r = Math.floor( rgb.r / count );
+			rgb.g = Math.floor( rgb.g / count );
+			rgb.b = Math.floor( rgb.b / count );
+			return rgb;
 		}
 
 		return {
 			noop: noop,
 			texturize: texturize,
 			applyReplacements: applyReplacements,
-			getBackgroundImage: getBackgroundImage,
+			getAverageColor: getAverageColor,
 		};
 	} )();
 
@@ -1298,21 +1274,31 @@
 			var isLoaded = image.complete && image.naturalHeight !== 0;
 
 			if ( isLoaded ) {
-				applyBackgroundImage( slide, currentSlide, image );
+				applyBackgroundImage( currentSlide, image );
 				return;
 			}
 
 			image.onload = function () {
-				applyBackgroundImage( slide, currentSlide, image );
+				applyBackgroundImage( currentSlide, image );
 			};
 		}
 
-		function applyBackgroundImage( slide, currentSlide, image ) {
-			var url = slide.backgroundImage ? slide.backgroundImage : util.getBackgroundImage( image );
-			slide.backgroundImage = url;
-			currentSlide.style.backgroundImage = 'url(' + url + ')';
-			currentSlide.style.backgroundPosition = 'center center';
-			currentSlide.style.backgroundSize = '150% 150%';
+		function applyBackgroundImage( currentSlide, image ) {
+			var rgb = util.getAverageColor( image );
+			currentSlide.style.backgroundImage =
+				'linear-gradient( to bottom, rgba(' +
+				rgb.r +
+				',' +
+				rgb.g +
+				',' +
+				rgb.b +
+				', 0.5 ), rgba(' +
+				rgb.r +
+				', ' +
+				rgb.g +
+				', ' +
+				rgb.b +
+				', 0.25 ';
 		}
 
 		function clearCommentTextAreaValue() {
