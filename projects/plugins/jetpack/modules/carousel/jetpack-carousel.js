@@ -1529,15 +1529,39 @@
 				selectSlideAtIndex( index );
 			} );
 
-			domUtil.fadeIn( carousel.overlay, function () {
-				domUtil.emitEvent( carousel.overlay, 'jp_carousel.afterOpen' );
+
+
+			var currentSlideObj = carousel.slides[ options.startIndex ];
+			var currentSlideImage = currentSlideObj.el.querySelector( 'img' );
+			var iscurrentSlideImageLoaded = currentSlideImage.complete && currentSlideImage.naturalHeight !== 0;
+
+			if ( iscurrentSlideImageLoaded ) {
 				setTimeout( function() {
 					var clonedImageContainer = document.querySelector( '.jp-carousel-image-clicked-container' );
 					if ( clonedImageContainer ) {
 						clonedImageContainer.remove();
+						toggleLoader();
 					}
 					carousel.gallery.style.visibility = 'visible';
 				}, 500 );
+			} else {
+				toggleLoader( true );
+				var newImage = new Image();
+				newImage.onload = function() {
+					setTimeout( function() {
+						var clonedImageContainer = document.querySelector( '.jp-carousel-image-clicked-container' );
+						if ( clonedImageContainer ) {
+							clonedImageContainer.remove();
+						}
+						toggleLoader();
+						carousel.gallery.style.visibility = 'visible';
+					}, 500 );
+				};
+				newImage.src = carousel.slides[ options.startIndex ].attrs.src;
+			}
+
+			domUtil.fadeIn( carousel.overlay, function () {
+				domUtil.emitEvent( carousel.overlay, 'jp_carousel.afterOpen' );
 			} );
 		}
 
