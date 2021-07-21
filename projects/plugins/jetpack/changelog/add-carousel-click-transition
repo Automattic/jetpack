@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Adds a transition effect when an image is clicked on. The image will animate to full size before the gallery carousel is initialized.
