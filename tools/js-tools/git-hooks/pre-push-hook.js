@@ -6,7 +6,6 @@ const chalk = require( 'chalk' );
 const glob = require( 'glob' );
 
 // Initialize variables
-let exitCode = 0;
 const allProjects = glob
 	.sync( 'projects/*/*/composer.json', { cwd: __dirname + '/../../../' } )
 	.map( p => p.substring( 9, p.length - 14 ) );
@@ -56,7 +55,7 @@ if ( needChangelog.length ) {
 	);
 	console.log( chalk.bgRed( `Pre-push hook failed. Missing required changelog files.` ) );
 
-	exitCode = 1;
+	process.exitCode = 1;
 }
 
 /**
@@ -97,4 +96,4 @@ function checkNeedChangelog( projects ) {
 	return projects.filter( proj => modifiedProjects.has( proj ) );
 }
 
-process.exit( exitCode );
+process.exitCode;
