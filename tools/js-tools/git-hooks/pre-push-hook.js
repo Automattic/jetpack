@@ -11,7 +11,9 @@ const allProjects = glob
 	.map( p => p.substring( 9, p.length - 14 ) );
 const branch = getCurrentBranch(); // Current branch we're on
 const diffFiles = getDiffFiles(); // Files that have been changed in this branch
-const needChangelog = checkNeedChangelog( allProjects ); // Check if any touched files need a changelog file
+const needChangelog = new Set();
+checkNeedChangelog( allProjects ); // Check if any touched files need a changelog file
+console.log(needChangelog);
 console.log( chalk.green( 'Checking if changelog files are needed. Just a sec...' ) );
 
 // If files require a changelog, check and see if one is included already
@@ -93,7 +95,7 @@ function checkNeedChangelog( projects ) {
 		}
 	}
 
-	return projects.filter( proj => modifiedProjects.has( proj ) );
+	needChangelog.add( projects.filter( proj => modifiedProjects.has( proj ) ) );
 }
-
+process.exitCode = 1;
 process.exitCode;
