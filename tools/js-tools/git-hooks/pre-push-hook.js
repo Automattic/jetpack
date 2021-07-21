@@ -12,7 +12,6 @@ const allProjects = glob
 const branch = getCurrentBranch(); // Current branch we're on
 const diffFiles = getDiffFiles(); // Files that have been changed in this branch
 const needChangelog = checkNeedChangelog( allProjects ); // Check if any touched files need a changelog file
-
 console.log( chalk.green( 'Checking if changelog files are needed. Just a sec...' ) );
 
 // If files require a changelog, check and see if one is included already
@@ -71,17 +70,16 @@ function getCurrentBranch() {
  * @returns {Array} List of files that are changed in this branch against master.
  */
 function getDiffFiles() {
-	return spawnSync( 'git', [
+	const data = spawnSync( 'git', [
 		'-c',
 		'core.quotepath=off',
 		'diff',
 		`origin/master...${ branch }`,
 		`--no-renames`,
 		'--name-only',
-	] )
-		.toString()
-		.trim()
-		.split( '\n' );
+	] );
+
+	return data.output[ 1 ].toString().trim().split( '\n' );
 }
 
 /**
