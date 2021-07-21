@@ -277,7 +277,7 @@ class csstidy {
 		$this->settings['discard_invalid_properties'] = false;
 		$this->settings['css_level'] = 'CSS2.1';
 		$this->settings['preserve_css'] = false;
-		$this->settings['preserve_css_variables'] = false;
+		$this->settings['preserve_css_variables']     = false;
 		$this->settings['timestamp'] = false;
 		$this->settings['template'] = ''; // say that propertie exist
 		$this->set_cfg('template','default'); // call load_template
