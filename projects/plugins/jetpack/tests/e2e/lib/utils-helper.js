@@ -130,7 +130,9 @@ async function execMultipleWpCommands( ...commands ) {
 }
 
 async function logDebugLog() {
-	let log = execSyncShellCommand( 'pnpx wp-env run tests-wordpress cat wp-content/debug.log' );
+	let log = execSyncShellCommand(
+		'jetpack docker --type e2e --name t1 exec cat wp-content/debug.log'
+	);
 
 	const escapedDate = new Date().toISOString().split( '.' )[ 0 ].replace( /:/g, '-' );
 	const filename = `debug_${ escapedDate }.log`;
