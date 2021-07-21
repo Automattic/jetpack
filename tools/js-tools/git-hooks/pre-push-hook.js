@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /* eslint-disable no-console, no-process-exit */
-const execSync = require( 'child_process' ).execSync;
+const { execSync } = require( 'child_process' );
 const chalk = require( 'chalk' );
 const glob = require( 'glob' );
 
