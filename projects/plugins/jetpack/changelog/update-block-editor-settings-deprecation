@@ -1,4 +1,0 @@
-Significance: minor
-Type: compat
-
-Compatibility: Adds support for block_editor_settings_all when running WordPress 5.8 or higher
