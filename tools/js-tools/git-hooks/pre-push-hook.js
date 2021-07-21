@@ -17,7 +17,7 @@ console.log(needChangelog);
 console.log( chalk.green( 'Checking if changelog files are needed. Just a sec...' ) );
 
 // If files require a changelog, check and see if one is included already
-if ( needChangelog.length ) {
+if ( needChangelog.size !== 0 ) {
 	// Iterate through projects that may need a changelog
 	for ( const proj of needChangelog) {
 		// See if any diffed files indicate a changelog file was added
@@ -33,7 +33,7 @@ if ( needChangelog.length ) {
 }
 
 // If there are projects that still need a changelog file, notify the pusher.
-if ( needChangelog.length ) {
+if ( needChangelog.size !== 0 ) {
 	console.log( chalk.red( `Looks like some projects still need changelog files:\n` ) );
 	for ( const proj of needChangelog ) {
 		console.log( chalk.red( `     ${ proj }` ) );
