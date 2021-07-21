@@ -4,6 +4,15 @@
 	h1 {
 		margin-top: 0;
 		line-height: 1.2;
+		font-size: var( --font-title-large );
+		font-weight: 600;
+	}
+
+	h2 {
+		margin: 0;
+		line-height: 1.2;
+		font-size: var( --font-title-small );
+		font-weight: 400;
 	}
 
 	&__link{
@@ -38,14 +47,24 @@
 	&__content{
 		background: var( --jp-white-off );
 		margin: 0;
-		padding: 50px 24px;
-		border-bottom: 1px solid #ddd;
+		padding: 80px;
+		border-radius: 4px;
 		text-align: center;
 	}
 
 	&__actions{
 		background: var( --jp-white );
-		padding: 10px 24px;
+		padding: 10px 48px;
+
+		p{
+			font-size: var( --font-body );
+		}
+
+		.components-button{
+			height: 40px;
+			font-size: var( --font-body-small );
+			border-radius: 4px;
+		}
 	}
 
 	&__btn-dismiss{
@@ -88,11 +107,11 @@
 
 @media (min-width: 960px){
 	.jp-disconnect-dialog{
-		min-width: 800px;
-	}
-
-	&__success{
-		min-width: auto;
+		min-width: 900px;
+		
+		&__success{
+			min-width: auto;
+		}
 	}
 
 	.jp-row {

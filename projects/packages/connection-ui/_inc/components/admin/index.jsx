@@ -55,11 +55,11 @@ export default function Admin() {
 							apiNonce={ APINonce }
 							onDisconnected={ onDisconnectedCallback }
 						>
-							<p>
+							<h2>
 								{ __( 'Jetpack is currently powering multiple products on your site.', 'jetpack' ) }
 								<br />
 								{ __( 'Once you disconnect Jetpack, these will no longer work.', 'jetpack' ) }
-							</p>
+							</h2>
 						</DisconnectDialog>
 					</div>
 				) }
