@@ -28,7 +28,6 @@ class WP_Test_Jetpack_CSSTidy extends WP_UnitTestCase {
 		parent::setUp();
 		$this->instance = new csstidy();
 		$this->instance->set_cfg( 'optimise_shorthands', 0 );
-		$this->instance->set_cfg( 'discard_invalid_properties', true );
 	}
 
 	/** Provides values for CSS preserve leading zeros patterns */
@@ -74,7 +73,7 @@ class WP_Test_Jetpack_CSSTidy extends WP_UnitTestCase {
 			'test_css_var_properties_ending_in_hyphen_removed' => array( 'div {--base-color-:red;color:var(--base-color)}', "div {\ncolor:var(--base-color)\n}", true ),
 			'test_css_var_properties_ending_in_underscore_removed' => array( 'div {--base-color_:red;color:var(--base-color)}', "div {\ncolor:var(--base-color)\n}", true ),
 			'test_unknown_properties_removed'            => array( 'div {clowns-nose:red;color:var(--base-color)}', "div {\ncolor:var(--base-color)\n}", true ),
-			'test_invalid_css_properties_removed'        => array( 'div {--$//2343--3423:red;color:var(--$//2343--3423)}', "div {\ncolor:var(--$//2343--3423)\n}", true ),
+			'test_invalid_css_properties_removed'        => array( 'div {--$//2343--3423:red;color:var(--$//2343--3423)}', "div {\n--2343--3423:red;\ncolor:var(--$//2343--3423)\n}", true ),
 			'test_broken_or_dangerous_css_removed'       => array( 'div {xss-trap-be-careful:red;}</style><script>alert(\'Gotcha!\')</script>color:var(--base-color)}', '', true ),
 		);
 	}
@@ -89,6 +88,7 @@ class WP_Test_Jetpack_CSSTidy extends WP_UnitTestCase {
 	 * @param bool   $preserve_css_variables the value of preserve_css_variables in csstidy's config.
 	 */
 	public function test_custom_property_patterns( $input, $expected_output, $preserve_css_variables ) {
+		$this->instance->set_cfg( 'discard_invalid_properties', true );
 		$this->instance->set_cfg( 'preserve_css_variables', $preserve_css_variables );
 		$this->instance->parse( $input );
 		$this->assertEquals(
