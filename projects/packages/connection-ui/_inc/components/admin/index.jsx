@@ -3,7 +3,13 @@
  */
 import React, { useCallback } from 'react';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { ConnectionStatusCard, ConnectScreen } from '@automattic/jetpack-connection';
+
+import {
+	ConnectionStatusCard,
+	ConnectScreen,
+	DisconnectDialog,
+} from '@automattic/jetpack-connection';
+
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -35,6 +41,10 @@ export default function Admin() {
 		[ setConnectionStatus ]
 	);
 
+	const onDisconnectedCallback = useCallback( () => {
+		setConnectionStatus( { isActive: false, isRegistered: false, isUserConnected: false } );
+	}, [ setConnectionStatus ] );
+
 	return (
 		<React.Fragment>
 			<Header />
@@ -44,7 +54,20 @@ export default function Admin() {
 					<strong>{ __( 'Site Registered', 'jetpack' ) }</strong>
 				) }
 				{ connectionStatus.isRegistered && connectionStatus.isUserConnected && (
-					<strong>{ __( 'Site and User Connected', 'jetpack' ) }</strong>
+					<div>
+						<strong>{ __( 'Site and User Connected', 'jetpack' ) }</strong>
+						<DisconnectDialog
+							apiRoot={ APIRoot }
+							apiNonce={ APINonce }
+							onDisconnected={ onDisconnectedCallback }
+						>
+							<h2>
+								{ __( 'Jetpack is currently powering multiple products on your site.', 'jetpack' ) }
+								<br />
+								{ __( 'Once you disconnect Jetpack, these will no longer work.', 'jetpack' ) }
+							</h2>
+						</DisconnectDialog>
+					</div>
 				) }
 				<ConnectionStatusCard
 					isRegistered={ connectionStatus.isRegistered }
