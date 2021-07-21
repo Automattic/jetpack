@@ -20,12 +20,9 @@ if ( needChangelog.length ) {
 	const hasChangelog = [];
 	// Iterate through projects that may need a changelog
 	for ( const proj of needChangelog ) {
-		const regexString = '^projects/' + proj + '/changelog/([^/]+)'; // regex matching a changelog file, ex: projects/plugins/jetpack/changelog/file_name
-		const regex = new RegExp( regexString );
 		// See if any diffed files indicate a changelog file was added
 		for ( const file of diffFiles ) {
-			const match = file.match( regex );
-			if ( match ) {
+			if ( file.startsWith( `/projects/${ proj }/changelog/` ) ) {
 				console.log( `Found changelog file for ${ proj }` );
 				// If match, add it to an array.
 				hasChangelog.push( proj );
