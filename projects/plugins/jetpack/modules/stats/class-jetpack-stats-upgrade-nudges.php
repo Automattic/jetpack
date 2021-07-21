@@ -121,17 +121,19 @@ class Jetpack_Stats_Upgrade_Nudges {
 	 * @return void
 	 */
 	private static function print_header() {
+		if ( self::has_security_plan() ) {
+			// translators: %s is the Site Name.
+			$title = __( 'Performance and growth tools for %s', 'jetpack' );
+		} else {
+			// translators: %s is the Site Name.
+			$title = __( 'Security, performance, and growth tools for %s', 'jetpack' );
+		}
+		$title = sprintf( $title, get_bloginfo( 'site_name' ) );
 		?>
 		<div class="dops-card dops-section-header is-compact">
 			<div class="dops-section-header__label">
 				<span class="dops-section-header__label-text">
-					<?php
-					printf(
-						// translators: %s is the Site Name.
-						esc_html__( 'Security, performance, and growth tools for %s', 'jetpack' ),
-						esc_attr( get_bloginfo( 'site_name' ) )
-					);
-					?>
+					<?php echo esc_html( $title ); ?>
 				</span>
 			</div>
 			<div class="dops-section-header__actions"></div>
