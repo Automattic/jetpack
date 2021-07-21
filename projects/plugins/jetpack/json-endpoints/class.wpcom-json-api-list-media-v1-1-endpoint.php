@@ -31,6 +31,7 @@ new WPCOM_JSON_API_List_Media_v1_1_Endpoint( array(
 		'mime_type' => "(string) Default is empty. Filter by mime type (e.g., 'image/jpeg', 'application/pdf'). Partial searches also work (e.g. passing 'image' will search for all image files).",
 		'after'     => '(ISO 8601 datetime) Return media items uploaded after the specified datetime.',
 		'before'    => '(ISO 8601 datetime) Return media items uploaded before the specified datetime.',
+		'query_attached_files' => '(bool=false) If should perform a search to see where the content has been attached to.',
 	),
 
 	'response_format' => array(
@@ -145,8 +146,10 @@ class WPCOM_JSON_API_List_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		$response = array();
 
+		$should_query_attached_files = $args['query_attached_files'];
+
 		foreach ( $media->posts as $item ) {
-			$response[] = $this->get_media_item_v1_1( $item->ID );
+			$response[] = $this->get_media_item_v1_1( $item->ID, null, null, $should_query_attached_files );
 		}
 
 		$return = array(
