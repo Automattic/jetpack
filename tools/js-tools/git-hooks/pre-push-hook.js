@@ -15,7 +15,7 @@ const allProjects = glob
 	.map( p => p.substring( 9, p.length - 14 ) );
 
 console.log( chalk.green( 'Checking if changelog files are needed. Just a sec...' ) );
-
+console.log( allProjects );
 // If files require a changelog, check and see if one is included already
 if ( needChangelog.length ) {
 	const hasChangelog = [];
@@ -94,4 +94,4 @@ function checkNeedChangelog() {
 	return allProjects.filter( proj => modifiedProjects.has( proj ) );
 }
 
-process.exit( exitCode );
+process.exit( 1 );
