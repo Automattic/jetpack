@@ -11,29 +11,24 @@ const allProjects = glob
 	.map( p => p.substring( 9, p.length - 14 ) );
 const branch = getCurrentBranch(); // Current branch we're on
 const diffFiles = getDiffFiles(); // Files that have been changed in this branch
-const needChangelog = new Set();
-checkNeedChangelog( allProjects ); // Check if any touched files need a changelog file
+const needChangelog = new Set(checkNeedChangelog( allProjects ) );
 console.log(needChangelog);
+// Check if any touched files need a changelog file
 console.log( chalk.green( 'Checking if changelog files are needed. Just a sec...' ) );
 
 // If files require a changelog, check and see if one is included already
 if ( needChangelog.length ) {
-	const hasChangelog = [];
 	// Iterate through projects that may need a changelog
-	for ( const proj of needChangelog ) {
+	for ( const proj of needChangelog) {
 		// See if any diffed files indicate a changelog file was added
 		for ( const file of diffFiles ) {
 			if ( file.startsWith( `/projects/${ proj }/changelog/` ) ) {
 				console.log( `Found changelog file for ${ proj }` );
-				// If match, add it to an array.
-				hasChangelog.push( proj );
+				// If match, delete it from needChangelog
+				needChangelog.delete ( proj );
 				break;
 			}
 		}
-	}
-	// Remove projects that need changelog if they already have one.
-	for ( const proj of hasChangelog ) {
-		needChangelog.splice( needChangelog.indexOf( proj ), 1 );
 	}
 }
 
@@ -95,7 +90,7 @@ function checkNeedChangelog( projects ) {
 		}
 	}
 
-	needChangelog.add( projects.filter( proj => modifiedProjects.has( proj ) ) );
+	return projects.filter( proj => modifiedProjects.has( proj ) );
 }
 process.exitCode = 1;
 process.exitCode;
