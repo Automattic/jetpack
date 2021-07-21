@@ -112,7 +112,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 	 * @return boolean
 	 */
 	private static function is_akismet_active() {
-		return class_exists( 'Akismet_Admin' );
+		return Jetpack::is_akismet_active();
 	}
 
 	/**
