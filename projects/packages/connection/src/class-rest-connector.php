@@ -104,8 +104,7 @@ class REST_Connector {
 					'isActive' => array(
 						'description'       => __( 'Set to false will trigger the site to disconnect.', 'jetpack' ),
 						'validate_callback' => function ( $value ) {
-							$is_valid = false === $value;
-							if ( ! $is_valid ) {
+							if ( false !== $value ) {
 								return new WP_Error(
 									'rest_invalid_param',
 									__( 'The isActive argument should be set to false.', 'jetpack' ),

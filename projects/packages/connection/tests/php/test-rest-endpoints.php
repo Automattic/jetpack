@@ -594,10 +594,9 @@ class Test_REST_Endpoints extends TestCase {
 	}
 
 	/**
-	 * Testing the `POST /jetpack/v4/connection` endpoint, aka site disconnect endpoint, on failure.
+	 * Testing the `POST /jetpack/v4/connection` endpoint, aka site disconnect endpoint, when isActive is missing.
 	 */
-	public function test_disconnect_site_failures() {
-		// isActive missing.
+	public function test_disconnect_site_with_missing_param() {
 		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection' );
 		$this->request->set_header( 'Content-Type', 'application/json' );
 
@@ -606,8 +605,14 @@ class Test_REST_Endpoints extends TestCase {
 
 		$this->assertSame( 400, $response->get_status() );
 		$this->assertSame( 'Missing parameter(s): isActive', $response_data['message'] );
+	}
 
-		// isActive invalid.
+	/**
+	 * Testing the `POST /jetpack/v4/connection` endpoint, aka site disconnect endpoint, when isActive is invalid.
+	 */
+	public function test_disconnect_site_with_invalid_param() {
+		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection' );
+		$this->request->set_header( 'Content-Type', 'application/json' );
 		$this->request->set_body( wp_json_encode( array( 'isActive' => 'should_be_bool_false' ) ) );
 
 		$response      = $this->server->dispatch( $this->request );
@@ -615,19 +620,33 @@ class Test_REST_Endpoints extends TestCase {
 
 		$this->assertSame( 400, $response->get_status() );
 		$this->assertSame( 'Invalid parameter(s): isActive', $response_data['message'] );
+	}
 
+	/**
+	 * Testing the `POST /jetpack/v4/connection` endpoint, aka site disconnect endpoint, with invalid user permissions.
+	 */
+	public function test_disconnect_site_with_invalid_user_permissions() {
 		// Invalid user permissions.
 		$user = wp_get_current_user();
 		$user->remove_cap( 'jetpack_disconnect' );
+
+		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection' );
+		$this->request->set_header( 'Content-Type', 'application/json' );
 		$this->request->set_body( wp_json_encode( array( 'isActive' => false ) ) );
 
-		$response      = $this->server->dispatch( $this->request );
-		$response_data = $response->get_data();
+		$response = $this->server->dispatch( $this->request );
 
 		$this->assertSame( 401, $response->get_status() );
+	}
 
-		// Site not connected.
-		$user->add_cap( 'jetpack_disconnect' );
+	/**
+	 * Testing the `POST /jetpack/v4/connection` endpoint, aka site disconnect endpoint, when the site is not connected.
+	 */
+	public function test_disconnect_site_site_not_connected() {
+
+		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection' );
+		$this->request->set_header( 'Content-Type', 'application/json' );
+		$this->request->set_body( wp_json_encode( array( 'isActive' => false ) ) );
 
 		$response      = $this->server->dispatch( $this->request );
 		$response_data = $response->get_data();
