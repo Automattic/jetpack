@@ -27,5 +27,5 @@ function checkChangelogFiles() {
 		stdio: 'inherit',
 	} );
 }
-process.exitCode = 1;
+
 process.exitCode;
