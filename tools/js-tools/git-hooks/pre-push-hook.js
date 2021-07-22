@@ -8,7 +8,7 @@ const chalk = require( 'chalk' );
 console.log( chalk.green( 'Checking if changelog files are needed. Just a sec...' ) );
 const needChangelog = checkChangelogFiles();
 
-// If a changelog file is needed, quit the push. 
+// If a changelog file is needed, quit the push.
 if ( needChangelog.status === 1 ) {
 	process.exitCode = 1;
 }
@@ -23,7 +23,9 @@ if ( needChangelog.status === 0 ) {
  * @returns {Array} Paths output from git command
  */
 function checkChangelogFiles() {
-	return spawnSync( 'tools/check-changelogger-use.php', [ 'origin/master', 'HEAD' ], { stdio: 'inherit' } );
+	return spawnSync( 'tools/check-changelogger-use.php', [ 'origin/master', 'HEAD' ], {
+		stdio: 'inherit',
+	} );
 }
-
+process.exitCode = 1;
 process.exitCode;
