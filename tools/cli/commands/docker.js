@@ -272,7 +272,7 @@ const defaultDockerCmdHandler = async argv => {
 				const request = https.get( 'http://localhost:8889/', response => {
 					// handle http errors
 
-					if ( response.statusCode < 200 || response.statusCode > 299 ) {
+					if ( response.statusCode < 200 || response.statusCode > 399 ) {
 						reject( new Error( 'Failed to load page, status code: ' + response.statusCode ) );
 					}
 					// temporary data holder
