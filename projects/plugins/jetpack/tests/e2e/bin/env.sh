@@ -14,8 +14,8 @@ function usage {
 
 start_env() {
 	# pnpx wp-env start
-	jetpack docker --type e2e --name t1 up -d
-	jetpack docker --type e2e --name t1 install
+	jetpack docker --type e2e --name t1 -v up -d
+	jetpack docker --type e2e --name t1 -v install
 	configure_wp_env
 }
 
