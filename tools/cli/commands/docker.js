@@ -221,11 +221,37 @@ const launchNgrok = argv => {
 };
 
 /**
+ * Performs the given action again and again until it does not throw an error.
+ *
+ * @param {Function} action - The action to perform.
+ * @param {object} options - options object
+ * @param {number} options.times - How many times to try before giving up.
+ * @param {number} [options.delay=5000] - How long, in milliseconds, to wait between each try.
+ * @returns {any} return value of action function
+ */
+async function retry( action, { times, delay = 5000 } ) {
+	const sleep = ms => new Promise( resolve => setTimeout( resolve, ms ) );
+
+	let tries = 0;
+	while ( tries <= times ) {
+		try {
+			return await action();
+		} catch ( error ) {
+			if ( ++tries >= times ) {
+				throw error;
+			}
+			console.log( error );
+			await sleep( delay );
+		}
+	}
+}
+
+/**
  * Default handler for the monorepo Docker commands.
  *
  * @param {object} argv - Arguments passed.
  */
-const defaultDockerCmdHandler = argv => {
+const defaultDockerCmdHandler = async argv => {
 	printPreCmdMsg( argv );
 
 	executor( argv, setEnv );
@@ -236,6 +262,27 @@ const defaultDockerCmdHandler = argv => {
 	composeExecutor( argv, opts, envOpts );
 	if ( argv.type === 'dev' && argv.ngrok ) {
 		executor( argv, launchNgrok );
+	}
+
+	if ( argv._[ 1 ] === 'up' && argv.detached ) {
+		console.log( 'Waiting for WordPress to be ready...' );
+		const getContent = () =>
+			new Promise( ( resolve, reject ) => {
+				const https = require( 'http' );
+				const request = https.get( 'http://localhost:8889/', response => {
+					// handle http errors
+
+					if ( response.statusCode < 200 || response.statusCode > 299 ) {
+						reject( new Error( 'Failed to load page, status code: ' + response.statusCode ) );
+					}
+					// we are done, resolve promise with those joined chunks
+					response.on( 'end', () => resolve( response.statusCode ) );
+				} );
+				// handle connection errors of the request
+				request.on( 'error', err => reject( err ) );
+			} );
+		// Wait to be ready
+		await retry( async () => getContent(), { times: 24 } ); // 24 * 5000 = 120 sec
 	}
 	printPostCmdMsg( argv );
 };
@@ -384,8 +431,8 @@ export function dockerDefine( yargs ) {
 					command: 'clean',
 					description: 'Remove docker volumes, MySql and WordPress data and logs.',
 					builder: yargCmd => defaultOpts( yargCmd ),
-					handler: argv => {
-						defaultDockerCmdHandler( argv );
+					handler: async argv => {
+						await defaultDockerCmdHandler( argv );
 						const project = getProjectName( argv );
 						executor( argv, () =>
 							shellExecutor(
