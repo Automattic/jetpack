@@ -13,7 +13,9 @@ function usage {
 }
 
 start_env() {
-	pnpx wp-env start
+	# pnpx wp-env start
+	jetpack docker --type e2e --name t1 up -d
+	jetpack docker --type e2e --name t1 install
 	configure_wp_env
 }
 
@@ -26,9 +28,9 @@ reset_env() {
 
 gb_setup() {
 	GB_ZIP="wp-content/gutenberg.zip"
-	pnpx wp-env run tests-wordpress "./wp-content/plugins/jetpack-dev/tests/e2e/bin/container-setup.sh gb-setup $GB_ZIP"
-	pnpx wp-env run tests-cli "wp plugin install $GB_ZIP"
-	pnpx wp-env run tests-cli "wp plugin activate gutenberg"
+	jetpack docker --type e2e --name t1 exec "./wp-content/plugins/jetpack-dev/tests/e2e/bin/container-setup.sh gb-setup $GB_ZIP"
+	jetpack docker --type e2e --name t1 wp plugin install $GB_ZIP
+	jetpack docker --type e2e --name t1 wp plugin activate gutenberg
 }
 
 configure_wp_env() {
