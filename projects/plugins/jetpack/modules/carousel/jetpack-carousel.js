@@ -1182,18 +1182,18 @@
 				currentSlide = swiper.slides[ swiper.activeIndex ];
 			}
 
-			var imgEl = new Image();
-			imgEl.setAttribute( 'crossOrigin', '' );
-			imgEl.src = slide.attrs.mediumFile;
-			var isLoaded = imgEl.complete && imgEl.naturalHeight !== 0;
+			var image = carousel.container.querySelector(
+				'.swiper-slide[data-attachment-id="' + slide.attrs.attachmentId + '"] img'
+			);
+			var isLoaded = image.complete && image.naturalHeight !== 0;
 
 			if ( isLoaded ) {
-				applyBackgroundImage( currentSlide, imgEl );
+				applyBackgroundImage( currentSlide, image );
 				return;
 			}
 
-			imgEl.onload = function () {
-				applyBackgroundImage( currentSlide, imgEl );
+			image.onload = function () {
+				applyBackgroundImage( currentSlide, image );
 			};
 		}
 
