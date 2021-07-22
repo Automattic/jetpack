@@ -108,8 +108,7 @@ jobs:
     - name: Build Production Jetpack
       run: |
         pnpm install
-        pnpm link --global $(pwd)/tools/cli
-        pnpm cli-setup -v
+        pnpm cli-link -- -v
         jetpack build plugins/jetpack -v --production
 
     - name: Environment set-up
