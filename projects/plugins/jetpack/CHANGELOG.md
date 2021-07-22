@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 9.9.1 - 2021-07-20 
+## 9.9.1 - 2021-07-20
 ### Enhancements
 - Carousel: improve carousel icons.
 
