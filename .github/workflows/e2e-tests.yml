@@ -110,13 +110,17 @@ jobs:
         pnpm install
         pnpx jetpack build plugins/jetpack -v --production
 
+    - name: Jetpack CLI set-up
+      run: |
+        pnpm install
+        pnpm cli-link
+
     - name: Environment set-up
       working-directory: projects/plugins/jetpack/tests/e2e
       env:
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
       run: |
         pnpm install
-        pnpm cli-link
         pnpm run test-decrypt-config
         pnpm run env-start
         pnpm run tunnel-on
