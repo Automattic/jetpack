@@ -92,6 +92,9 @@ class Jetpack_Search_Customberg {
 		<?php
 	}
 
+	/**
+	 * Redirects to the Customizer if Customberg is not supported by the current host.
+	 */
 	public function add_redirect_if_necessary() {
 		// Add a JS redirect if Customberg is not supported.
 		if ( ! $this->wp_supports_customberg() ) {
