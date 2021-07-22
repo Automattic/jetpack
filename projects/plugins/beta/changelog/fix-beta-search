@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix search when branch name contains multiple `-`.

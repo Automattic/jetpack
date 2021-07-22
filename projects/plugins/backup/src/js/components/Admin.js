@@ -5,6 +5,7 @@ import { Fragment, useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect } from '@wordpress/data';
+import { JetpackFooter, JetpackLogo } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -12,15 +13,17 @@ import { useSelect } from '@wordpress/data';
 import Backups from './Backups';
 import useConnection from '../hooks/useConnection';
 import './admin-style.scss';
+import './masthead/masthead-style.scss';
 import { STORE_ID } from '../store';
 
 /* eslint react/react-in-jsx-scope: 0 */
 const Admin = () => {
-	const [ connectionStatus, renderJetpackConnection ] = useConnection();
+	const [ connectionStatus, renderConnectScreen ] = useConnection();
 	const [ capabilities, setCapabilities ] = useState( null );
 	const [ capabilitiesError, setCapabilitiesError ] = useState( null );
 	const [ connectionLoaded, setConnectionLoaded ] = useState( false );
 	const [ capabilitiesLoaded, setCapabilitiesLoaded ] = useState( false );
+	const [ showHeaderFooter, setShowHeaderFooter ] = useState( true );
 
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 
@@ -49,20 +52,6 @@ const Admin = () => {
 
 	const hasBackupPlan = () => {
 		return capabilities !== null && capabilities.includes( 'backup' );
-	};
-
-	const renderPromptForConnection = () => {
-		return (
-			<Fragment>
-				<p className="notice notice-error">
-					{ __(
-						'Jetpack Backup requires a user connection to WordPress.com to be able to backup your website.',
-						'jetpack-backup'
-					) }
-				</p>
-				{ renderJetpackConnection() }
-			</Fragment>
-		);
 	};
 
 	const renderNoBackupCapabilities = () => {
@@ -95,17 +84,31 @@ const Admin = () => {
 	};
 
 	const renderLoadedState = () => {
-		// Loading state
-		if ( ! connectionLoaded ) {
-			return renderJetpackConnection();
+		if (
+			! connectionLoaded ||
+			! connectionStatus.isUserConnected ||
+			! connectionStatus.isRegistered
+		) {
+			if ( showHeaderFooter ) {
+				setShowHeaderFooter( false );
+			}
+
+			return (
+				<div className="jp-wrap">
+					<div className="jp-row">
+						<div class="lg-col-span-12 md-col-span-8 sm-col-span-4">{ renderConnectScreen() }</div>
+					</div>
+				</div>
+			);
+		}
+
+		// Show header and footer on all screens except ConnectScreen
+		if ( ! showHeaderFooter ) {
+			setShowHeaderFooter( true );
 		}
 
 		if ( ! capabilitiesLoaded ) {
 			return <div></div>;
-		}
-
-		if ( ! connectionStatus.isUserConnected || ! connectionStatus.isRegistered ) {
-			return renderPromptForConnection();
 		}
 
 		if ( hasBackupPlan() ) {
@@ -121,17 +124,40 @@ const Admin = () => {
 	};
 
 	const renderHeader = () => {
-		// TODO: Integrate Jetpack Header
-		return (
-			<div className="jp-header">
-				<h1>Jetpack Backup Plugin - Placeholder Header</h1>
-			</div>
-		);
+		if ( showHeaderFooter ) {
+			return (
+				<div className="jp-wrap">
+					<div className="jp-row">
+						<div class="lg-col-span-12 md-col-span-8 sm-col-span-4">
+							<div className="jp-masthead">
+								<div className="jp-masthead__inside-container">
+									<div className="jp-masthead__logo-container">
+										<JetpackLogo className="jetpack-logo__masthead" />
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			);
+		}
 	};
 
 	const renderFooter = () => {
-		// TODO: Integrate Jetpack Footer
-		return <div className="jp-footer">Jetpack Backup 1.0 - Placeholder Footer</div>;
+		if ( showHeaderFooter ) {
+			return (
+				<div className="jp-wrap">
+					<div className="jp-row">
+						<div class="lg-col-span-12 md-col-span-8 sm-col-span-4">
+							<JetpackFooter
+								moduleName={ __( 'Jetpack Backup', 'jetpack-backup' ) }
+								a8cLogoHref="https://www.jetpack.com"
+							/>
+						</div>
+					</div>
+				</div>
+			);
+		}
 	};
 
 	const renderManageConnection = () => {

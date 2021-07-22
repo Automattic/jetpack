@@ -167,6 +167,49 @@ import { InPlaceConnection } from '@automattic/jetpack-connection';
 />
 ```
 
+## Component `DisconnectDialog`
+The `DisconnectDialog` component displays a 'Disconnect' button that, upon clicking, will open a Dialog that presents the user the option to Disconnect their site.
+Upon confirming, both site and user are disconnected and the user is presented with a success message along with a "Return to WordPress" button that closes the dialog.
+If an error occurs while trying to disconnect, a custmomizable error message will appear.
+
+
+### Properties
+- *apiRoot* - string (required), API root URL.
+- *apiNonce* - string (required), API Nonce.
+- *title* - string, the dialog title. Defaults to: "Are you sure you want to disconnect?"
+- *onDisconnected* - callback, to be called after the user has been successfully disconnected AND clicks the "Return to WordPress" button.
+- *onError* - callback, to be called when an error occurs while disconnecting.
+- *errorMessage* - string, error message to display when an error occurs while disconnecting. Defaults to: "Failed to disconnect. Please try again."
+
+### Important Notes
+It's important to note that the `onDisconnected` callback will not immediately trigger upon receiving a successfull API response. This happens because we want to display a success message to the user first within the `DisconnectDialog`.
+If a parent consumer for example, were to update their connection status using this event, the `DisconnectDialog` would be hidden before showing the success message to the user.
+Because we made this design decision, and to ensure a non-breaking UX, the `Modal` (see `wordpress/components/modal`) used by the `DisconnectDialog` will not close (as usual) using either ESC key or clicking outside of the Dialog.
+This way we ensure that `onDisconnected` will always be called via clicking the "Return to WordPress" button, after successfully disconnecting the site.
+
+
+### Basic Usage
+```jsx
+import React, { useCallback } from 'react';
+import { DisconnectDialog } from '@automattic/jetpack-connection';
+
+const onDisconnectedCallback = useCallback( () => alert( 'Successfully Disconnected' ) );
+
+<DisconnectDialog
+	apiRoot={ APIRoot }
+	apiNonce={ APINonce }
+	onDisconnected={ onDisconnectedCallback }
+>
+	<p>
+		{ __( 'Jetpack is currently powering multiple products on your site.',
+                'jetpack' ) }
+		<br/>
+		{ __( 'Once you disconnect Jetpack, these will no longer work.',
+                'jetpack' ) }
+    </p>
+</DisconnectDialog>
+```
+
 ## Helper `thirdPartyCookiesFallback`
 The helper encapsulates the redirect to the fallback URL you provide.
 

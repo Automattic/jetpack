@@ -44,7 +44,7 @@ const ConnectScreen = props => {
 		assetBaseUrl,
 	} = props;
 
-	const showImageSlider = images.length && assetBaseUrl;
+	const showImageSlider = images.length;
 
 	const [ connectionStatus, setConnectionStatus ] = useState( {} );
 
