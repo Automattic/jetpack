@@ -239,23 +239,17 @@ The `Disconnect` functionality is **temporary**. In the future, it will be repla
 ### Basic Usage
 ```jsx
 import React, { useCallback } from 'react';
-import { DisconnectDialog } from '@automattic/jetpack-connection';
+import { ConnectionStatusCard } from '@automattic/jetpack-connection';
 
 const onDisconnectedCallback = useCallback( () => alert( 'Successfully Disconnected' ) );
 
-<DisconnectDialog
+<ConnectionStatusCard
 	apiRoot={ APIRoot }
 	apiNonce={ APINonce }
-	onDisconnected={ onDisconnectedCallback }
->
-	<p>
-		{ __( 'Jetpack is currently powering multiple products on your site.',
-                'jetpack' ) }
-		<br/>
-		{ __( 'Once you disconnect Jetpack, these will no longer work.',
-                'jetpack' ) }
-    </p>
-</DisconnectDialog>
+	isRegistered={ true }
+	isUserConnected={ true }
+	redirectUri="tools.php?page=wpcom-connection-manager"
+/>
 ```
 
 ## Helper `thirdPartyCookiesFallback`
