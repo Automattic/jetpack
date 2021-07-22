@@ -4,11 +4,7 @@
 import React, { useCallback } from 'react';
 import { useSelect, useDispatch } from '@wordpress/data';
 
-import {
-	ConnectionStatusCard,
-	ConnectScreen,
-	DisconnectDialog,
-} from '@automattic/jetpack-connection';
+import { ConnectionStatusCard, ConnectScreen } from '@automattic/jetpack-connection';
 
 import { __ } from '@wordpress/i18n';
 
@@ -49,35 +45,18 @@ export default function Admin() {
 		<React.Fragment>
 			<Header />
 
-			<div className="connection-status-card">
-				{ connectionStatus.isRegistered && ! connectionStatus.isUserConnected && (
-					<strong>{ __( 'Site Registered', 'jetpack' ) }</strong>
-				) }
-				{ connectionStatus.isRegistered && connectionStatus.isUserConnected && (
-					<div>
-						<strong>{ __( 'Site and User Connected', 'jetpack' ) }</strong>
-						<DisconnectDialog
-							apiRoot={ APIRoot }
-							apiNonce={ APINonce }
-							onDisconnected={ onDisconnectedCallback }
-						>
-							<h2>
-								{ __( 'Jetpack is currently powering multiple products on your site.', 'jetpack' ) }
-								<br />
-								{ __( 'Once you disconnect Jetpack, these will no longer work.', 'jetpack' ) }
-							</h2>
-						</DisconnectDialog>
-					</div>
-				) }
+			{ connectionStatus.isRegistered && (
 				<ConnectionStatusCard
 					isRegistered={ connectionStatus.isRegistered }
 					isUserConnected={ connectionStatus.isUserConnected }
 					apiRoot={ APIRoot }
 					apiNonce={ APINonce }
+					onDisconnected={ onDisconnectedCallback }
+					redirectUri="tools.php?page=wpcom-connection-manager"
 				/>
-			</div>
+			) }
 
-			{ ( ! connectionStatus.isRegistered || ! connectionStatus.isUserConnected ) && (
+			{ ! connectionStatus.isRegistered && (
 				<ConnectScreen
 					apiRoot={ APIRoot }
 					apiNonce={ APINonce }

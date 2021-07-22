@@ -210,6 +210,54 @@ const onDisconnectedCallback = useCallback( () => alert( 'Successfully Disconnec
 </DisconnectDialog>
 ```
 
+## Component `ConnectionStatusCard`
+The `ConnectionStatusCard` component displays the current site and user connection status as well as the corresponding actions.
+This component is meant to be used when at least the site level connection has been established, aka there's a status to display.
+In cases where the site level connection has not been established yet, please use the `ConnectScreen` component instead.
+
+It consists of 2 main states: 
+1. *User account connected*: In this state the user will be presented with information regarding their connected WordPress.com account, aka the `username` and `avatar`.
+2. *User account not connected*: In this state the user will be presented with an alert message informing them their account is not connected and a corresponding button that upon clicking will trigger the User Connection flow.
+
+In all cases, users are presented with a link to `Disconnect` (see `DisconnectDialog` component).
+
+
+### Properties
+- *apiRoot* - string (required), API root URL.
+- *apiNonce* - string (required), API Nonce.
+- *isRegistered* - boolean (required), Whether a site level connection has already been established. If not, the component will not render.
+- *isUserConnected* - boolean (required), Whether the current user has connected their WordPress.com account.
+- *redirectUri* - string (required), The redirect admin URI after the user has connected their WordPress.com account.
+- *title* - string, The Card title. Defaults to "Connection".
+- *connectionInfoText* - string, The text that will be displayed under the title, containing info how to leverage the connection. Defaults to "Leverages the Jetpack Cloud for more features on your side."
+- *onDisconnected* - callback, The callback to be called upon disconnection success.
+
+### Important Notes
+The `Disconnect` functionality is **temporary**. In the future, it will be replaced with a link to a central connection management page from where users will be able to disconnect.
+
+
+### Basic Usage
+```jsx
+import React, { useCallback } from 'react';
+import { DisconnectDialog } from '@automattic/jetpack-connection';
+
+const onDisconnectedCallback = useCallback( () => alert( 'Successfully Disconnected' ) );
+
+<DisconnectDialog
+	apiRoot={ APIRoot }
+	apiNonce={ APINonce }
+	onDisconnected={ onDisconnectedCallback }
+>
+	<p>
+		{ __( 'Jetpack is currently powering multiple products on your site.',
+                'jetpack' ) }
+		<br/>
+		{ __( 'Once you disconnect Jetpack, these will no longer work.',
+                'jetpack' ) }
+    </p>
+</DisconnectDialog>
+```
+
 ## Helper `thirdPartyCookiesFallback`
 The helper encapsulates the redirect to the fallback URL you provide.
 
