@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Require local node to match one defined in package.json
