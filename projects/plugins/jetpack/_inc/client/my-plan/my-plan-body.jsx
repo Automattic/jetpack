@@ -418,7 +418,9 @@ class MyPlanBody extends React.Component {
 								/>
 							</div>
 							<div className="jp-landing__plan-features-text">
-								<h3 className="jp-landing__plan-features-title">{ __( 'Activity', 'jetpack' ) }</h3>
+								<h3 className="jp-landing__plan-features-title">
+									{ __( 'Site activity', 'jetpack' ) }
+								</h3>
 								<p>
 									{ __(
 										'View a chronological list of all the changes and updates to your site in an organized, readable way.',
