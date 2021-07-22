@@ -143,13 +143,25 @@ class Jetpack_Stats_Upgrade_Nudges {
 		}
 		$title = sprintf( $title, get_bloginfo( 'site_name' ) );
 		?>
-		<div class="dops-card dops-section-header is-compact">
-			<div class="dops-section-header__label">
-				<span class="dops-section-header__label-text">
-					<?php echo esc_html( $title ); ?>
-				</span>
+		<div id="jp-stats-report-upgrade-wrap">
+			<div class="dops-card dops-section-header is-compact jp-stats-report-upgrade-header">
+				<div class="dops-section-header__label">
+					<span class="dops-section-header__label-text">
+						<?php echo esc_html( $title ); ?>
+					</span>
+				</div>
+				<div class="dops-section-header__actions"></div>
 			</div>
-			<div class="dops-section-header__actions"></div>
+		<?php
+	}
+
+	/**
+	 * Outputs the footer of the Upgrade Section
+	 *
+	 * @return void
+	 */
+	private static function print_footer() {
+		?>
 		</div>
 		<?php
 	}
@@ -162,8 +174,31 @@ class Jetpack_Stats_Upgrade_Nudges {
 	private static function print_styles() {
 		?>
 		<style>
-			.dops-banner.dops-card.jp-stats-report-upgrade-subitem {
-				padding-left: 40px;
+			#jp-stats-report-upgrade-wrap {
+				background-color: white;
+				border: 1px solid #c3c4c7;
+			}
+			.dops-section-header.dops-card.jp-stats-report-upgrade-header {
+				font-weight: bold;
+				box-shadow: none;
+			}
+			.dops-banner.dops-card.is-product.jp-stats-report-upgrade-item {
+				margin-bottom: 0px;
+				border-left: 0px;
+				box-shadow: none;
+				border-top: 1px solid #c3c4c7;
+				padding: 12px 24px;
+
+			}
+			.dops-banner.dops-card.jp-stats-report-upgrade-item.jp-stats-report-upgrade-subitem {
+				margin-left: 72px;
+				padding-left: 0px;
+			}
+			.jp-stats-report-upgrade-item .dops-banner__action {
+				margin-right: 0px;
+			}
+			#jp-stats-report-upgrade-wrap .dops-card::after {
+				content: "";
 			}
 		</style>
 		<?php
@@ -200,7 +235,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 		$icon_url           = plugins_url( '', JETPACK__PLUGIN_FILE ) . '/images/' . $icon;
 		$button_label       = is_null( $button_label ) ? __( 'Upgrade', 'jetpack' ) : $button_label;
 		?>
-			<div class="dops-card dops-banner has-call-to-action is-product <?php echo esc_attr( $additional_classes ); ?>">
+			<div class="dops-card dops-banner has-call-to-action is-product jp-stats-report-upgrade-item <?php echo esc_attr( $additional_classes ); ?>">
 				<div class="dops-banner__icon-plan">
 					<img src="<?php echo esc_attr( $icon_url ); ?>" alt="" width="32" height="32">
 				</div>
@@ -369,6 +404,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 		}
 		self::get_boost_output();
 		self::get_crm_output();
+		self::print_footer();
 	}
 
 }
