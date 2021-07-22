@@ -344,10 +344,8 @@ class Jetpack_Stats_Upgrade_Nudges {
 			self::is_scan_active() &&
 			self::is_akismet_active() &&
 			self::is_search_active() &&
-			self::is_backup_active() &&
-			self::is_backup_active() &&
-			self::get_boost_output( false ) &&
-			self::get_crm_output( false )
+			! self::get_boost_output( false ) &&
+			! self::get_crm_output( false )
 		) {
 			return;
 		}
