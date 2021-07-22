@@ -39,35 +39,18 @@
 			var canvas = document.createElement( 'canvas' ),
 				context = canvas.getContext && canvas.getContext( '2d' ),
 				imgData,
-				width,
-				height,
-				length,
-				rgb = { r: 0, g: 0, b: 0 },
-				count = 0;
+				rgb = { r: 0, g: 0, b: 0 };
 
 			if ( ! imgEl ) {
 				return rgb;
 			}
 
-			height = canvas.height = imgEl.naturalHeight || imgEl.offsetHeight || imgEl.height;
-
-			width = canvas.width = imgEl.naturalWidth || imgEl.offsetWidth || imgEl.width;
-
 			context.drawImage( imgEl, 0, 0 );
-			imgData = context.getImageData( 0, 0, width, height );
+			imgData = context.getImageData( 0, 0, 1, 1 );
 
-			length = imgData.data.length;
-
-			for ( var i = 0; i < length; i += 4 ) {
-				rgb.r += imgData.data[ i ];
-				rgb.g += imgData.data[ i + 1 ];
-				rgb.b += imgData.data[ i + 2 ];
-				count++;
-			}
-
-			rgb.r = Math.floor( rgb.r / count );
-			rgb.g = Math.floor( rgb.g / count );
-			rgb.b = Math.floor( rgb.b / count );
+			rgb.r = imgData.data[ 0 ];
+			rgb.g = imgData.data[ 1 ];
+			rgb.b = imgData.data[ 2 ];
 
 			return rgb;
 		}
@@ -1199,16 +1182,18 @@
 				currentSlide = swiper.slides[ swiper.activeIndex ];
 			}
 
-			var image = slide.attrs.originalElement;
-			var isLoaded = image.complete && image.naturalHeight !== 0;
+			var imgEl = new Image();
+			imgEl.setAttribute( 'crossOrigin', '' );
+			imgEl.src = slide.attrs.mediumFile;
+			var isLoaded = imgEl.complete && imgEl.naturalHeight !== 0;
 
 			if ( isLoaded ) {
-				applyBackgroundImage( currentSlide, image );
+				applyBackgroundImage( currentSlide, imgEl );
 				return;
 			}
 
-			image.onload = function () {
-				applyBackgroundImage( currentSlide, image );
+			imgEl.onload = function () {
+				applyBackgroundImage( currentSlide, imgEl );
 			};
 		}
 
