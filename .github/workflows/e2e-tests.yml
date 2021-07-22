@@ -108,8 +108,7 @@ jobs:
     - name: Build Production Jetpack
       run: |
         pnpm install
-        pnpm cli-link -- -v
-        jetpack build plugins/jetpack -v --production
+        pnpx jetpack build plugins/jetpack -v --production
 
     - name: Environment set-up
       working-directory: projects/plugins/jetpack/tests/e2e

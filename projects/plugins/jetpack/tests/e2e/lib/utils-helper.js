@@ -109,7 +109,7 @@ async function activateModule( page, module ) {
 
 async function execWpCommand( wpCmd ) {
 	// const cmd = `pnpx wp-env run tests-cli "${ wpCmd }"`;
-	const cmd = `jetpack docker --type e2e --name t1 wp -- ${ wpCmd }`;
+	const cmd = `pnpx jetpack docker --type e2e --name t1 wp -- ${ wpCmd }`;
 	const result = await execShellCommand( cmd );
 
 	// Jetpack's `wp` command outputs a script header for some reason. Let's clean it up.
@@ -131,7 +131,7 @@ async function execMultipleWpCommands( ...commands ) {
 
 async function logDebugLog() {
 	let log = execSyncShellCommand(
-		'jetpack docker --type e2e --name t1 exec cat wp-content/debug.log'
+		'pnpx jetpack docker --type e2e --name t1 exec cat wp-content/debug.log'
 	);
 
 	const escapedDate = new Date().toISOString().split( '.' )[ 0 ].replace( /:/g, '-' );

@@ -14,29 +14,29 @@ function usage {
 
 start_env() {
 	# pnpx wp-env start
-	jetpack docker --type e2e --name t1 -v up -d
-	jetpack docker --type e2e --name t1 -v install
+	pnpx jetpack docker --type e2e --name t1 -v up -d
+	pnpx jetpack docker --type e2e --name t1 -v install
 	configure_wp_env
 }
 
 reset_env() {
-	jetpack docker --type e2e --name t1 -v wp -- db reset --yes
-	jetpack docker --type e2e --name t1 -v install
+	pnpx jetpack docker --type e2e --name t1 -v wp -- db reset --yes
+	pnpx jetpack docker --type e2e --name t1 -v install
 	# pnpx wp-env clean
 	configure_wp_env
 }
 
 gb_setup() {
 	GB_ZIP="wp-content/gutenberg.zip"
-	jetpack docker --type e2e --name t1 exec "./wp-content/plugins/jetpack-dev/tests/e2e/bin/container-setup.sh gb-setup $GB_ZIP"
-	jetpack docker --type e2e --name t1 wp plugin install $GB_ZIP
-	jetpack docker --type e2e --name t1 wp plugin activate gutenberg
+	pnpx jetpack docker --type e2e --name t1 exec "./wp-content/plugins/jetpack-dev/tests/e2e/bin/container-setup.sh gb-setup $GB_ZIP"
+	pnpx jetpack docker --type e2e --name t1 wp plugin install $GB_ZIP
+	pnpx jetpack docker --type e2e --name t1 wp plugin activate gutenberg
 }
 
 configure_wp_env() {
 	# pnpx wp-env run tests-wordpress ./wp-content/plugins/jetpack-dev/tests/e2e/bin/container-setup.sh wp-config
-	jetpack docker --type e2e --name t1 wp plugin activate jetpack
-	jetpack docker --type e2e --name t1 wp plugin activate e2e-plan-data-interceptor
+	pnpx jetpack docker --type e2e --name t1 wp plugin activate jetpack
+	pnpx jetpack docker --type e2e --name t1 wp plugin activate e2e-plan-data-interceptor
 
 	echo
 	echo "WordPress is ready!"
