@@ -93,6 +93,13 @@ function JetpackRestApiClient( root, nonce ) {
 
 		fetchSiteConnectionStatus: () =>
 			getRequest( `${ apiRoot }jetpack/v4/connection`, getParams ).then( parseJsonResponse ),
+
+		disconnectSite: () =>
+			postRequest( `${ apiRoot }jetpack/v4/connection`, postParams, {
+				body: JSON.stringify( { isActive: false } ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 	};
 
 	/**

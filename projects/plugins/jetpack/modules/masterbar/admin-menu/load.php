@@ -87,4 +87,6 @@ function get_admin_menu_class() {
 $admin_menu_class = apply_filters( 'jetpack_admin_menu_class', get_admin_menu_class() );
 if ( should_customize_nav( $admin_menu_class ) ) {
 	$admin_menu_class::get_instance();
+} else {
+	\add_filter( 'jetpack_load_admin_menu_class', '__return_false' );
 }
