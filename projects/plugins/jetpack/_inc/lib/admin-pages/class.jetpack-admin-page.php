@@ -354,6 +354,22 @@ abstract class Jetpack_Admin_Page {
 			?>
 			<!-- END OF CALLBACK -->
 
+			<div id="jp-stats-report-bottom">
+				<div class="wrap">
+					<?php
+					/**
+					 * Fires at the bottom of the Jetpack admin page template, after the dynamic content section.
+					 *
+					 * @since 10.0.0
+					 *
+					 * @param string $callback The callback sent to the Jetpack_Admin_Page::wrap_ui method.
+					 * @param array  $args The arguments sent to the Jetpack_Admin_Page::wrap_ui method.
+					 */
+					do_action( 'jetpack_admin_pages_wrap_ui_after_callback', $callback, $args );
+					?>
+				</div>
+			</div>
+
 			<div class="jp-footer">
 				<div class="jp-footer__a8c-attr-container">
 					<a href="<?php echo esc_url( $jetpack_about_url ); ?>">

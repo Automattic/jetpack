@@ -33,7 +33,7 @@ services:
       - db
     image: automattic/jetpack-wordpress-dev:latest
     volumes:
-      ## WordPress and its plugins and themes should be defined in docker/compose-volumes.yml{.sample}, not here!
+      ## WordPress and its plugins and themes should be defined in volumeMappings in jetpack-docker-config-default.yml or jetpack-docker-config.yml, not here!
       ## That avoids having to define them both here and in the "sftp" service.
       - dockerdirectory:/usr/local/src/jetpack-monorepo/tools/docker
       - ./wordpress-develop:/tmp/wordpress-develop

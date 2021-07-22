@@ -81,3 +81,18 @@ body.infinity-end .site-main > div:last-of-type > article:last-of-type .entry-fo
 	background-color: var(--global--color-background);
 	border-color: var(--global--color-secondary);
 }
+
+/* Customizer */
+.widget-area .widget_block {
+	min-width: 0;
+}
+
+@media only screen and (min-width: 1024px) {
+	.widget-area {
+		/*
+			Fix: minimum width of 0
+			See: https://css-tricks.com/preventing-a-grid-blowout/
+		*/
+		grid-template-columns: repeat( 3, minmax(0, 1fr) );
+	}
+}

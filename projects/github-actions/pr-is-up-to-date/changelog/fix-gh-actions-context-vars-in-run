@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Avoid context expression substitution in GitHub Actions `run` steps.

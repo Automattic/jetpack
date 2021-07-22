@@ -166,7 +166,7 @@ fi
 
 # - Renovate should ignore all monorepo packages.
 debug "Checking renovate ignore list"
-if ! tools/check-renovate-ignore-list.js; then
+if ! tools/js-tools/check-renovate-ignore-list.js; then
 	EXIT=1
 fi
 
