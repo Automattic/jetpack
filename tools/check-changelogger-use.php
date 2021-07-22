@@ -8,9 +8,73 @@
 
 // phpcs:disable WordPress.WP.AlternativeFunctions, WordPress.PHP.DiscouragedPHPFunctions, WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.WP.GlobalVariablesOverride
 
-chdir( __DIR__ . '/../../' );
+chdir( __DIR__ . '/../' );
 
-if ( array_search( '--debug', $argv, true ) !== false ) {
+/**
+ * Display usage information and exit.
+ */
+function usage() {
+	global $argv;
+	echo <<<EOH
+USAGE: {$argv[0]} [--debug|-v] [--list] <base-ref> <head-ref>
+
+Checks that a monorepo commit contains a Changelogger change entry for each
+project touched.
+
+  --debug, -v  Display verbose output.
+  --list       Just list projects, no explanatory output.
+  <base-ref>   Base git ref to compare for changed files.
+  <head-ref>   Head git ref to compare for changed files.
+
+EOH;
+	exit( 1 );
+}
+
+$idx     = 0;
+$verbose = false;
+$list    = false;
+$base    = null;
+$head    = null;
+for ( $i = 1; $i < $argc; $i++ ) {
+	switch ( $argv[ $i ] ) {
+		case '-v':
+		case '--debug':
+			$verbose = true;
+			break;
+		case '--list':
+			$list = true;
+			break;
+		case '-h':
+		case '--help':
+			usage();
+			break;
+		default:
+			if ( substr( $argv[ $i ], 0, 1 ) !== '-' ) {
+				switch ( $idx++ ) {
+					case 0:
+						$base = $argv[ $i ];
+						break;
+					case 1:
+						$head = $argv[ $i ];
+						break;
+					default:
+						fprintf( STDERR, "\e[1;31mToo many arguments.\e[0m\n" );
+						usage();
+				}
+			} else {
+				fprintf( STDERR, "\e[1;31mUnrecognized parameter `%s`.\e[0m\n", $argv[ $i ] );
+				usage();
+			}
+			break;
+	}
+}
+
+if ( null === $head ) {
+	fprintf( STDERR, "\e[1;31mBase and head refs are required.\e[0m\n" );
+	usage();
+}
+
+if ( $verbose ) {
 	/**
 	 * Output debug info.
 	 *
@@ -49,25 +113,6 @@ foreach ( glob( 'projects/*/*/composer.json' ) as $file ) {
 	);
 	$changelogger_projects[ substr( $file, 9, -14 ) ] = $data;
 }
-
-// Get the event data.
-$event = getenv( 'GITHUB_EVENT_NAME' );
-if ( 'pull_request' !== $event ) {
-	fprintf( STDERR, "Unsupported GITHUB_EVENT_NAME \"%s\"\n", $event );
-	exit( 1 );
-}
-$event_path = getenv( 'GITHUB_EVENT_PATH' );
-if ( ! $event_path || ! file_exists( $event_path ) ) {
-	fprintf( STDERR, "Missing GITHUB_EVENT_PATH for pull_request event\n" );
-	exit( 1 );
-}
-$event = json_decode( file_get_contents( $event_path ) );
-if ( ! isset( $event->pull_request->base->sha ) || ! isset( $event->pull_request->head->sha ) ) {
-	fprintf( STDERR, "Missing pull_request data in GITHUB_EVENT_PATH file\n" );
-	exit( 1 );
-}
-$base = $event->pull_request->base->sha;
-$head = $event->pull_request->head->sha;
 
 // Process the diff.
 debug( 'Checking diff from %s...%s.', $base, $head );
@@ -128,15 +173,31 @@ ksort( $touched_projects );
 $exit = 0;
 foreach ( $touched_projects as $slug => $files ) {
 	if ( empty( $ok_projects[ $slug ] ) ) {
-		printf( "---\n" ); // Bracket message containing newlines for better visibility in GH's logs.
-		printf(
-			"::error::Project %s is being changed, but no change file in %s is touched!%%0A%%0AGo to that project and use `%s add` to add a change file.%%0AGuidelines: https://github.com/Automattic/jetpack/blob/master/docs/writing-a-good-changelog-entry.md\n",
-			$slug,
-			"projects/$slug/{$changelogger_projects[ $slug ]['changes-dir']}/",
-			'packages/changelogger' === $slug ? 'bin/changelogger' : 'vendor/bin/changelogger'
-		);
-		printf( "---\n" );
-		$exit = 1;
+		if ( $list ) {
+			echo "$slug\n";
+		} elseif ( getenv( 'CI' ) ) {
+			printf( "---\n" ); // Bracket message containing newlines for better visibility in GH's logs.
+			printf(
+				"::error::Project %s is being changed, but no change file in %s is touched!%%0A%%0AUse `jetpack changelogger add %s` to add a change file.%%0AGuidelines: https://github.com/Automattic/jetpack/blob/master/docs/writing-a-good-changelog-entry.md\n",
+				$slug,
+				"projects/$slug/{$changelogger_projects[ $slug ]['changes-dir']}/",
+				$slug
+			);
+			printf( "---\n" );
+			$exit = 1;
+		} else {
+			printf(
+				"\e[1;31mProject %s is being changed, but no change file in %s is touched!\e[0m\n",
+				$slug,
+				"projects/$slug/{$changelogger_projects[ $slug ]['changes-dir']}/"
+			);
+			$exit = 1;
+		}
 	}
 }
+if ( $exit && ! getenv( 'CI' ) && ! $list ) {
+	printf( "\e[32mUse `jetpack changelogger add <slug>` to add a change file for each project.\e[0m\n" );
+	printf( "\e[32mGuidelines: https://github.com/Automattic/jetpack/blob/master/docs/writing-a-good-changelog-entry.md\e[0m\n" );
+}
+
 exit( $exit );
