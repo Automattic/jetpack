@@ -48,7 +48,7 @@ async function resetWordpressInstall() {
 
 async function prepareUpdaterTest() {
 	const cmd =
-		'pnpx wp-env run tests-wordpress wp-content/plugins/jetpack-dev/tests/e2e/bin/prep.sh';
+		'pnpx jetpack docker --type e2e --name t1 -v exec wp-content/plugins/jetpack-dev/tests/e2e/bin/prep.sh';
 
 	await execShellCommand( cmd );
 }

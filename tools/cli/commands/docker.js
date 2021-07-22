@@ -302,6 +302,7 @@ const buildExecCmd = argv => {
 	const cmd = argv._[ 1 ];
 
 	if ( cmd === 'exec' ) {
+		opts.splice( 1, 0, '-T' );
 		opts.push( ...argv._.slice( 2 ) );
 	} else if ( cmd === 'install' ) {
 		// Adding -T to resolve an issue when running this command within node context (e2e)
