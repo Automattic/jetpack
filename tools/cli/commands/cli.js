@@ -22,8 +22,6 @@ function cliLink( options ) {
 	const opts = {
 		renderer: options.v ? VerboseRenderer : UpdateRenderer,
 	};
-	console.log( 'QQQQQQ', path.resolve( 'tools/cli' ) );
-
 	const linker = new Listr(
 		[
 			{
@@ -46,8 +44,6 @@ function cliLink( options ) {
 
 	linker.run().catch( err => {
 		console.error( err );
-		console.log( '2222QQQQQQ', path.resolve( 'tools/cli' ) );
-
 		process.exit( err.exitCode || 1 );
 	} );
 }

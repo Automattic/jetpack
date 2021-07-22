@@ -233,14 +233,14 @@ async function retry( action, { times, delay = 5000 } ) {
 	const sleep = ms => new Promise( resolve => setTimeout( resolve, ms ) );
 
 	let tries = 0;
-	while ( tries <= times ) {
+	while ( tries < times ) {
 		try {
 			return await action();
 		} catch ( error ) {
 			if ( ++tries >= times ) {
 				throw error;
 			}
-			console.log( error );
+			console.log( `Still waiting. Try: ${ tries }` );
 			await sleep( delay );
 		}
 	}
@@ -275,14 +275,18 @@ const defaultDockerCmdHandler = async argv => {
 					if ( response.statusCode < 200 || response.statusCode > 299 ) {
 						reject( new Error( 'Failed to load page, status code: ' + response.statusCode ) );
 					}
+					// temporary data holder
+					const body = [];
+					// on every content chunk, push it to the data array
+					response.on( 'data', chunk => body.push( chunk ) );
 					// we are done, resolve promise with those joined chunks
-					response.on( 'end', () => resolve( response.statusCode ) );
+					response.on( 'end', () => resolve( body.join( '' ) ) );
 				} );
 				// handle connection errors of the request
 				request.on( 'error', err => reject( err ) );
 			} );
-		// Wait to be ready
-		await retry( async () => getContent(), { times: 24 } ); // 24 * 5000 = 120 sec
+
+		await retry( getContent, { times: 24 } ); // 24 * 5000 = 120 sec
 	}
 	printPostCmdMsg( argv );
 };
@@ -413,19 +417,19 @@ export function dockerDefine( yargs ) {
 							describe: 'Launch in detached mode',
 							type: 'bool',
 						} ),
-					handler: argv => defaultDockerCmdHandler( argv ),
+					handler: async argv => await defaultDockerCmdHandler( argv ),
 				} )
 				.command( {
 					command: 'stop',
 					description: 'Stop the containers',
 					builder: yargCmd => defaultOpts( yargCmd ),
-					handler: argv => defaultDockerCmdHandler( argv ),
+					handler: async argv => await defaultDockerCmdHandler( argv ),
 				} )
 				.command( {
 					command: 'down',
 					description: 'Down the containers',
 					builder: yargCmd => defaultOpts( yargCmd ),
-					handler: argv => defaultDockerCmdHandler( argv ),
+					handler: async argv => await defaultDockerCmdHandler( argv ),
 				} )
 				.command( {
 					command: 'clean',
