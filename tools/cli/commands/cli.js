@@ -19,12 +19,10 @@ import { chalkJetpackGreen } from '../helpers/styling';
  * @param {object} options - The argv options.
  */
 function cliLink( options ) {
-	options.v = true;
 	const opts = {
 		renderer: options.v ? VerboseRenderer : UpdateRenderer,
 	};
 
-	console.log( 'pnpm link --global', options.v, path.resolve( 'tools/cli' ) );
 	const linker = new Listr(
 		[
 			{
