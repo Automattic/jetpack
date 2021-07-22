@@ -4,6 +4,7 @@
 const { execSync, spawnSync } = require( 'child_process' );
 const chalk = require( 'chalk' );
 const glob = require( 'glob' );
+const fs = require( 'fs' );
 
 // Initialize variables
 const allProjects = glob
@@ -14,6 +15,11 @@ const diffFiles = getDiffFiles(); // Files that have been changed in this branch
 const needChangelog = new Set( checkNeedChangelog( allProjects ) );
 // Check if any touched files need a changelog file
 console.log( chalk.green( 'Checking if changelog files are needed. Just a sec...' ) );
+
+// Get a list of projects that need a changelog
+// Read the project's composer.json
+// Check for .extra.changelogger.changelog or .extra.changelogger.changes-dir
+// If the only changes included are those files, ignore the
 
 // If files require a changelog, check and see if one is included already
 if ( needChangelog.size !== 0 ) {
@@ -89,6 +95,9 @@ function checkNeedChangelog( projects ) {
 		}
 	}
 
+	for ( const proj of needChangelog ) {
+		console.log(proj);
+	}
 	return projects.filter( proj => modifiedProjects.has( proj ) );
 }
 

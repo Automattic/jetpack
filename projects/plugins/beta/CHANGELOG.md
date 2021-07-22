@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.0.1 - 2021-07-19
+## 3.0.1 - 2021-07-19 
 ### Added
 - Add small breadcrumb link to get back to the main plugin selection screen.
 
