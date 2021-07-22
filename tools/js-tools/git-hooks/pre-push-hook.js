@@ -16,9 +16,8 @@ console.log( needChangelog );
  * @returns {Array} Paths output from git command
  */
 function checkChangelogFiles() {
-	return execSync( `tools/check-changelogger-use.php origin/master HEAD`, { encoding: 'utf8' } )
-		.split( '\n' )
-		.map( name => name.trim() );
+	const data = spawnSync( 'tools/check-changelogger-use.php', [ 'origin/master', 'HEAD' ], { stdio: 'inherit' });
+	console.log(data);
 }
 
 process.exitCode = 1;
