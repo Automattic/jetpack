@@ -709,7 +709,7 @@
 			}
 
 			loadFullImage( carousel.slides[ index ] );
-			loadBackgroundImage( carousel.slides[ index ] );
+			loadSlideBackgrounds();
 
 			domUtil.hide( carousel.caption );
 			updateTitleCaptionAndDesc( {
@@ -1191,31 +1191,46 @@
 			}
 		}
 
-		function loadBackgroundImage( slide ) {
-			var currentSlide = slide.el;
+		function loadSlideBackgrounds() {
+			applySlideBackground( '.swiper-slide-active' );
 
-			if ( swiper && swiper.slides ) {
-				currentSlide = swiper.slides[ swiper.activeIndex ];
+			setTimeout( function () {
+				applySlideBackground( '.swiper-slide-prev' );
+				applySlideBackground( '.swiper-slide-next' );
+			}, 200 );
+		}
+
+		function applySlideBackground( slideClass ) {
+			var slideEl = carousel.container.querySelector( slideClass );
+
+			if ( ! slideEl ) {
+				return;
 			}
 
-			var image = carousel.container.querySelector(
-				'.swiper-slide[data-attachment-id="' + slide.attrs.attachmentId + '"] img'
-			);
-			var isLoaded = image.complete && image.naturalHeight !== 0;
+			// We're done if there's already a background image set.
+			if ( slideEl.style.backgroundImage ) {
+				return;
+			}
 
+			var image = slideEl.querySelector( 'img' );
+			if ( ! image ) {
+				return;
+			}
+
+			var isLoaded = image.complete && image.naturalHeight !== 0;
 			if ( isLoaded ) {
-				applyBackgroundImage( currentSlide, image );
+				calculateSlideBackgroundCss( slideEl, image );
 				return;
 			}
 
 			image.onload = function () {
-				applyBackgroundImage( currentSlide, image );
+				calculateSlideBackgroundCss( slideEl, image );
 			};
 		}
 
-		function applyBackgroundImage( currentSlide, image ) {
+		function calculateSlideBackgroundCss( slideEl, image ) {
 			var rgb = util.getAverageColor( image );
-			currentSlide.style.backgroundImage =
+			slideEl.style.backgroundImage =
 				'linear-gradient( to bottom, rgba(' +
 				rgb.r +
 				',' +
