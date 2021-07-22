@@ -1446,6 +1446,7 @@
 			};
 
 			var data = domUtil.getJSONAttribute( gallery, 'data-carousel-extra' );
+			var tapTimeout;
 
 			if ( ! data ) {
 				return; // don't run if the default gallery functions weren't used
@@ -1543,6 +1544,8 @@
 			} );
 
 			swiper.on( 'doubleTap', function ( swiper ) {
+				clearTimeout( tapTimeout );
+
 				if ( swiper.zoom.scale > 1 ) {
 					carousel.overlay.classList.add( 'jp-carousel-hide-controls' );
 				}
@@ -1552,6 +1555,14 @@
 						carousel.overlay.classList.remove( 'jp-carousel-hide-controls' );
 						clearTimeout( zoomTimeout );
 					}, 200 );
+				}
+			} );
+
+			swiper.on( 'tap', function () {
+				if ( swiper.zoom.scale > 1 ) {
+					tapTimeout = setTimeout( function () {
+						carousel.overlay.classList.toggle( 'jp-carousel-hide-controls' );
+					}, 150 );
 				}
 			} );
 
