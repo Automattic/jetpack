@@ -336,11 +336,17 @@ function getPlan( type ) {
 							'jetpack_premium_monthly',
 							'jetpack_business_monthly',
 							'jetpack_personal_monthly',
+							'jetpack_security',
+							'jetpack_security_monthly',
+							'jetpack_security_pro',
+							'jetpack_security_pro_monthly',
+							'jetpack_complete_monthly',
+							// DEPRECATED: Daily and Real-time variations are no longer sold.
+							// Remove after all customers are migrated to new products.
 							'jetpack_security_daily',
 							'jetpack_security_daily_monthly',
 							'jetpack_security_realtime',
 							'jetpack_security_realtime_monthly',
-							'jetpack_complete_monthly',
 						],
 						'send-a-message': [
 							'jetpack_free',
@@ -350,11 +356,17 @@ function getPlan( type ) {
 							'jetpack_premium_monthly',
 							'jetpack_business_monthly',
 							'jetpack_personal_monthly',
+							'jetpack_security',
+							'jetpack_security_monthly',
+							'jetpack_security_pro',
+							'jetpack_security_pro_monthly',
+							'jetpack_complete_monthly',
+							// DEPRECATED: Daily and Real-time variations are no longer sold.
+							// Remove after all customers are migrated to new products.
 							'jetpack_security_daily',
 							'jetpack_security_daily_monthly',
 							'jetpack_security_realtime',
 							'jetpack_security_realtime_monthly',
-							'jetpack_complete_monthly',
 						],
 						'social-previews': [
 							'jetpack_free',
@@ -364,11 +376,17 @@ function getPlan( type ) {
 							'jetpack_premium_monthly',
 							'jetpack_business_monthly',
 							'jetpack_personal_monthly',
+							'jetpack_security',
+							'jetpack_security_monthly',
+							'jetpack_security_pro',
+							'jetpack_security_pro_monthly',
+							'jetpack_complete_monthly',
+							// DEPRECATED: Daily and Real-time variations are no longer sold.
+							// Remove after all customers are migrated to new products.
 							'jetpack_security_daily',
 							'jetpack_security_daily_monthly',
 							'jetpack_security_realtime',
 							'jetpack_security_realtime_monthly',
-							'jetpack_complete_monthly',
 						],
 						'vaultpress-backups': [
 							'jetpack_premium',
@@ -419,11 +437,17 @@ function getPlan( type ) {
 							'jetpack_premium_monthly',
 							'jetpack_business_monthly',
 							'jetpack_personal_monthly',
+							'jetpack_security',
+							'jetpack_security_monthly',
+							'jetpack_security_pro',
+							'jetpack_security_pro_monthly',
+							'jetpack_complete_monthly',
+							// DEPRECATED: Daily and Real-time variations are no longer sold.
+							// Remove after all customers are migrated to new products.
 							'jetpack_security_daily',
 							'jetpack_security_daily_monthly',
 							'jetpack_security_realtime',
 							'jetpack_security_realtime_monthly',
-							'jetpack_complete_monthly',
 						],
 						'core/video': [
 							'jetpack_premium',
@@ -444,11 +468,17 @@ function getPlan( type ) {
 							'jetpack_premium_monthly',
 							'jetpack_business_monthly',
 							'jetpack_personal_monthly',
+							'jetpack_security',
+							'jetpack_security_monthly',
+							'jetpack_security_pro',
+							'jetpack_security_pro_monthly',
+							'jetpack_complete_monthly',
+							// DEPRECATED: Daily and Real-time variations are no longer sold.
+							// Remove after all customers are migrated to new products.
 							'jetpack_security_daily',
 							'jetpack_security_daily_monthly',
 							'jetpack_security_realtime',
 							'jetpack_security_realtime_monthly',
-							'jetpack_complete_monthly',
 						],
 						'premium-content/container': [
 							'jetpack_premium',
@@ -457,11 +487,17 @@ function getPlan( type ) {
 							'jetpack_premium_monthly',
 							'jetpack_business_monthly',
 							'jetpack_personal_monthly',
+							'jetpack_security',
+							'jetpack_security_monthly',
+							'jetpack_security_pro',
+							'jetpack_security_pro_monthly',
+							'jetpack_complete_monthly',
+							// DEPRECATED: Daily and Real-time variations are no longer sold.
+							// Remove after all customers are migrated to new products.
 							'jetpack_security_daily',
 							'jetpack_security_daily_monthly',
 							'jetpack_security_realtime',
 							'jetpack_security_realtime_monthly',
-							'jetpack_complete_monthly',
 						],
 						support: [
 							'jetpack_premium',
@@ -470,11 +506,17 @@ function getPlan( type ) {
 							'jetpack_premium_monthly',
 							'jetpack_business_monthly',
 							'jetpack_personal_monthly',
+							'jetpack_security',
+							'jetpack_security_monthly',
+							'jetpack_security_pro',
+							'jetpack_security_pro_monthly',
+							'jetpack_complete_monthly',
+							// DEPRECATED: Daily and Real-time variations are no longer sold.
+							// Remove after all customers are migrated to new products.
 							'jetpack_security_daily',
 							'jetpack_security_daily_monthly',
 							'jetpack_security_realtime',
 							'jetpack_security_realtime_monthly',
-							'jetpack_complete_monthly',
 						],
 						'premium-themes': [ 'jetpack_business', 'jetpack_business_monthly' ],
 						'vaultpress-security-scanning': [ 'jetpack_business', 'jetpack_business_monthly' ],

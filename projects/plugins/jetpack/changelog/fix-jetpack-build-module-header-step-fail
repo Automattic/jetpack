@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Fail build if the php:module-headings step fails.
