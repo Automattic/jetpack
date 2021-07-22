@@ -4,7 +4,6 @@
 const { execSync, spawnSync } = require( 'child_process' );
 const chalk = require( 'chalk' );
 const glob = require( 'glob' );
-const fs = require( 'fs' );
 
 // Initialize variables
 const allProjects = glob
@@ -93,10 +92,6 @@ function checkNeedChangelog( projects ) {
 		if ( match ) {
 			modifiedProjects.add( match[ 1 ] );
 		}
-	}
-
-	for ( const proj of needChangelog ) {
-		console.log(proj);
 	}
 	return projects.filter( proj => modifiedProjects.has( proj ) );
 }
