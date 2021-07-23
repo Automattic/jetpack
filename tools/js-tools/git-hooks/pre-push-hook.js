@@ -19,15 +19,13 @@ function checkChangelogFiles() {
 	);
 
 	// If a changelog file is needed, quit the push.
-	if ( needChangelog.status === 1 ) {
-		process.exitCode = 1;
-	}
-
 	if ( needChangelog.status === 0 ) {
 		console.log( chalk.green( 'Changelog check passed.' ) );
+	} else {
+		process.exitCode = 1;
 	}
 }
 
 checkChangelogFiles();
-process.exitCode = 1;
+
 process.exitCode;
