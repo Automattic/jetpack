@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add jetpack_connection_disconnect_site_wpcom filter

@@ -206,7 +206,12 @@
 	 * @returns {string} The massaged search string.
 	 */
 	function pr_to_header( search ) {
-		return search.replace( /\//g, ' / ' ).replace( /-/g, ' ' ).replace( /  +/g, ' ' ).toLowerCase().trim();
+		return search
+			.replace( /\//g, ' / ' )
+			.replace( /-/g, ' ' )
+			.replace( /  +/g, ' ' )
+			.toLowerCase()
+			.trim();
 	}
 
 	/**
