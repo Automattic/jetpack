@@ -77,7 +77,8 @@
 			"pre-commit": "node tools/js-tools/git-hooks/pre-commit-hook.js",
 			"prepare-commit-msg": "node tools/js-tools/git-hooks/prepare-commit-msg.js",
 			"post-checkout": "./tools/js-tools/git-hooks/post-merge-checkout-hook.sh",
-			"post-merge": "./tools/js-tools/git-hooks/post-merge-checkout-hook.sh"
+			"post-merge": "./tools/js-tools/git-hooks/post-merge-checkout-hook.sh",
+			"pre-push": "node tools/js-tools/git-hooks/pre-push-hook.js"
 		}
 	},
 	"devDependencies": {
