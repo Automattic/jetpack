@@ -1,20 +1,20 @@
 #!/usr/bin/env node
 
-/* eslint-disable no-console, no-process-exit */
+/* eslint-disable no-console */
 const { spawnSync } = require( 'child_process' );
 const chalk = require( 'chalk' );
-
-console.log( chalk.green( 'Checking if changelog files are needed. Just a sec...' ) );
 
 /**
  * Checks if changelog files are required.
  */
 function checkChangelogFiles() {
+	console.log( chalk.green( 'Checking if changelog files are needed. Just a sec...' ) );
 	const needChangelog = spawnSync(
 		'tools/check-changelogger-use.php',
 		[ 'origin/master', 'HEAD' ],
 		{
 			stdio: 'inherit',
+			cwd: __dirname + '/../../../',
 		}
 	);
 
@@ -27,5 +27,3 @@ function checkChangelogFiles() {
 }
 
 checkChangelogFiles();
-
-process.exitCode;
