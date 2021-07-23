@@ -92,6 +92,34 @@ class REST_Connector {
 			)
 		);
 
+		// Disconnect site.
+		register_rest_route(
+			'jetpack/v4',
+			'/connection',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::disconnect_site',
+				'permission_callback' => __CLASS__ . '::disconnect_site_permission_check',
+				'args'                => array(
+					'isActive' => array(
+						'description'       => __( 'Set to false will trigger the site to disconnect.', 'jetpack' ),
+						'validate_callback' => function ( $value ) {
+							if ( false !== $value ) {
+								return new WP_Error(
+									'rest_invalid_param',
+									__( 'The isActive argument should be set to false.', 'jetpack' ),
+									array( 'status' => 400 )
+								);
+							}
+
+							return true;
+						},
+						'required'          => true,
+					),
+				),
+			)
+		);
+
 		// Get list of plugins that use the Jetpack connection.
 		register_rest_route(
 			'jetpack/v4',
@@ -344,6 +372,26 @@ class REST_Connector {
 		}
 
 		return new WP_Error( 'invalid_user_permission_activate_plugins', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
+
+	}
+
+	/**
+	 * Permission check for the disconnect site endpoint.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool|WP_Error True if user is able to disconnect the site.
+	 */
+	public static function disconnect_site_permission_check() {
+		if ( current_user_can( 'jetpack_disconnect' ) ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'invalid_user_permission_jetpack_disconnect',
+			self::get_user_permissions_error_msg(),
+			array( 'status' => rest_authorization_required_code() )
+		);
 
 	}
 
@@ -610,6 +658,28 @@ class REST_Connector {
 			array(
 				'success' => true,
 			)
+		);
+	}
+
+	/**
+	 * Disconnects Jetpack from the WordPress.com Servers
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool|WP_Error True if Jetpack successfully disconnected.
+	 */
+	public static function disconnect_site() {
+		$connection = new Manager();
+
+		if ( $connection->is_connected() ) {
+			$connection->disconnect_site();
+			return rest_ensure_response( array( 'code' => 'success' ) );
+		}
+
+		return new WP_Error(
+			'disconnect_failed',
+			esc_html__( 'Failed to disconnect the site as it appears already disconnected.', 'jetpack' ),
+			array( 'status' => 400 )
 		);
 	}
 
