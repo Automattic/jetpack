@@ -238,7 +238,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 	private static function print_item( $title, $text, $icon, $link, $tracks_id, $learn_more_link, $subitem = false, $button_label = null ) {
 		$additional_classes = $subitem ? 'jp-stats-report-upgrade-subitem' : '';
 		$button_class       = $subitem ? 'is-secondary' : 'is-primary';
-		$icon_url           = plugins_url( '', JETPACK__PLUGIN_FILE ) . '/images/' . $icon;
+		$icon_url           = plugins_url( '', JETPACK__PLUGIN_FILE ) . '/images/products/' . $icon;
 		$button_label       = is_null( $button_label ) ? __( 'Upgrade', 'jetpack' ) : $button_label;
 		?>
 			<div class="dops-card dops-banner has-call-to-action is-product jp-stats-report-upgrade-item <?php echo esc_attr( $additional_classes ); ?>">
@@ -276,7 +276,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 		$upgrade_link = self::get_upgrade_link( 'stats-nudges-security' );
 		$learn_link   = self::get_upgrade_link( 'stats-nudges-security-learn' );
 		$text         = __( 'Comprehensive protection for your site, including Backup, Scan, and Anti-spam.', 'jetpack' );
-		self::print_item( __( 'Security', 'jetpack' ), $text, 'products/product-jetpack-backup.svg', $upgrade_link, 'security', $learn_link );
+		self::print_item( __( 'Security', 'jetpack' ), $text, 'product-jetpack-security-bundle.svg', $upgrade_link, 'security', $learn_link );
 	}
 
 	/**
@@ -288,7 +288,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 		$upgrade_link = self::get_upgrade_link( 'stats-nudges-backup' );
 		$learn_link   = self::get_upgrade_link( 'stats-nudges-backup-learn' );
 		$text         = __( 'Save every change and get back online quickly with one-click restores.', 'jetpack' );
-		self::print_item( __( 'Backup', 'jetpack' ), $text, 'products/product-jetpack-backup.svg', $upgrade_link, 'backup', $learn_link, true );
+		self::print_item( __( 'Backup', 'jetpack' ), $text, 'product-jetpack-backup.svg', $upgrade_link, 'backup', $learn_link, true );
 	}
 
 	/**
@@ -300,7 +300,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 		$upgrade_link = self::get_upgrade_link( 'stats-nudges-scan' );
 		$learn_link   = self::get_upgrade_link( 'stats-nudges-scan-learn' );
 		$text         = __( 'Stay ahead of security threats with automated scanning and one-click fixes.', 'jetpack' );
-		self::print_item( __( 'Scan', 'jetpack' ), $text, 'products/product-jetpack-scan.svg', $upgrade_link, 'scan', $learn_link, true );
+		self::print_item( __( 'Scan', 'jetpack' ), $text, 'product-jetpack-scan.svg', $upgrade_link, 'scan', $learn_link, true );
 	}
 
 	/**
@@ -312,7 +312,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 		$upgrade_link = self::get_upgrade_link( 'stats-nudges-akismet' );
 		$learn_link   = self::get_upgrade_link( 'stats-nudges-akismet-learn' );
 		$text         = __( 'Automatically clear spam from comments and forms.', 'jetpack' );
-		self::print_item( __( 'Anti-spam', 'jetpack' ), $text, 'products/product-jetpack-anti-spam.svg', $upgrade_link, 'akismet', $learn_link, true );
+		self::print_item( __( 'Anti-spam', 'jetpack' ), $text, 'product-jetpack-anti-spam.svg', $upgrade_link, 'akismet', $learn_link, true );
 	}
 
 	/**
@@ -324,7 +324,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 		$upgrade_link = self::get_upgrade_link( 'stats-nudges-search' );
 		$learn_link   = self::get_upgrade_link( 'stats-nudges-search-learn' );
 		$text         = __( 'Help your site visitors instantly find what they\'re looking for so they read and buy more.', 'jetpack' );
-		self::print_item( __( 'Search', 'jetpack' ), $text, 'products/product-jetpack-search.svg', $upgrade_link, 'search', $learn_link );
+		self::print_item( __( 'Search', 'jetpack' ), $text, 'product-jetpack-search.svg', $upgrade_link, 'search', $learn_link );
 	}
 
 	/**
@@ -349,7 +349,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 		if ( $print ) {
 			$learn_link = self::get_upgrade_link( 'stats-nudges-boost-learn' );
 			$text       = __( 'Improve your site\'s performance and SEO in a few clicks with the free Jetpack Boost plugin.', 'jetpack' );
-			self::print_item( __( 'Boost', 'jetpack' ), $text, 'recommendations/site-accelerator-illustration.svg', $link, 'boost', $learn_link, false, $label );
+			self::print_item( __( 'Boost', 'jetpack' ), $text, 'product-jetpack-boost.svg', $link, 'boost', $learn_link, false, $label );
 		}
 		return true;
 	}
@@ -376,7 +376,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 		if ( $print ) {
 			$learn_link = self::get_upgrade_link( 'stats-nudges-crm-learn' );
 			$text       = __( 'Sell more and get more leads with the Jetpack CRM plugin built specifically for WordPress.', 'jetpack' );
-			self::print_item( __( 'CRM', 'jetpack' ), $text, 'recommendations/creative-mail-illustration.svg', $link, 'crm', $learn_link, false, $label );
+			self::print_item( __( 'CRM', 'jetpack' ), $text, 'product-jetpack-crm.svg', $link, 'crm', $learn_link, false, $label );
 		}
 		return true;
 	}
