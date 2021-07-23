@@ -330,11 +330,4 @@ class Test_Identity_Crisis extends BaseTestCase {
 	public function return_string_1() {
 		return '1';
 	}
-
-	/**
-	 * Return string 'example.org'.
-	 */
-	public function return_example_url() {
-		return 'https://example.org';
-	}
 }

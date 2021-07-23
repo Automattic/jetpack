@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Remove the unneeded return_example_url method.
+
+
