@@ -251,7 +251,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 							<?php echo esc_html( $title ); ?>
 							<p>
 								<?php echo esc_html( $text ); ?>
-								<a href="<?php echo esc_attr( $learn_more_link ); ?>">
+								<a href="<?php echo esc_attr( $learn_more_link ); ?>" target="_blank">
 									<?php esc_html_e( 'Learn more', 'jetpack' ); ?>
 								</a>
 							</p>
