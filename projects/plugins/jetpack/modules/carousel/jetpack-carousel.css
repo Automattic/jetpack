@@ -31,10 +31,6 @@
 	width: 100vw;
 }
 
-.jp-carousel-hide-controls .swiper-container {
-	overflow: visible;
-}
-
 .jp-carousel-overlay .swiper-zoom-container {
 	background-size: 200%;
 	background-repeat: no-repeat;
@@ -128,6 +124,20 @@ so we have to target all affected elements in touch devices.
 	height: 100%;
 }
 
+.jp-carousel-hide-controls .jp-carousel-container {
+	grid-template-rows: 1fr;
+}
+
+.jp-carousel-hide-controls .swiper-wrapper {
+	margin-top: -32px; /* Compensate for the remove of the height of the info bar. */
+}
+
+
+.jp-carousel-hide-controls .jp-swiper-button-next,
+.jp-carousel-hide-controls .jp-swiper-button-prev {
+	margin-top: -54px; /* The height of the info bar plus any top padding on the nav button itself. */
+}
+
 .jp-carousel-msg {
 	font-family: 'Open Sans', sans-serif;
 	font-style: normal;
@@ -155,7 +165,9 @@ so we have to target all affected elements in touch devices.
 }
 
 .jp-carousel-hide-controls .jp-carousel-info {
-	opacity: 0;
+	visibility: hidden;
+	height: 0;
+	overflow: hidden;
 }
 
 .jp-carousel-info-footer {
@@ -220,14 +232,6 @@ so we have to target all affected elements in touch devices.
 	transition: 400ms ease-out;
 }
 
-.jp-carousel-transitions .jp-carousel-next-button span,
-.jp-carousel-transitions .jp-carousel-previous-button span {
-	-webkit-transition: 500ms opacity ease-out;
-	-moz-transition: 500ms opacity ease-out;
-	-o-transition: 500ms opacity ease-out;
-	transition: 500ms opacity ease-out;
-}
-
 .jp-carousel-buttons {
 	margin: -18px -20px 15px;
 	padding: 8px 10px;
@@ -261,9 +265,7 @@ div.jp-carousel-buttons a:hover {
 }
 
 .jp-carousel-slide,
-.jp-carousel-slide img,
-.jp-carousel-next-button,
-.jp-carousel-previous-button {
+.jp-carousel-slide img {
 	-webkit-transform: translate3d( 0, 0, 0 );
 	-moz-transform: translate3d( 0, 0, 0 );
 	-o-transform: translate3d( 0, 0, 0 );
@@ -285,10 +287,6 @@ div.jp-carousel-buttons a:hover {
 	color: #fff;
 	cursor: pointer;
 	transition: opacity 200ms ease-out;
-}
-
-.jp-carousel-hide-controls .jp-carousel-close-hint {
-	opacity: 0;
 }
 
 .jp-carousel-transitions .jp-carousel-close-hint {

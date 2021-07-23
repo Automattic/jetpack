@@ -1536,25 +1536,17 @@
 				}
 
 				if ( scale === 1 ) {
-					var zoomTimeout = setTimeout( function () {
-						carousel.overlay.classList.remove( 'jp-carousel-hide-controls' );
-						clearTimeout( zoomTimeout );
-					}, 200 );
+					carousel.overlay.classList.remove( 'jp-carousel-hide-controls' );
 				}
 			} );
 
 			swiper.on( 'doubleTap', function ( swiper ) {
 				clearTimeout( tapTimeout );
-
-				if ( swiper.zoom.scale > 1 ) {
-					carousel.overlay.classList.add( 'jp-carousel-hide-controls' );
-				}
-
 				if ( swiper.zoom.scale === 1 ) {
 					var zoomTimeout = setTimeout( function () {
 						carousel.overlay.classList.remove( 'jp-carousel-hide-controls' );
 						clearTimeout( zoomTimeout );
-					}, 200 );
+					}, 150 );
 				}
 			} );
 
