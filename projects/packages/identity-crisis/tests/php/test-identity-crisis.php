@@ -15,7 +15,6 @@ use WorDBless\BaseTestCase;
  * Test Identity_Crisis class
  */
 class Test_Identity_Crisis extends BaseTestCase {
-
 	/**
 	 * Set up tests.
 	 *
@@ -32,6 +31,15 @@ class Test_Identity_Crisis extends BaseTestCase {
 	 */
 	public function tear_down() {
 		Constants::clear_single_constant( 'JETPACK_DISABLE_RAW_OPTIONS' );
+
+		// Reset IDC singleton.
+		$idc        = Identity_Crisis::init();
+		$reflection = new \ReflectionClass( $idc );
+		$instance   = $reflection->getProperty( 'instance' );
+
+		$instance->setAccessible( true );
+		$instance->setValue( null, null );
+		$instance->setAccessible( false );
 	}
 
 	/**
@@ -53,6 +61,30 @@ class Test_Identity_Crisis extends BaseTestCase {
 		foreach ( $options as $option ) {
 			$this->assertFalse( Jetpack_Options::get_option( $option ) );
 		}
+	}
+
+	/**
+	 * Test jetpack_connection_disconnect_site_wpcom_filter.
+	 */
+	public function test_jetpack_connection_disconnect_site_wpcom_filter() {
+		Identity_Crisis::init();
+
+		// No IDC.
+		$this->assertTrue(
+			apply_filters( 'jetpack_connection_disconnect_site_wpcom', false ),
+			'IDC should not block the site from disconnecting on WPCOM.'
+		);
+
+		// Mock IDC.
+		add_filter( 'jetpack_sync_error_idc_validation', '__return_true' );
+
+		$this->assertFalse(
+			apply_filters( 'jetpack_connection_disconnect_site_wpcom', true ),
+			'IDC should block the site from disconnecting on WPCOM.'
+		);
+
+		// Clean up.
+		remove_filter( 'jetpack_sync_error_idc_validation', '__return_true' );
 	}
 
 	/**
@@ -305,5 +337,4 @@ class Test_Identity_Crisis extends BaseTestCase {
 	public function return_example_url() {
 		return 'https://example.org';
 	}
-
 }
