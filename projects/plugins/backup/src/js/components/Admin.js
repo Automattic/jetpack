@@ -23,6 +23,7 @@ const Admin = () => {
 	const [ capabilitiesError, setCapabilitiesError ] = useState( null );
 	const [ connectionLoaded, setConnectionLoaded ] = useState( false );
 	const [ capabilitiesLoaded, setCapabilitiesLoaded ] = useState( false );
+	const [ showHeaderFooter, setShowHeaderFooter ] = useState( true );
 
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 
@@ -83,17 +84,31 @@ const Admin = () => {
 	};
 
 	const renderLoadedState = () => {
-		// Loading state
-		if ( ! connectionLoaded ) {
-			return renderConnectScreen();
+		if (
+			! connectionLoaded ||
+			! connectionStatus.isUserConnected ||
+			! connectionStatus.isRegistered
+		) {
+			if ( showHeaderFooter ) {
+				setShowHeaderFooter( false );
+			}
+
+			return (
+				<div className="jp-wrap">
+					<div className="jp-row">
+						<div class="lg-col-span-12 md-col-span-8 sm-col-span-4">{ renderConnectScreen() }</div>
+					</div>
+				</div>
+			);
+		}
+
+		// Show header and footer on all screens except ConnectScreen
+		if ( ! showHeaderFooter ) {
+			setShowHeaderFooter( true );
 		}
 
 		if ( ! capabilitiesLoaded ) {
 			return <div></div>;
-		}
-
-		if ( ! connectionStatus.isUserConnected || ! connectionStatus.isRegistered ) {
-			return renderConnectScreen();
 		}
 
 		if ( hasBackupPlan() ) {
@@ -109,36 +124,40 @@ const Admin = () => {
 	};
 
 	const renderHeader = () => {
-		return (
-			<div className="jp-wrap">
-				<div className="jp-row">
-					<div class="lg-col-span-12 md-col-span-8 sm-col-span-4">
-						<div className="jp-masthead">
-							<div className="jp-masthead__inside-container">
-								<div className="jp-masthead__logo-container">
-									<JetpackLogo className="jetpack-logo__masthead" />
+		if ( showHeaderFooter ) {
+			return (
+				<div className="jp-wrap">
+					<div className="jp-row">
+						<div class="lg-col-span-12 md-col-span-8 sm-col-span-4">
+							<div className="jp-masthead">
+								<div className="jp-masthead__inside-container">
+									<div className="jp-masthead__logo-container">
+										<JetpackLogo className="jetpack-logo__masthead" />
+									</div>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-		);
+			);
+		}
 	};
 
 	const renderFooter = () => {
-		return (
-			<div className="jp-wrap">
-				<div className="jp-row">
-					<div class="lg-col-span-12 md-col-span-8 sm-col-span-4">
-						<JetpackFooter
-							moduleName={ __( 'Jetpack Backup', 'jetpack-backup' ) }
-							a8cLogoHref="https://www.jetpack.com"
-						/>
+		if ( showHeaderFooter ) {
+			return (
+				<div className="jp-wrap">
+					<div className="jp-row">
+						<div class="lg-col-span-12 md-col-span-8 sm-col-span-4">
+							<JetpackFooter
+								moduleName={ __( 'Jetpack Backup', 'jetpack-backup' ) }
+								a8cLogoHref="https://www.jetpack.com"
+							/>
+						</div>
 					</div>
 				</div>
-			</div>
-		);
+			);
+		}
 	};
 
 	const renderManageConnection = () => {
