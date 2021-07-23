@@ -378,7 +378,7 @@ class REST_Connector {
 	/**
 	 * Permission check for the disconnect site endpoint.
 	 *
-	 * @since 10.0.0
+	 * @since $$next-version$$
 	 *
 	 * @return bool|WP_Error True if user is able to disconnect the site.
 	 */
@@ -664,7 +664,7 @@ class REST_Connector {
 	/**
 	 * Disconnects Jetpack from the WordPress.com Servers
 	 *
-	 * @since 10.0.0
+	 * @since $$next-version$$
 	 *
 	 * @return bool|WP_Error True if Jetpack successfully disconnected.
 	 */
