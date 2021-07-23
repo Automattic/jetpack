@@ -100,9 +100,6 @@ const ConnectButton = props => {
 
 					setAuthorizationUrl( response.authorizeUrl );
 					setIsUserConnecting( true );
-					// setConnectionStatus( status => {
-					// 	return { ...status, isRegistered: true };
-					// } );
 				} )
 				.catch( error => {
 					setIsRegistering( false );
