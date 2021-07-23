@@ -231,7 +231,7 @@ class Jetpack_Carousel {
 			wp_enqueue_script(
 				'jetpack-carousel',
 				Assets::get_file_url_for_environment(
-					'_inc/build/carousel/jetpack-carousel.min.js',
+					'_inc/build/carousel/jetpack-carousel.bundle.js',
 					'_inc/build/carousel/jetpack-carousel.bundle.js'
 				),
 				array(),
