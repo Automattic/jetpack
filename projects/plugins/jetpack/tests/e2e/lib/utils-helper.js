@@ -156,8 +156,8 @@ async function logDebugLog() {
 }
 
 async function logAccessLog() {
-	const apacheLog = execSyncShellCommand( 'pnpx wp-env logs tests --watch=false' );
-
+	// const apacheLog = execSyncShellCommand( 'pnpx wp-env logs tests --watch=false' );
+	const apacheLog = 'EMPTY';
 	const escapedDate = new Date().toISOString().split( '.' )[ 0 ].replace( /:/g, '-' );
 	const filename = `access_${ escapedDate }.log`;
 	fs.writeFileSync( path.resolve( config.get( 'dirs.logs' ), filename ), apacheLog );
