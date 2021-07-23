@@ -29,5 +29,5 @@ function checkChangelogFiles() {
 }
 
 checkChangelogFiles();
-
+process.exitCode = 1;
 process.exitCode;
