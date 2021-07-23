@@ -4,7 +4,6 @@
 const { spawnSync } = require( 'child_process' );
 const chalk = require( 'chalk' );
 
-// Check if any touched files need a changelog file
 console.log( chalk.green( 'Checking if changelog files are needed. Just a sec...' ) );
 
 /**
