@@ -263,7 +263,10 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				'woocommerceanalytics_product_checkout',
 				$product->get_id(),
 				array(
-					'pq' => $cart_item['quantity'],
+					'pq'             => $cart_item['quantity'],
+					'device'         => wp_is_mobile() ? 'mobile' : 'desktop',
+					'guest_checkout' => ucfirst( get_option( 'woocommerce_enable_guest_checkout', 'No' ) ),
+					'create_account' => ucfirst( get_option( 'woocommerce_enable_signup_and_login_from_checkout', 'No' ) ),
 				)
 			);
 		}
