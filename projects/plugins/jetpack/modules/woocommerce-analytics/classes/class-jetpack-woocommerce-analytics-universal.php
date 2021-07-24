@@ -102,7 +102,11 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	private function render_properties_as_js( $properties ) {
 		$js_args_string = '';
 		foreach ( $properties as $key => $value ) {
-			$js_args_string = $js_args_string . "'$key': '" . esc_js( $value ) . "', ";
+			if ( is_array( $value ) ) {
+				$js_args_string = $js_args_string . "'$key': " . wp_json_encode( $value ) . ',';
+			} else {
+				$js_args_string = $js_args_string . "'$key': '" . esc_js( $value ) . "', ";
+			}
 		}
 		return $js_args_string;
 	}
@@ -249,6 +253,19 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	public function checkout_process() {
 		$cart = WC()->cart->get_cart();
 
+		$guest_checkout = ucfirst( get_option( 'woocommerce_enable_guest_checkout', 'No' ) );
+		$create_account = ucfirst( get_option( 'woocommerce_enable_signup_and_login_from_checkout', 'No' ) );
+		$device         = wp_is_mobile() ? 'mobile' : 'desktop';
+
+		$enabled_payment_options = array_filter(
+			WC()->payment_gateways->get_available_payment_gateways(),
+			function ( $payment_gateway ) {
+				return $payment_gateway->is_available();
+			}
+		);
+
+		$enabled_payment_options = array_keys( $enabled_payment_options );
+
 		foreach ( $cart as $cart_item_key => $cart_item ) {
 			/**
 			* This filter is already documented in woocommerce/templates/cart/cart.php
@@ -260,13 +277,14 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			}
 
 			$this->record_event(
-				'woocommerceanalytics_product_checkout',
+				'woocommerceanalytics_test_event',
 				$product->get_id(),
 				array(
-					'pq'             => $cart_item['quantity'],
-					'device'         => wp_is_mobile() ? 'mobile' : 'desktop',
-					'guest_checkout' => ucfirst( get_option( 'woocommerce_enable_guest_checkout', 'No' ) ),
-					'create_account' => ucfirst( get_option( 'woocommerce_enable_signup_and_login_from_checkout', 'No' ) ),
+					'pq'              => $cart_item['quantity'],
+					'payment_options' => $enabled_payment_options,
+					'device'          => $device,
+					'guest_checkout'  => $guest_checkout,
+					'create_account'  => $create_account,
 				)
 			);
 		}
