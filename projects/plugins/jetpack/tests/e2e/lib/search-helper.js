@@ -28,16 +28,17 @@ export async function setResultFormat( format = 'expanded' ) {
 
 export async function getSidebarsWidgets() {
 	try {
-		const sidebarsWidgetsOption = 'sidebars_widgets';
-		const sidebarsWidgetsValue = await execWpCommand(
-			`wp option get ${ sidebarsWidgetsOption } --format=json`
-		);
-		if ( typeof sidebarsWidgetsValue === 'object' ) {
-			throw sidebarsWidgetsValue;
-		}
-		return JSON.parse( sidebarsWidgetsValue );
+		return await getWpOptionData( 'sidebars_widgets' );
 	} catch ( e ) {
 		return getSidebarsWidgetsData();
+	}
+}
+
+export async function getBlockWidgets() {
+	try {
+		return await getWpOptionData( 'widget_block' );
+	} catch ( e ) {
+		return getBlockWidgetsData();
 	}
 }
 
@@ -45,10 +46,10 @@ export async function setupSidebarsWidgets( sidebarsWidgetsValue = getSidebarsWi
 	const sidebarsWidgetsOption = 'sidebars_widgets';
 	const sidebarsWidgetsFilePath = path.resolve( config.get( 'temp.sidebarsWidgetsFile' ) );
 
-	fs.writeFileSync( sidebarsWidgetsFilePath, JSON.stringify( sidebarsWidgetsValue ) );
-
-	return execWpCommand(
-		`wp option update ${ sidebarsWidgetsOption } --format=json <	${ sidebarsWidgetsFilePath }`
+	return await setWpOptionData(
+		sidebarsWidgetsOption,
+		sidebarsWidgetsValue,
+		sidebarsWidgetsFilePath
 	);
 }
 
@@ -56,11 +57,28 @@ export async function setupSearchWidget( searchWidgetValue = getSearchFiltersDat
 	const searchWidgetOption = 'widget_jetpack-search-filters';
 	const searchWidgetFilePath = path.resolve( config.get( 'temp.searchWidgetFile' ) );
 
-	fs.writeFileSync( searchWidgetFilePath, JSON.stringify( searchWidgetValue ) );
+	return await setWpOptionData( searchWidgetOption, searchWidgetValue, searchWidgetFilePath );
+}
 
-	return execWpCommand(
-		`wp option update ${ searchWidgetOption } --format=json <	${ searchWidgetFilePath }`
-	);
+export async function setupBlockWidgets( blockWidgets = getBlockWidgetsData() ) {
+	const blockWidgetsOption = 'block_widget';
+	const blockWidgetsFilePath = path.resolve( config.get( 'temp.blockWidgetsFile' ) );
+
+	return await setWpOptionData( blockWidgetsOption, blockWidgets, blockWidgetsFilePath );
+}
+
+async function setWpOptionData( optionName, value, tempFilePath ) {
+	fs.writeFileSync( tempFilePath, JSON.stringify( value ) );
+
+	return await execWpCommand( `wp option update ${ optionName } --format=json <	${ tempFilePath }` );
+}
+
+async function getWpOptionData( optionName ) {
+	const sidebarsWidgetsValue = await execWpCommand( `wp option get ${ optionName } --format=json` );
+	if ( typeof sidebarsWidgetsValue === 'object' ) {
+		throw sidebarsWidgetsValue;
+	}
+	return JSON.parse( sidebarsWidgetsValue );
 }
 
 function getSearchFiltersData() {
@@ -79,11 +97,19 @@ function getSearchFiltersData() {
 	};
 }
 
+function getBlockWidgetsData() {
+	return {
+		222: {
+			content: '<!-- wp:search {"placeholder":"search here","buttonText":"search"} /-->',
+		},
+	};
+}
+
 function getSidebarsWidgetsData() {
 	return {
 		wp_inactive_widgets: [],
-		'sidebar-1': [ 'search-2', 'recent-posts-2', 'recent-comments-2' ],
-		'sidebar-2': [ 'archives-2', 'categories-2', 'meta-2' ],
+		'sidebar-1': [ 'block-222' ],
+		'sidebar-2': [ 'block-222' ],
 		'jetpack-instant-search-sidebar': [ 'jetpack-search-filters-8' ],
 		array_version: 3,
 	};
