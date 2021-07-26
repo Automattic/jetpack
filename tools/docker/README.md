@@ -20,7 +20,7 @@ To use Jetpack's Docker environment, you will need:
 
 - A [local copy of the Jetpack repository](https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#clone-the-repository).
 - [Docker](https://hub.docker.com/search/?type=edition&offering=community) installed and running.
-- [Jetpack's required tools](https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#installing-development-tools).
+- [Jetpack's required tools](https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#install-development-tools).
 
 Our Docker instance comes with a default settings file. You can modify those defaults by copying the file:
 
