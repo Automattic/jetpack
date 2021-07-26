@@ -213,6 +213,7 @@ Most projects in the monorepo should have a mirror repository holding a built ve
    3. In the repo's settings, turn off wikis, issues, projects, and so on.
    4. Make sure that [matticbot](https://github.com/matticbot) can push to the repo.
    5. Make sure that Actions are enabled. The build process copies workflows from `.github/files/mirror-.github` into the mirror to do useful things like automatically close PRs with a reference back to the monorepo.
+   6. Create any secrets needed (e.g. for Autotagger). See PCYsg-xsv-p2#mirror-repo-secrets for details.
 2. If your project requires building, configure `.scripts.build-production` in your project's `composer.json` to run the necessary commands.
 3. If there are any files included in the monorepo that should not be included in the mirror, use `.gitattributes` to tag them with "production-exclude".
 4. If there are any built files in `.gitignore` that should be included in the mirror, use `.gitattributes` to tag them with "production-include".
@@ -224,6 +225,8 @@ Most projects in the monorepo should have a mirror repository holding a built ve
 If `.extra.autotagger` is set to a truthy value in the project's `composer.json`, a GitHub Action will be included in the mirror repo that will read the most recent version from the mirrored `CHANGELOG.md` in each push to master, and create the tag if that version has no prerelease or build suffix.
 
 If `.extra.autotagger` is set to an object with a truthy value for `major` (i.e. if `.extra.autotagger.major` is truthy), the GitHub Action will additionally create or update a major-version tag as is common for GitHub Action repositories.
+
+Note that, for this to work, you'll need to create a secret `API_TOKEN_GITHUB` in the mirror repo. The value of the secret must be a GitHub access token. See PCYsg-xsv-p2#mirror-repo-secrets for details.
 
 This is intended to work in combination with [Changelogger](#jetpack-changelogger): When any change files are present in the project, a `-alpha` version entry will be written to the changelog so the autotagging will not be triggered. To release a new version, you'd do the following:
 

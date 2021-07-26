@@ -9,7 +9,21 @@ jobs:
     name: Tag
     runs-on: ubuntu-latest
     steps:
+      - name: Check that the secret is set
+        env:
+          TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+        run:
+          if [[ -z "$TOKEN" ]]; then
+            echo '::error::The secret API_TOKEN_GITHUB must be set.'
+            exit 1
+          fi
+
       - uses: actions/checkout@v2
+        with:
+          # We want to potentially trigger "tag" events, but the default GITHUB_TOKEN
+          # explicitly does not trigger events.
+          token: ${{ secrets.API_TOKEN_GITHUB }}
+
       - name: Tag
         run: |
           VER=$(sed -nEe 's/^## \[?([^]]*)\]? - .*/\1/;T;p;q' CHANGELOG.md || true)
