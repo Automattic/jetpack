@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Fragment, useState, useEffect } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect } from '@wordpress/data';
@@ -18,7 +18,7 @@ import { STORE_ID } from '../store';
 
 /* eslint react/react-in-jsx-scope: 0 */
 const Admin = () => {
-	const [ connectionStatus, renderConnectScreen ] = useConnection();
+	const [ connectionStatus, renderConnectScreen, renderConnectionStatusCard ] = useConnection();
 	const [ capabilities, setCapabilities ] = useState( null );
 	const [ capabilitiesError, setCapabilitiesError ] = useState( null );
 	const [ connectionLoaded, setConnectionLoaded ] = useState( false );
@@ -161,15 +161,7 @@ const Admin = () => {
 	};
 
 	const renderManageConnection = () => {
-		// TODO: Integrate connection management from Connection Package
-		return (
-			<Fragment>
-				<h2>{ __( 'Manage your connection', 'jetpack-backup' ) }</h2>
-				<p className="notice notice-success">
-					{ __( 'Site and User Connected.', 'jetpack-backup' ) }
-				</p>
-			</Fragment>
-		);
+		return renderConnectionStatusCard();
 	};
 
 	// Renders additional segments under the jp-hero area condition on having a backup plan
