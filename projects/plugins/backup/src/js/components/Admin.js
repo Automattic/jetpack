@@ -5,7 +5,7 @@ import { Fragment, useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect } from '@wordpress/data';
-import { JetpackFooter, JetpackLogo } from '@automattic/jetpack-components';
+import { JetpackFooter, JetpackLogo, getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -70,7 +70,7 @@ const Admin = () => {
 						</p>
 						<a
 							class="button"
-							href={ `https://wordpress.com/plans/${ domain }` }
+							href={ getRedirectUrl( 'backup-plugin-upgrade' ) }
 							target="_blank"
 							rel="noreferrer"
 						>
@@ -187,7 +187,7 @@ const Admin = () => {
 					{ ! capabilities.includes( 'backup-realtime' ) && (
 						<a
 							class="jp-cut"
-							href={ 'https://wordpress.com/checkout/' + domain + '/jetpack_backup_realtime' }
+							href={ getRedirectUrl( 'backup-plugin-realtime-upgrade', { site: domain } ) }
 						>
 							<span>
 								{ __(
@@ -210,7 +210,7 @@ const Admin = () => {
 					</p>
 					<p>
 						<a
-							href={ 'https://cloud.jetpack.com/activity-log/' + domain }
+							href={ getRedirectUrl( 'backup-plugin-activity-log', { site: domain } ) }
 							target="_blank"
 							rel="noreferrer"
 						>
