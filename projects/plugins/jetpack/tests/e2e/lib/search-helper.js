@@ -99,17 +99,15 @@ function getSearchFiltersData() {
 
 function getBlockWidgetsData() {
 	return {
-		222: {
-			content: '<!-- wp:search {"placeholder":"search here","buttonText":"search"} /-->',
-		},
+		2: { content: '<!-- wp:search {"placeholder":"search here","buttonText":"search"} /-->' },
 	};
 }
 
 function getSidebarsWidgetsData() {
 	return {
 		wp_inactive_widgets: [],
-		'sidebar-1': [ 'block-222' ],
-		'sidebar-2': [ 'block-222' ],
+		'sidebar-1': [ 'block-2' ],
+		'sidebar-2': [ 'block-2' ],
 		'jetpack-instant-search-sidebar': [ 'jetpack-search-filters-8' ],
 		array_version: 3,
 	};
