@@ -27,8 +27,8 @@ describe( 'Search', () => {
 	beforeAll( async () => {
 		backupSidebarsWidgets = await getSidebarsWidgets();
 		await syncJetpackPlanData( 'complete' );
-		await activateModule( page, 'search' );
-		await enableInstantSearch();
+		// await activateModule( page, 'search' );
+		// await enableInstantSearch();
 		await setupSidebarsWidgets();
 		await setupSearchWidget();
 	} );
@@ -40,6 +40,8 @@ describe( 'Search', () => {
 	} );
 
 	beforeEach( async () => {
+		await activateModule( page, 'search' );
+		await enableInstantSearch();
 		homepage = await Homepage.visit( page );
 		await homepage.searchAPIRoute();
 		await homepage.waitForNetworkIdle();
