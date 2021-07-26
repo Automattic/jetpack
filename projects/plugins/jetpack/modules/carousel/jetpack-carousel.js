@@ -788,7 +788,10 @@
 			}
 
 			loadFullImage( carousel.slides[ index ] );
-			loadSlideBackgrounds();
+
+			if ( Number( jetpackCarouselStrings.display_background_image ) === 1 ) {
+				loadSlideBackgrounds();
+			}
 
 			domUtil.hide( carousel.caption );
 			updateTitleCaptionAndDesc( {

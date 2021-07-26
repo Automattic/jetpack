@@ -35,7 +35,15 @@ function WritingMedia( props ) {
 
 	const displayComments = props.getOptionValue( 'carousel_display_comments', 'carousel' );
 	const displayExif = props.getOptionValue( 'carousel_display_exif', 'carousel' );
+	const displayBackgroundImage = props.getOptionValue(
+		'carousel_display_background_image',
+		'carousel'
+	);
 	const isCarouselActive = props.getOptionValue( 'carousel' );
+
+	const handleCarouselDisplayBackgroundImageChange = () => {
+		props.updateFormStateModuleOption( 'carousel', 'carousel_display_background_image' );
+	};
 
 	const handleCarouselDisplayExifChange = () => {
 		props.updateFormStateModuleOption( 'carousel', 'carousel_display_exif' );
@@ -108,6 +116,12 @@ function WritingMedia( props ) {
 						'carousel_display_comments',
 						handleCarouselDisplayCommentsChange,
 						__( 'Show comments area in carousel', 'jetpack' )
+					) }
+					{ renderToggle(
+						displayBackgroundImage,
+						'carousel_display_background_image',
+						handleCarouselDisplayBackgroundImageChange,
+						__( 'Display blurred background behind focused image', 'jetpack' )
 					) }
 					<FormFieldset>
 						<p className="jp-form-setting-explanation">

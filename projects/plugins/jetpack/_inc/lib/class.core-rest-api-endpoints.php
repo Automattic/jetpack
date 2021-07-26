@@ -2168,6 +2168,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'carousel',
 			),
+			'carousel_display_background_image'    => array(
+				'description'       => esc_html__( 'Display blurred background behind focused image', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'carousel',
+			),
 
 			// Comments
 			'highlander_comment_form_prompt'       => array(
