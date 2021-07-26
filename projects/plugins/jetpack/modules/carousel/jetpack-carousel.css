@@ -10,8 +10,10 @@
 .swiper-container-rtl .swiper-button-prev:after {
 	content: none;
 }
-.jp-carousel-overlay .swiper-button-prev, .jp-carousel-overlay .swiper-container-rtl .swiper-button-next,
-.jp-carousel-overlay .swiper-button-next, .jp-carousel-overlay .swiper-container-rtl .swiper-button-prev {
+.jp-carousel-overlay .swiper-button-prev,
+.jp-carousel-overlay .swiper-container-rtl .swiper-button-next,
+.jp-carousel-overlay .swiper-button-next,
+.jp-carousel-overlay .swiper-container-rtl .swiper-button-prev {
 	background-image: none;
 }
 /* end of temporary fix */
@@ -122,6 +124,20 @@ so we have to target all affected elements in touch devices.
 	height: 100%;
 }
 
+.jp-carousel-hide-controls .jp-carousel-container {
+	grid-template-rows: 1fr;
+}
+
+.jp-carousel-hide-controls .swiper-wrapper {
+	margin-top: -32px; /* Compensate for the remove of the height of the info bar. */
+}
+
+
+.jp-carousel-hide-controls .jp-swiper-button-next,
+.jp-carousel-hide-controls .jp-swiper-button-prev {
+	margin-top: -54px; /* The height of the info bar plus any top padding on the nav button itself. */
+}
+
 .jp-carousel-msg {
 	font-family: 'Open Sans', sans-serif;
 	font-style: normal;
@@ -144,6 +160,14 @@ so we have to target all affected elements in touch devices.
 	-webkit-font-smoothing: subpixel-antialiased !important;
 	z-index: 100;
 	background-color: #000;
+	transition: opacity 200ms ease-out;
+	opacity: 1;
+}
+
+.jp-carousel-hide-controls .jp-carousel-info {
+	visibility: hidden;
+	height: 0;
+	overflow: hidden;
 }
 
 .jp-carousel-info-footer {
@@ -208,14 +232,6 @@ so we have to target all affected elements in touch devices.
 	transition: 400ms ease-out;
 }
 
-.jp-carousel-transitions .jp-carousel-next-button span,
-.jp-carousel-transitions .jp-carousel-previous-button span {
-	-webkit-transition: 500ms opacity ease-out;
-	-moz-transition: 500ms opacity ease-out;
-	-o-transition: 500ms opacity ease-out;
-	transition: 500ms opacity ease-out;
-}
-
 .jp-carousel-buttons {
 	margin: -18px -20px 15px;
 	padding: 8px 10px;
@@ -249,9 +265,7 @@ div.jp-carousel-buttons a:hover {
 }
 
 .jp-carousel-slide,
-.jp-carousel-slide img,
-.jp-carousel-next-button,
-.jp-carousel-previous-button {
+.jp-carousel-slide img {
 	-webkit-transform: translate3d( 0, 0, 0 );
 	-moz-transform: translate3d( 0, 0, 0 );
 	-o-transform: translate3d( 0, 0, 0 );
@@ -272,6 +286,7 @@ div.jp-carousel-buttons a:hover {
 	z-index: 15;
 	color: #fff;
 	cursor: pointer;
+	transition: opacity 200ms ease-out;
 }
 
 .jp-carousel-transitions .jp-carousel-close-hint {

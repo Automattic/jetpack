@@ -1446,6 +1446,7 @@
 			};
 
 			var data = domUtil.getJSONAttribute( gallery, 'data-carousel-extra' );
+			var tapTimeout;
 
 			if ( ! data ) {
 				return; // don't run if the default gallery functions weren't used
@@ -1512,7 +1513,7 @@
 				threshold: 5,
 			} );
 
-			swiper.on( 'slideChange', function () {
+			swiper.on( 'slideChange', function ( swiper ) {
 				var index;
 				// Swiper indexes slides from 1, plus when looping to left last slide ends up
 				// as 0 and looping to right first slide as total slides + 1. These are adjusted
@@ -1525,6 +1526,36 @@
 					index = swiper.activeIndex - 1;
 				}
 				selectSlideAtIndex( index );
+
+				carousel.overlay.classList.remove( 'jp-carousel-hide-controls' );
+			} );
+
+			swiper.on( 'zoomChange', function ( swiper, scale ) {
+				if ( scale > 1 ) {
+					carousel.overlay.classList.add( 'jp-carousel-hide-controls' );
+				}
+
+				if ( scale === 1 ) {
+					carousel.overlay.classList.remove( 'jp-carousel-hide-controls' );
+				}
+			} );
+
+			swiper.on( 'doubleTap', function ( swiper ) {
+				clearTimeout( tapTimeout );
+				if ( swiper.zoom.scale === 1 ) {
+					var zoomTimeout = setTimeout( function () {
+						carousel.overlay.classList.remove( 'jp-carousel-hide-controls' );
+						clearTimeout( zoomTimeout );
+					}, 150 );
+				}
+			} );
+
+			swiper.on( 'tap', function () {
+				if ( swiper.zoom.scale > 1 ) {
+					tapTimeout = setTimeout( function () {
+						carousel.overlay.classList.toggle( 'jp-carousel-hide-controls' );
+					}, 150 );
+				}
 			} );
 
 			domUtil.fadeIn( carousel.overlay, function () {

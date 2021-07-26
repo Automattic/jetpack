@@ -594,6 +594,91 @@ class Test_REST_Endpoints extends TestCase {
 	}
 
 	/**
+	 * Testing the `POST /jetpack/v4/connection` endpoint, aka site disconnect endpoint, when isActive is missing.
+	 */
+	public function test_disconnect_site_with_missing_param() {
+		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection' );
+		$this->request->set_header( 'Content-Type', 'application/json' );
+
+		$response      = $this->server->dispatch( $this->request );
+		$response_data = $response->get_data();
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'Missing parameter(s): isActive', $response_data['message'] );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/connection` endpoint, aka site disconnect endpoint, when isActive is invalid.
+	 */
+	public function test_disconnect_site_with_invalid_param() {
+		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection' );
+		$this->request->set_header( 'Content-Type', 'application/json' );
+		$this->request->set_body( wp_json_encode( array( 'isActive' => 'should_be_bool_false' ) ) );
+
+		$response      = $this->server->dispatch( $this->request );
+		$response_data = $response->get_data();
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'Invalid parameter(s): isActive', $response_data['message'] );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/connection` endpoint, aka site disconnect endpoint, with invalid user permissions.
+	 */
+	public function test_disconnect_site_with_invalid_user_permissions() {
+		// Invalid user permissions.
+		$user = wp_get_current_user();
+		$user->remove_cap( 'jetpack_disconnect' );
+
+		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection' );
+		$this->request->set_header( 'Content-Type', 'application/json' );
+		$this->request->set_body( wp_json_encode( array( 'isActive' => false ) ) );
+
+		$response = $this->server->dispatch( $this->request );
+
+		$this->assertSame( 401, $response->get_status() );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/connection` endpoint, aka site disconnect endpoint, when the site is not connected.
+	 */
+	public function test_disconnect_site_site_not_connected() {
+
+		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection' );
+		$this->request->set_header( 'Content-Type', 'application/json' );
+		$this->request->set_body( wp_json_encode( array( 'isActive' => false ) ) );
+
+		$response      = $this->server->dispatch( $this->request );
+		$response_data = $response->get_data();
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'Failed to disconnect the site as it appears already disconnected.', $response_data['message'] );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/connection` endpoint, aka site disconnect endpoint, on success.
+	 */
+	public function test_disconnect_site_success() {
+		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection' );
+		$this->request->set_header( 'Content-Type', 'application/json' );
+		$this->request->set_body( wp_json_encode( array( 'isActive' => false ) ) );
+
+		// Mock full connection established.
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
+		// Mock site successfully disconnected on WPCOM.
+		add_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
+
+		$response      = $this->server->dispatch( $this->request );
+		$response_data = $response->get_data();
+
+		remove_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10 );
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 'success', $response_data['code'] );
+	}
+
+	/**
 	 * This filter callback allows us to skip the database query by `Jetpack_Options` to retrieve the option.
 	 *
 	 * @param array $options List of options already skipping the database request.
