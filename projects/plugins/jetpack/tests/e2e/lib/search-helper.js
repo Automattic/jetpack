@@ -102,15 +102,15 @@ function getSearchFiltersData() {
 
 function getBlockWidgetsData() {
 	return {
-		2: { content: '<!-- wp:search /-->' },
+		22: { content: '<!-- wp:search /-->' },
 	};
 }
 
 function getSidebarsWidgetsData() {
 	return {
 		wp_inactive_widgets: [],
-		'sidebar-1': [ 'block-2' ],
-		'sidebar-2': [ 'block-2' ],
+		'sidebar-1': [ 'block-22' ],
+		'sidebar-2': [ 'block-22' ],
 		'jetpack-instant-search-sidebar': [ 'jetpack-search-filters-8' ],
 		array_version: 3,
 	};
