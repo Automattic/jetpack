@@ -171,16 +171,79 @@
 			el.dispatchEvent( e );
 		}
 
-		function scrollToElement( el ) {
-			if ( ! el || typeof el.scrollIntoView !== 'function' ) {
+		// From: https://easings.net/#easeInOutQuad
+		function easeInOutQuad( num ) {
+			return num < 0.5 ? 2 * num * num : 1 - Math.pow( -2 * num + 2, 2 ) / 2;
+		}
+
+		function getFooterClearance( container ) {
+			var footer = container.querySelector( '.jp-carousel-info-footer' );
+			var infoArea = container.querySelector( '.jp-carousel-info-extra' );
+			var contentArea = container.querySelector( '.jp-carousel-info-content-wrapper' );
+
+			if ( footer && infoArea && contentArea ) {
+				var styles = window.getComputedStyle( infoArea );
+				var padding = parseInt( styles.paddingTop, 10 ) + parseInt( styles.paddingBottom, 10 );
+				padding = isNaN( padding ) ? 0 : padding;
+				return contentArea.offsetHeight + footer.offsetHeight + padding;
+			}
+			return 0;
+		}
+
+		function scrollToElement( el, container, callback ) {
+			if ( ! el || ! container ) {
+				if ( callback ) {
+					return callback();
+				}
 				return;
 			}
 
-			if ( 'scrollBehavior' in document.documentElement.style ) {
-				el.scrollIntoView( { behavior: 'smooth' } );
-			} else {
-				el.scrollIntoView();
+			// For iOS Safari compatibility, use JS to set the minimum height.
+			var infoArea = container.querySelector( '.jp-carousel-info-extra' );
+			if ( infoArea ) {
+				// 64px is the same height as `.jp-carousel-info-footer` in the CSS.
+				infoArea.style.minHeight = window.innerHeight - 64 + 'px';
 			}
+
+			var isScrolling = true;
+			var startTime = Date.now();
+			var duration = 300;
+			var originalPosition = container.scrollTop;
+			var targetPosition = Math.max(
+				0,
+				el.offsetTop - Math.max( 0, window.innerHeight - getFooterClearance( container ) )
+			);
+			var distance = targetPosition - container.scrollTop;
+			distance = Math.min( distance, container.scrollHeight - window.innerHeight );
+
+			function stopScroll() {
+				isScrolling = false;
+			}
+
+			function runScroll() {
+				var now = Date.now();
+				var progress = easeInOutQuad( ( now - startTime ) / duration );
+
+				progress = progress > 1 ? 1 : progress;
+				var newVal = progress * distance;
+				container.scrollTop = originalPosition + newVal;
+
+				if ( now <= startTime + duration && isScrolling ) {
+					return requestAnimationFrame( runScroll );
+				}
+				if ( callback ) {
+					callback();
+				}
+				if ( infoArea ) {
+					infoArea.style.minHeight = '';
+				}
+				isScrolling = false;
+				container.removeEventListener( 'wheel', stopScroll );
+			}
+
+			// Allow scroll to be cancelled by user interaction.
+			container.addEventListener( 'wheel', stopScroll );
+			runScroll();
 		}
 
 		function getJSONAttribute( el, attr ) {
@@ -550,10 +613,7 @@
 			var infoIcon = carousel.info.querySelector( '.jp-carousel-icon-info' );
 			var commentsIcon = carousel.info.querySelector( '.jp-carousel-icon-comments' );
 
-			if (
-				domUtil.closest( target, '.jp-carousel-icon-info' ) ||
-				target.classList.contains( 'jp-carousel-photo-title' )
-			) {
+			function handleInfoToggle() {
 				if ( commentsIcon ) {
 					commentsIcon.classList.remove( 'jp-carousel-selected' );
 				}
@@ -566,14 +626,13 @@
 					photoMetaContainer.classList.toggle( 'jp-carousel-show' );
 					if ( photoMetaContainer.classList.contains( 'jp-carousel-show' ) ) {
 						extraInfoContainer.classList.add( 'jp-carousel-show' );
-						domUtil.scrollToElement( extraInfoContainer );
 					} else {
 						extraInfoContainer.classList.remove( 'jp-carousel-show' );
 					}
 				}
 			}
 
-			if ( domUtil.closest( target, '.jp-carousel-icon-comments' ) ) {
+			function handleCommentToggle() {
 				if ( infoIcon ) {
 					infoIcon.classList.remove( 'jp-carousel-selected' );
 				}
@@ -586,10 +645,30 @@
 					commentsContainer.classList.toggle( 'jp-carousel-show' );
 					if ( commentsContainer.classList.contains( 'jp-carousel-show' ) ) {
 						extraInfoContainer.classList.add( 'jp-carousel-show' );
-						domUtil.scrollToElement( extraInfoContainer );
 					} else {
 						extraInfoContainer.classList.remove( 'jp-carousel-show' );
 					}
+				}
+			}
+
+			if (
+				domUtil.closest( target, '.jp-carousel-icon-info' ) ||
+				target.classList.contains( 'jp-carousel-photo-title' )
+			) {
+				if ( photoMetaContainer && photoMetaContainer.classList.contains( 'jp-carousel-show' ) ) {
+					domUtil.scrollToElement( carousel.overlay, carousel.overlay, handleInfoToggle );
+				} else {
+					handleInfoToggle();
+					domUtil.scrollToElement( carousel.info, carousel.overlay );
+				}
+			}
+
+			if ( domUtil.closest( target, '.jp-carousel-icon-comments' ) ) {
+				if ( commentsContainer && commentsContainer.classList.contains( 'jp-carousel-show' ) ) {
+					domUtil.scrollToElement( carousel.overlay, carousel.overlay, handleCommentToggle );
+				} else {
+					handleCommentToggle();
+					domUtil.scrollToElement( carousel.info, carousel.overlay );
 				}
 			}
 		}
@@ -1367,6 +1446,7 @@
 			};
 
 			var data = domUtil.getJSONAttribute( gallery, 'data-carousel-extra' );
+			var tapTimeout;
 
 			if ( ! data ) {
 				return; // don't run if the default gallery functions weren't used
@@ -1433,7 +1513,7 @@
 				threshold: 5,
 			} );
 
-			swiper.on( 'slideChange', function () {
+			swiper.on( 'slideChange', function ( swiper ) {
 				var index;
 				// Swiper indexes slides from 1, plus when looping to left last slide ends up
 				// as 0 and looping to right first slide as total slides + 1. These are adjusted
@@ -1446,6 +1526,36 @@
 					index = swiper.activeIndex - 1;
 				}
 				selectSlideAtIndex( index );
+
+				carousel.overlay.classList.remove( 'jp-carousel-hide-controls' );
+			} );
+
+			swiper.on( 'zoomChange', function ( swiper, scale ) {
+				if ( scale > 1 ) {
+					carousel.overlay.classList.add( 'jp-carousel-hide-controls' );
+				}
+
+				if ( scale === 1 ) {
+					carousel.overlay.classList.remove( 'jp-carousel-hide-controls' );
+				}
+			} );
+
+			swiper.on( 'doubleTap', function ( swiper ) {
+				clearTimeout( tapTimeout );
+				if ( swiper.zoom.scale === 1 ) {
+					var zoomTimeout = setTimeout( function () {
+						carousel.overlay.classList.remove( 'jp-carousel-hide-controls' );
+						clearTimeout( zoomTimeout );
+					}, 150 );
+				}
+			} );
+
+			swiper.on( 'tap', function () {
+				if ( swiper.zoom.scale > 1 ) {
+					tapTimeout = setTimeout( function () {
+						carousel.overlay.classList.toggle( 'jp-carousel-hide-controls' );
+					}, 150 );
+				}
 			} );
 
 			domUtil.fadeIn( carousel.overlay, function () {

@@ -110,6 +110,12 @@ fi
 
 chmod +x /var/scripts/run-extras.sh && . /var/scripts/run-extras.sh
 
+# Clean up pre-existing Apache pid file
+APACHE_PID_FILE="/run/apache2/apache2.pid"
+if [ -e $APACHE_PID_FILE ]; then
+	rm -f $APACHE_PID_FILE
+fi
+
 echo
 echo "Open http://${WP_DOMAIN}${WP_HOST_PORT}/ to see your site!"
 echo

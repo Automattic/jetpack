@@ -686,13 +686,13 @@ jobs:
         run: tools/js-tools/check-excludelist-diff.js
 
   ### Checks that changelogger change files are being created.
-  # No good equivalent, since it depends on the diff.
+  # Local equivalent: Probably `tools/check-changelogger-use.php origin/master HEAD`
   changelogger_used:
     name: Changelogger use
     runs-on: ubuntu-latest
     timeout-minutes: 5  # 2021-03-24: Takes about a minute.
     steps:
-      # We don't need full git history, but require-change-file-for-touched-projects.php does need everything up to the merge-base.
+      # We don't need full git history, but tools/check-changelogger-use.php does need everything up to the merge-base.
       - uses: actions/checkout@v2
         with:
           ref: ${{ github.event.pull_request.head.sha }}
@@ -733,7 +733,10 @@ jobs:
           jq --version
 
       - name: Check change files are touched for touched projects
-        run: .github/files/require-change-file-for-touched-projects.php --debug
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: tools/check-changelogger-use.php --debug "$BASE" "$HEAD"
 
   ### Checks that changelogger change files are valid.
   # Local equivalent: `./tools/changelogger-validate-all.sh`

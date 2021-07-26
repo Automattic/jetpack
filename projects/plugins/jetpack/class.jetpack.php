@@ -796,6 +796,9 @@ class Jetpack {
 		// Actions for successful reconnect.
 		add_action( 'jetpack_reconnection_completed', array( $this, 'reconnection_completed' ) );
 
+		// Actions for successful disconnect.
+		add_action( 'jetpack_site_disconnected', array( $this, 'jetpack_site_disconnected' ) );
+
 		// Actions for licensing.
 		Licensing::instance()->initialize();
 
@@ -3441,7 +3444,8 @@ p {
 		if ( is_plugin_active_for_network( 'jetpack/jetpack.php' ) ) {
 			Jetpack_Network::init()->deactivate();
 		} else {
-			self::disconnect( false );
+			add_filter( 'jetpack_update_activated_state_on_disconnect', '__return_false' );
+			self::disconnect();
 			// Jetpack_Heartbeat::init()->deactivate();
 		}
 	}
@@ -3459,22 +3463,38 @@ p {
 	 *
 	 * @static
 	 */
-	public static function disconnect( $update_activated_state = true ) {
+	public static function disconnect() {
 
 		$connection = self::connection();
 
 		// If the site is in an IDC because sync is not allowed,
 		// let's make sure to not disconnect the production site.
 		$connection->disconnect_site( ! Identity_Crisis::validate_sync_error_idc_option() );
+	}
 
+	/**
+	 * Happens after a successfull disconnection.
+	 *
+	 * @static
+	 */
+	public static function jetpack_site_disconnected() {
 		Identity_Crisis::clear_all_idc_options();
+
+		// Delete all the sync related data. Since it could be taking up space.
+		Sender::get_instance()->uninstall();
+
+		/**
+		 * Filters whether the Jetpack activated state should be updated after disconnecting.
+		 *
+		 * @since 10.0.0
+		 *
+		 * @param bool $update_activated_state Whether activated state should be updated after disconnecting, defaults to true.
+		 */
+		$update_activated_state = apply_filters( 'jetpack_update_activated_state_on_disconnect', true );
 
 		if ( $update_activated_state ) {
 			Jetpack_Options::update_option( 'activated', 4 );
 		}
-
-		// Delete all the sync related data. Since it could be taking up space.
-		Sender::get_instance()->uninstall();
 	}
 
 	/**

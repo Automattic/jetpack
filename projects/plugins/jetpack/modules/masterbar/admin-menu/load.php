@@ -111,4 +111,6 @@ if ( should_customize_nav( $admin_menu_class ) ) {
 	}
 
 	\add_action( 'jetpack_dashboard_switcher_changed_view', __NAMESPACE__ . '\dashboard_quick_switcher_record_usage', 10, 2 );
+} else {
+	\add_filter( 'jetpack_load_admin_menu_class', '__return_false' );
 }

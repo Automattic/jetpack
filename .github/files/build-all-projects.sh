@@ -116,6 +116,15 @@ for SLUG in "${SLUGS[@]}"; do
 				continue
 			fi
 			echo "::endgroup::"
+			echo '::group::Updating $$next-version$$'
+			VER="$($CHANGELOGGER version current)"
+			if ! "$BASE"/tools/replace-next-version-tag.sh -v "$SLUG" "$VER"; then
+				EXIT=1
+				echo "::endgroup::"
+				echo "::error::\$\$next-version\$\$ update for ${SLUG} failed"
+				continue
+			fi
+			echo "::endgroup::"
 		else
 			echo "Not updating changelog, there are no change files."
 		fi

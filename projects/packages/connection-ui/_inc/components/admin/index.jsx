@@ -3,7 +3,9 @@
  */
 import React, { useCallback } from 'react';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { ConnectScreen } from '@automattic/jetpack-connection';
+
+import { ConnectionStatusCard, ConnectScreen } from '@automattic/jetpack-connection';
+
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -35,20 +37,26 @@ export default function Admin() {
 		[ setConnectionStatus ]
 	);
 
+	const onDisconnectedCallback = useCallback( () => {
+		setConnectionStatus( { isActive: false, isRegistered: false, isUserConnected: false } );
+	}, [ setConnectionStatus ] );
+
 	return (
 		<React.Fragment>
 			<Header />
 
-			<div className="connection-status-card">
-				{ connectionStatus.isRegistered && ! connectionStatus.isUserConnected && (
-					<strong>{ __( 'Site Registered', 'jetpack' ) }</strong>
-				) }
-				{ connectionStatus.isRegistered && connectionStatus.isUserConnected && (
-					<strong>{ __( 'Site and User Connected', 'jetpack' ) }</strong>
-				) }
-			</div>
+			{ connectionStatus.isRegistered && (
+				<ConnectionStatusCard
+					isRegistered={ connectionStatus.isRegistered }
+					isUserConnected={ connectionStatus.isUserConnected }
+					apiRoot={ APIRoot }
+					apiNonce={ APINonce }
+					onDisconnected={ onDisconnectedCallback }
+					redirectUri="tools.php?page=wpcom-connection-manager"
+				/>
+			) }
 
-			{ ( ! connectionStatus.isRegistered || ! connectionStatus.isUserConnected ) && (
+			{ ! connectionStatus.isRegistered && (
 				<ConnectScreen
 					apiRoot={ APIRoot }
 					apiNonce={ APINonce }
