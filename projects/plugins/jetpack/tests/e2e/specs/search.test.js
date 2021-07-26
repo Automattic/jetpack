@@ -12,8 +12,8 @@ import {
 	setupSearchWidget,
 	disableInstantSearch,
 	disableSearchModule,
-	getBlockWidgets,
-	setupBlockWidgets,
+	// getBlockWidgets,
+	// setupBlockWidgets,
 } from '../lib/search-helper';
 
 /**
@@ -25,11 +25,11 @@ import {
 describe( 'Search', () => {
 	let homepage;
 	let backupSidebarsWidgets;
-	let backupBlockWidgets;
+	// let backupBlockWidgets;
 
 	beforeAll( async () => {
 		backupSidebarsWidgets = await getSidebarsWidgets();
-		backupBlockWidgets = await getBlockWidgets();
+		// backupBlockWidgets = await getBlockWidgets();
 		await syncJetpackPlanData( 'complete' );
 		await activateModule( page, 'search' );
 		await enableInstantSearch();
@@ -39,7 +39,7 @@ describe( 'Search', () => {
 
 	afterAll( async () => {
 		await setupSidebarsWidgets( backupSidebarsWidgets );
-		await setupBlockWidgets( backupBlockWidgets );
+		// await setupBlockWidgets( backupBlockWidgets );
 		await disableSearchModule();
 		await disableInstantSearch();
 	} );
