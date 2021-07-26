@@ -69,18 +69,19 @@ export async function setupBlockWidgets( blockWidgets = getBlockWidgetsData() ) 
 }
 
 async function setWpOptionData( optionName, value, tempFilePath ) {
-	logger.child( optionName, value, tempFilePath );
+	logger.warn( 'setoption', optionName, value, tempFilePath );
 	fs.writeFileSync( tempFilePath, JSON.stringify( value ) );
 
 	return await execWpCommand( `wp option update ${ optionName } --format=json <	${ tempFilePath }` );
 }
 
 async function getWpOptionData( optionName ) {
-	const sidebarsWidgetsValue = await execWpCommand( `wp option get ${ optionName } --format=json` );
-	if ( typeof sidebarsWidgetsValue === 'object' ) {
-		throw sidebarsWidgetsValue;
+	const value = await execWpCommand( `wp option get ${ optionName } --format=json` );
+	if ( typeof value === 'object' ) {
+		throw value;
 	}
-	return JSON.parse( sidebarsWidgetsValue );
+	logger.warn( 'getoption', optionName, value );
+	return JSON.parse( value );
 }
 
 function getSearchFiltersData() {
