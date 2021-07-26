@@ -29,9 +29,7 @@ describe( 'Search', () => {
 
 	beforeAll( async () => {
 		backupSidebarsWidgets = await getSidebarsWidgets();
-		console.log( `old: ${ backupSidebarsWidgets }` );
 		backupBlockWidgets = await getBlockWidgets();
-		console.log( `old: ${ backupBlockWidgets }` );
 		await syncJetpackPlanData( 'complete' );
 		await activateModule( page, 'search' );
 		await enableInstantSearch();

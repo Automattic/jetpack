@@ -9,7 +9,6 @@ import path from 'path';
  */
 import { execWpCommand } from './utils-helper';
 import config from 'config';
-import logger from './logger';
 
 export async function enableInstantSearch() {
 	return execWpCommand( 'wp option update instant_search_enabled 1' );
@@ -69,7 +68,7 @@ export async function setupBlockWidgets( blockWidgets = getBlockWidgetsData() ) 
 }
 
 async function setWpOptionData( optionName, value, tempFilePath ) {
-	logger.warn( 'setoption', optionName, value, tempFilePath );
+	console.log( 'setoption', optionName, JSON.stringify( value ), tempFilePath );
 	fs.writeFileSync( tempFilePath, JSON.stringify( value ) );
 
 	return await execWpCommand( `wp option update ${ optionName } --format=json <	${ tempFilePath }` );
@@ -80,7 +79,7 @@ async function getWpOptionData( optionName ) {
 	if ( typeof value === 'object' ) {
 		throw value;
 	}
-	logger.warn( 'getoption', optionName, value );
+	console.log( 'getoption', optionName, JSON.stringify( value ) );
 	return JSON.parse( value );
 }
 
