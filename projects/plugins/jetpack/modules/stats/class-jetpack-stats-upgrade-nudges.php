@@ -230,7 +230,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 	 * @param string  $icon The path of the icon, relative to Jetpack images folder.
 	 * @param string  $link The link of the button.
 	 * @param string  $tracks_id The id used to identify the tracks event. Automatically prefixed with "jetpack_stats_nudges_".
-	 * @param string  $learn_more_link The target of the "Lear more" link.
+	 * @param string  $learn_more_link The target of the "Learn more" link.
 	 * @param boolean $subitem Whether it is a subitem or not.
 	 * @param string  $button_label The button label.
 	 * @return void
@@ -251,7 +251,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 							<?php echo esc_html( $title ); ?>
 							<p>
 								<?php echo esc_html( $text ); ?>
-								<a href="<?php echo esc_attr( $learn_more_link ); ?>" target="_blank">
+								<a href="<?php echo esc_attr( $learn_more_link ); ?>" target="_blank" rel="noopener noreferrer">
 									<?php esc_html_e( 'Learn more', 'jetpack' ); ?>
 								</a>
 							</p>
