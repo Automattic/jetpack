@@ -119,7 +119,6 @@ class Jetpack_Search_Widget extends WP_Widget {
 		Jetpack::activate_module( 'search', false, false );
 	}
 
-
 	/**
 	 * Enqueues the scripts and styles needed for the customizer.
 	 *
@@ -294,7 +293,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 		}
 
 		if ( Jetpack_Search_Options::is_instant_enabled() ) {
-			if ( 'jetpack-instant-search-sidebar' === $args['id'] ) {
+			if ( array_key_exists( 'id', $args ) && 'jetpack-instant-search-sidebar' === $args['id'] ) {
 				$this->widget_empty_instant( $args, $instance );
 			} else {
 				$this->widget_instant( $args, $instance );
