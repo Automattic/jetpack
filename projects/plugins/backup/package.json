@@ -34,8 +34,8 @@
 		"@wordpress/date": "4.2.0",
 		"@wordpress/element": "3.2.0",
 		"@wordpress/i18n": "4.2.0",
-		"react": "16.14.0",
-		"react-dom": "16.14.0"
+		"react": "17.0.2",
+		"react-dom": "17.0.2"
 	},
 	"devDependencies": {
 		"@automattic/calypso-build": "7.0.0",
