@@ -397,7 +397,7 @@ class REST_Connector {
 	/**
 	 * Permission check for the disconnect site endpoint.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.30.1
 	 *
 	 * @return bool|WP_Error True if user is able to disconnect the site.
 	 */
@@ -418,7 +418,7 @@ class REST_Connector {
 	 * Information about the master/primary user.
 	 * Information about the current user.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.30.1
 	 *
 	 * @return \WP_REST_Response
 	 */
@@ -462,7 +462,7 @@ class REST_Connector {
 		/**
 		 * Filters the current user connection data.
 		 *
-		 * @since $$next-version$$
+		 * @since 1.30.1
 		 *
 		 * @param array An array containing the current user connection data.
 		 */
@@ -762,7 +762,7 @@ class REST_Connector {
 	/**
 	 * Disconnects Jetpack from the WordPress.com Servers
 	 *
-	 * @since $$next-version$$
+	 * @since 1.30.1
 	 *
 	 * @return bool|WP_Error True if Jetpack successfully disconnected.
 	 */
