@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Fix search E2E test failure caused by new block widgets
