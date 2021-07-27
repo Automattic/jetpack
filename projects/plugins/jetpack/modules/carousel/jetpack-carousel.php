@@ -261,7 +261,7 @@ class Jetpack_Carousel {
 				'display_exif'                    => $this->test_1or0_option( Jetpack_Options::get_option_and_ensure_autoload( 'carousel_display_exif', true ) ),
 				'display_comments'                => $this->test_1or0_option( Jetpack_Options::get_option_and_ensure_autoload( 'carousel_display_comments', true ) ),
 				'display_geo'                     => $this->test_1or0_option( Jetpack_Options::get_option_and_ensure_autoload( 'carousel_display_geo', true ) ),
-				'display_background_image'        => $this->test_1or0_option( Jetpack_Options::get_option_and_ensure_autoload( 'carousel_display_background_image', true ) ),
+				'display_slide_background'        => $this->test_1or0_option( Jetpack_Options::get_option_and_ensure_autoload( 'carousel_display_slide_background', false ), false ),
 				'single_image_gallery'            => $this->single_image_gallery_enabled,
 				'single_image_gallery_media_file' => $this->single_image_gallery_enabled_media_file,
 				'background_color'                => $this->carousel_background_color_sanitize( Jetpack_Options::get_option_and_ensure_autoload( 'carousel_background_color', '' ) ),
@@ -1066,8 +1066,8 @@ class Jetpack_Carousel {
 		add_settings_field( 'carousel_display_comments', __( 'Comments', 'jetpack' ), array( $this, 'carousel_display_comments_callback' ), 'media', 'carousel_section' );
 		register_setting( 'media', 'carousel_display_comments', array( $this, 'carousel_display_comments_sanitize' ) );
 
-		add_settings_field( 'carousel_display_background_image', __( 'Background image', 'jetpack' ), array( $this, 'carousel_display_background_image_callback' ), 'media', 'carousel_section' );
-		register_setting( 'media', 'carousel_display_background_image', array( $this, 'carousel_display_background_image_sanitize' ) );
+		add_settings_field( 'carousel_display_slide_background', __( 'Slide background', 'jetpack' ), array( $this, 'carousel_display_slide_background_callback' ), 'media', 'carousel_section' );
+		register_setting( 'media', 'carousel_display_slide_background', array( $this, 'carousel_display_slide_background_sanitize' ) );
 
 		// No geo setting yet, need to "fuzzify" data first, for privacy
 		// add_settings_field('carousel_display_geo', __( 'Geolocation', 'jetpack' ), array( $this, 'carousel_display_geo_callback' ), 'media', 'carousel_section' );
@@ -1143,20 +1143,20 @@ class Jetpack_Carousel {
 	}
 
 	/**
-	 * Callback for checkbox and label of field that toggles background image.
+	 * Callback for checkbox and label of field that toggles slide background color.
 	 */
-	public function carousel_display_background_image_callback() {
-		$this->settings_checkbox( 'carousel_display_background_image', esc_html__( 'Show blurred background image behind focused image', 'jetpack' ) );
+	public function carousel_display_slide_background_callback() {
+		$this->settings_checkbox( 'carousel_display_slide_background', esc_html__( 'Display colorized slide backgrounds', 'jetpack' ), '', false );
 	}
 
 	/**
-	 * Return sanitized option for value that controls whether the blurred background image is displayed.
+	 * Return sanitized option for value that controls whether the slide background color is displayed.
 	 *
 	 * @param number $value Value to sanitize.
 	 *
 	 * @return number Sanitized value, only 1 or 0.
 	 */
-	public function carousel_display_background_image_sanitize( $value ) {
+	public function carousel_display_slide_background_sanitize( $value ) {
 		return $this->sanitize_1or0_option( $value );
 	}
 

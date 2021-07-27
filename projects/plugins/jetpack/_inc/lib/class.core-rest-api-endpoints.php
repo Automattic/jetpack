@@ -2168,10 +2168,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'carousel',
 			),
-			'carousel_display_background_image'    => array(
-				'description'       => esc_html__( 'Display blurred background behind focused image', 'jetpack' ),
+			'carousel_display_slide_background'    => array(
+				'description'       => esc_html__( 'Display colorized slide backgrounds', 'jetpack' ),
 				'type'              => 'boolean',
-				'default'           => 1,
+				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'carousel',
 			),

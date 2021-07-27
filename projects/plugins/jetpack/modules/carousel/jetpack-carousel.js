@@ -789,7 +789,7 @@
 
 			loadFullImage( carousel.slides[ index ] );
 
-			if ( Number( jetpackCarouselStrings.display_background_image ) === 1 ) {
+			if ( Number( jetpackCarouselStrings.display_slide_background ) === 1 ) {
 				loadSlideBackgrounds();
 			}
 
