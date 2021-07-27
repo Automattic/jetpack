@@ -139,12 +139,6 @@ function wpcomsh_set_connected_user_data_as_user_options( $transient, $value, $e
 		update_user_option( get_current_user_id(), 'admin_color', $value['color_scheme'] );
 	}
 
-	if ( ! empty( $value['is_nav_unification_enabled'] ) ) {
-		update_user_option( get_current_user_id(), 'wpcom_is_nav_unification_enabled', true );
-	} else {
-		update_user_option( get_current_user_id(), 'wpcom_is_nav_unification_enabled', false );
-	}
-
 	if ( isset( $value['site_count'] ) ) {
 		update_user_option( get_current_user_id(), 'wpcom_site_count', $value['site_count'] );
 	}
@@ -161,10 +155,9 @@ add_action( 'setted_transient', 'wpcomsh_set_connected_user_data_as_user_options
  * This function is hooked into the `jetpack_load_admin_menu_class` filter that lives in Jetpack.
  * See https://github.com/Automattic/jetpack/blob/507142b09bae12b58e84c0c2b7d20024563f170d/modules%2Fmasterbar.php#L29.
  *
- * @param bool $should_activate_nav_unification Whether Nav Unification is currently enabled.
  * @return bool Whether Nav Unification should be enabled.
  */
-function wpcomsh_activate_nav_unification( $should_activate_nav_unification ) {
+function wpcomsh_activate_nav_unification() {
 	$user_id = get_current_user_id();
 
 	// Loads for all API requests to the admin-menu endpoint (i.e. Calypso).
@@ -186,15 +179,8 @@ function wpcomsh_activate_nav_unification( $should_activate_nav_unification ) {
 		return false;
 	}
 
-	// Check if nav unification has been enabled for current user.
-	$is_nav_unification_enabled = get_user_option( 'wpcom_is_nav_unification_enabled' );
-
-	if ( $is_nav_unification_enabled ) {
-		return true;
-	}
-
-	// Otherwise, keep using the previous value of the filter.
-	return $should_activate_nav_unification;
+	// Enabled by default.
+	return true;
 }
 add_filter( 'jetpack_load_admin_menu_class', 'wpcomsh_activate_nav_unification' );
 
@@ -237,9 +223,5 @@ function wpcomsh_add_plugins_menu_non_supported_plans() {
 }
 add_action( 'admin_menu', 'wpcomsh_add_plugins_menu_non_supported_plans' );
 
-// Temporary hotfixes due to Jetpack monthly release cycle.
-require_once __DIR__ . '/nav-unification-hotfixes.php';
-
 // Enables the Upgrades -> Emails menu item in the sidebar for all users (temporary hotfix due to Jetpack monthly release cycle)
 add_filter( 'jetpack_show_wpcom_upgrades_email_menu', '__return_true' );
-
