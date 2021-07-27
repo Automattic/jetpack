@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { assign, get, merge } from 'lodash';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -395,16 +396,33 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
 		source += '-monthly';
 	}
 
-	return (
-		'https://jetpack.com/redirect/?' +
-		`source=${ source }&site=${ getSiteRawUrl( state ) }` +
-		( affiliateCode ? `&aff=${ affiliateCode }` : '' ) +
-		( uid ? `&u=${ uid }` : '' ) +
-		( subsidiaryId ? `&subsidiaryId=${ subsidiaryId }` : '' ) +
-		( isCurrentUserLinked( state ) ? '' : '&unlinked=1' ) +
-		( purchaseToken ? `&purchasetoken=${ purchaseToken }` : '' ) +
-		( calypsoEnv ? `&calypso_env=${ calypsoEnv }` : '' )
-	);
+	const redirectArgs = {
+		site: getSiteRawUrl( state ),
+	};
+
+	if ( affiliateCode ) {
+		redirectArgs.aff = affiliateCode;
+	}
+	if ( uid ) {
+		redirectArgs.u = uid;
+	}
+	if ( subsidiaryId ) {
+		redirectArgs.subsidiaryId = subsidiaryId;
+	}
+
+	redirectArgs.query = '';
+
+	if ( ! isCurrentUserLinked( state ) ) {
+		redirectArgs.query += 'unlinked=1&';
+	}
+	if ( purchaseToken ) {
+		redirectArgs.query += `purchasetoken=${ purchaseToken }`;
+	}
+	if ( calypsoEnv ) {
+		redirectArgs.calypso_env = calypsoEnv;
+	}
+
+	return getRedirectUrl( source, redirectArgs );
 };
 
 /**

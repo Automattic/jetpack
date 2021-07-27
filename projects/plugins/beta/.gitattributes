@@ -1,2 +1,14 @@
+# Files to include in mirror repo: Automattic/vaultpress
+vendor/autoload.php                         production-include
+vendor/autoload_packages.php                production-include
+vendor/automattic/**                        production-include
+vendor/composer/**                          production-include
+vendor/composer/semver/**                   production-include
+vendor/erusev/parsedown/**                  production-include
+vendor/jetpack-autoloader/**                production-include
+
 # Files not needed in the production build.
-/changelog/**    production-exclude
+/changelog/**                               production-exclude
+/composer.lock                              production-exclude
+/vendor/automattic/jetpack-autoloader/**    production-exclude
+/vendor/automattic/jetpack-changelogger/**  production-exclude

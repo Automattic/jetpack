@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Removed unneeded "test-spelling" script with a vulnerable dependency.

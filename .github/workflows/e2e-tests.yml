@@ -26,7 +26,7 @@ jobs:
       - id: create-matrix
         run: |
           MATRIX='[{"group":"pre-connection"},{"group":"connection"},{"group":"post-connection"}]'
-          if [ ${{ github.event_name }} == schedule ]; then
+          if [ "$GITHUB_EVENT_NAME" == schedule ]; then
             MATRIX=$(echo $MATRIX | jq '. + [{"group": "gutenberg"}]' | jq -c .)
           fi
           echo $MATRIX
@@ -43,6 +43,7 @@ jobs:
       matrix:
         include: ${{ fromJson( needs.create-matrix.outputs.matrix ) }}
     env:
+      GROUP: ${{ matrix.group }}
       GUTENBERG: bundle # default value. Can be overridden later based on matrix.group value
     if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
 
@@ -126,7 +127,7 @@ jobs:
 
     - name: Run ${{ matrix.group }} tests
       working-directory: projects/plugins/jetpack/tests/e2e
-      run: pnpm run test-e2e -- --group=${{ matrix.group }}
+      run: pnpm run test-e2e -- --group=$GROUP
 
     - name: Environment tear-down
       if: ${{ always() }}
@@ -149,7 +150,7 @@ jobs:
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       working-directory: projects/plugins/jetpack/tests/e2e
-      run: NODE_ENV=test node ./bin/slack.js run ${{ matrix.group }}
+      run: NODE_ENV=test node ./bin/slack.js run $GROUP
 
     - uses: testspace-com/setup-testspace@v1
       with:
@@ -158,7 +159,7 @@ jobs:
     - name: Publish to Testspace
       working-directory: projects/plugins/jetpack/tests/e2e
       run: |
-        testspace "[${{ matrix.group }}]output/reports/junit-*.xml"
+        testspace "[${GROUP}]output/reports/junit-*.xml"
       if: always()
 
   slack-notification:
@@ -203,10 +204,12 @@ jobs:
 
       - name: Send Slack notification
         working-directory: projects/plugins/jetpack/tests/e2e
+        env:
+          RESULT: ${{ needs.e2e-tests.result }}
         run: |
           pnpm install
           pnpm run test-decrypt-config
-          NODE_ENV=test node ./bin/slack.js job ${{needs.e2e-tests.result}}
+          NODE_ENV=test node ./bin/slack.js job $RESULT
 
   test-reports:
     name: "Trigger test report workflow"
@@ -216,10 +219,14 @@ jobs:
 
     steps:
       - name: Trigger test report workflow
+        env:
+          TOKEN: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           if [ "$GITHUB_EVENT_NAME" == pull_request ]; then
           	BRANCH=$GITHUB_HEAD_REF
-            EVENT_NAME="${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}"
+            EVENT_NAME="$PR_NUMBER: $PR_TITLE"
           else
           	BRANCH=${GITHUB_REF:11}
             EVENT_NAME="Run $GITHUB_RUN_ID"
@@ -227,14 +234,13 @@ jobs:
 
           curl -X POST https://api.github.com/repos/automattic/jetpack-e2e-reports/dispatches \
           -H "Accept: application/vnd.github.v3+json" \
-          -u user:${{ secrets.E2E_TEST_REPORTS_TOKEN }} \
+          -u "user:$TOKEN" \
           --data "{\"event_type\": \"$EVENT_NAME\",
           \"client_payload\": {
           \"repository\": \"$GITHUB_REPOSITORY\",
           \"run_id\": \"$GITHUB_RUN_ID\",
           \"run_number\": \"$GITHUB_RUN_NUMBER\",
           \"branch\": \"$BRANCH\",
-          \"pr\": \"${{ github.event.pull_request.number }}\",
-          \"pr_title\": \"${{ github.event.pull_request.title }}\",
-          \"pr_number\": \"${{ github.event.pull_request.number }}\"
+          \"pr_title\": \"$PR_TITLE\",
+          \"pr_number\": \"$PR_NUMBER\"
           }}"

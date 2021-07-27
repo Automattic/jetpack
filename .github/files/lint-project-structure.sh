@@ -32,6 +32,8 @@ for PROJECT in projects/*; do
 	fi
 done
 
+ROOT_PACKAGE_JSON_ENGINES="$(jq '.engines' package.json)"
+
 for PROJECT in projects/*/*; do
 	SLUG="${PROJECT#projects/}"
 	TYPE="${SLUG%/*}"
@@ -49,44 +51,68 @@ for PROJECT in projects/*/*; do
 
 	debug "Checking project $SLUG"
 
-	# - composer.json must exist.
-	# - composer.json must include a monorepo .repositories entry.
-	# - composer.json must require-dev (or just require) changelogger.
-	# - Changelogger's changes-dir must have a .gitkeep.
-	# - Changelogger's changes-dir must be production-excluded.
-	# - Packages must have a dev-master branch-alias.
-	if [[ ! -e "$PROJECT/composer.json" ]]; then
-		EXIT=1
-		echo "::error file=$PROJECT/composer.json::Project $SLUG does not contain composer.json."
-	else
-		if ! jq --arg type "$TYPE" -e '.repositories[]? | select( .type == "path" and ( .url == "../../packages/*" or $type == "packages" and .url == "../*" ) )' "$PROJECT/composer.json" >/dev/null; then
-			EXIT=1
-			echo "::error file=$PROJECT/composer.json::$PROJECT/composer.json should have a \`repositories\` entry pointing to \`../../packages/*\`."
-		fi
-		if [[ "$SLUG" != "packages/changelogger" ]] && ! jq -e '.require["automattic/changelogger"] // .["require-dev"]["automattic/jetpack-changelogger"]' "$PROJECT/composer.json" >/dev/null; then
-			EXIT=1
-			echo "::error file=$PROJECT/composer.json::Project $SLUG should include automattic/jetpack-changelogger in \`require-dev\`."
-		else
-			CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' "$PROJECT/composer.json")"
-			if [[ ! -e "$PROJECT/$CHANGES_DIR/.gitkeep" ]]; then
-				EXIT=1
-				echo "::error file=$PROJECT/$CHANGES_DIR/.gitkeep::Project $SLUG should have a file at $CHANGES_DIR/.gitkeep so that $CHANGES_DIR does not get removed when releasing."
-			fi
-			if [[ "$(git check-attr production-exclude -- $PROJECT/$CHANGES_DIR/file)" != *": production-exclude: set" ]]; then
-				EXIT=1
-				echo "::error file=$PROJECT/.gitattributes::Files in $PROJECT/$CHANGES_DIR/ must have git attribute production-exclude."
-			fi
-		fi
-		if [[ "$TYPE" == "packages" ]] && ! jq -e '.extra["branch-alias"]["dev-master"]' "$PROJECT/composer.json" >/dev/null; then
-			EXIT=1
-			echo "::error file=$PROJECT/composer.json::Package $SLUG should set \`.extra.branch-alias.dev-master\` in composer.json."
-		fi
-	fi
-
 	# - .github/ must be export-ignored for packages.
 	if [[ "$TYPE" == "packages" && "$(git check-attr export-ignore -- $PROJECT/.github/)" != *": export-ignore: set" ]]; then
 		EXIT=1
 		echo "::error file=$PROJECT/.gitattributes::$PROJECT/.github/ should have git attribute export-ignore."
+	fi
+
+	# - package.json engines should match monorepo root package.json engines
+	if [[ -e "$PROJECT/package.json" ]]; then
+		PACKAGE_JSON_ENGINES="$(jq '.engines' "$PROJECT/package.json")"
+		if [[ "$PACKAGE_JSON_ENGINES" != "$ROOT_PACKAGE_JSON_ENGINES" ]]; then
+			EXIT=1
+			LINE=$(jq --stream --arg obj "$PACKAGE_JSON_ENGINES" 'if length == 1 then .[0][:-1] else .[0] end | if . == ["engines"] then input_line_number - ( $obj | gsub( "[^\n]"; "" ) | length ) else empty end' "$PROJECT/package.json")
+			if [[ -n "$LINE" ]]; then
+				echo "---" # Bracket message containing newlines for better visibility in GH's logs.
+				echo "::error file=$PROJECT/package.json,line=$LINE::Engines must match those in the monorepo root package.json.%0A  \"engines\": ${ROOT_PACKAGE_JSON_ENGINES//$'\n'/%0A  }"
+				echo "---"
+			else
+				LINE=$(wc -l < "$PROJECT/package.json")
+				echo "---" # Bracket message containing newlines for better visibility in GH's logs.
+				echo "::error file=$PROJECT/package.json,line=$LINE::Engines must be specified, matching those in the monorepo root package.json.%0A  \"engines\": ${ROOT_PACKAGE_JSON_ENGINES//$'\n'/%0A  }"
+				echo "---"
+			fi
+		fi
+	fi
+
+	# - composer.json must exist.
+	if [[ ! -e "$PROJECT/composer.json" ]]; then
+		EXIT=1
+		echo "::error file=$PROJECT/composer.json::Project $SLUG does not contain composer.json."
+		continue
+	fi
+
+	### All tests depending on composer.json must go below here.
+
+	# - composer.json must include a monorepo .repositories entry.
+	if ! jq --arg type "$TYPE" -e '.repositories[]? | select( .type == "path" and ( .url == "../../packages/*" or $type == "packages" and .url == "../*" ) )' "$PROJECT/composer.json" >/dev/null; then
+		EXIT=1
+		echo "::error file=$PROJECT/composer.json::$PROJECT/composer.json should have a \`repositories\` entry pointing to \`../../packages/*\`."
+	fi
+
+	# - composer.json must require-dev (or just require) changelogger.
+	# - Changelogger's changes-dir must have a .gitkeep.
+	# - Changelogger's changes-dir must be production-excluded.
+	if [[ "$SLUG" != "packages/changelogger" ]] && ! jq -e '.require["automattic/changelogger"] // .["require-dev"]["automattic/jetpack-changelogger"]' "$PROJECT/composer.json" >/dev/null; then
+		EXIT=1
+		echo "::error file=$PROJECT/composer.json::Project $SLUG should include automattic/jetpack-changelogger in \`require-dev\`."
+	else
+		CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' "$PROJECT/composer.json")"
+		if [[ ! -e "$PROJECT/$CHANGES_DIR/.gitkeep" ]]; then
+			EXIT=1
+			echo "::error file=$PROJECT/$CHANGES_DIR/.gitkeep::Project $SLUG should have a file at $CHANGES_DIR/.gitkeep so that $CHANGES_DIR does not get removed when releasing."
+		fi
+		if [[ "$(git check-attr production-exclude -- $PROJECT/$CHANGES_DIR/file)" != *": production-exclude: set" ]]; then
+			EXIT=1
+			echo "::error file=$PROJECT/.gitattributes::Files in $PROJECT/$CHANGES_DIR/ must have git attribute production-exclude."
+		fi
+	fi
+
+	# - Packages must have a dev-master branch-alias.
+	if [[ "$TYPE" == "packages" ]] && ! jq -e '.extra["branch-alias"]["dev-master"]' "$PROJECT/composer.json" >/dev/null; then
+		EXIT=1
+		echo "::error file=$PROJECT/composer.json::Package $SLUG should set \`.extra.branch-alias.dev-master\` in composer.json."
 	fi
 
 	SUGGESTION="You might add this with \`composer config autoloader-suffix '$(printf "%s" "$SLUG" | md5sum | sed -e 's/[[:space:]]*-$//')_$(sed -e 's/[^0-9a-zA-Z]/_/g' <<<"${SLUG##*/}")ⓥversion'\` in the appropriate directory."
@@ -104,7 +130,7 @@ for PROJECT in projects/*/*; do
 	# - If vendor/autoload_packages.php is production-included and .config.autoloader-suffix is set, it must contain ⓥ.
 	# - Require that the first part of .config.autoloader-suffix is long enough.
 	if jq -e '.config["autoloader-suffix"]' "$PROJECT/composer.json" >/dev/null; then
-		LINE=$(grep --line-number --max-count=1 '^		"autoloader-suffix":' "$PROJECT/composer.json")
+		LINE=$(grep --line-number --max-count=1 '^		"autoloader-suffix":' "$PROJECT/composer.json" || true)
 		if [[ -n "$LINE" ]]; then
 			LINE=",line=${LINE%%:*}"
 		fi
@@ -124,9 +150,25 @@ for PROJECT in projects/*/*; do
 
 done
 
+# - Composer name fields should not be repeated.
+debug "Checking for duplicate composer.json names"
+DUPS="$(jq -rn 'reduce inputs as $i ({}; .[$i.name] |= ( . // [] ) + [ input_filename ]) | to_entries[] | .key as $key | .value | select( length > 1 ) | ( [ .[] | capture("^projects/(?<s>.*)/composer\\.json$").s ] | .[-1] |= "and " + . | join( if length > 2 then ", " else " " end ) ) as $slugs | .[] | [ ., $key, $slugs ] | @tsv' projects/*/*/composer.json)"
+if [[ -n "$DUPS" ]]; then
+	while IFS=$'\t' read -r FILE KEY SLUGS; do
+		LINE=$(grep --line-number --max-count=1 '^	"name":' "$FILE" || true)
+		if [[ -n "$LINE" ]]; then
+			LINE=",line=${LINE%%:*}"
+		fi
+		EXIT=1
+		echo "::error file=$FILE$LINE::Name $KEY is in use in composer.json by $SLUGS. They must be deduplicated."
+	done <<<"$DUPS"
+fi
+
 # - Renovate should ignore all monorepo packages.
 debug "Checking renovate ignore list"
-tools/check-renovate-ignore-list.js
+if ! tools/js-tools/check-renovate-ignore-list.js; then
+	EXIT=1
+fi
 
 # - .nvmrc should match .github/versions.sh.
 . .github/versions.sh

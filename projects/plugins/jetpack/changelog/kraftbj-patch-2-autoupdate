@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-API: properly allow requests to upgrade a plugin outside of autoupdates.

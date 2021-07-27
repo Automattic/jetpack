@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Map Block: Ensure theme styles do not override map button background colors.

@@ -80,33 +80,29 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Forces Posts menu to WPAdmin for Atomic sites only.
-	 * Overloads `add_posts_menu` in parent class.
+	 * Get the preferred view for the given screen.
 	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
+	 * @param string $screen Screen identifier.
+	 * @param bool   $fallback_global_preference (Optional) Whether the global preference for all screens should be used
+	 *                                           as fallback if there is no specific preference for the given screen.
+	 *                                           Default: true.
+	 * @return string
 	 */
-	public function add_posts_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		return false; // return explicit `false` to force WPAdmin links.
-	}
+	public function get_preferred_view( $screen, $fallback_global_preference = true ) {
+		// Plugins, Export, and Customize on Atomic sites are always managed on WP Admin.
+		if ( in_array( $screen, array( 'plugins.php', 'export.php', 'customize.php' ), true ) ) {
+			return self::CLASSIC_VIEW;
+		}
 
-	/**
-	 * Forces Pages menu to WPAdmin for Atomic sites only.
-	 * Overloads `add_page_menu` in parent class.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
-	 */
-	public function add_page_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		return false; // return explicit `false` to force WPAdmin links.
-	}
+		/**
+		 * When Jetpack SSO is disabled, we need to force Calypso because it might create confusion to be redirected to WP-Admin.
+		 * Furthermore, because we don't display the quick switcher, users having an WP-Admin interface by default won't be able to go back to the Calyso version.
+		 */
+		if ( ! \Jetpack::is_module_active( 'sso' ) ) {
+			return self::DEFAULT_VIEW;
+		}
 
-	/**
-	 * Adds Plugins menu.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
-	 */
-	public function add_plugins_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		// Plugins on Atomic sites are always managed on WP Admin.
-		parent::add_plugins_menu( true );
+		return parent::get_preferred_view( $screen, $fallback_global_preference );
 	}
 
 	/**
@@ -160,15 +156,16 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * Adds site card component.
 	 */
 	public function add_site_card_menu() {
-		$default   = 'data:image/svg+xml,' . rawurlencode( '<svg class="gridicon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>Globe</title><rect fill-opacity="0" x="0" width="24" height="24"/><g><path fill="#fff" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18l2-2 1-1v-2h-2v-1l-1-1H9v3l2 2v1.93c-3.94-.494-7-3.858-7-7.93l1 1h2v-2h2l3-3V6h-2L9 5v-.41C9.927 4.21 10.94 4 12 4s2.073.212 3 .59V6l-1 1v2l1 1 3.13-3.13c.752.897 1.304 1.964 1.606 3.13H18l-2 2v2l1 1h2l.286.286C18.03 18.06 15.24 20 12 20z"/></g></svg>' );
-		$icon      = get_site_icon_url( 32, $default );
-		$blog_name = get_option( 'blogname' ) !== '' ? get_option( 'blogname' ) : $this->domain;
+		$default        = 'data:image/svg+xml,' . rawurlencode( '<svg class="gridicon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>Globe</title><rect fill-opacity="0" x="0" width="24" height="24"/><g><path fill="#fff" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18l2-2 1-1v-2h-2v-1l-1-1H9v3l2 2v1.93c-3.94-.494-7-3.858-7-7.93l1 1h2v-2h2l3-3V6h-2L9 5v-.41C9.927 4.21 10.94 4 12 4s2.073.212 3 .59V6l-1 1v2l1 1 3.13-3.13c.752.897 1.304 1.964 1.606 3.13H18l-2 2v2l1 1h2l.286.286C18.03 18.06 15.24 20 12 20z"/></g></svg>' );
+		$icon           = get_site_icon_url( 32, $default );
+		$blog_name      = get_option( 'blogname' ) !== '' ? get_option( 'blogname' ) : $this->domain;
+		$is_coming_soon = ( function_exists( 'site_is_coming_soon' ) && site_is_coming_soon() ) || (bool) get_option( 'wpcom_public_coming_soon' );
 
 		$badge = '';
-		if ( function_exists( 'site_is_private' ) && site_is_private() ) {
+		if ( ( function_exists( 'site_is_private' ) && site_is_private() ) || $is_coming_soon ) {
 			$badge .= sprintf(
 				'<span class="site__badge site__badge-private">%s</span>',
-				site_is_coming_soon() ? esc_html__( 'Coming Soon', 'jetpack' ) : esc_html__( 'Private', 'jetpack' )
+				$is_coming_soon ? esc_html__( 'Coming Soon', 'jetpack' ) : esc_html__( 'Private', 'jetpack' )
 			);
 		}
 
@@ -274,50 +271,29 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Adds Tools menu.
-	 *
-	 * @param bool $wp_admin_import Optional. Whether Import link should point to Calypso or wp-admin. Default false (Calypso).
-	 * @param bool $wp_admin_export Optional. Whether Export link should point to Calypso or wp-admin. Default false (Calypso).
-	 */
-	public function add_tools_menu( $wp_admin_import = false, $wp_admin_export = false ) {  // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		// Export on Atomic sites is always handled on WP Admin.
-		parent::add_tools_menu( $wp_admin_import, true );
-	}
-
-	/**
 	 * Adds Settings menu.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_options_menu( $wp_admin = false ) {
-		parent::add_options_menu( $wp_admin );
+	public function add_options_menu() {
+		parent::add_options_menu();
 
-		add_submenu_page( 'options-general.php', esc_attr__( 'Security', 'jetpack' ), __( 'Security', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/security/' . $this->domain, null, 2 );
+		if ( Jetpack_Plan::supports( 'security-settings' ) ) {
+			add_submenu_page(
+				'options-general.php',
+				esc_attr__( 'Security', 'jetpack' ),
+				__( 'Security', 'jetpack' ),
+				'manage_options',
+				'https://wordpress.com/settings/security/' . $this->domain,
+				null,
+				2
+			);
+		}
 		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 11 );
-		add_submenu_page( 'options-general.php', esc_attr__( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/jetpack/' . $this->domain, 12 );
+		add_submenu_page( 'options-general.php', esc_attr__( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/jetpack/' . $this->domain, null, 12 );
 
 		// Page Optimize is active by default on all Atomic sites and registers a Settings > Performance submenu which
 		// would conflict with our own Settings > Performance that links to Calypso, so we hide it it since the Calypso
 		// performance settings already have a link to Page Optimize settings page.
 		$this->hide_submenu_page( 'options-general.php', 'page-optimize' );
-
-		// No need to add a menu linking to WP Admin if there is already one.
-		if ( ! $wp_admin ) {
-			add_submenu_page( 'options-general.php', esc_attr__( 'Advanced Writing', 'jetpack' ), __( 'Advanced Writing', 'jetpack' ), 'manage_options', 'options-writing.php' );
-		}
-	}
-
-	/**
-	 * Adds Appearance menu.
-	 *
-	 * @param bool $wp_admin_themes Optional. Whether Themes link should point to Calypso or wp-admin. Default false (Calypso).
-	 * @param bool $wp_admin_customize Optional. Whether Customize link should point to Calypso or wp-admin. Default false (Calypso).
-	 */
-	public function add_appearance_menu( $wp_admin_themes = false, $wp_admin_customize = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		// Customize on Atomic sites is always done on WP Admin.
-		parent::add_appearance_menu( $wp_admin_themes, true );
-
-		add_submenu_page( 'themes.php', esc_attr__( 'Add New Theme', 'jetpack' ), __( 'Add New Theme', 'jetpack' ), 'install_themes', 'theme-install.php', null, 1 );
 	}
 
 	/**
@@ -336,34 +312,12 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Adds Users menu.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
-	 */
-	public function add_users_menu( $wp_admin = false ) {
-		parent::add_users_menu( $wp_admin );
-
-		add_submenu_page( 'users.php', esc_attr__( 'Advanced Users Management', 'jetpack' ), __( 'Advanced Users Management', 'jetpack' ), 'list_users', 'users.php', null, 2 );
-	}
-
-	/**
 	 * Also remove the Gutenberg plugin menu.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_gutenberg_menus( $wp_admin = false ) {
+	public function add_gutenberg_menus() {
 		// Always remove the Gutenberg menu.
 		remove_menu_page( 'gutenberg' );
-		parent::add_gutenberg_menus( $wp_admin );
-	}
-
-	/**
-	 * Always use WP Admin for comments.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
-	 */
-	public function add_comments_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		parent::add_comments_menu( true );
+		parent::add_gutenberg_menus();
 	}
 
 	/**

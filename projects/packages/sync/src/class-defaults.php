@@ -303,6 +303,7 @@ class Defaults {
 		'paused_plugins'                   => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_plugins' ),
 		'theme_support'                    => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_theme_support' ),
 		'wp_get_environment_type'          => 'wp_get_environment_type',
+		'is_fse_theme'                     => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_is_fse_theme' ),
 	);
 
 	/**
@@ -504,7 +505,6 @@ class Defaults {
 		'post_time',
 		'postmeta',
 		'posts_per_page',
-		'product_cat',
 		'product_search_form',
 		'profile_url',
 		'pung',

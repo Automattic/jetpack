@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix My Sites navigation in WP-Admin for Atomic sites with SSO disabled (and nav-unification disabled).

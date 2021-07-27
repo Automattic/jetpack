@@ -1,6 +1,6 @@
 {
 	"name": "Jetpack",
-	"version": "9.9.0-alpha",
+	"version": "10.0.0-alpha",
 	"private": true,
 	"description": "[Jetpack](https://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of [WordPress.com](https://wordpress.com).",
 	"homepage": "https://jetpack.com",
@@ -28,7 +28,9 @@
 		"build-production-extensions": "NODE_ENV=production BABEL_ENV=production pnpm run build-extensions",
 		"build-production-php": "COMPOSER_MIRROR_PATH_REPOS=1 COMPOSER_ROOT_VERSION=dev-master composer install -o --no-dev --classmap-authoritative --prefer-dist",
 		"build-production-search": "NODE_ENV=production BABEL_ENV=production pnpm run build-search && pnpm run validate-es5 -- ./_inc/build/instant-search/",
-		"build-search": "pnpm run clean-search && webpack --config ./tools/webpack.config.search.js",
+		"build-search": "pnpm run clean-search && pnpm run build-search-app && pnpm run build-search-configure",
+		"build-search-app": "webpack --config ./tools/webpack.config.search.js",
+		"build-search-configure": "webpack --config ./tools/webpack.config.search-configure.js",
 		"clean": "pnpm run clean-client && pnpm run clean-extensions && pnpm run clean-composer",
 		"clean-client": "rm -rf _inc/build/ css/",
 		"clean-composer": "rm -rf vendor/",
@@ -49,7 +51,8 @@
 		"test-search-scripts": "jest modules/search",
 		"test-search-size": "NODE_ENV=production BABEL_ENV=production pnpm run build-search && size-limit",
 		"validate-es5": "pnpx eslint --parser-options=ecmaVersion:5 --no-eslintrc --no-ignore",
-		"watch": "pnpm run build && pnpx gulp watch"
+		"watch": "pnpm run build && pnpx gulp watch",
+		"watch-search": "pnpm run build-search && gulp search-app:watch search-configure:watch"
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
@@ -59,7 +62,8 @@
 		"@automattic/calypso-color-schemes": "2.1.1",
 		"@automattic/components": "1.0.0-alpha.3",
 		"@automattic/format-currency": "1.0.0-alpha.0",
-		"@automattic/jetpack-connection": "workspace:^0.4.0-alpha",
+		"@automattic/jetpack-components": "workspace:^0.2.0-alpha",
+		"@automattic/jetpack-connection": "workspace:^0.5.0-alpha",
 		"@automattic/popup-monitor": "1.0.0",
 		"@automattic/request-external-access": "1.0.0",
 		"@automattic/social-previews": "1.1.1",
@@ -76,6 +80,7 @@
 		"@wordpress/hooks": "2.12.3",
 		"@wordpress/i18n": "3.9.0",
 		"@wordpress/icons": "2.7.0",
+		"@wordpress/interface": "3.1.2",
 		"@wordpress/url": "2.11.0",
 		"abortcontroller-polyfill": "1.7.1",
 		"bounding-client-rect": "1.0.5",
@@ -156,11 +161,11 @@
 		"@testing-library/jest-dom": "5.12.0",
 		"@testing-library/preact": "2.0.1",
 		"@testing-library/react": "11.2.7",
-		"@testing-library/react-hooks": "4.0.0",
+		"@testing-library/react-hooks": "4.0.1",
 		"@testing-library/user-event": "12.8.3",
 		"@wordpress/components": "9.2.6",
 		"@wordpress/core-data": "2.12.3",
-		"@wordpress/dependency-extraction-webpack-plugin": "2.4.0",
+		"@wordpress/dependency-extraction-webpack-plugin": "3.1.4",
 		"@wordpress/editor": "9.12.7",
 		"@wordpress/server-side-render": "1.8.6",
 		"chai": "4.3.4",
@@ -195,7 +200,7 @@
 		"react-dom": "16.14.0"
 	},
 	"engines": {
-		"node": "^14.16.0",
+		"node": "^14.16.1",
 		"pnpm": "^6.5.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}

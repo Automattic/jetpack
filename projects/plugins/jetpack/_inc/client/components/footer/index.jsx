@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { __, _x, sprintf } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -12,7 +13,6 @@ import { __, _x, sprintf } from '@wordpress/i18n';
 import analytics from 'lib/analytics';
 import { canDisplayDevCard, enableDevCard, resetOptions } from 'state/dev-version';
 import DevCard from 'components/dev-card';
-import getRedirectUrl from 'lib/jp-redirect';
 import {
 	isDevVersion as _isDevVersion,
 	getCurrentVersion,

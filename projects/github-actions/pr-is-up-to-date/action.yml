@@ -34,7 +34,7 @@ runs:
         DESCRIPTION_FAIL: ${{ inputs.description-fail }}
         DESCRIPTION_OK: ${{ inputs.description-ok }}
         TAG: ${{ inputs.tag }}
-      run: ${{ github.action_path }}/run.sh
+      run: $GITHUB_ACTION_PATH/run.sh
 branding:
   color: green
   icon: clock

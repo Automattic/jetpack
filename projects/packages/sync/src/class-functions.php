@@ -565,6 +565,15 @@ class Functions {
 	}
 
 	/**
+	 * Returns if the current theme is a Full Site Editing theme.
+	 *
+	 * @return bool Theme is a Full Site Editing theme.
+	 */
+	public static function get_is_fse_theme() {
+		return function_exists( 'gutenberg_is_fse_theme' ) && gutenberg_is_fse_theme();
+	}
+
+	/**
 	 * Wraps data in a way so that we can distinguish between objects and array and also prevent object recursion.
 	 *
 	 * @since 9.5.0

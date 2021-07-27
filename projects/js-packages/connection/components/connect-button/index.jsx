@@ -11,6 +11,7 @@ import PropTypes from 'prop-types';
  */
 import restApi from '../../tools/jetpack-rest-api-client';
 import ConnectUser from '../connect-user';
+import './style.scss';
 
 /**
  * The RNA connection component.
@@ -21,6 +22,9 @@ import ConnectUser from '../connect-user';
  * @param {string} props.apiNonce -- API Nonce, required.
  * @param {string} props.registrationNonce -- Separate registration nonce, required.
  * @param {Function} props.onRegistered -- The callback to be called upon registration success.
+ * @param {string} props.redirectUri -- The redirect admin URI.
+ * @param {string} props.from -- Where the connection request is coming from.
+ * @param {Function} props.statusCallback -- Callback to pull connection status from the component.
  *
  * @returns {React.Component} The RNA connection component.
  */
@@ -41,7 +45,7 @@ const ConnectButton = props => {
 		registrationNonce,
 		redirectUri,
 		from,
-		children,
+		statusCallback,
 	} = props;
 
 	/**
@@ -96,9 +100,6 @@ const ConnectButton = props => {
 
 					setAuthorizationUrl( response.authorizeUrl );
 					setIsUserConnecting( true );
-					setConnectionStatus( status => {
-						return { ...status, isRegistered: true };
-					} );
 				} )
 				.catch( error => {
 					setIsRegistering( false );
@@ -109,28 +110,28 @@ const ConnectButton = props => {
 			setIsRegistering,
 			setAuthorizationUrl,
 			connectionStatus,
-			setConnectionStatus,
 			onRegistered,
 			registrationNonce,
 			redirectUri,
 		]
 	);
 
-	const childrenCallback = useCallback( () => {
-		if ( children && {}.toString.call( children ) === '[object Function]' ) {
-			return children( connectionStatus );
+	const statusCallbackWrapped = useCallback( () => {
+		if ( statusCallback && {}.toString.call( statusCallback ) === '[object Function]' ) {
+			return statusCallback( connectionStatus );
 		}
-	}, [ connectionStatus, children ] );
+	}, [ connectionStatus, statusCallback ] );
 
 	return (
-		<div className="jp-connection-main">
-			{ childrenCallback() }
+		<div className="jp-connect-button">
+			{ statusCallbackWrapped() }
 
 			{ isFetchingConnectionStatus && `Loading...` }
 
 			{ ( ! connectionStatus.isRegistered || ! connectionStatus.isUserConnected ) &&
 				! isFetchingConnectionStatus && (
 					<Button
+						className="jp-connect-button--button"
 						label={ connectLabel }
 						onClick={ registerSite }
 						isPrimary
@@ -154,6 +155,7 @@ ConnectButton.propTypes = {
 	onRegistered: PropTypes.func,
 	from: PropTypes.string,
 	redirectUri: PropTypes.string.isRequired,
+	registrationNonce: PropTypes.string.isRequired,
 };
 
 ConnectButton.defaultProps = {

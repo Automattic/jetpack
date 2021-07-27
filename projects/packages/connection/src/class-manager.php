@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\A8c_Mc_Stats as A8c_Mc_Stats;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Heartbeat;
 use Automattic\Jetpack\Roles;
@@ -566,18 +567,46 @@ class Manager {
 	 * @return bool
 	 */
 	public function has_connected_user() {
-		return (bool) count( $this->get_connected_users() );
+		return (bool) count( $this->get_connected_users( 'any', 1 ) );
 	}
 
 	/**
-	 * Returns an array of user_id's that have user tokens for communicating with wpcom.
+	 * Returns an array of users that have user tokens for communicating with wpcom.
 	 * Able to select by specific capability.
 	 *
-	 * @param string $capability The capability of the user.
-	 * @return array Array of WP_User objects if found.
+	 * @since 9.9.1 Added $limit parameter.
+	 *
+	 * @param string   $capability The capability of the user.
+	 * @param int|null $limit How many connected users to get before returning.
+	 * @return WP_User[] Array of WP_User objects if found.
 	 */
-	public function get_connected_users( $capability = 'any' ) {
-		return $this->get_tokens()->get_connected_users( $capability );
+	public function get_connected_users( $capability = 'any', $limit = null ) {
+		$connected_users = array();
+		$user_tokens     = $this->get_tokens()->get_user_tokens();
+
+		if ( ! is_array( $user_tokens ) || empty( $user_tokens ) ) {
+			return $connected_users;
+		}
+		$connected_user_ids = array_keys( $user_tokens );
+
+		if ( ! empty( $connected_user_ids ) ) {
+			foreach ( $connected_user_ids as $id ) {
+				// Check for capability.
+				if ( 'any' !== $capability && ! user_can( $id, $capability ) ) {
+					continue;
+				}
+
+				$user_data = get_userdata( $id );
+				if ( $user_data instanceof \WP_User ) {
+					$connected_users[] = $user_data;
+					if ( $limit && count( $connected_users ) >= $limit ) {
+						return $connected_users;
+					}
+				}
+			}
+		}
+
+		return $connected_users;
 	}
 
 	/**
@@ -668,11 +697,16 @@ class Manager {
 	 * @todo Refactor to properly load the XMLRPC client independently.
 	 *
 	 * @param Integer $user_id the user identifier.
-	 * @return Object the user object.
+	 * @return bool|array An array with the WPCOM user data on success, false otherwise.
 	 */
 	public function get_connected_user_data( $user_id = null ) {
 		if ( ! $user_id ) {
 			$user_id = get_current_user_id();
+		}
+
+		// Check if the user is connected and return false otherwise.
+		if ( ! $this->is_user_connected( $user_id ) ) {
+			return false;
 		}
 
 		$transient_key    = "jetpack_connected_user_data_$user_id";
@@ -688,6 +722,7 @@ class Manager {
 			)
 		);
 		$xml->query( 'wpcom.getUser' );
+
 		if ( ! $xml->isError() ) {
 			$user_data = $xml->getResponse();
 			set_transient( $transient_key, $xml->getResponse(), DAY_IN_SECONDS );
@@ -1922,9 +1957,49 @@ class Manager {
 	/**
 	 * Disconnects from the Jetpack servers.
 	 * Forgets all connection details and tells the Jetpack servers to do the same.
+	 *
+	 * @param boolean $disconnect_wpcom Should disconnect_site_wpcom be called.
 	 */
-	public function disconnect_site() {
+	public function disconnect_site( $disconnect_wpcom = true ) {
+		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
 
+		( new Nonce_Handler() )->clean_all();
+
+		// If the site is in an IDC because sync is not allowed,
+		// let's make sure to not disconnect the production site.
+		if ( $disconnect_wpcom ) {
+			$tracking = new Tracking();
+			$tracking->record_user_event( 'disconnect_site', array() );
+
+			$this->disconnect_site_wpcom( true );
+		}
+
+		$this->delete_all_connection_tokens( true );
+
+		$jetpack_unique_connection = \Jetpack_Options::get_option( 'unique_connection' );
+		if ( $jetpack_unique_connection ) {
+			// Check then record unique disconnection if site has never been disconnected previously.
+			if ( - 1 === $jetpack_unique_connection['disconnected'] ) {
+				$jetpack_unique_connection['disconnected'] = 1;
+			} else {
+				if ( 0 === $jetpack_unique_connection['disconnected'] ) {
+					$a8c_mc_stats_instance = new A8c_Mc_Stats();
+					$a8c_mc_stats_instance->add( 'connections', 'unique-disconnect' );
+					$a8c_mc_stats_instance->do_server_side_stats();
+				}
+				// increment number of times disconnected.
+				$jetpack_unique_connection['disconnected'] += 1;
+			}
+
+			\Jetpack_Options::update_option( 'unique_connection', $jetpack_unique_connection );
+		}
+
+		/**
+		 * Fires when a site is disconnected.
+		 *
+		 * @since $$next-version$$
+		 */
+		do_action( 'jetpack_site_disconnected' );
 	}
 
 	/**

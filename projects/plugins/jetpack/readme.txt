@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
-Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, scarstocea, scottsweb, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
-Tags: Security, backup, WooCommerce, malware, scan, spam, CDN, search, social
-Stable tag: 9.8.1
+Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
+Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
+Stable tag: 9.9.1
 Requires at least: 5.7
 Requires PHP: 5.6
 Tested up to: 5.8
@@ -45,7 +45,7 @@ Create and customize your WordPress site, optimize it for visitors and revenue, 
 * Easily share Instagram posts on your pages and blog posts.
 * Collect a payment or donation, sell a product, service, or membership with simple integrations with PayPal and Stripe.
 * Grow traffic with SEO tools for Google, Bing, Twitter, Facebook, and WordPress.com. XML sitemap created automatically.
-* Advertise on your site to generate revenue. The Jetpack ad network automatically does the work for you to find high-quality ads that are placed on your site.
+* Advertise on your site to generate revenue. The ad network automatically does the work for you to find high-quality ads that are placed on your site.
 * Manage Jetpack features from anywhere with the official WordPress mobile app, available for Apple iOS (iPhone or iPad) and Google Android.
 * Looking for Customer Relationship Management? Check out the [Jetpack CRM plugin](https://jetpackcrm.com) which works alongside Jetpack to give you a simple and practical way to build relationships with your customers and leads.
 
@@ -242,48 +242,20 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 9.8.1 - 2021-06-08
-#### Bug fixes
-- Carousel: avoid JavaScript errors when trying to load the Carousel view when logged out of your WordPress site.
-- Related Posts: avoid squished images when image height isn't defined.
-- Story Block: allow multiple stories per post.
-- Story Block: allow selecting additional media items in media picker instead of only replacing the existing selection.
-
-### 9.8 - 2021-06-01
+### 9.9.1 - 2021-07-20
 #### Enhancements
-- Contact Form: the "Feedback > Export CSV" submenu entry has been removed. The export functionality is still available in "Feedback > Form Responses".
-- Form block: allow replacing the "Message Sent" heading with custom phrase.
-- Instagram Reel: add oEmbed support for Instagram Reel posts.
-- Instant Search: add 'open when visitor submits the form' overlay trigger.
-- Instant Search: apply configured highlight color to text highlights.
-- Site Verification Tools: adds an option for Facebook domain verification.
-- Story Block: add new block that enables you to use photos and videos to create engaging and tappable fullscreen slideshows.
+- Carousel: improve carousel icons.
 
 #### Improved compatibility
-- Blocks: ensure blocks are compatible with upcoming Full Site Editor feature.
-- Blocks: ensure tiled gallery and slideshow blocks do not output invalid CSS when used with AMP plugin.
-- Dashboard: hide Settings page for non-admin users when in site-only connection.
-- Instant Search: ensure search input is the correct width if an input max-width has been specified in the theme.
-- Related Posts: add height attribute to post images for better compatibility with page performance analysis tools.
-- Related Posts: avoid Fatal Errors when using plugins that may interact with WordPress' customizer in specific ways.
-- SEO Tools: ensure Jetpack SEO does not conflict with SEOPress.
-- Story Block: Improve accessibility and resolve z-index issues when playing in fullscreen.
+- Carousel: ensure that arrows look and work correctly in right-to-left languages.
 
 #### Bug fixes
-- Carousel: harden fetching comments in Carousel view.
-- Contact Form: remove double quotes from names in email headers to improve compatibility with different emailing solutions for WordPress.
-- Dashboard: display the Sharing settings tab when editors only need to customize Publicize settings for their own account.
-- Dashboard: do not display Protect card for non-admin users while in site-only connection.
-- Dashboard: do not show multiple connection prompts in the Publicize settings card.
-- Dashboard: ensure connected user details properly displayed.
-- Dashboard: ensure that the Jetpack settings page can be accessed when using Jetpack's Offline mode.
-- Fixed regression introduced in posts page icon notification WP-Admin edit.php page.
-- General: ensures that the send_auth_cookies filter is respected.
-- Instant Search: don't photon-ize SVG images as they're not supported by Photon
-- Instant Search: fixes for design conflicts.
-- Instant Search: prevent standard sidebar widgets ending up in the search modal sidebar when switching themes.
-- Social Previews: don't show duplicate buttons when a featured image is selected.
-- Stats: fixes the date used to fetch the Top posts in the Top posts dashboard widget.
+- Carousel: prevent comments indicator from bumping icon width of comments button.
+- Carousel: CSS tweaks to ensure text and comment loader spinners dislay correctly in dark and light theme views.
+- Carousel: ensures caption is shown in carousel images.
+- Carousel: ensure carousel CSS doesn't override other non-Jetpack carousel styling.
+- Widgets: allow the use of widget visibility conditions in gutenberg based widget editing.
+- Widgets: ensure block previews display in customizer for multiple blocks.
 
 --------
 

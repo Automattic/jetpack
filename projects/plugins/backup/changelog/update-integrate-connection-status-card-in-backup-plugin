@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Integrate ConnectionStatusCard component for managing the site/user connection.

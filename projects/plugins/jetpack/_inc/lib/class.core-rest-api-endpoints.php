@@ -162,17 +162,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
-		// Get current user connection data
-		register_rest_route(
-			'jetpack/v4',
-			'/connection/data',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_user_connection_data',
-				'permission_callback' => __CLASS__ . '::get_user_connection_data_permission_callback',
-			)
-		);
-
 		// Current user: get or set tracking settings.
 		register_rest_route(
 			'jetpack/v4',
@@ -191,17 +180,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 						'tracks_opt_out' => array( 'type' => 'boolean' ),
 					),
 				),
-			)
-		);
-
-		// Disconnect site from WordPress.com servers
-		register_rest_route(
-			'jetpack/v4',
-			'/connection',
-			array(
-				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::disconnect_site',
-				'permission_callback' => __CLASS__ . '::disconnect_site_permission_callback',
 			)
 		);
 
@@ -278,39 +256,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_site_activity',
 				'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
-			)
-		);
-
-		// Confirm that a site in identity crisis should be in staging mode
-		register_rest_route(
-			'jetpack/v4',
-			'/identity-crisis/confirm-safe-mode',
-			array(
-				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::confirm_safe_mode',
-				'permission_callback' => __CLASS__ . '::identity_crisis_mitigation_permission_check',
-			)
-		);
-
-		// IDC resolve: create an entirely new shadow site for this URL.
-		register_rest_route(
-			'jetpack/v4',
-			'/identity-crisis/start-fresh',
-			array(
-				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::start_fresh_connection',
-				'permission_callback' => __CLASS__ . '::identity_crisis_mitigation_permission_check',
-			)
-		);
-
-		// Handles the request to migrate stats and subscribers during an identity crisis.
-		register_rest_route(
-			'jetpack/v4',
-			'identity-crisis/migrate',
-			array(
-				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::migrate_stats_and_subscribers',
-				'permission_callback' => __CLASS__ . '::identity_crisis_mitigation_permission_check',
 			)
 		);
 
@@ -1275,22 +1220,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Verify that a user can get the data about the current user.
-	 * Only those who can connect.
-	 *
-	 * @since 4.3.0
-	 *
-	 * @return bool|WP_Error True if user is able to unlink.
-	 */
-	public static function get_user_connection_data_permission_callback() {
-		if ( current_user_can( 'jetpack_connect_user' ) ) {
-			return true;
-		}
-
-		return new WP_Error( 'invalid_user_permission_user_connection_data', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
-	}
-
-	/**
 	 * Verify that a user can use the /connection/user endpoint. Has to be a registered user and be currently linked.
 	 *
 	 * @since 4.3.0
@@ -1350,21 +1279,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'invalid_user_permission_view_admin', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
-	}
-
-	/**
-	 * Verify that user can mitigate an identity crisis.
-	 *
-	 * @since 4.4.0
-	 *
-	 * @return bool Whether user has capability 'jetpack_disconnect'.
-	 */
-	public static function identity_crisis_mitigation_permission_check() {
-		if ( current_user_can( 'jetpack_disconnect' ) ) {
-			return true;
-		}
-
-		return new WP_Error( 'invalid_user_permission_identity_crisis', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
 	}
 
 	/**
@@ -1732,6 +1646,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Disconnects Jetpack from the WordPress.com Servers
 	 *
+	 * @deprecated since Jetpack 10.0.0
+	 * @see Automattic\Jetpack\Connection\REST_Connector::disconnect_site()
+	 *
 	 * @uses Jetpack::disconnect();
 	 * @since 4.3.0
 	 *
@@ -1740,6 +1657,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error True if Jetpack successfully disconnected.
 	 */
 	public static function disconnect_site( $request ) {
+		_deprecated_function( __METHOD__, 'jetpack-10.0.0', '\Automattic\Jetpack\Connection\REST_Connector::disconnect_site' );
 
 		if ( ! isset( $request['isActive'] ) || $request['isActive'] !== false ) {
 			return new WP_Error( 'invalid_param', esc_html__( 'Invalid Parameter', 'jetpack' ), array( 'status' => 404 ) );
@@ -1813,13 +1731,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * Information about the master/primary user.
 	 * Information about the current user.
 	 *
-	 * @since 4.3.0
+	 * @deprecated since Jetpack 10.0.0
+	 * @see Automattic\Jetpack\Connection\REST_Connector::get_user_connection_data()
 	 *
-	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @since 4.3.0
 	 *
 	 * @return object
 	 */
 	public static function get_user_connection_data() {
+		_deprecated_function( __METHOD__, 'jetpack-10.0.0', '\Automattic\Jetpack\Connection\REST_Connector::get_user_connection_data' );
+
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php';
 
 		$connection_owner   = ( new Connection_Manager() )->get_connection_owner();
@@ -2073,75 +1994,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'data' => $data->current->orderedItems,
 			)
 		);
-	}
-
-	/**
-	 * Handles identity crisis mitigation, confirming safe mode for this site.
-	 *
-	 * @since 4.4.0
-	 *
-	 * @return bool | WP_Error True if option is properly set.
-	 */
-	public static function confirm_safe_mode() {
-		$updated = Jetpack_Options::update_option( 'safe_mode_confirmed', true );
-		if ( $updated ) {
-			return rest_ensure_response(
-				array(
-					'code' => 'success',
-				)
-			);
-		}
-		return new WP_Error(
-			'error_setting_jetpack_safe_mode',
-			esc_html__( 'Could not confirm safe mode.', 'jetpack' ),
-			array( 'status' => 500 )
-		);
-	}
-
-	/**
-	 * Handles identity crisis mitigation, migrating stats and subscribers from old url to this, new url.
-	 *
-	 * @since 4.4.0
-	 *
-	 * @return bool | WP_Error True if option is properly set.
-	 */
-	public static function migrate_stats_and_subscribers() {
-		if ( Jetpack_Options::get_option( 'sync_error_idc' ) && ! Jetpack_Options::delete_option( 'sync_error_idc' ) ) {
-			return new WP_Error(
-				'error_deleting_sync_error_idc',
-				esc_html__( 'Could not delete sync error option.', 'jetpack' ),
-				array( 'status' => 500 )
-			);
-		}
-
-		if ( Jetpack_Options::get_option( 'migrate_for_idc' ) || Jetpack_Options::update_option( 'migrate_for_idc', true ) ) {
-			return rest_ensure_response(
-				array(
-					'code' => 'success',
-				)
-			);
-		}
-		return new WP_Error(
-			'error_setting_jetpack_migrate',
-			esc_html__( 'Could not confirm migration.', 'jetpack' ),
-			array( 'status' => 500 )
-		);
-	}
-
-	/**
-	 * This IDC resolution will disconnect the site and re-connect to a completely new
-	 * and separate shadow site than the original.
-	 *
-	 * It will first will disconnect the site without phoning home as to not disturb the production site.
-	 * It then builds a fresh connection URL and sends it back along with the response.
-	 *
-	 * @since 4.4.0
-	 * @return bool|WP_Error
-	 */
-	public static function start_fresh_connection() {
-		// First clear the options / disconnect.
-		Jetpack::disconnect();
-		return self::build_connect_url();
 	}
 
 	/**
