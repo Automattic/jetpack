@@ -436,12 +436,12 @@ class Sender {
 				$skipped_items_ids[] = $key;
 				continue;
 			}
-			$encoded_item = $encode ? $this->codec->encode( $item ) : $item;
+			$encoded_item = $this->codec->encode( $item );
 			$upload_size += strlen( $encoded_item );
 			if ( $upload_size > $this->upload_max_bytes && count( $items_to_send ) > 0 ) {
 				break;
 			}
-			$items_to_send[ $key ] = $encoded_item;
+			$items_to_send[ $key ] = $encode ? $encoded_item : $item;
 			if ( microtime( true ) - $start_time > $this->max_dequeue_time ) {
 				break;
 			}

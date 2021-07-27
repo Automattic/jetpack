@@ -15,9 +15,17 @@
 		font-weight: 400;
 	}
 
+	p {
+		font-size: var( --font-body );
+	}
+
 	&__link{
+		font-size: var( --font-body );
 		color: var( --jp-black );
 		text-decoration: underline;
+		height: auto;
+		font: inherit;
+		padding: 0;
 
 		&:hover {
 			color: var( --jp-black );
@@ -28,6 +36,12 @@
 			color: var( --jp-black );
 			box-shadow: none !important;
 		}
+	}
+
+	.components-button{
+		height: 40px;
+		font-size: var( --font-body-small );
+		border-radius: 4px;
 	}
 
 	.components-modal{
@@ -55,16 +69,6 @@
 	&__actions{
 		background: var( --jp-white );
 		padding: 10px 48px;
-
-		p{
-			font-size: var( --font-body );
-		}
-
-		.components-button{
-			height: 40px;
-			font-size: var( --font-body-small );
-			border-radius: 4px;
-		}
 	}
 
 	&__btn-dismiss{
