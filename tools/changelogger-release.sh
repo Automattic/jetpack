@@ -70,7 +70,7 @@ if [[ ! -e "$BASE/projects/$SLUG/composer.json" ]]; then
 fi
 
 cd "$BASE"
-#pnpx jetpack install --all
+pnpx jetpack install --all
 
 DEPS="$(tools/find-project-deps.php)"
 declare -A RELEASED
