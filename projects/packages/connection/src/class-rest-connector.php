@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Jetpack_XMLRPC_Server;
@@ -56,6 +57,8 @@ class REST_Connector {
 			Please contact your site admin if you think this is a mistake.',
 			'jetpack'
 		);
+
+		$jp_version = Constants::get_constant( 'JETPACK__VERSION' );
 
 		if ( ! $this->connection->has_connected_owner() ) {
 			// Register a site.
@@ -120,16 +123,21 @@ class REST_Connector {
 			)
 		);
 
-		// Get current user connection data.
-		register_rest_route(
-			'jetpack/v4',
-			'/connection/data',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_user_connection_data',
-				'permission_callback' => __CLASS__ . '::user_connection_data_permission_check',
-			)
-		);
+		// We are only registering this route if Jetpack-the-plugin is not active or it's version is ge 10.0-alpha.
+		// The reason for doing so is to avoid conflicts between the Connection package and
+		// older versions of Jetpack, registering the same route twice.
+		if ( empty( $jp_version ) || version_compare( $jp_version, '10.0-alpha', '>=' ) ) {
+			// Get current user connection data.
+			register_rest_route(
+				'jetpack/v4',
+				'/connection/data',
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => __CLASS__ . '::get_user_connection_data',
+					'permission_callback' => __CLASS__ . '::user_connection_data_permission_check',
+				)
+			);
+		}
 
 		// Get list of plugins that use the Jetpack connection.
 		register_rest_route(

@@ -698,6 +698,63 @@ class Test_REST_Endpoints extends TestCase {
 	}
 
 	/**
+	 * Test data for test_get_user_connection_data_route_is_registered_with_jp_version
+	 *
+	 * @return array
+	 */
+	public function get_user_connection_data_route_is_registered_with_jp_version_provider() {
+		return array(
+			'jp_version_null'       => array(
+				null,
+				true,
+			),
+			'jp_version_9.1'        => array(
+				'9.1',
+				false,
+			),
+			'jp_version_10.0-alpha' => array(
+				'10.0-alpha',
+				true,
+			),
+			'jp_version_10.0'       => array(
+				'10.0',
+				true,
+			),
+		);
+	}
+
+	/**
+	 * Testing the `connection/data` endpoint will not be registered if Jetpack-the-plugin < 10.0 is active.
+	 *
+	 * @dataProvider get_user_connection_data_route_is_registered_with_jp_version_provider
+	 *
+	 * @param string $jp_version    The Jetpack plugin version.
+	 * @param bool   $is_registered Whether the route should be registered or not.
+	 */
+	public function test_get_user_connection_data_route_is_registered_with_jp_version( $jp_version, $is_registered ) {
+		global $wp_rest_server;
+
+		if ( isset( $jp_version ) ) {
+			Constants::$set_constants['JETPACK__VERSION'] = $jp_version;
+		}
+
+		// Trigger routes re-register.
+		$wp_rest_server = new WP_REST_Server();
+		new REST_Connector( new Manager() );
+
+		$get_user_connection_data_route = '/jetpack/v4/connection/data';
+
+		$routes = $wp_rest_server->get_routes();
+
+		$route_is_registerd = array_key_exists( $get_user_connection_data_route, $routes );
+
+		$this->assertSame( $is_registered, $route_is_registerd );
+
+		// Clean-up.
+		Constants::clear_single_constant( 'JETPACK__VERSION' );
+	}
+
+	/**
 	 * Testing the `connection/data` endpoint with invalid user permissions.
 	 */
 	public function test_get_user_connection_data_with_invalid_user_permissions() {
