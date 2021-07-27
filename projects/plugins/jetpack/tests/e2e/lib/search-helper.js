@@ -69,7 +69,7 @@ export async function setupBlockWidgets( blockWidgets = getBlockWidgetsData() ) 
 }
 
 async function setWpOptionData( optionName, value, tempFilePath ) {
-	logger.warn( 'setoption:', optionName, JSON.stringify( value ), tempFilePath );
+	logger.warn( `setoption: ${ optionName }, ${ JSON.stringify( value ) }, ${ tempFilePath }` );
 	fs.writeFileSync( tempFilePath, JSON.stringify( value ) );
 
 	return await execWpCommand( `wp option update ${ optionName } --format=json <	${ tempFilePath }` );
@@ -80,7 +80,7 @@ async function getWpOptionData( optionName ) {
 	if ( typeof value === 'object' ) {
 		throw value;
 	}
-	logger.warn( 'getoption:', optionName, JSON.stringify( value ) );
+	logger.warn( `getoption: ${ optionName }, ${ JSON.stringify( value ) }` );
 	return JSON.parse( value );
 }
 
