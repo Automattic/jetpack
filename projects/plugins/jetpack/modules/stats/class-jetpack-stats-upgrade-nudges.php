@@ -414,10 +414,6 @@ class Jetpack_Stats_Upgrade_Nudges {
 			return;
 		}
 
-		if ( ! defined( 'JETPACK_DEV_TEST_STATS_UPGRADE_NUDGES' ) || ! JETPACK_DEV_TEST_STATS_UPGRADE_NUDGES ) {
-			return;
-		}
-
 		if ( self::has_complete_plan() ) {
 			return;
 		}
