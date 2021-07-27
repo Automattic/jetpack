@@ -4,6 +4,10 @@ $color-button-background: $black;
 $color-button-text: $white;
 $color-button-background-disabled: #dcdcde;
 $color-button-text-disabled: #a7aaad;
+$toggle-dot-radius: 10px;
+$toggle-dot-padding: 3px;
+$toggle-height: 16px;
+$toggle-width: 32px;
 
 .jp-form-search-settings-group {
 	width: 100%;
@@ -19,6 +23,10 @@ $color-button-text-disabled: #a7aaad;
 
 	.form-toggle__label-content {
 		font-weight: bold;
+	}
+	// text '(recommended)' should not be bold.
+	.form-toggle__label-content span {
+		font-weight: normal;
 	}
 }
 
@@ -74,13 +82,13 @@ p.jp-form-search-settings-group__toggle-explanation {
 .form-toggle.is-search-admin.is-compact {
 	+ .form-toggle__label .form-toggle__switch {
 		border-radius: 8px;
-		width: 32px;
-		height: 16px;
+		width: $toggle-width;
+		height: $toggle-height;
 
 		&:before,
 		&:after {
-			width: 10px;
-			height: 10px;
+			width: $toggle-dot-radius;
+			height: $toggle-dot-radius;
 			background-color: $black;
 		}
 		background: $white;
@@ -97,21 +105,19 @@ p.jp-form-search-settings-group__toggle-explanation {
 			border: none;
 
 			&:after {
-				left: 17px;
+				left: $toggle-height;
 				background-color: $white;
 			}
 		}
 	}
-}
-.form-toggle.is-compact.is-toggling + .form-toggle__label .form-toggle__switch:before,
-.form-toggle.is-compact.is-toggling + .form-toggle__label .form-toggle__switch:after {
-	left: 17px;
-}
-.form-toggle.is-compact.is-toggling:checked + .form-toggle__label .form-toggle__switch:before,
-.form-toggle.is-compact.is-toggling:checked + .form-toggle__label .form-toggle__switch:after {
-	left: 0;
-}
-// text '(recommended)' should not be bold.
-.form-toggle__label-content span {
-	font-weight: normal;
+
+	&.is-toggling + .form-toggle__label .form-toggle__switch:before,
+	&.is-toggling + .form-toggle__label .form-toggle__switch:after {
+		left: $toggle-height;
+	}
+
+	&.is-toggling:checked + .form-toggle__label .form-toggle__switch:before,
+	&.is-toggling:checked + .form-toggle__label .form-toggle__switch:after {
+		left: 0;
+	}
 }
