@@ -212,6 +212,9 @@ module.exports = [
 						removeEventListener: _.noop,
 						URL: {},
 					},
+					CSS: {
+						supports: () => false,
+					},
 				},
 			} ),
 		],
