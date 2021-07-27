@@ -1,0 +1,4 @@
+Significance: minor
+Type: bugfix
+
+Carousel: Enabled background colors, fixed bug with missing background when reversing swipe direction.
