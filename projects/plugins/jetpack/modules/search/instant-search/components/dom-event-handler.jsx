@@ -22,7 +22,7 @@ export default class DomEventHandler extends Component {
 	}
 
 	componentDidMount() {
-		this.disableAutocompletion();
+		this.disableUnnecessaryFormAndInputAttributes();
 		this.addEventListeners();
 	}
 
@@ -30,10 +30,14 @@ export default class DomEventHandler extends Component {
 		this.removeEventListeners();
 	}
 
-	disableAutocompletion() {
+	disableUnnecessaryFormAndInputAttributes() {
+		// Disables the following attributes:
+		// - autocomplete - leads to poor UX.
+		// - required - prevents Instant Search from spawning in certain scenarios.
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
-			input.setAttribute( 'autocomplete', 'off' );
-			input.form.setAttribute( 'autocomplete', 'off' );
+			input.removeAttribute( 'required' );
+			input.removeAttribute( 'autocomplete' );
+			input.form.removeAttribute( 'autocomplete' );
 		} );
 	}
 
