@@ -46,8 +46,6 @@ describe( 'Search', () => {
 	} );
 
 	beforeEach( async () => {
-		await activateModule( page, 'search' );
-		await enableInstantSearch();
 		homepage = await Homepage.visit( page );
 		await homepage.searchAPIRoute();
 		await homepage.waitForNetworkIdle();
