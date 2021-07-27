@@ -103,6 +103,8 @@ function getSearchFiltersData() {
 function getBlockWidgetsData() {
 	return {
 		22: { content: '<!-- wp:search /-->' },
+		23: { content: '<!-- wp:search /-->' },
+		_multiwidget: 1,
 	};
 }
 
@@ -110,7 +112,7 @@ function getSidebarsWidgetsData() {
 	return {
 		wp_inactive_widgets: [],
 		'sidebar-1': [ 'block-22' ],
-		'sidebar-2': [ 'block-22' ],
+		'sidebar-2': [ 'block-23' ],
 		'jetpack-instant-search-sidebar': [ 'jetpack-search-filters-8' ],
 		array_version: 3,
 	};
