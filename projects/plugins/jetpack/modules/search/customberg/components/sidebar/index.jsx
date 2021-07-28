@@ -90,7 +90,7 @@ export default function Sidebar() {
 		const { getActiveComplementaryArea } = select( interfaceStore );
 		return getActiveComplementaryArea( COMPLEMENTARY_AREA_SCOPE )
 			? getActiveComplementaryArea( COMPLEMENTARY_AREA_SCOPE )
-			: JP_SEARCH_TAB_IDENTIFIER;
+			: OPTIONS_TAB_IDENTIFIER;
 	}, [] );
 
 	return (
