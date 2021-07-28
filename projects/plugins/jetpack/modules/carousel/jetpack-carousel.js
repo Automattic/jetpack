@@ -845,7 +845,7 @@
 			clearCommentTextAreaValue();
 
 			disableKeyboardNavigation();
-
+			carousel.container.classList.remove( 'jp-carousel-fade-in-image' );
 			domUtil.emitEvent( carousel.overlay, 'jp_carousel.beforeClose' );
 			restoreScroll();
 			swiper.destroy();
@@ -1464,18 +1464,16 @@
 
 		function loadSwiper( gallery, options ) {
 			if ( ! window.Swiper ) {
-				var loader = document.querySelector( '#jp-carousel-loading-overlay' );
-				domUtil.show( loader );
+				toggleLoader( true );
 				var jsScript = document.createElement( 'script' );
 				jsScript.id = 'jetpack-carousel-swiper-js';
 				jsScript.src = window.jetpackSwiperLibraryPath.url;
 				jsScript.async = true;
 				jsScript.onload = function () {
-					domUtil.hide( loader );
 					openCarousel( gallery, options );
 				};
 				jsScript.onerror = function () {
-					domUtil.hide( loader );
+					toggleLoader();
 				};
 				document.head.appendChild( jsScript );
 				return;
@@ -1602,10 +1600,48 @@
 					}, 150 );
 				}
 			} );
+			var currentSlideObj = carousel.slides[ options.startIndex ];
+			var currentSlideImage = currentSlideObj.el ? currentSlideObj.el.querySelector( 'img' ) : null;
+			var iscurrentSlideImageLoaded =
+				currentSlideImage && currentSlideImage.complete && currentSlideImage.naturalHeight !== 0;
 
-			domUtil.fadeIn( carousel.overlay, function () {
+			domUtil.fadeIn( carousel.overlay );
+
+			if ( iscurrentSlideImageLoaded ) {
+				toggleLoader();
+				carousel.container.classList.add( 'jp-carousel-fade-in-image' );
 				domUtil.emitEvent( carousel.overlay, 'jp_carousel.afterOpen' );
-			} );
+				return;
+			}
+
+			toggleLoader( true );
+			var newImage = new Image();
+			newImage.onload = function () {
+				toggleLoader();
+				carousel.overlay.style.visibility = 'visible';
+				carousel.container.classList.add( 'jp-carousel-fade-in-image' );
+				domUtil.emitEvent( carousel.overlay, 'jp_carousel.afterOpen' );
+			};
+			newImage.onerror = function () {
+				toggleLoader();
+				carousel.container.classList.add( 'jp-carousel-fade-in-image' );
+				domUtil.emitEvent( carousel.overlay, 'jp_carousel.afterOpen' );
+			};
+			newImage.src = currentSlideObj.attrs.src;
+		}
+
+		/**
+		 * Displays the main carousel loader spinner on the page.
+		 *
+		 * @param {boolean} showLoader Whether to show the loader. Defaults to `false`.
+		 * */
+		function toggleLoader( showLoader ) {
+			var loader = document.querySelector( '#jp-carousel-loading-overlay' );
+			if ( showLoader ) {
+				domUtil.show( loader );
+			} else {
+				domUtil.hide( loader );
+			}
 		}
 
 		// Register the event listener for starting the gallery

@@ -29,6 +29,25 @@
 .jp-carousel-wrap.swiper-container {
 	height: auto;
 	width: 100vw;
+	opacity: 0;
+}
+
+.jp-carousel-fade-in-image {
+	animation: fadeInOpacity ease-in 0.5s 1 normal forwards;
+	-webkit-animation: fadeInOpacity ease-in 0.5s 1 normal forwards;
+	-moz-animation: fadeInOpacity ease-in 0.5s 1 normal forwards;
+	-o-animation: fadeInOpacity ease-in 0.5s 1 normal forwards;
+
+}
+
+@keyframes fadeInOpacity {
+	0% { opacity: 0; }
+	100% { opacity: 1; }
+}
+
+@-webkit-keyframes fadeInOpacity {
+	0% { opacity: 0; }
+	100% { opacity: 1; }
 }
 
 /*
@@ -73,7 +92,7 @@ so we have to target all affected elements in touch devices.
 
 .jp-carousel-overlay {
 	font-family: 'Helvetica Neue', sans-serif !important;
-	z-index: 2147483647;
+	z-index: 2147483646;
 	overflow-x: hidden;
 	overflow-y: auto;
 	direction: ltr;
@@ -672,6 +691,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	bottom: 0;
 	left: 0;
 	right: 0;
+	z-index: 2147483647;
 }
 
 #jp-carousel-loading-wrapper {
