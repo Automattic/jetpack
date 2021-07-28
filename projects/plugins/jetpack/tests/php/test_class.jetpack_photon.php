@@ -1444,6 +1444,57 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 		wp_delete_attachment( $id );
 	}
+
+	/**
+	 * Tests Photon's HTML parsing based on file type.
+	 *
+	 * @param string $url URL being validated.
+	 * @param bool   $expected If is valid Photon-able URL.
+	 *
+	 * @author kraftbj
+	 * @covers       Jetpack_Photon::validate_image_url
+	 * @dataProvider get_test_photon_validate_image_url_file_types_data_provider
+	 * @since 10.0.0
+	 */
+	public function test_photon_validate_image_url_file_types( $url, $expected ) {
+		$this->assertEquals( $expected, Testable_Jetpack_Photon::validate_image_url( $url ) );
+	}
+
+	/**
+	 * Possible values for test_photon_validate_image_url_file_types.
+	 */
+	public function get_test_photon_validate_image_url_file_types_data_provider() {
+		return array(
+			'gif'     => array( 'http://example.com/example-150x150.gif', true ),
+			'jpg'     => array( 'http://example.com/example-150x150.jpg', true ),
+			'jpeg'    => array( 'http://example.com/example-150x150.jpeg', true ),
+			'png'     => array( 'http://example.com/example-150x150.png', true ),
+			'webp'    => array( 'http://example.com/example-150x150.webp', true ),
+			'invalid' => array( 'http://example.com/example-150x150.invalid', false ),
+
+		);
+	}
+}
+
+// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
+// phpcs:disable Generic.CodeAnalysis.UselessOverridingMethod.Found
+
+/**
+ * Class Testable_Jetpack_Photon
+ *
+ * Extending the Photon class to make protected methods testable.
+ */
+class Testable_Jetpack_Photon extends Jetpack_Photon {
+	/**
+	 * Making the validate_image_url function accessible.
+	 *
+	 * @param string $url URL to be validated.
+	 *
+	 * @return bool If the URL is Photonable.
+	 */
+	public static function validate_image_url( $url ) {
+		return parent::validate_image_url( $url );
+	}
 }
 
 // phpcs:enable
