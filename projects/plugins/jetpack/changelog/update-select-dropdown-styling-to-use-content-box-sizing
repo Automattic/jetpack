@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Select Dropdown Component: Add content-box box sizing to prevent global box-sizing settings from affecting dropdown size.

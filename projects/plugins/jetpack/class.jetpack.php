@@ -4973,7 +4973,7 @@ endif;
 	 * Filters the `jetpack/v4/connection/data` API response of the Connection package in order to
 	 * add Jetpack-the-plugin related permissions.
 	 *
-	 * @since $$next-version$$
+	 * @since 10.0
 	 *
 	 * @param array $current_user_connection_data An array containing the current user connection data.
 	 * @return array
