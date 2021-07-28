@@ -44,10 +44,12 @@ export default function useSearchOptions() {
 		'site',
 		'jetpack_search_excluded_post_types'
 	);
-	// Excluded Post Types is stored as a CSV string in site options. Convert into
-	const excludedPostTypes = useMemo( () => excludedPostTypesCsv?.split( ',' ), [
-		excludedPostTypesCsv,
-	] );
+	// Excluded Post Types is stored as a CSV string in site options. Convert into array of strings.
+	// Caveat: csv can be an empty string, which can produces [ '' ] if only csv.split is used.
+	const excludedPostTypes = useMemo(
+		() => excludedPostTypesCsv?.split( ',' ).filter( type => type?.length > 0 ),
+		[ excludedPostTypesCsv ]
+	);
 	const setExcludedPostTypes = postTypesArr => setExcludedPostTypesCsv( postTypesArr.join( ',' ) );
 
 	return {
