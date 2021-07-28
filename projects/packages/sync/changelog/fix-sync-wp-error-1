@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Utilize an import for WP_Error in all instances.
