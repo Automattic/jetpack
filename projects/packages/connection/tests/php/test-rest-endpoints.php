@@ -14,7 +14,6 @@ use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
 use WP_REST_Request;
 use WP_REST_Server;
-use WP_User;
 
 /**
  * Unit tests for the REST API endpoints.
@@ -26,7 +25,6 @@ class Test_REST_Endpoints extends TestCase {
 
 	const BLOG_TOKEN = 'new.blogtoken';
 	const BLOG_ID    = 42;
-	const USER_ID    = 111;
 
 	/**
 	 * REST Server object.
@@ -41,6 +39,13 @@ class Test_REST_Endpoints extends TestCase {
 	 * @var string
 	 */
 	private $api_host_original;
+
+	/**
+	 * The current user id.
+	 *
+	 * @var int
+	 */
+	private static $user_id;
 
 	/**
 	 * The secondary user id.
@@ -65,10 +70,25 @@ class Test_REST_Endpoints extends TestCase {
 
 		add_action( 'jetpack_disabled_raw_options', array( $this, 'bypass_raw_options' ) );
 
+		self::$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_user',
+				'user_pass'  => '123',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( self::$user_id );
 		$user = wp_get_current_user();
+
+		// Hack to prevent Tracking.
+		// @see Tracking::tracks_record_event
+		// @todo Fix this properly.
+		$user->cap_key = 'wptests_capabilities';
+
 		$user->add_cap( 'jetpack_reconnect' );
 		$user->add_cap( 'jetpack_connect' );
 		$user->add_cap( 'jetpack_disconnect' );
+		$user->add_cap( 'jetpack_connect_user' );
 
 		self::$secondary_user_id = wp_insert_user(
 			array(
@@ -98,6 +118,7 @@ class Test_REST_Endpoints extends TestCase {
 		$user->remove_cap( 'jetpack_reconnect' );
 		$user->remove_cap( 'jetpack_connect' );
 		$user->remove_cap( 'jetpack_disconnect' );
+		$user->remove_cap( 'jetpack_connect_user' );
 
 		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = $this->api_host_original;
 
@@ -114,22 +135,14 @@ class Test_REST_Endpoints extends TestCase {
 	 * Testing the `/jetpack/v4/remote_authorize` endpoint.
 	 */
 	public function test_remote_authorize() {
+		wp_set_current_user( 0 );
 		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10, 2 );
 		add_filter( 'pre_http_request', array( $this, 'intercept_auth_token_request' ), 10, 3 );
-
-		wp_cache_set(
-			self::USER_ID,
-			(object) array(
-				'ID'         => self::USER_ID,
-				'user_email' => 'sample@example.org',
-			),
-			'users'
-		);
 
 		$secret_1 = 'Az0g39toGWlYiTJ4NnDuAz0g39toGWlY';
 
 		$secrets = array(
-			'jetpack_authorize_' . self::USER_ID => array(
+			'jetpack_authorize_' . self::$user_id => array(
 				'secret_1' => $secret_1,
 				'secret_2' => 'zfIFcym2Jlzd8AVgzfIFcym2Jlzd8AVg',
 				'exp'      => time() + 60,
@@ -142,31 +155,16 @@ class Test_REST_Endpoints extends TestCase {
 		};
 		add_filter( 'pre_option_' . Secrets::LEGACY_SECRETS_OPTION_NAME, $options_filter );
 
-		$user_caps_filter = function ( $allcaps, $caps, $args, $user ) {
-			if ( $user instanceof WP_User && self::USER_ID === $user->ID ) {
-				$allcaps['manage_options'] = true;
-				$allcaps['administrator']  = true;
-			}
-
-			return $allcaps;
-		};
-		add_filter( 'user_has_cap', $user_caps_filter, 10, 4 );
-
 		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/remote_authorize' );
 		$this->request->set_header( 'Content-Type', 'application/json' );
-		$this->request->set_body( '{ "state": "' . self::USER_ID . '", "secret": "' . $secret_1 . '", "redirect_uri": "https://example.org", "code": "54321" }' );
+		$this->request->set_body( '{ "state": "' . self::$user_id . '", "secret": "' . $secret_1 . '", "redirect_uri": "https://example.org", "code": "54321" }' );
 
 		$response = $this->server->dispatch( $this->request );
 		$data     = $response->get_data();
 
-		remove_filter( 'user_has_cap', $user_caps_filter );
 		remove_filter( 'pre_option_' . Secrets::LEGACY_SECRETS_OPTION_NAME, $options_filter );
 		remove_filter( 'pre_http_request', array( $this, 'intercept_auth_token_request' ) );
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ) );
-
-		wp_cache_delete( self::USER_ID, 'users' );
-
-		wp_set_current_user( 0 );
 
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertEquals( 'authorized', $data['result'] );
@@ -309,10 +307,13 @@ class Test_REST_Endpoints extends TestCase {
 	 */
 	public function test_connection_reconnect_partial_user_token_success() {
 		$this->setup_reconnect_test( 'user_token' );
+		// Mock user successfully unlinked on WPCOM.
+		add_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
 
 		$response = $this->server->dispatch( $this->build_reconnect_request() );
 		$data     = $response->get_data();
 
+		remove_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10 );
 		$this->shutdown_reconnect_test( 'user_token' );
 
 		$this->assertEquals( 200, $response->get_status() );
@@ -442,6 +443,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * Response: failed authorization.
 	 */
 	public function test_set_user_token_unauthenticated() {
+		wp_set_current_user( 0 );
 		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/user-token' );
 		$this->request->set_header( 'Content-Type', 'application/json' );
 
@@ -452,6 +454,23 @@ class Test_REST_Endpoints extends TestCase {
 
 		static::assertEquals( 'invalid_permission_update_user_token', $data['code'] );
 		static::assertEquals( 401, $data['data']['status'] );
+	}
+
+	/**
+	 * Testing the `user-token` endpoint with admin user.
+	 * Response: failed authorization.
+	 */
+	public function test_set_user_token_with_admin_user_fails_auth() {
+		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/user-token' );
+		$this->request->set_header( 'Content-Type', 'application/json' );
+
+		$this->request->set_body( wp_json_encode( array( 'user_token' => 'test.test.1' ) ) );
+
+		$response = $this->server->dispatch( $this->request );
+		$data     = $response->get_data();
+
+		static::assertEquals( 'invalid_permission_update_user_token', $data['code'] );
+		static::assertEquals( 403, $data['data']['status'] );
 	}
 
 	/**
@@ -591,6 +610,291 @@ class Test_REST_Endpoints extends TestCase {
 
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertEquals( self::$secondary_user_id, Jetpack_Options::get_option( 'master_user' ), 'Connection owner should be updated.' );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/connection` endpoint, aka site disconnect endpoint, when isActive is missing.
+	 */
+	public function test_disconnect_site_with_missing_param() {
+		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection' );
+		$this->request->set_header( 'Content-Type', 'application/json' );
+
+		$response      = $this->server->dispatch( $this->request );
+		$response_data = $response->get_data();
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'Missing parameter(s): isActive', $response_data['message'] );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/connection` endpoint, aka site disconnect endpoint, when isActive is invalid.
+	 */
+	public function test_disconnect_site_with_invalid_param() {
+		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection' );
+		$this->request->set_header( 'Content-Type', 'application/json' );
+		$this->request->set_body( wp_json_encode( array( 'isActive' => 'should_be_bool_false' ) ) );
+
+		$response      = $this->server->dispatch( $this->request );
+		$response_data = $response->get_data();
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'Invalid parameter(s): isActive', $response_data['message'] );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/connection` endpoint, aka site disconnect endpoint, with invalid user permissions.
+	 */
+	public function test_disconnect_site_with_invalid_user_permissions() {
+		// Invalid user permissions.
+		$user = wp_get_current_user();
+		$user->remove_cap( 'jetpack_disconnect' );
+
+		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection' );
+		$this->request->set_header( 'Content-Type', 'application/json' );
+		$this->request->set_body( wp_json_encode( array( 'isActive' => false ) ) );
+
+		$response = $this->server->dispatch( $this->request );
+
+		$this->assertSame( 403, $response->get_status() );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/connection` endpoint, aka site disconnect endpoint, when the site is not connected.
+	 */
+	public function test_disconnect_site_site_not_connected() {
+
+		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection' );
+		$this->request->set_header( 'Content-Type', 'application/json' );
+		$this->request->set_body( wp_json_encode( array( 'isActive' => false ) ) );
+
+		$response      = $this->server->dispatch( $this->request );
+		$response_data = $response->get_data();
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'Failed to disconnect the site as it appears already disconnected.', $response_data['message'] );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/connection` endpoint, aka site disconnect endpoint, on success.
+	 */
+	public function test_disconnect_site_success() {
+		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection' );
+		$this->request->set_header( 'Content-Type', 'application/json' );
+		$this->request->set_body( wp_json_encode( array( 'isActive' => false ) ) );
+
+		// Mock full connection established.
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
+		// Mock site successfully disconnected on WPCOM.
+		add_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
+
+		$response      = $this->server->dispatch( $this->request );
+		$response_data = $response->get_data();
+
+		remove_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10 );
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 'success', $response_data['code'] );
+	}
+
+	/**
+	 * Test data for test_get_user_connection_data_route_is_registered_with_jp_version
+	 *
+	 * @return array
+	 */
+	public function get_user_connection_data_route_is_registered_with_jp_version_provider() {
+		return array(
+			'jp_version_null'       => array(
+				null,
+				true,
+			),
+			'jp_version_9.1'        => array(
+				'9.1',
+				false,
+			),
+			'jp_version_10.0-alpha' => array(
+				'10.0-alpha',
+				true,
+			),
+			'jp_version_10.0'       => array(
+				'10.0',
+				true,
+			),
+		);
+	}
+
+	/**
+	 * Testing the `connection/data` endpoint will not be registered if Jetpack-the-plugin < 10.0 is active.
+	 *
+	 * @dataProvider get_user_connection_data_route_is_registered_with_jp_version_provider
+	 *
+	 * @param string $jp_version    The Jetpack plugin version.
+	 * @param bool   $is_registered Whether the route should be registered or not.
+	 */
+	public function test_get_user_connection_data_route_is_registered_with_jp_version( $jp_version, $is_registered ) {
+		global $wp_rest_server;
+
+		if ( isset( $jp_version ) ) {
+			Constants::$set_constants['JETPACK__VERSION'] = $jp_version;
+		}
+
+		// Trigger routes re-register.
+		$wp_rest_server = new WP_REST_Server();
+		new REST_Connector( new Manager() );
+
+		$get_user_connection_data_route = '/jetpack/v4/connection/data';
+
+		$routes = $wp_rest_server->get_routes();
+
+		$route_is_registerd = array_key_exists( $get_user_connection_data_route, $routes );
+
+		$this->assertSame( $is_registered, $route_is_registerd );
+
+		// Clean-up.
+		Constants::clear_single_constant( 'JETPACK__VERSION' );
+	}
+
+	/**
+	 * Testing the `connection/data` endpoint with invalid user permissions.
+	 */
+	public function test_get_user_connection_data_with_invalid_user_permissions() {
+		// Invalid user permissions.
+		$user = wp_get_current_user();
+		$user->remove_cap( 'jetpack_connect_user' );
+
+		$this->request = new WP_REST_Request( 'GET', '/jetpack/v4/connection/data' );
+
+		$response = $this->server->dispatch( $this->request );
+
+		$this->assertEquals( 403, $response->get_status() );
+		$this->assertEquals( REST_Connector::get_user_permissions_error_msg(), $response->get_data()['message'] );
+	}
+
+	/**
+	 * Testing the `connection/data` endpoint without site or user level connection.
+	 */
+	public function test_get_user_connection_data_site_not_connected() {
+		$user = wp_get_current_user();
+
+		$this->request = new WP_REST_Request( 'GET', '/jetpack/v4/connection/data' );
+
+		$response = $this->server->dispatch( $this->request );
+
+		$this->assertEquals( 200, $response->get_status() );
+
+		$expected = array(
+			'currentUser'     => array(
+				'isConnected' => false,
+				'isMaster'    => false,
+				'username'    => $user->user_login,
+				'id'          => $user->ID,
+				'wpcomUser'   => array(
+					'avatar' => false,
+				),
+				'permissions' => array(
+					'connect'      => true,
+					'connect_user' => true,
+					'disconnect'   => true,
+				),
+			),
+			'connectionOwner' => null,
+		);
+
+		$response_data = $response->get_data();
+
+		// Remove gravatar as the url is random.
+		unset( $response_data['currentUser']['gravatar'] );
+		$this->assertSame( $expected, $response_data );
+	}
+
+	/**
+	 * Testing the `connection/data` endpoint without user level connection.
+	 */
+	public function test_get_user_connection_data_without_user_connected() {
+		$user = wp_get_current_user();
+
+		// Mock full connection.
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10, 2 );
+
+		$this->request = new WP_REST_Request( 'GET', '/jetpack/v4/connection/data' );
+
+		$response = $this->server->dispatch( $this->request );
+
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10 );
+
+		$this->assertEquals( 200, $response->get_status() );
+
+		$expected = array(
+			'currentUser'     => array(
+				'isConnected' => false,
+				'isMaster'    => false,
+				'username'    => $user->user_login,
+				'id'          => $user->ID,
+				'wpcomUser'   => array(
+					'avatar' => false,
+				),
+				'permissions' => array(
+					'connect'      => true,
+					'connect_user' => true,
+					'disconnect'   => true,
+				),
+			),
+			'connectionOwner' => null,
+		);
+
+		$response_data = $response->get_data();
+		// Remove gravatar as the url is random.
+		unset( $response_data['currentUser']['gravatar'] );
+		$this->assertSame( $expected, $response_data );
+	}
+
+	/**
+	 * Testing the `connection/data` endpoint with connected user.
+	 */
+	public function test_get_user_connection_data_with_connected_user() {
+		$user = wp_get_current_user();
+
+		// Mock full connection.
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
+		// Set up some dummy cached user connection data.
+		$dummy_wpcom_user_data = array(
+			'ID'           => 999,
+			'email'        => 'jane.doe@foobar.com',
+			'display_name' => 'Jane Doe',
+		);
+		$transient_key         = 'jetpack_connected_user_data_' . self::$user_id;
+		set_transient( $transient_key, $dummy_wpcom_user_data );
+
+		$this->request = new WP_REST_Request( 'GET', '/jetpack/v4/connection/data' );
+
+		$response = $this->server->dispatch( $this->request );
+
+		delete_transient( $transient_key );
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
+
+		$this->assertEquals( 200, $response->get_status() );
+
+		$expected = array(
+			'currentUser'     => array(
+				'isConnected' => true,
+				'isMaster'    => true,
+				'username'    => $user->user_login,
+				'id'          => $user->ID,
+				'wpcomUser'   => $dummy_wpcom_user_data,
+				'permissions' => array(
+					'connect'      => true,
+					'connect_user' => true,
+					'disconnect'   => true,
+				),
+			),
+			'connectionOwner' => $user->user_login,
+		);
+
+		$response_data = $response->get_data();
+		// Remove gravatar as the url is random.
+		unset( $response_data['currentUser']['gravatar'] );
+		unset( $response_data['currentUser']['wpcomUser']['avatar'] );
+		$this->assertSame( $expected, $response_data );
 	}
 
 	/**
@@ -968,10 +1272,10 @@ class Test_REST_Endpoints extends TestCase {
 			case 'id':
 				return self::BLOG_ID;
 			case 'master_user':
-				return self::USER_ID;
+				return self::$user_id;
 			case 'user_tokens':
 				return array(
-					self::USER_ID            => 'new.usertoken.' . self::USER_ID,
+					self::$user_id           => 'new.usertoken.' . self::$user_id,
 					self::$secondary_user_id => 'new2.secondarytoken.' . self::$secondary_user_id,
 				);
 		}

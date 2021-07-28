@@ -27,7 +27,7 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.2.1';
+	const PACKAGE_VERSION = '0.2.2';
 
 	/**
 	 * Instance of the object.
@@ -80,6 +80,8 @@ class Identity_Crisis {
 		add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\IdentityCrisis\\REST_Endpoints', 'initialize_rest_api' ) );
 		add_action( 'jetpack_idc_disconnect', array( __CLASS__, 'do_jetpack_idc_disconnect' ) );
 
+		add_filter( 'jetpack_connection_disconnect_site_wpcom', array( __CLASS__, 'jetpack_connection_disconnect_site_wpcom_filter' ) );
+
 		$urls_in_crisis = self::check_identity_crisis();
 		if ( false === $urls_in_crisis ) {
 			return;
@@ -105,6 +107,17 @@ class Identity_Crisis {
 
 		// Clear IDC options.
 		self::clear_all_idc_options();
+	}
+
+	/**
+	 * Filter to prevent site from disconnecting from WPCOM if it's in an IDC.
+	 *
+	 * @see jetpack_connection_disconnect_site_wpcom filter.
+	 *
+	 * @return bool False if the site is in IDC, true otherwise.
+	 */
+	public static function jetpack_connection_disconnect_site_wpcom_filter() {
+		return ! self::validate_sync_error_idc_option();
 	}
 
 	/**
