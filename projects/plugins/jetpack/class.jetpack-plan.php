@@ -322,22 +322,7 @@ class Jetpack_Plan {
 
 		$plan = self::get();
 
-		// Manually mapping WordPress.com features to Jetpack module slugs.
-		foreach ( $plan['features']['active'] as $wpcom_feature ) {
-			switch ( $wpcom_feature ) {
-				case 'wordads-jetpack':
-					// WordAds are supported for this site.
-					if ( 'wordads' === $feature ) {
-						return true;
-					}
-					break;
-			}
-		}
-
-		if (
-			in_array( $feature, $plan['supports'], true )
-			|| in_array( $feature, $plan['features']['active'], true )
-		) {
+		if ( in_array( $feature, $plan['features']['active'], true ) ) {
 			return true;
 		}
 
