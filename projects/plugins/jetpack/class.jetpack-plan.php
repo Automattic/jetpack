@@ -40,17 +40,7 @@ class Jetpack_Plan {
 			'plans'    => array(
 				'jetpack_free',
 			),
-			'supports' => array(
-				'opentable',
-				'calendly',
-				'send-a-message',
-				'whatsapp-button',
-				'social-previews',
-
-				'core/video',
-				'core/cover',
-				'core/audio',
-			),
+			'supports' => array(),
 		),
 		'personal' => array(
 			'plans'    => array(
@@ -60,11 +50,7 @@ class Jetpack_Plan {
 				'personal-bundle-monthly',
 				'personal-bundle-2y',
 			),
-			'supports' => array(
-				'akismet',
-				'recurring-payments',
-				'premium-content/container',
-			),
+			'supports' => array(),
 		),
 		'premium'  => array(
 			'plans'    => array(
@@ -74,12 +60,7 @@ class Jetpack_Plan {
 				'value_bundle-monthly',
 				'value_bundle-2y',
 			),
-			'supports' => array(
-				'donations',
-				'simple-payments',
-				'vaultpress',
-				'videopress',
-			),
+			'supports' => array(),
 		),
 		'security' => array(
 			'plans'    => array(
@@ -321,7 +302,6 @@ class Jetpack_Plan {
 		}
 
 		$plan = self::get();
-
 		if ( in_array( $feature, $plan['features']['active'], true ) ) {
 			return true;
 		}
