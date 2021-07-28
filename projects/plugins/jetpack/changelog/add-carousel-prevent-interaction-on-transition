@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Adds a Swiper JS param to prevent interaction on the carousel while transitioning between slides
