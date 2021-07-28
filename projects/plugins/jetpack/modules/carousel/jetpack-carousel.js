@@ -1600,7 +1600,7 @@
 					}, 150 );
 				}
 			} );
-			var currentSlideObj = carousel.slides[ options.startIndex ];
+			var currentSlideObj = options.startIndex > 0 ? carousel.slides[ options.startIndex ] : carousel.slides[ 0 ];
 			var currentSlideImage =
 				currentSlideObj && currentSlideObj.el ? currentSlideObj.el.querySelector( 'img' ) : null;
 			var isCurrentSlideImageLoaded =
