@@ -1473,7 +1473,7 @@
 					openCarousel( gallery, options );
 				};
 				jsScript.onerror = function () {
-					toggleLoader();
+					toggleLoader( false );
 				};
 				document.head.appendChild( jsScript );
 				return;
