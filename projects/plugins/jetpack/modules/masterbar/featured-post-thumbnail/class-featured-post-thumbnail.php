@@ -1,6 +1,6 @@
 <?php
 /**
- * Featured Post Thumbnail Support on WP.com.
+ * Featured Image - post-thumbnail Support.
  *
  * Adds support for `post-thumbnail` image on get media endpoint which is used by Gutenberg featured image.
  * This is only interim fix and should removed as soon as permanent fix is available.
