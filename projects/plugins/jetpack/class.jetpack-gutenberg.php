@@ -1075,31 +1075,20 @@ class Jetpack_Gutenberg {
 		$slug           = self::remove_extension_prefix( $slug );
 		$features_data  = array();
 		$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
-		$is_atomic_site = jetpack_is_atomic_site();
 
 		// Check feature availability for Simple and Atomic sites.
-		if ( $is_simple_site || $is_atomic_site ) {
-
-			// Simple sites.
-			if ( $is_simple_site ) {
-				if ( ! class_exists( 'Store_Product_List' ) ) {
-					require WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/store-product-list.php';
-				}
-				$features_data = Store_Product_List::get_site_specific_features_data();
-			} else {
-				// Atomic sites.
-				$option = get_option( 'jetpack_active_plan' );
-				if ( isset( $option['features'] ) ) {
-					$features_data = $option['features'];
-				}
+		if ( $is_simple_site ) {
+			if ( ! class_exists( 'Store_Product_List' ) ) {
+				require WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/store-product-list.php';
 			}
+			$features_data = Store_Product_List::get_site_specific_features_data();
 
 			$is_available = isset( $features_data['active'] ) && in_array( $slug, $features_data['active'], true );
 			if ( ! empty( $features_data['available'][ $slug ] ) ) {
 				$plan = $features_data['available'][ $slug ][0];
 			}
 		} else {
-			// Jetpack sites.
+			// Atomic / Jetpack sites.
 			$is_available = Jetpack_Plan::supports( $slug );
 			$plan         = Jetpack_Plan::get_minimum_plan_for_feature( $slug );
 		}
