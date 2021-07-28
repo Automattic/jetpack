@@ -45,7 +45,6 @@ class Jetpack_Search_Customberg {
 	 */
 	public function init_hooks() {
 		add_action( 'admin_menu', array( $this, 'add_wp_admin_page' ), 999 );
-		add_action( 'admin_footer', array( $this, 'add_redirect_if_necessary' ) );
 	}
 
 	/**
@@ -69,6 +68,8 @@ class Jetpack_Search_Customberg {
 		// Only load assets if Customberg is supported.
 		if ( $this->wp_supports_customberg() ) {
 			add_action( "admin_print_scripts-$hook", array( $this, 'load_assets' ) );
+		} else {
+			add_action( "admin_print_scripts-$hook", array( $this, 'add_redirect_if_necessary' ) );
 		}
 	}
 
@@ -100,7 +101,7 @@ class Jetpack_Search_Customberg {
 		if ( ! $this->wp_supports_customberg() ) {
 			?>
 				<script>
-					window.location.href="/wp-admin/customize.php?autofocus[section]=jetpack_search";
+					window.location.href="<?php echo esc_url( admin_url() ); ?>customize.php?autofocus[section]=jetpack_search";
 				</script>
 			<?php
 		}
