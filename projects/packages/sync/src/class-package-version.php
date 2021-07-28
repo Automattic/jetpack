@@ -12,5 +12,5 @@ namespace Automattic\Jetpack\Sync;
  */
 class Package_Version {
 
-	const PACKAGE_VERSION = '1.24.0';
+	const PACKAGE_VERSION = '1.24.1-alpha';
 }
