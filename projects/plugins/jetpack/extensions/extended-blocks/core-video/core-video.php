@@ -22,6 +22,10 @@ add_filter(
 add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {
-		\Jetpack_Gutenberg::set_availability_for_plan( 'core/video' );
+		\Jetpack_Gutenberg::set_block_availability( 'core/video', array(
+			'upload-video-files',
+			'polldaddy',
+			'premium-themes',
+		) );
 	}
 );

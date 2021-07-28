@@ -1119,6 +1119,36 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
+	 * Set the block availability according to the given features.
+	 * 
+	 * @param string $block_slug Block slug.
+	 * @param array  $features Features list that defines when the block active and/or available.
+	 */
+	public static function set_block_availability( $block_slug, $features ) {
+		$features             = (array) array_values( $features );
+		$unsupported_features = array();
+
+		foreach( $features as $feature ) {
+			if ( ! Jetpack_Plan::has_active_feature( $feature ) ) {
+				$unsupported_features[] = $feature;
+			}
+		}
+
+		if ( empty( $unsupported_features ) ) {
+			return self::set_extension_available( $block_slug );
+		}
+
+		self::set_extension_unavailable(
+			$block_slug,
+			'missing_plan',
+			array(
+				'required_feature' => $unsupported_features,
+				'required_plan'    => Jetpack_Plan::get_minimum_plan_for_feature( $unsupported_features ),
+			)
+		);
+	}
+
+	/**
 	 * Wraps the suplied render_callback in a function to check
 	 * the availability of the block before rendering it.
 	 *

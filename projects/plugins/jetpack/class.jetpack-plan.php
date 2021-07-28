@@ -47,7 +47,6 @@ class Jetpack_Plan {
 				'whatsapp-button',
 				'social-previews',
 
-				'core/video',
 				'core/cover',
 				'core/audio',
 			),
@@ -289,16 +288,17 @@ class Jetpack_Plan {
 	/**
 	 * Gets the minimum plan slug that supports the given feature
 	 *
-	 * @param string $feature The name of the feature.
-	 * @return string|bool The slug for the minimum plan that supports.
-	 *  the feature or false if not found
+	 * @param array|string $feature_slug The name of the feature.
+	 * @return string|bool The slug for the minimum plan that supports the feature, or False if not found.
 	 */
-	public static function get_minimum_plan_for_feature( $feature ) {
-		foreach ( self::PLAN_DATA as $details ) {
-			if ( in_array( $feature, $details['supports'], true ) ) {
-				return $details['plans'][0];
-			}
-		}
+	public static function get_minimum_plan_for_feature( $feature_slug ) {
+		$feature_slug = is_array( $feature_slug ) ? $feature_slug[ 0 ] : $feature_slug;
+		$features = self::get_features();
+
+		if ( isset( $features['available'][ $feature_slug ][0] ) ) {
+			return $features['available'][ $feature_slug ][0];
+		};
+
 		return false;
 	}
 
@@ -342,5 +342,37 @@ class Jetpack_Plan {
 		}
 
 		return false;
+	}
+
+	public static function get_features() {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			if ( ! class_exists( 'Store_Product_List' ) ) {
+				require WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/store-product-list.php';
+			}
+			return Store_Product_List::get_site_specific_features_data();
+		}
+
+		$plan = self::get();
+		return isset( $plan['features'] ) ? $plan['features'] : array();
+	}
+
+	/**
+	 * Check whether the given feature is active.
+	 *
+	 * @param  String  $feature  The feature slug to check.
+	 * @return Boolean           True whether the feature is active. Otherwise, False.
+	 */
+	public static function has_active_feature( $feature ) {
+		if ( ! isset( $feature ) ) {
+			return false;
+		}
+
+		$features = self::get_features();
+		error_log( '$features: ' . print_r( $features, true ) );
+		if ( ! isset( $features['active'] ) ) {
+			return false;
+		}
+
+		return in_array( $feature, $features['active'] );
 	}
 }
