@@ -19,9 +19,11 @@ namespace Automattic\Jetpack\Dashboard_Customizations;
 require __DIR__ . '/masterbar/masterbar/class-masterbar.php';
 require __DIR__ . '/masterbar/admin-color-schemes/class-admin-color-schemes.php';
 require __DIR__ . '/masterbar/inline-help/class-inline-help.php';
+require __DIR__ . '/masterbar/featured-post-thumbnail/class-featured-post-thumbnail.php';
 
 new Masterbar();
 new Admin_Color_Schemes();
+new Featured_Post_Thumbnail();
 
 if ( jetpack_is_atomic_site() ) {
 	new Inline_Help();
