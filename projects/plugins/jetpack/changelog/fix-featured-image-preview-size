@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Add support for post-thumbnail image type on get media JSON endpoint
