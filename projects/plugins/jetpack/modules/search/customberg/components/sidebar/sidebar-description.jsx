@@ -23,6 +23,9 @@ export default function SidebarDescription() {
 						'jetpack'
 					) }
 				</p>
+				<Button href={ 'widgets.php' } isTertiary>
+					{ __( 'Edit widgets' ) }
+				</Button>
 				<Button
 					href={ addQueryArgs( 'customize.php', {
 						'autofocus[section]': 'jetpack_search',
@@ -30,7 +33,7 @@ export default function SidebarDescription() {
 					} ) }
 					isTertiary
 				>
-					{ __( 'Manage with live preview' ) }
+					{ __( 'Configure in the Customizer' ) }
 				</Button>
 			</div>
 		</div>
