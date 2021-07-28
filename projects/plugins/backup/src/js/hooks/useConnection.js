@@ -3,7 +3,7 @@
  */
 import React, { useCallback } from 'react';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { ConnectScreen } from '@automattic/jetpack-connection';
+import { ConnectScreen, ConnectionStatusCard } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -32,6 +32,10 @@ export default function useConnection() {
 		[ setConnectionStatus ]
 	);
 
+	const onDisconnectedCallback = useCallback( () => {
+		setConnectionStatus( { isActive: false, isRegistered: false, isUserConnected: false } );
+	}, [ setConnectionStatus ] );
+
 	const renderConnectScreen = () => {
 		return (
 			<ConnectScreen
@@ -53,5 +57,18 @@ export default function useConnection() {
 		);
 	};
 
-	return [ connectionStatus, renderConnectScreen ];
+	const renderConnectionStatusCard = () => {
+		return (
+			<ConnectionStatusCard
+				isRegistered={ connectionStatus.isRegistered }
+				isUserConnected={ connectionStatus.isUserConnected }
+				apiRoot={ APIRoot }
+				apiNonce={ APINonce }
+				onDisconnected={ onDisconnectedCallback }
+				redirectUri="admin.php?page=jetpack-backup"
+			/>
+		);
+	};
+
+	return [ connectionStatus, renderConnectScreen, renderConnectionStatusCard ];
 }

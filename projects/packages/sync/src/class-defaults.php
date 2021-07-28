@@ -33,6 +33,7 @@ class Defaults {
 		'carousel_background_color',
 		'carousel_display_exif',
 		'carousel_display_comments',
+		'carousel_display_slide_background',
 		'category_base',
 		'ce4wp_referred_by', // Creative Mail. See pbtFPC-H5-p2.
 		'close_comments_days_old',
