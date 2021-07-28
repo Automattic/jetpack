@@ -1,5 +1,5 @@
-Significance: patch
-Type: other
-Comment: Updated jetpack extension tests to work with updated wordpress dependencies
+Significance: major
+Type: compat
+Comment: This is a side effect of the upgrade of @wordpress/browserslist-config to v4.0.0.
 
-
+Browser Compatibility: allow use of new JavaScript features not supported by Internet Explorer 11.
