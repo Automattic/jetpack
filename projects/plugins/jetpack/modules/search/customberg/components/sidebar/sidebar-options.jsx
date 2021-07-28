@@ -58,6 +58,8 @@ export default function SidebarOptions() {
 	const { isLoading } = useSiteLoadingState();
 	const isDisabled = isSaving || isLoading;
 
+	// TODO: ask the user if they attempt to navigate away from the page with pending changes.
+
 	return (
 		<Panel
 			className={ classNames( 'jp-search-customize-sidebar-options', {
