@@ -448,19 +448,19 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		// FSE is no longer where it was put by default.
 		$this->assertArrayNotHasKey( 100, $menu );
-		$this->assertArrayHasKey( 61, $menu );
+		$this->assertArrayHasKey( 59, $menu );
 
 		$fse_link = 'https://wordpress.com/site-editor/' . static::$domain;
 		$fse_menu = array(
-			'Site Editor',
+			'Site Editor (beta)',
 			'edit_theme_options',
 			$fse_link,
-			'Site Editor',
+			'Site Editor <span class="awaiting-mod">beta</span>',
 			'menu-top toplevel_page_' . $fse_link,
 			'toplevel_page_' . $fse_link,
 			'dashicons-layout',
 		);
-		$this->assertSame( $menu[61], $fse_menu );
+		$this->assertSame( $menu[59], $fse_menu );
 	}
 
 	/**
