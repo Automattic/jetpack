@@ -33,11 +33,8 @@
 }
 
 .jp-carousel-fade-in-image {
-	animation: fadeInOpacity ease-in 0.5s 1 normal forwards;
-	-webkit-animation: fadeInOpacity ease-in 0.5s 1 normal forwards;
-	-moz-animation: fadeInOpacity ease-in 0.5s 1 normal forwards;
-	-o-animation: fadeInOpacity ease-in 0.5s 1 normal forwards;
-
+	animation: fadeInOpacity ease-in 0.25s 1 normal forwards;
+	-webkit-animation: fadeInOpacity ease-in 0.25s 1 normal forwards;
 }
 
 @keyframes fadeInOpacity {
