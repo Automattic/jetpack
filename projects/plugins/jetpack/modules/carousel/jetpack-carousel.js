@@ -1602,28 +1602,29 @@
 			} );
 			var currentSlideObj = carousel.slides[ options.startIndex ];
 			var currentSlideImage = currentSlideObj.el ? currentSlideObj.el.querySelector( 'img' ) : null;
-			var iscurrentSlideImageLoaded =
+			var isCurrentSlideImageLoaded =
 				currentSlideImage && currentSlideImage.complete && currentSlideImage.naturalHeight !== 0;
 
 			domUtil.fadeIn( carousel.overlay );
 
-			if ( iscurrentSlideImageLoaded ) {
-				toggleLoader();
+			if ( isCurrentSlideImageLoaded ) {
+				toggleLoader( false );
 				carousel.container.classList.add( 'jp-carousel-fade-in-image' );
 				domUtil.emitEvent( carousel.overlay, 'jp_carousel.afterOpen' );
 				return;
 			}
 
 			toggleLoader( true );
+			// Grab the selected image and preload it before fading it in.
 			var newImage = new Image();
+
 			newImage.onload = function () {
-				toggleLoader();
-				carousel.overlay.style.visibility = 'visible';
+				toggleLoader( false );
 				carousel.container.classList.add( 'jp-carousel-fade-in-image' );
 				domUtil.emitEvent( carousel.overlay, 'jp_carousel.afterOpen' );
 			};
 			newImage.onerror = function () {
-				toggleLoader();
+				toggleLoader( false );
 				carousel.container.classList.add( 'jp-carousel-fade-in-image' );
 				domUtil.emitEvent( carousel.overlay, 'jp_carousel.afterOpen' );
 			};
