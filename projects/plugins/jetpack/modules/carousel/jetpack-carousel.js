@@ -1555,6 +1555,7 @@
 				},
 				preventClicks: false,
 				preventClicksPropagation: false,
+				preventInteractionOnTransition: true,
 				threshold: 5,
 			} );
 
