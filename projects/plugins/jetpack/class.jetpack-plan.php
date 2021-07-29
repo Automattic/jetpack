@@ -42,6 +42,7 @@ class Jetpack_Plan {
 			),
 			'supports' => array(
 				'opentable',
+				'calendly',
 				'send-a-message',
 				'whatsapp-button',
 				'social-previews',

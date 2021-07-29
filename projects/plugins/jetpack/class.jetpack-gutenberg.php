@@ -1123,6 +1123,7 @@ class Jetpack_Gutenberg {
 	 * $features is an associative array that expect two keys:
 	 * - sufficient: an array of features where ONE of them is sufficient to enable the block.
 	 * - necessary: an array of features where ALL of them are necessary to enable the block.
+	 *
 	 * @param string $block_slug Block slug.
 	 * @param array  $features Features list that defines when the block active and/or available.
 	 */
@@ -1146,7 +1147,7 @@ class Jetpack_Gutenberg {
 			$sufficient_features_required[] = $sufficient;
 		}
 
-		// neccesary: ALL of them are required to enable the block.		
+		// neccesary: ALL of them are required to enable the block.
 		foreach ( $necessary_features as $necessary ) {
 			if ( ! Jetpack_Plan::has_active_feature( $necessary ) ) {
 				$necessary_features_required[] = $necessary;
