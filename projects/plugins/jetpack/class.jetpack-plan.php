@@ -365,7 +365,7 @@ class Jetpack_Plan {
 	/**
 	 * Check whether the given feature is active.
 	 *
-	 * @param String   $feature  The feature slug to check.
+	 * @param String $feature  The feature slug to check.
 	 * @return Boolean           True whether the feature is active. Otherwise, False.
 	 */
 	public static function has_active_feature( $feature ) {
