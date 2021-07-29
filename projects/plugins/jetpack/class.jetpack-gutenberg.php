@@ -1121,18 +1121,19 @@ class Jetpack_Gutenberg {
 	/**
 	 * Set the block availability according to the given features.
 	 * $features is an associative array that expect two keys:
-	 * - sufficient: an array of features where ONE of them is sufficient to enable the block.
-	 * - necessary: an array of features where ALL of them are necessary to enable the block.
+	 * - sufficient: an array/itemitem of features where ONE of them is sufficient to enable the block.
+	 * - necessary: an array/item of features where ALL of them are necessary to enable the block.
 	 *
 	 * @param string $block_slug Block slug.
 	 * @param array  $features Features list that defines when the block active and/or available.
 	 */
 	public static function set_block_availability( $block_slug, $features = array() ) {
 		$sufficient_features = isset( $features['sufficient'] )
-			? (array) array_values( $features['sufficient'] )
+			? array_values( (array) $features['sufficient'] )
 			: array();
-		$necessary_features  = isset( $features['necessary'] )
-			? (array) array_values( $features['necessary'] )
+
+		$necessary_features = isset( $features['necessary'] )
+			? array_values( (array) $features['necessary'] )
 			: array();
 
 		$sufficient_features_required = array();
@@ -1154,11 +1155,11 @@ class Jetpack_Gutenberg {
 			}
 		}
 
-		if ( empty( $necessary_features_required ) ) {
+		// Combine sufficient and necessary required features.
+		$unsupported_features = array_merge( $sufficient_features_required, $necessary_features_required );
+		if ( empty( $unsupported_features ) ) {
 			return self::set_extension_available( $block_slug );
 		}
-
-		$unsupported_features = array_merge( $sufficient_features_required, $necessary_features_required );
 
 		self::set_extension_unavailable(
 			$block_slug,
