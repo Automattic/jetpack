@@ -83,5 +83,6 @@
 		}
 	],
 	"dependencyDashboard": true,
-	"dependencyDashboardTitle": "Renovate Dependency Updates"
+	"dependencyDashboardTitle": "Renovate Dependency Updates",
+	"dependencyDashboardLabels": [ "Primary Issue", "[Type] Janitorial" ]
 }
