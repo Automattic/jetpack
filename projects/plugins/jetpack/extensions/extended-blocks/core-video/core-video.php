@@ -26,8 +26,6 @@ add_action(
 			'core/video',
 			array(
 				'upload-video-files',
-				'polldaddy',
-				'premium-themes',
 			)
 		);
 	}
