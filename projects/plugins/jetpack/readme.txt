@@ -1,5 +1,5 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
-Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, scarstocea, scottsweb, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
+Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
 Stable tag: 9.9.1
 Requires at least: 5.7
@@ -242,20 +242,28 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 9.9.1 - 2021-07-20
+### 10.0-beta - 2021-07-27
 #### Enhancements
-- Carousel: improve carousel icons.
+- Carousel: add settings toggle to control display of colorized slide background.
+- Carousel: add JS-based smooth scroll behavior for the footer buttons.
+- Carousel: on image zoom, fade out controls. Fade them back in when sized back to original, or the slide is advanced.
 
 #### Improved compatibility
-- Carousel: ensure that arrows look and work correctly in right-to-left languages.
+- Map Block: ensure theme styles do not override map button background colors.
 
 #### Bug fixes
-- Carousel: prevent comments indicator from bumping icon width of comments button.
-- Carousel: CSS tweaks to ensure text and comment loader spinners dislay correctly in dark and light theme views.
-- Carousel: ensures caption is shown in carousel images.
-- Carousel: ensure carousel CSS doesn't override other non-Jetpack carousel styling.
-- Widgets: allow the use of widget visibility conditions in gutenberg based widget editing.
-- Widgets: ensure block previews display in customizer for multiple blocks.
+- Carousel: fix bug with missing background when reversing swipe direction.
+- Contact Form Block: remove specific form colors to prevent theme style clash.
+- Comments: fix subsequent commenting when using a social profile.
+- Instant Search: fix visual glitch on breadcrumb in Firefox.
+- Instant Search: make sure ?s= is set when using filter links.
+- Like Button: add title and aria-hidden attributes to the Like button iframe.
+- OpenTable Block: fix input width when used in block editor.
+- Publicize: avoid PHP notices in edge-cases where no info about a post can be found.
+- Search: fix notice issue with WP 5.8's widget editor.
+- Select Dropdown Component: add content-box box sizing to prevent global box-sizing conflict.
+- SEO Tools: ensure functions are loaded before API endpoint attempts to use them.
+- Tiled Gallery: fix blurry display of images much wider than they are high.
 
 --------
 
