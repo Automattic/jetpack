@@ -36,7 +36,7 @@ class Featured_Post_Thumbnail {
 		$size = 'post-thumbnail';
 
 		// Return early if media details doesn't exists in response.
-		if ( ! isset( $response->data['media_details'] ) ) {
+		if ( ! isset( $response->data['media_details']['sizes'] ) ) {
 			return $response;
 		}
 
@@ -47,8 +47,13 @@ class Featured_Post_Thumbnail {
 			return $response;
 		}
 
+		// Return response as it is if the attachment doesn't have ID attribute.
+		if ( ! isset( $attachment->ID ) ) {
+			return $response;
+		}
+
 		// Get the `post-thumbnail` size image source url.
-		list( $source_url, $width, $height ) = wp_get_attachment_image_src( $attachment->id, $size );
+		list( $source_url, $width, $height ) = wp_get_attachment_image_src( $attachment->ID, $size );
 
 		// Return response as it is if we fail to retrieve `post-thumbnail` image source url.
 		if ( ! $source_url ) {
