@@ -2137,6 +2137,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'carousel',
 			),
+			'carousel_display_slide_background'    => array(
+				'description'       => esc_html__( 'Display colorized slide backgrounds', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'carousel',
+			),
 
 			// Comments
 			'highlander_comment_form_prompt'       => array(

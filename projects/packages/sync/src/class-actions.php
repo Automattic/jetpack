@@ -12,6 +12,7 @@ use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Status;
+use WP_Error;
 
 /**
  * The role of this class is to hook the Sync subsystem into WordPress - when to listen for actions,
@@ -395,7 +396,7 @@ class Actions {
 		// If we're currently updating to Jetpack 7.7, the IXR client may be missing briefly
 		// because since 7.7 it's being autoloaded with Composer.
 		if ( ! class_exists( '\\Jetpack_IXR_Client' ) ) {
-			return new \WP_Error(
+			return new WP_Error(
 				'ixr_client_missing',
 				esc_html__( 'Sync has been aborted because the IXR client is missing.', 'jetpack' )
 			);
@@ -447,7 +448,7 @@ class Actions {
 				);
 			}
 
-			return new \WP_Error(
+			return new WP_Error(
 				'sync_error_idc',
 				esc_html__( 'Sync has been blocked from WordPress.com because it would cause an identity crisis', 'jetpack' )
 			);
