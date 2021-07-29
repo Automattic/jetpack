@@ -794,10 +794,6 @@
 
 			loadFullImage( carousel.slides[ index ] );
 
-			if ( Number( jetpackCarouselStrings.display_slide_background ) === 1 ) {
-				loadSlideBackgrounds();
-			}
-
 			domUtil.hide( carousel.caption );
 			updateTitleCaptionAndDesc( {
 				caption: current.attrs.caption,
@@ -1278,18 +1274,7 @@
 			}
 		}
 
-		function loadSlideBackgrounds() {
-			applySlideBackground( '.swiper-slide-active' );
-
-			setTimeout( function () {
-				applySlideBackground( '.swiper-slide-prev' );
-				applySlideBackground( '.swiper-slide-next' );
-			}, 200 );
-		}
-
-		function applySlideBackground( slideClass ) {
-			var slideEl = carousel.container.querySelector( slideClass );
-
+		function applySlideBackground( image, slideEl ) {
 			if ( ! slideEl ) {
 				return;
 			}
@@ -1299,7 +1284,6 @@
 				return;
 			}
 
-			var image = slideEl.querySelector( 'img' );
 			if ( ! image ) {
 				return;
 			}
@@ -1461,7 +1445,12 @@
 						attrs.previewImage = attrs.src;
 					}
 
+					if ( Number( jetpackCarouselStrings.display_slide_background ) === 1 ) {
+						applySlideBackground(item, slideEl);
+					}
+					
 					var slide = { el: slideEl, attrs: attrs, index: i };
+
 					carousel.slides.push( slide );
 				}
 			} );
