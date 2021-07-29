@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Guard against an undefined index warning.
