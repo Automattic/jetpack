@@ -25,7 +25,7 @@ add_action(
 		\Jetpack_Gutenberg::set_block_availability(
 			'core/video',
 			array(
-				'sufficient' => 'upload-video-files'
+				'sufficient' => 'upload-video-files',
 			)
 		);
 	}
