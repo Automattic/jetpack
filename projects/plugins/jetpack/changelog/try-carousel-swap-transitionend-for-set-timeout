@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Carousel: Replace transitionend with settimeout for fade to improve compatibility in low framerate environments
