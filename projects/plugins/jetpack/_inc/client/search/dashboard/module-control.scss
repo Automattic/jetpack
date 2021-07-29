@@ -4,7 +4,7 @@ $color-button-background: $black;
 $color-button-text: $white;
 $color-button-background-disabled: #dcdcde;
 $color-button-text-disabled: #a7aaad;
-$toggle-dot-radius: 10px;
+$toggle-dot-radius: 9px;
 $toggle-dot-padding: 3px;
 $toggle-height: 16px;
 $toggle-width: 32px;
@@ -92,7 +92,7 @@ p.jp-form-search-settings-group__toggle-explanation {
 			background-color: $black;
 		}
 		background: $white;
-		border: 1px solid $black;
+		border: 2px solid $black;
 
 		&:focus {
 			box-shadow: 0 0 0 2px $blue-medium;
@@ -102,7 +102,7 @@ p.jp-form-search-settings-group__toggle-explanation {
 	&:checked {
 		+ .form-toggle__label .form-toggle__switch {
 			background: $color-plan;
-			border: none;
+			border-color: $color-plan;
 
 			&:after {
 				left: $toggle-height;
