@@ -24,7 +24,7 @@
 		"parse-diff": "0.8.1"
 	},
 	"devDependencies": {
-		"eslint": "7.25.0",
+		"eslint": "7.31.0",
 		"jetpack-js-test-runner": "workspace:*",
 		"nyc": "15.1.0"
 	},
