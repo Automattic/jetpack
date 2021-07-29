@@ -42,6 +42,15 @@ class Test_Featured_Post_Thumbnail extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Clean up attachment created.
+	 */
+	public static function tearDownAfterClass() {
+		parent::tearDownAfterClass();
+
+		wp_delete_attachment( self::$attachment->ID );
+	}
+
+	/**
 	 * Setup attachment response fixture.
 	 */
 	public function setUp() {
