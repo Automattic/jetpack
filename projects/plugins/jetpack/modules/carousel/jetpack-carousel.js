@@ -312,7 +312,9 @@
 		var originalOverflow;
 		var originalHOverflow;
 		var scrollPos;
-
+		// Assign preload JS and initial Image to globals so we can remove onload/onerror callbacks onClose.
+		var preloadSelectedImage;
+		var preloadJsScript;
 		var lastKnownLocationHash = '';
 		var isUserTyping = false;
 
@@ -853,16 +855,31 @@
 			carousel.container.classList.remove( 'jp-carousel-fade-in-image' );
 			domUtil.emitEvent( carousel.overlay, 'jp_carousel.beforeClose' );
 			restoreScroll();
-			swiper.destroy();
+			if ( swiper ) {
+				swiper.destroy();
+			}
 			carousel.isOpen = false;
 			// Clear slide data for DOM garbage collection.
 			carousel.slides = [];
 			carousel.currentSlide = undefined;
 			carousel.gallery.innerHTML = '';
+			if ( preloadSelectedImage && preloadSelectedImage.onload ) {
+				preloadSelectedImage.onload = null;
+				preloadSelectedImage.onerror = null;
+			}
 
-			domUtil.fadeOut( carousel.overlay, function () {
-				domUtil.emitEvent( carousel.overlay, 'jp_carousel.afterClose' );
-			} );
+			if ( preloadJsScript && preloadJsScript.onload ) {
+				preloadJsScript.onload = null;
+				preloadJsScript.onerror = null;
+			}
+
+			// Close the main carousel overlay.
+			var carouselOverlay = document.querySelector( '.jp-carousel-overlay' );
+
+			if ( carouselOverlay ) {
+				carouselOverlay.style.display = 'none';
+			}
+			domUtil.emitEvent( carousel.overlay, 'jp_carousel.afterClose' );
 		}
 
 		function calculateMaxSlideDimensions() {
@@ -1469,21 +1486,26 @@
 
 		function loadSwiper( gallery, options ) {
 			// Show the overlay straight away while loading assets.
-			domUtil.fadeIn( document.querySelector( '.jp-carousel-overlay' ) );
+			var carouselOverlay = document.querySelector( '.jp-carousel-overlay' );
+
+			if ( carouselOverlay ) {
+				carouselOverlay.style.display = 'block';
+				initializeCarousel();
+			}
 
 			if ( ! window.Swiper ) {
 				toggleLoader( true );
-				var jsScript = document.createElement( 'script' );
-				jsScript.id = 'jetpack-carousel-swiper-js';
-				jsScript.src = window.jetpackSwiperLibraryPath.url;
-				jsScript.async = true;
-				jsScript.onload = function () {
+				preloadJsScript = document.createElement( 'script' );
+				preloadJsScript.id = 'jetpack-carousel-swiper-js';
+				preloadJsScript.src = window.jetpackSwiperLibraryPath.url;
+				preloadJsScript.async = true;
+				preloadJsScript.onload = function () {
 					openCarousel( gallery, options );
 				};
-				jsScript.onerror = function () {
+				preloadJsScript.onerror = function () {
 					toggleLoader( false );
 				};
-				document.head.appendChild( jsScript );
+				document.head.appendChild( preloadJsScript );
 				return;
 			}
 			openCarousel( gallery, options );
@@ -1502,8 +1524,6 @@
 			if ( ! data ) {
 				return; // don't run if the default gallery functions weren't used
 			}
-
-			initializeCarousel();
 
 			if ( carousel.isOpen ) {
 				return; // don't open if already opened
@@ -1627,17 +1647,17 @@
 
 			toggleLoader( true );
 			// Grab the selected image and preload it before fading it in.
-			var newImage = new Image();
+			preloadSelectedImage = new Image();
 
-			newImage.onload = function () {
+			preloadSelectedImage.onload = function () {
 				toggleLoader( false );
 				carousel.container.classList.add( 'jp-carousel-fade-in-image' );
 			};
-			newImage.onerror = function () {
+			preloadSelectedImage.onerror = function () {
 				toggleLoader( false );
 				carousel.container.classList.add( 'jp-carousel-fade-in-image' );
 			};
-			newImage.src = currentSlideObj.attrs.src;
+			preloadSelectedImage.src = currentSlideObj.attrs.src;
 		}
 
 		/**
