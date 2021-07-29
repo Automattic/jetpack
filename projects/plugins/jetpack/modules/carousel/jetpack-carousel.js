@@ -681,15 +681,21 @@
 		function processSingleImageGallery() {
 			var images = document.querySelectorAll( 'a img[data-attachment-id]' );
 			Array.prototype.forEach.call( images, function ( image ) {
-				var container = image.parentElement;
+				var link = image.parentElement;
+				var container = link.parentElement;
 
 				// Skip if image was already added to gallery by shortcode.
-				if ( container.parentElement.classList.contains( 'gallery-icon' ) ) {
+				if ( container.classList.contains( 'gallery-icon' ) ) {
 					return;
 				}
 
-				// Skip if the container is not a link.
-				if ( ! container.hasAttribute( 'href' ) ) {
+				// Skip if image is part of a gallery.
+				if ( container.parentElement.classList.contains( 'blocks-gallery-item' ) ) {
+					return;
+				}
+
+				// Skip if the parent is not actually a link.
+				if ( ! link.hasAttribute( 'href' ) ) {
 					return;
 				}
 
@@ -697,7 +703,7 @@
 
 				// If link points to 'Media File' (ignoring GET parameters) and flag is set, allow it.
 				if (
-					container.getAttribute( 'href' ).split( '?' )[ 0 ] ===
+					link.getAttribute( 'href' ).split( '?' )[ 0 ] ===
 						image.getAttribute( 'data-orig-file' ).split( '?' )[ 0 ] &&
 					Number( jetpackCarouselStrings.single_image_gallery_media_file ) === 1
 				) {
@@ -705,7 +711,7 @@
 				}
 
 				// If link points to 'Attachment Page', allow it.
-				if ( container.getAttribute( 'href' ) === image.getAttribute( 'data-permalink' ) ) {
+				if ( link.getAttribute( 'href' ) === image.getAttribute( 'data-permalink' ) ) {
 					valid = true;
 				}
 
@@ -715,9 +721,9 @@
 				}
 
 				// Make this node a gallery recognizable by event listener above.
-				container.classList.add( 'single-image-gallery' );
+				link.classList.add( 'single-image-gallery' );
 				// blog_id is needed to allow posting comments to correct blog.
-				container.setAttribute(
+				link.setAttribute(
 					'data-carousel-extra',
 					JSON.stringify( {
 						blog_id: Number( jetpackCarouselStrings.blog_id ),
