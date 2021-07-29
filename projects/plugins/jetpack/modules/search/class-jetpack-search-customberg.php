@@ -101,7 +101,7 @@ class Jetpack_Search_Customberg {
 		if ( ! $this->wp_supports_customberg() ) {
 			?>
 				<script>
-					window.location.href="<?php echo esc_url( admin_url() ); ?>customize.php?autofocus[section]=jetpack_search";
+					window.location.href="<?php echo esc_url( admin_url( 'customize.php?autofocus[section]=jetpack_search' ) ); ?>";
 				</script>
 			<?php
 		}
