@@ -27,6 +27,7 @@ const config = {
 			'@automattic/calypso-build/babel/default'
 		),
 	],
+	plugins: [ '@babel/plugin-proposal-nullish-coalescing-operator' ],
 	overrides: [
 		{
 			test: './extensions/',
