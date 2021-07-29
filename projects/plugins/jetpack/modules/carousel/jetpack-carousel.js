@@ -463,6 +463,8 @@
 
 				carousel.overlay.addEventListener( 'jp_carousel.beforeClose', function () {
 					disableKeyboardNavigation();
+					// Close loader, in case it's open.
+					toggleLoader( false );
 
 					// Fixes some themes where closing carousel brings view back to top.
 					document.documentElement.style.removeProperty( 'height' );
@@ -470,6 +472,9 @@
 					// Hide pagination.
 					domUtil.hide( carousel.info.querySelector( '.jp-swiper-pagination' ) );
 					domUtil.hide( carousel.info.querySelector( '.jp-carousel-pagination' ) );
+
+					// Hide the info bar so we can delay showing it if we need to preload Swiper.
+					carousel.info.style.opacity = 0;
 				} );
 
 				carousel.overlay.addEventListener( 'jp_carousel.afterClose', function () {
@@ -1463,6 +1468,9 @@
 		}
 
 		function loadSwiper( gallery, options ) {
+			// Show the overlay straight away while loading assets.
+			domUtil.fadeIn( document.querySelector( '.jp-carousel-overlay' ) );
+
 			if ( ! window.Swiper ) {
 				toggleLoader( true );
 				var jsScript = document.createElement( 'script' );
@@ -1530,6 +1538,8 @@
 			// Need to set the overlay manually to block or swiper does't initialise properly.
 			carousel.overlay.style.opacity = 1;
 			carousel.overlay.style.display = 'block';
+			// Show the info bar. We hide it until Swiper JS is loaded and the user can interact.
+			carousel.info.style.opacity = 1;
 
 			initCarouselSlides( gallery.querySelectorAll( settings.imgSelector ), settings.startIndex );
 
@@ -1600,18 +1610,18 @@
 					}, 150 );
 				}
 			} );
-			var currentSlideObj = options.startIndex > 0 ? carousel.slides[ options.startIndex ] : carousel.slides[ 0 ];
+			var currentSlideObj =
+				options.startIndex > 0 ? carousel.slides[ options.startIndex ] : carousel.slides[ 0 ];
 			var currentSlideImage =
 				currentSlideObj && currentSlideObj.el ? currentSlideObj.el.querySelector( 'img' ) : null;
 			var isCurrentSlideImageLoaded =
 				currentSlideImage && currentSlideImage.complete && currentSlideImage.naturalHeight !== 0;
 
-			domUtil.fadeIn( carousel.overlay );
+			domUtil.emitEvent( carousel.overlay, 'jp_carousel.afterOpen' );
 
 			if ( isCurrentSlideImageLoaded ) {
 				toggleLoader( false );
 				carousel.container.classList.add( 'jp-carousel-fade-in-image' );
-				domUtil.emitEvent( carousel.overlay, 'jp_carousel.afterOpen' );
 				return;
 			}
 
@@ -1622,12 +1632,10 @@
 			newImage.onload = function () {
 				toggleLoader( false );
 				carousel.container.classList.add( 'jp-carousel-fade-in-image' );
-				domUtil.emitEvent( carousel.overlay, 'jp_carousel.afterOpen' );
 			};
 			newImage.onerror = function () {
 				toggleLoader( false );
 				carousel.container.classList.add( 'jp-carousel-fade-in-image' );
-				domUtil.emitEvent( carousel.overlay, 'jp_carousel.afterOpen' );
 			};
 			newImage.src = currentSlideObj.attrs.src;
 		}
