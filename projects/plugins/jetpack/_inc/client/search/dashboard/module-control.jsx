@@ -17,6 +17,7 @@ import { withModuleSettingsFormHelpers } from 'components/module-settings/with-m
 import Button from 'components/button';
 import { getPlanClass } from 'lib/plans/constants';
 import InstantSearchUpsellNudge from './instant-search-upsell-nudge';
+import analytics from '../../lib/analytics';
 import './module-control.scss';
 
 /**
@@ -69,6 +70,7 @@ function Search( props ) {
 			newOption.instant_search_enabled = hasActiveSearchPurchase && ! isModuleEnabled;
 		}
 		updateOptions( newOption );
+		analytics.tracks.recordEvent( 'jetpack_search_module_toggle', newOption );
 	}, [ hasActiveSearchPurchase, isInstantSearchEnabled, isModuleEnabled, updateOptions ] );
 
 	const toggleInstantSearch = useCallback( () => {
@@ -79,6 +81,7 @@ function Search( props ) {
 			newOption.search = true;
 		}
 		updateOptions( newOption );
+		analytics.tracks.recordEvent( 'jetpack_search_instant_toggle', newOption );
 	}, [ hasActiveSearchPurchase, isInstantSearchEnabled, isModuleEnabled, updateOptions ] );
 
 	useEffect( () => {

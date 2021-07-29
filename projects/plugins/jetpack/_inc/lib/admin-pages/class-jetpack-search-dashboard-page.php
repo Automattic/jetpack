@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Status;
+
 /**
  * Requires files needed.
  */
@@ -122,6 +124,11 @@ class Jetpack_Search_Dashboard_Page extends Jetpack_Admin_Page {
 		if ( file_exists( $script_deps_path ) ) {
 			$asset_manifest      = include $script_deps_path;
 			$script_dependencies = $asset_manifest['dependencies'];
+		}
+
+		if ( ! ( new Status() )->is_offline_mode() && Jetpack::is_connection_ready() ) {
+			// Required for Analytics.
+			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
 
 		wp_enqueue_script(

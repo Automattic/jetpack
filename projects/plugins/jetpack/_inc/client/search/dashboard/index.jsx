@@ -14,13 +14,21 @@ import Masthead from 'components/masthead';
 import LoadingPlaceHolder from 'components/loading-placeholder';
 import ModuleControl from './module-control';
 import MockedSearch from './mocked-search';
+import analytics from '../../lib/analytics';
 import './style.scss';
 
 /**
  * State dependencies
  */
 import { isFetchingSitePurchases } from 'state/site';
-import { setInitialState, getApiNonce, getApiRootUrl, getSiteAdminUrl } from 'state/initial-state';
+import {
+	setInitialState,
+	getApiNonce,
+	getApiRootUrl,
+	getSiteAdminUrl,
+	getTracksUserData,
+	getCurrentVersion,
+} from 'state/initial-state';
 
 const useComponentWillMount = func => {
 	// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -42,10 +50,24 @@ function SearchDashboard( props ) {
 		siteAdminUrl,
 	} = props;
 
+	const initializeAnalytics = () => {
+		const tracksUser = props.tracksUserData;
+
+		if ( tracksUser ) {
+			analytics.initialize( tracksUser.userid, tracksUser.username, {
+				blog_id: tracksUser.blogid,
+			} );
+		}
+	};
+
 	useComponentWillMount( () => {
 		apiRootUrl && restApi.setApiRoot( apiRootUrl );
 		apiNonce && restApi.setApiNonce( apiNonce );
 		setSearchDashboardInitialState && setSearchDashboardInitialState();
+		initializeAnalytics();
+		analytics.tracks.recordEvent( 'jetpack_search_admin_page_view', {
+			current_version: props.currentVersion,
+		} );
 	} );
 
 	const aboutPageUrl = siteAdminUrl + 'admin.php?page=jetpack_about';
@@ -89,6 +111,8 @@ export default connect(
 			apiNonce: getApiNonce( state ),
 			isLoading: isFetchingSitePurchases( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
+			tracksUserData: getTracksUserData( state ),
+			currentVersion: getCurrentVersion( state ),
 		};
 	},
 	{ setInitialState }
