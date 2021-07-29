@@ -292,8 +292,8 @@ class Jetpack_Plan {
 	 * @return string|bool The slug for the minimum plan that supports the feature, or False if not found.
 	 */
 	public static function get_minimum_plan_for_feature( $feature_slug ) {
-		$feature_slug = is_array( $feature_slug ) ? $feature_slug[ 0 ] : $feature_slug;
-		$features = self::get_features();
+		$feature_slug = is_array( $feature_slug ) ? $feature_slug[0] : $feature_slug;
+		$features     = self::get_features();
 
 		if ( isset( $features['available'][ $feature_slug ][0] ) ) {
 			return $features['available'][ $feature_slug ][0];
@@ -344,6 +344,12 @@ class Jetpack_Plan {
 		return false;
 	}
 
+	/**
+	 * Get a list of all available features for the site.
+	 * It supports site type.
+	 *
+	 * @return object Site features object.
+	 */
 	public static function get_features() {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			if ( ! class_exists( 'Store_Product_List' ) ) {
@@ -359,7 +365,7 @@ class Jetpack_Plan {
 	/**
 	 * Check whether the given feature is active.
 	 *
-	 * @param  String  $feature  The feature slug to check.
+	 * @param String   $feature  The feature slug to check.
 	 * @return Boolean           True whether the feature is active. Otherwise, False.
 	 */
 	public static function has_active_feature( $feature ) {
@@ -368,11 +374,10 @@ class Jetpack_Plan {
 		}
 
 		$features = self::get_features();
-		error_log( '$features: ' . print_r( $features, true ) );
 		if ( ! isset( $features['active'] ) ) {
 			return false;
 		}
 
-		return in_array( $feature, $features['active'] );
+		return in_array( $feature, $features['active'], true );
 	}
 }

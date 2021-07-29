@@ -1120,7 +1120,7 @@ class Jetpack_Gutenberg {
 
 	/**
 	 * Set the block availability according to the given features.
-	 * 
+	 *
 	 * @param string $block_slug Block slug.
 	 * @param array  $features Features list that defines when the block active and/or available.
 	 */
@@ -1128,7 +1128,7 @@ class Jetpack_Gutenberg {
 		$features             = (array) array_values( $features );
 		$unsupported_features = array();
 
-		foreach( $features as $feature ) {
+		foreach ( $features as $feature ) {
 			if ( ! Jetpack_Plan::has_active_feature( $feature ) ) {
 				$unsupported_features[] = $feature;
 			}
