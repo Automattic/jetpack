@@ -1120,29 +1120,53 @@ class Jetpack_Gutenberg {
 
 	/**
 	 * Set the block availability according to the given features.
-	 *
+	 * $features is an associative array that expect two keys:
+	 * - sufficient: an array of features where ONE of them is sufficient to enable the block.
+	 * - necessary: an array of features where ALL of them are necessary to enable the block.
 	 * @param string $block_slug Block slug.
 	 * @param array  $features Features list that defines when the block active and/or available.
 	 */
-	public static function set_block_availability( $block_slug, $features ) {
-		$features             = (array) array_values( $features );
-		$unsupported_features = array();
+	public static function set_block_availability( $block_slug, $features = array() ) {
+		$sufficient_features = isset( $features['sufficient'] )
+			? (array) array_values( $features['sufficient'] )
+			: array();
+		$necessary_features  = isset( $features['necessary'] )
+			? (array) array_values( $features['necessary'] )
+			: array();
 
-		foreach ( $features as $feature ) {
-			if ( ! Jetpack_Plan::has_active_feature( $feature ) ) {
-				$unsupported_features[] = $feature;
+		$sufficient_features_required = array();
+		$necessary_features_required  = array();
+
+		// sufficient: ONE of them is sufficient to enable the block.
+		foreach ( $sufficient_features as $sufficient ) {
+			if ( Jetpack_Plan::has_active_feature( $sufficient ) ) {
+				return self::set_extension_available( $block_slug );
+			}
+
+			$sufficient_features_required[] = $sufficient;
+		}
+
+		// neccesary: ALL of them are required to enable the block.		
+		foreach ( $necessary_features as $necessary ) {
+			if ( ! Jetpack_Plan::has_active_feature( $necessary ) ) {
+				$necessary_features_required[] = $necessary;
 			}
 		}
 
-		if ( empty( $unsupported_features ) ) {
+		if ( empty( $necessary_features_required ) ) {
 			return self::set_extension_available( $block_slug );
 		}
+
+		$unsupported_features = array_merge( $sufficient_features_required, $necessary_features_required );
 
 		self::set_extension_unavailable(
 			$block_slug,
 			'missing_plan',
 			array(
-				'required_feature' => $unsupported_features,
+				'required_feature' => array(
+					'sufficient' => $sufficient_features_required,
+					'necessary'  => $necessary_features_required,
+				),
 				'required_plan'    => Jetpack_Plan::get_minimum_plan_for_feature( $unsupported_features ),
 			)
 		);
