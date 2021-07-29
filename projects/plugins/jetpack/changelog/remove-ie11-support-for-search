@@ -1,0 +1,4 @@
+Significance: major
+Type: enhancement
+
+Search: Remove IE11 polyfill mechanism
