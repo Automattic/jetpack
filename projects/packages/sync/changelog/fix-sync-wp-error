@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed unqualified WP_Error use in the Rest_Sender class.
