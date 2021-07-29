@@ -1275,23 +1275,13 @@
 		}
 
 		function applySlideBackground( image, slideEl ) {
-			if ( ! slideEl ) {
-				return;
-			}
-
-			// We're done if there's already a background image set.
-			if ( slideEl.style.backgroundImage ) {
-				return;
-			}
-
-			if ( ! image ) {
+			if ( ! slideEl || ! image ) {
 				return;
 			}
 
 			var isLoaded = image.complete && image.naturalHeight !== 0;
 			if ( isLoaded ) {
 				calculateSlideBackgroundCss( slideEl, image );
-				return;
 			}
 
 			image.onload = function () {
@@ -1446,9 +1436,9 @@
 					}
 
 					if ( Number( jetpackCarouselStrings.display_slide_background ) === 1 ) {
-						applySlideBackground(item, slideEl);
+						applySlideBackground( item, slideEl );
 					}
-					
+
 					var slide = { el: slideEl, attrs: attrs, index: i };
 
 					carousel.slides.push( slide );
