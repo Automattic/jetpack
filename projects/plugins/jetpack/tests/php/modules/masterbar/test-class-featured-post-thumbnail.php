@@ -98,6 +98,8 @@ class Test_Featured_Post_Thumbnail extends \WP_UnitTestCase {
 	public function test_it_add_post_thumbnail_image_if_size_doesnt_exists() {
 		$instance = new Featured_Post_Thumbnail();
 
+		unset( self::$response->data['media_details']['sizes']['post-thumbnail'] );
+
 		$response = $instance->force_add_featured_post_thumbnail_image_support( self::$response, self::$attachment );
 
 		$this->assertArrayHasKey( 'post-thumbnail', $response->data['media_details']['sizes'] );
