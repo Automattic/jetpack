@@ -52,6 +52,7 @@
 			height = canvas.height = imgEl.naturalHeight || imgEl.offsetHeight || imgEl.height;
 			width = canvas.width = imgEl.naturalWidth || imgEl.offsetWidth || imgEl.width;
 
+			imgEl.crossOrigin = 'Anonymous';
 			context.drawImage( imgEl, 0, 0 );
 			imgData = context.getImageData( 0, 0, width, height );
 
