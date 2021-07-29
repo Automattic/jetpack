@@ -1,0 +1,5 @@
+Significance: patch
+Type: bugfix
+Comment: [Carousel] Fix cross origin error on simple sites.
+
+
