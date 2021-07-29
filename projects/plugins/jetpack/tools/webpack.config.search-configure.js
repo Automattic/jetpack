@@ -18,7 +18,7 @@ const baseWebpackConfig = getBaseWebpackConfig(
 		entry: {
 			main: path.join( __dirname, '../modules/search/customberg/index.jsx' ),
 		},
-		'output-filename': 'jp-search-configure-[name].bundle.min.js',
+		'output-filename': 'jp-search-configure-[name].min.js',
 		'output-path': path.join( __dirname, '../_inc/build/instant-search' ),
 	}
 );

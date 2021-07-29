@@ -121,9 +121,9 @@ class Jetpack_Search_Customberg {
 	 * @param string $plugin_base_path - Base path for plugin files.
 	 */
 	public function load_assets_with_parameters( $path_prefix, $plugin_base_path ) {
-		$style_relative_path    = $path_prefix . '_inc/build/instant-search/jp-search-configure-main.bundle.min.css';
-		$manifest_relative_path = $path_prefix . '_inc/build/instant-search/jp-search-configure-main.bundle.min.asset.php';
-		$script_relative_path   = $path_prefix . '_inc/build/instant-search/jp-search-configure-main.bundle.min.js';
+		$style_relative_path    = $path_prefix . '_inc/build/instant-search/jp-search-configure-main.min.css';
+		$manifest_relative_path = $path_prefix . '_inc/build/instant-search/jp-search-configure-main.min.asset.php';
+		$script_relative_path   = $path_prefix . '_inc/build/instant-search/jp-search-configure-main.min.js';
 
 		//
 		// Load styles.
