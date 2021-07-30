@@ -39,7 +39,6 @@ module.exports = {
 	ignorePatterns: [
 		'node_modules',
 		'.eslintrc.js',
-		'dangerfile.js',
 		'jest.config.js',
 		'jest-puppeteer.config.js',
 		'rollup.config.js',
