@@ -104,8 +104,8 @@
 		"type": "git",
 		"url": "git+https://github.com/Automattic/jetpack-boost-production.git"
 	},
-	"author": "",
-	"license": "ISC",
+	"author": "Automattic",
+	"license": "GPL-2.0-or-later",
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/issues"
 	},
