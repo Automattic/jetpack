@@ -10,7 +10,6 @@ import PropTypes from 'prop-types';
  * @param {object} props -- The properties.
  * @param {Array} props.images -- Images to display on the right side.
  * @param {string} props.assetBaseUrl -- The assets base URL
- *
  * @returns {React.Component} The `ImageSlider` component.
  */
 const ImageSlider = props => {
