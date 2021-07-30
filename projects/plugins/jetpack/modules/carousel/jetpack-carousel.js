@@ -1277,6 +1277,10 @@
 			}
 
 			image.onload = function () {
+				slideEl.backgroundLoaded = true;
+				if ( carousel.slides.filter( slide => slide.el.backgroundLoaded !== true ).length === 0 ) {
+					domUtil.emitEvent( carousel.overlay, 'background-images-loaded' );
+				}
 				calculateSlideBackgroundCss( slideEl, image );
 			};
 		}
@@ -1303,12 +1307,12 @@
 		function addBackgroundToDuplicateSlides( swiper ) {
 			const slideCount = swiper.slides.length;
 			if ( slideCount > 0 ) {
-				setTimeout( function () {
+				carousel.overlay.addEventListener( 'background-images-loaded', function () {
 					swiper.slides[ 0 ].style.backgroundImage =
 						swiper.slides[ slideCount - 2 ].style.backgroundImage;
 					swiper.slides[ slideCount - 1 ].style.backgroundImage =
 						swiper.slides[ 1 ].style.backgroundImage;
-				}, 500 );
+				} );
 			}
 		}
 
