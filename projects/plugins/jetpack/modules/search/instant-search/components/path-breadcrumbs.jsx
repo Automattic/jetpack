@@ -25,7 +25,7 @@ const PathBreadcrumbs = ( { className, onClick, url } ) => {
 				href={ `//${ url }` }
 				onClick={ onClick }
 			>
-				{ splitDomainPath( url ).map( ( piece, index, pieces ) => (
+				{ breadcrumbPieces.map( ( piece, index, pieces ) => (
 					<span className="jetpack-instant-search__path-breadcrumb-piece">
 						{ decodeURIComponent( piece ) }
 						{ index !== pieces.length - 1 ? ' › ' : '' }
