@@ -955,11 +955,6 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	position: relative;
 }
 
-/* .jp-carousel-light .jp-carousel-icon .jp-carousel-has-comments-indicator {
-	background: #000;
-	color: #fff;
-} */
-
 .jp-carousel-has-comments-indicator.jp-carousel-show {
 	display: inline-block;
 }
@@ -1005,10 +1000,6 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	.jp-carousel-wrap {
 		background-color: var(--jp-carousel-bg-color);
 	}
-
-	/* .jp-carousel-light .jp-carousel-wrap {
-		background-color: #fff;
-	} */
 
 	.jp-carousel-fadeaway {
 		display: none;
