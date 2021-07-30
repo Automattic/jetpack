@@ -24,7 +24,7 @@
 		"@wordpress/i18n": "^4.1.1",
 		"@wordpress/prettier-config": "^1.0.5",
 		"babel-jest": "^27.0.2",
-		"eslint": "^7.28.0",
+		"eslint": "^7.31.0",
 		"eslint-plugin-import": "2.23.4",
 		"eslint-plugin-svelte3": "^3.2.0",
 		"expect-puppeteer": "^5.0.4",
