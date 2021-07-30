@@ -6,6 +6,12 @@ Easily restore or download a backup of your site from a specific moment in time.
 
 ### Installation From Git Repo
 
+1. Check out and set up the Jetpack repo
+2. `cd projects/plugins/backup`
+3. `pnpm run build-production-concurrently` <-- this builds without fancy symlinks, so that the build can run standalone
+
+Now you can zip up the `projects/plugins/backup` directory and upload to your WordPress site.
+
 ## Contribute
 
 ## Get Help
