@@ -13,3 +13,4 @@
 !/docker/boost-test/wordpress/.gitkeep
 /docker/boost-test/db_data/*
 !/docker/boost-test/db_data/.gitkeep
+/wordpress/
