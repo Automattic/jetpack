@@ -1258,11 +1258,11 @@
 			}
 		}
 
-		function applySlideBackground( image, slideEl ) {
+		function applySlideBackground( image, slideEl, duplicate ) {
 			if ( ! slideEl || ! image ) {
 				return;
 			}
-			if ( slideEl.style.backgroundImage ) {
+			if ( slideEl.style.backgroundImage && ! duplicate ) {
 				return;
 			}
 			var isLoaded = image.complete && image.naturalHeight !== 0;
@@ -1303,11 +1303,18 @@
 		function addBackgroundToDuplicateSlides( swiper ) {
 			const slideCount = swiper.slides.length;
 			if ( slideCount > 0 ) {
-				swiper.slides[ 0 ].style.backgroundImage =
-					swiper.slides[ slideCount - 2 ].style.backgroundImage;
-
-				swiper.slides[ slideCount - 1 ].style.backgroundImage =
-					swiper.slides[ 1 ].style.backgroundImage;
+				setTimeout( function () {
+					applySlideBackground(
+						carousel.slides[ carousel.slides.length - 1 ].attrs.originalElement,
+						swiper.slides[ 0 ],
+						true
+					);
+					applySlideBackground(
+						carousel.slides[ 0 ].attrs.originalElement,
+						swiper.slides[ slideCount - 1 ],
+						true
+					);
+				}, 500 );
 			}
 		}
 
