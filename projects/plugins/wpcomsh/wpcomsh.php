@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.8.18
+ * Version: 2.8.19
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.8.18' );
+define( 'WPCOMSH_VERSION', '2.8.19' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -1430,3 +1430,24 @@ if ( wpcomsh_is_managed_plugin( 'gutenberg/gutenberg.php' ) ) {
 	add_filter( 'yoast_display_gutenberg_compat_notification', '__return_false' );
 }
 
+function wpcomsh_avoid_proxied_v2_banner() {
+	$priority = has_action( 'wp_footer', 'atomic_proxy_bar' );
+	if ( false !== $priority ) {
+		remove_action( 'wp_footer', 'atomic_proxy_bar', $priority );
+	}
+
+	$priority = has_action( 'admin_footer', 'atomic_proxy_bar' );
+	if ( false !== $priority ) {
+		remove_action( 'admin_footer', 'atomic_proxy_bar', $priority );
+	}
+}
+
+// We don't want to show a "PROXIED V2" banner for legacy widget previews
+// which are normally embedded within another page
+if (
+	defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST &&
+	isset( $_GET['legacy-widget-preview'] ) &&
+	0 === strncmp( $_SERVER['REQUEST_URI'], '/wp-admin/widgets.php?', strlen( '/wp-admin/widgets.php?' ) )
+) {
+	add_action( 'plugins_loaded', 'wpcomsh_avoid_proxied_v2_banner' );
+}
