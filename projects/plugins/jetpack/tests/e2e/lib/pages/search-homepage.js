@@ -85,12 +85,12 @@ export default class SearchHomepage extends WpPage {
 	}
 
 	async focusSearchInput() {
-		const searchInputSelector = 'input.search-field';
+		const searchInputSelector = 'input.wp-block-search__input';
 		return this.focus( searchInputSelector );
 	}
 
 	async enterQuery( query = 'test1', clear = true ) {
-		const searchInputSelector = 'input.search-field';
+		const searchInputSelector = 'input.wp-block-search__input';
 		if ( clear ) {
 			await this.clear( searchInputSelector );
 		}
@@ -106,7 +106,7 @@ export default class SearchHomepage extends WpPage {
 	}
 
 	async pressEnterInSearchInput() {
-		const searchInputSelector = 'input.search-field';
+		const searchInputSelector = 'input.wp-block-search__input';
 		return this.page.press( searchInputSelector, 'Enter' );
 	}
 

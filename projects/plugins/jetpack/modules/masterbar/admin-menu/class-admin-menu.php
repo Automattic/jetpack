@@ -455,32 +455,14 @@ class Admin_Menu extends Base_Admin_Menu {
 	}
 
 	/**
-	 * Re-adds the Site Editor menu without the (beta) tag, and where we want it.
+	 * Update Site Editor menu item's link and position.
 	 */
 	public function add_gutenberg_menus() {
-		// We can bail if we don't meet the conditions of the Site Editor.
-		if ( ! ( function_exists( 'gutenberg_is_fse_theme' ) && gutenberg_is_fse_theme() ) ) {
+		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'admin.php?page=gutenberg-edit-site' ) ) {
 			return;
 		}
 
-		// Core Gutenberg registers without an explicit position, and we don't want the (beta) tag.
-		remove_menu_page( 'gutenberg-edit-site' );
-		// Core Gutenberg tries to manage its position, foiling our best laid plans. Unfoil.
-		remove_filter( 'menu_order', 'gutenberg_menu_order' );
-
-		$wp_admin = self::CLASSIC_VIEW === $this->get_preferred_view( 'admin.php?page=gutenberg-edit-site' );
-
-		$link = $wp_admin ? 'gutenberg-edit-site' : 'https://wordpress.com/site-editor/' . $this->domain;
-
-		add_menu_page(
-			__( 'Site Editor', 'jetpack' ),
-			__( 'Site Editor', 'jetpack' ),
-			'edit_theme_options',
-			$link,
-			$wp_admin ? 'gutenberg_edit_site_page' : null,
-			'dashicons-layout',
-			61 // Just under Appearance.
-		);
+		$this->update_menu( 'gutenberg-edit-site', 'https://wordpress.com/site-editor/' . $this->domain, null, null, null, 59 );
 	}
 
 	/**

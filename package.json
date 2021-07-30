@@ -93,6 +93,7 @@
 	},
 	"pnpm": {
 		"overrides": {
+			"@automattic/calypso-build>enzyme-adapter-react-16@*": "npm:@wojtekmaj/enzyme-adapter-react-17@0.6.3",
 			"@automattic/calypso-build>node-sass@4.13.0": "^4.13.0",
 			"yargs@^7.1.0>yargs-parser": "^20.0.0",
 			"isomorphic-fetch@^2.1.1>node-fetch": "^2.6.1",

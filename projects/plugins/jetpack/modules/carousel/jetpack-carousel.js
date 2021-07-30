@@ -1053,7 +1053,7 @@
 				}
 
 				if ( title ) {
-					var plainTitle = domUtil.convertToPlainText( title );
+					var plainTitle = domUtil.stripHTML( title );
 					titleElement.innerHTML = plainTitle;
 
 					if ( ! caption ) {
