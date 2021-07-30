@@ -3,6 +3,7 @@
 	--jp-carousel-primary-subtle-color: #999;
 	--jp-carousel-bg-color: #000;
 	--jp-carousel-bg-faded-color: #222;
+	--jp-carousel-border-color: #3a3a3a;
 }
 
 :root .jp-carousel-light {
@@ -10,6 +11,7 @@
 	--jp-carousel-primary-subtle-color: #646970;
 	--jp-carousel-bg-color: #fff;
 	--jp-carousel-bg-faded-color: #fbfbfb;
+	--jp-carousel-border-color: #dcdcde;
 }
 
 /*
@@ -647,7 +649,7 @@ a.jp-carousel-image-download span.photo-size-times {
 
 textarea#jp-carousel-comment-form-comment-field {
 	background: var(--jp-carousel-bg-faded-color);
-	border: 1px solid #3a3a3a;
+	border: 1px solid var(--jp-carousel-border-color);
 	color: var(--jp-carousel-primary-subtle-color);
 	font: 16px/1.4 'Helvetica Neue', sans-serif !important;
 	width: 100%;
@@ -783,7 +785,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 #jp-carousel-comment-form-commenting-as input {
 	background: rgba( 34, 34, 34, 0.9 );
-	border: 1px solid #3a3a3a;
+	border: 1px solid var(--jp-carousel-border-color);
 	color: #a7aaad;
 	font: 16px/1.4 'Helvetica Neue', sans-serif !important;
 	padding: 10px;
@@ -865,7 +867,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	box-sizing: border-box;
 	border-radius: 2px;
 	font: 13px/1.4 'Helvetica Neue', sans-serif !important;
-	border: 1px solid #3a3a3a;
+	border: 1px solid var(--jp-carousel-border-color);
 	-webkit-box-shadow: inset 0px 0px 5px 0px rgba( 0, 0, 0, 0.2 );
 	box-shadow: inset 0px 0px 5px 0px rgba( 0, 0, 0, 0.2 );
 }
