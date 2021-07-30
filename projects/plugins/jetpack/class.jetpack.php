@@ -6085,7 +6085,7 @@ endif;
 			wp_die( __( 'You must connect your Jetpack plugin to WordPress.com to use this feature.', 'jetpack' ) );
 		}
 
-		$die_error = __( 'Someone may be trying to trick you into giving them access to your site.  Or it could be you just encountered a bug :).  Either way, please close this window.', 'jetpack' );
+		$die_error = __( 'Someone may be trying to trick you into giving them access to your site. Or it could be you just encountered a bug :).  Either way, please close this window.', 'jetpack' );
 
 		// Host has encoded the request URL, probably as a result of a bad http => https redirect
 		if ( self::is_redirect_encoded( $_GET['redirect_to'] ) ) {
@@ -6158,7 +6158,7 @@ endif;
 			// We have to reuse this nonce at least once (used the first time when the initial request is made, used a second time when the login form is POSTed)
 			$old_nonce_time = get_option( "jetpack_nonce_{$timestamp}_{$nonce}" );
 			if ( $old_nonce_time < time() - 300 ) {
-				wp_die( __( 'The authorization process expired.  Please go back and try again.', 'jetpack' ) );
+				wp_die( __( 'The authorization process expired. Please go back and try again.', 'jetpack' ) );
 			}
 		}
 
@@ -6198,7 +6198,7 @@ endif;
 
 	function login_message_json_api_authorization( $message ) {
 		return '<p class="message">' . sprintf(
-			esc_html__( '%s wants to access your site&#8217;s data.  Log in to authorize that access.', 'jetpack' ),
+			esc_html__( '%s wants to access your site&#8217;s data. Log in to authorize that access.', 'jetpack' ),
 			'<strong>' . esc_html( $this->json_api_authorization_request['client_title'] ) . '</strong>'
 		) . '<img src="' . esc_url( $this->json_api_authorization_request['client_image'] ) . '" /></p>';
 	}
