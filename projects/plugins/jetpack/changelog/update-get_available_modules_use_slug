@@ -1,5 +1,0 @@
-Significance: patch
-Type: enhancement
-Comment: Use the module slug instead of the module file in the get_module call in get_available_modules.
-
-
