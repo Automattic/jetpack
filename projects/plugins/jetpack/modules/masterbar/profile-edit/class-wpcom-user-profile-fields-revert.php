@@ -75,15 +75,16 @@ class WPCOM_User_Profile_Fields_Revert {
 		 */
 		$user = \get_userdata( $id );
 
-		$data['display_name'] = $user->display_name;
+		$data['user_email']    = $user->user_email;
+		$data['user_url']      = $user->user_url;
+		$data['user_nicename'] = $user->user_nicename;
+		$data['display_name']  = $user->display_name;
 
 		return $data;
 	}
 
 	/**
 	 * Revert the first_name, last_name and description since this is managed by WP.com.
-	 *
-	 * @since 4.4.0
 	 *
 	 * @param array    $meta {
 	 *        Default meta values and keys for the user.
@@ -122,6 +123,7 @@ class WPCOM_User_Profile_Fields_Revert {
 		$meta['first_name']  = $database_user->first_name;
 		$meta['last_name']   = $database_user->last_name;
 		$meta['description'] = $database_user->description;
+		$meta['nickname']    = $database_user->nickname;
 
 		return $meta;
 	}

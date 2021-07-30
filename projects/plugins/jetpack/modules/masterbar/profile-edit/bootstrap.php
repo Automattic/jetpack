@@ -21,4 +21,5 @@ function load_the_user_profile_info_revert() {
 	new WPCOM_User_Profile_Fields_Revert( $pagenow, new Connection_Manager( 'jetpack' ) );
 }
 
-\add_action( 'init', __NAMESPACE__ . '\load_the_user_profile_info_revert' );
+\add_action( 'load-profile.php', __NAMESPACE__ . '\load_the_user_profile_info_revert' );
+\add_action( 'load-user-edit.php', __NAMESPACE__ . '\load_the_user_profile_info_revert' );
