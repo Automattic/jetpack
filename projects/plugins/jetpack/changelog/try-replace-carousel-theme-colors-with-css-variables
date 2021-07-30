@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Carousel: Replace color CSS with CSS variables to simplify theming
