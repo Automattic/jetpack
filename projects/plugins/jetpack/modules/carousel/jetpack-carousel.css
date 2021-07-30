@@ -648,7 +648,7 @@ a.jp-carousel-image-download span.photo-size-times {
 textarea#jp-carousel-comment-form-comment-field {
 	background: var(--jp-carousel-bg-faded-color);
 	border: 1px solid #3a3a3a;
-	color: #a7aaad;
+	color: var(--jp-carousel-primary-subtle-color);
 	font: 16px/1.4 'Helvetica Neue', sans-serif !important;
 	width: 100%;
 	padding: 10px 10px 5px;
@@ -671,8 +671,8 @@ textarea#jp-carousel-comment-form-comment-field::-webkit-input-placeholder {
 }
 
 textarea#jp-carousel-comment-form-comment-field:focus {
-	background: #ccc;
-	color: var(--jp-carousel-bg-faded-color);
+	background: var(--jp-carousel-bg-faded-color);
+	color: var(--jp-carousel-primary-subtle-color);
 }
 
 textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder {
@@ -863,12 +863,11 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	overflow: auto;
 	padding: 1em 0;
 	box-sizing: border-box;
-	background: rgba( 0, 0, 0, 0.7 );
 	border-radius: 2px;
 	font: 13px/1.4 'Helvetica Neue', sans-serif !important;
-	border: 1px solid rgba( 255, 255, 255, 0.17 );
-	-webkit-box-shadow: inset 0px 0px 5px 5px rgba( 0, 0, 0, 1 );
-	box-shadow: inset 0px 0px 5px 5px rgba( 0, 0, 0, 1 );
+	border: 1px solid #3a3a3a;
+	-webkit-box-shadow: inset 0px 0px 5px 0px rgba( 0, 0, 0, 0.2 );
+	box-shadow: inset 0px 0px 5px 0px rgba( 0, 0, 0, 0.2 );
 }
 
 .jp-carousel-comment-post-error {
