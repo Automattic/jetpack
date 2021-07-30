@@ -10,6 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 require_once plugin_basename( 'classes/class-jetpack-woocommerce-analytics-universal.php' );
+require_once plugin_basename( 'classes/class-jetpack-woocommerce-analytics-raw-property.php' );
 
 /**
  * Class Jetpack_WooCommerce_Analytics

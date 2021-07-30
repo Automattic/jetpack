@@ -102,7 +102,9 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	private function render_properties_as_js( $properties ) {
 		$js_args_string = '';
 		foreach ( $properties as $key => $value ) {
-			if ( is_array( $value ) ) {
+			if ( $value instanceof Jetpack_WooCommerce_Analytics_Raw_Property ) {
+				$js_args_string = $js_args_string . "'$key':" . $value->get_value() . ',';
+			} elseif ( is_array( $value ) ) {
 				$js_args_string = $js_args_string . "'$key': " . wp_json_encode( $value ) . ',';
 			} else {
 				$js_args_string = $js_args_string . "'$key': '" . esc_js( $value ) . "', ";
@@ -277,7 +279,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			}
 
 			$this->record_event(
-				'woocommerceanalytics_test_event',
+				'woocommerceanalytics_product_checkout',
 				$product->get_id(),
 				array(
 					'pq'              => $cart_item['quantity'],
@@ -285,6 +287,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 					'device'          => $device,
 					'guest_checkout'  => $guest_checkout,
 					'create_account'  => $create_account,
+					'express'         => new Jetpack_WooCommerce_Analytics_Raw_Property( 'window.getEnabledPaymentRequestMethods ? await getEnabledPaymentRequestMethods() : []' ),
 				)
 			);
 		}
