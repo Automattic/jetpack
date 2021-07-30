@@ -35,15 +35,18 @@
 			} );
 		}
 
-		function getAverageColor( imgEl ) {
+		function getAverageColor( slideEl, imgEl ) {
 			var canvas = document.createElement( 'canvas' ),
 				context = canvas.getContext && canvas.getContext( '2d' ),
 				imgData,
 				width,
 				height,
 				length,
-				rgb = { r: 0, g: 0, b: 0 },
 				count = 0;
+
+			var rgb = slideEl.closest( '.jp-carousel-light' )
+				? { r: 255, g: 255, b: 255 }
+				: { r: 0, g: 0, b: 0 };
 
 			if ( ! imgEl ) {
 				return rgb;
@@ -1308,7 +1311,7 @@
 		}
 
 		function calculateSlideBackgroundCss( slideEl, image ) {
-			var rgb = util.getAverageColor( image );
+			var rgb = util.getAverageColor( slideEl, image );
 			slideEl.style.backgroundImage =
 				'linear-gradient( to bottom, rgba(' +
 				rgb.r +
