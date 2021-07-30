@@ -1135,6 +1135,16 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	color: #fff;
 }
 
+.jp-carousel-selected .jp-carousel-icon .jp-carousel-has-comments-indicator {
+	background: #000;
+	color: #fff;
+}
+
+.jp-carousel-light .jp-carousel-selected .jp-carousel-icon .jp-carousel-has-comments-indicator {
+	background: #fff;
+	color: #000;
+}
+
 .jp-carousel-has-comments-indicator.jp-carousel-show {
 	display: inline-block;
 }
