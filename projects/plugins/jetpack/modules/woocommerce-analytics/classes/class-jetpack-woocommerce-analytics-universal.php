@@ -282,12 +282,12 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				'woocommerceanalytics_product_checkout',
 				$product->get_id(),
 				array(
-					'pq'              => $cart_item['quantity'],
-					'payment_options' => $enabled_payment_options,
-					'device'          => $device,
-					'guest_checkout'  => $guest_checkout,
-					'create_account'  => $create_account,
-					'express'         => new Jetpack_WooCommerce_Analytics_Raw_Property( 'window.getEnabledPaymentRequestMethods ? await getEnabledPaymentRequestMethods() : []' ),
+					'pq'               => $cart_item['quantity'],
+					'payment_options'  => $enabled_payment_options,
+					'device'           => $device,
+					'guest_checkout'   => $guest_checkout,
+					'create_account'   => $create_account,
+					'express_checkout' => new Jetpack_WooCommerce_Analytics_Raw_Property( 'window.getEnabledPaymentRequestMethods ? await getEnabledPaymentRequestMethods() : []' ),
 				)
 			);
 		}
