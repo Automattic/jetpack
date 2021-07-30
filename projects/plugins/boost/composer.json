@@ -80,7 +80,7 @@
 	"extra": {
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-boost-production",
-		"release-branch-prefix": "jetpack-boost",
+		"release-branch-prefix": "boost",
 		"version-constants": {
 			"JETPACK_BOOST_VERSION": "jetpack-boost.php"
 		},

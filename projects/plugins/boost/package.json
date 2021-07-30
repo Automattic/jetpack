@@ -104,12 +104,12 @@
 	"private": true,
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/Automattic/jetpack-boost.git"
+		"url": "git+https://github.com/Automattic/jetpack-boost-production.git"
 	},
 	"author": "",
 	"license": "ISC",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack-boost/issues"
+		"url": "https://github.com/Automattic/jetpack/issues"
 	},
 	"homepage": "https://github.com/Automattic/jetpack-boost#readme"
 }
