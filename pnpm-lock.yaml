@@ -657,7 +657,7 @@ importers:
       eslint-plugin-es5: 1.5.0
       eslint-plugin-inclusive-language: 1.2.1
       eslint-plugin-jest: 24.4.0
-      eslint-plugin-jsdoc: 35.5.1
+      eslint-plugin-jsdoc: 36.0.6
       eslint-plugin-jsx-a11y: 6.4.1
       eslint-plugin-lodash: 7.2.0
       eslint-plugin-prettier: 3.4.0
@@ -678,12 +678,12 @@ importers:
       chalk: 4.1.1
       eslint: 7.31.0
       eslint-config-prettier: 8.3.0_eslint@7.31.0
-      eslint-config-wpcalypso: 6.1.0_3ff1910d07ccb53b17d3f5153f12ec97
+      eslint-config-wpcalypso: 6.1.0_24669386d76e6b9c03f72f04829a915f
       eslint-loader: 4.0.2_eslint@7.31.0
       eslint-plugin-es5: 1.5.0_eslint@7.31.0
       eslint-plugin-inclusive-language: 1.2.1
       eslint-plugin-jest: 24.4.0_eslint@7.31.0
-      eslint-plugin-jsdoc: 35.5.1_eslint@7.31.0
+      eslint-plugin-jsdoc: 36.0.6_eslint@7.31.0
       eslint-plugin-jsx-a11y: 6.4.1_eslint@7.31.0
       eslint-plugin-lodash: 7.2.0_eslint@7.31.0
       eslint-plugin-prettier: 3.4.0_b09c99042263d2c47aaa8cd31273a1b9
@@ -3522,6 +3522,15 @@ packages:
   /@emotion/weak-memoize/0.2.5:
     resolution: {integrity: sha512-6U71C2Wp7r5XtFtQzYrW5iKFT67OixrSxjI4MptCHzdSVlgabczzqLe0ZSgnub/5Kp4hSbpDB1tMytZY9pwxxA==}
 
+  /@es-joy/jsdoccomment/0.10.7:
+    resolution: {integrity: sha512-aNKZEoMESDzOBjKxCWrFuG50mcpMeKVBnBNko4+IZZ5t9zXYs8GT1KB0ZaOq1YUsKumDRc6YII/TQm309MJ0KQ==}
+    engines: {node: ^12.20 || ^14.14.0 || ^16}
+    dependencies:
+      comment-parser: 1.2.3
+      esquery: 1.4.0
+      jsdoc-type-pratt-parser: 1.1.1
+    dev: true
+
   /@es-joy/jsdoccomment/0.6.0:
     resolution: {integrity: sha512-zT1EtysKMITJ7vE4RvOJqitxk/Str6It8hq+fykxkwLuTyzgak+TnVuVSIyovT/qrEz3i46ypCSXgNtIDYwNOg==}
     engines: {node: '>=10.0.0'}
@@ -3529,15 +3538,6 @@ packages:
       comment-parser: 1.1.5
       esquery: 1.4.0
       jsdoctypeparser: 9.0.0
-    dev: true
-
-  /@es-joy/jsdoccomment/0.9.0-alpha.1:
-    resolution: {integrity: sha512-Clxxc0PwpISoYYBibA+1L2qFJ7gvFVhI2Hos87S06K+Q0cXdOhZQJNKWuaQGPAeHjZEuUB/YoWOfwjuF2wirqA==}
-    engines: {node: '>=12.0.0'}
-    dependencies:
-      comment-parser: 1.1.6-beta.0
-      esquery: 1.4.0
-      jsdoc-type-pratt-parser: 1.0.4
     dev: true
 
   /@eslint/eslintrc/0.4.3:
@@ -5546,7 +5546,7 @@ packages:
       webpack: ^4.8.3 || ^5.0.0
     dependencies:
       json2php: 0.0.4
-      webpack: 4.46.0
+      webpack: 4.46.0_webpack-cli@4.5.0
       webpack-sources: 2.2.0
     dev: true
 
@@ -8052,9 +8052,9 @@ packages:
     engines: {node: '>= 10.0.0'}
     dev: true
 
-  /comment-parser/1.1.6-beta.0:
-    resolution: {integrity: sha512-q3cA8TSMyqW7wcPSYWzbO/rMahnXgzs4SLG/UIWXdEsnXTFPZkEkWAdNgPiHig2OzxgpPLOh4WwsmClDxndwHw==}
-    engines: {node: '>= 10.0.0'}
+  /comment-parser/1.2.3:
+    resolution: {integrity: sha512-vnqDwBSXSsdAkGS5NjwMIPelE47q+UkEgWKHvCDNhVIIaQSUFY6sNnEYGzdoPGMdpV+7KR3ZkRd7oyWIjtuvJg==}
+    engines: {node: ^12.20 || ^14.14.0 || ^16}
     dev: true
 
   /commondir/1.0.1:
@@ -9381,7 +9381,7 @@ packages:
       eslint: 7.31.0
     dev: true
 
-  /eslint-config-wpcalypso/6.1.0_3ff1910d07ccb53b17d3f5153f12ec97:
+  /eslint-config-wpcalypso/6.1.0_24669386d76e6b9c03f72f04829a915f:
     resolution: {integrity: sha512-FMdXC+jjS4vPI2zJ6b+C0cevn75SBC35DDgOgrRd6a4KriIQAiKhXQz14d7ivFyT48nOX6rEfJQqb4keKD5z/w==}
     peerDependencies:
       eslint: ^7.0.0
@@ -9391,7 +9391,7 @@ packages:
     dependencies:
       eslint: 7.31.0
       eslint-plugin-inclusive-language: 1.2.1
-      eslint-plugin-jsdoc: 35.5.1_eslint@7.31.0
+      eslint-plugin-jsdoc: 36.0.6_eslint@7.31.0
       eslint-plugin-react-hooks: 4.2.0_eslint@7.31.0
       eslint-plugin-wpcalypso: 5.0.0_eslint@7.31.0
     dev: true
@@ -9518,14 +9518,14 @@ packages:
       - supports-color
     dev: true
 
-  /eslint-plugin-jsdoc/35.5.1_eslint@7.31.0:
-    resolution: {integrity: sha512-pPYPWtsykwVEue1tYEyoppBj4dgF7XicF67tLLLraY6RQYBq7qMKjUHji19+hfiTtYKKBD0YfeK8hgjPAE5viw==}
-    engines: {node: '>=12'}
+  /eslint-plugin-jsdoc/36.0.6_eslint@7.31.0:
+    resolution: {integrity: sha512-vOm27rI2SMfi1bOAYmzzGkanMCD/boquKwvN5ECi8EF9ASsXJwlnCzYtiOYpsDpbC2+6JXEHAmWMkqYNA3BWRw==}
+    engines: {node: ^12.20 || ^14.14.0 || ^16}
     peerDependencies:
       eslint: ^6.0.0 || ^7.0.0
     dependencies:
-      '@es-joy/jsdoccomment': 0.9.0-alpha.1
-      comment-parser: 1.1.6-beta.0
+      '@es-joy/jsdoccomment': 0.10.7
+      comment-parser: 1.2.3
       debug: 4.3.2
       eslint: 7.31.0
       esquery: 1.4.0
@@ -12390,11 +12390,6 @@ packages:
 
   /jsbn/0.1.1:
     resolution: {integrity: sha1-peZUwuWi3rXyAdls77yoDA7y9RM=}
-
-  /jsdoc-type-pratt-parser/1.0.4:
-    resolution: {integrity: sha512-jzmW9gokeq9+bHPDR1nCeidMyFUikdZlbOhKzh9+/nJqB75XhpNKec1/UuxW5c4+O+Pi31Gc/dCboyfSm/pSpQ==}
-    engines: {node: '>=12.0.0'}
-    dev: true
 
   /jsdoc-type-pratt-parser/1.1.1:
     resolution: {integrity: sha512-uelRmpghNwPBuZScwgBG/OzodaFk5RbO5xaivBdsAY70icWfShwZ7PCMO0x1zSkOa8T1FzHThmrdoyg/0AwV5g==}
