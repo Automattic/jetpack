@@ -35,11 +35,12 @@ class WPCOM_User_Profile_Fields_Revert {
 		\add_filter( 'insert_user_meta', array( $this, 'revert_user_meta_on_wp_admin_profile_change' ), 10, 3 );
 
 		/**
-		 * Disable notification on E-mail changes for Atomic WP-Admin Edit Profile. (for WP.com we use a different section for changing the E-mail).
-		 *
-		 * We need this because WP.org uses a custom flow for E-mail changes.
+		 * Core sends two E-mail notifications that have to be disabled:
+		 * - To the existing e-mail address
+		 * - To the new email address
 		 */
-		\remove_action( 'personal_options_update', 'send_confirmation_on_profile_email' );
+		\add_filter( 'send_email_change_email', array( $this, 'disable_send_email_change_email' ), 10, 3 );
+		\add_action( 'personal_options_update', array( $this, 'disable_email_notification' ), 1, 1 );
 	}
 
 	/**
@@ -134,5 +135,35 @@ class WPCOM_User_Profile_Fields_Revert {
 		$meta['nickname']    = $database_user->nickname;
 
 		return $meta;
+	}
+
+	/**
+	 * Disable the e-mail notification.
+	 *
+	 * @param bool  $send     Whether to send or not the email.
+	 * @param array $user     User data.
+	 */
+	public function disable_send_email_change_email( $send, $user ) {
+		if ( ! isset( $user['ID'] ) || ! $this->connection_manager->is_user_connected( $user['ID'] ) ) {
+			return $send;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Disable notification on E-mail changes for Atomic WP-Admin Edit Profile. (for WP.com we use a different section for changing the E-mail).
+	 *
+	 * We need this because WP.org uses a custom flow for E-mail changes.
+	 *
+	 * @param int $user_id The id of the user that's updated.
+	 */
+	public function disable_email_notification( $user_id ) {
+		// Don't remove the notification for non-WP.com connected users.
+		if ( ! $this->connection_manager->is_user_connected( $user_id ) ) {
+			return;
+		}
+
+		\remove_action( 'personal_options_update', 'send_confirmation_on_profile_email' );
 	}
 }
