@@ -4,7 +4,7 @@ WIP
 
 ## Architectural overview 101
 
-The Jetpack Boost plugin implements a custom [module system](https://github.com/Automattic/jetpack-boost/tree/trunk/app/modules) for optional modules. Every module is just a PHP file that [is required](https://github.com/Automattic/jetpack-boost/blob/df0070ee7375ff0a84351efe5bc53d3d0a67ed5d/app/class-jetpack-boost.php#L107-L129) during plugin initialization.
+The Jetpack Boost plugin implements a custom [module system](https://github.com/Automattic/jetpack/tree/master/projects/plugins/boost/app/modules) for optional modules. Every module is just a PHP file that [is required](https://github.com/Automattic/jetpack-boost/blob/df0070ee7375ff0a84351efe5bc53d3d0a67ed5d/app/class-jetpack-boost.php#L107-L129) during plugin initialization.
 
 ### Creating a new module
 
@@ -45,7 +45,7 @@ class Foo extends Module {
 
 3.  Add `foo` to the array in `ENABLED_MODULES_DEFAULT` method in `class-jetpack-boost.php` to make it enabled by default if wanted.
 
-Check out the inline documentation in the [Module class](https://github.com/Automattic/jetpack-boost/blob/trunk/app/modules/class-module.php) for methods you can optionally override to support extra functionality like REST API endpoints.
+Check out the inline documentation in the [Module class](https://github.com/Automattic/jetpack/blob/master/projects/plugins/boost/app/modules/class-module.php) for methods you can optionally override to support extra functionality like REST API endpoints.
 
 ## Uses `jetpack-connection`
 
