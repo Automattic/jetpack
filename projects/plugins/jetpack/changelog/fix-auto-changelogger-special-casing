@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Add `.extra.changelogger-default-type` to composer.json.
+
+
