@@ -47,10 +47,10 @@ class Test_WPCOM_User_Profile_Fields_Revert extends \WP_UnitTestCase {
 	public function test_if_it_skips_not_connected_users() {
 		$connection_manager = $this->createMock( Connection_Manager::class );
 		$connection_manager->method( 'is_user_connected' )->willReturn( false );
-		$service = new WPCOM_User_Profile_Fields_Revert( 'profile.php', $connection_manager );
+		$service = new WPCOM_User_Profile_Fields_Revert( $connection_manager );
 
 		$new_data = array( 'display_name' => 'new_value' );
-		$data     = $service->revert_display_name_on_wp_admin_profile_update( $new_data, true, self::$user_id );
+		$data     = $service->revert_user_data_on_wp_admin_profile_update( $new_data, true, self::$user_id );
 
 		$this->assertEquals( 'new_value', $data['display_name'] );
 	}
@@ -61,10 +61,10 @@ class Test_WPCOM_User_Profile_Fields_Revert extends \WP_UnitTestCase {
 	public function test_revert_display_name() {
 		$connection_manager = $this->createMock( Connection_Manager::class );
 		$connection_manager->method( 'is_user_connected' )->willReturn( true );
-		$service = new WPCOM_User_Profile_Fields_Revert( 'profile.php', $connection_manager );
+		$service = new WPCOM_User_Profile_Fields_Revert( $connection_manager );
 
 		$new_data = array( 'display_name' => 'new_value' );
-		$data     = $service->revert_display_name_on_wp_admin_profile_update( $new_data, true, self::$user_id );
+		$data     = $service->revert_user_data_on_wp_admin_profile_update( $new_data, true, self::$user_id );
 
 		$this->assertEquals( 'old_value', $data['display_name'] );
 	}
@@ -75,7 +75,7 @@ class Test_WPCOM_User_Profile_Fields_Revert extends \WP_UnitTestCase {
 	public function test_revert_user_fields() {
 		$connection_manager = $this->createMock( Connection_Manager::class );
 		$connection_manager->method( 'is_user_connected' )->willReturn( true );
-		$service = new WPCOM_User_Profile_Fields_Revert( 'profile.php', $connection_manager );
+		$service = new WPCOM_User_Profile_Fields_Revert( $connection_manager );
 
 		$new_data = array(
 			'description' => 'new_description',

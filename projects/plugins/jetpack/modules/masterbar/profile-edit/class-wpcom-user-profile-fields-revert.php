@@ -26,18 +26,12 @@ class WPCOM_User_Profile_Fields_Revert {
 	/**
 	 * Profile_Edit_Filter_Fields constructor.
 	 *
-	 * @param string             $current_page The current page slug.
 	 * @param Connection_Manager $connection_manager The connection manager.
 	 */
-	public function __construct( $current_page, Connection_Manager $connection_manager ) {
-		// We'll apply this filter only on profile edit page to be sure we limit the impact of the change.
-		if ( 'user-edit.php' !== $current_page && 'profile.php' !== $current_page ) {
-			return;
-		}
-
+	public function __construct( Connection_Manager $connection_manager ) {
 		$this->connection_manager = $connection_manager;
 
-		\add_filter( 'wp_pre_insert_user_data', array( $this, 'revert_display_name_on_wp_admin_profile_update' ), 10, 3 );
+		\add_filter( 'wp_pre_insert_user_data', array( $this, 'revert_user_data_on_wp_admin_profile_update' ), 10, 3 );
 		\add_filter( 'insert_user_meta', array( $this, 'revert_user_meta_on_wp_admin_profile_change' ), 10, 3 );
 
 		/**
@@ -69,7 +63,7 @@ class WPCOM_User_Profile_Fields_Revert {
 	 *
 	 * @return array
 	 */
-	public function revert_display_name_on_wp_admin_profile_update( $data, $update, $id ) {
+	public function revert_user_data_on_wp_admin_profile_update( $data, $update, $id ) {
 
 		// bail if the id is null, meaning that this was triggered in the context of user create.
 		// bail if the user is not connected (e.g. non-WP.com users or disconnected users).
