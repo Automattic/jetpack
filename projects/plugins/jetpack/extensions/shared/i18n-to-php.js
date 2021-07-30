@@ -65,3 +65,7 @@ export const _nx = ( single, plural, number, context, domain ) => (
 // TODO: Provide a wrapper around `@wordpress/i18n`'s `sprintf` that accepts React elements
 // as first argument, and remove the `str_replace()` call in `components.php`.
 export const sprintf = x => x;
+
+// We need to export `isRTL` from `@wordpress/i18n` as many consumers expect it
+// to be available.
+export { isRTL } from '@wordpress/i18n';

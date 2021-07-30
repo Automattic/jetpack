@@ -1,4 +1,0 @@
-Significance: minor
-Type: bugfix
-
-Only adds the security nav item to the Atomic admin menu if the site has the security-settings feature.

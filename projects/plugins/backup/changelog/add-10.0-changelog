@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Manually adjust Monorepo package version refs for 10.0 release.

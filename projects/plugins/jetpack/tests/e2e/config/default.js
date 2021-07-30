@@ -32,6 +32,7 @@ const config = {
 		planData: `${ tempDir }/plan-data.json`,
 		sidebarsWidgetsFile: `${ tempDir }/sidebars-widgets.json`,
 		searchWidgetFile: `${ tempDir }/search-widget.json`,
+		blockWidgetsFile: `${ tempDir }/widget-block.json`,
 	},
 	consoleIgnore: [
 		'This is a global warning',

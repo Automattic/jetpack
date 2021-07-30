@@ -193,6 +193,14 @@ function runEslintChanged( toLintFiles ) {
 		return;
 	}
 
+	// Apply .eslintignore.
+	const ignore = require( 'ignore' )();
+	ignore.add( fs.readFileSync( __dirname + '/../../../.eslintignore', 'utf8' ) );
+	toLintFiles = ignore.filter( toLintFiles );
+	if ( ! toLintFiles.length ) {
+		return;
+	}
+
 	const eslintResult = spawnSync( 'pnpm', [ 'run', 'lint-changed', '--', ...toLintFiles ], {
 		shell: true,
 		stdio: 'inherit',

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Ensure on pageload that the active menu item is keyboard focused in nav unification so its consistent with Calypso

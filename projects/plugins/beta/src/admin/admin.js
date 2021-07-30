@@ -233,7 +233,7 @@
 	 * @param {object} element - DOM Element object.
 	 */
 	function hide( element ) {
-		element.style.display = 'none';
+		element.classList.add( 'branch-card-hide' );
 	}
 
 	/**
@@ -242,7 +242,7 @@
 	 * @param {object} element - DOM Element object.
 	 */
 	function show( element ) {
-		element.style.display = '';
+		element.classList.remove( 'branch-card-hide' );
 	}
 
 	/**
