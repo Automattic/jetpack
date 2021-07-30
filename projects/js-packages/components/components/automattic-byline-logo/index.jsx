@@ -12,7 +12,6 @@ import { __ } from '@wordpress/i18n';
  * @param {string} props.title - Title for SVG.
  * @param {number} props.height - Height for SVG.
  * @param {number} props.className - Additional className for the a wrapper, default only: `jp-automattic-byline-logo`.
- *
  * @returns {React.Component} AutomatticBylineLogo component.
  */
 export default function AutomatticBylineLogo( {

@@ -20,7 +20,6 @@ import {
  *
  * @group post-connection
  * @group search
- *
  */
 describe( 'Search', () => {
 	let homepage;
