@@ -322,21 +322,24 @@ class Jetpack_Plan {
 
 		$plan = self::get();
 
-		// Manually mapping WordPress.com features to Jetpack module slugs.
-		foreach ( $plan['features']['active'] as $wpcom_feature ) {
-			switch ( $wpcom_feature ) {
-				case 'wordads-jetpack':
-					// WordAds are supported for this site.
-					if ( 'wordads' === $feature ) {
-						return true;
-					}
-					break;
-			}
-		}
+		// @TODO: ensure setting `wordads-jetpack` in dotcom.
+		/*
+		//Manually mapping WordPress.com features to Jetpack module slugs.
+		// foreach ( $plan['features']['active'] as $wpcom_feature ) {
+		// 	switch ( $wpcom_feature ) {
+		// 		case 'wordads-jetpack':
+		// 			// WordAds are supported for this site.
+		// 			if ( 'wordads' === $feature ) {
+		// 				return true;
+		// 			}
+		// 			break;
+		// 	}
+		// }
+		*/
 
 		if (
-			in_array( $feature, $plan['supports'], true )
-			|| in_array( $feature, $plan['features']['active'], true )
+			in_array( $feature, $plan['supports'], true )  // <- Feature supported by Jetpack PLAN_DATA. Consider removing it?. 
+			|| self::has_active_feature( $feature )        // <- Feature supported by dotcom features.
 		) {
 			return true;
 		}
