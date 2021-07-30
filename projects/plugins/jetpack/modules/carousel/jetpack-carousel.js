@@ -307,9 +307,12 @@
 			'div.gallery, div.tiled-gallery, ul.wp-block-gallery, ul.blocks-gallery-grid, ' +
 			'figure.blocks-gallery-grid, div.wp-block-jetpack-tiled-gallery, a.single-image-gallery';
 
-		var itemSelector =
-			'.gallery-item, .tiled-gallery-item, .blocks-gallery-item, ' +
-			' .tiled-gallery__item, .wp-block-image';
+		// Selector for items within a gallery or tiled gallery.
+		var galleryItemSelector =
+			'.gallery-item, .tiled-gallery-item, .blocks-gallery-item, ' + ' .tiled-gallery__item';
+
+		// Selector for all items including single images.
+		var itemSelector = galleryItemSelector + ', .wp-block-image';
 
 		var carousel = {};
 
@@ -690,7 +693,7 @@
 				}
 
 				// Skip if image is part of a gallery.
-				if ( container.parentElement.classList.contains( 'blocks-gallery-item' ) ) {
+				if ( domUtil.closest( container, galleryItemSelector ) ) {
 					return;
 				}
 
