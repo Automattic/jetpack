@@ -1304,16 +1304,10 @@
 			const slideCount = swiper.slides.length;
 			if ( slideCount > 0 ) {
 				setTimeout( function () {
-					applySlideBackground(
-						carousel.slides[ carousel.slides.length - 1 ].attrs.originalElement,
-						swiper.slides[ 0 ],
-						true
-					);
-					applySlideBackground(
-						carousel.slides[ 0 ].attrs.originalElement,
-						swiper.slides[ slideCount - 1 ],
-						true
-					);
+					swiper.slides[ 0 ].style.backgroundImage =
+						swiper.slides[ slideCount - 2 ].style.backgroundImage;
+					swiper.slides[ slideCount - 1 ].style.backgroundImage =
+						swiper.slides[ 1 ].style.backgroundImage;
 				}, 500 );
 			}
 		}
