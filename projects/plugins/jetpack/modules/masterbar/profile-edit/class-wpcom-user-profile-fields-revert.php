@@ -39,6 +39,13 @@ class WPCOM_User_Profile_Fields_Revert {
 
 		\add_filter( 'wp_pre_insert_user_data', array( $this, 'revert_display_name_on_wp_admin_profile_update' ), 10, 3 );
 		\add_filter( 'insert_user_meta', array( $this, 'revert_user_meta_on_wp_admin_profile_change' ), 10, 3 );
+
+		/**
+		 * Disable notification on E-mail changes for Atomic WP-Admin Edit Profile. (for WP.com we use a different section for changing the E-mail).
+		 *
+		 * We need this because WP.org uses a custom flow for E-mail changes.
+		 */
+		\remove_action( 'personal_options_update', 'send_confirmation_on_profile_email' );
 	}
 
 	/**
@@ -74,6 +81,13 @@ class WPCOM_User_Profile_Fields_Revert {
 		 * Revert the data in the form submission with the data from the database.
 		 */
 		$user = \get_userdata( $id );
+
+		/**
+		 * E-mail has a different flow for changing it's value. It stores it in an option until the user confirms it via e-mail.
+		 * Based on this, it displays in the UI a section mentioning the e-mail pending change.
+		 * We hide the entire section, but we should also clean it up just in case.
+		 */
+		\delete_user_meta( $id, '_new_email' );
 
 		$data['user_email']    = $user->user_email;
 		$data['user_url']      = $user->user_url;
