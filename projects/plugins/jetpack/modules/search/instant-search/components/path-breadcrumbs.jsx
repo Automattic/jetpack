@@ -8,7 +8,7 @@ import './path-breadcrumbs.scss';
 function splitDomainPath( path ) {
 	const splits = path.split( '/' ).filter( piece => piece.length > 0 );
 	splits.shift(); // Removes domain name from splits; e.g. 'jetpack.com'
-	return splits.length === 0 ? [] : splits;
+	return splits;
 }
 
 const PathBreadcrumbs = ( { className, onClick, url } ) => {
