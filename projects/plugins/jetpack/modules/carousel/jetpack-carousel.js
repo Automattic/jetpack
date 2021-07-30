@@ -38,35 +38,19 @@
 		function getAverageColor( imgEl ) {
 			var canvas = document.createElement( 'canvas' ),
 				context = canvas.getContext && canvas.getContext( '2d' ),
-				imgData,
-				width,
-				height,
-				length,
-				rgb = { r: 0, g: 0, b: 0 },
-				count = 0;
+				rgb = { r: 0, g: 0, b: 0 };
 
 			if ( ! imgEl ) {
 				return rgb;
 			}
-
-			height = canvas.height = imgEl.naturalHeight || imgEl.offsetHeight || imgEl.height;
-			width = canvas.width = imgEl.naturalWidth || imgEl.offsetWidth || imgEl.width;
-
+			imgEl.crossOrigin = 'Anonymous';
+			canvas.height = imgEl.naturalHeight || imgEl.offsetHeight || imgEl.height;
+			canvas.width = imgEl.naturalWidth || imgEl.offsetWidth || imgEl.width;
 			context.drawImage( imgEl, 0, 0 );
-			imgData = context.getImageData( 0, 0, width, height );
-
-			length = imgData.data.length;
-
-			for ( var i = 0; i < length; i += 4 ) {
-				rgb.r += imgData.data[ i ];
-				rgb.g += imgData.data[ i + 1 ];
-				rgb.b += imgData.data[ i + 2 ];
-				count++;
-			}
-
-			rgb.r = Math.floor( rgb.r / count );
-			rgb.g = Math.floor( rgb.g / count );
-			rgb.b = Math.floor( rgb.b / count );
+			const average = context.getImageData( 0, 0, 1, 1 ).data.slice( 0, 3 );
+			rgb.r = average[ 0 ];
+			rgb.g = average[ 1 ];
+			rgb.b = average[ 2 ];
 
 			return rgb;
 		}
@@ -1278,10 +1262,18 @@
 			if ( ! slideEl || ! image ) {
 				return;
 			}
-
+			if ( slideEl.style.backgroundImage ) {
+				return;
+			}
 			var isLoaded = image.complete && image.naturalHeight !== 0;
 			if ( isLoaded ) {
-				calculateSlideBackgroundCss( slideEl, image );
+				const rgb = calculateSlideBackgroundCss( slideEl, image );
+				// For some reason in some instances, although showing as loaded, a black background
+				// is returned, and image.onload still fires and gives a correct background, so only
+				// return here if we have something other than black.
+				if ( rgb.r !== 0 || ( rgb.g !== 0 && rgb.b !== 0 ) ) {
+					return;
+				}
 			}
 
 			image.onload = function () {
@@ -1305,6 +1297,18 @@
 				', ' +
 				rgb.b +
 				', 0.25 ';
+			return rgb;
+		}
+
+		function addBackgroundToDuplicateSlides( swiper ) {
+			const slideCount = swiper.slides.length;
+			if ( slideCount > 0 ) {
+				swiper.slides[ 0 ].style.backgroundImage =
+					swiper.slides[ slideCount - 2 ].style.backgroundImage;
+
+				swiper.slides[ slideCount - 1 ].style.backgroundImage =
+					swiper.slides[ 1 ].style.backgroundImage;
+			}
 		}
 
 		function clearCommentTextAreaValue() {
@@ -1536,6 +1540,7 @@
 					init: function () {
 						selectSlideAtIndex( settings.startIndex );
 					},
+					afterInit: addBackgroundToDuplicateSlides,
 				},
 				preventClicks: false,
 				preventClicksPropagation: false,
