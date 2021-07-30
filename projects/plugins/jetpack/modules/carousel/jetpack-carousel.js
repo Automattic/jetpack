@@ -49,10 +49,15 @@
 				return rgb;
 			}
 
+			try {
+				imgEl.crossOrigin = 'Anonymous';
+			} catch ( e ) {
+				return { r: 0, g: 0, b: 0 };
+			}
+
 			height = canvas.height = imgEl.naturalHeight || imgEl.offsetHeight || imgEl.height;
 			width = canvas.width = imgEl.naturalWidth || imgEl.offsetWidth || imgEl.width;
 
-			imgEl.crossOrigin = 'Anonymous';
 			context.drawImage( imgEl, 0, 0 );
 			imgData = context.getImageData( 0, 0, width, height );
 
