@@ -26,7 +26,7 @@
 	},
 	"devDependencies": {
 		"@automattic/calypso-build": "6.5.0",
-		"eslint": "7.25.0"
+		"eslint": "7.31.0"
 	},
 	"engines": {
 		"node": "^14.16.1",
