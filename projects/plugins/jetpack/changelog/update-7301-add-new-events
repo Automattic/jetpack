@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Add payment_options, express_checkout, guest_checkout, create, device properties to woocommerceanalytics_product_checkout and woocommerceanalytics_product_purchase event.
