@@ -99,7 +99,6 @@
 		"release:build": "./bin/generate-release-zip.sh",
 		"release:branch": "./bin/generate-release-branch.sh",
 		"release:delete": "./bin/delete-release-branch.sh",
-		"prepare": "husky install",
 		"clear-dist": "rm -rf app/assets/dist/*"
 	},
 	"private": true,
