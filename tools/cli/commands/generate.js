@@ -528,7 +528,8 @@ function createReadMeTxt( answers ) {
 	return content;
 }
 
-/** Creates YAML file skeleton for github actions.
+/**
+ * Creates YAML file skeleton for github actions.
  *
  * @param {string} dir - file path we're writing to.
  * @param {string} answers - the answers to fill in the skeleton.
@@ -545,7 +546,8 @@ function createYaml( dir, answers ) {
 	}
 }
 
-/** Writes to files.
+/**
+ * Writes to files.
  *
  * @param {string} file - file path we're writing to.
  * @param {string} content - the content we're writing.
