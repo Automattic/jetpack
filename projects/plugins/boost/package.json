@@ -109,5 +109,10 @@
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/issues"
 	},
-	"homepage": "https://jetpack.com/boost/"
+	"homepage": "https://jetpack.com/boost/",
+	"engines": {
+		"node": "^14.16.1",
+		"pnpm": "^6.5.0",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	}
 }

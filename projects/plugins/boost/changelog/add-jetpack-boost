@@ -1,3 +1,4 @@
-Significance: major
-Type: added
-Comment: Initial commit of Jetpack Boost.
+Significance: minor
+Type: changed
+
+Tooling: Moved all development to the Jetpack monorepo.
