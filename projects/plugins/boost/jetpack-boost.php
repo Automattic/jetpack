@@ -57,17 +57,55 @@ if ( ! defined( 'JETPACK__WPCOM_JSON_API_BASE' ) ) {
 }
 
 /**
- * Setup autoloading for Jetpack modules
+ * Setup autoloading
  */
-$packages_path = JETPACK_BOOST_DIR_PATH . '/vendor/autoload_packages.php';
-if ( file_exists( $packages_path ) ) {
-	require_once $packages_path;
-}
+$boost_packages_path = JETPACK_BOOST_DIR_PATH . '/vendor/autoload_packages.php';
+if ( is_readable( $boost_packages_path ) ) {
+	require_once $boost_packages_path;
+} else {
+	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			sprintf(
+			/* translators: Placeholder is a link to a support document. */
+				__( 'Your installation of Jetpack Boost is incomplete. If you installed Jetpack Boost from GitHub, please refer to this document to set up your development environment: %1$s', 'jetpack-boost' ),
+				'https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md'
+			)
+		);
+	}
 
-/**
- * Setup Autoloading for Jetpack Boost
- */
-require_once plugin_dir_path( __FILE__ ) . 'autoload-lib.php';
+	/**
+	 * Outputs an admin notice for folks running Jetpack Boost without having run composer install.
+	 *
+	 * @since 1.2.0
+	 */
+	function jetpack_boost_admin_missing_files() {
+		?>
+		<div class="notice notice-error is-dismissible">
+			<p>
+				<?php
+				printf(
+					wp_kses(
+					/* translators: Placeholder is a link to a support document. */
+						__( 'Your installation of Jetpack Boost is incomplete. If you installed Jetpack Boost from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack Boost must have Composer dependencies installed and built via the build command.', 'jetpack-boost' ),
+						array(
+							'a' => array(
+								'href'   => array(),
+								'target' => array(),
+								'rel'    => array(),
+							),
+						)
+					),
+					'https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#building-your-project'
+				);
+				?>
+			</p>
+		</div>
+		<?php
+	}
+
+	add_action( 'admin_notices', 'jetpack_boost_admin_missing_files' );
+	return;
+}
 
 require plugin_dir_path( __FILE__ ) . 'app/class-jetpack-boost.php';
 

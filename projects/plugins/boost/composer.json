@@ -47,14 +47,25 @@
 		"test-php": [
 			"echo 'Disabled in composer.json' || @composer phpunit"
 		],
-		"build-production": "echo 'Add your build step to composer.json, please!'",
-		"build-development": "echo 'Add your build step to composer.json, please!'",
+		"build-production": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run build-production"
+		],
+		"build-development": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run build-development"
+		],
 		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
 	},
 	"autoload-dev": {
 		"psr-4": {
 			"Automattic\\Jetpack_Boost\\Tests\\": "./tests/php"
 		}
+	},
+	"autoload": {
+		"classmap": [
+			"app/"
+		]
 	},
 	"config": {
 		"sort-packages": true,

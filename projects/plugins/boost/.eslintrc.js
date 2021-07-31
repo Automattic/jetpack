@@ -43,6 +43,7 @@ module.exports = {
 		'jest-puppeteer.config.js',
 		'rollup.config.js',
 		'babel.config.js',
+		'wordpress',
 	],
 	rules: {
 		// Apparently, we like dangling commas
