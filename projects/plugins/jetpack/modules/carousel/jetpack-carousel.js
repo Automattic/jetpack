@@ -51,33 +51,33 @@
 			if ( ! imgEl ) {
 				return rgb;
 			}
+
 			try {
 				imgEl.crossOrigin = 'Anonymous';
+
+				height = canvas.height = imgEl.naturalHeight || imgEl.offsetHeight || imgEl.height;
+				width = canvas.width = imgEl.naturalWidth || imgEl.offsetWidth || imgEl.width;
+
+				context.drawImage( imgEl, 0, 0 );
+
+				imgData = context.getImageData( 0, 0, width, height );
+
+				length = imgData.data.length;
+
+				for ( var i = 0; i < length; i += 4 ) {
+					rgb.r += imgData.data[ i ];
+					rgb.g += imgData.data[ i + 1 ];
+					rgb.b += imgData.data[ i + 2 ];
+					count++;
+				}
+
+				rgb.r = Math.floor( rgb.r / count );
+				rgb.g = Math.floor( rgb.g / count );
+				rgb.b = Math.floor( rgb.b / count );
+				return rgb;
 			} catch ( e ) {
 				return rgb;
 			}
-
-			height = canvas.height = imgEl.naturalHeight || imgEl.offsetHeight || imgEl.height;
-			width = canvas.width = imgEl.naturalWidth || imgEl.offsetWidth || imgEl.width;
-
-			context.drawImage( imgEl, 0, 0 );
-
-			imgData = context.getImageData( 0, 0, width, height );
-
-			length = imgData.data.length;
-
-			for ( var i = 0; i < length; i += 4 ) {
-				rgb.r += imgData.data[ i ];
-				rgb.g += imgData.data[ i + 1 ];
-				rgb.b += imgData.data[ i + 2 ];
-				count++;
-			}
-
-			rgb.r = Math.floor( rgb.r / count );
-			rgb.g = Math.floor( rgb.g / count );
-			rgb.b = Math.floor( rgb.b / count );
-
-			return rgb;
 		}
 
 		return {
