@@ -1,0 +1,5 @@
+Significance: patch
+Type: bugfix
+Comment: Fixes issues with cross origin exceptions when adding background colours to carousel and also fixes issue with adding background to first and last slides when looping
+
+
