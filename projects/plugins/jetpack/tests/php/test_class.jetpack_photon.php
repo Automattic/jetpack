@@ -1457,7 +1457,10 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * @since 10.0.0
 	 */
 	public function test_photon_validate_image_url_file_types( $url, $expected ) {
-		$this->assertEquals( $expected, Testable_Jetpack_Photon::validate_image_url( $url ) );
+		$testable                    = new ReflectionClass( Jetpack_Photon::class );
+		$testable_validate_image_url = $testable->getMethod( 'validate_image_url' );
+		$testable_validate_image_url->setAccessible( true );
+		$this->assertEquals( $expected, $testable_validate_image_url->invoke( null, $url ) );
 	}
 
 	/**
@@ -1473,27 +1476,6 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 			'invalid' => array( 'http://example.com/example-150x150.invalid', false ),
 
 		);
-	}
-}
-
-// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
-// phpcs:disable Generic.CodeAnalysis.UselessOverridingMethod.Found
-
-/**
- * Class Testable_Jetpack_Photon
- *
- * Extending the Photon class to make protected methods testable.
- */
-class Testable_Jetpack_Photon extends Jetpack_Photon {
-	/**
-	 * Making the validate_image_url function accessible.
-	 *
-	 * @param string $url URL to be validated.
-	 *
-	 * @return bool If the URL is Photonable.
-	 */
-	public static function validate_image_url( $url ) {
-		return parent::validate_image_url( $url );
 	}
 }
 
