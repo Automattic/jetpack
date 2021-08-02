@@ -13,7 +13,6 @@ const getFiles = require( '../../get-files' );
  * - Capitalize.
  *
  * @param {string} name - Feature name.
- *
  * @returns {string} Cleaned up feature name.
  */
 function cleanName( name ) {
@@ -90,7 +89,6 @@ function cleanName( name ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- *
  * @returns {Promise<Array>} Promise resolving to an array of keywords we'll search for.
  */
 async function getLabelsToAdd( octokit, owner, repo, number ) {

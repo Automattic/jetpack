@@ -27,7 +27,6 @@ import './style.scss';
  * @param {Function} props.statusCallback -- Callback to pull connection status from the component.
  * @param {Array} props.images -- Images to display on the right side.
  * @param {string} props.assetBaseUrl -- The assets base URL.
- *
  * @returns {React.Component} The `ConnectScreen` component.
  */
 const ConnectScreen = props => {
