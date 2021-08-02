@@ -13,7 +13,6 @@ const conf = new Configstore( 'automattic/jetpack-cli' );
  *
  * @param {string} name - Repo name to check.
  * @param {string} org - Github Organization. Defaults to Automattic.
- *
  * @returns {boolean} If repo exists or not.
  */
 export async function doesRepoExist( name, org = 'Automattic' ) {

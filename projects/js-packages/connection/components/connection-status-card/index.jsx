@@ -26,7 +26,6 @@ import './style.scss';
  * @param {string}   props.title -- The Card title.
  * @param {string}   props.connectionInfoText -- The text that will be displayed under the title, containing info how to leverage the connection.
  * @param {Function} props.onDisconnected -- The callback to be called upon disconnection success.
- *
  * @returns {React.Component} The `ConnectionStatusCard` component.
  */
 
