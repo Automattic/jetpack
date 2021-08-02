@@ -201,7 +201,7 @@ so we have to target all affected elements in touch devices.
 	background-color: var(--jp-carousel-bg-color);
 	padding: 35px;
 	width: 100vw;
-	border-top: 1px solid #222;
+	border-top: 1px solid var(--jp-carousel-bg-faded-color);
 }
 
 .jp-carousel-title-and-caption {
@@ -633,7 +633,7 @@ a.jp-carousel-image-download span.photo-size-times {
 .jp-carousel-comment .comment-date {
 	color: var(--jp-carousel-primary-subtle-color);
 	font-size: 11px;
-	border-bottom: 1px solid #222;
+	border-bottom: 1px solid var(--jp-carousel-bg-faded-color);
 	margin-bottom: 6px;
 }
 
