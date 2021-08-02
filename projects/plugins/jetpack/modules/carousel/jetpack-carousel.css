@@ -950,10 +950,15 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	padding: 2px 4px;
 	border-radius: 4px;
 	background: var(--jp-carousel-primary-color);
-	color: 	var(--jp-carousel-bg-color);
+	color: var(--jp-carousel-bg-color);
 	font-weight: normal;
 	font-family: 'Helvetica Neue', sans-serif !important;
 	position: relative;
+}
+
+.jp-carousel-selected .jp-carousel-icon .jp-carousel-has-comments-indicator {
+	background: var(--jp-carousel-bg-color);
+	color: var(--jp-carousel-primary-color);
 }
 
 .jp-carousel-has-comments-indicator.jp-carousel-show {
