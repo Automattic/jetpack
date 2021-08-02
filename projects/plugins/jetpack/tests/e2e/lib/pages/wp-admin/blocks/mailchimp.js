@@ -43,7 +43,6 @@ export default class MailchimpBlock extends PageActions {
 	 * - Closes WPCOM tab
 	 *
 	 * @param {boolean} isLoggedIn Whether we need to login before connecting
-	 *
 	 */
 	async connect( isLoggedIn = true ) {
 		if ( await this.isMailchimpConnected() ) {

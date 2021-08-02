@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Search: Fix search E2E test failure caused by new block widgets in WP 5.8
