@@ -459,7 +459,7 @@
 					// Fixes some themes where closing carousel brings view back to top.
 					document.documentElement.style.removeProperty( 'height' );
 
-					// Should the navigation arrows if we hid them for single images.
+					// Show the navigation arrows if we hid them for single images.
 					domUtil.show( carousel.overlay.querySelector( '.jp-swiper-button-prev' ) );
 					domUtil.show( carousel.overlay.querySelector( '.jp-swiper-button-next' ) );
 
