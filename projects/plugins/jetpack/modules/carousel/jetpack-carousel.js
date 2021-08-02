@@ -35,47 +35,27 @@
 			} );
 		}
 
-		function getAverageColor( imgEl ) {
+		function getBackgroundImage( imgEl ) {
 			var canvas = document.createElement( 'canvas' ),
-				context = canvas.getContext && canvas.getContext( '2d' ),
-				imgData,
-				width,
-				height,
-				length,
-				rgb = { r: 0, g: 0, b: 0 },
-				count = 0;
+				context = canvas.getContext && canvas.getContext( '2d' );
 
 			if ( ! imgEl ) {
-				return rgb;
+				return;
 			}
 
-			height = canvas.height = imgEl.naturalHeight || imgEl.offsetHeight || imgEl.height;
-			width = canvas.width = imgEl.naturalWidth || imgEl.offsetWidth || imgEl.width;
-
+			context.filter = 'blur(20px) ';
 			context.drawImage( imgEl, 0, 0 );
-			imgData = context.getImageData( 0, 0, width, height );
+			var url = canvas.toDataURL( 'image/png' );
+			canvas = null;
 
-			length = imgData.data.length;
-
-			for ( var i = 0; i < length; i += 4 ) {
-				rgb.r += imgData.data[ i ];
-				rgb.g += imgData.data[ i + 1 ];
-				rgb.b += imgData.data[ i + 2 ];
-				count++;
-			}
-
-			rgb.r = Math.floor( rgb.r / count );
-			rgb.g = Math.floor( rgb.g / count );
-			rgb.b = Math.floor( rgb.b / count );
-
-			return rgb;
+			return url;
 		}
 
 		return {
 			noop: noop,
 			texturize: texturize,
 			applyReplacements: applyReplacements,
-			getAverageColor: getAverageColor,
+			getBackgroundImage: getBackgroundImage,
 		};
 	} )();
 
@@ -794,8 +774,11 @@
 
 			loadFullImage( carousel.slides[ index ] );
 
-			if ( Number( jetpackCarouselStrings.display_slide_background ) === 1 ) {
-				loadSlideBackgrounds();
+			if (
+				Number( jetpackCarouselStrings.display_background_image ) === 1 &&
+				! carousel.slides[ index ].backgroundImage
+			) {
+				loadBackgroundImage( carousel.slides[ index ] );
 			}
 
 			domUtil.hide( carousel.caption );
@@ -1278,59 +1261,31 @@
 			}
 		}
 
-		function loadSlideBackgrounds() {
-			applySlideBackground( '.swiper-slide-active' );
+		function loadBackgroundImage( slide ) {
+			var currentSlide = slide.el;
 
-			setTimeout( function () {
-				applySlideBackground( '.swiper-slide-prev' );
-				applySlideBackground( '.swiper-slide-next' );
-			}, 200 );
-		}
-
-		function applySlideBackground( slideClass ) {
-			var slideEl = carousel.container.querySelector( slideClass );
-
-			if ( ! slideEl ) {
-				return;
+			if ( swiper && swiper.slides ) {
+				currentSlide = swiper.slides[ swiper.activeIndex ];
 			}
 
-			// We're done if there's already a background image set.
-			if ( slideEl.style.backgroundImage ) {
-				return;
-			}
-
-			var image = slideEl.querySelector( 'img' );
-			if ( ! image ) {
-				return;
-			}
-
+			var image = slide.attrs.originalElement;
 			var isLoaded = image.complete && image.naturalHeight !== 0;
+
 			if ( isLoaded ) {
-				calculateSlideBackgroundCss( slideEl, image );
+				applyBackgroundImage( slide, currentSlide, image );
 				return;
 			}
 
 			image.onload = function () {
-				calculateSlideBackgroundCss( slideEl, image );
+				applyBackgroundImage( slide, currentSlide, image );
 			};
 		}
 
-		function calculateSlideBackgroundCss( slideEl, image ) {
-			var rgb = util.getAverageColor( image );
-			slideEl.style.backgroundImage =
-				'linear-gradient( to bottom, rgba(' +
-				rgb.r +
-				',' +
-				rgb.g +
-				',' +
-				rgb.b +
-				', 0.5 ), rgba(' +
-				rgb.r +
-				', ' +
-				rgb.g +
-				', ' +
-				rgb.b +
-				', 0.25 ';
+		function applyBackgroundImage( slide, currentSlide, image ) {
+			var url = util.getBackgroundImage( image );
+			slide.backgroundImage = url;
+			currentSlide.style.backgroundImage = 'url(' + url + ')';
+			currentSlide.style.backgroundSize = 'cover';
 		}
 
 		function clearCommentTextAreaValue() {
