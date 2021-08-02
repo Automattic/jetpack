@@ -784,9 +784,9 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 }
 
 #jp-carousel-comment-form-commenting-as input {
-	background: rgba( 34, 34, 34, 0.9 );
+	background: var(--jp-carousel-bg-color);
 	border: 1px solid var(--jp-carousel-border-color);
-	color: #a7aaad;
+	color: var(--jp-carousel-primary-subtle-color);
 	font: 16px/1.4 'Helvetica Neue', sans-serif !important;
 	padding: 10px;
 	float: left;
@@ -799,8 +799,8 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 }
 
 #jp-carousel-comment-form-commenting-as input:focus {
-	background: #ccc;
-	color: #222;
+	background: var(--jp-carousel-bg-faded-color);
+	color: var(--jp-carousel-primary-subtle-color);
 }
 
 #jp-carousel-comment-form-commenting-as p {
