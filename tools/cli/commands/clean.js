@@ -17,7 +17,6 @@ import fs from 'fs';
  * Command definition for the build subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
- *
  * @returns {object} Yargs with the build commands defined.
  */
 export function cleanDefine( yargs ) {
@@ -349,7 +348,6 @@ async function confirmRemove( argv, toCleanFiles ) {
  * Prompts for the scope of what we want to clean.
  *
  * @param {argv}  argv - the arguments passed.
- *
  * @returns {object} argv
  */
 export async function promptForScope( argv ) {
@@ -382,7 +380,6 @@ export async function promptForScope( argv ) {
  * Prompts for what we're trying to clean (files, folder, gitignored, etc).
  *
  * @param {argv}  argv - the arguments passed.
- *
  * @returns {argv} argv
  */
 export async function promptForClean( argv ) {

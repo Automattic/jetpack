@@ -19,7 +19,6 @@ let output = true;
  * Command definition for the build subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
- *
  * @returns {object} Yargs with the watch commands defined.
  */
 export function watchDefine( yargs ) {
@@ -107,7 +106,6 @@ export async function watch( project, packageJson ) {
  *
  * @param {string} project - The project.
  * @param {object} composerJson - The project's composer.json file, parsed.
- *
  * @returns {boolean} If the project has a watch step, the watch command or false.
  */
 function hasWatchStep( project, composerJson ) {

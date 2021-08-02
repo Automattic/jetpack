@@ -1,0 +1,73 @@
+// Style everything with border box turned on
+#jb-settings * {
+	box-sizing: border-box;
+}
+
+
+// Override WordPress component styles
+.jb-settings {
+	--wp-admin-theme-color: #{$jetpack_green_50};
+	--wp-admin-theme-link-color: #{$gray_90};
+	--wp-admin-theme-color-darker-10: #{$jetpack_green_60};
+	--wp-admin-theme-color-darker-20: #{$jetpack_green_70};
+
+	a {
+		color: var(--wp-admin-theme-link-color)
+	}
+
+	.components-button.is-primary, {
+		background-color: $jetpack_green;
+		border-radius: $border-radius;
+		font-weight: 600;
+		margin-bottom: 1.5rem;
+	}
+
+	.components-button.is-link {
+		color: var(--wp-admin-theme-link-color);
+	}
+
+	h1, h2, h3, h4, h5, h6 {
+		margin: 0;
+		color: $primary-black;
+		line-height: 1.3;
+		font-weight: 500;
+	}
+
+	h2 {
+		font-size: 36px;
+		line-height: 1.1;
+	}
+
+	h3 {
+		font-size: 24px;
+	}
+
+	p {
+		color: $gray_80;
+	}
+
+	button.secondary, a.button-secondary {
+		color: $primary-black;
+		background: none;
+		border: 1px solid $primary-black;
+		padding: 8px 24px;
+		border-radius: 3px;
+		font-weight: 600;
+		cursor: pointer;
+		font-size: 16px;
+		line-height: 24px;
+
+		&:hover {
+			background: $gray_0;
+			border-color: $primary-black;
+			color: $primary-black;
+		}
+	}
+}
+
+// Reset WP-Admin styles for boost dashboard
+.toplevel_page_jetpack-boost #wpcontent {
+	padding-left: 0;
+	background: $primary-white;
+	min-height: 100vh;
+}
