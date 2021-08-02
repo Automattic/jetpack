@@ -7,7 +7,6 @@ import pluralize from 'pluralize';
  * Normalize the argv used for the install command.
  *
  * @param {object} argv - The argvs for the install command.
- *
  * @returns {object} argv object with standard elements needed for the installer.
  */
 export function normalizeInstallArgv( argv ) {
@@ -28,7 +27,6 @@ export function normalizeInstallArgv( argv ) {
  * Normalize the argv used for the build command.
  *
  * @param {object} argv - The argvs for the install command.
- *
  * @returns {object} argv object with standard elements needed for the installer.
  */
 export function normalizeBuildArgv( argv ) {
@@ -43,7 +41,6 @@ export function normalizeBuildArgv( argv ) {
  * Normalize the argv used for the generate command.
  *
  * @param {object} argv - The argvs for the generate command.
- *
  * @returns {object} argv object with standard elements needed to generate a new project.
  */
 export function normalizeGenerateArgv( argv ) {
@@ -60,7 +57,6 @@ export function normalizeGenerateArgv( argv ) {
  * Normalize argv when passing an incomplete project as a parameter
  *
  * @param {object} argv - The argvs for the generate command.
- *
  * @returns {object} argv object with standard elements needed to generate a new project.
  */
 export function normalizeProject( argv ) {
@@ -75,7 +71,6 @@ export function normalizeProject( argv ) {
  * Normalize the argv used for the clean command.
  *
  * @param {object} argv - The argvs for the clean command.
- *
  * @returns {object} argv object with standard elements needed for clean.
  */
 export function normalizeCleanArgv( argv ) {

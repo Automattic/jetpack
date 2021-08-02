@@ -202,7 +202,6 @@
 	 * Massage search input to match pr/release 'header'.
 	 *
 	 * @param   {string} search - The raw search input text.
-	 *
 	 * @returns {string} The massaged search string.
 	 */
 	function pr_to_header( search ) {
@@ -219,7 +218,6 @@
 	 *
 	 * @param {string} word   - The search input term.
 	 * @param {string} phrase - The full pr/release header text.
-	 *
 	 * @returns {string} Search result with span wrapping matching word (search input) for styling.
 	 */
 	function highlight_word( word, phrase ) {

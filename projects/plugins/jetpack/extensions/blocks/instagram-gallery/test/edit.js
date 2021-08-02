@@ -15,6 +15,8 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { JETPACK_DATA_PATH } from '../../../shared/get-jetpack-data';
 import InstagramGalleryEdit from '../edit';
 
+const originalFetch = window.fetch;
+
 // Mock connecting site to wpcom.
 jest.mock( '../use-connect-wpcom', () => ( {
 	__esModule: true,
