@@ -58,7 +58,7 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
-		"@automattic/calypso-build": "6.5.0",
+		"@automattic/calypso-build": "9.0.0",
 		"@automattic/calypso-color-schemes": "2.1.1",
 		"@automattic/components": "1.0.0-alpha.3",
 		"@automattic/format-currency": "1.0.0-alpha.0",
@@ -115,7 +115,7 @@
 		"jsdom-global": "3.0.2",
 		"mapbox-gl": "1.13.0",
 		"markdown-it": "12.0.4",
-		"node-sass": "4.14.1",
+		"node-sass": "6.0.1",
 		"page": "1.7.1",
 		"photon": "4.0.0",
 		"plugin-error": "1.0.1",
@@ -202,7 +202,7 @@
 		"react-dom": "17.0.2"
 	},
 	"engines": {
-		"node": "^14.16.1",
+		"node": "^16.5.0",
 		"pnpm": "^6.5.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
