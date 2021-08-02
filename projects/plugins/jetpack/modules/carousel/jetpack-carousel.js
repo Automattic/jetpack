@@ -438,6 +438,13 @@
 
 				carousel.overlay.addEventListener( 'jp_carousel.afterOpen', function () {
 					enableKeyboardNavigation();
+
+					// Don't show navigation if there's only one image.
+					if ( carousel.slides.length <= 1 ) {
+						domUtil.hide( carousel.overlay.querySelector( '.jp-swiper-button-prev' ) );
+						domUtil.hide( carousel.overlay.querySelector( '.jp-swiper-button-next' ) );
+						return;
+					}
 					// Show dot pagination if slide count is <= 5, otherwise show n/total.
 					if ( carousel.slides.length <= 5 ) {
 						domUtil.show( carousel.info.querySelector( '.jp-swiper-pagination' ) );
@@ -451,6 +458,10 @@
 
 					// Fixes some themes where closing carousel brings view back to top.
 					document.documentElement.style.removeProperty( 'height' );
+
+					// Should the navigation arrows if we hid them for single images.
+					domUtil.show( carousel.overlay.querySelector( '.jp-swiper-button-prev' ) );
+					domUtil.show( carousel.overlay.querySelector( '.jp-swiper-button-next' ) );
 
 					// Hide pagination.
 					domUtil.hide( carousel.info.querySelector( '.jp-swiper-pagination' ) );

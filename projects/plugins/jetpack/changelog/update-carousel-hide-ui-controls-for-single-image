@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Hide UI controls in the carousel for single images.
