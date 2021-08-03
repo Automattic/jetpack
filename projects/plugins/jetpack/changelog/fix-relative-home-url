@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Search: fixed search blocked by Same Origin Policy when home_url() does not match the actual home URL usually caused by reverse proxying requests
