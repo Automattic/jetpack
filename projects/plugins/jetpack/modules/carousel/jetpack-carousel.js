@@ -459,7 +459,7 @@
 
 					// If we disable the swiper (because there's only one image)
 					// we have to re-enable it here again as Swiper doesn't, for some reason,
-					// Show the navigation buttons again after reinitialization.
+					// show the navigation buttons again after reinitialization.
 					if ( swiper ) {
 						swiper.enable();
 					}
