@@ -53,6 +53,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		// order confirmed.
 		add_action( 'woocommerce_thankyou', array( $this, 'order_process' ), 10, 1 );
 		add_action( 'woocommerce_after_cart', array( $this, 'remove_from_cart_via_quantity' ), 10, 1 );
+
+		add_filter( 'woocommerce_checkout_posted_data', array( $this, 'save_checkout_post_data' ), 10, 1 );
 	}
 
 	/**
@@ -301,6 +303,32 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	public function order_process( $order_id ) {
 		$order = wc_get_order( $order_id );
 
+		$device         = wp_is_mobile() ? 'mobile' : 'desktop';
+		$payment_option = $order->get_payment_method();
+
+		if ( is_object( WC()->session ) ) {
+			$create_account = WC()->session->get( 'wc_checkout_createaccount_used' );
+		} else {
+			$create_account = false;
+		}
+
+		$guest_checkout = ! $order->get_user();
+
+		// When the payment option is woocommerce_payment
+		// See if Google Pay or Apple Pay was used.
+		if ( 'woocommerce_payments' === $payment_option ) {
+			$payment_option_title = $order->get_payment_method_title();
+			if ( 'Google Pay (WooCommerce Payments)' === $payment_option_title ) {
+				$express_checkout = array( 'googlePay' );
+			} elseif ( 'Apple Pay (WooCommerce Payments)' === $payment_option_title ) {
+				$express_checkout = array( 'applePay' );
+			} else {
+				$express_checkout = null;
+			}
+		} else {
+			$express_checkout = null;
+		}
+
 		// loop through products in the order and queue a purchase event.
 		foreach ( $order->get_items() as $order_item ) {
 			$product_id = is_callable( array( $order_item, 'get_product_id' ) ) ? $order_item->get_product_id() : -1;
@@ -309,8 +337,13 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				'woocommerceanalytics_product_purchase',
 				$product_id,
 				array(
-					'oi' => $order->get_order_number(),
-					'pq' => $order_item->get_quantity(),
+					'oi'               => $order->get_order_number(),
+					'pq'               => $order_item->get_quantity(),
+					'device'           => $device,
+					'payment_option'   => $payment_option,
+					'create_account'   => $create_account,
+					'guest_checkout'   => $guest_checkout,
+					'express_checkout' => $express_checkout,
 				)
 			);
 		}
@@ -518,5 +551,20 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		}
 
 		return $info;
+	}
+
+	/**
+	 * Save createaccount post data to be used in $this->>order_process.
+	 *
+	 * @param array $data post data from the checkout page.
+	 *
+	 * @return array
+	 */
+	public function save_checkout_post_data( array $data ) {
+		if ( is_object( WC()->session ) ) {
+			$createaccount_used = isset( $data['createaccount'] ) && ! empty( $data['createaccount'] );
+			WC()->session->set( 'wc_checkout_createaccount_used', $createaccount_used );
+		}
+		return $data;
 	}
 }
