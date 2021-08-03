@@ -18,7 +18,7 @@ use Automattic\Jetpack_Boost\Tests\Base_Test_Case;
  * @package Automattic\Jetpack_Boost\Tests\Lib
  */
 class WP_Test_Viewport extends Base_Test_Case {
-	public function setUp() {
+	protected function setUp() {
 		parent::setUp();
 
 		Filters\expectApplied( 'jetpack_boost_critical_css_viewport_sizes' )

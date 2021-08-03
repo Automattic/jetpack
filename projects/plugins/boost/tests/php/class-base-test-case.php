@@ -19,7 +19,7 @@ abstract class Base_Test_Case extends \PHPUnit\Framework\TestCase {
 	/**
 	 * Setup.
 	 */
-	public function setUp() {
+	protected function setUp() {
 		parent::setUp();
 		Monkey\setUp();
 
@@ -40,7 +40,7 @@ abstract class Base_Test_Case extends \PHPUnit\Framework\TestCase {
 	/**
 	 * Teardown.
 	 */
-	public function tearDown() {
+	protected function tearDown() {
 		Monkey\tearDown();
 	}
 }
