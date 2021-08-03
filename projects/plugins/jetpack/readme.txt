@@ -242,19 +242,20 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.0-beta - 2021-07-27
+### 10.0 - 2021-08-03
 #### Enhancements
-- Carousel: add settings toggle to control display of colorized slide background.
 - Carousel: add JS-based smooth scroll behavior for the footer buttons.
 - Carousel: on image zoom, fade out controls. Fade them back in when sized back to original, or the slide is advanced.
 
 #### Improved compatibility
+- Carousel: add a Swiper JS param to prevent interaction on the carousel while transitioning between slides.
 - Map Block: ensure theme styles do not override map button background colors.
+- Search: remove required attribute from search inputs.
 
 #### Bug fixes
-- Carousel: fix bug with missing background when reversing swipe direction.
-- Contact Form Block: remove specific form colors to prevent theme style clash.
+- Carousel: fix carousel title formatting to prevent issues with quote conversion.
 - Comments: fix subsequent commenting when using a social profile.
+- Contact Form Block: remove specific form colors to prevent theme style clash.
 - Instant Search: fix visual glitch on breadcrumb in Firefox.
 - Instant Search: make sure ?s= is set when using filter links.
 - Like Button: add title and aria-hidden attributes to the Like button iframe.
