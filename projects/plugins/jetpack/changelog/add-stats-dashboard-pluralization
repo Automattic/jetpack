@@ -1,3 +1,4 @@
 Significance: patch
-Type: added
-Comment: Adding translatable option for singular or plural post and page views in the Stats widget
+Type: bugfix
+
+Stats: allow better translations of page view counts in the Stats widget.
