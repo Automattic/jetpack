@@ -808,7 +808,6 @@ importers:
       eslint: 7.31.0
       eslint-config-prettier: 8.3.0
       eslint-config-wpcalypso: 6.1.0
-      eslint-loader: 4.0.2
       eslint-plugin-es5: 1.5.0
       eslint-plugin-inclusive-language: 1.2.1
       eslint-plugin-jest: 24.4.0
@@ -834,7 +833,6 @@ importers:
       eslint: 7.31.0
       eslint-config-prettier: 8.3.0_eslint@7.31.0
       eslint-config-wpcalypso: 6.1.0_24669386d76e6b9c03f72f04829a915f
-      eslint-loader: 4.0.2_eslint@7.31.0
       eslint-plugin-es5: 1.5.0_eslint@7.31.0
       eslint-plugin-inclusive-language: 1.2.1
       eslint-plugin-jest: 24.4.0_eslint@7.31.0
@@ -7246,7 +7244,7 @@ packages:
       webpack: ^4.8.3 || ^5.0.0
     dependencies:
       json2php: 0.0.4
-      webpack: 4.46.0
+      webpack: 4.46.0_webpack-cli@4.5.0
       webpack-sources: 2.2.0
     dev: true
 
@@ -11421,22 +11419,6 @@ packages:
     dependencies:
       debug: 2.6.9
       resolve: 1.20.0
-    dev: true
-
-  /eslint-loader/4.0.2_eslint@7.31.0:
-    resolution: {integrity: sha512-EDpXor6lsjtTzZpLUn7KmXs02+nIjGcgees9BYjNkWra3jVq5vVa8IoCKgzT2M7dNNeoMBtaSG83Bd40N3poLw==}
-    engines: {node: '>= 10.13.0'}
-    deprecated: This loader has been deprecated. Please use eslint-webpack-plugin
-    peerDependencies:
-      eslint: ^6.0.0 || ^7.0.0
-      webpack: ^4.0.0 || ^5.0.0
-    dependencies:
-      eslint: 7.31.0
-      find-cache-dir: 3.3.1
-      fs-extra: 8.1.0
-      loader-utils: 2.0.0
-      object-hash: 2.1.1
-      schema-utils: 2.7.1
     dev: true
 
   /eslint-module-utils/2.6.1:
@@ -16786,11 +16768,6 @@ packages:
       copy-descriptor: 0.1.1
       define-property: 0.2.5
       kind-of: 3.2.2
-
-  /object-hash/2.1.1:
-    resolution: {integrity: sha512-VOJmgmS+7wvXf8CjbQmimtCnEx3IAoLxI3fp2fbWehxrWBcAQFbk+vcwb6vzR0VZv/eNCJ/27j151ZTwqW/JeQ==}
-    engines: {node: '>= 6'}
-    dev: true
 
   /object-inspect/1.10.3:
     resolution: {integrity: sha512-e5mCJlSH7poANfC8z8S9s9S2IN5/4Zb3aZ33f5s8YqoazCFzNLloLU8r5VCG+G7WoqLvAAZoVMcy3tp/3X0Plw==}
