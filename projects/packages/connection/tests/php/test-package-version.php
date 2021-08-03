@@ -30,7 +30,6 @@ class Test_Package_Version extends TestCase {
 	 * Package_Version_Tracker.
 	 */
 	public function test_send_package_version_to_tracker_existing_array() {
-		echo 'tracker';
 		$existing_array = array(
 			'test-package-slug' => '1.0.0',
 		);

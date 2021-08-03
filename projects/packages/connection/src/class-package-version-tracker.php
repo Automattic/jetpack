@@ -41,7 +41,7 @@ class Package_Version_Tracker {
 				)
 			);
 
-			$wpcom_response = Client::wpcom_json_api_request_as_blog(
+			Client::wpcom_json_api_request_as_blog(
 				sprintf( '/sites/%d/jetpack-package-versions', $site_id ),
 				'2',
 				array(
