@@ -3,11 +3,6 @@
  */
 import { assign } from 'lodash';
 
-if ( typeof fetch === 'undefined' ) {
-	/* eslint-disable-next-line no-unused-vars */
-	const fetch = require( 'node-fetch' );
-}
-
 /**
  * Helps create new custom error classes to better notify upper layers.
  *
