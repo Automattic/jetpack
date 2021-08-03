@@ -211,7 +211,8 @@ function runEslintChanged( toLintFiles ) {
 	}
 }
 
-/** Run php:lint
+/**
+ * Run php:lint
  *
  * @param {Array} toLintFiles - List of files to lint
  */

@@ -39,7 +39,7 @@ const instagramVariation = {
  *
  * Our goal is for this go unnoticed by our end-users, as this is only an implementation detail.
  *
- * *[0] https://github.com/WordPress/gutenberg/pull/24472.
+ * [0] https://github.com/WordPress/gutenberg/pull/24472.
  *
  * @param {object} settings - Block settings object.
  * @param {string} name - The block name

@@ -25,7 +25,6 @@ import './style.scss';
  * @param {string} props.redirectUri -- The redirect admin URI.
  * @param {string} props.from -- Where the connection request is coming from.
  * @param {Function} props.statusCallback -- Callback to pull connection status from the component.
- *
  * @returns {React.Component} The RNA connection component.
  */
 const ConnectButton = props => {
