@@ -859,7 +859,7 @@ class Jetpack_Search_Helpers {
 			),
 
 			// core config.
-			'homeUrl'               => home_url(),
+			'homeUrl'               => home_url( '/', 'relative' ),
 			'locale'                => str_replace( '_', '-', self::is_valid_locale( get_locale() ) ? get_locale() : 'en_US' ),
 			'postsPerPage'          => $posts_per_page,
 			'siteId'                => class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'get_option' ) ? Jetpack::get_option( 'id' ) : get_current_blog_id(),

@@ -38,7 +38,7 @@ function pushQueryString( queryString ) {
 	if ( history.pushState ) {
 		const url = new window.URL( window.location.href );
 		if ( window[ SERVER_OBJECT_NAME ] && 'homeUrl' in window[ SERVER_OBJECT_NAME ] ) {
-			url.href = window[ SERVER_OBJECT_NAME ].homeUrl;
+			url.pathname = window[ SERVER_OBJECT_NAME ].homeUrl;
 		}
 		url.search = queryString;
 		window.history.pushState( null, null, url.toString() );
