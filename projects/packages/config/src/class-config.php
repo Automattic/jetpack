@@ -93,6 +93,13 @@ class Config {
 				|| $this->ensure_class( 'Automattic\Jetpack\JITM' ) )
 			&& $this->ensure_feature( 'jitm' );
 		}
+
+		if ( $this->config['my-plans'] ) {
+			// Ensure my-plans is loaded
+			( $this->ensure_class( 'Automattic\Jetpack\JITMS\JITM', false )
+				|| $this->ensure_class( 'Automattic\Jetpack\JITM' ) )
+			&& $this->ensure_feature( 'jitm' );
+		}
 	}
 
 	/**
@@ -188,6 +195,10 @@ class Config {
 		Manager::configure();
 
 		return true;
+	}
+
+	protected function enable_my_plans() {
+		// Automattic\Jetpack\MyPlansUI\Admin ... etc
 	}
 
 	/**

@@ -827,6 +827,7 @@ class Jetpack {
 			array(
 				'sync',
 				'jitm',
+				'my-plans', # is this necessary?
 			)
 			as $feature
 		) {
@@ -856,6 +857,8 @@ class Jetpack {
 				Automattic\Jetpack\ConnectionUI\Admin::init();
 			}
 		}
+
+		Automattic\Jetpack\MyPlansUI\Admin::init();
 
 		/*
 		 * Load things that should only be in Network Admin.
