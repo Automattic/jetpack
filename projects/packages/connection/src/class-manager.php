@@ -109,7 +109,7 @@ class Manager {
 
 		Webhooks::init( $manager );
 
-		add_filter( 'plugins_loaded', __NAMESPACE__ . '\Package_Version_Tracker::maybe_update_package_versions' );
+		add_filter( 'plugins_loaded', array( new Package_Version_Tracker(), 'maybe_update_package_versions' ) );
 
 		// Set up package version hook.
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );

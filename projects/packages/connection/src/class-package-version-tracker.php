@@ -18,13 +18,13 @@ class Package_Version_Tracker {
 	 * Uses the jetpack_package_versions filter to obtain the package versions from packages that need
 	 * version tracking. If the package versions have changed, updates the option and notifies WPCOM.
 	 */
-	public static function maybe_update_package_versions() {
+	public function maybe_update_package_versions() {
 		/**
 		 * Obtains the package versions.
 		 *
 		 * @since x.x.x
 		 *
-		 * @param array An associative array containing the package versions with the package slugs as the keys.
+		 * @param array An associative array of Jetpack package slugs and their corresponding versions as key/value pairs.
 		 */
 		$filter_versions = apply_filters( 'jetpack_package_versions', array() );
 
@@ -34,13 +34,15 @@ class Package_Version_Tracker {
 
 		$option_versions = get_option( self::PACKAGE_VERSION_OPTION, array() );
 
+		$package_versions = static::prep_package_versions( $option_versions, $filter_versions );
+
 		if ( ! is_array( $option_versions ) ) {
-			static::update_package_versions_option( null, $filter_versions );
+			$this->update_package_versions_option( $package_versions );
 			return;
 		}
 
-		if ( count( array_diff_assoc( $filter_versions, $option_versions ) ) || count( array_diff_assoc( $option_versions, $filter_versions ) ) ) {
-			static::update_package_versions_option( $option_versions, $filter_versions );
+		if ( count( array_diff_assoc( $package_versions, $option_versions ) ) || count( array_diff_assoc( $option_versions, $package_versions ) ) ) {
+			$this->update_package_versions_option( $package_versions );
 		}
 	}
 
@@ -49,12 +51,12 @@ class Package_Version_Tracker {
 	 * strings. If the filter provided a version that isn't a string, check whether the existing option version
 	 * is a string and, if it is, use that.
 	 *
-	 * @param array $option_versions The package versions currently stroed in the option.
+	 * @param array $option_versions The package versions stored in the option.
 	 * @param array $filter_versions The package versions provided by the filter.
 	 *
 	 * @return array The package versions.
 	 */
-	private static function prep_package_versions( $option_versions, $filter_versions ) {
+	protected function prep_package_versions( $option_versions, $filter_versions ) {
 		$new_versions = array();
 
 		foreach ( $filter_versions as $package => $version ) {
@@ -77,12 +79,9 @@ class Package_Version_Tracker {
 	 *   - Updates the 'jetpack_package_versions' option.
 	 *   - Sends the updated package versions to wpcom.
 	 *
-	 * @param array|null $option_versions The package versions currently stored in the option.
-	 * @param array      $filter_versions The package versions provided by the filter.
+	 * @param array $package_versions The package versions.
 	 */
-	private static function update_package_versions_option( $option_versions, $filter_versions ) {
-		$package_versions = static::prep_package_versions( $option_versions, $filter_versions );
-
+	protected function update_package_versions_option( $package_versions ) {
 		update_option( self::PACKAGE_VERSION_OPTION, $package_versions );
 
 		$site_id = \Jetpack_Options::get_option( 'id' );
