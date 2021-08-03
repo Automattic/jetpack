@@ -219,7 +219,6 @@ function mapSortToApiValue( sort ) {
  * Generate the query string for an API request
  *
  * @param {object} options - Options object for the function
- *
  * @returns {string} The generated query string.
  */
 function generateApiQueryString( {

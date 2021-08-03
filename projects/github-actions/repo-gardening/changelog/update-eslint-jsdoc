@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: JSDoc updates after eslint-plugin-jsdoc update
+
+

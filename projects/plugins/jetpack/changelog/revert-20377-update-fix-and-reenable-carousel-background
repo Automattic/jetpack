@@ -1,0 +1,6 @@
+Significance: patch
+Type: other
+Comment: Revert: Carousel: Add settings toggle to control display of colorized slide background., Carousel: Enabled background colors, fixed bug with missing background when reversing swipe direction.
+
+
+
