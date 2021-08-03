@@ -13,6 +13,7 @@
 			"groupName": "Monorepo packages",
 			"matchPackageNames": [
 				"@automattic/eslint-changed",
+				"@automattic/jetpack-api",
 				"@automattic/jetpack-components",
 				"@automattic/jetpack-connection",
 				"automattic/jetpack-a8c-mc-stats",
@@ -37,6 +38,7 @@
 				"automattic/jetpack-lazy-images",
 				"automattic/jetpack-licensing",
 				"automattic/jetpack-logo",
+				"automattic/jetpack-my-plans-ui",
 				"automattic/jetpack-options",
 				"automattic/jetpack-partner",
 				"automattic/jetpack-password-checker",
