@@ -3,6 +3,11 @@
  */
 import { assign } from 'lodash';
 
+if ( typeof fetch === 'undefined' ) {
+	/* eslint-disable-next-line no-unused-vars */
+	const fetch = require( 'node-fetch' );
+}
+
 /**
  * Helps create new custom error classes to better notify upper layers.
  *
@@ -46,7 +51,8 @@ function JetpackRestApiClient( root, nonce ) {
 			headers: assign( {}, headers, {
 				'Content-type': 'application/json',
 			} ),
-		};
+		},
+		cacheBusterCallback = addCacheBuster;
 
 	const methods = {
 		setApiRoot( newRoot ) {
@@ -67,6 +73,9 @@ function JetpackRestApiClient( root, nonce ) {
 					'Content-type': 'application/json',
 				} ),
 			};
+		},
+		setCacheBusterCallback: callback => {
+			cacheBusterCallback = callback;
 		},
 
 		fetchSiteConnectionStatus: () =>
@@ -381,7 +390,7 @@ function JetpackRestApiClient( root, nonce ) {
 	};
 
 	/**
-	 * Add cachebuster parameter to route
+	 * The default callback to add a cachebuster parameter to route
 	 *
 	 * @param {string} route - the route
 	 * @returns {string} - the route with the cachebuster appended
@@ -404,7 +413,7 @@ function JetpackRestApiClient( root, nonce ) {
 	 * @returns {Promise<Response>} - the http request promise
 	 */
 	function getRequest( route, params ) {
-		return fetch( addCacheBuster( route ), params );
+		return fetch( cacheBusterCallback( route ), params );
 	}
 
 	/**

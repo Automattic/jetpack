@@ -59,13 +59,19 @@ importers:
 
   projects/js-packages/api:
     specifiers:
+      chai-fetch-mock: 3.0.0
+      fetch-mock: 9.11.0
       jetpack-js-test-runner: workspace:*
       lodash: 4.17.21
+      node-fetch: 2.6.1
       nyc: 15.1.0
     dependencies:
       lodash: 4.17.21
     devDependencies:
+      chai-fetch-mock: 3.0.0_fetch-mock@9.11.0
+      fetch-mock: 9.11.0_node-fetch@2.6.1
       jetpack-js-test-runner: link:../../../tools/js-test-runner
+      node-fetch: 2.6.1
       nyc: 15.1.0
 
   projects/js-packages/components:
@@ -9546,6 +9552,16 @@ packages:
   /caseless/0.12.0:
     resolution: {integrity: sha1-G2gcIf+EAzyCZUMJBolCDRhxUdw=}
 
+  /chai-fetch-mock/3.0.0_fetch-mock@9.11.0:
+    resolution: {integrity: sha512-k/wZojMrNAlPEb7XvnxgIF0Xwgl+MbYOrLNp25VXaVZNkM4hITNaxGKrJFW0DXHew0fE1o/Gao/7j0690mzXQQ==}
+    engines: {node: '>= 7'}
+    peerDependencies:
+      chai: 3.x || 4.x
+      fetch-mock: 5.1.x || 6.x
+    dependencies:
+      fetch-mock: 9.11.0_node-fetch@2.6.1
+    dev: true
+
   /chai/4.3.4:
     resolution: {integrity: sha512-yS5H68VYOCtN1cjfwumDSuzn/9c+yza4f3reKXlE5rUg7SFcCEy90gJvydNgOYtblyf4Zi6jIWRnXOgErta0KA==}
     engines: {node: '>=4'}
@@ -10185,7 +10201,6 @@ packages:
   /core-js/3.11.1:
     resolution: {integrity: sha512-k93Isqg7e4txZWMGNYwevZL9MiogLk8pd1PtwrmFmi8IBq4GXqUaVW/a33Llt6amSI36uSjd0GWwc9pTT9ALlQ==}
     requiresBuild: true
-    dev: false
 
   /core-util-is/1.0.2:
     resolution: {integrity: sha1-tf1UIgqivFq1eqtxQMlAdUUDwac=}
@@ -12110,6 +12125,30 @@ packages:
     resolution: {integrity: sha1-JcfInLH5B3+IkbvmHY85Dq4lbx4=}
     dependencies:
       pend: 1.2.0
+    dev: true
+
+  /fetch-mock/9.11.0_node-fetch@2.6.1:
+    resolution: {integrity: sha512-PG1XUv+x7iag5p/iNHD4/jdpxL9FtVSqRMUQhPab4hVDt80T1MH5ehzVrL2IdXO9Q2iBggArFvPqjUbHFuI58Q==}
+    engines: {node: '>=4.0.0'}
+    peerDependencies:
+      node-fetch: '*'
+    peerDependenciesMeta:
+      node-fetch:
+        optional: true
+    dependencies:
+      '@babel/core': 7.14.6
+      '@babel/runtime': 7.14.6
+      core-js: 3.11.1
+      debug: 4.3.2
+      glob-to-regexp: 0.4.1
+      is-subset: 0.1.1
+      lodash.isequal: 4.5.0
+      node-fetch: 2.6.1
+      path-to-regexp: 2.4.0
+      querystring: 0.2.0
+      whatwg-url: 6.5.0
+    transitivePeerDependencies:
+      - supports-color
     dev: true
 
   /figgy-pudding/3.5.2:
@@ -15770,7 +15809,6 @@ packages:
 
   /lodash.sortby/4.7.0:
     resolution: {integrity: sha1-7dFMgk4sycHgsKG0K7UhBRakJDg=}
-    dev: false
 
   /lodash.truncate/4.4.2:
     resolution: {integrity: sha1-WjUNoLERO4N+z//VgSy+WNbq4ZM=}
@@ -17200,6 +17238,10 @@ packages:
     dependencies:
       isarray: 0.0.1
 
+  /path-to-regexp/2.4.0:
+    resolution: {integrity: sha512-G6zHoVqC6GGTQkZwF4lkuEyMbVOjoBKAEybQUypI1WTkqinCOrq2x6U2+phkJ1XsEMTy4LjtwPI7HW+NVrRR2w==}
+    dev: true
+
   /path-type/1.1.0:
     resolution: {integrity: sha1-WcRPfuSR2nBNpBXaWkBwuk+P5EE=}
     engines: {node: '>=0.10.0'}
@@ -18025,6 +18067,7 @@ packages:
   /querystring/0.2.0:
     resolution: {integrity: sha1-sgmEkgO7Jd+CDadW50cAWHhSFiA=}
     engines: {node: '>=0.4.x'}
+    deprecated: The querystring API is considered Legacy. new code should use the URLSearchParams API instead.
 
   /quick-lru/4.0.1:
     resolution: {integrity: sha512-ARhCpm70fzdcvNQfPoy49IaanKkTlRWF2JMzqhcJbhSFRZv7nPTvZJdcY7301IPmvW+/p0RgIWnQDLJxifsQ7g==}
@@ -20833,6 +20876,12 @@ packages:
       punycode: 2.1.1
       universalify: 0.1.2
 
+  /tr46/1.0.1:
+    resolution: {integrity: sha1-qLE/1r/SSJUZZ0zN5VujaTtwbQk=}
+    dependencies:
+      punycode: 2.1.1
+    dev: true
+
   /tr46/2.0.2:
     resolution: {integrity: sha512-3n1qG+/5kg+jrbTzwAykB5yRYtQCTqOGKq5U5PE3b0a1/mzo6snDhjGS0zJVJunO0NrT3Dg1MLy5TjWP/UJppg==}
     engines: {node: '>=8'}
@@ -21469,6 +21518,10 @@ packages:
       defaults: 1.0.3
     dev: true
 
+  /webidl-conversions/4.0.2:
+    resolution: {integrity: sha512-YQ+BmxuTgd6UXZW3+ICGfyqRyHXVlD5GtQr5+qjiNW7bF0cqrzX500HVXPBOvgXb5YnzDd+h0zqyv61KUD7+Sg==}
+    dev: true
+
   /webidl-conversions/5.0.0:
     resolution: {integrity: sha512-VlZwKPCkYKxQgeSbH5EyngOmRp7Ww7I9rQLERETtf5ofd9pGeswWiOtogpEO850jziPRarreGxn5QIiTqpb2wA==}
     engines: {node: '>=8'}
@@ -21813,6 +21866,14 @@ packages:
       buffer: 5.7.1
       punycode: 2.1.1
       webidl-conversions: 5.0.0
+
+  /whatwg-url/6.5.0:
+    resolution: {integrity: sha512-rhRZRqx/TLJQWUpQ6bmrt2UV4f0HCQ463yQuONJqC6fO2VoEb1pTYddbe59SkYq87aoM5A3bdhMZiUiVws+fzQ==}
+    dependencies:
+      lodash.sortby: 4.7.0
+      tr46: 1.0.1
+      webidl-conversions: 4.0.2
+    dev: true
 
   /whatwg-url/8.4.0:
     resolution: {integrity: sha512-vwTUFf6V4zhcPkWp/4CQPr1TW9Ml6SF4lVyaIMBdJw5i6qUUJ1QWM4Z6YYVkfka0OUIzVo/0aNtGVGk256IKWw==}

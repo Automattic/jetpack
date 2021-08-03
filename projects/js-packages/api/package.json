@@ -8,12 +8,15 @@
 		"lodash": "4.17.21"
 	},
 	"devDependencies": {
+		"chai-fetch-mock": "3.0.0",
+		"fetch-mock": "9.11.0",
 		"jetpack-js-test-runner": "workspace:*",
+		"node-fetch": "2.6.1",
 		"nyc": "15.1.0"
 	},
 	"type": "module",
 	"scripts": {
-		"test": "TODO NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.jsx'"
+		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./test/*.jsx'"
 	},
 	"engines": {
 		"node": "^14.16.1",
