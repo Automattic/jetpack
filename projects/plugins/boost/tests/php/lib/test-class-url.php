@@ -77,7 +77,7 @@ class WP_Test_Url extends Base_Test_Case {
 		$url_with_extra_param = 'https://example.com/?s=abcd';
 		$expected_url         = 'https://example.com/?s=';
 
-		Functions\when( 'site_url' )->justReturn( $start_url );
+		Functions\when( 'site_url' )->justReturn( $site_url );
 		Functions\when( 'remove_query_arg' )->justReturn( $expected_url );
 		Functions\when( 'wp_parse_url' )->justReturn(
 			array(
