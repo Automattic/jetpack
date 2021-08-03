@@ -23,7 +23,6 @@ import { isModuleFound as _isModuleFound } from 'state/search';
  * Renders controls to activate the carousel and additional settings.
  *
  * @param {object} props - Component properties.
- *
  * @returns {object} - Controls for carousel.
  */
 function WritingMedia( props ) {
@@ -52,7 +51,6 @@ function WritingMedia( props ) {
 	 * @param {string} optionName - Name of the option that the toggle state will be saved to.
 	 * @param {Function} onChangeHandler - Method to call when the toggle is clicked.
 	 * @param {string} label - Description for the toggle.
-	 *
 	 * @returns {object} A compact toggle component.
 	 */
 	const renderToggle = ( checked, optionName, onChangeHandler, label ) => (

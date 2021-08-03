@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.24.2] - 2021-08-02
+- Reverted: Sync option for the Carousel to display colorized slide background.
+
+## [1.24.1] - 2021-07-29
+### Changed
+- Utilize an import for WP_Error in all instances.
+
+### Fixed
+- Fixed unqualified WP_Error use in the Rest_Sender class.
+
+## [1.24.0] - 2021-07-27
+### Added
+- Add a package version constant.
+- Add Full Site Editing support to callback options.
+- Sync option for the Carousel to display colorized slide background.
+
+### Fixed
+- Update Sender so it adheres to max upload bytes when not encoding items.
+
 ## [1.23.3] - 2021-07-16
 ### Fixed
 - Update Options module to return jetpack_sync_settings_* values from the Settings class vs direct option lookup.
@@ -424,6 +443,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[1.24.2]: https://github.com/Automattic/jetpack-sync/compare/v1.24.1...v1.24.2
+[1.24.1]: https://github.com/Automattic/jetpack-sync/compare/v1.24.0...v1.24.1
+[1.24.0]: https://github.com/Automattic/jetpack-sync/compare/v1.23.3...v1.24.0
 [1.23.3]: https://github.com/Automattic/jetpack-sync/compare/v1.23.2...v1.23.3
 [1.23.2]: https://github.com/Automattic/jetpack-sync/compare/v1.23.1...v1.23.2
 [1.23.1]: https://github.com/Automattic/jetpack-sync/compare/v1.23.0...v1.23.1

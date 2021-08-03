@@ -26,6 +26,21 @@ projects/plugins/jetpack/modules/widgets/search/js/search-widget-admin.js
 projects/plugins/jetpack/tests/e2e/output/
 projects/plugins/jetpack/vendor/
 
+### Jetpack Boost
+projects/plugins/boost/.eslintrc.js
+projects/plugins/boost/.prettierrc.js
+projects/plugins/boost/babel.config.js
+projects/plugins/boost/dangerfile.js
+projects/plugins/boost/jest-puppeteer.config.js
+projects/plugins/boost/jest.config.js
+projects/plugins/boost/rollup.config.js
+projects/plugins/boost/**/*.min.js
+projects/plugins/boost/node_modules/**
+projects/plugins/boost/vendor/**
+projects/plugins/boost/dist/**
+projects/plugins/boost/tests/**
+projects/plugins/boost/docker/**
+
 # Temporary ignore until Jest is set up
 projects/plugins/jetpack/extensions/**/test/
 

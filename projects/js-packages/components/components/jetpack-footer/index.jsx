@@ -19,7 +19,6 @@ import JetpackLogo from '../jetpack-logo';
  * @param {object} props.a8cLogoHref - Link for 'An Automattic Airline'.
  * @param {object} props.moduleName - Name of the module, e.g. 'Jetpack Search'.
  * @param {object} props.className - additional className of the wrapper, default only: `jp-dashboard-footer`.
- *
  * @returns {React.Component} JetpackFooter component.
  */
 export default function JetpackFooter( {

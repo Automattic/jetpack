@@ -25,7 +25,6 @@ import './style.scss';
  * @param {string} props.redirectUri -- The redirect admin URI.
  * @param {string} props.from -- Where the connection request is coming from.
  * @param {Function} props.statusCallback -- Callback to pull connection status from the component.
- *
  * @returns {React.Component} The RNA connection component.
  */
 const ConnectButton = props => {
@@ -100,9 +99,6 @@ const ConnectButton = props => {
 
 					setAuthorizationUrl( response.authorizeUrl );
 					setIsUserConnecting( true );
-					setConnectionStatus( status => {
-						return { ...status, isRegistered: true };
-					} );
 				} )
 				.catch( error => {
 					setIsRegistering( false );
@@ -113,7 +109,6 @@ const ConnectButton = props => {
 			setIsRegistering,
 			setAuthorizationUrl,
 			connectionStatus,
-			setConnectionStatus,
 			onRegistered,
 			registrationNonce,
 			redirectUri,

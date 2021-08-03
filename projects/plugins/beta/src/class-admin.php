@@ -86,7 +86,7 @@ class Admin {
 	 */
 	public static function render() {
 		if ( is_network_admin() && ! is_plugin_active_for_network( JPBETA__PLUGIN_FOLDER . '/jetpack-beta.php' ) ) {
-			$exception = new \RuntimeException( __( 'Jetpack Beta Tester must be activated for the network to be used from Network Admin.', 'jetpack' ) );
+			$exception = new \RuntimeException( __( 'Jetpack Beta Tester must be activated for the network to be used from Network Admin.', 'jetpack-beta' ) );
 			require_once __DIR__ . '/admin/exception.template.php';
 			exit;
 		}
@@ -229,8 +229,11 @@ class Admin {
 			array(
 				'activate'   => __( 'Activate', 'jetpack-beta' ),
 				'activating' => __( 'Activating...', 'jetpack-beta' ),
+				'update'     => __( 'Update', 'jetpack-beta' ),
 				'updating'   => __( 'Updating...', 'jetpack-beta' ),
-				'leaving'    => __( 'Don\'t go Plugin is still installing!', 'jetpack-beta' ),
+				'failed'     => __( 'Failed', 'jetpack-beta' ),
+				// translators: %s: Error message.
+				'failedmsg'  => __( 'Update failed: %s', 'jetpack-beta' ),
 			)
 		);
 	}
