@@ -55,6 +55,10 @@
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run build-development"
 		],
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run dev"
+		],
 		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
 	},
 	"autoload-dev": {

@@ -22,6 +22,14 @@
    - yamato-backup-and-security
    - jetpack-approvers
 
+# The Backup team reviews changes to the Boost plugin.
+- name: Boost
+  paths:
+   - 'projects/plugins/boost/**'
+  teams:
+   - heart-of-gold
+   - jetpack-approvers
+
 # Jetpack Approvers review everything that hasn't been specifically assigned above.
 # This needs to be last.
 - name: Default to Jetpack Approvers
