@@ -21,6 +21,7 @@
 				<!-- Jetpack Beta plugin -->
 				<element value="jetpack-beta"/>
 				<element value="jetpack-backup"/>
+				<element value="jetpack-boost"/>
 			</property>
 		</properties>
 	</rule>

@@ -621,13 +621,33 @@ abstract class Base_Admin_Menu {
 	 */
 	public function handle_preferred_view() {
 		// phpcs:disable WordPress.Security.NonceVerification
-		if (
-			! isset( $_GET['preferred-view'] ) ||
-			! in_array( $_GET['preferred-view'], array( self::DEFAULT_VIEW, self::CLASSIC_VIEW ), true )
-		) {
+		if ( ! isset( $_GET['preferred-view'] ) ) {
 			return;
 		}
-		$this->set_preferred_view( $this->get_current_screen(), $_GET['preferred-view'] );
+
+		// phpcs:disable WordPress.Security.NonceVerification
+		$preferred_view = $_GET['preferred-view'];
+
+		if ( ! in_array( $preferred_view, array( self::DEFAULT_VIEW, self::CLASSIC_VIEW ), true ) ) {
+			return;
+		}
+
+		$current_screen = $this->get_current_screen();
+
+		$this->set_preferred_view( $current_screen, $preferred_view );
+
+		/**
+		 * Dashboard Quick switcher action triggered when a user switches to a different view.
+		 *
+		 * @module masterbar
+		 *
+		 * @since 9.9.1
+		 *
+		 * @param string The current screen of the user.
+		 * @param string The preferred view the user selected.
+		 */
+		\do_action( 'jetpack_dashboard_switcher_changed_view', $current_screen, $preferred_view );
+
 		if ( wp_doing_ajax() ) {
 			wp_die();
 		}
