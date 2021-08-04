@@ -197,9 +197,9 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 	 * Series of actions to be performed when a failure is detected
 	 *
 	 * @param {string} eventFullName the event in which the failure occurred (e.g. test name)
-	 * @param {string} parentName the event's parent name (e.g. describe block name)
-	 * @param {string} eventName the event in which the failure occurred (e.g. test name)
-	 * @param {Object} error the error object that triggered the failure
+	 * @param {string} parentName    the event's parent name (e.g. describe block name)
+	 * @param {string} eventName     the event in which the failure occurred (e.g. test name)
+	 * @param {Object} error         the error object that triggered the failure
 	 * @return {Promise<void>}
 	 */
 	async onFailure( eventFullName, parentName, eventName, error ) {

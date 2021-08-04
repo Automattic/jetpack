@@ -24,7 +24,6 @@ import './style.scss';
  * @param {Function} props.onDisconnected -- The callback to be called upon disconnection success.
  * @param {Function} props.onError -- The callback to be called upon disconnection failure.
  * @param {Function} props.errorMessage -- The error message to display upon disconnection failure.
- *
  * @returns {React.Component} The `DisconnectDialog` component.
  */
 
