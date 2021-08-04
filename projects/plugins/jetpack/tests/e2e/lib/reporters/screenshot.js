@@ -11,9 +11,9 @@ const { fileNameFormatter } = require( '../utils-helper' );
 /**
  * Takes a screenshot of the given page
  *
- * @param {page} page Playwright page instance
+ * @param {page}   page     Playwright page instance
  * @param {string} fileName screenshot file name
- * @param {Object} allure instance of allure reporter
+ * @param {Object} allure   instance of allure reporter
  * @return {Promise<void>}
  */
 async function takeScreenshot( page, fileName, allure ) {

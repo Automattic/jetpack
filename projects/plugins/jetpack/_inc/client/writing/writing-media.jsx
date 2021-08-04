@@ -23,7 +23,6 @@ import { isModuleFound as _isModuleFound } from 'state/search';
  * Renders controls to activate the carousel and additional settings.
  *
  * @param {object} props - Component properties.
- *
  * @returns {object} - Controls for carousel.
  */
 function WritingMedia( props ) {
@@ -35,15 +34,7 @@ function WritingMedia( props ) {
 
 	const displayComments = props.getOptionValue( 'carousel_display_comments', 'carousel' );
 	const displayExif = props.getOptionValue( 'carousel_display_exif', 'carousel' );
-	const displaySlideBackground = props.getOptionValue(
-		'carousel_display_slide_background',
-		'carousel'
-	);
 	const isCarouselActive = props.getOptionValue( 'carousel' );
-
-	const handleCarouselDisplaySlideBackgroundChange = () => {
-		props.updateFormStateModuleOption( 'carousel', 'carousel_display_slide_background' );
-	};
 
 	const handleCarouselDisplayExifChange = () => {
 		props.updateFormStateModuleOption( 'carousel', 'carousel_display_exif' );
@@ -60,7 +51,6 @@ function WritingMedia( props ) {
 	 * @param {string} optionName - Name of the option that the toggle state will be saved to.
 	 * @param {Function} onChangeHandler - Method to call when the toggle is clicked.
 	 * @param {string} label - Description for the toggle.
-	 *
 	 * @returns {object} A compact toggle component.
 	 */
 	const renderToggle = ( checked, optionName, onChangeHandler, label ) => (
@@ -116,12 +106,6 @@ function WritingMedia( props ) {
 						'carousel_display_comments',
 						handleCarouselDisplayCommentsChange,
 						__( 'Show comments area in carousel', 'jetpack' )
-					) }
-					{ renderToggle(
-						displaySlideBackground,
-						'carousel_display_slide_background',
-						handleCarouselDisplaySlideBackgroundChange,
-						__( 'Display colorized slide backgrounds', 'jetpack' )
 					) }
 					<FormFieldset>
 						<p className="jp-form-setting-explanation">

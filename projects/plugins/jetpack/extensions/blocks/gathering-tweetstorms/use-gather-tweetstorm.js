@@ -19,7 +19,6 @@ import { useSelect, dispatch } from '@wordpress/data';
  *
  * @param {object}   o - Function parameters.
  * @param {Function} o.onReplace - The onReplace() function passed down from the block.
- *
  * @returns {object} Object whether the API call is still running, and unleashStorm(),
  * a function to replace the current block with the tweetstorm content.
  */

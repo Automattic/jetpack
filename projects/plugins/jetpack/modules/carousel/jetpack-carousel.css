@@ -47,6 +47,12 @@
 	width: 100vw;
 }
 
+.jp-carousel-overlay .swiper-zoom-container {
+	background-size: 200%;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
 /*
 To prevent flash of prev/next image scale transition after pinch zoom we need to hide them.
 Swiper does not add a class of `swiper-slide-zoomed` to slides on pinch and zoom
@@ -103,12 +109,6 @@ so we have to target all affected elements in touch devices.
 
 .jp-carousel-overlay * {
 	box-sizing: border-box;
-}
-
-/* Prevent flickering of the background in Safari */
-.jp-carousel-overlay .swiper-slide {
-	transform: translateZ( 0 );
-	-webkit-transform: translateZ( 0 );
 }
 
 /* Fix for Twenty Nineteen theme compatibility */
