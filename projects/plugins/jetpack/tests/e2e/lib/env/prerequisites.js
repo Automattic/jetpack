@@ -69,8 +69,6 @@ async function buildPrerequisites( state ) {
 	logger.prerequisites( JSON.stringify( state, null, 2 ) );
 
 	for ( const option of Object.keys( state ) ) {
-		logger.prerequisites( `Evaluating option: ${ option }=${ state[ option ] }` );
-
 		if ( state[ option ] !== undefined ) {
 			if ( functions[ option ] ) {
 				logger.prerequisites( `Ensuring '${ option }' prerequisite state` );

@@ -17,7 +17,7 @@ const myCustomLevels = {
 	colors: {
 		action: 'cyan',
 		step: 'cyan',
-		prerequisites: 'redBG cyan', //todo change bg - only temp to find it easier while debugging
+		prerequisites: 'cyan',
 		cli: 'cyanBG black',
 	},
 };
