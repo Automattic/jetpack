@@ -95,7 +95,7 @@ class Config {
 		}
 
 		if ( $this->config['my-plans'] ) {
-			// Ensure my-plans is loaded
+			// Ensure my-plans is loaded.
 			( $this->ensure_class( 'Automattic\Jetpack\JITMS\JITM', false )
 				|| $this->ensure_class( 'Automattic\Jetpack\JITM' ) )
 			&& $this->ensure_feature( 'jitm' );
@@ -197,8 +197,11 @@ class Config {
 		return true;
 	}
 
+	/**
+	 * Enables the My Plans feature.
+	 */
 	protected function enable_my_plans() {
-		// Automattic\Jetpack\MyPlansUI\Admin ... etc
+		// Automattic\Jetpack\MyPlansUI\Admin ... etc.
 	}
 
 	/**
