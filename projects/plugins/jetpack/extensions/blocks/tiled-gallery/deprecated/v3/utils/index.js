@@ -22,11 +22,9 @@ export function isSquareishLayout( layout ) {
  * @param  {number} img.height - Image height
  * @param  {string} img.url    - Image URL
  * @param  {number} img.width  - Image width
- *
  * @param   {Object} galleryAtts             - Gallery attributes relevant for image optimization.
  * @param   {string} galleryAtts.layoutStyle - Gallery layout. 'rectangular', 'circle', etc.
  * @param   {number} galleryAtts.columns     - Gallery columns. Not applicable for all layouts.
- *
  * @returns {Object} - Returns an object. If possible, the object will include `src` and `srcSet`
  * properties {string} for use on an image.
  */
@@ -133,7 +131,6 @@ function isWpcomFilesUrl( url ) {
  *
  * @param   {string} url  - Image url
  * @param   {Object} opts - Options to pass to photon
- *
  * @returns {string}      - Url string with options applied
  */
 function photonWpcomImage( url, opts = {} ) {

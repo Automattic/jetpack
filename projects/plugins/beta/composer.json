@@ -49,7 +49,7 @@
 	"prefer-stable": true,
 	"config": {
 		"sort-packages": true,
-		"autoloader-suffix": "567fa3f555de8fd218dfdc1688bb97b5_betaⓥ3_0_0"
+		"autoloader-suffix": "567fa3f555de8fd218dfdc1688bb97b5_betaⓥ3_0_3_alpha"
 	},
 	"extra": {
 		"autotagger": true,

@@ -5,7 +5,6 @@ import { testStep } from '../lib/reporters/reporter';
  *
  * @group post-connection
  * @group recommendations
- *
  */
 describe( 'Recommendations (Jetpack Assistant)', () => {
 	it( 'Recommendations (Jetpack Assistant)', async () => {

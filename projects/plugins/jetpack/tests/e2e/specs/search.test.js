@@ -11,6 +11,8 @@ import {
 	setupSearchWidget,
 	disableInstantSearch,
 	disableSearchModule,
+	getBlockWidgets,
+	setupBlockWidgets,
 } from '../lib/search-helper';
 import { testStep } from '../lib/reporters/reporter';
 
@@ -18,23 +20,26 @@ import { testStep } from '../lib/reporters/reporter';
  *
  * @group post-connection
  * @group search
- *
  */
 describe( 'Search', () => {
 	let homepage;
 	let backupSidebarsWidgets;
+	let backupBlockWidgets;
 
 	beforeAll( async () => {
 		backupSidebarsWidgets = await getSidebarsWidgets();
+		backupBlockWidgets = await getBlockWidgets();
 		await syncJetpackPlanData( 'complete' );
 		await activateModule( page, 'search' );
 		await enableInstantSearch();
 		await setupSidebarsWidgets();
 		await setupSearchWidget();
+		await setupBlockWidgets();
 	} );
 
 	afterAll( async () => {
 		await setupSidebarsWidgets( backupSidebarsWidgets );
+		await setupBlockWidgets( backupBlockWidgets );
 		await disableSearchModule();
 		await disableInstantSearch();
 	} );

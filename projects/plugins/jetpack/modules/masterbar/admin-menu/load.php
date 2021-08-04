@@ -7,10 +7,13 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
+use Automattic\Jetpack\Tracking;
+
 /**
  * Checks whether the navigation customizations should be performed for the given class.
  *
  * @param string $admin_menu_class Class name.
+ *
  * @return bool
  */
 function should_customize_nav( $admin_menu_class ) {
@@ -86,5 +89,28 @@ function get_admin_menu_class() {
  */
 $admin_menu_class = apply_filters( 'jetpack_admin_menu_class', get_admin_menu_class() );
 if ( should_customize_nav( $admin_menu_class ) ) {
+	/** The admin menu singleton instance. @var Base_Admin_Menu $instance */
 	$admin_menu_class::get_instance();
+
+	/**
+	 * Trigger an event when the user uses the dashboard quick switcher.
+	 *
+	 * @param string $screen The current screen.
+	 * @param string $view The view the user choosed to go to.
+	 */
+	function dashboard_quick_switcher_record_usage( $screen, $view ) {
+		require_once __DIR__ . '/class-dashboard-switcher-tracking.php';
+
+		$tracking = new Dashboard_Switcher_Tracking(
+			new Tracking( Dashboard_Switcher_Tracking::get_jetpack_tracking_product() ),
+			array( Dashboard_Switcher_Tracking::class, 'wpcom_tracks_record_event' ),
+			Dashboard_Switcher_Tracking::get_plan()
+		);
+
+		$tracking->record_switch_event( $screen, $view );
+	}
+
+	\add_action( 'jetpack_dashboard_switcher_changed_view', __NAMESPACE__ . '\dashboard_quick_switcher_record_usage', 10, 2 );
+} else {
+	\add_filter( 'jetpack_load_admin_menu_class', '__return_false' );
 }

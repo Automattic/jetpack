@@ -28,8 +28,8 @@ const cardCredentials = config.get( 'testCardCredentials' );
 /**
  * Goes through connection flow via classic (calypso) flow
  *
- * @param {Object} o Optional object with params such as `plan` and `mockPlanData`
- * @param {string} o.plan
+ * @param {Object}  o              Optional object with params such as `plan` and `mockPlanData`
+ * @param {string}  o.plan
  * @param {boolean} o.mockPlanData
  */
 export async function connectThroughWPAdmin( { plan = 'complete', mockPlanData = false } = {} ) {

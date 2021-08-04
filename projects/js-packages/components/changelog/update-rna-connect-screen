@@ -1,4 +1,0 @@
-Significance: major
-Type: added
-
-Moving the getRedirectUrl() function from Jetpack to the RNA Components package.

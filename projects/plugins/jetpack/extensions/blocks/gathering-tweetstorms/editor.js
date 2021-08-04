@@ -24,7 +24,6 @@ import './editor.scss';
  * to import the tweetstorm.
  *
  * @param {object} blockSettings - The settings of the block being registered.
- *
  * @returns {object} The blockSettings, with our extra functionality inserted.
  */
 const addTweetstormToTweets = blockSettings => {
