@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack_Boost\Tests;
 
 use Brain\Monkey;
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 require_once __DIR__ . '/mocks.php';
 
@@ -15,12 +16,11 @@ if ( ! defined( 'JETPACK_BOOST_DIR_PATH' ) ) {
  *
  * @package Automattic\Jetpack_Boost\Tests
  */
-abstract class Base_Test_Case extends \PHPUnit\Framework\TestCase {
+abstract class Base_Test_Case extends TestCase {
 	/**
-	 * Setup.
+	 * @before
 	 */
-	protected function setUp() {
-		parent::setUp();
+	protected function set_up() {
 		Monkey\setUp();
 
 		add_filter(
@@ -38,9 +38,9 @@ abstract class Base_Test_Case extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * Teardown.
+	 * @after
 	 */
-	protected function tearDown() {
+	protected function tear_down() {
 		Monkey\tearDown();
 	}
 }
