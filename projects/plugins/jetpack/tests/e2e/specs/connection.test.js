@@ -9,9 +9,7 @@ import { resetWordpressInstall } from '../lib/utils-helper';
 import Sidebar from '../lib/pages/wp-admin/sidebar';
 import JetpackPage from '../lib/pages/wp-admin/jetpack';
 import DashboardPage from '../lib/pages/wp-admin/dashboard';
-
-// Disable pre-connect for this test suite
-process.env.SKIP_CONNECT = true;
+import { prerequisitesBuilder } from '../lib/env/prerequisites';
 
 /**
  *
@@ -19,6 +17,7 @@ process.env.SKIP_CONNECT = true;
  */
 describe( 'Connection', () => {
 	beforeEach( async () => {
+		await prerequisitesBuilder().withConnection( false ).build();
 		await loginToWpCom( 'defaultUser', true );
 		await loginToWpSite( true );
 		await DashboardPage.visit( page );

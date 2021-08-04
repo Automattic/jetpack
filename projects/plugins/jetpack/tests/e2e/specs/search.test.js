@@ -12,7 +12,8 @@ import {
 	getBlockWidgets,
 	setupBlockWidgets,
 } from '../lib/search-helper';
-import { prerequisites } from '../lib/env/prerequisites';
+import { prerequisitesBuilder } from '../lib/env/prerequisites';
+import { Plans } from '../lib/env/types';
 
 /**
  *
@@ -25,7 +26,11 @@ describe( 'Search', () => {
 	let backupBlockWidgets;
 
 	beforeAll( async () => {
-		await prerequisites( { connected: true, plan: 'complete', modules: { active: [ 'search' ] } } );
+		await prerequisitesBuilder()
+			.withConnection( true )
+			.withPlan( Plans.Complete )
+			.withActiveModules( [ 'search' ] )
+			.build();
 
 		backupSidebarsWidgets = await getSidebarsWidgets();
 		backupBlockWidgets = await getBlockWidgets();
@@ -37,7 +42,6 @@ describe( 'Search', () => {
 
 	afterAll( async () => {
 		await setupSidebarsWidgets( backupSidebarsWidgets );
-		await prerequisites( { modules: { inactive: [ 'search' ] } } );
 		await setupBlockWidgets( backupBlockWidgets );
 		await disableInstantSearch();
 	} );

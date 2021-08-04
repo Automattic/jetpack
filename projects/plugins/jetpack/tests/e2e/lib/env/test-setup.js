@@ -1,5 +1,5 @@
 import logger from '../logger';
-import { prerequisites } from './prerequisites';
+import { prerequisitesBuilder } from './prerequisites';
 
 export const step = async ( stepName, fn ) => {
 	logger.step( `Step: ${ stepName }` );
@@ -7,5 +7,5 @@ export const step = async ( stepName, fn ) => {
 };
 
 beforeAll( async () => {
-	await prerequisites( { loggedIn: true, wpComLoggedIn: true } );
+	await prerequisitesBuilder().withLoggedIn( true ).withWpComLoggedIn( true ).build();
 } );

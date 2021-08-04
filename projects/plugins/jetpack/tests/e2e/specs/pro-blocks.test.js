@@ -1,11 +1,12 @@
 import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
 import PostFrontendPage from '../lib/pages/postFrontend';
 import MailchimpBlock from '../lib/pages/wp-admin/blocks/mailchimp';
-import { activateModule, execMultipleWpCommands } from '../lib/utils-helper';
+import { execMultipleWpCommands } from '../lib/utils-helper';
 import SimplePaymentBlock from '../lib/pages/wp-admin/blocks/simple-payments';
 import WordAdsBlock from '../lib/pages/wp-admin/blocks/word-ads';
 import { step } from '../lib/env/test-setup';
-import { prerequisites } from '../lib/env/prerequisites';
+import { prerequisitesBuilder } from '../lib/env/prerequisites';
+import { Plans } from '../lib/env/types';
 
 /**
  *
@@ -18,9 +19,11 @@ describe( 'Paid blocks', () => {
 	let blockEditor;
 
 	beforeAll( async () => {
-		await prerequisites( { connected: true, plan: 'complete' } );
-		await activateModule( page, 'publicize' );
-		await activateModule( page, 'wordads' );
+		await prerequisitesBuilder()
+			.withConnection( true )
+			.withPlan( Plans.Complete )
+			.withActiveModules( [ 'publicize', 'wordads' ] )
+			.build();
 	} );
 
 	beforeEach( async () => {

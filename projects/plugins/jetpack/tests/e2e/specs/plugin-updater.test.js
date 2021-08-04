@@ -11,9 +11,6 @@ import PluginsPage from '../lib/pages/wp-admin/plugins';
 import DashboardPage from '../lib/pages/wp-admin/dashboard';
 import JetpackPage from '../lib/pages/wp-admin/jetpack';
 
-// Disable pre-connect for this test suite
-process.env.SKIP_CONNECT = true;
-
 /**
  *
  * @group pre-connection

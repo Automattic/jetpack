@@ -11,19 +11,55 @@ import fs from 'fs';
 import config from 'config';
 import { loginToWpCom, loginToWpSite } from '../flows/log-in';
 
-export async function prerequisites(
-	state = {
-		loggedId: undefined,
+export function prerequisitesBuilder() {
+	const state = {
+		loggedIn: undefined,
 		wpComLoggedIn: undefined,
 		connected: undefined,
 		plan: undefined, // 'free', 'complete', etc
-		modules: { active: [], inactive: [] },
+		modules: { active: undefined, inactive: undefined },
 		clean: undefined, // reset env
-	}
-) {
+	};
+
+	return {
+		withLoggedIn( shouldBeLoggedIn ) {
+			state.loggedIn = shouldBeLoggedIn;
+			return this;
+		},
+		withWpComLoggedIn( shouldBeLoggedIn ) {
+			state.wpComLoggedIn = shouldBeLoggedIn;
+			return this;
+		},
+		withConnection( shouldBeConnected ) {
+			state.connected = shouldBeConnected;
+			return this;
+		},
+		withPlan( plan ) {
+			state.plan = plan;
+			return this;
+		},
+		withActiveModules( modules = [] ) {
+			state.modules.active = modules;
+			return this;
+		},
+		withInactiveModules( modules = [] ) {
+			state.modules.inactive = modules;
+			return this;
+		},
+		withCleanEnv( shouldCleanEnv ) {
+			state.clean = shouldCleanEnv;
+			return this;
+		},
+		async build() {
+			await buildPrerequisites( state );
+		},
+	};
+}
+
+async function buildPrerequisites( state ) {
 	const functions = {
-		loggedIn: () => ensureUserIsLoggedIn( state.loggedId ),
-		wpComLoggedIn: () => ensureWpComUserIsLoggedIn( state.loggedId ),
+		loggedIn: () => ensureUserIsLoggedIn( state.loggedIn ),
+		wpComLoggedIn: () => ensureWpComUserIsLoggedIn( state.loggedIn ),
 		connected: () => ensureConnectedState( state.connected ),
 		plan: () => ensurePlan( state.plan ),
 		modules: () => ensureModulesState( state.modules ),

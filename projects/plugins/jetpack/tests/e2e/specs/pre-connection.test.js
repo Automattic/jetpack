@@ -5,10 +5,7 @@ import JetpackPage from '../lib/pages/wp-admin/jetpack';
 import { execWpCommand } from '../lib/utils-helper';
 import path from 'path';
 import config from 'config';
-import { prerequisites } from '../lib/env/prerequisites';
-
-// Disable pre-connect for this test suite
-process.env.SKIP_CONNECT = true;
+import { prerequisitesBuilder } from '../lib/env/prerequisites';
 
 /**
  *
@@ -16,11 +13,7 @@ process.env.SKIP_CONNECT = true;
  */
 describe( 'Jetpack pre-connection', () => {
 	beforeAll( async () => {
-		await prerequisites( { connected: false } );
-		// await execMultipleWpCommands(
-		// 	'wp option delete jetpack_private_options',
-		// 	'wp option delete jetpack_sync_error_idc'
-		// );
+		await prerequisitesBuilder().withConnection( false ).build();
 	} );
 
 	beforeEach( async () => {

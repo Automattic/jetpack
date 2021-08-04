@@ -4,7 +4,8 @@ import PinterestBlock from '../lib/pages/wp-admin/blocks/pinterest';
 import EventbriteBlock from '../lib/pages/wp-admin/blocks/eventbrite';
 import { step } from '../lib/env/test-setup';
 import config from 'config';
-import { prerequisites } from '../lib/env/prerequisites';
+import { prerequisitesBuilder } from '../lib/env/prerequisites';
+import { Plans } from '../lib/env/types';
 
 /**
  *
@@ -18,8 +19,7 @@ describe( 'Free blocks', () => {
 	let blockEditor;
 
 	beforeAll( async () => {
-		await prerequisites( { connected: true, plan: 'free' } );
-		// await syncJetpackPlanData( 'free' );
+		await prerequisitesBuilder().withConnection( true ).withPlan( Plans.Free ).build();
 	} );
 
 	beforeEach( async () => {
