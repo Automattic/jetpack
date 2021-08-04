@@ -4,8 +4,7 @@
  * string.
  *
  * @template DefaultType
- *
- * @param {*} value - External value to process as a string
+ * @param {*}           value        - External value to process as a string
  * @param {DefaultType} defaultValue - Default value to return if not a string
  * @return {string | DefaultType} value as a string, of defaultValue.
  */
