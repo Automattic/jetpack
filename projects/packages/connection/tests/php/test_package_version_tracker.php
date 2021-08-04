@@ -12,6 +12,41 @@ use PHPUnit\Framework\TestCase;
 class Test_Package_Version_Tracker extends TestCase {
 
 	/**
+	 * Whether an http request to the jetpack-package-versions endoint was attempted.
+	 *
+	 * @var bool
+	 */
+	private $http_request_attempted = false;
+
+	/**
+	 * An array of package versions.
+	 */
+	const PACKAGE_VERSIONS = array(
+		'connection' => '1.0',
+		'backup'     => '2.0',
+		'sync'       => '3.0',
+	);
+
+	/**
+	 * An array of package versions that are different
+	 * from the versions in PACKAGE_VERSIONS.
+	 */
+	const CHANGED_VERSIONS = array(
+		'connection' => '1.2',
+		'backup'     => '3.4',
+		'sync'       => '4.5',
+	);
+
+	/**
+	 * Returning the environment into its initial state.
+	 *
+	 * @after
+	 */
+	public function tear_down() {
+		$this->http_request_attempted = false;
+	}
+
+	/**
 	 * Tests the maybe_update_package_versions method.
 	 *
 	 * @param array $option_value The value that will be set in the 'jetpack_package_versions' option.
@@ -20,12 +55,13 @@ class Test_Package_Version_Tracker extends TestCase {
 	 *                              is called.
 	 * @param bool  $updated Whether the option should be updated.
 	 *
-	 * @dataProvider jetpack_api_constant_filter_data_provider
+	 * @dataProvider jetpack_maybe_update_package_versions_data_provider
 	 */
 	public function test_maybe_update_package_versions( $option_value, $filter_value, $expected_value, $updated ) {
-		$tracker = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Package_Version_Tracker' )
-			->setMethods( array( 'update_package_versions_option' ) )
-			->getMock();
+		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		\Jetpack_Options::update_option( 'id', 1234 );
+
+		add_filter( 'pre_http_request', array( $this, 'intercept_http_request_success' ) );
 
 		update_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION, $option_value );
 
@@ -36,23 +72,15 @@ class Test_Package_Version_Tracker extends TestCase {
 			}
 		);
 
-		if ( $updated ) {
-			$tracker->expects( $this->once() )
-				->method( 'update_package_versions_option' )
-				->with(
-					$this->callback(
-						function ( $package_versions ) {
-							update_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION, $package_versions );
-							return true;
-						}
-					)
-				);
-		} else {
-			$tracker->expects( $this->never() )
-				->method( 'update_package_versions_option' );
-		}
+		Package_Version_Tracker::maybe_update_package_versions();
 
-		$tracker->maybe_update_package_versions();
+		remove_filter( 'pre_http_request', array( $this, 'intercept_http_request_success' ) );
+
+		if ( $updated ) {
+			$this->assertTrue( $this->http_request_attempted );
+		} else {
+			$this->assertFalse( $this->http_request_attempted );
+		}
 
 		$this->assertSame( $expected_value, get_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION ) );
 	}
@@ -66,82 +94,70 @@ class Test_Package_Version_Tracker extends TestCase {
 	 *    'expected_value' => The expected value of the option after maybe_update_package_versions is called.
 	 *    'updated'        => Whether the option should be updated.
 	 */
-	public function jetpack_api_constant_filter_data_provider() {
-		$package_versions = array(
-			'connection' => '1.0',
-			'backup'     => '2.0',
-			'sync'       => '3.0',
-		);
+	public function jetpack_maybe_update_package_versions_data_provider() {
+		$added_version = array_merge( self::PACKAGE_VERSIONS, array( 'test' => '4.0' ) );
 
-		$changed_versions = array(
-			'connection' => '1.2',
-			'backup'     => '3.4',
-			'sync'       => '4.5',
-		);
-
-		$added_version = array_merge( $package_versions, array( 'test' => '4.0' ) );
-
-		$removed_version = $package_versions;
+		$removed_version = self::PACKAGE_VERSIONS;
 		unset( $removed_version['sync'] );
 
 		return array(
-			'versions did not change'  =>
+			'versions did not change'    =>
 				array(
-					'option_value'    => $package_versions,
-					'filter_value'    => $package_versions,
-					'expected_option' => $package_versions,
+					'option_value'    => self::PACKAGE_VERSIONS,
+					'filter_value'    => self::PACKAGE_VERSIONS,
+					'expected_option' => self::PACKAGE_VERSIONS,
 					'updated'         => false,
 				),
-			'option is empty'          =>
+			'option is empty'            =>
 				array(
 					'option_value'    => array(),
-					'filter_value'    => $package_versions,
-					'expected_option' => $package_versions,
+					'filter_value'    => self::PACKAGE_VERSIONS,
+					'expected_option' => self::PACKAGE_VERSIONS,
 					'updated'         => true,
 				),
-			'filter is empty'          =>
+			'filter is empty'            =>
 				array(
-					'option_value'    => $package_versions,
+					'option_value'    => self::PACKAGE_VERSIONS,
 					'filter_value'    => array(),
 					'expected_option' => array(),
 					'updated'         => true,
 				),
-			'versions changed'         =>
+			'versions changed'           =>
 				array(
-					'option_value'    => $package_versions,
-					'filter_value'    => $changed_versions,
-					'expected_option' => $changed_versions,
+					'option_value'    => self::PACKAGE_VERSIONS,
+					'filter_value'    => self::CHANGED_VERSIONS,
+					'expected_option' => self::CHANGED_VERSIONS,
 					'updated'         => true,
 				),
-			'filter added new package' =>
+			'filter added new package'   =>
 				array(
-					'option_value'    => $package_versions,
+					'option_value'    => self::PACKAGE_VERSIONS,
 					'filter_value'    => $added_version,
 					'expected_option' => $added_version,
 					'updated'         => true,
 				),
-			'filter removed a package' =>
+			'filter removed a package'   =>
 				array(
-					'option_value'    => $package_versions,
+					'option_value'    => self::PACKAGE_VERSIONS,
 					'filter_value'    => $removed_version,
 					'expected_option' => $removed_version,
 					'updated'         => true,
 				),
-			'filter not an array'      =>
+			'filter not an array'        =>
 				array(
-					'option_value'    => $package_versions,
+					'option_value'    => self::PACKAGE_VERSIONS,
 					'filter_value'    => 'not an array',
-					'expected_option' => $package_versions,
+					'expected_option' => self::PACKAGE_VERSIONS,
 					'updated'         => false,
 				),
-			'option not an array'      =>
+			'option not an array'        =>
 				array(
 					'option_value'    => 'not an array',
-					'filter_value'    => $package_versions,
-					'expected_option' => $package_versions,
+					'filter_value'    => self::PACKAGE_VERSIONS,
+					'expected_option' => self::PACKAGE_VERSIONS,
 					'updated'         => true,
 				),
-			'option, filter arrays'    =>
+			'option, filter both arrays' =>
 				array(
 					'option_value'    => 'option not an array',
 					'filter_value'    => 'filter not an array',
@@ -150,16 +166,15 @@ class Test_Package_Version_Tracker extends TestCase {
 				),
 			'filter version not string, option version is string' =>
 				array(
-					'option_value'    => $package_versions,
+					'option_value'    => self::PACKAGE_VERSIONS,
 					'filter_value'    => array(
 						'connection' => 1,
 						'backup'     => '1.0',
 						'sync'       => '2.0',
 					),
 					'expected_option' => array(
-						'connection' => '1.0',
-						'backup'     => '1.0',
-						'sync'       => '2.0',
+						'backup' => '1.0',
+						'sync'   => '2.0',
 					),
 					'updated'         => true,
 				),
@@ -183,18 +198,73 @@ class Test_Package_Version_Tracker extends TestCase {
 				),
 			'filter version not string, option version does not exist, no update' =>
 				array(
-					'option_value'    => $package_versions,
-					'filter_value'    => array_merge( $package_versions, array( 'test' => 5 ) ),
-					'expected_option' => $package_versions,
+					'option_value'    => self::PACKAGE_VERSIONS,
+					'filter_value'    => array_merge( self::PACKAGE_VERSIONS, array( 'test' => 5 ) ),
+					'expected_option' => self::PACKAGE_VERSIONS,
 					'updated'         => false,
 				),
 			'filter version not string, option version does not exist, with update' =>
 				array(
-					'option_value'    => $package_versions,
-					'filter_value'    => array_merge( $changed_versions, array( 'test' => 5 ) ),
-					'expected_option' => $changed_versions,
+					'option_value'    => self::PACKAGE_VERSIONS,
+					'filter_value'    => array_merge( self::CHANGED_VERSIONS, array( 'test' => 5 ) ),
+					'expected_option' => self::CHANGED_VERSIONS,
 					'updated'         => true,
 				),
 		);
+	}
+
+	/**
+	 * Tests the maybe_update_package_versions method when the HTTP request to WPCOM fails.
+	 */
+	public function test_maybe_update_package_versions_failure() {
+		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		\Jetpack_Options::update_option( 'id', 1234 );
+
+		add_filter( 'pre_http_request', array( $this, 'intercept_http_request_failure' ) );
+
+		update_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION, self::PACKAGE_VERSIONS );
+
+		add_filter(
+			'jetpack_package_versions',
+			function () {
+				return self::CHANGED_VERSIONS;
+			}
+		);
+
+		Package_Version_Tracker::maybe_update_package_versions();
+
+		remove_filter( 'pre_http_request', array( $this, 'intercept_http_request_failure' ) );
+
+		$this->assertTrue( $this->http_request_attempted );
+
+		$this->assertSame( self::PACKAGE_VERSIONS, get_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION ) );
+	}
+
+	/**
+	 * Intercept the API request sent to WP.com, and mock success response.
+	 *
+	 * @return array
+	 */
+	public function intercept_http_request_success() {
+		$this->http_request_attempted = true;
+
+		$response = array();
+
+		$response['response']['code'] = 200;
+		return $response;
+	}
+
+	/**
+	 * Intercept the API request sent to WP.com, and mock failure response.
+	 *
+	 * @return array
+	 */
+	public function intercept_http_request_failure() {
+		$this->http_request_attempted = true;
+
+		$response = array();
+
+		$response['response']['code'] = 400;
+		return $response;
 	}
 }

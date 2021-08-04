@@ -18,7 +18,7 @@ class Package_Version_Tracker {
 	 * Uses the jetpack_package_versions filter to obtain the package versions from packages that need
 	 * version tracking. If the package versions have changed, updates the option and notifies WPCOM.
 	 */
-	public function maybe_update_package_versions() {
+	public static function maybe_update_package_versions() {
 		/**
 		 * Obtains the package versions.
 		 *
@@ -34,56 +34,28 @@ class Package_Version_Tracker {
 
 		$option_versions = get_option( self::PACKAGE_VERSION_OPTION, array() );
 
-		$package_versions = static::prep_package_versions( $option_versions, $filter_versions );
-
-		if ( ! is_array( $option_versions ) ) {
-			$this->update_package_versions_option( $package_versions );
-			return;
-		}
-
-		if ( count( array_diff_assoc( $package_versions, $option_versions ) ) || count( array_diff_assoc( $option_versions, $package_versions ) ) ) {
-			$this->update_package_versions_option( $package_versions );
-		}
-	}
-
-	/**
-	 * Prepares the package versions by verifying that the package versions provided by the filter are
-	 * strings. If the filter provided a version that isn't a string, check whether the existing option version
-	 * is a string and, if it is, use that.
-	 *
-	 * @param array $option_versions The package versions stored in the option.
-	 * @param array $filter_versions The package versions provided by the filter.
-	 *
-	 * @return array The package versions.
-	 */
-	protected function prep_package_versions( $option_versions, $filter_versions ) {
-		$new_versions = array();
-
 		foreach ( $filter_versions as $package => $version ) {
-			if ( ! is_string( $package ) ) {
-				continue;
-			}
-
-			if ( is_string( $version ) ) {
-				$new_versions[ $package ] = $version;
-			} elseif ( isset( $option_versions[ $package ] ) && is_string( $option_versions[ $package ] ) ) {
-				$new_versions[ $package ] = $option_versions[ $package ];
+			if ( ! is_string( $package ) || ! is_string( $version ) ) {
+				unset( $filter_versions[ $package ] );
 			}
 		}
 
-		return $new_versions;
+		if ( ! is_array( $option_versions )
+			|| count( array_diff_assoc( $filter_versions, $option_versions ) )
+			|| count( array_diff_assoc( $option_versions, $filter_versions ) )
+		) {
+			static::update_package_versions_option( $filter_versions );
+		}
 	}
 
 	/**
 	 * Updates the package versions:
-	 *   - Updates the 'jetpack_package_versions' option.
 	 *   - Sends the updated package versions to wpcom.
+	 *   - Updates the 'jetpack_package_versions' option.
 	 *
 	 * @param array $package_versions The package versions.
 	 */
-	protected function update_package_versions_option( $package_versions ) {
-		update_option( self::PACKAGE_VERSION_OPTION, $package_versions );
-
+	private static function update_package_versions_option( $package_versions ) {
 		$site_id = \Jetpack_Options::get_option( 'id' );
 
 		$body = wp_json_encode(
@@ -92,7 +64,7 @@ class Package_Version_Tracker {
 			)
 		);
 
-		Client::wpcom_json_api_request_as_blog(
+		$response = Client::wpcom_json_api_request_as_blog(
 			sprintf( '/sites/%d/jetpack-package-versions', $site_id ),
 			'2',
 			array(
@@ -102,6 +74,10 @@ class Package_Version_Tracker {
 			$body,
 			'wpcom'
 		);
+
+		if ( 200 === wp_remote_retrieve_response_code( $response ) ) {
+			update_option( self::PACKAGE_VERSION_OPTION, $package_versions );
+		}
 	}
 
 }
