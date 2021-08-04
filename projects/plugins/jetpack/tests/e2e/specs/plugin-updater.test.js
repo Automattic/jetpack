@@ -1,15 +1,11 @@
 import { step } from '../lib/env/test-setup';
 import { doInPlaceConnection } from '../lib/flows/jetpack-connect';
-import {
-	execWpCommand,
-	prepareUpdaterTest,
-	resetWordpressInstall,
-	execMultipleWpCommands,
-} from '../lib/utils-helper';
+import { execWpCommand, prepareUpdaterTest, execMultipleWpCommands } from '../lib/utils-helper';
 import Sidebar from '../lib/pages/wp-admin/sidebar';
 import PluginsPage from '../lib/pages/wp-admin/plugins';
 import DashboardPage from '../lib/pages/wp-admin/dashboard';
 import JetpackPage from '../lib/pages/wp-admin/jetpack';
+import { prerequisitesBuilder } from '../lib/env/prerequisites';
 
 /**
  *
@@ -32,7 +28,7 @@ describe( 'Jetpack updater', () => {
 
 	afterAll( async () => {
 		await execWpCommand( 'wp plugin uninstall --deactivate jetpack' );
-		await resetWordpressInstall();
+		await prerequisitesBuilder().withCleanEnv().build();
 	} );
 
 	beforeEach( async () => {

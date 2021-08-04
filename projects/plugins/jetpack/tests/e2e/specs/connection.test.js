@@ -5,7 +5,6 @@ import {
 	doClassicConnection,
 } from '../lib/flows/jetpack-connect';
 import { loginToWpSite, loginToWpCom } from '../lib/flows/log-in';
-import { resetWordpressInstall } from '../lib/utils-helper';
 import Sidebar from '../lib/pages/wp-admin/sidebar';
 import JetpackPage from '../lib/pages/wp-admin/jetpack';
 import DashboardPage from '../lib/pages/wp-admin/dashboard';
@@ -25,7 +24,7 @@ describe( 'Connection', () => {
 	} );
 
 	afterEach( async () => {
-		await resetWordpressInstall();
+		await prerequisitesBuilder().withCleanEnv().build();
 	} );
 
 	it( 'In-place', async () => {

@@ -16,9 +16,9 @@ export function prerequisitesBuilder() {
 		loggedIn: undefined,
 		wpComLoggedIn: undefined,
 		connected: undefined,
-		plan: undefined, // 'free', 'complete', etc
+		plan: undefined,
 		modules: { active: undefined, inactive: undefined },
-		clean: undefined, // reset env
+		clean: undefined,
 	};
 
 	return {
