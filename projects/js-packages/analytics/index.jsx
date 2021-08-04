@@ -4,11 +4,6 @@
 import debugFactory from 'debug';
 import { assign } from 'lodash';
 
-/**
- * Internal dependencies
- */
-import config from '../../config';
-
 const debug = debugFactory( 'dops:analytics' );
 let _superProps, _user;
 
@@ -24,6 +19,13 @@ window.ga.l = +new Date();
 // loadScript( '//stats.wp.com/w.js?48' );
 // loadScript( '//www.google-analytics.com/analytics.js' );
 
+/**
+ * Build a query string
+ *
+ * @param {string} group - the group
+ * @param {string} name - the name
+ * @returns {string} - the uricomponent
+ */
 function buildQuerystring( group, name ) {
 	let uriComponent = '';
 
@@ -40,6 +42,13 @@ function buildQuerystring( group, name ) {
 	return uriComponent;
 }
 
+/**
+ * Build a query string with no prefix
+ *
+ * @param {string} group - the group
+ * @param {string} name - the name
+ * @returns {string} - the uricomponent
+ */
 function buildQuerystringNoPrefix( group, name ) {
 	let uriComponent = '';
 
@@ -63,6 +72,15 @@ const analytics = {
 		analytics.identifyUser();
 	},
 
+	setGoogleAnalyticsEnabled: function ( googleAnalyticsEnabled, googleAnalyticsKey = null ) {
+		this.googleAnalyticsEnabled = googleAnalyticsEnabled;
+		this.googleAnalyticsKey = googleAnalyticsKey;
+	},
+
+	setMcAnalyticsEnabled: function ( mcAnalyticsEnabled ) {
+		this.mcAnalyticsEnabled = mcAnalyticsEnabled;
+	},
+
 	setUser: function ( userId, username ) {
 		_user = { ID: userId, username: username };
 	},
@@ -74,7 +92,7 @@ const analytics = {
 	mc: {
 		bumpStat: function ( group, name ) {
 			const uriComponent = buildQuerystring( group, name ); // prints debug info
-			if ( config( 'mc_analytics_enabled' ) ) {
+			if ( this.mcAnalyticsEnabled ) {
 				new Image().src =
 					document.location.protocol +
 					'//pixel.wp.com/g.gif?v=wpcom-no-pv' +
@@ -87,7 +105,7 @@ const analytics = {
 		bumpStatWithPageView: function ( group, name ) {
 			// this function is fairly dangerous, as it bumps page views for wpcom and should only be called in very specific cases.
 			const uriComponent = buildQuerystringNoPrefix( group, name ); // prints debug info
-			if ( config( 'mc_analytics_enabled' ) ) {
+			if ( this.mcAnalyticsEnabled ) {
 				new Image().src =
 					document.location.protocol +
 					'//pixel.wp.com/g.gif?v=wpcom' +
@@ -164,7 +182,7 @@ const analytics = {
 						userId: 'u-' + _user.ID,
 					};
 				}
-				window.ga( 'create', config( 'google_analytics_key' ), 'auto', parameters );
+				window.ga( 'create', this.googleAnalyticsKey, 'auto', parameters );
 				analytics.ga.initialized = true;
 			}
 		},
@@ -174,7 +192,7 @@ const analytics = {
 
 			debug( 'Recording Page View ~ [URL: ' + urlPath + '] [Title: ' + pageTitle + ']' );
 
-			if ( config( 'google_analytics_enabled' ) ) {
+			if ( this.googleAnalyticsEnabled ) {
 				// Set the current page so all GA events are attached to it.
 				window.ga( 'set', 'page', urlPath );
 
@@ -201,7 +219,7 @@ const analytics = {
 
 			debug( debugText );
 
-			if ( config( 'google_analytics_enabled' ) ) {
+			if ( this.googleAnalyticsEnabled ) {
 				window.ga( 'send', 'event', category, action, label, value );
 			}
 		},

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /**
  * External dependencies
  */
@@ -13,6 +14,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { STORE_ID } from '../../store';
 import Header from '../header';
+import Masthead from '../masthead';
 import './style.scss';
 import ConnectRight from './assets/connect-right.png';
 
@@ -28,6 +30,8 @@ export default function Admin() {
 
 	return (
 		<React.Fragment>
+			<Masthead />
+			<Header />
 			<h1>My Plans UI initialized</h1>
 		</React.Fragment>
 	);
