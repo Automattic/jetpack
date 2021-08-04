@@ -150,7 +150,7 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 		}
 
 		// Docker.
-		const docker = file.match( /^(docker|tools\/docker)\// );
+		const docker = file.match( /^(projects\/plugins\/boost\/docker|tools\/docker)\// );
 		if ( docker !== null ) {
 			keywords.add( 'Docker' );
 		}
@@ -175,7 +175,9 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 		}
 
 		// React Dashboard and Boost Admin.
-		const reactAdmin = file.match( /^(app\/admin|projects\/plugins\/jetpack\/_inc\/client)\// );
+		const reactAdmin = file.match(
+			/^(projects\/plugins\/boost\/app\/admin|projects\/plugins\/jetpack\/_inc\/client)\//
+		);
 		if ( reactAdmin !== null ) {
 			keywords.add( 'Admin Page' );
 		}
@@ -195,14 +197,18 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 		}
 
 		// Boost Critical CSS.
-		const boostModules = file.match( /^app\/modules\/(?<boostModule>[^/]*)\// );
+		const boostModules = file.match(
+			/^projects\/plugins\/boost\/app\/modules\/(?<boostModule>[^/]*)\//
+		);
 		const boostModuleName = boostModules && boostModules.groups.boostModule;
 		if ( boostModuleName ) {
 			keywords.add( `${ cleanName( boostModuleName ) }` );
 		}
 
 		// Compatibility with 3rd party tools (Boost and Jetpack).
-		const compat = file.match( /^(compatibility|projects\/plugins\/jetpack\/3rd-party)\// );
+		const compat = file.match(
+			/^(projects\/plugins\/boost\/compatibility|projects\/plugins\/jetpack\/3rd-party)\//
+		);
 		if ( compat ) {
 			keywords.add( 'Compatibility' );
 		}

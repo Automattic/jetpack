@@ -10,12 +10,16 @@ BASE=$PWD
 # Print help and exit.
 function usage {
 	cat <<-EOH
-		usage: $0 [-u] [-v]
+		usage: $0 [-u] [-v] [-U] [<slug> ...]
 
 		Check that all composer and pnpm dependencies between monorepo projects are up to date.
 
 		If \`-u\` is passed, update any that aren't and add changelogger change files
 		for the updates.
+
+		If \`-U\` is passed, update any that aren't but do not create a change file.
+
+		If <slug> is passed, only that project is checked.
 	EOH
 	exit 1
 }
@@ -23,8 +27,16 @@ function usage {
 # Sets options.
 UPDATE=false
 VERBOSE=false
-while getopts ":uvh" opt; do
+DOCL_EVER=true
+while getopts ":uUvh" opt; do
 	case ${opt} in
+		u)
+			UPDATE=true
+			;;
+		U)
+			UPDATE=true
+			DOCL_EVER=false
+			;;
 		u)
 			UPDATE=true
 			;;
@@ -65,20 +77,29 @@ function get_packages {
 
 get_packages
 
-# Use a temp variable so pipefail works
-TMP="$(tools/get-build-order.php 2>/dev/null)"
-TMP=monorepo$'\n'"$TMP"
 SLUGS=()
-mapfile -t SLUGS <<<"$TMP"
+if [[ $# -le 0 ]]; then
+	# Use a temp variable so pipefail works
+	TMP="$(tools/get-build-order.php 2>/dev/null)"
+	TMP=monorepo$'\n'"$TMP"
+	mapfile -t SLUGS <<<"$TMP"
+else
+	SLUGS=( "$@" )
+fi
 
 if $UPDATE; then
-	debug "Making sure changelogger is runnable"
-	(cd projects/packages/changelogger && composer update --quiet)
+	DID_CL_INSTALL=false
 	CL="$BASE/projects/packages/changelogger/bin/changelogger"
 
 	function changelogger {
 		local SLUG="$1"
 		local ARGS
+
+		if ! $DID_CL_INSTALL; then
+			debug "Making sure changelogger is runnable"
+			(cd projects/packages/changelogger && composer update --quiet)
+			DID_CL_INSTALL=true
+		fi
 
 		ARGS=()
 		ARGS=( add --no-interaction --significance=patch )
@@ -106,6 +127,7 @@ if $UPDATE; then
 fi
 
 EXIT=0
+ANYJS=false
 for SLUG in "${SLUGS[@]}"; do
 	debug "Checking dependencies of $SLUG"
 	if [[ "$SLUG" == packages/* ]]; then
@@ -119,7 +141,7 @@ for SLUG in "${SLUGS[@]}"; do
 		PHPFILE=composer.json
 		JSFILE=package.json
 	else
-		DOCL=true
+		DOCL=$DOCL_EVER
 		DIR="projects/$SLUG"
 		PHPFILE="projects/$SLUG/composer.json"
 		JSFILE="projects/$SLUG/package.json"
@@ -141,6 +163,7 @@ for SLUG in "${SLUGS[@]}"; do
 			if [[ "$JSON" != "$(<"$JSFILE")" ]]; then
 				info "JS dependencies of $SLUG changed!"
 				echo "$JSON" > "$JSFILE"
+				ANYJS=true
 
 				if $DOCL; then
 					info "Creating changelog entry for $SLUG"
@@ -184,7 +207,7 @@ for SLUG in "${SLUGS[@]}"; do
 	fi
 done
 
-if $UPDATE; then
+if $ANYJS; then
 	debug "Updating pnpm-lock.yaml"
 	pnpm install --silent
 fi
