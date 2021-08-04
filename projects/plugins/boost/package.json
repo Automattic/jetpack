@@ -61,7 +61,7 @@
 		"build-production-php": "rm -rf vendor/ && COMPOSER_MIRROR_PATH_REPOS=1 COMPOSER_ROOT_VERSION=dev-master composer install -o --no-dev --classmap-authoritative --prefer-dist",
 		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
 		"dev-serve": "rollup -c -w --environment SERVE",
-		"dev": "npm run clear-dist && rollup -c -w",
+		"dev": "pnpm run clear-dist && rollup -c -w",
 		"validate": "svelte-check --ignore docker",
 		"lint": "npm-run-all --parallel lint:js lint:php",
 		"lint:fix": "npm-run-all --parallel lint:js:fix lint:php:fix",
