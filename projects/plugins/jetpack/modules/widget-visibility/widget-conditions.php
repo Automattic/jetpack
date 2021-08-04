@@ -289,7 +289,7 @@ class Jetpack_Widget_Conditions {
 			);
 
 			$widget_conditions_terms   = array();
-			$widget_conditions_terms[] = array( $taxonomy->name, __( 'All pages', 'jetpack' ) );
+			$widget_conditions_terms[] = array( $taxonomy->name, $taxonomy->labels->all_items );
 
 			foreach ( $taxonomy_terms as $term ) {
 				$widget_conditions_terms[] = array( $taxonomy->name . '_tax_' . $term->term_id, $term->name );
