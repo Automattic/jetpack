@@ -128,7 +128,7 @@ class Jetpack_Search_Dashboard_Page extends Jetpack_Admin_Page {
 
 		if ( ! ( new Status() )->is_offline_mode() && Jetpack::is_connection_ready() ) {
 			// Required for Analytics.
-			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+			Automattic\Jetpack\Tracking::register_tracks_functions_scripts( true );
 		}
 
 		wp_enqueue_script(
