@@ -19,7 +19,6 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-redux-sta
  * @package Automattic\Jetpack\Search
  */
 class Jetpack_Search_Dashboard_Page extends Jetpack_Admin_Page {
-	const JETPACK_SEARCH_PLANS = array( 'jetpack_search', 'jetpack_complete' );
 	/**
 	 * Show the settings page only when Jetpack is connected or in dev mode.
 	 *
