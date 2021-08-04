@@ -30,7 +30,7 @@ if ( 'undefined' !== typeof window && process.env.NODE_ENV === 'development' ) {
 render();
 
 /**
- *
+ * Render the admin page
  */
 function render() {
 	const container = document.getElementById( 'jp-plugin-container' );
