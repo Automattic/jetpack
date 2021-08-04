@@ -4,6 +4,7 @@
 import React, { Fragment, useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { sprintf, __ } from '@wordpress/i18n';
+import { createInterpolateElement } from '@wordpress/element';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
@@ -172,8 +173,10 @@ function Search( props ) {
 								toggling={ togglingInstantSearch }
 								className="is-search-admin"
 							>
-								{ __( 'Enable instant search experience ', 'jetpack' ) }
-								<span>{ __( '(recommended)', 'jetpack' ) }</span>
+								{ createInterpolateElement(
+									__( 'Enable instant search experience <span>(recommended)</span>', 'jetpack' ),
+									{ span: <span /> }
+								) }
 							</CompactFormToggle>
 							<div className="jp-form-search-settings-group__toggle-description">
 								{ ! hasOnlyLegacySearch && (
