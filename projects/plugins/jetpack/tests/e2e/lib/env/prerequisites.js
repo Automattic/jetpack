@@ -59,7 +59,7 @@ export function prerequisitesBuilder() {
 async function buildPrerequisites( state ) {
 	const functions = {
 		loggedIn: () => ensureUserIsLoggedIn( state.loggedIn ),
-		wpComLoggedIn: () => ensureWpComUserIsLoggedIn( state.loggedIn ),
+		wpComLoggedIn: () => ensureWpComUserIsLoggedIn( state.wpComLoggedIn ),
 		connected: () => ensureConnectedState( state.connected ),
 		plan: () => ensurePlan( state.plan ),
 		modules: () => ensureModulesState( state.modules ),
