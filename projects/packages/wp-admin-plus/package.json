@@ -1,0 +1,37 @@
+{
+	"name": "jetpack-wpadmin-plus-ui",
+	"version": "0.0.1-alpha",
+	"description": "WPAdmin Plus UI",
+	"main": "_inc/index.js",
+	"repository": "https://github.com/automattic/jetpack-wp-admin-plus",
+	"author": "Automattic",
+	"license": "GPL-2.0-or-later",
+	"scripts": {
+		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
+		"build-all": "pnpm run install-if-deps-outdated && pnpm run clean && pnpm run build",
+		"build": "wp-scripts build src/index.js",
+		"start": "wp-scripts start src/index.js",
+		"clean": "rm -rf build/",
+		"lint:css": "wp-scripts lint-style",
+		"lint:js": "wp-scripts lint-js",
+		"watch": "pnpm run build-all && pnpm run start"
+	},
+	"dependencies": {
+		"@wordpress/core-data": "4.0.0",
+		"@wordpress/data": "5.2.0",
+		"@wordpress/date": "4.2.1",
+		"@wordpress/dom-ready": "3.2.1",
+		"@wordpress/element": "4.0.0",
+		"@wordpress/i18n": "4.2.1"
+	},
+	"devDependencies": {
+		"@wordpress/scripts": "17.1.0",
+		"enzyme": "3.11.0",
+		"jest": "26.6.3"
+	},
+	"engines": {
+		"node": "^14.16.1",
+		"pnpm": "^6.5.0",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	}
+}
