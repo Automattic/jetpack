@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.8.22
+ * Version: 2.8.23
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.8.22' );
+define( 'WPCOMSH_VERSION', '2.8.23' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -292,26 +292,13 @@ add_action(
 	11 // Priority 11 so it runs after VaultPress `admin_head` hook
 );
 
-function wpcomsh_set_up_auto_update_policy() {
-	// TODO: Remove this block again once we know how to stop Jetpack auto-updates from breaking sites
-	if ( is_callable( 'Jetpack::is_active' ) && Jetpack::is_active() ) {
-		// Disable core auto updates for plugins because Jetpack updates plugins more safely and quickly
-		add_filter( 'plugins_auto_update_enabled', '__return_false' );
-	}
-}
-
-// Re-enable plugin auto-updates for a limited percentage of sites. Currently: 75%
-if ( defined( 'ATOMIC_SITE_ID' ) && ( ATOMIC_SITE_ID % 1000 ) < 750 ) {
-	// Force Jetpack to update plugins one-at-a-time to avoid a site-breaking core concurrent update bug
-	if (
-		! defined( 'JETPACK_PLUGIN_AUTOUPDATE' ) &&
-		0 === strncmp( $_SERVER['REQUEST_URI'], '/xmlrpc.php?', strlen( '/xmlrpc.php?' ) )
-	)  {
-		define( 'JETPACK_PLUGIN_AUTOUPDATE', true );
-	}
-} else {
-	// Continue disabling plugin auto-updates for Jetpack-connected sites
-	add_action( 'plugins_loaded', 'wpcomsh_set_up_auto_update_policy' );
+// Force Jetpack to update plugins one-at-a-time to avoid a site-breaking core concurrent update bug
+// https://core.trac.wordpress.org/ticket/53705
+if (
+	! defined( 'JETPACK_PLUGIN_AUTOUPDATE' ) &&
+	0 === strncmp( $_SERVER['REQUEST_URI'], '/xmlrpc.php?', strlen( '/xmlrpc.php?' ) )
+)  {
+	define( 'JETPACK_PLUGIN_AUTOUPDATE', true );
 }
 
 /**
