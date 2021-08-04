@@ -76,7 +76,7 @@ VE=$(sed 's/[&\\/]/\\&/g' <<<"$VERSION")
 cd "$BASE"
 EXIT=0
 for FILE in $(git ls-files "projects/$SLUG/"); do
-	grep -F -q '$$next-version$$' "$FILE" || continue
+	grep -F -q '$$next-version$$' "$FILE" 2>/dev/null || continue
 	debug "Processing $FILE"
 
 	sed -i.bak -E -e 's!(@since|@deprecated( [sS]ince)?) \$\$next-version\$\$!\1 '"$VE"'!g' "$FILE"
