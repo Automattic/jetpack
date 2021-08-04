@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/a8c-mc-stats",
-                "reference": "2fbbda91a42089d2589d9a98e73dac04197d436c"
+                "reference": "c922996fa6d50ef7288e3022c1531f20869aea86"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^1.2",
@@ -52,7 +52,8 @@
             ],
             "description": "Used to record internal usage stats for Automattic. Not visible to site owners.",
             "transport-options": {
-                "monorepo": true
+                "monorepo": true,
+                "relative": true
             }
         },
         {
@@ -61,7 +62,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "0877de1af4d5610a84f126ae9dec94ebcdef846f"
+                "reference": "bd0e49700afef81db5bd04e9c0948956e1d89262"
             },
             "require": {
                 "automattic/jetpack-constants": "^1.6"
@@ -105,7 +106,8 @@
             ],
             "description": "Asset management utilities for Jetpack ecosystem packages",
             "transport-options": {
-                "monorepo": true
+                "monorepo": true,
+                "relative": true
             }
         },
         {
@@ -114,7 +116,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "53360f972cbdc20f6118dc9f172a0db85db4b3cb"
+                "reference": "95ff0278a5308e68e73dd68d1af98251fbbdbb4e"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0"
@@ -162,7 +164,8 @@
             ],
             "description": "Creates a custom autoloader for a plugin or theme.",
             "transport-options": {
-                "monorepo": true
+                "monorepo": true,
+                "relative": true
             }
         },
         {
@@ -171,7 +174,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/config",
-                "reference": "8b3fe091be77ea12330b67b68f2d4358d71ec2fd"
+                "reference": "5cc8275ac867ff99e527da0df9e8f14ec53b11fd"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^1.2"
@@ -197,7 +200,8 @@
             ],
             "description": "Jetpack configuration package that initializes other packages and configures Jetpack's functionality. Can be used as a base for all variants of Jetpack package usage.",
             "transport-options": {
-                "monorepo": true
+                "monorepo": true,
+                "relative": true
             }
         },
         {
@@ -206,7 +210,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "53a8db6b40347b2537d29a35f11bccd7396fdcb6"
+                "reference": "be4296dc62f27520d9b2443114c4b60605f73829"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -269,7 +273,8 @@
             ],
             "description": "Everything needed to connect to the Jetpack infrastructure",
             "transport-options": {
-                "monorepo": true
+                "monorepo": true,
+                "relative": true
             }
         },
         {
@@ -278,7 +283,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/constants",
-                "reference": "2ea9565bfd60da001b0a483f48ebf05c2163c687"
+                "reference": "4af9f14f6a08c81318d4067b891ef610f343b963"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^1.2",
@@ -319,7 +324,8 @@
             ],
             "description": "A wrapper for defining constants in a more testable way.",
             "transport-options": {
-                "monorepo": true
+                "monorepo": true,
+                "relative": true
             }
         },
         {
@@ -328,7 +334,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/device-detection",
-                "reference": "fafcc17c1dfa5caf9d880d6f4782c6d6d27d88a4"
+                "reference": "68a5cff39e5295fecbc20d36812364fa38b9771c"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^1.2",
@@ -368,7 +374,8 @@
             ],
             "description": "A way to detect device types based on User-Agent header.",
             "transport-options": {
-                "monorepo": true
+                "monorepo": true,
+                "relative": true
             }
         },
         {
@@ -377,7 +384,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/heartbeat",
-                "reference": "350e65b22fb7fc30b33904b73282b58b0c013046"
+                "reference": "61ace4b3610758699836e73aec6437886458ac89"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -407,7 +414,8 @@
             ],
             "description": "This adds a cronjob that sends a batch of internal automattic stats to wp.com once a day",
             "transport-options": {
-                "monorepo": true
+                "monorepo": true,
+                "relative": true
             }
         },
         {
@@ -416,7 +424,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/lazy-images",
-                "reference": "cbe8d54f60d6de5917a7e120b18296129ca275b4"
+                "reference": "949b657ccbf0f096060d9e162374b6320579ee7f"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.11",
@@ -472,7 +480,8 @@
             ],
             "description": "Speed up your site and create a smoother viewing experience by loading images as visitors scroll down the screen, instead of all at once.",
             "transport-options": {
-                "monorepo": true
+                "monorepo": true,
+                "relative": true
             }
         },
         {
@@ -481,7 +490,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/options",
-                "reference": "a5e386040e6290b1f815ac76d79e720d0fe5cf83"
+                "reference": "de833a41411fb82163b4c08a52d3471c294b60cc"
             },
             "require": {
                 "automattic/jetpack-constants": "^1.6"
@@ -511,7 +520,8 @@
             ],
             "description": "A wrapper for wp-options to manage specific Jetpack options.",
             "transport-options": {
-                "monorepo": true
+                "monorepo": true,
+                "relative": true
             }
         },
         {
@@ -520,7 +530,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/redirect",
-                "reference": "8ae061ec917c465982864538347d651c621b3792"
+                "reference": "d938cb5a235ca9ec3033ef813e707150e734b012"
             },
             "require": {
                 "automattic/jetpack-status": "^1.8"
@@ -564,7 +574,8 @@
             ],
             "description": "Utilities to build URLs to the jetpack.com/redirect/ service",
             "transport-options": {
-                "monorepo": true
+                "monorepo": true,
+                "relative": true
             }
         },
         {
@@ -573,7 +584,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/roles",
-                "reference": "93f01a8b286d91db89e973a24f2b4ad03fd341cb"
+                "reference": "bde868c2636fca7fca76b29a7df23fcd437481fc"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^1.2",
@@ -614,7 +625,8 @@
             ],
             "description": "Utilities, related with user roles and capabilities.",
             "transport-options": {
-                "monorepo": true
+                "monorepo": true,
+                "relative": true
             }
         },
         {
@@ -623,7 +635,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "2ce76bfdbefe96a6749f06e06b088c6010a25881"
+                "reference": "4a1ba2a67535fb016333d45dd16acdd6727fc99f"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^1.2",
@@ -664,7 +676,8 @@
             ],
             "description": "Used to retrieve information about the current status of Jetpack and the site overall.",
             "transport-options": {
-                "monorepo": true
+                "monorepo": true,
+                "relative": true
             }
         },
         {
@@ -673,7 +686,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/terms-of-service",
-                "reference": "e3a6d12ff1b0a08e2ababdc0c1bc5c47db3f27d7"
+                "reference": "59f0b86b1266b57bf1265ec53034ff4f68cca285"
             },
             "require": {
                 "automattic/jetpack-options": "^1.13",
@@ -718,7 +731,8 @@
             ],
             "description": "Everything need to manage the terms of service state",
             "transport-options": {
-                "monorepo": true
+                "monorepo": true,
+                "relative": true
             }
         },
         {
@@ -727,7 +741,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/tracking",
-                "reference": "0e93a78dc879e05894af3fc932599de9dec47e32"
+                "reference": "4b86a2dbf128dff3f57cbbeb210d916a09ccdf61"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.11",
@@ -774,7 +788,8 @@
             ],
             "description": "Tracking for Jetpack",
             "transport-options": {
-                "monorepo": true
+                "monorepo": true,
+                "relative": true
             }
         },
         {
@@ -825,6 +840,12 @@
                 "issues": "https://github.com/tedious/JShrink/issues",
                 "source": "https://github.com/tedious/JShrink/tree/v1.4.0"
             },
+            "funding": [
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/tedivm/jshrink",
+                    "type": "tidelift"
+                }
+            ],
             "time": "2020-11-30T18:10:21+00:00"
         }
     ],
@@ -879,7 +900,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "d181890934d520c7921f27b123fe7f3c70736a52"
+                "reference": "53fd89e7f369d1cb46106845aa91bac842cd70f9"
             },
             "require": {
                 "php": ">=5.6",
@@ -938,7 +959,8 @@
             ],
             "description": "Jetpack Changelogger tool. Allows for managing changelogs by dropping change files into a changelog directory with each PR.",
             "transport-options": {
-                "monorepo": true
+                "monorepo": true,
+                "relative": true
             }
         },
         {
@@ -962,6 +984,7 @@
             "require-dev": {
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5 || ^9.0"
             },
+            "default-branch": true,
             "type": "wordpress-dropin",
             "autoload": {
                 "psr-4": {
@@ -1048,6 +1071,10 @@
                 "test",
                 "testing"
             ],
+            "support": {
+                "issues": "https://github.com/Brain-WP/BrainMonkey/issues",
+                "source": "https://github.com/Brain-WP/BrainMonkey"
+            },
             "time": "2020-10-13T17:56:14+00:00"
         },
         {
@@ -3923,5 +3950,6 @@
     "platform-dev": [],
     "platform-overrides": {
         "ext-intl": "0.0.0"
-    }
+    },
+    "plugin-api-version": "2.0.0"
 }
