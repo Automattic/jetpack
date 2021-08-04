@@ -2,10 +2,10 @@
 
 namespace Automattic\Jetpack_Boost\Tests;
 
-require_once __DIR__ . '/mocks.php';
-require_once __DIR__ . '/../../autoload-lib.php';
+use Brain\Monkey;
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
-use WP_Mock\Tools\TestCase;
+require_once __DIR__ . '/mocks.php';
 
 if ( ! defined( 'JETPACK_BOOST_DIR_PATH' ) ) {
 	define( 'JETPACK_BOOST_DIR_PATH', __DIR__ . '/../..' );
@@ -18,10 +18,10 @@ if ( ! defined( 'JETPACK_BOOST_DIR_PATH' ) ) {
  */
 abstract class Base_Test_Case extends TestCase {
 	/**
-	 * Setup.
+	 * @before
 	 */
-	public function setUp() {
-		\WP_Mock::setUp();
+	protected function set_up() {
+		Monkey\setUp();
 
 		add_filter(
 			'jetpack_boost_module_enabled',
@@ -38,9 +38,9 @@ abstract class Base_Test_Case extends TestCase {
 	}
 
 	/**
-	 * Teardown.
+	 * @after
 	 */
-	public function tearDown() {
-		\WP_Mock::tearDown();
+	protected function tear_down() {
+		Monkey\tearDown();
 	}
 }
