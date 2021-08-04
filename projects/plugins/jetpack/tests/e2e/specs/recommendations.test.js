@@ -6,7 +6,6 @@ import { prerequisites } from '../lib/env/prerequisites';
  *
  * @group post-connection
  * @group recommendations
- *
  */
 describe( 'Recommendations (Jetpack Assistant)', () => {
 	beforeAll( async () => {

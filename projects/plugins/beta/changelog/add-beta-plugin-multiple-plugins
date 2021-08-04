@@ -1,4 +1,0 @@
-Significance: major
-Type: added
-
-Added support for more than just the Jetpack plugin. This involved a major internal code restructuring.

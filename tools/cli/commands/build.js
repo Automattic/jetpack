@@ -139,7 +139,6 @@ export async function buildCli( argv ) {
  * Command definition for the build subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
- *
  * @returns {object} Yargs with the build commands defined.
  */
 export function buildDefine( yargs ) {

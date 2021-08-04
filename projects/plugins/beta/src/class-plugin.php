@@ -477,6 +477,11 @@ class Plugin {
 			deactivate_plugins( 'jetpack-pressable-beta/jetpack.php' );
 		}
 
+		// If we're asked to install "unknown", that means the unknown stable version.
+		if ( 'unknown' === $source ) {
+			return $this->select_active( 'stable', true );
+		}
+
 		// Load the info array and identify if it's "dev" or "stable".
 		$ret = $this->get_which_and_info( $source, $id );
 		if ( is_wp_error( $ret ) ) {
@@ -563,6 +568,11 @@ class Plugin {
 		) {
 			// It's an RC that has a new version.
 			list( , $info ) = $this->get_which_and_info( 'rc', '' );
+		} elseif ( 'master' === $dev_info->source && isset( $manifest->master ) &&
+			Semver::greaterThan( $manifest->master->version, $dev_info->version )
+		) {
+			// Master has been updated.
+			list( , $info ) = $this->get_which_and_info( 'master', '' );
 		}
 
 		if ( $info ) {

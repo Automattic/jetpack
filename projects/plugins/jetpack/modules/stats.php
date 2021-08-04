@@ -64,6 +64,7 @@ function stats_load() {
 	add_filter( 'manage_pages_columns', 'jetpack_stats_post_table' );
 	add_action( 'manage_posts_custom_column', 'jetpack_stats_post_table_cell', 10, 2 );
 	add_action( 'manage_pages_custom_column', 'jetpack_stats_post_table_cell', 10, 2 );
+
 }
 
 /**
@@ -464,6 +465,9 @@ function stats_admin_path() {
  * @return void
  */
 function stats_reports_load() {
+	require_once __DIR__ . '/stats/class-jetpack-stats-upgrade-nudges.php';
+	Jetpack_Stats_Upgrade_Nudges::init();
+
 	wp_enqueue_script( 'jquery' );
 	wp_enqueue_script( 'postbox' );
 	wp_enqueue_script( 'underscore' );
@@ -495,7 +499,7 @@ function stats_reports_load() {
 function stats_reports_css() {
 	?>
 <style type="text/css">
-#jp-stats-wrap {
+#jp-stats-wrap, #jp-stats-report-bottom {
 	max-width: 1040px;
 	margin: 0 auto;
 	overflow: hidden;

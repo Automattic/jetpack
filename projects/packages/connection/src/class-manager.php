@@ -697,11 +697,16 @@ class Manager {
 	 * @todo Refactor to properly load the XMLRPC client independently.
 	 *
 	 * @param Integer $user_id the user identifier.
-	 * @return Object the user object.
+	 * @return bool|array An array with the WPCOM user data on success, false otherwise.
 	 */
 	public function get_connected_user_data( $user_id = null ) {
 		if ( ! $user_id ) {
 			$user_id = get_current_user_id();
+		}
+
+		// Check if the user is connected and return false otherwise.
+		if ( ! $this->is_user_connected( $user_id ) ) {
+			return false;
 		}
 
 		$transient_key    = "jetpack_connected_user_data_$user_id";
@@ -717,6 +722,7 @@ class Manager {
 			)
 		);
 		$xml->query( 'wpcom.getUser' );
+
 		if ( ! $xml->isError() ) {
 			$user_data = $xml->getResponse();
 			set_transient( $transient_key, $xml->getResponse(), DAY_IN_SECONDS );
@@ -1987,6 +1993,13 @@ class Manager {
 
 			\Jetpack_Options::update_option( 'unique_connection', $jetpack_unique_connection );
 		}
+
+		/**
+		 * Fires when a site is disconnected.
+		 *
+		 * @since 1.30.1
+		 */
+		do_action( 'jetpack_site_disconnected' );
 	}
 
 	/**

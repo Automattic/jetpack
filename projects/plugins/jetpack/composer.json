@@ -55,6 +55,7 @@
 		"test-coverage": [
 			"Composer\\Config::disableProcessTimeout",
 			"@composer install",
+			"@php tools/build-module-headings-translations.php",
 			"tests/action-test-coverage.sh"
 		],
 		"test-js": [
@@ -65,6 +66,7 @@
 		"test-php": [
 			"Composer\\Config::disableProcessTimeout",
 			"@composer install",
+			"@php tools/build-module-headings-translations.php",
 			"tests/action-test-php.sh"
 		],
 		"watch": [
@@ -93,7 +95,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ10_0_alpha"
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ10_1_alpha"
 	},
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-production",

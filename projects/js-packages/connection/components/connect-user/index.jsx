@@ -17,7 +17,6 @@ import restApi from '../../tools/jetpack-rest-api-client';
  * @param {string} props.connectUrl -- The authorization URL (no-iframe).
  * @param {string} props.redirectUri -- The redirect admin URI.
  * @param {string} props.from -- Where the connection request is coming from.
- *
  * @returns {null} -- Nothing to return.
  */
 const ConnectUser = props => {

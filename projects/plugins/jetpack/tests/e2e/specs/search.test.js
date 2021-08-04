@@ -9,6 +9,8 @@ import {
 	setupSidebarsWidgets,
 	setupSearchWidget,
 	disableInstantSearch,
+	getBlockWidgets,
+	setupBlockWidgets,
 } from '../lib/search-helper';
 import { prerequisites } from '../lib/env/prerequisites';
 
@@ -16,24 +18,27 @@ import { prerequisites } from '../lib/env/prerequisites';
  *
  * @group post-connection
  * @group search
- *
  */
 describe( 'Search', () => {
 	let homepage;
 	let backupSidebarsWidgets;
+	let backupBlockWidgets;
 
 	beforeAll( async () => {
 		await prerequisites( { connected: true, plan: 'complete', modules: { active: [ 'search' ] } } );
 
 		backupSidebarsWidgets = await getSidebarsWidgets();
+		backupBlockWidgets = await getBlockWidgets();
 		await enableInstantSearch();
 		await setupSidebarsWidgets();
 		await setupSearchWidget();
+		await setupBlockWidgets();
 	} );
 
 	afterAll( async () => {
 		await setupSidebarsWidgets( backupSidebarsWidgets );
 		await prerequisites( { modules: { inactive: [ 'search' ] } } );
+		await setupBlockWidgets( backupBlockWidgets );
 		await disableInstantSearch();
 	} );
 
