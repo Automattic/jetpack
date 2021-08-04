@@ -296,12 +296,12 @@ importers:
       '@wordpress/element': ^3.1.1
       '@wordpress/i18n': ^4.1.1
       '@wordpress/prettier-config': ^1.0.5
-      babel-jest: ^27.0.2
+      babel-jest: 27.0.6
       eslint: ^7.31.0
       eslint-plugin-import: 2.23.4
       eslint-plugin-svelte3: ^3.2.0
       expect-puppeteer: ^5.0.4
-      jest: ^27.0.4
+      jest: 27.0.6
       jest-puppeteer: ^5.0.4
       jetpack-boost-critical-css-gen: git+ssh://git@github.com/automattic/jetpack-boost-critical-css-gen.git#trunk
       node-sass: ^6.0.0
@@ -2564,7 +2564,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.12.10
-      '@babel/helper-plugin-utils': 7.13.0
+      '@babel/helper-plugin-utils': 7.14.5
 
   /@babel/plugin-syntax-optional-catch-binding/7.8.3_@babel+core@7.13.14:
     resolution: {integrity: sha512-6VPD0Pc1lpTqw0aKoeRTMiB+kWhAoT24PA+ksWSBrFtl5SIRVpZlwN3NNPQjehA2E/91FV3RjLWoVTglWcSV3Q==}
@@ -2572,7 +2572,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.13.14
-      '@babel/helper-plugin-utils': 7.13.0
+      '@babel/helper-plugin-utils': 7.14.5
 
   /@babel/plugin-syntax-optional-catch-binding/7.8.3_@babel+core@7.14.6:
     resolution: {integrity: sha512-6VPD0Pc1lpTqw0aKoeRTMiB+kWhAoT24PA+ksWSBrFtl5SIRVpZlwN3NNPQjehA2E/91FV3RjLWoVTglWcSV3Q==}
@@ -2580,7 +2580,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.14.6
-      '@babel/helper-plugin-utils': 7.13.0
+      '@babel/helper-plugin-utils': 7.14.5
     dev: true
 
   /@babel/plugin-syntax-optional-chaining/7.8.3_@babel+core@7.12.10:
@@ -7193,7 +7193,7 @@ packages:
       webpack: ^4.8.3 || ^5.0.0
     dependencies:
       json2php: 0.0.4
-      webpack: 4.46.0_webpack-cli@4.5.0
+      webpack: 4.46.0
       webpack-sources: 2.2.0
     dev: true
 
@@ -8616,7 +8616,7 @@ packages:
       '@types/babel__core': 7.1.14
       babel-plugin-istanbul: 6.0.0
       babel-preset-jest: 27.0.6_@babel+core@7.14.6
-      chalk: 4.1.1
+      chalk: 4.1.2
       graceful-fs: 4.2.4
       slash: 3.0.0
     transitivePeerDependencies:
@@ -13890,7 +13890,7 @@ packages:
   /isomorphic-fetch/2.2.1:
     resolution: {integrity: sha1-YRrhrPFPXoH3KVB0coGf6XM1WKk=}
     dependencies:
-      node-fetch: 2.6.1
+      node-fetch: 1.7.3
       whatwg-fetch: 3.6.2
     dev: false
 
@@ -16320,6 +16320,13 @@ packages:
 
   /node-contains/1.0.0:
     resolution: {integrity: sha1-0sJzUkU22jtWGvBTnjM0T3yQLLg=}
+    dev: false
+
+  /node-fetch/1.7.3:
+    resolution: {integrity: sha512-NhZ4CsKx7cYm2vSrBAr2PvFOe6sWDf0UYLRqA6svUYg7+/TSfVAu49jYC4BvQ4Sms9SZgdqGBgroqfDhJdTyKQ==}
+    dependencies:
+      encoding: 0.1.13
+      is-stream: 1.1.0
     dev: false
 
   /node-fetch/2.6.1:
@@ -20424,7 +20431,7 @@ packages:
       find-cache-dir: 2.1.0
       is-wsl: 1.1.0
       schema-utils: 1.0.0
-      serialize-javascript: 5.0.1
+      serialize-javascript: 4.0.0
       source-map: 0.6.1
       terser: 4.8.0
       webpack: 4.45.0
@@ -20442,7 +20449,7 @@ packages:
       find-cache-dir: 2.1.0
       is-wsl: 1.1.0
       schema-utils: 1.0.0
-      serialize-javascript: 5.0.1
+      serialize-javascript: 4.0.0
       source-map: 0.6.1
       terser: 4.8.0
       webpack: 4.46.0_webpack-cli@4.5.0
@@ -21905,6 +21912,12 @@ packages:
     resolution: {integrity: sha512-WOkpgNhPTlE73h4VFAFsOnomJVaovO8VqLDzy5saChRBFQFBoMYirowyW+Q9HB4HFF4Z7VZTiG3iSzJJA29yRA==}
     engines: {node: '>=10'}
 
+  /yargs-parser/5.0.1:
+    resolution: {integrity: sha512-wpav5XYiddjXxirPoCTUPbqM0PXvJ9hiBMvuJgInvo4/lAOTZzUprArw17q2O1P2+GHhbBr18/iQwjL5Z9BqfA==}
+    dependencies:
+      camelcase: 3.0.0
+      object.assign: 4.1.2
+
   /yargs-unparser/2.0.0:
     resolution: {integrity: sha512-7pRTIA9Qc1caZ0bZ6RYRGbHJthJWuakf+WmHK0rVeLkNrrGhfoabBNdue6kdINI6r4if7ocq9aD/n7xwKOdzOA==}
     engines: {node: '>=10'}
@@ -21999,7 +22012,7 @@ packages:
       string-width: 1.0.2
       which-module: 1.0.0
       y18n: 3.2.2
-      yargs-parser: 20.2.4
+      yargs-parser: 5.0.1
 
   /yauzl/2.10.0:
     resolution: {integrity: sha1-x+sXyT4RLLEIb6bY5R+wZnt5pfk=}
