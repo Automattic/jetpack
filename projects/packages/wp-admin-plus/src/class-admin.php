@@ -60,7 +60,6 @@ class Admin {
 
 		if ( $is_wp_admin_plus && 'edit.php' === $hook ) {
 			$build_assets = require_once __DIR__ . '/../build/index.asset.php';
-
 			$plugin_path = Assets::get_file_url_for_environment( '../build/index.js', '../build/index.js', __FILE__ );
 
 			wp_enqueue_script(
@@ -82,6 +81,14 @@ class Admin {
 				'jetpack_wpadminplus_ui_style',
 				'rtl',
 				plugin_dir_url( __DIR__ ) . 'build/index.rtl.css'
+			);
+
+			wp_localize_script(
+				'jetpack_wpadminplus_ui_script',
+				'Jetpack_WPAdmin_Plus',
+				array(
+					'postType' => get_query_var( 'post_type' ),
+				)
 			);
 		}
 	}
