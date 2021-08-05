@@ -5,8 +5,9 @@ import { assign } from 'lodash';
 
 /**
  * Helps create new custom error classes to better notify upper layers.
- * @param {String} name the Error name that will be availble in Error.name
- * @return {Error}      a new custom error class.
+ *
+ * @param {string} name - the Error name that will be availble in Error.name
+ * @returns {Error}      a new custom error class.
  */
 function createCustomError( name ) {
 	class CustomError extends Error {
@@ -24,6 +25,12 @@ export const Api404Error = createCustomError( 'Api404Error' );
 export const Api404AfterRedirectError = createCustomError( 'Api404AfterRedirectError' );
 export const FetchNetworkError = createCustomError( 'FetchNetworkError' );
 
+/**
+ * Create a Jetpack Rest Api Client
+ *
+ * @param {string} root - The API root
+ * @param {string} nonce - The API Nonce
+ */
 function JetpackRestApiClient( root, nonce ) {
 	let apiRoot = root,
 		headers = {
@@ -39,7 +46,8 @@ function JetpackRestApiClient( root, nonce ) {
 			headers: assign( {}, headers, {
 				'Content-type': 'application/json',
 			} ),
-		};
+		},
+		cacheBusterCallback = addCacheBuster;
 
 	const methods = {
 		setApiRoot( newRoot ) {
@@ -60,6 +68,9 @@ function JetpackRestApiClient( root, nonce ) {
 					'Content-type': 'application/json',
 				} ),
 			};
+		},
+		setCacheBusterCallback: callback => {
+			cacheBusterCallback = callback;
 		},
 
 		fetchSiteConnectionStatus: () =>
@@ -373,6 +384,12 @@ function JetpackRestApiClient( root, nonce ) {
 			} ).then( checkStatus ),
 	};
 
+	/**
+	 * The default callback to add a cachebuster parameter to route
+	 *
+	 * @param {string} route - the route
+	 * @returns {string} - the route with the cachebuster appended
+	 */
 	function addCacheBuster( route ) {
 		const parts = route.split( '?' ),
 			query = parts.length > 1 ? parts[ 1 ] : '',
@@ -383,14 +400,35 @@ function JetpackRestApiClient( root, nonce ) {
 		return parts[ 0 ] + '?' + args.join( '&' );
 	}
 
+	/**
+	 * Generate a request promise for the route and params. Automatically adds a cachebuster.
+	 *
+	 * @param {string} route - the route
+	 * @param {object} params - the params
+	 * @returns {Promise<Response>} - the http request promise
+	 */
 	function getRequest( route, params ) {
-		return fetch( addCacheBuster( route ), params );
+		return fetch( cacheBusterCallback( route ), params );
 	}
 
+	/**
+	 * Generate a POST request promise for the route and params. Automatically adds a cachebuster.
+	 *
+	 * @param {string} route - the route
+	 * @param {object} params - the params
+	 * @param {string} body - the body
+	 * @returns {Promise<Response>} - the http response promise
+	 */
 	function postRequest( route, params, body ) {
 		return fetch( route, assign( {}, params, body ) ).catch( catchNetworkErrors );
 	}
 
+	/**
+	 * Returns the stats data URL for the given date range
+	 *
+	 * @param {string} range - the range
+	 * @returns {string} - the stats URL
+	 */
 	function statsDataUrl( range ) {
 		let url = `${ apiRoot }jetpack/v4/module/stats/data`;
 		if ( url.indexOf( '?' ) !== -1 ) {
@@ -401,6 +439,12 @@ function JetpackRestApiClient( root, nonce ) {
 		return url;
 	}
 
+	/**
+	 * Returns stats data if possible, otherwise an empty object
+	 *
+	 * @param {object} statsData - the stats data or error
+	 * @returns {object} - the handled stats data
+	 */
 	function handleStatsResponseError( statsData ) {
 		// If we get a .response property, it means that .com's response is errory.
 		// Probably because the site does not have stats yet.
@@ -418,6 +462,12 @@ const restApi = new JetpackRestApiClient();
 
 export default restApi;
 
+/**
+ * Check the status of the response. Throw an error if it was not OK
+ *
+ * @param {Response} response - the API response
+ * @returns {Promise<object>} - a promise to return the parsed JSON body as an object
+ */
 function checkStatus( response ) {
 	// Regular success responses
 	if ( response.status >= 200 && response.status < 300 ) {
@@ -444,16 +494,31 @@ function checkStatus( response ) {
 		} );
 }
 
+/**
+ * Parse the JSON response
+ *
+ * @param {Response} response - the response object
+ * @returns {Promise<object>} - promise to return the parsed json object
+ */
 function parseJsonResponse( response ) {
 	return response.json().catch( e => catchJsonParseError( e, response.redirected, response.url ) );
 }
 
+/**
+ * Throw appropriate exception given an API error
+ *
+ * @param {Error} e - the error
+ * @param {boolean} redirected - are we being redirected?
+ * @param {string} url - the URL that returned the error
+ */
 function catchJsonParseError( e, redirected, url ) {
 	const err = redirected ? new JsonParseAfterRedirectError( url ) : new JsonParseError();
 	throw err;
 }
 
-// Catches TypeError coming from the Fetch API implementation
+/**
+ * Catches TypeError coming from the Fetch API implementation
+ */
 function catchNetworkErrors() {
 	//Either one of:
 	// * A preflight error like a redirection to an external site (which results in a CORS)

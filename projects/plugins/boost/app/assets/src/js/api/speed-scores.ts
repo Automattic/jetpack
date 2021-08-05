@@ -129,7 +129,7 @@ async function pollRequest( requestId: string ): Promise< SpeedScores > {
  * Given a mobile and desktop score, return a letter summarizing the overall
  * score.
  *
- * @param {number} mobile Mobile speed score
+ * @param {number} mobile  Mobile speed score
  * @param {number} desktop Desktop speed score
  * @return {string} letter score
  */

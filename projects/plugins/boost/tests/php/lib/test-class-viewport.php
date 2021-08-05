@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack_Boost\Tests\Lib;
 
+use Brain\Monkey\Filters;
+use Brain\Monkey\Functions;
 use Automattic\Jetpack_Boost\Lib\Viewport;
 use Automattic\Jetpack_Boost\Tests\Base_Test_Case;
 
@@ -16,12 +18,13 @@ use Automattic\Jetpack_Boost\Tests\Base_Test_Case;
  * @package Automattic\Jetpack_Boost\Tests\Lib
  */
 class WP_Test_Viewport extends Base_Test_Case {
-	public function setUp() {
-		parent::setUp();
-
-		\WP_Mock::onFilter( 'jetpack_boost_critical_css_viewport_sizes' )
+	/**
+	 * @before
+	 */
+	protected function set_up() {
+		Filters\expectApplied( 'jetpack_boost_critical_css_viewport_sizes' )
 			->with( array() )
-			->reply(
+			->andReturn(
 				array(
 					array(
 						'width'  => 640,
@@ -38,9 +41,9 @@ class WP_Test_Viewport extends Base_Test_Case {
 				)
 			);
 
-		\WP_Mock::onFilter( 'jetpack_boost_critical_css_default_viewports' )
+		Filters\expectApplied( 'jetpack_boost_critical_css_default_viewports' )
 			->with( array() )
-			->reply(
+			->andReturn(
 				array(
 					array(
 						'device_type' => 'mobile',
@@ -55,13 +58,11 @@ class WP_Test_Viewport extends Base_Test_Case {
 	}
 
 	public function test_run() {
-		\WP_Mock::userFunction( 'is_admin' )->andReturn( false );
-
-		\WP_Mock::expectActionAdded( 'wp_footer', array( 'Automattic\Jetpack_Boost\Lib\Viewport', 'viewport_tracker' ) );
+		Functions\when( 'is_admin' )->justReturn( false );
 
 		Viewport::init();
 
-		$this->assertTrue( true );
+		$this->assertTrue( !! has_action( 'wp_footer', array( 'Automattic\Jetpack_Boost\Lib\Viewport', 'viewport_tracker' ) ) );
 	}
 
 	public function test_get_max_viewport() {

@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 const path = require( 'path' );
 const config = require( 'config' );
 const logger = require( '../logger' );
