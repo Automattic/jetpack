@@ -45,21 +45,21 @@ class Output_Filter {
 	 *
 	 * @var array
 	 */
-	protected $callbacks = array();
+	private $callbacks = array();
 
 	/**
 	 * One chunk always remains in the buffer to allow for cross-seam matching.
 	 *
-	 * @var string
+	 * @var string|null
 	 */
-	protected $buffered_chunk;
+	private $buffered_chunk;
 
 	/**
 	 * Whether we allow the callbacks to filter incoming chunks of output.
 	 *
 	 * @var boolean
 	 */
-	protected $is_filtering = false;
+	private $is_filtering = false;
 
 	/**
 	 * Add an output filtering callback.
@@ -98,6 +98,7 @@ class Output_Filter {
 
 		if ( ! isset( $this->buffered_chunk ) ) {
 			$this->buffered_chunk = $buffer;
+
 			return '';
 		}
 
@@ -113,7 +114,6 @@ class Output_Filter {
 		// If the second part of the buffer is the last chunk,
 		// merge the buffer back together to ensure whole output.
 		if ( PHP_OUTPUT_HANDLER_END === $phase ) {
-
 			// If more buffer chunks arrive, don't apply callbacks to them.
 			$this->is_filtering = false;
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * Abstract cricial CSS provider class
+ * Abstract Critical CSS provider class.
  *
  * @package automattic/jetpack-boost
  */
@@ -15,7 +15,7 @@ namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\Providers;
 abstract class Provider {
 
 	/**
-	 * The name of the provider
+	 * The name of the provider.
 	 *
 	 * @since    1.0.0
 	 * @access   protected
@@ -24,7 +24,7 @@ abstract class Provider {
 	protected static $name;
 
 	/**
-	 * Each provider must return a list of URLs to generate CSS from
+	 * Each provider must return a list of URLs to generate CSS from.
 	 *
 	 * @return array
 	 */

@@ -30,7 +30,7 @@ class Render_Blocking_JS extends Module {
 	 * HTML attribute name to be added to <script> tag to make it
 	 * ignored by this class.
 	 *
-	 * @var string
+	 * @var string|null
 	 */
 	private $ignore_attribute;
 
@@ -45,7 +45,7 @@ class Render_Blocking_JS extends Module {
 	/**
 	 * Utility class that supports output filtering.
 	 *
-	 * @var \Automattic\Jetpack_Boost\Lib\Output_Filter
+	 * @var Output_Filter
 	 */
 	private $output_filter = null;
 
