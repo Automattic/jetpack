@@ -78,6 +78,7 @@ abstract class Module {
 		if ( false === $this->is_initialized() ) {
 			return new \WP_Error( __( 'Sorry, this module is not active', 'jetpack-boost' ) );
 		}
+
 		return true;
 	}
 

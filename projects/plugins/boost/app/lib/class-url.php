@@ -56,6 +56,7 @@ class Url {
 				$current_url = sprintf( '%s://%s%s', $scheme, $host, $path );
 			}
 		}
+
 		return apply_filters( 'jetpack_boost_current_url', $current_url );
 	}
 
