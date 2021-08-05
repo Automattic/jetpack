@@ -7,6 +7,7 @@
 	"dependencies": {
 		"@automattic/jetpack-api": "workspace:^0.1.0-alpha",
 		"@automattic/jetpack-components": "workspace:^0.2.1-alpha",
+		"@automattic/jetpack-api": "workspace:^0.1.0-alpha",
 		"@wordpress/browserslist-config": "4.1.0",
 		"@wordpress/components": "14.2.0",
 		"@wordpress/element": "3.2.0",

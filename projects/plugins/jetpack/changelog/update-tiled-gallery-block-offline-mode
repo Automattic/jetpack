@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Tiled Gallery Block: ensure it can be used when in Offline Mode as well.

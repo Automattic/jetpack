@@ -1,4 +1,4 @@
-<?php //phpcs:ignoreFile Squiz.Commenting.VariableComment.Missing,Squiz.Commenting.FunctionComment.Missing,Squiz.Commenting.FunctionComment.MissingParamTag
+<?php
 /**
  * Critical CSS state.
  *
@@ -24,24 +24,39 @@ class Critical_CSS_State {
 
 	const KEY = 'critical_css_state';
 
-	protected $state;
-
-	protected $state_error;
+	/**
+	 * Critical CSS state.
+	 *
+	 * @var mixed
+	 */
+	private $state;
 
 	/**
-	 * Formatted sources array created from Providers
+	 * Critical CSS state error.
+	 *
+	 * @var mixed
+	 */
+	private $state_error;
+
+	/**
+	 * Formatted sources array created from providers.
 	 *
 	 * @see get_provider_sources
 	 * @var array
-	 * @tdo: Maybe rename to providers
+	 * @todo: Maybe rename to providers
 	 */
-	protected $sources = array();
+	private $sources = array();
 
 	/**
-	 * @var int $created - Epoch time when was Critical CSS last updated.
+	 * Epoch time when was Critical CSS last updated.
+	 *
+	 * @var int
 	 */
 	private $created;
 
+	/**
+	 * Constructor.
+	 */
 	public function __construct() {
 
 		$state = Transient::get(
@@ -60,6 +75,9 @@ class Critical_CSS_State {
 		$this->sources     = $state['sources']; // TODO: Maybe rename to providers but what is the impact on back compatibility?
 	}
 
+	/**
+	 * Save the Critical CSS state.
+	 */
 	public function save() {
 		Transient::set(
 			self::KEY,
@@ -72,6 +90,11 @@ class Critical_CSS_State {
 		);
 	}
 
+	/**
+	 * Set Critical CSS state as failed.
+	 *
+	 * @param string $error Critical CSS error.
+	 */
 	public function set_as_failed( $error ) {
 		$this->state       = self::FAIL;
 		$this->state_error = $error;
@@ -82,6 +105,11 @@ class Critical_CSS_State {
 		$this->save();
 	}
 
+	/**
+	 * Get Critical CSS state error.
+	 *
+	 * @return mixed
+	 */
 	public function get_state_error() {
 		return $this->state_error;
 	}
@@ -120,7 +148,7 @@ class Critical_CSS_State {
 	 * @param string $key Provider key.
 	 * @param string $status Provider status.
 	 */
-	protected function set_source_status( $key, $status ) {
+	private function set_source_status( $key, $status ) {
 		if ( isset( $this->sources[ $key ] ) ) {
 			$this->sources[ $key ]['status'] = $status;
 		}
@@ -133,9 +161,9 @@ class Critical_CSS_State {
 	}
 
 	/**
-	 * Request Critical CSS to be generated based on passed URL providers
+	 * Request Critical CSS to be generated based on passed URL providers.
 	 *
-	 * @param $providers
+	 * @param array $providers Providers.
 	 */
 	public function create_request( $providers ) {
 		$this->state   = self::REQUESTING;
@@ -144,6 +172,13 @@ class Critical_CSS_State {
 		$this->save();
 	}
 
+	/**
+	 * Get the core providers' status.
+	 *
+	 * @param array $keys Providers keys.
+	 *
+	 * @return string
+	 */
 	public function get_core_providers_status( $keys ) {
 		$errors = $this->collate_column( 'error' );
 		$status = 'success';
@@ -159,14 +194,18 @@ class Critical_CSS_State {
 	}
 
 	/**
-	 * @param $providers
+	 * Get providers sources.
+	 *
+	 * @param array $providers Providers.
 	 *
 	 * @return array
 	 */
 	protected function get_provider_sources( $providers ) {
 		$sources = array();
 
-		/***
+		/**
+		 * Provider.
+		 *
 		 * @var $provider Provider
 		 */
 		foreach ( $providers as $provider ) {
@@ -191,6 +230,11 @@ class Critical_CSS_State {
 		return $sources;
 	}
 
+	/**
+	 * Get providers errors.
+	 *
+	 * @return array
+	 */
 	public function get_providers_errors() {
 		$errors = $this->collate_column( 'error' );
 
@@ -215,14 +259,29 @@ class Critical_CSS_State {
 		return self::SUCCESS === $this->state;
 	}
 
+	/**
+	 * Return true if the Critical CSS state is empty.
+	 *
+	 * @return bool
+	 */
 	public function is_empty() {
 		return empty( $this->state );
 	}
 
+	/**
+	 * Return true if the Critical CSS is being requested.
+	 *
+	 * @return bool
+	 */
 	public function is_pending() {
 		return self::REQUESTING === $this->state;
 	}
 
+	/**
+	 * Return true if a fatal error occurred during the Critical CSS generation process.
+	 *
+	 * @return bool
+	 */
 	public function is_fatal_error() {
 		return self::FAIL === $this->state;
 	}
@@ -230,6 +289,10 @@ class Critical_CSS_State {
 	/**
 	 * Given a column, collate all provider sources returning the specified
 	 * column for each one.
+	 *
+	 * @param string $column Provider's source property name.
+	 *
+	 * @return array
 	 */
 	private function collate_column( $column ) {
 		$results = array_fill_keys( array_keys( $this->sources ), array() );
@@ -243,16 +306,26 @@ class Critical_CSS_State {
 		return $results;
 	}
 
+	/**
+	 * Get the provider urls.
+	 *
+	 * @return array
+	 */
 	public function get_provider_urls() {
 		return $this->collate_column( 'urls' );
 	}
 
+	/**
+	 * Get the success ratio for the provider.
+	 *
+	 * @return array
+	 */
 	public function get_provider_success_ratios() {
 		return $this->collate_column( 'success_ratio' );
 	}
 
 	/**
-	 * Returns the number of requests that were processed whether or not there was an error.
+	 * Returns the number of requests that were processed whether there was an error.
 	 *
 	 * @return int
 	 */
@@ -306,6 +379,9 @@ class Critical_CSS_State {
 		return $this->get_processed_providers_count() * 100 / max( 1, count( $this->sources ) );
 	}
 
+	/**
+	 * Reset the Critical CSS state.
+	 */
 	public function reset() {
 		Transient::delete( self::KEY );
 	}

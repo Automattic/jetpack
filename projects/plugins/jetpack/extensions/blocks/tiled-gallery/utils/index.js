@@ -11,6 +11,7 @@ import { range } from 'lodash';
  */
 import { PHOTON_MAX_RESIZE } from '../constants';
 import { isAtomicSite, isPrivateSite } from '../../../shared/site-type-utils';
+import isOfflineMode from '../../../shared/is-offline-mode';
 
 export function isSquareishLayout( layout ) {
 	return [ 'circle', 'square' ].includes( layout );
@@ -34,6 +35,11 @@ export function isSquareishLayout( layout ) {
 export function photonizedImgProps( img, galleryAtts = {} ) {
 	if ( ! img.height || ! img.url || ! img.width ) {
 		return {};
+	}
+
+	// Do not use Photon if we are in offline mode.
+	if ( isOfflineMode() ) {
+		return { src: img.url };
 	}
 
 	// Do not Photonize images that are still uploading, are from localhost, or are private + atomic

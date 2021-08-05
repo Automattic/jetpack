@@ -22,13 +22,11 @@ type PollPromiseArgs< ReturnType = void > = {
  * Rejects with a timeout after <timeout> milliseconds.
  *
  * @template ReturnType
- *
- * @param {Object} obj
- * @param {number} obj.interval - Milliseconds between calling callback
- * @param {number} obj.timeout - Milliseconds before rejecting w/ a timeout
- * @param {Function} obj.callback - Callback to call every <interval> ms.
- * @param {string} obj.timeoutError - Message to throw on timeout.
- *
+ * @param {Object}   obj
+ * @param {number}   obj.interval     - Milliseconds between calling callback
+ * @param {number}   obj.timeout      - Milliseconds before rejecting w/ a timeout
+ * @param {Function} obj.callback     - Callback to call every <interval> ms.
+ * @param {string}   obj.timeoutError - Message to throw on timeout.
  * @return {Promise< ReturnType >} - A promise which resolves to the value resolved() inside callback.
  */
 export default async function pollPromise< ReturnType = void >( {

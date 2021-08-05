@@ -12,7 +12,7 @@ namespace Automattic\Jetpack_Boost\Lib;
 use Automattic\Jetpack\Connection\Client;
 
 /**
- * Class Utils.
+ * Class Utils
  */
 class Utils {
 	/**
@@ -99,10 +99,10 @@ class Utils {
 	/**
 	 * Make a Jetpack-authenticated request to the WPCOM servers
 	 *
-	 * @param string $method Request method.
-	 * @param string $endpoint to contact.
-	 * @param array  $args request args.
-	 * @param array  $body request body.
+	 * @param string $method   Request method.
+	 * @param string $endpoint Endpoint to contact.
+	 * @param array  $args     Request args.
+	 * @param array  $body     Request body.
 	 *
 	 * @return \WP_Error|object
 	 */

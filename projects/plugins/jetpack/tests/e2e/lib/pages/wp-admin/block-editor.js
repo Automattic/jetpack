@@ -3,6 +3,7 @@
  */
 import WpPage from '../wp-page';
 import logger from '../../logger';
+import { testStep } from '../../reporters/reporter';
 
 export default class BlockEditorPage extends WpPage {
 	constructor( page ) {
@@ -66,15 +67,20 @@ export default class BlockEditorPage extends WpPage {
 	}
 
 	async searchForBlock( searchTerm ) {
-		logger.step( `Search block: '${ searchTerm }'` );
-		await this.click( this.insertBlockBtnSel );
-		await this.type( this.searchBlockFldSel, searchTerm );
+		await testStep( `Search for block: ${ searchTerm }`, async () => {
+			logger.step( `Search block: '${ searchTerm }'` );
+			await this.click( this.insertBlockBtnSel );
+			await this.type( this.searchBlockFldSel, searchTerm );
+		} );
 	}
 
 	async insertBlock( blockName, blockTitle ) {
-		logger.step( `Insert block {name: ${ blockName }, title: ${ blockTitle }` );
 		await this.searchForBlock( blockTitle );
-		await this.click( this.blockSel( blockName ) );
+
+		await testStep( `Insert block with name: ${ blockName }`, async () => {
+			logger.step( `Insert block {name: ${ blockName }, title: ${ blockTitle }` );
+			await this.click( this.blockSel( blockName ) );
+		} );
 		return await this.getInsertedBlock( blockName );
 	}
 
@@ -85,15 +91,19 @@ export default class BlockEditorPage extends WpPage {
 	}
 
 	async publishPost() {
-		logger.step( `Publish post` );
-		await this.click( this.publishPanelToggleBtnSel );
-		await this.click( this.publishPostBtnSel );
-		await this.waitForElementToBeVisible( this.postPublishViewPostBtnSel );
+		await testStep( `Publish post`, async () => {
+			logger.step( `Publish post` );
+			await this.click( this.publishPanelToggleBtnSel );
+			await this.click( this.publishPostBtnSel );
+			await this.waitForElementToBeVisible( this.postPublishViewPostBtnSel );
+		} );
 	}
 
 	async viewPost() {
-		logger.step( `View post` );
-		await this.click( this.postPublishViewPostBtnSel );
+		await testStep( `View post`, async () => {
+			logger.step( `View post` );
+			await this.click( this.postPublishViewPostBtnSel );
+		} );
 	}
 
 	async selectPostTitle() {
