@@ -179,6 +179,7 @@ SCRIPT_SOURCE;
 				}
 			}
 		}
+
 		return self::get_max_viewport( $viewport_sizes );
 	}
 
@@ -242,6 +243,7 @@ SCRIPT_SOURCE;
 				continue;
 			}
 		}
+
 		return apply_filters( 'jetpack_boost_pick_viewport', $best_size, $width, $height, $viewport_sizes );
 	}
 
@@ -265,6 +267,7 @@ SCRIPT_SOURCE;
 						$carry = $item;
 					}
 				}
+
 				return $carry;
 			},
 			array(
