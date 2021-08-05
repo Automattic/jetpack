@@ -26,17 +26,14 @@ To do that, you need to run the following commands:
 cd vendor/automattic/jetpack-wp-admin-plus
 pnpm build-all
 ```
-
 ## Development
 
 ```bash
-cd projects/packages/wp-admin-plus
-pnpm run start
+jetpack build packages/wp-admin-plus
 ```
 
 ... watching changes 👀
 
 ```bash
-cd projects/packages/wp-admin-plus
-pnpm run watch
+jetpack watch packages/wp-admin-plus
 ```
