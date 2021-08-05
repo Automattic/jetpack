@@ -11,18 +11,18 @@ use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Tracking;
 
 /**
- * Simple wrapper for Tracks library
+ * Class Analytics
  */
 class Analytics {
 	/**
-	 * Get the tracking and manager objects for Boost
+	 * Get the tracking and manager objects for Boost.
 	 */
 	public static function get_tracking() {
 		return new Tracking( 'jetpack_boost', new Manager( 'jetpack-boost' ) );
 	}
 
 	/**
-	 * Record a user event
+	 * Record a user event.
 	 *
 	 * @param string $slug The event slug.
 	 * @param array  $data Optional event data.

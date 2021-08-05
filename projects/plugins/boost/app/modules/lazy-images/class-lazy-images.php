@@ -1,4 +1,4 @@
-<?php //phpcs:ignoreFile Squiz.Commenting.FunctionComment.Missing,Squiz.Commenting.FunctionComment.MissingParamTag
+<?php
 /**
  * Implements the Lazy Images feature.
  *
@@ -20,9 +20,16 @@ class Lazy_Images extends Module {
 
 	const MODULE_SLUG = 'lazy-images';
 
-	/** @var \Automattic\Jetpack_Boost\Jetpack_Boost */
+	/**
+	 * Jetpack Boost plugin instance.
+	 *
+	 * @var \Automattic\Jetpack_Boost\Jetpack_Boost
+	 */
 	protected $jetpack_boost_plugin;
 
+	/**
+	 * Constructor.
+	 */
 	public function __construct() {
 		parent::__construct();
 
@@ -44,13 +51,15 @@ class Lazy_Images extends Module {
 
 	/**
 	 * Set the Jetpack Boost plugin instance so this module can get access to the plugin config methods.
+	 *
+	 * @param \Automattic\Jetpack_Boost\Jetpack_Boost $jetpack_boost_plugin * Jetpack Boost plugin instance.
 	 */
 	public function set_jetpack_boost_plugin_instance( $jetpack_boost_plugin ) {
 		$this->jetpack_boost_plugin = $jetpack_boost_plugin;
 	}
 
 	/**
-	 * Allow to enable Jetpack Lazy Images module if the module is already enabled by Jetpack Boost.
+	 * Allow enabling Jetpack Lazy Images module if the module is already enabled by Jetpack Boost.
 	 */
 	public function enable_jetpack_lazy_images_module() {
 		if ( $this->jetpack_boost_plugin->is_module_enabled( 'false', self::MODULE_SLUG ) && ! self::is_jetpack_lazy_images_module_enabled() ) {
@@ -60,6 +69,11 @@ class Lazy_Images extends Module {
 
 	/**
 	 * Set the default status for this module to true is the Jetpack Lazy Images module is already enabled.
+	 *
+	 * @param string $default_module_status Default module status.
+	 * @param string $module_slug           Module slug.
+	 *
+	 * @return bool
 	 */
 	public function set_default_module_status( $default_module_status, $module_slug ) {
 		if ( self::MODULE_SLUG === $module_slug && self::is_jetpack_lazy_images_module_enabled() ) {
@@ -72,6 +86,9 @@ class Lazy_Images extends Module {
 	/**
 	 * Enable or disable the Jetpack Lazy Images module based on the status of this module and whether or not
 	 * the Jetpack Lazy Images module is already enabled/disabled.
+	 *
+	 * @param bool   $is_enabled  Whether or not the Jetpack Lazy Images module is enabled.
+	 * @param string $module_slug Module slug.
 	 */
 	public function set_jetpack_lazy_images_module_status( $is_enabled, $module_slug ) {
 		if ( ! class_exists( 'Jetpack' ) ) {
@@ -89,6 +106,9 @@ class Lazy_Images extends Module {
 
 	/**
 	 * Enable this module in the Jetpack Boost plugin config if the Jetpack Lazy Images module is already enabled.
+	 *
+	 * @param bool   $is_enabled  Whether or not the Jetpack Lazy Images module is enabled.
+	 * @param string $module_slug Module slug.
 	 */
 	public function enable_module( $is_enabled, $module_slug ) {
 		if ( self::MODULE_SLUG === $module_slug && self::is_jetpack_lazy_images_module_enabled() ) {
@@ -98,6 +118,8 @@ class Lazy_Images extends Module {
 
 	/**
 	 * Allow to enable this module when Jetpack Lazy Images module is getting enabled.
+	 *
+	 * @param string $module Module slug.
 	 */
 	public function action_jetpack_activate_module( $module ) {
 		if ( self::MODULE_SLUG === $module ) {
@@ -107,6 +129,8 @@ class Lazy_Images extends Module {
 
 	/**
 	 * Allow to disable this module when Jetpack Lazy Images module is getting disabled.
+	 *
+	 * @param string $module Module slug.
 	 */
 	public function action_jetpack_deactivate_module( $module ) {
 		if ( self::MODULE_SLUG === $module ) {
@@ -115,7 +139,7 @@ class Lazy_Images extends Module {
 	}
 
 	/**
-	 * Code to run when module is started
+	 * Code to run when module is started.
 	 */
 	protected function on_initialize() {
 		if ( ! self::is_jetpack_lazy_images_module_enabled() ) {

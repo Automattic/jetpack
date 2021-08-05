@@ -11,8 +11,6 @@ namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 
 /**
  * Class Admin_Bar_Css_Compat
- *
- * @package Automattic\Jetpack_Boost\Modules\Critical_CSS
  */
 class Admin_Bar_Css_Compat {
 
