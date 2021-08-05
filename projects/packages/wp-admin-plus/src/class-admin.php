@@ -19,6 +19,7 @@ class Admin {
 	 */
 	public function __construct() {
 		if ( ! did_action( 'jetpack_on_wp_admin_plus_init' ) ) {
+			add_filter( 'query_vars', array( $this, 'add_query_vars' ) );
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
 			/**
@@ -27,7 +28,12 @@ class Admin {
 			 * @since 9.8.0
 			 */
 			do_action( 'jetpack_on_wp_admin_plus_init' );
-			add_filter( 'query_vars', array( $this, 'add_query_vars' ) );
+
+			add_action( 'manage_posts_columns', array( $this, 'add_wpadmin_plus_column' ) );
+			add_action( 'manage_posts_custom_column', array( $this, 'parse_and_render_post_data' ), 10, 2 );
+
+			add_action( 'manage_pages_columns', array( $this, 'add_wpadmin_plus_column' ) );
+			add_action( 'manage_pages_custom_column', array( $this, 'parse_and_render_post_data' ), 10, 2 );
 		}
 
 	}
@@ -50,17 +56,64 @@ class Admin {
 	}
 
 	/**
+	 * Check whether the wp-admin-plus feature is enabled,
+	 * via the query strinh.
+	 *
+	 * @return boolean True when feature is active. Otherwise, False.
+	 */
+	public function is_wp_admin_plus() {
+		$is_wp_admin_plus = get_query_var( 'wp-admin-plus' );
+		return isset( $is_wp_admin_plus ) && 'true' === $is_wp_admin_plus ? true : false;
+	}
+
+	/**
+	 * Add the WP Admin Plus custom column.
+	 *
+	 * @param array $columns Columns table.
+	 * @return array Columns table, maybe populated.
+	 */
+	public function add_wpadmin_plus_column( $columns ) {
+		if ( ! self::is_wp_admin_plus() ) {
+			return $columns;
+		}
+
+		return array_merge( $columns, array( 'wp-admin-plus-column' => 'WPAP' ) );
+	}
+
+	/**
+	 * Pick post data, parse and render in JSON format.
+	 *
+	 * @param string $column  The name of the column to display.
+	 * @param int    $post_id The current post ID.
+	 */
+	public function parse_and_render_post_data( $column, $post_id ) {
+		if ( ! self::is_wp_admin_plus() ) {
+			return;
+		}
+
+		$post = get_post( $post_id );
+		if ( 'wp-admin-plus-column' === $column ) {
+			echo '<script type="application/json">';
+			echo wp_json_encode(
+				array(
+					'id'     => $post->ID,
+					'type'   => $post->post_type,
+					'status' => $post->post_status,
+				)
+			);
+			echo '</script>';
+		}
+	}
+
+	/**
 	 * Enqueue scripts depending on the wp-admin-plus query var.
 	 *
 	 * @param string $hook Page hook.
 	 */
 	public function enqueue_scripts( $hook ) {
-		$is_wp_admin_plus = get_query_var( 'wp-admin-plus' );
-		$is_wp_admin_plus = isset( $is_wp_admin_plus ) && 'true' === $is_wp_admin_plus ? true : false;
-
-		if ( $is_wp_admin_plus && 'edit.php' === $hook ) {
+		if ( self::is_wp_admin_plus() && 'edit.php' === $hook ) {
 			$build_assets = require_once __DIR__ . '/../build/index.asset.php';
-			$plugin_path = Assets::get_file_url_for_environment( '../build/index.js', '../build/index.js', __FILE__ );
+			$plugin_path  = Assets::get_file_url_for_environment( '../build/index.js', '../build/index.js', __FILE__ );
 
 			wp_enqueue_script(
 				'jetpack_wpadminplus_ui_script',
