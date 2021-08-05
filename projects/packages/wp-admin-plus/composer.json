@@ -37,7 +37,19 @@
 		"test-php": [
 			"@composer phpunit"
 		],
-		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\"",
+		"build-development": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run build"
+		],
+		"build-production": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run start"
+		],
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
+		]
 	},
 	"minimum-stability": "dev",
 	"prefer-stable": true,
