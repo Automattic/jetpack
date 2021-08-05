@@ -4,6 +4,7 @@
  */
 import React, { useCallback } from 'react';
 import { useSelect, useDispatch } from '@wordpress/data';
+import { Masthead } from '@automattic/jetpack-components';
 
 // import { ConnectionStatusCard, ConnectScreen } from '@automattic/jetpack-connection';
 
@@ -14,7 +15,6 @@ import { __ } from '@wordpress/i18n';
  */
 import { STORE_ID } from '../../store';
 import Header from '../header';
-import Masthead from '../masthead';
 import './style.scss';
 import ConnectRight from './assets/connect-right.png';
 

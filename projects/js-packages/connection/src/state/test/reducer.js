@@ -1,11 +1,17 @@
+/**
+ * External dependencies
+ */
 import { expect } from 'chai';
 
+/**
+ * Internal dependencies
+ */
 import {
 	connectUrl as connectUrlReducer,
 	status as statusReducer,
 	user as userReducer,
 	requests as requestsReducer,
-	connectionRequests
+	connectionRequests,
 } from '../reducer';
 
 describe( 'status reducer', () => {
@@ -14,19 +20,19 @@ describe( 'status reducer', () => {
 			const stateIn = {};
 			const action = {
 				type: 'DISCONNECT_SITE_SUCCESS',
-				siteConnected: false
+				siteConnected: false,
 			};
-			let stateOut = statusReducer( stateIn, action );
+			const stateOut = statusReducer( stateIn, action );
 			expect( stateOut.siteConnected ).to.be.false;
 		} );
 
-		it( 'should set siteConnected to action.siteConnected\'s value when fetching connection status', () => {
+		it( "should set siteConnected to action.siteConnected's value when fetching connection status", () => {
 			const stateIn = {};
 			const action = {
 				type: 'JETPACK_CONNECTION_STATUS_FETCH',
-				siteConnected: true
+				siteConnected: true,
 			};
-			let stateOut = statusReducer( stateIn, action );
+			const stateOut = statusReducer( stateIn, action );
 			expect( stateOut.siteConnected ).to.equal( action.siteConnected );
 		} );
 	} );
@@ -38,13 +44,13 @@ describe( 'connect url reducer', () => {
 		expect( state ).to.eql( '' );
 	} );
 	describe( '#fetchConnectUrl', () => {
-		it( 'should set connectUrl to action.connectUrl\'s value when fetching connect url', () => {
+		it( "should set connectUrl to action.connectUrl's value when fetching connect url", () => {
 			const stateIn = {};
 			const action = {
 				type: 'CONNECT_URL_FETCH_SUCCESS',
-				connectUrl: '/asdf'
+				connectUrl: '/asdf',
 			};
-			let stateOut = connectUrlReducer( stateIn, action );
+			const stateOut = connectUrlReducer( stateIn, action );
 			expect( stateOut ).to.equal( action.connectUrl );
 		} );
 	} );
@@ -56,9 +62,9 @@ describe( 'user reducer', () => {
 			const stateIn = {};
 			const action = {
 				type: 'USER_CONNECTION_DATA_FETCH_SUCCESS',
-				userConnectionData: { a: 'b' }
+				userConnectionData: { a: 'b' },
 			};
-			let stateOut = userReducer( stateIn, action );
+			const stateOut = userReducer( stateIn, action );
 			expect( stateOut ).to.eql( action.userConnectionData );
 		} );
 	} );
@@ -74,27 +80,27 @@ describe( 'requests reducer', () => {
 		it( 'should set disconnectingSite to true when disconnecting site', () => {
 			const stateIn = {};
 			const action = {
-				type: 'DISCONNECT_SITE'
+				type: 'DISCONNECT_SITE',
 			};
-			let stateOut = requestsReducer( stateIn, action );
+			const stateOut = requestsReducer( stateIn, action );
 			expect( stateOut.disconnectingSite ).to.be.true;
 		} );
 
 		it( 'should set disconnectingSite to false when site was disconnected', () => {
 			const stateIn = {};
 			const action = {
-				type: 'DISCONNECT_SITE_SUCCESS'
+				type: 'DISCONNECT_SITE_SUCCESS',
 			};
-			let stateOut = requestsReducer( stateIn, action );
+			const stateOut = requestsReducer( stateIn, action );
 			expect( stateOut.disconnectingSite ).to.be.false;
 		} );
 
 		it( 'should set disconnectingSite to false when disconnecting site failed', () => {
 			const stateIn = {};
 			const action = {
-				type: 'DISCONNECT_SITE_FAIL'
+				type: 'DISCONNECT_SITE_FAIL',
 			};
-			let stateOut = requestsReducer( stateIn, action );
+			const stateOut = requestsReducer( stateIn, action );
 			expect( stateOut.disconnectingSite ).to.be.false;
 		} );
 	} );
@@ -103,27 +109,27 @@ describe( 'requests reducer', () => {
 		it( 'should set unlinkingUser to true when unliking user', () => {
 			const stateIn = {};
 			const action = {
-				type: 'UNLINK_USER'
+				type: 'UNLINK_USER',
 			};
-			let stateOut = requestsReducer( stateIn, action );
+			const stateOut = requestsReducer( stateIn, action );
 			expect( stateOut.unlinkingUser ).to.be.true;
 		} );
 
 		it( 'should set unlinkingUser to false when user was unlinked', () => {
 			const stateIn = {};
 			const action = {
-				type: 'UNLINK_USER_SUCCESS'
+				type: 'UNLINK_USER_SUCCESS',
 			};
-			let stateOut = requestsReducer( stateIn, action );
+			const stateOut = requestsReducer( stateIn, action );
 			expect( stateOut.unlinkingUser ).to.be.false;
 		} );
 
 		it( 'should set unlinkingUser to false when unlinking a user failed', () => {
 			const stateIn = {};
 			const action = {
-				type: 'UNLINK_USER_FAIL'
+				type: 'UNLINK_USER_FAIL',
 			};
-			let stateOut = requestsReducer( stateIn, action );
+			const stateOut = requestsReducer( stateIn, action );
 			expect( stateOut.unlinkingUser ).to.be.false;
 		} );
 	} );
@@ -132,56 +138,56 @@ describe( 'requests reducer', () => {
 		it( 'should set fetchingConnectUrl to true when fetching connect URL', () => {
 			const stateIn = {};
 			const action = {
-				type: 'CONNECT_URL_FETCH'
+				type: 'CONNECT_URL_FETCH',
 			};
-			let stateOut = requestsReducer( stateIn, action );
+			const stateOut = requestsReducer( stateIn, action );
 			expect( stateOut.fetchingConnectUrl ).to.be.true;
 		} );
 
 		it( 'should set fetchingConnectUrl to false when connect URL was fetched', () => {
 			const stateIn = {};
 			const action = {
-				type: 'CONNECT_URL_FETCH_SUCCESS'
+				type: 'CONNECT_URL_FETCH_SUCCESS',
 			};
-			let stateOut = requestsReducer( stateIn, action );
+			const stateOut = requestsReducer( stateIn, action );
 			expect( stateOut.fetchingConnectUrl ).to.be.false;
 		} );
 
 		it( 'should set fetchingConnectUrl to false when fecthing the connect URL', () => {
 			const stateIn = {};
 			const action = {
-				type: 'CONNECT_URL_FETCH_FAIL'
+				type: 'CONNECT_URL_FETCH_FAIL',
 			};
-			let stateOut = requestsReducer( stateIn, action );
+			const stateOut = requestsReducer( stateIn, action );
 			expect( stateOut.fetchingConnectUrl ).to.be.false;
 		} );
 	} );
 
 	describe( '#fetchUSerConnectionData', () => {
-		it( 'should set fetchingUserData to true when fetching User\'s connection data', () => {
+		it( "should set fetchingUserData to true when fetching User's connection data", () => {
 			const stateIn = {};
 			const action = {
-				type: 'USER_CONNECTION_DATA_FETCH'
+				type: 'USER_CONNECTION_DATA_FETCH',
 			};
-			let stateOut = requestsReducer( stateIn, action );
+			const stateOut = requestsReducer( stateIn, action );
 			expect( stateOut.fetchingUserData ).to.be.true;
 		} );
 
-		it( 'should set fetchingUserData to false when User\'s connection data was fetched', () => {
+		it( "should set fetchingUserData to false when User's connection data was fetched", () => {
 			const stateIn = {};
 			const action = {
-				type: 'USER_CONNECTION_DATA_FETCH_SUCCESS'
+				type: 'USER_CONNECTION_DATA_FETCH_SUCCESS',
 			};
-			let stateOut = requestsReducer( stateIn, action );
+			const stateOut = requestsReducer( stateIn, action );
 			expect( stateOut.fetchingUserData ).to.be.false;
 		} );
 
-		it( 'should set fetchingUserData to false when fecthing the User\'s connection data', () => {
+		it( "should set fetchingUserData to false when fecthing the User's connection data", () => {
 			const stateIn = {};
 			const action = {
-				type: 'USER_CONNECTION_DATA_FETCH_FAIL'
+				type: 'USER_CONNECTION_DATA_FETCH_FAIL',
 			};
-			let stateOut = requestsReducer( stateIn, action );
+			const stateOut = requestsReducer( stateIn, action );
 			expect( stateOut.fetchingUserData ).to.be.false;
 		} );
 	} );
@@ -190,18 +196,18 @@ describe( 'requests reducer', () => {
 		it( 'should set isAuthorizingUserInPlace to true when authorization iframe is loaded', () => {
 			const stateIn = {};
 			const action = {
-				type: 'AUTH_USER_IN_PLACE'
+				type: 'AUTH_USER_IN_PLACE',
 			};
-			let stateOut = requestsReducer( stateIn, action );
+			const stateOut = requestsReducer( stateIn, action );
 			expect( stateOut.authorizingUserInPlace ).to.be.true;
 		} );
 
 		it( 'should set isAuthorizingUserInPlace to false when when in-place authorization has completed', () => {
 			const stateIn = {};
 			const action = {
-				type: 'AUTH_USER_IN_PLACE_SUCCESS'
+				type: 'AUTH_USER_IN_PLACE_SUCCESS',
 			};
-			let stateOut = requestsReducer( stateIn, action );
+			const stateOut = requestsReducer( stateIn, action );
 			expect( stateOut.authorizingUserInPlace ).to.be.false;
 		} );
 	} );
@@ -210,27 +216,27 @@ describe( 'requests reducer', () => {
 		it( 'should set reconnectingSite to true when reconnecting site', () => {
 			const stateIn = {};
 			const action = {
-				type: 'SITE_RECONNECT'
+				type: 'SITE_RECONNECT',
 			};
-			let stateOut = requestsReducer( stateIn, action );
+			const stateOut = requestsReducer( stateIn, action );
 			expect( stateOut.reconnectingSite ).to.be.true;
 		} );
 
 		it( 'should set reconnectingSite to false when site was reconnected', () => {
 			const stateIn = {};
 			const action = {
-				type: 'SITE_RECONNECT_SUCCESS'
+				type: 'SITE_RECONNECT_SUCCESS',
 			};
-			let stateOut = requestsReducer( stateIn, action );
+			const stateOut = requestsReducer( stateIn, action );
 			expect( stateOut.reconnectingSite ).to.be.false;
 		} );
 
 		it( 'should set reconnectingSite to false when reconnecting site failed', () => {
 			const stateIn = {};
 			const action = {
-				type: 'SITE_RECONNECT_FAIL'
+				type: 'SITE_RECONNECT_FAIL',
 			};
-			let stateOut = requestsReducer( stateIn, action );
+			const stateOut = requestsReducer( stateIn, action );
 			expect( stateOut.reconnectingSite ).to.be.false;
 		} );
 	} );

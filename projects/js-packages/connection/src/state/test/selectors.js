@@ -1,5 +1,11 @@
+/**
+ * External dependencies
+ */
 import { expect } from 'chai';
 
+/**
+ * Internal dependencies
+ */
 import {
 	isDisconnectingSite,
 	isFetchingConnectUrl,
@@ -12,7 +18,7 @@ import {
 	isReconnectingSite,
 } from '../reducer';
 
-let state = {
+const state = {
 	jetpack: {
 		connection: {
 			requests: {
@@ -27,18 +33,18 @@ let state = {
 				siteConnected: {
 					isActive: true,
 					offlineMode: {
-						isActive: false
-					}
-				}
+						isActive: false,
+					},
+				},
 			},
 			connectUrl: '/asd',
 			user: {
 				currentUser: {
-					isConnected: true
-				}
-			}
+					isConnected: true,
+				},
+			},
 		},
-	}
+	},
 };
 
 describe( 'requests selectors', () => {

@@ -5,14 +5,15 @@
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
-		"@automattic/jetpack-components": "workspace:^0.2.1-alpha",
 		"@automattic/jetpack-api": "workspace:^0.1.0-alpha",
+		"@automattic/jetpack-components": "workspace:^0.2.1-alpha",
 		"@wordpress/browserslist-config": "4.1.0",
 		"@wordpress/components": "14.2.0",
 		"@wordpress/element": "3.2.0",
 		"@wordpress/i18n": "3.20.0",
 		"lodash": "4.17.21",
-		"prop-types": "^15.7.2"
+		"prop-types": "^15.7.2",
+		"redux": "4.0.5"
 	},
 	"devDependencies": {
 		"jetpack-js-test-runner": "workspace:*",
@@ -25,13 +26,12 @@
 		"react": "^17.0.2",
 		"react-dom": "^17.0.2"
 	},
-	"type": "module",
 	"sideEffects": [
 		"*.css",
 		"*.scss"
 	],
 	"scripts": {
-		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.jsx'"
+		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./src/**/test/*.js*'"
 	},
 	"engines": {
 		"node": "^14.16.1",

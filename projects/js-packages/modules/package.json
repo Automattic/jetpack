@@ -1,8 +1,8 @@
 {
 	"private": true,
-	"name": "TBD",
-	"version": "TBD",
-	"description": "TBD",
+	"name": "@automattic/jetpack-modules",
+	"version": "0.1.0-alpha",
+	"description": "Jetpack Modules shared code",
 	"homepage": "https://jetpack.com",
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/issues"

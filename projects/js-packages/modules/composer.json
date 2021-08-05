@@ -1,13 +1,12 @@
 {
-	"name": "automattic/jetpack-my-plans-ui",
-	"description": "Standalone My Plans page in wp-admin",
+	"name": "automattic/jetpack-modules",
+	"description": "Jetpack Modules shared code",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "0.2.0",
-		"automattic/jetpack-changelogger": "^1.1",
-		"automattic/wordbless": "dev-master"
+		"automattic/jetpack-changelogger": "^1.1"
 	},
 	"autoload": {
 		"classmap": [
@@ -26,19 +25,7 @@
 		"test-php": [
 			"@composer phpunit"
 		],
-		"build-development": [
-			"Composer\\Config::disableProcessTimeout",
-			"pnpm run build"
-		],
-		"build-production": [
-			"Composer\\Config::disableProcessTimeout",
-			"pnpm run build"
-		],
-		"watch": [
-			"Composer\\Config::disableProcessTimeout",
-			"pnpm run watch"
-		],
-		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+		"build-development": "echo 'Add your build step to composer.json, please!'"
 	},
 	"repositories": [
 		{
@@ -50,10 +37,5 @@
 		}
 	],
 	"minimum-stability": "dev",
-	"prefer-stable": true,
-	"extra": {
-		"branch-alias": {
-			"dev-master": "0.1.x-dev"
-		}
-	}
+	"prefer-stable": true
 }

@@ -183,6 +183,7 @@ export function getQuestions( type ) {
 		},
 	];
 	const packageQuestions = [];
+	const jsPackageQuestions = [];
 	const pluginQuestions = [
 		{
 			type: 'input',
@@ -203,6 +204,8 @@ export function getQuestions( type ) {
 			return defaultQuestions.concat( extensionQuestions );
 		case 'github-action':
 			return defaultQuestions.concat( githubQuestions );
+		case 'js-package':
+			return defaultQuestions.concat( jsPackageQuestions );
 	}
 }
 
@@ -237,6 +240,9 @@ export async function generateProject(
 	switch ( answers.type ) {
 		case 'package':
 			break;
+		case 'js-package':
+			// generateJsPackage( answers, projDir );
+			break;
 		case 'plugin':
 			generatePlugin( answers, projDir );
 			break;
@@ -247,6 +253,14 @@ export async function generateProject(
 			throw new Error( 'Unsupported type selected.' );
 	}
 }
+
+/**
+ * Generate a JS Package based on questions passed to it.
+ *
+ * @param {object} answers - Answers from questions.
+ * @param {string} packageDir - Plugin directory path.
+ */
+// function generateJsPackage( answers, packageDir ) {}
 
 /**
  * Generate a plugin based on questions passed to it.
@@ -305,6 +319,8 @@ function createSkeleton( type, dir, name ) {
  */
 function createPackageJson( packageJson, answers ) {
 	packageJson.description = answers.description;
+	packageJson.name = `@automattic/jetpack-${ answers.name }`;
+	packageJson.version = '0.1.0-alpha';
 }
 
 /**

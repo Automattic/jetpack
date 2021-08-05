@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations,jsdoc/require-returns,jsdoc/check-types,jsdoc/require-hyphen-before-param-description,jsdoc/check-tag-names,jsdoc/no-undefined-types */
 /**
  * External dependencies
  */
@@ -28,7 +29,7 @@ import {
 	SITE_RECONNECT,
 	SITE_RECONNECT_FAIL,
 	SITE_RECONNECT_SUCCESS,
-} from 'state/action-types';
+} from './action-types';
 import {
 	getModulesThatRequireConnection,
 	getModulesThatRequireUserConnection,
