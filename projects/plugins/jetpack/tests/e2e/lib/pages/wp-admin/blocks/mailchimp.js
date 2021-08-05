@@ -31,7 +31,7 @@ export default class MailchimpBlock extends PageActions {
 	}
 
 	get joinBtnSel() {
-		return `${ this.blockSelector } div >> text="Join my email list"`;
+		return `${ this.blockSelector } div >> text="Join my Mailchimp audience"`;
 	}
 
 	//endregion
