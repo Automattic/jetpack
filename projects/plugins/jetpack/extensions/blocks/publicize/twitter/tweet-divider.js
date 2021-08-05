@@ -34,6 +34,7 @@ class TweetDivider extends Component {
 			boundaries,
 			childProps,
 			currentAnnotations,
+			isPublished,
 			isTweetStorm,
 			updateAnnotations,
 			updateTweets,
@@ -46,6 +47,10 @@ class TweetDivider extends Component {
 		}
 
 		if ( ! supportedBlockType ) {
+			return;
+		}
+
+		if ( isPublished ) {
 			return;
 		}
 
@@ -67,13 +72,14 @@ class TweetDivider extends Component {
 		const {
 			ChildEdit,
 			childProps,
+			isPublished,
 			isTweetStorm,
 			isSelectedTweetBoundary,
 			boundaryStylesSelectors,
 			popoverWarnings,
 		} = this.props;
 
-		if ( ! isTweetStorm ) {
+		if ( ! isTweetStorm || isPublished ) {
 			return <ChildEdit { ...childProps } />;
 		}
 
@@ -129,6 +135,7 @@ class TweetDivider extends Component {
 export default compose( [
 	withSelect( ( select, { childProps } ) => {
 		const {
+			isPublished,
 			isTweetStorm,
 			getPopoverWarnings,
 			getBoundariesForBlock,
@@ -143,6 +150,7 @@ export default compose( [
 		);
 
 		return {
+			isPublished: isPublished(),
 			isTweetStorm: isTweetStorm(),
 			isSelectedTweetBoundary: isSelectedTweetBoundary( childProps ),
 			boundaries: getBoundariesForBlock( childProps.clientId ),

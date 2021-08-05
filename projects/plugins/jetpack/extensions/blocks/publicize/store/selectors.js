@@ -288,6 +288,18 @@ export function isTweetStorm() {
 }
 
 /**
+ * Check to see if a post is published.
+ *
+ * @returns {boolean} Is the post published?
+ */
+export function isPublished() {
+	const { getEditedPostAttribute } = select( 'core/editor' );
+	const status = getEditedPostAttribute( 'status' );
+
+	return 'publish' === status;
+}
+
+/**
  * Finds the boundary definitions for a given block.
  *
  * @param {object} state - State object.
