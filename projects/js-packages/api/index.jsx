@@ -73,6 +73,30 @@ function JetpackRestApiClient( root, nonce ) {
 			cacheBusterCallback = callback;
 		},
 
+		registerSite: ( registrationNonce, redirectUri ) =>
+			postRequest( `${ apiRoot }jetpack/v4/connection/register`, postParams, {
+				body: JSON.stringify( {
+					registration_nonce: registrationNonce,
+					no_iframe: true,
+					redirect_uri: redirectUri,
+				} ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		fetchAuthorizationUrl: redirectUri =>
+			getRequest(
+				`${ apiRoot }jetpack/v4/connection/authorize_url?no_iframe=1&redirect_uri=${ encodeURIComponent(
+					redirectUri
+				) }`,
+				getParams
+			)
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		fetchSiteConnectionData: () =>
+			getRequest( `${ apiRoot }jetpack/v4/connection/data`, getParams ).then( parseJsonResponse ),
+
 		fetchSiteConnectionStatus: () =>
 			getRequest( `${ apiRoot }jetpack/v4/connection`, getParams ).then( parseJsonResponse ),
 
