@@ -10,7 +10,7 @@
 
 .jetpack-instant-search__path-breadcrumb-link {
 	text-decoration: none;
-	-webkit-line-clamp: 1;
+	max-width: 100%;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
