@@ -1,5 +1,10 @@
 import { doInPlaceConnection } from '../lib/flows/jetpack-connect';
-import { execWpCommand, prepareUpdaterTest } from '../lib/utils-helper';
+import {
+	execShellCommand,
+	execSyncShellCommand,
+	execWpCommand,
+	prepareUpdaterTest,
+} from '../lib/utils-helper';
 import Sidebar from '../lib/pages/wp-admin/sidebar';
 import PluginsPage from '../lib/pages/wp-admin/plugins';
 import DashboardPage from '../lib/pages/wp-admin/dashboard';
@@ -14,19 +19,31 @@ import { prerequisitesBuilder } from '../lib/env/prerequisites';
  */
 describe( 'Jetpack updater', () => {
 	beforeAll( async () => {
+		await execShellCommand(
+			'pnpx jetpack docker --type e2e --name t1 exec -- rm /var/www/html/wp-content/plugins/jetpack'
+		);
+		await execSyncShellCommand(
+			'pnpx jetpack docker --type e2e --name t1 exec -- ln -s /usr/local/src/jetpack-monorepo/projects/plugins/jetpack/ /var/www/html/wp-content/plugins/jetpack'
+		);
 		await prepareUpdaterTest();
+		await execWpCommand( 'plugin deactivate jetpack' );
+		await execShellCommand(
+			'pnpx jetpack docker --type e2e --name t1 exec -- rm /var/www/html/wp-content/plugins/jetpack'
+		);
 
-		await execWpCommand( 'plugin deactivate jetpack-dev' );
 		await execWpCommand( 'option delete jetpack_sync_error_idc' );
 		await execWpCommand( 'plugin install --activate jetpack' );
 		await execWpCommand( 'plugin activate e2e-plugin-updater' );
-		await execWpCommand( 'option set e2e_jetpack_upgrader_update_version 8.8-alpha' );
+		await execWpCommand( 'option set e2e_jetpack_upgrader_update_version 99.9-alpha' );
 		await execWpCommand(
 			`option set e2e_jetpack_upgrader_plugin_url ${ siteUrl }/wp-content/uploads/jetpack.zip`
 		);
 	} );
 
 	afterAll( async () => {
+		await execSyncShellCommand(
+			'pnpx jetpack docker --type e2e --name t1 exec -- ln -s /usr/local/src/jetpack-monorepo/projects/plugins/jetpack/ /var/www/html/wp-content/plugins/jetpack'
+		);
 		await execWpCommand( 'plugin uninstall --deactivate jetpack' );
 		await prerequisitesBuilder().withCleanEnv().build();
 	} );
