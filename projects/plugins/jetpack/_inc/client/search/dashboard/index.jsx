@@ -9,7 +9,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { JetpackFooter } from '@automattic/jetpack-components';
-import restApi from 'rest-api';
+import restApi from '@automattic/jetpack-api';
 import Masthead from 'components/masthead';
 import LoadingPlaceHolder from 'components/loading-placeholder';
 import ModuleControl from './module-control';
