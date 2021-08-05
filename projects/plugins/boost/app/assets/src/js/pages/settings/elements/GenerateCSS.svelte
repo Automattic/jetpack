@@ -2,10 +2,7 @@
 	import InfoIcon from '../../../svg/info.svg';
 	import RefreshIcon from '../../../svg/refresh.svg';
 	import generateCriticalCss from '../../../utils/generate-critical-css';
-	import {
-		criticalCssStatus,
-		failedProviderKeyCount,
-	} from '../../../stores/critical-css-status';
+	import { criticalCssStatus, failedProviderKeyCount } from '../../../stores/critical-css-status';
 	import { __, _n, sprintf } from '@wordpress/i18n';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
@@ -17,8 +14,7 @@
 	let showError = false;
 	$: showError =
 		$criticalCssStatus.status === 'error' ||
-		( $criticalCssStatus.status === 'success' &&
-			$criticalCssStatus.success_count === 0 );
+		( $criticalCssStatus.status === 'success' && $criticalCssStatus.success_count === 0 );
 </script>
 
 {#if $criticalCssStatus.generating}
@@ -56,9 +52,7 @@
 					),
 					$criticalCssStatus.success_count
 				)}
-				<TimeAgo
-					time={new Date( $criticalCssStatus.created * 1000 )}
-				/>.
+				<TimeAgo time={new Date( $criticalCssStatus.created * 1000 )} />.
 			</div>
 			{#if $failedProviderKeyCount > 0}
 				<div class="failures">
@@ -76,21 +70,14 @@
 							$failedProviderKeyCount
 						)}
 						vars={{
-							...actionLinkTemplateVar(
-								() => navigateTo( 'critical-css-advanced' ),
-								'advanced'
-							),
+							...actionLinkTemplateVar( () => navigateTo( 'critical-css-advanced' ), 'advanced' ),
 						}}
 					/>
 				</div>
 			{/if}
 		</div>
 
-		<button
-			type="button"
-			class="components-button is-link"
-			on:click={generateCriticalCss}
-		>
+		<button type="button" class="components-button is-link" on:click={generateCriticalCss}>
 			<RefreshIcon />
 			{__( 'Regenerate', 'jetpack-boost' )}
 		</button>

@@ -8,7 +8,7 @@
 
 	export let time;
 
-	const label = readable( describeTimeAgo( time ), ( set ) => {
+	const label = readable( describeTimeAgo( time ), set => {
 		// Update label every 10 seconds.
 		const interval = setInterval( () => {
 			set( describeTimeAgo( time ) );

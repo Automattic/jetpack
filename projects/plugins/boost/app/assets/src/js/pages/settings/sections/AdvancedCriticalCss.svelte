@@ -41,10 +41,7 @@
 	let heading;
 	$: heading =
 		$activeRecommendations.length === 0
-			? __(
-					'Congratulations, you have dealt with all the recommendations.',
-					'jetpack-boost'
-			  )
+			? __( 'Congratulations, you have dealt with all the recommendations.', 'jetpack-boost' )
 			: __(
 					'While Jetpack Boost has been able to automatically generate optimized CSS for most of your important files & sections, we have identified a few more that require your attention.',
 					'jetpack-boost'
@@ -59,10 +56,7 @@
 </script>
 
 <div class="jb-container--narrow jb-critical-css__advanced">
-	<button
-		class="components-button is-link close"
-		on:click={() => navigateTo()}
-	>
+	<button class="components-button is-link close" on:click={() => navigateTo()}>
 		<LeftArrow />
 		{__( 'Go back', 'jetpack-boost' )}
 	</button>
@@ -95,10 +89,7 @@
 
 			{#each [ recommendation.errors[ 0 ] ] as errorSet}
 				<div class="problem">
-					<CriticalCssErrorDescription
-						{errorSet}
-						on:retry={onRetry}
-					/>
+					<CriticalCssErrorDescription {errorSet} on:retry={onRetry} />
 				</div>
 			{/each}
 		</div>
