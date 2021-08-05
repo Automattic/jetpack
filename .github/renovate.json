@@ -48,7 +48,8 @@
 				"automattic/jetpack-status",
 				"automattic/jetpack-sync",
 				"automattic/jetpack-terms-of-service",
-				"automattic/jetpack-tracking"
+				"automattic/jetpack-tracking",
+				"automattic/jetpack-wp-admin-plus"
 			],
 			"enabled": false
 		},
