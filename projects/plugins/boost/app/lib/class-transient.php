@@ -10,12 +10,12 @@
 namespace Automattic\Jetpack_Boost\Lib;
 
 /**
- * Class Cache
+ * Class Transient
  */
 class Transient {
 
 	/**
-	 * Get the key with prefix
+	 * Get the key with prefix.
 	 *
 	 * @param string $key the key to be prefixed.
 	 */
@@ -53,12 +53,9 @@ class Transient {
 	 * @return mixed
 	 */
 	public static function get( $key, $default = null ) {
-
 		// Ensure everything's there.
 		$option = get_option( self::key( $key ), $default );
-		if ( $default === $option
-			|| ! isset( $option['expire'] )
-			|| ! isset( $option['data'] )
+		if ( $default === $option || ! isset( $option['expire'] ) || ! isset( $option['data'] )
 		) {
 			return $default;
 		}
@@ -68,6 +65,7 @@ class Transient {
 		$data   = $option['data'];
 		if ( false !== $expire && $expire < time() ) {
 			self::delete( $key );
+
 			return $default;
 		}
 

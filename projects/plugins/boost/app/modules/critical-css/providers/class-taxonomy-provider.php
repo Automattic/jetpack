@@ -1,4 +1,4 @@
-<?php //phpcs:ignoreFile Squiz.Commenting.VariableComment.Missing,Generic.Commenting.DocComment.MissingShort,Squiz.Commenting.FunctionComment.MissingParamTag
+<?php
 /**
  * Provides taxonomy support for critical CSS
  *
@@ -14,11 +14,28 @@ namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\Providers;
  */
 class Taxonomy_Provider extends Provider {
 
+	/**
+	 * Provider name.
+	 *
+	 * @var string
+	 */
 	protected static $name = 'taxonomy';
 
-	const MAX_URLS         = 20;
+	/**
+	 * Max number of posts to query.
+	 *
+	 * @var integer
+	 */
+	const MAX_URLS = 20;
+
+	/**
+	 * Minimum number of posts to have Critical CSS generated in order for the whole process to be successful.
+	 *
+	 * @var integer
+	 */
 	const MIN_SUCCESS_URLS = 10;
 
+	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
 	public static function get_critical_source_urls() {
 		$results = array();
@@ -40,6 +57,7 @@ class Taxonomy_Provider extends Provider {
 		return $results;
 	}
 
+	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
 	public static function get_current_storage_keys() {
 		if ( ! is_category() && ! is_tax() ) {
@@ -50,6 +68,7 @@ class Taxonomy_Provider extends Provider {
 		return array( self::$name . '_' . get_queried_object()->taxonomy );
 	}
 
+	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
 	public static function get_keys() {
 		return array_keys(
@@ -62,9 +81,10 @@ class Taxonomy_Provider extends Provider {
 		);
 	}
 
+	// phpcs:ignore
 	/** @inheritdoc */
-	public static function describe_key( $key ) {
-		$taxonomy = substr( $key, strlen( static::$name ) + 1 );
+	public static function describe_key( $provider_key ) { // phpcs:ignore Generic.Commenting.DocComment.MissingShort
+		$taxonomy = substr( $provider_key, strlen( static::$name ) + 1 );
 
 		switch ( $taxonomy ) {
 			case 'category':
@@ -76,7 +96,7 @@ class Taxonomy_Provider extends Provider {
 	}
 
 	/**
-	 * Which taxonomies should Critical CSS be generated for?
+	 * Which taxonomies should Critical CSS be generated for.
 	 *
 	 * @return array
 	 */
@@ -95,7 +115,7 @@ class Taxonomy_Provider extends Provider {
 	/**
 	 * Get a couple sample terms for a taxonomy.
 	 *
-	 * @param $taxonomy
+	 * @param string $taxonomy Taxonomy.
 	 *
 	 * @return array
 	 */
@@ -116,6 +136,7 @@ class Taxonomy_Provider extends Provider {
 		return ( new \WP_Term_Query( $args ) )->terms;
 	}
 
+	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
 	public static function get_success_ratio() {
 		return static::MIN_SUCCESS_URLS / static::MAX_URLS;

@@ -3,11 +3,7 @@
  */
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-
-/**
- * Internal dependencies
- */
-import restApi from '../../tools/jetpack-rest-api-client';
+import restApi from '@automattic/jetpack-api';
 
 /**
  * The user connection component.
