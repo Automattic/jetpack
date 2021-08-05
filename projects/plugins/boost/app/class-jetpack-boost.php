@@ -65,35 +65,32 @@ class Jetpack_Boost {
 	 * The unique identifier of this plugin.
 	 *
 	 * @since    1.0.0
-	 * @access   protected
 	 * @var      string $plugin_name The string used to uniquely identify this plugin.
 	 */
-	protected $plugin_name;
+	private $plugin_name;
 
 	/**
 	 * The current version of the plugin.
 	 *
 	 * @since    1.0.0
-	 * @access   protected
 	 * @var      string $version The current version of the plugin.
 	 */
-	protected $version;
+	private $version;
 
 	/**
 	 * The config
 	 *
 	 * @since    1.0.0
-	 * @access   protected
-	 * @var      Config $config The configuration object
+	 * @var      Config|null $config The configuration object
 	 */
-	protected $config;
+	private $config;
 
 	/**
 	 * Store all plugin module instances here
 	 *
 	 * @var array
 	 */
-	protected $modules = array();
+	private $modules = array();
 
 	/**
 	 * The Jetpack Boost Connection manager instance.
@@ -114,7 +111,6 @@ class Jetpack_Boost {
 	 * @since    1.0.0
 	 */
 	public function __construct() {
-
 		$this->version     = JETPACK_BOOST_VERSION;
 		$this->plugin_name = 'jetpack-boost';
 
@@ -220,7 +216,6 @@ class Jetpack_Boost {
 		}
 
 		foreach ( self::MODULES as $module_slug => $module_class ) {
-
 			// Don't register modules that have been forcibly disabled from the url 'jb-disable-modules' query string parameter.
 			if ( in_array( $module_slug, $forced_disabled_modules, true ) ) {
 				continue;
@@ -301,6 +296,7 @@ class Jetpack_Boost {
 	 */
 	public function get_module_status( $module_slug ) {
 		$default_module_status = in_array( $module_slug, self::ENABLED_MODULES_DEFAULT, true );
+
 		return apply_filters( 'jetpack_boost_module_enabled', $default_module_status, $module_slug );
 	}
 
@@ -314,6 +310,7 @@ class Jetpack_Boost {
 	 */
 	public function is_module_enabled( $is_enabled, $module_slug ) {
 		do_action( 'jetpack_boost_pre_is_module_enabled', $is_enabled, $module_slug );
+
 		return $this->config()->get_value( "$module_slug/enabled", $is_enabled );
 	}
 
@@ -473,7 +470,7 @@ class Jetpack_Boost {
 	 */
 	public function display_meta_field_module_ready() {
 		?>
-		<meta name="jetpack-boost-ready" content="<?php echo apply_filters( 'jetpack_boost_url_ready', true ) ? 'true' : 'false'; ?>"/>
+		<meta name="jetpack-boost-ready" content="<?php echo apply_filters( 'jetpack_boost_url_ready', true ) ? 'true' : 'false'; ?>" />
 		<?php
 	}
 
@@ -481,8 +478,8 @@ class Jetpack_Boost {
 	 * The name of the plugin used to uniquely identify it within the context of
 	 * WordPress and to define internationalization functionality.
 	 *
-	 * @since     1.0.0
 	 * @return    string    The name of the plugin.
+	 * @since     1.0.0
 	 */
 	public function get_plugin_name() {
 		return $this->plugin_name;
@@ -491,8 +488,8 @@ class Jetpack_Boost {
 	/**
 	 * Retrieve the version number of the plugin.
 	 *
-	 * @since     1.0.0
 	 * @return    string    The version number of the plugin.
+	 * @since     1.0.0
 	 */
 	public function get_version() {
 		return $this->version;

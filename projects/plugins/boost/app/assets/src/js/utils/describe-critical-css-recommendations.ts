@@ -75,7 +75,7 @@ export function rawError( set: ErrorSet ): string {
  * Offer users a brief explanation of, and suggestion to manage an HTTP error
  * by code.
  *
- * @param {number} code HTTP code to offer suggestions for.
+ * @param {number} code  HTTP code to offer suggestions for.
  * @param {number} count The number of pages which failed with the specified HTTP error.
  */
 function httpErrorSuggestion( code: number, count: number ): string {
@@ -105,7 +105,8 @@ function httpErrorSuggestion( code: number, count: number ): string {
 			return _n(
 				'Your WordPress site encountered an error while trying to load the above page. Please check your server logs or contact your hosting provider for help to investigate the issue, and <retry>try again</retry>.',
 				'Your WordPress site encountered errors while trying to load the above pages. Please check your server logs or contact your hosting provider for help to investigate the issue, and <retry>try again</retry>.',
-				count
+				count,
+				'jetpack-boost'
 			);
 
 		default:

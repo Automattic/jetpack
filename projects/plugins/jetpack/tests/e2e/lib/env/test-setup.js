@@ -1,5 +1,4 @@
 import fs from 'fs';
-import logger from '../logger';
 import {
 	execWpCommand,
 	getAccountCredentials,
@@ -29,11 +28,6 @@ async function maybePreConnect() {
 	const result = await execWpCommand( 'wp option get jetpack_private_options --format=json' );
 	fs.writeFileSync( config.get( 'temp.jetpackPrivateOptions' ), result.trim() );
 }
-
-export const step = async ( stepName, fn ) => {
-	logger.step( `Step: ${ stepName }` );
-	await fn();
-};
 
 beforeAll( async () => {
 	await maybePreConnect();

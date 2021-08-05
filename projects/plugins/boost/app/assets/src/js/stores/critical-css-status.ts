@@ -81,9 +81,9 @@ type CriticalCssApiResponse = {
  * Call a Critical CSS endpoint which may return a status update, returning the
  * status update (and updating the status accordingly).
  *
- * @param {'post' | 'get'} method HTTP method to use.
- * @param {string} url endpoint to call
- * @param {JSONObject | undefined} body optional body to include in request.
+ * @param {'post' | 'get'}         method HTTP method to use.
+ * @param {string}                 url    endpoint to call
+ * @param {JSONObject | undefined} body   optional body to include in request.
  * @return {Promise< CriticalCssStatus | false >} Critical CSS status, or false if module not enabled.
  */
 async function callCriticalCssEndpoint(
@@ -117,7 +117,7 @@ async function callCriticalCssEndpoint(
  * Helper method to update Critical CSS generation progress status.
  *
  * @param {boolean} generating True if generation process is running.
- * @param {number} progress Progress expressed as a %.
+ * @param {number}  progress   Progress expressed as a %.
  */
 export function updateGenerateStatus(
 	generating: boolean,
@@ -134,7 +134,7 @@ export function updateGenerateStatus(
 /**
  * Send a request to the server requesting that Critical CSS gets regenerated.
  *
- * @param {boolean} reset True if existing results should be thrown away before starting.
+ * @param {boolean} reset              True if existing results should be thrown away before starting.
  * @param {boolean} isShowstopperRetry True if this request is kicking off a retry after a showstopper error.
  */
 export async function requestGeneration(

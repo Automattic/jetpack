@@ -74,6 +74,7 @@ class Config extends Cacheable {
 		if ( ! empty( $data['id'] ) ) {
 			$object->set_cache_id( $data['id'] );
 		}
+
 		return $object;
 	}
 
@@ -125,7 +126,7 @@ class Config extends Cacheable {
 	 * @param mixed  $value       The value to set.
 	 * @param bool   $auto_create Whether or not to auto create the value.
 	 *
-	 * @return mixed The value that was set.
+	 * @return bool The value that was set.
 	 * @throws \Error Throw an error if value is not in array.
 	 */
 	public function set_value( $key, $value, $auto_create = false ) {
@@ -143,6 +144,7 @@ class Config extends Cacheable {
 		}
 
 		$temp = $value;
+
 		return $this->store_in_option();
 	}
 
@@ -157,6 +159,7 @@ class Config extends Cacheable {
 		if ( Jetpack_Boost::CURRENT_CONFIG_ID === $this->config_id ) {
 			$this->store_in_option();
 		}
+
 		return parent::store( $expiry );
 	}
 
@@ -170,8 +173,10 @@ class Config extends Cacheable {
 	public static function get( $id ) {
 		if ( Jetpack_Boost::CURRENT_CONFIG_ID === $id ) {
 			$option_name = apply_filters( 'jetpack_boost_options_store_key_name', 'jetpack_boost_config' );
+
 			return self::get_from_option( $option_name );
 		}
+
 		return parent::get( $id );
 	}
 
@@ -190,6 +195,7 @@ class Config extends Cacheable {
 		if ( ! $this->option_name ) {
 			throw new \Error( 'Cannot save config that was not loaded from an option' );
 		}
+
 		return update_option( $this->option_name, $this->data, false );
 	}
 
@@ -202,6 +208,7 @@ class Config extends Cacheable {
 	 */
 	private static function get_from_option( $option_name ) {
 		$option_value = \get_option( $option_name, array() );
+
 		// @todo - unserialize from JSON to match cache entries?
 		return new Config( $option_value, $option_name );
 	}
@@ -215,11 +222,12 @@ class Config extends Cacheable {
 	 */
 	public function set_data( $data ) {
 		$this->data = $data;
+
 		return $this->store_in_option();
 	}
 
 	/**
-	 * Reset all settings to defaults
+	 * Reset all settings to defaults.
 	 */
 	public function reset() {
 		$this->set_data( Jetpack_Boost::get_default_config_array() );

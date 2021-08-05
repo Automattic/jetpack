@@ -52,7 +52,7 @@ export async function maybeGenerateCriticalCss() {
  * Generate Critical CSS for this site. Will load the Critical CSS Generator
  * library dynamically as needed.
  *
- * @param {boolean} reset - If true, reset any stored CSS before beginning.
+ * @param {boolean} reset              - If true, reset any stored CSS before beginning.
  * @param {boolean} isShowstopperRetry - Set this flag to indicate this attempt is retrying after a showstopper error.
  */
 export default async function generateCriticalCss(
@@ -126,12 +126,12 @@ export default async function generateCriticalCss(
  * Generate Critical CSS for the specified Provider Keys, sending each block
  * to the server. Throws on error or cancellation.
  *
- * @param {ProviderKeyUrls} providerKeys - Set of URLs to use for each provider key
- * @param {Object} requestGetParameters - GET parameters to include with each request.
- * @param {Viewport[]} viewports - Viewports to generate with.
- * @param {JSONObject} passthrough - JSON data to include in callbacks to API.
- * @param {MajorMinorCallback} callback - Callback to send minor / major progress step info to.
- * @param {Array} successRatios - Success ratios.
+ * @param {ProviderKeyUrls}    providerKeys         - Set of URLs to use for each provider key
+ * @param {Object}             requestGetParameters - GET parameters to include with each request.
+ * @param {Viewport[]}         viewports            - Viewports to generate with.
+ * @param {JSONObject}         passthrough          - JSON data to include in callbacks to API.
+ * @param {MajorMinorCallback} callback             - Callback to send minor / major progress step info to.
+ * @param {Array}              successRatios        - Success ratios.
  */
 async function generateForKeys(
 	providerKeys: ProviderKeyUrls,
@@ -241,7 +241,7 @@ function keepAtRule( name: string ): boolean {
 /**
  * Helper method to filter out properties that we don't want.
  *
- * @param {string} name Name of the property to evaluate
+ * @param {string} name  Name of the property to evaluate
  * @param {string} value Value of the property to evaluate
  * @return {boolean} indicating whether or not the property is wanted.
  */
@@ -256,8 +256,8 @@ function keepProperty( name: string, value: string ): boolean {
  * percentage. Also takes an offset for major steps, to represent progress that
  * may have already passed before counting here.
  *
- * @param {number} offset Major steps to assume have already passed.
- * @param {(percent: number) => void} cb Callback to call with progress.
+ * @param {number}                    offset Major steps to assume have already passed.
+ * @param {(percent: number) => void} cb     Callback to call with progress.
  * @return {Function} Function to call with full progress details.
  */
 function wrapCallback(
