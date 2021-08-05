@@ -98,10 +98,11 @@ module.exports = {
 		'jsx-a11y/anchor-has-content': 0,
 		'react/no-string-refs': 0,
 		'jsx-a11y/anchor-is-valid': 0,
+		'react/react-in-jsx-scope': 0,
 	},
 	overrides: [
 		{
-			files: [ 'extensions/**/*', 'webpack.config.extensions.js' ],
+			files: [ 'src/**/*', 'webpack.config.extensions.js' ],
 			rules: {
 				'react/forbid-elements': [
 					'error',
