@@ -30,11 +30,11 @@
 		"yoast/phpunit-polyfills": "0.2.0"
 	},
 	"scripts": {
-		"fix": [
-			"composer --working-dir=../../../ phpcs:fix ./projects/plugins/boost"
+		"format": [
+			"phpcbf ."
 		],
 		"lint": [
-			"composer --working-dir=../../../ phpcs:lint ./projects/plugins/boost"
+			"phpcs ."
 		],
 		"phpunit": [
 			"@composer install",
