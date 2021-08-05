@@ -172,7 +172,7 @@ class Jetpack_Boost {
 		$this->clear_cache();
 		Admin::clear_dismissed_notices();
 		Critical_CSS::clear_reset_reason();
-		Critical_CSS::clear_dismissed_errors();
+		Critical_CSS::clear_dismissed_recommendations();
 	}
 
 	/**
