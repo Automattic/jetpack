@@ -17,10 +17,12 @@
 		"watch": "pnpm run build-all && pnpm run start"
 	},
 	"dependencies": {
+		"@wordpress/components": "15.0.0",
 		"@wordpress/core-data": "4.0.0",
 		"@wordpress/data": "5.2.0",
 		"@wordpress/date": "4.2.1",
 		"@wordpress/dom-ready": "3.2.1",
+		"@wordpress/editor": "10.2.0",
 		"@wordpress/element": "4.0.0",
 		"@wordpress/i18n": "4.2.1"
 	},
