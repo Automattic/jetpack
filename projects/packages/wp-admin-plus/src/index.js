@@ -5,57 +5,43 @@
 /**
  * WordPress dependencies
  */
-import { useSelect } from '@wordpress/data';
-import { store as coreStore } from '@wordpress/core-data';
-import { render, Fragment } from '@wordpress/element';
+import { render } from '@wordpress/element';
 import domReady from '@wordpress/dom-ready';
-import { __ } from '@wordpress/i18n';
-import { dateI18n, __experimentalGetSettings } from '@wordpress/date';
 
 /**
  * Internal dependencies
  */
 import './style.scss';
-
-const PostList = ( { type = 'post ' } ) => {
-	const posts = useSelect( select => select( coreStore ).getEntityRecords( 'postType', type ), [] );
-
-	if ( ! posts?.length ) {
-		return null;
-	}
-
-	const dateFormat = __experimentalGetSettings().formats.date;
-
-	return (
-		<Fragment>
-			<thead>
-				<tr>
-					<th>{ __( 'Title', 'automattic/jetpack-wp-admin-plus' ) }</th>
-					<th>{ __( 'Author', 'automattic/jetpack-wp-admin-plus' ) }</th>
-					<th>{ __( 'Date', 'automattic/jetpack-wp-admin-plus' ) }</th>
-				</tr>
-			</thead>
-
-			<tbody>
-				{ posts.map( post => {
-					return (
-						<tr key={ post.id }>
-							<td>{ post?.title.raw }</td>
-							<td>{ post.author }</td>
-							<td>{ dateI18n( dateFormat, post.date_gmt ) }</td>
-						</tr>
-					);
-				} ) }
-			</tbody>
-		</Fragment>
-	);
-};
+import PostDate from './components/post-date';
 
 domReady( () => {
-	const tableContainer = document.querySelector( '.wp-list-table' );
-	if ( ! tableContainer ) {
+	const postRows = document.querySelectorAll( '.wp-list-table .entry' );
+	if ( ! postRows?.length ) {
 		return;
 	}
 
-	render( <PostList type={ Jetpack_WPAdmin_Plus?.postType } />, tableContainer );
+	postRows.forEach( postRow => {
+		// Row data
+		const rowDataContainer = postRow.querySelector(
+			'.column-wp-admin-plus-column script[type="application/json"]'
+		);
+		const postDateElement = postRow.querySelector( '.column-date' );
+		const fallbackText = postDateElement.innerText;
+
+		let data;
+		try {
+			data = JSON.parse( rowDataContainer.text );
+		} catch ( e ) {
+			// @TODO: improve error handling.
+			// eslint-disable-next-line no-console
+			return console.error( 'error parsing json', e );
+		}
+
+		// clean data element.
+		if ( data ) {
+			rowDataContainer.remove();
+		}
+
+		render( <PostDate { ...data } fallbackText={ fallbackText } />, postDateElement );
+	} );
 } );
