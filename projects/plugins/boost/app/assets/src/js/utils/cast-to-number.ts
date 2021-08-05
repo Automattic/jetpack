@@ -4,8 +4,7 @@
  * number.
  *
  * @template DefaultType
- *
- * @param {*} value - External value to process as a number
+ * @param {*}           value        - External value to process as a number
  * @param {DefaultType} defaultValue - Default value to return if not a number.
  * @return {number | DefaultType} value as a number, of defaultValue.
  */
