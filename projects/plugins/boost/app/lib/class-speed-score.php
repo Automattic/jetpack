@@ -10,7 +10,7 @@
 namespace Automattic\Jetpack_Boost\Lib;
 
 /**
- * The Speed Score class
+ * Class Speed_Score
  */
 class Speed_Score {
 
@@ -61,7 +61,7 @@ class Speed_Score {
 	 *
 	 * @param \WP_REST_Request $request The request object.
 	 *
-	 * @return string|\WP_Error An error to return or the target url
+	 * @return string|\WP_Error An error to return or the target url.
 	 */
 	private function process_url_arg( $request ) {
 		$params = $request->get_json_params();

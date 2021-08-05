@@ -2,7 +2,6 @@
 /**
  * The admin-specific functionality of the plugin.
  *
- * @link       https://automattic.com
  * @since      1.0.0
  * @package    automattic/jetpack-boost
  */
@@ -15,12 +14,7 @@ use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
 use Automattic\Jetpack_Boost\Lib\Speed_Score;
 
 /**
- * The admin-specific functionality of the plugin.
- *
- * Defines the plugin name, version, and two examples hooks for how to
- * enqueue the admin-specific stylesheet and JavaScript.
- *
- * @author     Automattic <support@jetpack.com>
+ * Class Admin
  */
 class Admin {
 
@@ -39,14 +33,14 @@ class Admin {
 	 *
 	 * @var Jetpack_Boost Plugin.
 	 */
-	protected $jetpack_boost;
+	private $jetpack_boost;
 
 	/**
 	 * Speed_Score class instance.
 	 *
-	 * @var \Automattic\Jetpack_Boost\Lib\Speed_Score instance.
+	 * @var Speed_Score instance.
 	 */
-	protected $speed_score;
+	private $speed_score;
 
 	/**
 	 * Initialize the class and set its properties.
