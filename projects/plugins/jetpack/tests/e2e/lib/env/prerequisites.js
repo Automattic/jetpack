@@ -46,8 +46,8 @@ export function prerequisitesBuilder() {
 			state.modules.inactive = modules;
 			return this;
 		},
-		withCleanEnv( shouldCleanEnv ) {
-			state.clean = shouldCleanEnv;
+		withCleanEnv() {
+			state.clean = true;
 			return this;
 		},
 		async build() {
