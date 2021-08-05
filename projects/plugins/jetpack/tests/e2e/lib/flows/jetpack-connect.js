@@ -1,10 +1,4 @@
-/**
- * External dependencies
- */
 import config from 'config';
-/**
- * Internal dependencies
- */
 import Sidebar from '../pages/wp-admin/sidebar';
 import JetpackPage from '../pages/wp-admin/jetpack';
 import AuthorizePage from '../pages/wpcom/authorize';

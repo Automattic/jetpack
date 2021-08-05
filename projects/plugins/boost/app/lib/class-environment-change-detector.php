@@ -10,12 +10,12 @@
 namespace Automattic\Jetpack_Boost\Lib;
 
 /**
- * Class Environment_Change_Detector.
+ * Class Environment_Change_Detector
  */
 class Environment_Change_Detector {
 
 	/**
-	 * Initialize the change detection hooks
+	 * Initialize the change detection hooks.
 	 */
 	public static function init() {
 		add_action(

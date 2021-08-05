@@ -1,6 +1,6 @@
-<?php //phpcs:ignoreFile Squiz.Commenting.VariableComment.Missing,Generic.Commenting.DocComment.MissingShort,Squiz.Commenting.FunctionComment.MissingParamTag
+<?php
 /**
- * Critical CSS Provider for singular postts
+ * Critical CSS Provider for singular posts.
  *
  * @package automattic/jetpack-boost
  */
@@ -14,11 +14,28 @@ namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\Providers;
  */
 class Singular_Post_Provider extends Provider {
 
+	/**
+	 * Provider name.
+	 *
+	 * @var string
+	 */
 	protected static $name = 'singular';
 
-	const MAX_URLS         = 20;
+	/**
+	 * Max number of posts to query.
+	 *
+	 * @var integer
+	 */
+	const MAX_URLS = 20;
+
+	/**
+	 * Minimum number of posts to have Critical CSS generated in order for the whole process to be successful.
+	 *
+	 * @var integer
+	 */
 	const MIN_SUCCESS_URLS = 10;
 
+	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
 	public static function get_critical_source_urls() {
 		$links = array();
@@ -33,6 +50,7 @@ class Singular_Post_Provider extends Provider {
 		return $links;
 	}
 
+	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
 	public static function get_current_storage_keys() {
 		if ( ! is_singular() ) {
@@ -43,14 +61,16 @@ class Singular_Post_Provider extends Provider {
 		return array( self::$name . '_' . get_post_type() );
 	}
 
+	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
 	public static function get_keys() {
 		return array_keys( self::get_post_types() );
 	}
 
+	// phpcs:ignore
 	/** @inheritdoc */
-	public static function describe_key( $key ) {
-		$post_type = substr( $key, strlen( static::$name ) + 1 );
+	public static function describe_key( $provider_key ) { // phpcs:ignore Generic.Commenting.DocComment.MissingShort
+		$post_type = substr( $provider_key, strlen( static::$name ) + 1 );
 
 		switch ( $post_type ) {
 			case 'post':
@@ -105,6 +125,7 @@ class Singular_Post_Provider extends Provider {
 		return new \WP_Query( $args );
 	}
 
+	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
 	public static function get_success_ratio() {
 		return static::MIN_SUCCESS_URLS / static::MAX_URLS;
