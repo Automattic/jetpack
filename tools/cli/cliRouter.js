@@ -13,6 +13,7 @@ import { installDefine } from './commands/install';
 import { cleanDefine } from './commands/clean';
 import { cliDefine } from './commands/cli';
 import { generateDefine } from './commands/generate';
+import { draftDefine } from './commands/draft';
 import { changelogDefine } from './commands/changelog';
 import { dockerDefine } from './commands/docker';
 
@@ -38,6 +39,7 @@ export async function cli() {
 	argv = dockerDefine( argv );
 	argv = generateDefine( argv );
 	argv = installDefine( argv );
+	argv = draftDefine( argv );
 	argv = watchDefine( argv );
 
 	// This adds usage information on failure and demands that a subcommand must be passed.
