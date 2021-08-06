@@ -44,9 +44,7 @@ export function textSuggestion( set: ErrorSet ): string {
  *
  * @param {ErrorSet} set Set to get a footer component for.
  */
-export function footerComponent(
-	set: ErrorSet
-): typeof SvelteComponent | null {
+export function footerComponent( set: ErrorSet ): typeof SvelteComponent | null {
 	const spec = getErrorSpec( set.type );
 
 	if ( spec.footerComponent ) {
@@ -142,7 +140,7 @@ type ErrorTypeSpec = {
 
 const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 	HttpError: {
-		describeSet: ( set ) =>
+		describeSet: set =>
 			sprintf(
 				/* translators: %d is the HTTP error code. */
 				_n(
@@ -153,22 +151,18 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 				),
 				set.firstMeta.code
 			),
-		suggestion: ( set ) =>
-			httpErrorSuggestion(
-				castToNumber( set.firstMeta.code ),
-				urlCount( set )
-			),
+		suggestion: set => httpErrorSuggestion( castToNumber( set.firstMeta.code ), urlCount( set ) ),
 	},
 
 	RedirectError: {
-		describeSet: ( set ) =>
+		describeSet: set =>
 			_n(
 				'This URL is redirecting to a different page:',
 				'These URLs are redirecting to different pages:',
 				urlCount( set ),
 				'jetpack-boost'
 			),
-		suggestion: ( set ) => {
+		suggestion: set => {
 			const description = __(
 				'This may indicate that a WordPress plugin is redirecting users who are not logged in to a different location, or it may indicate that your hosting provider is redirecting your WordPress site to a different URL. ',
 				'jetpack-boost'
@@ -186,14 +180,14 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 	},
 
 	CrossDomainError: {
-		describeSet: ( set ) =>
+		describeSet: set =>
 			_n(
 				"It looks like this URL doesn't match:",
 				"It looks like these URLs don't match:",
 				urlCount( set ),
 				'jetpack-boost'
 			),
-		suggestion: ( set ) =>
+		suggestion: set =>
 			__(
 				'Visit the page and look at the protocol and host name to ensure it matches the one in your <a target="_blank" href="https://wordpress.org/support/article/administration-screens/">WordPress Administration Screen</a>. If not, then please reach out to your hosting provider and ask why. If you believe the issue is resolved, please <retry>try again</retry>.',
 				'jetpack-boost'
@@ -202,14 +196,9 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 	},
 
 	LoadTimeoutError: {
-		describeSet: ( set ) =>
-			_n(
-				'This page timed out:',
-				'These pages timed out:',
-				urlCount( set ),
-				'jetpack-boost'
-			),
-		suggestion: ( set ) =>
+		describeSet: set =>
+			_n( 'This page timed out:', 'These pages timed out:', urlCount( set ), 'jetpack-boost' ),
+		suggestion: set =>
 			__(
 				'Clear your cache in your browser, then visit the page while not logged into WordPress. See how long it takes to load compared to other pages on your site. If this page is slower than the others, check what plugins are working on that page, deactivate them and <retry>try again</retry>.',
 				'jetpack-boost'
@@ -217,14 +206,14 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 	},
 
 	UrlVerifyError: {
-		describeSet: ( set ) =>
+		describeSet: set =>
 			_n(
 				"Jetpack Boost couldn't verify this page:",
 				"Jetpack Boost couldn't verify these pages:",
 				urlCount( set ),
 				'jetpack-boost'
 			),
-		suggestion: ( set ) =>
+		suggestion: set =>
 			__(
 				'Please load the page, and verify that the content displayed is a part of your WordPress site, and not an external page managed by a different system and <retry>try again</retry>.',
 				'jetpack-boost'
@@ -232,15 +221,15 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 	},
 
 	UnknownError: {
-		describeSet: ( set ) =>
+		describeSet: set =>
 			_n(
 				'An unexpected error occurred while trying to generate Critical CSS for the following page:',
 				'An unexpected error occurred while trying to generate Critical CSS for the following pages:',
 				urlCount( set ),
 				'jetpack-boost'
 			),
-		rawError: ( set ) => Object.values( set.byUrl )[ 0 ].message,
-		suggestion: ( set ) =>
+		rawError: set => Object.values( set.byUrl )[ 0 ].message,
+		suggestion: set =>
 			__(
 				'Something went wrong, which Jetpack Boost did not anticipate. Please try visiting the link to check that it works, check the error message below, and <retry>try again</retry>. If you need help, please contact <support>Jetpack Boost Support</support> with a copy of your error message.',
 				'jetpack-boost'

@@ -34,9 +34,7 @@
 							rates by 20%. (source: <link>Google</link>).`,
 							'jetpack-boost'
 						)}
-						vars={externalLinkTemplateVar(
-							'https://web.dev/why-speed-matters/'
-						)}
+						vars={externalLinkTemplateVar( 'https://web.dev/why-speed-matters/' )}
 					/>
 				</div>
 			</div>

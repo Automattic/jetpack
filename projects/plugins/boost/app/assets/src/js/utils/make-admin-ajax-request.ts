@@ -17,9 +17,7 @@ class AdminAjaxError extends Error {
 	}
 }
 
-export async function makeAdminAjaxRequest< T = JSONObject >(
-	payload: JSONObject
-): Promise< T > {
+export async function makeAdminAjaxRequest< T = JSONObject >( payload: JSONObject ): Promise< T > {
 	const args = {
 		method: 'post',
 		body: new URLSearchParams( {
@@ -52,10 +50,7 @@ export async function makeAdminAjaxRequest< T = JSONObject >(
 		throw new AdminAjaxError(
 			sprintf(
 				/* Translators: %d refers to numeric HTTP error code */
-				__(
-					'HTTP %d error received while communicating with the server.',
-					'jetpack-boost'
-				),
+				__( 'HTTP %d error received while communicating with the server.', 'jetpack-boost' ),
 				response.status
 			)
 		);
