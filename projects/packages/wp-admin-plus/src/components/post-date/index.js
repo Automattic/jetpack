@@ -2,25 +2,17 @@
  * WordPress dependencies
  */
 import { Button, Dropdown, DateTimePicker } from '@wordpress/components';
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
 import { store as coreStore } from '@wordpress/core-data';
 import { dateI18n } from '@wordpress/date';
 import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import usePost from '../../hooks/use-post';
 
 export default function PostDateEdit( { id, postIds, type, fallbackText, status } ) {
 	const [ localPostDate, setLocalPostDate ] = useState();
 	const [ localPostStatus, setLocalPostStatus ] = useState();
-	const posts = useSelect(
-		select => {
-			return select( coreStore ).getEntityRecords( 'postType', type, {
-				include: postIds,
-				status: 'any',
-			} );
-		},
-		[ postIds ]
-	);
-
+	const post = usePost( { id, postIds, type } );
 	const { saveEntityRecord } = useDispatch( coreStore );
 
 	async function handleUpdatePost( date ) {
@@ -43,18 +35,12 @@ export default function PostDateEdit( { id, postIds, type, fallbackText, status 
 		setLocalPostStatus( savedPost?.status );
 	}
 
-	if ( ! posts?.length ) {
+	if ( ! post ) {
 		return fallbackText;
 	}
 
-	const post = posts.filter( item => item?.id === id );
-	if ( ! post?.length ) {
-		return fallbackText;
-	}
-
-	const singlePost = post[ 0 ];
-	const postDate = localPostDate || singlePost.date_gmt;
-	const postStatus = localPostStatus || singlePost.status || status;
+	const postDate = localPostDate || post.date_gmt;
+	const postStatus = localPostStatus || post.status || status;
 
 	let dateLabel = '';
 
