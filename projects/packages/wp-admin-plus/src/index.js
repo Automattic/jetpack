@@ -12,7 +12,7 @@ import domReady from '@wordpress/dom-ready';
  * Internal dependencies
  */
 import './style.scss';
-import PostDate from './components/post-date';
+import PostDate from './components/post-date/';
 
 domReady( () => {
 	const postRows = document.querySelectorAll( '.wp-list-table .entry' );
