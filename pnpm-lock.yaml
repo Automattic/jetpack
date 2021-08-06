@@ -324,7 +324,7 @@ importers:
       expect-puppeteer: ^5.0.4
       jest: 27.0.6
       jest-puppeteer: ^5.0.4
-      jetpack-boost-critical-css-gen: git+ssh://git@github.com/automattic/jetpack-boost-critical-css-gen.git#trunk
+      jetpack-boost-critical-css-gen: git+ssh://git@github.com/automattic/jetpack-boost-critical-css-gen.git#365c554cc815f3bb449678aaac80d1f77a8c8332
       node-sass: ^6.0.0
       node-wp-i18n: ^1.2.5
       npm-run-all: ^4.1.5
@@ -348,7 +348,7 @@ importers:
     dependencies:
       '@wordpress/components': 14.2.0_@babel+core@7.14.6
       '@wordpress/element': 3.2.0
-      jetpack-boost-critical-css-gen: github.com/automattic/jetpack-boost-critical-css-gen/8731d94b9809c148a0a971a48bacdcc49ee49662
+      jetpack-boost-critical-css-gen: github.com/automattic/jetpack-boost-critical-css-gen/365c554cc815f3bb449678aaac80d1f77a8c8332
     devDependencies:
       '@babel/core': 7.14.6
       '@babel/preset-env': 7.14.8_@babel+core@7.14.6
@@ -13966,7 +13966,7 @@ packages:
   /isomorphic-fetch/2.2.1:
     resolution: {integrity: sha1-YRrhrPFPXoH3KVB0coGf6XM1WKk=}
     dependencies:
-      node-fetch: 2.6.1
+      node-fetch: 1.7.3
       whatwg-fetch: 3.6.2
     dev: false
 
@@ -16396,6 +16396,13 @@ packages:
 
   /node-contains/1.0.0:
     resolution: {integrity: sha1-0sJzUkU22jtWGvBTnjM0T3yQLLg=}
+    dev: false
+
+  /node-fetch/1.7.3:
+    resolution: {integrity: sha512-NhZ4CsKx7cYm2vSrBAr2PvFOe6sWDf0UYLRqA6svUYg7+/TSfVAu49jYC4BvQ4Sms9SZgdqGBgroqfDhJdTyKQ==}
+    dependencies:
+      encoding: 0.1.13
+      is-stream: 1.1.0
     dev: false
 
   /node-fetch/2.6.1:
@@ -20505,7 +20512,7 @@ packages:
       find-cache-dir: 2.1.0
       is-wsl: 1.1.0
       schema-utils: 1.0.0
-      serialize-javascript: 5.0.1
+      serialize-javascript: 4.0.0
       source-map: 0.6.1
       terser: 4.8.0
       webpack: 4.45.0
@@ -20523,7 +20530,7 @@ packages:
       find-cache-dir: 2.1.0
       is-wsl: 1.1.0
       schema-utils: 1.0.0
-      serialize-javascript: 5.0.1
+      serialize-javascript: 4.0.0
       source-map: 0.6.1
       terser: 4.8.0
       webpack: 4.46.0_webpack-cli@4.5.0
@@ -22004,6 +22011,12 @@ packages:
     resolution: {integrity: sha512-WOkpgNhPTlE73h4VFAFsOnomJVaovO8VqLDzy5saChRBFQFBoMYirowyW+Q9HB4HFF4Z7VZTiG3iSzJJA29yRA==}
     engines: {node: '>=10'}
 
+  /yargs-parser/5.0.1:
+    resolution: {integrity: sha512-wpav5XYiddjXxirPoCTUPbqM0PXvJ9hiBMvuJgInvo4/lAOTZzUprArw17q2O1P2+GHhbBr18/iQwjL5Z9BqfA==}
+    dependencies:
+      camelcase: 3.0.0
+      object.assign: 4.1.2
+
   /yargs-unparser/2.0.0:
     resolution: {integrity: sha512-7pRTIA9Qc1caZ0bZ6RYRGbHJthJWuakf+WmHK0rVeLkNrrGhfoabBNdue6kdINI6r4if7ocq9aD/n7xwKOdzOA==}
     engines: {node: '>=10'}
@@ -22098,7 +22111,7 @@ packages:
       string-width: 1.0.2
       which-module: 1.0.0
       y18n: 3.2.2
-      yargs-parser: 20.2.4
+      yargs-parser: 5.0.1
 
   /yauzl/2.10.0:
     resolution: {integrity: sha1-x+sXyT4RLLEIb6bY5R+wZnt5pfk=}
@@ -22111,8 +22124,8 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
-  github.com/automattic/jetpack-boost-critical-css-gen/8731d94b9809c148a0a971a48bacdcc49ee49662:
-    resolution: {tarball: https://codeload.github.com/automattic/jetpack-boost-critical-css-gen/tar.gz/8731d94b9809c148a0a971a48bacdcc49ee49662}
+  github.com/automattic/jetpack-boost-critical-css-gen/365c554cc815f3bb449678aaac80d1f77a8c8332:
+    resolution: {tarball: https://codeload.github.com/automattic/jetpack-boost-critical-css-gen/tar.gz/365c554cc815f3bb449678aaac80d1f77a8c8332}
     name: jetpack-boost-critical-css-gen
     version: 0.0.1
     prepare: true
