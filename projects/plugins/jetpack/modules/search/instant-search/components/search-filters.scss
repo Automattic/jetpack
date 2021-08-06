@@ -46,6 +46,7 @@
 		top: 0; // Ensures align-items: center; works as expected.
 
 		// Remove any custom checkbox styling
+		margin: 0;
 		appearance: checkbox;
 		background: none;
 		border: none;
