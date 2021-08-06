@@ -18,7 +18,11 @@ describe( 'Paid blocks', () => {
 	let blockEditor;
 
 	beforeAll( async () => {
-		await prerequisitesBuilder().withConnection( true ).withPlan( Plans.Complete ).build();
+		await prerequisitesBuilder()
+			.withConnection( true )
+			.withPlan( Plans.Complete )
+			.withActiveModules( [ 'publicize' ] )
+			.build();
 	} );
 
 	beforeEach( async () => {
