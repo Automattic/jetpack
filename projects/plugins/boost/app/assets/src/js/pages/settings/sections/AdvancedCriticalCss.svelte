@@ -8,8 +8,6 @@
 		activeRecommendations,
 		dismissedRecommendations,
 		clearDismissedRecommendations,
-		resetDismissals,
-		updateDismissedRecommendations,
 	} from '../../../stores/critical-css-recommendations.ts';
 	import InfoIcon from '../../../svg/info.svg';
 	import generateCriticalCss from '../../../utils/generate-critical-css';
@@ -18,11 +16,29 @@
 	import { writable } from 'svelte/store';
 	import CriticalCssErrorDescription from '../elements/CriticalCssErrorDescription.svelte';
 	import { isFinished } from '../../../stores/critical-css-status';
+
 	function onRetry() {
 		generateCriticalCss();
 		navigateTo();
 	}
+
 	const dismissalError = writable( null );
+
+	/**
+	 * Set the dismissal error if something wrong occurred
+	 * during the event to dismiss a recommendation or the event
+	 * to clear the dismissed recommendations.
+	 *
+	 * @param {string} title.
+	 * @param {object} error.
+	 */
+	function setDismissalError( title, error ) {
+		dismissalError.set( {
+			title,
+			error,
+		} );
+	}
+
 	/**
 	 * Dismisses a recommendation by key.
 	 *
@@ -31,15 +47,11 @@
 	async function dismiss( key ) {
 		try {
 			await dismissRecommendation( key );
-			updateDismissedRecommendations( key );
 		} catch ( error ) {
-			dismissalError.set( {
-				title: __(
-					'Failed to dismiss recommendation',
-					'jetpack-boost'
-				),
-				error,
-			} );
+			setDismissalError(
+				__( 'Failed to dismiss recommendation', 'jetpack-boost' ),
+				error
+			);
 		}
 	}
 	/**
@@ -48,17 +60,17 @@
 	async function showDismissedRecommendations() {
 		try {
 			await clearDismissedRecommendations();
-			resetDismissals();
 		} catch ( error ) {
-			dismissalError.set( {
-				title: __(
+			setDismissalError(
+				__(
 					'Failed to show the dismissed recommendations',
 					'jetpack-boost'
 				),
-				error,
-			} );
+				error
+			);
 		}
 	}
+
 	/**
 	 * Figure out heading based on state.
 	 */
