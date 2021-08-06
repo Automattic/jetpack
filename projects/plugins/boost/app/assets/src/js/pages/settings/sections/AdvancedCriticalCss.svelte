@@ -1,11 +1,15 @@
 <script>
 	import { slide } from 'svelte/transition';
-	import { __ } from '@wordpress/i18n';
+	import { __, _n, sprintf } from '@wordpress/i18n';
 	import LeftArrow from '../../../svg/left-arrow.svg';
 	import { navigateTo } from '../../../stores/url-fragment';
 	import {
 		dismissRecommendation,
 		activeRecommendations,
+		dismissedRecommendations,
+		clearDismissedRecommendations,
+		resetDismissals,
+		updateDismissedRecommendations,
 	} from '../../../stores/critical-css-recommendations.ts';
 	import InfoIcon from '../../../svg/info.svg';
 	import generateCriticalCss from '../../../utils/generate-critical-css';
@@ -14,14 +18,11 @@
 	import { writable } from 'svelte/store';
 	import CriticalCssErrorDescription from '../elements/CriticalCssErrorDescription.svelte';
 	import { isFinished } from '../../../stores/critical-css-status';
-
 	function onRetry() {
 		generateCriticalCss();
 		navigateTo();
 	}
-
 	const dismissalError = writable( null );
-
 	/**
 	 * Dismisses a recommendation by key.
 	 *
@@ -30,11 +31,34 @@
 	async function dismiss( key ) {
 		try {
 			await dismissRecommendation( key );
-		} catch ( err ) {
-			dismissalError.set( err );
+			updateDismissedRecommendations( key );
+		} catch ( error ) {
+			dismissalError.set( {
+				title: __(
+					'Failed to dismiss recommendation',
+					'jetpack-boost'
+				),
+				error,
+			} );
 		}
 	}
-
+	/**
+	 * Show the previously dismissed recommendations.
+	 */
+	async function showDismissedRecommendations() {
+		try {
+			await clearDismissedRecommendations();
+			resetDismissals();
+		} catch ( error ) {
+			dismissalError.set( {
+				title: __(
+					'Failed to show the dismissed recommendations',
+					'jetpack-boost'
+				),
+				error,
+			} );
+		}
+	}
 	/**
 	 * Figure out heading based on state.
 	 */
@@ -49,7 +73,6 @@
 					'While Jetpack Boost has been able to automatically generate optimized CSS for most of your important files & sections, we have identified a few more that require your attention.',
 					'jetpack-boost'
 			  );
-
 	/**
 	 * Automatically navigate back to main Settings page if generator isn't done.
 	 */
@@ -72,15 +95,35 @@
 	</h3>
 
 	{#key heading}
-		<p transition:slide|local>
-			{heading}
-		</p>
+		<section transition:slide|local>
+			<p>{heading}</p>
+
+			{#if $dismissedRecommendations.length > 0}
+				<p>
+					<button
+						class="components-button is-link"
+						on:click={showDismissedRecommendations}
+					>
+						{sprintf(
+							/* translators: %d is a number of recommendations which were previously hidden by the user */
+							_n(
+								'Show %d hidden recommendation.',
+								'Show %d hidden recommendations.',
+								$dismissedRecommendations.length,
+								'jetpack-boost'
+							),
+							$dismissedRecommendations.length
+						)}
+					</button>
+				</p>
+			{/if}
+		</section>
 	{/key}
 
 	{#if $dismissalError}
 		<ErrorNotice
-			title={__( 'Failed to dismiss recommendation', 'jetpack-boost' )}
-			error={$dismissalError}
+			title={$dismissalError.title}
+			error={$dismissalError.error}
 		/>
 	{/if}
 

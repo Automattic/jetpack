@@ -106,7 +106,23 @@ export async function dismissRecommendation( key: string ): Promise< void > {
 		action: 'dismiss_recommendations',
 		providerKey: key,
 	} );
+}
 
+/**
+ * Clear all the dismissed recommendations.
+ */
+export async function clearDismissedRecommendations(): Promise< void > {
+	await makeAdminAjaxRequest( {
+		action: 'reset_dismissed_recommendations',
+	} );
+}
+
+/**
+ * Update dismissed recommendation.
+ *
+ * @param {string} key Key of recommendation to dismiss.
+ */
+export function updateDismissedRecommendations( key ): void {
 	dismissed.update( ( keys ) => [ ...keys, key ] );
 }
 
