@@ -9,6 +9,7 @@ const glob = require( 'glob' );
 let phpcsExcludelist = null;
 let eslintExcludelist = null;
 let exitCode = 0;
+let draftMode = false;
 
 /**
  * Load the phpcs exclude list.
@@ -176,7 +177,7 @@ function runEslint( toLintFiles ) {
 		}
 	);
 
-	if ( eslintResult && eslintResult.status ) {
+	if ( eslintResult && eslintResult.status && ! isJetpackDraftMode() ) {
 		// If we get here, required files have failed eslint. Let's return early and avoid the duplicate information.
 		checkFailed();
 		exit( exitCode );
@@ -206,7 +207,7 @@ function runEslintChanged( toLintFiles ) {
 		stdio: 'inherit',
 	} );
 
-	if ( eslintResult && eslintResult.status ) {
+	if ( eslintResult && eslintResult.status && ! isJetpackDraftMode() ) {
 		checkFailed();
 	}
 }
@@ -226,7 +227,7 @@ function runPHPLinter( toLintFiles ) {
 		stdio: 'inherit',
 	} );
 
-	if ( phpLintResult && phpLintResult.status ) {
+	if ( phpLintResult && phpLintResult.status && ! isJetpackDraftMode() ) {
 		checkFailed( 'PHP found linting/syntax errors!\n' );
 		exit( exitCode );
 	}
@@ -241,7 +242,7 @@ function runPHPCS() {
 		stdio: 'inherit',
 	} );
 
-	if ( phpcsResult && phpcsResult.status ) {
+	if ( phpcsResult && phpcsResult.status && ! isJetpackDraftMode() ) {
 		const phpcsStatus =
 			2 === phpcsResult.status
 				? 'PHPCS reported some problems and could not automatically fix them since there are unstaged changes in the file.\n'
@@ -302,10 +303,28 @@ function runPHPCSChanged( phpFilesToCheck ) {
 			}
 		} );
 
-		if ( phpChangedFail ) {
+		if ( phpChangedFail && ! isJetpackDraftMode() ) {
 			checkFailed();
 		}
 	}
+}
+
+/**
+ * Checks if we're in draft mode and sets the draft mode flag
+ */
+function runCheckDraftMode() {
+	draftMode = fs.existsSync( '.jetpack-draft' );
+	draftMode
+		? console.log(
+				chalk.yellow(
+					"You're in draft mode. Skipping some checks. To exit draft mode, run `jetpack draft disable`."
+				)
+		  )
+		: console.log( chalk.green( 'Draft mode disabled. All checks enabled.' ) );
+}
+
+function isJetpackDraftMode() {
+	return draftMode;
 }
 
 /**
@@ -322,14 +341,14 @@ function runCheckCopiedFiles() {
 }
 
 /**
- * Check that renovate's ignore list is up to date.
+ * Check that renovate's ignore list is up to date. Runs in draft mode but does not block commit.
  */
 function runCheckRenovateIgnoreList() {
 	const result = spawnSync( './tools/js-tools/check-renovate-ignore-list.js', [], {
 		shell: true,
 		stdio: 'inherit',
 	} );
-	if ( result && result.status ) {
+	if ( result && result.status && ! isJetpackDraftMode() ) {
 		checkFailed( '' );
 	}
 }
@@ -372,6 +391,7 @@ function exit( exitCodePassed ) {
 
 // Start of pre-commit checks execution.
 
+runCheckDraftMode();
 runCheckCopiedFiles();
 runCheckRenovateIgnoreList();
 runCheckGitHubActionsYamlFiles();

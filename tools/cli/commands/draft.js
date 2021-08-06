@@ -85,42 +85,43 @@ export async function draftDisable( argv ) {
 		if ( preCommitAnswers.runPreCommit ) {
 			const data = child_process.spawnSync(
 				path.join( process.cwd(), '.git/hooks/pre-commit' ),
-				{},
-				{}
+				[],
+				{ shell: true, stdio: 'inherit' }
 			);
+
 			// Node.js exit code status 0 === success
 			if ( data.status !== 0 ) {
-				console.error( data );
+				console.error( chalk.red( 'Pre-commit hook failed' ) );
 			} else {
-				// await gitAdd( argv );
-				console.log( data.output[ 1 ].toString() );
 				console.log( chalkJetpackGreen( 'Pre-commit hooks complete' ) );
 			}
 		}
 
-		const prePushAnswers = await inquirer.prompt( [
-			{
-				type: 'confirm',
-				name: 'runPrePush',
-				default: false,
-				message: 'Would you like to run pre-push checks now?',
-			},
-		] );
+		// TODO: figure out why this is stalling out
 
-		if ( prePushAnswers.runPrePush ) {
-			const data = child_process.spawnSync(
-				path.join( process.cwd(), '.git/hooks/pre-push' ),
-				{},
-				{}
-			);
-			// Node.js exit code status 0 === success
-			if ( data.status !== 0 ) {
-				console.error( data );
-			} else {
-				console.log( data.output[ 1 ].toString() );
-				console.log( chalkJetpackGreen( 'Pre-push hooks complete' ) );
-			}
-		}
+		// const prePushAnswers = await inquirer.prompt( [
+		// 	{
+		// 		type: 'confirm',
+		// 		name: 'runPrePush',
+		// 		default: false,
+		// 		message: 'Would you like to run pre-push checks now?',
+		// 	},
+		// ] );
+
+		// if ( prePushAnswers.runPrePush ) {
+		// 	const data = child_process.spawnSync(
+		// 		path.join( process.cwd(), '.git/hooks/pre-push' ),
+		// 		[],
+		// 		{ shell: true, stdio: "inherit" }
+		// 	);
+
+		// 	// Node.js exit code status 0 === success
+		// 	if ( data.status !== 0 ) {
+		// 		console.error( chalk.red('Pre-push hook failed') );
+		// 	} else {
+		// 		console.log( chalkJetpackGreen( 'Pre-push hooks complete' ) );
+		// 	}
+		// }
 
 		if ( argv.v ) {
 			console.log( argv );
@@ -144,15 +145,10 @@ export function draftDefine( yargs ) {
 		'Enable and disable draft mode, which reduces strictness of pre-commit and pre-push checks',
 		yarg => {
 			yarg
-				.positional( 'cmd', {
-					describe: 'Command for draft',
-					type: 'string',
-					choices: [ 'enable', 'disable', 'new' ],
-				} )
 				.command(
 					'enable',
 					'Enable draft mode - reduces strictness of pre-commit and pre-push checks',
-					null,
+					_ => {},
 					async argv => {
 						await draftEnable( argv );
 					}
@@ -160,7 +156,7 @@ export function draftDefine( yargs ) {
 				.command(
 					'disable',
 					'Disable draft PR mode - regular pre-commit and pre-push checks',
-					null,
+					_ => {},
 					async argv => {
 						await draftDisable( argv );
 					}
