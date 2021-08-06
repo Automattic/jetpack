@@ -50,7 +50,7 @@ class WPCOMSH_Support_Session_Detect {
 		return (
 			! is_user_logged_in() &&
 			! static::has_detection_result() &&
-			! ( class_exists( 'Jetpack' ) && Jetpack::is_active() && Jetpack::is_module_active( 'sso' ) ) &&
+			! ( class_exists( 'Jetpack' ) && Jetpack::is_connection_ready() && Jetpack::is_module_active( 'sso' ) ) &&
 			! isset( $_GET[ static::QUERY_PARAM_TO_SHORT_CIRCUIT ] )
 		);
 	}

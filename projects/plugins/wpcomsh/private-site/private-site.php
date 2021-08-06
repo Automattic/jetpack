@@ -606,7 +606,7 @@ function preprocess_comment( $comment ) {
 }
 
 function is_jetpack_connected() {
-	return is_callable( 'Jetpack::is_active' ) && \Jetpack::is_active();
+	return is_callable( 'Jetpack::is_connection_ready' ) && \Jetpack::is_connection_ready();
 }
 
 function is_site_preview() {

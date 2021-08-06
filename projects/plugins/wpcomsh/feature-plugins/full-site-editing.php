@@ -53,7 +53,7 @@ add_filter( 'option_wpcom_public_coming_soon', 'wpcomsh_coming_soon_get_atomic_p
  */
 function wpcom_fse_spt_add_tracking_identity_to_config( $config ) {
 	// Load identity.
-	$has_active_jetpack = ( class_exists( 'Jetpack' ) && Jetpack::is_active() );
+	$has_active_jetpack = ( class_exists( 'Jetpack' ) && Jetpack::is_connection_ready() );
 	if ( $has_active_jetpack && class_exists( 'Jetpack_Tracks_Client' ) ) {
 		$config['tracksUserData'] = Jetpack_Tracks_Client::get_connected_user_tracks_identity();
 		// Enqueue tracks script.
@@ -76,7 +76,7 @@ add_filter( 'fse_starter_page_templates_config', 'wpcom_fse_spt_add_tracking_ide
  * @see https://github.com/Automattic/wp-calypso/pull/34655
  */
 function wpcom_fse_global_editors_script() {
-	if ( ! class_exists( 'Jetpack' ) || ! class_exists( 'Jetpack_Options' ) || ! Jetpack::is_active() ) {
+	if ( ! class_exists( 'Jetpack' ) || ! class_exists( 'Jetpack_Options' ) || ! Jetpack::is_connection_ready() ) {
 		return;
 	}
 
