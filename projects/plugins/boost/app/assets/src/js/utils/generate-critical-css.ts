@@ -17,7 +17,7 @@ import type { Viewport } from './types';
 import { isEnabled } from '../stores/modules';
 import { loadCriticalCssLibrary } from './load-critical-css-library';
 import { removeShownAdminNotices } from './remove-admin-notices';
-import { resetDismissals } from '../stores/critical-css-recommendations';
+import { clearDismissedRecommendations } from '../stores/critical-css-recommendations';
 
 export type ProviderKeyUrls = {
 	[ providerKey: string ]: string[];
@@ -63,7 +63,7 @@ export default async function generateCriticalCss(
 	let cancelling = false;
 
 	if ( reset ) {
-		resetDismissals();
+		clearDismissedRecommendations();
 		updateGenerateStatus( true, 0 );
 	}
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix an incorrect call to clear dismissed recommendations on plugin deactivation
