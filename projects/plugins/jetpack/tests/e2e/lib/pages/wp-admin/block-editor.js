@@ -18,7 +18,7 @@ export default class BlockEditorPage extends WpPage {
 	}
 
 	get searchBlockFldSel() {
-		return '.block-editor-inserter__search-input';
+		return '.components-search-control__input,.block-editor-inserter__search-input';
 	}
 
 	blockSel( blockName ) {
