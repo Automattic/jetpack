@@ -37,6 +37,19 @@
 		font-weight: 500;
 	}
 
+	.jp-connection-status-card {
+		h3 {
+			margin-top: 40px;
+			font-size: var( --font-title-small );
+			font-weight: 500;
+		}
+
+		p, li {
+			font-size: 13px;
+			line-height: 1.5;
+		}
+	}
+
 	a {
 		color: var( --jp-black );
 		transition: color, background-color 0.15s ease-out;

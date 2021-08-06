@@ -19,7 +19,7 @@ import { STORE_ID } from '../store';
 /* eslint react/react-in-jsx-scope: 0 */
 const Admin = () => {
 	const [ connectionStatus, renderConnectScreen, renderConnectionStatusCard ] = useConnection();
-	const [ capabilities, setCapabilities ] = useState( null );
+	const [ capabilities, setCapabilities ] = useState( [] );
 	const [ capabilitiesError, setCapabilitiesError ] = useState( null );
 	const [ connectionLoaded, setConnectionLoaded ] = useState( false );
 	const [ capabilitiesLoaded, setCapabilitiesLoaded ] = useState( false );
@@ -51,7 +51,7 @@ const Admin = () => {
 	};
 
 	const hasBackupPlan = () => {
-		return capabilities !== null && capabilities.includes( 'backup' );
+		return capabilities.includes( 'backup' );
 	};
 
 	const renderNoBackupCapabilities = () => {
@@ -176,7 +176,7 @@ const Admin = () => {
 							'jetpack-backup'
 						) }
 					</p>
-					{ ! capabilities.includes( 'backup-realtime' ) && (
+					{ hasBackupPlan() && ! capabilities.includes( 'backup-realtime' ) && (
 						<a
 							class="jp-cut"
 							href={ getRedirectUrl( 'backup-plugin-realtime-upgrade', { site: domain } ) }
@@ -220,7 +220,7 @@ const Admin = () => {
 				<div className="jp-hero">{ renderLoadedState() }</div>
 				<div className="jp-section">
 					<div className="jp-wrap">
-						{ hasBackupPlan() && renderBackupSegments() }
+						{ renderBackupSegments() }
 						{ isFullyConnected() && (
 							<div className="jp-row">
 								<div class="lg-col-span-6 md-col-span-4 sm-col-span-4"></div>
