@@ -19,7 +19,7 @@ export default class BlockEditorPage extends WpPage {
 
 	get searchBlockFldSel() {
 		// There are 2 classes here because the class changed in Gutenberg 11.2 but is not yet in the WP bundled version.
-		//todo to remove .block-editor-inserter__search-input once WP will include GB version 11.2
+		//TODO: to remove .block-editor-inserter__search-input once WP will include GB version 11.2
 		return '.components-search-control__input,.block-editor-inserter__search-input';
 	}
 
