@@ -23,6 +23,10 @@ table.wp-list-table {
 
 .components-datetime__date .CalendarDay {
 	padding: 0;
+
+	&.CalendarDay__selected {
+		color: #fff;
+	}
 }
 
 .components-popover .components-popover__content > div {
