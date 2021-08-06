@@ -10,8 +10,7 @@
 
 	// Show a Provider Key error if the process succeeded but there were errors.
 	let showingProviderError = false;
-	$: showingProviderError =
-		$primaryErrorSet && $criticalCssStatus.status === 'success';
+	$: showingProviderError = $primaryErrorSet && $criticalCssStatus.status === 'success';
 
 	const title = __( 'Failed to generate Critical CSS', 'jetpack-boost' );
 
@@ -26,10 +25,7 @@
 
 {#if showingProviderError}
 	<ErrorNotice {title}>
-		<CriticalCssErrorDescription
-			errorSet={$primaryErrorSet}
-			on:retry={generateCriticalCss}
-		/>
+		<CriticalCssErrorDescription errorSet={$primaryErrorSet} on:retry={generateCriticalCss} />
 	</ErrorNotice>
 {:else}
 	<ErrorNotice {title}>
