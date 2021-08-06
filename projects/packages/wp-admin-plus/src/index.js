@@ -23,7 +23,7 @@ domReady( () => {
 
 	const postIds = [];
 	postRows.forEach( postRow => {
-		const postStatusLabelElement = postRow.querySelector( '.post-state' );
+		let postStatusLabelElement = postRow.querySelector( '.post-state' );
 		const postDateElementWrapper = postRow.querySelector( '.column-date' );
 
 		// Try to pick post data from custom column.
@@ -48,16 +48,27 @@ domReady( () => {
 		// @TODO: probably it's better doing it in the server-side.
 		data = { ...data, postIds };
 
+		// Collect all post ids in the current admin page.
+		postIds.push( data.id );
+
 		// Render post state component.
-		if ( postStatusLabelElement ) {
+		if ( ! postStatusLabelElement ) {
+			const postTitleLabelElement = postRow.querySelector( '.row-title' );
+
+			// Inject element when it doesn't exist (publish state).
+			if ( postTitleLabelElement ) {
+				postStatusLabelElement = document.createElement( 'span' );
+				postStatusLabelElement.classList.add( 'post-state' );
+				postTitleLabelElement.parentNode.insertBefore( postStatusLabelElement, postTitleLabelElement.nextSibling );
+				postTitleLabelElement.parentNode.insertBefore( document.createTextNode( ' — ' ), postTitleLabelElement.nextSibling );
+			}
+
 			render(
 				<PostStatusLabel { ...data } fallbackText={ postStatusLabelElement.innerText } />,
 				postStatusLabelElement
 			);
 		}
 
-		// Collect all post ids in the current admin page.
-		postIds.push( data.id );
 
 		// Render a component for each post row.
 		if ( postDateElementWrapper ) {
