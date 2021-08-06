@@ -13,6 +13,7 @@ import domReady from '@wordpress/dom-ready';
  */
 import './style.scss';
 import PostDate from './components/post-date/';
+import PostStatusLabel from './components/post-status-label/';
 
 domReady( () => {
 	const postRows = document.querySelectorAll( '.wp-list-table .entry' );
@@ -22,8 +23,8 @@ domReady( () => {
 
 	const postIds = [];
 	postRows.forEach( postRow => {
+		const postStatusLabelElement = postRow.querySelector( '.post-state' );
 		const postDateElementWrapper = postRow.querySelector( '.column-date' );
-		const fallbackText = postDateElementWrapper.innerText;
 
 		// Try to pick post data from custom column.
 		let data;
@@ -43,13 +44,27 @@ domReady( () => {
 			rowDataContainer.remove();
 		}
 
+		// Populate component data with postIds.
+		// @TODO: probably it's better doing it in the server-side.
+		data = { ...data, postIds };
+
+		// Render post state component.
+		if ( postStatusLabelElement ) {
+			render(
+				<PostStatusLabel { ...data } fallbackText={ postStatusLabelElement.innerText } />,
+				postStatusLabelElement
+			);
+		}
+
 		// Collect all post ids in the current admin page.
 		postIds.push( data.id );
 
 		// Render a component for each post row.
-		render(
-			<PostDate { ...data } fallbackText={ fallbackText } postIds={ postIds } />,
-			postDateElementWrapper
-		);
+		if ( postDateElementWrapper ) {
+			render(
+				<PostDate { ...data } fallbackText={ postDateElementWrapper.innerText } />,
+				postDateElementWrapper
+			);
+		}
 	} );
 } );

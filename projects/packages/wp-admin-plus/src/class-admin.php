@@ -100,10 +100,24 @@ class Admin {
 					'type'     => $post->post_type,
 					'status'   => $post->post_status,
 					'date_gmt' => $post->post_date_gmt,
+					'statuses' => self::get_post_statuses( $post_id ),
 				)
 			);
 			echo '</script>';
 		}
+	}
+
+	public function get_post_statuses( $post_id ) {
+		return array_merge(
+			array(
+				'publish' => __( 'Published' ),
+				'private' => __( 'Published' ),
+				'future'  => __( 'Scheduled' ),
+				'pending' => __( 'Pending Review' ),
+				'draft'   => __( 'Draft' ),
+			),
+			get_post_statuses( $post_id )
+		);
 	}
 
 	/**
