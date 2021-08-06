@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 /* eslint-disable no-console, no-process-exit */
+const isJetpackDraftMode = require( './jetpack-draft' );
 const execSync = require( 'child_process' ).execSync;
 const spawnSync = require( 'child_process' ).spawnSync;
 const chalk = require( 'chalk' );
@@ -9,7 +10,6 @@ const glob = require( 'glob' );
 let phpcsExcludelist = null;
 let eslintExcludelist = null;
 let exitCode = 0;
-let draftMode = false;
 
 /**
  * Load the phpcs exclude list.
@@ -312,24 +312,6 @@ function runPHPCSChanged( phpFilesToCheck ) {
 }
 
 /**
- * Checks if we're in draft mode and sets the draft mode flag
- */
-function runCheckDraftMode() {
-	draftMode = fs.existsSync( '.jetpack-draft' );
-	draftMode
-		? console.log(
-				chalk.yellow(
-					"You're in draft mode. Skipping some checks. To exit draft mode, run `jetpack draft disable`."
-				)
-		  )
-		: console.log( chalk.green( 'Draft mode disabled. All checks enabled.' ) );
-}
-
-function isJetpackDraftMode() {
-	return draftMode;
-}
-
-/**
  * Check that copied files are in sync.
  */
 function runCheckCopiedFiles() {
@@ -393,7 +375,6 @@ function exit( exitCodePassed ) {
 
 // Start of pre-commit checks execution.
 
-runCheckDraftMode();
 runCheckCopiedFiles();
 runCheckRenovateIgnoreList();
 runCheckGitHubActionsYamlFiles();
