@@ -231,6 +231,21 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 			),
 	},
 
+	EmptyCSSError: {
+		describeSet: ( set ) =>
+			_n(
+				'It looks like that this page does not contain CSS in its external style sheet(s):',
+				'It looks like that these pages do not contain CSS in their external style sheet(s):',
+				urlCount( set ),
+				'jetpack-boost'
+			),
+		suggestion: ( set ) =>
+			__(
+				'Please load the page, and verify it has external style sheet containing some CSS and <retry>try again</retry>.',
+				'jetpack-boost'
+			),
+	},
+
 	UnknownError: {
 		describeSet: ( set ) =>
 			_n(
