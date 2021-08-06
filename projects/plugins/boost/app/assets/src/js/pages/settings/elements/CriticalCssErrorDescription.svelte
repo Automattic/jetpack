@@ -30,12 +30,10 @@
 	// Keep a set of URLs in an easy-to-render {href:, label:} format.
 	// Each should show the URL in its label, but actually link to error.meta.url if available.
 	let displayUrls = [];
-	$: displayUrls = Object.entries( errorSet.byUrl ).map(
-		( [ url, error ] ) => ( {
-			href: error.meta.url ? error.meta.url : url,
-			label: url,
-		} )
-	);
+	$: displayUrls = Object.entries( errorSet.byUrl ).map( ( [ url, error ] ) => ( {
+		href: error.meta.url ? error.meta.url : url,
+		label: url,
+	} ) );
 
 	const templateVars = {
 		...actionLinkTemplateVar( () => dispatch( 'retry' ), 'retry' ),
@@ -45,10 +43,7 @@
 
 <div class="jb-critical-css__error-description">
 	<span class="error-description">
-		<TemplatedString
-			template={describeErrorSet( errorSet )}
-			vars={{ templateVars }}
-		/>
+		<TemplatedString template={describeErrorSet( errorSet )} vars={{ templateVars }} />
 	</span>
 
 	<MoreList let:entry entries={displayUrls}>
@@ -62,10 +57,7 @@
 	</h5>
 
 	<p class="suggestion">
-		<TemplatedString
-			template={textSuggestion( errorSet )}
-			vars={templateVars}
-		/>
+		<TemplatedString template={textSuggestion( errorSet )} vars={templateVars} />
 	</p>
 
 	{#if rawError( errorSet )}
