@@ -245,6 +245,7 @@ export const settings = {
 							alt,
 						} ) ),
 						ids: validImages.map( ( { id } ) => id ),
+						columnWidths: [ [ '100.00000' ] ],
 					} );
 				},
 			},
@@ -261,6 +262,7 @@ export const settings = {
 								alt,
 							} ) ),
 							ids: validImages.map( ( { id } ) => id ),
+							columnWidths: [ [ '100.00000' ] ],
 						} );
 					}
 					return createBlock( `jetpack/${ name }` );
