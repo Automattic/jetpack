@@ -168,16 +168,18 @@ function runEslint( toLintFiles ) {
 		return;
 	}
 
+	const maxWarnings = isJetpackDraftMode() ? 100 : 0;
+
 	const eslintResult = spawnSync(
 		'pnpm',
-		[ 'run', 'lint-file', '--', '--max-warnings=0', ...toLintFiles ],
+		[ 'run', 'lint-file', '--', `--max-warnings=${ maxWarnings }`, ...toLintFiles ],
 		{
 			shell: true,
 			stdio: 'inherit',
 		}
 	);
 
-	if ( eslintResult && eslintResult.status && ! isJetpackDraftMode() ) {
+	if ( eslintResult && eslintResult.status ) {
 		// If we get here, required files have failed eslint. Let's return early and avoid the duplicate information.
 		checkFailed();
 		exit( exitCode );
