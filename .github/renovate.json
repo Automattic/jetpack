@@ -13,6 +13,7 @@
 			"groupName": "Monorepo packages",
 			"matchPackageNames": [
 				"@automattic/eslint-changed",
+				"@automattic/jetpack-api",
 				"@automattic/jetpack-components",
 				"@automattic/jetpack-connection",
 				"automattic/jetpack-a8c-mc-stats",
@@ -83,5 +84,6 @@
 		}
 	],
 	"dependencyDashboard": true,
-	"dependencyDashboardTitle": "Renovate Dependency Updates"
+	"dependencyDashboardTitle": "Renovate Dependency Updates",
+	"dependencyDashboardLabels": [ "Primary Issue", "[Type] Janitorial" ]
 }

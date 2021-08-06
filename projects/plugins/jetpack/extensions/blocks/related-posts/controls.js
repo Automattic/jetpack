@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { PanelBody, RangeControl, ToggleControl, Toolbar } from '@wordpress/components';
+import { PanelBody, RangeControl, ToggleControl, ToolbarGroup } from '@wordpress/components';
 
 export const MAX_POSTS_TO_SHOW = 6;
 
@@ -54,5 +54,5 @@ export function RelatedPostsBlockControls( { attributes, setAttributes } ) {
 		},
 	];
 
-	return <Toolbar controls={ layoutControls } />;
+	return <ToolbarGroup controls={ layoutControls } />;
 }

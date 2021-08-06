@@ -70,7 +70,6 @@ export async function installCli( argv ) {
  * Command definition for the install subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
- *
  * @returns {object} Yargs with the install commands defined.
  */
 export function installDefine( yargs ) {
@@ -110,7 +109,6 @@ export function installDefine( yargs ) {
  *
  * @param {object} argv - The argv object
  * @param {Array} tasks - The tasks array
- *
  * @returns {Array} The tasks array
  */
 function addRootInstallTask( argv, tasks ) {

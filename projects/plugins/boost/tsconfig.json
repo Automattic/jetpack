@@ -1,0 +1,10 @@
+{
+	"extends": "@tsconfig/svelte/tsconfig.json",
+	"include": [ "app/assets/src/**/*", "tests/integration/**/*" ],
+	"exclude": [ "node_modules/*", "app/assets/dist/*" ],
+	"compilerOptions": {
+		"types": [ "svelte" ],
+		"typeRoots": [ "./node_modules/@types/", "./src/" ],
+		"lib": [ "dom", "es2018" ]
+	}
+}

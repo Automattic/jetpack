@@ -2,6 +2,66 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 10.0 - 2021-08-03
+### Enhancements
+- Carousel: add JS-based smooth scroll behavior for the footer buttons.
+- Carousel: on image zoom, fade out controls. Fade them back in when sized back to original, or the slide is advanced.
+
+### Improved compatibility
+- Carousel: add a Swiper JS param to prevent interaction on the carousel while transitioning between slides.
+- Map Block: ensure theme styles do not override map button background colors.
+- Search: remove required attribute from search inputs.
+
+### Bug fixes
+- Carousel: fix carousel title formatting to prevent issues with quote conversion.
+- Comments: fix subsequent commenting when using a social profile.
+- Contact Form Block: remove specific form colors to prevent theme style clash.
+- Instant Search: fix visual glitch on breadcrumb in Firefox.
+- Instant Search: make sure ?s= is set when using filter links.
+- Like Button: add title and aria-hidden attributes to the Like button iframe.
+- OpenTable Block: fix input width when used in block editor.
+- Publicize: avoid PHP notices in edge-cases where no info about a post can be found.
+- Search: fix notice issue with WP 5.8's widget editor.
+- Select Dropdown Component: add content-box box sizing to prevent global box-sizing conflict.
+- SEO Tools: ensure functions are loaded before API endpoint attempts to use them.
+- Tiled Gallery: fix blurry display of images much wider than they are high.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add admin / frontend CSS files to the build watcher.
+- Add event tracking for the Dashboard Quick Switcher.
+- Add field for Zendesk meta in /sites/id for Jetpack sites.
+- Add jetpack_connection_active_plugins option in JSON API site endpoint response options.
+- Add tracks event when the Stats page upgrade nudges are displayed.
+- Add upgrade nudges to the Site Stats page.
+- Admin menu: move site editor menu item and add beta badge.
+- Comments: refactor jQuery usage.
+- Development: soft-fail if Jetpack is not built.
+- Dev Tools: add list items to the Dev Tools card for new Backup and Security products.
+- E2E tests: add listeners for page errors and request failed.
+- E2E tests: require local node to match one defined in package.json file.
+- Fail build if the php:module-headings step fails.
+- Heartbeat: calculate media library size.
+- Init 10.0 release cycle.
+- Modules: include all module info in the module-headings.php file during the build step.
+- Move connection/data endpoint to Connection package.
+- Move site disconnection endpoint to Connection package.
+- My Plan: recognize and display new Backup, Security plans.
+- Nav Unification: ensure on pageload that the active menu item is keyboard focused in nav unification so its consistent with Calypso.
+- Nav Unification: fix the condition that disables Nav-unification when SSO is disabled and the admin-menu class is overridden in jetpack_admin_menu_class filter.
+- Plans: add slugs for new real-time Backup and Security offerings.
+- Search: add footer for search dashboard.
+- Search: add instant search upsell nudge for Business plan.
+- Search: add mocked legacy search interface for admin page.
+- Search: add scaffolding for Gutenberg-enabled Customizer (Customberg).
+- Search: add search setting dashboard with toggle controls.
+- Search: add widgets editor and search customizer buttons for search admin page.
+- Support coming soon v2 sites with the coming soon badge in the admin menu.
+- Update contributor list.
+- Update package dependencies.
+- WoA: add security nav item to the Atomic admin menu only if the site has the security-settings feature.
+- WoA: fix My Sites navigation in WP-Admin for Atomic sites with SSO disabled (and nav-unification disabled).
+- WoA: force Calypso interfaces for Atomic sites that have Jetpack SSO disabled.
+
 ## 9.9.1 - 2021-07-20
 ### Enhancements
 - Carousel: improve carousel icons.
