@@ -62,3 +62,28 @@ jQuery( function ( $ ) {
 		quiz.data( 'trackid', false );
 	} );
 } );
+
+let quizWrapper = document.querySelectorAll( '.jetpack-quiz-wrapper' );
+for ( let i = 0; i < quizWrapper.length; i++ ) {
+	quizWrapper[ i ].childNodes.forEach( ( element, number ) => {
+		element.style.display = 'none';
+		element.setAttribute( 'quiz-number', number );
+		element.querySelector( '.jetpack-quiz-count' ).innerHTML =
+			number + 1 + '/' + quizWrapper[ i ].childElementCount;
+	} );
+
+	quizWrapper[ i ].childNodes[ 0 ].style.display = 'block';
+}
+
+document.querySelectorAll( '.jetpack-quiz-option-button' ).forEach( ( element ) =>
+	element.addEventListener( 'click', ( event ) => {
+		let currentQuiz = element.parentElement.parentElement;
+		currentQuiz.style.display = 'none';
+		let switchNumber = element.getAttribute( 'data-quiz-option' ) === 'next' ? 1 : -1;
+		let newQuiz =
+			currentQuiz.parentElement.childNodes[
+				parseInt( currentQuiz.getAttribute( 'quiz-number' ) ) + switchNumber
+			];
+		newQuiz.style.display = 'block';
+	} )
+);
