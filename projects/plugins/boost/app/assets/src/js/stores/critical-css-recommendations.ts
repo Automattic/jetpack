@@ -96,6 +96,26 @@ export const primaryErrorSet = derived( recommendations, ( recommends ) => {
 } );
 
 /**
+ * Store used to track Critical CSS Recommendations dismissal error.
+ */
+export const dismissalError = writable( null );
+
+/**
+ * Set the dismissal error if something wrong occurred
+ * during the event to dismiss a recommendation or the event
+ * to clear the dismissed recommendations.
+ *
+ * @param {string} title Error display title.
+ * @param {Object} error Error.
+ */
+export function setDismissalError( title, error ) {
+	dismissalError.set( {
+		title,
+		error,
+	} );
+}
+
+/**
  * Dismiss the recommendation associated with the given provider key. Calls the
  * API to update the back end in lock-step.
  *

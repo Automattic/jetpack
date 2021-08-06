@@ -8,35 +8,19 @@
 		activeRecommendations,
 		dismissedRecommendations,
 		clearDismissedRecommendations,
+		dismissalError,
+		setDismissalError,
 	} from '../../../stores/critical-css-recommendations.ts';
 	import InfoIcon from '../../../svg/info.svg';
 	import generateCriticalCss from '../../../utils/generate-critical-css';
 	import CloseButton from '../../../elements/CloseButton.svelte';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
-	import { writable } from 'svelte/store';
 	import CriticalCssErrorDescription from '../elements/CriticalCssErrorDescription.svelte';
 	import { isFinished } from '../../../stores/critical-css-status';
 
 	function onRetry() {
 		generateCriticalCss();
 		navigateTo();
-	}
-
-	const dismissalError = writable( null );
-
-	/**
-	 * Set the dismissal error if something wrong occurred
-	 * during the event to dismiss a recommendation or the event
-	 * to clear the dismissed recommendations.
-	 *
-	 * @param {string} title.
-	 * @param {object} error.
-	 */
-	function setDismissalError( title, error ) {
-		dismissalError.set( {
-			title,
-			error,
-		} );
 	}
 
 	/**
