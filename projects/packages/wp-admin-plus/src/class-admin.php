@@ -96,9 +96,10 @@ class Admin {
 			echo '<script type="application/json">';
 			echo wp_json_encode(
 				array(
-					'id'     => $post->ID,
-					'type'   => $post->post_type,
-					'status' => $post->post_status,
+					'id'       => $post->ID,
+					'type'     => $post->post_type,
+					'status'   => $post->post_status,
+					'date_gmt' => $post->post_date_gmt,
 				)
 			);
 			echo '</script>';
