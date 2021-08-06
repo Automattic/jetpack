@@ -10,6 +10,7 @@ import { __, sprintf } from '@wordpress/i18n';
 
 export default function PostDateEdit( { id, postIds, type, fallbackText, status } ) {
 	const [ localPostDate, setLocalPostDate ] = useState();
+	const [ localPostStatus, setLocalPostStatus ] = useState();
 	const posts = useSelect(
 		select => {
 			return select( coreStore ).getEntityRecords( 'postType', type, {
@@ -37,6 +38,9 @@ export default function PostDateEdit( { id, postIds, type, fallbackText, status 
 			// eslint-disable-next-line no-console
 			return console.error( 'Error saving post: ', savedPost );
 		}
+
+		// Update the Post Status once the post saves.
+		setLocalPostStatus( savedPost?.status );
 	}
 
 	if ( ! posts?.length ) {
@@ -50,10 +54,11 @@ export default function PostDateEdit( { id, postIds, type, fallbackText, status 
 
 	const singlePost = post[ 0 ];
 	const postDate = localPostDate || singlePost.date_gmt;
+	const postStatus = localPostStatus || singlePost.status || status;
 
 	let dateLabel = '';
 
-	switch ( status ) {
+	switch ( postStatus ) {
 		case 'publish':
 			dateLabel = sprintf(
 				/* translators: %s: Publish state and date of the post. */
