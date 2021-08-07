@@ -255,8 +255,8 @@ class Quiz_Shortcode {
 			$content,
 			array(
 				'tt'     => array(),
-				'a'      => array( 
-					'href'             => true, 
+				'a'      => array(
+					'href'             => true,
 					'class'            => true,
 					'data-quiz-option' => true,
 				),
