@@ -327,12 +327,10 @@ class Jetpack_Carousel {
 			 */
 			$localize_strings = apply_filters( 'jp_carousel_localize_strings', $localize_strings );
 			wp_localize_script( 'jetpack-carousel', 'jetpackCarouselStrings', $localize_strings );
-			wp_enqueue_style(
-				'jetpack-carousel-swiper-css',
-				plugins_url( 'swiper-bundle.css', __FILE__ ),
-				array(),
-				$this->asset_version( JETPACK__VERSION )
-			);
+
+			// Enqueue the swiperjs css bundle with high priority to it doesn't override other plugins usage of this css.
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_swiper_style' ), 1 );
+
 			wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ), array(), $this->asset_version( JETPACK__VERSION ) );
 			wp_style_add_data( 'jetpack-carousel', 'rtl', 'replace' );
 
@@ -355,6 +353,15 @@ class Jetpack_Carousel {
 
 			$this->first_run = false;
 		}
+	}
+
+	public function enqueue_swiper_style() {
+		wp_enqueue_style(
+			'jetpack-carousel-swiper-css',
+			plugins_url( 'swiper-bundle.css', __FILE__ ),
+			array(),
+			$this->asset_version( JETPACK__VERSION )
+		);
 	}
 
 	/**
