@@ -1,0 +1,5 @@
+Significance: patch
+Type: bugfix
+Comment: Try to load the swiper.css before other plugins to prevent css overrides
+
+
