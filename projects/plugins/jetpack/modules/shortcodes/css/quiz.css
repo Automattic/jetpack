@@ -77,6 +77,7 @@ div.jetpack-quiz pre {
 .jetpack-quiz-option-button svg {
 	background: #000;
 	border-radius: 50%;
+	display: inline-block;
 	fill: #fff;
 	height: 24px;
 	width: 24px;
