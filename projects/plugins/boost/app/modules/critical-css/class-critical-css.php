@@ -1,4 +1,4 @@
-<?php //phpcs:ignoreFile Generic.Commenting.DocComment.MissingShort,Squiz.Commenting.FunctionComment.Missing,Squiz.Commenting.FunctionComment.MissingParamTag
+<?php
 /**
  * Implements the Critical CSS functionality.
  *
@@ -19,7 +19,7 @@ use Automattic\Jetpack_Boost\Modules\Critical_CSS\Providers\WP_Core_Provider;
 use Automattic\Jetpack_Boost\Modules\Module;
 
 /**
- * Class Critical_CSS
+ * Class Critical_CSS.
  */
 class Critical_CSS extends Module {
 
@@ -69,6 +69,7 @@ class Critical_CSS extends Module {
 	 * @var bool
 	 */
 	public $generating_critical_css;
+
 	/**
 	 * List of all the Critical CSS Types.
 	 *
@@ -101,17 +102,23 @@ class Critical_CSS extends Module {
 	protected $request_cached_css;
 
 	/**
-	 * @var int $nonce_admin_user_id - Used to track real admin user id when generating Critical CSS,
+	 * Used to track real admin user id when generating Critical CSS,
 	 * to ensure all nonces belong to the correct user.
+	 *
+	 * @var int
 	 */
 	protected $nonce_admin_user_id;
 
 	/**
+	 * Critical CSS storage class instance.
+	 *
 	 * @var Critical_CSS_Storage
 	 */
 	protected $storage;
 
 	/**
+	 * Critical CSS state class instance.
+	 *
 	 * @var Critical_CSS_State
 	 */
 	protected $state;
@@ -160,11 +167,17 @@ class Critical_CSS extends Module {
 
 		if ( is_admin() ) {
 			add_action( 'wp_ajax_dismiss_recommendations', array( $this, 'dismiss_recommendations' ) );
+			add_action( 'wp_ajax_reset_dismissed_recommendations', array( $this, 'reset_dismissed_recommendations' ) );
 		}
 
 		return true;
 	}
 
+	/**
+	 * Register the Critical CSS related REST routes.
+	 *
+	 * @return bool
+	 */
 	public function register_rest_routes() {
 		/**
 		 * Store and retrieve critical css status.
@@ -220,14 +233,12 @@ class Critical_CSS extends Module {
 	/**
 	 * Handler for PUT '/critical-css/(?P<cacheKey>.+)/success'.
 	 *
-	 * @todo: Figure out what to do in the JavaScript when responding with the error status.
-	 *
 	 * @param \WP_REST_Request $request The request object.
 	 *
 	 * @return \WP_REST_Response|\WP_Error The response.
+	 * @todo: Figure out what to do in the JavaScript when responding with the error status.
 	 */
 	public function generate_success_handler( $request ) {
-
 		$this->ensure_module_initialized();
 
 		$cache_key = $request['cacheKey'];
@@ -292,14 +303,12 @@ class Critical_CSS extends Module {
 	/**
 	 * Handler for PUT '/critical-css/(?P<cacheKey>.+)/error'.
 	 *
-	 * @todo: Figure out what to do in the JavaScript when responding with the error status.
-	 *
 	 * @param \WP_REST_Request $request The request object.
 	 *
 	 * @return \WP_REST_Response|\WP_Error The response.
+	 * @todo: Figure out what to do in the JavaScript when responding with the error status.
 	 */
 	public function generate_error_handler( $request ) {
-
 		$this->ensure_module_initialized();
 
 		$cache_key = $request['cacheKey'];
@@ -375,7 +384,7 @@ class Critical_CSS extends Module {
 				);
 			}
 
-			// otherwise store the error at the provider level, allowing the UI to display them with all details.
+			// otherwise, store the error at the provider level, allowing the UI to display them with all details.
 			$this->state->set_source_error( $cache_key, $data['urls'] );
 		}
 
@@ -428,7 +437,7 @@ class Critical_CSS extends Module {
 	 */
 	public function display_generate_meta() {
 		?>
-		<meta name="jb-generate-critical-css" content="true"/>
+		<meta name="jb-generate-critical-css" content="true" />
 		<?php
 	}
 
@@ -459,9 +468,15 @@ class Critical_CSS extends Module {
 
 		return true;
 	}
-
 	// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
+	/**
+	 * Add Critical CSS related constants to be passed to JavaScript.
+	 *
+	 * @param array $constants Constants to be passed to JavaScript.
+	 *
+	 * @return array
+	 */
 	public function add_critical_css_constants( $constants ) {
 		// Information about the current status of Critical CSS / generation.
 		$constants['criticalCssStatus']                   = $this->get_local_critical_css_generation_info();
@@ -497,7 +512,6 @@ class Critical_CSS extends Module {
 	 * Get Critical CSS status.
 	 */
 	public function get_critical_css_status() {
-
 		if ( $this->state->is_empty() ) {
 			return array( 'status' => Critical_CSS_State::NOT_GENERATED );
 		}
@@ -589,7 +603,6 @@ class Critical_CSS extends Module {
 	 * @return string|false
 	 */
 	public function get_critical_css() {
-
 		if ( null !== $this->request_cached_css ) {
 			return $this->request_cached_css;
 		}
@@ -723,6 +736,11 @@ class Critical_CSS extends Module {
 	/**
 	 * Filter to force nonces created during Critical CSS render to belong to the correct admin user.
 	 * Only affects 'jb-proxy-*' nonces used for proxying external CSS resources.
+	 *
+	 * @param int    $uid    ID of the nonce-owning user.
+	 * @param string $action The nonce action.
+	 *
+	 * @return int
 	 */
 	public function force_nonce_admin_user( $uid, $action ) {
 		if ( strncmp( $action, 'jb-proxy-', 9 ) === 0 ) {
@@ -871,7 +889,11 @@ class Critical_CSS extends Module {
 
 		// Minified version of footer script. See above comment for unminified version.
 		?>
-			<script>window.addEventListener("load",function(){document.querySelectorAll("link").forEach(function(e){"not all"===e.media&&(e.media="all")});var e=document.getElementById("jetpack-boost-critical-css");e&&(e.media="not all")});</script>
+		<script>window.addEventListener('load', function() {
+				document.querySelectorAll('link').forEach(function(e) {'not all' === e.media && (e.media = 'all');});
+				var e = document.getElementById('jetpack-boost-critical-css');
+				e && (e.media = 'not all');
+			});</script>
 		<?php
 	}
 
@@ -890,10 +912,16 @@ class Critical_CSS extends Module {
 		return array( new Regenerate_Admin_Notice( $reason ) );
 	}
 
+	/**
+	 * Clear Critical CSS reset reason option.
+	 */
 	public static function clear_reset_reason() {
 		\delete_option( self::RESET_REASON_STORAGE_KEY );
 	}
 
+	/**
+	 * Clear Critical CSS dismissed recommendations option.
+	 */
 	public static function clear_dismissed_recommendations() {
 		\delete_option( self::DISMISSED_RECOMMENDATIONS_STORAGE_KEY );
 	}
@@ -901,10 +929,14 @@ class Critical_CSS extends Module {
 	/**
 	 * Given a provider key, find the provider which owns the key. Returns false
 	 * if no Provider is found.
+	 *
+	 * @param string $provider_key Provider key.
+	 *
+	 * @return Provider|false|string
 	 */
-	public function find_provider_for( $key ) {
+	public function find_provider_for( $provider_key ) {
 		foreach ( $this->providers as $provider ) {
-			if ( $provider::owns_key( $key ) ) {
+			if ( $provider::owns_key( $provider_key ) ) {
 				return $provider;
 			}
 		}
@@ -915,6 +947,10 @@ class Critical_CSS extends Module {
 	/**
 	 * Returns a descriptive label for a provider key, or the raw provider key
 	 * if none found.
+	 *
+	 * @param string $provider_key Provider key.
+	 *
+	 * @return mixed
 	 */
 	public function describe_provider_key( $provider_key ) {
 		$provider = $this->find_provider_for( $provider_key );
@@ -922,9 +958,17 @@ class Critical_CSS extends Module {
 			return $provider_key;
 		}
 
+		/**
+		 * Provider key.
+		 *
+		 * @param string $provider_key
+		 */
 		return $provider::describe_key( $provider_key );
 	}
 
+	/**
+	 * Dismiss Critical CSS recommendations.
+	 */
 	public function dismiss_recommendations() {
 		check_ajax_referer( self::AJAX_NONCE, 'nonce' );
 		$response = array(
@@ -943,6 +987,21 @@ class Critical_CSS extends Module {
 			$dismissed_recommendations[] = $provider_key;
 			\update_option( self::DISMISSED_RECOMMENDATIONS_STORAGE_KEY, $dismissed_recommendations );
 		}
+
+		echo wp_json_encode( $response );
+		wp_die();
+	}
+
+	/**
+	 * Reset dismissed Critical CSS recommendations.
+	 */
+	public function reset_dismissed_recommendations() {
+		check_ajax_referer( self::AJAX_NONCE, 'nonce' );
+		$response = array(
+			'status' => 'ok',
+		);
+
+		self::clear_dismissed_recommendations();
 
 		echo wp_json_encode( $response );
 		wp_die();

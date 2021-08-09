@@ -5,13 +5,13 @@ import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
 import PropTypes from 'prop-types';
+import restApi from '@automattic/jetpack-api';
 
 /**
  * Internal dependencies
  */
 import ConnectUser from '../connect-user';
 import DisconnectDialog from '../disconnect-dialog';
-import restApi from '../../tools/jetpack-rest-api-client';
 import './style.scss';
 
 /**

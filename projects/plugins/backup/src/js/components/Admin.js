@@ -70,7 +70,7 @@ const Admin = () => {
 						</p>
 						<a
 							class="button"
-							href={ getRedirectUrl( 'backup-plugin-upgrade' ) }
+							href={ getRedirectUrl( 'backup-plugin-upgrade', { site: domain } ) }
 							target="_blank"
 							rel="noreferrer"
 						>

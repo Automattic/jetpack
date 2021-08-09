@@ -11,6 +11,7 @@
 namespace Automattic\Jetpack\Extensions;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Status;
 use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_Plan;
@@ -36,6 +37,7 @@ class Tiled_Gallery {
 		if (
 			( defined( 'IS_WPCOM' ) && IS_WPCOM )
 			|| Jetpack::is_connection_ready()
+			|| ( new Status() )->is_offline_mode()
 		) {
 			Blocks::jetpack_register_block(
 				self::BLOCK_NAME,

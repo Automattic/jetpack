@@ -17,7 +17,7 @@ import type { Viewport } from './types';
 import { isEnabled } from '../stores/modules';
 import { loadCriticalCssLibrary } from './load-critical-css-library';
 import { removeShownAdminNotices } from './remove-admin-notices';
-import { resetDismissals } from '../stores/critical-css-recommendations';
+import { clearDismissedRecommendations } from '../stores/critical-css-recommendations';
 
 export type ProviderKeyUrls = {
 	[ providerKey: string ]: string[];
@@ -52,7 +52,7 @@ export async function maybeGenerateCriticalCss() {
  * Generate Critical CSS for this site. Will load the Critical CSS Generator
  * library dynamically as needed.
  *
- * @param {boolean} reset - If true, reset any stored CSS before beginning.
+ * @param {boolean} reset              - If true, reset any stored CSS before beginning.
  * @param {boolean} isShowstopperRetry - Set this flag to indicate this attempt is retrying after a showstopper error.
  */
 export default async function generateCriticalCss(
@@ -63,7 +63,7 @@ export default async function generateCriticalCss(
 	let cancelling = false;
 
 	if ( reset ) {
-		resetDismissals();
+		clearDismissedRecommendations();
 		updateGenerateStatus( true, 0 );
 	}
 
@@ -86,7 +86,7 @@ export default async function generateCriticalCss(
 		// Prepare a wrapped callback to gather major/minor steps and convert to
 		// percent. Also check for module deactivation and cancel if need be.
 		const offset = cssStatus.success_count || 0;
-		const wrappedCallback = wrapCallback( offset, ( percent ) => {
+		const wrappedCallback = wrapCallback( offset, percent => {
 			if ( ! isEnabled( 'critical-css' ) ) {
 				cancelling = true;
 				throw new Error( __( 'Operation cancelled', 'jetpack-boost' ) );
@@ -126,12 +126,12 @@ export default async function generateCriticalCss(
  * Generate Critical CSS for the specified Provider Keys, sending each block
  * to the server. Throws on error or cancellation.
  *
- * @param {ProviderKeyUrls} providerKeys - Set of URLs to use for each provider key
- * @param {Object} requestGetParameters - GET parameters to include with each request.
- * @param {Viewport[]} viewports - Viewports to generate with.
- * @param {JSONObject} passthrough - JSON data to include in callbacks to API.
- * @param {MajorMinorCallback} callback - Callback to send minor / major progress step info to.
- * @param {Array} successRatios - Success ratios.
+ * @param {ProviderKeyUrls}    providerKeys         - Set of URLs to use for each provider key
+ * @param {Object}             requestGetParameters - GET parameters to include with each request.
+ * @param {Viewport[]}         viewports            - Viewports to generate with.
+ * @param {JSONObject}         passthrough          - JSON data to include in callbacks to API.
+ * @param {MajorMinorCallback} callback             - Callback to send minor / major progress step info to.
+ * @param {Array}              successRatios        - Success ratios.
  */
 async function generateForKeys(
 	providerKeys: ProviderKeyUrls,
@@ -148,17 +148,12 @@ async function generateForKeys(
 	for ( const [ providerKey, urls ] of Object.entries( providerKeys ) ) {
 		callback( ++majorStep, majorSteps, 0, 0 );
 		try {
-			const [
-				css,
-				warnings,
-			] = await CriticalCSSGenerator.generateCriticalCSS( {
-				browserInterface: new CriticalCSSGenerator.BrowserInterfaceIframe(
-					{
-						requestGetParameters,
-						verifyPage,
-						allowScripts: false,
-					}
-				),
+			const [ css, warnings ] = await CriticalCSSGenerator.generateCriticalCSS( {
+				browserInterface: new CriticalCSSGenerator.BrowserInterfaceIframe( {
+					requestGetParameters,
+					verifyPage,
+					allowScripts: false,
+				} ),
 				urls,
 				viewports,
 				progressCallback: ( step: number, stepCount: number ) => {
@@ -171,15 +166,11 @@ async function generateForKeys(
 				successRatio: successRatios[ providerKey ],
 			} );
 
-			const updateResult = await sendGenerationResult(
-				providerKey,
-				'success',
-				{
-					data: css,
-					warnings: warnings.map( ( x ) => x.toString() ),
-					passthrough,
-				}
-			);
+			const updateResult = await sendGenerationResult( providerKey, 'success', {
+				data: css,
+				warnings: warnings.map( x => x.toString() ),
+				passthrough,
+			} );
 
 			if ( updateResult === false ) {
 				return;
@@ -241,7 +232,7 @@ function keepAtRule( name: string ): boolean {
 /**
  * Helper method to filter out properties that we don't want.
  *
- * @param {string} name Name of the property to evaluate
+ * @param {string} name  Name of the property to evaluate
  * @param {string} value Value of the property to evaluate
  * @return {boolean} indicating whether or not the property is wanted.
  */
@@ -256,14 +247,11 @@ function keepProperty( name: string, value: string ): boolean {
  * percentage. Also takes an offset for major steps, to represent progress that
  * may have already passed before counting here.
  *
- * @param {number} offset Major steps to assume have already passed.
- * @param {(percent: number) => void} cb Callback to call with progress.
+ * @param {number}                    offset Major steps to assume have already passed.
+ * @param {(percent: number) => void} cb     Callback to call with progress.
  * @return {Function} Function to call with full progress details.
  */
-function wrapCallback(
-	offset: number,
-	cb: ( percent: number ) => void
-): MajorMinorCallback {
+function wrapCallback( offset: number, cb: ( percent: number ) => void ): MajorMinorCallback {
 	return ( majorStep, majorSteps, minorStep, minorSteps ) => {
 		const stepSize = 100 / Math.max( 1, majorSteps + offset );
 		const minorProgress = minorStep / Math.max( 1, minorSteps );
@@ -272,12 +260,6 @@ function wrapCallback(
 	};
 }
 
-function verifyPage(
-	url: string,
-	innerWindow: Window,
-	innerDocument: Document
-): boolean {
-	return !! innerDocument.querySelector(
-		'meta[name="jb-generate-critical-css"]'
-	);
+function verifyPage( url: string, innerWindow: Window, innerDocument: Document ): boolean {
+	return !! innerDocument.querySelector( 'meta[name="jb-generate-critical-css"]' );
 }

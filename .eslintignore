@@ -30,16 +30,16 @@ projects/plugins/jetpack/vendor/
 projects/plugins/boost/.eslintrc.js
 projects/plugins/boost/.prettierrc.js
 projects/plugins/boost/babel.config.js
-projects/plugins/boost/dangerfile.js
 projects/plugins/boost/jest-puppeteer.config.js
 projects/plugins/boost/jest.config.js
 projects/plugins/boost/rollup.config.js
 projects/plugins/boost/**/*.min.js
 projects/plugins/boost/node_modules/**
 projects/plugins/boost/vendor/**
-projects/plugins/boost/dist/**
+projects/plugins/boost/app/assets/dist/**
 projects/plugins/boost/tests/**
 projects/plugins/boost/docker/**
+projects/plugins/boost/wordpress/**
 
 # Temporary ignore until Jest is set up
 projects/plugins/jetpack/extensions/**/test/

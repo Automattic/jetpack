@@ -14,10 +14,7 @@ export function parsePseudoHTML( source: string ): Node {
 	const wrappedTemplate = '<PseudoHTML>' + source + '</PseudoHTML>';
 
 	// Use browser parser to build DOM.
-	const doc = new DOMParser().parseFromString(
-		wrappedTemplate,
-		'application/xml'
-	);
+	const doc = new DOMParser().parseFromString( wrappedTemplate, 'application/xml' );
 
 	// Return the root PseudoHTML node.
 	return doc.childNodes[ 0 ];
