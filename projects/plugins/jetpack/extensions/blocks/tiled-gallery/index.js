@@ -239,9 +239,10 @@ export const settings = {
 				transform: images => {
 					const validImages = getValidImages( images );
 					return createBlock( `jetpack/${ name }`, {
-						images: validImages.map( ( { id, url, alt } ) => ( {
+						images: validImages.map( ( { id, url, link, alt } ) => ( {
 							id,
 							url,
+							link,
 							alt,
 						} ) ),
 						ids: validImages.map( ( { id } ) => id ),
@@ -256,9 +257,10 @@ export const settings = {
 					const validImages = getValidImages( images );
 					if ( validImages.length > 0 ) {
 						return createBlock( `jetpack/${ name }`, {
-							images: validImages.map( ( { id, url, alt } ) => ( {
+							images: validImages.map( ( { id, url, link, alt } ) => ( {
 								id,
 								url,
+								link,
 								alt,
 							} ) ),
 							ids: validImages.map( ( { id } ) => id ),
