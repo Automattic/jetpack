@@ -29,13 +29,14 @@ class Admin {
 			 */
 			do_action( 'jetpack_on_wp_admin_plus_init' );
 
-			add_action( 'manage_posts_columns', array( $this, 'add_wpadmin_plus_column' ) );
+			// Add parsed data for each post/page raw.
 			add_action( 'manage_posts_custom_column', array( $this, 'parse_and_render_post_data' ), 10, 2 );
-
-			add_action( 'manage_pages_columns', array( $this, 'add_wpadmin_plus_column' ) );
 			add_action( 'manage_pages_custom_column', array( $this, 'parse_and_render_post_data' ), 10, 2 );
-		}
 
+			// Add custom post/page columns.
+			add_action( 'manage_posts_columns', array( $this, 'add_wpadmin_plus_column' ) );
+			add_action( 'manage_pages_columns', array( $this, 'add_wpadmin_plus_column' ) );
+		}
 	}
 
 	/**
@@ -107,14 +108,21 @@ class Admin {
 		}
 	}
 
+	/**
+	 * Return post statuses definition object,
+	 * with especial cases such as `scheduled`, `pending`, etc.
+	 *
+	 * @param int $post_id The current post ID.
+	 * @return array Post statuses object.
+	 */
 	public function get_post_statuses( $post_id ) {
 		return array_merge(
 			array(
-				'publish' => __( 'Published' ),
-				'private' => __( 'Published' ),
-				'future'  => __( 'Scheduled' ),
-				'pending' => __( 'Pending Review' ),
-				'draft'   => __( 'Draft' ),
+				'publish' => __( 'Published', 'jetpack' ),
+				'private' => __( 'Published', 'jetpack' ),
+				'future'  => __( 'Scheduled', 'jetpack' ),
+				'pending' => __( 'Pending Review', 'jetpack' ),
+				'draft'   => __( 'Draft', 'jetpack' ),
 			),
 			get_post_statuses( $post_id )
 		);
