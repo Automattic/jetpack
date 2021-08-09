@@ -63,17 +63,16 @@ jQuery( function ( $ ) {
 	} );
 } );
 
-let quizWrapper = document.querySelectorAll( '.jetpack-quiz-wrapper' );
-for ( let i = 0; i < quizWrapper.length; i++ ) {
-	quizWrapper[ i ].childNodes.forEach( ( element, number ) => {
+document.querySelectorAll( '.jetpack-quiz-wrapper' ).forEach( ( quiz ) => {
+	quiz.childNodes.forEach( ( element, number ) => {
 		element.style.display = 'none';
 		element.setAttribute( 'quiz-number', number );
 		element.querySelector( '.jetpack-quiz-count' ).innerHTML =
-			number + 1 + '/' + quizWrapper[ i ].childElementCount;
+			number + 1 + '/' + quiz.childElementCount;
 	} );
 
-	quizWrapper[ i ].childNodes[ 0 ].style.display = 'block';
-}
+	quiz.childNodes[ 0 ].style.display = 'block';
+} );
 
 document.querySelectorAll( '.jetpack-quiz-option-button' ).forEach( ( element ) =>
 	element.addEventListener( 'click', ( event ) => {
