@@ -121,7 +121,7 @@ class REST_Endpoints {
 			'jetpack/v4',
 			'/sync/object',
 			array(
-				'methods'             => WP_REST_Server::READABLE,
+				'methods'             => WP_REST_Server::ALLMETHODS,
 				'callback'            => __CLASS__ . '::get_sync_objects',
 				'permission_callback' => __CLASS__ . '::verify_default_permissions',
 				'args'                => array(
