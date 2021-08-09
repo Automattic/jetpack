@@ -7,8 +7,8 @@ A package containing functionality to track events to the a8c Tracks system
 There are several ways to track events using this package.
 
 * Ajax: Probably the easist one. You can simply add a class to a link and it will be tracked or you can make your own ajax call
-* PHP: For when you need to track an event on the backend
-* Tracking pixel: An alternative to track events by dynamically adding a pixel to the DOM
+* PHP: Track an event on the backend
+* Tracking pixel: An alternative way to track events by dynamically adding a pixel to the DOM
 
 ### Tracking via Ajax
 
