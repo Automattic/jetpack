@@ -101,7 +101,7 @@ wp_localize_script(
 );
 ```
 
-#### Track!
+#### 3. Track!
 
 In your JS:
 
