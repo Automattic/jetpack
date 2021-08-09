@@ -24,7 +24,7 @@ export default function SidebarDescription() {
 					) }
 				</p>
 				<Button href={ 'widgets.php' } isTertiary>
-					{ __( 'Edit widgets' ) }
+					{ __( 'Edit widgets', 'jetpack' ) }
 				</Button>
 				<Button
 					href={ addQueryArgs( 'customize.php', {
@@ -33,7 +33,7 @@ export default function SidebarDescription() {
 					} ) }
 					isTertiary
 				>
-					{ __( 'Configure in the Customizer' ) }
+					{ __( 'Configure in the Customizer', 'jetpack' ) }
 				</Button>
 			</div>
 		</div>
