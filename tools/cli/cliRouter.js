@@ -37,9 +37,9 @@ export async function cli() {
 	argv = cliDefine( argv );
 	argv.completion( 'completion', 'Generate bash/zsh completions' ); // Placed here to keep things alphabetical.
 	argv = dockerDefine( argv );
+	argv = draftDefine( argv );
 	argv = generateDefine( argv );
 	argv = installDefine( argv );
-	argv = draftDefine( argv );
 	argv = watchDefine( argv );
 
 	// This adds usage information on failure and demands that a subcommand must be passed.
