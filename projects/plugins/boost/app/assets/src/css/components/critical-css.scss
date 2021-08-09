@@ -57,6 +57,10 @@
 		border-radius: 4px;
 		padding: 24px 69px 0 27px;
 
+		li {
+			@include word-wrap();
+		}
+
 		h4 {
 			font-size: 20px;
 			margin-bottom: 1rem;
