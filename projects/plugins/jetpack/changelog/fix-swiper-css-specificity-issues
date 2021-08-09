@@ -1,5 +1,5 @@
 Significance: patch
 Type: bugfix
-Comment: Try to load the swiper.css before other plugins to prevent css overrides
+Comment: Add a jetpack selector to the default swiper css to prevent clashes with  other plugins
 
 
