@@ -1,8 +1,4 @@
 /**
- * External dependencies
- */
-
-/**
  * WordPress dependencies
  */
 import { render } from '@wordpress/element';
@@ -21,7 +17,11 @@ domReady( () => {
 		return;
 	}
 
+	// Data global containers.
 	const postIds = [];
+	const posts = [];
+
+	// Pick and organize data.
 	postRows.forEach( postRow => {
 		let postStatusLabelElement = postRow.querySelector( '.post-state' );
 		const postDateElementWrapper = postRow.querySelector( '.column-date' );
@@ -44,14 +44,14 @@ domReady( () => {
 			rowDataContainer.remove();
 		}
 
-		// Populate component data with postIds.
-		// @TODO: probably it's better doing it in the server-side.
-		data = { ...data, postIds };
-
 		// Collect all post ids in the current admin page.
+		// @TODO: probably it's better doing it in the server-side.
 		postIds.push( data.id );
 
-		// Render post state component.
+		/*
+		 * Post status element might not exist.
+		 * Let's create it when it happens.
+		 */
 		if ( ! postStatusLabelElement ) {
 			const postTitleLabelElement = postRow.querySelector( '.row-title' );
 
@@ -59,22 +59,43 @@ domReady( () => {
 			if ( postTitleLabelElement ) {
 				postStatusLabelElement = document.createElement( 'span' );
 				postStatusLabelElement.classList.add( 'post-state' );
-				postTitleLabelElement.parentNode.insertBefore( postStatusLabelElement, postTitleLabelElement.nextSibling );
-				postTitleLabelElement.parentNode.insertBefore( document.createTextNode( ' — ' ), postTitleLabelElement.nextSibling );
+				postTitleLabelElement.parentNode.insertBefore(
+					postStatusLabelElement,
+					postTitleLabelElement.nextSibling
+				);
+				postTitleLabelElement.parentNode.insertBefore(
+					document.createTextNode( ' — ' ),
+					postTitleLabelElement.nextSibling
+				);
 			}
+		}
 
+		posts.push( {
+			data,
+			elements: {
+				statusLabel: postStatusLabelElement,
+				postDate: postDateElementWrapper,
+			},
+		} );
+	} );
+
+	// Rendering components.
+	posts.forEach( ( { data, elements } ) => {
+		const { statusLabel, postDate } = elements;
+
+		// <PostStatusLabel />
+		if ( statusLabel ) {
 			render(
-				<PostStatusLabel { ...data } fallbackText={ postStatusLabelElement.innerText } />,
-				postStatusLabelElement
+				<PostStatusLabel { ...data } postIds={ postIds } fallbackText={ statusLabel.innerText } />,
+				statusLabel
 			);
 		}
 
-
-		// Render a component for each post row.
-		if ( postDateElementWrapper ) {
+		// <PostDate />
+		if ( postDate ) {
 			render(
-				<PostDate { ...data } fallbackText={ postDateElementWrapper.innerText } />,
-				postDateElementWrapper
+				<PostDate { ...data } postIds={ postIds } fallbackText={ postDate.innerText } />,
+				postDate
 			);
 		}
 	} );
