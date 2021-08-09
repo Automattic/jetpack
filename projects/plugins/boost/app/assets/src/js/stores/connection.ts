@@ -18,7 +18,7 @@ const initialState = Jetpack_Boost.connection;
 const { subscribe, update } = writable< ConnectionStatus >( initialState );
 
 function partialUpdate( data: Partial< ConnectionStatus > ) {
-	update( ( store ) => {
+	update( store => {
 		return { ...store, ...data };
 	} );
 }
