@@ -91,6 +91,8 @@ Watch a monorepo project, which will rebuild the project as changes are made so 
 
 **Draft**: Enable or disable "draft mode" for the repo.
 
+This is an experimental feature as of August 2021.
+
 Sometimes you're doing a lot of collaborative refactoring or working on a draft PR and you want to share your changes without passing all the pre-commit and pre-push checks. However, of course you still want to enable the more serious checks when you need them!
 
 For this situation, we have Draft Mode.

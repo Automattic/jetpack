@@ -193,7 +193,8 @@ There are different types of builds:
 	```
 
 * ### Draft Mode
-
+	This is an experimental feature as of August 2021.
+	
 	Are pre-commit and pre-push hooks slowing down a major refactor or draft PR? Run `jetpack draft enable` to make them less aggressive (they will still run, but won't block for warnings), and `jetpack draft disable` when you're ready for them again.
 
 ---
