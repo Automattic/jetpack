@@ -541,7 +541,8 @@ export async function syncPlanData( page ) {
 		/* eslint-disable no-undef */
 		frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
 		/* eslint-enable no-undef */
-		bkPlan = JSON.parse( await execWpCommand( 'option get jetpack_active_plan --format=json' ) );
+		const planJson = await execWpCommand( 'option get jetpack_active_plan --format=json' );
+		bkPlan = JSON.parse( planJson );
 		await execWpCommand( 'option get jetpack_active_modules --format=json' );
 
 		logger.info( `PLANS: frontend: ${ frPlan }, backend: ${ bkPlan.product_slug }` );

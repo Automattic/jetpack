@@ -24,7 +24,7 @@ async function execShellCommand( cmd ) {
 				return resolve( error );
 			}
 			// return resolve( stderr );
-			return resolve( result.join( '\n' ) );
+			return resolve( result.join() );
 		} );
 		const output = data => {
 			// remove the new line at the end
