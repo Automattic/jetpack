@@ -120,15 +120,6 @@ async function execWpCommand( wpCmd ) {
 	return result;
 }
 
-/**
- * Runs multiple wp commands in a single call
- *
- * @param {...string} commands Array of wp commands to run together
- */
-async function execMultipleWpCommands( ...commands ) {
-	return await execWpCommand( `bash -c '${ commands.join( ' && ' ) }'` );
-}
-
 async function logDebugLog() {
 	let log = execSyncShellCommand(
 		'pnpx jetpack docker --type e2e --name t1 exec cat wp-content/debug.log'
@@ -260,7 +251,6 @@ module.exports = {
 	provisionJetpackStartConnection,
 	activateModule,
 	execWpCommand,
-	execMultipleWpCommands,
 	logDebugLog,
 	logAccessLog,
 	fileNameFormatter,

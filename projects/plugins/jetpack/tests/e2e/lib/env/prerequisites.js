@@ -1,7 +1,6 @@
 import logger from '../logger';
 import { isBlogTokenSet, syncJetpackPlanData } from '../flows/jetpack-connect';
 import {
-	execMultipleWpCommands,
 	execWpCommand,
 	getAccountCredentials,
 	provisionJetpackStartConnection,
@@ -109,10 +108,9 @@ async function connect() {
 
 async function disconnect() {
 	// await resetWordpressInstall();
-	await execMultipleWpCommands(
-		'option delete jetpack_private_options',
-		'option delete jetpack_sync_error_idc'
-	);
+	await execWpCommand( 'option delete jetpack_private_options' );
+	await execWpCommand( 'option delete jetpack_sync_error_idc' );
+
 	expect( await isBlogTokenSet() ).toBeFalsy();
 }
 

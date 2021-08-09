@@ -106,5 +106,8 @@ export async function syncJetpackPlanData( plan, mockPlanData = true ) {
 export async function isBlogTokenSet() {
 	const cliCmd = 'jetpack options get blog_token';
 	const result = await execWpCommand( cliCmd );
-	return ! result.includes( 'Error: Option not found or is empty' );
+	return ! (
+		result.includes( 'Error: Option not found or is empty' ) ||
+		result.includes( "Error: 'jetpack' is not a registered wp command" )
+	);
 }
