@@ -148,7 +148,6 @@ export function draftDefine( yargs ) {
 				.command(
 					'enable',
 					'Enable draft mode - reduces strictness of pre-commit and pre-push checks',
-					_ => {},
 					async argv => {
 						await draftEnable( argv );
 					}
@@ -156,7 +155,6 @@ export function draftDefine( yargs ) {
 				.command(
 					'disable',
 					'Disable draft PR mode - regular pre-commit and pre-push checks',
-					_ => {},
 					async argv => {
 						await draftDisable( argv );
 					}
