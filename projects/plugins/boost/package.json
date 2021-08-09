@@ -8,7 +8,7 @@
 	"dependencies": {
 		"@wordpress/components": "^14.1.2",
 		"@wordpress/element": "^3.1.1",
-		"jetpack-boost-critical-css-gen": "git+ssh://git@github.com/automattic/jetpack-boost-critical-css-gen.git#trunk"
+		"jetpack-boost-critical-css-gen": "github:automattic/jetpack-boost-critical-css-gen#trunk"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.14.3",

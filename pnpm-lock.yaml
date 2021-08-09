@@ -324,7 +324,7 @@ importers:
       expect-puppeteer: ^5.0.4
       jest: 27.0.6
       jest-puppeteer: ^5.0.4
-      jetpack-boost-critical-css-gen: git+ssh://git@github.com/automattic/jetpack-boost-critical-css-gen.git#trunk
+      jetpack-boost-critical-css-gen: github:automattic/jetpack-boost-critical-css-gen#trunk
       node-sass: ^6.0.0
       node-wp-i18n: ^1.2.5
       npm-run-all: ^4.1.5
@@ -348,7 +348,7 @@ importers:
     dependencies:
       '@wordpress/components': 14.2.0_@babel+core@7.14.6
       '@wordpress/element': 3.2.0
-      jetpack-boost-critical-css-gen: github.com/automattic/jetpack-boost-critical-css-gen/8731d94b9809c148a0a971a48bacdcc49ee49662
+      jetpack-boost-critical-css-gen: github.com/automattic/jetpack-boost-critical-css-gen/b1c6bcf3c68cbb86d54962087b6350b884bdbb58
     devDependencies:
       '@babel/core': 7.14.6
       '@babel/preset-env': 7.14.8_@babel+core@7.14.6
@@ -9738,8 +9738,8 @@ packages:
     dependencies:
       source-map: 0.6.1
 
-  /clean-css/5.1.4:
-    resolution: {integrity: sha512-e6JAuR0T2ahg7fOSv98Nxqh7mHWOac5TaCSgrr61h/6mkPLwlxX38hzob4h6IKj/UHlrrLXvAEjWqXlvi8r8lQ==}
+  /clean-css/5.1.5:
+    resolution: {integrity: sha512-9dr/cU/LjMpU57PXlSvDkVRh0rPxJBXiBtD0+SgYt8ahTCsXtfKjCkNYgIoTC6mBg8CFr5EKhW3DKCaGMUbUfQ==}
     engines: {node: '>= 10.0'}
     dependencies:
       source-map: 0.6.1
@@ -22111,14 +22111,14 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
-  github.com/automattic/jetpack-boost-critical-css-gen/8731d94b9809c148a0a971a48bacdcc49ee49662:
-    resolution: {tarball: https://codeload.github.com/automattic/jetpack-boost-critical-css-gen/tar.gz/8731d94b9809c148a0a971a48bacdcc49ee49662}
+  github.com/automattic/jetpack-boost-critical-css-gen/b1c6bcf3c68cbb86d54962087b6350b884bdbb58:
+    resolution: {tarball: https://codeload.github.com/automattic/jetpack-boost-critical-css-gen/tar.gz/b1c6bcf3c68cbb86d54962087b6350b884bdbb58}
     name: jetpack-boost-critical-css-gen
     version: 0.0.1
     prepare: true
     requiresBuild: true
     dependencies:
-      clean-css: 5.1.4
+      clean-css: 5.1.5
       css-tree: 1.1.3
       node-fetch: 2.6.1
     dev: false
