@@ -36,23 +36,25 @@
 			  )}
 	</p>
 
-	<FoldingElement
-		showLabel={__( 'See error message', 'jetpack-boost' )}
-		hideLabel={__( 'Hide error message', 'jetpack-boost' )}
-	>
-		<div class="raw-error" transition:slide|local>
-			{#if showingProviderError}
-				<CriticalCssErrorDescription
-					errorSet={$primaryErrorSet}
-					showSuggestion={false}
-					foldRawErrors={false}
-					on:retry={generateCriticalCss}
-				/>
-			{:else}
-				{$criticalCssStatus.status_error}
-			{/if}
-		</div>
-	</FoldingElement>
+	{#if showingProviderError || $criticalCssStatus.status_error}
+		<FoldingElement
+			showLabel={__( 'See error message', 'jetpack-boost' )}
+			hideLabel={__( 'Hide error message', 'jetpack-boost' )}
+		>
+			<div class="raw-error" transition:slide|local>
+				{#if showingProviderError}
+					<CriticalCssErrorDescription
+						errorSet={$primaryErrorSet}
+						showSuggestion={false}
+						foldRawErrors={false}
+						on:retry={generateCriticalCss}
+					/>
+				{:else}
+					{$criticalCssStatus.status_error}
+				{/if}
+			</div>
+		</FoldingElement>
+	{/if}
 
 	<div slot="actionButton">
 		{#if $criticalCssStatus.retriedShowstopper}
