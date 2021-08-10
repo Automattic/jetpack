@@ -230,6 +230,6 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 
 - We've refactored the plugin quite a bit, starting from the UI to stability fixes.
 
-## 0.9.1 - 2020-12-29
+### 0.9.1 - 2020-12-29
 
 - First public alpha release
