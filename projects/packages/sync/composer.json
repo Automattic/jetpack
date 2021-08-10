@@ -58,7 +58,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.24.x-dev"
+			"dev-master": "1.25.x-dev"
 		}
 	}
 }

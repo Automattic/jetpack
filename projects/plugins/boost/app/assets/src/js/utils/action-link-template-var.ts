@@ -25,9 +25,7 @@ export default function actionLinkTemplateVar(
 				class: 'action',
 				onclick: ( event: MouseEvent ) => {
 					event.preventDefault();
-					callback(
-						( event.target as Element ).getAttribute( 'name' )
-					);
+					callback( ( event.target as Element ).getAttribute( 'name' ) );
 				},
 				href: '#',
 			},

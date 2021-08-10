@@ -15,7 +15,7 @@ namespace Automattic\Jetpack_Boost\Lib;
 class Storage_Post_Type {
 
 	/**
-	 * The name
+	 * The name.
 	 *
 	 * @var string
 	 */
@@ -32,7 +32,7 @@ class Storage_Post_Type {
 	}
 
 	/**
-	 * Get the post type slug
+	 * Get the post type slug.
 	 */
 	public function post_type_slug() {
 		return 'jb_store_' . $this->name;
@@ -41,8 +41,7 @@ class Storage_Post_Type {
 	/**
 	 * Static initialization.
 	 */
-	protected function init() {
-
+	private function init() {
 		// Check if post type already registered.
 		if ( post_type_exists( $this->post_type_slug() ) ) {
 			return;
@@ -108,7 +107,6 @@ class Storage_Post_Type {
 	 * @return mixed
 	 */
 	public function get( $key, $default ) {
-
 		$cached = wp_cache_get( $key, $this->post_type_slug() );
 		if ( $cached ) {
 			return $cached;
@@ -201,7 +199,7 @@ class Storage_Post_Type {
 	}
 
 	/**
-	 * We're not using any taxonomies with our storage post type at the moment
+	 * We're not using any taxonomies with our storage post type at the moment,
 	 * so it's not necessary to do anything more complex
 	 * than a simple delete DB Query.
 	 *

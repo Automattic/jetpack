@@ -18,10 +18,6 @@ export async function disableInstantSearch() {
 	return execWpCommand( 'wp option update instant_search_enabled 0' );
 }
 
-export async function disableSearchModule() {
-	await execWpCommand( 'wp jetpack module deactivate search' );
-}
-
 export async function setResultFormat( format = 'expanded' ) {
 	return execWpCommand( `wp option update jetpack_search_result_format ${ format }` );
 }

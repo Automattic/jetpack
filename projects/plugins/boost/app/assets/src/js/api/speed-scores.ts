@@ -88,9 +88,7 @@ function parseResponse( response: JSONObject ): ParsedApiResponse {
 	// No metrics yet. Make sure there is an id for polling.
 	const requestId = castToString( response.id );
 	if ( ! requestId ) {
-		throw new Error(
-			__( 'Invalid response while requesting metrics', 'jetpack-boost' )
-		);
+		throw new Error( __( 'Invalid response while requesting metrics', 'jetpack-boost' ) );
 	}
 
 	// If not ready, return the response id for polling.
@@ -109,14 +107,9 @@ async function pollRequest( requestId: string ): Promise< SpeedScores > {
 	return pollPromise< SpeedScores >( {
 		timeout: pollTimeout,
 		interval: pollInterval,
-		timeoutError: __(
-			'Timed out while waiting for speed-score.',
-			'jetpack-boost'
-		),
-		callback: async ( resolve ) => {
-			const response = parseResponse(
-				await api.post( `/speed-scores/${ requestId }/update` )
-			);
+		timeoutError: __( 'Timed out while waiting for speed-score.', 'jetpack-boost' ),
+		callback: async resolve => {
+			const response = parseResponse( await api.post( `/speed-scores/${ requestId }/update` ) );
 
 			if ( response.scores ) {
 				resolve( response.scores );

@@ -1,18 +1,14 @@
 import {
 	doInPlaceConnection,
 	doSiteLevelConnection,
-	loginToWpComIfNeeded,
-	loginToWpSite,
 	doClassicConnection,
 } from '../lib/flows/jetpack-connect';
-import { resetWordpressInstall } from '../lib/utils-helper';
+import { loginToWpSite, loginToWpCom } from '../lib/flows/log-in';
 import Sidebar from '../lib/pages/wp-admin/sidebar';
 import JetpackPage from '../lib/pages/wp-admin/jetpack';
 import DashboardPage from '../lib/pages/wp-admin/dashboard';
 import { testStep } from '../lib/reporters/reporter';
-
-// Disable pre-connect for this test suite
-process.env.SKIP_CONNECT = true;
+import { prerequisitesBuilder } from '../lib/env/prerequisites';
 
 /**
  *
@@ -20,14 +16,15 @@ process.env.SKIP_CONNECT = true;
  */
 describe( 'Connection', () => {
 	beforeEach( async () => {
-		await loginToWpComIfNeeded( 'defaultUser', true );
+		await prerequisitesBuilder().withConnection( false ).build();
+		await loginToWpCom( 'defaultUser', true );
 		await loginToWpSite( true );
 		await DashboardPage.visit( page );
 		await ( await Sidebar.init( page ) ).selectJetpack();
 	} );
 
 	afterEach( async () => {
-		await resetWordpressInstall();
+		await prerequisitesBuilder().withCleanEnv().build();
 	} );
 
 	it( 'In-place', async () => {

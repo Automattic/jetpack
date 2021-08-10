@@ -10,7 +10,7 @@
 namespace Automattic\Jetpack_Boost\Lib;
 
 /**
- * Class Speed_Score_Request.
+ * Class Speed_Score_Request
  */
 class Speed_Score_Request extends Cacheable {
 	/**
@@ -64,7 +64,7 @@ class Speed_Score_Request extends Cacheable {
 	}
 
 	/**
-	 * Generate the cache ID from the URL
+	 * Generate the cache ID from the URL.
 	 *
 	 * @param string $url The URL to get the Speed Scores for.
 	 *

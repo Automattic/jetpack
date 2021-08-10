@@ -1,6 +1,7 @@
 <?php
 /**
- * Notice to regenerate critical CSS
+ * Admin notice to warn users that they need to Regenerate Critical CSS. Shows whenever the module is
+ * active, but no Critical CSS is in the cache.
  *
  * @package automattic/jetpack-boost
  */
@@ -10,8 +11,7 @@ namespace Automattic\Jetpack_Boost\Modules\Critical_CSS;
 use Automattic\Jetpack_Boost\Admin\Admin_Notice;
 
 /**
- * Admin notice to warn users that they need to Regenerate Critical CSS. Shows whenever the module is
- * active, but no Critical CSS is in the cache.
+ * Class Regenerate_Admin_Notice
  */
 class Regenerate_Admin_Notice extends Admin_Notice {
 
@@ -30,7 +30,7 @@ class Regenerate_Admin_Notice extends Admin_Notice {
 	private $reason;
 
 	/**
-	 * Create a new Regenerate_Admin_Notice
+	 * Create a new Regenerate_Admin_Notice.
 	 *
 	 * @param string $reason The reason to regenerate.
 	 */

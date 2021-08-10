@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 /* eslint-disable no-console, no-process-exit */
+const isJetpackDraftMode = require( './jetpack-draft' );
 const execSync = require( 'child_process' ).execSync;
 const spawnSync = require( 'child_process' ).spawnSync;
 const chalk = require( 'chalk' );
@@ -167,9 +168,11 @@ function runEslint( toLintFiles ) {
 		return;
 	}
 
+	const maxWarnings = isJetpackDraftMode() ? 100 : 0;
+
 	const eslintResult = spawnSync(
 		'pnpm',
-		[ 'run', 'lint-file', '--', '--max-warnings=0', ...toLintFiles ],
+		[ 'run', 'lint-file', '--', `--max-warnings=${ maxWarnings }`, ...toLintFiles ],
 		{
 			shell: true,
 			stdio: 'inherit',
@@ -206,7 +209,7 @@ function runEslintChanged( toLintFiles ) {
 		stdio: 'inherit',
 	} );
 
-	if ( eslintResult && eslintResult.status ) {
+	if ( eslintResult && eslintResult.status && ! isJetpackDraftMode() ) {
 		checkFailed();
 	}
 }
@@ -226,7 +229,7 @@ function runPHPLinter( toLintFiles ) {
 		stdio: 'inherit',
 	} );
 
-	if ( phpLintResult && phpLintResult.status ) {
+	if ( phpLintResult && phpLintResult.status && ! isJetpackDraftMode() ) {
 		checkFailed( 'PHP found linting/syntax errors!\n' );
 		exit( exitCode );
 	}
@@ -241,7 +244,7 @@ function runPHPCS() {
 		stdio: 'inherit',
 	} );
 
-	if ( phpcsResult && phpcsResult.status ) {
+	if ( phpcsResult && phpcsResult.status && ! isJetpackDraftMode() ) {
 		const phpcsStatus =
 			2 === phpcsResult.status
 				? 'PHPCS reported some problems and could not automatically fix them since there are unstaged changes in the file.\n'
@@ -302,7 +305,7 @@ function runPHPCSChanged( phpFilesToCheck ) {
 			}
 		} );
 
-		if ( phpChangedFail ) {
+		if ( phpChangedFail && ! isJetpackDraftMode() ) {
 			checkFailed();
 		}
 	}
@@ -322,14 +325,14 @@ function runCheckCopiedFiles() {
 }
 
 /**
- * Check that renovate's ignore list is up to date.
+ * Check that renovate's ignore list is up to date. Runs in draft mode but does not block commit.
  */
 function runCheckRenovateIgnoreList() {
 	const result = spawnSync( './tools/js-tools/check-renovate-ignore-list.js', [], {
 		shell: true,
 		stdio: 'inherit',
 	} );
-	if ( result && result.status ) {
+	if ( result && result.status && ! isJetpackDraftMode() ) {
 		checkFailed( '' );
 	}
 }

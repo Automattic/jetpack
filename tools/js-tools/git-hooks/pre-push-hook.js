@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 /* eslint-disable no-console */
+const isJetpackDraftMode = require( './jetpack-draft' );
 const { spawnSync } = require( 'child_process' );
 const chalk = require( 'chalk' );
 
@@ -21,6 +22,12 @@ function checkChangelogFiles() {
 	// If a changelog file is needed, quit the push.
 	if ( needChangelog.status === 0 ) {
 		console.log( chalk.green( 'Changelog check passed.' ) );
+	} else if ( isJetpackDraftMode() ) {
+		console.log(
+			chalk.yellow(
+				"Allowing push because you're in draft mode. To exit draft mode, use `jetpack draft disable`"
+			)
+		);
 	} else {
 		process.exitCode = 1;
 	}

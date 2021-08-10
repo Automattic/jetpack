@@ -1,17 +1,20 @@
 <script>
 	import { slide } from 'svelte/transition';
-	import { __ } from '@wordpress/i18n';
+	import { __, _n, sprintf } from '@wordpress/i18n';
 	import LeftArrow from '../../../svg/left-arrow.svg';
 	import { navigateTo } from '../../../stores/url-fragment';
 	import {
 		dismissRecommendation,
 		activeRecommendations,
+		dismissedRecommendations,
+		clearDismissedRecommendations,
+		dismissalError,
+		setDismissalError,
 	} from '../../../stores/critical-css-recommendations.ts';
 	import InfoIcon from '../../../svg/info.svg';
 	import generateCriticalCss from '../../../utils/generate-critical-css';
 	import CloseButton from '../../../elements/CloseButton.svelte';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
-	import { writable } from 'svelte/store';
 	import CriticalCssErrorDescription from '../elements/CriticalCssErrorDescription.svelte';
 	import { isFinished } from '../../../stores/critical-css-status';
 
@@ -19,8 +22,6 @@
 		generateCriticalCss();
 		navigateTo();
 	}
-
-	const dismissalError = writable( null );
 
 	/**
 	 * Dismisses a recommendation by key.
@@ -30,8 +31,21 @@
 	async function dismiss( key ) {
 		try {
 			await dismissRecommendation( key );
-		} catch ( err ) {
-			dismissalError.set( err );
+		} catch ( error ) {
+			setDismissalError( __( 'Failed to dismiss recommendation', 'jetpack-boost' ), error );
+		}
+	}
+	/**
+	 * Show the previously dismissed recommendations.
+	 */
+	async function showDismissedRecommendations() {
+		try {
+			await clearDismissedRecommendations();
+		} catch ( error ) {
+			setDismissalError(
+				__( 'Failed to show the dismissed recommendations', 'jetpack-boost' ),
+				error
+			);
 		}
 	}
 
@@ -41,15 +55,11 @@
 	let heading;
 	$: heading =
 		$activeRecommendations.length === 0
-			? __(
-					'Congratulations, you have dealt with all the recommendations.',
-					'jetpack-boost'
-			  )
+			? __( 'Congratulations, you have dealt with all the recommendations.', 'jetpack-boost' )
 			: __(
 					'While Jetpack Boost has been able to automatically generate optimized CSS for most of your important files & sections, we have identified a few more that require your attention.',
 					'jetpack-boost'
 			  );
-
 	/**
 	 * Automatically navigate back to main Settings page if generator isn't done.
 	 */
@@ -59,10 +69,7 @@
 </script>
 
 <div class="jb-container--narrow jb-critical-css__advanced">
-	<button
-		class="components-button is-link close"
-		on:click={() => navigateTo()}
-	>
+	<button class="components-button is-link close" on:click={() => navigateTo()}>
 		<LeftArrow />
 		{__( 'Go back', 'jetpack-boost' )}
 	</button>
@@ -72,16 +79,30 @@
 	</h3>
 
 	{#key heading}
-		<p transition:slide|local>
-			{heading}
-		</p>
+		<section transition:slide|local>
+			<p>{heading}</p>
+
+			{#if $dismissedRecommendations.length > 0}
+				<p>
+					<button class="components-button is-link" on:click={showDismissedRecommendations}>
+						{sprintf(
+							/* translators: %d is a number of recommendations which were previously hidden by the user */
+							_n(
+								'Show %d hidden recommendation.',
+								'Show %d hidden recommendations.',
+								$dismissedRecommendations.length,
+								'jetpack-boost'
+							),
+							$dismissedRecommendations.length
+						)}
+					</button>
+				</p>
+			{/if}
+		</section>
 	{/key}
 
 	{#if $dismissalError}
-		<ErrorNotice
-			title={__( 'Failed to dismiss recommendation', 'jetpack-boost' )}
-			error={$dismissalError}
-		/>
+		<ErrorNotice title={$dismissalError.title} error={$dismissalError.error} />
 	{/if}
 
 	{#each $activeRecommendations as recommendation (recommendation.key)}
@@ -95,10 +116,7 @@
 
 			{#each [ recommendation.errors[ 0 ] ] as errorSet}
 				<div class="problem">
-					<CriticalCssErrorDescription
-						{errorSet}
-						on:retry={onRetry}
-					/>
+					<CriticalCssErrorDescription {errorSet} on:retry={onRetry} />
 				</div>
 			{/each}
 		</div>

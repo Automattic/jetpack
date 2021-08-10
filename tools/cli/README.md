@@ -61,7 +61,7 @@ This command lets you clean the monorepo of unneeded files. As this action is de
 
 Let’s you manage docker containers directly from the CLI.
 
-There are a lot of docker commands that you can pass to `jetpack docker`. You can view [comprehensive docker documentation here](https://github.com/Automattic/jetpack/blob/master/tools/docker/README.md), or see a full list of commands by running jetpack docker --help. 
+There are a lot of docker commands that you can pass to `jetpack docker`. You can view [comprehensive docker documentation here](https://github.com/Automattic/jetpack/blob/master/tools/docker/README.md), or see a full list of commands by running jetpack docker --help.
 
 - Start a docker container in detached mode: `jetpack docker up -d`
 - Start a second docker container for e2e tests on port 8888: `jetpack docker --type e2e --name test1 --port 8888 up`
@@ -88,3 +88,38 @@ Watch a monorepo project, which will rebuild the project as changes are made so 
 - Watch the Jetpack plugin: `jetpack watch plugins/jetpack`
 
 [the Jetpack monorepo]: https://github.com/Automattic/jetpack
+
+**Draft**: Enable or disable "draft mode" for the repo.
+
+This is an experimental feature as of August 2021.
+
+Sometimes you're doing a lot of collaborative refactoring or working on a draft PR and you want to share your changes without passing all the pre-commit and pre-push checks. However, of course you still want to enable the more serious checks when you need them!
+
+For this situation, we have Draft Mode.
+
+To enable:
+
+```
+$ jetpack draft enable
+```
+
+To disable:
+
+```
+$ jetpack draft disable
+```
+
+Currently, this has the following effects on pre-commit:
+
+* raise the number of allowable warnings in eslint and eslint-changed to 100
+* don't bail if phpcs fails
+* don't bail if phplinter fails
+* don't bail if renovate changes are missing
+
+And the following effects on pre-push:
+
+* don't bail if changelog files are missing
+
+You will still see all the output from these various commands, it's just that fewer of them will block the commit or push from succeeding.
+
+In addition, when you run `jetpack draft disable`, it will offer to run the pre-commit checks for you right away so you can start fixing errors.

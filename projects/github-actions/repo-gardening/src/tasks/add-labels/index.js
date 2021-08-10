@@ -68,7 +68,7 @@ function cleanName( name ) {
 
 	// render-blocking-js is a Boost feature.
 	if ( name === 'render-blocking-js' ) {
-		name = 'Defer Non-Essential JS';
+		name = 'Defer JS';
 	}
 
 	return (
@@ -202,7 +202,7 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 		);
 		const boostModuleName = boostModules && boostModules.groups.boostModule;
 		if ( boostModuleName ) {
-			keywords.add( `${ cleanName( boostModuleName ) }` );
+			keywords.add( `[Boost Feature] ${ cleanName( boostModuleName ) }` );
 		}
 
 		// Compatibility with 3rd party tools (Boost and Jetpack).

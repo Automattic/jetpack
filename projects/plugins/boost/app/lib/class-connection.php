@@ -22,7 +22,7 @@ class Connection {
 	/**
 	 * Jetpack Connection Manager.
 	 *
-	 * @var \Automattic\Jetpack\Connection\Manager $manager The connection manager.
+	 * @var Manager $manager The connection manager.
 	 */
 	private $manager;
 
