@@ -70,6 +70,7 @@ document.querySelectorAll( '.jetpack-quiz-wrapper' ).forEach( function ( quiz ) 
 		element.querySelector( '.jetpack-quiz-count' ).innerHTML =
 			number + 1 + '/' + quiz.childElementCount;
 	} );
+
 	quiz.childNodes[ 0 ].style.display = 'block';
 } );
 
