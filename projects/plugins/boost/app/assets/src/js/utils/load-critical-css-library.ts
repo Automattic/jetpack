@@ -23,10 +23,7 @@ export async function loadCriticalCssLibrary(): Promise< void > {
 				new Error(
 					sprintf(
 						/* translators: %s refers to Critical CSS Gen library script url. */
-						__(
-							'Failed to load Critical CSS library at %s',
-							'jetpack-boost'
-						),
+						__( 'Failed to load Critical CSS library at %s', 'jetpack-boost' ),
 						scriptUrl
 					)
 				)
@@ -37,10 +34,7 @@ export async function loadCriticalCssLibrary(): Promise< void > {
 				new Error(
 					sprintf(
 						/* translators: %s refers to Critical CSS Gen library script url. */
-						__(
-							'Timeout while loading Critical CSS library at %s',
-							'jetpack-boost'
-						),
+						__( 'Timeout while loading Critical CSS library at %s', 'jetpack-boost' ),
 						scriptUrl
 					)
 				)

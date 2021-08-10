@@ -10,8 +10,8 @@ import type { TemplateVars } from './copy-dom-template';
  * The callback function gets one argument; the name="" argument supplied to the
  * link element.
  *
- * @param {Function} callback function to call when the link is clicked.
- * @param {string} templateKey template key to use for this link. Default: 'action'
+ * @param {Function} callback    function to call when the link is clicked.
+ * @param {string}   templateKey template key to use for this link. Default: 'action'
  * @return {Object} Template var which can be sent to TemplatedString.
  */
 export default function actionLinkTemplateVar(
@@ -25,9 +25,7 @@ export default function actionLinkTemplateVar(
 				class: 'action',
 				onclick: ( event: MouseEvent ) => {
 					event.preventDefault();
-					callback(
-						( event.target as Element ).getAttribute( 'name' )
-					);
+					callback( ( event.target as Element ).getAttribute( 'name' ) );
 				},
 				href: '#',
 			},

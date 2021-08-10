@@ -3,9 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 
-type Resolve< ReturnType = void > = (
-	value: ReturnType | PromiseLike< ReturnType >
-) => void;
+type Resolve< ReturnType = void > = ( value: ReturnType | PromiseLike< ReturnType > ) => void;
 
 type PollPromiseArgs< ReturnType = void > = {
 	interval: number;
@@ -22,13 +20,11 @@ type PollPromiseArgs< ReturnType = void > = {
  * Rejects with a timeout after <timeout> milliseconds.
  *
  * @template ReturnType
- *
- * @param {Object} obj
- * @param {number} obj.interval - Milliseconds between calling callback
- * @param {number} obj.timeout - Milliseconds before rejecting w/ a timeout
- * @param {Function} obj.callback - Callback to call every <interval> ms.
- * @param {string} obj.timeoutError - Message to throw on timeout.
- *
+ * @param {Object}   obj
+ * @param {number}   obj.interval     - Milliseconds between calling callback
+ * @param {number}   obj.timeout      - Milliseconds before rejecting w/ a timeout
+ * @param {Function} obj.callback     - Callback to call every <interval> ms.
+ * @param {string}   obj.timeoutError - Message to throw on timeout.
  * @return {Promise< ReturnType >} - A promise which resolves to the value resolved() inside callback.
  */
 export default async function pollPromise< ReturnType = void >( {
@@ -41,9 +37,7 @@ export default async function pollPromise< ReturnType = void >( {
 
 	return new Promise< ReturnType >( ( resolve, reject ) => {
 		timeoutHandle = setTimeout( () => {
-			reject(
-				new Error( timeoutError || __( 'Timed out', 'jetpack-boost' ) )
-			);
+			reject( new Error( timeoutError || __( 'Timed out', 'jetpack-boost' ) ) );
 		}, timeout || 2 * 60 * 1000 );
 
 		intervalHandle = setInterval( async () => {

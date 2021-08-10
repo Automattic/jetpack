@@ -1,9 +1,8 @@
 module.exports = {
-	// This project uses react, so load the shared react config.
 	root: true,
 	parser: '@typescript-eslint/parser',
 	extends: [
-		'../../../.eslintrc.react.js',
+		'../../../.eslintrc.js',
 		'plugin:@typescript-eslint/recommended',
 		'plugin:@wordpress/eslint-plugin/recommended',
 		'@sveltejs',
@@ -44,8 +43,18 @@ module.exports = {
 		'rollup.config.js',
 		'babel.config.js',
 		'wordpress',
+		'vendor',
+		'app/assets/dist',
 	],
 	rules: {
+		// Enforce the use of the jetpack-boost textdomain.
+		'@wordpress/i18n-text-domain': [
+			'error',
+			{
+				allowedTextDomain: 'jetpack-boost',
+			},
+		],
+
 		// Apparently, we like dangling commas
 		'comma-dangle': 0,
 

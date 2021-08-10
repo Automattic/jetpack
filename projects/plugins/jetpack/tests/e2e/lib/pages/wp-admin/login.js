@@ -23,10 +23,6 @@ export default class WPLoginPage extends WpPage {
 		{ retry = true } = {}
 	) {
 		logger.step( 'Log in to wp-admin' );
-		const ssoLoginButton = '.jetpack-sso.button';
-		if ( ( await this.page.$( ssoLoginButton ) ) !== null ) {
-			await this.toggleSSOLogin();
-		}
 
 		await this.fill( '#user_login', username );
 		await this.fill( '#user_pass', password );

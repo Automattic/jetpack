@@ -24,9 +24,7 @@
 					Commonly referred to as <link>Critical CSS</link>.`,
 					'jetpack-boost'
 				)}
-				vars={externalLinkTemplateVar(
-					'https://web.dev/extract-critical-css/'
-				)}
+				vars={externalLinkTemplateVar( 'https://web.dev/extract-critical-css/' )}
 			/>
 		</p>
 
@@ -47,9 +45,7 @@
 					<link>web.dev</link>.`,
 					'jetpack-boost'
 				)}
-				vars={externalLinkTemplateVar(
-					'https://web.dev/efficiently-load-third-party-javascript/'
-				)}
+				vars={externalLinkTemplateVar( 'https://web.dev/efficiently-load-third-party-javascript/' )}
 			/>
 		</p>
 	</Module>
@@ -63,9 +59,7 @@
 					are required. Read more on <link>web.dev</link>.`,
 					'jetpack-boost'
 				)}
-				vars={externalLinkTemplateVar(
-					'https://web.dev/browser-level-image-lazy-loading/'
-				)}
+				vars={externalLinkTemplateVar( 'https://web.dev/browser-level-image-lazy-loading/' )}
 			/>
 		</p>
 	</Module>

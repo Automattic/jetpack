@@ -1,6 +1,8 @@
 <?php //phpcs:ignoreFile
 namespace Automattic\Jetpack_Boost\Tests\Lib;
 
+use Brain\Monkey\Filters;
+use Brain\Monkey\Functions;
 use Automattic\Jetpack_Boost\Lib\Url;
 use Automattic\Jetpack_Boost\Tests\Base_Test_Case;
 
@@ -33,7 +35,7 @@ class WP_Test_Url extends Base_Test_Case {
 			}
 		}
 
-		\WP_Mock::expectFilter( 'jetpack_boost_normalized_url', $expected, $input );
+		Filters\expectApplied( 'jetpack_boost_normalized_url' )->once()->with( $expected, $input );
 		$normalized_url = Url::normalize( $input );
 		$this->assertEquals( $expected, $normalized_url );
 	}
@@ -43,9 +45,9 @@ class WP_Test_Url extends Base_Test_Case {
 		$url_with_extra_param = 'https://example.com/path?param=value&utm_campaign=foo';
 		$expected_url         = 'https://example.com/path?param=value';
 
-		\WP_Mock::userFunction( 'site_url' )->andReturn( $start_url );
-		\WP_Mock::userFunction( 'remove_query_arg' )->with( Url::PARAMS_TO_EXCLUDE, $url_with_extra_param )->andReturn( $expected_url );
-		\WP_Mock::userFunction( 'wp_parse_url' )->andReturn(
+		Functions\when( 'site_url' )->justReturn( $start_url );
+		Functions\when( 'remove_query_arg' )->justReturn( $expected_url );
+		Functions\when( 'wp_parse_url' )->justReturn(
 			array(
 				'host'  => 'example.com',
 				'path'  => '/path',
@@ -62,7 +64,7 @@ class WP_Test_Url extends Base_Test_Case {
 			)
 		);
 
-		\WP_Mock::expectFilter( 'jetpack_boost_current_url', $url_with_extra_param );
+		Filters\expectApplied( 'jetpack_boost_current_url' )->once()->with( $url_with_extra_param );
 
 		$current_url    = Url::get_current_url();
 		$normalized_url = Url::normalize( $current_url );
@@ -75,9 +77,9 @@ class WP_Test_Url extends Base_Test_Case {
 		$url_with_extra_param = 'https://example.com/?s=abcd';
 		$expected_url         = 'https://example.com/?s=';
 
-		\WP_Mock::userFunction( 'site_url' )->andReturn( $site_url );
-		\WP_Mock::userFunction( 'remove_query_arg' )->with( Url::PARAMS_TO_EXCLUDE, $url_with_extra_param )->andReturn( $url_with_extra_param );
-		\WP_Mock::userFunction( 'wp_parse_url' )->andReturn(
+		Functions\when( 'site_url' )->justReturn( $site_url );
+		Functions\when( 'remove_query_arg' )->justReturn( $expected_url );
+		Functions\when( 'wp_parse_url' )->justReturn(
 			array(
 				'host'  => 'example.com',
 				'path'  => '/path',
@@ -94,7 +96,8 @@ class WP_Test_Url extends Base_Test_Case {
 			)
 		);
 
-		\WP_Mock::expectFilter( 'jetpack_boost_current_url', $url_with_extra_param );
+		
+		Filters\expectApplied( 'jetpack_boost_current_url' )->once()->with( $url_with_extra_param );
 
 		$current_url    = Url::get_current_url();
 		$normalized_url = Url::normalize( $current_url );

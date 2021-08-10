@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import restApi from 'rest-api';
+import restApi from '@automattic/jetpack-api';
 import {
 	JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION,
 	JETPACK_RECOMMENDATIONS_DATA_ADD_SKIPPED_RECOMMENDATION,

@@ -8,10 +8,7 @@ import { derived, writable } from 'svelte/store';
  * Internal dependencies
  */
 import type { JSONObject } from '../utils/json-types';
-import type {
-	ProviderKeyUrls,
-	ProvidersSuccessRatio,
-} from '../utils/generate-critical-css';
+import type { ProviderKeyUrls, ProvidersSuccessRatio } from '../utils/generate-critical-css';
 import type { Viewport } from '../utils/types';
 
 export type CriticalCssErrorDetails = {
@@ -59,7 +56,7 @@ const { subscribe, update } = writable< CriticalCssStatus >( initialState );
  * Derived datastore: contains the number of provider keys which failed in the
  * latest Critical CSS generation run.
  */
-export const failedProviderKeyCount = derived( { subscribe }, ( state ) =>
+export const failedProviderKeyCount = derived( { subscribe }, state =>
 	state.providers_errors ? Object.keys( state.providers_errors ).length : 0
 );
 
@@ -67,7 +64,7 @@ export const failedProviderKeyCount = derived( { subscribe }, ( state ) =>
  * Derived datastore: Returns true if the Critical CSS status indicates the process
  * is complete - i.e.: is success or fail.
  */
-export const isFinished = derived( { subscribe }, ( state ) =>
+export const isFinished = derived( { subscribe }, state =>
 	[ success, fail ].includes( state.status )
 );
 
@@ -81,9 +78,9 @@ type CriticalCssApiResponse = {
  * Call a Critical CSS endpoint which may return a status update, returning the
  * status update (and updating the status accordingly).
  *
- * @param {'post' | 'get'} method HTTP method to use.
- * @param {string} url endpoint to call
- * @param {JSONObject | undefined} body optional body to include in request.
+ * @param {'post' | 'get'}         method HTTP method to use.
+ * @param {string}                 url    endpoint to call
+ * @param {JSONObject | undefined} body   optional body to include in request.
  * @return {Promise< CriticalCssStatus | false >} Critical CSS status, or false if module not enabled.
  */
 async function callCriticalCssEndpoint(
@@ -105,7 +102,7 @@ async function callCriticalCssEndpoint(
 		);
 	}
 
-	update( ( state ) => ( {
+	update( state => ( {
 		...state,
 		...response.status_update,
 	} ) );
@@ -117,13 +114,10 @@ async function callCriticalCssEndpoint(
  * Helper method to update Critical CSS generation progress status.
  *
  * @param {boolean} generating True if generation process is running.
- * @param {number} progress Progress expressed as a %.
+ * @param {number}  progress   Progress expressed as a %.
  */
-export function updateGenerateStatus(
-	generating: boolean,
-	progress: number
-): void {
-	return update( ( state ) => ( {
+export function updateGenerateStatus( generating: boolean, progress: number ): void {
+	return update( state => ( {
 		...state,
 		generating,
 		progress,
@@ -134,14 +128,14 @@ export function updateGenerateStatus(
 /**
  * Send a request to the server requesting that Critical CSS gets regenerated.
  *
- * @param {boolean} reset True if existing results should be thrown away before starting.
+ * @param {boolean} reset              True if existing results should be thrown away before starting.
  * @param {boolean} isShowstopperRetry True if this request is kicking off a retry after a showstopper error.
  */
 export async function requestGeneration(
 	reset: boolean,
 	isShowstopperRetry: boolean
 ): Promise< CriticalCssStatus | false > {
-	update( ( state ) => ( {
+	update( state => ( {
 		...state,
 		retriedShowstopper: isShowstopperRetry,
 	} ) );
@@ -156,15 +150,11 @@ export async function sendGenerationResult(
 	endpoint: string,
 	body: JSONObject
 ): Promise< CriticalCssStatus | false > {
-	return callCriticalCssEndpoint(
-		'post',
-		`/critical-css/${ providerKey }/${ endpoint }`,
-		body
-	);
+	return callCriticalCssEndpoint( 'post', `/critical-css/${ providerKey }/${ endpoint }`, body );
 }
 
 export function storeGenerateError( error: Error ): void {
-	update( ( oldState ) => ( {
+	update( oldState => ( {
 		...oldState,
 		status: 'error',
 		status_error: error,

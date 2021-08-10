@@ -307,9 +307,12 @@
 			'div.gallery, div.tiled-gallery, ul.wp-block-gallery, ul.blocks-gallery-grid, ' +
 			'figure.blocks-gallery-grid, div.wp-block-jetpack-tiled-gallery, a.single-image-gallery';
 
-		var itemSelector =
-			'.gallery-item, .tiled-gallery-item, .blocks-gallery-item, ' +
-			' .tiled-gallery__item, .wp-block-image';
+		// Selector for items within a gallery or tiled gallery.
+		var galleryItemSelector =
+			'.gallery-item, .tiled-gallery-item, .blocks-gallery-item, ' + ' .tiled-gallery__item';
+
+		// Selector for all items including single images.
+		var itemSelector = galleryItemSelector + ', .wp-block-image';
 
 		var carousel = {};
 
@@ -438,6 +441,11 @@
 
 				carousel.overlay.addEventListener( 'jp_carousel.afterOpen', function () {
 					enableKeyboardNavigation();
+
+					// Don't show navigation if there's only one image.
+					if ( carousel.slides.length <= 1 ) {
+						return;
+					}
 					// Show dot pagination if slide count is <= 5, otherwise show n/total.
 					if ( carousel.slides.length <= 5 ) {
 						domUtil.show( carousel.info.querySelector( '.jp-swiper-pagination' ) );
@@ -451,6 +459,13 @@
 
 					// Fixes some themes where closing carousel brings view back to top.
 					document.documentElement.style.removeProperty( 'height' );
+
+					// If we disable the swiper (because there's only one image)
+					// we have to re-enable it here again as Swiper doesn't, for some reason,
+					// show the navigation buttons again after reinitialization.
+					if ( swiper ) {
+						swiper.enable();
+					}
 
 					// Hide pagination.
 					domUtil.hide( carousel.info.querySelector( '.jp-swiper-pagination' ) );
@@ -681,15 +696,21 @@
 		function processSingleImageGallery() {
 			var images = document.querySelectorAll( 'a img[data-attachment-id]' );
 			Array.prototype.forEach.call( images, function ( image ) {
-				var container = image.parentElement;
+				var link = image.parentElement;
+				var container = link.parentElement;
 
 				// Skip if image was already added to gallery by shortcode.
-				if ( container.parentElement.classList.contains( 'gallery-icon' ) ) {
+				if ( container.classList.contains( 'gallery-icon' ) ) {
 					return;
 				}
 
-				// Skip if the container is not a link.
-				if ( ! container.hasAttribute( 'href' ) ) {
+				// Skip if image is part of a gallery.
+				if ( domUtil.closest( container, galleryItemSelector ) ) {
+					return;
+				}
+
+				// Skip if the parent is not actually a link.
+				if ( ! link.hasAttribute( 'href' ) ) {
 					return;
 				}
 
@@ -697,7 +718,7 @@
 
 				// If link points to 'Media File' (ignoring GET parameters) and flag is set, allow it.
 				if (
-					container.getAttribute( 'href' ).split( '?' )[ 0 ] ===
+					link.getAttribute( 'href' ).split( '?' )[ 0 ] ===
 						image.getAttribute( 'data-orig-file' ).split( '?' )[ 0 ] &&
 					Number( jetpackCarouselStrings.single_image_gallery_media_file ) === 1
 				) {
@@ -705,7 +726,7 @@
 				}
 
 				// If link points to 'Attachment Page', allow it.
-				if ( container.getAttribute( 'href' ) === image.getAttribute( 'data-permalink' ) ) {
+				if ( link.getAttribute( 'href' ) === image.getAttribute( 'data-permalink' ) ) {
 					valid = true;
 				}
 
@@ -715,9 +736,9 @@
 				}
 
 				// Make this node a gallery recognizable by event listener above.
-				container.classList.add( 'single-image-gallery' );
+				link.classList.add( 'single-image-gallery' );
 				// blog_id is needed to allow posting comments to correct blog.
-				container.setAttribute(
+				link.setAttribute(
 					'data-carousel-extra',
 					JSON.stringify( {
 						blog_id: Number( jetpackCarouselStrings.blog_id ),
@@ -1498,7 +1519,9 @@
 			swiper = new window.Swiper( '.jp-carousel-swiper-container', {
 				centeredSlides: true,
 				zoom: true,
-				loop: carousel.slides.length > 1 ? true : false,
+				loop: carousel.slides.length > 1,
+				// Turn off interactions and hide navigation arrows if there is only one slide.
+				enabled: carousel.slides.length > 1,
 				pagination: {
 					el: '.jp-swiper-pagination',
 					clickable: true,
