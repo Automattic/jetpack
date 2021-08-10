@@ -43,6 +43,7 @@
 				"automattic/jetpack-password-checker",
 				"automattic/jetpack-redirect",
 				"automattic/jetpack-roles",
+				"automattic/jetpack-sandbox",
 				"automattic/jetpack-status",
 				"automattic/jetpack-sync",
 				"automattic/jetpack-terms-of-service",
