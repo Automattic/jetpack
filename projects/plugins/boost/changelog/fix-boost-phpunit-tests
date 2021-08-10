@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Tooling: Fix PHP unit testing dependency on later versions of PHP.
