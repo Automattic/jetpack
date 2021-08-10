@@ -86,15 +86,4 @@
 			</exclude>
 		</whitelist>
 	</filter>
-	<listeners>
-		<listener class="SpeedTrapListener">
-			<arguments>
-				<array>
-					<element key="slowThreshold">
-						<integer>150</integer>
-					</element>
-				</array>
-			</arguments>
-		</listener>
-	</listeners>
 </phpunit>
