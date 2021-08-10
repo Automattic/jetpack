@@ -1,0 +1,5 @@
+Significance: patch
+Type: compat
+Comment: Unit Tests: ensure compatibility with WordPress 5.9 and its upcoming support for newer PHPUnit versions.
+
+
