@@ -108,63 +108,63 @@ class Test_Package_Version_Tracker extends TestCase {
 		unset( $removed_version['sync'] );
 
 		return array(
-			'versions did not change'    =>
+			'versions did not change'        =>
 				array(
 					'option_value'    => self::PACKAGE_VERSIONS,
 					'filter_value'    => self::PACKAGE_VERSIONS,
 					'expected_option' => self::PACKAGE_VERSIONS,
 					'updated'         => false,
 				),
-			'option is empty'            =>
+			'option is empty'                =>
 				array(
 					'option_value'    => array(),
 					'filter_value'    => self::PACKAGE_VERSIONS,
 					'expected_option' => self::PACKAGE_VERSIONS,
 					'updated'         => true,
 				),
-			'filter is empty'            =>
+			'filter is empty'                =>
 				array(
 					'option_value'    => self::PACKAGE_VERSIONS,
 					'filter_value'    => array(),
 					'expected_option' => array(),
 					'updated'         => true,
 				),
-			'versions changed'           =>
+			'versions changed'               =>
 				array(
 					'option_value'    => self::PACKAGE_VERSIONS,
 					'filter_value'    => self::CHANGED_VERSIONS,
 					'expected_option' => self::CHANGED_VERSIONS,
 					'updated'         => true,
 				),
-			'filter added new package'   =>
+			'filter added new package'       =>
 				array(
 					'option_value'    => self::PACKAGE_VERSIONS,
 					'filter_value'    => $added_version,
 					'expected_option' => $added_version,
 					'updated'         => true,
 				),
-			'filter removed a package'   =>
+			'filter removed a package'       =>
 				array(
 					'option_value'    => self::PACKAGE_VERSIONS,
 					'filter_value'    => $removed_version,
 					'expected_option' => $removed_version,
 					'updated'         => true,
 				),
-			'filter not an array'        =>
+			'filter not an array'            =>
 				array(
 					'option_value'    => self::PACKAGE_VERSIONS,
 					'filter_value'    => 'not an array',
 					'expected_option' => self::PACKAGE_VERSIONS,
 					'updated'         => false,
 				),
-			'option not an array'        =>
+			'option not an array'            =>
 				array(
 					'option_value'    => 'not an array',
 					'filter_value'    => self::PACKAGE_VERSIONS,
 					'expected_option' => self::PACKAGE_VERSIONS,
 					'updated'         => true,
 				),
-			'option, filter both arrays' =>
+			'option, filter both not arrays' =>
 				array(
 					'option_value'    => 'option not an array',
 					'filter_value'    => 'filter not an array',
