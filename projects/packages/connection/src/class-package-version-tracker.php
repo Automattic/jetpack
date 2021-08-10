@@ -22,7 +22,7 @@ class Package_Version_Tracker {
 		/**
 		 * Obtains the package versions.
 		 *
-		 * @since x.x.x
+		 * @since $$next_version$$
 		 *
 		 * @param array An associative array of Jetpack package slugs and their corresponding versions as key/value pairs.
 		 */
