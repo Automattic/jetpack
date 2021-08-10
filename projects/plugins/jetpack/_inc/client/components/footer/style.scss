@@ -8,6 +8,11 @@
 	@include breakpoint( "<660px" ) {
 		margin: rem( 24px ) 0 rem( 16px );
 	}
+
+	.jp-dashboard-footer {
+		margin: 0 auto;
+		padding: 1.5rem;
+	}
 }
 
 .jp-footer__a8c-attr-container {
@@ -24,7 +29,7 @@
 	border-top: 1px lighten( $gray, 25% ) solid;
 	border-bottom: 1px lighten( $gray, 25% ) solid;
 	margin-top: 0;
-	margin-bottom: rem( 16px );
+	margin-bottom: 0;
 
 	@include breakpoint( "<660px" ) {
 		border-bottom: none;
