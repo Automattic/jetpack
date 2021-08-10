@@ -239,10 +239,12 @@ function resolveSiteUrl() {
 	let url = process.env.SITE_URL;
 
 	if ( ! url ) {
+		logger.debug( 'SITE_URL not set. Checking for existing tunnel url' );
 		url = getReusableUrlFromFile();
 	}
 
 	validateUrl( url );
+	logger.debug( `Using site ${ url }` );
 	return url;
 }
 

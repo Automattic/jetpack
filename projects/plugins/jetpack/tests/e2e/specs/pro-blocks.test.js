@@ -13,6 +13,7 @@ import { Plans } from '../lib/env/types';
  * @group pro-blocks
  * @group blocks
  * @group gutenberg
+ * @group atomic
  */
 describe( 'Paid blocks', () => {
 	let blockEditor;
