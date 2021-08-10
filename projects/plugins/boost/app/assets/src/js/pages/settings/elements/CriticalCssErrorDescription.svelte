@@ -67,18 +67,20 @@
 		<svelte:component this={footerComponent( errorSet )} />
 	{/if}
 
-	{#if foldRawErrors}
-		<FoldingElement
-			showLabel={__( 'See error message', 'jetpack-boost' )}
-			hideLabel={__( 'Hide error message', 'jetpack-boost' )}
-		>
+	{#if rawError( errorSet )}
+		{#if foldRawErrors}
+			<FoldingElement
+				showLabel={__( 'See error message', 'jetpack-boost' )}
+				hideLabel={__( 'Hide error message', 'jetpack-boost' )}
+			>
+				<p class="raw-error" transition:slide|local>
+					{rawError( errorSet )}
+				</p>
+			</FoldingElement>
+		{:else}
 			<p class="raw-error" transition:slide|local>
 				{rawError( errorSet )}
 			</p>
-		</FoldingElement>
-	{:else}
-		<p class="raw-error" transition:slide|local>
-			{rawError( errorSet )}
-		</p>
+		{/if}
 	{/if}
 </div>

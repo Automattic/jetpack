@@ -40,7 +40,7 @@
 		showLabel={__( 'See error message', 'jetpack-boost' )}
 		hideLabel={__( 'Hide error message', 'jetpack-boost' )}
 	>
-		<div transition:slide|local>
+		<div class="raw-error" transition:slide|local>
 			{#if showingProviderError}
 				<CriticalCssErrorDescription
 					errorSet={$primaryErrorSet}
