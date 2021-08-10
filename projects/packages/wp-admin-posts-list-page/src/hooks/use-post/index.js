@@ -4,6 +4,13 @@
 import { useSelect } from '@wordpress/data';
 import { store as coreStore } from '@wordpress/core-data';
 
+/**
+ * React hook to request site post
+ * based on the post ID.
+ *
+ * @param {number} id - The post ID.
+ * @returns {object} The post object. Otherwise, null.
+ */
 export default function usePost( { id, postIds, status = 'any', type = 'post' } ) {
 	const posts = useSelect(
 		select => {

@@ -1,9 +1,9 @@
 {
-	"name": "jetpack-wpadmin-plus-ui",
+	"name": "jetpack-wp-admin-posts-list-page-ui",
 	"version": "0.0.1-alpha",
 	"description": "WPAdmin Plus UI",
 	"main": "_inc/index.js",
-	"repository": "https://github.com/automattic/jetpack-wp-admin-plus",
+	"repository": "https://github.com/automattic/jetpack-wp-admin-posts-list-page",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"scripts": {
