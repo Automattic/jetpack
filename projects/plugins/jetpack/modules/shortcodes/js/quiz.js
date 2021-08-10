@@ -63,19 +63,18 @@ jQuery( function ( $ ) {
 	} );
 } );
 
-document.querySelectorAll( '.jetpack-quiz-wrapper' ).forEach( ( quiz ) => {
-	quiz.childNodes.forEach( ( element, number ) => {
+document.querySelectorAll( '.jetpack-quiz-wrapper' ).forEach( function ( quiz ) {
+	quiz.childNodes.forEach( function ( element, number ) {
 		element.style.display = 'none';
 		element.setAttribute( 'quiz-number', number );
 		element.querySelector( '.jetpack-quiz-count' ).innerHTML =
 			number + 1 + '/' + quiz.childElementCount;
 	} );
-
 	quiz.childNodes[ 0 ].style.display = 'block';
 } );
 
-document.querySelectorAll( '.jetpack-quiz-option-button' ).forEach( ( element ) =>
-	element.addEventListener( 'click', ( event ) => {
+document.querySelectorAll( '.jetpack-quiz-option-button' ).forEach( function ( element ) {
+	element.addEventListener( 'click', function ( e ) {
 		let currentQuiz = element.parentElement.parentElement;
 		currentQuiz.style.display = 'none';
 		let switchNumber = element.getAttribute( 'data-quiz-option' ) === 'next' ? 1 : -1;
@@ -84,5 +83,5 @@ document.querySelectorAll( '.jetpack-quiz-option-button' ).forEach( ( element ) 
 				parseInt( currentQuiz.getAttribute( 'quiz-number' ) ) + switchNumber
 			];
 		newQuiz.style.display = 'block';
-	} )
-);
+	} );
+} );
