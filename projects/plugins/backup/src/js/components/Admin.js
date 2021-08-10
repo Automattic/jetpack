@@ -222,7 +222,7 @@ const Admin = () => {
 				<div className="jp-hero">{ renderLoadedState() }</div>
 				<div className="jp-section">
 					<div className="jp-wrap">
-						{ renderBackupSegments() }
+						{ isFullyConnected() && renderBackupSegments() }
 						{ isFullyConnected() && (
 							<div className="jp-row">
 								<div class="lg-col-span-6 md-col-span-4 sm-col-span-4"></div>
