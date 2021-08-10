@@ -226,10 +226,6 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 - This update brings a lot of stability improvements.
 - We've been hard at work to get here and Jetpack Boost v1.0.0 is finally here! 🎉
 
-### 0.9.19 - 2021-03-19
+--------
 
-- We've refactored the plugin quite a bit, starting from the UI to stability fixes.
-
-### 0.9.1 - 2020-12-29
-
-- First public alpha release
+[See the previous changelogs here](https://github.com/Automattic/jetpack/blob/master/projects/plugins/boost/CHANGELOG.md#changelog) 
