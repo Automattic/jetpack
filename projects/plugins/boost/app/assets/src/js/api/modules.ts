@@ -19,10 +19,7 @@ export async function setModuleState( name, status ) {
 		throw new Error(
 			sprintf(
 				/* translators: %s refers to the error message. */
-				__(
-					'Unexpected data received from WordPress: %s',
-					'jetpack-boost'
-				),
+				__( 'Unexpected data received from WordPress: %s', 'jetpack-boost' ),
 				errorString
 			)
 		);

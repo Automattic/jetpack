@@ -247,7 +247,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 	 * @param string  $text The description of the item.
 	 * @param string  $icon The path of the icon, relative to Jetpack images folder.
 	 * @param string  $link The link of the button.
-	 * @param string  $tracks_id The id used to identify the tracks events. Automatically prefixed with "jetpack_stats_nudges_{view|click}_".
+	 * @param string  $tracks_id The id used to identify the tracks events. Automatically prefixed with "jetpack_stats_nudges_{view|click|learn_more}_".
 	 * @param string  $learn_more_link The target of the "Learn more" link.
 	 * @param boolean $subitem Whether it is a subitem or not.
 	 * @param string  $button_label The button label.
@@ -260,7 +260,10 @@ class Jetpack_Stats_Upgrade_Nudges {
 		$button_label       = is_null( $button_label ) ? __( 'Upgrade', 'jetpack' ) : $button_label;
 		$view_event         = "stats_nudges_view_$tracks_id";
 		$click_event        = "stats_nudges_click_$tracks_id";
+		$learn_more_event   = "stats_nudges_learn_more_$tracks_id";
+
 		self::track_event( $view_event );
+
 		?>
 			<div class="dops-card dops-banner has-call-to-action is-product jp-stats-report-upgrade-item <?php echo esc_attr( $additional_classes ); ?>">
 				<div class="dops-banner__icon-plan">
@@ -272,7 +275,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 							<?php echo esc_html( $title ); ?>
 							<p>
 								<?php echo esc_html( $text ); ?>
-								<a href="<?php echo esc_attr( $learn_more_link ); ?>" target="_blank" rel="noopener noreferrer">
+								<a href="<?php echo esc_attr( $learn_more_link ); ?>" class="jptracks" target="_blank" rel="noopener noreferrer" data-jptracks-name="<?php echo esc_attr( $learn_more_event ); ?>">
 									<?php esc_html_e( 'Learn more', 'jetpack' ); ?>
 								</a>
 							</p>

@@ -1,11 +1,11 @@
 import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
 import PostFrontendPage from '../lib/pages/postFrontend';
 import MailchimpBlock from '../lib/pages/wp-admin/blocks/mailchimp';
-import { syncJetpackPlanData } from '../lib/flows/jetpack-connect';
-import { activateModule, execMultipleWpCommands } from '../lib/utils-helper';
 import SimplePaymentBlock from '../lib/pages/wp-admin/blocks/simple-payments';
 import WordAdsBlock from '../lib/pages/wp-admin/blocks/word-ads';
 import { testStep } from '../lib/reporters/reporter';
+import { prerequisitesBuilder } from '../lib/env/prerequisites';
+import { Plans } from '../lib/env/types';
 
 /**
  *
@@ -18,9 +18,11 @@ describe( 'Paid blocks', () => {
 	let blockEditor;
 
 	beforeAll( async () => {
-		await syncJetpackPlanData( 'complete' );
-		await activateModule( page, 'publicize' );
-		await activateModule( page, 'wordads' );
+		await prerequisitesBuilder()
+			.withConnection( true )
+			.withPlan( Plans.Complete )
+			.withActiveModules( [ 'publicize' ] )
+			.build();
 	} );
 
 	beforeEach( async () => {
@@ -28,13 +30,6 @@ describe( 'Paid blocks', () => {
 			blockEditor = await BlockEditorPage.visit( page );
 			await blockEditor.resolveWelcomeGuide( false );
 		} );
-	} );
-
-	afterAll( async () => {
-		await execMultipleWpCommands(
-			'wp jetpack module deactivate publicize',
-			'wp jetpack module deactivate wordads'
-		);
 	} );
 
 	it( 'MailChimp Block', async () => {
@@ -88,6 +83,8 @@ describe( 'Paid blocks', () => {
 	} );
 
 	it( 'WordAds block', async () => {
+		await prerequisitesBuilder().withActiveModules( [ 'wordads' ] ).build();
+
 		let blockId;
 
 		await testStep( 'Add a WordAds block', async () => {

@@ -11,10 +11,7 @@
 		'#critical-css-advanced': AdvancedCriticalCss,
 	};
 
-	const subPage = derived(
-		urlFragment,
-		( fragment ) => subPages[ fragment ]
-	);
+	const subPage = derived( urlFragment, fragment => subPages[ fragment ] );
 </script>
 
 <div class="jb-section--alt jb-section--scores">

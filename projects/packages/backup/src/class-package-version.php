@@ -12,6 +12,6 @@ namespace Automattic\Jetpack\Backup;
  */
 class Package_Version {
 
-	const PACKAGE_VERSION = '1.1.1';
+	const PACKAGE_VERSION = '1.1.2-alpha';
 
 }
