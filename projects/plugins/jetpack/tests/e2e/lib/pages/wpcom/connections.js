@@ -42,9 +42,9 @@ export default class ConnectionsPage extends WpPage {
 		const mcPasswordSelector = '#login #password';
 		const mcSubmitSelector = "#login input[type='submit']";
 
-		await mcPopupPage.type( mcUsernameSelector, mcLogin );
-		await mcPopupPage.type( mcPasswordSelector, mcPassword );
-		await mcPopupPage.type( mcSubmitSelector );
+		await mcPopupPage.fill( mcUsernameSelector, mcLogin );
+		await mcPopupPage.fill( mcPasswordSelector, mcPassword );
+		await mcPopupPage.fill( mcSubmitSelector );
 		await this.page.bringToFront();
 	}
 }
