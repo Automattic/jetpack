@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f9c3bc74f2df6410425f1e81d9a1fe5e",
+    "content-hash": "3e8e4fae7e5409cdc33bebcb2e979f6f",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -4669,25 +4669,25 @@
         },
         {
             "name": "yoast/phpunit-polyfills",
-            "version": "0.2.0",
+            "version": "1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Yoast/PHPUnit-Polyfills.git",
-                "reference": "c48e4cf0c44b2d892540846aff19fb0468627bab"
+                "reference": "f014fb21c2b0038fd329515d59025af42fb98715"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Yoast/PHPUnit-Polyfills/zipball/c48e4cf0c44b2d892540846aff19fb0468627bab",
-                "reference": "c48e4cf0c44b2d892540846aff19fb0468627bab",
+                "url": "https://api.github.com/repos/Yoast/PHPUnit-Polyfills/zipball/f014fb21c2b0038fd329515d59025af42fb98715",
+                "reference": "f014fb21c2b0038fd329515d59025af42fb98715",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.5",
+                "php": ">=5.4",
                 "phpunit/phpunit": "^4.8.36 || ^5.7.21 || ^6.0 || ^7.0 || ^8.0 || ^9.0"
             },
             "require-dev": {
                 "php-parallel-lint/php-console-highlighter": "^0.5",
-                "php-parallel-lint/php-parallel-lint": "^1.2.0",
+                "php-parallel-lint/php-parallel-lint": "^1.3.0",
                 "yoast/yoastcs": "^2.1.0"
             },
             "type": "library",
@@ -4728,7 +4728,7 @@
                 "issues": "https://github.com/Yoast/PHPUnit-Polyfills/issues",
                 "source": "https://github.com/Yoast/PHPUnit-Polyfills"
             },
-            "time": "2020-11-25T02:59:57+00:00"
+            "time": "2021-08-09T16:28:08+00:00"
         }
     ],
     "aliases": [],
