@@ -18,7 +18,7 @@ class Package_Version_Tracker {
 	 * Uses the jetpack_package_versions filter to obtain the package versions from packages that need
 	 * version tracking. If the package versions have changed, updates the option and notifies WPCOM.
 	 */
-	public static function maybe_update_package_versions() {
+	public function maybe_update_package_versions() {
 		/**
 		 * Obtains the package versions.
 		 *
@@ -44,7 +44,7 @@ class Package_Version_Tracker {
 			|| count( array_diff_assoc( $filter_versions, $option_versions ) )
 			|| count( array_diff_assoc( $option_versions, $filter_versions ) )
 		) {
-			static::update_package_versions_option( $filter_versions );
+			$this->update_package_versions_option( $filter_versions );
 		}
 	}
 
@@ -55,7 +55,7 @@ class Package_Version_Tracker {
 	 *
 	 * @param array $package_versions The package versions.
 	 */
-	private static function update_package_versions_option( $package_versions ) {
+	protected function update_package_versions_option( $package_versions ) {
 		$site_id = \Jetpack_Options::get_option( 'id' );
 
 		$body = wp_json_encode(

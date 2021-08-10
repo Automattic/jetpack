@@ -58,10 +58,9 @@ class Test_Package_Version_Tracker extends TestCase {
 	 * @dataProvider jetpack_maybe_update_package_versions_data_provider
 	 */
 	public function test_maybe_update_package_versions( $option_value, $filter_value, $expected_value, $updated ) {
-		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
-		\Jetpack_Options::update_option( 'id', 1234 );
-
-		add_filter( 'pre_http_request', array( $this, 'intercept_http_request_success' ) );
+		$tracker = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Package_Version_Tracker' )
+			->setMethods( array( 'update_package_versions_option' ) )
+			->getMock();
 
 		update_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION, $option_value );
 
@@ -72,15 +71,23 @@ class Test_Package_Version_Tracker extends TestCase {
 			}
 		);
 
-		Package_Version_Tracker::maybe_update_package_versions();
-
-		remove_filter( 'pre_http_request', array( $this, 'intercept_http_request_success' ) );
-
 		if ( $updated ) {
-			$this->assertTrue( $this->http_request_attempted );
+			$tracker->expects( $this->once() )
+				->method( 'update_package_versions_option' )
+				->with(
+					$this->callback(
+						function ( $package_versions ) {
+							update_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION, $package_versions );
+							return true;
+						}
+					)
+				);
 		} else {
-			$this->assertFalse( $this->http_request_attempted );
+			$tracker->expects( $this->never() )
+				->method( 'update_package_versions_option' );
 		}
+
+		$tracker->maybe_update_package_versions();
 
 		$this->assertSame( $expected_value, get_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION ) );
 	}
@@ -214,6 +221,33 @@ class Test_Package_Version_Tracker extends TestCase {
 	}
 
 	/**
+	 * Tests the maybe_update_package_versions method when the HTTP request to WPCOM succeeds.
+	 */
+	public function test_maybe_update_package_versions_success() {
+		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		\Jetpack_Options::update_option( 'id', 1234 );
+
+		add_filter( 'pre_http_request', array( $this, 'intercept_http_request_success' ) );
+
+		update_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION, self::PACKAGE_VERSIONS );
+
+		add_filter(
+			'jetpack_package_versions',
+			function () {
+				return self::CHANGED_VERSIONS;
+			}
+		);
+
+		( new Package_Version_Tracker() )->maybe_update_package_versions();
+
+		remove_filter( 'pre_http_request', array( $this, 'intercept_http_request_success' ) );
+
+		$this->assertTrue( $this->http_request_attempted );
+
+		$this->assertSame( self::CHANGED_VERSIONS, get_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION ) );
+	}
+
+	/**
 	 * Tests the maybe_update_package_versions method when the HTTP request to WPCOM fails.
 	 */
 	public function test_maybe_update_package_versions_failure() {
@@ -231,7 +265,7 @@ class Test_Package_Version_Tracker extends TestCase {
 			}
 		);
 
-		Package_Version_Tracker::maybe_update_package_versions();
+		( new Package_Version_Tracker() )->maybe_update_package_versions();
 
 		remove_filter( 'pre_http_request', array( $this, 'intercept_http_request_failure' ) );
 
