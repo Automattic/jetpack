@@ -112,7 +112,6 @@ async function execWpCommand( wpCmd ) {
 	const cmd = `pnpx jetpack docker --type e2e --name t1 wp -- ${ wpCmd }`;
 	const result = await execShellCommand( cmd );
 
-	console.log( 'ZZZZZZZ', result );
 	// Jetpack's `wp` command outputs a script header for some reason. Let's clean it up.
 	if ( typeof result !== 'object' && result.length > 0 ) {
 		return result.replace( '#!/usr/bin/env php\n', '' ).trim();

@@ -57,7 +57,7 @@ describe( 'Paid blocks', () => {
 		let blockId;
 
 		await testStep( 'Add a Pay with PayPal block', async () => {
-			await blockEditor.waitForAvailableBlock( SimplePaymentBlock.name() );
+			// await blockEditor.waitForAvailableBlock( SimplePaymentBlock.name() );
 
 			blockId = await blockEditor.insertBlock(
 				SimplePaymentBlock.name(),
