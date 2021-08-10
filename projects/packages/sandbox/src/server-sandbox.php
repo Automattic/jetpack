@@ -61,6 +61,7 @@ function jetpack_connection_server_sandbox( &$url, &$headers ) {
 
 	if ( $request_parameters['host'] ) {
 		$headers['Host'] = $request_parameters['host'];
+
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			error_log( sprintf( "SANDBOXING via '%s': '%s'", JETPACK__SANDBOX_DOMAIN, $original_url ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		}
@@ -68,3 +69,29 @@ function jetpack_connection_server_sandbox( &$url, &$headers ) {
 }
 
 add_action( 'requests-requests.before_request', 'jetpack_connection_server_sandbox', 10, 2 );
+
+/**
+ * Adds a "Jetpack API Sandboxed" item to the admin bar if the JETPACK__SANDBOX_DOMAIN
+ * constant is set.
+ *
+ * Attached to the `admin_bar_menu` action.
+ *
+ * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar instance.
+ */
+function jetpack_connection_admin_bar_add_sandbox_item( $wp_admin_bar ) {
+	if ( ! defined( 'JETPACK__SANDBOX_DOMAIN' ) ) {
+		return;
+	}
+
+	$node = array(
+		'id'    => 'jetpack-connection-api-sandbox',
+		'title' => 'Jetpack API Sandboxed',
+		'meta'  => array(
+			'title' => 'Sandboxing via ' . JETPACK__SANDBOX_DOMAIN,
+		),
+	);
+
+	$wp_admin_bar->add_menu( $node );
+}
+
+add_action( 'admin_bar_menu', 'jetpack_connection_admin_bar_add_sandbox_item', 999 );
