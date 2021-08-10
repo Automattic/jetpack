@@ -17,20 +17,20 @@ const { E2E_DEBUG } = process.env;
  */
 async function execShellCommand( cmd ) {
 	return new Promise( resolve => {
-		const result = [];
+		let result = '';
 		const cmdExec = exec( cmd, error => {
 			if ( error ) {
 				logger.warn( `CLI: ${ error.toString() }` );
 				return resolve( error );
 			}
 			// return resolve( stderr );
-			return resolve( result.join() );
+			return resolve( result );
 		} );
 		const output = data => {
 			// remove the new line at the end
 			// data = data.replace( /\n$/, '' );
 			logger.cli( data.replace( /\n$/, '' ) );
-			result.push( data );
+			result += data;
 		};
 		cmdExec.stdout.on( 'data', output );
 		cmdExec.stderr.on( 'data', output );
@@ -112,6 +112,7 @@ async function execWpCommand( wpCmd ) {
 	const cmd = `pnpx jetpack docker --type e2e --name t1 wp -- ${ wpCmd }`;
 	const result = await execShellCommand( cmd );
 
+	console.log( 'ZZZZZZZ', result );
 	// Jetpack's `wp` command outputs a script header for some reason. Let's clean it up.
 	if ( typeof result !== 'object' && result.length > 0 ) {
 		return result.replace( '#!/usr/bin/env php\n', '' ).trim();
