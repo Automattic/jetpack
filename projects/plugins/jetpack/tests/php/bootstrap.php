@@ -109,6 +109,12 @@ if ( false === function_exists( 'wp_cache_is_enabled' ) ) {
 	}
 }
 
+/*
+ * Load PHPUnit Polyfills for the WP testing suite.
+ * @see https://github.com/WordPress/wordpress-develop/pull/1563/
+ */
+define( 'WP_TESTS_PHPUNIT_POLYFILLS_PATH', __DIR__ . '/../../vendor/yoast/phpunit-polyfills/phpunitpolyfills-autoload.php' );
+
 require $test_root . '/includes/functions.php';
 
 // Activates this plugin in WordPress so it can be tested.
