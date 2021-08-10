@@ -1668,7 +1668,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return rest_ensure_response( array( 'code' => 'success' ) );
 		}
 
-		return new WP_Error( 'disconnect_failed', esc_html__( 'Was not able to disconnect the site.  Please try again.', 'jetpack' ), array( 'status' => 400 ) );
+		return new WP_Error( 'disconnect_failed', esc_html__( 'Was not able to disconnect the site. Please try again.', 'jetpack' ), array( 'status' => 400 ) );
 	}
 
 	/**
@@ -1723,7 +1723,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return rest_ensure_response( $url );
 		}
 
-		return new WP_Error( 'build_connect_url_failed', esc_html__( 'Unable to build the connect URL.  Please reload the page and try again.', 'jetpack' ), array( 'status' => 400 ) );
+		return new WP_Error( 'build_connect_url_failed', esc_html__( 'Unable to build the connect URL. Please reload the page and try again.', 'jetpack' ), array( 'status' => 400 ) );
 	}
 
 	/**
@@ -1777,7 +1777,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			);
 		}
 
-		return new WP_Error( 'unlink_user_failed', esc_html__( 'Was not able to unlink the user.  Please try again.', 'jetpack' ), array( 'status' => 400 ) );
+		return new WP_Error( 'unlink_user_failed', esc_html__( 'Was not able to unlink the user. Please try again.', 'jetpack' ), array( 'status' => 400 ) );
 	}
 
 	/**

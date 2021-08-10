@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0-beta] - 2021-08-10
+### Added
+- Critical CSS: Added a new Advanced Critical CSS recommendations page.
+
+### Changed
+- Critical CSS: Updated error reporting for Critical CSS to offer more users more guidance.
+- Updated package dependencies.
+- Tooling: Moved all development to the Jetpack monorepo.
+
+### Fixed
+- Tooling: Fix PHP unit testing dependency on later versions of PHP.
+
 ## 1.1.0 - 2021-06-17
 
 - Update: User connection is no longer required for Speed Scores.
@@ -61,3 +73,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 0.9.1 - 2020-12-29
 
 - First public alpha release
+
+[1.2.0-beta]: https://github.com/Automattic/jetpack-boost-production/compare/v1.1.0...v1.2.0-beta
