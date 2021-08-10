@@ -22,15 +22,15 @@ export default class SimplePaymentBlock extends PageActions {
 		price = '23.42',
 		email = 'test@example.com',
 	} = {} ) {
-		const titleSelector = this.getSelector( '.simple-payments__field-title' );
-		const descriptionSelector = this.getSelector( '.simple-payments__field-content' );
-		const priceSelector = this.getSelector( '.simple-payments__field-price' );
-		const emailSelector = this.getSelector( '.simple-payments__field-email' );
+		const titleSelector = this.getSelector( '.simple-payments__field-title input' );
+		const descriptionSelector = this.getSelector( '.simple-payments__field-content textarea' );
+		const priceSelector = this.getSelector( '.simple-payments__field-price input' );
+		const emailSelector = this.getSelector( '.simple-payments__field-email input' );
 
-		await this.type( titleSelector, title );
-		await this.type( descriptionSelector, description );
-		await this.type( priceSelector, price );
-		await this.type( emailSelector, email );
+		await this.fill( titleSelector, title );
+		await this.fill( descriptionSelector, description );
+		await this.fill( priceSelector, price );
+		await this.fill( emailSelector, email );
 	}
 
 	getSelector( selector ) {
