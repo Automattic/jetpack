@@ -57,7 +57,6 @@ export const SUPPORTED_CONTAINER_BLOCKS = [ 'core/column', 'core/columns', 'core
  * when it's needed.
  *
  * @param {object} blockSettings - The settings of the block being registered.
- *
  * @returns {object} The blockSettings, with our extra functionality inserted.
  */
 const addTweetDivider = blockSettings => {

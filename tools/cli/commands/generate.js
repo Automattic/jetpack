@@ -49,7 +49,6 @@ export async function generateCli( argv ) {
  * Command definition for the generate subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
- *
  * @returns {object} Yargs with the generate commands defined.
  */
 export function generateDefine( yargs ) {
@@ -82,7 +81,6 @@ export function generateDefine( yargs ) {
  * If no project is passed via `options`, then it will prompt for the type of project and the project itself.
  *
  * @param {object} options - Passthrough of the argv object.
- *
  * @returns {object} argv object with the project property.
  */
 async function promptForGenerate( options ) {
@@ -146,7 +144,6 @@ async function promptForGenerate( options ) {
  * Returns the appropriate list of questions.
  *
  * @param {string} type - The project type. Must be one of projectTypes
- *
  * @returns {Array} - Array of questions to ask.
  */
 export function getQuestions( type ) {
@@ -274,7 +271,6 @@ function generatePlugin( answers, pluginDir ) {
  *
  * @param {object} answers - Answers from questions.
  * @param {string} actDir - Github action directory path.
- *
  */
 function generateAction( answers, actDir ) {
 	// Create the YAML file
@@ -288,7 +284,6 @@ function generateAction( answers, actDir ) {
  * @param {string} type - Type of project.
  * @param {string} dir - Directory of new project.
  * @param {string} name - Name of new project.
- *
  */
 function createSkeleton( type, dir, name ) {
 	const skeletonDir = path.join( __dirname, '../skeletons' );
@@ -307,7 +302,6 @@ function createSkeleton( type, dir, name ) {
  *
  * @param {object} packageJson - The parsed skeleton JSON package file for the project.
  * @param {object} answers - Answers returned for project creation.
- *
  */
 function createPackageJson( packageJson, answers ) {
 	packageJson.description = answers.description;
@@ -318,7 +312,6 @@ function createPackageJson( packageJson, answers ) {
  *
  * @param {object} composerJson - The parsed skeleton JSON composer file for the project.
  * @param {object} answers - Answers returned for project creation.
- *
  */
 async function createComposerJson( composerJson, answers ) {
 	composerJson.description = answers.description;
@@ -458,7 +451,6 @@ function addMirrorRepo( composerJson, name, org, autotagger ) {
  * Creates custom readme.md content.
  *
  * @param {object} answers - Answers returned for project creation.
- *
  * @returns {string} content - The content we're writing to the readme.txt file.
  */
 function createReadMeMd( answers ) {
@@ -490,7 +482,6 @@ function createReadMeMd( answers ) {
  * Creates header for main plugin file.
  *
  * @param {object} answers - Answers returned for project creation.
- *
  * @returns {string} content - The content we're writing to the main plugin file.
  */
 function createPluginHeader( answers ) {
@@ -518,7 +509,6 @@ function createPluginHeader( answers ) {
  * Creates custom readme.txt content for plugins.
  *
  * @param {object} answers - Answers returned for project creation.
- *
  * @returns {string} content - The content we're writing to the readme.txt file.
  */
 function createReadMeTxt( answers ) {
@@ -538,11 +528,11 @@ function createReadMeTxt( answers ) {
 	return content;
 }
 
-/** Creates YAML file skeleton for github actions.
+/**
+ * Creates YAML file skeleton for github actions.
  *
  * @param {string} dir - file path we're writing to.
  * @param {string} answers - the answers to fill in the skeleton.
- *
  * @returns {string} yamlFile - the YAML file we've created.
  */
 function createYaml( dir, answers ) {
@@ -556,11 +546,11 @@ function createYaml( dir, answers ) {
 	}
 }
 
-/** Writes to files.
+/**
+ * Writes to files.
  *
  * @param {string} file - file path we're writing to.
  * @param {string} content - the content we're writing.
- *
  */
 function writeToFile( file, content ) {
 	try {

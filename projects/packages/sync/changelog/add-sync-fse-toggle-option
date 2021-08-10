@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add `wpcom_is_fse_activated` to sync list

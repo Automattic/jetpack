@@ -13,7 +13,6 @@ const compareVersions = require( 'compare-versions' );
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} plugin  - Plugin slug.
- *
  * @returns {Promise<OktokitIssuesListMilestonesForRepoResponseItem|void>} Promise resolving to milestone, if exists.
  */
 async function getNextValidMilestone( octokit, owner, repo, plugin = 'jetpack' ) {
