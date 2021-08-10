@@ -1,6 +1,6 @@
 {
-	"name": "automattic/jetpack-wp-admin-plus",
-	"description": "WPAdminPlus",
+	"name": "automattic/jetpack-wp-admin-posts-list-page",
+	"description": "WPAdminPostsListPage",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {},
@@ -42,9 +42,9 @@
 	"prefer-stable": true,
 	"extra": {
 		"autotagger": true,
-		"mirror-repo": "automattic/jetpack-wp-admin-plus",
+		"mirror-repo": "automattic/jetpack-wp-admin-posts-list-page",
 		"changelogger": {
-			"link-template": "https://github.com/automattic/jetpack-wp-admin-plus/compare/v${old}...v${new}"
+			"link-template": "https://github.com/automattic/jetpack-wp-admin-posts-list-page/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
 			"dev-master": "0.1.x-dev"
