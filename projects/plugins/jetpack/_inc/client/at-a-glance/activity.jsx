@@ -7,6 +7,8 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { State as ConnectionState } from '@automattic/jetpack-connection';
+const { isOfflineMode } = ConnectionState;
 
 /**
  * Internal dependencies
@@ -14,7 +16,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
 import { getSitePlan } from 'state/site';
-import { isOfflineMode } from 'state/connection';
+
 //import { PLAN_JETPACK_BUSINESS, PLAN_JETPACK_BUSINESS_MONTHLY, PLAN_VIP } from 'lib/plans/constants';
 
 class DashActivity extends Component {

@@ -5,13 +5,15 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
+import { State as ConnectionState } from '@automattic/jetpack-connection';
+const { getConnectUrl, hasConnectedOwner, isOfflineMode } = ConnectionState;
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * WordPress dependencies
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -24,7 +26,6 @@ import { getAkismetData } from 'state/at-a-glance';
 import { getSitePlan } from 'state/site';
 import { getApiNonce, getUpgradeUrl } from 'state/initial-state';
 import { getJetpackProductUpsellByFeature, FEATURE_SPAM_AKISMET_PLUS } from 'lib/plans/constants';
-import { getConnectUrl, hasConnectedOwner, isOfflineMode } from 'state/connection';
 import JetpackBanner from 'components/jetpack-banner';
 import { numberFormat } from 'components/number-format';
 import restApi from '@automattic/jetpack-api';

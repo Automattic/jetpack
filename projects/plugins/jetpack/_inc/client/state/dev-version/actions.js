@@ -2,6 +2,8 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { ActionTypes as UserActionTypes } from '@automattic/jetpack-user';
+const { MOCK_SWITCH_USER_PERMISSIONS } = UserActionTypes;
 
 /**
  * Internal dependencies
@@ -14,7 +16,6 @@ import {
 	JETPACK_SITE_DATA_FETCH_RECEIVE,
 	DEV_CARD_DISPLAY,
 	DEV_CARD_HIDE,
-	MOCK_SWITCH_USER_PERMISSIONS,
 	MOCK_SWITCH_THREATS,
 	MOCK_SWITCH_REWIND_STATE,
 	MOCK_SWITCH_SCAN_STATE,

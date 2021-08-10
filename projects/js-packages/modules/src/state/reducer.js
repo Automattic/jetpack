@@ -3,12 +3,13 @@
  */
 import { combineReducers } from 'redux';
 import { assign, get, includes, intersection } from 'lodash';
+import { State } from '@automattic/jetpack-plugins';
+const { isPluginActive } = State;
 
 /**
  * Internal dependencies
  */
 import {
-	JETPACK_SET_INITIAL_STATE,
 	JETPACK_MODULES_LIST_FETCH,
 	JETPACK_MODULES_LIST_FETCH_FAIL,
 	JETPACK_MODULES_LIST_RECEIVE,
@@ -21,8 +22,12 @@ import {
 	JETPACK_MODULE_UPDATE_OPTIONS,
 	JETPACK_MODULE_UPDATE_OPTIONS_FAIL,
 	JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS,
-} from 'state/action-types';
-import { isPluginActive } from 'state/site/plugins';
+} from './action-types';
+
+import {
+	ActionTypes as InitialStateActionTypes
+} from '@automattic/jetpack-initial-state';
+const { JETPACK_SET_INITIAL_STATE } = InitialStateActionTypes;
 
 export const items = ( state = {}, action ) => {
 	switch ( action.type ) {

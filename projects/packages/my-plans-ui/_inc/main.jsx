@@ -10,13 +10,12 @@ import restApi from '@automattic/jetpack-api';
 /**
  * Internal dependencies
  */
-import { State as ConnectionState } from '@automattic/jetpack-connection';
-const {
+import {
 	getSiteConnectionStatus,
 	isCurrentUserLinked,
 	isSiteConnected,
-	isAuthorizingUserInPlace,
-} = ConnectionState;
+	isAuthorizingUserInPlace
+} from '@automattic/jetpack-connection/state';
 
 import { State as ModuleState } from '@automattic/jetpack-modules';
 const {

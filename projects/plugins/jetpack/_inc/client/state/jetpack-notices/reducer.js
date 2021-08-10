@@ -3,14 +3,14 @@
  */
 import { combineReducers } from 'redux';
 import { assign, get } from 'lodash';
-
+import { ActionTypes as ConnectionActionTypes } from '@automattic/jetpack-connection';
+const { DISCONNECT_SITE_SUCCESS } = ConnectionActionTypes;
 /**
  * Internal dependencies
  */
 import {
 	JETPACK_ACTION_NOTICES_DISMISS,
 	JETPACK_NOTICES_DISMISS_SUCCESS,
-	DISCONNECT_SITE_SUCCESS,
 	RESET_OPTIONS_SUCCESS,
 } from 'state/action-types';
 

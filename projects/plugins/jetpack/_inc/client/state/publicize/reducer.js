@@ -3,11 +3,8 @@
  */
 import { combineReducers } from 'redux';
 import { assign, get } from 'lodash';
-
-/**
- * Internal dependencies
- */
-import { JETPACK_SET_INITIAL_STATE } from 'state/action-types';
+import { ActionTypes as InitialStateActionTypes } from '@automattic/jetpack-initial-state';
+const { JETPACK_SET_INITIAL_STATE } = InitialStateActionTypes;
 
 export const connectUrls = ( state = {}, action ) => {
 	switch ( action.type ) {

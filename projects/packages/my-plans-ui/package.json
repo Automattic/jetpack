@@ -21,26 +21,27 @@
 		"validate-es5": "eslint --parser-options=ecmaVersion:5 --no-eslintrc --no-ignore"
 	},
 	"dependencies": {
-		"@automattic/calypso-build": "6.5.0",
 		"@automattic/jetpack-api": "workspace:^0.1.0-alpha",
 		"@automattic/jetpack-components": "workspace:^0.2.1-alpha",
 		"@automattic/jetpack-connection": "workspace:^0.5.1-alpha",
 		"@automattic/jetpack-modules": "workspace:^0.1.0-alpha",
+		"@automattic/jetpack-user": "workspace:^0.1.0-alpha",
+		"@wordpress/data": "5.2.0",
+		"react": "17.0.2",
+		"react-dom": "17.0.2",
+		"react-redux": "6.0.1",
+		"react-router-dom": "5.2.0"
+	},
+	"devDependencies": {
+		"fancy-log": "1.3.3",
+		"@automattic/calypso-build": "9.0.0",
 		"@babel/core": "7.12.10",
 		"@babel/helper-module-imports": "7.12.5",
 		"@babel/preset-env": "7.12.11",
 		"@babel/register": "7.12.10",
-		"@wordpress/data": "5.2.0",
-		"fancy-log": "1.3.3",
-		"gulp": "4.0.2",
-		"react": "17.0.2",
-		"react-dom": "17.0.2",
-		"react-redux": "6.0.1",
-		"react-router-dom": "5.2.0",
 		"static-site-generator-webpack-plugin": "3.4.2",
-		"webpack": "4.46.0"
-	},
-	"devDependencies": {
+		"webpack": "5.31.0",
+		"gulp": "4.0.2",
 		"@babel/runtime": "7.14.0",
 		"@wordpress/dependency-extraction-webpack-plugin": "3.2.0",
 		"enzyme": "3.11.0",

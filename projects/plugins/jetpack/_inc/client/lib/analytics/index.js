@@ -5,7 +5,7 @@
 /**
  * Internal dependencies
  */
-import config from '../config';
+import config from '../../config';
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 
 // set some defaults

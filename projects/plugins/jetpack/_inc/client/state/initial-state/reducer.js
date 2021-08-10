@@ -3,11 +3,15 @@
  */
 import { assign, get, merge } from 'lodash';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ActionTypes as InitialStateActionTypes } from '@automattic/jetpack-initial-state';
+const { JETPACK_SET_INITIAL_STATE } = InitialStateActionTypes;
+
+import { ActionTypes as UserActionTypes } from '@automattic/jetpack-user';
+const { MOCK_SWITCH_USER_PERMISSIONS } = UserActionTypes;
 
 /**
  * Internal dependencies
  */
-import { JETPACK_SET_INITIAL_STATE, MOCK_SWITCH_USER_PERMISSIONS } from 'state/action-types';
 import { getPlanDuration } from 'state/plans/reducer';
 import { getSiteProducts } from 'state/site-products';
 import { isCurrentUserLinked } from 'state/connection';

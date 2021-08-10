@@ -11,7 +11,7 @@ import {
 	JETPACK_PLUGINS_DATA_FETCH,
 	JETPACK_PLUGINS_DATA_FETCH_RECEIVE,
 	JETPACK_PLUGINS_DATA_FETCH_FAIL,
-} from 'state/action-types';
+} from './action-types';
 
 const items = ( state = {}, action ) => {
 	switch ( action.type ) {

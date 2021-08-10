@@ -6,6 +6,15 @@ import { connect } from 'react-redux';
 import { withRouter, Prompt } from 'react-router-dom';
 import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { State } from '@automattic/jetpack-connection';
+const {
+	getSiteConnectionStatus,
+	isCurrentUserLinked,
+	isSiteConnected,
+	isAuthorizingUserInPlace,
+	isReconnectingSite,
+	reconnectSite
+} = State;
 
 /**
  * Internal dependencies
@@ -15,14 +24,7 @@ import Masthead from 'components/masthead';
 import Navigation from 'components/navigation';
 import NavigationSettings from 'components/navigation-settings';
 import SearchableSettings from 'settings/index.jsx';
-import {
-	getSiteConnectionStatus,
-	isCurrentUserLinked,
-	isSiteConnected,
-	isAuthorizingUserInPlace,
-	isReconnectingSite,
-	reconnectSite,
-} from 'state/connection';
+
 import {
 	setInitialState,
 	getSiteRawUrl,

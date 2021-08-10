@@ -3,12 +3,13 @@
  */
 import { combineReducers } from 'redux';
 import { assign, filter, get, includes, mapValues, merge, some } from 'lodash';
+import { ActionTypes as InitialStateActionTypes } from '@automattic/jetpack-initial-state';
+const { JETPACK_SET_INITIAL_STATE } = InitialStateActionTypes;
 
 /**
  * Internal dependencies
  */
 import {
-	JETPACK_SET_INITIAL_STATE,
 	JETPACK_SETTINGS_FETCH,
 	JETPACK_SETTINGS_FETCH_RECEIVE,
 	JETPACK_SETTINGS_FETCH_FAIL,

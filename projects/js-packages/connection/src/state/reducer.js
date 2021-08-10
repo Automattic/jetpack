@@ -10,7 +10,6 @@ import { assign, get, includes, merge } from 'lodash';
  */
 import {
 	JETPACK_CONNECTION_STATUS_FETCH,
-	JETPACK_SET_INITIAL_STATE,
 	CONNECT_URL_FETCH,
 	CONNECT_URL_FETCH_FAIL,
 	CONNECT_URL_FETCH_SUCCESS,
@@ -25,15 +24,25 @@ import {
 	UNLINK_USER,
 	UNLINK_USER_FAIL,
 	UNLINK_USER_SUCCESS,
-	MOCK_SWITCH_USER_PERMISSIONS,
 	SITE_RECONNECT,
 	SITE_RECONNECT_FAIL,
 	SITE_RECONNECT_SUCCESS,
 } from './action-types';
+
 import {
-	getModulesThatRequireConnection,
-	getModulesThatRequireUserConnection,
-} from 'state/modules';
+	ActionTypes as UserActionTypes
+} from '@automattic/jetpack-user';
+const { MOCK_SWITCH_USER_PERMISSIONS } = UserActionTypes;
+
+import {
+	ActionTypes as InitialStateActionTypes
+} from '@automattic/jetpack-initial-state';
+const { JETPACK_SET_INITIAL_STATE } = InitialStateActionTypes;
+
+import {
+	State as ModuleState
+} from '@automattic/jetpack-modules';
+const { getModulesThatRequireConnection, getModulesThatRequireUserConnection } = ModuleState;
 
 export const status = (
 	state = { siteConnected: window.Initial_State.connectionStatus },
