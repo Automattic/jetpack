@@ -200,15 +200,17 @@ const Admin = () => {
 							'jetpack-backup'
 						) }
 					</p>
-					<p>
-						<a
-							href={ getRedirectUrl( 'backup-plugin-activity-log', { site: domain } ) }
-							target="_blank"
-							rel="noreferrer"
-						>
-							{ __( "See your site's activity", 'jetpack-backup' ) }
-						</a>
-					</p>
+					{ hasBackupPlan() && (
+						<p>
+							<a
+								href={ getRedirectUrl( 'backup-plugin-activity-log', { site: domain } ) }
+								target="_blank"
+								rel="noreferrer"
+							>
+								{ __( "See your site's activity", 'jetpack-backup' ) }
+							</a>
+						</p>
+					) }
 				</div>
 			</div>
 		);
