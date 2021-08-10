@@ -72,7 +72,7 @@ export default class BlockEditorPage extends WpPage {
 		await testStep( `Search for block: ${ searchTerm }`, async () => {
 			logger.step( `Search block: '${ searchTerm }'` );
 			await this.click( this.insertBlockBtnSel );
-			await this.type( this.searchBlockFldSel, searchTerm );
+			await this.fill( this.searchBlockFldSel, searchTerm );
 		} );
 	}
 
