@@ -22,6 +22,9 @@
 
 	const dispatch = createEventDispatcher();
 
+	export let showSuggestion = true;
+	export let foldRawErrors = true;
+
 	/**
 	 * @var {ErrorSet} errorSet Error Set to display a description of, from a Recommendation or CriticalCssStatus.
 	 */
@@ -52,15 +55,19 @@
 		</a>
 	</MoreList>
 
-	<h5>
-		{__( 'What to do', 'jetpack-boost' )}
-	</h5>
+	{#if showSuggestion}
+		<h5>
+			{__( 'What to do', 'jetpack-boost' )}
+		</h5>
 
-	<p class="suggestion">
-		<TemplatedString template={textSuggestion( errorSet )} vars={templateVars} />
-	</p>
+		<p class="suggestion">
+			<TemplatedString template={textSuggestion( errorSet )} vars={templateVars} />
+		</p>
 
-	{#if rawError( errorSet )}
+		<svelte:component this={footerComponent( errorSet )} />
+	{/if}
+
+	{#if foldRawErrors}
 		<FoldingElement
 			showLabel={__( 'See error message', 'jetpack-boost' )}
 			hideLabel={__( 'Hide error message', 'jetpack-boost' )}
@@ -69,7 +76,9 @@
 				{rawError( errorSet )}
 			</p>
 		</FoldingElement>
+	{:else}
+		<p class="raw-error" transition:slide|local>
+			{rawError( errorSet )}
+		</p>
 	{/if}
-
-	<svelte:component this={footerComponent( errorSet )} />
 </div>
