@@ -48,7 +48,7 @@ echo "::endgroup::"
 echo "::group::Preparing WordPress from \"$WP_BRANCH\" branch";
 case "$WP_BRANCH" in
 	master)
-		git clone --depth=1 --branch master git://develop.git.wordpress.org/ /tmp/wordpress-master
+		git clone --depth=1 --branch trac-46149/test-bootstrap-improve-for-plugins-themes git@github.com:jrfnl/wordpress-develop-official.git /tmp/wordpress-master
 		;;
 	latest)
 		git clone --depth=1 --branch "$(php ./tools/get-wp-version.php)" git://develop.git.wordpress.org/ /tmp/wordpress-latest
