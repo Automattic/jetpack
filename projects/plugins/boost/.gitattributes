@@ -13,11 +13,29 @@ vendor/tedivm/** 			  production-include
 
 # Files to exclude from the mirror repo, but included in the monorepo.
 # Remember to end all directories with `/**` to properly tag every file.
-.gitignore                                production-exclude
-changelog/**                              production-exclude
-docker/**                                 production-exclude
-phpunit.xml.dist                          production-exclude
-tests/**                                  production-exclude
-vendor/automattic/jetpack-autoloader/**   production-exclude
-vendor/automattic/jetpack-changelogger/** production-exclude
-vendor/automattic/wordbless/**            production-exclude
+/app/assets/src/**                         production-exclude
+/app/assets/dist/**/*.js.map               production-exclude
+/changelog/**                              production-exclude
+/docs/**                                   production-exclude
+/node_modules/**                           production-exclude
+/tests/**                                  production-exclude
+/vendor/automattic/jetpack-autoloader/**   production-exclude
+/vendor/automattic/jetpack-changelogger/** production-exclude
+/vendor/automattic/wordbless/**            production-exclude
+/wordpress/**                              production-exclude
+/.editorconfig                             production-exclude
+/.eslintrc.js                              production-exclude
+/.eslintrc_disabled                        production-exclude
+/.gitattributes                            production-exclude
+/.gitignore                                production-exclude
+/.phpunit.result.cache                     production-exclude
+/.prettierrc.js                            production-exclude
+/babel.config.js                           production-exclude
+/composer.lock                             production-exclude
+/jest.config.js                            production-exclude
+/jest-puppeteer.config.js                  production-exclude
+/package.json                              production-exclude
+/phpunit.xml.dist                          production-exclude
+/README.md                                 production-exclude
+/rollup.config.js                          production-exclude
+/tsconfig.json                             production-exclude
