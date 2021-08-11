@@ -11,8 +11,8 @@ const chalk = require( 'chalk' );
 function checkChangelogFiles() {
 	console.log( chalk.green( 'Checking if changelog files are needed. Just a sec...' ) );
 
-	const currentBranch = spawnSync( 'git branch --show-current' );
-	console.log( currentBranch );
+	let currentBranch = spawnSync( 'git', [ 'branch', '--show-current' ] );
+	currentBranch = currentBranch.stdout.toString().trim();
 	const needChangelog = spawnSync(
 		'tools/check-changelogger-use.php',
 		[ 'origin/master', 'HEAD' ],
