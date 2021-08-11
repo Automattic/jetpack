@@ -15,6 +15,10 @@
 	.jp-connect-screen--left {
 		padding: 64px 96px;
 
+		.jetpack-logo {
+			margin-bottom: 24px;
+		}
+
 		h2 {
 			font-style: normal;
 			font-weight: bold;
@@ -50,7 +54,7 @@
 		}
 
 		.jp-connnect-screen--tos {
-			margin-top: 32px;
+			margin-top: 28px;
 			max-width: 360px;
 		}
 	}
