@@ -13,6 +13,7 @@ const cache = {};
  */
 async function fetchTeamMembers( team ) {
 	// Handle @singleuser virtual teams.
+	core.info( team );
 	if ( team.startsWith( '@' ) ) {
 		return [ team.slice( 1 ) ];
 	}
