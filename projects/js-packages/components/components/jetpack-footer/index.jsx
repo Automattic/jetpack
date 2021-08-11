@@ -22,7 +22,7 @@ import JetpackLogo from '../jetpack-logo';
  * @returns {React.Component} JetpackFooter component.
  */
 export default function JetpackFooter( {
-	a8cLogoHref = 'https://www.jetpack.com',
+	a8cLogoHref = 'https://jetpack.com',
 	moduleName = __( 'Jetpack', 'jetpack' ),
 	className = '',
 	...otherProps
