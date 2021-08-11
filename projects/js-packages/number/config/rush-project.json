@@ -1,0 +1,57 @@
+/**
+ * The "config/rush-project.json" file configures Rush-specific settings for an individual project
+ * in a Rush monorepo.  More documentation is available on the Rush website: https://rushjs.io
+ */
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/rush/v5/rush-project.schema.json",
+
+  /**
+   * Optionally specifies another JSON config file that this file extends from. This provides a way for standard
+   * settings to be shared across multiple projects.
+   */
+  // "extends": "my-rig/profiles/default/config/rush-project.json",
+
+  /**
+   * Specify the folders where your toolchain writes its output files.  If enabled, the Rush build cache will
+   * restore these folders from the cache.
+   *
+   * The strings are folder names under the project root folder.  These folders should not be tracked by Git.
+   * They must not contain symlinks.
+   */
+  "projectOutputFolderNames": ["build", "build-module"],
+
+  /**
+   * Configuration for the build cache feature.
+   */
+  "buildCacheOptions": {
+    /**
+     * Selectively disables the build cache for this project.  The project will never be restored from cache.
+     *
+     * This is a useful workaround if that project's build scripts violate the assumptions of the cache,
+     * for example by writing files outside the project folder. Where possible, a better solution is to improve
+     * the build scripts to be compatible with caching.
+     */
+    // "disableBuildCache": true,
+
+    /**
+     * Allows for fine-grained control of cache for individual Rush commands.
+     */
+    "optionsForCommands": [
+      //   {
+      //     /**
+      //      * The Rush command name, as defined in custom-commands.json
+      //      */
+      //     "name": "my-command",
+      //
+      //     /**
+      //      * Selectively disables the build cache for this project.  The project will never be restored from cache.
+      //      *
+      //      * This is a useful workaround if that project's build scripts violate the assumptions of the cache,
+      //      * for example by writing files outside the project folder. Where possible, a better solution is to improve
+      //      * the build scripts to be compatible with caching.
+      //      */
+      //     "disableBuildCache": true
+      //   }
+    ]
+  }
+}

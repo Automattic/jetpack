@@ -1,0 +1,15 @@
+{
+  "files": {
+    "packages/number/README.md": "26ae39a202b320b9367b7e0383386711be5c4bc4",
+    "packages/number/config/rush-project.json": "c4cafefd188e978495d2f478dc8a70a2e21634e6",
+    "packages/number/jest.config.json": "72834f732cd23f4dbc99b7b8f02303ebe3936719",
+    "packages/number/package.json": "a3c692f922b45c0bd06b4ce5bc4ef73270cbd327",
+    "packages/number/src/index.js": "1e5b93eb1c14a4d5e13cfabf17262c2fed18c80a",
+    "packages/number/src/test/index.js": "f2ec8b55053c99c2358945426a6a253a84af185e",
+    "packages/number/tsconfig-cjs.json": "2876a008ecc34bcc6aa87137dd5da41789c29223",
+    "packages/number/tsconfig.json": "e8f14a25fa492a9d9dbd7f74df86ee8551dd7e20",
+    "packages/number/tsconfig.tsbuildinfo": "e0234ee60718326c6aa8f8fbb12ddd686e22a401",
+    "packages/number/.rush/temp/shrinkwrap-deps.json": "f1eb2016e632a1bed9f8baa84e48fd8e260adc39"
+  },
+  "arguments": "tsc --build ./tsconfig.json ./tsconfig-cjs.json "
+}
