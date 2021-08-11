@@ -8,13 +8,16 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+
 import { JetpackFooter } from '@automattic/jetpack-components';
-import restApi from '@automattic/jetpack-api';
-import Masthead from 'components/masthead';
+/* eslint-disable no-duplicate-imports */
+import { JetpackLogo } from '@automattic/jetpack-components';
+import restApi from 'rest-api';
 import LoadingPlaceHolder from 'components/loading-placeholder';
 import ModuleControl from './module-control';
 import MockedSearch from './mocked-search';
 import analytics from '../../lib/analytics';
+import './rna-styles.scss';
 import './style.scss';
 
 /**
@@ -72,14 +75,28 @@ function SearchDashboard( props ) {
 
 	const aboutPageUrl = siteAdminUrl + 'admin.php?page=jetpack_about';
 
-	return (
-		<Fragment>
-			{ props.isLoading && <LoadingPlaceHolder /> }
-			{ ! props.isLoading && (
-				<Fragment>
-					<Masthead></Masthead>
-					<div className="jp-search-dashboard__top">
-						<div className="jp-search-dashboard__title">
+	const renderHeader = () => {
+		return (
+			<div className="jp-search-dashboard-header">
+				<div className="jp-search-dashboard-wrap">
+					<div className="jp-search-dashboard-row">
+						<div class="lg-col-span-12 md-col-span-8 sm-col-span-4">
+							<div className="jp-search-dashboard-header__logo-container">
+								<JetpackLogo className="jp-search-dashboard-header__masthead" />
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		);
+	};
+
+	const renderMockedSearchInterface = () => {
+		return (
+			<div className="jp-search-dashboard-top">
+				<div className="jp-search-dashboard-wrap">
+					<div className="jp-search-dashboard-row">
+						<div className="jp-search-dashboard-top__title lg-col-span-6 md-col-span-5 sm-col-span-4">
 							<h1>
 								{ __(
 									"Help your visitors find exactly what they're looking for, fast",
@@ -87,20 +104,55 @@ function SearchDashboard( props ) {
 								) }
 							</h1>
 						</div>
-						<div className="jp-search-dashboard__mocked-search-interface">
+					</div>
+					<div className="jp-search-dashboard-row">
+						<div className="lg-col-span-1 md-col-span-1 sm-col-span-0"></div>
+						<div className="jp-search-dashboard-top__mocked-search-interface lg-col-span-10 md-col-span-6 sm-col-span-4">
 							<MockedSearch />
 						</div>
+						<div className="lg-col-span-1 md-col-span-1 sm-col-span-0"></div>
 					</div>
-					<div className="jp-search-dashboard__bottom">
-						<ModuleControl />
+				</div>
+			</div>
+		);
+	};
+
+	const renderAdminSection = () => {
+		return (
+			<div className="jp-search-dashboard-bottom">
+				<ModuleControl />
+			</div>
+		);
+	};
+
+	const renderFooter = () => {
+		return (
+			<div className="jp-search-dashboard-footer">
+				<div className="jp-search-dashboard-wrap">
+					<div className="jp-search-dashboard-row">
 						<JetpackFooter
 							a8cLogoHref={ aboutPageUrl }
 							moduleName={ __( 'Jetpack Search', 'jetpack' ) }
+							className="lg-col-span-12 md-col-span-8 sm-col-span-4"
 						/>
 					</div>
+				</div>
+			</div>
+		);
+	};
+
+	return (
+		<div className="jp-search-dashboard-page">
+			{ props.isLoading && <LoadingPlaceHolder /> }
+			{ ! props.isLoading && (
+				<Fragment>
+					{ renderHeader() }
+					{ renderMockedSearchInterface() }
+					{ renderAdminSection() }
+					{ renderFooter() }
 				</Fragment>
 			) }
-		</Fragment>
+		</div>
 	);
 }
 

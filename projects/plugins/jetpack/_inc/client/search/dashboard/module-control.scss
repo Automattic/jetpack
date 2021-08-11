@@ -11,34 +11,28 @@ $toggle-width: 32px;
 
 .jp-form-search-settings-group {
 	width: 100%;
-	max-width: 55rem;
 	.dops-card {
 		box-shadow: none;
+		padding: 24px 0;
 	}
 }
 
-.jp-form-search-settings-group__toggle {
-	margin-top: 2em;
-	font-size: 1.5em;
-
-	.form-toggle__label-content {
-		font-weight: bold;
-	}
-	// text '(recommended)' should not be bold.
-	.form-toggle__label-content span {
-		font-weight: normal;
+.jp-form-search-settings-group__toggle_label {
+	font-size: 24px;
+	font-weight: 600;
+	span {
+		font-weight: 400;
 	}
 }
 
 .jp-form-search-settings-group__toggle-description {
-	margin-left: 45px; // same as label
 	margin-top: 0.5em;
 }
 
 p.jp-form-search-settings-group__toggle-explanation {
 	color: #2c3338;
-	font-weight: 250;
-	font-size: 0.875rem;
+	font-weight: 400;
+	font-size: 16px;
 }
 
 .jp-form-search-settings-group__buttons {

@@ -5,34 +5,23 @@
 		pointer-events: none;
 	}
 
-	.jp-search-dashboard__top {
+	.jp-search-dashboard-top {
 		background-color: #f9f9f6;
-		display: flex;
-		align-items: center;
-		flex-flow: column;
 
-		min-height: 300px;
-		max-height: 500px;
-		height: 45vh;
+		height: 370px;
 		overflow: hidden;
 	}
 
-	.jp-search-dashboard__title {
-		width: 100%;
-		max-width: 65rem;
+	.jp-search-dashboard-top__title {
+		padding: 48px 0;
 		h1 {
-			max-width: 15em;
-			line-height: 1.2em;
-		}
-		// Align with header.
-		@media ( max-width: 1250px ) {
-			width: 95%;
+			line-height: 2.2rem;
+			font-size: 2.2rem;
+			margin: 0;
 		}
 	}
 
-	.jp-search-dashboard__mocked-search-interface {
-		width: 90%;
-		max-width: 60rem;
+	.jp-search-dashboard-top__mocked-search-interface {
 		height: 100%;
 
 		display: flex;
@@ -41,23 +30,16 @@
 		justify-content: center;
 	}
 
-	.jp-search-dashboard__bottom {
-		display: flex;
-		flex-flow: column;
-		justify-content: space-between;
-		align-items: center;
-		width: 100%;
-		height: 48vh;
-		min-height: 24rem;
+	.jp-search-dashboard-bottom {
+		min-height: 22rem;
 
 		background-color: $white;
 	}
 
-	.jp-dashboard-footer {
-		margin-bottom: 20px;
-	}
+	.jp-search-dashboard-header,
+	.jp-search-dashboard-footer {
+		padding: 40px 0;
 
-	@include breakpoint( '<480px' ) {
-		font-size: 90%;
+		background-color: $white;
 	}
 }
