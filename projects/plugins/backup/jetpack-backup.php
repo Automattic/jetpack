@@ -41,7 +41,7 @@ define( 'JETPACK_BACKUP_PLUGIN_NAME', 'Jetpack Backup' );
 define( 'JETPACK_BACKUP_PLUGIN_URI', 'https://jetpack.com/jetpack-backup' );
 
 // Require Jetpack 10+, if Jetpack is installed.
-if ( defined( 'JETPACK__VERSION' ) && version_compare( '10.0.0', JETPACK__VERSION, '>' ) ) {
+if ( defined( 'JETPACK__VERSION' ) && version_compare( '10.0.0', JETPACK__VERSION, '>=' ) ) {
 	add_action(
 		'admin_notices',
 		function () {
