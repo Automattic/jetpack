@@ -94,6 +94,7 @@ class Manager {
 
 		if ( $manager->is_connected() ) {
 			add_filter( 'xmlrpc_methods', array( $manager, 'public_xmlrpc_methods' ) );
+			add_filter( 'plugins_loaded', array( new Package_Version_Tracker(), 'maybe_update_package_versions' ) );
 		}
 
 		add_action( 'rest_api_init', array( $manager, 'initialize_rest_api_registration_connector' ) );
@@ -108,6 +109,9 @@ class Manager {
 		add_filter( 'jetpack_heartbeat_stats_array', array( $manager, 'add_stats_to_heartbeat' ) );
 
 		Webhooks::init( $manager );
+
+		// Set up package version hook.
+		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
 	}
 
 	/**
