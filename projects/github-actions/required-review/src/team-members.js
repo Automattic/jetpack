@@ -6,7 +6,7 @@ const cache = {};
 
 /**
  * Fetch the members of a team for the purpose of verifying a review Requirement.
- * Special case: Named prefixed with @ are considered to be a one-member team with the named GitHub user.
+ * Special case: Names prefixed with @ are considered to be a one-member team with the named GitHub user.
  *
  * @param {string} team - GitHub team slug, or @ followed by a GitHub user name.
  * @returns {string[]} Team members.
