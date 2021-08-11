@@ -75,7 +75,7 @@ document.querySelectorAll( '.jetpack-quiz-wrapper' ).forEach( function ( quiz ) 
 } );
 
 document.querySelectorAll( '.jetpack-quiz-option-button' ).forEach( function ( element ) {
-	element.addEventListener( 'click', function ( e ) {
+	element.addEventListener( 'click', function () {
 		var currentQuiz = element.parentElement.parentElement;
 		currentQuiz.style.display = 'none';
 		var switchNumber = element.getAttribute( 'data-quiz-option' ) === 'next' ? 1 : -1;
