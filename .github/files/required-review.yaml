@@ -34,17 +34,10 @@
    - heart-of-gold
    - jetpack-approvers
 
-# This is just a test to make sure it works.
-- name: Thingalon Testing Stuff
-  paths:
-   - 'hacky-test/**'
-  teams:
-   - jetpack-approvers
-   - '@thingalon'
-
 # Jetpack Approvers review everything that hasn't been specifically assigned above.
 # This needs to be last.
 - name: Default to Jetpack Approvers
   paths: unmatched
   teams:
    - jetpack-approvers
+   - '@thingalon'
