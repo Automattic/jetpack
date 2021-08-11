@@ -29,7 +29,7 @@ domReady( () => {
 		// Try to pick post data from custom column.
 		let data;
 		const rowDataContainer = postRow.querySelector(
-			'.column-wp-admin-posts-list-page-column script[type="application/json"]'
+			'.column-post-list-column script[type="application/json"]'
 		);
 		try {
 			data = JSON.parse( rowDataContainer.text );
