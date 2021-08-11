@@ -1,6 +1,9 @@
 @import './_variables.scss';
 
 #jp-search-dashboard {
+	font-size: 16px;
+	min-width: 320px;
+
 	.jp-masthead__logo-link {
 		pointer-events: none;
 	}
@@ -8,21 +11,20 @@
 	.jp-search-dashboard-top {
 		background-color: #f9f9f6;
 
-		height: 370px;
 		overflow: hidden;
 	}
 
 	.jp-search-dashboard-top__title {
-		padding: 48px 0;
+		padding: 3em 0;
 		h1 {
-			line-height: 2.2rem;
-			font-size: 2.2rem;
+			line-height: 1.1;
+			font-size: 2.25em;
 			margin: 0;
 		}
 	}
 
 	.jp-search-dashboard-top__mocked-search-interface {
-		height: 100%;
+		height: 200px;
 
 		display: flex;
 		flex-flow: column;
@@ -31,15 +33,22 @@
 	}
 
 	.jp-search-dashboard-bottom {
-		min-height: 22rem;
+		min-height: 22em;
 
 		background-color: $white;
 	}
 
 	.jp-search-dashboard-header,
 	.jp-search-dashboard-footer {
-		padding: 40px 0;
+		padding: 2.5em 0;
 
 		background-color: $white;
+	}
+
+	@include for-phone-down {
+		font-size: 83%;
+		.jp-form-search-settings-group__toggle {
+			text-align: center;
+		}
 	}
 }

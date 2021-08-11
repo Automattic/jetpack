@@ -60,6 +60,7 @@ body {
 	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen-Sans', 'Ubuntu',
 		'Cantarell', 'Helvetica Neue', sans-serif;
 }
+
 .jp-search-dashboard-wrap {
 	display: flex;
 	align-items: center;
@@ -74,6 +75,7 @@ body {
 	grid-template-columns: repeat( 4, 1fr );
 	width: 100%;
 	margin: 0 16px;
+	align-items: center;
 
 	@include for-phone-up {
 		grid-template-columns: repeat( 8, 1fr );

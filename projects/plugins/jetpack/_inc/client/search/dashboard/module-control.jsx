@@ -5,7 +5,6 @@ import React, { Fragment, useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { sprintf, __ } from '@wordpress/i18n';
 import { createInterpolateElement } from '@wordpress/element';
-import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -42,7 +41,6 @@ const INSTANT_SEARCH_DESCRIPTION = __(
 	'Instant search will allow your visitors to get search results as soon as they start typing. If deactivated, Jetpack Search will still optimize your search results but visitors will have to submit a search query before seeing any results.',
 	'jetpack'
 );
-const SEARCH_SUPPORT = __( 'Search supports many customizations. ', 'jetpack' );
 // NOTE: remove a8ctest after all relative PRs merged.
 const RETURN_PATH = 'admin.php?page=jetpack-search&a8ctest';
 const SEARCH_CUSTOMIZE_URL = 'customize.php?autofocus[section]=jetpack_search&return=%s';
@@ -135,10 +133,6 @@ function Search( props ) {
 				disableInOfflineMode
 				hasChild
 				module={ { module: 'search' } }
-				support={ {
-					text: SEARCH_SUPPORT,
-					link: getRedirectUrl( 'jetpack-support-search' ) + 'asdf',
-				} }
 				className={ [ 'jp-form-search-settings-group' ] }
 			>
 				<p>{ props.inOfflineMode && __( 'Unavailable in Offline Mode', 'jetpack' ) }</p>
@@ -167,8 +161,8 @@ function Search( props ) {
 								<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 							</div>
 							<div className="jp-search-dashboard-row">
-								<div className="lg-col-span-3 md-col-span-2 sm-col-span-0"></div>
-								<div className="jp-form-search-settings-group__toggle-description lg-col-span-6 md-col-span-5 sm-col-span-4">
+								<div className="lg-col-span-3 md-col-span-2 sm-col-span-1"></div>
+								<div className="jp-form-search-settings-group__toggle-description lg-col-span-6 md-col-span-5 sm-col-span-3">
 									<p className="jp-form-search-settings-group__toggle-explanation">
 										{ SEARCH_DESCRIPTION }
 									</p>
@@ -194,8 +188,8 @@ function Search( props ) {
 								</div>
 							</div>
 							<div className="jp-search-dashboard-row">
-								<div className="lg-col-span-3 md-col-span-2 sm-col-span-0"></div>
-								<div className="jp-form-search-settings-group__toggle-description lg-col-span-6 md-col-span-5 sm-col-span-4">
+								<div className="lg-col-span-3 md-col-span-2 sm-col-span-1"></div>
+								<div className="jp-form-search-settings-group__toggle-description lg-col-span-6 md-col-span-5 sm-col-span-3">
 									{ ! hasOnlyLegacySearch && (
 										<Fragment>
 											<p className="jp-form-search-settings-group__toggle-explanation">

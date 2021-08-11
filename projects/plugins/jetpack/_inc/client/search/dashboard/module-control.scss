@@ -4,21 +4,21 @@ $color-button-background: $black;
 $color-button-text: $white;
 $color-button-background-disabled: #dcdcde;
 $color-button-text-disabled: #a7aaad;
-$toggle-dot-radius: 9px;
+$toggle-dot-radius: 15px;
 $toggle-dot-padding: 3px;
-$toggle-height: 16px;
-$toggle-width: 32px;
+$toggle-height: 24px;
+$toggle-width: 48px;
 
 .jp-form-search-settings-group {
 	width: 100%;
 	.dops-card {
 		box-shadow: none;
-		padding: 24px 0;
+		padding: 1.5em 0;
 	}
 }
 
 .jp-form-search-settings-group__toggle_label {
-	font-size: 24px;
+	font-size: 1.5em;
 	font-weight: 600;
 	span {
 		font-weight: 400;
@@ -32,7 +32,6 @@ $toggle-width: 32px;
 p.jp-form-search-settings-group__toggle-explanation {
 	color: #2c3338;
 	font-weight: 400;
-	font-size: 16px;
 }
 
 .jp-form-search-settings-group__buttons {
@@ -75,7 +74,7 @@ p.jp-form-search-settings-group__toggle-explanation {
 }
 .form-toggle.is-search-admin.is-compact {
 	+ .form-toggle__label .form-toggle__switch {
-		border-radius: 8px;
+		border-radius: calc( #{$toggle-height}/ 2 );
 		width: $toggle-width;
 		height: $toggle-height;
 
