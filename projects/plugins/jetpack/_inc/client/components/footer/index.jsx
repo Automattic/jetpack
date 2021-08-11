@@ -244,7 +244,7 @@ export class Footer extends React.Component {
 					{ maybeShowDevCardFooterLink() }
 					{ maybeShowDevCard() }
 				</ul>
-				<JetpackFooter />
+				<JetpackFooter a8cLogoHref={ aboutPageUrl } />
 			</div>
 		);
 	}
