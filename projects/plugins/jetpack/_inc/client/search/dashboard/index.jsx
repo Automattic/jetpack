@@ -17,7 +17,6 @@ import LoadingPlaceHolder from 'components/loading-placeholder';
 import ModuleControl from './module-control';
 import MockedSearch from './mocked-search';
 import analytics from '../../lib/analytics';
-import './rna-styles.scss';
 import './style.scss';
 
 /**
