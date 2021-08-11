@@ -316,9 +316,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_appearance_menu();
 
 		$this->assertSame( 'https://wordpress.com/themes/' . static::$domain, array_shift( $submenu['themes.php'] )[2] );
-		$this->assertSame( 'https://wordpress.com/customize/' . static::$domain, array_shift( $submenu['themes.php'] )[2] );
-		$this->assertSame( 'https://wordpress.com/customize/' . static::$domain . '?autofocus%5Bpanel%5D=nav_menus', array_shift( $submenu['themes.php'] )[2] );
-		$this->assertSame( 'https://wordpress.com/customize/' . static::$domain . '?autofocus%5Bpanel%5D=widgets', array_shift( $submenu['themes.php'] )[2] );
 	}
 
 	/**
