@@ -10,6 +10,7 @@ import domReady from '@wordpress/dom-ready';
 import './style.scss';
 import PostDate from './components/post-date/';
 import PostStatusLabel from './components/post-status-label/';
+import Communicate from './components/comunicate';
 
 domReady( () => {
 	const postRows = document.querySelectorAll( '.wp-list-table .entry' );
@@ -80,6 +81,13 @@ domReady( () => {
 	} );
 
 	// Rendering components.
+
+	// <Communicate />
+	const communicatePlaceholder = document.querySelector( '.post-list__communicate-placeholder' );
+	if ( communicatePlaceholder ) {
+		render( <Communicate />, communicatePlaceholder );
+	}
+
 	posts.forEach( ( { data, elements } ) => {
 		const { statusLabel, postDate } = elements;
 
