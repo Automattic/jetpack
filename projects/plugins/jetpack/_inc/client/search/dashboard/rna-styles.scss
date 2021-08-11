@@ -114,6 +114,7 @@ body {
 		.md-col-span-0 {
 			display: none;
 		}
+		grid-gap: 18px;
 	}
 
 	@include for-phone-down {
