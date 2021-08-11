@@ -76,10 +76,10 @@ document.querySelectorAll( '.jetpack-quiz-wrapper' ).forEach( function ( quiz ) 
 
 document.querySelectorAll( '.jetpack-quiz-option-button' ).forEach( function ( element ) {
 	element.addEventListener( 'click', function ( e ) {
-		let currentQuiz = element.parentElement.parentElement;
+		var currentQuiz = element.parentElement.parentElement;
 		currentQuiz.style.display = 'none';
-		let switchNumber = element.getAttribute( 'data-quiz-option' ) === 'next' ? 1 : -1;
-		let newQuiz =
+		var switchNumber = element.getAttribute( 'data-quiz-option' ) === 'next' ? 1 : -1;
+		var newQuiz =
 			currentQuiz.parentElement.childNodes[
 				parseInt( currentQuiz.getAttribute( 'quiz-number' ) ) + switchNumber
 			];
