@@ -205,6 +205,7 @@ class TiledGalleryEdit extends Component {
 			className,
 			noticeOperations,
 			noticeUI,
+			onFocus,
 			setAttributes,
 		} = this.props;
 		const {
@@ -265,6 +266,7 @@ class TiledGalleryEdit extends Component {
 						multiple
 						notices={ noticeUI }
 						onError={ noticeOperations.createErrorNotice }
+						onFocus={ onFocus }
 					/>
 				</Fragment>
 			);
