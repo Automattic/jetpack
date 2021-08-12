@@ -86,7 +86,7 @@ There are 2 different types of builds:
 
 ## Accessing WordPress Core files and wp-content
 
-If you are using the Docker setup, you can find the WordPress core files as well as the `wp-content` folder under the `tools/docker/wordpress` directory from the root of this Jetpack monorepo.
+If you are using the Docker setup, you can find the WordPress core files as well as the `wp-content` folder under the `tools/docker/wordpress` directory from the root of this Jetpack Monorepo.
 
 # Unit testing
 
@@ -132,7 +132,7 @@ We strongly recommend that you install tools to review your code in your IDE. It
 
   First, you need Composer to run this tool so check how to [install Composer](https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#composer) if you don't have it yet.
 
-  Second you also need to install the Jetpack monorepo CodeSniffer rulesets you may need to do this only once from the **root** of the Jetpack monorepo.
+  Second you also need to install the Jetpack Monorepo CodeSniffer rulesets you may need to do this only once from the **root** of the Jetpack Monorepo.
 
   ```sh
   composer install
@@ -201,13 +201,13 @@ We strongly recommend that you install tools to review your code in your IDE. It
 
 # Standard development & debugging tools
 
-You can find some information about this topic on the [Standard development & debugging tools](https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#standard-development--debugging-tools) section of the Jetpack monorepo documentation.
+You can find some information about this topic on the [Standard development & debugging tools](https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#standard-development--debugging-tools) section of the Jetpack Monorepo documentation.
 
 ## Other tips and tools
 
 These are relevant if you are using the [Docker environment setup](https://github.com/Automattic/jetpack/blob/master/tools/docker/README.md).
 
-- Uou can find your `wp-config.php` file at `tools/docker/wordpress/wp-config.php` from the root of the Jetpack monorepo.
+- Uou can find your `wp-config.php` file at `tools/docker/wordpress/wp-config.php` from the root of the Jetpack Monorepo.
 - You can tail the debug.log file using the `jetpack docker tail` command.
 - You can run the WP-CLI command using the `jetpack docker wp` command.
 - You can enter the WordPress Docker container using the `jetpack docker sh` command.
