@@ -2,6 +2,7 @@
 
 ## Table of contents
 
+* [Prerequisite](#prerequisite)
 * [Setting up your environment](#setting-up-your-environment)
 * [Development workflow](#development-workflow)
 	* [Build the project](#build-the-project)
@@ -17,6 +18,10 @@
 * [Release process](#release-process)
 * [Module architectural overview 101](#module-architectural-overview-101)
 * [Hooks and filters](#hooks-and-filters)
+
+# Prerequisite
+
+If you have not yet done so, you might want to review first the [Jetpack Monorepo documentation](https://github.com/Automattic/jetpack/tree/master/docs). 
 
 # Setting up your environment
 
