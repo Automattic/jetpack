@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Made /sync/object endpoint accessible over POST, not only GET, to allow fetching more items in a single request.
