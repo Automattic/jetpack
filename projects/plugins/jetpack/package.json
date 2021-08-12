@@ -72,6 +72,7 @@
 		"@babel/runtime": "7.12.18",
 		"@wordpress/annotations": "2.2.0",
 		"@wordpress/base-styles": "3.6.0",
+		"@wordpress/babel-preset-default": "6.2.0",
 		"@wordpress/blocks": "10.0.0",
 		"@wordpress/browserslist-config": "4.1.0",
 		"@wordpress/compose": "4.2.0",
