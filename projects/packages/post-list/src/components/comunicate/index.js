@@ -5,8 +5,8 @@ import { SnackbarList } from '@wordpress/components';
 import { useSelect, useDispatch, dispatch, select } from '@wordpress/data';
 import { store as noticesStore } from '@wordpress/notices';
 
+// Notification context ID.
 const postDateNoticeContext = 'jetpack-post-date';
-const noticesStack = [];
 
 export default function Communicate() {
 	const { notices } = useSelect( select => {
@@ -31,6 +31,9 @@ export default function Communicate() {
 	);
 }
 
+/**
+ * Clean up the notices.
+ */
 export function clean() {
 	const { removeNotice } = dispatch( noticesStore );
 
@@ -45,10 +48,16 @@ export function clean() {
 	}
 }
 
+/**
+ * Send success message to the UX.
+ *
+ * @param {string} message - The message to be displayed.
+ * @param {object} [options] - Options for the notice.
+ * @returns {void}
+ */
 export function sendSuccess( message, options = {} ) {
 	const { createSuccessNotice } = dispatch( noticesStore );
 
-	// Clean notices.
 	clean();
 
 	createSuccessNotice( message, {
