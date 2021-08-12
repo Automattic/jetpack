@@ -2,6 +2,13 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.2.1 - 2021-08-12
+### Changed
+- Updated package dependencies
+
+### Fixed
+- JetpackFooter: add default a8cLogoHref prop value
+
 ## 0.2.0 - 2021-07-27
 ### Added
 - Added Jetpack Footer and `An Automattic Airline` SVG components.
