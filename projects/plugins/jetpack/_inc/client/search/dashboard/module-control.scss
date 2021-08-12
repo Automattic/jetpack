@@ -4,10 +4,10 @@ $color-button-background: $black;
 $color-button-text: $white;
 $color-button-background-disabled: #dcdcde;
 $color-button-text-disabled: #a7aaad;
-$toggle-dot-radius: 15px;
-$toggle-dot-padding: 3px;
-$toggle-height: 24px;
-$toggle-width: 48px;
+$toggle-dot-radius: 0.9375em;
+$toggle-dot-padding: 0.1875em;
+$toggle-height: 1.5em;
+$toggle-width: 3em;
 
 .jp-form-search-settings-group {
 	width: 100%;
