@@ -82,7 +82,7 @@ domReady( () => {
 
 	// Rendering components.
 
-	// <Communicate />
+	// <Communicate /> component.
 	const communicatePlaceholder = document.querySelector( '.post-list__communicate-placeholder' );
 	if ( communicatePlaceholder ) {
 		render( <Communicate />, communicatePlaceholder );
@@ -91,7 +91,7 @@ domReady( () => {
 	posts.forEach( ( { data, elements } ) => {
 		const { statusLabel, postDate } = elements;
 
-		// <PostStatusLabel />
+		// <PostStatusLabel /> component.
 		if ( statusLabel ) {
 			render(
 				<PostStatusLabel { ...data } postIds={ postIds } fallbackText={ statusLabel.innerText } />,
@@ -99,7 +99,7 @@ domReady( () => {
 			);
 		}
 
-		// <PostDate />
+		// <PostDate /> component.
 		if ( postDate ) {
 			render(
 				<PostDate { ...data } postIds={ postIds } fallbackText={ postDate.innerText } />,
