@@ -60,7 +60,6 @@
 	"projects/plugins/jetpack/_inc/client/notices/index.js",
 	"projects/plugins/jetpack/_inc/client/performance/index.jsx",
 	"projects/plugins/jetpack/_inc/client/pro-status/index.jsx",
-	"projects/plugins/jetpack/_inc/client/rest-api/index.js",
 	"projects/plugins/jetpack/_inc/client/security/sso.jsx",
 	"projects/plugins/jetpack/_inc/client/state/at-a-glance/reducer.js",
 	"projects/plugins/jetpack/_inc/client/state/connection/actions.js",

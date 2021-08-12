@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Tracking;
 
 jetpack_require_lib( 'plugins' );
 
@@ -223,13 +224,30 @@ class Jetpack_Stats_Upgrade_Nudges {
 	}
 
 	/**
+	 * Tracks an event in Tracks
+	 *
+	 * @param string $event_name The event name.
+	 * @return void
+	 */
+	private static function track_event( $event_name ) {
+		$connection_manager = new Manager( 'jetpack' );
+		$tracking           = new Tracking( 'jetpack', $connection_manager );
+		$tracking->record_user_event(
+			$event_name,
+			array(
+				'has_connected_owner' => $connection_manager->has_connected_owner(),
+			)
+		);
+	}
+
+	/**
 	 * Outputs one Upgrade item
 	 *
 	 * @param string  $title The title of the item.
 	 * @param string  $text The description of the item.
 	 * @param string  $icon The path of the icon, relative to Jetpack images folder.
 	 * @param string  $link The link of the button.
-	 * @param string  $tracks_id The id used to identify the tracks event. Automatically prefixed with "jetpack_stats_nudges_".
+	 * @param string  $tracks_id The id used to identify the tracks events. Automatically prefixed with "jetpack_stats_nudges_{view|click|learn_more}_".
 	 * @param string  $learn_more_link The target of the "Learn more" link.
 	 * @param boolean $subitem Whether it is a subitem or not.
 	 * @param string  $button_label The button label.
@@ -240,6 +258,12 @@ class Jetpack_Stats_Upgrade_Nudges {
 		$button_class       = $subitem ? 'is-secondary' : 'is-primary';
 		$icon_url           = plugins_url( '', JETPACK__PLUGIN_FILE ) . '/images/products/' . $icon;
 		$button_label       = is_null( $button_label ) ? __( 'Upgrade', 'jetpack' ) : $button_label;
+		$view_event         = "stats_nudges_view_$tracks_id";
+		$click_event        = "stats_nudges_click_$tracks_id";
+		$learn_more_event   = "stats_nudges_learn_more_$tracks_id";
+
+		self::track_event( $view_event );
+
 		?>
 			<div class="dops-card dops-banner has-call-to-action is-product jp-stats-report-upgrade-item <?php echo esc_attr( $additional_classes ); ?>">
 				<div class="dops-banner__icon-plan">
@@ -251,14 +275,14 @@ class Jetpack_Stats_Upgrade_Nudges {
 							<?php echo esc_html( $title ); ?>
 							<p>
 								<?php echo esc_html( $text ); ?>
-								<a href="<?php echo esc_attr( $learn_more_link ); ?>" target="_blank" rel="noopener noreferrer">
+								<a href="<?php echo esc_attr( $learn_more_link ); ?>" class="jptracks" target="_blank" rel="noopener noreferrer" data-jptracks-name="<?php echo esc_attr( $learn_more_event ); ?>">
 									<?php esc_html_e( 'Learn more', 'jetpack' ); ?>
 								</a>
 							</p>
 						</div>
 					</div>
 					<div class="dops-banner__action">
-						<a href="<?php echo esc_attr( $link ); ?>" type="button" class="jptracks dops-button is-compact <?php echo esc_attr( $button_class ); ?>" data-jptracks-name="stats_nudges_<?php echo esc_attr( $tracks_id ); ?>">
+						<a href="<?php echo esc_attr( $link ); ?>" type="button" class="jptracks dops-button is-compact <?php echo esc_attr( $button_class ); ?>" data-jptracks-name="<?php echo esc_attr( $click_event ); ?>">
 						<?php echo esc_html( $button_label ); ?>
 						</a>
 					</div>
@@ -390,10 +414,6 @@ class Jetpack_Stats_Upgrade_Nudges {
 	public static function render( $callback ) {
 		/** This filter is documented in _inc/lib/admin-pages/class.jetpack-react-page.php */
 		if ( 'stats_reports_page' !== $callback || ! apply_filters( 'jetpack_show_promotions', true ) || ! current_user_can( 'manage_options' ) ) {
-			return;
-		}
-
-		if ( ! defined( 'JETPACK_DEV_TEST_STATS_UPGRADE_NUDGES' ) || ! JETPACK_DEV_TEST_STATS_UPGRADE_NUDGES ) {
 			return;
 		}
 

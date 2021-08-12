@@ -94,6 +94,7 @@ class Manager {
 
 		if ( $manager->is_connected() ) {
 			add_filter( 'xmlrpc_methods', array( $manager, 'public_xmlrpc_methods' ) );
+			add_filter( 'plugins_loaded', array( new Package_Version_Tracker(), 'maybe_update_package_versions' ) );
 		}
 
 		add_action( 'rest_api_init', array( $manager, 'initialize_rest_api_registration_connector' ) );
@@ -108,6 +109,9 @@ class Manager {
 		add_filter( 'jetpack_heartbeat_stats_array', array( $manager, 'add_stats_to_heartbeat' ) );
 
 		Webhooks::init( $manager );
+
+		// Set up package version hook.
+		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
 	}
 
 	/**
@@ -697,11 +701,16 @@ class Manager {
 	 * @todo Refactor to properly load the XMLRPC client independently.
 	 *
 	 * @param Integer $user_id the user identifier.
-	 * @return Object the user object.
+	 * @return bool|array An array with the WPCOM user data on success, false otherwise.
 	 */
 	public function get_connected_user_data( $user_id = null ) {
 		if ( ! $user_id ) {
 			$user_id = get_current_user_id();
+		}
+
+		// Check if the user is connected and return false otherwise.
+		if ( ! $this->is_user_connected( $user_id ) ) {
+			return false;
 		}
 
 		$transient_key    = "jetpack_connected_user_data_$user_id";
@@ -717,6 +726,7 @@ class Manager {
 			)
 		);
 		$xml->query( 'wpcom.getUser' );
+
 		if ( ! $xml->isError() ) {
 			$user_data = $xml->getResponse();
 			set_transient( $transient_key, $xml->getResponse(), DAY_IN_SECONDS );
@@ -1970,6 +1980,9 @@ class Manager {
 
 		$this->delete_all_connection_tokens( true );
 
+		// Remove tracked package versions, since they depend on the Jetpack Connection.
+		delete_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION );
+
 		$jetpack_unique_connection = \Jetpack_Options::get_option( 'unique_connection' );
 		if ( $jetpack_unique_connection ) {
 			// Check then record unique disconnection if site has never been disconnected previously.
@@ -1991,7 +2004,7 @@ class Manager {
 		/**
 		 * Fires when a site is disconnected.
 		 *
-		 * @since $$next-version$$
+		 * @since 1.30.1
 		 */
 		do_action( 'jetpack_site_disconnected' );
 	}

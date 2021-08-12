@@ -10,30 +10,19 @@ import { createBlocksFromInnerBlocksTemplate, createBlock } from '@wordpress/blo
  * that a WordPress site currently could get.
  *
  * @param {Array} innerBlocksOrTemplate - Nested blocks or InnerBlocks templates.
- *
  * @returns {Object[]} Array of Block objects.
  */
-export default function createBlocksFromTemplate(
-	innerBlocksOrTemplate = []
-) {
+export default function createBlocksFromTemplate( innerBlocksOrTemplate = [] ) {
 	if ( typeof createBlocksFromInnerBlocksTemplate !== 'undefined' ) {
 		return createBlocksFromInnerBlocksTemplate( innerBlocksOrTemplate );
 	}
 
-	return innerBlocksOrTemplate.map( ( innerBlock ) => {
+	return innerBlocksOrTemplate.map( innerBlock => {
 		const innerBlockTemplate = Array.isArray( innerBlock )
 			? innerBlock
-			: [
-					innerBlock.name,
-					innerBlock.attributes,
-					innerBlock.innerBlocks,
-			  ];
+			: [ innerBlock.name, innerBlock.attributes, innerBlock.innerBlocks ];
 		const [ name, attributes, innerBlocks = [] ] = innerBlockTemplate;
 
-		return createBlock(
-			name,
-			attributes,
-			createBlocksFromTemplate( innerBlocks )
-		);
+		return createBlock( name, attributes, createBlocksFromTemplate( innerBlocks ) );
 	} );
 }

@@ -793,6 +793,9 @@ class Jetpack {
 		add_filter( 'jetpack_token_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
 		add_filter( 'jetpack_token_request_body', array( __CLASS__, 'filter_token_request_body' ) );
 
+		// Filter for the `jetpack/v4/connection/data` API response.
+		add_filter( 'jetpack_current_user_connection_data', array( __CLASS__, 'filter_jetpack_current_user_connection_data' ) );
+
 		// Actions for successful reconnect.
 		add_action( 'jetpack_reconnection_completed', array( $this, 'reconnection_completed' ) );
 
@@ -4967,6 +4970,41 @@ endif;
 	}
 
 	/**
+	 * Filters the `jetpack/v4/connection/data` API response of the Connection package in order to
+	 * add Jetpack-the-plugin related permissions.
+	 *
+	 * @since 10.0
+	 *
+	 * @param array $current_user_connection_data An array containing the current user connection data.
+	 * @return array
+	 */
+	public static function filter_jetpack_current_user_connection_data( $current_user_connection_data ) {
+		$jetpack_permissions = array(
+			'admin_page'         => current_user_can( 'jetpack_admin_page' ),
+			'manage_modules'     => current_user_can( 'jetpack_manage_modules' ),
+			'network_admin'      => current_user_can( 'jetpack_network_admin_page' ),
+			'network_sites_page' => current_user_can( 'jetpack_network_sites_page' ),
+			'edit_posts'         => current_user_can( 'edit_posts' ),
+			'publish_posts'      => current_user_can( 'publish_posts' ),
+			'manage_options'     => current_user_can( 'manage_options' ),
+			'view_stats'         => current_user_can( 'view_stats' ),
+			'manage_plugins'     => current_user_can( 'install_plugins' )
+									&& current_user_can( 'activate_plugins' )
+									&& current_user_can( 'update_plugins' )
+									&& current_user_can( 'delete_plugins' ),
+		);
+
+		if ( isset( $current_user_connection_data['permissions'] ) &&
+			is_array( $current_user_connection_data['permissions'] ) ) {
+				$current_user_connection_data['permissions'] = array_merge( $current_user_connection_data['permissions'], $jetpack_permissions );
+		} else {
+			$current_user_connection_data['permissions'] = $jetpack_permissions;
+		}
+
+		return $current_user_connection_data;
+	}
+
+	/**
 	 * Filters the URL that will process the connection data. It can be different from the URL
 	 * that we send the user to after everything is done.
 	 *
@@ -6047,7 +6085,7 @@ endif;
 			wp_die( __( 'You must connect your Jetpack plugin to WordPress.com to use this feature.', 'jetpack' ) );
 		}
 
-		$die_error = __( 'Someone may be trying to trick you into giving them access to your site.  Or it could be you just encountered a bug :).  Either way, please close this window.', 'jetpack' );
+		$die_error = __( 'Someone may be trying to trick you into giving them access to your site. Or it could be you just encountered a bug :).  Either way, please close this window.', 'jetpack' );
 
 		// Host has encoded the request URL, probably as a result of a bad http => https redirect
 		if ( self::is_redirect_encoded( $_GET['redirect_to'] ) ) {
@@ -6120,7 +6158,7 @@ endif;
 			// We have to reuse this nonce at least once (used the first time when the initial request is made, used a second time when the login form is POSTed)
 			$old_nonce_time = get_option( "jetpack_nonce_{$timestamp}_{$nonce}" );
 			if ( $old_nonce_time < time() - 300 ) {
-				wp_die( __( 'The authorization process expired.  Please go back and try again.', 'jetpack' ) );
+				wp_die( esc_html__( 'The authorization process expired. Please go back and try again.', 'jetpack' ) );
 			}
 		}
 
@@ -6160,7 +6198,8 @@ endif;
 
 	function login_message_json_api_authorization( $message ) {
 		return '<p class="message">' . sprintf(
-			esc_html__( '%s wants to access your site&#8217;s data.  Log in to authorize that access.', 'jetpack' ),
+			/* translators: Name/image of the client requesting authorization */
+			esc_html__( '%s wants to access your site’s data. Log in to authorize that access.', 'jetpack' ),
 			'<strong>' . esc_html( $this->json_api_authorization_request['client_title'] ) . '</strong>'
 		) . '<img src="' . esc_url( $this->json_api_authorization_request['client_image'] ) . '" /></p>';
 	}

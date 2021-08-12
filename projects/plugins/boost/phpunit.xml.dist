@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<phpunit
+	backupGlobals="false"
+	colors="true"
+	convertErrorsToExceptions="true"
+	convertNoticesToExceptions="true"
+	convertWarningsToExceptions="true"
+	>
+
+	<testsuites>
+		<testsuite name="unit">
+			<directory suffix=".php">./tests/php/</directory>
+		</testsuite>
+		<testsuite name="integration">
+			<directory suffix=".php">./tests/integration/</directory>
+		</testsuite>
+	</testsuites>
+
+	<filter>
+		<whitelist processUncoveredFilesFromWhitelist="false">
+			<directory suffix=".php">./</directory>
+			<exclude>
+				<file>./index.php</file>
+                <file>./jetpack-boost.php</file>
+				<directory suffix=".php">./node_modules</directory>
+				<directory suffix=".php">./tests</directory>
+				<directory suffix=".php">./vendor</directory>
+				<directory suffix=".php">./package</directory>
+                <directory suffix=".php">./.github</directory>
+			</exclude>
+		</whitelist>
+	</filter>
+</phpunit>

@@ -123,3 +123,13 @@ All new Jetpack package development should use classmap autoloading, which allow
 ### Textdomains
 
 Jetpack packages must use the 'jetpack' textdomain. The consuming plugin is responsible for updating the packages to use the plugin's textdomain.
+
+### Package Version Annotations
+
+When needing to add a package version number inside a DocBlock, please use `$$next-version$$` as such:
+
+- `@since $$next-version$$`
+- `@deprecated $$next-version$$`
+- `@deprecated since $$next-version$$`
+
+The `$$next-version$$` specifier will be automatically replaced with the correct package version number the next time a new version of that package is released.

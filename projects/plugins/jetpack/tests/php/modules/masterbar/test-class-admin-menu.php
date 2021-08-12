@@ -316,9 +316,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_appearance_menu();
 
 		$this->assertSame( 'https://wordpress.com/themes/' . static::$domain, array_shift( $submenu['themes.php'] )[2] );
-		$this->assertSame( 'https://wordpress.com/customize/' . static::$domain, array_shift( $submenu['themes.php'] )[2] );
-		$this->assertSame( 'https://wordpress.com/customize/' . static::$domain . '?autofocus%5Bpanel%5D=nav_menus', array_shift( $submenu['themes.php'] )[2] );
-		$this->assertSame( 'https://wordpress.com/customize/' . static::$domain . '?autofocus%5Bpanel%5D=widgets', array_shift( $submenu['themes.php'] )[2] );
 	}
 
 	/**
@@ -448,19 +445,19 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		// FSE is no longer where it was put by default.
 		$this->assertArrayNotHasKey( 100, $menu );
-		$this->assertArrayHasKey( 61, $menu );
+		$this->assertArrayHasKey( 59, $menu );
 
 		$fse_link = 'https://wordpress.com/site-editor/' . static::$domain;
 		$fse_menu = array(
-			'Site Editor',
+			'Site Editor (beta)',
 			'edit_theme_options',
 			$fse_link,
-			'Site Editor',
+			'Site Editor <span class="awaiting-mod">beta</span>',
 			'menu-top toplevel_page_' . $fse_link,
 			'toplevel_page_' . $fse_link,
 			'dashicons-layout',
 		);
-		$this->assertSame( $menu[61], $fse_menu );
+		$this->assertSame( $menu[59], $fse_menu );
 	}
 
 	/**

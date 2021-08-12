@@ -55,12 +55,12 @@ describe( 'addTweetstormToTweets', () => {
 		const wrappedBlock = addTweetstormToTweets( block );
 
 		expect( wrappedBlock ).not.toEqual( block );
-		expect( wrappedBlock.edit.name ).toEqual( 'WrappedBlockEdit' );
+		expect( wrappedBlock.edit.name ).toEqual( 'Component' );
 
 		const wrapper = mount( <wrappedBlock.edit { ...block.props } /> );
 
-		expect( wrapper.find( '#baseEdit' ) ).toHaveLength( 1 );
-		expect( wrapper.find( 'IfBlockEditSelected(BlockControlsFill)' ) ).toHaveLength( 1 );
+		expect( wrapper.exists( '#baseEdit' ) ).toEqual( true );
+		expect( wrapper.find( 'BlockControlsFill' ) ).toHaveLength( 2 );
 	} );
 
 	it( 'should not add block controls when passed a core/embed block definition with a different providerNameSlug', () => {
@@ -79,11 +79,11 @@ describe( 'addTweetstormToTweets', () => {
 		const wrappedBlock = addTweetstormToTweets( block );
 
 		expect( wrappedBlock ).not.toEqual( block );
-		expect( wrappedBlock.edit.name ).toEqual( 'WrappedBlockEdit' );
+		expect( wrappedBlock.edit.name ).toEqual( 'Component' );
 
 		const wrapper = mount( <wrappedBlock.edit { ...block.props } /> );
 
-		expect( wrapper.find( '#baseEdit' ) ).toHaveLength( 1 );
-		expect( wrapper.find( 'IfBlockEditSelected(BlockControlsFill)' ) ).toHaveLength( 0 );
+		expect( wrapper.exists( '#baseEdit' ) ).toEqual( true );
+		expect( wrapper.find( 'BlockControlsFill' ) ).toHaveLength( 0 );
 	} );
 } );

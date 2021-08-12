@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Update Sender so it adheres to max upload bytes when not encoding items.
