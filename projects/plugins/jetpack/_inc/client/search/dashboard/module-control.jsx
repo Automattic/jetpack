@@ -95,6 +95,7 @@ function Search( props ) {
 	const isSavingEitherOption = togglingModule || togglingInstantSearch;
 	// Site has Legacy Search included in Business plan but doesn't have Jetpack Search subscription.
 	const hasOnlyLegacySearch = props.isBusinessPlan && ! props.hasActiveSearchPurchase;
+	const hasEitherSearch = props.isBusinessPlan || props.hasActiveSearchPurchase;
 
 	const isInstantSearchCustomizeButtonDisabled =
 		isSavingEitherOption ||
@@ -139,7 +140,7 @@ function Search( props ) {
 
 				{ props.isLoading && __( 'Loading…', 'jetpack' ) }
 
-				{ ! props.isLoading && ( props.isBusinessPlan || props.hasActiveSearchPurchase ) && (
+				{ ! props.isLoading && (
 					<Fragment>
 						<div className="jp-search-dashboard-wrap">
 							<div className="jp-form-search-settings-group__toggle is-search">
@@ -147,9 +148,12 @@ function Search( props ) {
 									<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 									<div className="lg-col-span-1 md-col-span-1 sm-col-span-1">
 										<ModuleToggle
-											activated={ isModuleEnabled }
+											activated={ isModuleEnabled && hasEitherSearch }
 											compact
-											disabled={ isSavingEitherOption }
+											disabled={
+												isSavingEitherOption ||
+												( ! props.hasActiveSearchPurchase && ! props.isBusinessPlan )
+											}
 											slug="search"
 											toggleModule={ toggleSearchModule }
 											toggling={ togglingModule }
@@ -176,7 +180,7 @@ function Search( props ) {
 									<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 									<div className="lg-col-span-1 md-col-span-1 sm-col-span-1">
 										<CompactFormToggle
-											checked={ isModuleEnabled && isInstantSearchEnabled }
+											checked={ isModuleEnabled && isInstantSearchEnabled && hasEitherSearch }
 											disabled={ isSavingEitherOption || ! props.hasActiveSearchPurchase }
 											onChange={ toggleInstantSearch }
 											toggling={ togglingInstantSearch }
@@ -196,7 +200,7 @@ function Search( props ) {
 								<div className="jp-search-dashboard-row">
 									<div className="lg-col-span-3 md-col-span-2 sm-col-span-1"></div>
 									<div className="jp-form-search-settings-group__toggle-description lg-col-span-6 md-col-span-5 sm-col-span-3">
-										{ ! hasOnlyLegacySearch && (
+										{ props.hasActiveSearchPurchase && (
 											<Fragment>
 												<p className="jp-form-search-settings-group__toggle-explanation">
 													{ INSTANT_SEARCH_DESCRIPTION }
@@ -204,8 +208,11 @@ function Search( props ) {
 												{ renderInstantSearchButtons() }
 											</Fragment>
 										) }
-										{ hasOnlyLegacySearch && isInstantSearchPromotionActive && (
-											<InstantSearchUpsellNudge href={ props.upgradeUrl } />
+										{ ! props.hasActiveSearchPurchase && isInstantSearchPromotionActive && (
+											<InstantSearchUpsellNudge
+												href={ props.upgradeUrl }
+												upgrade={ hasOnlyLegacySearch }
+											/>
 										) }
 									</div>
 									<div className="lg-col-span-3 md-col-span-1 sm-col-span-0"></div>
