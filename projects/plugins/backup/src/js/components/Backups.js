@@ -98,7 +98,7 @@ const Backups = () => {
 				}
 
 				// Repeat query for NO_BACKUPS (before first) and IN_PROGRESS
-				if ( 'started' === latestBackup.status || res.length === 0 ) {
+				if ( res.length === 0 || 'started' === latestBackup.status ) {
 					// Grab progress and update every progressInterval until complete.
 					setTimeout( () => {
 						setTrackProgress( trackProgress + 1 );
@@ -273,7 +273,7 @@ const Backups = () => {
 		return (
 			<div class="jp-row">
 				<div class="lg-col-span-5 md-col-span-4 sm-col-span-4">
-					<h1>{ __( 'Your first backup will start soon!', 'jetpack-backup' ) }</h1>
+					<h1>{ __( 'Welcome to Jetpack Backup!', 'jetpack-backup' ) }</h1>
 					<p>{ __( "You're all set! Your first backup will start soon.", 'jetpack-backup' ) }</p>
 				</div>
 				<div class="lg-col-span-1 md-col-span-4 sm-col-span-0"></div>
