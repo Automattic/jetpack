@@ -20,7 +20,7 @@ $toggle-width: 3em;
 
 .jp-form-search-settings-group__toggle {
 	&.is-instant-search {
-		margin-top: 3em;
+		margin-top: 1.5em;
 	}
 }
 
@@ -34,10 +34,11 @@ $toggle-width: 3em;
 }
 
 .jp-form-search-settings-group__toggle-description {
-	margin-top: 0.5em;
+	 margin-top: 0.5em;
 }
 
 p.jp-form-search-settings-group__toggle-explanation {
+	line-height: 1.5em;
 	font-size: 1em;
 	font-weight: 400;
 }

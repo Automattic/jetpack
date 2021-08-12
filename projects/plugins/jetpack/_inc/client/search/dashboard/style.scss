@@ -36,7 +36,7 @@ body {
 	}
 
 	.jp-search-dashboard-top__mocked-search-interface {
-		height: 200px;
+		height: 180px;
 
 		display: flex;
 		flex-flow: column;
@@ -45,8 +45,6 @@ body {
 	}
 
 	.jp-search-dashboard-bottom {
-		min-height: 22em;
-
 		background-color: $white;
 	}
 
