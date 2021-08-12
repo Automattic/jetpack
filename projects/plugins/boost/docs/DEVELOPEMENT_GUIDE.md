@@ -210,6 +210,9 @@ These are relevant if you are using the [Docker environment setup](https://githu
 - Uou can find your `wp-config.php` file at `tools/docker/wordpress/wp-config.php` from the root of the Jetpack monorepo.
 - You can tail the debug.log file using the `jetpack docker tail` command.
 - You can run the WP-CLI command using the `jetpack docker wp` command.
+- You can enter the WordPress Docker container using the `jetpack docker sh` command.
+- You can access the access MySQL CLI using the `jetpack docker db` command.
+- You can access phpMyAdmin at [http://localhost:8181](http://localhost:8181).
 
 ---
 
