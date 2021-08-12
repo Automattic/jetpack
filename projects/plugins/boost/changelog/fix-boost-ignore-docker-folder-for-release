@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Ignore the Docker folder from being added into production release
