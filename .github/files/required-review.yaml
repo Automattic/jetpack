@@ -33,6 +33,7 @@
   teams:
    - heart-of-gold
    - jetpack-approvers
+   - '@davidlonjon'
 
 # Jetpack Approvers review everything that hasn't been specifically assigned above.
 # This needs to be last.
