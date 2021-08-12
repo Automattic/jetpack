@@ -37,15 +37,9 @@ function MockedSearch( props ) {
 }
 
 export default connect( state => {
-	const planClass =
-		window.location.search.indexOf( 'business-plan' ) > 0
-			? 'is-business-plan'
-			: getPlanClass( getSitePlan( state ).product_slug );
+	const planClass = getPlanClass( getSitePlan( state ).product_slug );
 	return {
-		hasActiveSearchPurchase:
-			window.location.search.indexOf( 'no-active-search-purchase' ) > 0
-				? false
-				: selectHasActiveSearchPurchase( state ),
+		hasActiveSearchPurchase: selectHasActiveSearchPurchase( state ),
 		isBusinessPlan: 'is-business-plan' === planClass,
 	};
 } )( MockedSearch );

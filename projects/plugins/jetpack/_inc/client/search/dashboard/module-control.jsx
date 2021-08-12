@@ -42,8 +42,7 @@ const INSTANT_SEARCH_DESCRIPTION = __(
 	'Instant search will allow your visitors to get search results as soon as they start typing. If deactivated, Jetpack Search will still optimize your search results but visitors will have to submit a search query before seeing any results.',
 	'jetpack'
 );
-// NOTE: remove a8ctest after all relative PRs merged.
-const RETURN_PATH = 'admin.php?page=jetpack-search&a8ctest';
+const RETURN_PATH = 'admin.php?page=jetpack-search';
 const SEARCH_CUSTOMIZE_URL = 'customize.php?autofocus[section]=jetpack_search&return=%s';
 const WIDGETS_EDITOR_URL = 'customize.php?autofocus[panel]=widgets&return=%s';
 
@@ -233,15 +232,9 @@ function Search( props ) {
 }
 
 export default connect( state => {
-	const planClass =
-		window.location.search.indexOf( 'business-plan' ) > 0
-			? 'is-business-plan'
-			: getPlanClass( getSitePlan( state ).product_slug );
+	const planClass = getPlanClass( getSitePlan( state ).product_slug );
 	return {
-		hasActiveSearchPurchase:
-			window.location.search.indexOf( 'no-active-search-purchase' ) > 0
-				? false
-				: selectHasActiveSearchPurchase( state ),
+		hasActiveSearchPurchase: selectHasActiveSearchPurchase( state ),
 		inOfflineMode: isOfflineMode( state ),
 		isBusinessPlan: 'is-business-plan' === planClass,
 		isLoading: isFetchingSitePurchases( state ),
