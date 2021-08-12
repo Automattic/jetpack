@@ -231,9 +231,9 @@ function Search( props ) {
 			>
 				<p>{ props.inOfflineMode && __( 'Unavailable in Offline Mode', 'jetpack' ) }</p>
 
-				<p>{ props.isLoading && __( 'Loading…', 'jetpack' ) }</p>
+				<p>{ ! props.inOfflineMode && props.isLoading && __( 'Loading…', 'jetpack' ) }</p>
 
-				{ ! props.isLoading && renderToggles() }
+				{ ! props.inOfflineMode && ! props.isLoading && renderToggles() }
 			</SettingsGroup>
 		</Fragment>
 	);
