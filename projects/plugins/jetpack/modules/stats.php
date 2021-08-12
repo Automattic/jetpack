@@ -58,6 +58,9 @@ function stats_load() {
 
 	add_filter( 'pre_option_db_version', 'stats_ignore_db_version' );
 
+	// Stats dashboard widget.
+	add_action( 'wp_dashboard_setup', 'wp_dashboard_widget' );
+
 	// Add an icon to see stats in WordPress.com for a particular post.
 	add_action( 'admin_print_styles-edit.php', 'jetpack_stats_load_admin_css' );
 	add_filter( 'manage_posts_columns', 'jetpack_stats_post_table' );
@@ -67,6 +70,9 @@ function stats_load() {
 
 }
 
+function wp_dashboad_widget() {
+	do_action( 'qm/debug', 'First area' );
+}
 /**
  * Delay conditional for current_user_can to after init.
  *
