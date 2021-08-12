@@ -10,9 +10,9 @@ import { __ } from '@wordpress/i18n';
  */
 
 import { JetpackFooter } from '@automattic/jetpack-components';
+import restApi from '@automattic/jetpack-api';
 /* eslint-disable no-duplicate-imports */
 import { JetpackLogo } from '@automattic/jetpack-components';
-import restApi from 'rest-api';
 import LoadingPlaceHolder from 'components/loading-placeholder';
 import ModuleControl from './module-control';
 import MockedSearch from './mocked-search';
