@@ -209,7 +209,7 @@ class Jetpack_Custom_CSS_Enhancements {
 
 		if ( $should_embed || is_customize_preview() ) {
 			printf(
-				'<style type="text/css" id="wp-custom-css"></style>',
+				'<style type="text/css" id="wp-custom-css">%1$s</style>',
 				wp_strip_all_tags( $styles ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			);
 		} else {
