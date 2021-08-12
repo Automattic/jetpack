@@ -162,6 +162,17 @@ class Jetpack_Backup {
 			)
 		);
 
+		// Provide a limited menu for WordPress.com
+		register_rest_route(
+			'wpcom/v2',
+			'admin-menu/',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_admin_menu',
+				'permission_callback' => __CLASS__ . '::admin_menu_permissions_callback',
+			)
+		);
+
 	}
 
 	/**
@@ -174,6 +185,22 @@ class Jetpack_Backup {
 	 */
 	public static function backups_permissions_callback() {
 		return current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * 
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return true|WP_Error
+	 */
+	public static function admin_menu_permissions_callback() {
+		return current_user_can( 'read' );
+	}
+
+	public static function get_admin_menu() {
+		return [];
 	}
 
 	/**
