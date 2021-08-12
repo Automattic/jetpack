@@ -1140,7 +1140,7 @@ EOT;
 			foreach ( array_merge( $with_post_thumbnails, $no_post_thumbnails ) as $index => $real_post ) {
 				$related_posts[ $index ]['id']      = $real_post->ID;
 				$related_posts[ $index ]['url']     = esc_url( get_permalink( $real_post ) );
-				$related_posts[ $index ]['title']   = $this->_to_utf8( $this->_get_title( $real_post->post_title, $real_post->post_content ) );
+				$related_posts[ $index ]['title']   = $this->_to_utf8( $this->get_title( $real_post->post_title, $real_post->post_content ) );
 				$related_posts[ $index ]['date']    = get_the_date( '', $real_post );
 				$related_posts[ $index ]['excerpt'] = html_entity_decode( $this->_to_utf8( $this->_get_excerpt( $real_post->post_excerpt, $real_post->post_content ) ), ENT_QUOTES, 'UTF-8' );
 				$related_posts[ $index ]['img']     = $this->_generate_related_post_image_params( $real_post->ID );
@@ -1186,13 +1186,16 @@ EOT;
 		$post = get_post( $post_id );
 
 		return array(
-			'id' => $post->ID,
-			'url' => get_permalink( $post->ID ),
-			'url_meta' => array( 'origin' => $origin, 'position' => $position ),
-			'title' => $this->_to_utf8( $this->_get_title( $post->post_title, $post->post_content ) ),
-			'date' => get_the_date( '', $post->ID ),
-			'format' => get_post_format( $post->ID ),
-			'excerpt' => html_entity_decode( $this->_to_utf8( $this->_get_excerpt( $post->post_excerpt, $post->post_content ) ), ENT_QUOTES, 'UTF-8' ),
+			'id'       => $post->ID,
+			'url'      => get_permalink( $post->ID ),
+			'url_meta' => array(
+				'origin'   => $origin,
+				'position' => $position,
+			),
+			'title'    => $this->_to_utf8( $this->get_title( $post->post_title, $post->post_content ) ),
+			'date'     => get_the_date( '', $post->ID ),
+			'format'   => get_post_format( $post->ID ),
+			'excerpt'  => html_entity_decode( $this->_to_utf8( $this->_get_excerpt( $post->post_excerpt, $post->post_content ) ), ENT_QUOTES, 'UTF-8' ),
 			/**
 			 * Filters the rel attribute for the Related Posts' links.
 			 *
@@ -1242,14 +1245,19 @@ EOT;
 	/**
 	 * Returns either the title or a small excerpt to use as title for post.
 	 *
-	 * @param string $post_title
-	 * @param string $post_content
-	 * @uses strip_shortcodes, wp_trim_words, __
+	 * @uses strip_shortcodes, wp_trim_words, __, apply_filters
+	 *
+	 * @param string $post_title   Post title.
+	 * @param string $post_content Post content.
+	 *
 	 * @return string
 	 */
-	protected function _get_title( $post_title, $post_content ) {
+	protected function get_title( $post_title, $post_content ) {
 		if ( ! empty( $post_title ) ) {
-			return wp_strip_all_tags( $post_title );
+			return wp_strip_all_tags(
+				/** This filter is documented in core/src/wp-includes/post-template.php */
+				apply_filters( 'the_title', $post_title )
+			);
 		}
 
 		$post_title = wp_trim_words( wp_strip_all_tags( strip_shortcodes( $post_content ) ), 5, '…' );
