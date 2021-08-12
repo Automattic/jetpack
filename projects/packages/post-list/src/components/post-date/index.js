@@ -8,7 +8,7 @@ import { dateI18n } from '@wordpress/date';
 import { useState, Fragment } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import usePost from '../../hooks/use-post';
-import { store as noticesStore } from '@wordpress/notices';
+import { clean, sendSuccess } from '../comunicate';
 
 function getDateLabel( status, date ) {
 	let dateLabel = '';
@@ -50,11 +50,16 @@ export default function PostDateEdit( { id, postIds, type, fallbackText, status 
 	const [ localPostStatus, setLocalPostStatus ] = useState();
 	const post = usePost( { id, postIds, type } );
 	const { saveEntityRecord } = useDispatch( coreStore );
-	const { createSuccessNotice } = useDispatch( noticesStore );
 
-	async function handleUpdatePost( date ) {
+	async function handleUpdatePost( date, onClose = () => {} ) {
 		// 100% optimistic.
 		setLocalPostDate( date );
+
+		// Close the popover.
+		onClose();
+
+		// Clean notifications in case exist.
+		clean();
 
 		// Now, save the post
 		const savedPost = await saveEntityRecord( 'postType', type, {
@@ -71,8 +76,8 @@ export default function PostDateEdit( { id, postIds, type, fallbackText, status 
 		// Update the Post Status once the post saves.
 		setLocalPostStatus( savedPost?.status );
 
-		createSuccessNotice( getDateLabel( savedPost?.status, savedPost?.date ), {
-			type: 'snackbar',
+		// Notify user about the new post date.
+		sendSuccess( getDateLabel( savedPost?.status, savedPost?.date ), {
 			actions: [
 				{
 					label: __( 'Undo', 'jetpack-post-list' ),
@@ -106,10 +111,12 @@ export default function PostDateEdit( { id, postIds, type, fallbackText, status 
 						</Button>
 					</>
 				) }
-				renderContent={ () => (
+				renderContent={ ( { onClose } ) => (
 					<DateTimePicker
 						currentDate={ postDate }
-						onChange={ handleUpdatePost }
+						onChange={ date => {
+							handleUpdatePost( date, onClose );
+						} }
 						is12Hour={ true }
 						events={ [] }
 					/>
