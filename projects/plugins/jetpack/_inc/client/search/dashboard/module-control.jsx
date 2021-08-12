@@ -176,7 +176,7 @@ function Search( props ) {
 					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 					<div className="lg-col-span-1 md-col-span-1 sm-col-span-1">
 						<CompactFormToggle
-							checked={ isModuleEnabled && isInstantSearchEnabled && hasEitherSearch }
+							checked={ isModuleEnabled && isInstantSearchEnabled && props.hasActiveSearchPurchase }
 							disabled={ isSavingEitherOption || ! props.hasActiveSearchPurchase }
 							onChange={ toggleInstantSearch }
 							toggling={ togglingInstantSearch }
