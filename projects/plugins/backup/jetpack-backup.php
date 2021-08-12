@@ -49,7 +49,7 @@ if ( defined( 'JETPACK__VERSION' ) && version_compare( '10.0.0', JETPACK__VERSIO
 		<div class="notice notice-error is-dismissible">
 			<p>
 				<?php
-				esc_html_e( 'Jetpack Backup does not require Jetpack; however, if you are running both plugins, you must have version 10 or higher of Jetpack to use Jetpack Backup', 'jetpack-backup' );
+				esc_html_e( 'The Jetpack Backup plugin requires version 10 or higher of the Jetpack plugin. Please update your Jetpack plugin to continue.', 'jetpack-backup' );
 				?>
 			</p>
 		</div>
