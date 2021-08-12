@@ -12,7 +12,8 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "webpack --config webpack.config.js"
+		"build": "webpack --config webpack.config.js",
+		"watch": "webpack --watch --config webpack.config.js"
 	},
 	"dependencies": {
 		"@woocommerce/currency": "workspace:*",
