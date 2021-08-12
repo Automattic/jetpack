@@ -70,10 +70,6 @@ function stats_load() {
 
 }
 
-function wp_dashboard_widget() {
-	require_once __DIR__ . '/stats/class-jetpack-stats-dashboard-widget.php';
-	Jetpack_Stats_Dashboard_Widget::init();
-}
 /**
  * Delay conditional for current_user_can to after init.
  *
@@ -463,6 +459,17 @@ function stats_admin_menu() {
  */
 function stats_admin_path() {
 	return Jetpack::module_configuration_url( __FILE__ );
+}
+
+/**
+ * Loads Jetpack stats widget for the WordPress dashboard.
+ *
+ * @access public
+ * @return void
+ */
+function wp_dashboard_widget() {
+	require_once __DIR__ . '/stats/class-jetpack-stats-dashboard-widget.php';
+	Jetpack_Stats_Dashboard_Widget::init();
 }
 
 /**
