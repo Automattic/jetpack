@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Cleanup dangling files and rules to remove files from production release
