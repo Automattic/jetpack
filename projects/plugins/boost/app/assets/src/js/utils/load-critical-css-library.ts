@@ -14,7 +14,8 @@ export async function loadCriticalCssLibrary(): Promise< void > {
 	}
 
 	loadLibraryPromise = new Promise< void >( ( resolve, reject ) => {
-		const scriptUrl = Jetpack_Boost.site.assetPath + '/critical-css-gen.js';
+		const scriptUrl =
+			Jetpack_Boost.site.assetPath + '/critical-css-gen.js?ver=' + Jetpack_Boost.version;
 		const scriptTag = document.createElement( 'script' );
 		scriptTag.src = scriptUrl;
 
