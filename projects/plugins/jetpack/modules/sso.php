@@ -1,7 +1,6 @@
 <?php
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
@@ -952,7 +951,7 @@ class Jetpack_SSO {
 	 */
 	public function build_sso_url( $args = array() ) {
 		$sso_nonce = ! empty( $args['sso_nonce'] ) ? $args['sso_nonce'] : self::request_initial_nonce();
-		$defaults = array(
+		$defaults  = array(
 			'action'       => 'jetpack-sso',
 			'site_id'      => Jetpack_Options::get_option( 'id' ),
 			'sso_nonce'    => $sso_nonce,
@@ -965,17 +964,7 @@ class Jetpack_SSO {
 			return $args['sso_nonce'];
 		}
 
-		$query = add_query_arg( $args, '' );
-		$query = trim( $query, '?' );
-
-		$url = Redirect::get_url(
-			'wpcom-login',
-			array(
-				'query' => $query,
-			)
-		);
-
-		return $url;
+		return add_query_arg( $args, 'https://wordpress.com/wp-login.php' );
 	}
 
 	/**
@@ -1009,17 +998,7 @@ class Jetpack_SSO {
 			return $args['sso_nonce'];
 		}
 
-		$query = add_query_arg( $args, '' );
-		$query = trim( $query, '?' );
-
-		$url = Redirect::get_url(
-			'wpcom-login',
-			array(
-				'query' => $query,
-			)
-		);
-
-		return $url;
+		return add_query_arg( $args, 'https://wordpress.com/wp-login.php' );
 	}
 
 	/**
