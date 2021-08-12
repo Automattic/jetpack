@@ -84,10 +84,7 @@ class Jetpack_Search_Dashboard_Page extends Jetpack_Admin_Page {
 	 * @return {boolean} Show search sub menu or not.
 	 */
 	protected function should_add_sub_menu() {
-		// TODO: temporary flag for testing. Will be removed on the last PR merge.
-		// TODO: When plan expired, `has_jetpack_search_product` could still be true.
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		return Jetpack_Plan::supports( 'search' ) && array_key_exists( 'a8ctest', $_GET );
+		return method_exists( 'Jetpack_Plan', 'supports' ) && Jetpack_Plan::supports( 'search' );
 	}
 
 	/**
