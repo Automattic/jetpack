@@ -13,10 +13,10 @@
 	* [Coding standards](#coding-standards)
 	* [Linting](#linting)
 * [Standard development & debugging tools](#standard-development--debugging-tools)
-* [Pull Requests Workflow](#pull-requests-workflow)
+* [Pull requests workflow](#pull-requests-workflow)
 * [Release process](#release-process)
 * [Module architectural overview 101](#module-architectural-overview-101)
-* [Hooks and Filters](#hooks-and-filters)
+* [Hooks and filters](#hooks-and-filters)
 
 # Setting up your environment
 
@@ -89,7 +89,7 @@ jetpack watch plugins/boost
 
 If you are using the Docker setup, you can find the WordPress core files as well as the `wp-content` folder under the `tools/docker/wordpress` directory from the root of this Jetpack monorepo.
 
-# Unit-testing
+# Unit testing
 
 The Jetpack Boost plugin includes several [unit tests](https://github.com/Automattic/jetpack/tree/master/projects/plugins/boost/tests) that you can run in your local environment before submitting a new Pull Request.
 
@@ -214,7 +214,7 @@ These are relevant if you are using the [Docker environment setup](https://githu
 
 ---
 
-# Pull Requests Workflow
+# Pull requests workflow
 
 Before pushing a working branch to raise a Pull Request, make sure that all the code is passing the cosing standards checks and that the unit tests are also passing.
 
