@@ -8,15 +8,13 @@
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Status;
 
-jetpack_require_lib( 'plugins' );
-
 /**
- * Class that adds a new section to the Stats Report page
+ * Class that adds a adds the Jetpack stats widget to the WordPress dashboard.
  */
 class Jetpack_Stats_Dashboard_Widget {
 
 	/**
-	 * Indicates whether the class initialized or not
+	 * Indicates whether the class initialized or not.
 	 *
 	 * @var bool
 	 */
