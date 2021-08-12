@@ -18,6 +18,7 @@ import Button from 'components/button';
 import { getPlanClass } from 'lib/plans/constants';
 import InstantSearchUpsellNudge from './instant-search-upsell-nudge';
 import analytics from '../../lib/analytics';
+import './rna-styles.scss';
 import './module-control.scss';
 
 /**
@@ -127,6 +128,87 @@ function Search( props ) {
 		);
 	};
 
+	const renderToggles = () => {
+		return (
+			<Fragment>
+				<div className="jp-search-dashboard-wrap">
+					<div className="jp-form-search-settings-group__toggle is-search">
+						<div className="jp-search-dashboard-row">
+							<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
+							<div className="lg-col-span-1 md-col-span-1 sm-col-span-1">
+								<ModuleToggle
+									activated={ isModuleEnabled && hasEitherSearch }
+									compact
+									disabled={
+										isSavingEitherOption ||
+										( ! props.hasActiveSearchPurchase && ! props.isBusinessPlan )
+									}
+									slug="search"
+									toggleModule={ toggleSearchModule }
+									toggling={ togglingModule }
+									className="is-search-admin"
+								></ModuleToggle>
+							</div>
+							<div className="jp-form-search-settings-group__toggle_label lg-col-span-7 md-col-span-5 sm-col-span-3">
+								{ __( 'Enable Jetpack Search', 'jetpack' ) }
+							</div>
+							<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
+						</div>
+						<div className="jp-search-dashboard-row">
+							<div className="lg-col-span-3 md-col-span-2 sm-col-span-1"></div>
+							<div className="jp-form-search-settings-group__toggle-description lg-col-span-6 md-col-span-5 sm-col-span-3">
+								<p className="jp-form-search-settings-group__toggle-explanation">
+									{ SEARCH_DESCRIPTION }
+								</p>
+							</div>
+							<div className="lg-col-span-3 md-col-span-1 sm-col-span-0"></div>
+						</div>
+					</div>
+					<div className="jp-form-search-settings-group__toggle is-instant-search">
+						<div className="jp-search-dashboard-row">
+							<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
+							<div className="lg-col-span-1 md-col-span-1 sm-col-span-1">
+								<CompactFormToggle
+									checked={ isModuleEnabled && isInstantSearchEnabled && hasEitherSearch }
+									disabled={ isSavingEitherOption || ! props.hasActiveSearchPurchase }
+									onChange={ toggleInstantSearch }
+									toggling={ togglingInstantSearch }
+									className="is-search-admin"
+								></CompactFormToggle>
+							</div>
+							<div className="jp-form-search-settings-group__toggle_label lg-col-span-7 md-col-span-5 sm-col-span-3">
+								{ createInterpolateElement(
+									__( 'Enable instant search experience <span>(recommended)</span>', 'jetpack' ),
+									{ span: <span /> }
+								) }
+							</div>
+						</div>
+						<div className="jp-search-dashboard-row">
+							<div className="lg-col-span-3 md-col-span-2 sm-col-span-1"></div>
+							<div className="jp-form-search-settings-group__toggle-description lg-col-span-6 md-col-span-5 sm-col-span-3">
+								{ props.hasActiveSearchPurchase && (
+									<Fragment>
+										<p className="jp-form-search-settings-group__toggle-explanation">
+											{ INSTANT_SEARCH_DESCRIPTION }
+										</p>
+										{ renderInstantSearchButtons() }
+									</Fragment>
+								) }
+								{ ! props.hasActiveSearchPurchase && isInstantSearchPromotionActive && (
+									<InstantSearchUpsellNudge
+										href={ props.upgradeUrl }
+										upgrade={ hasOnlyLegacySearch }
+									/>
+								) }
+							</div>
+							<div className="lg-col-span-3 md-col-span-1 sm-col-span-0"></div>
+						</div>
+					</div>
+				</div>
+			</Fragment>
+		);
+	};
+
 	return (
 		<Fragment>
 			<QuerySite />
@@ -140,87 +222,7 @@ function Search( props ) {
 
 				{ props.isLoading && __( 'Loading…', 'jetpack' ) }
 
-				{ ! props.isLoading && (
-					<Fragment>
-						<div className="jp-search-dashboard-wrap">
-							<div className="jp-form-search-settings-group__toggle is-search">
-								<div className="jp-search-dashboard-row">
-									<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
-									<div className="lg-col-span-1 md-col-span-1 sm-col-span-1">
-										<ModuleToggle
-											activated={ isModuleEnabled && hasEitherSearch }
-											compact
-											disabled={
-												isSavingEitherOption ||
-												( ! props.hasActiveSearchPurchase && ! props.isBusinessPlan )
-											}
-											slug="search"
-											toggleModule={ toggleSearchModule }
-											toggling={ togglingModule }
-											className="is-search-admin"
-										></ModuleToggle>
-									</div>
-									<div className="jp-form-search-settings-group__toggle_label lg-col-span-7 md-col-span-5 sm-col-span-3">
-										{ __( 'Enable Jetpack Search', 'jetpack' ) }
-									</div>
-									<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
-								</div>
-								<div className="jp-search-dashboard-row">
-									<div className="lg-col-span-3 md-col-span-2 sm-col-span-1"></div>
-									<div className="jp-form-search-settings-group__toggle-description lg-col-span-6 md-col-span-5 sm-col-span-3">
-										<p className="jp-form-search-settings-group__toggle-explanation">
-											{ SEARCH_DESCRIPTION }
-										</p>
-									</div>
-									<div className="lg-col-span-3 md-col-span-1 sm-col-span-0"></div>
-								</div>
-							</div>
-							<div className="jp-form-search-settings-group__toggle is-instant-search">
-								<div className="jp-search-dashboard-row">
-									<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
-									<div className="lg-col-span-1 md-col-span-1 sm-col-span-1">
-										<CompactFormToggle
-											checked={ isModuleEnabled && isInstantSearchEnabled && hasEitherSearch }
-											disabled={ isSavingEitherOption || ! props.hasActiveSearchPurchase }
-											onChange={ toggleInstantSearch }
-											toggling={ togglingInstantSearch }
-											className="is-search-admin"
-										></CompactFormToggle>
-									</div>
-									<div className="jp-form-search-settings-group__toggle_label lg-col-span-7 md-col-span-5 sm-col-span-3">
-										{ createInterpolateElement(
-											__(
-												'Enable instant search experience <span>(recommended)</span>',
-												'jetpack'
-											),
-											{ span: <span /> }
-										) }
-									</div>
-								</div>
-								<div className="jp-search-dashboard-row">
-									<div className="lg-col-span-3 md-col-span-2 sm-col-span-1"></div>
-									<div className="jp-form-search-settings-group__toggle-description lg-col-span-6 md-col-span-5 sm-col-span-3">
-										{ props.hasActiveSearchPurchase && (
-											<Fragment>
-												<p className="jp-form-search-settings-group__toggle-explanation">
-													{ INSTANT_SEARCH_DESCRIPTION }
-												</p>
-												{ renderInstantSearchButtons() }
-											</Fragment>
-										) }
-										{ ! props.hasActiveSearchPurchase && isInstantSearchPromotionActive && (
-											<InstantSearchUpsellNudge
-												href={ props.upgradeUrl }
-												upgrade={ hasOnlyLegacySearch }
-											/>
-										) }
-									</div>
-									<div className="lg-col-span-3 md-col-span-1 sm-col-span-0"></div>
-								</div>
-							</div>
-						</div>
-					</Fragment>
-				) }
+				{ ! props.isLoading && renderToggles() }
 			</SettingsGroup>
 		</Fragment>
 	);

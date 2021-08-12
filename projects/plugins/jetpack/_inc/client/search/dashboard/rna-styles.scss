@@ -1,65 +1,4 @@
-/********* RNA styles *********/
-// Copied from plugins/backup/src/js/components
-// We should extract this into a package
-
-:root {
-	--font-title-large: 36px;
-	--font-title-small: 24px;
-	--font-body: 16px;
-	--font-label: 12px;
-
-	--jp-black: #000000;
-	--jp-black-80: #2c3338;
-	--jp-white: #ffffff;
-	--jp-white-off: #f9f9f6;
-	--jp-gray: #dcdcde;
-	--jp-gray-off: #e2e2df;
-
-	--jp-green-primary: #069e08;
-	--jp-green-secondary: #2fb41f;
-
-	--jp-border-radius: 4px;
-	--jp-menu-border-height: 1px;
-	--jp-underline-thickness: 2px;
-}
-
-/********* Mixins *********/
-@mixin for-phone-up {
-	@media ( min-width: 600px ) {
-		@content;
-	}
-}
-@mixin for-tablet-up {
-	@media ( min-width: 960px ) {
-		@content;
-	}
-}
-
-@mixin for-phone-down {
-	@media ( max-width: 600px ) {
-		@content;
-	}
-}
-@mixin for-tablet-down {
-	@media ( max-width: 960px ) {
-		@content;
-	}
-}
-
-/********* Generic styles *********/
-$wp-gray-dark: #23282d;
-
-* {
-	box-sizing: border-box;
-}
-
-body {
-	min-height: 100%;
-	margin: 0;
-	padding: 0;
-	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen-Sans', 'Ubuntu',
-		'Cantarell', 'Helvetica Neue', sans-serif;
-}
+@import './_variables.scss';
 
 .jp-search-dashboard-wrap {
 	display: flex;
@@ -130,8 +69,8 @@ body {
 	display: block;
 	margin: 32px 0;
 	padding: 16px 64px 16px 24px;
-	border: 2px solid var( --jp-green-primary );
-	border-radius: var( --jp-border-radius );
+	border: 2px solid $jp-green-primary;
+	border-radius: $jp-border-radius;
 	text-decoration: none;
 
 	span {
@@ -148,7 +87,7 @@ body {
 
 		span:last-of-type {
 			text-decoration: underline;
-			text-decoration-thickness: var( --jp-underline-thickness );
+			text-decoration-thickness: $jp-underline-thickness;
 		}
 
 		&:after {
@@ -163,7 +102,7 @@ body {
 		right: 24px;
 		font-size: 24px;
 		font-weight: 600;
-		color: var( --jp-green-primary );
+		color: $jp-green-primary;
 		transform: translateY( -50% );
 		transition: transform 0.15s ease-out;
 	}

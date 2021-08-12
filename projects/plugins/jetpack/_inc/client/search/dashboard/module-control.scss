@@ -13,7 +13,8 @@ $toggle-width: 48px;
 	width: 100%;
 	.dops-card {
 		box-shadow: none;
-		padding: 1.5em 0;
+		padding: 0;
+		padding-top: 1em;
 	}
 }
 
@@ -38,6 +39,7 @@ $toggle-width: 48px;
 
 p.jp-form-search-settings-group__toggle-explanation {
 	color: #2c3338;
+	font-size: 1em;
 	font-weight: 400;
 }
 
