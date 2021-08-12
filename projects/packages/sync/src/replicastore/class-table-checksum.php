@@ -150,14 +150,14 @@ class Table_Checksum {
 		global $wpdb;
 
 		return array(
-			'posts'              => array(
+			'posts'                      => array(
 				'table'           => $wpdb->posts,
 				'range_field'     => 'ID',
 				'key_fields'      => array( 'ID' ),
 				'checksum_fields' => array( 'post_modified_gmt' ),
 				'filter_values'   => Sync\Settings::get_disallowed_post_types_structured(),
 			),
-			'postmeta'           => array(
+			'postmeta'                   => array(
 				'table'             => $wpdb->postmeta,
 				'range_field'       => 'post_id',
 				'key_fields'        => array( 'post_id', 'meta_key' ),
@@ -167,7 +167,7 @@ class Table_Checksum {
 				'parent_join_field' => 'ID',
 				'table_join_field'  => 'post_id',
 			),
-			'comments'           => array(
+			'comments'                   => array(
 				'table'           => $wpdb->comments,
 				'range_field'     => 'comment_ID',
 				'key_fields'      => array( 'comment_ID' ),
@@ -186,7 +186,7 @@ class Table_Checksum {
 					),
 				),
 			),
-			'commentmeta'        => array(
+			'commentmeta'                => array(
 				'table'             => $wpdb->commentmeta,
 				'range_field'       => 'comment_id',
 				'key_fields'        => array( 'comment_id', 'meta_key' ),
@@ -196,21 +196,21 @@ class Table_Checksum {
 				'parent_join_field' => 'comment_ID',
 				'table_join_field'  => 'comment_id',
 			),
-			'terms'              => array(
+			'terms'                      => array(
 				'table'           => $wpdb->terms,
 				'range_field'     => 'term_id',
 				'key_fields'      => array( 'term_id' ),
 				'checksum_fields' => array( 'term_id', 'name', 'slug' ),
 				'parent_table'    => 'term_taxonomy',
 			),
-			'termmeta'           => array(
+			'termmeta'                   => array(
 				'table'           => $wpdb->termmeta,
 				'range_field'     => 'term_id',
 				'key_fields'      => array( 'term_id', 'meta_key' ),
 				'checksum_fields' => array( 'meta_key', 'meta_value' ),
 				'parent_table'    => 'term_taxonomy',
 			),
-			'term_relationships' => array(
+			'term_relationships'         => array(
 				'table'             => $wpdb->term_relationships,
 				'range_field'       => 'object_id',
 				'key_fields'        => array( 'object_id' ),
@@ -219,15 +219,32 @@ class Table_Checksum {
 				'parent_join_field' => 'term_taxonomy_id',
 				'table_join_field'  => 'term_taxonomy_id',
 			),
-			'term_taxonomy'      => array(
+			'term_taxonomy'              => array(
 				'table'           => $wpdb->term_taxonomy,
 				'range_field'     => 'term_taxonomy_id',
 				'key_fields'      => array( 'term_taxonomy_id' ),
 				'checksum_fields' => array( 'term_taxonomy_id', 'term_id', 'taxonomy', 'description', 'parent' ),
 				'filter_values'   => Sync\Settings::get_allowed_taxonomies_structured(),
 			),
-			'links'              => $wpdb->links, // TODO describe in the array format or add exceptions.
-			'options'            => $wpdb->options, // TODO describe in the array format or add exceptions.
+			'links'                      => $wpdb->links, // TODO describe in the array format or add exceptions.
+			'options'                    => $wpdb->options, // TODO describe in the array format or add exceptions.
+			'woocommerce_order_items'    => array(
+				'table'           => "{$wpdb->prefix}woocommerce_order_items",
+				'range_field'     => 'order_item_id',
+				'key_fields'      => array( 'order_item_id' ),
+				'checksum_fields' => array( 'order_item_name', 'order_item_type', 'order_id' ),
+				'filter_values'   => '',
+			),
+			'woocommerce_order_itemmeta' => array(
+				'table'             => "{$wpdb->prefix}woocommerce_order_itemmeta",
+				'range_field'       => 'order_item_id',
+				'key_fields'        => array( 'order_item_id', 'meta_key' ),
+				'checksum_fields'   => array( 'meta_key', 'meta_value' ),
+				'filter_values'     => '',
+				'parent_table'      => 'woocommerce_order_items',
+				'parent_join_field' => 'order_item_id',
+				'table_join_field'  => 'order_item_id',
+			),
 		);
 	}
 
