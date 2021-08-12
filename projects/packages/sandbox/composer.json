@@ -9,8 +9,8 @@
 		"automattic/jetpack-changelogger": "^1.1"
 	},
 	"autoload": {
-		"files": [
-			"src/server-sandbox.php"
+		"classmap": [
+			"src/"
 		]
 	},
 	"scripts": {

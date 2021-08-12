@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "476fd7613d13d9190aecf1a6d8020183",
+    "content-hash": "70801fadd7ba2a0cc01772bf6ba072b6",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -274,7 +274,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "be4296dc62f27520d9b2443114c4b60605f73829"
+                "reference": "29e98719f00a2e2f3e43397ffdfe044cdc5da5f8"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -283,6 +283,7 @@
                 "automattic/jetpack-options": "^1.13",
                 "automattic/jetpack-redirect": "^1.7",
                 "automattic/jetpack-roles": "^1.4",
+                "automattic/jetpack-sandbox": "^0.1.x-dev",
                 "automattic/jetpack-status": "^1.8",
                 "automattic/jetpack-terms-of-service": "^1.9",
                 "automattic/jetpack-tracking": "^1.13"
@@ -856,6 +857,51 @@
             }
         },
         {
+            "name": "automattic/jetpack-sandbox",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/sandbox",
+                "reference": "63e2b25d9573a54462e79143b44405f71daa2e77"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "^1.1",
+                "yoast/phpunit-polyfills": "0.2.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.1.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer install",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "This package allows Automattic developers to configure the connection to talk to a sandbox WordPress.com server instead of production servers.",
+            "transport-options": {
+                "monorepo": true,
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-status",
             "version": "dev-master",
             "dist": {
@@ -1151,51 +1197,6 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Jetpack Changelogger tool. Allows for managing changelogs by dropping change files into a changelog directory with each PR.",
-            "transport-options": {
-                "monorepo": true,
-                "relative": true
-            }
-        },
-        {
-            "name": "automattic/jetpack-sandbox",
-            "version": "dev-master",
-            "dist": {
-                "type": "path",
-                "url": "../../packages/sandbox",
-                "reference": "e2eacaa2953096512a9b001f92321b4d3831565d"
-            },
-            "require-dev": {
-                "automattic/jetpack-changelogger": "^1.1",
-                "yoast/phpunit-polyfills": "0.2.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "0.1.x-dev"
-                }
-            },
-            "autoload": {
-                "files": [
-                    "src/server-sandbox.php"
-                ]
-            },
-            "scripts": {
-                "phpunit": [
-                    "@composer install",
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-coverage": [
-                    "@composer install",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
-                "test-php": [
-                    "@composer phpunit"
-                ]
-            },
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "description": "This package allows Automattic developers to configure the connection to talk to a sandbox WordPress.com server instead of production servers.",
             "transport-options": {
                 "monorepo": true,
                 "relative": true
@@ -4265,8 +4266,7 @@
         "automattic/jetpack-connection": 20,
         "automattic/jetpack-connection-ui": 20,
         "automattic/jetpack-sync": 20,
-        "automattic/jetpack-status": 20,
-        "automattic/jetpack-sandbox": 20
+        "automattic/jetpack-status": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
