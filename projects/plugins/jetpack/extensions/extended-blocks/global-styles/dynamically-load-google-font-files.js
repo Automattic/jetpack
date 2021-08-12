@@ -66,49 +66,47 @@ const isEditorReadyWithBlocks = async () => {
 
 // When a google font is selected in the global styles site editor sidebar, its
 // font face declarations and font files will be dynamically imported
-( function () {
-	$( document ).ready( async function () {
-		await isEditorReadyWithBlocks();
+( async function () {
+	await isEditorReadyWithBlocks();
 
-		// Prevents re-fetching google fonts that have already been requested
-		// during the session
-		const cache = [];
+	// Prevents re-fetching google fonts that have already been requested
+	// during the session
+	const cache = [];
 
-		// Monitor wp-data for updates to the global styles and selected fontFamily
-		wp.data.subscribe( function () {
-			const settings = wp.data.select( 'core/edit-site' ).getSettings();
-			let globalStylesCSSDeclarations = '';
-			if ( settings.styles ) {
-				globalStylesCSSDeclarations = settings.styles.reduce( function ( acc, style ) {
-					return style.isGlobalStyles && ! style.__experimentalNoWrapper ? style.css : acc;
-				}, '' );
-			}
+	// Monitor wp-data for updates to the global styles and selected fontFamily
+	wp.data.subscribe( function () {
+		const settings = wp.data.select( 'core/edit-site' ).getSettings();
+		let globalStylesCSSDeclarations = '';
+		if ( settings.styles ) {
+			globalStylesCSSDeclarations = settings.styles.reduce( function ( acc, style ) {
+				return style.isGlobalStyles && ! style.__experimentalNoWrapper ? style.css : acc;
+			}, '' );
+		}
 
-			if ( globalStylesCSSDeclarations ) {
-				// Retrieve information about selected font family from serialized data
-				const fontFamilySlug = globalStylesCSSDeclarations.match(
-					/font-family: var\(--wp--preset--font-family--(.*?)(?=\);)/
-				);
-				const fontFamilyName =
-					fontFamilySlug &&
-					fontFamilySlug[ 1 ]
-						.split( '-' )
-						.map( function ( word ) {
-							return word[ 0 ].toUpperCase() + word.substring( 1 );
-						} )
-						.join( ' ' );
+		if ( globalStylesCSSDeclarations ) {
+			// Retrieve information about selected font family from serialized data
+			const fontFamilySlug = globalStylesCSSDeclarations.match(
+				/font-family: var\(--wp--preset--font-family--(.*?)(?=\);)/
+			);
+			const fontFamilyName =
+				fontFamilySlug &&
+				fontFamilySlug[ 1 ]
+					.split( '-' )
+					.map( function ( word ) {
+						return word[ 0 ].toUpperCase() + word.substring( 1 );
+					} )
+					.join( ' ' );
 
-				// Fetch google font files for selected font
-				if ( VALID_GOOGLE_FONTS.includes( fontFamilyName ) ) {
-					if ( ! cache.includes( fontFamilyName ) ) {
-						cache.push( fontFamilyName );
-						const encodedFontName = fontFamilyName.replace( ' ', '+' );
-						addGoogleFontStylesheet(
-							`https://fonts.googleapis.com/css?family=${ encodedFontName }:regular,bold,italic,bolditalic|`
-						);
-					}
+			// Fetch google font files for selected font
+			if ( VALID_GOOGLE_FONTS.includes( fontFamilyName ) ) {
+				if ( ! cache.includes( fontFamilyName ) ) {
+					cache.push( fontFamilyName );
+					const encodedFontName = fontFamilyName.replace( ' ', '+' );
+					addGoogleFontStylesheet(
+						`https://fonts.googleapis.com/css?family=${ encodedFontName }:regular,bold,italic,bolditalic|`
+					);
 				}
 			}
-		} );
+		}
 	} );
-} )( jQuery );
+} )();
