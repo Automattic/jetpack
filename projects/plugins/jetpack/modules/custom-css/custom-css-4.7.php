@@ -199,16 +199,23 @@ class Jetpack_Custom_CSS_Enhancements {
 	 */
 	public static function wp_custom_css_cb() {
 		$styles = wp_get_custom_css();
-		if ( strlen( $styles ) > 2000 && ! is_customize_preview() ) :
+		if ( ! $styles ) {
+			return;
+		}
+
+		$should_embed = strlen( $styles ) < 2000;
+		$should_embed = apply_filters( 'safecss_embed_style', $should_embed, $styles );
+
+		if ( $should_embed || is_customize_preview() ) : ?>
+			<style type="text/css" id="wp-custom-css">
+				<?php echo strip_tags( $styles ); // Note that esc_html() cannot be used because `div &gt; span` is not interpreted properly. ?>
+			</style>
+		<?php else:
 			// Add a cache buster to the url.
 			$url = home_url( '/' );
 			$url = add_query_arg( 'custom-css', substr( md5( $styles ), -10 ), $url );
 			?>
 			<link rel="stylesheet" type="text/css" id="wp-custom-css" href="<?php echo esc_url( $url ); ?>" />
-		<?php elseif ( $styles || is_customize_preview() ) : ?>
-			<style type="text/css" id="wp-custom-css">
-				<?php echo strip_tags( $styles ); // Note that esc_html() cannot be used because `div &gt; span` is not interpreted properly. ?>
-			</style>
 		<?php endif;
 	}
 
