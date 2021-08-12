@@ -17,8 +17,15 @@ $toggle-width: 48px;
 	}
 }
 
+.jp-form-search-settings-group__toggle {
+	&.is-instant-search {
+		margin-top: 3em;
+	}
+}
+
 .jp-form-search-settings-group__toggle_label {
 	font-size: 1.5em;
+	line-height: 1.5em;
 	font-weight: 600;
 	span {
 		font-weight: 400;
