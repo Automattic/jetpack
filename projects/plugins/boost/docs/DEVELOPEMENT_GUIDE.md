@@ -65,15 +65,14 @@ There are 2 different types of builds:
   By default the development build above will run once and if you change any of the JavaScript/CSS files, you need to run jetpack build again to see the changes on the site. If you want to avoid that, you can run a continuous build that will rebuild anytime it sees any changes on your local filesystem. To run it, use:
 
   ```sh
-jetpack watch plugins/boost
- ```
+  jetpack watch plugins/boost
+   ```
 
   Alternatively you can also use the [pnpm](https://pnpm.io/) `run` command inside the `projects/plugins/boost` directory:
 
   ```sh
   pnpm run dev
   ```
-
 
 - **Additional Note**
 
