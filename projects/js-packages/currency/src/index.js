@@ -7,12 +7,12 @@ import { sprintf } from '@wordpress/i18n';
 import { numberFormat } from '@woocommerce/number';
 import deprecated from '@wordpress/deprecated';
 
-const CurrencyFactory = function ( currencySetting ) {
+const CurrencyFactory = function (currencySetting) {
 	let currency;
 
-	setCurrency( currencySetting );
+	setCurrency(currencySetting);
 
-	function setCurrency( setting ) {
+	function setCurrency(setting) {
 		const defaultCurrency = {
 			code: 'USD',
 			symbol: '$',
@@ -27,14 +27,14 @@ const CurrencyFactory = function ( currencySetting ) {
 			symbol: config.symbol.toString(),
 			symbolPosition: config.symbolPosition.toString(),
 			decimalSeparator: config.decimalSeparator.toString(),
-			priceFormat: getPriceFormat( config ),
+			priceFormat: getPriceFormat(config),
 			thousandSeparator: config.thousandSeparator.toString(),
-			precision: parseInt( config.precision, 10 ),
+			precision: parseInt(config.precision, 10),
 		};
 	}
 
-	function stripTags( str ) {
-		const tmp = document.createElement( 'DIV' );
+	function stripTags(str) {
+		const tmp = document.createElement('DIV');
 		tmp.innerHTML = str;
 		return tmp.textContent || tmp.innerText || '';
 	}
@@ -45,17 +45,17 @@ const CurrencyFactory = function ( currencySetting ) {
 	 * @param   {number|string} number number to format
 	 * @return {?string} A formatted string.
 	 */
-	function formatAmount( number ) {
-		const formattedNumber = numberFormat( currency, number );
+	function formatAmount(number) {
+		const formattedNumber = numberFormat(currency, number);
 
-		if ( formattedNumber === '' ) {
+		if (formattedNumber === '') {
 			return formattedNumber;
 		}
 
 		const { priceFormat, symbol } = currency;
 
 		// eslint-disable-next-line @wordpress/valid-sprintf
-		return sprintf( priceFormat, symbol, formattedNumber );
+		return sprintf(priceFormat, symbol, formattedNumber);
 	}
 
 	/**
@@ -66,14 +66,14 @@ const CurrencyFactory = function ( currencySetting ) {
 	 * @param   {number|string} number number to format
 	 * @return {?string} A formatted string.
 	 */
-	function formatCurrency( number ) {
-		deprecated( 'Currency().formatCurrency', {
+	function formatCurrency(number) {
+		deprecated('Currency().formatCurrency', {
 			version: '5.0.0',
 			alternative: 'Currency().formatAmount',
 			plugin: 'WooCommerce',
 			hint: '`formatAmount` accepts the same arguments as formatCurrency',
-		} );
-		return formatAmount( number );
+		});
+		return formatAmount(number);
 	}
 
 	/**
@@ -82,12 +82,12 @@ const CurrencyFactory = function ( currencySetting ) {
 	 * @param {Object} config Currency configuration.
 	 * @return {string} Price format.
 	 */
-	function getPriceFormat( config ) {
-		if ( config.priceFormat ) {
-			return stripTags( config.priceFormat.toString() );
+	function getPriceFormat(config) {
+		if (config.priceFormat) {
+			return stripTags(config.priceFormat.toString());
 		}
 
-		switch ( config.symbolPosition ) {
+		switch (config.symbolPosition) {
 			case 'left':
 				return '%1$s%2$s';
 			case 'right':
@@ -109,21 +109,17 @@ const CurrencyFactory = function ( currencySetting ) {
 	 * @param {Object} currencySymbols Currency symbols by symbol code.
 	 * @return {Object} Formatted currency data for country.
 	 */
-	function getDataForCountry(
-		countryCode,
-		localeInfo = {},
-		currencySymbols = {}
-	) {
-		const countryInfo = localeInfo[ countryCode ] || {};
-		const symbol = currencySymbols[ countryInfo.currency_code ];
+	function getDataForCountry(countryCode, localeInfo = {}, currencySymbols = {}) {
+		const countryInfo = localeInfo[countryCode] || {};
+		const symbol = currencySymbols[countryInfo.currency_code];
 
-		if ( ! symbol ) {
+		if (!symbol) {
 			return {};
 		}
 
 		return {
 			code: countryInfo.currency_code,
-			symbol: decodeEntities( symbol ),
+			symbol: decodeEntities(symbol),
 			symbolPosition: countryInfo.currency_pos,
 			thousandSeparator: countryInfo.thousand_sep,
 			decimalSeparator: countryInfo.decimal_sep,
@@ -148,18 +144,15 @@ const CurrencyFactory = function ( currencySetting ) {
 		 * @param {number|string} number A floating point number (or integer), or string that converts to a number
 		 * @return {number} The original number rounded to a decimal point
 		 */
-		formatDecimal( number ) {
-			if ( typeof number !== 'number' ) {
-				number = parseFloat( number );
+		formatDecimal(number) {
+			if (typeof number !== 'number') {
+				number = parseFloat(number);
 			}
-			if ( Number.isNaN( number ) ) {
+			if (Number.isNaN(number)) {
 				return 0;
 			}
 			const { precision } = currency;
-			return (
-				Math.round( number * Math.pow( 10, precision ) ) /
-				Math.pow( 10, precision )
-			);
+			return Math.round(number * Math.pow(10, precision)) / Math.pow(10, precision);
 		},
 
 		/**
@@ -169,15 +162,15 @@ const CurrencyFactory = function ( currencySetting ) {
 		 * @param  {number|string} number A floating point number (or integer), or string that converts to a number
 		 * @return {string}               The original number rounded to a decimal point
 		 */
-		formatDecimalString( number ) {
-			if ( typeof number !== 'number' ) {
-				number = parseFloat( number );
+		formatDecimalString(number) {
+			if (typeof number !== 'number') {
+				number = parseFloat(number);
 			}
-			if ( Number.isNaN( number ) ) {
+			if (Number.isNaN(number)) {
 				return '';
 			}
 			const { precision } = currency;
-			return number.toFixed( precision );
+			return number.toFixed(precision);
 		},
 
 		/**
@@ -186,18 +179,14 @@ const CurrencyFactory = function ( currencySetting ) {
 		 * @param  {number|string} number A floating point number (or integer), or string that converts to a number
 		 * @return {Node|string} The number formatted as currency and rendered for display.
 		 */
-		render( number ) {
-			if ( typeof number !== 'number' ) {
-				number = parseFloat( number );
+		render(number) {
+			if (typeof number !== 'number') {
+				number = parseFloat(number);
 			}
-			if ( number < 0 ) {
-				return (
-					<span className="is-negative">
-						{ formatAmount( number ) }
-					</span>
-				);
+			if (number < 0) {
+				return <span className="is-negative">{formatAmount(number)}</span>;
 			}
-			return formatAmount( number );
+			return formatAmount(number);
 		},
 	};
 };
@@ -214,13 +203,12 @@ export default CurrencyFactory;
  * @return {Object} Curreny data.
  */
 export function getCurrencyData() {
-	deprecated( 'getCurrencyData', {
+	deprecated('getCurrencyData', {
 		version: '3.1.0',
 		alternative: 'CurrencyFactory.getDataForCountry',
 		plugin: 'WooCommerce Admin',
-		hint:
-			'Pass in the country, locale data, and symbol info to use getDataForCountry',
-	} );
+		hint: 'Pass in the country, locale data, and symbol info to use getDataForCountry',
+	});
 
 	// See https://github.com/woocommerce/woocommerce-admin/issues/3101.
 	return {

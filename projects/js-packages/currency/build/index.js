@@ -141,8 +141,7 @@ const CurrencyFactory = function (currencySetting) {
                 return 0;
             }
             const { precision } = currency;
-            return (Math.round(number * Math.pow(10, precision)) /
-                Math.pow(10, precision));
+            return Math.round(number * Math.pow(10, precision)) / Math.pow(10, precision);
         },
         /**
          * Get the string representation of a floating point number to the precision used by the current currency.
@@ -172,7 +171,7 @@ const CurrencyFactory = function (currencySetting) {
                 number = parseFloat(number);
             }
             if (number < 0) {
-                return (element_1.createElement("span", { className: "is-negative" }, formatAmount(number)));
+                return element_1.createElement("span", { className: "is-negative" }, formatAmount(number));
             }
             return formatAmount(number);
         },

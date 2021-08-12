@@ -14,7 +14,9 @@
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm install",
 			"pnpx nyc --report-dir=\"$COVERAGE_DIR\" pnpm run test"
-		]
+		],
+		"build-production": "pnpm run build",
+		"build-development": "pnpm run build"
 	},
 	"repositories": [
 		{

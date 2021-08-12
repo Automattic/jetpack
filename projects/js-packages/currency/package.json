@@ -21,11 +21,12 @@
 	"module": "build-module/index.js",
 	"react-native": "src/index",
 	"dependencies": {
-		"@woocommerce/number": "file:../number",
+		"@woocommerce/number": "workspace:*",
 		"@wordpress/deprecated": "^2.9.0",
 		"@wordpress/element": "2.19.0",
 		"@wordpress/html-entities": "2.10.0",
-		"@wordpress/i18n": "3.17.0"
+		"@wordpress/i18n": "3.17.0",
+		"typescript": "4.2.4"
 	},
 	"publishConfig": {
 		"access": "public"
