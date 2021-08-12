@@ -210,7 +210,7 @@ class Jetpack_Custom_CSS_Enhancements {
 			<style type="text/css" id="wp-custom-css">
 				<?php echo strip_tags( $styles ); // Note that esc_html() cannot be used because `div &gt; span` is not interpreted properly. ?>
 			</style>
-		<?php else:
+		<?php else :
 			// Add a cache buster to the url.
 			$url = home_url( '/' );
 			$url = add_query_arg( 'custom-css', substr( md5( $styles ), -10 ), $url );
