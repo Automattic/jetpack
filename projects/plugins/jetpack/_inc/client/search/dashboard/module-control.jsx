@@ -107,23 +107,27 @@ function Search( props ) {
 	const returnUrl = encodeURIComponent( siteAdminUrl + RETURN_PATH );
 	const renderInstantSearchButtons = () => {
 		return (
-			<div className="jp-form-search-settings-group__buttons">
-				<Button
-					className="jp-form-search-settings-group__button is-customize-search"
-					href={
-						! isInstantSearchCustomizeButtonDisabled && sprintf( SEARCH_CUSTOMIZE_URL, returnUrl )
-					}
-					disabled={ isInstantSearchCustomizeButtonDisabled }
-				>
-					{ __( 'Customize search results', 'jetpack' ) }
-				</Button>
-				<Button
-					className="jp-form-search-settings-group__button is-widgets-editor"
-					href={ ! isWidgetsEditorButtonDisabled && sprintf( WIDGETS_EDITOR_URL, returnUrl ) }
-					disabled={ isWidgetsEditorButtonDisabled }
-				>
-					{ __( 'Edit sidebar widgets', 'jetpack' ) }
-				</Button>
+			<div className="jp-search-dashboard-row">
+				<div className="lg-col-span-3 md-col-span-2 sm-col-span-1"></div>
+				<div className="lg-col-span-6 md-col-span-6 sm-col-span-3">
+					<Button
+						className="jp-form-search-settings-group__button is-customize-search"
+						href={
+							! isInstantSearchCustomizeButtonDisabled && sprintf( SEARCH_CUSTOMIZE_URL, returnUrl )
+						}
+						disabled={ isInstantSearchCustomizeButtonDisabled }
+					>
+						{ __( 'Customize search results', 'jetpack' ) }
+					</Button>
+					<Button
+						className="jp-form-search-settings-group__button is-widgets-editor"
+						href={ ! isWidgetsEditorButtonDisabled && sprintf( WIDGETS_EDITOR_URL, returnUrl ) }
+						disabled={ isWidgetsEditorButtonDisabled }
+					>
+						{ __( 'Edit sidebar widgets', 'jetpack' ) }
+					</Button>
+				</div>
+				<div className="lg-col-span-3 md-col-span-0 sm-col-span-0"></div>
 			</div>
 		);
 	};
@@ -191,7 +195,6 @@ function Search( props ) {
 										<p className="jp-form-search-settings-group__toggle-explanation">
 											{ INSTANT_SEARCH_DESCRIPTION }
 										</p>
-										{ renderInstantSearchButtons() }
 									</Fragment>
 								) }
 								{ ! props.hasActiveSearchPurchase && isInstantSearchPromotionActive && (
@@ -203,6 +206,7 @@ function Search( props ) {
 							</div>
 							<div className="lg-col-span-3 md-col-span-1 sm-col-span-0"></div>
 						</div>
+						{ props.hasActiveSearchPurchase && renderInstantSearchButtons() }
 					</div>
 				</div>
 			</Fragment>

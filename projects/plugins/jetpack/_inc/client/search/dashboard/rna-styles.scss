@@ -3,6 +3,7 @@
 .jp-search-dashboard-wrap {
 	display: flex;
 	align-items: center;
+	justify-content: center;
 	flex-wrap: wrap;
 	max-width: 1176px;
 	width: 100%;
@@ -13,18 +14,20 @@
 	display: grid;
 	grid-gap: 24px;
 	grid-template-columns: repeat( 4, 1fr );
-	width: 100%;
+	width: calc( 100% - 32px );
 	margin: 0 16px;
 	align-items: center;
 
 	@include for-phone-up {
 		grid-template-columns: repeat( 8, 1fr );
+		width: calc( 100% - 36px );
 		margin: 0 18px;
 	}
 
 	@include for-tablet-up {
 		grid-template-columns: repeat( 12, 1fr );
 		max-width: 1128px;
+		width: calc( 100% - 48px );
 		margin: 0 24px;
 	}
 
@@ -47,6 +50,12 @@
 			.lg-col-span-#{$i} {
 				grid-column-end: span #{$i};
 			}
+		}
+	}
+
+	@include for-tablet-up {
+		.lg-col-span-0 {
+			display: none;
 		}
 	}
 

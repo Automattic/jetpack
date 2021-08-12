@@ -43,17 +43,8 @@ p.jp-form-search-settings-group__toggle-explanation {
 	font-weight: 400;
 }
 
-.jp-form-search-settings-group__buttons {
-	display: flex;
-	flex-flow: row wrap;
-	justify-content: space-between;
-	margin-top: 1em;
-	width: 100%;
-	max-width: 450px;
-}
-
 .jp-form-search-settings-group__button {
-	width: 15em;
+	width: 100%;
 	margin: 0.25em;
 	text-align: center;
 	border-color: $color-button-background;
@@ -79,6 +70,9 @@ p.jp-form-search-settings-group__toggle-explanation {
 			color: $color-button-text-disabled;
 			background: transparent;
 		}
+	}
+	@include for-phone-up {
+		width: 40%;
 	}
 }
 .form-toggle.is-search-admin.is-compact {
