@@ -1,14 +1,12 @@
 <?php
 /**
- * Adds the widget 
+ * Adds the Jetpack stats widget to the WordPress dashboard.
  *
  * @package jetpack
  */
 
-use Automattic\Jetpack\Connection\Manager;
-use Automattic\Jetpack\Jetpack_CRM_Data;
-use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
+use Automattic\Jetpack\Status;
 
 jetpack_require_lib( 'plugins' );
 
@@ -25,26 +23,26 @@ class Jetpack_Stats_Dashboard_Widget {
 	private static $initialized = false;
 
 	/**
-	 * Initialize the class by registering the action
+	 * Initialize the class by calling the setup static function.
 	 *
 	 * @return void
 	 */
 	public static function init() {
 		if ( ! self::$initialized ) {
 			self::$initialized = true;
-			add_action( 'wp_dashboard_setup', array( __CLASS__, 'wp_dashboard_setup' ) );
+			self::wp_dashboard_setup();
 		}
 	}
 
-    public function wp_dashboard_setup() {
+	/**
+	 * Sets up the Jetpack Stats widget in the WordPress dashboard.
+	 */
+	public static function wp_dashboard_setup() {
+		if ( Jetpack::is_connection_ready() ) {
+			add_action( 'jetpack_dashboard_widget', array( __CLASS__, 'dashboard_widget_footer' ), 999 );
+		}
 
-		//if ( Jetpack::is_connection_ready() ) {
-            do_action( 'qm/debug', 'This worked' );
-            //add_action( 'jetpack_dashboard_widget', array( __CLASS__, 'dashboard_widget_footer' ), 999 );
-		//}
-
-/* 		
-        if ( has_action( 'jetpack_dashboard_widget' ) ) {
+		if ( has_action( 'jetpack_dashboard_widget' ) ) {
 			$jetpack_logo = new Jetpack_Logo();
 			$widget_title = sprintf(
 				// translators: Placeholder is a Jetpack logo.
@@ -75,25 +73,28 @@ class Jetpack_Stats_Dashboard_Widget {
 
 				$wp_meta_boxes['dashboard']['normal']['core'] = array_merge( $ours, $dashboard );
 			}
-		}*/
+		}
 	}
 
-    public static function dashboard_widget() {
-		/**
-		 * Fires when the dashboard is loaded.
-		 *
-		 * @since 3.4.0
-		 */
+	/**
+	 * Fires when the dashboard is loaded.
+	 *
+	 * @since 3.4.0
+	 */
+	public static function dashboard_widget() {
 		do_action( 'jetpack_dashboard_widget' );
 	}
 
+	/**
+	 * Load the widget footer showing Akismet stats.
+	 */
 	public static function dashboard_widget_footer() {
 		?>
 		<footer>
 
 		<div class="protect">
 			<h3><?php esc_html_e( 'Brute force attack protection', 'jetpack' ); ?></h3>
-			<?php if ( self::is_module_active( 'protect' ) ) : ?>
+			<?php if ( Jetpack::is_module_active( 'protect' ) ) : ?>
 				<p class="blocked-count">
 					<?php echo number_format_i18n( get_site_option( 'jetpack_protect_blocked_attempts', 0 ) ); ?>
 				</p>
@@ -103,7 +104,7 @@ class Jetpack_Stats_Dashboard_Widget {
 				<?php
 				echo esc_url(
 					wp_nonce_url(
-						self::admin_url(
+						Jetpack::admin_url(
 							array(
 								'action' => 'activate',
 								'module' => 'protect',

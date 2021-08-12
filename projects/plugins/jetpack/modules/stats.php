@@ -70,8 +70,9 @@ function stats_load() {
 
 }
 
-function wp_dashboad_widget() {
-	do_action( 'qm/debug', 'First area' );
+function wp_dashboard_widget() {
+	require_once __DIR__ . '/stats/class-jetpack-stats-dashboard-widget.php';
+	Jetpack_Stats_Dashboard_Widget::init();
 }
 /**
  * Delay conditional for current_user_can to after init.
