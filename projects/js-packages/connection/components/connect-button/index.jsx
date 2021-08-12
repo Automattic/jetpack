@@ -5,11 +5,11 @@ import React, { useEffect, useCallback, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
 import PropTypes from 'prop-types';
+import restApi from '@automattic/jetpack-api';
 
 /**
  * Internal dependencies
  */
-import restApi from '../../tools/jetpack-rest-api-client';
 import ConnectUser from '../connect-user';
 import './style.scss';
 
@@ -25,7 +25,6 @@ import './style.scss';
  * @param {string} props.redirectUri -- The redirect admin URI.
  * @param {string} props.from -- Where the connection request is coming from.
  * @param {Function} props.statusCallback -- Callback to pull connection status from the component.
- *
  * @returns {React.Component} The RNA connection component.
  */
 const ConnectButton = props => {

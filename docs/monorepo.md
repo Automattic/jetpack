@@ -288,3 +288,17 @@ Comment: Update composer.lock, no need for a changelog entry
 The “Linting / Changelogger validity” GitHub Actions check will help in making sure that all these version numbers are in sync with the version inferred from the changelog and change files. You can also check this locally with `tools/changelogger-validate-all.sh`.
 
 Within a single project, changlogger’s `version next` command can tell you the next version, and the monorepo script `tools/project-version.sh` can be used to check and update the version numbers.
+
+## New Projects
+
+### Creating a new Composer Package
+
+To add a Composer package:
+* For Automatticians, drop us a line in #jetpack-crew to discuss your needs, just to be sure we don't have something already.
+* Use the `jetpack generate package` command to create a skeleton project.
+* Create your package and submit a PR as usual.
+
+Once reviewed and approved, the Crew team does the following:
+* Creates a GitHub repo in the Automattic repo to be the mirror repo for this project, if not done already.
+* Creates a new Packagist package on packagist.org under the Automattic org. @jeherve, @dsmart, and @kraftbj are added as maintainers of all Jetpack monorepo packages.
+* In the Packagist project, configure the new package to use the Github webhook of the mirror repo to listen for updates and new versions.

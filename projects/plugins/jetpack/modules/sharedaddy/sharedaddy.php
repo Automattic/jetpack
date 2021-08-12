@@ -241,14 +241,20 @@ function sharing_disable_js() {
 
 function sharing_global_resources() {
 	$disable = get_option( 'sharedaddy_disable_resources' );
-?>
+	?>
 <tr valign="top">
-	<th scope="row"><label for="disable_css"><?php _e( 'Disable CSS and JS', 'jetpack' ); ?></label></th>
+	<th scope="row"><label for="disable_css"><?php esc_html_e( 'Disable CSS and JS', 'jetpack' ); ?></label></th>
 	<td>
-		<input id="disable_css" type="checkbox" name="disable_resources" <?php if ( $disable == 1 ) echo ' checked="checked"'; ?>/>  <small><em><?php _e( 'Advanced.  If this option is checked, you must include these files in your theme manually for the sharing links to work.', 'jetpack' ); ?></em></small>
+		<?php
+		printf(
+			'<input id="disable_css" type="checkbox" name="disable_resources"%1$s />  <small><em>%2$s</em></small>',
+			( 1 == $disable ) ? ' checked="checked"' : '', // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+			esc_html__( 'Advanced. If this option is checked, you must include these files in your theme manually for the sharing links to work.', 'jetpack' )
+		);
+		?>
 	</td>
 </tr>
-<?php
+	<?php
 }
 
 function sharing_global_resources_save() {

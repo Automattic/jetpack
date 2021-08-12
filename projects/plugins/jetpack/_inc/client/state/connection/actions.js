@@ -28,7 +28,7 @@ import {
 	SITE_RECONNECT_FAIL,
 	SITE_RECONNECT_SUCCESS,
 } from 'state/action-types';
-import restApi from 'rest-api';
+import restApi from '@automattic/jetpack-api';
 import { isSafari, doNotUseConnectionIframe } from 'state/initial-state';
 import { isReconnectingSite } from 'state/connection/reducer';
 

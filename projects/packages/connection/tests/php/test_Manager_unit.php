@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\TestCase;
+use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
 use WP_Error;
 
@@ -40,7 +41,7 @@ class ManagerTest extends TestCase {
 	 */
 	public function set_up() {
 		$this->manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
-			->setMethods( array( 'get_tokens', 'get_connection_owner_id', 'unlink_user_from_wpcom', 'update_connection_owner_wpcom' ) )
+			->setMethods( array( 'get_tokens', 'get_connection_owner_id', 'unlink_user_from_wpcom', 'update_connection_owner_wpcom', 'disconnect_site_wpcom' ) )
 			->getMock();
 
 		$this->tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
@@ -66,6 +67,7 @@ class ManagerTest extends TestCase {
 	public function tear_down() {
 		wp_set_current_user( 0 );
 		WorDBless_Users::init()->clear_all_users();
+		WorDBless_Options::init()->clear_options();
 		unset( $this->manager );
 		unset( $this->tokens );
 		Constants::clear_constants();
@@ -550,6 +552,29 @@ class ManagerTest extends TestCase {
 		$result = $this->manager->update_connection_owner( $admin_id );
 
 		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Test disconnecting the site will remove tracked package verions.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::test_disconnect_site
+	 */
+	public function test_disconnect_site_will_remove_tracked_package_versions() {
+		$this->manager->method( 'disconnect_site_wpcom' )
+			->willReturn( true );
+
+		$existing_tracked_versions = array(
+			'connection' => '1.0',
+			'backup'     => '2.0',
+			'sync'       => '3.0',
+		);
+		update_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION, $existing_tracked_versions );
+
+		$this->manager->disconnect_site();
+
+		$tracked_versions_after_disconnect = get_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION );
+
+		$this->assertFalse( $tracked_versions_after_disconnect );
 	}
 
 	/**

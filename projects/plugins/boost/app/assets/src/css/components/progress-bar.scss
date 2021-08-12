@@ -1,0 +1,23 @@
+.jb-critical-css-progress__label {
+	color: $gray_40;
+	margin-bottom: 1em;
+	display: block;
+	font-size: 14px;
+	line-height: 20px;
+}
+
+// Basic Progress Bar styling.
+.jb-progress-bar {
+	height: 20px;
+	border-radius: 50px;
+	background-color: #f1f1f1;
+
+	&__filler {
+		height: 100%;
+		width: 0%;
+		will-change: width;
+		transition: width 700ms ease-in-out;
+		border-radius: 50px;
+		background-color: #069E08;
+	}
+}
