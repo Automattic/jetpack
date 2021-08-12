@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Use version GET parameter when loading Critical CSS lib to ensure cache busted on upgrade
