@@ -29,7 +29,7 @@
 	"scripts": {
 		"clean": "tsc --build ./tsconfig.json ./tsconfig-cjs.json --clean && npx rimraf dist",
 		"build": "tsc --build ./tsconfig.json ./tsconfig-cjs.json",
-		"start": "tsc --build --watch",
+		"watch": "tsc --build ./tsconfig.json ./tsconfig-cjs.json --watch",
 		"prepack": "npm run clean && npm run build",
 		"test": "lerna run build && npm run test:nobuild",
 		"test:nobuild": "jest --config ./jest.config.json",

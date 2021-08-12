@@ -237,7 +237,7 @@
         "affectsGlobalScope": false
       },
       "./src/index.js": {
-        "version": "676142a30944dc7130e63c1465bd3c239a1909b0cbede7656bed03abb4fd5dd7",
+        "version": "b57d485836f6993ed8e0990b60df6bb8c8371f7355775129840cfe946e5746a1",
         "signature": "ddbe6a915d3e5b88b612f057c23fc5ccd3262ff007c95885f089b22a9a5405e9",
         "affectsGlobalScope": false
       }
@@ -256,6 +256,7 @@
       "incremental": true,
       "rootDir": "./src",
       "outDir": "./build-module",
+      "watch": true,
       "configFilePath": "./tsconfig.json"
     },
     "referencedMap": {},

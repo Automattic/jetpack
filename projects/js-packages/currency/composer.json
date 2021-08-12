@@ -16,7 +16,8 @@
 			"pnpx nyc --report-dir=\"$COVERAGE_DIR\" pnpm run test"
 		],
 		"build-production": "pnpm run build",
-		"build-development": "pnpm run build"
+		"build-development": "pnpm run build",
+		"watch": "pnpm run watch"
 	},
 	"repositories": [
 		{
