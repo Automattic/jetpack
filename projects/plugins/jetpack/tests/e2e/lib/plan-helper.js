@@ -336,10 +336,10 @@ function getPlan( type ) {
 							'jetpack_premium_monthly',
 							'jetpack_business_monthly',
 							'jetpack_personal_monthly',
-							'jetpack_security',
-							'jetpack_security_monthly',
-							'jetpack_security_pro',
-							'jetpack_security_pro_monthly',
+							'jetpack_security_t1_yearly',
+							'jetpack_security_t1_monthly',
+							'jetpack_security_t2_yearly',
+							'jetpack_security_t2_monthly',
 							'jetpack_complete_monthly',
 							// DEPRECATED: Daily and Real-time variations will soon be retired.
 							// Remove after all customers are migrated to new products.
@@ -356,10 +356,10 @@ function getPlan( type ) {
 							'jetpack_premium_monthly',
 							'jetpack_business_monthly',
 							'jetpack_personal_monthly',
-							'jetpack_security',
-							'jetpack_security_monthly',
-							'jetpack_security_pro',
-							'jetpack_security_pro_monthly',
+							'jetpack_security_t1_yearly',
+							'jetpack_security_t1_monthly',
+							'jetpack_security_t2_yearly',
+							'jetpack_security_t2_monthly',
 							'jetpack_complete_monthly',
 							// DEPRECATED: Daily and Real-time variations will soon be retired.
 							// Remove after all customers are migrated to new products.
@@ -376,10 +376,10 @@ function getPlan( type ) {
 							'jetpack_premium_monthly',
 							'jetpack_business_monthly',
 							'jetpack_personal_monthly',
-							'jetpack_security',
-							'jetpack_security_monthly',
-							'jetpack_security_pro',
-							'jetpack_security_pro_monthly',
+							'jetpack_security_t1_yearly',
+							'jetpack_security_t1_monthly',
+							'jetpack_security_t2_yearly',
+							'jetpack_security_t2_monthly',
 							'jetpack_complete_monthly',
 							// DEPRECATED: Daily and Real-time variations will soon be retired.
 							// Remove after all customers are migrated to new products.
@@ -437,10 +437,10 @@ function getPlan( type ) {
 							'jetpack_premium_monthly',
 							'jetpack_business_monthly',
 							'jetpack_personal_monthly',
-							'jetpack_security',
-							'jetpack_security_monthly',
-							'jetpack_security_pro',
-							'jetpack_security_pro_monthly',
+							'jetpack_security_t1_yearly',
+							'jetpack_security_t1_monthly',
+							'jetpack_security_t2_yearly',
+							'jetpack_security_t2_monthly',
 							'jetpack_complete_monthly',
 							// DEPRECATED: Daily and Real-time variations will soon be retired.
 							// Remove after all customers are migrated to new products.
@@ -468,10 +468,10 @@ function getPlan( type ) {
 							'jetpack_premium_monthly',
 							'jetpack_business_monthly',
 							'jetpack_personal_monthly',
-							'jetpack_security',
-							'jetpack_security_monthly',
-							'jetpack_security_pro',
-							'jetpack_security_pro_monthly',
+							'jetpack_security_t1_yearly',
+							'jetpack_security_t1_monthly',
+							'jetpack_security_t2_yearly',
+							'jetpack_security_t2_monthly',
 							'jetpack_complete_monthly',
 							// DEPRECATED: Daily and Real-time variations will soon be retired.
 							// Remove after all customers are migrated to new products.
@@ -487,10 +487,10 @@ function getPlan( type ) {
 							'jetpack_premium_monthly',
 							'jetpack_business_monthly',
 							'jetpack_personal_monthly',
-							'jetpack_security',
-							'jetpack_security_monthly',
-							'jetpack_security_pro',
-							'jetpack_security_pro_monthly',
+							'jetpack_security_t1_yearly',
+							'jetpack_security_t1_monthly',
+							'jetpack_security_t2_yearly',
+							'jetpack_security_t2_monthly',
 							'jetpack_complete_monthly',
 							// DEPRECATED: Daily and Real-time variations will soon be retired.
 							// Remove after all customers are migrated to new products.
@@ -506,10 +506,10 @@ function getPlan( type ) {
 							'jetpack_premium_monthly',
 							'jetpack_business_monthly',
 							'jetpack_personal_monthly',
-							'jetpack_security',
-							'jetpack_security_monthly',
-							'jetpack_security_pro',
-							'jetpack_security_pro_monthly',
+							'jetpack_security_t1_yearly',
+							'jetpack_security_t1_monthly',
+							'jetpack_security_t2_yearly',
+							'jetpack_security_t2_monthly',
 							'jetpack_complete_monthly',
 							// DEPRECATED: Daily and Real-time variations will soon be retired.
 							// Remove after all customers are migrated to new products.

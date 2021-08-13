@@ -80,8 +80,8 @@ class MyPlanBody extends React.Component {
 			[
 				'is-premium-plan',
 				'is-business-plan',
-				'is-security-plan',
-				'is-security-pro-plan',
+				'is-security-t1-plan',
+				'is-security-t2-plan',
 				'is-complete-plan',
 
 				// DEPRECATED: Daily and Real-time variations will soon be retired.
@@ -237,8 +237,8 @@ class MyPlanBody extends React.Component {
 
 		if (
 			[
-				'is-backup-plan',
-				'is-backup-pro-plan',
+				'is-backup-t1-plan',
+				'is-backup-t2-plan',
 
 				// DEPRECATED: Daily and Real-time variations will soon be retired.
 				// Remove after all customers are migrated to new products.
@@ -288,8 +288,8 @@ class MyPlanBody extends React.Component {
 		switch ( planClass ) {
 			case 'is-personal-plan':
 			case 'is-premium-plan':
-			case 'is-security-plan':
-			case 'is-security-pro-plan':
+			case 'is-security-t1-plan':
+			case 'is-security-t2-plan':
 			case 'is-business-plan':
 			case 'is-complete-plan':
 			// DEPRECATED: Daily and Real-time variations will soon be retired.
@@ -564,8 +564,8 @@ class MyPlanBody extends React.Component {
 				break;
 
 			case 'is-free-plan':
-			case 'is-backup-plan':
-			case 'is-backup-pro-plan':
+			case 'is-backup-t1-plan':
+			case 'is-backup-t2-plan':
 			case 'is-search-plan':
 			case 'offline':
 			// DEPRECATED: Daily and Real-time variations will soon be retired.
