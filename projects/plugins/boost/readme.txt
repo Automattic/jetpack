@@ -3,9 +3,9 @@ Contributors: automattic, xwp, thingalon, pyronaur, davidlonjon, danwalmsley, lu
 Donate link: https://automattic.com
 Tags: performance, speed, pagespeed, web vitals, critical css, optimize, defer
 Requires at least: 5.5
-Tested up to: 5.7
+Tested up to: 5.8
 Requires PHP: 7.0
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -165,52 +165,18 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 1. Manage your Jetpack Boost settings
 
 == Changelog ==
+### 1.2.0 - 2021-08-12
+#### Added
+- Critical CSS: Added a new Advanced Critical CSS recommendations page.
 
-= 1.1.0 =
-* Update: User connection is no longer required for Speed Scores.
-* Update: Completely revamped how site speed scores are retreived.
-* Update: Reduced backend dashboard JavaScript bundle size.
-* Update: Added a message to explain how site score is calculated.
-* Update: Added "Offline Mode" to allow testing Jetpack Boost on local environments easily.
-* Update: Improved error handling and the error messages provided.
-* Update: Improved Critical CSS Generation stability.
-* Update: Remove animations from Critical CSS.
-* Fix: Incompatibility with UsersWP and similar plugins that might introduce redirects during Critical CSS Generation.
+#### Changed
+- Critical CSS: Updated error reporting for Critical CSS to offer more users more guidance.
+- Tooling: Moved all development to the Jetpack monorepo.
+- Boost is now compatible with WordPress 5.8.
 
-= 1.0.6 =
-* Fix: Failed to execute 'json' errors
-* Fix: Connection UI Border issues
-* Update: Improve Jetpack compatibility
-* Update: Improve Critical CSS Compatibility with caching and minification plugins
-* Update: Clean up JavaScript dependencies
+#### Fixed
+- Tooling: Fix PHP unit testing dependency on later versions of PHP.
+- Critical CSS: Ensure generator library uses cache-busting to load the latest version after updates.
+--------
 
-= 1.0.5 =
-* Fixed: Defer JavaScript compatibility with XML Requests
-
-= 1.0.4 =
-* Fixed: Web Stories compatibility
-* Improved: "Defer Non-Essential Javascript" module compatibility with other plugins
-
-= 1.0.3 =
-* Updated: Support for AMP Plugin 2.0+
-* Updated: No longer defer JavaScript on POST, AJAX, Cron requests and sitemaps.
-
-= 1.0.2 =
-* Improved: HTML Media tag handling
-* Fixed: Metrics timeout caused by caching in the REST API
-
-= 1.0.1 =
-* Fixed: An issue where the connection iframe would sometimes break
-* Updated: On connection: showing an XML RPC Error instead of HTTP 500 when XML-RPC is disabled
-
-= 1.0.0 =
-- This update brings a lot of stability improvements.
-- We've been hard at work to get here and Jetpack Boost v1.0.0 is finally here! 🎉
-
-= 0.9.19 =
-
-- We've refactored the plugin quite a bit, starting from the UI to stability fixes.
-
-= 0.9.1 =
-
-- First public alpha release
+[See the previous changelogs here](https://github.com/Automattic/jetpack/blob/master/projects/plugins/boost/CHANGELOG.md#changelog) 

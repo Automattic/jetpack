@@ -312,9 +312,7 @@ class Admin_Menu extends Base_Admin_Menu {
 		// TODO: Remove Colors_Manager::modify_header_menu_links() and Colors_Manager_Common::modify_header_menu_links().
 		$default_customize_background_slug_2 = add_query_arg( array( 'autofocus' => array( 'section' => 'colors_manager_tool' ) ), admin_url( 'customize.php' ) );
 
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'customize.php' ) ) {
-			$customize_url = 'https://wordpress.com/customize/' . $this->domain;
-		} elseif ( $this->is_api_request ) {
+		if ( $this->is_api_request ) {
 			// In case this is an api request we will have to add the 'return' querystring via JS.
 			$customize_url = 'customize.php';
 		} else {
@@ -327,16 +325,13 @@ class Admin_Menu extends Base_Admin_Menu {
 			$default_customize_header_slug_2     => add_query_arg( array( 'autofocus' => array( 'control' => 'header_image' ) ), $customize_url ),
 			$default_customize_background_slug_1 => add_query_arg( array( 'autofocus' => array( 'section' => 'colors_manager_tool' ) ), $customize_url ),
 			$default_customize_background_slug_2 => add_query_arg( array( 'autofocus' => array( 'section' => 'colors_manager_tool' ) ), $customize_url ),
+			'widgets.php'                        => add_query_arg( array( 'autofocus' => array( 'panel' => 'widgets' ) ), $customize_url ),
+			'gutenberg-widgets'                  => add_query_arg( array( 'autofocus' => array( 'panel' => 'widgets' ) ), $customize_url ),
+			'nav-menus.php'                      => add_query_arg( array( 'autofocus' => array( 'panel' => 'nav_menus' ) ), $customize_url ),
 		);
 
 		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'themes.php' ) ) {
 			$submenus_to_update['themes.php'] = 'https://wordpress.com/themes/' . $this->domain;
-		}
-
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'customize.php' ) ) {
-			$submenus_to_update['widgets.php']       = add_query_arg( array( 'autofocus' => array( 'panel' => 'widgets' ) ), $customize_url );
-			$submenus_to_update['gutenberg-widgets'] = add_query_arg( array( 'autofocus' => array( 'panel' => 'widgets' ) ), $customize_url );
-			$submenus_to_update['nav-menus.php']     = add_query_arg( array( 'autofocus' => array( 'panel' => 'nav_menus' ) ), $customize_url );
 		}
 
 		$this->update_submenus( 'themes.php', $submenus_to_update );

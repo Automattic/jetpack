@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Add Watch command in Composer to allow Jetpack watch CLI command working for Boost
