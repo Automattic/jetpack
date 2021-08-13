@@ -31,6 +31,7 @@ export const getVideoPressUrl = (
 	// - Poster: No image by default.
 	// - Preload: None by default.
 	const options = {
+		resizeToParent: true,
 		...( autoplay && { autoPlay: true } ),
 		...( ! controls && { controls: false } ),
 		...( loop && { loop: true } ),

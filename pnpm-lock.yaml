@@ -761,7 +761,7 @@ importers:
 
   tools/js-tools:
     specifiers:
-      '@automattic/eslint-changed': workspace:1.0.1-alpha
+      '@automattic/eslint-changed': workspace:1.0.1
       '@babel/core': 7.14.6
       '@babel/eslint-parser': 7.14.5
       '@octokit/auth-token': 2.4.5
@@ -1686,7 +1686,6 @@ packages:
   /@babel/helper-validator-identifier/7.14.5:
     resolution: {integrity: sha512-5lsetuxCLilmVGyiLEfoHBRX8UCFD+1m2x3Rj97WrW3V7H3u4RWRXA4evMjImCsin2J2YT0QaVDGf+z8ondbAg==}
     engines: {node: '>=6.9.0'}
-    dev: true
 
   /@babel/helper-validator-identifier/7.14.8:
     resolution: {integrity: sha512-ZGy6/XQjllhYQrNw/3zfWRwZCTVSiBLZ9DHVZxn9n2gip/7ab8mv2TWlKPIBk26RwedCBoWdjLmn+t9na2Gcow==}
@@ -20246,7 +20245,7 @@ packages:
       find-cache-dir: 2.1.0
       is-wsl: 1.1.0
       schema-utils: 1.0.0
-      serialize-javascript: 4.0.0
+      serialize-javascript: 5.0.1
       source-map: 0.6.1
       terser: 4.8.0
       webpack: 4.45.0
@@ -20264,7 +20263,7 @@ packages:
       find-cache-dir: 2.1.0
       is-wsl: 1.1.0
       schema-utils: 1.0.0
-      serialize-javascript: 4.0.0
+      serialize-javascript: 5.0.1
       source-map: 0.6.1
       terser: 4.8.0
       webpack: 4.46.0_webpack-cli@4.5.0

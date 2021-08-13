@@ -10,7 +10,7 @@
 		"sort-package-json": "sort-package-json"
 	},
 	"devDependencies": {
-		"@automattic/eslint-changed": "workspace:1.0.1-alpha",
+		"@automattic/eslint-changed": "workspace:1.0.1",
 		"@babel/core": "7.14.6",
 		"@babel/eslint-parser": "7.14.5",
 		"@octokit/auth-token": "2.4.5",
