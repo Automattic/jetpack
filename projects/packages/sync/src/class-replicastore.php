@@ -17,6 +17,14 @@ use WP_Error;
  */
 class Replicastore implements Replicastore_Interface {
 	/**
+	 * On WordPress.com, we can't directly check if the site has support for WooCommerce.
+	 * Having the option to override the functionality here helps with syncing WooCommerce tables.
+	 *
+	 * @var bool Force support for WooCommerce functionality.
+	 */
+	public static $force_woocommerce_support = false;
+
+	/**
 	 * Empty and reset the replicastore.
 	 *
 	 * @access public
@@ -1195,7 +1203,7 @@ class Replicastore implements Replicastore_Interface {
 		/**
 		 * WooCommerce tables
 		 */
-		if ( class_exists( 'WooCommerce' ) ) {
+		if ( static::$force_woocommerce_support || class_exists( 'WooCommerce' ) ) {
 			/**
 			 * Guard in Try/Catch as it's possible for the WooCommerce class to exist, but
 			 * the tables to not. If we don't do this, the response will be just the exception, without
