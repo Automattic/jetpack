@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Dashboard: ensure that the image CDN does not get enabled by default when using the Site Accelerator toggle while in Offline mode.

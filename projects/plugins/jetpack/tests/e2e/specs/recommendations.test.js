@@ -1,5 +1,6 @@
 import RecommendationsPage from '../lib/pages/wp-admin/recommendations';
 import { testStep } from '../lib/reporters/reporter';
+import { prerequisitesBuilder } from '../lib/env/prerequisites';
 
 /**
  *
@@ -7,6 +8,10 @@ import { testStep } from '../lib/reporters/reporter';
  * @group recommendations
  */
 describe( 'Recommendations (Jetpack Assistant)', () => {
+	beforeAll( async () => {
+		await prerequisitesBuilder().withConnection( true ).build();
+	} );
+
 	it( 'Recommendations (Jetpack Assistant)', async () => {
 		let recommendationsPage;
 

@@ -1308,8 +1308,10 @@ function stats_dashboard_widget_content() {
 				<p>
 				<?php
 				printf(
-					/* Translators: Stats dashboard widget postviews list: "$post_title $views Views". */
-					esc_html__( '%1$s %2$s Views', 'jetpack' ),
+					esc_html(
+						/* Translators: Stats dashboard widget Post list with view count: "Post Title 1 View (or Views if plural)". */
+						_n( '%1$s %2$s View', '%1$s %2$s Views', $post['views'], 'jetpack' )
+					),
 					'<a href="' . esc_url( get_permalink( $post['post_id'] ) ) . '">' . esc_html( get_the_title( $post['post_id'] ) ) . '</a>',
 					esc_html( number_format_i18n( $post['views'] ) )
 				);
