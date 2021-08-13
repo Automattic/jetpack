@@ -25,7 +25,8 @@ const renderImage = ( img, i, images ) => {
 	);
 	// const Image = isSave ? GalleryImageSave : GalleryImageEdit;
 
-	const { src, srcSet } = photonizedImgProps( img, {} );
+	// const { src, srcSet } = photonizedImgProps( img, {} );
+	const src = img.url;
 
 	return <Image url={ src } width={ img.width } />;
 };
