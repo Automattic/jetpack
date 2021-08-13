@@ -73,7 +73,7 @@ describe( 'Paid blocks', () => {
 		await testStep(
 			'Publish a post and assert that Pay with PayPal block is rendered',
 			async () => {
-				await blockEditor.selectPostTitle();
+				await blockEditor.setTitle( 'Pay with PayPal block' );
 				await blockEditor.publishPost();
 				await blockEditor.viewPost();
 				const frontend = await PostFrontendPage.init( page );
