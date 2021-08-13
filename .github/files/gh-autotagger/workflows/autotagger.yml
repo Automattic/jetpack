@@ -12,7 +12,7 @@ jobs:
       - name: Check that the secret is set
         env:
           TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
-        run:
+        run: |
           if [[ -z "$TOKEN" ]]; then
             echo '::error::The secret API_TOKEN_GITHUB must be set.'
             exit 1
