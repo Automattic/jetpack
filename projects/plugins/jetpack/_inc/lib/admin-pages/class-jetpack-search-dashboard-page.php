@@ -42,7 +42,8 @@ class Jetpack_Search_Dashboard_Page extends Jetpack_Admin_Page {
 			return;
 		}
 		return add_submenu_page(
-			'jetpack',
+			// change this to 'jetpack' on launch.
+			null,
 			__( 'Search Settings', 'jetpack' ),
 			__( 'Search', 'jetpack' ),
 			'manage_options',
