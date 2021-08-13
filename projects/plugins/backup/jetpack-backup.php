@@ -39,24 +39,50 @@ define( 'JETPACK_BACKUP_PLUGIN_ROOT_FILE', __FILE__ );
 define( 'JETPACK_BACKUP_PLUGIN_SLUG', 'jetpack-backup' );
 define( 'JETPACK_BACKUP_PLUGIN_NAME', 'Jetpack Backup' );
 define( 'JETPACK_BACKUP_PLUGIN_URI', 'https://jetpack.com/jetpack-backup' );
+define( 'JETPACK_BACKUP_REQUIRED_JETPACK_VERSION', '10.0.0' );
 
-// Require Jetpack 10+, if Jetpack is installed.
-if ( defined( 'JETPACK__VERSION' ) && version_compare( '10.0.0', JETPACK__VERSION, '>=' ) ) {
+/**
+ * Checks if Jetpack is installed and if yes, require version 10+
+ * Can be extended to check for various system requiremens, such as WP or PHP version.
+ *
+ * @return bool|WP_Error True if system requirements are met, WP_Error if not.
+ */
+function jetpack_backup_requirements_check() {
+	require_once ABSPATH . '/wp-admin/includes/plugin.php'; // to get is_plugin_active() early.
+
+	if ( ! is_plugin_active( 'jetpack/jetpack.php' ) ) {
+		return true;
+	}
+
+	$jetpack_plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/jetpack/jetpack.php', false, false );
+
+	if ( version_compare( $jetpack_plugin_data['Version'], JETPACK_BACKUP_REQUIRED_JETPACK_VERSION, '<' ) ) {
+		return new WP_Error(
+			'incompatible_jetpack_version',
+			__( 'The Jetpack Backup plugin requires version 10 or higher of the Jetpack plugin. Please update your Jetpack plugin to continue.', 'jetpack-backup' )
+		);
+	}
+	return true;
+}
+
+$jetpack_backup_meets_requirements = jetpack_backup_requirements_check();
+if ( is_wp_error( $jetpack_backup_meets_requirements ) ) {
 	add_action(
 		'admin_notices',
-		function () {
+		function () use ( $jetpack_backup_meets_requirements ) {
 			?>
 		<div class="notice notice-error is-dismissible">
 			<p>
 				<?php
-				esc_html_e( 'The Jetpack Backup plugin requires version 10 or higher of the Jetpack plugin. Please update your Jetpack plugin to continue.', 'jetpack-backup' );
+				echo esc_html( $jetpack_backup_meets_requirements->get_error_message() );
 				?>
 			</p>
 		</div>
 			<?php
 		}
 	);
-	exit;
+
+	return;
 }
 
 // Jetpack Autoloader.
@@ -79,7 +105,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 				<?php
 				printf(
 					wp_kses(
-					/* translators: Placeholder is a link to a support document. */
+						/* translators: Placeholder is a link to a support document. */
 						__( 'Your installation of Jetpack Backup is incomplete. If you installed Jetpack Backup from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack Backup must have Composer dependencies installed and built via the build command.', 'jetpack-backup' ),
 						array(
 							'a' => array(
@@ -98,7 +124,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 		}
 	);
 
-	exit;
+	return;
 }
 
 // Main plugin class.
