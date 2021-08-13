@@ -110,27 +110,11 @@ Daily backups will take place approximately 24 hours from the previous backup. T
 
 You’ll know your WordPress backup has been created if you see a **Backup complete** event in the activity log.
 
-= Can I use Jetpack Backup to migrate my website to a different host? =
-
-Yes! Jetpack Backup is also a WordPress migration plugin, so you can migrate your site to a new WordPress install on any server. This is helpful if you decide to move to a new host. For more details, visit [the support page.](https://jetpack.com/support/cloning/)
-
 = Don’t see your WordPress backup in the activity log? =
 
 If you notice that backups are not being saved yet, update your [site credentials](https://jetpack.com/support/ssh-sftp-and-ftp-credentials/). Go to **Manage > Settings > Jetpack**. You should see a form that allows you to add your site credentials.
 
 If Jetpack cannot make contact with your site and it’s not able to create backups, you’ll receive an email after two failed attempts.
-
-= Can Jetpack Backup be used to migrate to a different address? = 
-
-Yes, just enter the server credentials for the new site address. These are the credentials that Jetpack will use to clone your site from your current host to your new host. If you’re confused about what these credentials are, how they work, or why we need them, you can read more about that in our [SSH](https://jetpack.com/support/ssh-sftp-and-ftp-credentials/), [SFTP](https://jetpack.com/support/ssh-sftp-and-ftp-credentials/), [FTP Credentials guide.](https://jetpack.com/support/ssh-sftp-and-ftp-credentials/)
- 
-= Does Jetpack Backup take care of all the path changes with an address migration? = 
-
-Yes. Jetpack Backup is a WordPress migration plugin, so just enter the destination WordPress path. This is the path in which your site’s files are stored relative to where the SSH, SFTP or FTP user has access. For more details, visit [the support page.](https://jetpack.com/support/cloning/)
-
-= Can I clone my website with Jetpack Backup? = 
-
-Yes! Jetpack Backup lets you copy your site to any server. This is helpful if you want to create a copy of your site on your current server to use for testing and development. For more details, visit [the support page.](https://jetpack.com/support/cloning/)
 
 = Can I use Jetpack to back up my WordPress database? =
 
