@@ -1,4 +1,9 @@
 <?php
+/**
+ * Adds support for google fonts in global styles in the site editor and fronten
+ *
+ * @package automattic/jetpack
+ **/
 
 /**
  * List of all google fonts that are supported for the site editor global styles feature
@@ -39,9 +44,12 @@ function valid_google_fonts() {
  *
  * This function can be updated or removed when core Gutenberg provides more specific hooks
  * for global styles.
+ *
  * @see https://github.com/WordPress/gutenberg/issues/27504
  *
- * @return object $settings      Object with server side data injected into Gutenberg client
+ * @param array $settings Object with server side data injected into Gutenberg client.
+ *
+ * @return object $settings Object with server side data injected into Gutenberg client
  */
 function gutenberg_wpcom_add_google_fonts_to_site_editor( $settings ) {
 	$should_use_site_editor_context = is_callable( 'get_current_screen' ) &&

@@ -28,7 +28,6 @@ const VALID_GOOGLE_FONTS = [
 	'Work Sans',
 ];
 
-// TODO: Stylesheets not being added properly to editor
 function addGoogleFontStylesheet( url ) {
 	// Generate stylesheet link tag
 	const link = document.createElement( 'link' );
