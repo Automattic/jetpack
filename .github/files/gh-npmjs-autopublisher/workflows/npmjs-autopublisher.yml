@@ -13,7 +13,7 @@ jobs:
       - name: Check that the secret is set
         env:
           TOKEN: ${{ secrets.NPMJS_AUTOMATION_TOKEN }}
-        run:
+        run: |
           if [[ -z "$TOKEN" ]]; then
             echo '::error::The secret NPMJS_AUTOMATION_TOKEN must be set.'
             exit 1
