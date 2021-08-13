@@ -198,13 +198,12 @@ class SearchApp extends Component {
 		isVisible && this.initializeStaticFilters();
 
 		this.setState( { isVisible }, () => {
-			// if ( isVisible ) {
-			this.preventBodyScroll();
-			// window.scrollTo(0,0);
-			// } else {
-			// 	// This codepath will only be executed in the Customizer.
-			// 	this.restoreBodyScroll();
-			// }
+			if ( isVisible ) {
+				this.preventBodyScroll();
+			} else {
+				// This codepath will only be executed in the Customizer.
+				this.restoreBodyScroll();
+			}
 		} );
 	};
 
