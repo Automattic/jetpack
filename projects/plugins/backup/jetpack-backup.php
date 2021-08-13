@@ -39,7 +39,7 @@ define( 'JETPACK_BACKUP_PLUGIN_ROOT_FILE', __FILE__ );
 define( 'JETPACK_BACKUP_PLUGIN_SLUG', 'jetpack-backup' );
 define( 'JETPACK_BACKUP_PLUGIN_NAME', 'Jetpack Backup' );
 define( 'JETPACK_BACKUP_PLUGIN_URI', 'https://jetpack.com/jetpack-backup' );
-define( 'JETPACK_BACKUP_REQUIRED_JETPACK_VERSION', '10.0.0' );
+define( 'JETPACK_BACKUP_REQUIRED_JETPACK_VERSION', '10.0' );
 
 /**
  * Checks if Jetpack is installed and if yes, require version 10+
