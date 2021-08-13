@@ -24,7 +24,8 @@ import './style.scss';
  * @param {Function} props.onRegistered -- The callback to be called upon registration success.
  * @param {string} props.redirectUri -- The redirect admin URI.
  * @param {string} props.from -- Where the connection request is coming from.
- * @param {Function} props.statusCallback -- Callback to pull connection status from the component.
+ * @param {object} props.connectionStatus -- The connection status object.
+ * @param {boolean} props.connectionStatusIsFetching -- The flag indicating that connection status is being fetched.
  * @returns {React.Component} The RNA connection component.
  */
 const ConnectButton = props => {
@@ -41,9 +42,8 @@ const ConnectButton = props => {
 		registrationNonce,
 		redirectUri,
 		from,
-		statusCallback,
 		connectionStatus,
-		isFetchingConnectionStatus,
+		connectionStatusIsFetching,
 	} = props;
 
 	/**
@@ -95,20 +95,12 @@ const ConnectButton = props => {
 		]
 	);
 
-	const statusCallbackWrapped = useCallback( () => {
-		if ( statusCallback && {}.toString.call( statusCallback ) === '[object Function]' ) {
-			return statusCallback( connectionStatus );
-		}
-	}, [ connectionStatus, statusCallback ] );
-
 	return (
 		<div className="jp-connect-button">
-			{ statusCallbackWrapped() }
-
-			{ isFetchingConnectionStatus && `Loading...` }
+			{ connectionStatusIsFetching && `Loading...` }
 
 			{ ( ! connectionStatus.isRegistered || ! connectionStatus.isUserConnected ) &&
-				! isFetchingConnectionStatus && (
+				! connectionStatusIsFetching && (
 					<Button
 						className="jp-connect-button--button"
 						label={ connectLabel }

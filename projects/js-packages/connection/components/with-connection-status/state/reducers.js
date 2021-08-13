@@ -6,7 +6,7 @@ import { SET_CONNECTION_STATUS, SET_CONNECTION_STATUS_IS_FETCHING } from './acti
 const connectionStatus = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case SET_CONNECTION_STATUS:
-			return action.connectionStatus;
+			return { ...state, ...action.connectionStatus };
 	}
 
 	return state;

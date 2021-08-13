@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useCallback } from 'react';
 import restApi from '@automattic/jetpack-api';
 import { useSelect, useDispatch } from '@wordpress/data';
 
@@ -15,30 +15,14 @@ import { STORE_ID } from '../../state/store';
  *
  * @param {string} apiRoot - API root URL.
  * @param {string} apiNonce - API Nonce.
- * @param {Function} setConnectionStatus - Callback to update the connection status in the state.
- * @param {Function} setConnectionStatusIsFetching - Callback to set the "is fetching" flag in the state.
+ * @param {Function} onSuccess - Callback that's called upon successfully fetching the connection status.
+ * @param {Function} onError - Callback that's called in case of fetching error.
  */
-const fetchConnectionStatus = (
-	apiRoot,
-	apiNonce,
-	setConnectionStatus,
-	setConnectionStatusIsFetching
-) => {
+const fetchConnectionStatus = ( apiRoot, apiNonce, onSuccess, onError ) => {
 	restApi.setApiRoot( apiRoot );
 	restApi.setApiNonce( apiNonce );
 
-	setConnectionStatusIsFetching( true );
-
-	restApi
-		.fetchSiteConnectionStatus()
-		.then( response => {
-			setConnectionStatus( response );
-			setConnectionStatusIsFetching( false );
-		} )
-		.catch( error => {
-			setConnectionStatusIsFetching( false );
-			throw error;
-		} );
+	restApi.fetchSiteConnectionStatus().then( onSuccess ).catch( onError );
 };
 
 /**
@@ -48,8 +32,15 @@ const fetchConnectionStatus = (
  * @returns {React.Component} The higher order component.
  */
 const withConnectionStatus = WrappedComponent => {
+	/**
+	 * The `WrappedComponent` with connection status passed into it.
+	 *
+	 * @param {object} props -- The properties.
+	 * @param {Function} props.statusCallback -- Callback to pull connection status from the component.
+	 * @returns {React.Component} The higher order component.
+	 */
 	return props => {
-		const { apiRoot, apiNonce } = props;
+		const { apiRoot, apiNonce, statusCallback } = props;
 
 		const connectionStatus = useSelect( select => select( STORE_ID ).getConnectionStatus(), [] );
 		const { setConnectionStatus, setConnectionStatusIsFetching } = useDispatch( STORE_ID );
@@ -59,16 +50,45 @@ const withConnectionStatus = WrappedComponent => {
 			[]
 		);
 
-		if ( ! connectionStatus.hasOwnProperty( 'isActive' ) && ! connectionStatusIsFetching ) {
-			fetchConnectionStatus(
-				apiRoot,
-				apiNonce,
-				setConnectionStatus,
-				setConnectionStatusIsFetching
-			);
+		const hasConnectionStatus = connectionStatus.hasOwnProperty( 'isActive' );
+
+		const onSuccess = useCallback(
+			response => {
+				setConnectionStatus( response );
+				setConnectionStatusIsFetching( false );
+			},
+			[ setConnectionStatus, setConnectionStatusIsFetching ]
+		);
+
+		const onError = useCallback(
+			error => {
+				setConnectionStatusIsFetching( false );
+				throw error;
+			},
+			[ setConnectionStatusIsFetching ]
+		);
+
+		const statusCallbackWrapped = useCallback( () => {
+			if ( statusCallback && {}.toString.call( statusCallback ) === '[object Function]' ) {
+				return statusCallback( connectionStatus );
+			}
+		}, [ connectionStatus, statusCallback ] );
+
+		if ( ! hasConnectionStatus && ! connectionStatusIsFetching ) {
+			setConnectionStatusIsFetching( true );
+
+			fetchConnectionStatus( apiRoot, apiNonce, onSuccess, onError );
 		}
 
-		return <WrappedComponent connectionStatus={ connectionStatus } { ...props } />;
+		hasConnectionStatus && ! connectionStatusIsFetching && statusCallbackWrapped();
+
+		return (
+			<WrappedComponent
+				connectionStatus={ connectionStatus }
+				connectionStatusIsFetching={ connectionStatusIsFetching }
+				{ ...props }
+			/>
+		);
 	};
 };
 
