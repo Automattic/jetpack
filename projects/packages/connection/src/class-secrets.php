@@ -44,7 +44,7 @@ class Secrets {
 			$secret       .= wp_generate_password( 32, false );
 			$secret_length = strlen( $secret );
 		}
-		return substr( $secret, 0, 32 );
+		return (string) substr( $secret, 0, 32 );
 	}
 
 	/**
