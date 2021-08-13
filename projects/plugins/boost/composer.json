@@ -36,7 +36,7 @@
 		"phpcs:lint": [
 			"composer --working-dir=../../../ phpcs:lint ./projects/plugins/boost"
 		],
-	  	"phpcs:compatibility": [
+		"phpcs:compatibility": [
 			"composer --working-dir=../../../ phpcs:compatibility ./projects/plugins/boost"
 		],
 		"phpunit": [
