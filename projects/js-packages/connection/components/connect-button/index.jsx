@@ -33,9 +33,6 @@ const ConnectButton = props => {
 
 	const [ authorizationUrl, setAuthorizationUrl ] = useState( null );
 
-	const [ isFetchingConnectionStatus, setIsFetchingConnectionStatus ] = useState( false );
-	const [ connectionStatus, setConnectionStatus ] = useState( {} );
-
 	const {
 		apiRoot,
 		apiNonce,
@@ -45,6 +42,8 @@ const ConnectButton = props => {
 		redirectUri,
 		from,
 		statusCallback,
+		connectionStatus,
+		isFetchingConnectionStatus,
 	} = props;
 
 	/**
@@ -54,25 +53,6 @@ const ConnectButton = props => {
 		restApi.setApiRoot( apiRoot );
 		restApi.setApiNonce( apiNonce );
 	}, [ apiRoot, apiNonce ] );
-
-	/**
-	 * Fetch the connection status on the first render.
-	 * To be only run once.
-	 */
-	useEffect( () => {
-		setIsFetchingConnectionStatus( true );
-
-		restApi
-			.fetchSiteConnectionStatus()
-			.then( response => {
-				setIsFetchingConnectionStatus( false );
-				setConnectionStatus( response );
-			} )
-			.catch( error => {
-				setIsFetchingConnectionStatus( false );
-				throw error;
-			} );
-	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	/**
 	 * Initialize the site registration process.
