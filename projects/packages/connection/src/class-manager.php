@@ -1980,6 +1980,9 @@ class Manager {
 
 		$this->delete_all_connection_tokens( true );
 
+		// Remove tracked package versions, since they depend on the Jetpack Connection.
+		delete_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION );
+
 		$jetpack_unique_connection = \Jetpack_Options::get_option( 'unique_connection' );
 		if ( $jetpack_unique_connection ) {
 			// Check then record unique disconnection if site has never been disconnected previously.
