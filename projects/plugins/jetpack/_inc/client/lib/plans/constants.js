@@ -47,7 +47,7 @@ export const PLAN_WPCOM_ENTERPRISE = 'wpcom-enterprise';
 export const PLAN_VIP = 'vip';
 export const PLAN_CHARGEBACK = 'chargeback';
 
-// DEPRECATED: Daily and Real-time variations are no longer sold.
+// DEPRECATED: Daily and Real-time variations will soon be retired.
 // Remove after all customers are migrated to new products.
 export const PLAN_JETPACK_BACKUP_DAILY = 'jetpack_backup_daily';
 export const PLAN_JETPACK_BACKUP_DAILY_MONTHLY = 'jetpack_backup_daily_monthly';
@@ -68,7 +68,7 @@ export const JETPACK_MONTHLY_PLANS = [
 	PLAN_JETPACK_SECURITY_PRO_MONTHLY,
 	PLAN_JETPACK_COMPLETE_MONTHLY,
 
-	// DEPRECATED: Daily and Real-time variations are no longer sold.
+	// DEPRECATED: Daily and Real-time variations will soon be retired.
 	// Remove after all customers are migrated to new products.
 	PLAN_JETPACK_SECURITY_DAILY_MONTHLY,
 	PLAN_JETPACK_SECURITY_REALTIME_MONTHLY,
@@ -87,7 +87,7 @@ export const JETPACK_BUNDLES = [
 	PLAN_JETPACK_SECURITY_PRO,
 	PLAN_JETPACK_SECURITY_PRO_MONTHLY,
 
-	// DEPRECATED: Daily and Real-time variations are no longer sold.
+	// DEPRECATED: Daily and Real-time variations will soon be retired.
 	// Remove after all customers are migrated to new products.
 	PLAN_JETPACK_SECURITY_DAILY,
 	PLAN_JETPACK_SECURITY_DAILY_MONTHLY,
@@ -101,7 +101,7 @@ export const JETPACK_BACKUP_PRODUCTS = [
 	PLAN_JETPACK_BACKUP_PRO,
 	PLAN_JETPACK_BACKUP_PRO_MONTHLY,
 
-	// DEPRECATED: Daily and Real-time variations are no longer sold.
+	// DEPRECATED: Daily and Real-time variations will soon be retired.
 	// Remove after all customers are migrated to new products.
 	PLAN_JETPACK_BACKUP_DAILY,
 	PLAN_JETPACK_BACKUP_DAILY_MONTHLY,
@@ -300,7 +300,7 @@ export function getPlanClass( plan ) {
 		case PLAN_JETPACK_ANTI_SPAM_MONTHLY:
 			return 'is-anti-spam-plan';
 
-		// DEPRECATED: Daily and Real-time variations are no longer sold.
+		// DEPRECATED: Daily and Real-time variations will soon be retired.
 		// Remove after all customers are migrated to new products.
 		case PLAN_JETPACK_SECURITY_DAILY:
 		case PLAN_JETPACK_SECURITY_DAILY_MONTHLY:
@@ -335,7 +335,7 @@ export function getMonthlyPlanByYearly( plan ) {
 		case PLAN_JETPACK_COMPLETE:
 			return PLAN_JETPACK_COMPLETE_MONTHLY;
 
-		// DEPRECATED: Daily and Real-time variations are no longer sold.
+		// DEPRECATED: Daily and Real-time variations will soon be retired.
 		// Remove after all customers are migrated to new products.
 		case PLAN_JETPACK_SECURITY_DAILY:
 			return PLAN_JETPACK_SECURITY_DAILY_MONTHLY;
@@ -352,7 +352,7 @@ export function getMonthlyPlanByYearly( plan ) {
  * @param {string} planClass - A plan class.
  * @returns {boolean} True if the plan class contains backup daily, false otherwise.
  */
-// DEPRECATED: Daily and Real-time variations are no longer sold.
+// DEPRECATED: Daily and Real-time variations will soon be retired.
 // Remove after all customers are migrated to new products.
 export function containsBackupDaily( planClass ) {
 	return [
@@ -376,7 +376,7 @@ export function containsBackupRealtime( planClass ) {
 		'is-security-pro-plan',
 		'is-complete-plan',
 
-		// DEPRECATED: Daily and Real-time variations are no longer sold.
+		// DEPRECATED: Daily and Real-time variations will soon be retired.
 		// Remove after all customers are migrated to new products.
 		'is-realtime-security-plan',
 		'is-realtime-backup-plan',

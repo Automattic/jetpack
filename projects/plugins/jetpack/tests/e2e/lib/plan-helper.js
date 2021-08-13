@@ -341,7 +341,7 @@ function getPlan( type ) {
 							'jetpack_security_pro',
 							'jetpack_security_pro_monthly',
 							'jetpack_complete_monthly',
-							// DEPRECATED: Daily and Real-time variations are no longer sold.
+							// DEPRECATED: Daily and Real-time variations will soon be retired.
 							// Remove after all customers are migrated to new products.
 							'jetpack_security_daily',
 							'jetpack_security_daily_monthly',
@@ -361,7 +361,7 @@ function getPlan( type ) {
 							'jetpack_security_pro',
 							'jetpack_security_pro_monthly',
 							'jetpack_complete_monthly',
-							// DEPRECATED: Daily and Real-time variations are no longer sold.
+							// DEPRECATED: Daily and Real-time variations will soon be retired.
 							// Remove after all customers are migrated to new products.
 							'jetpack_security_daily',
 							'jetpack_security_daily_monthly',
@@ -381,7 +381,7 @@ function getPlan( type ) {
 							'jetpack_security_pro',
 							'jetpack_security_pro_monthly',
 							'jetpack_complete_monthly',
-							// DEPRECATED: Daily and Real-time variations are no longer sold.
+							// DEPRECATED: Daily and Real-time variations will soon be retired.
 							// Remove after all customers are migrated to new products.
 							'jetpack_security_daily',
 							'jetpack_security_daily_monthly',
@@ -442,7 +442,7 @@ function getPlan( type ) {
 							'jetpack_security_pro',
 							'jetpack_security_pro_monthly',
 							'jetpack_complete_monthly',
-							// DEPRECATED: Daily and Real-time variations are no longer sold.
+							// DEPRECATED: Daily and Real-time variations will soon be retired.
 							// Remove after all customers are migrated to new products.
 							'jetpack_security_daily',
 							'jetpack_security_daily_monthly',
@@ -473,7 +473,7 @@ function getPlan( type ) {
 							'jetpack_security_pro',
 							'jetpack_security_pro_monthly',
 							'jetpack_complete_monthly',
-							// DEPRECATED: Daily and Real-time variations are no longer sold.
+							// DEPRECATED: Daily and Real-time variations will soon be retired.
 							// Remove after all customers are migrated to new products.
 							'jetpack_security_daily',
 							'jetpack_security_daily_monthly',
@@ -492,7 +492,7 @@ function getPlan( type ) {
 							'jetpack_security_pro',
 							'jetpack_security_pro_monthly',
 							'jetpack_complete_monthly',
-							// DEPRECATED: Daily and Real-time variations are no longer sold.
+							// DEPRECATED: Daily and Real-time variations will soon be retired.
 							// Remove after all customers are migrated to new products.
 							'jetpack_security_daily',
 							'jetpack_security_daily_monthly',
@@ -511,7 +511,7 @@ function getPlan( type ) {
 							'jetpack_security_pro',
 							'jetpack_security_pro_monthly',
 							'jetpack_complete_monthly',
-							// DEPRECATED: Daily and Real-time variations are no longer sold.
+							// DEPRECATED: Daily and Real-time variations will soon be retired.
 							// Remove after all customers are migrated to new products.
 							'jetpack_security_daily',
 							'jetpack_security_daily_monthly',

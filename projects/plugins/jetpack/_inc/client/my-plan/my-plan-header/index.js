@@ -198,7 +198,7 @@ class MyPlanHeader extends React.Component {
 					title: __( 'Jetpack Anti-Spam', 'jetpack' ),
 				};
 
-			// DEPRECATED: Daily and Real-time variations are no longer sold.
+			// DEPRECATED: Daily and Real-time variations will soon be retired.
 			// Remove after all customers are migrated to new products.
 			case 'is-daily-security-plan':
 				return {

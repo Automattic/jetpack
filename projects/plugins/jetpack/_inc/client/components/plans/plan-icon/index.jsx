@@ -49,7 +49,7 @@ import {
 	PLAN_JETPACK_COMPLETE,
 	PLAN_JETPACK_COMPLETE_MONTHLY,
 
-	// DEPRECATED: Daily and Real-time variations are no longer sold.
+	// DEPRECATED: Daily and Real-time variations will soon be retired.
 	// Remove after all customers are migrated to new products.
 	PLAN_JETPACK_BACKUP_DAILY,
 	PLAN_JETPACK_BACKUP_DAILY_MONTHLY,
@@ -107,7 +107,7 @@ const PRODUCT_ICON_MAP = {
 	[ PLAN_JETPACK_COMPLETE ]: '/plans/jetpack-complete.svg',
 	[ PLAN_JETPACK_COMPLETE_MONTHLY ]: '/plans/jetpack-complete.svg',
 
-	// DEPRECATED: Daily and Real-time variations are no longer sold.
+	// DEPRECATED: Daily and Real-time variations will soon be retired.
 	// Remove after all customers are migrated to new products.
 	[ PLAN_JETPACK_BACKUP_DAILY ]: '/products/product-jetpack-backup.svg',
 	[ PLAN_JETPACK_BACKUP_DAILY_MONTHLY ]: '/products/product-jetpack-backup.svg',
@@ -180,7 +180,7 @@ PlanIcon.propTypes = {
 		PLAN_JETPACK_COMPLETE,
 		PLAN_JETPACK_COMPLETE_MONTHLY,
 
-		// DEPRECATED: Daily and Real-time variations are no longer sold.
+		// DEPRECATED: Daily and Real-time variations will soon be retired.
 		// Remove after all customers are migrated to new products.
 		PLAN_JETPACK_BACKUP_DAILY,
 		PLAN_JETPACK_BACKUP_DAILY_MONTHLY,

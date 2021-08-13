@@ -84,7 +84,7 @@ class MyPlanBody extends React.Component {
 				'is-security-pro-plan',
 				'is-complete-plan',
 
-				// DEPRECATED: Daily and Real-time variations are no longer sold.
+				// DEPRECATED: Daily and Real-time variations will soon be retired.
 				// Remove after all customers are migrated to new products.
 				'is-daily-security-plan',
 				'is-realtime-security-plan',
@@ -223,7 +223,7 @@ class MyPlanBody extends React.Component {
 
 		let jetpackBackupCard;
 
-		// DEPRECATED: Daily and Real-time variations are no longer sold.
+		// DEPRECATED: Daily and Real-time variations will soon be retired.
 		// Remove after all customers are migrated to new products.
 		if ( 'is-daily-backup-plan' === planClass ) {
 			jetpackBackupCard = getJetpackBackupCard( {
@@ -240,7 +240,7 @@ class MyPlanBody extends React.Component {
 				'is-backup-plan',
 				'is-backup-pro-plan',
 
-				// DEPRECATED: Daily and Real-time variations are no longer sold.
+				// DEPRECATED: Daily and Real-time variations will soon be retired.
 				// Remove after all customers are migrated to new products.
 				'is-realtime-backup-plan',
 			].includes( planClass )
@@ -292,7 +292,7 @@ class MyPlanBody extends React.Component {
 			case 'is-security-pro-plan':
 			case 'is-business-plan':
 			case 'is-complete-plan':
-			// DEPRECATED: Daily and Real-time variations are no longer sold.
+			// DEPRECATED: Daily and Real-time variations will soon be retired.
 			// Remove after all customers are migrated to new products.
 			case 'is-daily-security-plan':
 			case 'is-realtime-security-plan':
@@ -568,7 +568,7 @@ class MyPlanBody extends React.Component {
 			case 'is-backup-pro-plan':
 			case 'is-search-plan':
 			case 'offline':
-			// DEPRECATED: Daily and Real-time variations are no longer sold.
+			// DEPRECATED: Daily and Real-time variations will soon be retired.
 			// Remove after all customers are migrated to new products.
 			case 'is-daily-backup-plan':
 			case 'is-realtime-backup-plan':
