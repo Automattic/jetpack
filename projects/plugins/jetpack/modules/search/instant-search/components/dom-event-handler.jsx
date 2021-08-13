@@ -187,13 +187,8 @@ export default class DomEventHandler extends Component {
 		if ( event?.propertyName !== 'opacity' ) {
 			return;
 		}
-		// NOTE: IE11 doesn't support scrollTo. Manually set overlay element's scrollTop.
-		if ( window.scrollTo ) {
-			// @see https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollTo
-			window.scrollTo( 0, 0 );
-		} else {
-			window.scrollTop = 0;
-		}
+		// @see https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollTo
+		window?.scrollTo( 0, 0 );
 	};
 
 	render() {
