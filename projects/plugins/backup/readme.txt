@@ -43,9 +43,9 @@ Jetpack Backup is built on WordPress.com’s world‑class infrastructure, so yo
 
 Backups are essential for eCommerce stores. New orders come in at any moment, so you need a plan to keep your order and customer data safe. That’s why we designed the Jetpack Backup plugin specifically with WooCommerce in mind.
 
-Restore your site to any past state while keeping all orders and products current
-Protect your customer data and stay GDPR compliant
-Custom WooCommerce table backups
+* Restore your site to any past state while keeping all orders and products current
+* Protect your customer data and stay GDPR compliant
+* Custom WooCommerce table backups
 
 ### A must‑have for WordPress site builders
 
@@ -57,9 +57,11 @@ Save hours of time developing and maintaining sites by restoring to any point. J
 * Be empowered to experiment with the look and feel of your site
 
 ### Expert Support
+
 We have a global team of Happiness Engineers ready to provide incredible support. Ask your questions in the support forum or [contact us directly](https://jetpack.com/contact-support).
 
 ### Get Started
+
 Installation is free, quick, and easy. It only takes a few minutes to install Jetpack Backup.
 
 == Installation ==
