@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Connection;
 
-use Automattic\Jetpack\Connection\Secrets;
 use PHPUnit\Framework\TestCase;
 
 /**
