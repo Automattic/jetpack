@@ -208,10 +208,10 @@ class Quiz_Shortcode {
 		if ( self::$quiz_wrapper ) {
 			$quiz_options = '<div class="jetpack-quiz-options">
 			<span class="jetpack-quiz-count"></span>
-			<a class="jetpack-quiz-option-button" data-quiz-option="previous">
+			<a class="jetpack-quiz-option-button" data-quiz-option="previous"  role="button" aria-label="' . esc_attr__( 'Previous quiz', 'jetpack' ) . '">
 			<svg viewBox="0 0 24 24" class="quiz-gridicon">
 			<g><path d="M14 20l-8-8 8-8 1.414 1.414L8.828 12l6.586 6.586"></path></g></svg></a>
-			<a class="jetpack-quiz-option-button" data-quiz-option="next">
+			<a class="jetpack-quiz-option-button" data-quiz-option="next"  role="button" aria-label="' . esc_attr__( 'Next quiz', 'jetpack' ) . '">
 			<svg viewBox="0 0 24 24" class="quiz-gridicon">
 			<g><path d="M10 20l8-8-8-8-1.414 1.414L15.172 12l-6.586 6.586"></path></g></svg></a>
 			</div>';
@@ -259,6 +259,8 @@ class Quiz_Shortcode {
 					'href'             => true,
 					'class'            => true,
 					'data-quiz-option' => true,
+					'aria-label'       => true,
+					'role'             => 'button',
 				),
 				'pre'    => array(),
 				'strong' => array(),
