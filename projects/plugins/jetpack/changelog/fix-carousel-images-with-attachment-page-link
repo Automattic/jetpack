@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+[Carousel]: Fix bug preventing user from swiping in gallery when images are configured to link to Attachment Page.

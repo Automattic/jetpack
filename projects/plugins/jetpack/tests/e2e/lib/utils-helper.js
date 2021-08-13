@@ -12,7 +12,7 @@ const { E2E_DEBUG } = process.env;
 /**
  * Executes a shell command and return it as a Promise.
  *
- * @param {string} cmd  shell command
+ * @param {string} cmd shell command
  * @return {Promise<string>} output
  */
 async function execShellCommand( cmd ) {
@@ -52,8 +52,8 @@ async function prepareUpdaterTest() {
  * Provisions Jetpack plan and connects the site through Jetpack Start flow
  *
  * @param {number} userId WPCOM user ID
- * @param {string} plan One of free, personal, premium, or professional.
- * @param {string} user Local user name, id, or e-mail
+ * @param {string} plan   One of free, personal, premium, or professional.
+ * @param {string} user   Local user name, id, or e-mail
  * @return {string} authentication URL
  */
 async function provisionJetpackStartConnection( userId, plan = 'free', user = 'admin' ) {
@@ -93,7 +93,7 @@ async function provisionJetpackStartConnection( userId, plan = 'free', user = 'a
 /**
  * Runs wp cli command to activate jetpack module, also checks if the module is available in the list of active modules.
  *
- * @param {page} page Playwright page object
+ * @param {page}   page   Playwright page object
  * @param {string} module Jetpack module name
  */
 async function activateModule( page, module ) {
@@ -130,7 +130,7 @@ async function execWpCommand( wpCmd ) {
 /**
  * Runs multiple wp commands in a single call
  *
- * @param  {...string} commands Array of wp commands to run together
+ * @param {...string} commands Array of wp commands to run together
  */
 async function execMultipleWpCommands( ...commands ) {
 	return await execWpCommand( `bash -c '${ commands.join( ' && ' ) }'` );
@@ -171,7 +171,7 @@ async function logAccessLog() {
 /**
  * Formats a given file name by replacing unaccepted characters (e.g. space)
  *
- * @param {string} filePath the file path. can be absolute file path, file name only, with or without extension
+ * @param {string}  filePath         the file path. can be absolute file path, file name only, with or without extension
  * @param {boolean} includeTimestamp if true, the current timestamp will be added as a prefix
  * @return {string} the formatted file path
  */
@@ -194,7 +194,6 @@ function fileNameFormatter( filePath, includeTimestamp = true ) {
  * Extracts a `accountName` configuration from the config file.
  *
  * @param {string} accountName one of the keys of `testAccounts` entry in config file
- *
  * @return {Array} username and password
  */
 function getAccountCredentials( accountName ) {

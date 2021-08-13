@@ -46,6 +46,10 @@ html {
 	border-left: 3px solid #f0b849;
 }
 
+.jetpack-beta__update-needed .dops-card.is-error {
+	border-left: 3px solid #f04949;
+}
+
 .jetpack-beta__master-head span {
 	font-weight: 300;
 	display: inline-block;
@@ -337,6 +341,22 @@ html {
 
 .dops-button.is-primary.is-compact {
 	color: white;
+}
+
+.dops-button.is-error {
+	background: #dc0000;
+	border-color: #be0000;
+}
+
+.dops-button.is-error:hover,
+.dops-button.is-error:focus {
+	border-color: #820000;
+}
+
+.dops-button.is-error[disabled],
+.dops-button.is-error:disabled {
+	background: #fdbcbc;
+	border-color: #e28c8c;
 }
 
 @keyframes appear {
@@ -1237,4 +1257,17 @@ button.dops-foldable-card__action {
 .jpbeta-file-list > li > .container > span {
 	-ms-flex: 0 0 auto;
 	flex: 0 0 auto;
+}
+
+.branch-card.branch-card-hide {
+	display: none;
+}
+.branch-card.branch-card-active.branch-card-hide {
+	display: block;
+}
+.branch-card-active .activate-branch {
+	display: none;
+}
+.branch-card-active .dops-foldable-card__secondary .dops-foldable-card__summary::before {
+	content: attr( data-active );
 }

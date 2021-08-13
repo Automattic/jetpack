@@ -16,7 +16,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
  * Internal dependencies
  */
 import Card from 'components/card';
-import restApi from 'rest-api';
+import restApi from '@automattic/jetpack-api';
 import analytics from 'lib/analytics';
 import { getSitePlan, isFetchingSiteData } from 'state/site';
 import { getScanStatus, isFetchingScanStatus } from 'state/scan';

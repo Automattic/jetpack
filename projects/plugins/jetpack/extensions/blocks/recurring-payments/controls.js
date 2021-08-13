@@ -26,7 +26,7 @@ export function PanelControls( { attributes: { planId }, products, setMembership
 				<SelectControl
 					label={ __( 'Payment plan', 'jetpack' ) }
 					value={ planId }
-					onChange={ setMembershipAmount }
+					onChange={ id => setMembershipAmount( id ) }
 					options={ products.map( product => ( {
 						label: formatProductAmount( product ),
 						value: product.id,

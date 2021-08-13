@@ -4,7 +4,7 @@ Tags: jetpack, stuff
 Requires at least: 5.7
 Requires PHP: 5.6
 Tested up to: 5.8
-Stable tag: 1.0
+Stable tag: 0.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,19 +33,19 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 2. This is the second screen shot
 
 == Changelog ==
-### 0.1.0-beta - 2021-06-15
+### 0.2.0-beta - 2021-08-12
 #### Added
-- Added RNA connection to the plugin.
-- Initial wire frame for the Jetpack Backup plugin.
+- Added Backup UI, placeholders, and supporting end points.
+- Added design for No Backup Capabilities view. Removed unused CSS. Minor styling fixes.
+- Adds Jetpack header and footer
+- Add UI options to manage your Jetpack connection
 
 #### Changed
-- Changes associated with plugin release process.
-- Updated package dependencies.
-- Update RNA Connection usage based on Automattic/jetpack/pull/19837.
-- Utilize the config package for sync and connection.
+- Updated all external links to use jetpack redirect service
+- Changed backup storage and heartbeat info blocks to only display with a backup plan
 
 #### Fixed
-- Use `absoluteRuntime` in babel JS build to avoid module not found errors.
+- Fix minor styling issue for the "no plan" page.
 
 == Arbitrary section ==
 

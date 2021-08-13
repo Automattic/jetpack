@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Rename a generated js file to avoid triggering an outdated minifier on wpcom's cdn.

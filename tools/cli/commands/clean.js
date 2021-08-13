@@ -17,7 +17,6 @@ import fs from 'fs';
  * Command definition for the build subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
- *
  * @returns {object} Yargs with the build commands defined.
  */
 export function cleanDefine( yargs ) {
@@ -207,6 +206,7 @@ async function collectAllFiles( toClean, argv ) {
 		combined: [],
 	};
 
+	// Collect list of untracked files.
 	if ( toClean.includes( 'untracked' ) ) {
 		allFiles.untracked = child_process.execSync(
 			`git -c core.quotepath=off ls-files ${ argv.project } --exclude-standard --directory --other`
@@ -214,10 +214,29 @@ async function collectAllFiles( toClean, argv ) {
 		allFiles.untracked = allFiles.untracked.toString().trim().split( '\n' );
 	}
 
+	// Collect list of all other gitignored files we may want to clean.
 	allFiles.combined = child_process.execSync(
 		`git -c core.quotepath=off ls-files ${ argv.project } --exclude-standard --directory --ignored --other`
 	);
+
 	allFiles.combined = allFiles.combined.toString().trim().split( '\n' );
+
+	// If we want to clean up a checked in composer.lock file, ls-files won't work and we have to filter the files manually.
+	if ( toClean.includes( 'composer.lock' ) && argv.project.startsWith( 'projects/plugins' ) ) {
+		let composerLockFiles = child_process.execSync(
+			`git -c core.quotepath=off ls-files projects/plugins/*/composer.lock`
+		);
+		composerLockFiles = composerLockFiles.toString().trim().split( '\n' );
+
+		if ( argv.project !== 'projects/plugins' ) {
+			composerLockFiles = composerLockFiles.filter( file => {
+				return file === `${ argv.project }/composer.lock`;
+			} );
+		}
+
+		allFiles.composerLock.push( ...composerLockFiles );
+	}
+
 	for ( const file of allFiles.combined ) {
 		if ( file.match( /^\.env$|^tools\/docker\// ) ) {
 			allFiles.docker.push( file );
@@ -349,7 +368,6 @@ async function confirmRemove( argv, toCleanFiles ) {
  * Prompts for the scope of what we want to clean.
  *
  * @param {argv}  argv - the arguments passed.
- *
  * @returns {object} argv
  */
 export async function promptForScope( argv ) {
@@ -382,7 +400,6 @@ export async function promptForScope( argv ) {
  * Prompts for what we're trying to clean (files, folder, gitignored, etc).
  *
  * @param {argv}  argv - the arguments passed.
- *
  * @returns {argv} argv
  */
 export async function promptForClean( argv ) {
