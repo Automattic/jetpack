@@ -81,7 +81,7 @@ importers:
       jetpack-js-test-runner: workspace:*
       lodash: 4.17.21
       nyc: 15.1.0
-      prop-types: ^15.7.2
+      prop-types: 15.7.2
       react: 17.0.2
       react-dom: 17.0.2
       react-test-renderer: 16.14.0
@@ -110,7 +110,7 @@ importers:
       jetpack-js-test-runner: workspace:*
       lodash: 4.17.21
       nyc: 15.1.0
-      prop-types: ^15.7.2
+      prop-types: 15.7.2
       react: 17.0.2
       react-dom: 17.0.2
       react-test-renderer: 17.0.2
@@ -245,7 +245,7 @@ importers:
     specifiers:
       '@automattic/calypso-build': 6.5.0
       eslint: 7.31.0
-      intersection-observer: ^0.12.0
+      intersection-observer: 0.12.0
     dependencies:
       intersection-observer: 0.12.0
     devDependencies:
@@ -305,11 +305,11 @@ importers:
     specifiers:
       '@babel/core': ^7.14.3
       '@babel/preset-env': ^7.14.4
-      '@rollup/plugin-commonjs': ^19.0.0
-      '@rollup/plugin-node-resolve': ^13.0.0
-      '@rollup/plugin-typescript': ^8.2.1
+      '@rollup/plugin-commonjs': 19.0.2
+      '@rollup/plugin-node-resolve': 13.0.4
+      '@rollup/plugin-typescript': 8.2.5
       '@sveltejs/eslint-config': github:sveltejs/eslint-config
-      '@tsconfig/svelte': ^2.0.1
+      '@tsconfig/svelte': 2.0.1
       '@typescript-eslint/eslint-plugin': 4.29.0
       '@typescript-eslint/parser': 4.29.0
       '@wordpress/components': ^14.1.2
@@ -321,30 +321,30 @@ importers:
       eslint: ^7.31.0
       eslint-plugin-import: 2.23.4
       eslint-plugin-svelte3: ^3.2.0
-      expect-puppeteer: ^5.0.4
+      expect-puppeteer: 5.0.4
       jest: 27.0.6
-      jest-puppeteer: ^5.0.4
+      jest-puppeteer: 5.0.4
       jetpack-boost-critical-css-gen: git+ssh://git@github.com/automattic/jetpack-boost-critical-css-gen.git#trunk
-      node-sass: ^6.0.0
-      node-wp-i18n: ^1.2.5
-      npm-run-all: ^4.1.5
+      node-sass: 6.0.1
+      node-wp-i18n: 1.2.6
+      npm-run-all: 4.1.5
       prettier: npm:wp-prettier@2.2.1-beta-1
-      prettier-plugin-svelte: ^2.3.0
-      puppeteer: ^9.1.1
-      rollup: ^2.51.1
-      rollup-plugin-copy: ^3.4.0
-      rollup-plugin-css-only: ^3.1.0
-      rollup-plugin-scss: ^3.0.0
-      rollup-plugin-svelte: ^7.1.0
-      rollup-plugin-svelte-svg: ^0.2.3
-      rollup-plugin-terser: ^7.0.2
-      sass: ^1.34.1
-      sass-loader: ^12.0.0
-      svelte: ^3.38.2
-      svelte-check: ^2.1.0
-      svelte-preprocess: ^4.7.3
-      tslib: ^2.2.0
-      typescript: ^4.3.2
+      prettier-plugin-svelte: 2.3.1
+      puppeteer: 9.1.1
+      rollup: 2.56.2
+      rollup-plugin-copy: 3.4.0
+      rollup-plugin-css-only: 3.1.0
+      rollup-plugin-scss: 3.0.0
+      rollup-plugin-svelte: 7.1.0
+      rollup-plugin-svelte-svg: 0.2.3
+      rollup-plugin-terser: 7.0.2
+      sass: 1.37.5
+      sass-loader: 12.1.0
+      svelte: 3.42.1
+      svelte-check: 2.2.4
+      svelte-preprocess: 4.7.4
+      tslib: 2.3.1
+      typescript: 4.3.5
     dependencies:
       '@wordpress/components': 14.2.0_@babel+core@7.14.6
       '@wordpress/element': 3.2.0
@@ -352,9 +352,9 @@ importers:
     devDependencies:
       '@babel/core': 7.14.6
       '@babel/preset-env': 7.14.8_@babel+core@7.14.6
-      '@rollup/plugin-commonjs': 19.0.2_rollup@2.55.1
-      '@rollup/plugin-node-resolve': 13.0.4_rollup@2.55.1
-      '@rollup/plugin-typescript': 8.2.5_28fe49957e0849e1538fcaddd4c4dd2d
+      '@rollup/plugin-commonjs': 19.0.2_rollup@2.56.2
+      '@rollup/plugin-node-resolve': 13.0.4_rollup@2.56.2
+      '@rollup/plugin-typescript': 8.2.5_5f9d52eb8f5b9c5f8da2582f59355eb7
       '@sveltejs/eslint-config': github.com/sveltejs/eslint-config/31fd4faeea88990069502460b023698b1c9c2d13_8f8eb8cf50ecc4463e49574ee0db7118
       '@tsconfig/svelte': 2.0.1
       '@typescript-eslint/eslint-plugin': 4.29.0_aaef56dbe35bc92c44f3d75d8a387c3b
@@ -365,29 +365,29 @@ importers:
       babel-jest: 27.0.6_@babel+core@7.14.6
       eslint: 7.31.0
       eslint-plugin-import: 2.23.4_eslint@7.31.0
-      eslint-plugin-svelte3: 3.2.0_eslint@7.31.0+svelte@3.41.0
+      eslint-plugin-svelte3: 3.2.0_eslint@7.31.0+svelte@3.42.1
       expect-puppeteer: 5.0.4
       jest: 27.0.6
       jest-puppeteer: 5.0.4_puppeteer@9.1.1
       node-sass: 6.0.1
-      node-wp-i18n: 1.2.5
+      node-wp-i18n: 1.2.6
       npm-run-all: 4.1.5
       prettier: /wp-prettier/2.2.1-beta-1
-      prettier-plugin-svelte: 2.3.1_032849d04f52b8d2f75e6269d0298132
+      prettier-plugin-svelte: 2.3.1_71e760b486817eeea6e6f529b2838735
       puppeteer: 9.1.1
-      rollup: 2.55.1
+      rollup: 2.56.2
       rollup-plugin-copy: 3.4.0
-      rollup-plugin-css-only: 3.1.0_rollup@2.55.1
+      rollup-plugin-css-only: 3.1.0_rollup@2.56.2
       rollup-plugin-scss: 3.0.0
-      rollup-plugin-svelte: 7.1.0_rollup@2.55.1+svelte@3.41.0
-      rollup-plugin-svelte-svg: 0.2.3_svelte@3.41.0
-      rollup-plugin-terser: 7.0.2_rollup@2.55.1
-      sass: 1.36.0
-      sass-loader: 12.1.0_node-sass@6.0.1+sass@1.36.0
-      svelte: 3.41.0
-      svelte-check: 2.2.3_63de3719f31e5581035db2569603ae79
-      svelte-preprocess: 4.7.4_c2e40f5acbd6c3e37b8a4f242eab40b3
-      tslib: 2.3.0
+      rollup-plugin-svelte: 7.1.0_rollup@2.56.2+svelte@3.42.1
+      rollup-plugin-svelte-svg: 0.2.3_svelte@3.42.1
+      rollup-plugin-terser: 7.0.2_rollup@2.56.2
+      sass: 1.37.5
+      sass-loader: 12.1.0_node-sass@6.0.1+sass@1.37.5
+      svelte: 3.42.1
+      svelte-check: 2.2.4_8eed0731a00d09bd5efed063710a8479
+      svelte-preprocess: 4.7.4_9f62c90d64939f67533434fc6b5d8a73
+      tslib: 2.3.1
       typescript: 4.3.5
 
   projects/plugins/jetpack:
@@ -5288,38 +5288,38 @@ packages:
   /@popperjs/core/2.9.2:
     resolution: {integrity: sha512-VZMYa7+fXHdwIq1TDhSXoVmSPEGM/aa+6Aiq3nVVJ9bXr24zScr+NlKFKC3iPljA7ho/GAZr+d2jOf5GIRC30Q==}
 
-  /@rollup/plugin-commonjs/19.0.2_rollup@2.55.1:
+  /@rollup/plugin-commonjs/19.0.2_rollup@2.56.2:
     resolution: {integrity: sha512-gBjarfqlC7qs0AutpRW/hrFNm+cd2/QKxhwyFa+srbg1oX7rDsEU3l+W7LAUhsAp9mPJMAkXDhLbQaVwEaE8bA==}
     engines: {node: '>= 8.0.0'}
     peerDependencies:
       rollup: ^2.38.3
     dependencies:
-      '@rollup/pluginutils': 3.1.0_rollup@2.55.1
+      '@rollup/pluginutils': 3.1.0_rollup@2.56.2
       commondir: 1.0.1
       estree-walker: 2.0.2
       glob: 7.1.6
       is-reference: 1.2.1
       magic-string: 0.25.7
       resolve: 1.20.0
-      rollup: 2.55.1
+      rollup: 2.56.2
     dev: true
 
-  /@rollup/plugin-node-resolve/13.0.4_rollup@2.55.1:
+  /@rollup/plugin-node-resolve/13.0.4_rollup@2.56.2:
     resolution: {integrity: sha512-eYq4TFy40O8hjeDs+sIxEH/jc9lyuI2k9DM557WN6rO5OpnC2qXMBNj4IKH1oHrnAazL49C5p0tgP0/VpqJ+/w==}
     engines: {node: '>= 10.0.0'}
     peerDependencies:
       rollup: ^2.42.0
     dependencies:
-      '@rollup/pluginutils': 3.1.0_rollup@2.55.1
+      '@rollup/pluginutils': 3.1.0_rollup@2.56.2
       '@types/resolve': 1.17.1
       builtin-modules: 3.2.0
       deepmerge: 4.2.2
       is-module: 1.0.0
       resolve: 1.20.0
-      rollup: 2.55.1
+      rollup: 2.56.2
     dev: true
 
-  /@rollup/plugin-typescript/8.2.5_28fe49957e0849e1538fcaddd4c4dd2d:
+  /@rollup/plugin-typescript/8.2.5_5f9d52eb8f5b9c5f8da2582f59355eb7:
     resolution: {integrity: sha512-QL/LvDol/PAGB2O0S7/+q2HpSUNodpw7z6nGn9BfoVCPOZ0r4EALrojFU29Bkoi2Hr2jgTocTejJ5GGWZfOxbQ==}
     engines: {node: '>=8.0.0'}
     peerDependencies:
@@ -5327,14 +5327,14 @@ packages:
       tslib: '*'
       typescript: '>=3.7.0'
     dependencies:
-      '@rollup/pluginutils': 3.1.0_rollup@2.55.1
+      '@rollup/pluginutils': 3.1.0_rollup@2.56.2
       resolve: 1.20.0
-      rollup: 2.55.1
-      tslib: 2.3.0
+      rollup: 2.56.2
+      tslib: 2.3.1
       typescript: 4.3.5
     dev: true
 
-  /@rollup/pluginutils/3.1.0_rollup@2.55.1:
+  /@rollup/pluginutils/3.1.0_rollup@2.56.2:
     resolution: {integrity: sha512-GksZ6pr6TpIjHm8h9lSQ8pi8BE9VeubNT0OMJ3B5uZJ8pz73NPiqOtCog/x2/QzM1ENChPKxMDhiQuRHsqc+lg==}
     engines: {node: '>= 8.0.0'}
     peerDependencies:
@@ -5343,7 +5343,7 @@ packages:
       '@types/estree': 0.0.39
       estree-walker: 1.0.1
       picomatch: 2.2.3
-      rollup: 2.55.1
+      rollup: 2.56.2
     dev: true
 
   /@rollup/pluginutils/4.1.1:
@@ -9575,7 +9575,7 @@ packages:
     dependencies:
       anymatch: 3.1.1
       braces: 3.0.2
-      glob-parent: 5.1.1
+      glob-parent: 5.1.2
       is-binary-path: 2.1.0
       is-glob: 4.0.1
       normalize-path: 3.0.0
@@ -11527,7 +11527,7 @@ packages:
       string.prototype.matchall: 4.0.5
     dev: true
 
-  /eslint-plugin-svelte3/3.2.0_eslint@7.31.0+svelte@3.41.0:
+  /eslint-plugin-svelte3/3.2.0_eslint@7.31.0+svelte@3.42.1:
     resolution: {integrity: sha512-qdWB1QN21dEozsJFdR8XlEhMnsS6aKHjsXWuNmchYwxoet5I6QdCr1Xcq62++IzRBMCNCeH4waXqSOAdqrZzgA==}
     engines: {node: '>=10'}
     peerDependencies:
@@ -11535,7 +11535,7 @@ packages:
       svelte: ^3.2.0
     dependencies:
       eslint: 7.31.0
-      svelte: 3.41.0
+      svelte: 3.42.1
     dev: true
 
   /eslint-plugin-wpcalypso/5.0.0_eslint@7.31.0:
@@ -12099,7 +12099,7 @@ packages:
     resolution: {integrity: sha512-rRSuT1LE4b+BFK588D2V8/VG9liW0Ark1XJgroxZXI0LtwmQJOb490DvDYvbm+Hek9ETFzTutGfJ90gumITPhQ==}
     hasBin: true
     dependencies:
-      chalk: 4.1.1
+      chalk: 4.1.2
       commander: 5.1.0
       debug: 4.3.2
     transitivePeerDependencies:
@@ -12511,7 +12511,7 @@ packages:
     dependencies:
       encoding: 0.1.13
       readable-stream: 3.6.0
-      safe-buffer: 5.1.2
+      safe-buffer: 5.2.1
     dev: true
 
   /git-hooks-list/1.0.3:
@@ -12539,7 +12539,6 @@ packages:
     engines: {node: '>= 6'}
     dependencies:
       is-glob: 4.0.1
-    dev: true
 
   /glob-stream/6.1.0:
     resolution: {integrity: sha1-cEXJlBOz65SIjYOrRtC0BMx73eQ=}
@@ -14035,7 +14034,7 @@ packages:
   /jest-dev-server/5.0.3:
     resolution: {integrity: sha512-aJR3a5KdY18Lsz+VbREKwx2HM3iukiui+J9rlv9o6iYTwZCSsJazSTStcD9K1q0AIF3oA+FqLOKDyo/sc7+fJw==}
     dependencies:
-      chalk: 4.1.1
+      chalk: 4.1.2
       cwd: 0.10.0
       find-process: 1.4.4
       prompts: 2.4.1
@@ -14213,7 +14212,7 @@ packages:
   /jest-environment-puppeteer/5.0.4:
     resolution: {integrity: sha512-wd4EDOD4QRi11QZ1IV8WsL1wlnnMUtcqtU0BNm+REzRtg78K2XHn3jS6YxGeXIOnsgrJeHxsD7DlRZ/GkFteLg==}
     dependencies:
-      chalk: 4.1.1
+      chalk: 4.1.2
       cwd: 0.10.0
       jest-dev-server: 5.0.3
       jest-environment-node: 27.0.6
@@ -16299,8 +16298,8 @@ packages:
       tmp: 0.2.1
     dev: true
 
-  /node-wp-i18n/1.2.5:
-    resolution: {integrity: sha512-XX6GanJ+Ta5Wc/oNkhVrV+lGrhLe0zFx2pNb2diHF/DwDnwCVRHn6NSSyoU/mgTcVf4B/jtdoQ2CzWN/Q63MhA==}
+  /node-wp-i18n/1.2.6:
+    resolution: {integrity: sha512-aLutjDB1rMJ3FNlNcs/XjmaejED1/y30uLYQrmkXpeUj1NH/SA6pI94CUz3iI7fbQd63lTGg0YNvOQAT8cWdIw==}
     hasBin: true
     dependencies:
       bluebird: 3.7.2
@@ -17524,14 +17523,14 @@ packages:
       fast-diff: 1.2.0
     dev: true
 
-  /prettier-plugin-svelte/2.3.1_032849d04f52b8d2f75e6269d0298132:
+  /prettier-plugin-svelte/2.3.1_71e760b486817eeea6e6f529b2838735:
     resolution: {integrity: sha512-F1/r6OYoBq8Zgurhs1MN25tdrhPw0JW5JjioPRqpxbYdmrZ3gY/DzHGs0B6zwd4DLyRsfGB2gqhxUCbHt/D1fw==}
     peerDependencies:
       prettier: ^1.16.4 || ^2.0.0
       svelte: ^3.2.0
     dependencies:
       prettier: /wp-prettier/2.2.1-beta-1
-      svelte: 3.41.0
+      svelte: 3.42.1
     dev: true
 
   /pretty-format/26.6.2:
@@ -18935,14 +18934,14 @@ packages:
       is-plain-object: 3.0.1
     dev: true
 
-  /rollup-plugin-css-only/3.1.0_rollup@2.55.1:
+  /rollup-plugin-css-only/3.1.0_rollup@2.56.2:
     resolution: {integrity: sha512-TYMOE5uoD76vpj+RTkQLzC9cQtbnJNktHPB507FzRWBVaofg7KhIqq1kGbcVOadARSozWF883Ho9KpSPKH8gqA==}
     engines: {node: '>=10.12.0'}
     peerDependencies:
       rollup: 1 || 2
     dependencies:
       '@rollup/pluginutils': 4.1.1
-      rollup: 2.55.1
+      rollup: 2.56.2
     dev: true
 
   /rollup-plugin-scss/3.0.0:
@@ -18951,16 +18950,16 @@ packages:
       rollup-pluginutils: 2.8.2
     dev: true
 
-  /rollup-plugin-svelte-svg/0.2.3_svelte@3.41.0:
+  /rollup-plugin-svelte-svg/0.2.3_svelte@3.42.1:
     resolution: {integrity: sha512-WH2KqihgVbcJT/PrjiJ/ipctrGueRdOLaaEuAIbXYqfsEzNb9krOVLyc5TL7to3cEKL6DiAa8IEe7IL1oqVolg==}
     peerDependencies:
       svelte: ^3.16.7
     dependencies:
       rollup-pluginutils: 1.5.2
-      svelte: 3.41.0
+      svelte: 3.42.1
     dev: true
 
-  /rollup-plugin-svelte/7.1.0_rollup@2.55.1+svelte@3.41.0:
+  /rollup-plugin-svelte/7.1.0_rollup@2.56.2+svelte@3.42.1:
     resolution: {integrity: sha512-vopCUq3G+25sKjwF5VilIbiY6KCuMNHP1PFvx2Vr3REBNMDllKHFZN2B9jwwC+MqNc3UPKkjXnceLPEjTjXGXg==}
     engines: {node: '>=10'}
     peerDependencies:
@@ -18968,19 +18967,19 @@ packages:
       svelte: '>=3.5.0'
     dependencies:
       require-relative: 0.8.7
-      rollup: 2.55.1
+      rollup: 2.56.2
       rollup-pluginutils: 2.8.2
-      svelte: 3.41.0
+      svelte: 3.42.1
     dev: true
 
-  /rollup-plugin-terser/7.0.2_rollup@2.55.1:
+  /rollup-plugin-terser/7.0.2_rollup@2.56.2:
     resolution: {integrity: sha512-w3iIaU4OxcF52UUXiZNsNeuXIMDvFrr+ZXK6bFZ0Q60qyVfq4uLptoS4bbq3paG3x216eQllFZX7zt6TIImguQ==}
     peerDependencies:
       rollup: ^2.0.0
     dependencies:
       '@babel/code-frame': 7.14.5
       jest-worker: 26.6.2
-      rollup: 2.55.1
+      rollup: 2.56.2
       serialize-javascript: 4.0.0
       terser: 5.7.0
     dev: true
@@ -18998,8 +18997,8 @@ packages:
       estree-walker: 0.6.1
     dev: true
 
-  /rollup/2.55.1:
-    resolution: {integrity: sha512-1P9w5fpb6b4qroePh8vHKGIvPNxwoCQhjJpIqfZGHLKpZ0xcU2/XBmFxFbc9697/6bmHpmFTLk5R1dAQhFSo0g==}
+  /rollup/2.56.2:
+    resolution: {integrity: sha512-s8H00ZsRi29M2/lGdm1u8DJpJ9ML8SUOpVVBd33XNeEeL3NVaTiUcSBHzBdF3eAyR0l7VSpsuoVUGrRHq7aPwQ==}
     engines: {node: '>=10.0.0'}
     hasBin: true
     optionalDependencies:
@@ -19122,7 +19121,7 @@ packages:
       webpack: 4.46.0_webpack-cli@4.5.0
     dev: true
 
-  /sass-loader/12.1.0_node-sass@6.0.1+sass@1.36.0:
+  /sass-loader/12.1.0_node-sass@6.0.1+sass@1.37.5:
     resolution: {integrity: sha512-FVJZ9kxVRYNZTIe2xhw93n3xJNYZADr+q69/s98l9nTCrWASo+DR2Ot0s5xTKQDDEosUkatsGeHxcH4QBp5bSg==}
     engines: {node: '>= 12.13.0'}
     peerDependencies:
@@ -19141,7 +19140,7 @@ packages:
       klona: 2.0.4
       neo-async: 2.6.2
       node-sass: 6.0.1
-      sass: 1.36.0
+      sass: 1.37.5
     dev: true
 
   /sass-loader/8.0.2_node-sass@4.14.1+webpack@4.46.0:
@@ -19193,8 +19192,8 @@ packages:
       webpack: 5.31.0
     dev: true
 
-  /sass/1.36.0:
-    resolution: {integrity: sha512-fQzEjipfOv5kh930nu3Imzq3ie/sGDc/4KtQMJlt7RRdrkQSfe37Bwi/Rf/gfuYHsIuE1fIlDMvpyMcEwjnPvg==}
+  /sass/1.37.5:
+    resolution: {integrity: sha512-Cx3ewxz9QB/ErnVIiWg2cH0kiYZ0FPvheDTVC6BsiEGBTZKKZJ1Gq5Kq6jy3PKtL6+EJ8NIoaBW/RSd2R6cZOA==}
     engines: {node: '>=8.9.0'}
     hasBin: true
     dependencies:
@@ -20022,21 +20021,21 @@ packages:
       supports-color: 7.2.0
     dev: true
 
-  /svelte-check/2.2.3_63de3719f31e5581035db2569603ae79:
-    resolution: {integrity: sha512-mqe/lgF0Ew+54YI4bPW5D26sMolh+MofQiz41U0c1GvUsP3bKsLLH0mjs4P4Xc+ajUFJtvGBo5PWaf0dd46sIQ==}
+  /svelte-check/2.2.4_8eed0731a00d09bd5efed063710a8479:
+    resolution: {integrity: sha512-eGEuZ3UEanOhlpQhICLjKejDxcZ9uYJlGnBGKAPW7uugolaBE6HpEBIiKFZN/TMRFFHQUURgGvsVn8/HJUBfeQ==}
     hasBin: true
     peerDependencies:
       svelte: ^3.24.0
     dependencies:
-      chalk: 4.1.1
+      chalk: 4.1.2
       chokidar: 3.5.1
       glob: 7.1.6
       import-fresh: 3.3.0
       minimist: 1.2.5
       sade: 1.7.4
       source-map: 0.7.3
-      svelte: 3.41.0
-      svelte-preprocess: 4.7.4_c2e40f5acbd6c3e37b8a4f242eab40b3
+      svelte: 3.42.1
+      svelte-preprocess: 4.7.4_9f62c90d64939f67533434fc6b5d8a73
       typescript: 4.3.5
     transitivePeerDependencies:
       - '@babel/core'
@@ -20051,7 +20050,7 @@ packages:
       - sugarss
     dev: true
 
-  /svelte-preprocess/4.7.4_c2e40f5acbd6c3e37b8a4f242eab40b3:
+  /svelte-preprocess/4.7.4_9f62c90d64939f67533434fc6b5d8a73:
     resolution: {integrity: sha512-mDAmaltQl6e5zU2VEtoWEf7eLTfuOTGr9zt+BpA3AGHo8MIhKiNSPE9OLTCTOMgj0vj/uL9QBbaNmpG4G1CgIA==}
     engines: {node: '>= 9.11.2'}
     requiresBuild: true
@@ -20097,14 +20096,14 @@ packages:
       '@types/sass': 1.16.1
       detect-indent: 6.0.0
       node-sass: 6.0.1
-      sass: 1.36.0
+      sass: 1.37.5
       strip-indent: 3.0.0
-      svelte: 3.41.0
+      svelte: 3.42.1
       typescript: 4.3.5
     dev: true
 
-  /svelte/3.41.0:
-    resolution: {integrity: sha512-X9/lnTcRBCrMdyFBVjfmqy1T2vyN8ejUE1OfbWSccc2Z42Amn3ab3XdBgVl+oDkZvzPfPMoxo6CEbWca7pXOew==}
+  /svelte/3.42.1:
+    resolution: {integrity: sha512-XtExLd2JAU3T7M2g/DkO3UNj/3n1WdTXrfL63OZ5nZq7nAqd9wQw+lR4Pv/wkVbrWbAIPfLDX47UjFdmnY+YtQ==}
     engines: {node: '>= 8'}
     dev: true
 
@@ -20245,7 +20244,7 @@ packages:
       find-cache-dir: 2.1.0
       is-wsl: 1.1.0
       schema-utils: 1.0.0
-      serialize-javascript: 5.0.1
+      serialize-javascript: 4.0.0
       source-map: 0.6.1
       terser: 4.8.0
       webpack: 4.45.0
@@ -20263,7 +20262,7 @@ packages:
       find-cache-dir: 2.1.0
       is-wsl: 1.1.0
       schema-utils: 1.0.0
-      serialize-javascript: 5.0.1
+      serialize-javascript: 4.0.0
       source-map: 0.6.1
       terser: 4.8.0
       webpack: 4.46.0_webpack-cli@4.5.0
@@ -20602,8 +20601,8 @@ packages:
   /tslib/1.14.1:
     resolution: {integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==}
 
-  /tslib/2.3.0:
-    resolution: {integrity: sha512-N82ooyxVNm6h1riLCoyS9e3fuJ3AMG2zIZs2Gd1ATcSFjSA23Q0fzjjZeh0jbJvWVDZ0cJT8yaNNaaXHzueNjg==}
+  /tslib/2.3.1:
+    resolution: {integrity: sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==}
     dev: true
 
   /tsutils/3.21.0:
@@ -21887,6 +21886,6 @@ packages:
       '@typescript-eslint/parser': 4.29.0_eslint@7.31.0+typescript@4.3.5
       eslint: 7.31.0
       eslint-plugin-import: 2.23.4_eslint@7.31.0
-      eslint-plugin-svelte3: 3.2.0_eslint@7.31.0+svelte@3.41.0
+      eslint-plugin-svelte3: 3.2.0_eslint@7.31.0+svelte@3.42.1
       typescript: 4.3.5
     dev: true
