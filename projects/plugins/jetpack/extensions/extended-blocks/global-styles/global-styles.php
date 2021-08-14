@@ -71,12 +71,19 @@ function gutenberg_wpcom_add_google_fonts_to_site_editor( $settings ) {
 			valid_google_fonts()
 		);
 
-		if ( isset( $settings['__experimentalGlobalStylesBaseStyles']['settings']['typography']['fontFamilies'] ) ) {
-			$settings['__experimentalGlobalStylesBaseStyles']['settings']['typography']['fontFamilies']['theme'] = array_merge(
-				$settings['__experimentalGlobalStylesBaseStyles']['settings']['typography']['fontFamilies']['theme'],
-				$google_font_options
-			);
+		if (
+			! isset( $settings['__experimentalGlobalStylesBaseStyles'] ) ||
+			! isset( $settings['__experimentalGlobalStylesBaseStyles']['settings'] ) ||
+			! isset( $settings['__experimentalGlobalStylesBaseStyles']['settings']['typography'] ) ||
+			! isset( $settings['__experimentalGlobalStylesBaseStyles']['settings']['typography']['fontFamilies'] )
+		) {
+			return;
 		}
+
+		$settings['__experimentalGlobalStylesBaseStyles']['settings']['typography']['fontFamilies']['theme'] = array_merge(
+			$settings['__experimentalGlobalStylesBaseStyles']['settings']['typography']['fontFamilies']['theme'],
+			$google_font_options
+		);
 	}
 
 	return $settings;
@@ -102,48 +109,55 @@ if ( function_exists( 'get_block_editor_settings' ) ) {
 function gutenberg_wpcom_google_fonts_enqueue_assets() {
 	$global_styles_user_data = WP_Theme_JSON_Resolver_Gutenberg::get_user_data()->get_raw_data();
 
-	if ( isset( $global_styles_user_data['styles'] ) && isset( $global_styles_user_data['styles']['typography'] ) ) {
-		// 1. Determine if a google font was selected for site editor global styles
-		$user_selected_font_family = $global_styles_user_data['styles']['typography']['fontFamily'];
-		foreach ( valid_google_fonts() as $font_name ) {
-			$font_slug = str_replace( ' ', '-', strtolower( $font_name ) );
-			if ( strpos( $user_selected_font_family, $font_slug ) ) {
-				$google_font_name = $font_name;
-				$google_font_slug = $font_slug;
-				break;
-			}
-		}
+	if (
+		! isset( $global_styles_user_data ) ||
+		! isset( $global_styles_user_data['styles'] ) ||
+		! isset( $global_styles_user_data['styles']['typography'] ) ||
+		! isset( $global_styles_user_data['styles']['typography']['fontFamily'] )
+	) {
+		return;
+	}
 
-		if ( $google_font_name && $google_font_slug ) {
-			// 2. Generate formatted style declarations for the selected google font
-			$google_font_settings_theme_json = new WP_Theme_JSON_Gutenberg(
-				array(
-					'version'  => 1,
-					'settings' => array(
-						'typography' => array(
-							'fontFamilies' => array(
-								'theme' => array(
-									'name'       => $google_font_name,
-									'slug'       => $google_font_slug,
-									'fontFamily' => $google_font_name,
-								),
+	// 1. Determine if a google font was selected for site editor global styles
+	$user_selected_font_family = $global_styles_user_data['styles']['typography']['fontFamily'];
+	foreach ( valid_google_fonts() as $font_name ) {
+		$font_slug = str_replace( ' ', '-', strtolower( $font_name ) );
+		if ( strpos( $user_selected_font_family, $font_slug ) ) {
+			$google_font_name = $font_name;
+			$google_font_slug = $font_slug;
+			break;
+		}
+	}
+
+	if ( $google_font_name && $google_font_slug ) {
+		// 2. Generate formatted style declarations for the selected google font
+		$google_font_settings_theme_json = new WP_Theme_JSON_Gutenberg(
+			array(
+				'version'  => 1,
+				'settings' => array(
+					'typography' => array(
+						'fontFamilies' => array(
+							'theme' => array(
+								'name'       => $google_font_name,
+								'slug'       => $google_font_slug,
+								'fontFamily' => $google_font_name,
 							),
 						),
 					),
-				)
-			);
-			$css_variable_declaration        = $google_font_settings_theme_json->get_stylesheet( 'css_variables' );
+				),
+			)
+		);
+		$css_variable_declaration        = $google_font_settings_theme_json->get_stylesheet( 'css_variables' );
 
-			// 3. Inject the google font style declarations into the global styles embedded stylesheet
-			if ( isset( wp_styles()->registered['global-styles'] ) && $css_variable_declaration ) {
-				$import_statement = "@import url('https://fonts.googleapis.com/css?family="
-					. str_replace( ' ', '+', $google_font_name )
-					. ':regular,bold,italic,bolditalic|' . "');";
+		// 3. Inject the google font style declarations into the global styles embedded stylesheet
+		if ( isset( wp_styles()->registered['global-styles'] ) && $css_variable_declaration ) {
+			$import_statement = "@import url('https://fonts.googleapis.com/css?family="
+				. str_replace( ' ', '+', $google_font_name )
+				. ':regular,bold,italic,bolditalic|' . "');";
 
-				wp_styles()->registered['global-styles']->extra['after'][0] = $import_statement
-				. "\n" . $css_variable_declaration
-				. "\n" . wp_styles()->registered['global-styles']->extra['after'][0];
-			}
+			wp_styles()->registered['global-styles']->extra['after'][0] = $import_statement
+			. "\n" . $css_variable_declaration
+			. "\n" . wp_styles()->registered['global-styles']->extra['after'][0];
 		}
 	}
 }
