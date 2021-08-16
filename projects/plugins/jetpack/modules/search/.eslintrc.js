@@ -9,9 +9,9 @@ module.exports = {
 	},
 	overrides: [
 		{
-			// Uses @wordpress/babel-preset-default, which auto-imports as necessary.
 			files: './customberg/**/*',
 			rules: {
+				// Uses @wordpress/babel-preset-default, which auto-imports React as necessary.
 				'react/react-in-jsx-scope': 0,
 			},
 		},
