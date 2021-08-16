@@ -84,5 +84,9 @@ document.querySelectorAll( '.jetpack-quiz-option-button' ).forEach( function ( e
 				parseInt( currentQuiz.getAttribute( 'quiz-number' ) ) + switchNumber
 			];
 		newQuiz.style.display = 'block';
+		var newQuizQuestionEl = newQuiz.querySelector( '.jetpack-quiz-question' );
+		if ( newQuizQuestionEl ) {
+			newQuizQuestionEl.focus();
+		}
 	} );
 } );

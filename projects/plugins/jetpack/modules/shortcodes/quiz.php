@@ -277,6 +277,7 @@ class Quiz_Shortcode {
 					'data-track-id'    => 1,
 					'data-a8ctraining' => 1,
 					'data-username'    => 1,
+					'tabindex'         => false,
 				),
 			)
 		);
@@ -295,7 +296,7 @@ class Quiz_Shortcode {
 	 */
 	public static function question_shortcode( $atts, $content = null ) {
 		return isset( $atts['quiz_item'] )
-			? '<div class="jetpack-quiz-question question">' . self::do_shortcode( $content ) . '</div>'
+			? '<div class="jetpack-quiz-question question" tabindex="-1">' . self::do_shortcode( $content ) . '</div>'
 			: '';
 	}
 
