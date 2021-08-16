@@ -127,3 +127,28 @@ add_action( 'after_setup_theme', 'wpcomsh_disable_block_template_creation' );
 add_action( 'restapi_theme_after_setup_theme', 'wpcomsh_disable_block_template_creation' );
 
 wpcomsh_disable_block_template_creation();
+
+/**
+ * Hotfix a Gutenberg bug that inadvertently loads wp-reset-editor-syles stylesheet in the
+ * iframed site editor.
+ *
+ * We are attempting to merge the same changes into core Gutenberg. If successful, these
+ * changes can be removed. https://github.com/WordPress/gutenberg/pull/33522
+ *
+ */
+function wpcomsh_remove_site_editor_reset_styles() {
+	$current_screen = get_current_screen();
+
+	if ( ! $current_screen || $current_screen->base !== 'toplevel_page_gutenberg-edit-site' ) {
+		return;
+	}
+
+	// Remove wp-reset-editor-styles css in the Site Editor, as it's not needed with an iframed editor,
+	// and can interfer with Global Styles if concatenated with other scripts.
+	if ( isset( wp_styles()->registered['wp-edit-blocks'] ) ) {
+		$wp_edit_blocks_dependencies                   = array_diff( wp_styles()->registered['wp-edit-blocks']->deps, array( 'wp-reset-editor-styles' ) );
+		wp_styles()->registered['wp-edit-blocks']->deps = $wp_edit_blocks_dependencies;
+	}
+}
+
+add_action( 'admin_enqueue_scripts', 'wpcomsh_remove_site_editor_reset_styles' );
