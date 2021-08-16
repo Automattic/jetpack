@@ -110,7 +110,7 @@ export function cachedAggregations( state = {}, action ) {
 }
 
 /**
- * Note: doc_count of cached aggregations is always 0.
+ * Note: doc_count of cached aggregations is always set to 0.
  *
  * @param {object} previousAggregations - Cached aggregations.
  * @param {object} newAggregations - New aggregations to merge.
