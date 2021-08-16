@@ -19,3 +19,12 @@ function init_posts_list() {
 }
 
 add_action( 'init', __NAMESPACE__ . '\init_posts_list' );
+
+/**
+ * Initializes the thumbnail enhancements.
+ */
+function setup_thumbnail() {
+	new Thumbnail();
+}
+
+add_action( 'init', __NAMESPACE__ . '\setup_thumbnail' );
