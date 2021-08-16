@@ -70,12 +70,14 @@ jobs:
                 - '**.cjs'
                 - '**.js'
                 - '**.jsx'
+                - '**.ts'
             excludelist:
               # If any PHP or JS file changed or was deleted, we need to check the excludelist.
               - modified|deleted:
                 - '**.php'
                 - '**.js'
                 - '**.jsx'
+                - '**.ts'
             lockfiles:
               - 'composer.json'
               - 'composer.lock'

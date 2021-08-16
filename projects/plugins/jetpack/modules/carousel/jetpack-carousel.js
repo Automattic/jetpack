@@ -35,47 +35,27 @@
 			} );
 		}
 
-		function getAverageColor( imgEl ) {
+		function getBackgroundImage( imgEl ) {
 			var canvas = document.createElement( 'canvas' ),
-				context = canvas.getContext && canvas.getContext( '2d' ),
-				imgData,
-				width,
-				height,
-				length,
-				rgb = { r: 0, g: 0, b: 0 },
-				count = 0;
+				context = canvas.getContext && canvas.getContext( '2d' );
 
 			if ( ! imgEl ) {
-				return rgb;
+				return;
 			}
 
-			height = canvas.height = imgEl.naturalHeight || imgEl.offsetHeight || imgEl.height;
-			width = canvas.width = imgEl.naturalWidth || imgEl.offsetWidth || imgEl.width;
-
+			context.filter = 'blur(20px) ';
 			context.drawImage( imgEl, 0, 0 );
-			imgData = context.getImageData( 0, 0, width, height );
+			var url = canvas.toDataURL( 'image/png' );
+			canvas = null;
 
-			length = imgData.data.length;
-
-			for ( var i = 0; i < length; i += 4 ) {
-				rgb.r += imgData.data[ i ];
-				rgb.g += imgData.data[ i + 1 ];
-				rgb.b += imgData.data[ i + 2 ];
-				count++;
-			}
-
-			rgb.r = Math.floor( rgb.r / count );
-			rgb.g = Math.floor( rgb.g / count );
-			rgb.b = Math.floor( rgb.b / count );
-
-			return rgb;
+			return url;
 		}
 
 		return {
 			noop: noop,
 			texturize: texturize,
 			applyReplacements: applyReplacements,
-			getAverageColor: getAverageColor,
+			getBackgroundImage: getBackgroundImage,
 		};
 	} )();
 
@@ -210,6 +190,12 @@
 			return 0;
 		}
 
+		function isTouch() {
+			return (
+				'ontouchstart' in window || ( window.DocumentTouch && document instanceof DocumentTouch )
+			);
+		}
+
 		function scrollToElement( el, container, callback ) {
 			if ( ! el || ! container ) {
 				if ( callback ) {
@@ -300,6 +286,7 @@
 			convertToPlainText: convertToPlainText,
 			stripHTML: stripHTML,
 			emitEvent: emitEvent,
+			isTouch: isTouch,
 		};
 	} )();
 
@@ -320,9 +307,12 @@
 			'div.gallery, div.tiled-gallery, ul.wp-block-gallery, ul.blocks-gallery-grid, ' +
 			'figure.blocks-gallery-grid, div.wp-block-jetpack-tiled-gallery, a.single-image-gallery';
 
-		var itemSelector =
-			'.gallery-item, .tiled-gallery-item, .blocks-gallery-item, ' +
-			' .tiled-gallery__item, .wp-block-image';
+		// Selector for items within a gallery or tiled gallery.
+		var galleryItemSelector =
+			'.gallery-item, .tiled-gallery-item, .blocks-gallery-item, ' + ' .tiled-gallery__item';
+
+		// Selector for all items including single images.
+		var itemSelector = galleryItemSelector + ', .wp-block-image';
 
 		var carousel = {};
 
@@ -380,10 +370,8 @@
 
 			if ( window.innerWidth <= 760 ) {
 				screenPadding = Math.round( ( window.innerWidth / 760 ) * baseScreenPadding );
-				var isTouch =
-					'ontouchstart' in window || ( window.DocumentTouch && document instanceof DocumentTouch );
 
-				if ( screenPadding < 40 && isTouch ) {
+				if ( screenPadding < 40 && domUtil.isTouch() ) {
 					screenPadding = 0;
 				}
 			}
@@ -453,6 +441,11 @@
 
 				carousel.overlay.addEventListener( 'jp_carousel.afterOpen', function () {
 					enableKeyboardNavigation();
+
+					// Don't show navigation if there's only one image.
+					if ( carousel.slides.length <= 1 ) {
+						return;
+					}
 					// Show dot pagination if slide count is <= 5, otherwise show n/total.
 					if ( carousel.slides.length <= 5 ) {
 						domUtil.show( carousel.info.querySelector( '.jp-swiper-pagination' ) );
@@ -466,6 +459,13 @@
 
 					// Fixes some themes where closing carousel brings view back to top.
 					document.documentElement.style.removeProperty( 'height' );
+
+					// If we disable the swiper (because there's only one image)
+					// we have to re-enable it here again as Swiper doesn't, for some reason,
+					// show the navigation buttons again after reinitialization.
+					if ( swiper ) {
+						swiper.enable();
+					}
 
 					// Hide pagination.
 					domUtil.hide( carousel.info.querySelector( '.jp-swiper-pagination' ) );
@@ -696,15 +696,21 @@
 		function processSingleImageGallery() {
 			var images = document.querySelectorAll( 'a img[data-attachment-id]' );
 			Array.prototype.forEach.call( images, function ( image ) {
-				var container = image.parentElement;
+				var link = image.parentElement;
+				var container = link.parentElement;
 
 				// Skip if image was already added to gallery by shortcode.
-				if ( container.parentElement.classList.contains( 'gallery-icon' ) ) {
+				if ( container.classList.contains( 'gallery-icon' ) ) {
 					return;
 				}
 
-				// Skip if the container is not a link.
-				if ( ! container.hasAttribute( 'href' ) ) {
+				// Skip if image is part of a gallery.
+				if ( domUtil.closest( container, galleryItemSelector ) ) {
+					return;
+				}
+
+				// Skip if the parent is not actually a link.
+				if ( ! link.hasAttribute( 'href' ) ) {
 					return;
 				}
 
@@ -712,7 +718,7 @@
 
 				// If link points to 'Media File' (ignoring GET parameters) and flag is set, allow it.
 				if (
-					container.getAttribute( 'href' ).split( '?' )[ 0 ] ===
+					link.getAttribute( 'href' ).split( '?' )[ 0 ] ===
 						image.getAttribute( 'data-orig-file' ).split( '?' )[ 0 ] &&
 					Number( jetpackCarouselStrings.single_image_gallery_media_file ) === 1
 				) {
@@ -720,7 +726,7 @@
 				}
 
 				// If link points to 'Attachment Page', allow it.
-				if ( container.getAttribute( 'href' ) === image.getAttribute( 'data-permalink' ) ) {
+				if ( link.getAttribute( 'href' ) === image.getAttribute( 'data-permalink' ) ) {
 					valid = true;
 				}
 
@@ -730,9 +736,9 @@
 				}
 
 				// Make this node a gallery recognizable by event listener above.
-				container.classList.add( 'single-image-gallery' );
+				link.classList.add( 'single-image-gallery' );
 				// blog_id is needed to allow posting comments to correct blog.
-				container.setAttribute(
+				link.setAttribute(
 					'data-carousel-extra',
 					JSON.stringify( {
 						blog_id: Number( jetpackCarouselStrings.blog_id ),
@@ -789,8 +795,11 @@
 
 			loadFullImage( carousel.slides[ index ] );
 
-			if ( Number( jetpackCarouselStrings.display_slide_background ) === 1 ) {
-				loadSlideBackgrounds();
+			if (
+				Number( jetpackCarouselStrings.display_background_image ) === 1 &&
+				! carousel.slides[ index ].backgroundImage
+			) {
+				loadBackgroundImage( carousel.slides[ index ] );
 			}
 
 			domUtil.hide( carousel.caption );
@@ -1273,59 +1282,31 @@
 			}
 		}
 
-		function loadSlideBackgrounds() {
-			applySlideBackground( '.swiper-slide-active' );
+		function loadBackgroundImage( slide ) {
+			var currentSlide = slide.el;
 
-			setTimeout( function () {
-				applySlideBackground( '.swiper-slide-prev' );
-				applySlideBackground( '.swiper-slide-next' );
-			}, 200 );
-		}
-
-		function applySlideBackground( slideClass ) {
-			var slideEl = carousel.container.querySelector( slideClass );
-
-			if ( ! slideEl ) {
-				return;
+			if ( swiper && swiper.slides ) {
+				currentSlide = swiper.slides[ swiper.activeIndex ];
 			}
 
-			// We're done if there's already a background image set.
-			if ( slideEl.style.backgroundImage ) {
-				return;
-			}
-
-			var image = slideEl.querySelector( 'img' );
-			if ( ! image ) {
-				return;
-			}
-
+			var image = slide.attrs.originalElement;
 			var isLoaded = image.complete && image.naturalHeight !== 0;
+
 			if ( isLoaded ) {
-				calculateSlideBackgroundCss( slideEl, image );
+				applyBackgroundImage( slide, currentSlide, image );
 				return;
 			}
 
 			image.onload = function () {
-				calculateSlideBackgroundCss( slideEl, image );
+				applyBackgroundImage( slide, currentSlide, image );
 			};
 		}
 
-		function calculateSlideBackgroundCss( slideEl, image ) {
-			var rgb = util.getAverageColor( image );
-			slideEl.style.backgroundImage =
-				'linear-gradient( to bottom, rgba(' +
-				rgb.r +
-				',' +
-				rgb.g +
-				',' +
-				rgb.b +
-				', 0.5 ), rgba(' +
-				rgb.r +
-				', ' +
-				rgb.g +
-				', ' +
-				rgb.b +
-				', 0.25 ';
+		function applyBackgroundImage( slide, currentSlide, image ) {
+			var url = util.getBackgroundImage( image );
+			slide.backgroundImage = url;
+			currentSlide.style.backgroundImage = 'url(' + url + ')';
+			currentSlide.style.backgroundSize = 'cover';
 		}
 
 		function clearCommentTextAreaValue() {
@@ -1463,7 +1444,7 @@
 		}
 
 		function loadSwiper( gallery, options ) {
-			if ( ! window.Swiper ) {
+			if ( ! window.Swiper670 ) {
 				var loader = document.querySelector( '#jp-carousel-loading-overlay' );
 				domUtil.show( loader );
 				var jsScript = document.createElement( 'script' );
@@ -1535,10 +1516,12 @@
 
 			initCarouselSlides( gallery.querySelectorAll( settings.imgSelector ), settings.startIndex );
 
-			swiper = new window.Swiper( '.jp-carousel-swiper-container', {
+			swiper = new window.Swiper670( '.jp-carousel-swiper-container', {
 				centeredSlides: true,
 				zoom: true,
-				loop: carousel.slides.length > 1 ? true : false,
+				loop: carousel.slides.length > 1,
+				// Turn off interactions and hide navigation arrows if there is only one slide.
+				enabled: carousel.slides.length > 1,
 				pagination: {
 					el: '.jp-swiper-pagination',
 					clickable: true,
@@ -1555,6 +1538,7 @@
 				},
 				preventClicks: false,
 				preventClicksPropagation: false,
+				preventInteractionOnTransition: ! domUtil.isTouch(),
 				threshold: 5,
 			} );
 

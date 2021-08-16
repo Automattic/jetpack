@@ -688,7 +688,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				WP_CLI::error(
 					__( 'No command found.', 'jetpack' ) . "\n" .
 					__( 'Please enter the IP address you want to always allow.', 'jetpack' ) . "\n" .
-					_x( 'You can save a range of IPs {low_range}-{high_range}. No spaces allowed.  (example: 1.1.1.1-2.2.2.2)', 'Instructions on how to add IP ranges - low_range/high_range should be translated.', 'jetpack' ) . "\n" .
+					_x( 'You can save a range of IPs {low_range}-{high_range}. No spaces allowed. (example: 1.1.1.1-2.2.2.2)', 'Instructions on how to add IP ranges - low_range/high_range should be translated.', 'jetpack' ) . "\n" .
 					_x( "You can also 'list' or 'clear' the always allowed list.", "'list' and 'clear' are commands and should not be translated", 'jetpack' ) . "\n"
 				);
 				break;
@@ -743,7 +743,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		// Bail if the option isn't found
 		$option = isset( $args[1] ) ? Jetpack_Options::get_option( $args[1] ) : false;
 		if ( isset( $args[1] ) && ! $option && 'update' !== $args[0] ) {
-			WP_CLI::error( __( 'Option not found or is empty.  Use "list" to list option names', 'jetpack' ) );
+			WP_CLI::error( __( 'Option not found or is empty. Use "list" to list option names', 'jetpack' ) );
 		}
 
 		// Let's print_r the option if it's an array
@@ -2079,7 +2079,7 @@ function jetpack_cli_are_you_sure( $flagged = false, $error_msg = false ) {
 	if ( ! $flagged ) {
 		$prompt_message = _x( 'Are you sure? This cannot be undone. Type "yes" to continue:', '"yes" is a command - do not translate.', 'jetpack' );
 	} else {
-		$prompt_message = _x( 'Are you sure? Modifying this option may disrupt your Jetpack connection.  Type "yes" to continue.', '"yes" is a command - do not translate.', 'jetpack' );
+		$prompt_message = _x( 'Are you sure? Modifying this option may disrupt your Jetpack connection. Type "yes" to continue.', '"yes" is a command - do not translate.', 'jetpack' );
 	}
 
 	WP_CLI::line( $prompt_message );

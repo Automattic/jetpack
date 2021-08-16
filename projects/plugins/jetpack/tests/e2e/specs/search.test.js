@@ -1,41 +1,46 @@
-/**
- * Internal dependencies
- */
-import { syncJetpackPlanData } from '../lib/flows/jetpack-connect';
-import { activateModule } from '../lib/utils-helper';
 import Homepage from '../lib/pages/search-homepage';
-import { step } from '../lib/env/test-setup';
 import {
 	enableInstantSearch,
 	getSidebarsWidgets,
 	setupSidebarsWidgets,
 	setupSearchWidget,
 	disableInstantSearch,
-	disableSearchModule,
+	getBlockWidgets,
+	setupBlockWidgets,
 } from '../lib/search-helper';
+import { testStep } from '../lib/reporters/reporter';
+import { prerequisitesBuilder } from '../lib/env/prerequisites';
+import { Plans } from '../lib/env/types';
 
 /**
  *
  * @group post-connection
  * @group search
- *
  */
 describe( 'Search', () => {
 	let homepage;
 	let backupSidebarsWidgets;
+	let backupBlockWidgets;
 
 	beforeAll( async () => {
+		await prerequisitesBuilder()
+			.withLoggedIn( true )
+			.withConnection( true )
+			.withPlan( Plans.Complete )
+			.withActiveModules( [ 'search' ] )
+			.build();
+
 		backupSidebarsWidgets = await getSidebarsWidgets();
-		await syncJetpackPlanData( 'complete' );
-		await activateModule( page, 'search' );
+		backupBlockWidgets = await getBlockWidgets();
 		await enableInstantSearch();
 		await setupSidebarsWidgets();
 		await setupSearchWidget();
+		await setupBlockWidgets();
 	} );
 
 	afterAll( async () => {
 		await setupSidebarsWidgets( backupSidebarsWidgets );
-		await disableSearchModule();
+		await setupBlockWidgets( backupBlockWidgets );
 		await disableInstantSearch();
 	} );
 
@@ -46,7 +51,7 @@ describe( 'Search', () => {
 	} );
 
 	it( 'Can perform search with default settings', async () => {
-		await step( 'Can open the overlay by entering a query', async () => {
+		await testStep( 'Can open the overlay by entering a query', async () => {
 			await homepage.focusSearchInput();
 			await homepage.enterQuery();
 			await homepage.waitForSearchResponse();
@@ -54,28 +59,28 @@ describe( 'Search', () => {
 			expect( await homepage.isOverlayVisible() ).toBeTruthy();
 		} );
 
-		await step( 'Can show search controls in the overlay', async () => {
+		await testStep( 'Can show search controls in the overlay', async () => {
 			expect( await homepage.isSearchFormVisible() ).toBeTruthy();
 			expect( await homepage.isSortingVisible() ).toBeTruthy();
 			expect( await homepage.isFilteringOptionsVisible() ).toBeTruthy();
 		} );
 
-		await step( 'Can show search results in the overlay', async () => {
+		await testStep( 'Can show search results in the overlay', async () => {
 			expect( await homepage.isSearchResultVisible() ).toBeTruthy();
 		} );
 
-		await step( 'Can sort results by relevance by default', async () => {
+		await testStep( 'Can sort results by relevance by default', async () => {
 			expect( await homepage.getFirstResultTitle() ).toBe( '<mark>Test1</mark> Record 1' );
 		} );
 
-		await step( 'Can edit query in search form', async () => {
+		await testStep( 'Can edit query in search form', async () => {
 			await homepage.enterQueryToOverlay( 'test2' );
 			await homepage.waitForSearchResponse();
 
 			expect( await homepage.getFirstResultTitle() ).toBe( '<mark>Test2</mark> Record 1' );
 		} );
 
-		await step( 'Can change sort order', async () => {
+		await testStep( 'Can change sort order', async () => {
 			await homepage.chooseSortingLink( 'newest' );
 			await homepage.waitForSearchResponse();
 
@@ -89,7 +94,7 @@ describe( 'Search', () => {
 			expect( await homepage.getFirstResultTitle() ).toBe( '<mark>Test2</mark> Record 2' );
 		} );
 
-		await step( 'Can apply filters', async () => {
+		await testStep( 'Can apply filters', async () => {
 			await homepage.clickFilterCategory2();
 			await homepage.waitForSearchResponse();
 
@@ -102,7 +107,7 @@ describe( 'Search', () => {
 			expect( await homepage.getFirstResultTitle() ).toBe( '<mark>Test2</mark> Record 3' );
 		} );
 
-		await step( 'Can close overlay by clicking the cross', async () => {
+		await testStep( 'Can close overlay by clicking the cross', async () => {
 			await homepage.clickCrossToCloseOverlay();
 
 			expect( await homepage.isOverlayVisible() ).toBeFalsy();
@@ -110,14 +115,14 @@ describe( 'Search', () => {
 	} );
 
 	it( 'Can open and close overlay', async () => {
-		await step( 'Can press enter to to open overlay', async () => {
+		await testStep( 'Can press enter to to open overlay', async () => {
 			await homepage.pressEnterInSearchInput();
 			await homepage.waitForSearchResponse();
 
 			expect( await homepage.isOverlayVisible() ).toBeTruthy();
 		} );
 
-		await step( 'Can click the cross to close the overlay', async () => {
+		await testStep( 'Can click the cross to close the overlay', async () => {
 			await homepage.clickCrossToCloseOverlay();
 
 			expect( await homepage.isOverlayVisible() ).toBeFalsy();
@@ -125,7 +130,7 @@ describe( 'Search', () => {
 	} );
 
 	it( 'Can display different result formats', async () => {
-		await step( 'Can use minimal format', async () => {
+		await testStep( 'Can use minimal format', async () => {
 			await homepage.goto( `${ siteUrl }?result_format=minimal` );
 			await homepage.waitForPage();
 			await homepage.waitForNetworkIdle();
@@ -137,7 +142,7 @@ describe( 'Search', () => {
 			expect( await homepage.isResultFormat( 'is-format-minimal' ) ).toBeTruthy();
 		} );
 
-		await step( 'Can use product format', async () => {
+		await testStep( 'Can use product format', async () => {
 			await homepage.goto( `${ siteUrl }?result_format=product` );
 			await homepage.waitForPage();
 			await homepage.waitForNetworkIdle();
@@ -151,7 +156,7 @@ describe( 'Search', () => {
 			expect( await homepage.isProductPriceVisible() ).toBeTruthy();
 		} );
 
-		await step( 'Can use expanded format', async () => {
+		await testStep( 'Can use expanded format', async () => {
 			await homepage.goto( `${ siteUrl }?result_format=expanded&s=random-string-3` );
 			await homepage.waitForPage();
 			await homepage.waitForNetworkIdle();

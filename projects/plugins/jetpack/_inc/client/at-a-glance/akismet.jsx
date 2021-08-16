@@ -27,7 +27,7 @@ import { getJetpackProductUpsellByFeature, FEATURE_SPAM_AKISMET_PLUS } from 'lib
 import { getConnectUrl, hasConnectedOwner, isOfflineMode } from 'state/connection';
 import JetpackBanner from 'components/jetpack-banner';
 import { numberFormat } from 'components/number-format';
-import restApi from 'rest-api';
+import restApi from '@automattic/jetpack-api';
 import QueryAkismetData from 'components/data/query-akismet-data';
 
 class DashAkismet extends Component {
