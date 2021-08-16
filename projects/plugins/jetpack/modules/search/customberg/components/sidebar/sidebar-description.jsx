@@ -4,7 +4,7 @@
 import { BlockIcon } from '@wordpress/block-editor';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { blockDefault } from '@wordpress/icons';
+import { svg as jetpackColophonSvg } from '../../../instant-search/components/jetpack-colophon';
 import { addQueryArgs } from '@wordpress/url';
 
 /**
@@ -15,7 +15,7 @@ import { addQueryArgs } from '@wordpress/url';
 export default function SidebarDescription() {
 	return (
 		<div className="jp-search-customize-sidebar-description">
-			<BlockIcon icon={ blockDefault } />
+			<BlockIcon icon={ jetpackColophonSvg } />
 			<div>
 				<p>
 					{ __(
