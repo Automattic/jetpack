@@ -174,7 +174,8 @@ class Jetpack_Search_Customberg {
 	 */
 	protected function wp_supports_customberg() {
 		// Must be WP 5.8 or greater.
-		return version_compare( get_bloginfo( 'version' ), '5.8', '>=' );
+		global $wp_version;
+		return version_compare( $wp_version, '5.8', '>=' );
 	}
 
 	/**
