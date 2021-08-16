@@ -35,7 +35,7 @@ import {
 	setStaticFilter,
 	setSearchQuery,
 	setSort,
-	clearResponseAggregrationsCache,
+	clearAggregrationsCache,
 } from '../store/actions';
 import {
 	getFilters,
@@ -187,7 +187,7 @@ class SearchApp extends Component {
 			return;
 		}
 
-		this.props.clearResponseAggregrationsCache();
+		this.props.clearAggregrationsCache();
 
 		// If there are static filters available, but they are not part of the url/state, we will set their default value
 		isVisible && this.initializeStaticFilters();
@@ -341,6 +341,6 @@ export default connect(
 		setFilter,
 		setSearchQuery,
 		setSort,
-		clearResponseAggregrationsCache,
+		clearAggregrationsCache,
 	}
 )( SearchApp );

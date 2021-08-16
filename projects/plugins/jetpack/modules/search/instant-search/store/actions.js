@@ -160,7 +160,7 @@ export function disableQueryStringIntegration() {
  *
  * @returns {object} Action object.
  */
-export function clearResponseAggregrationsCache() {
+export function clearAggregrationsCache() {
 	return {
 		type: 'CLEAR_RESPONSE_AGGREGATIONS_CACHE',
 	};
