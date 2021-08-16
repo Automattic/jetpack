@@ -153,3 +153,15 @@ export function disableQueryStringIntegration() {
 		type: 'DISABLE_QUERY_STRING_INTEGRATION',
 	};
 }
+
+/**
+ * Returns an action object used to clear result aggregations cache
+ * which is to be displayed for user to uncheck even when there's no results.
+ *
+ * @returns {object} Action object.
+ */
+export function clearResponseAggregrationsCache() {
+	return {
+		type: 'CLEAR_RESPONSE_AGGREGATIONS_CACHE',
+	};
+}

@@ -1,4 +1,9 @@
 /**
+ * Internal Dependencies
+ */
+import { doesUrlContainFilters } from '../../lib/query-string';
+
+/**
  * Reducer for recording if the previous search request yielded an error.
  *
  * @param {object} state - Current state.
@@ -70,9 +75,61 @@ export function response( state = {}, action ) {
 			if ( Array.isArray( newState.results ) && newState.results.length > newState.total ) {
 				newState.total = newState.results.length;
 			}
+
+			// cachedAggregations is used to cache the aggregations object.
+			newState.cachedAggregations = mergeCachedAggregations(
+				state.cachedAggregations,
+				newState.aggregations
+			);
+
+			// If there is no result to show, we show the cached aggregations.
+			// TODO: replace true with a flag indicating whether there are filters in URL
+			if ( ! newState.results?.length > 0 && doesUrlContainFilters( location.href ) ) {
+				newState.aggregations = state.cachedAggregations ? state.cachedAggregations : {};
+			}
+
 			return newState;
 		}
 	}
 
 	return state;
+}
+
+/**
+ * Reducer for clearing cached aggregations.
+ *
+ * @param {object} state - Current state.
+ * @param {object} action - Dispatched action.
+ * @returns {object} Updated state.
+ */
+export function cachedAggregations( state = {}, action ) {
+	switch ( action.type ) {
+		case 'CLEAR_RESPONSE_AGGREGATIONS_CACHE':
+			return { ...state, cachedAggregations: {} };
+	}
+	return state;
+}
+
+/**
+ * Note: doc_count of cached aggregations is always 0.
+ *
+ * @param {object} previousAggregations - Cached aggregations.
+ * @param {object} newAggregations - New aggregations to merge.
+ * @returns {object} Merged aggregations.
+ */
+function mergeCachedAggregations( previousAggregations, newAggregations ) {
+	return {
+		...previousAggregations,
+		...Object.fromEntries(
+			Object.entries( newAggregations )
+				.filter( ( [ , aggregation ] ) => aggregation?.buckets?.length > 0 )
+				.map( ( [ aggregationKey, aggregation ] ) => {
+					const buckets = aggregation.buckets.map( bucket => ( {
+						...bucket,
+						doc_count: 0,
+					} ) );
+					return [ aggregationKey, { ...aggregation, buckets } ];
+				} )
+		),
+	};
 }
