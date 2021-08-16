@@ -65,14 +65,14 @@ class Critical_CSS_State {
 				'created'     => microtime( true ),
 				'state'       => null,
 				'state_error' => null,
-				'sources'     => array(), // TODO: Maybe rename to providers but what is the impact on back compatibility?
+				'sources'     => array(),
 			)
 		);
 
 		$this->created     = $state['created'];
 		$this->state       = $state['state'];
-		$this->state_error = $state['state_error'];
-		$this->sources     = $state['sources']; // TODO: Maybe rename to providers but what is the impact on back compatibility?
+		$this->state_error = empty( $state['state_error'] ) ? null : $state['state_error'];
+		$this->sources     = $this->verify_sources( $state['sources'] );
 	}
 
 	/**
@@ -85,7 +85,7 @@ class Critical_CSS_State {
 				'created'     => $this->created,
 				'state'       => $this->state,
 				'state_error' => $this->state_error,
-				'sources'     => $this->sources, // TODO: Maybe rename to providers but what is the impact on back compatibility?
+				'sources'     => $this->sources,
 			)
 		);
 	}
@@ -384,5 +384,32 @@ class Critical_CSS_State {
 	 */
 	public function reset() {
 		Transient::delete( self::KEY );
+	}
+
+	/**
+	 * Verify Provider source array, dropping sources which don't contain valid data (i.e.: from older Boost versions)
+	 *
+	 * @param array $sources - Data on Provider sources, raw from storage.
+	 */
+	protected function verify_sources( $sources ) {
+		if ( ! is_array( $sources ) ) {
+			return null;
+		}
+
+		// Ensure any source error contains a type.
+		return array_filter(
+			$sources,
+			function ( $source_details ) {
+				if ( is_array( $source_details['error'] ) ) {
+					foreach ( $source_details['error'] as $error ) {
+						if ( empty( $error['type'] ) ) {
+							return false;
+						}
+					}
+				}
+
+				return true;
+			}
+		);
 	}
 }
