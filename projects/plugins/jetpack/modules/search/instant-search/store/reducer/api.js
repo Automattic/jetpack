@@ -82,8 +82,7 @@ export function response( state = {}, action ) {
 				newState.aggregations
 			);
 
-			// If there is no result to show, we show the cached aggregations.
-			// TODO: replace true with a flag indicating whether there are filters in URL
+			// If there is no result to show and there are filter keys in URL, we show the cached aggregations.
 			if ( ! newState.results?.length > 0 && doesUrlContainFilterKeys( location.href ) ) {
 				newState.aggregations = state.cachedAggregations ? state.cachedAggregations : {};
 			}
