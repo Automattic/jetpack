@@ -93,8 +93,8 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->reregister_menu_items();
 
 		$this->assertSame(
+			array( 2, '3.86682', 4, 5, 10, 15, 20, 25, 30, 50, 51, 59, '59.46608', 60, 65, 70, 75, 80 ),
 			array_keys( $menu ),
-			array( 2, '3.86682', 4, 5, 10, 15, 20, 25, 30, 50, 51, 59, 60, 61, 65, 70, 75, 80 ),
 			'Admin menu should not have unexpected top menu items.'
 		);
 
@@ -227,7 +227,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_posts_menu();
 
 		$this->assertSame( 'https://wordpress.com/posts/' . static::$domain, $submenu['edit.php'][0][2] );
-		$this->assertSame( 'https://wordpress.com/post/' . static::$domain, $submenu['edit.php'][1][2] );
+		$this->assertSame( 'https://wordpress.com/post/' . static::$domain, $submenu['edit.php'][2][2] );
 	}
 
 	/**
@@ -255,7 +255,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_page_menu();
 
 		$this->assertSame( 'https://wordpress.com/pages/' . static::$domain, $submenu['edit.php?post_type=page'][0][2] );
-		$this->assertSame( 'https://wordpress.com/page/' . static::$domain, $submenu['edit.php?post_type=page'][1][2] );
+		$this->assertSame( 'https://wordpress.com/page/' . static::$domain, $submenu['edit.php?post_type=page'][2][2] );
 	}
 
 	/**
@@ -288,6 +288,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		unregister_post_type( 'custom_test_type' );
 
 		$this->assertSame( 'https://wordpress.com/types/custom_test_type/' . static::$domain, array_shift( $submenu['edit.php?post_type=custom_test_type'] )[2] );
+		array_shift( $submenu['edit.php?post_type=custom_test_type'] );
 		$this->assertSame( 'https://wordpress.com/edit/custom_test_type/' . static::$domain, array_shift( $submenu['edit.php?post_type=custom_test_type'] )[2] );
 	}
 
@@ -384,8 +385,8 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_users_menu();
 
 		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, $submenu['users.php'][0][2] );
-		$this->assertSame( 'https://wordpress.com/people/new/' . static::$domain, $submenu['users.php'][1][2] );
-		$this->assertSame( 'https://wordpress.com/me', $submenu['users.php'][2][2] );
+		$this->assertSame( 'https://wordpress.com/people/new/' . static::$domain, $submenu['users.php'][2][2] );
+		$this->assertSame( 'https://wordpress.com/me', $submenu['users.php'][3][2] );
 		$this->assertSame( 'https://wordpress.com/me/account', $submenu['users.php'][6][2] );
 	}
 
@@ -401,8 +402,8 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		$this->assertSame( 'https://wordpress.com/marketing/tools/' . static::$domain, $submenu['tools.php'][0][2] );
 		$this->assertSame( 'https://wordpress.com/earn/' . static::$domain, $submenu['tools.php'][1][2] );
-		$this->assertSame( 'https://wordpress.com/import/' . static::$domain, $submenu['tools.php'][3][2] );
-		$this->assertSame( 'https://wordpress.com/export/' . static::$domain, $submenu['tools.php'][4][2] );
+		$this->assertSame( 'https://wordpress.com/import/' . static::$domain, $submenu['tools.php'][4][2] );
+		$this->assertSame( 'https://wordpress.com/export/' . static::$domain, $submenu['tools.php'][5][2] );
 	}
 
 	/**
@@ -449,15 +450,15 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		$fse_link = 'https://wordpress.com/site-editor/' . static::$domain;
 		$fse_menu = array(
-			'Site Editor (beta)',
+			'Site Editor <span class="awaiting-mod">beta</span>',
 			'edit_theme_options',
 			$fse_link,
-			'Site Editor <span class="awaiting-mod">beta</span>',
-			'menu-top toplevel_page_' . $fse_link,
-			'toplevel_page_' . $fse_link,
+			'Site Editor (beta)',
+			'menu-top toplevel_page_gutenberg-edit-site',
+			'toplevel_page_gutenberg-edit-site',
 			'dashicons-layout',
 		);
-		$this->assertSame( $menu[59], $fse_menu );
+		$this->assertSame( $fse_menu, $menu['59.46608'] );
 	}
 
 	/**
