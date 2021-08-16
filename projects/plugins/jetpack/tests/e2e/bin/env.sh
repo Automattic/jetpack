@@ -28,13 +28,15 @@ reset_env() {
 
 gb_setup() {
 	GB_ZIP="wp-content/gutenberg.zip"
-	pnpx jetpack docker --type e2e --name t1 exec "./wp-content/plugins/jetpack-dev/tests/e2e/bin/container-setup.sh gb-setup $GB_ZIP"
+	pnpx jetpack docker --type e2e --name t1 exec "./wp-content/plugins/jetpacj/tests/e2e/bin/container-setup.sh gb-setup $GB_ZIP"
 	pnpx jetpack docker --type e2e --name t1 wp plugin install $GB_ZIP
 	pnpx jetpack docker --type e2e --name t1 wp plugin activate gutenberg
 }
 
 configure_wp_env() {
 	# pnpx wp-env run tests-wordpress ./wp-content/plugins/jetpack-dev/tests/e2e/bin/container-setup.sh wp-config
+
+	pnpx jetpack docker --type e2e --name t1 exec -- chown -R www-data:www-data /var/www
 	pnpx jetpack docker --type e2e --name t1 wp plugin activate jetpack
 	pnpx jetpack docker --type e2e --name t1 wp plugin activate e2e-plan-data-interceptor
 	pnpx jetpack docker --type e2e --name t1 wp option set permalink_structure ""
