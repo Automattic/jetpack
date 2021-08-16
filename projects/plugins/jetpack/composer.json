@@ -41,8 +41,7 @@
 		"nojimage/twitter-text-php": "3.1.2"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "1.2.x-dev",
-		"yoast/phpunit-polyfills": "0.2.0"
+		"automattic/jetpack-changelogger": "1.2.x-dev"
 	},
 	"scripts": {
 		"build-production": [
