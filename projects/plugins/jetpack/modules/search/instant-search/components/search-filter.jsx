@@ -158,7 +158,7 @@ export default class SearchFilter extends Component {
 
 	renderDates() {
 		return (
-			[ ...this.props.aggregation.buckets.map( this.renderDate ) ]
+			[ ...this.props.aggregation.buckets.filter( bucket => !! bucket ).map( this.renderDate ) ]
 				// TODO: Remove this reverse & slice when API adds filter count support
 				.reverse()
 				.slice( 0, this.props.configuration.count )
