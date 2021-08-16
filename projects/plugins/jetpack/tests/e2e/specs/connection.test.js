@@ -16,7 +16,11 @@ import { prerequisitesBuilder } from '../lib/env/prerequisites';
  */
 describe( 'Connection', () => {
 	beforeEach( async () => {
-		await prerequisitesBuilder().withConnection( false ).build();
+		await prerequisitesBuilder()
+			.withLoggedIn( true )
+			.withWpComLoggedIn( true )
+			.withConnection( false )
+			.build();
 		await loginToWpCom( 'defaultUser', true );
 		await loginToWpSite( true );
 		await DashboardPage.visit( page );

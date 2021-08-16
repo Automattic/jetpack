@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Status;
+
 /**
  * Requires files needed.
  */
@@ -40,7 +42,8 @@ class Jetpack_Search_Dashboard_Page extends Jetpack_Admin_Page {
 			return;
 		}
 		return add_submenu_page(
-			'jetpack',
+			// change this to 'jetpack' on launch.
+			null,
 			__( 'Search Settings', 'jetpack' ),
 			__( 'Search', 'jetpack' ),
 			'manage_options',
@@ -82,9 +85,7 @@ class Jetpack_Search_Dashboard_Page extends Jetpack_Admin_Page {
 	 * @return {boolean} Show search sub menu or not.
 	 */
 	protected function should_add_sub_menu() {
-		// TODO: temporary flag for testing. Will be removed on the last PR merge.
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		return Jetpack_Plan::supports( 'search' ) && array_key_exists( 'a8ctest', $_GET );
+		return method_exists( 'Jetpack_Plan', 'supports' ) && Jetpack_Plan::supports( 'search' );
 	}
 
 	/**
@@ -120,6 +121,11 @@ class Jetpack_Search_Dashboard_Page extends Jetpack_Admin_Page {
 		if ( file_exists( $script_deps_path ) ) {
 			$asset_manifest      = include $script_deps_path;
 			$script_dependencies = $asset_manifest['dependencies'];
+		}
+
+		if ( ! ( new Status() )->is_offline_mode() && Jetpack::is_connection_ready() ) {
+			// Required for Analytics.
+			Automattic\Jetpack\Tracking::register_tracks_functions_scripts( true );
 		}
 
 		wp_enqueue_script(

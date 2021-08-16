@@ -5,7 +5,7 @@ import { create } from '@storybook/theming/create';
 
 export default create( {
 	base: 'light',
-	brandTitle: 'WordPress Components',
+	brandTitle: 'Jetpack Components',
 	brandImage:
-		'https://s.w.org/style/images/about/WordPress-logotype-wmark.png',
+		'https://jetpackme.files.wordpress.com/2018/04/cropped-jetpack-favicon-2018.png?w=134',
 } );

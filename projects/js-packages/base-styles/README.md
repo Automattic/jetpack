@@ -1,20 +1,41 @@
-# base-styles
+# Base Styles
 
-Jetpack components base styles
+Base SCSS utilities and variables for Jetpack.
 
-## How to install base-styles
+## Installation
 
-### Installation From Git Repo
+Install the module
 
-## Contribute
+```bash
+npm install @automattic/jetpack-base-styles --save-dev
+```
 
-## Get Help
+## Use
 
-## Security
+### SCSS utilities and variables
 
-Need to report a security vulnerability? Go to [https://automattic.com/security/](https://automattic.com/security/) or directly to our security bug bounty site [https://hackerone.com/automattic](https://hackerone.com/automattic).
+In your application's SCSS file, include styles like so:
 
-## License
+```scss
+@import 'node_modules/@automattic/jetpack-base-styles/colors';
+@import 'node_modules/@automattic/jetpack-base-styles/variables';
+@import 'node_modules/@automattic/jetpack-base-styles/mixins';
+@import 'node_modules/@automattic/jetpack-base-styles/breakpoints';
+@import 'node_modules/@automattic/jetpack-base-styles/animations';
+@import 'node_modules/@automattic/jetpack-base-styles/z-index';
+@import 'node_modules/@automattic/jetpack-base-styles/default-custom-properties';
+```
 
-base-styles is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
+If you use [Webpack](https://webpack.js.org/) for your SCSS pipeline, you can use `~` to resolve to `node_modules`:
 
+```scss
+@import '~@automattic/jetpack-base-styles/colors';
+```
+
+To make that work with [`sass`](https://www.npmjs.com/package/sass) or [`node-sass`](https://www.npmjs.com/package/node-sass) NPM modules without Webpack, you'd have to use [includePaths option](https://sass-lang.com/documentation/js-api#includepaths):
+
+```json
+{
+	"includePaths": [ "node_modules" ]
+}
+```
