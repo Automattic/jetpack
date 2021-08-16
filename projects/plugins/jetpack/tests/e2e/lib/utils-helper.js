@@ -232,14 +232,16 @@ function getReusableUrlFromFile() {
 /**
  * There are two ways to set the target site url:
  * 1. Write it in 'temp.tunnels' file
- * 2. Set SITE_URL env variable. This overrides any value written in file
+ * 2. Configure a test site in local config and use a TEST_SITE env variable with the config property name. This overrides any value written in file
  * If none of the above is valid we throw an error
  */
 function resolveSiteUrl() {
-	let url = config.get( `testSites.${ process.env.TEST_SITE }` ).get( 'url' );
+	let url;
 
-	if ( ! url ) {
-		logger.debug( 'No url for test site defined. Checking for existing tunnel url' );
+	if ( process.env.TEST_SITE ) {
+		url = config.get( `testSites.${ process.env.TEST_SITE }` ).get( 'url' );
+	} else {
+		logger.debug( 'Checking for existing tunnel url' );
 		url = getReusableUrlFromFile();
 	}
 
