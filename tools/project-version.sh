@@ -227,4 +227,7 @@ while IFS=" " read -r C F; do
 	sedver "$BASE/projects/$SLUG/$F" "$PAT" "$VERSION" "version constant $C"
 done < <(jq -r '.extra["version-constants"] // {} | to_entries | .[] | .key + " " + .value' "$FILE")
 
+# Update other dependencies
+"$BASE/tools/check-intra-monorepo-deps.sh" "-u"
+
 exit $EXIT

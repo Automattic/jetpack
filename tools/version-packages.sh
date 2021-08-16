@@ -95,6 +95,3 @@ fi
 
 # Update any indirect dependencies too.
 "$BASE/tools/composer-update-monorepo.sh" "${COMPOSER_ARGS[@]}" "$DIR"
-
-# Update other dependencies
-"$BASE/tools/check-intra-monorepo-deps.sh" "-u"
