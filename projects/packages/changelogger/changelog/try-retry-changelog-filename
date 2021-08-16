@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Retry suffixed filenames when auto-generating version check changelogs
