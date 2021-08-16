@@ -15,7 +15,7 @@ jobs:
   build:
     name: Build all projects
     runs-on: ubuntu-latest
-    timeout-minutes: 15  # 2021-03-16: Successful runs seem to take 9-10 minutes now.
+    timeout-minutes: 20  # 2021-08-13: Seems to take a tad over 15 minutes. Should figure out how to improve this...
 
     steps:
       - uses: actions/checkout@v2
