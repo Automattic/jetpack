@@ -31,7 +31,11 @@ module.exports = ( { config } ) => {
 				},
 				'sass-loader',
 			],
-			include: [ path.resolve( __dirname ), path.join( __dirname, '../../components/components' ) ],
+			include: [
+				path.resolve( __dirname ),
+				path.join( __dirname, '../../components/components' ),
+				path.join( __dirname, '../../base-styles/stories' ),
+			],
 		}
 	);
 
