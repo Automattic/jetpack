@@ -113,7 +113,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				const sandboxClassnames = getClassNames(
 					preview.html,
 					classnames( 'wp-block-embed', 'is-type-video', 'is-provider-videopress' ),
-					true
+					false
 				);
 
 				// We set videoPressClassNames attribute to be used in ./save.js

@@ -131,11 +131,15 @@ class SearchApp extends Component {
 	}
 
 	preventBodyScroll() {
+		document.body.style.position = 'fixed';
+		document.body.style.height = '100%';
 		document.body.style.overflowY = 'hidden';
 	}
 
 	restoreBodyScroll() {
-		document.body.style.overflowY = null;
+		document.body.style.position = '';
+		document.body.style.height = '';
+		document.body.style.overflowY = '';
 	}
 
 	getResultFormat = () => {

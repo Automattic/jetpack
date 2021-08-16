@@ -9,7 +9,11 @@ import { prerequisitesBuilder } from '../lib/env/prerequisites';
  */
 describe( 'Recommendations (Jetpack Assistant)', () => {
 	beforeAll( async () => {
-		await prerequisitesBuilder().withConnection( true ).build();
+		await prerequisitesBuilder()
+			.withLoggedIn( true )
+			.withWpComLoggedIn( true )
+			.withConnection( true )
+			.build();
 	} );
 
 	it( 'Recommendations (Jetpack Assistant)', async () => {

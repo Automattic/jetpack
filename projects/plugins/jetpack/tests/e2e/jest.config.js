@@ -14,7 +14,7 @@ module.exports = {
 	testEnvironment: '<rootDir>/lib/env/playwright-environment.js',
 	globalSetup: '<rootDir>/lib/env/global-setup.js',
 	globalTeardown: '<rootDir>/lib/env/global-teardown.js',
-	setupFilesAfterEnv: [ '<rootDir>/lib/env/test-setup.js', '<rootDir>/jest.setup.js' ],
+	setupFilesAfterEnv: [ '<rootDir>/jest.setup.js' ],
 	testRunner: 'jest-circus/runner',
 	runner: 'groups',
 	globals: {
