@@ -1,6 +1,6 @@
 {
 	"name": "automattic/jetpack-base-styles",
-	"description": "Jetpack Emerald Base Styles",
+	"description": "Jetpack components Base Styles",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {},
