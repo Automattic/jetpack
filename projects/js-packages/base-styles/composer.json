@@ -1,6 +1,6 @@
 {
 	"name": "automattic/jetpack-base-styles",
-	"description": "Jetpack Emerald Base Styles",
+	"description": "Jetpack components Base Styles",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {},
@@ -13,9 +13,6 @@
 			"src/"
 		]
 	},
-	"scripts": {
-		"build-development": "echo 'Add your build step to composer.json, please!'"
-	},
 	"repositories": [
 		{
 			"type": "path",
@@ -26,5 +23,13 @@
 		}
 	],
 	"minimum-stability": "dev",
-	"prefer-stable": true
+	"prefer-stable": true,
+	"extra": {
+		"autotagger": true,
+		"npmjs-autopublish": true,
+		"mirror-repo": "Automattic/jetpack-base-styles",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-base-styles/compare/${old}...${new}"
+		}
+	}
 }
