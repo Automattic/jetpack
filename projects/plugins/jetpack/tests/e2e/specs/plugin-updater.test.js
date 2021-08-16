@@ -14,6 +14,8 @@ import { prerequisitesBuilder } from '../lib/env/prerequisites';
  */
 describe( 'Jetpack updater', () => {
 	beforeAll( async () => {
+		await prerequisitesBuilder().withLoggedIn( true ).build();
+
 		await prepareUpdaterTest();
 
 		await execMultipleWpCommands(
