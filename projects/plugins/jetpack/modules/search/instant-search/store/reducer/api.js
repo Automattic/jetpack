@@ -110,6 +110,7 @@ export function cachedAggregations( state = {}, action ) {
 }
 
 /**
+ * The function only merge on the top level, it doesn't merge the buckets.
  * Note: doc_count of cached aggregations is always set to 0.
  *
  * @param {object} previousAggregations - Cached aggregations.
