@@ -13,7 +13,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "f3ac85b35a56f681bf1d07abdc6397529076e507"
+                "reference": "99a6e270094993282609ec7754a723840b2d9757"
             },
             "require": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
@@ -23,7 +23,7 @@
                 "wp-coding-standards/wpcs": "^2.3"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^1.2",
+                "automattic/jetpack-changelogger": "^1.3",
                 "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "phpcodesniffer-standard",
