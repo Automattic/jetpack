@@ -11,6 +11,11 @@ html.wp-toolbar {
 	display: none;
 }
 
+// Customberg is an inappropriate place to show a wp-admin notice.
+#wpbody-content > .notice {
+	display: none;
+}
+
 #wpfooter {
 	display: none;
 }
