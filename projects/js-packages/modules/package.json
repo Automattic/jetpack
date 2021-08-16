@@ -31,7 +31,7 @@
 	"dependencies": {
 		"redux": "4.0.5",
 		"@automattic/jetpack-plugins": "workspace:^0.1.0-alpha",
-		"@automattic/jetpack-api": "workspace:^0.1.0-alpha",
+		"@automattic/jetpack-api": "workspace:^0.1.0",
 		"@automattic/jetpack-initial-state": "workspace:^0.1.0-alpha"
 	}
 }
