@@ -103,7 +103,7 @@ export function response( state = {}, action ) {
  */
 export function cachedAggregations( state = {}, action ) {
 	switch ( action.type ) {
-		case 'CLEAR_RESPONSE_AGGREGATIONS_CACHE':
+		case 'CLEAR_AGGREGATIONS_CACHE':
 			return { ...state, cachedAggregations: {} };
 	}
 	return state;

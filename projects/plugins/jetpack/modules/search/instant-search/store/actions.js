@@ -162,6 +162,6 @@ export function disableQueryStringIntegration() {
  */
 export function clearAggregrationsCache() {
 	return {
-		type: 'CLEAR_RESPONSE_AGGREGATIONS_CACHE',
+		type: 'CLEAR_AGGREGATIONS_CACHE',
 	};
 }
