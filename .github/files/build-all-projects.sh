@@ -145,9 +145,12 @@ for SLUG in "${SLUGS[@]}"; do
 	# Copy standard .github
 	cp -r "$BASE/.github/files/mirror-.github" "$BUILD_DIR/.github"
 
-	# Copy autotagger if enabled
+	# Copy autotagger and npmjs-autopublisher if enabled
 	if jq -e '.extra.autotagger // false' composer.json > /dev/null; then
 		cp -r "$BASE/.github/files/gh-autotagger/." "$BUILD_DIR/.github/."
+	fi
+	if jq -e '.extra["npmjs-autopublish"] // false' composer.json > /dev/null; then
+		cp -r "$BASE/.github/files/gh-npmjs-autopublisher/." "$BUILD_DIR/.github/."
 	fi
 
 	# Copy license.
@@ -185,6 +188,34 @@ for SLUG in "${SLUGS[@]}"; do
 	JSON=$(jq 'if .repositories then .repositories |= map( select( .options.monorepo | not ) ) else . end' "$BUILD_DIR/composer.json" | "$BASE/tools/prettier" --parser=json-stringify)
 	if [[ "$JSON" != "$(<"$BUILD_DIR/composer.json")" ]]; then
 		echo "$JSON" > "$BUILD_DIR/composer.json"
+	fi
+
+	# Remove engines from package.json
+	if [[ -e "$BUILD_DIR/package.json" ]]; then
+		JSON=$(jq 'if .publish_engines then .engines = .publish_engines | .publish_engines |= empty else .engines |= empty end' "$BUILD_DIR/package.json" | "$BASE/tools/prettier" --parser=json-stringify)
+		if [[ "$JSON" != "$(<"$BUILD_DIR/package.json")" ]]; then
+			echo "$JSON" > "$BUILD_DIR/package.json"
+		fi
+	fi
+
+	# If npmjs-autopublish is active, default to ignoring .github and composer.json (and not ignoring anything else) in the publish.
+	if jq -e '.extra["npmjs-autopublish"] // false' composer.json > /dev/null; then
+		TMP=
+		if [[ -e "$BUILD_DIR/.npmignore" ]]; then
+			TMP="$(<"$BUILD_DIR/.npmignore")"
+		fi
+		cat <<-EOF > "$BUILD_DIR/.npmignore"
+			# Automatically generated ignore rules.
+			/.github/
+			/composer.json
+		EOF
+		if [[ -n "$TMP" ]]; then
+			cat <<-EOF >> "$BUILD_DIR/.npmignore"
+
+				# Package ignore file.
+				$TMP
+			EOF
+		fi
 	fi
 
 	echo "Build succeeded!"
