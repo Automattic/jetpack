@@ -64,4 +64,10 @@ module.exports = {
 
 		return finalConfig;
 	},
+	refs: {
+		gutenberg: {
+			title: 'Gutenberg Components',
+			url: 'https://wordpress.github.io/gutenberg/',
+		},
+	},
 };
