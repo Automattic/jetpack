@@ -8,7 +8,7 @@
 		"automattic/jetpack-sync": "^1.25"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^1.2",
+		"automattic/jetpack-changelogger": "^1.3",
 		"yoast/phpunit-polyfills": "0.2.0",
 		"automattic/wordbless": "@dev"
 	},
