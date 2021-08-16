@@ -72,6 +72,12 @@ importers:
       jetpack-js-test-runner: link:../../../tools/js-test-runner
       nyc: 15.1.0
 
+  projects/js-packages/base-styles:
+    specifiers:
+      '@wordpress/base-styles': 3.6.0
+    devDependencies:
+      '@wordpress/base-styles': 3.6.0
+
   projects/js-packages/components:
     specifiers:
       '@wordpress/browserslist-config': 4.1.0
@@ -6530,7 +6536,6 @@ packages:
 
   /@wordpress/base-styles/3.6.0:
     resolution: {integrity: sha512-6/vXAmc9FSX7Y17UjKgUJoVU++Pv1U1G8uMx7iClRUaLetc7/jj2DD9PTyX/cdJjHr32e3yXuLVT9wfEbo6SEg==}
-    dev: false
 
   /@wordpress/blob/3.2.1:
     resolution: {integrity: sha512-qD8wZ6n+hjoshV2dp9eGH3VismOM0kvrJn5cSe4PaoYDREqUhioJIDXktZxaohnvgWOq6xfJH6rS4Or8W0r9ew==}
@@ -20245,7 +20250,7 @@ packages:
       find-cache-dir: 2.1.0
       is-wsl: 1.1.0
       schema-utils: 1.0.0
-      serialize-javascript: 5.0.1
+      serialize-javascript: 4.0.0
       source-map: 0.6.1
       terser: 4.8.0
       webpack: 4.45.0
@@ -20263,7 +20268,7 @@ packages:
       find-cache-dir: 2.1.0
       is-wsl: 1.1.0
       schema-utils: 1.0.0
-      serialize-javascript: 5.0.1
+      serialize-javascript: 4.0.0
       source-map: 0.6.1
       terser: 4.8.0
       webpack: 4.46.0_webpack-cli@4.5.0
