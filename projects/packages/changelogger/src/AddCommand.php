@@ -123,9 +123,18 @@ EOF
 			throw new \RuntimeException( 'Filename may not contain ' . implode( count( $bad ) > 2 ? ', ' : ' ', $bad ) . '.' );
 		}
 
-		$path = Config::changesDir() . "/$filename";
-		if ( file_exists( $path ) ) {
-			throw new \RuntimeException( "File \"$path\" already exists. If you want to replace it, delete it manually." );
+		// if $filename exists, try suffixing -1, -2, -3... -5.
+		$path         = Config::changesDir() . "/$filename";
+		$tries        = 0;
+		$basefilename = $filename;
+		while ( file_exists( $path ) ) {
+			if ( $tries > 5 ) {
+				throw new \RuntimeException( "File \"$path\" already exists. If you want to replace it, delete it manually." );
+			}
+
+			++$tries;
+			$filename = "$basefilename-$tries";
+			$path     = Config::changesDir() . "/$filename";
 		}
 
 		return $filename;
