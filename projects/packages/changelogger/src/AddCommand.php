@@ -96,7 +96,8 @@ EOF
 	/**
 	 * Validate a filename.
 	 *
-	 * @param string $filename Filename.
+	 * @param string  $filename Filename.
+	 * @param boolean $do_suffix Attempt to generate non-conflicting filenames if the supplied filename already exists.
 	 * @return string $filename
 	 * @throws \RuntimeException On error.
 	 */
