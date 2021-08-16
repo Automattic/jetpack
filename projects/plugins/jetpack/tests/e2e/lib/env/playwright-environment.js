@@ -5,7 +5,7 @@ const path = require( 'path' );
 const chalk = require( 'chalk' );
 const logger = require( '../logger' );
 const pwContextOptions = require( '../../playwright.config' ).pwContextOptions;
-const { fileNameFormatter, resolveSiteUrl } = require( '../utils-helper' );
+const { fileNameFormatter, resolveSiteUrl, isLocalSite } = require( '../utils-helper' );
 const { takeScreenshot } = require( '../reporters/screenshot' );
 const config = require( 'config' );
 const { ContentType } = require( 'jest-circus-allure-environment' );
@@ -32,6 +32,7 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 		await this.newContext();
 
 		this.global.siteUrl = resolveSiteUrl();
+		this.global.isLocalSite = isLocalSite();
 	}
 
 	async teardown() {

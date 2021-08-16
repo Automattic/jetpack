@@ -81,6 +81,13 @@ async function buildPrerequisites( state ) {
 }
 
 export async function ensureConnectedState( requiredConnected = undefined ) {
+	if ( global.isLocalSite ) {
+		logger.prerequisites(
+			'Site is not local, skipping connection setup. Assuming required setup is already in place.'
+		);
+		return;
+	}
+
 	const isConnected = await isBlogTokenSet();
 
 	if ( requiredConnected && isConnected ) {
@@ -117,6 +124,11 @@ async function disconnect() {
 }
 
 async function ensureCleanState( shouldReset ) {
+	if ( global.isLocalSite ) {
+		logger.prerequisites( 'Site is not local, skipping environment reset.' );
+		return;
+	}
+
 	if ( shouldReset ) {
 		logger.prerequisites( 'Resetting environment' );
 		await resetWordpressInstall();
@@ -124,6 +136,13 @@ async function ensureCleanState( shouldReset ) {
 }
 
 export async function ensurePlan( plan = undefined ) {
+	if ( global.isLocalSite ) {
+		logger.prerequisites(
+			'Site is not local, skipping plan setup. Assuming required plan is already in place.'
+		);
+		return;
+	}
+
 	if ( [ 'free', 'complete' ].indexOf( plan ) < 0 ) {
 		throw new Error( `Unsupported plan ${ plan }` );
 	}
@@ -140,6 +159,13 @@ export async function ensureWpComUserIsLoggedIn() {
 }
 
 export async function ensureModulesState( modules ) {
+	if ( global.isLocalSite ) {
+		logger.prerequisites(
+			'Site is not local, skipping modules setup. Assuming required setup is already in place.'
+		);
+		return;
+	}
+
 	if ( modules.active ) {
 		await activateModules( modules.active );
 	} else {

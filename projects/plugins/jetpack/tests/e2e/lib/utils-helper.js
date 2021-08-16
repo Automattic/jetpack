@@ -236,10 +236,10 @@ function getReusableUrlFromFile() {
  * If none of the above is valid we throw an error
  */
 function resolveSiteUrl() {
-	let url = process.env.SITE_URL;
+	let url = config.get( `testSites.${ process.env.TEST_SITE }` ).get( 'url' );
 
 	if ( ! url ) {
-		logger.debug( 'SITE_URL not set. Checking for existing tunnel url' );
+		logger.debug( 'No url for test site defined. Checking for existing tunnel url' );
 		url = getReusableUrlFromFile();
 	}
 
@@ -255,8 +255,17 @@ function resolveSiteUrl() {
  */
 function validateUrl( url ) {
 	if ( ! new URL( url ) ) {
-		throw new Error( `Undefined or invalid SITE_URL!` );
+		throw new Error( `Undefined or invalid url!` );
 	}
+}
+
+/**
+ * Checks if the test site is a local one, with wp-cli accessible or a remote one
+ *
+ * @return {boolean} true if site is local
+ */
+function isLocalSite() {
+	return !! process.env.TEST_SITE;
 }
 
 module.exports = {
@@ -275,4 +284,5 @@ module.exports = {
 	getReusableUrlFromFile,
 	resolveSiteUrl,
 	validateUrl,
+	isLocalSite,
 };
