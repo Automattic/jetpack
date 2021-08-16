@@ -103,7 +103,7 @@ export function restorePreviousHref( initialHref, callback, replaceState = false
  * @param {string} href - URL to test
  * @returns {boolean} whether the Url contain filters.
  */
-export function doesUrlContainFilters( href ) {
+export function doesUrlContainFilterKeys( href ) {
 	const filterKeys = getFilterKeys();
 	const url = new URL( href );
 	const queryObject = getQuery( url.search );

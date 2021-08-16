@@ -1,7 +1,7 @@
 /**
  * Internal Dependencies
  */
-import { doesUrlContainFilters } from '../../lib/query-string';
+import { doesUrlContainFilterKeys } from '../../lib/query-string';
 
 /**
  * Reducer for recording if the previous search request yielded an error.
@@ -84,7 +84,7 @@ export function response( state = {}, action ) {
 
 			// If there is no result to show, we show the cached aggregations.
 			// TODO: replace true with a flag indicating whether there are filters in URL
-			if ( ! newState.results?.length > 0 && doesUrlContainFilters( location.href ) ) {
+			if ( ! newState.results?.length > 0 && doesUrlContainFilterKeys( location.href ) ) {
 				newState.aggregations = state.cachedAggregations ? state.cachedAggregations : {};
 			}
 
