@@ -15,19 +15,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 /**
- * External dependencies
- */
-import { createReduxStore, register } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
-import { STORE_ID, storeConfig } from './state/store';
-
-const store = createReduxStore( STORE_ID, storeConfig );
-register( store );
-
-/**
  * Components.
  */
 export { default as ConnectScreen } from './components/connect-screen';

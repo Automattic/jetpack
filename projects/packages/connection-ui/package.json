@@ -21,7 +21,7 @@
 		"@babel/helper-module-imports": "7.12.5",
 		"@babel/preset-env": "7.12.11",
 		"@babel/register": "7.12.10",
-		"@wordpress/data": "5.2.0",
+		"@wordpress/data": "6.0.0",
 		"fancy-log": "1.3.3",
 		"gulp": "4.0.2",
 		"react": "17.0.2",

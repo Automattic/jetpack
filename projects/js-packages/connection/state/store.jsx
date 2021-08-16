@@ -4,10 +4,14 @@
 import reducer from './reducers';
 import actions from './actions';
 import selectors from './selectors';
+import storeHolder from './store-holder';
 
-export const STORE_ID = '@automattic/jetpack-connection';
-export const storeConfig = {
+const STORE_ID = 'jetpack-connection';
+
+storeHolder.mayBeInit( STORE_ID, {
 	reducer,
 	actions,
 	selectors,
-};
+} );
+
+export { STORE_ID };
