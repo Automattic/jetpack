@@ -217,13 +217,15 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 		$instance['new-tab'] = isset( $new_instance['new-tab'] ) ? (bool) $new_instance['new-tab'] : false;
 		$instance['icons']   = array();
 
-		foreach ( $new_instance['url-icons'] as $url ) {
-			$url = filter_var( $url, FILTER_SANITIZE_URL );
+		if ( ! empty( $new_instance['icons'] ) ) {
+			foreach ( $new_instance['url-icons'] as $url ) {
+				$url = filter_var( $url, FILTER_SANITIZE_URL );
 
-			if ( ! empty( $url ) ) {
-				$instance['icons'][] = array(
-					'url' => $url,
-				);
+				if ( ! empty( $url ) ) {
+					$instance['icons'][] = array(
+						'url' => $url,
+					);
+				}
 			}
 		}
 

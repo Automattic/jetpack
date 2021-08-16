@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Widgets: avoid PHP notice in Social Icons Widget when editing via the new block-based Widget editor.
