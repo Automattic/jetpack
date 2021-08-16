@@ -276,7 +276,11 @@ class Jetpack_Likes {
 
 	/** Initialize action */
 	public function action_init() {
-		if ( is_admin() || ! $this->settings->is_likes_visible() ) {
+		if ( is_admin() ) {
+			return;
+		}
+
+		if ( ! $this->settings->is_likes_visible() && ! $this->settings->reblogs_enabled_sitewide() ) {
 			return;
 		}
 
@@ -467,7 +471,11 @@ class Jetpack_Likes {
 	public function post_likes( $content ) {
 		$post_id = get_the_ID();
 
-		if ( ! is_numeric( $post_id ) || ! $this->settings->is_likes_visible() ) {
+		if ( ! is_numeric( $post_id ) ) {
+			return $content;
+		}
+
+		if ( ! $this->settings->is_likes_visible() && ! $this->settings->reblogs_enabled_sitewide() ) {
 			return $content;
 		}
 

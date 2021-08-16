@@ -4,11 +4,12 @@
  * This function needs to get loaded after the like scripts get added to the page.
  */
 function jetpack_likes_master_iframe() {
-	$version = gmdate( 'YW' );
-	$in_jetpack = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? false : true;
+	$settings         = new Jetpack_Likes_Settings();
+	$hide_like_button = ! $settings->is_likes_visible() ? '&amp;hide_like_button=true' : '';
+	$version          = gmdate( 'YW' );
+	$in_jetpack       = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? false : true;
 
 	$_locale = get_locale();
-
 	// We have to account for w.org vs WP.com locale divergence
 	if ( $in_jetpack ) {
 		if ( ! defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) || ! file_exists( JETPACK__GLOTPRESS_LOCALES_PATH ) ) {
@@ -24,9 +25,10 @@ function jetpack_likes_master_iframe() {
 	$likes_locale = ( '' == $_locale || 'en' == $_locale ) ? '' : '&amp;lang=' . strtolower( $_locale );
 
 	$src = sprintf(
-		'https://widgets.wp.com/likes/master.html?ver=%1$s#ver=%1$s%2$s',
+		'https://widgets.wp.com/likes/master.html?ver=%1$s#ver=%1$s%2$s%3$s',
 		$version,
-		$likes_locale
+		$likes_locale,
+		$hide_like_button
 	);
 
 	/* translators: The value of %d is not available at the time of output */
