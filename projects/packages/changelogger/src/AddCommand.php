@@ -100,7 +100,7 @@ EOF
 	 * @return string $filename
 	 * @throws \RuntimeException On error.
 	 */
-	public function validateFilename( $filename ) {
+	public function validateFilename( $filename, $do_suffix = true ) {
 		if ( '' === $filename ) {
 			throw new \RuntimeException( 'Filename may not be empty.' );
 		}
@@ -128,12 +128,12 @@ EOF
 		$tries        = 0;
 		$basefilename = $filename;
 		while ( file_exists( $path ) ) {
-			if ( $tries > 5 ) {
+			if ( $tries > 5 || ! $do_suffix ) {
 				throw new \RuntimeException( "File \"$path\" already exists. If you want to replace it, delete it manually." );
 			}
 
 			++$tries;
-			$filename = "$basefilename-$tries";
+			$filename = "$basefilename#$tries";
 			$path     = Config::changesDir() . "/$filename";
 		}
 
@@ -201,16 +201,8 @@ EOF
 				if ( null === $input->getOption( 'filename' ) ) {
 					$output->writeln( "Using default filename \"$filename\".", OutputInterface::VERBOSITY_VERBOSE );
 				}
-				if ( file_exists( "$dir/$filename" ) && $input->getOption( 'filename-auto-suffix' ) ) {
-					$i = 2;
-					while ( file_exists( "$dir/$filename#$i" ) ) {
-						$i++;
-					}
-					$output->writeln( "File \"$filename\" already exists. Creating \"$filename#$i\" instead.", OutputInterface::VERBOSITY_VERBOSE );
-					$filename = "$filename#$i";
-				}
 				try {
-					$this->validateFilename( $filename );
+					$filename = $this->validateFilename( $filename, $input->getOption( 'filename-auto-suffix' ) );
 				} catch ( \RuntimeException $ex ) {
 					$output->writeln( "<error>{$ex->getMessage()}</>" );
 					return 1;

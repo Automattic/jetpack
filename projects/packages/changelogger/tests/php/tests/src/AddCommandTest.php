@@ -88,9 +88,20 @@ class AddCommandTest extends CommandTestCase {
 	 */
 	public function testExecute_fileExists() {
 		mkdir( 'changelog' );
+
 		file_put_contents( 'changelog/testing', '' );
+
 		$tester = $this->getTester( 'add' );
-		$code   = $tester->execute( array( '--filename' => 'testing' ), array( 'interactive' => false ) );
+		$code   = $tester->execute(
+			array(
+				'--filename'     => 'testing',
+				'--significance' => 'minor',
+				'--type'         => 'changed',
+				'--entry'        => 'Testing',
+			),
+			array( 'interactive' => false )
+		);
+
 		$this->assertSame( 1, $code );
 		$this->assertMatchesRegularExpression( '{^File "/.*/phpunit-changelogger-[0-9a-f]{6}/changelog/testing" already exists. If you want to replace it, delete it manually.\n$}', $tester->getDisplay() );
 	}
@@ -103,7 +114,7 @@ class AddCommandTest extends CommandTestCase {
 		$tester = $this->getTester( 'add' );
 
 		// Create all the files first.
-		for ( $i = 1; $i < 10; $i++ ) {
+		for ( $i = 0; $i < 5; $i++ ) {
 			$code = $tester->execute(
 				array(
 					'--filename'             => 'testing',
@@ -118,8 +129,8 @@ class AddCommandTest extends CommandTestCase {
 		}
 
 		// Then validate them all.
-		for ( $i = 1; $i < 10; $i++ ) {
-			$file = 1 === $i ? 'changelog/testing' : "changelog/testing#$i";
+		for ( $i = 0; $i < 5; $i++ ) {
+			$file = 0 === $i ? 'changelog/testing' : "changelog/testing#$i";
 			$this->assertFileExists( $file );
 			$this->assertSame(
 				"Significance: patch\nType: fixed\n\nTesting $i.\n",
