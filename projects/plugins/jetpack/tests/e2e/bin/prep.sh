@@ -19,7 +19,7 @@ rm /var/www/html/wp-content/plugins/jetpack || true
 
 # Install latest stable Jetpack from plugin repo
 
-wp plugin --allow-root install --activate jetpack
+wp plugin --allow-root install --activate jetpack --force
 
 # Prepare jetpack.zip
 
@@ -60,4 +60,6 @@ ls -la /var/www/html/wp-content/
 echo "111"
 ls -la /var/www/html/wp-content/plugins
 echo "111"
+wp plugin --allow-root list
+
 echo "Done with jetpack.zip preparation!"
