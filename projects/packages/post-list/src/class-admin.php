@@ -60,10 +60,10 @@ class Admin {
 	}
 
 	/**
-	 * Check whether the post-list feature is enabled,
+	 * Check whether the post-list featured is enabled,
 	 * via the query strinh.
 	 *
-	 * @return boolean True when feature is active. Otherwise, False.
+	 * @return boolean True when featured is active. Otherwise, False.
 	 */
 	public function is_posts_list() {
 		$is_posts_list = get_query_var( 'post-list' );
@@ -104,11 +104,16 @@ class Admin {
 			echo '<script type="application/json">';
 			echo wp_json_encode(
 				array(
-					'id'       => $post->ID,
-					'type'     => $post->post_type,
-					'status'   => $post->post_status,
-					'date_gmt' => $post->post_date_gmt,
-					'statuses' => self::get_post_statuses( $post_id ),
+					'id'             => $post->ID,
+					'type'           => $post->post_type,
+					'status'         => $post->post_status,
+					'date_gmt'       => $post->post_date_gmt,
+					'statuses'       => self::get_post_statuses( $post_id ),
+					'featured_image' => array(
+						'id'    => get_post_thumbnail_id( $post_id ),
+						'url'   => get_the_post_thumbnail_url( $post_id ),
+						'thumb' => get_the_post_thumbnail_url( $post_id, array( 50, 50 ) ),
+					),
 				)
 			);
 			echo '</script>';

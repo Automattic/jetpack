@@ -9,6 +9,7 @@ import domReady from '@wordpress/dom-ready';
  */
 import './style.scss';
 import Notice from './components/notice';
+import FeaturedImage from './components/featured-image';
 
 domReady( () => {
 	const postRows = document.querySelectorAll( '.wp-list-table .entry' );
@@ -69,12 +70,12 @@ domReady( () => {
 			}
 		}
 
-		// Inject post-feature-image container just before post title.
-		const postFeatureImageElement = document.createElement( 'span' );
-		postFeatureImageElement.classList.add( 'post-feature-image' );
+		// Inject post-featured-image__container container just before post title.
+		const postFeaturedImageElement = document.createElement( 'span' );
+		postFeaturedImageElement.classList.add( 'post-featured-image__container' );
 
 		postTitleElementWrapper.insertBefore(
-			postFeatureImageElement,
+			postFeaturedImageElement,
 			postTitleElementWrapper.firstChild
 		);
 
@@ -82,7 +83,7 @@ domReady( () => {
 			data,
 			elements: {
 				title: postTitleElementWrapper,
-				featureImage: postFeatureImageElement,
+				featuredImage: postFeaturedImageElement,
 				statusLabel: postStatusLabelElement,
 				postDate: postDateElementWrapper,
 			},
@@ -96,8 +97,14 @@ domReady( () => {
 	if ( noticePlaceholder ) {
 		render( <Notice />, noticePlaceholder );
 	}
-
+	
+	// Starting to render UX components.
 	posts.forEach( ( { data, elements } ) => {
-		// Starting to render UX components.
+
+		// <FeaturedImage /> component.
+		if ( data?.featured_image ) {
+			elements.featuredImage.classList.add( 'has-featured-image' );
+			render( <FeaturedImage { ...data.featured_image } postId={ data?.id } />, elements.featuredImage );
+		}
 	} );
 } );
