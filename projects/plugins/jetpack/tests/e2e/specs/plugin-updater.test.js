@@ -19,7 +19,11 @@ import { prerequisitesBuilder } from '../lib/env/prerequisites';
  */
 describe( 'Jetpack updater', () => {
 	beforeAll( async () => {
-		await prerequisitesBuilder().withLoggedIn( true ).withWpComLoggedIn( true ).build();
+		await prerequisitesBuilder()
+			.withCleanEnv()
+			.withLoggedIn( true )
+			.withWpComLoggedIn( true )
+			.build();
 
 		await execWpCommand(
 			`option set e2e_jetpack_upgrader_plugin_url ${ siteUrl }/wp-content/uploads/jetpack.zip`
