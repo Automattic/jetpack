@@ -14,8 +14,8 @@ TMP_DIR="/tmp/jetpack"
 
 # Deactive and remove linked Jetpack plugin from monorepo
 
-wp plugin --allow-root deactivate jetpack
-rm /var/www/html/wp-content/plugins/jetpack
+wp plugin --allow-root deactivate jetpack || true # prevent exiting the script if jetpack is not installed
+rm /var/www/html/wp-content/plugins/jetpack || true
 
 # Prepare jetpack.zip
 
@@ -30,9 +30,9 @@ if $(! type -t "zip" > /dev/null 2>&1); then
 		apt install zip -y > /dev/null
 fi
 
-cd $(dirname "$TMP_DIR")
+# cd $(dirname "$TMP_DIR")
 
-zip -qr $ZIP_FILE jetpack/
+zip -qr $ZIP_FILE /tmp/jetpack/
 rm -rf $TMP_DIR
 chmod 755 $ZIP_FILE
 
