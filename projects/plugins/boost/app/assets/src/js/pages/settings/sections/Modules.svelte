@@ -20,8 +20,9 @@
 			<TemplatedString
 				template={__(
 					`Move important styling information to the start of the
-					page, which helps pages display your content sooner.
-					Commonly referred to as <link>Critical CSS</link>.`,
+					page, which helps pages display your content sooner, so
+					your users don’t have to wait for the entire page to
+					load. Commonly referred to as <link>Critical CSS</link>.`,
 					'jetpack-boost'
 				)}
 				vars={externalLinkTemplateVar( 'https://web.dev/extract-critical-css/' )}

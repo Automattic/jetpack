@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Limit repeated failed attempts to update remote DNA package versions.
