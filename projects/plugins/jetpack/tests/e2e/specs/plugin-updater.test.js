@@ -21,13 +21,12 @@ describe( 'Jetpack updater', () => {
 	beforeAll( async () => {
 		await prerequisitesBuilder().withLoggedIn( true ).withWpComLoggedIn( true ).build();
 
-		await prepareUpdaterTest();
 		await execWpCommand( 'plugin deactivate jetpack' );
 		await execShellCommand(
 			'pnpx jetpack docker --type e2e --name t1 exec -- rm /var/www/html/wp-content/plugins/jetpack'
 		);
 
-		await execWpCommand( 'option delete jetpack_sync_error_idc' );
+		await prepareUpdaterTest();
 		await execWpCommand( 'plugin install --activate jetpack' );
 		await execWpCommand( 'plugin activate e2e-plugin-updater' );
 
@@ -42,10 +41,10 @@ describe( 'Jetpack updater', () => {
 	} );
 
 	afterAll( async () => {
-		await execSyncShellCommand(
-			'pnpx jetpack docker --type e2e --name t1 exec -- ln -s /usr/local/src/jetpack-monorepo/projects/plugins/jetpack/ /var/www/html/wp-content/plugins/jetpack'
-		);
 		await execWpCommand( 'plugin uninstall --deactivate jetpack' );
+		await execSyncShellCommand(
+			'pnpx jetpack docker --type e2e --name t1 -v exec -- ln -s /usr/local/src/jetpack-monorepo/projects/plugins/jetpack/ /var/www/html/wp-content/plugins/jetpack'
+		);
 		await prerequisitesBuilder().withCleanEnv().build();
 	} );
 

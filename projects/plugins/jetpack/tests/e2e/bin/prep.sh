@@ -7,12 +7,9 @@ set -e
 # Also it creates a symlink from Jetpack directory to the wp-content/plugins
 
 # Parameters
-WP_CORE_DIR="/var/www/html"
-WORKING_DIR="$WP_CORE_DIR/wp-content/plugins/jetpack"
-ZIP_FILE="$WP_CORE_DIR/wp-content/uploads/jetpack.zip"
+WORKING_DIR="/usr/local/src/jetpack-monorepo/projects/plugins/jetpack/"
+ZIP_FILE="/var/www/html/wp-content/uploads/jetpack.zip"
 TMP_DIR="/tmp/jetpack"
-
-
 
 # if [[ -L "$WORKING_DIR" && -d "$WORKING_DIR" ]]
 # then
@@ -26,13 +23,13 @@ TMP_DIR="/tmp/jetpack"
 #     echo "The file ${FILE} does not exist!"
 # fi
 
-if [[ -L "$WORKING_DIR" && -d "$WORKING_DIR" ]]
-then
-	echo "Jetpack is a symlink already"
-else
-	rm -rf /var/www/html/wp-content/plugins/jetpack
-	ln -s /usr/local/src/jetpack-monorepo/projects/plugins/jetpack/ /var/www/html/wp-content/plugins/jetpack
-fi
+# if [[ -L "$WORKING_DIR" && -d "$WORKING_DIR" ]]
+# then
+# 	echo "Jetpack is a symlink already"
+# else
+# 	rm -rf /var/www/html/wp-content/plugins/jetpack
+# 	ln -s /usr/local/src/jetpack-monorepo/projects/plugins/jetpack/ /var/www/html/wp-content/plugins/jetpack
+# fi
 
 ########
 
@@ -48,10 +45,8 @@ if $(! type -t "zip" > /dev/null 2>&1); then
 fi
 
 cd $(dirname "$TMP_DIR")
-echo "1"
 
 zip -qr $ZIP_FILE jetpack/
 rm -rf $TMP_DIR
-echo "1"
 
 echo "Done with jetpack.zip preparation!"
