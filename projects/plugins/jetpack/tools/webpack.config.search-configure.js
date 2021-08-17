@@ -18,7 +18,7 @@ const baseWebpackConfig = getBaseWebpackConfig(
 		entry: {
 			main: path.join( __dirname, '../modules/search/customberg/index.jsx' ),
 		},
-		'output-filename': 'jp-search-configure-[name].bundle.js',
+		'output-filename': 'jp-search-configure-[name].min.js',
 		'output-path': path.join( __dirname, '../_inc/build/instant-search' ),
 	}
 );
@@ -34,6 +34,9 @@ module.exports = {
 		],
 	},
 	devtool: isDevelopment ? 'source-map' : false,
+	node: {
+		fs: 'empty',
+	},
 	plugins: [
 		...baseWebpackConfig.plugins,
 		new DependencyExtractionWebpackPlugin( { injectPolyfill: true } ),
