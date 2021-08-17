@@ -13,7 +13,7 @@ export default class ConnectionsPage extends WpPage {
 	}
 
 	async isEnabled() {
-		return await this.isElementVisible( '.notice.is-warning a.notice__action' );
+		return ! ( await this.isElementVisible( '.notice.is-warning a.notice__action' ) );
 	}
 
 	async selectMailchimpList( mailchimpList = 'e2etesting' ) {
