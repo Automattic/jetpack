@@ -11,11 +11,15 @@ WORKING_DIR="/usr/local/src/jetpack-monorepo/projects/plugins/jetpack/"
 ZIP_FILE="/var/www/html/wp-content/uploads/jetpack.zip"
 TMP_DIR="/tmp/jetpack"
 
-
 # Deactive and remove linked Jetpack plugin from monorepo
 
 wp plugin --allow-root deactivate jetpack || true # prevent exiting the script if jetpack is not installed
 rm /var/www/html/wp-content/plugins/jetpack || true
+rm /var/www/html/wp-content/plugins/boost || true
+rm /var/www/html/wp-content/plugins/beta || true
+rm /var/www/html/wp-content/plugins/debug-helper || true
+rm /var/www/html/wp-content/plugins/backup || true
+rm /var/www/html/wp-content/plugins/vaultpress || true
 
 # Install latest stable Jetpack from plugin repo
 
