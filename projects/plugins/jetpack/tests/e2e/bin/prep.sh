@@ -49,8 +49,8 @@ wp option --allow-root set e2e_jetpack_upgrader_update_version 99.9-alpha
 # sudo chown -R www-data:www-data /var/www/html/wp-content/plugins/
 # sudo chown -R www-data:www-data /var/www/html/wp-content/upload/
 # sudo chown -R www-data:www-data /var/www/html/wp-content/upgrade/
-sudo chown -R www-data:www-data /var/www/html/wp-content
-sudo chmod 775 /var/www/html/wp-content
+sudo chown -R www-data:www-data /var/www/html
+sudo chmod 775 /var/www/html
 
 ls -la /var/www/html
 echo "111"
