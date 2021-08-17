@@ -19,6 +19,8 @@ describe( 'Paid blocks', () => {
 
 	beforeAll( async () => {
 		await prerequisitesBuilder()
+			.withLoggedIn( true )
+			.withWpComLoggedIn( true )
 			.withConnection( true )
 			.withPlan( Plans.Complete )
 			.withActiveModules( [ 'publicize' ] )

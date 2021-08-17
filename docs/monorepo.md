@@ -106,6 +106,7 @@ We use `composer.json` to hold metadata about projects. Much of our generic tool
 * `.extra.autotagger`: Set truthy to enable automatic release-version tagging in the mirror repo. See [Mirror repositories > Autotagger](#autotagger) for details.
 * `.extra.dependencies`: This optional array specifies the "slugs" of any within-monorepo dependencies that can't otherwise be inferred. The "slug" consists of the two levels of directory under `projects/`, e.g. `plugins/jetpack` or `packages/lazy-images`. See [Testing](#testing) for details.
 * `.extra.mirror-repo`: This specifies the name of the GitHub mirror repo, i.e. the "Automattic/jetpack-_something_" in "<span>https://</span>github.com/Automattic/jetpack-_something_".
+* `.extra.npmjs-autopublish`: Set truthy to enable automatic publishing of tagged versions to npmjs.com. See [Mirror repositories > Npmjs Auto-publisher](#npmjs-auto-publisher) for details.
 * `.extra.release-branch-prefix`: Our mirroring and release tooling considers any branch named like "_prefix_/branch-_version_" to be a release branch, and this specifies which _prefix_ belongs to the project.
 * `.extra.version-constants`: When `tools/project-version.sh` is checking or updating versions, this specifies PHP constants to check or update. The value is an object matching constants to the file (relative to the package root) in which the constant is defined.
   * Note that constant definitions must be on a single line and use single quotes to be detected by the script. Like this:
@@ -213,7 +214,7 @@ Most projects in the monorepo should have a mirror repository holding a built ve
    3. In the repo's settings, turn off wikis, issues, projects, and so on.
    4. Make sure that [matticbot](https://github.com/matticbot) can push to the repo.
    5. Make sure that Actions are enabled. The build process copies workflows from `.github/files/mirror-.github` into the mirror to do useful things like automatically close PRs with a reference back to the monorepo.
-   6. Create any secrets needed (e.g. for Autotagger). See PCYsg-xsv-p2#mirror-repo-secrets for details.
+   6. Create any secrets needed (e.g. for Autotagger or Npmjs-Autopublisher). See PCYsg-xsv-p2#mirror-repo-secrets for details.
 2. If your project requires building, configure `.scripts.build-production` in your project's `composer.json` to run the necessary commands.
 3. If there are any files included in the monorepo that should not be included in the mirror, use `.gitattributes` to tag them with "production-exclude".
 4. If there are any built files in `.gitignore` that should be included in the mirror, use `.gitattributes` to tag them with "production-include".
@@ -237,6 +238,21 @@ This is intended to work in combination with [Changelogger](#jetpack-changelogge
    * If they did, you'll likely have to create a release branch in the affected projects' mirror repos and manually tag.
 5. Verify that the Build workflow run for your PR's merge to master succeeded. [This search](https://github.com/Automattic/jetpack/actions/workflows/build.yml?query=branch%3Amaster) will show the runs of that workflow for all merges to master.
    * If it failed, you can try re-running it as long as no other PRs were merged adding change files to the projects being released. If some were merged, you'll have to manually tag the affected projects.
+
+### Npmjs Auto-publisher
+
+If `.extra.npmjs-autopublish` is set to a truthy value in the project's `composer.json`, a GitHub Action will be included in the mirror repo that will run `npm publish` when a version tag is created. This works with Autotagger.
+
+Note that, for this to work, you'll need to create a secret `NPMJS_AUTOMATION_TOKEN` in the mirror repo. The value of the secret must be an npmjs.com automation token for an account with the ability to publish the package.
+See PCYsg-xsv-p2#mirror-repo-secrets for details.
+
+Note the following will also be done by the build process:
+
+* In `package.json`, the `.engines` will be deleted. If there is a `.publish_engines`, it will be renamed to `.engines`.
+* Entries will be prepended to `.npmignore` to ignore `.github` and `composer.json` during the NPM publish. This file will be created if not present.
+
+Before you create the first release tag, you may want to check out the mirror and run `npm publish --dry-run` to ensure that only the files you want published will be published.
+If additional files need to be excluded, create an `.npmignore`.
 
 ## Plugin release tooling
 
