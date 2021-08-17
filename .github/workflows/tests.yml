@@ -142,7 +142,7 @@ jobs:
       - name: Packages install
         run: |
           echo "::group::Packages"
-          pnpx jetpack install --all -v
+          pnpx jetpack install --all -v --exclude packages/analyzer
           echo "::endgroup::"
 
       - name: Run project tests
