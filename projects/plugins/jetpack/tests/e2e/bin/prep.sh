@@ -50,5 +50,10 @@ zip -qr $ZIP_FILE jetpack/
 rm -rf $TMP_DIR
 chmod 755 $ZIP_FILE
 
+sudo chown -R www-data:www-data /var/www/html/wp-content/
+sudo chown -R www-data:www-data /var/www/html/wp-content/plugins/
+sudo chmod -R 775 /var/www/html/wp-content
+
+
 
 echo "Done with jetpack.zip preparation!"
