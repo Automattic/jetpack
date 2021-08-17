@@ -41,6 +41,8 @@ describe( 'Jetpack updater', () => {
 	} );
 
 	afterAll( async () => {
+		await this.global.page.pause();
+
 		await execWpCommand( 'plugin uninstall --deactivate jetpack' );
 		await execShellCommand(
 			'pnpx jetpack docker --type e2e --name t1 -v exec -- rm /var/www/html/wp-content/plugins/jetpack'
