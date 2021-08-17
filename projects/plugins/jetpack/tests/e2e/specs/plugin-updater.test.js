@@ -21,19 +21,19 @@ describe( 'Jetpack updater', () => {
 	beforeAll( async () => {
 		await prerequisitesBuilder().withLoggedIn( true ).withWpComLoggedIn( true ).build();
 
-		await prepareUpdaterTest();
-
 		await execWpCommand(
 			`option set e2e_jetpack_upgrader_plugin_url ${ siteUrl }/wp-content/uploads/jetpack.zip`
 		);
 
-		await execShellCommand(
-			'pnpx jetpack docker --type e2e --name t1 -v exec -- chown -R www-data:www-data /var/www'
-		);
+		await prepareUpdaterTest();
 
-		await execShellCommand(
-			'pnpx jetpack docker --type e2e --name t1 -v exec -- chmod -R 755 /var/www/html/wp-content'
-		);
+		// await execShellCommand(
+		// 	'pnpx jetpack docker --type e2e --name t1 -v exec -- chown -R www-data:www-data /var/www'
+		// );
+
+		// await execShellCommand(
+		// 	'pnpx jetpack docker --type e2e --name t1 -v exec -- chmod -R 755 /var/www/html/wp-content'
+		// );
 	} );
 
 	afterAll( async () => {
