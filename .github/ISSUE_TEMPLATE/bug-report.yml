@@ -1,5 +1,5 @@
 name: Bug Report
-description: Report issues with one of our products
+description: Report issues with one of our products.
 labels: [ '[Type] Bug' ]
 body:
   - type: markdown
