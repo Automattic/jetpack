@@ -59,7 +59,12 @@ echo "111"
 ls -la /var/www/html/wp-content/
 echo "111"
 ls -la /var/www/html/wp-content/plugins
+ls -la /var/www/html/wp-content/plugins/jetpack
 echo "111"
 wp plugin --allow-root list
+
+echo "QQQQQ"
+
+head -20 /var/www/html/wp-content/plugins/jetpack/jetpack.php
 
 echo "Done with jetpack.zip preparation!"
