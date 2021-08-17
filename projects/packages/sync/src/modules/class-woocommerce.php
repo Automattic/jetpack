@@ -18,7 +18,7 @@ class WooCommerce extends Module {
 	 *
 	 * @var array
 	 */
-	private $order_item_meta_whitelist = array(
+	public static $order_item_meta_whitelist = array(
 		// See https://github.com/woocommerce/woocommerce/blob/master/includes/data-stores/class-wc-order-item-product-store.php#L20 .
 		'_product_id',
 		'_variation_id',
@@ -219,7 +219,7 @@ class WooCommerce extends Module {
 
 		return array(
 			$order_items,
-			$this->get_metadata( $order_item_ids, 'order_item', $this->order_item_meta_whitelist ),
+			$this->get_metadata( $order_item_ids, 'order_item', static::$order_item_meta_whitelist ),
 		);
 	}
 
