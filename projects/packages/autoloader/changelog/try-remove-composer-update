@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Remove composer update prior to test runs
