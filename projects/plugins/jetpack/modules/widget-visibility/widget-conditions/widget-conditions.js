@@ -311,3 +311,326 @@ jQuery( function ( $ ) {
 		return textarea.value;
 	}
 } );
+
+function blockHasVisibilitySettings( name ) {
+	// When I put extra attributes on these blocks, they
+	// refuse to render with a message "Error loading block: Invalid parameter(s): attributes"
+	// However, most blocks don't do this. Why is this?
+	const disallowed = new Set( [ 'core/archives', 'core/latest-comments', 'core/latest-posts' ] );
+	return ! disallowed.has( name );
+}
+
+function addVisibilityAttribute( settings, name ) {
+	if ( blockHasVisibilitySettings( name ) && typeof settings.attributes !== 'undefined' ) {
+		settings.attributes = Object.assign( settings.attributes, {
+			visibilityConditions: {
+				type: 'object',
+				default: {},
+			},
+		} );
+	}
+	return settings;
+}
+
+wp.hooks.addFilter(
+	'blocks.registerBlockType',
+	'testing/custom-attribute',
+	addVisibilityAttribute
+);
+
+const VisibilityRule = props => {
+	console.log( { widget_conditions_parent_pages, widget_conditions_data } );
+	const { i, rule, onDelete, setMajor, setMinor } = props;
+	const { createElement } = wp.element;
+	const { __ } = wp.i18n;
+	const { Button, SelectControl } = wp.components;
+
+	let majorOptions = [
+		{ label: __( '-- Select --', 'jetpack' ), value: '' },
+		{ label: __( 'Category', 'jetpack' ), value: 'category' },
+		{ label: __( 'Author', 'jetpack' ), value: 'author' },
+		{ label: __( 'User', 'jetpack' ), value: 'loggedin' }, // TURN OFF FOR WPCOM
+		{ label: __( 'Role', 'jetpack' ), value: 'role' }, // TURN OFF FOR WPCOM
+		{ label: __( 'Tag', 'jetpack' ), value: 'tag' },
+		{ label: __( 'Date', 'jetpack' ), value: 'date' },
+		{ label: __( 'Page', 'jetpack' ), value: 'page' },
+		{ label: __( 'Taxonomy', 'jetpack' ), value: 'taxonomy' }, // ONLY IF A NON-DEFAULT TAXON IS FOUND
+	];
+
+	let minorOptions = [];
+	if ( rule.major in widget_conditions_data ) {
+		minorOptions = widget_conditions_data[ rule.major ].map( ( [ x, y ] ) => ( {
+			value: x,
+			label: y,
+		} ) );
+		// TODO: *Page* has nested arrays
+		// We don't handle these yet
+		// [
+		//     [ "front", "Front page" ],
+		//     [ "posts", "Posts page" ],
+		//     [ "archive", "Archive page" ],
+		//     [ "404", "404 error page" ],
+		//     [ "search", "Search results" ],
+		//     [
+		//         "Post type:",
+		//         [
+		//             [ "post_type-post", "Post" ],
+		//             [ "post_type-page", "Page" ],
+		//             [ "post_type-attachment", "Media" ]
+		//         ]
+		//     ],
+		// ]
+	}
+
+	/*
+	let a = (
+		<div>
+			This is rule number { i }
+			<SelectControl
+				label="Major Rule"
+				value={ rule.major }
+				options={ majorOptions }
+				onChange={ setMajor }
+			/>
+			is
+			{ rule.major && (
+				<SelectControl
+					label="Minor Rule"
+					value={ rule.minor }
+					options={ minorOptions }
+					onChange={ setMinor }
+				/>
+			) }
+			<Button onClick={ onDelete }>{ __( 'Delete' ) }</Button>
+		</div>
+	);
+    */
+
+	return createElement(
+		'div',
+		null,
+		'This is rule number ',
+		i,
+		createElement( SelectControl, {
+			label: 'Major Rule',
+			value: rule.major,
+			options: majorOptions,
+			onChange: setMajor,
+		} ),
+		'is',
+		rule.major &&
+			createElement( SelectControl, {
+				label: 'Minor Rule',
+				value: rule.minor,
+				options: minorOptions,
+				onChange: setMinor,
+			} ),
+		createElement( Button, { onClick: onDelete }, __( 'Delete' ) )
+	);
+};
+
+const RuleSep = props => {
+	const { matchAll } = props;
+	const { createElement } = wp.element;
+	if ( matchAll ) {
+		return createElement( 'div', null, 'and' );
+	}
+	return createElement( 'div', null, 'or' );
+};
+
+const visibilityAdvancedControls = wp.compose.createHigherOrderComponent( BlockEdit => {
+	return props => {
+		const { attributes, setAttributes, isSelected } = props;
+
+		const { Fragment, useEffect, createElement } = wp.element;
+		const { Button, SelectControl, ToggleControl } = wp.components;
+		const { InspectorAdvancedControls } = wp.blockEditor;
+		const { __ } = wp.i18n;
+
+		let visibilityConditions = attributes.visibilityConditions || {};
+		let rules = visibilityConditions.rules || [];
+
+		// Initialize props.visibilityConditions if none is sent
+		useEffect( () => {
+			if ( ! ( 'action' in visibilityConditions ) || ! ( 'matchAll' in visibilityConditions ) ) {
+				setAttributes( {
+					visibilityConditions: {
+						action: 'show',
+						rules: [],
+						matchAll: false,
+					},
+				} );
+			}
+		}, [] );
+
+		const toggleMatchAll = _ =>
+			setAttributes( {
+				visibilityConditions: {
+					...visibilityConditions,
+					matchAll: ! visibilityConditions.matchAll,
+				},
+			} );
+
+		const setAction = value =>
+			setAttributes( {
+				visibilityConditions: {
+					...visibilityConditions,
+					action: value,
+				},
+			} );
+
+		const addNewRule = () => {
+			const newRules = [ ...rules, { major: '', minor: '' } ];
+			setAttributes( {
+				visibilityConditions: {
+					...visibilityConditions,
+					rules: newRules,
+				},
+			} );
+		};
+
+		const deleteRule = i => {
+			const newRules = [ ...rules.slice( 0, i ), ...rules.slice( i + 1 ) ];
+			setAttributes( {
+				visibilityConditions: {
+					...visibilityConditions,
+					rules: newRules,
+				},
+			} );
+		};
+
+		const setMajor = ( i, value ) => {
+			const newRules = [
+				...rules.slice( 0, i ),
+				{ ...rules[ i ], major: value },
+				...rules.slice( i + 1 ),
+			];
+			console.log( { newRules } );
+			setAttributes( {
+				visibilityConditions: {
+					...visibilityConditions,
+					rules: newRules,
+				},
+			} );
+		};
+
+		const setMinor = ( i, value ) => {
+			const newRules = [
+				...rules.slice( 0, i ),
+				{ ...rules[ i ], minor: value },
+				...rules.slice( i + 1 ),
+			];
+			console.log( { newRules } );
+			setAttributes( {
+				visibilityConditions: {
+					...visibilityConditions,
+					rules: newRules,
+				},
+			} );
+		};
+
+		/*
+		let a = (
+			<Fragment>
+				<BlockEdit { ...props } />
+				{ isSelected && blockHasVisibilitySettings( props.name ) && (
+					<InspectorAdvancedControls>
+						<div>{ __( 'Visibility Settings' ) }</div>
+						<SelectControl
+							label="Action"
+							value={ attributes.action }
+							options={ [
+								{ label: __( 'Show', 'jetpack' ), value: 'show' },
+								{ label: __( 'Hide', 'jetpack' ), value: 'hide' },
+							] }
+							onChange={ setAction }
+						/>
+						{ rules
+							.map( ( rule, i ) => (
+								<VisibilityRule
+									key={ i }
+									rule={ rule }
+									i={ i }
+									onDelete={ () => deleteRule( i ) }
+                                    setMajor={ (value) => setMajor(i, value) }
+                                    setMinor={ (value) => setMinor(i, value) }
+								/>
+							) )
+							.reduce(
+								( acc, item ) =>
+									acc === null
+										? [ item ]
+										: [ ...acc, <RuleSep matchAll={ !! visibilityConditions.matchAll } />, item ],
+								null
+							) }
+						<ToggleControl
+							label={ __( 'match all', 'jetpack' ) }
+							checked={ !! visibilityConditions.matchAll }
+							onChange={ toggleMatchAll }
+						/>
+						<Button onClick={ addNewRule }>{ __( 'Add New Rule' ) }</Button>
+					</InspectorAdvancedControls>
+				) }
+			</Fragment>
+		);
+        */
+
+		return createElement(
+			Fragment,
+			null,
+			createElement( BlockEdit, props ),
+			isSelected &&
+				blockHasVisibilitySettings( props.name ) &&
+				createElement(
+					InspectorAdvancedControls,
+					null,
+					createElement( 'div', null, __( 'Visibility Settings' ) ),
+					createElement( SelectControl, {
+						label: 'Action',
+						value: attributes.action,
+						options: [
+							{ label: __( 'Show', 'jetpack' ), value: 'show' },
+							{ label: __( 'Hide', 'jetpack' ), value: 'hide' },
+						],
+						onChange: setAction,
+					} ),
+					rules
+						.map( ( rule, i ) =>
+							createElement( VisibilityRule, {
+								key: i,
+								rule: rule,
+								i: i,
+								onDelete: () => deleteRule( i ),
+								setMajor: value => setMajor( i, value ),
+								setMinor: value => setMinor( i, value ),
+							} )
+						)
+						.reduce(
+							( acc, item ) =>
+								acc === null
+									? [ item ]
+									: [
+											...acc,
+											createElement( RuleSep, {
+												matchAll: !! visibilityConditions.matchAll,
+											} ),
+											item,
+									  ],
+							null
+						),
+					createElement( ToggleControl, {
+						label: __( 'match all', 'jetpack' ),
+						checked: !! visibilityConditions.matchAll,
+						onChange: toggleMatchAll,
+					} ),
+					createElement( Button, { onClick: addNewRule }, __( 'Add New Rule' ) )
+				)
+		);
+	};
+}, 'visibilityAdvancedControls' );
+
+wp.hooks.addFilter(
+	'editor.BlockEdit',
+	'testing/cover-advanced-control',
+	visibilityAdvancedControls
+);
