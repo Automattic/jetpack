@@ -100,6 +100,9 @@ class Admin {
 		}
 
 		$post = get_post( $post_id );
+
+		$featured_image = $this->get_featured_or_first_post_image( $post_id );
+
 		if ( 'post-list-column' === $column ) {
 			echo '<script type="application/json">';
 			echo wp_json_encode(
@@ -109,11 +112,7 @@ class Admin {
 					'status'         => $post->post_status,
 					'date_gmt'       => $post->post_date_gmt,
 					'statuses'       => self::get_post_statuses( $post_id ),
-					'featured_image' => array(
-						'id'    => get_post_thumbnail_id( $post_id ),
-						'url'   => get_the_post_thumbnail_url( $post_id ),
-						'thumb' => get_the_post_thumbnail_url( $post_id, array( 50, 50 ) ),
-					),
+					'featured_image' => $featured_image,
 				)
 			);
 			echo '</script>';
@@ -171,5 +170,40 @@ class Admin {
 				plugin_dir_url( __DIR__ ) . 'build/index.rtl.css'
 			);
 		}
+	}
+
+	/**
+	 * Return the featured image or if no featured image is set, return the first image in the post. If neither exists
+	 * return the featured image array with null values.
+	 *
+	 * @param int $post_id The current post ID.
+	 * @return array The featured image id and URLs
+	 */
+	protected function get_featured_or_first_post_image( $post_id ) {
+		$featured_image_id    = null;
+		$featured_image_url   = null;
+		$featured_image_thumb = null;
+
+		if ( has_post_thumbnail() ) {
+			$featured_image_id    = get_post_thumbnail_id( $post_id );
+			$featured_image_url   = get_the_post_thumbnail_url( $post_id );
+			$featured_image_thumb = get_the_post_thumbnail_url( $post_id, array( 50, 50 ) );
+		} else {
+			// TODO: This is not working like I expected. I think if an image is on two posts, it only comes back as
+			// attached_media to the first post it was added to. Must rethink this.
+			$image = current( get_attached_media( 'image', $post_id ) );
+
+			if ( $image !== null ) {
+				$featured_image_id    = $image['ID'];
+				$featured_image_url   = wp_get_attachment_image_url( $featured_image_id, 'large' );
+				$featured_image_thumb = wp_get_attachment_image_url( $featured_image_id, array( 50, 50 ) );
+			}
+		}
+
+		return array(
+			'id'    => $featured_image_id,
+			'url'   => $featured_image_url,
+			'thumb' => $featured_image_thumb,
+		);
 	}
 }
