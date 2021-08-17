@@ -11,27 +11,13 @@ WORKING_DIR="/usr/local/src/jetpack-monorepo/projects/plugins/jetpack/"
 ZIP_FILE="/var/www/html/wp-content/uploads/jetpack.zip"
 TMP_DIR="/tmp/jetpack"
 
-# if [[ -L "$WORKING_DIR" && -d "$WORKING_DIR" ]]
-# then
-#     echo "Jetpack is a symlink to a directory"
-# elif [[ -d $WORKING_DIR ]]
-# then
-#     echo "Jetpack is a directory"
-# 		rm -rf /var/www/html/wp-content/plugins/jetpack
-# 		ln -s /usr/local/src/jetpack-monorepo/projects/plugins/jetpack/ /var/www/html/wp-content/plugins/jetpack
-# else
-#     echo "The file ${FILE} does not exist!"
-# fi
 
-# if [[ -L "$WORKING_DIR" && -d "$WORKING_DIR" ]]
-# then
-# 	echo "Jetpack is a symlink already"
-# else
-# 	rm -rf /var/www/html/wp-content/plugins/jetpack
-# 	ln -s /usr/local/src/jetpack-monorepo/projects/plugins/jetpack/ /var/www/html/wp-content/plugins/jetpack
-# fi
+# Deactive and remove linked Jetpack plugin from monorepo
 
-########
+wp plugin --allow-root deactivate jetpack
+rm /var/www/html/wp-content/plugins/jetpack
+
+# Prepare jetpack.zip
 
 rm -rf $TMP_DIR $ZIP_FILE
 mkdir -p $TMP_DIR
@@ -50,10 +36,20 @@ zip -qr $ZIP_FILE jetpack/
 rm -rf $TMP_DIR
 chmod 755 $ZIP_FILE
 
-sudo chown -R www-data:www-data /var/www/html/wp-content/
-sudo chown -R www-data:www-data /var/www/html/wp-content/plugins/
-sudo chmod -R 775 /var/www/html/wp-content
+# Install latest stable Jetpack from plugin repo
 
+wp plugin --allow-root install --activate jetpack
+wp plugin --allow-root activate e2e-plugin-updater
 
+wp option --allow-root set e2e_jetpack_upgrader_update_version 99.9-alpha
+
+# Update FS permissions
+
+# chown -R www-data:www-data /var/www/html/wp-content/
+# chown -R www-data:www-data /var/www/html/wp-content/plugins/
+# chmod -R 775 /var/www/html/wp-content
+
+chown -R www-data:www-data /var/www
+chmod -R 755 /var/www/html/wp-content
 
 echo "Done with jetpack.zip preparation!"
