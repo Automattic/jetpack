@@ -48,5 +48,7 @@ cd $(dirname "$TMP_DIR")
 
 zip -qr $ZIP_FILE jetpack/
 rm -rf $TMP_DIR
+chmod 755 $ZIP_FILE
+
 
 echo "Done with jetpack.zip preparation!"

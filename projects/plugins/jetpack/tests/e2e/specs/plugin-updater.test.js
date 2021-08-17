@@ -31,12 +31,12 @@ describe( 'Jetpack updater', () => {
 		);
 
 		await prepareUpdaterTest();
-		await execWpCommand( 'plugin install --activate jetpack' );
-		await execWpCommand( 'plugin activate e2e-plugin-updater' );
-
 		await execShellCommand(
 			'pnpx jetpack docker --type e2e --name t1 -v exec -- chown -R www-data:www-data /var/www'
 		);
+
+		await execWpCommand( 'plugin install --activate jetpack' );
+		await execWpCommand( 'plugin activate e2e-plugin-updater' );
 
 		await execWpCommand( 'option set e2e_jetpack_upgrader_update_version 99.9-alpha' );
 		await execWpCommand(
@@ -46,6 +46,9 @@ describe( 'Jetpack updater', () => {
 
 	afterAll( async () => {
 		await execWpCommand( 'plugin uninstall --deactivate jetpack' );
+		await execShellCommand(
+			'pnpx jetpack docker --type e2e --name t1 -v exec -- rm /var/www/html/wp-content/plugins/jetpack'
+		);
 		await execSyncShellCommand(
 			'pnpx jetpack docker --type e2e --name t1 -v exec -- ln -s /usr/local/src/jetpack-monorepo/projects/plugins/jetpack/ /var/www/html/wp-content/plugins/jetpack'
 		);
