@@ -139,12 +139,6 @@ jobs:
           pnpm install
           echo "::endgroup::"
 
-      - name: Packages install
-        run: |
-          echo "::group::Packages"
-          jetpack install --all
-          echo "::endgroup::"
-
       - name: Run project tests
         env:
           CHANGED: ${{ steps.changed.outputs.projects }}
