@@ -64,7 +64,7 @@ for FILE in projects/*/*/composer.json; do
 	else
 		VER=$($CHANGELOGGER version current --default-first-version --prerelease=alpha) || { err "$VER"; EXIT=1; continue; }
 	fi
-	if ! $BASE/tools/project-version.sh "${ARGS2[@]}" -c "$VER" "$SLUG"; then
+	if ! $BASE/tools/project-version.sh "${ARGS2[@]}" -s -c "$VER" "$SLUG"; then
 		EXIT=1
 		continue
 	fi

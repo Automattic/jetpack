@@ -35,7 +35,8 @@ fi
 # Sets options.
 OP=
 VERBOSE=false
-while getopts ":c:u:vh" opt; do
+SKIP_INTRA_MONOREPO_DEPS=false
+while getopts ":c:u:vsh" opt; do
 	case ${opt} in
 		c)
 			[[ -z "$OP" ]] || die "Only one of -c or -u may be specified"
@@ -48,6 +49,9 @@ while getopts ":c:u:vh" opt; do
 			VERSION=$OPTARG
 			OP=update
 			OPING=Updating
+			;;
+		s)
+			SKIP_INTRA_MONOREPO_DEPS=true
 			;;
 		v)
 			VERBOSE=true
@@ -228,6 +232,9 @@ while IFS=" " read -r C F; do
 done < <(jq -r '.extra["version-constants"] // {} | to_entries | .[] | .key + " " + .value' "$FILE")
 
 # Update other dependencies
-"$BASE/tools/check-intra-monorepo-deps.sh" "-u"
+
+if ! $SKIP_INTRA_MONOREPO_DEPS; then
+	"$BASE/tools/check-intra-monorepo-deps.sh" "-u"
+fi
 
 exit $EXIT
