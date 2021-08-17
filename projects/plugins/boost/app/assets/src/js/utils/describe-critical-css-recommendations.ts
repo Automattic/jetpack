@@ -99,6 +99,12 @@ function httpErrorSuggestion( code: number, count: number ): string {
 				'jetpack-boost'
 			);
 
+		case 418:
+			return __(
+				'Your WordPress site returned a 418 error which many web hosts use to indicate they rejected your request due to security rules. Please contact your hosting provider for more information.',
+				'jetpack-boost'
+			);
+
 		case 500:
 			return _n(
 				'Your WordPress site encountered an error while trying to load the above page. Please check your server logs or contact your hosting provider for help to investigate the issue, and <retry>try again</retry>.',
