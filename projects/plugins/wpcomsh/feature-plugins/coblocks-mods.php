@@ -30,3 +30,23 @@ function wpcomsh_coblocks_plugins_loaded() {
 	}
 }
 add_action( 'plugins_loaded', 'wpcomsh_coblocks_plugins_loaded' );
+
+/**
+ * Disable Coblocks' OpenTable block
+ * Jetpack already ships with a similar block.
+ */
+function wpcomsh_coblocks_there_can_be_only_one_opentable_block() {
+	wp_add_inline_script(
+		'coblocks-editor',
+		<<<'SCRIPT'
+		document.addEventListener( 'DOMContentLoaded', function() {
+			if ( wp.blocks.getBlockType( 'jetpack/opentable' ) && wp.blocks.getBlockType( 'coblocks/opentable' ) ) {
+				wp.blocks.unregisterBlockType( 'coblocks/opentable' );
+			}
+		} );
+		SCRIPT
+	);
+}
+// Use later priority to give coblocks plenty of time to enqueue its scripts
+add_action( 'enqueue_block_editor_assets', 'wpcomsh_coblocks_there_can_be_only_one_opentable_block', 99 );
+
