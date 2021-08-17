@@ -8,7 +8,7 @@ import domReady from '@wordpress/dom-ready';
  * Internal dependencies
  */
 import './style.scss';
-import Communicate from './components/comunicate';
+import Notice from './components/notice';
 
 domReady( () => {
 	const postRows = document.querySelectorAll( '.wp-list-table .entry' );
@@ -80,10 +80,10 @@ domReady( () => {
 
 	// Rendering components.
 
-	// <Communicate /> component.
-	const communicatePlaceholder = document.querySelector( '.post-list__communicate-placeholder' );
-	if ( communicatePlaceholder ) {
-		render( <Communicate />, communicatePlaceholder );
+	// <Notice /> component.
+	const noticePlaceholder = document.querySelector( '.post-list__notice-placeholder' );
+	if ( noticePlaceholder ) {
+		render( <Notice />, noticePlaceholder );
 	}
 
 	posts.forEach( ( { data, elements } ) => {
