@@ -45,11 +45,11 @@ wp option --allow-root set e2e_jetpack_upgrader_update_version 99.9-alpha
 
 # Update FS permissions
 
-# chown -R www-data:www-data /var/www/html/wp-content/
-# chown -R www-data:www-data /var/www/html/wp-content/plugins/
-# chmod -R 775 /var/www/html/wp-content
+chown -R www-data:www-data /var/www/html/wp-content/
+chown -R www-data:www-data /var/www/html/wp-content/plugins/
+chmod -R 775 /var/www/html/wp-content
 
-chown -R www-data:www-data /var/www
-chmod -R 755 /var/www/html/wp-content
+# chown -R www-data:www-data /var/www
+# chmod -R 755 /var/www/html/wp-content
 
 echo "Done with jetpack.zip preparation!"
