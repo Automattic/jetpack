@@ -11,6 +11,7 @@ import DashboardPage from '../lib/pages/wp-admin/dashboard';
 import JetpackPage from '../lib/pages/wp-admin/jetpack';
 import { testStep } from '../lib/reporters/reporter';
 import { prerequisitesBuilder } from '../lib/env/prerequisites';
+let currentVersion;
 
 /**
  *
@@ -19,6 +20,9 @@ import { prerequisitesBuilder } from '../lib/env/prerequisites';
  */
 describe( 'Jetpack updater', () => {
 	beforeAll( async () => {
+		currentVersion = await execShellCommand( './../../../../../tools/plugin-version.sh jetpack' );
+		await execShellCommand( './../../../../../tools/plugin-version.sh -v 99.9 jetpack' );
+
 		await prerequisitesBuilder()
 			.withCleanEnv()
 			.withLoggedIn( true )
@@ -41,7 +45,11 @@ describe( 'Jetpack updater', () => {
 	} );
 
 	afterAll( async () => {
-		await this.global.page.pause();
+		await page.pause();
+
+		await execShellCommand(
+			`./../../../../../tools/plugin-version.sh -v ${ currentVersion } jetpack`
+		);
 
 		await execWpCommand( 'plugin uninstall --deactivate jetpack' );
 		await execShellCommand(
