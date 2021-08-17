@@ -21,28 +21,19 @@ describe( 'Jetpack updater', () => {
 	beforeAll( async () => {
 		await prerequisitesBuilder().withLoggedIn( true ).withWpComLoggedIn( true ).build();
 
-		await execWpCommand( 'plugin deactivate jetpack' );
-		await execShellCommand(
-			'pnpx jetpack docker --type e2e --name t1 -v exec -- rm /var/www/html/wp-content/plugins/jetpack'
-		);
-
-		await prepareUpdaterTest();
-
-		await execWpCommand( 'plugin install --activate jetpack' );
-		await execWpCommand( 'plugin activate e2e-plugin-updater' );
-
-		await execWpCommand( 'option set e2e_jetpack_upgrader_update_version 99.9-alpha' );
 		await execWpCommand(
 			`option set e2e_jetpack_upgrader_plugin_url ${ siteUrl }/wp-content/uploads/jetpack.zip`
 		);
 
-		await execShellCommand(
-			'pnpx jetpack docker --type e2e --name t1 -v exec -- chown -R www-data:www-data /var/www'
-		);
+		await prepareUpdaterTest();
 
-		await execShellCommand(
-			'pnpx jetpack docker --type e2e --name t1 -v exec -- chmod -R 755 /var/www/html/wp-content'
-		);
+		// await execShellCommand(
+		// 	'pnpx jetpack docker --type e2e --name t1 -v exec -- chown -R www-data:www-data /var/www'
+		// );
+
+		// await execShellCommand(
+		// 	'pnpx jetpack docker --type e2e --name t1 -v exec -- chmod -R 755 /var/www/html/wp-content'
+		// );
 	} );
 
 	afterAll( async () => {
