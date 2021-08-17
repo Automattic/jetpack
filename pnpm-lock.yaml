@@ -501,6 +501,7 @@ importers:
       '@testing-library/react-hooks': 4.0.1
       '@testing-library/user-event': 12.8.3
       '@wordpress/annotations': 2.2.1
+      '@wordpress/babel-preset-default': 6.2.0
       '@wordpress/base-styles': 3.6.0
       '@wordpress/blocks': 11.0.0
       '@wordpress/browserslist-config': 4.1.0
@@ -725,6 +726,7 @@ importers:
       '@testing-library/react': 11.2.7_react-dom@17.0.2+react@17.0.2
       '@testing-library/react-hooks': 4.0.1_509016fd322278d497c1e58f6164ce1d
       '@testing-library/user-event': 12.8.3
+      '@wordpress/babel-preset-default': 6.2.0
       '@wordpress/components': 15.0.0_43bfd067cd472ccccb63ca8fdfe9b21b
       '@wordpress/core-data': 4.0.0_react@17.0.2+redux@4.0.5
       '@wordpress/dependency-extraction-webpack-plugin': 3.2.1_webpack@4.46.0
@@ -9965,6 +9967,26 @@ packages:
       '@babel/core': 7.15.0
     dev: true
 
+  /@wordpress/babel-preset-default/6.2.0:
+    resolution: {integrity: sha512-uNdR8TjUZgTF43psvAPGW/jnKMD+Mr8XiVhJGcVjrKwDoVBvHjtoKSpfafvkrESIHmMz2HgB4+NdqFHL5hhZlg==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@babel/core': 7.15.0
+      '@babel/plugin-transform-react-jsx': 7.12.17_@babel+core@7.15.0
+      '@babel/plugin-transform-runtime': 7.15.0_@babel+core@7.15.0
+      '@babel/preset-env': 7.15.0_@babel+core@7.15.0
+      '@babel/preset-typescript': 7.13.0_@babel+core@7.15.0
+      '@babel/runtime': 7.14.6
+      '@wordpress/babel-plugin-import-jsx-pragma': 3.1.0_@babel+core@7.15.0
+      '@wordpress/browserslist-config': 4.1.0
+      '@wordpress/element': 3.2.0
+      '@wordpress/warning': 2.2.1
+      browserslist: 4.16.7
+      core-js: 3.16.1
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
+
   /@wordpress/babel-preset-default/6.3.1:
     resolution: {integrity: sha512-VLzNZR6wj8ZnTUhewLF3j3NZTjcZLWyoP7FNeGqawWiRfiXzjg82AEyX7CdWuRQRTBrFh3qg1dgVj34XnPVvPw==}
     engines: {node: '>=12'}
@@ -10992,7 +11014,6 @@ packages:
       lodash: 4.17.21
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
-    dev: false
 
   /@wordpress/element/4.0.0:
     resolution: {integrity: sha512-jGQ+9Q/Ml36xmYMa5wqSDRNkmHL1/HqzjLIV91TkqURHSorul9o53ze5go0tYjeY6s8C97K1Alg4gi8V+Hu7hw==}
@@ -19093,7 +19114,7 @@ packages:
   /isomorphic-fetch/2.2.1:
     resolution: {integrity: sha1-YRrhrPFPXoH3KVB0coGf6XM1WKk=}
     dependencies:
-      node-fetch: 2.6.1
+      node-fetch: 1.7.3
       whatwg-fetch: 3.6.2
     dev: false
 
@@ -21650,6 +21671,13 @@ packages:
     dependencies:
       minimatch: 3.0.4
     dev: true
+
+  /node-fetch/1.7.3:
+    resolution: {integrity: sha512-NhZ4CsKx7cYm2vSrBAr2PvFOe6sWDf0UYLRqA6svUYg7+/TSfVAu49jYC4BvQ4Sms9SZgdqGBgroqfDhJdTyKQ==}
+    dependencies:
+      encoding: 0.1.13
+      is-stream: 1.1.0
+    dev: false
 
   /node-fetch/2.6.1:
     resolution: {integrity: sha512-V4aYg89jEoVRxRb2fJdAg8FHvI7cEyYdVAh94HH0UIK8oJxUfkjlDQN9RbMx+bEjP7+ggMiFRprSti032Oipxw==}
@@ -26646,7 +26674,7 @@ packages:
       find-cache-dir: 2.1.0
       is-wsl: 1.1.0
       schema-utils: 1.0.0
-      serialize-javascript: 5.0.1
+      serialize-javascript: 4.0.0
       source-map: 0.6.1
       terser: 4.8.0
       webpack: 4.45.0
@@ -26664,7 +26692,7 @@ packages:
       find-cache-dir: 2.1.0
       is-wsl: 1.1.0
       schema-utils: 1.0.0
-      serialize-javascript: 5.0.1
+      serialize-javascript: 4.0.0
       source-map: 0.6.1
       terser: 4.8.0
       webpack: 4.46.0_webpack-cli@4.5.0
@@ -28496,6 +28524,12 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
+  /yargs-parser/5.0.1:
+    resolution: {integrity: sha512-wpav5XYiddjXxirPoCTUPbqM0PXvJ9hiBMvuJgInvo4/lAOTZzUprArw17q2O1P2+GHhbBr18/iQwjL5Z9BqfA==}
+    dependencies:
+      camelcase: 3.0.0
+      object.assign: 4.1.2
+
   /yargs-unparser/2.0.0:
     resolution: {integrity: sha512-7pRTIA9Qc1caZ0bZ6RYRGbHJthJWuakf+WmHK0rVeLkNrrGhfoabBNdue6kdINI6r4if7ocq9aD/n7xwKOdzOA==}
     engines: {node: '>=10'}
@@ -28590,7 +28624,7 @@ packages:
       string-width: 1.0.2
       which-module: 1.0.0
       y18n: 3.2.2
-      yargs-parser: 20.2.4
+      yargs-parser: 5.0.1
 
   /yauzl/2.10.0:
     resolution: {integrity: sha1-x+sXyT4RLLEIb6bY5R+wZnt5pfk=}

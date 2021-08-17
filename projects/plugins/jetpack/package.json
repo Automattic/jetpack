@@ -166,6 +166,7 @@
 		"@testing-library/react": "11.2.7",
 		"@testing-library/react-hooks": "4.0.1",
 		"@testing-library/user-event": "12.8.3",
+		"@wordpress/babel-preset-default": "6.2.0",
 		"@wordpress/components": "15.0.0",
 		"@wordpress/core-data": "4.0.0",
 		"@wordpress/dependency-extraction-webpack-plugin": "3.2.1",
