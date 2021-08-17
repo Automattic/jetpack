@@ -21,9 +21,7 @@ describe( 'Load home page', () => {
 
 	// we need to properly wait for local css generation to be complete before we can re-enable this test
 	it.skip( 'should be ready', async () => {
-		const metaTag = await page.$x(
-			"//meta[@name='jetpack-boost-ready' and @content='true']"
-		);
+		const metaTag = await page.$x( "//meta[@name='jetpack-boost-ready' and @content='true']" );
 		expect( metaTag.length ).toBeGreaterThan( 0 );
 	} );
 } );

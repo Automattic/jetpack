@@ -10,10 +10,7 @@
 
 	const dispatch = createEventDispatcher();
 
-	const isEnabled = derived(
-		modules,
-		( $modules ) => $modules[ slug ] && $modules[ slug ].enabled
-	);
+	const isEnabled = derived( modules, $modules => $modules[ slug ] && $modules[ slug ].enabled );
 
 	let error = null;
 	let isLoading = false;
@@ -64,10 +61,7 @@
 			<slot />
 
 			{#if error}
-				<ErrorNotice
-					title={__( 'Failed to toggle feature', 'jetpack-boost' )}
-					{error}
-				/>
+				<ErrorNotice title={__( 'Failed to toggle feature', 'jetpack-boost' )} {error} />
 			{/if}
 
 			{#if $isEnabled}

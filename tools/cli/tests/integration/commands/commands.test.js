@@ -33,4 +33,7 @@ describe( 'verify commands are available', function () {
 	it( 'completion command exists', () => {
 		chai.expect( test ).to.contain( 'jetpack completion' );
 	} );
+	it( 'draft command exists', () => {
+		chai.expect( test ).to.contain( 'jetpack draft <cmd>' );
+	} );
 } );
