@@ -43,8 +43,6 @@ wp plugin --allow-root install --activate jetpack --force
 
 wp plugin --allow-root activate e2e-plugin-updater
 
-wp option --allow-root set e2e_jetpack_upgrader_update_version 99.9-alpha
-
 # Update FS permissions
 # sudo chown -R www-data:www-data /var/www/html/wp-content/plugins/
 # sudo chown -R www-data:www-data /var/www/html/wp-content/upload/
