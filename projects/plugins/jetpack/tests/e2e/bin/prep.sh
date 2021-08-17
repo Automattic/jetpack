@@ -12,7 +12,7 @@ WORKING_DIR="$WP_CORE_DIR/wp-content/plugins/jetpack"
 ZIP_FILE="$WP_CORE_DIR/wp-content/uploads/jetpack.zip"
 TMP_DIR="/tmp/jetpack"
 
-chown -R www-data:www-data /var/www
+chown -R www-data:www-data wp-content/plugins
 
 # if [[ -L "$WORKING_DIR" && -d "$WORKING_DIR" ]]
 # then
