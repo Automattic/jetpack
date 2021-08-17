@@ -21,16 +21,10 @@ import listrOpts from '../helpers/tasks/listrOpts';
 export async function install( argv ) {
 	argv = normalizeInstallArgv( argv );
 
-	const exclude = Array.isArray( argv.exclude ) ? argv.exclude : [ argv.exclude ];
-
 	let tasks = [];
 	if ( argv.all ) {
 		allProjects().forEach( item => {
 			argv.project = item;
-			if ( exclude.includes( item ) ) {
-				console.warn( `Skipping '${ item }' by user request` );
-				return;
-			}
 			tasks.push( installProjectTask( argv ) );
 		} );
 		// Reset.

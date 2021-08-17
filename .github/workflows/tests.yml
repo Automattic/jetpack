@@ -139,12 +139,6 @@ jobs:
           pnpm install
           echo "::endgroup::"
 
-      - name: Packages install
-        run: |
-          echo "::group::Packages"
-          pnpx jetpack install --all -v --exclude packages/analyzer
-          echo "::endgroup::"
-
       - name: Run project tests
         env:
           CHANGED: ${{ steps.changed.outputs.projects }}
@@ -183,6 +177,7 @@ jobs:
                 mkdir -p "coverage/$SLUG"
                 export COVERAGE_DIR="$GITHUB_WORKSPACE/coverage/$SLUG"
               fi
+              composer update
               FAIL=false
               if ! composer run --timeout=0 --working-dir="$DIR" "$TEST_SCRIPT"; then
                 FAIL=true
