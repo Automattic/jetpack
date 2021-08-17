@@ -37,6 +37,8 @@ configure_wp_env() {
 	# pnpx wp-env run tests-wordpress ./wp-content/plugins/jetpack-dev/tests/e2e/bin/container-setup.sh wp-config
 
 	pnpx jetpack docker --type e2e --name t1 exec -- chown -R www-data:www-data /var/www
+	pnpx jetpack docker --type e2e --name t1 exec -- chown -R www-data:www-data /usr/local/src/jetpack-monorepo
+
 	pnpx jetpack docker --type e2e --name t1 wp plugin activate jetpack
 	pnpx jetpack docker --type e2e --name t1 wp plugin activate e2e-plan-data-interceptor
 	pnpx jetpack docker --type e2e --name t1 wp option set permalink_structure ""
