@@ -23,6 +23,7 @@ domReady( () => {
 	// Pick and organize data.
 	postRows.forEach( postRow => {
 		let postStatusLabelElement = postRow.querySelector( '.post-state' );
+		const postTitleElementWrapper = postRow.querySelector( '.column-title' );
 		const postDateElementWrapper = postRow.querySelector( '.column-date' );
 
 		// Try to pick post data from custom column.
@@ -53,7 +54,6 @@ domReady( () => {
 		 */
 		if ( ! postStatusLabelElement ) {
 			const postTitleLabelElement = postRow.querySelector( '.row-title' );
-
 			// Inject element when it doesn't exist (publish state).
 			if ( postTitleLabelElement ) {
 				postStatusLabelElement = document.createElement( 'span' );
@@ -69,9 +69,20 @@ domReady( () => {
 			}
 		}
 
+		// Inject post-feature-image container just before post title.
+		const postFeatureImageElement = document.createElement( 'span' );
+		postFeatureImageElement.classList.add( 'post-feature-image' );
+
+		postTitleElementWrapper.insertBefore(
+			postFeatureImageElement,
+			postTitleElementWrapper.firstChild
+		);
+
 		posts.push( {
 			data,
 			elements: {
+				title: postTitleElementWrapper,
+				featureImage: postFeatureImageElement,
 				statusLabel: postStatusLabelElement,
 				postDate: postDateElementWrapper,
 			},
