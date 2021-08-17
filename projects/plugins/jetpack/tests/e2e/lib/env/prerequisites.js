@@ -3,7 +3,7 @@ import { isBlogTokenSet, syncJetpackPlanData } from '../flows/jetpack-connect';
 import {
 	execMultipleWpCommands,
 	execWpCommand,
-	getAccountCredentials,
+	getDotComCredentials,
 	provisionJetpackStartConnection,
 	resetWordpressInstall,
 } from '../utils-helper';
@@ -104,7 +104,7 @@ export async function ensureConnectedState( requiredConnected = undefined ) {
 }
 
 async function connect() {
-	const userId = getAccountCredentials( 'defaultUser' )[ 2 ];
+	const userId = getDotComCredentials().userId;
 	await provisionJetpackStartConnection( userId, 'free' );
 
 	expect( await isBlogTokenSet() ).toBeTruthy();

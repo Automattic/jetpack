@@ -190,19 +190,32 @@ function fileNameFormatter( filePath, includeTimestamp = true ) {
 	return path.join( dirname, `${ fileName }${ ext }` );
 }
 
-/**
- * Extracts a `accountName` configuration from the config file.
- *
- * @param {string} accountName one of the keys of `testAccounts` entry in config file
- * @return {Array} username and password
- */
-function getAccountCredentials( accountName ) {
-	const globalConfig = config.get( 'testAccounts' );
-	if ( globalConfig.has( 'testAccounts' ) ) {
-		throw new Error( `${ accountName } not found in config file` );
-	}
+function getConfigTestSite() {
+	const testSite = process.env.TEST_SITE ? process.env.TEST_SITE : 'default';
+	logger.debug( `Using '${ testSite }' test site config` );
+	return config.get( `testSites.${ testSite }` );
+}
 
-	return globalConfig.get( accountName );
+function getSiteCredentials() {
+	const site = getConfigTestSite();
+	return { username: site.username, password: site.password };
+}
+
+function getDotComCredentials() {
+	const site = getConfigTestSite();
+	return {
+		username: site.dotComAccount[ 0 ],
+		password: site.dotComAccount[ 1 ],
+		userId: site.dotComAccount[ 2 ],
+	};
+}
+
+function getMailchimpCredentials() {
+	const site = getConfigTestSite();
+	return {
+		username: site.mailchimpLogin[ 0 ],
+		password: site.mailchimpLogin[ 1 ],
+	};
 }
 
 /**
@@ -282,9 +295,11 @@ module.exports = {
 	logDebugLog,
 	logAccessLog,
 	fileNameFormatter,
-	getAccountCredentials,
 	getReusableUrlFromFile,
 	resolveSiteUrl,
 	validateUrl,
 	isLocalSite,
+	getSiteCredentials,
+	getDotComCredentials,
+	getMailchimpCredentials,
 };
