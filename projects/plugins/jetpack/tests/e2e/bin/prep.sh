@@ -17,6 +17,10 @@ TMP_DIR="/tmp/jetpack"
 wp plugin --allow-root deactivate jetpack || true # prevent exiting the script if jetpack is not installed
 rm /var/www/html/wp-content/plugins/jetpack || true
 
+# Install latest stable Jetpack from plugin repo
+
+wp plugin --allow-root install --activate jetpack
+
 # Prepare jetpack.zip
 
 rm -rf $TMP_DIR $ZIP_FILE
@@ -36,26 +40,24 @@ zip -qr $ZIP_FILE /tmp/jetpack/
 rm -rf $TMP_DIR
 chmod 755 $ZIP_FILE
 
-# Install latest stable Jetpack from plugin repo
 
-wp plugin --allow-root install --activate jetpack
 wp plugin --allow-root activate e2e-plugin-updater
 
 wp option --allow-root set e2e_jetpack_upgrader_update_version 99.9-alpha
 
 # Update FS permissions
 
-chown -R www-data:www-data /var/www
-chown -R www-data:www-data /var/www/html/wp-content/
-chown -R www-data:www-data /var/www/html/wp-content/plugins/
+chown -R www-data:www-data /var/www/html
+# chown -R www-data:www-data /var/www/html/wp-content/
+# chown -R www-data:www-data /var/www/html/wp-content/plugins/
 # chmod -R 775 /var/www/html/wp-content
 
 chmod -R 775 /var/www/html/wp-content
 
-ls -la /var/www
+ls -la /var/www/html
 echo "111"
-ls -la /var/www/wp-content/
+ls -la /var/www/html/wp-content/
 echo "111"
-ls -la /var/www/wp-content/plugins
+ls -la /var/www/html/wp-content/plugins
 echo "111"
 echo "Done with jetpack.zip preparation!"
