@@ -28,6 +28,11 @@ describe( 'Jetpack updater', () => {
 		await execWpCommand( 'option delete jetpack_sync_error_idc' );
 		await execWpCommand( 'plugin install --activate jetpack' );
 		await execWpCommand( 'plugin activate e2e-plugin-updater' );
+
+		await execShellCommand(
+			'pnpx jetpack docker --type e2e --name t1 exec -- chown -R www-data:www-data /var/www'
+		);
+
 		await execWpCommand( 'option set e2e_jetpack_upgrader_update_version 99.9-alpha' );
 		await execWpCommand(
 			`option set e2e_jetpack_upgrader_plugin_url ${ siteUrl }/wp-content/uploads/jetpack.zip`
