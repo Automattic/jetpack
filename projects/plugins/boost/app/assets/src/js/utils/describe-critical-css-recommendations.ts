@@ -221,14 +221,14 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 	},
 
 	EmptyCSSError: {
-		describeSet: ( set ) =>
+		describeSet: set =>
 			_n(
 				'It looks like this page does not contain any relevant CSS in its external style sheet(s):',
 				'It looks like these pages do not contain any relevant CSS in their external style sheet(s):',
 				urlCount( set ),
 				'jetpack-boost'
 			),
-		suggestion: ( set ) =>
+		suggestion: () =>
 			__(
 				'Please load the page, verify its styles load correctly, and <retry>try again</retry>. If you are using a plugin which embeds your CSS styles directly into your pages, or your site does not use external CSS style sheets, then it is safe to ignore this issue as Critical CSS can only speed up pages which use external styles.',
 				'jetpack-boost'
