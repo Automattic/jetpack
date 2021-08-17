@@ -1,14 +1,15 @@
 {
 	"name": "@automattic/eslint-changed",
-	"version": "1.0.1-alpha",
+	"version": "1.0.1",
 	"description": "Run eslint on files, but only report warnings and errors from lines that were changed.",
-	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/eslint-changed/README.md",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/eslint-changed/README.md#readme",
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/issues"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git"
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/eslint-changed"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",

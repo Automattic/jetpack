@@ -13,7 +13,7 @@ import { prerequisitesBuilder } from '../lib/env/prerequisites';
  */
 describe( 'Jetpack pre-connection', () => {
 	beforeAll( async () => {
-		await prerequisitesBuilder().withConnection( false ).build();
+		await prerequisitesBuilder().withLoggedIn( true ).withConnection( false ).build();
 	} );
 
 	beforeEach( async () => {
