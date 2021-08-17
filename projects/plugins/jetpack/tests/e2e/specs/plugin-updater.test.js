@@ -11,7 +11,6 @@ import DashboardPage from '../lib/pages/wp-admin/dashboard';
 import JetpackPage from '../lib/pages/wp-admin/jetpack';
 import { testStep } from '../lib/reporters/reporter';
 import { prerequisitesBuilder } from '../lib/env/prerequisites';
-let currentVersion;
 
 /**
  *
@@ -20,8 +19,10 @@ let currentVersion;
  */
 describe( 'Jetpack updater', () => {
 	beforeAll( async () => {
-		currentVersion = await execShellCommand( './../../../../../tools/plugin-version.sh jetpack' );
-		await execShellCommand( './../../../../../tools/plugin-version.sh -v 99.9 jetpack' );
+		// currentVersion = await execShellCommand( './../../../../../tools/plugin-version.sh jetpack' );
+		// await execShellCommand( './../../../../../tools/plugin-version.sh -v 99.9 jetpack' );
+
+		await prepareUpdaterTest();
 
 		await prerequisitesBuilder()
 			.withCleanEnv()
@@ -33,8 +34,6 @@ describe( 'Jetpack updater', () => {
 			`option set e2e_jetpack_upgrader_plugin_url ${ siteUrl }/wp-content/uploads/jetpack.zip`
 		);
 
-		await prepareUpdaterTest();
-
 		// await execShellCommand(
 		// 	'pnpx jetpack docker --type e2e --name t1 -v exec -- chown -R www-data:www-data /var/www'
 		// );
@@ -45,11 +44,9 @@ describe( 'Jetpack updater', () => {
 	} );
 
 	afterAll( async () => {
-		await page.pause();
-
-		await execShellCommand(
-			`./../../../../../tools/plugin-version.sh -v ${ currentVersion } jetpack`
-		);
+		// await execShellCommand(
+		// 	`./../../../../../tools/plugin-version.sh -v ${ currentVersion } jetpack`
+		// );
 
 		await execWpCommand( 'plugin uninstall --deactivate jetpack' );
 		await execShellCommand(
