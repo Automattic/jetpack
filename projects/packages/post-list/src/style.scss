@@ -43,6 +43,12 @@ table.wp-list-table {
 	min-width: 400px;
 }
 
-.post-thumbnail {
+.post-featured-image__container {
 	display: none;
+	float: left;
+	margin-right: 5px;
+
+	&.has-featured-image {
+		display: inline-block;
+	}
 }
