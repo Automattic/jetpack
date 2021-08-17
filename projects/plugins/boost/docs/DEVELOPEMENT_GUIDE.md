@@ -49,13 +49,13 @@ You can run the tests locally:
 
 ```sh
 cd projects/plugins/boost
-composer phpunit
+composer test-php
 ```
 
 Or you might also choose to run them inside Docker if you are using it as your development environment:
 
 ```sh
-jetpack docker exec -- sh -c "composer -d wp-content/plugins/boost phpunit"
+jetpack docker exec -- sh -c "composer -d wp-content/plugins/boost test-php"
 ```
 
 ## JavaScript unit tests and e2e tests
