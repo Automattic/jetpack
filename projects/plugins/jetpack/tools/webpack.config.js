@@ -24,10 +24,13 @@ const sharedWebpackConfig = {
 		modules: [ path.resolve( path.dirname( __dirname ), '_inc/client' ), 'node_modules' ],
 		// We want the compiled version, not the "calypso:src" sources.
 		mainFields: undefined,
-	},
-	node: {
-		fs: 'empty',
-		process: true,
+		// alias: {
+		// 	...baseWebpackConfig.resolve.alias,
+		// 	'@automattic/jetpack-connection/state':
+		// }
+		fallback: {
+			fs: false,
+		},
 	},
 	devtool: isDevelopment ? 'source-map' : false,
 };

@@ -76,9 +76,6 @@ module.exports = {
 		// We want the compiled version, not the "calypso:src" sources.
 		mainFields: undefined,
 	},
-	node: {
-		fs: 'empty',
-	},
 	devtool: isDevelopment ? 'source-map' : false,
 	plugins: [
 		...baseWebpackConfig.plugins,
