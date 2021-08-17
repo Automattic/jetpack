@@ -24,7 +24,7 @@
 * [Unit Testing](#unit-testing)
    * [PHP unit testing](#php-unit-tests)
    * [JavaScript unit testing](#javascript-unit-tests)
-* [Good code - linting, standards, compatibilty, etc.](#good-code---linting-standards-compatibilty-etc)
+* [Good code - linting, standards, compatibility, etc.](#good-code---linting-standards-compatibility-etc)
 	* [Coding standards](#coding-standards)
 	* [Linting](#linting)
 * [Standard development & debugging tools](#standard-development--debugging-tools)

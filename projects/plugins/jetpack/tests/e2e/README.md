@@ -119,7 +119,9 @@ We use the following tools to write e2e tests:
 
 ## Tests Architecture
 
-Tests are kept in `/specs` folder. Every file represents a test suite, which is designed around specific feature under test. Most of the tests rely on an active Jetpack connection, so we connect a site before running the actual test suite. Its logic can be found in the [`test-setup#maybePreConnect`](lib/env/test-setup.js) function. For test suites where pre-connection is not needed, it can be disabled by setting `SKIP_CONNECT` env var to false. Check [`connection.test.js`](./specs/connection.test.js) for example use.
+Tests are kept in `/specs` folder. Every file represents a test suite, which is designed around specific feature under test. 
+Most of the tests rely on an active Jetpack connection, so we connect a site before running the actual test suite. 
+Its logic can be found in the [`jetpack-connect.js`](lib/flows/jetpack-connect.js).
 
 The tests are using the `PageObject` pattern, which is a way to separate test logic from implementation. Page objects are basically abstractions around specific pages and page components. 
 There are two base classes that should be extended by page objects: [`WpPage`](lib/pages/wp-page.js) and [`PageActions`](lib/pages/page-actions.js) class.

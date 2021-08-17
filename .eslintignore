@@ -53,3 +53,6 @@ projects/packages/identity-crisis/build
 projects/packages/jitm/src/js/jetpack-jitm.js
 projects/packages/lazy-images/dist
 projects/plugins/backup/build
+
+### Storybook files
+**/@(storybook|stories)/**/*.js
