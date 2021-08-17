@@ -34,7 +34,17 @@ class Secrets {
 	 * @return String $secret value.
 	 */
 	private function secret_callable_method() {
-		return wp_generate_password( 32, false );
+		$secret = wp_generate_password( 32, false );
+
+		// Some sites may hook into the random_password filter and make the password shorter, let's make sure our secret has the required length.
+		$attempts      = 1;
+		$secret_length = strlen( $secret );
+		while ( $secret_length < 32 && $attempts < 32 ) {
+			$attempts++;
+			$secret       .= wp_generate_password( 32, false );
+			$secret_length = strlen( $secret );
+		}
+		return (string) substr( $secret, 0, 32 );
 	}
 
 	/**

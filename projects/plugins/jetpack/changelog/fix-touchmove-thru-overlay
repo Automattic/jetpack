@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Search: fix allowing scrolling behind the modal when it is open on mobile devices
