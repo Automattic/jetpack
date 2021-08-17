@@ -6,9 +6,9 @@ import { useSelect, useDispatch, dispatch, select } from '@wordpress/data';
 import { store as noticesStore } from '@wordpress/notices';
 
 // Notification context ID.
-const postDateNoticeContext = 'jetpack-post-date';
+const postDateNoticeContext = 'jetpack-post-list';
 
-export default function Communicate() {
+export default function Notice() {
 	const { notices } = useSelect( select => {
 		return {
 			notices: select( noticesStore ).getNotices( postDateNoticeContext ),

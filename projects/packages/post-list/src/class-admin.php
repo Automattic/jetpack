@@ -37,7 +37,7 @@ class Admin {
 			add_action( 'manage_posts_columns', array( $this, 'add_posts_list_column' ) );
 			add_action( 'manage_pages_columns', array( $this, 'add_posts_list_column' ) );
 
-			// Add Communicate component placeholder.
+			// Add Notice component placeholder.
 			add_action( 'in_admin_footer', array( $this, 'add_admin_footer_placeholder' ) );
 		}
 	}
@@ -85,7 +85,7 @@ class Admin {
 	}
 
 	public function add_admin_footer_placeholder( $data ) {
-		echo '<div class="post-list__communicate-placeholder"></div>';
+		echo '<div class="post-list__notice-placeholder"></div>';
 	}
 
 	/**
