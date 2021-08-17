@@ -12,12 +12,12 @@ import { loginToWpCom, loginToWpSite } from '../flows/log-in';
 
 export function prerequisitesBuilder() {
 	const state = {
+		clean: undefined,
 		loggedIn: undefined,
 		wpComLoggedIn: undefined,
 		connected: undefined,
 		plan: undefined,
 		modules: { active: undefined, inactive: undefined },
-		clean: undefined,
 	};
 
 	return {
