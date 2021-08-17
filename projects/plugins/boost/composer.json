@@ -30,15 +30,6 @@
 		"yoast/phpunit-polyfills": "0.2.0"
 	},
 	"scripts": {
-		"phpcs:fix": [
-			"composer --working-dir=../../../ phpcs:fix ./projects/plugins/boost"
-		],
-		"phpcs:lint": [
-			"composer --working-dir=../../../ phpcs:lint ./projects/plugins/boost"
-		],
-		"phpcs:compatibility": [
-			"composer --working-dir=../../../ phpcs:compatibility ./projects/plugins/boost"
-		],
 		"phpunit": [
 			"@composer install",
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
