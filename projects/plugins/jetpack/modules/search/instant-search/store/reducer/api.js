@@ -84,7 +84,7 @@ export function response( state = {}, action ) {
 
 			// If there is no result to show and there are filter keys in URL, we show the cached aggregations.
 			if ( ! newState.results?.length > 0 && doesUrlContainFilterKeys( location.href ) ) {
-				newState.aggregations = state.cachedAggregations ? state.cachedAggregations : {};
+				newState.aggregations = newState.cachedAggregations || {};
 			}
 
 			return newState;
@@ -111,15 +111,16 @@ export function cachedAggregations( state = {}, action ) {
 
 /**
  * The function only merge on the top level, it doesn't merge the buckets.
+ * Tried to merge the buckets, but which seems a bit bumpy.
  * Note: doc_count of cached aggregations is always set to 0.
  *
- * @param {object} previousAggregations - Cached aggregations.
+ * @param {object} previousCachedAggregations - Cached aggregations.
  * @param {object} newAggregations - New aggregations to merge.
  * @returns {object} Merged aggregations.
  */
-function mergeCachedAggregations( previousAggregations, newAggregations ) {
+function mergeCachedAggregations( previousCachedAggregations, newAggregations ) {
 	return {
-		...previousAggregations,
+		...previousCachedAggregations,
 		...Object.fromEntries(
 			Object.entries( newAggregations )
 				.filter( ( [ , aggregation ] ) => aggregation?.buckets?.length > 0 )
