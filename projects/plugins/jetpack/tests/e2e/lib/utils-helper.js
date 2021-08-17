@@ -108,7 +108,6 @@ async function activateModule( page, module ) {
 }
 
 async function execWpCommand( wpCmd ) {
-	// const cmd = `pnpx wp-env run tests-cli "${ wpCmd }"`;
 	const cmd = `pnpx jetpack docker --type e2e --name t1 wp -- ${ wpCmd }`;
 	const result = await execShellCommand( cmd );
 

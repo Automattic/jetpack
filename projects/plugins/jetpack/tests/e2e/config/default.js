@@ -3,8 +3,6 @@ const configDir = './config';
 const tempDir = `${ configDir }/tmp`;
 const config = {
 	WP_ADMIN_USER: {
-		// username: 'admin',
-		// password: 'password',
 		username: 'wordpress',
 		password: 'wordpress',
 	},
