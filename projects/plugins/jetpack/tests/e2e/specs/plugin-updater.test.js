@@ -23,7 +23,11 @@ describe( 'Jetpack updater', () => {
 
 		await execWpCommand( 'plugin deactivate jetpack' );
 		await execShellCommand(
-			'pnpx jetpack docker --type e2e --name t1 exec -- rm /var/www/html/wp-content/plugins/jetpack'
+			'pnpx jetpack docker --type e2e --name t1 -v exec -- rm /var/www/html/wp-content/plugins/jetpack'
+		);
+
+		await execShellCommand(
+			'pnpx jetpack docker --type e2e --name t1 -v exec -- ls -la /var/www/html/wp-content/plugins'
 		);
 
 		await prepareUpdaterTest();
@@ -31,7 +35,7 @@ describe( 'Jetpack updater', () => {
 		await execWpCommand( 'plugin activate e2e-plugin-updater' );
 
 		await execShellCommand(
-			'pnpx jetpack docker --type e2e --name t1 exec -- chown -R www-data:www-data /var/www'
+			'pnpx jetpack docker --type e2e --name t1 -v exec -- chown -R www-data:www-data /var/www'
 		);
 
 		await execWpCommand( 'option set e2e_jetpack_upgrader_update_version 99.9-alpha' );
