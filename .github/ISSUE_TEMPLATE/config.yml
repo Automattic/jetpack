@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Ask a support question
+    url: http://jetpack.com/contact-support/
+    about: This issue tracker is not for support. If you have questions about one of our plugins, you can contact us here.
+  - name: Security Policy guidelines
+    url: https://github.com/Automattic/jetpack/security/policy
+    about: Do not report potential security vulnerabilities here. For responsible disclosure of security issues and to be eligible for our bug bounty program, please review the guidelines here.
