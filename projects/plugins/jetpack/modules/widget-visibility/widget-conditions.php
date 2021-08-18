@@ -713,14 +713,56 @@ class Jetpack_Widget_Conditions {
 			return false;
 		} elseif ( ! empty( $instance['content'] ) && has_blocks( $instance['content'] ) ) {
 			// Block-Based widgets: We have gutenberg blocks that could have the 'conditions' attribute
-			// Note: These blocks can be nested, and we would have to apply these conditions at any level
-			// TODO: Implement.
+			// Note: These blocks can be nested, and we would have to apply these conditions at any level.
 			$blocks = parse_blocks( $instance['content'] );
+			$blocks = self::recursively_filter_blocks( $blocks );
+			if ( empty( $blocks ) ) {
+				return false;
+			}
+
+			$output = '';
+			foreach ( $blocks as $block ) {
+				if ( ! empty( $block ) ) {
+					$output .= render_block( $block );
+				}
+			}
+			$instance['content'] = $output;
+
 			return $instance;
 		}
 
 		// No visibility found.
 		return $instance;
+	}
+
+	/**
+	 * Recursively check the visibility conditions in blocks' attr.conditions.rules.
+	 * Any that fail the check will be removed.
+	 *
+	 * Note that this creates blocks that will fail to render in some cases, and should
+	 * be done with a different approach.
+	 * Example: [{"blockName":"core\/columns","attrs":{"conditions":{"action":"show","rules":[],"match_all":"0"}},"innerBlocks":[{"blockName":"core\/column","attrs":{"conditions":{"action":"show","rules":[],"match_all":"0"}},"innerBlocks":[{"blockName":"core\/paragraph","attrs":{"conditions":{"action":"show","rules":[{"major":"page","minor":"front"}],"match_all":"0"}},"innerBlocks":[],"innerHTML":"\n<p>Home Page Only<\/p>\n","innerContent":["\n<p>Home Page Only<\/p>\n"]}],"innerHTML":"\n<div class=\"wp-block-column\"><\/div>\n","innerContent":["\n<div class=\"wp-block-column\">",null,"<\/div>\n"]},{"blockName":"core\/column","attrs":{"conditions":{"action":"show","rules":[],"match_all":"0"}},"innerBlocks":[],"innerHTML":"\n<div class=\"wp-block-column\"><\/div>\n","innerContent":["\n<div class=\"wp-block-column\">",null,"<\/div>\n"]}],"innerHTML":"\n<div class=\"wp-block-columns\">\n\n<\/div>\n","innerContent":["\n<div class=\"wp-block-columns\">",null,"\n\n",null,"<\/div>\n"]}]
+	 * That is two columns, but one of the columns has 0 innerBlocks. However
+	 * it tries to render one anyway and crashes, possibly because of a 'null'
+	 * in the innerContent array (which might mean 'render a child').
+	 *
+	 * @param array $blocks (By reference; will be modified).
+	 * @return array $blocks
+	 */
+	public static function recursively_filter_blocks( &$blocks ) {
+		foreach ( $blocks as $i => $block ) {
+			$keep = true;
+			if ( ! empty( $block['attrs']['conditions']['rules'] ) ) {
+				$keep = self::filter_widget_check_conditions( $block['attrs']['conditions'] );
+			}
+
+			if ( ! $keep ) {
+				unset( $blocks[ $i ] );
+			} elseif ( is_array( $block['innerBlocks'] ) ) {
+				$blocks[ $i ]['innerBlocks'] = self::recursively_filter_blocks( $blocks[ $i ]['innerBlocks'] );
+			}
+		}
+		return $blocks;
 	}
 
 	/**
