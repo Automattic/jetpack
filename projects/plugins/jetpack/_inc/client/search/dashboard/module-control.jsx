@@ -149,6 +149,7 @@ function Search( props ) {
 							toggleModule={ toggleSearchModule }
 							toggling={ togglingModule }
 							className="is-search-admin"
+							aria-label={ __( 'Enable Jetpack Search', 'jetpack' ) }
 						></ModuleToggle>
 					</div>
 					<div className="jp-form-search-settings-group__toggle_label lg-col-span-7 md-col-span-5 sm-col-span-3">
@@ -181,6 +182,7 @@ function Search( props ) {
 							onChange={ toggleInstantSearch }
 							toggling={ togglingInstantSearch }
 							className="is-search-admin"
+							aria-label={ __( 'Enable instant search experience (recommended)', 'jetpack' ) }
 						></CompactFormToggle>
 					</div>
 					<div className="jp-form-search-settings-group__toggle_label lg-col-span-7 md-col-span-5 sm-col-span-3">
