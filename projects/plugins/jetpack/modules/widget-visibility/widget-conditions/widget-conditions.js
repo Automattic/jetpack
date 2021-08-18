@@ -323,7 +323,7 @@ function blockHasVisibilitySettings( name ) {
 function addVisibilityAttribute( settings, name ) {
 	if ( blockHasVisibilitySettings( name ) && typeof settings.attributes !== 'undefined' ) {
 		settings.attributes = Object.assign( settings.attributes, {
-			visibilityConditions: {
+			conditions: {
 				type: 'object',
 				default: {},
 			},
@@ -447,14 +447,14 @@ const visibilityAdvancedControls = wp.compose.createHigherOrderComponent( BlockE
 		const { InspectorAdvancedControls } = wp.blockEditor;
 		const { __ } = wp.i18n;
 
-		let visibilityConditions = attributes.visibilityConditions || {};
-		let rules = visibilityConditions.rules || [];
+		let conditions = attributes.conditions || {};
+		let rules = conditions.rules || [];
 
-		// Initialize props.visibilityConditions if none is sent
+		// Initialize props.conditions if none is sent
 		useEffect( () => {
-			if ( ! ( 'action' in visibilityConditions ) || ! ( 'match_all' in visibilityConditions ) ) {
+			if ( ! ( 'action' in conditions ) || ! ( 'match_all' in conditions ) ) {
 				setAttributes( {
-					visibilityConditions: {
+					conditions: {
 						action: 'show',
 						rules: [],
 						match_all: '0', // boolean with either '0' or '1' strings for backwards compat
@@ -465,16 +465,16 @@ const visibilityAdvancedControls = wp.compose.createHigherOrderComponent( BlockE
 
 		const toggleMatchAll = _ =>
 			setAttributes( {
-				visibilityConditions: {
-					...visibilityConditions,
-					match_all: visibilityConditions.match_all === '0' ? '1' : '0',
+				conditions: {
+					...conditions,
+					match_all: conditions.match_all === '0' ? '1' : '0',
 				},
 			} );
 
 		const setAction = value =>
 			setAttributes( {
-				visibilityConditions: {
-					...visibilityConditions,
+				conditions: {
+					...conditions,
 					action: value,
 				},
 			} );
@@ -482,8 +482,8 @@ const visibilityAdvancedControls = wp.compose.createHigherOrderComponent( BlockE
 		const addNewRule = () => {
 			const newRules = [ ...rules, { major: '', minor: '' } ];
 			setAttributes( {
-				visibilityConditions: {
-					...visibilityConditions,
+				conditions: {
+					...conditions,
 					rules: newRules,
 				},
 			} );
@@ -492,8 +492,8 @@ const visibilityAdvancedControls = wp.compose.createHigherOrderComponent( BlockE
 		const deleteRule = i => {
 			const newRules = [ ...rules.slice( 0, i ), ...rules.slice( i + 1 ) ];
 			setAttributes( {
-				visibilityConditions: {
-					...visibilityConditions,
+				conditions: {
+					...conditions,
 					rules: newRules,
 				},
 			} );
@@ -507,8 +507,8 @@ const visibilityAdvancedControls = wp.compose.createHigherOrderComponent( BlockE
 			];
 			console.log( { newRules } );
 			setAttributes( {
-				visibilityConditions: {
-					...visibilityConditions,
+				conditions: {
+					...conditions,
 					rules: newRules,
 				},
 			} );
@@ -522,8 +522,8 @@ const visibilityAdvancedControls = wp.compose.createHigherOrderComponent( BlockE
 			];
 			console.log( { newRules } );
 			setAttributes( {
-				visibilityConditions: {
-					...visibilityConditions,
+				conditions: {
+					...conditions,
 					rules: newRules,
 				},
 			} );
@@ -560,12 +560,12 @@ const visibilityAdvancedControls = wp.compose.createHigherOrderComponent( BlockE
 								( acc, item ) =>
 									acc === null
 										? [ item ]
-										: [ ...acc, <RuleSep isAnd={ visibilityConditions.match_all === '1' } />, item ],
+										: [ ...acc, <RuleSep isAnd={ conditions.match_all === '1' } />, item ],
 								null
 							) }
 						<ToggleControl
 							label={ __( 'match all', 'jetpack' ) }
-							checked={ visibilityConditions.match_all === '1' }
+							checked={ conditions.match_all === '1' }
 							onChange={ toggleMatchAll }
 						/>
 						<Button onClick={ addNewRule }>{ __( 'Add New Rule' ) }</Button>
@@ -612,7 +612,7 @@ const visibilityAdvancedControls = wp.compose.createHigherOrderComponent( BlockE
 									: [
 											...acc,
 											createElement( RuleSep, {
-												isAnd: visibilityConditions.match_all === '1',
+												isAnd: conditions.match_all === '1',
 											} ),
 											item,
 									  ],
@@ -620,7 +620,7 @@ const visibilityAdvancedControls = wp.compose.createHigherOrderComponent( BlockE
 						),
 					createElement( ToggleControl, {
 						label: __( 'match all', 'jetpack' ),
-						checked: visibilityConditions.match_all === '1',
+						checked: conditions.match_all === '1',
 						onChange: toggleMatchAll,
 					} ),
 					createElement( Button, { onClick: addNewRule }, __( 'Add New Rule' ) )
