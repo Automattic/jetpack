@@ -1,6 +1,6 @@
 
 export default function FeaturedImage( { url, id, thumb } ) {
-	if ( ! id || ! url ) {
+	if ( ! url ) {
 		return null;
 	}
 

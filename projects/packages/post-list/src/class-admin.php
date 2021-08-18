@@ -101,9 +101,7 @@ class Admin {
 
 		$post = get_post( $post_id );
 
-		error_log( '$post: ' . print_r( $post, true ) );
-
-		$featured_image = $this->get_featured_or_first_post_image( $post_id );
+		$featured_image = self::get_featured_or_first_post_image( $post );
 
 		if ( 'post-list-column' === $column ) {
 			echo '<script type="application/json">';
@@ -181,7 +179,9 @@ class Admin {
 	 * @param int $post_id The current post ID.
 	 * @return array The featured image id and URLs
 	 */
-	protected function get_featured_or_first_post_image( $post_id ) {
+	protected static function get_featured_or_first_post_image( $post ) {
+		$post_id = $post->ID;
+
 		$featured_image_id    = null;
 		$featured_image_url   = null;
 		$featured_image_thumb = null;
@@ -191,13 +191,10 @@ class Admin {
 			$featured_image_url   = get_the_post_thumbnail_url( $post_id );
 			$featured_image_thumb = get_the_post_thumbnail_url( $post_id, array( 50, 50 ) );
 		} else {
-			// TODO: This is not working like I expected. I think if an image is on two posts, it only comes back as
-			// attached_media to the first post it was added to. Must rethink this.
-			$image = current( get_attached_media( 'image', $post_id ) );
+			$image = current( self::get_content_images( $post->post_content ) );
 			if ( ! empty( $image ) ) {
-				$featured_image_id    = $image->ID;
-				$featured_image_url   = wp_get_attachment_image_url( $featured_image_id, 'large' );
-				$featured_image_thumb = wp_get_attachment_image_url( $featured_image_id, array( 50, 50 ) );
+				$featured_image_url   = $image['uri'];
+				$featured_image_thumb = $image['uri'];
 			}
 		}
 
@@ -207,4 +204,62 @@ class Admin {
 			'thumb' => $featured_image_thumb,
 		);
 	}
+
+	public static function get_content_images( $content ) {
+
+		$content_images = array();
+
+		if ( preg_match_all( '/<img[^>]+>/i', $content, $images ) ) {
+
+			foreach ( $images[0] as $image ) {
+
+				if ( preg_match( '/src=[\'"]([^\'"]+)[\'"]/i', $image, $image_src ) ) {
+					$image_src = html_entity_decode( (string) $image_src[1] );
+
+					if ( strpos( $image_src, 'files.wordpress.com' ) !== false ) {
+						$image_src = strtok( $image_src, '?' );
+					}
+
+					// ignore wordpress core  assets
+					if ( strpos( $image_src, 'wp-includes' ) !== false ) continue;
+
+					// ignore theme assets
+					if ( strpos( $image_src, 'wp-content/themes' ) !== false ) continue;
+
+					// ignore theme assets
+					if ( strpos( $image_src, 'wp-content/plugins' ) !== false ) continue;
+
+					// ignore stats pixels
+					if ( strpos( $image_src, 'stats.wordpress.com' ) !== false ) continue;
+
+					// ignore stats pixels from cookie-less domain
+					if ( strpos( $image_src, 'pixel.wp.com' ) !== false ) continue;
+
+					// ignore feedburner FeedFlare images
+					if ( strpos( $image_src, 'feeds.feedburner.com' ) !== false ) continue;
+
+					if ( preg_match( '/width=[\'"]([^\'"]+)][\'"]/i', $image, $width ) ) {
+						$width = (int) $width[1];
+					}
+
+					if ( preg_match( '/height=[\'"]([^\'"]+)][\'"]/i', $image, $height ) ) {
+						$height = (int) $height[1];
+					}
+
+					$img = array(
+						'uri' 	=> $image_src,
+						'width' => (int) $width,
+						'height' => (int) $height,
+						'type' 	=> 'image',
+
+					);
+
+					array_push( $content_images, $img );
+				}
+			}
+		}
+
+		return $content_images;
+	}
+
 }
