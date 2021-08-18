@@ -2,6 +2,7 @@
  * Internal dependencies
  */
 import registerJetpackBlock from '../../shared/register-jetpack-block';
-import { childBlocks, name, settings } from '.';
-// alert( JSON.stringify( childBlocks ) );
+import { childBlocks, name, settings, animal } from '.';
+alert( JSON.stringify( childBlocks ) );
+
 registerJetpackBlock( name, settings, childBlocks );

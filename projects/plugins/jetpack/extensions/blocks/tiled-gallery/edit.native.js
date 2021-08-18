@@ -3,7 +3,13 @@
  */
 import { __ } from '@wordpress/i18n';
 import { Fragment, useState } from '@wordpress/element';
-import { BlockControls, BlockIcon, MediaPlaceholder, MediaUpload } from '@wordpress/block-editor';
+import {
+	BlockControls,
+	BlockIcon,
+	InnerBlocks,
+	MediaPlaceholder,
+	MediaUpload,
+} from '@wordpress/block-editor';
 import { Button, ToolbarGroup, withNotices } from '@wordpress/components';
 
 /**
@@ -13,6 +19,9 @@ import Layout from './layout';
 import { ALLOWED_MEDIA_TYPES } from './constants';
 import { icon } from '.';
 import EditButton from '../../shared/edit-button';
+
+const ALLOWED_BLOCKS = [ 'jetpack/row' ];
+const TEMPLATE = [ [ 'jetpack/row' ] ];
 
 export function defaultColumnsNumber( attributes ) {
 	return Math.min( 3, attributes.images.length );
@@ -64,40 +73,49 @@ const TiledGalleryEdit = ( {
 		</BlockControls>
 	);
 
-	if ( images.length === 0 ) {
-		return (
-			<Fragment>
-				{ controls }
-				<MediaPlaceholder
-					icon={ <BlockIcon icon={ icon } /> }
-					className={ className }
-					labels={ {
-						title: __( 'Tiled Gallery', 'jetpack' ),
-						name: __( 'images', 'jetpack' ),
-					} }
-					onSelect={ onSelectImages }
-					accept="image/*"
-					allowedTypes={ ALLOWED_MEDIA_TYPES }
-					multiple
-					notices={ noticeUI }
-					onFocus={ onFocus }
-					onError={ '' }
-				/>
-			</Fragment>
-		);
-	} else {
-		return (
-			<Fragment>
-				<Layout
-					align={ align }
-					className={ className }
-					columns={ columns }
-					images={ images }
-					roundedCorners={ roundedCorners }
-				/>
-			</Fragment>
-		);
-	}
+	return (
+		<InnerBlocks
+			allowedBlocks={ ALLOWED_BLOCKS }
+			templateLock={ false }
+			template={ [ TEMPLATE ] }
+			// renderAppender={ InnerBlocks.ButtonBlockAppender }
+		/>
+	);
+
+	// if ( images.length === 0 ) {
+	// 	return (
+	// 		<Fragment>
+	// 			{ controls }
+	// 			<MediaPlaceholder
+	// 				icon={ <BlockIcon icon={ icon } /> }
+	// 				className={ className }
+	// 				labels={ {
+	// 					title: __( 'Tiled Gallery', 'jetpack' ),
+	// 					name: __( 'images', 'jetpack' ),
+	// 				} }
+	// 				onSelect={ onSelectImages }
+	// 				accept="image/*"
+	// 				allowedTypes={ ALLOWED_MEDIA_TYPES }
+	// 				multiple
+	// 				notices={ noticeUI }
+	// 				onFocus={ onFocus }
+	// 				onError={ '' }
+	// 			/>
+	// 		</Fragment>
+	// 	);
+	// } else {
+	// 	return (
+	// 		<Fragment>
+	// 			<Layout
+	// 				align={ align }
+	// 				className={ className }
+	// 				columns={ columns }
+	// 				images={ images }
+	// 				roundedCorners={ roundedCorners }
+	// 			/>
+	// 		</Fragment>
+	// 	);
+	// }
 };
 
 export default TiledGalleryEdit;
