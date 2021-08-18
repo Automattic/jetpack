@@ -35,7 +35,7 @@ fi
 
 zip -qr $ZIP_FILE /tmp/jetpack/
 rm -rf $TMP_DIR
-chmod 755 $ZIP_FILE
+# chmod 755 $ZIP_FILE
 
 # Install latest stable Jetpack from plugin repo
 
@@ -47,8 +47,8 @@ wp plugin --allow-root activate e2e-plugin-updater
 # sudo chown -R www-data:www-data /var/www/html/wp-content/plugins/
 # sudo chown -R www-data:www-data /var/www/html/wp-content/upload/
 # sudo chown -R www-data:www-data /var/www/html/wp-content/upgrade/
-sudo chown -R www-data:www-data /var/www/html
-sudo chmod 775 /var/www/html
+sudo chown -R www-data:www-data /var/www/html/
+sudo chmod 775 /var/www/html/
 
 ls -la /var/www/html
 echo "111"

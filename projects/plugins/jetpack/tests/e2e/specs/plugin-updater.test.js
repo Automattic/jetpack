@@ -30,7 +30,8 @@ describe( 'Jetpack updater', () => {
 			.withWpComLoggedIn( true )
 			.build();
 
-		await execWpCommand( `option --allow-root set e2e_jetpack_upgrader_update_version 99.9-alpha` );
+		await execWpCommand( `plugin activate e2e-plugin-updater` );
+		await execWpCommand( `option set e2e_jetpack_upgrader_update_version 99.9-alpha` );
 
 		await execWpCommand(
 			`option set e2e_jetpack_upgrader_plugin_url ${ siteUrl }/wp-content/uploads/jetpack.zip`
