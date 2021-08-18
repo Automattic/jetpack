@@ -12,7 +12,6 @@ ZIP_FILE="/var/www/html/wp-content/uploads/jetpack.zip"
 TMP_DIR="/tmp/jetpack"
 
 # Deactive and remove linked Jetpack plugin from monorepo
-
 wp plugin --allow-root deactivate jetpack || true # prevent exiting the script if jetpack is not installed
 rm /var/www/html/wp-content/plugins/jetpack || true
 rm /var/www/html/wp-content/plugins/boost || true
@@ -37,30 +36,15 @@ cd /tmp
 zip -qr $ZIP_FILE jetpack
 rm -rf $TMP_DIR
 cd /var/www/html/
-# chmod 755 $ZIP_FILE
 
 # Install latest stable Jetpack from plugin repo
 
-# wp plugin --allow-root install jetpack
+wp --allow-root plugin install --activate jetpack
+wp --allow-root plugin activate e2e-plugin-updater
+wp --allow-root option set e2e_jetpack_upgrader_update_version 99.9-alpha
 
 # Update FS permissions
-# sudo chown -R www-data:www-data /var/www/html/wp-content/plugins/
-# sudo chown -R www-data:www-data /var/www/html/wp-content/upload/
-# sudo chown -R www-data:www-data /var/www/html/wp-content/upgrade/
-# sudo chown -R www-data:www-data /var/www/html/
-# sudo chmod 775 /var/www/html/
-
-ls -la /var/www/html
-echo "111"
-ls -la /var/www/html/wp-content/
-echo "111"
-ls -la /var/www/html/wp-content/plugins
-echo "111"
-wp plugin --allow-root list
-
-echo "QQQQQ"
-head -20 /var/www/html/wp-content/plugins/jetpack/jetpack.php
-echo "QQQQQ"
-head -20 $WORKING_DIR/jetpack.php
+sudo chmod 775 /var/www/html/
+sudo chown -R www-data:www-data /var/www/html/
 
 echo "Done with jetpack.zip preparation!"
