@@ -1656,19 +1656,6 @@ EOT;
 	}
 
 	/**
-	 * Determines if the scripts need be enqueued.
-	 *
-	 * @return bool
-	 */
-	protected function requires_scripts() {
-		return (
-			! ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) &&
-			! has_block( 'jetpack/related-posts' ) &&
-			! Blocks::is_fse_theme()
-		);
-	}
-
-	/**
 	 * Enqueues assets needed to do async loading of related posts.
 	 *
 	 * @uses wp_enqueue_script, wp_enqueue_style, plugins_url
@@ -1676,8 +1663,7 @@ EOT;
 	 */
 	protected function _enqueue_assets( $script, $style ) {
 		$dependencies = is_customize_preview() ? array( 'customize-base' ) : array();
-		// Do not enqueue scripts unless they are required.
-		if ( $script && $this->requires_scripts() ) {
+		if ( $script ) {
 			wp_enqueue_script(
 				'jetpack_related-posts',
 				Assets::get_file_url_for_environment(
