@@ -101,7 +101,7 @@ class Admin {
 
 		$post = get_post( $post_id );
 
-		$featured_image = self::get_featured_or_first_post_image( $post );
+		$featured_image = $this->get_featured_or_first_post_image( $post );
 
 		if ( 'post-list-column' === $column ) {
 			echo '<script type="application/json">';
@@ -179,22 +179,40 @@ class Admin {
 	 * @param int $post_id The current post ID.
 	 * @return array The featured image id and URLs
 	 */
-	protected static function get_featured_or_first_post_image( $post ) {
-		$post_id = $post->ID;
-
+	protected function get_featured_or_first_post_image( $post ) {
 		$featured_image_id    = null;
 		$featured_image_url   = null;
 		$featured_image_thumb = null;
 
+		$post_id = $post->ID;
+
+		// If a featured image exists for the post, use that thumbnail.
 		if ( has_post_thumbnail() ) {
 			$featured_image_id    = get_post_thumbnail_id( $post_id );
 			$featured_image_url   = get_the_post_thumbnail_url( $post_id );
 			$featured_image_thumb = get_the_post_thumbnail_url( $post_id, array( 50, 50 ) );
 		} else {
-			$image = current( self::get_content_images( $post->post_content ) );
-			if ( ! empty( $image ) ) {
-				$featured_image_url   = $image['uri'];
-				$featured_image_thumb = $image['uri'];
+			// If a featured image does not exist look for the first "media library" hosted image on the post.
+			$dom = new \DOMDocument();
+
+			// libxml_use_internal_errors(true) silences PHP warnings and errors from malformed HTML in loadHTML().
+			// you can consult libxml_get_last_error() or libxml_get_errors() to check for errors if needed.
+			libxml_use_internal_errors( true );
+			$dom->loadHTML( $post->post_content );
+
+			// Media library images have a class attribute value containing 'wp-image-{$attachment_id}'.
+			// Use DomXPath to parse the post content and get the first img tag containing 'wp-image-' as a class value.
+			$class_name = 'wp-image-';
+			$dom_x_path = new \DomXPath( $dom );
+			$nodes      = $dom_x_path->query( "//img[contains(@class, '$class_name')]/@class" );
+
+			if ( $nodes->length > 0 ) {
+				// Get the $attachment_id from the end of the class name value of the 1st image node (aka index 0).
+				$attachment_id = str_replace( $class_name, '', $nodes[0]->value );
+
+				$featured_image_id    = $attachment_id;
+				$featured_image_url   = wp_get_attachment_image_url( $attachment_id, 'full-size' );
+				$featured_image_thumb = wp_get_attachment_image_url( $attachment_id, array( 50, 50 ) );
 			}
 		}
 
@@ -204,62 +222,4 @@ class Admin {
 			'thumb' => $featured_image_thumb,
 		);
 	}
-
-	public static function get_content_images( $content ) {
-
-		$content_images = array();
-
-		if ( preg_match_all( '/<img[^>]+>/i', $content, $images ) ) {
-
-			foreach ( $images[0] as $image ) {
-
-				if ( preg_match( '/src=[\'"]([^\'"]+)[\'"]/i', $image, $image_src ) ) {
-					$image_src = html_entity_decode( (string) $image_src[1] );
-
-					if ( strpos( $image_src, 'files.wordpress.com' ) !== false ) {
-						$image_src = strtok( $image_src, '?' );
-					}
-
-					// ignore wordpress core  assets
-					if ( strpos( $image_src, 'wp-includes' ) !== false ) continue;
-
-					// ignore theme assets
-					if ( strpos( $image_src, 'wp-content/themes' ) !== false ) continue;
-
-					// ignore theme assets
-					if ( strpos( $image_src, 'wp-content/plugins' ) !== false ) continue;
-
-					// ignore stats pixels
-					if ( strpos( $image_src, 'stats.wordpress.com' ) !== false ) continue;
-
-					// ignore stats pixels from cookie-less domain
-					if ( strpos( $image_src, 'pixel.wp.com' ) !== false ) continue;
-
-					// ignore feedburner FeedFlare images
-					if ( strpos( $image_src, 'feeds.feedburner.com' ) !== false ) continue;
-
-					if ( preg_match( '/width=[\'"]([^\'"]+)][\'"]/i', $image, $width ) ) {
-						$width = (int) $width[1];
-					}
-
-					if ( preg_match( '/height=[\'"]([^\'"]+)][\'"]/i', $image, $height ) ) {
-						$height = (int) $height[1];
-					}
-
-					$img = array(
-						'uri' 	=> $image_src,
-						'width' => (int) $width,
-						'height' => (int) $height,
-						'type' 	=> 'image',
-
-					);
-
-					array_push( $content_images, $img );
-				}
-			}
-		}
-
-		return $content_images;
-	}
-
 }
