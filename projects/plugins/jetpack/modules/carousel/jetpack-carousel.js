@@ -935,13 +935,9 @@
 					// If we have a really large image load a smaller version
 					// that is closer to the viewable size
 					if ( args.origWidth > args.maxWidth || args.origHeight > args.maxHeight ) {
-						// If the image is smaller than 1000px in width or height, @2x it so
-						// we get a high enough resolution for zooming.
-						if ( args.origMaxWidth < 1000 || args.origMaxWidth < 1000 ) {
-							args.origMaxWidth = args.maxWidth * 2;
-							args.origMaxHeight = args.maxHeight * 2;
-						}
-
+						// @2x the max sizes so we get a high enough resolution for zooming.
+						args.origMaxWidth = args.maxWidth * 2;
+						args.origMaxHeight = args.maxHeight * 2;
 						origPhotonUrl += '?fit=' + args.origMaxWidth + '%2C' + args.origMaxHeight;
 					}
 				}

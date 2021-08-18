@@ -15,6 +15,22 @@ class Package_Version_Tracker {
 	const PACKAGE_VERSION_OPTION = 'jetpack_package_versions';
 
 	/**
+	 * The cache key for storing a failed request to update remote package versions.
+	 * The caching logic is that when a failed request occurs, we cache it temporarily
+	 * with a set expiration time.
+	 * Only after the key has expired, we'll be able to repeat a remote request.
+	 * This also implies that the cached value is redundant, however we chose the datetime
+	 * of the failed request to avoid using booleans.
+	 */
+	const CACHED_FAILED_REQUEST_KEY = 'jetpack_failed_update_remote_package_versions';
+
+	/**
+	 * The min time difference in seconds for attempting to
+	 * update remote tracked package versions after a failed remote request.
+	 */
+	const CACHED_FAILED_REQUEST_EXPIRATION = 1 * HOUR_IN_SECONDS;
+
+	/**
 	 * Uses the jetpack_package_versions filter to obtain the package versions from packages that need
 	 * version tracking. If the package versions have changed, updates the option and notifies WPCOM.
 	 */
@@ -58,6 +74,12 @@ class Package_Version_Tracker {
 	protected function update_package_versions_option( $package_versions ) {
 		$site_id = \Jetpack_Options::get_option( 'id' );
 
+		$last_failed_attempt_within_hour = get_transient( self::CACHED_FAILED_REQUEST_KEY );
+
+		if ( $last_failed_attempt_within_hour ) {
+			return;
+		}
+
 		$body = wp_json_encode(
 			array(
 				'package_versions' => $package_versions,
@@ -77,6 +99,8 @@ class Package_Version_Tracker {
 
 		if ( 200 === wp_remote_retrieve_response_code( $response ) ) {
 			update_option( self::PACKAGE_VERSION_OPTION, $package_versions );
+		} else {
+			set_transient( self::CACHED_FAILED_REQUEST_KEY, time(), self::CACHED_FAILED_REQUEST_EXPIRATION );
 		}
 	}
 
