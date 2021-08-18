@@ -427,7 +427,7 @@ class Jetpack_Carousel {
 						<h2 class="jp-carousel-photo-caption"></h2>
 					</div>
 					<div class="jp-carousel-photo-icons-container">
-						<?php if ( $localize_strings['display_exif'] ) : ?>
+						<?php if ( $localize_strings['display_exif'] || version_compare( JETPACK__VERSION, '10.0', '>=' ) ) : ?>
 							<a href="#" class="jp-carousel-icon-btn jp-carousel-icon-info" aria-label="<?php esc_attr_e( 'Toggle photo metadata visibility', 'jetpack' ); ?>">
 								<span class="jp-carousel-icon">
 									<svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
