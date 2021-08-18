@@ -331,7 +331,6 @@ class TiledGalleryEdit extends Component {
 						<div className="tiled-gallery__add-item">
 							<FormFileUpload
 								multiple
-								isLarge
 								className="tiled-gallery__add-item-button"
 								onChange={ this.uploadFromFiles }
 								accept="image/*"
