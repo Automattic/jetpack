@@ -137,7 +137,7 @@ function Search( props ) {
 			<div className="jp-form-search-settings-group__toggle is-search">
 				<div className="jp-search-dashboard-row">
 					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
-					<div className="lg-col-span-1 md-col-span-1 sm-col-span-1">
+					<div className="jp-form-search-settings-group__toggle-container lg-col-span-1 md-col-span-1 sm-col-span-1">
 						<ModuleToggle
 							activated={ isModuleEnabled && hasEitherSearch }
 							compact
@@ -174,7 +174,7 @@ function Search( props ) {
 			<div className="jp-form-search-settings-group__toggle is-instant-search">
 				<div className="jp-search-dashboard-row">
 					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
-					<div className="lg-col-span-1 md-col-span-1 sm-col-span-1">
+					<div className="jp-form-search-settings-group__toggle-container lg-col-span-1 md-col-span-1 sm-col-span-1">
 						<CompactFormToggle
 							checked={ isModuleEnabled && isInstantSearchEnabled && props.hasActiveSearchPurchase }
 							disabled={ isSavingEitherOption || ! props.hasActiveSearchPurchase }

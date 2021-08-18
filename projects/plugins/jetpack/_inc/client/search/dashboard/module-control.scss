@@ -24,6 +24,14 @@ $toggle-width: 3em;
 	}
 }
 
+.jp-form-search-settings-group__toggle-container {
+	display: flex;
+	@include for-tablet-down {
+		justify-content: center;
+		align-items: center;
+	}
+}
+
 .jp-form-search-settings-group__toggle_label {
 	font-size: 1.5em;
 	line-height: 1.5em;
@@ -34,7 +42,7 @@ $toggle-width: 3em;
 }
 
 .jp-form-search-settings-group__toggle-description {
-	 margin-top: 0.5em;
+	margin-top: 0.5em;
 }
 
 p.jp-form-search-settings-group__toggle-explanation {
