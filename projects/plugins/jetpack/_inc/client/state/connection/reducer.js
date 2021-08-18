@@ -261,7 +261,7 @@ export function isUnlinkingUser( state ) {
  * @param  {Object} state Global state tree
  * @return {bool} true if currently linking a user, false otherwise
  */
-export function isAuthorizingUserInPlace( state ) {
+export function isConnectingUser( state ) {
 	return !! state.jetpack.connection.requests.authorizingUserInPlace;
 }
 

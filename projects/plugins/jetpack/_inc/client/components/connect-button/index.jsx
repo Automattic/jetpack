@@ -28,7 +28,7 @@ import {
 	authorizeUserInPlace,
 	isCurrentUserLinked as _isCurrentUserLinked,
 	isUnlinkingUser as _isUnlinkingUser,
-	isAuthorizingUserInPlace as _isAuthorizingUserInPlace,
+	isConnectingUser as _isConnectingUser,
 } from 'state/connection';
 import { getSiteRawUrl, isSafari, doNotUseConnectionIframe } from 'state/initial-state';
 import onKeyDownCallback from 'utils/onkeydown-callback';
@@ -244,7 +244,7 @@ export default connect(
 			connectUrl: _getConnectUrl( state ),
 			isLinked: _isCurrentUserLinked( state ),
 			isUnlinking: _isUnlinkingUser( state ),
-			isAuthorizing: _isAuthorizingUserInPlace( state ),
+			isAuthorizing: _isConnectingUser( state ),
 			isSafari: isSafari( state ),
 			doNotUseConnectionIframe: doNotUseConnectionIframe( state ),
 		};

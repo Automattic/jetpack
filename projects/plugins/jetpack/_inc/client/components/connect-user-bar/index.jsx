@@ -1,11 +1,10 @@
 /**
  * External dependencies
  */
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { __, sprintf } from '@wordpress/i18n';
-import { ConnectUser } from '@automattic/jetpack-connection';
 
 /**
  * Internal dependencies
@@ -13,12 +12,11 @@ import { ConnectUser } from '@automattic/jetpack-connection';
 import ConnectButton from 'components/connect-button';
 import Card from 'components/card';
 import analytics from 'lib/analytics';
-import { getConnectUrl } from 'state/connection';
+import { authorizeUserInPlace } from 'state/connection';
 import './style.scss';
 
 const ConnectUserBar = props => {
-	const [ isConnecting, setIsConnecting ] = useState( false );
-	const { connectUrl, feature, text } = props;
+	const { feature, text, connectUser } = props;
 
 	const customConnect = useCallback( () => {
 		analytics.tracks.recordJetpackClick( {
@@ -28,8 +26,8 @@ const ConnectUserBar = props => {
 			is_connection_owner: 'no',
 		} );
 
-		setIsConnecting( true );
-	}, [ setIsConnecting, feature ] );
+		connectUser();
+	}, [ connectUser, feature ] );
 
 	return (
 		<Card compact className="jp-connect-user-bar__card">
@@ -47,11 +45,8 @@ const ConnectUserBar = props => {
 					from="unlinked-user-connect"
 					connectLegend={ __( 'Connect your WordPress.com account', 'jetpack' ) }
 					customConnect={ customConnect }
-					isAuthorizing={ isConnecting }
 				/>
 			</div>
-
-			{ isConnecting && <ConnectUser connectUrl={ connectUrl } /> }
 		</Card>
 	);
 };
@@ -61,8 +56,8 @@ ConnectUserBar.propTypes = {
 	feature: PropTypes.string,
 };
 
-export default connect( state => {
-	return {
-		connectUrl: getConnectUrl( state ),
-	};
-} )( ConnectUserBar );
+export default connect( null, dispatch => ( {
+	connectUser: () => {
+		return dispatch( authorizeUserInPlace() );
+	},
+} ) )( ConnectUserBar );

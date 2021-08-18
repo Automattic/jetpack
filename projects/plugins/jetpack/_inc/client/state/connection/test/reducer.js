@@ -187,7 +187,7 @@ describe( 'requests reducer', () => {
 	} );
 
 	describe( '#authorizeUserInPlace', () => {
-		it( 'should set isAuthorizingUserInPlace to true when authorization iframe is loaded', () => {
+		it( 'should set isConnectingUser to true when authorization iframe is loaded', () => {
 			const stateIn = {};
 			const action = {
 				type: 'AUTH_USER_IN_PLACE'
@@ -196,7 +196,7 @@ describe( 'requests reducer', () => {
 			expect( stateOut.authorizingUserInPlace ).to.be.true;
 		} );
 
-		it( 'should set isAuthorizingUserInPlace to false when when in-place authorization has completed', () => {
+		it( 'should set isConnectingUser to false when when in-place authorization has completed', () => {
 			const stateIn = {};
 			const action = {
 				type: 'AUTH_USER_IN_PLACE_SUCCESS'
