@@ -149,7 +149,6 @@ class SubscriptionsComponent extends React.Component {
 				{ ! this.props.isLinked && ! this.props.isOfflineMode && (
 					<ConnectUserBar
 						feature="subscriptions"
-						featureLabel={ __( 'Subscriptions', 'jetpack' ) }
 						text={ __( 'Connect to manage your subscriptions settings.', 'jetpack' ) }
 					/>
 				) }

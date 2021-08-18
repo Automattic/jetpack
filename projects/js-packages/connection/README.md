@@ -147,8 +147,8 @@ or renders the `InPlaceConnection` component.
 
 ### Properties
 
-- *connectUrl* - string (required), the authorization URL (the no-iframe version, will be adjusted for In-Place flow automatically).
-- *redirectUrl* - string, wp-admin URI to redirect a user to after Calypso connection flow.
+- *connectUrl* - string, the authorization URL (the no-iframe version). Fetched automatically if omitted.
+- *redirectUrl* - string, wp-admin URI to redirect a user to after Calypso connection flow. May be omitted if `connectUrl` is provided.
 - *from* - string, indicates where the connection request is coming from.
 - *redirectFunc* - function, the redirect function (`window.location.assign()` by default).
 

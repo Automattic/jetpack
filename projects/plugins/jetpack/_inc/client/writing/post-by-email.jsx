@@ -119,7 +119,6 @@ class PostByEmail extends React.Component {
 				{ ! this.props.isUnavailableInOfflineMode( 'post-by-email' ) && ! this.props.isLinked && (
 					<ConnectUserBar
 						feature="post-by-email"
-						featureLabel={ __( 'Post by Email', 'jetpack' ) }
 						text={ __( 'Connect to enable publishing via email.', 'jetpack' ) }
 					/>
 				) }

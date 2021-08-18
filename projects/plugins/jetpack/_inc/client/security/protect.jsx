@@ -175,7 +175,6 @@ export const Protect = withModuleSettingsFormHelpers(
 					{ ! this.props.hasConnectedOwner && ! this.props.isOfflineMode && (
 						<ConnectUserBar
 							feature="protect"
-							featureLabel={ __( 'Protect', 'jetpack' ) }
 							text={ __( 'Connect to set up brute force attack protection.', 'jetpack' ) }
 						/>
 					) }
