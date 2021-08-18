@@ -17,7 +17,7 @@ import './mocked-legacy-search.scss';
  */
 export default function MockedLegacySearch() {
 	return (
-		<div className="jp-mocked-legacy-search">
+		<div className="jp-mocked-legacy-search" aria-hidden="true">
 			<div className="jp-mocked-legacy-search__search-controls">
 				<div className="jp-mocked-legacy-search__search-icon">
 					<Gridicon icon="search" size={ 24 } />

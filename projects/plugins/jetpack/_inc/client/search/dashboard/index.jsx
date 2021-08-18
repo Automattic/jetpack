@@ -98,7 +98,7 @@ function SearchDashboard( props ) {
 					</div>
 					<div className=" lg-col-span-6 md-col-span-2 sm-col-span-0"></div>
 				</div>
-				<div className="jp-search-dashboard-row">
+				<div className="jp-search-dashboard-row" aria-hidden="true">
 					<div className="lg-col-span-1 md-col-span-1 sm-col-span-0"></div>
 					<div className="jp-search-dashboard-top__mocked-search-interface lg-col-span-10 md-col-span-6 sm-col-span-4">
 						<MockedSearch />
