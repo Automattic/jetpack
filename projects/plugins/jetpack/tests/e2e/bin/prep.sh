@@ -7,7 +7,7 @@ set -e
 # Also it creates a symlink from Jetpack directory to the wp-content/plugins
 
 # Parameters
-WORKING_DIR="/usr/local/src/jetpack-monorepo/projects/plugins/jetpack/"
+WORKING_DIR="/usr/local/src/jetpack-monorepo/projects/plugins/jetpack"
 ZIP_FILE="/var/www/html/wp-content/uploads/jetpack.zip"
 TMP_DIR="/tmp/jetpack"
 
@@ -33,8 +33,10 @@ if $(! type -t "zip" > /dev/null 2>&1); then
 		apt install zip -y > /dev/null
 fi
 
-zip -qr $ZIP_FILE /tmp/jetpack/
+cd /tmp
+zip -qr $ZIP_FILE jetpack
 rm -rf $TMP_DIR
+cd /var/www/html/
 # chmod 755 $ZIP_FILE
 
 # Install latest stable Jetpack from plugin repo
