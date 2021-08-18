@@ -27,19 +27,18 @@ describe( 'Jetpack updater', () => {
 
 		await prepareUpdaterTest();
 
-		// await execWpCommand( `plugin install --activate jetpack` );
-		// await execWpCommand( `option set e2e_jetpack_upgrader_update_version 99.9-alpha` );
-		// await execWpCommand( `plugin activate e2e-plugin-updater` );
-
-		// await execShellCommand(
-		// 	'pnpx jetpack docker --type e2e --name t1 -v exec -- chmod -R 755 /var/www/html/'
-		// );
-		// await execShellCommand(
-		// 	'pnpx jetpack docker --type e2e --name t1 -v exec -- chown -R www-data:www-data /var/www/html/'
-		// );
-
+		await execWpCommand( `plugin install --activate jetpack` );
+		await execWpCommand( `option set e2e_jetpack_upgrader_update_version 99.9-alpha` );
 		await execWpCommand(
 			`option set e2e_jetpack_upgrader_plugin_url ${ siteUrl }/wp-content/uploads/jetpack.zip`
+		);
+		await execWpCommand( `plugin activate e2e-plugin-updater` );
+
+		await execShellCommand(
+			'pnpx jetpack docker --type e2e --name t1 -v exec -- chmod -R 755 /var/www/html/'
+		);
+		await execShellCommand(
+			'pnpx jetpack docker --type e2e --name t1 -v exec -- chown -R www-data:www-data /var/www/html/'
 		);
 	} );
 
