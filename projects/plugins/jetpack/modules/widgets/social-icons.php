@@ -205,24 +205,30 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 	 * @return array Updated safe values to be saved.
 	 */
 	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$instance = array();
+		$instance = $this->defaults;
 
-		$instance['title']     = sanitize_text_field( $new_instance['title'] );
-		$instance['icon-size'] = $this->defaults['icon-size'];
-
-		if ( in_array( $new_instance['icon-size'], array( 'small', 'medium', 'large' ), true ) ) {
-			$instance['icon-size'] = $new_instance['icon-size'];
+		if ( ! empty( $new_instance['title'] ) ) {
+			$instance['title'] = sanitize_text_field( $new_instance['title'] );
 		}
 
-		$instance['new-tab'] = isset( $new_instance['new-tab'] ) ? (bool) $new_instance['new-tab'] : false;
-		$instance['icons']   = array();
+		if (
+			! empty( $new_instance['icon-size'] )
+			&& in_array( $new_instance['icon-size'], array( 'small', 'medium', 'large' ), true )
+		) {
+			$instance['icon-size'] = $new_instance['icon-size'];
+		} else {
+			$instance['icon-size'] = $this->defaults['icon-size'];
+		}
 
-		if ( ! empty( $new_instance['icons'] ) ) {
-			foreach ( $new_instance['url-icons'] as $url ) {
-				$url = filter_var( $url, FILTER_SANITIZE_URL );
+		$instance['new-tab'] = isset( $new_instance['new-tab'] ) ? (bool) $new_instance['new-tab'] : $this->defaults['new-tab'];
+		$instance['icons']   = isset( $old_instance['icons'] ) ? $old_instance['icons'] : $this->defaults['icons'];
+
+		if ( ! empty( $new_instance['url-icons'] ) ) {
+			foreach ( $new_instance['url-icons'] as $i => $url ) {
+				$url = wp_http_validate_url( $url );
 
 				if ( ! empty( $url ) ) {
-					$instance['icons'][] = array(
+					$instance['icons'][ $i ] = array(
 						'url' => $url,
 					);
 				}
