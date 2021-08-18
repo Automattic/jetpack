@@ -99,7 +99,7 @@ class Speed_Score {
 
 		if ( empty( $score_request ) ) {
 			// Create and store the Speed Score request.
-			$score_request = new Speed_Score_request( $url );
+			$score_request = new Speed_Score_Request( $url );
 			$score_request->store();
 
 			// Send the request.
