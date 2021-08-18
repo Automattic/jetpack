@@ -39,14 +39,14 @@ rm -rf $TMP_DIR
 
 # Install latest stable Jetpack from plugin repo
 
-wp plugin --allow-root install jetpack
+# wp plugin --allow-root install jetpack
 
 # Update FS permissions
 # sudo chown -R www-data:www-data /var/www/html/wp-content/plugins/
 # sudo chown -R www-data:www-data /var/www/html/wp-content/upload/
 # sudo chown -R www-data:www-data /var/www/html/wp-content/upgrade/
-sudo chown -R www-data:www-data /var/www/html/
-sudo chmod 775 /var/www/html/
+# sudo chown -R www-data:www-data /var/www/html/
+# sudo chmod 775 /var/www/html/
 
 ls -la /var/www/html
 echo "111"
