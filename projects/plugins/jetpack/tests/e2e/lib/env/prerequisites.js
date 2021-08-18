@@ -155,7 +155,7 @@ export async function ensureUserIsLoggedIn() {
 }
 
 export async function ensureWpComUserIsLoggedIn() {
-	await loginToWpCom( 'defaultUser', true );
+	await loginToWpCom( true );
 }
 
 export async function ensureModulesState( modules ) {

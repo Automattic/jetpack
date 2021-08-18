@@ -25,7 +25,7 @@ export async function loginToWpSite( mockPlanData ) {
 	}
 }
 
-export async function loginToWpCom( wpComUser, mockPlanData ) {
+export async function loginToWpCom( mockPlanData ) {
 	const login = await LoginPage.visit( page );
 	if ( ! mockPlanData ) {
 		await login.setSandboxModeForPayments( cookie );
