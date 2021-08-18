@@ -34,5 +34,5 @@ export async function loginToWpCom( wpComUser, mockPlanData ) {
 		return logger.step( 'Already logged into Wordpress.com' );
 	}
 
-	await login.login( wpComUser );
+	await login.login();
 }

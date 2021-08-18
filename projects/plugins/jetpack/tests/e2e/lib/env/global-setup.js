@@ -9,8 +9,8 @@ const pwBrowserOptions = require( '../../playwright.config' ).pwBrowserOptions;
 const TMP_DIR = path.join( os.tmpdir(), 'jest_playwright_global_setup' );
 
 module.exports = async function () {
-	// Checking that required test site config exists
-	// Let config lib throw and error by using get function on an undefined property
+	// Fail early if the required test site config is not defined
+	// Let config lib throw by using get function on an undefined property
 	if ( process.env.TEST_SITE ) {
 		config.get( 'testSites' ).get( process.env.TEST_SITE );
 	}
