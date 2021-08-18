@@ -18,6 +18,7 @@ use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Config;
 use Automattic\Jetpack_Boost\Lib\Connection;
+use Automattic\Jetpack_Boost\Lib\Speed_Score_Request;
 use Automattic\Jetpack_Boost\Lib\Viewport;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Regenerate_Admin_Notice;
@@ -159,6 +160,7 @@ class Jetpack_Boost {
 	 */
 	public function clear_cache() {
 		do_action( 'jetpack_boost_clear_cache' );
+		Speed_Score_Request::clear_cache();
 	}
 
 	/**

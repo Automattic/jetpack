@@ -110,6 +110,17 @@ abstract class Cacheable implements \JsonSerializable {
 	}
 
 	/**
+	 * Delete all currently cached entries.
+	 */
+	public static function clear_cache() {
+		$keys = Transient::find_keys_by_prefix( static::cache_prefix() );
+
+		foreach ( $keys as $key ) {
+			Transient::delete( $key );
+		}
+	}
+
+	/**
 	 * Delete the cache entry for the given cache id.
 	 *
 	 * @param string $cache_id The cache ID.
