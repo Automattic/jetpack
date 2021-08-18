@@ -22,13 +22,13 @@ describe( 'Jetpack updater', () => {
 		// currentVersion = await execShellCommand( './../../../../../tools/plugin-version.sh jetpack' );
 		// await execShellCommand( './../../../../../tools/plugin-version.sh -v 99.9 jetpack' );
 
-		await prepareUpdaterTest();
-
 		await prerequisitesBuilder()
 			.withCleanEnv()
 			.withLoggedIn( true )
 			.withWpComLoggedIn( true )
 			.build();
+
+		await prepareUpdaterTest();
 
 		await execWpCommand( `plugin install --activate jetpack` );
 		await execWpCommand( `plugin activate e2e-plugin-updater` );
