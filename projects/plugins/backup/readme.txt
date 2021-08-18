@@ -8,7 +8,7 @@ Stable tag: 0.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Jetpack is the most proven WordPress backup plugin with 269 million site backups over the last ten years. Save every change and get back online quickly with one‑click restores.
+Jetpack is the most proven WordPress backup plugin with over 270 million backups. Save each change and get back online fast with one‑click restores.
 
 == Description ==
 
