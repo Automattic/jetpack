@@ -8,7 +8,6 @@
 use Automattic\Jetpack\Constants;
 use Brain\Monkey;
 use Brain\Monkey\Filters;
-use Brain\Monkey\Functions;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -34,7 +33,7 @@ class Test_Constants extends TestCase {
 	 */
 	public function tear_down() {
 		Monkey\tearDown();
-		Constants::clear_constants();
+		Constants::$set_constants = array();
 	}
 
 	/**
@@ -81,7 +80,7 @@ class Test_Constants extends TestCase {
 	 * @covers Automattic\Jetpack\Constants::get_constant
 	 */
 	public function test_jetpack_constants_default_to_constant() {
-		Functions\expect( 'apply_filters' )->never();
+		Filters\expectApplied( 'jetpack_constant_default_value' )->never();
 
 		$actual_output = Constants::get_constant( 'JETPACK__VERSION' );
 
@@ -96,6 +95,8 @@ class Test_Constants extends TestCase {
 	public function test_jetpack_constants_get_constant_null_when_not_set() {
 		$test_constant_name = 'UNDEFINED';
 
+		Filters\expectApplied( 'jetpack_constant_default_value' )->once()->with( null, $test_constant_name );
+
 		$actual_output = Constants::get_constant( $test_constant_name );
 
 		$this->assertNull( $actual_output );
@@ -107,7 +108,7 @@ class Test_Constants extends TestCase {
 	 * @covers Automattic\Jetpack\Constants::get_constant
 	 */
 	public function test_jetpack_constants_can_override_previously_defined_constant() {
-		Functions\expect( 'apply_filters' )->never();
+		Filters\expectApplied( 'jetpack_constant_default_value' )->never();
 
 		$test_version = '1.0.0';
 		Constants::set_constant( 'JETPACK__VERSION', $test_version );
@@ -121,7 +122,7 @@ class Test_Constants extends TestCase {
 	 * @covers Automattic\Jetpack\Constants::get_constant
 	 */
 	public function test_jetpack_constants_override_to_null_gets_null() {
-		Functions\expect( 'apply_filters' )->never();
+		Filters\expectApplied( 'jetpack_constant_default_value' )->never();
 
 		Constants::set_constant( 'JETPACK__VERSION', null );
 

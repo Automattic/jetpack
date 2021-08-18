@@ -6,6 +6,8 @@ tools/docker/wordpress/
 
 *.min.js
 
+!.prettierrc.js
+
 # Ignored by default, but we should check it
 !.github/
 
