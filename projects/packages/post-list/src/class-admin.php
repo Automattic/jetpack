@@ -101,6 +101,8 @@ class Admin {
 
 		$post = get_post( $post_id );
 
+		error_log( '$post: ' . print_r( $post, true ) );
+
 		$featured_image = $this->get_featured_or_first_post_image( $post_id );
 
 		if ( 'post-list-column' === $column ) {
@@ -192,9 +194,8 @@ class Admin {
 			// TODO: This is not working like I expected. I think if an image is on two posts, it only comes back as
 			// attached_media to the first post it was added to. Must rethink this.
 			$image = current( get_attached_media( 'image', $post_id ) );
-
-			if ( $image !== null ) {
-				$featured_image_id    = $image['ID'];
+			if ( ! empty( $image ) ) {
+				$featured_image_id    = $image->ID;
 				$featured_image_url   = wp_get_attachment_image_url( $featured_image_id, 'large' );
 				$featured_image_thumb = wp_get_attachment_image_url( $featured_image_id, array( 50, 50 ) );
 			}
