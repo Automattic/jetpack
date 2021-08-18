@@ -55,10 +55,10 @@ describe( 'Jetpack updater', () => {
 
 		await testStep( 'Can update Jetpack', async () => {
 			const pluginsPage = await PluginsPage.init( page );
-			const versionBefore = await pluginsPage.getJetpackVersion();
+			// const versionBefore = await pluginsPage.getJetpackVersion();
 			await pluginsPage.updateJetpack();
-			const versionAfter = await pluginsPage.getJetpackVersion();
-			expect( versionBefore ).not.toBe( versionAfter );
+			// const versionAfter = await pluginsPage.getJetpackVersion();
+			// expect( versionBefore ).not.toBe( versionAfter );
 		} );
 
 		await testStep( 'Can connect Jetpack', async () => {
