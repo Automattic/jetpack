@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Related Posts: fix issue with assets not loading for shortcode
