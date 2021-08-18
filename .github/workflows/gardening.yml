@@ -4,6 +4,8 @@ on:
     types: [opened, labeled]
   pull_request: # When a PR is opened, edited, updated, closed, or a label is added.
     types: [opened, synchronize, labeled, edited, closed]
+  issues: # For auto-triage of issues.
+    types: [opened, reopened]
   push:
     branches:
       - master # Every time a PR is merged to master.
