@@ -20,7 +20,7 @@ let state = {
 				fetchingConnectUrl: false,
 				unlinkingUser: true,
 				fetchingUserData: true,
-				authorizingUserInPlace: true,
+				connectingUser: true,
 				reconnectingSite: true,
 			},
 			status: {
@@ -83,10 +83,10 @@ describe( 'requests selectors', () => {
 	} );
 
 	describe( '#isConnectingUser', () => {
-		it( 'should return state.jetpack.connection.requests.authorizingUserInPlace', () => {
+		it( 'should return state.jetpack.connection.requests.connectingUser', () => {
 			const stateIn = state;
 			const output = isConnectingUser( stateIn );
-			expect( output ).to.be.equal( state.jetpack.connection.requests.authorizingUserInPlace );
+			expect( output ).to.be.equal( state.jetpack.connection.requests.connectingUser );
 		} );
 	} );
 } );

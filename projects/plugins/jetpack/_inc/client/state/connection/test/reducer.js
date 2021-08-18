@@ -186,23 +186,14 @@ describe( 'requests reducer', () => {
 		} );
 	} );
 
-	describe( '#authorizeUserInPlace', () => {
-		it( 'should set isConnectingUser to true when authorization iframe is loaded', () => {
+	describe( '#connectUser', () => {
+		it( 'should set isConnectingUser to true when connect ', () => {
 			const stateIn = {};
 			const action = {
-				type: 'AUTH_USER_IN_PLACE'
+				type: 'CONNECT_USER'
 			};
 			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.authorizingUserInPlace ).to.be.true;
-		} );
-
-		it( 'should set isConnectingUser to false when when in-place authorization has completed', () => {
-			const stateIn = {};
-			const action = {
-				type: 'AUTH_USER_IN_PLACE_SUCCESS'
-			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.authorizingUserInPlace ).to.be.false;
+			expect( stateOut.connectingUser ).to.be.true;
 		} );
 	} );
 
