@@ -701,7 +701,16 @@ class Jetpack_Widget_Conditions {
 	public static function filter_widget( $instance ) {
 		global $wp_query;
 
-		if ( empty( $instance['conditions'] ) || empty( $instance['conditions']['rules'] ) ) {
+		if ( ! empty( $instance['conditions']['rules'] ) ) {
+			// Legacy widgets: visibility found.
+			$conditions = $instance['conditions'];
+		} elseif ( ! empty( $instance['content'] ) && has_blocks( $instance['content'] ) ) {
+			// Block-Based widgets: We have gutenberg blocks that could have the 'conditions' attribute
+			// Note: These blocks can be nested, and we would have to apply these conditions at any level
+			// TODO: Implement.
+			$blocks = parse_blocks( $instance['content'] );
+		} else {
+			// No visibility found.
 			return $instance;
 		}
 
@@ -716,7 +725,6 @@ class Jetpack_Widget_Conditions {
 		static $condition_result_cache = array();
 
 		$condition_result = false;
-		$conditions       = $instance['conditions'];
 
 		foreach ( $conditions['rules'] as $rule ) {
 			$condition_result = false;
