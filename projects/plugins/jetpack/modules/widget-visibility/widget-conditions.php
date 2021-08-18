@@ -699,27 +699,38 @@ class Jetpack_Widget_Conditions {
 	 * @return array Settings to display or bool false to hide.
 	 */
 	public static function filter_widget( $instance ) {
-		global $wp_query;
-
-		if ( ! empty( $instance['conditions']['rules'] ) ) {
-			// Legacy widgets: visibility found.
-			$conditions = $instance['conditions'];
-		} elseif ( ! empty( $instance['content'] ) && has_blocks( $instance['content'] ) ) {
-			// Block-Based widgets: We have gutenberg blocks that could have the 'conditions' attribute
-			// Note: These blocks can be nested, and we would have to apply these conditions at any level
-			// TODO: Implement.
-			$blocks = parse_blocks( $instance['content'] );
-		} else {
-			// No visibility found.
-			return $instance;
-		}
-
 		// Don't filter widgets from the REST API when it's called via the widgets admin page - otherwise they could get
 		// filtered out and become impossible to edit.
 		if ( strpos( wp_get_raw_referer(), '/wp-admin/widgets.php' ) && false !== strpos( $_SERVER['REQUEST_URI'], '/wp-json/' ) ) {
 			return $instance;
 		}
 
+		if ( ! empty( $instance['conditions']['rules'] ) ) {
+			// Legacy widgets: visibility found.
+			if ( self::filter_widget_check_conditions( $instance['conditions'] ) ) {
+				return $instance;
+			}
+			return false;
+		} elseif ( ! empty( $instance['content'] ) && has_blocks( $instance['content'] ) ) {
+			// Block-Based widgets: We have gutenberg blocks that could have the 'conditions' attribute
+			// Note: These blocks can be nested, and we would have to apply these conditions at any level
+			// TODO: Implement.
+			$blocks = parse_blocks( $instance['content'] );
+			return $instance;
+		}
+
+		// No visibility found.
+		return $instance;
+	}
+
+	/**
+	 * Determine whether the widget should be displayed based on conditions set by the user.
+	 *
+	 * @param array $conditions Visibility Conditions: An array with keys 'rules', 'action', and 'match_all'.
+	 * @return bool If the widget controlled by these conditions should show.
+	 */
+	public static function filter_widget_check_conditions( $conditions ) {
+		global $wp_query;
 		// Store the results of all in-page condition lookups so that multiple widgets with
 		// the same visibility conditions don't result in duplicate DB queries.
 		static $condition_result_cache = array();
@@ -961,7 +972,7 @@ class Jetpack_Widget_Conditions {
 			return false;
 		}
 
-		return $instance;
+		return true;
 	}
 
 	public static function strcasecmp_name( $a, $b ) {
