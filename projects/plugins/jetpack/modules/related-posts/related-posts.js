@@ -289,8 +289,12 @@
 	function startRelatedPosts() {
 		jprp.cleanupTrackedUrl();
 
-		var endpointURL = jprp.getEndpointURL();
 		var relatedPosts = document.querySelector( '#jp-relatedposts' );
+		if ( ! relatedPosts ) {
+			return;
+		}
+
+		var endpointURL = jprp.getEndpointURL();
 
 		if ( document.querySelectorAll( '#jp-relatedposts .jp-relatedposts-post' ).length ) {
 			afterPostsHaveLoaded();
