@@ -41,14 +41,18 @@ cd /var/www/html/
 
 # Install latest stable Jetpack from plugin repo
 
-# wp plugin --allow-root install jetpack
+wp --allow-root plugin install --activate jetpack
+
+wp --allow-root option set e2e_jetpack_upgrader_update_version 99.9-alpha
+
+wp --allow-root plugin activate e2e-plugin-updater
 
 # Update FS permissions
 # sudo chown -R www-data:www-data /var/www/html/wp-content/plugins/
 # sudo chown -R www-data:www-data /var/www/html/wp-content/upload/
 # sudo chown -R www-data:www-data /var/www/html/wp-content/upgrade/
-# sudo chown -R www-data:www-data /var/www/html/
-# sudo chmod 775 /var/www/html/
+chmod 755 /var/www/html/
+chown -R www-data:www-data /var/www/html/
 
 ls -la /var/www/html
 echo "111"
