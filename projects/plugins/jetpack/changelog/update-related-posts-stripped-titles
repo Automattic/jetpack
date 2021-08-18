@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Related Posts: allow shortcodes in Related Posts titles, to allow third-party plugins processing shortcodes in post titles to work.

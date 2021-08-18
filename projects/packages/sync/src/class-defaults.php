@@ -33,7 +33,6 @@ class Defaults {
 		'carousel_background_color',
 		'carousel_display_exif',
 		'carousel_display_comments',
-		'carousel_display_slide_background',
 		'category_base',
 		'ce4wp_referred_by', // Creative Mail. See pbtFPC-H5-p2.
 		'close_comments_days_old',
@@ -169,6 +168,7 @@ class Defaults {
 		'wp_mobile_featured_images',
 		'wp_mobile_app_promos',
 		'wp_page_for_privacy_policy',
+		'wpcom_is_fse_activated',
 		'wpcom_publish_posts_with_markdown',
 		'wpcom_publish_comments_with_markdown',
 	);

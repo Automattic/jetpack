@@ -22,7 +22,7 @@ import {
 	JETPACK_SETTINGS_CLEAR_UNSAVED_FLAG,
 } from 'state/action-types';
 import { maybeHideNavMenuItem, maybeReloadAfterAction } from 'state/modules';
-import restApi from 'rest-api';
+import restApi from '@automattic/jetpack-api';
 
 export const setUnsavedSettingsFlag = () => {
 	return {

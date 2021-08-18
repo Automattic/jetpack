@@ -5,6 +5,11 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
 
+// this is necessary because block editor store becomes unregistered during jest initialization
+import { register } from '@wordpress/data';
+import { store as blockEditorStore } from '@wordpress/block-editor';
+register( blockEditorStore );
+
 /**
  * Internal dependencies
  */
@@ -127,11 +132,13 @@ describe( 'Edit component', () => {
 	} );
 
 	test( 'displays title and price fields when not selected', () => {
+
 		const notSelectedProps = {
 			...props,
 			isSelected: false,
 			attributes: { email: 'bob@bob.com', currency: 'AUD', price: 10.0, title: 'White TShirt' },
 		};
+
 		render( <SimplePaymentsEdit { ...notSelectedProps } /> );
 
 		expect( screen.getByText( 'White TShirt' ) ).toBeInTheDocument();
