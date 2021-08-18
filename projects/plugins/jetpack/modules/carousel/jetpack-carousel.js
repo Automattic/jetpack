@@ -935,13 +935,9 @@
 					// If we have a really large image load a smaller version
 					// that is closer to the viewable size
 					if ( args.origWidth > args.maxWidth || args.origHeight > args.maxHeight ) {
-						// If the image is smaller than 1000px in width or height, @2x it so
-						// we get a high enough resolution for zooming.
-						if ( args.origMaxWidth < 1000 || args.origMaxWidth < 1000 ) {
-							args.origMaxWidth = args.maxWidth * 2;
-							args.origMaxHeight = args.maxHeight * 2;
-						}
-
+						// @2x the max sizes so we get a high enough resolution for zooming.
+						args.origMaxWidth = args.maxWidth * 2;
+						args.origMaxHeight = args.maxHeight * 2;
 						origPhotonUrl += '?fit=' + args.origMaxWidth + '%2C' + args.origMaxHeight;
 					}
 				}
@@ -1444,7 +1440,7 @@
 		}
 
 		function loadSwiper( gallery, options ) {
-			if ( ! window.Swiper ) {
+			if ( ! window.Swiper670 ) {
 				var loader = document.querySelector( '#jp-carousel-loading-overlay' );
 				domUtil.show( loader );
 				var jsScript = document.createElement( 'script' );
@@ -1516,7 +1512,7 @@
 
 			initCarouselSlides( gallery.querySelectorAll( settings.imgSelector ), settings.startIndex );
 
-			swiper = new window.Swiper( '.jp-carousel-swiper-container', {
+			swiper = new window.Swiper670( '.jp-carousel-swiper-container', {
 				centeredSlides: true,
 				zoom: true,
 				loop: carousel.slides.length > 1,

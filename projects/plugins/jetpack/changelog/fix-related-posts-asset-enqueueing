@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Related Posts: Fix issue with dequeueing scripts and styles

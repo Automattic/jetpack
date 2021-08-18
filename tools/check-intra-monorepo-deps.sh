@@ -97,7 +97,7 @@ if $UPDATE; then
 
 		if ! $DID_CL_INSTALL; then
 			debug "Making sure changelogger is runnable"
-			(cd projects/packages/changelogger && composer update --quiet)
+			(cd "$BASE/projects/packages/changelogger" && composer update --quiet)
 			DID_CL_INSTALL=true
 		fi
 
