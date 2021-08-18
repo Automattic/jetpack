@@ -6,6 +6,13 @@ Easily restore or download a backup of your site from a specific moment in time.
 
 ### Installation From Git Repo
 
+The easiest way to get the latest version is by cloning the build plugin repo.
+
+1. `git clone https://github.com/Automattic/Jetpack-backup-plugin`
+2. Move this directory into the wp-content/plugins directory of your site.
+
+Alternatively, if you have made changes to the plugin or want to build from source:
+
 1. Check out and set up the Jetpack repo
 2. `cd projects/plugins/backup`
 3. `pnpm run build-production-concurrently` <-- this builds without fancy symlinks, so that the build can run standalone
