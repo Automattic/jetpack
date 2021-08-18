@@ -30,7 +30,7 @@ describe( 'Jetpack updater', () => {
 			.withWpComLoggedIn( true )
 			.build();
 
-		await execWpCommand( `plugin install --activate jetpack --force` );
+		await execWpCommand( `plugin activate jetpack` );
 		await execWpCommand( `plugin activate e2e-plugin-updater` );
 		await execWpCommand( `option set e2e_jetpack_upgrader_update_version 99.9-alpha` );
 		await execWpCommand(
