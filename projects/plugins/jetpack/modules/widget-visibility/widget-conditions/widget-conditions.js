@@ -499,10 +499,20 @@ const visibilityAdvancedControls = wp.compose.createHigherOrderComponent( BlockE
 			} );
 		};
 
-		const setMajor = ( i, value ) => {
+		const setMajor = ( i, majorValue ) => {
+			// When changing majors, also change the minor to the first available option
+			var minorValue = '';
+			if (
+				majorValue in widget_conditions_data &&
+				Array.isArray( widget_conditions_data[ majorValue ] ) &&
+				widget_conditions_data[ majorValue ].length > 0
+			) {
+				minorValue = widget_conditions_data[ majorValue ][ 0 ][ 0 ];
+			}
+
 			const newRules = [
 				...rules.slice( 0, i ),
-				{ ...rules[ i ], major: value },
+				{ ...rules[ i ], major: majorValue, minor: minorValue },
 				...rules.slice( i + 1 ),
 			];
 			console.log( { newRules } );
