@@ -62,7 +62,6 @@
 	"projects/plugins/jetpack/_inc/client/pro-status/index.jsx",
 	"projects/plugins/jetpack/_inc/client/security/sso.jsx",
 	"projects/plugins/jetpack/_inc/client/state/at-a-glance/reducer.js",
-	"projects/plugins/jetpack/_inc/client/state/connection/actions.js",
 	"projects/plugins/jetpack/_inc/client/state/connection/reducer.js",
 	"projects/plugins/jetpack/_inc/client/state/dev-version/reducer.js",
 	"projects/plugins/jetpack/_inc/client/state/disconnect-survey/reducer.js",
