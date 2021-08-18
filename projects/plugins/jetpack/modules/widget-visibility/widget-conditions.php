@@ -716,8 +716,9 @@ class Jetpack_Widget_Conditions {
 		static $condition_result_cache = array();
 
 		$condition_result = false;
+		$conditions       = $instance['conditions'];
 
-		foreach ( $instance['conditions']['rules'] as $rule ) {
+		foreach ( $conditions['rules'] as $rule ) {
 			$condition_result = false;
 			$condition_key    = self::generate_condition_key( $rule );
 
@@ -920,8 +921,8 @@ class Jetpack_Widget_Conditions {
 			}
 
 			if (
-				isset( $instance['conditions']['match_all'] )
-				&& $instance['conditions']['match_all'] == '1'
+				isset( $conditions['match_all'] )
+				&& $conditions['match_all'] == '1'
 				&& ! $condition_result
 			) {
 
@@ -929,8 +930,8 @@ class Jetpack_Widget_Conditions {
 				break;
 			} elseif (
 				(
-					empty( $instance['conditions']['match_all'] )
-					|| $instance['conditions']['match_all'] !== '1'
+					empty( $conditions['match_all'] )
+					|| $conditions['match_all'] !== '1'
 				)
 				&& $condition_result
 			) {
@@ -942,10 +943,10 @@ class Jetpack_Widget_Conditions {
 
 		if (
 			(
-				'show' == $instance['conditions']['action']
+				'show' == $conditions['action']
 				&& ! $condition_result
 			) || (
-				'hide' == $instance['conditions']['action']
+				'hide' == $conditions['action']
 				&& $condition_result
 			)
 		) {
