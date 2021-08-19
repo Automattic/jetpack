@@ -35,7 +35,7 @@ fi
 # Sets options.
 OP=
 VERBOSE=false
-SKIP_INTRA_MONOREPO_DEPS=false
+FIX_INTRA_MONOREPO_DEPS=false
 while getopts ":c:u:vsh" opt; do
 	case ${opt} in
 		c)
@@ -43,7 +43,6 @@ while getopts ":c:u:vsh" opt; do
 			VERSION=$OPTARG
 			OP=check
 			OPING=Checking
-			SKIP_INTRA_MONOREPO_DEPS=true
 			;;
 		u)
 			[[ -z "$OP" ]] || die "Only one of -c or -u may be specified"
@@ -51,8 +50,8 @@ while getopts ":c:u:vsh" opt; do
 			OP=update
 			OPING=Updating
 			;;
-		s)
-			SKIP_INTRA_MONOREPO_DEPS=true
+		f)
+			FIX_INTRA_MONOREPO_DEPS=true
 			;;
 		v)
 			VERBOSE=true
@@ -237,13 +236,13 @@ done < <(jq -r '.extra["version-constants"] // {} | to_entries | .[] | .key + " 
 
 # Update other dependencies
 
-if ! $SKIP_INTRA_MONOREPO_DEPS; then
+if $FIX_INTRA_MONOREPO_DEPS; then
 	debug "checking and fixing any broken version dependencies"
 	"$BASE/tools/check-intra-monorepo-deps.sh" -u -a
 fi
 
 if $FIXHINT; then
-	green "You might use \`tools/project-version.sh -u $VERSION $SLUG\` to fix this"
+	green "You might use \`tools/project-version.sh -f -u $VERSION $SLUG\` to fix this"
 fi
 
 exit $EXIT
