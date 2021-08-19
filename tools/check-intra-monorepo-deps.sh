@@ -28,7 +28,8 @@ function usage {
 UPDATE=false
 VERBOSE=false
 DOCL_EVER=true
-while getopts ":uUvh" opt; do
+AUTO_SUFFIX=false
+while getopts ":uUvha" opt; do
 	case ${opt} in
 		u)
 			UPDATE=true
@@ -36,6 +37,9 @@ while getopts ":uUvh" opt; do
 		U)
 			UPDATE=true
 			DOCL_EVER=false
+			;;
+		a)
+			AUTO_SUFFIX=true
 			;;
 		u)
 			UPDATE=true
@@ -108,6 +112,11 @@ if $UPDATE; then
 		else
 			ARGS+=( --type=changed )
 		fi
+
+		if $AUTO_SUFFIX; then
+			ARGS+=( --filename-auto-suffix )
+		fi
+
 		ARGS+=( --entry="$2" --comment="$3" )
 
 		local OLDDIR=$PWD
