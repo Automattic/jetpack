@@ -215,7 +215,8 @@ class Client {
 		 * Return `true` to ENABLE SSL verification, return `false`
 		 * to DISABLE SSL verification.
 		 *
-		 * @since 3.6.0
+		 * @since 1.7.0
+		 * @since-jetpack 3.6.0
 		 *
 		 * @param bool Whether to force `sslverify` or not.
 		 */
