@@ -1015,7 +1015,7 @@ class Jetpack_Widget_Conditions {
 
 			if (
 				isset( $conditions['match_all'] )
-				&& $conditions['match_all'] == '1'
+				&& 1 === $conditions['match_all']
 				&& ! $condition_result
 			) {
 
@@ -1024,7 +1024,7 @@ class Jetpack_Widget_Conditions {
 			} elseif (
 				(
 					empty( $conditions['match_all'] )
-					|| $conditions['match_all'] !== '1'
+					|| 1 !== $conditions['match_all']
 				)
 				&& $condition_result
 			) {
@@ -1036,10 +1036,10 @@ class Jetpack_Widget_Conditions {
 
 		if (
 			(
-				'show' == $conditions['action']
+				'show' === $conditions['action']
 				&& ! $condition_result
 			) || (
-				'hide' == $conditions['action']
+				'hide' === $conditions['action']
 				&& $condition_result
 			)
 		) {
