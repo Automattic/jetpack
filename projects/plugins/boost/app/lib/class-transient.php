@@ -75,13 +75,11 @@ class Transient {
 	}
 
 	/**
-	 * Find all cache keys by prefix.
+	 * Delete all `Transient` values with certain prefix from database.
 	 *
-	 * @param string $prefix    Cache key prefix.
-	 *
-	 * return string[] Array of string representing the keys that match the prefix.
+	 * @param string $prefix Cache key prefix.
 	 */
-	public static function find_keys_by_prefix( $prefix ) {
+	public static function delete_by_prefix( $prefix ) {
 		global $wpdb;
 
 		/**
@@ -90,28 +88,21 @@ class Transient {
 		$option_prefix = static::key( $prefix );
 
 		/*
-		 * Find the length of prefix used by all transients.
+		 * We are adding slashes to make sure % and _ characters match exactly as they are wildcard characters. The
+		 * ending % is to make sure it matches all values followed by initial prefix.
 		 */
-		$transient_prefix_length = strlen( static::OPTION_PREFIX );
+		$prefix_search_pattern = addcslashes( $option_prefix, '%_' ) . '%';
 
-		/*
-		 * We are looking for all cache entries in the database for supplied cache prefix. As the `Transient` class adds
-		 * another prefix before storing the cache in database, we will remove that during the query to return the
-		 * proper keys.
-		 */
-		$keys = $wpdb->get_col(
+		$wpdb->query(
 			$wpdb->prepare(
 				"
-					SELECT  SUBSTRING(`option_name`, %d)
+					DELETE
 					FROM    $wpdb->options
 					WHERE   `option_name` LIKE %s
 				",
-				$transient_prefix_length + 1,
-				$option_prefix . '%'
+				$prefix_search_pattern
 			)
 		);
-
-		return $keys;
 	}
 
 	/**
