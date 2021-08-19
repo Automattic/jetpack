@@ -52,16 +52,16 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			     is_customize_preview()
 		     )
 		) {
-			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		}
 	}
 
 	/**
-	 * Enqueue the form's CSS.
+	 * Enqueue the form's CSS and JS
 	 *
 	 * @since 4.5.0
 	 */
-	function enqueue_style() {
+	public function enqueue_scripts() {
 		wp_register_style(
 			'jetpack-subscriptions',
 			plugins_url( 'subscriptions.css', __FILE__ ),
@@ -69,6 +69,15 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			JETPACK__VERSION
 		);
 		wp_enqueue_style( 'jetpack-subscriptions' );
+
+		wp_register_script(
+			'jetpack-subscriptions-js',
+			plugins_url( 'subscriptions.js', __FILE__ ),
+			array(),
+			JETPACK__VERSION,
+			true
+		);
+		wp_enqueue_script( 'jetpack-subscriptions-js' );
 	}
 
 	/**
@@ -239,7 +248,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 			$border_color = isset( $themecolors['border'] ) ? " #{$themecolors['border']}" : '';
 			printf(
-				'<div style="border: 1px solid%1$s; padding-left: 5px; padding-right: 5px; margin-bottom: 10px;">%2$s</div>',
+				'<div class="sub-notification" style="border: 1px solid%1$s; padding-left: 5px; padding-right: 5px; margin-bottom: 10px;">%2$s</div>',
 				esc_attr( $border_color ),
 				wp_kses_post( $message )
 			);
