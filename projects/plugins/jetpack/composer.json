@@ -74,9 +74,6 @@
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"
-		],
-		"phpunit-version": [
-			"phpunit --version"
 		]
 	},
 	"repositories": [
