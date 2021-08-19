@@ -14,9 +14,10 @@ function usage {
 
 		  Check that the project's versions are updated to the specified version.
 
-		usage: $0 [-v] -u version <slug>
+		usage: $0 [-f] [-v] -u version <slug>
 
 		  Update the versions of the specified project.
+		  Specifying -f force-updates the referenced version in other packages that depend on the updated package.
 
 		The following version numbers are updated:
 		   - Version in the WordPress plugin header, if applicable.
@@ -36,7 +37,7 @@ fi
 OP=
 VERBOSE=false
 FIX_INTRA_MONOREPO_DEPS=false
-while getopts ":c:u:vsh" opt; do
+while getopts ":c:u:fvsh" opt; do
 	case ${opt} in
 		c)
 			[[ -z "$OP" ]] || die "Only one of -c or -u may be specified"
