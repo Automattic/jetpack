@@ -22,6 +22,7 @@ importers:
       jest-junit: 12.0.0
       jest-runner-groups: 2.0.1
       jest-stare: 2.2.1
+      jetpack-cli: ../../../../../tools/cli
       localtunnel: 2.0.1
       lodash: 4.17.21
       mkdirp: 1.0.4
@@ -50,6 +51,7 @@ importers:
       jest-junit: 12.0.0
       jest-runner-groups: 2.0.1
       jest-stare: 2.2.1
+      jetpack-cli: link:../../../../../tools/cli
       localtunnel: 2.0.1
       lodash: 4.17.21
       mkdirp: 1.0.4
