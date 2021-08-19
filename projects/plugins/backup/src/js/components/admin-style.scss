@@ -17,7 +17,7 @@
 	}
 }
 
-.jp-content {
+#jetpack-backup-admin-container.jp-content {
 	position: relative;
 	font-size: var( --font-body );
 	line-height: 1.5;
@@ -33,6 +33,17 @@
 	}
 
 	h2 {
+		font-size: var( --font-title-small );
+		font-weight: 500;
+	}
+
+	p, li {
+		font-size: 16px;
+		line-height: 1.5;
+	}
+
+	.jp-connection-status-card h3 {
+		margin-top: 40px;
 		font-size: var( --font-title-small );
 		font-weight: 500;
 	}

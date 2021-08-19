@@ -22,6 +22,9 @@
 
 	const dispatch = createEventDispatcher();
 
+	export let showSuggestion = true;
+	export let foldRawErrors = true;
+
 	/**
 	 * @var {ErrorSet} errorSet Error Set to display a description of, from a Recommendation or CriticalCssStatus.
 	 */
@@ -30,12 +33,10 @@
 	// Keep a set of URLs in an easy-to-render {href:, label:} format.
 	// Each should show the URL in its label, but actually link to error.meta.url if available.
 	let displayUrls = [];
-	$: displayUrls = Object.entries( errorSet.byUrl ).map(
-		( [ url, error ] ) => ( {
-			href: error.meta.url ? error.meta.url : url,
-			label: url,
-		} )
-	);
+	$: displayUrls = Object.entries( errorSet.byUrl ).map( ( [ url, error ] ) => ( {
+		href: error.meta.url ? error.meta.url : url,
+		label: url,
+	} ) );
 
 	const templateVars = {
 		...actionLinkTemplateVar( () => dispatch( 'retry' ), 'retry' ),
@@ -45,10 +46,7 @@
 
 <div class="jb-critical-css__error-description">
 	<span class="error-description">
-		<TemplatedString
-			template={describeErrorSet( errorSet )}
-			vars={{ templateVars }}
-		/>
+		<TemplatedString template={describeErrorSet( errorSet )} vars={{ templateVars }} />
 	</span>
 
 	<MoreList let:entry entries={displayUrls}>
@@ -57,27 +55,32 @@
 		</a>
 	</MoreList>
 
-	<h5>
-		{__( 'What to do', 'jetpack-boost' )}
-	</h5>
+	{#if showSuggestion}
+		<h5>
+			{__( 'What to do', 'jetpack-boost' )}
+		</h5>
 
-	<p class="suggestion">
-		<TemplatedString
-			template={textSuggestion( errorSet )}
-			vars={templateVars}
-		/>
-	</p>
+		<p class="suggestion">
+			<TemplatedString template={textSuggestion( errorSet )} vars={templateVars} />
+		</p>
+
+		<svelte:component this={footerComponent( errorSet )} />
+	{/if}
 
 	{#if rawError( errorSet )}
-		<FoldingElement
-			showLabel={__( 'See error message', 'jetpack-boost' )}
-			hideLabel={__( 'Hide error message', 'jetpack-boost' )}
-		>
+		{#if foldRawErrors}
+			<FoldingElement
+				showLabel={__( 'See error message', 'jetpack-boost' )}
+				hideLabel={__( 'Hide error message', 'jetpack-boost' )}
+			>
+				<p class="raw-error" transition:slide|local>
+					{rawError( errorSet )}
+				</p>
+			</FoldingElement>
+		{:else}
 			<p class="raw-error" transition:slide|local>
 				{rawError( errorSet )}
 			</p>
-		</FoldingElement>
+		{/if}
 	{/if}
-
-	<svelte:component this={footerComponent( errorSet )} />
 </div>

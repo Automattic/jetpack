@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Adjusted the RNA connection usage as per its recent backward-incompatible changes.

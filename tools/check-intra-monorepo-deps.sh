@@ -28,7 +28,8 @@ function usage {
 UPDATE=false
 VERBOSE=false
 DOCL_EVER=true
-while getopts ":uUvh" opt; do
+AUTO_SUFFIX=false
+while getopts ":uUvha" opt; do
 	case ${opt} in
 		u)
 			UPDATE=true
@@ -36,6 +37,9 @@ while getopts ":uUvh" opt; do
 		U)
 			UPDATE=true
 			DOCL_EVER=false
+			;;
+		a)
+			AUTO_SUFFIX=true
 			;;
 		u)
 			UPDATE=true
@@ -93,25 +97,29 @@ if $UPDATE; then
 
 	function changelogger {
 		local SLUG="$1"
-		local ARGS
 
 		if ! $DID_CL_INSTALL; then
 			debug "Making sure changelogger is runnable"
-			(cd projects/packages/changelogger && composer update --quiet)
+			(cd "$BASE/projects/packages/changelogger" && composer update --quiet)
 			DID_CL_INSTALL=true
 		fi
 
-		ARGS=()
-		ARGS=( add --no-interaction --significance=patch )
-		if [[ "$SLUG" == "plugins/jetpack" ]]; then
-			ARGS+=( --type=other )
-		else
-			ARGS+=( --type=changed )
-		fi
-		ARGS+=( --entry="$2" --comment="$3" )
-
 		local OLDDIR=$PWD
 		cd "$BASE/projects/$SLUG"
+
+		local ARGS=()
+		ARGS=( add --no-interaction --significance=patch )
+		local CLTYPE="$(jq -r '.extra["changelogger-default-type"] // "changed"' composer.json)"
+		if [[ -n "$CLTYPE" ]]; then
+			ARGS+=( "--type=$CLTYPE" )
+		fi
+
+		if $AUTO_SUFFIX; then
+			ARGS+=( --filename-auto-suffix )
+		fi
+
+		ARGS+=( --entry="$2" --comment="$3" )
+
 		local CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
 		if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then
 			"$CL" "${ARGS[@]}"

@@ -84,6 +84,7 @@ if [[ ! -e "$BASE/projects/$SLUG/composer.json" ]]; then
 fi
 
 EXIT=0
+FIXHINT=false
 
 # Check/update version numbers with sed/grep.
 #  - $1: File.
@@ -121,6 +122,7 @@ function sedver {
 			echo "---"
 		else
 			error "${1#$BASE/}:${LINE%%:*}: Version mismatch, expected $3 but found $VER!"
+			FIXHINT=true
 		fi
 	fi
 }
@@ -166,6 +168,7 @@ function jsver {
 			echo "---"
 		else
 			error "${1#$BASE/}:${LINE%%:*}: Version mismatch, expected $3 but found $VER!"
+			FIXHINT=true
 		fi
 	fi
 }
@@ -226,5 +229,9 @@ while IFS=" " read -r C F; do
 	fi
 	sedver "$BASE/projects/$SLUG/$F" "$PAT" "$VERSION" "version constant $C"
 done < <(jq -r '.extra["version-constants"] // {} | to_entries | .[] | .key + " " + .value' "$FILE")
+
+if $FIXHINT; then
+	green "You might use \`tools/project-version.sh -u $VERSION $SLUG\` to fix this"
+fi
 
 exit $EXIT

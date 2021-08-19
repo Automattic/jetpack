@@ -81,6 +81,9 @@ The requirements consist of an array of requirement objects. A requirement objec
   from every team (but if a person is a member of multiple teams, they can satisfy multiple
   requirements). When it's `any-of`, one review from any team is needed.
 
+  Additionally, you can specify a single user by prefixing their username with `@`. For example,
+  `@example` will be treated as a virtual team with one member; `example`.
+
 Paths are matched using the [picomatch](https://www.npmjs.com/package/picomatch#globbing-features) library.
 
 Every requirement object that applies must have appropriate reviews, it's not "first match". Thus,
