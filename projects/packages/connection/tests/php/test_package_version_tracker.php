@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -38,12 +39,22 @@ class Test_Package_Version_Tracker extends TestCase {
 	);
 
 	/**
+	 * Setting up the testing environment.
+	 *
+	 * @before
+	 */
+	public function set_up() {
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+	}
+
+	/**
 	 * Returning the environment into its initial state.
 	 *
 	 * @after
 	 */
 	public function tear_down() {
 		$this->http_request_attempted = false;
+		Constants::clear_constants();
 	}
 
 	/**
@@ -272,6 +283,45 @@ class Test_Package_Version_Tracker extends TestCase {
 		$this->assertTrue( $this->http_request_attempted );
 
 		$this->assertSame( self::PACKAGE_VERSIONS, get_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION ) );
+
+		$failed_request_cached = get_transient( Package_Version_Tracker::CACHED_FAILED_REQUEST_KEY );
+
+		$this->assertNotFalse( $failed_request_cached );
+
+		// Clean-up.
+		delete_transient( Package_Version_Tracker::CACHED_FAILED_REQUEST_KEY );
+	}
+
+	/**
+	 * Tests the maybe_update_package_versions method when the HTTP request to WPCOM has already failed within last hour..
+	 */
+	public function test_remote_package_versions_will_not_be_updated_if_a_previous_failed_request_occurred_within_hour() {
+		set_transient( Package_Version_Tracker::CACHED_FAILED_REQUEST_KEY, time() );
+
+		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		\Jetpack_Options::update_option( 'id', 1234 );
+
+		add_filter( 'pre_http_request', array( $this, 'intercept_http_request_failure' ) );
+
+		update_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION, self::PACKAGE_VERSIONS );
+
+		add_filter(
+			'jetpack_package_versions',
+			function () {
+				return self::CHANGED_VERSIONS;
+			}
+		);
+
+		( new Package_Version_Tracker() )->maybe_update_package_versions();
+
+		remove_filter( 'pre_http_request', array( $this, 'intercept_http_request_failure' ) );
+
+		$this->assertFalse( $this->http_request_attempted );
+
+		$this->assertSame( self::PACKAGE_VERSIONS, get_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION ) );
+
+		// Clean-up.
+		delete_transient( Package_Version_Tracker::CACHED_FAILED_REQUEST_KEY );
 	}
 
 	/**

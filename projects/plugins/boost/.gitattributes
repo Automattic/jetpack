@@ -16,7 +16,6 @@ vendor/tedivm/** 			  production-include
 /app/assets/src/**                         production-exclude
 /app/assets/dist/**/*.js.map               production-exclude
 /changelog/**                              production-exclude
-/docker/**                                 production-exclude
 /docs/**                                   production-exclude
 /node_modules/**                           production-exclude
 /tests/**                                  production-exclude
