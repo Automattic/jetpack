@@ -679,13 +679,14 @@ class Jetpack_Search_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Covert the format of new widget to search widget format when appropriate.
+	 * Reformats the widget instance array to one that is recognized by the `update` function. 
+	 * This is only necessary when handling changes from the block-based widget editor.
 	 *
-	 * @param array $new_instance - The updated widget instance.
+	 * @param array $widget_instance - Jetpack Search widget instance.
 	 *
-	 * @return array - The widget instance of JP search format.
+	 * @return array - Potentially reformatted instance compatible with the save function.
 	 */
-	protected function maybe_new_block_widget_to_jp_search_format( $new_instance ) {
+	protected function maybe_reformat_widget( $widget_instance ) {
 		if ( isset( $new_instance['filter_type'] ) || ! isset( $new_instance['filters'] ) || ! is_array( $new_instance['filters'] ) ) {
 			return $new_instance;
 		}
