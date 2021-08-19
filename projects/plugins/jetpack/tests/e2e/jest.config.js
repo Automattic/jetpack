@@ -3,8 +3,6 @@
  * https://jestjs.io/docs/en/configuration.html
  */
 
-const { resolveSiteUrl } = require( './lib/utils-helper' );
-
 if ( process.env.E2E_DEBUG ) {
 	process.env.DEBUG = 'pw:browser|api|error';
 	process.env.PWDEBUG = 1;
@@ -17,9 +15,6 @@ module.exports = {
 	setupFilesAfterEnv: [ '<rootDir>/jest.setup.js' ],
 	testRunner: 'jest-circus/runner',
 	runner: 'groups',
-	globals: {
-		siteUrl: resolveSiteUrl(),
-	},
 	testEnvironmentOptions: {
 		resultsDir: 'output/allure-results',
 	},
