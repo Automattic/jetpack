@@ -501,7 +501,7 @@ class Tokens {
 	 * Returns an array of user_id's that have user tokens for communicating with wpcom.
 	 * Able to select by specific capability.
 	 *
-	 * @deprecated 9.9.1
+	 * @deprecated 1.30.0
 	 * @see Manager::get_connected_users
 	 *
 	 * @param string   $capability The capability of the user.
@@ -509,7 +509,7 @@ class Tokens {
 	 * @return array Array of WP_User objects if found.
 	 */
 	public function get_connected_users( $capability = 'any', $limit = null ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.9.1' );
+		_deprecated_function( __METHOD__, '1.30.0' );
 		return ( new Manager( 'jetpack' ) )->get_connected_users( $capability, $limit );
 	}
 

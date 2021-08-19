@@ -504,11 +504,11 @@ class Manager {
 	/**
 	 * Returns true if the current site is connected to WordPress.com and has the minimum requirements to enable Jetpack UI.
 	 *
-	 * This method is deprecated since Jetpack 9.6.0. Please use has_connected_owner instead.
+	 * This method is deprecated since version 1.25.0 of this package. Please use has_connected_owner instead.
 	 *
 	 * Since this method has a wide spread use, we decided not to throw any deprecation warnings for now.
 	 *
-	 * @deprecated 9.6.0
+	 * @deprecated 1.25.0
 	 * @see Manager::has_connected_owner
 	 * @return Boolean is the site connected?
 	 */
@@ -529,13 +529,13 @@ class Manager {
 	 * Returns true if the site has both a token and a blog id, which indicates a site has been registered.
 	 *
 	 * @access public
-	 * @deprecated 9.2.0 Use is_connected instead
+	 * @deprecated 1.12.1 Use is_connected instead
 	 * @see Manager::is_connected
 	 *
 	 * @return bool
 	 */
 	public function is_registered() {
-		_deprecated_function( __METHOD__, 'jetpack-9.2' );
+		_deprecated_function( __METHOD__, '1.12.1' );
 		return $this->is_connected();
 	}
 
@@ -635,12 +635,12 @@ class Manager {
 	 *
 	 * @access public
 	 * @since 1.25.0
-	 * @deprecated 9.8.0
+	 * @deprecated 1.27.0
 	 *
 	 * @return bool
 	 */
 	public function is_userless() {
-		_deprecated_function( __METHOD__, 'jetpack-9.8.0', 'Automattic\\Jetpack\\Connection\\Manager::is_site_connection' );
+		_deprecated_function( __METHOD__, '1.27.0', 'Automattic\\Jetpack\\Connection\\Manager::is_site_connection' );
 		return $this->is_site_connection();
 	}
 
@@ -1345,11 +1345,11 @@ class Manager {
 	 * @param string $nonce the nonce value.
 	 * @return bool whether the nonce is unique or not.
 	 *
-	 * @deprecated since 9.5.0
+	 * @deprecated since 1.24.0
 	 * @see Nonce_Handler::add()
 	 */
 	public function add_nonce( $timestamp, $nonce ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5.0', 'Automattic\\Jetpack\\Connection\\Nonce_Handler::add' );
+		_deprecated_function( __METHOD__, '1.24.0', 'Automattic\\Jetpack\\Connection\\Nonce_Handler::add' );
 		return ( new Nonce_Handler() )->add( $timestamp, $nonce );
 	}
 
@@ -1360,11 +1360,11 @@ class Manager {
 	 *
 	 * @param bool $all whether to clean even non-expired nonces.
 	 *
-	 * @deprecated since 9.5.0
+	 * @deprecated since 1.24.0
 	 * @see Nonce_Handler::clean_all()
 	 */
 	public function clean_nonces( $all = false ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5.0', 'Automattic\\Jetpack\\Connection\\Nonce_Handler::clean_all' );
+		_deprecated_function( __METHOD__, '1.24.0', 'Automattic\\Jetpack\\Connection\\Nonce_Handler::clean_all' );
 		( new Nonce_Handler() )->clean_all( $all ? PHP_INT_MAX : ( time() - Nonce_Handler::LIFETIME ) );
 	}
 
@@ -1534,27 +1534,27 @@ class Manager {
 	/**
 	 * Returns two secret tokens and the end of life timestamp for them.
 	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Secrets->get() instead.
+	 * @deprecated 1.24.0 Use Automattic\Jetpack\Connection\Secrets->get() instead.
 	 *
 	 * @param String  $action  The action name.
 	 * @param Integer $user_id The user identifier.
 	 * @return string|array an array of secrets or an error string.
 	 */
 	public function get_secrets( $action, $user_id ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Secrets->get' );
+		_deprecated_function( __METHOD__, '1.24.0', 'Automattic\\Jetpack\\Connection\\Secrets->get' );
 		return ( new Secrets() )->get( $action, $user_id );
 	}
 
 	/**
 	 * Deletes secret tokens in case they, for example, have expired.
 	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Secrets->delete() instead.
+	 * @deprecated 1.24.0 Use Automattic\Jetpack\Connection\Secrets->delete() instead.
 	 *
 	 * @param String  $action  The action name.
 	 * @param Integer $user_id The user identifier.
 	 */
 	public function delete_secrets( $action, $user_id ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Secrets->delete' );
+		_deprecated_function( __METHOD__, '1.24.0', 'Automattic\\Jetpack\\Connection\\Secrets->delete' );
 		( new Secrets() )->delete( $action, $user_id );
 	}
 
@@ -1731,21 +1731,21 @@ class Manager {
 	/**
 	 * Perform the API request to validate the blog and user tokens.
 	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens->validate_tokens() instead.
+	 * @deprecated 1.24.0 Use Automattic\Jetpack\Connection\Tokens->validate_tokens() instead.
 	 *
 	 * @param int|null $user_id ID of the user we need to validate token for. Current user's ID by default.
 	 *
 	 * @return array|false|WP_Error The API response: `array( 'blog_token_is_healthy' => true|false, 'user_token_is_healthy' => true|false )`.
 	 */
 	public function validate_tokens( $user_id = null ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->validate' );
+		_deprecated_function( __METHOD__, '1.24.0', 'Automattic\\Jetpack\\Connection\\Tokens->validate' );
 		return $this->get_tokens()->validate( $user_id );
 	}
 
 	/**
 	 * Verify a Previously Generated Secret.
 	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Secrets->verify() instead.
+	 * @deprecated 1.24.0 Use Automattic\Jetpack\Connection\Secrets->verify() instead.
 	 *
 	 * @param string $action   The type of secret to verify.
 	 * @param string $secret_1 The secret string to compare to what is stored.
@@ -1753,7 +1753,7 @@ class Manager {
 	 * @return \WP_Error|string WP_Error on failure, secret_2 on success.
 	 */
 	public function verify_secrets( $action, $secret_1, $user_id ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Secrets->verify' );
+		_deprecated_function( __METHOD__, '1.24.0', 'Automattic\\Jetpack\\Connection\\Secrets->verify' );
 		return ( new Secrets() )->verify( $action, $secret_1, $user_id );
 	}
 
@@ -2138,7 +2138,7 @@ class Manager {
 	/**
 	 * Gets the requested token.
 	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens->get_access_token() instead.
+	 * @deprecated 1.24.0 Use Automattic\Jetpack\Connection\Tokens->get_access_token() instead.
 	 *
 	 * @param int|false    $user_id   false: Return the Blog Token. int: Return that user's User Token.
 	 * @param string|false $token_key If provided, check that the token matches the provided input.
@@ -2149,7 +2149,7 @@ class Manager {
 	 * @see $this->get_tokens()->get_access_token()
 	 */
 	public function get_access_token( $user_id = false, $token_key = false, $suppress_errors = true ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->get_access_token' );
+		_deprecated_function( __METHOD__, '1.24.0', 'Automattic\\Jetpack\\Connection\\Tokens->get_access_token' );
 		return $this->get_tokens()->get_access_token( $user_id, $token_key, $suppress_errors );
 	}
 
@@ -2435,13 +2435,13 @@ class Manager {
 	/**
 	 * Fetches a signed token.
 	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens->get_signed_token() instead.
+	 * @deprecated 1.24.0 Use Automattic\Jetpack\Connection\Tokens->get_signed_token() instead.
 	 *
 	 * @param object $token the token.
 	 * @return WP_Error|string a signed token
 	 */
 	public function get_signed_token( $token ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->get_signed_token' );
+		_deprecated_function( __METHOD__, '1.24.0', 'Automattic\\Jetpack\\Connection\\Tokens->get_signed_token' );
 		return $this->get_tokens()->get_signed_token( $token );
 	}
 

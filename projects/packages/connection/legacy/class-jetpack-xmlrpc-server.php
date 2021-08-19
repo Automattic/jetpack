@@ -746,7 +746,7 @@ class Jetpack_XMLRPC_Server {
 	/**
 	 * Returns any object that is able to be synced.
 	 *
-	 * @deprecated since 7.8.0
+	 * @deprecated since jetpack 7.8.0
 	 * @see Automattic\Jetpack\Sync\Sender::sync_object()
 	 *
 	 * @param array $args the synchronized object parameters.
@@ -793,13 +793,13 @@ class Jetpack_XMLRPC_Server {
 	 *
 	 * Disconnect this blog from the connected wordpress.com account
 	 *
-	 * @deprecated since 9.6.0
+	 * @deprecated since 1.25.0
 	 * @see Jetpack_XMLRPC_Methods::disconnect_blog() in the Jetpack plugin
 	 *
 	 * @return boolean
 	 */
 	public function disconnect_blog() {
-		_deprecated_function( __METHOD__, 'jetpack-9.6', 'Jetpack_XMLRPC_Methods::disconnect_blog()' );
+		_deprecated_function( __METHOD__, '1.25.0', 'Jetpack_XMLRPC_Methods::disconnect_blog()' );
 		if ( class_exists( 'Jetpack_XMLRPC_Methods' ) ) {
 			return Jetpack_XMLRPC_Methods::disconnect_blog();
 		}
@@ -811,13 +811,13 @@ class Jetpack_XMLRPC_Server {
 	 *
 	 * Returns what features are available. Uses the slug of the module files.
 	 *
-	 * @deprecated since 9.6.0
+	 * @deprecated since 1.25.0
 	 * @see Jetpack_XMLRPC_Methods::features_available() in the Jetpack plugin
 	 *
 	 * @return array
 	 */
 	public function features_available() {
-		_deprecated_function( __METHOD__, 'jetpack-9.6', 'Jetpack_XMLRPC_Methods::features_available()' );
+		_deprecated_function( __METHOD__, '1.25.0', 'Jetpack_XMLRPC_Methods::features_available()' );
 		if ( class_exists( 'Jetpack_XMLRPC_Methods' ) ) {
 			return Jetpack_XMLRPC_Methods::features_available();
 		}
@@ -829,13 +829,13 @@ class Jetpack_XMLRPC_Server {
 	 *
 	 * Returns what features are enabled. Uses the slug of the modules files.
 	 *
-	 * @deprecated since 9.6.0
+	 * @deprecated since 1.25.0
 	 * @see Jetpack_XMLRPC_Methods::features_enabled() in the Jetpack plugin
 	 *
 	 * @return array
 	 */
 	public function features_enabled() {
-		_deprecated_function( __METHOD__, 'jetpack-9.6', 'Jetpack_XMLRPC_Methods::features_enabled()' );
+		_deprecated_function( __METHOD__, '1.25.0', 'Jetpack_XMLRPC_Methods::features_enabled()' );
 		if ( class_exists( 'Jetpack_XMLRPC_Methods' ) ) {
 			return Jetpack_XMLRPC_Methods::features_enabled();
 		}
@@ -847,13 +847,13 @@ class Jetpack_XMLRPC_Server {
 	 *
 	 * Serve a JSON API request.
 	 *
-	 * @deprecated since 9.6.0
+	 * @deprecated since 1.25.0
 	 * @see Jetpack_XMLRPC_Methods::json_api() in the Jetpack plugin
 	 *
 	 * @param array $args request arguments.
 	 */
 	public function json_api( $args = array() ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.6', 'Jetpack_XMLRPC_Methods::json_api()' );
+		_deprecated_function( __METHOD__, '1.25.0', 'Jetpack_XMLRPC_Methods::json_api()' );
 		if ( class_exists( 'Jetpack_XMLRPC_Methods' ) ) {
 			return Jetpack_XMLRPC_Methods::json_api( $args );
 		}

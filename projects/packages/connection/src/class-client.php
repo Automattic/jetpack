@@ -468,10 +468,10 @@ class Client {
 	 *
 	 * @return string Always 'https'.
 	 *
-	 * @deprecated 9.1.0 WP.com API no longer supports requests using `http://`.
+	 * @deprecated 1.19.2 WP.com API no longer supports requests using `http://`.
 	 */
 	public static function protocol() {
-		_deprecated_function( __METHOD__, 'jetpack-9.1.0' );
+		_deprecated_function( __METHOD__, '1.19.2' );
 
 		return 'https';
 	}
