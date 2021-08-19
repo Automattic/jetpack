@@ -65,7 +65,10 @@
 		"prettier:fix": "prettier --write --plugin-search-dir=. ./**/*.svelte",
 		"lint": "pnpm run prettier && eslint . && pnpm run validate && echo '✔ prettier, eslint and svelte validate ran successfully.'",
 		"lint:fix": "pnpm run prettier:fix && eslint . --fix && pnpm run validate && echo '✔ prettier fix, eslint fix and svelte validate ran successfully.'",
-		"clear-dist": "rm -rf app/assets/dist/*"
+		"clear-dist": "rm -rf app/assets/dist/*",
+		"test-e2e:start": "npm --prefix tests/e2e run env-start && npm --prefix tests/e2e run tunnel-on",
+		"test-e2e:run": "npm --prefix tests/e2e run test-e2e",
+		"test-e2e:stop": "npm --prefix tests/e2e run env-stop && npm --prefix tests/e2e run tunnel-off"
 	},
 	"private": true,
 	"repository": {
