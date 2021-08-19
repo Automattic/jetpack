@@ -204,7 +204,7 @@ abstract class Jetpack_Admin_Page {
 				case 'jetpack_free':
 				case 'jetpack_personal':
 				case 'jetpack_personal_monthly':
-					$to_deactivate = array( 'videopress', 'google-analytics', 'wordads', 'search' );
+					$to_deactivate = array( 'google-analytics', 'wordads', 'search' );
 					break;
 				case 'jetpack_premium':
 				case 'jetpack_premium_monthly':

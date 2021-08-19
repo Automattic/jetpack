@@ -119,20 +119,11 @@ export const SettingsCard = props => {
 
 		switch ( feature ) {
 			case FEATURE_VIDEO_HOSTING_JETPACK:
-				if ( hasPremiumOrBetter ) {
+				if ( hasPremiumOrBetter || props.hasConnectedOwner ) {
 					return '';
 				}
 
-				return props.hasConnectedOwner ? (
-					<JetpackBanner
-						title={ __( 'Get unlimited, ad-free video hosting.', 'jetpack' ) }
-						callToAction={ upgradeLabel }
-						plan={ getJetpackProductUpsellByFeature( FEATURE_VIDEO_HOSTING_JETPACK ) }
-						feature={ feature }
-						onClick={ handleClickForTracking( feature ) }
-						href={ props.videoPremiumUpgradeUrl }
-					/>
-				) : (
+				return (
 					<JetpackBanner
 						title={ __(
 							'Connect your WordPress.com account to upgrade for unlimited, ad-free video hosting.',

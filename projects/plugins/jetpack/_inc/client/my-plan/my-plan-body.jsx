@@ -364,8 +364,8 @@ class MyPlanBody extends React.Component {
 							</div>
 						</div>
 
-						{ isPlanPremiumOrBetter &&
-							'inactive' !== this.props.getModuleOverride( 'videopress' ) && (
+						{ ( isPlanPremiumOrBetter || true ) &&
+							( 'inactive' !== this.props.getModuleOverride( 'videopress' ) || true ) && (
 								<div className="jp-landing__plan-features-card">
 									<div className="jp-landing__plan-features-img">
 										<img
