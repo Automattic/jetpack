@@ -624,7 +624,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * @return array Settings to save.
 	 */
 	public function update( $new_instance, $old_instance ) {
-		$new_instance = $this->maybe_new_block_widget_to_jp_search_format( $new_instance );
+		$new_instance = $this->maybe_reformat_widget( $new_instance );
 		$instance     = array();
 
 		$instance['title']              = sanitize_text_field( $new_instance['title'] );
@@ -679,7 +679,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Reformats the widget instance array to one that is recognized by the `update` function. 
+	 * Reformats the widget instance array to one that is recognized by the `update` function.
 	 * This is only necessary when handling changes from the block-based widget editor.
 	 *
 	 * @param array $widget_instance - Jetpack Search widget instance.
@@ -687,12 +687,12 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * @return array - Potentially reformatted instance compatible with the save function.
 	 */
 	protected function maybe_reformat_widget( $widget_instance ) {
-		if ( isset( $new_instance['filter_type'] ) || ! isset( $new_instance['filters'] ) || ! is_array( $new_instance['filters'] ) ) {
-			return $new_instance;
+		if ( isset( $widget_instance['filter_type'] ) || ! isset( $widget_instance['filters'] ) || ! is_array( $widget_instance['filters'] ) ) {
+			return $widget_instance;
 		}
 
-		$instance = $new_instance;
-		foreach ( $new_instance['filters'] as $filter ) {
+		$instance = $widget_instance;
+		foreach ( $widget_instance['filters'] as $filter ) {
 			$instance['filter_type'][]             = isset( $filter['type'] ) ? $filter['type'] : '';
 			$instance['taxonomy_type'][]           = isset( $filter['taxonomy'] ) ? $filter['taxonomy'] : '';
 			$instance['filter_name'][]             = isset( $filter['name'] ) ? $filter['name'] : '';
