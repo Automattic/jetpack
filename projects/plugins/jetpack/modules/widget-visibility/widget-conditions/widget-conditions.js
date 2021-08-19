@@ -332,11 +332,7 @@ function addVisibilityAttribute( settings, name ) {
 	return settings;
 }
 
-wp.hooks.addFilter(
-	'blocks.registerBlockType',
-	'testing/custom-attribute',
-	addVisibilityAttribute
-);
+wp.hooks.addFilter( 'blocks.registerBlockType', 'widget/visibility', addVisibilityAttribute );
 
 const VisibilityRule = props => {
 	console.log( { widget_conditions_parent_pages, widget_conditions_data } );
@@ -639,8 +635,4 @@ const visibilityAdvancedControls = wp.compose.createHigherOrderComponent( BlockE
 	};
 }, 'visibilityAdvancedControls' );
 
-wp.hooks.addFilter(
-	'editor.BlockEdit',
-	'testing/cover-advanced-control',
-	visibilityAdvancedControls
-);
+wp.hooks.addFilter( 'editor.BlockEdit', 'widget/visibility', visibilityAdvancedControls );
