@@ -406,7 +406,7 @@ importers:
       expect-puppeteer: ^5.0.4
       jest: 27.0.6
       jest-puppeteer: ^5.0.4
-      jetpack-boost-critical-css-gen: git+ssh://git@github.com/automattic/jetpack-boost-critical-css-gen.git#trunk
+      jetpack-boost-critical-css-gen: github:automattic/jetpack-boost-critical-css-gen#trunk
       node-sass: ^6.0.0
       node-wp-i18n: ^1.2.5
       npm-run-all: ^4.1.5
