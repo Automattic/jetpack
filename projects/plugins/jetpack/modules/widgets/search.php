@@ -686,18 +686,18 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * @return array - The widget instance of JP search format.
 	 */
 	protected function maybe_new_block_widget_to_jp_search_format( $new_instance ) {
-		if ( isset( $new_instance['filter_type'] ) || ! is_array( $new_instance['filters'] ) ) {
+		if ( isset( $new_instance['filter_type'] ) || ! isset( $new_instance['filters'] ) || ! is_array( $new_instance['filters'] ) ) {
 			return $new_instance;
 		}
 
 		$instance = $new_instance;
 		foreach ( $new_instance['filters'] as $filter ) {
-			$instance['filter_type'][]             = $filter['type'];
-			$instance['taxonomy_type'][]           = $filter['taxonomy'];
-			$instance['filter_name'][]             = $filter['name'];
-			$instance['num_filters'][]             = $filter['count'];
-			$instance['date_histogram_field'][]    = $filter['field'];
-			$instance['date_histogram_interval'][] = $filter['interval'];
+			$instance['filter_type'][]             = isset( $filter['type'] ) ? $filter['type'] : '';
+			$instance['taxonomy_type'][]           = isset( $filter['type'] ) ? $filter['taxonomy'] : '';
+			$instance['filter_name'][]             = isset( $filter['type'] ) ? $filter['name'] : '';
+			$instance['num_filters'][]             = isset( $filter['type'] ) ? $filter['count'] : 5;
+			$instance['date_histogram_field'][]    = isset( $filter['type'] ) ? $filter['field'] : '';
+			$instance['date_histogram_interval'][] = isset( $filter['type'] ) ? $filter['interval'] : '';
 		}
 		unset( $instance['filters'] );
 		return $instance;
