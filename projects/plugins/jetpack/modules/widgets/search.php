@@ -693,11 +693,11 @@ class Jetpack_Search_Widget extends WP_Widget {
 		$instance = $new_instance;
 		foreach ( $new_instance['filters'] as $filter ) {
 			$instance['filter_type'][]             = isset( $filter['type'] ) ? $filter['type'] : '';
-			$instance['taxonomy_type'][]           = isset( $filter['type'] ) ? $filter['taxonomy'] : '';
-			$instance['filter_name'][]             = isset( $filter['type'] ) ? $filter['name'] : '';
-			$instance['num_filters'][]             = isset( $filter['type'] ) ? $filter['count'] : 5;
-			$instance['date_histogram_field'][]    = isset( $filter['type'] ) ? $filter['field'] : '';
-			$instance['date_histogram_interval'][] = isset( $filter['type'] ) ? $filter['interval'] : '';
+			$instance['taxonomy_type'][]           = isset( $filter['taxonomy'] ) ? $filter['taxonomy'] : '';
+			$instance['filter_name'][]             = isset( $filter['name'] ) ? $filter['name'] : '';
+			$instance['num_filters'][]             = isset( $filter['count'] ) ? $filter['count'] : 5;
+			$instance['date_histogram_field'][]    = isset( $filter['field'] ) ? $filter['field'] : '';
+			$instance['date_histogram_interval'][] = isset( $filter['interval'] ) ? $filter['interval'] : '';
 		}
 		unset( $instance['filters'] );
 		return $instance;
