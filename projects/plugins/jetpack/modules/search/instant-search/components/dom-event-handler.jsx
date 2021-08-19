@@ -183,11 +183,13 @@ export default class DomEventHandler extends Component {
 	};
 
 	scrollOverlayToTop = event => {
-		// NOTE: the propertyName need to be aligned with the animation
-		if ( event?.propertyName !== 'opacity' ) {
+		// NOTE: the propertyName need to be aligned with the animation: instant-search/components/overlay.scss.
+		// We don't scroll the overlay on overlay close.
+		if ( event.propertyName !== 'opacity' || ! this.props.isVisible ) {
 			return;
 		}
-		// @see https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollTo
+
+		// @see https://developer.mozilla.org/en-US/docs/Web/API/Window/scrollTo
 		window?.scrollTo( 0, 0 );
 	};
 
