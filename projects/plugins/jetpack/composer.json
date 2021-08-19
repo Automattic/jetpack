@@ -104,6 +104,7 @@
 			"JETPACK__VERSION": "jetpack.php"
 		},
 		"wp-plugin-slug": "jetpack",
+		"changelogger-default-type": "other",
 		"changelogger": {
 			"versioning": "wordpress",
 			"types": {
