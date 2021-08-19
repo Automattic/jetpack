@@ -4,6 +4,11 @@
 	"version": "0.1.0-alpha",
 	"description": "Jetpack User library",
 	"homepage": "https://jetpack.com",
+	"exports": {
+		".": "./index.jsx",
+		"./action-types": "src/action-types.js",
+		"./state": "src/index.js"
+	},
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/issues"
 	},

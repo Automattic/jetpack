@@ -29,20 +29,12 @@ import {
 	SITE_RECONNECT_SUCCESS,
 } from './action-types';
 
+import { MOCK_SWITCH_USER_PERMISSIONS } from '@automattic/jetpack-user/action-types';
+import { JETPACK_SET_INITIAL_STATE } from '@automattic/jetpack-initial-state/action-types';
 import {
-	ActionTypes as UserActionTypes
-} from '@automattic/jetpack-user';
-const { MOCK_SWITCH_USER_PERMISSIONS } = UserActionTypes;
-
-import {
-	ActionTypes as InitialStateActionTypes
-} from '@automattic/jetpack-initial-state';
-const { JETPACK_SET_INITIAL_STATE } = InitialStateActionTypes;
-
-import {
-	State as ModuleState
-} from '@automattic/jetpack-modules';
-const { getModulesThatRequireConnection, getModulesThatRequireUserConnection } = ModuleState;
+	getModulesThatRequireConnection,
+	getModulesThatRequireUserConnection,
+} from '@automattic/jetpack-modules/state';
 
 export const status = (
 	state = { siteConnected: window.Initial_State.connectionStatus },
