@@ -19,16 +19,18 @@ import { prerequisitesBuilder } from '../lib/env/prerequisites';
  */
 describe( 'Jetpack updater', () => {
 	beforeAll( async () => {
+		await prepareUpdaterTest();
+
 		await prerequisitesBuilder()
 			.withCleanEnv()
 			.withLoggedIn( true )
 			.withWpComLoggedIn( true )
 			.build();
 
-		await prepareUpdaterTest();
-
+		await execWpCommand( `plugin activate e2e-plugin-updater` );
+		await execWpCommand( `option set e2e_jetpack_upgrader_update_version 99.9-alpha` );
 		await execWpCommand(
-			`option set e2e_jetpack_upgrader_plugin_url ${ siteUrl }/wp-content/uploads/jetpack.zip`
+			`option set e2e_jetpack_upgrader_plugin_url ${ siteUrl }/wp-content/uploads/jetpack.99.9.zip`
 		);
 	} );
 

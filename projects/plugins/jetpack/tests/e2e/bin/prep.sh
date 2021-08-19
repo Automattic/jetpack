@@ -8,7 +8,7 @@ set -e
 
 # Parameters
 WORKING_DIR="/usr/local/src/jetpack-monorepo/projects/plugins/jetpack"
-ZIP_FILE="/var/www/html/wp-content/uploads/jetpack.zip"
+ZIP_FILE="/var/www/html/wp-content/uploads/jetpack.99.9.zip"
 TMP_DIR="/tmp/jetpack"
 
 # Deactive and remove linked Jetpack plugin from monorepo
@@ -41,10 +41,10 @@ cd /var/www/html/
 
 wp --allow-root plugin install --activate jetpack
 wp --allow-root plugin activate e2e-plugin-updater
-wp --allow-root option set e2e_jetpack_upgrader_update_version 99.9-alpha
+# wp --allow-root option set e2e_jetpack_upgrader_update_version 99.9-alpha
 
 # Update FS permissions
-sudo chmod 775 /var/www/html/
+sudo chmod 755 /var/www/html/
 sudo chown -R www-data:www-data /var/www/html/
 
 echo "Done with jetpack.zip preparation!"
