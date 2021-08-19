@@ -7,7 +7,7 @@
 
 use Automattic\Jetpack\Constants;
 use Brain\Monkey;
-use Brain\Monkey\Functions;
+use Brain\Monkey\Filters;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -80,7 +80,7 @@ class Test_Constants extends TestCase {
 	 * @covers Automattic\Jetpack\Constants::get_constant
 	 */
 	public function test_jetpack_constants_default_to_constant() {
-		Functions\expect( 'apply_filters' )->never();
+		Filters\expectApplied( 'jetpack_constant_default_value' )->never();
 
 		$actual_output = Constants::get_constant( 'JETPACK__VERSION' );
 
@@ -95,11 +95,7 @@ class Test_Constants extends TestCase {
 	public function test_jetpack_constants_get_constant_null_when_not_set() {
 		$test_constant_name = 'UNDEFINED';
 
-		Functions\expect( 'apply_filters' )->once()->with(
-			'jetpack_constant_default_value',
-			null,
-			$test_constant_name
-		)->andReturn( null );
+		Filters\expectApplied( 'jetpack_constant_default_value' )->once()->with( null, $test_constant_name );
 
 		$actual_output = Constants::get_constant( $test_constant_name );
 
@@ -112,7 +108,7 @@ class Test_Constants extends TestCase {
 	 * @covers Automattic\Jetpack\Constants::get_constant
 	 */
 	public function test_jetpack_constants_can_override_previously_defined_constant() {
-		Functions\expect( 'apply_filters' )->never();
+		Filters\expectApplied( 'jetpack_constant_default_value' )->never();
 
 		$test_version = '1.0.0';
 		Constants::set_constant( 'JETPACK__VERSION', $test_version );
@@ -126,7 +122,7 @@ class Test_Constants extends TestCase {
 	 * @covers Automattic\Jetpack\Constants::get_constant
 	 */
 	public function test_jetpack_constants_override_to_null_gets_null() {
-		Functions\expect( 'apply_filters' )->never();
+		Filters\expectApplied( 'jetpack_constant_default_value' )->never();
 
 		Constants::set_constant( 'JETPACK__VERSION', null );
 
@@ -142,11 +138,7 @@ class Test_Constants extends TestCase {
 		$test_constant_name  = 'TEST_CONSTANT';
 		$test_constant_value = 'test value';
 
-		Functions\expect( 'apply_filters' )->once()->with(
-			'jetpack_constant_default_value',
-			null,
-			$test_constant_name
-		)->andReturn( $test_constant_value );
+		Filters\expectApplied( 'jetpack_constant_default_value' )->once()->with( null, $test_constant_name )->andReturn( $test_constant_value );
 
 		$actual_output = Constants::get_constant( $test_constant_name );
 

@@ -43,6 +43,7 @@ while getopts ":c:u:vsh" opt; do
 			VERSION=$OPTARG
 			OP=check
 			OPING=Checking
+			SKIP_INTRA_MONOREPO_DEPS=true
 			;;
 		u)
 			[[ -z "$OP" ]] || die "Only one of -c or -u may be specified"
@@ -88,6 +89,7 @@ if [[ ! -e "$BASE/projects/$SLUG/composer.json" ]]; then
 fi
 
 EXIT=0
+FIXHINT=false
 
 # Check/update version numbers with sed/grep.
 #  - $1: File.
@@ -125,6 +127,7 @@ function sedver {
 			echo "---"
 		else
 			error "${1#$BASE/}:${LINE%%:*}: Version mismatch, expected $3 but found $VER!"
+			FIXHINT=true
 		fi
 	fi
 }
@@ -170,6 +173,7 @@ function jsver {
 			echo "---"
 		else
 			error "${1#$BASE/}:${LINE%%:*}: Version mismatch, expected $3 but found $VER!"
+			FIXHINT=true
 		fi
 	fi
 }
@@ -234,7 +238,12 @@ done < <(jq -r '.extra["version-constants"] // {} | to_entries | .[] | .key + " 
 # Update other dependencies
 
 if ! $SKIP_INTRA_MONOREPO_DEPS; then
-	"$BASE/tools/check-intra-monorepo-deps.sh" "-u"
+	debug "checking and fixing any broken version dependencies"
+	"$BASE/tools/check-intra-monorepo-deps.sh" "-u" "-a"
+fi
+
+if $FIXHINT; then
+	green "You might use \`tools/project-version.sh -u $VERSION $SLUG\` to fix this"
 fi
 
 exit $EXIT
