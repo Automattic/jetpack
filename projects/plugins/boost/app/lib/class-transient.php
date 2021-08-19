@@ -102,10 +102,10 @@ class Transient {
 		$keys = $wpdb->get_col(
 			$wpdb->prepare(
 				"
-				SELECT  SUBSTRING(`option_name`, %d)
-				FROM    $wpdb->options
-				WHERE   `option_name` LIKE %s
-			",
+					SELECT  SUBSTRING(`option_name`, %d)
+					FROM    $wpdb->options
+					WHERE   `option_name` LIKE %s
+				",
 				$transient_prefix_length + 1,
 				$option_prefix . '%'
 			)
