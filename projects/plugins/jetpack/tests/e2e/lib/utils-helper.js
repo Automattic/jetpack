@@ -190,19 +190,32 @@ function fileNameFormatter( filePath, includeTimestamp = true ) {
 	return path.join( dirname, `${ fileName }${ ext }` );
 }
 
-/**
- * Extracts a `accountName` configuration from the config file.
- *
- * @param {string} accountName one of the keys of `testAccounts` entry in config file
- * @return {Array} username and password
- */
-function getAccountCredentials( accountName ) {
-	const globalConfig = config.get( 'testAccounts' );
-	if ( globalConfig.has( 'testAccounts' ) ) {
-		throw new Error( `${ accountName } not found in config file` );
-	}
+function getConfigTestSite() {
+	const testSite = process.env.TEST_SITE ? process.env.TEST_SITE : 'default';
+	logger.debug( `Using '${ testSite }' test site config` );
+	return config.get( `testSites.${ testSite }` );
+}
 
-	return globalConfig.get( accountName );
+function getSiteCredentials() {
+	const site = getConfigTestSite();
+	return { username: site.username, password: site.password };
+}
+
+function getDotComCredentials() {
+	const site = getConfigTestSite();
+	return {
+		username: site.dotComAccount[ 0 ],
+		password: site.dotComAccount[ 1 ],
+		userId: site.dotComAccount[ 2 ],
+	};
+}
+
+function getMailchimpCredentials() {
+	const site = getConfigTestSite();
+	return {
+		username: site.mailchimpLogin[ 0 ],
+		password: site.mailchimpLogin[ 1 ],
+	};
 }
 
 /**
@@ -232,17 +245,21 @@ function getReusableUrlFromFile() {
 /**
  * There are two ways to set the target site url:
  * 1. Write it in 'temp.tunnels' file
- * 2. Set SITE_URL env variable. This overrides any value written in file
+ * 2. Configure a test site in local config and use a TEST_SITE env variable with the config property name. This overrides any value written in file
  * If none of the above is valid we throw an error
  */
 function resolveSiteUrl() {
-	let url = process.env.SITE_URL;
+	let url;
 
-	if ( ! url ) {
+	if ( process.env.TEST_SITE ) {
+		url = config.get( `testSites.${ process.env.TEST_SITE }` ).get( 'url' );
+	} else {
+		logger.debug( 'Checking for existing tunnel url' );
 		url = getReusableUrlFromFile();
 	}
 
 	validateUrl( url );
+	logger.debug( `Using site ${ url }` );
 	return url;
 }
 
@@ -253,8 +270,17 @@ function resolveSiteUrl() {
  */
 function validateUrl( url ) {
 	if ( ! new URL( url ) ) {
-		throw new Error( `Undefined or invalid SITE_URL!` );
+		throw new Error( `Undefined or invalid url!` );
 	}
+}
+
+/**
+ * Checks if the test site is a local one, with wp-cli accessible or a remote one
+ *
+ * @return {boolean} true if site is local
+ */
+function isLocalSite() {
+	return !! process.env.TEST_SITE;
 }
 
 module.exports = {
@@ -269,8 +295,11 @@ module.exports = {
 	logDebugLog,
 	logAccessLog,
 	fileNameFormatter,
-	getAccountCredentials,
 	getReusableUrlFromFile,
 	resolveSiteUrl,
 	validateUrl,
+	isLocalSite,
+	getSiteCredentials,
+	getDotComCredentials,
+	getMailchimpCredentials,
 };
