@@ -239,7 +239,7 @@ done < <(jq -r '.extra["version-constants"] // {} | to_entries | .[] | .key + " 
 
 if ! $SKIP_INTRA_MONOREPO_DEPS; then
 	debug "checking and fixing any broken version dependencies"
-	"$BASE/tools/check-intra-monorepo-deps.sh" "-u" "-a"
+	"$BASE/tools/check-intra-monorepo-deps.sh" -u -a
 fi
 
 if $FIXHINT; then
