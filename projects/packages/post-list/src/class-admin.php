@@ -84,7 +84,10 @@ class Admin {
 		return array_merge( $columns, array( 'post-list-column' => 'WPAP' ) );
 	}
 
-	public function add_admin_footer_placeholder( $data ) {
+	/**
+	 * Add the Jetpack Post List footer placeholder.
+	 */
+	public function add_admin_footer_placeholder() {
 		echo '<div class="post-list__notice-placeholder"></div>';
 	}
 
@@ -176,7 +179,7 @@ class Admin {
 	 * Return the featured image or if no featured image is set, return the first image in the post. If neither exists
 	 * return the featured image array with null values.
 	 *
-	 * @param int $post_id The current post ID.
+	 * @param object $post The current post.
 	 * @return array The featured image id and URLs
 	 */
 	protected function get_featured_or_first_post_image( $post ) {
