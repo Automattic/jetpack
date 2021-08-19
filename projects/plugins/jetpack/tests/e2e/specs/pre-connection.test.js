@@ -3,8 +3,6 @@ import PluginsPage from '../lib/pages/wp-admin/plugins';
 import DashboardPage from '../lib/pages/wp-admin/dashboard';
 import JetpackPage from '../lib/pages/wp-admin/jetpack';
 import { execWpCommand } from '../lib/utils-helper';
-import path from 'path';
-import config from 'config';
 import { prerequisitesBuilder } from '../lib/env/prerequisites';
 
 /**
@@ -18,14 +16,6 @@ describe( 'Jetpack pre-connection', () => {
 
 	beforeEach( async () => {
 		await DashboardPage.visit( page );
-	} );
-
-	afterAll( async () => {
-		await execWpCommand(
-			`option update jetpack_private_options --format=json < ${ path.resolve(
-				config.get( 'temp.jetpackPrivateOptions' )
-			) }`
-		);
 	} );
 
 	it( 'Can find connect button on plugins page', async () => {
