@@ -2,7 +2,7 @@ import logger from '../logger';
 import { isBlogTokenSet, syncJetpackPlanData } from '../flows/jetpack-connect';
 import {
 	execWpCommand,
-	getAccountCredentials,
+	getDotComCredentials,
 	provisionJetpackStartConnection,
 	resetWordpressInstall,
 } from '../utils-helper';
@@ -80,6 +80,13 @@ async function buildPrerequisites( state ) {
 }
 
 export async function ensureConnectedState( requiredConnected = undefined ) {
+	if ( global.isLocalSite ) {
+		logger.prerequisites(
+			'Site is not local, skipping connection setup. Assuming required setup is already in place.'
+		);
+		return;
+	}
+
 	const isConnected = await isBlogTokenSet();
 
 	if ( requiredConnected && isConnected ) {
@@ -96,7 +103,7 @@ export async function ensureConnectedState( requiredConnected = undefined ) {
 }
 
 async function connect() {
-	const userId = getAccountCredentials( 'defaultUser' )[ 2 ];
+	const userId = getDotComCredentials().userId;
 	await provisionJetpackStartConnection( userId, 'free' );
 
 	expect( await isBlogTokenSet() ).toBeTruthy();
@@ -115,6 +122,11 @@ async function disconnect() {
 }
 
 async function ensureCleanState( shouldReset ) {
+	if ( global.isLocalSite ) {
+		logger.prerequisites( 'Site is not local, skipping environment reset.' );
+		return;
+	}
+
 	if ( shouldReset ) {
 		logger.prerequisites( 'Resetting environment' );
 		await resetWordpressInstall();
@@ -122,6 +134,13 @@ async function ensureCleanState( shouldReset ) {
 }
 
 export async function ensurePlan( plan = undefined ) {
+	if ( global.isLocalSite ) {
+		logger.prerequisites(
+			'Site is not local, skipping plan setup. Assuming required plan is already in place.'
+		);
+		return;
+	}
+
 	if ( [ 'free', 'complete' ].indexOf( plan ) < 0 ) {
 		throw new Error( `Unsupported plan ${ plan }` );
 	}
@@ -134,10 +153,17 @@ export async function ensureUserIsLoggedIn() {
 }
 
 export async function ensureWpComUserIsLoggedIn() {
-	await loginToWpCom( 'defaultUser', true );
+	await loginToWpCom( true );
 }
 
 export async function ensureModulesState( modules ) {
+	if ( global.isLocalSite ) {
+		logger.prerequisites(
+			'Site is not local, skipping modules setup. Assuming required setup is already in place.'
+		);
+		return;
+	}
+
 	if ( modules.active ) {
 		await activateModules( modules.active );
 	} else {

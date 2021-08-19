@@ -119,8 +119,8 @@ We use the following tools to write e2e tests:
 
 ## Tests Architecture
 
-Tests are kept in `/specs` folder. Every file represents a test suite, which is designed around specific feature under test. 
-Most of the tests rely on an active Jetpack connection, so we connect a site before running the actual test suite. 
+Tests are kept in `/specs` folder. Every file represents a test suite, which is designed around specific feature under test.
+Every test suite is responsible for setting up the environment configuration for the suite. Some of the specs require an active Connection, some do not. Prerequisites APIs provide an abstraction to set up the site the way is needed. 
 Its logic can be found in the [`jetpack-connect.js`](lib/flows/jetpack-connect.js).
 
 The tests are using the `PageObject` pattern, which is a way to separate test logic from implementation. Page objects are basically abstractions around specific pages and page components. 
