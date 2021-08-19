@@ -101,6 +101,12 @@ const blockAttributes = {
 				selector: 'img',
 				source: 'attribute',
 			},
+			caption: {
+				attribute: 'caption',
+				default: '',
+				selector: 'img',
+				source: 'attribute',
+			},
 			height: {
 				attribute: 'data-height',
 				selector: 'img',
@@ -146,6 +152,7 @@ const exampleAttributes = {
 	images: [
 		{
 			alt: '',
+			caption: '',
 			link: '',
 			url: tiledGalleryExample1,
 			width: 160,
@@ -153,6 +160,7 @@ const exampleAttributes = {
 		},
 		{
 			alt: '',
+			caption: '',
 			link: '',
 			url: tiledGalleryExample2,
 			width: 160,
@@ -160,6 +168,7 @@ const exampleAttributes = {
 		},
 		{
 			alt: '',
+			caption: '',
 			link: '',
 			url: tiledGalleryExample3,
 			width: 304,
@@ -167,6 +176,7 @@ const exampleAttributes = {
 		},
 		{
 			alt: '',
+			caption: '',
 			link: '',
 			url: tiledGalleryExample4,
 			width: 312,
@@ -174,6 +184,7 @@ const exampleAttributes = {
 		},
 		{
 			alt: '',
+			caption: '',
 			link: '',
 			url: tiledGalleryExample5,
 			width: 152,
@@ -181,6 +192,7 @@ const exampleAttributes = {
 		},
 		{
 			alt: '',
+			caption: '',
 			link: '',
 			url: tiledGalleryExample6,
 			width: 152,
@@ -239,11 +251,12 @@ export const settings = {
 				transform: images => {
 					const validImages = getValidImages( images );
 					return createBlock( `jetpack/${ name }`, {
-						images: validImages.map( ( { id, url, link, alt } ) => ( {
+						images: validImages.map( ( { id, url, link, alt, caption } ) => ( {
 							id,
 							url,
 							link,
 							alt,
+							caption,
 						} ) ),
 						ids: validImages.map( ( { id } ) => id ),
 						columnWidths: [ [ '100.00000' ] ],
@@ -257,11 +270,12 @@ export const settings = {
 					const validImages = getValidImages( images );
 					if ( validImages.length > 0 ) {
 						return createBlock( `jetpack/${ name }`, {
-							images: validImages.map( ( { id, url, link, alt } ) => ( {
+							images: validImages.map( ( { id, url, link, alt, caption } ) => ( {
 								id,
 								url,
 								link,
 								alt,
+								caption,
 							} ) ),
 							ids: validImages.map( ( { id } ) => id ),
 							columnWidths: [ [ '100.00000' ] ],
@@ -283,8 +297,8 @@ export const settings = {
 				blocks: [ 'core/image' ],
 				transform: ( { align, images } ) => {
 					if ( images.length > 0 ) {
-						return images.map( ( { id, url, alt } ) =>
-							createBlock( 'core/image', { align, id, url, alt } )
+						return images.map( ( { id, url, alt, caption } ) =>
+							createBlock( 'core/image', { align, id, url, alt, caption } )
 						);
 					}
 					return createBlock( 'core/image' );

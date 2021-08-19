@@ -34,7 +34,7 @@ class GalleryImageEdit extends Component {
 	};
 
 	componentDidUpdate() {
-		const { alt, height, image, link, url, width } = this.props;
+		const { alt, height, image, link, url, width, caption } = this.props;
 
 		if ( image ) {
 			const nextAtts = {};
@@ -54,7 +54,9 @@ class GalleryImageEdit extends Component {
 			if ( ! width && image.media_details && image.media_details.width ) {
 				nextAtts.width = +image.media_details.width;
 			}
-
+			if ( ! caption && image.caption ) {
+				nextAtts.caption = image.caption;
+			}
 			if ( Object.keys( nextAtts ).length ) {
 				this.props.setAttributes( nextAtts );
 			}
@@ -65,6 +67,7 @@ class GalleryImageEdit extends Component {
 		const {
 			'aria-label': ariaLabel,
 			alt,
+			caption,
 			columns,
 			height,
 			id,
@@ -105,6 +108,7 @@ class GalleryImageEdit extends Component {
 				<img
 					alt={ alt }
 					aria-label={ ariaLabel }
+					caption={ caption }
 					data-height={ height }
 					data-id={ id }
 					data-link={ link }
@@ -164,6 +168,7 @@ class GalleryImageEdit extends Component {
 				{ /* Keep the <a> HTML structure, but ensure there is no navigation from edit */
 				/* eslint-disable-next-line jsx-a11y/anchor-is-valid */ }
 				{ href ? <a>{ img }</a> : img }
+				<figcaption className="tiled-gallery__item__caption">{ caption }</figcaption>
 			</figure>
 		);
 	}

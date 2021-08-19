@@ -183,6 +183,21 @@
 			display: none;
 		}
 	}
+
+	.tiled-gallery__item__caption {
+		background: linear-gradient(0deg, rgba($color: $black, $alpha: 0.7) 0, rgba($color: $black, $alpha: 0.3) 70%, transparent);
+		bottom: 0;
+		color: $white;
+		font-size: $default-font-size;
+		left: 0;
+		margin-bottom: 0;
+		max-height: 100%;
+		overflow: auto;
+		padding: 40px 10px 9px;
+		position: absolute;
+		text-align: center;
+		width: 100%;
+	}
 }
 
 .tiled-gallery__filter-picker-menu {

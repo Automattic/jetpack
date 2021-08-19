@@ -50,6 +50,7 @@ export default class Layout extends Component {
 		return (
 			<Image
 				alt={ img.alt }
+				caption={ img.caption }
 				aria-label={ ariaLabel }
 				columns={ columns }
 				height={ img.height }
