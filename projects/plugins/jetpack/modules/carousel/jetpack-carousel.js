@@ -1050,6 +1050,11 @@
 				if ( desc ) {
 					descriptionElement.innerHTML = desc;
 					domUtil.show( descriptionElement );
+
+					if ( ! title && ! caption ) {
+						captionMainElement.innerHTML = domUtil.stripHTML( desc );
+						domUtil.show( captionMainElement );
+					}
 				}
 
 				if ( title ) {
