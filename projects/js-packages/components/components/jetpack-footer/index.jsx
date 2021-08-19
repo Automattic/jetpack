@@ -35,7 +35,7 @@ export default function JetpackFooter( {
 					showText={ false }
 					height="16"
 					className="jp-dashboard-footer__jetpack-symbol"
-					aria-label={ __( 'Jetpack Logo', 'jetpack' ) }
+					aria-label={ __( 'Jetpack logo', 'jetpack' ) }
 				/>
 				<span className="jp-dashboard-footer__module-name">{ moduleName }</span>
 			</div>
