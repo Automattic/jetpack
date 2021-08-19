@@ -72,7 +72,7 @@ export default class BlockEditorPage extends WpPage {
 		await testStep( `Search for block: ${ searchTerm }`, async () => {
 			logger.step( `Search block: '${ searchTerm }'` );
 			await this.click( this.insertBlockBtnSel );
-			await this.type( this.searchBlockFldSel, searchTerm );
+			await this.fill( this.searchBlockFldSel, searchTerm );
 		} );
 	}
 
@@ -92,10 +92,20 @@ export default class BlockEditorPage extends WpPage {
 		 ).getAttribute( 'data-block' );
 	}
 
+	async setTitle( title ) {
+		await this.selectPostTitle();
+		await this.fill( this.postTitleFldSel, title );
+	}
+
 	async publishPost() {
 		await testStep( `Publish post`, async () => {
 			logger.step( `Publish post` );
+			await this.click( '.editor-post-save-draft' );
+			await this.waitForElementToBeVisible( '.editor-post-saved-state.is-saved' );
 			await this.click( this.publishPanelToggleBtnSel );
+			// Wait for animation :shrug:
+			await page.waitForTimeout( 100 );
+
 			await this.click( this.publishPostBtnSel );
 			await this.waitForElementToBeVisible( this.postPublishViewPostBtnSel );
 		} );

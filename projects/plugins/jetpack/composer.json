@@ -42,6 +42,7 @@
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.1",
+		"phpunit/phpunit": "^5.0 || ^6.0 || ^7.0",
 		"automattic/jetpack-changelogger": "1.2.x-dev"
 	},
 	"scripts": {
@@ -105,6 +106,7 @@
 			"JETPACK__VERSION": "jetpack.php"
 		},
 		"wp-plugin-slug": "jetpack",
+		"changelogger-default-type": "other",
 		"changelogger": {
 			"versioning": "wordpress",
 			"types": {

@@ -14,14 +14,21 @@
                     "phoneNumber": "267 8888",
                     "firstMessage": "My Message",
                     "buttonText": [
-                        "Chat on WhatsApp"
+                        {
+                            "type": "div",
+                            "props": {
+                                "children": [
+                                    "Chat on WhatsApp"
+                                ]
+                            }
+                        }
                     ],
                     "backgroundColor": "#25D366",
                     "colorClass": "dark",
                     "openInNewTab": false
                 },
                 "innerBlocks": [],
-                "originalContent": "<div class=\"wp-block-jetpack-whatsapp-button is-color-dark\"><a class=\"whatsapp-block__button\" href=\"https://api.whatsapp.com/send?phone=612678888&amp;text=My%20Message\" style=\"background-color:#25D366;color:#fff\" target=\"_self\" rel=\"noopener noreferrer\">Chat on WhatsApp</a></div>"
+                "originalContent": "<div class=\"wp-block-jetpack-whatsapp-button is-color-dark\"><a class=\"whatsapp-block__button\" href=\"https://api.whatsapp.com/send?phone=612678888&amp;text=My%20Message\" style=\"background-color:#25D366\" target=\"_self\" rel=\"noopener noreferrer\"><div>Chat on WhatsApp</div></a></div>"
             }
         ],
         "originalContent": "<div class=\"wp-block-jetpack-send-a-message\"></div>"

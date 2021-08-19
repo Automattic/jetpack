@@ -29,7 +29,12 @@ export default function MockedInstantSearch() {
 	const renderSearchResult = ( val, key ) => (
 		<div className="jp-mocked-instant-search__search-result" key={ key }>
 			<TextRowPlaceHolder
-				style={ { height: '2.5em', width: '50%', margin: '0.1em 0.1em 1em 0.1em' } }
+				style={ {
+					height: '2.5em',
+					width: '50%',
+					'max-width': '200px',
+					margin: '0.1em 0.1em 1em 0.1em',
+				} }
 			/>
 			<TextRowPlaceHolder style={ { height: '1em', width: '90%', margin: '0.1em' } } />
 			<TextRowPlaceHolder style={ { height: '1em', width: '70%', margin: '0.1em' } } />
@@ -43,7 +48,7 @@ export default function MockedInstantSearch() {
 					<Gridicon icon="search" size="24" />
 				</div>
 				<div className="jp-mocked-instant-search__search-mock-input">
-					<TextRowPlaceHolder style={ { height: '50px', width: '80%' } } />
+					<TextRowPlaceHolder style={ { height: '50px', width: '80%', 'max-width': '212px' } } />
 				</div>
 				<div className="jp-mocked-instant-search__close-button">
 					<Gridicon icon="cross" size="24" />
