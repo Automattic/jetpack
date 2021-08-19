@@ -13,6 +13,7 @@ import { Plans } from '../lib/env/types';
  * @group free-blocks
  * @group blocks
  * @group gutenberg
+ * @group atomic
  */
 
 describe( 'Free blocks', () => {
