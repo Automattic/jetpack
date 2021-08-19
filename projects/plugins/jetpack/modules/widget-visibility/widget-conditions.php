@@ -762,33 +762,35 @@ class Jetpack_Widget_Conditions {
 				// if $sub_indexes_removed = [0, 2], we removed the 0th and 2nd innerBlocks, and need to remove
 				// the 0th and 2nd nulls in innerContent.
 				$sub_indexes_removed = $result[1];
-				$null_locations      = array_keys( $blocks[ $i ]['innerContent'], null, true );
-				$null_count          = count( $null_locations );
+				if ( ! empty( $sub_indexes_removed ) ) {
+					$null_locations = array_keys( $blocks[ $i ]['innerContent'], null, true );
+					$null_count     = count( $null_locations );
 
-				// phpcs:disable Squiz.PHP.CommentedOutCode.Found
+					// phpcs:disable Squiz.PHP.CommentedOutCode.Found
 
-				/*
-				Example:
-				null_locations = [ 1, 3, 5 ]    "Nulls exist at j=1, j=3, j=5".
-				null_count = 3.                 "There are 3 nulls".
-				sub_indexes_removed = [ 0, 2 ]. "We want to remove the 0th and 2nd null".
-				We need to remove the 0th null (at j = 1) and the 2nd null (at j = 5).
-				[ 'abc', null, 'def', null, 'ghi', null ].
-				..........^ j = 1, k = 0              ^.
-				.......................^ j = 3, k = 1 ^.
-				......................................^ j = 5, k = 2.
-				*/
+					/*
+					Example:
+					null_locations = [ 1, 3, 5 ]    "Nulls exist at j=1, j=3, j=5".
+					null_count = 3.                 "There are 3 nulls".
+					sub_indexes_removed = [ 0, 2 ]. "We want to remove the 0th and 2nd null".
+					We need to remove the 0th null (at j = 1) and the 2nd null (at j = 5).
+					[ 'abc', null, 'def', null, 'ghi', null ].
+					..........^ j = 1, k = 0              ^.
+					.......................^ j = 3, k = 1 ^.
+					......................................^ j = 5, k = 2.
+					*/
 
-				// phpcs:enable Squiz.PHP.CommentedOutCode.Found
+					// phpcs:enable Squiz.PHP.CommentedOutCode.Found
 
-				$k = $null_count - 1;
-				// Work backwards so as we delete items, then the other indexes don't change.
-				foreach ( array_reverse( $null_locations ) as $j ) {
-					// We are looking at a null, which is the $j index of the array and the $kth null in total (k is also 0 indexed).
-					if ( in_array( $k, $sub_indexes_removed, true ) ) {
-						array_splice( $blocks[ $i ]['innerContent'], $j, 1 );
+					$k = $null_count - 1;
+					// Work backwards so as we delete items, then the other indexes don't change.
+					foreach ( array_reverse( $null_locations ) as $j ) {
+						// We are looking at a null, which is the $j index of the array and the $kth null in total (k is also 0 indexed).
+						if ( in_array( $k, $sub_indexes_removed, true ) ) {
+							array_splice( $blocks[ $i ]['innerContent'], $j, 1 );
+						}
+						$k--;
 					}
-					$k--;
 				}
 			}
 		}
