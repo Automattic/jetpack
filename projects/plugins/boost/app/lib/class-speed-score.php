@@ -19,6 +19,7 @@ class Speed_Score {
 	 */
 	public function __construct() {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
+		add_action( 'jetpack_boost_clear_cache', array( $this, 'clear_speed_score_request_cache' ) );
 	}
 
 	/**
@@ -167,5 +168,12 @@ class Speed_Score {
 	 */
 	public function can_access_speed_scores() {
 		return current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * Clear speed score request cache on jetpack_boost_clear_cache action.
+	 */
+	public function clear_speed_score_request_cache() {
+		Speed_Score_Request::clear_cache();
 	}
 }
