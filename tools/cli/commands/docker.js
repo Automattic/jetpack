@@ -346,7 +346,6 @@ const execJtCmdHandler = argv => {
  * Definition for the Docker commands.
  *
  * @param {object} yargs - The Yargs dependency.
- *
  * @returns {object} Yargs with the Docker commands defined.
  */
 export function dockerDefine( yargs ) {

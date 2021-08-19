@@ -9,7 +9,6 @@ import { getFilterKeys, getStaticFilterKeys } from '../../lib/filters';
  *
  * @param {object} state - Current state.
  * @param {object} action - Dispatched action.
- *
  * @returns {object} Updated state.
  */
 export function searchQuery( state = null, action ) {
@@ -28,7 +27,6 @@ export function searchQuery( state = null, action ) {
  *
  * @param {object} state - Current state.
  * @param {object} action - Dispatched action.
- *
  * @returns {object} Updated state.
  */
 export function sort( state = null, action ) {
@@ -51,7 +49,6 @@ export function sort( state = null, action ) {
  *
  * @param {object} state - Current state.
  * @param {object} action - Dispatched action.
- *
  * @returns {object} Updated state.
  */
 export function filters( state = {}, action ) {
@@ -85,7 +82,6 @@ export function filters( state = {}, action ) {
  *
  * @param {object} state - Current state.
  * @param {object} action - Dispatched action.
- *
  * @returns {object} Updated state.
  */
 export function staticFilters( state = {}, action ) {

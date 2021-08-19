@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import WpPage from '../wp-page';
-import { getAccountCredentials } from '../../utils-helper';
+import { getMailchimpCredentials } from '../../utils-helper';
 
 export default class ConnectionsPage extends WpPage {
 	constructor( page ) {
@@ -36,15 +36,15 @@ export default class ConnectionsPage extends WpPage {
 		const mcPopupPage = await this.clickAndWaitForNewPage( mailchimpConnectSelector );
 
 		// MC Login pop-up page. TODO: maybe extract to a new page
-		const [ mcLogin, mcPassword ] = getAccountCredentials( 'mailchimpLogin' );
+		const credentials = getMailchimpCredentials();
 		// Locators
 		const mcUsernameSelector = '#login #username';
 		const mcPasswordSelector = '#login #password';
 		const mcSubmitSelector = "#login input[type='submit']";
 
-		await mcPopupPage.type( mcUsernameSelector, mcLogin );
-		await mcPopupPage.type( mcPasswordSelector, mcPassword );
-		await mcPopupPage.type( mcSubmitSelector );
+		await mcPopupPage.fill( mcUsernameSelector, credentials.username );
+		await mcPopupPage.fill( mcPasswordSelector, credentials.password );
+		await mcPopupPage.fill( mcSubmitSelector );
 		await this.page.bringToFront();
 	}
 }

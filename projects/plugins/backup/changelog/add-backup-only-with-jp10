@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Soft-fail if Jetpack is active and not version 10 or higher

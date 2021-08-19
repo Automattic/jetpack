@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+WordPress.com REST API: Add new field to comment endpoint response.

@@ -15,6 +15,7 @@ Here is the current list of tasks handled by this action:
 - Notify Design (`notifyDesign`): Sends a Slack Notification to the Design team to request feedback, based on labels applied to a PR.
 - Notify Editorial (`notifyEditorial`): Sends a Slack Notification to the Editorial team to request feedback, based on labels applied to a PR.
 - Flag OSS (`flagOss`): flags entries by external contributors, adds an "OSS Citizen" label to the PR, and sends a Slack message.
+- Triage New Issues (`triageNewIssues`): Adds labels to new issues based on issue content.
 
 Some of the tasks are may not satisfy your needs. If that's the case, you can use the `tasks` option to limit the action to the list of tasks you need in your repo. See the example below to find out more.
 

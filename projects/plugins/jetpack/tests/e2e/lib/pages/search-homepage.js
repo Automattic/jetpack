@@ -24,7 +24,6 @@ export default class SearchHomepage extends WpPage {
 	 * call the function again to make sure.
 	 *
 	 * @see https://playwright.dev/docs/api/class-page#pagerouteurl-handler
-	 *
 	 */
 	async searchAPIRoute() {
 		this.page.route( SearchHomepage.SEARCH_API_PATTERN, ( route, request ) => {
