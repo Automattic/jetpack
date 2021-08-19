@@ -17,7 +17,9 @@
 	.jp-connect-user-bar__button {
 		order: 3;
 
-		.jp-jetpack-connect__button {
+		.jp-jetpack-connect__button,
+		.jp-jetpack-connect__button:disabled,
+		.jp-jetpack-connect__button[disabled] {
 			background: #F3F5F6;
 			border: 1px solid #0071A1;
 			box-sizing: border-box;
@@ -29,6 +31,12 @@
 			color: #0071A1;
 			text-align: center;
 			white-space: nowrap;
+
+			&:disabled,
+			&[disabled] {
+				background: #F3F5F6 !important;
+				color: #0071A1 !important;
+			}
 		}
 	}
 }
