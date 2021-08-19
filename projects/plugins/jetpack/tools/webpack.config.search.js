@@ -67,6 +67,7 @@ module.exports = {
 			react: 'preact/compat',
 			'react-dom/test-utils': 'preact/test-utils',
 			'react-dom': 'preact/compat', // Must be aliased after test-utils
+			fs: false,
 		},
 		modules: [
 			path.resolve( __dirname, '../_inc/client' ),
@@ -74,7 +75,7 @@ module.exports = {
 			'node_modules',
 		],
 		// We want the compiled version, not the "calypso:src" sources.
-		mainFields: undefined,
+		mainFields: baseWebpackConfig.resolve.mainFields.filter( entry => 'calypso:src' !== entry ),
 	},
 	devtool: isDevelopment ? 'source-map' : false,
 	plugins: [
