@@ -5,6 +5,7 @@ import { Fragment, useEffect, useCallback, useMemo } from '@wordpress/element';
 import { Button, SelectControl, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { InspectorAdvancedControls } from '@wordpress/block-editor'; // eslint-disable-line import/no-unresolved
+import { Icon, close } from '@wordpress/icons';
 
 /* global widget_conditions_data */
 /* eslint-disable react/react-in-jsx-scope */
@@ -18,7 +19,7 @@ const blockHasVisibilitySettings = name => {
 };
 
 const VisibilityRule = props => {
-	const { i, rule, onDelete, setMajor, setMinor } = props;
+	const { rule, onDelete, setMajor, setMinor } = props;
 
 	const majorOptions = [
 		{ label: __( '-- Select --', 'jetpack' ), value: '' },
@@ -58,24 +59,39 @@ const VisibilityRule = props => {
 	}
 
 	return (
-		<div>
-			This is rule number { i }
-			<SelectControl
-				label="Major Rule"
-				value={ rule.major }
-				options={ majorOptions }
-				onChange={ setMajor }
-			/>
-			is
-			{ rule.major && (
-				<SelectControl
-					label="Minor Rule"
-					value={ rule.minor }
-					options={ minorOptions }
-					onChange={ setMinor }
-				/>
-			) }
-			<Button onClick={ onDelete }>{ __( 'Delete' ) }</Button>
+		<div className="widget-vis__rule widget-vis__flex">
+			<div className="widget-vis__rule-col-1">
+				<div className="widget-vis__flex">
+					<div className="widget-vis__delete-rule">
+						<Button onClick={ onDelete }>
+							<Icon icon={ close } size={ 14 } />
+						</Button>
+					</div>
+					<div>
+						<SelectControl
+							label="Major Rule"
+							hideLabelFromVision
+							value={ rule.major }
+							options={ majorOptions }
+							onChange={ setMajor }
+						/>
+					</div>
+				</div>
+			</div>
+			<div className="widget-vis__rule-col-2">
+				<p className="widget-vis__is">is</p>
+			</div>
+			<div className="widget-vis__rule-col-3">
+				{ rule.major && (
+					<SelectControl
+						label="Minor Rule"
+						hideLabelFromVision
+						value={ rule.minor }
+						options={ minorOptions }
+						onChange={ setMinor }
+					/>
+				) }
+			</div>
 		</div>
 	);
 };
@@ -83,9 +99,9 @@ const VisibilityRule = props => {
 const RuleSep = props => {
 	const { isAnd } = props;
 	if ( isAnd ) {
-		return <div>and</div>;
+		return <div className="widget-vis__and">and</div>;
 	}
-	return <div>or</div>;
+	return <div className="widget-vis__or">or</div>;
 };
 
 const visibilityAdvancedControls = wp.compose.createHigherOrderComponent( BlockEdit => {
@@ -195,50 +211,70 @@ const visibilityAdvancedControls = wp.compose.createHigherOrderComponent( BlockE
 			[ setAttributes, conditions, rules ]
 		);
 
-		return (
-			<Fragment>
-				<BlockEdit { ...props } />
-				{ isSelected && blockHasVisibilitySettings( props.name ) && (
-					<InspectorAdvancedControls>
-						<div>{ __( 'Visibility Settings' ) }</div>
-						<SelectControl
-							label="Action"
-							value={ attributes.action }
-							options={ [
-								{ label: __( 'Show', 'jetpack' ), value: 'show' },
-								{ label: __( 'Hide', 'jetpack' ), value: 'hide' },
-							] }
-							onChange={ setAction }
-						/>
-						{ rules
-							.map( ( rule, i ) => (
-								<VisibilityRule
-									key={ i }
-									rule={ rule }
-									i={ i }
-									onDelete={ () => deleteRule( i ) } // eslint-disable-line react/jsx-no-bind
-									setMajor={ value => setMajor( i, value ) } // eslint-disable-line react/jsx-no-bind
-									setMinor={ value => setMinor( i, value ) } // eslint-disable-line react/jsx-no-bind
-								/>
-							) )
-							.reduce(
-								( acc, item, i ) =>
-									acc === null
-										? [ item ]
-										: [
-												...acc,
-												<RuleSep key={ i } isAnd={ conditions.match_all === '1' } />,
-												item,
-										  ],
-								null
-							) }
+		let mainRender = null;
+		if ( rules.length === 0 ) {
+			mainRender = (
+				<Fragment>
+					<div>{ __( 'Visibility Settings' ) }</div>
+					<div className="widget-vis__no-rules">
+						{ __( 'No visibility rules yet. Add at least one rule to use this feature.' ) }
+					</div>
+					<Button isSecondary onClick={ addNewRule }>
+						{ __( 'Add New Rule' ) }
+					</Button>
+				</Fragment>
+			);
+		} else {
+			mainRender = (
+				<Fragment>
+					<div>{ __( 'Visibility Settings' ) }</div>
+					<SelectControl
+						label="Action"
+						hideLabelFromVision
+						value={ attributes.action }
+						options={ [
+							{ label: __( 'Show', 'jetpack' ), value: 'show' },
+							{ label: __( 'Hide', 'jetpack' ), value: 'hide' },
+						] }
+						onChange={ setAction }
+					/>
+					{ rules
+						.map( ( rule, i ) => (
+							<VisibilityRule
+								key={ i }
+								rule={ rule }
+								i={ i }
+								onDelete={ () => deleteRule( i ) } // eslint-disable-line react/jsx-no-bind
+								setMajor={ value => setMajor( i, value ) } // eslint-disable-line react/jsx-no-bind
+								setMinor={ value => setMinor( i, value ) } // eslint-disable-line react/jsx-no-bind
+							/>
+						) )
+						.reduce(
+							( acc, item, i ) =>
+								acc === null
+									? [ item ]
+									: [ ...acc, <RuleSep key={ i } isAnd={ conditions.match_all === '1' } />, item ],
+							null
+						) }
+					{ rules.length > 1 && (
 						<ToggleControl
 							label={ __( 'match all', 'jetpack' ) }
 							checked={ conditions.match_all === '1' }
 							onChange={ toggleMatchAll }
 						/>
-						<Button onClick={ addNewRule }>{ __( 'Add New Rule' ) }</Button>
-					</InspectorAdvancedControls>
+					) }
+					<Button isSecondary onClick={ addNewRule }>
+						{ __( 'Add New Rule' ) }
+					</Button>
+				</Fragment>
+			);
+		}
+
+		return (
+			<Fragment>
+				<BlockEdit { ...props } />
+				{ isSelected && blockHasVisibilitySettings( props.name ) && (
+					<InspectorAdvancedControls>{ mainRender }</InspectorAdvancedControls>
 				) }
 			</Fragment>
 		);
