@@ -45,6 +45,16 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			$widget_ops
 		);
 
+		if ( is_active_widget( false, false, $this->id_base ) || is_customize_preview() ) {
+			wp_enqueue_script(
+				'jetpack-subscriptions-js',
+				plugins_url( 'subscriptions.js', __FILE__ ),
+				array(),
+				JETPACK__VERSION,
+				true
+			);
+		}
+
 		if ( self::is_jetpack() &&
 		     (
 			     is_active_widget( false, false, $this->id_base ) ||
@@ -52,16 +62,16 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			     is_customize_preview()
 		     )
 		) {
-			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
 		}
 	}
 
 	/**
-	 * Enqueue the form's CSS and JS
+	 * Enqueue the form's CSS.
 	 *
 	 * @since 4.5.0
 	 */
-	public function enqueue_assets() {
+	public function enqueue_style() {
 		wp_register_style(
 			'jetpack-subscriptions',
 			plugins_url( 'subscriptions.css', __FILE__ ),
@@ -69,14 +79,6 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			JETPACK__VERSION
 		);
 		wp_enqueue_style( 'jetpack-subscriptions' );
-
-		wp_enqueue_script(
-			'jetpack-subscriptions-js',
-			plugins_url( 'subscriptions.js', __FILE__ ),
-			array(),
-			JETPACK__VERSION,
-			true
-		);
 	}
 
 	/**
