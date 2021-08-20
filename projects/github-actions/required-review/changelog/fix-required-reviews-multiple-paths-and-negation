@@ -1,4 +1,0 @@
-Significance: minor
-Type: fixed
-
-A negated pattern (other than the first) now removes previously-matched paths, rather than unexpectedly adding _all_ the paths that don't match the pattern.
