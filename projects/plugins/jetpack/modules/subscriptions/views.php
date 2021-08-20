@@ -70,14 +70,13 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		);
 		wp_enqueue_style( 'jetpack-subscriptions' );
 
-		wp_register_script(
+		wp_enqueue_script(
 			'jetpack-subscriptions-js',
 			plugins_url( 'subscriptions.js', __FILE__ ),
 			array(),
 			JETPACK__VERSION,
 			true
 		);
-		wp_enqueue_script( 'jetpack-subscriptions-js' );
 	}
 
 	/**
@@ -248,7 +247,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 			$border_color = isset( $themecolors['border'] ) ? " #{$themecolors['border']}" : '';
 			printf(
-				'<div class="sub-notification" style="border: 1px solid%1$s; padding-left: 5px; padding-right: 5px; margin-bottom: 10px;">%2$s</div>',
+				'<div class="jetpack-sub-notification" style="border: 1px solid%1$s; padding-left: 5px; padding-right: 5px; margin-bottom: 10px;">%2$s</div>',
 				esc_attr( $border_color ),
 				wp_kses_post( $message )
 			);
