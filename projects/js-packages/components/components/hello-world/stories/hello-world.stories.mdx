@@ -1,0 +1,36 @@
+import { Meta, Story, Canvas, ArgsTable } from '@storybook/addon-docs';
+import HelloWorld from '../index.jsx';
+
+<Meta title="Examples/Hello World" component={HelloWorld}/>
+
+# Some Title
+
+This is the HTML-only version of the Hello World component
+
+<Canvas>
+	<Story name="Pure HTML">
+		<div className="jetpack-hello-world">
+			<a className="the-link">My Title</a>
+		</div>
+	</Story>
+</Canvas>
+
+This is the JSX version of the Hello World component. Note that the argument types, names and defaults are parsed from the component using [react-docgen](https://github.com/reactjs/react-docgen).
+
+<Canvas>
+	<Story name="JSX">
+		{(args) => <HelloWorld {...args} />}
+	</Story>
+</Canvas>
+
+<ArgsTable story="JSX"/>
+
+This is an alternative set of props to show how you can illustrate different states.
+
+<Canvas>
+	<Story name="JSX with defaults" args={{title: 'My Title'}}>
+		{(args) => <HelloWorld {...args} />}
+	</Story>
+</Canvas>
+
+<ArgsTable story="JSX with defaults"/>
