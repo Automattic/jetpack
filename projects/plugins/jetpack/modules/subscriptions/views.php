@@ -52,7 +52,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			     is_customize_preview()
 		     )
 		) {
-			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		}
 	}
 
@@ -61,7 +61,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	 *
 	 * @since 4.5.0
 	 */
-	public function enqueue_scripts() {
+	public function enqueue_assets() {
 		wp_register_style(
 			'jetpack-subscriptions',
 			plugins_url( 'subscriptions.css', __FILE__ ),
