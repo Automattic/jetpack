@@ -8,6 +8,7 @@ import { LAYOUT_STYLES } from './constants';
 
 export default function TiledGallerySave( { attributes } ) {
 	const { imageFilter, images } = attributes;
+
 	if ( ! images.length ) {
 		return null;
 	}

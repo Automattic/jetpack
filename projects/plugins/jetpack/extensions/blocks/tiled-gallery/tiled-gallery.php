@@ -77,6 +77,7 @@ class Tiled_Gallery {
 			 */
 			$find    = array();
 			$replace = array();
+			
 			foreach ( $images[0] as $image_html ) {
 				if (
 					preg_match( '/data-width="([0-9]+)"/', $image_html, $img_width )
