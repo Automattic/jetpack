@@ -155,6 +155,12 @@ importers:
       jetpack-js-test-runner: link:../../../tools/js-test-runner
       nyc: 15.1.0
 
+  projects/js-packages/initial-state:
+    specifiers:
+      jetpack-js-test-runner: workspace:*
+    devDependencies:
+      jetpack-js-test-runner: link:../../../tools/js-test-runner
+
   projects/js-packages/storybook:
     specifiers:
       '@automattic/jetpack-base-styles': workspace:^0.1.0-alpha
