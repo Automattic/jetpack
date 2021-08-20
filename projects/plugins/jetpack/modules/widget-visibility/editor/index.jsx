@@ -1,17 +1,26 @@
-/* global widget_conditions_parent_pages, widget_conditions_data */
 /**
  * WordPress dependencies
  */
-import { render } from '@wordpress/element';
+import { Fragment, useEffect } from '@wordpress/element';
+import { Button, SelectControl, ToggleControl } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
+import { InspectorAdvancedControls } from '@wordpress/block-editor';
+
+/* global widget_conditions_data */
+/* eslint-disable react/react-in-jsx-scope */
+
+const blockHasVisibilitySettings = name => {
+	// When I put extra attributes on these blocks, they
+	// refuse to render with a message "Error loading block: Invalid parameter(s): attributes"
+	// However, most blocks don't do this. Why is this?
+	const disallowed = new Set( [ 'core/archives', 'core/latest-comments', 'core/latest-posts' ] );
+	return ! disallowed.has( name );
+};
 
 const VisibilityRule = props => {
-	console.log( { widget_conditions_parent_pages, widget_conditions_data } );
 	const { i, rule, onDelete, setMajor, setMinor } = props;
-	const { createElement } = wp.element;
-	const { __ } = wp.i18n;
-	const { Button, SelectControl } = wp.components;
 
-	let majorOptions = [
+	const majorOptions = [
 		{ label: __( '-- Select --', 'jetpack' ), value: '' },
 		{ label: __( 'Category', 'jetpack' ), value: 'category' },
 		{ label: __( 'Author', 'jetpack' ), value: 'author' },
@@ -73,24 +82,17 @@ const VisibilityRule = props => {
 
 const RuleSep = props => {
 	const { isAnd } = props;
-	const { createElement } = wp.element;
 	if ( isAnd ) {
-		return createElement( 'div', null, 'and' );
+		return <div>and</div>;
 	}
-	return createElement( 'div', null, 'or' );
+	return <div>or</div>;
 };
 
 const visibilityAdvancedControls = wp.compose.createHigherOrderComponent( BlockEdit => {
 	return props => {
 		const { attributes, setAttributes, isSelected } = props;
-
-		const { Fragment, useEffect, createElement } = wp.element;
-		const { Button, SelectControl, ToggleControl } = wp.components;
-		const { InspectorAdvancedControls } = wp.blockEditor;
-		const { __ } = wp.i18n;
-
-		let conditions = attributes.conditions || {};
-		let rules = conditions.rules || [];
+		const conditions = attributes.conditions || {};
+		const rules = conditions.rules || [];
 
 		// Initialize props.conditions if none is sent
 		useEffect( () => {
@@ -105,7 +107,7 @@ const visibilityAdvancedControls = wp.compose.createHigherOrderComponent( BlockE
 			}
 		}, [] );
 
-		const toggleMatchAll = _ =>
+		const toggleMatchAll = () =>
 			setAttributes( {
 				conditions: {
 					...conditions,
@@ -143,7 +145,7 @@ const visibilityAdvancedControls = wp.compose.createHigherOrderComponent( BlockE
 
 		const setMajor = ( i, majorValue ) => {
 			// When changing majors, also change the minor to the first available option
-			var minorValue = '';
+			let minorValue = '';
 			if (
 				majorValue in widget_conditions_data &&
 				Array.isArray( widget_conditions_data[ majorValue ] ) &&
@@ -157,7 +159,6 @@ const visibilityAdvancedControls = wp.compose.createHigherOrderComponent( BlockE
 				{ ...rules[ i ], major: majorValue, minor: minorValue },
 				...rules.slice( i + 1 ),
 			];
-			console.log( { newRules } );
 			setAttributes( {
 				conditions: {
 					...conditions,
@@ -172,7 +173,6 @@ const visibilityAdvancedControls = wp.compose.createHigherOrderComponent( BlockE
 				{ ...rules[ i ], minor: value },
 				...rules.slice( i + 1 ),
 			];
-			console.log( { newRules } );
 			setAttributes( {
 				conditions: {
 					...conditions,
@@ -208,10 +208,14 @@ const visibilityAdvancedControls = wp.compose.createHigherOrderComponent( BlockE
 								/>
 							) )
 							.reduce(
-								( acc, item ) =>
+								( acc, item, i ) =>
 									acc === null
 										? [ item ]
-										: [ ...acc, <RuleSep isAnd={ conditions.match_all === '1' } />, item ],
+										: [
+												...acc,
+												<RuleSep key={ i } isAnd={ conditions.match_all === '1' } />,
+												item,
+										  ],
 								null
 							) }
 						<ToggleControl
