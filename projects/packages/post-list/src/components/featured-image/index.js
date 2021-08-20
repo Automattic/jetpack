@@ -6,7 +6,7 @@ export default function FeaturedImage( { url, id, thumb } ) {
 
 	return (
 		<img
-			className="post-feature-image"
+			className="post-featured-image"
 			src={ thumb }
 			width="50px"
 			height="50px"

@@ -25,7 +25,7 @@ class Admin {
 			/**
 			 * Action called after initializing PostList Admin resources.
 			 *
-			 * @since 9.8.0
+			 * @since $$next-version$$
 			 */
 			do_action( 'jetpack_on_posts_list_init' );
 
