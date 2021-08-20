@@ -40,6 +40,7 @@ $tiled-gallery-max-rounded-corners: 20; // See constants.js for JS counterpart
 			border-radius: #{$i}px;
 		}
 	}
+
 }
 
 .tiled-gallery__gallery {
@@ -98,6 +99,18 @@ $tiled-gallery-max-rounded-corners: 20; // See constants.js for JS counterpart
 
 	&.filter__gingham {
 		@include gingham;
+	}
+
+	&.tiled-gallery__caption {
+		bottom: 0;
+		left: 0;
+		margin-bottom: 0;
+		max-height: 100%;
+		overflow: auto;
+		padding: 40px 10px 9px;
+		position: absolute;
+		text-align: center;
+		width: 100%;
 	}
 
 	& + & {

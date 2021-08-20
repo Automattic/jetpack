@@ -7,7 +7,7 @@ export default function GalleryImageSave( props ) {
 	const {
 		'aria-label': ariaLabel,
 		alt,
-		// caption,
+		caption,
 		height,
 		id,
 		link,
@@ -35,6 +35,7 @@ export default function GalleryImageSave( props ) {
 	const img = (
 		<img
 			alt={ alt }
+			caption={ caption }
 			aria-label={ ariaLabel }
 			data-height={ height }
 			data-id={ id }
