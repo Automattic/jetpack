@@ -27,11 +27,11 @@
 	"scripts": {
 		"build-development": [
 			"Composer\\Config::disableProcessTimeout",
-			"pnpm run build"
+			"pnpm run start"
 		],
 		"build-production": [
 			"Composer\\Config::disableProcessTimeout",
-			"pnpm run start"
+			"pnpm run build"
 		],
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
