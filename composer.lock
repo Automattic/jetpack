@@ -13,7 +13,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "b5635938ff7a3d42e17ae4ba6d912d0c1926ec94"
+                "reference": "d0d0598231b0809ade8f86cce6a842297bae6982"
             },
             "require": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
@@ -54,7 +54,6 @@
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
-                    "@composer update",
                     "./tests/action-test-php.sh"
                 ]
             },
