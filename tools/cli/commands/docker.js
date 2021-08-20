@@ -264,12 +264,13 @@ const defaultDockerCmdHandler = async argv => {
 		executor( argv, launchNgrok );
 	}
 
-	if ( argv._[ 1 ] === 'up' && argv.detached ) {
+	// TODO: Make it work with all container types, not only e2e
+	if ( argv.type === 'e2e' && argv._[ 1 ] === 'up' && argv.detached ) {
 		console.log( 'Waiting for WordPress to be ready...' );
 		const getContent = () =>
 			new Promise( ( resolve, reject ) => {
 				const https = require( 'http' );
-				const request = https.get( 'http://localhost:8889/', response => {
+				const request = https.get( `http://localhost:${ envOpts.PORT_WORDPRESS }/`, response => {
 					// handle http errors
 
 					if ( response.statusCode < 200 || response.statusCode > 399 ) {
@@ -302,6 +303,8 @@ const buildExecCmd = argv => {
 	const cmd = argv._[ 1 ];
 
 	if ( cmd === 'exec' ) {
+		opts.push( ...argv._.slice( 2 ) );
+	} else if ( cmd === 'exec-silent' ) {
 		opts.splice( 1, 0, '-T' );
 		opts.push( ...argv._.slice( 2 ) );
 	} else if ( cmd === 'install' ) {
@@ -476,6 +479,13 @@ export function dockerDefine( yargs ) {
 				.command( {
 					command: 'exec',
 					description: 'Execute arbitrary shell command inside docker container',
+					builder: yargExec => defaultOpts( yargExec ),
+					handler: argv => execDockerCmdHandler( argv ),
+				} )
+				.command( {
+					command: 'exec-silent',
+					description:
+						'Execute arbitrary shell command inside docker container with disabled pseudo-tty allocation. Used in E2E context',
 					builder: yargExec => defaultOpts( yargExec ),
 					handler: argv => execDockerCmdHandler( argv ),
 				} )
