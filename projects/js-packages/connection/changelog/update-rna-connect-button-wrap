@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Extract connection status fetching into a higher order component.

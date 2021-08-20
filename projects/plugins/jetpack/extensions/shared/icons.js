@@ -3,7 +3,7 @@
  */
 import { G, Icon, Path, Polygon, Rect, SVG } from '@wordpress/components';
 import classNames from 'classnames';
-import { colors as PALETTE } from '@automattic/color-studio';
+import colorStudio from '@automattic/color-studio';
 
 /**
  * Internal dependencies
@@ -14,6 +14,7 @@ import { getIconColor } from './block-icons';
 /**
  * Constants
  */
+const PALETTE = colorStudio.colors;
 const COLOR_JETPACK = PALETTE[ 'Jetpack Green 40' ];
 
 export const MediaLibraryIcon = () => (

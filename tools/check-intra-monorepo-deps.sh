@@ -97,7 +97,6 @@ if $UPDATE; then
 
 	function changelogger {
 		local SLUG="$1"
-		local ARGS
 
 		if ! $DID_CL_INSTALL; then
 			debug "Making sure changelogger is runnable"
@@ -105,12 +104,14 @@ if $UPDATE; then
 			DID_CL_INSTALL=true
 		fi
 
-		ARGS=()
+		local OLDDIR=$PWD
+		cd "$BASE/projects/$SLUG"
+
+		local ARGS=()
 		ARGS=( add --no-interaction --significance=patch )
-		if [[ "$SLUG" == "plugins/jetpack" ]]; then
-			ARGS+=( --type=other )
-		else
-			ARGS+=( --type=changed )
+		local CLTYPE="$(jq -r '.extra["changelogger-default-type"] // "changed"' composer.json)"
+		if [[ -n "$CLTYPE" ]]; then
+			ARGS+=( "--type=$CLTYPE" )
 		fi
 
 		if $AUTO_SUFFIX; then
@@ -119,8 +120,6 @@ if $UPDATE; then
 
 		ARGS+=( --entry="$2" --comment="$3" )
 
-		local OLDDIR=$PWD
-		cd "$BASE/projects/$SLUG"
 		local CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
 		if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then
 			"$CL" "${ARGS[@]}"

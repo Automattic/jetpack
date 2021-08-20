@@ -2,8 +2,20 @@
 - name: Monorepo itself
   paths:
    - '!projects/**'
+   - '!pnpm-lock.yaml'
   teams:
    - jetpack-approvers
+
+# Everyone who can approve anything can merge pnpm.lock.
+- name: pnpm lockfile
+  paths:
+   - 'pnpm-lock.yaml'
+  teams:
+   # Unfortunately this list need to be maintaned manually...
+   - jetpack-approvers
+   - yamato-backup-and-security
+   - heart-of-gold
+   - '@davidlonjon'
 
 # Jetpack Approvers review the Jetpack plugin and all packages.
 - name: Jetpack and packages
@@ -19,7 +31,6 @@
   paths:
    - 'projects/plugins/vaultpress/**'
    - 'projects/plugins/backup/**'
-   - 'pnpm-lock.yaml'
   teams:
    - yamato-backup-and-security
    - jetpack-approvers
@@ -29,7 +40,6 @@
 - name: Boost
   paths:
    - 'projects/plugins/boost/**'
-   - 'pnpm-lock.yaml'
   teams:
    - heart-of-gold
    - jetpack-approvers

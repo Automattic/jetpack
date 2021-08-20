@@ -37,10 +37,10 @@ describe( 'Jetpack updater', () => {
 	afterAll( async () => {
 		await execWpCommand( 'plugin uninstall --deactivate jetpack' );
 		await execShellCommand(
-			'pnpx jetpack docker --type e2e --name t1 -v exec -- rm /var/www/html/wp-content/plugins/jetpack'
+			'pnpx jetpack docker --type e2e --name t1 -v exec-silent -- rm /var/www/html/wp-content/plugins/jetpack'
 		);
 		await execSyncShellCommand(
-			'pnpx jetpack docker --type e2e --name t1 -v exec -- ln -s /usr/local/src/jetpack-monorepo/projects/plugins/jetpack/ /var/www/html/wp-content/plugins/jetpack'
+			'pnpx jetpack docker --type e2e --name t1 -v exec-silent -- ln -s /usr/local/src/jetpack-monorepo/projects/plugins/jetpack/ /var/www/html/wp-content/plugins/jetpack'
 		);
 		await prerequisitesBuilder().withCleanEnv().build();
 	} );
