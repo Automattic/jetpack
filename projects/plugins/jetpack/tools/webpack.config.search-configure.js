@@ -32,11 +32,11 @@ module.exports = {
 			path.resolve( __dirname, '../node_modules' ),
 			'node_modules',
 		],
+		alias: {
+			fs: false,
+		},
 	},
 	devtool: isDevelopment ? 'source-map' : false,
-	node: {
-		fs: 'empty',
-	},
 	plugins: [
 		...baseWebpackConfig.plugins,
 		new DependencyExtractionWebpackPlugin( { injectPolyfill: true } ),
