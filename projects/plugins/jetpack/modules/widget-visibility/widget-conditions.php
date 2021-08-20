@@ -47,6 +47,7 @@ class Jetpack_Widget_Conditions {
 		$add_data_assets_to_page = false;
 		$add_html_to_form        = false;
 		$handle_widget_updates   = false;
+		$add_block_controls      = false;
 
 		$using_classic_experience = ( ! function_exists( 'wp_use_widgets_block_editor' ) || ! wp_use_widgets_block_editor() );
 		if ( $using_classic_experience &&
@@ -63,6 +64,7 @@ class Jetpack_Widget_Conditions {
 			// On a screen that is hosting the API in the gutenberg editing experience.
 			if ( is_customize_preview() || 'widgets.php' === $pagenow ) {
 				$add_data_assets_to_page = true;
+				$add_block_controls      = true;
 			}
 
 			// Encoding for a particular widget end point.
@@ -96,6 +98,10 @@ class Jetpack_Widget_Conditions {
 			add_action( 'sidebar_admin_setup', array( __CLASS__, 'widget_admin_setup' ) );
 		}
 
+		if ( $add_block_controls ) {
+			add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'setup_block_controls' ) );
+		}
+
 		if ( ! $add_html_to_form && ! $handle_widget_updates && ! $add_data_assets_to_page &&
 			! in_array( $pagenow, array( 'wp-login.php', 'wp-register.php' ), true )
 		) {
@@ -104,9 +110,6 @@ class Jetpack_Widget_Conditions {
 			add_filter( 'sidebars_widgets', array( __CLASS__, 'sidebars_widgets' ) );
 			add_action( 'template_redirect', array( __CLASS__, 'template_redirect' ) );
 		}
-
-		// Add block editor controls.
-		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'setup_block_controls' ) );
 	}
 
 	/**
