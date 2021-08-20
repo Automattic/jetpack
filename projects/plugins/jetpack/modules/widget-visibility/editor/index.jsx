@@ -1,10 +1,10 @@
 /**
  * WordPress dependencies
  */
-import { Fragment, useEffect } from '@wordpress/element';
+import { Fragment, useEffect, useCallback, useMemo } from '@wordpress/element';
 import { Button, SelectControl, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { InspectorAdvancedControls } from '@wordpress/block-editor';
+import { InspectorAdvancedControls } from '@wordpress/block-editor'; // eslint-disable-line import/no-unresolved
 
 /* global widget_conditions_data */
 /* eslint-disable react/react-in-jsx-scope */
@@ -91,10 +91,10 @@ const RuleSep = props => {
 const visibilityAdvancedControls = wp.compose.createHigherOrderComponent( BlockEdit => {
 	return props => {
 		const { attributes, setAttributes, isSelected } = props;
-		const conditions = attributes.conditions || {};
-		const rules = conditions.rules || [];
+		const conditions = useMemo( () => attributes.conditions || {}, [ attributes ] );
+		const rules = useMemo( () => conditions.rules || [], [ conditions ] );
 
-		// Initialize props.conditions if none is sent
+		// Initialize props.conditions if none is sent.
 		useEffect( () => {
 			if ( ! ( 'action' in conditions ) || ! ( 'match_all' in conditions ) ) {
 				setAttributes( {
@@ -105,25 +105,30 @@ const visibilityAdvancedControls = wp.compose.createHigherOrderComponent( BlockE
 					},
 				} );
 			}
-		}, [] );
+		}, [ conditions, setAttributes ] );
 
-		const toggleMatchAll = () =>
-			setAttributes( {
-				conditions: {
-					...conditions,
-					match_all: conditions.match_all === '0' ? '1' : '0',
-				},
-			} );
+		const toggleMatchAll = useCallback(
+			() =>
+				setAttributes( {
+					conditions: {
+						...conditions,
+						match_all: conditions.match_all === '0' ? '1' : '0',
+					},
+				} ),
+			[ setAttributes, conditions ]
+		);
 
-		const setAction = value =>
-			setAttributes( {
-				conditions: {
-					...conditions,
-					action: value,
-				},
-			} );
-
-		const addNewRule = () => {
+		const setAction = useCallback(
+			value =>
+				setAttributes( {
+					conditions: {
+						...conditions,
+						action: value,
+					},
+				} ),
+			[ setAttributes, conditions ]
+		);
+		const addNewRule = useCallback( () => {
 			const newRules = [ ...rules, { major: '', minor: '' } ];
 			setAttributes( {
 				conditions: {
@@ -131,55 +136,64 @@ const visibilityAdvancedControls = wp.compose.createHigherOrderComponent( BlockE
 					rules: newRules,
 				},
 			} );
-		};
+		}, [ setAttributes, conditions, rules ] );
 
-		const deleteRule = i => {
-			const newRules = [ ...rules.slice( 0, i ), ...rules.slice( i + 1 ) ];
-			setAttributes( {
-				conditions: {
-					...conditions,
-					rules: newRules,
-				},
-			} );
-		};
+		const deleteRule = useCallback(
+			i => {
+				const newRules = [ ...rules.slice( 0, i ), ...rules.slice( i + 1 ) ];
+				setAttributes( {
+					conditions: {
+						...conditions,
+						rules: newRules,
+					},
+				} );
+			},
+			[ setAttributes, conditions, rules ]
+		);
 
-		const setMajor = ( i, majorValue ) => {
-			// When changing majors, also change the minor to the first available option
-			let minorValue = '';
-			if (
-				majorValue in widget_conditions_data &&
-				Array.isArray( widget_conditions_data[ majorValue ] ) &&
-				widget_conditions_data[ majorValue ].length > 0
-			) {
-				minorValue = widget_conditions_data[ majorValue ][ 0 ][ 0 ];
-			}
+		const setMajor = useCallback(
+			( i, majorValue ) => {
+				// When changing majors, also change the minor to the first available option
+				let minorValue = '';
+				if (
+					majorValue in widget_conditions_data &&
+					Array.isArray( widget_conditions_data[ majorValue ] ) &&
+					widget_conditions_data[ majorValue ].length > 0
+				) {
+					minorValue = widget_conditions_data[ majorValue ][ 0 ][ 0 ];
+				}
 
-			const newRules = [
-				...rules.slice( 0, i ),
-				{ ...rules[ i ], major: majorValue, minor: minorValue },
-				...rules.slice( i + 1 ),
-			];
-			setAttributes( {
-				conditions: {
-					...conditions,
-					rules: newRules,
-				},
-			} );
-		};
+				const newRules = [
+					...rules.slice( 0, i ),
+					{ ...rules[ i ], major: majorValue, minor: minorValue },
+					...rules.slice( i + 1 ),
+				];
+				setAttributes( {
+					conditions: {
+						...conditions,
+						rules: newRules,
+					},
+				} );
+			},
+			[ setAttributes, conditions, rules ]
+		);
 
-		const setMinor = ( i, value ) => {
-			const newRules = [
-				...rules.slice( 0, i ),
-				{ ...rules[ i ], minor: value },
-				...rules.slice( i + 1 ),
-			];
-			setAttributes( {
-				conditions: {
-					...conditions,
-					rules: newRules,
-				},
-			} );
-		};
+		const setMinor = useCallback(
+			( i, value ) => {
+				const newRules = [
+					...rules.slice( 0, i ),
+					{ ...rules[ i ], minor: value },
+					...rules.slice( i + 1 ),
+				];
+				setAttributes( {
+					conditions: {
+						...conditions,
+						rules: newRules,
+					},
+				} );
+			},
+			[ setAttributes, conditions, rules ]
+		);
 
 		return (
 			<Fragment>
@@ -202,9 +216,9 @@ const visibilityAdvancedControls = wp.compose.createHigherOrderComponent( BlockE
 									key={ i }
 									rule={ rule }
 									i={ i }
-									onDelete={ () => deleteRule( i ) }
-									setMajor={ value => setMajor( i, value ) }
-									setMinor={ value => setMinor( i, value ) }
+									onDelete={ () => deleteRule( i ) } // eslint-disable-line react/jsx-no-bind
+									setMajor={ value => setMajor( i, value ) } // eslint-disable-line react/jsx-no-bind
+									setMinor={ value => setMinor( i, value ) } // eslint-disable-line react/jsx-no-bind
 								/>
 							) )
 							.reduce(
