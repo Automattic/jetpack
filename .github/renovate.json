@@ -41,13 +41,13 @@
 				"automattic/jetpack-options",
 				"automattic/jetpack-partner",
 				"automattic/jetpack-password-checker",
+				"automattic/jetpack-post-list",
 				"automattic/jetpack-redirect",
 				"automattic/jetpack-roles",
 				"automattic/jetpack-status",
 				"automattic/jetpack-sync",
 				"automattic/jetpack-terms-of-service",
-				"automattic/jetpack-tracking",
-				"automattic/jetpack-post-list"
+				"automattic/jetpack-tracking"
 			],
 			"enabled": false
 		},
