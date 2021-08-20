@@ -1,7 +1,6 @@
 import logger from '../logger';
 import { isBlogTokenSet, syncJetpackPlanData } from '../flows/jetpack-connect';
 import {
-	execMultipleWpCommands,
 	execWpCommand,
 	getDotComCredentials,
 	provisionJetpackStartConnection,
@@ -13,12 +12,12 @@ import { loginToWpCom, loginToWpSite } from '../flows/log-in';
 
 export function prerequisitesBuilder() {
 	const state = {
+		clean: undefined,
 		loggedIn: undefined,
 		wpComLoggedIn: undefined,
 		connected: undefined,
 		plan: undefined,
 		modules: { active: undefined, inactive: undefined },
-		clean: undefined,
 	};
 
 	return {
@@ -110,16 +109,15 @@ async function connect() {
 	expect( await isBlogTokenSet() ).toBeTruthy();
 
 	// We are connected. Let's save the existing connection options just in case.
-	const result = await execWpCommand( 'wp option get jetpack_private_options --format=json' );
+	const result = await execWpCommand( 'option get jetpack_private_options --format=json' );
 	fs.writeFileSync( config.get( 'temp.jetpackPrivateOptions' ), result.trim() );
 }
 
 async function disconnect() {
 	// await resetWordpressInstall();
-	await execMultipleWpCommands(
-		'wp option delete jetpack_private_options',
-		'wp option delete jetpack_sync_error_idc'
-	);
+	await execWpCommand( 'option delete jetpack_private_options' );
+	await execWpCommand( 'option delete jetpack_sync_error_idc' );
+
 	expect( await isBlogTokenSet() ).toBeFalsy();
 }
 
@@ -182,7 +180,7 @@ export async function ensureModulesState( modules ) {
 export async function activateModules( modulesList ) {
 	for ( const module of modulesList ) {
 		logger.prerequisites( `Activating module ${ module }` );
-		const result = await execWpCommand( `wp jetpack module activate ${ module }` );
+		const result = await execWpCommand( `jetpack module activate ${ module }` );
 		expect( result ).toMatch( new RegExp( `Success: .* has been activated.`, 'i' ) );
 	}
 }
@@ -190,7 +188,7 @@ export async function activateModules( modulesList ) {
 export async function deactivateModules( modulesList ) {
 	for ( const module of modulesList ) {
 		logger.prerequisites( `Deactivating module ${ module }` );
-		const result = await execWpCommand( `wp jetpack module deactivate ${ module }` );
+		const result = await execWpCommand( `jetpack module deactivate ${ module }` );
 		expect( result ).toMatch( new RegExp( `Success: .* has been deactivated.`, 'i' ) );
 	}
 }
