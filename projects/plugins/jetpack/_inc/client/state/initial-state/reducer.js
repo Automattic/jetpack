@@ -7,7 +7,8 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 /**
  * Internal dependencies
  */
-import { JETPACK_SET_INITIAL_STATE, MOCK_SWITCH_USER_PERMISSIONS } from 'state/action-types';
+import { JETPACK_SET_INITIAL_STATE } from 'state/action-types';
+import { MOCK_SWITCH_USER_PERMISSIONS } from '@automattic/jetpack-user/action-types';
 import { getPlanDuration } from 'state/plans/reducer';
 import { getSiteProducts } from 'state/site-products';
 import { isCurrentUserLinked } from 'state/connection';

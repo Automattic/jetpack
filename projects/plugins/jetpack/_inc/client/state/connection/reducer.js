@@ -24,11 +24,11 @@ import {
 	UNLINK_USER,
 	UNLINK_USER_FAIL,
 	UNLINK_USER_SUCCESS,
-	MOCK_SWITCH_USER_PERMISSIONS,
 	SITE_RECONNECT,
 	SITE_RECONNECT_FAIL,
 	SITE_RECONNECT_SUCCESS,
 } from 'state/action-types';
+import { MOCK_SWITCH_USER_PERMISSIONS } from '@automattic/jetpack-user/action-types';
 import {
 	getModulesThatRequireConnection,
 	getModulesThatRequireUserConnection,
