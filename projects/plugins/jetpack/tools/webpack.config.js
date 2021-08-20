@@ -5,6 +5,7 @@ const getBaseWebpackConfig = require( '@automattic/calypso-build/webpack.config.
 const path = require( 'path' );
 const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
 const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
+const NodePolyfillPlugin = require( 'node-polyfill-webpack-plugin' );
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -23,12 +24,13 @@ const sharedWebpackConfig = {
 		...baseWebpackConfig.resolve,
 		modules: [ path.resolve( path.dirname( __dirname ), '_inc/client' ), 'node_modules' ],
 		// We want the compiled version, not the "calypso:src" sources.
-		mainFields: undefined,
+		mainFields: baseWebpackConfig.resolve.mainFields.filter( entry => 'calypso:src' !== entry ),
+		alias: {
+			...baseWebpackConfig.resolve.alias,
+			fs: false,
+		},
 	},
-	node: {
-		fs: 'empty',
-		process: true,
-	},
+	node: {},
 	devtool: isDevelopment ? 'source-map' : false,
 };
 
@@ -45,6 +47,7 @@ module.exports = [
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,
+			new NodePolyfillPlugin(),
 			new DependencyExtractionWebpackPlugin( { injectPolyfill: true } ),
 		],
 	},
