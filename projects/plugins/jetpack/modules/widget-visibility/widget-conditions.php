@@ -104,6 +104,32 @@ class Jetpack_Widget_Conditions {
 			add_filter( 'sidebars_widgets', array( __CLASS__, 'sidebars_widgets' ) );
 			add_action( 'template_redirect', array( __CLASS__, 'template_redirect' ) );
 		}
+
+		// Add block editor controls.
+		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'setup_block_controls' ) );
+	}
+
+	/**
+	 * Enqueue the block-based widget visibility scripts.
+	 */
+	public static function setup_block_controls() {
+		$manifest_path       = JETPACK__PLUGIN_DIR . '_inc/build/widget-visibility/editor/index.min.asset.php';
+		$script_path         = plugins_url( '_inc/build/widget-visibility/editor/index.min.js', JETPACK__PLUGIN_FILE );
+		$script_dependencies = array( 'wp-polyfill' );
+		if ( file_exists( $manifest_path ) ) {
+			$asset_manifest      = include $manifest_path;
+			$script_dependencies = $asset_manifest['dependencies'];
+		}
+
+		// Enqueue built script.
+		wp_enqueue_script(
+			'widget-visibility-editor',
+			$script_path,
+			$script_dependencies,
+			JETPACK__VERSION,
+			true
+		);
+		wp_set_script_translations( 'widget-visibility-editor', 'jetpack' );
 	}
 
 	/**
