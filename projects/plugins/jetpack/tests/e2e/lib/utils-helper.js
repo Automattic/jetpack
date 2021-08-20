@@ -48,7 +48,7 @@ async function resetWordpressInstall() {
 
 async function prepareUpdaterTest() {
 	const cmd =
-		'pnpx jetpack docker --type e2e --name t1 -v exec /usr/local/src/jetpack-monorepo/projects/plugins/jetpack/tests/e2e/bin/prep.sh';
+		'pnpx jetpack docker --type e2e --name t1 -v exec-silent /usr/local/src/jetpack-monorepo/projects/plugins/jetpack/tests/e2e/bin/prep.sh';
 
 	await execShellCommand( cmd );
 }
@@ -121,7 +121,7 @@ async function execWpCommand( wpCmd ) {
 
 async function logDebugLog() {
 	let log = execSyncShellCommand(
-		'pnpx jetpack docker --type e2e --name t1 exec cat wp-content/debug.log'
+		'pnpx jetpack docker --type e2e --name t1 exec-silent cat wp-content/debug.log'
 	);
 
 	const escapedDate = new Date().toISOString().split( '.' )[ 0 ].replace( /:/g, '-' );

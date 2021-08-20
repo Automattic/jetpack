@@ -11,8 +11,11 @@ import { createInterpolateElement } from '@wordpress/element';
  * Internal dependencies
  */
 import ConnectButton from '../connect-button';
+import withConnectionStatus from '../with-connection-status';
 import ImageSlider from './image-slider';
 import './style.scss';
+
+const ConnectButtonWithConnectionStatus = withConnectionStatus( ConnectButton );
 
 /**
  * The Connection Screen component.
@@ -73,7 +76,7 @@ const ConnectScreen = props => {
 
 				{ children }
 
-				<ConnectButton
+				<ConnectButtonWithConnectionStatus
 					apiRoot={ apiRoot }
 					apiNonce={ apiNonce }
 					registrationNonce={ registrationNonce }
