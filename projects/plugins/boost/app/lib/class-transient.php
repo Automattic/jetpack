@@ -87,11 +87,10 @@ class Transient {
 		 */
 		$option_prefix = static::key( $prefix );
 
-		/*
-		 * We are adding slashes to make sure % and _ characters match exactly as they are wildcard characters. The
-		 * ending % is to make sure it matches all values followed by initial prefix.
+		/**
+		 * LIKE search pattern for the delete query.
 		 */
-		$prefix_search_pattern = addcslashes( $option_prefix, '%_' ) . '%';
+		$prefix_search_pattern = $wpdb->esc_like( $option_prefix ) . '%';
 
 		$wpdb->query(
 			$wpdb->prepare(
