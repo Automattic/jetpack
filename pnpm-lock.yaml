@@ -490,6 +490,7 @@ importers:
       '@automattic/jetpack-api': workspace:^0.1.0
       '@automattic/jetpack-components': workspace:^0.2.2-alpha
       '@automattic/jetpack-connection': workspace:^0.6.0-alpha
+      '@automattic/jetpack-initial-state': workspace:^0.1.0-alpha
       '@automattic/popup-monitor': 1.0.0
       '@automattic/request-external-access': 1.0.0
       '@automattic/social-previews': 1.1.1
@@ -631,6 +632,7 @@ importers:
       '@automattic/jetpack-api': link:../../js-packages/api
       '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
+      '@automattic/jetpack-initial-state': link:../../js-packages/initial-state
       '@automattic/popup-monitor': 1.0.0
       '@automattic/request-external-access': 1.0.0
       '@automattic/social-previews': 1.1.1_8ed97a88e5f0f5280c982708303ed7b8
@@ -14196,7 +14198,7 @@ packages:
       mkdirp: 0.5.5
       neo-async: 2.6.2
       schema-utils: 2.7.1
-      webpack: 5.31.0
+      webpack: 5.31.0_webpack-cli@4.8.0
 
   /caching-transform/4.0.0:
     resolution: {integrity: sha512-kpqOvwXnjjN44D89K5ccQC+RUrsy7jB/XLlRrx0D7/2HNcTPqzsb6XgYoErwko6QsV184CA2YgS1fxDiiDZMWA==}
@@ -21986,7 +21988,7 @@ packages:
     dependencies:
       loader-utils: 2.0.0
       schema-utils: 3.1.1
-      webpack: 5.31.0
+      webpack: 5.31.0_webpack-cli@4.8.0
       webpack-sources: 1.4.3
 
   /minimalistic-assert/1.0.1:
@@ -27466,7 +27468,7 @@ packages:
       serialize-javascript: 6.0.0
       source-map: 0.6.1
       terser: 5.7.0
-      webpack: 5.31.0
+      webpack: 5.31.0_webpack-cli@4.8.0
 
   /terser-webpack-plugin/5.1.4_webpack@5.47.1:
     resolution: {integrity: sha512-C2WkFwstHDhVEmsmlCxrXUtVklS+Ir1A7twrYzrDrQQOIMOaVAYykaoo/Aq1K0QRkMoY2hhvDQY1cm4jnIMFwA==}
