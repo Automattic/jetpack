@@ -1,3 +1,5 @@
 /build
 /node_modules
 /.cache
+composer.lock
+.jshintrc
