@@ -43,7 +43,7 @@ export default function GalleryImageSave( props ) {
 			} ) }
 		>
 			{ href ? <a href={ href }>{ img }</a> : img }
-			<figcaption className="tiled-gallery__caption">This is the caption from save.js</figcaption>
+			<figcaption className="tiled-gallery__caption">{ caption }</figcaption>
 		</figure>
 	);
 }

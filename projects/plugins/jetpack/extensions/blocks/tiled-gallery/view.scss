@@ -101,18 +101,6 @@ $tiled-gallery-max-rounded-corners: 20; // See constants.js for JS counterpart
 		@include gingham;
 	}
 
-	&.tiled-gallery__caption {
-		bottom: 0;
-		left: 0;
-		margin-bottom: 0;
-		max-height: 100%;
-		overflow: auto;
-		padding: 40px 10px 9px;
-		position: absolute;
-		text-align: center;
-		width: 100%;
-	}
-
 	& + & {
 		margin-top: $tiled-gallery-gutter;
 	}
@@ -139,4 +127,19 @@ $tiled-gallery-max-rounded-corners: 20; // See constants.js for JS counterpart
 	.tiled-gallery__gallery {
 		display: block;
 	}
+}
+
+.tiled-gallery__caption {
+	background: linear-gradient(0deg, rgba($color: $black, $alpha: 0.7) 0, rgba($color: $black, $alpha: 0.3) 70%, transparent);
+	bottom: 0;
+	color: $white;
+	font-size: $default-font-size;
+	left: 0;
+	margin-bottom: 0;
+	max-height: 100%;
+	overflow: auto;
+	padding: 40px 10px 9px;
+	position: absolute;
+	text-align: center;
+	width: 100%;
 }
