@@ -10,4 +10,4 @@ node_modules      export-ignore
 /storybook/**     production-exclude
 
 # Files to include in the mirror repo
-/storybook/build/**  production-include -production-exclude
+/docs/**          production-include
