@@ -57,6 +57,19 @@ importers:
     devDependencies:
       '@vercel/ncc': 0.28.5
 
+  projects/js-packages/analytics:
+    specifiers:
+      debug: 4.3.1
+      jetpack-js-test-runner: workspace:*
+      lodash: 4.17.21
+      nyc: 15.1.0
+    dependencies:
+      lodash: 4.17.21
+    devDependencies:
+      debug: 4.3.1
+      jetpack-js-test-runner: link:../../../tools/js-test-runner
+      nyc: 15.1.0
+
   projects/js-packages/api:
     specifiers:
       chai-fetch-mock: 3.0.0
@@ -155,6 +168,12 @@ importers:
       jetpack-js-test-runner: link:../../../tools/js-test-runner
       nyc: 15.1.0
 
+  projects/js-packages/initial-state:
+    specifiers:
+      jetpack-js-test-runner: workspace:*
+    devDependencies:
+      jetpack-js-test-runner: link:../../../tools/js-test-runner
+
   projects/js-packages/modules:
     specifiers:
       '@automattic/jetpack-api': workspace:^0.1.0
@@ -243,6 +262,15 @@ importers:
       sass-loader: 10.1.1_webpack@5.47.1
       style-loader: 2.0.0_webpack@5.47.1
       webpack: 5.47.1
+
+  projects/js-packages/user:
+    specifiers:
+      jetpack-js-test-runner: workspace:*
+      redux: 4.0.5
+    dependencies:
+      redux: 4.0.5
+    devDependencies:
+      jetpack-js-test-runner: link:../../../tools/js-test-runner
 
   projects/packages/connection-ui:
     specifiers:
@@ -494,9 +522,12 @@ importers:
       '@automattic/color-studio': 2.5.0
       '@automattic/components': 1.0.0-alpha.3
       '@automattic/format-currency': 1.0.0-alpha.0
+      '@automattic/jetpack-analytics': workspace:^0.1.0-alpha
       '@automattic/jetpack-api': workspace:^0.1.0
       '@automattic/jetpack-components': workspace:^0.2.2-alpha
       '@automattic/jetpack-connection': workspace:^0.6.0-alpha
+      '@automattic/jetpack-initial-state': workspace:^0.1.0-alpha
+      '@automattic/jetpack-user': workspace:^0.1.0-alpha
       '@automattic/popup-monitor': 1.0.0
       '@automattic/request-external-access': 1.0.0
       '@automattic/social-previews': 1.1.1
@@ -635,9 +666,12 @@ importers:
       '@automattic/calypso-color-schemes': 2.1.1
       '@automattic/components': 1.0.0-alpha.3_react-dom@17.0.2+react@17.0.2
       '@automattic/format-currency': 1.0.0-alpha.0
+      '@automattic/jetpack-analytics': link:../../js-packages/analytics
       '@automattic/jetpack-api': link:../../js-packages/api
       '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
+      '@automattic/jetpack-initial-state': link:../../js-packages/initial-state
+      '@automattic/jetpack-user': link:../../js-packages/user
       '@automattic/popup-monitor': 1.0.0
       '@automattic/request-external-access': 1.0.0
       '@automattic/social-previews': 1.1.1_8ed97a88e5f0f5280c982708303ed7b8
@@ -2002,7 +2036,7 @@ packages:
     resolution: {integrity: sha512-IqiLIrODUOdnPU9/F8ib1Fx2ohlgDhxnIDU7OEVi+kAbEZcyiF7BLU8W6PfvPi9LzztjS7kcbzbmL7oG8kD6VA==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/types': 7.14.8
+      '@babel/types': 7.15.0
 
   /@babel/helper-plugin-utils/7.10.4:
     resolution: {integrity: sha512-O4KCvQA6lLiMU9l2eawBPMf1xPP8xPfB3iEQw150hOVTqj/rfXz0ThTb4HEzqQfs2Bmo5Ay8BzxfzVtBrr9dVg==}
@@ -19785,7 +19819,7 @@ packages:
     resolution: {integrity: sha512-BXgQl9kf4WTCPCCpmFGoJkz/+uhvm7h7PFKUYxh7qarQd3ER33vHG//qaE8eN25l07YqZPpHXU9I09l/RD5aGQ==}
     engines: {node: '>=8'}
     dependencies:
-      '@babel/core': 7.14.6
+      '@babel/core': 7.15.0
       '@istanbuljs/schema': 0.1.3
       istanbul-lib-coverage: 3.0.0
       semver: 6.3.0
@@ -29426,7 +29460,7 @@ packages:
       set-blocking: 2.0.0
       string-width: 4.2.0
       which-module: 2.0.0
-      y18n: 4.0.1
+      y18n: 4.0.3
       yargs-parser: 18.1.3
 
   /yargs/16.2.0:

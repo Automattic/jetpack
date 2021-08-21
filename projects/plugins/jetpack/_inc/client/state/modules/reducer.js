@@ -8,7 +8,6 @@ import { assign, get, includes, intersection } from 'lodash';
  * Internal dependencies
  */
 import {
-	JETPACK_SET_INITIAL_STATE,
 	JETPACK_MODULES_LIST_FETCH,
 	JETPACK_MODULES_LIST_FETCH_FAIL,
 	JETPACK_MODULES_LIST_RECEIVE,
@@ -22,6 +21,7 @@ import {
 	JETPACK_MODULE_UPDATE_OPTIONS_FAIL,
 	JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS,
 } from 'state/action-types';
+import { JETPACK_SET_INITIAL_STATE } from '@automattic/jetpack-initial-state/action-types';
 import { isPluginActive } from 'state/site/plugins';
 
 export const items = ( state = {}, action ) => {

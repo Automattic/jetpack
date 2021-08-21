@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Move user constant into jetpack-user package

@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Move initial state action types into initial state package
