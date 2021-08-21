@@ -4,6 +4,7 @@
 import chai from 'chai';
 import path from 'path';
 import fs from 'fs';
+import sinon from 'sinon';
 
 /**
  * Internal dependencies
@@ -16,6 +17,7 @@ const destDir = path.join( dataDir, 'dest/' );
 
 // Reset test directories before running anything in the event of some left from earlier.
 before( function () {
+	// this.sandbox = sinon.createSandbox();
 	try {
 		fs.rmdirSync( destDir, { recursive: true } );
 	} catch ( e ) {
@@ -25,6 +27,7 @@ before( function () {
 
 // Reset after each test to ensure clean merge testing.
 afterEach( function () {
+	// this.sandbox.restore();
 	try {
 		fs.rmdirSync( destDir, { recursive: true } );
 	} catch ( e ) {
@@ -48,5 +51,21 @@ describe( 'mergeDirs', function () {
 	it( 'should copy directory to a new location', function () {
 		mergeDirs( sourceDir, destDir );
 		chai.expect( fs.existsSync( dataDir + 'source/source.md' ) ).to.be.true;
+	} );
+
+	it( 'should bail by default if a file already exists', function () {
+		sinon.stub( console, 'warn' );
+		mergeDirs( sourceDir, destDir ); // initial write
+		mergeDirs( sourceDir, destDir ); // should refuse to overwrite the same files
+		sinon.assert.calledWith( console.warn, sinon.match( 'source.md exists, skipping...' ) );
+		console.warn.restore();
+	} );
+
+	it( 'should overwrite by default passed the overwrite=true param', function () {
+		sinon.stub( console, 'warn' );
+		mergeDirs( sourceDir, destDir ); // initial write
+		mergeDirs( sourceDir, destDir, null, true ); // should overwrite the same files
+		sinon.assert.calledWith( console.warn, sinon.match( 'source.md exists, overwriting' ) );
+		console.warn.restore();
 	} );
 } );

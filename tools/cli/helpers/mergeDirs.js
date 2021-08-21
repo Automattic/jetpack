@@ -12,11 +12,17 @@ import path from 'path';
  * @param {string} src - Source dir.
  * @param {string} dest - Dest dir.
  * @param {string} name - Name of new project.
+ * @param {boolean} overwrite - Overwrite existing files with the same name (default: false).
  */
-export default function mergeDirs( src, dest, name ) {
+export default function mergeDirs( src, dest, name, overwrite = false ) {
 	if ( ! src || ! dest ) {
 		throw new Error( 'Both a source and destination path must be provided.' );
 	}
+
+	// trim trailing slashes
+	src = src.endsWith( '/' ) ? src.slice( 0, -1 ) : src;
+	dest = dest.endsWith( '/' ) ? dest.slice( 0, -1 ) : dest;
+
 	const files = fs.readdirSync( src );
 
 	if ( ! files ) {
@@ -29,8 +35,11 @@ export default function mergeDirs( src, dest, name ) {
 		const stats = fs.lstatSync( srcFile );
 
 		if ( stats.isDirectory() ) {
-			mergeDirs( srcFile, destFile );
+			mergeDirs( srcFile, destFile, name, overwrite );
 		} else if ( ! fs.existsSync( destFile ) ) {
+			copyFile( destFile, srcFile );
+		} else if ( overwrite ) {
+			console.warn( `${ destFile } exists, overwriting` );
 			copyFile( destFile, srcFile );
 		} else {
 			console.warn( `${ destFile } exists, skipping...` );

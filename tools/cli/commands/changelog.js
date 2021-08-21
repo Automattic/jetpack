@@ -27,7 +27,7 @@ import { readComposerJson } from '../helpers/json';
 export function changelogDefine( yargs ) {
 	// Main Changelog command
 	yargs.command(
-		[ 'changelog [cmd]', 'changelogger [cmd]' ],
+		[ 'changelog <cmd>', 'changelogger <cmd>' ],
 		'Runs the changelogger wizard',
 		yarg => {
 			yarg
