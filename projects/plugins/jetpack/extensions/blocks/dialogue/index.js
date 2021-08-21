@@ -11,7 +11,9 @@ import attributes from './attributes';
 import edit from './edit';
 import save from './save';
 import { TranscriptSpeakerIcon as icon } from '../../shared/icons';
-import { list as defaultParticipants } from '../conversation/participants.json';
+import participants from '../conversation/participants.json';
+const defaultParticipants = participants.list;
+
 import { name as parentName } from '../conversation/index';
 
 /**
@@ -46,7 +48,7 @@ export const settings = {
 				type: 'block',
 				blocks: [ 'core/paragraph' ],
 				isMultiBlock: true,
-				transform: ( blocks ) => {
+				transform: blocks => {
 					return blocks.map( ( { content, label } ) =>
 						createBlock( 'core/paragraph', {
 							content: ( label?.length ? `<strong>${ label }</strong>: ` : '' ) + content,
@@ -60,7 +62,7 @@ export const settings = {
 				type: 'block',
 				blocks: [ 'core/paragraph' ],
 				isMultiBlock: true,
-				transform: ( blocks ) => {
+				transform: blocks => {
 					return blocks.map( ( { content } ) =>
 						createBlock( 'jetpack/dialogue', {
 							participant: defaultParticipants[ 0 ],

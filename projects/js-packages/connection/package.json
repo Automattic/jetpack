@@ -1,14 +1,15 @@
 {
 	"name": "@automattic/jetpack-connection",
-	"version": "0.5.1",
+	"version": "0.6.0-alpha",
 	"description": "Jetpack Connection Component",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
-		"@automattic/jetpack-components": "workspace:^0.2.1",
 		"@automattic/jetpack-api": "workspace:^0.1.0",
+		"@automattic/jetpack-components": "workspace:^0.2.2-alpha",
 		"@wordpress/browserslist-config": "4.1.0",
 		"@wordpress/components": "14.2.0",
+		"@wordpress/data": "6.0.0",
 		"@wordpress/element": "3.2.0",
 		"@wordpress/i18n": "3.20.0",
 		"lodash": "4.17.21",
