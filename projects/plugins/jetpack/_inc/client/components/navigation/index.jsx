@@ -127,7 +127,7 @@ export class Navigation extends React.Component {
 
 Navigation.propTypes = {
 	routeName: PropTypes.string.isRequired,
-	isOfflineMode: PropTypes.bool.isRequired,
+	isOfflineMode: PropTypes.bool,
 };
 
 export default connect( state => {
