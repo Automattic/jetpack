@@ -7,7 +7,7 @@ import { assign, get } from 'lodash';
 /**
  * Internal dependencies
  */
-import { JETPACK_SET_INITIAL_STATE } from 'state/action-types';
+import { JETPACK_SET_INITIAL_STATE } from '@automattic/jetpack-initial-state/action-types';
 
 export const connectUrls = ( state = {}, action ) => {
 	switch ( action.type ) {

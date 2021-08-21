@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { JETPACK_SET_INITIAL_STATE } from 'state/action-types';
+import { JETPACK_SET_INITIAL_STATE } from '@automattic/jetpack-initial-state/action-types';
 
 export const setInitialState = () => {
 	return dispatch => {
