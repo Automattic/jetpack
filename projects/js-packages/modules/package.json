@@ -4,6 +4,11 @@
 	"version": "0.1.0-alpha",
 	"description": "Jetpack Modules shared code",
 	"homepage": "https://jetpack.com",
+	"exports": {
+		".": "./index.jsx",
+		"./state": "./src/state",
+		"./action-types": "./src/state/action-types"
+	},
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/issues"
 	},
