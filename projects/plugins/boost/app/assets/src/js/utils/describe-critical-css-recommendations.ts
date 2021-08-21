@@ -99,6 +99,12 @@ function httpErrorSuggestion( code: number, count: number ): string {
 				'jetpack-boost'
 			);
 
+		case 418:
+			return __(
+				'Your WordPress site returned a 418 error which many web hosts use to indicate they rejected your request due to security rules. Please contact your hosting provider for more information.',
+				'jetpack-boost'
+			);
+
 		case 500:
 			return _n(
 				'Your WordPress site encountered an error while trying to load the above page. Please check your server logs or contact your hosting provider for help to investigate the issue, and <retry>try again</retry>.',
@@ -216,6 +222,21 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 		suggestion: set =>
 			__(
 				'Please load the page, and verify that the content displayed is a part of your WordPress site, and not an external page managed by a different system and <retry>try again</retry>.',
+				'jetpack-boost'
+			),
+	},
+
+	EmptyCSSError: {
+		describeSet: set =>
+			_n(
+				'It looks like this page does not contain any relevant CSS in its external style sheet(s):',
+				'It looks like these pages do not contain any relevant CSS in their external style sheet(s):',
+				urlCount( set ),
+				'jetpack-boost'
+			),
+		suggestion: () =>
+			__(
+				'Please load the page, verify its styles load correctly, and <retry>try again</retry>. If you are using a plugin which embeds your CSS styles directly into your pages, or your site does not use external CSS style sheets, then it is safe to ignore this issue as Critical CSS can only speed up pages which use external styles.',
 				'jetpack-boost'
 			),
 	},

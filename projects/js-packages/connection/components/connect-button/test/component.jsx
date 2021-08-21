@@ -17,6 +17,11 @@ describe( 'ConnectButton', () => {
 		apiRoot: 'https://example.org/wp-json/',
 		registrationNonce: 'test2',
 		redirectUri: 'https://example.org',
+		connectionStatus: {
+			isRegistered: false,
+			isUserConnected: false,
+		},
+		connectionStatusIsFetching: false,
 	};
 
 	describe( 'Render the ConnectButton component', () => {
