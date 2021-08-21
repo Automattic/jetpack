@@ -14,6 +14,8 @@ use Automattic\Jetpack\Assets;
  * [wrong]Maybe this one[explanation]Keep trying[/explanation][/wrong]
  * [wrong]How about this one?[explanation]Try again[/explanation][/wrong]
  * [/quiz]
+ *
+ * Can also be wrapped in [quiz-wrapper] to display all quizzes together.
  */
 class Quiz_Shortcode {
 
@@ -25,6 +27,15 @@ class Quiz_Shortcode {
 	 * @var array
 	 */
 	private static $quiz_params = array();
+
+	/**
+	 * Whether the [quiz-wrapper] shortcode is used.
+	 *
+	 * @since 10.1
+	 *
+	 * @var bool
+	 */
+	private static $quiz_wrapper = false;
 
 	/**
 	 * Whether the scripts were enqueued.
@@ -68,6 +79,7 @@ class Quiz_Shortcode {
 	 * @since 4.5.0
 	 */
 	public static function init() {
+		add_shortcode( 'quiz-wrapper', array( __CLASS__, 'shortcode_wrapper' ) );
 		add_shortcode( 'quiz', array( __CLASS__, 'shortcode' ) );
 		add_shortcode( 'question', array( __CLASS__, 'question_shortcode' ) );
 		add_shortcode( 'answer', array( __CLASS__, 'answer_shortcode' ) );
@@ -190,8 +202,37 @@ class Quiz_Shortcode {
 			}
 		}
 
-		$quiz = self::do_shortcode( $content );
-		return '<div class="jetpack-quiz quiz"' . $id . '>' . $quiz . '</div>';
+		$quiz         = self::do_shortcode( $content );
+		$quiz_options = '';
+
+		if ( self::$quiz_wrapper ) {
+			$quiz_options = '<div class="jetpack-quiz-options">
+			<span class="jetpack-quiz-count"></span>
+			<a class="jetpack-quiz-option-button" data-quiz-option="previous" role="button" aria-label="' . esc_attr__( 'Previous quiz', 'jetpack' ) . '">
+			<svg viewBox="0 0 24 24" class="quiz-gridicon">
+			<g><path d="M14 20l-8-8 8-8 1.414 1.414L8.828 12l6.586 6.586"></path></g></svg></a>
+			<a class="jetpack-quiz-option-button" data-quiz-option="next" role="button" aria-label="' . esc_attr__( 'Next quiz', 'jetpack' ) . '">
+			<svg viewBox="0 0 24 24" class="quiz-gridicon">
+			<g><path d="M10 20l8-8-8-8-1.414 1.414L15.172 12l-6.586 6.586"></path></g></svg></a>
+			</div>';
+		}
+
+		return '<div class="jetpack-quiz quiz"' . $id . '>' . $quiz . $quiz_options . '</div>';
+	}
+
+	/**
+	 * Wrap shortcode contents.
+	 *
+	 * @since 10.1
+	 *
+	 * @param array  $atts    Shortcode parameters.
+	 * @param string $content Content enclosed by shortcode tags.
+	 *
+	 * @return string
+	 */
+	public static function shortcode_wrapper( $atts, $content = null ) {
+		self::$quiz_wrapper = true;
+		return '<div class="jetpack-quiz-wrapper">' . self::do_shortcode( $content ) . '</div>';
 	}
 
 	/**
@@ -214,11 +255,21 @@ class Quiz_Shortcode {
 			$content,
 			array(
 				'tt'     => array(),
-				'a'      => array( 'href' => true ),
+				'a'      => array(
+					'href'             => true,
+					'class'            => true,
+					'data-quiz-option' => true,
+					'aria-label'       => true,
+					'role'             => 'button',
+				),
 				'pre'    => array(),
 				'strong' => array(),
 				'i'      => array(),
+				'svg'    => array(),
+				'g'      => array(),
+				'path'   => array( 'd' => true ),
 				'br'     => array(),
+				'span'   => array( 'class' => true ),
 				'img'    => array( 'src' => true ),
 				'div'    => array(
 					'class'            => true,
@@ -226,6 +277,7 @@ class Quiz_Shortcode {
 					'data-track-id'    => 1,
 					'data-a8ctraining' => 1,
 					'data-username'    => 1,
+					'tabindex'         => false,
 				),
 			)
 		);
@@ -244,7 +296,7 @@ class Quiz_Shortcode {
 	 */
 	public static function question_shortcode( $atts, $content = null ) {
 		return isset( $atts['quiz_item'] )
-			? '<div class="jetpack-quiz-question question">' . self::do_shortcode( $content ) . '</div>'
+			? '<div class="jetpack-quiz-question question" tabindex="-1">' . self::do_shortcode( $content ) . '</div>'
 			: '';
 	}
 

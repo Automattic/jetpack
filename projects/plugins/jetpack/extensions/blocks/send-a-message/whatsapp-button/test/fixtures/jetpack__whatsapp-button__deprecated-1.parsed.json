@@ -11,9 +11,9 @@
                     "firstMessage": "My Message"
                 },
                 "innerBlocks": [],
-                "innerHTML": "\n\t<div class=\"wp-block-jetpack-whatsapp-button is-color-dark\"><a class=\"whatsapp-block__button\" href=\"https://api.whatsapp.com/send?phone=612678888&amp;text=My%20Message\" style=\"background-color:#25D366;\" target=\"_self\" rel=\"noopener noreferrer\">Chat on WhatsApp</a></div>\n\t",
+                "innerHTML": "\n\t<div class=\"wp-block-jetpack-whatsapp-button is-color-dark\"><a class=\"whatsapp-block__button\" href=\"https://api.whatsapp.com/send?phone=612678888&amp;text=My%20Message\" style=\"background-color:#25D366;color:#fff\" target=\"_self\" rel=\"noopener noreferrer\">Chat on WhatsApp</a></div>\n\t",
                 "innerContent": [
-                    "\n\t<div class=\"wp-block-jetpack-whatsapp-button is-color-dark\"><a class=\"whatsapp-block__button\" href=\"https://api.whatsapp.com/send?phone=612678888&amp;text=My%20Message\" style=\"background-color:#25D366;\" target=\"_self\" rel=\"noopener noreferrer\">Chat on WhatsApp</a></div>\n\t"
+                    "\n\t<div class=\"wp-block-jetpack-whatsapp-button is-color-dark\"><a class=\"whatsapp-block__button\" href=\"https://api.whatsapp.com/send?phone=612678888&amp;text=My%20Message\" style=\"background-color:#25D366;color:#fff\" target=\"_self\" rel=\"noopener noreferrer\">Chat on WhatsApp</a></div>\n\t"
                 ]
             }
         ],
