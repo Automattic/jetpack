@@ -1,0 +1,29 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-modules",
+	"version": "0.1.0-alpha",
+	"description": "Jetpack Modules shared code",
+	"homepage": "https://jetpack.com",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {},
+	"engines": {
+		"node": "^14.16.1",
+		"pnpm": "^6.5.0",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	},
+	"dependencies": {
+		"redux": "4.0.5",
+		"@automattic/jetpack-api": "workspace:^0.1.0"
+	},
+	"devDependencies": {
+		"jetpack-js-test-runner": "workspace:*"
+	}
+}

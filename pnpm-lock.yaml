@@ -155,6 +155,17 @@ importers:
       jetpack-js-test-runner: link:../../../tools/js-test-runner
       nyc: 15.1.0
 
+  projects/js-packages/modules:
+    specifiers:
+      '@automattic/jetpack-api': workspace:^0.1.0
+      jetpack-js-test-runner: workspace:*
+      redux: 4.0.5
+    dependencies:
+      '@automattic/jetpack-api': link:../api
+      redux: 4.0.5
+    devDependencies:
+      jetpack-js-test-runner: link:../../../tools/js-test-runner
+
   projects/js-packages/storybook:
     specifiers:
       '@automattic/jetpack-base-styles': workspace:^0.1.0-alpha
