@@ -244,6 +244,15 @@ importers:
       style-loader: 2.0.0_webpack@5.47.1
       webpack: 5.47.1
 
+  projects/js-packages/user:
+    specifiers:
+      jetpack-js-test-runner: workspace:*
+      redux: 4.0.5
+    dependencies:
+      redux: 4.0.5
+    devDependencies:
+      jetpack-js-test-runner: link:../../../tools/js-test-runner
+
   projects/packages/connection-ui:
     specifiers:
       '@automattic/calypso-build': 6.5.0
@@ -498,6 +507,7 @@ importers:
       '@automattic/jetpack-api': workspace:^0.1.0
       '@automattic/jetpack-components': workspace:^0.2.2-alpha
       '@automattic/jetpack-connection': workspace:^0.6.0-alpha
+      '@automattic/jetpack-user': workspace:^0.1.0-alpha
       '@automattic/popup-monitor': 1.0.0
       '@automattic/request-external-access': 1.0.0
       '@automattic/social-previews': 1.1.1
@@ -640,6 +650,7 @@ importers:
       '@automattic/jetpack-api': link:../../js-packages/api
       '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
+      '@automattic/jetpack-user': link:../../js-packages/user
       '@automattic/popup-monitor': 1.0.0
       '@automattic/request-external-access': 1.0.0
       '@automattic/social-previews': 1.1.1_8ed97a88e5f0f5280c982708303ed7b8

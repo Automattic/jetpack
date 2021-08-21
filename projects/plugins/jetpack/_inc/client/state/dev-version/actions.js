@@ -14,11 +14,11 @@ import {
 	JETPACK_SITE_DATA_FETCH_RECEIVE,
 	DEV_CARD_DISPLAY,
 	DEV_CARD_HIDE,
-	MOCK_SWITCH_USER_PERMISSIONS,
 	MOCK_SWITCH_THREATS,
 	MOCK_SWITCH_REWIND_STATE,
 	MOCK_SWITCH_SCAN_STATE,
 } from 'state/action-types';
+import { MOCK_SWITCH_USER_PERMISSIONS } from '@automattic/jetpack-user/action-types';
 import restApi from '@automattic/jetpack-api';
 
 export const resetOptions = options => {
