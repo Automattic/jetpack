@@ -4,6 +4,10 @@
 	"version": "0.1.0-alpha",
 	"description": "Jetpack Initial State Package",
 	"homepage": "https://jetpack.com",
+	"exports": {
+		".": "./index.jsx",
+		"./action-types": "./src/state/action-types.js"
+	},
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/issues"
 	},

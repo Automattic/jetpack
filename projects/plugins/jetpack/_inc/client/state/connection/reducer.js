@@ -9,7 +9,6 @@ import { assign, get, includes, merge } from 'lodash';
  */
 import {
 	JETPACK_CONNECTION_STATUS_FETCH,
-	JETPACK_SET_INITIAL_STATE,
 	CONNECT_URL_FETCH,
 	CONNECT_URL_FETCH_FAIL,
 	CONNECT_URL_FETCH_SUCCESS,
@@ -29,6 +28,7 @@ import {
 	SITE_RECONNECT_FAIL,
 	SITE_RECONNECT_SUCCESS,
 } from 'state/action-types';
+import { JETPACK_SET_INITIAL_STATE } from '@automattic/jetpack-initial-state/action-types';
 import {
 	getModulesThatRequireConnection,
 	getModulesThatRequireUserConnection,

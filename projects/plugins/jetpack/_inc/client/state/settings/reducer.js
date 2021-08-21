@@ -8,7 +8,6 @@ import { assign, filter, get, includes, mapValues, merge, some } from 'lodash';
  * Internal dependencies
  */
 import {
-	JETPACK_SET_INITIAL_STATE,
 	JETPACK_SETTINGS_FETCH,
 	JETPACK_SETTINGS_FETCH_RECEIVE,
 	JETPACK_SETTINGS_FETCH_FAIL,
@@ -21,6 +20,7 @@ import {
 	JETPACK_SETTINGS_SET_UNSAVED_FLAG,
 	JETPACK_SETTINGS_CLEAR_UNSAVED_FLAG,
 } from 'state/action-types';
+import { JETPACK_SET_INITIAL_STATE } from '@automattic/jetpack-initial-state/action-types';
 
 export const items = ( state = {}, action ) => {
 	switch ( action.type ) {
