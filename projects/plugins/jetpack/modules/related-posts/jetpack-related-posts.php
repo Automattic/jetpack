@@ -221,6 +221,12 @@ class Jetpack_RelatedPosts {
 	public function test_for_shortcode( $content ) {
 		$this->_found_shortcode = has_shortcode( $content, self::SHORTCODE );
 
+		if ( $this->_found_shortcode ) {
+			// It's possible that assets may not have been enqueued already, see
+			// https://github.com/Automattic/jetpack/pull/20746.
+			$this->_enqueue_assets( true, true );
+		}
+
 		return $content;
 	}
 
@@ -1656,6 +1662,22 @@ EOT;
 	}
 
 	/**
+	 * Determines if the scripts need be enqueued.
+	 *
+	 * @return bool
+	 */
+	protected function requires_scripts() {
+		// Determine whether the client-rendered feature will be rendered and need scripts.
+		$client_rendered_feature_enabled = (
+			! ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) &&
+			! has_block( 'jetpack/related-posts' ) &&
+			! Blocks::is_fse_theme()
+		);
+
+		return ( $client_rendered_feature_enabled || $this->_found_shortcode );
+	}
+
+	/**
 	 * Enqueues assets needed to do async loading of related posts.
 	 *
 	 * @uses wp_enqueue_script, wp_enqueue_style, plugins_url
@@ -1663,7 +1685,7 @@ EOT;
 	 */
 	protected function _enqueue_assets( $script, $style ) {
 		$dependencies = is_customize_preview() ? array( 'customize-base' ) : array();
-		if ( $script ) {
+		if ( $script && $this->requires_scripts() ) {
 			wp_enqueue_script(
 				'jetpack_related-posts',
 				Assets::get_file_url_for_environment(
