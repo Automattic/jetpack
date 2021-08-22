@@ -10,7 +10,7 @@ import debounce from 'lodash/debounce';
 /**
  * Internal dependencies
  */
-import { OVERLAY_CLASS_NAME } from '../lib/constants';
+import { OVERLAY_CLASS_NAME, WP_ADMIN_BAR_ID } from '../lib/constants';
 
 // This component is used primarily to bind DOM event handlers to elements outside of the Jetpack Search overlay.
 export default class DomEventHandler extends Component {
@@ -23,6 +23,7 @@ export default class DomEventHandler extends Component {
 			// (CJK = Chinese, Japanese, Korean; see https://en.wikipedia.org/wiki/CJK_characters)
 			isComposing: false,
 		};
+		this.top = 0;
 		this.props.initializeQueryValues();
 	}
 
@@ -70,7 +71,7 @@ export default class DomEventHandler extends Component {
 		} );
 
 		document.querySelectorAll( `.${ OVERLAY_CLASS_NAME }` ).forEach( element => {
-			element.addEventListener( 'transitionend', this.scrollOverlayToTop );
+			element.addEventListener( 'transitionend', this.fixBodyScroll );
 		} );
 	}
 
@@ -94,7 +95,7 @@ export default class DomEventHandler extends Component {
 		} );
 
 		document.querySelectorAll( `.${ OVERLAY_CLASS_NAME }` ).forEach( element => {
-			element.removeEventListener( 'transitionend', this.scrollOverlayToTop );
+			element.removeEventListener( 'transitionend', this.fixBodyScroll );
 		} );
 	}
 
@@ -182,16 +183,51 @@ export default class DomEventHandler extends Component {
 		}
 	};
 
-	scrollOverlayToTop = event => {
-		// NOTE: the propertyName need to be aligned with the animation: instant-search/components/overlay.scss.
-		// We don't scroll the overlay on overlay close.
-		if ( event.propertyName !== 'opacity' || ! this.props.isVisible ) {
+	fixBodyScroll = event => {
+		// NOTE: the propertyName need to be aligned with the animation
+		if ( event?.propertyName !== 'opacity' ) {
 			return;
 		}
 
-		// @see https://developer.mozilla.org/en-US/docs/Web/API/Window/scrollTo
-		window?.scrollTo( 0, 0 );
+		if ( this.props.isVisible ) {
+			this.preventBodyScroll();
+			// This is to fix search input on the overlay is not visible on mobile devices.
+			// @see https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollTo
+			window?.scrollTo( 0, 0 );
+		} else {
+			this.restoreBodyScroll();
+		}
 	};
+
+	preventBodyScroll() {
+		this.top = parseInt( window.scrollY ) || 0;
+		// Keep body at the same position when overlay is open.
+		document.body.style.top = `-${ this.top - this.getWpAdminBarComputedHeight() }px`;
+		// Make body in the center.
+		document.body.style.left = 0;
+		document.body.style.right = 0;
+		// Make body not scrollable.
+		document.body.style.position = 'fixed';
+	}
+
+	restoreBodyScroll() {
+		// Restore body scroll.
+		document.body.style.top = '';
+		document.body.style.left = '';
+		document.body.style.right = '';
+		document.body.style.position = '';
+		// Restore body position.
+		window.scrollTo( 0, this.top );
+	}
+
+	getWpAdminBarComputedHeight() {
+		const $wpAdminBar = document.getElementById( WP_ADMIN_BAR_ID );
+		if ( ! $wpAdminBar ) {
+			return 0;
+		}
+		const computedStyles = window.getComputedStyle( $wpAdminBar );
+		return parseInt( computedStyles?.height ) || 0;
+	}
 
 	render() {
 		return null;
