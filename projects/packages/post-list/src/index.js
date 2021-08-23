@@ -97,14 +97,16 @@ domReady( () => {
 	if ( noticePlaceholder ) {
 		render( <Notice />, noticePlaceholder );
 	}
-	
+
 	// Starting to render UX components.
 	posts.forEach( ( { data, elements } ) => {
-
 		// <FeaturedImage /> component.
-		if ( data?.featured_image ) {
-			elements.featuredImage.classList.add( 'has-featured-image' );
-			render( <FeaturedImage { ...data.featured_image } postId={ data?.id } />, elements.featuredImage );
-		}
+		elements.featuredImage.classList.add(
+			data.featured_image.id ? 'has-featured-image' : 'no-featured-image'
+		);
+		render(
+			<FeaturedImage { ...data.featured_image } postId={ data?.id } />,
+			elements.featuredImage
+		);
 	} );
 } );
