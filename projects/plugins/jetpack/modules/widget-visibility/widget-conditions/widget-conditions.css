@@ -222,3 +222,8 @@
 .widget-vis__match-all {
 	margin-top: 16px;
 }
+
+.widget-vis__select-multi-level select option:disabled {
+    font-size: 18px;
+    font-weight: 600;
+}

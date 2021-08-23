@@ -2,13 +2,7 @@
  * WordPress dependencies
  */
 import { Fragment, useEffect, useCallback, useMemo } from '@wordpress/element';
-import {
-	BaseControl,
-	Button,
-	SelectControl,
-	ToggleControl,
-	TreeSelect,
-} from '@wordpress/components';
+import { BaseControl, Button, SelectControl, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { InspectorAdvancedControls } from '@wordpress/block-editor'; // eslint-disable-line import/no-unresolved
 import { Icon, close } from '@wordpress/icons';
@@ -27,7 +21,11 @@ const blockHasVisibilitySettings = name => {
 /*
  * We are using the same options data for legacy widgets (rendered in PHP) and
  * block widgets (rendered in React). This converts the data form for a "tree select"
- * used in php to one appropriate for gutenberg's TreeSelect component.
+ * used in php to one appropriate for gutenberg's <SelectControl> component.
+ *
+ * This is not perfect, but:
+ *   Gutenberg's <TreeSelect> doesn't allow you to make unselectable headers.
+ *   Gutenberg has no components that use optgroup.
  *
  * PHP style:
  * [
@@ -44,31 +42,36 @@ const blockHasVisibilitySettings = name => {
  * ]
  * Gutenberg style:
  * [
- * 		{
- * 			name: 'Page 1',
- * 			id: 'p1',
- * 			children: [
- * 				{ name: 'Descend 1 of page 1', id: 'p11' },
- * 				{ name: 'Descend 2 of page 1', id: 'p12' },
- * 			],
- * 		},
- * 	]
+ *    { value: "front", label: "Front page" },
+ *    { value: "posts", label: "Posts page" },
+ *    { value: "Post type:", label: "Post type:", disabled: true },
+ *    { value: "post_type-post", label: "   Post" },
+ *    { value: "post_type-page", label: "   Page" },
+ *    { value: "post_type-attachment", label: "   Media" },
+ * ]
  */
-const phpOptionsToTree = options => {
-	return options.map( ( [ item1, item2 ] ) => {
+
+const buildOptions = ( options, level = 0 ) =>
+	options.reduce( ( acc, item ) => {
+		const [ item1, item2 ] = item;
+		const prefix = '\u00A0'.repeat( level * 3 );
+
 		if ( Array.isArray( item2 ) ) {
-			return {
-				name: item1,
-				id: item1 + '__HEADER__', // These shouldn't be selectable; we'll look for this later
-				children: phpOptionsToTree( item2 ),
+			const newItem = {
+				label: prefix + item1,
+				value: item1,
+				disabled: true,
 			};
+			const childItems = buildOptions( item2, level + 1 );
+			return acc.concat( [ newItem ] ).concat( childItems );
 		}
-		return {
-			name: item2,
-			id: item1,
+
+		const newItem = {
+			label: prefix + item2,
+			value: item1,
 		};
-	} );
-};
+		return acc.concat( [ newItem ] );
+	}, [] );
 
 const VisibilityRule = props => {
 	const { rule, onDelete, setMajor, setMinor } = props;
@@ -102,9 +105,9 @@ const VisibilityRule = props => {
 		] )
 		.concat( isShowTaxonomy ? optionTaxonomy : [] );
 
-	let minorTree = [];
+	let minorOptions = [];
 	if ( rule.major in widget_conditions_data ) {
-		minorTree = phpOptionsToTree( widget_conditions_data[ rule.major ] );
+		minorOptions = buildOptions( widget_conditions_data[ rule.major ] );
 	}
 
 	return (
@@ -132,13 +135,12 @@ const VisibilityRule = props => {
 			</div>
 			<div className="widget-vis__rule-col-3">
 				{ rule.major && (
-					<TreeSelect
-						className="widget-vis__select"
+					<SelectControl
+						className="widget-vis__select-multi-level"
 						label="Minor Rule"
 						hideLabelFromVision
 						value={ rule.minor }
-						selectedId={ rule.minor }
-						tree={ minorTree }
+						options={ minorOptions }
 						onChange={ setMinor }
 					/>
 				) }
