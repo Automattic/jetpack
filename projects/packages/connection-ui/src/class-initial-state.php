@@ -45,7 +45,8 @@ class Initial_State {
 		 * Filters whether the connection manager should use the iframe authorization
 		 * flow instead of the regular redirect-based flow.
 		 *
-		 * @since 8.3.0
+		 * @since 1.0.0
+		 * @since-jetpack 8.3.0
 		 *
 		 * @param Boolean $is_iframe_flow_used should the iframe flow be used, defaults to false.
 		 */
