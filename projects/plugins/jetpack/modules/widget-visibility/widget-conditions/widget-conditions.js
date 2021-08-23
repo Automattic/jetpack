@@ -1,4 +1,4 @@
-/* global isRtl, widget_conditions_parent_pages, widget_conditions_data, jQuery */
+/* global isRtl, widget_conditions_parent_pages, widget_conditions_data */
 
 jQuery( function ( $ ) {
 	//  Gutenberg 'widgets.php' screen.
@@ -311,25 +311,3 @@ jQuery( function ( $ ) {
 		return textarea.value;
 	}
 } );
-
-function blockHasVisibilitySettings( name ) {
-	// When I put extra attributes on these blocks, they
-	// refuse to render with a message "Error loading block: Invalid parameter(s): attributes"
-	// However, most blocks don't do this. Why is this?
-	const disallowed = new Set( [ 'core/archives', 'core/latest-comments', 'core/latest-posts' ] );
-	return ! disallowed.has( name );
-}
-
-function addVisibilityAttribute( settings, name ) {
-	if ( blockHasVisibilitySettings( name ) && typeof settings.attributes !== 'undefined' ) {
-		settings.attributes = Object.assign( settings.attributes, {
-			conditions: {
-				type: 'object',
-				default: {},
-			},
-		} );
-	}
-	return settings;
-}
-
-wp.hooks.addFilter( 'blocks.registerBlockType', 'widget/visibility', addVisibilityAttribute );

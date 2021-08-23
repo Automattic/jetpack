@@ -23,6 +23,28 @@ const blockHasVisibilitySettings = name => {
 	return ! disallowed.has( name );
 };
 
+/**
+ * Adds a ".conditions" field to a block's attributes.
+ * Used to store visibility rules.
+ *
+ * @param {Object} settings - Block settings.
+ * @param {string} name - Block name.
+ * @return {Object} Modified settings.
+ */
+function addVisibilityAttribute( settings, name ) {
+	if ( blockHasVisibilitySettings( name ) && typeof settings.attributes !== 'undefined' ) {
+		settings.attributes = Object.assign( settings.attributes, {
+			conditions: {
+				type: 'object',
+				default: {},
+			},
+		} );
+	}
+	return settings;
+}
+
+wp.hooks.addFilter( 'blocks.registerBlockType', 'widget/visibility', addVisibilityAttribute );
+
 /*
  * We are using the same options data for legacy widgets (rendered in PHP) and
  * block widgets (rendered in React). This converts the data form for a "tree select"
