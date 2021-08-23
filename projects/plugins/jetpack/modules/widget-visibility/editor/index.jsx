@@ -7,7 +7,7 @@ import { __ } from '@wordpress/i18n';
 import { InspectorAdvancedControls } from '@wordpress/block-editor'; // eslint-disable-line import/no-unresolved
 import { Icon, close } from '@wordpress/icons';
 
-/* global widget_conditions_data */
+/* global widget_conditions_data, wpcom */
 /* eslint-disable react/react-in-jsx-scope */
 
 const blockHasVisibilitySettings = name => {
@@ -21,17 +21,24 @@ const blockHasVisibilitySettings = name => {
 const VisibilityRule = props => {
 	const { rule, onDelete, setMajor, setMinor } = props;
 
+	const optionsDisabledOnWpcom = [
+		{ label: __( 'User', 'jetpack' ), value: 'loggedin' },
+		{ label: __( 'Role', 'jetpack' ), value: 'role' },
+	];
+	const isWpcom = typeof wpcom !== 'undefined';
+
 	const majorOptions = [
 		{ label: __( '-- Select --', 'jetpack' ), value: '' },
 		{ label: __( 'Category', 'jetpack' ), value: 'category' },
 		{ label: __( 'Author', 'jetpack' ), value: 'author' },
-		{ label: __( 'User', 'jetpack' ), value: 'loggedin' }, // TURN OFF FOR WPCOM
-		{ label: __( 'Role', 'jetpack' ), value: 'role' }, // TURN OFF FOR WPCOM
-		{ label: __( 'Tag', 'jetpack' ), value: 'tag' },
-		{ label: __( 'Date', 'jetpack' ), value: 'date' },
-		{ label: __( 'Page', 'jetpack' ), value: 'page' },
-		{ label: __( 'Taxonomy', 'jetpack' ), value: 'taxonomy' }, // ONLY IF A NON-DEFAULT TAXON IS FOUND
-	];
+	]
+		.concat( isWpcom ? [] : optionsDisabledOnWpcom )
+		.concat( [
+			{ label: __( 'Tag', 'jetpack' ), value: 'tag' },
+			{ label: __( 'Date', 'jetpack' ), value: 'date' },
+			{ label: __( 'Page', 'jetpack' ), value: 'page' },
+			{ label: __( 'Taxonomy', 'jetpack' ), value: 'taxonomy' }, // ONLY IF A NON-DEFAULT TAXON IS FOUND
+		] );
 
 	let minorOptions = [];
 	if ( rule.major in widget_conditions_data ) {
