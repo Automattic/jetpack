@@ -11,6 +11,9 @@
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
 	"scripts": {
 		"build": "pnpm run install-if-deps-outdated && pnpm run clean && pnpm run build-js",
 		"build-js": "calypso-build && cp ./node_modules/intersection-observer/intersection-observer.js ./dist/intersection-observer.src.js",
@@ -25,6 +28,8 @@
 		"intersection-observer": "^0.12.0"
 	},
 	"devDependencies": {
+		"@wordpress/browserslist-config": "4.1.0",
+		"babel-loader": "8.2.2",
 		"@automattic/calypso-build": "9.0.0",
 		"eslint": "7.31.0",
 		"webpack": "5.51.1"
