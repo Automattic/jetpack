@@ -112,11 +112,11 @@ const ConnectScreen = props => {
 				</div>
 			</div>
 
-			{ showImageSlider && (
+			{ showImageSlider ? (
 				<div className="jp-connect-screen--right">
 					<ImageSlider images={ images } assetBaseUrl={ assetBaseUrl } />
 				</div>
-			) }
+			) : null }
 
 			<div className="jp-connect-screen--clearfix"></div>
 		</div>
@@ -139,6 +139,7 @@ ConnectScreen.propTypes = {
 ConnectScreen.defaultProps = {
 	title: __( 'Over 5 million WordPress sites are faster and more secure', 'jetpack' ),
 	images: [],
+	redirectUri: null,
 };
 
 export default ConnectScreen;

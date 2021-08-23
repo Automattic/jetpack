@@ -131,6 +131,7 @@ ConnectButton.propTypes = {
 
 ConnectButton.defaultProps = {
 	connectLabel: __( 'Connect', 'jetpack' ),
+	redirectUri: null,
 };
 
 export default ConnectButton;

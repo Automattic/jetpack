@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { withRouter, Prompt } from 'react-router-dom';
 import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ConnectScreen } from '@automattic/jetpack-connection';
 
 /**
  * Internal dependencies
@@ -29,6 +30,7 @@ import {
 	getSiteAdminUrl,
 	getApiNonce,
 	getApiRootUrl,
+	getRegistrationNonce,
 	userCanManageModules,
 	userCanConnectSite,
 	getCurrentVersion,
@@ -188,7 +190,13 @@ class Main extends React.Component {
 		}
 
 		if ( false === this.props.siteConnectionStatus && this.props.userCanConnectSite ) {
-			return <div className="jp-jetpack-connect__container" aria-live="assertive" />;
+			return (
+				<ConnectScreen
+					apiNonce={ this.props.apiNonce }
+					registrationNonce={ this.props.registrationNonce }
+					apiRoot={ this.props.apiRoot }
+				/>
+			);
 		}
 
 		const settingsNav = (
@@ -378,6 +386,7 @@ export default connect(
 			searchTerm: getSearchTerm( state ),
 			apiRoot: getApiRootUrl( state ),
 			apiNonce: getApiNonce( state ),
+			registrationNonce: getRegistrationNonce( state ),
 			tracksUserData: getTracksUserData( state ),
 			areThereUnsavedSettings: areThereUnsavedSettings( state ),
 			userCanManageModules: userCanManageModules( state ),
