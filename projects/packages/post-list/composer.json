@@ -3,7 +3,9 @@
 	"description": "PostList",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
-	"require": {},
+	"require": {
+		"automattic/jetpack-assets": "^1.11"
+	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "^1.2"
 	},
