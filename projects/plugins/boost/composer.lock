@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/a8c-mc-stats",
-                "reference": "c922996fa6d50ef7288e3022c1531f20869aea86"
+                "reference": "2203c4b59b0732ee7d0e41480d4d6e6008376707"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^1.2",
@@ -36,7 +36,6 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
@@ -44,6 +43,7 @@
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
+                    "@composer update",
                     "@composer phpunit"
                 ]
             },
@@ -62,7 +62,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "bd0e49700afef81db5bd04e9c0948956e1d89262"
+                "reference": "f1dbc487e4df76ac3c8138a140d950812eb97be6"
             },
             "require": {
                 "automattic/jetpack-constants": "^1.6"
@@ -90,7 +90,6 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
@@ -98,6 +97,7 @@
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
+                    "@composer update",
                     "@composer phpunit"
                 ]
             },
@@ -116,7 +116,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "95ff0278a5308e68e73dd68d1af98251fbbdbb4e"
+                "reference": "28a4dca955d9c30498b1eb0430693e63f46d743e"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0"
@@ -147,7 +147,6 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
@@ -156,6 +155,7 @@
                     "php ./tests/php/bin/test-coverage.php \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
+                    "@composer update",
                     "@composer phpunit"
                 ]
             },
@@ -210,7 +210,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "be4296dc62f27520d9b2443114c4b60605f73829"
+                "reference": "f7bcabe9f8c44ab12fa20f8edfc487eaa5c5f654"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -254,7 +254,6 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "post-update-cmd": [
@@ -265,6 +264,7 @@
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
+                    "@composer update",
                     "@composer phpunit"
                 ]
             },
@@ -283,7 +283,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/constants",
-                "reference": "4af9f14f6a08c81318d4067b891ef610f343b963"
+                "reference": "d557b1a9f813d0a4038365310a67378beffd3c80"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^1.2",
@@ -308,7 +308,6 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
@@ -316,6 +315,7 @@
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
+                    "@composer update",
                     "@composer phpunit"
                 ]
             },
@@ -334,7 +334,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/device-detection",
-                "reference": "68a5cff39e5295fecbc20d36812364fa38b9771c"
+                "reference": "26aa025d3b6c56c7ba07b6ecfe5505fc3adfea80"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^1.2",
@@ -358,7 +358,6 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
@@ -366,6 +365,7 @@
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
+                    "@composer update",
                     "@composer phpunit"
                 ]
             },
@@ -424,7 +424,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/lazy-images",
-                "reference": "949b657ccbf0f096060d9e162374b6320579ee7f"
+                "reference": "ac9f5eb743889ae6b5aca8f9d916c512757e1bc4"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.11",
@@ -461,7 +461,6 @@
                     "pnpm run build"
                 ],
                 "phpunit": [
-                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "post-update-cmd": [
@@ -472,6 +471,7 @@
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
+                    "@composer update",
                     "@composer phpunit"
                 ]
             },
@@ -530,7 +530,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/redirect",
-                "reference": "d938cb5a235ca9ec3033ef813e707150e734b012"
+                "reference": "849227e5f0115f29cc59073983cf0b7e46f33788"
             },
             "require": {
                 "automattic/jetpack-status": "^1.8"
@@ -558,7 +558,6 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
@@ -566,6 +565,7 @@
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
+                    "@composer update",
                     "@composer phpunit"
                 ]
             },
@@ -584,7 +584,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/roles",
-                "reference": "bde868c2636fca7fca76b29a7df23fcd437481fc"
+                "reference": "08423b5dc902c265a6b0da4288fdd4493ac1f9e1"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^1.2",
@@ -609,7 +609,6 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
@@ -617,6 +616,7 @@
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
+                    "@composer update",
                     "@composer phpunit"
                 ]
             },
@@ -635,7 +635,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "4a1ba2a67535fb016333d45dd16acdd6727fc99f"
+                "reference": "cf84cb69cf2d67b765e9bc26c86f17814216ecc0"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^1.2",
@@ -660,7 +660,6 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
@@ -668,6 +667,7 @@
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
+                    "@composer update",
                     "@composer phpunit"
                 ]
             },
@@ -686,7 +686,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/terms-of-service",
-                "reference": "59f0b86b1266b57bf1265ec53034ff4f68cca285"
+                "reference": "f8ac1e09874a8304fa469d2c5c8ae9be05929219"
             },
             "require": {
                 "automattic/jetpack-options": "^1.13",
@@ -715,7 +715,6 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
@@ -723,6 +722,7 @@
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
+                    "@composer update",
                     "@composer phpunit"
                 ]
             },
@@ -741,7 +741,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/tracking",
-                "reference": "4b86a2dbf128dff3f57cbbeb210d916a09ccdf61"
+                "reference": "b2fe4e37fa420dbb33db86b946e96bc192dd8713"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.11",
@@ -772,7 +772,6 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
@@ -780,6 +779,7 @@
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
+                    "@composer update",
                     "@composer phpunit"
                 ]
             },
@@ -900,7 +900,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "53fd89e7f369d1cb46106845aa91bac842cd70f9"
+                "reference": "ea064ef2d9428299d6dbdc8d14e15c4a5f87242d"
             },
             "require": {
                 "php": ">=5.6",
@@ -943,7 +943,6 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
@@ -951,6 +950,7 @@
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
+                    "@composer update",
                     "@composer phpunit"
                 ]
             },

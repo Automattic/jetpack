@@ -147,7 +147,9 @@ module.exports = [
 		resolve: {
 			...extensionsWebpackConfig.resolve,
 			// We want the compiled version, not the "calypso:src" sources.
-			mainFields: undefined,
+			mainFields: extensionsWebpackConfig.resolve.mainFields.filter(
+				entry => 'calypso:src' !== entry
+			),
 		},
 		plugins: [
 			...extensionsWebpackConfig.plugins,
@@ -165,7 +167,9 @@ module.exports = [
 		resolve: {
 			...componentsWebpackConfig.resolve,
 			// We want the compiled version, not the "calypso:src" sources.
-			mainFields: undefined,
+			mainFields: componentsWebpackConfig.resolve.mainFields.filter(
+				entry => 'calypso:src' !== entry
+			),
 		},
 		plugins: [
 			...componentsWebpackConfig.plugins,

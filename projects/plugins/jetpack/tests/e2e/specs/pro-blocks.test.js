@@ -13,6 +13,7 @@ import { Plans } from '../lib/env/types';
  * @group pro-blocks
  * @group blocks
  * @group gutenberg
+ * @group atomic
  */
 describe( 'Paid blocks', () => {
 	let blockEditor;
@@ -59,8 +60,6 @@ describe( 'Paid blocks', () => {
 		let blockId;
 
 		await testStep( 'Add a Pay with PayPal block', async () => {
-			await blockEditor.waitForAvailableBlock( SimplePaymentBlock.name() );
-
 			blockId = await blockEditor.insertBlock(
 				SimplePaymentBlock.name(),
 				SimplePaymentBlock.title()
@@ -75,7 +74,7 @@ describe( 'Paid blocks', () => {
 		await testStep(
 			'Publish a post and assert that Pay with PayPal block is rendered',
 			async () => {
-				await blockEditor.selectPostTitle();
+				await blockEditor.setTitle( 'Pay with PayPal block' );
 				await blockEditor.publishPost();
 				await blockEditor.viewPost();
 				const frontend = await PostFrontendPage.init( page );
