@@ -19,7 +19,7 @@ class Jetpack_PostImages {
 	 * @deprecated use Automattic\Jetpack\Post_Images::from_slideshow
 	 */
 	static function from_slideshow( $post_id, $width = 200, $height = 200 ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.7.0', 'Automattic\Jetpack\Post_Images::from_slideshow' );
+		_deprecated_function( __METHOD__, 'jetpack-10.1.0', 'Automattic\Jetpack\Post_Images::from_slideshow' );
 
 		$images = array();
 
@@ -103,7 +103,7 @@ class Jetpack_PostImages {
 	 * @deprecated use Automattic\Jetpack\Post_Images::from_gallery
 	 */
 	static function from_gallery( $post_id ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.7.0', 'Automattic\Jetpack\Post_Images::from_gallery' );
+		_deprecated_function( __METHOD__, 'jetpack-10.1.0', 'Automattic\Jetpack\Post_Images::from_gallery' );
 		$images = array();
 
 		$post = get_post( $post_id );
@@ -179,7 +179,7 @@ class Jetpack_PostImages {
 	 * @deprecated use Automattic\Jetpack\Post_Images::from_attachment
 	 */
 	static function from_attachment( $post_id, $width = 200, $height = 200 ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.7.0', 'Automattic\Jetpack\Post_Images::from_attachment' );
+		_deprecated_function( __METHOD__, 'jetpack-10.1.0', 'Automattic\Jetpack\Post_Images::from_attachment' );
 
 		$images = array();
 
@@ -250,7 +250,7 @@ class Jetpack_PostImages {
 	 * @return array containing details of the Featured Image, or empty array if none.
 	 */
 	static function from_thumbnail( $post_id, $width = 200, $height = 200 ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.7.0', 'Automattic\Jetpack\Post_Images::from_thumbnail' );
+		_deprecated_function( __METHOD__, 'jetpack-10.1.0', 'Automattic\Jetpack\Post_Images::from_thumbnail' );
 
 		$images = array();
 
@@ -350,7 +350,7 @@ class Jetpack_PostImages {
 	 * @param int   $height     Minimum Image height.
 	 */
 	public static function from_blocks( $html_or_id, $width = 200, $height = 200 ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.7.0', 'Automattic\Jetpack\Post_Images::from_blocks' );
+		_deprecated_function( __METHOD__, 'jetpack-10.1.0', 'Automattic\Jetpack\Post_Images::from_blocks' );
 
 		$images = array();
 
@@ -410,7 +410,7 @@ class Jetpack_PostImages {
 	 * @return array containing images
 	 */
 	static function from_html( $html_or_id, $width = 200, $height = 200 ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.7.0', 'Automattic\Jetpack\Post_Images::from_html' );
+		_deprecated_function( __METHOD__, 'jetpack-10.1.0', 'Automattic\Jetpack\Post_Images::from_html' );
 
 		$images = array();
 
@@ -503,7 +503,7 @@ class Jetpack_PostImages {
 	 * @return array containing details of the image, or empty array if none.
 	 */
 	static function from_blavatar( $post_id, $size = 96 ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.7.0', 'Automattic\Jetpack\Post_Images::from_blavatar' );
+		_deprecated_function( __METHOD__, 'jetpack-10.1.0', 'Automattic\Jetpack\Post_Images::from_blavatar' );
 
 		$permalink = get_permalink( $post_id );
 
@@ -546,7 +546,7 @@ class Jetpack_PostImages {
 	 * @return array containing details of the image, or empty array if none.
 	 */
 	static function from_gravatar( $post_id, $size = 96, $default = false ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.7.0', 'Automattic\Jetpack\Post_Images::from_gravatar' );
+		_deprecated_function( __METHOD__, 'jetpack-10.1.0', 'Automattic\Jetpack\Post_Images::from_gravatar' );
 
 		$post      = get_post( $post_id );
 		$permalink = get_permalink( $post_id );
@@ -590,7 +590,7 @@ class Jetpack_PostImages {
 	 * @return array containing details of the best image to be used
 	 */
 	static function get_image( $post_id, $args = array() ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.7.0', 'Automattic\Jetpack\Post_Images::get_image' );
+		_deprecated_function( __METHOD__, 'jetpack-10.1.0', 'Automattic\Jetpack\Post_Images::get_image' );
 
 		$image = '';
 
@@ -636,7 +636,7 @@ class Jetpack_PostImages {
 	 * @return array containing images that would be good for representing this post
 	 */
 	static function get_images( $post_id, $args = array() ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.7.0', 'Automattic\Jetpack\Post_Images::get_images' );
+		_deprecated_function( __METHOD__, 'jetpack-10.1.0', 'Automattic\Jetpack\Post_Images::get_images' );
 
 		// Figure out which image to attach to this post.
 		$media = false;
@@ -734,7 +734,7 @@ class Jetpack_PostImages {
 	 * @return string            Transformed image URL
 	 */
 	static function fit_image_url( $src, $width, $height ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.7.0', 'Automattic\Jetpack\Post_Images::fit_image_url' );
+		_deprecated_function( __METHOD__, 'jetpack-10.1.0', 'Automattic\Jetpack\Post_Images::fit_image_url' );
 
 		$width  = (int) $width;
 		$height = (int) $height;
@@ -793,7 +793,7 @@ class Jetpack_PostImages {
 	 * }
 	 */
 	static function get_post_html( $html_or_id ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.7.0', 'Automattic\Jetpack\Post_Images::get_post_html' );
+		_deprecated_function( __METHOD__, 'jetpack-10.1.0', 'Automattic\Jetpack\Post_Images::get_post_html' );
 
 		if ( is_numeric( $html_or_id ) ) {
 			$post = get_post( $html_or_id );
@@ -828,7 +828,7 @@ class Jetpack_PostImages {
 	 * @return array|bool           Image data or false if unavailable.
 	 */
 	public static function get_attachment_data( $attachment_id, $post_url, $width, $height ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.7.0', 'Automattic\Jetpack\Post_Images::get_attachment_data' );
+		_deprecated_function( __METHOD__, 'jetpack-10.1.0', 'Automattic\Jetpack\Post_Images::get_attachment_data' );
 
 		if ( empty( $attachment_id ) ) {
 			return false;
@@ -889,7 +889,7 @@ class Jetpack_PostImages {
 	 * @return string The alt text value or an emptry string.
 	 */
 	public static function get_alt_text( $attachment_id ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.7.0', 'Automattic\Jetpack\Post_Images::get_alt_text' );
+		_deprecated_function( __METHOD__, 'jetpack-10.1.0', 'Automattic\Jetpack\Post_Images::get_alt_text' );
 
 		return get_post_meta( $attachment_id, '_wp_attachment_image_alt', true );
 	}
@@ -909,7 +909,7 @@ class Jetpack_PostImages {
 	 * @return array Array of images found.
 	 */
 	private static function get_images_from_block( $images, $block, $html_info, $width, $height ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.7.0', 'Automattic\Jetpack\Post_Images::get_images_from_block' );
+		_deprecated_function( __METHOD__, 'jetpack-10.1.0', 'Automattic\Jetpack\Post_Images::get_images_from_block' );
 
 		/**
 		 * Parse content from Core Image blocks.
@@ -966,7 +966,7 @@ class Jetpack_PostImages {
 	 * @return bool
 	 */
 	private static function is_nested_block( $block ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.7.0', 'Automattic\Jetpack\Post_Images::is_nested_block' );
+		_deprecated_function( __METHOD__, 'jetpack-10.1.0', 'Automattic\Jetpack\Post_Images::is_nested_block' );
 
 		if ( ! empty( $block['innerBlocks'] ) ) {
 			return true;
