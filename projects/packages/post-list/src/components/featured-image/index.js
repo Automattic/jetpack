@@ -1,15 +1,7 @@
-
-export default function FeaturedImage( { url, id, thumb } ) {
+export default function FeaturedImage( { url, thumb } ) {
 	if ( ! url ) {
 		return null;
 	}
 
-	return (
-		<img
-			className="post-featured-image"
-			src={ thumb }
-			width="50px"
-			height="50px"
-		/>
-	);
+	return <img className="post-featured-image" src={ thumb } width="50px" height="50px" />;
 }
