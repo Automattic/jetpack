@@ -165,7 +165,7 @@
 }
 
 .widget-vis__rule {
-	background-color: #f0f0f0;
+	background-color: #eaeaea;
 }
 
 .widget-vis__rule:last-of-type {
@@ -204,7 +204,9 @@
 	margin: 0;
 }
 .widget-vis__and-or {
+	font-size: 11px;
 	text-align: center;
+	text-transform: uppercase;
 	margin: 6px 0;
 }
 
