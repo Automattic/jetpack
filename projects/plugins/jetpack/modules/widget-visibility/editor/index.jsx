@@ -20,6 +20,7 @@ const blockHasVisibilitySettings = name => {
 		'core/latest-comments',
 		'core/latest-posts',
 		'core/legacy-widget', // These already have legacy visibility settings, avoid 2 levels of controls
+		'core/widget-area',
 	] );
 	return ! disallowed.has( name );
 };
@@ -195,7 +196,10 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 
 		// Initialize props.conditions if none is sent.
 		useEffect( () => {
-			if ( ! ( 'action' in conditions ) || ! ( 'match_all' in conditions ) ) {
+			if (
+				blockHasVisibilitySettings( props.name ) &&
+				( ! ( 'action' in conditions ) || ! ( 'match_all' in conditions ) )
+			) {
 				setAttributes( {
 					conditions: {
 						action: 'show',
@@ -204,7 +208,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 					},
 				} );
 			}
-		}, [ conditions, setAttributes ] );
+		}, [ conditions, setAttributes, props.name ] );
 
 		const toggleMatchAll = useCallback(
 			() =>
