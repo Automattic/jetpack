@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { Fragment, useEffect, useCallback, useMemo } from '@wordpress/element';
-import { Button, SelectControl, ToggleControl } from '@wordpress/components';
+import { Button, SelectControl, ToggleControl, BaseControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { InspectorAdvancedControls } from '@wordpress/block-editor'; // eslint-disable-line import/no-unresolved
 import { Icon, close } from '@wordpress/icons';
@@ -221,20 +221,19 @@ const visibilityAdvancedControls = wp.compose.createHigherOrderComponent( BlockE
 		let mainRender = null;
 		if ( rules.length === 0 ) {
 			mainRender = (
-				<Fragment>
-					<div>{ __( 'Visibility Settings' ) }</div>
-					<div className="widget-vis__no-rules">
-						{ __( 'No visibility rules yet. Add at least one rule to use this feature.' ) }
-					</div>
-					<Button isSecondary onClick={ addNewRule }>
-						{ __( 'Add New Rule' ) }
+				<BaseControl
+					id="widget-vis__wrapper"
+					label={ __( 'Visibility Settings' ) }
+					help={ __( 'No visibility rules yet. Add at least one rule to use this feature.' ) }
+				>
+					<Button isSecondary onClick={ addNewRule } isSmall>
+						{ __( 'Add new rule' ) }
 					</Button>
-				</Fragment>
+				</BaseControl>
 			);
 		} else {
 			mainRender = (
-				<Fragment>
-					<div>{ __( 'Visibility Settings' ) }</div>
+				<BaseControl id="widget-vis__wrapper" label={ __( 'Visibility Settings' ) }>
 					<SelectControl
 						label="Action"
 						hideLabelFromVision
@@ -270,10 +269,10 @@ const visibilityAdvancedControls = wp.compose.createHigherOrderComponent( BlockE
 							onChange={ toggleMatchAll }
 						/>
 					) }
-					<Button isSecondary onClick={ addNewRule }>
-						{ __( 'Add New Rule' ) }
+					<Button isSecondary onClick={ addNewRule } isSmall>
+						{ __( 'Add new rule' ) }
 					</Button>
-				</Fragment>
+				</BaseControl>
 			);
 		}
 
