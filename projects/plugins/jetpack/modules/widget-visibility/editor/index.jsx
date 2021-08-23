@@ -187,8 +187,8 @@ const RuleSep = props => {
 	return <div className="widget-vis__and-or">{ __( 'or', 'jetpack' ) }</div>;
 };
 
-const visibilityAdvancedControls = createHigherOrderComponent( BlockEdit => {
-	return props => {
+const visibilityAdvancedControls = createHigherOrderComponent(
+	BlockEdit => props => {
 		const { attributes, setAttributes, isSelected } = props;
 		const conditions = useMemo( () => attributes.conditions || {}, [ attributes ] );
 		const rules = useMemo( () => conditions.rules || [], [ conditions ] );
@@ -374,7 +374,8 @@ const visibilityAdvancedControls = createHigherOrderComponent( BlockEdit => {
 				) }
 			</Fragment>
 		);
-	};
-}, 'visibilityAdvancedControls' );
+	},
+	'visibilityAdvancedControls'
+);
 
 wp.hooks.addFilter( 'editor.BlockEdit', 'widget/visibility', visibilityAdvancedControls );
