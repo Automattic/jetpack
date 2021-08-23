@@ -17,6 +17,7 @@ import CustomizerEventHandler from './customizer-event-handler';
 import DomEventHandler from './dom-event-handler';
 import Overlay from './overlay';
 import SearchResults from './search-results';
+import { translate } from '../lib/i18n';
 import {
 	disableAnalytics,
 	identifySite,

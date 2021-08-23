@@ -19,6 +19,7 @@ import { SERVER_OBJECT_NAME } from './lib/constants';
 import { buildFilterAggregations } from './lib/api';
 import { isInCustomizer } from './lib/customize';
 import store from './store';
+import { translate } from './lib/i18n';
 
 const injectSearchApp = () => {
 	render(

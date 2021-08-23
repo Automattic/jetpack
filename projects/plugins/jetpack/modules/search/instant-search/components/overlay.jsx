@@ -1,13 +1,13 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
 import React, { useEffect } from 'react';
 
 /**
  * Internal dependencies
  */
 import { OVERLAY_CLASS_NAME } from '../lib/constants';
+import { translate } from '../lib/i18n';
 import './overlay.scss';
 
 const callOnEscapeKey = callback => event => {
