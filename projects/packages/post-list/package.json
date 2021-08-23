@@ -9,8 +9,8 @@
 	"scripts": {
 		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
 		"build-all": "pnpm run install-if-deps-outdated && pnpm run clean && pnpm run build",
-		"build": "wp-scripts build src/index.js",
-		"start": "wp-scripts start src/index.js",
+		"build": "wp-scripts build",
+		"start": "wp-scripts start",
 		"clean": "rm -rf build/",
 		"lint:css": "wp-scripts lint-style",
 		"lint:js": "wp-scripts lint-js",
@@ -28,7 +28,7 @@
 	},
 	"devDependencies": {
 		"@wordpress/eslint-plugin": "9.1.0",
-		"@wordpress/scripts": "17.1.0",
+		"@wordpress/scripts": "18.0.0",
 		"@babel/runtime": "7.14.0"
 	},
 	"engines": {
