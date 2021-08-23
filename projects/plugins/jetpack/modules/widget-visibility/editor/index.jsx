@@ -128,7 +128,7 @@ const VisibilityRule = props => {
 				</div>
 			</div>
 			<div className="widget-vis__rule-col-2">
-				<p className="widget-vis__is">is</p>
+				<p className="widget-vis__is">{ __( 'is', 'jetpack' ) }</p>
 			</div>
 			<div className="widget-vis__rule-col-3">
 				{ rule.major && (
@@ -149,9 +149,9 @@ const VisibilityRule = props => {
 const RuleSep = props => {
 	const { isAnd } = props;
 	if ( isAnd ) {
-		return <div className="widget-vis__and">and</div>;
+		return <div className="widget-vis__and-or">{ __( 'and', 'jetpack' ) }</div>;
 	}
-	return <div className="widget-vis__or">or</div>;
+	return <div className="widget-vis__and-or">{ __( 'or', 'jetpack' ) }</div>;
 };
 
 const visibilityAdvancedControls = wp.compose.createHigherOrderComponent( BlockEdit => {
@@ -270,24 +270,33 @@ const visibilityAdvancedControls = wp.compose.createHigherOrderComponent( BlockE
 			mainRender = (
 				<BaseControl
 					id="widget-vis__wrapper"
-					label={ __( 'Visibility Settings' ) }
-					help={ __( 'No visibility rules yet. Add at least one rule to use this feature.' ) }
+					className="widget-vis__wrapper"
+					label={ __( 'Visibility Settings', 'jetpack' ) }
+					help={ __(
+						'No visibility rules yet. Add at least one rule to use this feature.',
+						'jetpack'
+					) }
 				>
-					<Button isSecondary onClick={ addNewRule } isSmall>
-						{ __( 'Add new rule' ) }
+					<Button isSecondary onClick={ addNewRule } className="widget-vis__add-new-rule">
+						{ __( 'Add new rule', 'jetpack' ) }
 					</Button>
 				</BaseControl>
 			);
 		} else {
 			mainRender = (
-				<BaseControl id="widget-vis__wrapper" label={ __( 'Visibility Settings' ) }>
+				<BaseControl
+					className="widget-vis__wrapper"
+					id="widget-vis__wrapper"
+					label={ __( 'Visibility Settings', 'jetpack' ) }
+				>
 					<SelectControl
+						className="widget-vis__show-hide"
 						label="Action"
 						hideLabelFromVision
 						value={ attributes.action }
 						options={ [
-							{ label: __( 'Show', 'jetpack' ), value: 'show' },
-							{ label: __( 'Hide', 'jetpack' ), value: 'hide' },
+							{ label: __( 'Show this widget if:', 'jetpack' ), value: 'show' },
+							{ label: __( 'Hide this widget if:', 'jetpack' ), value: 'hide' },
 						] }
 						onChange={ setAction }
 					/>
@@ -311,13 +320,13 @@ const visibilityAdvancedControls = wp.compose.createHigherOrderComponent( BlockE
 						) }
 					{ rules.length > 1 && (
 						<ToggleControl
-							label={ __( 'match all', 'jetpack' ) }
+							label={ __( 'Match all rules', 'jetpack' ) }
 							checked={ conditions.match_all === '1' }
 							onChange={ toggleMatchAll }
 						/>
 					) }
-					<Button isSecondary onClick={ addNewRule } isSmall>
-						{ __( 'Add new rule' ) }
+					<Button isSecondary onClick={ addNewRule }>
+						{ __( 'Add new rule', 'jetpack' ) }
 					</Button>
 				</BaseControl>
 			);

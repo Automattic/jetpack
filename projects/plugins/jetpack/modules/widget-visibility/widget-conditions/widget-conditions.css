@@ -197,3 +197,7 @@
 .widget-vis__and-or {
     text-align: center;
 }
+
+.widget-vis__add-new-rule {
+	display: block;
+}
