@@ -164,7 +164,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 								<?php echo esc_html( $title ); ?>
 							</span>
 						</div>
-						<div class="dops-section-header__actions handle-actions hide-if-no-us">
+						<div class="dops-section-header__actions handle-actions hide-if-no-js">
 							<button type="button" id="stats_nudges_toggle" class="handlediv" aria-expanded="<?php echo esc_attr( $aria_expanded ); ?>">
 								<span class="screen-reader-text">Toggle Upsell Nudges</span>
 								<span class="toggle-indicator" aria-hidden="true"></span>
@@ -200,6 +200,13 @@ class Jetpack_Stats_Upgrade_Nudges {
 			.dops-section-header.dops-card.jp-stats-report-upgrade-header {
 				font-weight: bold;
 				box-shadow: none;
+				flex-wrap: nowrap;
+			}
+			#jp-stats-report-upgrade-wrap .dops-section-header__label-text {
+				white-space: normal;
+			}
+			#stats_nudges_toggle {
+				height: 100%;
 			}
 			.dops-banner.dops-card.is-product.jp-stats-report-upgrade-item {
 				margin-bottom: 0px;
