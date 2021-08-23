@@ -1,6 +1,2 @@
-module.exports = () => {
-	return {
-		presets: [ require.resolve( '@wordpress/babel-preset-default' ) ],
-		plugins: [],
-	};
-};
+// Uses the same babel configuration as Instant Search.
+module.exports = require( '../instant-search/babel.config' );
