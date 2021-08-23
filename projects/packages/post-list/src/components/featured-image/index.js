@@ -7,7 +7,11 @@ import { __ } from '@wordpress/i18n';
 export default function FeaturedImage( { url, thumb } ) {
 	if ( ! url ) {
 		return (
-			<Tooltip text={ __( 'No featured image set.', 'jetpack-post-list' ) } position="top">
+			<Tooltip
+				text={ __( 'No featured image set.', 'jetpack-post-list' ) }
+				position="top"
+				className="jetpack-post-list__featured-image-tooltip"
+			>
 				<div className="post-list__post-featured-image">
 					<img
 						alt="no-featured-image"
