@@ -135,14 +135,16 @@ const VisibilityRule = props => {
 			</div>
 			<div className="widget-vis__rule-col-3">
 				{ rule.major && (
-					<SelectControl
-						className="widget-vis__select-multi-level"
-						label="Minor Rule"
-						hideLabelFromVision
-						value={ rule.minor }
-						options={ minorOptions }
-						onChange={ setMinor }
-					/>
+					<div className="widget-vis__select">
+						<SelectControl
+							className="widget-vis__select-multi-level"
+							label="Minor Rule"
+							hideLabelFromVision
+							value={ rule.minor }
+							options={ minorOptions }
+							onChange={ setMinor }
+						/>
+					</div>
 				) }
 			</div>
 		</div>
