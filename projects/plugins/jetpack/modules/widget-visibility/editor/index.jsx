@@ -21,12 +21,22 @@ const blockHasVisibilitySettings = name => {
 const VisibilityRule = props => {
 	const { rule, onDelete, setMajor, setMinor } = props;
 
+	// "User" and "Role" are hidden on wpcom
 	const optionsDisabledOnWpcom = [
 		{ label: __( 'User', 'jetpack' ), value: 'loggedin' },
 		{ label: __( 'Role', 'jetpack' ), value: 'role' },
 	];
 	const isWpcom = typeof wpcom !== 'undefined';
 
+	// "Taxonomy" is shown if there is at least one taxonomy (or if the current
+	// rule is taxonomy, so they can delete an invalid rule after removing
+	// taxonomies)
+	const isShowTaxonomy =
+		( widget_conditions_data.taxonomy && widget_conditions_data.taxonomy.length > 1 ) ||
+		rule.major === 'taxonomy';
+	const optionTaxonomy = [ { label: __( 'Taxonomy', 'jetpack' ), value: 'taxonomy' } ];
+
+	// Build options, but include user/role/taxonomy as appropriate
 	const majorOptions = [
 		{ label: __( '-- Select --', 'jetpack' ), value: '' },
 		{ label: __( 'Category', 'jetpack' ), value: 'category' },
@@ -37,8 +47,8 @@ const VisibilityRule = props => {
 			{ label: __( 'Tag', 'jetpack' ), value: 'tag' },
 			{ label: __( 'Date', 'jetpack' ), value: 'date' },
 			{ label: __( 'Page', 'jetpack' ), value: 'page' },
-			{ label: __( 'Taxonomy', 'jetpack' ), value: 'taxonomy' }, // ONLY IF A NON-DEFAULT TAXON IS FOUND
-		] );
+		] )
+		.concat( isShowTaxonomy ? optionTaxonomy : [] );
 
 	let minorOptions = [];
 	if ( rule.major in widget_conditions_data ) {
