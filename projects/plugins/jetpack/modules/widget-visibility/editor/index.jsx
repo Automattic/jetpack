@@ -116,7 +116,7 @@ const VisibilityRule = props => {
 							<Icon icon={ close } size={ 14 } />
 						</Button>
 					</div>
-					<div>
+					<div className="widget-vis__select">
 						<SelectControl
 							label="Major Rule"
 							hideLabelFromVision
@@ -133,6 +133,7 @@ const VisibilityRule = props => {
 			<div className="widget-vis__rule-col-3">
 				{ rule.major && (
 					<TreeSelect
+						className="widget-vis__select"
 						label="Minor Rule"
 						hideLabelFromVision
 						value={ rule.minor }
@@ -320,6 +321,7 @@ const visibilityAdvancedControls = wp.compose.createHigherOrderComponent( BlockE
 						) }
 					{ rules.length > 1 && (
 						<ToggleControl
+							className="widget-vis__match-all"
 							label={ __( 'Match all rules', 'jetpack' ) }
 							checked={ conditions.match_all === '1' }
 							onChange={ toggleMatchAll }

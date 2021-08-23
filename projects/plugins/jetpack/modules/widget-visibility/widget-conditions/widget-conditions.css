@@ -153,9 +153,6 @@
 /*
  * Rules for gutenberg advanced panel
  */
-/* .widget-vis__rule { */
-/*     background-color: #FFDDCC; */
-/* } */
 
 .widget-vis__rule .components-base-control {
     margin-bottom: 0px;
@@ -163,6 +160,16 @@
 
 .widget-vis__flex {
     display: flex;
+	justify-content: center;
+    align-content: center;
+}
+
+.widget-vis__rule {
+	background-color: #f0f0f0;
+}
+
+.widget-vis__rule:last-of-type {
+	margin-bottom: 16px;
 }
 
 .widget-vis__rule-col-1 {
@@ -196,8 +203,18 @@
 }
 .widget-vis__and-or {
     text-align: center;
+	margin: 6px 0;
 }
 
 .widget-vis__add-new-rule {
 	display: block;
+}
+
+.widget-vis__select .components-input-control__container {
+	position: relative;
+	top: 4px;
+}
+
+.widget-vis__match-all {
+	margin-top: 16px;
 }
