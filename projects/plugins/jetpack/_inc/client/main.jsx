@@ -36,6 +36,7 @@ import {
 	getCurrentVersion,
 	getTracksUserData,
 	showRecommendations,
+	getPluginBaseUrl,
 } from 'state/initial-state';
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
 import { getSearchTerm } from 'state/search';
@@ -195,6 +196,8 @@ class Main extends React.Component {
 					apiNonce={ this.props.apiNonce }
 					registrationNonce={ this.props.registrationNonce }
 					apiRoot={ this.props.apiRoot }
+					images={ [ '/images/connect-right.png' ] }
+					assetBaseUrl={ this.props.pluginBaseUrl }
 				/>
 			);
 		}
@@ -396,6 +399,7 @@ export default connect(
 			rewindStatus: getRewindStatus( state ),
 			currentVersion: getCurrentVersion( state ),
 			showRecommendations: showRecommendations( state ),
+			pluginBaseUrl: getPluginBaseUrl( state ),
 		};
 	},
 	dispatch => ( {
