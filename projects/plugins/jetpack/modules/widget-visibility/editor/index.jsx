@@ -112,7 +112,7 @@ const VisibilityRule = props => {
 			<div className="widget-vis__rule-col-1">
 				<div className="widget-vis__flex">
 					<div className="widget-vis__delete-rule">
-						<Button onClick={ onDelete }>
+						<Button onClick={ onDelete } label={ __( 'Delete this visibility rule', 'jetpack' ) }>
 							<Icon icon={ close } size={ 14 } />
 						</Button>
 					</div>
