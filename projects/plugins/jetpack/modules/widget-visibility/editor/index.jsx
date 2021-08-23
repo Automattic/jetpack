@@ -2,7 +2,13 @@
  * WordPress dependencies
  */
 import { Fragment, useEffect, useCallback, useMemo } from '@wordpress/element';
-import { Button, SelectControl, ToggleControl, BaseControl } from '@wordpress/components';
+import {
+	BaseControl,
+	Button,
+	SelectControl,
+	ToggleControl,
+	TreeSelect,
+} from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { InspectorAdvancedControls } from '@wordpress/block-editor'; // eslint-disable-line import/no-unresolved
 import { Icon, close } from '@wordpress/icons';
@@ -16,6 +22,52 @@ const blockHasVisibilitySettings = name => {
 	// However, most blocks don't do this. Why is this?
 	const disallowed = new Set( [ 'core/archives', 'core/latest-comments', 'core/latest-posts' ] );
 	return ! disallowed.has( name );
+};
+
+/*
+ * We are using the same options data for legacy widgets (rendered in PHP) and
+ * block widgets (rendered in React). This converts the data form for a "tree select"
+ * used in php to one appropriate for gutenberg's TreeSelect component.
+ *
+ * PHP style:
+ * [
+ *     [ "front", "Front page" ],
+ *     [ "posts", "Posts page" ],
+ *     [
+ *         "Post type:",
+ *         [
+ *             [ "post_type-post", "Post" ],
+ *             [ "post_type-page", "Page" ],
+ *             [ "post_type-attachment", "Media" ]
+ *         ]
+ *     ],
+ * ]
+ * Gutenberg style:
+ * [
+ * 		{
+ * 			name: 'Page 1',
+ * 			id: 'p1',
+ * 			children: [
+ * 				{ name: 'Descend 1 of page 1', id: 'p11' },
+ * 				{ name: 'Descend 2 of page 1', id: 'p12' },
+ * 			],
+ * 		},
+ * 	]
+ */
+const phpOptionsToTree = options => {
+	return options.map( ( [ item1, item2 ] ) => {
+		if ( Array.isArray( item2 ) ) {
+			return {
+				name: item1,
+				id: item1 + '__HEADER__', // These shouldn't be selectable; we'll look for this later
+				children: phpOptionsToTree( item2 ),
+			};
+		}
+		return {
+			name: item2,
+			id: item1,
+		};
+	} );
 };
 
 const VisibilityRule = props => {
@@ -50,29 +102,9 @@ const VisibilityRule = props => {
 		] )
 		.concat( isShowTaxonomy ? optionTaxonomy : [] );
 
-	let minorOptions = [];
+	let minorTree = [];
 	if ( rule.major in widget_conditions_data ) {
-		minorOptions = widget_conditions_data[ rule.major ].map( ( [ x, y ] ) => ( {
-			value: x,
-			label: y,
-		} ) );
-		// TODO: *Page* has nested arrays
-		// We don't handle these yet
-		// [
-		//     [ "front", "Front page" ],
-		//     [ "posts", "Posts page" ],
-		//     [ "archive", "Archive page" ],
-		//     [ "404", "404 error page" ],
-		//     [ "search", "Search results" ],
-		//     [
-		//         "Post type:",
-		//         [
-		//             [ "post_type-post", "Post" ],
-		//             [ "post_type-page", "Page" ],
-		//             [ "post_type-attachment", "Media" ]
-		//         ]
-		//     ],
-		// ]
+		minorTree = phpOptionsToTree( widget_conditions_data[ rule.major ] );
 	}
 
 	return (
@@ -100,11 +132,12 @@ const VisibilityRule = props => {
 			</div>
 			<div className="widget-vis__rule-col-3">
 				{ rule.major && (
-					<SelectControl
+					<TreeSelect
 						label="Minor Rule"
 						hideLabelFromVision
 						value={ rule.minor }
-						options={ minorOptions }
+						selectedId={ rule.minor }
+						tree={ minorTree }
 						onChange={ setMinor }
 					/>
 				) }
@@ -213,6 +246,10 @@ const visibilityAdvancedControls = wp.compose.createHigherOrderComponent( BlockE
 
 		const setMinor = useCallback(
 			( i, value ) => {
+				// Don't allow section headings to be set
+				if ( value && value.includes( '__HEADER__' ) ) {
+					return;
+				}
 				const newRules = [
 					...rules.slice( 0, i ),
 					{ ...rules[ i ], minor: value },
