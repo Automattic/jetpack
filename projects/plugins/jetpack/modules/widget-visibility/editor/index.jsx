@@ -6,6 +6,7 @@ import { BaseControl, Button, SelectControl, ToggleControl } from '@wordpress/co
 import { __ } from '@wordpress/i18n';
 import { InspectorAdvancedControls } from '@wordpress/block-editor'; // eslint-disable-line import/no-unresolved
 import { Icon, close } from '@wordpress/icons';
+import { createHigherOrderComponent } from '@wordpress/compose';
 
 /* global widget_conditions_data, wpcom */
 /* eslint-disable react/react-in-jsx-scope */
@@ -186,7 +187,7 @@ const RuleSep = props => {
 	return <div className="widget-vis__and-or">{ __( 'or', 'jetpack' ) }</div>;
 };
 
-const visibilityAdvancedControls = wp.compose.createHigherOrderComponent( BlockEdit => {
+const visibilityAdvancedControls = createHigherOrderComponent( BlockEdit => {
 	return props => {
 		const { attributes, setAttributes, isSelected } = props;
 		const conditions = useMemo( () => attributes.conditions || {}, [ attributes ] );
