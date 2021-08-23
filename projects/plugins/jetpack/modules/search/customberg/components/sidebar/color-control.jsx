@@ -3,6 +3,7 @@
  */
 import { __experimentalColorGradientControl as ColorGradientControl } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
+import { useSelect } from '@wordpress/data';
 
 /* eslint-disable react/jsx-no-bind */
 
@@ -22,13 +23,19 @@ const DEFAULT_COLORS = [
  * @returns {Element} component instance
  */
 export default function ColorControl( { disabled, value, onChange } ) {
+	const colors = useSelect( select => {
+		const settings = select( 'core/block-editor' ).getSettings() ?? {};
+		const { colors } = settings;
+		return Array.isArray( colors ) && colors.length > 0 ? colors : DEFAULT_COLORS;
+	} );
+
 	return (
 		<div className="jp-search-customize-color-input components-base-control">
 			<ColorGradientControl
 				label={ __( 'Highlight for search terms', 'jetpack' ) }
 				disabled={ disabled }
 				colorValue={ value }
-				colors={ DEFAULT_COLORS }
+				colors={ colors }
 				disableCustomColors={ false }
 				disableCustomGradients={ true }
 				onColorChange={ onChange }
