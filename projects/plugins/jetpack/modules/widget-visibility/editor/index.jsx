@@ -296,8 +296,8 @@ const visibilityAdvancedControls = wp.compose.createHigherOrderComponent( BlockE
 						hideLabelFromVision
 						value={ attributes.action }
 						options={ [
-							{ label: __( 'Show this widget if:', 'jetpack' ), value: 'show' },
-							{ label: __( 'Hide this widget if:', 'jetpack' ), value: 'hide' },
+							{ label: __( 'Show this block if:', 'jetpack' ), value: 'show' },
+							{ label: __( 'Hide this block if:', 'jetpack' ), value: 'hide' },
 						] }
 						onChange={ setAction }
 					/>
