@@ -1,6 +1,6 @@
 === Jetpack Backup ===
 Contributors: automattic, fgiannar, jwebbdev, kraftbj, samiff, sermitr,
-Tags: jetpack, stuff
+Tags: jetpack
 Requires at least: 5.7
 Requires PHP: 5.6
 Tested up to: 5.8
@@ -11,8 +11,6 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Jetpack is the most proven WordPress backup plugin with over 270 million backups. Save each change and get back online fast with one‑click restores.
 
 == Description ==
-
-## Jetpack is the most proven WordPress backup plugin with 269 million site backups over the last ten years
 
 Jetpack Backup is a new plugin that focuses specifically on Jetpack's Backup features.
 
