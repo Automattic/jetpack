@@ -223,18 +223,38 @@ async function collectAllFiles( toClean, argv ) {
 
 	// If we want to clean up a checked in composer.lock file, ls-files won't work and we have to filter the files manually.
 	if ( toClean.includes( 'composer.lock' ) && argv.project.startsWith( 'projects/plugins' ) ) {
-		let composerLockFiles = child_process.execSync(
-			`git -c core.quotepath=off ls-files projects/plugins/*/composer.lock`
+		console.log(
+			chalk.black.bgYellow(
+				' Deleting a checked-in composer.lock file is probably not what you want to do! '
+			)
 		);
-		composerLockFiles = composerLockFiles.toString().trim().split( '\n' );
+		console.log(
+			chalk.yellow(
+				`It's likely you want to use \`tools/composer-update-monorepo.sh --root-reqs ${
+					argv.project === 'projects/plugins' ? argv.project + '/[name]' : argv.project
+				}\` instead.`
+			)
+		);
+		const response = await inquirer.prompt( {
+			type: 'confirm',
+			name: 'confirm',
+			message: 'Delete checked in composer.lock files anyway?',
+			default: false,
+		} );
+		if ( response.confirm ) {
+			let composerLockFiles = child_process.execSync(
+				`git -c core.quotepath=off ls-files projects/plugins/*/composer.lock`
+			);
+			composerLockFiles = composerLockFiles.toString().trim().split( '\n' );
 
-		if ( argv.project !== 'projects/plugins' ) {
-			composerLockFiles = composerLockFiles.filter( file => {
-				return file === `${ argv.project }/composer.lock`;
-			} );
+			if ( argv.project !== 'projects/plugins' ) {
+				composerLockFiles = composerLockFiles.filter( file => {
+					return file === `${ argv.project }/composer.lock`;
+				} );
+			}
+
+			allFiles.composerLock.push( ...composerLockFiles );
 		}
-
-		allFiles.composerLock.push( ...composerLockFiles );
 	}
 
 	for ( const file of allFiles.combined ) {
