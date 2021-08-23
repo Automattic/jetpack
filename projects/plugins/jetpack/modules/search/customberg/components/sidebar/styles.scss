@@ -140,33 +140,20 @@
 	}
 }
 
+// Manually adjust incorrect styles from ColorGradientControl.
 .jp-search-customize-color-input {
-	display: flex;
-	flex-flow: wrap;
-
-	.jp-search-customize-color-input__label {
-		display: flex;
-		padding-bottom: 4px;
+	.component-color-indicator {
+		vertical-align: middle;
 	}
 
 	.components-circular-option-picker__option-wrapper {
-		margin-bottom: 0;
-
-		&:focus:after {
+		:focus:after {
 			top: -4px;
 			left: -4px;
 		}
-	}
-	.components-circular-option-picker__option:focus:after {
-		top: -4px;
-		left: -4px;
-	}
-	.components-circular-option-picker {
-		display: flex;
-		justify-content: space-between;
-	}
-	.components-circular-option-picker__custom-clear-wrapper {
-		align-self: flex-end;
+		.components-button.is-pressed:focus:not( :disabled ) {
+			box-shadow: inset 0 0 0 14px !important;
+		}
 	}
 }
 

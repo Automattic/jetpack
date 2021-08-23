@@ -1,15 +1,15 @@
 /**
  * WordPress dependencies
  */
-import { ColorIndicator, ColorPalette } from '@wordpress/components';
+import { __experimentalColorGradientControl as ColorGradientControl } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 
 /* eslint-disable react/jsx-no-bind */
 
 const DEFAULT_COLORS = [
-	{ name: 'dull blue', color: '#463ECE' },
-	{ name: 'jazzberry jam', color: '#C6446F' },
-	{ name: 'june bud', color: '#C4D455' },
+	{ name: 'Dull blue', color: '#463ECE' },
+	{ name: 'Jazzberry jam', color: '#C6446F' },
+	{ name: 'June bud', color: '#C4D455' },
 ];
 
 /**
@@ -24,18 +24,14 @@ const DEFAULT_COLORS = [
 export default function ColorControl( { disabled, value, onChange } ) {
 	return (
 		<div className="jp-search-customize-color-input components-base-control">
-			<div className="jp-search-customize-color-input__label">
-				<label htmlFor="jp-search-customize-highlight-color" title={ value }>
-					{ __( 'Highlight for search terms', 'jetpack' ) }
-				</label>{ ' ' }
-				<ColorIndicator colorValue={ value } />
-			</div>
-			<ColorPalette
-				clearable={ false }
-				colors={ DEFAULT_COLORS }
+			<ColorGradientControl
+				label={ __( 'Highlight for search terms', 'jetpack' ) }
 				disabled={ disabled }
-				value={ value }
-				onChange={ onChange }
+				colorValue={ value }
+				colors={ DEFAULT_COLORS }
+				disableCustomColors={ false }
+				disableCustomGradients={ true }
+				onColorChange={ onChange }
 			/>
 		</div>
 	);
