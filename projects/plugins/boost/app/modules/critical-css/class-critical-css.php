@@ -763,9 +763,10 @@ class Critical_CSS extends Module {
 
 		$parsed = wp_parse_url( $src );
 
-		// If no domain specified, or domain matches current, no need to proxy.
+		// Skip proxy in certain cases, i.e. if no domain specified, or domain matches current, no need to proxy.
 		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-		if ( empty( $parsed['host'] ) || $_SERVER['HTTP_HOST'] === $parsed['host'] ) {
+		$skipped_hosts = apply_filters( 'jetpack_boost_critical_css_proxy_skipped_hosts', array( '', $_SERVER['HTTP_HOST'] ) );
+		if ( in_array( $parsed['host'], $skipped_hosts, true ) ) {
 			return $src;
 		}
 
