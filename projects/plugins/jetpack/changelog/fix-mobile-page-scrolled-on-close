@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Search: fixed overlay is also scrolled to top on close
+Search: fixed body and overlay scroll position issue
