@@ -37,7 +37,7 @@ export default function ThemeControl( { disabled, value, onChange } ) {
 				variant="link"
 			>
 				<ThemeIcon theme="light" />
-				{ __( 'Light', 'jetpack' ) }
+				<span aria-label={ __( 'Light Theme', 'jetpack' ) }>{ __( 'Light', 'jetpack' ) }</span>
 			</Button>
 			<Button
 				className={ classNames( {
@@ -48,7 +48,7 @@ export default function ThemeControl( { disabled, value, onChange } ) {
 				variant="link"
 			>
 				<ThemeIcon theme="dark" />
-				{ __( 'Dark', 'jetpack' ) }
+				<span aria-label={ __( 'Dark Theme', 'jetpack' ) }>{ __( 'Dark', 'jetpack' ) }</span>
 			</Button>
 		</div>
 	);
