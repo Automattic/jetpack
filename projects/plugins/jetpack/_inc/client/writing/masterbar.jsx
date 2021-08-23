@@ -3,11 +3,11 @@
  */
 import React, { Component } from 'react';
 import { __, _x } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
-import getRedirectUrl from 'lib/jp-redirect';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
@@ -30,7 +30,7 @@ export const Masterbar = withModuleSettingsFormHelpers(
 				>
 					<SettingsGroup
 						disableInOfflineMode
-						disableInUserlessMode
+						disableInSiteConnectionMode
 						module={ { module: 'masterbar' } }
 						support={ {
 							text: __(
@@ -61,7 +61,7 @@ export const Masterbar = withModuleSettingsFormHelpers(
 						<ConnectUserBar
 							feature="masterbar"
 							featureLabel={ __( 'WordPress.com Toolbar', 'jetpack' ) }
-							text={ __( 'Sign in to enable the WordPress.com toolbar.', 'jetpack' ) }
+							text={ __( 'Connect to enable the WordPress.com toolbar.', 'jetpack' ) }
 						/>
 					) }
 				</SettingsCard>

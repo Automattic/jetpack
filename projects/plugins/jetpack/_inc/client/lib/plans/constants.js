@@ -24,16 +24,16 @@ export const PLAN_JETPACK_PERSONAL = 'jetpack_personal';
 export const PLAN_JETPACK_PREMIUM_MONTHLY = 'jetpack_premium_monthly';
 export const PLAN_JETPACK_BUSINESS_MONTHLY = 'jetpack_business_monthly';
 export const PLAN_JETPACK_PERSONAL_MONTHLY = 'jetpack_personal_monthly';
-export const PLAN_JETPACK_BACKUP_DAILY = 'jetpack_backup_daily';
-export const PLAN_JETPACK_BACKUP_DAILY_MONTHLY = 'jetpack_backup_daily_monthly';
-export const PLAN_JETPACK_BACKUP_REALTIME = 'jetpack_backup_realtime';
-export const PLAN_JETPACK_BACKUP_REALTIME_MONTHLY = 'jetpack_backup_realtime_monthly';
+export const PLAN_JETPACK_BACKUP_T1_YEARLY = 'jetpack_backup_t1_yearly';
+export const PLAN_JETPACK_BACKUP_T1_MONTHLY = 'jetpack_backup_t1_monthly';
+export const PLAN_JETPACK_BACKUP_T2_YEARLY = 'jetpack_backup_t2_yearly';
+export const PLAN_JETPACK_BACKUP_T2_MONTHLY = 'jetpack_backup_t2_monthly';
 export const PLAN_JETPACK_SEARCH = 'jetpack_search';
 export const PLAN_JETPACK_SEARCH_MONTHLY = 'jetpack_search_monthly';
-export const PLAN_JETPACK_SECURITY_DAILY = 'jetpack_security_daily';
-export const PLAN_JETPACK_SECURITY_DAILY_MONTHLY = 'jetpack_security_daily_monthly';
-export const PLAN_JETPACK_SECURITY_REALTIME = 'jetpack_security_realtime';
-export const PLAN_JETPACK_SECURITY_REALTIME_MONTHLY = 'jetpack_security_realtime_monthly';
+export const PLAN_JETPACK_SECURITY_T1_YEARLY = 'jetpack_security_t1_yearly';
+export const PLAN_JETPACK_SECURITY_T1_MONTHLY = 'jetpack_security_t1_monthly';
+export const PLAN_JETPACK_SECURITY_T2_YEARLY = 'jetpack_security_t2_yearly';
+export const PLAN_JETPACK_SECURITY_T2_MONTHLY = 'jetpack_security_t2_monthly';
 export const PLAN_JETPACK_COMPLETE = 'jetpack_complete';
 export const PLAN_JETPACK_COMPLETE_MONTHLY = 'jetpack_complete_monthly';
 export const PLAN_WPCOM_SEARCH = 'wpcom_search';
@@ -47,15 +47,31 @@ export const PLAN_WPCOM_ENTERPRISE = 'wpcom-enterprise';
 export const PLAN_VIP = 'vip';
 export const PLAN_CHARGEBACK = 'chargeback';
 
+// DEPRECATED: Daily and Real-time variations will soon be retired.
+// Remove after all customers are migrated to new products.
+export const PLAN_JETPACK_BACKUP_DAILY = 'jetpack_backup_daily';
+export const PLAN_JETPACK_BACKUP_DAILY_MONTHLY = 'jetpack_backup_daily_monthly';
+export const PLAN_JETPACK_BACKUP_REALTIME = 'jetpack_backup_realtime';
+export const PLAN_JETPACK_BACKUP_REALTIME_MONTHLY = 'jetpack_backup_realtime_monthly';
+export const PLAN_JETPACK_SECURITY_DAILY = 'jetpack_security_daily';
+export const PLAN_JETPACK_SECURITY_DAILY_MONTHLY = 'jetpack_security_daily_monthly';
+export const PLAN_JETPACK_SECURITY_REALTIME = 'jetpack_security_realtime';
+export const PLAN_JETPACK_SECURITY_REALTIME_MONTHLY = 'jetpack_security_realtime_monthly';
+
 export const POPULAR_PLANS = [ PLAN_PREMIUM ];
 export const NEW_PLANS = [ PLAN_JETPACK_PERSONAL, PLAN_JETPACK_PERSONAL_MONTHLY ];
 export const JETPACK_MONTHLY_PLANS = [
 	PLAN_JETPACK_PREMIUM_MONTHLY,
 	PLAN_JETPACK_BUSINESS_MONTHLY,
 	PLAN_JETPACK_PERSONAL_MONTHLY,
+	PLAN_JETPACK_SECURITY_T1_MONTHLY,
+	PLAN_JETPACK_SECURITY_T2_MONTHLY,
+	PLAN_JETPACK_COMPLETE_MONTHLY,
+
+	// DEPRECATED: Daily and Real-time variations will soon be retired.
+	// Remove after all customers are migrated to new products.
 	PLAN_JETPACK_SECURITY_DAILY_MONTHLY,
 	PLAN_JETPACK_SECURITY_REALTIME_MONTHLY,
-	PLAN_JETPACK_COMPLETE_MONTHLY,
 ];
 export const JETPACK_LEGACY_PLANS = [
 	PLAN_JETPACK_PREMIUM,
@@ -66,6 +82,13 @@ export const JETPACK_LEGACY_PLANS = [
 	PLAN_JETPACK_PERSONAL_MONTHLY,
 ];
 export const JETPACK_BUNDLES = [
+	PLAN_JETPACK_SECURITY_T1_YEARLY,
+	PLAN_JETPACK_SECURITY_T1_MONTHLY,
+	PLAN_JETPACK_SECURITY_T2_YEARLY,
+	PLAN_JETPACK_SECURITY_T2_MONTHLY,
+
+	// DEPRECATED: Daily and Real-time variations will soon be retired.
+	// Remove after all customers are migrated to new products.
 	PLAN_JETPACK_SECURITY_DAILY,
 	PLAN_JETPACK_SECURITY_DAILY_MONTHLY,
 	PLAN_JETPACK_SECURITY_REALTIME,
@@ -73,6 +96,13 @@ export const JETPACK_BUNDLES = [
 ];
 
 export const JETPACK_BACKUP_PRODUCTS = [
+	PLAN_JETPACK_BACKUP_T1_YEARLY,
+	PLAN_JETPACK_BACKUP_T1_MONTHLY,
+	PLAN_JETPACK_BACKUP_T2_YEARLY,
+	PLAN_JETPACK_BACKUP_T2_MONTHLY,
+
+	// DEPRECATED: Daily and Real-time variations will soon be retired.
+	// Remove after all customers are migrated to new products.
 	PLAN_JETPACK_BACKUP_DAILY,
 	PLAN_JETPACK_BACKUP_DAILY_MONTHLY,
 	PLAN_JETPACK_BACKUP_REALTIME,
@@ -100,10 +130,6 @@ export const PLAN_ANNUAL_PERIOD = 365;
 export const FEATURE_WP_SUBDOMAIN = 'wordpress-subdomain';
 export const FEATURE_CUSTOM_DOMAIN = 'custom-domain';
 export const FEATURE_JETPACK_ESSENTIAL = 'jetpack-essential';
-export const FEATURE_FREE_THEMES = 'free-themes';
-export const FEATURE_SELECT_PREMIUM_THEMES = 'select-premium-themes';
-export const FEATURE_ALL_PREMIUM_THEMES = 'all-premium-themes';
-export const FEATURE_UNLIMITED_PREMIUM_THEMES = 'premium-themes';
 export const FEATURE_3GB_STORAGE = '3gb-storage';
 export const FEATURE_6GB_STORAGE = '6gb-storage';
 export const FEATURE_13GB_STORAGE = '13gb-storage';
@@ -160,14 +186,14 @@ export const FEATURE_SEARCH_JETPACK = 'search-jetpack';
 
 // Upsells
 export const JETPACK_FEATURE_PRODUCT_UPSELL_MAP = {
-	[ FEATURE_PRIORITY_SUPPORT_JETPACK ]: PLAN_JETPACK_SECURITY_DAILY,
+	[ FEATURE_PRIORITY_SUPPORT_JETPACK ]: PLAN_JETPACK_SECURITY_T1_YEARLY,
 	[ FEATURE_SEARCH_JETPACK ]: PLAN_JETPACK_SEARCH,
 	[ FEATURE_SECURITY_SCANNING_JETPACK ]: PLAN_JETPACK_SCAN,
-	[ FEATURE_SITE_BACKUPS_JETPACK ]: PLAN_JETPACK_BACKUP_DAILY,
+	[ FEATURE_SITE_BACKUPS_JETPACK ]: PLAN_JETPACK_BACKUP_T1_YEARLY,
 	[ FEATURE_SPAM_AKISMET_PLUS ]: PLAN_JETPACK_ANTI_SPAM,
-	[ FEATURE_VIDEO_HOSTING_JETPACK ]: PLAN_JETPACK_SECURITY_DAILY,
-	[ FEATURE_WORDADS_JETPACK ]: PLAN_JETPACK_SECURITY_DAILY,
-	[ FEATURE_GOOGLE_ANALYTICS_JETPACK ]: PLAN_JETPACK_SECURITY_DAILY,
+	[ FEATURE_VIDEO_HOSTING_JETPACK ]: PLAN_JETPACK_SECURITY_T1_YEARLY,
+	[ FEATURE_WORDADS_JETPACK ]: PLAN_JETPACK_SECURITY_T1_YEARLY,
+	[ FEATURE_GOOGLE_ANALYTICS_JETPACK ]: PLAN_JETPACK_SECURITY_T1_YEARLY,
 	[ FEATURE_SPAM_AKISMET_PLUS ]: PLAN_JETPACK_ANTI_SPAM,
 };
 
@@ -247,21 +273,21 @@ export function getPlanClass( plan ) {
 		case PLAN_ECOMMERCE_2_YEARS:
 		case PLAN_ECOMMERCE_MONTHLY:
 			return 'is-business-plan';
-		case PLAN_JETPACK_SECURITY_DAILY:
-		case PLAN_JETPACK_SECURITY_DAILY_MONTHLY:
-			return 'is-daily-security-plan';
-		case PLAN_JETPACK_SECURITY_REALTIME:
-		case PLAN_JETPACK_SECURITY_REALTIME_MONTHLY:
-			return 'is-realtime-security-plan';
+		case PLAN_JETPACK_SECURITY_T1_YEARLY:
+		case PLAN_JETPACK_SECURITY_T1_MONTHLY:
+			return 'is-security-t1-plan';
+		case PLAN_JETPACK_SECURITY_T2_YEARLY:
+		case PLAN_JETPACK_SECURITY_T2_MONTHLY:
+			return 'is-security-t2-plan';
 		case PLAN_JETPACK_COMPLETE:
 		case PLAN_JETPACK_COMPLETE_MONTHLY:
 			return 'is-complete-plan';
-		case PLAN_JETPACK_BACKUP_DAILY:
-		case PLAN_JETPACK_BACKUP_DAILY_MONTHLY:
-			return 'is-daily-backup-plan';
-		case PLAN_JETPACK_BACKUP_REALTIME:
-		case PLAN_JETPACK_BACKUP_REALTIME_MONTHLY:
-			return 'is-realtime-backup-plan';
+		case PLAN_JETPACK_BACKUP_T1_YEARLY:
+		case PLAN_JETPACK_BACKUP_T1_MONTHLY:
+			return 'is-backup-t1-plan';
+		case PLAN_JETPACK_BACKUP_T2_YEARLY:
+		case PLAN_JETPACK_BACKUP_T2_MONTHLY:
+			return 'is-backup-t2-plan';
 		case PLAN_JETPACK_SEARCH:
 		case PLAN_JETPACK_SEARCH_MONTHLY:
 		case PLAN_WPCOM_SEARCH:
@@ -273,6 +299,22 @@ export function getPlanClass( plan ) {
 		case PLAN_JETPACK_ANTI_SPAM:
 		case PLAN_JETPACK_ANTI_SPAM_MONTHLY:
 			return 'is-anti-spam-plan';
+
+		// DEPRECATED: Daily and Real-time variations will soon be retired.
+		// Remove after all customers are migrated to new products.
+		case PLAN_JETPACK_SECURITY_DAILY:
+		case PLAN_JETPACK_SECURITY_DAILY_MONTHLY:
+			return 'is-daily-security-plan';
+		case PLAN_JETPACK_SECURITY_REALTIME:
+		case PLAN_JETPACK_SECURITY_REALTIME_MONTHLY:
+			return 'is-realtime-security-plan';
+		case PLAN_JETPACK_BACKUP_DAILY:
+		case PLAN_JETPACK_BACKUP_DAILY_MONTHLY:
+			return 'is-daily-backup-plan';
+		case PLAN_JETPACK_BACKUP_REALTIME:
+		case PLAN_JETPACK_BACKUP_REALTIME_MONTHLY:
+			return 'is-realtime-backup-plan';
+
 		default:
 			return '';
 	}
@@ -286,12 +328,19 @@ export function getMonthlyPlanByYearly( plan ) {
 			return PLAN_JETPACK_BUSINESS_MONTHLY;
 		case PLAN_JETPACK_PERSONAL:
 			return PLAN_JETPACK_PERSONAL_MONTHLY;
+		case PLAN_JETPACK_SECURITY_T1_YEARLY:
+			return PLAN_JETPACK_SECURITY_T1_MONTHLY;
+		case PLAN_JETPACK_SECURITY_T2_YEARLY:
+			return PLAN_JETPACK_SECURITY_T2_MONTHLY;
+		case PLAN_JETPACK_COMPLETE:
+			return PLAN_JETPACK_COMPLETE_MONTHLY;
+
+		// DEPRECATED: Daily and Real-time variations will soon be retired.
+		// Remove after all customers are migrated to new products.
 		case PLAN_JETPACK_SECURITY_DAILY:
 			return PLAN_JETPACK_SECURITY_DAILY_MONTHLY;
 		case PLAN_JETPACK_SECURITY_REALTIME:
 			return PLAN_JETPACK_SECURITY_REALTIME_MONTHLY;
-		case PLAN_JETPACK_COMPLETE:
-			return PLAN_JETPACK_COMPLETE_MONTHLY;
 		default:
 			return '';
 	}
@@ -303,6 +352,8 @@ export function getMonthlyPlanByYearly( plan ) {
  * @param {string} planClass - A plan class.
  * @returns {boolean} True if the plan class contains backup daily, false otherwise.
  */
+// DEPRECATED: Daily and Real-time variations will soon be retired.
+// Remove after all customers are migrated to new products.
 export function containsBackupDaily( planClass ) {
 	return [
 		'is-personal-plan',
@@ -321,8 +372,13 @@ export function containsBackupDaily( planClass ) {
 export function containsBackupRealtime( planClass ) {
 	return [
 		'is-business-plan',
-		'is-realtime-security-plan',
+		'is-security-t1-plan',
+		'is-security-t2-plan',
 		'is-complete-plan',
+
+		// DEPRECATED: Daily and Real-time variations will soon be retired.
+		// Remove after all customers are migrated to new products.
+		'is-realtime-security-plan',
 		'is-realtime-backup-plan',
 	].includes( planClass );
 }

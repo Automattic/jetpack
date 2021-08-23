@@ -31,7 +31,7 @@ import {
 	userCanViewStats,
 	userIsSubscriber,
 } from 'state/initial-state';
-import { isOfflineMode } from 'state/connection';
+import { isOfflineMode, hasConnectedOwner } from 'state/connection';
 import { getModuleOverride } from 'state/modules';
 import { getScanStatus, isFetchingScanStatus } from 'state/scan';
 
@@ -163,10 +163,8 @@ class AtAGlance extends Component {
 			stats = <DashStats { ...settingsProps } { ...urls } />;
 		}
 
-		let protect = '';
-		if ( this.props.getOptionValue( 'protect' ) ) {
-			protect = <DashProtect { ...settingsProps } />;
-		}
+		const protect = <DashProtect { ...settingsProps } />;
+		const showSecurity = this.props.getOptionValue( 'protect' ) && this.props.hasConnectedOwner;
 
 		return this.props.userIsSubscriber ? (
 			<div>
@@ -176,11 +174,8 @@ class AtAGlance extends Component {
 		) : (
 			<div>
 				{ stats }
-				{
-					// Site Security
-					this.props.getOptionValue( 'protect' ) && securityHeader
-				}
-				{ protect }
+				{ showSecurity && securityHeader }
+				{ showSecurity && protect }
 				{ connections }
 			</div>
 		);
@@ -197,5 +192,6 @@ export default connect( state => {
 		multisite: isMultisite( state ),
 		scanStatus: getScanStatus( state ),
 		fetchingScanStatus: isFetchingScanStatus( state ),
+		hasConnectedOwner: hasConnectedOwner( state ),
 	};
 } )( withModuleSettingsFormHelpers( AtAGlance ) );

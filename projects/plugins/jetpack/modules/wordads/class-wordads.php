@@ -583,8 +583,8 @@ class WordAds {
 				$snippet    = $this->get_dynamic_ad_snippet( $section_id, 'square', $spot );
 			} elseif ( 'top_amp' === $spot ) {
 				// Ad unit which can safely be inserted below title, above content in a variety of themes.
-				$width   = $this->params->mobile_device ? 320 : 300;
-				$height  = $this->params->mobile_device ? 50 : 250;
+				$width   = 300;
+				$height  = 250;
 				$snippet = $this->get_ad_div( $spot, $this->get_amp_snippet( $height, $width ) );
 			}
 		} elseif ( 'house' === $type ) {

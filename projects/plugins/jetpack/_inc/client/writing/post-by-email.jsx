@@ -4,6 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { __, _x } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -12,7 +13,6 @@ import analytics from 'lib/analytics';
 import Button from 'components/button';
 import ClipboardButtonInput from 'components/clipboard-button-input';
 import { FormFieldset, FormLegend, FormLabel } from 'components/forms';
-import getRedirectUrl from 'lib/jp-redirect';
 import { ModuleToggle } from 'components/module-toggle';
 import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
@@ -55,7 +55,7 @@ class PostByEmail extends React.Component {
 				<SettingsGroup
 					hasChild
 					disableInOfflineMode
-					disableInUserlessMode
+					disableInSiteConnectionMode
 					module={ postByEmail }
 					support={ {
 						text: __(
@@ -120,7 +120,7 @@ class PostByEmail extends React.Component {
 					<ConnectUserBar
 						feature="post-by-email"
 						featureLabel={ __( 'Post by Email', 'jetpack' ) }
-						text={ __( 'Sign in to enable publishing via email.', 'jetpack' ) }
+						text={ __( 'Connect to enable publishing via email.', 'jetpack' ) }
 					/>
 				) }
 			</SettingsCard>

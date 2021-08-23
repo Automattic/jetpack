@@ -11,6 +11,7 @@ import { get, isEmpty, noop } from 'lodash';
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -24,11 +25,10 @@ import {
 	getJetpackProductUpsellByFeature,
 	FEATURE_SITE_BACKUPS_JETPACK,
 } from 'lib/plans/constants';
-import getRedirectUrl from 'lib/jp-redirect';
 import { getSitePlan } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import { getVaultPressData } from 'state/at-a-glance';
-import { isOfflineMode } from 'state/connection';
+import { getConnectUrl, hasConnectedOwner, isOfflineMode } from 'state/connection';
 import { getUpgradeUrl, showBackups } from 'state/initial-state';
 
 /**
@@ -69,6 +69,8 @@ class DashBackups extends Component {
 		isOfflineMode: PropTypes.bool.isRequired,
 		isVaultPressInstalled: PropTypes.bool.isRequired,
 		upgradeUrl: PropTypes.string.isRequired,
+		connectUrl: PropTypes.string.isRequired,
+		hasConnectedOwner: PropTypes.bool.isRequired,
 	};
 
 	static defaultProps = {
@@ -142,7 +144,7 @@ class DashBackups extends Component {
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
 				status: 'no-pro-uninstalled-or-inactive',
-				overrideContent: (
+				overrideContent: this.props.hasConnectedOwner ? (
 					<JetpackBanner
 						callToAction={ __( 'Upgrade', 'jetpack' ) }
 						title={ __(
@@ -151,6 +153,19 @@ class DashBackups extends Component {
 						) }
 						disableHref="false"
 						href={ this.props.upgradeUrl }
+						eventFeature="backups"
+						path="dashboard"
+						plan={ getJetpackProductUpsellByFeature( FEATURE_SITE_BACKUPS_JETPACK ) }
+					/>
+				) : (
+					<JetpackBanner
+						callToAction={ __( 'Connect', 'jetpack' ) }
+						title={ __(
+							'Connect your WordPress.com account to upgrade and get automatic backups that keep your content safe.',
+							'jetpack'
+						) }
+						disableHref="false"
+						href={ this.props.connectUrl }
 						eventFeature="backups"
 						path="dashboard"
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SITE_BACKUPS_JETPACK ) }
@@ -263,5 +278,7 @@ export default connect( state => {
 		isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
 		showBackups: showBackups( state ),
 		upgradeUrl: getUpgradeUrl( state, 'aag-backups' ),
+		connectUrl: getConnectUrl( state ),
+		hasConnectedOwner: hasConnectedOwner( state ),
 	};
 } )( DashBackups );

@@ -3,8 +3,17 @@
  */
 import { combineReducers } from '@wordpress/data';
 
+/**
+ * Internal dependencies
+ */
+import connectionStatus from './connection-status';
+import API from './api';
+import assets from './assets';
+
 const reducer = combineReducers( {
-	// We'll use it to combine selectors imported from other files in this directory.
+	connectionStatus,
+	API,
+	assets,
 } );
 
 export default reducer;

@@ -40,9 +40,9 @@ class Dummy_Test extends TestCase {
 		$this->assertArrayNotHasKey( 'foo', $u->var );
 		$this->assertContains( 'foo', $u->var );
 		$this->assertNotContains( 'foo', $u->var );
-		$this->assertStringNotContainsString( $u->var, 'foo' );
-		$this->assertStringContainsString( $u->var, 'foo' );
-		$this->assertStringContainsString( $u->var, 'foo' );
+		$this->assertStringNotContainsString( 'foo', $u->var );
+		$this->assertStringContainsString( 'foo', $u->var );
+		$this->assertStringContainsString( 'foo', $u->var );
 	}
 
 }

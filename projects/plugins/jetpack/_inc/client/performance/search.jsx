@@ -4,6 +4,7 @@
 import React, { Fragment, useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { __ } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -12,7 +13,6 @@ import Card from 'components/card';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FEATURE_SEARCH_JETPACK, getPlanClass } from 'lib/plans/constants';
 import { FormFieldset } from 'components/forms';
-import getRedirectUrl from 'lib/jp-redirect';
 import { isOfflineMode } from 'state/connection';
 import {
 	getSitePlan,

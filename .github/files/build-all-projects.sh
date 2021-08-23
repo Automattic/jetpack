@@ -19,9 +19,9 @@ fi
 echo "::set-output name=build-base::$BUILD_BASE"
 [[ -n "$GITHUB_ENV" ]] && echo "BUILD_BASE=$BUILD_BASE" >> $GITHUB_ENV
 
-# Install Yarn generally, and changelogger.
+# Install JS generally, and changelogger.
 echo "::group::Monorepo setup"
-yarn install
+pnpm install
 echo "::endgroup::"
 echo "::group::Changelogger setup"
 (cd projects/packages/changelogger && composer install)
@@ -65,12 +65,16 @@ for SLUG in "${SLUGS[@]}"; do
 		echo "$JSON" > composer.json
 		if [[ -e "composer.lock" ]]; then
 			OLDLOCK=$(<composer.lock)
-			composer update --root-reqs --no-install
+			PACKAGES=()
+			mapfile -t PACKAGES < <( composer info --locked --name-only | sed -e 's/ *$//' | grep --fixed-strings --line-regexp --file=<( jq --argjson repo "$REPO" -rn '$repo.options.versions // {} | keys[]' ) )
+			if [[ ${#PACKAGES[@]} -gt 0 ]]; then
+				composer update --no-install "${PACKAGES[@]}"
+			fi
 		else
 			OLDLOCK=
 		fi
 	fi
-	if (cd $BASE && yarn jetpack build "${SLUG}" -v --production); then
+	if (cd $BASE && pnpx jetpack build "${SLUG}" -v --production); then
 		FAIL=false
 	else
 		FAIL=true
@@ -112,6 +116,15 @@ for SLUG in "${SLUGS[@]}"; do
 				continue
 			fi
 			echo "::endgroup::"
+			echo '::group::Updating $$next-version$$'
+			VER="$($CHANGELOGGER version current)"
+			if ! "$BASE"/tools/replace-next-version-tag.sh -v "$SLUG" "$VER"; then
+				EXIT=1
+				echo "::endgroup::"
+				echo "::error::\$\$next-version\$\$ update for ${SLUG} failed"
+				continue
+			fi
+			echo "::endgroup::"
 		else
 			echo "Not updating changelog, there are no change files."
 		fi
@@ -132,20 +145,42 @@ for SLUG in "${SLUGS[@]}"; do
 	# Copy standard .github
 	cp -r "$BASE/.github/files/mirror-.github" "$BUILD_DIR/.github"
 
-	# Copy autotagger if enabled
+	# Copy autotagger and npmjs-autopublisher if enabled
 	if jq -e '.extra.autotagger // false' composer.json > /dev/null; then
 		cp -r "$BASE/.github/files/gh-autotagger/." "$BUILD_DIR/.github/."
 	fi
+	if jq -e '.extra["npmjs-autopublish"] // false' composer.json > /dev/null; then
+		cp -r "$BASE/.github/files/gh-npmjs-autopublisher/." "$BUILD_DIR/.github/."
+	fi
+
+	# Copy license.
+	LICENSE=$(jq -r '.license // ""' composer.json)
+	if [[ -n "$LICENSE" ]]; then
+		echo "License: $LICENSE"
+		if cp "$BASE/.github/licenses/$LICENSE.txt" "$BUILD_DIR/LICENSE.txt"; then
+			echo "License file copied."
+		else
+			echo "::error file=projects/$SLUG/composer.json::License value not approved."
+			EXIT=1
+			continue
+		fi
+	else
+		echo "No license declared."
+		# TODO: Make this an error?
+	fi
+
+	# Copy SECURITY.md
+	cp "$BASE/SECURITY.md" "$BUILD_DIR/SECURITY.md"
 
 	# Copy only wanted files, based on .gitignore and .gitattributes.
 	{
 		# Include unignored files by default.
-		git ls-files
+		git -c core.quotepath=off ls-files
 		# Include ignored files that are tagged as production-include.
-		git ls-files --others --ignored --exclude-standard | git check-attr --stdin production-include | sed -n 's/: production-include: \(unspecified\|unset\)$//;t;s/: production-include: .*//p'
+		git -c core.quotepath=off ls-files --others --ignored --exclude-standard | git -c core.quotepath=off check-attr --stdin production-include | sed -n 's/: production-include: \(unspecified\|unset\)$//;t;s/: production-include: .*//p'
 	} |
 		# Remove all files tagged with production-exclude. This can override production-include.
-		git check-attr --stdin production-exclude | sed -n 's/: production-exclude: \(unspecified\|unset\)$//p' |
+		git -c core.quotepath=off check-attr --stdin production-exclude | sed -n 's/: production-exclude: \(unspecified\|unset\)$//p' |
 		# Copy the resulting list of files into the clone.
 		xargs cp --parents --target-directory="$BUILD_DIR"
 
@@ -153,6 +188,34 @@ for SLUG in "${SLUGS[@]}"; do
 	JSON=$(jq 'if .repositories then .repositories |= map( select( .options.monorepo | not ) ) else . end' "$BUILD_DIR/composer.json" | "$BASE/tools/prettier" --parser=json-stringify)
 	if [[ "$JSON" != "$(<"$BUILD_DIR/composer.json")" ]]; then
 		echo "$JSON" > "$BUILD_DIR/composer.json"
+	fi
+
+	# Remove engines from package.json
+	if [[ -e "$BUILD_DIR/package.json" ]]; then
+		JSON=$(jq 'if .publish_engines then .engines = .publish_engines | .publish_engines |= empty else .engines |= empty end' "$BUILD_DIR/package.json" | "$BASE/tools/prettier" --parser=json-stringify)
+		if [[ "$JSON" != "$(<"$BUILD_DIR/package.json")" ]]; then
+			echo "$JSON" > "$BUILD_DIR/package.json"
+		fi
+	fi
+
+	# If npmjs-autopublish is active, default to ignoring .github and composer.json (and not ignoring anything else) in the publish.
+	if jq -e '.extra["npmjs-autopublish"] // false' composer.json > /dev/null; then
+		TMP=
+		if [[ -e "$BUILD_DIR/.npmignore" ]]; then
+			TMP="$(<"$BUILD_DIR/.npmignore")"
+		fi
+		cat <<-EOF > "$BUILD_DIR/.npmignore"
+			# Automatically generated ignore rules.
+			/.github/
+			/composer.json
+		EOF
+		if [[ -n "$TMP" ]]; then
+			cat <<-EOF >> "$BUILD_DIR/.npmignore"
+
+				# Package ignore file.
+				$TMP
+			EOF
+		fi
 	fi
 
 	echo "Build succeeded!"

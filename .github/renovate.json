@@ -12,7 +12,12 @@
 		{
 			"groupName": "Monorepo packages",
 			"matchPackageNames": [
+				"@automattic/eslint-changed",
+				"@automattic/jetpack-api",
+				"@automattic/jetpack-base-styles",
+				"@automattic/jetpack-components",
 				"@automattic/jetpack-connection",
+				"@automattic/jetpack-storybook",
 				"automattic/jetpack-a8c-mc-stats",
 				"automattic/jetpack-abtest",
 				"automattic/jetpack-analyzer",
@@ -30,6 +35,7 @@
 				"automattic/jetpack-device-detection",
 				"automattic/jetpack-error",
 				"automattic/jetpack-heartbeat",
+				"automattic/jetpack-identity-crisis",
 				"automattic/jetpack-jitm",
 				"automattic/jetpack-lazy-images",
 				"automattic/jetpack-licensing",
@@ -57,6 +63,10 @@
 			"matchDepTypes": [ "monorepo:wordpress", "monorepo:react" ]
 		},
 		{
+			"groupName": "Eslint and plugins",
+			"matchPackagePatterns": [ "^eslint$", "^eslint-plugin-", "^eslint-config-" ]
+		},
+		{
 			"matchPaths": [ "packages/codesniffer/composer.json" ],
 			"rangeStrategy": "replace"
 		},
@@ -77,5 +87,6 @@
 		}
 	],
 	"dependencyDashboard": true,
-	"dependencyDashboardTitle": "Renovate Dependency Updates"
+	"dependencyDashboardTitle": "Renovate Dependency Updates",
+	"dependencyDashboardLabels": [ "Primary Issue", "[Type] Janitorial" ]
 }

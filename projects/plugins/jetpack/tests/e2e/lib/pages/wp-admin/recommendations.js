@@ -16,19 +16,19 @@ export default class RecommendationsPage extends WpPage {
 	}
 
 	get siteTypePersonalCheckboxSel() {
-		return '.jp-checkbox-answer__container:nth-child(1) input';
+		return '.jp-checkbox-answer__container input#site-type-personal';
 	}
 
 	get siteTypeBusinessCheckboxSel() {
-		return '.jp-checkbox-answer__container:nth-child(2) input';
-	}
-
-	get siteTypeOtherCheckboxSel() {
-		return '.jp-checkbox-answer__container:nth-child(4) input';
+		return '.jp-checkbox-answer__container input#site-type-business';
 	}
 
 	get siteTypeStoreCheckboxSel() {
-		return '.jp-checkbox-answer__container:nth-child(3) input';
+		return '.jp-checkbox-answer__container input#site-type-store';
+	}
+
+	get siteTypeOtherCheckboxSel() {
+		return '.jp-checkbox-answer__container input#site-type-other';
 	}
 
 	get saveSiteTypeButtonSel() {

@@ -24,7 +24,6 @@ import './style.scss';
  * @param {Function} props.onComplete -- The callback to be called upon complete of the connection process.
  * @param {Function} props.onThirdPartyCookiesBlocked -- The callback to be called if third-party cookies are disabled.
  * @param {string} props.location -- Component location identifier passed to WP.com.
- *
  * @returns {React.Component} The in-place connection component.
  */
 const InPlaceConnection = props => {
@@ -50,7 +49,7 @@ const InPlaceConnection = props => {
 	 * @param {object} e -- Event object.
 	 */
 	const receiveData = e => {
-		if ( e.source !== iframeRef.current.contentWindow ) {
+		if ( ! iframeRef.current || e.source !== iframeRef.current.contentWindow ) {
 			return;
 		}
 
@@ -139,7 +138,7 @@ InPlaceConnection.propTypes = {
 
 InPlaceConnection.defaultProps = {
 	isLoading: false,
-	height: '220',
+	height: '300',
 	width: '100%',
 	scrollToIframe: false,
 };

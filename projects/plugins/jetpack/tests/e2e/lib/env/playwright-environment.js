@@ -1,4 +1,3 @@
-const NodeEnvironment = require( 'jest-environment-node' );
 const { chromium } = require( 'playwright' );
 const os = require( 'os' );
 const fs = require( 'fs' );
@@ -6,14 +5,16 @@ const path = require( 'path' );
 const chalk = require( 'chalk' );
 const logger = require( '../logger' );
 const pwContextOptions = require( '../../playwright.config' ).pwContextOptions;
-const { logDebugLog, fileNameFormatter, logAccessLog } = require( '../utils-helper' );
+const { fileNameFormatter, resolveSiteUrl, isLocalSite } = require( '../utils-helper' );
 const { takeScreenshot } = require( '../reporters/screenshot' );
 const config = require( 'config' );
+const { ContentType } = require( 'jest-circus-allure-environment' );
+const AllureNodeEnvironment = require( 'jest-circus-allure-environment' ).default;
 const { E2E_DEBUG, PAUSE_ON_FAILURE } = process.env;
 
 const TMP_DIR = path.join( os.tmpdir(), 'jest_playwright_global_setup' );
 
-class PlaywrightCustomEnvironment extends NodeEnvironment {
+class PlaywrightEnvironment extends AllureNodeEnvironment {
 	async setup() {
 		await super.setup();
 
@@ -30,9 +31,8 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 		// Create a new browser context
 		await this.newContext();
 
-		this.global.siteUrl = fs
-			.readFileSync( config.get( 'temp.tunnels' ), 'utf8' )
-			.replace( 'http:', 'https:' );
+		this.global.siteUrl = resolveSiteUrl();
+		this.global.isLocalSite = isLocalSite();
 	}
 
 	async teardown() {
@@ -40,13 +40,13 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 		await this.global.context.close();
 	}
 
-	async handleTestEvent( event ) {
+	async handleTestEvent( event, state ) {
 		let eventName;
 
-		if ( event.test ) {
-			eventName = `${ event.test.parent.name } - ${ event.test.name }`;
-		} else if ( event.hook ) {
+		if ( event.hook ) {
 			eventName = `${ event.hook.type } - ${ event.hook.parent.name }`;
+		} else if ( event.test ) {
+			eventName = `${ event.test.parent.name } - ${ event.test.name }`;
 		} else {
 			eventName = event.name;
 		}
@@ -71,25 +71,25 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 			case 'run_describe_start':
 				break;
 			case 'test_start':
-				await this.newPage( eventName );
+				await this.newPage();
 				break;
 			case 'hook_start':
 				logger.info( `START: ${ eventName }` );
 				if ( event.hook.type === 'beforeAll' ) {
-					await this.newPage( eventName );
+					await this.newPage();
 				}
 				break;
 			case 'hook_success':
 				logger.info( chalk.green( `SUCCESS: ${ eventName }` ) );
 				if ( event.hook.type === 'beforeAll' ) {
-					await this.closePage();
+					await this.closePage( eventName, false );
 				}
 				break;
 			case 'hook_failure':
 				logger.info( chalk.red( `HOOK FAILED: ${ eventName }` ) );
 				await this.onFailure( eventName, event.hook.parent.name, event.hook.type, event.error );
 				if ( event.hook.type === 'beforeAll' ) {
-					await this.closePage();
+					await this.closePage( eventName, true );
 				}
 				break;
 			case 'test_fn_start':
@@ -103,7 +103,7 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 				await this.onFailure( eventName, event.test.parent.name, event.test.name, event.error );
 				break;
 			case 'test_done':
-				await this.closePage();
+				await this.closePage( eventName, event.test.errors.length > 0 );
 				break;
 			case 'run_describe_finish':
 				break;
@@ -116,6 +116,11 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 			default:
 				break;
 		}
+
+		// important to be at the end otherwise videos won't get attached correctly in Allure reports
+		// allure reporter closes the tests events in super method and this need to happen
+		// after we close pages and save the videos or other resources we need attached
+		await super.handleTestEvent( event, state );
 	}
 
 	async newContext() {
@@ -123,18 +128,10 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 
 		this.global.context = await this.global.browser.newContext( pwContextOptions );
 		this.global.context.on( 'page', page => this.onNewPage( page ) );
-		this.global.context.on( 'close', () => this.onContextClose() );
-
-		// This will store the video files paths for each page in the current context
-		// We want to make sure it's empty when the context gets created
-		this.global.videoFiles = {};
 	}
 
-	async newPage( eventName = '' ) {
+	async newPage() {
 		this.global.page = await this.global.context.newPage();
-		// Even though this was already called by the page opened event
-		// we're calling it again with an event name to give the video file a nice name
-		await this.saveVideoFilePathsForPage( this.global.page, eventName );
 	}
 
 	async onNewPage( page ) {
@@ -159,39 +156,38 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 			logger.debug( `CONSOLE: ${ type.toUpperCase() }: ${ text }` );
 		} );
 
-		await this.saveVideoFilePathsForPage( page );
+		page.on( 'pageerror', exception => {
+			logger.error( `Page error: "${ exception }"` );
+		} );
+
+		page.on( 'requestfailed', request => {
+			logger.error( `Request failed: ${ request.url() }  ${ request.failure().errorText }` );
+		} );
 	}
 
-	async closePage() {
+	async closePage( eventName, saveVideo = true ) {
 		await this.global.page.close();
-	}
 
-	async saveVideoFilePathsForPage( page, eventName = '' ) {
-		// Save the pair of the current page videoPath and the event name
-		// to use later in video files renaming
+		if ( this.global.page.video() && saveVideo ) {
+			const videoName = fileNameFormatter( `${ eventName }.webm`, true );
+			const videoPath = `${ config.get( 'dirs.videos' ) }/${ videoName }`;
 
-		try {
-			const srcVideoPath = await page.video().path();
-			const ext = path.extname( srcVideoPath );
-			const dir = path.dirname( srcVideoPath );
-			this.global.videoFiles[ srcVideoPath ] = path.join(
-				dir,
-				`${ fileNameFormatter( eventName ) }${ ext }`
-			);
-		} catch ( error ) {
-			logger.error( `Cannot get page's video file path! Is video capture active? \n ${ error }` );
-		}
-	}
-
-	async onContextClose() {
-		// Rename video files. This can only be done after browser context is closed
-		// Each page has its own video file
-		for ( const [ src, dst ] of Object.entries( this.global.videoFiles ) ) {
 			try {
-				fs.renameSync( src, dst );
-				logger.debug( `Video file saved as ${ dst }` );
+				await this.global.page.video().saveAs( videoPath );
+				logger.debug( `Video file saved: ${ videoPath }` );
 			} catch ( error ) {
-				logger.error( `Renaming video file failed! \n ${ error }` );
+				logger.error( `There was an error saving the video file!\n${ error }` );
+			}
+
+			try {
+				await this.global.allure.attachment(
+					videoName,
+					fs.readFileSync( videoPath ),
+					ContentType.WEBM
+				);
+				logger.debug( `Video file attached to report` );
+			} catch ( error ) {
+				logger.error( `There was an error attaching the video to test report!\n${ error }` );
 			}
 		}
 	}
@@ -200,31 +196,20 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 	 * Series of actions to be performed when a failure is detected
 	 *
 	 * @param {string} eventFullName the event in which the failure occurred (e.g. test name)
-	 * @param {string} parentName the event's parent name (e.g. describe block name)
-	 * @param {string} eventName the event in which the failure occurred (e.g. test name)
-	 * @param {Object} error the error object that triggered the failure
+	 * @param {string} parentName    the event's parent name (e.g. describe block name)
+	 * @param {string} eventName     the event in which the failure occurred (e.g. test name)
+	 * @param {Object} error         the error object that triggered the failure
 	 * @return {Promise<void>}
 	 */
 	async onFailure( eventFullName, parentName, eventName, error ) {
 		logger.error( chalk.red( `FAILURE: ${ error }` ) );
-		await this.saveScreenshot( eventFullName );
+
+		await this.saveScreenshots( eventFullName );
 		await this.logHTML( eventFullName );
-		await this.logFailureToSlack( parentName, eventName, error );
-		await logDebugLog();
-		await logAccessLog();
 
 		if ( E2E_DEBUG && PAUSE_ON_FAILURE && this.global.page ) {
 			await this.global.page.pause();
 		}
-	}
-
-	async logFailureToSlack( block, name, error ) {
-		logger.slack( {
-			type: 'failure',
-			block,
-			name,
-			error,
-		} );
 	}
 
 	/**
@@ -233,9 +218,9 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 	 * @param {string} fileName screenshot file name
 	 * @return {Promise<void>}
 	 */
-	async saveScreenshot( fileName ) {
+	async saveScreenshots( fileName ) {
 		for ( const page of this.global.context.pages() ) {
-			await takeScreenshot( page, fileName, true );
+			await takeScreenshot( page, fileName, this.global.allure );
 		}
 	}
 
@@ -261,4 +246,4 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 	}
 }
 
-module.exports = PlaywrightCustomEnvironment;
+module.exports = PlaywrightEnvironment;

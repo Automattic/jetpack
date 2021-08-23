@@ -24,8 +24,28 @@ class Main {
 			add_action( 'plugins_loaded', array( __CLASS__, 'on_plugins_loaded_early' ), 5 );
 			add_action( 'plugins_loaded', array( __CLASS__, 'on_plugins_loaded_late' ), 90 );
 		}
+
+		// Add REST endpoints.
+		add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Sync\\REST_Endpoints', 'initialize_rest_api' ) );
+
+		// Add IDC disconnect action.
+		add_action( 'jetpack_idc_disconnect', array( __CLASS__, 'on_jetpack_idc_disconnect' ), 100 );
+
 		// Any hooks below are special cases that need to be declared even if Sync is not allowed.
 		add_action( 'jetpack_site_registered', array( 'Automattic\\Jetpack\\Sync\\Actions', 'do_initial_sync' ), 10, 0 );
+
+		// Initialize Identity Crisis.
+		add_action( 'plugins_loaded', array( 'Automattic\\Jetpack\\Identity_Crisis', 'init' ) );
+
+		// Set up package version hook.
+		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
+	}
+
+	/**
+	 * Delete all sync related data on Identity Crisis disconnect.
+	 */
+	public static function on_jetpack_idc_disconnect() {
+		Sender::get_instance()->uninstall();
 	}
 
 	/**

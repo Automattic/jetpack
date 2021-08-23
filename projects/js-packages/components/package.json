@@ -1,0 +1,39 @@
+{
+	"name": "@automattic/jetpack-components",
+	"version": "0.2.2-alpha",
+	"description": "Jetpack Components Package",
+	"author": "Automattic",
+	"license": "GPL-2.0-or-later",
+	"dependencies": {
+		"@wordpress/browserslist-config": "4.1.0",
+		"@wordpress/components": "14.2.0",
+		"@wordpress/i18n": "3.20.0",
+		"classnames": "2.3.1",
+		"lodash": "4.17.21",
+		"prop-types": "^15.7.2"
+	},
+	"devDependencies": {
+		"jetpack-js-test-runner": "workspace:*",
+		"nyc": "15.1.0",
+		"react": "17.0.2",
+		"react-dom": "17.0.2",
+		"react-test-renderer": "16.14.0"
+	},
+	"peerDependencies": {
+		"react": "^17.0.2",
+		"react-dom": "^17.0.2"
+	},
+	"type": "module",
+	"sideEffects": [
+		"*.css",
+		"*.scss"
+	],
+	"scripts": {
+		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.jsx'"
+	},
+	"engines": {
+		"node": "^14.16.1",
+		"pnpm": "^6.5.0",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	}
+}

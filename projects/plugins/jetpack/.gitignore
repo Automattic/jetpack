@@ -9,11 +9,13 @@
 /node_modules
 /vendor/
 /wpcom-test-backup/
+/.cache/
 
 ## FILES
 /modules/**/*/block.js
 /modules/**/*.min.css.map
 /modules/**/*.min.css
 /modules/**/*-rtl.css
+/modules/module-headings.php
 /modules/photon-cdn/jetpack-manifest.php
 /tests/php/files/jetpack-150x150.jpg

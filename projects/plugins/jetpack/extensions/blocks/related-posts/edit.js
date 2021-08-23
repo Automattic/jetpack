@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { BlockControls, InspectorControls } from '@wordpress/block-editor';
 import { Path, SVG } from '@wordpress/components';
 import { Component, Fragment } from '@wordpress/element';
-import { get } from 'lodash';
+import { get, isEmpty } from 'lodash';
 import { withSelect } from '@wordpress/data';
 import { compose, withInstanceId } from '@wordpress/compose';
 
@@ -24,10 +24,12 @@ function PlaceholderPostEdit( props ) {
 			aria-labelledby={ props.id + '-heading' }
 		>
 			<strong id={ props.id + '-heading' } className="jp-related-posts-i2__post-link">
-				{ __(
-					"Preview unavailable: you haven't published enough posts with similar content.",
-					'jetpack'
-				) }
+				{ props.isInSiteEditor
+					? __( 'Preview unavailable in site editor.', 'jetpack' )
+					: __(
+							"Preview unavailable: you haven't published enough posts with similar content.",
+							'jetpack'
+					  ) }
 			</strong>
 			{ props.displayThumbnails && (
 				<figure
@@ -146,7 +148,7 @@ function RelatedPostsPreviewRows( props ) {
 
 export class RelatedPostsEdit extends Component {
 	render() {
-		const { attributes, className, posts, setAttributes, instanceId } = this.props;
+		const { attributes, className, posts, setAttributes, instanceId, isInSiteEditor } = this.props;
 		const { displayContext, displayDate, displayThumbnails, postLayout, postsToShow } = attributes;
 
 		// To prevent the block from crashing, we need to limit ourselves to the
@@ -179,6 +181,7 @@ export class RelatedPostsEdit extends Component {
 						displayThumbnails={ displayThumbnails }
 						displayDate={ displayDate }
 						displayContext={ displayContext }
+						isInSiteEditor={ isInSiteEditor }
 					/>
 				);
 			}
@@ -211,10 +214,12 @@ export default compose(
 	withInstanceId,
 	withSelect( select => {
 		const { getCurrentPost } = select( 'core/editor' );
-		const posts = get( getCurrentPost(), 'jetpack-related-posts', [] );
+		const currentPost = getCurrentPost();
+		const posts = get( currentPost, 'jetpack-related-posts', [] );
 
 		return {
 			posts,
+			isInSiteEditor: isEmpty( currentPost ),
 		};
 	} )
 )( RelatedPostsEdit );

@@ -114,7 +114,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		// Default metadata should be saved.
 		$submission = $feedback[0];
 		$email      = get_post_meta( $submission->ID, '_feedback_email', true );
-		$this->assertEquals( '"john" <john@example.com>', $email['to'][0] );
+		$this->assertEquals( 'john <john@example.com>', $email['to'][0] );
 		$this->assertContains( 'IP Address: 127.0.0.1', $email['message'] );
 	}
 
@@ -374,7 +374,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		// and third option), text field.
 		$form   = new Grunion_Contact_Form(
 			array(
-				'to'      => '"john" <john@example.com>',
+				'to'      => 'john <john@example.com>',
 				'subject' => 'Hello there!',
 			),
 			"[contact-field label='Name' type='name' required='1'/][contact-field label='Dropdown' type='select' options='First option,Second option,Third option'/][contact-field label='Radio' type='radio' options='First option,Second option,Third option'/][contact-field label='Text' type='text'/]"
@@ -390,7 +390,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 *                    subject, message, headers, and attachments values.
 	 */
 	public function pre_test_process_submission_sends_correct_single_email( $args ) {
-		$this->assertContains( '"john" <john@example.com>', $args['to'] );
+		$this->assertContains( 'john <john@example.com>', $args['to'] );
 		$this->assertEquals( 'Hello there!', $args['subject'] );
 
 		$expected  = '<b>Name:</b> John Doe<br /><br />';
@@ -444,7 +444,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 *                    subject, message, headers, and attachments values.
 	 */
 	public function pre_test_process_submission_sends_correct_multiple_email( $args ) {
-		$this->assertEquals( array( '"john" <john@example.com>', '"jane" <jane@example.com>' ), $args['to'] );
+		$this->assertEquals( array( 'john <john@example.com>', 'jane <jane@example.com>' ), $args['to'] );
 	}
 
 	/**

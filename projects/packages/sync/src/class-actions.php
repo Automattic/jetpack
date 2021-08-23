@@ -8,8 +8,11 @@
 namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
+use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Status;
+use WP_Error;
 
 /**
  * The role of this class is to hook the Sync subsystem into WordPress - when to listen for actions,
@@ -356,8 +359,8 @@ class Actions {
 			'codec'      => $codec_name,
 			'timestamp'  => $sent_timestamp,
 			'queue'      => $queue_id,
-			'home'       => Functions::home_url(),  // Send home url option to check for Identity Crisis server-side.
-			'siteurl'    => Functions::site_url(),  // Send siteurl option to check for Identity Crisis server-side.
+			'home'       => Urls::home_url(),  // Send home url option to check for Identity Crisis server-side.
+			'siteurl'    => Urls::site_url(),  // Send siteurl option to check for Identity Crisis server-side.
 			'cd'         => sprintf( '%.4f', $checkout_duration ),
 			'pd'         => sprintf( '%.4f', $preprocess_duration ),
 			'queue_size' => $queue_size,
@@ -365,7 +368,7 @@ class Actions {
 		);
 
 		// Has the site opted in to IDC mitigation?
-		if ( \Jetpack::sync_idc_optin() ) {
+		if ( Identity_Crisis::sync_idc_optin() ) {
 			$query_args['idc'] = true;
 		}
 
@@ -393,7 +396,7 @@ class Actions {
 		// If we're currently updating to Jetpack 7.7, the IXR client may be missing briefly
 		// because since 7.7 it's being autoloaded with Composer.
 		if ( ! class_exists( '\\Jetpack_IXR_Client' ) ) {
-			return new \WP_Error(
+			return new WP_Error(
 				'ixr_client_missing',
 				esc_html__( 'Sync has been aborted because the IXR client is missing.', 'jetpack' )
 			);
@@ -441,11 +444,11 @@ class Actions {
 			if ( in_array( $error_code, $allowed_idc_error_codes, true ) ) {
 				\Jetpack_Options::update_option(
 					'sync_error_idc',
-					\Jetpack::get_sync_error_idc_option( $response )
+					Identity_Crisis::get_sync_error_idc_option( $response )
 				);
 			}
 
-			return new \WP_Error(
+			return new WP_Error(
 				'sync_error_idc',
 				esc_html__( 'Sync has been blocked from WordPress.com because it would cause an identity crisis', 'jetpack' )
 			);

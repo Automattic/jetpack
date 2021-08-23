@@ -1,6 +1,7 @@
+.cache/
+dist/
 node_modules
 vendor
 wordpress
 composer.lock
 src/js/*.min.js
-yarn.lock

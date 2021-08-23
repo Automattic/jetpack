@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { assign, get, merge } from 'lodash';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -222,6 +223,28 @@ export function getApiRootUrl( state ) {
 	return get( state.jetpack.initialState, 'WP_API_root' );
 }
 
+/**
+ * Returns a purchase token that is used for Jetpack logged out visitor checkout.
+ *
+ * @param {object} state - Global state tree
+ *
+ * @returns {string|boolean} purchase token or false if not the connection owner.
+ */
+export function getPurchaseToken( state ) {
+	return get( state.jetpack.initialState, 'purchaseToken' );
+}
+
+/**
+ * Returns current Calypso environment.
+ *
+ * @param {object} state - Global state tree
+ *
+ * @returns {string} Calypso environment name.
+ */
+export function getCalypsoEnv( state ) {
+	return get( state.jetpack.initialState, 'calypsoEnv' );
+}
+
 export function getTracksUserData( state ) {
 	return get( state.jetpack.initialState, 'tracksUserData' );
 }
@@ -366,19 +389,40 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
 	const affiliateCode = getAffiliateCode( state );
 	const subsidiaryId = getPartnerSubsidiaryId( state );
 	const uid = userId || getUserId( state );
+	const purchaseToken = getPurchaseToken( state );
+	const calypsoEnv = getCalypsoEnv( state );
 
 	if ( planDuration && 'monthly' === getPlanDuration( state ) ) {
 		source += '-monthly';
 	}
 
-	return (
-		'https://jetpack.com/redirect/?' +
-		`source=${ source }&site=${ getSiteRawUrl( state ) }` +
-		( affiliateCode ? `&aff=${ affiliateCode }` : '' ) +
-		( uid ? `&u=${ uid }` : '' ) +
-		( subsidiaryId ? `&subsidiaryId=${ subsidiaryId }` : '' ) +
-		( isCurrentUserLinked( state ) ? '' : '&unlinked=1' )
-	);
+	const redirectArgs = {
+		site: getSiteRawUrl( state ),
+	};
+
+	if ( affiliateCode ) {
+		redirectArgs.aff = affiliateCode;
+	}
+	if ( uid ) {
+		redirectArgs.u = uid;
+	}
+	if ( subsidiaryId ) {
+		redirectArgs.subsidiaryId = subsidiaryId;
+	}
+
+	redirectArgs.query = '';
+
+	if ( ! isCurrentUserLinked( state ) ) {
+		redirectArgs.query += 'unlinked=1&';
+	}
+	if ( purchaseToken ) {
+		redirectArgs.query += `purchasetoken=${ purchaseToken }`;
+	}
+	if ( calypsoEnv ) {
+		redirectArgs.calypso_env = calypsoEnv;
+	}
+
+	return getRedirectUrl( source, redirectArgs );
 };
 
 /**

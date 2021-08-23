@@ -1,201 +1,147 @@
 /**
  * External dependencies
  */
-import { __, _x } from '@wordpress/i18n';
-import { Component } from '@wordpress/element';
-import {
-	Placeholder,
-	SandBox,
-	Button,
-	Spinner,
-	ToolbarButton,
-	ToolbarGroup,
-	withNotices,
-} from '@wordpress/components';
-import { BlockControls, BlockIcon } from '@wordpress/block-editor';
+import { SandBox, withNotices } from '@wordpress/components';
+import { useState, useEffect, useCallback } from '@wordpress/element';
+import { BlockControls } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
  */
-import { fallback, pinType } from './utils';
-import { icon, PINTEREST_EXAMPLE_URL } from '.';
-import testEmbedUrl from '../../shared/test-embed-url';
+import { pinType } from './utils';
+import { PinterestBlockControls } from './controls';
+import LoadingContainer from './components/loading-container';
+import EditUrlForm from './components/edit-url-form';
+import ErrorNotice from './components/error-notice';
+import useTestPinterestEmbedUrl from './hooks/use-test-pinterest-embed-url';
 
-class PinterestEdit extends Component {
-	constructor() {
-		super( ...arguments );
+export function PinterestEdit( {
+	attributes,
+	isSelected,
+	className,
+	noticeOperations,
+	noticeUI,
+	setAttributes,
+	onReplace,
+} ) {
+	const { url } = attributes;
+	const { isFetching, pinterestUrl, testUrl, hasTestUrlError } = useTestPinterestEmbedUrl();
+	const [ isInteractive, setIsInteractive ] = useState( false );
+	const [ editedUrl, setEditedUrl ] = useState( '' );
+	const [ isEditing, setIsEditing ] = useState( false );
 
-		this.state = {
-			editedUrl: this.props.attributes.url || '',
-			editingUrl: false,
-			// The interactive-related magic comes from Core's EmbedPreview component,
-			// which currently isn't exported in a way we can use.
-			interactive: false,
-			isResolvingUrl: false,
-		};
-	}
+	/**
+	 * Sets an error notice using noticeOperations.
+	 */
+	const getErrorNotice = useCallback( () => {
+		return <ErrorNotice fallbackUrl={ editedUrl } onClick={ onReplace } />;
+		// Disabling for onReplace and editedUrl as they are not requirements for creating a new function.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ hasTestUrlError ] );
 
-	componentDidMount() {
-		const { url } = this.props.attributes;
-
-		this.setUrl( url );
-	}
-
-	static getDerivedStateFromProps( nextProps, state ) {
-		if ( ! nextProps.isSelected && state.interactive ) {
-			// We only want to change this when the block is not selected, because changing it when
-			// the block becomes selected makes the overlap disappear too early. Hiding the overlay
-			// happens on mouseup when the overlay is clicked.
-			return { interactive: false };
-		}
-
-		return null;
-	}
-
-	setUrl = url => {
-		const { noticeOperations, setAttributes } = this.props;
-
-		if ( ! url || PINTEREST_EXAMPLE_URL === url ) {
+	/**
+	 * Submit handler for the url editing form.
+	 */
+	const onSubmitForm = () => {
+		if ( isFetching ) {
 			return;
 		}
-
-		testEmbedUrl( url, this.setIsResolvingUrl )
-			.then( resolvedUrl => {
-				setAttributes( { url: resolvedUrl } );
-				this.setState( { editedUrl: resolvedUrl } );
-				noticeOperations.removeAllNotices();
-			} )
-			.catch( () => {
-				setAttributes( { url: undefined } );
-				this.setErrorNotice();
-			} );
+		testUrl( editedUrl );
+		setIsEditing( false );
 	};
 
-	setIsResolvingUrl = isResolvingUrl => this.setState( { isResolvingUrl } );
+	/**
+	 * This is called onMouseUp on the overlay. We can't respond to the `isSelected` prop
+	 * changing, because that happens on mouse down, and the overlay immediately disappears,
+	 * and the mouse event can end up in the preview content. We can't use onClick on
+	 * the overlay to hide it either, because then the editor misses the mouseup event, and
+	 * thinks we're multi-selecting blocks.
+	 */
+	const hideOverlay = () => {
+		setIsInteractive( true );
+	};
 
-	setErrorNotice = () => {
-		const { noticeOperations, onReplace } = this.props;
-		const { editedUrl } = this.state;
+	/*
+		Set the URL when the component mounts.
+		We disable missing dependencies warning in the linter
+		because we want this to run once on mount.
+	 */
+	useEffect( () => {
+		if ( url ) {
+			testUrl( url );
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
 
+	/*
+		We only want to change `isInteractive` when the block is not selected, because changing it when
+		the block becomes selected makes the overlap disappear too early. Hiding the overlay
+		happens on mouseup when the overlay is clicked.
+	*/
+	useEffect( () => {
+		if ( ! isSelected && isInteractive ) {
+			setIsInteractive( false );
+		}
+	}, [ isSelected, isInteractive ] );
+
+	// Listen out for changes to after we've tested the url via `testUrl()`.
+	useEffect( () => {
+		setAttributes( { url: pinterestUrl } );
 		noticeOperations.removeAllNotices();
-		noticeOperations.createErrorNotice(
-			<>
-				{ __( 'Sorry, this content could not be embedded.', 'jetpack' ) }{ ' ' }
-				<Button isLink onClick={ () => fallback( editedUrl, onReplace ) }>
-					{ _x( 'Convert block to link', 'button label', 'jetpack' ) }
-				</Button>
-			</>
-		);
-	};
-
-	hideOverlay = () => {
-		// This is called onMouseUp on the overlay. We can't respond to the `isSelected` prop
-		// changing, because that happens on mouse down, and the overlay immediately disappears,
-		// and the mouse event can end up in the preview content. We can't use onClick on
-		// the overlay to hide it either, because then the editor misses the mouseup event, and
-		// thinks we're multi-selecting blocks.
-		this.setState( { interactive: true } );
-	};
-
-	submitForm = event => {
-		if ( event ) {
-			event.preventDefault();
+		// Set the input value of the edited URL.
+		if ( pinterestUrl ) {
+			setEditedUrl( pinterestUrl );
 		}
-
-		const { editedUrl } = this.state;
-
-		this.setUrl( editedUrl );
-
-		this.setState( { editingUrl: false } );
-	};
-
-	cannotEmbed = () => {
-		const { url } = this.props.attributes;
-		const { isResolvingUrl } = this.state;
-		const type = pinType( url );
-
-		return ! isResolvingUrl && url && ! type;
-	};
-
-	render() {
-		const { attributes, className, noticeUI } = this.props;
-		const { url } = attributes;
-		const { editedUrl, interactive, editingUrl, isResolvingUrl } = this.state;
-
-		if ( isResolvingUrl ) {
-			return (
-				<div className="wp-block-embed is-loading">
-					<Spinner />
-					<p>{ __( 'Embedding…', 'jetpack' ) }</p>
-				</div>
-			);
+		if ( hasTestUrlError ) {
+			noticeOperations.createErrorNotice( getErrorNotice() );
 		}
+		// Disabling for noticeOperations as it is a prop and not a requirement for re-rendering.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ pinterestUrl, hasTestUrlError, setAttributes, getErrorNotice ] );
 
-		const type = pinType( url );
-		const html = `<a data-pin-do='${ type }' href='${ url }'></a>`;
+	if ( isFetching ) {
+		return <LoadingContainer />;
+	}
 
-		const controls = (
-			<BlockControls>
-				<ToolbarGroup>
-					<ToolbarButton
-						className="components-toolbar__control"
-						label={ __( 'Edit URL', 'jetpack' ) }
-						icon="edit"
-						onClick={ () => this.setState( { editingUrl: true } ) }
-					/>
-				</ToolbarGroup>
-			</BlockControls>
-		);
+	const pinterestEmbedType = pinType( url );
 
-		if ( editingUrl || ! url || this.cannotEmbed() ) {
-			return (
-				<div className={ className }>
-					<Placeholder
-						label={ __( 'Pinterest', 'jetpack' ) }
-						icon={ <BlockIcon icon={ icon } /> }
-						notices={ noticeUI }
-					>
-						<form onSubmit={ this.submitForm }>
-							<input
-								type="url"
-								value={ editedUrl }
-								className="components-placeholder__input"
-								aria-label={ __( 'Pinterest URL', 'jetpack' ) }
-								placeholder={ __( 'Enter URL to embed here…', 'jetpack' ) }
-								onChange={ event => this.setState( { editedUrl: event.target.value } ) }
-							/>
-							<Button isLarge isSecondary type="submit">
-								{ _x( 'Embed', 'button label', 'jetpack' ) }
-							</Button>
-						</form>
-					</Placeholder>
-				</div>
-			);
-		}
-
-		// Disabled because the overlay div doesn't actually have a role or functionality
-		// as far as the user is concerned. We're just catching the first click so that
-		// the block can be selected without interacting with the embed preview that the overlay covers.
-		/* eslint-disable jsx-a11y/no-static-element-interactions */
+	if ( isEditing || ! url || ( url && ! pinterestEmbedType ) ) {
 		return (
-			<div className={ className }>
-				{ controls }
-				<div>
-					<SandBox
-						html={ html }
-						scripts={ [ 'https://assets.pinterest.com/js/pinit.js' ] }
-						onFocus={ this.hideOverlay }
-					/>
-					{ ! interactive && (
-						<div
-							className="block-library-embed__interactive-overlay"
-							onMouseUp={ this.hideOverlay }
-						/>
-					) }
-				</div>
-			</div>
+			<EditUrlForm
+				className={ className }
+				onSubmit={ onSubmitForm }
+				noticeUI={ noticeUI }
+				url={ editedUrl }
+				setUrl={ setEditedUrl }
+			/>
 		);
 	}
+
+	const sandBoxHTML = `<a data-pin-do='${ pinterestEmbedType }' href='${ url }'></a>`;
+	/*
+		Disabled because the overlay div doesn't actually have a role or functionality
+		as far as the user is concerned. We're just catching the first click so that
+		the block can be selected without interacting with the embed preview that the overlay covers.
+	 */
+	/* eslint-disable jsx-a11y/no-static-element-interactions */
+	return (
+		<div className={ className }>
+			<BlockControls>
+				<PinterestBlockControls setEditingState={ setIsEditing } />
+			</BlockControls>
+			<div>
+				<SandBox
+					html={ sandBoxHTML }
+					scripts={ [ 'https://assets.pinterest.com/js/pinit.js' ] }
+					onFocus={ hideOverlay }
+				/>
+				{ ! isInteractive && (
+					<div className="block-library-embed__interactive-overlay" onMouseUp={ hideOverlay } />
+				) }
+			</div>
+		</div>
+	);
+	/* eslint-enable jsx-a11y/no-static-element-interactions */
 }
 
 export default withNotices( PinterestEdit );

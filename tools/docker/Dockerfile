@@ -1,4 +1,4 @@
-FROM ubuntu:xenial
+FROM ubuntu:focal
 
 VOLUME ["/var/www/html"]
 
@@ -22,7 +22,6 @@ RUN \
 		mysql-client \
 		nano \
 		php-apcu \
-		php-xdebug \
 		php7.4 \
 		php7.4-bcmath \
 		php7.4-cli \
@@ -37,6 +36,7 @@ RUN \
 		php7.4-pgsql \
 		php7.4-soap \
 		php7.4-sqlite3 \
+		php7.4-xdebug \
 		php7.4-xml \
 		php7.4-xsl \
 		php7.4-zip \

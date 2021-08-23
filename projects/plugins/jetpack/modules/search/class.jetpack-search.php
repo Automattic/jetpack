@@ -552,6 +552,7 @@ class Jetpack_Search {
 			'post_type'           => 'any',
 			'ignore_sticky_posts' => true,
 			'suppress_filters'    => true,
+			'posts_per_page'      => $query->get( 'posts_per_page' ),
 		);
 
 		$posts_query = new WP_Query( $args );

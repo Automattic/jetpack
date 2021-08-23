@@ -1,5 +1,3 @@
-/** @jsx h */
-
 // The PALETTE global comes from '@automattic/color-studio' at build time.
 // This is done so that the individual color values are bundled as hardcoded literals, rather than
 // having to include the entire color set in the bundle.
@@ -9,7 +7,7 @@
 /**
  * External dependencies
  */
-import { h, Fragment } from 'preact';
+import React from 'react';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -23,8 +21,14 @@ import './jetpack-colophon.scss';
 const COLOR_JETPACK = PALETTE[ 'Jetpack Green' ];
 const COLOR_WHITE = PALETTE[ 'White' ]; // eslint-disable-line dot-notation
 
-const logoPath = (
-	<Fragment>
+const logoSize = 12;
+export const svg = (
+	<svg
+		className="jetpack-instant-search__jetpack-colophon-logo"
+		height={ logoSize }
+		width={ logoSize }
+		viewBox={ `0 0 32 32` }
+	>
 		<path
 			className="jetpack-logo__icon-circle"
 			fill={ COLOR_JETPACK }
@@ -40,9 +44,8 @@ const logoPath = (
 			fill={ COLOR_WHITE }
 			points="17,29 17,13 25,13 "
 		/>
-	</Fragment>
+	</svg>
 );
-const logoSize = 12;
 
 const JetpackColophon = props => {
 	const locale_prefix = typeof props.locale === 'string' ? props.locale.split( '-', 1 )[ 0 ] : null;
@@ -58,14 +61,7 @@ const JetpackColophon = props => {
 				target="_blank"
 				className="jetpack-instant-search__jetpack-colophon-link"
 			>
-				<svg
-					className="jetpack-instant-search__jetpack-colophon-logo"
-					height={ logoSize }
-					width={ logoSize }
-					viewBox={ `0 0 32 32` }
-				>
-					{ logoPath }
-				</svg>
+				{ svg }
 				<span className="jetpack-instant-search__jetpack-colophon-text">
 					{ __( 'Search powered by Jetpack', 'jetpack' ) }
 				</span>

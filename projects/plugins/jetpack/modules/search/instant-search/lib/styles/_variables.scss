@@ -9,6 +9,22 @@ $break-md: 768px;
 $break-lg: 992px;
 $break-xl: 1200px;
 $break-xxl: 1400px;
+// Mapping for programmatic use.
+$breakpoints: (
+	s: $break-sm,
+	sm: $break-sm,
+	small: $break-sm,
+	m: $break-md,
+	md: $break-md,
+	medium: $break-md,
+	l: $break-lg,
+	lg: $break-lg,
+	large: $break-lg,
+	xl: $break-xl,
+	xlarge: $break-xl,
+	xxl: $break-xxl,
+	xxlarge: $break-xxl,
+);
 
 // Side margins for search results container
 $results-margin-sm: 20px;
@@ -37,7 +53,3 @@ $color-dark-link-alt: $studio-blue-50;
 $color-dark-layout-borders: $studio-gray-70;
 $color-dark-modal-background: $studio-black;
 $color-dark-modal-backdrop-background: rgba( $studio-gray-90, 0.7 );
-
-// Animation
-$overlay-fade-in-time: 100ms;
-$search-results-slide-in-time: 250ms;

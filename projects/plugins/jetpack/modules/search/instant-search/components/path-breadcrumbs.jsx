@@ -1,19 +1,23 @@
-/** @jsx h */
-
 /**
  * External dependencies
  */
-import { h } from 'preact';
+import React from 'react';
 
 import './path-breadcrumbs.scss';
 
 function splitDomainPath( path ) {
 	const splits = path.split( '/' ).filter( piece => piece.length > 0 );
 	splits.shift(); // Removes domain name from splits; e.g. 'jetpack.com'
-	return splits.length === 0 ? [ '/' ] : splits;
+	return splits;
 }
 
 const PathBreadcrumbs = ( { className, onClick, url } ) => {
+	const breadcrumbPieces = splitDomainPath( url );
+
+	if ( breadcrumbPieces.length < 1 ) {
+		return null;
+	}
+
 	return (
 		<div className={ `jetpack-instant-search__path-breadcrumb ${ className ? className : '' }` }>
 			<a
@@ -21,7 +25,7 @@ const PathBreadcrumbs = ( { className, onClick, url } ) => {
 				href={ `//${ url }` }
 				onClick={ onClick }
 			>
-				{ splitDomainPath( url ).map( ( piece, index, pieces ) => (
+				{ breadcrumbPieces.map( ( piece, index, pieces ) => (
 					<span className="jetpack-instant-search__path-breadcrumb-piece">
 						{ decodeURIComponent( piece ) }
 						{ index !== pieces.length - 1 ? ' › ' : '' }

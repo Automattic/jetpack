@@ -3,42 +3,20 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { includes } from 'lodash';
-import { __ } from '@wordpress/i18n';
+import { JetpackLogo } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
-import Button from 'components/button';
-import ButtonGroup from 'components/button-group';
+import { HeaderNav } from './header-nav';
 import {
 	getSiteConnectionStatus,
 	getSandboxDomain,
 	fetchSiteConnectionTest,
 } from 'state/connection';
-import { getCurrentVersion, userCanEditPosts } from 'state/initial-state';
-import JetpackLogo from '../jetpack-logo';
 
 export class Masthead extends React.Component {
-	static defaultProps = {
-		location: { pathname: '' },
-	};
-
-	trackDashClick = () => {
-		analytics.tracks.recordJetpackClick( {
-			target: 'masthead',
-			path: 'nav_dashboard',
-		} );
-	};
-
-	trackSettingsClick = () => {
-		analytics.tracks.recordJetpackClick( {
-			target: 'masthead',
-			path: 'nav_settings',
-		} );
-	};
-
 	trackLogoClick = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'masthead',
@@ -51,28 +29,23 @@ export class Masthead extends React.Component {
 	};
 
 	render() {
-		const offlineNotice =
-				this.props.siteConnectionStatus === 'offline' ? <code>Offline Mode</code> : '',
-			sandboxedBadge = this.props.sandboxDomain ? (
+		const { sandboxDomain, siteConnectionStatus } = this.props;
+
+		const offlineNotice = siteConnectionStatus === 'offline' ? <code>Offline Mode</code> : '',
+			sandboxedBadge = sandboxDomain ? (
 				<code
 					id="sandbox-domain-badge"
 					onClick={ this.testConnection }
 					onKeyDown={ this.testConnection }
 					role="button"
 					tabIndex={ 0 }
-					title={ `Sandboxing via ${ this.props.sandboxDomain }. Click to test connection.` }
+					title={ `Sandboxing via ${ sandboxDomain }. Click to test connection.` }
 				>
 					API Sandboxed
 				</code>
 			) : (
 				''
-			),
-			isDashboardView =
-				includes( [ '/', '/dashboard', '/my-plan', '/plans' ], this.props.location.pathname ) ||
-				this.props.location.pathname.includes( '/recommendations' ),
-			isStatic = '' === this.props.location.pathname;
-
-		const hideNav = this.props.location.pathname.startsWith( '/setup' );
+			);
 
 		return (
 			<div className="jp-masthead">
@@ -84,30 +57,7 @@ export class Masthead extends React.Component {
 						{ offlineNotice }
 						{ sandboxedBadge }
 					</div>
-					{ this.props.userCanEditPosts && ! hideNav && (
-						<div className="jp-masthead__nav">
-							{ ! isStatic && this.props.siteConnectionStatus && (
-								<ButtonGroup>
-									<Button
-										compact={ true }
-										href="#/dashboard"
-										primary={ isDashboardView && ! isStatic }
-										onClick={ this.trackDashClick }
-									>
-										{ __( 'Dashboard', 'jetpack' ) }
-									</Button>
-									<Button
-										compact={ true }
-										href="#/settings"
-										primary={ ! isDashboardView && ! isStatic }
-										onClick={ this.trackSettingsClick }
-									>
-										{ __( 'Settings', 'jetpack' ) }
-									</Button>
-								</ButtonGroup>
-							) }
-						</div>
-					) }
+					<HeaderNav location={ this.props.location } />
 				</div>
 			</div>
 		);
@@ -117,10 +67,8 @@ export class Masthead extends React.Component {
 export default connect(
 	state => {
 		return {
-			siteConnectionStatus: getSiteConnectionStatus( state ),
 			sandboxDomain: getSandboxDomain( state ),
-			currentVersion: getCurrentVersion( state ),
-			userCanEditPosts: userCanEditPosts( state ),
+			siteConnectionStatus: getSiteConnectionStatus( state ),
 		};
 	},
 	dispatch => {

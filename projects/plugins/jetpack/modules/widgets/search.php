@@ -7,9 +7,9 @@
  * @since      5.0.0
  */
 
-use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Tracking;
 
 add_action( 'widgets_init', 'jetpack_search_widget_init' );
 
@@ -118,7 +118,6 @@ class Jetpack_Search_Widget extends WP_Widget {
 		Jetpack::activate_module( 'search', false, false );
 	}
 
-
 	/**
 	 * Enqueues the scripts and styles needed for the customizer.
 	 *
@@ -127,32 +126,20 @@ class Jetpack_Search_Widget extends WP_Widget {
 	public function widget_admin_setup() {
 		wp_enqueue_style( 'widget-jetpack-search-filters', plugins_url( 'search/css/search-widget-admin-ui.css', __FILE__ ) );
 
-		// Required for Tracks
-		wp_register_script(
-			'jp-tracks',
-			'//stats.wp.com/w.js',
-			array(),
-			gmdate( 'YW' ),
-			true
-		);
-
-		wp_register_script(
-			'jp-tracks-functions',
-			plugins_url( '_inc/lib/tracks/tracks-callables.js', JETPACK__PLUGIN_FILE ),
-			array(),
-			JETPACK__VERSION,
-			false
-		);
+		// Register jp-tracks and jp-tracks-functions.
+		Tracking::register_tracks_functions_scripts();
 
 		wp_register_script(
 			'jetpack-search-widget-admin',
 			plugins_url( 'search/js/search-widget-admin.js', __FILE__ ),
-			array( 'jquery', 'jquery-ui-sortable', 'jp-tracks', 'jp-tracks-functions' ),
+			array( 'jquery', 'jquery-ui-sortable', 'jp-tracks-functions' ),
 			JETPACK__VERSION
 		);
 
 		wp_localize_script(
-			'jetpack-search-widget-admin', 'jetpack_search_filter_admin', array(
+			'jetpack-search-widget-admin',
+			'jetpack_search_filter_admin',
+			array(
 				'defaultFilterCount' => self::DEFAULT_FILTER_COUNT,
 				'tracksUserData'     => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
 				'tracksEventData'    => array(
@@ -252,7 +239,8 @@ class Jetpack_Search_Widget extends WP_Widget {
 
 	public function jetpack_search_populate_defaults( $instance ) {
 		$instance = wp_parse_args(
-			(array) $instance, array(
+			(array) $instance,
+			array(
 				'title'              => '',
 				'search_box_enabled' => true,
 				'user_sort_enabled'  => true,
@@ -301,13 +289,14 @@ class Jetpack_Search_Widget extends WP_Widget {
 						<?php esc_html_e( 'Jetpack Search not supported in Offline Mode', 'jetpack' ); ?>
 					</label>
 				</div>
-			</div><?php
+			</div>
+			<?php
 			echo $args['after_widget']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			return;
 		}
 
 		if ( Jetpack_Search_Options::is_instant_enabled() ) {
-			if ( 'jetpack-instant-search-sidebar' === $args['id'] ) {
+			if ( array_key_exists( 'id', $args ) && 'jetpack-instant-search-sidebar' === $args['id'] ) {
 				$this->widget_empty_instant( $args, $instance );
 			} else {
 				$this->widget_instant( $args, $instance );
@@ -384,7 +373,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 		}
 
 		if ( ! empty( $instance['search_box_enabled'] ) && ! empty( $instance['user_sort_enabled'] ) ) :
-				?>
+			?>
 					<div class="jetpack-search-sort-wrapper">
 				<label>
 					<?php esc_html_e( 'Sort by', 'jetpack' ); ?>
@@ -397,7 +386,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 					</select>
 				</label>
 			</div>
-		<?php
+			<?php
 		endif;
 
 		if ( $display_filters ) {
@@ -535,7 +524,6 @@ class Jetpack_Search_Widget extends WP_Widget {
 		echo $args['after_widget']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
-
 	/**
 	 * Renders JavaScript for the sorting controls on the frontend.
 	 *
@@ -556,7 +544,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 		}
 
 		if ( ! empty( $instance['user_sort_enabled'] ) ) :
-		?>
+			?>
 		<script type="text/javascript">
 			var jetpackSearchModuleSorting = function() {
 				var orderByDefault = '<?php echo 'date' === $orderby ? 'date' : 'relevance'; ?>',
@@ -599,7 +587,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 				document.addEventListener( 'DOMContentLoaded', jetpackSearchModuleSorting );
 			}
 			</script>
-		<?php
+			<?php
 		endif;
 	}
 
@@ -636,7 +624,8 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * @return array Settings to save.
 	 */
 	public function update( $new_instance, $old_instance ) {
-		$instance = array();
+		$new_instance = $this->maybe_reformat_widget( $new_instance );
+		$instance     = array();
 
 		$instance['title']              = sanitize_text_field( $new_instance['title'] );
 		$instance['search_box_enabled'] = empty( $new_instance['search_box_enabled'] ) ? '0' : '1';
@@ -686,6 +675,32 @@ class Jetpack_Search_Widget extends WP_Widget {
 			$instance['filters'] = $filters;
 		}
 
+		return $instance;
+	}
+
+	/**
+	 * Reformats the widget instance array to one that is recognized by the `update` function.
+	 * This is only necessary when handling changes from the block-based widget editor.
+	 *
+	 * @param array $widget_instance - Jetpack Search widget instance.
+	 *
+	 * @return array - Potentially reformatted instance compatible with the save function.
+	 */
+	protected function maybe_reformat_widget( $widget_instance ) {
+		if ( isset( $widget_instance['filter_type'] ) || ! isset( $widget_instance['filters'] ) || ! is_array( $widget_instance['filters'] ) ) {
+			return $widget_instance;
+		}
+
+		$instance = $widget_instance;
+		foreach ( $widget_instance['filters'] as $filter ) {
+			$instance['filter_type'][]             = isset( $filter['type'] ) ? $filter['type'] : '';
+			$instance['taxonomy_type'][]           = isset( $filter['taxonomy'] ) ? $filter['taxonomy'] : '';
+			$instance['filter_name'][]             = isset( $filter['name'] ) ? $filter['name'] : '';
+			$instance['num_filters'][]             = isset( $filter['count'] ) ? $filter['count'] : 5;
+			$instance['date_histogram_field'][]    = isset( $filter['field'] ) ? $filter['field'] : '';
+			$instance['date_histogram_interval'][] = isset( $filter['interval'] ) ? $filter['interval'] : '';
+		}
+		unset( $instance['filters'] );
 		return $instance;
 	}
 
@@ -910,7 +925,8 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 */
 	public function render_widget_edit_filter( $filter, $is_template = false ) {
 		$args = wp_parse_args(
-			$filter, array(
+			$filter,
+			array(
 				'name'      => '',
 				'type'      => 'taxonomy',
 				'taxonomy'  => '',
@@ -1036,6 +1052,6 @@ class Jetpack_Search_Widget extends WP_Widget {
 				<a href="#" class="delete"><?php esc_html_e( 'Remove', 'jetpack' ); ?></a>
 			</p>
 		</div>
-	<?php
+		<?php
 	}
 }

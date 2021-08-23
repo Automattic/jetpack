@@ -4,6 +4,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { __, sprintf } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -11,8 +12,8 @@ import { __, sprintf } from '@wordpress/i18n';
 import analytics from 'lib/analytics';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset } from 'components/forms';
+import { isOfflineMode } from 'state/connection';
 import { getModule, getModuleOverride } from 'state/modules';
-import getRedirectUrl from 'lib/jp-redirect';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
@@ -51,8 +52,12 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 			const siteAcceleratorStatus = newPhotonStatus || newAssetCdnStatus;
 
 			// Are the modules available?
-			const photonStatus = this.props.getModuleOverride( 'photon' );
 			const assetCdnStatus = this.props.getModuleOverride( 'photon-cdn' );
+			let photonStatus = this.props.getModuleOverride( 'photon' );
+			// Force Photon to be inactive if we are not in offline mode.
+			if ( this.props.isOfflineMode ) {
+				photonStatus = 'inactive';
+			}
 
 			// If one of them is on, we turn everything off, including Tiled Galleries that depend on Photon.
 			if ( true === siteAcceleratorStatus ) {
@@ -162,9 +167,14 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 			const siteAcceleratorStatus =
 				this.props.getOptionValue( 'photon' ) || this.props.getOptionValue( 'photon-cdn' );
 
-			// Is at least one of the 2 modules available (not hidden via a module override)?
-			const photonStatus = this.props.getModuleOverride( 'photon' );
+			// Is at least one of the 2 modules available (not hidden via a module override, or unavailable because of offline mode)?
 			const assetCdnStatus = this.props.getModuleOverride( 'photon-cdn' );
+			let photonStatus = this.props.getModuleOverride( 'photon' );
+			// Force Photon to be inactive if we are not in offline mode.
+			if ( this.props.isOfflineMode ) {
+				photonStatus = 'inactive';
+			}
+
 			const canDisplaySiteAcceleratorSettings =
 				foundPhoton &&
 				foundAssetCdn &&
@@ -325,6 +335,7 @@ export default connect( state => {
 	return {
 		module: module_name => getModule( state, module_name ),
 		isModuleFound: module_name => _isModuleFound( state, module_name ),
+		isOfflineMode: isOfflineMode( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 	};
 } )( SpeedUpSite );

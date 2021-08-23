@@ -18,6 +18,11 @@ import { chalkJetpackGreen } from '../styling';
 import { normalizeInstallArgv } from '../normalizeArgv';
 
 /**
+ * The `pnpm install` command promise for this run.
+ */
+let pnpmInstallPromise = null;
+
+/**
  * Test if a lockfile is checked in.
  *
  * @param {string} cwd - Path being processed.
@@ -36,7 +41,6 @@ async function hasLockFile( cwd, lockFile ) {
  * Preps the task for an individual project.
  *
  * @param {object} argv - Argv object for an install command. Must contain project and root at least.
- *
  * @returns {object} - The project install task per Listr format.
  */
 export default function installProjectTask( argv ) {
@@ -47,37 +51,33 @@ export default function installProjectTask( argv ) {
 		console.error( 'You cannot create an install task for nothing.' );
 		process.exit( 1 );
 	}
-	const yarnCacheFile = path.resolve( process.cwd(), '.yarn-cache-lock' );
 	const cwd = argv.root ? process.cwd() : path.resolve( `projects/${ argv.project }` );
 	const composerEnabled = argv.root ? true : Boolean( readComposerJson( argv.project, false ) );
-	const yarnEnabled = argv.root ? true : Boolean( readPackageJson( argv.project, false ) );
+	const pnpmEnabled = argv.root ? true : Boolean( readPackageJson( argv.project, false ) );
 	argv.project = argv.root ? 'Monorepo' : argv.project;
 
 	const command = async ( pkgMgr, verbose ) => {
 		// For composer, choose 'install' or 'update' depending on whether the lockfile is checked in.
-		// For yarn, always use 'install' ('upgrade' has weird behavior), removing any stale local lockfile first.
+		// For pnpm, the lockfile is always checked in thanks to the workspace thing.
 		let subcommand;
-		let args = '';
+		let args = ''; // eslint-disable-line prefer-const
 		if ( pkgMgr === 'composer' ) {
 			subcommand = ( await hasLockFile( cwd, 'composer.lock' ) ) ? 'install' : 'update';
-		} else if ( pkgMgr === 'yarn' ) {
-			subcommand = 'install';
-			if (
-				! ( await hasLockFile( cwd, 'yarn.lock' ) ) &&
-				fs.existsSync( path.resolve( cwd, 'yarn.lock' ) )
-			) {
-				fs.unlinkSync( path.resolve( cwd, 'yarn.lock' ) );
+		} else if ( pkgMgr === 'pnpm' ) {
+			if ( pnpmInstallPromise ) {
+				return pnpmInstallPromise;
 			}
-			// Yarn's own cache access is not multi-process safe, and yarn isn't being developed anymore (they want
-			// to replace it with "berry" aka "yarn 2") so we'll have to go with the poor mutex workaround.
-			// See https://github.com/yarnpkg/yarn/issues/683
-			args += ` --mutex=file:${ yarnCacheFile }`;
+			subcommand = 'install';
 		} else {
 			throw new Error( `Unknown package manager ${ pkgMgr }` );
 		}
-		return verbose
+		const ret = verbose
 			? execa.commandSync( `${ pkgMgr } ${ subcommand } ${ args }`, { cwd: cwd, stdio: 'inherit' } )
 			: execa.command( `${ pkgMgr } ${ subcommand } ${ args }`, { cwd: cwd } );
+		if ( pkgMgr === 'pnpm' ) {
+			pnpmInstallPromise = ret;
+		}
+		return ret;
 	};
 
 	const task = ( pkgMgr, enabled ) => {
@@ -98,7 +98,7 @@ export default function installProjectTask( argv ) {
 		title: chalk.yellow( `Installing ${ argv.project }` ),
 		task: () => {
 			return new Listr(
-				[ task( 'Composer', composerEnabled ), task( 'Yarn', yarnEnabled ) ],
+				[ task( 'Composer', composerEnabled ), task( 'Pnpm', pnpmEnabled ) ],
 				opts
 			);
 		},

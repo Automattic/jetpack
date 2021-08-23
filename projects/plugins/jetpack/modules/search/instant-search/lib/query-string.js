@@ -7,7 +7,7 @@ import { encode } from 'qss';
  * Internal dependencies
  */
 import { SERVER_OBJECT_NAME, VALID_RESULT_FORMAT_KEYS } from './constants';
-import { getFilterKeys } from './filters';
+import { getFilterKeys, getStaticFilterKeys } from './filters';
 import { decode } from '../external/query-string-decode';
 
 /**
@@ -71,7 +71,7 @@ export function restorePreviousHref( initialHref, callback, replaceState = false
 	if ( history.pushState && history.replaceState ) {
 		const url = new URL( initialHref );
 		const queryObject = getQuery( url.search );
-		const keys = [ ...getFilterKeys(), 's', 'sort' ];
+		const keys = [ ...getFilterKeys(), ...getStaticFilterKeys(), 's', 'sort' ];
 
 		// If initialHref has search or filter query values, clear them.
 		const initialHasSearchQueries = Object.keys( queryObject ).some( key => keys.includes( key ) );

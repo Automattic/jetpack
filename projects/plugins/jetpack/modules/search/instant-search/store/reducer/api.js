@@ -3,7 +3,6 @@
  *
  * @param {object} state - Current state.
  * @param {object} action - Dispatched action.
- *
  * @returns {object} Updated state.
  */
 export function hasError( state = false, action ) {
@@ -23,7 +22,6 @@ export function hasError( state = false, action ) {
  *
  * @param {object} state - Current state.
  * @param {object} action - Dispatched action.
- *
  * @returns {object} Updated state.
  */
 export function isLoading( state = false, action ) {
@@ -43,7 +41,6 @@ export function isLoading( state = false, action ) {
  *
  * @param {object} state - Current state.
  * @param {object} action - Dispatched action.
- *
  * @returns {object} Updated state.
  */
 export function response( state = {}, action ) {
@@ -68,10 +65,9 @@ export function response( state = {}, action ) {
 				newState.results = [ ...( 'results' in state ? state.results : [] ), ...newState.results ];
 			}
 
-			// NOTE: There's a bug in the API where paginating to the next page can return an empty response.
-			//       This is most likely caused by setting excluded post types. Since `response.total` is unreliable
-			//       in this instance, manually set it to the length of the results array.
-			if ( Array.isArray( newState.results ) && newState.results.length !== newState.total ) {
+			// To prevent our interface from erroneously rendering a "no result" search results page when
+			// we actually have results, override the total if the size of our results exceed the `response.total` value.
+			if ( Array.isArray( newState.results ) && newState.results.length > newState.total ) {
 				newState.total = newState.results.length;
 			}
 			return newState;

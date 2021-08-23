@@ -9,12 +9,12 @@ import { get, includes } from 'lodash';
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import ExternalLink from 'components/external-link';
-import getRedirectUrl from 'lib/jp-redirect';
 import TextInput from 'components/text-input';
 import { FormFieldset, FormLabel } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
@@ -30,6 +30,7 @@ class VerificationServicesComponent extends React.Component {
 		bing: 'msvalidate.01',
 		pinterest: 'p:domain_verify',
 		yandex: 'yandex-verification',
+		facebook: 'facebook-domain-verification',
 	};
 
 	getMetaTag( serviceName = '', content = '' ) {
@@ -87,7 +88,13 @@ class VerificationServicesComponent extends React.Component {
 			<SettingsCard
 				{ ...this.props }
 				module={ verification.module }
-				saveDisabled={ this.props.isSavingAnyOption( [ 'google', 'bing', 'pinterest', 'yandex' ] ) }
+				saveDisabled={ this.props.isSavingAnyOption( [
+					'google',
+					'bing',
+					'pinterest',
+					'yandex',
+					'facebook',
+				] ) }
 			>
 				<SettingsGroup
 					module={ verification }
@@ -114,7 +121,7 @@ class VerificationServicesComponent extends React.Component {
 						{ createInterpolateElement(
 							/* translators: placeholders are links to external sites. */
 							__(
-								'Note that <b>verifying your site with these services is not necessary</b> in order for your site to be indexed by search engines. To use these advanced search engine tools and verify your site with a service, paste the HTML Tag code below. Read the <support>full instructions</support> if you are having trouble. Supported verification services: <google>Google Search Console</google>, <bing>Bing Webmaster Center</bing>, <pinterest>Pinterest Site Verification</pinterest>, and <yandex>Yandex.Webmaster</yandex>.',
+								'Note that <b>verifying your site with these services is not necessary</b> in order for your site to be indexed by search engines. To use these advanced search engine tools and verify your site with a service, paste the HTML Tag code below. Read the <support>full instructions</support> if you are having trouble. Supported verification services: <google>Google Search Console</google>, <bing>Bing Webmaster Center</bing>, <pinterest>Pinterest Site Verification</pinterest>, <yandex>Yandex.Webmaster</yandex>, and <facebook>Facebook Domain Verification</facebook>.',
 								'jetpack'
 							),
 							{
@@ -150,6 +157,14 @@ class VerificationServicesComponent extends React.Component {
 										target="_blank"
 										rel="noopener noreferrer"
 										href="https://webmaster.yandex.com/sites/"
+									/>
+								),
+								facebook: (
+									<ExternalLink
+										icon={ true }
+										target="_blank"
+										rel="noopener noreferrer"
+										href="https://business.facebook.com/settings/"
 									/>
 								),
 							}
@@ -192,6 +207,17 @@ class VerificationServicesComponent extends React.Component {
 								placeholder={ this.getMetaTag( 'yandex', '1234' ) }
 								className="code"
 								disabled={ this.props.isUpdating( 'yandex' ) || ! isVerificationActive }
+								onChange={ this.props.onOptionChange }
+							/>
+						</FormLabel>
+						<FormLabel className="jp-form-input-with-prefix" key="verification_service_facebook">
+							<span>{ __( 'Facebook', 'jetpack' ) }</span>
+							<TextInput
+								name="facebook"
+								value={ this.getSiteVerificationValue( 'facebook' ) }
+								placeholder={ this.getMetaTag( 'facebook', '1234' ) }
+								className="code"
+								disabled={ this.props.isUpdating( 'facebook' ) || ! isVerificationActive }
 								onChange={ this.props.onOptionChange }
 							/>
 						</FormLabel>

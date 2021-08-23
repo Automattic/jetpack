@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Sync: Removing references to the JETPACK__PLUGIN_DIR constant.

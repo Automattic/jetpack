@@ -281,8 +281,10 @@ class Jetpack_SEO_Titles {
 		foreach ( $title_formats as &$format_array ) {
 			foreach ( $format_array as &$item ) {
 				if ( 'string' === $item['type'] ) {
-					// Using esc_html() vs sanitize_text_field() since we want to preserve extra spacing around items.
-					$item['value'] = esc_html( $item['value'] );
+					// From `wp_strip_all_tags`, but omitting the `trim` portion since we want spacing preserved.
+					$item['value'] = preg_replace( '@<(script|style)[^>]*?>.*?</\\1>@si', '', $item['value'] );
+					$item['value'] = strip_tags( $item['value'] ); // phpcs:ignore WordPress.WP.AlternativeFunctions.strip_tags_strip_tags
+					$item['value'] = preg_replace( '/[\r\n\t ]+/', ' ', $item['value'] );
 				}
 			}
 		}

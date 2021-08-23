@@ -80,6 +80,16 @@ export function getFilters( state ) {
 }
 
 /**
+ * Get the selected static filters.
+ *
+ * @param {object} state - Current state.
+ * @returns {object} filters - An object mapping filter keys and its selected values.
+ */
+export function getStaticFilters( state ) {
+	return state.staticFilters;
+}
+
+/**
  * Checks if any filters have been selected.
  *
  * @param {object} state - Current state.
@@ -90,13 +100,28 @@ export function hasFilters( state ) {
 }
 
 /**
+ * Checks if any static filters have been selected.
+ *
+ * @param {object} state - Current state.
+ * @returns {object} hasStaticFilters - true if any filter has been selected.
+ */
+function hasStaticFilters( state ) {
+	return Object.keys( state.staticFilters ).length > 0;
+}
+
+/**
  * Checks if there is an active search-related query values.
  *
  * @param {object} state - Current state.
  * @returns {object} hasActiveQuery - true if any search-related query value has been defined.
  */
 export function hasActiveQuery( state ) {
-	return getSearchQuery( state ) !== null || hasFilters( state ) || state.sort !== null;
+	return (
+		getSearchQuery( state ) !== null ||
+		hasFilters( state ) ||
+		hasStaticFilters( state ) ||
+		state.sort !== null
+	);
 }
 
 /**

@@ -168,6 +168,7 @@ class Defaults {
 		'wp_mobile_featured_images',
 		'wp_mobile_app_promos',
 		'wp_page_for_privacy_policy',
+		'wpcom_is_fse_activated',
 		'wpcom_publish_posts_with_markdown',
 		'wpcom_publish_comments_with_markdown',
 	);
@@ -279,10 +280,10 @@ class Defaults {
 		'wp_max_upload_size'               => 'wp_max_upload_size',
 		'is_main_network'                  => array( __CLASS__, 'is_multi_network' ),
 		'is_multi_site'                    => 'is_multisite',
-		'main_network_site'                => array( 'Automattic\\Jetpack\\Sync\\Functions', 'main_network_site_url' ),
+		'main_network_site'                => array( 'Automattic\\Jetpack\\Connection\\Urls', 'main_network_site_url' ),
 		'main_network_site_wpcom_id'       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'main_network_site_wpcom_id' ),
-		'site_url'                         => array( 'Automattic\\Jetpack\\Sync\\Functions', 'site_url' ),
-		'home_url'                         => array( 'Automattic\\Jetpack\\Sync\\Functions', 'home_url' ),
+		'site_url'                         => array( 'Automattic\\Jetpack\\Connection\\Urls', 'site_url' ),
+		'home_url'                         => array( 'Automattic\\Jetpack\\Connection\\Urls', 'home_url' ),
 		'has_file_system_write_access'     => array( 'Automattic\\Jetpack\\Sync\\Functions', 'file_system_write_access' ),
 		'is_version_controlled'            => array( 'Automattic\\Jetpack\\Sync\\Functions', 'is_version_controlled' ),
 		'taxonomies'                       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_taxonomies' ),
@@ -303,6 +304,7 @@ class Defaults {
 		'paused_plugins'                   => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_plugins' ),
 		'theme_support'                    => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_theme_support' ),
 		'wp_get_environment_type'          => 'wp_get_environment_type',
+		'is_fse_theme'                     => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_is_fse_theme' ),
 	);
 
 	/**
@@ -504,7 +506,6 @@ class Defaults {
 		'post_time',
 		'postmeta',
 		'posts_per_page',
-		'product_cat',
 		'product_search_form',
 		'profile_url',
 		'pung',

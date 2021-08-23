@@ -5,6 +5,7 @@ const getBaseWebpackConfig = require( '@automattic/calypso-build/webpack.config.
 const path = require( 'path' );
 const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
 const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
+const NodePolyfillPlugin = require( 'node-polyfill-webpack-plugin' );
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -22,11 +23,14 @@ const sharedWebpackConfig = {
 	resolve: {
 		...baseWebpackConfig.resolve,
 		modules: [ path.resolve( path.dirname( __dirname ), '_inc/client' ), 'node_modules' ],
+		// We want the compiled version, not the "calypso:src" sources.
+		mainFields: baseWebpackConfig.resolve.mainFields.filter( entry => 'calypso:src' !== entry ),
+		alias: {
+			...baseWebpackConfig.resolve.alias,
+			fs: false,
+		},
 	},
-	node: {
-		fs: 'empty',
-		process: true,
-	},
+	node: {},
 	devtool: isDevelopment ? 'source-map' : false,
 };
 
@@ -37,9 +41,13 @@ module.exports = [
 		// Entry points point to the javascript module
 		// that is used to generate the script file.
 		// The key is used as the name of the script.
-		entry: { admin: path.join( path.dirname( __dirname ), '_inc/client', 'admin.js' ) },
+		entry: {
+			admin: path.join( path.dirname( __dirname ), '_inc/client', 'admin.js' ),
+			'search-dashboard': path.join( __dirname, '../_inc/client', 'search-dashboard-entry.js' ),
+		},
 		plugins: [
 			...sharedWebpackConfig.plugins,
+			new NodePolyfillPlugin(),
 			new DependencyExtractionWebpackPlugin( { injectPolyfill: true } ),
 		],
 	},

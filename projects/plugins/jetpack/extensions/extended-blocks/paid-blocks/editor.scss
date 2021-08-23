@@ -23,6 +23,7 @@ $icon-background-color: #fff;
 		.banner-title,
 		.banner-description {
 			color: $studio-white;
+			margin-right: 10px;
 		}
 
 		.jetpack-upgrade-plan-banner__title,
@@ -68,7 +69,7 @@ $icon-background-color: #fff;
 }
 
 .jetpack-upgrade-plan__hidden {
-	visibility: hidden;
+	display: none;
 }
 
 // Tweak Banner depending on the context.

@@ -137,7 +137,7 @@ export function CalendlyEdit( props ) {
 					id="embedCode"
 					onChange={ event => setEmbedCode( event.target.value ) }
 					placeholder={ __( 'Calendly web address or embed code…', 'jetpack' ) }
-					value={ embedCode }
+					value={ embedCode || '' }
 					className="components-placeholder__input"
 				/>
 				<div>
@@ -209,7 +209,10 @@ export function CalendlyEdit( props ) {
 		return blockEmbedding;
 	}
 
-	const classes = `${ className } calendly-style-${ style }`;
+	let classes = className;
+	if ( url && ! isEditingUrl ) {
+		classes += ` calendly-style-${ style }`;
+	}
 
 	return (
 		<div className={ classes }>

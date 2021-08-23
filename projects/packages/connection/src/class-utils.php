@@ -7,13 +7,16 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Tracking;
+
 /**
  * Provides utility methods for the Connection package.
  */
 class Utils {
 
-	const DEFAULT_JETPACK__API_VERSION = 1;
-	const DEFAULT_JETPACK__API_BASE    = 'https://jetpack.wordpress.com/jetpack.';
+	const DEFAULT_JETPACK__API_VERSION         = 1;
+	const DEFAULT_JETPACK__API_BASE            = 'https://jetpack.wordpress.com/jetpack.';
+	const DEFAULT_JETPACK__WPCOM_JSON_API_BASE = 'https://public-api.wordpress.com';
 
 	/**
 	 * This method used to set the URL scheme to HTTP when HTTPS requests can't be made.
@@ -22,17 +25,17 @@ class Utils {
 	 * @param string $url The url.
 	 * @return string The exact same url.
 	 *
-	 * @deprecated 9.1.0 Jetpack can't function properly on servers that don't support outbound HTTPS requests.
+	 * @deprecated 1.19.2 Jetpack can't function properly on servers that don't support outbound HTTPS requests.
 	 */
 	public static function fix_url_for_bad_hosts( $url ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.1.0' );
+		_deprecated_function( __METHOD__, '1.19.2' );
 		return $url;
 	}
 
 	/**
 	 * Enters a user token into the user_tokens option
 	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens->update_user_token() instead.
+	 * @deprecated 1.24.0 Use Automattic\Jetpack\Connection\Tokens->update_user_token() instead.
 	 *
 	 * @param int    $user_id The user id.
 	 * @param string $token The user token.
@@ -40,7 +43,7 @@ class Utils {
 	 * @return bool
 	 */
 	public static function update_user_token( $user_id, $token, $is_master_user ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->update_user_token' );
+		_deprecated_function( __METHOD__, '1.24.0', 'Automattic\\Jetpack\\Connection\\Tokens->update_user_token' );
 		return ( new Tokens() )->update_user_token( $user_id, $token, $is_master_user );
 	}
 
@@ -75,4 +78,24 @@ class Utils {
 			2
 		);
 	}
+
+	/**
+	 * Filters the registration request body to include tracking properties.
+	 *
+	 * @param array $properties Already prepared tracking properties.
+	 * @return array amended properties.
+	 */
+	public static function filter_register_request_body( $properties ) {
+		$tracking        = new Tracking();
+		$tracks_identity = $tracking->tracks_get_identity( get_current_user_id() );
+
+		return array_merge(
+			$properties,
+			array(
+				'_ui' => $tracks_identity['_ui'],
+				'_ut' => $tracks_identity['_ut'],
+			)
+		);
+	}
+
 }

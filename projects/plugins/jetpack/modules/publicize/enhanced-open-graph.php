@@ -19,6 +19,11 @@ function enhanced_og_image( $tags ) {
 
 	global $post;
 
+	// Bail if we do not have info about the post.
+	if ( ! $post instanceof WP_Post ) {
+		return $tags;
+	}
+
 	// Always favor featured images.
 	if ( enhanced_og_has_featured_image( $post->ID ) )
 		return $tags;
@@ -43,6 +48,11 @@ function enhanced_og_gallery( $tags ) {
 		return $tags;
 
 	global $post;
+
+	// Bail if we do not have info about the post.
+	if ( ! $post instanceof WP_Post ) {
+		return $tags;
+	}
 
 	// Always favor featured images.
 	if ( enhanced_og_has_featured_image( $post->ID ) )
@@ -77,6 +87,11 @@ function enhanced_og_video( $tags ) {
 		return $tags;
 
 	global $post;
+
+	// Bail if we do not have info about the post.
+	if ( ! $post instanceof WP_Post ) {
+		return $tags;
+	}
 
 	// Always favor featured images.
 	if ( enhanced_og_has_featured_image( $post->ID ) )

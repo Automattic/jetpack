@@ -1,5 +1,5 @@
 /**
- **** WARNING: No ES6 modules here. Not transpiled! ****
+ *WARNING: No ES6 modules here. Not transpiled! ****
  */
 /* eslint-disable lodash/import-scope */
 
@@ -13,10 +13,12 @@ const getBaseWebpackConfig = require( '@automattic/calypso-build/webpack.config.
 const path = require( 'path' );
 const webpack = require( 'webpack' );
 const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
+const jsdom = require( 'jsdom' );
 
 /**
  * Internal dependencies
  */
+const CopyBlockEditorAssetsPlugin = require( './copy-block-editor-assets' );
 // const { workerCount } = require( './webpack.common' ); // todo: shard...
 
 /**
@@ -117,6 +119,7 @@ const extensionsWebpackConfig = getBaseWebpackConfig(
 		},
 		'output-chunk-filename': '[name].[chunkhash].js',
 		'output-path': path.join( path.dirname( __dirname ), '_inc', 'blocks' ),
+		'output-jsonp-function': 'webpackJsonpJetpack',
 	}
 );
 
@@ -141,6 +144,13 @@ const componentsWebpackConfig = getBaseWebpackConfig(
 module.exports = [
 	{
 		...extensionsWebpackConfig,
+		resolve: {
+			...extensionsWebpackConfig.resolve,
+			// We want the compiled version, not the "calypso:src" sources.
+			mainFields: extensionsWebpackConfig.resolve.mainFields.filter(
+				entry => 'calypso:src' !== entry
+			),
+		},
 		plugins: [
 			...extensionsWebpackConfig.plugins,
 			new CopyWebpackPlugin( [
@@ -149,15 +159,32 @@ module.exports = [
 					to: 'index.json',
 				},
 			] ),
+			new CopyBlockEditorAssetsPlugin(),
 		],
 	},
 	{
 		...componentsWebpackConfig,
+		resolve: {
+			...componentsWebpackConfig.resolve,
+			// We want the compiled version, not the "calypso:src" sources.
+			mainFields: componentsWebpackConfig.resolve.mainFields.filter(
+				entry => 'calypso:src' !== entry
+			),
+		},
 		plugins: [
 			...componentsWebpackConfig.plugins,
 			new webpack.NormalModuleReplacementPlugin(
 				/^@wordpress\/i18n$/,
-				path.join( path.dirname( __dirname ), './extensions/shared/i18n-to-php' )
+				// We want to exclude extensions/shared/i18n-to-php so we can import and re-export
+				// any methods that we are not overriding
+				resource => {
+					if ( ! resource.contextInfo.issuer.includes( 'extensions/shared/i18n-to-php' ) ) {
+						resource.request = path.join(
+							path.dirname( __dirname ),
+							'./extensions/shared/i18n-to-php'
+						);
+					}
+				}
 			),
 			new webpack.NormalModuleReplacementPlugin(
 				/^\.\/create-interpolate-element$/,
@@ -171,12 +198,7 @@ module.exports = [
 						init: _.noop,
 						prototype: {},
 					},
-					document: {
-						addEventListener: _.noop,
-						createElement: _.noop,
-						documentElement: _.noop,
-						head: { appendChild: _.noop },
-					},
+					document: new jsdom.JSDOM().window.document,
 					navigator: {},
 					window: {
 						addEventListener: _.noop,
@@ -193,6 +215,9 @@ module.exports = [
 						},
 						removeEventListener: _.noop,
 						URL: {},
+					},
+					CSS: {
+						supports: () => false,
 					},
 				},
 			} ),

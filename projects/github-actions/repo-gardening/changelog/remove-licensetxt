@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Removed license.txt from source. Still auto-added into the built version.
+
+

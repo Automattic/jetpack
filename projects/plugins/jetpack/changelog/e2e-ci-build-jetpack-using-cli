@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Change the command to build Jetpack in E2E tests Github action workflow

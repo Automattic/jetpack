@@ -1,20 +1,30 @@
 {
 	"name": "@automattic/jetpack-connection",
-	"version": "0.1.0-alpha",
+	"version": "0.6.0-alpha",
 	"description": "Jetpack Connection Component",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
-		"@wordpress/browserslist-config": "3.0.1",
-		"@wordpress/i18n": "^3.9.0",
+		"@automattic/jetpack-api": "workspace:^0.1.0",
+		"@automattic/jetpack-components": "workspace:^0.2.2-alpha",
+		"@wordpress/browserslist-config": "4.1.0",
+		"@wordpress/components": "14.2.0",
+		"@wordpress/data": "6.0.0",
+		"@wordpress/element": "3.2.0",
+		"@wordpress/i18n": "3.20.0",
+		"lodash": "4.17.21",
 		"prop-types": "^15.7.2"
 	},
 	"devDependencies": {
-		"nyc": "15.1.0"
+		"jetpack-js-test-runner": "workspace:*",
+		"nyc": "15.1.0",
+		"react": "17.0.2",
+		"react-dom": "17.0.2",
+		"react-test-renderer": "17.0.2"
 	},
 	"peerDependencies": {
-		"react": "^16.13.1",
-		"react-dom": "^16.13.1"
+		"react": "^17.0.2",
+		"react-dom": "^17.0.2"
 	},
 	"type": "module",
 	"sideEffects": [
@@ -22,6 +32,11 @@
 		"*.scss"
 	],
 	"scripts": {
-		"test": "NODE_ENV=test NODE_PATH=tests:. ../../../tools/js-test-runner.js --jsdom --initfile=../../../tools/js-test-init-enzyme.js 'glob:./!(node_modules)/**/test/*.jsx'"
+		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.jsx'"
+	},
+	"engines": {
+		"node": "^14.16.1",
+		"pnpm": "^6.5.0",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

@@ -12,6 +12,13 @@
 
 namespace Jetpack\Docker\MuPlugin\FixMonorepoPluginsUrl;
 
+use Jetpack\Docker\MuPlugin\Monorepo;
+
+// This allows us to use the most unstable version of packages, e.g. the monorepo versions.
+if ( ! defined( 'JETPACK_AUTOLOAD_DEV' ) ) {
+	define( 'JETPACK_AUTOLOAD_DEV', true );
+}
+
 /**
  * Fix the plugins_url in the Docker dev environment.
  *
@@ -25,8 +32,7 @@ namespace Jetpack\Docker\MuPlugin\FixMonorepoPluginsUrl;
 function jetpack_docker_plugins_url( $url, $path, $plugin ) {
 	global $wp_plugin_paths;
 
-	$monorepo = '/usr/local/src/jetpack-monorepo/';
-	$packages = $monorepo . 'projects/packages/';
+	$packages = ( new Monorepo() )->get( 'packages' );
 
 	if ( strpos( $url, $packages ) !== false && strpos( $plugin, $packages ) === 0 ) {
 		// Look through available monorepo plugins until we find one with the plugin symlink.

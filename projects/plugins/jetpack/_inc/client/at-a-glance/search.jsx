@@ -11,6 +11,7 @@ import { noop } from 'lodash';
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -23,10 +24,9 @@ import {
 	getJetpackProductUpsellByFeature,
 	FEATURE_SEARCH_JETPACK,
 } from 'lib/plans/constants';
-import getRedirectUrl from 'lib/jp-redirect';
 import { getSitePlan, hasActiveSearchPurchase, isFetchingSitePurchases } from 'state/site';
 import { getUpgradeUrl } from 'state/initial-state';
-import { isOfflineMode } from 'state/connection';
+import { getConnectUrl, hasConnectedOwner, isOfflineMode } from 'state/connection';
 import JetpackBanner from 'components/jetpack-banner';
 
 const SEARCH_DESCRIPTION = __(
@@ -66,6 +66,8 @@ class DashSearch extends Component {
 
 		// Connected props
 		isOfflineMode: PropTypes.bool.isRequired,
+		connectUrl: PropTypes.string.isRequired,
+		hasConnectedOwner: PropTypes.string.isRequired,
 	};
 
 	static defaultProps = {
@@ -110,12 +112,26 @@ class DashSearch extends Component {
 				className: 'jp-dash-item__is-inactive',
 				status: 'no-pro-uninstalled-or-inactive',
 				pro_inactive: true,
-				overrideContent: (
+				overrideContent: this.props.hasConnectedOwner ? (
 					<JetpackBanner
 						callToAction={ __( 'Upgrade', 'jetpack' ) }
 						title={ SEARCH_DESCRIPTION }
 						disableHref="false"
 						href={ this.props.upgradeUrl }
+						eventFeature="search"
+						path="dashboard"
+						plan={ getJetpackProductUpsellByFeature( FEATURE_SEARCH_JETPACK ) }
+						icon="search"
+					/>
+				) : (
+					<JetpackBanner
+						callToAction={ __( 'Connect', 'jetpack' ) }
+						title={ __(
+							'Connect your WordPress.com account to upgrade and get Jetpack Search, which helps your visitors instantly find the right content – right when they need it.',
+							'jetpack'
+						) }
+						disableHref="false"
+						href={ this.props.connectUrl }
 						eventFeature="search"
 						path="dashboard"
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SEARCH_JETPACK ) }
@@ -187,5 +203,7 @@ export default connect( state => {
 		isFetching: isFetchingSitePurchases( state ),
 		hasSearchProduct: hasActiveSearchPurchase( state ),
 		upgradeUrl: getUpgradeUrl( state, 'aag-search' ),
+		connectUrl: getConnectUrl( state ),
+		hasConnectedOwner: hasConnectedOwner( state ),
 	};
 } )( DashSearch );

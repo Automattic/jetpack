@@ -150,6 +150,15 @@ abstract class SAL_Site {
 	abstract protected function is_wpforteams_site();
 
 	/**
+	 * Get hub blog id for P2 sites.
+	 *
+	 * @return null
+	 */
+	public function get_p2_hub_blog_id() {
+		return null;
+	}
+
+	/**
 	 * Getter for the p2 organization ID.
 	 *
 	 * @return int
@@ -158,8 +167,13 @@ abstract class SAL_Site {
 		return 0; // WPForTeams\Constants\NO_ORG_ID not loaded.
 	}
 
+	/**
+	 * Detect whether a site is a WordPress.com on Atomic site.
+	 *
+	 * @return bool
+	 */
 	public function is_wpcom_atomic() {
-		return false;
+		return jetpack_is_atomic_site();
 	}
 
 	public function is_wpcom_store() {
@@ -484,7 +498,6 @@ abstract class SAL_Site {
 	}
 
 	function get_logo() {
-
 		// Set an empty response array.
 		$logo_setting = array(
 			'id'    => (int) 0,
@@ -493,16 +506,12 @@ abstract class SAL_Site {
 		);
 
 		// Get current site logo values.
-		$logo = get_option( 'site_logo' );
+		$logo_id = get_option( 'site_logo' );
 
 		// Update the response array if there's a site logo currenty active.
-		if ( $logo && 0 != $logo['id'] ) {
-			$logo_setting['id']  = $logo['id'];
-			$logo_setting['url'] = $logo['url'];
-
-			foreach ( $logo['sizes'] as $size => $properties ) {
-				$logo_setting['sizes'][ $size ] = $properties;
-			}
+		if ( $logo_id ) {
+			$logo_setting['id']  = $logo_id;
+			$logo_setting['url'] = wp_get_attachment_url( $logo_id );
 		}
 
 		return $logo_setting;

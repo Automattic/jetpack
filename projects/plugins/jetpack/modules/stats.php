@@ -64,6 +64,7 @@ function stats_load() {
 	add_filter( 'manage_pages_columns', 'jetpack_stats_post_table' );
 	add_action( 'manage_posts_custom_column', 'jetpack_stats_post_table_cell', 10, 2 );
 	add_action( 'manage_pages_custom_column', 'jetpack_stats_post_table_cell', 10, 2 );
+
 }
 
 /**
@@ -464,6 +465,9 @@ function stats_admin_path() {
  * @return void
  */
 function stats_reports_load() {
+	require_once __DIR__ . '/stats/class-jetpack-stats-upgrade-nudges.php';
+	Jetpack_Stats_Upgrade_Nudges::init();
+
 	wp_enqueue_script( 'jquery' );
 	wp_enqueue_script( 'postbox' );
 	wp_enqueue_script( 'underscore' );
@@ -495,7 +499,7 @@ function stats_reports_load() {
 function stats_reports_css() {
 	?>
 <style type="text/css">
-#jp-stats-wrap {
+#jp-stats-wrap, #jp-stats-report-bottom {
 	max-width: 1040px;
 	margin: 0 auto;
 	overflow: hidden;
@@ -1258,7 +1262,7 @@ function stats_dashboard_widget_content() {
 
 	$post_ids = array();
 
-	$csv_end_date = gmdate( 'Y-m-d' );
+	$csv_end_date = current_time( 'Y-m-d' );
 	$csv_args     = array(
 		'top'    => "&limit=8&end=$csv_end_date",
 		'search' => "&limit=5&end=$csv_end_date",
@@ -1304,8 +1308,10 @@ function stats_dashboard_widget_content() {
 				<p>
 				<?php
 				printf(
-					/* Translators: Stats dashboard widget postviews list: "$post_title $views Views". */
-					esc_html__( '%1$s %2$s Views', 'jetpack' ),
+					esc_html(
+						/* Translators: Stats dashboard widget Post list with view count: "Post Title 1 View (or Views if plural)". */
+						_n( '%1$s %2$s View', '%1$s %2$s Views', $post['views'], 'jetpack' )
+					),
 					'<a href="' . esc_url( get_permalink( $post['post_id'] ) ) . '">' . esc_html( get_the_title( $post['post_id'] ) ) . '</a>',
 					esc_html( number_format_i18n( $post['views'] ) )
 				);

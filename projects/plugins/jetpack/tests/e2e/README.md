@@ -1,3 +1,5 @@
+[![Reports status](https://img.shields.io/website?down_color=grey&down_message=Dashboard%20offline&style=for-the-badge&label=E2E%20TEST%20REPORTS&up_color=green&up_message=see%20dashboard&url=https%3A%2F%2Fautomattic.github.io%2Fjetpack-e2e-reports%2F%23%2F)](https://automattic.github.io/jetpack-e2e-reports)
+
 # Jetpack End-to-End tests
 
 Automated end-to-end acceptance tests for the Jetpack plugin.
@@ -14,11 +16,12 @@ Automated end-to-end acceptance tests for the Jetpack plugin.
 - [Writing tests](#writing-tests)
 - [Tests Architecture](#tests-architecture)
 - [CI configuration](#ci-configuration)
+- [Test reports](#test-reports)
 
 ## Pre-requisites
 
-* This readme assumes that `node`, `yarn` and `docker` are already installed on your machine.
-* Make sure you built Jetpack first. `yarn install && yarn jetpack build` in the monorepo root directory should walk you through it. You can also refer to the monorepo documentation in how to build Jetpack.
+* This readme assumes that `node`, `pnpm` and `docker` are already installed on your machine.
+* Make sure you built Jetpack first. `pnpm install && pnpx jetpack build` in the monorepo root directory should walk you through it. You can also refer to the monorepo documentation in how to build Jetpack.
 
 ## Environment setup
 
@@ -29,7 +32,7 @@ Jetpack E2E tests relies on encrypted configuration file, which is included in t
 To decrypt the config file (a8c only):
 
 - Find a decryption key. Search secret store for "E2E Jetpack CONFIG_KEY"
-- Run `CONFIG_KEY=YOUR_KEY yarn test-decrypt-config`. This command should create a new file  [`local-test.js`](./config/local-test.js)
+- Run `CONFIG_KEY=YOUR_KEY pnpm test-decrypt-config`. This command should create a new file  [`local-test.js`](./config/local-test.js)
 
 ### WP Site Configuration
 
@@ -47,12 +50,12 @@ These tests use `localtunnel` library to expose localhost:8889 via a public url.
 
 To start a tunnel:
 ```
-yarn tunnel-on
+pnpm tunnel-on
 ```
 
 To stop the tunnel:
 ```
-yarn tunnel-off
+pnpm tunnel-off
 ```
 
 The tunnel url will be stored in a file so that it can be read by the tests and then reused by the tunnel script. See config files for details. If you want a different url, simply delete the file or update its content. 
@@ -67,43 +70,43 @@ The tunnel url will be stored in a file so that it can be read by the tests and 
 
 Once you target WP environment is running on `localhost:8889` you can run the tests.
 
-Run all tests: `yarn test-e2e`
+Run all tests: `pnpm test-e2e`
 
 Playwright runs headless by default (i.e. browser is not visible). However, sometimes it's useful to observe the browser while running tests. To see the browser window, and the running tests you can pass `HEADLESS=false` as follows:
 
 ```bash
-HEADLESS=false yarn test-e2e
+HEADLESS=false pnpm test-e2e
 ```
 
 To run an individual test, use the direct path to the spec. For example:
 
 ```bash
-yarn test-e2e ./specs/dummy.test.js
+pnpm test-e2e -- ./specs/dummy.test.js
 ```
 
 For the best experience while debugging and/or writing new tests `E2E_DEBUG` constant is recommended to use.
 
 ```bash
-E2E_DEBUG=true yarn test-e2e ./specs/some.test.js -t 'Test name'
+E2E_DEBUG=true pnpm test-e2e -- ./specs/some.test.js -t 'Test name'
 ```
 
 ### Selecting tests to run
 
 ```bash
 # One spec (test file)
-yarn test-e2e ./specs/some.test.js
+pnpm test-e2e -- ./specs/some.test.js
 
 # One test from a test file
-yarn test-e2e ./specs/some.test.js -t 'Test name'
+pnpm test-e2e -- ./specs/some.test.js -t 'Test name'
 
-# All blocks tests
-yarn test-e2e --testNamePattern=blocks
-
-# Only mailchimp test(s)
-yarn test-e2e --testNamePattern=mailchimp
+# All tests having 'blocks' in their name
+pnpm test-e2e -- --testNamePattern=blocks
 
 # All tests except the updater one(s)
-yarn test-e2e --testPathIgnorePatterns=updater
+pnpm test-e2e -- --testPathIgnorePatterns=updater
+
+# Filter by groups - run all tests in 'post-connection' group
+pnpm test-e2e -- --group=post-connection
 
 ```
 
@@ -116,7 +119,9 @@ We use the following tools to write e2e tests:
 
 ## Tests Architecture
 
-Tests are kept in `/specs` folder. Every file represents a test suite, which is designed around specific feature under test. Most of the tests rely on an active Jetpack connection, so we connect a site before running the actual test suite. Its logic can be found in the [`test-setup#maybePreConnect`](lib/env/test-setup.js) function. For test suites where pre-connection is not needed, it can be disabled by setting `SKIP_CONNECT` env var to false. Check [`connection.test.js`](./specs/connection.test.js) for example use.
+Tests are kept in `/specs` folder. Every file represents a test suite, which is designed around specific feature under test.
+Every test suite is responsible for setting up the environment configuration for the suite. Some of the specs require an active Connection, some do not. Prerequisites APIs provide an abstraction to set up the site the way is needed. 
+Its logic can be found in the [`jetpack-connect.js`](lib/flows/jetpack-connect.js).
 
 The tests are using the `PageObject` pattern, which is a way to separate test logic from implementation. Page objects are basically abstractions around specific pages and page components. 
 There are two base classes that should be extended by page objects: [`WpPage`](lib/pages/wp-page.js) and [`PageActions`](lib/pages/page-actions.js) class.
@@ -147,3 +152,7 @@ Tests rely on functionality plugins that provide some additional functionality, 
 ### e2e-plan-data-interceptor.php
 
 The purpose of this plugin is to provide a way to `mock` Jetpack plan, for cases when we test functionality that does not directly use paid services. Great example of this purpose is a paid Gutenberg blocks.
+
+## Test reports
+
+Test reports are generated for every CI run and stored in [jetpack-e2e-reports](https://github.com/Automattic/jetpack-e2e-reports) repo. A dashboard displaying information about stored reports can be accessed at this link: [https://automattic.github.io/jetpack-e2e-reports](https://automattic.github.io/jetpack-e2e-reports)
