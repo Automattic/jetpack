@@ -119,8 +119,11 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 * @param string  $event_name The name of the event to record.
 	 * @param integer $product_id The id of the product relating to the event.
 	 * @param array   $properties Optional array of (key => value) event properties.
+	 * @param bool    $return_properties return event properties without pushing to _wca.
+	 *
+	 * @return string|void
 	 */
-	public function record_event( $event_name, $product_id, $properties = array() ) {
+	public function record_event( $event_name, $product_id, $properties = array(), $return_properties = false ) {
 		$product = wc_get_product( $product_id );
 		if ( ! $product instanceof WC_Product ) {
 			return;
@@ -132,17 +135,21 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			$this->get_common_properties()
 		);
 
-		wc_enqueue_js(
-			"_wca.push( {
-					'_en': '" . esc_js( $event_name ) . "',
-					'pi': '" . esc_js( $product_id ) . "',
-					'pn': '" . esc_js( $product_details['name'] ) . "',
-					'pc': '" . esc_js( $product_details['category'] ) . "',
-					'pp': '" . esc_js( $product_details['price'] ) . "',
-					'pt': '" . esc_js( $product_details['type'] ) . "'," .
-					$this->render_properties_as_js( $all_props ) . '
-				} );'
-		);
+		$js = "{
+			'_en': '" . esc_js( $event_name ) . "',
+			'pi': '" . esc_js( $product_id ) . "',
+			'pn': '" . esc_js( $product_details['name'] ) . "',
+			'pc': '" . esc_js( $product_details['category'] ) . "',
+			'pp': '" . esc_js( $product_details['price'] ) . "',
+			'pt': '" . esc_js( $product_details['type'] ) . "'," .
+			$this->render_properties_as_js( $all_props ) . '
+		}';
+
+		if ( $return_properties ) {
+			return $js;
+		} else {
+			wc_enqueue_js( "_wca.push({$js});" );
+		}
 	}
 
 	/**
