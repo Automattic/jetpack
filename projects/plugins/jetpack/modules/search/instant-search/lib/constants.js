@@ -38,8 +38,3 @@ export const PRODUCT_SORT_OPTIONS = new Map( [
 	[ 'price_desc', __( 'Price: high to low', 'jetpack' ) ],
 	[ 'rating_desc', __( 'Rating', 'jetpack' ) ],
 ] );
-
-// export const translationStrings = new Map( [
-// 	[ 'price_low_to_high', __( 'Price: low to high', 'jetpack' ) ],
-// 	[ 'i_love_cookies', __( 'I love cookies', 'jetpack' ) ],
-// ] );

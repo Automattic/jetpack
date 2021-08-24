@@ -7,7 +7,7 @@ import './set-webpack-public-path';
  */
 import { SERVER_OBJECT_NAME } from './lib/constants';
 import { bindCustomizerChanges } from './lib/customize';
-import { translationStrings } from './lib/i18n'; // need to skip the lint rule for this
+import { translationStrings } from './lib/i18n'; // eslint-disable-line no-unused-vars
 
 /**
  * Loads and runs the main chunk for Instant Search.

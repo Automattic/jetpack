@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { useEffect } from 'react';
-import { __ } from '@wordpress/i18n';
+import { translate } from '../lib/i18n';
 
 /**
  * Internal dependencies
@@ -44,7 +44,7 @@ const Overlay = props => {
 			role="dialog"
 		>
 			<h1 id="jetpack-instant-search__overlay-title" className="screen-reader-text">
-				{ __( 'Search results', 'jetpack' ) }
+				{ translate( 'search_results' ) }
 			</h1>
 			{ children }
 		</div>
