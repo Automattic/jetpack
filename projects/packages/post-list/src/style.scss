@@ -2,40 +2,6 @@
 	display: none;
 }
 
-table.wp-list-table {
-	border: 1px solid rgba( 100, 100, 100, 0.5 );
-	box-shadow: 2px 2px 4px rgba( 100, 100, 100, 0.1 );
-}
-
-.components-button.post-row__date-button {
-	text-align: left;
-	padding: 0;
-	line-height: 1.5;
-	height: auto;
-}
-
-.components-datetime {
-	padding: 8px;
-}
-
-.components-datetime__time {
-	display: block;
-	min-height: 83px;
-	box-sizing: border-box;
-}
-
-.components-datetime__date .CalendarDay {
-	padding: 0;
-
-	&.CalendarDay__selected {
-		color: #fff;
-	}
-}
-
-.components-popover .components-popover__content > div {
-	padding: 0;
-}
-
 // Notice
 .post-list__notice-placeholder {
 	position: fixed;
@@ -43,6 +9,7 @@ table.wp-list-table {
 	min-width: 400px;
 }
 
+// Feature Image
 .post-featured-image__container {
 	float: left;
 	margin-right: 5px;
