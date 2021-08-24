@@ -341,12 +341,12 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		$payment_option = $order->get_payment_method();
 
 		if ( is_object( WC()->session ) ) {
-			$create_account = WC()->session->get( 'wc_checkout_createaccount_used' ) === '1' ? 'Y' : 'N';
+			$create_account = WC()->session->get( 'wc_checkout_createaccount_used' ) === true ? 'Y' : 'N';
 		} else {
 			$create_account = 'N';
 		}
 
-		$guest_checkout = $order->get_user() ? 'Y' : 'N';
+		$guest_checkout = $order->get_user() ? 'N' : 'Y';
 
 		$express_checkout = 'null';
 		// When the payment option is woocommerce_payment
@@ -592,9 +592,11 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 * @return array
 	 */
 	public function save_checkout_post_data( array $data ) {
-		if ( is_object( WC()->session ) ) {
+		$session = WC()->session;
+		if ( is_object( $session ) ) {
 			$createaccount_used = isset( $data['createaccount'] ) && ! empty( $data['createaccount'] );
-			WC()->session->set( 'wc_checkout_createaccount_used', $createaccount_used );
+			$session->set( 'wc_checkout_createaccount_used', $createaccount_used );
+			$session->save_data();
 		}
 		return $data;
 	}
