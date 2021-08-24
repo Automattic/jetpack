@@ -326,7 +326,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				"
 				);
 			} else {
-				wc_enqueue_js( "_wca.push({ $properties });" );
+				wc_enqueue_js( "_wca.push($properties);" );
 			}
 		}
 	}
