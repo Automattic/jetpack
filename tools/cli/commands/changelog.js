@@ -636,7 +636,8 @@ async function promptChangelog( argv, needChangelog ) {
 		{
 			type: 'string',
 			name: 'entry',
-			message: 'Changelog entry. May be left empty if this change is particularly insignificant.',
+			message:
+				'Changelog entry. Please use the format "Feature: Description" e.g. "Stats: Fixes funny errors." \nMay be left empty if this change is particularly insignificant.',
 			when: answers => answers.significance === 'patch',
 		},
 		{
@@ -649,7 +650,8 @@ async function promptChangelog( argv, needChangelog ) {
 		{
 			type: 'string',
 			name: 'entry',
-			message: 'Changelog entry. May not be empty.',
+			message:
+				'Changelog entry. May not be empty!. \nPlease use the format "Feature: Description" e.g. "Stats: Fixes funny errors."\n',
 			when: answers => answers.significance === 'minor' || 'major',
 			validate: input => {
 				if ( ! input || ! input.trim() ) {

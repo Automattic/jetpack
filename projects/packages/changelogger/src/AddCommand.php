@@ -267,9 +267,9 @@ EOF
 			$entry = $input->getOption( 'entry' );
 			if ( $isInteractive ) {
 				if ( 'patch' === $significance ) {
-					$question = new Question( "Changelog entry. May be left empty if this change is particularly insignificant.\n > ", (string) $entry );
+					$question = new Question( "Changelog entry. Please use the format 'Feature: Description' e.g. 'Stats: Fixes funny errors.' \nMay be left empty if this change is particularly insignificant.\n > ", (string) $entry );
 				} else {
-					$question = new Question( "Changelog entry. May not be empty.\n > ", $entry );
+					$question = new Question( "Changelog entry. May not be empty. \nPlease use the format 'Feature: Description' e.g. 'Stats: Fixes funny errors.' \n > ", $entry );
 					$question->setValidator(
 						function ( $v ) {
 							if ( trim( $v ) === '' ) {
