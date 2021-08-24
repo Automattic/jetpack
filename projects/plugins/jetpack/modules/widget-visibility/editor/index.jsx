@@ -150,7 +150,7 @@ const VisibilityRule = props => {
 					</div>
 					<div className="widget-vis__select">
 						<SelectControl
-							label="Major Rule"
+							label={ __( 'Major Rule', 'jetpack' ) }
 							hideLabelFromVision
 							value={ rule.major }
 							options={ majorOptions }
@@ -167,7 +167,7 @@ const VisibilityRule = props => {
 					<div className="widget-vis__select">
 						<SelectControl
 							className="widget-vis__select-multi-level"
-							label="Minor Rule"
+							label={ __( 'Minor Rule', 'jetpack' ) }
 							hideLabelFromVision
 							value={ rule.minor }
 							options={ minorOptions }
@@ -328,12 +328,12 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 				>
 					<SelectControl
 						className="widget-vis__show-hide"
-						label="Action"
+						label={ __( 'Action', 'jetpack' ) }
 						hideLabelFromVision
 						value={ attributes.action }
 						options={ [
-							{ label: __( 'Show this block if:', 'jetpack' ), value: 'show' },
-							{ label: __( 'Hide this block if:', 'jetpack' ), value: 'hide' },
+							{ label: __( 'Show this block', 'jetpack' ), value: 'show' },
+							{ label: __( 'Hide this block', 'jetpack' ), value: 'hide' },
 						] }
 						onChange={ setAction }
 					/>
