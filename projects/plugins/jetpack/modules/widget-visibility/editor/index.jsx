@@ -5,7 +5,6 @@ import { Fragment, useEffect, useCallback, useMemo } from '@wordpress/element';
 import { BaseControl, Button, SelectControl, ToggleControl } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { InspectorAdvancedControls } from '@wordpress/block-editor'; // eslint-disable-line import/no-unresolved
-import { Icon, close } from '@wordpress/icons';
 import { createHigherOrderComponent } from '@wordpress/compose';
 
 /* global widget_conditions_data, wpcom */
@@ -140,36 +139,34 @@ const VisibilityRule = props => {
 	}
 
 	return (
-		<div className="widget-vis__rule widget-vis__flex">
-			<div className="widget-vis__rule-col-1">
-				<div className="widget-vis__flex">
-					<div className="widget-vis__delete-rule">
-						<Button onClick={ onDelete } label={ __( 'Delete this visibility rule', 'jetpack' ) }>
-							<Icon icon={ close } size={ 14 } />
-						</Button>
-					</div>
-					<div className="widget-vis__select">
-						<SelectControl
-							label={ __( 'Major Rule', 'jetpack' ) }
-							hideLabelFromVision
-							value={ rule.major }
-							options={ majorOptions }
-							onChange={ setMajor }
-						/>
-					</div>
-				</div>
-			</div>
-			<div className="widget-vis__rule-col-2">
-				<p className="widget-vis__is">
+		<div className="widget-vis__rule">
+			<div className="widget-vis__rule-major">
+				<span className="widget-vis__if">
 					{ _x(
-						'is',
-						'Widget Visibility: {Rule Major [Page]} is {Rule Minor [Search results]}',
+						'If',
+						'Widget Visibility: If {Rule Major [Page]} is {Rule Minor [Search results]}',
 						'jetpack'
 					) }
-				</p>
+				</span>
+				<div className="widget-vis__select">
+					<SelectControl
+						label={ __( 'Major Rule', 'jetpack' ) }
+						hideLabelFromVision
+						value={ rule.major }
+						options={ majorOptions }
+						onChange={ setMajor }
+					/>
+				</div>
 			</div>
-			<div className="widget-vis__rule-col-3">
-				{ rule.major && (
+			{ rule.major && (
+				<div className="widget-vis__rule-minor">
+					<span className="widget-vis__is">
+						{ _x(
+							'is',
+							'Widget Visibility: {Rule Major [Page]} is {Rule Minor [Search results]}',
+							'jetpack'
+						) }
+					</span>
 					<div className="widget-vis__select">
 						<SelectControl
 							className="widget-vis__select-multi-level"
@@ -180,24 +177,13 @@ const VisibilityRule = props => {
 							onChange={ setMinor }
 						/>
 					</div>
-				) }
+				</div>
+			) }
+			<div className="widget-vis__delete-rule">
+				<Button onClick={ onDelete } isSmall isSecondary>
+					{ _x( 'Remove', 'Delete this visibility rule', 'jetpack' ) }
+				</Button>
 			</div>
-		</div>
-	);
-};
-
-const RuleSep = props => {
-	const { isAnd } = props;
-	if ( isAnd ) {
-		return (
-			<div className="widget-vis__and-or">
-				{ _x( 'and', 'Shown between widget visibility conditions.', 'jetpack' ) }
-			</div>
-		);
-	}
-	return (
-		<div className="widget-vis__and-or">
-			{ _x( 'or', 'Shown between widget visibility conditions.', 'jetpack' ) }
 		</div>
 	);
 };
@@ -362,13 +348,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 								setMinor={ value => setMinor( i, value ) } // eslint-disable-line react/jsx-no-bind
 							/>
 						) )
-						.reduce(
-							( acc, item, i ) =>
-								acc === null
-									? [ item ]
-									: [ ...acc, <RuleSep key={ i } isAnd={ conditions.match_all === '1' } />, item ],
-							null
-						) }
+						.reduce( ( acc, item ) => ( acc === null ? [ item ] : [ ...acc, '', item ] ), null ) }
 					{ rules.length > 1 && (
 						<ToggleControl
 							className="widget-vis__match-all"

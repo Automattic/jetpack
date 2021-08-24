@@ -154,73 +154,56 @@
  * Rules for gutenberg advanced panel
  */
 
-.widget-vis__rule .components-base-control {
-	margin-bottom: 0px;
-}
-
-.widget-vis__flex {
-	display: flex;
-	justify-content: center;
-	align-content: center;
-}
+ .widget-vis__wrapper .components-base-control,
+ .widget-vis__rule .components-base-control {
+	 margin-bottom: 12px;
+ }
 
 .widget-vis__rule {
-	background-color: #eaeaea;
-}
-
-.widget-vis__rule:last-of-type {
-	margin-bottom: 16px;
-}
-
-.widget-vis__rule-col-1 {
-	width: 40%;
-	padding-left: 4px;
-}
-
-.widget-vis__rule-col-1-flex {
+	padding: 12px;
+	border: 1px solid #dcdcde;
 	display: flex;
-}
-
-.widget-vis__rule-col-2 {
-	width: 10%;
-	text-align: center;
-	display: flex;
-	justify-content: center;
-	align-content: center;
 	flex-direction: column;
+	margin-bottom: 12px;
 }
 
-.widget-vis__rule-col-3 {
-	width: 50%;
-	padding-right: 4px;
+.widget-vis__rule-major,
+.widget-vis__rule-minor {
+	display: flex;
+	justify-content: stretch;
+	align-items: center;
 }
 
-.widget-vis__delete-rule button.components-button {
-	padding-left: 0;
-	padding-right: 4px;
-}
-
+.widget-vis__if,
 .widget-vis__is {
-	margin: 0;
+	margin-right: 8px;
+	width: 10px;
 }
-.widget-vis__and-or {
-	font-size: 11px;
-	text-align: center;
-	text-transform: uppercase;
-	margin: 6px 0;
+
+.widget-vis__show-hide {
+	margin-bottom: 0;
 }
 
 .widget-vis__add-new-rule {
 	display: block;
 }
 
-.widget-vis__select .components-input-control__container {
-	position: relative;
-	top: 4px;
+.widget-vis__delete-rule {
+	margin-top: 6px;
+	text-align: right;
 }
 
 .widget-vis__match-all {
-	margin-top: 16px;
+	margin-top: 12px;
+}
+
+.widget-vis__select {
+	width: 100%;
+}
+
+.widget-vis__select .components-input-control__container {
+	position: relative;
+	top: 4px;
 }
 
 .widget-vis__select-multi-level select option:disabled {
