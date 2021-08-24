@@ -1,7 +1,6 @@
 # Notice
 
 Use this component to send information to the user.
-
 ## API
 
 ### sendSuccess( message, options )
