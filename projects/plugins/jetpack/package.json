@@ -148,7 +148,7 @@
 		"url": "0.11.0",
 		"url-polyfill": "1.1.12",
 		"uuid": "8.3.2",
-		"webpack": "5.31.0",
+		"webpack": "5.51.1",
 		"webpack-cli": "4.8.0",
 		"whatwg-fetch": "3.6.2"
 	},

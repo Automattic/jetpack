@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update to latest webpack, webpack-cli and calypso-build

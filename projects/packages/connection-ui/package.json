@@ -14,7 +14,7 @@
 		"watch": "pnpm run build && pnpx gulp watch"
 	},
 	"dependencies": {
-		"@automattic/calypso-build": "6.5.0",
+		"@automattic/calypso-build": "9.0.0",
 		"@automattic/jetpack-api": "workspace:^0.1.0",
 		"@automattic/jetpack-connection": "workspace:^0.6.0-alpha",
 		"@babel/core": "7.12.10",
@@ -27,7 +27,7 @@
 		"react": "17.0.2",
 		"react-dom": "17.0.2",
 		"static-site-generator-webpack-plugin": "3.4.2",
-		"webpack": "4.46.0"
+		"webpack": "5.51.1"
 	},
 	"devDependencies": {
 		"@babel/runtime": "7.14.0",
