@@ -58,7 +58,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	}
 
 	/**
-	 * Make _wca available to queue events
+	 * Make _wca available to queue events.
 	 */
 	public function wp_head_top() {
 		if ( is_cart() || is_checkout() || is_checkout_pay_page() || is_order_received_page() || is_add_payment_method_page() ) {
@@ -104,9 +104,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	private function render_properties_as_js( $properties ) {
 		$js_args_string = '';
 		foreach ( $properties as $key => $value ) {
-			if ( $value instanceof Jetpack_WooCommerce_Analytics_Raw_Property ) {
-				$js_args_string = $js_args_string . "'$key':" . $value->get_value() . ',';
-			} elseif ( is_array( $value ) ) {
+			if ( is_array( $value ) ) {
 				$js_args_string = $js_args_string . "'$key': " . wp_json_encode( $value ) . ',';
 			} else {
 				$js_args_string = $js_args_string . "'$key': '" . esc_js( $value ) . "', ";
@@ -121,8 +119,11 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 * @param string  $event_name The name of the event to record.
 	 * @param integer $product_id The id of the product relating to the event.
 	 * @param array   $properties Optional array of (key => value) event properties.
+	 * @param bool    $return_properties return event properties without pushing to _wca.
+	 *
+	 * @return string|void
 	 */
-	public function record_event( $event_name, $product_id, $properties = array() ) {
+	public function record_event( $event_name, $product_id, $properties = array(), $return_properties = false ) {
 		$product = wc_get_product( $product_id );
 		if ( ! $product instanceof WC_Product ) {
 			return;
@@ -134,17 +135,21 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			$this->get_common_properties()
 		);
 
-		wc_enqueue_js(
-			"_wca.push( {
-					'_en': '" . esc_js( $event_name ) . "',
-					'pi': '" . esc_js( $product_id ) . "',
-					'pn': '" . esc_js( $product_details['name'] ) . "',
-					'pc': '" . esc_js( $product_details['category'] ) . "',
-					'pp': '" . esc_js( $product_details['price'] ) . "',
-					'pt': '" . esc_js( $product_details['type'] ) . "'," .
-					$this->render_properties_as_js( $all_props ) . '
-				} );'
-		);
+		$js = "{
+			'_en': '" . esc_js( $event_name ) . "',
+			'pi': '" . esc_js( $product_id ) . "',
+			'pn': '" . esc_js( $product_details['name'] ) . "',
+			'pc': '" . esc_js( $product_details['category'] ) . "',
+			'pp': '" . esc_js( $product_details['price'] ) . "',
+			'pt': '" . esc_js( $product_details['type'] ) . "'," .
+			$this->render_properties_as_js( $all_props ) . '
+		}';
+
+		if ( $return_properties ) {
+			return $js;
+		} else {
+			wc_enqueue_js( "_wca.push({$js});" );
+		}
 	}
 
 	/**
@@ -269,6 +274,15 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		);
 
 		$enabled_payment_options = array_keys( $enabled_payment_options );
+		$include_express_payment = false;
+
+		// Check express payment availablity only if WC Pay is enabled and express checkout (payment request) is enabled.
+		if ( in_array( 'woocommerce_payments', $enabled_payment_options, true ) ) {
+			$wcpay_settings = get_option( 'woocommerce_woocommerce_payments_settings', array() );
+			if ( array_key_exists( 'payment_request', $wcpay_settings ) && 'yes' === $wcpay_settings['payment_request'] ) {
+				$include_express_payment = true;
+			}
+		}
 
 		foreach ( $cart as $cart_item_key => $cart_item ) {
 			/**
@@ -280,7 +294,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				continue;
 			}
 
-			$this->record_event(
+			$properties = $this->record_event(
 				'woocommerceanalytics_product_checkout',
 				$product->get_id(),
 				array(
@@ -289,9 +303,31 @@ class Jetpack_WooCommerce_Analytics_Universal {
 					'device'           => $device,
 					'guest_checkout'   => $guest_checkout,
 					'create_account'   => $create_account,
-					'express_checkout' => new Jetpack_WooCommerce_Analytics_Raw_Property( 'window.getEnabledPaymentRequestMethods ? await getEnabledPaymentRequestMethods() : []' ),
-				)
+					'express_checkout' => null,
+				),
+				true
 			);
+
+			if ( true === $include_express_payment ) {
+				wc_enqueue_js(
+					"
+					// wcpay.payment-request.availability event gets fired twice.
+					// make sure we push only one event.
+					var cartItem_{$cart_item_key}_logged = false;
+				    wp.hooks.addAction('wcpay.payment-request.availability', 'wcpay', function(args) {
+				        if ( true === cartItem_{$cart_item_key}_logged ) {
+				            return;
+				        }
+				        var properties = {$properties};
+				        properties.express_checkout = args.paymentRequestType;
+				        _wca.push(properties);
+						cartItem_{$cart_item_key}_logged = true;	
+				    });
+				"
+				);
+			} else {
+				wc_enqueue_js( "_wca.push({ $properties });" );
+			}
 		}
 	}
 
