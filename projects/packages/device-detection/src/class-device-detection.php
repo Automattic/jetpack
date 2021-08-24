@@ -52,7 +52,6 @@ class Device_Detection {
 			 * Filter the value of Device_Detection::get_info.
 			 *
 			 * @since 1.0.0
-			 * @since-jetpack 8.7.0
 			 *
 			 * @param array           $info    Array of device information.
 			 * @param string          $ua      User agent string passed to Device_Detection::get_info.
