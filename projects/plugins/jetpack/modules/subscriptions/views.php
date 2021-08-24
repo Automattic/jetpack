@@ -45,16 +45,6 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			$widget_ops
 		);
 
-		if ( is_active_widget( false, false, $this->id_base ) || is_customize_preview() ) {
-			wp_enqueue_script(
-				'jetpack-subscriptions-js',
-				plugins_url( 'subscriptions.js', __FILE__ ),
-				array(),
-				JETPACK__VERSION,
-				true
-			);
-		}
-
 		if ( self::is_jetpack() &&
 		     (
 			     is_active_widget( false, false, $this->id_base ) ||
@@ -101,6 +91,14 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				$subscribe_email = '';
 			}
 		}
+
+		wp_enqueue_script(
+			'jetpack-subscriptions-js',
+			plugins_url( 'subscriptions.js', __FILE__ ),
+			array(),
+			JETPACK__VERSION,
+			true
+		);
 
 		$stats_action = self::is_jetpack() ? 'jetpack_subscriptions' : 'follow_blog';
 		/** This action is documented in modules/widgets/gravatar-profile.php */
