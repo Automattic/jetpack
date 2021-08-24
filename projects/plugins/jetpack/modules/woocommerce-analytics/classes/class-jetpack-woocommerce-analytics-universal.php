@@ -594,9 +594,10 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	public function save_checkout_post_data( array $data ) {
 		$session = WC()->session;
 		if ( is_object( $session ) ) {
-			$createaccount_used = isset( $data['createaccount'] ) && ! empty( $data['createaccount'] );
-			$session->set( 'wc_checkout_createaccount_used', $createaccount_used );
-			$session->save_data();
+			if ( isset( $data['createaccount'] ) && ! empty( $data['createaccount'] ) ) {
+				$session->set( 'wc_checkout_createaccount_used', true );
+				$session->save_data();
+			}
 		}
 		return $data;
 	}
