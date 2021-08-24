@@ -3,7 +3,7 @@
  */
 import { Fragment, useEffect, useCallback, useMemo } from '@wordpress/element';
 import { BaseControl, Button, SelectControl, ToggleControl } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { InspectorAdvancedControls } from '@wordpress/block-editor'; // eslint-disable-line import/no-unresolved
 import { Icon, close } from '@wordpress/icons';
 import { createHigherOrderComponent } from '@wordpress/compose';
@@ -160,7 +160,13 @@ const VisibilityRule = props => {
 				</div>
 			</div>
 			<div className="widget-vis__rule-col-2">
-				<p className="widget-vis__is">{ __( 'is', 'jetpack' ) }</p>
+				<p className="widget-vis__is">
+					{ _x(
+						'is',
+						'Widget Visibility: {Rule Major [Page]} is {Rule Minor [Search results]}',
+						'jetpack'
+					) }
+				</p>
 			</div>
 			<div className="widget-vis__rule-col-3">
 				{ rule.major && (
@@ -183,9 +189,17 @@ const VisibilityRule = props => {
 const RuleSep = props => {
 	const { isAnd } = props;
 	if ( isAnd ) {
-		return <div className="widget-vis__and-or">{ __( 'and', 'jetpack' ) }</div>;
+		return (
+			<div className="widget-vis__and-or">
+				{ _x( 'and', 'Shown between widget visibility conditions.', 'jetpack' ) }
+			</div>
+		);
 	}
-	return <div className="widget-vis__and-or">{ __( 'or', 'jetpack' ) }</div>;
+	return (
+		<div className="widget-vis__and-or">
+			{ _x( 'or', 'Shown between widget visibility conditions.', 'jetpack' ) }
+		</div>
+	);
 };
 
 const visibilityAdvancedControls = createHigherOrderComponent(
