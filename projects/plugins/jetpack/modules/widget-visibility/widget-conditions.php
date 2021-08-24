@@ -783,7 +783,7 @@ class Jetpack_Widget_Conditions {
 			if ( ! $keep ) {
 				unset( $blocks[ $i ] );
 				array_push( $indexes_removed, $i );
-			} elseif ( is_array( $block['innerBlocks'] ) ) {
+			} elseif ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
 				$result                      = self::recursively_filter_blocks( $blocks[ $i ]['innerBlocks'] );
 				$blocks[ $i ]['innerBlocks'] = $result[0];
 
