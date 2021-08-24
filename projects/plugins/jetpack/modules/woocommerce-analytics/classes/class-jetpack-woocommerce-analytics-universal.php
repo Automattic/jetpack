@@ -262,6 +262,28 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	public function checkout_process() {
 		$cart = WC()->cart->get_cart();
 
+		$guest_checkout = ucfirst( get_option( 'woocommerce_enable_guest_checkout', 'No' ) );
+		$create_account = ucfirst( get_option( 'woocommerce_enable_signup_and_login_from_checkout', 'No' ) );
+		$device         = wp_is_mobile() ? 'mobile' : 'desktop';
+
+		$enabled_payment_options = array_filter(
+			WC()->payment_gateways->get_available_payment_gateways(),
+			function ( $payment_gateway ) {
+				return $payment_gateway->is_available();
+			}
+		);
+
+		$enabled_payment_options = array_keys( $enabled_payment_options );
+		$include_express_payment = false;
+
+		// Check express payment availablity only if WC Pay is enabled and express checkout (payment request) is enabled.
+		if ( in_array( 'woocommerce_payments', $enabled_payment_options, true ) ) {
+			$wcpay_settings = get_option( 'woocommerce_woocommerce_payments_settings', array() );
+			if ( array_key_exists( 'payment_request', $wcpay_settings ) && 'yes' === $wcpay_settings['payment_request'] ) {
+				$include_express_payment = true;
+			}
+		}
+
 		foreach ( $cart as $cart_item_key => $cart_item ) {
 			/**
 			* This filter is already documented in woocommerce/templates/cart/cart.php
@@ -272,13 +294,40 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				continue;
 			}
 
-			$this->record_event(
+			$properties = $this->record_event(
 				'woocommerceanalytics_product_checkout',
 				$product->get_id(),
 				array(
-					'pq' => $cart_item['quantity'],
-				)
+					'pq'               => $cart_item['quantity'],
+					'payment_options'  => $enabled_payment_options,
+					'device'           => $device,
+					'guest_checkout'   => $guest_checkout,
+					'create_account'   => $create_account,
+					'express_checkout' => null,
+				),
+				true
 			);
+
+			if ( true === $include_express_payment ) {
+				wc_enqueue_js(
+					"
+					// wcpay.payment-request.availability event gets fired twice.
+					// make sure we push only one event.
+					var cartItem_{$cart_item_key}_logged = false;
+				    wp.hooks.addAction('wcpay.payment-request.availability', 'wcpay', function(args) {
+				        if ( true === cartItem_{$cart_item_key}_logged ) {
+				            return;
+				        }
+				        var properties = {$properties};
+				        properties.express_checkout = args.paymentRequestType;
+				        _wca.push(properties);
+						cartItem_{$cart_item_key}_logged = true;	
+				    });
+				"
+				);
+			} else {
+				wc_enqueue_js( "_wca.push({ $properties });" );
+			}
 		}
 	}
 
