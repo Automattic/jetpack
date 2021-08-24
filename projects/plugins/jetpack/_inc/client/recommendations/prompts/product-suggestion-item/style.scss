@@ -1,0 +1,103 @@
+@import '../../../scss/mixin_breakpoint.scss';
+@import '../../../scss/functions/rem';
+
+.jp-recommendations-product-suggestion-item {
+	display: flex;
+	flex-direction: column;
+
+	padding: 24px;
+
+	border-radius: 8px;
+	border: 1px solid #dcdcde;
+
+	@include breakpoint( '>480px' ) {
+		flex-direction: row;
+	}
+}
+
+.jp-recommendations-product-suggestion-item__content {
+	display: flex;
+	flex-direction: column;
+
+	max-width: 280px;
+
+	@include breakpoint( '<960px' ) {
+		max-width: 370px;
+	}
+}
+
+.jp-recommendations-product-suggestion-item__title {
+	margin-top: 0;
+	margin-bottom: 16px;
+
+	font-size: rem( 24px );
+	line-height: 1.2;
+}
+
+.jp-recommendations-product-suggestion-item__description {
+	margin-top: 0;
+	margin-bottom: 16px;
+
+	font-size: rem( 14px );
+	line-height: 1.5;
+}
+
+.jp-recommendations-product-suggestion-item__checkout-button {
+	align-self: flex-start;
+
+	margin-top: 0;
+	margin-bottom: 16px;
+
+	font-size: rem( 16px );
+}
+
+.jp-recommendations-product-suggestion-item__external-link {
+	align-self: flex-start;
+
+	font-size: rem( 16px );
+	line-height: 1.5;
+}
+
+.jp-recommendations-product-suggestion-item__price {
+	display: flex;
+	flex-direction: column;
+
+	margin-left: auto;
+	margin-top: 16px;
+
+	@include breakpoint( '>480px' ) {
+		margin-top: 0;
+		padding-left: 16px;
+	}
+}
+
+.jp-recommendations-product-suggestion-item__raw-price {
+	display: flex;
+
+	margin: 0;
+}
+
+.jp-recommendations-product-suggestion-item__currency-symbol {
+	font-size: rem( 20px );
+	line-height: 1.4;
+}
+
+.jp-recommendations-product-suggestion-item__price-integer {
+	font-size: rem( 40px );
+	font-weight: bold;
+	line-height: 1;
+}
+
+.jp-recommendations-product-suggestion-item__price-fraction {
+	font-size: rem( 14px );
+	font-weight: bold;
+	line-height: 1.5;
+}
+
+.jp-recommendations-product-suggestion-item__billing-time-frame {
+	margin-top: 8px;
+
+	text-align: center;
+	font-size: rem( 13px );
+	color: #787c82;
+}
