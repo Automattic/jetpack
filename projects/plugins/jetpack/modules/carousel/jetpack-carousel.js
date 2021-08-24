@@ -775,8 +775,8 @@
 
 			// If the comment/info section is toggled open, it's kept open, but scroll to top of the next slide.
 			if (
-				infoIcon.classList.contains( 'jp-carousel-selected' ) ||
-				commentsIcon.classList.contains( 'jp-carousel-selected' )
+				( infoIcon && infoIcon.classList.contains( 'jp-carousel-selected' ) ) ||
+				( commentsIcon && commentsIcon.classList.contains( 'jp-carousel-selected' ) )
 			) {
 				if ( carousel.overlay.scrollTop !== 0 ) {
 					domUtil.scrollToElement( carousel.overlay, carousel.overlay );
