@@ -339,6 +339,28 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	public function order_process( $order_id ) {
 		$order = wc_get_order( $order_id );
 
+		$payment_option = $order->get_payment_method();
+
+		if ( is_object( WC()->session ) ) {
+			$create_account = WC()->session->get( 'wc_checkout_createaccount_used' ) === '1' ? 'Y' : 'N';
+		} else {
+			$create_account = 'N';
+		}
+
+		$guest_checkout = $order->get_user() ? 'Y' : 'N';
+
+		$express_checkout = 'null';
+		// When the payment option is woocommerce_payment
+		// See if Google Pay or Apple Pay was used.
+		if ( 'woocommerce_payments' === $payment_option ) {
+			$payment_option_title = $order->get_payment_method_title();
+			if ( 'Google Pay (WooCommerce Payments)' === $payment_option_title ) {
+				$express_checkout = array( 'google_pay' );
+			} elseif ( 'Apple Pay (WooCommerce Payments)' === $payment_option_title ) {
+				$express_checkout = array( 'apple_pay' );
+			}
+		}
+
 		// loop through products in the order and queue a purchase event.
 		foreach ( $order->get_items() as $order_item ) {
 			$product_id = is_callable( array( $order_item, 'get_product_id' ) ) ? $order_item->get_product_id() : -1;
@@ -347,8 +369,13 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				'woocommerceanalytics_product_purchase',
 				$product_id,
 				array(
-					'oi' => $order->get_order_number(),
-					'pq' => $order_item->get_quantity(),
+					'oi'               => $order->get_order_number(),
+					'pq'               => $order_item->get_quantity(),
+					'device'           => wp_is_mobile() ? 'mobile' : 'desktop',
+					'payment_option'   => $payment_option,
+					'create_account'   => $create_account,
+					'guest_checkout'   => $guest_checkout,
+					'express_checkout' => $express_checkout,
 				)
 			);
 		}
