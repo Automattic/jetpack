@@ -3,7 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { combineReducers } from 'redux';
-import { assign, difference, get, mergeWith, union } from 'lodash';
+import { assign, difference, get, mergeWith, union, isEmpty } from 'lodash';
 
 /**
  * Internal dependencies
@@ -135,7 +135,8 @@ const stepToNextStep = {
 	'setup-wizard-completed': 'summary',
 	'banner-completed': 'woocommerce',
 	'not-started': 'site-type-question',
-	'site-type-question': 'woocommerce',
+	'site-type-question': 'product-suggestion',
+	'product-suggestion': 'woocommerce',
 	woocommerce: 'monitor',
 	monitor: 'related-posts',
 	'related-posts': 'creative-mail',
@@ -147,6 +148,7 @@ const stepToNextStep = {
 const stepToRoute = {
 	'not-started': '#/recommendations/site-type',
 	'site-type-question': '#/recommendations/site-type',
+	'product-suggestion': '#/recommendations/product-suggestion',
 	woocommerce: '#/recommendations/woocommerce',
 	monitor: '#/recommendations/monitor',
 	'related-posts': '#/recommendations/related-posts',
@@ -175,6 +177,30 @@ export const isFeatureActive = ( state, featureSlug ) => {
 	}
 };
 
+const showProductSuggestionStep = state => {
+	const siteData = get( state.jetpack, [ 'siteData', 'data' ], {} );
+	const plan = siteData?.plan ?? {};
+	const products = siteData?.products ?? [];
+
+	// Show the Product Suggestion step if the site do not have any plan or products.
+	// Technically this shouldn't happen because we require a Jetpack connection before
+	// the Assistant is shown which means the site should - at the very least - have a
+	// free plan but we keep it for safety in the future.
+	if ( isEmpty( plan ) && isEmpty( products ) ) {
+		return true;
+	}
+
+	// Show the Product Suggestion step if the site has a Free plan and no products
+	// since they haven't made a purchase yet and we wish to prompt them to do so.
+	if ( 2002 === plan.product_id && isEmpty( products ) ) {
+		return true;
+	}
+
+	// We do not want to show the Product Suggestion step if the website already has
+	// a paid plan or any products.
+	return false;
+};
+
 const isStepEligibleToShow = ( state, step ) => {
 	switch ( step ) {
 		case 'setup-wizard-completed':
@@ -184,6 +210,8 @@ const isStepEligibleToShow = ( state, step ) => {
 		case 'site-type-question':
 		case 'summary':
 			return true;
+		case 'product-suggestion':
+			return showProductSuggestionStep( state ) && !! state.jetpack?.siteProducts?.items;
 		case 'woocommerce':
 			return getDataByKey( state, 'site-type-store' ) ? ! isFeatureActive( state, step ) : false;
 		case 'monitor':

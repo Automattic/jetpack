@@ -9,8 +9,10 @@ import { connect } from 'react-redux';
  * Internal dependencies
  */
 import { FeaturePrompt } from './prompts/feature-prompt';
+import { ProductSuggestion } from './prompts/product-suggestion';
 import { SiteTypeQuestion } from './prompts/site-type';
 import { Summary } from './summary';
+import QuerySiteProducts from 'components/data/query-site-products';
 import QueryRecommendationsData from 'components/data/query-recommendations-data';
 import QueryRecommendationsUpsell from 'components/data/query-recommendations-upsell';
 import QueryRewindStatus from 'components/data/query-rewind-status';
@@ -28,6 +30,9 @@ const RecommendationsComponent = props => {
 		case RECOMMENDATION_WIZARD_STEP.NOT_STARTED:
 		case RECOMMENDATION_WIZARD_STEP.SITE_TYPE:
 			redirectPath = '/site-type';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.PRODUCT_SUGGESTION:
+			redirectPath = '/product-suggestion';
 			break;
 		case RECOMMENDATION_WIZARD_STEP.WOOCOMMERCE:
 			redirectPath = '/woocommerce';
@@ -53,6 +58,7 @@ const RecommendationsComponent = props => {
 
 	return (
 		<>
+			<QuerySiteProducts />
 			<QueryRecommendationsData />
 			<QueryRecommendationsUpsell />
 			<QueryRewindStatus />
@@ -67,6 +73,9 @@ const RecommendationsComponent = props => {
 					<Redirect exact from={ '/recommendations' } to={ '/recommendations' + redirectPath } />
 					<Route path="/recommendations/site-type">
 						<SiteTypeQuestion />
+					</Route>
+					<Route path="/recommendations/product-suggestion">
+						<ProductSuggestion />
 					</Route>
 					<Route path="/recommendations/woocommerce">
 						<FeaturePrompt stepSlug="woocommerce" />

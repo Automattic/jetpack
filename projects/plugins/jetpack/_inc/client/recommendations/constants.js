@@ -1,6 +1,7 @@
 export const RECOMMENDATION_WIZARD_STEP = {
 	NOT_STARTED: 'not-started',
 	SITE_TYPE: 'site-type-question',
+	PRODUCT_SUGGESTION: 'product-suggestion',
 	WOOCOMMERCE: 'woocommerce',
 	MONITOR: 'monitor',
 	RELATED_POSTS: 'related-posts',
