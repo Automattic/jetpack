@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Don't run composer install on regular phpunit script

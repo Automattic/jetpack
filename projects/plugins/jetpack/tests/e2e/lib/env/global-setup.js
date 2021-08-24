@@ -9,6 +9,12 @@ const pwBrowserOptions = require( '../../playwright.config' ).pwBrowserOptions;
 const TMP_DIR = path.join( os.tmpdir(), 'jest_playwright_global_setup' );
 
 module.exports = async function () {
+	// Fail early if the required test site config is not defined
+	// Let config lib throw by using get function on an undefined property
+	if ( process.env.TEST_SITE ) {
+		config.get( 'testSites' ).get( process.env.TEST_SITE );
+	}
+
 	// Create the temp config dir used to store all kinds of temp config stuff
 	// This is needed because writeFileSync doesn't create parent dirs and will fail
 	fs.mkdirSync( config.get( 'dirs.temp' ), { recursive: true } );

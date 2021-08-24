@@ -15,7 +15,7 @@ class Rest_Authentication {
 	/**
 	 * The rest authentication status.
 	 *
-	 * @since 8.9.0
+	 * @since 1.17.0
 	 * @var boolean
 	 */
 	private $rest_authentication_status = null;
@@ -25,7 +25,7 @@ class Rest_Authentication {
 	 * Can be either 'user' or 'blog' depending on whether the request
 	 * is signed with a user or a blog token.
 	 *
-	 * @since 9.9.0
+	 * @since 1.29.0
 	 * @var string
 	 */
 	private $rest_authentication_type = null;
@@ -33,7 +33,7 @@ class Rest_Authentication {
 	/**
 	 * The Manager object.
 	 *
-	 * @since 8.9.0
+	 * @since 1.17.0
 	 * @var Object
 	 */
 	private $connection_manager = null;
@@ -41,7 +41,7 @@ class Rest_Authentication {
 	/**
 	 * Holds the singleton instance of this class
 	 *
-	 * @since 8.9.0
+	 * @since 1.17.0
 	 * @var Object
 	 */
 	private static $instance = false;
@@ -49,7 +49,7 @@ class Rest_Authentication {
 	/**
 	 * Flag used to avoid determine_current_user filter to enter an infinite loop
 	 *
-	 * @since 9.7.0
+	 * @since 1.26.0
 	 * @var boolean
 	 */
 	private $doing_determine_current_user_filter = false;
@@ -208,7 +208,7 @@ class Rest_Authentication {
 	/**
 	 * Whether the request was signed with a blog token.
 	 *
-	 * @since 9.9.0
+	 * @since 1.29.0
 	 *
 	 * @return bool True if the request was signed with a valid blog token, false otherwise.
 	 */

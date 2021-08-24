@@ -20,7 +20,6 @@
 	},
 	"scripts": {
 		"phpunit": [
-			"@composer update",
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
 		"test-coverage": [
@@ -29,6 +28,7 @@
 			"php ./tests/php/bin/test-coverage.php \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
+			"@composer update",
 			"@composer phpunit"
 		]
 	},
