@@ -12,7 +12,7 @@ export default class JetpackPage extends WpPage {
 
 	async connect() {
 		logger.step( 'Starting Jetpack connection' );
-		const connectButtonSelector = '.jp-connect-full__button-container .dops-button';
+		const connectButtonSelector = '.jp-connect-screen .jp-connect-button--button';
 		return await this.click( connectButtonSelector, { timeout: 60000 } );
 	}
 
