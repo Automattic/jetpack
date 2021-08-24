@@ -22,6 +22,9 @@ $toggle-width: 3em;
 	&.is-instant-search {
 		margin-top: 1.5em;
 	}
+	.form-toggle__label-content {
+		display: none;
+	}
 }
 
 .jp-form-search-settings-group__toggle-container {
