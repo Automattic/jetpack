@@ -266,6 +266,7 @@ EOF
 			// Determine the changelog entry and add to the file contents.
 			$entry = $input->getOption( 'entry' );
 			if ( $isInteractive ) {
+				// Additional formatting info if we're adding the changelog to a plugin.
 				if ( str_contains( getcwd(), '/projects/plugins/' ) ) {
 					$formatNeeded = "Please use the format 'Feature: Description' e.g. 'Stats: Fixes funny errors.'\n";
 				} else {

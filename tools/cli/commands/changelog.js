@@ -558,6 +558,22 @@ async function promptVersion( argv ) {
 }
 
 /**
+ * Checks if we're adding a changelog file to a plugin.
+ *
+ * @param {Array} projects - Projects that need a changelog.
+ * @returns {string} what we want to add.
+ */
+async function checkForPlugin( projects ) {
+	for ( const proj of projects ) {
+		console.log( proj );
+		if ( proj.startsWith( 'plugins/' ) ) {
+			return 'Please use the format "Feature: Description" e.g. "Stats: Fixes funny errors." \n';
+		}
+	}
+	return '';
+}
+
+/**
  * Prompts for changelog options.
  *
  * @param {object} argv - the arguments passed.
@@ -568,6 +584,7 @@ async function promptChangelog( argv, needChangelog ) {
 	const git = simpleGit();
 	const gitStatus = await git.status();
 	const gitBranch = gitStatus.current.replace( /\//g, '-' );
+	const formatPrompt = await checkForPlugin( needChangelog );
 
 	const commands = await inquirer.prompt( [
 		{
@@ -637,7 +654,9 @@ async function promptChangelog( argv, needChangelog ) {
 			type: 'string',
 			name: 'entry',
 			message:
-				'Changelog entry. Please use the format "Feature: Description" e.g. "Stats: Fixes funny errors." \nMay be left empty if this change is particularly insignificant.',
+				'Changelog entry. ' +
+				formatPrompt +
+				'May be left empty if this change is particularly insignificant.\n',
 			when: answers => answers.significance === 'patch',
 		},
 		{
@@ -650,8 +669,7 @@ async function promptChangelog( argv, needChangelog ) {
 		{
 			type: 'string',
 			name: 'entry',
-			message:
-				'Changelog entry. May not be empty!. \nPlease use the format "Feature: Description" e.g. "Stats: Fixes funny errors."\n',
+			message: 'Changelog entry. May not be empty! \n' + formatPrompt,
 			when: answers => answers.significance === 'minor' || 'major',
 			validate: input => {
 				if ( ! input || ! input.trim() ) {
