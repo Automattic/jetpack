@@ -35,27 +35,4 @@
 			pointer-events: none;
 		}
 	}
-
-	// Override Instant Search app's responsive design,
-	// which doesn't work here as expected since it's embedded into a much smaller container.
-	.jetpack-instant-search__search-results-primary {
-		max-width: 100%;
-		@include break( '>xl' ) {
-			max-width: calc( 100% - #{$sidebar-width} );
-		}
-	}
-	.jetpack-instant-search__search-results-secondary {
-		display: none;
-		@include break( '>xl' ) {
-			display: block;
-		}
-	}
-	.jetpack-instant-search__search-form-controls {
-		position: static;
-		flex-direction: row-reverse;
-		@include break( '>xl' ) {
-			position: absolute;
-			flex-direction: initial;
-		}
-	}
 }
