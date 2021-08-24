@@ -231,6 +231,12 @@ importers:
       style-loader: 2.0.0_webpack@5.47.1
       webpack: 5.47.1
 
+  projects/js-packages/testpackage:
+    specifiers:
+      jetpack-js-test-runner: workspace:*
+    devDependencies:
+      jetpack-js-test-runner: link:../../../tools/js-test-runner
+
   projects/packages/connection-ui:
     specifiers:
       '@automattic/calypso-build': 6.5.0
@@ -335,6 +341,9 @@ importers:
     devDependencies:
       '@automattic/calypso-build': 6.5.0
       eslint: 7.31.0
+
+  projects/packages/package-test:
+    specifiers: {}
 
   projects/plugins/backup:
     specifiers:
@@ -27391,7 +27400,7 @@ packages:
       find-cache-dir: 2.1.0
       is-wsl: 1.1.0
       schema-utils: 1.0.0
-      serialize-javascript: 4.0.0
+      serialize-javascript: 5.0.1
       source-map: 0.6.1
       terser: 4.8.0
       webpack: 4.45.0
@@ -27409,7 +27418,7 @@ packages:
       find-cache-dir: 2.1.0
       is-wsl: 1.1.0
       schema-utils: 1.0.0
-      serialize-javascript: 4.0.0
+      serialize-javascript: 5.0.1
       source-map: 0.6.1
       terser: 4.8.0
       webpack: 4.46.0
