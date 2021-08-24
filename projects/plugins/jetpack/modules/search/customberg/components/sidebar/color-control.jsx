@@ -31,8 +31,9 @@ const DEFAULT_COLORS = [
 export default function ColorControl( { disabled, value, onChange } ) {
 	const colors = useSelect( select => {
 		const settings = select( 'core/block-editor' ).getSettings() ?? {};
-		const { colors } = settings;
-		return Array.isArray( colors ) && colors.length > 0 ? colors : DEFAULT_COLORS;
+		return Array.isArray( settings?.colors ) && settings.colors.length > 0
+			? settings.colors
+			: DEFAULT_COLORS;
 	} );
 
 	return (
