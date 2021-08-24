@@ -32,7 +32,7 @@ export default function MockedInstantSearch() {
 				style={ {
 					height: '2.5em',
 					width: '50%',
-					'max-width': '200px',
+					maxWidth: '200px',
 					margin: '0.1em 0.1em 1em 0.1em',
 				} }
 			/>
@@ -45,7 +45,7 @@ export default function MockedInstantSearch() {
 		<div className="jp-mocked-instant-search" aria-hidden="true">
 			<div className="jp-mocked-instant-search__search-controls">
 				<div className="jp-mocked-instant-search__search-icon">
-					<Gridicon icon="search" size="24" />
+					<Gridicon icon="search" size={ 24 } />
 				</div>
 				<div className="jp-mocked-instant-search__search-mock-input">
 					<TextRowPlaceHolder style={ { height: '50px', width: '80%', maxWidth: '212px' } } />

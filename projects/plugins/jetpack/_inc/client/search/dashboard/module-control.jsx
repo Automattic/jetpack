@@ -229,7 +229,7 @@ function Search( props ) {
 				disableInOfflineMode
 				hasChild
 				module={ { module: 'search' } }
-				className={ [ 'jp-form-search-settings-group' ] }
+				className="jp-form-search-settings-group"
 			>
 				<p>{ props.inOfflineMode && __( 'Unavailable in Offline Mode', 'jetpack' ) }</p>
 
