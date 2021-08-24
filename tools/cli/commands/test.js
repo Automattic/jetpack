@@ -3,16 +3,14 @@
  */
 import chalk from 'chalk';
 import inquirer from 'inquirer';
-import child_process from 'child_process';
+//import child_process from 'child_process';
 
 /**
  * Internal dependencies
  */
-import promptForProject, { promptForType } from '../helpers/promptForProject';
-import { normalizeCleanArgv } from '../helpers/normalizeArgv';
+import promptForProject from '../helpers/promptForProject';
+import { readComposerJson } from '../helpers/json.js';
 import { allProjects } from '../helpers/projectHelpers';
-import fs from 'fs';
-import { runInThisContext } from 'vm';
 
 /**
  * Command definition for the test subcommand.
@@ -52,46 +50,64 @@ export function testDefine( yargs ) {
 /**
  * Runs the test command
  *
- * @param {Obj} argv
+ * @param {object} argv - the arguments being passed.
  */
 async function testCli( argv ) {
 	// Handle choosing a project.
 	if ( ! argv.project || argv.project === '' ) {
 		argv = await promptForProject( argv );
 	}
-	argv = await validateProject( argv );
 
+	argv = await validateProject( argv );
 	// Handle choosing a test type.
 	if ( ! argv.test || argv.test === '' ) {
 		argv = await promptForTest( argv );
 	}
 
-	// run the test.
-	runTest( argv );
+	// Get the test script for the project.
+	argv.testScript = getTestInstructions( argv );
 }
 
 /**
  * Validate the project we're being passed.
  *
- * @param {Obj} argv 
+ * @param {object} argv - the arguments being passed.
+ * @returns {object} argv
  */
 async function validateProject( argv ) {
 	if ( allProjects().includes( argv.project ) ) {
-		return;
+		return argv;
 	}
-	console.log( 'Invalid project. Reverting to interactive mode' );
+	console.log( chalk.red( 'Invalid project. Reverting to interactive mode' ) );
 	argv.project = '';
 	argv = await promptForProject( argv );
 	return argv;
 }
 
 /**
- * Runs the actual test script for the specific project.
+ * Gets the test instructions required for the project.
  *
- * @param {Obj} argv
+ * @param {object} argv - the arguments passed.
+ * @returns {Array} testScript - array containing test scripts.
  */
-async function runTest( argv ) {
-	console.log( argv );
+async function getTestInstructions( argv ) {
+	let testScript = [];
+	const composerFile = await readComposerJson( argv.project );
+	if ( argv.test === 'js' && composerFile.scripts[ 'test-js' ] ) {
+		testScript = [ 'test-js', ...composerFile.scripts[ 'test-js' ] ];
+	}
+
+	if ( argv.test === 'php' && composerFile.scripts[ 'test-php' ] ) {
+		testScript = [ 'test-php', ...composerFile.scripts[ 'test-php' ] ];
+	}
+
+	if ( ! testScript.length ) {
+		console.log(
+			chalk.red( `No ${ argv.test } script located in ${ argv.project }'s composer.json file!` )
+		);
+		process.exit();
+	}
+	return testScript;
 }
 
 /**
