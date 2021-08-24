@@ -43,7 +43,7 @@ export default function ExcludedPostTypesControl( {
 	return (
 		<div className="jp-search-customize-excluded-post-types-control components-base-control">
 			<div className="jp-search-customize-excluded-post-types-control__label">
-				{ __( 'Excluded post types', 'jetpack' ) }
+				{ __( 'Excluded Post Types', 'jetpack' ) }
 			</div>
 			{ isLastUnchecked && (
 				<Notice isDismissible={ false } status="info">
