@@ -53,6 +53,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		// order confirmed.
 		add_action( 'woocommerce_thankyou', array( $this, 'order_process' ), 10, 1 );
 		add_action( 'woocommerce_after_cart', array( $this, 'remove_from_cart_via_quantity' ), 10, 1 );
+
+		add_filter( 'woocommerce_checkout_posted_data', array( $this, 'save_checkout_post_data' ), 10, 1 );
 	}
 
 	/**
@@ -494,5 +496,20 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		}
 
 		return $info;
+	}
+
+	/**
+	 * Save createaccount post data to be used in $this->>order_process.
+	 *
+	 * @param array $data post data from the checkout page.
+	 *
+	 * @return array
+	 */
+	public function save_checkout_post_data( array $data ) {
+		if ( is_object( WC()->session ) ) {
+			$createaccount_used = isset( $data['createaccount'] ) && ! empty( $data['createaccount'] );
+			WC()->session->set( 'wc_checkout_createaccount_used', $createaccount_used );
+		}
+		return $data;
 	}
 }
