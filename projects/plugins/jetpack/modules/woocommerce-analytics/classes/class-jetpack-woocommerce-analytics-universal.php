@@ -264,7 +264,6 @@ class Jetpack_WooCommerce_Analytics_Universal {
 
 		$guest_checkout = ucfirst( get_option( 'woocommerce_enable_guest_checkout', 'No' ) );
 		$create_account = ucfirst( get_option( 'woocommerce_enable_signup_and_login_from_checkout', 'No' ) );
-		$device         = wp_is_mobile() ? 'mobile' : 'desktop';
 
 		$enabled_payment_options = array_filter(
 			WC()->payment_gateways->get_available_payment_gateways(),
@@ -300,7 +299,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				array(
 					'pq'               => $cart_item['quantity'],
 					'payment_options'  => $enabled_payment_options,
-					'device'           => $device,
+					'device'           => wp_is_mobile() ? 'mobile' : 'desktop',
 					'guest_checkout'   => $guest_checkout,
 					'create_account'   => $create_account,
 					'express_checkout' => null,
