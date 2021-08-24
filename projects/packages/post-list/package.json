@@ -27,7 +27,7 @@
 		"@wordpress/i18n": "4.2.1"
 	},
 	"devDependencies": {
-		"@wordpress/eslint-plugin": "9.1.0",
+		"@wordpress/eslint-plugin": "9.1.1",
 		"@wordpress/scripts": "18.0.0",
 		"@babel/runtime": "7.14.0"
 	},
