@@ -12,6 +12,11 @@ import type { CriticalCssErrorDetails } from '../stores/critical-css-status';
 import { castToNumber } from './cast-to-number';
 import UrlComponentsExample from '../pages/settings/elements/UrlComponentsExample.svelte';
 
+type Suggestion = {
+	paragraph: string;
+	list?: string[];
+};
+
 /**
  * Return a string describing the given ErrorSet from a Recommendation.
  *
@@ -23,19 +28,21 @@ export function describeErrorSet( set: ErrorSet ): string {
 }
 
 /**
- * Return a string with suggestions for how the user can respond to the given
- * ErrorSet from a Recommendation.
+ * Return a suggestion text paragraph (and sometimes a list of steps) to display
+ * for the specified error set.
  *
  * @param {ErrorSet} set Set to offer suggestions for
  */
-export function textSuggestion( set: ErrorSet ): string {
+export function suggestion( set: ErrorSet ): Suggestion {
 	const spec = getErrorSpec( set.type );
 
 	if ( spec.suggestion ) {
 		return spec.suggestion( set );
 	}
 
-	return '';
+	return {
+		paragraph: '',
+	};
 }
 
 /**
@@ -139,7 +146,7 @@ function urlCount( set: ErrorSet ): number {
 type ErrorTypeSpec = {
 	groupKey?: ( error: CriticalCssErrorDetails ) => string; // Returns a string which helps determine error groupings. If unspecified, type is used.
 	describeSet: ( set: ErrorSet ) => string; // Returns a string used to describe a set of this type of error.
-	suggestion?: ( set: ErrorSet ) => string; // Returns a simple string with suggestions. Gets templated on display.
+	suggestion?: ( set: ErrorSet ) => Suggestion; // Returns a simple string with suggestions. Gets templated on display.
 	footerComponent?: () => typeof SvelteComponent; // Returns an extra Svelte component to add to the footer of the error.
 	rawError?: ( set: ErrorSet ) => string; // Returns a string of the first raw error message
 };
@@ -157,7 +164,9 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 				),
 				set.firstMeta.code
 			),
-		suggestion: set => httpErrorSuggestion( castToNumber( set.firstMeta.code ), urlCount( set ) ),
+		suggestion: set => ( {
+			paragraph: httpErrorSuggestion( castToNumber( set.firstMeta.code ), urlCount( set ) ),
+		} ),
 	},
 
 	RedirectError: {
@@ -168,8 +177,14 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 				urlCount( set ),
 				'jetpack-boost'
 			),
-		suggestion: set => {
-			const description = __(
+		suggestion: set => ( {
+			paragraph: __(
+				'This may indicate that a WordPress plugin is redirecting users who are not logged in to a different location, or it may indicate that your hosting provider is redirecting your WordPress site to a different URL. ',
+				'jetpack-boost'
+			),
+			list: [ 'Water your houseplants', 'Go for a nice walk', 'Relax and breathe' ],
+		} ),
+		/*const description = __(
 				'This may indicate that a WordPress plugin is redirecting users who are not logged in to a different location, or it may indicate that your hosting provider is redirecting your WordPress site to a different URL. ',
 				'jetpack-boost'
 			);
@@ -181,8 +196,10 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 				'jetpack-boost'
 			);
 
-			return description + solution;
-		},
+			return {
+				paragraph: description + solution
+			};
+		},*/
 	},
 
 	CrossDomainError: {
@@ -193,22 +210,24 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 				urlCount( set ),
 				'jetpack-boost'
 			),
-		suggestion: set =>
-			__(
+		suggestion: set => ( {
+			paragraph: __(
 				'Visit the page and look at the protocol and host name to ensure it matches the one in your <a target="_blank" href="https://wordpress.org/support/article/administration-screens/">WordPress Administration Screen</a>. If not, then please reach out to your hosting provider and ask why. If you believe the issue is resolved, please <retry>try again</retry>.',
 				'jetpack-boost'
 			),
+		} ),
 		footerComponent: () => UrlComponentsExample,
 	},
 
 	LoadTimeoutError: {
 		describeSet: set =>
 			_n( 'This page timed out:', 'These pages timed out:', urlCount( set ), 'jetpack-boost' ),
-		suggestion: set =>
-			__(
+		suggestion: set => ( {
+			paragraph: __(
 				'Clear your cache in your browser, then visit the page while not logged into WordPress. See how long it takes to load compared to other pages on your site. If this page is slower than the others, check what plugins are working on that page, deactivate them and <retry>try again</retry>.',
 				'jetpack-boost'
 			),
+		} ),
 	},
 
 	UrlVerifyError: {
@@ -219,11 +238,12 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 				urlCount( set ),
 				'jetpack-boost'
 			),
-		suggestion: set =>
-			__(
+		suggestion: set => ( {
+			paragraph: __(
 				'Please load the page, and verify that the content displayed is a part of your WordPress site, and not an external page managed by a different system and <retry>try again</retry>.',
 				'jetpack-boost'
 			),
+		} ),
 	},
 
 	EmptyCSSError: {
@@ -234,11 +254,12 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 				urlCount( set ),
 				'jetpack-boost'
 			),
-		suggestion: () =>
-			__(
+		suggestion: () => ( {
+			paragraph: __(
 				'Please load the page, verify its styles load correctly, and <retry>try again</retry>. If you are using a plugin which embeds your CSS styles directly into your pages, or your site does not use external CSS style sheets, then it is safe to ignore this issue as Critical CSS can only speed up pages which use external styles.',
 				'jetpack-boost'
 			),
+		} ),
 	},
 
 	UnknownError: {
@@ -250,11 +271,12 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 				'jetpack-boost'
 			),
 		rawError: set => Object.values( set.byUrl )[ 0 ].message,
-		suggestion: set =>
-			__(
+		suggestion: set => ( {
+			paragraph: __(
 				'Something went wrong, which Jetpack Boost did not anticipate. Please try visiting the link to check that it works, check the error message below, and <retry>try again</retry>. If you need help, please contact <support>Jetpack Boost Support</support> with a copy of your error message.',
 				'jetpack-boost'
 			),
+		} ),
 	},
 };
 
