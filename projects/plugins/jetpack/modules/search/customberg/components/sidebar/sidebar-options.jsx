@@ -101,6 +101,7 @@ export default function SidebarOptions() {
 					options={ [
 						{ label: __( 'Open when the user starts typing', 'jetpack' ), value: 'immediate' },
 						{ label: __( 'Open when results are available', 'jetpack' ), value: 'results' },
+						{ label: __( 'Open when user submits the form', 'jetpack' ), value: 'submit' },
 					] }
 					onChange={ setTrigger }
 				/>
