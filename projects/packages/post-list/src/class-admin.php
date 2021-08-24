@@ -210,8 +210,14 @@ class Admin {
 			$nodes      = $dom_x_path->query( "//img[contains(@class, '$class_name')]/@class" );
 
 			if ( $nodes->length > 0 ) {
-				// Get the $attachment_id from the end of the class name value of the 1st image node (aka index 0).
-				$attachment_id = str_replace( $class_name, '', $nodes[0]->value );
+				// Get the class attribute value of the 1st image node (aka index 0).
+				$class_value = $nodes[0]->value;
+
+				// Ignore all class attribute values except 'wp-image{$attachment_id}'.
+				preg_match( '/wp-image-\d+/', $class_value, $class_value );
+
+				// Get the $attachment_id from the end of the class name value.
+				$attachment_id = str_replace( $class_name, '', $class_value[0] );
 
 				$featured_image_id    = $attachment_id;
 				$featured_image_url   = wp_get_attachment_image_url( $attachment_id, 'full-size' );
