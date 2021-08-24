@@ -143,5 +143,7 @@ class Jetpack_Search_Dashboard_Page extends Jetpack_Admin_Page {
 			'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( \Jetpack_Redux_State_Helper::get_initial_state() ) ) . '"));',
 			'before'
 		);
+
+		wp_set_script_translations( 'jp-search-dashboard', 'jetpack' );
 	}
 }
