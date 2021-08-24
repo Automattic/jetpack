@@ -104,7 +104,11 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	private function render_properties_as_js( $properties ) {
 		$js_args_string = '';
 		foreach ( $properties as $key => $value ) {
-			$js_args_string = $js_args_string . "'$key': '" . esc_js( $value ) . "', ";
+			if ( is_array( $value ) ) {
+				$js_args_string = $js_args_string . "'$key': " . wp_json_encode( $value ) . ',';
+			} else {
+				$js_args_string = $js_args_string . "'$key': '" . esc_js( $value ) . "', ";
+			}
 		}
 		return $js_args_string;
 	}
