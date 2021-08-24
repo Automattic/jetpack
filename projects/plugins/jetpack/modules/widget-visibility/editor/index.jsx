@@ -337,18 +337,16 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 						] }
 						onChange={ setAction }
 					/>
-					{ rules
-						.map( ( rule, i ) => (
-							<VisibilityRule
-								key={ i }
-								rule={ rule }
-								i={ i }
-								onDelete={ () => deleteRule( i ) } // eslint-disable-line react/jsx-no-bind
-								setMajor={ value => setMajor( i, value ) } // eslint-disable-line react/jsx-no-bind
-								setMinor={ value => setMinor( i, value ) } // eslint-disable-line react/jsx-no-bind
-							/>
-						) )
-						.reduce( ( acc, item ) => ( acc === null ? [ item ] : [ ...acc, '', item ] ), null ) }
+					{ rules.map( ( rule, i ) => (
+						<VisibilityRule
+							key={ i }
+							rule={ rule }
+							i={ i }
+							onDelete={ () => deleteRule( i ) } // eslint-disable-line react/jsx-no-bind
+							setMajor={ value => setMajor( i, value ) } // eslint-disable-line react/jsx-no-bind
+							setMinor={ value => setMinor( i, value ) } // eslint-disable-line react/jsx-no-bind
+						/>
+					) ) }
 					{ rules.length > 1 && (
 						<ToggleControl
 							className="widget-vis__match-all"
