@@ -52,6 +52,10 @@ jobs:
         which jq
         jq --version
 
+    - name: Install Jetpack CLI
+      working-directory: tools/cli
+      run: pnpm install
+
     - name: Install
       working-directory: projects/plugins/jetpack/tests/e2e
       env:
