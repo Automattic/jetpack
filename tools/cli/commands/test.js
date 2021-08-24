@@ -3,7 +3,7 @@
  */
 import chalk from 'chalk';
 import inquirer from 'inquirer';
-//import child_process from 'child_process';
+import child_process from 'child_process';
 
 /**
  * Internal dependencies
@@ -33,7 +33,7 @@ export function testDefine( yargs ) {
 					alias: 't',
 					describe: 'The test to run',
 					type: 'Array',
-					choices: [ 'js', 'php', 'e2e' ],
+					choices: [ 'js', 'php', 'coverage' ],
 				} );
 		},
 		async argv => {
@@ -65,7 +65,9 @@ async function testCli( argv ) {
 	}
 
 	// Get the test script for the project.
-	argv.testScript = getTestInstructions( argv );
+	argv.testScript = await getTestInstructions( argv );
+
+	runTest( argv );
 }
 
 /**
@@ -91,17 +93,21 @@ async function validateProject( argv ) {
  * @returns {Array} testScript - array containing test scripts.
  */
 async function getTestInstructions( argv ) {
-	let testScript = [];
+	let testScript = '';
 	const composerFile = await readComposerJson( argv.project );
 	if ( argv.test === 'js' && composerFile.scripts[ 'test-js' ] ) {
-		testScript = [ 'test-js', ...composerFile.scripts[ 'test-js' ] ];
+		testScript = 'test-js';
 	}
 
 	if ( argv.test === 'php' && composerFile.scripts[ 'test-php' ] ) {
-		testScript = [ 'test-php', ...composerFile.scripts[ 'test-php' ] ];
+		testScript = 'test-php';
 	}
 
-	if ( ! testScript.length ) {
+	if ( argv.test === 'coverage' && composerFile.scripts[ 'test-coverage' ] ) {
+		testScript = 'test-coverage';
+	}
+
+	if ( testScript === '' ) {
 		console.log(
 			chalk.red( `No ${ argv.test } script located in ${ argv.project }'s composer.json file!` )
 		);
@@ -110,6 +116,18 @@ async function getTestInstructions( argv ) {
 	return testScript;
 }
 
+/**
+ * Runs the test script.
+ *
+ * @param {object} argv - the arguments passed.
+ */
+async function runTest( argv ) {
+	console.log( chalk.green( `Running ${ argv.testScript } tests for ${ argv.project }` ) );
+	child_process.spawnSync( 'composer', [ 'run', argv.testScript ], {
+		stdio: 'inherit',
+		cwd: __dirname + '/../../../' + `projects/${ argv.project }`,
+	} );
+}
 /**
  * Prompts for the test we want to run.
  *
@@ -122,7 +140,7 @@ export async function promptForTest( argv ) {
 			type: 'list',
 			name: 'test',
 			message: 'What test are you trying to run?',
-			choices: [ 'js', 'php', 'e2e' ],
+			choices: [ 'js', 'php', 'coverage' ],
 		},
 	] );
 	argv.test = response.test;
