@@ -25,6 +25,8 @@
 			font-size: 36px;
 			line-height: 40px;
 			color: #000;
+			margin-top: 32px;
+			margin-bottom: 0;
 		}
 
 		p, li {
@@ -36,6 +38,7 @@
 
 		p {
 			color: #101517;
+			margin: 16px 0;
 		}
 
 		ul {
@@ -70,12 +73,12 @@
 	&.jp-connect-screen--two-columns {
 		.jp-connect-screen--left {
 			float: left;
-			width: 50%;
+			width: 52%;
 		}
 
 		.jp-connect-screen--right {
 			float: right;
-			width: 49%;
+			width: 47%;
 			background: #F9F9F6;
 		}
 	}

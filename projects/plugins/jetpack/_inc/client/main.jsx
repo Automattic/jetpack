@@ -196,9 +196,24 @@ class Main extends React.Component {
 					apiNonce={ this.props.apiNonce }
 					registrationNonce={ this.props.registrationNonce }
 					apiRoot={ this.props.apiRoot }
-					images={ [ '/images/connect-right.png' ] }
+					images={ [ '/images/connect-right.jpg' ] }
 					assetBaseUrl={ this.props.pluginBaseUrl }
-				/>
+				>
+					<p>
+						{ __(
+							"Secure and speed up your site for free with Jetpack's powerful WordPress tools.",
+							'jetpack'
+						) }
+					</p>
+
+					<ul>
+						<li>{ __( 'Measure your impact with beautiful stats', 'jetpack' ) }</li>
+						<li>{ __( 'Speed up your site with optimized images', 'jetpack' ) }</li>
+						<li>{ __( 'Protect your site against bot attacks', 'jetpack' ) }</li>
+						<li>{ __( 'Get notifications if your site goes offline', 'jetpack' ) }</li>
+						<li>{ __( 'Enhance your site with dozens of other features', 'jetpack' ) }</li>
+					</ul>
+				</ConnectScreen>
 			);
 		}
 
