@@ -1,0 +1,4 @@
+Significance: major
+Type: added
+
+Adds additional formatting suggestions if the changelogger is being adde to a plugin.
