@@ -26,4 +26,4 @@ export function initialize( id ) {
 	render( <Layout />, document.getElementById( id ) );
 }
 
-global.jetpackSearchCustomizeInit = initialize;
+global.jetpackSearchConfigureInit = initialize;

@@ -1,7 +1,7 @@
 @import '../../lib/base-styles';
 
 // Manually adjust incorrect styles from core.
-.jp-search-customize-color-input {
+.jp-search-configure-color-input {
 	.component-color-indicator {
 		vertical-align: middle;
 	}
@@ -26,7 +26,7 @@
 		}
 	}
 
-	.jp-search-customize-sidebar-options--is-disabled & {
+	.jp-search-configure-sidebar-options--is-disabled & {
 		.components-button {
 			pointer-events: none;
 			cursor: not-allowed;

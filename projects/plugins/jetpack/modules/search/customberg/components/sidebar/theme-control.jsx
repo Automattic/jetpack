@@ -27,10 +27,10 @@ import ThemeIcon from './theme-icon';
  */
 export default function ThemeControl( { disabled, value, onChange } ) {
 	return (
-		<div className="jp-search-customize-theme-buttons components-base-control">
+		<div className="jp-search-configure-theme-buttons components-base-control">
 			<Button
 				className={ classNames( {
-					'jp-search-customize-theme-button--selected': value === 'light',
+					'jp-search-configure-theme-button--selected': value === 'light',
 				} ) }
 				disabled={ disabled }
 				onClick={ () => onChange( 'light' ) }
@@ -41,7 +41,7 @@ export default function ThemeControl( { disabled, value, onChange } ) {
 			</Button>
 			<Button
 				className={ classNames( {
-					'jp-search-customize-theme-button--selected': value === 'dark',
+					'jp-search-configure-theme-button--selected': value === 'dark',
 				} ) }
 				disabled={ disabled }
 				onClick={ () => onChange( 'dark' ) }
