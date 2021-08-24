@@ -565,7 +565,6 @@ async function promptVersion( argv ) {
  */
 async function checkForPlugin( projects ) {
 	for ( const proj of projects ) {
-		console.log( proj );
 		if ( proj.startsWith( 'plugins/' ) ) {
 			return 'Please use the format "Feature: Description" e.g. "Stats: Fixes funny errors." \n';
 		}
