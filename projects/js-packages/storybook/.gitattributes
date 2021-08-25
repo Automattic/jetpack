@@ -3,5 +3,11 @@
 node_modules      export-ignore
 
 # Files to exclude from the mirror repo
+/.*               production-exclude
 /changelog/**     production-exclude
-/.eslintrc.cjs    production-exclude
+/package.json     production-exclude
+/src/**           production-exclude
+/storybook/**     production-exclude
+
+# Files to include in the mirror repo
+/docs/**          production-include

@@ -5,6 +5,11 @@ import PropTypes from 'prop-types';
 import React, { Fragment } from 'react';
 import classnames from 'classnames';
 
+/**
+ * WordPress dependencies
+ */
+import { __ } from '@wordpress/i18n';
+
 class JetpackLogo extends React.Component {
 	static propTypes = {
 		className: PropTypes.string,
@@ -32,8 +37,10 @@ class JetpackLogo extends React.Component {
 				y="0px"
 				viewBox={ viewBox }
 				className={ classnames( 'jetpack-logo', className ) }
+				aria-labelledby="jetpack-logo-title"
 				{ ...otherProps }
 			>
+				<title id="jetpack-logo-title">{ __( 'Jetpack Logo', 'jetpack' ) }</title>
 				<path
 					fill={ logoColor }
 					d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z M15,19H7l8-16V19z M17,29V13h8L17,29z"

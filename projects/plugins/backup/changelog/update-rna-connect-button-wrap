@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Use the "withConnectionStatus" HOC for ConnectScreen component.
