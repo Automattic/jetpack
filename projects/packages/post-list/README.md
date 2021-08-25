@@ -6,12 +6,12 @@ Enhance the classic view of the Admin section of your WordPress site.
 
 Package is published in [Packagist](https://packagist.org/packages/automattic/jetpack-post-list).
 
-1. Use composer to add the package to your project:
+Use composer to add the package to your project:
 ```bash
 composer add automattic/jetpack-post-list
 ```
 
-2. Then you need to initialize it on the `plugins_loaded` hook:
+Then you need to initialize it on the `plugins_loaded` hook:
 ```php
 add_action( 'plugins_loaded', 'load_posts_list' );
 
@@ -20,20 +20,19 @@ function load_posts_list() {
 }
 ```
 
-3. You need to build its assets before using it.
-To do that, you need to run the following commands:
-```bash
-cd vendor/automattic/jetpack-post-list
-pnpm build-all
-```
 ## Development
 
+### Production
+```bash
+jetpack build -p packages/post-list
+```
+
+### Development
 ```bash
 jetpack build packages/post-list
 ```
 
-... watching changes 👀
-
+### Development watching mode 👀
 ```bash
 jetpack watch packages/post-list
 ```
