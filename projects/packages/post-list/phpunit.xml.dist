@@ -1,16 +1,17 @@
-<phpunit bootstrap="tests/php/bootstrap.php" backupGlobals="false" colors="true">
-	<testsuites>
-		<testsuite name="general">
-			<directory prefix="test" suffix=".php">tests/php</directory>
-		</testsuite>
-	</testsuites>
-	<filter>
-		<whitelist processUncoveredFilesFromWhitelist="false">
-			<directory suffix=".php">.</directory>
-			<exclude>
-				<directory suffix=".php">tests</directory>
-				<directory suffix=".php">vendor</directory>
-			</exclude>
-		</whitelist>
-	</filter>
+<?xml version="1.0"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" bootstrap="tests/php/bootstrap.php" backupGlobals="false" colors="true" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
+  <coverage processUncoveredFiles="false">
+    <include>
+      <directory suffix=".php">.</directory>
+    </include>
+    <exclude>
+      <directory suffix=".php">tests</directory>
+      <directory suffix=".php">vendor</directory>
+    </exclude>
+  </coverage>
+  <testsuites>
+    <testsuite name="general">
+      <directory prefix="test" suffix=".php">tests/php</directory>
+    </testsuite>
+  </testsuites>
 </phpunit>
