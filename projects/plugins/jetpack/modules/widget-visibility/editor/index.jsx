@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { Fragment, useEffect, useCallback, useMemo } from '@wordpress/element';
+import { Fragment, useCallback, useMemo } from '@wordpress/element';
 import { BaseControl, Button, SelectControl, ToggleControl } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { InspectorAdvancedControls } from '@wordpress/block-editor'; // eslint-disable-line import/no-unresolved
@@ -193,33 +193,29 @@ const VisibilityRule = props => {
 	);
 };
 
+/* Given a conditions object, add the default values for the 'action', 'rules',
+ * and 'match_all' keys if any of them are missing
+ * @param object conditions
+ * @return object Conditions with defaults applied if any of the keys are missing.
+ */
+const maybeAddDefaultConditions = conditions => ( {
+	action: 'show',
+	rules: [],
+	match_all: 0,
+	...conditions,
+} );
+
 const visibilityAdvancedControls = createHigherOrderComponent(
 	BlockEdit => props => {
 		const { attributes, setAttributes, isSelected } = props;
 		const conditions = useMemo( () => attributes.conditions || {}, [ attributes ] );
 		const rules = useMemo( () => conditions.rules || [], [ conditions ] );
 
-		// Initialize props.conditions if none is sent.
-		useEffect( () => {
-			if (
-				blockHasVisibilitySettings( props.name ) &&
-				( ! ( 'action' in conditions ) || ! ( 'match_all' in conditions ) )
-			) {
-				setAttributes( {
-					conditions: {
-						action: 'show',
-						rules: [],
-						match_all: '0', // boolean with either '0' or '1' strings for backwards compat
-					},
-				} );
-			}
-		}, [ conditions, setAttributes, props.name ] );
-
 		const toggleMatchAll = useCallback(
 			() =>
 				setAttributes( {
 					conditions: {
-						...conditions,
+						...maybeAddDefaultConditions( conditions ),
 						match_all: conditions.match_all === '0' ? '1' : '0',
 					},
 				} ),
@@ -230,7 +226,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 			value =>
 				setAttributes( {
 					conditions: {
-						...conditions,
+						...maybeAddDefaultConditions( conditions ),
 						action: value,
 					},
 				} ),
@@ -240,7 +236,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 			const newRules = [ ...rules, { major: '', minor: '' } ];
 			setAttributes( {
 				conditions: {
-					...conditions,
+					...maybeAddDefaultConditions( conditions ),
 					rules: newRules,
 				},
 			} );
@@ -251,7 +247,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 				const newRules = [ ...rules.slice( 0, i ), ...rules.slice( i + 1 ) ];
 				setAttributes( {
 					conditions: {
-						...conditions,
+						...maybeAddDefaultConditions( conditions ),
 						rules: newRules,
 					},
 				} );
@@ -278,7 +274,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 				];
 				setAttributes( {
 					conditions: {
-						...conditions,
+						...maybeAddDefaultConditions( conditions ),
 						rules: newRules,
 					},
 				} );
@@ -299,7 +295,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 				];
 				setAttributes( {
 					conditions: {
-						...conditions,
+						...maybeAddDefaultConditions( conditions ),
 						rules: newRules,
 					},
 				} );
