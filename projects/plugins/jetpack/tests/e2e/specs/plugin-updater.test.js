@@ -49,7 +49,7 @@ describe( 'Jetpack updater', () => {
 		await DashboardPage.visit( page );
 	} );
 
-	it( 'Plugin updater', async () => {
+	it.skip( 'Plugin updater', async () => {
 		await testStep( 'Can login and navigate to Plugins page', async () => {
 			await ( await Sidebar.init( page ) ).selectInstalledPlugins();
 			await PluginsPage.init( page );
