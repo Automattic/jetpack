@@ -146,6 +146,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'signup_is_store',
 		'has_pending_automated_transfer',
 		'woocommerce_is_active',
+		'editing_toolkit_is_active',
 		'design_type',
 		'site_goals',
 		'site_segment',
@@ -177,6 +178,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_wpcom_atomic',
 		'is_wpcom_store',
 		'woocommerce_is_active',
+		'editing_toolkit_is_active',
 		'frame_nonce',
 		'jetpack_frame_nonce',
 		'design_type',
@@ -627,6 +629,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'woocommerce_is_active':
 					$options[ $key ] = $site->woocommerce_is_active();
+					break;
+				case 'editing_toolkit_is_active':
+					$options[ $key ] = $site->editing_toolkit_is_active();
 					break;
 				case 'design_type':
 					$options[ $key ] = $site->get_design_type();

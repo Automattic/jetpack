@@ -184,6 +184,10 @@ abstract class SAL_Site {
 		return false;
 	}
 
+	public function editing_toolkit_is_active() {
+		return true;
+	}
+
 	public function is_cloud_eligible() {
 		return false;
 	}
