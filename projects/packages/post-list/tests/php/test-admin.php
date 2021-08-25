@@ -1,11 +1,16 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Tests the post-list package.
+ *
+ * @package automattic/jetpack-post-list
+ */
 
 namespace Automattic\Jetpack\PostList;
 
 use PHPUnit\Framework\TestCase;
 
 /**
- * Unit tests for the admin class.
+ * Unit tests for the Admin class.
  *
  * @package automattic/jetpack-post-list
  */

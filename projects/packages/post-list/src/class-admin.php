@@ -9,7 +9,7 @@ namespace Automattic\Jetpack\PostList;
 
 use Automattic\Jetpack\Assets;
 
-require_once __DIR__ . '/class-post-image.php';
+require_once __DIR__ . '/class-post-thumbnail.php';
 
 /**
  * The PostList Admin Area
@@ -102,14 +102,14 @@ class Admin {
 
 		$post_data = array_map(
 			function ( $post ) {
-				$featured_image = Post_Image::get_featured_or_first_post_image( $post );
+				$thumbnail = Post_Thumbnail::get_post_thumbnail( $post );
 				return array(
 					'id'             => $post->ID,
 					'type'           => $post->post_type,
 					'status'         => $post->post_status,
 					'date_gmt'       => $post->post_date_gmt,
 					'statuses'       => $this->get_post_statuses( $post->ID ),
-					'featured_image' => $featured_image,
+					'featured_image' => $thumbnail,
 				);
 			},
 			$wp_query->posts
