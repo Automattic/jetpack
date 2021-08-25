@@ -96,4 +96,14 @@ class WP_Test_Jetpack_Shortcodes_Spotify extends WP_UnitTestCase {
 		$this->assertContains( 'https://embed.spotify.com/?uri=' . rawurlencode( "spotify:track:$track_id" ), $content );
 	}
 
+	/**
+	 * Verify that shortcode content iframe contains loading='lazy' attribute
+	 */
+	public function test_shortcodes_spotify_lazy_loading() {
+		$content           = '[spotify https://open.spotify.com/album/4BC7xFBCxUMBEgGpxRBaCy width=\"400\" height=\"100\"]';
+		$shortcode_content = do_shortcode( $content );
+
+		$this->assertContains( '<iframe', $shortcode_content );
+		$this->assertContains( 'loading="lazy"', $shortcode_content );
+	}
 }
