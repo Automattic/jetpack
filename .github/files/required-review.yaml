@@ -47,7 +47,7 @@
    - '@davidlonjon'
 
 # The Search team reviews changes to the Search plugin
-- name: Boost
+- name: Search
   paths:
    - 'projects/plugins/search/**'
   teams:
