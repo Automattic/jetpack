@@ -10,7 +10,7 @@ BASE=$PWD
 # Print help and exit.
 function usage {
 	cat <<-EOH
-		usage: $0 [-u] [-v] [-U] [<slug> ...]
+		usage: $0 [-a] [-v] [-U|-u] [<slug> ...]
 
 		Check that all composer and pnpm dependencies between monorepo projects are up to date.
 
@@ -20,6 +20,10 @@ function usage {
 		If \`-U\` is passed, update any that aren't but do not create a change file.
 
 		If <slug> is passed, only that project is checked.
+
+		Other options:
+		 -a: Pass --filename-auto-suffix to changelogger (avoids "file already exists" errors).
+		 -v: Output debug information.
 	EOH
 	exit 1
 }
@@ -40,9 +44,6 @@ while getopts ":uUvha" opt; do
 			;;
 		a)
 			AUTO_SUFFIX=true
-			;;
-		u)
-			UPDATE=true
 			;;
 		v)
 			VERBOSE=true

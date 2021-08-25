@@ -17,7 +17,9 @@ function usage {
 		usage: $0 [-f] [-v] -u version <slug>
 
 		  Update the versions of the specified project.
-		  Specifying -f force-updates the referenced version in other packages that depend on the updated package.
+
+		  Specifying -f updates the referenced version in other packages that depend
+		  on the updated package (see tools/check-intra-monorepo-deps.sh -ua).
 
 		The following version numbers are updated:
 		   - Version in the WordPress plugin header, if applicable.
