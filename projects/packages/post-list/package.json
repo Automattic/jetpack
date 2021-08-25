@@ -12,8 +12,8 @@
 		"build-all": "pnpm run install-if-deps-outdated && pnpm run clean && pnpm run build",
 		"clean": "rm -rf build/",
 		"build": "wp-scripts build",
-		"start": "wp-scripts start",
-		"watch": "pnpm run start",
+		"start": "NODE_ENV=development wp-scripts build",
+		"watch": "wp-scripts start",
 		"lint:css": "wp-scripts lint-style",
 		"lint:js": "wp-scripts lint-js"
 	},
