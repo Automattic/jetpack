@@ -190,13 +190,23 @@ class Main extends React.Component {
 			);
 		}
 
-		if ( false === this.props.siteConnectionStatus && this.props.userCanConnectSite ) {
+		if ( this.isMainConnectScreen() || this.isUserConnectScreen() ) {
+			const connectImages = [];
+
+			if ( this.isMainConnectScreen() ) {
+				connectImages.push( '/images/connect-right.jpg' );
+			}
+
+			if ( this.isUserConnectScreen() ) {
+				connectImages.push( '/images/connect-right-secondary.png' );
+			}
+
 			return (
 				<ConnectScreen
 					apiNonce={ this.props.apiNonce }
 					registrationNonce={ this.props.registrationNonce }
 					apiRoot={ this.props.apiRoot }
-					images={ [ '/images/connect-right.jpg' ] }
+					images={ connectImages }
 					assetBaseUrl={ this.props.pluginBaseUrl }
 				>
 					<p>
@@ -231,6 +241,7 @@ class Main extends React.Component {
 			case '/dashboard':
 			case '/reconnect':
 			case '/disconnect':
+			case '/connect-user':
 				pageComponent = (
 					<AtAGlance
 						siteRawUrl={ this.props.siteRawUrl }
@@ -357,6 +368,14 @@ class Main extends React.Component {
 
 	closeReconnectModal() {
 		this.props.history.replace( '/dashboard' );
+	}
+
+	isMainConnectScreen() {
+		return false === this.props.siteConnectionStatus && this.props.userCanConnectSite;
+	}
+
+	isUserConnectScreen() {
+		return '/connect-user' === this.props.location.pathname;
 	}
 
 	render() {
