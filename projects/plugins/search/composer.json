@@ -1,7 +1,7 @@
 {
 	"name": "automattic/jetpack-search",
 	"description": "A cloud-powered replacement for WordPress' search.",
-	"type": "library",
+	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
