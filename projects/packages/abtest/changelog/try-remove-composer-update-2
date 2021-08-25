@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Run composer update on test-php command instead of phpunit
