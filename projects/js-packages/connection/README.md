@@ -55,6 +55,8 @@ The component displays the connection button and handles the connection process,
 - *from* - string, custom string parameter to identify where the request is coming from.
 - *redirectUrl* - string, wp-admin URI to redirect a user to after Calypso connection flow.
 - *statusCallback* - callback to pull connection status from the component.
+- *connectionStatus* - object, the connection status info.
+- *connectionStatusIsFetching* - boolean, whether the connection status is being fetched at the moment.
 
 ### Basic Usage
 ```jsx
@@ -71,7 +73,34 @@ const onUserConnected = useCallback( () => alert( 'User Connected' ) );
 	onRegistered={ onRegistered }
 	from="connection-ui"
 	redirectUri="tools.php?page=wpcom-connection-manager"
+	connectionStatus={ connectionStatus }
+	connectionStatusIsFetching={ isFetching }
 />
+```
+
+### Higher-Order Component `withConnectionStatus`
+This HOC automatically fetches connection status via API, and passes it as a property to the component of your choosing.
+With this, you'll be able to skip the `connectionStatus` and `connectionStatusIsFetching` parameters.
+The `withConnectionStatus` HOC will pass them automatically.
+
+Here's an example:
+
+```jsx
+import ConnectButton from '../connect-button';
+import withConnectionStatus from '../with-connection-status';
+
+const ConnectButtonWithConnectionStatus = withConnectionStatus( ConnectButton );
+
+const SampleComponent = props => {
+    return <ConnectButtonWithConnectionStatus
+		apiRoot="https://example.org/wp-json/"
+		apiNonce="12345"
+		registrationNonce="54321"
+		from="connection-ui"
+	/>;
+};
+
+export default SampleComponent;
 ```
 
 ### Advanced Connection Status Handling
@@ -83,24 +112,31 @@ To do that, you should pass a custom callback function into the `JetpackConnecti
 ```jsx
 import React, { useState, useCallback } from 'react';
 import { ConnectButton } from '@automattic/jetpack-connection';
+import withConnectionStatus from '../with-connection-status';
 
-const [ connectionStatus, setConnectionStatus ] = useState( {} );
+const ConnectButtonWithConnectionStatus = withConnectionStatus( ConnectButton );
 
-const statusCallback = useCallback(
-		status => {
-			setConnectionStatus( status );
-		},
-		[ setConnectionStatus ]
-);
+const SampleComponent = props => {
+    const [ connectionStatus, setConnectionStatus ] = useState( {} );
 
-<ConnectButton
-	apiRoot="https://example.org/wp-json/" 
-	apiNonce="12345"
-	registrationNonce="54321"
-	from="connection-ui"
-	redirectUri="tools.php?page=wpcom-connection-manager"
-	statusCallback={ statusCallback }
-/>
+    const statusCallback = useCallback(
+        status => {
+            setConnectionStatus( status );
+        },
+        [setConnectionStatus]
+    );
+
+    return <ConnectButtonWithConnectionStatus
+        apiRoot="https://example.org/wp-json/"
+        apiNonce="12345"
+        registrationNonce="54321"
+        from="connection-ui"
+        redirectUri="tools.php?page=wpcom-connection-manager"
+        statusCallback={statusCallback}
+    />;
+};
+
+export default SampleComponent;
 ```
 
 ## Component `ConnectUser`
