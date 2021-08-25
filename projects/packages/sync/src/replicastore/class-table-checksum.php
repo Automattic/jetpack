@@ -258,7 +258,7 @@ class Table_Checksum {
 	private function prepare_fields( $table_configuration ) {
 		$this->key_fields            = $table_configuration['key_fields'];
 		$this->range_field           = $table_configuration['range_field'];
-		$this->checksum_fields       = $table_configuration['checksum_fields'];
+		$this->checksum_fields       = isset( $table_configuration['checksum_fields'] ) ? $table_configuration['checksum_fields'] : array();
 		$this->checksum_text_fields  = isset( $table_configuration['checksum_text_fields'] ) ? $table_configuration['checksum_text_fields'] : array();
 		$this->filter_values         = isset( $table_configuration['filter_values'] ) ? $table_configuration['filter_values'] : null;
 		$this->additional_filter_sql = ! empty( $table_configuration['filter_sql'] ) ? $table_configuration['filter_sql'] : '';
