@@ -1,8 +1,6 @@
 name: E2E Tests on Atomic sites
 
 on:
-  push:
-    branches: [ e2e/atomic-e2e-ci ]
   schedule:
     - cron:  '0 */4 * * *'
 
