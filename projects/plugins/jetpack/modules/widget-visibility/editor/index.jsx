@@ -16,15 +16,9 @@ import { unescape } from './util';
 /* eslint-disable react/react-in-jsx-scope */
 
 const blockHasVisibilitySettings = name => {
-	// When I put extra attributes on these blocks, they
-	// refuse to render with a message "Error loading block: Invalid parameter(s): attributes"
-	// However, most blocks don't do this. Why is this?
 	const disallowed = new Set( [
-		'core/archives',
-		'core/latest-comments',
-		'core/latest-posts',
 		'core/legacy-widget', // These already have legacy visibility settings, avoid 2 levels of controls
-		'core/widget-area',
+		'core/widget-area', // This is the entire outer area; I don't think the editor lets you visit here
 	] );
 	return ! disallowed.has( name );
 };

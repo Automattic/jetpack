@@ -136,6 +136,37 @@ class Jetpack_Widget_Conditions {
 	}
 
 	/**
+	 * Add the 'conditions' attribute, where visibility rules are stored, to some blocks.
+	 *
+	 * We normally add the block attributes in the browser's javascript env only,
+	 * but these blocks use a ServerSideRender dynamic preview, so the php env needs
+	 * to know about the new attribute, too.
+	 */
+	public static function add_block_attributes_filter() {
+		$blocks_to_add_visibility_conditions = array(
+			// These use <ServerSideRender>.
+			'core/calendar',
+			'core/latest-comments',
+			'core/rss',
+			'core/archives',
+			'core/tag-cloud',
+			'core/page-list',
+			'core/latest-posts',
+		);
+
+		$filter_metadata_registration = function ( $settings, $metadata ) use ( $blocks_to_add_visibility_conditions ) {
+			if ( in_array( $metadata['name'], $blocks_to_add_visibility_conditions, true ) && ! empty( $settings['attributes'] ) ) {
+				$settings['attributes']['conditions'] = array(
+					'type' => 'object',
+				);
+			}
+			return $settings;
+		};
+
+		add_filter( 'block_type_metadata_settings', $filter_metadata_registration, 10, 2 );
+	}
+
+	/**
 	 * Prepare the interface for editing widgets - loading css, javascript & data
 	 */
 	public static function widget_admin_setup() {
@@ -1167,3 +1198,10 @@ class Jetpack_Widget_Conditions {
 }
 
 add_action( 'init', array( 'Jetpack_Widget_Conditions', 'init' ) );
+
+// Add the 'conditions' attribute to server side rendered blocks
+// 'init' happens too late to hook on block registration.
+global $pagenow;
+if ( is_customize_preview() || 'widgets.php' === $pagenow || ( false !== strpos( $_SERVER['REQUEST_URI'], '/wp-json/wp/v2/block-renderer' ) ) ) {
+	Jetpack_Widget_Conditions::add_block_attributes_filter();
+}
