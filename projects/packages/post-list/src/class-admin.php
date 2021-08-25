@@ -21,7 +21,6 @@ class Admin {
 	 */
 	public function __construct() {
 		if ( ! did_action( 'jetpack_on_posts_list_init' ) ) {
-			add_filter( 'query_vars', array( $this, 'add_query_vars' ) );
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 			add_action( 'admin_footer', array( $this, 'print_post_data' ) );
 
@@ -39,27 +38,6 @@ class Admin {
 	 */
 	public static function init() {
 		new static();
-	}
-
-	/**
-	 * Register post-list query var.
-	 *
-	 * @param array $vars Current query vars.
-	 */
-	public function add_query_vars( $vars ) {
-		$vars[] = 'post-list';
-		return $vars;
-	}
-
-	/**
-	 * Check whether the post-list featured is enabled,
-	 * via the query strinh.
-	 *
-	 * @return boolean True when featured is active. Otherwise, False.
-	 */
-	public function is_posts_list() {
-		$is_posts_list = get_query_var( 'post-list' );
-		return isset( $is_posts_list ) && 'true' === $is_posts_list ? true : false;
 	}
 
 	/**
@@ -88,7 +66,7 @@ class Admin {
 	 * @param string $hook Page hook.
 	 */
 	public function enqueue_scripts( $hook ) {
-		if ( $this->is_posts_list() && 'edit.php' === $hook ) {
+		if ( 'edit.php' === $hook ) {
 			$build_assets = require_once __DIR__ . '/../build/index.asset.php';
 			$plugin_path  = Assets::get_file_url_for_environment( '../build/index.js', '../build/index.js', __FILE__ );
 
