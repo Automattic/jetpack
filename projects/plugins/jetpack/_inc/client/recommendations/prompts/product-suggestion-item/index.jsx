@@ -56,12 +56,11 @@ const ProductSuggestionItemComponent = props => {
 
 	const currencyObject = getCurrencyObject( product.cost / 12, product.currency_code );
 
-	const checkoutLink =
-		'https://wordpress.com/checkout/jetpack/' +
+	let checkoutLink = 'https://wordpress.com/checkout/jetpack/';
+	checkoutLink +=
 		product.product_slug +
 		'?checkoutBackUrl=' +
-		siteAdminUrl +
-		'admin.php?page=jetpack#/recommendations/woocommerce';
+		encodeURIComponent( siteAdminUrl + 'admin.php?page=jetpack#/recommendations/woocommerce' );
 
 	return (
 		<div className="jp-recommendations-product-suggestion-item jp-recommendations-product-suggestion__item">
