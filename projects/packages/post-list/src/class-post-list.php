@@ -14,7 +14,7 @@ require_once __DIR__ . '/class-post-thumbnail.php';
 /**
  * The PostList Admin Area
  */
-class Admin {
+class Post_List {
 
 	/**
 	 * Construction.

@@ -26,7 +26,7 @@ function is_wp_admin_posts_list_page() {
  * Start the Jetpack Post List engines.
  */
 function init_posts_list() {
-	Admin::init();
+	Post_List::init();
 }
 
 if ( is_wp_admin_posts_list_page() ) {
