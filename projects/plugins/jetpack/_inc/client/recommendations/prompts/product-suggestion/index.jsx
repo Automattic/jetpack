@@ -19,6 +19,7 @@ import {
 	addSkippedRecommendation as addSkippedRecommendationAction,
 	updateRecommendationsStep as updateRecommendationsStepAction,
 } from 'state/recommendations';
+import { PLAN_JETPACK_BACKUP_DAILY, PLAN_JETPACK_SECURITY_DAILY } from 'lib/plans/constants';
 import { isFetchingSiteProducts as isFetchingSiteProductsAction } from 'state/site-products';
 
 /**
@@ -50,7 +51,7 @@ const ProductSuggestionComponent = props => {
 				{ ! isFetchingSiteProducts && (
 					<>
 						<ProductSuggestionItem
-							product={ jetpackProducts.jetpack_backup_daily }
+							product={ jetpackProducts[ PLAN_JETPACK_BACKUP_DAILY ] }
 							title={ __( 'Backup Daily', 'jetpack' ) }
 							description={ __(
 								'Never lose a word, image, page, or time worrying about your site with automated off-site backups and one-click restores.',
@@ -59,7 +60,7 @@ const ProductSuggestionComponent = props => {
 							externalLink={ 'https://jetpack.com/upgrade/backup/' }
 						/>
 						<ProductSuggestionItem
-							product={ jetpackProducts.jetpack_security_daily }
+							product={ jetpackProducts[ PLAN_JETPACK_SECURITY_DAILY ] }
 							title={ __( 'Security Daily', 'jetpack' ) }
 							description={ __(
 								'All of the essential Jetpack Security features in one package including Backup, Scan, Anti-spam and more.',

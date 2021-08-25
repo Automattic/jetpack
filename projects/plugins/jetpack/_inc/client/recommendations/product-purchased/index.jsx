@@ -13,6 +13,7 @@ import { PromptLayout } from '../prompts/prompt-layout';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import analytics from 'lib/analytics';
+import { PLAN_JETPACK_BACKUP_DAILY, PLAN_JETPACK_SECURITY_DAILY } from 'lib/plans/constants';
 import { getNextRoute, getDataByKey } from 'state/recommendations';
 
 /**
@@ -21,12 +22,12 @@ import { getNextRoute, getDataByKey } from 'state/recommendations';
 import './style.scss';
 
 const features = {
-	jetpack_backup_daily: [
+	[ PLAN_JETPACK_BACKUP_DAILY ]: [
 		__( 'Automated daily off-site backups', 'jetpack' ),
 		__( 'One-click restores', 'jetpack' ),
 		__( 'Unlimited secure storage', 'jetpack' ),
 	],
-	jetpack_security_daily: [
+	[ PLAN_JETPACK_SECURITY_DAILY ]: [
 		__( 'Automated daily off-site backups', 'jetpack' ),
 		__( 'One-click restores', 'jetpack' ),
 		__( 'Unlimited secure storage', 'jetpack' ),
