@@ -312,6 +312,19 @@ function createPackageJson( packageJson, answers ) {
 	packageJson.description = answers.description;
 	packageJson.name = `@automattic/jetpack-${ answers.name }`;
 	packageJson.version = '0.1.0-alpha';
+
+	if ( answers.type === 'js-package' ) {
+		packageJson.exports = {
+			'.': './index.jsx',
+			'./state': './src/state',
+			'./action-types': './src/state/action-types',
+		};
+		packageJson.scripts = {
+			test:
+				"NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.@(jsx|js)'",
+		};
+		packageJson.dependencies = {};
+	}
 }
 
 /**
