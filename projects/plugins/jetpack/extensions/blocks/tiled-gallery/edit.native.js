@@ -1,16 +1,29 @@
 /**
  * External Dependencies
  */
-import { __ } from '@wordpress/i18n';
-import { Fragment, useState } from '@wordpress/element';
+import { View } from 'react-native';
+import { concat, find } from 'lodash';
+
+/**
+ * WordPress dependencies
+ */
+
 import {
+	store as blockEditorStore,
 	BlockControls,
 	BlockIcon,
 	InnerBlocks,
 	MediaPlaceholder,
 	MediaUpload,
+	useBlockProps,
+	__experimentalUseInnerBlocksProps as useInnerBlocksProps,
 } from '@wordpress/block-editor';
+import { createBlock } from '@wordpress/blocks';
+import { __ } from '@wordpress/i18n';
+import { Fragment, useState, useEffect, useMemo } from '@wordpress/element';
 import { Button, ToolbarGroup, withNotices } from '@wordpress/components';
+import { useSelect, useDispatch } from '@wordpress/data';
+import { useResizeObserver } from '@wordpress/compose';
 
 /**
  * Internal dependencies
@@ -19,34 +32,82 @@ import Layout from './layout';
 import { ALLOWED_MEDIA_TYPES } from './constants';
 import { icon } from '.';
 import EditButton from '../../shared/edit-button';
+import styles from './edit.scss';
 
 const ALLOWED_BLOCKS = [ 'jetpack/row' ];
 const TEMPLATE = [ [ 'jetpack/row' ] ];
+const TILE_SPACING = 2;
 
 export function defaultColumnsNumber( attributes ) {
 	return Math.min( 3, attributes.images.length );
 }
 
-const TiledGalleryEdit = ( {
-	attributes,
-	isSelected,
-	setAttributes,
-	mergeBlocks,
-	onRemove,
-	style,
-	className,
-	noticeOperations,
-	noticeUI,
-	onFocus,
-} ) => {
-	const [ images, setImages ] = useState( [] );
-	const [ columns, setColumns ] = useState( 0 );
+const TiledGalleryEdit = props => {
+	const [ resizeObserver, sizes ] = useResizeObserver();
+	const [ maxWidth, setMaxWidth ] = useState( 0 );
+
+	const {
+		setAttributes,
+		attributes,
+		className,
+		clientId,
+		noticeOperations,
+		isSelected,
+		noticeUI,
+		onFocus,
+	} = props;
 
 	const { align, roundedCorners } = attributes;
 
+	const { replaceInnerBlocks } = useDispatch( blockEditorStore );
+
+	useEffect( () => {
+		const { width } = sizes || {};
+		if ( width ) {
+			setMaxWidth( width );
+		}
+	}, [ sizes ] );
+
+	const { getBlock } = useSelect(
+		select => ( {
+			getBlock: select( blockEditorStore ).getBlock,
+		} ),
+		[]
+	);
+
+	// const [ images, setImages ] = useState( [] );
+	// const [ columns, setColumns ] = useState( 0 );
+
+	const innerBlockImages = useSelect(
+		select => {
+			return select( blockEditorStore ).getBlock( clientId )?.innerBlocks;
+		},
+		[ clientId ]
+	);
+
+	const images = useMemo( () =>
+		innerBlockImages?.map( block => ( {
+			clientId: block.clientId,
+			id: block.attributes.id,
+			url: block.attributes.url,
+			attributes: block.attributes,
+			fromSavedContent: Boolean( block.originalContent ),
+		} ) )
+	);
+
 	const onSelectImages = imgs => {
-		setColumns( attributes.columns ? Math.min( imgs.length, attributes.columns ) : columns );
-		setImages( imgs );
+		// setColumns( attributes.columns ? Math.min( imgs.length, attributes.columns ) : columns );
+
+		const newBlocks = imgs.map( image => {
+			return createBlock( 'core/image', {
+				id: image.id,
+				url: image.url,
+				caption: image.caption,
+				alt: image.alt,
+			} );
+		} );
+
+		replaceInnerBlocks( clientId, concat( innerBlockImages, newBlocks ) );
 		debugger;
 	};
 
@@ -73,49 +134,54 @@ const TiledGalleryEdit = ( {
 		</BlockControls>
 	);
 
-	return (
-		<InnerBlocks
-			allowedBlocks={ ALLOWED_BLOCKS }
-			templateLock={ false }
-			template={ [ TEMPLATE ] }
-			// renderAppender={ InnerBlocks.ButtonBlockAppender }
+	const innerBlocksProps = useInnerBlocksProps(
+		{},
+		{
+			contentResizeMode: 'stretch',
+			allowedBlocks: [ 'core/image' ],
+			orientation: 'horizontal',
+			renderAppender: false,
+			numColumns: 3,
+			marginHorizontal: TILE_SPACING,
+			marginVertical: TILE_SPACING,
+			__experimentalLayout: { type: 'default', alignments: [] },
+			gridProperties: {
+				numColumns: 3,
+			},
+			parentWidth: maxWidth + 2 * TILE_SPACING,
+		}
+	);
+
+	const mediaPlaceholder = (
+		<MediaPlaceholder
+			isAppender={ images.length > 0 }
+			icon={ <BlockIcon icon={ icon } /> }
+			className={ className }
+			labels={ {
+				title: __( 'Tiled Gallery', 'jetpack' ),
+				name: __( 'images', 'jetpack' ),
+			} }
+			onSelect={ onSelectImages }
+			accept="image/*"
+			allowedTypes={ ALLOWED_MEDIA_TYPES }
+			multiple
+			notices={ noticeUI }
+			onFocus={ onFocus }
+			onError={ '' }
 		/>
 	);
 
-	// if ( images.length === 0 ) {
-	// 	return (
-	// 		<Fragment>
-	// 			{ controls }
-	// 			<MediaPlaceholder
-	// 				icon={ <BlockIcon icon={ icon } /> }
-	// 				className={ className }
-	// 				labels={ {
-	// 					title: __( 'Tiled Gallery', 'jetpack' ),
-	// 					name: __( 'images', 'jetpack' ),
-	// 				} }
-	// 				onSelect={ onSelectImages }
-	// 				accept="image/*"
-	// 				allowedTypes={ ALLOWED_MEDIA_TYPES }
-	// 				multiple
-	// 				notices={ noticeUI }
-	// 				onFocus={ onFocus }
-	// 				onError={ '' }
-	// 			/>
-	// 		</Fragment>
-	// 	);
-	// } else {
-	// 	return (
-	// 		<Fragment>
-	// 			<Layout
-	// 				align={ align }
-	// 				className={ className }
-	// 				columns={ columns }
-	// 				images={ images }
-	// 				roundedCorners={ roundedCorners }
-	// 			/>
-	// 		</Fragment>
-	// 	);
-	// }
+	const blockProps = useBlockProps( {
+		className: className,
+	} );
+
+	return (
+		<View blockProps={ blockProps }>
+			{ resizeObserver }
+			<View { ...innerBlocksProps } />
+			<View style={ [ styles.galleryAppender ] }>{ mediaPlaceholder }</View>
+		</View>
+	);
 };
 
 export default TiledGalleryEdit;

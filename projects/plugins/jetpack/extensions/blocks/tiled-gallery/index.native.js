@@ -21,7 +21,6 @@ import {
 import { isSimpleSite } from '../../shared/site-type-utils';
 import { getIconColor } from '../../shared/block-icons';
 import getCategoryWithFallbacks from '../../shared/get-category-with-fallbacks';
-import { name as squareLayoutName, settings as squareLayoutSettings } from './layout/square/index';
 import { name as rowName, settings as rowSettings } from './layout/row/index';
 
 /**
@@ -296,10 +295,6 @@ export const settings = {
 };
 
 export const childBlocks = [
-	{
-		name: squareLayoutName,
-		settings: squareLayoutSettings,
-	},
 	{
 		name: rowName,
 		settings: rowSettings,
