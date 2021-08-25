@@ -62,7 +62,7 @@ mocha.suite.afterAll( function () {
 
 if ( options.jsdom ) {
 	// Define a dom so we can have window and all else
-	require( 'jsdom-global' )();
+	require( 'global-jsdom' )();
 
 	window.Initial_State = {
 		userData: {},

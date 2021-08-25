@@ -113,7 +113,6 @@
 		"gulp-sass": "5.0.0",
 		"gulp-sourcemaps": "3.0.0",
 		"jsdom": "16.4.0",
-		"jsdom-global": "3.0.2",
 		"mapbox-gl": "1.13.0",
 		"markdown-it": "12.0.4",
 		"page": "1.7.1",
