@@ -547,6 +547,7 @@ if ( -1 == document.location.href.indexOf( 'noheader' ) ) {
 	jQuery( function( $ ) {
 		$.get( document.location.href + '&noheader', function( responseText ) {
 			$( '#stats-loading-wrap' ).replaceWith( responseText );
+			$( '#jp-stats-wrap' )[0].dispatchEvent(new Event( 'stats-loaded' ));
 		} );
 	} );
 }

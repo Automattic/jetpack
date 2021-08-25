@@ -249,8 +249,16 @@ class Jetpack_Stats_Upgrade_Nudges {
 			(function(window, document, undefined){
 				window.onload = set_up_click_handler;
 
+				const stats_wrap = document.getElementById( 'jp-stats-wrap' );
+				stats_wrap.addEventListener( 'stats-loaded', function () {
+					const stat_chart = document.getElementById( 'statchart' );
+					if ( stat_chart === null ) {
+						document.getElementById( 'stats_nudges_toggle' ).style.display = 'none';
+					}
+				});
+
 				function set_up_click_handler(){
-					document.getElementById('stats_nudges_toggle').onclick = function () {
+					document.getElementById( 'stats_nudges_toggle' ).onclick = function () {
 						const collapseValue = 'true' === this.getAttribute( 'aria-expanded' );
 
 						fetch( '/wp-json/jetpack/v4/settings', {
