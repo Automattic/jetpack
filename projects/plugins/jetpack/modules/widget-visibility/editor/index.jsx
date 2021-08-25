@@ -7,6 +7,11 @@ import { __, _x } from '@wordpress/i18n';
 import { InspectorAdvancedControls } from '@wordpress/block-editor'; // eslint-disable-line import/no-unresolved
 import { createHigherOrderComponent } from '@wordpress/compose';
 
+/**
+ * Internal dependencies
+ */
+import { unescape } from './util';
+
 /* global widget_conditions_data, wpcom */
 /* eslint-disable react/react-in-jsx-scope */
 
@@ -86,7 +91,7 @@ const buildOptions = ( options, level = 0 ) =>
 
 		if ( Array.isArray( item2 ) ) {
 			const newItem = {
-				label: prefix + item1,
+				label: unescape( prefix + item1 ),
 				value: item1,
 				disabled: true,
 			};
@@ -95,7 +100,7 @@ const buildOptions = ( options, level = 0 ) =>
 		}
 
 		const newItem = {
-			label: prefix + item2,
+			label: unescape( prefix + item2 ),
 			value: item1,
 		};
 		return acc.concat( [ newItem ] );
