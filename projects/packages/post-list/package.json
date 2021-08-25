@@ -8,13 +8,14 @@
 	"license": "GPL-2.0-or-later",
 	"scripts": {
 		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
+		"clean-all": "rm -rf build/ node_modules/ vendor/",
 		"build-all": "pnpm run install-if-deps-outdated && pnpm run clean && pnpm run build",
+		"clean": "rm -rf build/",
 		"build": "wp-scripts build",
 		"start": "wp-scripts start",
-		"clean": "rm -rf build/",
+		"watch": "pnpm run start",
 		"lint:css": "wp-scripts lint-style",
-		"lint:js": "wp-scripts lint-js",
-		"watch": "pnpm run build-all && pnpm run start"
+		"lint:js": "wp-scripts lint-js"
 	},
 	"dependencies": {
 		"@wordpress/components": "15.0.0",
