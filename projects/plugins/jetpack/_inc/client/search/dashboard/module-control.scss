@@ -20,7 +20,7 @@ $toggle-width: 3em;
 
 .jp-form-search-settings-group__toggle {
 	&.is-instant-search {
-		margin-top: 1.5em;
+		margin-top: 4em;
 	}
 	.form-toggle__label-content {
 		display: none;
@@ -36,7 +36,7 @@ $toggle-width: 3em;
 
 .jp-form-search-settings-group__toggle_label {
 	font-size: 1.5em;
-	line-height: 1.5em;
+	line-height: 1.167;
 	font-weight: 600;
 	span {
 		font-weight: 400;
@@ -44,13 +44,18 @@ $toggle-width: 3em;
 }
 
 .jp-form-search-settings-group__toggle-description {
-	margin-top: 0.5em;
+	margin-top: 1em;
 }
 
 p.jp-form-search-settings-group__toggle-explanation {
-	line-height: 1.5em;
+	line-height: 1.5;
 	font-size: 1em;
 	font-weight: 400;
+	margin-bottom: 0;
+}
+
+.jp-form-search-settings-group-buttons {
+	margin-top: 1.5em;
 }
 
 .jp-form-search-settings-group-buttons__button {
