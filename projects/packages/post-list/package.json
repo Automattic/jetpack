@@ -25,12 +25,13 @@
 		"@wordpress/dom-ready": "3.2.1",
 		"@wordpress/editor": "10.2.0",
 		"@wordpress/element": "4.0.0",
-		"@wordpress/i18n": "4.2.1"
+		"@wordpress/i18n": "4.2.1",
+		"@wordpress/icons": "5.0.1"
 	},
 	"devDependencies": {
+		"@babel/runtime": "7.14.0",
 		"@wordpress/eslint-plugin": "9.1.1",
-		"@wordpress/scripts": "18.0.0",
-		"@babel/runtime": "7.14.0"
+		"@wordpress/scripts": "18.0.0"
 	},
 	"engines": {
 		"node": "^14.16.1",
