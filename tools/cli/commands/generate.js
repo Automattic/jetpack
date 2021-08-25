@@ -241,7 +241,6 @@ export async function generateProject(
 		case 'package':
 			break;
 		case 'js-package':
-			// generateJsPackage( answers, projDir );
 			break;
 		case 'plugin':
 			generatePlugin( answers, projDir );
@@ -253,14 +252,6 @@ export async function generateProject(
 			throw new Error( 'Unsupported type selected.' );
 	}
 }
-
-/**
- * Generate a JS Package based on questions passed to it.
- *
- * @param {object} answers - Answers from questions.
- * @param {string} packageDir - Plugin directory path.
- */
-// function generateJsPackage( answers, packageDir ) {}
 
 /**
  * Generate a plugin based on questions passed to it.
@@ -369,10 +360,23 @@ async function createComposerJson( composerJson, answers ) {
 		// Since we're catching an errors here, it'll continue executing.
 	}
 
+	// Add additional composer requirements for specific project types.
 	if ( answers.type === 'package' ) {
 		composerJson.extra = composerJson.extra || {};
 		composerJson.extra[ 'branch-alias' ] = composerJson.extra[ 'branch-alias' ] || {};
 		composerJson.extra[ 'branch-alias' ][ 'dev-master' ] = '0.1.x-dev';
+	}
+
+	if ( answers.type === 'js-package' ) {
+		composerJson[ 'require-dev ' ] = { 'automattic/jetpack-changelogger': '^1.1' };
+		composerJson.scripts = {
+			'test-js': [ 'Composer\\Config::disableProcessTimeout', 'pnpm install', 'pnpm run test' ],
+			'test-coverage': [
+				'Composer\\Config::disableProcessTimeout',
+				'pnpm install',
+				'pnpx nyc --report-dir="$COVERAGE_DIR" pnpm run test',
+			],
+		};
 	}
 }
 
