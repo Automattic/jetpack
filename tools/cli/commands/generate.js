@@ -519,7 +519,7 @@ function createReadMeTxt( answers ) {
 		'Requires at least: 5.7\n' +
 		'Requires PHP: 5.6\n' +
 		'Tested up to: 5.8\n' +
-		'Stable tag: 1.0\n' +
+		`Stable tag: ${ answers.version }\n` +
 		'License: GPLv2 or later\n' +
 		'License URI: http://www.gnu.org/licenses/gpl-2.0.html\n' +
 		'\n' +
