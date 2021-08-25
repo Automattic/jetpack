@@ -3,7 +3,7 @@
  */
 import { Tooltip, Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { image } from '@wordpress/icons';
+import { ImageIcon as icon } from '../icons';
 
 export default function FeaturedImage( { url, thumb } ) {
 	if ( ! url ) {
@@ -14,7 +14,7 @@ export default function FeaturedImage( { url, thumb } ) {
 				className="jetpack-post-list__featured-image-tooltip"
 			>
 				<div className="post-list__post-featured-image">
-					<Icon icon={ image } size={ 48 } />
+					<Icon icon={ icon } size={ 48 } />
 				</div>
 			</Tooltip>
 		);
