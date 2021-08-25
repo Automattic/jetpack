@@ -109,6 +109,7 @@ importers:
     specifiers:
       '@automattic/jetpack-api': workspace:^0.1.1-alpha
       '@automattic/jetpack-components': workspace:^0.2.2-alpha
+      '@wordpress/base-styles': 3.6.0
       '@wordpress/browserslist-config': 4.1.0
       '@wordpress/components': 16.0.0
       '@wordpress/data': 6.0.1
@@ -124,6 +125,7 @@ importers:
     dependencies:
       '@automattic/jetpack-api': link:../api
       '@automattic/jetpack-components': link:../components
+      '@wordpress/base-styles': 3.6.0
       '@wordpress/browserslist-config': 4.1.0
       '@wordpress/components': 16.0.0_react-dom@17.0.2+react@17.0.2
       '@wordpress/data': 6.0.1_react@17.0.2
@@ -24231,7 +24233,7 @@ packages:
     dependencies:
       array.prototype.flat: 1.2.4
       global-cache: 1.2.1
-      react-with-styles: 3.2.3
+      react-with-styles: 3.2.3_react-dom@17.0.2+react@17.0.2
 
   /react-with-styles/3.2.3:
     resolution: {integrity: sha512-MTI1UOvMHABRLj5M4WpODfwnveHaip6X7QUMI2x6zovinJiBXxzhA9AJP7MZNaKqg1JRFtHPXZdroUC8KcXwlQ==}

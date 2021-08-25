@@ -86,7 +86,7 @@ const ConnectScreen = props => {
 					connectLabel={ __( 'Set up Jetpack', 'jetpack' ) }
 				/>
 
-				<div className="jp-connnect-screen--tos">
+				<div className="jp-connect-screen--tos">
 					{ createInterpolateElement(
 						__(
 							'By clicking the button above, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with WordPress.com.',
