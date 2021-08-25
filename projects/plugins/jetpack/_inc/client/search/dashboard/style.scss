@@ -12,6 +12,11 @@ body {
 		'Cantarell', 'Helvetica Neue', sans-serif;
 }
 
+#screen-meta,
+#screen-meta-links {
+	display: none;
+}
+
 #jp-search-dashboard {
 	min-height: 100vh;
 
