@@ -8,11 +8,12 @@
 	@include breakpoint( "<660px" ) {
 		margin: rem( 24px ) 0 rem( 16px );
 	}
+}
 
-	.jp-dashboard-footer {
-		margin: 0 auto;
-		padding: 1.5rem;
-	}
+.jp-footer__rna-footer {
+	max-width: 65rem;
+    padding: 1.5rem;
+    margin: 0 auto;
 }
 
 .jp-footer__a8c-attr-container {
