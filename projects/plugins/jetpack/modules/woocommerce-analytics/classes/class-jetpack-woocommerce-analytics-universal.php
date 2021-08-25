@@ -275,8 +275,10 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		$enabled_payment_options = array_keys( $enabled_payment_options );
 		$include_express_payment = false;
 
+		$wcpay_version              = get_option( 'woocommerce_woocommerce_payments_version' );
+		$has_required_wcpay_version = version_compare( $wcpay_version, '2.9.0', '>=' );
 		// Check express payment availablity only if WC Pay is enabled and express checkout (payment request) is enabled.
-		if ( in_array( 'woocommerce_payments', $enabled_payment_options, true ) ) {
+		if ( in_array( 'woocommerce_payments', $enabled_payment_options, true ) && $has_required_wcpay_version ) {
 			$wcpay_settings = get_option( 'woocommerce_woocommerce_payments_settings', array() );
 			if ( array_key_exists( 'payment_request', $wcpay_settings ) && 'yes' === $wcpay_settings['payment_request'] ) {
 				$include_express_payment = true;
