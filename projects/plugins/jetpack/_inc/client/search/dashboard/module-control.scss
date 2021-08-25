@@ -107,10 +107,6 @@ p.jp-form-search-settings-group__toggle-explanation {
 		&:focus {
 			box-shadow: 0 0 0 2px $blue-medium;
 		}
-
-		@include for-phone-down {
-			padding: 1px;
-		}
 	}
 
 	&:checked {
