@@ -10,12 +10,7 @@ import { ApiError } from './api-error';
 import type { JSONObject } from '../utils/json-types';
 
 function getEndpointUrl( path: string ): string {
-	return (
-		wpApiSettings.root +
-		Jetpack_Boost.api.namespace +
-		Jetpack_Boost.api.prefix +
-		path
-	);
+	return wpApiSettings.root + Jetpack_Boost.api.namespace + Jetpack_Boost.api.prefix + path;
 }
 
 async function sendRequest(
@@ -74,18 +69,12 @@ function get< T = JSONObject >( path: string ): Promise< T > {
 	return makeRequest< T >( 'get', path );
 }
 
-function post< T = JSONObject >(
-	path: string,
-	body: JSONObject | null = null
-): Promise< T > {
+function post< T = JSONObject >( path: string, body: JSONObject | null = null ): Promise< T > {
 	return makeRequest< T >( 'post', path, body );
 }
 
 // reserved word, can't use delete directly
-function doDelete< T = JSONObject >(
-	path: string,
-	body: JSONObject | null = null
-): Promise< T > {
+function doDelete< T = JSONObject >( path: string, body: JSONObject | null = null ): Promise< T > {
 	return makeRequest< T >( 'delete', path, body );
 }
 

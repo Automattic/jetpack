@@ -7,7 +7,7 @@ import {
 	JETPACK_NOTICES_DISMISS_FAIL,
 	JETPACK_NOTICES_DISMISS_SUCCESS,
 } from 'state/action-types';
-import restApi from 'rest-api';
+import restApi from '@automattic/jetpack-api';
 
 export const dismissJetpackNotice = notice => {
 	return dispatch => {

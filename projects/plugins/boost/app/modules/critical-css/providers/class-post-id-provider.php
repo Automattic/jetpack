@@ -1,6 +1,6 @@
-<?php //phpcs:ignoreFile Squiz.Commenting.VariableComment.Missing,Generic.Commenting.DocComment.MissingShort,Squiz.Commenting.FunctionComment.MissingParamTag
+<?php
 /**
- * The Post ID provider class
+ * The Post ID provider class.
  *
  * @package automattic/jetpack-boost
  */
@@ -14,9 +14,21 @@ namespace Automattic\Jetpack_Boost\Modules\Critical_CSS\Providers;
  */
 class Post_ID_Provider extends Provider {
 
-	const STORAGE_KEY      = 'jetpack_boost_critical_css_post_ids';
+	/**
+	 * Post Ids storage key.
+	 *
+	 * @var string
+	 */
+	const STORAGE_KEY = 'jetpack_boost_critical_css_post_ids';
+
+	/**
+	 * Provider name.
+	 *
+	 * @var string
+	 */
 	protected static $name = 'post_id';
 
+	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
 	public static function get_critical_source_urls() {
 		$results = array();
@@ -33,6 +45,7 @@ class Post_ID_Provider extends Provider {
 		return $results;
 	}
 
+	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
 	public static function get_current_storage_keys() {
 		if ( ! is_singular() ) {
@@ -43,9 +56,10 @@ class Post_ID_Provider extends Provider {
 		return array( self::$name . '_' . get_the_ID() );
 	}
 
+	// phpcs:ignore
 	/** @inheritdoc */
-	public static function describe_key( $key ) {
-		return $key;
+	public static function describe_key( $provider_key ) { // phpcs:ignore Generic.Commenting.DocComment.MissingShort
+		return $provider_key;
 	}
 
 	/**
@@ -92,6 +106,7 @@ class Post_ID_Provider extends Provider {
 		return update_option( self::STORAGE_KEY, $post_ids );
 	}
 
+	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
 	public static function get_keys() {
 		return self::get_post_ids();
@@ -123,6 +138,7 @@ class Post_ID_Provider extends Provider {
 		);
 	}
 
+	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
 	public static function get_success_ratio() {
 		return 1;

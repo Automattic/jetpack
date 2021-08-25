@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Remove tracked package versions when disconnecting the site.

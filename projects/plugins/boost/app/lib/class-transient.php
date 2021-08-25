@@ -10,17 +10,19 @@
 namespace Automattic\Jetpack_Boost\Lib;
 
 /**
- * Class Cache
+ * Class Transient
  */
 class Transient {
 
+	const OPTION_PREFIX = 'jb_transient_';
+
 	/**
-	 * Get the key with prefix
+	 * Get the key with prefix.
 	 *
 	 * @param string $key the key to be prefixed.
 	 */
 	public static function key( $key ) {
-		return 'jb_transient_' . $key;
+		return static::OPTION_PREFIX . $key;
 	}
 
 	/**
@@ -53,12 +55,9 @@ class Transient {
 	 * @return mixed
 	 */
 	public static function get( $key, $default = null ) {
-
 		// Ensure everything's there.
 		$option = get_option( self::key( $key ), $default );
-		if ( $default === $option
-			|| ! isset( $option['expire'] )
-			|| ! isset( $option['data'] )
+		if ( $default === $option || ! isset( $option['expire'] ) || ! isset( $option['data'] )
 		) {
 			return $default;
 		}
@@ -68,10 +67,41 @@ class Transient {
 		$data   = $option['data'];
 		if ( false !== $expire && $expire < time() ) {
 			self::delete( $key );
+
 			return $default;
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Delete all `Transient` values with certain prefix from database.
+	 *
+	 * @param string $prefix Cache key prefix.
+	 */
+	public static function delete_by_prefix( $prefix ) {
+		global $wpdb;
+
+		/**
+		 * The prefix used in option_name.
+		 */
+		$option_prefix = static::key( $prefix );
+
+		/**
+		 * LIKE search pattern for the delete query.
+		 */
+		$prefix_search_pattern = $wpdb->esc_like( $option_prefix ) . '%';
+
+		$wpdb->query(
+			$wpdb->prepare(
+				"
+					DELETE
+					FROM    $wpdb->options
+					WHERE   `option_name` LIKE %s
+				",
+				$prefix_search_pattern
+			)
+		);
 	}
 
 	/**

@@ -10,7 +10,7 @@
 namespace Automattic\Jetpack_Boost\Lib;
 
 /**
- * The Speed Score class
+ * Class Speed_Score
  */
 class Speed_Score {
 
@@ -19,6 +19,7 @@ class Speed_Score {
 	 */
 	public function __construct() {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
+		add_action( 'jetpack_boost_clear_cache', array( $this, 'clear_speed_score_request_cache' ) );
 	}
 
 	/**
@@ -61,7 +62,7 @@ class Speed_Score {
 	 *
 	 * @param \WP_REST_Request $request The request object.
 	 *
-	 * @return string|\WP_Error An error to return or the target url
+	 * @return string|\WP_Error An error to return or the target url.
 	 */
 	private function process_url_arg( $request ) {
 		$params = $request->get_json_params();
@@ -99,7 +100,7 @@ class Speed_Score {
 
 		if ( empty( $score_request ) ) {
 			// Create and store the Speed Score request.
-			$score_request = new Speed_Score_request( $url );
+			$score_request = new Speed_Score_Request( $url );
 			$score_request->store();
 
 			// Send the request.
@@ -167,5 +168,12 @@ class Speed_Score {
 	 */
 	public function can_access_speed_scores() {
 		return current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * Clear speed score request cache on jetpack_boost_clear_cache action.
+	 */
+	public function clear_speed_score_request_cache() {
+		Speed_Score_Request::clear_cache();
 	}
 }

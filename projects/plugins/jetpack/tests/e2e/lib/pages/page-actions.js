@@ -25,7 +25,7 @@ export default class PageActions {
 	 * @param {Object} options object. see: https://playwright.dev/docs/api/class-page?_highlight=goto#pagegotourl-options
 	 * @return {Promise<void>}
 	 */
-	async goto( url, options = {} ) {
+	async goto( url, options = { waitUntil: 'domcontentloaded' } ) {
 		if ( ! url ) {
 			throw new Error( 'Cannot navigate! Page URL is not set' );
 		}
@@ -190,7 +190,8 @@ export default class PageActions {
 	}
 
 	/**
-	 * Types text in an element in page
+	 * Types text in an element in page, can be used to send fine-grained keyboard events.
+	 * Do not used for form filling. See `fill` method for that.
 	 *
 	 * @param {string} selector the element's selector
 	 * @param {string} text     to be typed
@@ -204,7 +205,8 @@ export default class PageActions {
 	}
 
 	/**
-	 * Fills an editable text type element
+	 * Fills an editable text type element.
+	 * It waits for actionability checks before filling
 	 *
 	 * @param {string} selector the element's selector
 	 * @param {string} text     to be filled in
@@ -217,7 +219,7 @@ export default class PageActions {
 	}
 
 	/**
-	 * Focus an element in page
+	 * Focus an element in page.
 	 *
 	 * @param {string} selector the element's selector
 	 * @param {Object} options  see: https://playwright.dev/docs/api/class-page?_highlight=focus#pagefocusselector-options
