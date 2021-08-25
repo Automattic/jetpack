@@ -135,7 +135,7 @@ function Search( props ) {
 
 	const renderSearchToggle = () => {
 		return (
-			<div className="jp-form-search-settings-group__toggle is-search">
+			<div className="jp-form-search-settings-group__toggle is-search jp-search-dashboard-wrap">
 				<div className="jp-search-dashboard-row">
 					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 					<div className="jp-form-search-settings-group__toggle-container lg-col-span-1 md-col-span-1 sm-col-span-1">
@@ -173,7 +173,7 @@ function Search( props ) {
 
 	const renderInstantSearchToggle = () => {
 		return (
-			<div className="jp-form-search-settings-group__toggle is-instant-search">
+			<div className="jp-form-search-settings-group__toggle is-instant-search jp-search-dashboard-wrap">
 				<div className="jp-search-dashboard-row">
 					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 					<div className="jp-form-search-settings-group__toggle-container lg-col-span-1 md-col-span-1 sm-col-span-1">
@@ -216,7 +216,7 @@ function Search( props ) {
 
 	const renderToggles = () => {
 		return (
-			<div className="jp-form-search-settings-group-inside jp-search-dashboard-wrap">
+			<div className="jp-form-search-settings-group-inside">
 				{ renderSearchToggle() }
 				{ renderInstantSearchToggle() }
 			</div>
