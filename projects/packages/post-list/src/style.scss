@@ -13,13 +13,11 @@
 .post-featured-image__container {
 	float: left;
 	margin-right: 5px;
-	width: 50px;
-	height: 50px;
-	display: block;
-
-	img {
-		width: 50px;
-		height: 50px;
+	.post-list__post-featured-image {
+		width: 48px;
+		height: 48px;
+		fill: #ccc;
+		border-radius: 4px;
 	}
 }
 
