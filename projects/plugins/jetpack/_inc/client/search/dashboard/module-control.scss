@@ -44,7 +44,7 @@ $toggle-width: 3em;
 }
 
 .jp-form-search-settings-group__toggle-description {
-	margin-top: .5em;
+	margin-top: 0.5em;
 }
 
 p.jp-form-search-settings-group__toggle-explanation {
@@ -55,7 +55,7 @@ p.jp-form-search-settings-group__toggle-explanation {
 
 .jp-form-search-settings-group-buttons__button {
 	min-height: 2.5em;
-	padding: .5em 1.5em;
+	padding: 0.5em 1.5em;
 	text-align: center;
 	border-color: $color-button-background;
 
@@ -101,6 +101,10 @@ p.jp-form-search-settings-group__toggle-explanation {
 
 		&:focus {
 			box-shadow: 0 0 0 2px $blue-medium;
+		}
+
+		@include for-phone-down {
+			padding: 1px;
 		}
 	}
 
