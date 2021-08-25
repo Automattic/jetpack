@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Correct REQUEST_URI checking to work for wp.com as well as .org endpoints

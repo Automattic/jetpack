@@ -28,6 +28,9 @@ class Initial_State {
 			'jetpackStatus' => array(
 				'calypsoSlug' => ( new Status() )->get_site_suffix(),
 			),
+			'assets'        => array(
+				'buildUrl' => plugins_url( 'build/', JETPACK_BACKUP_PLUGIN_ROOT_FILE ),
+			),
 		);
 	}
 
