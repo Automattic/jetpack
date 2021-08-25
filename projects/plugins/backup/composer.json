@@ -8,7 +8,7 @@
 		"automattic/jetpack-backup": "1.1.x-dev",
 		"automattic/jetpack-config": "1.4.x-dev",
 		"automattic/jetpack-connection": "1.30.x-dev",
-		"automattic/jetpack-connection-ui": "1.3.x-dev",
+		"automattic/jetpack-connection-ui": "1.4.x-dev",
 		"automattic/jetpack-sync": "1.25.x-dev",
 		"automattic/jetpack-status": "1.8.x-dev"
 	},

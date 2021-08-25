@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import WpPage from '../wp-page';
-import { getAccountCredentials } from '../../utils-helper';
+import { getMailchimpCredentials } from '../../utils-helper';
 
 export default class ConnectionsPage extends WpPage {
 	constructor( page ) {
@@ -10,6 +10,10 @@ export default class ConnectionsPage extends WpPage {
 			expectedSelectors: [ '.connections__sharing-connections' ],
 			explicitWaitMS: 40000,
 		} );
+	}
+
+	async isEnabled() {
+		return ! ( await this.isElementVisible( '.notice.is-warning a.notice__action' ) );
 	}
 
 	async selectMailchimpList( mailchimpList = 'e2etesting' ) {
@@ -36,14 +40,14 @@ export default class ConnectionsPage extends WpPage {
 		const mcPopupPage = await this.clickAndWaitForNewPage( mailchimpConnectSelector );
 
 		// MC Login pop-up page. TODO: maybe extract to a new page
-		const [ mcLogin, mcPassword ] = getAccountCredentials( 'mailchimpLogin' );
+		const credentials = getMailchimpCredentials();
 		// Locators
 		const mcUsernameSelector = '#login #username';
 		const mcPasswordSelector = '#login #password';
 		const mcSubmitSelector = "#login input[type='submit']";
 
-		await mcPopupPage.fill( mcUsernameSelector, mcLogin );
-		await mcPopupPage.fill( mcPasswordSelector, mcPassword );
+		await mcPopupPage.fill( mcUsernameSelector, credentials.username );
+		await mcPopupPage.fill( mcPasswordSelector, credentials.password );
 		await mcPopupPage.fill( mcSubmitSelector );
 		await this.page.bringToFront();
 	}
