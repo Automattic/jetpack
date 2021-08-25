@@ -13,8 +13,12 @@ import { getCurrencyObject } from '@automattic/format-currency';
 import Button from 'components/button';
 import ExternalLink from 'components/external-link';
 import analytics from 'lib/analytics';
-
 import { getSiteAdminUrl } from 'state/initial-state';
+import {
+	addSelectedRecommendation as addSelectedRecommendationAction,
+	updateRecommendationsData as updateRecommendationsDataAction,
+	saveRecommendationsData as saveRecommendationsDataAction,
+} from 'state/recommendations';
 
 /**
  * Style dependencies
@@ -22,14 +26,26 @@ import { getSiteAdminUrl } from 'state/initial-state';
 import './style.scss';
 
 const ProductSuggestionItemComponent = props => {
-	const { product, title, description, externalLink, siteAdminUrl } = props;
+	const {
+		product,
+		title,
+		description,
+		externalLink,
+		siteAdminUrl,
+		addSelectedRecommendation,
+		updateRecommendationsData,
+		saveRecommendationsData,
+	} = props;
 
-	const onContinueClick = useCallback( () => {
+	const onPurchaseClick = useCallback( () => {
 		analytics.tracks.recordEvent(
 			'jetpack_recommendations_product_suggestion_selected',
 			product.product_slug
 		);
-	}, [ product ] );
+		addSelectedRecommendation( 'product-suggestion' );
+		updateRecommendationsData( { 'product-suggestion-selection': product.product_slug } );
+		saveRecommendationsData();
+	}, [ product, addSelectedRecommendation, updateRecommendationsData, saveRecommendationsData ] );
 
 	const onExternalLinkClick = useCallback( () => {
 		analytics.tracks.recordEvent(
@@ -56,7 +72,7 @@ const ProductSuggestionItemComponent = props => {
 					className="jp-recommendations-product-suggestion-item__checkout-button"
 					primary
 					href={ checkoutLink }
-					onClick={ onContinueClick }
+					onClick={ onPurchaseClick }
 				>
 					{ sprintf(
 						/* translators: %s: Name of a Jetpack product. */
@@ -105,8 +121,15 @@ ProductSuggestionItemComponent.propTypes = {
 	externalLink: PropTypes.string,
 };
 
-const ProductSuggestionItem = connect( state => ( {
-	siteAdminUrl: getSiteAdminUrl( state ),
-} ) )( ProductSuggestionItemComponent );
+const ProductSuggestionItem = connect(
+	state => ( {
+		siteAdminUrl: getSiteAdminUrl( state ),
+	} ),
+	dispatch => ( {
+		addSelectedRecommendation: stepSlug => dispatch( addSelectedRecommendationAction( stepSlug ) ),
+		updateRecommendationsData: product => dispatch( updateRecommendationsDataAction( product ) ),
+		saveRecommendationsData: () => dispatch( saveRecommendationsDataAction() ),
+	} )
+)( ProductSuggestionItemComponent );
 
 export { ProductSuggestionItem };

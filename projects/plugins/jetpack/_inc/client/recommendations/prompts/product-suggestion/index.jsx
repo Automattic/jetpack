@@ -15,6 +15,8 @@ import { MoneyBackGuarantee } from 'components/money-back-guarantee';
 import analytics from 'lib/analytics';
 import {
 	getNextRoute,
+	addSelectedRecommendation as addSelectedRecommendationAction,
+	addSkippedRecommendation as addSkippedRecommendationAction,
 	updateRecommendationsStep as updateRecommendationsStepAction,
 } from 'state/recommendations';
 import { isFetchingSiteProducts as isFetchingSiteProductsAction } from 'state/site-products';
@@ -25,15 +27,22 @@ import { isFetchingSiteProducts as isFetchingSiteProductsAction } from 'state/si
 import './style.scss';
 
 const ProductSuggestionComponent = props => {
-	const { nextRoute, jetpackProducts, isFetchingSiteProducts, updateRecommendationsStep } = props;
+	const {
+		nextRoute,
+		jetpackProducts,
+		isFetchingSiteProducts,
+		updateRecommendationsStep,
+		addSkippedRecommendation,
+	} = props;
 
 	useEffect( () => {
 		updateRecommendationsStep( 'product-suggestion' );
 	}, [ updateRecommendationsStep ] );
 
 	const onContinueClick = useCallback( () => {
-		analytics.tracks.recordEvent( 'jetpack_recommendations_product_suggestion_skipped' );
-	}, [] );
+		analytics.tracks.recordEvent( 'jetpack_recommendations_product_suggestion_decide_later_click' );
+		addSkippedRecommendation( 'product-suggestion' );
+	}, [ addSkippedRecommendation ] );
 
 	const answerSection = (
 		<div className="jp-recommendations-product-suggestion__container">
@@ -77,7 +86,6 @@ const ProductSuggestionComponent = props => {
 	return (
 		<PromptLayout
 			progressBar={ <ProgressBar color={ '#00A32A' } value={ '33' } /> }
-			/* translators: placeholder is the title of the site */
 			question={ __( 'Choose a plan', 'jetpack' ) }
 			description={ __(
 				'These are the most popular Jetpack plans for sites like yours:',
@@ -95,6 +103,8 @@ export const ProductSuggestion = connect(
 		isFetchingSiteProducts: isFetchingSiteProductsAction( state ),
 	} ),
 	dispatch => ( {
+		addSelectedRecommendation: stepSlug => dispatch( addSelectedRecommendationAction( stepSlug ) ),
+		addSkippedRecommendation: stepSlug => dispatch( addSkippedRecommendationAction( stepSlug ) ),
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStepAction( step ) ),
 	} )
 )( ProductSuggestionComponent );
