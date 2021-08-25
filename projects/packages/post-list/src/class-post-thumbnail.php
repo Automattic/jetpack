@@ -10,15 +10,15 @@ namespace Automattic\Jetpack\PostList;
 /**
  * The PostList Admin Area
  */
-class Post_Image {
+class Post_Thumbnail {
 	/**
-	 * Returns the featured image or if no featured image is set, return the first image in the post. If neither exists
-	 * returns the featured image array with null values.
+	 * Returns the featured image thumbnail or if no featured image is set, return the first image in the post. If
+	 * neither exists returns the image array with null values.
 	 *
 	 * @param object $post The current post.
-	 * @return array The featured image id and URLs
+	 * @return array The thumbnail image id and URLs
 	 */
-	public static function get_featured_or_first_post_image( $post ) {
+	public static function get_post_thumbnail( $post ) {
 		$image_id    = null;
 		$image_url   = null;
 		$image_thumb = null;
