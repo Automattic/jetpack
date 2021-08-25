@@ -22,7 +22,7 @@ import JetpackLogo from '../jetpack-logo';
  * @returns {React.Component} JetpackFooter component.
  */
 export default function JetpackFooter( {
-	a8cLogoHref,
+	a8cLogoHref = 'https://jetpack.com',
 	moduleName = __( 'Jetpack', 'jetpack' ),
 	className = '',
 	...otherProps
@@ -35,11 +35,12 @@ export default function JetpackFooter( {
 					showText={ false }
 					height="16"
 					className="jp-dashboard-footer__jetpack-symbol"
+					aria-label={ __( 'Jetpack logo', 'jetpack' ) }
 				/>
 				<span className="jp-dashboard-footer__module-name">{ moduleName }</span>
 			</div>
 			<div className="jp-dashboard-footer__footer-right">
-				<a href={ a8cLogoHref }>
+				<a href={ a8cLogoHref } aria-label={ __( 'An Automattic Airline', 'jetpack' ) }>
 					<AutomatticBylineLogo />
 				</a>
 			</div>

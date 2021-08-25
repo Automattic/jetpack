@@ -13,13 +13,18 @@ import { Plans } from '../lib/env/types';
  * @group free-blocks
  * @group blocks
  * @group gutenberg
+ * @group atomic
  */
 
 describe( 'Free blocks', () => {
 	let blockEditor;
 
 	beforeAll( async () => {
-		await prerequisitesBuilder().withConnection( true ).withPlan( Plans.Free ).build();
+		await prerequisitesBuilder()
+			.withLoggedIn( true )
+			.withConnection( true )
+			.withPlan( Plans.Free )
+			.build();
 	} );
 
 	beforeEach( async () => {

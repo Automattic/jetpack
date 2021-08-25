@@ -24,7 +24,7 @@
 * [Unit Testing](#unit-testing)
    * [PHP unit testing](#php-unit-tests)
    * [JavaScript unit testing](#javascript-unit-tests)
-* [Good code - linting, standards, compatibilty, etc.](#good-code---linting-standards-compatibilty-etc)
+* [Good code - linting, standards, compatibility, etc.](#good-code---linting-standards-compatibility-etc)
 	* [Coding standards](#coding-standards)
 	* [Linting](#linting)
 * [Standard development & debugging tools](#standard-development--debugging-tools)
@@ -127,6 +127,12 @@ You'll need all the tools below to work in the Jetpack monorepo.
 		brew install composer
 		```
 
+		The latest composer in Homebrew at the time of writing is 2.1.x, but we currently require 2.0.x. If you need to downgrade to a specific version, we suggest these instructions:
+
+		```sh
+		composer self-update 2.0.14
+		```
+
 	 * ##### Installing Composer on other systems
 
 		We recommend visiting the [official Composer download instructions](https://getcomposer.org/download/) to install composer on other operating systems.
@@ -194,7 +200,7 @@ There are different types of builds:
 
 * ### Draft Mode
 	This is an experimental feature as of August 2021.
-	
+
 	Are pre-commit and pre-push hooks slowing down a major refactor or draft PR? Run `jetpack draft enable` to make them less aggressive (they will still run, but won't block for warnings), and `jetpack draft disable` when you're ready for them again.
 
 ---

@@ -18,7 +18,7 @@ const baseWebpackConfig = getBaseWebpackConfig(
 		entry: {
 			main: path.join( __dirname, '../modules/search/customberg/index.jsx' ),
 		},
-		'output-filename': 'jp-search-configure-[name].bundle.js',
+		'output-filename': 'jp-search-configure-[name].min.js',
 		'output-path': path.join( __dirname, '../_inc/build/instant-search' ),
 	}
 );
@@ -32,6 +32,9 @@ module.exports = {
 			path.resolve( __dirname, '../node_modules' ),
 			'node_modules',
 		],
+		alias: {
+			fs: false,
+		},
 	},
 	devtool: isDevelopment ? 'source-map' : false,
 	plugins: [
