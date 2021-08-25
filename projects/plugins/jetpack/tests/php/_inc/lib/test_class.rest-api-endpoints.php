@@ -230,7 +230,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		// Current user doesn't have credentials, so checking permissions should fail
 		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::connect_url_permission_callback() );
-		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::get_user_connection_data_permission_callback() );
 
 		// Setup a new current user with specified capability
 		$user = $this->create_and_get_user();
@@ -243,7 +242,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		// It should not work for non-admin users, except if a connection owner exists.
 		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::connect_url_permission_callback() );
-		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::get_user_connection_data_permission_callback() );
 
 		// Set user as admin.
 		$user->set_role( 'administrator' );
@@ -252,13 +250,11 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		wp_set_current_user( $user->ID );
 		// User is admin and has capability so this should work this time.
 		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::connect_url_permission_callback() );
-		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::get_user_connection_data_permission_callback() );
 
 		// It should not work in Offline Mode.
 		add_filter( 'jetpack_offline_mode', '__return_true' );
 
 		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::connect_url_permission_callback() );
-		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::get_user_connection_data_permission_callback() );
 
 		remove_filter( 'jetpack_offline_mode', '__return_true' );
 	}
@@ -497,40 +493,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		), $response );
 
 		remove_filter( 'jetpack_offline_mode', '__return_true' );
-	}
-
-	/**
-	 * Test site disconnection with not authenticated user
-	 *
-	 * @since 4.4.0
-	 */
-	public function test_disconnect_site_noauth() {
-
-		// Create REST request in JSON format and dispatch
-		$response = $this->create_and_get_request( 'connection', array(), 'POST' );
-
-		// Fails because user is not authenticated
-		$this->assertResponseStatus( 401, $response );
-		$this->assertResponseData( array( 'code' => 'invalid_user_permission_jetpack_disconnect' ), $response );
-	}
-
-	/**
-	 * Test site disconnection with authenticated user and disconnected site
-	 *
-	 * @since 4.4.0
-	 */
-	public function test_disconnect_site_auth_noparam() {
-
-		// Create a user and set it up as current.
-		$user = $this->create_and_get_user( 'administrator' );
-		wp_set_current_user( $user->ID );
-
-		// Create REST request in JSON format and dispatch
-		$response = $this->create_and_get_request( 'connection', array(), 'POST' );
-
-		// Fails because user is authenticated but missing a param
-		$this->assertResponseStatus( 404, $response );
-		$this->assertResponseData( array( 'code' => 'invalid_param' ), $response );
 	}
 
 	/**
@@ -1083,6 +1045,71 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		$response_data = $response->get_data();
 		$this->assertNull( $response_data['connectionOwner'] );
+	}
+
+	/**
+	 * Test fetching user connection data with connected user.
+	 *
+	 * @covers Jetpack::filter_jetpack_current_user_connection_data
+	 * @since 10.0
+	 */
+	public function test_get_user_connection_data_with_connected_user() {
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
+		wp_set_current_user( $user->ID );
+
+		// Mock a connection.
+		Jetpack_Options::update_option( 'master_user', $user->ID );
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'blog_token', 'asd.qwe.1' );
+		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
+
+		// Set up some dummy cached user connection data.
+		$dummy_wpcom_user_data = array(
+			'ID'           => 999,
+			'email'        => 'jane.doe@foobar.com',
+			'display_name' => 'Jane Doe',
+		);
+		$transient_key         = 'jetpack_connected_user_data_' . $user->ID;
+		set_transient( $transient_key, $dummy_wpcom_user_data );
+
+		$response = $this->create_and_get_request( 'connection/data' );
+		$this->assertResponseStatus( 200, $response );
+
+		delete_transient( $transient_key );
+
+		$this->assertEquals( 200, $response->get_status() );
+
+		$expected = array(
+			'currentUser'     => array(
+				'isConnected' => true,
+				'isMaster'    => true,
+				'username'    => $user->user_login,
+				'id'          => $user->ID,
+				'wpcomUser'   => $dummy_wpcom_user_data,
+				'permissions' => array(
+					'connect'            => true,
+					'connect_user'       => true,
+					'disconnect'         => true,
+					'admin_page'         => true,
+					'manage_modules'     => true,
+					'network_admin'      => false,
+					'network_sites_page' => false,
+					'edit_posts'         => true,
+					'publish_posts'      => true,
+					'manage_options'     => true,
+					'view_stats'         => false,
+					'manage_plugins'     => true,
+				),
+			),
+			'connectionOwner' => $user->user_login,
+		);
+
+		$response_data = $response->get_data();
+		// Remove gravatar as the url is random.
+		unset( $response_data['currentUser']['gravatar'] );
+		unset( $response_data['currentUser']['wpcomUser']['avatar'] );
+		$this->assertSame( $expected, $response_data );
 	}
 
 	/**

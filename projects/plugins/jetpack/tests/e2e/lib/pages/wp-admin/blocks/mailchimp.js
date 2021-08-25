@@ -31,7 +31,7 @@ export default class MailchimpBlock extends PageActions {
 	}
 
 	get joinBtnSel() {
-		return `${ this.blockSelector } div >> text="Join my email list"`;
+		return `${ this.blockSelector } div >> text="Join my Mailchimp audience"`;
 	}
 
 	//endregion
@@ -43,7 +43,6 @@ export default class MailchimpBlock extends PageActions {
 	 * - Closes WPCOM tab
 	 *
 	 * @param {boolean} isLoggedIn Whether we need to login before connecting
-	 *
 	 */
 	async connect( isLoggedIn = true ) {
 		if ( await this.isMailchimpConnected() ) {
@@ -69,7 +68,11 @@ export default class MailchimpBlock extends PageActions {
 			while ( ! loaded ) {
 				try {
 					count++;
-					await ConnectionsPage.init( wpComTab );
+					const connections = await ConnectionsPage.init( wpComTab );
+					if ( ! ( await connections.isEnabled() ) ) {
+						throw 'Publicise not enabled/synced';
+					}
+
 					loaded = true;
 				} catch ( e ) {
 					logger.warn(

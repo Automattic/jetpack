@@ -70,6 +70,15 @@ if ( options.jsdom ) {
 		locale: '{}',
 		licensing: { error: '' },
 	};
+
+	// Mock CSS Object Model, used in @wordpress/components (not even via `window`) without first testing that it exists.
+	// https://developer.mozilla.org/en-US/docs/Web/API/CSS
+	if ( ! global.CSS ) {
+		global.CSS = {
+			escape: () => false,
+			supports: () => false,
+		};
+	}
 }
 
 if ( options.initfile ) {
@@ -87,7 +96,7 @@ if ( program.args.length ) {
 		}
 	} );
 } else {
-	glob.sync( './!(node_modules)/**/test/*.{js,jsx,cjs}' ).forEach( file => {
+	glob.sync( './!(node_modules)/**/test/*.{js,jsx,cjs,ts}' ).forEach( file => {
 		mocha.addFile( file );
 	} );
 }

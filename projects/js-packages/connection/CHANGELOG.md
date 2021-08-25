@@ -2,6 +2,23 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.5.1 - 2021-08-12
+### Changed
+- Move API calls to jetpack-api package
+- Updated package dependencies
+
+### Fixed
+- Fix minor styling issues on the connection screen.
+
+## 0.5.0 - 2021-07-27
+### Added
+- Add Connection Status Card component.
+- Add DisconnectDialog RNA component.
+- Added the connection screen components, moved connection status callback to properties.
+
+### Changed
+- Mark assetBaseUrl as optional for ImageSlider.
+
 ## 0.4.0 - 2021-06-29
 ### Changed
 - Remove In-Place Connection flow from the package.

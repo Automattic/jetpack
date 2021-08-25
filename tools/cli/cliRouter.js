@@ -13,6 +13,7 @@ import { installDefine } from './commands/install';
 import { cleanDefine } from './commands/clean';
 import { cliDefine } from './commands/cli';
 import { generateDefine } from './commands/generate';
+import { draftDefine } from './commands/draft';
 import { changelogDefine } from './commands/changelog';
 import { dockerDefine } from './commands/docker';
 
@@ -36,6 +37,7 @@ export async function cli() {
 	argv = cliDefine( argv );
 	argv.completion( 'completion', 'Generate bash/zsh completions' ); // Placed here to keep things alphabetical.
 	argv = dockerDefine( argv );
+	argv = draftDefine( argv );
 	argv = generateDefine( argv );
 	argv = installDefine( argv );
 	argv = watchDefine( argv );

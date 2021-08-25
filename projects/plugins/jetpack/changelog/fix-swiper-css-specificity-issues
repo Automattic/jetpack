@@ -1,0 +1,5 @@
+Significance: patch
+Type: bugfix
+Comment: Add a jetpack selector to the default swiper css to prevent clashes with  other plugins
+
+

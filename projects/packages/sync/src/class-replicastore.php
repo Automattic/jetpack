@@ -856,7 +856,8 @@ class Replicastore implements Replicastore_Interface {
 	 * @access public
 	 *
 	 * @param string $taxonomy Taxonomy slug.
-	 * @return array|\WP_Error Array of terms or WP_Error object on failure.
+	 *
+	 * @return array|WP_Error Array of terms or WP_Error object on failure.
 	 */
 	public function get_terms( $taxonomy ) {
 		$t = $this->ensure_taxonomy( $taxonomy );
@@ -874,7 +875,8 @@ class Replicastore implements Replicastore_Interface {
 	 * @param string $taxonomy   Taxonomy slug.
 	 * @param int    $term_id    ID of the term.
 	 * @param string $term_key   ID Field `term_id` or `term_taxonomy_id`.
-	 * @return \WP_Term|\WP_Error Term object on success, \WP_Error object on failure.
+	 *
+	 * @return \WP_Term|WP_Error Term object on success, \WP_Error object on failure.
 	 */
 	public function get_term( $taxonomy, $term_id, $term_key = 'term_id' ) {
 
@@ -897,7 +899,8 @@ class Replicastore implements Replicastore_Interface {
 	 * @access private
 	 *
 	 * @param string $taxonomy Taxonomy slug.
-	 * @return bool|void|\WP_Error True if already exists; void if it was registered; \WP_Error on error.
+	 *
+	 * @return bool|void|WP_Error True if already exists; void if it was registered; \WP_Error on error.
 	 */
 	private function ensure_taxonomy( $taxonomy ) {
 		if ( ! taxonomy_exists( $taxonomy ) ) {
@@ -905,7 +908,7 @@ class Replicastore implements Replicastore_Interface {
 			$taxonomies = $this->get_callable( 'taxonomies' );
 			if ( ! isset( $taxonomies[ $taxonomy ] ) ) {
 				// Doesn't exist, or somehow hasn't been synced.
-				return new \WP_Error( 'invalid_taxonomy', "The taxonomy '$taxonomy' doesn't exist" );
+				return new WP_Error( 'invalid_taxonomy', "The taxonomy '$taxonomy' doesn't exist" );
 			}
 			$t = $taxonomies[ $taxonomy ];
 
@@ -926,7 +929,8 @@ class Replicastore implements Replicastore_Interface {
 	 *
 	 * @param int    $object_id Object ID.
 	 * @param string $taxonomy  Taxonomy slug.
-	 * @return array|bool|\WP_Error Array of terms on success, `false` if no terms or post doesn't exist, \WP_Error on failure.
+	 *
+	 * @return array|bool|WP_Error Array of terms on success, `false` if no terms or post doesn't exist, \WP_Error on failure.
 	 */
 	public function get_the_terms( $object_id, $taxonomy ) {
 		return get_the_terms( $object_id, $taxonomy );
@@ -938,7 +942,8 @@ class Replicastore implements Replicastore_Interface {
 	 * @access public
 	 *
 	 * @param \WP_Term $term_object Term object.
-	 * @return array|bool|\WP_Error Array of term_id and term_taxonomy_id if updated, true if inserted, \WP_Error on failure.
+	 *
+	 * @return array|bool|WP_Error Array of term_id and term_taxonomy_id if updated, true if inserted, \WP_Error on failure.
 	 */
 	public function update_term( $term_object ) {
 		$taxonomy = $term_object->taxonomy;
@@ -981,7 +986,8 @@ class Replicastore implements Replicastore_Interface {
 	 *
 	 * @param int    $term_id  Term ID.
 	 * @param string $taxonomy Taxonomy slug.
-	 * @return bool|int|\WP_Error True on success, false if term doesn't exist. Zero if trying with default category. \WP_Error on invalid taxonomy.
+	 *
+	 * @return bool|int|WP_Error True on success, false if term doesn't exist. Zero if trying with default category. \WP_Error on invalid taxonomy.
 	 */
 	public function delete_term( $term_id, $taxonomy ) {
 		$this->ensure_taxonomy( $taxonomy );

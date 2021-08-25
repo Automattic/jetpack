@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Updates copy in Mailchimp block to use audience instead of lists.
