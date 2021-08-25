@@ -138,7 +138,7 @@ function Search( props ) {
 				<Card
 					className="jp-settings-card__configure-link"
 					compact
-					href="admin.php?page=jetpack-search-customize"
+					href="admin.php?page=jetpack-search-configure"
 				>
 					{ SEARCH_CUSTOMIZE_CTA }
 				</Card>
