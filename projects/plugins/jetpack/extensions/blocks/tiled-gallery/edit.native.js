@@ -31,7 +31,7 @@ import Layout from './layout';
 import { ALLOWED_MEDIA_TYPES } from './constants';
 import { icon } from '.';
 import EditButton from '../../shared/edit-button';
-import styles from './edit.scss';
+import styles from './styles.scss';
 
 const TILE_SPACING = 8;
 
