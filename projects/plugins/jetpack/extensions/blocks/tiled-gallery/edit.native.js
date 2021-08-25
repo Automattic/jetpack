@@ -7,7 +7,6 @@ import { concat, find } from 'lodash';
 /**
  * WordPress dependencies
  */
-
 import {
 	store as blockEditorStore,
 	BlockControls,
@@ -34,9 +33,7 @@ import { icon } from '.';
 import EditButton from '../../shared/edit-button';
 import styles from './edit.scss';
 
-const ALLOWED_BLOCKS = [ 'jetpack/row' ];
-const TEMPLATE = [ [ 'jetpack/row' ] ];
-const TILE_SPACING = 2;
+const TILE_SPACING = 8;
 
 export function defaultColumnsNumber( attributes ) {
 	return Math.min( 3, attributes.images.length );
@@ -75,9 +72,6 @@ const TiledGalleryEdit = props => {
 		[]
 	);
 
-	// const [ images, setImages ] = useState( [] );
-	// const [ columns, setColumns ] = useState( 0 );
-
 	const innerBlockImages = useSelect(
 		select => {
 			return select( blockEditorStore ).getBlock( clientId )?.innerBlocks;
@@ -96,8 +90,6 @@ const TiledGalleryEdit = props => {
 	);
 
 	const onSelectImages = imgs => {
-		// setColumns( attributes.columns ? Math.min( imgs.length, attributes.columns ) : columns );
-
 		const newBlocks = imgs.map( image => {
 			return createBlock( 'core/image', {
 				id: image.id,
