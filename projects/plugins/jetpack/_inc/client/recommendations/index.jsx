@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
  */
 import { FeaturePrompt } from './prompts/feature-prompt';
 import { ProductSuggestion } from './prompts/product-suggestion';
+import { ProductPurchased } from './product-purchased';
 import { SiteTypeQuestion } from './prompts/site-type';
 import { Summary } from './summary';
 import QuerySiteProducts from 'components/data/query-site-products';
@@ -33,6 +34,9 @@ const RecommendationsComponent = props => {
 			break;
 		case RECOMMENDATION_WIZARD_STEP.PRODUCT_SUGGESTION:
 			redirectPath = '/product-suggestion';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.PRODUCT_PURCHASED:
+			redirectPath = '/product-purchased';
 			break;
 		case RECOMMENDATION_WIZARD_STEP.WOOCOMMERCE:
 			redirectPath = '/woocommerce';
@@ -76,6 +80,9 @@ const RecommendationsComponent = props => {
 					</Route>
 					<Route path="/recommendations/product-suggestion">
 						<ProductSuggestion />
+					</Route>
+					<Route path="/recommendations/product-purchased">
+						<ProductPurchased />
 					</Route>
 					<Route path="/recommendations/woocommerce">
 						<FeaturePrompt stepSlug="woocommerce" />

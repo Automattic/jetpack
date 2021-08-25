@@ -57,6 +57,7 @@ const recommendationsRoutes = [
 	'/recommendations',
 	'/recommendations/site-type',
 	'/recommendations/product-suggestion',
+	'/recommendations/product-purchased',
 	'/recommendations/woocommerce',
 	'/recommendations/monitor',
 	'/recommendations/related-posts',
@@ -251,6 +252,7 @@ class Main extends React.Component {
 			case '/recommendations':
 			case '/recommendations/site-type':
 			case '/recommendations/product-suggestion':
+			case '/recommendations/product-purchased':
 			case '/recommendations/woocommerce':
 			case '/recommendations/monitor':
 			case '/recommendations/related-posts':
