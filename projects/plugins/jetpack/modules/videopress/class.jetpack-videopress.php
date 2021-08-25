@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Client;
 
 /**
  * VideoPress in Jetpack
@@ -51,8 +52,8 @@ class Jetpack_VideoPress {
 		add_action( 'admin_print_footer_scripts', array( $this, 'print_in_footer_open_media_add_new' ) );
 		add_action( 'admin_head', array( $this, 'enqueue_admin_styles' ) );
 
+		add_filter( 'pre_delete_attachment', array( $this, 'delete_video_wpcom' ), 10, 2 );
 		add_filter( 'wp_mime_type_icon', array( $this, 'wp_mime_type_icon' ), 10, 3 );
-
 		add_filter( 'wp_video_extensions', array( $this, 'add_videopress_extenstion' ) );
 
 		VideoPress_Scheduler::init();
@@ -117,6 +118,38 @@ class Jetpack_VideoPress {
 	public function enqueue_admin_styles() {
 		wp_register_style( 'videopress-admin', plugins_url( 'videopress-admin.css', __FILE__ ), array(), $this->version );
 		wp_enqueue_style( 'videopress-admin' );
+	}
+
+	// Attempts to delete a VideoPress video from wp.com.
+	// Will block the deletion from continuing if an error returns from the wp.com API.
+	public function delete_video_wpcom( $delete, $post ) {
+		if ( ! is_videopress_attachment( $post->ID ) ) {
+			return null;
+		}
+
+		$guid = get_post_meta( $post->ID, 'videopress_guid', true );
+		if ( empty( $guid ) ) {
+			return false;
+		}
+
+		// Phone home and have wp.com delete the VideoPress entry and files.
+		$wpcom_response = Client::wpcom_json_api_request_as_blog(
+				sprintf( '/videos/%s/delete', $guid ),
+				'1.1',
+				array( 'method' => 'POST' )
+		);
+
+		if ( is_wp_error( $wpcom_response ) ) {
+			return $wpcom_response;
+		}
+
+		if ( 200 === $wpcom_response['response']['code'] ) {
+			// Success! Return null to allow the deletion to continue.
+			return null;
+		}
+
+		// Otherwise we stop the deletion from proceeding.
+		return false;
 	}
 
 	/**
