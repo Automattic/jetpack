@@ -109,25 +109,26 @@ function Search( props ) {
 		return (
 			<div className="jp-form-search-settings-group-buttons jp-search-dashboard-row">
 				<div className="lg-col-span-3 md-col-span-2 sm-col-span-1"></div>
-				<div className="lg-col-span-6 md-col-span-6 sm-col-span-3">
-					<Button
-						className="jp-form-search-settings-group-buttons__button is-customize-search"
-						href={
-							! isInstantSearchCustomizeButtonDisabled && sprintf( SEARCH_CUSTOMIZE_URL, returnUrl )
-						}
-						disabled={ isInstantSearchCustomizeButtonDisabled }
-					>
-						{ __( 'Customize search results', 'jetpack' ) }
-					</Button>
-					<Button
-						className="jp-form-search-settings-group-buttons__button is-widgets-editor"
-						href={ ! isWidgetsEditorButtonDisabled && sprintf( WIDGETS_EDITOR_URL, returnUrl ) }
-						disabled={ isWidgetsEditorButtonDisabled }
-					>
-						{ __( 'Edit sidebar widgets', 'jetpack' ) }
-					</Button>
-				</div>
-				<div className="lg-col-span-3 md-col-span-0 sm-col-span-0"></div>
+				<Button
+					className="jp-form-search-settings-group-buttons__button is-customize-search lg-col-span-4 md-col-span-5 sm-col-span-3"
+					href={
+						! isInstantSearchCustomizeButtonDisabled && sprintf( SEARCH_CUSTOMIZE_URL, returnUrl )
+					}
+					disabled={ isInstantSearchCustomizeButtonDisabled }
+				>
+					{ __( 'Customize search results', 'jetpack' ) }
+				</Button>
+				<div className="lg-col-span-0 md-col-span-1 sm-col-span-0"></div>
+
+				<div className="lg-col-span-0 md-col-span-2 sm-col-span-1"></div>
+				<Button
+					className="jp-form-search-settings-group-buttons__button is-widgets-editor lg-col-span-3 md-col-span-5 sm-col-span-3"
+					href={ ! isWidgetsEditorButtonDisabled && sprintf( WIDGETS_EDITOR_URL, returnUrl ) }
+					disabled={ isWidgetsEditorButtonDisabled }
+				>
+					{ __( 'Edit sidebar widgets', 'jetpack' ) }
+				</Button>
+				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 			</div>
 		);
 	};
@@ -159,12 +160,12 @@ function Search( props ) {
 				</div>
 				<div className="jp-search-dashboard-row">
 					<div className="lg-col-span-3 md-col-span-2 sm-col-span-1"></div>
-					<div className="jp-form-search-settings-group__toggle-description lg-col-span-6 md-col-span-5 sm-col-span-3">
+					<div className="jp-form-search-settings-group__toggle-description lg-col-span-7 md-col-span-5 sm-col-span-3">
 						<p className="jp-form-search-settings-group__toggle-explanation">
 							{ SEARCH_DESCRIPTION }
 						</p>
 					</div>
-					<div className="lg-col-span-3 md-col-span-1 sm-col-span-0"></div>
+					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 				</div>
 			</div>
 		);
@@ -194,7 +195,7 @@ function Search( props ) {
 				</div>
 				<div className="jp-search-dashboard-row">
 					<div className="lg-col-span-3 md-col-span-2 sm-col-span-1"></div>
-					<div className="jp-form-search-settings-group__toggle-description lg-col-span-6 md-col-span-5 sm-col-span-3">
+					<div className="jp-form-search-settings-group__toggle-description lg-col-span-7 md-col-span-5 sm-col-span-3">
 						{ props.hasActiveSearchPurchase && (
 							<Fragment>
 								<p className="jp-form-search-settings-group__toggle-explanation">
@@ -206,7 +207,7 @@ function Search( props ) {
 							<InstantSearchUpsellNudge href={ props.upgradeUrl } upgrade={ hasOnlyLegacySearch } />
 						) }
 					</div>
-					<div className="lg-col-span-3 md-col-span-1 sm-col-span-0"></div>
+					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 				</div>
 				{ props.hasActiveSearchPurchase && renderInstantSearchButtons() }
 			</div>
