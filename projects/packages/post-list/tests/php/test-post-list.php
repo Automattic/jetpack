@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @package automattic/jetpack-post-list
  */
-class Test_Admin extends TestCase {
+class Test_Post_List extends TestCase {
 
 	/**
 	 * Just getting things stubbed out.

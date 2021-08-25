@@ -12,11 +12,12 @@ composer add automattic/jetpack-post-list
 ```
 
 Then you need to initialize it on the `plugins_loaded` hook:
+
 ```php
 add_action( 'plugins_loaded', 'load_posts_list' );
 
 function load_posts_list() {
-	Automattic\Jetpack\PostList\Admin::init();
+	Automattic\Jetpack\PostList\Post_List::init();
 }
 ```
 
