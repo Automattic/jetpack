@@ -362,6 +362,7 @@ async function createComposerJson( composerJson, answers ) {
 		case 'plugin':
 			composerJson.extra = composerJson.extra || {};
 			composerJson.extra[ 'release-branch-prefix' ] = answers.name;
+			composerJson.type = 'wordpress-plugin';
 			break;
 	}
 }
