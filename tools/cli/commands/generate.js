@@ -353,10 +353,17 @@ async function createComposerJson( composerJson, answers ) {
 		// Since we're catching an errors here, it'll continue executing.
 	}
 
-	if ( answers.type === 'package' ) {
-		composerJson.extra = composerJson.extra || {};
-		composerJson.extra[ 'branch-alias' ] = composerJson.extra[ 'branch-alias' ] || {};
-		composerJson.extra[ 'branch-alias' ][ 'dev-master' ] = '0.1.x-dev';
+	switch ( answers.type ) {
+		case 'package':
+			composerJson.extra = composerJson.extra || {};
+			composerJson.extra[ 'branch-alias' ] = composerJson.extra[ 'branch-alias' ] || {};
+			composerJson.extra[ 'branch-alias' ][ 'dev-master' ] = '0.1.x-dev';
+			break;
+		case 'plugin':
+			composerJson.extra = composerJson.extra || {};
+			composerJson.extra[ 'release-branch-prefix' ] = answers.name;
+			composerJson.type = 'wordpress-plugin';
+			break;
 	}
 }
 
