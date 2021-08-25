@@ -52,15 +52,12 @@ jobs:
         which jq
         jq --version
 
-    - name: Install Jetpack CLI
-      working-directory: tools/cli
-      run: pnpm install
-
     - name: Install
       working-directory: projects/plugins/jetpack/tests/e2e
       env:
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
       run: |
+        pnpm install --dir ../../../../tools/cli
         pnpm install
         pnpm run test-decrypt-config
 
