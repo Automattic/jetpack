@@ -40,7 +40,7 @@ const ProductPurchasedComponent = props => {
 	const { nextRoute, purchasedProductSlug } = props;
 
 	useEffect( () => {
-		analytics.tracks.recordEvent( 'jetpack_recommendations_product_purchased', {
+		analytics.tracks.recordEvent( 'jetpack_recommendations_product_suggestion_purchased', {
 			type: purchasedProductSlug,
 		} );
 	}, [ purchasedProductSlug ] );

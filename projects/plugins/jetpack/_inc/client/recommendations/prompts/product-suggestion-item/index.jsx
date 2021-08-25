@@ -39,7 +39,7 @@ const ProductSuggestionItemComponent = props => {
 
 	const onPurchaseClick = useCallback( () => {
 		analytics.tracks.recordEvent(
-			'jetpack_recommendations_product_suggestion_selected',
+			'jetpack_recommendations_product_suggestion_click',
 			product.product_slug
 		);
 		addSelectedRecommendation( 'product-suggestion' );
@@ -49,7 +49,7 @@ const ProductSuggestionItemComponent = props => {
 
 	const onExternalLinkClick = useCallback( () => {
 		analytics.tracks.recordEvent(
-			'jetpack_recommended_product_suggestion_learn_more_click',
+			'jetpack_recommendations_product_suggestion_learn_more_click',
 			product.product_slug
 		);
 	}, [ product ] );
