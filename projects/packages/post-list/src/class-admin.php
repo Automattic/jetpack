@@ -22,7 +22,6 @@ class Admin {
 	public function __construct() {
 		if ( ! did_action( 'jetpack_on_posts_list_init' ) ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
-			add_action( 'admin_footer', array( $this, 'print_post_data' ) );
 
 			/**
 			 * Action called after initializing PostList Admin resources.
@@ -90,6 +89,8 @@ class Admin {
 				'rtl',
 				plugin_dir_url( __DIR__ ) . 'build/index.rtl.css'
 			);
+
+			add_action( 'admin_footer', array( $this, 'print_post_data' ) );
 		}
 	}
 
@@ -99,6 +100,10 @@ class Admin {
 	 */
 	public function print_post_data() {
 		global $wp_query;
+
+		if ( ! post_type_supports( $wp_query->query['post_type'], 'thumbnail' ) ) {
+			return;
+		}
 
 		$post_data = array_map(
 			function ( $post ) {
