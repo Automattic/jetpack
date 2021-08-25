@@ -70,13 +70,6 @@ if ( options.jsdom ) {
 	// Define a dom so we can have window and all else
 	require( 'global-jsdom' )();
 
-	window.Initial_State = {
-		userData: {},
-		dismissedNotices: {},
-		locale: '{}',
-		licensing: { error: '' },
-	};
-
 	// Mock CSS Object Model, used in @wordpress/components (not even via `window`) without first testing that it exists.
 	// https://developer.mozilla.org/en-US/docs/Web/API/CSS
 	if ( ! global.CSS ) {

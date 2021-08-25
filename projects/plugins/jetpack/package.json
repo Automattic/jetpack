@@ -44,7 +44,7 @@
 		"test-adminpage": "pnpm run test-client && pnpm run test-gui",
 		"test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client js-test-runner glob:_inc/client/state/**/test/*.js",
 		"test-extensions": "jest extensions",
-		"test-gui": "NODE_ENV=test NODE_PATH=tests:_inc/client js-test-runner --jsdom --initfile=_inc/client/test/main.js glob:_inc/client/**/test/component.js",
+		"test-gui": "NODE_ENV=test NODE_PATH=tests:_inc/client js-test-runner --jsdom --initfile=_inc/client/test/init.js _inc/client/test/main.js glob:_inc/client/**/test/component.js",
 		"test-lib": "NODE_ENV=test NODE_PATH=tests:_inc/client js-test-runner --jsdom glob:_inc/client/lib/**/test/*.js",
 		"test-modules": "NODE_ENV=test NODE_PATH=tests:_inc/client js-test-runner --jsdom glob:modules/**/test-*.js",
 		"test-search": "pnpx concurrently 'pnpm:test-search-scripts' 'pnpm:test-search-size'",
