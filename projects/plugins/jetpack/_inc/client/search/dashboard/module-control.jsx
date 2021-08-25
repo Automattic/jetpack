@@ -116,7 +116,7 @@ function Search( props ) {
 					}
 					disabled={ isInstantSearchCustomizeButtonDisabled }
 				>
-					{ __( 'Customize search results', 'jetpack' ) }
+					<span>{ __( 'Customize search results', 'jetpack' ) }</span>
 				</Button>
 				<div className="lg-col-span-0 md-col-span-1 sm-col-span-0"></div>
 
@@ -126,7 +126,7 @@ function Search( props ) {
 					href={ ! isWidgetsEditorButtonDisabled && sprintf( WIDGETS_EDITOR_URL, returnUrl ) }
 					disabled={ isWidgetsEditorButtonDisabled }
 				>
-					{ __( 'Edit sidebar widgets', 'jetpack' ) }
+					<span>{ __( 'Edit sidebar widgets', 'jetpack' ) }</span>
 				</Button>
 				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 			</div>
