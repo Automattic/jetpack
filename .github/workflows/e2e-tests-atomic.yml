@@ -11,8 +11,6 @@ jobs:
     name: "E2E tests"
     runs-on: ubuntu-latest
     timeout-minutes: 25
-    env:
-      TEST_SITE: atomic
 
     steps:
     - uses: actions/checkout@v2
@@ -41,10 +39,6 @@ jobs:
 
     - name: Tool versions
       run: |
-        which php
-        php --version
-        which composer
-        composer --version
         which node
         node --version
         which pnpm
@@ -63,6 +57,8 @@ jobs:
 
     - name: Run tests
       working-directory: projects/plugins/jetpack/tests/e2e
+      env:
+        TEST_SITE: atomic
       run: pnpm run test-e2e -- --group=atomic
 
     - name: Upload test artifacts
