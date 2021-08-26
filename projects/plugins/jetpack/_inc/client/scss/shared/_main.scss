@@ -66,7 +66,8 @@
 	max-width: rem( 1040px );
 	padding: rem( 24px );
 
-	.jetpack-disconnected & {
+	&.jp-main-connect-screen,
+	&.jp-user-connect-screen, {
 		max-width: rem( 1128px );
 		box-sizing: content-box;
 	}

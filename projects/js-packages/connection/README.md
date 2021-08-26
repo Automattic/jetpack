@@ -13,6 +13,7 @@ The component implements the connection screen page, and loads the `ConnectButto
 - *redirectUrl* - string, wp-admin URI to redirect a user to after Calypso connection flow.
 - *from* - string, custom string parameter to identify where the request is coming from.
 - *title* - string, page title.
+- *buttonLabel* - string, the "Connect" button label.
 - *statusCallback* - callback to pull connection status from the component.
 - *images* - array, images to display on the right side of the connection screen.
 - *assetBaseUrl* - string, path to the `/build` directory of the package consumer.

@@ -35,6 +35,7 @@ const ConnectButtonWithConnectionStatus = withConnectionStatus( ConnectButton );
 const ConnectScreen = props => {
 	const {
 		title,
+		buttonLabel,
 		apiRoot,
 		apiNonce,
 		registrationNonce,
@@ -83,7 +84,7 @@ const ConnectScreen = props => {
 					from={ from }
 					redirectUri={ redirectUri }
 					statusCallback={ statusHandler }
-					connectLabel={ __( 'Set up Jetpack', 'jetpack' ) }
+					connectLabel={ buttonLabel }
 				/>
 
 				<div className="jp-connect-screen--tos">
@@ -126,6 +127,7 @@ const ConnectScreen = props => {
 ConnectScreen.propTypes = {
 	title: PropTypes.string,
 	body: PropTypes.string,
+	buttonLabel: PropTypes.string,
 	apiRoot: PropTypes.string.isRequired,
 	apiNonce: PropTypes.string.isRequired,
 	from: PropTypes.string,
@@ -138,6 +140,7 @@ ConnectScreen.propTypes = {
 
 ConnectScreen.defaultProps = {
 	title: __( 'Over 5 million WordPress sites are faster and more secure', 'jetpack' ),
+	buttonLabel: __( 'Set up Jetpack', 'jetpack' ),
 	images: [],
 	redirectUri: null,
 };

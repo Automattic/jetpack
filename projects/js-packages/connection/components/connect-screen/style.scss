@@ -55,9 +55,19 @@
 				background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAANlBMVEVHcEwFnwUInggGnggGnggHnAcAnwUFnQcAnwcGnwkFnQgGnQgFnwcGnQYFnQcFnAcGnQkDnwdhiL0pAAAAEnRSTlMAMF//f2Aw7yBQ3+9gcIBgcED+HDbkAAAAZklEQVR4Ae3LNwICARDDQC0+cv7/Y8mwV9odSfWIcf/+VegnGkIvDaGXKvTTn/Gz+Uf5xTL0K1XotS7fs5H6GHvvaO8d7c3j7rdgHne/A/PYt/cO+R42oYdN6OEQetiFHo4A//6dAXqtBEkmtWutAAAAAElFTkSuQmCC) no-repeat;
 				background-size: 24px;
 				padding-left: 30px;
-				color: #000;
 				margin-bottom: 9px;
+				color: #000;
+
+				a {
+					color: #000;
+					text-decoration: underline;
+				}
 			}
+		}
+
+		a.jp-connection-screen-icon {
+			text-decoration: none;
+			padding-left: 5px;
 		}
 
 		.jp-connect-button {

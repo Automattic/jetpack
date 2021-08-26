@@ -7,6 +7,7 @@ import { withRouter, Prompt } from 'react-router-dom';
 import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectScreen } from '@automattic/jetpack-connection';
+import { Dashicon } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -55,6 +56,7 @@ import restApi from '@automattic/jetpack-api';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import { getRewindStatus } from 'state/rewind';
 import ReconnectModal from 'components/reconnect-modal';
+import { createInterpolateElement } from '@wordpress/element';
 
 const recommendationsRoutes = [
 	'/recommendations',
@@ -190,23 +192,13 @@ class Main extends React.Component {
 			);
 		}
 
-		if ( this.isMainConnectScreen() || this.isUserConnectScreen() ) {
-			const connectImages = [];
-
-			if ( this.isMainConnectScreen() ) {
-				connectImages.push( '/images/connect-right.jpg' );
-			}
-
-			if ( this.isUserConnectScreen() ) {
-				connectImages.push( '/images/connect-right-secondary.png' );
-			}
-
+		if ( this.isMainConnectScreen() ) {
 			return (
 				<ConnectScreen
 					apiNonce={ this.props.apiNonce }
 					registrationNonce={ this.props.registrationNonce }
 					apiRoot={ this.props.apiRoot }
-					images={ connectImages }
+					images={ [ '/images/connect-right.jpg' ] }
 					assetBaseUrl={ this.props.pluginBaseUrl }
 				>
 					<p>
@@ -222,6 +214,50 @@ class Main extends React.Component {
 						<li>{ __( 'Protect your site against bot attacks', 'jetpack' ) }</li>
 						<li>{ __( 'Get notifications if your site goes offline', 'jetpack' ) }</li>
 						<li>{ __( 'Enhance your site with dozens of other features', 'jetpack' ) }</li>
+					</ul>
+				</ConnectScreen>
+			);
+		}
+
+		if ( this.isUserConnectScreen() ) {
+			return (
+				<ConnectScreen
+					apiNonce={ this.props.apiNonce }
+					registrationNonce={ this.props.registrationNonce }
+					apiRoot={ this.props.apiRoot }
+					images={ [ '/images/connect-right-secondary.png' ] }
+					assetBaseUrl={ this.props.pluginBaseUrl }
+					title={ __( 'Unlock all the amazing features of Jetpack by connecting now', 'jetpack' ) }
+					buttonLabel={ __( 'Connect your user account', 'jetpack' ) }
+				>
+					<ul>
+						<li>{ __( 'Receive instant downtime alerts', 'jetpack' ) }</li>
+						<li>{ __( 'Automatically share your content on social media', 'jetpack' ) }</li>
+						<li>{ __( 'Let your subscribers know when you post', 'jetpack' ) }</li>
+						<li>{ __( 'Receive notifications about new likes and comments', 'jetpack' ) }</li>
+						<li>{ __( 'Let visitors share your content on social media', 'jetpack' ) }</li>
+						<li>
+							{ createInterpolateElement(
+								__( 'And more! <a>See all Jetpack features</a>', 'jetpack' ),
+								{
+									a: (
+										<a
+											href={ getRedirectUrl( 'jetpack-features' ) }
+											target="_blank"
+											rel="noreferrer"
+										/>
+									),
+								}
+							) }
+							<a
+								className="jp-connection-screen-icon"
+								href={ getRedirectUrl( 'jetpack-features' ) }
+								target="_blank"
+								rel="noreferrer"
+							>
+								<Dashicon icon="external" />
+							</a>
+						</li>
 					</ul>
 				</ConnectScreen>
 			);
@@ -383,13 +419,23 @@ class Main extends React.Component {
 	}
 
 	render() {
+		const jpClasses = [ 'jp-lower' ];
+
+		if ( this.isMainConnectScreen() ) {
+			jpClasses.push( 'jp-main-connect-screen' );
+		}
+
+		if ( this.isUserConnectScreen() ) {
+			jpClasses.push( 'jp-user-connect-screen' );
+		}
+
 		return (
 			<div>
 				{ this.shouldShowReconnectModal() && (
 					<ReconnectModal show={ true } onHide={ this.closeReconnectModal } />
 				) }
 				{ this.shouldShowMasthead() && <Masthead location={ this.props.location } /> }
-				<div className="jp-lower">
+				<div className={ jpClasses.join( ' ' ) }>
 					{ this.shouldShowRewindStatus() && <QueryRewindStatus /> }
 					<AdminNotices />
 					<JetpackNotices />
