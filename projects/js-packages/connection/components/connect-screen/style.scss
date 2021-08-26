@@ -65,6 +65,10 @@
 
 			button {
 				max-width: 100%;
+
+				&:disabled {
+					color: hsla(0,0%,100%,.4);
+				}
 			}
 		}
 
