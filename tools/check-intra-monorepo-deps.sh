@@ -156,7 +156,7 @@ for SLUG in "${SLUGS[@]}"; do
 		JSFILE="projects/$SLUG/package.json"
 	fi
 	if $UPDATE; then
-		JSON=$(jq --argjson packages "$PACKAGES" -r 'def ver(e): if $packages[e.key] then if e.value[0:1] == "^" then $packages[e.key][1] else null end // $packages[e.key][0] else e.value end; if .require then .require |= with_entries( .value = ver(.) ) else . end | if .["require-dev"] then .["require-dev"] |= with_entries( .value = ver(.) ) else . end' "$PHPFILE" | tools/prettier --parser=json-stringify)
+		JSON=$(jq --tab --argjson packages "$PACKAGES" -r 'def ver(e): if $packages[e.key] then if e.value[0:1] == "^" then $packages[e.key][1] else null end // $packages[e.key][0] else e.value end; if .require then .require |= with_entries( .value = ver(.) ) else . end | if .["require-dev"] then .["require-dev"] |= with_entries( .value = ver(.) ) else . end' "$PHPFILE")
 		if [[ "$JSON" != "$(<"$PHPFILE")" ]]; then
 			info "PHP dependencies of $SLUG changed!"
 			echo "$JSON" > "$PHPFILE"
@@ -168,7 +168,7 @@ for SLUG in "${SLUGS[@]}"; do
 			fi
 		fi
 		if [[ -e "$JSFILE" ]]; then
-			JSON=$(jq --argjson packages "$JSPACKAGES" -r 'def ver(e): if $packages[e.key] then if e.value[0:1] == "^" then $packages[e.key][1] else null end // $packages[e.key][0] else e.value end; def proc(k): if .[k] then .[k] |= with_entries( .value = ver(.) ) else . end; proc("dependencies") | proc("devDependencies") | proc("peerDependencies") | proc("optionalDependencies")' "$JSFILE" | tools/prettier --parser=json-stringify)
+			JSON=$(jq --tab --argjson packages "$JSPACKAGES" -r 'def ver(e): if $packages[e.key] then if e.value[0:1] == "^" then $packages[e.key][1] else null end // $packages[e.key][0] else e.value end; def proc(k): if .[k] then .[k] |= with_entries( .value = ver(.) ) else . end; proc("dependencies") | proc("devDependencies") | proc("peerDependencies") | proc("optionalDependencies")' "$JSFILE")
 			if [[ "$JSON" != "$(<"$JSFILE")" ]]; then
 				info "JS dependencies of $SLUG changed!"
 				echo "$JSON" > "$JSFILE"

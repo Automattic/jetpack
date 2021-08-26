@@ -392,7 +392,11 @@ const toPrettify = jsFiles.filter( file => checkFileAgainstDirtyList( file, dirt
 toPrettify.forEach( file => console.log( `Prettier formatting staged file: ${ file }` ) );
 
 if ( toPrettify.length ) {
-	execSync( `tools/prettier --ignore-path .eslintignore --write ${ toPrettify.join( ' ' ) }` );
+	execSync(
+		`pnpx prettier --config .prettierrc.js --ignore-path .eslintignore --write ${ toPrettify.join(
+			' '
+		) }`
+	);
 	execSync( `git add ${ toPrettify.join( ' ' ) }` );
 }
 
