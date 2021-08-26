@@ -13,6 +13,11 @@ runs:
       shell: bash
       run: |
         . .github/versions.sh
+
+        # GH doesn't support "if" :(
+        [[ "$INPUT_PHP" == "false" ]] && INPUT_PHP=
+        [[ "$INPUT_NODE" == "false" ]] && INPUT_NODE=
+
         echo "PHP: ${INPUT_PHP:-$PHP_VERSION}"
         echo "::set-output name=php-version::${INPUT_PHP:-$PHP_VERSION}"
         echo "Composer: $COMPOSER_VERSION"
@@ -23,7 +28,7 @@ runs:
         echo "::set-output name=pnpm-version::$PNPM_VERSION"
 
     - name: Setup PHP
-      if: steps.versions.outputs.php-version != 'false'
+      #if: steps.versions.outputs.php-version != 'false'
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ steps.versions.outputs.php-version }}
@@ -32,19 +37,19 @@ runs:
         coverage: none
 
     - name: Setup Node
-      if: steps.versions.outputs.node-version != 'false'
+      #if: steps.versions.outputs.node-version != 'false'
       uses: actions/setup-node@v2
       with:
         node-version: ${{ steps.versions.outputs.node-version }}
 
     - name: Get Composer cache directory
-      if: steps.versions.outputs.php-version != 'false'
+      #if: steps.versions.outputs.php-version != 'false'
       id: composer-cache
       shell: bash
       run: |
         echo "::set-output name=dir::$(composer config cache-files-dir)"
     - name: Use composer cache
-      if: steps.versions.outputs.php-version != 'false'
+      #if: steps.versions.outputs.php-version != 'false'
       uses: actions/cache@v2
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
@@ -53,7 +58,7 @@ runs:
           ${{ runner.os }}-composer-
 
     - name: Use pnpm cache
-      if: steps.versions.outputs.node-version != 'false'
+      #if: steps.versions.outputs.node-version != 'false'
       uses: actions/cache@v2
       with:
         path: ~/.pnpm-store
@@ -62,7 +67,7 @@ runs:
           ${{ runner.os }}-pnpm-${{ steps.versions.outputs.node-version }}-
 
     - name: Setup pnpm
-      if: steps.versions.outputs.node-version != 'false'
+      #if: steps.versions.outputs.node-version != 'false'
       uses: pnpm/action-setup@v2.0.1
       with:
         version: ${{ steps.versions.outputs.pnpm-version }}
