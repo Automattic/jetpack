@@ -323,7 +323,7 @@ function createPackageJson( packageJson, answers ) {
 			test:
 				"NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.@(jsx|js)'",
 		};
-		packageJson.dependencies = {};
+		packageJson.dependencies = { 'jetpack-js-test-runner': 'workspace:*' };
 	}
 }
 
@@ -384,18 +384,16 @@ async function createComposerJson( composerJson, answers ) {
 			composerJson.extra[ 'release-branch-prefix' ] = answers.name;
 			composerJson.type = 'wordpress-plugin';
 			break;
-	}
-
-	if ( answers.type === 'js-package' ) {
-		composerJson[ 'require-dev ' ] = { 'automattic/jetpack-changelogger': '^1.1' };
-		composerJson.scripts = {
-			'test-js': [ 'Composer\\Config::disableProcessTimeout', 'pnpm install', 'pnpm run test' ],
-			'test-coverage': [
-				'Composer\\Config::disableProcessTimeout',
-				'pnpm install',
-				'pnpx nyc --report-dir="$COVERAGE_DIR" pnpm run test',
-			],
-		};
+		case 'js-package':
+			composerJson[ 'require-dev ' ] = { 'automattic/jetpack-changelogger': '^1.1' };
+			composerJson.scripts = {
+				'test-js': [ 'Composer\\Config::disableProcessTimeout', 'pnpm install', 'pnpm run test' ],
+				'test-coverage': [
+					'Composer\\Config::disableProcessTimeout',
+					'pnpm install',
+					'pnpx nyc --report-dir="$COVERAGE_DIR" pnpm run test',
+				],
+			};
 	}
 }
 

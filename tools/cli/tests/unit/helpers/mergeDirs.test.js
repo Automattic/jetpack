@@ -60,12 +60,4 @@ describe( 'mergeDirs', function () {
 		sinon.assert.calledWith( console.warn, sinon.match( 'source.md exists, skipping...' ) );
 		console.warn.restore();
 	} );
-
-	it( 'should overwrite by default passed the overwrite=true param', function () {
-		sinon.stub( console, 'warn' );
-		mergeDirs( sourceDir, destDir ); // initial write
-		mergeDirs( sourceDir, destDir, null, true ); // should overwrite the same files
-		sinon.assert.calledWith( console.warn, sinon.match( 'source.md exists, overwriting' ) );
-		console.warn.restore();
-	} );
 } );
