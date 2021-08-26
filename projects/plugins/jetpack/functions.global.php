@@ -384,6 +384,7 @@ function jetpack_is_file_supported_for_sideloading( $file ) {
 			'image/jpeg',
 			'image/gif',
 			'image/bmp',
+			'image/webp',
 			'video/quicktime',
 			'video/mp4',
 			'video/mpeg',

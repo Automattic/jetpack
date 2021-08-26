@@ -5,6 +5,11 @@ import { useMemo } from '@wordpress/element';
 import { CheckboxControl, Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
+/**
+ * Internal dependencies
+ */
+import './excluded-post-types-control.scss';
+
 /* eslint-disable react/jsx-no-bind */
 
 const VALID_POST_TYPES = global.JetpackInstantSearchOptions.postTypes;
@@ -41,9 +46,9 @@ export default function ExcludedPostTypesControl( {
 	};
 
 	return (
-		<div className="jp-search-customize-excluded-post-types-control components-base-control">
-			<div className="jp-search-customize-excluded-post-types-control__label">
-				{ __( 'Excluded post types', 'jetpack' ) }
+		<div className="jp-search-configure-excluded-post-types-control components-base-control">
+			<div className="jp-search-configure-excluded-post-types-control__label">
+				{ __( 'Excluded Post Types', 'jetpack' ) }
 			</div>
 			{ isLastUnchecked && (
 				<Notice isDismissible={ false } status="info">

@@ -104,7 +104,8 @@ class Webhooks {
 			 *
 			 * @param int Jetpack Blog ID.
 			 *
-			 * @since 4.2.0
+			 * @since 1.7.0
+			 * @since-jetpack 4.2.0
 			 */
 			do_action( 'jetpack_client_authorized', Jetpack_Options::get_option( 'id' ) );
 
