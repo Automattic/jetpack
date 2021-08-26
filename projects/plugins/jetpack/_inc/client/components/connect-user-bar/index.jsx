@@ -12,11 +12,11 @@ import { __, sprintf } from '@wordpress/i18n';
 import ConnectButton from 'components/connect-button';
 import Card from 'components/card';
 import analytics from 'lib/analytics';
-import { authorizeUserInPlace } from 'state/connection';
+import { connectUser } from 'state/connection';
 import './style.scss';
 
 const ConnectUserBar = props => {
-	const { feature, text, connectUser } = props;
+	const { feature, text, doConnectUser } = props;
 
 	const customConnect = useCallback( () => {
 		analytics.tracks.recordJetpackClick( {
@@ -26,8 +26,8 @@ const ConnectUserBar = props => {
 			is_connection_owner: 'no',
 		} );
 
-		connectUser();
-	}, [ connectUser, feature ] );
+		doConnectUser();
+	}, [ doConnectUser, feature ] );
 
 	return (
 		<Card compact className="jp-connect-user-bar__card">
@@ -57,7 +57,7 @@ ConnectUserBar.propTypes = {
 };
 
 export default connect( null, dispatch => ( {
-	connectUser: () => {
-		return dispatch( authorizeUserInPlace() );
+	doConnectUser: () => {
+		return dispatch( connectUser() );
 	},
 } ) )( ConnectUserBar );

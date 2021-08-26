@@ -25,7 +25,7 @@ import {
 	isFetchingConnectUrl as _isFetchingConnectUrl,
 	getConnectUrl as _getConnectUrl,
 	unlinkUser,
-	authorizeUserInPlace,
+	connectUser,
 	isCurrentUserLinked as _isCurrentUserLinked,
 	isUnlinkingUser as _isUnlinkingUser,
 	isConnectingUser as _isConnectingUser,
@@ -94,7 +94,7 @@ export class ConnectButton extends React.Component {
 			this.props.customConnect();
 		} else {
 			// Dispatch user in place authorization.
-			this.props.authorizeUserInPlace();
+			this.props.connectUser();
 		}
 	};
 
@@ -257,8 +257,8 @@ export default connect(
 			unlinkUser: () => {
 				return dispatch( unlinkUser() );
 			},
-			authorizeUserInPlace: () => {
-				return dispatch( authorizeUserInPlace() );
+			connectUser: () => {
+				return dispatch( connectUser() );
 			},
 		};
 	}

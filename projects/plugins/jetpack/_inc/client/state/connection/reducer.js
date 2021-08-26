@@ -20,6 +20,7 @@ import {
 	DISCONNECT_SITE_FAIL,
 	DISCONNECT_SITE_SUCCESS,
 	CONNECT_USER,
+	RESET_CONNECT_USER,
 	UNLINK_USER,
 	UNLINK_USER_FAIL,
 	UNLINK_USER_SUCCESS,
@@ -103,6 +104,8 @@ export const requests = ( state = connectionRequests, action ) => {
 			return assign( {}, state, { unlinkingUser: true } );
 		case CONNECT_USER:
 			return assign( {}, state, { connectingUser: true } );
+		case RESET_CONNECT_USER:
+			return assign( {}, state, { connectingUser: false } );
 		case CONNECT_URL_FETCH:
 			return assign( {}, state, { fetchingConnectUrl: true } );
 		case USER_CONNECTION_DATA_FETCH:

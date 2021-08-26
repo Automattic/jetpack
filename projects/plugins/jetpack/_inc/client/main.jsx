@@ -21,6 +21,7 @@ import {
 	isCurrentUserLinked,
 	isSiteConnected,
 	isConnectingUser,
+	resetConnectUser,
 	isReconnectingSite,
 	reconnectSite,
 	getConnectUrl,
@@ -415,6 +416,7 @@ class Main extends React.Component {
 	}
 
 	connectUser() {
+		this.props.resetConnectUser();
 		this.props.history.replace( '/connect-user' );
 	}
 
@@ -489,6 +491,9 @@ export default connect(
 		},
 		reconnectSite: () => {
 			return dispatch( reconnectSite() );
+		},
+		resetConnectUser: () => {
+			return dispatch( resetConnectUser() );
 		},
 	} )
 )( withRouter( Main ) );

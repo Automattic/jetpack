@@ -26,7 +26,7 @@ import {
 } from 'lib/plans/constants';
 import { getSitePlan, hasActiveSearchPurchase, isFetchingSitePurchases } from 'state/site';
 import { getUpgradeUrl } from 'state/initial-state';
-import { getConnectUrl, hasConnectedOwner, isOfflineMode } from 'state/connection';
+import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
 import JetpackBanner from 'components/jetpack-banner';
 
 const SEARCH_DESCRIPTION = __(
@@ -66,7 +66,6 @@ class DashSearch extends Component {
 
 		// Connected props
 		isOfflineMode: PropTypes.bool.isRequired,
-		connectUrl: PropTypes.string.isRequired,
 		hasConnectedOwner: PropTypes.string.isRequired,
 	};
 
@@ -131,7 +130,7 @@ class DashSearch extends Component {
 							'jetpack'
 						) }
 						disableHref="false"
-						href={ this.props.connectUrl }
+						onClick={ this.props.connectUser }
 						eventFeature="search"
 						path="dashboard"
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SEARCH_JETPACK ) }
@@ -196,14 +195,20 @@ class DashSearch extends Component {
 	}
 }
 
-export default connect( state => {
-	return {
-		isBusinessPlan: 'is-business-plan' === getPlanClass( getSitePlan( state ).product_slug ),
-		isOfflineMode: isOfflineMode( state ),
-		isFetching: isFetchingSitePurchases( state ),
-		hasSearchProduct: hasActiveSearchPurchase( state ),
-		upgradeUrl: getUpgradeUrl( state, 'aag-search' ),
-		connectUrl: getConnectUrl( state ),
-		hasConnectedOwner: hasConnectedOwner( state ),
-	};
-} )( DashSearch );
+export default connect(
+	state => {
+		return {
+			isBusinessPlan: 'is-business-plan' === getPlanClass( getSitePlan( state ).product_slug ),
+			isOfflineMode: isOfflineMode( state ),
+			isFetching: isFetchingSitePurchases( state ),
+			hasSearchProduct: hasActiveSearchPurchase( state ),
+			upgradeUrl: getUpgradeUrl( state, 'aag-search' ),
+			hasConnectedOwner: hasConnectedOwner( state ),
+		};
+	},
+	dispatch => ( {
+		connectUser: () => {
+			return dispatch( connectUser() );
+		},
+	} )
+)( DashSearch );

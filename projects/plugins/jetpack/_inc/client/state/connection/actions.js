@@ -20,6 +20,7 @@ import {
 	DISCONNECT_SITE_FAIL,
 	DISCONNECT_SITE_SUCCESS,
 	CONNECT_USER,
+	RESET_CONNECT_USER,
 	UNLINK_USER,
 	UNLINK_USER_FAIL,
 	UNLINK_USER_SUCCESS,
@@ -218,10 +219,18 @@ export const unlinkUser = () => {
 	};
 };
 
-export const authorizeUserInPlace = () => {
+export const connectUser = () => {
 	return dispatch => {
 		dispatch( {
 			type: CONNECT_USER,
+		} );
+	};
+};
+
+export const resetConnectUser = () => {
+	return dispatch => {
+		dispatch( {
+			type: RESET_CONNECT_USER,
 		} );
 	};
 };
@@ -252,7 +261,7 @@ export const reconnectSite = () => {
 						type: CONNECT_URL_FETCH_SUCCESS,
 						connectUrl: authorizeUrl,
 					} );
-					dispatch( authorizeUserInPlace() );
+					dispatch( connectUser() );
 				} else {
 					window.location.reload();
 				}
