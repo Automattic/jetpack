@@ -268,6 +268,10 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		$enabled_payment_options = array_filter(
 			WC()->payment_gateways->get_available_payment_gateways(),
 			function ( $payment_gateway ) {
+				if ( ! $payment_gateway instanceof WC_Payment_Gateway ) {
+					return false;
+				}
+
 				return $payment_gateway->is_available();
 			}
 		);
