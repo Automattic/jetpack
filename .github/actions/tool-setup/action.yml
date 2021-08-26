@@ -11,6 +11,9 @@ runs:
     - name: "Read tool versions"
       id: versions
       shell: bash
+      env:
+        INPUT_NODE: ${{ inputs.node }}
+        INPUT_PHP: ${{ inputs.php }}
       run: |
         . .github/versions.sh
 
