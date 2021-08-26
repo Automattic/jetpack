@@ -15,11 +15,42 @@ require_once __DIR__ . '/class-post-thumbnail.php';
  * The PostList Admin Area
  */
 class Post_List {
+	const PACKAGE_VERSION = '1.0.0-alpha';
 
 	/**
-	 * Construction.
+	 * The configuration method that is called from the jetpack-config package.
 	 */
-	public function __construct() {
+	public static function configure() {
+		$post_list = self::get_instance();
+		$post_list->register();
+	}
+
+	/**
+	 * Check whether the wp-admin-posts-list-page feature is enabled,
+	 * via the query string.
+	 *
+	 * @return boolean True when feature is active. Otherwise, False.
+	 */
+	public static function is_wp_admin_posts_list_page() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		return isset( $_GET['post-list'] ) && 'true' === $_GET['post-list'];
+	}
+
+	/**
+	 * Initialize the Post List UI.
+	 *
+	 * @return Post_List Post_List instance.
+	 */
+	public static function get_instance() {
+		if ( self::is_wp_admin_posts_list_page() ) {
+			return new Post_List();
+		}
+	}
+
+	/**
+	 * Sets up Post List action callbacks if needed.
+	 */
+	public function register() {
 		if ( ! did_action( 'jetpack_on_posts_list_init' ) ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
@@ -30,13 +61,6 @@ class Post_List {
 			 */
 			do_action( 'jetpack_on_posts_list_init' );
 		}
-	}
-
-	/**
-	 * Initialize the UI.
-	 */
-	public static function init() {
-		new static();
 	}
 
 	/**
