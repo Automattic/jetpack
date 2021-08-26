@@ -13,7 +13,7 @@ describe( 'verify commands are available', function () {
 		chai.expect( test ).to.contain( 'jetpack build [project]' );
 	} );
 	it( 'changelog command exists', () => {
-		chai.expect( test ).to.contain( 'jetpack changelog <cmd> [project]' );
+		chai.expect( test ).to.contain( 'jetpack changelog [cmd]' );
 	} );
 	it( 'cli command exists', () => {
 		chai.expect( test ).to.contain( 'jetpack cli <cmd>' );
