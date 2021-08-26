@@ -224,6 +224,26 @@ export function getApiRootUrl( state ) {
 }
 
 /**
+ * Returns the registration nonce.
+ *
+ * @param {object} state - Global state tree
+ * @returns {string} The registration nonce
+ */
+export function getRegistrationNonce( state ) {
+	return get( state.jetpack.initialState, 'registrationNonce' );
+}
+
+/**
+ * Returns the plugin base URL.
+ *
+ * @param {object} state - Global state tree
+ * @returns {string} The registration nonce
+ */
+export function getPluginBaseUrl( state ) {
+	return get( state.jetpack.initialState, 'pluginBaseUrl' );
+}
+
+/**
  * Returns a purchase token that is used for Jetpack logged out visitor checkout.
  *
  * @param {object} state - Global state tree
