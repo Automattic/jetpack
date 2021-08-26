@@ -15,7 +15,6 @@
 	grid-template-columns: repeat( 4, 1fr );
 	width: calc( 100% - 32px );
 	margin: 0 16px;
-	align-items: center;
 
 	@include for-phone-up {
 		grid-template-columns: repeat( 8, 1fr );

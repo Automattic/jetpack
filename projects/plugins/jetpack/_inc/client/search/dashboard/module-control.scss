@@ -16,6 +16,9 @@ $toggle-width: 3em;
 		padding: 0;
 		padding-top: 1em;
 	}
+	.form-toggle__label {
+		margin: 0;
+	}
 }
 
 .jp-form-search-settings-group__toggle {
@@ -29,7 +32,6 @@ $toggle-width: 3em;
 		display: flex;
 		@include for-tablet-down {
 			justify-content: center;
-			align-items: center;
 		}
 	}
 }
