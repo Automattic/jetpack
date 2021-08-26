@@ -42,36 +42,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Read tool versions
-        id: versions
-        uses: ./.github/actions/read-versions
-
-      - name: Setup Node
-        uses: actions/setup-node@v2
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
         with:
-          node-version: ${{ steps.versions.outputs.node-version }}
-
-      - name: Use pnpm cache
-        uses: actions/cache@v2
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-pnpm-${{ steps.versions.outputs.node-version }}-${{ hashFiles('**/package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-${{ steps.versions.outputs.node-version }}-
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2.0.1
-        with:
-          version: ${{ steps.versions.outputs.pnpm-version }}
-
-      - name: Tool versions
-        run: |
-          which node
-          node --version
-          which pnpm
-          pnpm --version
-          which jq
-          jq --version
+          php: false
 
       - name: Building Action
         run: composer build-development
