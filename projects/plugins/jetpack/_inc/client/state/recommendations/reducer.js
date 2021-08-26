@@ -3,7 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { combineReducers } from 'redux';
-import { assign, difference, get, mergeWith, union } from 'lodash';
+import { assign, difference, get, isEmpty, mergeWith, union } from 'lodash';
 
 /**
  * Internal dependencies
@@ -126,7 +126,8 @@ const productSuggestions = ( state = {}, action ) => {
 	}
 };
 
-export const getProductSuggestions = state => get( state.jetpack, [ 'recommendations', 'productSuggestions' ], [] );
+export const getProductSuggestions = state =>
+	get( state.jetpack, [ 'recommendations', 'productSuggestions' ], [] );
 
 const upsell = ( state = {}, action ) => {
 	switch ( action.type ) {
@@ -138,7 +139,13 @@ const upsell = ( state = {}, action ) => {
 	}
 };
 
-export const reducer = combineReducers( { data, requests, step: stepReducer, upsell, productSuggestions } );
+export const reducer = combineReducers( {
+	data,
+	requests,
+	step: stepReducer,
+	upsell,
+	productSuggestions,
+} );
 
 export const isFetchingRecommendationsData = state => {
 	return !! state.jetpack.recommendations.requests.isFetchingRecommendationsData;
@@ -226,7 +233,7 @@ const isStepEligibleToShow = ( state, step ) => {
 		case 'summary':
 			return true;
 		case 'product-suggestion':
-			return isSiteEligibleForUpsell( state );
+			return isSiteEligibleForUpsell( state ) && ! isEmpty( getProductSuggestions( state ) );
 		case 'woocommerce':
 			return getDataByKey( state, 'site-type-store' ) ? ! isFeatureActive( state, step ) : false;
 		case 'monitor':

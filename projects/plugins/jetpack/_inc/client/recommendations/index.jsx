@@ -13,8 +13,8 @@ import { ProductSuggestion } from './prompts/product-suggestion';
 import { ProductPurchased } from './product-purchased';
 import { SiteTypeQuestion } from './prompts/site-type';
 import { Summary } from './summary';
-import QuerySiteProducts from 'components/data/query-site-products';
 import QueryRecommendationsData from 'components/data/query-recommendations-data';
+import QueryRecommendationsProductSuggestions from 'components/data/query-recommendations-product-suggestions';
 import QueryRecommendationsUpsell from 'components/data/query-recommendations-upsell';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import QuerySite from 'components/data/query-site';
@@ -62,8 +62,8 @@ const RecommendationsComponent = props => {
 
 	return (
 		<>
-			<QuerySiteProducts />
 			<QueryRecommendationsData />
+			<QueryRecommendationsProductSuggestions />
 			<QueryRecommendationsUpsell />
 			<QueryRewindStatus />
 			<QuerySite />

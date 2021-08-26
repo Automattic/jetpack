@@ -14,13 +14,13 @@ import { ProductSuggestionItem } from '../product-suggestion-item';
 import { MoneyBackGuarantee } from 'components/money-back-guarantee';
 import analytics from 'lib/analytics';
 import {
-	getNextRoute,
 	addSelectedRecommendation as addSelectedRecommendationAction,
 	addSkippedRecommendation as addSkippedRecommendationAction,
+	getProductSuggestions,
+	getNextRoute,
+	isFetchingRecommendationsProductSuggestions as isFetchingSuggestionsAction,
 	updateRecommendationsStep as updateRecommendationsStepAction,
 } from 'state/recommendations';
-import { PLAN_JETPACK_BACKUP_DAILY, PLAN_JETPACK_SECURITY_DAILY } from 'lib/plans/constants';
-import { isFetchingSiteProducts as isFetchingSiteProductsAction } from 'state/site-products';
 
 /**
  * Style dependencies
@@ -29,11 +29,11 @@ import './style.scss';
 
 const ProductSuggestionComponent = props => {
 	const {
-		nextRoute,
-		jetpackProducts,
-		isFetchingSiteProducts,
-		updateRecommendationsStep,
 		addSkippedRecommendation,
+		nextRoute,
+		isFetchingSuggestions,
+		updateRecommendationsStep,
+		suggestions,
 	} = props;
 
 	useEffect( () => {
@@ -48,28 +48,10 @@ const ProductSuggestionComponent = props => {
 	const answerSection = (
 		<div className="jp-recommendations-product-suggestion__container">
 			<div className="jp-recommendations-product-suggestion__items">
-				{ ! isFetchingSiteProducts && (
-					<>
-						<ProductSuggestionItem
-							product={ jetpackProducts[ PLAN_JETPACK_BACKUP_DAILY ] }
-							title={ __( 'Backup Daily', 'jetpack' ) }
-							description={ __(
-								'Never lose a word, image, page, or time worrying about your site with automated off-site backups and one-click restores.',
-								'jetpack'
-							) }
-							externalLink={ 'https://jetpack.com/upgrade/backup/' }
-						/>
-						<ProductSuggestionItem
-							product={ jetpackProducts[ PLAN_JETPACK_SECURITY_DAILY ] }
-							title={ __( 'Security Daily', 'jetpack' ) }
-							description={ __(
-								'All of the essential Jetpack Security features in one package including Backup, Scan, Anti-spam and more.',
-								'jetpack'
-							) }
-							externalLink={ 'https://jetpack.com/features/security/' }
-						/>
-					</>
-				) }
+				{ ! isFetchingSuggestions &&
+					suggestions.map( ( item, key ) => (
+						<ProductSuggestionItem key={ key } product={ item } />
+					) ) }
 			</div>
 			<div className="jp-recommendations-product-suggestion__money-back-guarantee">
 				<MoneyBackGuarantee text={ __( '14-day money-back guarantee', 'jetpack' ) } />
@@ -100,8 +82,8 @@ const ProductSuggestionComponent = props => {
 export const ProductSuggestion = connect(
 	state => ( {
 		nextRoute: getNextRoute( state ),
-		jetpackProducts: state.jetpack?.siteProducts?.items,
-		isFetchingSiteProducts: isFetchingSiteProductsAction( state ),
+		suggestions: getProductSuggestions( state ),
+		isFetchingSuggestions: isFetchingSuggestionsAction( state ),
 	} ),
 	dispatch => ( {
 		addSelectedRecommendation: stepSlug => dispatch( addSelectedRecommendationAction( stepSlug ) ),

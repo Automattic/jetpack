@@ -28,7 +28,7 @@ import {
 import './style.scss';
 
 const generateCheckoutLink = ( { product, siteAdminUrl, siteRawUrl } ) => {
-	return addQueryArgs( `https://wordpress.com/checkout/${ siteRawUrl }/${ product.product_slug }`, {
+	return addQueryArgs( `https://wordpress.com/checkout/${ siteRawUrl }/${ product.slug }`, {
 		redirect_to: siteAdminUrl + 'admin.php?page=jetpack#/recommendations/product-purchased',
 	} );
 };
@@ -36,9 +36,6 @@ const generateCheckoutLink = ( { product, siteAdminUrl, siteRawUrl } ) => {
 const ProductSuggestionItemComponent = props => {
 	const {
 		product,
-		title,
-		description,
-		externalLink,
 		addSelectedRecommendation,
 		updateRecommendationsData,
 		saveRecommendationsData,
@@ -47,27 +44,29 @@ const ProductSuggestionItemComponent = props => {
 	const onPurchaseClick = useCallback( () => {
 		analytics.tracks.recordEvent(
 			'jetpack_recommendations_product_suggestion_click',
-			product.product_slug
+			product.slug
 		);
 		addSelectedRecommendation( 'product-suggestion' );
-		updateRecommendationsData( { 'product-suggestion-selection': product.product_slug } );
+		updateRecommendationsData( { 'product-suggestion-selection': product.slug } );
 		saveRecommendationsData();
 	}, [ product, addSelectedRecommendation, updateRecommendationsData, saveRecommendationsData ] );
 
 	const onExternalLinkClick = useCallback( () => {
 		analytics.tracks.recordEvent(
 			'jetpack_recommendations_product_suggestion_learn_more_click',
-			product.product_slug
+			product.slug
 		);
 	}, [ product ] );
 
-	const currencyObject = getCurrencyObject( product.cost / 12, product.currency_code );
+	const currencyObject = getCurrencyObject( product.cost, product.currency_code );
 
 	return (
 		<div className="jp-recommendations-product-suggestion-item jp-recommendations-product-suggestion__item">
 			<div className="jp-recommendations-product-suggestion-item__content">
-				<h2 className="jp-recommendations-product-suggestion-item__title">{ title }</h2>
-				<p className="jp-recommendations-product-suggestion-item__description">{ description }</p>
+				<h2 className="jp-recommendations-product-suggestion-item__title">{ product.title }</h2>
+				<p className="jp-recommendations-product-suggestion-item__description">
+					{ product.description }
+				</p>
 				<Button
 					className="jp-recommendations-product-suggestion-item__checkout-button"
 					primary
@@ -77,18 +76,18 @@ const ProductSuggestionItemComponent = props => {
 					{ sprintf(
 						/* translators: %s: Name of a Jetpack product. */
 						__( 'Continue with %s', 'jetpack' ),
-						title
+						product.title
 					) }
 				</Button>
-				{ externalLink && (
+				{ !! product.cta_link && !! product.cta_text && (
 					<ExternalLink
 						className="jp-recommendations-product-suggestion-item__external-link"
-						href={ externalLink }
+						href={ product.cta_link }
 						target="_blank"
 						icon={ true }
 						iconSize={ 16 }
 						onClick={ onExternalLinkClick }
-						children={ __( 'Learn More', 'jetpack' ) }
+						children={ product.cta_text }
 					/>
 				) }
 			</div>
@@ -105,9 +104,9 @@ const ProductSuggestionItemComponent = props => {
 					</sup>
 				</h3>
 				<span className="jp-recommendations-product-suggestion-item__billing-time-frame">
-					{ __( 'per month', 'jetpack' ) },
+					{ product.cost_timeframe },
 					<br />
-					{ __( 'paid yearly', 'jetpack' ) }
+					{ product.billing_timeframe }
 				</span>
 			</div>
 		</div>
