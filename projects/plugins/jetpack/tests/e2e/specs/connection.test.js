@@ -3,7 +3,6 @@ import {
 	doSiteLevelConnection,
 	doClassicConnection,
 } from '../lib/flows/jetpack-connect';
-import { loginToWpSite, loginToWpCom } from '../lib/flows/log-in';
 import Sidebar from '../lib/pages/wp-admin/sidebar';
 import JetpackPage from '../lib/pages/wp-admin/jetpack';
 import DashboardPage from '../lib/pages/wp-admin/dashboard';
@@ -16,9 +15,11 @@ import { prerequisitesBuilder } from '../lib/env/prerequisites';
  */
 describe( 'Connection', () => {
 	beforeEach( async () => {
-		await prerequisitesBuilder().withConnection( false ).build();
-		await loginToWpCom( 'defaultUser', true );
-		await loginToWpSite( true );
+		await prerequisitesBuilder()
+			.withLoggedIn( true )
+			.withWpComLoggedIn( true )
+			.withConnection( false )
+			.build();
 		await DashboardPage.visit( page );
 		await ( await Sidebar.init( page ) ).selectJetpack();
 	} );

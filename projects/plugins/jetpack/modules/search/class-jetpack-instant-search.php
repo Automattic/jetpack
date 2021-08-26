@@ -81,7 +81,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			add_action( 'init', array( $this, 'set_filters_from_widgets' ) );
 
 			add_action( 'wp_enqueue_scripts', array( $this, 'load_assets' ) );
-			add_action( 'wp_footer', array( $this, 'print_instant_search_sidebar' ) );
+			add_action( 'wp_footer', array( 'Jetpack_Search_Helpers', 'print_instant_search_sidebar' ) );
 			add_filter( 'body_class', array( $this, 'add_body_class' ), 10 );
 		} else {
 			add_action( 'update_option', array( $this, 'track_widget_updates' ), 10, 3 );
@@ -175,19 +175,6 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			'after_title'   => '</h2>',
 		);
 		register_sidebar( $args );
-	}
-
-	/**
-	 * Prints Instant Search sidebar.
-	 */
-	public function print_instant_search_sidebar() {
-		?>
-		<div class="jetpack-instant-search__widget-area" style="display: none">
-			<?php if ( is_active_sidebar( 'jetpack-instant-search-sidebar' ) ) { ?>
-				<?php dynamic_sidebar( 'jetpack-instant-search-sidebar' ); ?>
-			<?php } ?>
-		</div>
-		<?php
 	}
 
 	/**

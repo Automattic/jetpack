@@ -14,8 +14,10 @@
 			"matchPackageNames": [
 				"@automattic/eslint-changed",
 				"@automattic/jetpack-api",
+				"@automattic/jetpack-base-styles",
 				"@automattic/jetpack-components",
 				"@automattic/jetpack-connection",
+				"@automattic/jetpack-storybook",
 				"automattic/jetpack-a8c-mc-stats",
 				"automattic/jetpack-abtest",
 				"automattic/jetpack-analyzer",

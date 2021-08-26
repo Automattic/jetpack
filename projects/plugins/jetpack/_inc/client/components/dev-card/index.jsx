@@ -207,29 +207,29 @@ export class DevCard extends React.Component {
 						</label>
 					</li>
 					<li>
-						<label htmlFor="jetpack_security">
+						<label htmlFor="jetpack_security_t1">
 							<input
 								type="radio"
-								id="jetpack_security"
-								value="jetpack_security"
-								name="jetpack_security"
-								checked={ 'is-security-plan' === planClass }
+								id="jetpack_security_t1"
+								value="jetpack_security_t1_yearly"
+								name="jetpack_security_t1_yearly"
+								checked={ 'is-security-t1-plan' === planClass }
 								onChange={ this.onPlanChange }
 							/>
-							Security (200 GB)
+							Security (Tier 1)
 						</label>
 					</li>
 					<li>
-						<label htmlFor="jetpack_security_pro">
+						<label htmlFor="jetpack_security_t2">
 							<input
 								type="radio"
-								id="jetpack_security_pro"
-								value="jetpack_security_pro"
-								name="jetpack_security_pro"
-								checked={ 'is-security-pro-plan' === planClass }
+								id="jetpack_security_t2"
+								value="jetpack_security_t2_yearly"
+								name="jetpack_security_t2_yearly"
+								checked={ 'is-security-t2-plan' === planClass }
 								onChange={ this.onPlanChange }
 							/>
-							Security (2 TB)
+							Security (Tier 2)
 						</label>
 					</li>
 					<li>
@@ -246,29 +246,29 @@ export class DevCard extends React.Component {
 						</label>
 					</li>
 					<li>
-						<label htmlFor="jetpack_backup">
+						<label htmlFor="jetpack_backup_t1">
 							<input
 								type="radio"
-								id="jetpack_backup"
-								value="jetpack_backup"
-								name="jetpack_backup"
-								checked={ 'is-backup-plan' === planClass }
+								id="jetpack_backup_t1"
+								value="jetpack_backup_t1_yearly"
+								name="jetpack_backup_t1_yearly"
+								checked={ 'is-backup-t1-plan' === planClass }
 								onChange={ this.onPlanChange }
 							/>
-							Backup (200 GB)
+							Backup (Tier 1)
 						</label>
 					</li>
 					<li>
-						<label htmlFor="jetpack_backup_pro">
+						<label htmlFor="jetpack_backup_t2">
 							<input
 								type="radio"
-								id="jetpack_backup_pro"
-								value="jetpack_backup_pro"
-								name="jetpack_backup_pro"
-								checked={ 'is-backup-pro-plan' === planClass }
+								id="jetpack_backup_t2"
+								value="jetpack_backup_t2_yearly"
+								name="jetpack_backup_t2_yearly"
+								checked={ 'is-backup-t2-plan' === planClass }
 								onChange={ this.onPlanChange }
 							/>
-							Backup (2 TB)
+							Backup (Tier 2)
 						</label>
 					</li>
 					<li className="jp-dev-card__deprecated-plans-list-header">&mdash; DEPRECATED &mdash;</li>

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Remove obsolete Docker setup, update commands supporting development workflow and update documentation
