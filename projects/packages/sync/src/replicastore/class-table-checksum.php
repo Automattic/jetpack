@@ -32,11 +32,11 @@ class Table_Checksum {
 	public $table_configuration = array();
 
 	/**
-	 * Perfom Text Conversion to UTF8.
+	 * Perform Text Conversion to UTF8.
 	 *
 	 * @var boolean
 	 */
-	private $perform_text_convesion = false;
+	private $perform_text_conversion = false;
 
 	/**
 	 * Field to be used for range queries.
