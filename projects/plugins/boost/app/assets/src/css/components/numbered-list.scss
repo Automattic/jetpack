@@ -4,12 +4,17 @@
 
 	li {
 		margin-bottom: 0.5em;
+	  	display: flex;
+	}
+
+	.text {
+	  	flex: 1;
 	}
 
 	.index {
 		border: 1px solid #ccc;
 		border-radius: 50%;
-		display: inline-block;
+		display: block;
 		width: 1.5em;
 		height: 1.5em;
 		text-align: center;

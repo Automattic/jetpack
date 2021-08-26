@@ -16,7 +16,9 @@
 	{#each items as item, index}
 		<li>
 			<span class="index">{index + 1}</span>
-			<TemplatedString template={item} {vars} />
+			<span class="text">
+				<TemplatedString template={item} {vars} />
+			</span>
 		</li>
 	{/each}
 </ol>
