@@ -17,6 +17,9 @@ import {
 	JETPACK_RECOMMENDATIONS_DATA_FETCH_FAIL,
 	JETPACK_RECOMMENDATIONS_DATA_UPDATE,
 	JETPACK_RECOMMENDATIONS_STEP_UPDATE,
+	JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH,
+	JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH_RECEIVE,
+	JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH_FAIL,
 	JETPACK_RECOMMENDATIONS_UPSELL_FETCH,
 	JETPACK_RECOMMENDATIONS_UPSELL_FETCH_RECEIVE,
 	JETPACK_RECOMMENDATIONS_UPSELL_FETCH_FAIL,
@@ -89,6 +92,11 @@ const requests = ( state = {}, action ) => {
 			} );
 		case JETPACK_RECOMMENDATIONS_DATA_FETCH_FAIL:
 			return assign( {}, state, { isFetchingRecommendationsData: false } );
+		case JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH:
+			return assign( {}, state, { isFetchingRecommendationsProductSuggestions: true } );
+		case JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH_RECEIVE:
+		case JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH_FAIL:
+			return assign( {}, state, { isFetchingRecommendationsProductSuggestions: false } );
 		case JETPACK_RECOMMENDATIONS_UPSELL_FETCH:
 			return assign( {}, state, { isFetchingRecommendationsUpsell: true } );
 		case JETPACK_RECOMMENDATIONS_UPSELL_FETCH_RECEIVE:
@@ -108,6 +116,18 @@ const stepReducer = ( state = '', action ) => {
 	}
 };
 
+const productSuggestions = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH_RECEIVE:
+		case JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH_FAIL:
+			return action.productSuggestions;
+		default:
+			return state;
+	}
+};
+
+export const getProductSuggestions = state => get( state.jetpack, [ 'recommendations', 'productSuggestions' ], [] );
+
 const upsell = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_RECOMMENDATIONS_UPSELL_FETCH_RECEIVE:
@@ -118,7 +138,7 @@ const upsell = ( state = {}, action ) => {
 	}
 };
 
-export const reducer = combineReducers( { data, requests, step: stepReducer, upsell } );
+export const reducer = combineReducers( { data, requests, step: stepReducer, upsell, productSuggestions } );
 
 export const isFetchingRecommendationsData = state => {
 	return !! state.jetpack.recommendations.requests.isFetchingRecommendationsData;
@@ -126,6 +146,10 @@ export const isFetchingRecommendationsData = state => {
 
 export const isRecommendationsDataLoaded = state => {
 	return !! state.jetpack.recommendations.requests.isRecommendationsDataLoaded;
+};
+
+export const isFetchingRecommendationsProductSuggestions = state => {
+	return !! state.jetpack.recommendations.requests.isFetchingRecommendationsProductSuggestions;
 };
 
 export const isFetchingRecommendationsUpsell = state => {
