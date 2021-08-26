@@ -248,20 +248,21 @@ class Table_Checksum {
 			'links'                      => $wpdb->links, // TODO describe in the array format or add exceptions.
 			'options'                    => $wpdb->options, // TODO describe in the array format or add exceptions.
 			'woocommerce_order_items'    => array(
-				'table'           => "{$wpdb->prefix}woocommerce_order_items",
-				'range_field'     => 'order_item_id',
-				'key_fields'      => array( 'order_item_id' ),
-				'checksum_fields' => array( 'order_item_name', 'order_item_type', 'order_id' ),
+				'table'                => "{$wpdb->prefix}woocommerce_order_items",
+				'range_field'          => 'order_item_id',
+				'key_fields'           => array( 'order_item_id' ),
+				'checksum_fields'      => array( 'order_item_type', 'order_id' ),
+				'checksum_text_fields' => array( 'order_item_name', 'order_item_type', 'order_id' ),
 			),
 			'woocommerce_order_itemmeta' => array(
-				'table'             => "{$wpdb->prefix}woocommerce_order_itemmeta",
-				'range_field'       => 'order_item_id',
-				'key_fields'        => array( 'order_item_id', 'meta_key' ),
-				'checksum_fields'   => array( 'meta_key', 'meta_value' ),
-				'filter_values'     => Sync\Settings::get_allowed_order_itemmeta_structured(),
-				'parent_table'      => 'woocommerce_order_items',
-				'parent_join_field' => 'order_item_id',
-				'table_join_field'  => 'order_item_id',
+				'table'                => "{$wpdb->prefix}woocommerce_order_itemmeta",
+				'range_field'          => 'order_item_id',
+				'key_fields'           => array( 'order_item_id', 'meta_key' ),
+				'checksum_text_fields' => array( 'meta_key', 'meta_value' ),
+				'filter_values'        => Sync\Settings::get_allowed_order_itemmeta_structured(),
+				'parent_table'         => 'woocommerce_order_items',
+				'parent_join_field'    => 'order_item_id',
+				'table_join_field'     => 'order_item_id',
 			),
 		);
 	}
