@@ -343,7 +343,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		$payment_option = $order->get_payment_method();
 
 		if ( is_object( WC()->session ) ) {
-			$create_account = WC()->session->get( 'wc_checkout_createaccount_used' ) === true ? 'Y' : 'N';
+			$create_account = true === WC()->session->get( 'wc_checkout_createaccount_used' ) ? 'Y' : 'N';
 		} else {
 			$create_account = 'N';
 		}
