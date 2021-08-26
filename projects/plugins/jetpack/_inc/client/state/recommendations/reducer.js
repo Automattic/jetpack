@@ -3,7 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { combineReducers } from 'redux';
-import { assign, difference, get, mergeWith, union, isEmpty } from 'lodash';
+import { assign, difference, get, mergeWith, union } from 'lodash';
 
 /**
  * Internal dependencies
@@ -23,7 +23,12 @@ import {
 } from 'state/action-types';
 import { getRewindStatus } from 'state/rewind';
 import { getSetting } from 'state/settings';
-import { getSitePlan, hasActiveProductPurchase, hasActiveScanPurchase } from 'state/site';
+import {
+	getSitePlan,
+	hasActiveProductPurchase,
+	hasActiveScanPurchase,
+	isFetchingSiteData,
+} from 'state/site';
 import { hasConnectedOwner } from 'state/connection';
 import { isPluginActive } from 'state/site/plugins';
 
@@ -177,28 +182,14 @@ export const isFeatureActive = ( state, featureSlug ) => {
 	}
 };
 
-const showProductSuggestionStep = state => {
-	const siteData = get( state.jetpack, [ 'siteData', 'data' ], {} );
-	const plan = siteData?.plan ?? {};
-	const products = siteData?.products ?? [];
+const isSiteEligibleForUpsell = state => {
+	const sitePlan = getSitePlan( state );
 
-	// Show the Product Suggestion step if the site do not have any plan or products.
-	// Technically this shouldn't happen because we require a Jetpack connection before
-	// the Assistant is shown which means the site should - at the very least - have a
-	// free plan but we keep it for safety in the future.
-	if ( isEmpty( plan ) && isEmpty( products ) ) {
-		return true;
+	if ( isFetchingSiteData( state ) ) {
+		return false;
 	}
 
-	// Show the Product Suggestion step if the site has a Free plan and no products
-	// since they haven't made a purchase yet and we wish to prompt them to do so.
-	if ( 2002 === plan.product_id && isEmpty( products ) ) {
-		return true;
-	}
-
-	// We do not want to show the Product Suggestion step if the website already has
-	// a paid plan or any products.
-	return false;
+	return 'jetpack_free' === sitePlan.product_slug && ! hasActiveProductPurchase( state );
 };
 
 const isStepEligibleToShow = ( state, step ) => {
@@ -211,7 +202,7 @@ const isStepEligibleToShow = ( state, step ) => {
 		case 'summary':
 			return true;
 		case 'product-suggestion':
-			return showProductSuggestionStep( state ) && !! state.jetpack?.siteProducts?.items;
+			return isSiteEligibleForUpsell( state );
 		case 'woocommerce':
 			return getDataByKey( state, 'site-type-store' ) ? ! isFeatureActive( state, step ) : false;
 		case 'monitor':
@@ -322,17 +313,14 @@ export const getSummaryFeatureSlugs = state => {
 };
 
 export const getSidebarCardSlug = state => {
-	const sitePlan = getSitePlan( state );
 	const rewindStatus = getRewindStatus( state );
-
-	const planSlug = sitePlan.product_slug;
 	const rewindState = rewindStatus.state;
 
-	if ( ! sitePlan.product_slug || ! rewindState ) {
+	if ( isFetchingSiteData( state ) || ! rewindState ) {
 		return 'loading';
 	}
 
-	if ( 'jetpack_free' === planSlug && ! hasActiveProductPurchase( state ) ) {
+	if ( isSiteEligibleForUpsell( state ) ) {
 		return 'upsell';
 	}
 
