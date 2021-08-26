@@ -587,7 +587,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	}
 
 	/**
-	 * Save createaccount post data to be used in $this->>order_process.
+	 * Save createaccount post data to be used in $this->order_process.
 	 *
 	 * @param array $data post data from the checkout page.
 	 *
