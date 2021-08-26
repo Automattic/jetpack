@@ -27,28 +27,28 @@ import ThemeIcon from './theme-icon';
  */
 export default function ThemeControl( { disabled, value, onChange } ) {
 	return (
-		<div className="jp-search-customize-theme-buttons components-base-control">
+		<div className="jp-search-configure-theme-buttons components-base-control">
 			<Button
 				className={ classNames( {
-					'jp-search-customize-theme-button--selected': value === 'light',
+					'jp-search-configure-theme-button--selected': value === 'light',
 				} ) }
 				disabled={ disabled }
 				onClick={ () => onChange( 'light' ) }
 				variant="link"
 			>
 				<ThemeIcon theme="light" />
-				{ __( 'Light', 'jetpack' ) }
+				<span aria-label={ __( 'Light Theme', 'jetpack' ) }>{ __( 'Light', 'jetpack' ) }</span>
 			</Button>
 			<Button
 				className={ classNames( {
-					'jp-search-customize-theme-button--selected': value === 'dark',
+					'jp-search-configure-theme-button--selected': value === 'dark',
 				} ) }
 				disabled={ disabled }
 				onClick={ () => onChange( 'dark' ) }
 				variant="link"
 			>
 				<ThemeIcon theme="dark" />
-				{ __( 'Dark', 'jetpack' ) }
+				<span aria-label={ __( 'Dark Theme', 'jetpack' ) }>{ __( 'Dark', 'jetpack' ) }</span>
 			</Button>
 		</div>
 	);

@@ -13,7 +13,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "f3ac85b35a56f681bf1d07abdc6397529076e507"
+                "reference": "d0d0598231b0809ade8f86cce6a842297bae6982"
             },
             "require": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
@@ -47,7 +47,6 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
