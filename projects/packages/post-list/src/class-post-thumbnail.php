@@ -45,6 +45,7 @@ class Post_Thumbnail {
 			'id'    => $image_id,
 			'url'   => $image_url,
 			'thumb' => $image_thumb,
+			'alt'   => get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ),
 		);
 	}
 

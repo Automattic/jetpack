@@ -5,7 +5,7 @@ import { Tooltip, Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { ImageIcon as icon } from '../icons';
 
-export default function FeaturedImage( { url, thumb } ) {
+export default function FeaturedImage( { url, thumb, alt } ) {
 	if ( ! url ) {
 		return (
 			<Tooltip
@@ -23,7 +23,7 @@ export default function FeaturedImage( { url, thumb } ) {
 	return (
 		// TODO: Pass the right alt text to the client.
 		<img
-			alt=""
+			alt={ alt }
 			className="post-list__post-featured-image"
 			src={ thumb }
 			width="50px"
