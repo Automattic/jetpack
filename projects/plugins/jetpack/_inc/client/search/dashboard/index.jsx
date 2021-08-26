@@ -91,12 +91,12 @@ function SearchDashboard( props ) {
 		return (
 			<div className="jp-search-dashboard-top jp-search-dashboard-wrap">
 				<div className="jp-search-dashboard-row">
-					<div className="jp-search-dashboard-top__title lg-col-span-6 md-col-span-6 sm-col-span-4">
+					<div className="jp-search-dashboard-top__title lg-col-span-6 md-col-span-7 sm-col-span-4">
 						<h1>
 							{ __( "Help your visitors find exactly what they're looking for, fast", 'jetpack' ) }
 						</h1>
 					</div>
-					<div className=" lg-col-span-6 md-col-span-2 sm-col-span-0"></div>
+					<div className=" lg-col-span-6 md-col-span-1 sm-col-span-0"></div>
 				</div>
 				<div className="jp-search-dashboard-row" aria-hidden="true">
 					<div className="lg-col-span-1 md-col-span-1 sm-col-span-0"></div>
