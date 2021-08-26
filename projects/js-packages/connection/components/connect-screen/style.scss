@@ -17,11 +17,9 @@
 
 	.jp-connect-screen--left {
 		padding: 25px;
-		text-align: center;
 
 		@include break-small {
 			padding: 64px 96px;
-			text-align: left;
 		}
 
 		.jetpack-logo {
@@ -52,7 +50,6 @@
 
 		ul {
 			list-style-type: none;
-			text-align: left;
 
 			li {
 				background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADuSURBVHgB7ZS9DYJAFIDfHT93JSMwAiPoAmhpR22lTqBbmJggbqCyAJZ0xg1YwQ4MeB5GjPIT8KCTL6Hhke9LHgcAPT2NcahOHDLL35agC7hcZeABoIlsStfETfxshKEtbzno/ArQDR0+xwjakJPjCIbhNAy6CTSQp4ityNE0FdC+Tl4eWFMdauWRB4wZdfJiYKMYCmFnZUutLuSFAJHkAQKk8RezK0QE5Clf30Hixr5kyrwBPARjPJKD+zG+iMpTSk+RatMVnyyfDzC2YBhbIvLKQD7y4md5SuWvgq/rlK1LVN4IYpM5rTu6Pf/NA02TfHxOAFa6AAAAAElFTkSuQmCC) no-repeat;
@@ -64,15 +61,6 @@
 
 		.jp-connect-button {
 			margin-top: 40px;
-
-			button {
-				margin-left: auto;
-				margin-right: auto;
-
-				@include break-small {
-					margin-left: 0;
-				}
-			}
 		}
 
 		.jp-connect-screen--tos {
