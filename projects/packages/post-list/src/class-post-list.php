@@ -40,26 +40,6 @@ class Post_List {
 	}
 
 	/**
-	 * Return post statuses definition object,
-	 * with especial cases such as `scheduled`, `pending`, etc.
-	 *
-	 * @param int $post_id The current post ID.
-	 * @return array Post statuses object.
-	 */
-	public function get_post_statuses( $post_id ) {
-		return array_merge(
-			array(
-				'publish' => __( 'Published', 'jetpack' ),
-				'private' => __( 'Published', 'jetpack' ),
-				'future'  => __( 'Scheduled', 'jetpack' ),
-				'pending' => __( 'Pending Review', 'jetpack' ),
-				'draft'   => __( 'Draft', 'jetpack' ),
-			),
-			get_post_statuses( $post_id )
-		);
-	}
-
-	/**
 	 * Enqueue scripts depending on the post-list query var.
 	 *
 	 * @param string $hook Page hook.
@@ -111,9 +91,6 @@ class Post_List {
 				return array(
 					'id'             => $post->ID,
 					'type'           => $post->post_type,
-					'status'         => $post->post_status,
-					'date_gmt'       => $post->post_date_gmt,
-					'statuses'       => $this->get_post_statuses( $post->ID ),
 					'featured_image' => $thumbnail,
 				);
 			},
