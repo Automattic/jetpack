@@ -139,7 +139,7 @@ function sedver {
 #  - $4: What is being looked for, if not finding it is a problem.
 function jsver {
 	if [[ "$OP" == "update" ]]; then
-		JSON=$(jq --arg v "$3" "if $2 then $2 |= \$v else . end" "$1" | "$BASE/tools/prettier" --parser=json-stringify)
+		JSON=$(jq --tab --arg v "$3" "if $2 then $2 |= \$v else . end" "$1")
 		if [[ "$JSON" != "$(<"$FILE")" ]]; then
 			echo "$JSON" > "$FILE"
 		fi
