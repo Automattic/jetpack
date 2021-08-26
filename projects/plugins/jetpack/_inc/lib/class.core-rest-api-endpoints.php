@@ -2671,7 +2671,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'stats',
 			),
 			'collapse_nudges'                      => array(
-				'description'       => esc_html__( 'Collapse upsell nudges', 'jetpack' ),
+				'description'       => esc_html__( 'Collapse upgrade nudges', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',

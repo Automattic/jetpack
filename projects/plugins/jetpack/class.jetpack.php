@@ -3390,13 +3390,6 @@ p {
 
 			// If an admin page is visited after the update, the 'current_screen' action will fire.
 			add_action( 'current_screen', 'Jetpack::set_update_modal_display' );
-
-			// Expand stats page nudges.
-			$stats_options = get_option( 'stats_options' );
-			if ( $stats_options ) {
-				unset( $stats_options['collapse_nudges'] );
-				update_option( 'stats_options', $stats_options );
-			}
 		}
 	}
 

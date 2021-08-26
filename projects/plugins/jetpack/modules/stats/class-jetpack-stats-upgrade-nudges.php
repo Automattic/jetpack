@@ -37,6 +37,18 @@ class Jetpack_Stats_Upgrade_Nudges {
 	}
 
 	/**
+	 * Unsets the collapse nudges setting.
+	 */
+	public static function unset_nudges_setting() {
+		$stats_options = get_option( 'stats_options' );
+
+		if ( $stats_options ) {
+			unset( $stats_options['collapse_nudges'] );
+			update_option( 'stats_options', $stats_options );
+		}
+	}
+
+	/**
 	 * Determines whether Backup is active
 	 *
 	 * @return boolean
@@ -166,7 +178,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 						</div>
 						<div class="dops-section-header__actions handle-actions hide-if-no-js">
 							<button type="button" id="stats_nudges_toggle" class="handlediv" aria-expanded="<?php echo esc_attr( $aria_expanded ); ?>">
-								<span class="screen-reader-text">Toggle Upsell Nudges</span>
+								<span class="screen-reader-text">Toggle Upgrade Nudges</span>
 								<span class="toggle-indicator" aria-hidden="true"></span>
 							</button>
 						</div>
