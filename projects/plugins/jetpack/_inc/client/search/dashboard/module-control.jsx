@@ -64,13 +64,13 @@ function Search( props ) {
 	const isInstantSearchEnabled = props.getOptionValue( 'instant_search_enabled', 'search' );
 
 	const toggleSearchModule = useCallback( () => {
-		const newOption = { search: ! isModuleEnabled };
-		if ( isInstantSearchEnabled !== ( hasActiveSearchPurchase && ! isModuleEnabled ) ) {
-			newOption.instant_search_enabled = hasActiveSearchPurchase && ! isModuleEnabled;
+		const newOption = { search: ! isModuleEnabled, instant_search_enabled: false };
+		if ( hasActiveSearchPurchase ) {
+			newOption.instant_search_enabled = ! isModuleEnabled;
 		}
 		updateOptions( newOption );
 		analytics.tracks.recordEvent( 'jetpack_search_module_toggle', newOption );
-	}, [ hasActiveSearchPurchase, isInstantSearchEnabled, isModuleEnabled, updateOptions ] );
+	}, [ hasActiveSearchPurchase, isModuleEnabled, updateOptions ] );
 
 	const toggleInstantSearch = useCallback( () => {
 		const newOption = {
