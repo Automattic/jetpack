@@ -13,31 +13,20 @@ import { PromptLayout } from '../prompts/prompt-layout';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import analytics from 'lib/analytics';
-import { PLAN_JETPACK_BACKUP_DAILY, PLAN_JETPACK_SECURITY_DAILY } from 'lib/plans/constants';
-import { getNextRoute, getDataByKey } from 'state/recommendations';
+import {
+	getProductSuggestions,
+	getDataByKey,
+	getNextRoute,
+	isFetchingRecommendationsProductSuggestions as isFetchingSuggestionsAction,
+} from 'state/recommendations';
 
 /**
  * Style dependencies
  */
 import './style.scss';
 
-const features = {
-	[ PLAN_JETPACK_BACKUP_DAILY ]: [
-		__( 'Automated daily off-site backups', 'jetpack' ),
-		__( 'One-click restores', 'jetpack' ),
-		__( 'Unlimited secure storage', 'jetpack' ),
-	],
-	[ PLAN_JETPACK_SECURITY_DAILY ]: [
-		__( 'Automated daily off-site backups', 'jetpack' ),
-		__( 'One-click restores', 'jetpack' ),
-		__( 'Unlimited secure storage', 'jetpack' ),
-		__( 'Automated daily scanning', 'jetpack' ),
-		__( 'Comment and form spam protection', 'jetpack' ),
-	],
-};
-
 const ProductPurchasedComponent = props => {
-	const { nextRoute, purchasedProductSlug } = props;
+	const { isFetchingSuggestions, nextRoute, purchasedProductSlug, suggestions } = props;
 
 	useEffect( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_product_suggestion_purchased', {
@@ -45,16 +34,20 @@ const ProductPurchasedComponent = props => {
 		} );
 	}, [ purchasedProductSlug ] );
 
+	const purchasedProduct = suggestions.find( product => purchasedProductSlug === product.slug );
+
 	const answerSection = (
 		<div className="jp-recommendations-product-purchased">
-			<ul className="jp-recommendations-product-purchased__features">
-				{ features[ purchasedProductSlug ].map( feature => (
-					<li className="jp-recommendations-product-purchased__feature" key={ feature }>
-						<Gridicon icon="checkmark" />
-						{ feature }
-					</li>
-				) ) }
-			</ul>
+			{ ! isFetchingSuggestions && (
+				<ul className="jp-recommendations-product-purchased__features">
+					{ purchasedProduct.features.map( ( feature, key ) => (
+						<li className="jp-recommendations-product-purchased__feature" key={ key }>
+							<Gridicon icon="checkmark" />
+							{ feature }
+						</li>
+					) ) }
+				</ul>
+			) }
 			<Button primary className="jp-recommendations-product-purchased__next" href={ nextRoute }>
 				{ __( 'Configure your site', 'jetpack' ) }
 			</Button>
@@ -73,6 +66,8 @@ const ProductPurchasedComponent = props => {
 };
 
 export const ProductPurchased = connect( state => ( {
+	isFetchingSuggestions: isFetchingSuggestionsAction( state ),
 	nextRoute: getNextRoute( state ),
 	purchasedProductSlug: getDataByKey( state, 'product-suggestion-selection' ),
+	suggestions: getProductSuggestions( state ),
 } ) )( ProductPurchasedComponent );
