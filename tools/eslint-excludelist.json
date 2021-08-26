@@ -60,7 +60,6 @@
 	"projects/plugins/jetpack/_inc/client/notices/index.js",
 	"projects/plugins/jetpack/_inc/client/performance/index.jsx",
 	"projects/plugins/jetpack/_inc/client/pro-status/index.jsx",
-	"projects/plugins/jetpack/_inc/client/rest-api/index.js",
 	"projects/plugins/jetpack/_inc/client/security/sso.jsx",
 	"projects/plugins/jetpack/_inc/client/state/at-a-glance/reducer.js",
 	"projects/plugins/jetpack/_inc/client/state/connection/actions.js",
@@ -173,6 +172,5 @@
 	"projects/plugins/jetpack/modules/widgets/milestone/admin.js",
 	"projects/plugins/jetpack/modules/widgets/simple-payments/customizer.js",
 	"projects/plugins/jetpack/modules/wpgroho.js",
-	"projects/plugins/jetpack/tools/builder/react.js",
-	"tools/jetpack-live-branches/jetpack-live-branches.user.js"
+	"projects/plugins/jetpack/tools/builder/react.js"
 ]

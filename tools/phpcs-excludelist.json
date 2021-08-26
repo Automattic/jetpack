@@ -538,7 +538,6 @@
 	"projects/plugins/jetpack/tests/php/test_class.functions.opengraph.php",
 	"projects/plugins/jetpack/tests/php/test_deprecation.php",
 	"projects/plugins/jetpack/tests/php/test_functions.photon.php",
-	"projects/plugins/jetpack/tools/build-module-headings-translations.php",
 	"projects/plugins/jetpack/views/admin/must-connect-main-blog.php",
 	"projects/plugins/jetpack/views/admin/network-activated-notice.php",
 	"projects/plugins/jetpack/views/admin/network-admin-header.php",

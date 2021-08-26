@@ -1,0 +1,124 @@
+@import '../rna-styles';
+
+.jp-disconnect-dialog {
+	h1 {
+		margin-top: 0;
+		line-height: 1.2;
+		font-size: var( --font-title-large );
+		font-weight: 600;
+	}
+
+	h2 {
+		margin: 0;
+		line-height: 1.2;
+		font-size: var( --font-title-small );
+		font-weight: 400;
+	}
+
+	p {
+		font-size: var( --font-body );
+	}
+
+	&__link{
+		font-size: var( --font-body );
+		color: var( --jp-black );
+		text-decoration: underline;
+		height: auto;
+		font: inherit;
+		padding: 0;
+
+		&:hover {
+			color: var( --jp-black );
+			text-decoration-thickness: var( --jp-underline-thickness );
+		}
+
+		&:focus {
+			color: var( --jp-black );
+			box-shadow: none !important;
+		}
+	}
+
+	.components-button{
+		height: 40px;
+		font-size: var( --font-body-small );
+		border-radius: 4px;
+	}
+
+	.components-modal{
+		&__content{
+			padding: 0;
+		}
+
+		&__header{
+			display: none;
+		}
+	}
+
+	.jp-row {
+		align-items: center;
+	}
+
+	&__content{
+		background: var( --jp-white-off );
+		margin: 0;
+		padding: 80px;
+		border-radius: 4px;
+		text-align: center;
+	}
+
+	&__actions{
+		background: var( --jp-white );
+		padding: 10px 48px;
+	}
+
+	&__btn-dismiss{
+		background: var( --jp-black ) !important;
+		margin-right: 10px;
+	}
+
+	&__btn-disconnect{
+		background: var( --jp-red ) !important;
+	}
+
+	&__btn-back-to-wp{
+		background: var( --jp-black ) !important;
+	}
+
+	&__button-wrap{
+		text-align: center;
+	}
+
+	&__error{
+		color: var( --jp-red );
+	}
+
+	&__success{
+
+		.components-modal{
+
+			&__content {
+				background: var( --jp-white );
+				padding: 50px;
+			}
+		}
+
+		h1 {
+			margin-top: 20px;
+		}
+	}
+}
+
+
+@media (min-width: 960px){
+	.jp-disconnect-dialog{
+		min-width: 900px;
+		
+		&__success{
+			min-width: auto;
+		}
+	}
+
+	.jp-row {
+		margin-left: 0px;
+	}
+}

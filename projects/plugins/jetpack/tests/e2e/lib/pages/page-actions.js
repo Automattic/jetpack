@@ -25,7 +25,7 @@ export default class PageActions {
 	 * @param {Object} options object. see: https://playwright.dev/docs/api/class-page?_highlight=goto#pagegotourl-options
 	 * @return {Promise<void>}
 	 */
-	async goto( url, options = {} ) {
+	async goto( url, options = { waitUntil: 'domcontentloaded' } ) {
 		if ( ! url ) {
 			throw new Error( 'Cannot navigate! Page URL is not set' );
 		}
@@ -152,7 +152,7 @@ export default class PageActions {
 	 * Click element in page
 	 *
 	 * @param {string} selector the element's selector
-	 * @param {Object} options click options. see: https://playwright.dev/docs/api/class-page#pageclickselector-options
+	 * @param {Object} options  click options. see: https://playwright.dev/docs/api/class-page#pageclickselector-options
 	 * @return {Promise<void>}
 	 */
 	async click( selector, options = {} ) {
@@ -190,11 +190,12 @@ export default class PageActions {
 	}
 
 	/**
-	 * Types text in an element in page
+	 * Types text in an element in page, can be used to send fine-grained keyboard events.
+	 * Do not used for form filling. See `fill` method for that.
 	 *
 	 * @param {string} selector the element's selector
-	 * @param {string} text to be typed
-	 * @param {Object} options click options. see: https://playwright.dev/docs/api/class-page#pagetypeselector-text-options
+	 * @param {string} text     to be typed
+	 * @param {Object} options  click options. see: https://playwright.dev/docs/api/class-page#pagetypeselector-text-options
 	 * @return {Promise<void>}
 	 */
 	async type( selector, text, options = {} ) {
@@ -204,11 +205,12 @@ export default class PageActions {
 	}
 
 	/**
-	 * Fills an editable text type element
+	 * Fills an editable text type element.
+	 * It waits for actionability checks before filling
 	 *
 	 * @param {string} selector the element's selector
-	 * @param {string} text to be filled in
-	 * @param {Object} options see: https://playwright.dev/docs/api/class-page/#pagefillselector-value-options
+	 * @param {string} text     to be filled in
+	 * @param {Object} options  see: https://playwright.dev/docs/api/class-page/#pagefillselector-value-options
 	 * @return {Promise<void>}
 	 */
 	async fill( selector, text, options = {} ) {
@@ -217,10 +219,10 @@ export default class PageActions {
 	}
 
 	/**
-	 * Focus an element in page
+	 * Focus an element in page.
 	 *
 	 * @param {string} selector the element's selector
-	 * @param {Object} options see: https://playwright.dev/docs/api/class-page?_highlight=focus#pagefocusselector-options
+	 * @param {Object} options  see: https://playwright.dev/docs/api/class-page?_highlight=focus#pagefocusselector-options
 	 * @return {Promise<void>}
 	 */
 	async focus( selector, options = {} ) {
@@ -279,7 +281,7 @@ export default class PageActions {
 	 * https://playwright.dev/docs/api/class-page?_highlight=waitforselector#pagewaitforselectorselector-options
 	 *
 	 * @param {string} selector
-	 * @param {string} state - expected element state (visible|attached|detached|hidden)
+	 * @param {string} state    - expected element state (visible|attached|detached|hidden)
 	 * @param {number} timeout
 	 * @return {Promise<*>} Returns element handler or null if waiting for hidden or detached
 	 */
@@ -306,7 +308,7 @@ export default class PageActions {
 	 * See https://playwright.dev/docs/api/class-elementhandle?_highlight=selectoption#elementhandleselectoptionvalues-options
 	 *
 	 * @param {string} selector
-	 * @param {Object} values - can be null|string|ElementHandle|Array<string>|Object|Array<ElementHandle>|Array<Object>
+	 * @param {Object} values   - can be null|string|ElementHandle|Array<string>|Object|Array<ElementHandle>|Array<Object>
 	 * @param {Object} options
 	 * @return {Promise<void>}
 	 */
@@ -319,7 +321,7 @@ export default class PageActions {
 	 * This method hovers over an element matching selector
 	 *
 	 * @param {string} selector
-	 * @param {Object} options see https://playwright.dev/docs/api/class-page?_highlight=hover#pagehoverselector-options
+	 * @param {Object} options  see https://playwright.dev/docs/api/class-page?_highlight=hover#pagehoverselector-options
 	 * @return {Promise<void>}
 	 */
 	async hover( selector, options = {} ) {

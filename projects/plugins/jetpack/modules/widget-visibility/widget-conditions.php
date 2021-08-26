@@ -40,7 +40,7 @@ class Jetpack_Widget_Conditions {
 		}
 
 		// API call to *list* the widget types doesn't use editing visibility or display widgets.
-		if ( false !== strpos( $_SERVER['REQUEST_URI'], '/wp-json/wp/v2/widget-types?' ) ) {
+		if ( false !== strpos( $_SERVER['REQUEST_URI'], '/widget-types?' ) ) {
 			return;
 		}
 
@@ -66,7 +66,7 @@ class Jetpack_Widget_Conditions {
 			}
 
 			// Encoding for a particular widget end point.
-			if ( 1 === preg_match( '|/wp-json/wp/v2/widget-types/.*/encode|', $_SERVER['REQUEST_URI'] ) ) {
+			if ( 1 === preg_match( '|/widget-types/.*/encode|', $_SERVER['REQUEST_URI'] ) ) {
 				$add_html_to_form      = true;
 				$handle_widget_updates = true;
 			}
@@ -289,7 +289,7 @@ class Jetpack_Widget_Conditions {
 			);
 
 			$widget_conditions_terms   = array();
-			$widget_conditions_terms[] = array( $taxonomy->name, __( 'All pages', 'jetpack' ) );
+			$widget_conditions_terms[] = array( $taxonomy->name, $taxonomy->labels->all_items );
 
 			foreach ( $taxonomy_terms as $term ) {
 				$widget_conditions_terms[] = array( $taxonomy->name . '_tax_' . $term->term_id, $term->name );

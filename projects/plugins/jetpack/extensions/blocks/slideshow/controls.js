@@ -81,7 +81,7 @@ export function PanelControls( {
 						label={ __( 'Image Size', 'jetpack' ) }
 						value={ sizeSlug }
 						options={ imageSizeOptions }
-						onChange={ onChangeImageSize }
+						onChange={ size => onChangeImageSize( size ) }
 					/>
 				</PanelBody>
 			) }

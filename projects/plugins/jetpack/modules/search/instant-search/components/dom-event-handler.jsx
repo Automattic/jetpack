@@ -7,6 +7,11 @@ import { Component } from 'react';
 // eslint-disable-next-line lodash/import-scope
 import debounce from 'lodash/debounce';
 
+/**
+ * Internal dependencies
+ */
+import { OVERLAY_CLASS_NAME } from '../lib/constants';
+
 // This component is used primarily to bind DOM event handlers to elements outside of the Jetpack Search overlay.
 export default class DomEventHandler extends Component {
 	constructor() {
@@ -22,7 +27,7 @@ export default class DomEventHandler extends Component {
 	}
 
 	componentDidMount() {
-		this.disableAutocompletion();
+		this.disableUnnecessaryFormAndInputAttributes();
 		this.addEventListeners();
 	}
 
@@ -30,10 +35,14 @@ export default class DomEventHandler extends Component {
 		this.removeEventListeners();
 	}
 
-	disableAutocompletion() {
+	disableUnnecessaryFormAndInputAttributes() {
+		// Disables the following attributes:
+		// - autocomplete - leads to poor UX.
+		// - required - prevents Instant Search from spawning in certain scenarios.
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
-			input.setAttribute( 'autocomplete', 'off' );
-			input.form.setAttribute( 'autocomplete', 'off' );
+			input.removeAttribute( 'required' );
+			input.removeAttribute( 'autocomplete' );
+			input.form.removeAttribute( 'autocomplete' );
 		} );
 	}
 
@@ -59,6 +68,10 @@ export default class DomEventHandler extends Component {
 		document.querySelectorAll( this.props.themeOptions.filterInputSelector ).forEach( element => {
 			element.addEventListener( 'click', this.handleFilterInputClick );
 		} );
+
+		document.querySelectorAll( `.${ OVERLAY_CLASS_NAME }` ).forEach( element => {
+			element.addEventListener( 'transitionend', this.scrollOverlayToTop );
+		} );
 	}
 
 	removeEventListeners() {
@@ -78,6 +91,10 @@ export default class DomEventHandler extends Component {
 
 		document.querySelectorAll( this.props.themeOptions.filterInputSelector ).forEach( element => {
 			element.removeEventListener( 'click', this.handleFilterInputClick );
+		} );
+
+		document.querySelectorAll( `.${ OVERLAY_CLASS_NAME }` ).forEach( element => {
+			element.removeEventListener( 'transitionend', this.scrollOverlayToTop );
 		} );
 	}
 
@@ -163,6 +180,15 @@ export default class DomEventHandler extends Component {
 			typeof value === 'string' && this.props.setSearchQuery( value );
 			this.props.showResults();
 		}
+	};
+
+	scrollOverlayToTop = event => {
+		// NOTE: the propertyName need to be aligned with the animation
+		if ( event?.propertyName !== 'opacity' ) {
+			return;
+		}
+		// @see https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollTo
+		window?.scrollTo( 0, 0 );
 	};
 
 	render() {

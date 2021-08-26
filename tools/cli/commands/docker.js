@@ -3,10 +3,8 @@
  */
 import { spawnSync } from 'child_process';
 import chalk from 'chalk';
-import { createWriteStream, existsSync, copyFileSync, readFileSync, writeFileSync } from 'fs';
-import yaml from 'js-yaml';
-
-const dockerFolder = `tools/docker`;
+import { createWriteStream, existsSync } from 'fs';
+import { dockerFolder, setConfig } from '../helpers/docker-config';
 
 /**
  * Sets default options that are common for most of the commands
@@ -72,50 +70,6 @@ const setEnv = () => {
 	createWriteStream( `${ dockerFolder }/.env`, {
 		flags: 'a',
 	} );
-};
-
-/**
- * Creates a default extras file if needed.
- */
-const setExtras = () => {
-	const extrasFile = `${ dockerFolder }/compose-extras.yml`;
-	const extrasSampleFile = `${ dockerFolder }/compose-extras.yml.sample`;
-
-	if ( ! existsSync( extrasFile ) ) {
-		copyFileSync( extrasSampleFile, extrasFile );
-	}
-};
-
-/**
- * Generates Volumes compose file
- *
- * @param {object} argv - Yargs
- */
-const setVolumes = argv => {
-	const volumesFile = `${ dockerFolder }/compose-volumes.yml`;
-	const volumesBuiltFile = `${ dockerFolder }/compose-volumes.built.yml`;
-	const sampleFile = `${ dockerFolder }/compose-volumes.yml.sample`;
-
-	if ( ! existsSync( volumesFile ) ) {
-		copyFileSync( sampleFile, volumesFile );
-	}
-
-	const volumes = yaml.load( readFileSync( volumesFile, 'utf8' ) );
-	const volumesObj = {
-		version: '3.3',
-		services: { wordpress: { volumes } },
-	};
-
-	if ( argv.type === 'dev' ) {
-		// Update the abs path to wordpress installation
-		volumesObj.services.sftp = {
-			volumes: volumes.map( vol =>
-				vol.replace( /\/var\/www\/html/, '/home/wordpress/var/www/html' )
-			),
-		};
-	}
-
-	writeFileSync( volumesBuiltFile, yaml.dump( volumesObj ) );
 };
 
 /**
@@ -204,20 +158,15 @@ const composeExecutor = ( argv, opts, envOpts ) => {
 /**
  * Builds an array of compose files matching configuration options.
  *
- * @param {object} argv - Yargs
  * @returns {Array} Array of shell arguments
  */
-const buildComposeFiles = argv => {
+const buildComposeFiles = () => {
 	const defaultCompose = [ `-f${ dockerFolder }/docker-compose.yml` ];
 	const extendFiles = [
-		`-f${ dockerFolder }/compose-volumes.built.yml`,
-		`-f${ dockerFolder }/compose-extras.yml`,
+		`-f${ dockerFolder }/compose-mappings.built.yml`,
+		`-f${ dockerFolder }/compose-extras.built.yml`,
 	];
-	const compose = defaultCompose;
-	if ( argv.type !== 'e2e' ) {
-		compose.push( `-f${ dockerFolder }/docker-compose.dev.yml` );
-	}
-	return compose.concat( extendFiles );
+	return defaultCompose.concat( extendFiles );
 };
 
 /**
@@ -227,7 +176,7 @@ const buildComposeFiles = argv => {
  * @returns {Array} Array of options required for specified command
  */
 const buildDefaultCmd = argv => {
-	const opts = buildComposeFiles( argv );
+	const opts = buildComposeFiles();
 	if ( argv._[ 1 ] === 'up' ) {
 		opts.push( 'up' );
 		if ( argv.detached ) {
@@ -272,22 +221,73 @@ const launchNgrok = argv => {
 };
 
 /**
+ * Performs the given action again and again until it does not throw an error.
+ *
+ * @param {Function} action - The action to perform.
+ * @param {object} options - options object
+ * @param {number} options.times - How many times to try before giving up.
+ * @param {number} [options.delay=5000] - How long, in milliseconds, to wait between each try.
+ * @returns {any} return value of action function
+ */
+async function retry( action, { times, delay = 5000 } ) {
+	const sleep = ms => new Promise( resolve => setTimeout( resolve, ms ) );
+
+	let tries = 0;
+	while ( tries < times ) {
+		try {
+			return await action();
+		} catch ( error ) {
+			if ( ++tries >= times ) {
+				throw error;
+			}
+			console.log( `Still waiting. Try: ${ tries }` );
+			await sleep( delay );
+		}
+	}
+}
+
+/**
  * Default handler for the monorepo Docker commands.
  *
  * @param {object} argv - Arguments passed.
  */
-const defaultDockerCmdHandler = argv => {
+const defaultDockerCmdHandler = async argv => {
 	printPreCmdMsg( argv );
 
 	executor( argv, setEnv );
-	executor( argv, setVolumes );
-	executor( argv, setExtras );
+	executor( argv, setConfig );
 
 	const opts = buildDefaultCmd( argv );
 	const envOpts = buildEnv( argv );
 	composeExecutor( argv, opts, envOpts );
 	if ( argv.type === 'dev' && argv.ngrok ) {
 		executor( argv, launchNgrok );
+	}
+
+	// TODO: Make it work with all container types, not only e2e
+	if ( argv.type === 'e2e' && argv._[ 1 ] === 'up' && argv.detached ) {
+		console.log( 'Waiting for WordPress to be ready...' );
+		const getContent = () =>
+			new Promise( ( resolve, reject ) => {
+				const https = require( 'http' );
+				const request = https.get( `http://localhost:${ envOpts.PORT_WORDPRESS }/`, response => {
+					// handle http errors
+
+					if ( response.statusCode < 200 || response.statusCode > 399 ) {
+						reject( new Error( 'Failed to load page, status code: ' + response.statusCode ) );
+					}
+					// temporary data holder
+					const body = [];
+					// on every content chunk, push it to the data array
+					response.on( 'data', chunk => body.push( chunk ) );
+					// we are done, resolve promise with those joined chunks
+					response.on( 'end', () => resolve( body.join( '' ) ) );
+				} );
+				// handle connection errors of the request
+				request.on( 'error', err => reject( err ) );
+			} );
+
+		await retry( getContent, { times: 24 } ); // 24 * 5000 = 120 sec
 	}
 	printPostCmdMsg( argv );
 };
@@ -299,13 +299,17 @@ const defaultDockerCmdHandler = argv => {
  * @returns {Array} Array of options required for specified command
  */
 const buildExecCmd = argv => {
-	const opts = buildComposeFiles( argv );
-	opts.push( 'exec', 'wordpress' );
+	const opts = [ 'exec', 'wordpress' ];
 	const cmd = argv._[ 1 ];
 
 	if ( cmd === 'exec' ) {
 		opts.push( ...argv._.slice( 2 ) );
+	} else if ( cmd === 'exec-silent' ) {
+		opts.splice( 1, 0, '-T' );
+		opts.push( ...argv._.slice( 2 ) );
 	} else if ( cmd === 'install' ) {
+		// Adding -T to resolve an issue when running this command within node context (e2e)
+		opts.splice( 1, 0, '-T' );
 		opts.push( '/var/scripts/install.sh' );
 	} else if ( cmd === 'sh' ) {
 		opts.push( 'bash' );
@@ -328,6 +332,7 @@ const buildExecCmd = argv => {
 		);
 	} else if ( cmd === 'wp' ) {
 		const wpArgs = argv._.slice( 2 );
+		opts.splice( 1, 0, '-T' );
 		opts.push( 'wp', '--allow-root', '--path=/var/www/html/', ...wpArgs );
 	} else if ( cmd === 'tail' ) {
 		opts.push( '/var/scripts/tail.sh' );
@@ -346,7 +351,7 @@ const buildExecCmd = argv => {
 		opts.push( '/var/scripts/run-extras.sh' );
 	}
 
-	return opts;
+	return buildComposeFiles().concat( opts );
 };
 
 /**
@@ -398,7 +403,6 @@ const execJtCmdHandler = argv => {
  * Definition for the Docker commands.
  *
  * @param {object} yargs - The Yargs dependency.
- *
  * @returns {object} Yargs with the Docker commands defined.
  */
 export function dockerDefine( yargs ) {
@@ -417,26 +421,26 @@ export function dockerDefine( yargs ) {
 							describe: 'Launch in detached mode',
 							type: 'bool',
 						} ),
-					handler: argv => defaultDockerCmdHandler( argv ),
+					handler: async argv => await defaultDockerCmdHandler( argv ),
 				} )
 				.command( {
 					command: 'stop',
 					description: 'Stop the containers',
 					builder: yargCmd => defaultOpts( yargCmd ),
-					handler: argv => defaultDockerCmdHandler( argv ),
+					handler: async argv => await defaultDockerCmdHandler( argv ),
 				} )
 				.command( {
 					command: 'down',
 					description: 'Down the containers',
 					builder: yargCmd => defaultOpts( yargCmd ),
-					handler: argv => defaultDockerCmdHandler( argv ),
+					handler: async argv => await defaultDockerCmdHandler( argv ),
 				} )
 				.command( {
 					command: 'clean',
 					description: 'Remove docker volumes, MySql and WordPress data and logs.',
 					builder: yargCmd => defaultOpts( yargCmd ),
-					handler: argv => {
-						defaultDockerCmdHandler( argv );
+					handler: async argv => {
+						await defaultDockerCmdHandler( argv );
 						const project = getProjectName( argv );
 						executor( argv, () =>
 							shellExecutor(
@@ -470,10 +474,18 @@ export function dockerDefine( yargs ) {
 						);
 					},
 				} )
+
 				// Wordpress exec commands
 				.command( {
 					command: 'exec',
 					description: 'Execute arbitrary shell command inside docker container',
+					builder: yargExec => defaultOpts( yargExec ),
+					handler: argv => execDockerCmdHandler( argv ),
+				} )
+				.command( {
+					command: 'exec-silent',
+					description:
+						'Execute arbitrary shell command inside docker container with disabled pseudo-tty allocation. Used in E2E context',
 					builder: yargExec => defaultOpts( yargExec ),
 					handler: argv => execDockerCmdHandler( argv ),
 				} )

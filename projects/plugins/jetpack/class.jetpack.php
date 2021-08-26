@@ -793,8 +793,14 @@ class Jetpack {
 		add_filter( 'jetpack_token_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
 		add_filter( 'jetpack_token_request_body', array( __CLASS__, 'filter_token_request_body' ) );
 
+		// Filter for the `jetpack/v4/connection/data` API response.
+		add_filter( 'jetpack_current_user_connection_data', array( __CLASS__, 'filter_jetpack_current_user_connection_data' ) );
+
 		// Actions for successful reconnect.
 		add_action( 'jetpack_reconnection_completed', array( $this, 'reconnection_completed' ) );
+
+		// Actions for successful disconnect.
+		add_action( 'jetpack_site_disconnected', array( $this, 'jetpack_site_disconnected' ) );
 
 		// Actions for licensing.
 		Licensing::instance()->initialize();
@@ -2456,11 +2462,14 @@ class Jetpack {
 				$modules = array();
 
 				foreach ( $files as $file ) {
-					if ( ! $headers = self::get_module( $file ) ) {
+					$slug    = self::get_module_slug( $file );
+					$headers = self::get_module( $slug );
+
+					if ( ! $headers ) {
 						continue;
 					}
 
-					$modules[ self::get_module_slug( $file ) ] = $headers['introduced'];
+					$modules[ $slug ] = $headers['introduced'];
 				}
 
 				Jetpack_Options::update_option(
@@ -2666,36 +2675,31 @@ class Jetpack {
 	 * Load module data from module file. Headers differ from WordPress
 	 * plugin headers to avoid them being identified as standalone
 	 * plugins on the WordPress plugins page.
+	 *
+	 * @param string $module The module slug.
 	 */
 	public static function get_module( $module ) {
-		$headers = array(
-			'name'                      => 'Module Name',
-			'description'               => 'Module Description',
-			'sort'                      => 'Sort Order',
-			'recommendation_order'      => 'Recommendation Order',
-			'introduced'                => 'First Introduced',
-			'changed'                   => 'Major Changes In',
-			'deactivate'                => 'Deactivate',
-			'free'                      => 'Free',
-			'requires_connection'       => 'Requires Connection',
-			'requires_user_connection'  => 'Requires User Connection',
-			'auto_activate'             => 'Auto Activate',
-			'module_tags'               => 'Module Tags',
-			'feature'                   => 'Feature',
-			'additional_search_queries' => 'Additional Search Queries',
-			'plan_classes'              => 'Plans',
-		);
-
 		static $modules_details;
+
+		if ( jetpack_has_no_module_info( $module ) ) {
+			return false;
+		}
+
 		$file = self::get_module_path( self::get_module_slug( $module ) );
 
 		if ( isset( $modules_details[ $module ] ) ) {
 			$mod = $modules_details[ $module ];
 		} else {
+			$mod = jetpack_get_module_info( $module );
 
-			$mod = self::get_file_data( $file, $headers );
-			if ( empty( $mod['name'] ) ) {
-				return false;
+			if ( null === $mod ) {
+				// Try to get the module info from the file as a fallback.
+				$mod = self::get_file_data( $file, jetpack_get_all_module_header_names() );
+
+				if ( empty( $mod['name'] ) ) {
+					// No info for this module.
+					return false;
+				}
 			}
 
 			$mod['sort']                     = empty( $mod['sort'] ) ? 10 : (int) $mod['sort'];
@@ -3443,7 +3447,8 @@ p {
 		if ( is_plugin_active_for_network( 'jetpack/jetpack.php' ) ) {
 			Jetpack_Network::init()->deactivate();
 		} else {
-			self::disconnect( false );
+			add_filter( 'jetpack_update_activated_state_on_disconnect', '__return_false' );
+			self::disconnect();
 			// Jetpack_Heartbeat::init()->deactivate();
 		}
 	}
@@ -3461,22 +3466,38 @@ p {
 	 *
 	 * @static
 	 */
-	public static function disconnect( $update_activated_state = true ) {
+	public static function disconnect() {
 
 		$connection = self::connection();
 
 		// If the site is in an IDC because sync is not allowed,
 		// let's make sure to not disconnect the production site.
 		$connection->disconnect_site( ! Identity_Crisis::validate_sync_error_idc_option() );
+	}
 
+	/**
+	 * Happens after a successfull disconnection.
+	 *
+	 * @static
+	 */
+	public static function jetpack_site_disconnected() {
 		Identity_Crisis::clear_all_idc_options();
+
+		// Delete all the sync related data. Since it could be taking up space.
+		Sender::get_instance()->uninstall();
+
+		/**
+		 * Filters whether the Jetpack activated state should be updated after disconnecting.
+		 *
+		 * @since 10.0.0
+		 *
+		 * @param bool $update_activated_state Whether activated state should be updated after disconnecting, defaults to true.
+		 */
+		$update_activated_state = apply_filters( 'jetpack_update_activated_state_on_disconnect', true );
 
 		if ( $update_activated_state ) {
 			Jetpack_Options::update_option( 'activated', 4 );
 		}
-
-		// Delete all the sync related data. Since it could be taking up space.
-		Sender::get_instance()->uninstall();
 	}
 
 	/**
@@ -4949,6 +4970,41 @@ endif;
 	}
 
 	/**
+	 * Filters the `jetpack/v4/connection/data` API response of the Connection package in order to
+	 * add Jetpack-the-plugin related permissions.
+	 *
+	 * @since 10.0
+	 *
+	 * @param array $current_user_connection_data An array containing the current user connection data.
+	 * @return array
+	 */
+	public static function filter_jetpack_current_user_connection_data( $current_user_connection_data ) {
+		$jetpack_permissions = array(
+			'admin_page'         => current_user_can( 'jetpack_admin_page' ),
+			'manage_modules'     => current_user_can( 'jetpack_manage_modules' ),
+			'network_admin'      => current_user_can( 'jetpack_network_admin_page' ),
+			'network_sites_page' => current_user_can( 'jetpack_network_sites_page' ),
+			'edit_posts'         => current_user_can( 'edit_posts' ),
+			'publish_posts'      => current_user_can( 'publish_posts' ),
+			'manage_options'     => current_user_can( 'manage_options' ),
+			'view_stats'         => current_user_can( 'view_stats' ),
+			'manage_plugins'     => current_user_can( 'install_plugins' )
+									&& current_user_can( 'activate_plugins' )
+									&& current_user_can( 'update_plugins' )
+									&& current_user_can( 'delete_plugins' ),
+		);
+
+		if ( isset( $current_user_connection_data['permissions'] ) &&
+			is_array( $current_user_connection_data['permissions'] ) ) {
+				$current_user_connection_data['permissions'] = array_merge( $current_user_connection_data['permissions'], $jetpack_permissions );
+		} else {
+			$current_user_connection_data['permissions'] = $jetpack_permissions;
+		}
+
+		return $current_user_connection_data;
+	}
+
+	/**
 	 * Filters the URL that will process the connection data. It can be different from the URL
 	 * that we send the user to after everything is done.
 	 *
@@ -6029,7 +6085,7 @@ endif;
 			wp_die( __( 'You must connect your Jetpack plugin to WordPress.com to use this feature.', 'jetpack' ) );
 		}
 
-		$die_error = __( 'Someone may be trying to trick you into giving them access to your site.  Or it could be you just encountered a bug :).  Either way, please close this window.', 'jetpack' );
+		$die_error = __( 'Someone may be trying to trick you into giving them access to your site. Or it could be you just encountered a bug :).  Either way, please close this window.', 'jetpack' );
 
 		// Host has encoded the request URL, probably as a result of a bad http => https redirect
 		if ( self::is_redirect_encoded( $_GET['redirect_to'] ) ) {
@@ -6102,7 +6158,7 @@ endif;
 			// We have to reuse this nonce at least once (used the first time when the initial request is made, used a second time when the login form is POSTed)
 			$old_nonce_time = get_option( "jetpack_nonce_{$timestamp}_{$nonce}" );
 			if ( $old_nonce_time < time() - 300 ) {
-				wp_die( __( 'The authorization process expired.  Please go back and try again.', 'jetpack' ) );
+				wp_die( esc_html__( 'The authorization process expired. Please go back and try again.', 'jetpack' ) );
 			}
 		}
 
@@ -6142,7 +6198,8 @@ endif;
 
 	function login_message_json_api_authorization( $message ) {
 		return '<p class="message">' . sprintf(
-			esc_html__( '%s wants to access your site&#8217;s data.  Log in to authorize that access.', 'jetpack' ),
+			/* translators: Name/image of the client requesting authorization */
+			esc_html__( '%s wants to access your site’s data. Log in to authorize that access.', 'jetpack' ),
 			'<strong>' . esc_html( $this->json_api_authorization_request['client_title'] ) . '</strong>'
 		) . '<img src="' . esc_url( $this->json_api_authorization_request['client_image'] ) . '" /></p>';
 	}

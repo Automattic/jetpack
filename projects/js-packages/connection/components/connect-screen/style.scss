@@ -4,12 +4,20 @@
 	box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
 	border-radius: 4px;
 
+	&.jp-connect-screen--loading {
+		display: none;
+	}
+
 	.jp-connect-screen--left, .jp-connect-screen--right {
 		box-sizing: border-box;
 	}
 
 	.jp-connect-screen--left {
 		padding: 64px 96px;
+
+		.jetpack-logo {
+			margin-bottom: 24px;
+		}
 
 		h2 {
 			font-style: normal;
@@ -46,7 +54,7 @@
 		}
 
 		.jp-connnect-screen--tos {
-			margin-top: 32px;
+			margin-top: 28px;
 			max-width: 360px;
 		}
 	}

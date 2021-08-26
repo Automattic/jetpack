@@ -113,7 +113,8 @@ class SearchApp extends Component {
 			this.props.setSort( this.state.overlayOptions.defaultSort );
 		}
 		if (
-			prevState.overlayOptions.excludedPostTypes !== this.state.overlayOptions.excludedPostTypes
+			stringify( prevState.overlayOptions.excludedPostTypes ) !==
+			stringify( this.state.overlayOptions.excludedPostTypes )
 		) {
 			this.getResults();
 		}
@@ -130,11 +131,15 @@ class SearchApp extends Component {
 	}
 
 	preventBodyScroll() {
+		document.body.style.position = 'fixed';
+		document.body.style.height = '100%';
 		document.body.style.overflowY = 'hidden';
 	}
 
 	restoreBodyScroll() {
-		document.body.style.overflowY = null;
+		document.body.style.position = '';
+		document.body.style.height = '';
+		document.body.style.overflowY = '';
 	}
 
 	getResultFormat = () => {
@@ -170,6 +175,9 @@ class SearchApp extends Component {
 	};
 
 	hideResults = isHistoryNav => {
+		if ( ! this.props.shouldIntegrateWithDom ) {
+			return;
+		}
 		this.restoreBodyScroll();
 		restorePreviousHref(
 			this.props.initialHref,
@@ -183,6 +191,11 @@ class SearchApp extends Component {
 
 	// Used for showResults and Customizer integration.
 	toggleResults = isVisible => {
+		// Prevent interaction if being shown in Customberg context.
+		if ( ! this.props.shouldIntegrateWithDom ) {
+			return;
+		}
+
 		// Necessary when reacting to onMessage transport Customizer controls.
 		// Both bindCustomizerChanges and bindCustomizerMessages are bound to such controls.
 		if ( this.state.isVisible === isVisible ) {

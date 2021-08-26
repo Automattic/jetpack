@@ -1,10 +1,11 @@
 /**
  * External dependencies
  */
-import { Fragment, useState, useEffect } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect } from '@wordpress/data';
+import { JetpackFooter, JetpackLogo, getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -12,15 +13,17 @@ import { useSelect } from '@wordpress/data';
 import Backups from './Backups';
 import useConnection from '../hooks/useConnection';
 import './admin-style.scss';
+import './masthead/masthead-style.scss';
 import { STORE_ID } from '../store';
 
 /* eslint react/react-in-jsx-scope: 0 */
 const Admin = () => {
-	const [ connectionStatus, renderJetpackConnection ] = useConnection();
-	const [ capabilities, setCapabilities ] = useState( null );
+	const [ connectionStatus, renderConnectScreen, renderConnectionStatusCard ] = useConnection();
+	const [ capabilities, setCapabilities ] = useState( [] );
 	const [ capabilitiesError, setCapabilitiesError ] = useState( null );
 	const [ connectionLoaded, setConnectionLoaded ] = useState( false );
 	const [ capabilitiesLoaded, setCapabilitiesLoaded ] = useState( false );
+	const [ showHeaderFooter, setShowHeaderFooter ] = useState( true );
 
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 
@@ -43,18 +46,12 @@ const Admin = () => {
 		);
 	}, [] );
 
-	const renderPromptForConnection = () => {
-		return (
-			<Fragment>
-				<p className="notice notice-error">
-					{ __(
-						'Jetpack Backup requires a user connection to WordPress.com to be able to backup your website.',
-						'jetpack-backup'
-					) }
-				</p>
-				{ renderJetpackConnection() }
-			</Fragment>
-		);
+	const isFullyConnected = () => {
+		return connectionLoaded && connectionStatus.isUserConnected && connectionStatus.isRegistered;
+	};
+
+	const hasBackupPlan = () => {
+		return capabilities.includes( 'backup' );
 	};
 
 	const renderNoBackupCapabilities = () => {
@@ -73,7 +70,7 @@ const Admin = () => {
 						</p>
 						<a
 							class="button"
-							href={ `https://wordpress.com/plans/${ domain }` }
+							href={ getRedirectUrl( 'backup-plugin-upgrade', { site: domain } ) }
 							target="_blank"
 							rel="noreferrer"
 						>
@@ -87,21 +84,34 @@ const Admin = () => {
 	};
 
 	const renderLoadedState = () => {
-		// Loading state
-		if ( ! connectionLoaded ) {
-			return renderJetpackConnection();
+		if (
+			! connectionLoaded ||
+			! connectionStatus.isUserConnected ||
+			! connectionStatus.isRegistered
+		) {
+			if ( showHeaderFooter ) {
+				setShowHeaderFooter( false );
+			}
+
+			return (
+				<div className="jp-wrap">
+					<div className="jp-row">
+						<div class="lg-col-span-12 md-col-span-8 sm-col-span-4">{ renderConnectScreen() }</div>
+					</div>
+				</div>
+			);
+		}
+
+		// Show header and footer on all screens except ConnectScreen
+		if ( ! showHeaderFooter ) {
+			setShowHeaderFooter( true );
 		}
 
 		if ( ! capabilitiesLoaded ) {
 			return <div></div>;
 		}
 
-		if ( ! connectionStatus.isUserConnected || ! connectionStatus.isRegistered ) {
-			return renderPromptForConnection();
-		}
-
-		// Has backup
-		if ( capabilities !== null && capabilities.includes( 'backup' ) ) {
+		if ( hasBackupPlan() ) {
 			return <Backups />;
 		}
 
@@ -114,28 +124,95 @@ const Admin = () => {
 	};
 
 	const renderHeader = () => {
-		// TODO: Integrate Jetpack Header
-		return (
-			<div className="jp-header">
-				<h1>Jetpack Backup Plugin - Placeholder Header</h1>
-			</div>
-		);
+		if ( showHeaderFooter ) {
+			return (
+				<div className="jp-wrap">
+					<div className="jp-row">
+						<div class="lg-col-span-12 md-col-span-8 sm-col-span-4">
+							<div className="jp-masthead">
+								<div className="jp-masthead__inside-container">
+									<div className="jp-masthead__logo-container">
+										<JetpackLogo className="jetpack-logo__masthead" />
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			);
+		}
 	};
 
 	const renderFooter = () => {
-		// TODO: Integrate Jetpack Footer
-		return <div className="jp-footer">Jetpack Backup 1.0 - Placeholder Footer</div>;
+		if ( showHeaderFooter ) {
+			return (
+				<div className="jp-wrap">
+					<div className="jp-row">
+						<div class="lg-col-span-12 md-col-span-8 sm-col-span-4">
+							<JetpackFooter
+								moduleName={ __( 'Jetpack Backup', 'jetpack-backup' ) }
+								a8cLogoHref="https://www.jetpack.com"
+							/>
+						</div>
+					</div>
+				</div>
+			);
+		}
 	};
 
 	const renderManageConnection = () => {
-		// TODO: Integrate connection management from Connection Package
+		return renderConnectionStatusCard();
+	};
+
+	// Renders additional segments under the jp-hero area condition on having a backup plan
+	const renderBackupSegments = () => {
 		return (
-			<Fragment>
-				<h2>{ __( 'Manage your connection', 'jetpack-backup' ) }</h2>
-				<p className="notice notice-success">
-					{ __( 'Site and User Connected.', 'jetpack-backup' ) }
-				</p>
-			</Fragment>
+			<div className="jp-row">
+				<div class="lg-col-span-6 md-col-span-4 sm-col-span-4">
+					<h2>{ __( 'Where are my backups stored?', 'jetpack-backup' ) }</h2>
+					<p>
+						{ __(
+							'All the backups are safely stored in the cloud and available for you at any time on Jetpack.com, with full details about status and content.',
+							'jetpack-backup'
+						) }
+					</p>
+					{ hasBackupPlan() && ! capabilities.includes( 'backup-realtime' ) && (
+						<a
+							class="jp-cut"
+							href={ getRedirectUrl( 'backup-plugin-realtime-upgrade', { site: domain } ) }
+						>
+							<span>
+								{ __(
+									'Your site is updated with new content several times a day',
+									'jetpack-backup'
+								) }
+							</span>
+							<span>{ __( 'Consider upgrading to real-time protection', 'jetpack-backup' ) }</span>
+						</a>
+					) }
+				</div>
+				<div class="lg-col-span-1 md-col-span-1 sm-col-span-0"></div>
+				<div class="lg-col-span-5 md-col-span-3 sm-col-span-4">
+					<h2>{ __( "Your site's heartbeat", 'jetpack-backup' ) }</h2>
+					<p>
+						{ __(
+							'The activity log lets you see everything that’s going on with your site outlined in an organized, readable way.',
+							'jetpack-backup'
+						) }
+					</p>
+					{ hasBackupPlan() && (
+						<p>
+							<a
+								href={ getRedirectUrl( 'backup-plugin-activity-log', { site: domain } ) }
+								target="_blank"
+								rel="noreferrer"
+							>
+								{ __( "See your site's activity", 'jetpack-backup' ) }
+							</a>
+						</p>
+					) }
+				</div>
+			</div>
 		);
 	};
 
@@ -145,63 +222,16 @@ const Admin = () => {
 				<div className="jp-hero">{ renderLoadedState() }</div>
 				<div className="jp-section">
 					<div className="jp-wrap">
-						<div className="jp-row">
-							<div class="lg-col-span-6 md-col-span-4 sm-col-span-4">
-								<h2>{ __( 'Where are my backups stored?', 'jetpack-backup' ) }</h2>
-								<p>
-									{ __(
-										'All the backups are safely stored in the cloud and available for you at any time on Jetpack.com, with full details about status and content.',
-										'jetpack-backup'
-									) }
-								</p>
-								{ capabilities !== null && ! capabilities.includes( 'backup-realtime' ) && (
-									<a
-										class="jp-cut"
-										href={ 'https://wordpress.com/checkout/' + domain + '/jetpack_backup_realtime' }
-									>
-										<span>
-											{ __(
-												'Your site is updated with new content several times a day',
-												'jetpack-backup'
-											) }
-										</span>
-										<span>
-											{ __( 'Consider upgrading to real-time protection', 'jetpack-backup' ) }
-										</span>
-									</a>
-								) }
-							</div>
-							<div class="lg-col-span-1 md-col-span-1 sm-col-span-0"></div>
-							<div class="lg-col-span-5 md-col-span-3 sm-col-span-4">
-								<h2>{ __( "Your site's heartbeat", 'jetpack-backup' ) }</h2>
-								<p>
-									{ __(
-										'The activity log lets you see everything that’s going on with your site outlined in an organized, readable way.',
-										'jetpack-backup'
-									) }
-								</p>
-								<p>
-									<a
-										href={ 'https://cloud.jetpack.com/activity-log/' + domain }
-										target="_blank"
-										rel="noreferrer"
-									>
-										{ __( "See your site's activity", 'jetpack-backup' ) }
-									</a>
-								</p>
-							</div>
-						</div>
-						{ connectionLoaded &&
-							connectionStatus.isUserConnected &&
-							connectionStatus.isRegistered && (
-								<div className="jp-row">
-									<div class="lg-col-span-6 md-col-span-4 sm-col-span-4"></div>
-									<div class="lg-col-span-1 md-col-span-1 sm-col-span-0"></div>
-									<div class="lg-col-span-5 md-col-span-3 sm-col-span-4">
-										{ renderManageConnection() }
-									</div>
+						{ isFullyConnected() && renderBackupSegments() }
+						{ isFullyConnected() && (
+							<div className="jp-row">
+								<div class="lg-col-span-6 md-col-span-4 sm-col-span-4"></div>
+								<div class="lg-col-span-1 md-col-span-1 sm-col-span-0"></div>
+								<div class="lg-col-span-5 md-col-span-3 sm-col-span-4">
+									{ renderManageConnection() }
 								</div>
-							) }
+							</div>
+						) }
 					</div>
 				</div>
 			</div>
