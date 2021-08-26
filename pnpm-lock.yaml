@@ -231,12 +231,6 @@ importers:
       style-loader: 2.0.0_webpack@5.51.1
       webpack: 5.51.1
 
-  projects/js-packages/testpackage:
-    specifiers:
-      jetpack-js-test-runner: workspace:*
-    dependencies:
-      jetpack-js-test-runner: link:../../../tools/js-test-runner
-
   projects/packages/connection-ui:
     specifiers:
       '@automattic/calypso-build': 9.0.0
@@ -773,9 +767,6 @@ importers:
       size-limit: 4.10.2
       style-loader: 2.0.0_webpack@5.51.1
       url-loader: 4.1.1_webpack@5.51.1
-
-  projects/plugins/search:
-    specifiers: {}
 
   tools/cli:
     specifiers:
@@ -26253,7 +26244,7 @@ packages:
       find-cache-dir: 2.1.0
       is-wsl: 1.1.0
       schema-utils: 1.0.0
-      serialize-javascript: 5.0.1
+      serialize-javascript: 4.0.0
       source-map: 0.6.1
       terser: 4.8.0
       webpack: 4.46.0
