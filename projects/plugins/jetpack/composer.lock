@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "df8e61ffd7ca8aea7fc2d41b70ec3117",
+    "content-hash": "f2e82cd35aa9e736f17cadf7186179ea",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -232,11 +232,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "3e04339dd76f02b02acd8724f9558b190e39f004"
+                "reference": "bb86b3ec726186efe7822a94ab4ab17b5b9f83bd"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.30",
-                "automattic/jetpack-sync": "^1.25"
+                "automattic/jetpack-sync": "^1.26"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^1.2",
@@ -814,7 +814,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "e51c76371689c2ff4957fa57493eee08310b79e5"
+                "reference": "de428e53c7b476a0059a2838c4c5784f74dd0e27"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -844,7 +844,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-jitm/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.16.x-dev"
+                    "dev-master": "2.0.x-dev"
                 }
             },
             "autoload": {
@@ -888,7 +888,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/lazy-images",
-                "reference": "ac9f5eb743889ae6b5aca8f9d916c512757e1bc4"
+                "reference": "8bb94ba7eb4fcf38ca87c7783f97c6787542195f"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.11",
@@ -907,7 +907,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-lazy-images/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.5.x-dev"
+                    "dev-master": "2.0.x-dev"
                 }
             },
             "autoload": {
@@ -1363,7 +1363,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "ca19c974e470f97a5aee5c15b08f7220ab2eadce"
+                "reference": "9496cf5bb409d10d5cc1164daa41d3964c85da72"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.30",
@@ -1391,7 +1391,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.25.x-dev"
+                    "dev-master": "1.26.x-dev"
                 }
             },
             "autoload": {
