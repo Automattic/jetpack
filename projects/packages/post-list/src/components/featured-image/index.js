@@ -9,7 +9,7 @@ export default function FeaturedImage( { url, thumb, alt } ) {
 	if ( ! url ) {
 		return (
 			<Tooltip
-				text={ __( 'No featured image set.', 'jetpack-post-list' ) }
+				text={ __( 'No featured image set.', 'jetpack' ) }
 				position="top"
 				className="jetpack-post-list__featured-image-tooltip"
 			>
