@@ -1,7 +1,7 @@
 {
 	"name": "jetpack-post-list",
 	"version": "0.1.0-alpha",
-	"description": "Jetpack Post List",
+	"description": "Enhance the classic view of the Admin section of your WordPress site",
 	"main": "src/index.js",
 	"repository": "https://github.com/automattic/jetpack-post-list",
 	"author": "Automattic",
