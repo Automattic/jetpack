@@ -102,7 +102,7 @@ const SiteTypeQuestionComponent = props => {
 				'jetpack'
 			) }
 			answer={ answerSection }
-			illustrationPath="/recommendations/site-type-illustration.jpg"
+			illustrationPath="recommendations/site-type-illustration.jpg"
 		/>
 	);
 };

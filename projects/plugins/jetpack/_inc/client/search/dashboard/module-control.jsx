@@ -43,7 +43,7 @@ const INSTANT_SEARCH_DESCRIPTION = __(
 	'jetpack'
 );
 const RETURN_PATH = 'admin.php?page=jetpack-search';
-const SEARCH_CUSTOMIZE_URL = 'customize.php?autofocus[section]=jetpack_search&return=%s';
+const SEARCH_CUSTOMIZE_URL = 'admin.php?page=jetpack-search-configure';
 const WIDGETS_EDITOR_URL = 'customize.php?autofocus[panel]=widgets&return=%s';
 
 /**
