@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { withRouter, Prompt } from 'react-router-dom';
 import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ConnectScreen, ConnectUser } from '@automattic/jetpack-connection';
+import { ConnectScreen } from '@automattic/jetpack-connection';
 
 /**
  * Internal dependencies
@@ -354,10 +354,6 @@ class Main extends React.Component {
 		);
 	}
 
-	shouldConnectUser() {
-		return this.props.isConnectingUser;
-	}
-
 	shouldBlurMainContent() {
 		return this.props.isReconnectingSite;
 	}
@@ -378,6 +374,14 @@ class Main extends React.Component {
 		return '/connect-user' === this.props.location.pathname;
 	}
 
+	shouldConnectUser() {
+		return this.props.isConnectingUser;
+	}
+
+	connectUser() {
+		this.props.history.replace( '/connect-user' );
+	}
+
 	render() {
 		return (
 			<div>
@@ -389,7 +393,7 @@ class Main extends React.Component {
 					{ this.shouldShowRewindStatus() && <QueryRewindStatus /> }
 					<AdminNotices />
 					<JetpackNotices />
-					{ this.shouldConnectUser() && <ConnectUser connectUrl={ this.props.connectUrl } /> }
+					{ this.shouldConnectUser() && this.connectUser() }
 					<Prompt
 						when={ this.props.areThereUnsavedSettings }
 						message={ this.handleRouterWillLeave }
