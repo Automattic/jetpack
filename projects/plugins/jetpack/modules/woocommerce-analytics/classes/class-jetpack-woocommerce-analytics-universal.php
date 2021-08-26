@@ -306,8 +306,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 					'pq'               => $cart_item['quantity'],
 					'payment_options'  => $enabled_payment_options,
 					'device'           => wp_is_mobile() ? 'mobile' : 'desktop',
-					'guest_checkout'   => $guest_checkout,
-					'create_account'   => $create_account,
+					'guest_checkout'   => 'Yes' === $guest_checkout ? 'Yes' : 'No',
+					'create_account'   => 'Yes' === $create_account ? 'Yes' : 'No',
 					'express_checkout' => null,
 				),
 				true
