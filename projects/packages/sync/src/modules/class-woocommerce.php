@@ -607,6 +607,6 @@ class WooCommerce extends Module {
 		$query = "SELECT * FROM {$this->order_item_table_name} WHERE order_item_id IN ( $placeholders )";
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		return $wpdb->get_results( $wpdb->prepare( $query, $ids, ARRAY_A ) );
+		return $wpdb->get_results( $wpdb->prepare( $query, $ids ), ARRAY_A );
 	}
 }
