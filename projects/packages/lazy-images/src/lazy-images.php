@@ -246,7 +246,7 @@ class Jetpack_Lazy_Images {
 		 *
 		 * @since 1.0.0
 		 * @since-jetpack 5.9.0
-		 * @deprecated 8.7.0 Use jetpack_lazy_images_blocked_classes
+		 * @deprecated-jetpack 8.7.0 Use jetpack_lazy_images_blocked_classes
 		 *
 		 * @param array An array of strings where each string is a class.
 		 */
@@ -337,9 +337,9 @@ class Jetpack_Lazy_Images {
 		 *
 		 * @package automattic/jetpack-lazy-images
 		 *
-		 * @deprecated 6.5.0 Use jetpack_lazy_images_skip_image_with_attributes instead.
 		 * @since 1.0.0
 		 * @since-jetpack 5.9.0
+		 * @deprecated-jetpack 6.5.0 Use jetpack_lazy_images_skip_image_with_attributes instead.
 		 *
 		 * @param bool  Default to not skip processing the current image.
 		 * @param array An array of attributes via wp_kses_hair() for the current image.
