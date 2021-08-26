@@ -9,8 +9,6 @@ namespace Automattic\Jetpack\PostList;
 
 use Automattic\Jetpack\Assets;
 
-require_once __DIR__ . '/class-post-thumbnail.php';
-
 /**
  * The PostList Admin Area
  */
