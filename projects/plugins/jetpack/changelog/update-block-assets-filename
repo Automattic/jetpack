@@ -1,0 +1,5 @@
+Significance: patch
+Type: enhancement
+Comment: Block editor: add .min suffix to all Jetpack resources loaded in the block editor to avoid conflicts with third-party minifiers.
+
+

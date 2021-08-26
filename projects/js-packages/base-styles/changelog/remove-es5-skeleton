@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Removed unused ES5 validation command.
+
+
