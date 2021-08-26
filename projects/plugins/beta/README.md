@@ -20,7 +20,7 @@ You can also join our Jetpack Beta mailing list at [jetpack.com/beta](https://je
 
 ### Contribute
 
-If you find issues with this plugin, you can [report bugs here on GitHub](https://github.com/Automattic/jetpack-beta/issues/new).
+If you find issues with this plugin, you can [report bugs here on GitHub](https://github.com/Automattic/jetpack/issues/new?assignees=&labels=%5BType%5D+Bug&template=bug-report.yml).
 
 -------
 
