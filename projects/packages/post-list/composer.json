@@ -1,6 +1,6 @@
 {
 	"name": "automattic/jetpack-post-list",
-	"description": "PostList",
+	"description": "Enhance the classic view of the Admin section of your WordPress site",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
