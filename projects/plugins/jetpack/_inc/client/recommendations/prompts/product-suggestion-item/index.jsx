@@ -6,6 +6,7 @@ import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import { __, sprintf } from '@wordpress/i18n';
 import { getCurrencyObject } from '@automattic/format-currency';
+import { addQueryArgs } from '@wordpress/url';
 
 /**
  * Internal dependencies
@@ -13,7 +14,8 @@ import { getCurrencyObject } from '@automattic/format-currency';
 import Button from 'components/button';
 import ExternalLink from 'components/external-link';
 import analytics from 'lib/analytics';
-import { getSiteAdminUrl } from 'state/initial-state';
+import { getSiteAdminUrl, getSiteRawUrl } from 'state/initial-state';
+
 import {
 	addSelectedRecommendation as addSelectedRecommendationAction,
 	updateRecommendationsData as updateRecommendationsDataAction,
@@ -25,13 +27,18 @@ import {
  */
 import './style.scss';
 
+const generateCheckoutLink = ( { product, siteAdminUrl, siteRawUrl } ) => {
+	return addQueryArgs( `https://wordpress.com/checkout/${ siteRawUrl }/${ product.product_slug }`, {
+		redirect_to: siteAdminUrl + 'admin.php?page=jetpack#/recommendations/product-purchased',
+	} );
+};
+
 const ProductSuggestionItemComponent = props => {
 	const {
 		product,
 		title,
 		description,
 		externalLink,
-		siteAdminUrl,
 		addSelectedRecommendation,
 		updateRecommendationsData,
 		saveRecommendationsData,
@@ -56,12 +63,6 @@ const ProductSuggestionItemComponent = props => {
 
 	const currencyObject = getCurrencyObject( product.cost / 12, product.currency_code );
 
-	let checkoutLink = 'https://wordpress.com/checkout/jetpack/';
-	checkoutLink +=
-		product.product_slug +
-		'?checkoutBackUrl=' +
-		encodeURIComponent( siteAdminUrl + 'admin.php?page=jetpack#/recommendations/woocommerce' );
-
 	return (
 		<div className="jp-recommendations-product-suggestion-item jp-recommendations-product-suggestion__item">
 			<div className="jp-recommendations-product-suggestion-item__content">
@@ -70,7 +71,7 @@ const ProductSuggestionItemComponent = props => {
 				<Button
 					className="jp-recommendations-product-suggestion-item__checkout-button"
 					primary
-					href={ checkoutLink }
+					href={ generateCheckoutLink( props ) }
 					onClick={ onPurchaseClick }
 				>
 					{ sprintf(
@@ -123,6 +124,7 @@ ProductSuggestionItemComponent.propTypes = {
 const ProductSuggestionItem = connect(
 	state => ( {
 		siteAdminUrl: getSiteAdminUrl( state ),
+		siteRawUrl: getSiteRawUrl( state ),
 	} ),
 	dispatch => ( {
 		addSelectedRecommendation: stepSlug => dispatch( addSelectedRecommendationAction( stepSlug ) ),
