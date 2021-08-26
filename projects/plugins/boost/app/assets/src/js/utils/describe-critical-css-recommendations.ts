@@ -91,8 +91,8 @@ function httpErrorSuggestion( code: number, count: number ): Suggestion {
 				paragraph: sprintf(
 					/* translators: %d is the HTTP error code; either 401 or 403 */
 					_n(
-						'%d means there is a permission issue in your WordPress site. Please follow the troubleshooting steps for the page.',
-						'%d means there is a permission issue in your WordPress site. Please follow the troubleshooting steps for each of the pages.',
+						'%d means there is a permission issue in your WordPress site. Please follow these troubleshooting steps for the page:',
+						'%d means there is a permission issue in your WordPress site. Please follow these troubleshooting steps for each of the pages:',
 						count,
 						'jetpack-boost'
 					),
@@ -182,24 +182,41 @@ function httpErrorSuggestion( code: number, count: number ): Suggestion {
 						'If the issue is still not resolved, check your server logs or contact your hosting provider for help to investigate the issue.',
 						'jetpack-boost'
 					),
-					__( 'Fix the underlaying issue that caused the error.', 'jetpack-boost' ),
-					__( '<retry>Try again</retry> to generate the Critical CSS.', 'jetpack-boost' ),
+					__(
+						'Once you have resolved the issue which caused the 500 error, you can <retry>try again</retry>.',
+						'jetpack-boost'
+					),
 				],
 			};
 
 		default:
 			return {
 				paragraph: _n(
-					'This means that your WordPress site sent Jetpack Boost an error when it tried to load the specified page. Please ensure the above link is valid and <retry>try again</retry>.',
-					'This means that your WordPress site sent Jetpack Boost an error when it tried to load the above pages. Please ensure the above links are valid and <retry>try again</retry>.',
+					'Please verify the link is valid and <retry>try again</retry>. We recommend the following:',
+					'Please verify each link is valid and <retry>try again</retry>. For each link, we recommend the following:',
 					count,
 					'jetpack-boost'
 				),
 				list: [
-					__( 'Please ensure the above link is valid.', 'jetpack-boost' ),
-					__( '<retry>Try again</retry> to generate the Critical CSS.', 'jetpack-boost' ),
+					__( 'Visit the link and check for an error.', 'jetpack-boost' ),
 					__(
-						'If the error still persist please contact <support>Jetpack Boost Support</support> with a copy of your error message.',
+						'<retry>Try to generate Critical CSS again<retry>, in case the error was intermittent.',
+						'jetpack-boost'
+					),
+					sprintf(
+						/* translators: %d is the HTTP error code; This can be any error code that is not specifically handled. */
+						__(
+							'Check your server logs for information about the HTTP %d error, or contact your hosting provider for help with investigating the problem.',
+							'jetpack-boost'
+						),
+						code
+					),
+					__(
+						'Once you have resolved the error, please <retry>try again</retry>.',
+						'jetpack-boost'
+					),
+					__(
+						'If you need help understanding the error, or investigating what went wrong please contact <support>Jetpack Boost Support</support>.',
 						'jetpack-boost'
 					),
 				],
@@ -263,7 +280,7 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 					'jetpack-boost'
 				),
 				__(
-					'If it does, check if a plugin could potentially create the redirection and fix it if appropriate. Otherwise, contact your hosting provider for assistance to fix the URL redirection.',
+					'If it is redirecting, check if a plugin could potentially create the redirection and fix it if appropriate. Otherwise, contact your hosting provider for assistance to fix the URL redirection.',
 					'jetpack-boost'
 				),
 				__(
