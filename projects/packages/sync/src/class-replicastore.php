@@ -1171,16 +1171,18 @@ class Replicastore implements Replicastore_Interface {
 	 *
 	 * @access public
 	 *
+	 * @param boolean $perform_text_conversion If text fields should be UTF8 converted.
+	 *
 	 * @return array Checksums.
 	 */
-	public function checksum_all() {
-		$post_checksum               = $this->checksum_histogram( 'posts' );
-		$comments_checksum           = $this->checksum_histogram( 'comments' );
-		$post_meta_checksum          = $this->checksum_histogram( 'postmeta' );
-		$comment_meta_checksum       = $this->checksum_histogram( 'commentmeta' );
-		$terms_checksum              = $this->checksum_histogram( 'terms' );
-		$term_relationships_checksum = $this->checksum_histogram( 'term_relationships' );
-		$term_taxonomy_checksum      = $this->checksum_histogram( 'term_taxonomy' );
+	public function checksum_all( $perform_text_conversion = false ) {
+		$post_checksum               = $this->checksum_histogram( 'posts', null, null, null, null, true, '', false, false, $perform_text_conversion );
+		$comments_checksum           = $this->checksum_histogram( 'comments', null, null, null, null, true, '', false, false, $perform_text_conversion );
+		$post_meta_checksum          = $this->checksum_histogram( 'postmeta', null, null, null, null, true, '', false, false, $perform_text_conversion );
+		$comment_meta_checksum       = $this->checksum_histogram( 'commentmeta', null, null, null, null, true, '', false, false, $perform_text_conversion );
+		$terms_checksum              = $this->checksum_histogram( 'terms', null, null, null, null, true, '', false, false, $perform_text_conversion );
+		$term_relationships_checksum = $this->checksum_histogram( 'term_relationships', null, null, null, null, true, '', false, false, $perform_text_conversion );
+		$term_taxonomy_checksum      = $this->checksum_histogram( 'term_taxonomy', null, null, null, null, true, '', false, false, $perform_text_conversion );
 
 		return array(
 			'posts'              => $this->summarize_checksum_histogram( $post_checksum ),
@@ -1248,25 +1250,26 @@ class Replicastore implements Replicastore_Interface {
 	 *
 	 * @access public
 	 *
-	 * @param string $table              Object type.
-	 * @param null   $buckets            Number of buckets to split the objects to.
-	 * @param null   $start_id           Minimum object ID.
-	 * @param null   $end_id             Maximum object ID.
-	 * @param null   $columns            Table columns to calculate the checksum from.
-	 * @param bool   $strip_non_ascii    Whether to strip non-ASCII characters.
-	 * @param string $salt               Salt, used for $wpdb->prepare()'s args.
-	 * @param bool   $only_range_edges   Only return the range edges and not the actual checksums.
-	 * @param bool   $detailed_drilldown If the call should return a detailed drilldown for the checksum or only the checksum.
+	 * @param string $table                   Object type.
+	 * @param null   $buckets                 Number of buckets to split the objects to.
+	 * @param null   $start_id                Minimum object ID.
+	 * @param null   $end_id                  Maximum object ID.
+	 * @param null   $columns                 Table columns to calculate the checksum from.
+	 * @param bool   $strip_non_ascii         Whether to strip non-ASCII characters.
+	 * @param string $salt                    Salt, used for $wpdb->prepare()'s args.
+	 * @param bool   $only_range_edges        Only return the range edges and not the actual checksums.
+	 * @param bool   $detailed_drilldown      If the call should return a detailed drilldown for the checksum or only the checksum.
+	 * @param bool   $perform_text_conversion If text fields should be converted to UTF8 during the checksum calculation.
 	 *
 	 * @return array|WP_Error The checksum histogram.
 	 * @throws Exception Throws an exception if data validation fails inside `Table_Checksum` calls.
 	 */
-	public function checksum_histogram( $table, $buckets = null, $start_id = null, $end_id = null, $columns = null, $strip_non_ascii = true, $salt = '', $only_range_edges = false, $detailed_drilldown = false ) {
+	public function checksum_histogram( $table, $buckets = null, $start_id = null, $end_id = null, $columns = null, $strip_non_ascii = true, $salt = '', $only_range_edges = false, $detailed_drilldown = false, $perform_text_conversion = false ) {
 		global $wpdb;
 
 		$wpdb->queries = array();
 		try {
-			$checksum_table = new Table_Checksum( $table, $salt );
+			$checksum_table = new Table_Checksum( $table, $salt, $perform_text_conversion );
 		} catch ( Exception $ex ) {
 			return new WP_Error( 'checksum_disabled', $ex->getMessage() );
 		}

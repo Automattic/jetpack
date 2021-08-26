@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Instant Search: ensure box-shadow and text-shadow aren't applied to search buttons

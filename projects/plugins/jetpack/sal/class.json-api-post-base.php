@@ -580,7 +580,7 @@ abstract class SAL_Post {
 			'thumbnails'   => array()
 		);
 
-		if ( in_array( $ext, array( 'jpg', 'jpeg', 'png', 'gif' ) ) ) {
+		if ( in_array( $ext, array( 'jpg', 'jpeg', 'png', 'gif', 'webp' ), true ) ) {
 			$metadata = wp_get_attachment_metadata( $media_item->ID );
 			if ( isset( $metadata['height'], $metadata['width'] ) ) {
 				$response['height'] = $metadata['height'];
