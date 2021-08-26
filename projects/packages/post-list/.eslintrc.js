@@ -14,7 +14,7 @@ module.exports = {
 		'@wordpress/i18n-text-domain': [
 			'error',
 			{
-				allowedTextDomain: 'jetpack-post-list',
+				allowedTextDomain: 'jetpack',
 			},
 		],
 	},
