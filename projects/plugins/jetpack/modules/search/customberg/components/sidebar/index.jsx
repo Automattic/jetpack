@@ -69,7 +69,7 @@ function Tab( { identifier, label, isActive } ) {
 		<Button
 			// eslint-disable-next-line react/jsx-no-bind
 			onClick={ () => enableComplementaryArea( COMPLEMENTARY_AREA_SCOPE, identifier ) }
-			className={ classNames( 'jp-search-customize-sidebar__panel-tab', {
+			className={ classNames( 'jp-search-configure-sidebar__panel-tab', {
 				'is-active': isActive,
 			} ) }
 			aria-label={ ariaLabel }
@@ -95,10 +95,10 @@ export default function Sidebar() {
 
 	return (
 		<ComplementaryArea
-			className="jp-search-customize-sidebar"
+			className="jp-search-configure-sidebar"
 			closeLabel={ __( 'Close settings', 'jetpack' ) }
 			header={ <Tabs currentTab={ currentTab } /> }
-			headerClassName="jp-search-customize-sidebar__panel-tabs"
+			headerClassName="jp-search-configure-sidebar__panel-tabs"
 			icon={ cog }
 			identifier={ currentTab }
 			isActiveByDefault
