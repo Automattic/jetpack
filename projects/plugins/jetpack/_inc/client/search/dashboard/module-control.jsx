@@ -232,9 +232,9 @@ function Search( props ) {
 				module={ { module: 'search' } }
 				className="jp-form-search-settings-group"
 			>
-				<p>{ props.inOfflineMode && __( 'Unavailable in Offline Mode', 'jetpack' ) }</p>
+				{ props.inOfflineMode && <p>__( 'Unavailable in Offline Mode', 'jetpack' )</p> }
 
-				<p>{ ! props.inOfflineMode && props.isLoading && __( 'Loading…', 'jetpack' ) }</p>
+				{ ! props.inOfflineMode && props.isLoading && <p>__( 'Loading…', 'jetpack' )</p> }
 
 				{ ! props.inOfflineMode && ! props.isLoading && renderToggles() }
 			</SettingsGroup>
