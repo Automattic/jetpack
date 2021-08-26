@@ -1,6 +1,6 @@
 {
 	"name": "jetpack-post-list",
-	"version": "0.0.1-alpha",
+	"version": "0.1.0-alpha",
 	"description": "Jetpack Post List",
 	"main": "src/index.js",
 	"repository": "https://github.com/automattic/jetpack-post-list",
