@@ -35,6 +35,7 @@ runs:
         echo "::set-output name=pnpm-version::$PNPM_VERSION"
 
     - run: printf "\n\e[1mSetup PHP\e[0m\n"
+      shell: bash
       #if: steps.versions.outputs.php-version != 'false'
     - name: Setup PHP
       #if: steps.versions.outputs.php-version != 'false'
@@ -46,6 +47,7 @@ runs:
         coverage: none
 
     - run: printf "\n\e[1mSetup Node\e[0m\n"
+      shell: bash
       #if: steps.versions.outputs.node-version != 'false'
     - name: Setup Node
       #if: steps.versions.outputs.node-version != 'false'
@@ -54,6 +56,7 @@ runs:
         node-version: ${{ steps.versions.outputs.node-version }}
 
     - run: printf "\n\e[1mSetup Composer cache\e[0m\n"
+      shell: bash
       #if: steps.versions.outputs.php-version != 'false'
     - name: Get Composer cache directory
       #if: steps.versions.outputs.php-version != 'false'
@@ -71,6 +74,7 @@ runs:
           ${{ runner.os }}-composer-
 
     - run: printf "\n\e[1mSetup pnpm\e[0m\n"
+      shell: bash
       #if: steps.versions.outputs.node-version != 'false'
     - name: Use pnpm cache
       #if: steps.versions.outputs.node-version != 'false'
