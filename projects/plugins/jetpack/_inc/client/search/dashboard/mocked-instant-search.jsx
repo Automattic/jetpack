@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -58,7 +58,10 @@ export default function MockedInstantSearch() {
 				<div className="jp-mocked-instant-search__search-results-primary">
 					<div className="jp-mocked-instant-search__search-results-header">
 						<div className="jp-mocked-instant-search__result-statistics">
-							{ __( 'Found 27 results', 'jetpack' ) }
+							{
+								/* translators: %s is replaced with the number of search results */
+								sprintf( __( 'Found %s results', 'jetpack' ), '27' )
+							}
 						</div>
 						<div className="jp-mocked-instant-search__result-sort-list">
 							<span className="jp-mocked-instant-search__result-sort-selected">
