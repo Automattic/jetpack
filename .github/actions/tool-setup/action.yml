@@ -14,19 +14,28 @@ runs:
       run: |
         . .github/versions.sh
 
-        # GH doesn't support "if" :(
-        [[ "$INPUT_PHP" == "false" ]] && INPUT_PHP=
-        [[ "$INPUT_NODE" == "false" ]] && INPUT_NODE=
+        # GH doesn't support "if" here. ☹️
+        if [[ "$INPUT_PHP" == "false" ]]; then
+          echo 'Cannot support `php: false`, GitHub does not support conditionals in composite actions yet. ☹️'
+          INPUT_PHP=
+        fi
+        if [[ "$INPUT_NODE" == "false" ]]; then
+          echo 'Cannot support `node: false`, GitHub does not support conditionals in composite actions yet. ☹️'
+          INPUT_NODE=
+        fi
 
-        echo "PHP: ${INPUT_PHP:-$PHP_VERSION}"
+        printf "\n\e[1mSelected tool versions\e[0m\n"
+        echo " PHP: ${INPUT_PHP:-$PHP_VERSION}"
         echo "::set-output name=php-version::${INPUT_PHP:-$PHP_VERSION}"
-        echo "Composer: $COMPOSER_VERSION"
+        echo " Composer: $COMPOSER_VERSION"
         echo "::set-output name=composer-version::$COMPOSER_VERSION"
-        echo "Node: ${INPUT_NODE:-$NODE_VERSION}"
+        echo " Node: ${INPUT_NODE:-$NODE_VERSION}"
         echo "::set-output name=node-version::${INPUT_NODE:-$NODE_VERSION}"
-        echo "Pnpm: $PNPM_VERSION"
+        echo " Pnpm: $PNPM_VERSION"
         echo "::set-output name=pnpm-version::$PNPM_VERSION"
 
+    - run: printf "\n\e[1mSetup PHP\e[0m\n"
+      #if: steps.versions.outputs.php-version != 'false'
     - name: Setup PHP
       #if: steps.versions.outputs.php-version != 'false'
       uses: shivammathur/setup-php@v2
@@ -36,12 +45,16 @@ runs:
         extensions: mysql, imagick
         coverage: none
 
+    - run: printf "\n\e[1mSetup Node\e[0m\n"
+      #if: steps.versions.outputs.node-version != 'false'
     - name: Setup Node
       #if: steps.versions.outputs.node-version != 'false'
       uses: actions/setup-node@v2
       with:
         node-version: ${{ steps.versions.outputs.node-version }}
 
+    - run: printf "\n\e[1mSetup Composer cache\e[0m\n"
+      #if: steps.versions.outputs.php-version != 'false'
     - name: Get Composer cache directory
       #if: steps.versions.outputs.php-version != 'false'
       id: composer-cache
@@ -57,6 +70,8 @@ runs:
         restore-keys: |
           ${{ runner.os }}-composer-
 
+    - run: printf "\n\e[1mSetup pnpm\e[0m\n"
+      #if: steps.versions.outputs.node-version != 'false'
     - name: Use pnpm cache
       #if: steps.versions.outputs.node-version != 'false'
       uses: actions/cache@v2
@@ -65,7 +80,6 @@ runs:
         key: ${{ runner.os }}-pnpm-${{ steps.versions.outputs.node-version }}-${{ hashFiles('**/package.json') }}
         restore-keys: |
           ${{ runner.os }}-pnpm-${{ steps.versions.outputs.node-version }}-
-
     - name: Setup pnpm
       #if: steps.versions.outputs.node-version != 'false'
       uses: pnpm/action-setup@v2.0.1
@@ -84,6 +98,7 @@ runs:
           fi
         }
 
+        printf "\n\e[1mInstalled tool versions\e[0m\n"
         docmd php --version
         docmd phpdbg --version
         docmd composer --version
