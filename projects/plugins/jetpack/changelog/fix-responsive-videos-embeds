@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Responsive Videos: account for newer embed block format when detecting videos in post content.
