@@ -10,7 +10,7 @@ module.exports = {
 		},
 	},
 	rules: {
-		// Enforce the use of the jetpack-backup textdomain.
+		// Enforce the use of the jetpack textdomain.
 		'@wordpress/i18n-text-domain': [
 			'error',
 			{
