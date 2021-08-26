@@ -120,8 +120,10 @@ class Jetpack_VideoPress {
 		wp_enqueue_style( 'videopress-admin' );
 	}
 
-	// Attempts to delete a VideoPress video from wp.com.
-	// Will block the deletion from continuing if an error returns from the wp.com API.
+	/**
+	 * Attempts to delete a VideoPress video from wp.com.
+	 * Will block the deletion from continuing if certain errors return from the wp.com API.
+	 */
 	public function delete_video_wpcom( $delete, $post ) {
 		if ( ! is_videopress_attachment( $post->ID ) ) {
 			return null;
@@ -129,22 +131,22 @@ class Jetpack_VideoPress {
 
 		$guid = get_post_meta( $post->ID, 'videopress_guid', true );
 		if ( empty( $guid ) ) {
-			return false;
+			return null;
 		}
 
 		// Phone home and have wp.com delete the VideoPress entry and files.
 		$wpcom_response = Client::wpcom_json_api_request_as_blog(
-				sprintf( '/videos/%s/delete', $guid ),
-				'1.1',
-				array( 'method' => 'POST' )
+			sprintf( '/videos/%s/delete', $guid ),
+			'1.1',
+			array( 'method' => 'POST' )
 		);
 
 		if ( is_wp_error( $wpcom_response ) ) {
 			return $wpcom_response;
 		}
 
-		if ( 200 === $wpcom_response['response']['code'] ) {
-			// Success! Return null to allow the deletion to continue.
+		// Upon success or a 404 (video already deleted on wp.com), return null to allow the deletion to continue.
+		if ( 200 === $wpcom_response['response']['code'] || 404 === $wpcom_response['response']['code'] ) {
 			return null;
 		}
 
