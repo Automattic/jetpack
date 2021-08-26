@@ -29,5 +29,6 @@ module.exports = {
 		'arrow-parens': [ 0, 'as-needed' ],
 		'no-console': 0,
 		'jsdoc/check-tag-names': [ 'error', { definedTags: [ 'group' ] } ],
+		'jest/no-disabled-tests': 0,
 	},
 };

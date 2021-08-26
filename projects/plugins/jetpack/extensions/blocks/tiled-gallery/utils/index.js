@@ -33,8 +33,8 @@ export function isSquareishLayout( layout ) {
  *                  properties {string} for use on an image.
  */
 export function photonizedImgProps( img, galleryAtts = {} ) {
-	if ( ! img.height || ! img.url || ! img.width ) {
-		return {};
+	if ( ! img.height || ! img.width ) {
+		return img.url ? { src: img.url } : {};
 	}
 
 	// Do not use Photon if we are in offline mode.

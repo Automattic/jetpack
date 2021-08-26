@@ -353,10 +353,17 @@ async function createComposerJson( composerJson, answers ) {
 		// Since we're catching an errors here, it'll continue executing.
 	}
 
-	if ( answers.type === 'package' ) {
-		composerJson.extra = composerJson.extra || {};
-		composerJson.extra[ 'branch-alias' ] = composerJson.extra[ 'branch-alias' ] || {};
-		composerJson.extra[ 'branch-alias' ][ 'dev-master' ] = '0.1.x-dev';
+	switch ( answers.type ) {
+		case 'package':
+			composerJson.extra = composerJson.extra || {};
+			composerJson.extra[ 'branch-alias' ] = composerJson.extra[ 'branch-alias' ] || {};
+			composerJson.extra[ 'branch-alias' ][ 'dev-master' ] = '0.1.x-dev';
+			break;
+		case 'plugin':
+			composerJson.extra = composerJson.extra || {};
+			composerJson.extra[ 'release-branch-prefix' ] = answers.name;
+			composerJson.type = 'wordpress-plugin';
+			break;
 	}
 }
 
@@ -519,7 +526,7 @@ function createReadMeTxt( answers ) {
 		'Requires at least: 5.7\n' +
 		'Requires PHP: 5.6\n' +
 		'Tested up to: 5.8\n' +
-		'Stable tag: 1.0\n' +
+		`Stable tag: ${ answers.version }\n` +
 		'License: GPLv2 or later\n' +
 		'License URI: http://www.gnu.org/licenses/gpl-2.0.html\n' +
 		'\n' +

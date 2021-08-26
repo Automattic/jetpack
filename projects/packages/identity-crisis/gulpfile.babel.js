@@ -4,13 +4,16 @@
 import gulp from 'gulp';
 import webpack from 'webpack';
 import log from 'fancy-log';
-import sass from 'gulp-sass';
+import gulpSass from 'gulp-sass';
+import dartSass from 'sass';
 import prepend from 'gulp-append-prepend';
 import autoprefixer from 'gulp-autoprefixer';
 import sourcemaps from 'gulp-sourcemaps';
 import rename from 'gulp-rename';
 import cleanCSS from 'gulp-clean-css';
 import rtlcss from 'gulp-rtlcss';
+
+const sass = gulpSass( dartSass );
 
 /**
  * Get the Webpack config.
