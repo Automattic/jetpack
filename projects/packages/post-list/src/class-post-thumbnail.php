@@ -30,6 +30,7 @@ class Post_Thumbnail {
 			$image_id    = get_post_thumbnail_id( $post_id );
 			$image_url   = get_the_post_thumbnail_url( $post_id );
 			$image_thumb = get_the_post_thumbnail_url( $post_id, array( 50, 50 ) );
+			$image_alt   = get_post_meta( $post_id, '_wp_attachment_image_alt', true );
 		} else {
 			// If a featured image does not exist look for the first "media library" hosted image on the post.
 			$attachment_id = self::get_first_image_id_from_post_content( $post->post_content );
@@ -38,6 +39,7 @@ class Post_Thumbnail {
 				$image_id    = $attachment_id;
 				$image_url   = wp_get_attachment_image_url( $attachment_id, 'full-size' );
 				$image_thumb = wp_get_attachment_image_url( $attachment_id, array( 50, 50 ) );
+				$image_alt   = get_post_meta( $attachment_id, '_wp_attachment_image_alt', true );
 			}
 		}
 
@@ -45,7 +47,7 @@ class Post_Thumbnail {
 			'id'    => $image_id,
 			'url'   => $image_url,
 			'thumb' => $image_thumb,
-			'alt'   => get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ),
+			'alt'   => $image_alt,
 		);
 	}
 
