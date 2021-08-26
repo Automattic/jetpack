@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2c021556c2b3661ee8f34faa07285333",
+    "content-hash": "be22e752a3f6520ea0f91161178e2d8c",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -424,7 +424,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/lazy-images",
-                "reference": "ac9f5eb743889ae6b5aca8f9d916c512757e1bc4"
+                "reference": "8bb94ba7eb4fcf38ca87c7783f97c6787542195f"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.11",
@@ -443,7 +443,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-lazy-images/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.5.x-dev"
+                    "dev-master": "2.0.x-dev"
                 }
             },
             "autoload": {
