@@ -1,3 +1,4 @@
+@import '_inc/client/scss/variables/_colors.scss';
 @import '../../scss/mixin_breakpoint.scss';
 @import '../../scss/functions/rem';
 
@@ -27,7 +28,7 @@
 .jp-recommendations-product-purchased svg {
 	margin-right: 10px;
 
-	fill: #069e08;
+	fill: $color-plan;
 }
 
 .jp-recommendations-product-purchased__next {

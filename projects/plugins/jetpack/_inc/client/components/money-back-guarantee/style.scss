@@ -1,3 +1,4 @@
+@import '_inc/client/scss/variables/_colors.scss';
 @import '../../scss/functions/rem';
 
 .jetpack-money-back-guarantee {
@@ -5,7 +6,7 @@
 	justify-content: center;
 	align-items: center;
 
-	color: #1d2327;
+	color: $wpui-header-dark;
 	font-size: rem( 14px );
 	font-weight: bold;
 	line-height: 1.5;
