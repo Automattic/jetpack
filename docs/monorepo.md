@@ -1,6 +1,23 @@
 # Jetpack Monorepo Overview
 
 Welcome to the Jetpack Monorepo! This document will give you some idea of the layout, and what is required for your project to fit in with our tooling.
+
+## Table of contents
+
+- [Layout](#layout)
+- [Compatability](#compatability)
+- [First Time](#first-time)
+- [Jetpack Generate Wizard](#jetpack-generate-wizard)
+- [Project structure](#project-structure)
+- [Testing](#testing)
+- [Mirror repositories](#mirror-repositories)
+- [Plugin release tooling](#plugin-release-tooling)
+- [Jetpack Changelogger](#jetpack-changelogger)
+	- [Using the Jetpack Changelogger](#using-the-jetpack-changelogger)
+- [New Projects](#new-projects)
+	- [Creating a new Composer Package](#creating-a-new-composer-package)
+	- [Creating a new plugin](#creating-a-new-plugin)
+
 ## Layout
 
 Projects are divided into WordPress plugins, Composer packages, and Gutenberg editor extensions.
@@ -317,6 +334,20 @@ To add a Composer package:
 * Create your package and submit a PR as usual.
 
 Once reviewed and approved, the Crew team does the following:
-* Creates a GitHub repo in the Automattic repo to be the mirror repo for this project, if not done already.
+* Creates a GitHub repo in the Automattic repo to be the mirror repo for this project, if not done already. The new repo follows the [mirror repo guidelines](#mirror-repositories).
+* Adds a `composer.json` file to the repo, with some first basic information about the package. This file is used by Packagist to generate the package page.
 * Creates a new Packagist package on packagist.org under the Automattic org. @jeherve, @dsmart, and @kraftbj are added as maintainers of all Jetpack monorepo packages.
-* In the Packagist project, configure the new package to use the Github webhook of the mirror repo to listen for updates and new versions.
+
+### Creating a new plugin
+
+If you're thinking about developing a new plugin in the monorepo, come chat with us in #jetpack-crew. We'll help you get started.
+
+Once you are ready to start working on a first version of your plugin in the monorepo, use the `jetpack generate plugin` command to create the first files for your plugin. Then, open a new PR with that skeleton.
+
+Before to merge your PR, the Crew team will do the following:
+
+* Create the mirror repo for the plugin following the [mirror repo guidelines](#mirror-repositories).
+* Add a first version of a `composer.json` file to the mirror repo.
+* Add the plugin to packagist, for folks who may be consuming it through Composer.
+* Add maintainers to the Packagist entry, just like for Composer packages above.
+* Add an entry for the new plugin in the Beta server settings. Find extra details on this process in the Jetpack Beta Builder repository. More information: PCYsg-gDE-p2
