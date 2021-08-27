@@ -61,7 +61,7 @@ const ProductSuggestionsComponent = props => {
 				href={ nextRoute }
 				onClick={ onContinueClick }
 			>
-				{ _x( 'Decide later', 'Recommendations Product Suggestions', 'jetpack' ) }
+				{ __( 'Decide later', 'jetpack' ) }
 			</a>
 		</div>
 	);

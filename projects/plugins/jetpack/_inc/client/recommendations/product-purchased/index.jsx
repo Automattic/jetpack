@@ -66,16 +66,8 @@ const ProductPurchasedComponent = props => {
 	return (
 		<PromptLayout
 			progressBar={ <ProgressBar color={ '#00A32A' } value={ '33' } /> }
-			question={ _x(
-				'Your plan has been upgraded!',
-				'Recommendations Product Purchased',
-				'jetpack'
-			) }
-			description={ _x(
-				'You now have access to these benefits:',
-				'Recommendations Product Purchased',
-				'jetpack'
-			) }
+			question={ __( 'Your plan has been upgraded!', 'jetpack' ) }
+			description={ __( 'You now have access to these benefits:', 'jetpack' ) }
 			illustrationPath={ 'recommendations/product-purchased-illustration.svg' }
 			answer={ answerSection }
 		/>
