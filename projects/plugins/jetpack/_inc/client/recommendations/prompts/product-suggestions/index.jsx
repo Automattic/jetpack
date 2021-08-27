@@ -41,7 +41,9 @@ const ProductSuggestionsComponent = props => {
 	}, [ updateRecommendationsStep ] );
 
 	const onContinueClick = useCallback( () => {
-		analytics.tracks.recordEvent( 'jetpack_recommendations_product_suggestion_decide_later_click' );
+		analytics.tracks.recordEvent(
+			'jetpack_recommendations_product_suggestions_decide_later_click'
+		);
 		addSkippedRecommendation( 'product-suggestions' );
 	}, [ addSkippedRecommendation ] );
 
