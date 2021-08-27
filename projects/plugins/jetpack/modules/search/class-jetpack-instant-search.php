@@ -22,6 +22,15 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	const JETPACK_INSTANT_SEARCH_SIDEBAR = 'jetpack-instant-search-sidebar';
 
 	/**
+		 * The pattern of instant search payload file name
+		 *
+		 * @since 10.1.0
+		 *
+		 * @var string
+	 */
+	const JETPACK_INSTANT_SEARCH_PAYLOAD_PATTERN = '_inc/build/instant-search/jp-search.chunk-main-payload-*.min.js';
+
+	/**
 	 * Variable to save old sidebars_widgets value.
 	 *
 	 * The value is set when action `after_switch_theme` is applied and cleared on filter `pre_update_option_sidebars_widgets`.
@@ -140,6 +149,56 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		wp_set_script_translations( 'jetpack-instant-search', 'jetpack' );
 		$this->load_and_initialize_tracks();
 		$this->inject_javascript_options();
+
+		// We detect and load translations for instant search lazy-loaded payload(s).
+		$this->inject_payload_translations();
+	}
+
+	/**
+	 * Inject translations of the lazy-loaded payload.
+	 */
+	protected function inject_payload_translations() {
+		$payload_urls = $this->get_instant_search_payloads();
+		foreach ( $payload_urls as $payload_url ) {
+			$this->inject_payload_translation_for( $payload_url );
+		}
+	}
+
+	/**
+	 *
+	 * Get URL(s) of all instant search payload(s).
+	 *
+	 * @param string $pattern - The pattern used to match payload(s).
+	 *
+	 * @return array - Array of matching payload URLs
+	 */
+	protected function get_instant_search_payloads( $pattern = self::JETPACK_INSTANT_SEARCH_PAYLOAD_PATTERN ) {
+		$payload_urls = array();
+		// Our payload has a pattern, so we `glob` them.
+		$payload_files = glob( JETPACK__PLUGIN_DIR . $pattern );
+		foreach ( $payload_files as $payload_file ) {
+			$payload_urls[] = plugin_dir_url( JETPACK__PLUGIN_FILE ) . '_inc/build/instant-search/' . basename( $payload_file );
+		}
+		return $payload_urls;
+	}
+
+	/**
+	 * Add inline translation for `$payload_url` before `$before_handle`
+	 *
+	 * @param string $payload_url - The payload url for which we load the translations.
+	 * @param string $before_handle - Inline the translations before this handle.
+	 */
+	protected function inject_payload_translation_for( $payload_url, $before_handle = 'jetpack-instant-search' ) {
+		// Set a random name for the script.
+		$handle = 'jetpack-instant-search' . wp_unique_id();
+		// Then register it, which is required for the next steps.
+		wp_register_script( $handle, $payload_url, array(), JETPACK__VERSION, false );
+		// Set translation domain to `jetpack`.
+		wp_set_script_translations( $handle, 'jetpack' );
+		// Inline the translations before `$before_handle` handle.
+		wp_add_inline_script( $before_handle, wp_scripts()->print_translations( $handle, false ), 'before' );
+		// Deregister the script as we don't really enqueue it from PHP side.
+		wp_deregister_script( $handle );
 	}
 
 	/**
