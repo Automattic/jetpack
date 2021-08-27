@@ -155,7 +155,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	}
 
 	/**
-	 * Inject translations of the lazy-loaded payload.
+	 * Inject translations of the lazy-loaded payload(s).
 	 */
 	protected function inject_payload_translations() {
 		$payload_urls = $this->get_instant_search_payload_urls();
