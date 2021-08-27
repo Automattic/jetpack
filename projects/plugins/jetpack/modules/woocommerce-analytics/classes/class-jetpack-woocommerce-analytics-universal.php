@@ -119,11 +119,24 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 * @param string  $event_name The name of the event to record.
 	 * @param integer $product_id The id of the product relating to the event.
 	 * @param array   $properties Optional array of (key => value) event properties.
-	 * @param bool    $return_properties return event properties without pushing to _wca.
 	 *
 	 * @return string|void
 	 */
-	public function record_event( $event_name, $product_id, $properties = array(), $return_properties = false ) {
+	public function record_event( $event_name, $product_id, $properties = array() ) {
+		$js = $this->process_event_properties( $event_name, $product_id, $properties );
+		wc_enqueue_js( "_wca.push({$js});" );
+	}
+
+	/**
+	 * Compose event properties.
+	 *
+	 * @param string  $event_name The name of the event to record.
+	 * @param integer $product_id The id of the product relating to the event.
+	 * @param array   $properties Optional array of (key => value) event properties.
+	 *
+	 * @return string|void
+	 */
+	public function process_event_properties( $event_name, $product_id, $properties = array() ) {
 		$product = wc_get_product( $product_id );
 		if ( ! $product instanceof WC_Product ) {
 			return;
@@ -145,11 +158,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			$this->render_properties_as_js( $all_props ) . '
 		}';
 
-		if ( $return_properties ) {
-			return $js;
-		} else {
-			wc_enqueue_js( "_wca.push({$js});" );
-		}
+		return $js;
 	}
 
 	/**
@@ -299,21 +308,19 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				continue;
 			}
 
-			$properties = $this->record_event(
-				'woocommerceanalytics_product_checkout',
-				$product->get_id(),
-				array(
-					'pq'               => $cart_item['quantity'],
-					'payment_options'  => $enabled_payment_options,
-					'device'           => wp_is_mobile() ? 'mobile' : 'desktop',
-					'guest_checkout'   => 'Yes' === $guest_checkout ? 'Yes' : 'No',
-					'create_account'   => 'Yes' === $create_account ? 'Yes' : 'No',
-					'express_checkout' => null,
-				),
-				true
-			);
-
 			if ( true === $include_express_payment ) {
+				$properties = $this->process_event_properties(
+					'woocommerceanalytics_product_checkout',
+					$product->get_id(),
+					array(
+						'pq'               => $cart_item['quantity'],
+						'payment_options'  => $enabled_payment_options,
+						'device'           => wp_is_mobile() ? 'mobile' : 'desktop',
+						'guest_checkout'   => 'Yes' === $guest_checkout ? 'Yes' : 'No',
+						'create_account'   => 'Yes' === $create_account ? 'Yes' : 'No',
+						'express_checkout' => null,
+					)
+				);
 				wc_enqueue_js(
 					"
 					// wcpay.payment-request.availability event gets fired twice.
@@ -331,7 +338,18 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				"
 				);
 			} else {
-				wc_enqueue_js( "_wca.push($properties);" );
+				$this->record_event(
+					'woocommerceanalytics_product_checkout',
+					$product->get_id(),
+					array(
+						'pq'               => $cart_item['quantity'],
+						'payment_options'  => $enabled_payment_options,
+						'device'           => wp_is_mobile() ? 'mobile' : 'desktop',
+						'guest_checkout'   => 'Yes' === $guest_checkout ? 'Yes' : 'No',
+						'create_account'   => 'Yes' === $create_account ? 'Yes' : 'No',
+						'express_checkout' => null,
+					)
+				);
 			}
 		}
 	}
