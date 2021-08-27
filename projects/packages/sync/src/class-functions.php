@@ -268,7 +268,8 @@ class Functions {
 		 *
 		 * @module json-api
 		 *
-		 * @since 2.2.3
+		 * @since 1.6.3
+		 * @since-jetpack 2.2.3
 		 *
 		 * @param array $whitelisted_meta Array of metadata that is accessible by the REST API.
 		 */
@@ -576,7 +577,7 @@ class Functions {
 	/**
 	 * Wraps data in a way so that we can distinguish between objects and array and also prevent object recursion.
 	 *
-	 * @since 9.5.0
+	 * @since 1.21.0
 	 *
 	 * @param array|obj $any        Source data to be cleaned up.
 	 * @param array     $seen_nodes Built array of nodes.

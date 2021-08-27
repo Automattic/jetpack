@@ -12,7 +12,7 @@ use WP_Error;
 /**
  * This class will handle checkout of Sync queues for REST Endpoints.
  *
- * @since 9.9.0
+ * @since 1.23.1
  */
 class REST_Sender {
 

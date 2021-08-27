@@ -136,7 +136,8 @@ class Server {
 			/**
 			 * Fires when the server receives two concurrent requests from the same blog
 			 *
-			 * @since 4.2.0
+			 * @since 1.6.3
+			 * @since-jetpack 4.2.0
 			 *
 			 * @param token The token object of the misbehaving site
 			 */
@@ -151,7 +152,8 @@ class Server {
 		/**
 		 * Fires when an array of actions are received from a remote Jetpack site
 		 *
-		 * @since 4.2.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
 		 *
 		 * @param array Array of actions received from the remote site
 		 */
@@ -163,7 +165,8 @@ class Server {
 			/**
 			 * Fires when an action is received from a remote Jetpack site
 			 *
-			 * @since 4.2.0
+			 * @since 1.6.3
+			 * @since-jetpack 4.2.0
 			 *
 			 * @param string $action_name The name of the action executed on the remote site
 			 * @param array $args The arguments passed to the action

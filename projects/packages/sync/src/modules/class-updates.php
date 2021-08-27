@@ -145,7 +145,8 @@ class Updates extends Module {
 		/**
 		 * Sync event for when core wp network updates to a new db version
 		 *
-		 * @since 5.0.0
+		 * @since 1.6.3
+		 * @since-jetpack 5.0.0
 		 *
 		 * @param int $wp_db_version the latest wp_db_version
 		 * @param int $old_wp_db_version previous wp_db_version
@@ -172,7 +173,8 @@ class Updates extends Module {
 			/**
 			 * Sync event that fires when core reinstall was successful
 			 *
-			 * @since 5.0.0
+			 * @since 1.6.3
+			 * @since-jetpack 5.0.0
 			 *
 			 * @param string $new_wp_version the updated WordPress version
 			 */
@@ -188,7 +190,8 @@ class Updates extends Module {
 			/**
 			 * Sync event that fires when core autoupdate was successful
 			 *
-			 * @since 5.0.0
+			 * @since 1.6.3
+			 * @since-jetpack 5.0.0
 			 *
 			 * @param string $new_wp_version the updated WordPress version
 			 * @param string $old_wp_version the previous WordPress version
@@ -199,7 +202,8 @@ class Updates extends Module {
 		/**
 		 * Sync event that fires when core update was successful
 		 *
-		 * @since 5.0.0
+		 * @since 1.6.3
+		 * @since-jetpack 5.0.0
 		 *
 		 * @param string $new_wp_version the updated WordPress version
 		 * @param string $old_wp_version the previous WordPress version
@@ -308,7 +312,8 @@ class Updates extends Module {
 			/**
 			 * Trigger a change to core update that we want to sync.
 			 *
-			 * @since 5.1.0
+			 * @since 1.6.3
+			 * @since-jetpack 5.1.0
 			 *
 			 * @param array $value Contains info that tells us what needs updating.
 			 */
@@ -340,7 +345,8 @@ class Updates extends Module {
 			 * - jetpack_update_plugins_change
 			 * - jetpack_update_themes_change
 			 *
-			 * @since 5.1.0
+			 * @since 1.6.3
+			 * @since-jetpack 5.1.0
 			 *
 			 * @param array $value Contains info that tells us what needs updating.
 			 */
@@ -363,7 +369,8 @@ class Updates extends Module {
 		/**
 		 * Tells the client to sync all updates to the server
 		 *
-		 * @since 4.2.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
 		 *
 		 * @param boolean Whether to expand updates (should always be true)
 		 */

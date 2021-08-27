@@ -49,7 +49,8 @@ class Attachments extends Module {
 		/**
 		 * Fires when the client needs to sync an new attachment
 		 *
-		 * @since 4.2.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
 		 *
 		 * @param int      Attachment ID.
 		 * @param \WP_Post Attachment post object.
@@ -72,7 +73,8 @@ class Attachments extends Module {
 			/**
 			 * Fires when an existing attachment is added to a post for the first time
 			 *
-			 * @since 6.6.0
+			 * @since 1.6.3
+			 * @since-jetpack 6.6.0
 			 *
 			 * @param int      $attachment_id     Attachment ID.
 			 * @param \WP_Post $attachment_after  Attachment post object after the update.
@@ -82,7 +84,8 @@ class Attachments extends Module {
 			/**
 			 * Fires when the client needs to sync an updated attachment
 			 *
-			 * @since 4.9.0
+			 * @since 1.6.3
+			 * @since-jetpack 4.9.0
 			 *
 			 * @param int      $attachment_id     Attachment ID.
 			 * @param \WP_Post $attachment_after  Attachment post object after the update.

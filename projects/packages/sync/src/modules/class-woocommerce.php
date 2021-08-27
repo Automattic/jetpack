@@ -346,7 +346,8 @@ class WooCommerce extends Module {
 	 * Stop comments from the Action Scheduler from being synced.
 	 * https://github.com/woocommerce/woocommerce/tree/e7762627c37ec1f7590e6cac4218ba0c6a20024d/includes/libraries/action-scheduler
 	 *
-	 * @since 7.7.0
+	 * @since 1.6.3
+	 * @since-jetpack 7.7.0
 	 *
 	 * @param boolean $can_sync Should we prevent comment data from bing synced to WordPress.com.
 	 * @param mixed   $comment  WP_COMMENT object.

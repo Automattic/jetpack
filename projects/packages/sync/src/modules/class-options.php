@@ -118,7 +118,7 @@ class Options extends Module {
 	/**
 	 * Add old deprecated options to the list of options to keep in sync.
 	 *
-	 * @since 8.8.0
+	 * @since 1.14.0
 	 *
 	 * @access public
 	 *
@@ -155,7 +155,8 @@ class Options extends Module {
 		/**
 		 * Tells the client to sync all options to the server
 		 *
-		 * @since 4.2.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
 		 *
 		 * @param boolean Whether to expand options (should always be true)
 		 */
