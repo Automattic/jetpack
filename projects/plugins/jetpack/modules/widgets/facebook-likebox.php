@@ -60,7 +60,11 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 	function widget( $args, $instance ) {
 		extract( $args );
 
-		$like_args = $this->normalize_facebook_args( $instance['like_args'] );
+		$like_args = $this->get_default_args();
+
+		if ( isset( $instance['like_args'] ) ) {
+			$like_args = $this->normalize_facebook_args( $instance['like_args'] );
+		}
 
 		if ( empty( $like_args['href'] ) || ! $this->is_valid_facebook_url( $like_args['href'] ) ) {
 			if ( current_user_can( 'edit_theme_options' ) ) {
@@ -129,14 +133,11 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 	}
 
 	function update( $new_instance, $old_instance ) {
-		$instance = array(
-			'title'     => '',
-			'like_args' => $this->get_default_args(),
-		);
+		$instance = array();
 
 		$instance['title'] = trim( strip_tags( stripslashes( $new_instance['title'] ) ) );
 
-		// Set up widget values
+		// Set up widget values.
 		$instance['like_args'] = array(
 			'href'         => trim( strip_tags( stripslashes( $new_instance['href'] ) ) ),
 			'width'        => (int) $new_instance['width'],
@@ -148,6 +149,9 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		);
 
 		$instance['like_args'] = $this->normalize_facebook_args( $instance['like_args'] );
+
+		// Include the new instance's args in the array's top level to support updating from the Widgets page.
+		$instance = array_merge( $instance, array_intersect_key( $instance['like_args'], $new_instance ) );
 
 		return $instance;
 	}
