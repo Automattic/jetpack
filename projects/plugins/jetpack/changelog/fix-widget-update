@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Social Icons Widget: Fix issue in wp-admin editor where icons don't save on refresh.
