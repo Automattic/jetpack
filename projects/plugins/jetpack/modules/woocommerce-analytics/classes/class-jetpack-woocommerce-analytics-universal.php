@@ -318,7 +318,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 						'device'           => wp_is_mobile() ? 'mobile' : 'desktop',
 						'guest_checkout'   => 'Yes' === $guest_checkout ? 'Yes' : 'No',
 						'create_account'   => 'Yes' === $create_account ? 'Yes' : 'No',
-						'express_checkout' => null,
+						'express_checkout' => 'null',
 					)
 				);
 				wc_enqueue_js(
@@ -347,7 +347,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 						'device'           => wp_is_mobile() ? 'mobile' : 'desktop',
 						'guest_checkout'   => 'Yes' === $guest_checkout ? 'Yes' : 'No',
 						'create_account'   => 'Yes' === $create_account ? 'Yes' : 'No',
-						'express_checkout' => null,
+						'express_checkout' => 'null',
 					)
 				);
 			}
