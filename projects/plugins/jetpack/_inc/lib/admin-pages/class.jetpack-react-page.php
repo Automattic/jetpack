@@ -179,6 +179,35 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		}
 	}
 
+	/**
+	 * Allow robust deep links to React.
+	 *
+	 * The Jetpack dashboard requires fragments/hash values to make
+	 * a deep link to it but passing fragments as part of a return URL
+	 * will most often be discarded throughout the process.
+	 * This logic aims to bridge this gap and reduce the chance of React
+	 * specific links being broken while passing them along.
+	 */
+	public function react_redirects() {
+		global $pagenow;
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( 'admin.php' !== $pagenow || ! isset( $_GET['jp-react-redirect'] ) ) {
+			return;
+		}
+
+		$allowed_paths = array(
+			'product-purchased' => admin_url( '/admin.php?page=jetpack#/recommendations/product-purchased' ),
+		);
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$target = sanitize_text_field( (string) $_GET['jp-react-redirect'] );
+		if ( isset( $allowed_paths[ $target ] ) ) {
+			wp_safe_redirect( $allowed_paths[ $target ] );
+			exit;
+		}
+	}
+
 	function additional_styles() {
 		Jetpack_Admin_Page::load_wrapper_styles();
 	}

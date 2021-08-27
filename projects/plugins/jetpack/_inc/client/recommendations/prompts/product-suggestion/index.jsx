@@ -6,7 +6,7 @@ import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import { __, sprintf } from '@wordpress/i18n';
 import { getCurrencyObject } from '@automattic/format-currency';
-import { addQueryArgs } from '@wordpress/url';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -27,8 +27,10 @@ import {
 import './style.scss';
 
 const generateCheckoutLink = ( { product, siteAdminUrl, siteRawUrl } ) => {
-	return addQueryArgs( `https://wordpress.com/checkout/${ siteRawUrl }/${ product.slug }`, {
-		redirect_to: siteAdminUrl + 'admin.php?page=jetpack#/recommendations/product-purchased',
+	return getRedirectUrl( 'jetpack-recommendations-product-checkout', {
+		site: siteRawUrl,
+		path: product.slug,
+		query: `redirect_to=${ siteAdminUrl }admin.php?jp-react-redirect=product-purchased`,
 	} );
 };
 
