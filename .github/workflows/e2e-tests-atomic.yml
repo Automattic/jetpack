@@ -1,8 +1,9 @@
 name: E2E Tests on Atomic sites
 
 on:
-  push:
-    branches: [ e2e/reporting-for-atomic ]
+  pull_request:
+    paths-ignore:
+      - '**.md'
   schedule:
     - cron:  '0 */4 * * *'
 
