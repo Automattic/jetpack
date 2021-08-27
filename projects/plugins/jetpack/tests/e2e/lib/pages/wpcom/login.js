@@ -47,6 +47,13 @@ export default class LoginPage extends WpPage {
 		await this.saveCurrentStorageState();
 	}
 
+	async continueWithout() {
+		const continueSelector =
+			'.jetpack-connect-site-only__form a.jetpack-connect-site-only__continue-link';
+		await this.click( continueSelector );
+		return await this.waitForElementToBeHidden( this.selectors[ 0 ] );
+	}
+
 	async isLoggedIn() {
 		const continueAsUserSelector = '#content .continue-as-user';
 		return this.isElementVisible( continueAsUserSelector, 2000 );
