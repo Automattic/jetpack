@@ -58,10 +58,9 @@ Or you might also choose to run them inside Docker if you are using it as your d
 jetpack docker exec -- sh -c "composer -d wp-content/plugins/boost test-php"
 ```
 
-## JavaScript unit tests and e2e tests
+## JavaScript e2e tests
 
-For the time being there are no usable JavaScript tests and there is a [Github issue](https://github.com/Automattic/jetpack/issues/20615) opened to resolve this.
-
+Please refer to the Jetpack Boost e2e tests specific [documentation](../tests/e2e/README.md).
 
 ## Linting Jetpack Boost PHP code
 
