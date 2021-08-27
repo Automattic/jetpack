@@ -12,7 +12,7 @@ export default class JetpackPage extends WpPage {
 
 	async connect() {
 		logger.step( 'Starting Jetpack connection' );
-		const connectButtonSelector = '.jp-connect-full__button-container .dops-button';
+		const connectButtonSelector = '.jp-connect-screen .jp-connect-button--button';
 		return await this.click( connectButtonSelector, { timeout: 60000 } );
 	}
 
@@ -72,6 +72,18 @@ export default class JetpackPage extends WpPage {
 
 		const containerSelector = '.jp-connect-full__container-card';
 		const buttonSelector = ".jp-connect-full__button-container a[href*='register']";
+
+		const isCardVisible = await this.isElementVisible( containerSelector );
+		const isConnectButtonVisible = await this.isElementVisible( buttonSelector );
+
+		return isCardVisible && isConnectButtonVisible;
+	}
+
+	async isConnectScreenVisible() {
+		logger.step( 'Checking if Connect screen is visible' );
+
+		const containerSelector = '.jp-connect-screen';
+		const buttonSelector = '.jp-connect-screen button.jp-connect-button--button';
 
 		const isCardVisible = await this.isElementVisible( containerSelector );
 		const isConnectButtonVisible = await this.isElementVisible( buttonSelector );

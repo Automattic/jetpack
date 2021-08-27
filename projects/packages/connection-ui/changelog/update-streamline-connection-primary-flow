@@ -1,4 +1,5 @@
 Significance: patch
 Type: fixed
+Comment: Fixing typos.
 
-Correctly supply git auth token.
+

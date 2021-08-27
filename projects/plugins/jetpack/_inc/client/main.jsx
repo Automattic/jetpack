@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { withRouter, Prompt } from 'react-router-dom';
 import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ConnectScreen } from '@automattic/jetpack-connection';
 
 /**
  * Internal dependencies
@@ -29,11 +30,13 @@ import {
 	getSiteAdminUrl,
 	getApiNonce,
 	getApiRootUrl,
+	getRegistrationNonce,
 	userCanManageModules,
 	userCanConnectSite,
 	getCurrentVersion,
 	getTracksUserData,
 	showRecommendations,
+	getPluginBaseUrl,
 } from 'state/initial-state';
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
 import { getSearchTerm } from 'state/search';
@@ -188,7 +191,30 @@ class Main extends React.Component {
 		}
 
 		if ( false === this.props.siteConnectionStatus && this.props.userCanConnectSite ) {
-			return <div className="jp-jetpack-connect__container" aria-live="assertive" />;
+			return (
+				<ConnectScreen
+					apiNonce={ this.props.apiNonce }
+					registrationNonce={ this.props.registrationNonce }
+					apiRoot={ this.props.apiRoot }
+					images={ [ '/images/connect-right.jpg' ] }
+					assetBaseUrl={ this.props.pluginBaseUrl }
+				>
+					<p>
+						{ __(
+							"Secure and speed up your site for free with Jetpack's powerful WordPress tools.",
+							'jetpack'
+						) }
+					</p>
+
+					<ul>
+						<li>{ __( 'Measure your impact with beautiful stats', 'jetpack' ) }</li>
+						<li>{ __( 'Speed up your site with optimized images', 'jetpack' ) }</li>
+						<li>{ __( 'Protect your site against bot attacks', 'jetpack' ) }</li>
+						<li>{ __( 'Get notifications if your site goes offline', 'jetpack' ) }</li>
+						<li>{ __( 'Enhance your site with dozens of other features', 'jetpack' ) }</li>
+					</ul>
+				</ConnectScreen>
+			);
 		}
 
 		const settingsNav = (
@@ -378,6 +404,7 @@ export default connect(
 			searchTerm: getSearchTerm( state ),
 			apiRoot: getApiRootUrl( state ),
 			apiNonce: getApiNonce( state ),
+			registrationNonce: getRegistrationNonce( state ),
 			tracksUserData: getTracksUserData( state ),
 			areThereUnsavedSettings: areThereUnsavedSettings( state ),
 			userCanManageModules: userCanManageModules( state ),
@@ -387,6 +414,7 @@ export default connect(
 			rewindStatus: getRewindStatus( state ),
 			currentVersion: getCurrentVersion( state ),
 			showRecommendations: showRecommendations( state ),
+			pluginBaseUrl: getPluginBaseUrl( state ),
 		};
 	},
 	dispatch => ( {
