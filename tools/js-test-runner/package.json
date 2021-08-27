@@ -18,15 +18,15 @@
 		"commander": "7.2.0",
 		"enzyme": "3.11.0",
 		"glob": "7.1.6",
+		"global-jsdom": "8.1.0",
 		"jsdom": "16.4.0",
-		"jsdom-global": "3.0.2",
 		"mocha": "8.2.1",
 		"nock": "13.0.7",
 		"sinon": "9.2.4",
 		"sinon-chai": "3.5.0"
 	},
 	"engines": {
-		"node": "^14.16.1",
+		"node": "^16.7.0",
 		"pnpm": "^6.5.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}

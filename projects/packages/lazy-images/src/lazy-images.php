@@ -3,7 +3,8 @@
 /**
  * The Lazy Images package.
  *
- * @since 8.8
+ * @since 1.0.0
+ * @since-jetpack 8.8.0
  *
  * This package has been lifted from the Jetpack modules folder and adapted to be
  * an standalone package reusable outside Jetpack.
@@ -26,14 +27,16 @@ namespace Automattic\Jetpack;
 /**
  * Class Automattic\Jetpack\Jetpack_Lazy_Images
  *
- * @since 8.8
+ * @since 1.0.0
+ * @since-jetpack 8.8.0
  */
 class Jetpack_Lazy_Images {
 
 	/**
 	 * The assets version.
 	 *
-	 * @since 8.8
+	 * @since 1.0.0
+	 * @since-jetpack 8.8.0
 	 *
 	 * @var string Assets version.
 	 */
@@ -42,7 +45,8 @@ class Jetpack_Lazy_Images {
 	/**
 	 * Class instance.
 	 *
-	 * @since 5.6.0
+	 * @since 1.0.0
+	 * @since-jetpack 5.6.0
 	 *
 	 * @var null
 	 */
@@ -51,7 +55,8 @@ class Jetpack_Lazy_Images {
 	/**
 	 * Singleton implementation.
 	 *
-	 * @since 5.6.0
+	 * @since 1.0.0
+	 * @since-jetpack 5.6.0
 	 *
 	 * @return object The class instance.
 	 */
@@ -66,7 +71,8 @@ class Jetpack_Lazy_Images {
 	/**
 	 * Check if the request is a AMP request.
 	 *
-	 * @since 8.8
+	 * @since 1.0.0
+	 * @since-jetpack 8.8.0
 	 *
 	 * @return bool
 	 */
@@ -76,7 +82,8 @@ class Jetpack_Lazy_Images {
 		/**
 		 * Returns true if the current request should return valid AMP content.
 		 *
-		 * @since 8.8
+		 * @since 1.0.0
+		 * @since-jetpack 8.8.0
 		 *
 		 * @param boolean $is_amp_request Is this request supposed to return valid AMP content?
 		 */
@@ -86,7 +93,8 @@ class Jetpack_Lazy_Images {
 	/**
 	 * Registers actions.
 	 *
-	 * @since 8.8
+	 * @since 1.0.0
+	 * @since-jetpack 8.8.0
 	 *
 	 * @return void
 	 */
@@ -103,7 +111,8 @@ class Jetpack_Lazy_Images {
 		 *
 		 * @package automattic/jetpack-lazy-images
 		 *
-		 * @since 5.6.0
+		 * @since 1.0.0
+		 * @since-jetpack 5.6.0
 		 *
 		 * @param bool true Whether lazy image loading should occur.
 		 */
@@ -128,7 +137,8 @@ class Jetpack_Lazy_Images {
 	/**
 	 * Setup filters.
 	 *
-	 * @since 5.6.0
+	 * @since 1.0.0
+	 * @since-jetpack 5.6.0
 	 *
 	 * @return void
 	 */
@@ -144,7 +154,8 @@ class Jetpack_Lazy_Images {
 	/**
 	 * Remove filters.
 	 *
-	 * @since 5.6.0
+	 * @since 1.0.0
+	 * @since-jetpack 5.6.0
 	 *
 	 * @return void
 	 */
@@ -160,7 +171,8 @@ class Jetpack_Lazy_Images {
 	/**
 	 * Ensure that our lazy image attributes are not filtered out of image tags.
 	 *
-	 * @since 5.6.0
+	 * @since 1.0.0
+	 * @since-jetpack 5.6.0
 	 *
 	 * @param array $allowed_tags The allowed tags and their attributes.
 	 * @return array
@@ -188,7 +200,8 @@ class Jetpack_Lazy_Images {
 	/**
 	 * Add image placeholders.
 	 *
-	 * @since 5.6.0
+	 * @since 1.0.0
+	 * @since-jetpack 5.6.0
 	 *
 	 * @param string $content Content.
 	 * @return string
@@ -214,7 +227,8 @@ class Jetpack_Lazy_Images {
 	 * Returns true when a given string of classes contains a class signifying lazy images.
 	 * should not process the image.
 	 *
-	 * @since 5.9.0
+	 * @since 1.0.0
+	 * @since-jetpack 5.9.0
 	 *
 	 * @param string $classes A string of space-separated classes.
 	 * @return bool
@@ -230,8 +244,9 @@ class Jetpack_Lazy_Images {
 		 *
 		 * @package automattic/jetpack-lazy-images
 		 *
-		 * @since 5.9.0
-		 * @deprecated 8.7.0 Use jetpack_lazy_images_blocked_classes
+		 * @since 1.0.0
+		 * @since-jetpack 5.9.0
+		 * @deprecated-jetpack 8.7.0 Use jetpack_lazy_images_blocked_classes
 		 *
 		 * @param array An array of strings where each string is a class.
 		 */
@@ -242,7 +257,8 @@ class Jetpack_Lazy_Images {
 		 *
 		 * @package automattic/jetpack-lazy-images
 		 *
-		 * @since 8.7.0
+		 * @since 1.0.0
+		 * @since-jetpack 8.7.0
 		 *
 		 * @param array An array of strings where each string is a class.
 		 */
@@ -264,7 +280,8 @@ class Jetpack_Lazy_Images {
 	/**
 	 * Processes images in content by acting as the preg_replace_callback.
 	 *
-	 * @since 5.6.0
+	 * @since 1.0.0
+	 * @since-jetpack 5.6.0
 	 *
 	 * @param array $matches Matches.
 	 *
@@ -295,7 +312,8 @@ class Jetpack_Lazy_Images {
 	 * Given an array of image attributes, updates the `src`, `srcset`, and `sizes` attributes so
 	 * that they load lazily.
 	 *
-	 * @since 5.7.0
+	 * @since 1.0.0
+	 * @since-jetpack 5.7.0
 	 *
 	 * @param array $attributes Attributes.
 	 *
@@ -319,8 +337,9 @@ class Jetpack_Lazy_Images {
 		 *
 		 * @package automattic/jetpack-lazy-images
 		 *
-		 * @deprecated 6.5.0 Use jetpack_lazy_images_skip_image_with_attributes instead.
-		 * @since 5.9.0
+		 * @since 1.0.0
+		 * @since-jetpack 5.9.0
+		 * @deprecated-jetpack 6.5.0 Use jetpack_lazy_images_skip_image_with_attributes instead.
 		 *
 		 * @param bool  Default to not skip processing the current image.
 		 * @param array An array of attributes via wp_kses_hair() for the current image.
@@ -334,8 +353,9 @@ class Jetpack_Lazy_Images {
 		 *
 		 * @package automattic/jetpack-lazy-images
 		 *
-		 * @since 6.5.0 Filter name was updated from jetpack_lazy_images_skip_image_with_atttributes to correct typo.
-		 * @since 5.9.0
+		 * @since 1.0.0
+		 * @since-jetpack 5.9.0
+		 * @since-jetpack 6.5.0 Filter name was updated from jetpack_lazy_images_skip_image_with_atttributes to correct typo.
 		 *
 		 * @param bool  Default to not skip processing the current image.
 		 * @param array An array of attributes via wp_kses_hair() for the current image.
@@ -376,7 +396,8 @@ class Jetpack_Lazy_Images {
 		 *
 		 * @package automattic/jetpack-lazy-images
 		 *
-		 * @since 5.6.0
+		 * @since 1.0.0
+		 * @since-jetpack 5.6.0
 		 *
 		 * @param array An array containing the attributes for the image, where the key is the attribute name
 		 *              and the value is the attribute value.
@@ -388,7 +409,8 @@ class Jetpack_Lazy_Images {
 	 * Adds JavaScript to check if the current browser supports JavaScript as well as some styles to hide lazy
 	 * images when the browser does not support JavaScript.
 	 *
-	 * @since 5.6.0
+	 * @since 1.0.0
+	 * @since-jetpack 5.6.0
 	 *
 	 * @return void
 	 */
@@ -411,7 +433,8 @@ class Jetpack_Lazy_Images {
 	/**
 	 * Retrieves the placeholder image after running it through the lazyload_images_placeholder_image filter.
 	 *
-	 * @since 5.6.0
+	 * @since 1.0.0
+	 * @since-jetpack 5.6.0
 	 *
 	 * @return string The placeholder image source.
 	 */
@@ -424,8 +447,9 @@ class Jetpack_Lazy_Images {
 		 *
 		 * @module lazy-images
 		 *
-		 * @since 5.6.0
-		 * @since 6.5.0 Default image is now a base64 encoded transparent gif.
+		 * @since 1.0.0
+		 * @since-jetpack 5.6.0
+		 * @since-jetpack 6.5.0 Default image is now a base64 encoded transparent gif.
 		 *
 		 * @param string The URL to the placeholder image.
 		 */
@@ -438,7 +462,8 @@ class Jetpack_Lazy_Images {
 	/**
 	 * Flatter KSES hair data.
 	 *
-	 * @since 5.6.0
+	 * @since 1.0.0
+	 * @since-jetpack 5.6.0
 	 *
 	 * @param array $attributes Attributes.
 	 *
@@ -455,7 +480,8 @@ class Jetpack_Lazy_Images {
 	/**
 	 * Build attributes string.
 	 *
-	 * @since 5.6.0
+	 * @since 1.0.0
+	 * @since-jetpack 5.6.0
 	 *
 	 * @param array $attributes Attributes.
 	 *
@@ -476,7 +502,8 @@ class Jetpack_Lazy_Images {
 	/**
 	 * Enqueue assets.
 	 *
-	 * @since 5.6.0
+	 * @since 1.0.0
+	 * @since-jetpack 5.6.0
 	 *
 	 * @return void
 	 */

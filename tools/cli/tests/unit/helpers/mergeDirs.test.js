@@ -17,7 +17,7 @@ const destDir = path.join( dataDir, 'dest/' );
 // Reset test directories before running anything in the event of some left from earlier.
 before( function () {
 	try {
-		fs.rmdirSync( destDir, { recursive: true } );
+		fs.rmSync( destDir, { force: true, recursive: true } );
 	} catch ( e ) {
 		console.log( 'Deletion of previous tests failed: ' + e.message );
 	}
@@ -26,7 +26,7 @@ before( function () {
 // Reset after each test to ensure clean merge testing.
 afterEach( function () {
 	try {
-		fs.rmdirSync( destDir, { recursive: true } );
+		fs.rmSync( destDir, { force: true, recursive: true } );
 	} catch ( e ) {
 		console.log( 'Deletion of previous test failed: ' + e.message );
 	}
