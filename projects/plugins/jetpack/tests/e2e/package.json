@@ -16,6 +16,7 @@
 		"clean": "rm -rf output",
 		"distclean": "rm -rf node_modules && pnpm run clean",
 		"env-start": "./bin/env.sh start",
+		"env-stop": "./bin/env.sh stop",
 		"env-reset": "./bin/env.sh reset",
 		"tunnel-on": "pm2 start bin/ecosystem.config.js && pm2 logs --nostream --lines 4",
 		"tunnel-reset": "rm -rf config/tmp && pnpm run tunnel-on",

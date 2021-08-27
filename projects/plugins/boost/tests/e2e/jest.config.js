@@ -3,24 +3,21 @@
  * https://jestjs.io/docs/en/configuration.html
  */
 
-const { resolveSiteUrl } = require( './lib/utils-helper' );
-
 if ( process.env.E2E_DEBUG ) {
 	process.env.DEBUG = 'pw:browser|api|error';
-	process.env.PWDEBUG = 0;
+	process.env.PWDEBUG = 1;
 }
 
 module.exports = {
-	testEnvironment: '<rootDir>/lib/env/playwright-environment.js',
-	globalSetup: '<rootDir>/lib/env/global-setup.js',
-	globalTeardown: '<rootDir>/lib/env/global-teardown.js',
-	setupFilesAfterEnv: [ '<rootDir>/jest.setup.js', 'expect-playwright' ],
+	testEnvironment: '<rootDir>/node_modules/jetpack-e2e-tests/lib/env/playwright-environment.js',
+	globalSetup: '<rootDir>/node_modules/jetpack-e2e-tests/lib/env/global-setup.js',
+	globalTeardown: '<rootDir>/node_modules/jetpack-e2e-tests/lib/env/global-teardown.js',
+	setupFilesAfterEnv: [
+		'<rootDir>/node_modules/jetpack-e2e-tests/jest.setup.js',
+		'expect-playwright',
+	],
 	testRunner: 'jest-circus/runner',
-	modulePathIgnorePatterns: ['config'],
 	runner: 'groups',
-	globals: {
-		siteUrl: resolveSiteUrl(),
-	},
 	testEnvironmentOptions: {
 		resultsDir: 'output/allure-results',
 	},

@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import WpPage from '../WpPage';
+import WpPage from 'jetpack-e2e-tests/lib/pages/wp-page';
 
 export default class JetpackBoostPage extends WpPage {
 	constructor( page ) {

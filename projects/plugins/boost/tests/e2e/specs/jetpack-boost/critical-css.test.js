@@ -1,28 +1,30 @@
-/* eslint-disable no-console,jest/no-commented-out-tests */
+/**
+ * External dependencies
+ */
+import { prerequisitesBuilder } from 'jetpack-e2e-tests/lib/env/prerequisites';
+
 /**
  * Internal dependencies
  */
 import JetpackBoostPage from '../../lib/pages/wp-admin/JetpackBoostPage';
-import { prerequisitesBuilder } from '../../lib/env/prerequisites';
 
+// TODO: This is for illustrative purpose only. It will need refactoring and improving.
 describe( 'Critical CSS module', () => {
+	let jetpackBoostPage;
 	beforeAll( async () => {
-		await prerequisitesBuilder().withLoggedIn( true ).build();
+		await prerequisitesBuilder().withLoggedIn( true ).withConnection( true ).build();
 	} );
 
 	beforeEach( async function () {
-		await JetpackBoostPage.visit( page );
+		jetpackBoostPage = await JetpackBoostPage.visit( page );
 	} );
 
 	afterEach( async function () {
-		await JetpackBoostPage.close( page );
+		if ( jetpackBoostPage ) {
+			await jetpackBoostPage.page.close();
+		}
 	} );
 
-	// it( 'should show Jetpack Boost admin UI', async () => {
-	// 	await expect( page ).toHaveText( '.jb-signature--jetpack', 'Jetpack Boost' );
-	// } );
-
-	// @todo: Re-enable tests once Settings UI is ready
 	it( 'should allow enabling critical css', async () => {
 		const toggle = await page.$( '#jb-feature-toggle-critical-css' );
 		await toggle.click();

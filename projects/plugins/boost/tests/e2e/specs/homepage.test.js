@@ -3,17 +3,19 @@
  */
 import Homepage from '../lib/pages/Homepage';
 
-describe( 'Load home page', () => {
+// TODO: This is for illustrative purpose only. It will need refactoring and improving.
+describe( 'Homepage', () => {
+	let homepage;
 	beforeEach( async function () {
-		await Homepage.visit( page, false );
+		homepage = await Homepage.visit( page, false );
 	} );
 
 	afterEach( async function () {
-		await Homepage.close( page );
+		await homepage.page.close();
 	} );
 
-	it( 'should display "Just another WordPress site" text on page', async () => {
-		await expect( page ).toHaveText( 'h1', 'e2e' );
+	it( 'should display "HelloWord" text on page', async () => {
+		await expect( page ).toHaveText( 'h1', 'HelloWord' );
 	} );
 
 	it( 'should include the jetpack boost meta tag(s)', async () => {
@@ -21,7 +23,7 @@ describe( 'Load home page', () => {
 		expect( metaTag.length ).toBeGreaterThan( 0 );
 	} );
 
-	// we need to properly wait for local css generation to be complete before we can re-enable this test
+	// We need to properly wait for local css generation to be complete before we can re-enable this test
 	it.skip( 'should be ready', async () => {
 		const metaTag = await page.$$( "//meta[@name='jetpack-boost-ready' and @content='true']" );
 		expect( metaTag.length ).toBeGreaterThan( 0 );
