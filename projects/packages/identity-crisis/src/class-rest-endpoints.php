@@ -15,7 +15,7 @@ use WP_REST_Server;
 /**
  * This class will handle Identity Crisis Endpoints
  *
- * @since 9.9.0
+ * @since 0.2.0
  */
 class REST_Endpoints {
 
@@ -62,7 +62,8 @@ class REST_Endpoints {
 	/**
 	 * Handles identity crisis mitigation, confirming safe mode for this site.
 	 *
-	 * @since 4.4.0
+	 * @since 0.2.0
+	 * @since-jetpack 4.4.0
 	 *
 	 * @return bool | WP_Error True if option is properly set.
 	 */
@@ -86,7 +87,8 @@ class REST_Endpoints {
 	/**
 	 * Handles identity crisis mitigation, migrating stats and subscribers from old url to this, new url.
 	 *
-	 * @since 4.4.0
+	 * @since 0.2.0
+	 * @since-jetpack 4.4.0
 	 *
 	 * @return bool | WP_Error True if option is properly set.
 	 */
@@ -120,7 +122,8 @@ class REST_Endpoints {
 	 * It will first will disconnect the site without phoning home as to not disturb the production site.
 	 * It then builds a fresh connection URL and sends it back along with the response.
 	 *
-	 * @since 4.4.0
+	 * @since 0.2.0
+	 * @since-jetpack 4.4.0
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public static function start_fresh_connection() {
@@ -128,7 +131,7 @@ class REST_Endpoints {
 		 * Fires when Users have requested through Identity Crisis for the connection to be reset.
 		 * Should be used to disconnect any connections and reset options.
 		 *
-		 * @since 9.9.0
+		 * @since 0.2.0
 		 */
 		do_action( 'jetpack_idc_disconnect' );
 
@@ -142,7 +145,7 @@ class REST_Endpoints {
 		/**
 		 * Filters the connection url that users should be redirected to for re-establishing their connection.
 		 *
-		 * @since 9.9.0
+		 * @since 0.2.0
 		 *
 		 * @param WP_REST_Response|WP_Error    $connection_url Connection URL user should be redirected to.
 		 */
@@ -152,7 +155,8 @@ class REST_Endpoints {
 	/**
 	 * Verify that user can mitigate an identity crisis.
 	 *
-	 * @since 4.4.0
+	 * @since 0.2.0
+	 * @since-jetpack 4.4.0
 	 *
 	 * @return bool Whether user has capability 'jetpack_disconnect'.
 	 */

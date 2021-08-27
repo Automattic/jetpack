@@ -18,7 +18,9 @@ use Automattic\Jetpack\Tracking;
 /**
  * Jetpack just in time messaging through out the admin
  *
- * @since 5.6.0
+ * @since 1.1.0
+ *
+ * @since-jetpack 5.6.0
  */
 class Post_Connection_JITM extends JITM {
 
@@ -41,7 +43,8 @@ class Post_Connection_JITM extends JITM {
 	/**
 	 * Prepare actions according to screen and post type.
 	 *
-	 * @since 3.8.2
+	 * @since 1.1.0
+	 * @since-jetpack 3.8.2
 	 *
 	 * @uses Jetpack_Autoupdate::get_possible_failures()
 	 *
@@ -394,7 +397,8 @@ class Post_Connection_JITM extends JITM {
 		/**
 		 * Filter to turn off jitm caching
 		 *
-		 * @since 5.4.0
+		 * @since 1.1.0
+		 * @since-jetpack 5.4.0
 		 *
 		 * @param bool true Whether to cache just in time messages
 		 */
@@ -449,8 +453,9 @@ class Post_Connection_JITM extends JITM {
 		/**
 		 * Allow adding your own custom JITMs after a set of JITMs has been received.
 		 *
-		 * @since 6.9.0
-		 * @since 8.3.0 - Added Message path.
+		 * @since 1.1.0
+		 * @since-jetpack 6.9.0
+		 * @since-jetpack 8.3.0 - Added Message path.
 		 *
 		 * @param array  $envelopes    array of existing JITMs.
 		 * @param string $message_path The message path to ask for.
