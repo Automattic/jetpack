@@ -251,8 +251,8 @@ class Table_Checksum {
 				'table'                => "{$wpdb->prefix}woocommerce_order_items",
 				'range_field'          => 'order_item_id',
 				'key_fields'           => array( 'order_item_id' ),
-				'checksum_fields'      => array( 'order_item_type', 'order_id' ),
-				'checksum_text_fields' => array( 'order_item_name', 'order_item_type', 'order_id' ),
+				'checksum_fields'      => array( 'order_id' ),
+				'checksum_text_fields' => array( 'order_item_name', 'order_item_type' ),
 			),
 			'woocommerce_order_itemmeta' => array(
 				'table'                => "{$wpdb->prefix}woocommerce_order_itemmeta",
