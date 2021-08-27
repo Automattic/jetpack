@@ -24,7 +24,7 @@ To decrypt the config file (a8c only):
 
 ## Getting Started
 
-Typically, the workflow is the same as the one desribed in the Jeptack e2e [documentation](../../../jetpack/tests/e2e/README.md). You can follow the same workflow but running the commands inside the Jetpack Boosts e2e tests folder.
+Typically, the workflow is the same as the one described in the Jetpack e2e [documentation](../../../jetpack/tests/e2e/README.md). You can follow the same workflow but running the commands inside the Jetpack Boosts e2e tests folder.
 
 However, Boost has some shortcuts to get the environment started and run all the tests by running the following commands from the root of the Jetpack Boost repository:
 
