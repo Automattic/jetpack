@@ -45,7 +45,8 @@ class Logo {
 	/**
 	 * Return string containing the Jetpack logo.
 	 *
-	 * @since 7.5.0
+	 * @since 1.1.4
+	 * @since-jetpack 7.5.0
 	 *
 	 * @param bool $logotype Should we use the full logotype (logo + text). Default to false.
 	 *
