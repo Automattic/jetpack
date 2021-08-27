@@ -21,10 +21,9 @@
 		"clean": "true",
 		"distclean": "rm -rf node_modules && pnpm run clean",
 		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
-		"validate-es5": "eslint --parser-options=ecmaVersion:5 --no-eslintrc --no-ignore",
-		"storybook:build": "build-storybook -c ./storybook -o ./storybook/build",
+		"storybook:build": "build-storybook -c ./storybook -o ./docs",
 		"dev:packages": "echo 'TODO dev:packages'",
-		"storybook:dev": "concurrently \"npm run dev:packages\" \"start-storybook -c ./storybook -p 50240\""
+		"storybook:dev": "concurrently \"pnpm run dev:packages\" \"start-storybook -c ./storybook -p 50240\""
 	},
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:^0.1.0-alpha",
@@ -50,10 +49,10 @@
 		"@storybook/manager-webpack5": "6.3.6",
 		"@storybook/react": "6.3.2",
 		"@wordpress/babel-preset-default": "6.3.1",
-		"@wordpress/block-editor": "7.0.0",
-		"@wordpress/block-library": "5.0.0",
-		"@wordpress/components": "15.0.0",
-		"@wordpress/format-library": "3.0.0",
+		"@wordpress/block-editor": "7.0.1",
+		"@wordpress/block-library": "5.0.1",
+		"@wordpress/components": "16.0.0",
+		"@wordpress/format-library": "3.0.1",
 		"@wordpress/postcss-plugins-preset": "3.2.0",
 		"babel-plugin-inline-json-import": "0.3.2",
 		"concurrently": "6.0.2",
@@ -62,7 +61,7 @@
 		"react": "17.0.2",
 		"sass-loader": "^10",
 		"style-loader": "2.0.0",
-		"webpack": "5.47.1"
+		"webpack": "5.51.1"
 	},
 	"engines": {
 		"node": "^14.16.1",

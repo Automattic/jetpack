@@ -31,7 +31,7 @@ reset_env() {
 
 gb_setup() {
 	GB_ZIP="wp-content/gutenberg.zip"
-	pnpx jetpack docker --type e2e --name t1 exec -- /usr/local/src/jetpack-monorepo/projects/plugins/jetpack/tests/e2e/bin/container-setup.sh gb-setup $GB_ZIP
+	pnpx jetpack docker --type e2e --name t1 exec-silent -- /usr/local/src/jetpack-monorepo/projects/plugins/jetpack/tests/e2e/bin/container-setup.sh gb-setup $GB_ZIP
 	pnpx jetpack docker --type e2e --name t1 wp plugin install $GB_ZIP
 	pnpx jetpack docker --type e2e --name t1 wp plugin activate gutenberg
 }
