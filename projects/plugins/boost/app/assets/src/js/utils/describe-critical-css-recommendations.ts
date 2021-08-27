@@ -15,6 +15,7 @@ import UrlComponentsExample from '../pages/settings/elements/UrlComponentsExampl
 type Suggestion = {
 	paragraph: string;
 	list?: string[];
+	closingParagraph?: string;
 };
 
 /**
@@ -104,11 +105,11 @@ function httpErrorSuggestion( code: number, count: number ): Suggestion {
 						'jetpack-boost'
 					),
 					__( '<retry>Try again</retry> to generate the Critical CSS.', 'jetpack-boost' ),
-					__(
-						'If this is a private page and not supposed to be viewed publicly, you can safely ignore this message.',
-						'jetpack-boost'
-					),
 				],
+				closingParagraph: __(
+					'If this is a private page and not supposed to be viewed publicly, you can safely ignore this message.',
+					'jetpack-boost'
+				),
 			};
 
 		case 404:
@@ -136,11 +137,11 @@ function httpErrorSuggestion( code: number, count: number ): Suggestion {
 						'If you see an error only when not logged into your WordPress site (i.e.: in "Incognito Mode"), then check for plugins which might be enforcing access permissions on your pages. For example, a plugin which only allows authenticated users to view specific areas of your site.',
 						'jetpack-boost'
 					),
-					__(
-						'If the page is only accessible to users who are logged in to your WordPress site, or should not be a part of your site then it is safe to ignore this error.',
-						'jetpack-boost'
-					),
 				],
+				closingParagraph: __(
+					'If the page is only accessible to users who are logged in to your WordPress site, or should not be a part of your site then it is safe to ignore this error.',
+					'jetpack-boost'
+				),
 			};
 
 		case 418:
@@ -399,11 +400,11 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 			list: [
 				__( 'Visit the page.', 'jetpack-boost' ),
 				__( 'Verify its styles load correctly, and <retry>try again</retry>.', 'jetpack-boost' ),
-				__(
-					'If you are using a plugin which embeds your CSS styles directly into your pages, or your site does not use external CSS style sheets, then it is safe to ignore this issue as Critical CSS can only speed up pages which use external styles.',
-					'jetpack-boost'
-				),
 			],
+			closingParagraph: __(
+				'If you are using a plugin which embeds your CSS styles directly into your pages, or your site does not use external CSS style sheets, then it is safe to ignore this issue as Critical CSS can only speed up pages which use external styles.',
+				'jetpack-boost'
+			),
 		} ),
 	},
 

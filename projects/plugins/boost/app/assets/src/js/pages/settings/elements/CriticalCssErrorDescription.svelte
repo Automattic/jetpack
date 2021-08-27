@@ -67,6 +67,11 @@
 				<NumberedList items={suggestion( errorSet ).list} vars={templateVars} />
 			{/if}
 		</p>
+		{#if suggestion( errorSet ).closingParagraph}
+			<p class="suggestion-closing">
+				<TemplatedString template={suggestion( errorSet ).closingParagraph} vars={templateVars} />
+			</p>
+		{/if}
 
 		<svelte:component this={footerComponent( errorSet )} />
 	{/if}
