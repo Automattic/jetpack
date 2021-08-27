@@ -10,7 +10,7 @@ import { ProgressBar } from '@automattic/components';
  * Internal dependencies
  */
 import { PromptLayout } from '../prompt-layout';
-import { ProductSuggestionItem } from '../product-suggestion-item';
+import { ProductSuggestion } from '../product-suggestion';
 import { MoneyBackGuarantee } from 'components/money-back-guarantee';
 import analytics from 'lib/analytics';
 import {
@@ -49,9 +49,7 @@ const ProductSuggestionsComponent = props => {
 		<div className="jp-recommendations-product-suggestion__container">
 			<div className="jp-recommendations-product-suggestion__items">
 				{ ! isFetchingSuggestions &&
-					suggestions.map( ( item, key ) => (
-						<ProductSuggestionItem key={ key } product={ item } />
-					) ) }
+					suggestions.map( ( item, key ) => <ProductSuggestion key={ key } product={ item } /> ) }
 			</div>
 			<div className="jp-recommendations-product-suggestion__money-back-guarantee">
 				<MoneyBackGuarantee text={ __( '14-day money-back guarantee', 'jetpack' ) } />

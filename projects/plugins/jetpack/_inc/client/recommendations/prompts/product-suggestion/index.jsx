@@ -15,7 +15,6 @@ import Button from 'components/button';
 import ExternalLink from 'components/external-link';
 import analytics from 'lib/analytics';
 import { getSiteAdminUrl, getSiteRawUrl } from 'state/initial-state';
-
 import {
 	addSelectedRecommendation as addSelectedRecommendationAction,
 	updateRecommendationsData as updateRecommendationsDataAction,
@@ -33,7 +32,7 @@ const generateCheckoutLink = ( { product, siteAdminUrl, siteRawUrl } ) => {
 	} );
 };
 
-const ProductSuggestionItemComponent = props => {
+const ProductSuggestionComponent = props => {
 	const {
 		product,
 		addSelectedRecommendation,
@@ -113,14 +112,14 @@ const ProductSuggestionItemComponent = props => {
 	);
 };
 
-ProductSuggestionItemComponent.propTypes = {
+ProductSuggestionComponent.propTypes = {
 	productSlug: PropTypes.object.isRequired,
 	title: PropTypes.string.isRequired,
 	description: PropTypes.string.isRequired,
 	externalLink: PropTypes.string,
 };
 
-const ProductSuggestionItem = connect(
+const ProductSuggestion = connect(
 	state => ( {
 		siteAdminUrl: getSiteAdminUrl( state ),
 		siteRawUrl: getSiteRawUrl( state ),
@@ -130,6 +129,6 @@ const ProductSuggestionItem = connect(
 		updateRecommendationsData: product => dispatch( updateRecommendationsDataAction( product ) ),
 		saveRecommendationsData: () => dispatch( saveRecommendationsDataAction() ),
 	} )
-)( ProductSuggestionItemComponent );
+)( ProductSuggestionComponent );
 
-export { ProductSuggestionItem };
+export { ProductSuggestion };
