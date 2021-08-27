@@ -332,7 +332,11 @@ const buildExecCmd = argv => {
 		);
 	} else if ( cmd === 'wp' ) {
 		const wpArgs = argv._.slice( 2 );
-		opts.splice( 1, 0, '-T' );
+		// Ugly solution to allow interactive shell work in dev context
+		// TODO: Look for prettier alternatives.
+		if ( argv.type === 'e2e' ) {
+			opts.splice( 1, 0, '-T' );
+		}
 		opts.push( 'wp', '--allow-root', '--path=/var/www/html/', ...wpArgs );
 	} else if ( cmd === 'tail' ) {
 		opts.push( '/var/scripts/tail.sh' );
