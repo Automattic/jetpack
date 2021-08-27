@@ -17,6 +17,14 @@ use WP_Error;
  */
 class Replicastore implements Replicastore_Interface {
 	/**
+	 * On WordPress.com, we can't directly check if the site has support for WooCommerce.
+	 * Having the option to override the functionality here helps with syncing WooCommerce tables.
+	 *
+	 * @var bool Force support for WooCommerce functionality.
+	 */
+	public static $force_woocommerce_support = false;
+
+	/**
 	 * Empty and reset the replicastore.
 	 *
 	 * @access public
@@ -1184,7 +1192,7 @@ class Replicastore implements Replicastore_Interface {
 		$term_relationships_checksum = $this->checksum_histogram( 'term_relationships', null, null, null, null, true, '', false, false, $perform_text_conversion );
 		$term_taxonomy_checksum      = $this->checksum_histogram( 'term_taxonomy', null, null, null, null, true, '', false, false, $perform_text_conversion );
 
-		return array(
+		$result = array(
 			'posts'              => $this->summarize_checksum_histogram( $post_checksum ),
 			'comments'           => $this->summarize_checksum_histogram( $comments_checksum ),
 			'post_meta'          => $this->summarize_checksum_histogram( $post_meta_checksum ),
@@ -1193,6 +1201,35 @@ class Replicastore implements Replicastore_Interface {
 			'term_relationships' => $this->summarize_checksum_histogram( $term_relationships_checksum ),
 			'term_taxonomy'      => $this->summarize_checksum_histogram( $term_taxonomy_checksum ),
 		);
+
+		/**
+		 * WooCommerce tables
+		 */
+		if ( static::$force_woocommerce_support || class_exists( 'WooCommerce' ) ) {
+			/**
+			 * Guard in Try/Catch as it's possible for the WooCommerce class to exist, but
+			 * the tables to not. If we don't do this, the response will be just the exception, without
+			 * returning any valid data. This will prevent us from ever performing a checksum/fix
+			 * for sites like this.
+			 * It's better to just skip the tables in the response, instead of completely failing.
+			 */
+
+			try {
+				$woocommerce_order_items_checksum  = $this->checksum_histogram( 'woocommerce_order_items' );
+				$result['woocommerce_order_items'] = $this->summarize_checksum_histogram( $woocommerce_order_items_checksum );
+			} catch ( Exception $ex ) {
+				$result['woocommerce_order_items'] = null;
+			}
+
+			try {
+				$woocommerce_order_itemmeta_checksum  = $this->checksum_histogram( 'woocommerce_order_itemmeta' );
+				$result['woocommerce_order_itemmeta'] = $this->summarize_checksum_histogram( $woocommerce_order_itemmeta_checksum );
+			} catch ( Exception $ex ) {
+				$result['woocommerce_order_itemmeta'] = null;
+			}
+		}
+
+		return $result;
 	}
 
 	/**
@@ -1381,6 +1418,7 @@ class Replicastore implements Replicastore_Interface {
 		switch ( $table ) {
 			case 'postmeta':
 			case 'commentmeta':
+			case 'order_itemmeta':
 				$bucket_size = 1000; // Meta bucket size is restricted to 1000 items.
 		}
 
