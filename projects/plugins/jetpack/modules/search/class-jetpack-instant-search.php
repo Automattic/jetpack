@@ -173,12 +173,18 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 * @return array - Array of matching payload URLs
 	 */
 	protected function get_instant_search_payloads( $pattern = self::JETPACK_INSTANT_SEARCH_PAYLOAD_PATTERN ) {
+		$payload_file_key = 'payload-files-' . md5( $pattern );
+		$payload_files    = get_transient( $payload_file_key );
+		if ( ! $payload_files || $this->any_file_not_exists( $payload_files ) ) {
+			$payload_files = glob( JETPACK__PLUGIN_DIR . $pattern );
+			set_transient( $payload_file_key, $payload_files );
+		}
+
 		$payload_urls = array();
-		// Our payload has a pattern, so we `glob` them.
-		$payload_files = glob( JETPACK__PLUGIN_DIR . $pattern );
 		foreach ( $payload_files as $payload_file ) {
 			$payload_urls[] = plugin_dir_url( JETPACK__PLUGIN_FILE ) . '_inc/build/instant-search/' . basename( $payload_file );
 		}
+
 		return $payload_urls;
 	}
 
@@ -208,6 +214,22 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		$options = Jetpack_Search_Helpers::generate_initial_javascript_state();
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
 		wp_add_inline_script( 'jetpack-instant-search', 'var JetpackInstantSearchOptions=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $options ) ) . '"));', 'before' );
+	}
+
+	/**
+	 * Test if any of files don't exist
+	 *
+	 * @param array $files - File to check.
+	 *
+	 * @return boolean - True if any of the files do not exist.
+	 */
+	protected function any_file_not_exists( $files ) {
+		foreach ( $files as $file ) {
+			if ( ! file_exists( $file ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
