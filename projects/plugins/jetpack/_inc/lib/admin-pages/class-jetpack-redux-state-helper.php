@@ -96,6 +96,7 @@ class Jetpack_Redux_State_Helper {
 		return array(
 			'WP_API_root'                 => esc_url_raw( rest_url() ),
 			'WP_API_nonce'                => wp_create_nonce( 'wp_rest' ),
+			'registrationNonce'           => wp_create_nonce( 'jetpack-registration-nonce' ),
 			'purchaseToken'               => self::get_purchase_token(),
 			'pluginBaseUrl'               => plugins_url( '', JETPACK__PLUGIN_FILE ),
 			'connectionStatus'            => $connection_status,

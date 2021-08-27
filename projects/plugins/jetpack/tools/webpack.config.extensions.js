@@ -117,6 +117,7 @@ const extensionsWebpackConfig = getBaseWebpackConfig(
 			'editor-no-post-editor': editorNoPostEditorScript,
 			...viewBlocksScripts,
 		},
+		'output-filename': '[name].min.js',
 		'output-chunk-filename': '[name].[chunkhash].js',
 		'output-path': path.join( path.dirname( __dirname ), '_inc', 'blocks' ),
 		'output-jsonp-function': 'webpackJsonpJetpack',

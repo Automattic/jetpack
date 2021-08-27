@@ -3,7 +3,7 @@
  */
 import { spawnSync } from 'child_process';
 import chalk from 'chalk';
-import { createWriteStream, existsSync } from 'fs';
+import fs from 'fs';
 import { dockerFolder, setConfig } from '../helpers/docker-config';
 
 /**
@@ -67,9 +67,7 @@ const buildEnv = argv => {
  * Creates an .env file
  */
 const setEnv = () => {
-	createWriteStream( `${ dockerFolder }/.env`, {
-		flags: 'a',
-	} );
+	fs.closeSync( fs.openSync( `${ dockerFolder }/.env`, 'a' ) );
 };
 
 /**
@@ -332,7 +330,11 @@ const buildExecCmd = argv => {
 		);
 	} else if ( cmd === 'wp' ) {
 		const wpArgs = argv._.slice( 2 );
-		opts.splice( 1, 0, '-T' );
+		// Ugly solution to allow interactive shell work in dev context
+		// TODO: Look for prettier alternatives.
+		if ( argv.type === 'e2e' ) {
+			opts.splice( 1, 0, '-T' );
+		}
 		opts.push( 'wp', '--allow-root', '--path=/var/www/html/', ...wpArgs );
 	} else if ( cmd === 'tail' ) {
 		opts.push( '/var/scripts/tail.sh' );
@@ -377,7 +379,7 @@ const execJtCmdHandler = argv => {
 	const jtConfigFile = `${ dockerFolder }/bin/jt/config.sh`;
 	const jtTunnelFile = `${ dockerFolder }/bin/jt/tunnel.sh`;
 
-	if ( ! existsSync( jtConfigFile ) || ! existsSync( jtTunnelFile ) ) {
+	if ( ! fs.existsSync( jtConfigFile ) || ! fs.existsSync( jtTunnelFile ) ) {
 		console.log(
 			'Tunneling scripts are not installed. See the section "Jurassic Tube Tunneling Service" in tools/docker/README.md.'
 		);

@@ -86,7 +86,7 @@ const ConnectScreen = props => {
 					connectLabel={ __( 'Set up Jetpack', 'jetpack' ) }
 				/>
 
-				<div className="jp-connnect-screen--tos">
+				<div className="jp-connect-screen--tos">
 					{ createInterpolateElement(
 						__(
 							'By clicking the button above, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with WordPress.com.',
@@ -112,11 +112,11 @@ const ConnectScreen = props => {
 				</div>
 			</div>
 
-			{ showImageSlider && (
+			{ showImageSlider ? (
 				<div className="jp-connect-screen--right">
 					<ImageSlider images={ images } assetBaseUrl={ assetBaseUrl } />
 				</div>
-			) }
+			) : null }
 
 			<div className="jp-connect-screen--clearfix"></div>
 		</div>
@@ -139,6 +139,7 @@ ConnectScreen.propTypes = {
 ConnectScreen.defaultProps = {
 	title: __( 'Over 5 million WordPress sites are faster and more secure', 'jetpack' ),
 	images: [],
+	redirectUri: null,
 };
 
 export default ConnectScreen;

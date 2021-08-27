@@ -21,6 +21,7 @@ describe( 'Free blocks', () => {
 
 	beforeAll( async () => {
 		await prerequisitesBuilder()
+			.withWpComLoggedIn( true )
 			.withLoggedIn( true )
 			.withConnection( true )
 			.withPlan( Plans.Free )

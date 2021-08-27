@@ -43,7 +43,7 @@ const INSTANT_SEARCH_DESCRIPTION = __(
 	'jetpack'
 );
 const RETURN_PATH = 'admin.php?page=jetpack-search';
-const SEARCH_CUSTOMIZE_URL = 'customize.php?autofocus[section]=jetpack_search&return=%s';
+const SEARCH_CUSTOMIZE_URL = 'admin.php?page=jetpack-search-configure';
 const WIDGETS_EDITOR_URL = 'customize.php?autofocus[panel]=widgets&return=%s';
 
 /**
@@ -65,12 +65,12 @@ function Search( props ) {
 
 	const toggleSearchModule = useCallback( () => {
 		const newOption = { search: ! isModuleEnabled };
-		if ( isInstantSearchEnabled !== ( hasActiveSearchPurchase && ! isModuleEnabled ) ) {
-			newOption.instant_search_enabled = hasActiveSearchPurchase && ! isModuleEnabled;
+		if ( hasActiveSearchPurchase && isInstantSearchEnabled !== ! isModuleEnabled ) {
+			newOption.instant_search_enabled = ! isModuleEnabled;
 		}
 		updateOptions( newOption );
 		analytics.tracks.recordEvent( 'jetpack_search_module_toggle', newOption );
-	}, [ hasActiveSearchPurchase, isInstantSearchEnabled, isModuleEnabled, updateOptions ] );
+	}, [ hasActiveSearchPurchase, isModuleEnabled, updateOptions, isInstantSearchEnabled ] );
 
 	const toggleInstantSearch = useCallback( () => {
 		const newOption = {
@@ -109,35 +109,36 @@ function Search( props ) {
 		return (
 			<div className="jp-form-search-settings-group-buttons jp-search-dashboard-row">
 				<div className="lg-col-span-3 md-col-span-2 sm-col-span-1"></div>
-				<div className="lg-col-span-6 md-col-span-6 sm-col-span-3">
-					<Button
-						className="jp-form-search-settings-group-buttons__button is-customize-search"
-						href={
-							! isInstantSearchCustomizeButtonDisabled && sprintf( SEARCH_CUSTOMIZE_URL, returnUrl )
-						}
-						disabled={ isInstantSearchCustomizeButtonDisabled }
-					>
-						{ __( 'Customize search results', 'jetpack' ) }
-					</Button>
-					<Button
-						className="jp-form-search-settings-group-buttons__button is-widgets-editor"
-						href={ ! isWidgetsEditorButtonDisabled && sprintf( WIDGETS_EDITOR_URL, returnUrl ) }
-						disabled={ isWidgetsEditorButtonDisabled }
-					>
-						{ __( 'Edit sidebar widgets', 'jetpack' ) }
-					</Button>
-				</div>
-				<div className="lg-col-span-3 md-col-span-0 sm-col-span-0"></div>
+				<Button
+					className="jp-form-search-settings-group-buttons__button is-customize-search lg-col-span-4 md-col-span-5 sm-col-span-3"
+					href={
+						! isInstantSearchCustomizeButtonDisabled && sprintf( SEARCH_CUSTOMIZE_URL, returnUrl )
+					}
+					disabled={ isInstantSearchCustomizeButtonDisabled }
+				>
+					<span>{ __( 'Customize search results', 'jetpack' ) }</span>
+				</Button>
+				<div className="lg-col-span-0 md-col-span-1 sm-col-span-0"></div>
+
+				<div className="lg-col-span-0 md-col-span-2 sm-col-span-1"></div>
+				<Button
+					className="jp-form-search-settings-group-buttons__button is-widgets-editor lg-col-span-3 md-col-span-5 sm-col-span-3"
+					href={ ! isWidgetsEditorButtonDisabled && sprintf( WIDGETS_EDITOR_URL, returnUrl ) }
+					disabled={ isWidgetsEditorButtonDisabled }
+				>
+					<span>{ __( 'Edit sidebar widgets', 'jetpack' ) }</span>
+				</Button>
+				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 			</div>
 		);
 	};
 
 	const renderSearchToggle = () => {
 		return (
-			<div className="jp-form-search-settings-group__toggle is-search">
+			<div className="jp-form-search-settings-group__toggle is-search jp-search-dashboard-wrap">
 				<div className="jp-search-dashboard-row">
 					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
-					<div className="lg-col-span-1 md-col-span-1 sm-col-span-1">
+					<div className="jp-form-search-settings-group__toggle-container lg-col-span-1 md-col-span-1 sm-col-span-1">
 						<ModuleToggle
 							activated={ isModuleEnabled && hasEitherSearch }
 							compact
@@ -149,6 +150,7 @@ function Search( props ) {
 							toggleModule={ toggleSearchModule }
 							toggling={ togglingModule }
 							className="is-search-admin"
+							aria-label={ __( 'Enable Jetpack Search', 'jetpack' ) }
 						></ModuleToggle>
 					</div>
 					<div className="jp-form-search-settings-group__toggle_label lg-col-span-7 md-col-span-5 sm-col-span-3">
@@ -158,12 +160,12 @@ function Search( props ) {
 				</div>
 				<div className="jp-search-dashboard-row">
 					<div className="lg-col-span-3 md-col-span-2 sm-col-span-1"></div>
-					<div className="jp-form-search-settings-group__toggle-description lg-col-span-6 md-col-span-5 sm-col-span-3">
+					<div className="jp-form-search-settings-group__toggle-description lg-col-span-7 md-col-span-5 sm-col-span-3">
 						<p className="jp-form-search-settings-group__toggle-explanation">
 							{ SEARCH_DESCRIPTION }
 						</p>
 					</div>
-					<div className="lg-col-span-3 md-col-span-1 sm-col-span-0"></div>
+					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 				</div>
 			</div>
 		);
@@ -171,16 +173,17 @@ function Search( props ) {
 
 	const renderInstantSearchToggle = () => {
 		return (
-			<div className="jp-form-search-settings-group__toggle is-instant-search">
+			<div className="jp-form-search-settings-group__toggle is-instant-search jp-search-dashboard-wrap">
 				<div className="jp-search-dashboard-row">
 					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
-					<div className="lg-col-span-1 md-col-span-1 sm-col-span-1">
+					<div className="jp-form-search-settings-group__toggle-container lg-col-span-1 md-col-span-1 sm-col-span-1">
 						<CompactFormToggle
 							checked={ isModuleEnabled && isInstantSearchEnabled && props.hasActiveSearchPurchase }
 							disabled={ isSavingEitherOption || ! props.hasActiveSearchPurchase }
 							onChange={ toggleInstantSearch }
 							toggling={ togglingInstantSearch }
 							className="is-search-admin"
+							aria-label={ __( 'Enable instant search experience (recommended)', 'jetpack' ) }
 						></CompactFormToggle>
 					</div>
 					<div className="jp-form-search-settings-group__toggle_label lg-col-span-7 md-col-span-5 sm-col-span-3">
@@ -192,7 +195,7 @@ function Search( props ) {
 				</div>
 				<div className="jp-search-dashboard-row">
 					<div className="lg-col-span-3 md-col-span-2 sm-col-span-1"></div>
-					<div className="jp-form-search-settings-group__toggle-description lg-col-span-6 md-col-span-5 sm-col-span-3">
+					<div className="jp-form-search-settings-group__toggle-description lg-col-span-7 md-col-span-5 sm-col-span-3">
 						{ props.hasActiveSearchPurchase && (
 							<Fragment>
 								<p className="jp-form-search-settings-group__toggle-explanation">
@@ -204,7 +207,7 @@ function Search( props ) {
 							<InstantSearchUpsellNudge href={ props.upgradeUrl } upgrade={ hasOnlyLegacySearch } />
 						) }
 					</div>
-					<div className="lg-col-span-3 md-col-span-1 sm-col-span-0"></div>
+					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 				</div>
 				{ props.hasActiveSearchPurchase && renderInstantSearchButtons() }
 			</div>
@@ -213,7 +216,7 @@ function Search( props ) {
 
 	const renderToggles = () => {
 		return (
-			<div className="jp-form-search-settings-group-inside jp-search-dashboard-wrap">
+			<div className="jp-form-search-settings-group-inside">
 				{ renderSearchToggle() }
 				{ renderInstantSearchToggle() }
 			</div>
@@ -227,11 +230,11 @@ function Search( props ) {
 				disableInOfflineMode
 				hasChild
 				module={ { module: 'search' } }
-				className={ [ 'jp-form-search-settings-group' ] }
+				className="jp-form-search-settings-group"
 			>
-				<p>{ props.inOfflineMode && __( 'Unavailable in Offline Mode', 'jetpack' ) }</p>
+				{ props.inOfflineMode && <p>__( 'Unavailable in Offline Mode', 'jetpack' )</p> }
 
-				<p>{ ! props.inOfflineMode && props.isLoading && __( 'Loading…', 'jetpack' ) }</p>
+				{ ! props.inOfflineMode && props.isLoading && <p>__( 'Loading…', 'jetpack' )</p> }
 
 				{ ! props.inOfflineMode && ! props.isLoading && renderToggles() }
 			</SettingsGroup>

@@ -10,7 +10,7 @@ namespace Automattic\Jetpack;
 /**
  * This class introduces functionality used by Jetpack hosting partners.
  *
- * @since 8.1.0
+ * @since 1.0.0
  */
 class Partner {
 
@@ -27,7 +27,7 @@ class Partner {
 	/**
 	 * Singleton instance.
 	 *
-	 * @since 8.1.0
+	 * @since 1.0.0
 	 *
 	 * @var Partner This class instance.
 	 */
@@ -43,7 +43,7 @@ class Partner {
 	 * Initializes the class or returns the singleton.
 	 *
 	 * @return Partner | false
-	 * @since 8.1.0
+	 * @since 1.0.0
 	 */
 	public static function init() {
 		if ( is_null( self::$instance ) ) {
@@ -88,7 +88,7 @@ class Partner {
 	 * @param array $params The parameters array.
 	 *
 	 * @return array
-	 * @since 9.7.0
+	 * @since 1.5.0
 	 */
 	public function add_subsidiary_id_to_params_array( $params ) {
 		if ( ! is_array( $params ) ) {
@@ -103,7 +103,7 @@ class Partner {
 	 * @param array $params The parameters array.
 	 *
 	 * @return array
-	 * @since 9.7.0
+	 * @since 1.5.0
 	 */
 	public function add_affiliate_code_to_params_array( $params ) {
 		if ( ! is_array( $params ) ) {
@@ -119,7 +119,7 @@ class Partner {
 	 * @param string $url The URL where the partner subsidiary id will be added.
 	 *
 	 * @return string The passed URL with the partner code added.
-	 * @since 8.1.0
+	 * @since 1.0.0
 	 */
 	public function add_code_as_query_arg( $type, $url ) {
 		return add_query_arg( $this->get_code_as_array( $type ), $url );
@@ -130,7 +130,7 @@ class Partner {
 	 *
 	 * @param string $type The partner code.
 	 * @return array
-	 * @since 9.7.0
+	 * @since 1.5.0
 	 */
 	private function get_code_as_array( $type ) {
 		switch ( $type ) {
@@ -159,7 +159,7 @@ class Partner {
 	 * @param string $type This can be either 'affiliate' or 'subsidiary'. Returns empty string when code is unknown.
 	 *
 	 * @return string The partner code.
-	 * @since 8.1.0
+	 * @since 1.0.0
 	 */
 	public function get_partner_code( $type ) {
 		switch ( $type ) {
@@ -169,7 +169,8 @@ class Partner {
 				 *
 				 * @param string $affiliate_code The affiliate code, blank by default.
 				 *
-				 * @since 6.9.0
+				 * @since 1.0.0
+				 * @since-jetpack 6.9.0
 				 */
 				return apply_filters( 'jetpack_affiliate_code', get_option( 'jetpack_affiliate_code', '' ) );
 			case self::SUBSIDIARY_CODE:
@@ -178,7 +179,7 @@ class Partner {
 				 *
 				 * @param string $subsidiary_id The partner subsidiary id, blank by default.
 				 *
-				 * @since 8.1.0
+				 * @since 1.0.0
 				 */
 				return apply_filters(
 					'jetpack_partner_subsidiary_id',

@@ -15,7 +15,7 @@
 	},
 	"dependencies": {
 		"@automattic/calypso-build": "9.0.0",
-		"@automattic/jetpack-api": "workspace:^0.1.0",
+		"@automattic/jetpack-api": "workspace:^0.1.1-alpha",
 		"@automattic/jetpack-connection": "workspace:^0.6.0-alpha",
 		"@babel/core": "7.12.10",
 		"@babel/helper-module-imports": "7.12.5",
@@ -36,7 +36,7 @@
 		"jest": "27.0.4"
 	},
 	"engines": {
-		"node": "^14.16.1",
+		"node": "^16.7.0",
 		"pnpm": "^6.5.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
