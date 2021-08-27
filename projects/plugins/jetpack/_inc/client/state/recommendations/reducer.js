@@ -26,12 +26,7 @@ import {
 } from 'state/action-types';
 import { getRewindStatus } from 'state/rewind';
 import { getSetting } from 'state/settings';
-import {
-	getSitePlan,
-	hasActiveProductPurchase,
-	hasActiveScanPurchase,
-	isFetchingSiteData,
-} from 'state/site';
+import { getSitePlan, hasActiveProductPurchase, hasActiveScanPurchase } from 'state/site';
 import { hasConnectedOwner } from 'state/connection';
 import { isPluginActive } from 'state/site/plugins';
 
@@ -216,10 +211,6 @@ export const isFeatureActive = ( state, featureSlug ) => {
 const isSiteEligibleForUpsell = state => {
 	const sitePlan = getSitePlan( state );
 
-	if ( isFetchingSiteData( state ) ) {
-		return false;
-	}
-
 	return 'jetpack_free' === sitePlan.product_slug && ! hasActiveProductPurchase( state );
 };
 
@@ -344,10 +335,12 @@ export const getSummaryFeatureSlugs = state => {
 };
 
 export const getSidebarCardSlug = state => {
+	const sitePlan = getSitePlan( state );
 	const rewindStatus = getRewindStatus( state );
+
 	const rewindState = rewindStatus.state;
 
-	if ( isFetchingSiteData( state ) || ! rewindState ) {
+	if ( ! sitePlan.product_slug || ! rewindState ) {
 		return 'loading';
 	}
 
