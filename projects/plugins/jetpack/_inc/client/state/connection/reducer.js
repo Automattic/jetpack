@@ -103,7 +103,10 @@ export const requests = ( state = connectionRequests, action ) => {
 		case UNLINK_USER:
 			return assign( {}, state, { unlinkingUser: true } );
 		case CONNECT_USER:
-			return assign( {}, state, { connectingUser: true } );
+			return assign( {}, state, {
+				connectingUser: true,
+				connectingUserFeatureLabel: action.featureLabel,
+			} );
 		case RESET_CONNECT_USER:
 			return assign( {}, state, { connectingUser: false } );
 		case CONNECT_URL_FETCH:
@@ -258,11 +261,23 @@ export function isUnlinkingUser( state ) {
 /**
  * Returns true if currently linking the user
  *
- * @param  {Object} state Global state tree
- * @return {bool} true if currently linking a user, false otherwise
+ * @param  {object} state - Global state tree
+ * @returns {bool} true if currently linking a user, false otherwise
  */
 export function isConnectingUser( state ) {
 	return !! state.jetpack.connection.requests.connectingUser;
+}
+
+/**
+ * Returns the feature label the user connection where initiated from, if any.
+ *
+ * @param  {object} state - Global state tree
+ * @returns {string|null} string if feature label exists, false otherwise.
+ */
+export function getConnectingUserFeatureLabel( state ) {
+	return state.jetpack.connection.requests.hasOwnProperty( 'connectingUserFeatureLabel' )
+		? state.jetpack.connection.requests.connectingUserFeatureLabel
+		: null;
 }
 
 /**

@@ -60,6 +60,7 @@ export const Masterbar = withModuleSettingsFormHelpers(
 					{ ! this.props.isUnavailableInOfflineMode( 'masterbar' ) && ! this.props.isLinked && (
 						<ConnectUserBar
 							feature="masterbar"
+							featureLabel={ __( 'WordPress.com Toolbar', 'jetpack' ) }
 							text={ __( 'Connect to enable the WordPress.com toolbar.', 'jetpack' ) }
 						/>
 					) }

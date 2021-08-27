@@ -117,7 +117,11 @@ class ActiveCard extends Component {
 				</SettingsGroup>
 
 				{ siteConnectionMode && (
-					<ConnectUserBar feature={ m.module } text={ __( 'Connect to configure.', 'jetpack' ) } />
+					<ConnectUserBar
+						feature={ m.module }
+						featureLabel={ m.name }
+						text={ __( 'Connect to configure.', 'jetpack' ) }
+					/>
 				) }
 			</SettingsCard>
 		);

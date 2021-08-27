@@ -4,7 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { withRouter, Prompt } from 'react-router-dom';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectScreen } from '@automattic/jetpack-connection';
 import { Dashicon } from '@wordpress/components';
@@ -25,6 +25,7 @@ import {
 	isReconnectingSite,
 	reconnectSite,
 	getConnectUrl,
+	getConnectingUserFeatureLabel,
 } from 'state/connection';
 import {
 	setInitialState,
@@ -228,7 +229,15 @@ class Main extends React.Component {
 					apiRoot={ this.props.apiRoot }
 					images={ [ '/images/connect-right-secondary.png' ] }
 					assetBaseUrl={ this.props.pluginBaseUrl }
-					title={ __( 'Unlock all the amazing features of Jetpack by connecting now', 'jetpack' ) }
+					title={
+						this.props.connectingUserFeatureLabel
+							? sprintf(
+									/* translators: placeholder is a feature label (e.g. SEO, Notifications) */
+									__( 'Unlock %s and more amazing features', 'jetpack' ),
+									this.props.connectingUserFeatureLabel
+							  )
+							: __( 'Unlock all the amazing features of Jetpack by connecting now', 'jetpack' )
+					}
 					buttonLabel={ __( 'Connect your user account', 'jetpack' ) }
 				>
 					<ul>
@@ -480,6 +489,7 @@ export default connect(
 			showRecommendations: showRecommendations( state ),
 			pluginBaseUrl: getPluginBaseUrl( state ),
 			connectUrl: getConnectUrl( state ),
+			connectingUserFeatureLabel: getConnectingUserFeatureLabel( state ),
 		};
 	},
 	dispatch => ( {

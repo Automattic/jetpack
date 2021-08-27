@@ -16,7 +16,7 @@ import { connectUser } from 'state/connection';
 import './style.scss';
 
 const ConnectUserBar = props => {
-	const { feature, text, doConnectUser } = props;
+	const { feature, featureLabel, text, doConnectUser } = props;
 
 	const customConnect = useCallback( () => {
 		analytics.tracks.recordJetpackClick( {
@@ -26,8 +26,8 @@ const ConnectUserBar = props => {
 			is_connection_owner: 'no',
 		} );
 
-		doConnectUser();
-	}, [ doConnectUser, feature ] );
+		doConnectUser( featureLabel );
+	}, [ doConnectUser, feature, featureLabel ] );
 
 	return (
 		<Card compact className="jp-connect-user-bar__card">
@@ -54,10 +54,11 @@ const ConnectUserBar = props => {
 ConnectUserBar.propTypes = {
 	text: PropTypes.string.isRequired,
 	feature: PropTypes.string,
+	featureLabel: PropTypes.string,
 };
 
 export default connect( null, dispatch => ( {
-	doConnectUser: () => {
-		return dispatch( connectUser() );
+	doConnectUser: featureLabel => {
+		return dispatch( connectUser( featureLabel ) );
 	},
 } ) )( ConnectUserBar );

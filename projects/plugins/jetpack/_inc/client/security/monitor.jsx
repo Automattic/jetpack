@@ -78,6 +78,7 @@ export const Monitor = withModuleSettingsFormHelpers(
 					{ ! hasConnectedOwner && ! isOfflineMode && (
 						<ConnectUserBar
 							feature="monitor"
+							featureLabel={ __( 'Downtime Monitoring', 'jetpack' ) }
 							text={ __( 'Connect to set up your status alerts.', 'jetpack' ) }
 						/>
 					) }
