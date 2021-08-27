@@ -295,4 +295,3 @@ export default connect( state => {
 		hasConnectedOwner: hasConnectedOwner( state ),
 	};
 } )( DashBackups );
- 
