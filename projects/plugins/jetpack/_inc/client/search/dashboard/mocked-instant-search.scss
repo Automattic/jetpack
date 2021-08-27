@@ -144,14 +144,16 @@ $color-text-lighter: $studio-gray-50;
 			cursor: default;
 		}
 	}
-}
-.jp-mocked-instant-search__search-filter {
 	span {
 		display: inline-block;
 		margin-left: 1em;
 		line-height: 1.35;
 		background-color: lavender;
 		width: 50em;
+	}
+	input[type='checkbox'] {
+		height: 1em;
+		width: 1em;
 	}
 }
 .jp-mocked-instant-search__search-filter-list {

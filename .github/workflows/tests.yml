@@ -64,47 +64,11 @@ jobs:
         with:
           checkout: false
 
-      - name: Read tool versions
-        id: versions
-        uses: ./.github/actions/read-versions
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
         with:
-          php-version: ${{ matrix.php }}
-          tools: composer:${{ steps.versions.outputs.composer-version }}
-          extensions: mysql, imagick
-          coverage: none
-
-      - name: Setup Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ matrix.node }}
-
-      - name: Get Composer cache directory
-        id: composer-cache
-        run: |
-          echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - name: Use composer cache
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
-
-      - name: Use pnpm cache
-        uses: actions/cache@v2
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-pnpm-${{ matrix.node }}-${{ hashFiles('**/package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-${{ matrix.node }}-
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2.0.1
-        with:
-          version: ${{ steps.versions.outputs.pnpm-version }}
+          php: ${{ matrix.php }}
+          node: ${{ matrix.node }}
 
       - name: Detect changed projects
         id: changed
@@ -117,21 +81,6 @@ jobs:
       - name: Setup WordPress environment for plugin tests
         if: steps.changed.outputs.any-plugins == 'true' && matrix.wp != 'none'
         run: .github/files/setup-wordpress-env.sh
-
-      - name: Tool versions
-        run: |
-          which php
-          php --version
-          which phpdbg
-          phpdbg --version
-          which composer
-          composer --version
-          which node
-          node --version
-          which pnpm
-          pnpm --version
-          which jq
-          jq --version
 
       - name: Monorepo install
         run: |
