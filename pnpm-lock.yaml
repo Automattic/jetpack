@@ -107,7 +107,7 @@ importers:
 
   projects/js-packages/connection:
     specifiers:
-      '@automattic/jetpack-api': workspace:^0.1.1-alpha
+      '@automattic/jetpack-api': workspace:^0.2.0-alpha
       '@automattic/jetpack-components': workspace:^0.2.2-alpha
       '@wordpress/base-styles': 3.6.0
       '@wordpress/browserslist-config': 4.1.0
@@ -236,7 +236,7 @@ importers:
   projects/packages/connection-ui:
     specifiers:
       '@automattic/calypso-build': 9.0.0
-      '@automattic/jetpack-api': workspace:^0.1.1-alpha
+      '@automattic/jetpack-api': workspace:^0.2.0-alpha
       '@automattic/jetpack-connection': workspace:^0.6.0-alpha
       '@babel/core': 7.12.10
       '@babel/helper-module-imports': 7.12.5
@@ -347,7 +347,7 @@ importers:
   projects/plugins/backup:
     specifiers:
       '@automattic/calypso-build': 9.0.0
-      '@automattic/jetpack-api': workspace:^0.1.1-alpha
+      '@automattic/jetpack-api': workspace:^0.2.0-alpha
       '@automattic/jetpack-components': workspace:^0.2.2-alpha
       '@automattic/jetpack-connection': workspace:^0.6.0-alpha
       '@babel/core': 7.13.14
@@ -487,7 +487,7 @@ importers:
       '@automattic/color-studio': 2.5.0
       '@automattic/components': 1.0.0-alpha.3
       '@automattic/format-currency': 1.0.0-alpha.0
-      '@automattic/jetpack-api': workspace:^0.1.1-alpha
+      '@automattic/jetpack-api': workspace:^0.2.0-alpha
       '@automattic/jetpack-components': workspace:^0.2.2-alpha
       '@automattic/jetpack-connection': workspace:^0.6.0-alpha
       '@automattic/popup-monitor': 1.0.0
@@ -769,6 +769,9 @@ importers:
       size-limit: 4.10.2
       style-loader: 2.0.0_webpack@5.51.1
       url-loader: 4.1.1_webpack@5.51.1
+
+  projects/plugins/search:
+    specifiers: {}
 
   tools/cli:
     specifiers:
@@ -23926,7 +23929,7 @@ packages:
     dependencies:
       array.prototype.flat: 1.2.4
       global-cache: 1.2.1
-      react-with-styles: 3.2.3_react-dom@17.0.2+react@17.0.2
+      react-with-styles: 3.2.3
 
   /react-with-styles/3.2.3:
     resolution: {integrity: sha512-MTI1UOvMHABRLj5M4WpODfwnveHaip6X7QUMI2x6zovinJiBXxzhA9AJP7MZNaKqg1JRFtHPXZdroUC8KcXwlQ==}
