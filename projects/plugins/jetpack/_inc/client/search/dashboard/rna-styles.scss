@@ -15,7 +15,6 @@
 	grid-template-columns: repeat( 4, 1fr );
 	width: calc( 100% - 32px );
 	margin: 0 16px;
-	align-items: center;
 
 	@include for-phone-up {
 		grid-template-columns: repeat( 8, 1fr );
@@ -62,56 +61,14 @@
 		.md-col-span-0 {
 			display: none;
 		}
-		grid-gap: 18px;
 	}
 
 	@include for-phone-down {
 		.sm-col-span-0 {
 			display: none;
 		}
-	}
-}
-
-.jp-search-dashboard-cut {
-	position: relative;
-	display: block;
-	margin: 32px 0;
-	padding: 16px 64px 16px 24px;
-	border: 2px solid $jp-green-primary;
-	border-radius: $jp-border-radius;
-	text-decoration: none;
-
-	span {
-		display: block;
-
-		&:last-of-type {
-			font-weight: 600;
+		.sm-col-span-1 {
+			display: block;
 		}
-	}
-
-	&:hover,
-	&:focus {
-		//box-shadow: 0px 0px 40px rgba( 0, 0, 0, 0.08 );
-
-		span:last-of-type {
-			text-decoration: underline;
-			text-decoration-thickness: $jp-underline-thickness;
-		}
-
-		&:after {
-			transform: translateY( -50% ) translateX( 8px );
-		}
-	}
-
-	&:after {
-		content: '→';
-		position: absolute;
-		top: 50%;
-		right: 24px;
-		font-size: 24px;
-		font-weight: 600;
-		color: $jp-green-primary;
-		transform: translateY( -50% );
-		transition: transform 0.15s ease-out;
 	}
 }

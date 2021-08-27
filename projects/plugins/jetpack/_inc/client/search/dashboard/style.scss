@@ -12,7 +12,14 @@ body {
 		'Cantarell', 'Helvetica Neue', sans-serif;
 }
 
+#screen-meta,
+#screen-meta-links {
+	display: none;
+}
+
 #jp-search-dashboard {
+	min-height: 100vh;
+
 	color: $black;
 	font-size: 16px;
 
@@ -29,14 +36,14 @@ body {
 	.jp-search-dashboard-top__title {
 		padding: 2.5em 0;
 		h1 {
-			line-height: 1.1;
+			line-height: 1.111;
 			font-size: 2.25em;
 			margin: 0;
 		}
 	}
 
 	.jp-search-dashboard-top__mocked-search-interface {
-		height: 180px;
+		height: 15.625em;
 
 		display: flex;
 		flex-flow: column;
@@ -56,6 +63,6 @@ body {
 	}
 
 	@include for-phone-down {
-		font-size: 83%;
+		font-size: 14px;
 	}
 }
