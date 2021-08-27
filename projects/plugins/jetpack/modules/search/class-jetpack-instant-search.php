@@ -175,7 +175,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	protected function get_instant_search_payload_urls( $pattern = self::JETPACK_INSTANT_SEARCH_PAYLOAD_PATTERN ) {
 		$payload_file_key = 'payload-files-' . md5( $pattern );
 		$payload_files    = get_transient( $payload_file_key );
-		if ( ! $payload_files || $this->any_file_not_exists( $payload_files ) ) {
+		if ( ! $payload_files || $this->any_files_not_exists( $payload_files ) ) {
 			$payload_files = glob( JETPACK__PLUGIN_DIR . $pattern );
 			set_transient( $payload_file_key, $payload_files );
 		}
@@ -189,7 +189,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	}
 
 	/**
-	 * Add inline translation for `$payload_url` before `$before_handle`
+	 * Add inline translations for script `$payload_url` before loading `$before_handle` script.
 	 *
 	 * @param string $payload_url - The payload url for which we load the translations.
 	 * @param string $before_handle - Inline the translations before this handle.
@@ -217,13 +217,13 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	}
 
 	/**
-	 * Test if any of files don't exist
+	 * Test if any of the files don't exist.
 	 *
-	 * @param array $files - File to check.
+	 * @param array $files - Files to check.
 	 *
 	 * @return boolean - True if any of the files do not exist.
 	 */
-	protected function any_file_not_exists( $files ) {
+	protected function any_files_not_exists( $files ) {
 		foreach ( $files as $file ) {
 			if ( ! file_exists( $file ) ) {
 				return true;
