@@ -235,18 +235,17 @@ class DashBackups extends Component {
 		return false;
 	}
 
-	renderFromRewindStatus () {
-		if ( 'unavailable' === this.props.rewindStatus && 'site_new' === this.props.rewindStatusReason ) {
+	renderFromRewindStatus() {
+		if (
+			'unavailable' === this.props.rewindStatus &&
+			'site_new' === this.props.rewindStatusReason
+		) {
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
 				status: 'pro-inactive',
-				content:
-					__(
-						"Your site is new and may still be preparing it's backup config.",
-						'jetpack'
-					),
+				content: __( 'Your site is new and may still be preparing its backup config.', 'jetpack' ),
 			} );
-		// this.props.rewindStatus is empty string on API error.
+			// this.props.rewindStatus is empty string on API error.
 		} else if ( 'unavailable' === this.props.rewindStatus || '' === this.props.rewindStatus ) {
 			return this.getVPContent();
 		}
