@@ -20,10 +20,11 @@ Welcome to the Jetpack Monorepo! This document will give you some idea of the la
 
 ## Layout
 
-Projects are divided into WordPress plugins, Composer packages, and Gutenberg editor extensions.
+Projects are divided into WordPress plugins, Composer packages, JS packages, and Gutenberg editor extensions.
 
 * WordPress plugins live in subdirectories of `projects/plugins/`. The directory name should probably match the WordPress plugin name, with a leading "jetpack-" removed if applicable.
 * Composer packages live in subdirectories of `projects/packages/`. The directory name should probably match the package name with the leading "Automattic/jetpack-" removed.
+* JS packages live in subdirectories of `projects/js-packages/`. The directory name should probably match the package name with the leading "Automattic/jetpack-" removed.
 * Editor extensions live in subdirectories of `projects/editor-extensions/`. The directory name should match the feature name (without a "jetpack/" prefix).
 * GitHub Actions live in subdirectories of `projects/github-actions/`. The directory name should match the action name with the leading "Automattic/action-" removed.
 
