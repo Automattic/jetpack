@@ -202,6 +202,7 @@ class Main extends React.Component {
 					apiRoot={ this.props.apiRoot }
 					images={ [ '/images/connect-right.jpg' ] }
 					assetBaseUrl={ this.props.pluginBaseUrl }
+					autoTrigger={ this.shouldAutoTriggerConnection() }
 				>
 					<p>
 						{ __(
@@ -288,6 +289,7 @@ class Main extends React.Component {
 			case '/reconnect':
 			case '/disconnect':
 			case '/connect-user':
+			case '/setup':
 				pageComponent = (
 					<AtAGlance
 						siteRawUrl={ this.props.siteRawUrl }
@@ -412,21 +414,48 @@ class Main extends React.Component {
 		this.props.history.replace( '/dashboard' );
 	}
 
+	/**
+	 * Checks if this is the main connection screen page.
+	 *
+	 * @returns {boolean} Whether this is the main connection screen page.
+	 */
 	isMainConnectScreen() {
 		return false === this.props.siteConnectionStatus && this.props.userCanConnectSite;
 	}
 
+	/**
+	 * Checks if this is the user connection screen page.
+	 *
+	 * @returns {boolean} Whether this is the user connection screen page.
+	 */
 	isUserConnectScreen() {
 		return '/connect-user' === this.props.location.pathname;
 	}
 
+	/**
+	 * Check if the user connection has been triggered.
+	 *
+	 * @returns {boolean} Whether the user connection has been triggered.
+	 */
 	shouldConnectUser() {
 		return this.props.isConnectingUser;
 	}
 
+	/**
+	 * Show the user connection page.
+	 */
 	connectUser() {
 		this.props.resetConnectUser();
 		this.props.history.replace( '/connect-user' );
+	}
+
+	/**
+	 * Check if the connection flow should get triggered automatically.
+	 *
+	 * @returns {boolean} Whether to trigger the connection flow automatically.
+	 */
+	shouldAutoTriggerConnection() {
+		return this.props.location.pathname.startsWith( '/setup' );
 	}
 
 	render() {

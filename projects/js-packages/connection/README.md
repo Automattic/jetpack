@@ -17,6 +17,7 @@ The component implements the connection screen page, and loads the `ConnectButto
 - *statusCallback* - callback to pull connection status from the component.
 - *images* - array, images to display on the right side of the connection screen.
 - *assetBaseUrl* - string, path to the `/build` directory of the package consumer.
+- *autoTrigger* - Whether to initiate the connection process automatically upon rendering the component.
 
 ### Usage
 ```jsx
@@ -58,6 +59,7 @@ The component displays the connection button and handles the connection process,
 - *statusCallback* - callback to pull connection status from the component.
 - *connectionStatus* - object, the connection status info.
 - *connectionStatusIsFetching* - boolean, whether the connection status is being fetched at the moment.
+- *autoTrigger* - Whether to initiate the connection process automatically upon rendering the component.
 
 ### Basic Usage
 ```jsx
