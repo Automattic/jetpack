@@ -164,5 +164,6 @@ jobs:
           \"run_number\": \"$GITHUB_RUN_NUMBER\",
           \"branch\": \"$BRANCH\",
           \"pr_title\": \"$PR_TITLE\",
-          \"pr_number\": \"$PR_NUMBER\"
+          \"pr_number\": \"$PR_NUMBER\",
+          \"report_name\": \"atomic\"
           }}"
