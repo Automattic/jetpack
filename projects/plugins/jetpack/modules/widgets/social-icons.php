@@ -209,6 +209,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 
 		$instance['title']     = sanitize_text_field( $new_instance['title'] );
 		$instance['icon-size'] = $this->defaults['icon-size'];
+		$instance['url-icons'] = $new_instance['url-icons'];
 
 		if ( in_array( $new_instance['icon-size'], array( 'small', 'medium', 'large' ), true ) ) {
 			$instance['icon-size'] = $new_instance['icon-size'];
