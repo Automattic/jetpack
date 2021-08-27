@@ -3,7 +3,7 @@
  */
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { ProgressBar } from '@automattic/components';
 
 /**
@@ -58,7 +58,7 @@ const ProductPurchasedComponent = props => {
 				) ) }
 			</ul>
 			<Button primary className="jp-recommendations-product-purchased__next" href={ nextRoute }>
-				{ __( 'Configure your site', 'jetpack' ) }
+				{ _x( 'Configure your site', 'Recommendations Product Purchased', 'jetpack' ) }
 			</Button>
 		</div>
 	);
@@ -66,8 +66,16 @@ const ProductPurchasedComponent = props => {
 	return (
 		<PromptLayout
 			progressBar={ <ProgressBar color={ '#00A32A' } value={ '33' } /> }
-			question={ __( 'Your plan has been upgraded!', 'jetpack' ) }
-			description={ __( 'You now have access to these benefits:', 'jetpack' ) }
+			question={ _x(
+				'Your plan has been upgraded!',
+				'Recommendations Product Purchased',
+				'jetpack'
+			) }
+			description={ _x(
+				'You now have access to these benefits:',
+				'Recommendations Product Purchased',
+				'jetpack'
+			) }
 			illustrationPath={ 'recommendations/product-purchased-illustration.svg' }
 			answer={ answerSection }
 		/>

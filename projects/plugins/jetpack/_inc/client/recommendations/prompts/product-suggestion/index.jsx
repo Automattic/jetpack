@@ -4,7 +4,7 @@
 import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
-import { __, sprintf } from '@wordpress/i18n';
+import { _x, sprintf } from '@wordpress/i18n';
 import { getCurrencyObject } from '@automattic/format-currency';
 import { addQueryArgs } from '@wordpress/url';
 
@@ -74,7 +74,7 @@ const ProductSuggestionComponent = props => {
 				>
 					{ sprintf(
 						/* translators: %s: Name of a Jetpack product. */
-						__( 'Continue with %s', 'jetpack' ),
+						_x( 'Continue with %s', 'Recommendations Product Suggestion', 'jetpack' ),
 						product.title
 					) }
 				</Button>

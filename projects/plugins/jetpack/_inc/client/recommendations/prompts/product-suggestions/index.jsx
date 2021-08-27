@@ -3,7 +3,7 @@
  */
 import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { ProgressBar } from '@automattic/components';
 
 /**
@@ -61,7 +61,7 @@ const ProductSuggestionsComponent = props => {
 				href={ nextRoute }
 				onClick={ onContinueClick }
 			>
-				{ __( 'Decide later', 'jetpack' ) }
+				{ _x( 'Decide later', 'Recommendations Product Suggestions', 'jetpack' ) }
 			</a>
 		</div>
 	);
@@ -69,9 +69,10 @@ const ProductSuggestionsComponent = props => {
 	return (
 		<PromptLayout
 			progressBar={ <ProgressBar color={ '#00A32A' } value={ '33' } /> }
-			question={ __( 'Choose a plan', 'jetpack' ) }
-			description={ __(
+			question={ _x( 'Choose a plan', 'Recommendations Product Suggestions', 'jetpack' ) }
+			description={ _x(
 				'These are the most popular Jetpack plans for sites like yours:',
+				'Recommendations Product Suggestions',
 				'jetpack'
 			) }
 			answer={ answerSection }
