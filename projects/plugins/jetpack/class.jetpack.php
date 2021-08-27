@@ -4024,12 +4024,6 @@ p {
 					'type' => $attachment->post_mime_type,
 					'meta' => wp_get_attachment_metadata( $attachment_id ),
 				);
-				// Zip files uploads are not supported unless they are done for installation purposed
-				// lets delete them in case something goes wrong in this whole process
-				if ( 'application/zip' === $attachment->post_mime_type ) {
-					// Schedule a cleanup for 2 hours from now in case of failed install.
-					wp_schedule_single_event( time() + 2 * HOUR_IN_SECONDS, 'upgrader_scheduled_cleanup', array( $attachment_id ) );
-				}
 			}
 		}
 		if ( ! is_null( $global_post ) ) {
