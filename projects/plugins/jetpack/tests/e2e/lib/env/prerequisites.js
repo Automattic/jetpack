@@ -182,6 +182,7 @@ export async function activateModules( modulesList ) {
 		logger.prerequisites( `Activating module ${ module }` );
 		const result = await execWpCommand( `jetpack module activate ${ module }` );
 		expect( result ).toMatch( new RegExp( `Success: .* has been activated.`, 'i' ) );
+		await execWpCommand( 'cron event run jetpack_v2_heartbeat' );
 	}
 }
 
