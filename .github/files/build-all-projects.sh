@@ -8,11 +8,11 @@ if [[ -z "$BUILD_BASE" ]]; then
 	BUILD_BASE=$(mktemp -d "${TMPDIR:-/tmp}/jetpack-project-mirrors.XXXXXXXX")
 elif [[ ! -e "$BUILD_BASE" ]]; then
 	mkdir -p "$BUILD_BASE"
-elif [[ ! -d "$BUILD_DIR" ]]; then
-	echo "$BUILD_DIR already exists, and is not a directory." >&2
+elif [[ ! -d "$BUILD_BASE" ]]; then
+	echo "$BUILD_BASE already exists, and is not a directory." >&2
 	exit 1
-elif [[ "$(ls -A -- "$BUILD_DIR")" ]]; then
-	echo "Directory $BUILD_DIR already exists, and is not empty." >&2
+elif [[ "$(ls -A -- "$BUILD_BASE")" ]]; then
+	echo "Directory $BUILD_BASE already exists, and is not empty." >&2
 	exit 1
 fi
 
