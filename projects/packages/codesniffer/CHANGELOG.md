@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.1] - 2021-08-26
+### Added
+- Composer alias for dev-master, to improve dependencies.
+- Created a changelog from the git history with help from [auto-changelog](https://www.npmjs.com/package/auto-changelog). It could probably use cleanup!
+
+### Changed
+- Run composer update on test-php command instead of phpunit.
+- Update package dependencies.
+
+### Fixed
+- Use `composer update` rather than `install` in scripts, as composer.lock isn't checked in.
+
 ## [2.2.0] - 2021-02-05
 
 - CI: Make tests more generic
@@ -43,6 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Codesniffer: Add a package to hold our coding standard
 
+[2.2.1]: https://github.com/Automattic/jetpack-codesniffer/compare/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/Automattic/jetpack-codesniffer/compare/v2.1.1...v2.2.0
 [2.1.1]: https://github.com/Automattic/jetpack-codesniffer/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/Automattic/jetpack-codesniffer/compare/v2.0.0...v2.1.0
