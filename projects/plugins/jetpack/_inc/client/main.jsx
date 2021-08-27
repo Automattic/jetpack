@@ -7,7 +7,6 @@ import { withRouter, Prompt } from 'react-router-dom';
 import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectScreen } from '@automattic/jetpack-connection';
-import { getQueryArg, hasQueryArg, removeQueryArgs } from '@wordpress/url';
 
 /**
  * Internal dependencies
@@ -364,35 +363,7 @@ class Main extends React.Component {
 		this.props.history.replace( '/dashboard' );
 	}
 
-	catchReturnUrlRedirect = () => {
-		const paramName = 'catchReturnUrlParam';
-		const queryString = window.location.search;
-
-		// Check if the query string contains "returnUrlRedirect".
-		if ( ! queryString || ! hasQueryArg( queryString, paramName ) ) {
-			return;
-		}
-
-		// Remove prefixed and suffixed slashes so we can append it ourselves for a uniform experience.
-		let returnUrlRedirect = getQueryArg( queryString, paramName );
-		returnUrlRedirect =
-			returnUrlRedirect.substr( 0, 1 ) === '/' ? returnUrlRedirect.slice( 1 ) : returnUrlRedirect;
-		returnUrlRedirect =
-			returnUrlRedirect.substr( -1 ) === '/'
-				? returnUrlRedirect.slice( 0, returnUrlRedirect.length - 1 )
-				: returnUrlRedirect;
-
-		// Update the window history to no longer include the "returnUrlRedirect" parameter
-		// // so we do not end up in an infinite loop of route changes.
-		window.history.pushState( {}, '', removeQueryArgs( window.location.href, paramName ) );
-
-		// Redirect to the return URL.
-		this.props.history.replace( `/${ returnUrlRedirect }` );
-	};
-
 	render() {
-		this.catchReturnUrlRedirect();
-
 		return (
 			<div>
 				{ this.shouldShowReconnectModal() && (
