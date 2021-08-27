@@ -162,7 +162,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	protected function get_instant_search_payload_urls( $pattern = self::JETPACK_INSTANT_SEARCH_PAYLOAD_PATTERN ) {
 		$payload_file_key = 'payload-files-' . md5( $pattern );
 		$payload_files    = get_transient( $payload_file_key );
-		if ( ! $payload_files || $this->any_files_not_exists( $payload_files ) ) {
+		if ( ! $payload_files || $this->any_files_not_exist( $payload_files ) ) {
 			$payload_files = glob( JETPACK__PLUGIN_DIR . $pattern );
 			set_transient( $payload_file_key, $payload_files );
 		}
@@ -210,7 +210,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 *
 	 * @return boolean - True if any of the files do not exist.
 	 */
-	protected function any_files_not_exists( $files ) {
+	protected function any_files_not_exist( $files ) {
 		foreach ( $files as $file ) {
 			if ( ! file_exists( $file ) ) {
 				return true;
