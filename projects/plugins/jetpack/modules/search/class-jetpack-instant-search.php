@@ -145,7 +145,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 * Inject translations of the lazy-loaded payload.
 	 */
 	protected function inject_payload_translations() {
-		$payload_urls = $this->get_instant_search_payloads();
+		$payload_urls = $this->get_instant_search_payload_urls();
 		foreach ( $payload_urls as $payload_url ) {
 			$this->inject_payload_translation_for( $payload_url );
 		}
@@ -159,7 +159,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 *
 	 * @return array - Array of matching payload URLs
 	 */
-	protected function get_instant_search_payloads( $pattern = self::JETPACK_INSTANT_SEARCH_PAYLOAD_PATTERN ) {
+	protected function get_instant_search_payload_urls( $pattern = self::JETPACK_INSTANT_SEARCH_PAYLOAD_PATTERN ) {
 		$payload_file_key = 'payload-files-' . md5( $pattern );
 		$payload_files    = get_transient( $payload_file_key );
 		if ( ! $payload_files || $this->any_file_not_exists( $payload_files ) ) {
