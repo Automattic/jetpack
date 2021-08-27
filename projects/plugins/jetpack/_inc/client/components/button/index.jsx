@@ -36,9 +36,6 @@ export default class Button extends React.Component {
 	render() {
 		const element = this.props.href ? 'a' : 'button';
 		const { primary, compact, scary, borderless, className, ...props } = this.props;
-		if ( element === 'a' ) {
-			props.role = 'button';
-		}
 
 		const buttonClasses = classNames( {
 			'dops-button': true,
