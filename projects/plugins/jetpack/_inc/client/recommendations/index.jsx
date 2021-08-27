@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
  * Internal dependencies
  */
 import { FeaturePrompt } from './prompts/feature-prompt';
-import { ProductSuggestion } from './prompts/product-suggestion';
+import { ProductSuggestions } from './prompts/product-suggestions';
 import { ProductPurchased } from './product-purchased';
 import { SiteTypeQuestion } from './prompts/site-type';
 import { Summary } from './summary';
@@ -32,8 +32,8 @@ const RecommendationsComponent = props => {
 		case RECOMMENDATION_WIZARD_STEP.SITE_TYPE:
 			redirectPath = '/site-type';
 			break;
-		case RECOMMENDATION_WIZARD_STEP.PRODUCT_SUGGESTION:
-			redirectPath = '/product-suggestion';
+		case RECOMMENDATION_WIZARD_STEP.PRODUCT_SUGGESTIONS:
+			redirectPath = '/product-suggestions';
 			break;
 		case RECOMMENDATION_WIZARD_STEP.PRODUCT_PURCHASED:
 			redirectPath = '/product-purchased';
@@ -78,8 +78,8 @@ const RecommendationsComponent = props => {
 					<Route path="/recommendations/site-type">
 						<SiteTypeQuestion />
 					</Route>
-					<Route path="/recommendations/product-suggestion">
-						<ProductSuggestion />
+					<Route path="/recommendations/product-suggestions">
+						<ProductSuggestions />
 					</Route>
 					<Route path="/recommendations/product-purchased">
 						<ProductPurchased />

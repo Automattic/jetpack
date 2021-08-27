@@ -68,6 +68,6 @@ const ProductPurchasedComponent = props => {
 export const ProductPurchased = connect( state => ( {
 	isFetchingSuggestions: isFetchingSuggestionsAction( state ),
 	nextRoute: getNextRoute( state ),
-	purchasedProductSlug: getDataByKey( state, 'product-suggestion-selection' ),
+	purchasedProductSlug: getDataByKey( state, 'product-suggestions-selection' ),
 	suggestions: getProductSuggestions( state ),
 } ) )( ProductPurchasedComponent );

@@ -27,7 +27,7 @@ import {
  */
 import './style.scss';
 
-const ProductSuggestionComponent = props => {
+const ProductSuggestionsComponent = props => {
 	const {
 		addSkippedRecommendation,
 		nextRoute,
@@ -37,12 +37,12 @@ const ProductSuggestionComponent = props => {
 	} = props;
 
 	useEffect( () => {
-		updateRecommendationsStep( 'product-suggestion' );
+		updateRecommendationsStep( 'product-suggestions' );
 	}, [ updateRecommendationsStep ] );
 
 	const onContinueClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_product_suggestion_decide_later_click' );
-		addSkippedRecommendation( 'product-suggestion' );
+		addSkippedRecommendation( 'product-suggestions' );
 	}, [ addSkippedRecommendation ] );
 
 	const answerSection = (
@@ -79,7 +79,7 @@ const ProductSuggestionComponent = props => {
 	);
 };
 
-export const ProductSuggestion = connect(
+export const ProductSuggestions = connect(
 	state => ( {
 		nextRoute: getNextRoute( state ),
 		suggestions: getProductSuggestions( state ),
@@ -90,4 +90,4 @@ export const ProductSuggestion = connect(
 		addSkippedRecommendation: stepSlug => dispatch( addSkippedRecommendationAction( stepSlug ) ),
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStepAction( step ) ),
 	} )
-)( ProductSuggestionComponent );
+)( ProductSuggestionsComponent );

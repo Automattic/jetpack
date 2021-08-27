@@ -171,8 +171,8 @@ const stepToNextStep = {
 	'setup-wizard-completed': 'summary',
 	'banner-completed': 'woocommerce',
 	'not-started': 'site-type-question',
-	'site-type-question': 'product-suggestion',
-	'product-suggestion': 'woocommerce',
+	'site-type-question': 'product-suggestions',
+	'product-suggestions': 'woocommerce',
 	woocommerce: 'monitor',
 	monitor: 'related-posts',
 	'related-posts': 'creative-mail',
@@ -184,7 +184,7 @@ const stepToNextStep = {
 const stepToRoute = {
 	'not-started': '#/recommendations/site-type',
 	'site-type-question': '#/recommendations/site-type',
-	'product-suggestion': '#/recommendations/product-suggestion',
+	'product-suggestions': '#/recommendations/product-suggestions',
 	woocommerce: '#/recommendations/woocommerce',
 	monitor: '#/recommendations/monitor',
 	'related-posts': '#/recommendations/related-posts',
@@ -232,7 +232,7 @@ const isStepEligibleToShow = ( state, step ) => {
 		case 'site-type-question':
 		case 'summary':
 			return true;
-		case 'product-suggestion':
+		case 'product-suggestions':
 			return isSiteEligibleForUpsell( state ) && ! isEmpty( getProductSuggestions( state ) );
 		case 'woocommerce':
 			return getDataByKey( state, 'site-type-store' ) ? ! isFeatureActive( state, step ) : false;

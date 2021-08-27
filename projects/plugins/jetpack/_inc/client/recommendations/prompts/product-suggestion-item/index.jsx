@@ -46,8 +46,8 @@ const ProductSuggestionItemComponent = props => {
 			'jetpack_recommendations_product_suggestion_click',
 			product.slug
 		);
-		addSelectedRecommendation( 'product-suggestion' );
-		updateRecommendationsData( { 'product-suggestion-selection': product.slug } );
+		addSelectedRecommendation( 'product-suggestions' );
+		updateRecommendationsData( { 'product-suggestions-selection': product.slug } );
 		saveRecommendationsData();
 	}, [ product, addSelectedRecommendation, updateRecommendationsData, saveRecommendationsData ] );
 

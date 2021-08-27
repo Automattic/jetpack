@@ -56,7 +56,7 @@ import ReconnectModal from 'components/reconnect-modal';
 const recommendationsRoutes = [
 	'/recommendations',
 	'/recommendations/site-type',
-	'/recommendations/product-suggestion',
+	'/recommendations/product-suggestions',
 	'/recommendations/product-purchased',
 	'/recommendations/woocommerce',
 	'/recommendations/monitor',
@@ -251,7 +251,7 @@ class Main extends React.Component {
 				break;
 			case '/recommendations':
 			case '/recommendations/site-type':
-			case '/recommendations/product-suggestion':
+			case '/recommendations/product-suggestions':
 			case '/recommendations/product-purchased':
 			case '/recommendations/woocommerce':
 			case '/recommendations/monitor':
