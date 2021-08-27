@@ -113,10 +113,7 @@ const ProductSuggestionComponent = props => {
 };
 
 ProductSuggestionComponent.propTypes = {
-	productSlug: PropTypes.object.isRequired,
-	title: PropTypes.string.isRequired,
-	description: PropTypes.string.isRequired,
-	externalLink: PropTypes.string,
+	product: PropTypes.object.isRequired,
 };
 
 const ProductSuggestion = connect(
