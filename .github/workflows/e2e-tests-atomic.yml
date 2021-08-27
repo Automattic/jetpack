@@ -1,6 +1,8 @@
 name: E2E Tests on Atomic sites
 
 on:
+  push:
+    branches: [ e2e/reporting-for-atomic ]
   schedule:
     - cron:  '0 */4 * * *'
 
@@ -165,4 +167,5 @@ jobs:
           \"branch\": \"$BRANCH\",
           \"pr_title\": \"$PR_TITLE\",
           \"pr_number\": \"$PR_NUMBER\"
+          \"report_name\": \"atomic\"
           }}"
