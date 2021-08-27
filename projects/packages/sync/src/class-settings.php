@@ -368,6 +368,30 @@ class Settings {
 	}
 
 	/**
+	 * Returns SQL-escaped values for allowed order_item meta keys.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return array Meta keys filter values
+	 */
+	public static function get_allowed_order_itemmeta_structured() {
+		// Make sure that we only try to add the properties when the class exists.
+		if ( ! class_exists( '\Automattic\Jetpack\Sync\Modules\WooCommerce' ) ) {
+			return array();
+		}
+
+		$values = \Automattic\Jetpack\Sync\Modules\WooCommerce::$order_item_meta_whitelist;
+
+		return array(
+			'meta_key' => array(
+				'operator' => 'IN',
+				'values'   => array_map( 'esc_sql', $values ),
+			),
+		);
+	}
+
+	/**
 	 * Returns escaped SQL for comments, excluding any spam comments.
 	 * Can be injected directly into a WHERE clause.
 	 *
