@@ -4,6 +4,7 @@
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -35,12 +36,19 @@ const PromptLayout = props => {
 					<img
 						className="jp-recommendations-question__illustration-background"
 						src={ imagePath + 'recommendations/background.svg' }
-						alt=""
+						alt={ __(
+							'An illustration of a browser window used as the container to visually represent the current question.',
+							'jetpack'
+						) }
 					/>
 					<img
 						className="jp-recommendations-question__illustration-foreground"
 						src={ imagePath + illustrationPath }
-						alt=""
+						alt={ sprintf(
+							/* translators: %s: Name of the current Jetpack Assistant question (read: step). */
+							__( 'Illustration used to visually represent the current question: %s.', 'jetpack' ),
+							question
+						) }
 					/>
 				</div>
 			) }
