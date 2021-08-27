@@ -203,6 +203,7 @@ class Main extends React.Component {
 					images={ [ '/images/connect-right.jpg' ] }
 					assetBaseUrl={ this.props.pluginBaseUrl }
 					autoTrigger={ this.shouldAutoTriggerConnection() }
+					redirectUri="admin.php?page=jetpack"
 				>
 					<p>
 						{ __(
@@ -240,6 +241,7 @@ class Main extends React.Component {
 							: __( 'Unlock all the amazing features of Jetpack by connecting now', 'jetpack' )
 					}
 					buttonLabel={ __( 'Connect your user account', 'jetpack' ) }
+					redirectUri="admin.php?page=jetpack"
 				>
 					<ul>
 						<li>{ __( 'Receive instant downtime alerts', 'jetpack' ) }</li>
