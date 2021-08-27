@@ -34,20 +34,29 @@ const ProductPurchasedComponent = props => {
 		} );
 	}, [ purchasedProductSlug ] );
 
-	const purchasedProduct = suggestions.find( product => purchasedProductSlug === product.slug );
+	let features = [];
+
+	if ( ! isFetchingSuggestions ) {
+		const purchasedProduct = suggestions.find( product => purchasedProductSlug === product.slug );
+
+		if ( purchasedProduct && purchasedProduct.hasOwnProperty( 'features' ) ) {
+			features = purchasedProduct.features;
+		}
+	}
 
 	const answerSection = (
 		<div className="jp-recommendations-product-purchased">
-			{ ! isFetchingSuggestions && (
-				<ul className="jp-recommendations-product-purchased__features">
-					{ purchasedProduct.features.map( ( feature, key ) => (
-						<li className="jp-recommendations-product-purchased__feature" key={ key }>
-							<Gridicon icon="checkmark" />
-							{ feature }
-						</li>
-					) ) }
-				</ul>
+			{ isFetchingSuggestions && (
+				<p className="jp-recommendations-product-purchased">{ __( 'Loading…', 'jetpack' ) }</p>
 			) }
+			<ul className="jp-recommendations-product-purchased__features">
+				{ features.map( ( feature, key ) => (
+					<li className="jp-recommendations-product-purchased__feature" key={ key }>
+						<Gridicon icon="checkmark" />
+						{ feature }
+					</li>
+				) ) }
+			</ul>
 			<Button primary className="jp-recommendations-product-purchased__next" href={ nextRoute }>
 				{ __( 'Configure your site', 'jetpack' ) }
 			</Button>
