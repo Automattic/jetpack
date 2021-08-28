@@ -2,12 +2,6 @@ name: E2E Tests on Atomic sites
 
 on:
   pull_request:
-    paths-ignore:
-      - '**.md'
-  push:
-    branches: [fix/e2e-atomic-workflow]
-    paths-ignore:
-      - '**.md'
   schedule:
     - cron:  '0 */4 * * *'
 
@@ -22,6 +16,8 @@ jobs:
 
     - name: Setup tools
       uses: ./.github/actions/tool-setup
+      with:
+        - php: false
 
     - name: Install
       working-directory: projects/plugins/jetpack/tests/e2e
