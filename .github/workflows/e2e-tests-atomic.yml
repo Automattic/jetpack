@@ -23,7 +23,7 @@ jobs:
     - name: Setup tools
       uses: ./.github/actions/tool-setup
       with:
-        - php: false
+        php: false
 
     - name: Install
       working-directory: projects/plugins/jetpack/tests/e2e
