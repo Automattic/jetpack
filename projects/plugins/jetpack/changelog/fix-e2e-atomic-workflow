@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+E2E tests: fix missing action for e2e on atomic workflow
