@@ -1,6 +1,13 @@
 name: E2E Tests
 
 on:
+  pull_request:
+    paths-ignore:
+    - '**.md'
+  push:
+    branches: [master]
+    paths-ignore:
+    - '**.md'
   schedule:
     - cron:  '0 */12 * * *'
 concurrency:
