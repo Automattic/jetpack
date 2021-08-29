@@ -191,7 +191,7 @@ export default class DomEventHandler extends Component {
 
 		if ( this.props.isVisible ) {
 			this.preventBodyScroll();
-			// This is to fix search input on the overlay is not visible on mobile devices.
+			// This ensures the search input is visible on mobile devices.
 			// @see https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollTo
 			window?.scrollTo( 0, 0 );
 		} else {
