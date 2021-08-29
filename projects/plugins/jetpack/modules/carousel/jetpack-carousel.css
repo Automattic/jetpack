@@ -14,18 +14,6 @@
 	--jp-carousel-border-color: #dcdcde;
 }
 
-/*
- * Temporary fix below for issue introduced to Newspack blocks, can be removed once
- * once Newspack blocks includes this override
-*/
-.wp-block-newspack-blocks-carousel .swiper-button-prev:after,
-.swiper-container-rtl .swiper-button-next:after {
-	content: none;
-}
-.wp-block-newspack-blocks-carousel .swiper-button-next:after,
-.swiper-container-rtl .swiper-button-prev:after {
-	content: none;
-}
 .jp-carousel-overlay .swiper-button-prev,
 .jp-carousel-overlay .swiper-container-rtl .swiper-button-next,
 .jp-carousel-overlay .swiper-button-next,
