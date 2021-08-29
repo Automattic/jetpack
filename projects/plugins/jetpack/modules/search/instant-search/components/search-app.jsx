@@ -120,10 +120,6 @@ class SearchApp extends Component {
 		}
 	}
 
-	componentWillUnmount() {
-		this.restoreBodyScroll();
-	}
-
 	initializeAnalytics() {
 		initializeTracks();
 		resetTrackingCookies();
