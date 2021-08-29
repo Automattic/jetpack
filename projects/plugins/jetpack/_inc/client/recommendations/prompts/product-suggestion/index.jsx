@@ -42,15 +42,23 @@ const ProductSuggestionComponent = props => {
 		saveRecommendationsData,
 	} = props;
 
-	const onPurchaseClick = useCallback( () => {
-		analytics.tracks.recordEvent(
-			'jetpack_recommendations_product_suggestion_click',
-			product.slug
-		);
-		addSelectedRecommendation( 'product-suggestions' );
-		updateRecommendationsData( { 'product-suggestions-selection': product.slug } );
-		saveRecommendationsData();
-	}, [ product, addSelectedRecommendation, updateRecommendationsData, saveRecommendationsData ] );
+	const onPurchaseClick = useCallback(
+		event => {
+			event.preventDefault();
+
+			analytics.tracks.recordEvent(
+				'jetpack_recommendations_product_suggestion_click',
+				product.slug
+			);
+
+			addSelectedRecommendation( 'product-suggestions' );
+			updateRecommendationsData( { 'product-suggestions-selection': product.slug } );
+			saveRecommendationsData();
+
+			window.location.href = event.target.href;
+		},
+		[ product, addSelectedRecommendation, updateRecommendationsData, saveRecommendationsData ]
+	);
 
 	const onExternalLinkClick = useCallback( () => {
 		analytics.tracks.recordEvent(
