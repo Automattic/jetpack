@@ -2670,6 +2670,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_posint',
 				'jp_group'          => 'stats',
 			),
+			'collapse_nudges'                      => array(
+				'description'       => esc_html__( 'Collapse upgrade nudges', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'stats',
+			),
 
 			// Akismet - Not a module, but a plugin. The options can be passed and handled differently.
 			'akismet_show_user_comments_approved'  => array(
