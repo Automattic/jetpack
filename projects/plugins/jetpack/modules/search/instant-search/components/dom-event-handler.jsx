@@ -7,11 +7,6 @@ import { Component } from 'react';
 // eslint-disable-next-line lodash/import-scope
 import debounce from 'lodash/debounce';
 
-/**
- * Internal dependencies
- */
-import { OVERLAY_CLASS_NAME } from '../lib/constants';
-
 // This component is used primarily to bind DOM event handlers to elements outside of the Jetpack Search overlay.
 export default class DomEventHandler extends Component {
 	constructor() {
@@ -76,10 +71,6 @@ export default class DomEventHandler extends Component {
 		document.querySelectorAll( this.props.themeOptions.filterInputSelector ).forEach( element => {
 			element.addEventListener( 'click', this.handleFilterInputClick );
 		} );
-
-		document.querySelectorAll( `.${ OVERLAY_CLASS_NAME }` ).forEach( element => {
-			element.addEventListener( 'transitionend', this.fixBodyScroll );
-		} );
 	}
 
 	removeEventListeners() {
@@ -99,10 +90,6 @@ export default class DomEventHandler extends Component {
 
 		document.querySelectorAll( this.props.themeOptions.filterInputSelector ).forEach( element => {
 			element.removeEventListener( 'click', this.handleFilterInputClick );
-		} );
-
-		document.querySelectorAll( `.${ OVERLAY_CLASS_NAME }` ).forEach( element => {
-			element.removeEventListener( 'transitionend', this.fixBodyScroll );
 		} );
 	}
 
@@ -191,9 +178,6 @@ export default class DomEventHandler extends Component {
 	};
 
 	fixBodyScroll = () => {
-		/**
-		 * The method could be called multiple times but we only want to run it once.
-		 */
 		if ( this.props.isVisible ) {
 			this.preventBodyScroll();
 			// This ensures the search input is visible on mobile devices.
