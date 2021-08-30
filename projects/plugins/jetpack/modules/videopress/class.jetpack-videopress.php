@@ -123,6 +123,11 @@ class Jetpack_VideoPress {
 	/**
 	 * Attempts to delete a VideoPress video from wp.com.
 	 * Will block the deletion from continuing if certain errors return from the wp.com API.
+	 *
+	 * @param Boolean $delete if the deletion should occur or not (unused).
+	 * @param WP_Post $post the post object.
+	 *
+	 * @return null|WP_Error|Boolean null if deletion should continue.
 	 */
 	public function delete_video_wpcom( $delete, $post ) {
 		if ( ! is_videopress_attachment( $post->ID ) ) {
