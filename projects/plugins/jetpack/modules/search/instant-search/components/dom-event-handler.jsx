@@ -17,8 +17,9 @@ export default class DomEventHandler extends Component {
 			// We toggle isComposing on compositionstart and compositionend events.
 			// (CJK = Chinese, Japanese, Korean; see https://en.wikipedia.org/wiki/CJK_characters)
 			isComposing: false,
+			// `bodyScrollTop` remebers the body scroll position.
+			bodyScrollTop: 0,
 		};
-		this.top = 0;
 		this.props.initializeQueryValues();
 	}
 
@@ -191,28 +192,30 @@ export default class DomEventHandler extends Component {
 	/**
 	 * 1) When the overlay is open, we set body to fixed position.
 	 * 2) Body would be scrolled to top, so we need to set top to where the scroll position was.
-	 * 3) And we remember the body postition in `this.top`
+	 * 3) And we remember the body postition in `this.state.bodyscrolltop`
 	 */
 	preventBodyScroll() {
-		this.top = parseInt( window.scrollY ) || 0;
-		/**
-		 * For logged-in user, there's a WP Admin Bar which is made sticky by adding `margin-top` to the document (the old way of `position: sticky;`).
-		 * So we need to fix the offset of scrollY for fixed positioned body.
-		 */
-		const scrollYOffset = document.documentElement?.scrollHeight - document.body?.scrollHeight || 0;
-		// Keep body at the same position when overlay is open.
-		document.body.style.top = `-${ this.top - scrollYOffset }px`;
-		// Make body in the center.
-		document.body.style.left = 0;
-		document.body.style.right = 0;
-		// Make body not scrollable.
-		document.body.style.position = 'fixed';
+		this.setState( { bodyScrollTop: parseInt( window.scrollY ) || 0 }, () => {
+			/**
+			 * For logged-in user, there's a WP Admin Bar which is made sticky by adding `margin-top` to the document (the old way of `position: sticky;`).
+			 * So we need to fix the offset of scrollY for fixed positioned body.
+			 */
+			const scrollYOffset =
+				document.documentElement?.scrollHeight - document.body?.scrollHeight || 0;
+			// Keep body at the same position when overlay is open.
+			document.body.style.top = `-${ this.state.bodyscrolltop - scrollYOffset }px`;
+			// Make body in the center.
+			document.body.style.left = 0;
+			document.body.style.right = 0;
+			// Make body not scrollable.
+			document.body.style.position = 'fixed';
+		} );
 	}
 
 	/**
 	 * 1) Unset body fixed postion
-	 * 2) Scroll back to the `this.top`
-	 * 3) Reset `this.top` to `0`
+	 * 2) Scroll back to the `this.state.bodyscrolltop`
+	 * 3) Reset `this.state.bodyscrolltop` to `0`
 	 */
 	restoreBodyScroll() {
 		// Restore body scroll.
@@ -221,8 +224,8 @@ export default class DomEventHandler extends Component {
 		document.body.style.right = '';
 		document.body.style.position = '';
 		// Restore body position.
-		this.top > 0 && window.scrollTo( 0, this.top );
-		this.top = 0;
+		this.state.bodyscrolltop > 0 && window.scrollTo( 0, this.state.bodyscrolltop );
+		this.setState( { bodyScrollTop: 0 } );
 	}
 
 	render() {
