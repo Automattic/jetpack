@@ -13,9 +13,11 @@ The component implements the connection screen page, and loads the `ConnectButto
 - *redirectUrl* - string, wp-admin URI to redirect a user to after Calypso connection flow.
 - *from* - string, custom string parameter to identify where the request is coming from.
 - *title* - string, page title.
+- *buttonLabel* - string, the "Connect" button label.
 - *statusCallback* - callback to pull connection status from the component.
 - *images* - array, images to display on the right side of the connection screen.
 - *assetBaseUrl* - string, path to the `/build` directory of the package consumer.
+- *autoTrigger* - Whether to initiate the connection process automatically upon rendering the component.
 
 ### Usage
 ```jsx
@@ -57,6 +59,7 @@ The component displays the connection button and handles the connection process,
 - *statusCallback* - callback to pull connection status from the component.
 - *connectionStatus* - object, the connection status info.
 - *connectionStatusIsFetching* - boolean, whether the connection status is being fetched at the moment.
+- *autoTrigger* - Whether to initiate the connection process automatically upon rendering the component.
 
 ### Basic Usage
 ```jsx
@@ -147,8 +150,8 @@ or renders the `InPlaceConnection` component.
 
 ### Properties
 
-- *connectUrl* - string (required), the authorization URL (the no-iframe version, will be adjusted for In-Place flow automatically).
-- *redirectUrl* - string, wp-admin URI to redirect a user to after Calypso connection flow.
+- *connectUrl* - string, the authorization URL (the no-iframe version). Fetched automatically if omitted.
+- *redirectUrl* - string, wp-admin URI to redirect a user to after Calypso connection flow. May be omitted if `connectUrl` is provided.
 - *from* - string, indicates where the connection request is coming from.
 - *redirectFunc* - function, the redirect function (`window.location.assign()` by default).
 
