@@ -7,13 +7,35 @@ import { __, _x } from '@wordpress/i18n';
 import { InspectorAdvancedControls } from '@wordpress/block-editor'; // eslint-disable-line import/no-unresolved
 import { createHigherOrderComponent } from '@wordpress/compose';
 
-/**
- * Internal dependencies
- */
-import { unescape } from './util';
-
 /* global widget_conditions_data, wpcom */
 /* eslint-disable react/react-in-jsx-scope */
+
+//// Unescape utility
+const htmlUnescapes = {
+	'&amp;': '&',
+	'&lt;': '<',
+	'&gt;': '>',
+	'&quot;': '"',
+	'&#39;': "'",
+	'&nbsp;': '\u00A0',
+};
+const reEscapedHtml = /&(?:amp|lt|gt|quot|#39|nbsp);/g;
+
+/*
+ * Unescape html entities: unescape("Hello&gt;&gt;") = "Hello>>"
+ * Scaled down version of unescape() from lodash.
+ * (Yes, lodash's unescape() only does a few specific replacements!
+ *  They recommend using "he" https://mths.be/he if you need full replacements.)
+ * @param string str - input string
+ * @returns string String with html entities unescaped
+ */
+const unescape = str => {
+	if ( typeof str !== 'string' ) {
+		return str;
+	}
+	const replacer = input => htmlUnescapes[ input ];
+	return str.replace( reEscapedHtml, replacer );
+};
 
 const blockHasVisibilitySettings = name => {
 	const disallowed = new Set( [
