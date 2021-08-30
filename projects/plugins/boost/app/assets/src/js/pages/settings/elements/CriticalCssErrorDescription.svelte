@@ -14,11 +14,12 @@
 	import { __ } from '@wordpress/i18n';
 	import {
 		describeErrorSet,
-		textSuggestion,
+		suggestion,
 		footerComponent,
 		rawError,
 	} from '../../../utils/describe-critical-css-recommendations';
 	import supportLinkTemplateVar from '../../../utils/support-link-template-var';
+	import NumberedList from '../../../elements/NumberedList.svelte';
 
 	const dispatch = createEventDispatcher();
 
@@ -61,8 +62,16 @@
 		</h5>
 
 		<p class="suggestion">
-			<TemplatedString template={textSuggestion( errorSet )} vars={templateVars} />
+			<TemplatedString template={suggestion( errorSet ).paragraph} vars={templateVars} />
+			{#if suggestion( errorSet ).list}
+				<NumberedList items={suggestion( errorSet ).list} vars={templateVars} />
+			{/if}
 		</p>
+		{#if suggestion( errorSet ).closingParagraph}
+			<p class="suggestion-closing">
+				<TemplatedString template={suggestion( errorSet ).closingParagraph} vars={templateVars} />
+			</p>
+		{/if}
 
 		<svelte:component this={footerComponent( errorSet )} />
 	{/if}

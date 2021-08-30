@@ -28,7 +28,7 @@ import {
 import { getSitePlan } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import { getVaultPressData } from 'state/at-a-glance';
-import { getConnectUrl, hasConnectedOwner, isOfflineMode } from 'state/connection';
+import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
 import { getUpgradeUrl, showBackups } from 'state/initial-state';
 
 /**
@@ -70,7 +70,6 @@ class DashBackups extends Component {
 		isOfflineMode: PropTypes.bool.isRequired,
 		isVaultPressInstalled: PropTypes.bool.isRequired,
 		upgradeUrl: PropTypes.string.isRequired,
-		connectUrl: PropTypes.string.isRequired,
 		hasConnectedOwner: PropTypes.bool.isRequired,
 	};
 
@@ -166,7 +165,7 @@ class DashBackups extends Component {
 							'jetpack'
 						) }
 						disableHref="false"
-						href={ this.props.connectUrl }
+						onClick={ this.props.connectUser }
 						eventFeature="backups"
 						path="dashboard"
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SITE_BACKUPS_JETPACK ) }
@@ -278,18 +277,24 @@ class DashBackups extends Component {
 	}
 }
 
-export default connect( state => {
-	const sitePlan = getSitePlan( state );
+export default connect(
+	state => {
+		const sitePlan = getSitePlan( state );
 
-	return {
-		vaultPressData: getVaultPressData( state ),
-		sitePlan,
-		planClass: getPlanClass( sitePlan ),
-		isOfflineMode: isOfflineMode( state ),
-		isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
-		showBackups: showBackups( state ),
-		upgradeUrl: getUpgradeUrl( state, 'aag-backups' ),
-		connectUrl: getConnectUrl( state ),
-		hasConnectedOwner: hasConnectedOwner( state ),
-	};
-} )( DashBackups );
+		return {
+			vaultPressData: getVaultPressData( state ),
+			sitePlan,
+			planClass: getPlanClass( sitePlan ),
+			isOfflineMode: isOfflineMode( state ),
+			isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
+			showBackups: showBackups( state ),
+			upgradeUrl: getUpgradeUrl( state, 'aag-backups' ),
+			hasConnectedOwner: hasConnectedOwner( state ),
+		};
+	},
+	dispatch => ( {
+		connectUser: () => {
+			return dispatch( connectUser() );
+		},
+	} )
+)( DashBackups );
