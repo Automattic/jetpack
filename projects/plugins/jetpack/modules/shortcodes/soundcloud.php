@@ -1,4 +1,9 @@
 <?php
+
+if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	require_once WP_CONTENT_DIR . '/lib/display-context.php';
+}
+
 /**
  * SoundCloud Shortcode
  * Based on this plugin: https://wordpress.org/plugins/soundcloud-shortcode/
@@ -44,6 +49,17 @@ function soundcloud_shortcode( $atts, $content = null ) {
 			return esc_html__( 'Please specify a Soundcloud URL.', 'jetpack' );
 		} else {
 			return '<!-- Missing Soundcloud URL -->';
+		}
+	}
+
+	// If the shortcode is displayed in a WPCOM notification, display a simple link only.
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		$context = A8C\Display_Context\get_current_context();
+		if ( A8C\Display_Context\NOTIFICATIONS === $context ) {
+			return sprintf(
+				'<a href="%1$s" target="_blank" rel="noopener noreferrer">%1$s</a>',
+				esc_url( $shortcode_options['url'] ),
+			);
 		}
 	}
 
