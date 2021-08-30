@@ -68,10 +68,10 @@ export default class MailchimpBlock extends PageActions {
 			while ( ! loaded ) {
 				try {
 					count++;
-					const connections = await ConnectionsPage.init( wpComTab );
-					if ( ! ( await connections.isEnabled() ) ) {
-						throw 'Publicise not enabled/synced';
-					}
+					await ConnectionsPage.init( wpComTab );
+					// if ( ! ( await connections.isEnabled() ) ) {
+					// 	throw 'Publicise not enabled/synced';
+					// }
 
 					loaded = true;
 				} catch ( e ) {
@@ -80,8 +80,8 @@ export default class MailchimpBlock extends PageActions {
 						' URL: ' + connectionsUrl
 					);
 					await wpComTab.goto( connectionsUrl );
-					if ( count > 2 ) {
-						throw new Error( 'ConnectionsPage is not available after 3rd attempt' );
+					if ( count > 4 ) {
+						throw new Error( 'ConnectionsPage is not available after 5rd attempt' );
 					}
 				}
 			}
