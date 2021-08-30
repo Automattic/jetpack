@@ -320,6 +320,11 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
+		fetchRecommendationsProductSuggestions: () =>
+			getRequest( `${ apiRoot }jetpack/v4/recommendations/product-suggestions`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		fetchRecommendationsUpsell: () =>
 			getRequest( `${ apiRoot }jetpack/v4/recommendations/upsell`, getParams )
 				.then( checkStatus )
