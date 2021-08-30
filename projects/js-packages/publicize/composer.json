@@ -1,0 +1,32 @@
+{
+	"name": "automattic/publicize",
+	"description": "Publicize is a component that makes it easy to share your site’s posts on several social media networks.",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "^1.2"
+	},
+	"scripts": {},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autotagger": true,
+		"npmjs-autopublish": true,
+		"mirror-repo": "automattic/publicize",
+		"changelogger": {
+			"link-template": "https://github.com/automattic/publicize/compare/${old}...${new}"
+		},
+		"version-constants": {
+			"::APP_VERSION": "bin/eslint-changed.js"
+		}
+	}
+}

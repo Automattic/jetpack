@@ -1,0 +1,24 @@
+{
+	"name": "@automattic/publicize",
+	"version": "0.0.1",
+	"description": "Publicize is a component that makes it easy to share your site’s posts on several social media networks.",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/publicize/README.md#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/publicize"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {},
+	"dependencies": {},
+	"devDependencies": {},
+	"engines": {
+		"node": "^14.16.1",
+		"pnpm": "^6.5.0",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	}
+}

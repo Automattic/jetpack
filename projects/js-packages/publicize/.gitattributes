@@ -1,0 +1,12 @@
+# Files not needed to be distributed in the package.
+/.gitattributes  production-exclude
+/tests/**        production-exclude
+
+# Files to include in the mirror repo
+/build/**         production-include
+
+# Files to exclude from the mirror repo
+/changelog/**     production-exclude
+/.eslintrc.js     production-exclude
+.gitignore        production-exclude
+_inc/**           production-exclude

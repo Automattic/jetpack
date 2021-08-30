@@ -18,6 +18,7 @@
 				"@automattic/jetpack-components",
 				"@automattic/jetpack-connection",
 				"@automattic/jetpack-storybook",
+				"@automattic/publicize",
 				"automattic/jetpack-a8c-mc-stats",
 				"automattic/jetpack-abtest",
 				"automattic/jetpack-analyzer",
