@@ -19,7 +19,7 @@ const destDir = path.join( dataDir, 'dest/' );
 before( function () {
 	// this.sandbox = sinon.createSandbox();
 	try {
-		fs.rmdirSync( destDir, { recursive: true } );
+		fs.rmSync( destDir, { force: true, recursive: true } );
 	} catch ( e ) {
 		console.log( 'Deletion of previous tests failed: ' + e.message );
 	}
@@ -29,7 +29,7 @@ before( function () {
 afterEach( function () {
 	// this.sandbox.restore();
 	try {
-		fs.rmdirSync( destDir, { recursive: true } );
+		fs.rmSync( destDir, { force: true, recursive: true } );
 	} catch ( e ) {
 		console.log( 'Deletion of previous test failed: ' + e.message );
 	}

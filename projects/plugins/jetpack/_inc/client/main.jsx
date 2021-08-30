@@ -4,13 +4,14 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { withRouter, Prompt } from 'react-router-dom';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ConnectScreen } from '@automattic/jetpack-connection';
+import { Dashicon } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import AuthIframe from 'components/auth-iframe';
 import Masthead from 'components/masthead';
 import Navigation from 'components/navigation';
 import NavigationSettings from 'components/navigation-settings';
@@ -19,9 +20,12 @@ import {
 	getSiteConnectionStatus,
 	isCurrentUserLinked,
 	isSiteConnected,
-	isAuthorizingUserInPlace,
+	isConnectingUser,
+	resetConnectUser,
 	isReconnectingSite,
 	reconnectSite,
+	getConnectUrl,
+	getConnectingUserFeatureLabel,
 } from 'state/connection';
 import {
 	setInitialState,
@@ -29,11 +33,13 @@ import {
 	getSiteAdminUrl,
 	getApiNonce,
 	getApiRootUrl,
+	getRegistrationNonce,
 	userCanManageModules,
 	userCanConnectSite,
 	getCurrentVersion,
 	getTracksUserData,
 	showRecommendations,
+	getPluginBaseUrl,
 } from 'state/initial-state';
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
 import { getSearchTerm } from 'state/search';
@@ -52,6 +58,7 @@ import restApi from '@automattic/jetpack-api';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import { getRewindStatus } from 'state/rewind';
 import ReconnectModal from 'components/reconnect-modal';
+import { createInterpolateElement } from '@wordpress/element';
 
 const recommendationsRoutes = [
 	'/recommendations',
@@ -147,7 +154,7 @@ class Main extends React.Component {
 		return (
 			nextProps.siteConnectionStatus !== this.props.siteConnectionStatus ||
 			nextProps.isLinked !== this.props.isLinked ||
-			nextProps.isAuthorizingInPlace !== this.props.isAuthorizingInPlace ||
+			nextProps.isConnectingUser !== this.props.isConnectingUser ||
 			nextProps.location.pathname !== this.props.location.pathname ||
 			nextProps.searchTerm !== this.props.searchTerm ||
 			nextProps.rewindStatus !== this.props.rewindStatus ||
@@ -187,8 +194,86 @@ class Main extends React.Component {
 			);
 		}
 
-		if ( false === this.props.siteConnectionStatus && this.props.userCanConnectSite ) {
-			return <div className="jp-jetpack-connect__container" aria-live="assertive" />;
+		if ( this.isMainConnectScreen() ) {
+			return (
+				<ConnectScreen
+					apiNonce={ this.props.apiNonce }
+					registrationNonce={ this.props.registrationNonce }
+					apiRoot={ this.props.apiRoot }
+					images={ [ '/images/connect-right.jpg' ] }
+					assetBaseUrl={ this.props.pluginBaseUrl }
+					autoTrigger={ this.shouldAutoTriggerConnection() }
+					redirectUri="admin.php?page=jetpack"
+				>
+					<p>
+						{ __(
+							"Secure and speed up your site for free with Jetpack's powerful WordPress tools.",
+							'jetpack'
+						) }
+					</p>
+
+					<ul>
+						<li>{ __( 'Measure your impact with beautiful stats', 'jetpack' ) }</li>
+						<li>{ __( 'Speed up your site with optimized images', 'jetpack' ) }</li>
+						<li>{ __( 'Protect your site against bot attacks', 'jetpack' ) }</li>
+						<li>{ __( 'Get notifications if your site goes offline', 'jetpack' ) }</li>
+						<li>{ __( 'Enhance your site with dozens of other features', 'jetpack' ) }</li>
+					</ul>
+				</ConnectScreen>
+			);
+		}
+
+		if ( this.isUserConnectScreen() ) {
+			return (
+				<ConnectScreen
+					apiNonce={ this.props.apiNonce }
+					registrationNonce={ this.props.registrationNonce }
+					apiRoot={ this.props.apiRoot }
+					images={ [ '/images/connect-right-secondary.png' ] }
+					assetBaseUrl={ this.props.pluginBaseUrl }
+					title={
+						this.props.connectingUserFeatureLabel
+							? sprintf(
+									/* translators: placeholder is a feature label (e.g. SEO, Notifications) */
+									__( 'Unlock %s and more amazing features', 'jetpack' ),
+									this.props.connectingUserFeatureLabel
+							  )
+							: __( 'Unlock all the amazing features of Jetpack by connecting now', 'jetpack' )
+					}
+					buttonLabel={ __( 'Connect your user account', 'jetpack' ) }
+					redirectUri="admin.php?page=jetpack"
+				>
+					<ul>
+						<li>{ __( 'Receive instant downtime alerts', 'jetpack' ) }</li>
+						<li>{ __( 'Automatically share your content on social media', 'jetpack' ) }</li>
+						<li>{ __( 'Let your subscribers know when you post', 'jetpack' ) }</li>
+						<li>{ __( 'Receive notifications about new likes and comments', 'jetpack' ) }</li>
+						<li>{ __( 'Let visitors share your content on social media', 'jetpack' ) }</li>
+						<li>
+							{ createInterpolateElement(
+								__( 'And more! <a>See all Jetpack features</a>', 'jetpack' ),
+								{
+									a: (
+										<a
+											href={ getRedirectUrl( 'jetpack-features' ) }
+											target="_blank"
+											rel="noreferrer"
+										/>
+									),
+								}
+							) }
+							<a
+								className="jp-connection-screen-icon"
+								href={ getRedirectUrl( 'jetpack-features' ) }
+								target="_blank"
+								rel="noreferrer"
+							>
+								<Dashicon icon="external" />
+							</a>
+						</li>
+					</ul>
+				</ConnectScreen>
+			);
 		}
 
 		const settingsNav = (
@@ -205,6 +290,8 @@ class Main extends React.Component {
 			case '/dashboard':
 			case '/reconnect':
 			case '/disconnect':
+			case '/connect-user':
+			case '/setup':
 				pageComponent = (
 					<AtAGlance
 						siteRawUrl={ this.props.siteRawUrl }
@@ -317,10 +404,6 @@ class Main extends React.Component {
 		);
 	}
 
-	shouldShowAuthIframe() {
-		return this.props.isAuthorizingInPlace;
-	}
-
 	shouldBlurMainContent() {
 		return this.props.isReconnectingSite;
 	}
@@ -333,25 +416,72 @@ class Main extends React.Component {
 		this.props.history.replace( '/dashboard' );
 	}
 
+	/**
+	 * Checks if this is the main connection screen page.
+	 *
+	 * @returns {boolean} Whether this is the main connection screen page.
+	 */
+	isMainConnectScreen() {
+		return false === this.props.siteConnectionStatus && this.props.userCanConnectSite;
+	}
+
+	/**
+	 * Checks if this is the user connection screen page.
+	 *
+	 * @returns {boolean} Whether this is the user connection screen page.
+	 */
+	isUserConnectScreen() {
+		return '/connect-user' === this.props.location.pathname;
+	}
+
+	/**
+	 * Check if the user connection has been triggered.
+	 *
+	 * @returns {boolean} Whether the user connection has been triggered.
+	 */
+	shouldConnectUser() {
+		return this.props.isConnectingUser;
+	}
+
+	/**
+	 * Show the user connection page.
+	 */
+	connectUser() {
+		this.props.resetConnectUser();
+		this.props.history.replace( '/connect-user' );
+	}
+
+	/**
+	 * Check if the connection flow should get triggered automatically.
+	 *
+	 * @returns {boolean} Whether to trigger the connection flow automatically.
+	 */
+	shouldAutoTriggerConnection() {
+		return this.props.location.pathname.startsWith( '/setup' );
+	}
+
 	render() {
+		const jpClasses = [ 'jp-lower' ];
+
+		if ( this.isMainConnectScreen() ) {
+			jpClasses.push( 'jp-main-connect-screen' );
+		}
+
+		if ( this.isUserConnectScreen() ) {
+			jpClasses.push( 'jp-user-connect-screen' );
+		}
+
 		return (
 			<div>
 				{ this.shouldShowReconnectModal() && (
 					<ReconnectModal show={ true } onHide={ this.closeReconnectModal } />
 				) }
 				{ this.shouldShowMasthead() && <Masthead location={ this.props.location } /> }
-				<div className="jp-lower">
+				<div className={ jpClasses.join( ' ' ) }>
 					{ this.shouldShowRewindStatus() && <QueryRewindStatus /> }
 					<AdminNotices />
 					<JetpackNotices />
-					{ this.shouldShowAuthIframe() && (
-						<AuthIframe
-							{ ...( this.props.isReconnectingSite && {
-								scrollToIframe: false,
-								title: __( 'Reconnect to WordPress.com by approving the connection', 'jetpack' ),
-							} ) }
-						/>
-					) }
+					{ this.shouldConnectUser() && this.connectUser() }
 					<Prompt
 						when={ this.props.areThereUnsavedSettings }
 						message={ this.handleRouterWillLeave }
@@ -372,12 +502,13 @@ export default connect(
 		return {
 			siteConnectionStatus: getSiteConnectionStatus( state ),
 			isLinked: isCurrentUserLinked( state ),
-			isAuthorizingInPlace: isAuthorizingUserInPlace( state ),
+			isConnectingUser: isConnectingUser( state ),
 			siteRawUrl: getSiteRawUrl( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
 			searchTerm: getSearchTerm( state ),
 			apiRoot: getApiRootUrl( state ),
 			apiNonce: getApiNonce( state ),
+			registrationNonce: getRegistrationNonce( state ),
 			tracksUserData: getTracksUserData( state ),
 			areThereUnsavedSettings: areThereUnsavedSettings( state ),
 			userCanManageModules: userCanManageModules( state ),
@@ -387,6 +518,9 @@ export default connect(
 			rewindStatus: getRewindStatus( state ),
 			currentVersion: getCurrentVersion( state ),
 			showRecommendations: showRecommendations( state ),
+			pluginBaseUrl: getPluginBaseUrl( state ),
+			connectUrl: getConnectUrl( state ),
+			connectingUserFeatureLabel: getConnectingUserFeatureLabel( state ),
 		};
 	},
 	dispatch => ( {
@@ -398,6 +532,9 @@ export default connect(
 		},
 		reconnectSite: () => {
 			return dispatch( reconnectSite() );
+		},
+		resetConnectUser: () => {
+			return dispatch( resetConnectUser() );
 		},
 	} )
 )( withRouter( Main ) );

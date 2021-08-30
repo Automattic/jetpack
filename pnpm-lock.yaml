@@ -107,8 +107,9 @@ importers:
 
   projects/js-packages/connection:
     specifiers:
-      '@automattic/jetpack-api': workspace:^0.1.0
+      '@automattic/jetpack-api': workspace:^0.1.1-alpha
       '@automattic/jetpack-components': workspace:^0.2.2-alpha
+      '@wordpress/base-styles': 3.6.0
       '@wordpress/browserslist-config': 4.1.0
       '@wordpress/components': 16.0.0
       '@wordpress/data': 6.0.1
@@ -124,6 +125,7 @@ importers:
     dependencies:
       '@automattic/jetpack-api': link:../api
       '@automattic/jetpack-components': link:../components
+      '@wordpress/base-styles': 3.6.0
       '@wordpress/browserslist-config': 4.1.0
       '@wordpress/components': 16.0.0_react-dom@17.0.2+react@17.0.2
       '@wordpress/data': 6.0.1_react@17.0.2
@@ -234,7 +236,7 @@ importers:
   projects/packages/connection-ui:
     specifiers:
       '@automattic/calypso-build': 9.0.0
-      '@automattic/jetpack-api': workspace:^0.1.0
+      '@automattic/jetpack-api': workspace:^0.1.1-alpha
       '@automattic/jetpack-connection': workspace:^0.6.0-alpha
       '@babel/core': 7.12.10
       '@babel/helper-module-imports': 7.12.5
@@ -345,7 +347,7 @@ importers:
   projects/plugins/backup:
     specifiers:
       '@automattic/calypso-build': 9.0.0
-      '@automattic/jetpack-api': workspace:^0.1.0
+      '@automattic/jetpack-api': workspace:^0.1.1-alpha
       '@automattic/jetpack-components': workspace:^0.2.2-alpha
       '@automattic/jetpack-connection': workspace:^0.6.0-alpha
       '@babel/core': 7.13.14
@@ -485,7 +487,7 @@ importers:
       '@automattic/color-studio': 2.5.0
       '@automattic/components': 1.0.0-alpha.3
       '@automattic/format-currency': 1.0.0-alpha.0
-      '@automattic/jetpack-api': workspace:^0.1.0
+      '@automattic/jetpack-api': workspace:^0.1.1-alpha
       '@automattic/jetpack-components': workspace:^0.2.2-alpha
       '@automattic/jetpack-connection': workspace:^0.6.0-alpha
       '@automattic/popup-monitor': 1.0.0
@@ -567,7 +569,6 @@ importers:
       jest-environment-jsdom: ^27.0.6
       jetpack-js-test-runner: workspace:*
       jsdom: 16.4.0
-      jsdom-global: 3.0.2
       lodash: 4.17.21
       mapbox-gl: 1.13.0
       markdown-it: 12.0.4
@@ -679,7 +680,6 @@ importers:
       gulp-sass: 5.0.0
       gulp-sourcemaps: 3.0.0
       jsdom: 16.4.0
-      jsdom-global: 3.0.2_jsdom@16.4.0
       mapbox-gl: 1.13.0
       markdown-it: 12.0.4
       page: 1.7.1
@@ -768,6 +768,9 @@ importers:
       style-loader: 2.0.0_webpack@5.51.1
       url-loader: 4.1.1_webpack@5.51.1
 
+  projects/plugins/search:
+    specifiers: {}
+
   tools/cli:
     specifiers:
       '@octokit/auth-token': 2.4.5
@@ -824,8 +827,8 @@ importers:
       commander: 7.2.0
       enzyme: 3.11.0
       glob: 7.1.6
+      global-jsdom: 8.1.0
       jsdom: 16.4.0
-      jsdom-global: 3.0.2
       mocha: 8.2.1
       nock: 13.0.7
       sinon: 9.2.4
@@ -842,8 +845,8 @@ importers:
       commander: 7.2.0
       enzyme: 3.11.0
       glob: 7.1.6
+      global-jsdom: 8.1.0_jsdom@16.4.0
       jsdom: 16.4.0
-      jsdom-global: 3.0.2_jsdom@16.4.0
       mocha: 8.2.1
       nock: 13.0.7
       sinon: 9.2.4
@@ -17551,6 +17554,15 @@ packages:
       define-properties: 1.1.3
       is-symbol: 1.0.4
 
+  /global-jsdom/8.1.0_jsdom@16.4.0:
+    resolution: {integrity: sha512-FBi84GT/MrzP+H3aReBSWXGVz2kdPaDrK/DByKrOq16mRexWrcJNpV6SONCKXWQuzxRjA7UXMfIvxmGyQZS+2Q==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      jsdom: '>=10.0.0 || <17'
+    dependencies:
+      jsdom: 16.4.0
+    dev: false
+
   /global-modules/0.2.3:
     resolution: {integrity: sha1-6lo77ULG1s6ZWk+KEmm12uIjgo0=}
     engines: {node: '>=0.10.0'}
@@ -19115,7 +19127,7 @@ packages:
   /isomorphic-fetch/2.2.1:
     resolution: {integrity: sha1-YRrhrPFPXoH3KVB0coGf6XM1WKk=}
     dependencies:
-      node-fetch: 1.7.3
+      node-fetch: 2.6.1
       whatwg-fetch: 3.6.2
     dev: false
 
@@ -19979,14 +19991,6 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
     dev: true
-
-  /jsdom-global/3.0.2_jsdom@16.4.0:
-    resolution: {integrity: sha1-a9KZwTsMRiay2iwDk81DhdYGrLk=}
-    peerDependencies:
-      jsdom: '>=10.0.0'
-    dependencies:
-      jsdom: 16.4.0
-    dev: false
 
   /jsdom/16.4.0:
     resolution: {integrity: sha512-lYMm3wYdgPhrl7pDcRmvzPhhrGVBeVhPIqeHjzeiHN3DFmD1RBpbExbi8vU7BJdH8VAZYovR8DMt0PNNDM7k8w==}
@@ -21363,13 +21367,6 @@ packages:
     dependencies:
       minimatch: 3.0.4
     dev: true
-
-  /node-fetch/1.7.3:
-    resolution: {integrity: sha512-NhZ4CsKx7cYm2vSrBAr2PvFOe6sWDf0UYLRqA6svUYg7+/TSfVAu49jYC4BvQ4Sms9SZgdqGBgroqfDhJdTyKQ==}
-    dependencies:
-      encoding: 0.1.13
-      is-stream: 1.1.0
-    dev: false
 
   /node-fetch/2.6.1:
     resolution: {integrity: sha512-V4aYg89jEoVRxRb2fJdAg8FHvI7cEyYdVAh94HH0UIK8oJxUfkjlDQN9RbMx+bEjP7+ggMiFRprSti032Oipxw==}
@@ -23931,7 +23928,7 @@ packages:
     dependencies:
       array.prototype.flat: 1.2.4
       global-cache: 1.2.1
-      react-with-styles: 3.2.3
+      react-with-styles: 3.2.3_react-dom@17.0.2+react@17.0.2
 
   /react-with-styles/3.2.3:
     resolution: {integrity: sha512-MTI1UOvMHABRLj5M4WpODfwnveHaip6X7QUMI2x6zovinJiBXxzhA9AJP7MZNaKqg1JRFtHPXZdroUC8KcXwlQ==}
@@ -26244,7 +26241,7 @@ packages:
       find-cache-dir: 2.1.0
       is-wsl: 1.1.0
       schema-utils: 1.0.0
-      serialize-javascript: 4.0.0
+      serialize-javascript: 5.0.1
       source-map: 0.6.1
       terser: 4.8.0
       webpack: 4.46.0
@@ -27908,13 +27905,6 @@ packages:
   /yargs-parser/20.2.9:
     resolution: {integrity: sha512-y11nGElTIV+CT3Zv9t7VKl+Q3hTQoT9a1Qzezhhl6Rp21gJ/IVTW7Z3y9EWXhuUBC2Shnf+DX0antecpAwSP8w==}
     engines: {node: '>=10'}
-    dev: true
-
-  /yargs-parser/5.0.1:
-    resolution: {integrity: sha512-wpav5XYiddjXxirPoCTUPbqM0PXvJ9hiBMvuJgInvo4/lAOTZzUprArw17q2O1P2+GHhbBr18/iQwjL5Z9BqfA==}
-    dependencies:
-      camelcase: 3.0.0
-      object.assign: 4.1.2
 
   /yargs-unparser/2.0.0:
     resolution: {integrity: sha512-7pRTIA9Qc1caZ0bZ6RYRGbHJthJWuakf+WmHK0rVeLkNrrGhfoabBNdue6kdINI6r4if7ocq9aD/n7xwKOdzOA==}
@@ -28011,7 +28001,7 @@ packages:
       string-width: 1.0.2
       which-module: 1.0.0
       y18n: 3.2.2
-      yargs-parser: 5.0.1
+      yargs-parser: 20.2.9
 
   /yauzl/2.10.0:
     resolution: {integrity: sha1-x+sXyT4RLLEIb6bY5R+wZnt5pfk=}
