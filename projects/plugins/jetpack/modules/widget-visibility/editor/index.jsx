@@ -303,7 +303,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 				<BaseControl
 					id="widget-vis__wrapper"
 					className="widget-vis__wrapper"
-					label={ __( 'Visibility Settings', 'jetpack' ) }
+					label={ __( 'Visibility', 'jetpack' ) }
 					help={ __(
 						'No visibility rules yet. Add at least one rule to use this feature.',
 						'jetpack'
@@ -319,7 +319,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 				<BaseControl
 					className="widget-vis__wrapper"
 					id="widget-vis__wrapper"
-					label={ __( 'Visibility Settings', 'jetpack' ) }
+					label={ __( 'Visibility', 'jetpack' ) }
 				>
 					<SelectControl
 						className="widget-vis__show-hide"
