@@ -2,27 +2,20 @@
 @import '../../../scss/functions/rem';
 
 .jp-recommendations-product-suggestion-item {
-	display: flex;
-	flex-direction: column;
-
 	padding: 24px;
 
 	border-radius: 8px;
 	border: 1px solid #dcdcde;
-
-	@include breakpoint( '>480px' ) {
-		flex-direction: row;
-	}
 }
 
 .jp-recommendations-product-suggestion-item__content {
 	display: flex;
 	flex-direction: column;
 
-	max-width: 280px;
-
-	@include breakpoint( '<960px' ) {
-		max-width: 370px;
+	@include breakpoint( '>480px' ) {
+		display: grid;
+		grid-template-columns: 1fr auto;
+		align-self: start;
 	}
 }
 
@@ -32,14 +25,36 @@
 
 	font-size: rem( 24px );
 	line-height: 1.2;
+
+	@include breakpoint( '>480px' ) {
+		grid-column: 1;
+	}
 }
 
 .jp-recommendations-product-suggestion-item__description {
 	margin-top: 0;
 	margin-bottom: 16px;
 
+	max-width: 370px;
 	font-size: rem( 14px );
 	line-height: 1.5;
+
+	@include breakpoint( '>480px' ) {
+		grid-column: 1;
+	}
+
+	@include breakpoint( '>960px' ) {
+		max-width: 280px;
+	}
+}
+
+.jp-recommendations-product-suggestion-item__actions {
+	display: flex;
+	flex-direction: column;
+
+	@include breakpoint( '>480px' ) {
+		grid-column: 1;
+	}
 }
 
 .jp-recommendations-product-suggestion-item__checkout-button {
@@ -49,6 +64,7 @@
 	margin-bottom: 16px;
 
 	font-size: rem( 16px );
+	text-align: center;
 }
 
 .jp-recommendations-product-suggestion-item__external-link {
@@ -60,13 +76,16 @@
 
 .jp-recommendations-product-suggestion-item__price {
 	display: flex;
-	flex-direction: column;
+	flex-direction: row;
 
-	margin-left: auto;
-	margin-top: 16px;
+	margin-bottom: 16px;
 
 	@include breakpoint( '>480px' ) {
-		margin-top: 0;
+		flex-direction: column;
+		grid-column: 2;
+		grid-row: 1 / 4;
+
+		margin-left: auto;
 		padding-left: 16px;
 	}
 }
@@ -75,9 +94,15 @@
 	display: flex;
 
 	margin: 0;
+
+	@include breakpoint( '>480px' ) {
+		margin-left: auto;
+	}
 }
 
 .jp-recommendations-product-suggestion-item__currency-symbol {
+	padding-right: 1px;
+
 	font-size: rem( 20px );
 	line-height: 1.4;
 }
@@ -89,15 +114,22 @@
 }
 
 .jp-recommendations-product-suggestion-item__price-fraction {
+	padding-left: 1px;
+
 	font-size: rem( 14px );
 	font-weight: bold;
 	line-height: 1.5;
 }
 
 .jp-recommendations-product-suggestion-item__billing-time-frame {
-	margin-top: 8px;
+	margin-left: 10px;
 
 	text-align: center;
 	font-size: rem( 13px );
 	color: #787c82;
+
+	@include breakpoint( '>480px' ) {
+		margin-top: 8px;
+		margin-left: 0;
+	}
 }

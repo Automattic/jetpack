@@ -65,47 +65,49 @@ const ProductSuggestionComponent = props => {
 				<p className="jp-recommendations-product-suggestion-item__description">
 					{ product.description }
 				</p>
-				<Button
-					className="jp-recommendations-product-suggestion-item__checkout-button"
-					primary
-					href={ generateCheckoutLink( props ) }
-					onClick={ onPurchaseClick }
-				>
-					{ sprintf(
-						/* translators: %s: Name of a Jetpack product. */
-						__( 'Continue with %s', 'jetpack' ),
-						product.title
-					) }
-				</Button>
-				{ !! product.cta_link && !! product.cta_text && (
-					<ExternalLink
-						className="jp-recommendations-product-suggestion-item__external-link"
-						href={ product.cta_link }
-						target="_blank"
-						icon={ true }
-						iconSize={ 16 }
-						onClick={ onExternalLinkClick }
-						children={ product.cta_text }
-					/>
-				) }
-			</div>
-			<div className="jp-recommendations-product-suggestion-item__price">
-				<h3 className="jp-recommendations-product-suggestion-item__raw-price">
-					<sup className="jp-recommendations-product-suggestion-item__currency-symbol">
-						{ currencyObject.symbol }
-					</sup>
-					<span className="jp-recommendations-product-suggestion-item__price-integer">
-						{ currencyObject.integer }
+				<div className="jp-recommendations-product-suggestion-item__price">
+					<h3 className="jp-recommendations-product-suggestion-item__raw-price">
+						<sup className="jp-recommendations-product-suggestion-item__currency-symbol">
+							{ currencyObject.symbol }
+						</sup>
+						<span className="jp-recommendations-product-suggestion-item__price-integer">
+							{ currencyObject.integer }
+						</span>
+						<sup className="jp-recommendations-product-suggestion-item__price-fraction">
+							{ currencyObject.fraction }
+						</sup>
+					</h3>
+					<span className="jp-recommendations-product-suggestion-item__billing-time-frame">
+						{ product.cost_timeframe },
+						<br />
+						{ product.billing_timeframe }
 					</span>
-					<sup className="jp-recommendations-product-suggestion-item__price-fraction">
-						{ currencyObject.fraction }
-					</sup>
-				</h3>
-				<span className="jp-recommendations-product-suggestion-item__billing-time-frame">
-					{ product.cost_timeframe },
-					<br />
-					{ product.billing_timeframe }
-				</span>
+				</div>
+				<div className="jp-recommendations-product-suggestion-item__actions">
+					<Button
+						className="jp-recommendations-product-suggestion-item__checkout-button"
+						primary
+						href={ generateCheckoutLink( props ) }
+						onClick={ onPurchaseClick }
+					>
+						{ sprintf(
+							/* translators: %s: Name of a Jetpack product. */
+							__( 'Continue with %s', 'jetpack' ),
+							product.title
+						) }
+					</Button>
+					{ !! product.cta_link && !! product.cta_text && (
+						<ExternalLink
+							className="jp-recommendations-product-suggestion-item__external-link"
+							href={ product.cta_link }
+							target="_blank"
+							icon={ true }
+							iconSize={ 16 }
+							onClick={ onExternalLinkClick }
+							children={ product.cta_text }
+						/>
+					) }
+				</div>
 			</div>
 		</div>
 	);
