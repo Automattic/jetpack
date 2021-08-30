@@ -154,12 +154,14 @@ module.exports = [
 		},
 		plugins: [
 			...extensionsWebpackConfig.plugins,
-			new CopyWebpackPlugin( [
-				{
-					from: presetPath,
-					to: 'index.json',
-				},
-			] ),
+			new CopyWebpackPlugin( {
+				patterns: [
+					{
+						from: presetPath,
+						to: 'index.json',
+					},
+				],
+			} ),
 			new CopyBlockEditorAssetsPlugin(),
 		],
 	},
