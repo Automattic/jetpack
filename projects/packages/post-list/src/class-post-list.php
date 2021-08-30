@@ -13,8 +13,6 @@ use Automattic\Jetpack\Assets;
  * The PostList Admin Area
  */
 class Post_List {
-	const PACKAGE_VERSION = '1.0.0-alpha';
-
 	/**
 	 * The configuration method that is called from the jetpack-config package.
 	 */
