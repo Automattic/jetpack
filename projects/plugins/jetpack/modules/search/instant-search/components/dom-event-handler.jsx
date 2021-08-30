@@ -192,7 +192,7 @@ export default class DomEventHandler extends Component {
 	/**
 	 * 1) When the overlay is open, we set body to fixed position.
 	 * 2) Body would be scrolled to top, so we need to set top to where the scroll position was.
-	 * 3) And we remember the body postition in `this.state.bodyscrolltop`
+	 * 3) And we remember the body postition in `this.state.bodyScrollTop`
 	 */
 	preventBodyScroll() {
 		this.setState( { bodyScrollTop: parseInt( window.scrollY ) || 0 }, () => {
@@ -203,7 +203,7 @@ export default class DomEventHandler extends Component {
 			const scrollYOffset =
 				document.documentElement?.scrollHeight - document.body?.scrollHeight || 0;
 			// Keep body at the same position when overlay is open.
-			document.body.style.top = `-${ this.state.bodyscrolltop - scrollYOffset }px`;
+			document.body.style.top = `-${ this.state.bodyScrollTop - scrollYOffset }px`;
 			// Make body in the center.
 			document.body.style.left = 0;
 			document.body.style.right = 0;
@@ -214,8 +214,8 @@ export default class DomEventHandler extends Component {
 
 	/**
 	 * 1) Unset body fixed postion
-	 * 2) Scroll back to the `this.state.bodyscrolltop`
-	 * 3) Reset `this.state.bodyscrolltop` to `0`
+	 * 2) Scroll back to the `this.state.bodyScrollTop`
+	 * 3) Reset `this.state.bodyScrollTop` to `0`
 	 */
 	restoreBodyScroll() {
 		// Restore body scroll.
@@ -224,7 +224,7 @@ export default class DomEventHandler extends Component {
 		document.body.style.right = '';
 		document.body.style.position = '';
 		// Restore body position.
-		this.state.bodyscrolltop > 0 && window.scrollTo( 0, this.state.bodyscrolltop );
+		this.state.bodyScrollTop > 0 && window.scrollTo( 0, this.state.bodyScrollTop );
 		this.setState( { bodyScrollTop: 0 } );
 	}
 
