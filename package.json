@@ -97,6 +97,7 @@
 			"jest-environment-jsdom@^24.0.0": "^26.0.1",
 			"react-dev-utils>browserslist@^4": "^4",
 			"terser-webpack-plugin>serialize-javascript@^4.0.0": "^5.0.0",
+			"trim@0.0.1": "^0.0.3",
 			"yargs>yargs-parser@^5.0.1": "^20.0.0"
 		}
 	}
