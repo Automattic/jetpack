@@ -569,7 +569,6 @@ importers:
       jest-environment-jsdom: ^27.0.6
       jetpack-js-test-runner: workspace:*
       jsdom: 16.4.0
-      jsdom-global: 3.0.2
       lodash: 4.17.21
       mapbox-gl: 1.13.0
       markdown-it: 12.0.4
@@ -681,7 +680,6 @@ importers:
       gulp-sass: 5.0.0
       gulp-sourcemaps: 3.0.0
       jsdom: 16.4.0
-      jsdom-global: 3.0.2_jsdom@16.4.0
       mapbox-gl: 1.13.0
       markdown-it: 12.0.4
       page: 1.7.1
@@ -770,6 +768,9 @@ importers:
       style-loader: 2.0.0_webpack@5.51.1
       url-loader: 4.1.1_webpack@5.51.1
 
+  projects/plugins/search:
+    specifiers: {}
+
   tools/cli:
     specifiers:
       '@octokit/auth-token': 2.4.5
@@ -826,8 +827,8 @@ importers:
       commander: 7.2.0
       enzyme: 3.11.0
       glob: 7.1.6
+      global-jsdom: 8.1.0
       jsdom: 16.4.0
-      jsdom-global: 3.0.2
       mocha: 8.2.1
       nock: 13.0.7
       sinon: 9.2.4
@@ -844,8 +845,8 @@ importers:
       commander: 7.2.0
       enzyme: 3.11.0
       glob: 7.1.6
+      global-jsdom: 8.1.0_jsdom@16.4.0
       jsdom: 16.4.0
-      jsdom-global: 3.0.2_jsdom@16.4.0
       mocha: 8.2.1
       nock: 13.0.7
       sinon: 9.2.4
@@ -17553,6 +17554,15 @@ packages:
       define-properties: 1.1.3
       is-symbol: 1.0.4
 
+  /global-jsdom/8.1.0_jsdom@16.4.0:
+    resolution: {integrity: sha512-FBi84GT/MrzP+H3aReBSWXGVz2kdPaDrK/DByKrOq16mRexWrcJNpV6SONCKXWQuzxRjA7UXMfIvxmGyQZS+2Q==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      jsdom: '>=10.0.0 || <17'
+    dependencies:
+      jsdom: 16.4.0
+    dev: false
+
   /global-modules/0.2.3:
     resolution: {integrity: sha1-6lo77ULG1s6ZWk+KEmm12uIjgo0=}
     engines: {node: '>=0.10.0'}
@@ -19981,14 +19991,6 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
     dev: true
-
-  /jsdom-global/3.0.2_jsdom@16.4.0:
-    resolution: {integrity: sha1-a9KZwTsMRiay2iwDk81DhdYGrLk=}
-    peerDependencies:
-      jsdom: '>=10.0.0'
-    dependencies:
-      jsdom: 16.4.0
-    dev: false
 
   /jsdom/16.4.0:
     resolution: {integrity: sha512-lYMm3wYdgPhrl7pDcRmvzPhhrGVBeVhPIqeHjzeiHN3DFmD1RBpbExbi8vU7BJdH8VAZYovR8DMt0PNNDM7k8w==}

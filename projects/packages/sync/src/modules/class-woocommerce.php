@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
+use WP_Error;
+
 /**
  * Class to handle sync for WooCommerce.
  */
@@ -18,7 +20,7 @@ class WooCommerce extends Module {
 	 *
 	 * @var array
 	 */
-	private $order_item_meta_whitelist = array(
+	public static $order_item_meta_whitelist = array(
 		// See https://github.com/woocommerce/woocommerce/blob/master/includes/data-stores/class-wc-order-item-product-store.php#L20 .
 		'_product_id',
 		'_variation_id',
@@ -219,7 +221,7 @@ class WooCommerce extends Module {
 
 		return array(
 			$order_items,
-			$this->get_metadata( $order_item_ids, 'order_item', $this->order_item_meta_whitelist ),
+			$this->get_metadata( $order_item_ids, 'order_item', static::$order_item_meta_whitelist ),
 		);
 	}
 
@@ -556,4 +558,55 @@ class WooCommerce extends Module {
 	private static $wc_comment_meta_whitelist = array(
 		'rating',
 	);
+
+	/**
+	 * Return a list of objects by their type and IDs
+	 *
+	 * @param string $object_type Object type.
+	 * @param array  $ids IDs of objects to return.
+	 *
+	 * @access public
+	 *
+	 * @return array|object|WP_Error|null
+	 */
+	public function get_objects_by_id( $object_type, $ids ) {
+		switch ( $object_type ) {
+			case 'order_item':
+				return $this->get_order_item_by_ids( $ids );
+		}
+
+		return new WP_Error( 'unsupported_object_type', 'Unsupported object type' );
+	}
+
+	/**
+	 * Returns a list of order_item objects by their IDs.
+	 *
+	 * @param array $ids List of order_item IDs to fetch.
+	 *
+	 * @access public
+	 *
+	 * @return array|object|null
+	 */
+	public function get_order_item_by_ids( $ids ) {
+		global $wpdb;
+
+		if ( ! is_array( $ids ) ) {
+			return array();
+		}
+
+		// Make sure the IDs are numeric and are non-zero.
+		$ids = array_filter( array_map( 'intval', $ids ) );
+
+		if ( empty( $ids ) ) {
+			return array();
+		}
+
+		// Prepare the placeholders for the prepared query below.
+		$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+
+		$query = "SELECT * FROM {$this->order_item_table_name} WHERE order_item_id IN ( $placeholders )";
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		return $wpdb->get_results( $wpdb->prepare( $query, $ids ), ARRAY_A );
+	}
 }
