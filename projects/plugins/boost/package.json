@@ -6,13 +6,13 @@
 		"test": "tests"
 	},
 	"dependencies": {
-		"@wordpress/components": "14.2.0",
-		"@wordpress/element": "3.2.0",
+		"@wordpress/components": "16.0.0",
+		"@wordpress/element": "4.0.0",
 		"jetpack-boost-critical-css-gen": "github:automattic/jetpack-boost-critical-css-gen#trunk"
 	},
 	"devDependencies": {
-		"@babel/core": "^7.14.3",
-		"@babel/preset-env": "^7.14.4",
+		"@babel/core": "7.15.0",
+		"@babel/preset-env": "7.15.0",
 		"@rollup/plugin-commonjs": "^19.0.0",
 		"@rollup/plugin-node-resolve": "^13.0.0",
 		"@rollup/plugin-typescript": "^8.2.1",

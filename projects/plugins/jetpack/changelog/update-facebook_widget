@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix a bug that prevented the Facebook Page widget from being added in the wp-admin/widget.php page.
