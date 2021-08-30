@@ -765,7 +765,7 @@ class Critical_CSS extends Module {
 
 		// Build the resource origin host the requested asset belongs to.
 		$resource_origin = '';
-		if ( isset( $parsed['port'] ) ) {
+		if ( isset( $parsed['host'] ) ) {
 			$resource_origin = $parsed['host'];
 		}
 		if ( isset( $parsed['port'] ) ) {
