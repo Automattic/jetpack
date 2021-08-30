@@ -58,7 +58,7 @@ function soundcloud_shortcode( $atts, $content = null ) {
 		if ( A8C\Display_Context\NOTIFICATIONS === $context ) {
 			return sprintf(
 				'<a href="%1$s" target="_blank" rel="noopener noreferrer">%1$s</a>',
-				esc_url( $shortcode_options['url'] ),
+				esc_url( $shortcode_options['url'] )
 			);
 		}
 	}
