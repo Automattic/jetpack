@@ -3,7 +3,7 @@
   "version": "2.3.0",
   "main": "react/index.js",
   "peerDependencies": {
-    "react": "^15.3.0 || ^16.0.0 | ^17.0.0"
+    "react": "15 - 17"
   },
   "repository": {
     "type": "git",
