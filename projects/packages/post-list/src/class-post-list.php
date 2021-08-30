@@ -24,25 +24,12 @@ class Post_List {
 	}
 
 	/**
-	 * Check whether the wp-admin-posts-list-page feature is enabled,
-	 * via the query string.
-	 *
-	 * @return boolean True when feature is active. Otherwise, False.
-	 */
-	public static function is_wp_admin_posts_list_page() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		return isset( $_GET['post-list'] ) && 'true' === $_GET['post-list'];
-	}
-
-	/**
 	 * Initialize the Post List UI.
 	 *
 	 * @return Post_List Post_List instance.
 	 */
 	public static function get_instance() {
-		if ( self::is_wp_admin_posts_list_page() ) {
-			return new Post_List();
-		}
+		return new Post_List();
 	}
 
 	/**
