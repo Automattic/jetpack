@@ -143,6 +143,18 @@ const shellExecutor = ( argv, cmd, args, opts = {} ) => {
 };
 
 /**
+ * Check command status, exit if it failed.
+ *
+ * @param {object} res - child_process object.
+ */
+const checkProcessResult = res => {
+	if ( res.status !== 0 ) {
+		console.error( chalk.red( `Command exited with status ${ res.status }` ) );
+		process.exit( res.status );
+	}
+};
+
+/**
  * Executor for `docker-compose` commands
  *
  * @param {object} argv - Yargs
@@ -150,7 +162,10 @@ const shellExecutor = ( argv, cmd, args, opts = {} ) => {
  * @param {object} envOpts - key-value pairs of the ENV variables to set
  */
 const composeExecutor = ( argv, opts, envOpts ) => {
-	executor( argv, () => shellExecutor( argv, 'docker-compose', opts, { env: envOpts } ) );
+	const res = executor( argv, () =>
+		shellExecutor( argv, 'docker-compose', opts, { env: envOpts } )
+	);
+	checkProcessResult( res );
 };
 
 /**
@@ -398,7 +413,8 @@ const execJtCmdHandler = argv => {
 		cmd = jtTunnelFile;
 	}
 
-	executor( argv, () => shellExecutor( argv, cmd, opts.concat( jtOpts ) ) );
+	const jtResult = executor( argv, () => shellExecutor( argv, cmd, opts.concat( jtOpts ) ) );
+	checkProcessResult( jtResult );
 };
 
 /**
@@ -444,7 +460,7 @@ export function dockerDefine( yargs ) {
 					handler: async argv => {
 						await defaultDockerCmdHandler( argv );
 						const project = getProjectName( argv );
-						executor( argv, () =>
+						const res = executor( argv, () =>
 							shellExecutor(
 								argv,
 								'rm',
@@ -460,13 +476,14 @@ export function dockerDefine( yargs ) {
 								{ shell: true }
 							)
 						);
+						checkProcessResult( res );
 					},
 				} )
 				.command( {
 					command: 'build-image',
 					description: 'Builds local docker image',
 					handler: argv => {
-						executor( argv, () =>
+						const res = executor( argv, () =>
 							shellExecutor( argv, 'docker', [
 								'build',
 								'-t',
@@ -474,6 +491,7 @@ export function dockerDefine( yargs ) {
 								dockerFolder,
 							] )
 						);
+						checkProcessResult( res );
 					},
 				} )
 
