@@ -199,7 +199,7 @@ export default class DomEventHandler extends Component {
 		 * For logged-in user, there's a WP Admin Bar which is made sticky by adding `margin-top` to the document (the old way of `position: sticky;`).
 		 * So we need to fix the offset of scrollY for fixed positioned body.
 		 */
-		const scrollYOffset = document.documentElement.scrollHeight - document.body.scrollHeight;
+		const scrollYOffset = document.documentElement?.scrollHeight - document.body?.scrollHeight || 0;
 		// Keep body at the same position when overlay is open.
 		document.body.style.top = `-${ this.top - scrollYOffset }px`;
 		// Make body in the center.
