@@ -1202,6 +1202,7 @@ add_action( 'init', array( 'Jetpack_Widget_Conditions', 'init' ) );
 // Add the 'conditions' attribute to server side rendered blocks
 // 'init' happens too late to hook on block registration.
 global $pagenow;
-if ( is_customize_preview() || 'widgets.php' === $pagenow || ( false !== strpos( $_SERVER['REQUEST_URI'], '/wp-json/wp/v2/block-renderer' ) ) ) {
+$current_url = ! empty( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+if ( is_customize_preview() || 'widgets.php' === $pagenow || ( false !== strpos( $current_url, '/wp-json/wp/v2/block-renderer' ) ) ) {
 	Jetpack_Widget_Conditions::add_block_attributes_filter();
 }
