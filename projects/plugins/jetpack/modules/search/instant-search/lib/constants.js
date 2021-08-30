@@ -7,7 +7,6 @@ export const MULTISITE_NO_GROUP_VALUE = '__NO_GROUP__';
 
 export const SERVER_OBJECT_NAME = 'JetpackInstantSearchOptions';
 export const OVERLAY_CLASS_NAME = 'jetpack-instant-search__overlay';
-export const WP_ADMIN_BAR_ID = 'wpadminbar';
 export const SORT_DIRECTION_ASC = 'ASC';
 export const SORT_DIRECTION_DESC = 'DESC';
 export const RESULT_FORMAT_EXPANDED = 'expanded';

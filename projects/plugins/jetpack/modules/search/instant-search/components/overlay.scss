@@ -22,7 +22,6 @@ $overlay-horizontal-padding-lg: 3em;
 	overflow-x: hidden;
 	overflow-y: auto;
 
-	// If the animation is to be changed, please do change the `propertyName` in function `fixBodyScroll` too.
 	transition: opacity 0.1s ease-in;
 
 	z-index: 9999999999999;

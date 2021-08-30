@@ -10,7 +10,7 @@ import debounce from 'lodash/debounce';
 /**
  * Internal dependencies
  */
-import { OVERLAY_CLASS_NAME, WP_ADMIN_BAR_ID } from '../lib/constants';
+import { OVERLAY_CLASS_NAME } from '../lib/constants';
 
 // This component is used primarily to bind DOM event handlers to elements outside of the Jetpack Search overlay.
 export default class DomEventHandler extends Component {
@@ -34,6 +34,13 @@ export default class DomEventHandler extends Component {
 
 	componentWillUnmount() {
 		this.removeEventListeners();
+		this.restoreBodyScroll();
+	}
+
+	componentDidUpdate( prevProps ) {
+		if ( this.props.isVisible !== prevProps.isVisible ) {
+			this.fixBodyScroll();
+		}
 	}
 
 	disableUnnecessaryFormAndInputAttributes() {
@@ -183,26 +190,29 @@ export default class DomEventHandler extends Component {
 		}
 	};
 
-	fixBodyScroll = event => {
-		// NOTE: the propertyName need to be aligned with the animation
-		if ( event?.propertyName !== 'opacity' ) {
-			return;
-		}
-
+	fixBodyScroll = () => {
+		/**
+		 * The method could be called multiple times but we only want to run it once.
+		 */
 		if ( this.props.isVisible ) {
 			this.preventBodyScroll();
 			// This ensures the search input is visible on mobile devices.
 			// @see https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollTo
 			window?.scrollTo( 0, 0 );
-		} else {
+		} else if ( ! this.props.isVisible ) {
 			this.restoreBodyScroll();
 		}
 	};
 
 	preventBodyScroll() {
 		this.top = parseInt( window.scrollY ) || 0;
+		/**
+		 * For logged-in user, there's a WP Admin Bar which is made sticky by adding `margin-top` to the document (the old way of `position: sticky;`).
+		 * So we need to fix the offset of scrollY for fixed positioned body.
+		 */
+		const scrollYOffset = document.documentElement.scrollHeight - document.body.scrollHeight;
 		// Keep body at the same position when overlay is open.
-		document.body.style.top = `-${ this.top - this.getWpAdminBarComputedHeight() }px`;
+		document.body.style.top = `-${ this.top - scrollYOffset }px`;
 		// Make body in the center.
 		document.body.style.left = 0;
 		document.body.style.right = 0;
@@ -217,16 +227,8 @@ export default class DomEventHandler extends Component {
 		document.body.style.right = '';
 		document.body.style.position = '';
 		// Restore body position.
-		window.scrollTo( 0, this.top );
-	}
-
-	getWpAdminBarComputedHeight() {
-		const $wpAdminBar = document.getElementById( WP_ADMIN_BAR_ID );
-		if ( ! $wpAdminBar ) {
-			return 0;
-		}
-		const computedStyles = window.getComputedStyle( $wpAdminBar );
-		return parseInt( computedStyles?.height ) || 0;
+		this.top > 0 && window.scrollTo( 0, this.top );
+		this.top = 0;
 	}
 
 	render() {
