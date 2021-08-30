@@ -6,8 +6,8 @@
 		"test": "tests"
 	},
 	"dependencies": {
-		"@wordpress/components": "14.2.0",
-		"@wordpress/element": "3.2.0",
+		"@wordpress/components": "16.0.0",
+		"@wordpress/element": "4.0.0",
 		"jetpack-boost-critical-css-gen": "github:automattic/jetpack-boost-critical-css-gen#trunk"
 	},
 	"devDependencies": {
