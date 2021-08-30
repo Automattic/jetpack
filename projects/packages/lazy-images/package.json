@@ -18,11 +18,10 @@
 		"build": "pnpm run install-if-deps-outdated && pnpm run clean && pnpm run build-js",
 		"build-js": "calypso-build && cp ./node_modules/intersection-observer/intersection-observer.js ./dist/intersection-observer.src.js",
 		"build-production": "pnpm run distclean && pnpm run install-if-deps-outdated && pnpm run build-production-js",
-		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm run build-js && pnpm run validate-es5 -- ./dist/",
+		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm run build-js",
 		"clean": "rm -rf dist",
 		"distclean": "rm -rf node_modules && pnpm run clean",
-		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
-		"validate-es5": "eslint --parser-options=ecmaVersion:5 --no-eslintrc --no-ignore"
+		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile"
 	},
 	"dependencies": {
 		"intersection-observer": "^0.12.0"
@@ -34,7 +33,7 @@
 		"webpack": "5.51.1"
 	},
 	"engines": {
-		"node": "^14.16.1",
+		"node": "^16.7.0",
 		"pnpm": "^6.5.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}

@@ -8,11 +8,11 @@ if [[ -z "$BUILD_BASE" ]]; then
 	BUILD_BASE=$(mktemp -d "${TMPDIR:-/tmp}/jetpack-project-mirrors.XXXXXXXX")
 elif [[ ! -e "$BUILD_BASE" ]]; then
 	mkdir -p "$BUILD_BASE"
-elif [[ ! -d "$BUILD_DIR" ]]; then
-	echo "$BUILD_DIR already exists, and is not a directory." >&2
+elif [[ ! -d "$BUILD_BASE" ]]; then
+	echo "$BUILD_BASE already exists, and is not a directory." >&2
 	exit 1
-elif [[ "$(ls -A -- "$BUILD_DIR")" ]]; then
-	echo "Directory $BUILD_DIR already exists, and is not empty." >&2
+elif [[ "$(ls -A -- "$BUILD_BASE")" ]]; then
+	echo "Directory $BUILD_BASE already exists, and is not empty." >&2
 	exit 1
 fi
 
@@ -60,7 +60,7 @@ for SLUG in "${SLUGS[@]}"; do
 	# That allows us to pick up the built version for plugins like Jetpack.
 	# Also save the old contents to restore post-build to help with local testing.
 	OLDJSON=$(<composer.json)
-	JSON=$(jq --argjson repo "$REPO" '( .repositories // [] | map( .options.monorepo or false ) | index(true) ) as $i | if $i != null then .repositories[$i:$i] |= [ $repo ] else . end' composer.json | "$BASE/tools/prettier" --parser=json-stringify)
+	JSON=$(jq --tab --argjson repo "$REPO" '( .repositories // [] | map( .options.monorepo or false ) | index(true) ) as $i | if $i != null then .repositories[$i:$i] |= [ $repo ] else . end' composer.json)
 	if [[ "$JSON" != "$OLDJSON" ]]; then
 		echo "$JSON" > composer.json
 		if [[ -e "composer.lock" ]]; then
@@ -185,14 +185,14 @@ for SLUG in "${SLUGS[@]}"; do
 		xargs cp --parents --target-directory="$BUILD_DIR"
 
 	# Remove monorepo repos from composer.json
-	JSON=$(jq 'if .repositories then .repositories |= map( select( .options.monorepo | not ) ) else . end' "$BUILD_DIR/composer.json" | "$BASE/tools/prettier" --parser=json-stringify)
+	JSON=$(jq --tab 'if .repositories then .repositories |= map( select( .options.monorepo | not ) ) else . end' "$BUILD_DIR/composer.json")
 	if [[ "$JSON" != "$(<"$BUILD_DIR/composer.json")" ]]; then
 		echo "$JSON" > "$BUILD_DIR/composer.json"
 	fi
 
 	# Remove engines from package.json
 	if [[ -e "$BUILD_DIR/package.json" ]]; then
-		JSON=$(jq 'if .publish_engines then .engines = .publish_engines | .publish_engines |= empty else .engines |= empty end' "$BUILD_DIR/package.json" | "$BASE/tools/prettier" --parser=json-stringify)
+		JSON=$(jq --tab 'if .publish_engines then .engines = .publish_engines | .publish_engines |= empty else .engines |= empty end' "$BUILD_DIR/package.json")
 		if [[ "$JSON" != "$(<"$BUILD_DIR/package.json")" ]]; then
 			echo "$JSON" > "$BUILD_DIR/package.json"
 		fi

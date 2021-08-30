@@ -1,4 +1,4 @@
-import { doInPlaceConnection } from '../lib/flows/jetpack-connect';
+import { doClassicConnection } from '../lib/flows/jetpack-connect';
 import {
 	execShellCommand,
 	execSyncShellCommand,
@@ -49,7 +49,7 @@ describe( 'Jetpack updater', () => {
 		await DashboardPage.visit( page );
 	} );
 
-	it( 'Plugin updater', async () => {
+	it.skip( 'Plugin updater', async () => {
 		await testStep( 'Can login and navigate to Plugins page', async () => {
 			await ( await Sidebar.init( page ) ).selectInstalledPlugins();
 			await PluginsPage.init( page );
@@ -65,7 +65,7 @@ describe( 'Jetpack updater', () => {
 
 		await testStep( 'Can connect Jetpack', async () => {
 			await ( await Sidebar.init( page ) ).selectJetpack();
-			await doInPlaceConnection();
+			await doClassicConnection();
 			const jetpackPage = await JetpackPage.init( page );
 			expect( await jetpackPage.isConnected() ).toBeTruthy();
 		} );

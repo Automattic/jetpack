@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Making parameter "redirectUri" optional for the ConnectUser component.
+
+
