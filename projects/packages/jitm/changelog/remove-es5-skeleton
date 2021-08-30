@@ -1,0 +1,4 @@
+Significance: major
+Type: removed
+
+Removed IE11 support.

@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Replace `node-sass` with `sass`. Update `gulp-sass` to 5.0.0 to do so.
+
+

@@ -9,8 +9,8 @@ import MyPlanPage from '../pages/wpcom/my-plan';
 import { execWpCommand } from '../utils-helper';
 import { persistPlanData, syncPlanData } from '../plan-helper';
 import logger from '../logger';
-import InPlaceAuthorizeFrame from '../pages/wp-admin/in-place-authorize';
 import RecommendationsPage from '../pages/wp-admin/recommendations';
+import LoginPage from '../pages/wpcom/login';
 
 const cardCredentials = config.get( 'testCardCredentials' );
 
@@ -54,24 +54,12 @@ export async function doClassicConnection( mockPlanData ) {
 	return await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
 }
 
-export async function doInPlaceConnection() {
-	const jetpackPage = await JetpackPage.init( page );
-	await jetpackPage.forceVariation( 'in_place' );
-	await jetpackPage.connect();
-
-	await ( await InPlaceAuthorizeFrame.init( page ) ).approve();
-	await ( await PickAPlanPage.init( page ) ).select( 'free' );
-	// await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
-	// await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
-	await ( await Sidebar.init( page ) ).selectJetpack();
-}
-
 export async function doSiteLevelConnection() {
 	const jetpackPage = await JetpackPage.init( page );
-	await jetpackPage.forceVariation( 'in_place' );
+	await jetpackPage.forceVariation( 'original' );
 	await jetpackPage.connect();
 
-	await ( await InPlaceAuthorizeFrame.init( page ) ).continueWithout();
+	await ( await LoginPage.init( page ) ).continueWithout();
 	await ( await PickAPlanPage.init( page ) ).select( 'free' );
 	const isPageVisible = await (
 		await RecommendationsPage.visit( page )

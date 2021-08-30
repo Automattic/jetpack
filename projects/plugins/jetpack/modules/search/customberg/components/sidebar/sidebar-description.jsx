@@ -14,7 +14,7 @@ import { addQueryArgs } from '@wordpress/url';
  */
 export default function SidebarDescription() {
 	return (
-		<div className="jp-search-customize-sidebar-description">
+		<div className="jp-search-configure-sidebar-description">
 			<BlockIcon icon={ jetpackColophonSvg } />
 			<div>
 				<p>

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Enable support for utf8 conversion during checksum calculation.

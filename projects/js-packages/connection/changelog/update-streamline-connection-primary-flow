@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Making redirect URI optional for connection screen and button components.

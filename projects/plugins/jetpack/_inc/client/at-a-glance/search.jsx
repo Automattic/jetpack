@@ -163,7 +163,7 @@ class DashSearch extends Component {
 						<Card
 							compact
 							className="jp-search-config-aag"
-							href="customize.php?autofocus[section]=jetpack_search"
+							href="admin.php?page=jetpack-search-configure"
 						>
 							{ SEARCH_CUSTOMIZE_CTA }
 						</Card>
