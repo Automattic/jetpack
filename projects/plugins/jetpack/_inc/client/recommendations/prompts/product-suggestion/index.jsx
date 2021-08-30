@@ -15,11 +15,7 @@ import Button from 'components/button';
 import ExternalLink from 'components/external-link';
 import analytics from 'lib/analytics';
 import { getSiteAdminUrl, getSiteRawUrl } from 'state/initial-state';
-import {
-	addSelectedRecommendation as addSelectedRecommendationAction,
-	updateRecommendationsData as updateRecommendationsDataAction,
-	saveRecommendationsData as saveRecommendationsDataAction,
-} from 'state/recommendations';
+import { addSelectedRecommendation as addSelectedRecommendationAction } from 'state/recommendations';
 
 /**
  * Style dependencies
@@ -35,12 +31,7 @@ const generateCheckoutLink = ( { product, siteAdminUrl, siteRawUrl } ) => {
 };
 
 const ProductSuggestionComponent = props => {
-	const {
-		product,
-		addSelectedRecommendation,
-		updateRecommendationsData,
-		saveRecommendationsData,
-	} = props;
+	const { product, addSelectedRecommendation } = props;
 
 	const onPurchaseClick = useCallback(
 		event => {
@@ -52,12 +43,10 @@ const ProductSuggestionComponent = props => {
 			);
 
 			addSelectedRecommendation( 'product-suggestions' );
-			updateRecommendationsData( { 'product-suggestions-selection': product.slug } );
-			saveRecommendationsData();
 
 			window.location.href = event.target.href;
 		},
-		[ product, addSelectedRecommendation, updateRecommendationsData, saveRecommendationsData ]
+		[ product, addSelectedRecommendation ]
 	);
 
 	const onExternalLinkClick = useCallback( () => {
@@ -133,8 +122,6 @@ const ProductSuggestion = connect(
 	} ),
 	dispatch => ( {
 		addSelectedRecommendation: stepSlug => dispatch( addSelectedRecommendationAction( stepSlug ) ),
-		updateRecommendationsData: product => dispatch( updateRecommendationsDataAction( product ) ),
-		saveRecommendationsData: () => dispatch( saveRecommendationsDataAction() ),
 	} )
 )( ProductSuggestionComponent );
 

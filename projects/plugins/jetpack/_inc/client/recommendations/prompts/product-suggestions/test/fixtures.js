@@ -30,11 +30,14 @@ export function buildInitialState() {
 					},
 					sitePurchases: [],
 				},
+				requests: {
+					isFetchingSiteData: false,
+					isFetchingSiteFeatures: false,
+					isFetchingSitePlans: false,
+					isFetchingSitePurchases: false,
+				},
 			},
 			recommendations: {
-				data: {
-					'product-suggestions-selection': 'jetpack_backup_daily',
-				},
 				productSuggestions: [
 					{
 						id: 2100,
@@ -82,4 +85,19 @@ export function buildInitialState() {
 			},
 		},
 	};
+}
+
+export const sitePurchases = () => {
+	return [
+		{
+			active: '1',
+			product_id: '2100',
+			product_slug: 'jetpack_backup_daily',
+		},
+		{
+			active: '1',
+			product_id: '2106',
+			product_slug: 'jetpack_scan',
+		},
+	];
 }

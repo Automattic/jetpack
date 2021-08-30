@@ -16,7 +16,6 @@ import { ProductSuggestion } from '../product-suggestion';
 import { MoneyBackGuarantee } from 'components/money-back-guarantee';
 import analytics from 'lib/analytics';
 import {
-	addSelectedRecommendation as addSelectedRecommendationAction,
 	addSkippedRecommendation as addSkippedRecommendationAction,
 	getProductSuggestions,
 	getNextRoute,
@@ -122,7 +121,6 @@ export const ProductSuggestions = connect(
 		isProductSuggestionsAvailable: isProductSuggestionsAvailableCheck( state ),
 	} ),
 	dispatch => ( {
-		addSelectedRecommendation: stepSlug => dispatch( addSelectedRecommendationAction( stepSlug ) ),
 		addSkippedRecommendation: stepSlug => dispatch( addSkippedRecommendationAction( stepSlug ) ),
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStepAction( step ) ),
 	} )

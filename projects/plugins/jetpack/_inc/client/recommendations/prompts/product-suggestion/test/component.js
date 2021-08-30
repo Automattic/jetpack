@@ -20,9 +20,7 @@ describe( 'Recommendations – Product Suggestion Item', () => {
 	// Backup Daily suggestion.
 	const productSuggestion = initialState.jetpack.recommendations.productSuggestions[0];
 	let updateRecommendationsStepStub,
-		addSelectedRecommendationStub,
-		updateRecommendationsDataStub,
-		saveRecommendationsDataStub;
+		addSelectedRecommendationStub;
 
 	before( function () {
 		updateRecommendationsStepStub = sinon
@@ -31,19 +29,11 @@ describe( 'Recommendations – Product Suggestion Item', () => {
 		addSelectedRecommendationStub = sinon
 			.stub( recommendationsActions, 'addSelectedRecommendation' )
 			.returns( DUMMY_ACTION );
-		updateRecommendationsDataStub = sinon
-			.stub( recommendationsActions, 'updateRecommendationsData' )
-			.returns( DUMMY_ACTION );
-		saveRecommendationsDataStub = sinon
-			.stub( recommendationsActions, 'saveRecommendationsData' )
-			.returns( DUMMY_ACTION );
 	} );
 
 	after( function () {
 		updateRecommendationsStepStub.restore();
 		addSelectedRecommendationStub.restore();
-		updateRecommendationsDataStub.restore();
-		saveRecommendationsDataStub.restore();
 	} );
 
 	it( 'shows the Product Suggestion components', () => {
@@ -75,8 +65,6 @@ describe( 'Recommendations – Product Suggestion Item', () => {
 		expect( checkoutButton ).to.be.not.null;
 
 		expect( addSelectedRecommendationStub.callCount ).to.be.equal( 0 );
-		expect( updateRecommendationsDataStub.callCount ).to.be.equal( 0 );
-		expect( saveRecommendationsDataStub.callCount ).to.be.equal( 0 );
 
 		// JSDom will complain about the page being redirect to wordpress.com/checkout/...
 		// so we replace the href attribute of the HTML Element to something irrelevant.
@@ -92,8 +80,6 @@ describe( 'Recommendations – Product Suggestion Item', () => {
 		).to.be.equal( 1 );
 
 		expect( addSelectedRecommendationStub.callCount ).to.be.equal( 1 );
-		expect( updateRecommendationsDataStub.callCount ).to.be.equal( 1 );
-		expect( saveRecommendationsDataStub.callCount ).to.be.equal( 1 );
 
 		recordEventStub.restore();
 	} );

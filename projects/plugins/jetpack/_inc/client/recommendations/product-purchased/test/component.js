@@ -9,18 +9,20 @@ import sinon from 'sinon';
  * Internal dependencies
  */
 import { ProductPurchased } from '../index';
-import { buildInitialState } from '../../prompts/product-suggestions/test/fixtures';
+import { buildInitialState, sitePurchases } from '../../prompts/product-suggestions/test/fixtures';
 import analytics from 'lib/analytics';
 import { render, screen } from 'test/test-utils';
 
 describe( 'Recommendations – Product Purchased', () => {
 	const initialState = buildInitialState();
+	// Populate data with mock purchases.
+	initialState.jetpack.siteData.data.sitePurchases = sitePurchases();
 	// Backup Daily suggestion.
 	const productSuggestion = initialState.jetpack.recommendations.productSuggestions[0];
 
 	it( 'shows the Product Purchased component', () => {
 		render( <ProductPurchased />, {
-			initialState: buildInitialState(),
+			initialState: initialState,
 		} );
 
 		// Shows static data.
@@ -38,7 +40,7 @@ describe( 'Recommendations – Product Purchased', () => {
 		const recordEventStub = sinon.stub( analytics.tracks, 'recordEvent' );
 
 		render( <ProductPurchased />, {
-			initialState: buildInitialState(),
+			initialState: initialState,
 		} );
 
 		// Verify that tracking is working.

@@ -3,6 +3,7 @@
  */
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
+import { isArray } from 'lodash';
 import { __, _x } from '@wordpress/i18n';
 import { ProgressBar } from '@automattic/components';
 
@@ -10,52 +11,93 @@ import { ProgressBar } from '@automattic/components';
  * Internal dependencies
  */
 import { PromptLayout } from '../prompts/prompt-layout';
+import { LoadingCard } from '../sidebar/loading-card';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import analytics from 'lib/analytics';
 import {
 	getProductSuggestions,
-	getDataByKey,
 	getNextRoute,
 	isFetchingRecommendationsProductSuggestions as isFetchingSuggestionsAction,
 } from 'state/recommendations';
+import {
+	getSitePlan,
+	getActiveProductPurchases,
+	isFetchingSiteData as isFetchingSiteDataState,
+} from 'state/site';
 
 /**
  * Style dependencies
  */
 import './style.scss';
 
-const ProductPurchasedComponent = props => {
-	const { isFetchingSuggestions, nextRoute, purchasedProductSlug, suggestions } = props;
+const getPurchasedSuggestion = ( sitePlan, activePurchases, suggestions ) => {
+	if ( ! suggestions || ! isArray( suggestions ) ) {
+		return false;
+	}
 
-	useEffect( () => {
-		analytics.tracks.recordEvent( 'jetpack_recommendations_product_suggestion_purchased', {
-			type: purchasedProductSlug,
+	const matchingPlan = suggestions.find( suggestion => suggestion.slug === sitePlan.product_slug );
+
+	if ( matchingPlan ) {
+		return matchingPlan;
+	}
+
+	if ( isArray( activePurchases ) ) {
+		const matchingProduct = suggestions.find( suggestion => {
+			if (
+				activePurchases.find( activePurchase => suggestion.slug === activePurchase.product_slug )
+			) {
+				return suggestion;
+			}
 		} );
-	}, [ purchasedProductSlug ] );
 
-	let features = [];
-
-	if ( ! isFetchingSuggestions ) {
-		const purchasedProduct = suggestions.find( product => purchasedProductSlug === product.slug );
-
-		if ( purchasedProduct && purchasedProduct.hasOwnProperty( 'features' ) ) {
-			features = purchasedProduct.features;
+		if ( matchingProduct ) {
+			return matchingProduct;
 		}
 	}
 
+	return false;
+};
+
+const ProductPurchasedComponent = props => {
+	const {
+		sitePlan,
+		activePurchases,
+		isFetchingSiteData,
+		isFetchingSuggestions,
+		nextRoute,
+		suggestions,
+	} = props;
+
+	let suggestion = false;
+
+	useEffect( () => {
+		if ( suggestion ) {
+			analytics.tracks.recordEvent( 'jetpack_recommendations_product_suggestion_purchased', {
+				type: suggestion.slug,
+			} );
+		}
+	}, [ suggestion ] );
+
+	if ( isFetchingSiteData || isFetchingSuggestions ) {
+		return <LoadingCard />;
+	}
+
+	suggestion = getPurchasedSuggestion( sitePlan, activePurchases, suggestions );
+
 	const answerSection = (
 		<div className="jp-recommendations-product-purchased">
-			{ isFetchingSuggestions && (
-				<p className="jp-recommendations-product-purchased">{ __( 'Loading…', 'jetpack' ) }</p>
-			) }
 			<ul className="jp-recommendations-product-purchased__features">
-				{ features.map( ( feature, key ) => (
-					<li className="jp-recommendations-product-purchased__feature" key={ key }>
-						<Gridicon icon="checkmark" />
-						{ feature }
-					</li>
-				) ) }
+				{ suggestion &&
+					suggestion.features.map( ( feature, key ) => (
+						<li
+							className="jp-recommenconst ProductPurchasedComponent = props => {dations-product-purchased__feature"
+							key={ key }
+						>
+							<Gridicon icon="checkmark" />
+							{ feature }
+						</li>
+					) ) }
 			</ul>
 			<Button primary className="jp-recommendations-product-purchased__next" href={ nextRoute }>
 				{ _x( 'Configure your site', 'Recommendations Product Purchased', 'jetpack' ) }
@@ -75,8 +117,10 @@ const ProductPurchasedComponent = props => {
 };
 
 export const ProductPurchased = connect( state => ( {
+	activePurchases: getActiveProductPurchases( state ),
+	isFetchingSiteData: isFetchingSiteDataState( state ),
 	isFetchingSuggestions: isFetchingSuggestionsAction( state ),
 	nextRoute: getNextRoute( state ),
-	purchasedProductSlug: getDataByKey( state, 'product-suggestions-selection' ),
+	sitePlan: getSitePlan( state ),
 	suggestions: getProductSuggestions( state ),
 } ) )( ProductPurchasedComponent );
