@@ -191,7 +191,7 @@ export default class DomEventHandler extends Component {
 	/**
 	 * 1) When the overlay is open, we set body to fixed position.
 	 * 2) Body would be scrolled to top, so we need to set top to where the scroll position was.
-	 * 3) And we remember the body postition is `this.top`
+	 * 3) And we remember the body postition in `this.top`
 	 */
 	preventBodyScroll() {
 		this.top = parseInt( window.scrollY ) || 0;
@@ -211,7 +211,7 @@ export default class DomEventHandler extends Component {
 
 	/**
 	 * 1) Unset body fixed postion
-	 * 2) Scroll back to the position
+	 * 2) Scroll back to the `this.top`
 	 * 3) Reset `this.top` to `0`
 	 */
 	restoreBodyScroll() {
