@@ -19,6 +19,7 @@ export default class DomEventHandler extends Component {
 			isComposing: false,
 			// `bodyScrollTop` remebers the body scroll position.
 			bodyScrollTop: 0,
+			previousBodyStyle: null,
 		};
 		this.props.initializeQueryValues();
 	}
@@ -195,21 +196,26 @@ export default class DomEventHandler extends Component {
 	 * 3) And we remember the body postition in `this.state.bodyScrollTop`
 	 */
 	preventBodyScroll() {
-		this.setState( { bodyScrollTop: parseInt( window.scrollY ) || 0 }, () => {
-			/**
-			 * For logged-in user, there's a WP Admin Bar which is made sticky by adding `margin-top` to the document (the old way of `position: sticky;`).
-			 * So we need to fix the offset of scrollY for fixed positioned body.
-			 */
-			const scrollYOffset =
-				document.documentElement?.scrollHeight - document.body?.scrollHeight || 0;
-			// Keep body at the same position when overlay is open.
-			document.body.style.top = `-${ this.state.bodyScrollTop - scrollYOffset }px`;
-			// Make body in the center.
-			document.body.style.left = 0;
-			document.body.style.right = 0;
-			// Make body not scrollable.
-			document.body.style.position = 'fixed';
-		} );
+		this.setState(
+			{ bodyScrollTop: parseInt( window.scrollY ) || 0, previousBodyStyle: document.body.style },
+			() => {
+				/**
+				 * For logged-in user, there's a WP Admin Bar which is made sticky by adding `margin-top` to the document (the old way of `position: sticky;`).
+				 * So we need to fix the offset of scrollY for fixed positioned body.
+				 */
+				const scrollYOffset =
+					document.documentElement?.scrollHeight - document.body?.scrollHeight || 0;
+				// This is really important.
+				// Make body not scrollable.
+				document.body.setAttribute( 'style', 'position: fixed !important' );
+
+				// Keep body at the same position when overlay is open.
+				document.body.style.top = `-${ this.state.bodyScrollTop - scrollYOffset }px`;
+				// Make body in the center.
+				document.body.style.left = 0;
+				document.body.style.right = 0;
+			}
+		);
 	}
 
 	/**
@@ -218,11 +224,10 @@ export default class DomEventHandler extends Component {
 	 * 3) Reset `this.state.bodyScrollTop` to `0`
 	 */
 	restoreBodyScroll() {
-		// Restore body scroll.
-		document.body.style.top = '';
-		document.body.style.left = '';
-		document.body.style.right = '';
-		document.body.style.position = '';
+		// Remove the positioning styling.
+		document.body.removeAttribute( 'style' );
+		// Restore body style.
+		document.body.style = this.state.previousBodyStyle;
 		// Restore body position.
 		this.state.bodyScrollTop > 0 && window.scrollTo( 0, this.state.bodyScrollTop );
 		this.setState( { bodyScrollTop: 0 } );
