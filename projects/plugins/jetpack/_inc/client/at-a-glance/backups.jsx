@@ -242,7 +242,7 @@ class DashBackups extends Component {
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
 				status: 'pro-inactive',
-				content: __( 'Your site is new and may still be preparing its backup config.', 'jetpack' ),
+				content: __( 'Your site is new and may still be preparing backup configuration.', 'jetpack' ),
 			} );
 			// this.props.rewindStatus is empty string on API error.
 		} else if ( 'unavailable' === this.props.rewindStatus || '' === this.props.rewindStatus ) {
