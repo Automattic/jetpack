@@ -3,7 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { combineReducers } from 'redux';
-import { assign, difference, get, isEmpty, mergeWith, union } from 'lodash';
+import { assign, difference, get, isArray, isEmpty, mergeWith, union } from 'lodash';
 
 /**
  * Internal dependencies
@@ -214,6 +214,16 @@ const isSiteEligibleForUpsell = state => {
 	return 'jetpack_free' === sitePlan.product_slug && ! hasActiveProductPurchase( state );
 };
 
+export const isProductSuggestionsAvailable = state => {
+	if ( ! isSiteEligibleForUpsell( state ) ) {
+		return false;
+	}
+
+	const suggestionsResult = getProductSuggestions( state );
+
+	return isArray( suggestionsResult ) && ! isEmpty( suggestionsResult );
+};
+
 const isStepEligibleToShow = ( state, step ) => {
 	switch ( step ) {
 		case 'setup-wizard-completed':
@@ -224,7 +234,7 @@ const isStepEligibleToShow = ( state, step ) => {
 		case 'summary':
 			return true;
 		case 'product-suggestions':
-			return isSiteEligibleForUpsell( state ) && ! isEmpty( getProductSuggestions( state ) );
+			return isProductSuggestionsAvailable( state );
 		case 'woocommerce':
 			return getDataByKey( state, 'site-type-store' ) ? ! isFeatureActive( state, step ) : false;
 		case 'monitor':

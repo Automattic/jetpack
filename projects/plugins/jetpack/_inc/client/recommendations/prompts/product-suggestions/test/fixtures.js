@@ -23,6 +23,14 @@ export function buildInitialState() {
 					},
 				},
 			},
+			siteData: {
+				data: {
+					plan: {
+						product_slug: 'jetpack_free',
+					},
+					sitePurchases: [],
+				},
+			},
 			recommendations: {
 				data: {
 					'product-suggestions-selection': 'jetpack_backup_daily',
