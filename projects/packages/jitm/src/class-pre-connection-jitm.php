@@ -26,7 +26,7 @@ class Pre_Connection_JITM extends JITM {
 		 * This filter allows plugins to add pre-connection JITMs that will be
 		 * displayed by the JITM package.
 		 *
-		 * @since 9.6.0
+		 * @since 1.14.1
 		 *
 		 * @param array An array of pre-connection messages.
 		 */
