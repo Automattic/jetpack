@@ -2,13 +2,19 @@
 
 This package allows Automattic developers to configure the connection to talk to a sandbox WordPress.com server instead of production servers.
 
-## How to install jetpack-sandbox
+## Usage
 
-### Installation From Git Repo
+Initialize the `Automattic\Jetpack\Server_Sandbox` class using the `init` method to set up the `Server_Sandbox's` action hooks. The `JETPACK__SANDBOX_DOMAIN` constant
+is used by the `Server_Sandbox` to determine the destination of sandboxed requests, so it's useful to check that the constant is defined before initializing:
 
-## Contribute
+```
+if ( defined( 'JETPACK__SANDBOX_DOMAIN' ) && JETPACK__SANDBOX_DOMAIN ) {
+	( new Server_Sandbox() )->init();
+}
+```
 
-## Get Help
+The `Server_Sandbox` will direct requests to the sandbox WordPress.com server. It will also display a notice in the top admin bar to indicate that the requests are being
+sent to the sandbox server.
 
 ## Security
 
