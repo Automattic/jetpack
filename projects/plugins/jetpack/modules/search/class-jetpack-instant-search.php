@@ -108,6 +108,8 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 
 		add_action( 'widgets_init', array( $this, 'register_jetpack_instant_sidebar' ) );
 		add_action( 'jetpack_deactivate_module_search', array( $this, 'move_search_widgets_to_inactive' ) );
+
+		add_filter( 'load_script_translation_file', array( $this, 'fix_language_file_path' ), 10, 3 );
 	}
 
 	/**
@@ -709,5 +711,29 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	public function add_body_class( $classes ) {
 		$classes[] = 'jps-theme-' . get_stylesheet();
 		return $classes;
+	}
+
+	/**
+	 * Fix language file path for WPCOM.
+	 *
+	 * @param string $file - Language file path.
+	 * @param string $handle - handle for the translations.
+	 * @param string $domain - translations domain.
+	 *
+	 * @return string - Alternative path for the language file.
+	 */
+	public function fix_language_file_path( $file, $handle, $domain ) {
+		if ( 'jetpack' !== $domain ) {
+			return $file;
+		}
+		if ( $file && is_readable( $file ) ) {
+			return $file;
+		}
+
+		if ( strpos( $file, 'languages/mu-plugins/jetpack' ) !== false ) {
+			return str_replace( 'languages/mu-plugins/jetpack', 'languages/plugins/jetpack', $file );
+		}
+
+		return $file;
 	}
 }
