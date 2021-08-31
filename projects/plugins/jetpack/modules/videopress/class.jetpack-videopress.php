@@ -136,6 +136,7 @@ class Jetpack_VideoPress {
 
 		$guid = get_post_meta( $post->ID, 'videopress_guid', true );
 		if ( empty( $guid ) ) {
+			$this->delete_video_poster_attachment( $post->ID );
 			return null;
 		}
 
@@ -152,11 +153,28 @@ class Jetpack_VideoPress {
 
 		// Upon success or a 404 (video already deleted on wp.com), return null to allow the deletion to continue.
 		if ( 200 === $wpcom_response['response']['code'] || 404 === $wpcom_response['response']['code'] ) {
+			$this->delete_video_poster_attachment( $post->ID );
 			return null;
 		}
 
 		// Otherwise we stop the deletion from proceeding.
 		return false;
+	}
+
+	/**
+	 * Deletes a video poster attachment if it exists.
+	 *
+	 * @param int $attachment_id the WP attachment id.
+	 */
+	private function delete_video_poster_attachment( $attachment_id ) {
+		$thumbnail_id = get_post_meta( $attachment_id, '_thumbnail_id', true );
+		if ( ! empty( $thumbnail_id ) ) {
+			// Let's ensure this is a VP poster image before we delete it.
+			if ( '1' === get_post_meta( $thumbnail_id, 'videopress_poster_image', true ) ) {
+				// This call triggers the `delete_video_wpcom` filter again but it bails early at the is_videopress_attachment() check.
+				wp_delete_attachment( $thumbnail_id );
+			}
+		}
 	}
 
 	/**
