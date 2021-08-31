@@ -77,6 +77,8 @@ class Post_List {
 				plugin_dir_url( __DIR__ ) . 'build/index.rtl.css'
 			);
 
+			wp_set_script_translations( 'jetpack_posts_list_ui_script', 'jetpack' );
+
 			add_action( 'admin_footer', array( $this, 'print_post_data' ) );
 		}
 	}
