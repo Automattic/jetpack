@@ -126,10 +126,8 @@ async function logDebugLog() {
 			'pnpx jetpack docker --type e2e --name t1 exec-silent cat wp-content/debug.log'
 		);
 	} catch ( error ) {
-		if ( error.toString().includes( 'No such file or directory' ) ) {
-			return;
-		}
-		throw error;
+		logger.error( `Error caught when trying to save debug log! ${ error }` );
+		return;
 	}
 
 	const escapedDate = new Date().toISOString().split( '.' )[ 0 ].replace( /:/g, '-' );
