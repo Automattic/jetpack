@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Dashboard: Add a new message to the backup card if the site is too new have an accurate status.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Carousel: fix a bug that changes the cursor to a pointer over all nested blocks

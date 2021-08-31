@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Slideshow Block: Fix intermittent issue where next/prev buttons sometimes don't respond to clicks.
