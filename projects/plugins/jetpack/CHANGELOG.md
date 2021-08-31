@@ -25,7 +25,7 @@
 ### Improved compatibility
 - Browser Compatibility: allow use of new JavaScript features not supported by Internet Explorer 11.
 - Image CDN: added support for the WEBP format.
-- Mailchimp Block: Updates terminology to use "Audience" instead of "Lists".
+- Mailchimp Block: updates terminology to use "Audience" instead of "Lists".
 - Media: allow ZIP files to be uploaded to sites via WordPress.com.
 - Related Posts: allow shortcodes in Related Posts titles.
 
@@ -34,8 +34,8 @@
 - Carousel: fix bug preventing user from swiping in gallery when images are configured to link to Attachment Page.
 - Carousel: hide UI controls in the carousel for single images.
 - Contact Form: disable the Block Editor for contact form submissions.
-- Custom CSS: Ensure that short CSS is added inline instead of via an external file.
-- Dashboard: Add a new message to the backup card if the site is too new to have an accurate status.
+- Custom CSS: ensure that short CSS is added inline instead of via an external file.
+- Dashboard: add a new message to the backup card if the site is too new to have an accurate status.
 - Dashboard: ensure that the image CDN does not get enabled by default when using the Site Accelerator toggle while in Offline mode.
 - Facebook Page Widget: fix a bug that prevented widget from being added in the wp-admin widget editor.
 - Form Block: fix form button alignment in editor.
