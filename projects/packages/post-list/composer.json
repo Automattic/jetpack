@@ -11,9 +11,6 @@
 		"yoast/phpunit-polyfills": "0.2.0"
 	},
 	"autoload": {
-		"files": [
-			"actions.php"
-		],
 		"classmap": [
 			"src/"
 		]
