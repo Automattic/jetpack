@@ -17,7 +17,7 @@ export default class DomEventHandler extends Component {
 			// We toggle isComposing on compositionstart and compositionend events.
 			// (CJK = Chinese, Japanese, Korean; see https://en.wikipedia.org/wiki/CJK_characters)
 			isComposing: false,
-			// `bodyScrollTop` remebers the body scroll position.
+			// `bodyScrollTop` remembers the body scroll position.
 			bodyScrollTop: 0,
 			previousStyle: null,
 			previousBodyStyleAttribute: '',
