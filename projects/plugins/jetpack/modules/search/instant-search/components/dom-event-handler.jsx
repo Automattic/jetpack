@@ -215,7 +215,7 @@ export default class DomEventHandler extends Component {
 				 */
 				const scrollYOffset =
 					document.documentElement?.scrollHeight - document.body?.scrollHeight || 0;
-				// This is really important.
+				// This is really important - e.g. `twentytwenty` set an important style to body which we'd need to override.
 				// Make body not scrollable.
 				document.body.setAttribute( 'style', 'position: fixed !important' );
 
