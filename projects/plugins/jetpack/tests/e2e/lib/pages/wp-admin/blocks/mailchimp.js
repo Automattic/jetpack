@@ -76,7 +76,7 @@ export default class MailchimpBlock extends PageActions {
 					);
 					await wpComTab.goto( connectionsUrl );
 					if ( count > 4 ) {
-						throw new Error( 'ConnectionsPage is not available after 5rd attempt' );
+						throw new Error( `ConnectionsPage is not available after ${ count + 1 } attempts` );
 					}
 				}
 			}
