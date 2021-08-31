@@ -78,10 +78,19 @@ class Post_Thumbnail {
 			$class_value = $nodes[0]->value;
 
 			// Ignore all class attribute values except 'wp-image{$attachment_id}'.
-			preg_match( '/wp-image-\d+/', $class_value, $class_value );
+			// Regex english translation: Look for a word \b, that does not start or end with a hyphen (?!-), that
+			// starts with 'wp-image-', and ends with a number of any length.
+			preg_match( '/\b(?!-)wp-image-\d+(?!-)\b/', $class_value, $class_value );
 
 			// Get the $attachment_id from the end of the class name value.
-			$attachment_id = (int) str_replace( $class_name, '', $class_value[0] );
+			$attachment_id = str_replace( $class_name, '', $class_value[0] );
+
+			// If the ID we found is numeric, cast it as an int. Else, make it null.
+			if ( is_numeric( $attachment_id ) ) {
+				$attachment_id = (int) $attachment_id;
+			} else {
+				$attachment_id = null;
+			}
 		}
 
 		return $attachment_id;
