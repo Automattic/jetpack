@@ -98,7 +98,7 @@ jobs:
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       working-directory: projects/plugins/jetpack/tests/e2e
-      run: NODE_ENV=test node ./bin/slack.js run $GROUP
+      run: NODE_ENV=test node ./bin/slack.js suite $GROUP
 
     - uses: testspace-com/setup-testspace@v1
       with:
@@ -133,7 +133,7 @@ jobs:
         run: |
           pnpm install
           pnpm run test-decrypt-config
-          NODE_ENV=test node ./bin/slack.js job $RESULT
+          NODE_ENV=test node ./bin/slack.js status $RESULT
 
   test-reports:
     name: "Trigger test report workflow"

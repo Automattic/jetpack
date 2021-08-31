@@ -18,27 +18,31 @@ yargs
 	.usage( 'Usage: $0 <cmd>' )
 	.demandCommand( 1, 1 )
 	.command(
-		'run [suite]',
-		'Sends a Slack notification with test run results.',
+		'suite [name]',
+		'Sends a Slack notification with detailed test suite results',
 		() => {
 			yargs.positional( 'suite', {
 				describe: 'Test suite name',
 				type: 'string',
 			} );
 		},
-		async argv => await reportTestRunResults( argv.suite )
+		async argv => await reportTestRunResults( argv.name )
 	)
 	.command(
-		'job <status>',
-		'Sends a Slack notification with CI job status which can include more test runs.',
+		'status [result]',
+		'Sends a Slack notification containing only the run status',
 		() => {
-			yargs.positional( 'status', {
-				describe: 'Job status',
+			yargs.positional( 'result', {
+				describe: 'Test run results (e.g. "success")',
 				type: 'string',
 			} );
 		},
-		async argv => await reportJobRun( argv.status )
+		async argv => await reportJobRun( argv.result )
 	)
+	.option( 'report <name>', {
+		type: 'string',
+		description: 'Report name',
+	} )
 	.help( 'h' )
 	.alias( 'h', 'help' ).argv;
 
@@ -73,7 +77,7 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
 	// Go through all test results and extract failure details
 	for ( const tr of result.testResults ) {
 		for ( const ar of tr.assertionResults ) {
-			if ( ar.status !== 'passed' ) {
+			if ( ar.status === 'failed' ) {
 				detailLines.push( `- ${ ar.fullName }` );
 				for ( const failureMessage of ar.failureMessages ) {
 					failureDetails.push( {
@@ -250,11 +254,16 @@ function buildDefaultMessage( isSuccess, forceHeaderText = undefined ) {
 		},
 	];
 
+	let reportNameString = '';
+	if ( yargs.argv.report ) {
+		reportNameString = `in \`${ yargs.argv.report }\` test run, `;
+	}
+
 	let headerText = forceHeaderText
 		? forceHeaderText
-		: `${ isSuccess ? 'All tests passed' : 'There are test failures' } against \`<${
-				gh.branch.url
-		  }|${ gh.branch.name }>\` branch`;
+		: `${
+				isSuccess ? 'All tests passed' : 'There are test failures'
+		  } ${ reportNameString }on branch \`<${ gh.branch.url }|${ gh.branch.name }>\``;
 
 	if ( gh.pr ) {
 		buttons.push( {
@@ -269,13 +278,17 @@ function buildDefaultMessage( isSuccess, forceHeaderText = undefined ) {
 
 		headerText = forceHeaderText
 			? forceHeaderText
-			: `${ isSuccess ? 'All tests passed' : 'There are test failures' } for PR \`<${ gh.pr.url }|${
-					gh.pr.title
-			  }>\``;
+			: `${
+					isSuccess ? 'All tests passed' : 'There are test failures'
+			  } ${ reportNameString }in PR \`<${ gh.pr.url }|${ gh.pr.title }>\``;
 
 		reportUrl = `${ dashboardUrl }/${ gh.pr.number }/report`;
 	} else {
 		reportUrl = `${ dashboardUrl }/${ gh.branch.name }/report`;
+	}
+
+	if ( yargs.argv.report ) {
+		reportUrl = `${ dashboardUrl }/${ yargs.argv.report }/report`;
 	}
 
 	buttons.push( {
