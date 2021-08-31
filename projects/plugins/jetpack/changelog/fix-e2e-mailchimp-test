@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-E2E tests: fixed mailchimp tests failing after a button label change
