@@ -111,7 +111,7 @@ class Speed_Score {
 			}
 		}
 
-		return rest_ensure_response( $score_request->jsonSerialize() );
+		return $this->prepare_speed_score_response( $score_request );
 	}
 
 	/**
@@ -158,7 +158,7 @@ class Speed_Score {
 			}
 		}
 
-		return rest_ensure_response( $score_request->jsonSerialize() );
+		return $this->prepare_speed_score_response( $score_request );
 	}
 
 	/**
@@ -175,5 +175,20 @@ class Speed_Score {
 	 */
 	public function clear_speed_score_request_cache() {
 		Speed_Score_Request::clear_cache();
+	}
+
+	/**
+	 * Prepare the speed score response.
+	 *
+	 * @param Speed_Score_Request $score_request A new speed score request to save.
+	 *
+	 * @return \WP_Error|\WP_HTTP_Response|\WP_REST_Response
+	 */
+	private function prepare_speed_score_response( $score_request ) {
+		$response             = $score_request->jsonSerialize();
+		$history              = new Speed_Score_History( $response['url'] );
+		$response['previous'] = $history->latest( 1 );
+
+		return rest_ensure_response( $response );
 	}
 }

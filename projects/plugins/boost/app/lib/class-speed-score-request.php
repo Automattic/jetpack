@@ -185,6 +185,8 @@ class Speed_Score_Request extends Cacheable {
 			case 'success':
 				$this->scores = $response->scores;
 				$this->store();
+				$this->record_history();
+
 				break;
 
 			default:
@@ -199,5 +201,24 @@ class Speed_Score_Request extends Cacheable {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Save the speed score record to history.
+	 */
+	private function record_history() {
+		$history = new Speed_Score_History( $this->url );
+
+		// Only change if there is a difference from last score.
+		$latest = $history->latest();
+		// phpcs:ignore
+		if ( $latest && $latest['scores'] != $this->scores ) {
+			$history->push(
+				array(
+					'timestamp' => time(),
+					'scores'    => $this->scores,
+				)
+			);
+		}
 	}
 }
