@@ -6,6 +6,10 @@
  * @package automattic/jetpack
  */
 
+/**
+ * This is the fallback payload md5 value, and will be used if there's no other translations available.
+ * TODO: Remembers recent translations files and use them as fallbacks.
+ */
 define( 'JETPACK__SEARCH_FALLBACK_TRANSLATION_MD5', '1a2821bfb803906d5e27' );
 
 /**
