@@ -18,15 +18,15 @@ yargs
 	.usage( 'Usage: $0 <cmd>' )
 	.demandCommand( 1, 1 )
 	.command(
-		'run [suite]',
-		'Sends a Slack notification with test run results.',
+		'suite <name>',
+		'Sends a Slack notification with test suite results.',
 		() => {
 			yargs.positional( 'suite', {
 				describe: 'Test suite name',
 				type: 'string',
 			} );
 		},
-		async argv => await reportTestRunResults( argv.suite )
+		async argv => await reportTestRunResults( argv.name )
 	)
 	.command(
 		'job <status>',

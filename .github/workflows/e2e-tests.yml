@@ -98,7 +98,7 @@ jobs:
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       working-directory: projects/plugins/jetpack/tests/e2e
-      run: NODE_ENV=test node ./bin/slack.js run $GROUP
+      run: NODE_ENV=test node ./bin/slack.js suite $GROUP
 
     - uses: testspace-com/setup-testspace@v1
       with:
