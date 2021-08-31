@@ -65,6 +65,8 @@ function stats_load() {
 	add_action( 'manage_posts_custom_column', 'jetpack_stats_post_table_cell', 10, 2 );
 	add_action( 'manage_pages_custom_column', 'jetpack_stats_post_table_cell', 10, 2 );
 
+	require_once __DIR__ . '/stats/class-jetpack-stats-upgrade-nudges.php';
+	add_action( 'updating_jetpack_version', array( 'Jetpack_Stats_Upgrade_Nudges', 'unset_nudges_setting' ) );
 }
 
 /**
@@ -547,6 +549,7 @@ if ( -1 == document.location.href.indexOf( 'noheader' ) ) {
 	jQuery( function( $ ) {
 		$.get( document.location.href + '&noheader', function( responseText ) {
 			$( '#stats-loading-wrap' ).replaceWith( responseText );
+			$( '#jp-stats-wrap' )[0].dispatchEvent( new Event( 'stats-loaded' ) );
 		} );
 	} );
 }

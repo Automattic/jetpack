@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+E2E tests: don't throw when get debug log from docker fails
