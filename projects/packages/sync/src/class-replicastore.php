@@ -1358,7 +1358,7 @@ class Replicastore implements Replicastore_Interface {
 
 			$previous_max_id = $ids_range['max_range'] + 1;
 			// If we've reached the max_range lets bail out.
-			if ( $previous_max_id >= $range_edges['max_range'] ) {
+			if ( $previous_max_id > $range_edges['max_range'] ) {
 				break;
 			}
 		} while ( true );

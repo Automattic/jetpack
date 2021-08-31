@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Added additional event properties to woocommerceanalytics_product_checkout and woocommerceanalytics_product_purchase events

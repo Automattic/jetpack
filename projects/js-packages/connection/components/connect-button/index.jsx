@@ -6,6 +6,7 @@ import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
 import PropTypes from 'prop-types';
 import restApi from '@automattic/jetpack-api';
+import { Spinner } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -26,6 +27,7 @@ import './style.scss';
  * @param {string} props.from -- Where the connection request is coming from.
  * @param {object} props.connectionStatus -- The connection status object.
  * @param {boolean} props.connectionStatusIsFetching -- The flag indicating that connection status is being fetched.
+ * @param {boolean} props.autoTrigger -- Whether to initiate the connection process automatically upon rendering the component.
  * @returns {React.Component} The RNA connection component.
  */
 const ConnectButton = props => {
@@ -44,6 +46,7 @@ const ConnectButton = props => {
 		from,
 		connectionStatus,
 		connectionStatusIsFetching,
+		autoTrigger,
 	} = props;
 
 	/**
@@ -95,6 +98,15 @@ const ConnectButton = props => {
 		]
 	);
 
+	/**
+	 * Auto-trigger the flow, only do it once.
+	 */
+	useEffect( () => {
+		if ( autoTrigger && ! isRegistering && ! isUserConnecting ) {
+			registerSite();
+		}
+	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
+
 	return (
 		<div className="jp-connect-button">
 			{ connectionStatusIsFetching && `Loading...` }
@@ -108,7 +120,7 @@ const ConnectButton = props => {
 						isPrimary
 						disabled={ isRegistering || isUserConnecting }
 					>
-						{ connectLabel }
+						{ isRegistering || isUserConnecting ? <Spinner /> : connectLabel }
 					</Button>
 				) }
 
@@ -127,11 +139,13 @@ ConnectButton.propTypes = {
 	from: PropTypes.string,
 	redirectUri: PropTypes.string.isRequired,
 	registrationNonce: PropTypes.string.isRequired,
+	autoTrigger: PropTypes.bool,
 };
 
 ConnectButton.defaultProps = {
 	connectLabel: __( 'Connect', 'jetpack' ),
 	redirectUri: null,
+	autoTrigger: false,
 };
 
 export default ConnectButton;
