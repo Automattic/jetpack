@@ -244,7 +244,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 == Changelog ==
 ### 10.1-beta - 2021-08-31
 #### Major Enhancements
-- Search: Adds a Gutenberg powered customization interface.
+- Search: add a Gutenberg powered customization interface.
 
 #### Enhancements
 - Carousel: photo info and comment sections stay open once toggled on.
