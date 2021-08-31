@@ -19,7 +19,8 @@ export default class DomEventHandler extends Component {
 			isComposing: false,
 			// `bodyScrollTop` remebers the body scroll position.
 			bodyScrollTop: 0,
-			previousBodyStyle: null,
+			previousStyle: null,
+			previousBodyStyleAttribute: '',
 		};
 		this.props.initializeQueryValues();
 	}
@@ -197,7 +198,16 @@ export default class DomEventHandler extends Component {
 	 */
 	preventBodyScroll() {
 		this.setState(
-			{ bodyScrollTop: parseInt( window.scrollY ) || 0, previousBodyStyle: document.body.style },
+			{
+				bodyScrollTop: parseInt( window.scrollY ) || 0,
+				previousStyle: {
+					top: document.body.style.top,
+					left: document.body.style.left,
+					right: document.body.style.right,
+					scrollBehavior: document.documentElement.style.scrollBehavior,
+				},
+				previousBodyStyleAttribute: document.body.getAttribute( 'style' ),
+			},
 			() => {
 				/**
 				 * For logged-in user, there's a WP Admin Bar which is made sticky by adding `margin-top` to the document (the old way of `position: sticky;`).
@@ -224,13 +234,28 @@ export default class DomEventHandler extends Component {
 	 * 3) Reset `this.state.bodyScrollTop` to `0`
 	 */
 	restoreBodyScroll() {
-		// Remove the positioning styling.
-		document.body.removeAttribute( 'style' );
-		// Restore body style.
-		document.body.style = this.state.previousBodyStyle;
+		// Restore body style attribute.
+		if ( this.state.previousBodyStyleAttribute ) {
+			document.body.setAttribute( 'style', this.state.previousBodyStyleAttribute );
+		} else {
+			document.body.removeAttribute( 'style' );
+		}
+		// Restore body style object.
+		document.body.style.top = this.state.previousStyle?.top ?? '';
+		document.body.style.left = this.state.previousStyle?.left ?? '';
+		document.body.style.right = this.state.previousStyle?.right ?? '';
+		// Prevent smooth scroll etc if there's any.
+		document.documentElement.style.scrollBehavior = 'revert';
 		// Restore body position.
 		this.state.bodyScrollTop > 0 && window.scrollTo( 0, this.state.bodyScrollTop );
-		this.setState( { bodyScrollTop: 0 } );
+		document.documentElement.style.scrollBehavior = this.state.previousStyle?.scrollBehavior ?? '';
+
+		//Restore states.
+		this.setState( {
+			bodyScrollTop: 0,
+			previousStyle: null,
+			previousBodyStyleAttribute: '',
+		} );
 	}
 
 	render() {
