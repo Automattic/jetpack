@@ -6,6 +6,8 @@
  * @package automattic/jetpack
  */
 
+define( 'JETPACK__SEARCH_FALLBACK_TRANSLATION_MD5', '1a2821bfb803906d5e27' );
+
 /**
  * Class to load Instant Search experience on the site.
  *

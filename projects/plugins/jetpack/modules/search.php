@@ -14,8 +14,6 @@
  * @package automattic/jetpack
  */
 
-define( 'JETPACK__SEARCH_FALLBACK_TRANSLATION_MD5', '1a2821bfb803906d5e27' );
-
 // Include everything.
 require_once __DIR__ . '/search/class.jetpack-search.php';
 require_once __DIR__ . '/search/class-jetpack-search-customberg.php';
