@@ -10,7 +10,6 @@
  * This is the fallback payload md5 value, and will be used if there's no other translations available.
  * TODO: Remembers recent translations files and use them as fallbacks.
  */
-define( 'JETPACK__SEARCH_FALLBACK_TRANSLATION_MD5', '1a2821bfb803906d5e27' );
 
 /**
  * Class to load Instant Search experience on the site.
@@ -143,12 +142,17 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		$this->load_and_initialize_tracks();
 		$this->inject_javascript_options();
 
-		// Load the translations for previous build as a fallback.
-		if ( defined( 'JETPACK__SEARCH_FALLBACK_TRANSLATION_MD5' ) ) {
-			$this->inject_payload_translation_for( plugin_dir_url( JETPACK__PLUGIN_FILE ) . str_replace( '*', JETPACK__SEARCH_FALLBACK_TRANSLATION_MD5, static::JETPACK_INSTANT_SEARCH_PAYLOAD_PATTERN ) );
-		}
-		// We detect and load translations for instant search lazy-loaded payload(s).
-		$this->inject_payload_translations();
+		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+			// For Jetpack site, we detect and load translations for instant search lazy-loaded payload(s).
+			$this->inject_payload_translations();
+		} elseif ( defined( 'JETPACK__SEARCH_MAIN_PAYLOAD_MD5' ) ) {
+			// Because WPCOM is deployed on-going, so the strings in the payload are not translated.
+			// The work-around is to load the translations from a Jetpack release.
+			$this->inject_payload_translation_for(
+				plugin_dir_url( JETPACK__PLUGIN_FILE )
+				. str_replace( '*', JETPACK__SEARCH_MAIN_PAYLOAD_MD5, static::JETPACK_INSTANT_SEARCH_PAYLOAD_PATTERN )
+			);
+		} //Otherwise we don't load anything.
 	}
 
 	/**
