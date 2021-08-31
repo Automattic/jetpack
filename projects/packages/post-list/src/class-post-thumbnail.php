@@ -22,6 +22,7 @@ class Post_Thumbnail {
 		$image_id    = null;
 		$image_url   = null;
 		$image_thumb = null;
+		$image_alt   = null;
 
 		$post_id = $post->ID;
 
@@ -79,7 +80,7 @@ class Post_Thumbnail {
 
 			// Ignore all class attribute values except 'wp-image{$attachment_id}'.
 			// Regex english translation: Look for a word \b, that does not start or end with a hyphen (?!-), that
-			// starts with 'wp-image-', and ends with a number of any length.
+			// starts with 'wp-image-', and ends with a number of any length \d+.
 			preg_match( '/\b(?!-)wp-image-\d+(?!-)\b/', $class_value, $class_value );
 
 			// Get the $attachment_id from the end of the class name value.
