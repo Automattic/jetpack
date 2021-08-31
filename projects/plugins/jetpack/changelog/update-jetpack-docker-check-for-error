@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+E2E tests: Expect `jetpack docker exec` to pass through exit statuses.

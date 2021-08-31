@@ -9,6 +9,11 @@ import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
 import { render, screen, waitFor } from '@testing-library/react';
 
+// this is necessary because block editor store becomes unregistered during jest initialization
+import { register } from '@wordpress/data';
+import { store as blockEditorStore } from '@wordpress/block-editor';
+register( blockEditorStore );
+
 // Need to mock InnerBlocks before import the CalendlyEdit component as it
 // requires the Gutenberg store setup to operate.
 jest.mock( '@wordpress/block-editor', () => ( {

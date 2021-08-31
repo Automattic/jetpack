@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Carousel: show image info icon even if Exif metadata option is off.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fixes some issues in docker cli

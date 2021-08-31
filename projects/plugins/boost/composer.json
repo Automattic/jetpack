@@ -18,7 +18,7 @@
 		"automattic/jetpack-config": "1.4.x-dev",
 		"automattic/jetpack-connection": "1.30.x-dev",
 		"automattic/jetpack-device-detection": "1.4.x-dev",
-		"automattic/jetpack-lazy-images": "1.5.x-dev",
+		"automattic/jetpack-lazy-images": "2.0.x-dev",
 		"automattic/jetpack-terms-of-service": "1.9.x-dev",
 		"automattic/jetpack-tracking": "1.13.x-dev",
 		"tedivm/jshrink": "1.4.0"
@@ -27,17 +27,10 @@
 		"automattic/jetpack-changelogger": "^1.2",
 		"automattic/wordbless": "dev-master",
 		"brain/monkey": "^2.6",
-		"yoast/phpunit-polyfills": "0.2.0"
+		"yoast/phpunit-polyfills": "1.0.1"
 	},
 	"scripts": {
-		"fix": [
-			"composer --working-dir=../../../ phpcs:fix ./projects/plugins/boost"
-		],
-		"lint": [
-			"composer --working-dir=../../../ phpcs:lint ./projects/plugins/boost"
-		],
 		"phpunit": [
-			"@composer install",
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
 		"test-coverage": [
@@ -45,6 +38,7 @@
 			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
+			"@composer install",
 			"@composer phpunit"
 		],
 		"build-production": [

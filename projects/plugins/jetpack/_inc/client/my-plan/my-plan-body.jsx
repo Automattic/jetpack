@@ -80,11 +80,11 @@ class MyPlanBody extends React.Component {
 			[
 				'is-premium-plan',
 				'is-business-plan',
-				'is-security-plan',
-				'is-security-pro-plan',
+				'is-security-t1-plan',
+				'is-security-t2-plan',
 				'is-complete-plan',
 
-				// DEPRECATED: Daily and Real-time variations are no longer sold.
+				// DEPRECATED: Daily and Real-time variations will soon be retired.
 				// Remove after all customers are migrated to new products.
 				'is-daily-security-plan',
 				'is-realtime-security-plan',
@@ -223,7 +223,7 @@ class MyPlanBody extends React.Component {
 
 		let jetpackBackupCard;
 
-		// DEPRECATED: Daily and Real-time variations are no longer sold.
+		// DEPRECATED: Daily and Real-time variations will soon be retired.
 		// Remove after all customers are migrated to new products.
 		if ( 'is-daily-backup-plan' === planClass ) {
 			jetpackBackupCard = getJetpackBackupCard( {
@@ -237,10 +237,10 @@ class MyPlanBody extends React.Component {
 
 		if (
 			[
-				'is-backup-plan',
-				'is-backup-pro-plan',
+				'is-backup-t1-plan',
+				'is-backup-t2-plan',
 
-				// DEPRECATED: Daily and Real-time variations are no longer sold.
+				// DEPRECATED: Daily and Real-time variations will soon be retired.
 				// Remove after all customers are migrated to new products.
 				'is-realtime-backup-plan',
 			].includes( planClass )
@@ -276,7 +276,7 @@ class MyPlanBody extends React.Component {
 						</p>
 						<Button
 							onClick={ this.handleButtonClickForTracking( 'view_search_customizer' ) }
-							href={ this.props.siteAdminUrl + 'customize.php?autofocus[section]=jetpack_search' }
+							href={ this.props.siteAdminUrl + 'admin.php?page=jetpack-search-configure' }
 						>
 							{ __( 'Customize Search', 'jetpack' ) }
 						</Button>
@@ -288,11 +288,11 @@ class MyPlanBody extends React.Component {
 		switch ( planClass ) {
 			case 'is-personal-plan':
 			case 'is-premium-plan':
-			case 'is-security-plan':
-			case 'is-security-pro-plan':
+			case 'is-security-t1-plan':
+			case 'is-security-t2-plan':
 			case 'is-business-plan':
 			case 'is-complete-plan':
-			// DEPRECATED: Daily and Real-time variations are no longer sold.
+			// DEPRECATED: Daily and Real-time variations will soon be retired.
 			// Remove after all customers are migrated to new products.
 			case 'is-daily-security-plan':
 			case 'is-realtime-security-plan':
@@ -564,11 +564,11 @@ class MyPlanBody extends React.Component {
 				break;
 
 			case 'is-free-plan':
-			case 'is-backup-plan':
-			case 'is-backup-pro-plan':
+			case 'is-backup-t1-plan':
+			case 'is-backup-t2-plan':
 			case 'is-search-plan':
 			case 'offline':
-			// DEPRECATED: Daily and Real-time variations are no longer sold.
+			// DEPRECATED: Daily and Real-time variations will soon be retired.
 			// Remove after all customers are migrated to new products.
 			case 'is-daily-backup-plan':
 			case 'is-realtime-backup-plan':

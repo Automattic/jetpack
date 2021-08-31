@@ -151,7 +151,7 @@ class Config {
 		/**
 		 * Fires when a specific Jetpack package feature is initalized using the Config package.
 		 *
-		 * @since 8.2.0
+		 * @since 1.1.0
 		 */
 		do_action( 'jetpack_feature_' . $feature . '_enabled' );
 

@@ -117,6 +117,7 @@ const extensionsWebpackConfig = getBaseWebpackConfig(
 			'editor-no-post-editor': editorNoPostEditorScript,
 			...viewBlocksScripts,
 		},
+		'output-filename': '[name].min.js',
 		'output-chunk-filename': '[name].[chunkhash].js',
 		'output-path': path.join( path.dirname( __dirname ), '_inc', 'blocks' ),
 		'output-jsonp-function': 'webpackJsonpJetpack',
@@ -147,7 +148,9 @@ module.exports = [
 		resolve: {
 			...extensionsWebpackConfig.resolve,
 			// We want the compiled version, not the "calypso:src" sources.
-			mainFields: undefined,
+			mainFields: extensionsWebpackConfig.resolve.mainFields.filter(
+				entry => 'calypso:src' !== entry
+			),
 		},
 		plugins: [
 			...extensionsWebpackConfig.plugins,
@@ -165,7 +168,9 @@ module.exports = [
 		resolve: {
 			...componentsWebpackConfig.resolve,
 			// We want the compiled version, not the "calypso:src" sources.
-			mainFields: undefined,
+			mainFields: componentsWebpackConfig.resolve.mainFields.filter(
+				entry => 'calypso:src' !== entry
+			),
 		},
 		plugins: [
 			...componentsWebpackConfig.plugins,

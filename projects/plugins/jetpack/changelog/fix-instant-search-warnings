@@ -1,0 +1,5 @@
+Significance: patch
+Type: bugfix
+Comment: Instant Search: fix warnings appearing in JS console in new Gutenberg settings screen.
+
+

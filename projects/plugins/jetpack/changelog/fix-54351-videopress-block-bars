@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fixed Video block resizing so that they don't display black bars at the sides.

@@ -30,7 +30,6 @@
 		"@babel/core": "7.13.16",
 		"@babel/preset-env": "7.13.15",
 		"@slack/web-api": "6.1.0",
-		"@wordpress/env": "4.0.2",
 		"@wordpress/eslint-plugin": "9.0.3",
 		"axios": "0.21.1",
 		"babel-jest": "26.6.3",
@@ -38,6 +37,7 @@
 		"config": "3.3.6",
 		"eslint": "7.24.0",
 		"eslint-plugin-jest": "24.3.5",
+		"jetpack-cli": "../../../../../tools/cli",
 		"jest": "26.6.3",
 		"jest-circus": "26.6.3",
 		"jest-circus-allure-environment": "1.1.0",
@@ -56,8 +56,9 @@
 		"yargs": "16.2.0"
 	},
 	"engines": {
-		"node": "^14.16.1",
+		"node": "^16.7.0",
 		"pnpm": "^6.5.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
-	}
+	},
+	"browserslist": []
 }

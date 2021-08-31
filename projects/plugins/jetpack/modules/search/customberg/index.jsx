@@ -1,12 +1,13 @@
 /**
- * External dependencies
- */
-import React from 'react';
-
-/**
  * WordPress dependencies
  */
 import { render } from '@wordpress/element';
+
+/**
+ * Internal dependencies
+ */
+import Layout from './components/layout';
+import './styles.scss';
 
 /**
  * Collapses wp-admin's sidebar menu for additional space.
@@ -22,7 +23,7 @@ function collapseWpAdminSidebar() {
  */
 export function initialize( id ) {
 	collapseWpAdminSidebar();
-	render( <div>Customberg is here!</div>, document.getElementById( id ) );
+	render( <Layout />, document.getElementById( id ) );
 }
 
-global.jetpackSearchCustomizeInit = initialize;
+global.jetpackSearchConfigureInit = initialize;

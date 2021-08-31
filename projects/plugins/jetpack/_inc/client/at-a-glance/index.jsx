@@ -85,6 +85,7 @@ class AtAGlance extends Component {
 		);
 		// Status can be unavailable, active, provisioning, awaiting_credentials
 		const rewindStatus = get( this.props.rewindStatus, [ 'state' ], '' );
+		const rewindStatusReason = get( this.props.rewindStatus, [ 'reason' ], '' );
 		const securityCards = [];
 
 		// Backup won't work with multi-sites, but Scan does if VaultPress is enabled
@@ -100,6 +101,7 @@ class AtAGlance extends Component {
 					{ ...settingsProps }
 					siteRawUrl={ this.props.siteRawUrl }
 					rewindStatus={ rewindStatus }
+					rewindStatusReason={ rewindStatusReason }
 				/>
 			);
 		}

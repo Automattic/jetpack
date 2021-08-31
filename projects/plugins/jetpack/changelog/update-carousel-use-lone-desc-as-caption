@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Carousel: use photo description as caption if caption and title fields are blank.

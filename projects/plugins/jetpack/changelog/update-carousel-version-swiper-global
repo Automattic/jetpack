@@ -1,0 +1,5 @@
+Significance: patch
+Type: bugfix
+Comment: Adds version number to Swiper global to prevent conflicts with other plugins
+
+

@@ -59,7 +59,7 @@ export default class MailchimpBlock extends PageActions {
 				await ( await LoginPage.init( wpComTab ) ).login( 'defaultUser' );
 			}
 
-			// Hacky way to force-sync Publicize activation. The first attempt is always get redirected to stats page.
+			// Hacky way to make sure the Calypso knows about newly created site (aka waiting for a site to get synced)
 			// TODO:
 			// explore a better way to sync the site. Maybe enable all the required modules as part of connection flow
 			// Or implement a way to trigger a sync manually.
@@ -72,12 +72,11 @@ export default class MailchimpBlock extends PageActions {
 					loaded = true;
 				} catch ( e ) {
 					logger.warn(
-						'ConnectionsPage is not available yet. Attempt: ' + count,
-						' URL: ' + connectionsUrl
+						'ConnectionsPage is not available yet. Attempt: ' + count + '; URL: ' + connectionsUrl
 					);
 					await wpComTab.goto( connectionsUrl );
-					if ( count > 2 ) {
-						throw new Error( 'ConnectionsPage is not available after 3rd attempt' );
+					if ( count > 4 ) {
+						throw new Error( `ConnectionsPage is not available after ${ count + 1 } attempts` );
 					}
 				}
 			}

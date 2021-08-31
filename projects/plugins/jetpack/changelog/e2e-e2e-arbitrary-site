@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+E2E tests: run tests against an arbitrary site

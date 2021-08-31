@@ -16,6 +16,7 @@ const wpcomCommitReminder = require( './tasks/wpcom-commit-reminder' );
 const notifyDesign = require( './tasks/notify-design' );
 const notifyEditorial = require( './tasks/notify-editorial' );
 const flagOss = require( './tasks/flag-oss' );
+const triageNewIssues = require( './tasks/triage-new-issues' );
 const debug = require( './debug' );
 const ifNotFork = require( './if-not-fork' );
 const ifNotClosed = require( './if-not-closed' );
@@ -63,6 +64,11 @@ const automations = [
 		event: 'pull_request_target',
 		action: [ 'opened' ],
 		task: flagOss,
+	},
+	{
+		event: 'issues',
+		action: [ 'opened', 'reopened' ],
+		task: triageNewIssues,
 	},
 ];
 

@@ -1,0 +1,39 @@
+@import '../../lib/base-styles';
+
+// Manually adjust incorrect styles from core.
+.jp-search-configure-color-input {
+	.component-color-indicator {
+		vertical-align: middle;
+	}
+
+	.block-editor-color-gradient-control {
+		fieldset > legend {
+			margin-bottom: $grid-unit-15;
+
+			> .block-editor-color-gradient-control__color-indicator {
+				margin-bottom: 0;
+			}
+		}
+	}
+
+	.components-circular-option-picker__option-wrapper {
+		:focus:after {
+			top: -4px;
+			left: -4px;
+		}
+		.components-button.is-pressed:focus:not( :disabled ) {
+			box-shadow: inset 0 0 0 14px !important;
+		}
+	}
+
+	.jp-search-configure-sidebar-options--is-disabled & {
+		.components-button {
+			pointer-events: none;
+			cursor: not-allowed;
+			filter: grayscale( 0.8 );
+		}
+		.components-circular-option-picker__option-wrapper:hover {
+			transform: scale( 1 );
+		}
+	}
+}

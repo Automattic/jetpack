@@ -24,6 +24,7 @@ describe( 'Search', () => {
 
 	beforeAll( async () => {
 		await prerequisitesBuilder()
+			.withLoggedIn( true )
 			.withConnection( true )
 			.withPlan( Plans.Complete )
 			.withActiveModules( [ 'search' ] )

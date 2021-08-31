@@ -41,7 +41,8 @@ const Backups = () => {
 		LOADING: 0,
 		IN_PROGRESS: 1,
 		NO_BACKUPS: 2,
-		COMPLETE: 3,
+		NO_GOOD_BACKUPS: 3,
+		COMPLETE: 4,
 	};
 
 	const [ backupState, setBackupState ] = useState( BACKUP_STATE.LOADING );
@@ -53,59 +54,59 @@ const Backups = () => {
 		apiFetch( { path: '/jetpack/v4/backups' } ).then(
 			res => {
 				// If we have no backups don't load up stats.
-				if ( res.length === 0 ) {
-					return;
-				}
-
 				let latestBackup = null;
 
-				// Check for the first completed backups.
-				res.forEach( backup => {
-					if ( null !== latestBackup ) {
+				if ( res.length === 0 ) {
+					setBackupState( BACKUP_STATE.NO_BACKUPS );
+				} else {
+					// Check for the first completed backups.
+					res.forEach( backup => {
+						if ( null !== latestBackup ) {
+							return;
+						}
+
+						if ( 'finished' === backup.status && backup.stats ) {
+							latestBackup = backup;
+							setBackupState( BACKUP_STATE.COMPLETE );
+						}
+					} );
+
+					// Only the first backup can be in progress.
+					if ( null === latestBackup && 'started' === res[ 0 ].status ) {
+						latestBackup = res[ 0 ];
+						setProgress( latestBackup.percent );
+						setBackupState( BACKUP_STATE.IN_PROGRESS );
+					}
+
+					// No complete or in progress backups.
+					if ( ! latestBackup ) {
+						setBackupState( BACKUP_STATE.NO_GOOD_BACKUPS );
 						return;
 					}
 
-					if ( 'finished' === backup.status && backup.stats ) {
-						latestBackup = backup;
-						setBackupState( BACKUP_STATE.COMPLETE );
+					// Setup data for COMPLETE state.
+					if ( 'finished' === latestBackup.status ) {
+						const postsTable = latestBackup.stats.prefix + 'posts';
+						setStats( {
+							plugins: latestBackup.stats.plugins.count,
+							themes: latestBackup.stats.themes.count,
+							uploads: latestBackup.stats.uploads.count,
+							posts: latestBackup.stats.tables[ postsTable ].post_published,
+						} );
+						setLatestTime( date( 'c', latestBackup.last_updated + '+00:00' ) );
 					}
-				} );
-
-				// Only the first backup can be in progress.
-				if ( null === latestBackup && 'started' === res[ 0 ].status ) {
-					latestBackup = res[ 0 ];
-					setBackupState( BACKUP_STATE.IN_PROGRESS );
 				}
 
-				// No complete or in progress backups.
-				if ( ! latestBackup ) {
-					setBackupState( BACKUP_STATE.NO_BACKUPS );
-					return;
-				}
-
-				// Setup data for COMPLETE state.
-				if ( 'finished' === latestBackup.status ) {
-					const postsTable = latestBackup.stats.prefix + 'posts';
-					setStats( {
-						plugins: latestBackup.stats.plugins.count,
-						themes: latestBackup.stats.themes.count,
-						uploads: latestBackup.stats.uploads.count,
-						posts: latestBackup.stats.tables[ postsTable ].post_published,
-					} );
-					setLatestTime( date( 'c', latestBackup.last_updated + '+00:00' ) );
-				}
-
-				// Setup data for IN_PROGRESS.
-				if ( 'started' === latestBackup.status ) {
+				// Repeat query for NO_BACKUPS (before first) and IN_PROGRESS
+				if ( res.length === 0 || 'started' === latestBackup.status ) {
 					// Grab progress and update every progressInterval until complete.
-					setProgress( latestBackup.percent );
 					setTimeout( () => {
 						setTrackProgress( trackProgress + 1 );
 					}, progressInterval );
 				}
 			},
 			() => {
-				setBackupState( BACKUP_STATE.NO_BACKUPS );
+				setBackupState( BACKUP_STATE.NO_GOOD_BACKUPS );
 			}
 		);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -222,7 +223,7 @@ const Backups = () => {
 		);
 	};
 
-	const renderNoBackups = () => {
+	const renderNoGoodBackups = () => {
 		return (
 			<div class="jp-row">
 				<div class="lg-col-span-5 md-col-span-4 sm-col-span-4">
@@ -268,6 +269,19 @@ const Backups = () => {
 		);
 	};
 
+	const renderNoBackups = () => {
+		return (
+			<div class="jp-row">
+				<div class="lg-col-span-5 md-col-span-4 sm-col-span-4">
+					<h1>{ __( 'Welcome to Jetpack Backup!', 'jetpack-backup' ) }</h1>
+					<p>{ __( "You're all set! Your first backup will start soon.", 'jetpack-backup' ) }</p>
+				</div>
+				<div class="lg-col-span-1 md-col-span-4 sm-col-span-0"></div>
+				<div class="lg-col-span-6 md-col-span-2 sm-col-span-2"></div>
+			</div>
+		);
+	};
+
 	const renderLoading = () => {
 		return <div class="jp-row"></div>;
 	};
@@ -275,9 +289,10 @@ const Backups = () => {
 	return (
 		<div className="jp-wrap">
 			{ BACKUP_STATE.LOADING === backupState && renderLoading() }
+			{ BACKUP_STATE.NO_BACKUPS === backupState && renderNoBackups() }
 			{ BACKUP_STATE.IN_PROGRESS === backupState && renderInProgressBackup() }
 			{ BACKUP_STATE.COMPLETE === backupState && renderCompleteBackup() }
-			{ BACKUP_STATE.NO_BACKUPS === backupState && renderNoBackups() }
+			{ BACKUP_STATE.NO_GOOD_BACKUPS === backupState && renderNoGoodBackups() }
 		</div>
 	);
 };

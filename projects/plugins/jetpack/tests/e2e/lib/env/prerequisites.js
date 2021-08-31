@@ -1,9 +1,8 @@
 import logger from '../logger';
 import { isBlogTokenSet, syncJetpackPlanData } from '../flows/jetpack-connect';
 import {
-	execMultipleWpCommands,
 	execWpCommand,
-	getAccountCredentials,
+	getDotComCredentials,
 	provisionJetpackStartConnection,
 	resetWordpressInstall,
 } from '../utils-helper';
@@ -13,12 +12,12 @@ import { loginToWpCom, loginToWpSite } from '../flows/log-in';
 
 export function prerequisitesBuilder() {
 	const state = {
+		clean: undefined,
 		loggedIn: undefined,
 		wpComLoggedIn: undefined,
 		connected: undefined,
 		plan: undefined,
 		modules: { active: undefined, inactive: undefined },
-		clean: undefined,
 	};
 
 	return {
@@ -81,6 +80,13 @@ async function buildPrerequisites( state ) {
 }
 
 export async function ensureConnectedState( requiredConnected = undefined ) {
+	if ( global.isLocalSite ) {
+		logger.prerequisites(
+			'Site is not local, skipping connection setup. Assuming required setup is already in place.'
+		);
+		return;
+	}
+
 	const isConnected = await isBlogTokenSet();
 
 	if ( requiredConnected && isConnected ) {
@@ -97,26 +103,30 @@ export async function ensureConnectedState( requiredConnected = undefined ) {
 }
 
 async function connect() {
-	const userId = getAccountCredentials( 'defaultUser' )[ 2 ];
+	const userId = getDotComCredentials().userId;
 	await provisionJetpackStartConnection( userId, 'free' );
 
 	expect( await isBlogTokenSet() ).toBeTruthy();
 
 	// We are connected. Let's save the existing connection options just in case.
-	const result = await execWpCommand( 'wp option get jetpack_private_options --format=json' );
+	const result = await execWpCommand( 'option get jetpack_private_options --format=json' );
 	fs.writeFileSync( config.get( 'temp.jetpackPrivateOptions' ), result.trim() );
 }
 
 async function disconnect() {
 	// await resetWordpressInstall();
-	await execMultipleWpCommands(
-		'wp option delete jetpack_private_options',
-		'wp option delete jetpack_sync_error_idc'
-	);
+	await execWpCommand( 'option delete jetpack_private_options' );
+	await execWpCommand( 'option delete jetpack_sync_error_idc' );
+
 	expect( await isBlogTokenSet() ).toBeFalsy();
 }
 
 async function ensureCleanState( shouldReset ) {
+	if ( global.isLocalSite ) {
+		logger.prerequisites( 'Site is not local, skipping environment reset.' );
+		return;
+	}
+
 	if ( shouldReset ) {
 		logger.prerequisites( 'Resetting environment' );
 		await resetWordpressInstall();
@@ -124,6 +134,13 @@ async function ensureCleanState( shouldReset ) {
 }
 
 export async function ensurePlan( plan = undefined ) {
+	if ( global.isLocalSite ) {
+		logger.prerequisites(
+			'Site is not local, skipping plan setup. Assuming required plan is already in place.'
+		);
+		return;
+	}
+
 	if ( [ 'free', 'complete' ].indexOf( plan ) < 0 ) {
 		throw new Error( `Unsupported plan ${ plan }` );
 	}
@@ -136,10 +153,17 @@ export async function ensureUserIsLoggedIn() {
 }
 
 export async function ensureWpComUserIsLoggedIn() {
-	await loginToWpCom( 'defaultUser', true );
+	await loginToWpCom( true );
 }
 
 export async function ensureModulesState( modules ) {
+	if ( global.isLocalSite ) {
+		logger.prerequisites(
+			'Site is not local, skipping modules setup. Assuming required setup is already in place.'
+		);
+		return;
+	}
+
 	if ( modules.active ) {
 		await activateModules( modules.active );
 	} else {
@@ -156,7 +180,7 @@ export async function ensureModulesState( modules ) {
 export async function activateModules( modulesList ) {
 	for ( const module of modulesList ) {
 		logger.prerequisites( `Activating module ${ module }` );
-		const result = await execWpCommand( `wp jetpack module activate ${ module }` );
+		const result = await execWpCommand( `jetpack module activate ${ module }` );
 		expect( result ).toMatch( new RegExp( `Success: .* has been activated.`, 'i' ) );
 	}
 }
@@ -164,7 +188,7 @@ export async function activateModules( modulesList ) {
 export async function deactivateModules( modulesList ) {
 	for ( const module of modulesList ) {
 		logger.prerequisites( `Deactivating module ${ module }` );
-		const result = await execWpCommand( `wp jetpack module deactivate ${ module }` );
+		const result = await execWpCommand( `jetpack module deactivate ${ module }` );
 		expect( result ).toMatch( new RegExp( `Success: .* has been deactivated.`, 'i' ) );
 	}
 }

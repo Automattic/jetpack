@@ -50,6 +50,7 @@ input.jetpack-instant-search__box-input.search-field {
 	justify-content: center;
 	height: 60px;
 	width: 60px;
+	flex-shrink: 0;
 
 	svg {
 		fill: $color-text-lighter;

@@ -257,7 +257,8 @@ class REST_Connector {
 	/**
 	 * Handles verification that a site is registered.
 	 *
-	 * @since 5.4.0
+	 * @since 1.7.0
+	 * @since-jetpack 5.4.0
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -272,7 +273,8 @@ class REST_Connector {
 	/**
 	 * Handles verification that a site is registered
 	 *
-	 * @since 5.4.0
+	 * @since 1.7.0
+	 * @since-jetpack 5.4.0
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -292,7 +294,8 @@ class REST_Connector {
 	/**
 	 * Get connection status for this Jetpack site.
 	 *
-	 * @since 4.3.0
+	 * @since 1.7.0
+	 * @since-jetpack 4.3.0
 	 *
 	 * @param bool $rest_response Should we return a rest response or a simple array. Default to rest response.
 	 *
@@ -322,7 +325,7 @@ class REST_Connector {
 		/**
 		 * Filters the connection status data.
 		 *
-		 * @since 9.6.0
+		 * @since 1.25.0
 		 *
 		 * @param array An array containing the connection status data.
 		 */
@@ -340,7 +343,7 @@ class REST_Connector {
 	/**
 	 * Get plugins connected to the Jetpack.
 	 *
-	 * @since 8.6.0
+	 * @since 1.13.1
 	 *
 	 * @return WP_REST_Response|WP_Error Response or error object, depending on the request result.
 	 */
@@ -364,7 +367,7 @@ class REST_Connector {
 	/**
 	 * Verify that user can view Jetpack admin page and can activate plugins.
 	 *
-	 * @since 8.8.0
+	 * @since 1.15.0
 	 *
 	 * @return bool|WP_Error Whether user has the capability 'activate_plugins'.
 	 */
@@ -540,7 +543,7 @@ class REST_Connector {
 	/**
 	 * Verify that user is allowed to disconnect Jetpack.
 	 *
-	 * @since 8.8.0
+	 * @since 1.15.0
 	 *
 	 * @return bool|WP_Error Whether user has the capability 'jetpack_disconnect'.
 	 */
@@ -564,7 +567,7 @@ class REST_Connector {
 	/**
 	 * The endpoint tried to partially or fully reconnect the website to WP.com.
 	 *
-	 * @since 8.8.0
+	 * @since 1.15.0
 	 *
 	 * @return \WP_REST_Response|WP_Error
 	 */
@@ -593,7 +596,7 @@ class REST_Connector {
 				/**
 				 * Action fired when reconnection has completed successfully.
 				 *
-				 * @since 9.0.0
+				 * @since 1.18.1
 				 */
 				do_action( 'jetpack_reconnection_completed' );
 				break;
@@ -608,7 +611,7 @@ class REST_Connector {
 	/**
 	 * Verify that user is allowed to connect Jetpack.
 	 *
-	 * @since 9.7.0
+	 * @since 1.26.0
 	 *
 	 * @return bool|WP_Error Whether user has the capability 'jetpack_connect'.
 	 */
@@ -623,7 +626,8 @@ class REST_Connector {
 	/**
 	 * The endpoint tried to partially or fully reconnect the website to WP.com.
 	 *
-	 * @since 7.7.0
+	 * @since 1.7.0
+	 * @since-jetpack 7.7.0
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -663,7 +667,7 @@ class REST_Connector {
 		 * Filters the response of jetpack/v4/connection/register endpoint
 		 *
 		 * @param array $response Array response
-		 * @since 9.8.0
+		 * @since 1.27.0
 		 */
 		$response_body = apply_filters(
 			'jetpack_register_site_rest_response',
@@ -682,7 +686,7 @@ class REST_Connector {
 	/**
 	 * Get the authorization URL.
 	 *
-	 * @since 9.8.0
+	 * @since 1.27.0
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -711,7 +715,7 @@ class REST_Connector {
 	/**
 	 * The endpoint tried to partially or fully reconnect the website to WP.com.
 	 *
-	 * @since 9.9.0
+	 * @since 1.29.0
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -745,7 +749,7 @@ class REST_Connector {
 		/**
 		 * Fires when the user token gets successfully replaced.
 		 *
-		 * @since 9.9.0
+		 * @since 1.29.0
 		 *
 		 * @param int $user_id User ID.
 		 * @param string $token New user token.
@@ -784,7 +788,7 @@ class REST_Connector {
 	/**
 	 * Verify that the API client is allowed to replace user token.
 	 *
-	 * @since 9.9.0
+	 * @since 1.29.0
 	 *
 	 * @return bool|WP_Error.
 	 */
@@ -797,7 +801,7 @@ class REST_Connector {
 	/**
 	 * Change the connection owner.
 	 *
-	 * @since 9.9.0
+	 * @since 1.29.0
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -822,8 +826,9 @@ class REST_Connector {
 	/**
 	 * Check that user has permission to change the master user.
 	 *
-	 * @since 6.2.0
-	 * @since 7.7.0 Update so that any user with jetpack_disconnect privs can set owner.
+	 * @since 1.7.0
+	 * @since-jetpack 6.2.0
+	 * @since-jetpack 7.7.0 Update so that any user with jetpack_disconnect privs can set owner.
 	 *
 	 * @return bool|WP_Error True if user is able to change master user.
 	 */

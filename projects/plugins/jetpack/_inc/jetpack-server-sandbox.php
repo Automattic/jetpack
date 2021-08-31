@@ -1,12 +1,15 @@
 <?php
-
 /**
  * This feature is only useful for Automattic developers.
  * It configures Jetpack to talk to staging/sandbox servers
  * on WordPress.com instead of production servers.
+ *
+ * @package automattic/jetpack
  */
 
 /**
+ * Provides sandbox request parameters.
+ *
  * @param string $sandbox Sandbox domain.
  * @param string $url URL of request about to be made.
  * @param array  $headers Headers of request about to be made.
@@ -24,8 +27,8 @@ function jetpack_server_sandbox_request_parameters( $sandbox, $url, $headers ) {
  *
  * Attached to the `requests-requests.before_request` filter.
  *
- * @param string &$url URL of request about to be made.
- * @param array  &$headers Headers of request about to be made.
+ * @param string $url URL of request about to be made.
+ * @param array  $headers Headers of request about to be made.
  * @return void
  */
 function jetpack_server_sandbox( &$url, &$headers ) {

@@ -17,6 +17,10 @@ export default class DomEventHandler extends Component {
 			// We toggle isComposing on compositionstart and compositionend events.
 			// (CJK = Chinese, Japanese, Korean; see https://en.wikipedia.org/wiki/CJK_characters)
 			isComposing: false,
+			// `bodyScrollTop` remembers the body scroll position.
+			bodyScrollTop: 0,
+			previousStyle: null,
+			previousBodyStyleAttribute: '',
 		};
 		this.props.initializeQueryValues();
 	}
@@ -28,6 +32,13 @@ export default class DomEventHandler extends Component {
 
 	componentWillUnmount() {
 		this.removeEventListeners();
+		this.restoreBodyScroll();
+	}
+
+	componentDidUpdate( prevProps ) {
+		if ( this.props.isVisible !== prevProps.isVisible ) {
+			this.fixBodyScroll();
+		}
 	}
 
 	disableUnnecessaryFormAndInputAttributes() {
@@ -168,6 +179,84 @@ export default class DomEventHandler extends Component {
 			this.props.showResults();
 		}
 	};
+
+	fixBodyScroll = () => {
+		if ( this.props.isVisible ) {
+			this.preventBodyScroll();
+			// This ensures the search input is visible on mobile devices.
+			// @see https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollTo
+			window?.scrollTo( 0, 0 );
+		} else if ( ! this.props.isVisible ) {
+			this.restoreBodyScroll();
+		}
+	};
+
+	/**
+	 * 1) When the overlay is open, we set body to fixed position.
+	 * 2) Body would be scrolled to top, so we need to set top to where the scroll position was.
+	 * 3) And we remember the body postition in `this.state.bodyScrollTop`
+	 */
+	preventBodyScroll() {
+		this.setState(
+			{
+				bodyScrollTop: parseInt( window.scrollY ) || 0,
+				previousStyle: {
+					top: document.body.style.top,
+					left: document.body.style.left,
+					right: document.body.style.right,
+					scrollBehavior: document.documentElement.style.scrollBehavior,
+				},
+				previousBodyStyleAttribute: document.body.getAttribute( 'style' ),
+			},
+			() => {
+				/**
+				 * For logged-in user, there's a WP Admin Bar which is made sticky by adding `margin-top` to the document (the old way of `position: sticky;`).
+				 * So we need to fix the offset of scrollY for fixed positioned body.
+				 */
+				const scrollYOffset =
+					document.documentElement?.scrollHeight - document.body?.scrollHeight || 0;
+				// This is really important - e.g. `twentytwenty` set an important style to body which we'd need to override.
+				// Make body not scrollable.
+				document.body.setAttribute( 'style', 'position: fixed !important' );
+
+				// Keep body at the same position when overlay is open.
+				document.body.style.top = `-${ this.state.bodyScrollTop - scrollYOffset }px`;
+				// Make body in the center.
+				document.body.style.left = 0;
+				document.body.style.right = 0;
+			}
+		);
+	}
+
+	/**
+	 * 1) Unset body fixed postion
+	 * 2) Scroll back to the `this.state.bodyScrollTop`
+	 * 3) Reset `this.state.bodyScrollTop` to `0`
+	 */
+	restoreBodyScroll() {
+		// Restore body style attribute.
+		if ( this.state.previousBodyStyleAttribute ) {
+			document.body.setAttribute( 'style', this.state.previousBodyStyleAttribute );
+		} else {
+			document.body.removeAttribute( 'style' );
+		}
+		// Restore body style object.
+		document.body.style.top = this.state.previousStyle?.top ?? '';
+		document.body.style.left = this.state.previousStyle?.left ?? '';
+		document.body.style.right = this.state.previousStyle?.right ?? '';
+		// Prevent smooth scroll etc if there's any.
+		document.documentElement.style.scrollBehavior = 'revert';
+		// Restore body position.
+		this.state.bodyScrollTop > 0 && window.scrollTo( 0, this.state.bodyScrollTop );
+		document.documentElement.style.scrollBehavior = this.state.previousStyle?.scrollBehavior ?? '';
+
+		//Restore states.
+		this.setState( {
+			bodyScrollTop: 0,
+			previousStyle: null,
+			previousBodyStyleAttribute: '',
+		} );
+	}
 
 	render() {
 		return null;

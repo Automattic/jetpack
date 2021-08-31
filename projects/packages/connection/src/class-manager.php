@@ -50,7 +50,7 @@ class Manager {
 	 *
 	 * Use Manager::add_register_request_param to add values to this array.
 	 *
-	 * @since 9.7.0
+	 * @since 1.26.0
 	 * @var array
 	 */
 	private static $extra_register_params = array();
@@ -122,7 +122,7 @@ class Manager {
 	/**
 	 * Sets up the XMLRPC request handlers.
 	 *
-	 * @since 9.6.0 Deprecate $is_active param.
+	 * @since 1.25.0 Deprecate $is_active param.
 	 *
 	 * @param array                  $request_params incoming request parameters.
 	 * @param bool                   $has_connected_owner Whether the site has a connected owner.
@@ -227,7 +227,8 @@ class Manager {
 		/**
 		 * Filters the class used for handling XML-RPC requests.
 		 *
-		 * @since 3.1.0
+		 * @since 1.7.0
+		 * @since-jetpack 3.1.0
 		 *
 		 * @param string $class The name of the XML-RPC server class.
 		 */
@@ -322,7 +323,8 @@ class Manager {
 				/**
 				 * Action for logging XMLRPC signature verification errors. This data is sensitive.
 				 *
-				 * @since 7.5.0
+				 * @since 1.7.0
+				 * @since-jetpack 7.5.0
 				 *
 				 * @param WP_Error $signature_verification_error The verification error
 				 */
@@ -486,7 +488,8 @@ class Manager {
 		/**
 		 * Action for additional token checking.
 		 *
-		 * @since 7.7.0
+		 * @since 1.7.0
+		 * @since-jetpack 7.7.0
 		 *
 		 * @param array $post_data request data.
 		 * @param array $token_data token data.
@@ -506,11 +509,11 @@ class Manager {
 	/**
 	 * Returns true if the current site is connected to WordPress.com and has the minimum requirements to enable Jetpack UI.
 	 *
-	 * This method is deprecated since Jetpack 9.6.0. Please use has_connected_owner instead.
+	 * This method is deprecated since version 1.25.0 of this package. Please use has_connected_owner instead.
 	 *
 	 * Since this method has a wide spread use, we decided not to throw any deprecation warnings for now.
 	 *
-	 * @deprecated 9.6.0
+	 * @deprecated 1.25.0
 	 * @see Manager::has_connected_owner
 	 * @return Boolean is the site connected?
 	 */
@@ -531,13 +534,13 @@ class Manager {
 	 * Returns true if the site has both a token and a blog id, which indicates a site has been registered.
 	 *
 	 * @access public
-	 * @deprecated 9.2.0 Use is_connected instead
+	 * @deprecated 1.12.1 Use is_connected instead
 	 * @see Manager::is_connected
 	 *
 	 * @return bool
 	 */
 	public function is_registered() {
-		_deprecated_function( __METHOD__, 'jetpack-9.2' );
+		_deprecated_function( __METHOD__, '1.12.1' );
 		return $this->is_connected();
 	}
 
@@ -545,7 +548,7 @@ class Manager {
 	 * Returns true if the site has both a token and a blog id, which indicates a site has been connected.
 	 *
 	 * @access public
-	 * @since 9.2.0
+	 * @since 1.21.1
 	 *
 	 * @return bool
 	 */
@@ -559,7 +562,7 @@ class Manager {
 	 * Returns true if the site has at least one connected administrator.
 	 *
 	 * @access public
-	 * @since 9.2.0
+	 * @since 1.21.1
 	 *
 	 * @return bool
 	 */
@@ -571,7 +574,7 @@ class Manager {
 	 * Returns true if the site has any connected user.
 	 *
 	 * @access public
-	 * @since 9.2.0
+	 * @since 1.21.1
 	 *
 	 * @return bool
 	 */
@@ -622,7 +625,7 @@ class Manager {
 	 * Returns true if the site has a connected Blog owner (master_user).
 	 *
 	 * @access public
-	 * @since 9.2.0
+	 * @since 1.21.1
 	 *
 	 * @return bool
 	 */
@@ -636,13 +639,13 @@ class Manager {
 	 * Note that we are explicitly checking for the existence of the master_user option in order to account for cases where we don't have any user tokens (user-level connection) but the master_user option is set, which could be the result of a problematic user connection.
 	 *
 	 * @access public
-	 * @since 9.6.0
-	 * @deprecated 9.8.0
+	 * @since 1.25.0
+	 * @deprecated 1.27.0
 	 *
 	 * @return bool
 	 */
 	public function is_userless() {
-		_deprecated_function( __METHOD__, 'jetpack-9.8.0', 'Automattic\\Jetpack\\Connection\\Manager::is_site_connection' );
+		_deprecated_function( __METHOD__, '1.27.0', 'Automattic\\Jetpack\\Connection\\Manager::is_site_connection' );
 		return $this->is_site_connection();
 	}
 
@@ -652,7 +655,7 @@ class Manager {
 	 * Note that we are explicitly checking for the existence of the master_user option in order to account for cases where we don't have any user tokens (user-level connection) but the master_user option is set, which could be the result of a problematic user connection.
 	 *
 	 * @access public
-	 * @since 9.8.0
+	 * @since 1.27.0
 	 *
 	 * @return bool
 	 */
@@ -844,7 +847,8 @@ class Manager {
 			/**
 			 * Fires after the current user has been unlinked from WordPress.com.
 			 *
-			 * @since 4.1.0
+			 * @since 1.7.0
+			 * @since-jetpack 4.1.0
 			 *
 			 * @param int $user_id The current user's ID.
 			 */
@@ -878,7 +882,7 @@ class Manager {
 	/**
 	 * Update the connection owner.
 	 *
-	 * @since 9.9.0
+	 * @since 1.29.0
 	 *
 	 * @param Integer $new_owner_id The ID of the user to become the connection owner.
 	 *
@@ -934,7 +938,7 @@ class Manager {
 	/**
 	 * Request to WPCOM to update the connection owner.
 	 *
-	 * @since 9.9.0
+	 * @since 1.29.0
 	 *
 	 * @param Integer $new_owner_id The ID of the user to become the connection owner.
 	 *
@@ -974,7 +978,7 @@ class Manager {
 		 * Filters whether the connection manager should use the iframe authorization
 		 * flow instead of the regular redirect-based flow.
 		 *
-		 * @since 8.3.0
+		 * @since 1.9.0
 		 *
 		 * @param Boolean $is_iframe_flow_used should the iframe flow be used, defaults to false.
 		 */
@@ -988,7 +992,8 @@ class Manager {
 		/**
 		 * Filters the API URL that Jetpack uses for server communication.
 		 *
-		 * @since 8.0.0
+		 * @since 1.7.0
+		 * @since-jetpack 8.0.0
 		 *
 		 * @param String $url the generated URL.
 		 * @param String $relative_url the relative URL that was passed as an argument.
@@ -1059,7 +1064,8 @@ class Manager {
 		/**
 		 * Filters the request body for additional property addition.
 		 *
-		 * @since 7.7.0
+		 * @since 1.7.0
+		 * @since-jetpack 7.7.0
 		 *
 		 * @param array $post_data request data.
 		 * @param Array $token_data token data.
@@ -1163,7 +1169,8 @@ class Manager {
 		/**
 		 * Fires when a site is registered on WordPress.com.
 		 *
-		 * @since 3.7.0
+		 * @since 1.7.0
+		 * @since-jetpack 3.7.0
 		 *
 		 * @param int $json->jetpack_id Jetpack Blog ID.
 		 * @param string $json->jetpack_secret Jetpack Blog Token.
@@ -1180,7 +1187,8 @@ class Manager {
 			/**
 			 * Fires when a user token is sent along with the registration data.
 			 *
-			 * @since 7.6.0
+			 * @since 1.7.0
+			 * @since-jetpack 7.6.0
 			 *
 			 * @param object $token the administrator token for the newly registered site.
 			 */
@@ -1206,7 +1214,7 @@ class Manager {
 		/**
 		 * Action fired when the user attempts the registration.
 		 *
-		 * @since 9.7.0
+		 * @since 1.26.0
 		 */
 		$pre_register = apply_filters( 'jetpack_pre_register', null );
 
@@ -1240,7 +1248,7 @@ class Manager {
 	/**
 	 * Adds a parameter to the register request body
 	 *
-	 * @since 9.7.0
+	 * @since 1.26.0
 	 *
 	 * @param string $name The name of the parameter to be added.
 	 * @param string $value The value of the parameter to be added.
@@ -1259,7 +1267,8 @@ class Manager {
 	 * Takes the response from the Jetpack register new site endpoint and
 	 * verifies it worked properly.
 	 *
-	 * @since 2.6
+	 * @since 1.7.0
+	 * @since-jetpack 2.6.0
 	 *
 	 * @param Mixed $response the response object, or the error object.
 	 * @return string|WP_Error A JSON object on success or WP_Error on failures
@@ -1341,11 +1350,11 @@ class Manager {
 	 * @param string $nonce the nonce value.
 	 * @return bool whether the nonce is unique or not.
 	 *
-	 * @deprecated since 9.5.0
+	 * @deprecated since 1.24.0
 	 * @see Nonce_Handler::add()
 	 */
 	public function add_nonce( $timestamp, $nonce ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5.0', 'Automattic\\Jetpack\\Connection\\Nonce_Handler::add' );
+		_deprecated_function( __METHOD__, '1.24.0', 'Automattic\\Jetpack\\Connection\\Nonce_Handler::add' );
 		return ( new Nonce_Handler() )->add( $timestamp, $nonce );
 	}
 
@@ -1356,11 +1365,11 @@ class Manager {
 	 *
 	 * @param bool $all whether to clean even non-expired nonces.
 	 *
-	 * @deprecated since 9.5.0
+	 * @deprecated since 1.24.0
 	 * @see Nonce_Handler::clean_all()
 	 */
 	public function clean_nonces( $all = false ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5.0', 'Automattic\\Jetpack\\Connection\\Nonce_Handler::clean_all' );
+		_deprecated_function( __METHOD__, '1.24.0', 'Automattic\\Jetpack\\Connection\\Nonce_Handler::clean_all' );
 		( new Nonce_Handler() )->clean_all( $all ? PHP_INT_MAX : ( time() - Nonce_Handler::LIFETIME ) );
 	}
 
@@ -1387,7 +1396,7 @@ class Manager {
 				/**
 				 * Filters the jetpack_disconnect capability.
 				 *
-				 * @since 8.7.0
+				 * @since 1.14.2
 				 *
 				 * @param array An array containing the capability name.
 				 */
@@ -1411,7 +1420,8 @@ class Manager {
 	 *
 	 * Based on local php max_execution_time in php.ini
 	 *
-	 * @since 5.4
+	 * @since 1.7.0
+	 * @since-jetpack 5.4.0
 	 * @return int
 	 **/
 	public function get_max_execution_time() {
@@ -1427,7 +1437,8 @@ class Manager {
 	/**
 	 * Sets a minimum request timeout, and returns the current timeout
 	 *
-	 * @since 5.4
+	 * @since 1.7.0
+	 * @since-jetpack 5.4.0
 	 * @param Integer $min_timeout the minimum timeout value.
 	 **/
 	public function set_min_time_limit( $min_timeout ) {
@@ -1445,7 +1456,8 @@ class Manager {
 	 * - Earliest admin user registration date.
 	 * - Earliest date of post of any post type.
 	 *
-	 * @since 7.2.0
+	 * @since 1.7.0
+	 * @since-jetpack 7.2.0
 	 *
 	 * @return string Assumed site creation date and time.
 	 */
@@ -1527,27 +1539,27 @@ class Manager {
 	/**
 	 * Returns two secret tokens and the end of life timestamp for them.
 	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Secrets->get() instead.
+	 * @deprecated 1.24.0 Use Automattic\Jetpack\Connection\Secrets->get() instead.
 	 *
 	 * @param String  $action  The action name.
 	 * @param Integer $user_id The user identifier.
 	 * @return string|array an array of secrets or an error string.
 	 */
 	public function get_secrets( $action, $user_id ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Secrets->get' );
+		_deprecated_function( __METHOD__, '1.24.0', 'Automattic\\Jetpack\\Connection\\Secrets->get' );
 		return ( new Secrets() )->get( $action, $user_id );
 	}
 
 	/**
 	 * Deletes secret tokens in case they, for example, have expired.
 	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Secrets->delete() instead.
+	 * @deprecated 1.24.0 Use Automattic\Jetpack\Connection\Secrets->delete() instead.
 	 *
 	 * @param String  $action  The action name.
 	 * @param Integer $user_id The user identifier.
 	 */
 	public function delete_secrets( $action, $user_id ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Secrets->delete' );
+		_deprecated_function( __METHOD__, '1.24.0', 'Automattic\\Jetpack\\Connection\\Secrets->delete' );
 		( new Secrets() )->delete( $action, $user_id );
 	}
 
@@ -1572,7 +1584,7 @@ class Manager {
 		 * Fires upon the disconnect attempt.
 		 * Return `false` to prevent the disconnect.
 		 *
-		 * @since 8.7.0
+		 * @since 1.14.2
 		 */
 		if ( ! apply_filters( 'jetpack_connection_delete_all_tokens', true ) ) {
 			return false;
@@ -1619,7 +1631,7 @@ class Manager {
 		 * Fires upon the disconnect attempt.
 		 * Return `false` to prevent the disconnect.
 		 *
-		 * @since 8.7.0
+		 * @since 1.14.2
 		 */
 		if ( ! apply_filters( 'jetpack_connection_disconnect_site_wpcom', true, $this ) ) {
 			return false;
@@ -1724,21 +1736,21 @@ class Manager {
 	/**
 	 * Perform the API request to validate the blog and user tokens.
 	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens->validate_tokens() instead.
+	 * @deprecated 1.24.0 Use Automattic\Jetpack\Connection\Tokens->validate_tokens() instead.
 	 *
 	 * @param int|null $user_id ID of the user we need to validate token for. Current user's ID by default.
 	 *
 	 * @return array|false|WP_Error The API response: `array( 'blog_token_is_healthy' => true|false, 'user_token_is_healthy' => true|false )`.
 	 */
 	public function validate_tokens( $user_id = null ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->validate' );
+		_deprecated_function( __METHOD__, '1.24.0', 'Automattic\\Jetpack\\Connection\\Tokens->validate' );
 		return $this->get_tokens()->validate( $user_id );
 	}
 
 	/**
 	 * Verify a Previously Generated Secret.
 	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Secrets->verify() instead.
+	 * @deprecated 1.24.0 Use Automattic\Jetpack\Connection\Secrets->verify() instead.
 	 *
 	 * @param string $action   The type of secret to verify.
 	 * @param string $secret_1 The secret string to compare to what is stored.
@@ -1746,7 +1758,7 @@ class Manager {
 	 * @return \WP_Error|string WP_Error on failure, secret_2 on success.
 	 */
 	public function verify_secrets( $action, $secret_1, $user_id ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Secrets->verify' );
+		_deprecated_function( __METHOD__, '1.24.0', 'Automattic\\Jetpack\\Connection\\Secrets->verify' );
 		return ( new Secrets() )->verify( $action, $secret_1, $user_id );
 	}
 
@@ -1789,7 +1801,8 @@ class Manager {
 		 * Filter the URL of the first time the user gets redirected back to your site for connection
 		 * data processing.
 		 *
-		 * @since 8.0.0
+		 * @since 1.7.0
+		 * @since-jetpack 8.0.0
 		 *
 		 * @param string $redirect_url Defaults to the site admin URL.
 		 */
@@ -1799,7 +1812,8 @@ class Manager {
 		 * Filter the URL to redirect the user back to when the authorization process
 		 * is complete.
 		 *
-		 * @since 8.0.0
+		 * @since 1.7.0
+		 * @since-jetpack 8.0.0
 		 *
 		 * @param string $redirect_url Defaults to the site URL.
 		 */
@@ -1812,7 +1826,8 @@ class Manager {
 		 * 'calypso' completes authorization on wordpress.com/jetpack/connect
 		 * while 'jetpack' ( or any other value ) completes the authorization at jetpack.wordpress.com.
 		 *
-		 * @since 4.3.3
+		 * @since 1.7.0
+		 * @since-jetpack 4.3.3
 		 *
 		 * @param string $auth_type Defaults to 'calypso', can also be 'jetpack'.
 		 */
@@ -1821,7 +1836,8 @@ class Manager {
 		/**
 		 * Filters the user connection request data for additional property addition.
 		 *
-		 * @since 8.0.0
+		 * @since 1.7.0
+		 * @since-jetpack 8.0.0
 		 *
 		 * @param array $request_data request data.
 		 */
@@ -1875,7 +1891,8 @@ class Manager {
 		/**
 		 * Action fired when user authorization starts.
 		 *
-		 * @since 8.0.0
+		 * @since 1.7.0
+		 * @since-jetpack 8.0.0
 		 */
 		do_action( 'jetpack_authorize_starting' );
 
@@ -1933,7 +1950,8 @@ class Manager {
 		/**
 		 * Fires after user has successfully received an auth token.
 		 *
-		 * @since 3.9.0
+		 * @since 1.7.0
+		 * @since-jetpack 3.9.0
 		 */
 		do_action( 'jetpack_user_authorized' );
 
@@ -1941,7 +1959,8 @@ class Manager {
 			/**
 			 * Action fired when a secondary user has been authorized.
 			 *
-			 * @since 8.0.0
+			 * @since 1.7.0
+			 * @since-jetpack 8.0.0
 			 */
 			do_action( 'jetpack_authorize_ending_linked' );
 			return 'linked';
@@ -1950,7 +1969,8 @@ class Manager {
 		/**
 		 * Action fired when the master user has been authorized.
 		 *
-		 * @since 8.0.0
+		 * @since 1.7.0
+		 * @since-jetpack 8.0.0
 		 *
 		 * @param array $data The request data.
 		 */
@@ -1984,6 +2004,9 @@ class Manager {
 		}
 
 		$this->delete_all_connection_tokens( true );
+
+		// Remove tracked package versions, since they depend on the Jetpack Connection.
+		delete_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION );
 
 		$jetpack_unique_connection = \Jetpack_Options::get_option( 'unique_connection' );
 		if ( $jetpack_unique_connection ) {
@@ -2044,7 +2067,8 @@ class Manager {
 		 *
 		 * Allows site administrators with domains that fail gethostname-based checks to pass the request to WP.com
 		 *
-		 * @since 4.1.0
+		 * @since 1.7.0
+		 * @since-jetpack 4.1.0
 		 *
 		 * @param bool If the check should be skipped. Default false.
 		 */
@@ -2119,7 +2143,7 @@ class Manager {
 	/**
 	 * Gets the requested token.
 	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens->get_access_token() instead.
+	 * @deprecated 1.24.0 Use Automattic\Jetpack\Connection\Tokens->get_access_token() instead.
 	 *
 	 * @param int|false    $user_id   false: Return the Blog Token. int: Return that user's User Token.
 	 * @param string|false $token_key If provided, check that the token matches the provided input.
@@ -2130,7 +2154,7 @@ class Manager {
 	 * @see $this->get_tokens()->get_access_token()
 	 */
 	public function get_access_token( $user_id = false, $token_key = false, $suppress_errors = true ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->get_access_token' );
+		_deprecated_function( __METHOD__, '1.24.0', 'Automattic\\Jetpack\\Connection\\Tokens->get_access_token' );
 		return $this->get_tokens()->get_access_token( $user_id, $token_key, $suppress_errors );
 	}
 
@@ -2416,13 +2440,13 @@ class Manager {
 	/**
 	 * Fetches a signed token.
 	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens->get_signed_token() instead.
+	 * @deprecated 1.24.0 Use Automattic\Jetpack\Connection\Tokens->get_signed_token() instead.
 	 *
 	 * @param object $token the token.
 	 * @return WP_Error|string a signed token
 	 */
 	public function get_signed_token( $token ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->get_signed_token' );
+		_deprecated_function( __METHOD__, '1.24.0', 'Automattic\\Jetpack\\Connection\\Tokens->get_signed_token' );
 		return $this->get_tokens()->get_signed_token( $token );
 	}
 
