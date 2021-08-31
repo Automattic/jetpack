@@ -732,7 +732,7 @@ function videopress_get_attachment_url( $post_id ) {
 		}
 	} else {
 		$return = $meta['videopress']['file_url_base']['https'] . (
-			$meta['videopress']['files']['hd']['hls']
+			isset( $meta['videopress']['files']['hd']['hls'] )
 			? $meta['videopress']['files']['hd']['hls']
 			: $meta['videopress']['files']['hd']['mp4']
 		);
