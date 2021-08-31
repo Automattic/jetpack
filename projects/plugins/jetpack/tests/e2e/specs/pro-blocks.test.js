@@ -24,7 +24,7 @@ describe( 'Paid blocks', () => {
 			.withLoggedIn( true )
 			.withConnection( true )
 			.withPlan( Plans.Complete )
-			.withActiveModules( [ 'publicize' ] )
+			// .withActiveModules( [ 'publicize' ] )
 			.build();
 	} );
 
