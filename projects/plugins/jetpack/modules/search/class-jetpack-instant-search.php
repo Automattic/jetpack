@@ -209,8 +209,9 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		$handle = 'jetpack-instant-search' . wp_unique_id();
 		// Then register it, which is required for the next steps.
 		wp_register_script( $handle, $payload_url, array(), JETPACK__VERSION, false );
-		// Set translation domain to `jetpack`.
-		wp_set_script_translations( $handle, 'jetpack', WP_LANG_DIR . '/plugins/jetpack' );
+		// Set translation domain to `jetpack`, and we need to explicitly set the `path` to load translations files for WPCOM.
+		// Otherwise WPCOM would try to load from `WP_LANG_DIR . '/mu-plugins'` and fails.
+		wp_set_script_translations( $handle, 'jetpack', WP_LANG_DIR . '/plugins' );
 		// Inline the translations before `$before_handle` handle.
 		wp_add_inline_script( $before_handle, wp_scripts()->print_translations( $handle, false ), 'before' );
 		// Deregister the script as we don't really enqueue it from PHP side.
