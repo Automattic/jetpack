@@ -16,9 +16,9 @@
  * @return array [ 'url' => new URL, 'host' => new Host ].
  */
 function jetpack_server_sandbox_request_parameters( $sandbox, $url, $headers ) {
-	_deprecated_function( __METHOD__, 'jetpack-10.1', 'Automattic\\Jetpack\\Server_Sandbox::server_sandbox_request_parameters' );
+	_deprecated_function( __METHOD__, 'jetpack-10.2', 'Automattic\\Jetpack\\Server_Sandbox::server_sandbox_request_parameters' );
 
-	return ( new Automattic\Jetpack\Server_Sandbox() )->server_sandbox( $sandbox, $url, $headers );
+	return ( new Automattic\Jetpack\Server_Sandbox() )->server_sandbox_request_parameters( $sandbox, $url, $headers );
 }
 
 /**
@@ -32,7 +32,7 @@ function jetpack_server_sandbox_request_parameters( $sandbox, $url, $headers ) {
  * @return void
  */
 function jetpack_server_sandbox( &$url, &$headers ) {
-	_deprecated_function( __METHOD__, 'jetpack-10.1', 'Automattic\\Jetpack\\Server_Sandbox::server_sandbox' );
+	_deprecated_function( __METHOD__, 'jetpack-10.2', 'Automattic\\Jetpack\\Server_Sandbox::server_sandbox' );
 
 	( new Automattic\Jetpack\Server_Sandbox() )->server_sandbox( $url, $headers );
 }
