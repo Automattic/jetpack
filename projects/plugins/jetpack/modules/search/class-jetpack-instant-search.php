@@ -142,7 +142,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		$this->load_and_initialize_tracks();
 		$this->inject_javascript_options();
 
-		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+		if ( ! defined( 'JETPACK__SEARCH_MAIN_PAYLOAD_MD5' ) ) {
 			// For Jetpack site, we detect and load translations for instant search lazy-loaded payload(s).
 			$this->inject_payload_translations();
 		} elseif ( defined( 'JETPACK__SEARCH_MAIN_PAYLOAD_MD5' ) ) {
