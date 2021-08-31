@@ -73,7 +73,7 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
 	// Go through all test results and extract failure details
 	for ( const tr of result.testResults ) {
 		for ( const ar of tr.assertionResults ) {
-			if ( ar.status !== 'passed' ) {
+			if ( ar.status === 'failed' ) {
 				detailLines.push( `- ${ ar.fullName }` );
 				for ( const failureMessage of ar.failureMessages ) {
 					failureDetails.push( {

@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+E2E tests: fix skipped tests being reported as failed in Slack notifications
