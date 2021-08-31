@@ -763,9 +763,19 @@ class Critical_CSS extends Module {
 
 		$parsed = wp_parse_url( $src );
 
-		// If no domain specified, or domain matches current, no need to proxy.
+		// Build the resource origin host the requested asset belongs to.
+		$resource_origin = '';
+		if ( isset( $parsed['host'] ) ) {
+			$resource_origin = $parsed['host'];
+		}
+		if ( isset( $parsed['port'] ) ) {
+			$resource_origin .= ':' . $parsed['port'];
+		}
+
+		// Skip proxy in certain cases, i.e. if no origin specified, or origin matches current, no need to proxy.
 		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-		if ( empty( $parsed['host'] ) || $_SERVER['HTTP_HOST'] === $parsed['host'] ) {
+		$skipped_origins = array( '', $_SERVER['HTTP_HOST'] );
+		if ( in_array( $resource_origin, $skipped_origins, true ) ) {
 			return $src;
 		}
 

@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.6] - 2021-08-30
+### Changed
+- Run composer update on test-php command instead of phpunit
+- Tests: update PHPUnit polyfills dependency (yoast/phpunit-polyfills).
+
 ## [1.4.5] - 2021-05-25
 ### Changed
 - Updated package dependencies.
@@ -72,6 +77,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Jetpack DNA: Introduce a Roles package
 
+[1.4.6]: https://github.com/Automattic/jetpack-roles/compare/v1.4.5...v1.4.6
 [1.4.5]: https://github.com/Automattic/jetpack-roles/compare/v1.4.4...v1.4.5
 [1.4.4]: https://github.com/Automattic/jetpack-roles/compare/v1.4.3...v1.4.4
 [1.4.3]: https://github.com/Automattic/jetpack-roles/compare/v1.4.2...v1.4.3
