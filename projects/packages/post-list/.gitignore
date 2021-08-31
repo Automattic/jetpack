@@ -1,5 +1,6 @@
 /build
 /node_modules
 /.cache
+/wordpress
 composer.lock
 .jshintrc
