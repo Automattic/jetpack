@@ -133,7 +133,7 @@ jobs:
         run: |
           pnpm install
           pnpm run test-decrypt-config
-          NODE_ENV=test node ./bin/slack.js job $RESULT
+          NODE_ENV=test node ./bin/slack.js status $RESULT
 
   test-reports:
     name: "Trigger test report workflow"

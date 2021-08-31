@@ -12,15 +12,13 @@ const slackClient = new WebClient( config.get( 'slack.token' ), {
 } );
 const slackChannel = config.get( 'slack.channel' );
 
-console.log( yargs.argv );
-
 // region yargs
 // eslint-disable-next-line no-unused-expressions
 yargs
 	.usage( 'Usage: $0 <cmd>' )
 	.demandCommand( 1, 1 )
 	.command(
-		'suite <name>',
+		'suite [name]',
 		'Sends a Slack notification with detailed test suite results',
 		() => {
 			yargs.positional( 'suite', {
@@ -31,7 +29,7 @@ yargs
 		async argv => await reportTestRunResults( argv.name )
 	)
 	.command(
-		'status <result>',
+		'status [result]',
 		'Sends a Slack notification containing only the run status',
 		() => {
 			yargs.positional( 'result', {
@@ -47,8 +45,6 @@ yargs
 	} )
 	.help( 'h' )
 	.alias( 'h', 'help' ).argv;
-
-console.log( yargs.argv );
 
 //endregion
 
