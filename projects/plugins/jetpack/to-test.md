@@ -57,9 +57,11 @@ Issues transforming the Jetpack tiled gallery to a regular core gallery block an
 
 ### Search
 
-There were some large changes to Jetpack Search! Biggest is the ability to customize the search experience using a Gutenberg editor. 
+There were some large changes to Jetpack Search, a paid upgrade to the Jetpack plugin that provides higher quality results and an improved search experience!
 
-* Make sure a Jetpack Search subscription is added to your test site.
+The biggest is the ability to customize the search experience using a Gutenberg editor. 
+
+* Make sure you've purchased a Jetpack Search subscription that is added to your site.
 * Navigate to the new customization page at `/wp-admin/admin.php?page=jetpack-search-customize`.
 * Ensure that the page renders a Gutenberg layout with a header, a sidebar to the right, and the Jetpack Search application in the center/left.
 * Ensure that you can customize the search application via the controls in the options tab within the sidebar.
