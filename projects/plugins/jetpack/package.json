@@ -196,7 +196,7 @@
 		"sass-loader": "10.1.1",
 		"sinon": "9.2.4",
 		"sinon-chai": "3.5.0",
-		"size-limit": "4.10.2",
+		"size-limit": "5.0.3",
 		"style-loader": "2.0.0",
 		"url-loader": "4.1.1"
 	},
