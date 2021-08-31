@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+E2E tests: add option to pass test report name in Slack notifications
