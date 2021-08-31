@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Custom CSS: Ensure that short CSS is added inline instead of via an external file.
