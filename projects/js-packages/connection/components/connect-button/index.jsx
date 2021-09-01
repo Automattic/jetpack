@@ -6,6 +6,7 @@ import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
 import PropTypes from 'prop-types';
 import restApi from '@automattic/jetpack-api';
+import { Spinner } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -119,7 +120,7 @@ const ConnectButton = props => {
 						isPrimary
 						disabled={ isRegistering || isUserConnecting }
 					>
-						{ connectLabel }
+						{ isRegistering || isUserConnecting ? <Spinner /> : connectLabel }
 					</Button>
 				) }
 
