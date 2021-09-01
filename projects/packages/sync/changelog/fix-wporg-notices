@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Prevent PHP notices on queue_pull if all args are not set.
