@@ -821,36 +821,38 @@ class Manager {
 	 *
 	 * @param Integer $user_id the user identifier.
 	 * @param bool    $can_overwrite_primary_user Allow for the primary user to be disconnected.
+	 * @param bool    $force_disconnect_locally Disconnect user locally even if we were unable to disconnect them from WP.com.
 	 * @return Boolean Whether the disconnection of the user was successful.
 	 */
-	public function disconnect_user( $user_id = null, $can_overwrite_primary_user = false ) {
+	public function disconnect_user( $user_id = null, $can_overwrite_primary_user = false, $force_disconnect_locally = false ) {
 		$user_id = empty( $user_id ) ? get_current_user_id() : (int) $user_id;
 
 		// Attempt to disconnect the user from WordPress.com.
 		$is_disconnected_from_wpcom = $this->unlink_user_from_wpcom( $user_id );
-		if ( ! $is_disconnected_from_wpcom ) {
-			return false;
+
+		$is_disconnected_locally = false;
+		if ( $is_disconnected_from_wpcom || $force_disconnect_locally ) {
+			// Disconnect the user locally.
+			$is_disconnected_locally = $this->get_tokens()->disconnect_user( $user_id, $can_overwrite_primary_user );
+
+			if ( $is_disconnected_locally ) {
+				// Delete cached connected user data.
+				$transient_key = "jetpack_connected_user_data_$user_id";
+				delete_transient( $transient_key );
+
+				/**
+				 * Fires after the current user has been unlinked from WordPress.com.
+				 *
+				 * @since 1.7.0
+				 * @since-jetpack 4.1.0
+				 *
+				 * @param int $user_id The current user's ID.
+				 */
+				do_action( 'jetpack_unlinked_user', $user_id );
+			}
 		}
 
-		// Disconnect the user locally.
-		$is_disconnected_locally = $this->get_tokens()->disconnect_user( $user_id, $can_overwrite_primary_user );
-		if ( $is_disconnected_locally ) {
-			// Delete cached connected user data.
-			$transient_key = "jetpack_connected_user_data_$user_id";
-			delete_transient( $transient_key );
-
-			/**
-			 * Fires after the current user has been unlinked from WordPress.com.
-			 *
-			 * @since 1.7.0
-			 * @since-jetpack 4.1.0
-			 *
-			 * @param int $user_id The current user's ID.
-			 */
-			do_action( 'jetpack_unlinked_user', $user_id );
-		}
-
-		return $is_disconnected_locally;
+		return $is_disconnected_from_wpcom && $is_disconnected_locally;
 	}
 
 	/**
@@ -2428,7 +2430,7 @@ class Manager {
 	 */
 	public function refresh_user_token() {
 		( new Tracking() )->record_user_event( 'restore_connection_refresh_user_token' );
-		$this->disconnect_user( null, true );
+		$this->disconnect_user( null, true, true );
 		return true;
 	}
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Remove invalid user token before reconnect.
