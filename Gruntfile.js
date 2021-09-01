@@ -108,16 +108,11 @@ module.exports = function( grunt ) {
 			options: {
 				sourceMap: false,
 				presets: [
-					'@babel/env',
+					'@babel/preset-env',
+					'@babel/preset-react',
 					'minify'
 				],
 				comments: false,
-				plugins: [
-					'@babel/plugin-proposal-class-properties',
-					'@babel/plugin-syntax-jsx',
-					'@babel/plugin-transform-react-jsx',
-					'@babel/plugin-transform-react-display-name'
-				]
 			},
 			dist: {
 				files: {

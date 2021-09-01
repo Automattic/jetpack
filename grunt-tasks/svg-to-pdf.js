@@ -20,7 +20,7 @@ module.exports = function( grunt ) {
         var pdf = new PDFDocument( { size: [ 24, 24 ] } );
         pdf.info.CreationDate = "";
         pdf.pipe( fs.createWriteStream( files.dest + svgFile.slice(0, -4) + '.pdf' ) );
-        pdf.on('close', function() { done(); });
+        pdf.on('finish', function() { done(); });
 
         svg2pdfkit(pdf, fileContent, 0, 0 );
         pdf.end();
