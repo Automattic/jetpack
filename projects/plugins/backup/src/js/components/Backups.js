@@ -37,6 +37,8 @@ const Backups = () => {
 	} );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 
+	const assetBuildUrl = useSelect( select => select( STORE_ID ).getAssetBuildUrl(), [] );
+
 	const BACKUP_STATE = {
 		LOADING: 0,
 		IN_PROGRESS: 1,
@@ -177,7 +179,7 @@ const Backups = () => {
 			<div className="jp-row">
 				<div className="lg-col-span-3 md-col-span-4 sm-col-span-4">
 					<div className="backup__latest">
-						<img src={ CloudIcon } alt="" />
+						<img src={ assetBuildUrl + CloudIcon } alt="" />
 						<h2>{ __( 'Latest Backup', 'jetpack-backup' ) }</h2>
 					</div>
 					<h1>{ formatDateString( latestTime ) }</h1>
