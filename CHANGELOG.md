@@ -1,5 +1,10 @@
 _The versioning refers to the React component build._
 
+#### v2.4.0 (2021-09-01)
+* Updated icons: `medium`, `facebook`
+* React 17 support
+* Update dev dependencies and build tools.
+
 #### v2.3.0 (2021-01-27)
 * New icons: `medium-alt`, `tiktok`, and `tiktok-alt`.
 * Updated icon: `medium`.
