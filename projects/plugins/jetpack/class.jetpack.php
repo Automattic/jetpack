@@ -3853,6 +3853,7 @@ p {
 				$jetpack_home,
 				array( 'settings' => sprintf( '<a href="%s">%s</a>', self::admin_url( 'page=jetpack#/settings' ), __( 'Settings', 'jetpack' ) ) ),
 				array( 'support' => sprintf( '<a href="%s">%s</a>', self::admin_url( 'page=jetpack-debugger ' ), __( 'Support', 'jetpack' ) ) ),
+				array( 'support' => sprintf( '<a href="#" id="jetpack-plugin-deactivate-link" data-deactivation-nonce="">%s</a>', __( 'Test Deactivate', 'jetpack' ) ) ),
 				$actions
 			);
 		}
@@ -3906,6 +3907,31 @@ p {
 				add_action( 'admin_footer', array( $this, 'deactivate_dialog_content' ) );
 
 				wp_enqueue_style( 'jetpack-deactivate-dialog', plugins_url( 'css/jetpack-deactivate-dialog.css', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+
+				// -- add a deactivation script that will pick up deactivation actions for the Jetpack plugin
+				$script_deps_path    = JETPACK__PLUGIN_DIR . '_inc/build/plugin-deactivate.asset.php';
+				$script_dependencies = array( 'wp-polyfill' );
+				if ( file_exists( $script_deps_path ) ) {
+					$asset_manifest      = include $script_deps_path;
+					$script_dependencies = $asset_manifest['dependencies'];
+				}
+
+				wp_enqueue_script(
+					'jetpack-plugin-deactivate-js',
+					plugins_url( '_inc/build/plugin-deactivate.js', JETPACK__PLUGIN_FILE ),
+					$script_dependencies,
+					JETPACK__VERSION,
+					true
+				);
+
+				wp_set_script_translations( 'jetpack-plugin-deactivate-js', 'jetpack' );
+
+				// Add objects to be passed to the initial state of the app.
+				// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
+				wp_add_inline_script( 'jetpack-plugin-deactivate-js', 'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Jetpack_Redux_State_Helper::get_initial_state() ) ) . '"));', 'before' );
+
+				add_action( 'admin_print_styles', array( $this, 'admin_banner_styles' ) );
+				add_action( 'admin_footer', array( $this, 'test_deactivate_dialog_content' ) );
 			}
 		}
 	}
@@ -3919,6 +3945,16 @@ p {
 		$active_plugins_using_connection = Connection_Plugin_Storage::get_all();
 		unset( $active_plugins_using_connection['jetpack'] );
 		$this->load_view( 'admin/deactivation-dialog.php', $active_plugins_using_connection );
+	}
+
+	/**
+	 * Outputs the wrapper for the plugin deactivation modal
+	 * Contents are loaded by React script
+	 *
+	 * @return void
+	 */
+	public function test_deactivate_dialog_content() {
+		$this->load_view( 'admin/test-deactivation-dialog.php' );
 	}
 
 	/**
