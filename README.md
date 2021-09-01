@@ -3,8 +3,6 @@ A repository of all the social logos used on WordPress.com.
 
 Each logo was pulled from the official branding resource of each service. Branding guidelines were adhered to as much as possible.
 
-For example, the Facebook guidelines state that changing the design of the "f" logo is not allowed, so a variant with a circle or sans-square instead of a square was not included in the icon set.
-
 Some logos include an official alternate version, if it's provided by the guideline resource. Sometimes it is desirable to have a visually consistent row of icons, all enclosed with the same shape. If the guidelines permit it, then an alternate version was created with a 18dp square or 20dp circle.
 
 For example, the Tumblr guidelines state that it's ok to enclose the logo in any shape, so there's an alternate logo with an 18dp square.
