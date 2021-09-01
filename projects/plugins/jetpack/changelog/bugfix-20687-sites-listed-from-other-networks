@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-In mutlti-site, list sites will show based on current network id
