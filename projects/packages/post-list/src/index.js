@@ -1,20 +1,6 @@
-/**
- * WordPress dependencies
- */
-import { render } from '@wordpress/element';
-import domReady from '@wordpress/dom-ready';
-
-/**
- * Internal dependencies
- */
-import './style.scss';
-import App from './components/app';
-
-domReady( () => {
+window.document.addEventListener( 'DOMContentLoaded', () => {
 	// Data global containers.
 	const posts = [ ...window.wpAdminPosts ];
-
-	const rootElement = document.getElementById( 'wp-post-list-app' );
 
 	posts.forEach( post => {
 		const postRow = document.getElementById( 'post-' + post.id );
@@ -36,8 +22,15 @@ domReady( () => {
 			postTitleElementWrapper.firstChild
 		);
 
-		post.rootEl = postFeaturedImageElement;
-	} );
+		if ( post.featured_image.url ) {
+			const thumbnailImage = document.createElement( 'img' );
+			thumbnailImage.setAttribute( 'src', post.featured_image.thumb );
+			thumbnailImage.setAttribute( 'alt', post.featured_image.alt );
+			thumbnailImage.setAttribute( 'width', 50 );
+			thumbnailImage.setAttribute( 'height', 50 );
 
-	render( <App posts={ posts } />, rootElement );
+			thumbnailImage.classList.add( 'post-featured-image__image' );
+			postFeaturedImageElement.appendChild( thumbnailImage );
+		}
+	} );
 } );

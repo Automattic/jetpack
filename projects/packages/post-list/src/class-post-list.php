@@ -54,28 +54,27 @@ class Post_List {
 	 */
 	public function enqueue_scripts( $hook ) {
 		if ( 'edit.php' === $hook ) {
-			$build_assets = require_once __DIR__ . '/../build/index.asset.php';
-			$plugin_path  = Assets::get_file_url_for_environment( '../build/index.js', '../build/index.js', __FILE__ );
+			$plugin_path = Assets::get_file_url_for_environment( './index.js', './index.js', __FILE__ );
 
 			wp_enqueue_script(
 				'jetpack_posts_list_ui_script',
 				$plugin_path,
-				$build_assets['dependencies'],
-				$build_assets['version'],
+				array(),
+				gmdate( 'YW' ),
 				true
 			);
 
 			wp_enqueue_style(
 				'jetpack_posts_list_ui_style',
-				plugin_dir_url( __DIR__ ) . 'build/style-index.css',
-				array( 'wp-components' ),
-				$build_assets['version']
+				plugin_dir_url( __DIR__ ) . './src/style.css',
+				array(),
+				gmdate( 'YW' )
 			);
 
 			wp_style_add_data(
 				'jetpack_posts_list_ui_style',
 				'rtl',
-				plugin_dir_url( __DIR__ ) . 'build/index.rtl.css'
+				plugin_dir_url( __DIR__ ) . 'build/style.rtl.css'
 			);
 
 			wp_set_script_translations( 'jetpack_posts_list_ui_script', 'jetpack' );
