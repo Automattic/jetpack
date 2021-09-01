@@ -116,27 +116,20 @@ async function getTests( project ) {
  * @returns {Array} testScript - array containing test scripts.
  */
 async function getTestInstructions( argv ) {
-	let testScript = '';
-	const composerFile = await readComposerJson( argv.project );
-	if ( argv.test === 'js' && composerFile.scripts[ 'test-js' ] ) {
-		testScript = 'test-js';
+	switch ( argv.test ) {
+		case 'js':
+			return 'test-js';
+		case 'php':
+			return 'test-php';
+		case 'coverage':
+			return 'test-coverage';
+		default:
+			// shouldn't ever happen, but being safe.
+			console.log(
+				chalk.red( `No ${ argv.test } script located in ${ argv.project }'s composer.json file!` )
+			);
+			process.exit();
 	}
-
-	if ( argv.test === 'php' && composerFile.scripts[ 'test-php' ] ) {
-		testScript = 'test-php';
-	}
-
-	if ( argv.test === 'coverage' && composerFile.scripts[ 'test-coverage' ] ) {
-		testScript = 'test-coverage';
-	}
-
-	if ( testScript === '' ) {
-		console.log(
-			chalk.red( `No ${ argv.test } script located in ${ argv.project }'s composer.json file!` )
-		);
-		process.exit();
-	}
-	return testScript;
 }
 
 /**
