@@ -35,14 +35,15 @@ class Post_List {
 	 */
 	public function register() {
 		if ( ! did_action( 'jetpack_on_posts_list_init' ) ) {
-			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+			add_action( 'admin_footer', array( $this, 'create_app_root_element' ) );
+			// add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
 			/**
 			 * Action called after initializing PostList Admin resources.
 			 *
 			 * @since $$next-version$$
 			 */
-			do_action( 'jetpack_on_posts_list_init' );
+			// do_action( 'jetpack_on_posts_list_init' );
 		}
 	}
 
@@ -107,4 +108,12 @@ class Post_List {
 		);
 		wp_add_inline_script( 'jetpack_posts_list_ui_script', 'var wpAdminPosts = ' . wp_json_encode( $post_data ) );
 	}
+
+	public function create_app_root_element( $data ) {
+		error_log( '$data: ' . print_r( $data, true ) );
+		// die( 'HOLA!!!!');
+    	$data .= '<div id="wp-post-list-app" style="display: none;"></div>';
+    	return 'PIPO!';
+	}
 }
+
