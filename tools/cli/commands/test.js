@@ -4,6 +4,7 @@
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 import child_process from 'child_process';
+import path from 'path';
 
 /**
  * Internal dependencies
@@ -125,7 +126,7 @@ async function runTest( argv ) {
 	console.log( chalk.green( `Running ${ argv.testScript } tests for ${ argv.project }` ) );
 	child_process.spawnSync( 'composer', [ 'run', argv.testScript ], {
 		stdio: 'inherit',
-		cwd: __dirname + '/../../../' + `projects/${ argv.project }`,
+		cwd: path.resolve( `projects/${ argv.project }` ),
 	} );
 }
 /**
