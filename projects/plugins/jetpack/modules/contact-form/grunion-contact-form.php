@@ -3159,6 +3159,18 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		add_filter( 'wp_mail_content_type', __CLASS__ . '::get_mail_content_type' );
 		add_action( 'phpmailer_init', __CLASS__ . '::add_plain_text_alternative' );
 
+		/**
+		 * Allow customizing the email headers.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 10.2.0
+		 *
+		 * @param string|array $headers Email headers.
+		 * @param string       $message Message contents.
+		 */
+		$headers = apply_filters( 'jetpack_contact_form_email_headers', $headers, $message );
+
 		$result = wp_mail( $to, $subject, $message, $headers, $attachments );
 
 		remove_filter( 'wp_mail_content_type', __CLASS__ . '::get_mail_content_type' );
