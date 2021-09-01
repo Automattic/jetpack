@@ -74,10 +74,10 @@ export default function AppWrapper() {
 	const { isLoading } = useSiteLoadingState();
 
 	return (
-		<div className="jp-search-customize-app-wrapper">
+		<div className="jp-search-configure-app-wrapper">
 			{ isLoading ? (
 				<img
-					className="jp-search-customize-loading-spinner"
+					className="jp-search-configure-loading-spinner"
 					width="32"
 					height="32"
 					alt={ __( 'Loading', 'jetpack' ) }

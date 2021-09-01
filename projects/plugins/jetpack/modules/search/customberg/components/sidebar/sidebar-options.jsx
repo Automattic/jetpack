@@ -62,14 +62,14 @@ export default function SidebarOptions() {
 
 	return (
 		<Panel
-			className={ classNames( 'jp-search-customize-sidebar-options', {
-				'jp-search-customize-sidebar-options--is-disabled': isDisabled,
+			className={ classNames( 'jp-search-configure-sidebar-options', {
+				'jp-search-configure-sidebar-options--is-disabled': isDisabled,
 			} ) }
 		>
 			<PanelBody title={ __( 'Styling', 'jetpack' ) } initialOpen={ true }>
 				<ThemeControl disabled={ isDisabled } onChange={ setTheme } value={ theme } />
 				<RadioControl
-					className="jp-search-customize-result-format-radios"
+					className="jp-search-configure-result-format-radios"
 					label={ __( 'Result Format', 'jetpack' ) }
 					selected={ resultFormat }
 					options={ [
@@ -101,6 +101,7 @@ export default function SidebarOptions() {
 					options={ [
 						{ label: __( 'Open when the user starts typing', 'jetpack' ), value: 'immediate' },
 						{ label: __( 'Open when results are available', 'jetpack' ), value: 'results' },
+						{ label: __( 'Open when user submits the form', 'jetpack' ), value: 'submit' },
 					] }
 					onChange={ setTrigger }
 				/>

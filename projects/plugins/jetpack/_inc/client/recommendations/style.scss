@@ -1,6 +1,13 @@
 @import '../scss/mixin_breakpoint.scss';
 
 .jp-recommendations-question__main {
+	min-height: 480px;
+	box-shadow: 0px 2px 6px rgba( 0, 0, 0, 0.03 ), 0px 1px 2px rgba( 0, 0, 0, 0.03 );
+	border: 1px solid $gray-lighten-20;
+	background: #fff;
+}
+
+.jp-recommendations-question__main--with-illustration {
 	display: grid;
 	grid-template-columns: 55% 45%;
 
@@ -8,15 +15,12 @@
 		grid-template-columns: 100% 0%;
 	}
 
-	min-height: 480px;
 	background: linear-gradient(
 		120deg,
 		rgba( 255, 255, 255, 1 ) 0%,
 		rgba( 255, 255, 255, 1 ) 55%,
 		rgba( 197, 217, 237, 1 ) 55%
 	);
-	box-shadow: 0px 2px 6px rgba( 0, 0, 0, 0.03 ), 0px 1px 2px rgba( 0, 0, 0, 0.03 );
-	border: 1px solid $gray-lighten-20;
 }
 
 .jp-recommendations__loading {
