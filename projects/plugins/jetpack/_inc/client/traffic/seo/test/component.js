@@ -9,7 +9,7 @@ import { expect } from 'chai';
 import { stringToTokenizedArray, tokenizedArrayToString } from '../custom-seo-titles';
 
 describe( 'Traffic - Custom SEO Titles', () => {
-	const allTokens = '[site_name][tagline][post_title][page_title][group_title][date]';
+	const allTokens = '[site_name][tagline][post_title][page_title][group_title][date][archive_title]';
 	const mockData = {
 		front_page: {
 			str: `front_page ${allTokens}`,
@@ -41,7 +41,11 @@ describe( 'Traffic - Custom SEO Titles', () => {
 				{
 					"type": "string",
 					"value": "[date]"
-				}
+				},
+				{
+					"type": "string",
+					"value": "[archive_title]"
+				},
 			]
 		},
 		posts: {
@@ -74,7 +78,11 @@ describe( 'Traffic - Custom SEO Titles', () => {
 				{
 					"type": "string",
 					"value": "[date]"
-				}
+				},
+				{
+					"type": "string",
+					"value": "[archive_title]"
+				},
 			]
 		},
 		pages: {
@@ -107,7 +115,11 @@ describe( 'Traffic - Custom SEO Titles', () => {
 				{
 					"type": "string",
 					"value": "[date]"
-				}
+				},
+				{
+					"type": "string",
+					"value": "[archive_title]"
+				},
 			]
 		},
 		groups: {
@@ -140,7 +152,11 @@ describe( 'Traffic - Custom SEO Titles', () => {
 				{
 					"type": "string",
 					"value": "[date]"
-				}
+				},
+				{
+					"type": "string",
+					"value": "[archive_title]"
+				},
 			]
 		},
 		archives: {
@@ -171,8 +187,12 @@ describe( 'Traffic - Custom SEO Titles', () => {
 					"value": "[group_title]"
 				},
 				{
+					"type": "string",
+					"value": "[date]"
+				},
+				{
 					"type": "token",
-					"value": "date"
+					"value": "archive_title"
 				}
 			]
 		}
