@@ -62,7 +62,7 @@ class REST_Sender {
 			return new WP_Error( 'buffer_non-object', 'Buffer is not an object', 400 );
 		}
 
-		$encode = isset( $args['encode'] ) ? $args['encode'] : null;
+		$encode = isset( $args['encode'] ) ? $args['encode'] : true;
 
 		Settings::set_is_syncing( true );
 		list( $items_to_send, $skipped_items_ids ) = $sender->get_items_to_send( $buffer, $encode );
