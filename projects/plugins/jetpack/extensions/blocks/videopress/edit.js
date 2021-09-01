@@ -7,6 +7,7 @@ import {
 	BaseControl,
 	Button,
 	PanelBody,
+	Path,
 	SandBox,
 	SelectControl,
 	ToggleControl,
@@ -34,6 +35,7 @@ import { get, indexOf } from 'lodash';
 import Loading from './loading';
 import { getVideoPressUrl } from './url';
 import { getClassNames } from './utils';
+import renderMaterialIcon from '../../shared/render-material-icon';
 import SeekbarColorSettings from './seekbar-color-settings';
 
 const VIDEO_POSTER_ALLOWED_MEDIA_TYPES = [ 'image' ];
@@ -276,7 +278,14 @@ const VideoPressEdit = CoreVideoEdit =>
 								className="components-icon-button components-toolbar__control"
 								label={ __( 'Edit video', 'jetpack' ) }
 								onClick={ this.switchToEditing }
-								icon="edit"
+								icon={ renderMaterialIcon(
+									<Path
+										d="M20.1 5.1L16.9 2 6.2 12.7l-1.3 4.4 4.5-1.3L20.1 5.1zM4 20.8h8v-1.5H4v1.5z"
+										stroke="currentColor"
+									/>,
+									18,
+									18
+								) }
 							/>
 						</ToolbarGroup>
 					</BlockControls>
