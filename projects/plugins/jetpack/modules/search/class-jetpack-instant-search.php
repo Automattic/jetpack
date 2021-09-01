@@ -27,15 +27,6 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	const JETPACK_INSTANT_SEARCH_SIDEBAR = 'jetpack-instant-search-sidebar';
 
 	/**
-		 * The pattern of instant search payload file name
-		 *
-		 * @since 10.1.0
-		 *
-		 * @var string
-	 */
-	const JETPACK_INSTANT_SEARCH_PAYLOAD_PATTERN = '_inc/build/instant-search/jp-search.chunk-main-payload-*.min.js';
-
-	/**
 	 * Variable to save old sidebars_widgets value.
 	 *
 	 * The value is set when action `after_switch_theme` is applied and cleared on filter `pre_update_option_sidebars_widgets`.
@@ -142,51 +133,12 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		$this->load_and_initialize_tracks();
 		$this->inject_javascript_options();
 
-		if ( ! defined( 'JETPACK__SEARCH_MAIN_PAYLOAD_MD5' ) ) {
-			// For Jetpack site, we detect and load translations for instant search lazy-loaded payload(s).
-			$this->inject_payload_translations();
-		} elseif ( defined( 'JETPACK__SEARCH_MAIN_PAYLOAD_MD5' ) ) {
 			// Because WPCOM is deployed on-going, so the strings in the payload are not translated.
 			// The work-around is to load the translations from a Jetpack release.
 			$this->inject_payload_translation_for(
 				plugin_dir_url( JETPACK__PLUGIN_FILE )
-				. str_replace( '*', JETPACK__SEARCH_MAIN_PAYLOAD_MD5, static::JETPACK_INSTANT_SEARCH_PAYLOAD_PATTERN )
+				. '_inc/build/instant-search/jp-search.chunk-main-payload.min.js'
 			);
-		} //Otherwise we don't load anything.
-	}
-
-	/**
-	 * Inject translations of the lazy-loaded payload(s).
-	 */
-	protected function inject_payload_translations() {
-		$payload_urls = $this->get_instant_search_payload_urls();
-		foreach ( $payload_urls as $payload_url ) {
-			$this->inject_payload_translation_for( $payload_url );
-		}
-	}
-
-	/**
-	 *
-	 * Get URL(s) of all instant search payload(s).
-	 *
-	 * @param string $pattern - The pattern used to match payload(s).
-	 *
-	 * @return array - Array of matching payload URLs
-	 */
-	protected function get_instant_search_payload_urls( $pattern = self::JETPACK_INSTANT_SEARCH_PAYLOAD_PATTERN ) {
-		$payload_file_key = 'payload-files-' . md5( $pattern );
-		$payload_files    = get_transient( $payload_file_key );
-		if ( ! $payload_files || $this->any_files_not_exist( $payload_files ) ) {
-			$payload_files = glob( JETPACK__PLUGIN_DIR . $pattern );
-			set_transient( $payload_file_key, $payload_files );
-		}
-
-		$payload_urls = array();
-		foreach ( $payload_files as $payload_file ) {
-			$payload_urls[] = plugin_dir_url( JETPACK__PLUGIN_FILE ) . '_inc/build/instant-search/' . basename( $payload_file );
-		}
-
-		return $payload_urls;
 	}
 
 	/**
