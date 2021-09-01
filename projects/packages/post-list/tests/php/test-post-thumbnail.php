@@ -1,16 +1,16 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
- * Tests the post-list package.
+ * This file contains PHPUnit tests for the Post_Thumbnail class.
  *
  * @package automattic/jetpack-post-list
  */
 
-namespace Automattic\Jetpack\PostList;
+namespace Automattic\Jetpack\Post_List;
 
 use PHPUnit\Framework\TestCase;
 
 /**
- * Unit tests for the Post_Thumbnail class.
+ * PHPUnit tests for the Post_Thumbnail class.
  *
  * @package automattic/jetpack-post-list
  */

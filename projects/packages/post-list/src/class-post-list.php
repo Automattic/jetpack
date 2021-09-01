@@ -1,16 +1,16 @@
 <?php
 /**
- * The PostList Admin Area.
+ * The Post List Admin Area.
  *
  * @package automattic/jetpack-post-list
  */
 
-namespace Automattic\Jetpack\PostList;
+namespace Automattic\Jetpack\Post_List;
 
 use Automattic\Jetpack\Assets;
 
 /**
- * The PostList Admin Area
+ * The Post_List Admin Area
  */
 class Post_List {
 	/**
@@ -39,7 +39,7 @@ class Post_List {
 			add_action( 'in_admin_footer', array( $this, 'create_app_root_element' ) );
 
 			/**
-			 * Action called after initializing PostList Admin resources.
+			 * Action called after initializing Post_List Admin resources.
 			 *
 			 * @since $$next-version$$
 			 */

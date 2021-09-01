@@ -1,14 +1,14 @@
 <?php
 /**
- * The PostList Admin Area.
+ * This file contains the Post_Thumbnail class used for finding a suitable thumbnail for a post.
  *
  * @package automattic/jetpack-post-list
  */
 
-namespace Automattic\Jetpack\PostList;
+namespace Automattic\Jetpack\Post_List;
 
 /**
- * The PostList Admin Area
+ * The Post_Thumbnail class contains methods to find and return a suitable thumbnail for a post.
  */
 class Post_Thumbnail {
 	/**
@@ -81,16 +81,18 @@ class Post_Thumbnail {
 			// Ignore all class attribute values except 'wp-image{$attachment_id}'.
 			// Regex english translation: Look for a word \b, that does not start or end with a hyphen (?!-), that
 			// starts with 'wp-image-', and ends with a number of any length \d+.
-			preg_match( '/\b(?!-)wp-image-\d+(?!-)\b/', $class_value, $class_value );
+			$class_name_found = preg_match( '/\b(?!-)wp-image-\d+(?!-)\b/', $class_value, $class_value );
 
-			// Get the $attachment_id from the end of the class name value.
-			$attachment_id = str_replace( $class_name, '', $class_value[0] );
+			if ( $class_name_found ) {
+				// Get the $attachment_id from the end of the class name value.
+				$attachment_id = str_replace( $class_name, '', $class_value[0] );
 
-			// If the ID we found is numeric, cast it as an int. Else, make it null.
-			if ( is_numeric( $attachment_id ) ) {
-				$attachment_id = (int) $attachment_id;
-			} else {
-				$attachment_id = null;
+				// If the ID we found is numeric, cast it as an int. Else, make it null.
+				if ( is_numeric( $attachment_id ) ) {
+					$attachment_id = (int) $attachment_id;
+				} else {
+					$attachment_id = null;
+				}
 			}
 		}
 

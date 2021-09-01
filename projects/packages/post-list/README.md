@@ -1,4 +1,4 @@
-# Jetpack PostList Package
+# Jetpack Post List Package
 
 Enhance the classic view of the Admin section of your WordPress site.
 
