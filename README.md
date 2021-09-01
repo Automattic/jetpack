@@ -27,7 +27,7 @@ Note that this component requires [react](https://www.npmjs.com/package/react) t
 
 SocialLogo renders a single social-logo svg based on an `icon` prop. It takes a size property but defaults to 24px. For greater sharpness, the icons should only be shown at either 18px, 24px, 36px or 48px. 
 
-There's a gallery with all the available icons in https://wpcalypso.wordpress.com/devdocs/design/social-logos.
+There's a gallery with all the available icons in https://wpcalypso.wordpress.com/devdocs/design/social-logo.
 
 ```
 npm install social-logos --save
