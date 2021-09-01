@@ -35,7 +35,7 @@ class Test_Post_Thumbnail extends TestCase {
 	public function invalid_post_content() {
 		return array(
 			'Name does not exist.'                  => array( '.' ),
-			'Name exists but outside of a HTML.'    => array( 'wp-image-24' ),
+			'Name exists but outside of HTML.'      => array( 'wp-image-24' ),
 			'Name exists but enclosed in a tag.'    => array( '<p>wp-image-24</p>' ),
 			'Name exists but NOT in image tag.'     => array( '<div class="wp-image-24"></div>' ),
 			'Name exists in img but NOT in class attribute.' => array( '<img id="wp-image-24"/>' ),
@@ -83,16 +83,16 @@ class Test_Post_Thumbnail extends TestCase {
 <!-- /wp:image -->';
 
 		return array(
-			'ID is the only class value on the img tag.' => array( 24, '<img class="wp-image-24" />' ),
-			'ID exists with extra spaces.'               => array( 24, '<img class=" wp-image-24 " />' ),
-			'ID exists with single quotes.'              => array( 24, "<img class='wp-image-24' />" ),
-			'ID found in the middle of class value.'     => array( 2, '<img class="front wp-image-2 end" />' ),
-			'ID found on the end of class value.'        => array( 240, '<img class="front wp-image-240" />' ),
-			'ID found on the front of class value.'      => array( 0, '<img class="wp-image-0 end" />' ),
-			'ID is really long.'                         => array( 99999999999999, '<img class="wp-image-99999999999999" />' ),
-			'ID found on example gallery post'           => array( 14, $post_content_gallery_image ),
-			'ID found on example slideshow post'         => array( 18, $post_content_slideshow_image ),
-			'ID found on example image block post'       => array( 24, $post_content_image_block ),
+			'Name is the only class value on the img tag.' => array( 24, '<img class="wp-image-24" />' ),
+			'Name exists with extra spaces.'               => array( 24, '<img class=" wp-image-24 " />' ),
+			'Name exists with single quotes.'              => array( 24, "<img class='wp-image-24' />" ),
+			'Name found in the middle of class value.'     => array( 2, '<img class="front wp-image-2 end" />' ),
+			'Name found on the end of class value.'        => array( 240, '<img class="front wp-image-240" />' ),
+			'Name found on the front of class value.'      => array( 0, '<img class="wp-image-0 end" />' ),
+			'ID in name is really long.'                   => array( 99999999999999, '<img class="wp-image-99999999999999" />' ),
+			'Name found in example gallery post.'          => array( 14, $post_content_gallery_image ),
+			'Name found in example slideshow post.'        => array( 18, $post_content_slideshow_image ),
+			'Name found in example image block post.'      => array( 24, $post_content_image_block ),
 		);
 	}
 }
