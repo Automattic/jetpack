@@ -88,6 +88,28 @@ async function validateProject( argv ) {
 }
 
 /**
+ * Gets list of tests available for chosen projects.
+ *
+ * @param {string} project - the project we want tests for..
+ * @returns {object} argv.
+ */
+async function getTests( project ) {
+	const composerJson = await readComposerJson( project );
+	if ( ! composerJson.scripts ) {
+		console.log( chalk.red( `No tests found in ${ project }'s composer.json file!` ) );
+		process.exit();
+	}
+
+	let tests = Object.keys( composerJson.scripts ).filter( test => test.startsWith( 'test-' ) );
+	tests = tests.map( test => test.substring( 5 ) );
+	if ( tests.length === 0 ) {
+		console.log( chalk.red( `No tests found in ${ project }'s composer.json file!` ) );
+		process.exit();
+	}
+	return tests;
+}
+
+/**
  * Gets the test instructions required for the project.
  *
  * @param {object} argv - the arguments passed.
@@ -136,12 +158,13 @@ async function runTest( argv ) {
  * @returns {object} argv
  */
 export async function promptForTest( argv ) {
+	const tests = await getTests( argv.project );
 	const response = await inquirer.prompt( [
 		{
 			type: 'list',
 			name: 'test',
 			message: 'What test are you trying to run?',
-			choices: [ 'js', 'php', 'coverage' ],
+			choices: tests,
 		},
 	] );
 	argv.test = response.test;
