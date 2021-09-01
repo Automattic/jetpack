@@ -1,8 +1,4 @@
-import {
-	doInPlaceConnection,
-	doSiteLevelConnection,
-	doClassicConnection,
-} from '../lib/flows/jetpack-connect';
+import { doSiteLevelConnection, doClassicConnection } from '../lib/flows/jetpack-connect';
 import Sidebar from '../lib/pages/wp-admin/sidebar';
 import JetpackPage from '../lib/pages/wp-admin/jetpack';
 import DashboardPage from '../lib/pages/wp-admin/dashboard';
@@ -26,17 +22,6 @@ describe( 'Connection', () => {
 
 	afterEach( async () => {
 		await prerequisitesBuilder().withCleanEnv().build();
-	} );
-
-	it( 'In-place', async () => {
-		await testStep( 'Can start in-place connection', async () => {
-			await doInPlaceConnection();
-		} );
-
-		await testStep( 'Can assert that site is connected', async () => {
-			const jetpackPage = await JetpackPage.init( page );
-			expect( await jetpackPage.isConnected() ).toBeTruthy();
-		} );
 	} );
 
 	it( 'User-less', async () => {

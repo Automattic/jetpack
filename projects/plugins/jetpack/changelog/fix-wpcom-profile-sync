@@ -1,5 +1,0 @@
-Significance: patch
-Type: bugfix
-Comment: Handled a scenario for WP.com and Atomic sites where user profile information was be overriden when the user goes to /me/account by opening the page with a new tab and goes back to WP-Admin to used the remaining information.
-
-

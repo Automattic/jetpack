@@ -36,16 +36,16 @@ To decrypt the config file (a8c only):
 
 ### WP Site Configuration
 
-Test environment is a bit complex (It's Jetpack, you know ;)). Tests expect to have WP installation with installed Jetpack accessible via a local tunnel. Required environment could easily be created via core's `wp-env` node package.
+Test environment is a bit complex (It's Jetpack, you know ;)). Tests expect to have WP installation with installed Jetpack accessible via a local tunnel. Required environment could easily be created using Jetpack's Docker infrastructure.
 
-`wp-env` is a wrapper around `docker-compose` that makes it pretty easy to get up and running with E2E tests (and local development as well!). We use a wrapper around `wp-env` that updates some options to make `wp-env` containers to work with Jetpack tests. To set up tests environment:
+To set up tests environment:
 
-1. Make sure that docker is installed locally
-2. Run `./bin/env.sh start` to start a `wp-env` containers. It will start 2 WordPress containers (we would use only 1 though) & wp-cli container.
+1. Make sure that Docker is installed locally
+2. Run `pnpm env-start` to start a container. It will start one WordPress container and a DB container.
 
 ### Local tunnel
 
-To bypass the offline mode you will need you site to have a publicly accessible url that will proxy all requests to your locally running WordPress installation.
+To bypass the offline mode you will need your site to have a publicly accessible url that will proxy all requests to your locally running WordPress installation.
 These tests use `localtunnel` library to expose localhost:8889 via a public url.
 
 To start a tunnel:
@@ -68,7 +68,7 @@ The tunnel url will be stored in a file so that it can be read by the tests and 
 
 ## Running tests
 
-Once you target WP environment is running on `localhost:8889` you can run the tests.
+Once your target WP environment is running on `localhost:8889` you can run the tests.
 
 Run all tests: `pnpm test-e2e`
 
@@ -143,7 +143,7 @@ constructor( page ) {
 
 ## CI Configuration
 
-Both local runs and CI sharing the same `wp-env` based configuration
+Both local runs and CI sharing the same Docker based configuration
 
 ## Functionality plugins
 

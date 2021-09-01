@@ -157,11 +157,11 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 		} );
 
 		page.on( 'pageerror', exception => {
-			logger.error( `Page error: "${ exception }"` );
+			logger.debug( `Page error: "${ exception }"` );
 		} );
 
 		page.on( 'requestfailed', request => {
-			logger.error( `Request failed: ${ request.url() }  ${ request.failure().errorText }` );
+			logger.debug( `Request failed: ${ request.url() }  ${ request.failure().errorText }` );
 		} );
 	}
 

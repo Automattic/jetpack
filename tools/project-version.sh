@@ -17,7 +17,9 @@ function usage {
 		usage: $0 [-f] [-v] -u version <slug>
 
 		  Update the versions of the specified project.
-		  Specifying -f force-updates the referenced version in other packages that depend on the updated package.
+
+		  Specifying -f updates the referenced version in other packages that depend
+		  on the updated package (see tools/check-intra-monorepo-deps.sh -ua).
 
 		The following version numbers are updated:
 		   - Version in the WordPress plugin header, if applicable.
@@ -139,7 +141,7 @@ function sedver {
 #  - $4: What is being looked for, if not finding it is a problem.
 function jsver {
 	if [[ "$OP" == "update" ]]; then
-		JSON=$(jq --arg v "$3" "if $2 then $2 |= \$v else . end" "$1" | "$BASE/tools/prettier" --parser=json-stringify)
+		JSON=$(jq --tab --arg v "$3" "if $2 then $2 |= \$v else . end" "$1")
 		if [[ "$JSON" != "$(<"$FILE")" ]]; then
 			echo "$JSON" > "$FILE"
 		fi

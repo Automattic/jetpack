@@ -6,7 +6,7 @@ import React from 'react';
 const TextRowPlaceHolder = props => {
 	const defaultStyles = {
 		display: 'inline-block',
-		'border-radius': '10px',
+		borderRadius: '10px',
 		maxHeight: '1.5em',
 		width: '100%',
 		height: '1em',

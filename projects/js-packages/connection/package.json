@@ -1,12 +1,13 @@
 {
 	"name": "@automattic/jetpack-connection",
-	"version": "0.6.0-alpha",
+	"version": "0.6.0",
 	"description": "Jetpack Connection Component",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
-		"@automattic/jetpack-api": "workspace:^0.1.0",
-		"@automattic/jetpack-components": "workspace:^0.2.2-alpha",
+		"@automattic/jetpack-api": "workspace:^0.2.0",
+		"@automattic/jetpack-components": "workspace:^0.3.0",
+		"@wordpress/base-styles": "3.6.0",
 		"@wordpress/browserslist-config": "4.1.0",
 		"@wordpress/components": "16.0.0",
 		"@wordpress/data": "6.0.1",
@@ -35,7 +36,7 @@
 		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.jsx'"
 	},
 	"engines": {
-		"node": "^14.16.1",
+		"node": "^16.7.0",
 		"pnpm": "^6.5.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}

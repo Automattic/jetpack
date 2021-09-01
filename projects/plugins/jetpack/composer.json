@@ -35,7 +35,7 @@
 		"automattic/jetpack-redirect": "1.7.x-dev",
 		"automattic/jetpack-roles": "1.4.x-dev",
 		"automattic/jetpack-status": "1.8.x-dev",
-		"automattic/jetpack-sync": "1.25.x-dev",
+		"automattic/jetpack-sync": "1.26.x-dev",
 		"automattic/jetpack-terms-of-service": "1.9.x-dev",
 		"automattic/jetpack-tracking": "1.13.x-dev",
 		"nojimage/twitter-text-php": "3.1.2"
@@ -95,7 +95,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ10_1_alpha"
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ10_2_alpha"
 	},
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-production",

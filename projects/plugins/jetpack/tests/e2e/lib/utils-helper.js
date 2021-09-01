@@ -120,9 +120,15 @@ async function execWpCommand( wpCmd ) {
 }
 
 async function logDebugLog() {
-	let log = execSyncShellCommand(
-		'pnpx jetpack docker --type e2e --name t1 exec-silent cat wp-content/debug.log'
-	);
+	let log;
+	try {
+		log = execSyncShellCommand(
+			'pnpx jetpack docker --type e2e --name t1 exec-silent cat wp-content/debug.log'
+		);
+	} catch ( error ) {
+		logger.error( `Error caught when trying to save debug log! ${ error }` );
+		return;
+	}
 
 	const escapedDate = new Date().toISOString().split( '.' )[ 0 ].replace( /:/g, '-' );
 	const filename = `debug_${ escapedDate }.log`;
