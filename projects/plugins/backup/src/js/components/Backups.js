@@ -154,9 +154,9 @@ const Backups = () => {
 				</div>
 				<div class="lg-col-span-1 md-col-span-4 sm-col-span-0"></div>
 				<div class="backup__animation lg-col-span-6 md-col-span-2 sm-col-span-2">
-					<img className="backup__animation-el-1" src={ BackupAnim1 } alt="" />
-					<img className="backup__animation-el-2" src={ BackupAnim2 } alt="" />
-					<img className="backup__animation-el-3" src={ BackupAnim3 } alt="" />
+					<img className="backup__animation-el-1" src={ assetBuildUrl + BackupAnim1 } alt="" />
+					<img className="backup__animation-el-2" src={ assetBuildUrl + BackupAnim2 } alt="" />
+					<img className="backup__animation-el-3" src={ assetBuildUrl + BackupAnim3 } alt="" />
 				</div>
 			</div>
 		);
@@ -195,28 +195,28 @@ const Backups = () => {
 				<div className="lg-col-span-1 md-col-span-4 sm-col-span-0"></div>
 				<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
 					<StatBlock
-						icon={ PostsIcon }
+						icon={ assetBuildUrl + PostsIcon }
 						label={ __( 'Posts', 'jetpack-backup' ) }
 						value={ stats.posts }
 					/>
 				</div>
 				<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
 					<StatBlock
-						icon={ UploadsIcon }
+						icon={ assetBuildUrl + UploadsIcon }
 						label={ __( 'Uploads', 'jetpack-backup' ) }
 						value={ stats.uploads }
 					/>
 				</div>
 				<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
 					<StatBlock
-						icon={ PluginsIcon }
+						icon={ assetBuildUrl + PluginsIcon }
 						label={ __( 'Plugins', 'jetpack-backup' ) }
 						value={ stats.plugins }
 					/>
 				</div>
 				<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
 					<StatBlock
-						icon={ ThemesIcon }
+						icon={ assetBuildUrl + ThemesIcon }
 						label={ __( 'Themes', 'jetpack-backup' ) }
 						value={ stats.themes }
 					/>
