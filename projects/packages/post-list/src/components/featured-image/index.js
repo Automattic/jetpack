@@ -4,10 +4,11 @@
 import { Tooltip, Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { ImageIcon as icon } from '../icons';
+import { createPortal } from '@wordpress/element';
 
-export default function FeaturedImage( { url, thumb, alt } ) {
+export default function FeaturedImage( { url, thumb, alt, rootEl } ) {
 	if ( ! url ) {
-		return (
+		return createPortal(
 			<Tooltip
 				text={ __( 'No featured image set.', 'jetpack' ) }
 				position="top"
@@ -16,18 +17,19 @@ export default function FeaturedImage( { url, thumb, alt } ) {
 				<div className="post-list__post-featured-image">
 					<Icon icon={ icon } size={ 48 } />
 				</div>
-			</Tooltip>
+			</Tooltip>,
+			rootEl
 		);
 	}
 
-	return (
-		// TODO: Pass the right alt text to the client.
+	return createPortal(
 		<img
 			alt={ alt }
 			className="post-list__post-featured-image"
 			src={ thumb }
 			width="50px"
 			height="50px"
-		/>
+		/>,
+		rootEl
 	);
 }
