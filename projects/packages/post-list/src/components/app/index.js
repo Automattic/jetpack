@@ -1,7 +1,24 @@
+/**
+ * External dependencies
+ */
+import FeaturedImage from '../featured-image';
 
-export default function App( { children, posts } ) {
-	console.log( 'posts: ', posts );
+export default function App( { posts } ) {
+	if ( ! posts?.length ) {
+		return null;
+	}
+
 	return (
-		<div className="post-list-app">{ children }</div>
-	)
+		<div className="post-list-app-wrapper">
+			{ posts.map( post => {
+				return (
+					<FeaturedImage
+						key={ `post-${ post.id }` }
+						{ ...post?.featured_image }
+						rootEl={ post.rootEl }
+					/>
+				);
+			} ) }
+		</div>
+	);
 }
