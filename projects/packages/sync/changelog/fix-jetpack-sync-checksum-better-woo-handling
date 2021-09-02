@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Add better checks if the WooCommerce tables should be enabled for checksum/fix.
