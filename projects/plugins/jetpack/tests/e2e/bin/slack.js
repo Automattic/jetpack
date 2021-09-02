@@ -80,9 +80,14 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
 			if ( ar.status === 'failed' ) {
 				detailLines.push( `- ${ ar.fullName }` );
 				for ( const failureMessage of ar.failureMessages ) {
+					// (Slack max allowed: 3001  - a buffer, just in case) - test name length - extra formatting characters
+					const maxLength = 2900 - ar.fullName.length - 10;
 					failureDetails.push( {
 						type: 'stacktrace',
-						content: `*${ ar.fullName }*\n\n\`\`\`${ failureMessage }\`\`\``,
+						content: `*${ ar.fullName }*\n\n\`\`\`${ failureMessage.substring(
+							0,
+							maxLength
+						) }\`\`\``,
 					} );
 				}
 
