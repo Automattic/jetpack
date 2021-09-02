@@ -44,6 +44,7 @@ module.exports = {
 		'babel.config.js',
 		'wordpress',
 		'vendor',
+		'tests',
 		'app/assets/dist',
 	],
 	rules: {
