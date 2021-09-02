@@ -153,7 +153,7 @@ class Jetpack_Heartbeat {
 	 * @see Automattic\Jetpack\Heartbeat::xmlrpc_data_response()
 	 *
 	 * @param array $params The parameters received in the request.
-	 * @return array $params all the stats that hearbeat handles.
+	 * @return array $params all the stats that heartbeat handles.
 	 */
 	public static function xmlrpc_data_response( $params = array() ) {
 		_deprecated_function( __METHOD__, 'jetpack-8.9.0', 'Automattic\\Jetpack\\Heartbeat::xmlrpc_data_response' );
