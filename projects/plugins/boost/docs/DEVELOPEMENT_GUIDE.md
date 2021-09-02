@@ -7,7 +7,7 @@
 	* [Setting up your environment](#setting-up-your-environment)
 	* [Build the project](#build-the-project)
 	* [PHP unit tests](#php-unit-tests)
-	* [JavaScript unit tests and e2e tests](#javascript-unit-tests-and-e2e-tests)
+	* [JavaScript unit tests and e2e tests](#javascript-e2e-tests)
 	* [Linting Jetpack Boost's PHP code](#linting-jetpack-boost-php-code)
 	* [Linting Jetpack Boost's JavaScript code](#linting-jetpack-boost-javascript-code)
 * [Module architectural overview 101](#module-architectural-overview-101)
