@@ -1,12 +1,6 @@
+const jetpackTestsRootDir = 'node_modules/jetpack-e2e-tests';
+const sharedConfig = require( `./${ jetpackTestsRootDir }/babel.config.js` );
+
 module.exports = {
-	presets: [
-		[
-			'@babel/preset-env',
-			{
-				targets: {
-					node: 'current',
-				},
-			},
-		],
-	],
+	...sharedConfig,
 };
