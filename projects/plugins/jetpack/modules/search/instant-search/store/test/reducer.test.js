@@ -189,6 +189,32 @@ describe( 'response Reducer', () => {
 		);
 		expect( state ).toEqual( initialState );
 	} );
+	test( 'could replace aggregation with cached aggregation when result is empty', () => {
+		let state = response(
+			{},
+			recordSuccessfulSearchRequest( {
+				options: { pageHandle: false },
+				response: {
+					requestId: 2,
+					aggregations: { taxonomy_1: { buckets: [ { key: 'weekly/weekly', doc_count: 1 } ] } },
+					results: [ { id: 1, result_type: 'post' } ],
+				},
+			} )
+		);
+		state = response(
+			state,
+			recordSuccessfulSearchRequest( {
+				options: { pageHandle: false },
+				response: { requestId: 3, aggregations: {}, results: [] },
+			} )
+		);
+		expect( state ).toEqual( {
+			requestId: 3,
+			aggregations: { taxonomy_1: { buckets: [ { key: 'weekly/weekly', doc_count: 0 } ] } },
+			cachedAggregations: { taxonomy_1: { buckets: [ { key: 'weekly/weekly', doc_count: 0 } ] } },
+			results: [],
+		} );
+	} );
 } );
 
 describe( 'searchQuery Reducer', () => {

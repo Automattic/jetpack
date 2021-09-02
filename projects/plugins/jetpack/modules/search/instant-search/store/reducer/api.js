@@ -1,7 +1,7 @@
 /**
  * Internal Dependencies
  */
-import { doesUrlContainFilterKeys } from '../../lib/query-string';
+import { isEmpty } from 'lodash';
 
 /**
  * Reducer for recording if the previous search request yielded an error.
@@ -75,16 +75,17 @@ export function response( state = {}, action ) {
 			if ( Array.isArray( newState.results ) && newState.results.length > newState.total ) {
 				newState.total = newState.results.length;
 			}
-
-			// cachedAggregations is used to cache the aggregations object.
-			newState.cachedAggregations = mergeCachedAggregations(
-				state.cachedAggregations,
-				newState.aggregations
-			);
-
-			// If there is no result to show and there are filter keys in URL, we show the cached aggregations.
-			if ( ! newState.results?.length > 0 && doesUrlContainFilterKeys( location.href ) ) {
-				newState.aggregations = newState.cachedAggregations || {};
+			if ( ! action.options.pageHandle ) {
+				// cachedAggregations is used to cache the aggregations object.
+				newState.cachedAggregations = mergeCachedAggregations(
+					state.cachedAggregations,
+					newState.aggregations
+				);
+				// If there is no result to show and there are filter keys in URL, we show the cached aggregations.
+				if ( isEmpty( newState.results ) ) {
+					//&& doesUrlContainFilterKeys( location.href )
+					newState.aggregations = newState.cachedAggregations || {};
+				}
 			}
 
 			return newState;
