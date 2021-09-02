@@ -5,13 +5,8 @@ import Homepage from '../lib/pages/Homepage';
 
 // TODO: This is for illustrative purpose only. It will need refactoring and improving.
 describe( 'Homepage', () => {
-	let homepage;
 	beforeEach( async function () {
-		homepage = await Homepage.visit( page, false );
-	} );
-
-	afterEach( async function () {
-		await homepage.page.close();
+		await Homepage.visit( page, false );
 	} );
 
 	it( 'should display "HelloWord" text on page', async () => {

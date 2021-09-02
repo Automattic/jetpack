@@ -9,20 +9,12 @@ import JetpackBoostPage from '../../lib/pages/wp-admin/JetpackBoostPage';
 
 // TODO: This is for illustrative purpose only. It will need refactoring and improving.
 describe( 'Speed Score feature', () => {
-	let jetpackBoostPage;
-
 	beforeAll( async () => {
 		await prerequisitesBuilder().withLoggedIn( true ).withConnection( true ).build();
 	} );
 
 	beforeEach( async function () {
-		jetpackBoostPage = await JetpackBoostPage.visit( page );
-	} );
-
-	afterEach( async function () {
-		if ( jetpackBoostPage ) {
-			await jetpackBoostPage.page.close();
-		}
+		await JetpackBoostPage.visit( page );
 	} );
 
 	it( 'should display a score', async () => {
