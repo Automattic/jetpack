@@ -771,11 +771,19 @@ class Table_Checksum {
 	 * @return bool
 	 */
 	private function enable_woocommerce_tables() {
-		$force_woo_support = apply_filters( 'jetpack_table_checksum_force_enable_woocommerce', false );
+		/**
+		 * On WordPress.com, we can't directly check if the site has support for WooCommerce.
+		 * Having the option to override the functionality here helps with syncing WooCommerce tables.
+		 *
+		 * @since 10.1
+		 *
+		 * @param bool If we should we force-enable WooCommerce tables support.
+		 */
+		$force_woocommerce_support = apply_filters( 'jetpack_table_checksum_force_enable_woocommerce', false );
 
 		// If we're forcing WooCommerce tables support, there's no need to check further.
 		// This is used on WordPress.com.
-		if ( $force_woo_support ) {
+		if ( $force_woocommerce_support ) {
 			return true;
 		}
 
