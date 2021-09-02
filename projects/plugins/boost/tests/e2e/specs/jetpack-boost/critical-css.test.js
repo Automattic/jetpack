@@ -8,42 +8,31 @@ import { prerequisitesBuilder } from 'jetpack-e2e-tests/lib/env/prerequisites';
  */
 import JetpackBoostPage from '../../lib/pages/wp-admin/JetpackBoostPage';
 
-// TODO: This is for illustrative purpose only. It will need refactoring and improving.
+const moduleName = 'critical-css';
+let jetpackBoostPage;
+
 describe( 'Critical CSS module', () => {
 	beforeAll( async () => {
 		await prerequisitesBuilder().withLoggedIn( true ).withConnection( true ).build();
 	} );
 
 	beforeEach( async function () {
-		await JetpackBoostPage.visit( page );
+		jetpackBoostPage = await JetpackBoostPage.visit( page );
 	} );
 
-	it( 'should allow enabling critical css', async () => {
-		const toggle = await page.$( '#jb-feature-toggle-critical-css' );
-		await toggle.click();
+	it( 'should be disabled by default', async () => {
+		expect( await jetpackBoostPage.isModuleEnabled( moduleName ) ).toBeFalsy();
+	} );
 
-		await page.waitForResponse(
-			response =>
-				response.url().match( /jetpack-boost\/v1\/module\/critical-css\/status/ ) &&
-				response.status() === 200,
-			{ timeout: 60 * 1000 }
-		);
+	it( 'should allow enabling module', async () => {
+		await jetpackBoostPage.toggleModule( moduleName );
+		await jetpackBoostPage.waitForApiResponse( `${ moduleName }-status` );
+		expect( await jetpackBoostPage.isModuleEnabled( moduleName ) ).toBeTruthy();
+	} );
 
-		let toggleParent = await toggle.$( 'xpath=..' );
-		let classNames = await toggleParent.getAttribute( 'class' );
-		expect( classNames.includes( 'is-checked' ) ).toBeTruthy();
-
-		await toggle.click();
-
-		await page.waitForResponse(
-			response =>
-				response.url().match( /jetpack-boost\/v1\/module\/critical-css\/status/ ) &&
-				response.status() === 200,
-			{ timeout: 60 * 1000 }
-		);
-
-		toggleParent = await toggle.$( 'xpath=..' );
-		classNames = await toggleParent.getAttribute( 'class' );
-		expect( classNames.includes( 'is-checked' ) ).toBeFalsy();
+	it( 'should allow disabling module', async () => {
+		await jetpackBoostPage.toggleModule( moduleName );
+		await jetpackBoostPage.waitForApiResponse( `${ moduleName }-status` );
+		expect( await jetpackBoostPage.isModuleEnabled( moduleName ) ).toBeFalsy();
 	} );
 } );
