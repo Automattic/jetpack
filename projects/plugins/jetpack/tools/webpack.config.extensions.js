@@ -26,19 +26,24 @@ const CopyBlockEditorAssetsPlugin = require( './copy-block-editor-assets' );
  */
 const editorSetup = path.join( path.dirname( __dirname ), 'extensions', 'editor' );
 const viewSetup = path.join( path.dirname( __dirname ), 'extensions', 'view' );
+const blockEditorDirectories = [ 'blocks', 'plugins' ];
 
 /**
- * Filters block scripts
+ * Filters block block scripts
  *
  * @param {string} type - script type
  * @param {string} inputDir - input directory
  * @param {Array} presetBlocks - preset blocks
  * @returns {Array} list of block scripts
  */
-function blockScripts( type, inputDir, presetBlocks ) {
-	return presetBlocks
-		.map( block => path.join( inputDir, 'blocks', block, `${ type }.js` ) )
-		.filter( fs.existsSync );
+function blockEditorScripts( type, inputDir, presetBlocks ) {
+	return _.uniq(
+		_.flatten(
+			blockEditorDirectories.map( dir =>
+				presetBlocks.map( block => path.join( inputDir, dir, block, `${ type }.js` ) )
+			)
+		)
+	).filter( fs.existsSync );
 }
 
 const presetPath = path.join( path.dirname( __dirname ), 'extensions', 'index.json' );
@@ -71,7 +76,7 @@ const viewBlocksScripts = presetBetaBlocks.reduce( ( viewBlocks, block ) => {
 // Combines all the different production blocks into one editor.js script
 const editorScript = [
 	editorSetup,
-	...blockScripts(
+	...blockEditorScripts(
 		'editor',
 		path.join( path.dirname( __dirname ), 'extensions' ),
 		presetProductionBlocks
@@ -81,7 +86,7 @@ const editorScript = [
 // Combines all the different Experimental blocks into one editor.js script
 const editorExperimentalScript = [
 	editorSetup,
-	...blockScripts(
+	...blockEditorScripts(
 		'editor',
 		path.join( path.dirname( __dirname ), 'extensions' ),
 		presetExperimentalBlocks
@@ -91,7 +96,7 @@ const editorExperimentalScript = [
 // Combines all the different blocks into one editor-beta.js script
 const editorBetaScript = [
 	editorSetup,
-	...blockScripts(
+	...blockEditorScripts(
 		'editor',
 		path.join( path.dirname( __dirname ), 'extensions' ),
 		presetBetaBlocks
@@ -100,7 +105,7 @@ const editorBetaScript = [
 
 const editorNoPostEditorScript = [
 	editorSetup,
-	...blockScripts(
+	...blockEditorScripts(
 		'editor',
 		path.join( path.dirname( __dirname ), 'extensions' ),
 		presetNoPostEditorBlocks
