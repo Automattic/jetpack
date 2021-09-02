@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0435257514b84296e0966d32c42fd4f2",
+    "content-hash": "f2e82cd35aa9e736f17cadf7186179ea",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1196,75 +1196,6 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Password Checker.",
-            "transport-options": {
-                "monorepo": true,
-                "relative": true
-            }
-        },
-        {
-            "name": "automattic/jetpack-post-list",
-            "version": "dev-master",
-            "dist": {
-                "type": "path",
-                "url": "../../packages/post-list",
-                "reference": "1533d11d5778f7ddb07e727c42a14c2792d5ee77"
-            },
-            "require": {
-                "automattic/jetpack-assets": "^1.11"
-            },
-            "require-dev": {
-                "automattic/jetpack-changelogger": "^1.2",
-                "automattic/wordbless": "@dev",
-                "yoast/phpunit-polyfills": "0.2.0"
-            },
-            "type": "library",
-            "extra": {
-                "autotagger": true,
-                "mirror-repo": "automattic/jetpack-post-list",
-                "changelogger": {
-                    "link-template": "https://github.com/automattic/jetpack-post-list/compare/v${old}...v${new}"
-                },
-                "branch-alias": {
-                    "dev-master": "0.1.x-dev"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "src/"
-                ]
-            },
-            "scripts": {
-                "build-development": [
-                    "Composer\\Config::disableProcessTimeout",
-                    "pnpm run start"
-                ],
-                "build-production": [
-                    "Composer\\Config::disableProcessTimeout",
-                    "pnpm run build-all"
-                ],
-                "watch": [
-                    "Composer\\Config::disableProcessTimeout",
-                    "pnpm run watch"
-                ],
-                "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-coverage": [
-                    "@composer install",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
-                "test-php": [
-                    "@composer install",
-                    "@composer phpunit"
-                ],
-                "post-update-cmd": [
-                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
-                ]
-            },
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "description": "Enhance the classic view of the Admin section of your WordPress site",
             "transport-options": {
                 "monorepo": true,
                 "relative": true
@@ -2750,7 +2681,6 @@
         "automattic/jetpack-logo": 20,
         "automattic/jetpack-options": 20,
         "automattic/jetpack-partner": 20,
-        "automattic/jetpack-post-list": 20,
         "automattic/jetpack-redirect": 20,
         "automattic/jetpack-roles": 20,
         "automattic/jetpack-status": 20,
