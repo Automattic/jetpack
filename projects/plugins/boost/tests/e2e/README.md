@@ -2,7 +2,7 @@
 
 Automated end-to-end acceptance tests for the Jetpack Boost plugin.
 
-**IMPORTANT** As there is not yet one single infrastructure and core package across plugins on the Jetpack Monorepo, the Jetpack Boost e2e framework and setup relies heavily on the Jetpack plugin e2e package and setup. So please familiarise yourself with the Jeptack e2e [documentation](../../../jetpack/tests/e2e/README.md).
+**IMPORTANT** As there is not yet one single infrastructure and core package across plugins on the Jetpack Monorepo, the Jetpack Boost e2e framework and setup relies heavily on the Jetpack plugin e2e package and setup. So please familiarise yourself with the Jetpack e2e [documentation](../../../jetpack/tests/e2e/README.md).
 
 ## Boost specific information
 
@@ -15,7 +15,7 @@ Automated end-to-end acceptance tests for the Jetpack Boost plugin.
 * Make sure you built Jetpack Boost first. `pnpm install && pnpx jetpack build plugin/boost` in the monorepo root directory should walk you through it. You can also refer to the Jetpack Boost [documentation](../../docs/DEVELOPEMENT_GUIDE.md) in how to build Jetpack Boost.
 * Run ``pnpm install` from the Jetpack Boost 2e2 tests directory. This command will copy the [default config file](../../../jetpack/tests/e2e/config/default.js) from Jetpack plugin e2e framework into the Jetpack Boost config file as `local.js`. This file is not committed in the repo and allows avoiding duplication of configuration committed in repo. 
 
-Jetpack Boost E2E tests also relies on an encrypted configuration file, which is included in the Jetpack plugin e2e tests config folder repo as [`encrypted.enc`](../../../jetpack/tests/e2e/config/encrypted.enc). To be able to run tests - that file should be decrypted first.
+Jetpack Boost E2E tests also rely on an encrypted configuration file, which is included in the Jetpack plugin e2e tests config folder repo as [`encrypted.enc`](../../../jetpack/tests/e2e/config/encrypted.enc). To be able to run tests - that file should be decrypted first.
 
 To decrypt the config file (a8c only):
 
