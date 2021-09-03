@@ -13,7 +13,7 @@ jobs:
   cleanup:
     name: Amend Renovate PR
     runs-on: ubuntu-latest
-    if: github.actor == 'renovate[bot]'
+    if: github.event.pull_request.head.user.login == 'renovate[bot]'
     timeout-minutes: 5  # 2021-03-25: Guess.
 
     steps:
