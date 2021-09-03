@@ -1,3 +1,4 @@
+let cachedAggregations = {};
 /**
  * Reducer for recording if the previous search request yielded an error.
  *
@@ -55,7 +56,7 @@ export function response( state = {}, action ) {
 				return state;
 			}
 
-			const newState = { ...action.response, cachedAggregations: state.cachedAggregations ?? {} };
+			const newState = { ...action.response };
 			// For paginated results, merge previous search results with new search results.
 			if ( action.options.pageHandle ) {
 				newState.aggregations = {
@@ -63,6 +64,7 @@ export function response( state = {}, action ) {
 					...( ! Array.isArray( newState.aggregations ) ? newState.aggregations : {} ),
 				};
 				newState.results = [ ...( 'results' in state ? state.results : [] ), ...newState.results ];
+				cachedAggregations = {};
 			}
 
 			// To prevent our interface from erroneously rendering a "no result" search results page when
@@ -75,17 +77,15 @@ export function response( state = {}, action ) {
 			// - we cache the query aggregations if there are results
 			// - we use the cache to show filters if there are not results
 			if ( ! action.options.pageHandle ) {
-				if ( newState.total > 0 ) {
+				if ( newState.results?.length > 0 ) {
 					// cachedAggregations is used to cache the aggregations object.
-					newState.cachedAggregations = mergeCachedAggregations(
-						state.cachedAggregations,
-						newState.aggregations
-					);
+					cachedAggregations = mergeCachedAggregations( cachedAggregations, newState.aggregations );
 				} else {
 					// If there is no result to show, we show the cached aggregations.
-					newState.aggregations = newState.cachedAggregations;
+					newState.aggregations = cachedAggregations;
 				}
 			}
+
 			return newState;
 		}
 	}

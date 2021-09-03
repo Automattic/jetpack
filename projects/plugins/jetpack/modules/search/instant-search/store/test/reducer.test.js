@@ -191,7 +191,7 @@ describe( 'response Reducer', () => {
 	} );
 	test( 'could replace aggregation with cached aggregation when result is empty', () => {
 		let state = response(
-			{},
+			undefined,
 			recordSuccessfulSearchRequest( {
 				options: { pageHandle: false },
 				response: {
@@ -211,7 +211,6 @@ describe( 'response Reducer', () => {
 		expect( state ).toEqual( {
 			requestId: 3,
 			aggregations: { taxonomy_1: { buckets: [ { key: 'weekly/weekly', doc_count: 0 } ] } },
-			cachedAggregations: { taxonomy_1: { buckets: [ { key: 'weekly/weekly', doc_count: 0 } ] } },
 			results: [],
 		} );
 	} );
