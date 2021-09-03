@@ -6,7 +6,7 @@
 	--font-title-small: 24px;
 	--font-body: 16px;
 	--font-label: 12px;
-	
+
 	--jp-black:           #000000;
 	--jp-black-80:        #2C3338;
 	--jp-white:           #FFFFFF;
@@ -64,12 +64,12 @@ body {
 	grid-template-columns: repeat(4, 1fr);
 	width: 100%;
 	margin: 0 16px;
-	
+
 	@include for-phone-up {
 		grid-template-columns: repeat(8, 1fr);
 		margin: 0 18px;
 	}
-	
+
 	@include for-tablet-up {
 		grid-template-columns: repeat(12, 1fr);
 		max-width: 1128px;
@@ -125,12 +125,12 @@ body {
 	grid-template-columns: repeat(4, 1fr);
 	width: 100%;
 	margin: 0 16px;
-	
+
 	@include for-phone-up {
 		grid-template-columns: repeat(8, 1fr);
 		margin: 0 18px;
 	}
-	
+
 	@include for-tablet-up {
 		grid-template-columns: repeat(12, 1fr);
 		max-width: 1128px;
@@ -141,11 +141,11 @@ body {
 .jp-cut {
 	position: relative;
 	display: block;
-	margin: 32px 0;
 	padding: 16px 64px 16px 24px;
 	border: 2px solid var( --jp-green-primary );
 	border-radius: var( --jp-border-radius );
 	text-decoration: none;
+	margin: 24px 0 32px;
 
 	span {
 		display: block;
