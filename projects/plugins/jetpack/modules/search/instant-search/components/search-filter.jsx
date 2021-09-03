@@ -67,6 +67,7 @@ export default class SearchFilter extends Component {
 			<div>
 				<input
 					checked={ this.isChecked( key ) }
+					disabled={ ! this.isChecked( key ) && count === 0 }
 					id={ `${ this.idPrefix }-dates-${ this.getIdentifier() }-${ key }` }
 					name={ key }
 					onChange={ this.toggleFilter }
@@ -93,6 +94,7 @@ export default class SearchFilter extends Component {
 			<div>
 				<input
 					checked={ this.isChecked( key ) }
+					disabled={ ! this.isChecked( key ) && count === 0 }
 					id={ `${ this.idPrefix }-post-types-${ key }` }
 					name={ key }
 					onChange={ this.toggleFilter }
@@ -117,6 +119,7 @@ export default class SearchFilter extends Component {
 			<div>
 				<input
 					checked={ this.isChecked( slug ) }
+					disabled={ ! this.isChecked( slug ) && count === 0 }
 					id={ `${ this.idPrefix }-taxonomies-${ slug }` }
 					name={ slug }
 					onChange={ this.toggleFilter }
