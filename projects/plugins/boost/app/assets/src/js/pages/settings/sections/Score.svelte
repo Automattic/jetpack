@@ -18,6 +18,11 @@
 		desktop: 0,
 	};
 
+	let previousScores = {
+		mobile: 0,
+		desktop: 0,
+	}
+
 	if ( siteIsOnline ) {
 		refreshScore( false );
 	}
@@ -31,9 +36,12 @@
 				await clearCache();
 			}
 
-			scores = await requestSpeedScores();
+			let scoresSet = await requestSpeedScores();
+			scores = scoresSet.current;
+			previousScores = scoresSet.previous;
 			scoreLetter = getScoreLetter( scores.mobile, scores.desktop );
 		} catch ( err ) {
+			console.log(err)
 			loadError = err;
 		} finally {
 			isLoading = false;
@@ -95,7 +103,7 @@
 				<MobileIcon />
 				<div>{__( 'Mobile score', 'jetpack-boost' )}</div>
 			</div>
-			<ScoreBar bind:score={scores.mobile} active={siteIsOnline} {isLoading} />
+			<ScoreBar bind:prevScore={previousScores.mobile} bind:score={scores.mobile} active={siteIsOnline} {isLoading} />
 		</div>
 
 		<div class="jb-score-bar jb-score-bar--desktop">
@@ -103,7 +111,7 @@
 				<ComputerIcon />
 				<div>{__( 'Desktop score', 'jetpack-boost' )}</div>
 			</div>
-			<ScoreBar bind:score={scores.desktop} active={siteIsOnline} {isLoading} />
+			<ScoreBar bind:prevScore={previousScores.desktop} bind:score={scores.desktop} active={siteIsOnline} {isLoading} />
 		</div>
 	</div>
 </div>

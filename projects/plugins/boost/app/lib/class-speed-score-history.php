@@ -74,7 +74,7 @@ class Speed_Score_History {
 		$index = $this->count() - ( $offset + 1 );
 
 		if ( $index >= 0 ) {
-			return $this->entries[ $index ];
+			return $this->entries[ $index ]['scores'];
 		}
 
 		return null;

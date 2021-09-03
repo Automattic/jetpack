@@ -3,8 +3,10 @@
 	export let score = 0;
 	export let isLoading = true;
 	export let active = true;
+	export let prevScore = 0;
 
 	let fillColor;
+	let prevScoreOffset
 	function getFillerClassName( forScore ) {
 		if ( isLoading ) {
 			return 'fill-loading';
@@ -23,7 +25,11 @@
 		}
 	}
 
-	$: fillColor = getFillerClassName( score );
+
+	$: {
+		fillColor = getFillerClassName(score);
+		prevScoreOffset = prevScore / score * 100;
+	}
 </script>
 
 <div class="jb-score-bar__bounds">
@@ -35,6 +41,10 @@
 				</div>
 			{:else}
 				<div class="jb-score-bar__score">{score}</div>
+			{/if}
+
+			{#if prevScore}
+				<div class="jb-score-bar__previous_score" style="left: min({prevScoreOffset}%, calc(100% - var(--clearence-space))">{prevScore}</div>
 			{/if}
 		</div>
 	{/if}

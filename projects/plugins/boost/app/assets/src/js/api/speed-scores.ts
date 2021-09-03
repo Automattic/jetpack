@@ -21,10 +21,19 @@ type SpeedScores = {
 	desktop: number;
 };
 
+type SpeedScoresSet = {
+	current: SpeedScores;
+	previous: SpeedScores;
+};
+
 type ParsedApiResponse = {
 	id?: string;
-	scores?: SpeedScores;
+	scores?: SpeedScoresSet;
 };
+
+function getResponseSpeedScoresSet( response: ParsedApiResponse ): SpeedScoresSet {
+	return response.scores;
+}
 
 /**
  * Clear the speed-score cache.
@@ -41,7 +50,7 @@ export async function clearCache(): Promise< void > {
  *
  * @return {SpeedScores} Speed scores returned by the server.
  */
-export async function requestSpeedScores(): Promise< SpeedScores > {
+export async function requestSpeedScores(): Promise< SpeedScoresSet > {
 	// Request metrics
 	const response = parseResponse(
 		await api.post( '/speed-scores', { url: Jetpack_Boost.site.url } )
@@ -49,7 +58,7 @@ export async function requestSpeedScores(): Promise< SpeedScores > {
 
 	// If the response contains ready-to-use metrics, we're done here.
 	if ( response.scores ) {
-		return response.scores;
+		return getResponseSpeedScoresSet( response );
 	}
 
 	// Poll for metrics.
@@ -79,8 +88,24 @@ function parseResponse( response: JSONObject ): ParsedApiResponse {
 	if ( isJsonObject( response.scores ) ) {
 		return {
 			scores: {
-				mobile: castToNumber( response.scores.mobile, 0 ),
-				desktop: castToNumber( response.scores.desktop, 0 ),
+				current: isJsonObject( response.scores.current )
+					? {
+							mobile: castToNumber( response.scores.current.mobile, 0 ),
+							desktop: castToNumber( response.scores.current.desktop, 0 ),
+					  }
+					: {
+							mobile: 0,
+							desktop: 0,
+					  },
+				previous: isJsonObject( response.scores.previous )
+					? {
+							mobile: castToNumber( response.scores.previous.mobile, 0 ),
+							desktop: castToNumber( response.scores.previous.desktop, 0 ),
+					  }
+					: {
+							mobile: 0,
+							desktop: 0,
+					  },
 			},
 		};
 	}
@@ -103,8 +128,8 @@ function parseResponse( response: JSONObject ): ParsedApiResponse {
  * @param {string} requestId - numeric id of the request.
  * @return {SpeedScores} Speed scores returned by the server.
  */
-async function pollRequest( requestId: string ): Promise< SpeedScores > {
-	return pollPromise< SpeedScores >( {
+async function pollRequest( requestId: string ): Promise< SpeedScoresSet > {
+	return pollPromise< SpeedScoresSet >( {
 		timeout: pollTimeout,
 		interval: pollInterval,
 		timeoutError: __( 'Timed out while waiting for speed-score.', 'jetpack-boost' ),
@@ -112,7 +137,7 @@ async function pollRequest( requestId: string ): Promise< SpeedScores > {
 			const response = parseResponse( await api.post( `/speed-scores/${ requestId }/update` ) );
 
 			if ( response.scores ) {
-				resolve( response.scores );
+				resolve( getResponseSpeedScoresSet( response ) );
 			}
 		},
 	} );

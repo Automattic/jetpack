@@ -185,9 +185,13 @@ class Speed_Score {
 	 * @return \WP_Error|\WP_HTTP_Response|\WP_REST_Response
 	 */
 	private function prepare_speed_score_response( $score_request ) {
-		$response             = $score_request->jsonSerialize();
-		$history              = new Speed_Score_History( $response['url'] );
-		$response['previous'] = $history->latest( 1 );
+		$response = $score_request->jsonSerialize();
+		$history  = new Speed_Score_History( $response['url'] );
+
+		$response['scores'] = array(
+			'current'  => $history->latest(),
+			'previous' => $history->latest( 1 ),
+		);
 
 		return rest_ensure_response( $response );
 	}
