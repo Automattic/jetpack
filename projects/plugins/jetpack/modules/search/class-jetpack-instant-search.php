@@ -130,8 +130,10 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 
 		// It only inline the translations for the script, but does not load it.
 		$this->inject_translation_for_script(
-			plugin_dir_url( JETPACK__PLUGIN_FILE )
-			. '_inc/build/instant-search/jp-search.chunk-main-payload.min.js'
+			plugins_url(
+				$path_prefix . '_inc/build/instant-search/jp-search.chunk-main-payload.min.js',
+				$plugin_base_path
+			)
 		);
 	}
 
