@@ -36,7 +36,7 @@ const blockEditorDirectories = [ 'blocks', 'plugins' ];
  * @param {Array} presetBlocks - preset blocks
  * @returns {Array} list of block scripts
  */
-function blockEditorScripts( type, inputDir, presetBlocks ) {
+function presetProductionExtensions( type, inputDir, presetBlocks ) {
 	return _.uniq(
 		_.flatten(
 			blockEditorDirectories.map( dir =>
@@ -76,7 +76,7 @@ const viewBlocksScripts = presetBetaBlocks.reduce( ( viewBlocks, block ) => {
 // Combines all the different production blocks into one editor.js script
 const editorScript = [
 	editorSetup,
-	...blockEditorScripts(
+	...presetProductionExtensions(
 		'editor',
 		path.join( path.dirname( __dirname ), 'extensions' ),
 		presetProductionBlocks
@@ -86,7 +86,7 @@ const editorScript = [
 // Combines all the different Experimental blocks into one editor.js script
 const editorExperimentalScript = [
 	editorSetup,
-	...blockEditorScripts(
+	...presetProductionExtensions(
 		'editor',
 		path.join( path.dirname( __dirname ), 'extensions' ),
 		presetExperimentalBlocks
@@ -96,7 +96,7 @@ const editorExperimentalScript = [
 // Combines all the different blocks into one editor-beta.js script
 const editorBetaScript = [
 	editorSetup,
-	...blockEditorScripts(
+	...presetProductionExtensions(
 		'editor',
 		path.join( path.dirname( __dirname ), 'extensions' ),
 		presetBetaBlocks
@@ -105,7 +105,7 @@ const editorBetaScript = [
 
 const editorNoPostEditorScript = [
 	editorSetup,
-	...blockEditorScripts(
+	...presetProductionExtensions(
 		'editor',
 		path.join( path.dirname( __dirname ), 'extensions' ),
 		presetNoPostEditorBlocks
