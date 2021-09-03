@@ -2,7 +2,6 @@
 	"extends": [ "config:base" ],
 	"labels": [ "[Type] Janitorial", "[Status] Needs Review" ],
 	"prHourlyLimit": 1,
-	"supportPolicy": [ "lts_latest" ],
 	"timezone": "UTC",
 	"schedule": [ "before 3am on the first day of the month" ],
 	"updateNotScheduled": false,
@@ -52,7 +51,7 @@
 			"enabled": false
 		},
 		{
-			"extends": "monorepo:wordpress",
+			"extends": [ "monorepo:wordpress" ],
 			"separateMajorMinor": false,
 			"prPriority": 1
 		},
@@ -61,10 +60,12 @@
 			"matchDepTypes": [ "monorepo:wordpress", "monorepo:react" ]
 		},
 		{
-			"extends": "packages:eslint"
+			"extends": [ "packages:eslint" ],
+			"groupName": "Eslint packages"
 		},
 		{
-			"extends": "packages:jsUnitTest"
+			"extends": [ "packages:jsUnitTest" ],
+			"groupName": "JS unit testing packages"
 		},
 		{
 			"matchPaths": [ "packages/codesniffer/composer.json" ],
