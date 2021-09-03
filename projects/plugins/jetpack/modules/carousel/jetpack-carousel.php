@@ -384,7 +384,7 @@ class Jetpack_Carousel {
 				itemscope
 				itemtype="https://schema.org/ImageGallery">
 				<div class="jp-carousel swiper-wrapper"></div>
-				<div class="jp-swiper-button-prev swiper-button-prev swiper-button-<?php echo ( $is_light ? 'black' : 'white' ); ?>">
+				<div class="jp-swiper-button-prev swiper-button-prev">
 					<svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<mask id="maskPrev" mask-type="alpha" maskUnits="userSpaceOnUse" x="8" y="6" width="9" height="12">
 							<path d="M16.2072 16.59L11.6496 12L16.2072 7.41L14.8041 6L8.8335 12L14.8041 18L16.2072 16.59Z" fill="white"/>
@@ -394,7 +394,7 @@ class Jetpack_Carousel {
 						</g>
 					</svg>
 				</div>
-				<div class="jp-swiper-button-next swiper-button-next swiper-button-<?php echo ( $is_light ? 'black' : 'white' ); ?>">
+				<div class="jp-swiper-button-next swiper-button-next">
 					<svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<mask id="maskNext" mask-type="alpha" maskUnits="userSpaceOnUse" x="8" y="6" width="8" height="12">
 							<path d="M8.59814 16.59L13.1557 12L8.59814 7.41L10.0012 6L15.9718 12L10.0012 18L8.59814 16.59Z" fill="white"/>
