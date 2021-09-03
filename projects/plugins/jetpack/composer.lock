@@ -635,16 +635,16 @@
         },
         {
             "name": "automattic/jetpack-heartbeat",
-            "version": "v1.3.9",
+            "version": "v1.3.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-heartbeat.git",
-                "reference": "eb45635854bb755674da4c73793c67a04b6e94a1"
+                "reference": "caade9254cbde292b62b3959547a30a0d80b90da"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-heartbeat/zipball/eb45635854bb755674da4c73793c67a04b6e94a1",
-                "reference": "eb45635854bb755674da4c73793c67a04b6e94a1",
+                "url": "https://api.github.com/repos/Automattic/jetpack-heartbeat/zipball/caade9254cbde292b62b3959547a30a0d80b90da",
+                "reference": "caade9254cbde292b62b3959547a30a0d80b90da",
                 "shasum": ""
             },
             "require": {
@@ -676,9 +676,9 @@
             ],
             "description": "This adds a cronjob that sends a batch of internal automattic stats to wp.com once a day",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-heartbeat/tree/v1.3.9"
+                "source": "https://github.com/Automattic/jetpack-heartbeat/tree/v1.3.10"
             },
-            "time": "2021-08-30T14:19:24+00:00"
+            "time": "2021-09-03T16:20:06+00:00"
         },
         {
             "name": "automattic/jetpack-identity-crisis",
@@ -1215,16 +1215,16 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "v1.26.0",
+            "version": "v1.26.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-sync.git",
-                "reference": "6cfdcc01cfdfa681b5671bacefed09d59ad95408"
+                "reference": "f60b01c93ac9408fd9121bb5bd8a1ba7a6b33dd4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/6cfdcc01cfdfa681b5671bacefed09d59ad95408",
-                "reference": "6cfdcc01cfdfa681b5671bacefed09d59ad95408",
+                "url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/f60b01c93ac9408fd9121bb5bd8a1ba7a6b33dd4",
+                "reference": "f60b01c93ac9408fd9121bb5bd8a1ba7a6b33dd4",
                 "shasum": ""
             },
             "require": {
@@ -1267,9 +1267,9 @@
             ],
             "description": "Everything needed to allow syncing to the WP.com infrastructure.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-sync/tree/v1.26.0"
+                "source": "https://github.com/Automattic/jetpack-sync/tree/v1.26.1"
             },
-            "time": "2021-08-30T14:19:39+00:00"
+            "time": "2021-09-03T16:20:18+00:00"
         },
         {
             "name": "automattic/jetpack-terms-of-service",
