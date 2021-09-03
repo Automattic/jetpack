@@ -1,0 +1,5 @@
+Significance: patch
+Type: bugfix
+Comment: Fixes an issue with transform to tiled gallery block not working for galleries with more than 3 images
+
+
