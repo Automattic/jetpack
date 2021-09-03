@@ -37,13 +37,11 @@ const blockEditorDirectories = [ 'blocks', 'plugins' ];
  * @returns {Array} list of block scripts
  */
 function presetProductionExtensions( type, inputDir, presetBlocks ) {
-	return _.uniq(
-		_.flatten(
-			blockEditorDirectories.map( dir =>
-				presetBlocks.map( block => path.join( inputDir, dir, block, `${ type }.js` ) )
-			)
+	return blockEditorDirectories
+		.flatMap( dir =>
+			presetBlocks.map( block => path.join( inputDir, dir, block, `${ type }.js` ) )
 		)
-	).filter( fs.existsSync );
+		.filter( fs.existsSync );
 }
 
 const presetPath = path.join( path.dirname( __dirname ), 'extensions', 'index.json' );
