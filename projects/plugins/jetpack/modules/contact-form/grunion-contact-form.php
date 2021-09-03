@@ -2886,6 +2886,26 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		$headers = 'From: ' . $comment_author . ' <' . $from_email_addr . ">\r\n" .
 			'Reply-To: ' . $comment_author . ' <' . $reply_to_addr . ">\r\n";
 
+		/**
+		 * Allow customizing the email headers.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 10.2.0
+		 *
+		 * @param string|array $headers        Email headers.
+		 * @param string       $comment_author Name of the author of the submitted feedback, if provided in form.
+		 * @param string       $reply_to_addr  Email of the author of the submitted feedback, if provided in form.
+		 * @param string|array $to             Array of valid email addresses, or single email address, where the form is sent.
+		 */
+		$headers = apply_filters(
+			'jetpack_contact_form_email_headers',
+			$headers,
+			$comment_author,
+			$reply_to_addr,
+			$to
+		);
+
 		$all_values['email_marketing_consent'] = $email_marketing_consent;
 
 		// Build feedback reference
