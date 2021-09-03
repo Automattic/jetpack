@@ -26,6 +26,8 @@ import {
 	reconnectSite,
 	getConnectUrl,
 	getConnectingUserFeatureLabel,
+	isDisconnectFlowActive,
+	disconnectFlowDeactivate,
 } from 'state/connection';
 import {
 	setInitialState,
@@ -51,6 +53,7 @@ import SupportCard from 'components/support-card';
 import AppsCard from 'components/apps-card';
 import NonAdminView from 'components/non-admin-view';
 import JetpackNotices from 'components/jetpack-notices';
+import JetpackDisconnectModal from 'components/jetpack-termination-dialog/disconnect-modal';
 import AdminNotices from 'components/admin-notices';
 import Tracker from 'components/tracker';
 import analytics from 'lib/analytics';
@@ -161,7 +164,8 @@ class Main extends React.Component {
 			nextProps.searchTerm !== this.props.searchTerm ||
 			nextProps.rewindStatus !== this.props.rewindStatus ||
 			nextProps.areThereUnsavedSettings !== this.props.areThereUnsavedSettings ||
-			nextProps.isReconnectingSite !== this.props.isReconnectingSite
+			nextProps.isReconnectingSite !== this.props.isReconnectingSite ||
+			nextProps.isDisconnectFlowActive !== this.props.isDisconnectFlowActive
 		);
 	}
 
@@ -420,6 +424,10 @@ class Main extends React.Component {
 		this.props.history.replace( '/dashboard' );
 	}
 
+	shouldShowDisconnectModal() {
+		return this.props.isSiteConnected && this.props.isDisconnectFlowActive;
+	}
+
 	/**
 	 * Checks if this is the main connection screen page.
 	 *
@@ -480,6 +488,13 @@ class Main extends React.Component {
 				{ this.shouldShowReconnectModal() && (
 					<ReconnectModal show={ true } onHide={ this.closeReconnectModal } />
 				) }
+				{ this.shouldShowDisconnectModal() && (
+					<JetpackDisconnectModal
+						show={ this.props.isDisconnectFlowActive }
+						showSurvey={ false }
+						toggleModal={ this.props.disconnectFlowDeactivate }
+					/>
+				) }
 				{ this.shouldShowMasthead() && <Masthead location={ this.props.location } /> }
 				<div className={ jpClasses.join( ' ' ) }>
 					{ this.shouldShowRewindStatus() && <QueryRewindStatus /> }
@@ -519,6 +534,7 @@ export default connect(
 			userCanConnectSite: userCanConnectSite( state ),
 			isSiteConnected: isSiteConnected( state ),
 			isReconnectingSite: isReconnectingSite( state ),
+			isDisconnectFlowActive: isDisconnectFlowActive( state ),
 			rewindStatus: getRewindStatus( state ),
 			currentVersion: getCurrentVersion( state ),
 			showRecommendations: showRecommendations( state ),
@@ -539,6 +555,9 @@ export default connect(
 		},
 		resetConnectUser: () => {
 			return dispatch( resetConnectUser() );
+		},
+		disconnectFlowDeactivate: () => {
+			return dispatch( disconnectFlowDeactivate() );
 		},
 	} )
 )( withRouter( Main ) );

@@ -16,6 +16,8 @@ import {
 	USER_CONNECTION_DATA_FETCH,
 	USER_CONNECTION_DATA_FETCH_FAIL,
 	USER_CONNECTION_DATA_FETCH_SUCCESS,
+	DISCONNECT_FLOW_ACTIVATE,
+	DISCONNECT_FLOW_DEACTIVATE,
 	DISCONNECT_SITE,
 	DISCONNECT_SITE_FAIL,
 	DISCONNECT_SITE_SUCCESS,
@@ -35,7 +37,10 @@ import {
 } from 'state/modules';
 
 export const status = (
-	state = { siteConnected: window.Initial_State.connectionStatus },
+	state = {
+		siteConnected: window.Initial_State.connectionStatus,
+		disconnectFlowActive: false,
+	},
 	action
 ) => {
 	switch ( action.type ) {
@@ -54,6 +59,12 @@ export const status = (
 			}
 
 			return state;
+
+		case DISCONNECT_FLOW_ACTIVATE:
+			return assign( {}, state, { disconnectFlowActive: true } );
+		case DISCONNECT_FLOW_DEACTIVATE:
+			return assign( {}, state, { disconnectFlowActive: false } );
+
 		default:
 			return state;
 	}
@@ -226,6 +237,16 @@ export function getConnectUrl( state ) {
  */
 export function getConnectedWpComUser( state ) {
 	return state.jetpack.connection.user.currentUser.wpcomUser;
+}
+
+/**
+ * Returns true if the user has initiated the disconnection flow
+ *
+ * @param  {object} state - Global state tree
+ * @returns {boolean}     - True if the disconnection flow should be active
+ */
+export function isDisconnectFlowActive( state ) {
+	return !! state.jetpack.connection.status.disconnectFlowActive;
 }
 
 /**

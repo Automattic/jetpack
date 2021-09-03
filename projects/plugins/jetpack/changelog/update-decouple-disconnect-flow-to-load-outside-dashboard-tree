@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Diconnect Flow: decouple disconnect flow from dashboard component tree

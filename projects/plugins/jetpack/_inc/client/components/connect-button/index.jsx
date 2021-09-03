@@ -20,7 +20,9 @@ import analytics from 'lib/analytics';
 import Button from 'components/button';
 import {
 	getSiteConnectionStatus as _getSiteConnectionStatus,
-	disconnectSite,
+	disconnectFlowActivate,
+	disconnectFlowDeactivate,
+	isDisconnectFlowActive as _isDisconnectFlowActive,
 	isDisconnectingSite as _isDisconnectingSite,
 	isFetchingConnectUrl as _isFetchingConnectUrl,
 	getConnectUrl as _getConnectUrl,
@@ -32,7 +34,6 @@ import {
 } from 'state/connection';
 import { getSiteRawUrl, isSafari, doNotUseConnectionIframe } from 'state/initial-state';
 import onKeyDownCallback from 'utils/onkeydown-callback';
-import JetpackDisconnectModal from 'components/jetpack-termination-dialog/disconnect-modal';
 
 import './style.scss';
 
@@ -68,16 +69,17 @@ export class ConnectButton extends React.Component {
 	handleOpenModal = e => {
 		analytics.tracks.recordJetpackClick( 'manage_site_connection' );
 		e.preventDefault();
-		this.toggleVisibility();
-	};
 
-	disconnectSite = () => {
 		this.toggleVisibility();
-		this.props.disconnectSite();
 	};
 
 	toggleVisibility = () => {
-		this.setState( { showModal: ! this.state.showModal } );
+		if ( this.props.isDisconnectFlowActive ) {
+			this.props.disconnectFlowDeactivate();
+			return;
+		}
+
+		this.props.disconnectFlowActivate();
 	};
 
 	loadIframe = e => {
@@ -224,11 +226,6 @@ export class ConnectButton extends React.Component {
 				) }
 				{ this.renderContent() }
 				{ this.props.children }
-				<JetpackDisconnectModal
-					show={ this.state.showModal }
-					showSurvey={ false }
-					toggleModal={ this.toggleVisibility }
-				/>
 			</div>
 		);
 	}
@@ -240,6 +237,7 @@ export default connect(
 			siteRawUrl: getSiteRawUrl( state ),
 			isSiteConnected: _getSiteConnectionStatus( state ),
 			isDisconnecting: _isDisconnectingSite( state ),
+			isDisconnectFlowActive: _isDisconnectFlowActive( state ),
 			fetchingConnectUrl: _isFetchingConnectUrl( state ),
 			connectUrl: _getConnectUrl( state ),
 			isLinked: _isCurrentUserLinked( state ),
@@ -251,14 +249,17 @@ export default connect(
 	},
 	dispatch => {
 		return {
-			disconnectSite: () => {
-				return dispatch( disconnectSite() );
-			},
 			unlinkUser: () => {
 				return dispatch( unlinkUser() );
 			},
 			doConnectUser: () => {
 				return dispatch( _connectUser() );
+			},
+			disconnectFlowActivate: () => {
+				return dispatch( disconnectFlowActivate() );
+			},
+			disconnectFlowDeactivate: () => {
+				return dispatch( disconnectFlowDeactivate() );
 			},
 		};
 	}

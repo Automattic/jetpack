@@ -16,6 +16,8 @@ import {
 	USER_CONNECTION_DATA_FETCH,
 	USER_CONNECTION_DATA_FETCH_FAIL,
 	USER_CONNECTION_DATA_FETCH_SUCCESS,
+	DISCONNECT_FLOW_ACTIVATE,
+	DISCONNECT_FLOW_DEACTIVATE,
 	DISCONNECT_SITE,
 	DISCONNECT_SITE_FAIL,
 	DISCONNECT_SITE_SUCCESS,
@@ -122,6 +124,25 @@ export const fetchUserConnectionData = () => {
 					error: error,
 				} );
 			} );
+	};
+};
+
+// asking that a site be disconnected
+// used to show the disconnection flow
+export const disconnectFlowActivate = () => {
+	return dispatch => {
+		dispatch( {
+			type: DISCONNECT_FLOW_ACTIVATE,
+		} );
+	};
+};
+
+// used to manage the disconnection modal
+export const disconnectFlowDeactivate = () => {
+	return dispatch => {
+		dispatch( {
+			type: DISCONNECT_FLOW_DEACTIVATE,
+		} );
 	};
 };
 
