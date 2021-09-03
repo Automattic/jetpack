@@ -1,4 +1,10 @@
 import classnames from 'classnames';
+import { SocialServiceIcon } from '../../../icons';
+
+/**
+ * Style dependencies
+ */
+import './style.scss';
 
 type PublicizeIconProps = {
 	className: string;
@@ -6,6 +12,7 @@ type PublicizeIconProps = {
 	id: string;
 	disabled: boolean;
 	onChange: React.ChangeEventHandler;
+	serviceName: string;
 };
 
 /**
@@ -14,17 +21,17 @@ type PublicizeIconProps = {
  * @returns
  */
 const PublicizeIcon: React.FC< PublicizeIconProps > = props => {
-	const { className, checked, id, disabled, onChange } = props;
+	const { className, checked, id, disabled, onChange, serviceName } = props;
 
 	const wrapperClasses = classnames( 'components-publicize-icon', className, {
-		'is-checked': checked,
+		'is-not-checked': ! checked,
 		'is-disabled': disabled,
 	} );
 
 	return (
 		<span className={ wrapperClasses }>
 			<input
-				className="components-publicize-icon"
+				className="components-publicize-icon__input"
 				id={ id }
 				type="checkbox"
 				checked={ checked }
@@ -32,8 +39,10 @@ const PublicizeIcon: React.FC< PublicizeIconProps > = props => {
 				disabled={ disabled }
 				{ ...props }
 			/>
-			<span className="components-publicize-icon__track"></span>
-			<span className="components-publicize-icon__thumb"></span>
+			<SocialServiceIcon
+				serviceName={ serviceName }
+				className="jetpack-publicize-gutenberg-social-icon"
+			/>
 		</span>
 	);
 };
