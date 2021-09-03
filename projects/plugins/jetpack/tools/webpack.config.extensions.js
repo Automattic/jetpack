@@ -29,7 +29,7 @@ const viewSetup = path.join( path.dirname( __dirname ), 'extensions', 'view' );
 const blockEditorDirectories = [ 'blocks', 'plugins' ];
 
 /**
- * Filters block block scripts
+ * Filters block editor scripts
  *
  * @param {string} type - script type
  * @param {string} inputDir - input directory
