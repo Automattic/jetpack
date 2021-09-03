@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add new API endpoint to fetch Activity Log data for a site.

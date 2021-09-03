@@ -440,3 +440,56 @@
 	width: 100%;
 	margin-bottom: 0;
 }
+
+.jp-dash-activity__list {
+	max-height: 90px;
+	overflow-y: scroll;
+	margin: -10px 0;
+
+	li {
+		margin-bottom: 16px;
+		display: flex;
+	}
+
+	img {
+		width: 16px;
+		height: 16px;
+		border-radius: 9em;
+		display: inline-block;
+		margin-right: 8px;
+		vertical-align: middle;
+	}
+}
+
+.jp-dash-activity__date-time {
+	min-width: 50px;
+	font-size: 11px;
+	margin: 3px 14px 0 0;
+	text-align: right;
+	display: flex;
+	flex-direction: column;
+}
+
+.jp-dash-activity__time {
+	color: #999;
+}
+
+.jp-dash-activity__details {
+	color: #999;
+	display: flex;
+}
+
+.jp-dash-activity__summary {
+	text-transform: uppercase;
+	font-size: 11px;
+	letter-spacing: .5px;
+}
+
+.jp-dash-activity__event {
+	margin-bottom: 8px;
+}
+
+.jp-dash-activity__actor {
+	font-size: 12px;
+	margin-right: 16px;
+}

@@ -56,6 +56,7 @@ import Tracker from 'components/tracker';
 import analytics from 'lib/analytics';
 import restApi from '@automattic/jetpack-api';
 import QueryRewindStatus from 'components/data/query-rewind-status';
+import QuerySiteActivity from 'components/data/query-site-activity';
 import { getRewindStatus } from 'state/rewind';
 import ReconnectModal from 'components/reconnect-modal';
 import { createInterpolateElement } from '@wordpress/element';
@@ -394,6 +395,11 @@ class Main extends React.Component {
 		return this.props.isSiteConnected && dashboardRoutes.includes( this.props.location.pathname );
 	}
 
+	shouldShowActivityLog() {
+		// Only show on the dashboard
+		return this.props.isSiteConnected && dashboardRoutes.includes( this.props.location.pathname );
+	}
+
 	shouldShowMasthead() {
 		// Only show on the setup pages, dashboard, and settings page
 		return [ ...dashboardRoutes, ...recommendationsRoutes, ...settingsRoutes ].includes(
@@ -483,6 +489,7 @@ class Main extends React.Component {
 				{ this.shouldShowMasthead() && <Masthead location={ this.props.location } /> }
 				<div className={ jpClasses.join( ' ' ) }>
 					{ this.shouldShowRewindStatus() && <QueryRewindStatus /> }
+					{ this.shouldShowActivityLog() && <QuerySiteActivity /> }
 					<AdminNotices />
 					<JetpackNotices />
 					{ this.shouldConnectUser() && this.connectUser() }
