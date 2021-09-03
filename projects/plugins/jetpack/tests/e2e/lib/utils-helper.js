@@ -189,7 +189,7 @@ function getConfigTestSite() {
 
 function getSiteCredentials() {
 	const site = getConfigTestSite();
-	return { username: site.username, password: site.password };
+	return { username: site.username, password: site.password, apiPassword: site.apiPassword };
 }
 
 function getDotComCredentials() {
