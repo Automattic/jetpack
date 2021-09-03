@@ -7,11 +7,6 @@
  */
 
 /**
- * This is the fallback payload md5 value, and will be used if there's no other translations available.
- * TODO: Remembers recent translations files and use them as fallbacks.
- */
-
-/**
  * Class to load Instant Search experience on the site.
  *
  * @since 8.3.0
@@ -133,12 +128,11 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		$this->load_and_initialize_tracks();
 		$this->inject_javascript_options();
 
-			// Because WPCOM is deployed on-going, so the strings in the payload are not translated.
-			// The work-around is to load the translations from a Jetpack release.
-			$this->inject_payload_translation_for(
-				plugin_dir_url( JETPACK__PLUGIN_FILE )
-				. '_inc/build/instant-search/jp-search.chunk-main-payload.min.js'
-			);
+		// It only inline the translations for the script, but does not load it.
+		$this->inject_translation_for_script(
+			plugin_dir_url( JETPACK__PLUGIN_FILE )
+			. '_inc/build/instant-search/jp-search.chunk-main-payload.min.js'
+		);
 	}
 
 	/**
@@ -147,7 +141,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 * @param string $payload_url - The payload url for which we load the translations.
 	 * @param string $before_handle - Inline the translations before this handle.
 	 */
-	protected function inject_payload_translation_for( $payload_url, $before_handle = 'jetpack-instant-search' ) {
+	protected function inject_translation_for_script( $payload_url, $before_handle = 'jetpack-instant-search' ) {
 		// Set a random name for the script.
 		$handle = 'jetpack-instant-search' . wp_unique_id();
 		// Then register it, which is required for the next steps.
