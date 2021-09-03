@@ -67,21 +67,18 @@ export default class MailchimpBlock extends PageActions {
 			let count = 0;
 			while ( ! done ) {
 				try {
-					count++;
-					await ConnectionsPage.init( wpComTab );
-					await wpComTab.reload( { waitUntil: 'domcontentloaded' } );
-
 					const wpComConnectionsPage = await ConnectionsPage.init( wpComTab );
 					await wpComConnectionsPage.selectMailchimpList();
 					done = true;
 				} catch ( e ) {
+					if ( count > 4 ) {
+						throw new Error( `Mailchimp connection failed after ${ count } attempts` );
+					}
 					logger.warn(
 						'Mailchimp connection failed. Attempt: ' + count + '; URL: ' + connectionsUrl
 					);
+					count++;
 					await wpComTab.goto( connectionsUrl );
-					if ( count > 4 ) {
-						throw new Error( `Mailchimp connection failed after ${ count + 1 } attempts` );
-					}
 				}
 			}
 
