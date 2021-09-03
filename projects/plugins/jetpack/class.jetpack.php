@@ -3853,7 +3853,6 @@ p {
 				$jetpack_home,
 				array( 'settings' => sprintf( '<a href="%s">%s</a>', self::admin_url( 'page=jetpack#/settings' ), __( 'Settings', 'jetpack' ) ) ),
 				array( 'support' => sprintf( '<a href="%s">%s</a>', self::admin_url( 'page=jetpack-debugger ' ), __( 'Support', 'jetpack' ) ) ),
-				array( 'support' => sprintf( '<a href="#" id="jetpack-plugin-deactivate-link" data-deactivation-nonce="">%s</a>', __( 'Test Deactivate', 'jetpack' ) ) ),
 				$actions
 			);
 		}
@@ -3878,24 +3877,28 @@ p {
 
 			if ( count( $active_plugins_using_connection ) > 1 ) {
 
-				add_thickbox();
-
 				// Register jp-tracks-functions dependency.
 				Tracking::register_tracks_functions_scripts();
 
+				// add a deactivation script that will pick up deactivation actions for the Jetpack plugin.
+				$script_deps_path    = JETPACK__PLUGIN_DIR . '_inc/build/admin-portal.asset.php';
+				$script_dependencies = array( 'wp-polyfill' );
+				if ( file_exists( $script_deps_path ) ) {
+					$asset_manifest      = include $script_deps_path;
+					$script_dependencies = $asset_manifest['dependencies'];
+				}
+
 				wp_enqueue_script(
-					'jetpack-deactivate-dialog-js',
-					Assets::get_file_url_for_environment(
-						'_inc/build/jetpack-deactivate-dialog.min.js',
-						'_inc/jetpack-deactivate-dialog.js'
-					),
-					array( 'jquery', 'jp-tracks-functions' ),
+					'jetpack-plugin-portal-js',
+					plugins_url( '_inc/build/admin-portal.js', JETPACK__PLUGIN_FILE ),
+					$script_dependencies,
 					JETPACK__VERSION,
 					true
 				);
 
+				// load this on pages where needed.
 				wp_localize_script(
-					'jetpack-deactivate-dialog-js',
+					'jetpack-plugin-portal-js',
 					'deactivate_dialog',
 					array(
 						'title'            => __( 'Deactivate Jetpack', 'jetpack' ),
@@ -3904,34 +3907,15 @@ p {
 					)
 				);
 
-				add_action( 'admin_footer', array( $this, 'deactivate_dialog_content' ) );
-
-				wp_enqueue_style( 'jetpack-deactivate-dialog', plugins_url( 'css/jetpack-deactivate-dialog.css', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
-
-				// -- add a deactivation script that will pick up deactivation actions for the Jetpack plugin
-				$script_deps_path    = JETPACK__PLUGIN_DIR . '_inc/build/plugin-deactivate.asset.php';
-				$script_dependencies = array( 'wp-polyfill' );
-				if ( file_exists( $script_deps_path ) ) {
-					$asset_manifest      = include $script_deps_path;
-					$script_dependencies = $asset_manifest['dependencies'];
-				}
-
-				wp_enqueue_script(
-					'jetpack-plugin-deactivate-js',
-					plugins_url( '_inc/build/plugin-deactivate.js', JETPACK__PLUGIN_FILE ),
-					$script_dependencies,
-					JETPACK__VERSION,
-					true
-				);
-
-				wp_set_script_translations( 'jetpack-plugin-deactivate-js', 'jetpack' );
+				wp_set_script_translations( 'jetpack-plugin-portal-js', 'jetpack' );
 
 				// Add objects to be passed to the initial state of the app.
 				// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
-				wp_add_inline_script( 'jetpack-plugin-deactivate-js', 'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Jetpack_Redux_State_Helper::get_initial_state() ) ) . '"));', 'before' );
+				wp_add_inline_script( 'jetpack-plugin-portal-js', 'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Jetpack_Redux_State_Helper::get_initial_state() ) ) . '"));', 'before' );
 
 				add_action( 'admin_print_styles', array( $this, 'admin_banner_styles' ) );
-				add_action( 'admin_footer', array( $this, 'test_deactivate_dialog_content' ) );
+				// may be able to add this more generally where React entrypoints are needed.
+				add_action( 'admin_footer', array( $this, 'jetpack_plugin_portal_content' ) );
 			}
 		}
 	}
@@ -3953,8 +3937,8 @@ p {
 	 *
 	 * @return void
 	 */
-	public function test_deactivate_dialog_content() {
-		$this->load_view( 'admin/test-deactivation-dialog.php' );
+	public function jetpack_plugin_portal_content() {
+		$this->load_view( 'admin/jetpack-plugin-portal.php' );
 	}
 
 	/**
