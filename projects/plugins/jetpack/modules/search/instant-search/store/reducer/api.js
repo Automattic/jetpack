@@ -55,7 +55,7 @@ export function response( state = {}, action ) {
 				return state;
 			}
 
-			const newState = { ...action.response };
+			const newState = { ...action.response, cachedAggregations: state.cachedAggregations ?? {} };
 			// For paginated results, merge previous search results with new search results.
 			if ( action.options.pageHandle ) {
 				newState.aggregations = {
@@ -70,19 +70,22 @@ export function response( state = {}, action ) {
 			if ( Array.isArray( newState.results ) && newState.results.length > newState.total ) {
 				newState.total = newState.results.length;
 			}
+
+			// If it's a new search - not pagination requests
+			// - we cache the query aggregations if there are results
+			// - we use the cache to show filters if there are not results
 			if ( ! action.options.pageHandle ) {
-				// cachedAggregations is used to cache the aggregations object.
-				newState.cachedAggregations = mergeCachedAggregations(
-					state.cachedAggregations,
-					newState.aggregations
-				);
-				// If there is no result to show and there are filter keys in URL, we show the cached aggregations.
-				if ( ! newState.results?.length > 0 ) {
-					//&& doesUrlContainFilterKeys( location.href )
-					newState.aggregations = newState.cachedAggregations || {};
+				if ( newState.total > 0 ) {
+					// cachedAggregations is used to cache the aggregations object.
+					newState.cachedAggregations = mergeCachedAggregations(
+						state.cachedAggregations,
+						newState.aggregations
+					);
+				} else {
+					// If there is no result to show, we show the cached aggregations.
+					newState.aggregations = newState.cachedAggregations;
 				}
 			}
-
 			return newState;
 		}
 	}
