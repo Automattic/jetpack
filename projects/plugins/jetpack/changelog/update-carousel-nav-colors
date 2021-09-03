@@ -1,4 +1,5 @@
 Significance: patch
-Type: enhancement
+Type: other
+Comment: correct load order of Swiper/JP CSS.
 
-Carousel: change prev/next nav button color to match with selected color scheme.
+
