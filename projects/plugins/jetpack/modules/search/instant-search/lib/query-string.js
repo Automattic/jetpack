@@ -96,17 +96,3 @@ export function restorePreviousHref( initialHref, callback, replaceState = false
 		callback();
 	}
 }
-
-/**
- * Returns true if there are filter keys in the URL.
- *
- * @param {string} href - URL to test
- * @returns {boolean} whether the Url contain filters.
- */
-export function doesUrlContainFilterKeys( href ) {
-	const filterKeys = getFilterKeys();
-	const url = new URL( href );
-	const queryObject = getQuery( url.search );
-
-	return Object.keys( queryObject ).some( key => filterKeys.includes( key ) );
-}
