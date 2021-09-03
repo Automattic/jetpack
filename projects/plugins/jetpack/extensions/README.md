@@ -9,7 +9,7 @@ We define different types of block editor extensions:
 
 ### Blocks
 Blocks are available in the editor itself.
-Located into the `./blocks` folder.
+Located in the `./blocks` folder.
 
 ### Extended blocks
 Blocks, usually core blocks, extended by Jetpack plugin.
