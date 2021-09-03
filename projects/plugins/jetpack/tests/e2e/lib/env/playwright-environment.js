@@ -175,7 +175,7 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 		await page.close();
 
 		if ( page && saveVideo ) {
-			await page.waitForTimeout( 100 );
+			await page.waitForTimeout( 1 );
 			const videoName = fileNameFormatter( `${ eventName }.webm`, true );
 			const videoPath = `${ config.get( 'dirs.videos' ) }/${ videoName }`;
 
