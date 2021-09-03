@@ -6,7 +6,7 @@ import { combineReducers } from 'redux';
 /**
  * Internal dependencies
  */
-import { hasError, isLoading, response, cachedAggregations } from './api';
+import { hasError, isLoading, response } from './api';
 import { staticFilters, filters, searchQuery, sort } from './query-string';
 import { serverOptions } from './server-options';
 import { isHistoryNavigation } from './history';
@@ -21,7 +21,6 @@ export {
 	searchQuery,
 	serverOptions,
 	sort,
-	cachedAggregations,
 };
 export default combineReducers( {
 	filters,
@@ -33,5 +32,4 @@ export default combineReducers( {
 	searchQuery,
 	serverOptions,
 	sort,
-	cachedAggregations,
 } );

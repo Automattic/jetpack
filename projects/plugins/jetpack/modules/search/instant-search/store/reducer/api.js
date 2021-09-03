@@ -1,9 +1,4 @@
 /**
- * Internal Dependencies
- */
-import { isEmpty } from 'lodash';
-
-/**
  * Reducer for recording if the previous search request yielded an error.
  *
  * @param {object} state - Current state.
@@ -82,7 +77,7 @@ export function response( state = {}, action ) {
 					newState.aggregations
 				);
 				// If there is no result to show and there are filter keys in URL, we show the cached aggregations.
-				if ( isEmpty( newState.results ) ) {
+				if ( ! newState.results?.length > 0 ) {
 					//&& doesUrlContainFilterKeys( location.href )
 					newState.aggregations = newState.cachedAggregations || {};
 				}
@@ -92,21 +87,6 @@ export function response( state = {}, action ) {
 		}
 	}
 
-	return state;
-}
-
-/**
- * Reducer for clearing cached aggregations.
- *
- * @param {object} state - Current state.
- * @param {object} action - Dispatched action.
- * @returns {object} Updated state.
- */
-export function cachedAggregations( state = {}, action ) {
-	switch ( action.type ) {
-		case 'CLEAR_AGGREGATIONS_CACHE':
-			return { ...state, cachedAggregations: {} };
-	}
 	return state;
 }
 
