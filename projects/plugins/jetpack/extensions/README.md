@@ -13,7 +13,7 @@ Located into the `./blocks` folder.
 
 ### Extended blocks
 Blocks, usually core blocks, extended by Jetpack plugin.
-Located into the `./extended-blocks` folder.
+Located in the `./extended-blocks` folder.
 
 ### Plugins
 Core Editor [plugins](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-plugins/), 
