@@ -123,6 +123,13 @@ class Table_Checksum {
 	private $table_join_field = null;
 
 	/**
+	 * Some tables might not exist on the remote, and we want to verify they exist, before trying to query them.
+	 *
+	 * @var callable
+	 */
+	private $is_table_enabled_callback = false;
+
+	/**
 	 * Table_Checksum constructor.
 	 *
 	 * @param string  $table The table to calculate checksums for.
@@ -156,6 +163,13 @@ class Table_Checksum {
 
 		$this->prepare_fields( $this->table_configuration );
 
+		// Run any callbacks to check if a table is enabled or not.
+		if (
+			is_callable( $this->is_table_enabled_callback )
+			&& ! call_user_func( $this->is_table_enabled_callback, $table )
+		) {
+			throw new Exception( "Unable to use table name: $table" );
+		}
 	}
 
 	/**
@@ -248,21 +262,23 @@ class Table_Checksum {
 			'links'                      => $wpdb->links, // TODO describe in the array format or add exceptions.
 			'options'                    => $wpdb->options, // TODO describe in the array format or add exceptions.
 			'woocommerce_order_items'    => array(
-				'table'                => "{$wpdb->prefix}woocommerce_order_items",
-				'range_field'          => 'order_item_id',
-				'key_fields'           => array( 'order_item_id' ),
-				'checksum_fields'      => array( 'order_id' ),
-				'checksum_text_fields' => array( 'order_item_name', 'order_item_type' ),
+				'table'                     => "{$wpdb->prefix}woocommerce_order_items",
+				'range_field'               => 'order_item_id',
+				'key_fields'                => array( 'order_item_id' ),
+				'checksum_fields'           => array( 'order_id' ),
+				'checksum_text_fields'      => array( 'order_item_name', 'order_item_type' ),
+				'is_table_enabled_callback' => array( $this, 'enable_woocommerce_tables' ),
 			),
 			'woocommerce_order_itemmeta' => array(
-				'table'                => "{$wpdb->prefix}woocommerce_order_itemmeta",
-				'range_field'          => 'order_item_id',
-				'key_fields'           => array( 'order_item_id', 'meta_key' ),
-				'checksum_text_fields' => array( 'meta_key', 'meta_value' ),
-				'filter_values'        => Sync\Settings::get_allowed_order_itemmeta_structured(),
-				'parent_table'         => 'woocommerce_order_items',
-				'parent_join_field'    => 'order_item_id',
-				'table_join_field'     => 'order_item_id',
+				'table'                     => "{$wpdb->prefix}woocommerce_order_itemmeta",
+				'range_field'               => 'order_item_id',
+				'key_fields'                => array( 'order_item_id', 'meta_key' ),
+				'checksum_text_fields'      => array( 'meta_key', 'meta_value' ),
+				'filter_values'             => Sync\Settings::get_allowed_order_itemmeta_structured(),
+				'parent_table'              => 'woocommerce_order_items',
+				'parent_join_field'         => 'order_item_id',
+				'table_join_field'          => 'order_item_id',
+				'is_table_enabled_callback' => array( $this, 'enable_woocommerce_tables' ),
 			),
 		);
 	}
@@ -273,15 +289,16 @@ class Table_Checksum {
 	 * @param array $table_configuration The table configuration array.
 	 */
 	private function prepare_fields( $table_configuration ) {
-		$this->key_fields            = $table_configuration['key_fields'];
-		$this->range_field           = $table_configuration['range_field'];
-		$this->checksum_fields       = isset( $table_configuration['checksum_fields'] ) ? $table_configuration['checksum_fields'] : array();
-		$this->checksum_text_fields  = isset( $table_configuration['checksum_text_fields'] ) ? $table_configuration['checksum_text_fields'] : array();
-		$this->filter_values         = isset( $table_configuration['filter_values'] ) ? $table_configuration['filter_values'] : null;
-		$this->additional_filter_sql = ! empty( $table_configuration['filter_sql'] ) ? $table_configuration['filter_sql'] : '';
-		$this->parent_table          = isset( $table_configuration['parent_table'] ) ? $table_configuration['parent_table'] : null;
-		$this->parent_join_field     = isset( $table_configuration['parent_join_field'] ) ? $table_configuration['parent_join_field'] : $table_configuration['range_field'];
-		$this->table_join_field      = isset( $table_configuration['table_join_field'] ) ? $table_configuration['table_join_field'] : $table_configuration['range_field'];
+		$this->key_fields                = $table_configuration['key_fields'];
+		$this->range_field               = $table_configuration['range_field'];
+		$this->checksum_fields           = isset( $table_configuration['checksum_fields'] ) ? $table_configuration['checksum_fields'] : array();
+		$this->checksum_text_fields      = isset( $table_configuration['checksum_text_fields'] ) ? $table_configuration['checksum_text_fields'] : array();
+		$this->filter_values             = isset( $table_configuration['filter_values'] ) ? $table_configuration['filter_values'] : null;
+		$this->additional_filter_sql     = ! empty( $table_configuration['filter_sql'] ) ? $table_configuration['filter_sql'] : '';
+		$this->parent_table              = isset( $table_configuration['parent_table'] ) ? $table_configuration['parent_table'] : null;
+		$this->parent_join_field         = isset( $table_configuration['parent_join_field'] ) ? $table_configuration['parent_join_field'] : $table_configuration['range_field'];
+		$this->table_join_field          = isset( $table_configuration['table_join_field'] ) ? $table_configuration['table_join_field'] : $table_configuration['range_field'];
+		$this->is_table_enabled_callback = isset( $table_configuration['is_table_enabled_callback'] ) ? $table_configuration['is_table_enabled_callback'] : false;
 	}
 
 	/**
@@ -300,8 +317,6 @@ class Table_Checksum {
 		if ( ! array_key_exists( $table, $this->allowed_tables ) ) {
 			throw new Exception( "Invalid table name: $table not allowed" );
 		}
-
-		// TODO other checks if such are needed.
 
 		return $this->allowed_tables[ $table ]['table'];
 	}
@@ -749,4 +764,37 @@ class Table_Checksum {
 			return $this->prepare_results_for_output( $result );
 		}
 	}
+
+	/**
+	 * Make sure the WooCommerce tables should be enabled for Checksum/Fix.
+	 *
+	 * @return bool
+	 */
+	private function enable_woocommerce_tables() {
+		/**
+		 * On WordPress.com, we can't directly check if the site has support for WooCommerce.
+		 * Having the option to override the functionality here helps with syncing WooCommerce tables.
+		 *
+		 * @since 10.1
+		 *
+		 * @param bool If we should we force-enable WooCommerce tables support.
+		 */
+		$force_woocommerce_support = apply_filters( 'jetpack_table_checksum_force_enable_woocommerce', false );
+
+		// If we're forcing WooCommerce tables support, there's no need to check further.
+		// This is used on WordPress.com.
+		if ( $force_woocommerce_support ) {
+			return true;
+		}
+
+		// No need to proceed if WooCommerce is not available.
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			return false;
+		}
+
+		// TODO more checks if needed. Probably query the DB to make sure the tables exist.
+
+		return true;
+	}
+
 }
