@@ -10,7 +10,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
-import { Disabled, FormToggle, Notice, ExternalLink } from '@wordpress/components';
+import { Disabled, Notice, ExternalLink } from '@wordpress/components';
 import { withSelect } from '@wordpress/data';
 import { includes } from 'lodash';
 
@@ -67,11 +67,12 @@ class PublicizeConnection extends Component {
 		const serviceName = name.replace( '_', '-' );
 
 		let toggle = (
-			<FormToggle
+			<PublicizeIcon
 				id={ fieldId }
 				className="jetpack-publicize-connection-toggle"
 				checked={ enabled }
 				onChange={ this.onConnectionChange }
+				serviceName={ serviceName }
 			/>
 		);
 
