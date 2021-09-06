@@ -146,7 +146,11 @@ function checkFileAgainstDirtyList( file, filesList ) {
  */
 function capturePreCommitTreeHash() {
 	if ( exitCode === 0 ) {
-		fs.writeFileSync( '.git/last-commit-tree', execSync( 'git write-tree' ) );
+		const dataDir = '.git-hook-data';
+		if ( ! fs.existsSync( dataDir ) ) {
+			fs.mkdirSync( dataDir );
+		}
+		fs.writeFileSync( `${ dataDir }/last-commit-tree`, execSync( 'git write-tree' ) );
 	}
 }
 
