@@ -140,6 +140,23 @@ const componentsWebpackConfig = getBaseWebpackConfig(
 	}
 );
 
+/**
+ * Calyso Build sets publicPath to '/' instead of the default '__webpack_public_path__'
+ * This workaround removes the custom set publicPath from Calypso build until a long term solution is fixed.
+ *
+ * @param {object} obj - the configuration file we're checking and editing.
+ * @todo remove once we switch away from Calypso Build, or if this is addressed later.
+ */
+function hackBrokenCalypsoBuildFileConfig( obj ) {
+	obj.module.rules.forEach( v => {
+		if ( v.type === 'asset/resource' ) {
+			delete v.generator.publicPath;
+		}
+	} );
+}
+hackBrokenCalypsoBuildFileConfig( extensionsWebpackConfig );
+hackBrokenCalypsoBuildFileConfig( componentsWebpackConfig );
+
 // We export two configuration files: One for admin.js, and one for components.jsx.
 // The latter produces pre-rendered components HTML.
 module.exports = [
