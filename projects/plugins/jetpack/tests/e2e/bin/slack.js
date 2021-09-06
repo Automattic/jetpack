@@ -326,13 +326,24 @@ function buildDefaultMessage( isSuccess, forceHeaderText = undefined ) {
 		},
 	];
 
-	if ( ! gh.pr && ! isSuccess && gh.branch.name === config.get( 'repository.mainBranch' ) ) {
-		const mentions = config
-			.get( 'slack.mentions' )
-			.map( function ( userId ) {
-				return ` <@${ userId }>`;
-			} )
-			.join( ' ' );
+	// mention interested parties
+	let handles = [];
+
+	for ( const branchEntry of config.get( 'slack.mentions.branches' ) ) {
+		if ( gh.branch.name === branchEntry.name ) {
+			handles = handles.concat( branchEntry.users );
+		}
+	}
+
+	for ( const reportEntry of config.get( 'slack.mentions.reports' ) ) {
+		if ( yargs.argv.report === reportEntry.name ) {
+			handles = handles.concat( reportEntry.users );
+		}
+	}
+
+	if ( handles.length > 0 && ! isSuccess ) {
+		// Create a single string of unique Slack handles
+		const mentions = [ ...new Set( handles ) ].join( ' ' );
 
 		blocks.push(
 			{

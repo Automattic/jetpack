@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+E2E tests: support user mentions in Slack based on report name and branch name
