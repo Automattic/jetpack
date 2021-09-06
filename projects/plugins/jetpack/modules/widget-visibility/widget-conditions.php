@@ -320,17 +320,17 @@ class Jetpack_Widget_Conditions {
 	}
 
 	/**
-	 * Retrieves a full list of all pages, containing just the IDs, post_parent, and post_title fields.
+	 * Retrieves a full list of all pages, containing just the IDs, post_parent, post_title, and post_status fields.
 	 *
 	 * Since the WordPress' `get_pages` function does not allow us to fetch only the fields mentioned
 	 * above, we need to introduce a custom method using a direct SQL query fetching those.
 	 *
-	 * By fetching only those 3 fields and not populating the object cache for all the pages, we can
+	 * By fetching only those four fields and not populating the object cache for all the pages, we can
 	 * improve the performance of the query on sites having a lot of pages.
 	 *
 	 * @see https://core.trac.wordpress.org/ticket/51469
 	 *
-	 * @return array List of all pages on the site (stdClass objects containing ID, post_title, and post_parent only).
+	 * @return array List of all pages on the site (stdClass objects containing ID, post_title, post_parent, and post_status only).
 	 */
 	public static function get_pages() {
 		global $wpdb;
@@ -369,7 +369,7 @@ class Jetpack_Widget_Conditions {
 		 *
 		 * @module widget-visibility
 		 *
-		 * @param stdClass[] $pages       Array of objects containing only the ID, post_parent, and post_title fields.
+		 * @param stdClass[] $pages       Array of objects containing only the ID, post_parent, post_title, and post_status fields.
 		 * @param array      $parsed_args Array of get_pages() arguments.
 		 */
 		return apply_filters( 'jetpack_widget_visibility_get_pages', $pages, $parsed_args );
