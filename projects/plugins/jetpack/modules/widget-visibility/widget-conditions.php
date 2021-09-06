@@ -339,7 +339,7 @@ class Jetpack_Widget_Conditions {
 		$cache_key    = "get_pages:$last_changed";
 		$pages        = wp_cache_get( $cache_key, 'widget_conditions' );
 		if ( false === $pages ) {
-			$pages = $wpdb->get_results( "SELECT {$wpdb->posts}.ID, {$wpdb->posts}.post_parent, {$wpdb->posts}.post_title FROM {$wpdb->posts} WHERE {$wpdb->posts}.post_type = 'page' AND {$wpdb->posts}.post_status = 'publish' ORDER BY {$wpdb->posts}.post_title ASC" );
+			$pages = $wpdb->get_results( "SELECT {$wpdb->posts}.ID, {$wpdb->posts}.post_parent, {$wpdb->posts}.post_title, {$wpdb->posts}.post_status FROM {$wpdb->posts} WHERE {$wpdb->posts}.post_type = 'page' AND {$wpdb->posts}.post_status = 'publish' ORDER BY {$wpdb->posts}.post_title ASC" );
 			wp_cache_set( $cache_key, $pages, 'widget_conditions' );
 		}
 
