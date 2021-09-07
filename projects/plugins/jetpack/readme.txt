@@ -242,7 +242,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.1-beta - 2021-08-31
+### 10.1 - 2021-09-07
 #### Major Enhancements
 - Search: add a Gutenberg powered customization interface.
 
@@ -252,9 +252,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Carousel: use photo description as caption if caption and title fields are blank.
 - Form Block: scroll to subscription message after submitting the form.
 - Jetpack Assistant: introduce a new "Product Suggestion" step to inform new users of relevant Jetpack services.
-- Search: visual, functional, and accessibility improvements to new wp-admin section and customization interface.
 - Search: greater theme compatibility, including label coloring and custom checkbox margins.
 - Search: improves handling of breadcrumb display.
+- Search: visual, functional, and accessibility improvements to new wp-admin section and customization interface.
 - Secure Sign On: remove additional redirect during sign in process.
 - Shortcodes: allow wrapping quizzes together with the Quiz shortcode.
 - Spotify Shortcode: add lazy loading support.
@@ -270,6 +270,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Related Posts: allow shortcodes in Related Posts titles.
 
 #### Bug fixes
+- Blocks: fix HTML markup of buttons added to blocks.
 - Carousel: fix a bug that changes the cursor to a pointer over all nested blocks.
 - Carousel: fix bug preventing user from swiping in gallery when images are configured to link to Attachment Page.
 - Carousel: hide UI controls in the carousel for single images.
@@ -280,9 +281,13 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Facebook Page Widget: fix a bug that prevented widget from being added in the wp-admin widget editor.
 - Form Block: fix form button alignment in editor.
 - Instant Search: ensure box-shadow and text-shadow aren't applied to search buttons.
-- Search: fix various issues with scrolling on both desktop and mobile devices.
 - Search: fix search widgets not saving in block widget editor.
+- Search: fix various issues with scrolling on both desktop and mobile devices.
+- Search: fix wrapping issue on super wide screens.
+- Search: hide search sub menu on site disconnection.
+- Search: improve style specificity for result highlights in Customberg.
 - Slideshow Block: fix intermittent issue where next/prev buttons sometimes don't respond to clicks.
+- Social Icons: fix being unable to remove icons from widget.
 - Social Icons Widget: fix issue in wp-admin widget editor where icons don't save on refresh.
 - Stats: allow better translations of page view counts in the Stats widget.
 - Video Block: fix resizing so that video block doesn't display black bars on the sides.
