@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Google Calendar block: fix issue that prevented liink is in the calendar from opening
