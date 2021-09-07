@@ -50,8 +50,6 @@ phpcs.xml
 /tools/jt/
 /tools/docker/bin/jt/
 
-# This folder contains temporary files used by git hooks
-/.git-hook-data/
-
 # This file indicates we're in draft mode, which reduces checks
 .jetpack-draft
+.git-hook-data
