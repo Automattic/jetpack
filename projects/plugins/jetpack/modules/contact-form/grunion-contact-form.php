@@ -2889,6 +2889,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		/**
 		 * Allow customizing the email headers.
 		 *
+		 * Note: use with caution.
+		 * If you use this filter to send emails to specific addresses set by form data,
+		 * you could open your site for abuse, as one could submit random email addresses to email them.
+		 *
 		 * @module contact-form
 		 *
 		 * @since 10.2.0
