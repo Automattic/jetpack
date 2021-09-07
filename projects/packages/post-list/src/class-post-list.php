@@ -14,7 +14,7 @@ use Automattic\Jetpack\Assets;
  */
 class Post_List {
 
-	const PACKAGE_VERSION = '0.1.0';
+	const PACKAGE_VERSION = '0.1.0-alpha';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
