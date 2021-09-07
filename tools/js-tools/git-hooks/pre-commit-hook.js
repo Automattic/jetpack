@@ -147,7 +147,7 @@ function checkFileAgainstDirtyList( file, filesList ) {
 function capturePreCommitTreeHash() {
 	if ( exitCode === 0 ) {
 		// .git folder location varies if this repo is used a submodule. Also, remove trailing new-line.
-		const gitFolderPath = execSync( 'git rev-parse --git-dir' ).toString().replace( /\n$/, '' );
+		const gitFolderPath = execSync( 'git rev-parse --git-dir' ).toString().trim();
 		fs.writeFileSync( `${ gitFolderPath }/last-commit-tree`, execSync( 'git write-tree' ) );
 	}
 }
