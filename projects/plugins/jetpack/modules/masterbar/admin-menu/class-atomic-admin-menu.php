@@ -89,8 +89,21 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * @return string
 	 */
 	public function get_preferred_view( $screen, $fallback_global_preference = true ) {
-		// Plugins, Export, and Customize on Atomic sites are always managed on WP Admin.
-		if ( in_array( $screen, array( 'plugins.php', 'export.php', 'customize.php' ), true ) ) {
+		$persistent_data = new \Atomic_Persistent_Data();
+
+		// Force WP Admin for the following views.
+		$force_classic_views = array( 'export.php', 'customize.php', 'plugins.php' );
+
+		// If WPCOM Marketplace sticker is active, remove plugins.php so we force Calypso view.
+		if ( $persistent_data['site_sticker_wpcom-marketplace'] ) {
+			$plugins_position = array_search( 'plugins.php', $force_classic_views, true );
+			if ( false !== $plugins_position ) {
+				array_splice( $force_classic_views, $plugins_position, 1 );
+			}
+		}
+
+		// If screen is in $force_classic_views array we need to force WP Admin on Atomic sites.
+		if ( in_array( $screen, $force_classic_views, true ) ) {
 			return self::CLASSIC_VIEW;
 		}
 
