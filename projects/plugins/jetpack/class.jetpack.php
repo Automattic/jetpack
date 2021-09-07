@@ -60,8 +60,8 @@ class Jetpack {
 	 * When making changes to that list, you must also update concat_list in tools/builder/frontend-css.js.
 	 */
 	public $concatenated_style_handles = array(
-		'jetpack-carousel',
 		'jetpack-carousel-swiper-css',
+		'jetpack-carousel',
 		'grunion.css',
 		'the-neverending-homepage',
 		'jetpack_likes',
