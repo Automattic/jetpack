@@ -187,8 +187,8 @@ describe( 'Traffic - Custom SEO Titles', () => {
 					"value": "[group_title]"
 				},
 				{
-					"type": "string",
-					"value": "[date]"
+					"type": "token",
+					"value": "date"
 				},
 				{
 					"type": "token",
