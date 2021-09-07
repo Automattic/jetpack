@@ -76,9 +76,12 @@ async function provisionJetpackStartConnection( userId, plan = 'free', user = 'w
 	}
 
 	const out = await execWpCommand(
-		`--user=${ user } jetpack authorize_user ` + shellescape( [ `--token=${ json.access_token }` ] )
+		`jetpack authorize_user --user=${ user } ` + shellescape( [ `--token=${ json.access_token }` ] )
 	);
 	logger.cli( out );
+
+	const status = await execWpCommand( 'jetpack status' );
+	logger.cli( status );
 
 	return true;
 }
@@ -108,7 +111,7 @@ async function activateModule( page, module ) {
 }
 
 async function execWpCommand( wpCmd ) {
-	const cmd = `pnpx jetpack docker --type e2e --name t1 wp -- ${ wpCmd }`;
+	const cmd = `pnpx jetpack docker --type e2e --name t1 wp -- ${ wpCmd } --url="${ siteUrl }"`;
 	const result = await execShellCommand( cmd );
 
 	// Jetpack's `wp` command outputs a script header for some reason. Let's clean it up.
