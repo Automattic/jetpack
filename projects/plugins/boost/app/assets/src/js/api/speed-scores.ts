@@ -31,38 +31,28 @@ type ParsedApiResponse = {
 	scores?: SpeedScoresSet;
 };
 
-function getResponseSpeedScoresSet( response: ParsedApiResponse ): SpeedScoresSet {
-	return response.scores;
-}
-
-/**
- * Clear the speed-score cache.
- */
-export async function clearCache(): Promise< void > {
-	await api.delete( '/speed-scores', {
-		url: Jetpack_Boost.site.url,
-	} );
-}
-
 /**
  * Kick off a request to generate speed scores for this site. Will automatically
  * poll for a response until the task is done, returning a SpeedScores object.
  *
+ * @param {boolean} is_forced Force regenerate speed scores.
  * @return {SpeedScores} Speed scores returned by the server.
  */
-export async function requestSpeedScores(): Promise< SpeedScoresSet > {
+export async function requestSpeedScores( is_forced = false ): Promise< SpeedScoresSet > {
 	// Request metrics
 	const response = parseResponse(
-		await api.post( '/speed-scores', { url: Jetpack_Boost.site.url } )
+		await api.post( is_forced ? '/speed-scores/refresh' : '/speed-scores', {
+			url: Jetpack_Boost.site.url,
+		} )
 	);
 
 	// If the response contains ready-to-use metrics, we're done here.
 	if ( response.scores ) {
-		return getResponseSpeedScoresSet( response );
+		return response.scores;
 	}
 
 	// Poll for metrics.
-	return await pollRequest( response.id );
+	return await pollRequest();
 }
 
 /**
@@ -116,7 +106,6 @@ function parseResponse( response: JSONObject ): ParsedApiResponse {
 		throw new Error( __( 'Invalid response while requesting metrics', 'jetpack-boost' ) );
 	}
 
-	// If not ready, return the response id for polling.
 	return {
 		id: requestId,
 	};
@@ -125,19 +114,20 @@ function parseResponse( response: JSONObject ): ParsedApiResponse {
 /**
  * Poll a speed score request for results, timing out if it takes too long.
  *
- * @param {string} requestId - numeric id of the request.
  * @return {SpeedScores} Speed scores returned by the server.
  */
-async function pollRequest( requestId: string ): Promise< SpeedScoresSet > {
+async function pollRequest(): Promise< SpeedScoresSet > {
 	return pollPromise< SpeedScoresSet >( {
 		timeout: pollTimeout,
 		interval: pollInterval,
 		timeoutError: __( 'Timed out while waiting for speed-score.', 'jetpack-boost' ),
 		callback: async resolve => {
-			const response = parseResponse( await api.post( `/speed-scores/${ requestId }/update` ) );
+			const response = parseResponse(
+				await api.post( '/speed-scores', { url: Jetpack_Boost.site.url } )
+			);
 
 			if ( response.scores ) {
-				resolve( getResponseSpeedScoresSet( response ) );
+				resolve( response.scores );
 			}
 		},
 	} );
@@ -171,4 +161,19 @@ export function getScoreLetter( mobile: number, desktop: number ): string {
 		return 'E';
 	}
 	return 'F';
+}
+
+/**
+ * Find out if we should display previous scores.
+ *
+ * Only show the speed scores if there was improvements on both mobile and desktop.
+ *
+ * @param {SpeedScoresSet} scoresSet
+ * @return boolean
+ */
+export function shouldShowPreviousScores( scoresSet ): boolean {
+	const current = scoresSet.current;
+	const previous = scoresSet.previous;
+
+	return current.mobile > previous.mobile && current.desktop > previous.desktop;
 }

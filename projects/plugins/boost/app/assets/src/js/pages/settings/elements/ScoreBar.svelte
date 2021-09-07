@@ -2,6 +2,7 @@
 	import Spinner from '../../../svg/spinner.svg';
 	export let score = 0;
 	export let isLoading = true;
+	export let showPrevScores = false;
 	export let active = true;
 	export let prevScore = 0;
 
@@ -43,8 +44,8 @@
 				<div class="jb-score-bar__score">{score}</div>
 			{/if}
 
-			{#if prevScore}
-				<div class="jb-score-bar__previous_score" style="left: min({prevScoreOffset}%, calc(100% - var(--clearence-space))">{prevScore}</div>
+			{#if prevScore && showPrevScores}
+				<div class="jb-score-bar__previous_score" style="left: min({prevScoreOffset}%, calc(100% - var(--clearance-space))">{prevScore}</div>
 			{/if}
 		</div>
 	{/if}

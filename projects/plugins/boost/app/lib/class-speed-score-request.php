@@ -33,11 +33,11 @@ class Speed_Score_Request extends Cacheable {
 	private $created;
 
 	/**
-	 * The speed scores result, as an associative array.
+	 * Current status of the Speed Score request.
 	 *
-	 * @var array $scores
+	 * @var string $status Speed Scores request status.
 	 */
-	private $scores;
+	private $status;
 
 	/**
 	 * The error returned
@@ -49,17 +49,17 @@ class Speed_Score_Request extends Cacheable {
 	/**
 	 * Constructor.
 	 *
-	 * @param string $url     The URL to get the Speed Scores for.
-	 * @param float  $created When the Speed Scores request was created, in seconds since epoch.
-	 * @param array  $scores  The Speed Scores result.
-	 * @param string $error   The Speed Scores error.
+	 * @param string $url The URL to get the Speed Scores for.
+	 * @param null   $created When the Speed Scores request was created, in seconds since epoch.
+	 * @param string $status Status of the Speed Scores request.
+	 * @param null   $error The Speed Scores error.
 	 */
-	public function __construct( $url, $created = null, $scores = null, $error = null ) {
+	public function __construct( $url, $created = null, $status = 'pending', $error = null ) {
 		$this->set_cache_id( self::generate_cache_id_from_url( $url ) );
 
 		$this->url     = Url::normalize( $url );
 		$this->created = is_null( $created ) ? microtime( true ) : $created;
-		$this->scores  = $scores;
+		$this->status  = $status;
 		$this->error   = $error;
 	}
 
@@ -84,7 +84,7 @@ class Speed_Score_Request extends Cacheable {
 			'id'      => $this->get_cache_id(),
 			'url'     => $this->url,
 			'created' => $this->created,
-			'scores'  => $this->scores,
+			'status'  => $this->status,
 			'error'   => $this->error,
 		);
 	}
@@ -100,7 +100,7 @@ class Speed_Score_Request extends Cacheable {
 		$object = new Speed_Score_Request(
 			$data['url'],
 			$data['created'],
-			$data['scores'],
+			$data['status'],
 			$data['error']
 		);
 
@@ -149,7 +149,21 @@ class Speed_Score_Request extends Cacheable {
 	 * Is this request pending?
 	 */
 	public function is_pending() {
-		return empty( $this->error ) && empty( $this->score );
+		return 'pending' === $this->status;
+	}
+
+	/**
+	 * Did the request fail?
+	 */
+	public function is_error() {
+		return 'error' === $this->status;
+	}
+
+	/**
+	 * Did the request succeed?
+	 */
+	public function is_success() {
+		return 'success' === $this->status;
 	}
 
 	/**
@@ -178,14 +192,15 @@ class Speed_Score_Request extends Cacheable {
 				break;
 
 			case 'error':
-				$this->error = $response->error;
+				$this->status = 'error';
+				$this->error  = $response->error;
 				$this->store();
 				break;
 
 			case 'success':
-				$this->scores = $response->scores;
+				$this->status = 'success';
 				$this->store();
-				$this->record_history();
+				$this->record_history( $response );
 
 				break;
 
@@ -205,18 +220,20 @@ class Speed_Score_Request extends Cacheable {
 
 	/**
 	 * Save the speed score record to history.
+	 *
+	 * @param object $response Response from api.
 	 */
-	private function record_history() {
+	private function record_history( $response ) {
 		$history = new Speed_Score_History( $this->url );
 
 		// Only change if there is a difference from last score.
 		$latest = $history->latest();
 		// phpcs:ignore
-		if ( $latest && $latest->scores != $this->scores ) {
+		if ( $latest && $latest->scores != $response->scores ) {
 			$history->push(
 				array(
 					'timestamp' => time(),
-					'scores'    => $this->scores,
+					'scores'    => $response->scores,
 				)
 			);
 		}

@@ -5,13 +5,14 @@
 	import ScoreBar from '../elements/ScoreBar.svelte';
 	import ScoreContext from '../elements/ScoreContext.svelte';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
-	import { getScoreLetter, clearCache, requestSpeedScores } from '../../../api/speed-scores';
+	import { getScoreLetter, requestSpeedScores, shouldShowPreviousScores } from '../../../api/speed-scores';
 	import { __ } from '@wordpress/i18n';
 
 	const siteIsOnline = Jetpack_Boost.site.online;
 
 	let loadError;
 	let isLoading = siteIsOnline;
+	let showPrevScores;
 	let scoreLetter = '';
 	let scores = {
 		mobile: 0,
@@ -27,19 +28,16 @@
 		refreshScore( false );
 	}
 
-	async function refreshScore( force = false ) {
+	async function refreshScore( is_forced = false ) {
 		isLoading = true;
 		loadError = undefined;
 
 		try {
-			if ( force ) {
-				await clearCache();
-			}
-
-			let scoresSet = await requestSpeedScores();
+			const scoresSet = await requestSpeedScores( is_forced );
 			scores = scoresSet.current;
 			previousScores = scoresSet.previous;
 			scoreLetter = getScoreLetter( scores.mobile, scores.desktop );
+			showPrevScores = shouldShowPreviousScores(scoresSet);
 		} catch ( err ) {
 			console.log(err)
 			loadError = err;
@@ -103,7 +101,7 @@
 				<MobileIcon />
 				<div>{__( 'Mobile score', 'jetpack-boost' )}</div>
 			</div>
-			<ScoreBar bind:prevScore={previousScores.mobile} bind:score={scores.mobile} active={siteIsOnline} {isLoading} />
+			<ScoreBar bind:prevScore={previousScores.mobile} bind:score={scores.mobile} active={siteIsOnline} {isLoading} {showPrevScores} />
 		</div>
 
 		<div class="jb-score-bar jb-score-bar--desktop">
@@ -111,7 +109,7 @@
 				<ComputerIcon />
 				<div>{__( 'Desktop score', 'jetpack-boost' )}</div>
 			</div>
-			<ScoreBar bind:prevScore={previousScores.desktop} bind:score={scores.desktop} active={siteIsOnline} {isLoading} />
+			<ScoreBar bind:prevScore={previousScores.desktop} bind:score={scores.desktop} active={siteIsOnline} {isLoading} {showPrevScores} />
 		</div>
 	</div>
 </div>
