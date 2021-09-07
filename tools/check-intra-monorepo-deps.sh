@@ -218,7 +218,11 @@ done
 
 if $ANYJS; then
 	debug "Updating pnpm-lock.yaml"
-	pnpm install --silent
+	if [[ -n "$CI" ]]; then
+		pnpm install --no-frozen-lockfile
+	else
+		pnpm install --silent
+	fi
 fi
 
 if ! $UPDATE && [[ "$EXIT" != "0" ]]; then

@@ -1,12 +1,12 @@
 {
 	"name": "@automattic/jetpack-connection",
-	"version": "0.6.0",
+	"version": "0.6.1-alpha",
 	"description": "Jetpack Connection Component",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
-		"@automattic/jetpack-api": "workspace:^0.2.0",
-		"@automattic/jetpack-components": "workspace:^0.3.0",
+		"@automattic/jetpack-api": "workspace:^0.2.1-alpha",
+		"@automattic/jetpack-components": "workspace:^0.3.1-alpha",
 		"@wordpress/base-styles": "3.6.0",
 		"@wordpress/browserslist-config": "4.1.0",
 		"@wordpress/components": "16.0.0",
@@ -28,6 +28,9 @@
 		"react-dom": "^17.0.2"
 	},
 	"type": "module",
+	"exports": {
+		".": "./index.jsx"
+	},
 	"sideEffects": [
 		"*.css",
 		"*.scss"

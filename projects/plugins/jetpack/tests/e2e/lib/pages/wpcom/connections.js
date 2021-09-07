@@ -19,18 +19,20 @@ export default class ConnectionsPage extends WpPage {
 	async selectMailchimpList( mailchimpList = 'e2etesting' ) {
 		const loadingIndicatorSelector = '.foldable-card__summary button:not([disabled])';
 		const mailchimpExpandSelector = '.mailchimp .foldable-card__expand';
-		const marketingSelectSelector = '.mailchimp select';
+		const warningNoticeSelector = '.mailchimp .notice.is-warning';
+		const marketingSelectSelector = '.mailchimp.is-expanded select ';
 		const mcOptionXpathSelector = `//option[contains(text(), '${ mailchimpList }')]`;
 		const successNoticeSelector = `//span[contains(text(), '${ mailchimpList }')]`;
 
 		await this.waitForElementToBeVisible( loadingIndicatorSelector );
 
 		await this.click( mailchimpExpandSelector );
+		// Warning notice appears with a bit of a delay, so let's wait for it to get visible
+		await this.waitForElementToBeVisible( warningNoticeSelector );
 
-		// WPCOM Connections page
 		await this.waitForElementToBeAttached( mcOptionXpathSelector );
 		await this.selectOption( marketingSelectSelector, { label: mailchimpList } );
-		await this.waitForElementToBeVisible( successNoticeSelector );
+		await this.waitForElementToBeVisible( successNoticeSelector, 10000 );
 		await this.page.close();
 	}
 
