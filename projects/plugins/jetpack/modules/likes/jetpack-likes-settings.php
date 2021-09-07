@@ -264,6 +264,26 @@ class Jetpack_Likes_Settings {
 		return ( (bool) $post_likes_switched ) xor $sitewide_likes_enabled;
 	}
 
+
+	/**
+	 * Is the like button itself visible (as opposed to the reblog button)
+	 *
+	 * If called from within The Loop or if called with a $post_id set, then the post will be checked.
+	 * Otherwise the sitewide setting will be used.
+	 *
+	 * @param int $post_id The ID of the post being rendered. Defaults to the current post if called from within The Loop.
+	 * @return bool
+	 */
+	public function is_likes_button_visible( $post_id = 0 ) {
+		if ( in_the_loop() || $post_id ) {
+			// If in The Loop, is_post_likeable will check the current post
+			return $this->is_post_likeable( $post_id );
+		} else {
+			// Otherwise, check and see if likes are enabled sitewide
+			return $this->is_enabled_sitewide();
+		}
+	}
+
 	/**
 	 * Are likes visible in this context?
 	 *
@@ -275,34 +295,33 @@ class Jetpack_Likes_Settings {
 			return false;
 		}
 
+		return $this->is_likes_button_visible() && $this->is_likes_module_enabled();
+	}
+
+	/**
+	 * Apply filters to determine if the likes module itself is enabled
+	 *
+	 * @return bool
+	 */
+	public function is_likes_module_enabled() {
 		global $wp_current_filter; // Used to apply 'sharing_show' filter
 
 		$post = get_post();
+		$enabled = true;
 
 		// Never show on feeds or previews
 		if ( is_feed() || is_preview() ) {
 			$enabled = false;
-
 			// Not a feed or preview, so what is it?
 		} else {
-
-			if ( in_the_loop() ) {
-				// If in the loop, check if the current post is likeable
-				$enabled = $this->is_post_likeable();
-			} else {
-				// Otherwise, check and see if likes are enabled sitewide
-				$enabled = $this->is_enabled_sitewide();
-			}
-
-			if ( post_password_required() )
+			if ( post_password_required() ) {
 				$enabled = false;
+			}
 
 			if ( in_array( 'get_the_excerpt', (array) $wp_current_filter ) ) {
 				$enabled = false;
 			}
-
 			// Sharing Setting Overrides ****************************************
-
 			// Single post including custom post types
 			if ( is_single() ) {
 				if ( ! $this->is_single_post_enabled( ( $post instanceof WP_Post ) ? $post->post_type : 'post' ) ) {
