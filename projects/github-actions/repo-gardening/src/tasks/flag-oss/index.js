@@ -1,12 +1,11 @@
 /**
  * External dependencies
  */
-const { getInput, setFailed } = require( '@actions/core' );
+const { debug, getInput, setFailed } = require( '@actions/core' );
 
 /**
  * Internal dependencies
  */
-const debug = require( '../../debug' );
 const sendSlackMessage = require( '../../send-slack-message' );
 
 /* global GitHub, WebhookPayloadPullRequest */

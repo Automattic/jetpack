@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-const { setFailed, getInput } = require( '@actions/core' );
+const { debug, setFailed, getInput } = require( '@actions/core' );
 const { context, getOctokit } = require( '@actions/github' );
 
 /**
@@ -17,7 +17,6 @@ const notifyDesign = require( './tasks/notify-design' );
 const notifyEditorial = require( './tasks/notify-editorial' );
 const flagOss = require( './tasks/flag-oss' );
 const triageNewIssues = require( './tasks/triage-new-issues' );
-const debug = require( './debug' );
 const ifNotFork = require( './if-not-fork' );
 const ifNotClosed = require( './if-not-closed' );
 

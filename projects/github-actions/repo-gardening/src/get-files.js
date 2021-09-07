@@ -1,5 +1,9 @@
+/**
+ * External dependencies
+ */
+const { debug } = require( '@actions/core' );
+
 /* global GitHub */
-const debug = require( './debug' );
 
 // Cache for getFiles.
 const cache = {};

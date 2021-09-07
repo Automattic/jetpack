@@ -1,7 +1,7 @@
 /**
- * Internal dependencies
+ * External dependencies
  */
-const debug = require( '../../debug' );
+const { debug } = require( '@actions/core' );
 
 /* global GitHub, WebhookPayloadIssue */
 

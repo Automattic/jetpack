@@ -1,7 +1,11 @@
 /**
+ * External dependencies
+ */
+const { debug } = require( '@actions/core' );
+
+/**
  * Internal dependencies
  */
-const debug = require( '../../debug' );
 const getFiles = require( '../../get-files' );
 
 /* global GitHub, WebhookPayloadPullRequest */

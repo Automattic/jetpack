@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use GitHub's action toolkit to display debug information in action logs.

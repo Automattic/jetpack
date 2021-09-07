@@ -4,11 +4,11 @@
 const fs = require( 'fs' );
 const moment = require( 'moment' );
 const path = require( 'path' );
+const { debug } = require( '@actions/core' );
 
 /**
  * Internal dependencies
  */
-const debug = require( '../../debug' );
 const getAffectedChangeloggerProjects = require( '../../get-affected-changelogger-projects' );
 const getFiles = require( '../../get-files' );
 const getLabels = require( '../../get-labels' );
