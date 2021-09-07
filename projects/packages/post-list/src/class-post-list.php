@@ -13,6 +13,9 @@ use Automattic\Jetpack\Assets;
  * The Post_List Admin Area
  */
 class Post_List {
+
+	const PACKAGE_VERSION = '0.1.0';
+
 	/**
 	 * The configuration method that is called from the jetpack-config package.
 	 */
@@ -60,7 +63,7 @@ class Post_List {
 				'jetpack_posts_list_ui_script',
 				$plugin_path,
 				array(),
-				gmdate( 'YW' ),
+				self::PACKAGE_VERSION,
 				true
 			);
 
@@ -68,7 +71,7 @@ class Post_List {
 				'jetpack_posts_list_ui_style',
 				plugin_dir_url( __DIR__ ) . './src/style.css',
 				array(),
-				gmdate( 'YW' )
+				self::PACKAGE_VERSION
 			);
 
 			wp_style_add_data(
