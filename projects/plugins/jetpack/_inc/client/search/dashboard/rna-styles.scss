@@ -4,7 +4,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	flex-wrap: wrap;
+	flex-flow: column nowrap;
 	width: 100%;
 	margin: 0 auto;
 }

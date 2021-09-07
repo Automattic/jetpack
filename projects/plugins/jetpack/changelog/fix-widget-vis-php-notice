@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Widget Visibility: fix undefined property reference.

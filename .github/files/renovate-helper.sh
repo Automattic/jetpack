@@ -121,7 +121,7 @@ fi
 
 # Update deps and lock files.
 echo "::group::Updating dependencies on changed packages"
-tools/check-intra-monorepo-deps.sh -uv
+tools/check-intra-monorepo-deps.sh -uav
 echo "::endgroup::"
 
 # Create and push the commit.
