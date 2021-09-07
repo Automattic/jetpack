@@ -43,7 +43,8 @@ describe( 'Paid blocks', () => {
 
 		await testStep( 'Connect to MailChimp', async () => {
 			const mcBlock = new MailchimpBlock( blockId, page );
-			await mcBlock.connect();
+			mcBlock.removeCookieByName( 'wordpress_logged_in' );
+			await mcBlock.connect( false );
 		} );
 
 		await testStep( 'Publish a post and assert that MailChimp block is rendered', async () => {

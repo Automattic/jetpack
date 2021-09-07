@@ -56,7 +56,7 @@ export default class MailchimpBlock extends PageActions {
 			const wpComTab = await this.clickAndWaitForNewPage( this.setupFormBtnSel );
 
 			if ( ! isLoggedIn ) {
-				await ( await LoginPage.init( wpComTab ) ).login( 'defaultUser' );
+				await ( await LoginPage.init( wpComTab ) ).login();
 			}
 
 			// Hacky way to make sure the Calypso knows about newly created site (aka waiting for a site to get synced)

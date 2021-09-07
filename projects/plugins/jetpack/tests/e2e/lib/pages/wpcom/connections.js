@@ -32,7 +32,7 @@ export default class ConnectionsPage extends WpPage {
 
 		await this.waitForElementToBeAttached( mcOptionXpathSelector );
 		await this.selectOption( marketingSelectSelector, { label: mailchimpList } );
-		await this.waitForElementToBeVisible( successNoticeSelector );
+		await this.waitForElementToBeVisible( successNoticeSelector, 10000 );
 		await this.page.close();
 	}
 
