@@ -75,10 +75,11 @@ async function provisionJetpackStartConnection( userId, plan = 'free', user = 'w
 		throw new Error( 'Jetpack Start provision is failed. Response: ' + response );
 	}
 
-	const out = await execWpCommand(
-		`--user=${ user } jetpack authorize_user ` + shellescape( [ `--token=${ json.access_token }` ] )
+	await execWpCommand(
+		`jetpack authorize_user --user=${ user } ` + shellescape( [ `--token=${ json.access_token }` ] )
 	);
-	logger.cli( out );
+
+	await execWpCommand( 'jetpack status' );
 
 	return true;
 }
@@ -108,7 +109,7 @@ async function activateModule( page, module ) {
 }
 
 async function execWpCommand( wpCmd ) {
-	const cmd = `pnpx jetpack docker --type e2e --name t1 wp -- ${ wpCmd }`;
+	const cmd = `pnpx jetpack docker --type e2e --name t1 wp -- ${ wpCmd } --url="${ siteUrl }"`;
 	const result = await execShellCommand( cmd );
 
 	// Jetpack's `wp` command outputs a script header for some reason. Let's clean it up.
@@ -120,9 +121,15 @@ async function execWpCommand( wpCmd ) {
 }
 
 async function logDebugLog() {
-	let log = execSyncShellCommand(
-		'pnpx jetpack docker --type e2e --name t1 exec-silent cat wp-content/debug.log'
-	);
+	let log;
+	try {
+		log = execSyncShellCommand(
+			'pnpx jetpack docker --type e2e --name t1 exec-silent cat wp-content/debug.log'
+		);
+	} catch ( error ) {
+		logger.error( `Error caught when trying to save debug log! ${ error }` );
+		return;
+	}
 
 	const escapedDate = new Date().toISOString().split( '.' )[ 0 ].replace( /:/g, '-' );
 	const filename = `debug_${ escapedDate }.log`;
@@ -192,6 +199,7 @@ function getDotComCredentials() {
 		username: site.dotComAccount[ 0 ],
 		password: site.dotComAccount[ 1 ],
 		userId: site.dotComAccount[ 2 ],
+		email: site.dotComAccount[ 3 ],
 	};
 }
 

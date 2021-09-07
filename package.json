@@ -23,7 +23,7 @@
 		"build-production-concurrently": "printf '\\e[30;43m`pnpm run build-production-concurrently` is deprected. Use the Jetpack CLI instead.\\e[0m\\n'; pnpm run install-if-deps-outdated && jetpack build --production packages && jetpack build --production plugins/jetpack",
 		"build-production-jetpack": "printf '\\e[30;43m`pnpm run build-production-jetpack` is deprected. Use the Jetpack CLI instead.\\e[0m\\n'; jetpack build --production plugins/jetpack",
 		"build-production-jetpack-concurrently": "printf '\\e[30;43m`pnpm run build-production-jetpack-concurrently` is deprected. Use the Jetpack CLI instead.\\e[0m\\n'; jetpack build --production plugins/jetpack",
-		"build-production-packages": "printf '\\e[30;43m`pnpm run build-production-packages` is deprected. Use the Jetpack CLI instead.\\e[0m\\n'; jetpack build --production packages && pnpm run validate-es5 -- ./projects/packages/tracking/",
+		"build-production-packages": "printf '\\e[30;43m`pnpm run build-production-packages` is deprected. Use the Jetpack CLI instead.\\e[0m\\n'; jetpack build --production packages",
 		"build-production-php": "printf '\\e[30;43m`pnpm run build-production-php` is deprected. Use composer or the Jetpack CLI instead.\\e[0m\\n'; composer install --ignore-platform-reqs",
 		"clean": "printf '\\e[30;43m`pnpm run clean` is deprecated. You probably want to run that in projects/plugins/jetpack instead.\\e[0m\\n'; cd projects/plugins/jetpack && pnpm run clean",
 		"clean-composer": "printf '\\e[30;43m`pnpm run clean-composer` is deprecated and no longer does anything.\\e[0m\\n'",
@@ -69,7 +69,6 @@
 		"php:compatibility": "composer phpcs:compatibility",
 		"php:lint": "composer phpcs:lint",
 		"reformat-files": "prettier --ignore-path .eslintignore --write \"**/*.{js,jsx,cjs,ts,json}\"",
-		"validate-es5": "pnpx eslint --parser-options=ecmaVersion:5 --no-eslintrc --no-ignore",
 		"version-packages": "bash ./tools/version-packages.sh"
 	},
 	"husky": {
@@ -87,19 +86,25 @@
 		"jetpack-js-tools": "workspace:*"
 	},
 	"engines": {
-		"node": "^14.16.1",
+		"node": "^16.7.0",
 		"pnpm": "^6.5.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"pnpm": {
 		"overrides": {
 			"@automattic/calypso-build>enzyme-adapter-react-16@*": "npm:@wojtekmaj/enzyme-adapter-react-17@0.6.3",
-			"@automattic/calypso-build>node-sass@4.13.0": "^4.13.0",
-			"yargs@^7.1.0>yargs-parser": "^20.0.0",
-			"isomorphic-fetch@^2.1.1>node-fetch": "^2.6.1",
-			"terser-webpack-plugin@^1.4.3>serialize-javascript": "^5.0.0",
-			"terser-webpack-plugin@2.3.1>serialize-javascript": "^5.0.0",
-			"jest-environment-jsdom@^24.0.0": "^26.0.1"
+			"@storybook/addon-docs>@storybook/builder-webpack4": "npm:@storybook/builder-webpack5",
+			"@storybook/core-common>webpack@4": ">= 4",
+			"@storybook/core-server>webpack@4": ">= 4",
+			"@storybook/core-server>@storybook/builder-webpack4": "npm:@storybook/builder-webpack5",
+			"@storybook/core-server>@storybook/manager-webpack4": "npm:@storybook/manager-webpack5",
+			"@storybook/react>webpack@4": ">= 4",
+			"isomorphic-fetch>node-fetch@^1.0.1": "^2.6.1",
+			"jest-environment-jsdom@^24.0.0": "^26.0.1",
+			"react-dev-utils>browserslist@^4": "^4",
+			"terser-webpack-plugin>serialize-javascript@^4.0.0": "^5.0.0",
+			"trim@0.0.1": "^0.0.3",
+			"yargs>yargs-parser@^5.0.1": "^20.0.0"
 		}
 	}
 }

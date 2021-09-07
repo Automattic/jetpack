@@ -1,15 +1,22 @@
 /**
  * WordPress dependencies
  */
-import { ColorIndicator, ColorPalette } from '@wordpress/components';
+// NOTE: Expect this import to break when the exported value is renamed!
+import { __experimentalColorGradientControl as ColorGradientControl } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
+import { useSelect } from '@wordpress/data';
+
+/**
+ * Internal dependencies
+ */
+import './color-control.scss';
 
 /* eslint-disable react/jsx-no-bind */
 
 const DEFAULT_COLORS = [
-	{ name: 'dull blue', color: '#463ECE' },
-	{ name: 'jazzberry jam', color: '#C6446F' },
-	{ name: 'june bud', color: '#C4D455' },
+	{ name: 'Dull blue', color: '#463ECE' },
+	{ name: 'Jazzberry jam', color: '#C6446F' },
+	{ name: 'June bud', color: '#C4D455' },
 ];
 
 /**
@@ -22,20 +29,23 @@ const DEFAULT_COLORS = [
  * @returns {Element} component instance
  */
 export default function ColorControl( { disabled, value, onChange } ) {
+	const colors = useSelect( select => {
+		const settings = select( 'core/block-editor' ).getSettings() ?? {};
+		return Array.isArray( settings?.colors ) && settings.colors.length > 0
+			? settings.colors
+			: DEFAULT_COLORS;
+	} );
+
 	return (
-		<div className="jp-search-customize-color-input components-base-control">
-			<div className="jp-search-customize-color-input__label">
-				<label htmlFor="jp-search-customize-highlight-color" title={ value }>
-					{ __( 'Highlight for search terms', 'jetpack' ) }
-				</label>{ ' ' }
-				<ColorIndicator colorValue={ value } />
-			</div>
-			<ColorPalette
-				clearable={ false }
-				colors={ DEFAULT_COLORS }
+		<div className="jp-search-configure-color-input components-base-control">
+			<ColorGradientControl
+				label={ __( 'Highlight for search terms', 'jetpack' ) }
 				disabled={ disabled }
-				value={ value }
-				onChange={ onChange }
+				colorValue={ value }
+				colors={ colors }
+				disableCustomColors={ false }
+				disableCustomGradients={ true }
+				onColorChange={ onChange }
 			/>
 		</div>
 	);

@@ -39,6 +39,6 @@ describe( 'Jetpack pre-connection', () => {
 		await ( await Sidebar.init( page ) ).selectJetpack();
 
 		const jetpackPage = await JetpackPage.init( page );
-		expect( await jetpackPage.isConnectBannerVisible() ).toBeTruthy();
+		expect( await jetpackPage.isConnectScreenVisible() ).toBeTruthy();
 	} );
 } );

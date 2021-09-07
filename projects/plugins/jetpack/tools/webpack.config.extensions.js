@@ -117,6 +117,7 @@ const extensionsWebpackConfig = getBaseWebpackConfig(
 			'editor-no-post-editor': editorNoPostEditorScript,
 			...viewBlocksScripts,
 		},
+		'output-filename': '[name].min.js',
 		'output-chunk-filename': '[name].[chunkhash].js',
 		'output-path': path.join( path.dirname( __dirname ), '_inc', 'blocks' ),
 		'output-jsonp-function': 'webpackJsonpJetpack',
@@ -139,6 +140,23 @@ const componentsWebpackConfig = getBaseWebpackConfig(
 	}
 );
 
+/**
+ * Calyso Build sets publicPath to '/' instead of the default '__webpack_public_path__'
+ * This workaround removes the custom set publicPath from Calypso build until a long term solution is fixed.
+ *
+ * @param {object} config - the configuration file we're checking and editing.
+ * @todo remove once we switch away from Calypso Build, or if this is addressed later.
+ */
+function overrideCalypsoBuildFileConfig( config ) {
+	config.module.rules.forEach( v => {
+		if ( v.type === 'asset/resource' ) {
+			delete v.generator.publicPath;
+		}
+	} );
+}
+overrideCalypsoBuildFileConfig( extensionsWebpackConfig );
+overrideCalypsoBuildFileConfig( componentsWebpackConfig );
+
 // We export two configuration files: One for admin.js, and one for components.jsx.
 // The latter produces pre-rendered components HTML.
 module.exports = [
@@ -153,12 +171,14 @@ module.exports = [
 		},
 		plugins: [
 			...extensionsWebpackConfig.plugins,
-			new CopyWebpackPlugin( [
-				{
-					from: presetPath,
-					to: 'index.json',
-				},
-			] ),
+			new CopyWebpackPlugin( {
+				patterns: [
+					{
+						from: presetPath,
+						to: 'index.json',
+					},
+				],
+			} ),
 			new CopyBlockEditorAssetsPlugin(),
 		],
 	},

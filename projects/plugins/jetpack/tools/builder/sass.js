@@ -3,13 +3,16 @@
  */
 import autoprefixer from 'gulp-autoprefixer';
 import cleanCSS from 'gulp-clean-css';
+import dartSass from 'sass';
 import gulp from 'gulp';
+import gulpSass from 'gulp-sass';
 import log from 'fancy-log';
 import prepend from 'gulp-append-prepend';
 import rename from 'gulp-rename';
 import rtlcss from 'gulp-rtlcss';
-import sass from 'gulp-sass';
 import sourcemaps from 'gulp-sourcemaps';
+
+const sass = gulpSass( dartSass );
 
 /**
  * Internal dependencies

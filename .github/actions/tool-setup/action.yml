@@ -1,0 +1,115 @@
+name: "Setup tools"
+description: "Setup needed versions of PHP, Node, and Pnpm."
+inputs:
+  php:
+    description: "Override the PHP version, or set 'false' to skip setting up PHP."
+  node:
+    description: "Override the Node version, or set 'false' to skip setting up Node and Pnpm."
+runs:
+  using: composite
+  steps:
+    - name: "Read tool versions"
+      id: versions
+      shell: bash
+      env:
+        INPUT_NODE: ${{ inputs.node }}
+        INPUT_PHP: ${{ inputs.php }}
+      run: |
+        . .github/versions.sh
+
+        # GH doesn't support "if" here. ☹️
+        if [[ "$INPUT_PHP" == "false" ]]; then
+          echo 'Cannot support `php: false`, GitHub does not support conditionals in composite actions yet. ☹️'
+          INPUT_PHP=
+        fi
+        if [[ "$INPUT_NODE" == "false" ]]; then
+          echo 'Cannot support `node: false`, GitHub does not support conditionals in composite actions yet. ☹️'
+          INPUT_NODE=
+        fi
+
+        printf "\n\e[1mSelected tool versions\e[0m\n"
+        echo " PHP: ${INPUT_PHP:-$PHP_VERSION}"
+        echo "::set-output name=php-version::${INPUT_PHP:-$PHP_VERSION}"
+        echo " Composer: $COMPOSER_VERSION"
+        echo "::set-output name=composer-version::$COMPOSER_VERSION"
+        echo " Node: ${INPUT_NODE:-$NODE_VERSION}"
+        echo "::set-output name=node-version::${INPUT_NODE:-$NODE_VERSION}"
+        echo " Pnpm: $PNPM_VERSION"
+        echo "::set-output name=pnpm-version::$PNPM_VERSION"
+
+    - run: printf "\n\e[1mSetup PHP\e[0m\n"
+      shell: bash
+      #if: steps.versions.outputs.php-version != 'false'
+    - name: Setup PHP
+      #if: steps.versions.outputs.php-version != 'false'
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ steps.versions.outputs.php-version }}
+        ini-values: error_reporting=E_ALL, display_errors=On, zend.assertions=1
+        tools: composer:${{ steps.versions.outputs.composer-version }}
+        extensions: mysql, imagick
+        coverage: none
+
+    - run: printf "\n\e[1mSetup Node\e[0m\n"
+      shell: bash
+      #if: steps.versions.outputs.node-version != 'false'
+    - name: Setup Node
+      #if: steps.versions.outputs.node-version != 'false'
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ steps.versions.outputs.node-version }}
+
+    - run: printf "\n\e[1mSetup Composer cache\e[0m\n"
+      shell: bash
+      #if: steps.versions.outputs.php-version != 'false'
+    - name: Get Composer cache directory
+      #if: steps.versions.outputs.php-version != 'false'
+      id: composer-cache
+      shell: bash
+      run: |
+        echo "::set-output name=dir::$(composer config cache-files-dir)"
+    - name: Use composer cache
+      #if: steps.versions.outputs.php-version != 'false'
+      uses: actions/cache@v2
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-
+
+    - run: printf "\n\e[1mSetup pnpm\e[0m\n"
+      shell: bash
+      #if: steps.versions.outputs.node-version != 'false'
+    - name: Use pnpm cache
+      #if: steps.versions.outputs.node-version != 'false'
+      uses: actions/cache@v2
+      with:
+        path: ~/.pnpm-store
+        key: ${{ runner.os }}-pnpm-${{ steps.versions.outputs.node-version }}-${{ hashFiles('**/package.json') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-${{ steps.versions.outputs.node-version }}-
+    - name: Setup pnpm
+      #if: steps.versions.outputs.node-version != 'false'
+      uses: pnpm/action-setup@v2.0.1
+      with:
+        version: ${{ steps.versions.outputs.pnpm-version }}
+
+    - name: Tool versions
+      shell: bash
+      run: |
+        function docmd {
+          if [[ -z "$(command -v $1)" ]]; then
+            echo "$1 is not available"
+          else
+            which $1
+            "$@"
+          fi
+        }
+
+        printf "\n\e[1mInstalled tool versions\e[0m\n"
+        docmd php --version
+        docmd phpdbg --version
+        docmd composer --version
+        docmd node --version
+        docmd pnpm --version
+        docmd jq --version
