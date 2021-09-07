@@ -5,7 +5,7 @@ const fs = require( 'fs' );
 const notVerifiedPrefix = '[not verified] ';
 
 // .git folder location varies if this repo is used a submodule. Also, remove trailing new-line.
-const gitFolderPath = execSync( 'git rev-parse --git-dir' ).toString().replace( /\n$/, '' );
+const gitFolderPath = execSync( 'git rev-parse --git-dir' ).toString().trim();
 
 fs.readFile( `${ gitFolderPath }/last-commit-tree`, ( err, data ) => {
 	if ( err ) {
