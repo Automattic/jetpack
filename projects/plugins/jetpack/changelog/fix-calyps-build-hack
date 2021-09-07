@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Fixes previews in block editor by working around incorrect Calypso build configuration
