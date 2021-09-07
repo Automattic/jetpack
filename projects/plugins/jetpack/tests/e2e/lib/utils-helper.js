@@ -75,13 +75,11 @@ async function provisionJetpackStartConnection( userId, plan = 'free', user = 'w
 		throw new Error( 'Jetpack Start provision is failed. Response: ' + response );
 	}
 
-	const out = await execWpCommand(
+	await execWpCommand(
 		`jetpack authorize_user --user=${ user } ` + shellescape( [ `--token=${ json.access_token }` ] )
 	);
-	logger.cli( out );
 
-	const status = await execWpCommand( 'jetpack status' );
-	logger.cli( status );
+	await execWpCommand( 'jetpack status' );
 
 	return true;
 }
@@ -201,6 +199,7 @@ function getDotComCredentials() {
 		username: site.dotComAccount[ 0 ],
 		password: site.dotComAccount[ 1 ],
 		userId: site.dotComAccount[ 2 ],
+		email: site.dotComAccount[ 3 ],
 	};
 }
 
