@@ -212,7 +212,7 @@ class Speed_Score_Request extends Cacheable {
 		// Only change if there is a difference from last score.
 		$latest = $history->latest();
 		// phpcs:ignore
-		if ( $latest && $latest['scores'] != $this->scores ) {
+		if ( $latest && $latest->scores != $this->scores ) {
 			$history->push(
 				array(
 					'timestamp' => time(),

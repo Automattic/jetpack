@@ -188,10 +188,12 @@ class Speed_Score {
 		$response = $score_request->jsonSerialize();
 		$history  = new Speed_Score_History( $response['url'] );
 
-		$response['scores'] = array(
-			'current'  => $history->latest(),
-			'previous' => $history->latest( 1 ),
-		);
+		if ( $response['scores'] ) {
+			$response['scores'] = array(
+				'current'  => $history->latest(),
+				'previous' => $history->latest( 1 ),
+			);
+		}
 
 		return rest_ensure_response( $response );
 	}
