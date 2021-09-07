@@ -3,9 +3,8 @@ const execSync = require( 'child_process' ).execSync;
 const fs = require( 'fs' );
 
 const notVerifiedPrefix = '[not verified] ';
-const dataDir = '.git-hook-data';
 
-fs.readFile( `${ dataDir }/last-commit-tree`, ( err, data ) => {
+fs.readFile( '.git/last-commit-tree', ( err, data ) => {
 	if ( err ) {
 		console.log( 'skipping prepare-commit-msg hook' );
 		return;
@@ -13,19 +12,14 @@ fs.readFile( `${ dataDir }/last-commit-tree`, ( err, data ) => {
 	const commitTree = data.toString();
 	const curTree = execSync( 'git write-tree' ).toString();
 
-	let commitMsg;
-	try {
-		commitMsg = fs.readFileSync( `${ dataDir }/COMMIT_EDITMSG` ).toString();
-	} catch ( e ) {
-		commitMsg = null;
-	}
+	const commitMsg = fs.readFileSync( '.git/COMMIT_EDITMSG' ).toString();
 	let newCommitMsg = null;
 	if ( commitTree !== curTree ) {
 		console.log( 'WARNING: git pre-commit hook was skipped!' );
-		if ( commitMsg && ! commitMsg.startsWith( notVerifiedPrefix ) ) {
+		if ( ! commitMsg.startsWith( notVerifiedPrefix ) ) {
 			newCommitMsg = notVerifiedPrefix + commitMsg;
 		}
-	} else if ( commitMsg && commitMsg.startsWith( notVerifiedPrefix ) ) {
+	} else if ( commitMsg.startsWith( notVerifiedPrefix ) ) {
 		// Ideally we'd remove the tag here, but to reliably do that we'd have to have
 		// pre-commit-hook.js check all files in --amend instead of only the ones being
 		// changed in the amendment. So for now, don't do it.
@@ -33,9 +27,6 @@ fs.readFile( `${ dataDir }/last-commit-tree`, ( err, data ) => {
 		// newCommitMsg = commitMsg.substring( notVerifiedPrefix.length );
 	}
 	if ( null !== newCommitMsg ) {
-		if ( ! fs.existsSync( dataDir ) ) {
-			fs.mkdirSync( dataDir );
-		}
-		fs.writeFileSync( `${ dataDir }/COMMIT_EDITMSG`, newCommitMsg );
+		fs.writeFileSync( '.git/COMMIT_EDITMSG', newCommitMsg );
 	}
 } );
