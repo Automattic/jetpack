@@ -1,9 +1,8 @@
-import WPAPI from 'wpapi';
-import { getSiteCredentials } from '../utils-helper';
+const WPAPI = require( 'wpapi' );
+const { getSiteCredentials, resolveSiteUrl } = require( '../utils-helper' );
 
-export default class WordpressAPI {
-	constructor() {
-		const credentials = getSiteCredentials();
+module.exports = class WordpressAPI {
+	constructor( credentials = getSiteCredentials(), siteUrl = resolveSiteUrl() ) {
 		this.authenticatedClient = WPAPI.discover( `${ siteUrl }/wp-json` ).then( function ( site ) {
 			return site.auth( { username: credentials.username, password: credentials.apiPassword } );
 		} );
@@ -13,10 +12,19 @@ export default class WordpressAPI {
 		return await this.authenticatedClient
 			.then( site => site.plugins() )
 			.then( plugins => {
-				console.log( plugins );
+				return plugins;
 			} )
 			.catch( err => {
 				console.log( err );
 			} );
 	}
-}
+
+	async getPluginVersion( pluginTextDomain ) {
+		const allPlugins = await this.getPlugins();
+		const plugins = allPlugins.filter( function ( p ) {
+			return p.textdomain === pluginTextDomain && p.status === 'active';
+		} );
+
+		return plugins[ 0 ].version;
+	}
+};
