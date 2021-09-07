@@ -11,6 +11,15 @@ use Automattic\Jetpack\Status;
 require_jetpack_file( 'modules/masterbar/admin-menu/class-atomic-admin-menu.php' );
 require_jetpack_file( 'tests/php/modules/masterbar/data/admin-menu.php' );
 
+// This exists only on the Atomic platform. Blank if migrated elsewhere, so it doesn't fatal.
+if ( ! class_exists( 'Atomic_Persistent_Data' ) ) {
+	final class Atomic_Persistent_Data {
+		public function __get( $name ) {
+			return null;
+		}
+	}
+}
+
 /**
  * Class Test_Atomic_Admin_Menu.
  *
