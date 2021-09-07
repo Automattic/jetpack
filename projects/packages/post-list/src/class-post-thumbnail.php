@@ -44,11 +44,12 @@ class Post_Thumbnail {
 			}
 		}
 
+		// Escape values just in case.
 		return array(
-			'id'    => $image_id,
-			'url'   => $image_url,
-			'thumb' => $image_thumb,
-			'alt'   => $image_alt,
+			'id'    => esc_attr( $image_id ),
+			'url'   => esc_url( $image_url ),
+			'thumb' => esc_url( $image_thumb ),
+			'alt'   => esc_attr( $image_alt ),
 		);
 	}
 
