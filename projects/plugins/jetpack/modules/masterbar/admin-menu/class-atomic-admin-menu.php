@@ -92,12 +92,13 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 */
 	public function get_preferred_view( $screen, $fallback_global_preference = true ) {
 		$persistent_data = new \Atomic_Persistent_Data();
+		$wpcom_marketplace_is_active = apply_filters( 'wpcom_marketplace_toggle', array_key_exists( 'site_sticker_wpcom-marketplace', $persistent_data ) );
 
 		// Force WP Admin for the following views.
 		$force_classic_views = array( 'export.php', 'customize.php', 'plugins.php' );
 
 		// If WPCOM Marketplace sticker is active, remove plugins.php so we force Calypso view.
-		if ( $persistent_data['site_sticker_wpcom-marketplace'] ) {
+		if ( true === $wpcom_marketplace_is_active ) {
 			$plugins_position = array_search( 'plugins.php', $force_classic_views, true );
 			if ( false !== $plugins_position ) {
 				array_splice( $force_classic_views, $plugins_position, 1 );
