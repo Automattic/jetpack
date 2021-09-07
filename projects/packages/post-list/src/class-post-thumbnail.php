@@ -61,6 +61,11 @@ class Post_Thumbnail {
 	 * @return int The image attachment id.
 	 */
 	public static function get_first_image_id_from_post_content( $post_content ) {
+		// If $post_content does not contain a value of substance, return null right away and avoid trying to parse it.
+		if ( empty( $post_content ) ) {
+			return null;
+		}
+
 		$attachment_id = null;
 		$dom           = new \DOMDocument();
 
