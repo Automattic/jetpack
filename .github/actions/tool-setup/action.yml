@@ -45,6 +45,7 @@ runs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ steps.versions.outputs.php-version }}
+        ini-values: error_reporting=E_ALL, display_errors=On
         tools: composer:${{ steps.versions.outputs.composer-version }}
         extensions: mysql, imagick
         coverage: none
