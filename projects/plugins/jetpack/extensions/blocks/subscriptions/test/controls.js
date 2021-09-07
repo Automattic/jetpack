@@ -69,18 +69,11 @@ describe( 'Inspector controls', () => {
 		test( 'sets solid background color', async () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
 			userEvent.click( screen.getByText( 'Solid' ) );
-			userEvent.click( screen.queryAllByLabelText( /Color\:/i, { selector: 'button' } )[0] );
+			userEvent.click( screen.queryAllByLabelText( /Color\: (?!Black)/i, { selector: 'button' } )[0] );
 
 			expect( setButtonBackgroundColor.mock.calls[0][0] ).toMatch(/#[a-z0-9]{6,6}/);
 		} );
 
-		test( 'sets a button background color', async () => {
-			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
-			userEvent.click( screen.getByText( 'Solid' ) );
-			userEvent.click( screen.queryAllByLabelText( /Color\:/i, { selector: 'button' } )[0] );
-
-			expect( setButtonBackgroundColor.mock.calls[0][0] ).toMatch(/#[a-z0-9]{6,6}/);
-		} );
 	} );
 
 	describe( 'Color settings panel', () => {

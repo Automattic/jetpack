@@ -1,5 +1,23 @@
 # Changelog
 
+## 3.0.2 - 2021-07-29
+### Added
+- Use WP core's ajax updater to apply updates.
+
+### Fixed
+- Detect when "Bleeding Edge" needs an update.
+- Fix search when branch name contains multiple `-`.
+- Guard against an undefined index warning.
+- Typo fix.
+
+## 3.0.1 - 2021-07-19
+### Added
+- Add small breadcrumb link to get back to the main plugin selection screen.
+
+### Fixed
+- Correctly handle self-autoupgrades when the release tag begins with "v".
+- Fixes non-breaking JS errors.
+
 ## 3.0.0 - 2021-07-14
 ### Added
 - Added support for more than just the Jetpack plugin. This involved a major code restructuring.

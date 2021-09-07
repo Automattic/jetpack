@@ -24,10 +24,10 @@ import { getAkismetData } from 'state/at-a-glance';
 import { getSitePlan } from 'state/site';
 import { getApiNonce, getUpgradeUrl } from 'state/initial-state';
 import { getJetpackProductUpsellByFeature, FEATURE_SPAM_AKISMET_PLUS } from 'lib/plans/constants';
-import { getConnectUrl, hasConnectedOwner, isOfflineMode } from 'state/connection';
+import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
 import JetpackBanner from 'components/jetpack-banner';
 import { numberFormat } from 'components/number-format';
-import restApi from 'rest-api';
+import restApi from '@automattic/jetpack-api';
 import QueryAkismetData from 'components/data/query-akismet-data';
 
 class DashAkismet extends Component {
@@ -39,7 +39,6 @@ class DashAkismet extends Component {
 		akismetData: PropTypes.oneOfType( [ PropTypes.string, PropTypes.object ] ).isRequired,
 		isOfflineMode: PropTypes.bool.isRequired,
 		upgradeUrl: PropTypes.string.isRequired,
-		connectUrl: PropTypes.string.isRequired,
 		hasConnectedOwner: PropTypes.bool.isRequired,
 	};
 
@@ -127,7 +126,7 @@ class DashAkismet extends Component {
 						'jetpack'
 					) }
 					disableHref="false"
-					href={ this.props.connectUrl }
+					onClick={ this.props.connectUser }
 					eventFeature="akismet"
 					path="dashboard"
 					plan={ getJetpackProductUpsellByFeature( FEATURE_SPAM_AKISMET_PLUS ) }
@@ -254,12 +253,14 @@ export default connect(
 			isOfflineMode: isOfflineMode( state ),
 			upgradeUrl: getUpgradeUrl( state, 'aag-akismet' ),
 			nonce: getApiNonce( state ),
-			connectUrl: getConnectUrl( state ),
 			hasConnectedOwner: hasConnectedOwner( state ),
 		};
 	},
-	{
+	dispatch => ( {
 		createNotice,
 		removeNotice,
-	}
+		connectUser: () => {
+			return dispatch( connectUser() );
+		},
+	} )
 )( DashAkismet );

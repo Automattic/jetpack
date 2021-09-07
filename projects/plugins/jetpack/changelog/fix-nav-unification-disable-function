@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Fixed the condition that disables Nav-unification when SSO is disabled and the admin-menu class is overriden in jetpack_admin_menu_class filter.

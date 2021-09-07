@@ -23,7 +23,6 @@ const DEFAULT_TWEETSTORM_MESSAGE = '\n\n' + __( 'A thread ⬇️', 'jetpack' );
  * Returns the failed Publicize connections.
  *
  * @param {object} state - State object.
- *
  * @returns {Array} List of connections.
  */
 export function getFailedConnections( state ) {
@@ -35,7 +34,6 @@ export function getFailedConnections( state ) {
  * iFor example, when LinkedIn switched its API from v1 to v2.
  *
  * @param {object} state - State object.
- *
  * @returns {Array} List of service names that need reauthentication.
  */
 export function getMustReauthConnections( state ) {
@@ -48,7 +46,6 @@ export function getMustReauthConnections( state ) {
  * Returns a template for tweet data, based on the first Twitter account found.
  *
  * @param {object} state - State object.
- *
  * @returns {object} The Twitter account data.
  */
 export function getTweetTemplate( state ) {
@@ -70,7 +67,6 @@ export function getTweetTemplate( state ) {
  * Generates an array of tweets, including Twitter account data.
  *
  * @param {object} state - State object.
- *
  * @returns {Array} Array of tweets.
  */
 export function getTweetStorm( state ) {
@@ -100,7 +96,6 @@ export function getTweetStorm( state ) {
  * Constructs the first tweet to use in the thread.
  *
  * @param {object} state - State object.
- *
  * @returns {object} The tweet.
  */
 export function getFirstTweet( state ) {
@@ -142,7 +137,6 @@ export function getFirstTweet( state ) {
  * Constructs the last tweet to use in the thread.
  *
  * @param {object} state - State object.
- *
  * @returns {object} The tweet.
  */
 export function getLastTweet( state ) {
@@ -187,7 +181,6 @@ export function getSupportedBlockType( state, blockName ) {
  *
  * @param {object} state - State object.
  * @param {string} clientId - The clientId of the block.
- *
  * @returns {Array} The tweets.
  */
 export const getTweetsForBlock = createSelector(
@@ -208,7 +201,6 @@ export const getTweetsForBlock = createSelector(
  *
  * @param {object} state - State object.
  * @param {Array} urls - The URLs to find Twitter Card data for.
- *
  * @returns {object} The first available Twitter Card for the given URLs.
  */
 export function getTwitterCardForURLs( state, urls ) {
@@ -237,7 +229,6 @@ export function getTwitterCardForURLs( state, urls ) {
  *
  * @param {object} state - State object.
  * @param {string} url - The URL to check.
- *
  * @returns {boolean} Whether or not we have something for the URL.
  */
 export function twitterCardIsCached( state, url ) {

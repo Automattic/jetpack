@@ -40,7 +40,7 @@ class Jetpack_Widget_Conditions {
 		}
 
 		// API call to *list* the widget types doesn't use editing visibility or display widgets.
-		if ( false !== strpos( $_SERVER['REQUEST_URI'], '/wp-json/wp/v2/widget-types?' ) ) {
+		if ( false !== strpos( $_SERVER['REQUEST_URI'], '/widget-types?' ) ) {
 			return;
 		}
 
@@ -66,7 +66,7 @@ class Jetpack_Widget_Conditions {
 			}
 
 			// Encoding for a particular widget end point.
-			if ( 1 === preg_match( '|/wp-json/wp/v2/widget-types/.*/encode|', $_SERVER['REQUEST_URI'] ) ) {
+			if ( 1 === preg_match( '|/widget-types/.*/encode|', $_SERVER['REQUEST_URI'] ) ) {
 				$add_html_to_form      = true;
 				$handle_widget_updates = true;
 			}
@@ -289,7 +289,7 @@ class Jetpack_Widget_Conditions {
 			);
 
 			$widget_conditions_terms   = array();
-			$widget_conditions_terms[] = array( $taxonomy->name, __( 'All pages', 'jetpack' ) );
+			$widget_conditions_terms[] = array( $taxonomy->name, $taxonomy->labels->all_items );
 
 			foreach ( $taxonomy_terms as $term ) {
 				$widget_conditions_terms[] = array( $taxonomy->name . '_tax_' . $term->term_id, $term->name );
@@ -320,17 +320,17 @@ class Jetpack_Widget_Conditions {
 	}
 
 	/**
-	 * Retrieves a full list of all pages, containing just the IDs, post_parent, and post_title fields.
+	 * Retrieves a full list of all pages, containing just the IDs, post_parent, post_title, and post_status fields.
 	 *
 	 * Since the WordPress' `get_pages` function does not allow us to fetch only the fields mentioned
 	 * above, we need to introduce a custom method using a direct SQL query fetching those.
 	 *
-	 * By fetching only those 3 fields and not populating the object cache for all the pages, we can
+	 * By fetching only those four fields and not populating the object cache for all the pages, we can
 	 * improve the performance of the query on sites having a lot of pages.
 	 *
 	 * @see https://core.trac.wordpress.org/ticket/51469
 	 *
-	 * @return array List of all pages on the site (stdClass objects containing ID, post_title, and post_parent only).
+	 * @return array List of all pages on the site (stdClass objects containing ID, post_title, post_parent, and post_status only).
 	 */
 	public static function get_pages() {
 		global $wpdb;
@@ -339,7 +339,7 @@ class Jetpack_Widget_Conditions {
 		$cache_key    = "get_pages:$last_changed";
 		$pages        = wp_cache_get( $cache_key, 'widget_conditions' );
 		if ( false === $pages ) {
-			$pages = $wpdb->get_results( "SELECT {$wpdb->posts}.ID, {$wpdb->posts}.post_parent, {$wpdb->posts}.post_title FROM {$wpdb->posts} WHERE {$wpdb->posts}.post_type = 'page' AND {$wpdb->posts}.post_status = 'publish' ORDER BY {$wpdb->posts}.post_title ASC" );
+			$pages = $wpdb->get_results( "SELECT {$wpdb->posts}.ID, {$wpdb->posts}.post_parent, {$wpdb->posts}.post_title, {$wpdb->posts}.post_status FROM {$wpdb->posts} WHERE {$wpdb->posts}.post_type = 'page' AND {$wpdb->posts}.post_status = 'publish' ORDER BY {$wpdb->posts}.post_title ASC" );
 			wp_cache_set( $cache_key, $pages, 'widget_conditions' );
 		}
 
@@ -369,7 +369,7 @@ class Jetpack_Widget_Conditions {
 		 *
 		 * @module widget-visibility
 		 *
-		 * @param stdClass[] $pages       Array of objects containing only the ID, post_parent, and post_title fields.
+		 * @param stdClass[] $pages       Array of objects containing only the ID, post_parent, post_title, and post_status fields.
 		 * @param array      $parsed_args Array of get_pages() arguments.
 		 */
 		return apply_filters( 'jetpack_widget_visibility_get_pages', $pages, $parsed_args );

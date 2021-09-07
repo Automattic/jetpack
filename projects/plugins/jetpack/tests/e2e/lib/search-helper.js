@@ -11,33 +11,30 @@ import { execWpCommand } from './utils-helper';
 import config from 'config';
 
 export async function enableInstantSearch() {
-	return execWpCommand( 'wp option update instant_search_enabled 1' );
+	return execWpCommand( 'option update instant_search_enabled 1' );
 }
 
 export async function disableInstantSearch() {
-	return execWpCommand( 'wp option update instant_search_enabled 0' );
-}
-
-export async function disableSearchModule() {
-	await execWpCommand( 'wp jetpack module deactivate search' );
+	return execWpCommand( 'option update instant_search_enabled 0' );
 }
 
 export async function setResultFormat( format = 'expanded' ) {
-	return execWpCommand( `wp option update jetpack_search_result_format ${ format }` );
+	return execWpCommand( `option update jetpack_search_result_format ${ format }` );
 }
 
 export async function getSidebarsWidgets() {
 	try {
-		const sidebarsWidgetsOption = 'sidebars_widgets';
-		const sidebarsWidgetsValue = await execWpCommand(
-			`wp option get ${ sidebarsWidgetsOption } --format=json`
-		);
-		if ( typeof sidebarsWidgetsValue === 'object' ) {
-			throw sidebarsWidgetsValue;
-		}
-		return JSON.parse( sidebarsWidgetsValue );
+		return await getWpOptionData( 'sidebars_widgets' );
 	} catch ( e ) {
 		return getSidebarsWidgetsData();
+	}
+}
+
+export async function getBlockWidgets() {
+	try {
+		return await getWpOptionData( 'widget_block' );
+	} catch ( e ) {
+		return getBlockWidgetsData();
 	}
 }
 
@@ -45,10 +42,10 @@ export async function setupSidebarsWidgets( sidebarsWidgetsValue = getSidebarsWi
 	const sidebarsWidgetsOption = 'sidebars_widgets';
 	const sidebarsWidgetsFilePath = path.resolve( config.get( 'temp.sidebarsWidgetsFile' ) );
 
-	fs.writeFileSync( sidebarsWidgetsFilePath, JSON.stringify( sidebarsWidgetsValue ) );
-
-	return execWpCommand(
-		`wp option update ${ sidebarsWidgetsOption } --format=json <	${ sidebarsWidgetsFilePath }`
+	return await setWpOptionData(
+		sidebarsWidgetsOption,
+		sidebarsWidgetsValue,
+		sidebarsWidgetsFilePath
 	);
 }
 
@@ -56,11 +53,28 @@ export async function setupSearchWidget( searchWidgetValue = getSearchFiltersDat
 	const searchWidgetOption = 'widget_jetpack-search-filters';
 	const searchWidgetFilePath = path.resolve( config.get( 'temp.searchWidgetFile' ) );
 
-	fs.writeFileSync( searchWidgetFilePath, JSON.stringify( searchWidgetValue ) );
+	return await setWpOptionData( searchWidgetOption, searchWidgetValue, searchWidgetFilePath );
+}
 
-	return execWpCommand(
-		`wp option update ${ searchWidgetOption } --format=json <	${ searchWidgetFilePath }`
-	);
+export async function setupBlockWidgets( blockWidgets = getBlockWidgetsData() ) {
+	const blockWidgetsOption = 'widget_block';
+	const blockWidgetsFilePath = path.resolve( config.get( 'temp.blockWidgetsFile' ) );
+
+	return await setWpOptionData( blockWidgetsOption, blockWidgets, blockWidgetsFilePath );
+}
+
+async function setWpOptionData( optionName, value, tempFilePath ) {
+	fs.writeFileSync( tempFilePath, JSON.stringify( value ) );
+
+	return await execWpCommand( `option update ${ optionName } --format=json <	${ tempFilePath }` );
+}
+
+async function getWpOptionData( optionName ) {
+	const value = await execWpCommand( `option get ${ optionName } --format=json` );
+	if ( typeof value === 'object' ) {
+		throw value;
+	}
+	return JSON.parse( value );
 }
 
 function getSearchFiltersData() {
@@ -79,11 +93,19 @@ function getSearchFiltersData() {
 	};
 }
 
+function getBlockWidgetsData() {
+	return {
+		22: { content: '<!-- wp:search /-->' },
+		23: { content: '<!-- wp:search /-->' },
+		_multiwidget: 1,
+	};
+}
+
 function getSidebarsWidgetsData() {
 	return {
 		wp_inactive_widgets: [],
-		'sidebar-1': [ 'search-2', 'recent-posts-2', 'recent-comments-2' ],
-		'sidebar-2': [ 'archives-2', 'categories-2', 'meta-2' ],
+		'sidebar-1': [ 'block-22' ],
+		'sidebar-2': [ 'block-23' ],
 		'jetpack-instant-search-sidebar': [ 'jetpack-search-filters-8' ],
 		array_version: 3,
 	};

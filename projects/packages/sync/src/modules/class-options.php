@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Sync\Defaults;
+use Automattic\Jetpack\Sync\Settings;
 
 /**
  * Class to handle sync for options.
@@ -218,9 +219,14 @@ class Options extends Module {
 		$options       = array();
 		$random_string = wp_generate_password();
 		foreach ( $this->options_whitelist as $option ) {
-			$option_value = get_option( $option, $random_string );
-			if ( $option_value !== $random_string ) {
+			if ( 0 === strpos( $option, Settings::SETTINGS_OPTION_PREFIX ) ) {
+				$option_value       = Settings::get_setting( str_replace( Settings::SETTINGS_OPTION_PREFIX, '', $option ) );
 				$options[ $option ] = $option_value;
+			} else {
+				$option_value = get_option( $option, $random_string );
+				if ( $option_value !== $random_string ) {
+					$options[ $option ] = $option_value;
+				}
 			}
 		}
 
@@ -454,9 +460,14 @@ class Options extends Module {
 			$random_string = wp_generate_password();
 			// Only whitelisted options can be returned.
 			if ( in_array( $id, $this->options_whitelist, true ) ) {
-				$option_value = get_option( $id, $random_string );
-				if ( $option_value !== $random_string ) {
+				if ( 0 === strpos( $id, Settings::SETTINGS_OPTION_PREFIX ) ) {
+					$option_value = Settings::get_setting( str_replace( Settings::SETTINGS_OPTION_PREFIX, '', $id ) );
 					return $option_value;
+				} else {
+					$option_value = get_option( $id, $random_string );
+					if ( $option_value !== $random_string ) {
+						return $option_value;
+					}
 				}
 			} elseif ( 'all' === $id ) {
 				return $this->get_all_options();

@@ -1,28 +1,31 @@
 {
 	"name": "@automattic/jetpack-connection",
-	"version": "0.5.0-alpha",
+	"version": "0.6.0",
 	"description": "Jetpack Connection Component",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
-		"@automattic/jetpack-components": "workspace:^0.2.0-alpha",
-		"@wordpress/browserslist-config": "3.0.1",
-		"@wordpress/components": "9.2.6",
-		"@wordpress/element": "3.1.1",
-		"@wordpress/i18n": "^3.9.0",
+		"@automattic/jetpack-api": "workspace:^0.2.0",
+		"@automattic/jetpack-components": "workspace:^0.3.0",
+		"@wordpress/base-styles": "3.6.0",
+		"@wordpress/browserslist-config": "4.1.0",
+		"@wordpress/components": "16.0.0",
+		"@wordpress/data": "6.0.1",
+		"@wordpress/element": "4.0.0",
+		"@wordpress/i18n": "4.2.1",
 		"lodash": "4.17.21",
 		"prop-types": "^15.7.2"
 	},
 	"devDependencies": {
 		"jetpack-js-test-runner": "workspace:*",
 		"nyc": "15.1.0",
-		"react": "16.14.0",
-		"react-dom": "16.14.0",
-		"react-test-renderer": "16.14.0"
+		"react": "17.0.2",
+		"react-dom": "17.0.2",
+		"react-test-renderer": "17.0.2"
 	},
 	"peerDependencies": {
-		"react": "^16.13.1",
-		"react-dom": "^16.13.1"
+		"react": "^17.0.2",
+		"react-dom": "^17.0.2"
 	},
 	"type": "module",
 	"sideEffects": [
@@ -33,7 +36,7 @@
 		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.jsx'"
 	},
 	"engines": {
-		"node": "^14.16.1",
+		"node": "^16.7.0",
 		"pnpm": "^6.5.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}

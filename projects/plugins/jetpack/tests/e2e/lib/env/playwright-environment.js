@@ -5,7 +5,7 @@ const path = require( 'path' );
 const chalk = require( 'chalk' );
 const logger = require( '../logger' );
 const pwContextOptions = require( '../../playwright.config' ).pwContextOptions;
-const { fileNameFormatter } = require( '../utils-helper' );
+const { fileNameFormatter, resolveSiteUrl, isLocalSite } = require( '../utils-helper' );
 const { takeScreenshot } = require( '../reporters/screenshot' );
 const config = require( 'config' );
 const { ContentType } = require( 'jest-circus-allure-environment' );
@@ -31,9 +31,8 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 		// Create a new browser context
 		await this.newContext();
 
-		this.global.siteUrl = fs
-			.readFileSync( config.get( 'temp.tunnels' ), 'utf8' )
-			.replace( 'http:', 'https:' );
+		this.global.siteUrl = resolveSiteUrl();
+		this.global.isLocalSite = isLocalSite();
 	}
 
 	async teardown() {
@@ -158,11 +157,11 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 		} );
 
 		page.on( 'pageerror', exception => {
-			logger.error( `Page error: "${ exception }"` );
+			logger.debug( `Page error: "${ exception }"` );
 		} );
 
 		page.on( 'requestfailed', request => {
-			logger.error( `Request failed: ${ request.url() }  ${ request.failure().errorText }` );
+			logger.debug( `Request failed: ${ request.url() }  ${ request.failure().errorText }` );
 		} );
 	}
 
@@ -197,9 +196,9 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 	 * Series of actions to be performed when a failure is detected
 	 *
 	 * @param {string} eventFullName the event in which the failure occurred (e.g. test name)
-	 * @param {string} parentName the event's parent name (e.g. describe block name)
-	 * @param {string} eventName the event in which the failure occurred (e.g. test name)
-	 * @param {Object} error the error object that triggered the failure
+	 * @param {string} parentName    the event's parent name (e.g. describe block name)
+	 * @param {string} eventName     the event in which the failure occurred (e.g. test name)
+	 * @param {Object} error         the error object that triggered the failure
 	 * @return {Promise<void>}
 	 */
 	async onFailure( eventFullName, parentName, eventName, error ) {

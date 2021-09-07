@@ -7,26 +7,26 @@
 		"js-test-runner": "js-test-runner.js"
 	},
 	"dependencies": {
-		"@babel/core": "7.12.10",
-		"@babel/plugin-transform-runtime": "7.12.15",
-		"@babel/preset-env": "7.12.13",
-		"@babel/preset-react": "7.12.10",
-		"@babel/register": "7.12.10",
-		"@babel/runtime": "7.12.18",
+		"@babel/core": "7.15.0",
+		"@babel/plugin-transform-runtime": "7.15.0",
+		"@babel/preset-env": "7.15.0",
+		"@babel/preset-react": "7.14.5",
+		"@babel/register": "7.15.3",
+		"@babel/runtime": "7.15.3",
+		"@wojtekmaj/enzyme-adapter-react-17": "0.6.3",
 		"chai": "4.3.4",
 		"commander": "7.2.0",
 		"enzyme": "3.11.0",
-		"enzyme-adapter-react-16": "1.15.6",
 		"glob": "7.1.6",
+		"global-jsdom": "8.1.0",
 		"jsdom": "16.4.0",
-		"jsdom-global": "3.0.2",
 		"mocha": "8.2.1",
 		"nock": "13.0.7",
 		"sinon": "9.2.4",
 		"sinon-chai": "3.5.0"
 	},
 	"engines": {
-		"node": "^14.16.1",
+		"node": "^16.7.0",
 		"pnpm": "^6.5.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}

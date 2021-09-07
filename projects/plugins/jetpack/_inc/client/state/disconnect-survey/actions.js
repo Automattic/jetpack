@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import restApi from 'rest-api';
+import restApi from '@automattic/jetpack-api';
 import {
 	JETPACK_MARKETING_SUBMIT_DISCONNECT_SURVEY,
 	JETPACK_MARKETING_SUBMIT_DISCONNECT_SURVEY_SUCCESS,

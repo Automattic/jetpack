@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2021-08-31
+### Changed
+- Run composer update on test-php command instead of phpunit.
+- Tests: update PHPUnit polyfills dependency (yoast/phpunit-polyfills).
+- Update annotations versions.
+- Update to latest webpack, webpack-cli and calypso-build.
+- Use Node 16.7.0 in tooling. This shouldn't change the behavior of the code itself.
+
+### Removed
+- Removed IE11 support.
+
+## [1.5.1] - 2021-08-10
+### Changed
+- Updated package dependencies
+
 ## [1.5.0] - 2021-06-29
 ### Changed
 - Build using calypso-build, and use the intersection-observer npm module instead of bundling a copy.
@@ -92,6 +107,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Lazy Images: Move into a package
 
+[2.0.0]: https://github.com/Automattic/jetpack-lazy-images/compare/v1.5.1...v2.0.0
+[1.5.1]: https://github.com/Automattic/jetpack-lazy-images/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/Automattic/jetpack-lazy-images/compare/v1.4.4...v1.5.0
 [1.4.4]: https://github.com/Automattic/jetpack-lazy-images/compare/v1.4.3...v1.4.4
 [1.4.3]: https://github.com/Automattic/jetpack-lazy-images/compare/v1.4.2...v1.4.3

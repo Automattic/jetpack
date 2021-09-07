@@ -13,6 +13,7 @@ function usage {
 
 		Prepare a release of the specified project and everything it depends on.
 		 - Run \`changelogger write\`
+		 - Run \`tools/replace-next-version-tag.sh\`
 		 - Run \`tools/project-version.sh\`
 
 		Pass \`-b\` to prepare a beta release by passing \`--prerelease=beta\` to changelogger.
@@ -72,6 +73,7 @@ cd "$BASE"
 pnpx jetpack install --all
 
 DEPS="$(tools/find-project-deps.php)"
+declare -A RELEASED
 
 # Release a project
 #  - $1: Project slug.
@@ -96,6 +98,7 @@ function releaseProject {
 	fi
 
 	info "${I}Processing $SLUG..."
+	RELEASED[$SLUG]=1
 
 	# Find changelogger.
 	local CL
@@ -124,6 +127,9 @@ function releaseProject {
 	debug "${I}  $CL version current"
 	local VER=$($CL version current)
 
+	# Replace $$next-version$$
+	"$BASE"/tools/replace-next-version-tag.sh "$SLUG" "${VER%-beta}"
+
 	# Update versions.
 	ARGS=()
 	if [[ -n "$VERBOSE" ]]; then
@@ -143,6 +149,23 @@ function releaseProject {
 }
 
 releaseProject "$SLUG" "$BETA"
+
+cd "$BASE"
+info "Updating dependencies..."
+SLUGS=()
+# Use a temp variable so pipefail works
+TMP="$(tools/get-build-order.php 2>/dev/null)"
+TMP=monorepo$'\n'"$TMP"
+mapfile -t SLUGS <<<"$TMP"
+for SLUG in "${SLUGS[@]}"; do
+	if [[ -n "${RELEASED[$SLUG]}" ]]; then
+		debug "  tools/check-intra-monorepo-deps.sh $VERBOSE -U $SLUG"
+		tools/check-intra-monorepo-deps.sh $VERBOSE -U "$SLUG"
+	else
+		debug "  tools/check-intra-monorepo-deps.sh $VERBOSE -u $SLUG"
+		tools/check-intra-monorepo-deps.sh $VERBOSE -u "$SLUG"
+	fi
+done
 
 cat <<-EOM
 

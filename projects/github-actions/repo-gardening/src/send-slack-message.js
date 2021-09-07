@@ -12,7 +12,6 @@ const fetch = require( 'node-fetch' );
  * @param {string}                    channel - Slack channel ID.
  * @param {string}                    token   - Slack token.
  * @param {WebhookPayloadPullRequest} payload - Pull request event payload.
- *
  * @returns {Promise<boolean>} Promise resolving to a boolean, whether message was successfully posted or not.
  */
 async function sendSlackMessage( message, channel, token, payload ) {

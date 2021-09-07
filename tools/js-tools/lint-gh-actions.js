@@ -21,7 +21,7 @@ const hint =
 
 let verbose = false;
 const files = [];
-process.argv.slice( 1 ).forEach( arg => {
+process.argv.slice( 2 ).forEach( arg => {
 	if ( arg === '-v' ) {
 		verbose = true;
 	} else {
@@ -78,6 +78,14 @@ files.forEach( file => {
 	debug( `Checking ${ file }` );
 	const fileContents = fs.readFileSync( file, 'utf8' );
 	const doc = YAML.parseDocument( fileContents );
+
+	if ( doc.errors.length ) {
+		doc.errors.forEach( e => {
+			const line = fileContents.substr( 0, e.source.range.start ).split( /\n/ ).length;
+			error( file, line, `${ e.name }: ${ e.message }` );
+		} );
+	}
+
 	checkAction( file, fileContents, '', doc.contents );
 } );
 

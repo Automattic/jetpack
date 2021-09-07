@@ -65,7 +65,17 @@ gulp.task( 'search-configure:watch', function () {
 	child.stdout.on( 'data', data => log( data.toString() ) );
 } );
 
-gulp.task( 'php:module-headings', function ( callback ) {
+gulp.task( 'widget-visibility:watch', function () {
+	const child = require( 'child_process' ).execFile( 'pnpm', [
+		'run',
+		'build-widget-visibility',
+		'--',
+		'--watch',
+	] );
+	child.stdout.on( 'data', data => log( data.toString() ) );
+} );
+
+gulp.task( 'php:module-headings', function () {
 	const process = spawn( 'php', [ 'tools/build-module-headings-translations.php' ] );
 	process.stderr.on( 'data', function ( data ) {
 		log( data.toString() );
@@ -73,12 +83,7 @@ gulp.task( 'php:module-headings', function ( callback ) {
 	process.stdout.on( 'data', function ( data ) {
 		log( data.toString() );
 	} );
-	process.on( 'exit', function ( code ) {
-		if ( 0 !== code ) {
-			log( 'Failed building module headings translations: process exited with code ', code );
-		}
-		callback();
-	} );
+	return process;
 } );
 
 gulp.task( 'old-styles', gulp.parallel( frontendcss, admincss, 'sass:old', 'sass:packages' ) );
@@ -97,7 +102,8 @@ gulp.task(
 		'old-styles:watch',
 		'blocks:watch',
 		'search-app:watch',
-		'search-configure:watch'
+		'search-configure:watch',
+		'widget-visibility:watch'
 	)
 );
 

@@ -1,0 +1,38 @@
+name: Enhancement Request
+description: Suggest a change to a feature you like!
+title: "Enhancement:"
+labels: ["[Type] Enhancement"]
+body:
+  - type: dropdown
+    id: plugin-type
+    attributes:
+      label: Impacted plugin
+      description: Multiple selection is supported.
+      options:
+        - Jetpack
+        - Backup
+        - Boost
+        - Beta
+        - Debug Helper
+        - VaultPress
+        - Other
+      multiple: true
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        Please, be as descriptive as possible. Issues lacking detail, or for any other reason than to request a feature, may be closed without action.
+  - type: input
+    id: what
+    attributes:
+      label: What
+      description: Add a concise description of the change being suggested.
+      placeholder: eg. I would like a new dropdown at <xyz>...
+    validations:
+      required: true
+  - type: textarea
+    id: how
+    attributes:
+      label: How
+      description: If applicable, add screenshots, mockup, animations, and/or videos to help illustrate what the change could look like.

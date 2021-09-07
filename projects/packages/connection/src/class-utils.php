@@ -25,17 +25,17 @@ class Utils {
 	 * @param string $url The url.
 	 * @return string The exact same url.
 	 *
-	 * @deprecated 9.1.0 Jetpack can't function properly on servers that don't support outbound HTTPS requests.
+	 * @deprecated 1.19.2 Jetpack can't function properly on servers that don't support outbound HTTPS requests.
 	 */
 	public static function fix_url_for_bad_hosts( $url ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.1.0' );
+		_deprecated_function( __METHOD__, '1.19.2' );
 		return $url;
 	}
 
 	/**
 	 * Enters a user token into the user_tokens option
 	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens->update_user_token() instead.
+	 * @deprecated 1.24.0 Use Automattic\Jetpack\Connection\Tokens->update_user_token() instead.
 	 *
 	 * @param int    $user_id The user id.
 	 * @param string $token The user token.
@@ -43,7 +43,7 @@ class Utils {
 	 * @return bool
 	 */
 	public static function update_user_token( $user_id, $token, $is_master_user ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->update_user_token' );
+		_deprecated_function( __METHOD__, '1.24.0', 'Automattic\\Jetpack\\Connection\\Tokens->update_user_token' );
 		return ( new Tokens() )->update_user_token( $user_id, $token, $is_master_user );
 	}
 

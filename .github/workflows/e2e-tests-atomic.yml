@@ -1,0 +1,119 @@
+name: E2E Tests on Atomic sites
+
+on:
+  schedule:
+    - cron:  '0 */4 * * *'
+
+jobs:
+  e2e-tests:
+    name: "E2E tests"
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup tools
+      uses: ./.github/actions/tool-setup
+      with:
+        php: false
+
+    - name: Install
+      working-directory: projects/plugins/jetpack/tests/e2e
+      env:
+        CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
+      run: |
+        pnpm install --dir ../../../../tools/cli
+        pnpm install
+        pnpm run test-decrypt-config
+
+    - name: Run tests
+      working-directory: projects/plugins/jetpack/tests/e2e
+      env:
+        TEST_SITE: atomic
+      run: pnpm run test-e2e -- --group=atomic --testNamePattern='^(?!Paid blocks WordAds block).*$'
+
+    - name: Upload test artifacts
+      if: ${{ always() }}
+      continue-on-error: true
+      uses: actions/upload-artifact@v2
+      with:
+        name: test-output-${{ matrix.group }}
+        path: projects/plugins/jetpack/tests/e2e/output
+
+    - name: Send Slack notification
+      if: ${{ failure() }}
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      working-directory: projects/plugins/jetpack/tests/e2e
+      run: NODE_ENV=test node ./bin/slack.js suite atomic --report atomic
+
+    - uses: testspace-com/setup-testspace@v1
+      with:
+        domain: ${{github.repository_owner}}
+      if: always()
+    - name: Publish to Testspace
+      working-directory: projects/plugins/jetpack/tests/e2e
+      run: |
+        testspace "[${GROUP}]output/reports/junit-*.xml"
+      if: always()
+
+  slack-notification:
+    name: "Slack notification"
+    runs-on: ubuntu-latest
+    needs: e2e-tests
+    env:
+      CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
+      GITHUB_CONTEXT: ${{ toJson(github) }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+        with:
+          php: false
+
+      - name: Send Slack notification
+        working-directory: projects/plugins/jetpack/tests/e2e
+        env:
+          RESULT: ${{ needs.e2e-tests.result }}
+        run: |
+          pnpm install
+          pnpm run test-decrypt-config
+          NODE_ENV=test node ./bin/slack.js status $RESULT --report atomic
+
+  test-reports:
+    name: "Trigger test report workflow"
+    runs-on: ubuntu-latest
+    if: ${{ ! cancelled() }}
+    needs: e2e-tests
+
+    steps:
+      - name: Trigger test report workflow
+        env:
+          TOKEN: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" == pull_request ]; then
+          	BRANCH=$GITHUB_HEAD_REF
+            EVENT_NAME="$PR_NUMBER: $PR_TITLE"
+          else
+          	BRANCH=${GITHUB_REF:11}
+            EVENT_NAME="Run $GITHUB_RUN_ID"
+          fi
+
+          curl -X POST https://api.github.com/repos/automattic/jetpack-e2e-reports/dispatches \
+          -H "Accept: application/vnd.github.v3+json" \
+          -u "user:$TOKEN" \
+          --data "{\"event_type\": \"$EVENT_NAME\",
+          \"client_payload\": {
+          \"repository\": \"$GITHUB_REPOSITORY\",
+          \"run_id\": \"$GITHUB_RUN_ID\",
+          \"run_number\": \"$GITHUB_RUN_NUMBER\",
+          \"branch\": \"$BRANCH\",
+          \"pr_title\": \"$PR_TITLE\",
+          \"pr_number\": \"$PR_NUMBER\",
+          \"report_name\": \"atomic\"
+          }}"

@@ -67,7 +67,7 @@ export default class SearchSort extends Component {
 				<div className="screen-reader-text">{ __( 'Sort by: ', 'jetpack' ) }</div>
 				{ [ ...sortOptions.entries() ].map( ( [ sortKey, label ] ) => (
 					<a
-						class={ `jetpack-instant-search__search-sort-option ${
+						className={ `jetpack-instant-search__search-sort-option ${
 							this.props.value === sortKey ? 'is-selected' : ''
 						}` }
 						data-value={ sortKey }

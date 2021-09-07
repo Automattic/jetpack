@@ -98,7 +98,7 @@ class AutoupdateSelf {
 				foreach ( $releases as $release ) {
 					// Since 2.2, so that we don't have to maker the Jetpack Beta 2.0.3 as prerelease.
 					if ( ! $release->prerelease ) {
-						$tagged_version = $release->tag_name;
+						$tagged_version = ltrim( $release->tag_name, 'v' );
 						break;
 					}
 				}

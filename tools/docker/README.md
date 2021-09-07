@@ -14,42 +14,42 @@ Unified environment for developing Jetpack using Docker containers providing fol
 
 ## To get started
 
-_**All commands mentioned in this document should be run from the base Jetpack directory. Not from the `docker` directory!**_
-
 ### Prerequisites
 
-* [Docker](https://hub.docker.com/search/?type=edition&offering=community)
-* [NodeJS](https://nodejs.org)
-* [Pnpm](https://pnpm.io/)
-* Optionally [Ngrok](https://ngrok.com) client and account or some other service for creating a local HTTP tunnel. It’s fine to stay on the free pricing tier with Ngrok.
+To use Jetpack's Docker environment, you will need:
 
-Install prerequisites; you will need to open up Docker to install its dependencies.
+- A [local copy of the Jetpack repository](https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#clone-the-repository).
+- [Docker](https://hub.docker.com/search/?type=edition&offering=community) installed and running.
+- [Jetpack's required tools](https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#install-development-tools).
 
-Start by cloning the Jetpack repository:
+Our Docker instance comes with a default settings file. You can modify those defaults by copying the file:
 
-```sh
-git clone git@github.com:Automattic/jetpack.git && cd jetpack
-```
-
-Optionally, copy settings file to modify it:
 ```sh
 cp tools/docker/default.env tools/docker/.env
 ```
 
 Anything you put in `.env` overrides values in `default.env`. You should modify all the password fields for security, for example.
 
-Finally, spin up the containers:
+**Note**: in older versions of docker-compose (earlier than 1.28), you'll need to place that file at the root of the monorepo.
+
+## Quick start
+
+Once you're all set with the above, spin up the containers:
 ```sh
 jetpack docker up
 ```
 
-Non-installed WordPress is running at [http://localhost](http://localhost) now.
+Non-installed WordPress is running at [http://localhost](http://localhost) now. To install WordPress and configure some useful defaults, run
+```sh
+jetpack docker install
+```
 
-You should establish a tunnel to your localhost with Ngrok or [other similar service](https://alternativeto.net/software/ngrok/) to be able to connect Jetpack. You cannot connect Jetpack when running WordPress via `http://localhost`. Read more from ["Using Ngrok with Jetpack"](#using-ngrok-with-jetpack) section below.
+At this point, we encourage you to set up a service that can create local HTTP tunnels, such as [the Jurassic Tube Tunneling Service](#jurassic-tube-tunneling-service) if you are an Automattician, [ngrok](#using-ngrok-with-jetpack), or [another similar service](https://alternativeto.net/software/ngrok/).
+With such a service, your site will be publicly accessible and you will be able to connect Jetpack to WordPress.com.
 
 _You are now ready to login to your new WordPress install and connect Jetpack, congratulations!_
 
-You should follow [Jetpack’s development documentation](../../docs/development-environment.md) for installing Jetpack’s dependencies and building files. Docker setup does not build these for you.
+You should follow [Jetpack’s development documentation](../../docs/development-environment.md#development-workflow) for installing Jetpack’s dependencies and building files. Docker setup does not build these for you.
 
 ## Good to know
 
@@ -63,7 +63,7 @@ You can control some of the behavior of Jetpack's Docker configuration with envi
 
 ### Host Environment
 
-You can set the following variables on a per-command basis (`PORT_WORDPRESS=8000 jetpack docker up`) or, preferably, in a `./.env` file in Jetpack's root directory.
+You can set the following variables on a per-command basis (`PORT_WORDPRESS=8000 jetpack docker up`) or, preferably, in the `tools/docker/.env` file you set up earlier.
 
 * `PORT_WORDPRESS`: (default=`80`) The port on your host machine connected to the WordPress container's HTTP server.
 * `PORT_MAILDEV`: (default=`1080`) The port on your host machine connected to the MailDev container's MailDev HTTP server.
@@ -77,7 +77,7 @@ Customizations should go into a `./tools/docker/.env` file you create, though, n
 
 ### Docker configurations
 
-Jetpack Docker provides two types of configurations: `dev` and `e2e`. These configurations define lists of services to start, volumes to map, etc. Both of them extend default configuration `tools/docker/docker-compose.yml` via the config file: `tools/docker/jetpack-docker-config-default.yml`. 
+Jetpack Docker provides two types of configurations: `dev` and `e2e`. These configurations define lists of services to start, volumes to map, etc. Both of them extend default configuration `tools/docker/docker-compose.yml` via the config file: `tools/docker/jetpack-docker-config-default.yml`.
 
 * `dev` configuration is used by default, and is aimed for Jetpack development.
 * `e2e` configuration is created specifically for Jetpack E2E tests.
@@ -89,7 +89,7 @@ Users can extended these configurations further via override config file `tools/
 The default config file `tools/docker/jetpack-docker-config-default.yml` includes inline comments explaining the structure of config, but here's quick overview. The configuration is grouped per environment type: `default`, `dev`, `e2e`. Each type may define `volumeMappings` and `extras`:
 
 * `volumeMappings` - list of key value pairs which defines local directory mappings with following structure: local_path: wordpress_container_path
-* `extras` - basically any other configuration that is supported by `docker-compose` 
+* `extras` - basically any other configuration that is supported by `docker-compose`
 
 ### Building on M1 Macs
 
@@ -131,7 +131,7 @@ jetpack docker uninstall
 jetpack docker up
 ```
 
-Start three containers (WordPress, MySQL and MailDev) defined in `docker-composer.yml`. Wrapper for `docker-composer up`.
+Start the containers (WordPress, MySQL and MailDev) defined in `docker-composer.yml`.
 
 This command will rebuild the WordPress container if you made any changes to `docker-composer.yml`.
 
@@ -147,7 +147,7 @@ jetpack docker up -d
 jetpack docker stop
 ```
 
-Stops all containers. Wrapper for `docker-compose stop`.
+Stops all containers.
 
 ```sh
 jetpack docker down
@@ -223,15 +223,7 @@ Note that each `wp shell` session counts as a single request, causing unexpected
 
 ## MySQL database
 
-Connecting to your MySQL database from outside the container, use:
-
-- Host: `127.0.0.1`
-- Port: `3306`
-- User: `wordpress`
-- Pass: `wordpress`
-- Database: `wordpress`
-
-You can also see your database files via local file system at `./tools/docker/data/mysql`
+You can see your database files via local file system at `./tools/docker/data/mysql`
 
 You can also access it via phpMyAdmin at [http://localhost:8181](http://localhost:8181).
 
@@ -270,9 +262,19 @@ define( 'JETPACK__SANDBOX_DOMAIN', '{your sandbox}.wordpress.com' );
 ```
 
 ## Jurassic Tube Tunneling Service
-If you are an Automattician, you can use Jurassic Tube tunneling service with functionality similar to Ngrok.
 
-As it is developed internally, you can review the source code and participate in adding new features.
+This is for Automatticians only. More information: PCYsg-snO-p2.
+
+If you have persistent trouble with the `jetpack docker jt-*` commands complaining that "Tunneling scripts are not installed", it could be because Docker wasn't running properly when you ran the installer.
+
+To solve this problem, run these commands from the repo root:
+
+```
+jetpack docker up -d
+chmod +x tools/docker/bin/jt/installer.sh && tools/docker/bin/jt/installer.sh
+```
+
+Once you have successfull installed Jurassic Tube, you can use these commands during development:
 
 * Start the tunnel: `jetpack docker jt-up your-username your-subdomain`
 * Break the connection: `jetpack docker jt-down`
@@ -288,7 +290,6 @@ That will let you omit those parameters while initiating the connection:
 jetpack docker jt-up
 ```
 
-More information: PCYsg-snO-p2.
 ## Using Ngrok with Jetpack
 
 Note: While Ngrok is technically supported for everyone, Jurassic Tube should be considered as preferred tunneling solution for Automatticians.

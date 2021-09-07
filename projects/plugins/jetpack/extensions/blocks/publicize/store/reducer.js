@@ -9,7 +9,6 @@ export const DEFAULT_STATE = {
  *
  * @param {object} state - Current state.
  * @param {object} action - Dispatched action.
- *
  * @returns {object} Updated state.
  */
 export default function ( state = DEFAULT_STATE, action ) {

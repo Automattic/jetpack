@@ -26,6 +26,12 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"autotagger": true,
+		"npmjs-autopublish": true,
+		"mirror-repo": "Automattic/eslint-changed",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/eslint-changed/compare/${old}...${new}"
+		},
 		"version-constants": {
 			"::APP_VERSION": "bin/eslint-changed.js"
 		}

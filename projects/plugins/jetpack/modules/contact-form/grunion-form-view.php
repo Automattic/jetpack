@@ -37,13 +37,13 @@ wp_localize_script(
 		'optionsLabel'          => esc_attr( _x( 'Options', 'Label for the set of options to be included in a user-created dropdown in contact form builder', 'jetpack' ) ),
 		'optionsLabel'          => esc_attr( _x( 'Option', 'Label for an option to be included in a user-created dropdown in contact form builder', 'jetpack' ) ),
 		'firstOptionLabel'      => esc_attr( _x( 'First option', 'Default label for the first option to be included in a user-created dropdown in contact form builder', 'jetpack' ) ),
-		'problemGeneratingForm' => esc_attr( _x( "Oops, there was a problem generating your form.  You'll likely need to try again.", 'error message in contact form builder', 'jetpack' ) ),
+		'problemGeneratingForm' => esc_attr( _x( "Oops, there was a problem generating your form. You'll likely need to try again.", 'error message in contact form builder', 'jetpack' ) ),
 		'moveInstructions'      => esc_attr__( "Drag up or down\nto re-arrange", 'jetpack' ),
 		'moveLabel'             => esc_attr( _x( 'move', 'Label to drag HTML form fields around to change their order in contact form builder', 'jetpack' ) ),
 		'editLabel'             => esc_attr( _x( 'edit', 'Link to edit an HTML form field in contact form builder', 'jetpack' ) ),
 		'savedMessage'          => esc_attr__( 'Saved successfully', 'jetpack' ),
 		'requiredLabel'         => esc_attr( _x( '(required)', 'This HTML form field is marked as required by the user in contact form builder', 'jetpack' ) ),
-		'exitConfirmMessage'    => esc_attr__( 'Are you sure you want to exit the form editor without saving?  Any changes you have made will be lost.', 'jetpack' ),
+		'exitConfirmMessage'    => esc_attr__( 'Are you sure you want to exit the form editor without saving? Any changes you have made will be lost.', 'jetpack' ),
 		'maxNewFields'          => (int) $max_new_fields,
 	)
 );
@@ -196,7 +196,7 @@ if ( is_rtl() ) {
 		</div>
 		<div id="fb-email-desc" class="fb-desc" style="display: none;">
 			<h3><?php esc_html_e( 'Do I need to fill this out?', 'jetpack' ); ?></h3>
-			<p><?php esc_html_e( 'Nope.  However, if you&#8217;d like to modify where your feedback is sent, or the subject line you can.  If you don&#8217;t make any changes here, feedback will be sent to the author of the page/post and the subject will be the name of this page/post.', 'jetpack' ); ?></p>
+			<p><?php esc_html_e( 'Nope. However, if you’d like to modify where your feedback is sent, or the subject line you can. If you don&#8217;t make any changes here, feedback will be sent to the author of the page/post and the subject will be the name of this page/post.', 'jetpack' ); ?></p>
 			<h3 style="margin-top: 21px;"><?php esc_html_e( 'Can I send a notification to more than one person?', 'jetpack' ); ?></h3>
 			<p><?php esc_html_e( 'Yep. You can enter multiple email addresses in the Email address field, and separate them with commas. A notification email will then be sent to each email address.', 'jetpack' ); ?></p>
 			<div class="clear"></div>

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Publicize: avoid PHP notices in edge-cases where no info about a post can be found.

@@ -50,6 +50,7 @@
 		background: none;
 		border: none;
 		height: initial;
+		margin: 0;
 		width: initial;
 		&::after,
 		&::before {
@@ -60,6 +61,7 @@
 	.jetpack-instant-search__search-filter-list-label,
 	// Extra specific to override in some themes
 	.widget_search .jetpack-instant-search__search-filter-list-label {
+		color: inherit;
 		cursor: pointer;
 		display: inline-block;
 		font-weight: normal;

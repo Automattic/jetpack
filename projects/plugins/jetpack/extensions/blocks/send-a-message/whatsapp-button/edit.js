@@ -75,7 +75,6 @@ export default function WhatsAppButtonEdit( { attributes, setAttributes, classNa
 
 			<RichText
 				placeholder={ buttonText.default }
-				keepPlaceholderOnFocus={ true }
 				value={ buttonText }
 				onChange={ value => setAttributes( { buttonText: value } ) }
 				withoutInteractiveFormatting

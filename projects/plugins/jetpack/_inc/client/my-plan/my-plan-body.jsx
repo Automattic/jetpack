@@ -80,9 +80,14 @@ class MyPlanBody extends React.Component {
 			[
 				'is-premium-plan',
 				'is-business-plan',
+				'is-security-t1-plan',
+				'is-security-t2-plan',
+				'is-complete-plan',
+
+				// DEPRECATED: Daily and Real-time variations will soon be retired.
+				// Remove after all customers are migrated to new products.
 				'is-daily-security-plan',
 				'is-realtime-security-plan',
-				'is-complete-plan',
 			],
 			planClass
 		);
@@ -110,7 +115,7 @@ class MyPlanBody extends React.Component {
 							onClick={ this.handleButtonClickForTracking( 'view_backup_dash' ) }
 							href={ getRedirectUrl( 'calypso-activity-log', { site: this.props.siteRawUrl } ) }
 						>
-							{ __( 'View Your Backups', 'jetpack' ) }
+							{ __( 'View your backups', 'jetpack' ) }
 						</Button>
 					</div>
 				</div>
@@ -134,7 +139,7 @@ class MyPlanBody extends React.Component {
 						</div>
 						<div className="jp-landing__plan-features-text">
 							<h3 className="jp-landing__plan-features-title">
-								{ __( 'Site Backups', 'jetpack' ) }
+								{ __( 'Site backups', 'jetpack' ) }
 							</h3>
 							<p>
 								{ __(
@@ -189,7 +194,7 @@ class MyPlanBody extends React.Component {
 					</div>
 					<div className="jp-landing__plan-features-text">
 						<h3 className="jp-landing__plan-features-title">
-							{ __( 'Site Security', 'jetpack' ) }
+							{ __( 'Site security', 'jetpack' ) }
 						</h3>
 						<p>{ description + __( ' (powered by VaultPress).', 'jetpack' ) }</p>
 						{ this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) &&
@@ -217,6 +222,9 @@ class MyPlanBody extends React.Component {
 		};
 
 		let jetpackBackupCard;
+
+		// DEPRECATED: Daily and Real-time variations will soon be retired.
+		// Remove after all customers are migrated to new products.
 		if ( 'is-daily-backup-plan' === planClass ) {
 			jetpackBackupCard = getJetpackBackupCard( {
 				title: __( 'Automated Daily Backups', 'jetpack' ),
@@ -227,9 +235,18 @@ class MyPlanBody extends React.Component {
 			} );
 		}
 
-		if ( 'is-realtime-backup-plan' === planClass ) {
+		if (
+			[
+				'is-backup-t1-plan',
+				'is-backup-t2-plan',
+
+				// DEPRECATED: Daily and Real-time variations will soon be retired.
+				// Remove after all customers are migrated to new products.
+				'is-realtime-backup-plan',
+			].includes( planClass )
+		) {
 			jetpackBackupCard = getJetpackBackupCard( {
-				title: __( 'Automated Real-time Backups', 'jetpack' ),
+				title: __( 'Automated real-time backups', 'jetpack' ),
 				description: __(
 					'We back up your website with every change you make, making it easy to fix your mistakes.',
 					'jetpack'
@@ -259,7 +276,7 @@ class MyPlanBody extends React.Component {
 						</p>
 						<Button
 							onClick={ this.handleButtonClickForTracking( 'view_search_customizer' ) }
-							href={ this.props.siteAdminUrl + 'customize.php?autofocus[section]=jetpack_search' }
+							href={ this.props.siteAdminUrl + 'admin.php?page=jetpack-search-configure' }
 						>
 							{ __( 'Customize Search', 'jetpack' ) }
 						</Button>
@@ -271,10 +288,14 @@ class MyPlanBody extends React.Component {
 		switch ( planClass ) {
 			case 'is-personal-plan':
 			case 'is-premium-plan':
-			case 'is-daily-security-plan':
-			case 'is-realtime-security-plan':
+			case 'is-security-t1-plan':
+			case 'is-security-t2-plan':
 			case 'is-business-plan':
 			case 'is-complete-plan':
+			// DEPRECATED: Daily and Real-time variations will soon be retired.
+			// Remove after all customers are migrated to new products.
+			case 'is-daily-security-plan':
+			case 'is-realtime-security-plan':
 				planCard = (
 					<div className="jp-landing__plan-features">
 						{ 'is-personal-plan' === planClass && getRewindVaultPressCard() }
@@ -358,7 +379,7 @@ class MyPlanBody extends React.Component {
 									</div>
 									<div className="jp-landing__plan-features-text">
 										<h3 className="jp-landing__plan-features-title">
-											{ __( 'Video Hosting', 'jetpack' ) }
+											{ __( 'Video hosting', 'jetpack' ) }
 										</h3>
 										<p>
 											{ __(
@@ -397,7 +418,9 @@ class MyPlanBody extends React.Component {
 								/>
 							</div>
 							<div className="jp-landing__plan-features-text">
-								<h3 className="jp-landing__plan-features-title">{ __( 'Activity', 'jetpack' ) }</h3>
+								<h3 className="jp-landing__plan-features-title">
+									{ __( 'Site activity', 'jetpack' ) }
+								</h3>
 								<p>
 									{ __(
 										'View a chronological list of all the changes and updates to your site in an organized, readable way.',
@@ -508,7 +531,7 @@ class MyPlanBody extends React.Component {
 								</div>
 								<div className="jp-landing__plan-features-text">
 									<h3 className="jp-landing__plan-features-title">
-										{ __( 'Marketing Automation', 'jetpack' ) }
+										{ __( 'Marketing automation', 'jetpack' ) }
 									</h3>
 									<p>
 										{ __(
@@ -541,10 +564,14 @@ class MyPlanBody extends React.Component {
 				break;
 
 			case 'is-free-plan':
-			case 'is-daily-backup-plan':
-			case 'is-realtime-backup-plan':
+			case 'is-backup-t1-plan':
+			case 'is-backup-t2-plan':
 			case 'is-search-plan':
 			case 'offline':
+			// DEPRECATED: Daily and Real-time variations will soon be retired.
+			// Remove after all customers are migrated to new products.
+			case 'is-daily-backup-plan':
+			case 'is-realtime-backup-plan':
 				planCard = (
 					<div className="jp-landing__plan-features">
 						{ jetpackBackupCard }

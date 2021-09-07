@@ -90,7 +90,6 @@ async function __refreshTweets() {
  * to once ever 2 seconds.
  *
  * @param {object} action - Action which had initiated the effect handler.
- *
  * @returns {object} Refresh tweets results action.
  */
 export const refreshTweets = throttle( __refreshTweets, 2000, { leading: true, trailing: true } );

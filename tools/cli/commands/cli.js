@@ -87,7 +87,6 @@ function cliUnlink( options ) {
  * Command definition for the build subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
- *
  * @returns {object} Yargs with the CLI commands defined.
  */
 export function cliDefine( yargs ) {
@@ -126,7 +125,6 @@ export function cliDefine( yargs ) {
  * @param {string} cmd - The command to normalize.
  * @param {boolean} verbose - If verbose is enabled or not.
  * @param {string} cwd - Current working directory.
- *
  * @returns {object} - The execa command to run.
  */
 function command( cmd, verbose, cwd ) {

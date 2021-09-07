@@ -22,7 +22,6 @@ const name = 'premium-content/login-button';
  * @property { string } textColor
  * @property { string } gradient
  * @property { object } style
- *
  * @typedef {import('@wordpress/blocks').BlockConfiguration<Attributes>} BlockConfiguration
  * @type {BlockConfiguration}
  */

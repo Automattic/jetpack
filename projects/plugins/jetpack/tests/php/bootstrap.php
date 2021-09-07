@@ -53,6 +53,16 @@ if ( ! isset( $test_root ) || ! file_exists( $test_root . '/includes/bootstrap.p
 
 echo "Using test root $test_root\n";
 
+$jp_autoloader = __DIR__ . '/../../vendor/autoload.php';
+
+if ( ! is_readable( $jp_autoloader ) || ! is_readable( __DIR__ . '/../../modules/module-headings.php' ) ) {
+	echo 'Jetpack is not ready for testing.' . PHP_EOL;
+	echo PHP_EOL;
+	echo 'Jetpack must have Composer dependencies installed and be built.' . PHP_EOL;
+	echo 'If developing in the Jetpack monorepo, try running: jetpack build plugins/jetpack' . PHP_EOL;
+	exit( 1 );
+}
+
 // WordPress requires PHPUnit 7.5 or earlier and hacks around a few things to
 // make it work with PHP 8. Unfortunately for MockObjects they do it via
 // composer.json rather than bootstrap.php, so we have to manually do it here.
@@ -176,7 +186,7 @@ function in_running_uninstall_group() {
 	return is_array( $argv ) && in_array( '--group=uninstall', $argv );
 }
 
-require __DIR__ . '/../../vendor/autoload.php';
+require $jp_autoloader;
 
 // Using the Speed Trap Listener provided by WordPress Core testing suite to expose
 // slowest running tests. See the configuration in phpunit.xml.dist

@@ -41,7 +41,6 @@ async function hasLockFile( cwd, lockFile ) {
  * Preps the task for an individual project.
  *
  * @param {object} argv - Argv object for an install command. Must contain project and root at least.
- *
  * @returns {object} - The project install task per Listr format.
  */
 export default function installProjectTask( argv ) {

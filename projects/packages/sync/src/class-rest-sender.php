@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Sync;
 
+use WP_Error;
+
 /**
  * This class will handle checkout of Sync queues for REST Endpoints.
  *
@@ -42,7 +44,7 @@ class REST_Sender {
 		// try to give ourselves as much time as possible.
 		set_time_limit( 0 );
 
-		if ( $args['pop'] ) {
+		if ( ! empty( $args['pop'] ) ) {
 			$buffer = new Queue_Buffer( 'pop', $queue->pop( $number_of_items ) );
 		} else {
 			// let's delete the checkin state.
@@ -60,15 +62,17 @@ class REST_Sender {
 			return new WP_Error( 'buffer_non-object', 'Buffer is not an object', 400 );
 		}
 
+		$encode = isset( $args['encode'] ) ? $args['encode'] : true;
+
 		Settings::set_is_syncing( true );
-		list( $items_to_send, $skipped_items_ids ) = $sender->get_items_to_send( $buffer, $args['encode'] );
+		list( $items_to_send, $skipped_items_ids ) = $sender->get_items_to_send( $buffer, $encode );
 		Settings::set_is_syncing( false );
 
 		return array(
 			'buffer_id'      => $buffer->id,
 			'items'          => $items_to_send,
 			'skipped_items'  => $skipped_items_ids,
-			'codec'          => $args['encode'] ? $sender->get_codec()->name() : null,
+			'codec'          => $encode ? $sender->get_codec()->name() : null,
 			'sent_timestamp' => time(),
 		);
 	}

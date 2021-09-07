@@ -76,9 +76,7 @@ const defaultString = null;
  * @property { (attributes: object<Attributes>) => void } setAttributes
  * @property { number } postId
  * @property { () => void } selectBlock
- *
  * @typedef { OwnProps } Props
- *
  * @param { Props } props
  */
 
@@ -174,7 +172,6 @@ function Edit( props ) {
 
 	/**
 	 * @param {Plan} plan - plan whose description will be retrieved
-	 *
 	 * @returns {?string} Plan description with price.
 	 */
 	function getPlanDescription( plan ) {

@@ -26,7 +26,7 @@ new Admin_Color_Schemes();
 if ( jetpack_is_atomic_site() ) {
 	new Inline_Help();
 	require_once __DIR__ . '/masterbar/wp-posts-list/bootstrap.php';
-	require_once __DIR__ . '/masterbar/profile-edit/profile-edit.php';
+	require_once __DIR__ . '/masterbar/profile-edit/bootstrap.php';
 	require_once __DIR__ . '/masterbar/nudges/bootstrap.php';
 }
 

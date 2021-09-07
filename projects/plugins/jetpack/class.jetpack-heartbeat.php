@@ -91,6 +91,16 @@ class Jetpack_Heartbeat {
 		}
 		$return[ "{$prefix}manage-enabled" ] = true;
 
+		if ( function_exists( 'get_space_used' ) ) { // Only available in multisite.
+			$space_used = get_space_used();
+		} else {
+			// This is the same as `get_space_used`, except it does not apply the short-circuit filter.
+			$upload_dir = wp_upload_dir();
+			$space_used = get_dirsize( $upload_dir['basedir'] ) / MB_IN_BYTES;
+		}
+
+		$return[ "{$prefix}space-used" ] = $space_used;
+
 		$xmlrpc_errors = Jetpack_Options::get_option( 'xmlrpc_errors', array() );
 		if ( $xmlrpc_errors ) {
 			$return[ "{$prefix}xmlrpc-errors" ] = implode( ',', array_keys( $xmlrpc_errors ) );
@@ -143,7 +153,7 @@ class Jetpack_Heartbeat {
 	 * @see Automattic\Jetpack\Heartbeat::xmlrpc_data_response()
 	 *
 	 * @param array $params The parameters received in the request.
-	 * @return array $params all the stats that hearbeat handles.
+	 * @return array $params all the stats that heartbeat handles.
 	 */
 	public static function xmlrpc_data_response( $params = array() ) {
 		_deprecated_function( __METHOD__, 'jetpack-8.9.0', 'Automattic\\Jetpack\\Heartbeat::xmlrpc_data_response' );

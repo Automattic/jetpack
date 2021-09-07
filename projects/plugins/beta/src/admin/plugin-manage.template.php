@@ -32,6 +32,7 @@ if ( file_exists( WP_PLUGIN_DIR . '/' . $plugin->plugin_file() ) ) {
 	$existing_branch = $plugin->source_info( 'release', $tmp['Version'] );
 	if ( ! $existing_branch || is_wp_error( $existing_branch ) ) {
 		$existing_branch = (object) array(
+			'which'          => 'stable',
 			'source'         => 'unknown',
 			'id'             => $tmp['Version'],
 			'version'        => $tmp['Version'],
@@ -41,32 +42,43 @@ if ( file_exists( WP_PLUGIN_DIR . '/' . $plugin->plugin_file() ) ) {
 }
 
 $active_branch = (object) array(
+	'which'  => null,
 	'source' => null,
 	'id'     => null,
 );
 $version       = null;
 if ( is_plugin_active( $plugin->plugin_file() ) ) {
 	$active_branch = $existing_branch;
+	$verslug       = $plugin->plugin_slug();
 	$version       = $active_branch->pretty_version;
 } elseif ( is_plugin_active( $plugin->dev_plugin_file() ) ) {
 	$active_branch = $plugin->dev_info();
 	if ( $active_branch ) {
+		$active_branch->which          = 'dev';
 		$active_branch->pretty_version = $plugin->dev_pretty_version();
 	} else {
 		$tmp           = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin->dev_plugin_file(), false, false );
 		$active_branch = (object) array(
+			'which'          => 'dev',
 			'source'         => 'unknown',
 			'id'             => $tmp['Version'],
 			'version'        => $tmp['Version'],
 			'pretty_version' => __( 'Unknown Development Version', 'jetpack-beta' ),
 		);
 	}
+	$verslug = $plugin->dev_plugin_slug();
 	$version = $active_branch->pretty_version . ' | ' . $active_branch->version;
 }
 
 ?>
 <?php require __DIR__ . '/header.template.php'; ?>
 <div class="jetpack-beta-container" >
+	<div id="jetpack-beta-tester__breadcrumb">
+		<a href="<?php echo esc_url( Utils::admin_url() ); ?>">
+			<?php esc_html_e( 'Jetpack Beta Tester Home', 'jetpack-beta' ); ?>
+		</a>
+		<span>&nbsp;&gt; <?php echo esc_html( $plugin->get_name() ); ?></span>
+	</div>
 	<?php
 	if ( ! Utils::has_been_used() ) {
 		require __DIR__ . '/notice.template.php';
@@ -85,7 +97,7 @@ if ( is_plugin_active( $plugin->plugin_file() ) ) {
 			</span>
 		</div>
 		<div class="dops-foldable-card__content">
-			<p><?php echo wp_kses_post( $version ); ?></p>
+			<p data-jpbeta-version-for="<?php echo esc_attr( $verslug ); ?>"><?php echo wp_kses_post( $version ); ?></p>
 		</div>
 	</div>
 	<div class="dops-foldable-card has-expanded-summary dops-card">
@@ -226,7 +238,7 @@ if ( is_plugin_active( $plugin->plugin_file() ) ) {
 							</svg>
 						</div>
 						<input aria-hidden="false" class="dops-search__input" id="search-component-releases"
-							placeholder="<?php esc_attr_e( 'Search for a releases', 'jetpack-beta' ); ?>" role="search" type="search" value="">
+							placeholder="<?php esc_attr_e( 'Search for a release', 'jetpack-beta' ); ?>" role="search" type="search" value="">
 						<span aria-controls="search-component" id="search-component-releases-close" aria-label="<?php esc_attr_e( 'Close Search', 'jetpack-beta' ); ?>" tabindex="0">
 							<svg class="gridicon gridicons-cross dops-search-close__icon" height="24"
 								viewbox="0 0 24 24" width="24">

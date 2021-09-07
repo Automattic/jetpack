@@ -7,7 +7,7 @@
  */
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 
 /**
  * Internal dependencies
@@ -86,7 +86,9 @@ describe( 'InstagramGalleryInspectorControls', () => {
 		const propsSmallCount = { ...defaultProps, attributes: { ...defaultAttributes, columns: 0 } };
 		render( <InstagramGalleryInspectorControls { ...propsSmallCount } /> );
 
-		userEvent.paste( screen.getAllByLabelText( 'Number of Columns' )[1], '3' );
+		const input = screen.getAllByLabelText( 'Number of Columns' )[ 1 ];
+		input.focus();
+		fireEvent.change( input, { target: { value: '3' } } );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { columns: 3 } );
 	} );

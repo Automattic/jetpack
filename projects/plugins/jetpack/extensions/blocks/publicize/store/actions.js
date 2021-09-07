@@ -8,7 +8,6 @@ import { select } from '@wordpress/data';
  * we're setting the Publicize connection test results.
  *
  * @param {Array} results - Connection test results.
- *
  * @returns {object} Action object.
  */
 export function setConnectionTestResults( results ) {
@@ -35,7 +34,6 @@ export function refreshConnectionTestResults() {
  * we're initiating a fetch request to the REST API.
  *
  * @param {string} path - API endpoint path.
- *
  * @returns {object} Action object.
  */
 export function fetchFromAPI( path ) {

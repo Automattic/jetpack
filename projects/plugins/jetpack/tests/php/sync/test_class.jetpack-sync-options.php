@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Sync\Modules;
+use Automattic\Jetpack\Sync\Settings;
 
 /**
  * Testing CRUD on Options
@@ -215,6 +216,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack_sync_settings_post_types_blacklist'   => array( 'jetpack', 'pineapple' ),
 			'jetpack_sync_settings_taxonomies_blacklist'   => array( 'jetpack', 'pineapple' ),
 			'ce4wp_referred_by'                            => array(),
+			'wpcom_is_fse_activated'                       => '1',
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );
@@ -311,12 +313,22 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	/**
-	 * Verify that get_object_by_id returns a allowed option
+	 * Verify that get_object_by_id returns a allowed option.
 	 */
 	public function test_get_objects_by_id_singular() {
 		$module      = Modules::get_module( 'options' );
 		$options     = $module->get_all_options();
 		$get_options = $module->get_objects_by_id( 'option', array( 'test_option' ) );
 		$this->assertEquals( $options['test_option'], $get_options['test_option'] );
+	}
+
+	/**
+	 * Verify that get_object_by_id returns settings logic for jetpack_sync_settings_* options.
+	 */
+	public function test_get_objects_by_id_sync_settings() {
+		$module      = Modules::get_module( 'options' );
+		$settings    = Settings::get_settings();
+		$get_options = $module->get_objects_by_id( 'option', array( 'jetpack_sync_settings_post_meta_whitelist' ) );
+		$this->assertEquals( $settings['post_meta_whitelist'], $get_options['jetpack_sync_settings_post_meta_whitelist'] );
 	}
 }

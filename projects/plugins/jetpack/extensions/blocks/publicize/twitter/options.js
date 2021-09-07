@@ -18,7 +18,7 @@ import '@wordpress/annotations';
  */
 import './editor.scss';
 
-const PublicizeTwitterOptions = ( {
+export const PublicizeTwitterOptions = ( {
 	connections,
 	isTweetStorm,
 	tweetStormLength,

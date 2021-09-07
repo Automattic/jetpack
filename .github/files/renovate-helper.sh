@@ -92,11 +92,11 @@ for DIR in $(git -c core.quotepath=off diff --name-only "$BASE_REF"..."$HEAD_REF
 	ARGS=()
 	ARGS=( add --no-interaction --filename-auto-suffix --significance=patch )
 
-	if [[ "$SLUG" == "plugins/jetpack" ]]; then
-		ARGS+=( --type=other )
-	else
-		ARGS+=( --type=changed )
+	CLTYPE="$(jq -r '.extra["changelogger-default-type"] // "changed"' composer.json)"
+	if [[ -n "$CLTYPE" ]]; then
+		ARGS+=( "--type=$CLTYPE" )
 	fi
+
 	ARGS+=( --entry="Updated package dependencies" )
 
 	CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
@@ -121,7 +121,7 @@ fi
 
 # Update deps and lock files.
 echo "::group::Updating dependencies on changed packages"
-tools/check-intra-monorepo-deps.sh -uv
+tools/check-intra-monorepo-deps.sh -uav
 echo "::endgroup::"
 
 # Create and push the commit.

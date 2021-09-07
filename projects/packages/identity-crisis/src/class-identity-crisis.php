@@ -20,14 +20,15 @@ use WP_Error;
 /**
  * This class will handle everything involved with fixing an Identity Crisis.
  *
- * @since 4.4.0
+ * @since 0.2.0
+ * @since-jetpack 4.4.0
  */
 class Identity_Crisis {
 
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.2.1';
+	const PACKAGE_VERSION = '0.2.5';
 
 	/**
 	 * Instance of the object.
@@ -80,6 +81,8 @@ class Identity_Crisis {
 		add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\IdentityCrisis\\REST_Endpoints', 'initialize_rest_api' ) );
 		add_action( 'jetpack_idc_disconnect', array( __CLASS__, 'do_jetpack_idc_disconnect' ) );
 
+		add_filter( 'jetpack_connection_disconnect_site_wpcom', array( __CLASS__, 'jetpack_connection_disconnect_site_wpcom_filter' ) );
+
 		$urls_in_crisis = self::check_identity_crisis();
 		if ( false === $urls_in_crisis ) {
 			return;
@@ -105,6 +108,17 @@ class Identity_Crisis {
 
 		// Clear IDC options.
 		self::clear_all_idc_options();
+	}
+
+	/**
+	 * Filter to prevent site from disconnecting from WPCOM if it's in an IDC.
+	 *
+	 * @see jetpack_connection_disconnect_site_wpcom filter.
+	 *
+	 * @return bool False if the site is in IDC, true otherwise.
+	 */
+	public static function jetpack_connection_disconnect_site_wpcom_filter() {
+		return ! self::validate_sync_error_idc_option();
 	}
 
 	/**
@@ -288,9 +302,10 @@ class Identity_Crisis {
 	 * Checks whether the sync_error_idc option is valid or not, and if not, will do cleanup.
 	 *
 	 * @return bool
-	 * @since 5.4.0 Do not call get_sync_error_idc_option() unless site is in IDC
+	 * @since-jetpack 5.4.0 Do not call get_sync_error_idc_option() unless site is in IDC
 	 *
-	 * @since 4.4.0
+	 * @since 0.2.0
+	 * @since-jetpack 4.4.0
 	 */
 	public static function validate_sync_error_idc_option() {
 		$is_valid = false;
@@ -322,7 +337,8 @@ class Identity_Crisis {
 		 *
 		 * @param bool $is_valid If the sync_error_idc is valid or not.
 		 *
-		 * @since 4.4.0
+		 * @since 0.2.0
+		 * @since-jetpack 4.4.0
 		 */
 		$is_valid = (bool) apply_filters( 'jetpack_sync_error_idc_validation', $is_valid );
 
@@ -343,7 +359,8 @@ class Identity_Crisis {
 	 * @param string $url URL to parse.
 	 *
 	 * @return WP_Error|string
-	 * @since 4.4.0
+	 * @since 0.2.0
+	 * @since-jetpack 4.4.0
 	 */
 	public static function normalize_url_protocol_agnostic( $url ) {
 		$parsed_url = wp_parse_url( trailingslashit( esc_url_raw( $url ) ) );
@@ -370,8 +387,9 @@ class Identity_Crisis {
 	 * @param array $response HTTP response.
 	 *
 	 * @return array Array of the local urls, wpcom urls, and error code.
-	 * @since 4.4.0
-	 * @since 5.4.0 Add transient since home/siteurl retrieved directly from DB.
+	 * @since 0.2.0
+	 * @since-jetpack 4.4.0
+	 * @since-jetpack 5.4.0 Add transient since home/siteurl retrieved directly from DB.
 	 */
 	public static function get_sync_error_idc_option( $response = array() ) {
 		// Since the local options will hit the database directly, store the values
@@ -412,7 +430,8 @@ class Identity_Crisis {
 	 * If set to true, the site will be put into staging mode.
 	 *
 	 * @return bool
-	 * @since 4.3.2
+	 * @since 0.2.0
+	 * @since-jetpack 4.3.2
 	 */
 	public static function sync_idc_optin() {
 		if ( Constants::is_defined( 'JETPACK_SYNC_IDC_OPTIN' ) ) {
@@ -428,7 +447,8 @@ class Identity_Crisis {
 		 *
 		 * @param bool $default Whether the site is opted in to IDC mitigation.
 		 *
-		 * @since 4.3.2
+		 * @since 0.2.0
+		 * @since-jetpack 4.3.2
 		 */
 		return (bool) apply_filters( 'jetpack_sync_idc_optin', $default );
 	}
@@ -737,7 +757,8 @@ class Identity_Crisis {
 		 *
 		 * @param string $html The HTML to be displayed.
 		 *
-		 * @since 4.4.0
+		 * @since 0.2.0
+		 * @since-jetpack 4.4.0
 		 */
 		return apply_filters( 'jetpack_idc_first_step_header_lead', $html );
 	}
@@ -762,7 +783,8 @@ class Identity_Crisis {
 		 *
 		 * @param string $html The HTML to be displayed.
 		 *
-		 * @since 4.4.0
+		 * @since 0.2.0
+		 * @since-jetpack 4.4.0
 		 */
 		return apply_filters( 'jetpack_idc_first_step_header_explanation', $html );
 	}
@@ -788,7 +810,8 @@ class Identity_Crisis {
 		 *
 		 * @param string $html The HTML to be displayed.
 		 *
-		 * @since 4.4.0
+		 * @since 0.2.0
+		 * @since-jetpack 4.4.0
 		 */
 		return apply_filters( 'jetpack_idc_confirm_safe_mode_explanation', $html );
 	}
@@ -806,7 +829,8 @@ class Identity_Crisis {
 		 *
 		 * @param string $string The string to be displayed.
 		 *
-		 * @since 4.4.0
+		 * @since 0.2.0
+		 * @since-jetpack 4.4.0
 		 */
 		return apply_filters( 'jetpack_idc_confirm_safe_mode_button_text', $string );
 	}
@@ -832,7 +856,8 @@ class Identity_Crisis {
 		 *
 		 * @param string $html The HTML to be displayed.
 		 *
-		 * @since 4.4.0
+		 * @since 0.2.0
+		 * @since-jetpack 4.4.0
 		 */
 		return apply_filters( 'jetpack_idc_first_fix_connection_explanation', $html );
 	}
@@ -850,7 +875,8 @@ class Identity_Crisis {
 		 *
 		 * @param string $string The string to be displayed.
 		 *
-		 * @since 4.4.0
+		 * @since 0.2.0
+		 * @since-jetpack 4.4.0
 		 */
 		return apply_filters( 'jetpack_idc_first_step_fix_connection_button_text', $string );
 	}
@@ -873,7 +899,8 @@ class Identity_Crisis {
 		 *
 		 * @param string $html The HTML to be displayed.
 		 *
-		 * @since 4.4.0
+		 * @since 0.2.0
+		 * @since-jetpack 4.4.0
 		 */
 		return apply_filters( 'jetpack_idc_second_step_header_lead', $string );
 	}
@@ -901,7 +928,8 @@ class Identity_Crisis {
 		 *
 		 * @param string $html The HTML to be displayed.
 		 *
-		 * @since 4.4.0
+		 * @since 0.2.0
+		 * @since-jetpack 4.4.0
 		 */
 		return apply_filters( 'jetpack_idc_migrate_site_explanation', $html );
 	}
@@ -919,7 +947,8 @@ class Identity_Crisis {
 		 *
 		 * @param string $string The string to be displayed.
 		 *
-		 * @since 4.4.0
+		 * @since 0.2.0
+		 * @since-jetpack 4.4.0
 		 */
 		return apply_filters( 'jetpack_idc_migrate_site_button_text', $string );
 	}
@@ -947,7 +976,8 @@ class Identity_Crisis {
 		 *
 		 * @param string $html The HTML to be displayed.
 		 *
-		 * @since 4.4.0
+		 * @since 0.2.0
+		 * @since-jetpack 4.4.0
 		 */
 		return apply_filters( 'jetpack_idc_start_fresh_explanation', $html );
 	}
@@ -965,7 +995,8 @@ class Identity_Crisis {
 		 *
 		 * @param string $string The string to be displayed.
 		 *
-		 * @since 4.4.0
+		 * @since 0.2.0
+		 * @since-jetpack 4.4.0
 		 */
 		return apply_filters( 'jetpack_idc_start_fresh_button_text', $string );
 	}
@@ -990,7 +1021,8 @@ class Identity_Crisis {
 		 *
 		 * @param string $html The HTML to be displayed.
 		 *
-		 * @since 4.4.0
+		 * @since 0.2.0
+		 * @since-jetpack 4.4.0
 		 */
 		return apply_filters( 'jetpack_idc_unsure_prompt', $html );
 	}
@@ -1015,7 +1047,8 @@ class Identity_Crisis {
 		 *
 		 * @param string $html The HTML to be displayed.
 		 *
-		 * @since 4.4.0
+		 * @since 0.2.0
+		 * @since-jetpack 4.4.0
 		 */
 		return apply_filters( 'jetpack_idc_non_admin_notice_text', $html );
 	}
@@ -1033,7 +1066,8 @@ class Identity_Crisis {
 		 *
 		 * @param string $string The string to be displayed.
 		 *
-		 * @since 4.4.0
+		 * @since 0.2.0
+		 * @since-jetpack 4.4.0
 		 */
 		return apply_filters( 'jetpack_idc_non_admin_contact_admin_text', $string );
 	}

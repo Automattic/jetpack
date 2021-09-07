@@ -1,14 +1,15 @@
 {
 	"name": "@automattic/eslint-changed",
-	"version": "1.0.1-alpha",
+	"version": "1.0.2-alpha",
 	"description": "Run eslint on files, but only report warnings and errors from lines that were changed.",
-	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/eslint-changed/README.md",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/eslint-changed/README.md#readme",
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/issues"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git"
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/eslint-changed"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
@@ -24,7 +25,7 @@
 		"parse-diff": "0.8.1"
 	},
 	"devDependencies": {
-		"eslint": "7.25.0",
+		"eslint": "7.31.0",
 		"jetpack-js-test-runner": "workspace:*",
 		"nyc": "15.1.0"
 	},
@@ -32,7 +33,7 @@
 		"eslint": ">=1.1.0"
 	},
 	"engines": {
-		"node": "^14.16.1",
+		"node": "^16.7.0",
 		"pnpm": "^6.5.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}

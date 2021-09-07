@@ -162,17 +162,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
-		// Get current user connection data
-		register_rest_route(
-			'jetpack/v4',
-			'/connection/data',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_user_connection_data',
-				'permission_callback' => __CLASS__ . '::get_user_connection_data_permission_callback',
-			)
-		);
-
 		// Current user: get or set tracking settings.
 		register_rest_route(
 			'jetpack/v4',
@@ -191,17 +180,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 						'tracks_opt_out' => array( 'type' => 'boolean' ),
 					),
 				),
-			)
-		);
-
-		// Disconnect site from WordPress.com servers
-		register_rest_route(
-			'jetpack/v4',
-			'/connection',
-			array(
-				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::disconnect_site',
-				'permission_callback' => __CLASS__ . '::disconnect_site_permission_callback',
 			)
 		);
 
@@ -721,6 +699,18 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		register_rest_route(
 			'jetpack/v4',
+			'/recommendations/product-suggestions',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => __CLASS__ . '::get_recommendations_product_suggestions',
+					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+				),
+			)
+		);
+
+		register_rest_route(
+			'jetpack/v4',
 			'/recommendations/upsell',
 			array(
 				array(
@@ -866,6 +856,46 @@ class Jetpack_Core_Json_Api_Endpoints {
 		Jetpack_Recommendations::update_recommendations_step( $step );
 
 		return true;
+	}
+
+	/**
+	 * Get product suggestions for the recommendations
+	 *
+	 * @return string|WP_Error The response from the wpcom product suggestions endpoint as a JSON object.
+	 */
+	public static function get_recommendations_product_suggestions() {
+		$blog_id = Jetpack_Options::get_option( 'id' );
+		if ( ! $blog_id ) {
+			return new WP_Error( 'site_not_registered', esc_html__( 'Site not registered.', 'jetpack' ) );
+		}
+
+		$user_connected = ( new Connection_Manager( 'jetpack' ) )->is_user_connected( get_current_user_id() );
+		if ( ! $user_connected ) {
+			return wp_json_encode( array() );
+		}
+
+		$request_path  = sprintf( '/sites/%s/jetpack-recommendations/product-suggestions?locale=' . get_user_locale(), $blog_id );
+		$wpcom_request = Client::wpcom_json_api_request_as_user(
+			$request_path,
+			'2',
+			array(
+				'method'  => 'GET',
+				'headers' => array(
+					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+				),
+			)
+		);
+
+		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
+		if ( 200 === $response_code ) {
+			return json_decode( wp_remote_retrieve_body( $wpcom_request ) );
+		} else {
+			return new WP_Error(
+				'failed_to_fetch_data',
+				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
+				array( 'status' => $response_code )
+			);
+		}
 	}
 
 	/**
@@ -1239,22 +1269,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		return new WP_Error( 'invalid_user_permission_jetpack_connect', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
 
-	}
-
-	/**
-	 * Verify that a user can get the data about the current user.
-	 * Only those who can connect.
-	 *
-	 * @since 4.3.0
-	 *
-	 * @return bool|WP_Error True if user is able to unlink.
-	 */
-	public static function get_user_connection_data_permission_callback() {
-		if ( current_user_can( 'jetpack_connect_user' ) ) {
-			return true;
-		}
-
-		return new WP_Error( 'invalid_user_permission_user_connection_data', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
 	}
 
 	/**
@@ -1684,6 +1698,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Disconnects Jetpack from the WordPress.com Servers
 	 *
+	 * @deprecated since Jetpack 10.0.0
+	 * @see Automattic\Jetpack\Connection\REST_Connector::disconnect_site()
+	 *
 	 * @uses Jetpack::disconnect();
 	 * @since 4.3.0
 	 *
@@ -1692,6 +1709,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error True if Jetpack successfully disconnected.
 	 */
 	public static function disconnect_site( $request ) {
+		_deprecated_function( __METHOD__, 'jetpack-10.0.0', '\Automattic\Jetpack\Connection\REST_Connector::disconnect_site' );
 
 		if ( ! isset( $request['isActive'] ) || $request['isActive'] !== false ) {
 			return new WP_Error( 'invalid_param', esc_html__( 'Invalid Parameter', 'jetpack' ), array( 'status' => 404 ) );
@@ -1702,7 +1720,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return rest_ensure_response( array( 'code' => 'success' ) );
 		}
 
-		return new WP_Error( 'disconnect_failed', esc_html__( 'Was not able to disconnect the site.  Please try again.', 'jetpack' ), array( 'status' => 400 ) );
+		return new WP_Error( 'disconnect_failed', esc_html__( 'Was not able to disconnect the site. Please try again.', 'jetpack' ), array( 'status' => 400 ) );
 	}
 
 	/**
@@ -1757,7 +1775,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return rest_ensure_response( $url );
 		}
 
-		return new WP_Error( 'build_connect_url_failed', esc_html__( 'Unable to build the connect URL.  Please reload the page and try again.', 'jetpack' ), array( 'status' => 400 ) );
+		return new WP_Error( 'build_connect_url_failed', esc_html__( 'Unable to build the connect URL. Please reload the page and try again.', 'jetpack' ), array( 'status' => 400 ) );
 	}
 
 	/**
@@ -1765,13 +1783,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * Information about the master/primary user.
 	 * Information about the current user.
 	 *
-	 * @since 4.3.0
+	 * @deprecated since Jetpack 10.0.0
+	 * @see Automattic\Jetpack\Connection\REST_Connector::get_user_connection_data()
 	 *
-	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @since 4.3.0
 	 *
 	 * @return object
 	 */
 	public static function get_user_connection_data() {
+		_deprecated_function( __METHOD__, 'jetpack-10.0.0', '\Automattic\Jetpack\Connection\REST_Connector::get_user_connection_data' );
+
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php';
 
 		$connection_owner   = ( new Connection_Manager() )->get_connection_owner();
@@ -1808,7 +1829,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			);
 		}
 
-		return new WP_Error( 'unlink_user_failed', esc_html__( 'Was not able to unlink the user.  Please try again.', 'jetpack' ), array( 'status' => 400 ) );
+		return new WP_Error( 'unlink_user_failed', esc_html__( 'Was not able to unlink the user. Please try again.', 'jetpack' ), array( 'status' => 400 ) );
 	}
 
 	/**
@@ -2699,6 +2720,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'type'              => 'integer',
 				'default'           => 9,
 				'validate_callback' => __CLASS__ . '::validate_posint',
+				'jp_group'          => 'stats',
+			),
+			'collapse_nudges'                      => array(
+				'description'       => esc_html__( 'Collapse upgrade nudges', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'stats',
 			),
 

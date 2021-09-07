@@ -18,16 +18,16 @@ export async function persistPlanData( planType = 'jetpack_complete' ) {
 
 	fs.writeFileSync( planDatafilePath, JSON.stringify( planData ) );
 
-	const cmd = `wp option update ${ planDataOption } < ${ planDatafilePath }`;
+	const cmd = `option update ${ planDataOption } < ${ planDatafilePath }`;
 	await execWpCommand( cmd );
 }
 
 export async function activatePlanDataInterceptor() {
-	return await execWpCommand( 'wp plugin activate e2e-plan-data-interceptor' );
+	return await execWpCommand( 'plugin activate e2e-plan-data-interceptor' );
 }
 
 async function getSiteId() {
-	const output = await execWpCommand( 'wp jetpack options get id' );
+	const output = await execWpCommand( 'jetpack options get id' );
 	return output.split( ':' )[ 1 ].trim();
 }
 
@@ -336,11 +336,17 @@ function getPlan( type ) {
 							'jetpack_premium_monthly',
 							'jetpack_business_monthly',
 							'jetpack_personal_monthly',
+							'jetpack_security_t1_yearly',
+							'jetpack_security_t1_monthly',
+							'jetpack_security_t2_yearly',
+							'jetpack_security_t2_monthly',
+							'jetpack_complete_monthly',
+							// DEPRECATED: Daily and Real-time variations will soon be retired.
+							// Remove after all customers are migrated to new products.
 							'jetpack_security_daily',
 							'jetpack_security_daily_monthly',
 							'jetpack_security_realtime',
 							'jetpack_security_realtime_monthly',
-							'jetpack_complete_monthly',
 						],
 						'send-a-message': [
 							'jetpack_free',
@@ -350,11 +356,17 @@ function getPlan( type ) {
 							'jetpack_premium_monthly',
 							'jetpack_business_monthly',
 							'jetpack_personal_monthly',
+							'jetpack_security_t1_yearly',
+							'jetpack_security_t1_monthly',
+							'jetpack_security_t2_yearly',
+							'jetpack_security_t2_monthly',
+							'jetpack_complete_monthly',
+							// DEPRECATED: Daily and Real-time variations will soon be retired.
+							// Remove after all customers are migrated to new products.
 							'jetpack_security_daily',
 							'jetpack_security_daily_monthly',
 							'jetpack_security_realtime',
 							'jetpack_security_realtime_monthly',
-							'jetpack_complete_monthly',
 						],
 						'social-previews': [
 							'jetpack_free',
@@ -364,11 +376,17 @@ function getPlan( type ) {
 							'jetpack_premium_monthly',
 							'jetpack_business_monthly',
 							'jetpack_personal_monthly',
+							'jetpack_security_t1_yearly',
+							'jetpack_security_t1_monthly',
+							'jetpack_security_t2_yearly',
+							'jetpack_security_t2_monthly',
+							'jetpack_complete_monthly',
+							// DEPRECATED: Daily and Real-time variations will soon be retired.
+							// Remove after all customers are migrated to new products.
 							'jetpack_security_daily',
 							'jetpack_security_daily_monthly',
 							'jetpack_security_realtime',
 							'jetpack_security_realtime_monthly',
-							'jetpack_complete_monthly',
 						],
 						'vaultpress-backups': [
 							'jetpack_premium',
@@ -419,11 +437,17 @@ function getPlan( type ) {
 							'jetpack_premium_monthly',
 							'jetpack_business_monthly',
 							'jetpack_personal_monthly',
+							'jetpack_security_t1_yearly',
+							'jetpack_security_t1_monthly',
+							'jetpack_security_t2_yearly',
+							'jetpack_security_t2_monthly',
+							'jetpack_complete_monthly',
+							// DEPRECATED: Daily and Real-time variations will soon be retired.
+							// Remove after all customers are migrated to new products.
 							'jetpack_security_daily',
 							'jetpack_security_daily_monthly',
 							'jetpack_security_realtime',
 							'jetpack_security_realtime_monthly',
-							'jetpack_complete_monthly',
 						],
 						'core/video': [
 							'jetpack_premium',
@@ -444,11 +468,17 @@ function getPlan( type ) {
 							'jetpack_premium_monthly',
 							'jetpack_business_monthly',
 							'jetpack_personal_monthly',
+							'jetpack_security_t1_yearly',
+							'jetpack_security_t1_monthly',
+							'jetpack_security_t2_yearly',
+							'jetpack_security_t2_monthly',
+							'jetpack_complete_monthly',
+							// DEPRECATED: Daily and Real-time variations will soon be retired.
+							// Remove after all customers are migrated to new products.
 							'jetpack_security_daily',
 							'jetpack_security_daily_monthly',
 							'jetpack_security_realtime',
 							'jetpack_security_realtime_monthly',
-							'jetpack_complete_monthly',
 						],
 						'premium-content/container': [
 							'jetpack_premium',
@@ -457,11 +487,17 @@ function getPlan( type ) {
 							'jetpack_premium_monthly',
 							'jetpack_business_monthly',
 							'jetpack_personal_monthly',
+							'jetpack_security_t1_yearly',
+							'jetpack_security_t1_monthly',
+							'jetpack_security_t2_yearly',
+							'jetpack_security_t2_monthly',
+							'jetpack_complete_monthly',
+							// DEPRECATED: Daily and Real-time variations will soon be retired.
+							// Remove after all customers are migrated to new products.
 							'jetpack_security_daily',
 							'jetpack_security_daily_monthly',
 							'jetpack_security_realtime',
 							'jetpack_security_realtime_monthly',
-							'jetpack_complete_monthly',
 						],
 						support: [
 							'jetpack_premium',
@@ -470,11 +506,17 @@ function getPlan( type ) {
 							'jetpack_premium_monthly',
 							'jetpack_business_monthly',
 							'jetpack_personal_monthly',
+							'jetpack_security_t1_yearly',
+							'jetpack_security_t1_monthly',
+							'jetpack_security_t2_yearly',
+							'jetpack_security_t2_monthly',
+							'jetpack_complete_monthly',
+							// DEPRECATED: Daily and Real-time variations will soon be retired.
+							// Remove after all customers are migrated to new products.
 							'jetpack_security_daily',
 							'jetpack_security_daily_monthly',
 							'jetpack_security_realtime',
 							'jetpack_security_realtime_monthly',
-							'jetpack_complete_monthly',
 						],
 						'premium-themes': [ 'jetpack_business', 'jetpack_business_monthly' ],
 						'vaultpress-security-scanning': [ 'jetpack_business', 'jetpack_business_monthly' ],
@@ -499,8 +541,8 @@ export async function syncPlanData( page ) {
 		/* eslint-disable no-undef */
 		frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
 		/* eslint-enable no-undef */
-		bkPlan = JSON.parse( await execWpCommand( 'wp option get jetpack_active_plan --format=json' ) );
-		await execWpCommand( 'wp option get jetpack_active_modules --format=json' );
+		const planJson = await execWpCommand( 'option get jetpack_active_plan --format=json' );
+		bkPlan = JSON.parse( planJson );
 
 		logger.info( `PLANS: frontend: ${ frPlan }, backend: ${ bkPlan.product_slug }` );
 		isSame = frPlan.trim() === bkPlan.product_slug.trim();

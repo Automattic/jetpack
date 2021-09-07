@@ -1,22 +1,28 @@
-/*
- * Temporary fix below for issue introduced to Newspack blocks, can be removed once
- * once Newspack blocks includes this override
-*/
-.wp-block-newspack-blocks-carousel .swiper-button-prev:after,
-.swiper-container-rtl .swiper-button-next:after {
-	content: none;
+:root {
+	--jp-carousel-primary-color: #fff;
+	--jp-carousel-primary-subtle-color: #999;
+	--jp-carousel-bg-color: #000;
+	--jp-carousel-bg-faded-color: #222;
+	--jp-carousel-border-color: #3a3a3a;
 }
-.wp-block-newspack-blocks-carousel .swiper-button-next:after,
-.swiper-container-rtl .swiper-button-prev:after {
-	content: none;
+
+:root .jp-carousel-light {
+	--jp-carousel-primary-color: #000;
+	--jp-carousel-primary-subtle-color: #646970;
+	--jp-carousel-bg-color: #fff;
+	--jp-carousel-bg-faded-color: #fbfbfb;
+	--jp-carousel-border-color: #dcdcde;
 }
-.jp-carousel-overlay .swiper-button-prev, .jp-carousel-overlay .swiper-container-rtl .swiper-button-next,
-.jp-carousel-overlay .swiper-button-next, .jp-carousel-overlay .swiper-container-rtl .swiper-button-prev {
+
+.jp-carousel-overlay .swiper-button-prev,
+.jp-carousel-overlay .swiper-container-rtl .swiper-button-next,
+.jp-carousel-overlay .swiper-button-next,
+.jp-carousel-overlay .swiper-container-rtl .swiper-button-prev {
 	background-image: none;
 }
 /* end of temporary fix */
 
-[data-carousel-extra]:not( .jp-carousel-wrap ) {
+[data-carousel-extra]:not( .jp-carousel-wrap ) img, [data-carousel-extra]:not( .jp-carousel-wrap ) img + figcaption {
 	cursor: pointer;
 }
 
@@ -71,7 +77,7 @@ so we have to target all affected elements in touch devices.
 .jp-carousel-overlay .swiper-button-next svg {
 	height: 30px;
 	width: 28px;
-	background: #000;
+	background: var(--jp-carousel-bg-color);
 	border-radius: 4px;
 }
 
@@ -86,7 +92,7 @@ so we have to target all affected elements in touch devices.
 	right: 0;
 	bottom: 0;
 	left: 0;
-	background: #000;
+	background: var(--jp-carousel-bg-color);
 }
 
 .jp-carousel-overlay * {
@@ -122,6 +128,20 @@ so we have to target all affected elements in touch devices.
 	height: 100%;
 }
 
+.jp-carousel-hide-controls .jp-carousel-container {
+	grid-template-rows: 1fr;
+}
+
+.jp-carousel-hide-controls .swiper-wrapper {
+	margin-top: -32px; /* Compensate for the remove of the height of the info bar. */
+}
+
+
+.jp-carousel-hide-controls .jp-swiper-button-next,
+.jp-carousel-hide-controls .jp-swiper-button-prev {
+	margin-top: -54px; /* The height of the info bar plus any top padding on the nav button itself. */
+}
+
 .jp-carousel-msg {
 	font-family: 'Open Sans', sans-serif;
 	font-style: normal;
@@ -131,7 +151,7 @@ so we have to target all affected elements in touch devices.
 	font-size: 14px;
 	text-align: center;
 	margin: 25px 20px 0 2px;
-	background-color: #fff;
+	background-color: var(--jp-carousel-primary-color);
 	border-left: 4px solid #ffba00;
 	-webkit-box-shadow: 0 1px 1px 0 rgba( 0, 0, 0, 0.1 );
 	box-shadow: 0 1px 1px 0 rgba( 0, 0, 0, 0.1 );
@@ -143,12 +163,20 @@ so we have to target all affected elements in touch devices.
 	text-align: left !important;
 	-webkit-font-smoothing: subpixel-antialiased !important;
 	z-index: 100;
-	background-color: #000;
+	background-color: var(--jp-carousel-bg-color);
+	transition: opacity 200ms ease-out;
+	opacity: 1;
+}
+
+.jp-carousel-hide-controls .jp-carousel-info {
+	visibility: hidden;
+	height: 0;
+	overflow: hidden;
 }
 
 .jp-carousel-info-footer {
 	position: relative;
-	background-color: #000;
+	background-color: var(--jp-carousel-bg-color);
 	height: 64px;
 	display: flex;
 	align-items: center;
@@ -158,10 +186,10 @@ so we have to target all affected elements in touch devices.
 
 .jp-carousel-info-extra {
 	display: none;
-	background-color: #000;
+	background-color: var(--jp-carousel-bg-color);
 	padding: 35px;
 	width: 100vw;
-	border-top: 1px solid #222;
+	border-top: 1px solid var(--jp-carousel-bg-faded-color);
 }
 
 .jp-carousel-title-and-caption {
@@ -173,13 +201,13 @@ so we have to target all affected elements in touch devices.
 }
 
 .jp-carousel-info ::selection {
-	background: #fff; /* Safari */
-	color: #fff;
+	background: var(--jp-carousel-primary-color); /* Safari */
+	color: var(--jp-carousel-primary-color);
 }
 
 .jp-carousel-info ::-moz-selection {
-	background: #fff; /* Firefox */
-	color: #fff;
+	background: var(--jp-carousel-primary-color); /* Firefox */
+	color: var(--jp-carousel-primary-color);
 }
 
 .jp-carousel-photo-info {
@@ -208,14 +236,6 @@ so we have to target all affected elements in touch devices.
 	transition: 400ms ease-out;
 }
 
-.jp-carousel-transitions .jp-carousel-next-button span,
-.jp-carousel-transitions .jp-carousel-previous-button span {
-	-webkit-transition: 500ms opacity ease-out;
-	-moz-transition: 500ms opacity ease-out;
-	-o-transition: 500ms opacity ease-out;
-	transition: 500ms opacity ease-out;
-}
-
 .jp-carousel-buttons {
 	margin: -18px -20px 15px;
 	padding: 8px 10px;
@@ -226,7 +246,7 @@ so we have to target all affected elements in touch devices.
 
 div.jp-carousel-buttons a {
 	border: none !important;
-	color: #999;
+	color: var(--jp-carousel-primary-subtle-color);
 	font: normal 11px/1.2em 'Helvetica Neue', sans-serif !important;
 	letter-spacing: 0 !important;
 	padding: 5px 2px 5px 0;
@@ -237,7 +257,7 @@ div.jp-carousel-buttons a {
 }
 
 div.jp-carousel-buttons a:hover {
-	color: #fff;
+	color: var(--jp-carousel-primary-color);
 	border: none !important;
 }
 
@@ -249,9 +269,7 @@ div.jp-carousel-buttons a:hover {
 }
 
 .jp-carousel-slide,
-.jp-carousel-slide img,
-.jp-carousel-next-button,
-.jp-carousel-previous-button {
+.jp-carousel-slide img {
 	-webkit-transform: translate3d( 0, 0, 0 );
 	-moz-transform: translate3d( 0, 0, 0 );
 	-o-transform: translate3d( 0, 0, 0 );
@@ -270,8 +288,9 @@ div.jp-carousel-buttons a:hover {
 	width: 45px;
 	height: 45px;
 	z-index: 15;
-	color: #fff;
+	color: var(--jp-carousel-primary-color);
 	cursor: pointer;
+	transition: opacity 200ms ease-out;
 }
 
 .jp-carousel-transitions .jp-carousel-close-hint {
@@ -283,16 +302,16 @@ div.jp-carousel-buttons a:hover {
 
 .jp-carousel-close-hint svg {
 	padding: 3px 2px;
-	background: #000;
+	background: var(--jp-carousel-bg-color);
 	border-radius: 4px;
 }
 
 .jp-carousel-close-hint:hover {
-	color: #fff;
+	color: var(--jp-carousel-primary-color);
 }
 
 .jp-carousel-close-hint:hover span {
-	border-color: #fff;
+	border-color: var(--jp-carousel-primary-color);
 }
 
 /** Pagination Start **/
@@ -303,7 +322,7 @@ div.jp-carousel-buttons a:hover {
 
 .jp-swiper-pagination,
 .jp-carousel-pagination {
-	color: #fff;
+	color: var(--jp-carousel-primary-color);
 	font-size: 15px; /* same as .jp-carousel-info-footer .jp-carousel-photo-title  */
 	font-weight: normal;
 	white-space: nowrap;
@@ -321,16 +340,16 @@ div.jp-carousel-buttons a:hover {
 }
 
 .jp-swiper-pagination .swiper-pagination-bullet {
-	background: #999;
+	background: var(--jp-carousel-primary-subtle-color);
 	margin: 0 9px;
 }
 
 .jp-swiper-pagination .swiper-pagination-bullet.swiper-pagination-bullet-active {
-	background: #fff;
+	background: var(--jp-carousel-primary-color);
 }
 
 .jp-swiper-pagination .swiper-pagination-bullet:not( .swiper-pagination-bullet-active ) {
-	background: #fff;
+	background: var(--jp-carousel-primary-color);
 	opacity: 0.5;
 }
 /** Pagination End **/
@@ -357,14 +376,14 @@ div.jp-carousel-buttons a:hover {
 	overflow: hidden;
 	text-shadow: none !important;
 	text-transform: none !important;
-	color: #fff;
+	color: var(--jp-carousel-primary-color);
 }
 
 .jp-carousel-info-footer .jp-carousel-photo-caption {
 	text-align: center;
 	font-size: 15px; /* same as .jp-carousel-pagination */
 	white-space: nowrap;
-	color: #999;
+	color: var(--jp-carousel-primary-subtle-color);
 	cursor: pointer;
 	margin: 0;
 	text-overflow: ellipsis;
@@ -380,7 +399,7 @@ div.jp-carousel-buttons a:hover {
 }
 
 .jp-carousel-photo-description {
-	color: #999;
+	color: var(--jp-carousel-primary-subtle-color);
 	font-size: 16px;
 	margin: 25px 0;
 	width: 100%;
@@ -392,7 +411,7 @@ div.jp-carousel-buttons a:hover {
 }
 
 .jp-carousel-photo-description p {
-	color: #999;
+	color: var(--jp-carousel-primary-subtle-color);
 	line-height: 1.4;
 	margin-bottom: 0;
 }
@@ -400,7 +419,7 @@ div.jp-carousel-buttons a:hover {
 .jp-carousel-photo-description p a,
 .jp-carousel-comments p a,
 .jp-carousel-info h2 a {
-	color: #fff !important;
+	color: var(--jp-carousel-primary-color) !important;
 	border: none !important;
 	text-decoration: underline !important;
 	font-weight: normal !important;
@@ -410,19 +429,19 @@ div.jp-carousel-buttons a:hover {
 .jp-carousel-photo-description p strong,
 .jp-carousel-photo-description p b {
 	font-weight: bold;
-	color: #999;
+	color: var(--jp-carousel-primary-subtle-color);
 }
 
 .jp-carousel-photo-description p em,
 .jp-carousel-photo-description p i {
 	font-style: italic;
-	color: #999;
+	color: var(--jp-carousel-primary-subtle-color);
 }
 
 .jp-carousel-photo-description p a:hover,
 .jp-carousel-comments p a:hover,
 .jp-carousel-info h2 a:hover {
-	color: #fff !important;
+	color: var(--jp-carousel-primary-subtle-color) !important;
 }
 
 .jp-carousel-photo-description p:empty {
@@ -446,7 +465,7 @@ div.jp-carousel-buttons a:hover {
 
 /** Meta Box Start **/
 .jp-carousel-image-meta {
-	color: #fff;
+	color: var(--jp-carousel-primary-color);
 	font-size: 13px;
 	font: 12px/1.4 'Helvetica Neue', sans-serif !important;
 	width: 100%;
@@ -482,12 +501,12 @@ div.jp-carousel-buttons a:hover {
 	display: inline-block !important;
 	vertical-align: top !important;
 	margin: 0 2% 15px 0 !important;
-	color: #fff !important;
+	color: var(--jp-carousel-primary-color) !important;
 	font-size: 13px !important;
 }
 
 .jp-carousel-image-meta h5 {
-	color: #999 !important;
+	color: var(--jp-carousel-primary-subtle-color) !important;
 	text-transform: uppercase !important;
 	font-size: 10px !important;
 	margin: 0 0 2px !important;
@@ -497,7 +516,7 @@ div.jp-carousel-buttons a:hover {
 a.jp-carousel-image-download {
 	display: inline-block;
 	clear: both;
-	color: #999;
+	color: var(--jp-carousel-primary-subtle-color);
 	line-height: 1;
 	font-weight: 400;
 	font-size: 14px;
@@ -537,12 +556,12 @@ a.jp-carousel-image-download span.photo-size-times {
 .jp-carousel-comments p a:hover,
 .jp-carousel-comments p a:focus,
 .jp-carousel-comments p a:active {
-	color: #fff !important;
+	color: var(--jp-carousel-primary-color) !important;
 }
 
 .jp-carousel-comment {
 	background: none transparent;
-	color: #999;
+	color: var(--jp-carousel-primary-subtle-color);
 	overflow: auto;
 	width: 100%;
 	display: flex;
@@ -557,7 +576,7 @@ a.jp-carousel-image-download span.photo-size-times {
 }
 
 .jp-carousel-comment p {
-	color: #999 !important;
+	color: var(--jp-carousel-primary-subtle-color) !important;
 }
 
 .jp-carousel-comment .comment-author {
@@ -572,7 +591,7 @@ a.jp-carousel-image-download span.photo-size-times {
 }
 
 .jp-carousel-comment .comment-author a {
-	color: #fff;
+	color: var(--jp-carousel-primary-color);
 }
 
 .jp-carousel-comment .comment-gravatar {
@@ -600,9 +619,9 @@ a.jp-carousel-image-download span.photo-size-times {
 }
 
 .jp-carousel-comment .comment-date {
-	color: #999;
+	color: var(--jp-carousel-primary-subtle-color);
 	font-size: 11px;
-	border-bottom: 1px solid #222;
+	border-bottom: 1px solid var(--jp-carousel-bg-faded-color);
 	margin-bottom: 6px;
 }
 
@@ -617,17 +636,17 @@ a.jp-carousel-image-download span.photo-size-times {
 }
 
 textarea#jp-carousel-comment-form-comment-field {
-	background: rgba( 34, 34, 34, 0.9 );
-	border: 1px solid #3a3a3a;
-	color: #a7aaad;
+	background: var(--jp-carousel-bg-faded-color);
+	border: 1px solid var(--jp-carousel-border-color);
+	color: var(--jp-carousel-primary-subtle-color);
 	font: 16px/1.4 'Helvetica Neue', sans-serif !important;
 	width: 100%;
 	padding: 10px 10px 5px;
 	margin: 0;
 	float: none;
 	height: 147px;
-	-webkit-box-shadow: inset 2px 2px 2px rgba( 0, 0, 0, 0.2 );
-	box-shadow: inset 2px 2px 2px rgba( 0, 0, 0, 0.2 );
+	-webkit-box-shadow: inset 2px 2px 2px rgba( 0, 0, 0, 0.1 );
+	box-shadow: inset 2px 2px 2px rgba( 0, 0, 0, 0.1 );
 	-moz-border-radius: 3px;
 	-webkit-border-radius: 3px;
 	border-radius: 3px;
@@ -642,12 +661,12 @@ textarea#jp-carousel-comment-form-comment-field::-webkit-input-placeholder {
 }
 
 textarea#jp-carousel-comment-form-comment-field:focus {
-	background: #ccc;
-	color: #222;
+	background: var(--jp-carousel-bg-faded-color);
+	color: var(--jp-carousel-primary-subtle-color);
 }
 
 textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder {
-	color: #a7aaad;
+	color: var(--jp-carousel-primary-subtle-color);
 }
 
 #jp-carousel-loading-overlay {
@@ -683,7 +702,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	border-top: 8px solid rgba( 255, 255, 255, 0.2 );
 	border-right: 8px solid rgba( 255, 255, 255, 0.2 );
 	border-bottom: 8px solid rgba( 255, 255, 255, 0.2 );
-	border-left: 8px solid #ffffff;
+	border-left: 8px solid var(--jp-carousel-primary-color);
 	-webkit-transform: translateZ( 0 );
 	-ms-transform: translateZ( 0 );
 	transform: translateZ( 0 );
@@ -707,7 +726,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	border-top: 4px solid rgba( 255, 255, 255, 0.2 );
 	border-right: 4px solid rgba( 255, 255, 255, 0.2 );
 	border-bottom: 4px solid rgba( 255, 255, 255, 0.2 );
-	border-left: 4px solid #ffffff;
+	border-left: 4px solid var(--jp-carousel-primary-color);
 	-webkit-transform: translateZ( 0 );
 	-ms-transform: translateZ( 0 );
 	transform: translateZ( 0 );
@@ -753,9 +772,9 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 }
 
 #jp-carousel-comment-form-commenting-as input {
-	background: rgba( 34, 34, 34, 0.9 );
-	border: 1px solid #3a3a3a;
-	color: #a7aaad;
+	background: var(--jp-carousel-bg-color);
+	border: 1px solid var(--jp-carousel-border-color);
+	color: var(--jp-carousel-primary-subtle-color);
 	font: 16px/1.4 'Helvetica Neue', sans-serif !important;
 	padding: 10px;
 	float: left;
@@ -768,8 +787,8 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 }
 
 #jp-carousel-comment-form-commenting-as input:focus {
-	background: #ccc;
-	color: #222;
+	background: var(--jp-carousel-bg-faded-color);
+	color: var(--jp-carousel-primary-subtle-color);
 }
 
 #jp-carousel-comment-form-commenting-as p {
@@ -797,25 +816,25 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	margin-top: 20px;
 	margin-left: auto;
 	display: block;
-	border: solid 1px white;
-	background: rgba( 34, 34, 34, 0.9 );
+	border: solid 1px var(--jp-carousel-primary-color);
+	background: var(--jp-carousel-bg-color);
 	border-radius: 3px;
 	padding: 8px 16px;
 	font-size: 14px;
-	color: white;
+	color: var(--jp-carousel-primary-color);
 }
 
 #jp-carousel-comment-form-button-submit:active,
 #jp-carousel-comment-form-button-submit:focus {
-	background: white;
-	color: rgba( 34, 34, 34, 0.9 );
+	background: var(--jp-carousel-primary-color);
+	color: var(--jp-carousel-bg-color);
 }
 
 #jp-carousel-comment-form-container {
 	margin-bottom: 15px;
 	width: 100%;
 	margin-top: 20px;
-	color: #999;
+	color: var(--jp-carousel-primary-subtle-color);
 	position: relative;
 	overflow: hidden;
 }
@@ -834,12 +853,11 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	overflow: auto;
 	padding: 1em 0;
 	box-sizing: border-box;
-	background: rgba( 0, 0, 0, 0.7 );
 	border-radius: 2px;
 	font: 13px/1.4 'Helvetica Neue', sans-serif !important;
-	border: 1px solid rgba( 255, 255, 255, 0.17 );
-	-webkit-box-shadow: inset 0px 0px 5px 5px rgba( 0, 0, 0, 1 );
-	box-shadow: inset 0px 0px 5px 5px rgba( 0, 0, 0, 1 );
+	border: 1px solid var(--jp-carousel-border-color);
+	-webkit-box-shadow: inset 0px 0px 5px 0px rgba( 0, 0, 0, 0.2 );
+	box-shadow: inset 0px 0px 5px 0px rgba( 0, 0, 0, 0.2 );
 }
 
 .jp-carousel-comment-post-error {
@@ -848,211 +866,18 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 #jp-carousel-comments-closed {
 	display: none;
-	color: #999;
+	color: var(--jp-carousel-primary-subtle-color);
 }
 
 #jp-carousel-comments-loading {
 	font: 400 15px/1.7 'Helvetica Neue', sans-serif !important;
 	display: none;
-	color: #999;
+	color: var(--jp-carousel-primary-subtle-color);
 	text-align: left;
 	margin-bottom: 20px;
 	width: 100%;
 	bottom: 10px;
 	margin-top: 20px;
-}
-
-/* ----- Light variant ----- */
-
-.jp-carousel-light.jp-carousel-overlay svg {
-	background: #fff;
-}
-
-.jp-carousel-light.jp-carousel-overlay rect {
-	fill: #000;
-}
-
-.jp-carousel-light.jp-carousel-overlay .jp-carousel-selected .jp-carousel-icon,
-.jp-carousel-light.jp-carousel-overlay .jp-carousel-selected .jp-carousel-icon svg {
-	background: #000;
-}
-.jp-carousel-light.jp-carousel-overlay .jp-carousel-selected rect {
-	fill: #fff;
-}
-
-.jp-carousel-light.jp-carousel-overlay {
-	background: #fff;
-}
-
-.jp-carousel-light .jp-carousel-close-hint:hover,
-.jp-carousel-light .jp-carousel-photo-description div {
-	color: #000 !important;
-}
-
-.jp-carousel-light .jp-carousel-comments p a,
-.jp-carousel-light .jp-carousel-comment .comment-author a,
-.jp-carousel-light .jp-carousel-photo-description p a,
-.jp-carousel-light .jp-carousel-photo-description p a,
-.jp-carousel-light .jp-carousel-comments p a,
-.jp-carousel-light .jp-carousel-info h2 a {
-	color: #000 !important;
-}
-
-.jp-carousel-light .jp-carousel-comments p a:hover,
-.jp-carousel-light .jp-carousel-comment .comment-author a:hover,
-.jp-carousel-light .jp-carousel-photo-description p a:hover,
-.jp-carousel-light .jp-carousel-photo-description p a:hover,
-.jp-carousel-light .jp-carousel-comments p a:hover,
-.jp-carousel-light .jp-carousel-info h2 a:hover {
-	color: #000 !important;
-}
-
-.jp-carousel-light .jp-carousel-info h2,
-.jp-carousel-light .jp-carousel-photo-description p,
-.jp-carousel-light .jp-carousel-comment,
-.jp-carousel-light .jp-carousel-comment p,
-.jp-carousel-light div.jp-carousel-buttons a,
-.jp-carousel-light .jp-carousel-photo-description p strong,
-.jp-carousel-light .jp-carousel-photo-description p b,
-.jp-carousel-light .jp-carousel-photo-description p em,
-.jp-carousel-light .jp-carousel-photo-description p i {
-	color: #646970;
-}
-
-.jp-carousel-light .jp-carousel-buttons {
-	border-bottom-color: #f0f0f0;
-	background: #f6f7f7;
-}
-
-.jp-carousel-light div.jp-carousel-buttons a:hover {
-	text-decoration: none;
-	color: #f1831e;
-}
-
-.jp-carousel-light #jp-carousel-comment-form-button-submit {
-	color: black;
-	border: solid 1px black;
-	background: #fbfbfb;
-}
-
-.jp-carousel-light .jp-carousel-image-meta {
-	color: #333;
-}
-
-.jp-carousel-light .jp-carousel-image-meta li {
-	color: #000 !important;
-}
-
-.jp-carousel-light .jp-carousel-close-hint {
-	color: #ccc;
-}
-
-.jp-carousel-light .jp-carousel-close-hint span {
-	background-color: white;
-	border-color: #ccc;
-}
-
-.jp-carousel-light #jp-carousel-comment-form-comment-field::-webkit-input-placeholder {
-	color: #a7aaad;
-}
-
-.jp-carousel-light #jp-carousel-comment-form-comment-field:focus {
-	color: #333;
-}
-
-.jp-carousel-light #jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder {
-	color: #dcdcde;
-}
-
-.jp-carousel-light a.jp-carousel-image-download {
-	background-position: 0 -122px;
-}
-
-.jp-carousel-light a.jp-carousel-image-download:hover {
-	background-position: 0 -122px;
-	color: #f1831e;
-}
-
-.jp-carousel-light textarea#jp-carousel-comment-form-comment-field {
-	background: #fbfbfb;
-	color: #333;
-	border: 1px solid #dcdcde;
-	-webkit-box-shadow: inset 2px 2px 2px rgba( 0, 0, 0, 0.1 );
-	box-shadow: inset 2px 2px 2px rgba( 0, 0, 0, 0.1 );
-}
-
-.jp-carousel-light #jp-carousel-comment-form-commenting-as input {
-	background: #fbfbfb;
-	border: 1px solid #dcdcde;
-	color: #333;
-	-webkit-box-shadow: inset 2px 2px 2px rgba( 0, 0, 0, 0.1 );
-	box-shadow: inset 2px 2px 2px rgba( 0, 0, 0, 0.1 );
-}
-
-.jp-carousel-light #jp-carousel-comment-form-commenting-as input:focus {
-	background: #fbfbfb;
-	color: #333;
-}
-
-.jp-carousel-light #jp-carousel-comment-post-results span {
-	background: #f6f7f7;
-	border: 1px solid #dcdcde;
-	-webkit-box-shadow: inset 0px 0px 5px rgba( 0, 0, 0, 0.05 );
-	box-shadow: inset 0px 0px 5px rgba( 0, 0, 0, 0.05 );
-}
-
-.jp-carousel-light .jp-carousel-slide {
-	background-color: #fff;
-}
-
-.jp-carousel-light .jp-carousel-fadeaway {
-	background: -webkit-gradient(
-		linear,
-		left bottom,
-		left top,
-		from( rgba( 255, 255, 255, 0.75 ) ),
-		to( rgba( 255, 255, 255, 0 ) )
-	);
-	background: linear-gradient(
-		180deg,
-		rgba( 255, 255, 255, 0.75 ) 0%,
-		rgba( 255, 255, 255, 0 ) 100%
-	);
-}
-
-.jp-carousel-light .jp-carousel-info {
-	background-color: #fff;
-}
-
-.jp-carousel-light .jp-carousel-info-footer {
-	background-color: #fff;
-}
-
-.jp-carousel-light .jp-carousel-info-extra {
-	background-color: #fff;
-	border-color: #ddd;
-}
-
-.jp-carousel-light .jp-carousel-pagination {
-	color: #000;
-}
-
-.jp-carousel-light .jp-swiper-pagination .swiper-pagination-bullet.swiper-pagination-bullet-active {
-	background: #000;
-}
-
-.jp-carousel-light
-	.jp-swiper-pagination
-	.swiper-pagination-bullet:not( .swiper-pagination-bullet-active ) {
-	background: #000;
-	opacity: 0.5;
-}
-
-.jp-carousel-light #jp-carousel-comment-form-spinner {
-	border-top: 4px solid rgba( 0, 0, 0, 0.2 );
-	border-right: 4px solid rgba( 0, 0, 0, 0.2 );
-	border-bottom: 4px solid rgba( 0, 0, 0, 0.2 );
-	border-left: 4px solid #000000;
 }
 
 /** Icons Start **/
@@ -1089,11 +914,15 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	display: inline-block;
 }
 
+.jp-carousel-overlay rect {
+	fill: var(--jp-carousel-primary-color);
+}
+
 .jp-carousel-selected .jp-carousel-icon {
-	background: #fff;
+	background: var(--jp-carousel-primary-color);
 }
 .jp-carousel-selected rect {
-	fill: #000;
+	fill: var(--jp-carousel-bg-color);
 }
 
 .jp-carousel-icon-comments.jp-carousel-show {
@@ -1108,16 +937,16 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	line-height: 1;
 	padding: 2px 4px;
 	border-radius: 4px;
-	background: #fff;
-	color: #000;
+	background: var(--jp-carousel-primary-color);
+	color: var(--jp-carousel-bg-color);
 	font-weight: normal;
 	font-family: 'Helvetica Neue', sans-serif !important;
 	position: relative;
 }
 
-.jp-carousel-light .jp-carousel-icon .jp-carousel-has-comments-indicator {
-	background: #000;
-	color: #fff;
+.jp-carousel-selected .jp-carousel-icon .jp-carousel-has-comments-indicator {
+	background: var(--jp-carousel-bg-color);
+	color: var(--jp-carousel-primary-color);
 }
 
 .jp-carousel-has-comments-indicator.jp-carousel-show {
@@ -1163,11 +992,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	}
 
 	.jp-carousel-wrap {
-		background-color: #000;
-	}
-
-	.jp-carousel-light .jp-carousel-wrap {
-		background-color: #fff;
+		background-color: var(--jp-carousel-bg-color);
 	}
 
 	.jp-carousel-fadeaway {

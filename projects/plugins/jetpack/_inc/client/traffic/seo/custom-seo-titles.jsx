@@ -220,7 +220,6 @@ const CustomSeoTitleInput = ( {
  * Renders the `advanced_seo_title_formats` inputs.
  *
  * @param {object} props - Parent props.
- *
  * @returns {object} React component.
  */
 const CustomSeoTitles = props => {
