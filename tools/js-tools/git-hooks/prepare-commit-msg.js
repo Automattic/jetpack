@@ -4,7 +4,10 @@ const fs = require( 'fs' );
 
 const notVerifiedPrefix = '[not verified] ';
 
-fs.readFile( '.git/last-commit-tree', ( err, data ) => {
+// .git folder location varies if this repo is used a submodule. Also, remove trailing new-line.
+const gitFolderPath = execSync( 'git rev-parse --git-dir' ).toString().replace( /\n$/, '' );
+
+fs.readFile( `${ gitFolderPath }/last-commit-tree`, ( err, data ) => {
 	if ( err ) {
 		console.log( 'skipping prepare-commit-msg hook' );
 		return;
@@ -12,7 +15,7 @@ fs.readFile( '.git/last-commit-tree', ( err, data ) => {
 	const commitTree = data.toString();
 	const curTree = execSync( 'git write-tree' ).toString();
 
-	const commitMsg = fs.readFileSync( '.git/COMMIT_EDITMSG' ).toString();
+	const commitMsg = fs.readFileSync( `${ gitFolderPath }/COMMIT_EDITMSG` ).toString();
 	let newCommitMsg = null;
 	if ( commitTree !== curTree ) {
 		console.log( 'WARNING: git pre-commit hook was skipped!' );
@@ -27,6 +30,6 @@ fs.readFile( '.git/last-commit-tree', ( err, data ) => {
 		// newCommitMsg = commitMsg.substring( notVerifiedPrefix.length );
 	}
 	if ( null !== newCommitMsg ) {
-		fs.writeFileSync( '.git/COMMIT_EDITMSG', newCommitMsg );
+		fs.writeFileSync( `${ gitFolderPath }/COMMIT_EDITMSG`, newCommitMsg );
 	}
 } );
