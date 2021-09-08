@@ -121,7 +121,7 @@ const getCustomSeoTitleInputPreview = ( pageType, value, siteData ) => {
 			case 'date':
 			case 'archive_title':
 				value = value.replace(
-					/(?:\[archive_title\]|\[date\])/g,
+					/\[archive_title\]|\[date\]/g,
 					__( 'Example Archive Title/Date', 'jetpack' )
 				);
 				break;
