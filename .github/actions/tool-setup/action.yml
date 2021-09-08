@@ -50,15 +50,6 @@ runs:
         extensions: mysql, imagick
         coverage: none
 
-    - run: printf "\n\e[1mSetup Node\e[0m\n"
-      shell: bash
-      #if: steps.versions.outputs.node-version != 'false'
-    - name: Setup Node
-      #if: steps.versions.outputs.node-version != 'false'
-      uses: actions/setup-node@v2
-      with:
-        node-version: ${{ steps.versions.outputs.node-version }}
-
     - run: printf "\n\e[1mSetup Composer cache\e[0m\n"
       shell: bash
       #if: steps.versions.outputs.php-version != 'false'
@@ -80,19 +71,24 @@ runs:
     - run: printf "\n\e[1mSetup pnpm\e[0m\n"
       shell: bash
       #if: steps.versions.outputs.node-version != 'false'
-    - name: Use pnpm cache
-      #if: steps.versions.outputs.node-version != 'false'
-      uses: actions/cache@v2
-      with:
-        path: ~/.pnpm-store
-        key: ${{ runner.os }}-pnpm-${{ steps.versions.outputs.node-version }}-${{ hashFiles('**/package.json') }}
-        restore-keys: |
-          ${{ runner.os }}-pnpm-${{ steps.versions.outputs.node-version }}-
     - name: Setup pnpm
       #if: steps.versions.outputs.node-version != 'false'
       uses: pnpm/action-setup@v2.0.1
       with:
         version: ${{ steps.versions.outputs.pnpm-version }}
+
+    - run: printf "\n\e[1mSetup Node\e[0m\n"
+      shell: bash
+      #if: steps.versions.outputs.node-version != 'false'
+    - name: Setup Node
+      #if: steps.versions.outputs.node-version != 'false'
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ steps.versions.outputs.node-version }}
+        cache: pnpm
+        cache-dependency-path: |
+          pnpm-lock.yaml
+          **/pnpm-lock.yaml
 
     - name: Tool versions
       shell: bash
