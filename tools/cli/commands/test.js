@@ -116,20 +116,15 @@ async function getTests( project ) {
  * @returns {Array} testScript - array containing test scripts.
  */
 async function getTestInstructions( argv ) {
-	switch ( argv.test ) {
-		case 'js':
-			return 'test-js';
-		case 'php':
-			return 'test-php';
-		case 'coverage':
-			return 'test-coverage';
-		default:
-			// shouldn't ever happen, but being safe.
-			console.log(
-				chalk.red( `No ${ argv.test } script located in ${ argv.project }'s composer.json file!` )
-			);
-			process.exit();
+	const tests = await getTests( argv.project );
+	if ( tests.includes( argv.test ) ) {
+		return 'test-' + argv.test;
 	}
+
+	console.log(
+		chalk.red( `No test-${ argv.test } script located in ${ argv.project }'s composer.json file!` )
+	);
+	process.exit( 1 );
 }
 
 /**
