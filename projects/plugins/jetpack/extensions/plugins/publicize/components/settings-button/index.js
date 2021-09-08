@@ -17,7 +17,7 @@ import { ExternalLink } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import getSiteFragment from '../../shared/get-site-fragment';
+import getSiteFragment from '../../../../shared/get-site-fragment';
 
 class PublicizeSettingsButton extends Component {
 	getButtonLink() {

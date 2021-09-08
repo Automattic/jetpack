@@ -17,8 +17,8 @@ import { uniqueId } from 'lodash';
 /**
  * Internal dependencies
  */
-import PublicizeConnection from './connection';
-import PublicizeSettingsButton from './settings-button';
+import PublicizeConnection from '../connection';
+import PublicizeSettingsButton from '../settings-button';
 
 class PublicizeFormUnwrapped extends Component {
 	state = {

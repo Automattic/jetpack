@@ -13,7 +13,7 @@ import '@wordpress/annotations';
 /**
  * Internal dependencies
  */
-import { SocialServiceIcon } from '../../../shared/icons';
+import { SocialServiceIcon } from '../../../../shared/icons';
 
 import './editor.scss';
 

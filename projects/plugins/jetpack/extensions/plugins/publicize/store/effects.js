@@ -9,7 +9,7 @@ import { select, dispatch } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { SUPPORTED_CONTAINER_BLOCKS } from '../twitter';
+import { SUPPORTED_CONTAINER_BLOCKS } from '../components/twitter';
 
 /**
  * Effect handler which will refresh the connection test results.
