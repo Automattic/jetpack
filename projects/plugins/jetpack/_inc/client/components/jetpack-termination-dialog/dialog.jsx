@@ -23,6 +23,8 @@ import Card from 'components/card';
 import Gridicon from 'components/gridicon';
 import JetpackTerminationDialogFeatures from './features';
 import JetpackTerminationDialogSurvey from './survey';
+import JetpackTerminationDialogConfirmStep from './confirm';
+import JetpackTerminationDialogThankYouStep from './thank-you';
 import QuerySite from 'components/data/query-site';
 import QuerySiteBenefits from 'components/data/query-site-benefits';
 import QueryConnectedPlugins from 'components/data/query-connected-plugins';
@@ -74,7 +76,16 @@ function mapBenefitDataToViewData( benefit ) {
 
 class JetpackTerminationDialog extends Component {
 	static FEATURE_STEP = 'FEATURE_STEP';
+	static DISCONNECT_CONFIRM_STEP = 'DISCONNECT_CONFIRM_STEP';
 	static SURVEY_STEP = 'SURVEY_STEP';
+	static THANK_YOU_STEP = 'THANK_YOU_STEP';
+
+	static steps = [
+		JetpackTerminationDialog.FEATURE_STEP,
+		JetpackTerminationDialog.DISCONNECT_CONFIRM_STEP,
+		JetpackTerminationDialog.SURVEY_STEP,
+		JetpackTerminationDialog.THANK_YOU_STEP,
+	];
 
 	static propTypes = {
 		closeDialog: PropTypes.func.isRequired,
@@ -89,7 +100,7 @@ class JetpackTerminationDialog extends Component {
 	};
 
 	state = {
-		step: JetpackTerminationDialog.FEATURE_STEP,
+		step: JetpackTerminationDialog.FEATURE_STEP, // initial step
 		surveyAnswerId: null,
 		surveyAnswerText: '',
 	};
@@ -123,11 +134,39 @@ class JetpackTerminationDialog extends Component {
 		closeDialog();
 	};
 
+	// maybe move this into the survey step? Since the survey could be encapsulated?
 	handleSurveyAnswerChange = ( surveyAnswerId, surveyAnswerText ) => {
 		this.setState( {
 			surveyAnswerId,
 			surveyAnswerText,
 		} );
+	};
+
+	handleGoToStep = step_slug => {
+		// move to the specified step in the disconnection flow
+		if ( JetpackTerminationDialog.steps.indexOf( step_slug ) > -1 ) {
+			this.setState( {
+				step: step_slug,
+			} );
+		}
+	};
+
+	handleNextStep = () => {
+		const currentStepIndex = JetpackTerminationDialog.steps.indexOf( this.state.step );
+		if ( currentStepIndex < JetpackTerminationDialog.steps.length - 1 ) {
+			this.setState( {
+				step: JetpackTerminationDialog.steps[ currentStepIndex + 1 ],
+			} );
+		}
+	};
+
+	handlePreviousStep = () => {
+		const currentStepIndex = JetpackTerminationDialog.steps.indexOf( this.state.step );
+		if ( currentStepIndex > 0 ) {
+			this.setState( {
+				step: JetpackTerminationDialog.steps[ currentStepIndex - 1 ],
+			} );
+		}
 	};
 
 	renderFeatures() {
@@ -139,11 +178,21 @@ class JetpackTerminationDialog extends Component {
 				purpose={ purpose }
 				siteBenefits={ siteBenefits.map( mapBenefitDataToViewData ) }
 				connectedPlugins={ connectedPlugins }
+				onClose={ this.props.closeDialog }
+				onTerminate={ this.handleNextStep }
+				terminateJetpack
 			/>
 		) : (
 			<Card className="jetpack-termination-dialog__spinner">
 				<Spinner />
 			</Card>
+		);
+	}
+
+	renderDisconnectConfirm() {
+		const { purpose } = this.props;
+		return (
+			<JetpackTerminationDialogConfirmStep purpose={ purpose } onClose={ this.props.closeDialog } />
 		);
 	}
 
@@ -156,28 +205,49 @@ class JetpackTerminationDialog extends Component {
 				purpose={ purpose }
 				surveyAnswerId={ surveyAnswerId }
 				surveyAnswerText={ surveyAnswerText }
+				onClose={ this.props.closeDialog }
 			/>
 		);
 	}
 
-	renderPrimaryButton() {
-		const { purpose, showSurvey } = this.props;
-		const { step } = this.state;
-		return showSurvey && step === JetpackTerminationDialog.FEATURE_STEP ? (
-			<Button primary onClick={ this.handleContinueClick }>
-				{ __( 'Continue', 'jetpack' ) }
-			</Button>
-		) : (
-			<Button scary primary onClick={ this.handleTerminationClick }>
-				{ purpose === 'disconnect' ? __( 'Disconnect', 'jetpack' ) : __( 'Disable', 'jetpack' ) }
-			</Button>
-		);
+	renderThankYou() {
+		return <JetpackTerminationDialogThankYouStep onClose={ this.props.closeDialog } />;
+	}
+
+	// this is temporary to allow for navigation before all steps are completed
+	renderNextButton() {
+		const currentStepIndex = JetpackTerminationDialog.steps.indexOf( this.state.step );
+		if ( currentStepIndex === JetpackTerminationDialog.steps.length - 1 ) {
+			return null;
+		}
+
+		return <Button onClick={ this.handleNextStep }>{ __( 'Next', 'jetpack' ) }</Button>;
+	}
+
+	// this is temporary to allow for navigation before all steps are completed
+	renderPreviousButton() {
+		const currentStepIndex = JetpackTerminationDialog.steps.indexOf( this.state.step );
+		if ( currentStepIndex === 0 ) {
+			return null;
+		}
+
+		return <Button onClick={ this.handlePreviousStep }>{ __( 'Previous', 'jetpack' ) }</Button>;
+	}
+
+	renderCurrentStep() {
+		switch ( this.state.step ) {
+			case JetpackTerminationDialog.FEATURE_STEP:
+				return this.renderFeatures();
+			case JetpackTerminationDialog.SURVEY_STEP:
+				return this.renderSurvey();
+			case JetpackTerminationDialog.DISCONNECT_CONFIRM_STEP:
+				return this.renderDisconnectConfirm();
+			case JetpackTerminationDialog.THANK_YOU_STEP:
+				return this.renderThankYou();
+		}
 	}
 
 	render() {
-		const { location, purpose, showSurvey } = this.props;
-		const { step } = this.state;
-
 		return (
 			<div className="jetpack-termination-dialog">
 				<QuerySite />
@@ -185,33 +255,21 @@ class JetpackTerminationDialog extends Component {
 				<QueryConnectedPlugins />
 				<Card>
 					<div className="jetpack-termination-dialog__header">
-						<h2>
-							{ purpose === 'disconnect'
-								? __( 'Disconnect Jetpack', 'jetpack' )
-								: __( 'Disable Jetpack', 'jetpack' ) }
-						</h2>
-						{ location === 'dashboard' && (
-							<Gridicon
-								icon="cross"
-								className="jetpack-termination-dialog__close-icon"
-								onClick={ this.handleDialogCloseClick }
-							/>
-						) }
+						<Gridicon
+							icon="cross"
+							className="jetpack-termination-dialog__close-icon"
+							onClick={ this.handleDialogCloseClick }
+						/>
 					</div>
 				</Card>
-				{ ! showSurvey || step === JetpackTerminationDialog.FEATURE_STEP
-					? this.renderFeatures()
-					: this.renderSurvey() }
+				{ this.renderCurrentStep() }
 				<Card>
 					<div className="jetpack-termination-dialog__button-row">
-						<p>
-							{ purpose === 'disconnect'
-								? __( 'Are you sure you want to disconnect?', 'jetpack' )
-								: __( 'Are you sure you want to disconnect and deactivate?', 'jetpack' ) }
-						</p>
+						<p>Temporary buttons for testing</p>
 						<div className="jetpack-termination-dialog__button-row-buttons">
 							<Button onClick={ this.handleDialogCloseClick }>{ __( 'Cancel', 'jetpack' ) }</Button>
-							{ this.renderPrimaryButton() }
+							{ this.renderPreviousButton() }
+							{ this.renderNextButton() }
 						</div>
 					</div>
 				</Card>

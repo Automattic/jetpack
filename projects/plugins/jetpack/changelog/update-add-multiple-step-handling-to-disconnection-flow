@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Allow disconnection flow to have multiple steps, introduces survey after disconnect
