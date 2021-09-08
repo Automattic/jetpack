@@ -52,6 +52,14 @@
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run build-concurrently"
 		],
+		"build-extensions": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run build-extensions"
+		],
+		"watch-extensions": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run build-extensions -- --watch"
+		],
 		"test-coverage": [
 			"Composer\\Config::disableProcessTimeout",
 			"@composer install",
