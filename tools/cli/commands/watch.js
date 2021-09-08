@@ -12,6 +12,7 @@ import promptForProject from '../helpers/promptForProject';
 import { readComposerJson } from '../helpers/json';
 import { chalkJetpackGreen } from '../helpers/styling';
 import { allProjects } from '../helpers/projectHelpers';
+import checkPropjectScriptAvailability from '../helpers/checkProjectScriptAvailability';
 
 let output = true;
 
@@ -58,7 +59,7 @@ export async function watchCli( options ) {
 		output = false;
 		const projects = allProjects();
 		await projects.filter( project =>
-			hasWatchStep( project, readComposerJson( project, output ) )
+			checkPropjectScriptAvailability( project, 'watch', readComposerJson( project, output ) )
 		);
 		projects.forEach( project => watch( project, readComposerJson( project, output ) ) );
 		return;
@@ -85,7 +86,7 @@ export async function watchCli( options ) {
  * @param {object} packageJson - The project's package.json file, parsed.
  */
 export async function watch( project, packageJson ) {
-	const command = hasWatchStep( project, packageJson );
+	const command = checkPropjectScriptAvailability( project, 'watch', packageJson );
 	if ( command === false ) {
 		return;
 	}
@@ -99,25 +100,4 @@ export async function watch( project, packageJson ) {
 		shell: true,
 		stdio: 'inherit',
 	} );
-}
-
-/**
- * Does the project have a watch step?
- *
- * @param {string} project - The project.
- * @param {object} composerJson - The project's composer.json file, parsed.
- * @returns {boolean} If the project has a watch step, the watch command or false.
- */
-function hasWatchStep( project, composerJson ) {
-	if ( composerJson.scripts && composerJson.scripts.watch ) {
-		return true;
-	}
-
-	// There's no watch step defined.
-	output
-		? console.warn(
-				chalk.yellow( 'This project does not have a watch step defined in composer.json.' )
-		  )
-		: null;
-	return false;
 }
