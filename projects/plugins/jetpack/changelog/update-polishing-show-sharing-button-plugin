@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Refactoring sharing plugin. Replace HOC with hooks.
