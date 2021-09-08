@@ -133,10 +133,11 @@ async function getTestInstructions( argv ) {
  */
 async function runTest( argv ) {
 	console.log( chalk.green( `Running ${ argv.testScript } tests for ${ argv.project }` ) );
-	child_process.spawnSync( 'composer', [ 'run', argv.testScript ], {
+	const res = child_process.spawnSync( 'composer', [ 'run', argv.testScript ], {
 		stdio: 'inherit',
 		cwd: path.resolve( `projects/${ argv.project }` ),
 	} );
+	process.exitCode = res.status;
 }
 /**
  * Prompts for the test we want to run.
