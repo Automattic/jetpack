@@ -14,7 +14,7 @@ composer add automattic/jetpack-post-list
 Then you need to initialize it on the `admin_init` hook:
 
 ```php
-add_action( 'admin_init', array( '\Automattic\Jetpack\PostList\Post_List', 'configure' ) );
+add_action( 'admin_init', array( '\Automattic\Jetpack\Post_List\Post_List', 'configure' ) );
 ```
 
 ## Development
