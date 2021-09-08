@@ -17,7 +17,6 @@ const destDir = path.join( dataDir, 'dest/' );
 
 // Reset test directories before running anything in the event of some left from earlier.
 before( function () {
-	// this.sandbox = sinon.createSandbox();
 	try {
 		fs.rmSync( destDir, { force: true, recursive: true } );
 	} catch ( e ) {
@@ -27,7 +26,6 @@ before( function () {
 
 // Reset after each test to ensure clean merge testing.
 afterEach( function () {
-	// this.sandbox.restore();
 	try {
 		fs.rmSync( destDir, { force: true, recursive: true } );
 	} catch ( e ) {
