@@ -26,6 +26,7 @@ The CLI commands can be run from anywhere, and the changes will be made in which
 ## Available Commands
 
 * `build` - Build a project in the monorepo.
+* `build-extensions` - Build project extensions in the monorepo.
 * `changelog` -  Manage changelog files for a project.
 * `clean` - Clean unwanted files in the monorepo.
 * `cli` - Manage global symlink for the CLI.
@@ -42,6 +43,15 @@ The CLI commands can be run from anywhere, and the changes will be made in which
 This command lets you build a project in the monorepo by selecting a project from a list, or providing one as an argument.
 
 - Build the Jetpack plugin: `jetpack build plugins/jetpack`
+- Build the Jetpack plugin for productioon: `jetpack build --production plugins/jetpack`
+
+**Build Extensions**: Build project extensions in the monorepo.
+
+This command lets you build the extensions of a project in the monorepo by selecting a project from a list, or providing one as an argument. Mostly a Jetpack plugin legacy.
+Also, it supports watching mode:
+
+- Build the extensions of the Jetpack plugin: `jetpack build-extensions plugins/jetpack`
+- Build the extensions, watch mode: `jetpack build-extensions --watch plugins/jetpack`
 
 **Changelog**: Manage changelog files for a project.
 
