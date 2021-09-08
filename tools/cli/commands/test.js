@@ -34,7 +34,6 @@ export function testDefine( yargs ) {
 					alias: 't',
 					describe: 'The test to run',
 					type: 'Array',
-					choices: [ 'js', 'php', 'coverage' ],
 				} );
 		},
 		async argv => {
