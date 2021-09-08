@@ -96,14 +96,14 @@ async function getTests( project ) {
 	const composerJson = await readComposerJson( project );
 	if ( ! composerJson.scripts ) {
 		console.log( chalk.red( `No tests found in ${ project }'s composer.json file!` ) );
-		process.exit();
+		process.exit( 1 );
 	}
 
 	let tests = Object.keys( composerJson.scripts ).filter( test => test.startsWith( 'test-' ) );
 	tests = tests.map( test => test.substring( 5 ) );
 	if ( tests.length === 0 ) {
 		console.log( chalk.red( `No tests found in ${ project }'s composer.json file!` ) );
-		process.exit();
+		process.exit( 1 );
 	}
 	return tests;
 }
