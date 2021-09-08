@@ -5,7 +5,7 @@
 	import ScoreBar from '../elements/ScoreBar.svelte';
 	import ScoreContext from '../elements/ScoreContext.svelte';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
-	import { getScoreLetter, requestSpeedScores, shouldShowPreviousScores } from '../../../api/speed-scores';
+	import { getScoreLetter, requestSpeedScores, didScoresImprove } from '../../../api/speed-scores';
 	import { __ } from '@wordpress/i18n';
 
 	const siteIsOnline = Jetpack_Boost.site.online;
@@ -37,7 +37,7 @@
 			scores = scoresSet.current;
 			previousScores = scoresSet.previous;
 			scoreLetter = getScoreLetter( scores.mobile, scores.desktop );
-			showPrevScores = shouldShowPreviousScores(scoresSet);
+			showPrevScores = didScoresImprove(scoresSet);
 		} catch ( err ) {
 			console.log(err)
 			loadError = err;

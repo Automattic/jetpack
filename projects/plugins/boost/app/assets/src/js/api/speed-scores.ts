@@ -164,14 +164,14 @@ export function getScoreLetter( mobile: number, desktop: number ): string {
 }
 
 /**
- * Find out if we should display previous scores.
+ * Find out if scores were improved.
  *
  * Only show the speed scores if there was improvements on both mobile and desktop.
  *
  * @param {SpeedScoresSet} scoresSet
  * @return boolean
  */
-export function shouldShowPreviousScores( scoresSet ): boolean {
+export function didScoresImprove( scoresSet ): boolean {
 	const current = scoresSet.current;
 	const previous = scoresSet.previous;
 
