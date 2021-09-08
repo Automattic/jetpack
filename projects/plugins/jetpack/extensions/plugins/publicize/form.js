@@ -33,7 +33,7 @@ const PublicizeForm = compose( [
 		 * Saves enable/disable value to connections property in editor
 		 * in field 'jetpack_publicize_connections'.
 		 *
-		 * @param {number}  id ID of the connection being enabled/disabled
+		 * @param {number}  id - ID of the connection being enabled/disabled
 		 */
 		toggleConnection( id ) {
 			const newConnections = connections.map( connection => ( {
@@ -52,7 +52,8 @@ const PublicizeForm = compose( [
 		 * Saves edited message to state and to the editor
 		 * in field 'jetpack_publicize_message'.
 		 *
-		 * @param {object} event Change event data from textarea element.
+		 * @param {object} event                  - Change event data from textarea element.
+		 * @param {boolean} hasEditedShareMessage - Whether the share message has been edited.
 		 */
 		messageChange( event, hasEditedShareMessage ) {
 			dispatch( 'core/editor' ).editPost( {
