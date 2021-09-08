@@ -47,11 +47,11 @@ This command lets you build a project in the monorepo by selecting a project fro
 
 **Build Extensions**: Build project extensions in the monorepo.
 
-This command lets you build the extensions of a project in the monorepo by selecting a project from a list, or providing one as an argument. Mostly a Jetpack plugin legacy.
+This command lets you build the extensions of a project in the monorepo by selecting a project from a list, or providing one as an argument. Mostly a Jetpack plugin legacy. Thus, `plugins/jetpack` is the default project when no defined.
 Also, it supports watching mode:
 
-- Build the extensions of the Jetpack plugin: `jetpack build-extensions plugins/jetpack`
-- Build the extensions, watch mode: `jetpack build-extensions --watch plugins/jetpack`
+- Build the extensions of the Jetpack plugin: `jetpack build-extensions` (Jetpack plugins as default)
+- Build the extensions, watch mode: `jetpack build-extensions --watch`
 
 **Changelog**: Manage changelog files for a project.
 

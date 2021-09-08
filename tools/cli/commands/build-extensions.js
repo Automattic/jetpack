@@ -74,6 +74,7 @@ export function buildExtensionsDefine( yargs ) {
 				.positional( 'project', {
 					describe: 'Project in the form of type/name, e.g. plugins/jetpack',
 					type: 'string',
+					default: 'plugins/jetpack',
 				} )
 				.option( 'watch', {
 					alias: 'w',
