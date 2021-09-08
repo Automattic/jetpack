@@ -124,6 +124,8 @@ const extensionsWebpackConfig = getBaseWebpackConfig(
 		'output-chunk-filename': '[name].[chunkhash].js',
 		'output-path': path.join( path.dirname( __dirname ), '_inc', 'blocks' ),
 		'output-jsonp-function': 'webpackJsonpJetpack',
+		// Calypso-build defaults this to "window", which breaks things if no library.name is set.
+		'output-library-target': '',
 	}
 );
 
