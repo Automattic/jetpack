@@ -181,6 +181,7 @@ class Main extends React.Component {
 			const $items = jQuery( '#toplevel_page_jetpack' ).find( 'ul.wp-submenu li' );
 			$items.find( 'a[href$="#/settings"]' ).hide();
 			$items.find( 'a[href$="admin.php?page=stats"]' ).hide();
+			$items.find( 'a[href$="admin.php?page=jetpack-search"]' ).hide();
 		}
 	}
 

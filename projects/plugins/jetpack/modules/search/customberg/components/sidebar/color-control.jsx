@@ -39,7 +39,7 @@ export default function ColorControl( { disabled, value, onChange } ) {
 	return (
 		<div className="jp-search-configure-color-input components-base-control">
 			<ColorGradientControl
-				label={ __( 'Highlight for Search Terms', 'jetpack' ) }
+				label={ __( 'Highlight for search terms', 'jetpack' ) }
 				disabled={ disabled }
 				colorValue={ value }
 				colors={ colors }
