@@ -1,10 +1,17 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { CheckboxControl } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
+import { store as editorStore, PostTypeSupportCheck } from '@wordpress/editor';
+import { useDispatch, useSelect } from '@wordpress/data';
 
-export default function ShowSharingCheckbox( { checked, onChange } ) {
+/**
+ * Internal dependencies
+ */
+import JetpackLikesAndSharingPanel from '../../../../shared/jetpack-likes-and-sharing-panel';
+
+function ShowSharingCheckbox( { checked, onChange } ) {
 	return (
 		<CheckboxControl
 			label={ __( 'Show sharing buttons.', 'jetpack' ) }
@@ -13,5 +20,22 @@ export default function ShowSharingCheckbox( { checked, onChange } ) {
 				onChange( { jetpack_sharing_enabled: value } );
 			} }
 		/>
+	);
+}
+
+export default function SharingCheckbox() {
+	const isSharingEnabled = useSelect(
+		select => select( editorStore ).getEditedPostAttribute( 'jetpack_sharing_enabled' ),
+		[]
+	);
+
+	const { editPost } = useDispatch( editorStore );
+
+	return (
+		<PostTypeSupportCheck supportKeys="jetpack-sharing-buttons">
+			<JetpackLikesAndSharingPanel>
+				<ShowSharingCheckbox checked={ isSharingEnabled } onChange={ editPost } />
+			</JetpackLikesAndSharingPanel>
+		</PostTypeSupportCheck>
 	);
 }
