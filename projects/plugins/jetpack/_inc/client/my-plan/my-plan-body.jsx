@@ -364,8 +364,8 @@ class MyPlanBody extends React.Component {
 							</div>
 						</div>
 
-						{ ( isPlanPremiumOrBetter || true ) &&
-							( 'inactive' !== this.props.getModuleOverride( 'videopress' ) || true ) && (
+						{ isPlanPremiumOrBetter &&
+							'inactive' !== this.props.getModuleOverride( 'videopress' ) && (
 								<div className="jp-landing__plan-features-card">
 									<div className="jp-landing__plan-features-img">
 										<img
@@ -379,7 +379,7 @@ class MyPlanBody extends React.Component {
 									</div>
 									<div className="jp-landing__plan-features-text">
 										<h3 className="jp-landing__plan-features-title">
-											{ __( 'Video hosting', 'jetpack' ) }
+											{ __( 'VideoPress', 'jetpack' ) }
 										</h3>
 										<p>
 											{ __(
@@ -399,7 +399,7 @@ class MyPlanBody extends React.Component {
 												onClick={ this.activateVideoPress }
 												disabled={ this.props.isActivatingFeature( 'videopress' ) }
 											>
-												{ __( 'Activate video hosting', 'jetpack' ) }
+												{ __( 'Activate VideoPress', 'jetpack' ) }
 											</Button>
 										) }
 									</div>
