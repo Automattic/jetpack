@@ -8,6 +8,7 @@ import { hideBin } from 'yargs/helpers';
  * Internal dependencies
  */
 import { buildDefine } from './commands/build';
+import { buildExtensionsDefine } from './commands/build-extensions';
 import { watchDefine } from './commands/watch';
 import { installDefine } from './commands/install';
 import { cleanDefine } from './commands/clean';
@@ -32,6 +33,7 @@ export async function cli() {
 	 * Let's keep it alphabetical.
 	 */
 	argv = buildDefine( argv );
+	argv = buildExtensionsDefine( argv );
 	argv = changelogDefine( argv );
 	argv = cleanDefine( argv );
 	argv = cliDefine( argv );
