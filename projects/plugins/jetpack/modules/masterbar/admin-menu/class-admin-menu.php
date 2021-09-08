@@ -346,9 +346,10 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * Adds Plugins menu.
 	 */
 	public function add_plugins_menu() {
-		// On any environment, users adding new plugins should go through the calypso (marketplace) screens.
-		$submenus_to_update['plugin-install.php'] = 'https://wordpress.com/plugins/' . $this->domain;
-		$this->update_submenus( 'plugins.php', $submenus_to_update );
+		$submenus_to_update = apply_filters( 'wpcom_plugins_submenu_update', array() );
+		if ( ! empty( $submenus_to_update ) ) {
+			$this->update_submenus( 'plugins.php', $submenus_to_update );
+		}
 
 		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'plugins.php' ) ) {
 			return;
