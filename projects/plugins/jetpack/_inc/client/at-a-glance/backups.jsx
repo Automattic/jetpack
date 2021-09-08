@@ -62,6 +62,7 @@ class DashBackups extends Component {
 		siteRawUrl: PropTypes.string.isRequired,
 		getOptionValue: PropTypes.func.isRequired,
 		rewindStatus: PropTypes.string.isRequired,
+		rewindStatusReason: PropTypes.string.isRequired,
 
 		// Connected props
 		vaultPressData: PropTypes.any.isRequired,
@@ -233,6 +234,23 @@ class DashBackups extends Component {
 		return false;
 	}
 
+	renderFromRewindStatus() {
+		if (
+			'unavailable' === this.props.rewindStatus &&
+			'site_new' === this.props.rewindStatusReason
+		) {
+			return renderCard( {
+				className: 'jp-dash-item__is-inactive',
+				status: 'pro-inactive',
+				content: __( 'Your site is new and may still be preparing backup configuration.', 'jetpack' ),
+			} );
+			// this.props.rewindStatus is empty string on API error.
+		} else if ( 'unavailable' === this.props.rewindStatus || '' === this.props.rewindStatus ) {
+			return this.getVPContent();
+		}
+		return <div className="jp-dash-item">{ this.getRewindContent() }</div>;
+	}
+
 	render() {
 		if ( ! this.props.showBackups ) {
 			return null;
@@ -253,14 +271,7 @@ class DashBackups extends Component {
 		return (
 			<div>
 				<QueryVaultPressData />
-				{
-					// this.props.rewindStatus is empty string on API error.
-					'unavailable' === this.props.rewindStatus || '' === this.props.rewindStatus ? (
-						this.getVPContent()
-					) : (
-						<div className="jp-dash-item">{ this.getRewindContent() }</div>
-					)
-				}
+				{ this.renderFromRewindStatus() }
 			</div>
 		);
 	}

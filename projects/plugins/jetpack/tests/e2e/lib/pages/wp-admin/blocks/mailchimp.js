@@ -56,40 +56,31 @@ export default class MailchimpBlock extends PageActions {
 			const wpComTab = await this.clickAndWaitForNewPage( this.setupFormBtnSel );
 
 			if ( ! isLoggedIn ) {
-				await ( await LoginPage.init( wpComTab ) ).login( 'defaultUser' );
+				await ( await LoginPage.init( wpComTab ) ).login();
 			}
 
-			// Hacky way to force-sync Publicize activation. The first attempt is always get redirected to stats page.
+			// Hacky way to make sure the Calypso knows about newly created site (aka waiting for a site to get synced)
 			// TODO:
 			// explore a better way to sync the site. Maybe enable all the required modules as part of connection flow
 			// Or implement a way to trigger a sync manually.
-			let loaded = false;
+			let done = false;
 			let count = 0;
-			while ( ! loaded ) {
+			while ( ! done ) {
 				try {
-					count++;
-					const connections = await ConnectionsPage.init( wpComTab );
-					if ( ! ( await connections.isEnabled() ) ) {
-						throw 'Publicise not enabled/synced';
-					}
-
-					loaded = true;
+					const wpComConnectionsPage = await ConnectionsPage.init( wpComTab );
+					await wpComConnectionsPage.selectMailchimpList();
+					done = true;
 				} catch ( e ) {
-					logger.warn(
-						'ConnectionsPage is not available yet. Attempt: ' + count,
-						' URL: ' + connectionsUrl
-					);
-					await wpComTab.goto( connectionsUrl );
-					if ( count > 2 ) {
-						throw new Error( 'ConnectionsPage is not available after 3rd attempt' );
+					if ( count > 4 ) {
+						throw new Error( `Mailchimp connection failed after ${ count } attempts` );
 					}
+					logger.warn(
+						'Mailchimp connection failed. Attempt: ' + count + '; URL: ' + connectionsUrl
+					);
+					count++;
+					await wpComTab.goto( connectionsUrl );
 				}
 			}
-
-			await wpComTab.reload( { waitUntil: 'domcontentloaded' } );
-
-			const wpComConnectionsPage = await ConnectionsPage.init( wpComTab );
-			await wpComConnectionsPage.selectMailchimpList();
 
 			await this.page.bringToFront();
 			await this.click( this.recheckConnectionLnkSel );

@@ -63,6 +63,8 @@ import { createInterpolateElement } from '@wordpress/element';
 const recommendationsRoutes = [
 	'/recommendations',
 	'/recommendations/site-type',
+	'/recommendations/product-suggestions',
+	'/recommendations/product-purchased',
 	'/recommendations/woocommerce',
 	'/recommendations/monitor',
 	'/recommendations/related-posts',
@@ -179,6 +181,7 @@ class Main extends React.Component {
 			const $items = jQuery( '#toplevel_page_jetpack' ).find( 'ul.wp-submenu li' );
 			$items.find( 'a[href$="#/settings"]' ).hide();
 			$items.find( 'a[href$="admin.php?page=stats"]' ).hide();
+			$items.find( 'a[href$="admin.php?page=jetpack-search"]' ).hide();
 		}
 	}
 
@@ -336,6 +339,8 @@ class Main extends React.Component {
 				break;
 			case '/recommendations':
 			case '/recommendations/site-type':
+			case '/recommendations/product-suggestions':
+			case '/recommendations/product-purchased':
 			case '/recommendations/woocommerce':
 			case '/recommendations/monitor':
 			case '/recommendations/related-posts':

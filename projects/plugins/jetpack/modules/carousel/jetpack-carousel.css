@@ -22,7 +22,7 @@
 }
 /* end of temporary fix */
 
-[data-carousel-extra]:not( .jp-carousel-wrap ) {
+[data-carousel-extra]:not( .jp-carousel-wrap ) img, [data-carousel-extra]:not( .jp-carousel-wrap ) img + figcaption {
 	cursor: pointer;
 }
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+E2E tests: fixed stacktrace sometimes missing from Slack notification

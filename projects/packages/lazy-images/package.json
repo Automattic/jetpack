@@ -24,7 +24,7 @@
 		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile"
 	},
 	"dependencies": {
-		"intersection-observer": "^0.12.0"
+		"intersection-observer": "0.12.0"
 	},
 	"devDependencies": {
 		"@automattic/calypso-build": "9.0.0",
