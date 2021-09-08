@@ -14,6 +14,8 @@
  * @package automattic/jetpack
  */
 
+use A8C\Display_Context;
+
 /**
  * Replaces YouTube embeds with YouTube shortcodes.
  *
@@ -182,6 +184,8 @@ function youtube_id( $url ) {
 	$url = youtube_sanitize_url( $url );
 	$url = wp_parse_url( $url );
 
+	$thumbnail = "https://i.ytimg.com/vi/$id/hqdefault.jpg";
+
 	$args = jetpack_shortcode_youtube_args( $url );
 	if ( empty( $args ) ) {
 		return sprintf( '<!--%s-->', esc_html__( 'YouTube Error: empty URL args', 'jetpack' ) );
@@ -301,7 +305,7 @@ function youtube_id( $url ) {
 		$placeholder = sprintf(
 			'<a href="%1$s" placeholder><amp-img src="%2$s" alt="%3$s" layout="fill" object-fit="cover"><noscript><img src="%2$s" loading="lazy" decoding="async" alt="%3$s"></noscript></amp-img></a>',
 			esc_url( add_query_arg( 'v', $id, 'https://www.youtube.com/watch' ) ),
-			esc_url( "https://i.ytimg.com/vi/$id/hqdefault.jpg" ),
+			esc_url( $thumbnail ),
 			esc_attr__( 'YouTube Poster', 'jetpack' ) // Would be preferable to provide YouTube video title, but not available in this non-oEmbed context.
 		);
 
@@ -367,6 +371,22 @@ function youtube_id( $url ) {
 			$html
 		);
 
+	}
+
+	/**
+	 * Format output for Calypso Reader/Notifications/Comments
+	 */
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		require_once WP_CONTENT_DIR . '/lib/display-context.php';
+		$context = Display_Context\get_current_context();
+		if ( Display_Context\NOTIFICATIONS === $context ) {
+			return sprintf(
+				'<a href="%1$s" target="_blank" rel="noopener noreferrer"><img src="%2$s" alt="%3$s" /></a>',
+				esc_url( add_query_arg( 'v', $id, 'https://www.youtube.com/watch' ) ),
+				esc_url( $thumbnail ),
+				esc_html__( 'YouTube video', 'jetpack' )
+			);
+		}
 	}
 
 	/**
