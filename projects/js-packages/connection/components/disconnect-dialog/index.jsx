@@ -5,14 +5,16 @@ import React, { useEffect, useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
 import { __ } from '@wordpress/i18n';
 import { Button, Modal } from '@wordpress/components';
-import { JetpackLogo, getRedirectUrl } from '@automattic/jetpack-components';
-import { createInterpolateElement } from '@wordpress/element';
 import restApi from '@automattic/jetpack-api';
 
 /**
  * Internal dependencies
  */
 import './style.scss';
+import StepDisconnect from './steps/step-disconnect';
+import StepDisconnectConfirm from './steps/step-disconnect-confirm';
+import StepSurvey from './steps/step-survey';
+import StepThankYou from './steps/step-thank-you';
 
 /**
  * The RNA Disconnect Dialog component.
@@ -34,7 +36,23 @@ const DisconnectDialog = props => {
 	const [ isDisconnected, setIsDisconnected ] = useState( false );
 	const [ disconnectError, setDisconnectError ] = useState( false );
 
-	const { apiRoot, apiNonce, title, onDisconnected, onError, errorMessage, children } = props;
+	const [ isProvidingFeedback, setIsProvidingFeedback ] = useState( false );
+	const [ isFeedbackProvided, setIsFeedbackProvided ] = useState( false );
+
+	const {
+		apiRoot,
+		apiNonce,
+		title,
+		activateButtonText,
+		activateButtonClass,
+		disconnectCallback,
+		onDisconnected,
+		onError,
+		children,
+		disconnectStepComponent,
+		preloadComponent,
+		context,
+	} = props;
 
 	/**
 	 * Initialize the REST API.
@@ -66,33 +84,45 @@ const DisconnectDialog = props => {
 		[ setOpen ]
 	);
 
+	const _disconnect = useCallback( () => {
+		restApi
+			.disconnectSite()
+			.then( () => {
+				setIsDisconnecting( false );
+				setIsDisconnected( true );
+			} )
+			.catch( error => {
+				setIsDisconnecting( false );
+				setDisconnectError( error );
+
+				if ( onError ) {
+					onError( error );
+				}
+			} );
+	}, [ setIsDisconnecting, setIsDisconnected, setDisconnectError, onError ] );
+
 	/**
 	 * Disconnect - Triggered upon clicking the 'Disconnect' button.
 	 */
-	const disconnect = useCallback(
+	const handleDisconnect = useCallback(
 		e => {
 			e && e.preventDefault();
 
 			setDisconnectError( false );
 			setIsDisconnecting( true );
 
-			restApi
-				.disconnectSite()
-				.then( () => {
-					setIsDisconnecting( false );
+			// allow the disconnect action to be picked up by another component
+			// this is primarily for the plugin context where the plugin needs to be deactivated as well
+			if ( disconnectCallback ) {
+				disconnectCallback( e );
+				// maybe do some more stuff here before returning?
+				return;
+			}
 
-					setIsDisconnected( true );
-				} )
-				.catch( error => {
-					setIsDisconnecting( false );
-					setDisconnectError( error );
-
-					if ( onError ) {
-						onError( error );
-					}
-				} );
+			// default to making the disconnect API call here
+			_disconnect();
 		},
-		[ setIsDisconnecting, setIsDisconnected, setDisconnectError, onError ]
+		[ setDisconnectError, setIsDisconnecting, disconnectCallback, _disconnect ]
 	);
 
 	/**
@@ -112,11 +142,79 @@ const DisconnectDialog = props => {
 		[ onDisconnected, closeModal ]
 	);
 
+	const handleProvideFeedback = useCallback(
+		e => {
+			e && e.preventDefault();
+			setIsProvidingFeedback( true );
+		},
+		[ setIsProvidingFeedback ]
+	);
+
+	const handleFeedbackProvided = useCallback(
+		e => {
+			e && e.preventDefault();
+			setIsProvidingFeedback( false );
+			setIsFeedbackProvided( true );
+		},
+		[ setIsFeedbackProvided, setIsProvidingFeedback ]
+	);
+
+	/**
+	 * Determine what step to show based on the current state
+	 *
+	 * @returns { React.Component } - component for current step
+	 */
+	const getCurrentStep = () => {
+		if ( ! isDisconnected ) {
+			// disconnection screen
+			return (
+				<StepDisconnect
+					title={ title }
+					// what shows here can vary based on context/ what is passed by the parent.
+					// not all WP REST API methods are available by default for this package (depends on what plugins are active).
+					contents={ children }
+					disconnectStepComponent={ disconnectStepComponent } // component that renders as part of the disconnect step, if passed
+					isDisconnecting={ isDisconnecting }
+					closeModal={ closeModal }
+					onDisconnect={ handleDisconnect }
+					errorMessage={ disconnectError }
+					context={ context }
+				/>
+			);
+		} else if ( isDisconnected && ! isProvidingFeedback && ! isFeedbackProvided ) {
+			// disconnect confirm
+			// ask the user about the survey
+			return (
+				<StepDisconnectConfirm
+					onProvideFeedback={ handleProvideFeedback }
+					onExit={ backToWordpress }
+				/>
+			);
+		} else if ( isProvidingFeedback && ! isFeedbackProvided ) {
+			// survey step
+			// no data needed from site
+			// send response to collection endpoint
+			return (
+				<StepSurvey onFeedBackProvided={ handleFeedbackProvided } onExit={ backToWordpress } />
+			);
+		} else if ( isFeedbackProvided ) {
+			// thank you step
+			// only visual output
+			return <StepThankYou onExit={ backToWordpress } />;
+		}
+	};
+
 	return (
 		<>
-			<Button variant="link" onClick={ openModal } className="jp-disconnect-dialog__link">
-				{ __( 'Disconnect', 'jetpack' ) }
+			<Button
+				variant="link"
+				onClick={ openModal }
+				className={ 'jp-disconnect-dialog__link ' + activateButtonClass }
+			>
+				{ activateButtonText }
 			</Button>
+
+			{ preloadComponent }
 
 			{ isOpen && (
 				<Modal
@@ -133,95 +231,7 @@ const DisconnectDialog = props => {
 						'jp-disconnect-dialog' + ( isDisconnected ? ' jp-disconnect-dialog__success' : '' )
 					}
 				>
-					{ ! isDisconnected && (
-						<div>
-							<div className="jp-disconnect-dialog__content">
-								<h1 id="jp-disconnect-dialog__heading">{ title }</h1>
-
-								{ children }
-							</div>
-
-							<div className="jp-disconnect-dialog__actions">
-								<div className="jp-row">
-									<div className="lg-col-span-8 md-col-span-8 sm-col-span-4">
-										<p>
-											{ createInterpolateElement(
-												__(
-													'<strong>Need help?</strong> Learn more about the <jpConnectionInfoLink>Jetpack connection</jpConnectionInfoLink> or <jpSupportLink>contact Jetpack support</jpSupportLink>',
-													'jetpack'
-												),
-												{
-													strong: <strong></strong>,
-													jpConnectionInfoLink: (
-														<a
-															href={ getRedirectUrl(
-																'why-the-wordpress-com-connection-is-important-for-jetpack'
-															) }
-															rel="noopener noreferrer"
-															target="_blank"
-															className="jp-disconnect-dialog__link"
-														/>
-													),
-													jpSupportLink: (
-														<a
-															href={ getRedirectUrl( 'jetpack-support' ) }
-															rel="noopener noreferrer"
-															target="_blank"
-															className="jp-disconnect-dialog__link"
-														/>
-													),
-												}
-											) }
-										</p>
-									</div>
-									<div className="jp-disconnect-dialog__button-wrap lg-col-span-4 md-col-span-8 sm-col-span-4">
-										<Button
-											isPrimary
-											disabled={ isDisconnecting }
-											onClick={ closeModal }
-											className="jp-disconnect-dialog__btn-dismiss"
-										>
-											{ __( 'Stay connected', 'jetpack' ) }
-										</Button>
-										<Button
-											isPrimary
-											disabled={ isDisconnecting }
-											onClick={ disconnect }
-											className="jp-disconnect-dialog__btn-disconnect"
-										>
-											{ __( 'Disconnect', 'jetpack' ) }
-										</Button>
-									</div>
-								</div>
-								{ disconnectError && (
-									<p className="jp-disconnect-dialog__error">{ errorMessage }</p>
-								) }
-							</div>
-						</div>
-					) }
-
-					{ isDisconnected && (
-						<div>
-							<JetpackLogo />
-
-							<h1>
-								{ createInterpolateElement(
-									__( 'Jetpack has been <br/>successfully disconnected.', 'jetpack' ),
-									{
-										br: <br />,
-									}
-								) }
-							</h1>
-
-							<Button
-								isPrimary
-								onClick={ backToWordpress }
-								className="jp-disconnect-dialog__btn-back-to-wp"
-							>
-								{ __( 'Back to WordPress', 'jetpack' ) }
-							</Button>
-						</div>
-					) }
+					{ getCurrentStep() }
 				</Modal>
 			) }
 		</>
@@ -232,14 +242,18 @@ DisconnectDialog.propTypes = {
 	apiRoot: PropTypes.string.isRequired,
 	apiNonce: PropTypes.string.isRequired,
 	title: PropTypes.string,
+	activateButtonText: PropTypes.string,
 	onDisconnected: PropTypes.func,
 	onError: PropTypes.func,
 	errorMessage: PropTypes.string,
+	context: PropTypes.string,
 };
 
 DisconnectDialog.defaultProps = {
 	title: __( 'Are you sure you want to disconnect?', 'jetpack' ),
+	activateButtonText: __( 'Disconnect', 'jetpack' ),
 	errorMessage: __( 'Failed to disconnect. Please try again.', 'jetpack' ),
+	context: __( 'jetpack-dashboard' ),
 };
 
 export default DisconnectDialog;
