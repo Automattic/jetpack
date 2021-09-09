@@ -175,7 +175,12 @@ export function didScoresImprove( scoresSet ): boolean {
 	const current = scoresSet.current;
 	const previous = scoresSet.previous;
 
-	return current.mobile > previous.mobile && current.desktop > previous.desktop;
+	// Consider the score was improved if either desktop or mobile improved and neither worsened.
+	return (
+		current.mobile >= previous.mobile &&
+		current.desktop >= previous.desktop &&
+		current.mobile + current.desktop > previous.mobile + previous.desktop
+	);
 }
 
 /**
