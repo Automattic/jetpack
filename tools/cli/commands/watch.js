@@ -82,11 +82,11 @@ export async function watchCli( options ) {
 /**
  * Fires off watch command.
  *
- * @param {string} project - The project.
- * @param {object} packageJson - The project's package.json file, parsed.
+ * @param {string} project      - The project.
+ * @param {object} composerJson - The project's composer.json file, parsed.
  */
-export async function watch( project, packageJson ) {
-	const command = checkPropjectScriptAvailability( project, 'watch', packageJson );
+export async function watch( project, composerJson ) {
+	const command = checkProjectScriptAvailability( project, 'watch', composerJson );
 	if ( command === false ) {
 		return;
 	}
