@@ -7,7 +7,7 @@
 	export let prevScore = 0;
 
 	let fillColor;
-	let prevScoreOffset
+	let prevScoreOffset;
 	function getFillerClassName( forScore ) {
 		if ( isLoading ) {
 			return 'fill-loading';
@@ -26,10 +26,9 @@
 		}
 	}
 
-
 	$: {
-		fillColor = getFillerClassName(score);
-		prevScoreOffset = prevScore / score * 100;
+		fillColor = getFillerClassName( score );
+		prevScoreOffset = ( prevScore / score ) * 100;
 	}
 </script>
 
@@ -45,7 +44,12 @@
 			{/if}
 
 			{#if prevScore && showPrevScores}
-				<div class="jb-score-bar__previous_score" style="left: min({prevScoreOffset}%, calc(100% - var(--clearance-space))">{prevScore}</div>
+				<div
+					class="jb-score-bar__previous_score"
+					style="left: min({prevScoreOffset}%, calc(100% - var(--clearance-space))"
+				>
+					{prevScore}
+				</div>
 			{/if}
 		</div>
 	{/if}
