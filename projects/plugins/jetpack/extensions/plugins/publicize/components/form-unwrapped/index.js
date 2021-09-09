@@ -7,18 +7,11 @@
  */
 
 /**
- * External dependencies
- */
-import classnames from 'classnames';
-import { __, _n, sprintf } from '@wordpress/i18n';
-import { Fragment } from '@wordpress/element';
-import { TextareaControl } from '@wordpress/components';
-
-/**
  * Internal dependencies
  */
 import PublicizeConnection from '../connection';
 import PublicizeSettingsButton from '../settings-button';
+import MessageBox from '../message-box';
 
 function PublicizeFormUnwrapped( {
 	connections,
@@ -40,11 +33,6 @@ function PublicizeFormUnwrapped( {
 		return connections.every( connection => ! connection.toggleable );
 	}
 
-	const charactersRemaining = maxLength - shareMessage.length;
-	const characterCountClass = classnames( 'jetpack-publicize-character-count', {
-		'wpas-twitter-length-limit': charactersRemaining <= 0,
-	} );
-
 	return (
 		<div id="publicize-form">
 			<ul className="jetpack-publicize__connections-list">
@@ -64,30 +52,12 @@ function PublicizeFormUnwrapped( {
 			<PublicizeSettingsButton refreshCallback={ refreshCallback } />
 
 			{ connections.some( connection => connection.enabled ) && (
-				<Fragment>
-					<div className="jetpack-publicize-message-box">
-						<TextareaControl
-							value={ shareMessage }
-							onChange={ onMessageChange }
-							disabled={ isDisabled() }
-							maxLength={ maxLength }
-							placeholder={ __( 'Write a message for your audience here.', 'jetpack' ) }
-							rows={ 4 }
-						/>
-						<div className={ characterCountClass }>
-							{ sprintf(
-								/* translators: placeholder is a number. */
-								_n(
-									'%d character remaining',
-									'%d characters remaining',
-									charactersRemaining,
-									'jetpack'
-								),
-								charactersRemaining
-							) }
-						</div>
-					</div>
-				</Fragment>
+				<MessageBox
+					disabled={ isDisabled() }
+					maxLength={ maxLength }
+					onChange={ onMessageChange }
+					message={ shareMessage }
+				/>
 			) }
 		</div>
 	);
