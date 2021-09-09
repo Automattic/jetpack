@@ -1334,10 +1334,11 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	 * @return int|string Number of spam blocked by Akismet. Otherwise, an error message.
 	 */
 	public function get_akismet_data() {
-		if ( ! is_wp_error( $status = $this->akismet_is_active_and_registered() ) ) {
-			return rest_ensure_response( Akismet_Admin::get_stats( Akismet::get_api_key() ) );
+		$akismet_status = $this->akismet_is_active_and_registered();
+		if ( ! is_wp_error( $akismet_status ) ) {
+			return number_format_i18n( get_option( 'akismet_spam_count', 0 ) );
 		} else {
-			return $status->get_error_code();
+			return $akismet_status->get_error_code();
 		}
 	}
 
