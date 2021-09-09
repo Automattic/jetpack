@@ -13,6 +13,7 @@ import classnames from 'classnames';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
 import { uniqueId } from 'lodash';
+import { TextareaControl } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -69,10 +70,10 @@ function PublicizeFormUnwrapped( {
 						{ __( 'Customize your message', 'jetpack' ) }
 					</label>
 					<div className="jetpack-publicize-message-box">
-						<textarea
+						<TextareaControl
 							id={ fieldId }
 							value={ shareMessage }
-							onChange={ event => onMessageChange( event, true ) }
+							onChange={ onMessageChange }
 							disabled={ isDisabled() }
 							maxLength={ maxLength }
 							placeholder={ __(
