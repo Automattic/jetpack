@@ -12,7 +12,6 @@
 import classnames from 'classnames';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
-import { uniqueId } from 'lodash';
 import { TextareaControl } from '@wordpress/components';
 
 /**
@@ -29,8 +28,6 @@ function PublicizeFormUnwrapped( {
 	maxLength,
 	onMessageChange,
 } ) {
-	const fieldId = uniqueId( 'jetpack-publicize-message-field-' );
-
 	/**
 	 * Check to see if form should be disabled.
 	 *
@@ -63,15 +60,13 @@ function PublicizeFormUnwrapped( {
 					/>
 				) ) }
 			</ul>
+
 			<PublicizeSettingsButton refreshCallback={ refreshCallback } />
+
 			{ connections.some( connection => connection.enabled ) && (
 				<Fragment>
-					<label className="jetpack-publicize-message-note" htmlFor={ fieldId }>
-						{ __( 'Customize your message', 'jetpack' ) }
-					</label>
 					<div className="jetpack-publicize-message-box">
 						<TextareaControl
-							id={ fieldId }
 							value={ shareMessage }
 							onChange={ onMessageChange }
 							disabled={ isDisabled() }

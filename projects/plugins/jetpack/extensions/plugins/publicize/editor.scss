@@ -1,17 +1,31 @@
 @import '../../shared/styles/gutenberg-base-styles.scss';
 
-.jetpack-publicize-message-box {
-	background-color: $gray-200;
-	border-radius: 4px;
-}
+$character-count-height: 32px;
 
-.jetpack-publicize-message-box textarea {
-	width: 100%;
+.jetpack-publicize-message-box {
+	margin-bottom: 8px;
+	.components-base-control__field {
+		margin: 0;
+	}
+
+	.components-textarea-control__input {
+		width: 100%;
+		display: block;
+		border-radius: $radius-block-ui $radius-block-ui 0 0;
+		resize: none;
+	}
 }
 
 .jetpack-publicize-character-count {
-	padding-bottom: 5px;
+	display: flex;
 	padding-left: 5px;
+	height: $character-count-height;
+	align-items: center;
+	border-radius: 0 0 $radius-block-ui;
+	font-size: $helptext-font-size;
+	border-bottom: 1px solid $gray-700;
+	border-left: 1px solid $gray-700;
+	border-right: 1px solid $gray-700;
 }
 
 .jetpack-publicize__connections-list {
@@ -62,12 +76,6 @@
 	.components-button + .components-button {
 		margin-top: 5px;
 	}
-}
-
-.jetpack-publicize-message-note {
-	display: inline-block;
-	margin-bottom: 4px;
-	margin-top: 13px;
 }
 
 .jetpack-publicize-add-connection-wrapper {
