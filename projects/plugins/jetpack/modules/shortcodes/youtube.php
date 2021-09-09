@@ -14,8 +14,6 @@
  * @package automattic/jetpack
  */
 
-use A8C\Display_Context;
-
 /**
  * Replaces YouTube embeds with YouTube shortcodes.
  *
@@ -378,8 +376,8 @@ function youtube_id( $url ) {
 	 */
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		require_once WP_CONTENT_DIR . '/lib/display-context.php';
-		$context = Display_Context\get_current_context();
-		if ( Display_Context\NOTIFICATIONS === $context ) {
+		$context = A8C\Display_Context\get_current_context();
+		if ( A8C\Display_Context\NOTIFICATIONS === $context ) {
 			return sprintf(
 				'<a href="%1$s" target="_blank" rel="noopener noreferrer"><img src="%2$s" alt="%3$s" /></a>',
 				esc_url( add_query_arg( 'v', $id, 'https://www.youtube.com/watch' ) ),
