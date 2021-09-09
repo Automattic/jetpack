@@ -18,13 +18,4 @@ module.exports = class WordpressAPI {
 				console.log( err );
 			} );
 	}
-
-	async getPluginVersion( pluginTextDomain ) {
-		const allPlugins = await this.getPlugins();
-		const plugins = allPlugins.filter( function ( p ) {
-			return p.textdomain === pluginTextDomain && p.status === 'active';
-		} );
-
-		return plugins[ 0 ].version;
-	}
 };

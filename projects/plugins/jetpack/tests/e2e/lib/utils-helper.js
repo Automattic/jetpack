@@ -7,6 +7,7 @@ const fs = require( 'fs' );
 const path = require( 'path' );
 const shellescape = require( 'shell-escape' );
 const logger = require( './logger' );
+const { join } = require( 'path' );
 const { E2E_DEBUG } = process.env;
 
 /**
@@ -276,6 +277,23 @@ function isLocalSite() {
 	return !! process.env.TEST_SITE;
 }
 
+function getJetpackVersion() {
+	try {
+		const envFilePath = join( `${ config.get( 'dirs.output' ) }`, 'environment.json' );
+		const fileContent = fs.readFileSync( envFilePath, 'utf8' );
+		const env = JSON.parse( fileContent );
+
+		const jetpack = env.plugins.filter( function ( p ) {
+			return p.plugin === 'jetpack-dev/jetpack' && p.status === 'active';
+		} );
+
+		return jetpack[ 0 ].version;
+	} catch ( error ) {
+		console.log( `ERROR: Failed to get Jetpack version. ${ error }` );
+		return 'unknown';
+	}
+}
+
 module.exports = {
 	execShellCommand,
 	execSyncShellCommand,
@@ -294,4 +312,5 @@ module.exports = {
 	getSiteCredentials,
 	getDotComCredentials,
 	getMailchimpCredentials,
+	getJetpackVersion,
 };
