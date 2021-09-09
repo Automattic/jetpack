@@ -35,11 +35,6 @@ function PublicizeFormUnwrapped( props ) {
 		return props.connections.every( connection => ! connection.toggleable );
 	}
 
-	function onMessageChange( event ) {
-		const { messageChange } = props;
-		messageChange( event, true );
-	}
-
 	const { connections, toggleConnection, refreshCallback, shareMessage, maxLength } = props;
 	const charactersRemaining = maxLength - shareMessage.length;
 	const characterCountClass = classnames( 'jetpack-publicize-character-count', {
@@ -71,7 +66,7 @@ function PublicizeFormUnwrapped( props ) {
 						<textarea
 							id={ fieldId }
 							value={ shareMessage }
-							onChange={ onMessageChange }
+							onChange={ event => props.onMessageChange( event, true ) }
 							disabled={ isDisabled() }
 							maxLength={ maxLength }
 							placeholder={ __(

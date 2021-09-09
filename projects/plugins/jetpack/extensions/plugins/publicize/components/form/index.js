@@ -55,7 +55,7 @@ const PublicizeForm = compose( [
 		 * @param {object} event                  - Change event data from textarea element.
 		 * @param {boolean} hasEditedShareMessage - Whether the share message has been edited.
 		 */
-		messageChange( event, hasEditedShareMessage ) {
+		onMessageChange( event, hasEditedShareMessage ) {
 			dispatch( 'core/editor' ).editPost( {
 				meta: {
 					jetpack_publicize_message: event.target.value,
