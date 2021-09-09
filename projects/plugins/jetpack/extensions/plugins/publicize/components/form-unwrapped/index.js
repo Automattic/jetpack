@@ -13,7 +13,7 @@ import PublicizeConnection from '../connection';
 import PublicizeSettingsButton from '../settings-button';
 import MessageBox from '../message-box';
 
-function PublicizeFormUnwrapped( {
+export default function PublicizeFormUnwrapped( {
 	connections,
 	toggleConnection,
 	refreshCallback,
@@ -62,5 +62,3 @@ function PublicizeFormUnwrapped( {
 		</div>
 	);
 }
-
-export default PublicizeFormUnwrapped;
