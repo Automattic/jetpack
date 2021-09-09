@@ -11,7 +11,7 @@ import path from 'path';
 import { chalkJetpackGreen } from '../helpers/styling.js';
 import promptForProject from '../helpers/promptForProject.js';
 import { readComposerJson } from '../helpers/json';
-import checkPropjectScriptAvailability from '../helpers/checkProjectScriptAvailability.js';
+import checkProjectScriptAvailability from '../helpers/checkProjectScriptAvailability.js';
 
 /**
  * Builds extesions for the project.
