@@ -12,7 +12,7 @@ import chalk from 'chalk';
  * @param {boolean} output      - Whether to output the result.
  * @returns {boolean} If the project has a watch step, the watch command or false.
  */
-export default function checkPropjectScriptAvailability(
+export default function checkProjectScriptAvailability(
 	projectName,
 	scriptName,
 	composerJson,
