@@ -20,7 +20,14 @@ import { uniqueId } from 'lodash';
 import PublicizeConnection from '../connection';
 import PublicizeSettingsButton from '../settings-button';
 
-function PublicizeFormUnwrapped( props ) {
+function PublicizeFormUnwrapped( {
+	connections,
+	toggleConnection,
+	refreshCallback,
+	shareMessage,
+	maxLength,
+	onMessageChange,
+} ) {
 	const fieldId = uniqueId( 'jetpack-publicize-message-field-' );
 
 	/**
@@ -32,10 +39,9 @@ function PublicizeFormUnwrapped( props ) {
 	 * @returns {boolean} True if whole form should be disabled.
 	 */
 	function isDisabled() {
-		return props.connections.every( connection => ! connection.toggleable );
+		return connections.every( connection => ! connection.toggleable );
 	}
 
-	const { connections, toggleConnection, refreshCallback, shareMessage, maxLength } = props;
 	const charactersRemaining = maxLength - shareMessage.length;
 	const characterCountClass = classnames( 'jetpack-publicize-character-count', {
 		'wpas-twitter-length-limit': charactersRemaining <= 0,
@@ -66,7 +72,7 @@ function PublicizeFormUnwrapped( props ) {
 						<textarea
 							id={ fieldId }
 							value={ shareMessage }
-							onChange={ event => props.onMessageChange( event, true ) }
+							onChange={ event => onMessageChange( event, true ) }
 							disabled={ isDisabled() }
 							maxLength={ maxLength }
 							placeholder={ __(
