@@ -116,7 +116,7 @@ function isVIP() {
 }
 function isWpcomFilesUrl( url ) {
 	const { host } = parseUrl( url );
-	return /\.files\.wordpress\.com$/.test( host );
+	return /\.files\.wordpress\.com|s0\.wp\.com$/.test( host );
 }
 
 /**
