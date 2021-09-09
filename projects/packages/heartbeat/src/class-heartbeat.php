@@ -182,7 +182,7 @@ class Heartbeat {
 	 * Handles the response for the jetpack.getHeartbeatData xmlrpc method
 	 *
 	 * @param array $params The parameters received in the request.
-	 * @return array $params all the stats that hearbeat handles.
+	 * @return array $params all the stats that heartbeat handles.
 	 */
 	public static function xmlrpc_data_response( $params = array() ) {
 		// The WordPress XML-RPC server sets a default param of array()

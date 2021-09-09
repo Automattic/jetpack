@@ -26,7 +26,7 @@
 	"require-dev": {
 		"automattic/jetpack-changelogger": "^1.2",
 		"automattic/wordbless": "dev-master",
-		"brain/monkey": "^2.6",
+		"brain/monkey": "2.6.0",
 		"yoast/phpunit-polyfills": "1.0.1"
 	},
 	"scripts": {
