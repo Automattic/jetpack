@@ -32,7 +32,7 @@ export async function buildExtensions( projectName, watchMode, composerJson ) {
 	}
 
 	const composerScript = watchMode ? 'watch-extensions' : 'build-extensions';
-	if ( ! ( await checkPropjectScriptAvailability( projectName, composerScript, composerJson ) ) ) {
+	if ( ! ( await checkProjectScriptAvailability( projectName, composerScript, composerJson ) ) ) {
 		return;
 	}
 
