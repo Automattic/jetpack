@@ -16,6 +16,7 @@ import { generateDefine } from './commands/generate';
 import { draftDefine } from './commands/draft';
 import { changelogDefine } from './commands/changelog';
 import { dockerDefine } from './commands/docker';
+import { testDefine } from './commands/test';
 
 /**
  * The main CLI router function.
@@ -40,6 +41,7 @@ export async function cli() {
 	argv = draftDefine( argv );
 	argv = generateDefine( argv );
 	argv = installDefine( argv );
+	argv = testDefine( argv );
 	argv = watchDefine( argv );
 
 	// This adds usage information on failure and demands that a subcommand must be passed.
