@@ -76,10 +76,7 @@ function PublicizeFormUnwrapped( {
 							onChange={ onMessageChange }
 							disabled={ isDisabled() }
 							maxLength={ maxLength }
-							placeholder={ __(
-								"Write a message for your audience here. If you leave this blank, we'll use an excerpt of the post content as the message.",
-								'jetpack'
-							) }
+							placeholder={ __( 'Write a message for your audience here.', 'jetpack' ) }
 							rows={ 4 }
 						/>
 						<div className={ characterCountClass }>
