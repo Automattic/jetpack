@@ -12,7 +12,7 @@ import promptForProject from '../helpers/promptForProject';
 import { readComposerJson } from '../helpers/json';
 import { chalkJetpackGreen } from '../helpers/styling';
 import { allProjects } from '../helpers/projectHelpers';
-import checkPropjectScriptAvailability from '../helpers/checkProjectScriptAvailability';
+import checkProjectScriptAvailability from '../helpers/checkProjectScriptAvailability';
 
 let output = true;
 
