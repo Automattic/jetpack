@@ -131,10 +131,10 @@ describe( 'SubscriptionEdit', () => {
 
 	test( 'displays subscriber total', async () => {
 		await renderAsync( <SubscriptionEdit { ...defaultProps }  /> );
-		userEvent.type( screen.getByText( defaultAttributes.submitButtonText ), ' right now!' );
+		userEvent.type( screen.getByText( defaultAttributes.submitButtonText ), '-right-now!' );
 
 		expect( setAttributes ).toHaveBeenCalledWith( {
-			submitButtonText: `${ defaultAttributes.submitButtonText} right now!`,
+			submitButtonText: `${ defaultAttributes.submitButtonText}-right-now!`,
 		} );
 	} );
 
