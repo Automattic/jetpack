@@ -11,7 +11,7 @@
  */
 import classnames from 'classnames';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { useState, Fragment } from '@wordpress/element';
+import { Fragment } from '@wordpress/element';
 import { uniqueId } from 'lodash';
 
 /**
@@ -21,8 +21,6 @@ import PublicizeConnection from '../connection';
 import PublicizeSettingsButton from '../settings-button';
 
 function PublicizeFormUnwrapped( props ) {
-	const [ hasEditedShareMessage, setHasEditedShareMessage ] = useState( false );
-
 	const fieldId = uniqueId( 'jetpack-publicize-message-field-' );
 
 	/**
@@ -39,7 +37,6 @@ function PublicizeFormUnwrapped( props ) {
 
 	function onMessageChange( event ) {
 		const { messageChange } = props;
-		setHasEditedShareMessage( true );
 		messageChange( event, true );
 	}
 
