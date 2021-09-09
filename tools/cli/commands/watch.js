@@ -59,7 +59,7 @@ export async function watchCli( options ) {
 		output = false;
 		const projects = allProjects();
 		await projects.filter( project =>
-			checkPropjectScriptAvailability( project, 'watch', readComposerJson( project, output ) )
+			checkProjectScriptAvailability( project, 'watch', readComposerJson( project, output ) )
 		);
 		projects.forEach( project => watch( project, readComposerJson( project, output ) ) );
 		return;
