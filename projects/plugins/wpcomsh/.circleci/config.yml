@@ -59,19 +59,19 @@ jobs:
   php73-build:
     <<: *php_job
     docker:
-      - image: circleci/php:7.3
+      - image: circleci/php:7.3-buster
       - image: *mariadb_image
 
   php74-build:
     <<: *php_job
     docker:
-      - image: circleci/php:7.4
+      - image: circleci/php:7.4-buster
       - image: *mariadb_image
 
   php8-build:
     <<: *php_job
     docker:
-      - image: circleci/php:8.0
+      - image: circleci/php:8.0-buster
       - image: *mariadb_image
 
   public-access:
