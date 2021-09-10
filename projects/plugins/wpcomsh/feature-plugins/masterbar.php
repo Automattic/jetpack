@@ -225,3 +225,58 @@ add_action( 'admin_menu', 'wpcomsh_add_plugins_menu_non_supported_plans' );
 
 // Enables the Upgrades -> Emails menu item in the sidebar for all users (temporary hotfix due to Jetpack monthly release cycle)
 add_filter( 'jetpack_show_wpcom_upgrades_email_menu', '__return_true' );
+
+/**
+ * Checks if site sticker is toggled on/off.
+ * For further information/context on Atomic_Persistent_Data and site_stickers please also see this diff: D66496-code
+ * @return boolean
+ */
+function wpcomsh_is_site_sticker_active( $sticker_name ) {
+	if ( ! class_exists( '\Atomic_Persistent_Data' ) ) {
+		return false;
+	}
+
+	$persistent_data = new \Atomic_Persistent_Data();
+	$is_sticker_enabled = array_key_exists( 'site_sticker_' . $sticker_name, $persistent_data );
+
+	return $is_sticker_enabled;
+}
+
+/**
+ * Returns new plugin submenus that we are going to update.
+ * @return array
+ */
+function wpcomsh_get_plugin_updated_submenus( $submenus_to_update, $domain ) {
+	// If we get an unexpected data type, or there is no domain then return an empty array.
+	if ( ! is_array( $submenus_to_update ) || ! $domain) {
+		return array();
+	}
+
+	$submenus_to_update['plugin-install.php'] = 'https://wordpress.com/plugins/' . $domain;
+	return $submenus_to_update;
+}
+
+/**
+ * Checks if the wpcom-marketplace sticker is active and if so it forces the plugin install link to be Calypso.
+ * @return array
+ */
+function wpcomsh_update_plugin_submenus( $submenus_to_update ) {
+	$should_update = wpcomsh_is_site_sticker_active( 'wpcom-marketplace' );
+	if ( ! $should_update ) {
+		return $submenus_to_update;
+	}
+
+	if ( ! class_exists( 'Automattic\Jetpack\Status' ) ) {
+		return $submenus_to_update;
+	}
+	$domain = ( new Automattic\Jetpack\Status() )->get_site_suffix();
+
+	return wpcomsh_get_plugin_updated_submenus( $submenus_to_update, $domain );
+}
+
+function wpcomsh_update_plugin_add_filter() {
+	// We need to add the filter in a `admin_menu` action so that the rest api (Calypso)
+	// shows the correct menu items.
+	add_filter( 'wpcom_plugins_submenu_update', 'wpcomsh_update_plugin_submenus' );
+}
+add_action( 'admin_menu', 'wpcomsh_update_plugin_add_filter' );
