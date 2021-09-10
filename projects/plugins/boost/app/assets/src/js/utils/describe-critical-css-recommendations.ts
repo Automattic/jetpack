@@ -435,6 +435,33 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 			],
 		} ),
 	},
+
+	XFrameDenyError: {
+		describeSet: set =>
+			_n(
+				"Jetpack Boost couldn't proceed because of x-frame-deny configuration",
+				"Jetpack Boost couldn't proceed because of x-frame-deny configuration",
+				urlCount( set ),
+				'jetpack-boost'
+			),
+		rawError: set => Object.values( set.byUrl )[ 0 ].message,
+		suggestion: set => ( {
+			paragraph: _n(
+				'Please follow the troubleshooting steps below for the page.',
+				'Please follow the troubleshooting steps below for each of the pages.',
+				urlCount( set ),
+				'jetpack-boost'
+			),
+			list: [
+				__( 'Verify that x-frame-options header value is not set to deny', 'jetpack-boost' ),
+				__( 'If it does, <retry>try again</retry> to generate the Critical CSS.', 'jetpack-boost' ),
+				__(
+					'If the error still persist please contact <support>Jetpack Boost Support</support> with a copy of your error message.',
+					'jetpack-boost'
+				),
+			],
+		} ),
+	},
 };
 
 function getErrorSpec( type: string ): ErrorTypeSpec {
