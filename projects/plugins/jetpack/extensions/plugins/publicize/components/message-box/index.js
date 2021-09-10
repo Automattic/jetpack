@@ -9,7 +9,7 @@ import classnames from 'classnames';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { TextareaControl } from '@wordpress/components';
 
-export default function MessageBox( { message = '', onMessageChange, disabled, maxLength } ) {
+export default function MessageBox( { message = '', onChange, disabled, maxLength } ) {
 	const charactersRemaining = maxLength - message.length;
 	const characterCountClass = classnames( 'jetpack-publicize-character-count', {
 		'wpas-twitter-length-limit': charactersRemaining <= 0,
@@ -19,7 +19,7 @@ export default function MessageBox( { message = '', onMessageChange, disabled, m
 		<div className="jetpack-publicize-message-box">
 			<TextareaControl
 				value={ message }
-				onChange={ onMessageChange }
+				onChange={ onChange }
 				disabled={ disabled }
 				maxLength={ maxLength }
 				placeholder={ __( 'Write a message for your audience here.', 'jetpack' ) }
