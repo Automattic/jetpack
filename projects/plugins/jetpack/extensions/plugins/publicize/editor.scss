@@ -21,7 +21,7 @@ $character-count-height: 32px;
 	padding-left: 5px;
 	height: $character-count-height;
 	align-items: center;
-	border-radius: 0 0 $radius-block-ui;
+	border-radius: 0 0 $radius-block-ui $radius-block-ui;
 	font-size: $helptext-font-size;
 	border-bottom: 1px solid $gray-700;
 	border-left: 1px solid $gray-700;
