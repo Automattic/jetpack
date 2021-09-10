@@ -20,7 +20,8 @@ export type CriticalCssErrorDetails = {
 export interface CriticalCssStatus {
 	generating: boolean;
 	progress: number;
-	retriedShowstopper: boolean;
+	// eslint-disable-next-line camelcase
+	retried_show_stopper: boolean;
 	// eslint-disable-next-line camelcase
 	callback_passthrough?: JSONObject;
 	// eslint-disable-next-line camelcase
@@ -57,7 +58,7 @@ const initialState = Jetpack_Boost.criticalCssStatus || {
 	generating: false,
 	progress: 0,
 	status: 'not_generated',
-	retriedShowstopper: false,
+	retried_show_stopper: false,
 };
 
 const { subscribe, update } = writable< CriticalCssStatus >( initialState );
@@ -150,7 +151,7 @@ export async function requestGeneration(
 ): Promise< CriticalCssStatus | false > {
 	update( state => ( {
 		...state,
-		retriedShowstopper: isShowstopperRetry,
+		retried_show_stopper: isShowstopperRetry,
 	} ) );
 
 	return callCriticalCssEndpoint( 'post', '/critical-css/request-generate', {
