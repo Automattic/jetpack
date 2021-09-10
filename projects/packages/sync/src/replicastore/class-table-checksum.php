@@ -280,6 +280,23 @@ class Table_Checksum {
 				'table_join_field'          => 'order_item_id',
 				'is_table_enabled_callback' => array( $this, 'enable_woocommerce_tables' ),
 			),
+			'users'                      => array(
+				'table'                => $wpdb->users,
+				'range_field'          => 'ID',
+				'key_fields'           => array( 'ID' ),
+				'checksum_text_fields' => array( 'user_login', 'user_nicename', 'user_email', 'user_url', 'user_registered', 'user_status', 'display_name' ),
+				'filter_values'        => array(),
+			),
+			'usermeta'                   => array(
+				'table'                => $wpdb->usermeta,
+				'range_field'          => 'user_id',
+				'key_fields'           => array( 'user_id', 'meta_key' ),
+				'checksum_text_fields' => array( 'meta_key', 'meta_value' ),
+				'filter_values'        => array(),
+				'parent_table'         => 'users',
+				'parent_join_field'    => 'ID',
+				'table_join_field'     => 'user_id',
+			),
 		);
 	}
 
