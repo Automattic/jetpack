@@ -35,7 +35,7 @@ class WP_Test_Jetpack_Shortcodes_Quiz extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_quiz_id() {
 		$shortcode_content = do_shortcode( '[quiz trackid="the-quiz"][question]What is the right answer?[/question][/quiz]' );
-		$this->assertEquals( '<div class="jetpack-quiz quiz" data-trackid="the-quiz"><div class="jetpack-quiz-question question">What is the right answer?</div></div>', $shortcode_content );
+		$this->assertEquals( '<div class="jetpack-quiz quiz" data-trackid="the-quiz"><div class="jetpack-quiz-question question" tabindex="-1">What is the right answer?</div></div>', $shortcode_content );
 	}
 
 	/**
@@ -48,7 +48,7 @@ class WP_Test_Jetpack_Shortcodes_Quiz extends WP_UnitTestCase {
 		$this->assertEquals( '', $shortcode_content );
 
 		$shortcode_content = do_shortcode( '[quiz][question]What is the right answer?[/question][/quiz]' );
-		$this->assertEquals( '<div class="jetpack-quiz quiz"><div class="jetpack-quiz-question question">What is the right answer?</div></div>', $shortcode_content );
+		$this->assertEquals( '<div class="jetpack-quiz quiz"><div class="jetpack-quiz-question question" tabindex="-1">What is the right answer?</div></div>', $shortcode_content );
 	}
 
 	/**
@@ -97,7 +97,7 @@ class WP_Test_Jetpack_Shortcodes_Quiz extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_complete() {
 		$shortcode_content = do_shortcode( '[quiz][question]What is the right answer?[/question][wrong]This is so wrong...[explanation]This is why this is wrong.[/explanation][/wrong][answer]Yes, this is right![explanation]Yay![/explanation][/answer][/quiz]' );
-		$this->assertEquals( '<div class="jetpack-quiz quiz"><div class="jetpack-quiz-question question">What is the right answer?</div><div class="jetpack-quiz-answer answer">This is so wrong...<div class="jetpack-quiz-explanation explanation">This is why this is wrong.</div></div><div class="jetpack-quiz-answer answer" data-correct="1">Yes, this is right!<div class="jetpack-quiz-explanation explanation">Yay!</div></div></div>', $shortcode_content );
+		$this->assertEquals( '<div class="jetpack-quiz quiz"><div class="jetpack-quiz-question question" tabindex="-1">What is the right answer?</div><div class="jetpack-quiz-answer answer">This is so wrong...<div class="jetpack-quiz-explanation explanation">This is why this is wrong.</div></div><div class="jetpack-quiz-answer answer" data-correct="1">Yes, this is right!<div class="jetpack-quiz-explanation explanation">Yay!</div></div></div>', $shortcode_content );
 	}
 
 
