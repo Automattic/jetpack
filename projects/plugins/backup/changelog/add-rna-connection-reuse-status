@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Switched the connection screen to withConnectionScreen HOC for pulling connection status.
