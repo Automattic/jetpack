@@ -135,6 +135,20 @@ class Test_Base_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests preferred_view
+	 *
+	 * @covers Automattic\Jetpack\Dashboard_Customizations/Base_Admin_Menu
+	 */
+	public function test_handle_preferred_view() {
+		global $pagenow;
+		$pagenow                = 'test.php';
+		$_GET['preferred-view'] = 'classic';
+		static::$admin_menu->handle_preferred_view();
+
+		$this->assertSame( 'classic', static::$admin_menu->get_preferred_view( 'test.php' ) );
+	}
+
+	/**
 	 * Get an object of Base_Admin_Menu
 	 *
 	 * @return Base_Admin_Menu
