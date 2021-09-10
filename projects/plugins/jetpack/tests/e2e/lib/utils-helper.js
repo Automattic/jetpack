@@ -7,6 +7,7 @@ const fs = require( 'fs' );
 const path = require( 'path' );
 const shellescape = require( 'shell-escape' );
 const logger = require( './logger' );
+const { join } = require( 'path' );
 const { E2E_DEBUG } = process.env;
 
 /**
@@ -75,10 +76,11 @@ async function provisionJetpackStartConnection( userId, plan = 'free', user = 'w
 		throw new Error( 'Jetpack Start provision is failed. Response: ' + response );
 	}
 
-	const out = await execWpCommand(
-		`--user=${ user } jetpack authorize_user ` + shellescape( [ `--token=${ json.access_token }` ] )
+	await execWpCommand(
+		`jetpack authorize_user --user=${ user } ` + shellescape( [ `--token=${ json.access_token }` ] )
 	);
-	logger.cli( out );
+
+	await execWpCommand( 'jetpack status' );
 
 	return true;
 }
@@ -108,7 +110,7 @@ async function activateModule( page, module ) {
 }
 
 async function execWpCommand( wpCmd ) {
-	const cmd = `pnpx jetpack docker --type e2e --name t1 wp -- ${ wpCmd }`;
+	const cmd = `pnpx jetpack docker --type e2e --name t1 wp -- ${ wpCmd } --url="${ siteUrl }"`;
 	const result = await execShellCommand( cmd );
 
 	// Jetpack's `wp` command outputs a script header for some reason. Let's clean it up.
@@ -126,10 +128,8 @@ async function logDebugLog() {
 			'pnpx jetpack docker --type e2e --name t1 exec-silent cat wp-content/debug.log'
 		);
 	} catch ( error ) {
-		if ( error.toString().includes( 'No such file or directory' ) ) {
-			return;
-		}
-		throw error;
+		logger.error( `Error caught when trying to save debug log! ${ error }` );
+		return;
 	}
 
 	const escapedDate = new Date().toISOString().split( '.' )[ 0 ].replace( /:/g, '-' );
@@ -191,7 +191,7 @@ function getConfigTestSite() {
 
 function getSiteCredentials() {
 	const site = getConfigTestSite();
-	return { username: site.username, password: site.password };
+	return { username: site.username, password: site.password, apiPassword: site.apiPassword };
 }
 
 function getDotComCredentials() {
@@ -200,6 +200,7 @@ function getDotComCredentials() {
 		username: site.dotComAccount[ 0 ],
 		password: site.dotComAccount[ 1 ],
 		userId: site.dotComAccount[ 2 ],
+		email: site.dotComAccount[ 3 ],
 	};
 }
 
@@ -276,6 +277,23 @@ function isLocalSite() {
 	return !! process.env.TEST_SITE;
 }
 
+function getJetpackVersion() {
+	try {
+		const envFilePath = join( `${ config.get( 'dirs.output' ) }`, 'environment.json' );
+		const fileContent = fs.readFileSync( envFilePath, 'utf8' );
+		const env = JSON.parse( fileContent );
+
+		const jetpack = env.plugins.filter( function ( p ) {
+			return p.plugin === 'jetpack-dev/jetpack' && p.status === 'active';
+		} );
+
+		return jetpack[ 0 ].version;
+	} catch ( error ) {
+		console.log( `ERROR: Failed to get Jetpack version. ${ error }` );
+		return 'unknown';
+	}
+}
+
 module.exports = {
 	execShellCommand,
 	execSyncShellCommand,
@@ -294,4 +312,5 @@ module.exports = {
 	getSiteCredentials,
 	getDotComCredentials,
 	getMailchimpCredentials,
+	getJetpackVersion,
 };

@@ -209,6 +209,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 
 		$instance['title']     = sanitize_text_field( $new_instance['title'] );
 		$instance['icon-size'] = $this->defaults['icon-size'];
+		$instance['url-icons'] = array_key_exists( 'url-icons', $new_instance ) ? $new_instance['url-icons'] : array();
 
 		if ( in_array( $new_instance['icon-size'], array( 'small', 'medium', 'large' ), true ) ) {
 			$instance['icon-size'] = $new_instance['icon-size'];
@@ -217,13 +218,15 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 		$instance['new-tab'] = isset( $new_instance['new-tab'] ) ? (bool) $new_instance['new-tab'] : false;
 		$instance['icons']   = array();
 
-		foreach ( $new_instance['url-icons'] as $url ) {
-			$url = filter_var( $url, FILTER_SANITIZE_URL );
+		if ( array_key_exists( 'url-icons', $new_instance ) ) {
+			foreach ( $new_instance['url-icons'] as $url ) {
+				$url = filter_var( $url, FILTER_SANITIZE_URL );
 
-			if ( ! empty( $url ) ) {
-				$instance['icons'][] = array(
-					'url' => $url,
-				);
+				if ( ! empty( $url ) ) {
+					$instance['icons'][] = array(
+						'url' => $url,
+					);
+				}
 			}
 		}
 

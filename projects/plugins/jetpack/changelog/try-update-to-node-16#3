@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Move Jetpack-specific JS test init into Jetpack's test init, and move a test out of Jetpack's test init because it was triggering a ton of extra stuff to load before the init could happen.

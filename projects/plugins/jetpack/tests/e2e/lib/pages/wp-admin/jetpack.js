@@ -85,9 +85,9 @@ export default class JetpackPage extends WpPage {
 		const containerSelector = '.jp-connect-screen';
 		const buttonSelector = '.jp-connect-screen button.jp-connect-button--button';
 
-		const isCardVisible = await this.isElementVisible( containerSelector );
+		await this.waitForElementToBeVisible( containerSelector );
 		const isConnectButtonVisible = await this.isElementVisible( buttonSelector );
 
-		return isCardVisible && isConnectButtonVisible;
+		return isConnectButtonVisible;
 	}
 }

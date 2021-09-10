@@ -183,6 +183,7 @@ export function getQuestions( type ) {
 		},
 	];
 	const packageQuestions = [];
+	const jsPackageQuestions = [];
 	const pluginQuestions = [
 		{
 			type: 'input',
@@ -203,6 +204,8 @@ export function getQuestions( type ) {
 			return defaultQuestions.concat( extensionQuestions );
 		case 'github-action':
 			return defaultQuestions.concat( githubQuestions );
+		case 'js-package':
+			return defaultQuestions.concat( jsPackageQuestions );
 	}
 }
 
@@ -236,6 +239,8 @@ export async function generateProject(
 
 	switch ( answers.type ) {
 		case 'package':
+			break;
+		case 'js-package':
 			break;
 		case 'plugin':
 			generatePlugin( answers, projDir );
@@ -290,8 +295,8 @@ function createSkeleton( type, dir, name ) {
 
 	// Copy the skeletons over.
 	try {
-		mergeDirs( path.join( skeletonDir, '/common' ), dir, name );
-		mergeDirs( path.join( skeletonDir, '/' + type ), dir, name );
+		mergeDirs( path.join( skeletonDir, '/common' ), dir, name, true );
+		mergeDirs( path.join( skeletonDir, '/' + type ), dir, name, true );
 	} catch ( e ) {
 		console.error( e );
 	}
@@ -305,6 +310,21 @@ function createSkeleton( type, dir, name ) {
  */
 function createPackageJson( packageJson, answers ) {
 	packageJson.description = answers.description;
+	packageJson.name = `@automattic/jetpack-${ answers.name }`;
+	packageJson.version = '0.1.0-alpha';
+
+	if ( answers.type === 'js-package' ) {
+		packageJson.exports = {
+			'.': './index.jsx',
+			'./state': './src/state',
+			'./action-types': './src/state/action-types',
+		};
+		packageJson.scripts = {
+			test:
+				"NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.@(jsx|js)'",
+		};
+		packageJson.dependencies = { 'jetpack-js-test-runner': 'workspace:*' };
+	}
 }
 
 /**
@@ -364,6 +384,16 @@ async function createComposerJson( composerJson, answers ) {
 			composerJson.extra[ 'release-branch-prefix' ] = answers.name;
 			composerJson.type = 'wordpress-plugin';
 			break;
+		case 'js-package':
+			composerJson[ 'require-dev ' ] = { 'automattic/jetpack-changelogger': '^1.1' };
+			composerJson.scripts = {
+				'test-js': [ 'Composer\\Config::disableProcessTimeout', 'pnpm install', 'pnpm run test' ],
+				'test-coverage': [
+					'Composer\\Config::disableProcessTimeout',
+					'pnpm install',
+					'pnpx nyc --report-dir="$COVERAGE_DIR" pnpm run test',
+				],
+			};
 	}
 }
 
