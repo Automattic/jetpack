@@ -83,15 +83,7 @@ $character-count-height: 32px;
 }
 
 .jetpack-publicize-add-connection-container {
-	display: flex;
-
-	a {
-		cursor: pointer;
-	}
-
-	span {
-		vertical-align: middle;
-	}
+	margin-bottom: 8px;
 }
 
 .jetpack-publicize__connections-list {
