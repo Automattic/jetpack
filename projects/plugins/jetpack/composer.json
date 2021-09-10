@@ -41,6 +41,7 @@
 		"nojimage/twitter-text-php": "3.1.2"
 	},
 	"require-dev": {
+		"antecedent/patchwork": "2.1.15",
 		"automattic/jetpack-changelogger": "1.2.x-dev"
 	},
 	"scripts": {
