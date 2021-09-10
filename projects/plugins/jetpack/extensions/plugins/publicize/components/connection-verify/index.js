@@ -9,7 +9,7 @@
  */
 
 /**
- * External dependencies
+ * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
 import { Button, Notice } from '@wordpress/components';
@@ -28,7 +28,7 @@ class PublicizeConnectionVerify extends Component {
 	 * Displays pop up with to specified URL where user
 	 * can refresh a specific connection.
 	 *
-	 * @param {object} event Event instance for onClick.
+	 * @param {object} event - Event instance for onClick.
 	 */
 	refreshConnectionClick = event => {
 		const { href, title } = event.target;
