@@ -1,1 +1,1 @@
-!app/assets/src/js/*.d.ts
+!app/assets/src/js/**/*.d.ts
