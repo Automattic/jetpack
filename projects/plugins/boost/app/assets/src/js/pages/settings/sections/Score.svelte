@@ -22,7 +22,6 @@
 		mobile: 0,
 		desktop: 0,
 	};
-
 	let previousScores = {
 		mobile: 0,
 		desktop: 0,
@@ -31,6 +30,20 @@
 	if ( siteIsOnline ) {
 		refreshScore( false );
 	}
+
+	/**
+	 * Check if module states are currently in sync with server.
+	 */
+	const modulesInSync = derived( modules, $modules => {
+		const slugs = Object.keys( $modules );
+		for ( let i = 0; i < slugs.length; i++ ) {
+			if ( $modules[ slugs[ i ] ].synced === false ) {
+				return false;
+			}
+		}
+
+		return true;
+	} );
 
 	/**
 	 * String representation of the current state that may impact the score.
@@ -77,19 +90,20 @@
 	const debouncedRefreshScore = debounce( is_forced => {
 		// If the configuration has changed, the previous speed score is no longer relevant. But we don't want to
 		// trigger a refresh while critical css is still generating.
-		if ( ! $criticalCssStatus.generating && $scoreConfigString !== currentScoreConfigString ) {
+		if (
+			! $criticalCssStatus.generating &&
+			$modulesInSync &&
+			$scoreConfigString !== currentScoreConfigString
+		) {
 			refreshScore( is_forced );
 		}
-	}, 3000 );
-
-	// We do not want to force refresh the score if status and modules were the same on page load. So this initial assignment is necessary.
-	let previousStatus = $criticalCssStatus.status;
-	let previousModules = $modules;
+	}, 2000 );
 
 	$: {
 		// Mentioning the stores here for change detection.
 		$scoreConfigString;
 		$criticalCssStatus.generating;
+		$modulesInSync;
 
 		debouncedRefreshScore( true );
 	}
