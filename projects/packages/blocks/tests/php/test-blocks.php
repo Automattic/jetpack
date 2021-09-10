@@ -53,7 +53,7 @@ class Test_Blocks extends TestCase {
 	 *
 	 * @since 9.0.0
 	 *
-	 * @covers Automattic\Jetpack\Blocks::classes
+	 * @covers Automattic\Jetpack\Blocks
 	 */
 	public function test_block_classes() {
 		$block_name = 'foo';
@@ -81,7 +81,7 @@ class Test_Blocks extends TestCase {
 	 *
 	 * @since 9.0.0
 	 *
-	 * @covers Automattic\Jetpack\Blocks::classes
+	 * @covers Automattic\Jetpack\Blocks
 	 */
 	public function test_block_classes_invalid_align() {
 		$attr          = array( 'align' => 'test' );
@@ -95,7 +95,7 @@ class Test_Blocks extends TestCase {
 	 *
 	 * @since 9.0.0
 	 *
-	 * @covers Automattic\Jetpack\Blocks::is_amp_request
+	 * @covers Automattic\Jetpack\Blocks
 	 */
 	public function test_is_amp_request() {
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -111,7 +111,7 @@ class Test_Blocks extends TestCase {
 	 *
 	 * @since 9.0.0
 	 *
-	 * @covers Automattic\Jetpack\Blocks::is_amp_request
+	 * @covers Automattic\Jetpack\Blocks
 	 */
 	public function test_is_not_amp_request() {
 		$this->assertFalse( Blocks::is_amp_request() );
@@ -120,7 +120,7 @@ class Test_Blocks extends TestCase {
 	/**
 	 * Test WordPress and Gutenberg version requirements.
 	 *
-	 * @covers Automattic\Jetpack\Blocks::is_gutenberg_version_available
+	 * @covers Automattic\Jetpack\Blocks
 	 */
 	public function test_returns_false_if_core_wp_version_less_than_minimum() {
 		$version_gated = Blocks::is_gutenberg_version_available(
@@ -136,7 +136,7 @@ class Test_Blocks extends TestCase {
 	/**
 	 * Test WordPress and Gutenberg version requirements.
 	 *
-	 * @covers Automattic\Jetpack\Blocks::is_gutenberg_version_available
+	 * @covers Automattic\Jetpack\Blocks
 	 */
 	public function test_returns_true_if_core_wp_version_greater_or_equal_to_minimum() {
 		$version_gated = Blocks::is_gutenberg_version_available(
@@ -152,7 +152,7 @@ class Test_Blocks extends TestCase {
 	/**
 	 * Testing removing the Jetpack prefix from a block slug.
 	 *
-	 * @covers Automattic\Jetpack\Blocks::remove_extension_prefix
+	 * @covers Automattic\Jetpack\Blocks
 	 *
 	 * @dataProvider get_extension_name_provider
 	 *
@@ -190,7 +190,7 @@ class Test_Blocks extends TestCase {
 	/**
 	 * Test to ensure that an extension is returned as registered.
 	 *
-	 * @covers Automattic\Jetpack\Blocks::is_registered
+	 * @covers Automattic\Jetpack\Blocks
 	 */
 	public function test_is_extension_registered() {
 		// Test for the block that is registered for all tests here.
@@ -202,7 +202,7 @@ class Test_Blocks extends TestCase {
 	/**
 	 * Ensure blocks cannot be registered twice.
 	 *
-	 * @covers Automattic\Jetpack\Blocks::jetpack_register_block
+	 * @covers Automattic\Jetpack\Blocks
 	 */
 	public function test_jetpack_register_block_twice() {
 		$result = Blocks::jetpack_register_block( $this->block_name );
@@ -213,7 +213,7 @@ class Test_Blocks extends TestCase {
 	 * Test to ensure blocks without a Jetpack prefix are registered, but with a jetpack prefix.
 	 *
 	 * @expectedIncorrectUsage Automattic\Jetpack\Blocks::jetpack_register_block
-	 * @covers Automattic\Jetpack\Blocks::jetpack_register_block
+	 * @covers Automattic\Jetpack\Blocks
 	 */
 	public function test_jetpack_register_block_without_jetpack() {
 		$result = Blocks::jetpack_register_block( 'doing-it-wrong' );
@@ -225,7 +225,7 @@ class Test_Blocks extends TestCase {
 	 *
 	 * @since 9.8.0
 	 *
-	 * @covers Automattic\Jetpack\Blocks::is_standalone_block
+	 * @covers Automattic\Jetpack\Blocks
 	 */
 	public function test_is_not_fse_theme() {
 		$this->assertFalse( Blocks::is_fse_theme() );
@@ -236,7 +236,7 @@ class Test_Blocks extends TestCase {
 	 *
 	 * @since 9.8.0
 	 *
-	 * @covers Automattic\Jetpack\Blocks::is_standalone_block
+	 * @covers Automattic\Jetpack\Blocks
 	 */
 	public function test_is_fse_theme_via_filter() {
 		add_filter( 'jetpack_is_fse_theme', '__return_true' );
@@ -252,7 +252,7 @@ class Test_Blocks extends TestCase {
 	 *
 	 * @since 9.8.0
 	 *
-	 * @covers Automattic\Jetpack\Blocks::is_standalone_block
+	 * @covers Automattic\Jetpack\Blocks
 	 */
 	public function test_is_fse_theme_via_core_function() {
 		Functions\when( 'gutenberg_is_fse_theme' )->justReturn( true );
@@ -265,7 +265,7 @@ class Test_Blocks extends TestCase {
 	 *
 	 * @since 9.6.0
 	 *
-	 * @covers Automattic\Jetpack\Blocks::is_standalone_block
+	 * @covers Automattic\Jetpack\Blocks
 	 */
 	public function test_is_standalone_block() {
 		$this->assertTrue( Blocks::is_standalone_block() );
@@ -277,7 +277,7 @@ class Test_Blocks extends TestCase {
 	 *
 	 * @since 9.6.0
 	 *
-	 * @covers Automattic\Jetpack\Blocks::is_standalone_block
+	 * @covers Automattic\Jetpack\Blocks
 	 */
 	public function test_is_not_standalone_block() {
 		add_filter( 'jetpack_is_standalone_block', '__return_false' );
@@ -294,7 +294,7 @@ class Test_Blocks extends TestCase {
 	 *
 	 * @since 9.6.0
 	 *
-	 * @covers Automattic\Jetpack\Blocks::jetpack_register_block
+	 * @covers Automattic\Jetpack\Blocks
 	 */
 	public function test_jetpack_register_block_without_editor_style() {
 		$result = Blocks::jetpack_register_block( 'jetpack/block-without-editor-style' );
@@ -308,7 +308,7 @@ class Test_Blocks extends TestCase {
 	 *
 	 * @since 9.6.0
 	 *
-	 * @covers Automattic\Jetpack\Blocks::jetpack_register_block
+	 * @covers Automattic\Jetpack\Blocks
 	 */
 	public function test_jetpack_register_block_with_editor_style() {
 		add_filter( 'jetpack_is_standalone_block', '__return_false' );
@@ -328,7 +328,7 @@ class Test_Blocks extends TestCase {
 	 *
 	 * @since 9.6.0
 	 *
-	 * @covers Automattic\Jetpack\Blocks::jetpack_register_block
+	 * @covers Automattic\Jetpack\Blocks
 	 */
 	public function test_jetpack_register_block_with_existing_editor_style() {
 		add_filter( 'jetpack_is_standalone_block', '__return_false' );
