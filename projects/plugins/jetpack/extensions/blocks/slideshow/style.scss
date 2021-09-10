@@ -66,8 +66,8 @@
 
 	// When the slideshow transition is set to "fade", hide all slides that are not active.
 	.swiper-container-fade .wp-block-jetpack-slideshow_slide:not(.swiper-slide-active) {
-        opacity: 0 !important;
-    }
+		opacity: 0 !important;
+	}
 
 	.wp-block-jetpack-slideshow_image {
 		display: block;
