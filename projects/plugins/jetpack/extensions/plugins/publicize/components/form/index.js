@@ -19,16 +19,9 @@ export default function PublicizeForm( { refreshCallback } ) {
 	const { connections, message, maxLength } = useSelectSocialMedia();
 	const { toggleEnableState, updateMessage } = useSocialMediaConnections();
 
-	/**
-	 * Check to see if form should be disabled.
-	 *
-	 * Checks full connection list to determine if all are disabled.
-	 * If they all are, it returns true to disable whole form.
-	 *
-	 * @returns {boolean} True if whole form should be disabled.
-	 */
 	function isDisabled() {
-		return connections.every( connection => ! connection.toggleable );
+		const dissabled = connections.every( connection => ! connection.toggleable );
+		return dissabled;
 	}
 
 	return (
