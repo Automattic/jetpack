@@ -122,7 +122,7 @@ export const SettingsCard = props => {
 
 		switch ( feature ) {
 			case FEATURE_VIDEO_HOSTING_JETPACK:
-				if ( hasPremiumOrBetter ) {
+				if ( props.hasConnectedOwner && hasPremiumOrBetter ) {
 					return '';
 				}
 
