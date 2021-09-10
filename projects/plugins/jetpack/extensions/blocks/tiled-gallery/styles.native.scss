@@ -1,3 +1,13 @@
 .galleryAppender {
 	padding-top: $grid-unit-20;
 }
+
+.horizontalBorder {
+	border-top-width: $border-width;
+	border-bottom-width: $border-width;
+	border-color: $light-gray-400;
+}
+
+.horizontalBorderDark {
+	border-color: $gray-70;
+}

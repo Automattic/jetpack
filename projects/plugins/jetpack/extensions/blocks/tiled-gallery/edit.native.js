@@ -20,7 +20,7 @@ import {
 import { createBlock } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
 import { Fragment, useState, useEffect, useMemo } from '@wordpress/element';
-import { Button, ToolbarGroup, withNotices } from '@wordpress/components';
+import { ToolbarGroup } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useResizeObserver } from '@wordpress/compose';
 
@@ -32,6 +32,7 @@ import { ALLOWED_MEDIA_TYPES } from './constants';
 import { icon } from '.';
 import EditButton from '../../shared/edit-button';
 import styles from './styles.scss';
+import TiledGallerySettings from './settings';
 
 const TILE_SPACING = 8;
 
@@ -170,6 +171,7 @@ const TiledGalleryEdit = props => {
 	return (
 		<View blockProps={ blockProps }>
 			{ resizeObserver }
+			<TiledGallerySettings />
 			<View { ...innerBlocksProps } />
 			<View style={ [ styles.galleryAppender ] }>{ mediaPlaceholder }</View>
 		</View>
