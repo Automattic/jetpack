@@ -28,5 +28,13 @@ export default function useSocialMediaConnection() {
 				jetpack_publicize_connections: filteredConnections,
 			} );
 		},
+		updateMessage: function ( message, hasEdited = true ) {
+			editPost( {
+				meta: {
+					jetpack_publicize_message: message,
+					jetpack_publicize_hasEditedShareMessage: hasEdited,
+				},
+			} );
+		},
 	};
 }
