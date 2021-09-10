@@ -63,7 +63,7 @@ export default async function generateCriticalCss(
 	let cancelling = false;
 
 	if ( reset ) {
-		clearDismissedRecommendations();
+		await clearDismissedRecommendations();
 		updateGenerateStatus( true, 0 );
 	}
 
@@ -114,7 +114,7 @@ export default async function generateCriticalCss(
 		// Swallow errors if cancelling the process.
 		if ( ! cancelling ) {
 			// Record thrown errors as Critical CSS status.
-			await storeGenerateError( err );
+			storeGenerateError( err );
 		}
 	} finally {
 		// Always update generate status to not generating at the end.
@@ -200,7 +200,7 @@ async function generateForKeys(
 		}
 	}
 
-	await updateGenerateStatus( false, 0 );
+	updateGenerateStatus( false, 0 );
 }
 
 /**
