@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { find, includes } from 'lodash';
 import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ProgressBar } from '@automattic/components';
 
 /**
  * Internal dependencies
@@ -19,7 +20,7 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
-import { getActiveProductPurchases, getSitePlan } from 'state/site';
+import { getActiveProductPurchases, getSitePlan, getVideoPressStorageUsed } from 'state/site';
 
 class Media extends React.Component {
 	render() {
@@ -31,7 +32,10 @@ class Media extends React.Component {
 
 		const videoPress = this.props.module( 'videopress' ),
 			planClass = getPlanClass( this.props.sitePlan.product_slug ),
-			{ activeProducts } = this.props;
+			{ activeProducts, videoPressStorageUsed } = this.props;
+
+		const hasVideoPressProduct = find( activeProducts, { product_slug: 'jetpack_videopress' } );
+		const shouldDisplayStorage = hasVideoPressProduct && null !== videoPressStorageUsed;
 
 		const hasUpgrade =
 			includes(
@@ -43,7 +47,7 @@ class Media extends React.Component {
 					'is-complete-plan',
 				],
 				planClass
-			) || find( activeProducts, { product_slug: 'jetpack_videopress' } );
+			) || hasVideoPressProduct;
 
 		const videoPressSettings = (
 			<SettingsGroup
@@ -62,6 +66,12 @@ class Media extends React.Component {
 						'jetpack'
 					) }{ ' ' }
 				</p>
+				{ shouldDisplayStorage && (
+					<div className="media__videopress-storage">
+						<span>{ __( 'Video storage used out of 1TB:', 'jetpack' ) }</span>
+						<ProgressBar value={ videoPressStorageUsed / 10000 } />
+					</div>
+				) }
 				<ModuleToggle
 					slug="videopress"
 					disabled={ this.props.isUnavailableInOfflineMode( 'videopress' ) }
@@ -112,5 +122,6 @@ export default connect( state => {
 		sitePlan: getSitePlan( state ),
 		activeProducts: getActiveProductPurchases( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
+		videoPressStorageUsed: getVideoPressStorageUsed( state ),
 	};
 } )( withModuleSettingsFormHelpers( Media ) );

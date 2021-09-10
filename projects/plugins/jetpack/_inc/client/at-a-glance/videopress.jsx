@@ -17,10 +17,11 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
  */
 import { getPlanClass } from 'lib/plans/constants';
 import DashItem from 'components/dash-item';
+import { ProgressBar } from '@automattic/components';
 import JetpackBanner from 'components/jetpack-banner';
 import { isModuleAvailable } from 'state/modules';
 import { isOfflineMode } from 'state/connection';
-import { getActiveProductPurchases, getSitePlan } from 'state/site';
+import { getActiveProductPurchases, getSitePlan, getVideoPressStorageUsed } from 'state/site';
 import { find, includes } from 'lodash';
 
 class DashVideoPress extends Component {
@@ -43,7 +44,10 @@ class DashVideoPress extends Component {
 		};
 
 		const planClass = getPlanClass( this.props.sitePlan.product_slug ),
-			{ activeProducts } = this.props;
+			{ activeProducts, videoPressStorageUsed } = this.props;
+
+		const hasVideoPressProduct = find( activeProducts, { product_slug: 'jetpack_videopress' } );
+		const shouldDisplayStorage = hasVideoPressProduct && null !== videoPressStorageUsed;
 
 		const hasUpgrade =
 			includes(
@@ -55,11 +59,12 @@ class DashVideoPress extends Component {
 					'is-complete-plan',
 				],
 				planClass
-			) || find( activeProducts, { product_slug: 'jetpack_videopress' } );
+			) || hasVideoPressProduct;
 
 		if ( this.props.getOptionValue( 'videopress' ) ) {
 			return (
 				<DashItem
+					className="jp-dash-item__videopress"
 					label={ labelName }
 					module="videopress"
 					support={ support }
@@ -73,6 +78,12 @@ class DashVideoPress extends Component {
 										'jetpack'
 									) }
 								</p>
+								{ shouldDisplayStorage && (
+									<div className="jp-dash-item__videopress-storage">
+										<span>{ __( 'Video storage used out of 1TB:', 'jetpack' ) }</span>
+										<ProgressBar value={ videoPressStorageUsed / 10000 } />
+									</div>
+								) }
 							</div>
 							{ ! hasUpgrade && (
 								<JetpackBanner
@@ -128,4 +139,5 @@ export default connect( state => ( {
 	isModuleAvailable: isModuleAvailable( state, 'videopress' ),
 	sitePlan: getSitePlan( state ),
 	activeProducts: getActiveProductPurchases( state ),
+	videoPressStorageUsed: getVideoPressStorageUsed( state ),
 } ) )( DashVideoPress );

@@ -247,6 +247,16 @@ export function getSitePlan( state ) {
 }
 
 /**
+ * Returns the VideoPress storage used for this site.
+ *
+ * @param {object} state - Argv object for an install command. Must contain project and root at least.
+ * @returns {number|null} - Storage used in megabytes or null if not found.
+ */
+export function getVideoPressStorageUsed( state ) {
+	return get( state.jetpack.siteData, [ 'data', 'options', 'videopress_storage_used' ], null );
+}
+
+/**
  * Returns benefits provided to the site by Jetpack.
  * @param  {Object}  state Global state tree
  * @return {Object}  Benefits
