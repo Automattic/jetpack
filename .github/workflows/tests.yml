@@ -138,7 +138,7 @@ jobs:
           exit $EXIT
 
       - name: Process coverage results
-        if: matrix.script == 'test-coverage'
+        if: matrix.script == 'test-coverage' && always()
         run: .github/files/process-coverage.sh
 
       - name: Check for artifacts
