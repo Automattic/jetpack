@@ -61,7 +61,7 @@ class Test_Webhooks extends TestCase {
 	 * Unit test for the `Webhooks::handle_authorize()` method.
 	 * Capturing the authorization error.
 	 *
-	 * @covers \Automattic\Jetpack\Connection\Webhooks::handle_authorize
+	 * @covers \Automattic\Jetpack\Connection\Webhooks
 	 */
 	public function test_handle_authorize_fail() {
 		$webhooks = new Webhooks( new Manager() );
@@ -93,7 +93,7 @@ class Test_Webhooks extends TestCase {
 	 * Unit test for the `Webhooks::handle_authorize()` method.
 	 * Testing the successful authorization.
 	 *
-	 * @covers \Automattic\Jetpack\Connection\Webhooks::handle_authorize
+	 * @covers \Automattic\Jetpack\Connection\Webhooks
 	 */
 	public function test_handle_authorize_success() {
 		$manager = $this->createMock( Manager::class );
@@ -121,7 +121,7 @@ class Test_Webhooks extends TestCase {
 	/**
 	 * Unit test for the `Webhooks::controller()` method.
 	 *
-	 * @covers \Automattic\Jetpack\Connection\Webhooks::controller
+	 * @covers \Automattic\Jetpack\Connection\Webhooks
 	 */
 	public function test_controller() {
 		$webhooks = $this->getMockBuilder( Webhooks::class )

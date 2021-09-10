@@ -384,7 +384,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	/**
-	 * @covers Automattic\Jetpack\Sync\Modules\Comments::get_whitelisted_comment_types()
+	 * @covers Automattic\Jetpack\Sync\Modules\Comments
 	 */
 	public function test_allows_custom_comment_types() {
 		$comments_sync_module = Modules::get_module( 'comments' );

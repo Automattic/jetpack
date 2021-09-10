@@ -25,7 +25,7 @@ if ( is_multisite() ) :
 		 * Tests the get_url function.
 		 *
 		 * @author enkrates
-		 * @covers Jetpack_Network::get_url
+		 * @covers Jetpack_Network
 		 * @since 3.2
 		 */
 		public function test_get_url_returns_correct_string_for_network_admin_page() {
@@ -42,7 +42,7 @@ if ( is_multisite() ) :
 		 * Tests that null is returned for invalid input.
 		 *
 		 * @author enkrates
-		 * @covers Jetpack_Network::get_url
+		 * @covers Jetpack_Network
 		 * @since 3.2
 		 */
 		public function test_get_url_returns_null_for_invalid_input() {
@@ -55,7 +55,7 @@ if ( is_multisite() ) :
 		 * Tests if get_url returns the correct string.
 		 *
 		 * @author enkrates
-		 * @covers Jetpack_Network::get_url
+		 * @covers Jetpack_Network
 		 * @since 3.2
 		 */
 		public function test_get_url_returns_correct_string_for_subsiteregister() {
@@ -78,7 +78,7 @@ if ( is_multisite() ) :
 		 * Tests if get_url returns the correct string for an unspecified site.
 		 *
 		 * @author enkrates
-		 * @covers Jetpack_Network::get_url
+		 * @covers Jetpack_Network
 		 * @since 3.2
 		 */
 		public function test_get_url_returns_null_for_underspecified_subsiteregister() {
@@ -91,7 +91,7 @@ if ( is_multisite() ) :
 		 * Tests if get_url returns the correct string for subsite disconnect.
 		 *
 		 * @author enkrates
-		 * @covers Jetpack_Network::get_url
+		 * @covers Jetpack_Network
 		 * @since 3.2
 		 */
 		public function test_get_url_returns_correct_string_for_subsitedisconnect() {
@@ -113,7 +113,7 @@ if ( is_multisite() ) :
 		 * Tests if get_url returns the correct string for an unspecified disconnect.
 		 *
 		 * @author enkrates
-		 * @covers Jetpack_Network::get_url
+		 * @covers Jetpack_Network
 		 * @since 3.2
 		 */
 		public function test_get_url_returns_null_for_underspecified_subsitedisconnect() {
@@ -140,7 +140,7 @@ if ( is_multisite() ) :
 		 * Tests that the network option exists.
 		 *
 		 * @author igmoweb
-		 * @covers Jetpack_Options::is_network_option
+		 * @covers Jetpack_Options
 		 * @since 4.8
 		 */
 		public function test_is_network_option() {
@@ -155,7 +155,7 @@ if ( is_multisite() ) :
 		 * Tests that the file_data option exists.
 		 *
 		 * @author igmoweb
-		 * @covers Jetpack_Options::update_option
+		 * @covers Jetpack_Options
 		 * @since 4.8
 		 */
 		public function test_update_file_data_network_options() {
@@ -175,7 +175,7 @@ if ( is_multisite() ) :
 		 * Tests that we can delete the file_data option.
 		 *
 		 * @author igmoweb
-		 * @covers Jetpack_Options::get_option_and_ensure_autoload
+		 * @covers Jetpack_Options
 		 * @since 4.8
 		 */
 		public function test_delete_file_data_network_options() {
@@ -189,7 +189,7 @@ if ( is_multisite() ) :
 		 * Tests that network options are ensured autoloaded.
 		 *
 		 * @author igmoweb
-		 * @covers Jetpack_Options::delete_option
+		 * @covers Jetpack_Options
 		 * @since 4.8
 		 */
 		public function test_get_network_option_and_ensure_autoload() {
@@ -205,7 +205,7 @@ if ( is_multisite() ) :
 		 * @param bool $connection_override The sub-site connection override setting.
 		 * @param bool $disconnect_allowed Whether the disconnect capability should be allowed.
 		 *
-		 * @covers Jetpack_Network::set_multisite_disconnect_cap
+		 * @covers Jetpack_Network
 		 * @dataProvider data_provider_test_set_multisite_disconnect_caps
 		 */
 		public function test_set_multisite_disconnect_cap( $is_super_admin, $connection_override, $disconnect_allowed ) {

@@ -7,7 +7,7 @@ class WP_Test_Jetpack_Sitemap_Manager extends WP_UnitTestCase {
 	/**
 	 * Constructor does not throw any fatal errors.
 	 *
-	 * @covers Jetpack_Sitemap_Manager::__construct
+	 * @covers Jetpack_Sitemap_Manager
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -19,7 +19,7 @@ class WP_Test_Jetpack_Sitemap_Manager extends WP_UnitTestCase {
 	/**
 	 * Tests default value of 'jetpack_sitemap_location' filter.
 	 *
-	 * @covers Jetpack_Sitemap_Manager::callback_action_filter_sitemap_location
+	 * @covers Jetpack_Sitemap_Manager
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -41,7 +41,7 @@ class WP_Test_Jetpack_Sitemap_Manager extends WP_UnitTestCase {
 	/**
 	 * Tests value of 'jetpack_sitemap_location' when a filter is added.
 	 *
-	 * @covers Jetpack_Sitemap_Manager::callback_action_filter_sitemap_location
+	 * @covers Jetpack_Sitemap_Manager
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */

@@ -32,7 +32,7 @@ class Test_Tracking extends TestCase {
 	 * @param array   $inputs The test input values.
 	 * @param boolean $expected_output The expected output of Automattic\Jetpack\Tracking::should_enabled_tracking().
 	 *
-	 * @covers Automattic\Jetpack\Tracking::should_enabled_tracking
+	 * @covers Automattic\Jetpack\Tracking
 	 * @dataProvider data_provider_test_should_enable_tracking
 	 */
 	public function test_should_enable_tracking( $inputs, $expected_output ) {

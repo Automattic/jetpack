@@ -43,7 +43,7 @@ class WP_Test_Jetpack_Modules_Overrides extends WP_UnitTestCase {
 	 * @param string $filter_name Filter to test against.
 	 *
 	 * @dataProvider get_supported_filters
-	 * @covers Jetpack_Modules_Overrides::do_overrides_exist
+	 * @covers Jetpack_Modules_Overrides
 	 */
 	public function test_do_overrides_exist( $filter_name ) {
 		$this->assertFalse( $this->instance->do_overrides_exist() );
@@ -59,7 +59,7 @@ class WP_Test_Jetpack_Modules_Overrides extends WP_UnitTestCase {
 	 * @param string $filter_name Filter to test against.
 	 *
 	 * @dataProvider get_supported_filters
-	 * @covers Jetpack_Modules_Overrides::get_overrides
+	 * @covers Jetpack_Modules_Overrides
 	 */
 	public function test_get_overrides( $filter_name ) {
 		$this->assertEmpty( $this->instance->get_overrides() );
@@ -97,7 +97,7 @@ class WP_Test_Jetpack_Modules_Overrides extends WP_UnitTestCase {
 	 * @param string $filter_name Filter to test against.
 	 *
 	 * @dataProvider get_supported_filters
-	 * @covers Jetpack_Modules_Overrides::get_overrides
+	 * @covers Jetpack_Modules_Overrides
 	 */
 	public function test_get_overrides_cache( $filter_name ) {
 		$this->assertEmpty( $this->instance->get_overrides() );
@@ -120,7 +120,7 @@ class WP_Test_Jetpack_Modules_Overrides extends WP_UnitTestCase {
 	 * @param string $filter_name Filter to test against.
 	 *
 	 * @dataProvider get_supported_filters
-	 * @covers Jetpack_Modules_Overrides::get_module_override
+	 * @covers Jetpack_Modules_Overrides
 	 */
 	public function test_get_module_override( $filter_name ) {
 		$this->assertFalse( $this->instance->get_module_override( 'photon' ) );

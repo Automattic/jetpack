@@ -18,7 +18,7 @@ class WP_Test_Jetpack_Sitemap_Stylist extends WP_UnitTestCase {
 	/**
 	 * Check that the sitemap XSL is valid XML.
 	 *
-	 * @covers Jetpack_Sitemap_Stylist::sitemap_xsl
+	 * @covers Jetpack_Sitemap_Stylist
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -33,7 +33,7 @@ class WP_Test_Jetpack_Sitemap_Stylist extends WP_UnitTestCase {
 	 * Check that the sitemap XSL has root element 'stylesheet'
 	 * in the 'xsl' namespace.
 	 *
-	 * @covers Jetpack_Sitemap_Stylist::sitemap_xsl
+	 * @covers Jetpack_Sitemap_Stylist
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -50,7 +50,7 @@ class WP_Test_Jetpack_Sitemap_Stylist extends WP_UnitTestCase {
 	/**
 	 * Check that the sitemap index XSL is valid XML.
 	 *
-	 * @covers Jetpack_Sitemap_Stylist::sitemap_index_xsl
+	 * @covers Jetpack_Sitemap_Stylist
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -65,7 +65,7 @@ class WP_Test_Jetpack_Sitemap_Stylist extends WP_UnitTestCase {
 	 * Check that the sitemap index XSL has root element 'stylesheet'
 	 * in the 'xsl' namespace.
 	 *
-	 * @covers Jetpack_Sitemap_Stylist::sitemap_index_xsl
+	 * @covers Jetpack_Sitemap_Stylist
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -82,7 +82,7 @@ class WP_Test_Jetpack_Sitemap_Stylist extends WP_UnitTestCase {
 	/**
 	 * Check that the image sitemap XSL is valid XML.
 	 *
-	 * @covers Jetpack_Sitemap_Stylist::image_sitemap_xsl
+	 * @covers Jetpack_Sitemap_Stylist
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -97,7 +97,7 @@ class WP_Test_Jetpack_Sitemap_Stylist extends WP_UnitTestCase {
 	 * Check that the image sitemap XSL has root element 'stylesheet'
 	 * in the 'xsl' namespace.
 	 *
-	 * @covers Jetpack_Sitemap_Stylist::image_sitemap_xsl
+	 * @covers Jetpack_Sitemap_Stylist
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -114,7 +114,7 @@ class WP_Test_Jetpack_Sitemap_Stylist extends WP_UnitTestCase {
 	/**
 	 * Check that the news sitemap XSL is valid XML.
 	 *
-	 * @covers Jetpack_Sitemap_Stylist::news_sitemap_xsl
+	 * @covers Jetpack_Sitemap_Stylist
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -129,7 +129,7 @@ class WP_Test_Jetpack_Sitemap_Stylist extends WP_UnitTestCase {
 	 * Check that the news_sitemap XSL has root element 'stylesheet'
 	 * in the 'xsl' namespace.
 	 *
-	 * @covers Jetpack_Sitemap_Stylist::news_sitemap_xsl
+	 * @covers Jetpack_Sitemap_Stylist
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */

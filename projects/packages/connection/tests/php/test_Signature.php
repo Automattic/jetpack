@@ -17,7 +17,7 @@ class SignatureTest extends TestCase {
 	/**
 	 * Tests the Jetpack_Signature->join_with_equal_sign() method.
 	 *
-	 * @covers \Jetpack_Signature::join_with_equal_sign
+	 * @covers \Jetpack_Signature
 	 * @dataProvider join_with_equal_sign_data_provider
 	 *
 	 * @param string       $name Query string key value.
@@ -104,7 +104,7 @@ class SignatureTest extends TestCase {
 	/**
 	 * Tests the Jetpack_Signature->normalized_query_parameters() method.
 	 *
-	 * @covers \Jetpack_Signature::normalized_query_parameters
+	 * @covers \Jetpack_Signature
 	 * @dataProvider normalized_query_parameters_data_provider
 	 *
 	 * @param string       $query_string Query string key value.

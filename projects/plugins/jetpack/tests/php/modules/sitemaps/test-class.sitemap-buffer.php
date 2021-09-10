@@ -20,7 +20,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	/**
 	 * Construct a new buffer.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer::__construct
+	 * @covers Jetpack_Sitemap_Buffer
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -36,7 +36,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	/**
 	 * Add items to a buffer.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer::try_to_add_item
+	 * @covers Jetpack_Sitemap_Buffer
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -56,7 +56,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	/**
 	 * New buffer is empty; buffer with items is not empty.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer::is_empty()
+	 * @covers Jetpack_Sitemap_Buffer
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -70,7 +70,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	/**
 	 * Try to add an item to a buffer at item capacity.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer::try_to_add_item
+	 * @covers Jetpack_Sitemap_Buffer
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -90,7 +90,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	/**
 	 * Try to add an item to a buffer at byte capacity.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer::try_to_add_item
+	 * @covers Jetpack_Sitemap_Buffer
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -110,7 +110,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	/**
 	 * Try to add an item to a buffer which is below byte capacity, but item is too large.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer::try_to_add_item
+	 * @covers Jetpack_Sitemap_Buffer
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -130,7 +130,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	/**
 	 * Buffer at item capacity is full.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer::is_full
+	 * @covers Jetpack_Sitemap_Buffer
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -147,7 +147,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	/**
 	 * Buffer at byte capacity is full.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer::is_full
+	 * @covers Jetpack_Sitemap_Buffer
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -164,7 +164,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	/**
 	 * Last modified time is given by constructor if we don't view any new times.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer::last_modified
+	 * @covers Jetpack_Sitemap_Buffer
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -176,7 +176,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	/**
 	 * Last modified time updates if we view a more recent time.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer::view_time
+	 * @covers Jetpack_Sitemap_Buffer
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -189,7 +189,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	/**
 	 * Last modified time does not update if we view a less recent time.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer::view_time
+	 * @covers Jetpack_Sitemap_Buffer
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -202,7 +202,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	/**
 	 * Test array_to_xml_string with a real-life example of an array.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer::array_to_xml_string
+	 * @covers Jetpack_Sitemap_Buffer
 	 * @group jetpack-sitemap
 	 * @since 5.1.0
 	 */

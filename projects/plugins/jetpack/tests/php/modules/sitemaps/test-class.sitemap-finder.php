@@ -19,7 +19,7 @@ class WP_Test_Jetpack_Sitemap_Finder extends WP_UnitTestCase {
 	/**
 	 * Recognize the default master sitemap URI.
 	 *
-	 * @covers Jetpack_Sitemap_Finder::recognize_sitemap_uri
+	 * @covers Jetpack_Sitemap_Finder
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */

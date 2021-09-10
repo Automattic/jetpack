@@ -27,7 +27,7 @@ class UtilsTest extends TestCase {
 	/**
 	 * Tests the Utils::jetpack_api_constant_filter() method.
 	 *
-	 * @covers Automattic\Jetpack\Connection\Utils::jetpack_api_constant_filter
+	 * @covers Automattic\Jetpack\Connection\Utils
 	 * @dataProvider jetpack_api_constant_filter_data_provider
 	 *
 	 * @param mixed  $constant_value The constant value.

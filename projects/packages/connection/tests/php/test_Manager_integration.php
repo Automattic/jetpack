@@ -33,7 +33,7 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	/**
 	 * Test the `is_connected' method.
 	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::is_connected
+	 * @covers Automattic\Jetpack\Connection\Manager
 	 * @dataProvider is_connected_data_provider
 	 *
 	 * @param object|boolean $blog_token The blog token. False if the blog token does not exist.
@@ -467,7 +467,7 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	/**
 	 * Test the `is_site_connection' method.
 	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::is_site_connection
+	 * @covers Automattic\Jetpack\Connection\Manager
 	 * @dataProvider data_provider_for_test_is_site_connection
 	 *
 	 * @param boolean $is_connected              If the blog is connected.
@@ -556,7 +556,7 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	/**
 	 * Test that User tokens behave according to expectations after attempting to disconnect a user.
 	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::disconnect_user
+	 * @covers Automattic\Jetpack\Connection\Manager
 	 * @dataProvider get_disconnect_user_outcomes
 	 *
 	 * @param bool $remote_response           Response from the unlink_user XML-RPC request.

@@ -168,7 +168,7 @@ class WP_Test_Get_Modules extends WP_UnitTestCase {
 	/**
 	 * Test_get_module_unavailable_reason
 	 *
-	 * @covers Jetpack_Admin::get_module_unavailable_reason()
+	 * @covers Jetpack_Admin
 	 */
 	public function test_get_module_unavailable_reason() {
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';

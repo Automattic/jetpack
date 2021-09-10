@@ -56,7 +56,7 @@ class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Slideshow_Shortcode::shortcode_callback
+	 * @covers Jetpack_Slideshow_Shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_slideshow_exists() {
@@ -65,7 +65,7 @@ class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Slideshow_Shortcode::shortcode_callback
+	 * @covers Jetpack_Slideshow_Shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_slideshow() {
@@ -145,7 +145,7 @@ class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 	 * Test slideshow shortcode output in AMP.
 	 *
 	 * @dataProvider get_slideshow_shortcode_amp
-	 * @covers Jetpack_Slideshow_Shortcode::shortcode_callback()
+	 * @covers Jetpack_Slideshow_Shortcode
 	 * @since 8.5.0
 	 *
 	 * @param string $shortcode The initial shortcode.

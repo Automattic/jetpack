@@ -43,7 +43,7 @@ class Test_Plugin extends TestCase {
 	/**
 	 * Unit test for the `Plugin::add()` method.
 	 *
-	 * @covers Automattic\Jetpack\Connection\Plugin::add
+	 * @covers Automattic\Jetpack\Connection\Plugin
 	 */
 	public function test_add() {
 		$plugin = new Plugin( self::PLUGIN_SLUG );
@@ -57,7 +57,7 @@ class Test_Plugin extends TestCase {
 	 * Unit test for the `Plugin::remove()` method.
 	 *
 	 * @depends test_add
-	 * @covers Automattic\Jetpack\Connection\Plugin::remove
+	 * @covers Automattic\Jetpack\Connection\Plugin
 	 */
 	public function test_remove() {
 		$plugin = new Plugin( self::PLUGIN_SLUG );

@@ -8,7 +8,7 @@ class WP_Test_Jetpack_MediaSummary extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Summary::get
+	 * @covers Jetpack_Media_Summary
 	 * @since 3.2
 	 * @todo find a better way to test this large function
 	 */
@@ -22,7 +22,7 @@ class WP_Test_Jetpack_MediaSummary extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Summary::https
+	 * @covers Jetpack_Media_Summary
 	 * @since 3.2
 	 */
 	public function test_mediasummary_https() {
@@ -34,7 +34,7 @@ class WP_Test_Jetpack_MediaSummary extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Summary::ssl_img
+	 * @covers Jetpack_Media_Summary
 	 * @since 3.2
 	 */
 	public function test_mediasummary_ssl_img() {
@@ -46,7 +46,7 @@ class WP_Test_Jetpack_MediaSummary extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Summary::ssl_img
+	 * @covers Jetpack_Media_Summary
 	 * @since 3.2
 	 */
 	public function test_mediasummary_ssl_img_wordpress_domain() {
@@ -58,7 +58,7 @@ class WP_Test_Jetpack_MediaSummary extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Summary::clean_text
+	 * @covers Jetpack_Media_Summary
 	 * @since 3.2
 	 */
 	public function test_mediasummary_clean_text_empty() {
@@ -69,7 +69,7 @@ class WP_Test_Jetpack_MediaSummary extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Summary::clean_text
+	 * @covers Jetpack_Media_Summary
 	 * @since 3.2
 	 */
 	public function test_mediasummary_clean_text_simple() {
@@ -85,7 +85,7 @@ class WP_Test_Jetpack_MediaSummary extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Summary::get_word_count
+	 * @covers Jetpack_Media_Summary
 	 * @since 3.2
 	 */
 	public function test_mediasummary_get_word_count_empty() {
@@ -96,7 +96,7 @@ class WP_Test_Jetpack_MediaSummary extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Summary::get_word_count
+	 * @covers Jetpack_Media_Summary
 	 * @since 3.2
 	 */
 	public function test_mediasummary_get_word_count_sample() {
@@ -107,7 +107,7 @@ class WP_Test_Jetpack_MediaSummary extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Summary::get_link_count
+	 * @covers Jetpack_Media_Summary
 	 * @since 3.2
 	 */
 	public function test_mediasummary_get_link_count_empty() {
@@ -118,7 +118,7 @@ class WP_Test_Jetpack_MediaSummary extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Summary::get_link_count
+	 * @covers Jetpack_Media_Summary
 	 * @since 3.2
 	 */
 	public function test_mediasummary_get_link_count_simple() {
@@ -129,7 +129,7 @@ class WP_Test_Jetpack_MediaSummary extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Summary::get_link_count
+	 * @covers Jetpack_Media_Summary
 	 * @since 3.2
 	 */
 	public function test_mediasummary_get_link_count_invalid_tag() {

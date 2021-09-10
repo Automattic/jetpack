@@ -6,7 +6,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::extract
+	 * @covers Jetpack_Media_Meta_Extractor
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_extract_empty_array() {
@@ -22,7 +22,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::extract
+	 * @covers Jetpack_Media_Meta_Extractor
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_extract_image() {
@@ -44,7 +44,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::extract
+	 * @covers Jetpack_Media_Meta_Extractor
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_extract_shortcode() {
@@ -65,7 +65,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::extract
+	 * @covers Jetpack_Media_Meta_Extractor
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_extract_link() {
@@ -85,7 +85,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::extract
+	 * @covers Jetpack_Media_Meta_Extractor
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_extract_mention() {
@@ -104,7 +104,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::extract
+	 * @covers Jetpack_Media_Meta_Extractor
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_extract_embed() {
@@ -124,7 +124,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::extract_images_from_content
+	 * @covers Jetpack_Media_Meta_Extractor
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_extract_images_from_content_return_empty_array() {
@@ -138,7 +138,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::extract_images_from_content
+	 * @covers Jetpack_Media_Meta_Extractor
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_extract_images_from_content_return_correct_image_struct() {
@@ -157,7 +157,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::get_images_from_html
+	 * @covers Jetpack_Media_Meta_Extractor
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_get_images_from_html_empty() {
@@ -171,7 +171,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::get_images_from_html
+	 * @covers Jetpack_Media_Meta_Extractor
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_get_images_from_html_already_extracted() {
@@ -186,7 +186,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::get_images_from_html
+	 * @covers Jetpack_Media_Meta_Extractor
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_get_images_from_html_duplicate_in_already_extracted() {
@@ -294,7 +294,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::extract
+	 * @covers Jetpack_Media_Meta_Extractor
 	 * @since 3.2
 	 */
 	function test_mediaextractor_extract_links() {
@@ -353,7 +353,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::extract
+	 * @covers Jetpack_Media_Meta_Extractor
 	 * @since 3.2
 	 */
 	function test_extract_images() {
@@ -376,7 +376,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::extract
+	 * @covers Jetpack_Media_Meta_Extractor
 	 * @since 3.2
 	 */
 	function test_extract_mentions() {
@@ -399,7 +399,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::extract
+	 * @covers Jetpack_Media_Meta_Extractor
 	 * @since 3.2
 	 */
 	function test_extract_shortcodes() {
@@ -456,7 +456,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::extract
+	 * @covers Jetpack_Media_Meta_Extractor
 	 * @since 3.2
 	 */
 	function test_extract_embeds() {
@@ -482,7 +482,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::get_images_from_html
+	 * @covers Jetpack_Media_Meta_Extractor
 	 * @since 3.2
 	 */
 	function test_extract_image_from_html() {
@@ -514,7 +514,7 @@ EOT;
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Meta_Extractor::extract
+	 * @covers Jetpack_Media_Meta_Extractor
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_exclude_video_links() {

@@ -63,7 +63,7 @@ class XMLRPC_Connector_Test extends TestCase {
 	 * @param bool  $expected The expected return of is_request_signed_by_jetpack_debugger.
 	 *
 	 * @dataProvider is_request_signed_by_jetpack_debugger_data
-	 * @covers Automattic\Jetpack\Connection\REST_Connector::is_request_signed_by_jetpack_debugger
+	 * @covers Automattic\Jetpack\Connection\REST_Connector
 	 * @return void
 	 */
 	public function test_is_request_signed_by_jetpack_debugger( $get_params, $expected ) {

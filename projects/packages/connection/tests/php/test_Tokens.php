@@ -41,7 +41,7 @@ class TokensTest extends TestCase {
 	/**
 	 * Test the `validate` functionality when the site is not registered.
 	 *
-	 * @covers Automattic\Jetpack\Connection\Tokens::validate
+	 * @covers Automattic\Jetpack\Connection\Tokens
 	 */
 	public function test_validate_when_site_is_not_registered() {
 		$expected = new WP_Error( 'site_not_registered', 'Site not registered.' );
@@ -51,7 +51,7 @@ class TokensTest extends TestCase {
 	/**
 	 * Test the `validate` functionality when the current user is not connnected, aka user token is missing.
 	 *
-	 * @covers Automattic\Jetpack\Connection\Tokens::validate
+	 * @covers Automattic\Jetpack\Connection\Tokens
 	 */
 	public function test_validate_with_missing_user_token() {
 		add_filter(
@@ -78,7 +78,7 @@ class TokensTest extends TestCase {
 	/**
 	 * Test the `validate` functionality when the remote request to the `jetpack-token-health` endpoint fails.
 	 *
-	 * @covers Automattic\Jetpack\Connection\Tokens::validate
+	 * @covers Automattic\Jetpack\Connection\Tokens
 	 */
 	public function test_validate_with_failed_remote_request() {
 		add_filter(
@@ -112,7 +112,7 @@ class TokensTest extends TestCase {
 	/**
 	 * Test the `validate` functionality when the remote request to the `jetpack-token-health` endpoint succeeds.
 	 *
-	 * @covers Automattic\Jetpack\Connection\Tokens::validate
+	 * @covers Automattic\Jetpack\Connection\Tokens
 	 */
 	public function test_validate() {
 		add_filter(
@@ -155,7 +155,7 @@ class TokensTest extends TestCase {
 	/**
 	 * Test the `get_signed_token` functionality.
 	 *
-	 * @covers Automattic\Jetpack\Connection\Tokens::get_signed_token
+	 * @covers Automattic\Jetpack\Connection\Tokens
 	 */
 	public function test_get_signed_token() {
 		$access_token = (object) array(

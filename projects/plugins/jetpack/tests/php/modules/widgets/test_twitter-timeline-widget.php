@@ -108,7 +108,7 @@ class WP_Test_Twitter_Timeline_Widget extends WP_UnitTestCase {
 	 * Test the widget method that outputs the markup.
 	 *
 	 * @dataProvider get_widget_data
-	 * @covers Jetpack_Twitter_Timeline_Widget::widget()
+	 * @covers Jetpack_Twitter_Timeline_Widget
 	 *
 	 * @param array  $instance The widget instance.
 	 * @param bool   $is_amp Whether this is on an AMP endpoint.

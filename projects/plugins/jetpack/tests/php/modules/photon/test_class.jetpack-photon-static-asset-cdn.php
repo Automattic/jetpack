@@ -15,7 +15,7 @@ class WP_Test_Jetpack_Photon_Static_Assets_CDN extends WP_UnitTestCase {
 	/**
 	 * Test Jetpack_Photon_Static_Assets_CDN::fix_local_script_translation_path.
 	 *
-	 * @covers Jetpack_Photon_Static_Assets_CDN::fix_local_script_translation_path
+	 * @covers Jetpack_Photon_Static_Assets_CDN
 	 *
 	 * @param string|false $file The path to the translation file to load. False if there isn't one.
 	 * @param string       $script_src The script source.

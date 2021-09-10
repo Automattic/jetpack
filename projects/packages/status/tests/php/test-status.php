@@ -86,7 +86,7 @@ class Test_Status extends TestCase {
 	/**
 	 * Test is_offline_mode when not using any filter
 	 *
-	 * @covers Automattic\Jetpack\Status::is_offline_mode
+	 * @covers Automattic\Jetpack\Status
 	 */
 	public function test_is_offline_mode_default() {
 		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( false );
@@ -97,7 +97,7 @@ class Test_Status extends TestCase {
 	/**
 	 * Test is_offline_mode when using the jetpack_offline_mode filter
 	 *
-	 * @covers Automattic\Jetpack\Status::is_offline_mode
+	 * @covers Automattic\Jetpack\Status
 	 */
 	public function test_is_offline_mode_filter_true() {
 		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( true );
@@ -108,7 +108,7 @@ class Test_Status extends TestCase {
 	/**
 	 * Test when using a bool value for the jetpack_offline_mode filter.
 	 *
-	 * @covers Automattic\Jetpack\Status::is_offline_mode
+	 * @covers Automattic\Jetpack\Status
 	 */
 	public function test_is_offline_mode_filter_bool() {
 		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( 0 );
@@ -119,7 +119,7 @@ class Test_Status extends TestCase {
 	/**
 	 * Test when site url is localhost (dev mode on)
 	 *
-	 * @covers Automattic\Jetpack\Status::is_offline_mode
+	 * @covers Automattic\Jetpack\Status
 	 */
 	public function test_is_offline_mode_localhost() {
 		Functions\when( 'site_url' )->justReturn( 'localhost' );
@@ -132,7 +132,7 @@ class Test_Status extends TestCase {
 	/**
 	 * Test when wp_get_environment_type is local.
 	 *
-	 * @covers Automattic\Jetpack\Status::is_local_site
+	 * @covers Automattic\Jetpack\Status
 	 */
 	public function test_is_local_wp_get_environment_type_local() {
 		Functions\when( 'wp_get_environment_type' )->justReturn( 'local' );
@@ -145,7 +145,7 @@ class Test_Status extends TestCase {
 	/**
 	 * Test when wp_get_environment_type is local.
 	 *
-	 * @covers Automattic\Jetpack\Status::is_staging_site
+	 * @covers Automattic\Jetpack\Status
 	 */
 	public function test_is_staging_wp_get_environment_type_local() {
 		Functions\when( 'wp_get_environment_type' )->justReturn( 'local' );
@@ -158,7 +158,7 @@ class Test_Status extends TestCase {
 	/**
 	 * Test when wp_get_environment_type is staging.
 	 *
-	 * @covers Automattic\Jetpack\Status::is_staging_site
+	 * @covers Automattic\Jetpack\Status
 	 */
 	public function test_is_staging_wp_get_environment_type_staging() {
 		Functions\when( 'wp_get_environment_type' )->justReturn( 'staging' );
@@ -171,7 +171,7 @@ class Test_Status extends TestCase {
 	/**
 	 * Test when wp_get_environment_type is production.
 	 *
-	 * @covers Automattic\Jetpack\Status::is_staging_site
+	 * @covers Automattic\Jetpack\Status
 	 */
 	public function test_is_staging_wp_get_environment_type_production() {
 		Functions\when( 'wp_get_environment_type' )->justReturn( 'production' );
@@ -184,7 +184,7 @@ class Test_Status extends TestCase {
 	/**
 	 * Test when wp_get_environment_type is a random value.
 	 *
-	 * @covers Automattic\Jetpack\Status::is_staging_site
+	 * @covers Automattic\Jetpack\Status
 	 */
 	public function test_is_staging_wp_get_environment_type_random() {
 		Functions\when( 'wp_get_environment_type' )->justReturn( 'random_string' );
@@ -197,7 +197,7 @@ class Test_Status extends TestCase {
 	/**
 	 * Test when using the constant to set dev mode
 	 *
-	 * @covers Automattic\Jetpack\Status::is_offline_mode
+	 * @covers Automattic\Jetpack\Status
 	 *
 	 * @runInSeparateProcess
 	 */
@@ -211,7 +211,7 @@ class Test_Status extends TestCase {
 	/**
 	 * Test for is_multi_network with a single site
 	 *
-	 * @covers Automattic\Jetpack\Status::is_multi_network
+	 * @covers Automattic\Jetpack\Status
 	 */
 	public function test_is_multi_network_not_multisite() {
 		Functions\when( 'is_multisite' )->justReturn( false );
@@ -222,7 +222,7 @@ class Test_Status extends TestCase {
 	/**
 	 * Test is_multi_network with a multisite install
 	 *
-	 * @covers Automattic\Jetpack\Status::is_multi_network
+	 * @covers Automattic\Jetpack\Status
 	 */
 	public function test_is_multi_network_when_single_network() {
 		$this->mock_wpdb_get_var( 1 );
@@ -236,7 +236,7 @@ class Test_Status extends TestCase {
 	/**
 	 * Test is_multi_network when multiple networks
 	 *
-	 * @covers Automattic\Jetpack\Status::is_multi_network
+	 * @covers Automattic\Jetpack\Status
 	 */
 	public function test_is_multi_network_when_multiple_networks() {
 		$this->mock_wpdb_get_var( 2 );
@@ -250,7 +250,7 @@ class Test_Status extends TestCase {
 	/**
 	 * Test cached is_single_user_site
 	 *
-	 * @covers Automattic\Jetpack\Status::is_single_user_site
+	 * @covers Automattic\Jetpack\Status
 	 */
 	public function test_is_single_user_site_with_transient() {
 		$this->mock_wpdb_get_var( 3 );
@@ -264,7 +264,7 @@ class Test_Status extends TestCase {
 	/**
 	 * Test is_single_user_site
 	 *
-	 * @covers Automattic\Jetpack\Status::is_single_user_site
+	 * @covers Automattic\Jetpack\Status
 	 */
 	public function test_is_single_user_site_with_one_user() {
 		$this->mock_wpdb_get_var( 1 );
@@ -279,7 +279,7 @@ class Test_Status extends TestCase {
 	/**
 	 * Test is_single_user_site with multiple users
 	 *
-	 * @covers Automattic\Jetpack\Status::is_single_user_site
+	 * @covers Automattic\Jetpack\Status
 	 */
 	public function test_is_single_user_site_with_multiple_users() {
 		$this->mock_wpdb_get_var( 3 );
@@ -325,7 +325,7 @@ class Test_Status extends TestCase {
 	 * Tests known staging sites.
 	 *
 	 * @dataProvider get_is_staging_site_known_hosting_providers_data
-	 * @covers Automattic\Jetpack\Status::is_staging_site
+	 * @covers Automattic\Jetpack\Status
 	 *
 	 * @param string $site_url Site URL.
 	 * @param bool   $expected Expected return.
@@ -443,7 +443,7 @@ class Test_Status extends TestCase {
 	/**
 	 * Tests for site_suffix().
 	 *
-	 * @covers Automattic\Jetpack\Status::get_site_suffix
+	 * @covers Automattic\Jetpack\Status
 	 * @dataProvider get_site_suffix_examples
 	 *
 	 * @param string $site     Given site URL.
@@ -459,7 +459,7 @@ class Test_Status extends TestCase {
 	/**
 	 * Examples of sites passed to get_site_suffix
 	 *
-	 * @covers Automattic\Jetpack\Status::get_site_suffix
+	 * @covers Automattic\Jetpack\Status
 	 */
 	public function get_site_suffix_examples() {
 		return array(

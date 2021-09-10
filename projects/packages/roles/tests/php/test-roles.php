@@ -42,7 +42,7 @@ class Test_Roles extends TestCase {
 	/**
 	 * Tests the current user by role.
 	 *
-	 * @covers Automattic\Jetpack\Roles::translate_current_user_to_role
+	 * @covers Automattic\Jetpack\Roles
 	 */
 	public function test_current_user_to_role_with_role() {
 		Functions\when( 'current_user_can' )->alias(
@@ -57,7 +57,7 @@ class Test_Roles extends TestCase {
 	/**
 	 * Tests the current user by capability.
 	 *
-	 * @covers Automattic\Jetpack\Roles::translate_current_user_to_role
+	 * @covers Automattic\Jetpack\Roles
 	 */
 	public function test_current_user_to_role_with_capability() {
 		Functions\when( 'current_user_can' )->alias(
@@ -76,7 +76,7 @@ class Test_Roles extends TestCase {
 	/**
 	 * Test current user with no match.
 	 *
-	 * @covers Automattic\Jetpack\Roles::translate_current_user_to_role
+	 * @covers Automattic\Jetpack\Roles
 	 */
 	public function test_current_user_to_role_with_no_match() {
 		Functions\when( 'current_user_can' )->justReturn( false );
@@ -87,7 +87,7 @@ class Test_Roles extends TestCase {
 	/**
 	 * Test translating an user to a role by role.
 	 *
-	 * @covers Automattic\Jetpack\Roles::translate_user_to_role
+	 * @covers Automattic\Jetpack\Roles
 	 */
 	public function test_user_to_role_with_role() {
 		$user_mock = $this->getMockBuilder( 'WP_User' )->getMock();
@@ -103,7 +103,7 @@ class Test_Roles extends TestCase {
 	/**
 	 * Test translating an user to a role by capablity.
 	 *
-	 * @covers Automattic\Jetpack\Roles::translate_user_to_role
+	 * @covers Automattic\Jetpack\Roles
 	 */
 	public function test_user_to_role_with_capability() {
 		$user_mock = $this->getMockBuilder( 'WP_User' )->getMock();
@@ -119,7 +119,7 @@ class Test_Roles extends TestCase {
 	/**
 	 * Test translating an user to a role with no match.
 	 *
-	 * @covers Automattic\Jetpack\Roles::translate_user_to_role
+	 * @covers Automattic\Jetpack\Roles
 	 */
 	public function test_user_to_role_with_no_match() {
 		$user_mock = $this->getMockBuilder( 'WP_User' )->getMock();
@@ -131,7 +131,7 @@ class Test_Roles extends TestCase {
 	/**
 	 * Test translating a role to a cap with an existing role.
 	 *
-	 * @covers Automattic\Jetpack\Roles::translate_role_to_cap
+	 * @covers Automattic\Jetpack\Roles
 	 */
 	public function test_role_to_cap_existing_role() {
 		$this->assertEquals( 'edit_others_posts', $this->roles->translate_role_to_cap( 'editor' ) );
@@ -140,7 +140,7 @@ class Test_Roles extends TestCase {
 	/**
 	 * Test translating a role to a cap with a non-existing role.
 	 *
-	 * @covers Automattic\Jetpack\Roles::translate_role_to_cap
+	 * @covers Automattic\Jetpack\Roles
 	 */
 	public function test_role_to_cap_non_existing_role() {
 		$this->assertFalse( $this->roles->translate_role_to_cap( 'follower' ) );

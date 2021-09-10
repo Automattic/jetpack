@@ -1050,7 +1050,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Test fetching user connection data with connected user.
 	 *
-	 * @covers Jetpack::filter_jetpack_current_user_connection_data
+	 * @covers Jetpack
 	 * @since 10.0
 	 */
 	public function test_get_user_connection_data_with_connected_user() {

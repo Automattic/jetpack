@@ -91,8 +91,8 @@ class WP_Test_Jetpack_Carousel extends WP_UnitTestCase {
 	 * Test add_data_img_tags_and_enqueue_assets.
 	 *
 	 * @dataProvider get_data_img_tags
-	 * @covers Jetpack_Carousel::add_data_img_tags_and_enqueue_assets()
-	 * @covers Jetpack_Carousel::maybe_add_amp_lightbox()
+	 * @covers Jetpack_Carousel
+	 * @covers Jetpack_Carousel
 	 *
 	 * @param string      $content The initial content to be filtered.
 	 * @param bool        $is_amp Whether this is an AMP endpoint.

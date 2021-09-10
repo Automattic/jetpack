@@ -23,7 +23,7 @@ class WP_Test_Contact_Info_Widget extends WP_UnitTestCase {
 	/**
 	 * No filter callback is set. The API key field should be displayed.
 	 *
-	 * @covers Jetpack_Contact_Info_Widget::form
+	 * @covers Jetpack_Contact_Info_Widget
 	 */
 	public function test_form_apikey_field_with_no_filter() {
 		ob_start();
