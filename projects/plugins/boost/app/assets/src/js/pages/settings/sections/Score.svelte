@@ -5,12 +5,8 @@
 	import ScoreBar from '../elements/ScoreBar.svelte';
 	import ScoreContext from '../elements/ScoreContext.svelte';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
-	import {
-		getScoreLetter,
-		requestSpeedScores,
-		didScoresImprove,
-		debounce,
-	} from '../../../api/speed-scores';
+	import { getScoreLetter, requestSpeedScores, didScoresImprove } from '../../../api/speed-scores';
+	import debounce from '../../../utils/debounce';
 	import { __ } from '@wordpress/i18n';
 	import { criticalCssStatus } from '../../../stores/critical-css-status';
 	import { modules } from '../../../stores/modules';
@@ -36,6 +32,29 @@
 		refreshScore( false );
 	}
 
+	/**
+	 * String representation of the current state that may impact the score.
+	 *
+	 * @type {Readable<string>}
+	 */
+	const scoreConfigString = derived(
+		[ modules, criticalCssStatus ],
+		( [ $modules, $criticalCssStatus ] ) =>
+			JSON.stringify( {
+				modules: $modules,
+				criticalCss: {
+					created: $criticalCssStatus.created,
+				},
+			} )
+	);
+
+	/**
+	 * The configuration that led to latest speed score.
+	 *
+	 * @type {Readable<string>}
+	 */
+	let currentScoreConfigString = $scoreConfigString;
+
 	async function refreshScore( is_forced = false ) {
 		isLoading = true;
 		loadError = undefined;
@@ -46,6 +65,7 @@
 			previousScores = scoresSet.previous;
 			scoreLetter = getScoreLetter( scores.mobile, scores.desktop );
 			showPrevScores = didScoresImprove( scoresSet );
+			currentScoreConfigString = $scoreConfigString;
 		} catch ( err ) {
 			console.log( err );
 			loadError = err;
@@ -54,37 +74,24 @@
 		}
 	}
 
-	const debouncedRefreshScore = debounce( is_forced => refreshScore( is_forced ), 3000 );
+	const debouncedRefreshScore = debounce( is_forced => {
+		// If the configuration has changed, the previous speed score is no longer relevant. But we don't want to
+		// trigger a refresh while critical css is still generating.
+		if ( ! $criticalCssStatus.generating && $scoreConfigString !== currentScoreConfigString ) {
+			refreshScore( is_forced );
+		}
+	}, 3000 );
 
 	// We do not want to force refresh the score if status and modules were the same on page load. So this initial assignment is necessary.
 	let previousStatus = $criticalCssStatus.status;
 	let previousModules = $modules;
 
-	const dm = derived( modules, m => JSON.stringify( m ) );
-
 	$: {
-		// Force refresh if the lazy-images or render-blocking-js was changed
-		if (
-			$modules[ 'lazy-images' ].enabled !== previousModules[ 'lazy-images' ].enabled ||
-			$modules[ 'render-blocking-js' ].enabled !== previousModules[ 'render-blocking-js' ].enabled
-		) {
-			debouncedRefreshScore( true );
-		}
+		// Mentioning the stores here for change detection.
+		$scoreConfigString;
+		$criticalCssStatus.generating;
 
-		// Force refresh if the critical-css was changed and we do not need to regenerate
-		if (
-			$modules[ 'critical-css' ].enabled !== previousModules[ 'critical-css' ].enabled &&
-			( false === $modules[ 'critical-css' ].enabled || 'success' === $criticalCssStatus.status )
-		) {
-			debouncedRefreshScore( true );
-		}
-
-		// Force refresh the score if critical CSS finished generating.
-		if ( 'success' === $criticalCssStatus.status && 'success' !== previousStatus ) {
-			debouncedRefreshScore( true );
-		}
-		previousStatus = $criticalCssStatus.status;
-		previousModules = $modules;
+		debouncedRefreshScore( true );
 	}
 </script>
 
@@ -108,7 +115,7 @@
 					type="button"
 					class="components-button is-link"
 					disabled={isLoading}
-					on:click={() => debouncedRefreshScore( true )}
+					on:click={() => refreshScore( true )}
 				>
 					<RefreshIcon />
 					{__( 'Refresh', 'jetpack-boost' )}
