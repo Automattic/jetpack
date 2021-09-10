@@ -57,7 +57,7 @@
 		"yargs": "16.2.0"
 	},
 	"engines": {
-		"node": "^16.7.0",
+		"node": "^14.17.6 || ^16.7.0",
 		"pnpm": "^6.5.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
