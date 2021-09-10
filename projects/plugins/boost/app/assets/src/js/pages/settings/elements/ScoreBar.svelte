@@ -49,6 +49,11 @@
 					style="left: min({prevScoreOffset}%, calc(100% - var(--clearance-space))"
 				>
 					{prevScore}
+					{#if $$slots[ 'previous-score-tooltip' ]}
+						<div class="jb-score-bar__previous_score_tooltip">
+							<slot name="previous-score-tooltip" />
+						</div>
+					{/if}
 				</div>
 			{/if}
 		</div>

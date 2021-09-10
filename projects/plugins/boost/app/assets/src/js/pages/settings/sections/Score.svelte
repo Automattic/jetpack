@@ -44,7 +44,6 @@
 
 		return true;
 	} );
-
 	/**
 	 * String representation of the current state that may impact the score.
 	 *
@@ -169,7 +168,11 @@
 				active={siteIsOnline}
 				{isLoading}
 				{showPrevScores}
-			/>
+			>
+				<svelte:fragment slot="previous-score-tooltip"
+					>{__( 'Your previous mobile score', 'jetpack-boost' )}</svelte:fragment
+				>
+			</ScoreBar>
 		</div>
 
 		<div class="jb-score-bar jb-score-bar--desktop">
@@ -183,7 +186,11 @@
 				active={siteIsOnline}
 				{isLoading}
 				{showPrevScores}
-			/>
+			>
+				<svelte:fragment slot="previous-score-tooltip"
+					>{__( 'Your previous desktop score', 'jetpack-boost' )}</svelte:fragment
+				>
+			</ScoreBar>
 		</div>
 	</div>
 </div>

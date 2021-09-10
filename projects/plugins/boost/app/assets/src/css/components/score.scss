@@ -176,13 +176,20 @@ $previous_score_size: 28px;
 	  position: absolute;
 	  background: #fff;
 	  border-radius: 50%;
-	  padding: 5px;
+	  padding: 3px;
 	  top: $score_pointer_size;
 	  width: $previous_score_size;
 	  height: $previous_score_size;
 	  font-size: 0.7em;
 	  text-align: center;
+	  cursor: pointer;
+	  z-index: 2;
+	  border: 2px solid transparent;
+	  background-clip: padding-box;
 
+	  &:hover {
+		border: 2px solid rgba(255, 255, 255, 0.5);
+	  }
 
 	  &::after {
 		content: " ";
@@ -193,10 +200,40 @@ $previous_score_size: 28px;
 		border-bottom: $score_pointer_size solid #fff;
 
 		position: absolute;
-		top: $bar_height - $score_pointer_size * 2;
+		top: $bar_height - $score_pointer_size * 2 - 2px;
 		left: $score_pointer_size;
-		margin: 0 2px;
 	  }
+	}
+
+	&__previous_score_tooltip {
+	  position: absolute;
+	  top: -62px;
+	  left: -10em;
+	  width: 20em;
+	  background: #FFF;
+	  padding: 16px;
+	  border-radius: 4px;
+	  margin: 0 16px;
+	  display: none;
+	  box-shadow: 0 0 20px 0 rgb(170 170 170 / 28%);
+
+	  &::after {
+		content: " ";
+		width: 0;
+		height: 0;
+		border-left: $score_pointer_size solid transparent;
+		border-right: $score_pointer_size solid transparent;
+		border-top: $score_pointer_size solid #fff;
+
+		position: absolute;
+		bottom: -$score_pointer_size;
+		left: 10em;
+		margin: 0 -10px
+	  }
+	}
+
+  	&__previous_score:hover &__previous_score_tooltip {
+	  display: block;
 	}
 
 	.fill-loading {
