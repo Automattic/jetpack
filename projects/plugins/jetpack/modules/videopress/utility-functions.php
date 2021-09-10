@@ -731,7 +731,11 @@ function videopress_get_attachment_url( $post_id ) {
 			return null;
 		}
 	} else {
-		$return = $meta['videopress']['file_url_base']['https'] . $meta['videopress']['files']['hd']['mp4'];
+		$return = $meta['videopress']['file_url_base']['https'] . (
+			isset( $meta['videopress']['files']['hd']['hls'] )
+			? $meta['videopress']['files']['hd']['hls']
+			: $meta['videopress']['files']['hd']['mp4']
+		);
 	}
 
 	// If the URL is a string, return it. Otherwise, we shouldn't to avoid errors downstream, so null.

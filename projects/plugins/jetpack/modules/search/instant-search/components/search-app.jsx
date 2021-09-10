@@ -120,26 +120,10 @@ class SearchApp extends Component {
 		}
 	}
 
-	componentWillUnmount() {
-		this.restoreBodyScroll();
-	}
-
 	initializeAnalytics() {
 		initializeTracks();
 		resetTrackingCookies();
 		identifySite( this.props.options.siteId );
-	}
-
-	preventBodyScroll() {
-		document.body.style.position = 'fixed';
-		document.body.style.height = '100%';
-		document.body.style.overflowY = 'hidden';
-	}
-
-	restoreBodyScroll() {
-		document.body.style.position = '';
-		document.body.style.height = '';
-		document.body.style.overflowY = '';
 	}
 
 	getResultFormat = () => {
@@ -178,7 +162,7 @@ class SearchApp extends Component {
 		if ( ! this.props.shouldIntegrateWithDom ) {
 			return;
 		}
-		this.restoreBodyScroll();
+
 		restorePreviousHref(
 			this.props.initialHref,
 			() => {
@@ -205,14 +189,7 @@ class SearchApp extends Component {
 		// If there are static filters available, but they are not part of the url/state, we will set their default value
 		isVisible && this.initializeStaticFilters();
 
-		this.setState( { isVisible }, () => {
-			if ( isVisible ) {
-				this.preventBodyScroll();
-			} else {
-				// This codepath will only be executed in the Customizer.
-				this.restoreBodyScroll();
-			}
-		} );
+		this.setState( { isVisible } );
 	};
 
 	showResults = this.toggleResults.bind( this, true );

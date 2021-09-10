@@ -103,8 +103,10 @@ export async function ensureConnectedState( requiredConnected = undefined ) {
 }
 
 async function connect() {
-	const userId = getDotComCredentials().userId;
-	await provisionJetpackStartConnection( userId, 'free' );
+	const creds = getDotComCredentials();
+	await execWpCommand( `user update wordpress --user_email=${ creds.email }` );
+
+	await provisionJetpackStartConnection( creds.userId, 'free' );
 
 	expect( await isBlogTokenSet() ).toBeTruthy();
 

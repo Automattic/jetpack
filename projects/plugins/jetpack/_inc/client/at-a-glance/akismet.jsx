@@ -26,7 +26,6 @@ import { getApiNonce, getUpgradeUrl } from 'state/initial-state';
 import { getJetpackProductUpsellByFeature, FEATURE_SPAM_AKISMET_PLUS } from 'lib/plans/constants';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
 import JetpackBanner from 'components/jetpack-banner';
-import { numberFormat } from 'components/number-format';
 import restApi from '@automattic/jetpack-api';
 import QueryAkismetData from 'components/data/query-akismet-data';
 
@@ -138,6 +137,30 @@ class DashAkismet extends Component {
 			return this.props.hasConnectedOwner ? getAkismetUpgradeBanner() : getConnectBanner();
 		};
 
+		const getAkismetCounter = () => {
+			if ( '0' !== this.props.akismetData ) {
+				return (
+					<>
+						<h2 className="jp-dash-item__count">{ this.props.akismetData }</h2>
+						<p className="jp-dash-item__description">
+							{ _x( 'Spam comments blocked.', 'Example: "412 Spam comments blocked"', 'jetpack' ) }
+						</p>
+					</>
+				);
+			}
+
+			return (
+				<div className="jp-dash-item__recently-activated">
+					<p className="jp-dash-item__description">
+						{ __(
+							'Jetpack and its Anti-spam currently monitor all comments on your site. Data will display here soon!',
+							'jetpack'
+						) }
+					</p>
+				</div>
+			);
+		};
+
 		if ( 'N/A' === akismetData ) {
 			return (
 				<DashItem label={ labelName } module="akismet" support={ support } pro={ true }>
@@ -217,10 +240,7 @@ class DashAkismet extends Component {
 				status="is-working"
 				pro={ true }
 			>
-				<h2 className="jp-dash-item__count">{ numberFormat( akismetData.all.spam ) }</h2>
-				<p className="jp-dash-item__description">
-					{ _x( 'Spam comments blocked.', 'Example: "412 Spam comments blocked"', 'jetpack' ) }
-				</p>
+				{ getAkismetCounter( akismetData ) }
 			</DashItem>,
 			! this.props.isOfflineMode && (
 				<Card
