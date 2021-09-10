@@ -24,7 +24,7 @@ export type ProviderKeyUrls = {
 };
 
 export type ProvidersSuccessRatio = {
-	[ providerKey: string ]: Number;
+	[ providerKey: string ]: number;
 };
 
 export type MajorMinorCallback = (
@@ -40,7 +40,7 @@ let hasGenerateRun = false;
  * Call generateCriticalCss if it hasn't been called before this app execution
  * (browser pageload), to verify if Critical CSS needs to be generated.
  */
-export async function maybeGenerateCriticalCss() {
+export async function maybeGenerateCriticalCss(): Promise< void > {
 	if ( hasGenerateRun ) {
 		return;
 	}
@@ -56,8 +56,8 @@ export async function maybeGenerateCriticalCss() {
  * @param {boolean} isShowstopperRetry - Set this flag to indicate this attempt is retrying after a showstopper error.
  */
 export default async function generateCriticalCss(
-	reset: boolean = true,
-	isShowstopperRetry: boolean = false
+	reset = true,
+	isShowstopperRetry = false
 ): Promise< void > {
 	hasGenerateRun = true;
 	let cancelling = false;
