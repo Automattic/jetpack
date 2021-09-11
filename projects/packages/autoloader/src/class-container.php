@@ -60,8 +60,8 @@ class Container {
 		}
 
 		$key = self::SHARED_DEPENDENCY_KEYS[ Hook_Manager::class ];
+		require_once __DIR__ . '/class-hook-manager.php';
 		if ( ! isset( $jetpack_autoloader_container_shared[ $key ] ) ) {
-			require_once __DIR__ . '/class-hook-manager.php';
 			$jetpack_autoloader_container_shared[ $key ] = new Hook_Manager();
 		}
 		$this->dependencies[ Hook_Manager::class ] = &$jetpack_autoloader_container_shared[ $key ];
