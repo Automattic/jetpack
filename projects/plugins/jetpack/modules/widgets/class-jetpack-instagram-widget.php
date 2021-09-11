@@ -42,7 +42,8 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', esc_html__( 'Instagram', 'jetpack' ) ),
 			array(
-				'description' => __( 'Display your latest Instagram photos.', 'jetpack' ),
+				'description'           => __( 'Display your latest Instagram photos.', 'jetpack' ),
+				'show_instance_in_rest' => true,
 			)
 		);
 
@@ -624,3 +625,15 @@ add_action(
 		}
 	}
 );
+
+/**
+ * Remove Instagram widget from Legacy Widget block.
+ *
+ * @param array $widget_types Widget type data.
+ * This only applies to new blocks being added.
+ */
+function hide_from_legacy_block( $widget_types ) {
+	$widget_types[] = 'wpcom_instagram_widget';
+	return $widget_types;
+}
+add_filter( 'widget_types_to_hide_from_legacy_widget_block', 'hide_from_legacy_block' );
