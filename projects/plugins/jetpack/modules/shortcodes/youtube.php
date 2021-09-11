@@ -183,6 +183,7 @@ function youtube_id( $url ) {
 	$url = wp_parse_url( $url );
 
 	$thumbnail = "https://i.ytimg.com/vi/$id/hqdefault.jpg";
+	$video_url = add_query_arg( 'v', $id, 'https://www.youtube.com/watch' );
 
 	$args = jetpack_shortcode_youtube_args( $url );
 	if ( empty( $args ) ) {
@@ -302,7 +303,7 @@ function youtube_id( $url ) {
 		// Note that <amp-youtube> currently is not well suited for playlists that don't have an individual video selected, hence the $id check above.
 		$placeholder = sprintf(
 			'<a href="%1$s" placeholder><amp-img src="%2$s" alt="%3$s" layout="fill" object-fit="cover"><noscript><img src="%2$s" loading="lazy" decoding="async" alt="%3$s"></noscript></amp-img></a>',
-			esc_url( add_query_arg( 'v', $id, 'https://www.youtube.com/watch' ) ),
+			esc_url( $video_url ),
 			esc_url( $thumbnail ),
 			esc_attr__( 'YouTube Poster', 'jetpack' ) // Would be preferable to provide YouTube video title, but not available in this non-oEmbed context.
 		);
@@ -380,7 +381,7 @@ function youtube_id( $url ) {
 		if ( A8C\Display_Context\NOTIFICATIONS === $context ) {
 			return sprintf(
 				'<a href="%1$s" target="_blank" rel="noopener noreferrer"><img src="%2$s" alt="%3$s" /></a>',
-				esc_url( add_query_arg( 'v', $id, 'https://www.youtube.com/watch' ) ),
+				esc_url( $video_url ),
 				esc_url( $thumbnail ),
 				esc_html__( 'YouTube video', 'jetpack' )
 			);
