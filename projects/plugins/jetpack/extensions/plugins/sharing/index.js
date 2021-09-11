@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import SharingCheckbox from './sharing-checkbox';
+import SharingCheckbox from './components/show-sharing-control';
 
 export const name = 'sharing';
 
