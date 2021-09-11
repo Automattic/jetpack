@@ -612,7 +612,7 @@ abstract class Base_Admin_Menu {
 		if ( isset( $_GET['page'] ) ) {
 			$screen = add_query_arg( 'page', $_GET['page'], $screen );
 		}
-		return $screen;
+		return sanitize_text_field( wp_unslash( $screen ) );
 		// phpcs:enable WordPress.Security.NonceVerification
 	}
 
