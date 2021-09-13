@@ -140,7 +140,6 @@ class Test_Base_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::handle_preferred_view
 	 */
 	public function test_handle_preferred_view() {
-		$this->markTestSkipped( 'Test causing PHPUnit process to silently exit' );
 		global $pagenow;
 		$pagenow                = 'test.php';
 		$_GET['preferred-view'] = 'classic';
