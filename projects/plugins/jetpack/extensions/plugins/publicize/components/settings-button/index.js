@@ -17,7 +17,7 @@ import { ExternalLink } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import getSiteFragment from '../../shared/get-site-fragment';
+import getSiteFragment from '../../../../shared/get-site-fragment';
 
 class PublicizeSettingsButton extends Component {
 	getButtonLink() {
@@ -35,7 +35,7 @@ class PublicizeSettingsButton extends Component {
 	/**
 	 * Opens up popup so user can view/modify connections
 	 *
-	 * @param {object} event Event instance for onClick.
+	 * @param {object} event - Event instance for onClick.
 	 */
 	settingsClick = event => {
 		const href = this.getButtonLink();
