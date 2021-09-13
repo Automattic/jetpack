@@ -563,7 +563,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 * Check if the dashboard switcher is registered correctly.
 	 */
 	public function test_register_dashboard_switcher() {
-		$this->markTestSkipped( 'Test causing PHPUnit process to silently exit' );
 		global $pagenow;
 		$pagenow = 'edit.php?post_type=feedback';
 
