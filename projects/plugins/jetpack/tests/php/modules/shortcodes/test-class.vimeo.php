@@ -376,7 +376,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	 * Tests jetpack_shortcode_get_vimeo_dimensions, when there is no global $content_width.
 	 *
 	 * @dataProvider get_vimeo_dimensions_data
-	 * @covers ::jetpack_shortcode_get_vimeo_dimensions()
+	 * @covers ::jetpack_shortcode_get_vimeo_dimensions
 	 *
 	* @param array $attr The shortcode attributes.
 	* @param array $expected The expected dimensions.
@@ -389,7 +389,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	/**
 	 * Tests jetpack_shortcode_get_vimeo_dimensions, when there is a global $content_width.
 	 *
-	 * @covers ::jetpack_shortcode_get_vimeo_dimensions()
+	 * @covers ::jetpack_shortcode_get_vimeo_dimensions
 	 */
 	function test_jetpack_shortcode_get_vimeo_dimensions_with_global_content_width() {
 		$width                    = 500;

@@ -34,7 +34,7 @@ class Partner_Test extends TestCase {
 	/**
 	 * Tests the class returns the instance.
 	 *
-	 * @covers Automattic\Jetpack\Partner->init();
+	 * @covers Automattic\Jetpack\Partner
 	 */
 	public function test_init_returns_instance() {
 		$this->assertInstanceOf( Partner::class, Partner::init() );
@@ -72,7 +72,7 @@ class Partner_Test extends TestCase {
 	 *
 	 * @throws Monkey\Expectation\Exception\ExpectationArgsRequired Function requires args.
 	 *
-	 * @covers Automattic\Partner->get_partner_code();
+	 * @covers Automattic\Partner
 	 */
 	public function test_partner_code_is_empty_by_default( $code_type, $option_name ) {
 		Functions\expect( 'get_option' )->once()->with( $option_name )->andReturn( '' );
@@ -89,7 +89,7 @@ class Partner_Test extends TestCase {
 	 *
 	 * @throws Monkey\Expectation\Exception\ExpectationArgsRequired Function requires args.
 	 *
-	 * @covers Automattic\Partner->get_partner_code();
+	 * @covers Automattic\Partner
 	 */
 	public function test_partner_code_is_set_via_option( $code_type, $option_name ) {
 		Functions\expect( 'get_option' )->once()->with( $option_name, '' )->andReturn( self::TEST_CODE );
@@ -106,7 +106,7 @@ class Partner_Test extends TestCase {
 	 *
 	 * @throws Monkey\Expectation\Exception\ExpectationArgsRequired Function requires args.
 	 *
-	 * @covers Automattic\Partner->get_partner_code();
+	 * @covers Automattic\Partner
 	 */
 	public function test_partner_code_is_set_via_filter( $code_type, $option_name ) {
 		Functions\expect( 'get_option' )->once()->with( $option_name )->andReturn( '' );
