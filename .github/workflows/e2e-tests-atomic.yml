@@ -3,6 +3,13 @@ name: E2E Tests on Atomic sites
 on:
   schedule:
     - cron:  '0 */4 * * *'
+  pull_request:
+    paths-ignore:
+      - '**.md'
+  push:
+    branches: [e2e/get-jetpack-version]
+    paths-ignore:
+      - '**.md'
 
 jobs:
   e2e-tests:
