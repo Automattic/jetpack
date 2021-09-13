@@ -237,9 +237,12 @@ function wpcomsh_is_site_sticker_active( $sticker_name ) {
 	}
 
 	$persistent_data = new \Atomic_Persistent_Data();
-	$is_sticker_enabled = array_key_exists( 'site_sticker_' . $sticker_name, $persistent_data );
 
-	return $is_sticker_enabled;
+	if ( $persistent_data->{"site_sticker_{$sticker_name}"}) {
+		return true;
+	}
+
+	return false;
 }
 
 /**
@@ -257,15 +260,10 @@ function wpcomsh_get_plugin_updated_submenus( $submenus_to_update, $domain ) {
 }
 
 /**
- * Checks if the wpcom-marketplace sticker is active and if so it forces the plugin install link to be Calypso.
+ * Forces the Add New (plugin) menu link to be Calypso.
  * @return array
  */
 function wpcomsh_update_plugin_submenus( $submenus_to_update ) {
-	$should_update = wpcomsh_is_site_sticker_active( 'wpcom-marketplace' );
-	if ( ! $should_update ) {
-		return $submenus_to_update;
-	}
-
 	if ( ! class_exists( 'Automattic\Jetpack\Status' ) ) {
 		return $submenus_to_update;
 	}
@@ -274,9 +272,35 @@ function wpcomsh_update_plugin_submenus( $submenus_to_update ) {
 	return wpcomsh_get_plugin_updated_submenus( $submenus_to_update, $domain );
 }
 
+/**
+ * Forces the Add New (plugin install) link to be Calypso.
+ * @return string
+ */
+function wpcomsh_update_plugin_link_destinaion( $url, $path, $scheme ) {
+	// Run only for plugin-install.php links.
+	if ( ! strpos( $url, '/plugin-install.php' ) || ! class_exists( 'Automattic\Jetpack\Status' ) ) {
+		return $url;
+	}
+
+	return 'https://wordpress.com/plugins/' . ( new Automattic\Jetpack\Status() )->get_site_suffix();
+}
+
+/**
+ * If `wpcom-marketplace` blog sticker exists,
+ * adds filters to change Add New (plugin) menu & link to be Calypso.
+ * @return void
+ */
 function wpcomsh_update_plugin_add_filter() {
+	// Run only for sites with `wpcom-marketplace` blog sticker.
+	if ( ! wpcomsh_is_site_sticker_active( 'wpcom-marketplace' ) ) {
+		return;
+	}
+
 	// We need to add the filter in a `admin_menu` action so that the rest api (Calypso)
 	// shows the correct menu items.
 	add_filter( 'wpcom_plugins_submenu_update', 'wpcomsh_update_plugin_submenus' );
+
+	// We also need to change the any plugin-install.php links appearing in /wp-admin/plugins.php or elsewhere.
+	add_filter( 'self_admin_url', 'wpcomsh_update_plugin_link_destinaion', 10, 3 );
 }
 add_action( 'admin_menu', 'wpcomsh_update_plugin_add_filter' );
