@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { find, includes } from 'lodash';
+import { includes } from 'lodash';
 import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ProgressBar } from '@automattic/components';
@@ -11,16 +11,22 @@ import { ProgressBar } from '@automattic/components';
 /**
  * Internal dependencies
  */
-import { FEATURE_VIDEO_HOSTING_JETPACK, getPlanClass } from 'lib/plans/constants';
+import {
+	getPlanClass,
+	getJetpackProductUpsellByFeature,
+	FEATURE_VIDEOPRESS,
+	FEATURE_VIDEO_HOSTING_JETPACK,
+} from 'lib/plans/constants';
 import { FormLegend } from 'components/forms';
 import JetpackBanner from 'components/jetpack-banner';
 import { ModuleToggle } from 'components/module-toggle';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import { getUpgradeUrl } from 'state/initial-state';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
-import { getActiveProductPurchases, getSitePlan, getVideoPressStorageUsed } from 'state/site';
+import { getSitePlan, getVideoPressStorageUsed, hasActiveVideoPressPurchase } from 'state/site';
 
 class Media extends React.Component {
 	render() {
@@ -32,10 +38,9 @@ class Media extends React.Component {
 
 		const videoPress = this.props.module( 'videopress' ),
 			planClass = getPlanClass( this.props.sitePlan.product_slug ),
-			{ activeProducts, videoPressStorageUsed } = this.props;
+			{ hasVideoPressPurchase, upgradeUrl, videoPressStorageUsed } = this.props;
 
-		const hasVideoPressProduct = find( activeProducts, { product_slug: 'jetpack_videopress' } );
-		const shouldDisplayStorage = hasVideoPressProduct && null !== videoPressStorageUsed;
+		const shouldDisplayStorage = hasVideoPressPurchase && null !== videoPressStorageUsed;
 
 		const hasUpgrade =
 			includes(
@@ -47,7 +52,7 @@ class Media extends React.Component {
 					'is-complete-plan',
 				],
 				planClass
-			) || hasVideoPressProduct;
+			) || hasVideoPressPurchase;
 
 		const videoPressSettings = (
 			<SettingsGroup
@@ -104,10 +109,11 @@ class Media extends React.Component {
 							'You are limited to 1 video. Upgrade now for unlimited videos and 1TB of storage.',
 							'jetpack'
 						) }
+						eventFeature="videopress"
 						icon="video"
-						plan={ 'free' }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_VIDEOPRESS ) }
 						feature="jetpack_videopress"
-						href="https://jetpack.com/pricing"
+						href={ upgradeUrl }
 					/>
 				) }
 			</SettingsCard>
@@ -120,8 +126,9 @@ export default connect( state => {
 		module: module_name => getModule( state, module_name ),
 		isModuleFound: module_name => _isModuleFound( state, module_name ),
 		sitePlan: getSitePlan( state ),
-		activeProducts: getActiveProductPurchases( state ),
+		hasVideoPressPurchase: hasActiveVideoPressPurchase( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
+		upgradeUrl: getUpgradeUrl( state, 'videopress-upgrade' ),
 		videoPressStorageUsed: getVideoPressStorageUsed( state ),
 	};
 } )( withModuleSettingsFormHelpers( Media ) );

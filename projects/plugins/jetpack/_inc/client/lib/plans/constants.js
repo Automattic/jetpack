@@ -42,6 +42,8 @@ export const PLAN_JETPACK_SCAN = 'jetpack_scan';
 export const PLAN_JETPACK_SCAN_MONTHLY = 'jetpack_scan_monthly';
 export const PLAN_JETPACK_ANTI_SPAM = 'jetpack_anti_spam';
 export const PLAN_JETPACK_ANTI_SPAM_MONTHLY = 'jetpack_anti_spam_monthly';
+export const PLAN_JETPACK_VIDEOPRESS = 'jetpack_videopress';
+export const PLAN_JETPACK_VIDEOPRESS_MONTHLY = 'jetpack_videopress_monthly';
 export const PLAN_HOST_BUNDLE = 'host-bundle';
 export const PLAN_WPCOM_ENTERPRISE = 'wpcom-enterprise';
 export const PLAN_VIP = 'vip';
@@ -123,6 +125,11 @@ export const JETPACK_ANTI_SPAM_PRODUCTS = [
 	PLAN_JETPACK_ANTI_SPAM_MONTHLY,
 ];
 
+export const JETPACK_VIDEOPRESS_PRODUCTS = [
+	PLAN_JETPACK_VIDEOPRESS,
+	PLAN_JETPACK_VIDEOPRESS_MONTHLY,
+];
+
 export const PLAN_MONTHLY_PERIOD = 31;
 export const PLAN_ANNUAL_PERIOD = 365;
 
@@ -183,6 +190,7 @@ export const FEATURE_PRIORITY_SUPPORT_JETPACK = 'priority-support-jetpack';
 export const FEATURE_WORDADS_JETPACK = 'wordads-jetpack';
 export const FEATURE_GOOGLE_ANALYTICS_JETPACK = 'google-analytics-jetpack';
 export const FEATURE_SEARCH_JETPACK = 'search-jetpack';
+export const FEATURE_VIDEOPRESS = 'videopress-jetpack';
 
 // Upsells
 export const JETPACK_FEATURE_PRODUCT_UPSELL_MAP = {
@@ -195,6 +203,7 @@ export const JETPACK_FEATURE_PRODUCT_UPSELL_MAP = {
 	[ FEATURE_WORDADS_JETPACK ]: PLAN_JETPACK_SECURITY_T1_YEARLY,
 	[ FEATURE_GOOGLE_ANALYTICS_JETPACK ]: PLAN_JETPACK_SECURITY_T1_YEARLY,
 	[ FEATURE_SPAM_AKISMET_PLUS ]: PLAN_JETPACK_ANTI_SPAM,
+	[ FEATURE_VIDEOPRESS ]: PLAN_JETPACK_VIDEOPRESS,
 };
 
 export function isMonthly( plan ) {
@@ -225,12 +234,23 @@ export function isJetpackAntiSpam( product ) {
 	return JETPACK_ANTI_SPAM_PRODUCTS.includes( product );
 }
 
+/**
+ * Determines if a product is Jetpack VideoPress.
+ *
+ * @param {string} product - The product id.
+ * @returns {boolean} True if the product is Jetpack VideoPress, false otherwise.
+ */
+export function isJetpackVideoPress( product ) {
+	return JETPACK_VIDEOPRESS_PRODUCTS.includes( product );
+}
+
 export function isJetpackProduct( product ) {
 	return (
 		isJetpackBackup( product ) ||
 		isJetpackSearch( product ) ||
 		isJetpackScan( product ) ||
-		isJetpackAntiSpam( product )
+		isJetpackAntiSpam( product ) ||
+		isJetpackVideoPress( product )
 	);
 }
 
@@ -314,6 +334,9 @@ export function getPlanClass( plan ) {
 		case PLAN_JETPACK_BACKUP_REALTIME:
 		case PLAN_JETPACK_BACKUP_REALTIME_MONTHLY:
 			return 'is-realtime-backup-plan';
+		case PLAN_JETPACK_VIDEOPRESS:
+		case PLAN_JETPACK_VIDEOPRESS_MONTHLY:
+			return 'is-videopress-plan';
 
 		default:
 			return '';

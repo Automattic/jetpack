@@ -4,6 +4,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { includes } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -15,14 +16,18 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 /**
  * Internal dependencies
  */
-import { getPlanClass } from 'lib/plans/constants';
 import DashItem from 'components/dash-item';
+import {
+	getPlanClass,
+	getJetpackProductUpsellByFeature,
+	FEATURE_VIDEOPRESS,
+} from 'lib/plans/constants';
 import { ProgressBar } from '@automattic/components';
 import JetpackBanner from 'components/jetpack-banner';
 import { isModuleAvailable } from 'state/modules';
 import { isOfflineMode } from 'state/connection';
-import { getActiveProductPurchases, getSitePlan, getVideoPressStorageUsed } from 'state/site';
-import { find, includes } from 'lodash';
+import { getUpgradeUrl } from 'state/initial-state';
+import { hasActiveVideoPressPurchase, getSitePlan, getVideoPressStorageUsed } from 'state/site';
 
 class DashVideoPress extends Component {
 	static propTypes = {
@@ -44,10 +49,9 @@ class DashVideoPress extends Component {
 		};
 
 		const planClass = getPlanClass( this.props.sitePlan.product_slug ),
-			{ activeProducts, videoPressStorageUsed } = this.props;
+			{ hasVideoPressPurchase, upgradeUrl, videoPressStorageUsed } = this.props;
 
-		const hasVideoPressProduct = find( activeProducts, { product_slug: 'jetpack_videopress' } );
-		const shouldDisplayStorage = hasVideoPressProduct && null !== videoPressStorageUsed;
+		const shouldDisplayStorage = hasVideoPressPurchase && null !== videoPressStorageUsed;
 
 		const hasUpgrade =
 			includes(
@@ -59,7 +63,7 @@ class DashVideoPress extends Component {
 					'is-complete-plan',
 				],
 				planClass
-			) || hasVideoPressProduct;
+			) || hasVideoPressPurchase;
 
 		if ( this.props.getOptionValue( 'videopress' ) ) {
 			return (
@@ -74,7 +78,7 @@ class DashVideoPress extends Component {
 							<div className="dops-card jp-dash-item__card">
 								<p className="jp-dash-item__description">
 									{ __(
-										'VideoPress is enabled and will optimize your videos for smooth playback on any device. To add a new video, just upload it to the Media Library or Post Editor.',
+										'VideoPress is enabled and will optimize your videos for smooth playback on any device. To add a new video, upload it to the Media Library or Post Editor.',
 										'jetpack'
 									) }
 								</p>
@@ -93,10 +97,13 @@ class DashVideoPress extends Component {
 										'You are limited to 1 video. Upgrade now for unlimited videos and 1TB of storage.',
 										'jetpack'
 									) }
+									disableHref="false"
+									eventFeature="videopress"
 									icon="video"
-									plan={ 'free' }
+									path={ 'dashboard' }
+									plan={ getJetpackProductUpsellByFeature( FEATURE_VIDEOPRESS ) }
 									feature="jetpack_videopress"
-									href="https://jetpack.com/pricing"
+									href={ upgradeUrl }
 								/>
 							) }
 						</>
@@ -137,7 +144,8 @@ class DashVideoPress extends Component {
 export default connect( state => ( {
 	isOfflineMode: isOfflineMode( state ),
 	isModuleAvailable: isModuleAvailable( state, 'videopress' ),
+	hasVideoPressPurchase: hasActiveVideoPressPurchase( state ),
 	sitePlan: getSitePlan( state ),
-	activeProducts: getActiveProductPurchases( state ),
+	upgradeUrl: getUpgradeUrl( state, 'videopress-upgrade' ),
 	videoPressStorageUsed: getVideoPressStorageUsed( state ),
 } ) )( DashVideoPress );

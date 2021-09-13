@@ -14,6 +14,7 @@ import {
 	isJetpackBackup,
 	isJetpackScan,
 	isJetpackSearch,
+	isJetpackVideoPress,
 } from 'lib/plans/constants';
 import {
 	JETPACK_SITE_DATA_FETCH,
@@ -343,6 +344,28 @@ export function hasActiveSearchPurchase( state ) {
 		!! getActiveSearchPurchase( state ) ||
 		'is-complete-plan' === getPlanClass( getSitePlan( state ).product_slug )
 	);
+}
+
+/**
+ * Searches active products for an active VideoPress product.
+ *
+ * @param {*} state - Global state tree
+ * @returns {boolean} True if the an active VideoPress plan was found, false otherwise.
+ */
+export function getActiveVideoPressPurchase( state ) {
+	return find( getActiveProductPurchases( state ), product =>
+		isJetpackVideoPress( product.product_slug )
+	);
+}
+
+/**
+ * Determines if the site has an active VideoPress product purchase
+ *
+ * @param {*} state - Global state tree
+ * @returns {boolean} True if the site has an active VideoPress product purchase, false otherwise.
+ */
+export function hasActiveVideoPressPurchase( state ) {
+	return !! getActiveVideoPressPurchase( state );
 }
 
 export function getSiteID( state ) {
