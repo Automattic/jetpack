@@ -1,5 +1,5 @@
 import classnames from 'classnames';
-import { SocialServiceIcon } from '../../../icons';
+import { SocialServiceIcon } from '../../../../shared/icons';
 
 /**
  * Style dependencies
