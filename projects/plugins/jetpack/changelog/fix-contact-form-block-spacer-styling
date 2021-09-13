@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Contact Form block: Make sure the set height of the Spacer block nested inside the Contact Form block is respected

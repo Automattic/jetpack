@@ -7,12 +7,12 @@
 	"dependencies": {
 		"@automattic/jetpack-api": "workspace:^0.2.1-alpha",
 		"@automattic/jetpack-components": "workspace:^0.3.1-alpha",
-		"@wordpress/base-styles": "3.6.0",
+		"@wordpress/base-styles": "4.0.0",
 		"@wordpress/browserslist-config": "4.1.0",
-		"@wordpress/components": "16.0.0",
-		"@wordpress/data": "6.0.1",
-		"@wordpress/element": "4.0.0",
-		"@wordpress/i18n": "4.2.1",
+		"@wordpress/components": "17.0.0",
+		"@wordpress/data": "6.1.0",
+		"@wordpress/element": "4.0.1",
+		"@wordpress/i18n": "4.2.2",
 		"lodash": "4.17.21",
 		"prop-types": "^15.7.2"
 	},
@@ -39,7 +39,7 @@
 		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.jsx'"
 	},
 	"engines": {
-		"node": "^16.7.0",
+		"node": "^14.17.6 || ^16.7.0",
 		"pnpm": "^6.5.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
