@@ -226,6 +226,12 @@ add_filter( 'jetpack_block_editor_enable_upgrade_nudge', '__return_true' );
 
 This will allow you to take advantage of those registered blocks. They will not be rendered to logged out visitors on the frontend of the site, but the block will be available in the block picker in the editor. When you add a paid block to a post, an `UpgradeNudge` component will display above the block in the editor and on the front end of the site to inform users that this is a paid block. If a paid block is nested within another paid block, only the parent block will display its upgrade nudge on the front end.
 
+
+## Registering plugins
+
+Plugins in Jetpack are registered via the `register Jetpack Plugin()` helper. Although they can be registered arbitrarily from any place, we encourage you to do it in the `./extensions/plugins/index.js` especially when the order matters.
+For instance, in the Jetpack settings sidebar, we'd like to show the Publicize plugin at the top of it. Therefore, it's registered before to other plugins that coexist in the same area.
+
 ### Upgrades for Jetpack sidebar extensions
 
 Unlike blocks, adding an extension for the Jetpack sidebar requires calling `registerJetpackPlugin` (a high level wrapper around Gutenberg's `registerPlugin`) to register the Plugin with Gutenberg.
