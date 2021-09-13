@@ -18,6 +18,22 @@ services:
       - default.env
       - .env
 
+  ### This container is used to upgrade the database version automatically
+  ### during startup. Otherwise, we need to manually run a command to do the upgrade ourselves.
+  db-upgrade:
+    image: mariadb:latest
+    volumes:
+      - ./config/mysql.conf:/etc/mysql/conf.d/docker.cnf
+      - ./bin:/var/scripts
+    links:
+      ### To be able to "ping" the `db` container from here. Otherwise, you need to use the full
+      ### name `jetpack_dev_db_1`, which can be different, depending on the environment.
+      - "db:db"
+    env_file:
+      - default.env
+      - .env
+    entrypoint: [ '/bin/bash', '/var/scripts/docker-db-autoupgrade.sh' ]
+
   ## - The container wordpress is a very basic but custom container with WordPress and all of the tools we need
   ##   for development.
   ## - The container will be named jetpack_wordpress for easy reference when running docker/docker-compose commands
