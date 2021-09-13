@@ -15,7 +15,7 @@ class WP_Test_Pinterest extends \WP_UnitTestCase {
 	/**
 	 * Test the Pin type detected for a given Pinterest URL.
 	 *
-	 * @covers Automattic\Jetpack\Extensions\Pinterest
+	 * @covers Pinterest
 	 * @dataProvider get_pinterest_urls
 	 *
 	 * @since 9.2.0
@@ -31,8 +31,6 @@ class WP_Test_Pinterest extends \WP_UnitTestCase {
 
 	/**
 	 * URL variations to be used by the Pinterest block.
-	 *
-	 * @covers Automattic\Jetpack\Extensions\Pinterest
 	 */
 	public function get_pinterest_urls() {
 		return array(

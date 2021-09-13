@@ -20,7 +20,7 @@ class WP_Test_The_Neverending_Home_Page extends WP_UnitTestCase {
 	 *
 	 * @dataProvider get_posts_per_page_in_request_data
 	 * @author fgiannar
-	 * @covers ::posts_per_page
+	 * @covers The_Neverending_Home_Page
 	 *
 	 * @param mixed $posts_per_page_query_arg The $_REQUEST['query_args']['posts_per_page'] value.
 	 * @param int   $expected The expected return value of the posts_per_page method.
