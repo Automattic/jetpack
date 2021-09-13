@@ -345,5 +345,6 @@ module.exports = {
 	getSiteCredentials,
 	getDotComCredentials,
 	getMailchimpCredentials,
+	logEnvironment,
 	getJetpackVersion,
 };
