@@ -91,7 +91,7 @@ function get_menu_fixture() {
 			'menu-custom_test_type',
 			'dashicons-admin-post',
 		),
-		59  => array(
+		58  => array(
 			'',
 			'read',
 			'separator2',

@@ -12,9 +12,8 @@ import effects from './effects';
 /**
  * Applies the custom middlewares used specifically in the Publicize extension.
  *
- * @param {Object} store Store Object.
- *
- * @return {Object} Update Store Object.
+ * @param {Object} store - Store Object.
+ * @returns {Object} Update Store Object.
  */
 export default function applyMiddlewares( store ) {
 	const middlewares = [ refx( effects ) ];

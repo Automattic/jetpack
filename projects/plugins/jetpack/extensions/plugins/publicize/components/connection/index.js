@@ -17,8 +17,8 @@ import { includes } from 'lodash';
 /**
  * Internal dependencies
  */
-import getSiteFragment from '../../shared/get-site-fragment';
-import { SocialServiceIcon } from '../../shared/icons';
+import getSiteFragment from '../../../../shared/get-site-fragment';
+import { SocialServiceIcon } from '../../../../shared/icons';
 
 class PublicizeConnection extends Component {
 	/**

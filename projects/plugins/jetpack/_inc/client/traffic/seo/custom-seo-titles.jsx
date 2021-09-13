@@ -3,7 +3,6 @@
  */
 import React, { useState, useCallback } from 'react';
 import { sprintf, __ } from '@wordpress/i18n';
-import { dateI18n } from '@wordpress/date';
 
 /**
  * Internal dependencies
@@ -29,13 +28,14 @@ export const customSeoTitleFormats = {
 		page_title: __( 'Page Title', 'jetpack' ),
 		group_title: __( 'Tag or Category Name', 'jetpack' ),
 		date: __( 'Date', 'jetpack' ),
+		archive_title: __( 'Archive Title', 'jetpack' ),
 	},
 	tokensAvailablePerPageType: {
 		front_page: [ 'site_name', 'tagline' ],
 		posts: [ 'site_name', 'tagline', 'post_title' ],
 		pages: [ 'site_name', 'tagline', 'page_title' ],
 		groups: [ 'site_name', 'tagline', 'group_title' ],
-		archives: [ 'site_name', 'tagline', 'date' ],
+		archives: [ 'site_name', 'tagline', 'date', 'archive_title' ],
 	},
 };
 
@@ -49,7 +49,7 @@ export const customSeoTitleFormats = {
  */
 export const stringToTokenizedArray = ( inputValue, pageType ) => {
 	const inputArray = inputValue.split(
-		/(\[(?:site_name|tagline|post_title|page_title|group_title|date)\])/
+		/(\[(?:site_name|tagline|post_title|page_title|group_title|date|archive_title)\])/
 	);
 
 	return inputArray
@@ -119,7 +119,11 @@ const getCustomSeoTitleInputPreview = ( pageType, value, siteData ) => {
 				value = value.replace( /\[group_title\]/g, __( 'Tag', 'jetpack' ) );
 				break;
 			case 'date':
-				value = value.replace( /\[date\]/g, dateI18n( 'F Y', Date.now() ) );
+			case 'archive_title':
+				value = value.replace(
+					/\[archive_title\]|\[date\]/g,
+					__( 'Example Archive Title/Date', 'jetpack' )
+				);
 				break;
 			default:
 				break;
@@ -165,6 +169,12 @@ const SEOTokenButton = ( {
 
 const SEOTokenButtonList = ( pageType, customSeoTitleInputRef, handleCustomSeoTitleInput ) => {
 	return customSeoTitleFormats.tokensAvailablePerPageType[ pageType.name ].map( token => {
+		if ( 'archives' === pageType.name && 'date' === token ) {
+			// [date] is tokenized, but we no longer show the button to insert a [date].
+			// [archive_title] is a more generic option that supports non date-based archives.
+			return null;
+		}
+
 		return (
 			<SEOTokenButton
 				pageType={ pageType }

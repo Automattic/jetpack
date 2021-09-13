@@ -17,10 +17,10 @@ import { withDispatch, withSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import PublicizeConnectionVerify from './connection-verify';
-import PublicizeForm from './form';
-import PublicizeSettingsButton from './settings-button';
-import PublicizeTwitterOptions from './twitter/options';
+import PublicizeConnectionVerify from '../connection-verify';
+import PublicizeForm from '../form';
+import PublicizeSettingsButton from '../settings-button';
+import PublicizeTwitterOptions from '../twitter/options';
 
 const PublicizePanel = ( { connections, refreshConnections, prePublish } ) => (
 	<Fragment>
