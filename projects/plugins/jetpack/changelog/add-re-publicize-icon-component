@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-Add new component to show publicize toggle as icon
+Add new publicize checkbox component that includes service avatar, username, and icon.
