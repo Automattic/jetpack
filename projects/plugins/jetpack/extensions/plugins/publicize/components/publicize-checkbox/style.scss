@@ -1,0 +1,20 @@
+.components-publicize-icon {
+	position: relative;
+	display: flex;
+	align-items: center;
+
+	.components-base-control__field {
+		margin-bottom: 0;
+	}
+
+	// Unchecked state.
+	&.is-not-checked .jetpack-gutenberg-social-icon {
+		fill: #dadada;
+	}
+
+	// Disabled state:
+	&.is-disabled,
+	.components-disabled & {
+		opacity: 0.3;
+	}
+}

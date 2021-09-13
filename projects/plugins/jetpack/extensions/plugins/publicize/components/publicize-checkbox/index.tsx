@@ -1,4 +1,16 @@
+/**
+ * External dependencies
+ */
 import classnames from 'classnames';
+
+/**
+ * WordPress dependencies
+ */
+import { CheckboxControl } from '@wordpress/components';
+
+/**
+ * Internal dependencies
+ */
 import { SocialServiceIcon } from '../../../../shared/icons';
 
 /**
@@ -6,22 +18,23 @@ import { SocialServiceIcon } from '../../../../shared/icons';
  */
 import './style.scss';
 
-type PublicizeIconProps = {
+type PublicizeCheckboxProps = {
 	className: string;
 	checked: boolean;
 	id: string;
 	disabled: boolean;
 	onChange: React.ChangeEventHandler;
 	serviceName: string;
+	label: string;
 };
 
 /**
- * Publicize Icon for re-publicize re-design.
+ * Publicize checkbox with icon and username label.
  * @param props
  * @returns
  */
-const PublicizeIcon: React.FC< PublicizeIconProps > = props => {
-	const { className, checked, id, disabled, onChange, serviceName } = props;
+const PublicizeCheckbox: React.FC< PublicizeCheckboxProps > = props => {
+	const { className, checked, id, disabled, onChange, serviceName, label } = props;
 
 	const wrapperClasses = classnames( 'components-publicize-icon', className, {
 		'is-not-checked': ! checked,
@@ -29,22 +42,24 @@ const PublicizeIcon: React.FC< PublicizeIconProps > = props => {
 	} );
 
 	return (
-		<span className={ wrapperClasses }>
-			<input
+		<div className={ wrapperClasses }>
+			<CheckboxControl
 				className="components-publicize-icon__input"
 				id={ id }
 				type="checkbox"
 				checked={ checked }
 				onChange={ onChange }
 				disabled={ disabled }
-				{ ...props }
 			/>
 			<SocialServiceIcon
 				serviceName={ serviceName }
 				className="jetpack-publicize-gutenberg-social-icon"
 			/>
-		</span>
+			<label htmlFor={ id } className="jetpack-publicize-connection-label">
+				<span className="jetpack-publicize-connection-label-copy">{ label }</span>
+			</label>
+		</div>
 	);
 };
 
-export default PublicizeIcon;
+export default PublicizeCheckbox;
