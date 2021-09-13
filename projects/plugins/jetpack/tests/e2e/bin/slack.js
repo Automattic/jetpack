@@ -65,7 +65,7 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
 	} catch ( error ) {
 		const errMsg = 'There was a problem parsing the test results file.';
 		console.error( errMsg );
-		await sendMessage( buildDefaultMessage( false, errMsg ), {} );
+		await sendMessage( await buildDefaultMessage( false, errMsg ), {} );
 		return;
 	}
 
@@ -117,7 +117,7 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
 	}
 
 	// build the notification blocks
-	const mainMsgBlocks = buildDefaultMessage( result.success );
+	const mainMsgBlocks = await buildDefaultMessage( result.success );
 
 	// Add a header line
 	let testListHeader = `*${ result.numTotalTests } ${ suite }* tests ran successfully`;
@@ -184,7 +184,7 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
  */
 async function reportJobRun( status ) {
 	const isSuccess = status === 'success';
-	await sendMessage( buildDefaultMessage( isSuccess ), {} );
+	await sendMessage( await buildDefaultMessage( isSuccess ), {} );
 }
 
 //endregion
