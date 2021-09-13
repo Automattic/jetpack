@@ -58,9 +58,6 @@ function stats_load() {
 
 	add_filter( 'pre_option_db_version', 'stats_ignore_db_version' );
 
-	// Stats dashboard widget.
-	add_action( 'wp_dashboard_setup', 'wp_dashboard_widget' );
-
 	// Add an icon to see stats in WordPress.com for a particular post.
 	add_action( 'admin_print_styles-edit.php', 'jetpack_stats_load_admin_css' );
 	add_filter( 'manage_posts_columns', 'jetpack_stats_post_table' );
@@ -461,17 +458,6 @@ function stats_admin_menu() {
  */
 function stats_admin_path() {
 	return Jetpack::module_configuration_url( __FILE__ );
-}
-
-/**
- * Loads Jetpack stats widget for the WordPress dashboard.
- *
- * @access public
- * @return void
- */
-function wp_dashboard_widget() {
-	require_once __DIR__ . '/stats/class-jetpack-stats-dashboard-widget.php';
-	Jetpack_Stats_Dashboard_Widget::init();
 }
 
 /**

@@ -698,7 +698,12 @@ class Jetpack {
 		// Filter the dashboard meta box order to swap the new one in in place of the old one.
 		add_filter( 'get_user_option_meta-box-order_dashboard', array( $this, 'get_user_option_meta_box_order_dashboard' ) );
 
-		// returns HTTPS support status
+		// WordPress dashboard widget.
+		require_once JETPACK__PLUGIN_DIR . 'class-jetpack-stats-dashboard-widget.php';
+		$jetpack_stats_dashboard_widget = ( new Jetpack_Stats_Dashboard_Widget() );
+		add_action( 'wp_dashboard_setup', array( $jetpack_stats_dashboard_widget, 'init' ) );
+
+		// Returns HTTPS support status.
 		add_action( 'wp_ajax_jetpack-recheck-ssl', array( $this, 'ajax_recheck_ssl' ) );
 
 		add_action( 'wp_ajax_jetpack_connection_banner', array( $this, 'jetpack_connection_banner_callback' ) );

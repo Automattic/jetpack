@@ -1,6 +1,6 @@
 <?php
 /**
- * Adds the Jetpack stats widget to the WordPress dashboard.
+ * Adds the Jetpack widget to the WordPress dashboard.
  *
  * @package jetpack
  */
