@@ -15,7 +15,7 @@ class WP_Test_Pinterest extends \WP_UnitTestCase {
 	/**
 	 * Test the Pin type detected for a given Pinterest URL.
 	 *
-	 * @covers ::pin_type
+	 * @covers Pinterest\pin_type
 	 * @dataProvider get_pinterest_urls
 	 *
 	 * @since 9.2.0
