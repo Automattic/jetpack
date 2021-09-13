@@ -5,7 +5,7 @@ const fs = require( 'fs' );
 const config = require( 'config' );
 const path = require( 'path' );
 const yargs = require( 'yargs' );
-const { fileNameFormatter } = require( '../lib/utils-helper' );
+const { fileNameFormatter, getJetpackVersion } = require( '../lib/utils-helper' );
 const slackClient = new WebClient( config.get( 'slack.token' ), {
 	retryConfig: retryPolicies.rapidRetryPolicy,
 	logLevel: LogLevel.ERROR,
@@ -65,7 +65,7 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
 	} catch ( error ) {
 		const errMsg = 'There was a problem parsing the test results file.';
 		console.error( errMsg );
-		await sendMessage( buildDefaultMessage( false, errMsg ), {} );
+		await sendMessage( await buildDefaultMessage( false, errMsg ), {} );
 		return;
 	}
 
@@ -117,7 +117,7 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
 	}
 
 	// build the notification blocks
-	const mainMsgBlocks = buildDefaultMessage( result.success );
+	const mainMsgBlocks = await buildDefaultMessage( result.success );
 
 	// Add a header line
 	let testListHeader = `*${ result.numTotalTests } ${ suite }* tests ran successfully`;
@@ -184,7 +184,7 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
  */
 async function reportJobRun( status ) {
 	const isSuccess = status === 'success';
-	await sendMessage( buildDefaultMessage( isSuccess ), {} );
+	await sendMessage( await buildDefaultMessage( isSuccess ), {} );
 }
 
 //endregion
@@ -231,7 +231,7 @@ function getGithubContext() {
 	return gh;
 }
 
-function buildDefaultMessage( isSuccess, forceHeaderText = undefined ) {
+async function buildDefaultMessage( isSuccess, forceHeaderText = undefined ) {
 	const gh = getGithubContext();
 
 	const btnStyle = isSuccess ? 'primary' : 'danger';
@@ -325,6 +325,19 @@ function buildDefaultMessage( isSuccess, forceHeaderText = undefined ) {
 			type: 'divider',
 		},
 	];
+
+	// add Jetpack version
+	const jetpackVersion = await getJetpackVersion();
+
+	if ( jetpackVersion ) {
+		blocks.splice( 1, 0, {
+			type: 'section',
+			text: {
+				type: 'mrkdwn',
+				text: `Jetpack version: ${ jetpackVersion }`,
+			},
+		} );
+	}
 
 	// mention interested parties
 	try {
