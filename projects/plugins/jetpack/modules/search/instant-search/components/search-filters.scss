@@ -43,7 +43,7 @@
 	// Extra specific to override in some themes
 	.widget_search .jetpack-instant-search__search-filter-list-input {
 		cursor: pointer;
-		top: 1px; // Ensures align-items: center; works as expected.
+		top: 1px; // Ensures align-items: baseline; works as expected.
 
 		// Remove any custom checkbox styling
 		appearance: checkbox;
