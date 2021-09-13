@@ -6,8 +6,8 @@
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
 		"@wordpress/browserslist-config": "4.1.0",
-		"@wordpress/components": "16.0.0",
-		"@wordpress/i18n": "4.2.1",
+		"@wordpress/components": "17.0.0",
+		"@wordpress/i18n": "4.2.2",
 		"classnames": "2.3.1",
 		"lodash": "4.17.21",
 		"prop-types": "^15.7.2"
