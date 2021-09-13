@@ -17,4 +17,4 @@ done
 
 echo "Server is running, trying to upgrade database..."
 
-mysql_upgrade $CREDENTIALS_PARAMS --force
+mysql_upgrade $CREDENTIALS_PARAMS
