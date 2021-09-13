@@ -48,12 +48,12 @@
 		"@storybook/builder-webpack5": "6.3.8",
 		"@storybook/manager-webpack5": "6.3.8",
 		"@storybook/react": "6.3.8",
-		"@wordpress/babel-preset-default": "6.3.1",
-		"@wordpress/block-editor": "7.0.1",
-		"@wordpress/block-library": "5.0.1",
-		"@wordpress/components": "16.0.0",
-		"@wordpress/format-library": "3.0.1",
-		"@wordpress/postcss-plugins-preset": "3.2.0",
+		"@wordpress/babel-preset-default": "6.3.2",
+		"@wordpress/block-editor": "7.0.2",
+		"@wordpress/block-library": "6.0.0",
+		"@wordpress/components": "17.0.0",
+		"@wordpress/format-library": "3.0.2",
+		"@wordpress/postcss-plugins-preset": "3.2.1",
 		"babel-plugin-inline-json-import": "0.3.2",
 		"concurrently": "6.0.2",
 		"css-loader": "5.1.1",
@@ -64,7 +64,7 @@
 		"webpack": "5.51.1"
 	},
 	"engines": {
-		"node": "^16.7.0",
+		"node": "^14.17.6 || ^16.7.0",
 		"pnpm": "^6.5.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}

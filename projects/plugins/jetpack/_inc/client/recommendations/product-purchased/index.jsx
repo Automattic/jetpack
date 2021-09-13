@@ -90,10 +90,7 @@ const ProductPurchasedComponent = props => {
 			<ul className="jp-recommendations-product-purchased__features">
 				{ suggestion &&
 					suggestion.features.map( ( feature, key ) => (
-						<li
-							className="jp-recommenconst ProductPurchasedComponent = props => {dations-product-purchased__feature"
-							key={ key }
-						>
+						<li className="jp-recommendations-product-purchased__feature" key={ key }>
 							<Gridicon icon="checkmark" />
 							{ feature }
 						</li>

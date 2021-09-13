@@ -5,7 +5,7 @@ const fs = require( 'fs' );
 const config = require( 'config' );
 const path = require( 'path' );
 const yargs = require( 'yargs' );
-const { fileNameFormatter } = require( '../lib/utils-helper' );
+const { fileNameFormatter, getJetpackVersion } = require( '../lib/utils-helper' );
 const slackClient = new WebClient( config.get( 'slack.token' ), {
 	retryConfig: retryPolicies.rapidRetryPolicy,
 	logLevel: LogLevel.ERROR,
@@ -312,6 +312,16 @@ function buildDefaultMessage( isSuccess, forceHeaderText = undefined ) {
 			text: {
 				type: 'mrkdwn',
 				text: headerText,
+			},
+		},
+		{
+			type: 'divider',
+		},
+		{
+			type: 'section',
+			text: {
+				type: 'mrkdwn',
+				text: `Jetpack version: ${ getJetpackVersion() }`,
 			},
 		},
 		{

@@ -23,10 +23,10 @@
 		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile"
 	},
 	"devDependencies": {
-		"@wordpress/base-styles": "3.6.0"
+		"@wordpress/base-styles": "4.0.0"
 	},
 	"engines": {
-		"node": "^16.7.0",
+		"node": "^14.17.6 || ^16.7.0",
 		"pnpm": "^6.5.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
