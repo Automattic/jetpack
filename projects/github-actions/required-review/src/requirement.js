@@ -126,13 +126,41 @@ class Requirement {
 			this.pathsFilter = null;
 		} else if (
 			Array.isArray( config.paths ) &&
+			config.paths.length > 0 &&
 			config.paths.every( v => typeof v === 'string' )
 		) {
-			this.pathsFilter = picomatch( config.paths, { dot: true } );
-		} else {
-			throw new RequirementError( 'Paths must be an array of strings, or the string "unmatched".', {
-				config: config,
+			// picomatch doesn't combine multiple negated patterns in a way that makes sense here: `!a` and `!b` will pass both `a` and `b`
+			// because `a` matches `!b` and `b` matches `!a`. So instead we have to handle the negation ourself: test the (non-negated) patterns in order,
+			// with the last match winning. If none match, the opposite of the first pattern's negation is what we need.
+			const filters = config.paths.map( path => {
+				if ( path.startsWith( '!' ) ) {
+					return {
+						negated: true,
+						filter: picomatch( path.substring( 1 ), { dot: true, nonegate: true } ),
+					};
+				}
+				return {
+					negated: false,
+					filter: picomatch( path, { dot: true } ),
+				};
 			} );
+			const first = filters.shift();
+			this.pathsFilter = v => {
+				let ret = first.filter( v ) ? ! first.negated : first.negated;
+				for ( const filter of filters ) {
+					if ( filter.filter( v ) ) {
+						ret = ! filter.negated;
+					}
+				}
+				return ret;
+			};
+		} else {
+			throw new RequirementError(
+				'Paths must be a non-empty array of strings, or the string "unmatched".',
+				{
+					config: config,
+				}
+			);
 		}
 
 		this.reviewerFilter = buildReviewerFilter( config, { 'any-of': config.teams }, '  ' );

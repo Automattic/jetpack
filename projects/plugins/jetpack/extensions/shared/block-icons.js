@@ -1,12 +1,13 @@
 /**
  * Internal dependencies
  */
-import { colors as PALETTE } from '@automattic/color-studio';
+import colorStudio from '@automattic/color-studio';
 import { isAtomicSite, isSimpleSite } from './site-type-utils';
 
 /**
  * Constants
  */
+const PALETTE = colorStudio.colors;
 const COLOR_JETPACK = PALETTE[ 'Jetpack Green 40' ];
 
 /**

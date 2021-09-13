@@ -36,6 +36,8 @@ const baseWebpackConfig = getBaseWebpackConfig(
 		'output-chunk-filename': 'jp-search.chunk-[name]-[hash].min.js',
 		'output-filename': 'jp-search-[name].bundle.js',
 		'output-path': path.join( __dirname, '../_inc/build/instant-search' ),
+		// Calypso-build defaults this to "window", which breaks things if no library.name is set.
+		'output-library-target': '',
 	}
 );
 
@@ -67,6 +69,7 @@ module.exports = {
 			react: 'preact/compat',
 			'react-dom/test-utils': 'preact/test-utils',
 			'react-dom': 'preact/compat', // Must be aliased after test-utils
+			fs: false,
 		},
 		modules: [
 			path.resolve( __dirname, '../_inc/client' ),
@@ -74,10 +77,7 @@ module.exports = {
 			'node_modules',
 		],
 		// We want the compiled version, not the "calypso:src" sources.
-		mainFields: undefined,
-	},
-	node: {
-		fs: 'empty',
+		mainFields: baseWebpackConfig.resolve.mainFields.filter( entry => 'calypso:src' !== entry ),
 	},
 	devtool: isDevelopment ? 'source-map' : false,
 	plugins: [

@@ -4,11 +4,18 @@ const path = require( 'path' );
 const fs = require( 'fs' );
 const os = require( 'os' );
 const config = require( 'config' );
+const { logEnvironment } = require( '../utils-helper' );
 const pwBrowserOptions = require( '../../playwright.config' ).pwBrowserOptions;
 
 const TMP_DIR = path.join( os.tmpdir(), 'jest_playwright_global_setup' );
 
 module.exports = async function () {
+	// Fail early if the required test site config is not defined
+	// Let config lib throw by using get function on an undefined property
+	if ( process.env.TEST_SITE ) {
+		config.get( 'testSites' ).get( process.env.TEST_SITE );
+	}
+
 	// Create the temp config dir used to store all kinds of temp config stuff
 	// This is needed because writeFileSync doesn't create parent dirs and will fail
 	fs.mkdirSync( config.get( 'dirs.temp' ), { recursive: true } );
@@ -22,4 +29,6 @@ module.exports = async function () {
 	global.browser = await chromium.launchServer( pwBrowserOptions );
 	mkdirp.sync( TMP_DIR );
 	fs.writeFileSync( path.join( TMP_DIR, 'wsEndpoint' ), global.browser.wsEndpoint() );
+
+	await logEnvironment();
 };

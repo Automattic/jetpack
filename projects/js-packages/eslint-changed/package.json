@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/eslint-changed",
-	"version": "1.0.1",
+	"version": "1.0.2-alpha",
 	"description": "Run eslint on files, but only report warnings and errors from lines that were changed.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/eslint-changed/README.md#readme",
 	"bugs": {
@@ -33,7 +33,7 @@
 		"eslint": ">=1.1.0"
 	},
 	"engines": {
-		"node": "^14.16.1",
+		"node": "^14.17.6 || ^16.7.0",
 		"pnpm": "^6.5.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}

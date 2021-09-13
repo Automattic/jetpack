@@ -1171,18 +1171,20 @@ class Replicastore implements Replicastore_Interface {
 	 *
 	 * @access public
 	 *
+	 * @param boolean $perform_text_conversion If text fields should be UTF8 converted.
+	 *
 	 * @return array Checksums.
 	 */
-	public function checksum_all() {
-		$post_checksum               = $this->checksum_histogram( 'posts' );
-		$comments_checksum           = $this->checksum_histogram( 'comments' );
-		$post_meta_checksum          = $this->checksum_histogram( 'postmeta' );
-		$comment_meta_checksum       = $this->checksum_histogram( 'commentmeta' );
-		$terms_checksum              = $this->checksum_histogram( 'terms' );
-		$term_relationships_checksum = $this->checksum_histogram( 'term_relationships' );
-		$term_taxonomy_checksum      = $this->checksum_histogram( 'term_taxonomy' );
+	public function checksum_all( $perform_text_conversion = false ) {
+		$post_checksum               = $this->checksum_histogram( 'posts', null, null, null, null, true, '', false, false, $perform_text_conversion );
+		$comments_checksum           = $this->checksum_histogram( 'comments', null, null, null, null, true, '', false, false, $perform_text_conversion );
+		$post_meta_checksum          = $this->checksum_histogram( 'postmeta', null, null, null, null, true, '', false, false, $perform_text_conversion );
+		$comment_meta_checksum       = $this->checksum_histogram( 'commentmeta', null, null, null, null, true, '', false, false, $perform_text_conversion );
+		$terms_checksum              = $this->checksum_histogram( 'terms', null, null, null, null, true, '', false, false, $perform_text_conversion );
+		$term_relationships_checksum = $this->checksum_histogram( 'term_relationships', null, null, null, null, true, '', false, false, $perform_text_conversion );
+		$term_taxonomy_checksum      = $this->checksum_histogram( 'term_taxonomy', null, null, null, null, true, '', false, false, $perform_text_conversion );
 
-		return array(
+		$result = array(
 			'posts'              => $this->summarize_checksum_histogram( $post_checksum ),
 			'comments'           => $this->summarize_checksum_histogram( $comments_checksum ),
 			'post_meta'          => $this->summarize_checksum_histogram( $post_meta_checksum ),
@@ -1191,6 +1193,46 @@ class Replicastore implements Replicastore_Interface {
 			'term_relationships' => $this->summarize_checksum_histogram( $term_relationships_checksum ),
 			'term_taxonomy'      => $this->summarize_checksum_histogram( $term_taxonomy_checksum ),
 		);
+
+		/**
+		 * WooCommerce tables
+		 */
+
+		/**
+		 * On WordPress.com, we can't directly check if the site has support for WooCommerce.
+		 * Having the option to override the functionality here helps with syncing WooCommerce tables.
+		 *
+		 * @since 10.1
+		 *
+		 * @param bool If we should we force-enable WooCommerce tables support.
+		 */
+		$force_woocommerce_support = apply_filters( 'jetpack_table_checksum_force_enable_woocommerce', false );
+
+		if ( $force_woocommerce_support || class_exists( 'WooCommerce' ) ) {
+			/**
+			 * Guard in Try/Catch as it's possible for the WooCommerce class to exist, but
+			 * the tables to not. If we don't do this, the response will be just the exception, without
+			 * returning any valid data. This will prevent us from ever performing a checksum/fix
+			 * for sites like this.
+			 * It's better to just skip the tables in the response, instead of completely failing.
+			 */
+
+			try {
+				$woocommerce_order_items_checksum  = $this->checksum_histogram( 'woocommerce_order_items' );
+				$result['woocommerce_order_items'] = $this->summarize_checksum_histogram( $woocommerce_order_items_checksum );
+			} catch ( Exception $ex ) {
+				$result['woocommerce_order_items'] = null;
+			}
+
+			try {
+				$woocommerce_order_itemmeta_checksum  = $this->checksum_histogram( 'woocommerce_order_itemmeta' );
+				$result['woocommerce_order_itemmeta'] = $this->summarize_checksum_histogram( $woocommerce_order_itemmeta_checksum );
+			} catch ( Exception $ex ) {
+				$result['woocommerce_order_itemmeta'] = null;
+			}
+		}
+
+		return $result;
 	}
 
 	/**
@@ -1248,25 +1290,26 @@ class Replicastore implements Replicastore_Interface {
 	 *
 	 * @access public
 	 *
-	 * @param string $table              Object type.
-	 * @param null   $buckets            Number of buckets to split the objects to.
-	 * @param null   $start_id           Minimum object ID.
-	 * @param null   $end_id             Maximum object ID.
-	 * @param null   $columns            Table columns to calculate the checksum from.
-	 * @param bool   $strip_non_ascii    Whether to strip non-ASCII characters.
-	 * @param string $salt               Salt, used for $wpdb->prepare()'s args.
-	 * @param bool   $only_range_edges   Only return the range edges and not the actual checksums.
-	 * @param bool   $detailed_drilldown If the call should return a detailed drilldown for the checksum or only the checksum.
+	 * @param string $table                   Object type.
+	 * @param null   $buckets                 Number of buckets to split the objects to.
+	 * @param null   $start_id                Minimum object ID.
+	 * @param null   $end_id                  Maximum object ID.
+	 * @param null   $columns                 Table columns to calculate the checksum from.
+	 * @param bool   $strip_non_ascii         Whether to strip non-ASCII characters.
+	 * @param string $salt                    Salt, used for $wpdb->prepare()'s args.
+	 * @param bool   $only_range_edges        Only return the range edges and not the actual checksums.
+	 * @param bool   $detailed_drilldown      If the call should return a detailed drilldown for the checksum or only the checksum.
+	 * @param bool   $perform_text_conversion If text fields should be converted to UTF8 during the checksum calculation.
 	 *
 	 * @return array|WP_Error The checksum histogram.
 	 * @throws Exception Throws an exception if data validation fails inside `Table_Checksum` calls.
 	 */
-	public function checksum_histogram( $table, $buckets = null, $start_id = null, $end_id = null, $columns = null, $strip_non_ascii = true, $salt = '', $only_range_edges = false, $detailed_drilldown = false ) {
+	public function checksum_histogram( $table, $buckets = null, $start_id = null, $end_id = null, $columns = null, $strip_non_ascii = true, $salt = '', $only_range_edges = false, $detailed_drilldown = false, $perform_text_conversion = false ) {
 		global $wpdb;
 
 		$wpdb->queries = array();
 		try {
-			$checksum_table = new Table_Checksum( $table, $salt );
+			$checksum_table = new Table_Checksum( $table, $salt, $perform_text_conversion );
 		} catch ( Exception $ex ) {
 			return new WP_Error( 'checksum_disabled', $ex->getMessage() );
 		}
@@ -1318,7 +1361,7 @@ class Replicastore implements Replicastore_Interface {
 
 			$previous_max_id = $ids_range['max_range'] + 1;
 			// If we've reached the max_range lets bail out.
-			if ( $previous_max_id >= $range_edges['max_range'] ) {
+			if ( $previous_max_id > $range_edges['max_range'] ) {
 				break;
 			}
 		} while ( true );
@@ -1378,6 +1421,7 @@ class Replicastore implements Replicastore_Interface {
 		switch ( $table ) {
 			case 'postmeta':
 			case 'commentmeta':
+			case 'order_itemmeta':
 				$bucket_size = 1000; // Meta bucket size is restricted to 1000 items.
 		}
 

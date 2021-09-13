@@ -5,7 +5,12 @@ const path = require( 'path' );
 const chalk = require( 'chalk' );
 const logger = require( '../logger' );
 const pwContextOptions = require( '../../playwright.config' ).pwContextOptions;
-const { fileNameFormatter } = require( '../utils-helper' );
+const {
+	fileNameFormatter,
+	resolveSiteUrl,
+	isLocalSite,
+	getJetpackVersion,
+} = require( '../utils-helper' );
 const { takeScreenshot } = require( '../reporters/screenshot' );
 const config = require( 'config' );
 const { ContentType } = require( 'jest-circus-allure-environment' );
@@ -31,9 +36,8 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 		// Create a new browser context
 		await this.newContext();
 
-		this.global.siteUrl = fs
-			.readFileSync( config.get( 'temp.tunnels' ), 'utf8' )
-			.replace( 'http:', 'https:' );
+		this.global.siteUrl = resolveSiteUrl();
+		this.global.isLocalSite = isLocalSite();
 	}
 
 	async teardown() {
@@ -97,9 +101,11 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 				logger.info( `START TEST: ${ eventName }` );
 				break;
 			case 'test_fn_success':
+				this.global.allure.tag( `Jetpack version: ${ getJetpackVersion() }` );
 				logger.info( chalk.green( `TEST PASSED: ${ eventName }` ) );
 				break;
 			case 'test_fn_failure':
+				this.global.allure.tag( `Jetpack version: ${ getJetpackVersion() }` );
 				logger.info( chalk.red( `FAILED TEST: ${ eventName }` ) );
 				await this.onFailure( eventName, event.test.parent.name, event.test.name, event.error );
 				break;
@@ -158,11 +164,11 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 		} );
 
 		page.on( 'pageerror', exception => {
-			logger.error( `Page error: "${ exception }"` );
+			logger.debug( `Page error: "${ exception }"` );
 		} );
 
 		page.on( 'requestfailed', request => {
-			logger.error( `Request failed: ${ request.url() }  ${ request.failure().errorText }` );
+			logger.debug( `Request failed: ${ request.url() }  ${ request.failure().errorText }` );
 		} );
 	}
 

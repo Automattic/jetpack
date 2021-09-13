@@ -56,12 +56,9 @@
 			event
 		) {
 			event.preventDefault();
-
-			var button = $( this ).parents( '.form' ).find( '.widget-control-save' );
-
-			$( this ).parents( '.jetpack-social-icons-widget-item' ).remove();
-
-			livePreviewUpdate( button );
+			var widgetItem = $( this ).parents( '.jetpack-social-icons-widget-item' );
+			widgetItem.find( 'input' ).change();
+			widgetItem.remove();
 		} );
 
 		// Event handler for widget open button.

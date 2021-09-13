@@ -5,7 +5,8 @@
  * Here we ensure that they are loaded before we declare our implementations.
  *
  * @package automattic/jetpack-connection
- * @since 7.7
+ * @since 1.7.0
+ * @since-jetpack 7.7.0
  */
 
 if ( defined( 'ABSPATH' ) && defined( 'WPINC' ) ) {

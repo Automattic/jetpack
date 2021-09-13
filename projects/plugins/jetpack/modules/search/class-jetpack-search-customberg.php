@@ -61,10 +61,17 @@ class Jetpack_Search_Customberg {
 			__( 'Search Settings', 'jetpack' ),
 			__( 'Search', 'jetpack' ),
 			'manage_options', // Must be an admin.
-			'jetpack-search-customize',
+			'jetpack-search-configure',
 			array( $this, 'jetpack_search_admin_page' )
 		);
-		add_action( "admin_print_scripts-$hook", array( $this, 'load_assets' ) );
+
+		// Only load assets if Customberg is supported.
+		if ( $this->wp_supports_customberg() ) {
+			add_action( "admin_print_scripts-$hook", array( $this, 'load_assets' ) );
+			add_action( 'admin_footer', array( 'Jetpack_Search_Helpers', 'print_instant_search_sidebar' ) );
+		} else {
+			add_action( "admin_print_scripts-$hook", array( $this, 'add_redirect_if_necessary' ) );
+		}
 	}
 
 	/**
@@ -74,11 +81,31 @@ class Jetpack_Search_Customberg {
 		// TODO: Spin this function off into a static helper function in a helper class for code reuse.
 		$static_url = apply_filters( 'jetpack_static_url', '//en.wordpress.com/i/loading/loading-64.gif' );
 		?>
-			<div id="jp-search-customization" class="jp-search-customization-dashboard">
-				<div class="hide-if-no-js"><img class="jp-search-loader" width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php echo esc_url( $static_url ); ?>" /></div>
-				<div class="hide-if-js"><?php esc_html_e( 'Your Search customization page requires JavaScript to function properly.', 'jetpack' ); ?><div />
+			<div id="jp-search-configure" class="jp-search-configure-dashboard" style="height: calc(100vh - 100px);">
+				<div class="hide-if-no-js" style="height: 100%;">
+					<img class="jp-search-loader" width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php echo esc_url( $static_url ); ?>" style="
+						position: absolute;
+						left: 50%;
+						top: 50%;
+					"/>
+				</div>
+				<div class="hide-if-js"><?php esc_html_e( 'Your Search customization page requires JavaScript to function properly.', 'jetpack' ); ?></div>
 			</div>
 		<?php
+	}
+
+	/**
+	 * Redirects to the Customizer if Customberg is not supported by the current host.
+	 */
+	public function add_redirect_if_necessary() {
+		// Add a JS redirect if Customberg is not supported.
+		if ( ! $this->wp_supports_customberg() ) {
+			?>
+				<script>
+					window.location.href="<?php echo esc_url( admin_url( 'customize.php?autofocus[section]=jetpack_search' ) ); ?>";
+				</script>
+			<?php
+		}
 	}
 
 	/**
@@ -95,15 +122,15 @@ class Jetpack_Search_Customberg {
 	 * @param string $plugin_base_path - Base path for plugin files.
 	 */
 	public function load_assets_with_parameters( $path_prefix, $plugin_base_path ) {
-		$style_relative_path    = $path_prefix . '_inc/build/instant-search/jp-search-configure-main.bundle.css';
-		$manifest_relative_path = $path_prefix . '_inc/build/instant-search/jp-search-configure-main.bundle.asset.php';
-		$script_relative_path   = $path_prefix . '_inc/build/instant-search/jp-search-configure-main.bundle.js';
+		$style_relative_path    = $path_prefix . '_inc/build/instant-search/jp-search-configure-main.min.css';
+		$manifest_relative_path = $path_prefix . '_inc/build/instant-search/jp-search-configure-main.min.asset.php';
+		$script_relative_path   = $path_prefix . '_inc/build/instant-search/jp-search-configure-main.min.js';
 
 		//
 		// Load styles.
 		\Jetpack_Admin_Page::load_wrapper_styles();
 		wp_enqueue_style(
-			'jp-search-customize',
+			'jp-search-configure',
 			plugins_url( $style_relative_path, $plugin_base_path ),
 			array(
 				'wp-components',
@@ -124,20 +151,31 @@ class Jetpack_Search_Customberg {
 		Tracking::register_tracks_functions_scripts( true );
 
 		wp_enqueue_script(
-			'jp-search-customization',
+			'jp-search-configure',
 			plugins_url( $script_relative_path, $plugin_base_path ),
 			$script_dependencies,
 			JETPACK__VERSION,
 			true
 		);
-		wp_set_script_translations( 'jp-search-customization', 'jetpack' );
+		wp_set_script_translations( 'jp-search-configure', 'jetpack' );
 
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
-		wp_add_inline_script( 'jp-search-customization', 'var JetpackInstantSearchOptions=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Jetpack_Search_Helpers::generate_initial_javascript_state() ) ) . '"));', 'before' );
+		wp_add_inline_script( 'jp-search-configure', 'var JetpackInstantSearchOptions=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Jetpack_Search_Helpers::generate_initial_javascript_state() ) ) . '"));', 'before' );
 		wp_add_inline_script(
-			'jp-search-customization',
-			"window.jetpackSearchCustomizeInit( 'jp-search-customization' )"
+			'jp-search-configure',
+			"window.jetpackSearchConfigureInit( 'jp-search-configure' )"
 		);
+	}
+
+	/**
+	 * Determine if the current version of WordPress supports Customberg.
+	 *
+	 * @return boolean
+	 */
+	protected function wp_supports_customberg() {
+		// Must be WP 5.8 or greater.
+		global $wp_version;
+		return version_compare( $wp_version, '5.8', '>=' );
 	}
 
 	/**

@@ -64,7 +64,7 @@ class Jetpack_SEO_Titles {
 			'posts'      => array( 'site_name', 'tagline', 'post_title' ),
 			'pages'      => array( 'site_name', 'tagline', 'page_title' ),
 			'groups'     => array( 'site_name', 'tagline', 'group_title' ),
-			'archives'   => array( 'site_name', 'tagline', 'date' ),
+			'archives'   => array( 'site_name', 'tagline', 'date', 'archive_title' ),
 		);
 	}
 
@@ -137,7 +137,8 @@ class Jetpack_SEO_Titles {
 				return single_tag_title( '', false );
 
 			case 'date':
-				return self::get_date_for_title();
+			case 'archive_title':
+				return self::get_archive_title();
 
 			default:
 				return '';
@@ -176,12 +177,15 @@ class Jetpack_SEO_Titles {
 	}
 
 	/**
-	 * Returns the value that should be used as a replacement for the date token,
-	 * depending on the archive path specified.
+	 * Returns the value that should be used as a replacement for the `date` or `archive_title` tokens.
+	 * For date-based archives, a date is returned. Otherwise the `post_type_archive_title` is returned.
 	 *
-	 * @return string Token replacement for a given date, or empty string if no date is specified.
+	 * The `archive_title` token was added after the `date` token to provide a more generic option
+	 * that would work for non date-based archives.
+	 *
+	 * @return string Token replaced string.
 	 */
-	public static function get_date_for_title() {
+	public static function get_archive_title() {
 		// If archive year, month, and day are specified.
 		if ( is_day() ) {
 			return get_the_date();
@@ -197,7 +201,9 @@ class Jetpack_SEO_Titles {
 			return get_query_var( 'year' );
 		}
 
-		return '';
+		// Not a date based archive.
+		// An example would be "Projects" for Jetpack's Portoflio CPT.
+		return post_type_archive_title( '', false );
 	}
 
 	/**

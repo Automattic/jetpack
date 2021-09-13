@@ -891,4 +891,17 @@ class Jetpack_Search_Helpers {
 		 */
 		return apply_filters( 'jetpack_instant_search_options', $options );
 	}
+
+	/**
+	 * Prints the Instant Search sidebar.
+	 */
+	public static function print_instant_search_sidebar() {
+		?>
+		<div class="jetpack-instant-search__widget-area" style="display: none">
+			<?php if ( is_active_sidebar( 'jetpack-instant-search-sidebar' ) ) { ?>
+				<?php dynamic_sidebar( 'jetpack-instant-search-sidebar' ); ?>
+			<?php } ?>
+		</div>
+		<?php
+	}
 }
