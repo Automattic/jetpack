@@ -10,11 +10,16 @@ import { name as publicizePluginName, settings as publicizePluginSettings } from
 import { name as sharingPluginName, settings as sharingPluginSettings } from './sharing';
 
 /*
- * Register plugins.
+ * Jetpack plugins list.
  * Order matters. The plugins will be registered in the order they are listed here,
- * impacting the order in which they are rendered in the UI.
+ * probably impacting the order in which they are rendered in the UI.
  *
  * https://github.com/Automattic/jetpack/issues/21036
  */
-registerJetpackPlugin( publicizePluginName, publicizePluginSettings );
-registerJetpackPlugin( sharingPluginName, sharingPluginSettings );
+const jetpackPlugins = [
+	[ publicizePluginName, publicizePluginSettings ],
+	[ sharingPluginName, sharingPluginSettings ],
+];
+
+// Register plugins.
+jetpackPlugins.forEach( ( [ name, settings ] ) => registerJetpackPlugin( name, settings ) );
