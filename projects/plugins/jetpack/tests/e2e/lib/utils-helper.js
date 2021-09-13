@@ -306,6 +306,8 @@ async function logEnvironment() {
 }
 
 async function getJetpackVersion() {
+	let version;
+
 	try {
 		const envFilePath = join( `${ config.get( 'dirs.output' ) }`, 'environment.json' );
 
@@ -320,11 +322,12 @@ async function getJetpackVersion() {
 			return p.plugin === 'jetpack-dev/jetpack' && p.status === 'active';
 		} );
 
-		return jetpack[ 0 ].version;
+		version = jetpack[ 0 ].version;
 	} catch ( error ) {
 		console.log( `ERROR: Failed to get Jetpack version. ${ error }` );
-		return 'unknown';
 	}
+
+	return version;
 }
 
 module.exports = {

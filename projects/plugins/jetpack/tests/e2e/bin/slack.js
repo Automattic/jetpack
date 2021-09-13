@@ -318,16 +318,6 @@ async function buildDefaultMessage( isSuccess, forceHeaderText = undefined ) {
 			type: 'divider',
 		},
 		{
-			type: 'section',
-			text: {
-				type: 'mrkdwn',
-				text: `Jetpack version: ${ await getJetpackVersion() }`,
-			},
-		},
-		{
-			type: 'divider',
-		},
-		{
 			type: 'actions',
 			elements: buttons,
 		},
@@ -335,6 +325,19 @@ async function buildDefaultMessage( isSuccess, forceHeaderText = undefined ) {
 			type: 'divider',
 		},
 	];
+
+	// add Jetpack version
+	const jetpackVersion = await getJetpackVersion();
+
+	if ( jetpackVersion ) {
+		blocks.splice( 1, 0, {
+			type: 'section',
+			text: {
+				type: 'mrkdwn',
+				text: `Jetpack version: ${ jetpackVersion }`,
+			},
+		} );
+	}
 
 	// mention interested parties
 	try {
