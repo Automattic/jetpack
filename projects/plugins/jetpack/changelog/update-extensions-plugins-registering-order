@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Register block-editor plugins from a single file.
