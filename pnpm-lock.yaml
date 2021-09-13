@@ -530,7 +530,6 @@ importers:
       '@wordpress/hooks': 3.2.0
       '@wordpress/i18n': 4.2.2
       '@wordpress/icons': 5.0.2
-      '@wordpress/interface': 4.1.0
       '@wordpress/server-side-render': 3.0.2
       '@wordpress/url': 3.2.2
       '@wordpress/viewport': 4.0.2
@@ -654,7 +653,6 @@ importers:
       '@wordpress/hooks': 3.2.0
       '@wordpress/i18n': 4.2.2
       '@wordpress/icons': 5.0.2
-      '@wordpress/interface': 4.1.0_2ccf75bd525644be36fe60c4756fa1e9
       '@wordpress/url': 3.2.2
       '@wordpress/viewport': 4.0.2_react@17.0.2+redux@4.0.5
       abortcontroller-polyfill: 1.7.1
@@ -992,7 +990,7 @@ packages:
       terser-webpack-plugin: 5.1.4_webpack@5.51.1
       thread-loader: 3.0.4_webpack@5.51.1
       typescript: 4.3.5
-      webpack: 5.51.1
+      webpack: 5.51.1_webpack-cli@4.8.0
       webpack-cli: 4.8.0_webpack@5.51.1
     transitivePeerDependencies:
       - '@webpack-cli/generators'
@@ -1215,7 +1213,7 @@ packages:
       '@romainberger/css-diff': 1.0.3
       async: 2.6.3
       rtlcss: 3.3.0
-      webpack: 5.51.1
+      webpack: 5.51.1_webpack-cli@4.8.0
 
   /@babel/cli/7.14.8_@babel+core@7.15.0:
     resolution: {integrity: sha512-lcy6Lymft9Rpfqmrqdd4oTDdUx9ZwaAhAfywVrHG4771Pa6PPT0danJ1kDHBXYqh4HHSmIdA+nlmfxfxSDPtBg==}
@@ -6485,7 +6483,7 @@ packages:
       webpack: ^4.8.3 || ^5.0.0
     dependencies:
       json2php: 0.0.4
-      webpack: 5.51.1
+      webpack: 5.51.1_webpack-cli@4.8.0
       webpack-sources: 2.2.0
 
   /@wordpress/deprecated/2.12.3:
@@ -6752,32 +6750,6 @@ packages:
       '@wordpress/element': 4.0.1
       '@wordpress/primitives': 3.0.1
 
-  /@wordpress/interface/4.1.0_2ccf75bd525644be36fe60c4756fa1e9:
-    resolution: {integrity: sha512-ln0s/6suqwVFwY7Ejf1w/qh2ry1P4QUTkLlTgeAHGWXgCYAoe82yD1cWiqcsqEWNiboXUStRWUv/59p6Pllyhw==}
-    engines: {node: '>=12'}
-    dependencies:
-      '@babel/runtime': 7.15.3
-      '@wordpress/a11y': 3.2.2
-      '@wordpress/components': 17.0.0_2ccf75bd525644be36fe60c4756fa1e9
-      '@wordpress/compose': 5.0.2_react@17.0.2
-      '@wordpress/data': 6.1.0_react@17.0.2+redux@4.0.5
-      '@wordpress/deprecated': 3.2.1
-      '@wordpress/element': 4.0.1
-      '@wordpress/i18n': 4.2.2
-      '@wordpress/icons': 5.0.2
-      '@wordpress/plugins': 4.0.2_react@17.0.2
-      '@wordpress/viewport': 4.0.2_react@17.0.2+redux@4.0.5
-      classnames: 2.3.1
-      lodash: 4.17.21
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@types/react'
-      - react
-      - react-dom
-      - reakit-utils
-      - redux
-    dev: false
-
   /@wordpress/is-shallow-equal/1.8.0:
     resolution: {integrity: sha512-OV3qJqP9LhjuOzt85TsyBwv+//CvC8Byf/81D3NmjPKlstLaD/bBCC5nBhH6dKAv4bShYtQ2Hmut+V4dZnOM1A==}
     dependencies:
@@ -6881,21 +6853,6 @@ packages:
     transitivePeerDependencies:
       - react
       - redux
-
-  /@wordpress/plugins/4.0.2_react@17.0.2:
-    resolution: {integrity: sha512-MivmOfBzR89wPuVKME4x2Sta3nQEVL/GPNBGt9a2ck/hye8n54dxR8+m621nsxlBPDwOJYRKU8lBARqSD6i6zQ==}
-    engines: {node: '>=12'}
-    dependencies:
-      '@babel/runtime': 7.15.3
-      '@wordpress/compose': 5.0.2_react@17.0.2
-      '@wordpress/element': 4.0.1
-      '@wordpress/hooks': 3.2.0
-      '@wordpress/icons': 5.0.2
-      lodash: 4.17.21
-      memize: 1.1.0
-    transitivePeerDependencies:
-      - react
-    dev: false
 
   /@wordpress/postcss-plugins-preset/3.2.1:
     resolution: {integrity: sha512-pgwLb3agk/Xked5ljfpYiWlPOIV2ABa8x1yFRxasxvYAareaZemRl8gzDMeTFgYQoiEPF+9MYWXaZ1qQEDlAQA==}
@@ -8098,7 +8055,7 @@ packages:
       loader-utils: 1.4.0
       make-dir: 3.1.0
       schema-utils: 2.7.1
-      webpack: 5.51.1
+      webpack: 5.51.1_webpack-cli@4.8.0
 
   /babel-messages/6.23.0:
     resolution: {integrity: sha1-8830cDhYA1sqKVHG7F7fbGLyYw4=}
@@ -8863,7 +8820,7 @@ packages:
       mkdirp: 0.5.5
       neo-async: 2.6.2
       schema-utils: 2.7.1
-      webpack: 5.51.1
+      webpack: 5.51.1_webpack-cli@4.8.0
 
   /caching-transform/4.0.0:
     resolution: {integrity: sha512-kpqOvwXnjjN44D89K5ccQC+RUrsy7jB/XLlRrx0D7/2HNcTPqzsb6XgYoErwko6QsV184CA2YgS1fxDiiDZMWA==}
@@ -9870,7 +9827,7 @@ packages:
       postcss-value-parser: 4.1.0
       schema-utils: 3.0.0
       semver: 7.3.5
-      webpack: 5.51.1
+      webpack: 5.51.1_webpack-cli@4.8.0
     dev: true
 
   /css-loader/5.2.7_webpack@5.51.1:
@@ -9889,7 +9846,7 @@ packages:
       postcss-value-parser: 4.1.0
       schema-utils: 3.1.1
       semver: 7.3.5
-      webpack: 5.51.1
+      webpack: 5.51.1_webpack-cli@4.8.0
 
   /css-mediaquery/0.1.2:
     resolution: {integrity: sha1-aiw3NEkoYYYxxUvTPO3TAdoYvqA=}
@@ -9908,7 +9865,7 @@ packages:
       schema-utils: 3.1.1
       serialize-javascript: 5.0.1
       source-map: 0.6.1
-      webpack: 5.51.1
+      webpack: 5.51.1_webpack-cli@4.8.0
       webpack-sources: 1.4.3
 
   /css-select-base-adapter/0.1.1:
@@ -16007,7 +15964,7 @@ packages:
     dependencies:
       loader-utils: 2.0.0
       schema-utils: 3.1.1
-      webpack: 5.51.1
+      webpack: 5.51.1_webpack-cli@4.8.0
       webpack-sources: 1.4.3
 
   /minimalistic-assert/1.0.1:
@@ -17312,7 +17269,7 @@ packages:
       cosmiconfig: 7.0.0
       klona: 2.0.4
       semver: 7.3.5
-      webpack: 5.51.1
+      webpack: 5.51.1_webpack-cli@4.8.0
 
   /postcss-merge-longhand/4.0.11:
     resolution: {integrity: sha512-alx/zmoeXvJjp7L4mxEMjh8lxVlDFX1gqWHzaaQewwMZiVhLo42TEClKaeHbRf6J7j82ZOdTJ808RtN0ZOZwvw==}
@@ -18684,7 +18641,7 @@ packages:
     dependencies:
       array.prototype.flat: 1.2.4
       global-cache: 1.2.1
-      react-with-styles: 3.2.3
+      react-with-styles: 3.2.3_react-dom@17.0.2+react@17.0.2
 
   /react-with-styles/3.2.3:
     resolution: {integrity: sha512-MTI1UOvMHABRLj5M4WpODfwnveHaip6X7QUMI2x6zovinJiBXxzhA9AJP7MZNaKqg1JRFtHPXZdroUC8KcXwlQ==}
@@ -19793,7 +19750,7 @@ packages:
       klona: 2.0.4
       neo-async: 2.6.2
       sass: 1.38.1
-      webpack: 5.51.1
+      webpack: 5.51.1_webpack-cli@4.8.0
 
   /sass-loader/12.1.0_sass@1.39.0:
     resolution: {integrity: sha512-FVJZ9kxVRYNZTIe2xhw93n3xJNYZADr+q69/s98l9nTCrWASo+DR2Ot0s5xTKQDDEosUkatsGeHxcH4QBp5bSg==}
@@ -20634,7 +20591,7 @@ packages:
     dependencies:
       loader-utils: 2.0.0
       schema-utils: 3.0.0
-      webpack: 5.51.1
+      webpack: 5.51.1_webpack-cli@4.8.0
     dev: true
 
   /style-to-object/0.3.0:
@@ -21020,7 +20977,7 @@ packages:
       serialize-javascript: 6.0.0
       source-map: 0.6.1
       terser: 5.7.0
-      webpack: 5.51.1
+      webpack: 5.51.1_webpack-cli@4.8.0
 
   /terser/3.17.0:
     resolution: {integrity: sha512-/FQzzPJmCpjAH9Xvk2paiWrFq+5M6aVOf+2KRbwhByISDX/EujxsK+BAvrhb6H+2rtrLCHK9N01wO014vrIwVQ==}
@@ -21074,7 +21031,7 @@ packages:
       loader-utils: 2.0.0
       neo-async: 2.6.2
       schema-utils: 3.1.1
-      webpack: 5.51.1
+      webpack: 5.51.1_webpack-cli@4.8.0
 
   /throat/6.0.1:
     resolution: {integrity: sha512-8hmiGIJMDlwjg7dlJ4yKGLK8EsYqKgPWbG3b4wjJddKNwc7N7Dpn08Df4szr/sZdMVeOstrdYSsqzX6BYbcB+w==}
