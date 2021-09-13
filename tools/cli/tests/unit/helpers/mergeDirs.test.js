@@ -4,6 +4,7 @@
 import chai from 'chai';
 import path from 'path';
 import fs from 'fs';
+import sinon from 'sinon';
 
 /**
  * Internal dependencies
@@ -48,5 +49,13 @@ describe( 'mergeDirs', function () {
 	it( 'should copy directory to a new location', function () {
 		mergeDirs( sourceDir, destDir );
 		chai.expect( fs.existsSync( dataDir + 'source/source.md' ) ).to.be.true;
+	} );
+
+	it( 'should bail by default if a file already exists', function () {
+		sinon.stub( console, 'warn' );
+		mergeDirs( sourceDir, destDir ); // initial write
+		mergeDirs( sourceDir, destDir ); // should refuse to overwrite the same files
+		sinon.assert.calledWith( console.warn, sinon.match( 'source.md exists, skipping...' ) );
+		console.warn.restore();
 	} );
 } );

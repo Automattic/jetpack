@@ -86,13 +86,19 @@
 		"jetpack-js-tools": "workspace:*"
 	},
 	"engines": {
-		"node": "^16.7.0",
+		"node": "^14.17.6 || ^16.7.0",
 		"pnpm": "^6.5.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"pnpm": {
 		"overrides": {
 			"@automattic/calypso-build>enzyme-adapter-react-16@*": "npm:@wojtekmaj/enzyme-adapter-react-17@0.6.3",
+			"@storybook/addon-docs>@storybook/builder-webpack4": "npm:@storybook/builder-webpack5",
+			"@storybook/core-common>webpack@4": ">= 4",
+			"@storybook/core-server>webpack@4": ">= 4",
+			"@storybook/core-server>@storybook/builder-webpack4": "npm:@storybook/builder-webpack5",
+			"@storybook/core-server>@storybook/manager-webpack4": "npm:@storybook/manager-webpack5",
+			"@storybook/react>webpack@4": ">= 4",
 			"isomorphic-fetch>node-fetch@^1.0.1": "^2.6.1",
 			"jest-environment-jsdom@^24.0.0": "^26.0.1",
 			"react-dev-utils>browserslist@^4": "^4",

@@ -160,10 +160,6 @@ const Admin = () => {
 		}
 	};
 
-	const renderManageConnection = () => {
-		return renderConnectionStatusCard();
-	};
-
 	// Renders additional segments under the jp-hero area condition on having a backup plan
 	const renderBackupSegments = () => {
 		return (
@@ -211,6 +207,8 @@ const Admin = () => {
 							</a>
 						</p>
 					) }
+
+					{ renderConnectionStatusCard() }
 				</div>
 			</div>
 		);
@@ -221,18 +219,7 @@ const Admin = () => {
 			<div className="content">
 				<div className="jp-hero">{ renderLoadedState() }</div>
 				<div className="jp-section">
-					<div className="jp-wrap">
-						{ isFullyConnected() && renderBackupSegments() }
-						{ isFullyConnected() && (
-							<div className="jp-row">
-								<div class="lg-col-span-6 md-col-span-4 sm-col-span-4"></div>
-								<div class="lg-col-span-1 md-col-span-1 sm-col-span-0"></div>
-								<div class="lg-col-span-5 md-col-span-3 sm-col-span-4">
-									{ renderManageConnection() }
-								</div>
-							</div>
-						) }
-					</div>
+					<div className="jp-wrap">{ isFullyConnected() && renderBackupSegments() }</div>
 				</div>
 			</div>
 		);

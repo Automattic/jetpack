@@ -629,29 +629,6 @@ class Jetpack_Custom_CSS {
 
 		$css = str_replace( array( '\\\00BB \\\0020', '\0BB \020', '0BB 020' ), '\00BB \0020', $css );
 
-		if ( empty( $css ) ) {
-			$css = "/*\n"
-				. wordwrap(
-					/**
-					 * Filter the default message displayed in the Custom CSS editor.
-					 *
-					 * @module custom-css
-					 *
-					 * @since 1.7.0
-					 *
-					 * @param string $str Default Custom CSS editor content.
-					 */
-					apply_filters(
-						'safecss_default_css',
-						__(
-							"Welcome to Custom CSS!\n\nTo learn how this works, see https://wp.me/PEmnE-Bt",
-							'jetpack'
-						)
-					)
-				)
-				. "\n*/";
-		}
-
 		/**
 		 * Filter the Custom CSS returned from the editor.
 		 *
