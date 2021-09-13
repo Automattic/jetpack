@@ -14,6 +14,9 @@ import './shared/styles/external-link-fix.scss';
 // Register media source store to the centralized data registry.
 import './store/media-source';
 
+// Load Jetpack plugins.
+import './plugins';
+
 import analytics from '../_inc/client/lib/analytics';
 
 // @TODO Please make a shared analytics solution and remove this!
