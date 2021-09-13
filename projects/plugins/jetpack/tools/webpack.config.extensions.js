@@ -26,7 +26,7 @@ const CopyBlockEditorAssetsPlugin = require( './copy-block-editor-assets' );
  */
 const editorSetup = path.join( path.dirname( __dirname ), 'extensions', 'editor' );
 const viewSetup = path.join( path.dirname( __dirname ), 'extensions', 'view' );
-const blockEditorDirectories = [ 'blocks', 'plugins' ];
+const blockEditorDirectories = [ 'plugins', 'blocks' ];
 
 /**
  * Filters block editor scripts

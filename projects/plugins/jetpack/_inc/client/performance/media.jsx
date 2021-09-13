@@ -31,45 +31,46 @@ class Media extends React.Component {
 		const videoPress = this.props.module( 'videopress' ),
 			planClass = getPlanClass( this.props.sitePlan.product_slug );
 
-		const videoPressSettings = includes(
-			[
-				'is-premium-plan',
-				'is-business-plan',
-				'is-daily-security-plan',
-				'is-realtime-security-plan',
-				'is-complete-plan',
-			],
-			planClass
-		) && (
-			<SettingsGroup
-				hasChild
-				disableInOfflineMode
-				module={ videoPress }
-				support={ {
-					link: getRedirectUrl( 'jetpack-support-videopress' ),
-				} }
-			>
-				<FormLegend className="jp-form-label-wide">{ __( 'Video', 'jetpack' ) }</FormLegend>
-				<p>
-					{ ' ' }
-					{ __(
-						'Make the content you publish more engaging with high-resolution video. With Jetpack Video you can customize your media player and deliver high-speed, ad-free, and unbranded videos to your visitors. Videos are hosted on our WordPress.com servers and do not subtract space from your hosting plan!',
-						'jetpack'
-					) }{ ' ' }
-				</p>
-				<ModuleToggle
-					slug="videopress"
-					disabled={ this.props.isUnavailableInOfflineMode( 'videopress' ) }
-					activated={ this.props.getOptionValue( 'videopress' ) }
-					toggling={ this.props.isSavingAnyOption( 'videopress' ) }
-					toggleModule={ this.props.toggleModuleNow }
+		const videoPressSettings = this.props.hasConnectedOwner &&
+			includes(
+				[
+					'is-premium-plan',
+					'is-business-plan',
+					'is-daily-security-plan',
+					'is-realtime-security-plan',
+					'is-complete-plan',
+				],
+				planClass
+			) && (
+				<SettingsGroup
+					hasChild
+					disableInOfflineMode
+					module={ videoPress }
+					support={ {
+						link: getRedirectUrl( 'jetpack-support-videopress' ),
+					} }
 				>
-					<span className="jp-form-toggle-explanation">
-						{ __( 'Enable high-speed, ad-free video player', 'jetpack' ) }
-					</span>
-				</ModuleToggle>
-			</SettingsGroup>
-		);
+					<FormLegend className="jp-form-label-wide">{ __( 'Video', 'jetpack' ) }</FormLegend>
+					<p>
+						{ ' ' }
+						{ __(
+							'Make the content you publish more engaging with high-resolution video. With Jetpack Video you can customize your media player and deliver high-speed, ad-free, and unbranded videos to your visitors. Videos are hosted on our WordPress.com servers and do not subtract space from your hosting plan!',
+							'jetpack'
+						) }{ ' ' }
+					</p>
+					<ModuleToggle
+						slug="videopress"
+						disabled={ this.props.isUnavailableInOfflineMode( 'videopress' ) }
+						activated={ this.props.getOptionValue( 'videopress' ) }
+						toggling={ this.props.isSavingAnyOption( 'videopress' ) }
+						toggleModule={ this.props.toggleModuleNow }
+					>
+						<span className="jp-form-toggle-explanation">
+							{ __( 'Enable high-speed, ad-free video player', 'jetpack' ) }
+						</span>
+					</ModuleToggle>
+				</SettingsGroup>
+			);
 
 		const videoPressForcedInactive = 'inactive' === this.props.getModuleOverride( 'videopress' );
 
