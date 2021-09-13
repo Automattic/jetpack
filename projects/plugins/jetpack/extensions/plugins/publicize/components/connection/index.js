@@ -18,8 +18,7 @@ import { includes } from 'lodash';
  * Internal dependencies
  */
 import getSiteFragment from '../../../../shared/get-site-fragment';
-import PublicizeIcon from '../publicize-icon';
-import { SocialServiceIcon } from '../../../../shared/icons';
+import PublicizeCheckbox from '../publicize-checkbox';
 
 class PublicizeConnection extends Component {
 	/**
@@ -67,33 +66,25 @@ class PublicizeConnection extends Component {
 		// Genericon names are dash separated
 		const serviceName = name.replace( '_', '-' );
 
-		let toggle = (
-			<PublicizeIcon
+		let checkbox = (
+			<PublicizeCheckbox
 				id={ fieldId }
-				className="jetpack-publicize-connection-toggle"
+				className="jetpack-publicize-connection-checkbox"
 				checked={ enabled }
 				onChange={ this.onConnectionChange }
 				serviceName={ serviceName }
+				label={ label }
 			/>
 		);
 
 		if ( disabled || this.connectionIsFailing() || this.connectionNeedsReauth() ) {
-			toggle = <Disabled>{ toggle }</Disabled>;
+			checkbox = <Disabled>{ checkbox }</Disabled>;
 		}
 
 		return (
 			<li>
 				{ this.maybeDisplayLinkedInNotice() }
-				<div className="publicize-jetpack-connection-container">
-					<label htmlFor={ fieldId } className="jetpack-publicize-connection-label">
-						<SocialServiceIcon
-							serviceName={ serviceName }
-							className="jetpack-publicize-gutenberg-social-icon"
-						/>
-						<span className="jetpack-publicize-connection-label-copy">{ label }</span>
-					</label>
-					{ toggle }
-				</div>
+				<div className="publicize-jetpack-connection-container">{ checkbox }</div>
 			</li>
 		);
 	}
