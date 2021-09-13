@@ -231,7 +231,7 @@ function getGithubContext() {
 	return gh;
 }
 
-function buildDefaultMessage( isSuccess, forceHeaderText = undefined ) {
+async function buildDefaultMessage( isSuccess, forceHeaderText = undefined ) {
 	const gh = getGithubContext();
 
 	const btnStyle = isSuccess ? 'primary' : 'danger';
@@ -321,7 +321,7 @@ function buildDefaultMessage( isSuccess, forceHeaderText = undefined ) {
 			type: 'section',
 			text: {
 				type: 'mrkdwn',
-				text: `Jetpack version: ${ getJetpackVersion() }`,
+				text: `Jetpack version: ${ await getJetpackVersion() }`,
 			},
 		},
 		{
