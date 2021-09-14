@@ -18,43 +18,42 @@ import './styles.scss';
  */
 export default function Interface( props ) {
 	const { enabledSidebarName, enableSidebar, disableSidebar } = props;
-	const isSidebarEnabled = !! enabledSidebarName;
 
 	return (
 		<div className="interface-interface-skeleton">
 			<div className="interface-interface-skeleton__editor">
 				<div
-					className="interface-interface-skeleton__header"
-					role="region"
 					/* translators: accessibility text for the widgets screen top bar landmark region. */
 					aria-label={ __( 'Jetpack Search customization top bar', 'jetpack' ) }
+					className="interface-interface-skeleton__header"
+					role="region"
 					tabIndex="-1"
 				>
-					<Header isSidebarEnabled={ isSidebarEnabled } enableSidebar={ enableSidebar } />
+					<Header enableSidebar={ enableSidebar } />
 				</div>
 				<div className="interface-interface-skeleton__body">
 					<div
-						className="interface-interface-skeleton__content"
-						role="region"
 						/* translators: accessibility text for the widgets screen content landmark region. */
 						aria-label={ __( 'Jetpack Search customization preview', 'jetpack' ) }
+						className="interface-interface-skeleton__content"
+						role="region"
 						tabIndex="-1"
 					>
 						<AppWrapper />
 					</div>
-					{ !! isSidebarEnabled && (
+					{ /* Ensure sidebar is enabled before rendering. */ }
+					{ !! enabledSidebarName && (
 						<div
-							className="interface-interface-skeleton__sidebar"
-							role="region"
 							/* translators: accessibility text for the widgets screen settings landmark region. */
 							aria-label={ __( 'Jetpack Search customization settings', 'jetpack' ) }
+							className="interface-interface-skeleton__sidebar"
+							role="region"
 							tabIndex="-1"
 						>
 							<Sidebar
 								disableSidebar={ disableSidebar }
-								enableSidebar={ enableSidebar }
 								enabledSidebarName={ enabledSidebarName }
-								isSidebarEnabled={ isSidebarEnabled }
+								enableSidebar={ enableSidebar }
 							/>
 						</div>
 					) }
