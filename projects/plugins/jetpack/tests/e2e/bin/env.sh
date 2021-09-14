@@ -14,8 +14,8 @@ function usage {
 }
 
 start_env() {
-	pnpx jetpack docker --type e2e --name t1 -v up -d
-	pnpx jetpack docker --type e2e --name t1 -v install
+	pnpx jetpack docker --type e2e --name t1 up -d
+	pnpx jetpack docker --type e2e --name t1 install
 	configure_wp_env "$@"
 }
 
@@ -24,8 +24,8 @@ stop_env() {
 }
 
 reset_env() {
-	pnpx jetpack docker --type e2e --name t1 -v wp -- db reset --yes
-	pnpx jetpack docker --type e2e --name t1 -v install
+	pnpx jetpack docker --type e2e --name t1 wp -- db reset --yes
+	pnpx jetpack docker --type e2e --name t1 install
 	configure_wp_env "$@"
 }
 

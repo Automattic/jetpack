@@ -16,10 +16,19 @@ const baseWebpackConfig = getBaseWebpackConfig(
 	{ WP: true },
 	{
 		entry: {
-			main: path.join( __dirname, '../modules/widget-visibility/editor/index.jsx' ),
+			main: {
+				import: path.join( __dirname, '../modules/widget-visibility/editor/index.jsx' ),
+				library: {
+					name: 'WidgetVisibility',
+					type: 'window',
+					export: 'WidgetVisibility',
+				},
+			},
 		},
 		'output-filename': 'index.min.js',
 		'output-path': path.join( __dirname, '../_inc/build/widget-visibility/editor' ),
+		// Calypso-build defaults this to "window", which breaks things if no library.name is set.
+		'output-library-target': '',
 	}
 );
 
