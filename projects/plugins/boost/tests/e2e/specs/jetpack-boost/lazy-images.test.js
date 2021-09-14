@@ -1,9 +1,4 @@
 /**
- * External dependencies
- */
-import { prerequisitesBuilder } from 'jetpack-e2e-tests/lib/env/prerequisites';
-
-/**
  * Internal dependencies
  */
 import JetpackBoostPage from '../../lib/pages/wp-admin/JetpackBoostPage';
@@ -14,7 +9,6 @@ let jetpackBoostPage;
 
 describe( 'Lazy Images module', () => {
 	beforeAll( async () => {
-		await prerequisitesBuilder().withLoggedIn( true ).withConnection( true ).build();
 		await boostPrerequisitesBuilder().withActiveModules( [ moduleName ] ).build();
 	} );
 

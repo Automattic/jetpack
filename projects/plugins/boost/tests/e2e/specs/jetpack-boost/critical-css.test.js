@@ -1,20 +1,14 @@
 /**
- * External dependencies
- */
-import { prerequisitesBuilder } from 'jetpack-e2e-tests/lib/env/prerequisites';
-import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites';
-
-/**
  * Internal dependencies
  */
 import JetpackBoostPage from '../../lib/pages/wp-admin/JetpackBoostPage';
+import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites';
 
 const moduleName = 'critical-css';
 let jetpackBoostPage;
 
 describe( 'Critical CSS module', () => {
 	beforeAll( async () => {
-		await prerequisitesBuilder().withLoggedIn( true ).withConnection( true ).build();
 		await boostPrerequisitesBuilder().withInactiveModules( [ moduleName ] ).build();
 	} );
 

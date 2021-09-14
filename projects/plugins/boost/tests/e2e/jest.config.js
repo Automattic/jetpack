@@ -10,6 +10,7 @@ sharedConfigAsString = sharedConfigAsString.replace( /Jetpack/g, 'Jetpack Boost'
 
 const finalSharedConfig = JSON.parse( sharedConfigAsString );
 finalSharedConfig.setupFilesAfterEnv.push( 'expect-playwright' );
+finalSharedConfig.setupFilesAfterEnv.push( '<rootDir>/lib/setupTests.js' );
 
 module.exports = {
 	...finalSharedConfig,
