@@ -95,11 +95,11 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 				logger.info( `START TEST: ${ eventName }` );
 				break;
 			case 'test_fn_success':
-				this.global.allure.tag( `Jetpack version: ${ getJetpackVersion() }` );
+				this.global.allure.tag( `Jetpack version: ${ await getJetpackVersion() }` );
 				logger.info( chalk.green( `TEST PASSED: ${ eventName }` ) );
 				break;
 			case 'test_fn_failure':
-				this.global.allure.tag( `Jetpack version: ${ getJetpackVersion() }` );
+				this.global.allure.tag( `Jetpack version: ${ await getJetpackVersion() }` );
 				logger.info( chalk.red( `FAILED TEST: ${ eventName }` ) );
 				await this.onFailure( eventName, event.test.parent.name, event.test.name, event.error );
 				break;
