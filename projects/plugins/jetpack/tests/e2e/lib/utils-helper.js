@@ -192,11 +192,7 @@ function getConfigTestSite() {
 function getSiteCredentials() {
 	const site = getConfigTestSite();
 
-	if ( isLocalSite() && ! site.apiPassword ) {
-		generateApplicationPassword().then( pass => ( site.apiPassword = pass ) );
-	}
-
-	console.log( site.apiPassword );
+	console.log( `!!!!!!!>>>> ${ site.apiPassword }` );
 
 	return { username: site.username, password: site.password, apiPassword: site.apiPassword };
 }
@@ -294,7 +290,7 @@ async function logEnvironment() {
 			env = fs.readFileSync( envFilePath );
 		}
 
-		const wpApi = new WordpressAPI( getSiteCredentials(), resolveSiteUrl() );
+		const wpApi = new WordpressAPI( await getSiteCredentials(), resolveSiteUrl() );
 		const plugins = await wpApi.getPlugins();
 
 		for ( const p of plugins ) {
@@ -334,14 +330,6 @@ async function getJetpackVersion() {
 	}
 
 	return version;
-}
-
-async function generateApplicationPassword() {
-	logger.debug( 'Generating an application password' );
-	return await execWpCommand(
-		'eval \'$rand=rand(); $pass = WP_Application_Passwords::create_new_application_password(1,array("name"=>$rand, "app_id"=>$rand)); echo $pass[0] . "\\n";\'',
-		false
-	);
 }
 
 module.exports = {

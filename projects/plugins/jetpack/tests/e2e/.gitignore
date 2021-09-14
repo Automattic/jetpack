@@ -1,6 +1,7 @@
 /node_modules
 /config/local-*
 /config/tmp/*
+custom-environment-variables.json
 /output
 plan-data.txt
 e2e_tunnels.txt
