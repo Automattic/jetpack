@@ -1,13 +1,11 @@
 /**
  * WordPress dependencies
  */
-import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import { OPTIONS_TAB_IDENTIFIER } from '../../lib/constants';
 import AppWrapper from '../app-wrapper';
 import Header from '../header';
 import Sidebar from '../sidebar';
@@ -21,13 +19,6 @@ import './styles.scss';
 export default function Interface( props ) {
 	const { enabledSidebarName, enableSidebar, disableSidebar, toggleSidebar } = props;
 	const isSidebarEnabled = !! enabledSidebarName;
-
-	useEffect( () => {
-		if ( ! enableSidebar || ! disableSidebar ) {
-			return;
-		}
-		enableSidebar( OPTIONS_TAB_IDENTIFIER );
-	}, [] );
 
 	return (
 		<div className="interface-interface-skeleton">
