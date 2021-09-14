@@ -73,6 +73,19 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 			'columns'  => 2,
 			'count'    => 6,
 		);
+
+		add_filter( 'widget_types_to_hide_from_legacy_widget_block', array( $this, 'hide_widget_in_block_editor' ) );
+	}
+
+	/**
+	 * Remove Instagram widget from Legacy Widget block.
+	 *
+	 * @param array $widget_types Widget type data.
+	 * This only applies to new blocks being added.
+	 */
+	public function hide_widget_in_block_editor( $widget_types ) {
+		$widget_types[] = self::ID_BASE;
+		return $widget_types;
 	}
 
 	/**
@@ -626,14 +639,3 @@ add_action(
 	}
 );
 
-/**
- * Remove Instagram widget from Legacy Widget block.
- *
- * @param array $widget_types Widget type data.
- * This only applies to new blocks being added.
- */
-function hide_from_legacy_block( $widget_types ) {
-	$widget_types[] = 'wpcom_instagram_widget';
-	return $widget_types;
-}
-add_filter( 'widget_types_to_hide_from_legacy_widget_block', 'hide_from_legacy_block' );
