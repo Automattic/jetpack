@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Reverted import statement for BlockControl brower console warning

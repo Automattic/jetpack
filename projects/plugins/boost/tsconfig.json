@@ -4,7 +4,7 @@
 	"exclude": [ "node_modules/*", "app/assets/dist/*", "tests/integration/**/*" ],
 	"compilerOptions": {
 		"types": [ "svelte" ],
-		"typeRoots": [ "./node_modules/@types/", "./src/" ],
+		"typeRoots": [ "./node_modules/@types/", "./app/assets/src/js" ],
 		"lib": [ "dom", "es2018" ]
 	}
 }
