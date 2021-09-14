@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Critical CSS will get cleared on theme change
