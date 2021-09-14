@@ -45,6 +45,14 @@ class Admin_Menu extends Base_Admin_Menu {
 			remove_menu_page( 'link-manager.php' );
 		}
 
+		/**
+		 * Action fired after the Admin_Menu is registered,
+		 * which allows for further manipulation.
+		 *
+		 * @since-jetpack 10.2
+		 */
+		do_action( 'after_admin_menu_registered', $this );
+
 		ksort( $GLOBALS['menu'] );
 	}
 

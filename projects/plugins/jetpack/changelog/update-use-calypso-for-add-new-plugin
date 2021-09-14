@@ -1,0 +1,3 @@
+Significance: patch
+Type: other
+Comment: Add an action which fires after the admin_menu gets registered.
