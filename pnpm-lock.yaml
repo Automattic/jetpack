@@ -445,7 +445,7 @@ importers:
     dependencies:
       '@wordpress/components': 17.0.0_@babel+core@7.15.0
       '@wordpress/element': 4.0.1
-      jetpack-boost-critical-css-gen: github.com/automattic/jetpack-boost-critical-css-gen/b1c6bcf3c68cbb86d54962087b6350b884bdbb58
+      jetpack-boost-critical-css-gen: github.com/automattic/jetpack-boost-critical-css-gen/f8c9bd08c729f8e9673d24baa66f015e4ffa2aa0
     devDependencies:
       '@babel/core': 7.15.0
       '@babel/preset-env': 7.15.0_@babel+core@7.15.0
@@ -16277,6 +16277,11 @@ packages:
     resolution: {integrity: sha512-V4aYg89jEoVRxRb2fJdAg8FHvI7cEyYdVAh94HH0UIK8oJxUfkjlDQN9RbMx+bEjP7+ggMiFRprSti032Oipxw==}
     engines: {node: 4.x || >=6.0.0}
 
+  /node-fetch/2.6.2:
+    resolution: {integrity: sha512-aLoxToI6RfZ+0NOjmWAgn9+LEd30YCkJKFSyWacNZdEKTit/ZMcKjGkTRo8uWEsnIb/hfKecNPEbln02PdWbcA==}
+    engines: {node: 4.x || >=6.0.0}
+    dev: false
+
   /node-int64/0.4.0:
     resolution: {integrity: sha1-h6kGXNs1XTGC2PlM4RGIuCXGijs=}
 
@@ -22555,8 +22560,8 @@ packages:
     resolution: {integrity: sha512-V50KMwwzqJV0NpZIZFwfOD5/lyny3WlSzRiXgA0G7VUnRlqttta1L6UQIHzd6EuBY/cHGfwTIck7w1yH6Q5zUw==}
     dev: true
 
-  github.com/automattic/jetpack-boost-critical-css-gen/b1c6bcf3c68cbb86d54962087b6350b884bdbb58:
-    resolution: {tarball: https://codeload.github.com/automattic/jetpack-boost-critical-css-gen/tar.gz/b1c6bcf3c68cbb86d54962087b6350b884bdbb58}
+  github.com/automattic/jetpack-boost-critical-css-gen/f8c9bd08c729f8e9673d24baa66f015e4ffa2aa0:
+    resolution: {tarball: https://codeload.github.com/automattic/jetpack-boost-critical-css-gen/tar.gz/f8c9bd08c729f8e9673d24baa66f015e4ffa2aa0}
     name: jetpack-boost-critical-css-gen
     version: 0.0.1
     prepare: true
@@ -22564,7 +22569,7 @@ packages:
     dependencies:
       clean-css: 5.1.5
       css-tree: 1.1.3
-      node-fetch: 2.6.1
+      node-fetch: 2.6.2
     dev: false
 
   github.com/sveltejs/eslint-config/31fd4faeea88990069502460b023698b1c9c2d13_8f8eb8cf50ecc4463e49574ee0db7118:
