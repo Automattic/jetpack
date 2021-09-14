@@ -75,11 +75,15 @@ class Jetpack_Stats_Dashboard_Widget {
 	}
 
 	/**
-	 * Fires when the dashboard is loaded.
-	 *
-	 * @since 3.4.0
+	 * Fires dashboard widget action.
+	 * Both the footer from this file and the stats graph from modules/stats.php hook into this action.
 	 */
 	public static function dashboard_widget() {
+		/**
+		 * Fires when the dashboard is loaded.
+		 *
+		 * @since 3.4.0
+		 */
 		do_action( 'jetpack_dashboard_widget' );
 	}
 
