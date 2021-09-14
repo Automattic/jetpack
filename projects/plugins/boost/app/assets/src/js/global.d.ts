@@ -13,6 +13,7 @@ import type {
 	CriticalCssError,
 	generateCriticalCSS,
 } from './vendor/jetpack-boost-critical-css-gen';
+import { TrackerAttributes } from './utils/generate-critical-css';
 
 declare global {
 	const wpApiSettings: {
@@ -47,6 +48,12 @@ declare global {
 		BrowserInterfaceIframe: typeof BrowserInterfaceIframe;
 		CriticalCssError: typeof CriticalCssError;
 	};
+
+	interface Window {
+		jpTracksAJAX: {
+			record_ajax_event( eventName: string, eventType: string, eventProp: TrackerAttributes ): void;
+		};
+	}
 }
 
 export {};

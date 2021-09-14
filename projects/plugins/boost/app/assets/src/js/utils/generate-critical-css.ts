@@ -11,6 +11,7 @@ import {
 	sendGenerationResult,
 	storeGenerateError,
 	updateGenerateStatus,
+	getCurrentStatus,
 } from '../stores/critical-css-status';
 import type { JSONObject } from './json-types';
 import type { Viewport } from './types';
@@ -33,6 +34,17 @@ export type MajorMinorCallback = (
 	minorSteps: number,
 	minorStep: number
 ) => void;
+
+export type TrackerAttributes = {
+	status: string;
+	provider_key?: string;
+	error_message?: string;
+	error_type?: string;
+	size?: number;
+	generation_time?: number;
+	progress?: number;
+	percent_complete?: number;
+};
 
 let hasGenerateRun = false;
 
@@ -144,10 +156,14 @@ async function generateForKeys(
 	const majorSteps = Object.keys( providerKeys ).length + 1;
 	let majorStep = 0;
 
+	// eslint-disable-next-line
+	const startTime = Date.now();
+
 	// Run through each set of URLs.
 	for ( const [ providerKey, urls ] of Object.entries( providerKeys ) ) {
 		callback( ++majorStep, majorSteps, 0, 0 );
 		try {
+			const providerStartTime = Date.now();
 			const [ css, warnings ] = await CriticalCSSGenerator.generateCriticalCSS( {
 				browserInterface: new CriticalCSSGenerator.BrowserInterfaceIframe( {
 					requestGetParameters,
@@ -175,7 +191,29 @@ async function generateForKeys(
 			if ( updateResult === false ) {
 				return;
 			}
+
+			// Track individual Critical CSS generation success.
+			const trackerAttributes: TrackerAttributes = {
+				provider_key: providerKey,
+				status: 'success',
+				size: css.length,
+				generation_time: Date.now() - providerStartTime,
+			};
+			window.jpTracksAJAX.record_ajax_event( 'critical_css_success', 'click', trackerAttributes );
 		} catch ( err ) {
+			// Track individual Critical CSS generation error.
+			const trackerAttributes: TrackerAttributes = {
+				status: 'error',
+				provider_key: providerKey,
+				error_message: err.message,
+			};
+			if ( err.isSuccessTargetError ) {
+				trackerAttributes.error_type = 'successTargetError';
+			} else {
+				trackerAttributes.error_type = err.type;
+			}
+			window.jpTracksAJAX.record_ajax_event( 'critical_css_error', 'click', trackerAttributes );
+
 			// Success Target Errors indicate that URLs failed, but the process itself succeeded.
 			if ( err.isSuccessTargetError ) {
 				await sendGenerationResult( providerKey, 'error', {
@@ -199,6 +237,16 @@ async function generateForKeys(
 			}
 		}
 	}
+
+	// Track complete Critical CSS generation result.
+	const { progress, percent_complete } = getCurrentStatus();
+	const trackerAttributes: TrackerAttributes = {
+		status: 'success',
+		progress,
+		percent_complete,
+		generation_time: Date.now() - startTime,
+	};
+	window.jpTracksAJAX.record_ajax_event( 'critical_css_success', 'click', trackerAttributes );
 
 	await updateGenerateStatus( false, 0 );
 }

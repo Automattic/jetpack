@@ -37,6 +37,7 @@ export interface CriticalCssStatus {
 	provider_key_labels?: { [ name: string ]: string };
 	success_count?: number;
 	created?: number;
+	percent_complete?: number;
 	viewports?: Viewport[];
 }
 
@@ -51,6 +52,13 @@ const initialState = Jetpack_Boost.criticalCssStatus || {
 };
 
 const { subscribe, update } = writable< CriticalCssStatus >( initialState );
+
+// Keep a subscribed copy for quick reading.
+let currentStatus: CriticalCssStatus;
+subscribe( value => ( currentStatus = value ) );
+export function getCurrentStatus(): CriticalCssStatus {
+	return currentStatus;
+}
 
 /**
  * Derived datastore: contains the number of provider keys which failed in the
