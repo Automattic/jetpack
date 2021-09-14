@@ -39,8 +39,6 @@ export default function PublicizeForm( { refreshCallback } ) {
 				) ) }
 			</ul>
 
-			<PublicizeSettingsButton refreshCallback={ refreshCallback } />
-
 			{ connections.some( connection => connection.enabled ) && (
 				<MessageBoxControl
 					disabled={ isDisabled() }
