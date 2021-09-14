@@ -18,15 +18,16 @@ services:
       - default.env
       - .env
 
-  ### This container is used to upgrade the database version automatically
-  ### during startup. Otherwise, we need to manually run a command to do the upgrade ourselves.
+  ### This container is used to upgrade the database version automatically during startup.
+  ### Its function is to start, try to run an upgrade and then quit.
+  ### The configuration should be as close to the `db` container as possible.
   db-upgrade:
     image: mariadb:latest
     volumes:
       - ./config/mysql.conf:/etc/mysql/conf.d/docker.cnf
       - ./bin:/var/scripts
     links:
-      ### To be able to "ping" the `db` container from here. Otherwise, you need to use the full
+      ### To be able to connect to the `db` container from here. Otherwise, we need to use the full
       ### name `jetpack_dev_db_1`, which can be different, depending on the environment.
       - "db:db"
     env_file:
