@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { prerequisitesBuilder } from 'jetpack-e2e-tests/lib/env/prerequisites';
+import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites';
 
 /**
  * Internal dependencies
@@ -14,6 +15,7 @@ let jetpackBoostPage;
 describe( 'Critical CSS module', () => {
 	beforeAll( async () => {
 		await prerequisitesBuilder().withLoggedIn( true ).withConnection( true ).build();
+		await boostPrerequisitesBuilder().withInactiveModules( [ moduleName ] ).build();
 	} );
 
 	beforeEach( async function () {

@@ -7,6 +7,7 @@ import { prerequisitesBuilder } from 'jetpack-e2e-tests/lib/env/prerequisites';
  * Internal dependencies
  */
 import JetpackBoostPage from '../../lib/pages/wp-admin/JetpackBoostPage';
+import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites';
 
 const moduleName = 'render-blocking-js';
 let jetpackBoostPage;
@@ -14,6 +15,7 @@ let jetpackBoostPage;
 describe( 'Render Blocking JS module', () => {
 	beforeAll( async () => {
 		await prerequisitesBuilder().withLoggedIn( true ).withConnection( true ).build();
+		await boostPrerequisitesBuilder().withInactiveModules( [ moduleName ] ).build();
 	} );
 
 	beforeEach( async function () {
