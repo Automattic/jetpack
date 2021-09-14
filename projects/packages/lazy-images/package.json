@@ -29,7 +29,7 @@
 	"devDependencies": {
 		"@automattic/calypso-build": "9.0.0",
 		"@wordpress/browserslist-config": "4.1.0",
-		"eslint": "7.31.0",
+		"eslint": "7.32.0",
 		"webpack": "5.51.1"
 	},
 	"engines": {
