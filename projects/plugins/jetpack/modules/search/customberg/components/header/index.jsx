@@ -1,15 +1,14 @@
 /**
  * WordPress dependencies
  */
-import { VisuallyHidden } from '@wordpress/components';
-import { PinnedItems } from '@wordpress/interface';
+import { Button, VisuallyHidden } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useViewportMatch } from '@wordpress/compose';
+import { Icon, cog } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
-import { COMPLEMENTARY_AREA_SCOPE } from '../../lib/constants';
 import SaveButton from './save-button';
 import './styles.scss';
 
@@ -18,7 +17,7 @@ import './styles.scss';
  *
  * @returns {Element} component instance
  */
-function Header() {
+function Header( { isSidebarEnabled, toggleSidebar } ) {
 	const isMediumViewport = useViewportMatch( 'medium' );
 
 	return (
@@ -36,7 +35,14 @@ function Header() {
 			</div>
 			<div className="jp-search-configure-header__actions">
 				<SaveButton />
-				<PinnedItems.Slot scope={ COMPLEMENTARY_AREA_SCOPE } />
+				<Button
+					ariaLabel={ __( 'Close settings', 'jetpack' ) }
+					isSecondary
+					isPressed={ isSidebarEnabled }
+					onClick={ toggleSidebar }
+				>
+					<Icon icon={ cog } />
+				</Button>
 			</div>
 		</div>
 	);

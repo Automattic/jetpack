@@ -14,11 +14,10 @@
 		margin: 0;
 	}
 	.components-button.has-icon {
-		display: none;
 		margin-left: auto;
 
 		@include break-medium() {
-			display: flex;
+			display: none;
 		}
 	}
 }
