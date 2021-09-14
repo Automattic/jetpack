@@ -9,8 +9,8 @@
 namespace Automattic\Jetpack_Boost\Admin;
 
 use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack_Boost\Jetpack_Boost;
+use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
 use Automattic\Jetpack_Boost\Lib\Speed_Score;
 
@@ -55,8 +55,8 @@ class Admin {
 		$this->speed_score   = new Speed_Score();
 		Environment_Change_Detector::init();
 
+		add_action( 'init', array( new Analytics(), 'init' ) );
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
-		add_action( 'admin_enqueue_scripts', array( new Tracking( 'jetpack-boost' ), 'enqueue_tracks_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_filter( 'plugin_action_links_' . JETPACK_BOOST_PLUGIN_BASE, array( $this, 'plugin_page_settings_link' ) );
