@@ -36,6 +36,8 @@ const baseWebpackConfig = getBaseWebpackConfig(
 		'output-chunk-filename': 'jp-search.chunk-[name]-[hash].min.js',
 		'output-filename': 'jp-search-[name].bundle.js',
 		'output-path': path.join( __dirname, '../_inc/build/instant-search' ),
+		// Calypso-build defaults this to "window", which breaks things if no library.name is set.
+		'output-library-target': '',
 	}
 );
 

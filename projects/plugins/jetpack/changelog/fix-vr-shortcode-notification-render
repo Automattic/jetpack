@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix VR shortcode not rendered on notification content.

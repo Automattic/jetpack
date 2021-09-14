@@ -9,6 +9,8 @@ jobs:
     name: "E2E tests"
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    env:
+      TEST_SITE: atomic
 
     steps:
     - uses: actions/checkout@v2
@@ -29,8 +31,6 @@ jobs:
 
     - name: Run tests
       working-directory: projects/plugins/jetpack/tests/e2e
-      env:
-        TEST_SITE: atomic
       run: pnpm run test-e2e -- --group=atomic --testNamePattern='^(?!Paid blocks WordAds block).*$'
 
     - name: Upload test artifacts
@@ -65,6 +65,7 @@ jobs:
     env:
       CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
       GITHUB_CONTEXT: ${{ toJson(github) }}
+      TEST_SITE: atomic
 
     steps:
       - uses: actions/checkout@v2

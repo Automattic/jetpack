@@ -6,8 +6,8 @@
 		"test": "tests"
 	},
 	"dependencies": {
-		"@wordpress/components": "16.0.0",
-		"@wordpress/element": "4.0.0",
+		"@wordpress/components": "17.0.0",
+		"@wordpress/element": "4.0.1",
 		"jetpack-boost-critical-css-gen": "github:automattic/jetpack-boost-critical-css-gen#trunk"
 	},
 	"devDependencies": {
@@ -20,9 +20,9 @@
 		"@tsconfig/svelte": "2.0.1",
 		"@typescript-eslint/eslint-plugin": "4.29.0",
 		"@typescript-eslint/parser": "4.29.0",
-		"@wordpress/e2e-test-utils": "5.4.2",
-		"@wordpress/i18n": "4.2.1",
-		"@wordpress/prettier-config": "1.1.0",
+		"@wordpress/e2e-test-utils": "5.4.3",
+		"@wordpress/i18n": "4.2.2",
+		"@wordpress/prettier-config": "1.1.1",
 		"babel-jest": "27.0.6",
 		"eslint": "^7.31.0",
 		"eslint-plugin-import": "2.23.4",
@@ -78,7 +78,7 @@
 	},
 	"homepage": "https://jetpack.com/boost/",
 	"engines": {
-		"node": "^16.7.0",
+		"node": "^14.17.6 || ^16.7.0",
 		"pnpm": "^6.5.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
