@@ -37,9 +37,13 @@ export default function PublicizeSettingsButton( props ) {
 	 * @param {object} event - Event instance for onClick.
 	 */
 	function settingsClick( event ) {
-		const href = getButtonLink();
-		const { refreshCallback } = props;
 		event.preventDefault();
+		if ( ! event.target?.href ) {
+			return;
+		}
+
+		const href = event.target.href;
+		const { refreshCallback } = props;
 		/**
 		 * Open a popup window, and
 		 * when it is closed, refresh connections
@@ -57,7 +61,7 @@ export default function PublicizeSettingsButton( props ) {
 
 	return (
 		<div className={ className }>
-			<ExternalLink onClick={ settingsClick }>
+			<ExternalLink href={ getButtonLink() } onClick={ settingsClick }>
 				{ __( 'Connect an account', 'jetpack' ) }
 			</ExternalLink>
 		</div>
