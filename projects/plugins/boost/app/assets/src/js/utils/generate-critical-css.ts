@@ -41,7 +41,7 @@ let hasGenerateRun = false;
  * runs if the module is enabled again.
  */
 modules.subscribe( modulesState => {
-	if ( ! modulesState[ 'critical-css' ].enabled ) {
+	if ( ! modulesState[ 'critical-css' ] || ! modulesState[ 'critical-css' ].enabled ) {
 		hasGenerateRun = false;
 	}
 } );
