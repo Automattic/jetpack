@@ -534,7 +534,6 @@ importers:
       '@wordpress/server-side-render': 3.0.2
       '@wordpress/url': 3.2.2
       '@wordpress/viewport': 4.0.2
-      abortcontroller-polyfill: 1.7.1
       bounding-client-rect: 1.0.5
       chai: 4.3.4
       chalk: 4.1.1
@@ -628,7 +627,6 @@ importers:
       uuid: 8.3.2
       webpack: 5.51.1
       webpack-cli: 4.8.0
-      whatwg-fetch: 3.6.2
     dependencies:
       '@automattic/calypso-build': 9.0.0_1fe407fcee7f7b1b50bfdbf31ccbc0fe
       '@automattic/calypso-color-schemes': 2.1.1
@@ -657,7 +655,6 @@ importers:
       '@wordpress/interface': 4.1.0_2ccf75bd525644be36fe60c4756fa1e9
       '@wordpress/url': 3.2.2
       '@wordpress/viewport': 4.0.2_react@17.0.2+redux@4.0.5
-      abortcontroller-polyfill: 1.7.1
       bounding-client-rect: 1.0.5
       classnames: 2.3.1
       click-outside: 2.0.2
@@ -721,7 +718,6 @@ importers:
       uuid: 8.3.2
       webpack: 5.51.1_webpack-cli@4.8.0
       webpack-cli: 4.8.0_webpack@5.51.1
-      whatwg-fetch: 3.6.2
     optionalDependencies:
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
@@ -7333,10 +7329,6 @@ packages:
 
   /abab/2.0.5:
     resolution: {integrity: sha512-9IK9EadsbHo6jLWIpxpR6pL0sazTXV6+SQv25ZB+F7Bj9mJNaOc4nCRabwd5M/JwmUa8idz6Eci6eKfJryPs6Q==}
-
-  /abortcontroller-polyfill/1.7.1:
-    resolution: {integrity: sha512-yml9NiDEH4M4p0G4AcPkg8AAa4mF3nfYF28VQxaokpO67j9H7gWgmsVWJ/f1Rn+PzsnDYvzJzWIQzCqDKRvWlA==}
-    dev: false
 
   /accepts/1.3.7:
     resolution: {integrity: sha512-Il80Qs2WjYlJIBNzNkK6KYqlVMTbZLXgHx2oT0pU/fjRHyEp+PEfEPY0R3WCwAGVOtauxh1hOxNgIf5bv7dQpA==}
