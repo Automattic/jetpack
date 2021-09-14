@@ -191,9 +191,6 @@ function getConfigTestSite() {
 
 function getSiteCredentials() {
 	const site = getConfigTestSite();
-
-	console.log( `!!!!!!!>>>> ${ site.apiPassword }` );
-
 	return { username: site.username, password: site.password, apiPassword: site.apiPassword };
 }
 

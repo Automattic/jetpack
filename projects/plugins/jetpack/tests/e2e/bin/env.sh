@@ -51,7 +51,8 @@ configure_wp_env() {
 }
 
 configure_app_password() {
-	$BASE_CMD wp eval 'print_r(WP_Application_Passwords::create_new_application_password(1,array("name"=>"e2e-".rand()))[0]);'
+	OUTPUT=$($BASE_CMD wp eval 'print_r(WP_Application_Passwords::create_new_application_password(1,array("name"=>"e2e-".rand()))[0]);')
+	export API_PASSWORD="${OUTPUT##*php}"
 }
 
 if [ "${1}" == "start" ]; then
