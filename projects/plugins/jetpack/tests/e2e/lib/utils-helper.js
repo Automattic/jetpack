@@ -287,7 +287,7 @@ async function logEnvironment() {
 			env = fs.readFileSync( envFilePath );
 		}
 
-		const wpApi = new WordpressAPI( await getSiteCredentials(), resolveSiteUrl() );
+		const wpApi = new WordpressAPI( getSiteCredentials(), resolveSiteUrl() );
 		const plugins = await wpApi.getPlugins();
 
 		for ( const p of plugins ) {
