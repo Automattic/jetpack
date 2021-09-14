@@ -17,7 +17,7 @@ import './styles.scss';
  *
  * @returns {Element} component instance
  */
-function Header( { isSidebarEnabled, toggleSidebar } ) {
+function Header( { enableSidebar } ) {
 	const isMediumViewport = useViewportMatch( 'medium' );
 
 	return (
@@ -36,10 +36,10 @@ function Header( { isSidebarEnabled, toggleSidebar } ) {
 			<div className="jp-search-configure-header__actions">
 				<SaveButton />
 				<Button
-					ariaLabel={ __( 'Close settings', 'jetpack' ) }
+					ariaLabel={ __( 'Show settings', 'jetpack' ) }
+					className="jp-search-configure-header__show-settings-button"
 					isSecondary
-					isPressed={ isSidebarEnabled }
-					onClick={ toggleSidebar }
+					onClick={ () => enableSidebar() }
 				>
 					<Icon icon={ cog } />
 				</Button>

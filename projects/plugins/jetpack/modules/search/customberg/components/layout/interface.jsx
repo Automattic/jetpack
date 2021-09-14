@@ -17,7 +17,7 @@ import './styles.scss';
  * @returns {Element} component instance
  */
 export default function Interface( props ) {
-	const { enabledSidebarName, enableSidebar, disableSidebar, toggleSidebar } = props;
+	const { enabledSidebarName, enableSidebar, disableSidebar } = props;
 	const isSidebarEnabled = !! enabledSidebarName;
 
 	return (
@@ -30,7 +30,7 @@ export default function Interface( props ) {
 					aria-label={ __( 'Jetpack Search customization top bar', 'jetpack' ) }
 					tabIndex="-1"
 				>
-					<Header isSidebarEnabled={ isSidebarEnabled } toggleSidebar={ toggleSidebar } />
+					<Header isSidebarEnabled={ isSidebarEnabled } enableSidebar={ enableSidebar } />
 				</div>
 				<div className="interface-interface-skeleton__body">
 					<div

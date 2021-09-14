@@ -31,9 +31,12 @@ export default function Sidebar( props ) {
 				<Tabs enabledSidebarName={ enabledSidebarName } enableSidebar={ enableSidebar } />
 				<Button
 					ariaLabel={ __( 'Close settings', 'jetpack' ) }
-					icon="no-alt"
+					className="jp-search-configure-sidebar__hide-settings-button"
+					isSecondary
 					onClick={ disableSidebar }
-				/>
+				>
+					<Icon icon={ closeSmall } />
+				</Button>
 			</div>
 			<div className="components-panel">
 				{ enabledSidebarName === JP_SEARCH_TAB_IDENTIFIER && <SidebarDescription /> }

@@ -2,14 +2,15 @@
  * WordPress dependencies
  */
 import { useEffect, useState } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
+import { store as viewportStore } from '@wordpress/viewport';
 
 /**
  * Internal dependencies
  */
 import Interface from './interface';
 import { eventPrefix, initialize, identifySite, recordEvent } from '../../lib/analytics';
-import { JP_SEARCH_TAB_IDENTIFIER, OPTIONS_TAB_IDENTIFIER } from '../../lib/constants';
-import Sidebar from '../sidebar';
+import { OPTIONS_TAB_IDENTIFIER } from '../../lib/constants';
 import { SERVER_OBJECT_NAME } from '../../../instant-search/lib/constants';
 import './styles.scss';
 
@@ -19,16 +20,24 @@ import './styles.scss';
  * @returns {Element} component instance
  */
 export default function Layout() {
+	const { isLargeViewport } = useSelect( select => ( {
+		isLargeViewport: select( viewportStore ).isViewportMatch( 'large' ),
+	} ) );
+
+	const [ enabledSidebarName, setSidebarName ] = useState( OPTIONS_TAB_IDENTIFIER );
+	const disableSidebar = () => setSidebarName( null );
+	const enableSidebar = ( name = OPTIONS_TAB_IDENTIFIER ) => setSidebarName( name );
+
 	useEffect( () => {
 		initialize();
 		identifySite( window[ SERVER_OBJECT_NAME ].siteId );
 		recordEvent( `${ eventPrefix }_page_view` );
 	}, [] );
 
-	const [ enabledSidebarName, setSidebarName ] = useState( OPTIONS_TAB_IDENTIFIER );
-	const disableSidebar = () => setSidebarName( null );
-	const enableSidebar = ( name = OPTIONS_TAB_IDENTIFIER ) => setSidebarName( name );
-	const toggleSidebar = () => ( enabledSidebarName ? disableSidebar() : enableSidebar() );
+	// Restores sidebar when at a large viewport.
+	useEffect( () => {
+		isLargeViewport && enabledSidebarName === null && enableSidebar();
+	}, [ enabledSidebarName, isLargeViewport ] );
 
 	return (
 		<div className="jp-search-configure-root">
@@ -36,7 +45,6 @@ export default function Layout() {
 				disableSidebar={ disableSidebar }
 				enabledSidebarName={ enabledSidebarName }
 				enableSidebar={ enableSidebar }
-				toggleSidebar={ toggleSidebar }
 			/>
 		</div>
 	);
