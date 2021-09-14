@@ -1,6 +1,6 @@
 {
 	"name": "automattic/jetpack-beta",
-	"description": "Serves beta and PR branches of Jetpack to a WordPress install near you!",
+	"description": "Serves beta and PR branches of Jetpack to a WordPress install near you!!!",
 	"homepage": "https://jetpack.com/",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
