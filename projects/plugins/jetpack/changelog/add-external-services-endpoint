@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Publicize: add "external-services" proxy API endpoint for use in account linking.
