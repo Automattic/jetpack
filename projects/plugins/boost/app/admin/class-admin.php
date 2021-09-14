@@ -22,6 +22,7 @@ class Admin {
 	 * Menu slug.
 	 */
 	const MENU_SLUG = 'jetpack-boost';
+
 	const AJAX_NONCE = 'ajax_nonce';
 
 	/**
@@ -47,7 +48,6 @@ class Admin {
 	 * @var Speed_Score instance.
 	 */
 	private $speed_score;
-
 
 	/**
 	 * Initialize the class and set its properties.
@@ -165,9 +165,9 @@ class Admin {
 				'assetPath' => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
 			),
 			'shownAdminNoticeIds' => $this->get_shown_admin_notice_ids(),
-			'preferences' => array(
-					'showRatingPrompt' => $this->get_show_rating_prompt(),
-			)
+			'preferences'         => array(
+				'showRatingPrompt' => $this->get_show_rating_prompt(),
+			),
 		);
 
 		// Give each module an opportunity to define extra constants.
@@ -341,18 +341,26 @@ class Admin {
 	public function handle_set_show_rating_prompt() {
 		check_ajax_referer( self::AJAX_NONCE, 'nonce' );
 		$response = array(
-				'status' => 'ok',
+			'status' => 'ok',
 		);
 
-		$is_enabled = $_POST['value'] === 'true' ? '1' : '0';
+		$is_enabled = 'true' === $_POST['value'] ? '1' : '0';
 		\update_option( self::SHOW_RATING_PROMPT_OPTION, $is_enabled );
 
 		echo wp_json_encode( $response );
 		wp_die();
 	}
 
+	/**
+	 * Get the value of show_rating_prompt.
+	 *
+	 * This determines if there should be a prompt after speed score improvements. Initially the value is set to true by
+	 * default. Once the user clicks on the rating button, it is switched to false.
+	 *
+	 * @return bool
+	 */
 	public function get_show_rating_prompt() {
-		return \get_option(self::SHOW_RATING_PROMPT_OPTION, '1') === '1';
+		return \get_option( self::SHOW_RATING_PROMPT_OPTION, '1' ) === '1';
 	}
 
 	/**

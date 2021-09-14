@@ -427,7 +427,7 @@ class Jetpack_Boost {
 				Lazy_Images::MODULE_SLUG        => array(
 					'enabled' => false,
 				),
-				'show_rating_prompt' => true
+				'show_rating_prompt'            => true,
 			)
 		);
 	}
