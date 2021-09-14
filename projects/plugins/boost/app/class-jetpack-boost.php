@@ -520,6 +520,7 @@ class Jetpack_Boost {
 	 * still capture the change of environment event and flag Critical CSS for a rebuild.
 	 */
 	public function handle_theme_change() {
+		do_action( 'jetpack_boost_clear_critical_css' );
 		Admin::clear_dismissed_notice( Regenerate_Admin_Notice::SLUG );
 		\update_option( Critical_CSS::RESET_REASON_STORAGE_KEY, Regenerate_Admin_Notice::REASON_THEME_CHANGE, false );
 	}
