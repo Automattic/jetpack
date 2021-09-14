@@ -15,7 +15,7 @@ import {
 } from '../stores/critical-css-status';
 import type { JSONObject } from './json-types';
 import type { Viewport } from './types';
-import { isEnabled } from '../stores/modules';
+import { modules, isEnabled } from '../stores/modules';
 import { loadCriticalCssLibrary } from './load-critical-css-library';
 import { removeShownAdminNotices } from './remove-admin-notices';
 import { clearDismissedRecommendations } from '../stores/critical-css-recommendations';
@@ -25,7 +25,7 @@ export type ProviderKeyUrls = {
 };
 
 export type ProvidersSuccessRatio = {
-	[ providerKey: string ]: Number;
+	[ providerKey: string ]: number;
 };
 
 export type MajorMinorCallback = (
@@ -47,6 +47,16 @@ export type TrackerAttributes = {
 };
 
 let hasGenerateRun = false;
+
+/**
+ * Reset hasGenerateRun if the module is disabled to ensure generateCriticalCss
+ * runs if the module is enabled again.
+ */
+modules.subscribe( modulesState => {
+	if ( ! modulesState[ 'critical-css' ] || ! modulesState[ 'critical-css' ].enabled ) {
+		hasGenerateRun = false;
+	}
+} );
 
 /**
  * Call generateCriticalCss if it hasn't been called before this app execution

@@ -8,6 +8,7 @@ const path = require( 'path' );
 const shellescape = require( 'shell-escape' );
 const logger = require( './logger' );
 const { join } = require( 'path' );
+const WordpressAPI = require( './api/wp-api' );
 const { E2E_DEBUG } = process.env;
 
 /**
@@ -277,9 +278,43 @@ function isLocalSite() {
 	return !! process.env.TEST_SITE;
 }
 
-function getJetpackVersion() {
+async function logEnvironment() {
 	try {
 		const envFilePath = join( `${ config.get( 'dirs.output' ) }`, 'environment.json' );
+
+		let env = { plugins: [] };
+
+		if ( fs.existsSync( envFilePath ) ) {
+			env = fs.readFileSync( envFilePath );
+		}
+
+		const wpApi = new WordpressAPI( getSiteCredentials(), resolveSiteUrl() );
+		const plugins = await wpApi.getPlugins();
+
+		for ( const p of plugins ) {
+			env.plugins.push( {
+				plugin: p.plugin,
+				version: p.version,
+				status: p.status,
+			} );
+		}
+
+		fs.writeFileSync( envFilePath, JSON.stringify( env ) );
+	} catch ( error ) {
+		logger.error( `Logging environment details failed! ${ error }` );
+	}
+}
+
+async function getJetpackVersion() {
+	let version;
+
+	try {
+		const envFilePath = join( `${ config.get( 'dirs.output' ) }`, 'environment.json' );
+
+		if ( ! fs.existsSync( envFilePath ) ) {
+			await logEnvironment();
+		}
+
 		const fileContent = fs.readFileSync( envFilePath, 'utf8' );
 		const env = JSON.parse( fileContent );
 
@@ -287,11 +322,12 @@ function getJetpackVersion() {
 			return p.plugin === 'jetpack-dev/jetpack' && p.status === 'active';
 		} );
 
-		return jetpack[ 0 ].version;
+		version = jetpack[ 0 ].version;
 	} catch ( error ) {
 		console.log( `ERROR: Failed to get Jetpack version. ${ error }` );
-		return 'unknown';
 	}
+
+	return version;
 }
 
 module.exports = {
@@ -312,5 +348,6 @@ module.exports = {
 	getSiteCredentials,
 	getDotComCredentials,
 	getMailchimpCredentials,
+	logEnvironment,
 	getJetpackVersion,
 };
