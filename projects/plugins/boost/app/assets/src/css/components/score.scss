@@ -206,6 +206,8 @@ $previous_score_size: 28px;
 	}
 
 	&__previous_score_tooltip {
+	  @include box-shadow();
+
 	  position: absolute;
 	  top: -62px;
 	  left: -10em;
@@ -215,7 +217,6 @@ $previous_score_size: 28px;
 	  border-radius: 4px;
 	  margin: 0 16px;
 	  display: none;
-	  box-shadow: 0 0 20px 0 rgb(170 170 170 / 28%);
 
 	  &::after {
 		content: " ";

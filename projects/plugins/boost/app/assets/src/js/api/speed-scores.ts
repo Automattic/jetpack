@@ -168,12 +168,12 @@ export function getScoreLetter( mobile: number, desktop: number ): string {
  *
  * Only show the speed scores if there was improvements on both mobile and desktop.
  *
- * @param {SpeedScoresSet} scoresSet
+ * @param {SpeedScoresSet} scores
  * @return boolean
  */
-export function didScoresImprove( scoresSet ): boolean {
-	const current = scoresSet.current;
-	const previous = scoresSet.previous;
+export function didScoresImprove( scores ): boolean {
+	const current = scores.current;
+	const previous = scores.previous;
 
 	// Consider the score was improved if either desktop or mobile improved and neither worsened.
 	return (
@@ -181,4 +181,12 @@ export function didScoresImprove( scoresSet ): boolean {
 		current.desktop >= previous.desktop &&
 		current.mobile + current.desktop > previous.mobile + previous.desktop
 	);
+}
+
+export function getScoreImprovementPercentage( scores ): number {
+	const current = scores.current.mobile + scores.current.desktop;
+	const previous = scores.previous.mobile + scores.previous.desktop;
+	const improvement = current / previous - 1;
+
+	return Math.round( improvement * 100 );
 }

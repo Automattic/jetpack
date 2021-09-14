@@ -5,12 +5,18 @@
 	import ScoreBar from '../elements/ScoreBar.svelte';
 	import ScoreContext from '../elements/ScoreContext.svelte';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
-	import { getScoreLetter, requestSpeedScores, didScoresImprove } from '../../../api/speed-scores';
+	import {
+		getScoreLetter,
+		requestSpeedScores,
+		didScoresImprove,
+		getScoreImprovementPercentage,
+	} from '../../../api/speed-scores';
 	import debounce from '../../../utils/debounce';
 	import { __ } from '@wordpress/i18n';
 	import { criticalCssStatus } from '../../../stores/critical-css-status';
 	import { modules } from '../../../stores/modules';
 	import { derived } from 'svelte/store';
+	import RatingCard from '../elements/RatingCard.svelte';
 
 	const siteIsOnline = Jetpack_Boost.site.online;
 
@@ -19,13 +25,17 @@
 	let showPrevScores;
 	let scoreLetter = '';
 	let scores = {
-		mobile: 0,
-		desktop: 0,
+		current: {
+			mobile: 0,
+			desktop: 0,
+		},
+		previous: {
+			mobile: 0,
+			desktop: 0,
+		},
 	};
-	let previousScores = {
-		mobile: 0,
-		desktop: 0,
-	};
+	let showRatingCard = false;
+	let improvementPercentage = 0;
 
 	if ( siteIsOnline ) {
 		refreshScore( false );
@@ -72,11 +82,9 @@
 		loadError = undefined;
 
 		try {
-			const scoresSet = await requestSpeedScores( is_forced );
-			scores = scoresSet.current;
-			previousScores = scoresSet.previous;
-			scoreLetter = getScoreLetter( scores.mobile, scores.desktop );
-			showPrevScores = didScoresImprove( scoresSet );
+			scores = await requestSpeedScores( is_forced );
+			scoreLetter = getScoreLetter( scores.current.mobile, scores.current.desktop );
+			showPrevScores = didScoresImprove( scores );
 			currentScoreConfigString = $scoreConfigString;
 		} catch ( err ) {
 			console.log( err );
@@ -105,6 +113,14 @@
 		$modulesInSync;
 
 		debouncedRefreshScore( true );
+	}
+
+	$: {
+		if ( didScoresImprove( scores ) && Jetpack_Boost.preferences.showRatingPrompt ) {
+			showRatingCard = true;
+			Jetpack_Boost.preferences.showRatingPrompt = false;
+			improvementPercentage = getScoreImprovementPercentage( scores );
+		}
 	}
 </script>
 
@@ -163,8 +179,8 @@
 				<div>{__( 'Mobile score', 'jetpack-boost' )}</div>
 			</div>
 			<ScoreBar
-				bind:prevScore={previousScores.mobile}
-				bind:score={scores.mobile}
+				bind:prevScore={scores.previous.mobile}
+				bind:score={scores.current.mobile}
 				active={siteIsOnline}
 				{isLoading}
 				{showPrevScores}
@@ -181,8 +197,8 @@
 				<div>{__( 'Desktop score', 'jetpack-boost' )}</div>
 			</div>
 			<ScoreBar
-				bind:prevScore={previousScores.desktop}
-				bind:score={scores.desktop}
+				bind:prevScore={scores.previous.desktop}
+				bind:score={scores.current.desktop}
 				active={siteIsOnline}
 				{isLoading}
 				{showPrevScores}
@@ -194,3 +210,6 @@
 		</div>
 	</div>
 </div>
+{#if showRatingCard}
+	<RatingCard on:dismiss={() => ( showRatingCard = false )} improvement={improvementPercentage} />
+{/if}

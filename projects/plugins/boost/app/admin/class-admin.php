@@ -22,11 +22,17 @@ class Admin {
 	 * Menu slug.
 	 */
 	const MENU_SLUG = 'jetpack-boost';
+	const AJAX_NONCE = 'ajax_nonce';
 
 	/**
 	 * Option to store options that have been dismissed.
 	 */
 	const DISMISSED_NOTICE_OPTION = 'jb-dismissed-notices';
+
+	/**
+	 * Name of option to store status of show/hide rating prompts
+	 */
+	const SHOW_RATING_PROMPT_OPTION = 'jb_show_rating_prompt';
 
 	/**
 	 * Main plugin instance.
@@ -41,6 +47,7 @@ class Admin {
 	 * @var Speed_Score instance.
 	 */
 	private $speed_score;
+
 
 	/**
 	 * Initialize the class and set its properties.
@@ -60,6 +67,7 @@ class Admin {
 		add_filter( 'plugin_action_links_' . JETPACK_BOOST_PLUGIN_BASE, array( $this, 'plugin_page_settings_link' ) );
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'admin_notices', array( $this, 'show_notices' ) );
+		add_action( 'wp_ajax_set_show_rating_prompt', array( $this, 'handle_set_show_rating_prompt' ) );
 
 		$this->handle_get_parameters();
 	}
@@ -157,6 +165,9 @@ class Admin {
 				'assetPath' => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
 			),
 			'shownAdminNoticeIds' => $this->get_shown_admin_notice_ids(),
+			'preferences' => array(
+					'showRatingPrompt' => $this->get_show_rating_prompt(),
+			)
 		);
 
 		// Give each module an opportunity to define extra constants.
@@ -325,10 +336,37 @@ class Admin {
 	// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 	/**
+	 * Handle the ajax request to set show-rating-prompt status.
+	 */
+	public function handle_set_show_rating_prompt() {
+		check_ajax_referer( self::AJAX_NONCE, 'nonce' );
+		$response = array(
+				'status' => 'ok',
+		);
+
+		$is_enabled = $_POST['value'] === 'true' ? '1' : '0';
+		\update_option( self::SHOW_RATING_PROMPT_OPTION, $is_enabled );
+
+		echo wp_json_encode( $response );
+		wp_die();
+	}
+
+	public function get_show_rating_prompt() {
+		return \get_option(self::SHOW_RATING_PROMPT_OPTION, '1') === '1';
+	}
+
+	/**
 	 * Delete the option tracking which admin notices have been dismissed during deactivation.
 	 */
 	public static function clear_dismissed_notices() {
 		\delete_option( self::DISMISSED_NOTICE_OPTION );
+	}
+
+	/**
+	 * Clear the status of show_rating_prompt
+	 */
+	public static function clear_show_rating_prompt() {
+		\delete_option( self::SHOW_RATING_PROMPT_OPTION );
 	}
 
 	/**

@@ -18,6 +18,9 @@ declare global {
 
 	// Constants provided by the plugin.
 	const Jetpack_Boost: {
+		preferences: {
+			showRatingPrompt: boolean;
+		};
 		version: string;
 		api: {
 			namespace: string;

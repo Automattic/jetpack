@@ -28,3 +28,7 @@
 	word-break: break-all;
 	word-break: break-word;
 }
+
+@mixin box-shadow() {
+  box-shadow: 0 0 20px 0 rgb(170 170 170 / 28%);
+}

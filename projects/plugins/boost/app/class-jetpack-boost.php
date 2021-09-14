@@ -167,6 +167,7 @@ class Jetpack_Boost {
 	public function deactivate() {
 		$this->clear_cache();
 		Admin::clear_dismissed_notices();
+		Admin::clear_show_rating_prompt();
 		Critical_CSS::clear_reset_reason();
 		Critical_CSS::clear_dismissed_recommendations();
 	}
@@ -426,6 +427,7 @@ class Jetpack_Boost {
 				Lazy_Images::MODULE_SLUG        => array(
 					'enabled' => false,
 				),
+				'show_rating_prompt' => true
 			)
 		);
 	}
