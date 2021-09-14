@@ -1,6 +1,6 @@
 const glob = require( 'glob' );
 const fs = require( 'fs' );
-const getPrWorkspace = require( '../../get-pr-workspace' );
+const getPrWorkspace = require( './get-pr-workspace' );
 
 /**
  * Returns a list of Projects that use changelogger package
