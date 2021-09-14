@@ -24,7 +24,7 @@ export type ProviderKeyUrls = {
 };
 
 export type ProvidersSuccessRatio = {
-	[ providerKey: string ]: Number;
+	[ providerKey: string ]: number;
 };
 
 export type MajorMinorCallback = (
