@@ -354,7 +354,7 @@ else
 	version_range 'Git' "$BIN" '' "$VER" "0" "$GITVER" "9999999"
 
 	checking 'If this is a git checkout'
-	if [[ ! -d .git ]]; then
+	if [[ ! -d $(git rev-parse --git-dir) ]]; then
 		failure "no" 'clone-the-repository'
 	else
 		success 'yes'
