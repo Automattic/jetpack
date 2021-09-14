@@ -214,7 +214,7 @@ class Comments extends Module {
 			$comment = get_comment( $args[0] );
 		}
 
-		if ( false !== $comment && ! in_array( $comment->comment_type, $this->get_whitelisted_comment_types(), true ) ) {
+		if ( $comment && ! in_array( $comment->comment_type, $this->get_whitelisted_comment_types(), true ) ) {
 			return false;
 		}
 
@@ -265,7 +265,7 @@ class Comments extends Module {
 	public function is_comment_type_allowed( $comment_id ) {
 		$comment = get_comment( $comment_id );
 
-		if ( isset( $comment->comment_type ) ) {
+		if ( $comment && isset( $comment->comment_type ) ) {
 			return in_array( $comment->comment_type, $this->get_whitelisted_comment_types(), true );
 		}
 		return false;
