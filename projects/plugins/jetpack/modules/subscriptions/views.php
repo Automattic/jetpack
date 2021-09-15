@@ -351,7 +351,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
                     <input type="hidden" name="blog_id" value="<?php echo (int) $current_blog->blog_id; ?>"/>
                     <input type="hidden" name="source" value="<?php echo esc_url( $referer ); ?>"/>
                     <input type="hidden" name="sub-type" value="<?php echo esc_attr( $source ); ?>"/>
-                    <input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $form_id ); ?>"/>
+					<input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $form_id ); ?>"/>
 					<?php wp_nonce_field( 'blogsub_subscribe_' . $current_blog->blog_id, '_wpnonce', false ); ?>
                     <button type="submit"
 	                    <?php if ( ! empty( $submit_button_classes ) ) { ?>
@@ -388,7 +388,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 			$form_id = "subscribe-blog-{$widget_id}";
 			?>
-            <form action="#" method="post" accept-charset="utf-8" id="<?php echo esc_attr( $form_id ); ?>">
+			<form action="#" method="post" accept-charset="utf-8" id="<?php echo esc_attr( $form_id ); ?>">
 				<?php
 				if ( $subscribe_text && ( ! isset ( $_GET['subscribe'] ) || 'success' != $_GET['subscribe'] ) ) {
 					?>
@@ -435,7 +435,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
                         <input type="hidden" name="action" value="subscribe"/>
                         <input type="hidden" name="source" value="<?php echo esc_url( $referer ); ?>"/>
                         <input type="hidden" name="sub-type" value="<?php echo esc_attr( $source ); ?>"/>
-                        <input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $form_id ); ?>"/>
+						<input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $form_id ); ?>"/>
 						<?php
 						if ( is_user_logged_in() ) {
 							wp_nonce_field( 'blogsub_subscribe_' . get_current_blog_id(), '_wpnonce', false );
