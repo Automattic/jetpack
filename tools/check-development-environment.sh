@@ -362,9 +362,8 @@ else
 	elif [[ -f .git && -d "$GIT_DIR" ]]; then
 		success 'yes (as a submodule)'
 		OK=true
-	elif [[ -f "$GIT_DIR" ]]; then
+	elif [[ -d "$GIT_DIR" ]]; then
 		failure 'unknown' 'clone-the-repository' "It seems to be in a git repo, but it's not clearly a Jetpack monorepo checkout."
-		OK=true
 	else
 		failure "no" 'clone-the-repository'
 	fi
