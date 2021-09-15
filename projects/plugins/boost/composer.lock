@@ -2126,7 +2126,8 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WordPress/WordPress/zipball/refs/tags/5.8.1"
+                "url": "https://api.github.com/repos/WordPress/WordPress/zipball/refs/tags/5.8.1",
+                "reference": "5.8.1"
             },
             "require": {
                 "php": ">=5.3.2",
@@ -2955,6 +2956,7 @@
             ],
             "description": "Provides a list of PHP built-in functions that operate on resources",
             "homepage": "https://www.github.com/sebastianbergmann/resource-operations",
+            "abandoned": true,
             "time": "2020-09-28T06:45:17+00:00"
         },
         {
