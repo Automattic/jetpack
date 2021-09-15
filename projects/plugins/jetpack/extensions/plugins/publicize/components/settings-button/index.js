@@ -2,25 +2,32 @@
  * Publicize settings button component.
  *
  * Component which allows user to click to open settings
- * in a new window/tab. If window/tab is closed, then
- * connections will be automatically refreshed.
+ * in a new window/tab.
+ * If window/tab is closed,
+ * then connections will be automatically refreshed.
  */
 
 /**
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import classnames from 'classnames';
 import { ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import getSiteFragment from '../../../../shared/get-site-fragment';
-import useSocialMediaConnection from '../../hooks/use-social-media-connections';
+import useSocialMediaActions from '../../hooks/use-social-media-actions';
+import { useSelectSocialMediaConnections } from '../../hooks/use-select-social-media';
 
-export default function PublicizeSettingsButton( { className } ) {
-	const { refreshConnections } = useSocialMediaConnection();
+export default function PublicizeSettingsButton() {
+	const { refreshConnections } = useSocialMediaActions();
+	const { connections } = useSelectSocialMediaConnections();
+
+	if ( ! connections?.length ) {
+		return null;
+	}
+
 	const siteFragment = getSiteFragment();
 
 	/*
@@ -59,7 +66,7 @@ export default function PublicizeSettingsButton( { className } ) {
 	}
 
 	return (
-		<div className={ classnames( 'jetpack-publicize-add-connection-container', className ) }>
+		<div className="jetpack-publicize-add-connection-wrapper">
 			<ExternalLink href={ href } onClick={ settingsClick }>
 				{ __( 'Connect an account', 'jetpack' ) }
 			</ExternalLink>
