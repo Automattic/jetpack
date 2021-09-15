@@ -17,8 +17,10 @@ import { ExternalLink } from '@wordpress/components';
  * Internal dependencies
  */
 import getSiteFragment from '../../../../shared/get-site-fragment';
+import useSocialMediaConnection from '../../hooks/use-social-media-connections';
 
-export default function PublicizeSettingsButton( { refreshCallback, className } ) {
+export default function PublicizeSettingsButton( { className } ) {
+	const { refreshConnections } = useSocialMediaConnection();
 	const siteFragment = getSiteFragment();
 
 	/*
@@ -51,7 +53,7 @@ export default function PublicizeSettingsButton( { refreshCallback, className } 
 		const popupTimer = window.setInterval( () => {
 			if ( false !== popupWin.closed ) {
 				window.clearInterval( popupTimer );
-				refreshCallback();
+				refreshConnections();
 			}
 		}, 500 );
 	}
