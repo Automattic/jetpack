@@ -157,6 +157,17 @@ export const LoomIcon = {
 	),
 };
 
+export const SmartFrameIcon = {
+	foreground: getIconColor(),
+	src: (
+		<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20.7 17" xmlSpace="preserve">
+			<Path
+				d="m20.7 12.9-.9-11c0-.5-.2-.9-.5-1.3-.3-.3-.8-.5-1.3-.5L1.9 0h-.1c-.2 0-.5 0-.7.1C.9.2.7.4.5.5.4.7.2.9.1 1.1c-.1.2-.1.5-.1.7v.1l.9 13.4c0 .5.2.9.5 1.3.3.2.8.4 1.3.4H3l16.1-2c.4 0 .9-.3 1.1-.6.3-.3.5-.8.5-1.2v-.3zm-3.1.8L4.2 15.3H4c-.4 0-.8-.1-1-.4-.3-.3-.4-.6-.5-1L1.7 3.2v-.1c0-.4.2-.8.5-1 .3-.3.7-.4 1-.4h.1l13.5.1c.4 0 .8.1 1 .4.3.3.4.6.5 1L19 12v.3c0 .4-.2.7-.4 1-.3.2-.6.4-1 .4z"
+			/>
+		</SVG>
+	),
+};
+
 export const DonationsIcon = {
 	foreground: getIconColor(),
 	src: (
