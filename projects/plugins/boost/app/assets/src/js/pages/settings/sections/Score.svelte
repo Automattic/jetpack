@@ -77,12 +77,12 @@
 	 */
 	let currentScoreConfigString = $scoreConfigString;
 
-	async function refreshScore( is_forced = false ) {
+	async function refreshScore( force = false ) {
 		isLoading = true;
 		loadError = undefined;
 
 		try {
-			scores = await requestSpeedScores( is_forced );
+			scores = await requestSpeedScores( force );
 			scoreLetter = getScoreLetter( scores.current.mobile, scores.current.desktop );
 			showPrevScores = didScoresImprove( scores );
 			currentScoreConfigString = $scoreConfigString;
@@ -94,7 +94,7 @@
 		}
 	}
 
-	const debouncedRefreshScore = debounce( is_forced => {
+	const debouncedRefreshScore = debounce( force => {
 		// If the configuration has changed, the previous speed score is no longer relevant. But we don't want to
 		// trigger a refresh while critical css is still generating.
 		if (
@@ -102,7 +102,7 @@
 			$modulesInSync &&
 			$scoreConfigString !== currentScoreConfigString
 		) {
-			refreshScore( is_forced );
+			refreshScore( force );
 		}
 	}, 2000 );
 
