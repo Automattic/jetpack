@@ -9,7 +9,7 @@ function usage() {
 	echo "  stop                         Stop the docker containers for E2E tests"
 	echo "  reset                        Reset the containers state"
 	echo "  gb-setup                     Setup Gutenberg plugin"
-	echo "  configure_app_password       Generate and application password in the Wordpress installation"
+	echo "  configure-app-pass           Generate and application password in the Wordpress installation"
 	echo "  -h | usage                   Output this message"
 	exit 1
 }
@@ -43,7 +43,6 @@ configure_wp_env() {
 	$BASE_CMD wp plugin activate jetpack
 	$BASE_CMD wp plugin activate e2e-plan-data-interceptor
 	$BASE_CMD wp option set permalink_structure ""
-	configure_app_pass
 
 	echo
 	echo "WordPress is ready!"
@@ -65,7 +64,7 @@ elif [ "${1}" == "reset" ]; then
 	reset_env
 elif [ "${1}" == "gb-setup" ]; then
 	gb_setup
-elif [ "${1}" == "configure-app-password" ]; then
+elif [ "${1}" == "configure-app-pass" ]; then
 	configure_app_pass
 elif [ "${1}" == "usage" ]; then
 	usage
