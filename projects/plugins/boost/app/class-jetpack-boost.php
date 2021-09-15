@@ -18,6 +18,7 @@ use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Config;
 use Automattic\Jetpack_Boost\Lib\Connection;
+use Automattic\Jetpack_Boost\Lib\Speed_Score_History;
 use Automattic\Jetpack_Boost\Lib\Viewport;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Regenerate_Admin_Notice;
@@ -178,6 +179,7 @@ class Jetpack_Boost {
 	public function uninstall() {
 		$this->clear_cache();
 
+		Speed_Score_History::clear_all();
 		delete_option( apply_filters( 'jetpack_boost_options_store_key_name', 'jetpack_boost_config' ) );
 	}
 

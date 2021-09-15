@@ -91,4 +91,32 @@ class Speed_Score_History {
 		$this->entries   = array_slice( $this->entries, - static::LIMIT );
 		update_option( $this->get_option_name(), $this->entries );
 	}
+
+	/**
+	 * Remove all speed score history.
+	 */
+	public function clear_all() {
+		global $wpdb;
+
+		/**
+		 * The prefix used in option_name.
+		 */
+		$option_prefix = static::OPTION_PREFIX;
+
+		/**
+		 * LIKE search pattern for the delete query.
+		 */
+		$prefix_search_pattern = $wpdb->esc_like( $option_prefix ) . '%';
+
+		$wpdb->query(
+			$wpdb->prepare(
+				"
+					DELETE
+					FROM    $wpdb->options
+					WHERE   `option_name` LIKE %s
+				",
+				$prefix_search_pattern
+			)
+		);
+	}
 }
