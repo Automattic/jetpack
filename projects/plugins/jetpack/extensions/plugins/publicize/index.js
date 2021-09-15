@@ -24,6 +24,7 @@ import './store';
 import TwitterThreadListener from './components/twitter';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 import PublicizePanel from './components/panel';
+import Authorize from './authorize';
 
 export const name = 'publicize';
 
@@ -33,6 +34,7 @@ export const settings = {
 			<TwitterThreadListener />
 			<JetpackPluginSidebar>
 				<PanelBody title={ __( 'Share this post', 'jetpack' ) }>
+					<Authorize />
 					<PublicizePanel />
 				</PanelBody>
 			</JetpackPluginSidebar>
