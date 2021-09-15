@@ -146,7 +146,9 @@ function checkFileAgainstDirtyList( file, filesList ) {
  */
 function capturePreCommitTreeHash() {
 	if ( exitCode === 0 ) {
-		fs.writeFileSync( '.git/last-commit-tree', execSync( 'git write-tree' ) );
+		// .git folder location varies if this repo is used a submodule. Also, remove trailing new-line.
+		const gitFolderPath = execSync( 'git rev-parse --git-dir' ).toString().trim();
+		fs.writeFileSync( `${ gitFolderPath }/last-commit-tree`, execSync( 'git write-tree' ) );
 	}
 }
 
@@ -392,7 +394,11 @@ const toPrettify = jsFiles.filter( file => checkFileAgainstDirtyList( file, dirt
 toPrettify.forEach( file => console.log( `Prettier formatting staged file: ${ file }` ) );
 
 if ( toPrettify.length ) {
-	execSync( `tools/prettier --ignore-path .eslintignore --write ${ toPrettify.join( ' ' ) }` );
+	execSync(
+		`pnpx prettier --config .prettierrc.js --ignore-path .eslintignore --write ${ toPrettify.join(
+			' '
+		) }`
+	);
 	execSync( `git add ${ toPrettify.join( ' ' ) }` );
 }
 

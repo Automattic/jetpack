@@ -82,7 +82,7 @@ function render_block( $attributes, $content ) {
 		: '<' . $element . $button_attributes . '>' . $text . '</' . $element . '>';
 
 	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	return '<div "' . $wrapper_attributes . '">' . $button . '</div>';
+	return '<div' . $wrapper_attributes . '>' . $button . '</div>';
 }
 
 /**

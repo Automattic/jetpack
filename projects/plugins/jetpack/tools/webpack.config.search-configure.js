@@ -20,6 +20,8 @@ const baseWebpackConfig = getBaseWebpackConfig(
 		},
 		'output-filename': 'jp-search-configure-[name].min.js',
 		'output-path': path.join( __dirname, '../_inc/build/instant-search' ),
+		// Calypso-build defaults this to "window", which breaks things if no library.name is set.
+		'output-library-target': '',
 	}
 );
 
@@ -32,11 +34,11 @@ module.exports = {
 			path.resolve( __dirname, '../node_modules' ),
 			'node_modules',
 		],
+		alias: {
+			fs: false,
+		},
 	},
 	devtool: isDevelopment ? 'source-map' : false,
-	node: {
-		fs: 'empty',
-	},
 	plugins: [
 		...baseWebpackConfig.plugins,
 		new DependencyExtractionWebpackPlugin( { injectPolyfill: true } ),

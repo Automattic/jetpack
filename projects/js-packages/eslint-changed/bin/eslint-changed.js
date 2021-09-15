@@ -8,7 +8,7 @@ const fs = require( 'fs' );
 const path = require( 'path' );
 const chalk = require( 'chalk' );
 
-const APP_VERSION = '1.0.1';
+const APP_VERSION = '1.0.2-alpha';
 
 const { program } = require( 'commander' );
 program
@@ -308,6 +308,7 @@ async function main() {
 
 		file.messages = [];
 		file.errorCount = 0;
+		file.fatalErrorCount = 0;
 		file.warningCount = 0;
 		file.fixableErrorCount = 0;
 		file.fixableWarningCount = 0;
@@ -338,6 +339,7 @@ async function main() {
 				file.fixableWarningCount += msg.fix ? 1 : 0;
 			} else {
 				file.errorCount++;
+				file.fatalErrorCount += msg.fatal ? 1 : 0;
 				file.fixableErrorCount += msg.fix ? 1 : 0;
 			}
 			exitCode = 1;

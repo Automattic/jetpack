@@ -42,10 +42,9 @@ class Jetpack_Search_Dashboard_Page extends Jetpack_Admin_Page {
 			return;
 		}
 		return add_submenu_page(
-			// change this to 'jetpack' on launch.
-			null,
+			'jetpack',
 			__( 'Search Settings', 'jetpack' ),
-			__( 'Search', 'jetpack' ),
+			_x( 'Search', 'product name shown in menu', 'jetpack' ),
 			'manage_options',
 			'jetpack-search',
 			array( $this, 'render' ),
@@ -143,5 +142,7 @@ class Jetpack_Search_Dashboard_Page extends Jetpack_Admin_Page {
 			'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( \Jetpack_Redux_State_Helper::get_initial_state() ) ) . '"));',
 			'before'
 		);
+
+		wp_set_script_translations( 'jp-search-dashboard', 'jetpack' );
 	}
 }

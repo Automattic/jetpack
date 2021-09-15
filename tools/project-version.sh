@@ -14,9 +14,12 @@ function usage {
 
 		  Check that the project's versions are updated to the specified version.
 
-		usage: $0 [-v] -u version <slug>
+		usage: $0 [-f] [-v] -u version <slug>
 
 		  Update the versions of the specified project.
+
+		  Specifying -f updates the referenced version in other packages that depend
+		  on the updated package (see tools/check-intra-monorepo-deps.sh -ua).
 
 		The following version numbers are updated:
 		   - Version in the WordPress plugin header, if applicable.
@@ -35,7 +38,8 @@ fi
 # Sets options.
 OP=
 VERBOSE=false
-while getopts ":c:u:vh" opt; do
+FIX_INTRA_MONOREPO_DEPS=false
+while getopts ":c:u:fvsh" opt; do
 	case ${opt} in
 		c)
 			[[ -z "$OP" ]] || die "Only one of -c or -u may be specified"
@@ -48,6 +52,9 @@ while getopts ":c:u:vh" opt; do
 			VERSION=$OPTARG
 			OP=update
 			OPING=Updating
+			;;
+		f)
+			FIX_INTRA_MONOREPO_DEPS=true
 			;;
 		v)
 			VERBOSE=true
@@ -134,7 +141,7 @@ function sedver {
 #  - $4: What is being looked for, if not finding it is a problem.
 function jsver {
 	if [[ "$OP" == "update" ]]; then
-		JSON=$(jq --arg v "$3" "if $2 then $2 |= \$v else . end" "$1" | "$BASE/tools/prettier" --parser=json-stringify)
+		JSON=$(jq --tab --arg v "$3" "if $2 then $2 |= \$v else . end" "$1")
 		if [[ "$JSON" != "$(<"$FILE")" ]]; then
 			echo "$JSON" > "$FILE"
 		fi
@@ -230,8 +237,15 @@ while IFS=" " read -r C F; do
 	sedver "$BASE/projects/$SLUG/$F" "$PAT" "$VERSION" "version constant $C"
 done < <(jq -r '.extra["version-constants"] // {} | to_entries | .[] | .key + " " + .value' "$FILE")
 
+# Update other dependencies
+
+if $FIX_INTRA_MONOREPO_DEPS; then
+	debug "checking and fixing any broken version dependencies"
+	"$BASE/tools/check-intra-monorepo-deps.sh" -u -a
+fi
+
 if $FIXHINT; then
-	green "You might use \`tools/project-version.sh -u $VERSION $SLUG\` to fix this"
+	green "You might use \`tools/project-version.sh -f -u $VERSION $SLUG\` to fix this"
 fi
 
 exit $EXIT

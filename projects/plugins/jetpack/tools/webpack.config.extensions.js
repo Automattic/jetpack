@@ -26,18 +26,21 @@ const CopyBlockEditorAssetsPlugin = require( './copy-block-editor-assets' );
  */
 const editorSetup = path.join( path.dirname( __dirname ), 'extensions', 'editor' );
 const viewSetup = path.join( path.dirname( __dirname ), 'extensions', 'view' );
+const blockEditorDirectories = [ 'plugins', 'blocks' ];
 
 /**
- * Filters block scripts
+ * Filters block editor scripts
  *
  * @param {string} type - script type
  * @param {string} inputDir - input directory
  * @param {Array} presetBlocks - preset blocks
  * @returns {Array} list of block scripts
  */
-function blockScripts( type, inputDir, presetBlocks ) {
-	return presetBlocks
-		.map( block => path.join( inputDir, 'blocks', block, `${ type }.js` ) )
+function presetProductionExtensions( type, inputDir, presetBlocks ) {
+	return blockEditorDirectories
+		.flatMap( dir =>
+			presetBlocks.map( block => path.join( inputDir, dir, block, `${ type }.js` ) )
+		)
 		.filter( fs.existsSync );
 }
 
@@ -71,7 +74,7 @@ const viewBlocksScripts = presetBetaBlocks.reduce( ( viewBlocks, block ) => {
 // Combines all the different production blocks into one editor.js script
 const editorScript = [
 	editorSetup,
-	...blockScripts(
+	...presetProductionExtensions(
 		'editor',
 		path.join( path.dirname( __dirname ), 'extensions' ),
 		presetProductionBlocks
@@ -81,7 +84,7 @@ const editorScript = [
 // Combines all the different Experimental blocks into one editor.js script
 const editorExperimentalScript = [
 	editorSetup,
-	...blockScripts(
+	...presetProductionExtensions(
 		'editor',
 		path.join( path.dirname( __dirname ), 'extensions' ),
 		presetExperimentalBlocks
@@ -91,7 +94,7 @@ const editorExperimentalScript = [
 // Combines all the different blocks into one editor-beta.js script
 const editorBetaScript = [
 	editorSetup,
-	...blockScripts(
+	...presetProductionExtensions(
 		'editor',
 		path.join( path.dirname( __dirname ), 'extensions' ),
 		presetBetaBlocks
@@ -100,7 +103,7 @@ const editorBetaScript = [
 
 const editorNoPostEditorScript = [
 	editorSetup,
-	...blockScripts(
+	...presetProductionExtensions(
 		'editor',
 		path.join( path.dirname( __dirname ), 'extensions' ),
 		presetNoPostEditorBlocks
@@ -117,9 +120,12 @@ const extensionsWebpackConfig = getBaseWebpackConfig(
 			'editor-no-post-editor': editorNoPostEditorScript,
 			...viewBlocksScripts,
 		},
+		'output-filename': '[name].min.js',
 		'output-chunk-filename': '[name].[chunkhash].js',
 		'output-path': path.join( path.dirname( __dirname ), '_inc', 'blocks' ),
 		'output-jsonp-function': 'webpackJsonpJetpack',
+		// Calypso-build defaults this to "window", which breaks things if no library.name is set.
+		'output-library-target': '',
 	}
 );
 
@@ -139,6 +145,23 @@ const componentsWebpackConfig = getBaseWebpackConfig(
 	}
 );
 
+/**
+ * Calyso Build sets publicPath to '/' instead of the default '__webpack_public_path__'
+ * This workaround removes the custom set publicPath from Calypso build until a long term solution is fixed.
+ *
+ * @param {object} config - the configuration file we're checking and editing.
+ * @todo remove once we switch away from Calypso Build, or if this is addressed later.
+ */
+function overrideCalypsoBuildFileConfig( config ) {
+	config.module.rules.forEach( v => {
+		if ( v.type === 'asset/resource' ) {
+			delete v.generator.publicPath;
+		}
+	} );
+}
+overrideCalypsoBuildFileConfig( extensionsWebpackConfig );
+overrideCalypsoBuildFileConfig( componentsWebpackConfig );
+
 // We export two configuration files: One for admin.js, and one for components.jsx.
 // The latter produces pre-rendered components HTML.
 module.exports = [
@@ -147,16 +170,20 @@ module.exports = [
 		resolve: {
 			...extensionsWebpackConfig.resolve,
 			// We want the compiled version, not the "calypso:src" sources.
-			mainFields: undefined,
+			mainFields: extensionsWebpackConfig.resolve.mainFields.filter(
+				entry => 'calypso:src' !== entry
+			),
 		},
 		plugins: [
 			...extensionsWebpackConfig.plugins,
-			new CopyWebpackPlugin( [
-				{
-					from: presetPath,
-					to: 'index.json',
-				},
-			] ),
+			new CopyWebpackPlugin( {
+				patterns: [
+					{
+						from: presetPath,
+						to: 'index.json',
+					},
+				],
+			} ),
 			new CopyBlockEditorAssetsPlugin(),
 		],
 	},
@@ -165,7 +192,9 @@ module.exports = [
 		resolve: {
 			...componentsWebpackConfig.resolve,
 			// We want the compiled version, not the "calypso:src" sources.
-			mainFields: undefined,
+			mainFields: componentsWebpackConfig.resolve.mainFields.filter(
+				entry => 'calypso:src' !== entry
+			),
 		},
 		plugins: [
 			...componentsWebpackConfig.plugins,

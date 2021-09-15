@@ -5,7 +5,7 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Sync\Settings;
 
 class Jetpack_RelatedPosts {
-	const VERSION   = '20210604';
+	const VERSION   = '20210914';
 	const SHORTCODE = 'jetpack-related-posts';
 
 	private static $instance     = null;
@@ -303,7 +303,7 @@ EOT;
 
 		if ( ! empty( $block_attributes['show_thumbnails'] ) && ! empty( $related_post['img']['src'] ) ) {
 			$img_link = sprintf(
-				'<li class="jp-related-posts-i2__post-img-link"><a href="%1$s" %2$s><img src="%3$s" width="%4$s" height="%5$s" alt="%6$s" /></a></li>',
+				'<li class="jp-related-posts-i2__post-img-link"><a href="%1$s" %2$s><img src="%3$s" width="%4$s" height="%5$s" alt="%6$s" loading="lazy" /></a></li>',
 				esc_url( $related_post['url'] ),
 				( ! empty( $related_post['rel'] ) ? 'rel="' . esc_attr( $related_post['rel'] ) . '"' : '' ),
 				esc_url( $related_post['img']['src'] ),
@@ -1140,7 +1140,7 @@ EOT;
 			foreach ( array_merge( $with_post_thumbnails, $no_post_thumbnails ) as $index => $real_post ) {
 				$related_posts[ $index ]['id']      = $real_post->ID;
 				$related_posts[ $index ]['url']     = esc_url( get_permalink( $real_post ) );
-				$related_posts[ $index ]['title']   = $this->_to_utf8( $this->get_title( $real_post->post_title, $real_post->post_content ) );
+				$related_posts[ $index ]['title']   = $this->_to_utf8( $this->get_title( $real_post->post_title, $real_post->post_content, $real_post->ID ) );
 				$related_posts[ $index ]['date']    = get_the_date( '', $real_post );
 				$related_posts[ $index ]['excerpt'] = html_entity_decode( $this->_to_utf8( $this->_get_excerpt( $real_post->post_excerpt, $real_post->post_content ) ), ENT_QUOTES, 'UTF-8' );
 				$related_posts[ $index ]['img']     = $this->_generate_related_post_image_params( $real_post->ID );
@@ -1192,7 +1192,7 @@ EOT;
 				'origin'   => $origin,
 				'position' => $position,
 			),
-			'title'    => $this->_to_utf8( $this->get_title( $post->post_title, $post->post_content ) ),
+			'title'    => $this->_to_utf8( $this->get_title( $post->post_title, $post->post_content, $post->ID ) ),
 			'date'     => get_the_date( '', $post->ID ),
 			'format'   => get_post_format( $post->ID ),
 			'excerpt'  => html_entity_decode( $this->_to_utf8( $this->_get_excerpt( $post->post_excerpt, $post->post_content ) ), ENT_QUOTES, 'UTF-8' ),
@@ -1249,14 +1249,15 @@ EOT;
 	 *
 	 * @param string $post_title   Post title.
 	 * @param string $post_content Post content.
+	 * @param int    $post_id Post ID.
 	 *
 	 * @return string
 	 */
-	protected function get_title( $post_title, $post_content ) {
+	protected function get_title( $post_title, $post_content, $post_id ) {
 		if ( ! empty( $post_title ) ) {
 			return wp_strip_all_tags(
 				/** This filter is documented in core/src/wp-includes/post-template.php */
-				apply_filters( 'the_title', $post_title )
+				apply_filters( 'the_title', $post_title, $post_id )
 			);
 		}
 

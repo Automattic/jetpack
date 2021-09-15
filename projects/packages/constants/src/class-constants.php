@@ -80,7 +80,7 @@ class Constants {
 		/**
 		 * Filters the value of the constant.
 		 *
-		 * @since 8.5.0
+		 * @since 1.2.0
 		 *
 		 * @param null The constant value to be filtered. The default is null.
 		 * @param String $name The constant name.

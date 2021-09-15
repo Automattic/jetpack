@@ -61,7 +61,7 @@ class Jetpack_Search_Customberg {
 			__( 'Search Settings', 'jetpack' ),
 			__( 'Search', 'jetpack' ),
 			'manage_options', // Must be an admin.
-			'jetpack-search-customize',
+			'jetpack-search-configure',
 			array( $this, 'jetpack_search_admin_page' )
 		);
 
@@ -81,7 +81,7 @@ class Jetpack_Search_Customberg {
 		// TODO: Spin this function off into a static helper function in a helper class for code reuse.
 		$static_url = apply_filters( 'jetpack_static_url', '//en.wordpress.com/i/loading/loading-64.gif' );
 		?>
-			<div id="jp-search-customization" class="jp-search-customization-dashboard" style="height: calc(100vh - 100px);">
+			<div id="jp-search-configure" class="jp-search-configure-dashboard" style="height: calc(100vh - 100px);">
 				<div class="hide-if-no-js" style="height: 100%;">
 					<img class="jp-search-loader" width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php echo esc_url( $static_url ); ?>" style="
 						position: absolute;
@@ -130,7 +130,7 @@ class Jetpack_Search_Customberg {
 		// Load styles.
 		\Jetpack_Admin_Page::load_wrapper_styles();
 		wp_enqueue_style(
-			'jp-search-customize',
+			'jp-search-configure',
 			plugins_url( $style_relative_path, $plugin_base_path ),
 			array(
 				'wp-components',
@@ -151,19 +151,19 @@ class Jetpack_Search_Customberg {
 		Tracking::register_tracks_functions_scripts( true );
 
 		wp_enqueue_script(
-			'jp-search-customization',
+			'jp-search-configure',
 			plugins_url( $script_relative_path, $plugin_base_path ),
 			$script_dependencies,
 			JETPACK__VERSION,
 			true
 		);
-		wp_set_script_translations( 'jp-search-customization', 'jetpack' );
+		wp_set_script_translations( 'jp-search-configure', 'jetpack' );
 
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
-		wp_add_inline_script( 'jp-search-customization', 'var JetpackInstantSearchOptions=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Jetpack_Search_Helpers::generate_initial_javascript_state() ) ) . '"));', 'before' );
+		wp_add_inline_script( 'jp-search-configure', 'var JetpackInstantSearchOptions=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Jetpack_Search_Helpers::generate_initial_javascript_state() ) ) . '"));', 'before' );
 		wp_add_inline_script(
-			'jp-search-customization',
-			"window.jetpackSearchCustomizeInit( 'jp-search-customization' )"
+			'jp-search-configure',
+			"window.jetpackSearchConfigureInit( 'jp-search-configure' )"
 		);
 	}
 

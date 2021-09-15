@@ -102,7 +102,8 @@ class Assets {
 	 *                             Typically this is done by passing __FILE__ as the argument.
 	 *
 	 * @return string The URL to the file
-	 * @since 5.6.0
+	 * @since 1.0.3
+	 * @since-jetpack 5.6.0
 	 */
 	public static function get_file_url_for_environment( $min_path, $non_min_path, $package_path = '' ) {
 		$path = ( Jetpack_Constants::is_defined( 'SCRIPT_DEBUG' ) && Jetpack_Constants::get_constant( 'SCRIPT_DEBUG' ) )
@@ -125,7 +126,7 @@ class Assets {
 		/**
 		 * Filters the URL for a file passed through the get_file_url_for_environment function.
 		 *
-		 * @since 8.1.0
+		 * @since 1.0.3
 		 *
 		 * @package assets
 		 *
@@ -155,7 +156,7 @@ class Assets {
 	/**
 	 * Passes an array of URLs to wp_resource_hints.
 	 *
-	 * @since 8.8.0
+	 * @since 1.5.0
 	 *
 	 * @param string|array $urls URLs to hint.
 	 * @param string       $type One of the supported resource types: dns-prefetch (default), preconnect, prefetch, or prerender.
@@ -180,7 +181,7 @@ class Assets {
 	/**
 	 * Serve a WordPress.com static resource via a randomized wp.com subdomain.
 	 *
-	 * @since 9.3.0
+	 * @since 1.9.0
 	 *
 	 * @param string $url WordPress.com static resource URL.
 	 *
