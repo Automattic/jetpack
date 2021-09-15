@@ -261,7 +261,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			false;
 		$referer                      = ( is_ssl() ? 'https' : 'http' ) . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 		$source                       = 'widget';
-		$widget_id                    = esc_attr( ! empty( $args['widget_id'] ) ? esc_attr( $args['widget_id'] ) : wp_rand( 450, 550 ) );
+		$widget_id                    = ! empty( $args['widget_id'] ) ? $args['widget_id'] : self::$instance_count;
 		$subscribe_button             = ! empty( $instance['submit_button_text'] ) ? $instance['submit_button_text'] : $instance['subscribe_button'];
 		$subscribers_total            = self::fetch_subscriber_count();
 		$subscribe_placeholder        = isset( $instance['subscribe_placeholder'] ) ? stripslashes( $instance['subscribe_placeholder'] ) : '';
@@ -411,7 +411,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
                     <p id="subscribe-email">
                         <label id="jetpack-subscribe-label"
                                class="screen-reader-text"
-                               for="<?php echo esc_attr( $subscribe_field_id ) . '-' . esc_attr( $widget_id ); ?>">
+                               for="<?php echo esc_attr( $subscribe_field_id . '-' . $widget_id ); ?>">
 							<?php echo ! empty( $subscribe_placeholder ) ? esc_html( $subscribe_placeholder ) : esc_html__( 'Email Address:', 'jetpack' ); ?>
                         </label>
                         <input type="email" name="email" required="required"
@@ -422,7 +422,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			                    style="<?php echo esc_attr( $email_field_styles ); ?>"
 		                    <?php }; ?>
                             value="<?php echo esc_attr( $subscribe_email ); ?>"
-                            id="<?php echo esc_attr( $subscribe_field_id ) . '-' . esc_attr( $widget_id ); ?>"
+                            id="<?php echo esc_attr( $subscribe_field_id . '-' . $widget_id ); ?>"
                             placeholder="<?php echo esc_attr( $subscribe_placeholder ); ?>"
                         />
                     </p>
