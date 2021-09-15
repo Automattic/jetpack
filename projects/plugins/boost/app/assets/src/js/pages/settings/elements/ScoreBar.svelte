@@ -5,6 +5,7 @@
 	export let showPrevScores = false;
 	export let active = true;
 	export let prevScore = 0;
+	export let previousScoreTooltip = null;
 
 	let fillColor;
 	let prevScoreOffset;
@@ -49,9 +50,9 @@
 					style="left: min({prevScoreOffset}%, calc(100% - var(--clearance-space))"
 				>
 					{prevScore}
-					{#if $$slots[ 'previous-score-tooltip' ]}
+					{#if previousScoreTooltip }
 						<div class="jb-score-bar__previous_score_tooltip">
-							<slot name="previous-score-tooltip" />
+							{ previousScoreTooltip }
 						</div>
 					{/if}
 				</div>

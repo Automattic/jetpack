@@ -184,11 +184,8 @@
 				active={siteIsOnline}
 				{isLoading}
 				{showPrevScores}
-			>
-				<svelte:fragment slot="previous-score-tooltip"
-					>{__( 'Your previous mobile score', 'jetpack-boost' )}</svelte:fragment
-				>
-			</ScoreBar>
+				previousScoreTooltip="{__( 'Your previous mobile score', 'jetpack-boost' )}"
+			/>
 		</div>
 
 		<div class="jb-score-bar jb-score-bar--desktop">
@@ -202,11 +199,8 @@
 				active={siteIsOnline}
 				{isLoading}
 				{showPrevScores}
-			>
-				<svelte:fragment slot="previous-score-tooltip"
-					>{__( 'Your previous desktop score', 'jetpack-boost' )}</svelte:fragment
-				>
-			</ScoreBar>
+				previousScoreTooltip="{__( 'Your previous desktop score', 'jetpack-boost' )}"
+			/>
 		</div>
 	</div>
 </div>
