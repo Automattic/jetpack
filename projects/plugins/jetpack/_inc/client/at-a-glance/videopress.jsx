@@ -94,7 +94,7 @@ class DashVideoPress extends Component {
 									className="media__videopress-upgrade"
 									callToAction={ __( 'Upgrade', 'jetpack' ) }
 									title={ __(
-										'You are limited to 1 video. Upgrade now to upload more with 1TB of storage.',
+										'You are limited to 1 video. Upgrade now to unlock more videos and 1 TB of storage.',
 										'jetpack'
 									) }
 									disableHref="false"
