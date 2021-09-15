@@ -95,7 +95,7 @@ function wpcom_shortcodereverse_smartframe( $content ) {
 	$regexp     = '!<script\ssrc="https://embed.smartframe.io/(\w+).js"\sdata-image-id="(.*?)"(\sdata-width="(\d+(%|px))"\s)?(data-max-width="(\d+(%|px)))?"></script>!i';
 	$regexp_ent = str_replace( '&amp;#0*58;', '&amp;#0*58;|&#0*58;', htmlspecialchars( $regexp, ENT_NOQUOTES ) );
 
-	foreach ( compact( 'regexp', 'regexp_ent' ) as $reg => $regexp ) {
+	foreach ( compact( 'regexp', 'regexp_ent' ) as $regexp ) {
 		if ( ! preg_match_all( $regexp, $content, $matches, PREG_SET_ORDER ) ) {
 			continue;
 		}
@@ -149,7 +149,7 @@ function wpcom_shortcodereverse_smartframe( $content ) {
  *
  * @return string
  */
-function jetpack_smartframe_shortcode( $atts, $content = '' ) {
+function jetpack_smartframe_shortcode( $atts ) {
 	if ( ! empty( $atts['image-id'] ) ) {
 		$image_id = $atts['image-id'];
 	} else {
