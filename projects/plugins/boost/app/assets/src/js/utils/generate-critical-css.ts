@@ -209,7 +209,7 @@ async function generateForKeys(
 				size: css.length,
 				generation_time: Date.now() - providerStartTime,
 			};
-			window.jpTracksAJAX.record_ajax_event( 'critical_css_success', 'click', trackerAttributes );
+			jpTracksAJAX.record_ajax_event( 'critical_css_success', 'click', trackerAttributes );
 		} catch ( err ) {
 			// Track individual Critical CSS generation error.
 			const trackerAttributes: TrackerAttributes = {
@@ -222,7 +222,7 @@ async function generateForKeys(
 			} else {
 				trackerAttributes.error_type = err.type;
 			}
-			window.jpTracksAJAX.record_ajax_event( 'critical_css_error', 'click', trackerAttributes );
+			jpTracksAJAX.record_ajax_event( 'critical_css_error', 'click', trackerAttributes );
 
 			// Success Target Errors indicate that URLs failed, but the process itself succeeded.
 			if ( err.isSuccessTargetError ) {
@@ -256,7 +256,7 @@ async function generateForKeys(
 		percent_complete,
 		generation_time: Date.now() - startTime,
 	};
-	window.jpTracksAJAX.record_ajax_event( 'critical_css_success', 'click', trackerAttributes );
+	jpTracksAJAX.record_ajax_event( 'critical_css_success', 'click', trackerAttributes );
 
 	await updateGenerateStatus( false, 0 );
 }

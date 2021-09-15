@@ -44,11 +44,9 @@ declare global {
 		BrowserInterfaceIframe: typeof BrowserInterfaceIframe;
 	};
 
-	interface Window {
-		jpTracksAJAX: {
-			record_ajax_event( eventName: string, eventType: string, eventProp: TrackerAttributes ): void;
-		};
-	}
+	const jpTracksAJAX: {
+		record_ajax_event( eventName: string, eventType: string, eventProp: TrackerAttributes ): void;
+	};
 }
 
 export {};
