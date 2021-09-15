@@ -26,6 +26,7 @@ type PublicizeCheckboxProps = {
 	onChange: React.ChangeEventHandler;
 	serviceName: string;
 	label: string;
+	picture: string;
 };
 
 /**
@@ -34,7 +35,7 @@ type PublicizeCheckboxProps = {
  * @returns
  */
 const PublicizeCheckbox: React.FC< PublicizeCheckboxProps > = props => {
-	const { className, checked, id, disabled, onChange, serviceName, label } = props;
+	const { className, checked, id, disabled, onChange, serviceName, label, picture } = props;
 
 	const wrapperClasses = classnames( 'components-publicize-icon', className, {
 		'is-not-checked': ! checked,
@@ -51,6 +52,7 @@ const PublicizeCheckbox: React.FC< PublicizeCheckboxProps > = props => {
 				onChange={ onChange }
 				disabled={ disabled }
 			/>
+			<img src={ picture } />
 			<SocialServiceIcon
 				serviceName={ serviceName }
 				className="jetpack-publicize-gutenberg-social-icon"
