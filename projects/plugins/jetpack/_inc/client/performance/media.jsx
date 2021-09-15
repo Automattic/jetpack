@@ -106,7 +106,7 @@ class Media extends React.Component {
 						className="media__videopress-upgrade"
 						callToAction={ __( 'Upgrade', 'jetpack' ) }
 						title={ __(
-							'You are limited to 1 video. Upgrade now for unlimited videos and 1TB of storage.',
+							'You are limited to 1 video. Upgrade now to upload more with 1TB of storage.',
 							'jetpack'
 						) }
 						eventFeature="videopress"

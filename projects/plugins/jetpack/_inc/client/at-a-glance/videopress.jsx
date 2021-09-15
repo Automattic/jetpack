@@ -94,7 +94,7 @@ class DashVideoPress extends Component {
 									className="media__videopress-upgrade"
 									callToAction={ __( 'Upgrade', 'jetpack' ) }
 									title={ __(
-										'You are limited to 1 video. Upgrade now for unlimited videos and 1TB of storage.',
+										'You are limited to 1 video. Upgrade now to upload more with 1TB of storage.',
 										'jetpack'
 									) }
 									disableHref="false"
@@ -124,7 +124,7 @@ class DashVideoPress extends Component {
 						? __( 'Unavailable in Offline Mode', 'jetpack' )
 						: createInterpolateElement(
 								__(
-									'<a>Activate</a> to engage your visitors with high-resolution, ad-free video. Save time by uploading videos directly through the WordPress editor.',
+									'<a>Activate</a> to engage your visitors with high-resolution, ad-free video. Save time by uploading videos directly through the WordPress editor. Try it for free.',
 									'jetpack'
 								),
 								{
