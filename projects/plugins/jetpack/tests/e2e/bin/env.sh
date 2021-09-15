@@ -43,14 +43,14 @@ configure_wp_env() {
 	$BASE_CMD wp plugin activate jetpack
 	$BASE_CMD wp plugin activate e2e-plan-data-interceptor
 	$BASE_CMD wp option set permalink_structure ""
-	configure_app_password
+	configure_app_pass
 
 	echo
 	echo "WordPress is ready!"
 	echo
 }
 
-configure_app_password() {
+configure_app_pass() {
 	if [[ -z "$TEST_SITE" ]]; then
 		OUTPUT=$($BASE_CMD wp eval 'print_r(WP_Application_Passwords::create_new_application_password(1,array("name"=>"e2e-".rand()))[0]);')
 		export API_PASSWORD="${OUTPUT##*php}"
@@ -66,7 +66,7 @@ elif [ "${1}" == "reset" ]; then
 elif [ "${1}" == "gb-setup" ]; then
 	gb_setup
 elif [ "${1}" == "configure-app-password" ]; then
-	configure_app_password
+	configure_app_pass
 elif [ "${1}" == "usage" ]; then
 	usage
 else
