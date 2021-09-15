@@ -122,7 +122,13 @@ function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysi
 	</div>
 
 	<?php
-	return ob_get_clean();
+
+	$block_content = ob_get_clean();
+
+	// @see https://github.com/Automattic/jetpack/issues/18271#issuecomment-757358034
+	$block_content = str_replace( [ "\r", "\n" ], '', $block_content );
+
+	return $block_content;
 }
 
 /**
