@@ -34,12 +34,7 @@ const PublicizePanel = ( { connections, refreshConnections, prePublish } ) => (
 			<PublicizeForm refreshCallback={ refreshConnections } />
 		) }
 		<PublicizeTwitterOptions prePublish={ prePublish } />
-		{ connections && 0 === connections.length && (
-			<PublicizeSettingsButton
-				className="jetpack-publicize-add-connection-wrapper"
-				refreshCallback={ refreshConnections }
-			/>
-		) }
+		<PublicizeSettingsButton />
 	</Fragment>
 );
 
