@@ -299,6 +299,10 @@ class JetpackStateNotices extends React.Component {
 			action = messageData[ 2 ];
 		}
 
+		if ( '' === noticeText ) {
+			return;
+		}
+
 		return (
 			<SimpleNotice
 				status={ status }
