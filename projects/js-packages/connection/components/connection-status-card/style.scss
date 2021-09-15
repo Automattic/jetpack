@@ -4,6 +4,9 @@
 	h3 {
 		font-size: 36px;
 		line-height: 40px;
+		font-weight: 400;
+		color: var( --jp-black );
+		margin: 0;
 	}
 
 	a, a:active, a:hover {
@@ -12,6 +15,7 @@
 
 	p {
 		margin: 16px 0;
+		color: var( --jp-black );
 	}
 
 	p, a, li {
@@ -22,6 +26,7 @@
 	&--status {
 		display: flex;
 		align-items: center;
+		margin: 24px 0 24px -6px;
 	}
 
 	&--cloud {
@@ -54,13 +59,13 @@
 		background-repeat: no-repeat;
 		background-size: contain;
 		margin-left: -10px;
-		background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjUiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNSAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPG1hc2sgaWQ9Im1hc2swIiBtYXNrLXR5cGU9ImFscGhhIiBtYXNrVW5pdHM9InVzZXJTcGFjZU9uVXNlIiB4PSI0IiB5PSI0IiB3aWR0aD0iMTciIGhlaWdodD0iMTYiPgo8cGF0aCBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0iTTEyLjI4NSA0QzEwLjA4NTggNCA4LjMwNDU5IDUuNzkgOC4zMDQ1OSA4QzguMzA0NTkgMTAuMjEgMTAuMDg1OCAxMiAxMi4yODUgMTJDMTQuNDg0MSAxMiAxNi4yNjUzIDEwLjIxIDE2LjI2NTMgOEMxNi4yNjUzIDUuNzkgMTQuNDg0MSA0IDEyLjI4NSA0Wk0xNC4yNzUxIDhDMTQuMjc1MSA2LjkgMTMuMzc5NiA2IDEyLjI4NSA2QzExLjE5MDQgNiAxMC4yOTQ4IDYuOSAxMC4yOTQ4IDhDMTAuMjk0OCA5LjEgMTEuMTkwNCAxMCAxMi4yODUgMTBDMTMuMzc5NiAxMCAxNC4yNzUxIDkuMSAxNC4yNzUxIDhaTTE4LjI1NTUgMThDMTguMDU2NSAxNy4yOSAxNC45NzE3IDE2IDEyLjI4NSAxNkM5LjYwODE2IDE2IDYuNTQzMjcgMTcuMjggNi4zMTQ0IDE4SDE4LjI1NTVaTTQuMzI0MjIgMThDNC4zMjQyMiAxNS4zNCA5LjYyODA2IDE0IDEyLjI4NSAxNEMxNC45NDE4IDE0IDIwLjI0NTcgMTUuMzQgMjAuMjQ1NyAxOFYyMEg0LjMyNDIyVjE4WiIgZmlsbD0id2hpdGUiLz4KPC9tYXNrPgo8ZyBtYXNrPSJ1cmwoI21hc2swKSI+CjxyZWN0IHg9IjAuMzQzNzUiIHdpZHRoPSIyMy44ODIyIiBoZWlnaHQ9IjI0IiBmaWxsPSIjYTJhYWIyIi8+CjwvZz4KPC9zdmc+Cg==");
+		background-image: url("data:image/svg+xml,%3Csvg width='32' height='32' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='16' cy='16' r='16' fill='%23fff'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M4.498 27.123C6.038 24.165 10.916 21.5 16 21.5c5.084 0 9.963 2.665 11.502 5.623a15.952 15.952 0 01-11.257 4.875L16 32l-.245-.002a15.952 15.952 0 01-11.257-4.875zM16 8a6 6 0 110 12 6 6 0 010-12z' fill='%23A2AAB2'/%3E%3C/svg%3E%0A");
 	}
 
 	&--line {
 		width: 67px;
 		height: 0;
-		border-top: 2px solid #000000;
+		border-top: 2px solid var( --jp-black );
 
 		&.jp-connection-status-card--site-only {
 			border-top-style: dashed;
@@ -68,12 +73,14 @@
 	}
 
 	&--list {
+		margin: 16px 0;
+
 		list-style-type: none;
 
 		li {
 			padding-left: 25px;
-			color: #000;
-			margin-bottom: 9px;
+			color: var( --jp-black );
+			margin: 0 0 8px -3px;
 		}
 
 		&-item-success {

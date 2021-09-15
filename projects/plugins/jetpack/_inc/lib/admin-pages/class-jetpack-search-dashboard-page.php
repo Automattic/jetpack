@@ -44,7 +44,7 @@ class Jetpack_Search_Dashboard_Page extends Jetpack_Admin_Page {
 		return add_submenu_page(
 			'jetpack',
 			__( 'Search Settings', 'jetpack' ),
-			__( 'Search', 'jetpack' ),
+			_x( 'Search', 'product name shown in menu', 'jetpack' ),
 			'manage_options',
 			'jetpack-search',
 			array( $this, 'render' ),

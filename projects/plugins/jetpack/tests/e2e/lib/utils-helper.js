@@ -7,6 +7,8 @@ const fs = require( 'fs' );
 const path = require( 'path' );
 const shellescape = require( 'shell-escape' );
 const logger = require( './logger' );
+const { join } = require( 'path' );
+const WordpressAPI = require( './api/wp-api' );
 const { E2E_DEBUG } = process.env;
 
 /**
@@ -75,10 +77,11 @@ async function provisionJetpackStartConnection( userId, plan = 'free', user = 'w
 		throw new Error( 'Jetpack Start provision is failed. Response: ' + response );
 	}
 
-	const out = await execWpCommand(
-		`--user=${ user } jetpack authorize_user ` + shellescape( [ `--token=${ json.access_token }` ] )
+	await execWpCommand(
+		`jetpack authorize_user --user=${ user } ` + shellescape( [ `--token=${ json.access_token }` ] )
 	);
-	logger.cli( out );
+
+	await execWpCommand( 'jetpack status' );
 
 	return true;
 }
@@ -108,7 +111,7 @@ async function activateModule( page, module ) {
 }
 
 async function execWpCommand( wpCmd ) {
-	const cmd = `pnpx jetpack docker --type e2e --name t1 wp -- ${ wpCmd }`;
+	const cmd = `pnpx jetpack docker --type e2e --name t1 wp -- ${ wpCmd } --url="${ siteUrl }"`;
 	const result = await execShellCommand( cmd );
 
 	// Jetpack's `wp` command outputs a script header for some reason. Let's clean it up.
@@ -189,7 +192,7 @@ function getConfigTestSite() {
 
 function getSiteCredentials() {
 	const site = getConfigTestSite();
-	return { username: site.username, password: site.password };
+	return { username: site.username, password: site.password, apiPassword: site.apiPassword };
 }
 
 function getDotComCredentials() {
@@ -198,6 +201,7 @@ function getDotComCredentials() {
 		username: site.dotComAccount[ 0 ],
 		password: site.dotComAccount[ 1 ],
 		userId: site.dotComAccount[ 2 ],
+		email: site.dotComAccount[ 3 ],
 	};
 }
 
@@ -274,6 +278,58 @@ function isLocalSite() {
 	return !! process.env.TEST_SITE;
 }
 
+async function logEnvironment() {
+	try {
+		const envFilePath = join( `${ config.get( 'dirs.output' ) }`, 'environment.json' );
+
+		let env = { plugins: [] };
+
+		if ( fs.existsSync( envFilePath ) ) {
+			env = fs.readFileSync( envFilePath );
+		}
+
+		const wpApi = new WordpressAPI( getSiteCredentials(), resolveSiteUrl() );
+		const plugins = await wpApi.getPlugins();
+
+		for ( const p of plugins ) {
+			env.plugins.push( {
+				plugin: p.plugin,
+				version: p.version,
+				status: p.status,
+			} );
+		}
+
+		fs.writeFileSync( envFilePath, JSON.stringify( env ) );
+	} catch ( error ) {
+		logger.error( `Logging environment details failed! ${ error }` );
+	}
+}
+
+async function getJetpackVersion() {
+	let version;
+
+	try {
+		const envFilePath = join( `${ config.get( 'dirs.output' ) }`, 'environment.json' );
+
+		if ( ! fs.existsSync( envFilePath ) ) {
+			await logEnvironment();
+		}
+
+		const fileContent = fs.readFileSync( envFilePath, 'utf8' );
+		const env = JSON.parse( fileContent );
+
+		const jetpack = env.plugins.filter( function ( p ) {
+			return p.plugin === 'jetpack-dev/jetpack' && p.status === 'active';
+		} );
+
+		version = jetpack[ 0 ].version;
+	} catch ( error ) {
+		console.log( `ERROR: Failed to get Jetpack version. ${ error }` );
+	}
+
+	return version;
+}
+
 module.exports = {
 	execShellCommand,
 	execSyncShellCommand,
@@ -292,4 +348,6 @@ module.exports = {
 	getSiteCredentials,
 	getDotComCredentials,
 	getMailchimpCredentials,
+	logEnvironment,
+	getJetpackVersion,
 };
