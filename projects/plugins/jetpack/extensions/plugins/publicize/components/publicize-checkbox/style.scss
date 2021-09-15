@@ -17,4 +17,35 @@
 	.components-disabled & {
 		opacity: 0.3;
 	}
+
+	// Icon and picture.
+	.components-publicize-icon__picture {
+		display: grid;
+
+		img {
+			border-radius: 50%;
+			width: 30px;
+			height: 30px;
+			grid-area: 1 / 1 / 2 / 2;
+		}
+
+		.placeholder {
+			display: block;
+			background-color: rgb( 168, 190, 206 );
+			border-radius: 50%;
+			width: 30px;
+			height: 30px;
+			grid-area: 1 / 1 / 2 / 2;
+		}
+
+		svg {
+			width: 15px;
+			height: 15px;
+			grid-area: 1 / 1 / 2 / 2;
+			margin-top: 18px;
+			margin-left: 18px;
+			border: 1px solid white;
+			border-radius: 1px;
+		}
+	}
 }
