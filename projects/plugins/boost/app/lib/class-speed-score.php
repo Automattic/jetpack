@@ -128,6 +128,12 @@ class Speed_Score {
 			}
 		}
 
+		// If this is a fresh install, there might not be any speed score history. In which case, we want to fetch the initial scores.
+		$history = new Speed_Score_History( $url );
+		if ( null === $history->latest() ) {
+			return $this->dispatch_speed_score_request( $request );
+		}
+
 		return $this->prepare_speed_score_response( $url, $score_request );
 	}
 
