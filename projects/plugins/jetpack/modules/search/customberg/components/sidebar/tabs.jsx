@@ -18,7 +18,8 @@ import { JP_SEARCH_TAB_IDENTIFIER, OPTIONS_TAB_IDENTIFIER } from '../../lib/cons
  * Sidebar tabs.
  *
  * @param {object} props - Component properties
- * @param {string} props.enabledSidebarName - Currently enabled sidebar ID.
+ * @param {string} props.enabledSidebarName - Currently enabled sidebar name.
+ * @param {Function} props.enableSidebar - Enables the sidebar upon invocation.
  * @returns {Element} component instance
  */
 export default function Tabs( { enabledSidebarName, enableSidebar } ) {
@@ -48,7 +49,7 @@ export default function Tabs( { enabledSidebarName, enableSidebar } ) {
  * Sidebar tab.
  *
  * @param {object} props - Component properties
- * @param {function} props.enableSidebar - Callback to enable a specific sidebar by name
+ * @param {Function} props.enableSidebar - Callback to enable a specific sidebar by name
  * @param {string} props.identifier - Identifier.
  * @param {string} props.label - Label.
  * @param {boolean} props.isActive - Whether the tab is active.

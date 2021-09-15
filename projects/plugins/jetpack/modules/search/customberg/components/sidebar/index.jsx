@@ -17,6 +17,7 @@ import './styles.scss';
 /**
  * Sidebar implemented via ComplementaryArea component. Renders using the slot/fill paradigm.
  *
+ * @param {object} props - component properties.
  * @returns {Element} component instance
  */
 export default function Sidebar( props ) {

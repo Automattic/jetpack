@@ -14,6 +14,7 @@ import './styles.scss';
 /**
  * Wraps the InterfaceSkeleton component with necessary parameters.
  *
+ * @param {object} props - component properties.
  * @returns {Element} component instance
  */
 export default function Interface( props ) {
