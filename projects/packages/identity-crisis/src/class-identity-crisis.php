@@ -436,7 +436,7 @@ class Identity_Crisis {
 	 * @see Automattic\Jetpack\Identity_Crisis::should_handle_idc
 	 */
 	public static function sync_idc_optin() {
-		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\\Jetpack\\Identity_Crisis::should_handle_idc' );
+		_deprecated_function( __METHOD__, '0.2.6', 'Automattic\\Jetpack\\Identity_Crisis::should_handle_idc' );
 		return self::should_handle_idc();
 	}
 
@@ -455,7 +455,7 @@ class Identity_Crisis {
 		if ( Constants::is_defined( 'JETPACK_SHOULD_HANDLE_IDC' ) ) {
 			$default = Constants::get_constant( 'JETPACK_SHOULD_HANDLE_IDC' );
 		} elseif ( Constants::is_defined( 'JETPACK_SYNC_IDC_OPTIN' ) ) {
-			// Check the legacy constant. This constant should be considered deprecated as of version $$next-version$$.
+			// Check the legacy constant. This constant should be considered deprecated as of version 0.2.6.
 			$default = Constants::get_constant( 'JETPACK_SYNC_IDC_OPTIN' );
 		} else {
 			$default = ! Constants::is_defined( 'SUNRISE' ) && ! is_multisite();
@@ -496,7 +496,7 @@ class Identity_Crisis {
 		 * @since-jetpack 4.3.2
 		 * @deprecated $$next-version$$ Use jetpack_should_handle_idc
 		 */
-		return (bool) apply_filters_deprecated( 'jetpack_sync_idc_optin', array( $default ), '$$next-version$$', 'jetpack_should_handle_idc' );
+		return (bool) apply_filters_deprecated( 'jetpack_sync_idc_optin', array( $default ), '0.2.6', 'jetpack_should_handle_idc' );
 	}
 
 	/**
