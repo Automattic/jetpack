@@ -38,7 +38,7 @@ function Header( { enableSidebar } ) {
 			<div className="jp-search-configure-header__actions">
 				<SaveButton />
 				<Button
-					ariaLabel={ __( 'Show settings', 'jetpack' ) }
+					aria-label={ __( 'Show settings', 'jetpack' ) }
 					className="jp-search-configure-header__show-settings-button"
 					isSecondary
 					onClick={ () => enableSidebar() }
