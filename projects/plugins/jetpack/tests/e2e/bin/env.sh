@@ -3,7 +3,7 @@
 # Exit if any command fails.
 set -e
 
-function usage() {
+usage() {
 	echo "usage: $0 command"
 	echo "  start                        Setup the docker containers for E2E tests"
 	echo "  stop                         Stop the docker containers for E2E tests"
