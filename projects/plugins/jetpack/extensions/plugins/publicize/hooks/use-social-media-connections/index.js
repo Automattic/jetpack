@@ -31,9 +31,13 @@ export default function useSocialMediaConnections() {
 				jetpack_publicize_connections: filteredConnections,
 			} );
 		},
+
 		refreshConnectionTestResults,
 
 		// To refresh the connections, we need to save the post.
-		refreshConnections: savePost,
+		refreshConnections: function () {
+			refreshConnectionTestResults(); // refresh the jetpack/publicize connections.
+			savePost(); // refresh the `jetpack_publicize_connections` metadata.
+		},
 	};
 }
