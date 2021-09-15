@@ -94,12 +94,13 @@ class WP_Test_Jetpack_Shortcodes_SmartFrame extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_smartframe_image() {
 		$image_id          = self::SMARTFRAME_IDENTIFIER;
-		$content           = "[smartframe src='$image_id']";
+		$script_id         = self::SMARTFRAME_SCRIPT_ID;
+		$content           = "[smartframe script-id='$$script_id' src='$image_id']";
 		$shortcode_content = do_shortcode( $content );
-
+		
 		$this->assertContains( $image_id, $shortcode_content );
 	}
-
+	
 	/**
 	 * Uses a real HTTP request to SmartFrame's oEmbed endpoint to
 	 * verify that rendering the shortcode returns a SmartFrame image.
@@ -109,8 +110,9 @@ class WP_Test_Jetpack_Shortcodes_SmartFrame extends WP_UnitTestCase {
 	 * @since 9.3.3
 	 */
 	public function test_shortcodes_smartframe_image_via_oembed_http_request() {
-		$image_id = self::SMARTFRAME_IDENTIFIER;
-		$content  = "[smartframe src='$image_id']";
+		$image_id  = self::SMARTFRAME_IDENTIFIER;
+		$script_id = self::SMARTFRAME_SCRIPT_ID;
+		$content   = "[smartframe script-id='$$script_id' src='$image_id']";
 
 		$shortcode_content = do_shortcode( $content );
 
