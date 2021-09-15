@@ -159,8 +159,8 @@ $previous_score_size: 28px;
 		display: flex;
 		min-width: 1px + $bar_height * 2;
 		justify-content: flex-end;
-	  	border-radius: 0 $bar_height $bar_height 0;
-	  	transition: width 300ms ease-in-out;
+		border-radius: 0 $bar_height $bar_height 0;
+		transition: width 300ms ease-in-out;
 		will-change: width;
 		width: 0;
 		position: relative;
@@ -169,72 +169,72 @@ $previous_score_size: 28px;
 		}
 	}
 
-  	&__previous_score {
+	&__previous_score {
 
-	  --clearance-space: #{$bar_height + $previous_score_size + 4px};
-
-	  position: absolute;
-	  background: #fff;
-	  border-radius: 50%;
-	  padding: 3px;
-	  top: $score_pointer_size;
-	  width: $previous_score_size;
-	  height: $previous_score_size;
-	  font-size: 0.7em;
-	  text-align: center;
-	  cursor: pointer;
-	  z-index: 2;
-	  border: 2px solid transparent;
-	  background-clip: padding-box;
-
-	  &:hover {
-		border: 2px solid rgba(255, 255, 255, 0.5);
-	  }
-
-	  &::after {
-		content: " ";
-		width: 0;
-		height: 0;
-		border-left: $score_pointer_size solid transparent;
-		border-right: $score_pointer_size solid transparent;
-		border-bottom: $score_pointer_size solid #fff;
+		--clearance-space: #{$bar_height + $previous_score_size + 4px};
 
 		position: absolute;
-		top: $bar_height - $score_pointer_size * 2 - 2px;
-		left: $score_pointer_size;
-	  }
+		background: #fff;
+		border-radius: 50%;
+		padding: 3px;
+		top: $score_pointer_size;
+		width: $previous_score_size;
+		height: $previous_score_size;
+		font-size: 0.7em;
+		text-align: center;
+		cursor: pointer;
+		z-index: 2;
+		border: 2px solid transparent;
+		background-clip: padding-box;
+
+		&:hover {
+			border: 2px solid rgba(255, 255, 255, 0.5);
+		}
+
+		&::after {
+			content: " ";
+			width: 0;
+			height: 0;
+			border-left: $score_pointer_size solid transparent;
+			border-right: $score_pointer_size solid transparent;
+			border-bottom: $score_pointer_size solid #fff;
+
+			position: absolute;
+			top: $bar_height - $score_pointer_size * 2 - 2px;
+			left: $score_pointer_size;
+		}
 	}
 
 	&__previous_score_tooltip {
-	  @include box-shadow();
-
-	  position: absolute;
-	  top: -62px;
-	  left: -10em;
-	  width: 20em;
-	  background: #FFF;
-	  padding: 16px;
-	  border-radius: 4px;
-	  margin: 0 16px;
-	  display: none;
-
-	  &::after {
-		content: " ";
-		width: 0;
-		height: 0;
-		border-left: $score_pointer_size solid transparent;
-		border-right: $score_pointer_size solid transparent;
-		border-top: $score_pointer_size solid #fff;
+		@include box-shadow();
 
 		position: absolute;
-		bottom: -$score_pointer_size;
-		left: 10em;
-		margin: 0 -10px
-	  }
+		top: -62px;
+		left: -10em;
+		width: 20em;
+		background: #FFF;
+		padding: 16px;
+		border-radius: 4px;
+		margin: 0 16px;
+		display: none;
+
+		&::after {
+			content: " ";
+			width: 0;
+			height: 0;
+			border-left: $score_pointer_size solid transparent;
+			border-right: $score_pointer_size solid transparent;
+			border-top: $score_pointer_size solid #fff;
+
+			position: absolute;
+			bottom: -$score_pointer_size;
+			left: 10em;
+			margin: 0 -10px
+		}
 	}
 
   	&__previous_score:hover &__previous_score_tooltip {
-	  display: block;
+		display: block;
 	}
 
 	.fill-loading {
