@@ -92,10 +92,7 @@ function parseResponse( response: JSONObject ): ParsedApiResponse {
 							mobile: castToNumber( response.scores.previous.mobile, 0 ),
 							desktop: castToNumber( response.scores.previous.desktop, 0 ),
 					  }
-					: {
-							mobile: 0,
-							desktop: 0,
-					  },
+					: null,
 			},
 		};
 	}

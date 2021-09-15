@@ -29,10 +29,7 @@
 			mobile: 0,
 			desktop: 0,
 		},
-		previous: {
-			mobile: 0,
-			desktop: 0,
-		},
+		previous: null,
 	};
 	let showRatingCard = false;
 	let improvementPercentage = 0;
@@ -179,8 +176,8 @@
 				<div>{__( 'Mobile score', 'jetpack-boost' )}</div>
 			</div>
 			<ScoreBar
-				bind:prevScore={scores.previous.mobile}
-				bind:score={scores.current.mobile}
+				prevScore={scores.previous?.mobile}
+				score={scores.current.mobile}
 				active={siteIsOnline}
 				{isLoading}
 				{showPrevScores}
@@ -194,8 +191,8 @@
 				<div>{__( 'Desktop score', 'jetpack-boost' )}</div>
 			</div>
 			<ScoreBar
-				bind:prevScore={scores.previous.desktop}
-				bind:score={scores.current.desktop}
+				prevScore={scores.previous?.desktop}
+				score={scores.current.desktop}
 				active={siteIsOnline}
 				{isLoading}
 				{showPrevScores}
