@@ -12,7 +12,6 @@ namespace Automattic\Jetpack_Boost\Lib;
  * Class Speed_Score_History
  *
  * @package Automattic\Jetpack_Boost\Lib
- * @todo Clear the history on plugin deactivation
  */
 class Speed_Score_History {
 	const OPTION_PREFIX = 'jetpack_boost_speed_score_history_';
