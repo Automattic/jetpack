@@ -246,6 +246,15 @@ class Jetpack_Likes_Settings {
 		$sitewide_likes_enabled = (bool) $this->is_enabled_sitewide();
 		$post_likes_switched    = get_post_meta( $post->ID, 'switch_like_status', true );
 
+		// on WPCOM, headstart was inserting bad data for post_likes_switched.
+		// it was wrapping the boolean value in an array. The array is always truthy regardless of its contents.
+		// There was another bug where truthy values were ignored if the global like setting was false.
+		// So in effect, the values for headstart never had an inpact.
+		// Delete the $post_likes_switched flag in this case in order to keep the behaviour as it was.
+		if ( is_array( $post_likes_switched ) ) {
+			$post_likes_switched = null;
+		}
+
 		// on WPCOM, we need to look at post edit date so we don't break old posts
 		// if post edit date predates this code, stick with the former (buggy) behavior
 		// see: p7DVsv-64H-p2
