@@ -177,6 +177,8 @@ export function didScoresImprove( scores ): boolean {
 
 	// Consider the score was improved if either desktop or mobile improved and neither worsened.
 	return (
+		null !== current &&
+		null !== previous &&
 		current.mobile >= previous.mobile &&
 		current.desktop >= previous.desktop &&
 		current.mobile + current.desktop > previous.mobile + previous.desktop
