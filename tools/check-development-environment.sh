@@ -354,11 +354,21 @@ else
 	version_range 'Git' "$BIN" '' "$VER" "0" "$GITVER" "9999999"
 
 	checking 'If this is a git checkout'
-	if [[ ! -d $(git rev-parse --git-dir) ]]; then
-		failure "no" 'clone-the-repository'
-	else
+	GIT_DIR="$(git rev-parse --git-dir 2>/dev/null)"
+	OK=false
+	if [[ -d .git && "$GIT_DIR" == '.git' ]]; then
 		success 'yes'
-
+		OK=true
+	elif [[ -f .git && -d "$GIT_DIR" ]]; then
+		success 'yes (as a submodule)'
+		OK=true
+	elif [[ -f "$GIT_DIR" ]]; then
+		failure 'unknown' 'clone-the-repository' "It seems to be in a git repo, but it's not clearly a Jetpack monorepo checkout."
+		OK=true
+	else
+		failure "no" 'clone-the-repository'
+	fi
+	if $OK; then
 		checking 'If the repo is checked out using ssh'
 		URL="$(git remote get-url --push origin 2>/dev/null)"
 		if [[ -z "$URL" ]]; then
