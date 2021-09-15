@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+E2E tests: make sure videos are saved for all opened tabs

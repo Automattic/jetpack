@@ -87,14 +87,14 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 			case 'hook_success':
 				logger.info( chalk.green( `SUCCESS: ${ eventName }` ) );
 				if ( event.hook.type === 'beforeAll' ) {
-					await this.closePage( eventName, false );
+					await this.closeAllPages( eventName, false );
 				}
 				break;
 			case 'hook_failure':
 				logger.info( chalk.red( `HOOK FAILED: ${ eventName }` ) );
 				await this.onFailure( eventName, event.hook.parent.name, event.hook.type, event.error );
 				if ( event.hook.type === 'beforeAll' ) {
-					await this.closePage( eventName, true );
+					await this.closeAllPages( eventName, true );
 				}
 				break;
 			case 'test_fn_start':
@@ -110,7 +110,7 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 				await this.onFailure( eventName, event.test.parent.name, event.test.name, event.error );
 				break;
 			case 'test_done':
-				await this.closePage( eventName, event.test.errors.length > 0 );
+				await this.closeAllPages( eventName, event.test.errors.length > 0 );
 				break;
 			case 'run_describe_finish':
 				break;
@@ -172,15 +172,22 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 		} );
 	}
 
-	async closePage( eventName, saveVideo = true ) {
-		await this.global.page.close();
+	async closeAllPages( eventName, saveVideo = true ) {
+		for ( const page of this.global.context.pages() ) {
+			await this.closePage( page, eventName, saveVideo );
+		}
+	}
 
-		if ( this.global.page.video() && saveVideo ) {
+	async closePage( page, eventName, saveVideo = true ) {
+		await page.close();
+
+		if ( page && saveVideo ) {
+			await page.waitForTimeout( 1 );
 			const videoName = fileNameFormatter( `${ eventName }.webm`, true );
 			const videoPath = `${ config.get( 'dirs.videos' ) }/${ videoName }`;
 
 			try {
-				await this.global.page.video().saveAs( videoPath );
+				await page.video().saveAs( videoPath );
 				logger.debug( `Video file saved: ${ videoPath }` );
 			} catch ( error ) {
 				logger.error( `There was an error saving the video file!\n${ error }` );
