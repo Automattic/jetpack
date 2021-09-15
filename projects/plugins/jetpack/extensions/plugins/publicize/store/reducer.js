@@ -19,10 +19,12 @@ export default function ( state = DEFAULT_STATE, action ) {
 				connections: action.results,
 			};
 		case 'REFRESH_CONNECTION_TEST_RESULTS':
-			return {
-				...state,
-				connections: [],
-			};
+			/*
+			 * state will be updated by the `SET_CONNECTION_TEST_RESULTS` action.
+			 * triggered by the sync refreshConnectionTestResults method,
+			 * defined in the effects.js file.
+			 */
+			return state;
 		case 'SET_TWEETS':
 			return {
 				...state,
