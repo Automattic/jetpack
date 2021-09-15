@@ -16,7 +16,7 @@ export default class ConnectionsPage extends WpPage {
 		return ! ( await this.isElementVisible( '.notice.is-warning a.notice__action' ) );
 	}
 
-	async selectMailchimpList( mailchimpList = 'e2etesting' ) {
+	async selectMailchimpList( mailchimpList = 'e2etesting-wrong' ) {
 		const loadingIndicatorSelector = '.foldable-card__summary button:not([disabled])';
 		const mailchimpExpandSelector = '.mailchimp .foldable-card__expand';
 		const warningNoticeSelector = '.mailchimp .notice.is-warning';
