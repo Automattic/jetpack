@@ -4,7 +4,6 @@ const path = require( 'path' );
 const fs = require( 'fs' );
 const os = require( 'os' );
 const config = require( 'config' );
-const { logEnvironment } = require( '../utils-helper' );
 const pwBrowserOptions = require( '../../playwright.config' ).pwBrowserOptions;
 
 const TMP_DIR = path.join( os.tmpdir(), 'jest_playwright_global_setup' );
@@ -29,6 +28,4 @@ module.exports = async function () {
 	global.browser = await chromium.launchServer( pwBrowserOptions );
 	mkdirp.sync( TMP_DIR );
 	fs.writeFileSync( path.join( TMP_DIR, 'wsEndpoint' ), global.browser.wsEndpoint() );
-
-	await logEnvironment();
 };
