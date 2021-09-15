@@ -9,7 +9,6 @@ usage() {
 	echo "  stop                         Stop the docker containers for E2E tests"
 	echo "  reset                        Reset the containers state"
 	echo "  gb-setup                     Setup Gutenberg plugin"
-	echo "  configure-app-pass           Generate and application password in the Wordpress installation"
 	echo "  -h | usage                   Output this message"
 	exit 1
 }
@@ -49,13 +48,6 @@ configure_wp_env() {
 	echo
 }
 
-configure_app_pass() {
-	if [[ -z "$TEST_SITE" ]]; then
-		OUTPUT=$($BASE_CMD wp eval 'print_r(WP_Application_Passwords::create_new_application_password(1,array("name"=>"e2e-".rand()))[0]);')
-		export API_PASSWORD="${OUTPUT##*php}"
-	fi
-}
-
 if [ "${1}" == "start" ]; then
 	start_env
 elif [ "${1}" == "stop" ]; then
@@ -64,8 +56,6 @@ elif [ "${1}" == "reset" ]; then
 	reset_env
 elif [ "${1}" == "gb-setup" ]; then
 	gb_setup
-elif [ "${1}" == "configure-app-pass" ]; then
-	configure_app_pass
 elif [ "${1}" == "usage" ]; then
 	usage
 else
