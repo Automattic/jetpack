@@ -6,9 +6,15 @@
  * If window/tab is closed,
  * then connections will be automatically refreshed.
  */
+import { debounce } from 'lodash';
 
 /**
  * External dependencies
+ */
+import PageVisibility from 'react-page-visibility';
+
+/**
+ * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';
@@ -20,9 +26,18 @@ import getSiteFragment from '../../../../shared/get-site-fragment';
 import useSocialMediaActions from '../../hooks/use-social-media-actions';
 import { useSelectSocialMediaConnections } from '../../hooks/use-select-social-media';
 
+const refreshThreshold = 2000;
+
 export default function PublicizeSettingsButton() {
 	const { refreshConnections } = useSocialMediaActions();
 	const { connections } = useSelectSocialMediaConnections();
+
+	const refresh = debounce( function ( isVisible ) {
+		if ( ! isVisible ) {
+			return;
+		}
+		refreshConnections();
+	}, refreshThreshold );
 
 	if ( ! connections?.length ) {
 		return null;
@@ -41,35 +56,13 @@ export default function PublicizeSettingsButton() {
 		? `https://wordpress.com/marketing/connections/${ siteFragment }`
 		: 'options-general.php?page=sharing&publicize_popup=true';
 
-	/**
-	 * Opens up popup so user can view/modify connections
-	 *
-	 * @param {object} event - Event instance for onClick.
-	 */
-	function settingsClick( event ) {
-		event.preventDefault();
-		if ( ! event.target?.href ) {
-			return;
-		}
-
-		/**
-		 * Open a popup window, and
-		 * when it is closed, refresh connections
-		 */
-		const popupWin = window.open( event.target.href, '', '' );
-		const popupTimer = window.setInterval( () => {
-			if ( false !== popupWin.closed ) {
-				window.clearInterval( popupTimer );
-				refreshConnections();
-			}
-		}, 500 );
-	}
-
 	return (
-		<div className="jetpack-publicize-add-connection-wrapper">
-			<ExternalLink href={ href } onClick={ settingsClick }>
-				{ __( 'Connect an account', 'jetpack' ) }
-			</ExternalLink>
-		</div>
+		<PageVisibility onChange={ refresh }>
+			<div className="jetpack-publicize-add-connection-wrapper">
+				<ExternalLink href={ href } target="_blank">
+					{ __( 'Connect an account', 'jetpack' ) }
+				</ExternalLink>
+			</div>
+		</PageVisibility>
 	);
 }
