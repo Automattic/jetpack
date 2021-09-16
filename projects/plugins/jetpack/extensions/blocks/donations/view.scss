@@ -39,15 +39,15 @@
 		&::after {
 			content: '';
 			background-color: $white;
-			width:  math.div($spinner-size, 4.5) ;
-			height:  math.div($spinner-size, 4.5) ;
+			width: math.div($spinner-size, 4.5);
+			height: math.div($spinner-size, 4.5);
 			border-radius: 100%;
 			position: absolute;
 			top: 50%;
 			left: 50%;
 			margin-left: math.div(-$spinner-size, 3);
 			margin-top: math.div(-$spinner-size, 3);
-			transform-origin:  math.div($spinner-size, 3)   math.div($spinner-size, 3) ;
+			transform-origin: math.div($spinner-size, 3) math.div($spinner-size, 3);
 			animation: spinner 1s infinite linear;
 		}
 	}
