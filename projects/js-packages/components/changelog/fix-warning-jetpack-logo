@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Footer: provide number instead of string for JetpackLogo's height prop.
