@@ -55,13 +55,6 @@ abstract class Cacheable implements \JsonSerializable {
 	}
 
 	/**
-	 * This is intended to be the reverse of JsonSerializable->jsonSerialize.
-	 *
-	 * @param mixed $data The data to convert into an object.
-	 */
-	abstract public static function jsonUnserialize( $data );
-
-	/**
 	 * Fetch an object with the given ID.
 	 *
 	 * @param string $id The object ID.
