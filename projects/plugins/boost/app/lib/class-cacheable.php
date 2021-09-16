@@ -55,6 +55,17 @@ abstract class Cacheable implements \JsonSerializable {
 	}
 
 	/**
+	 * This is intended to be the reverse of JsonSerializable->jsonSerialize.
+	 *
+	 * @throws \Exception Throw an exception to remind to implement the method in child classes.
+	 */
+	public static function jsonUnserialize() {
+		// PHP 5.6 does not support abstract static classes. Throwing an error is a way to make sure we remember to override them in the child classes.
+		$class = get_called_class();
+		throw new \Exception( "Must implement static method jsonUnserialize in class $class" );
+	}
+
+	/**
 	 * Fetch an object with the given ID.
 	 *
 	 * @param string $id The object ID.
@@ -121,7 +132,11 @@ abstract class Cacheable implements \JsonSerializable {
 	/**
 	 * Returns the cache prefix
 	 *
-	 * @return string The cache prefix
+	 * @throws \Exception Throw an exception to remind to implement the method in child classes.
 	 */
-	abstract protected static function cache_prefix();
+	protected static function cache_prefix() {
+		// PHP 5.6 does not support abstract static classes. Throwing an error is a way to make sure we remember to override them in the child classes.
+		$class = get_called_class();
+		throw new \Exception( "Must implement static method cache_prefix in class $class" );
+	}
 }
