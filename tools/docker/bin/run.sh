@@ -63,7 +63,7 @@ if [ ! -f /var/www/html/.htaccess ]; then
 	cp /tmp/htaccess /var/www/html/.htaccess
 fi
 
-if [ "$COMPOSE_PROJECT_NAME" == "dev" ] ; then
+if [ "$COMPOSE_PROJECT_NAME" == "jetpack_dev" ] ; then
 	# If we don't have the wordpress test helpers, download them
 	if [ ! -d /tmp/wordpress-develop/tests ]; then
 		# Get latest WordPress unit-test helper files
