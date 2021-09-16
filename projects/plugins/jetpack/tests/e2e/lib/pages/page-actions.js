@@ -62,7 +62,7 @@ export default class PageActions {
 	/**
 	 * Waits for the given timeout in milliseconds.
 	 *
-	 * @param {number} timeout A timeout to wait for
+	 * @param {number} timeout A timeout to wait for in milliseconds
 	 * @return {Promise<void>}
 	 */
 	async waitForTimeout( timeout ) {

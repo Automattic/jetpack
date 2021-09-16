@@ -162,6 +162,7 @@ class Critical_CSS extends Module {
 			$this->force_logged_out_render();
 		}
 
+		add_action( 'handle_theme_change', array( $this, 'clear_critical_css' ) );
 		add_action( 'jetpack_boost_clear_cache', array( $this, 'clear_critical_css' ) );
 		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_critical_css_constants' ) );
 
