@@ -44,7 +44,7 @@
 				<div class="jb-score-bar__score">{score}</div>
 			{/if}
 
-			{#if prevScore && showPrevScores}
+			{#if showPrevScores && prevScore && prevScore < score }
 				<div
 					class="jb-score-bar__previous_score"
 					style="left: min({prevScoreOffset}%, calc(100% - var(--clearance-space))"
