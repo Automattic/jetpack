@@ -45,8 +45,15 @@ export const settings = {
 					}
 					return idBase === 'wpcom_instagram_widget';
 				},
-				transform: () => {
-					return createBlock( 'jetpack/instagram-gallery' );
+				transform: ( { instance } ) => {
+					return [
+						createBlock( 'core/heading', { content: instance.raw.title } ),
+						createBlock( 'jetpack/instagram-gallery', {
+							columns: instance.raw.columns,
+							count: instance.raw.count,
+							accessToken: instance.raw.token_id,
+						} ),
+					];
 				},
 			},
 		],
