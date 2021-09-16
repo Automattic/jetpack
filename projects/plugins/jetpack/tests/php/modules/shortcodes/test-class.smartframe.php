@@ -93,7 +93,7 @@ class WP_Test_Jetpack_Shortcodes_SmartFrame extends WP_UnitTestCase {
 	/**
 	 * Verify that embedding code is reversed into a valid shortcode
 	 *
-	 * @since10.2.0
+	 * @since 10.2.0
 	 */
 	public function test_smartframe_reverse_shortcode() {
 		$shortcode = jetpack_shortcodereverse_smartframe( self::SMARTFRAME_EMBED );
@@ -106,7 +106,7 @@ class WP_Test_Jetpack_Shortcodes_SmartFrame extends WP_UnitTestCase {
 	 *
 	 * @group external-http
 	 *
-	 * @since10.2.0
+	 * @since 10.2.0
 	 */
 	public function test_shortcodes_smartframe_image_via_oembed_http_request() {
 		$image_id          = self::SMARTFRAME_IDENTIFIER;
