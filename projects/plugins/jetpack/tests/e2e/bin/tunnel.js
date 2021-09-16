@@ -3,7 +3,7 @@
 const fs = require( 'fs' );
 const config = require( 'config' );
 const tunnelConfig = config.get( 'tunnel' );
-const { getReusableUrlFromFile } = require( '../lib/utils-helper' );
+const { getReusableUrlFromFile } = require( 'jetpack-e2e-core/utils-helper' );
 const axios = require( 'axios' );
 const yargs = require( 'yargs' );
 const localtunnel = require( 'localtunnel' );
