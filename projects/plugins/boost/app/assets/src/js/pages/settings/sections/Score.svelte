@@ -181,7 +181,7 @@
 				active={siteIsOnline}
 				{isLoading}
 				{showPrevScores}
-				previousScoreTooltip="{__( 'Your previous mobile score', 'jetpack-boost' )}"
+				previousScoreTooltip={__( 'Your previous mobile score', 'jetpack-boost' )}
 			/>
 		</div>
 
@@ -196,7 +196,7 @@
 				active={siteIsOnline}
 				{isLoading}
 				{showPrevScores}
-				previousScoreTooltip="{__( 'Your previous desktop score', 'jetpack-boost' )}"
+				previousScoreTooltip={__( 'Your previous desktop score', 'jetpack-boost' )}
 			/>
 		</div>
 	</div>

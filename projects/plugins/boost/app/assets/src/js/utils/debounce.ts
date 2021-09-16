@@ -1,3 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type CallbackFunction = ( ...args: any[] ) => void;
+
 /**
  * Debounce call to a function.
  *
@@ -8,8 +11,8 @@
  * @param {number}   wait     Number of milliseconds to wait.
  * @return {Function} Debounced function.
  */
-export default function debounce( callback: Function, wait: number ): Function {
-	let timer;
+export default function debounce( callback: CallbackFunction, wait: number ): CallbackFunction {
+	let timer: number;
 
 	return function ( ...args ) {
 		clearTimeout( timer );

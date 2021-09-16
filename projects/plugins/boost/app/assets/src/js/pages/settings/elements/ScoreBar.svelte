@@ -44,15 +44,15 @@
 				<div class="jb-score-bar__score">{score}</div>
 			{/if}
 
-			{#if showPrevScores && prevScore && prevScore < score }
+			{#if showPrevScores && prevScore && prevScore < score}
 				<div
 					class="jb-score-bar__previous_score"
 					style="left: min({prevScoreOffset}%, calc(100% - var(--clearance-space))"
 				>
 					{prevScore}
-					{#if previousScoreTooltip }
+					{#if previousScoreTooltip}
 						<div class="jb-score-bar__previous_score_tooltip">
-							{ previousScoreTooltip }
+							{previousScoreTooltip}
 						</div>
 					{/if}
 				</div>
