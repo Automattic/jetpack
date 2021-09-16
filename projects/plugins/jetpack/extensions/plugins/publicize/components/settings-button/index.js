@@ -32,18 +32,18 @@ export default function PublicizeSettingsButton() {
 	const { refreshConnections } = useSocialMediaActions();
 	const { connections } = useSelectSocialMediaConnections();
 
+	if ( ! connections?.length ) {
+		return null;
+	}
+
+	const siteFragment = getSiteFragment();
+
 	const refresh = debounce( function ( isVisible ) {
 		if ( ! isVisible ) {
 			return;
 		}
 		refreshConnections();
 	}, refreshThreshold );
-
-	if ( ! connections?.length ) {
-		return null;
-	}
-
-	const siteFragment = getSiteFragment();
 
 	/*
 	 * If running in WP.com wp-admin or in Calypso,
