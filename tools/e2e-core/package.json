@@ -1,5 +1,5 @@
 {
-	"name": "@automattic/jetpack-e2e-core",
+	"name": "jetpack-e2e-core",
 	"description": "Jetpack end-to-end tests core package",
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
