@@ -45,7 +45,7 @@ function wpcom_shortcodereverse_smartframe( $content ) {
 	}
 
 	// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-	$regexp     = '!<script\ssrc="https://embed.smartframe.(io|net)/(\w+).js"\sdata-image-id="(.*?)"(\sdata-width="(\d+(%|px))"\s)?(data-max-width="(\d+(%|px)))?"></script>!i';
+	$regexp     = '!<script\ssrc="https://embed\.smartframe\.(io|net)/(\w+)\.js"\sdata-image-id="(.*?)"(\sdata-width="(\d+(%|px))"\s)?(data-max-width="(\d+(%|px)))?"></script>!i';
 	$regexp_ent = str_replace( '&amp;#0*58;', '&amp;#0*58;|&#0*58;', htmlspecialchars( $regexp, ENT_NOQUOTES ) );
 
 	foreach ( compact( 'regexp', 'regexp_ent' ) as $regexp ) {
@@ -54,24 +54,24 @@ function wpcom_shortcodereverse_smartframe( $content ) {
 		}
 
 		foreach ( $matches as $match ) {
-			$script_id = $match[1];
+			$script_id = $match[2];
 
 			if ( empty( $script_id ) ) {
 				continue;
 			}
 
-			$image_id = $match[2];
+			$image_id = $match[3];
 
 			if ( empty( $image_id ) ) {
 				continue;
 			}
 
-			if ( isset( $match[4] ) ) {
-				$width = $match[4];
+			if ( isset( $match[5] ) ) {
+				$width = $match[5];
 			}
 
-			if ( isset( $match[7] ) ) {
-				$max_width = $match[7];
+			if ( isset( $match[8] ) ) {
+				$max_width = $match[8];
 			}
 
 			$shortcode = '[smartframe script-id="' . $script_id . '" image-id="' . esc_attr( $image_id ) . '"';
