@@ -305,11 +305,12 @@
 
 		var gallerySelector =
 			'div.gallery, div.tiled-gallery, ul.wp-block-gallery, ul.blocks-gallery-grid, ' +
-			'figure.blocks-gallery-grid, div.wp-block-jetpack-tiled-gallery, a.single-image-gallery';
+			'figure.wp-block-gallery.has-nested-images, div.wp-block-jetpack-tiled-gallery, a.single-image-gallery';
 
 		// Selector for items within a gallery or tiled gallery.
 		var galleryItemSelector =
-			'.gallery-item, .tiled-gallery-item, .blocks-gallery-item, ' + ' .tiled-gallery__item';
+			'.wp-block-image, .gallery-item, .tiled-gallery-item, .blocks-gallery-item, ' +
+			' .tiled-gallery__item';
 
 		// Selector for all items including single images.
 		var itemSelector = galleryItemSelector + ', .wp-block-image';
