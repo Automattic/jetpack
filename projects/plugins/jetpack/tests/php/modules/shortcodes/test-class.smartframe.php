@@ -2,12 +2,19 @@
 /**
  * Unit tests for smartframe embedding
  *
+ * Tests smartframe shortcodes and embed code
+ *
  * @package automattic/jetpack
  */
 
+/**
+ * Shortcodes need external HTML requests to be converted to valid embed code (using smartframe's oembed endpoint)
+ */
 require_once __DIR__ . '/trait.http-request-cache.php';
 
 /**
+ * Implements unit tests for smartframe embedding
+ *
  * @covers ::shortcode_smartframe
  */
 class WP_Test_Jetpack_Shortcodes_SmartFrame extends WP_UnitTestCase {
@@ -16,8 +23,9 @@ class WP_Test_Jetpack_Shortcodes_SmartFrame extends WP_UnitTestCase {
 	const SMARTFRAME_IDENTIFIER = 'mantymetsa_1630927773870';
 	const SMARTFRAME_SCRIPT_ID  = '6ae67829d1264ee0ea6071a788940eae';
 
-	const SMARTFRAME_SHORTCODE  = '[smartframe script-id="6ae67829d1264ee0ea6071a788940eae" image-id="mantymetsa_1630927773870" width="100%" max-width="1412px"]';
-	const SMARTFRAME_EMBED      = '<script src="https://embed.smartframe.io/6ae67829d1264ee0ea6071a788940eae.js" data-image-id="mantymetsa_1630927773870" data-width="100%" data-max-width="1412px"></script>';
+	const SMARTFRAME_SHORTCODE = '[smartframe script-id="6ae67829d1264ee0ea6071a788940eae" image-id="mantymetsa_1630927773870" width="100%" max-width="1412px"]';
+	// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+	const SMARTFRAME_EMBED = '<script src="https://embed.smartframe.io/6ae67829d1264ee0ea6071a788940eae.js" data-image-id="mantymetsa_1630927773870" data-width="100%" data-max-width="1412px"></script>';
 
 	/**
 	 * Check for external HTTP requests and register filter
@@ -40,7 +48,10 @@ class WP_Test_Jetpack_Shortcodes_SmartFrame extends WP_UnitTestCase {
 
 	/**
 	 * Mocks matching HTML for an embedded smartframe item
-	 * 
+	 *
+	 * @param string $html Post content.
+	 * @param string $url found URL.
+	 *
 	 * @since  9.3.3
 	 */
 	public function smartframe_oembed_response( $html, $url ) {
@@ -61,7 +72,9 @@ class WP_Test_Jetpack_Shortcodes_SmartFrame extends WP_UnitTestCase {
 
 	/**
 	 * See if the shortcode is converted to valid embedding code
-	 * 
+	 *
+	 * @group external-http
+	 *
 	 * @since  9.3.3
 	 */
 	public function test_smartframe_shortcode() {
@@ -71,7 +84,7 @@ class WP_Test_Jetpack_Shortcodes_SmartFrame extends WP_UnitTestCase {
 		$doc->loadHTML( $parsed );
 		$links = $doc->getElementsByTagName( 'script' );
 
-		foreach( $links as $link ) {
+		foreach ( $links as $link ) {
 			$this->assertTrue( $link->hasAttribute( 'data-image-id' ) );
 			$this->assertContains( self::SMARTFRAME_IDENTIFIER, $link->getAttribute( 'data-image-id' ) );
 		}
@@ -88,20 +101,6 @@ class WP_Test_Jetpack_Shortcodes_SmartFrame extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Verify that rendering the shortcode returns a SmartFrame image.
-	 *
-	 * @since 9.3.3
-	 */
-	public function test_shortcodes_smartframe_image() {
-		$image_id          = self::SMARTFRAME_IDENTIFIER;
-		$script_id         = self::SMARTFRAME_SCRIPT_ID;
-		$content           = "[smartframe script-id='$$script_id' src='$image_id']";
-		$shortcode_content = do_shortcode( $content );
-		
-		$this->assertContains( $image_id, $shortcode_content );
-	}
-	
-	/**
 	 * Uses a real HTTP request to SmartFrame's oEmbed endpoint to
 	 * verify that rendering the shortcode returns a SmartFrame image.
 	 *
@@ -110,10 +109,9 @@ class WP_Test_Jetpack_Shortcodes_SmartFrame extends WP_UnitTestCase {
 	 * @since 9.3.3
 	 */
 	public function test_shortcodes_smartframe_image_via_oembed_http_request() {
-		$image_id  = self::SMARTFRAME_IDENTIFIER;
-		$script_id = self::SMARTFRAME_SCRIPT_ID;
-		$content   = "[smartframe script-id='$$script_id' src='$image_id']";
-
+		$image_id          = self::SMARTFRAME_IDENTIFIER;
+		$script_id         = self::SMARTFRAME_SCRIPT_ID;
+		$content           = "[smartframe script-id='$script_id' image-id='$image_id']";
 		$shortcode_content = do_shortcode( $content );
 
 		$this->assertContains( $image_id, $shortcode_content );
