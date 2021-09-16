@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if $(wp --allow-root core is-installed); then
+if wp --allow-root core is-installed; then
 	echo
 	echo "WordPress has already been installed. Uninstall it first by running:"
 	echo
