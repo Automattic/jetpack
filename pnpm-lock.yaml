@@ -583,7 +583,7 @@ importers:
       node-polyfill-webpack-plugin: 1.1.4
       node-wp-i18n: 1.2.4
       nyc: 15.1.0
-      page: 1.7.1
+      page: 1.11.6
       photon: 4.0.0
       plugin-error: 1.0.1
       postcss-custom-properties: 10.0.0
@@ -685,7 +685,7 @@ importers:
       jsdom: 16.4.0
       mapbox-gl: 1.13.0
       markdown-it: 12.0.4
-      page: 1.7.1
+      page: 1.11.6
       photon: 4.0.0
       plugin-error: 1.0.1
       postcss-custom-properties: 10.0.0
@@ -16928,8 +16928,8 @@ packages:
       release-zalgo: 1.0.0
     dev: true
 
-  /page/1.7.1:
-    resolution: {integrity: sha1-OIbBR7iVSHeDdZs36AChEhO8OO0=}
+  /page/1.11.6:
+    resolution: {integrity: sha512-P6e2JfzkBrPeFCIPplLP7vDDiU84RUUZMrWdsH4ZBGJ8OosnwFkcUkBHp1DTIjuipLliw9yQn/ZJsXZvarsO+g==}
     dependencies:
       path-to-regexp: 1.2.1
     dev: false
