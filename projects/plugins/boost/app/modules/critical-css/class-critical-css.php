@@ -174,6 +174,14 @@ class Critical_CSS extends Module {
 	}
 
 	/**
+	 * Run on plugin uninstall
+	 */
+	public function on_uninstall() {
+		self::clear_reset_reason();
+		self::clear_dismissed_recommendations();
+	}
+
+	/**
 	 * Register the Critical CSS related REST routes.
 	 *
 	 * @return bool
