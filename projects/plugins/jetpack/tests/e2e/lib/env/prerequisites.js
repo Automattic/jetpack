@@ -3,6 +3,7 @@ import { isBlogTokenSet, syncJetpackPlanData } from '../flows/jetpack-connect';
 import {
 	execWpCommand,
 	getDotComCredentials,
+	isLocalSite,
 	provisionJetpackStartConnection,
 	resetWordpressInstall,
 } from '../utils-helper';
@@ -80,7 +81,7 @@ async function buildPrerequisites( state ) {
 }
 
 export async function ensureConnectedState( requiredConnected = undefined ) {
-	if ( global.isLocalSite ) {
+	if ( ! isLocalSite() ) {
 		logger.prerequisites(
 			'Site is not local, skipping connection setup. Assuming required setup is already in place.'
 		);
@@ -124,7 +125,7 @@ async function disconnect() {
 }
 
 async function ensureCleanState( shouldReset ) {
-	if ( global.isLocalSite ) {
+	if ( ! isLocalSite() ) {
 		logger.prerequisites( 'Site is not local, skipping environment reset.' );
 		return;
 	}
@@ -136,7 +137,7 @@ async function ensureCleanState( shouldReset ) {
 }
 
 export async function ensurePlan( plan = undefined ) {
-	if ( global.isLocalSite ) {
+	if ( ! isLocalSite() ) {
 		logger.prerequisites(
 			'Site is not local, skipping plan setup. Assuming required plan is already in place.'
 		);
@@ -159,7 +160,7 @@ export async function ensureWpComUserIsLoggedIn() {
 }
 
 export async function ensureModulesState( modules ) {
-	if ( global.isLocalSite ) {
+	if ( ! isLocalSite() ) {
 		logger.prerequisites(
 			'Site is not local, skipping modules setup. Assuming required setup is already in place.'
 		);

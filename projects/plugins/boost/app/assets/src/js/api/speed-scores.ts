@@ -5,7 +5,7 @@ import api from './api';
 import { __ } from '@wordpress/i18n';
 
 /**
- * Internal depdencies
+ * Internal dependencies
  */
 import { standardizeError } from '../utils/standardize-error';
 import { isJsonObject, JSONObject } from '../utils/json-types';

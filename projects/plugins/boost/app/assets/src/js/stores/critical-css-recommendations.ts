@@ -104,7 +104,7 @@ export const dismissalError = writable( null );
  * @param {string} title Error display title.
  * @param {Object} error Error.
  */
-export function setDismissalError( title, error ) {
+export function setDismissalError( title: string, error: JSONObject ): void {
 	dismissalError.set( {
 		title,
 		error,

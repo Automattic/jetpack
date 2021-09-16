@@ -22,16 +22,6 @@ const baseWebpackConfig = getBaseWebpackConfig(
 	{
 		entry: {
 			main: path.join( __dirname, '../modules/search/instant-search/loader.js' ),
-			'ie11-polyfill-loader': path.join(
-				__dirname,
-				'../modules/search/instant-search/ie11-polyfill.js'
-			),
-			'ie11-polyfill-payload': [
-				require.resolve( 'core-js' ),
-				require.resolve( 'regenerator-runtime/runtime' ),
-				require.resolve( 'whatwg-fetch' ),
-				require.resolve( 'abortcontroller-polyfill/dist/polyfill-patch-fetch' ),
-			],
 		},
 		'output-chunk-filename': 'jp-search.chunk-[name]-[hash].min.js',
 		'output-filename': 'jp-search-[name].bundle.js',
