@@ -19,7 +19,6 @@ import { withDispatch, withSelect } from '@wordpress/data';
  */
 import PublicizeConnectionVerify from '../connection-verify';
 import PublicizeForm from '../form';
-import PublicizeSettingsButton from '../settings-button';
 import PublicizeTwitterOptions from '../twitter/options';
 
 const PublicizePanel = ( { connections, refreshConnections, prePublish } ) => (
@@ -34,7 +33,6 @@ const PublicizePanel = ( { connections, refreshConnections, prePublish } ) => (
 			<PublicizeForm refreshCallback={ refreshConnections } />
 		) }
 		<PublicizeTwitterOptions prePublish={ prePublish } />
-		<PublicizeSettingsButton />
 	</Fragment>
 );
 
