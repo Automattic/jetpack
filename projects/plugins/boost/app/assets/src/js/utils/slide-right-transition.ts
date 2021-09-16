@@ -5,12 +5,18 @@
  * @param {Object}      param - An object containing {delay, duration, easing} to override defaults.
  */
 
+export type SlideRightParams = {
+	delay: number;
+	duration: number;
+	easing: Function;
+};
+
 /**
  * External dependencies
  */
 import { cubicInOut } from 'svelte/easing';
 
-export default function ( node, params ) {
+export default function ( node: HTMLElement, params: SlideRightParams ): Object {
 	const existingTransform = getComputedStyle( node ).transform.replace( 'none', '' );
 
 	return {

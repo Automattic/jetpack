@@ -47,7 +47,7 @@ export async function updateModuleState( slug: string, state: boolean ): Promise
 	return finalState;
 }
 
-function setEnabled( slug: string, enabled: boolean, synced: boolean = false ) {
+function setEnabled( slug: string, enabled: boolean, synced = false ) {
 	update( state => ( {
 		...state,
 		[ slug ]: {

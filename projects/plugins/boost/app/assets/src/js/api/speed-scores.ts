@@ -168,7 +168,7 @@ export function getScoreLetter( mobile: number, desktop: number ): string {
  * @param {SpeedScoresSet} scores
  * @return boolean
  */
-export function didScoresImprove( scores ): boolean {
+export function didScoresImprove( scores: SpeedScoresSet ): boolean {
 	const current = scores.current;
 	const previous = scores.previous;
 
@@ -182,7 +182,7 @@ export function didScoresImprove( scores ): boolean {
 	);
 }
 
-export function getScoreImprovementPercentage( scores ): number {
+export function getScoreImprovementPercentage( scores: SpeedScoresSet ): number {
 	const current = scores.current.mobile + scores.current.desktop;
 	const previous = scores.previous.mobile + scores.previous.desktop;
 	const improvement = current / previous - 1;

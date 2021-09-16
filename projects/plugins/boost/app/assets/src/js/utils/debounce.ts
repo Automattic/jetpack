@@ -6,13 +6,13 @@
  *
  * @param {Function} callback The function to call.
  * @param {number}   wait     Number of milliseconds to wait.
+ * @return {Function} Debounced function.
  */
-export default function debounce( callback, wait ) {
+export default function debounce( callback: Function, wait: number ): Function {
 	let timer;
 
 	return function ( ...args ) {
-		const context = this;
 		clearTimeout( timer );
-		timer = setTimeout( () => callback.apply( context, args ), wait );
+		timer = setTimeout( () => callback.apply( this, args ), wait );
 	};
 }
