@@ -13,7 +13,10 @@ export default function MessageBoxControl( { message = '', onChange, disabled, m
 			onChange={ onChange }
 			disabled={ disabled }
 			maxLength={ maxLength }
-			placeholder={ __( 'Write a message for your audience here.', 'jetpack' ) }
+			placeholder={ __(
+				"Write a message for your audience here. If you leave this blank, we'll use an excerpt of the post content as the message.",
+				'jetpack'
+			) }
 			rows={ 4 }
 			help={ sprintf(
 				/* translators: placeholder is a number. */
