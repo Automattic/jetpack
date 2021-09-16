@@ -23,7 +23,7 @@ class WP_Test_Jetpack_Shortcodes_SmartFrame extends WP_UnitTestCase {
 	const SMARTFRAME_IDENTIFIER = 'mantymetsa_1630927773870';
 	const SMARTFRAME_SCRIPT_ID  = '6ae67829d1264ee0ea6071a788940eae';
 
-	const SMARTFRAME_SHORTCODE = '[smartframe script-id="6ae67829d1264ee0ea6071a788940eae" image-id="mantymetsa_1630927773870" width="100%" max-width="1412px"]';
+	const SMARTFRAME_SHORTCODE = '[jetpack_smartframe script-id="6ae67829d1264ee0ea6071a788940eae" image-id="mantymetsa_1630927773870" max-width="1412px"]';
 	// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
 	const SMARTFRAME_EMBED = '<script src="https://embed.smartframe.io/6ae67829d1264ee0ea6071a788940eae.js" data-image-id="mantymetsa_1630927773870" data-width="100%" data-max-width="1412px"></script>';
 
@@ -52,7 +52,7 @@ class WP_Test_Jetpack_Shortcodes_SmartFrame extends WP_UnitTestCase {
 	 * @param string $html Post content.
 	 * @param string $url found URL.
 	 *
-	 * @since  9.3.3
+	 * @since 10.2.0
 	 */
 	public function smartframe_oembed_response( $html, $url ) {
 		if ( 0 !== strpos( $url, 'smartframe.io' ) ) {
@@ -64,10 +64,10 @@ class WP_Test_Jetpack_Shortcodes_SmartFrame extends WP_UnitTestCase {
 	/**
 	 * Verify that [smartframe] exists.
 	 *
-	 * @since  9.3.3
+	 * @since 10.2.0
 	 */
 	public function test_shortcodes_smartframe_exists() {
-		$this->assertEquals( shortcode_exists( 'smartframe' ), true );
+		$this->assertEquals( shortcode_exists( 'jetpack_smartframe' ), true );
 	}
 
 	/**
@@ -75,7 +75,7 @@ class WP_Test_Jetpack_Shortcodes_SmartFrame extends WP_UnitTestCase {
 	 *
 	 * @group external-http
 	 *
-	 * @since  9.3.3
+	 * @since 10.2.0
 	 */
 	public function test_smartframe_shortcode() {
 		$parsed = do_shortcode( self::SMARTFRAME_SHORTCODE );
@@ -93,10 +93,10 @@ class WP_Test_Jetpack_Shortcodes_SmartFrame extends WP_UnitTestCase {
 	/**
 	 * Verify that embedding code is reversed into a valid shortcode
 	 *
-	 * @since 9.3.3
+	 * @since10.2.0
 	 */
 	public function test_smartframe_reverse_shortcode() {
-		$shortcode = wpcom_shortcodereverse_smartframe( self::SMARTFRAME_EMBED );
+		$shortcode = jetpack_shortcodereverse_smartframe( self::SMARTFRAME_EMBED );
 		$this->assertEquals( self::SMARTFRAME_SHORTCODE, $shortcode );
 	}
 
@@ -106,12 +106,12 @@ class WP_Test_Jetpack_Shortcodes_SmartFrame extends WP_UnitTestCase {
 	 *
 	 * @group external-http
 	 *
-	 * @since 9.3.3
+	 * @since10.2.0
 	 */
 	public function test_shortcodes_smartframe_image_via_oembed_http_request() {
 		$image_id          = self::SMARTFRAME_IDENTIFIER;
 		$script_id         = self::SMARTFRAME_SCRIPT_ID;
-		$content           = "[smartframe script-id='$script_id' image-id='$image_id']";
+		$content           = "[jetpack_smartframe script-id='$script_id' image-id='$image_id']";
 		$shortcode_content = do_shortcode( $content );
 
 		$this->assertContains( $image_id, $shortcode_content );

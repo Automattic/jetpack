@@ -17,35 +17,35 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 /**
  * Register smartframe as oembed provider. Add filter to reverse iframes to shortcode. Register [smartframe] shortcode.
  *
- * @since 9.3.3
+ * @since 10.2.0
  */
 function jetpack_smartframe_enable_embeds() {
 	// Support their oEmbed Endpoint.
 	wp_oembed_add_provider( '#https?://(.*?)\.smartframe\.(io|net)/.*#i', 'https://oembed.smartframe.io/', true );
 
 	// Allow script to be filtered to short code (so direct copy+paste can be done).
-	add_filter( 'the_content', 'wpcom_shortcodereverse_smartframe' );
+	add_filter( 'the_content', 'jetpack_shortcodereverse_smartframe' );
 
 	// Actually display the smartframe Embed.
-	add_shortcode( 'smartframe', 'jetpack_smartframe_shortcode' );
+	add_shortcode( 'jetpack_smartframe', 'jetpack_smartframe_shortcode' );
 }
 
 /**
  * Compose shortcode based on smartframe iframes.
  *
- * @since 9.3.3
+ * @since 10.2.0
  *
  * @param string $content Post content.
  *
  * @return mixed
  */
-function wpcom_shortcodereverse_smartframe( $content ) {
+function jetpack_shortcodereverse_smartframe( $content ) {
 	if ( ! is_string( $content ) || false === stripos( $content, 'embed.smartframe' ) ) {
 		return $content;
 	}
 
 	// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-	$regexp     = '!<script\ssrc="https://embed\.smartframe\.(io|net)/(\w+)\.js"\sdata-image-id="(.*?)"(\sdata-width="(\d+(%|px))"\s)?(data-max-width="(\d+(%|px)))?"></script>!i';
+	$regexp     = '!<script\ssrc="https://embed\.smartframe\.(?:io|net)/(\w+)\.js"\sdata-image-id="(.*?)"(?:\sdata-width="(?:\d+(?:%|px))"\s)?(?:data-max-width="(\d+(%|px)))?"></script>!i';
 	$regexp_ent = str_replace( '&amp;#0*58;', '&amp;#0*58;|&#0*58;', htmlspecialchars( $regexp, ENT_NOQUOTES ) );
 
 	foreach ( compact( 'regexp', 'regexp_ent' ) as $regexp ) {
@@ -54,35 +54,16 @@ function wpcom_shortcodereverse_smartframe( $content ) {
 		}
 
 		foreach ( $matches as $match ) {
-			$script_id = $match[2];
-
-			if ( empty( $script_id ) ) {
+			// We need at least a script ID and an image ID.
+			if ( ! isset( $match[1], $match[2] ) ) {
 				continue;
 			}
-
-			$image_id = $match[3];
-
-			if ( empty( $image_id ) ) {
-				continue;
-			}
-
-			if ( isset( $match[5] ) ) {
-				$width = $match[5];
-			}
-
-			if ( isset( $match[8] ) ) {
-				$max_width = $match[8];
-			}
-
-			$shortcode = '[smartframe script-id="' . $script_id . '" image-id="' . esc_attr( $image_id ) . '"';
-			if ( ! empty( $width ) ) {
-				$shortcode .= ' width="' . esc_attr( $width ) . '"';
-			}
-			if ( ! empty( $max_width ) ) {
-				$shortcode .= ' max-width="' . esc_attr( $max_width ) . '"';
-			}
-			$shortcode .= ']';
-
+			$shortcode = sprintf(
+				'[jetpack_smartframe script-id="%1$s" image-id="%2$s"%3$s]',
+				esc_attr( $match[1] ),
+				esc_attr( $match[2] ),
+				! empty( $match[3] ) ? ' max-width="' . esc_attr( $match[3] ) . '"' : ''
+			);
 			$content = str_replace( $match[0], $shortcode, $content );
 		}
 	}
@@ -95,7 +76,7 @@ function wpcom_shortcodereverse_smartframe( $content ) {
 /**
  * Parse shortcode arguments and render its output.
  *
- * @since 9.3.3
+ * @since 10.2.0
  *
  * @param array $atts Shortcode parameters.
  *
@@ -119,6 +100,15 @@ function jetpack_smartframe_shortcode( $atts ) {
 		'max-width' => isset( $atts['max-width'] ) ? (int) $atts['max-width'] : null,
 	);
 
+	$embed_url = sprintf(
+		'https://imagecards.smartframe.io/%1$s/%2$s',
+		esc_attr( $script_id ),
+		esc_attr( $image_id )
+	);
+
 	// wrap the embed with wp-block-embed__wrapper, otherwise it would be aligned to the very left of the viewport.
-	return "<div class='wp-block-embed__wrapper'>" . wp_oembed_get( 'https://imagecards.smartframe.io/' . $script_id . '/' . $image_id, array_filter( $params ) ) . '</div>';
+	return sprintf(
+		'<div class="wp-block-embed__wrapper">%1$s</div>',
+		wp_oembed_get( $embed_url, array_filter( $params ) )
+	);	
 }
