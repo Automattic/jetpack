@@ -28,6 +28,7 @@
 		"test-encrypt-config": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in ./config/local-test.js -out ./config/encrypted.enc"
 	},
 	"devDependencies": {
+		"jetpack-e2e-core": "link:../../../../js-packages/e2e-core",
 		"@babel/core": "7.13.16",
 		"@babel/preset-env": "7.13.15",
 		"@slack/web-api": "6.1.0",
