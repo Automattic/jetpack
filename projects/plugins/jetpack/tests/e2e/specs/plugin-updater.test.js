@@ -1,16 +1,16 @@
-import { doClassicConnection } from '../lib/flows/jetpack-connect';
+import { doClassicConnection } from 'jetpack-e2e-core/flows/jetpack-connect';
 import {
 	execShellCommand,
 	execSyncShellCommand,
 	execWpCommand,
 	prepareUpdaterTest,
-} from '../lib/utils-helper';
-import Sidebar from '../lib/pages/wp-admin/sidebar';
-import PluginsPage from '../lib/pages/wp-admin/plugins';
-import DashboardPage from '../lib/pages/wp-admin/dashboard';
-import JetpackPage from '../lib/pages/wp-admin/jetpack';
-import { testStep } from '../lib/reporters/reporter';
-import { prerequisitesBuilder } from '../lib/env/prerequisites';
+} from 'jetpack-e2e-core/utils-helper';
+import Sidebar from 'jetpack-e2e-core/pages/wp-admin/sidebar';
+import PluginsPage from 'jetpack-e2e-core/pages/wp-admin/plugins';
+import DashboardPage from 'jetpack-e2e-core/pages/wp-admin/dashboard';
+import JetpackPage from 'jetpack-e2e-core/pages/wp-admin/jetpack';
+import { testStep } from 'jetpack-e2e-core/reporters/reporter';
+import { prerequisitesBuilder } from 'jetpack-e2e-core/env/prerequisites';
 
 /**
  *

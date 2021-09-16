@@ -1,9 +1,9 @@
-import Sidebar from '../lib/pages/wp-admin/sidebar';
-import PluginsPage from '../lib/pages/wp-admin/plugins';
-import DashboardPage from '../lib/pages/wp-admin/dashboard';
-import JetpackPage from '../lib/pages/wp-admin/jetpack';
-import { execWpCommand } from '../lib/utils-helper';
-import { prerequisitesBuilder } from '../lib/env/prerequisites';
+import Sidebar from 'jetpack-e2e-core/pages/wp-admin/sidebar';
+import PluginsPage from 'jetpack-e2e-core/pages/wp-admin/plugins';
+import DashboardPage from 'jetpack-e2e-core/pages/wp-admin/dashboard';
+import JetpackPage from 'jetpack-e2e-core/pages/wp-admin/jetpack';
+import { execWpCommand } from 'jetpack-e2e-core/utils-helper';
+import { prerequisitesBuilder } from 'jetpack-e2e-core/env/prerequisites';
 
 /**
  *

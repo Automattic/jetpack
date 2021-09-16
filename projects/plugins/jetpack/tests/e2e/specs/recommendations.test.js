@@ -1,6 +1,6 @@
-import RecommendationsPage from '../lib/pages/wp-admin/recommendations';
-import { testStep } from '../lib/reporters/reporter';
-import { prerequisitesBuilder } from '../lib/env/prerequisites';
+import RecommendationsPage from 'jetpack-e2e-core/pages/wp-admin/recommendations';
+import { testStep } from 'jetpack-e2e-core/reporters/reporter';
+import { prerequisitesBuilder } from 'jetpack-e2e-core/env/prerequisites';
 
 /**
  *

@@ -9,9 +9,9 @@ if ( process.env.E2E_DEBUG ) {
 }
 
 module.exports = {
-	testEnvironment: '<rootDir>/lib/env/playwright-environment.js',
-	globalSetup: '<rootDir>/lib/env/global-setup.js',
-	globalTeardown: '<rootDir>/lib/env/global-teardown.js',
+	testEnvironment: '<rootDir>/node_modules/jetpack-e2e-core/env/playwright-environment.js',
+	globalSetup: '<rootDir>/node_modules/jetpack-e2e-core/env/global-setup.js',
+	globalTeardown: '<rootDir>/node_modules/jetpack-e2e-core/env/global-teardown.js',
 	setupFilesAfterEnv: [ '<rootDir>/jest.setup.js' ],
 	testRunner: 'jest-circus/runner',
 	runner: 'groups',
