@@ -19,17 +19,15 @@ class WP_Test_Module extends Base_Test_Case {
 	 * Test deactivation hook.
 	 */
 	public function test_deactivate_hook() {
-		do_action( 'jetpack_boost_deactivate' );
-		new Mock_Module();
-		$this->assertSame( 1, did_action( 'jetpack_boost_deactivate' ) );
+		$module = new Mock_Module();
+		$this->assertEquals( 10, has_action( 'jetpack_boost_deactivate', [ $module, 'on_deactivate' ] ) );
 	}
 
 	/**
 	 * Test uninstall hook.
 	 */
 	public function test_uninstall_hook() {
-		do_action( 'jetpack_boost_uninstall' );
-		new Mock_Module();
-		$this->assertSame( 1, did_action( 'jetpack_boost_uninstall' ) );
+		$module = new Mock_Module();
+		$this->assertEquals( 10, has_action( 'jetpack_boost_uninstall', [ $module, 'on_uninstall' ] ) );
 	}
 }
