@@ -1,9 +1,11 @@
 /**
  * External dependencies
  */
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { ConnectScreen, ConnectionStatusCard } from '@automattic/jetpack-connection';
+import { CONNECTION_DISCONNECTED } from '@automattic/jetpack-connection/events';
+import { Subscribers, Observer, registerObserver } from '@automattic/jetpack-observer';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -26,16 +28,24 @@ export default function useConnection() {
 	const connectionStatus = useSelect( select => select( STORE_ID ).getConnectionStatus(), [] );
 	const { setConnectionStatus } = useDispatch( STORE_ID );
 
+	/**
+	 * Initialize the observer for connection events.
+	 * To be run once upon component initialization.
+	 */
+	useEffect( () => {
+		const subscribers = new Subscribers();
+		subscribers.add( CONNECTION_DISCONNECTED, () => {
+			setConnectionStatus( { isActive: false, isRegistered: false, isUserConnected: false } );
+		} );
+		registerObserver( new Observer( subscribers ) );
+	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
+
 	const statusCallback = useCallback(
 		status => {
 			setConnectionStatus( status );
 		},
 		[ setConnectionStatus ]
 	);
-
-	const onDisconnectedCallback = useCallback( () => {
-		setConnectionStatus( { isActive: false, isRegistered: false, isUserConnected: false } );
-	}, [ setConnectionStatus ] );
 
 	const renderConnectScreen = () => {
 		return (
@@ -66,7 +76,6 @@ export default function useConnection() {
 				isUserConnected={ connectionStatus.isUserConnected }
 				apiRoot={ APIRoot }
 				apiNonce={ APINonce }
-				onDisconnected={ onDisconnectedCallback }
 				redirectUri="admin.php?page=jetpack-backup"
 			/>
 		);

@@ -1,0 +1,4 @@
+Significance: major
+Type: added
+
+Build the initial functionality (subscribers, observers, observer registry).

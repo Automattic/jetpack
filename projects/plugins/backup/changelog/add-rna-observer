@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update the callbacks to make use of new Observer package.

@@ -30,6 +30,7 @@
 		"@automattic/jetpack-api": "workspace:^0.2.1-alpha",
 		"@automattic/jetpack-components": "workspace:^0.3.1-alpha",
 		"@automattic/jetpack-connection": "workspace:^0.6.1-alpha",
+		"@automattic/jetpack-observer": "workspace:^0.1.0-alpha",
 		"@wordpress/api-fetch": "5.2.2",
 		"@wordpress/data": "6.1.0",
 		"@wordpress/date": "4.2.1",

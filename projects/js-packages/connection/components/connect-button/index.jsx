@@ -7,11 +7,13 @@ import { Button } from '@wordpress/components';
 import PropTypes from 'prop-types';
 import restApi from '@automattic/jetpack-api';
 import { Spinner } from '@automattic/jetpack-components';
+import { fireEvent } from '@automattic/jetpack-observer';
 
 /**
  * Internal dependencies
  */
 import ConnectUser from '../connect-user';
+import { CONNECTION_SITE_CONNECTED } from '../../events';
 import './style.scss';
 
 /**
@@ -33,7 +35,7 @@ import './style.scss';
 const ConnectButton = props => {
 	const [ isRegistering, setIsRegistering ] = useState( false );
 	const [ isUserConnecting, setIsUserConnecting ] = useState( false );
-	const [ registationError, setRegistrationError ] = useState( false );
+	const [ registrationError, setRegistrationError ] = useState( false );
 
 	const [ authorizationUrl, setAuthorizationUrl ] = useState( null );
 
@@ -41,7 +43,6 @@ const ConnectButton = props => {
 		apiRoot,
 		apiNonce,
 		connectLabel,
-		onRegistered,
 		registrationNonce,
 		redirectUri,
 		from,
@@ -79,9 +80,7 @@ const ConnectButton = props => {
 				.then( response => {
 					setIsRegistering( false );
 
-					if ( onRegistered ) {
-						onRegistered( response );
-					}
+					fireEvent( CONNECTION_SITE_CONNECTED, response );
 
 					setAuthorizationUrl( response.authorizeUrl );
 					setIsUserConnecting( true );
@@ -92,14 +91,7 @@ const ConnectButton = props => {
 					throw error;
 				} );
 		},
-		[
-			setIsRegistering,
-			setAuthorizationUrl,
-			connectionStatus,
-			onRegistered,
-			registrationNonce,
-			redirectUri,
-		]
+		[ setIsRegistering, setAuthorizationUrl, connectionStatus, registrationNonce, redirectUri ]
 	);
 
 	/**
@@ -128,7 +120,7 @@ const ConnectButton = props => {
 					</Button>
 				) }
 
-			{ registationError && (
+			{ registrationError && (
 				<p className="jp-connect-button__error">
 					{ __( 'An error occurred. Please try again.', 'jetpack' ) }
 				</p>

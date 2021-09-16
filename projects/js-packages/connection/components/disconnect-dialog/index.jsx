@@ -4,14 +4,18 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
 import { __ } from '@wordpress/i18n';
+import { useDispatch } from '@wordpress/data';
 import { Button, Modal } from '@wordpress/components';
-import { JetpackLogo, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import restApi from '@automattic/jetpack-api';
+import { JetpackLogo, getRedirectUrl } from '@automattic/jetpack-components';
+import { fireEvent } from '@automattic/jetpack-observer';
 
 /**
  * Internal dependencies
  */
+import { CONNECTION_DISCONNECTED } from '../../events';
+import { STORE_ID } from '../../state/store';
 import './style.scss';
 
 /**
@@ -21,7 +25,6 @@ import './style.scss';
  * @param {string} props.apiRoot -- API root URL, required.
  * @param {string} props.apiNonce -- API Nonce, required.
  * @param {string} props.title -- The modal title.
- * @param {Function} props.onDisconnected -- The callback to be called upon disconnection success.
  * @param {Function} props.onError -- The callback to be called upon disconnection failure.
  * @param {Function} props.errorMessage -- The error message to display upon disconnection failure.
  * @returns {React.Component} The `DisconnectDialog` component.
@@ -34,7 +37,9 @@ const DisconnectDialog = props => {
 	const [ isDisconnected, setIsDisconnected ] = useState( false );
 	const [ disconnectError, setDisconnectError ] = useState( false );
 
-	const { apiRoot, apiNonce, title, onDisconnected, onError, errorMessage, children } = props;
+	const { setConnectionStatus } = useDispatch( STORE_ID );
+
+	const { apiRoot, apiNonce, title, onError, errorMessage, children } = props;
 
 	/**
 	 * Initialize the REST API.
@@ -96,20 +101,20 @@ const DisconnectDialog = props => {
 	);
 
 	/**
-	 * Close modal and fire 'onDisconnected' callback if exists.
+	 * Close modal and fire the `CONNECTION_DISCONNECTED` event.
 	 * Triggered upon clicking the 'Back To WordPress' button.
 	 */
 	const backToWordpress = useCallback(
 		e => {
 			e && e.preventDefault();
 
-			if ( onDisconnected ) {
-				onDisconnected();
-			}
+			setConnectionStatus( { isActive: false, isRegistered: false, isUserConnected: false } );
+
+			fireEvent( CONNECTION_DISCONNECTED );
 
 			closeModal();
 		},
-		[ onDisconnected, closeModal ]
+		[ closeModal, setConnectionStatus ]
 	);
 
 	return (
@@ -232,7 +237,6 @@ DisconnectDialog.propTypes = {
 	apiRoot: PropTypes.string.isRequired,
 	apiNonce: PropTypes.string.isRequired,
 	title: PropTypes.string,
-	onDisconnected: PropTypes.func,
 	onError: PropTypes.func,
 	errorMessage: PropTypes.string,
 };

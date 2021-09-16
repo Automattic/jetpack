@@ -7,6 +7,7 @@
 	"dependencies": {
 		"@automattic/jetpack-api": "workspace:^0.2.1-alpha",
 		"@automattic/jetpack-components": "workspace:^0.3.1-alpha",
+		"@automattic/jetpack-observer": "workspace:^0.1.0-alpha",
 		"@wordpress/base-styles": "4.0.0",
 		"@wordpress/browserslist-config": "4.1.0",
 		"@wordpress/components": "17.0.0",
@@ -29,7 +30,8 @@
 	},
 	"type": "module",
 	"exports": {
-		".": "./index.jsx"
+		".": "./index.jsx",
+		"./events": "./events.jsx"
 	},
 	"sideEffects": [
 		"*.css",

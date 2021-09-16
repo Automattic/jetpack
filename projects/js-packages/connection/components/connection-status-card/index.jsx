@@ -1,19 +1,17 @@
 /**
  * External dependencies
  */
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
 import PropTypes from 'prop-types';
 import restApi from '@automattic/jetpack-api';
-import { useDispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
 import ConnectUser from '../connect-user';
 import DisconnectDialog from '../disconnect-dialog';
-import { STORE_ID } from '../../state/store';
 import './style.scss';
 
 /**
@@ -27,7 +25,6 @@ import './style.scss';
  * @param {string}   props.redirectUri -- The redirect admin URI after the user has connected their WordPress.com account.
  * @param {string}   props.title -- The Card title.
  * @param {string}   props.connectionInfoText -- The text that will be displayed under the title, containing info how to leverage the connection.
- * @param {Function} props.onDisconnected -- The callback to be called upon disconnection success.
  * @returns {React.Component} The `ConnectionStatusCard` component.
  */
 
@@ -40,13 +37,11 @@ const ConnectionStatusCard = props => {
 		redirectUri,
 		title,
 		connectionInfoText,
-		onDisconnected,
 	} = props;
 
 	const [ isFetchingConnectionData, setIsFetchingConnectionData ] = useState( false );
 	const [ connectedUserData, setConnectedUserData ] = useState( {} );
 	const [ isUserConnecting, setIsUserConnecting ] = useState( false );
-	const { setConnectionStatus } = useDispatch( STORE_ID );
 
 	const avatarRef = useRef();
 
@@ -81,19 +76,6 @@ const ConnectionStatusCard = props => {
 			} );
 	}, [ setIsFetchingConnectionData, setConnectedUserData ] );
 
-	const onDisconnectedCallback = useCallback(
-		e => {
-			e && e.preventDefault();
-
-			setConnectionStatus( { isActive: false, isRegistered: false, isUserConnected: false } );
-
-			if ( onDisconnected && {}.toString.call( onDisconnected ) === '[object Function]' ) {
-				onDisconnected();
-			}
-		},
-		[ onDisconnected, setConnectionStatus ]
-	);
-
 	// Prevent component from rendering if site is not connected.
 	if ( ! isRegistered ) {
 		return null;
@@ -120,11 +102,7 @@ const ConnectionStatusCard = props => {
 			<ul className="jp-connection-status-card--list">
 				<li className="jp-connection-status-card--list-item-success">
 					{ __( 'Site connected.', 'jetpack' ) }&nbsp;
-					<DisconnectDialog
-						apiRoot={ apiRoot }
-						apiNonce={ apiNonce }
-						onDisconnected={ onDisconnectedCallback }
-					>
+					<DisconnectDialog apiRoot={ apiRoot } apiNonce={ apiNonce }>
 						<h2>
 							{ __( 'Jetpack is currently powering multiple products on your site.', 'jetpack' ) }
 							<br />
@@ -170,7 +148,6 @@ ConnectionStatusCard.propTypes = {
 	redirectUri: PropTypes.string.isRequired,
 	title: PropTypes.string,
 	connectionInfoText: PropTypes.string,
-	onDisconnected: PropTypes.func,
 };
 
 ConnectionStatusCard.defaultProps = {

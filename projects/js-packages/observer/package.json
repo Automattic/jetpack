@@ -1,0 +1,24 @@
+{
+	"name": "@automattic/jetpack-observer",
+	"version": "0.1.0-alpha",
+	"description": "Jetpack Observer Package",
+	"author": "Automattic",
+	"license": "GPL-2.0-or-later",
+	"dependencies": {},
+	"devDependencies": {
+		"jetpack-js-test-runner": "workspace:*",
+		"nyc": "15.1.0"
+	},
+	"type": "module",
+	"exports": {
+		".": "./index.jsx"
+	},
+	"scripts": {
+		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./test/*.jsx'"
+	},
+	"engines": {
+		"node": "^14.17.6 || ^16.7.0",
+		"pnpm": "^6.5.0",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	}
+}
