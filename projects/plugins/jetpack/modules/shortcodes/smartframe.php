@@ -15,7 +15,7 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 }
 
 /**
- * Register smartframe as oembed provider. Add filter to reverse iframes to shortcode. Register [smartframe] shortcode.
+ * Register smartframe as oembed provider. Add filter to reverse iframes to shortcode. Register [jetpack_smartframe] shortcode.
  *
  * @since 10.2.0
  */
@@ -64,7 +64,7 @@ function jetpack_shortcodereverse_smartframe( $content ) {
 				esc_attr( $match[2] ),
 				! empty( $match[3] ) ? ' max-width="' . esc_attr( $match[3] ) . '"' : ''
 			);
-			$content = str_replace( $match[0], $shortcode, $content );
+			$content   = str_replace( $match[0], $shortcode, $content );
 		}
 	}
 	/** This action is documented in modules/widgets/social-media-icons.php */
@@ -110,5 +110,5 @@ function jetpack_smartframe_shortcode( $atts ) {
 	return sprintf(
 		'<div class="wp-block-embed__wrapper">%1$s</div>',
 		wp_oembed_get( $embed_url, array_filter( $params ) )
-	);	
+	);
 }
