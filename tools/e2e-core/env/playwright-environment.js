@@ -4,7 +4,9 @@ const fs = require( 'fs' );
 const path = require( 'path' );
 const chalk = require( 'chalk' );
 const logger = require( '../logger' );
-const pwContextOptions = require( '../playwright.config' ).pwContextOptions;
+const pwContextOptions = require( `${ path.resolve(
+	process.env.NODE_CONFIG_DIR
+) }/playwright.config` ).pwContextOptions;
 const { fileNameFormatter, resolveSiteUrl, getJetpackVersion } = require( '../utils-helper' );
 const { takeScreenshot } = require( '../reporters/screenshot' );
 const config = require( 'config' );

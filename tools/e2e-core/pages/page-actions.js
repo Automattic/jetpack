@@ -2,7 +2,10 @@ import logger from '../logger';
 import fs from 'fs';
 import chalk from 'chalk';
 import config from 'config';
-import { pwBrowserOptions } from '../playwright.config';
+import path from 'path';
+const { pwBrowserOptions } = require( `${ path.resolve(
+	process.env.NODE_CONFIG_DIR
+) }/playwright.config` );
 
 /**
  * This is an abstraction for most important page actions
