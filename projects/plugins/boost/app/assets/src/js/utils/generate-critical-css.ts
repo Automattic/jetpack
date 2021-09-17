@@ -166,7 +166,7 @@ async function generateForKeys(
 	const majorSteps = Object.keys( providerKeys ).length + 1;
 	let majorStep = 0;
 
-	// eslint-disable-next-line
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return
 	const startTime = Date.now();
 
 	// Run through each set of URLs.
