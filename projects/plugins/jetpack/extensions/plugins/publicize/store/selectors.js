@@ -548,22 +548,28 @@ export function getConnections( state ) {
 
 	// jetpackPublicizeConnections rules the current connections for this post.
 	for ( const conn of jetpackPublicizeConnections ) {
+		let freshConnection;
 		if ( cachedConnectionsIds.includes( conn.id ) ) {
 			// The connection is already defined in the `jetpack_publicize_connections` metadata.
-			freshConnections.push(
-				cachedConnections.filter( connection => connection.id === conn.id )[ 0 ]
-			);
+			freshConnection = cachedConnections.filter( connection => connection.id === conn.id )[ 0 ];
 		} else {
 			// The connection is new. Add to fresh connection with initial state.
-			freshConnections.push( {
+			freshConnection = {
 				display_name: conn.display_name,
 				service_name: conn.service_name,
 				id: conn.id,
 				done: false,
 				enabled: true,
 				toggleable: true,
-			} );
+			};
 		}
+
+		// Populate the connection with extra fresh data.
+		if ( conn.profile_picture ) {
+			freshConnection.profile_picture = conn.profile_picture;
+		}
+
+		freshConnections.push( freshConnection );
 	}
 
 	return freshConnections;
