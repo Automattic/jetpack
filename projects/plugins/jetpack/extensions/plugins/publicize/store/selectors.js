@@ -539,10 +539,6 @@ export function getConnections( state ) {
 
 	const { connections: jetpackPublicizeConnections } = state;
 
-	if ( ! jetpackPublicizeConnections?.length ) {
-		return cachedConnections;
-	}
-
 	// Collect fresh connections here.
 	const freshConnections = [];
 
