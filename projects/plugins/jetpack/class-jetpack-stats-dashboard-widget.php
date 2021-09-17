@@ -1,6 +1,6 @@
 <?php
 /**
- * Adds the Jetpack widget to the WordPress dashboard.
+ * Adds the Jetpack stats widget to the WordPress admin dashboard.
  *
  * @package jetpack
  */
@@ -9,7 +9,7 @@ use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Status;
 
 /**
- * Class that adds a adds the Jetpack stats widget to the WordPress dashboard.
+ * Class that adds the Jetpack stats widget to the WordPress admin dashboard.
  */
 class Jetpack_Stats_Dashboard_Widget {
 
@@ -33,7 +33,7 @@ class Jetpack_Stats_Dashboard_Widget {
 	}
 
 	/**
-	 * Sets up the Jetpack Stats widget in the WordPress dashboard.
+	 * Sets up the Jetpack Stats widget in the WordPress admin dashboard.
 	 */
 	public static function wp_dashboard_setup() {
 		if ( Jetpack::is_connection_ready() ) {

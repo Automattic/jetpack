@@ -700,8 +700,7 @@ class Jetpack {
 
 		// WordPress dashboard widget.
 		require_once JETPACK__PLUGIN_DIR . 'class-jetpack-stats-dashboard-widget.php';
-		$jetpack_stats_dashboard_widget = ( new Jetpack_Stats_Dashboard_Widget() );
-		add_action( 'wp_dashboard_setup', array( $jetpack_stats_dashboard_widget, 'init' ) );
+		add_action( 'wp_dashboard_setup', array( new Jetpack_Stats_Dashboard_Widget(), 'init' ) );
 
 		// Returns HTTPS support status.
 		add_action( 'wp_ajax_jetpack-recheck-ssl', array( $this, 'ajax_recheck_ssl' ) );
