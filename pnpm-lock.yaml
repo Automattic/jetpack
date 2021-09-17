@@ -780,6 +780,7 @@ importers:
       chai: 4.3.4
       chalk: 4.1.1
       configstore: 5.0.1
+      envfile: 6.17.0
       esm: 3.2.25
       execa: 5.0.0
       inquirer: 7.3.3
@@ -799,6 +800,7 @@ importers:
       '@octokit/rest': 18.6.7
       chalk: 4.1.1
       configstore: 5.0.1
+      envfile: 6.17.0
       esm: 3.2.25
       execa: 5.0.0
       inquirer: 7.3.3
@@ -10780,6 +10782,12 @@ packages:
 
   /entities/2.2.0:
     resolution: {integrity: sha512-p92if5Nz619I0w+akJrLZH0MX0Pb5DX39XOwQTtXSdQQOaYH03S1uIQp4mhOZtAXrxq4ViO67YTiLBo2638o9A==}
+
+  /envfile/6.17.0:
+    resolution: {integrity: sha512-RnhtVw3auDZeeh5VtaNrbE7s6Kq8BoRtGIzcbMpMsJ+wIpRgs5jiDG4gQjW+vfws5QPlizE57/fUU0Tj6Nrs8A==}
+    engines: {node: '>=10'}
+    hasBin: true
+    dev: false
 
   /envinfo/7.8.1:
     resolution: {integrity: sha512-/o+BXHmB7ocbHEAs6F2EnG0ogybVVUdkRunTT2glZU9XAaGmhqskrvKwqXuDfNjEO0LZKWdejEEpnq8aM0tOaw==}
