@@ -28,7 +28,7 @@ function ToggleConnectionControl() {
 
 ### updateMessage( <message> )
 
-Helpder function to update the message to share in the social media.
+Helper function to update the message to share in the social media.
 
 ```es6
 import { TextareaControl } from '@wordpress/components';
