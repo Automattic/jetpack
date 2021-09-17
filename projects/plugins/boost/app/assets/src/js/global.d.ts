@@ -17,6 +17,7 @@ declare global {
 	};
 
 	// Constants provided by the plugin.
+	// eslint-disable-next-line camelcase
 	const Jetpack_Boost: {
 		version: string;
 		api: {

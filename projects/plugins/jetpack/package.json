@@ -86,7 +86,6 @@
 		"@wordpress/interface": "4.1.0",
 		"@wordpress/url": "3.2.2",
 		"@wordpress/viewport": "4.0.2",
-		"abortcontroller-polyfill": "1.7.1",
 		"bounding-client-rect": "1.0.5",
 		"classnames": "2.3.1",
 		"click-outside": "2.0.2",
@@ -149,8 +148,7 @@
 		"url-polyfill": "1.1.12",
 		"uuid": "8.3.2",
 		"webpack": "5.51.1",
-		"webpack-cli": "4.8.0",
-		"whatwg-fetch": "3.6.2"
+		"webpack-cli": "4.8.0"
 	},
 	"devDependencies": {
 		"@automattic/color-studio": "2.5.0",
@@ -176,9 +174,9 @@
 		"chalk": "4.1.1",
 		"commander": "7.2.0",
 		"concurrently": "6.0.2",
-		"css-loader": "5.1.1",
+		"css-loader": "6.2.0",
 		"enzyme": "3.11.0",
-		"eslint": "7.31.0",
+		"eslint": "7.32.0",
 		"fs-extra": "10.0.0",
 		"glob": "7.1.6",
 		"jest": "27.0.4",
