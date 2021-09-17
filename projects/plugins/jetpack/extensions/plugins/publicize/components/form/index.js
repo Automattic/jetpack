@@ -20,8 +20,7 @@ export default function PublicizeForm( { refreshCallback } ) {
 	const { toggleEnableState, updateMessage } = useSocialMediaConnections();
 
 	function isDisabled() {
-		const dissabled = connections.every( connection => ! connection.toggleable );
-		return dissabled;
+		return connections.every( connection => ! connection.toggleable );
 	}
 
 	return (
