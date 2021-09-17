@@ -23,6 +23,7 @@ import { ExternalLink } from '@wordpress/components';
  * Internal dependencies
  */
 import getSiteFragment from '../../../../shared/get-site-fragment';
+
 import useSocialMediaActions from '../../hooks/use-social-media-actions';
 import { useSelectSocialMediaConnections } from '../../hooks/use-select-social-media';
 
@@ -30,7 +31,7 @@ const refreshThreshold = 2000;
 
 export default function PublicizeSettingsButton() {
 	const { refreshConnections } = useSocialMediaActions();
-	const { connections } = useSelectSocialMediaConnections();
+	const connections = useSelectSocialMediaConnections();
 
 	if ( ! connections?.length ) {
 		return null;
