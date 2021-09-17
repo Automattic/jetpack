@@ -821,7 +821,7 @@ class Grunion_Contact_Form_Plugin {
 		 *
 		 * @module contact-form
 		 *
-		 * @since 10.2
+		 * @since 10.2.0
 		 *
 		 * @param array $form The form values being sent to Akismet.
 		 */
