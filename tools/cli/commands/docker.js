@@ -496,6 +496,10 @@ export function dockerDefine( yargs ) {
 								`PHP_VERSION=${ versions.PHP_VERSION }`,
 								'--build-arg',
 								`COMPOSER_VERSION=${ versions.COMPOSER_VERSION }`,
+								'--build-arg',
+								`NODE_VERSION=${ versions.NODE_VERSION }`,
+								'--build-arg',
+								`PNPM_VERSION=${ versions.PNPM_VERSION }`,
 								dockerFolder,
 							] )
 						);

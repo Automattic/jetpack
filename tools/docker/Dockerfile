@@ -4,6 +4,8 @@ VOLUME ["/var/www/html"]
 
 ARG PHP_VERSION
 ARG COMPOSER_VERSION
+ARG NODE_VERSION
+ARG PNPM_VERSION
 
 ENV LANG en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
@@ -67,6 +69,22 @@ RUN \
 	&& php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
 	&& php composer-setup.php --install-dir=/usr/local/bin --filename=composer --version=$COMPOSER_VERSION \
 	&& php -r "unlink('composer-setup.php');"
+
+# Install requested version of Node.
+# We add the PPA for ease of updating, while we download the specific node version manually if possible for installation.
+RUN \
+	: "${NODE_VERSION:?Build argument NODE_VERSION needs to be set and non-empty.}" \
+	&& N=${NODE_VERSION%%.*} \
+	&& curl -fSL https://deb.nodesource.com/setup_${N}.x | bash - \
+	&& DEB="$(curl -fSL https://deb.nodesource.com/node_${N}.x/pool/main/n/nodejs/ | perl -nwe 'BEGIN { $v = shift; $arch = shift; $re = qr/nodejs_\Q$v\E-.*_\Q$arch.deb\E/; $out=""; } $out=$1 if /href="($re)"/; END { print "$out"; }' "${NODE_VERSION}" "$(dpkg --print-architecture)")" \
+	&& if [ -n "$DEB" ]; then curl -fSL "https://deb.nodesource.com/node_${N}.x/pool/main/n/nodejs/$DEB" --output /tmp/nodejs.deb && dpkg -i /tmp/nodejs.deb; else DEBIAN_FRONTEND=noninteractive apt-get install -y nodejs; fi \
+	&& rm -rf /var/lib/apt/lists/* /tmp/nodejs.deb
+
+# Install requested version of pnpm.
+RUN \
+	: "${PNPM_VERSION:?Build argument PNPM_VERSION needs to be set and non-empty.}" \
+	&& curl -fSL https://get.pnpm.io/v6.14.js | node - add --global pnpm@$PNPM_VERSION \
+	&& pnpm store prune
 
 # Install wp-cli.
 RUN curl -o /usr/local/bin/wp -fSL https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli-nightly.phar \
