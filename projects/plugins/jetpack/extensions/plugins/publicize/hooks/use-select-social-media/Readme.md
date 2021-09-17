@@ -1,7 +1,7 @@
 # useSelectSocialMedia hook
 
 React hook to get relevant data about the social media connections.
-You'd like to use together with the [useSocialMediaConnections](../use-social-media-connections) hook.
+This hook should be used together with the [useSocialMediaConnections](../use-social-media-connections) hook.
 
 ## API 
 
