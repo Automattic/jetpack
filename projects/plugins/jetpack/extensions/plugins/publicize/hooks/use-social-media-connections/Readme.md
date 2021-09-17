@@ -5,7 +5,7 @@ You'd like to use together with the [useSelectSocialMedia](../use-select-social-
 
 ## API 
 
-This hooks returns an array with useful helpers.
+This hook returns an array with useful helpers.
 
 ### toggleEnableState( <id> )
 
