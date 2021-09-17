@@ -21,7 +21,7 @@ import PublicizeConnectionVerify from '../connection-verify';
 import PublicizeForm from '../form';
 import PublicizeTwitterOptions from '../twitter/options';
 
-const PublicizePanel = ( { connections, refreshConnections, prePublish } ) => (
+const PublicizePanel = ( { connections, prePublish } ) => (
 	<Fragment>
 		{ connections && connections.some( connection => connection.enabled ) && (
 			<PublicizeConnectionVerify />
@@ -29,9 +29,9 @@ const PublicizePanel = ( { connections, refreshConnections, prePublish } ) => (
 		<div>
 			{ __( "Connect and select the accounts where you'd like to share your post.", 'jetpack' ) }
 		</div>
-		{ connections && connections.length > 0 && (
-			<PublicizeForm refreshCallback={ refreshConnections } />
-		) }
+
+		<PublicizeForm />
+
 		<PublicizeTwitterOptions prePublish={ prePublish } />
 	</Fragment>
 );
