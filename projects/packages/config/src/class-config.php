@@ -16,7 +16,7 @@ use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Connection\Plugin;
 use Automattic\Jetpack\JITM as JITM;
 use Automattic\Jetpack\JITMS\JITM as JITMS_JITM;
-use Automattic\Jetpack\Post_List as Post_List;
+use Automattic\Jetpack\Post_List\Post_List as Post_List;
 use Automattic\Jetpack\Sync\Main as Sync_Main;
 
 /**
@@ -97,7 +97,7 @@ class Config {
 		}
 
 		if ( $this->config['post_list'] ) {
-			$this->ensure_class( 'Automattic\Jetpack\Post_List' )
+			$this->ensure_class( 'Automattic\Jetpack\Post_List\Post_List' )
 				&& $this->ensure_feature( 'post_list' );
 		}
 	}
