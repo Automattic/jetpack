@@ -9,7 +9,7 @@ This hook returns an object with the following properties.
 
 ### connections
 
-The social media conections list.
+The social media connections list.
 
 ```es6
 import useSocialMediaConnections from './hooks/use-social-media-connection';
