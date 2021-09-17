@@ -2284,9 +2284,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 *
 		 * @param string $r The contact form HTML.
 		 */
-		$r = apply_filters( 'jetpack_contact_form_html', $r );
-
-		return $r;
+		return apply_filters( 'jetpack_contact_form_html', $r );
 	}
 
 	/**
