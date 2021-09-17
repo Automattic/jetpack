@@ -11,7 +11,6 @@
  */
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
-import { Component } from '@wordpress/element';
 import { ExternalLink } from '@wordpress/components';
 
 /**
@@ -19,8 +18,8 @@ import { ExternalLink } from '@wordpress/components';
  */
 import getSiteFragment from '../../../../shared/get-site-fragment';
 
-class PublicizeSettingsButton extends Component {
-	getButtonLink() {
+export default function PublicizeSettingsButton( props ) {
+	function getButtonLink() {
 		const siteFragment = getSiteFragment();
 
 		// If running in WP.com wp-admin or in Calypso, we redirect to Calypso sharing settings.
@@ -37,9 +36,9 @@ class PublicizeSettingsButton extends Component {
 	 *
 	 * @param {object} event - Event instance for onClick.
 	 */
-	settingsClick = event => {
-		const href = this.getButtonLink();
-		const { refreshCallback } = this.props;
+	function settingsClick( event ) {
+		const href = getButtonLink();
+		const { refreshCallback } = props;
 		event.preventDefault();
 		/**
 		 * Open a popup window, and
@@ -52,22 +51,15 @@ class PublicizeSettingsButton extends Component {
 				refreshCallback();
 			}
 		}, 500 );
-	};
-
-	render() {
-		const className = classnames(
-			'jetpack-publicize-add-connection-container',
-			this.props.className
-		);
-
-		return (
-			<div className={ className }>
-				<ExternalLink onClick={ this.settingsClick }>
-					{ __( 'Connect an account', 'jetpack' ) }
-				</ExternalLink>
-			</div>
-		);
 	}
-}
 
-export default PublicizeSettingsButton;
+	const className = classnames( 'jetpack-publicize-add-connection-container', props.className );
+
+	return (
+		<div className={ className }>
+			<ExternalLink onClick={ settingsClick }>
+				{ __( 'Connect an account', 'jetpack' ) }
+			</ExternalLink>
+		</div>
+	);
+}
