@@ -1,19 +1,5 @@
 @import '../../shared/styles/gutenberg-base-styles.scss';
 
-.jetpack-publicize-message-box {
-	background-color: $gray-200;
-	border-radius: 4px;
-}
-
-.jetpack-publicize-message-box textarea {
-	width: 100%;
-}
-
-.jetpack-publicize-character-count {
-	padding-bottom: 5px;
-	padding-left: 5px;
-}
-
 .jetpack-publicize__connections-list {
 	list-style-type: none;
 	margin: 13px 0;
@@ -64,26 +50,12 @@
 	}
 }
 
-.jetpack-publicize-message-note {
-	display: inline-block;
-	margin-bottom: 4px;
-	margin-top: 13px;
-}
-
 .jetpack-publicize-add-connection-wrapper {
 	margin: 15px 0;
 }
 
 .jetpack-publicize-add-connection-container {
-	display: flex;
-
-	a {
-		cursor: pointer;
-	}
-
-	span {
-		vertical-align: middle;
-	}
+	margin-bottom: 8px;
 }
 
 .jetpack-publicize__connections-list {
