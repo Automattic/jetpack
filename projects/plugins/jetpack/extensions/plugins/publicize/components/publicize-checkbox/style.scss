@@ -22,7 +22,8 @@
 	.components-publicize-icon__picture {
 		display: grid;
 
-		img {
+		img,
+		.placeholder {
 			border-radius: 50%;
 			width: 30px;
 			height: 30px;
@@ -31,11 +32,7 @@
 
 		.placeholder {
 			display: block;
-			background-color: rgb( 168, 190, 206 );
-			border-radius: 50%;
-			width: 30px;
-			height: 30px;
-			grid-area: 1 / 1 / 2 / 2;
+			background-color: #a8bece;
 		}
 
 		svg {
@@ -44,8 +41,8 @@
 			grid-area: 1 / 1 / 2 / 2;
 			margin-top: 18px;
 			margin-left: 18px;
-			border: 1px solid white;
 			border-radius: 1px;
+			background-color: white;
 		}
 	}
 }

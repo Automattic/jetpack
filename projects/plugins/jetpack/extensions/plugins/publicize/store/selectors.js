@@ -279,16 +279,6 @@ export function getShareMessage() {
 }
 
 /**
- * Get the connections
- *
- * @param {object} state - State object.
- * @returns {Array} The connections.
- */
-export function getConnections( state ) {
-	return state.connections;
-}
-
-/**
  * Get the maximum length that a share message can be.
  *
  * @returns {number} The maximum length of a share message.
