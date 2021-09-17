@@ -69,7 +69,7 @@ RUN \
 	&& php -r "unlink('composer-setup.php');"
 
 # Install wp-cli.
-RUN curl -o /usr/local/bin/wp -SL https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli-nightly.phar \
+RUN curl -o /usr/local/bin/wp -fSL https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli-nightly.phar \
 	&& chmod +x /usr/local/bin/wp
 
 # Install PsySH to use in wp-cli shell.
@@ -81,7 +81,7 @@ RUN mkdir /usr/local/src/psysh \
 	&& rm -rf ~/.cache ~/.config ~/.local ~/.subversion
 
 # Install old version of PHPUnit needed for WP unit tests.
-RUN curl https://phar.phpunit.de/phpunit-7.phar -L -o phpunit.phar \
+RUN curl https://phar.phpunit.de/phpunit-7.phar -fSL -o phpunit.phar \
 	&& chmod +x phpunit.phar \
 	&& mv phpunit.phar /usr/local/bin/phpunit
 
