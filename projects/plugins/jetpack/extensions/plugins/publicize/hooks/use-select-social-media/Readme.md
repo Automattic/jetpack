@@ -5,7 +5,7 @@ You'd like to use together with the [useSocialMediaConnections](../use-social-me
 
 ## API 
 
-This hooks returns an object with the following properties.
+This hook returns an object with the following properties.
 
 ### connections
 
