@@ -184,7 +184,7 @@
 	margin-bottom: 0;
 }
 
-.widget-vis__add-new-rule {
+.components-button.widget-vis__add-new-rule {
 	display: block;
 }
 
