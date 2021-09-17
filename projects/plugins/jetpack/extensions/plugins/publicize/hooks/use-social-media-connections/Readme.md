@@ -1,7 +1,7 @@
 # useSocialMediaConnections hook
 
 React hook to deal with the social media connections actions.
-You'd like to use together with the [useSelectSocialMedia](../use-select-social-media) selector hook.
+This hook should be used together with the [useSelectSocialMedia](../use-select-social-media) selector hook.
 
 ## API 
 
