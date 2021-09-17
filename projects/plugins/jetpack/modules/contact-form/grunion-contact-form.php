@@ -2280,7 +2280,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 *
 		 * @module contact-form
 		 *
-		 * @since 10.2
+		 * @since 10.2.0
 		 *
 		 * @param string $r The contact form HTML.
 		 */
