@@ -1,61 +1,65 @@
 /**
  * WordPress dependencies
  */
-import { useDispatch, useSelect } from '@wordpress/data';
-import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import {
-	ComplementaryArea,
-	InterfaceSkeleton,
-	store as interfaceStore,
-} from '@wordpress/interface';
-import { store as viewportStore } from '@wordpress/viewport';
 
 /**
  * Internal dependencies
  */
-import { COMPLEMENTARY_AREA_SCOPE, OPTIONS_TAB_IDENTIFIER } from '../../lib/constants';
 import AppWrapper from '../app-wrapper';
 import Header from '../header';
+import Sidebar from '../sidebar';
 import './styles.scss';
-
-const interfaceLabels = {
-	/* translators: accessibility text for the widgets screen top bar landmark region. */
-	header: __( 'Jetpack Search customization top bar', 'jetpack' ),
-	/* translators: accessibility text for the widgets screen content landmark region. */
-	body: __( 'Jetpack Search customization preview', 'jetpack' ),
-	/* translators: accessibility text for the widgets screen settings landmark region. */
-	sidebar: __( 'Jetpack Search customization settings', 'jetpack' ),
-	/* translators: accessibility text for the widgets screen footer landmark region. */
-	footer: __( 'Jetpack Search customization footer', 'jetpack' ),
-};
 
 /**
  * Wraps the InterfaceSkeleton component with necessary parameters.
  *
+ * @param {object} props - component properties.
  * @returns {Element} component instance
  */
-export default function Interface() {
-	const { hasSidebarEnabled, isLargeViewport } = useSelect( select => ( {
-		isLargeViewport: select( viewportStore ).isViewportMatch( 'large' ),
-		hasSidebarEnabled: !! select( interfaceStore ).getActiveComplementaryArea(
-			COMPLEMENTARY_AREA_SCOPE
-		),
-	} ) );
-
-	const { enableComplementaryArea, disableComplementaryArea } = useDispatch( interfaceStore );
-	useEffect( () => {
-		isLargeViewport
-			? enableComplementaryArea( COMPLEMENTARY_AREA_SCOPE, OPTIONS_TAB_IDENTIFIER )
-			: disableComplementaryArea( COMPLEMENTARY_AREA_SCOPE );
-	}, [ enableComplementaryArea, disableComplementaryArea, isLargeViewport ] );
+export default function Interface( props ) {
+	const { enabledSidebarName, enableSidebar, disableSidebar } = props;
 
 	return (
-		<InterfaceSkeleton
-			content={ <AppWrapper /> }
-			header={ <Header /> }
-			labels={ interfaceLabels }
-			sidebar={ hasSidebarEnabled && <ComplementaryArea.Slot scope={ COMPLEMENTARY_AREA_SCOPE } /> }
-		/>
+		<div className="interface-interface-skeleton">
+			<div className="interface-interface-skeleton__editor">
+				<div
+					/* translators: accessibility text for the widgets screen top bar landmark region. */
+					aria-label={ __( 'Jetpack Search customization top bar', 'jetpack' ) }
+					className="interface-interface-skeleton__header"
+					role="region"
+					tabIndex="-1"
+				>
+					<Header enableSidebar={ enableSidebar } />
+				</div>
+				<div className="interface-interface-skeleton__body">
+					<div
+						/* translators: accessibility text for the widgets screen content landmark region. */
+						aria-label={ __( 'Jetpack Search customization preview', 'jetpack' ) }
+						className="interface-interface-skeleton__content"
+						role="region"
+						tabIndex="-1"
+					>
+						<AppWrapper />
+					</div>
+					{ /* Ensure sidebar is enabled before rendering. */ }
+					{ !! enabledSidebarName && (
+						<div
+							/* translators: accessibility text for the widgets screen settings landmark region. */
+							aria-label={ __( 'Jetpack Search customization settings', 'jetpack' ) }
+							className="interface-interface-skeleton__sidebar"
+							role="region"
+							tabIndex="-1"
+						>
+							<Sidebar
+								disableSidebar={ disableSidebar }
+								enabledSidebarName={ enabledSidebarName }
+								enableSidebar={ enableSidebar }
+							/>
+						</div>
+					) }
+				</div>
+			</div>
+		</div>
 	);
 }

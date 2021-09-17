@@ -83,7 +83,6 @@
 		"@wordpress/hooks": "3.2.0",
 		"@wordpress/i18n": "4.2.2",
 		"@wordpress/icons": "5.0.2",
-		"@wordpress/interface": "4.1.0",
 		"@wordpress/url": "3.2.2",
 		"@wordpress/viewport": "4.0.2",
 		"bounding-client-rect": "1.0.5",

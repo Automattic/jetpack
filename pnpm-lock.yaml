@@ -530,7 +530,6 @@ importers:
       '@wordpress/hooks': 3.2.0
       '@wordpress/i18n': 4.2.2
       '@wordpress/icons': 5.0.2
-      '@wordpress/interface': 4.1.0
       '@wordpress/server-side-render': 3.0.2
       '@wordpress/url': 3.2.2
       '@wordpress/viewport': 4.0.2
@@ -652,7 +651,6 @@ importers:
       '@wordpress/hooks': 3.2.0
       '@wordpress/i18n': 4.2.2
       '@wordpress/icons': 5.0.2
-      '@wordpress/interface': 4.1.0_2ccf75bd525644be36fe60c4756fa1e9
       '@wordpress/url': 3.2.2
       '@wordpress/viewport': 4.0.2_react@17.0.2+redux@4.0.5
       bounding-client-rect: 1.0.5
@@ -6775,32 +6773,6 @@ packages:
       '@wordpress/element': 4.0.1
       '@wordpress/primitives': 3.0.1
 
-  /@wordpress/interface/4.1.0_2ccf75bd525644be36fe60c4756fa1e9:
-    resolution: {integrity: sha512-ln0s/6suqwVFwY7Ejf1w/qh2ry1P4QUTkLlTgeAHGWXgCYAoe82yD1cWiqcsqEWNiboXUStRWUv/59p6Pllyhw==}
-    engines: {node: '>=12'}
-    dependencies:
-      '@babel/runtime': 7.15.3
-      '@wordpress/a11y': 3.2.2
-      '@wordpress/components': 17.0.0_2ccf75bd525644be36fe60c4756fa1e9
-      '@wordpress/compose': 5.0.2_react@17.0.2
-      '@wordpress/data': 6.1.0_react@17.0.2+redux@4.0.5
-      '@wordpress/deprecated': 3.2.1
-      '@wordpress/element': 4.0.1
-      '@wordpress/i18n': 4.2.2
-      '@wordpress/icons': 5.0.2
-      '@wordpress/plugins': 4.0.2_react@17.0.2
-      '@wordpress/viewport': 4.0.2_react@17.0.2+redux@4.0.5
-      classnames: 2.3.1
-      lodash: 4.17.21
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@types/react'
-      - react
-      - react-dom
-      - reakit-utils
-      - redux
-    dev: false
-
   /@wordpress/is-shallow-equal/1.8.0:
     resolution: {integrity: sha512-OV3qJqP9LhjuOzt85TsyBwv+//CvC8Byf/81D3NmjPKlstLaD/bBCC5nBhH6dKAv4bShYtQ2Hmut+V4dZnOM1A==}
     dependencies:
@@ -6904,21 +6876,6 @@ packages:
     transitivePeerDependencies:
       - react
       - redux
-
-  /@wordpress/plugins/4.0.2_react@17.0.2:
-    resolution: {integrity: sha512-MivmOfBzR89wPuVKME4x2Sta3nQEVL/GPNBGt9a2ck/hye8n54dxR8+m621nsxlBPDwOJYRKU8lBARqSD6i6zQ==}
-    engines: {node: '>=12'}
-    dependencies:
-      '@babel/runtime': 7.15.3
-      '@wordpress/compose': 5.0.2_react@17.0.2
-      '@wordpress/element': 4.0.1
-      '@wordpress/hooks': 3.2.0
-      '@wordpress/icons': 5.0.2
-      lodash: 4.17.21
-      memize: 1.1.0
-    transitivePeerDependencies:
-      - react
-    dev: false
 
   /@wordpress/postcss-plugins-preset/3.2.1:
     resolution: {integrity: sha512-pgwLb3agk/Xked5ljfpYiWlPOIV2ABa8x1yFRxasxvYAareaZemRl8gzDMeTFgYQoiEPF+9MYWXaZ1qQEDlAQA==}
