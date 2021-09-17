@@ -73,7 +73,7 @@ if [[ -e /var/www/html/wp-cli.yml ]] && grep -q '^require: /usr/local/bin/psysh$
 	fi
 fi
 
-if [ "$COMPOSE_PROJECT_NAME" == "dev" ] ; then
+if [ "$COMPOSE_PROJECT_NAME" == "jetpack_dev" ] ; then
 	# If we don't have the wordpress test helpers, download them
 	if [ ! -d /tmp/wordpress-develop/tests ]; then
 		# Get latest WordPress unit-test helper files
