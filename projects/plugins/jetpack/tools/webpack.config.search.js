@@ -23,6 +23,8 @@ const baseWebpackConfig = getBaseWebpackConfig(
 		entry: {
 			main: path.join( __dirname, '../modules/search/instant-search/loader.js' ),
 		},
+		// Putting a cache buster in the query string is not documented, but confirmed by the author of Webpack.
+		// More information: https://github.com/webpack/webpack/issues/2329
 		'output-chunk-filename': 'jp-search.chunk-[name].min.js?ver=[contenthash]',
 		'output-filename': 'jp-search-[name].bundle.js',
 		'output-path': path.join( __dirname, '../_inc/build/instant-search' ),
