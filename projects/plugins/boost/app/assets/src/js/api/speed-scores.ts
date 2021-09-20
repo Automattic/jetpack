@@ -36,7 +36,7 @@ type ParsedApiResponse = {
  * poll for a response until the task is done, returning a SpeedScores object.
  *
  * @param {boolean} force Force regenerate speed scores.
- * @return {SpeedScores} Speed scores returned by the server.
+ * @return {SpeedScoresSet} Speed scores returned by the server.
  */
 export async function requestSpeedScores( force = false ): Promise< SpeedScoresSet > {
 	// Request metrics
@@ -111,7 +111,7 @@ function parseResponse( response: JSONObject ): ParsedApiResponse {
 /**
  * Poll a speed score request for results, timing out if it takes too long.
  *
- * @return {SpeedScores} Speed scores returned by the server.
+ * @return {SpeedScoresSet} Speed scores returned by the server.
  */
 async function pollRequest(): Promise< SpeedScoresSet > {
 	return pollPromise< SpeedScoresSet >( {
@@ -163,7 +163,7 @@ export function getScoreLetter( mobile: number, desktop: number ): string {
 /**
  * Find out if scores were improved.
  *
- * Only show the speed scores if there was improvements on both mobile and desktop.
+ * Only show the speed scores if there was an improvement on either mobile or desktop, and neither worsened.
  *
  * @param {SpeedScoresSet} scores
  * @return boolean

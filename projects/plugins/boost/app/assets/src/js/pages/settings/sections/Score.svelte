@@ -39,18 +39,12 @@
 	}
 
 	/**
-	 * Check if module states are currently in sync with server.
+	 * Derived datastore which makes it easy to check if module states are currently in sync with server.
 	 */
 	const modulesInSync = derived( modules, $modules => {
-		const slugs = Object.keys( $modules );
-		for ( let i = 0; i < slugs.length; i++ ) {
-			if ( $modules[ slugs[ i ] ].synced === false ) {
-				return false;
-			}
-		}
-
-		return true;
+		return ! Object.values( $modules ).some( m => m.synced === false );
 	} );
+
 	/**
 	 * String representation of the current state that may impact the score.
 	 *
