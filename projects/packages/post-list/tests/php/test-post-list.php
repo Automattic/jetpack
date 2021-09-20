@@ -53,16 +53,46 @@ class Test_Post_List extends BaseTestCase {
 	public function test_enqueue_scripts() {
 		$post_list = Post_List::get_instance();
 
-		// Confirm that our script, style, and action have not been added before the enqueue_scripts() method call.
-		$this->assertFalse( wp_script_is( 'jetpack_posts_list_ui_script' ) );
+		// Confirm that our style, filter, and action have not been added before the enqueue_scripts() method call.
 		$this->assertFalse( wp_style_is( 'jetpack_posts_list_ui_style' ) );
-		$this->assertFalse( has_action( 'admin_footer' ) );
+		$this->assertFalse( has_filter( 'manage_posts_columns' ) );
+		$this->assertFalse( has_action( 'manage_posts_custom_column' ) );
 
 		$post_list->enqueue_scripts( 'edit.php' );
 
-		// Assert that our script, style, and action have been added.
-		$this->assertTrue( wp_script_is( 'jetpack_posts_list_ui_script' ) );
+		// Assert that our style, filter, and action has been added.
 		$this->assertTrue( wp_style_is( 'jetpack_posts_list_ui_style' ) );
-		$this->assertTrue( has_action( 'admin_footer' ) );
+		$this->assertTrue( has_filter( 'manage_posts_columns' ) );
+		$this->assertTrue( has_action( 'manage_posts_custom_column' ) );
+	}
+	/**
+	 * Test the add_thumbnail_column() method.
+	 */
+	public function test_add_thumbnail_column() {
+		$columns = array(
+			'cb'         => '<input type="checkbox" />',
+			'title'      => 'Title',
+			'author'     => 'Author',
+			'categories' => 'Categories',
+			'tags'       => 'Tags',
+			'comments'   => '<span class="vers comment-grey-bubble" title="Comments"><span class="screen-reader-text">Comments</span></span>',
+			'date'       => 'Date',
+		);
+
+		$columns_expected = array(
+			'cb'         => '<input type="checkbox" />',
+			'thumbnail'  => '<span>Thumbnail</span>',
+			'title'      => 'Title',
+			'author'     => 'Author',
+			'categories' => 'Categories',
+			'tags'       => 'Tags',
+			'comments'   => '<span class="vers comment-grey-bubble" title="Comments"><span class="screen-reader-text">Comments</span></span>',
+			'date'       => 'Date',
+		);
+
+		$post_list       = Post_List::get_instance();
+		$columns_results = $post_list->add_thumbnail_column( $columns );
+
+		$this->assertSame( $columns_results, $columns_expected );
 	}
 }

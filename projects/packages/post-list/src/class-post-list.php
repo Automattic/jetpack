@@ -69,8 +69,6 @@ class Post_List {
 
 			add_filter( 'manage_posts_columns', array( $this, 'add_thumbnail_column' ) );
 			add_action( 'manage_posts_custom_column', array( $this, 'populate_thumbnail_rows' ), 10, 2 );
-
-			wp_set_script_translations( 'jetpack_posts_list_ui_script', 'jetpack' );
 		}
 	}
 
@@ -102,9 +100,9 @@ class Post_List {
 
 		$thumbnail = Post_Thumbnail::get_post_thumbnail( get_post( $post_id ) );
 		if ( $thumbnail ) {
-			echo '<img class="post-list__post-featured-image" src="' . esc_url( $thumbnail['thumb'] ) . '" height="50" width="50" />';
+			echo '<img class="post-list__post-featured-image" src="' . esc_url( $thumbnail['thumb'] ) . '" alt="' . esc_attr( $thumbnail['alt'] ) . '" height="50" width="50" />';
 		} else {
-			echo '<span class="dashicons dashicons-format-image" title="No featured image found."></span>';
+			echo '<span class="dashicons dashicons-format-image" title="No thumbnail found."></span>';
 		}
 	}
 }
