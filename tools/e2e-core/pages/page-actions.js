@@ -3,9 +3,7 @@ import fs from 'fs';
 import chalk from 'chalk';
 import config from 'config';
 import path from 'path';
-const { pwBrowserOptions } = require( `${ path.resolve(
-	process.env.NODE_CONFIG_DIR
-) }/playwright.config` );
+const pwConfig = require( `${ path.resolve( process.env.NODE_CONFIG_DIR ) }/playwright.config` );
 
 /**
  * This is an abstraction for most important page actions
@@ -16,7 +14,7 @@ export default class PageActions {
 		this.page = page;
 		this.selectors = selectors;
 		this.pageName = pageName ? pageName : this.constructor.name;
-		this.timeout = timeoutOverride ? timeoutOverride : pwBrowserOptions.timeout;
+		this.timeout = timeoutOverride ? timeoutOverride : pwConfig.pwBrowserOptions.timeout;
 	}
 
 	// region page functions

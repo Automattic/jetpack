@@ -4,9 +4,7 @@ const fs = require( 'fs' );
 const path = require( 'path' );
 const chalk = require( 'chalk' );
 const logger = require( '../logger' );
-const pwContextOptions = require( `${ path.resolve(
-	process.env.NODE_CONFIG_DIR
-) }/playwright.config` ).pwContextOptions;
+const pwConfig = require( `${ path.resolve( process.env.NODE_CONFIG_DIR ) }/playwright.config` );
 const { fileNameFormatter, resolveSiteUrl, getJetpackVersion } = require( '../utils-helper' );
 const { takeScreenshot } = require( '../reporters/screenshot' );
 const config = require( 'config' );
@@ -129,7 +127,7 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 	async newContext() {
 		// // todo we need to set a custom user agent!
 
-		this.global.context = await this.global.browser.newContext( pwContextOptions );
+		this.global.context = await this.global.browser.newContext( pwConfig.pwContextOptions );
 		this.global.context.on( 'page', page => this.onNewPage( page ) );
 	}
 

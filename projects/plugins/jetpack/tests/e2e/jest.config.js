@@ -29,12 +29,5 @@ module.exports = {
 				uniqueOutputName: 'true',
 			},
 		],
-		[
-			'jest-stare',
-			{
-				resultDir: `output/reports/jest-stare`,
-				reportTitle: 'Jetpack E2E tests',
-			},
-		],
 	],
 };
