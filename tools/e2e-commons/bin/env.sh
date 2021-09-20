@@ -33,7 +33,7 @@ stop_env() {
 
 gb_setup() {
 	GB_ZIP="wp-content/gutenberg.zip"
-	$BASE_CMD exec-silent -- /usr/local/src/jetpack-monorepo/projects/plugins/jetpack/tests/e2e/bin/container-setup.sh gb-setup $GB_ZIP
+	$BASE_CMD exec-silent -- /usr/local/src/jetpack-monorepo/tools/e2e-commons/bin/container-setup.sh gb-setup $GB_ZIP
 	$BASE_CMD wp plugin install $GB_ZIP
 	$BASE_CMD wp plugin activate gutenberg
 }
