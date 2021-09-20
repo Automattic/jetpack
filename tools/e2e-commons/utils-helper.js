@@ -45,7 +45,7 @@ function execSyncShellCommand( cmd ) {
 }
 
 async function resetWordpressInstall() {
-	const cmd = './bin/env.sh reset';
+	const cmd = `${ require( 'path' ).dirname( __filename ) }/bin/env.sh reset`;
 	execSyncShellCommand( cmd );
 }
 
