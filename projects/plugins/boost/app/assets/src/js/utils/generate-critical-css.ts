@@ -11,7 +11,6 @@ import {
 	sendGenerationResult,
 	storeGenerateError,
 	updateGenerateStatus,
-	getCurrentStatus,
 } from '../stores/critical-css-status';
 import type { JSONObject } from './json-types';
 import type { Viewport } from './types';
@@ -34,17 +33,6 @@ export type MajorMinorCallback = (
 	minorSteps: number,
 	minorStep: number
 ) => void;
-
-export type TrackerAttributes = {
-	status: string;
-	provider_key?: string;
-	error_message?: string;
-	error_type?: string;
-	size?: number;
-	generation_time?: number;
-	progress?: number;
-	percent_complete?: number;
-};
 
 let hasGenerateRun = false;
 
@@ -168,12 +156,15 @@ async function generateForKeys(
 
 	// eslint-disable-next-line @wordpress/no-unused-vars-before-return
 	const startTime = Date.now();
+	let totalSize = 0;
+	let stepsPassed = 0;
+	let stepsFailed = 0;
+	let maxSize = 0;
 
 	// Run through each set of URLs.
 	for ( const [ providerKey, urls ] of Object.entries( providerKeys ) ) {
 		callback( ++majorStep, majorSteps, 0, 0 );
 		try {
-			const providerStartTime = Date.now();
 			const [ css, warnings ] = await CriticalCSSGenerator.generateCriticalCSS( {
 				browserInterface: new CriticalCSSGenerator.BrowserInterfaceIframe( {
 					requestGetParameters,
@@ -202,28 +193,10 @@ async function generateForKeys(
 				return;
 			}
 
-			// Track individual Critical CSS generation success.
-			const trackerAttributes: TrackerAttributes = {
-				provider_key: providerKey,
-				status: 'success',
-				size: css.length,
-				generation_time: Date.now() - providerStartTime,
-			};
-			jpTracksAJAX.record_ajax_event( 'critical_css_success', 'click', trackerAttributes );
+			stepsPassed++;
+			totalSize += css.length;
+			maxSize = css.length > maxSize ? css.length : maxSize;
 		} catch ( err ) {
-			// Track individual Critical CSS generation error.
-			const trackerAttributes: TrackerAttributes = {
-				status: 'error',
-				provider_key: providerKey,
-				error_message: err.message,
-			};
-			if ( err.isSuccessTargetError ) {
-				trackerAttributes.error_type = 'successTargetError';
-			} else {
-				trackerAttributes.error_type = err.type;
-			}
-			jpTracksAJAX.record_ajax_event( 'critical_css_error', 'click', trackerAttributes );
-
 			// Success Target Errors indicate that URLs failed, but the process itself succeeded.
 			if ( err.isSuccessTargetError ) {
 				await sendGenerationResult( providerKey, 'error', {
@@ -234,6 +207,18 @@ async function generateForKeys(
 					},
 					passthrough,
 				} );
+
+				stepsFailed++;
+				for ( const [ url, error ] of Object.entries( err.urlErrors ) as any ) {
+					// Track individual Critical CSS generation error.
+					const eventProps = {
+						url,
+						provider_key: providerKey,
+						error_message: error.message,
+						error_type: error.type,
+					};
+					jpTracksAJAX.record_ajax_event( 'critical_css_url_error', 'click', eventProps );
+				}
 			} else {
 				await sendGenerationResult( providerKey, 'error', {
 					data: {
@@ -243,20 +228,30 @@ async function generateForKeys(
 					passthrough,
 				} );
 
+				// Track showstopper Critical CSS generation error.
+				const eventProps = {
+					time: Date.now() - startTime,
+					provider_key: providerKey,
+					error_message: err.message,
+					error_type: err.type,
+				};
+				jpTracksAJAX.record_ajax_event( 'critical_css_failure', 'click', eventProps );
+
 				return;
 			}
 		}
 	}
 
 	// Track complete Critical CSS generation result.
-	const { progress, percent_complete } = getCurrentStatus();
-	const trackerAttributes: TrackerAttributes = {
-		status: 'success',
-		progress,
-		percent_complete,
-		generation_time: Date.now() - startTime,
+	const eventProps = {
+		time: Date.now() - startTime,
+		block_count: stepsPassed,
+		error_count: stepsFailed,
+		average_size: totalSize / stepsPassed,
+		max_size: maxSize,
+		provider_keys: Object.keys( providerKeys ).join( ',' ),
 	};
-	jpTracksAJAX.record_ajax_event( 'critical_css_success', 'click', trackerAttributes );
+	jpTracksAJAX.record_ajax_event( 'critical_css_success', 'click', eventProps );
 
 	await updateGenerateStatus( false, 0 );
 }

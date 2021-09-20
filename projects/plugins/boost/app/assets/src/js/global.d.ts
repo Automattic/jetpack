@@ -8,7 +8,6 @@
 import type { ConnectionStatus } from './stores/connection';
 import type { CriticalCssStatus } from './stores/critical-css-status';
 import type { ModulesState } from './stores/modules';
-import { TrackerAttributes } from './utils/generate-critical-css';
 import type { BrowserInterfaceIframe, generateCriticalCSS } from 'jetpack-boost-critical-css-gen';
 
 declare global {
@@ -45,7 +44,11 @@ declare global {
 	};
 
 	const jpTracksAJAX: {
-		record_ajax_event( eventName: string, eventType: string, eventProp: TrackerAttributes ): void;
+		record_ajax_event(
+			eventName: string,
+			eventType: string,
+			eventProp: { [ key: string ]: string | number }
+		): void;
 	};
 }
 
