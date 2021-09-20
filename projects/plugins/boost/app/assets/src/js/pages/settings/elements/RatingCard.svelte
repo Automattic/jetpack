@@ -29,7 +29,7 @@
 		)}
 	</p>
 	<a
-		class="jb-button"
+		class="jb-button--primary"
 		href="https://wordpress.org/support/plugin/jetpack-boost/reviews/#new-post"
 		target="_blank"
 		on:click={() => {
