@@ -85,6 +85,9 @@
 		}
 	}
 
+	/**
+	 * A store that checks the speed score needs a refresh.
+	 */
 	const needRefresh = derived( [ criticalCssStatus, modulesInSync, scoreConfigString ], 
 	( [ $criticalCssStatus, $modulesInSync, $scoreConfigString ] ) => {
 		return ! $criticalCssStatus.generating &&

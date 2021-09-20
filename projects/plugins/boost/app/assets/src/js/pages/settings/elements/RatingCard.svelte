@@ -11,9 +11,12 @@
 	export let improvement;
 
 	const dispatch = createEventDispatcher();
-	function disableRatingPrompt() {
-		makeAdminAjaxRequest( { action: 'set_show_rating_prompt', value: false } );
-		dispatch( 'dismiss' );
+	async function disableRatingPrompt() {
+		// Send a request to back-end to permanently disable the rating prompt.
+		await makeAdminAjaxRequest( { action: 'set_show_rating_prompt', value: false } );
+
+		// Close the currently open prompt.
+		dispatch( 'dismiss' ); 
 	}
 </script>
 
