@@ -9,7 +9,7 @@ import { store as editorStore } from '@wordpress/editor';
  *
  * @returns {Function} Social media connection handler.
  */
-export default function useSocialMediaActions() {
+export default function useSocialMediaConnections() {
 	const { editPost } = useDispatch( editorStore );
 
 	const connections = useSelect(
@@ -18,7 +18,8 @@ export default function useSocialMediaActions() {
 	);
 
 	return {
-		toggleEnableState: function ( id ) {
+		connections,
+		toggleById: function ( id ) {
 			const filteredConnections = connections.map( connection => ( {
 				...connection,
 				enabled: connection.id === id ? ! connection.enabled : connection.enabled,
@@ -26,14 +27,6 @@ export default function useSocialMediaActions() {
 
 			editPost( {
 				jetpack_publicize_connections: filteredConnections,
-			} );
-		},
-		updateMessage: function ( message, hasEdited = true ) {
-			editPost( {
-				meta: {
-					jetpack_publicize_message: message,
-					jetpack_publicize_hasEditedShareMessage: hasEdited,
-				},
 			} );
 		},
 	};
