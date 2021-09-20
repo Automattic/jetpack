@@ -67,6 +67,7 @@ jobs:
         pnpm run test-decrypt-config
         pnpm run env-start
         pnpm run tunnel-on
+        pnpm run tunnel-write-logs
 
     - name: Set up Gutenberg
       if: matrix.group == 'gutenberg'

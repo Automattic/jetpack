@@ -19,7 +19,7 @@ function gb_setup {
 
 	rm -rf $ZIP_PATH wp-content/plugins/gutenberg
 	curl -L $GB_URL --output $ZIP_PATH
-	echo "Latest pre-release Gutenberg successfuly downloaded in $ZIP_PATH"
+	echo "Latest pre-release Gutenberg successfully downloaded in $ZIP_PATH"
 }
 
 if [ "${1}" == "gb-setup" ]; then

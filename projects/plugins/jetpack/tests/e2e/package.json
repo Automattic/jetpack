@@ -28,7 +28,6 @@
 		"test-encrypt-config": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in ./node_modules/jetpack-e2e-commons/config/local-test.js -out ./node_modules/jetpack-e2e-commons/config/encrypted.enc"
 	},
 	"devDependencies": {
-		"jetpack-e2e-commons": "link:../../../../../tools/e2e-commons",
 		"@babel/core": "7.13.16",
 		"@babel/preset-env": "7.13.15",
 		"@slack/web-api": "6.1.0",
@@ -47,6 +46,7 @@
 		"jest-runner-groups": "2.0.1",
 		"jest-stare": "2.2.1",
 		"jetpack-cli": "../../../../../tools/cli",
+		"jetpack-e2e-commons": "link:../../../../../tools/e2e-commons",
 		"localtunnel": "2.0.1",
 		"lodash": "4.17.21",
 		"mkdirp": "1.0.4",

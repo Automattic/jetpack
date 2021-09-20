@@ -50,7 +50,7 @@ async function resetWordpressInstall() {
 }
 
 async function prepareUpdaterTest() {
-	const cmd = `${ BASE_DOCKER_CMD } -v exec-silent /usr/local/src/jetpack-monorepo/projects/plugins/jetpack/tests/e2e/bin/prep.sh`;
+	const cmd = `${ BASE_DOCKER_CMD } -v exec-silent /usr/local/src/jetpack-monorepo/tools/e2e-commons/bin/prep.sh`;
 
 	await execShellCommand( cmd );
 }
