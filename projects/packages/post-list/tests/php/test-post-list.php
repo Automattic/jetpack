@@ -1,6 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * This file contains PHPUnit tests for the Post_List class.
+ * To run the package unit tests:
+ * - go the post-list folder "cd projects/packages/post-list"
+ * - run the command "composer test-php"
  *
  * @package automattic/jetpack-post-list
  */
