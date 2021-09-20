@@ -62,7 +62,7 @@ class WP_Test_Jetpack_Shortcodes_SmartFrame extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Verify that [smartframe] exists.
+	 * Verify that [jetpack_smartframe] exists.
 	 *
 	 * @since 10.2.0
 	 */

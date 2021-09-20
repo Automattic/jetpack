@@ -24,7 +24,7 @@ function jetpack_smartframe_enable_embeds() {
 	wp_oembed_add_provider( '#https?://(.*?)\.smartframe\.(io|net)/.*#i', 'https://oembed.smartframe.io/', true );
 
 	// Allow script to be filtered to short code (so direct copy+paste can be done).
-	add_filter( 'the_content', 'jetpack_shortcodereverse_smartframe' );
+	add_filter( 'pre_kses', 'jetpack_shortcodereverse_smartframe' );
 
 	// Actually display the smartframe Embed.
 	add_shortcode( 'jetpack_smartframe', 'jetpack_smartframe_shortcode' );
