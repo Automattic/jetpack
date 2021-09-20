@@ -85,26 +85,22 @@
 		}
 	}
 
-	const debouncedRefreshScore = debounce( force => {
-		// If the configuration has changed, the previous speed score is no longer relevant. But we don't want to
-		// trigger a refresh while critical css is still generating.
-		if (
-			! $criticalCssStatus.generating &&
+	const needRefresh = derived( [ criticalCssStatus, modulesInSync, scoreConfigString ], 
+	( [ $criticalCssStatus, $modulesInSync, $scoreConfigString ] ) => {
+		return ! $criticalCssStatus.generating &&
 			$modulesInSync &&
 			$scoreConfigString !== currentScoreConfigString
-		) {
-			refreshScore( force );
-		}
-	}, 2000 );
+	} );
 
-	$: {
-		// Mentioning the stores here for change detection.
-		$scoreConfigString;
-		$criticalCssStatus.generating;
-		$modulesInSync;
+    const debouncedRefreshScore = debounce( force => {
+        if ( $needRefresh ) {
+            refreshScore( force );
+        }
+    }, 2000 );
 
-		debouncedRefreshScore( true );
-	}
+    $: if ( $needRefresh ) {
+        debouncedRefreshScore( true );
+    }
 
 	$: {
 		if ( didScoresImprove( scores ) && Jetpack_Boost.preferences.showRatingPrompt ) {
