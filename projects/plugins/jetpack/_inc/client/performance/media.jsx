@@ -4,7 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { includes } from 'lodash';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ProgressBar } from '@automattic/components';
 
@@ -53,6 +53,11 @@ class Media extends React.Component {
 				],
 				planClass
 			) || hasVideoPressPurchase;
+
+		const freeUploadsUsed =
+			! hasVideoPressPurchase && null !== videoPressStorageUsed && 0 === videoPressStorageUsed
+				? 0
+				: 1;
 
 		const videoPressSettings = (
 			<SettingsGroup
@@ -105,9 +110,13 @@ class Media extends React.Component {
 					<JetpackBanner
 						className="media__videopress-upgrade"
 						callToAction={ __( 'Upgrade', 'jetpack' ) }
-						title={ __(
-							'You are limited to 1 video. Upgrade now to unlock more videos and 1TB of storage.',
-							'jetpack'
+						title={ sprintf(
+							/* translators: placeholder is a number. */
+							__(
+								'%d/1 free videos used. Upgrade now to unlock more videos and 1TB of storage.',
+								'jetpack'
+							),
+							freeUploadsUsed
 						) }
 						eventFeature="videopress"
 						icon="video"

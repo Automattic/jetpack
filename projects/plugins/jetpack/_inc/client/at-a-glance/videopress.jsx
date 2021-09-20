@@ -10,7 +10,7 @@ import { includes } from 'lodash';
  * WordPress dependencies
  */
 import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
@@ -65,6 +65,11 @@ class DashVideoPress extends Component {
 				planClass
 			) || hasVideoPressPurchase;
 
+		const freeUploadsUsed =
+			! hasVideoPressPurchase && null !== videoPressStorageUsed && 0 === videoPressStorageUsed
+				? 0
+				: 1;
+
 		if ( this.props.getOptionValue( 'videopress' ) ) {
 			return (
 				<DashItem
@@ -93,9 +98,13 @@ class DashVideoPress extends Component {
 								<JetpackBanner
 									className="media__videopress-upgrade"
 									callToAction={ __( 'Upgrade', 'jetpack' ) }
-									title={ __(
-										'You are limited to 1 video. Upgrade now to unlock more videos and 1 TB of storage.',
-										'jetpack'
+									title={ sprintf(
+										/* translators: placeholder is a number. */
+										__(
+											'%d/1 free videos used. Upgrade now to unlock more videos and 1TB of storage.',
+											'jetpack'
+										),
+										freeUploadsUsed
 									) }
 									disableHref="false"
 									eventFeature="videopress"
