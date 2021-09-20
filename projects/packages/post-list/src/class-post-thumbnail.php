@@ -16,7 +16,7 @@ class Post_Thumbnail {
 	 * neither exists returns the image array with null values.
 	 *
 	 * @param object $post The current post.
-	 * @return array The thumbnail image id and URLs
+	 * @return array|null The thumbnail image id and URLs
 	 */
 	public static function get_post_thumbnail( $post ) {
 		$image_id    = null;
@@ -42,6 +42,11 @@ class Post_Thumbnail {
 				$image_thumb = wp_get_attachment_image_url( $attachment_id, array( 50, 50 ) );
 				$image_alt   = get_post_meta( $attachment_id, '_wp_attachment_image_alt', true );
 			}
+		}
+
+		// If no thumbnail is found return null.
+		if ( null === $image_thumb ) {
+			return null;
 		}
 
 		// Escape values just in case.

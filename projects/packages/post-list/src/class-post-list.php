@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\Post_List;
 
-use Automattic\Jetpack\Assets;
-
 /**
  * The Post_List Admin Area
  */
@@ -39,7 +37,6 @@ class Post_List {
 	public function register() {
 		if ( ! did_action( 'jetpack_on_posts_list_init' ) ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
-			add_action( 'in_admin_footer', array( $this, 'create_app_root_element' ) );
 
 			/**
 			 * Action called after initializing Post_List Admin resources.
@@ -57,16 +54,6 @@ class Post_List {
 	 */
 	public function enqueue_scripts( $hook ) {
 		if ( 'edit.php' === $hook ) {
-			$plugin_path = Assets::get_file_url_for_environment( './index.js', './index.js', __FILE__ );
-
-			wp_enqueue_script(
-				'jetpack_posts_list_ui_script',
-				$plugin_path,
-				array(),
-				self::PACKAGE_VERSION,
-				true
-			);
-
 			wp_enqueue_style(
 				'jetpack_posts_list_ui_style',
 				plugin_dir_url( __DIR__ ) . './src/style.css',
@@ -80,43 +67,43 @@ class Post_List {
 				plugin_dir_url( __DIR__ ) . 'build/style.rtl.css'
 			);
 
-			wp_set_script_translations( 'jetpack_posts_list_ui_script', 'jetpack' );
+			add_filter( 'manage_posts_columns', array( $this, 'add_thumbnail_column' ) );
+			add_action( 'manage_posts_custom_column', array( $this, 'populate_thumbnail_rows' ), 10, 2 );
 
-			add_action( 'admin_footer', array( $this, 'print_post_data' ) );
+			wp_set_script_translations( 'jetpack_posts_list_ui_script', 'jetpack' );
 		}
 	}
 
 	/**
-	 * Outputs a JSON blob to the global `wp_admin_posts` variable, for use
-	 * by the JS application
+	 * Adds a new column header for displaying the thumbnail of a post.
+	 *
+	 * @param array $columns An array of column names.
+	 * @return array An array of column names.
 	 */
-	public function print_post_data() {
-		global $wp_query;
+	public function add_thumbnail_column( $columns ) {
+		$new_column = array( 'thumbnail' => __( 'Thumbnail', 'jetpack' ) );
+		$keys       = array_keys( $columns );
+		$index      = array_search( 'title', $keys, true );
+		$pos        = false === $index ? count( $columns ) : $index;
 
-		if ( ! post_type_supports( $wp_query->query['post_type'], 'thumbnail' ) ) {
+		return array_merge( array_slice( $columns, 0, $pos ), $new_column, array_slice( $columns, $pos ) );
+	}
+
+	/**
+	 * Displays the thumbnail content.
+	 *
+	 * @param string $column  The name of the column to display.
+	 * @param int    $post_id The current post ID.
+	 */
+	public function populate_thumbnail_rows( $column, $post_id ) {
+		if ( 'thumbnail' !== $column ) {
 			return;
 		}
 
-		$post_data = array_map(
-			function ( $post ) {
-				$thumbnail = Post_Thumbnail::get_post_thumbnail( $post );
-				return array(
-					'id'             => $post->ID,
-					'type'           => $post->post_type,
-					'featured_image' => $thumbnail,
-				);
-			},
-			$wp_query->posts
-		);
-		wp_add_inline_script( 'jetpack_posts_list_ui_script', 'var wpAdminPosts = ' . wp_json_encode( $post_data ) );
-	}
-
-	/**
-	 * Add a placeholder element for the
-	 * to mount the client app (root element).
-	 */
-	public function create_app_root_element() {
-		echo '<div id="wp-post-list-app" style="display: none;"></div>';
+		$thumbnail = Post_Thumbnail::get_post_thumbnail( get_post( $post_id ) );
+		if ( $thumbnail ) {
+			echo '<img src="' . esc_url( $thumbnail['thumb'] ) . '" height="50" width="50" />';
+		}
 	}
 }
 
