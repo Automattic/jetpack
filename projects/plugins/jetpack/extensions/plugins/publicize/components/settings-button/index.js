@@ -23,27 +23,19 @@ import { ExternalLink } from '@wordpress/components';
  * Internal dependencies
  */
 import getSiteFragment from '../../../../shared/get-site-fragment';
-
-import useSocialMediaActions from '../../hooks/use-social-media-actions';
-import { useSelectSocialMediaConnections } from '../../hooks/use-select-social-media';
+import useSelectSocialMediaConnections from '../../hooks/use-social-media-connections';
 
 const refreshThreshold = 2000;
 
 export default function PublicizeSettingsButton() {
-	const { refreshConnections } = useSocialMediaActions();
-	const connections = useSelectSocialMediaConnections();
-
-	if ( ! connections?.length ) {
-		return null;
-	}
-
+	const { refresh } = useSelectSocialMediaConnections();
 	const siteFragment = getSiteFragment();
 
-	const refresh = debounce( function ( isVisible ) {
+	const debRefresh = debounce( function ( isVisible ) {
 		if ( ! isVisible ) {
 			return;
 		}
-		refreshConnections();
+		refresh();
 	}, refreshThreshold );
 
 	/*
@@ -58,7 +50,7 @@ export default function PublicizeSettingsButton() {
 		: 'options-general.php?page=sharing&publicize_popup=true';
 
 	return (
-		<PageVisibility onChange={ refresh }>
+		<PageVisibility onChange={ debRefresh }>
 			<div className="jetpack-publicize-add-connection-wrapper">
 				<ExternalLink href={ href } target="_blank">
 					{ __( 'Connect an account', 'jetpack' ) }
