@@ -22,7 +22,7 @@ importers:
       jest-runner-groups: 2.0.1
       jest-stare: 2.2.1
       jetpack-cli: ../../../../../tools/cli
-      jetpack-e2e-commons: link:../../../../../tools/e2e-commons
+      jetpack-e2e-commons: ../../../../../tools/e2e-commons
       localtunnel: 2.0.1
       lodash: 4.17.21
       mkdirp: 1.0.4
