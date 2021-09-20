@@ -1,16 +1,46 @@
-
-.post-featured-image__container {
-	float: left;
-	margin-right: 5px;
+/* Set the width of the thumbnail column */
+.column-thumbnail {
+	width: 50px;
 }
 
-.post-featured-image__container	.post-list__post-featured-image {
-	width: 48px;
-	height: 48px;
-	fill: #ccc;
+/* Style the thumbnail image. */
+.column-thumbnail img {
+	width: 50px;
+	height: 50px;
 	border-radius: 4px;
 }
 
-.post-list__post-featured-image .components-popover__content {
-	padding: 5px;
+/* Style the Dashicon placeholder for empty thumbnails. */
+.column-thumbnail .dashicons {
+	font-size: 50px;
+	width: 50px;
+	height: 50px;
+	background: #c3c4c7;
+	border-radius: 4px;
+	color: #f6f7f7;
+}
+
+/* Keep data-colname from appearing on mobile view. */
+.column-thumbnail::before {
+	content: "" !important;
+}
+
+/* Move the "Thumbnail" and "Title" columns closer together. */
+th.column-thumbnail {
+	padding-right:0;
+}
+
+/* Don't display the "Thumbnail" column name in the header or footer. */
+.column-thumbnail span {
+	display:none;
+}
+
+/* Pull "Title" header name over in "Thumbnail"s place. */
+th.column-thumbnail + th a {
+	margin-left:-60px;
+}
+
+/* If thumbnail column has .hidden class. The entire column is toggled off. Don't pull "Title" header name over. */
+th.column-thumbnail.hidden + th a {
+	margin-left:0;
 }

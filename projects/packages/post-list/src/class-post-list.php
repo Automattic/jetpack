@@ -81,7 +81,7 @@ class Post_List {
 	 * @return array An array of column names.
 	 */
 	public function add_thumbnail_column( $columns ) {
-		$new_column = array( 'thumbnail' => __( 'Thumbnail', 'jetpack' ) );
+		$new_column = array( 'thumbnail' => '<span>' . __( 'Thumbnail', 'jetpack' ) . '</span>' );
 		$keys       = array_keys( $columns );
 		$index      = array_search( 'title', $keys, true );
 		$pos        = false === $index ? count( $columns ) : $index;
@@ -102,7 +102,9 @@ class Post_List {
 
 		$thumbnail = Post_Thumbnail::get_post_thumbnail( get_post( $post_id ) );
 		if ( $thumbnail ) {
-			echo '<img src="' . esc_url( $thumbnail['thumb'] ) . '" height="50" width="50" />';
+			echo '<img class="post-list__post-featured-image" src="' . esc_url( $thumbnail['thumb'] ) . '" height="50" width="50" />';
+		} else {
+			echo '<span class="dashicons dashicons-format-image" title="No featured image found."></span>';
 		}
 	}
 }
