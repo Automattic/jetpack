@@ -44,13 +44,8 @@ export default {
 		}
 
 		debug( 'search posts for:', keywords );
-		if ( this.props.search && keywords ) {
-			debug( 'replacing URL: ' + searchURL );
-			window.location.href = searchURL;
-		} else {
-			debug( 'setting URL: ' + searchURL );
-			window.location.href = searchURL;
-		}
+		debug( 'setting URL: ' + searchURL );
+		window.location.href = searchURL;
 	},
 
 	getSearchOpen: function () {
