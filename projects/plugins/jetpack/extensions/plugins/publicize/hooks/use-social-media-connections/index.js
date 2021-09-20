@@ -14,10 +14,7 @@ export default function useSocialMediaConnections() {
 	const { editPost, savePost } = useDispatch( editorStore );
 	const { refreshConnectionTestResults } = useDispatch( 'jetpack/publicize' );
 
-	const connections = useSelect(
-		select => select( editorStore ).getEditedPostAttribute( 'jetpack_publicize_connections' ),
-		[]
-	);
+	const connections = useSelect( select => select( 'jetpack/publicize' ).getConnections(), [] );
 
 	return {
 		connections,
@@ -35,7 +32,7 @@ export default function useSocialMediaConnections() {
 		refreshConnectionTestResults,
 
 		// To refresh the connections, we need to save the post.
-		refreshConnections: function () {
+		refresh: function () {
 			refreshConnectionTestResults(); // refresh the jetpack/publicize connections.
 			savePost(); // refresh the `jetpack_publicize_connections` metadata.
 		},
