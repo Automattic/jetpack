@@ -31,7 +31,7 @@ th.column-thumbnail {
 }
 
 /* Don't display the "Thumbnail" column name in the header or footer. */
-.column-thumbnail span {
+th.column-thumbnail span {
 	display:none;
 }
 
