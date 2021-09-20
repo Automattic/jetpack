@@ -1,6 +1,6 @@
-# useSocialMediaConnections hook
+# useSocialMediaActions hook
 
-React hook to deal with the social media connections actions.
+React hook to deal with the social media.
 This hook should be used together with the [useSelectSocialMedia](../use-select-social-media) selector hook.
 
 ## API 
@@ -12,10 +12,10 @@ This hook returns an array with useful helpers.
 Enable/disable the state of the social media connection, according to the given connection ID.
 
 ```es6
-import useSocialMediaConnections from './hooks/use-social-media-connection';
+import useSocialMediaActions from './hooks/use-social-media-actions';
 
 function ToggleConnectionControl() {
-	const { toggleEnableState } = useSocialMediaConnections();
+	const { toggleEnableState } = useSocialMediaActions();
 	const id = 'my-connection-id';
 
 	return (
@@ -32,11 +32,11 @@ Helper function to update the message to share in the social media.
 
 ```es6
 import { TextareaControl } from '@wordpress/components';
-import useSocialMediaConnections from './hooks/use-social-media-connection';
+import useSocialMediaActions from './hooks/use-social-media-actions';
 
 function SocialMediaTextarea() {
 	const { message } = useSelectSocialMedia();
-	const { updateMessage } = useSocialMediaConnections();
+	const { updateMessage } = useSocialMediaActions();
 
 	return (
 		<TextareaControl

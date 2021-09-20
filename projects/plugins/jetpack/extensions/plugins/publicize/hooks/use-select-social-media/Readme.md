@@ -1,22 +1,18 @@
-# useSelectSocialMedia hook
+# Social Media hooks
 
-React hook to get relevant data about the social media connections.
-This hook should be used together with the [useSocialMediaConnections](../use-social-media-connections) hook.
+React hooks to get relevant data about the social media.
+This hooks should be used together with the [useSocialMediaConnections](../use-social-media-actions) hook.
 
-## API 
-
-This hook returns an object with the following properties.
-
-### connections
+## useSocialMediaConnections
 
 The social media connections list.
 
 ```es6
-import useSocialMediaConnections from './hooks/use-social-media-connection';
+import { useSocialMediaConnections } from './hooks/use-social-media-actions';
 
 function PrintConnections() {
-	const { connections } = useSelectSocialMedia();
-	const { toggleEnableState } = useSocialMediaConnections();
+	const connections = useSocialMediaConnections();
+	const { toggleEnableState } = useSocialMediaActions();
 
 	return (
 		<div>
@@ -35,6 +31,7 @@ function PrintConnections() {
 }
 ```
 
-### message
+## useSelectSocialMediaMessage
 
-### maxLength
+## useSelectSocialMediaMessageMaxLength
+

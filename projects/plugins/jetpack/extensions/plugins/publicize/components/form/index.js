@@ -12,12 +12,19 @@
 import PublicizeConnection from '../connection';
 import PublicizeSettingsButton from '../settings-button';
 import MessageBoxControl from '../message-box-control';
-import useSocialMediaConnections from '../../hooks/use-social-media-connections';
-import useSelectSocialMedia from '../../hooks/use-select-social-media';
+import useSocialMediaActions from '../../hooks/use-social-media-actions';
+import {
+	useSelectSocialMediaConnections,
+	useSelectSocialMediaMessageMaxLength,
+	useSelectSocialMediaMessage,
+} from '../../hooks/use-select-social-media';
 
 export default function PublicizeForm( { refreshCallback } ) {
-	const { connections, message, maxLength } = useSelectSocialMedia();
-	const { toggleEnableState, updateMessage } = useSocialMediaConnections();
+	const connections = useSelectSocialMediaConnections();
+	const message = useSelectSocialMediaMessage();
+	const maxLength = useSelectSocialMediaMessageMaxLength();
+
+	const { toggleEnableState, updateMessage } = useSocialMediaActions();
 
 	function isDisabled() {
 		return connections.every( connection => ! connection.toggleable );

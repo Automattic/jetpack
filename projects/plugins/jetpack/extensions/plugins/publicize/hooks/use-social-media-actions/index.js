@@ -9,7 +9,7 @@ import { store as editorStore } from '@wordpress/editor';
  *
  * @returns {Function} Social media connection handler.
  */
-export default function useSocialMediaConnection() {
+export default function useSocialMediaActions() {
 	const { editPost } = useDispatch( editorStore );
 
 	const connections = useSelect(
