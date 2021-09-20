@@ -1,3 +1,3 @@
-const baseDefaultConfig = require( 'jetpack-e2e-core/config/default' );
+const baseDefaultConfig = require( 'jetpack-e2e-commons/config/default' );
 
 module.exports = baseDefaultConfig;

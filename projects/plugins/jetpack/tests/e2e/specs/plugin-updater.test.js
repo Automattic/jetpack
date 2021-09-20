@@ -1,16 +1,16 @@
-import { doClassicConnection } from 'jetpack-e2e-core/flows/jetpack-connect';
+import { doClassicConnection } from 'jetpack-e2e-commons/flows/jetpack-connect';
 import {
 	execShellCommand,
 	execSyncShellCommand,
 	execWpCommand,
 	prepareUpdaterTest,
-} from 'jetpack-e2e-core/utils-helper';
-import Sidebar from 'jetpack-e2e-core/pages/wp-admin/sidebar';
-import PluginsPage from 'jetpack-e2e-core/pages/wp-admin/plugins';
-import DashboardPage from 'jetpack-e2e-core/pages/wp-admin/dashboard';
-import JetpackPage from 'jetpack-e2e-core/pages/wp-admin/jetpack';
-import { testStep } from 'jetpack-e2e-core/reporters/reporter';
-import { prerequisitesBuilder } from 'jetpack-e2e-core/env/prerequisites';
+} from 'jetpack-e2e-commons/utils-helper';
+import Sidebar from 'jetpack-e2e-commons/pages/wp-admin/sidebar';
+import PluginsPage from 'jetpack-e2e-commons/pages/wp-admin/plugins';
+import DashboardPage from 'jetpack-e2e-commons/pages/wp-admin/dashboard';
+import JetpackPage from 'jetpack-e2e-commons/pages/wp-admin/jetpack';
+import { testStep } from 'jetpack-e2e-commons/reporters/reporter';
+import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites';
 
 /**
  *

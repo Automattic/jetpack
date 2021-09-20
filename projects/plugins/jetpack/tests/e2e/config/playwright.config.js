@@ -1,5 +1,3 @@
-const basePlaywrightConfig = require( 'jetpack-e2e-core/config/playwright.config.default' );
-
-basePlaywrightConfig.pwBrowserOptions.timeout = 21000;
+const basePlaywrightConfig = require( 'jetpack-e2e-commons/config/playwright.config.default' );
 
 module.exports = basePlaywrightConfig;

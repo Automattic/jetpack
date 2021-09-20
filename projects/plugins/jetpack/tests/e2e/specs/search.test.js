@@ -1,4 +1,4 @@
-import Homepage from 'jetpack-e2e-core/pages/search-homepage';
+import Homepage from 'jetpack-e2e-commons/pages/search-homepage';
 import {
 	enableInstantSearch,
 	getSidebarsWidgets,
@@ -7,10 +7,10 @@ import {
 	disableInstantSearch,
 	getBlockWidgets,
 	setupBlockWidgets,
-} from 'jetpack-e2e-core/search-helper';
-import { testStep } from 'jetpack-e2e-core/reporters/reporter';
-import { prerequisitesBuilder } from 'jetpack-e2e-core/env/prerequisites';
-import { Plans } from 'jetpack-e2e-core/env/types';
+} from 'jetpack-e2e-commons/search-helper';
+import { testStep } from 'jetpack-e2e-commons/reporters/reporter';
+import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites';
+import { Plans } from 'jetpack-e2e-commons/env/types';
 
 /**
  *

@@ -1,11 +1,11 @@
-import BlockEditorPage from 'jetpack-e2e-core/pages/wp-admin/block-editor';
-import PostFrontendPage from 'jetpack-e2e-core/pages/postFrontend';
-import PinterestBlock from 'jetpack-e2e-core/pages/wp-admin/blocks/pinterest';
-import EventbriteBlock from 'jetpack-e2e-core/pages/wp-admin/blocks/eventbrite';
+import BlockEditorPage from 'jetpack-e2e-commons/pages/wp-admin/block-editor';
+import PostFrontendPage from 'jetpack-e2e-commons/pages/postFrontend';
+import PinterestBlock from 'jetpack-e2e-commons/pages/wp-admin/blocks/pinterest';
+import EventbriteBlock from 'jetpack-e2e-commons/pages/wp-admin/blocks/eventbrite';
 import config from 'config';
-import { testStep } from 'jetpack-e2e-core/reporters/reporter';
-import { prerequisitesBuilder } from 'jetpack-e2e-core/env/prerequisites';
-import { Plans } from 'jetpack-e2e-core/env/types';
+import { testStep } from 'jetpack-e2e-commons/reporters/reporter';
+import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites';
+import { Plans } from 'jetpack-e2e-commons/env/types';
 
 /**
  *

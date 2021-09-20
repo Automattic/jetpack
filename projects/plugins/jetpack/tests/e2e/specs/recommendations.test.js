@@ -1,6 +1,6 @@
-import RecommendationsPage from 'jetpack-e2e-core/pages/wp-admin/recommendations';
-import { testStep } from 'jetpack-e2e-core/reporters/reporter';
-import { prerequisitesBuilder } from 'jetpack-e2e-core/env/prerequisites';
+import RecommendationsPage from 'jetpack-e2e-commons/pages/wp-admin/recommendations';
+import { testStep } from 'jetpack-e2e-commons/reporters/reporter';
+import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites';
 
 /**
  *

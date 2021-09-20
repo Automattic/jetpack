@@ -1,6 +1,6 @@
 {
-	"name": "jetpack-e2e-core",
-	"description": "Jetpack end-to-end tests core package",
+	"name": "jetpack-e2e-commons",
+	"description": "Jetpack end-to-end tests commons",
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"version": "0.0.1",
@@ -15,8 +15,6 @@
 		"tunnel-reset": "rm -rf config/tmp && pnpm run tunnel-on",
 		"tunnel-off": "pm2 delete bin/ecosystem.config.js && NODE_ENV=test node bin/tunnel.js off",
 		"tunnel-write-logs": "pm2 logs --nostream --lines 10000 > output/logs/tunnel.log",
-		"pretest-e2e": "pnpm run clean",
-		"test-e2e": ". ./bin/app-password.sh && NODE_CONFIG_DIR='./config' jest --config jest.config.js --runInBand --verbose --detectOpenHandles --json --outputFile=output/summary.json",
 		"test-decrypt-config": "openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./config/encrypted.enc -out ./config/local-test.js",
 		"test-encrypt-config": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in ./config/local-test.js -out ./config/encrypted.enc"
 	},

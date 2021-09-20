@@ -5,7 +5,7 @@ const fs = require( 'fs' );
 const config = require( 'config' );
 const path = require( 'path' );
 const yargs = require( 'yargs' );
-const { fileNameFormatter, getJetpackVersion } = require( 'jetpack-e2e-core/utils-helper' );
+const { fileNameFormatter, getJetpackVersion } = require( '../utils-helper' );
 const slackClient = new WebClient( config.get( 'slack.token' ), {
 	retryConfig: retryPolicies.rapidRetryPolicy,
 	logLevel: LogLevel.ERROR,
