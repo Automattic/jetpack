@@ -11,8 +11,8 @@ import { store as editorStore } from '@wordpress/editor';
  */
 
 export default function useSocialMediaConnections() {
-	const { editPost, savePost } = useDispatch( editorStore );
-	const { refreshConnectionTestResults } = useDispatch( 'jetpack/publicize' );
+	const { editPost } = useDispatch( editorStore );
+	const { refreshConnectionTestResults: refresh } = useDispatch( 'jetpack/publicize' );
 
 	const connections = useSelect( select => select( 'jetpack/publicize' ).getConnections(), [] );
 
@@ -29,12 +29,6 @@ export default function useSocialMediaConnections() {
 			} );
 		},
 
-		refreshConnectionTestResults,
-
-		// To refresh the connections, we need to save the post.
-		refresh: function () {
-			refreshConnectionTestResults(); // refresh the jetpack/publicize connections.
-			savePost(); // refresh the `jetpack_publicize_connections` metadata.
-		},
+		refresh,
 	};
 }
