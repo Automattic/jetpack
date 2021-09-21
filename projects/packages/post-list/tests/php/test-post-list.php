@@ -38,12 +38,14 @@ class Test_Post_List extends BaseTestCase {
 
 		// Assert our action has not been added yet.
 		$this->assertFalse( has_action( 'admin_enqueue_scripts', array( $post_list, 'enqueue_scripts' ) ) );
+		$this->assertFalse( has_action( 'current_screen', array( $post_list, 'add_thumbnail_filters_and_actions' ) ) );
 
 		// Set up our action callbacks using the register() method.
 		$post_list->register();
 
 		// Assert the action was added.
 		$this->assertNotFalse( has_action( 'admin_enqueue_scripts', array( $post_list, 'enqueue_scripts' ) ) );
+		$this->assertNotFalse( has_action( 'current_screen', array( $post_list, 'add_thumbnail_filters_and_actions' ) ) );
 
 		// Confirm it was only fired once even though we call it twice.
 		$post_list->register();
@@ -58,19 +60,48 @@ class Test_Post_List extends BaseTestCase {
 
 		// Confirm that our style, filter, and action have not been added before the enqueue_scripts() method call.
 		$this->assertFalse( wp_style_is( 'jetpack_posts_list_ui_style' ) );
-		$this->assertFalse( has_filter( 'manage_posts_columns' ) );
-		$this->assertFalse( has_action( 'manage_posts_custom_column' ) );
-		$this->assertFalse( has_filter( 'manage_pages_columns' ) );
-		$this->assertFalse( has_action( 'manage_pages_custom_column' ) );
 
 		$post_list->enqueue_scripts( 'edit.php' );
 
 		// Assert that our style, filter, and action has been added.
 		$this->assertTrue( wp_style_is( 'jetpack_posts_list_ui_style' ) );
+	}
+
+	/**
+	 * Test the add_thumbnail_filters_and_actions() method.
+	 */
+	public function test_add_thumbnail_filters_and_actions() {
+		$post_list = Post_List::get_instance();
+
+		// Confirm that our style, filter, and action have not been added before the enqueue_scripts() method call.
+		$this->assertFalse( has_filter( 'manage_posts_columns' ) );
+		$this->assertFalse( has_action( 'manage_posts_custom_column' ) );
+		$this->assertFalse( has_filter( 'manage_pages_columns' ) );
+		$this->assertFalse( has_action( 'manage_pages_custom_column' ) );
+
+		$current_screen = (object) array( 'base' => 'edit' );
+		$post_list->add_thumbnail_filters_and_actions( $current_screen );
+
+		// Assert that our style, filter, and action has been added.
 		$this->assertTrue( has_filter( 'manage_posts_columns' ) );
 		$this->assertTrue( has_action( 'manage_posts_custom_column' ) );
 		$this->assertTrue( has_filter( 'manage_pages_columns' ) );
 		$this->assertTrue( has_action( 'manage_pages_custom_column' ) );
+	}
+
+	/**
+	 * Test the add_thumbnail_filters_and_actions() method doesn't add if screen not 'edit' base.
+	 */
+	public function test_add_thumbnail_filters_and_actions_wrong_screen() {
+		$post_list      = Post_List::get_instance();
+		$current_screen = (object) array( 'base' => 'edit-tags' );
+		$post_list->add_thumbnail_filters_and_actions( $current_screen );
+
+		// Confirm that our style, filter, and action have not been added before the enqueue_scripts() method call.
+		$this->assertFalse( has_filter( 'manage_posts_columns' ) );
+		$this->assertFalse( has_action( 'manage_posts_custom_column' ) );
+		$this->assertFalse( has_filter( 'manage_pages_columns' ) );
+		$this->assertFalse( has_action( 'manage_pages_custom_column' ) );
 	}
 
 	/**

@@ -32,12 +32,12 @@ class Post_List {
 	}
 
 	/**
-	 * Sets up Post List action callbacks if needed.
+	 * Sets up Post List action callbacks.
 	 */
 	public function register() {
 		if ( ! did_action( 'jetpack_on_posts_list_init' ) ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
-
+			add_action( 'current_screen', array( $this, 'add_thumbnail_filters_and_actions' ) );
 			/**
 			 * Action called after initializing Post_List Admin resources.
 			 *
@@ -65,7 +65,17 @@ class Post_List {
 				'rtl',
 				plugin_dir_url( __DIR__ ) . './src/rtl.css'
 			);
+		}
+	}
 
+	/**
+	 * If the current_screen has 'edit' as the base, add filters and actions to add the thumbnail column to the Posts
+	 * and Pages admin tables.
+	 *
+	 * @param object $current_screen The current screen.
+	 */
+	public function add_thumbnail_filters_and_actions( $current_screen ) {
+		if ( 'edit' === $current_screen->base ) {
 			// Add the thumbnail column to the "Posts" admin table.
 			add_filter( 'manage_posts_columns', array( $this, 'add_thumbnail_column' ) );
 			add_action( 'manage_posts_custom_column', array( $this, 'populate_thumbnail_rows' ), 10, 2 );
