@@ -14,27 +14,12 @@ services:
       - ./data/${COMPOSE_PROJECT_NAME}_mysql:/var/lib/mysql
       - ./logs/${COMPOSE_PROJECT_NAME}/mysql:/var/log/mysql
       - ./config/mysql.conf:/etc/mysql/conf.d/docker.cnf
-    env_file:
-      - default.env
-      - .env
-
-  ### This container is used to upgrade the database version automatically during startup.
-  ### Its function is to start, try to run an upgrade and then quit.
-  ### The configuration should be as close to the `db` container as possible.
-  db-upgrade:
-    image: mariadb:latest
-    volumes:
-      - ./logs/${COMPOSE_PROJECT_NAME}/mysql:/var/log/mysql
-      - ./config/mysql.conf:/etc/mysql/conf.d/docker.cnf
       - ./bin:/var/scripts
-    links:
-      ### To be able to connect to the `db` container from here. Otherwise, we need to use the full
-      ### name `jetpack_dev_db_1`, which can be different, depending on the environment.
-      - "db:db"
     env_file:
       - default.env
       - .env
-    entrypoint: [ '/bin/bash', '/var/scripts/docker-db-autoupgrade.sh' ]
+    entrypoint: [ '/bin/bash', '/var/scripts/docker-db-start-and-autoupgrade.sh' ]
+    command: [ 'mysqld' ]
 
   ## - The container wordpress is a very basic but custom container with WordPress and all of the tools we need
   ##   for development.
