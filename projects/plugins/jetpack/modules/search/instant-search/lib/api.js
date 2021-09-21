@@ -301,24 +301,6 @@ function generateApiQueryString( {
 /* eslint-enable jsdoc/require-param,jsdoc/check-param-names */
 
 /**
- * Turn a proxy request into a promise
- *
- * @param {Function} proxyRequest - The wpcom-proxy-request function
- * @param {string} path - The API path to use
- * @returns {Promise} A promise to a proxy request response
- */
-function promiseifedProxyRequest( proxyRequest, path ) {
-	return new Promise( function ( resolve, reject ) {
-		proxyRequest( { path, apiVersion: '1.3' }, function ( err, body, headers ) {
-			if ( err ) {
-				reject( err );
-			}
-			resolve( body, headers );
-		} );
-	} );
-}
-
-/**
  * Generate an error handler for a given cache key
  *
  * @param {string} cacheKey - The cache key to use
