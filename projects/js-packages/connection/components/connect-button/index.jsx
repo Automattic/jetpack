@@ -33,6 +33,7 @@ import './style.scss';
 const ConnectButton = props => {
 	const [ isRegistering, setIsRegistering ] = useState( false );
 	const [ isUserConnecting, setIsUserConnecting ] = useState( false );
+	const [ registationError, setRegistrationError ] = useState( false );
 
 	const [ authorizationUrl, setAuthorizationUrl ] = useState( null );
 
@@ -64,6 +65,8 @@ const ConnectButton = props => {
 		e => {
 			e && e.preventDefault();
 
+			setRegistrationError( false );
+
 			if ( connectionStatus.isRegistered ) {
 				setIsUserConnecting( true );
 				return;
@@ -85,6 +88,7 @@ const ConnectButton = props => {
 				} )
 				.catch( error => {
 					setIsRegistering( false );
+					setRegistrationError( error );
 					throw error;
 				} );
 		},
@@ -123,6 +127,12 @@ const ConnectButton = props => {
 						{ isRegistering || isUserConnecting ? <Spinner /> : connectLabel }
 					</Button>
 				) }
+
+			{ registationError && (
+				<p className="jp-connect-button__error">
+					{ __( 'An error occurred. Please try again.', 'jetpack' ) }
+				</p>
+			) }
 
 			{ isUserConnecting && (
 				<ConnectUser connectUrl={ authorizationUrl } redirectUri={ redirectUri } from={ from } />

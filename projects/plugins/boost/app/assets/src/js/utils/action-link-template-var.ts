@@ -16,7 +16,7 @@ import type { TemplateVars } from './copy-dom-template';
  */
 export default function actionLinkTemplateVar(
 	callback: ( name: string ) => void,
-	templateKey: string = 'action'
+	templateKey = 'action'
 ): TemplateVars {
 	return {
 		[ templateKey ]: [

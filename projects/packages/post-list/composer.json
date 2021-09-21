@@ -43,7 +43,7 @@
 	"prefer-stable": true,
 	"extra": {
 		"autotagger": true,
-		"mirror-repo": "automattic/jetpack-post-list",
+		"mirror-repo": "Automattic/jetpack-post-list",
 		"version-constants": {
 			"::PACKAGE_VERSION": "src/class-post-list.php"
 		},

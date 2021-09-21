@@ -8,7 +8,7 @@ import { __, sprintf } from '@wordpress/i18n';
  */
 import api from './api';
 
-export async function setModuleState( name, status ) {
+export async function setModuleState( name: string, status: boolean ): Promise< boolean > {
 	const response = await api.post< boolean >( `/module/${ name }/status`, {
 		status,
 	} );

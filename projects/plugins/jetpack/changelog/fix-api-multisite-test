@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+skip test_get_user_connection_data_with_connected_user for multisite

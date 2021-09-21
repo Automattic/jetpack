@@ -3,6 +3,7 @@
 		"filePath": "/tmp/x/t/bar.js",
 		"messages": [],
 		"errorCount": 0,
+		"fatalErrorCount": 0,
 		"warningCount": 0,
 		"fixableErrorCount": 0,
 		"fixableWarningCount": 0,
@@ -61,6 +62,7 @@
 			}
 		],
 		"errorCount": 4,
+		"fatalErrorCount": 0,
 		"warningCount": 0,
 		"fixableErrorCount": 4,
 		"fixableWarningCount": 0,
