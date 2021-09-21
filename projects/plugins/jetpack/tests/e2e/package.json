@@ -27,7 +27,9 @@
 		"test-decrypt-default-config": "openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./node_modules/jetpack-e2e-commons/config/encrypted.enc -out ./node_modules/jetpack-e2e-commons/config/local-test.js",
 		"test-decrypt-config": "pnpm run test-decrypt-default-config && openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./config/encrypted.enc -out ./config/local-test.js",
 		"test-encrypt-default-config": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in ./node_modules/jetpack-e2e-commons/config/local-test.js -out ./node_modules/jetpack-e2e-commons/config/encrypted.enc",
-		"test-encrypt-config": "pnpm run test-encrypt-default-config && openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in ./config/local-test.js -out ./config/encrypted.enc"
+		"test-encrypt-config": "pnpm run test-encrypt-default-config && openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in ./config/local-test.js -out ./config/encrypted.enc",
+	  	"slack": "NODE_CONFIG_DIR='./config' node ./node_modules/jetpack-e2e-commons/bin/slack.js",
+	  	"preinstall": "pnpm --prefix ../../../../../tools/e2e-commons install"
 	},
 	"devDependencies": {
 		"@babel/core": "7.13.16",
