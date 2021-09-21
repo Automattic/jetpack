@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { select } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 
 /**
  * Returns an action object used in signalling that
@@ -20,12 +21,14 @@ export function setConnectionTestResults( results ) {
 /**
  * Returns an action object used in signalling that
  * we're refreshing the Publicize connection test results.
+ * It picks the connections from the post meta.
  *
  * @returns {object} Action object.
  */
 export function refreshConnectionTestResults() {
 	return {
 		type: 'REFRESH_CONNECTION_TEST_RESULTS',
+		results: select( editorStore ).getEditedPostAttribute( 'jetpack_publicize_connections' ) || [],
 	};
 }
 
