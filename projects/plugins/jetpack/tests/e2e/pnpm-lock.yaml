@@ -14,6 +14,7 @@ importers:
       eslint-plugin-jest: 24.3.5
       jest: 26.6.3
       jest-circus: ^27.2.1
+      jest-circus-allure-environment: ^1.1.1
       jest-junit: 12.0.0
       jest-runner-groups: 2.0.1
       jest-stare: 2.2.1
@@ -36,6 +37,7 @@ importers:
       eslint-plugin-jest: 24.3.5_eslint@7.24.0
       jest: 26.6.3
       jest-circus: 27.2.1
+      jest-circus-allure-environment: 1.1.1
       jest-junit: 12.0.0
       jest-runner-groups: 2.0.1
       jest-stare: 2.2.1
@@ -1499,6 +1501,43 @@ packages:
       - supports-color
     dev: true
 
+  /@jest/reporters/27.2.1:
+    resolution: {integrity: sha512-ILqR+bIIBlhaHjDtQR/0Z20YkKAQVM+NVRuJLaWFCoRx/rKQQSxG01ZLiLV0MsA6wkBHf6J9fzFuXp0k5l7epw==}
+    engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
+    peerDependencies:
+      node-notifier: ^8.0.1 || ^9.0.0 || ^10.0.0
+    peerDependenciesMeta:
+      node-notifier:
+        optional: true
+    dependencies:
+      '@bcoe/v8-coverage': 0.2.3
+      '@jest/console': 27.2.0
+      '@jest/test-result': 27.2.0
+      '@jest/transform': 27.2.1
+      '@jest/types': 27.1.1
+      chalk: 4.1.2
+      collect-v8-coverage: 1.0.1
+      exit: 0.1.2
+      glob: 7.1.7
+      graceful-fs: 4.2.8
+      istanbul-lib-coverage: 3.0.0
+      istanbul-lib-instrument: 4.0.3
+      istanbul-lib-report: 3.0.0
+      istanbul-lib-source-maps: 4.0.0
+      istanbul-reports: 3.0.2
+      jest-haste-map: 27.2.0
+      jest-resolve: 27.2.0
+      jest-util: 27.2.0
+      jest-worker: 27.2.0
+      slash: 3.0.0
+      source-map: 0.6.1
+      string-length: 4.0.2
+      terminal-link: 2.1.1
+      v8-to-istanbul: 8.0.0
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
+
   /@jest/source-map/26.6.2:
     resolution: {integrity: sha512-YwYcCwAnNmOVsZ8mr3GfnzdXDAl4LaenZP5z+G0c8bzC9/dugL8zRmxZzdoTl4IaS3CryS1uWnROLPFmb6lVvA==}
     engines: {node: '>= 10.14.2'}
@@ -2066,6 +2105,14 @@ packages:
       uri-js: 4.4.1
     dev: true
 
+  /allure-js-commons/2.0.0-beta.9:
+    resolution: {integrity: sha512-uTJiBEJFaY+UUH69aXC7I6Etj66ZzTf4ZWEOSEHpWclvQ76gF5Z/woUYri+XlBdsRcR5W1Ks0KVA/b1dFhyZJQ==}
+    dependencies:
+      mkdirp: 1.0.4
+      properties: 1.2.1
+      uuid: 8.3.2
+    dev: true
+
   /amp-message/0.1.2:
     resolution: {integrity: sha1-p48cmJlQh602GSpBKY5NtJ49/EU=}
     dependencies:
@@ -2119,6 +2166,10 @@ packages:
   /ansi-styles/5.2.0:
     resolution: {integrity: sha512-Cxwpt2SfTzTtXcfOlzGEee8O+c+MmUgGrNiBcXnuWxuFJHe6a5Hz7qwhwe5OgaSYI0IJvkLqWX1ASG+cJOkEiA==}
     engines: {node: '>=10'}
+    dev: true
+
+  /ansi_up/5.0.1:
+    resolution: {integrity: sha512-HGOTjFQECRKZM9fIlGhJfR2pcK8PMUWzFOqcPwqBEnNIa4P2r0Di+g2hxCX0hL0n1NUtAHGRA+fUyA/OajZYFw==}
     dev: true
 
   /anymatch/2.0.0:
@@ -4507,6 +4558,27 @@ packages:
       throat: 5.0.0
     dev: true
 
+  /jest-circus-allure-environment/1.1.1:
+    resolution: {integrity: sha512-evpSDUNTI9Vw+qMY5H4gMG5BEssVzBkDqWBmeZfu9ouMntsRCv9ZwqfOsNwMTy+l0OGWGL/jsNDAVbEtFB4M4Q==}
+    engines: {node: '>=12.x'}
+    dependencies:
+      '@jest/environment': 27.2.0
+      '@jest/reporters': 27.2.1
+      '@jest/types': 27.1.1
+      allure-js-commons: 2.0.0-beta.9
+      ansi_up: 5.0.1
+      jest-circus: 27.2.1
+      jest-docblock: 27.0.6
+      jest-environment-node: 27.2.0
+      lodash: 4.17.21
+      prettier: 2.4.1
+      pretty-format: 27.2.0
+      strip-ansi: 6.0.0
+    transitivePeerDependencies:
+      - node-notifier
+      - supports-color
+    dev: true
+
   /jest-circus/27.2.1:
     resolution: {integrity: sha512-9q/8X8DgJmW8IqXsJNnS2E28iarx990hf6D+frS3P0lB+avhFDD33alLwZzKgm45u0wvEi6iFh43WjNbp5fhjw==}
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
@@ -4621,6 +4693,13 @@ packages:
       detect-newline: 3.1.0
     dev: true
 
+  /jest-docblock/27.0.6:
+    resolution: {integrity: sha512-Fid6dPcjwepTFraz0YxIMCi7dejjJ/KL9FBjPYhBp4Sv1Y9PdhImlKZqYU555BlN4TQKaTc+F2Av1z+anVyGkA==}
+    engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
+    dependencies:
+      detect-newline: 3.1.0
+    dev: true
+
   /jest-each/26.6.2:
     resolution: {integrity: sha512-Mer/f0KaATbjl8MCJ+0GEpNdqmnVmDYqCTJYTvoo7rqmRiDllmp2AYN+06F93nXcY3ur9ShIjS+CO/uD+BbH4A==}
     engines: {node: '>= 10.14.2'}
@@ -4671,6 +4750,18 @@ packages:
       '@types/node': 16.9.1
       jest-mock: 26.6.2
       jest-util: 26.6.2
+    dev: true
+
+  /jest-environment-node/27.2.0:
+    resolution: {integrity: sha512-WbW+vdM4u88iy6Q3ftUEQOSgMPtSgjm3qixYYK2AKEuqmFO2zmACTw1vFUB0qI/QN88X6hA6ZkVKIdIWWzz+yg==}
+    engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
+    dependencies:
+      '@jest/environment': 27.2.0
+      '@jest/fake-timers': 27.2.0
+      '@jest/types': 27.1.1
+      '@types/node': 16.9.1
+      jest-mock: 27.1.1
+      jest-util: 27.2.0
     dev: true
 
   /jest-get-type/26.3.0:
@@ -6217,6 +6308,12 @@ packages:
       fast-diff: 1.2.0
     dev: true
 
+  /prettier/2.4.1:
+    resolution: {integrity: sha512-9fbDAXSBcc6Bs1mZrDYb3XKzDLm4EXXL9sC1LqKP5rZkT6KRr/rf9amVUcODVXgguK/isJz0d0hP72WeaKWsvA==}
+    engines: {node: '>=10.13.0'}
+    hasBin: true
+    dev: true
+
   /pretty-format/26.6.2:
     resolution: {integrity: sha512-7AeGuCYNGmycyQbCqd/3PWH4eOoX/OiCa0uphp57NVTeAGdJGaAliecxwBDHYQCIvrW7aDBZCYeNTP/WX69mkg==}
     engines: {node: '>= 10'}
@@ -6266,6 +6363,11 @@ packages:
       loose-envify: 1.4.0
       object-assign: 4.1.1
       react-is: 16.13.1
+    dev: true
+
+  /properties/1.2.1:
+    resolution: {integrity: sha1-Dul6f8AgsaKlW4ZZ7aSqjYaQlL0=}
+    engines: {node: '>=0.10'}
     dev: true
 
   /proxy-agent/4.0.1:
@@ -7336,7 +7438,6 @@ packages:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
     hasBin: true
     dev: true
-    optional: true
 
   /v8-compile-cache/2.3.0:
     resolution: {integrity: sha512-l8lCEmLcLYZh4nbunNZvQCJc5pv7+RCwa8q/LdUx8u7lsWvPDKmpodJAJNwkAhJC//dFY48KuIEmjtd4RViDrA==}
@@ -7345,6 +7446,15 @@ packages:
   /v8-to-istanbul/7.1.2:
     resolution: {integrity: sha512-TxNb7YEUwkLXCQYeudi6lgQ/SZrzNO4kMdlqVxaZPUIUjCv6iSSypUQX70kNBSERpQ8fk48+d61FXk+tgqcWow==}
     engines: {node: '>=10.10.0'}
+    dependencies:
+      '@types/istanbul-lib-coverage': 2.0.3
+      convert-source-map: 1.8.0
+      source-map: 0.7.3
+    dev: true
+
+  /v8-to-istanbul/8.0.0:
+    resolution: {integrity: sha512-LkmXi8UUNxnCC+JlH7/fsfsKr5AU110l+SYGJimWNkWhxbN5EyeOtm1MJ0hhvqMMOhGwBj1Fp70Yv9i+hX0QAg==}
+    engines: {node: '>=10.12.0'}
     dependencies:
       '@types/istanbul-lib-coverage': 2.0.3
       convert-source-map: 1.8.0
