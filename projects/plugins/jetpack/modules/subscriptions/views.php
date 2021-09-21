@@ -239,7 +239,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 			$border_color = isset( $themecolors['border'] ) ? " #{$themecolors['border']}" : '';
 
-			$redirect_fragment = self::get_wpcom_redirect_fragment();
+			$redirect_fragment = self::get_redirect_fragment();
 			printf(
 				'<div id="%1$s" class="jetpack-sub-notification" style="border: 1px solid%2$s; padding-left: 5px; padding-right: 5px; margin-bottom: 10px;">%3$s</div>',
 				esc_attr( $redirect_fragment ),
@@ -251,9 +251,15 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 	/**
 	 * Generates the redirect fragment used after form submission.
+	 *
+	 * @param string $id is the specific id that will appear in the redirect fragment. If none is provided self::$instance_count will be used.
 	 */
-	protected static function get_wpcom_redirect_fragment() {
-		return 'subscribe-blog' . ( self::$instance_count > 1 ? '-' . self::$instance_count : '' );
+	protected static function get_redirect_fragment( $id = null ) {
+		if ( is_null( $id ) ) {
+			return 'subscribe-blog' . ( self::$instance_count > 1 ? '-' . self::$instance_count : '' );
+		}
+
+		return 'subscribe-blog-' . $id;
 	}
 
 	/**
@@ -285,7 +291,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			global $current_blog;
 
 			$url     = defined( 'SUBSCRIBE_BLOG_URL' ) ? SUBSCRIBE_BLOG_URL : '';
-			$form_id = self::get_wpcom_redirect_fragment();
+			$form_id = self::get_redirect_fragment();
 			?>
 
 			<form
@@ -395,7 +401,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			 */
 			$subscribe_field_id = apply_filters( 'subscribe_field_id', 'subscribe-field', $widget_id );
 
-			$form_id = "subscribe-blog-{$widget_id}";
+			$form_id = self::get_redirect_fragment();
 			?>
 			<form action="#" method="post" accept-charset="utf-8" id="<?php echo esc_attr( $form_id ); ?>">
 				<?php
