@@ -9,17 +9,14 @@ import { concat } from 'lodash';
  */
 import {
 	store as blockEditorStore,
-	BlockControls,
 	BlockIcon,
-	InnerBlocks,
 	MediaPlaceholder,
-	MediaUpload,
 	useBlockProps,
 	__experimentalUseInnerBlocksProps as useInnerBlocksProps,
 } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
-import { Fragment, useState, useEffect, useMemo } from '@wordpress/element';
+import { useState, useEffect, useMemo } from '@wordpress/element';
 import { ToolbarGroup } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useResizeObserver } from '@wordpress/compose';
