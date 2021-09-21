@@ -242,55 +242,31 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.1 - 2021-09-07
-#### Major Enhancements
-- Search: add a Gutenberg powered customization interface.
-
+### 10.1.0-2109-1 - 2021-09-21
 #### Enhancements
-- Carousel: photo info and comment sections stay open once toggled on.
-- Carousel: show image info icon even if Exif metadata option is off.
-- Carousel: use photo description as caption if caption and title fields are blank.
-- Form Block: scroll to subscription message after submitting the form.
-- Jetpack Assistant: introduce a new "Product Suggestion" step to inform new users of relevant Jetpack services.
-- Search: greater theme compatibility, including label coloring and custom checkbox margins.
-- Search: improves handling of breadcrumb display.
-- Search: visual, functional, and accessibility improvements to new wp-admin section and customization interface.
-- Secure Sign On: remove additional redirect during sign in process.
-- Shortcodes: allow wrapping quizzes together with the Quiz shortcode.
-- Spotify Shortcode: add lazy loading support.
-- Stats: add the ability to collapse the nudges UI.
-- Tiled Gallery Block: ensure it can be used when in Offline Mode.
-- Widget Visibility: rename taxonomy label "All Pages" in dropdown.
+- Contact Form: add filter to allow customizing email headers.
+- Custom Content Types: improve the performance of the Testimonial post type.
+- Dashboard: improve the performance of the query used to display Anti-spam stats.
+- Instant Search: improve filter label formatting for longer text entries.
+- Related Posts: enable lazy loading for images.
+- SEO Tools: add "Archive Title" option for custom Archive page titles.
 
 #### Improved compatibility
-- Browser Compatibility: allow use of new JavaScript features not supported by Internet Explorer 11.
-- Image CDN: added support for the WEBP format.
-- Mailchimp Block: updates terminology to use "Audience" instead of "Lists".
-- Media: allow ZIP files to be uploaded to sites via WordPress.com.
-- Related Posts: allow shortcodes in Related Posts titles.
+- Blocks: avoid console warnings caused by deprecated WordPress package import.
+- Instagram Widget: removed from Legacy Widget block.
+- Instant Search: remove IE11 browser support.
+- Instant Search: avoid potential issues with the `@wordpress/interface` WordPress package.
+- Widgets: Fix a conflict between various Jetpack blocks and some WordPress core legacy widgets.
 
 #### Bug fixes
-- Blocks: fix HTML markup of buttons added to blocks.
-- Carousel: fix a bug that changes the cursor to a pointer over all nested blocks.
-- Carousel: fix bug preventing user from swiping in gallery when images are configured to link to Attachment Page.
-- Carousel: hide UI controls in the carousel for single images.
-- Contact Form: disable the Block Editor for contact form submissions.
-- Custom CSS: ensure that short CSS is added inline instead of via an external file.
-- Dashboard: add a new message to the backup card if the site is too new to have an accurate status.
-- Dashboard: ensure that the image CDN does not get enabled by default when using the Site Accelerator toggle while in Offline mode.
-- Facebook Page Widget: fix a bug that prevented widget from being added in the wp-admin widget editor.
-- Form Block: fix form button alignment in editor.
-- Instant Search: ensure box-shadow and text-shadow aren't applied to search buttons.
-- Search: fix search widgets not saving in block widget editor.
-- Search: fix various issues with scrolling on both desktop and mobile devices.
-- Search: fix wrapping issue on super wide screens.
-- Search: hide search sub menu on site disconnection.
-- Search: improve style specificity for result highlights in Customberg.
-- Slideshow Block: fix intermittent issue where next/prev buttons sometimes don't respond to clicks.
-- Social Icons: fix being unable to remove icons from widget.
-- Social Icons Widget: fix issue in wp-admin widget editor where icons don't save on refresh.
-- Stats: allow better translations of page view counts in the Stats widget.
-- Video Block: fix resizing so that video block doesn't display black bars on the sides.
+- Form Block: Make sure the set height of the Spacer block nested inside the Contact Form block is respected.
+- Google Calendar Block: ensure that links internal to the iFrame can be opened.
+- Sharing: fix the custom icon style in icon-only button style.
+- Slideshow Block: fix fade transition background.
+- Theme Tools: remove unnecessary extra Social Menu added in the Twenty Twenty theme.
+- VideoPress: ensure that deleted videos are always properly deleted in the WordPress.com cloud.
+- WordPress.com Toolbar: improve security by sanitizing return value of `get_current_screen` function.
+- WordPress.com Notifications: improve the display of multiple shortcodes (Dailymotion, SoundCloud, VR, YouTube, Spotify).
 
 --------
 
