@@ -15,7 +15,7 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 }
 
 /**
- * Register smartframe as oembed provider. Add filter to reverse iframes to shortcode. Register [jetpack_smartframe] shortcode.
+ * Register smartframe as oembed provider. Add filter to reverse iframes to shortcode. Register [smartframe] shortcode.
  *
  * @since 10.2.0
  */
@@ -27,7 +27,7 @@ function jetpack_smartframe_enable_embeds() {
 	add_filter( 'pre_kses', 'jetpack_shortcodereverse_smartframe' );
 
 	// Actually display the smartframe Embed.
-	add_shortcode( 'jetpack_smartframe', 'jetpack_smartframe_shortcode' );
+	add_shortcode( 'smartframe', 'jetpack_smartframe_shortcode' );
 }
 
 /**
@@ -59,7 +59,7 @@ function jetpack_shortcodereverse_smartframe( $content ) {
 				continue;
 			}
 			$shortcode = sprintf(
-				'[jetpack_smartframe script-id="%1$s" image-id="%2$s"%3$s]',
+				'[smartframe script-id="%1$s" image-id="%2$s"%3$s]',
 				esc_attr( $match[1] ),
 				esc_attr( $match[2] ),
 				! empty( $match[3] ) ? ' max-width="' . esc_attr( $match[3] ) . '"' : ''
