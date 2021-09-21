@@ -2,6 +2,17 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.3.1 - 2021-09-21
+### Added
+- Set 'exports' in package.json.
+
+### Changed
+- Allow Node ^14.17.6 to be used in this project. This shouldn't change the behavior of the code itself.
+- Updated package dependencies
+
+### Fixed
+- Footer: provide number instead of string for JetpackLogo's height prop.
+
 ## 0.3.0 - 2021-08-31
 ### Added
 - Added stories files for storybook

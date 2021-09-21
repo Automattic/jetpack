@@ -2,6 +2,60 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 10.1.0-2109-1 - 2021-09-21
+### Enhancements
+- Contact Form: add filter to allow customizing email headers.
+- Custom Content Types: improve the performance of the Testimonial post type.
+- Dashboard: improve the performance of the query used to display Anti-spam stats.
+- Instant Search: improve filter label formatting for longer text entries.
+- Related Posts: enable lazy loading for images.
+- SEO Tools: add "Archive Title" option for custom Archive page titles.
+
+### Improved compatibility
+- Blocks: avoid console warnings caused by deprecated WordPress package import.
+- Instagram Widget: removed from Legacy Widget block.
+- Instant Search: remove IE11 browser support.
+- Instant Search: avoid potential issues with the `@wordpress/interface` WordPress package.
+- Widgets: Fix a conflict between various Jetpack blocks and some WordPress core legacy widgets.
+
+### Bug fixes
+- Form Block: Make sure the set height of the Spacer block nested inside the Contact Form block is respected.
+- Google Calendar Block: ensure that links internal to the iFrame can be opened.
+- Sharing: fix the custom icon style in icon-only button style.
+- Slideshow Block: fix fade transition background.
+- Theme Tools: remove unnecessary extra Social Menu added in the Twenty Twenty theme.
+- VideoPress: ensure that deleted videos are always properly deleted in the WordPress.com cloud.
+- WordPress.com Toolbar: improve security by sanitizing return value of `get_current_screen` function.
+- WordPress.com Notifications: improve the display of multiple shortcodes (Dailymotion, SoundCloud, VR, YouTube, Spotify).
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add back skipped tests checking the Screen Options functionality of Nav Unification
+- Adds wp-block-button__link to the button on the subscription widget
+- Allow Node ^14.17.6 to be used in this project. This shouldn't change the behavior of the code itself.
+- Blocks: add `./extensions/plugins` folder to the building system.
+- Dashboard: do not display Jetpack version on WoA sites.
+- E2E tests: fixed stacktrace sometimes missing from Slack notification
+- E2E tests: log Jetpack version
+- E2E tests: generate application password at environment start
+- E2E tests: make sure videos are saved for all opened tabs
+- E2E tests: support user mentions in Slack based on report name and branch name
+- Fix failing phpunit test on multisite installation.
+- Fix typo in Jetpack ad banner.
+- Improve Mailchimp test stability.
+- Publicize plugin: move to the new extension folder.
+- Publicize: refactor block editor interface.
+- Remove Custom CSS placeholder text to stay in sync with wpcom. The placeholder was only displaying on Simple Sites.
+- Show the Connect button on the Media card in site-only mode.
+- skip test_get_user_connection_data_with_connected_user for multisite
+- test anotation fix
+- VideoPress file url field now displays the HLS playlist if one was generated. The fragmented mp4 file is not meant to be played on its own. MP4 file will only be displayed as the video url if it was created prior to the HLS update.
+- Updated Google Photos logo and icon
+- Updated package dependencies.
+- Updated scss files for sass division deprecation.
+- Updates to-test.md.
+- Update `copy-webpack-plugin` dep.
+- Updated the edit icon design in the VideoPress block toolbar.
+
 ## 10.1 - 2021-09-07
 ### Major Enhancements
 - Search: add a Gutenberg powered customization interface.
