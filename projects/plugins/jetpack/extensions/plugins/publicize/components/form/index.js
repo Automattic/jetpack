@@ -16,9 +16,8 @@ import useSocialMediaConnections from '../../hooks/use-social-media-connections'
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 
 export default function PublicizeForm( { refreshCallback } ) {
-	const { connections } = useSocialMediaConnections();
+	const { connections, toggleById } = useSocialMediaConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
-	const { toggleById } = useSocialMediaConnections();
 
 	function isDisabled() {
 		return connections.every( connection => ! connection.toggleable );
