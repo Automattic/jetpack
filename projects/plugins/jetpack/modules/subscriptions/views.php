@@ -401,7 +401,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			 */
 			$subscribe_field_id = apply_filters( 'subscribe_field_id', 'subscribe-field', $widget_id );
 
-			$form_id = self::get_redirect_fragment();
+			$form_id = self::get_redirect_fragment( $widget_id );
 			?>
 			<form action="#" method="post" accept-charset="utf-8" id="<?php echo esc_attr( $form_id ); ?>">
 				<?php
