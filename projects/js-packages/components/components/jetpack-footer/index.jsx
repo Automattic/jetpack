@@ -33,7 +33,7 @@ export default function JetpackFooter( {
 				<JetpackLogo
 					logoColor="#000"
 					showText={ false }
-					height="16"
+					height={ 16 }
 					className="jp-dashboard-footer__jetpack-symbol"
 					aria-label={ __( 'Jetpack logo', 'jetpack' ) }
 				/>

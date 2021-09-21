@@ -1,8 +1,7 @@
 const WPAPI = require( 'wpapi' );
-const { getSiteCredentials, resolveSiteUrl } = require( '../utils-helper' );
 
 module.exports = class WordpressAPI {
-	constructor( credentials = getSiteCredentials(), siteUrl = resolveSiteUrl() ) {
+	constructor( credentials, siteUrl ) {
 		this.authenticatedClient = WPAPI.discover( `${ siteUrl }/wp-json` ).then( function ( site ) {
 			return site.auth( { username: credentials.username, password: credentials.apiPassword } );
 		} );

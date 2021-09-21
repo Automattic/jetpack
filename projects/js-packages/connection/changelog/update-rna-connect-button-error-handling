@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Display an error message on site registration failure.

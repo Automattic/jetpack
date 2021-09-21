@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+More descriptive error message if critical css is failing because of x-frame-options deny config

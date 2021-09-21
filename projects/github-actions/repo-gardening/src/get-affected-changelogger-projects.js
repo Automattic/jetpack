@@ -1,5 +1,6 @@
 const glob = require( 'glob' );
 const fs = require( 'fs' );
+const getPrWorkspace = require( './get-pr-workspace' );
 
 /**
  * Returns a list of Projects that use changelogger package
@@ -8,7 +9,7 @@ const fs = require( 'fs' );
  */
 function getChangeloggerProjects() {
 	const projects = [];
-	const composerFiles = glob.sync( process.env.GITHUB_WORKSPACE + '/projects/*/*/composer.json' );
+	const composerFiles = glob.sync( getPrWorkspace() + '/projects/*/*/composer.json' );
 	composerFiles.forEach( file => {
 		const json = JSON.parse( fs.readFileSync( file ) );
 		if (
