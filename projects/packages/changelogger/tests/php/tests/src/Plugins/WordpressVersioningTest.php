@@ -296,7 +296,7 @@ class WordpressVersioningTest extends TestCase {
 			array( '10.2-2109.1', '<', '10.2' ),
 			array( '10.2-2109.1', '>', '10.2-alpha' ),
 			array( '10.2-2109.1', '<', '10.2-beta' ),
-			array( '1021-2109.2', '<', '10.2-2109.10' ),
+			array( '10.2-2109.2', '<', '10.2-2109.10' ),
 		);
 	}
 
