@@ -88,22 +88,26 @@
 	/**
 	 * A store that checks the speed score needs a refresh.
 	 */
-	const needRefresh = derived( [ criticalCssStatus, modulesInSync, scoreConfigString ], 
-	( [ $criticalCssStatus, $modulesInSync, $scoreConfigString ] ) => {
-		return ! $criticalCssStatus.generating &&
-			$modulesInSync &&
-			$scoreConfigString !== currentScoreConfigString
-	} );
+	const needRefresh = derived(
+		[ criticalCssStatus, modulesInSync, scoreConfigString ],
+		( [ $criticalCssStatus, $modulesInSync, $scoreConfigString ] ) => {
+			return (
+				! $criticalCssStatus.generating &&
+				$modulesInSync &&
+				$scoreConfigString !== currentScoreConfigString
+			);
+		}
+	);
 
-    const debouncedRefreshScore = debounce( force => {
-        if ( $needRefresh ) {
-            refreshScore( force );
-        }
-    }, 2000 );
+	const debouncedRefreshScore = debounce( force => {
+		if ( $needRefresh ) {
+			refreshScore( force );
+		}
+	}, 2000 );
 
-    $: if ( $needRefresh ) {
-        debouncedRefreshScore( true );
-    }
+	$: if ( $needRefresh ) {
+		debouncedRefreshScore( true );
+	}
 
 	$: {
 		if ( didScoresImprove( scores ) && Jetpack_Boost.preferences.showRatingPrompt ) {
