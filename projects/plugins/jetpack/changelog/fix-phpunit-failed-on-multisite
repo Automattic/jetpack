@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Fix failing phpunit test on multisite installation.

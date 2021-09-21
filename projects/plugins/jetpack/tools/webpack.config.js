@@ -16,6 +16,8 @@ const baseWebpackConfig = getBaseWebpackConfig(
 		'output-filename': '[name].js',
 		'output-chunk-filename': '[name].[contenthash].js',
 		'output-path': path.join( path.dirname( __dirname ), '_inc', 'build' ),
+		// Calypso-build defaults this to "window", which breaks things if no library.name is set.
+		'output-library-target': '',
 	}
 );
 
@@ -43,7 +45,15 @@ module.exports = [
 		// that is used to generate the script file.
 		// The key is used as the name of the script.
 		entry: {
-			admin: path.join( path.dirname( __dirname ), '_inc/client', 'admin.js' ),
+			admin: {
+				import: path.join( path.dirname( __dirname ), '_inc/client', 'admin.js' ),
+				// I don't know if we really need to export this. We were in the past, maybe some third party uses it.
+				library: {
+					name: 'getRouteName',
+					type: 'window',
+					export: 'getRouteName',
+				},
+			},
 			'search-dashboard': path.join( __dirname, '../_inc/client', 'search-dashboard-entry.js' ),
 		},
 		plugins: [

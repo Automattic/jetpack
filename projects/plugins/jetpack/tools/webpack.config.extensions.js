@@ -26,7 +26,7 @@ const CopyBlockEditorAssetsPlugin = require( './copy-block-editor-assets' );
  */
 const editorSetup = path.join( path.dirname( __dirname ), 'extensions', 'editor' );
 const viewSetup = path.join( path.dirname( __dirname ), 'extensions', 'view' );
-const blockEditorDirectories = [ 'blocks', 'plugins' ];
+const blockEditorDirectories = [ 'plugins', 'blocks' ];
 
 /**
  * Filters block editor scripts
@@ -124,6 +124,8 @@ const extensionsWebpackConfig = getBaseWebpackConfig(
 		'output-chunk-filename': '[name].[contenthash].js',
 		'output-path': path.join( path.dirname( __dirname ), '_inc', 'blocks' ),
 		'output-jsonp-function': 'webpackJsonpJetpack',
+		// Calypso-build defaults this to "window", which breaks things if no library.name is set.
+		'output-library-target': '',
 	}
 );
 

@@ -161,7 +161,7 @@
 				if ( post.img.src ) {
 					html +=
 						anchor[ 0 ] +
-						'<img class="jp-relatedposts-post-img" src="' +
+						'<img class="jp-relatedposts-post-img" loading="lazy" src="' +
 						post.img.src +
 						'" width="' +
 						post.img.width +

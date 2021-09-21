@@ -21,12 +21,12 @@
 		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile"
 	},
 	"devDependencies": {
-		"eslint": "7.31.0",
+		"eslint": "7.32.0",
 		"webpack": "5.51.1",
 		"webpack-cli": "4.8.0"
 	},
 	"engines": {
-		"node": "^16.7.0",
+		"node": "^14.17.6 || ^16.7.0",
 		"pnpm": "^6.5.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}

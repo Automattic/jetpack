@@ -122,7 +122,7 @@ export const SettingsCard = props => {
 
 		switch ( feature ) {
 			case FEATURE_VIDEO_HOSTING_JETPACK:
-				if ( hasPremiumOrBetter ) {
+				if ( props.hasConnectedOwner && hasPremiumOrBetter ) {
 					return '';
 				}
 
@@ -168,7 +168,7 @@ export const SettingsCard = props => {
 				) : (
 					<JetpackBanner
 						title={ __(
-							'Connect your WordPress.com account to upgrade and generate income with high-quality adds.',
+							'Connect your WordPress.com account to upgrade and generate income with high-quality ads.',
 							'jetpack'
 						) }
 						callToAction={ connectLabel }

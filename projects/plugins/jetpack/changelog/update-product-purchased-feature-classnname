@@ -1,0 +1,5 @@
+Significance: patch
+Type: bugfix
+Comment: This change will correct the class used to center features in a list for a purchased product but the list still works today but with a tiny offset.
+
+
