@@ -61,16 +61,6 @@ class Jetpack_Stats_Dashboard_Widget {
 			);
 			wp_enqueue_style( 'jetpack-dashboard-widget', plugins_url( 'css/dashboard-widget.css', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 			wp_style_add_data( 'jetpack-dashboard-widget', 'rtl', 'replace' );
-
-			// If we're inactive and not in offline mode, sort our box to the top.
-			if ( ! Jetpack::is_connection_ready() && ! ( new Status() )->is_offline_mode() ) {
-				global $wp_meta_boxes;
-
-				$dashboard = $wp_meta_boxes['dashboard']['normal']['core'];
-				$ours      = array( 'jetpack_summary_widget' => $dashboard['jetpack_summary_widget'] );
-
-				$wp_meta_boxes['dashboard']['normal']['core'] = array_merge( $ours, $dashboard );
-			}
 		}
 	}
 
