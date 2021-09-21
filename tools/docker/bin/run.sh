@@ -63,7 +63,17 @@ if [ ! -f /var/www/html/.htaccess ]; then
 	cp /tmp/htaccess /var/www/html/.htaccess
 fi
 
-if [ "$COMPOSE_PROJECT_NAME" == "dev" ] ; then
+# Clean up old method of including psysh (used from 2019 until 2021)
+if [[ -e /var/www/html/wp-cli.yml ]] && grep -q '^require: /usr/local/bin/psysh$' /var/www/html/wp-cli.yml; then
+	TMP="$(grep -v '^require: /usr/local/bin/psysh$' /var/www/html/wp-cli.yml || true)"
+	if [[ -z "$TMP" ]]; then
+		rm /var/www/html/wp-cli.yml
+	else
+		echo "$TMP" > /var/www/html/wp-cli.yml
+	fi
+fi
+
+if [ "$COMPOSE_PROJECT_NAME" == "jetpack_dev" ] ; then
 	# If we don't have the wordpress test helpers, download them
 	if [ ! -d /tmp/wordpress-develop/tests ]; then
 		# Get latest WordPress unit-test helper files
@@ -89,9 +99,6 @@ if [ "$COMPOSE_PROJECT_NAME" == "dev" ] ; then
 	if [ ! -L $WP_TESTS_JP_DIR ] || [ ! -e $WP_TESTS_JP_DIR ]; then
 		ln -s /var/www/html/wp-content/plugins/jetpack $WP_TESTS_JP_DIR
 	fi
-
-	# Add a PsySH dependency to wp-cli
-	echo 'require: /usr/local/bin/psysh' >> /var/www/html/wp-cli.yml
 fi
 
 for DIR in /usr/local/src/jetpack-monorepo/projects/plugins/*; do
