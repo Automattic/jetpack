@@ -79,6 +79,7 @@ class WordpressVersioningTest extends TestCase {
 			array( '1.2.3-alpha+foobar', '1.2.3-alpha+foobar' ),
 			array( '1.2.3-alpha1+foobar.2', '1.2.3-alpha1+foobar.2' ),
 			array( '0001.2.0003-alpha0001+000foobar000....0002', '1.2.3-alpha0001+000foobar000....0002' ),
+			array( '1.2.0-21091', '1.2-21091' ),
 
 			array( '1.22', new InvalidArgumentException( 'Version number "1.22" is not in a recognized format.' ) ),
 			array( '1.2.x', new InvalidArgumentException( 'Version number "1.2.x" is not in a recognized format.' ) ),
