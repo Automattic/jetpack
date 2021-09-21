@@ -9,8 +9,6 @@
 /**
  * External dependencies
  */
-import classnames from 'classnames';
-import { __, _n, sprintf } from '@wordpress/i18n';
 import { Component, Fragment } from '@wordpress/element';
 import { uniqueId } from 'lodash';
 
@@ -19,6 +17,7 @@ import { uniqueId } from 'lodash';
  */
 import PublicizeConnection from '../connection';
 import PublicizeSettingsButton from '../settings-button';
+import MessageBoxControl from '../message-box-control';
 
 class PublicizeFormUnwrapped extends Component {
 	state = {
@@ -39,19 +38,15 @@ class PublicizeFormUnwrapped extends Component {
 		return this.props.connections.every( connection => ! connection.toggleable );
 	}
 
-	onMessageChange = event => {
+	onMessageChange = message => {
 		const { messageChange } = this.props;
 		const hasEditedShareMessage = true;
 		this.setState( { hasEditedShareMessage } );
-		messageChange( event, hasEditedShareMessage );
+		messageChange( message, hasEditedShareMessage );
 	};
 
 	render() {
 		const { connections, toggleConnection, refreshCallback, shareMessage, maxLength } = this.props;
-		const charactersRemaining = maxLength - shareMessage.length;
-		const characterCountClass = classnames( 'jetpack-publicize-character-count', {
-			'wpas-twitter-length-limit': charactersRemaining <= 0,
-		} );
 
 		return (
 			<div id="publicize-form">
@@ -71,35 +66,12 @@ class PublicizeFormUnwrapped extends Component {
 				<PublicizeSettingsButton refreshCallback={ refreshCallback } />
 				{ connections.some( connection => connection.enabled ) && (
 					<Fragment>
-						<label className="jetpack-publicize-message-note" htmlFor={ this.fieldId }>
-							{ __( 'Customize your message', 'jetpack' ) }
-						</label>
-						<div className="jetpack-publicize-message-box">
-							<textarea
-								id={ this.fieldId }
-								value={ shareMessage }
-								onChange={ this.onMessageChange }
-								disabled={ this.isDisabled() }
-								maxLength={ maxLength }
-								placeholder={ __(
-									"Write a message for your audience here. If you leave this blank, we'll use an excerpt of the post content as the message.",
-									'jetpack'
-								) }
-								rows={ 4 }
-							/>
-							<div className={ characterCountClass }>
-								{ sprintf(
-									/* translators: placeholder is a number. */
-									_n(
-										'%d character remaining',
-										'%d characters remaining',
-										charactersRemaining,
-										'jetpack'
-									),
-									charactersRemaining
-								) }
-							</div>
-						</div>
+						<MessageBoxControl
+							message={ shareMessage }
+							onChange={ this.onMessageChange }
+							disabled={ this.isDisabled() }
+							maxLength={ maxLength }
+						/>
 					</Fragment>
 				) }
 			</div>

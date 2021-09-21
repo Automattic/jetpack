@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { __, _x } from '@wordpress/i18n';
+import { createBlock } from '@wordpress/blocks';
 
 /**
  * Internal dependencies
@@ -31,6 +32,28 @@ export const settings = {
 	supports: {
 		align: true,
 		html: false,
+	},
+	// Transform from classic widget
+	transforms: {
+		from: [
+			{
+				type: 'block',
+				blocks: [ 'core/legacy-widget' ],
+				isMatch: ( { idBase, instance } ) => {
+					if ( ! instance?.raw ) {
+						return false;
+					}
+					return idBase === 'wpcom_instagram_widget';
+				},
+				transform: ( { instance } ) => {
+					return createBlock( 'jetpack/instagram-gallery', {
+						columns: instance.raw.columns,
+						count: instance.raw.count,
+						accessToken: instance.raw.token_id,
+					} );
+				},
+			},
+		],
 	},
 	attributes,
 	edit,

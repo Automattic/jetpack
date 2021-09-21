@@ -3,22 +3,27 @@
 .components-panel__header.jp-search-configure-sidebar__panel-tabs {
 	justify-content: flex-start;
 	padding-left: 0;
-	padding-right: $grid-unit-05;
+	padding-right: $grid-unit-15;
 	border-top: 0;
 	margin-top: 0;
 
 	ul {
 		display: flex;
+		height: 100%;
 	}
 	li {
 		margin: 0;
 	}
-	.components-button.has-icon {
-		display: none;
+	.components-button.jp-search-configure-sidebar__hide-settings-button {
 		margin-left: auto;
+		margin-right: $grid-unit-05;
+
+		@include break-small() {
+			margin-right: $grid-unit-15;
+		}
 
 		@include break-medium() {
-			display: flex;
+			display: none;
 		}
 	}
 }
@@ -35,6 +40,7 @@
 	margin-left: 0;
 	font-weight: 400;
 	color: $gray-900;
+	height: 100%;
 
 	// This pseudo-element "duplicates" the tab label and sets the text to bold.
 	// This ensures that the tab doesn't change width when selected.

@@ -165,13 +165,17 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 			keywords.add( 'Docs' );
 		}
 
-		// Existing blocks.
+		// Existing blocks and block plugins.
 		const blocks = file.match(
-			/^projects\/plugins\/jetpack\/extensions\/blocks\/(?<block>[^/]*)\//
+			/^projects\/plugins\/jetpack\/extensions\/(?<type>blocks|plugins)\/(?<block>[^/]*)\//
 		);
-		const blockName = blocks && blocks.groups.block;
-		if ( blockName ) {
-			keywords.add( `[Block] ${ cleanName( blockName ) }` );
+		if ( blocks !== null ) {
+			const { groups: { type: blockType, block: blockName } = {} } = blocks;
+			if ( blockType && blockName ) {
+				keywords.add(
+					`[${ 'plugins' === blockType ? 'Extension' : 'Block' }] ${ cleanName( blockName ) }`
+				);
+			}
 		}
 
 		// React Dashboard and Boost Admin.
