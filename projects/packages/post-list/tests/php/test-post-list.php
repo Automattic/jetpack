@@ -60,6 +60,8 @@ class Test_Post_List extends BaseTestCase {
 		$this->assertFalse( wp_style_is( 'jetpack_posts_list_ui_style' ) );
 		$this->assertFalse( has_filter( 'manage_posts_columns' ) );
 		$this->assertFalse( has_action( 'manage_posts_custom_column' ) );
+		$this->assertFalse( has_filter( 'manage_pages_columns' ) );
+		$this->assertFalse( has_action( 'manage_pages_custom_column' ) );
 
 		$post_list->enqueue_scripts( 'edit.php' );
 
@@ -67,6 +69,8 @@ class Test_Post_List extends BaseTestCase {
 		$this->assertTrue( wp_style_is( 'jetpack_posts_list_ui_style' ) );
 		$this->assertTrue( has_filter( 'manage_posts_columns' ) );
 		$this->assertTrue( has_action( 'manage_posts_custom_column' ) );
+		$this->assertTrue( has_filter( 'manage_pages_columns' ) );
+		$this->assertTrue( has_action( 'manage_pages_custom_column' ) );
 	}
 
 	/**

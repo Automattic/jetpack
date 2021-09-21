@@ -66,8 +66,13 @@ class Post_List {
 				plugin_dir_url( __DIR__ ) . './src/rtl.css'
 			);
 
+			// Add the thumbnail column to the "Posts" admin table.
 			add_filter( 'manage_posts_columns', array( $this, 'add_thumbnail_column' ) );
 			add_action( 'manage_posts_custom_column', array( $this, 'populate_thumbnail_rows' ), 10, 2 );
+
+			// Add the thumbnail column to the "Pages" admin table.
+			add_filter( 'manage_pages_columns', array( $this, 'add_thumbnail_column' ) );
+			add_action( 'manage_pages_custom_column', array( $this, 'populate_thumbnail_rows' ), 10, 2 );
 		}
 	}
 
@@ -103,7 +108,7 @@ class Post_List {
 
 		$thumbnail = Post_Thumbnail::get_post_thumbnail( get_post( $post_id ) );
 		if ( $thumbnail ) {
-			echo '<img class="post-list__post-featured-image" src="' . esc_url( $thumbnail['thumb'] ) . '" alt="' . esc_attr( $thumbnail['alt'] ) . '" height="50" width="50" />';
+			echo '<img src="' . esc_url( $thumbnail['thumb'] ) . '" alt="' . esc_attr( $thumbnail['alt'] ) . '" height="50" width="50" />';
 		} else {
 			echo '<span class="dashicons dashicons-format-image" title="No thumbnail found."></span>';
 		}
