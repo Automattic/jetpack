@@ -23,7 +23,10 @@ class Admin {
 	 */
 	const MENU_SLUG = 'jetpack-boost';
 
-	const AJAX_NONCE = 'ajax_nonce';
+	/**
+	 * Nonce action for setting the status of show_rating_prompt.
+	 */
+	const SET_SHOW_RATING_PROMPT_NONCE = 'set_show_rating_prompt';
 
 	/**
 	 * Option to store options that have been dismissed.
@@ -68,6 +71,7 @@ class Admin {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'admin_notices', array( $this, 'show_notices' ) );
 		add_action( 'wp_ajax_set_show_rating_prompt', array( $this, 'handle_set_show_rating_prompt' ) );
+		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_js_constants' ) );
 
 		$this->handle_get_parameters();
 	}
@@ -339,15 +343,17 @@ class Admin {
 	 * Handle the ajax request to set show-rating-prompt status.
 	 */
 	public function handle_set_show_rating_prompt() {
-		check_ajax_referer( self::AJAX_NONCE, 'nonce' );
-		$response = array(
-			'status' => 'ok',
-		);
+		if ( check_ajax_referer( self::SET_SHOW_RATING_PROMPT_NONCE, 'nonce' ) && $this->check_for_permissions() ) {
+			$response = array(
+				'status' => 'ok',
+			);
 
-		$is_enabled = 'true' === $_POST['value'] ? '1' : '0';
-		\update_option( self::SHOW_RATING_PROMPT_OPTION, $is_enabled );
+			$is_enabled = 'true' === $_POST['value'] ? '1' : '0';
+			\update_option( self::SHOW_RATING_PROMPT_OPTION, $is_enabled );
 
-		echo wp_json_encode( $response );
+			echo wp_json_encode( $response );
+		}
+
 		wp_die();
 	}
 
@@ -390,5 +396,19 @@ class Admin {
 		}
 
 		\update_option( self::DISMISSED_NOTICE_OPTION, $dismissed_notices, false );
+	}
+
+	/**
+	 * Add Admin related constants to be passed to JavaScript.
+	 *
+	 * @param array $constants Constants to be passed to JavaScript.
+	 *
+	 * @return array
+	 */
+	public function add_js_constants( $constants ) {
+		// Information about the current status of Critical CSS / generation.
+		$constants['showRatingPromptNonce'] = wp_create_nonce( self::SET_SHOW_RATING_PROMPT_NONCE );
+
+		return $constants;
 	}
 }

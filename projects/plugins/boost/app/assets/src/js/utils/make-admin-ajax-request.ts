@@ -21,8 +21,8 @@ export async function makeAdminAjaxRequest< T = JSONObject >( payload: JSONObjec
 	const args = {
 		method: 'post',
 		body: new URLSearchParams( {
+			...{ nonce: Jetpack_Boost.criticalCssAjaxNonce }, // TODO: Remove and pass nonce directly with payload.
 			...payload,
-			...{ nonce: Jetpack_Boost.criticalCssAjaxNonce },
 		} ),
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded;',

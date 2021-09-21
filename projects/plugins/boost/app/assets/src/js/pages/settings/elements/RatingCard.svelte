@@ -13,7 +13,11 @@
 	const dispatch = createEventDispatcher();
 	async function disableRatingPrompt() {
 		// Send a request to back-end to permanently disable the rating prompt.
-		await makeAdminAjaxRequest( { action: 'set_show_rating_prompt', value: false } );
+		await makeAdminAjaxRequest( { 
+			action: 'set_show_rating_prompt', 
+			value: false,
+			nonce: Jetpack_Boost.showRatingPromptNonce,
+		 } );
 
 		// Close the currently open prompt.
 		dispatch( 'dismiss' ); 

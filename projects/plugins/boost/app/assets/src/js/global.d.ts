@@ -31,6 +31,7 @@ declare global {
 		connection: ConnectionStatus;
 		criticalCssStatus?: CriticalCssStatus;
 		criticalCssAjaxNonce?: string;
+		showRatingPromptNonce?: string;
 		criticalCssDismissedRecommendations: string[];
 		site: {
 			url: string;
