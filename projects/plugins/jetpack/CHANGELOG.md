@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 10.1.0-21091 - 2021-09-21
+## 10.1.0-2109.1 - 2021-09-21
 ### Enhancements
 - Contact Form: add filter to allow customizing email headers.
 - Custom Content Types: improve the performance of the Testimonial post type.
