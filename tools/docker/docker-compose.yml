@@ -47,3 +47,4 @@ services:
       - .env
     environment:
       - HOST_PORT=${PORT_WORDPRESS:-80}
+      - COMPOSE_PROJECT_NAME=$COMPOSE_PROJECT_NAME
