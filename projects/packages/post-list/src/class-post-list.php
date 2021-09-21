@@ -48,7 +48,7 @@ class Post_List {
 	}
 
 	/**
-	 * Enqueue scripts depending on the post-list query var.
+	 * Enqueue scripts.
 	 *
 	 * @param string $hook Page hook.
 	 */
@@ -60,11 +60,10 @@ class Post_List {
 				array(),
 				self::PACKAGE_VERSION
 			);
-
 			wp_style_add_data(
 				'jetpack_posts_list_ui_style',
 				'rtl',
-				plugin_dir_url( __DIR__ ) . 'build/style.rtl.css'
+				plugin_dir_url( __DIR__ ) . './src/rtl.css'
 			);
 
 			add_filter( 'manage_posts_columns', array( $this, 'add_thumbnail_column' ) );
