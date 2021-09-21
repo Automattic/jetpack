@@ -10,7 +10,7 @@ import { includes } from 'lodash';
  * WordPress dependencies
  */
 import { createInterpolateElement } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
@@ -25,12 +25,17 @@ import {
 import { ProgressBar } from '@automattic/components';
 import JetpackBanner from 'components/jetpack-banner';
 import { isModuleAvailable } from 'state/modules';
-import { isOfflineMode } from 'state/connection';
+import {
+	connectUser,
+	hasConnectedOwner as hasConnectedOwnerSelector,
+	isOfflineMode,
+} from 'state/connection';
 import { getUpgradeUrl } from 'state/initial-state';
 import { hasActiveVideoPressPurchase, getSitePlan, getVideoPressStorageUsed } from 'state/site';
 
 class DashVideoPress extends Component {
 	static propTypes = {
+		hasConnectedOwner: PropTypes.bool.isRequired,
 		isOfflineMode: PropTypes.bool.isRequired,
 		isModuleAvailable: PropTypes.bool.isRequired,
 	};
@@ -48,10 +53,14 @@ class DashVideoPress extends Component {
 			link: getRedirectUrl( 'jetpack-support-videopress' ),
 		};
 
-		const planClass = getPlanClass( this.props.sitePlan.product_slug ),
-			{ hasVideoPressPurchase, upgradeUrl, videoPressStorageUsed } = this.props;
-
-		const shouldDisplayStorage = hasVideoPressPurchase && null !== videoPressStorageUsed;
+		const planClass = getPlanClass( this.props.sitePlan.product_slug );
+		const {
+			hasConnectedOwner,
+			hasVideoPressPurchase,
+			isOffline,
+			upgradeUrl,
+			videoPressStorageUsed,
+		} = this.props;
 
 		const hasUpgrade =
 			includes(
@@ -65,12 +74,21 @@ class DashVideoPress extends Component {
 				planClass
 			) || hasVideoPressPurchase;
 
-		const freeUploadsUsed =
-			! hasVideoPressPurchase && null !== videoPressStorageUsed && 0 === videoPressStorageUsed
-				? 0
-				: 1;
+		const shouldDisplayStorage = hasVideoPressPurchase && null !== videoPressStorageUsed;
+		const shouldDisplayBanner = hasConnectedOwner && ! hasUpgrade && ! isOffline;
 
-		if ( this.props.getOptionValue( 'videopress' ) ) {
+		const bannerText =
+			! hasVideoPressPurchase && null !== videoPressStorageUsed && 0 === videoPressStorageUsed
+				? __(
+						'1 free video available. Upgrade now to unlock more videos and 1TB of storage.',
+						'jetpack'
+				  )
+				: __(
+						'You have used your free video. Upgrade now to unlock more videos and 1TB of storage.',
+						'jetpack'
+				  );
+
+		if ( this.props.getOptionValue( 'videopress' ) && hasConnectedOwner ) {
 			return (
 				<DashItem
 					className="jp-dash-item__videopress"
@@ -94,18 +112,11 @@ class DashVideoPress extends Component {
 									</div>
 								) }
 							</div>
-							{ ! hasUpgrade && (
+							{ shouldDisplayBanner && (
 								<JetpackBanner
 									className="media__videopress-upgrade"
 									callToAction={ __( 'Upgrade', 'jetpack' ) }
-									title={ sprintf(
-										/* translators: placeholder is a number. */
-										__(
-											'%d/1 free videos used. Upgrade now to unlock more videos and 1TB of storage.',
-											'jetpack'
-										),
-										freeUploadsUsed
-									) }
+									title={ bannerText }
 									disableHref="false"
 									eventFeature="videopress"
 									icon="video"
@@ -127,9 +138,27 @@ class DashVideoPress extends Component {
 				module="videopress"
 				support={ support }
 				className="jp-dash-item__is-inactive"
+				noToggle={ ! hasConnectedOwner }
+				overrideContent={
+					! hasConnectedOwner && (
+						<JetpackBanner
+							callToAction={ __( 'Connect', 'jetpack' ) }
+							title={ __(
+								'Connect your WordPress.com account to enable high-quality, ad-free video.',
+								'jetpack'
+							) }
+							disableHref="false"
+							onClick={ this.props.connectUser }
+							eventFeature="videopress"
+							path="dashboard"
+							plan={ getJetpackProductUpsellByFeature( FEATURE_VIDEOPRESS ) }
+							icon="video"
+						/>
+					)
+				}
 			>
 				<p className="jp-dash-item__description">
-					{ this.props.isOfflineMode
+					{ isOffline
 						? __( 'Unavailable in Offline Mode', 'jetpack' )
 						: createInterpolateElement(
 								__(
@@ -150,11 +179,19 @@ class DashVideoPress extends Component {
 	}
 }
 
-export default connect( state => ( {
-	isOfflineMode: isOfflineMode( state ),
-	isModuleAvailable: isModuleAvailable( state, 'videopress' ),
-	hasVideoPressPurchase: hasActiveVideoPressPurchase( state ),
-	sitePlan: getSitePlan( state ),
-	upgradeUrl: getUpgradeUrl( state, 'videopress-upgrade' ),
-	videoPressStorageUsed: getVideoPressStorageUsed( state ),
-} ) )( DashVideoPress );
+export default connect(
+	state => ( {
+		hasConnectedOwner: hasConnectedOwnerSelector( state ),
+		hasVideoPressPurchase: hasActiveVideoPressPurchase( state ),
+		isModuleAvailable: isModuleAvailable( state, 'videopress' ),
+		isOffline: isOfflineMode( state ),
+		sitePlan: getSitePlan( state ),
+		upgradeUrl: getUpgradeUrl( state, 'videopress-upgrade' ),
+		videoPressStorageUsed: getVideoPressStorageUsed( state ),
+	} ),
+	dispatch => ( {
+		connectUser: () => {
+			return dispatch( connectUser() );
+		},
+	} )
+)( DashVideoPress );

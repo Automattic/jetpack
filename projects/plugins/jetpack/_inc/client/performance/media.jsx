@@ -4,7 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { includes } from 'lodash';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ProgressBar } from '@automattic/components';
 
@@ -26,6 +26,7 @@ import SettingsGroup from 'components/settings-group';
 import { getUpgradeUrl } from 'state/initial-state';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
+import { hasConnectedOwner as hasConnectedOwnerSelector, isOfflineMode } from 'state/connection';
 import { getSitePlan, getVideoPressStorageUsed, hasActiveVideoPressPurchase } from 'state/site';
 
 class Media extends React.Component {
@@ -36,9 +37,15 @@ class Media extends React.Component {
 			return null;
 		}
 
-		const videoPress = this.props.module( 'videopress' ),
-			planClass = getPlanClass( this.props.sitePlan.product_slug ),
-			{ hasVideoPressPurchase, upgradeUrl, videoPressStorageUsed } = this.props;
+		const videoPress = this.props.module( 'videopress' );
+		const planClass = getPlanClass( this.props.sitePlan.product_slug );
+		const {
+			hasConnectedOwner,
+			hasVideoPressPurchase,
+			isOffline,
+			upgradeUrl,
+			videoPressStorageUsed,
+		} = this.props;
 
 		const shouldDisplayStorage = hasVideoPressPurchase && null !== videoPressStorageUsed;
 
@@ -54,10 +61,16 @@ class Media extends React.Component {
 				planClass
 			) || hasVideoPressPurchase;
 
-		const freeUploadsUsed =
+		const bannerText =
 			! hasVideoPressPurchase && null !== videoPressStorageUsed && 0 === videoPressStorageUsed
-				? 0
-				: 1;
+				? __(
+						'1 free video available. Upgrade now to unlock more videos and 1TB of storage.',
+						'jetpack'
+				  )
+				: __(
+						'You have used your free video. Upgrade now to unlock more videos and 1TB of storage.',
+						'jetpack'
+				  );
 
 		const videoPressSettings = (
 			<SettingsGroup
@@ -82,21 +95,24 @@ class Media extends React.Component {
 						<ProgressBar value={ videoPressStorageUsed / 10000 } />
 					</div>
 				) }
-				<ModuleToggle
-					slug="videopress"
-					disabled={ this.props.isUnavailableInOfflineMode( 'videopress' ) }
-					activated={ this.props.getOptionValue( 'videopress' ) }
-					toggling={ this.props.isSavingAnyOption( 'videopress' ) }
-					toggleModule={ this.props.toggleModuleNow }
-				>
-					<span className="jp-form-toggle-explanation">
-						{ __( 'Enable VideoPress', 'jetpack' ) }
-					</span>
-				</ModuleToggle>
+				{ hasConnectedOwner && (
+					<ModuleToggle
+						slug="videopress"
+						disabled={ this.props.isUnavailableInOfflineMode( 'videopress' ) }
+						activated={ this.props.getOptionValue( 'videopress' ) }
+						toggling={ this.props.isSavingAnyOption( 'videopress' ) }
+						toggleModule={ this.props.toggleModuleNow }
+					>
+						<span className="jp-form-toggle-explanation">
+							{ __( 'Enable VideoPress', 'jetpack' ) }
+						</span>
+					</ModuleToggle>
+				) }
 			</SettingsGroup>
 		);
 
 		const videoPressForcedInactive = 'inactive' === this.props.getModuleOverride( 'videopress' );
+		const shouldDisplayBanner = foundVideoPress && ! hasUpgrade && hasConnectedOwner && ! isOffline;
 
 		return (
 			<SettingsCard
@@ -106,18 +122,11 @@ class Media extends React.Component {
 				hideButton
 			>
 				{ foundVideoPress && videoPressSettings }
-				{ foundVideoPress && ! hasUpgrade && (
+				{ shouldDisplayBanner && (
 					<JetpackBanner
 						className="media__videopress-upgrade"
 						callToAction={ __( 'Upgrade', 'jetpack' ) }
-						title={ sprintf(
-							/* translators: placeholder is a number. */
-							__(
-								'%d/1 free videos used. Upgrade now to unlock more videos and 1TB of storage.',
-								'jetpack'
-							),
-							freeUploadsUsed
-						) }
+						title={ bannerText }
 						eventFeature="videopress"
 						icon="video"
 						plan={ getJetpackProductUpsellByFeature( FEATURE_VIDEOPRESS ) }
@@ -136,6 +145,8 @@ export default connect( state => {
 		isModuleFound: module_name => _isModuleFound( state, module_name ),
 		sitePlan: getSitePlan( state ),
 		hasVideoPressPurchase: hasActiveVideoPressPurchase( state ),
+		hasConnectedOwner: hasConnectedOwnerSelector( state ),
+		isOffline: isOfflineMode( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		upgradeUrl: getUpgradeUrl( state, 'videopress-upgrade' ),
 		videoPressStorageUsed: getVideoPressStorageUsed( state ),
