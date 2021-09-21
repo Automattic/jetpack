@@ -34,7 +34,6 @@
 	"devDependencies": {
 		"@babel/core": "7.13.16",
 		"@babel/preset-env": "7.13.15",
-		"@slack/web-api": "6.1.0",
 		"@wordpress/eslint-plugin": "9.0.3",
 		"axios": "0.21.1",
 		"babel-jest": "26.6.3",
@@ -58,9 +57,7 @@
 		"pm2": "5.1.0",
 		"rimraf": "3.0.2",
 		"shell-escape": "0.2.0",
-		"winston": "3.3.3",
-		"wpapi": "^1.2.2",
-		"yargs": "16.2.0"
+		"winston": "3.3.3"
 	},
 	"engines": {
 		"node": "^14.17.6 || ^16.7.0",
