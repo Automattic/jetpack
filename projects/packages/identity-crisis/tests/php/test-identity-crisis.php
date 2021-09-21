@@ -15,6 +15,9 @@ use WorDBless\BaseTestCase;
  * Test Identity_Crisis class
  */
 class Test_Identity_Crisis extends BaseTestCase {
+
+	const TEST_URL = 'https://www.example.org/test';
+
 	/**
 	 * Set up tests.
 	 *
@@ -343,6 +346,126 @@ class Test_Identity_Crisis extends BaseTestCase {
 		update_option( 'siteurl', $original_siteurl );
 
 		$this->assertSame( $expected, $result );
+	}
+
+	/**
+	 * Test the add_idc_query_args_to_url with null input.
+	 */
+	public function test_add_idc_query_args_to_url_input_null() {
+		$this->set_up_for_test_add_idc_query_args_to_url();
+
+		$result = Identity_Crisis::init()->add_idc_query_args_to_url( null );
+
+		$this->tear_down_for_test_add_idc_query_args_to_url();
+
+		$this->assertNull( $result );
+	}
+
+	/**
+	 * Test the add_idc_query_args_to_url with a non-string input.
+	 */
+	public function test_add_idc_query_args_to_url_input_not_string() {
+		$this->set_up_for_test_add_idc_query_args_to_url();
+
+		$input  = 123;
+		$result = Identity_Crisis::init()->add_idc_query_args_to_url( $input );
+
+		$this->tear_down_for_test_add_idc_query_args_to_url();
+
+		$this->assertSame( $input, $result );
+	}
+
+	/**
+	 * Test the test_add_idc_query_args_to_url method with a valid url input.
+	 */
+	public function test_add_idc_query_args_to_url() {
+		$this->set_up_for_test_add_idc_query_args_to_url();
+		$input_url = 'https://www.example.com';
+
+		$result     = Identity_Crisis::init()->add_idc_query_args_to_url( $input_url );
+		$url_parts  = wp_parse_url( $result );
+		$query_args = wp_parse_args( $url_parts['query'] );
+
+		$this->tear_down_for_test_add_idc_query_args_to_url();
+
+		$this->assertSame( self::TEST_URL, $query_args['siteurl'] );
+		$this->assertSame( self::TEST_URL, $query_args['home'] );
+		$this->assertSame( $input_url, $url_parts['scheme'] . '://' . $url_parts['host'] );
+
+		$this->assertSame( '1', $query_args['idc'] );
+		$this->assertFalse( isset( $query_args['migrate_for_idc'] ) );
+	}
+
+	/**
+	 * Test the add_idc_query_args_to_url with idc disabled with the `jetpack_should_handle_idc`
+	 * filter.
+	 */
+	public function test_add_idc_query_args_to_url_no_idc() {
+		$this->set_up_for_test_add_idc_query_args_to_url();
+		add_filter( 'jetpack_should_handle_idc', '__return_false' );
+
+		$input_url = 'https://www.example.com';
+
+		$result     = Identity_Crisis::init()->add_idc_query_args_to_url( $input_url );
+		$url_parts  = wp_parse_url( $result );
+		$query_args = wp_parse_args( $url_parts['query'] );
+
+		$this->tear_down_for_test_add_idc_query_args_to_url();
+		remove_filter( 'jetpack_should_handle_idc', '__return_false' );
+
+		$this->assertSame( self::TEST_URL, $query_args['siteurl'] );
+		$this->assertSame( self::TEST_URL, $query_args['home'] );
+		$this->assertSame( $input_url, $url_parts['scheme'] . '://' . $url_parts['host'] );
+
+		$this->assertFalse( isset( $query_args['idc'] ) );
+		$this->assertFalse( isset( $query_args['migrate_for_idc'] ) );
+	}
+
+	/**
+	 * Test the add_idc_query_args_to_url with a migrade_for_idc option value of 1.
+	 */
+	public function test_add_idc_query_args_to_url_migrate_for_idc() {
+		$this->set_up_for_test_add_idc_query_args_to_url();
+		\Jetpack_Options::update_option( 'migrate_for_idc', true );
+
+		$input_url = 'https://www.example.com';
+
+		$result     = Identity_Crisis::init()->add_idc_query_args_to_url( $input_url );
+		$url_parts  = wp_parse_url( $result );
+		$query_args = wp_parse_args( $url_parts['query'] );
+
+		$this->tear_down_for_test_add_idc_query_args_to_url();
+		\Jetpack_Options::delete_option( 'migrate_for_idc' );
+
+		$this->assertSame( self::TEST_URL, $query_args['siteurl'] );
+		$this->assertSame( self::TEST_URL, $query_args['home'] );
+		$this->assertSame( $input_url, $url_parts['scheme'] . '://' . $url_parts['host'] );
+
+		$this->assertSame( '1', $query_args['idc'] );
+		$this->assertSame( '1', $query_args['migrate_for_idc'] );
+	}
+
+	/**
+	 * Set up test_add_idc_query_args_to_url test environment.
+	 */
+	public function set_up_for_test_add_idc_query_args_to_url() {
+		add_filter( 'jetpack_sync_site_url', array( $this, 'return_test_url' ) );
+		add_filter( 'jetpack_sync_home_url', array( $this, 'return_test_url' ) );
+	}
+
+	/**
+	 * Tear down test_add_idc_query_args_to_url test environment.
+	 */
+	public function tear_down_for_test_add_idc_query_args_to_url() {
+		remove_filter( 'jetpack_sync_site_url', array( $this, 'return_test_url' ) );
+		remove_filter( 'jetpack_sync_home_url', array( $this, 'return_test_url' ) );
+	}
+
+	/**
+	 * Returns the test url.
+	 */
+	public function return_test_url() {
+		return self::TEST_URL;
 	}
 
 	/**
