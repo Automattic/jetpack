@@ -764,6 +764,11 @@ class Jetpack_Widget_Conditions {
 		if ( strpos( wp_get_raw_referer(), '/wp-admin/widgets.php' ) && false !== strpos( $_SERVER['REQUEST_URI'], '/wp-json/' ) ) {
 			return $instance;
 		}
+		// WordPress.com specific check - here, referer ends in /rest-proxy/ and doesn't tell us what's requesting.
+		if ( true === isset( $_REQUEST['_gutenberg_nonce'] ) && wp_verify_nonce( $_REQUEST['_gutenberg_nonce'], 'gutenberg_request' ) &&
+			1 === preg_match( '~^/wp/v2/sites/\d+/(sidebars|widgets)~', $_SERVER['REQUEST_URI'] ) && 'edit' === $_REQUEST['context'] ) {
+			return $instance;
+		}
 
 		if ( ! empty( $instance['conditions']['rules'] ) ) {
 			// Legacy widgets: visibility found.
