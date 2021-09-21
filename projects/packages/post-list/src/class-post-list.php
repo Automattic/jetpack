@@ -80,10 +80,14 @@ class Post_List {
 	public function add_thumbnail_column( $columns ) {
 		$new_column = array( 'thumbnail' => '<span>' . __( 'Thumbnail', 'jetpack' ) . '</span>' );
 		$keys       = array_keys( $columns );
-		$index      = array_search( 'title', $keys, true );
-		$pos        = false === $index ? count( $columns ) : $index;
+		$position   = array_search( 'title', $keys, true );
 
-		return array_merge( array_slice( $columns, 0, $pos ), $new_column, array_slice( $columns, $pos ) );
+		// If 'title' not found, don't insert the thumbnail column.
+		if ( false !== $position ) {
+			$columns = array_merge( array_slice( $columns, 0, $position ), $new_column, array_slice( $columns, $position ) );
+		}
+
+		return $columns;
 	}
 
 	/**

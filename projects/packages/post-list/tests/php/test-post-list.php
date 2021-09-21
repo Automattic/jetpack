@@ -68,6 +68,7 @@ class Test_Post_List extends BaseTestCase {
 		$this->assertTrue( has_filter( 'manage_posts_columns' ) );
 		$this->assertTrue( has_action( 'manage_posts_custom_column' ) );
 	}
+
 	/**
 	 * Test the add_thumbnail_column() method.
 	 */
@@ -97,5 +98,24 @@ class Test_Post_List extends BaseTestCase {
 		$columns_results = $post_list->add_thumbnail_column( $columns );
 
 		$this->assertSame( $columns_results, $columns_expected );
+	}
+
+	/**
+	 * Test the add_thumbnail_column() method with 'title' missing.
+	 */
+	public function test_add_thumbnail_column_no_title() {
+		$columns = array(
+			'cb'         => '<input type="checkbox" />',
+			'author'     => 'Author',
+			'categories' => 'Categories',
+			'tags'       => 'Tags',
+			'comments'   => '<span class="vers comment-grey-bubble" title="Comments"><span class="screen-reader-text">Comments</span></span>',
+			'date'       => 'Date',
+		);
+
+		$post_list       = Post_List::get_instance();
+		$columns_results = $post_list->add_thumbnail_column( $columns );
+
+		$this->assertSame( $columns_results, $columns );
 	}
 }
