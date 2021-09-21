@@ -36,7 +36,7 @@ class Table_Checksum {
 	 *
 	 * @var boolean
 	 */
-	private $perform_text_conversion = false;
+	protected $perform_text_conversion = false;
 
 	/**
 	 * Field to be used for range queries.
@@ -106,28 +106,28 @@ class Table_Checksum {
 	 *
 	 * @var mixed|null
 	 */
-	private $parent_table = null;
+	protected $parent_table = null;
 
 	/**
 	 * What field to use for the parent table join, if it has a "parent" table.
 	 *
 	 * @var mixed|null
 	 */
-	private $parent_join_field = null;
+	protected $parent_join_field = null;
 
 	/**
 	 * What field to use for the table join, if it has a "parent" table.
 	 *
 	 * @var mixed|null
 	 */
-	private $table_join_field = null;
+	protected $table_join_field = null;
 
 	/**
 	 * Some tables might not exist on the remote, and we want to verify they exist, before trying to query them.
 	 *
 	 * @var callable
 	 */
-	private $is_table_enabled_callback = false;
+	protected $is_table_enabled_callback = false;
 
 	/**
 	 * Table_Checksum constructor.
@@ -345,7 +345,7 @@ class Table_Checksum {
 	 *
 	 * @throws Exception Throw an exception on failure to validate.
 	 */
-	private function validate_fields( $fields ) {
+	protected function validate_fields( $fields ) {
 		foreach ( $fields as $field ) {
 			if ( ! preg_match( '/^[0-9,a-z,A-Z$_]+$/i', $field ) ) {
 				throw new Exception( "Invalid field name: $field is not allowed" );
@@ -363,7 +363,7 @@ class Table_Checksum {
 	 * @return bool
 	 * @throws Exception Throw an exception on failure to validate.
 	 */
-	private function validate_fields_against_table( $fields ) {
+	protected function validate_fields_against_table( $fields ) {
 		global $wpdb;
 
 		$valid_fields = array();
@@ -390,7 +390,7 @@ class Table_Checksum {
 	 *
 	 * @throws Exception Throw an exception on failure to validate in the internal functions.
 	 */
-	private function validate_input() {
+	protected function validate_input() {
 		$fields = array_merge( array( $this->range_field ), $this->key_fields, $this->checksum_fields, $this->checksum_text_fields );
 
 		$this->validate_fields( $fields );
@@ -514,7 +514,7 @@ class Table_Checksum {
 	 *
 	 * @throws Exception Throws and exception if validation fails in the internal function calls.
 	 */
-	private function build_checksum_query( $range_from = null, $range_to = null, $filter_values = null, $granular_result = false ) {
+	protected function build_checksum_query( $range_from = null, $range_to = null, $filter_values = null, $granular_result = false ) {
 		global $wpdb;
 
 		// Escape the salt.
