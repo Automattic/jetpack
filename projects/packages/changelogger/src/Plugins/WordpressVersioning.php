@@ -161,7 +161,7 @@ class WordpressVersioning implements VersioningPlugin {
 		if ( null === $s ) {
 			return array( 100, 0 );
 		}
-		foreach ( array( 'dev', 'alpha(\d*)', 'beta(\d*)', 'rc(\d*)' ) as $i => $re ) {
+		foreach ( array( 'dev', 'alpha(\d*)', 'beta(\d*)', 'rc(\d*)', '\d\d(?:0[1-9]|1[0-2])\.\d+' ) as $i => $re ) {
 			if ( preg_match( "/^{$re}\$/", $s, $m ) ) {
 				return array( $i, isset( $m[1] ) ? (int) $m[1] : 0 );
 			}
