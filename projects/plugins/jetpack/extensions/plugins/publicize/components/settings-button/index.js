@@ -31,7 +31,7 @@ export default function PublicizeSettingsButton() {
 	const { refresh } = useSelectSocialMediaConnections();
 	const siteFragment = getSiteFragment();
 
-	const debRefresh = debounce( function ( isVisible ) {
+	const debouncedRefresh = debounce( function ( isVisible ) {
 		if ( ! isVisible ) {
 			return;
 		}
@@ -50,7 +50,7 @@ export default function PublicizeSettingsButton() {
 		: 'options-general.php?page=sharing&publicize_popup=true';
 
 	return (
-		<PageVisibility onChange={ debRefresh }>
+		<PageVisibility onChange={ debouncedRefresh }>
 			<div className="jetpack-publicize-add-connection-wrapper">
 				<ExternalLink href={ href } target="_blank">
 					{ __( 'Connect an account', 'jetpack' ) }
