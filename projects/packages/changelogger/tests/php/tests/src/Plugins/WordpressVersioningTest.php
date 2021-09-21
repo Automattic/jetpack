@@ -98,6 +98,8 @@ class WordpressVersioningTest extends TestCase {
 			array( '1.2.3-?', new InvalidArgumentException( 'Version number "1.2.3-?" is not in a recognized format.' ) ),
 			array( '1.2.3+?', new InvalidArgumentException( 'Version number "1.2.3+?" is not in a recognized format.' ) ),
 			array( '1.2.3-a..b', new InvalidArgumentException( 'Version number "1.2.3-a..b" is not in a recognized format.' ) ),
+			array( '10.1-2113.1', new InvalidArgumentException( 'Version number "10.1-2113.1" is not in a recognized format.' ) ),
+			array( '10.1-2100.1', new InvalidArgumentException( 'Version number "10.1-2100.1" is not in a recognized format.' ) ),
 		);
 	}
 
@@ -290,6 +292,11 @@ class WordpressVersioningTest extends TestCase {
 			array( '1.1.1-beta9', '==', '1.1.1-beta9' ),
 			array( '1.1.1-alpha2', '<', '1.1.1-alpha10' ),
 			array( '1.1.1+beta.9.1', '==', '1.1.1+beta.9' ),
+			array( '10.1-2109.1', '>', '10.1' ),
+			array( '10.1-2109.1', '<', '10.2' ),
+			array( '10.1-2109.1', '>', '10.1-alpha' ),
+			array( '10.1-2109.1', '>', '10.1-beta' ),
+			array( '10.1-2109.2', '<', '10.1-2109.10' ),
 		);
 	}
 
