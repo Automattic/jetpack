@@ -381,6 +381,61 @@ if ( class_exists( 'Checksum_Plugin_Command' ) ) {
 	}
 }
 
+/**
+ * Symlinks a managed plugin into the site's plugins directory.
+ *
+ * ## OPTIONS
+ *
+ * <plugin>
+ * : The managed plugin to symlink.
+ */
+function wpcomsh_cli_plugin_symlink( $args, $assoc_args = array() ) {
+	$plugin_to_symlink = $args[0];
+
+	if ( 'wpcomsh' === $plugin_to_symlink ) {
+		// wpcomsh is in the managed plugins directory,
+		// but it should not be symlinked into the plugins directory
+		WP_CLI::error( 'Cannot symlink wpcomsh' );
+	}
+
+	if ( false === chdir( WP_PLUGIN_DIR ) ) {
+		WP_CLI::error( "Cannot switch to plugins directory '" . WP_PLUGIN_DIR . "'" );
+	}
+
+	$managed_plugin_relative_path = "../../../../wordpress/plugins/$plugin_to_symlink/latest";
+	if ( false === realpath( $managed_plugin_relative_path ) ) {
+		WP_CLI::error( "'$plugin_to_symlink' is not a managed plugin" );
+	}
+
+	if ( realpath( $plugin_to_symlink ) === realpath( $managed_plugin_relative_path ) ) {
+		WP_CLI::success( "Plugin '$plugin_to_symlink' is already symlinked" );
+		exit( -1 );
+	}
+
+	if ( is_dir( $plugin_to_symlink ) ) {
+		$answer = wpcomsh_cli_confirm( "Plugin '$plugin_to_symlink' exists. Delete it and replace with symlink?" );
+		if ( false === $answer ) {
+			exit( -1 );
+		}
+
+		WP_CLI::runcommand(
+			"--skip-plugins --skip-themes plugin delete '$plugin_to_symlink'",
+			array(
+				'launch' => false,
+				'exit_error' => true,
+			)
+		);
+	}
+
+	if ( symlink( $managed_plugin_relative_path, $plugin_to_symlink ) ) {
+		WP_CLI::success( "Symlinked '$plugin_to_symlink' plugin" );
+		exit( 0 );
+	} else {
+		WP_CLI::error( "Failed to symlink '$plugin_to_symlink' plugin" );
+		exit( -1 );
+	}
+}
+
 // Cleanup via WP-Cron event
 add_action( WPCOMSH_CLI_DEACTIVATED_PLUGIN_RECORD_CLEANUP_JOB, 'wpcomsh_cli_remove_expired_from_deactivation_record' );
 
@@ -401,3 +456,4 @@ add_action( 'activated_plugin', 'wpcomsh_cli_forget_plugin_deactivation' );
 
 WP_CLI::add_command( 'wpcomsh', 'WPCOMSH_CLI_Commands' );
 WP_CLI::add_command( 'wpcomsh plugin verify-checksums', 'Checksum_Plugin_Command_WPCOMSH' );
+WP_CLI::add_command( 'plugin symlink', 'wpcomsh_cli_plugin_symlink' );
