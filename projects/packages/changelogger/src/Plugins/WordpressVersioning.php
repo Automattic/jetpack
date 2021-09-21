@@ -47,7 +47,7 @@ class WordpressVersioning implements VersioningPlugin {
 	 * @throws InvalidArgumentException If the version number is not in a recognized format.
 	 */
 	private function parseVersion( $version ) {
-		if ( ! preg_match( '/^(?P<major>\d+\.\d)(?:\.(?P<point>\d+))?(?:-(?P<prerelease>dev|(?:alpha|beta|rc|[0-9]*)\d*))?(?:\+(?P<buildinfo>[0-9a-zA-Z.-]+))?$/', $version, $m ) ) {
+		if ( ! preg_match( '/^(?P<major>\d+\.\d)(?:\.(?P<point>\d+))?(?:-(?P<prerelease>dev|(?:alpha|beta|rc)\d*|\d\d(?:0[1-9]|1[0-2])\.\d+))?(?:\+(?P<buildinfo>[0-9a-zA-Z.-]+))?$/', $version, $m ) ) {
 			throw new InvalidArgumentException( "Version number \"$version\" is not in a recognized format." );
 		}
 		return array(
