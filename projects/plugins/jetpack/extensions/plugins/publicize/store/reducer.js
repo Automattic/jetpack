@@ -47,7 +47,7 @@ export default function ( state = DEFAULT_STATE, action ) {
 				}
 
 				// Populate the connection with extra fresh data.
-				if ( connection.profile_picture ) {
+				if ( freshConnection.profile_picture ) {
 					connection.profile_picture = freshConnection.profile_picture;
 				}
 
