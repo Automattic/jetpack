@@ -309,8 +309,7 @@
 
 		// Selector for items within a gallery or tiled gallery.
 		var galleryItemSelector =
-			'.wp-block-image, .gallery-item, .tiled-gallery-item, .blocks-gallery-item, ' +
-			' .tiled-gallery__item';
+			'.gallery-item, .tiled-gallery-item, .blocks-gallery-item, ' + ' .tiled-gallery__item';
 
 		// Selector for all items including single images.
 		var itemSelector = galleryItemSelector + ', .wp-block-image';
