@@ -19,14 +19,16 @@ export default function useSocialMediaConnections() {
 	return {
 		connections,
 		toggleById: function ( id ) {
-			const filteredConnections = connections.map( connection => ( {
+			const jetpack_publicize_connections = connections.map( connection => ( {
 				...connection,
 				enabled: connection.id === id ? ! connection.enabled : connection.enabled,
 			} ) );
 
-			editPost( {
-				jetpack_publicize_connections: filteredConnections,
-			} );
+			// Update post metadata.
+			editPost( { jetpack_publicize_connections } );
+
+			// Refresh jetpack/publicize store.
+			refresh();
 		},
 
 		refresh,
