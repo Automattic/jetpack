@@ -351,10 +351,11 @@ class Admin {
 			$is_enabled = 'true' === $_POST['value'] ? '1' : '0';
 			\update_option( self::SHOW_RATING_PROMPT_OPTION, $is_enabled );
 
-			echo wp_json_encode( $response );
+			wp_send_json( $response );
+		} else {
+			$error = new \WP_Error( 'authorization', __( 'You do not have permission to change this status.', 'jetpack-boost' ) );
+			wp_send_json_error( $error, 403 );
 		}
-
-		wp_die();
 	}
 
 	/**
