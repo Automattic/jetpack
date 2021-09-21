@@ -142,6 +142,7 @@ class P2_Admin_Menu extends WPcom_Admin_Menu {
 		// The following menu items are hidden for both hubs and P2 sites.
 		remove_menu_page( 'link-manager.php' );
 		remove_menu_page( 'feedback' );
+		remove_menu_page( 'https://wordpress.com/beta-testing/' . $this->domain );
 		remove_menu_page( $this->plugins_slug );
 		remove_menu_page( 'https://wordpress.com/plugins/' . $this->domain );
 

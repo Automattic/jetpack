@@ -2,10 +2,6 @@ const outputDir = './output';
 const configDir = './config';
 const tempDir = `${ configDir }/tmp`;
 const config = {
-	WP_ADMIN_USER: {
-		username: 'admin',
-		password: 'password',
-	},
 	WP_BASE_URL: 'http://localhost',
 	testCardCredentials: {
 		cardHolder: 'End To End Testing',

@@ -168,6 +168,7 @@ class Defaults {
 		'wp_mobile_featured_images',
 		'wp_mobile_app_promos',
 		'wp_page_for_privacy_policy',
+		'wpcom_is_fse_activated',
 		'wpcom_publish_posts_with_markdown',
 		'wpcom_publish_comments_with_markdown',
 	);

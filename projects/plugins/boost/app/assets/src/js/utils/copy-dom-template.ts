@@ -3,9 +3,7 @@ type AttributeSet = {
 };
 
 export type TemplateVars = {
-	[ name: string ]:
-		| [ string, AttributeSet, string ]
-		| [ string, AttributeSet ];
+	[ name: string ]: [ string, AttributeSet, string ] | [ string, AttributeSet ];
 };
 
 /**
@@ -16,11 +14,7 @@ export type TemplateVars = {
  * @param {Node}         target DOM node to copy into
  * @param {TemplateVars} vars   Specification of tags to replace
  */
-export function copyDomTemplate(
-	source: Node,
-	target: Node,
-	vars: TemplateVars
-): void {
+export function copyDomTemplate( source: Node, target: Node, vars: TemplateVars ): void {
 	for ( const child of Array.from( source.childNodes ) as Element[] ) {
 		let newNode: Element;
 
@@ -64,11 +58,7 @@ function copyAttributes( from: Element, to: Element ): void {
  * @param {string | undefined} content    optional content to pack into the node.
  * @return {Node} the node
  */
-function createNode(
-	tag: string,
-	attributes: AttributeSet,
-	content?: string
-): Element {
+function createNode( tag: string, attributes: AttributeSet, content?: string ): Element {
 	const node = document.createElement( tag );
 
 	for ( const [ key, value ] of Object.entries( attributes ) ) {

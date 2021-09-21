@@ -17,7 +17,7 @@ import type { Viewport } from './types';
 import { isEnabled } from '../stores/modules';
 import { loadCriticalCssLibrary } from './load-critical-css-library';
 import { removeShownAdminNotices } from './remove-admin-notices';
-import { resetDismissals } from '../stores/critical-css-recommendations';
+import { clearDismissedRecommendations } from '../stores/critical-css-recommendations';
 
 export type ProviderKeyUrls = {
 	[ providerKey: string ]: string[];
@@ -63,7 +63,7 @@ export default async function generateCriticalCss(
 	let cancelling = false;
 
 	if ( reset ) {
-		resetDismissals();
+		clearDismissedRecommendations();
 		updateGenerateStatus( true, 0 );
 	}
 
@@ -86,7 +86,7 @@ export default async function generateCriticalCss(
 		// Prepare a wrapped callback to gather major/minor steps and convert to
 		// percent. Also check for module deactivation and cancel if need be.
 		const offset = cssStatus.success_count || 0;
-		const wrappedCallback = wrapCallback( offset, ( percent ) => {
+		const wrappedCallback = wrapCallback( offset, percent => {
 			if ( ! isEnabled( 'critical-css' ) ) {
 				cancelling = true;
 				throw new Error( __( 'Operation cancelled', 'jetpack-boost' ) );
@@ -148,17 +148,12 @@ async function generateForKeys(
 	for ( const [ providerKey, urls ] of Object.entries( providerKeys ) ) {
 		callback( ++majorStep, majorSteps, 0, 0 );
 		try {
-			const [
-				css,
-				warnings,
-			] = await CriticalCSSGenerator.generateCriticalCSS( {
-				browserInterface: new CriticalCSSGenerator.BrowserInterfaceIframe(
-					{
-						requestGetParameters,
-						verifyPage,
-						allowScripts: false,
-					}
-				),
+			const [ css, warnings ] = await CriticalCSSGenerator.generateCriticalCSS( {
+				browserInterface: new CriticalCSSGenerator.BrowserInterfaceIframe( {
+					requestGetParameters,
+					verifyPage,
+					allowScripts: false,
+				} ),
 				urls,
 				viewports,
 				progressCallback: ( step: number, stepCount: number ) => {
@@ -171,15 +166,11 @@ async function generateForKeys(
 				successRatio: successRatios[ providerKey ],
 			} );
 
-			const updateResult = await sendGenerationResult(
-				providerKey,
-				'success',
-				{
-					data: css,
-					warnings: warnings.map( ( x ) => x.toString() ),
-					passthrough,
-				}
-			);
+			const updateResult = await sendGenerationResult( providerKey, 'success', {
+				data: css,
+				warnings: warnings.map( x => x.toString() ),
+				passthrough,
+			} );
 
 			if ( updateResult === false ) {
 				return;
@@ -260,10 +251,7 @@ function keepProperty( name: string, value: string ): boolean {
  * @param {(percent: number) => void} cb     Callback to call with progress.
  * @return {Function} Function to call with full progress details.
  */
-function wrapCallback(
-	offset: number,
-	cb: ( percent: number ) => void
-): MajorMinorCallback {
+function wrapCallback( offset: number, cb: ( percent: number ) => void ): MajorMinorCallback {
 	return ( majorStep, majorSteps, minorStep, minorSteps ) => {
 		const stepSize = 100 / Math.max( 1, majorSteps + offset );
 		const minorProgress = minorStep / Math.max( 1, minorSteps );
@@ -272,12 +260,6 @@ function wrapCallback(
 	};
 }
 
-function verifyPage(
-	url: string,
-	innerWindow: Window,
-	innerDocument: Document
-): boolean {
-	return !! innerDocument.querySelector(
-		'meta[name="jb-generate-critical-css"]'
-	);
+function verifyPage( url: string, innerWindow: Window, innerDocument: Document ): boolean {
+	return !! innerDocument.querySelector( 'meta[name="jb-generate-critical-css"]' );
 }

@@ -6,10 +6,7 @@ import { writable, derived } from 'svelte/store';
 /**
  * Internal dependencies
  */
-import {
-	CriticalCssErrorDetails,
-	criticalCssStatus,
-} from './critical-css-status';
+import { CriticalCssErrorDetails, criticalCssStatus } from './critical-css-status';
 import type { JSONObject } from '../utils/json-types';
 import { objectFilter } from '../utils/object-filter';
 import { sortByFrequency } from '../utils/sort-by-frequency';
@@ -51,7 +48,7 @@ type Recommendation = {
  * Derived store containing Critical CSS recommendations based on Critical CSS
  * status and the provider key errors inside.
  */
-export const recommendations = derived( criticalCssStatus, ( state ) => {
+export const recommendations = derived( criticalCssStatus, state => {
 	if ( ! state.providers_errors ) {
 		return [];
 	}
@@ -76,17 +73,16 @@ export const dismissedRecommendations = { subscribe: dismissed.subscribe };
  */
 export const activeRecommendations = derived(
 	[ recommendations, dismissedRecommendations ],
-	( [ recommends, dismisses ] ) =>
-		recommends.filter( ( r ) => ! dismisses.includes( r.key ) )
+	( [ recommends, dismisses ] ) => recommends.filter( r => ! dismisses.includes( r.key ) )
 );
 
 /**
  * Derived datastore: Returns the most important Set of errors among the recommendations.
  * Used for displaying the most important error as a showstopper if no URLS succeeded.
  */
-export const primaryErrorSet = derived( recommendations, ( recommends ) => {
+export const primaryErrorSet = derived( recommendations, recommends => {
 	for ( const key of importantProviders ) {
-		const recommendation = recommends.find( ( r ) => r.key === key );
+		const recommendation = recommends.find( r => r.key === key );
 		if ( recommendation ) {
 			return recommendation.errors[ 0 ];
 		}
@@ -94,6 +90,26 @@ export const primaryErrorSet = derived( recommendations, ( recommends ) => {
 
 	return undefined;
 } );
+
+/**
+ * Store used to track Critical CSS Recommendations dismissal error.
+ */
+export const dismissalError = writable( null );
+
+/**
+ * Set the dismissal error if something wrong occurred
+ * during the event to dismiss a recommendation or the event
+ * to clear the dismissed recommendations.
+ *
+ * @param {string} title Error display title.
+ * @param {Object} error Error.
+ */
+export function setDismissalError( title, error ) {
+	dismissalError.set( {
+		title,
+		error,
+	} );
+}
 
 /**
  * Dismiss the recommendation associated with the given provider key. Calls the
@@ -106,14 +122,16 @@ export async function dismissRecommendation( key: string ): Promise< void > {
 		action: 'dismiss_recommendations',
 		providerKey: key,
 	} );
-
-	dismissed.update( ( keys ) => [ ...keys, key ] );
+	dismissed.update( keys => [ ...keys, key ] );
 }
 
 /**
- * Clear all dismissed recommendations.
+ * Clear all the dismissed recommendations.
  */
-export function resetDismissals(): void {
+export async function clearDismissedRecommendations(): Promise< void > {
+	await makeAdminAjaxRequest( {
+		action: 'reset_dismissed_recommendations',
+	} );
 	dismissed.set( [] );
 }
 
@@ -130,8 +148,8 @@ function groupErrorsByFrequency( errors: {
 	const groupKeys = Object.values( errors ).map( groupKey );
 	const groupOrder = sortByFrequency( groupKeys );
 
-	return groupOrder.map( ( group ) => {
-		const byUrl = objectFilter( errors, ( v ) => groupKey( v ) === group );
+	return groupOrder.map( group => {
+		const byUrl = objectFilter( errors, v => groupKey( v ) === group );
 		const first = byUrl[ Object.keys( byUrl )[ 0 ] ];
 
 		return {

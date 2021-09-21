@@ -8,14 +8,7 @@ export type JSONObject = {
 	[ key: string ]: JSONValue;
 };
 export type JSONArray = JSONValue[];
-export type JSONValue =
-	| string
-	| number
-	| boolean
-	| JSONObject
-	| JSONArray
-	| null
-	| undefined;
+export type JSONValue = string | number | boolean | JSONObject | JSONArray | null | undefined;
 
 /**
  * Returns true if the given JSONValue is a JSONObject.

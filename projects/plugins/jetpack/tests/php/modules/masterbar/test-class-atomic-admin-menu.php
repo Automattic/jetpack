@@ -254,7 +254,6 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	public function test_get_preferred_view() {
 		$this->assertSame( 'classic', static::$admin_menu->get_preferred_view( 'plugins.php' ) );
 		$this->assertSame( 'classic', static::$admin_menu->get_preferred_view( 'export.php' ) );
-		$this->assertSame( 'classic', static::$admin_menu->get_preferred_view( 'customize.php' ) );
 	}
 
 	/**

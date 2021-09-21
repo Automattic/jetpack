@@ -1,10 +1,11 @@
 import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
 import PostFrontendPage from '../lib/pages/postFrontend';
-import { syncJetpackPlanData } from '../lib/flows/jetpack-connect';
 import PinterestBlock from '../lib/pages/wp-admin/blocks/pinterest';
 import EventbriteBlock from '../lib/pages/wp-admin/blocks/eventbrite';
 import config from 'config';
 import { testStep } from '../lib/reporters/reporter';
+import { prerequisitesBuilder } from '../lib/env/prerequisites';
+import { Plans } from '../lib/env/types';
 
 /**
  *
@@ -12,13 +13,19 @@ import { testStep } from '../lib/reporters/reporter';
  * @group free-blocks
  * @group blocks
  * @group gutenberg
+ * @group atomic
  */
 
 describe( 'Free blocks', () => {
 	let blockEditor;
 
 	beforeAll( async () => {
-		await syncJetpackPlanData( 'free' );
+		await prerequisitesBuilder()
+			.withWpComLoggedIn( true )
+			.withLoggedIn( true )
+			.withConnection( true )
+			.withPlan( Plans.Free )
+			.build();
 	} );
 
 	beforeEach( async () => {

@@ -167,6 +167,7 @@ class Critical_CSS extends Module {
 
 		if ( is_admin() ) {
 			add_action( 'wp_ajax_dismiss_recommendations', array( $this, 'dismiss_recommendations' ) );
+			add_action( 'wp_ajax_reset_dismissed_recommendations', array( $this, 'reset_dismissed_recommendations' ) );
 		}
 
 		return true;
@@ -762,9 +763,19 @@ class Critical_CSS extends Module {
 
 		$parsed = wp_parse_url( $src );
 
-		// If no domain specified, or domain matches current, no need to proxy.
+		// Build the resource origin host the requested asset belongs to.
+		$resource_origin = '';
+		if ( isset( $parsed['host'] ) ) {
+			$resource_origin = $parsed['host'];
+		}
+		if ( isset( $parsed['port'] ) ) {
+			$resource_origin .= ':' . $parsed['port'];
+		}
+
+		// Skip proxy in certain cases, i.e. if no origin specified, or origin matches current, no need to proxy.
 		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-		if ( empty( $parsed['host'] ) || $_SERVER['HTTP_HOST'] === $parsed['host'] ) {
+		$skipped_origins = array( '', $_SERVER['HTTP_HOST'] );
+		if ( in_array( $resource_origin, $skipped_origins, true ) ) {
 			return $src;
 		}
 
@@ -986,6 +997,21 @@ class Critical_CSS extends Module {
 			$dismissed_recommendations[] = $provider_key;
 			\update_option( self::DISMISSED_RECOMMENDATIONS_STORAGE_KEY, $dismissed_recommendations );
 		}
+
+		echo wp_json_encode( $response );
+		wp_die();
+	}
+
+	/**
+	 * Reset dismissed Critical CSS recommendations.
+	 */
+	public function reset_dismissed_recommendations() {
+		check_ajax_referer( self::AJAX_NONCE, 'nonce' );
+		$response = array(
+			'status' => 'ok',
+		);
+
+		self::clear_dismissed_recommendations();
 
 		echo wp_json_encode( $response );
 		wp_die();

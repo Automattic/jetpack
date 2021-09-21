@@ -76,6 +76,8 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			$this->add_new_site_link();
 		}
 
+		$this->add_beta_testing_menu();
+
 		ksort( $GLOBALS['menu'] );
 	}
 
@@ -89,8 +91,8 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * @return string
 	 */
 	public function get_preferred_view( $screen, $fallback_global_preference = true ) {
-		// Plugins, Export, and Customize on Atomic sites are always managed on WP Admin.
-		if ( in_array( $screen, array( 'plugins.php', 'export.php', 'customize.php' ), true ) ) {
+		// Plugins and Export on Atomic sites are always managed on WP Admin.
+		if ( in_array( $screen, array( 'plugins.php', 'export.php' ), true ) ) {
 			return self::CLASSIC_VIEW;
 		}
 

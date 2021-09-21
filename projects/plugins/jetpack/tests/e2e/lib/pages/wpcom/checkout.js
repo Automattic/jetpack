@@ -11,7 +11,7 @@ export default class CheckoutPage extends WpPage {
 	async processPurchase( cardCredentials ) {
 		// Enter billing info
 		await this.selectOption( `select#country-selector`, cardCredentials.cardCountryCode );
-		await this.type( '#contact-postal-code', cardCredentials.cardPostCode, {
+		await this.fill( '#contact-postal-code', cardCredentials.cardPostCode, {
 			delay: 10,
 		} );
 		await this.click( '.checkout-step.is-active .checkout-button' );
@@ -29,7 +29,7 @@ export default class CheckoutPage extends WpPage {
 	}
 
 	async enterTestCreditCardDetails( { cardHolder, cardNumber, cardExpiry, cardCVV } ) {
-		await this.type( '#cardholder-name', cardHolder, { delay: 10 } );
+		await this.fill( '#cardholder-name', cardHolder, { delay: 10 } );
 
 		await this.waitAndTypeInIframe( '.number', "input[name='cardnumber']", cardNumber );
 		await this.waitAndTypeInIframe( '.cvv', "input[name='cvc']", cardCVV );
@@ -63,6 +63,6 @@ export default class CheckoutPage extends WpPage {
 		const iframeElement = await this.page.$( fullSelector );
 		const iframe = await iframeElement.contentFrame();
 
-		return await iframe.type( what, value, { delay: 10 } );
+		return await iframe.fill( what, value, { delay: 10 } );
 	}
 }

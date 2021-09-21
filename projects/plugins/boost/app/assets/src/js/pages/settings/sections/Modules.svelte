@@ -20,13 +20,12 @@
 			<TemplatedString
 				template={__(
 					`Move important styling information to the start of the
-					page, which helps pages display your content sooner.
-					Commonly referred to as <link>Critical CSS</link>.`,
+					page, which helps pages display your content sooner, so
+					your users don’t have to wait for the entire page to
+					load. Commonly referred to as <link>Critical CSS</link>.`,
 					'jetpack-boost'
 				)}
-				vars={externalLinkTemplateVar(
-					'https://web.dev/extract-critical-css/'
-				)}
+				vars={externalLinkTemplateVar( 'https://web.dev/extract-critical-css/' )}
 			/>
 		</p>
 
@@ -47,9 +46,7 @@
 					<link>web.dev</link>.`,
 					'jetpack-boost'
 				)}
-				vars={externalLinkTemplateVar(
-					'https://web.dev/efficiently-load-third-party-javascript/'
-				)}
+				vars={externalLinkTemplateVar( 'https://web.dev/efficiently-load-third-party-javascript/' )}
 			/>
 		</p>
 	</Module>
@@ -63,9 +60,7 @@
 					are required. Read more on <link>web.dev</link>.`,
 					'jetpack-boost'
 				)}
-				vars={externalLinkTemplateVar(
-					'https://web.dev/browser-level-image-lazy-loading/'
-				)}
+				vars={externalLinkTemplateVar( 'https://web.dev/browser-level-image-lazy-loading/' )}
 			/>
 		</p>
 	</Module>

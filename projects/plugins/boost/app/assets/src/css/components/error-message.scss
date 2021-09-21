@@ -1,12 +1,15 @@
 .jb-error {
 	position: relative;
 	color: #d63638;
-	display: flex;
-	align-items: flex-start;
-	justify-content: left;
-	text-align: left;
+	display: block;
 	margin: 0;
 	padding: 0;
+
+	@include breakpoint(sm) {
+		display: flex;
+		align-items: flex-start;
+		justify-content: left;
+	}
 
 	p {
 		margin: .25em 0;
@@ -14,7 +17,13 @@
 	}
 
 	.jb-error__main-action:not( :empty ) {
-		margin-left: 20px;
+		margin-left: auto;
+		button {
+			margin-left: 0;
+			@include breakpoint(sm) {
+				margin-left: 20px;
+			}
+		}
 	}
 
 	svg.icon {
@@ -46,6 +55,14 @@
 			font-size: 16px;
 			margin: 16px auto;
 		}
+
+		li {
+			@include word-wrap();
+		}
+	}
+
+	.raw-error {
+		color: $primary-black;
 	}
 
 	.action {

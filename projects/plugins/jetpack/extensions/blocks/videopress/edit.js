@@ -25,6 +25,7 @@ import {
 } from '@wordpress/block-editor';
 import { Component, createRef, Fragment } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
+import { Icon, pencil } from '@wordpress/icons';
 import classnames from 'classnames';
 import { get, indexOf } from 'lodash';
 
@@ -113,7 +114,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				const sandboxClassnames = getClassNames(
 					preview.html,
 					classnames( 'wp-block-embed', 'is-type-video', 'is-provider-videopress' ),
-					true
+					false
 				);
 
 				// We set videoPressClassNames attribute to be used in ./save.js
@@ -276,7 +277,7 @@ const VideoPressEdit = CoreVideoEdit =>
 								className="components-icon-button components-toolbar__control"
 								label={ __( 'Edit video', 'jetpack' ) }
 								onClick={ this.switchToEditing }
-								icon="edit"
+								icon={ <Icon icon={ pencil } /> }
 							/>
 						</ToolbarGroup>
 					</BlockControls>

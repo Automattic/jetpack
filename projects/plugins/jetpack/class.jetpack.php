@@ -60,8 +60,8 @@ class Jetpack {
 	 * When making changes to that list, you must also update concat_list in tools/builder/frontend-css.js.
 	 */
 	public $concatenated_style_handles = array(
-		'jetpack-carousel',
 		'jetpack-carousel-swiper-css',
+		'jetpack-carousel',
 		'grunion.css',
 		'the-neverending-homepage',
 		'jetpack_likes',
@@ -4024,12 +4024,6 @@ p {
 					'type' => $attachment->post_mime_type,
 					'meta' => wp_get_attachment_metadata( $attachment_id ),
 				);
-				// Zip files uploads are not supported unless they are done for installation purposed
-				// lets delete them in case something goes wrong in this whole process
-				if ( 'application/zip' === $attachment->post_mime_type ) {
-					// Schedule a cleanup for 2 hours from now in case of failed install.
-					wp_schedule_single_event( time() + 2 * HOUR_IN_SECONDS, 'upgrader_scheduled_cleanup', array( $attachment_id ) );
-				}
 			}
 		}
 		if ( ! is_null( $global_post ) ) {
@@ -6085,7 +6079,7 @@ endif;
 			wp_die( __( 'You must connect your Jetpack plugin to WordPress.com to use this feature.', 'jetpack' ) );
 		}
 
-		$die_error = __( 'Someone may be trying to trick you into giving them access to your site.  Or it could be you just encountered a bug :).  Either way, please close this window.', 'jetpack' );
+		$die_error = __( 'Someone may be trying to trick you into giving them access to your site. Or it could be you just encountered a bug :).  Either way, please close this window.', 'jetpack' );
 
 		// Host has encoded the request URL, probably as a result of a bad http => https redirect
 		if ( self::is_redirect_encoded( $_GET['redirect_to'] ) ) {
@@ -6158,7 +6152,7 @@ endif;
 			// We have to reuse this nonce at least once (used the first time when the initial request is made, used a second time when the login form is POSTed)
 			$old_nonce_time = get_option( "jetpack_nonce_{$timestamp}_{$nonce}" );
 			if ( $old_nonce_time < time() - 300 ) {
-				wp_die( __( 'The authorization process expired.  Please go back and try again.', 'jetpack' ) );
+				wp_die( esc_html__( 'The authorization process expired. Please go back and try again.', 'jetpack' ) );
 			}
 		}
 
@@ -6198,7 +6192,8 @@ endif;
 
 	function login_message_json_api_authorization( $message ) {
 		return '<p class="message">' . sprintf(
-			esc_html__( '%s wants to access your site&#8217;s data.  Log in to authorize that access.', 'jetpack' ),
+			/* translators: Name/image of the client requesting authorization */
+			esc_html__( '%s wants to access your site’s data. Log in to authorize that access.', 'jetpack' ),
 			'<strong>' . esc_html( $this->json_api_authorization_request['client_title'] ) . '</strong>'
 		) . '<img src="' . esc_url( $this->json_api_authorization_request['client_image'] ) . '" /></p>';
 	}

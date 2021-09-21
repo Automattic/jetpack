@@ -218,7 +218,7 @@ abstract class Base_Admin_Menu {
 				isset( $submenu_item[1] ) ? $submenu_item[1] : 'read',
 				$submenus_to_update[ $submenu_item[2] ],
 				'',
-				$i
+				0 === $i ? 0 : $i + 1
 			);
 		}
 	}

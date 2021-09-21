@@ -5,11 +5,7 @@
 	import ScoreBar from '../elements/ScoreBar.svelte';
 	import ScoreContext from '../elements/ScoreContext.svelte';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
-	import {
-		getScoreLetter,
-		clearCache,
-		requestSpeedScores,
-	} from '../../../api/speed-scores';
+	import { getScoreLetter, clearCache, requestSpeedScores } from '../../../api/speed-scores';
 	import { __ } from '@wordpress/i18n';
 
 	const siteIsOnline = Jetpack_Boost.site.online;
@@ -89,10 +85,7 @@
 			<ErrorNotice
 				title={__( 'Failed to load Speed Scores', 'jetpack-boost' )}
 				error={loadError}
-				suggestion={__(
-					'<action name="retry">Try again</action>',
-					'jetpack-boost'
-				)}
+				suggestion={__( '<action name="retry">Try again</action>', 'jetpack-boost' )}
 				on:retry={() => refreshScore( true )}
 			/>
 		{/if}
@@ -102,11 +95,7 @@
 				<MobileIcon />
 				<div>{__( 'Mobile score', 'jetpack-boost' )}</div>
 			</div>
-			<ScoreBar
-				bind:score={scores.mobile}
-				active={siteIsOnline}
-				{isLoading}
-			/>
+			<ScoreBar bind:score={scores.mobile} active={siteIsOnline} {isLoading} />
 		</div>
 
 		<div class="jb-score-bar jb-score-bar--desktop">
@@ -114,11 +103,7 @@
 				<ComputerIcon />
 				<div>{__( 'Desktop score', 'jetpack-boost' )}</div>
 			</div>
-			<ScoreBar
-				bind:score={scores.desktop}
-				active={siteIsOnline}
-				{isLoading}
-			/>
+			<ScoreBar bind:score={scores.desktop} active={siteIsOnline} {isLoading} />
 		</div>
 	</div>
 </div>

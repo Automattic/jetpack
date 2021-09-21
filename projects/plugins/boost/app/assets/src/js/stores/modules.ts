@@ -20,16 +20,13 @@ const { subscribe, update } = writable< ModulesState >( initialState );
 
 // Keep a subscribed copy for quick reading.
 let currentState: ModulesState;
-subscribe( ( value ) => ( currentState = value ) );
+subscribe( value => ( currentState = value ) );
 
 export function isEnabled( slug: string ): boolean {
 	return currentState[ slug ] && currentState[ slug ].enabled;
 }
 
-export async function updateModuleState(
-	slug: string,
-	state: boolean
-): Promise< boolean > {
+export async function updateModuleState( slug: string, state: boolean ): Promise< boolean > {
 	const originalState = isEnabled( slug );
 	let finalState = state;
 
@@ -50,7 +47,7 @@ export async function updateModuleState(
 }
 
 function setEnabled( slug: string, enabled: boolean ) {
-	update( ( state ) => ( {
+	update( state => ( {
 		...state,
 		[ slug ]: {
 			...state[ slug ],

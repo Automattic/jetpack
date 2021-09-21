@@ -1,0 +1,42 @@
+@import '../../lib/base-styles';
+
+.jp-search-configure-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	height: $header-height;
+	padding: 0 $grid-unit-20;
+	overflow: auto;
+
+	@include break-small {
+		overflow: visible;
+	}
+}
+
+.jp-search-configure-header__navigable-toolbar-wrapper {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.jp-search-configure-header__title {
+	font-size: 20px;
+	padding: 0;
+	margin: 0 20px 0 0;
+}
+
+.jp-search-configure-header__actions {
+	display: flex;
+
+	.components-button {
+		margin-right: $grid-unit-05;
+
+		@include break-small() {
+			margin-right: $grid-unit-15;
+		}
+	}
+
+	.interface-pinned-items .components-button {
+		margin-right: 0;
+	}
+}

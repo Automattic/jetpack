@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Status;
+
 /**
  * Requires files needed.
  */
@@ -42,7 +44,7 @@ class Jetpack_Search_Dashboard_Page extends Jetpack_Admin_Page {
 		return add_submenu_page(
 			'jetpack',
 			__( 'Search Settings', 'jetpack' ),
-			__( 'Search', 'jetpack' ),
+			_x( 'Search', 'product name shown in menu', 'jetpack' ),
 			'manage_options',
 			'jetpack-search',
 			array( $this, 'render' ),
@@ -82,9 +84,7 @@ class Jetpack_Search_Dashboard_Page extends Jetpack_Admin_Page {
 	 * @return {boolean} Show search sub menu or not.
 	 */
 	protected function should_add_sub_menu() {
-		// TODO: temporary flag for testing. Will be removed on the last PR merge.
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		return Jetpack_Plan::supports( 'search' ) && array_key_exists( 'a8ctest', $_GET );
+		return method_exists( 'Jetpack_Plan', 'supports' ) && Jetpack_Plan::supports( 'search' );
 	}
 
 	/**
@@ -122,6 +122,11 @@ class Jetpack_Search_Dashboard_Page extends Jetpack_Admin_Page {
 			$script_dependencies = $asset_manifest['dependencies'];
 		}
 
+		if ( ! ( new Status() )->is_offline_mode() && Jetpack::is_connection_ready() ) {
+			// Required for Analytics.
+			Automattic\Jetpack\Tracking::register_tracks_functions_scripts( true );
+		}
+
 		wp_enqueue_script(
 			'jp-search-dashboard',
 			plugins_url( '_inc/build/search-dashboard.js', JETPACK__PLUGIN_FILE ),
@@ -137,5 +142,7 @@ class Jetpack_Search_Dashboard_Page extends Jetpack_Admin_Page {
 			'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( \Jetpack_Redux_State_Helper::get_initial_state() ) ) . '"));',
 			'before'
 		);
+
+		wp_set_script_translations( 'jp-search-dashboard', 'jetpack' );
 	}
 }

@@ -14,6 +14,15 @@ import PATH from 'path-name';
 import { chalkJetpackGreen } from '../helpers/styling';
 
 /**
+ * Show us the status of the cli, such as the currenet linked directory.
+ */
+function cliStatus() {
+	console.log(
+		chalkJetpackGreen( 'Jetpack CLI is currently linked to ' + path.join( __dirname, `../../../` ) )
+	);
+	console.log( 'To change the linked directory of the CLI, run `pnpm cli-setup` ' );
+}
+/**
  * CLI link.
  *
  * @param {object} options - The argv options.
@@ -109,6 +118,17 @@ export function cliDefine( yargs ) {
 				() => {},
 				argv => {
 					cliUnlink( argv );
+					if ( argv.v ) {
+						console.log( argv );
+					}
+				}
+			)
+			.command(
+				'status',
+				'Get the status of the CLI',
+				() => {},
+				argv => {
+					cliStatus( argv );
 					if ( argv.v ) {
 						console.log( argv );
 					}

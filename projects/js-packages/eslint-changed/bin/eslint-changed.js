@@ -8,7 +8,7 @@ const fs = require( 'fs' );
 const path = require( 'path' );
 const chalk = require( 'chalk' );
 
-const APP_VERSION = '1.0.1-alpha';
+const APP_VERSION = '1.0.2-alpha';
 
 const { program } = require( 'commander' );
 program

@@ -7,7 +7,7 @@
 		"composer-plugin-api": "^1.1 || ^2.0"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "0.2.0",
+		"yoast/phpunit-polyfills": "1.0.1",
 		"automattic/jetpack-changelogger": "^1.2"
 	},
 	"autoload": {
@@ -20,7 +20,6 @@
 	},
 	"scripts": {
 		"phpunit": [
-			"@composer update",
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
 		"test-coverage": [
@@ -29,6 +28,7 @@
 			"php ./tests/php/bin/test-coverage.php \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
+			"@composer update",
 			"@composer phpunit"
 		]
 	},

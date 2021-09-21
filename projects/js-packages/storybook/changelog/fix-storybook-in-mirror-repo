@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+GH only allows pages to be in `/` or `/docs`, so build to `/docs`.

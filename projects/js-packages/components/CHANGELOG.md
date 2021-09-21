@@ -2,6 +2,24 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.3.0 - 2021-08-31
+### Added
+- Added stories files for storybook
+- Add the Spinner component.
+
+### Changed
+- Use Node 16.7.0 in tooling.
+
+### Fixed
+- Added accessibility label and fixed footer style per design.
+
+## 0.2.1 - 2021-08-12
+### Changed
+- Updated package dependencies
+
+### Fixed
+- JetpackFooter: add default a8cLogoHref prop value
+
 ## 0.2.0 - 2021-07-27
 ### Added
 - Added Jetpack Footer and `An Automattic Airline` SVG components.

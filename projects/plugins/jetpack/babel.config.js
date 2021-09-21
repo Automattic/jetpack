@@ -53,6 +53,14 @@ const config = {
 				),
 			],
 		},
+		{
+			test: './modules/search/customberg',
+			presets: [
+				presetOverrideBabelPluginTransformRuntimeAbsoluteRuntime(
+					'./modules/search/customberg/babel.config.js'
+				),
+			],
+		},
 	],
 	env: {
 		test: {

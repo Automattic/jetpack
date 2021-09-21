@@ -14,7 +14,8 @@ export async function loadCriticalCssLibrary(): Promise< void > {
 	}
 
 	loadLibraryPromise = new Promise< void >( ( resolve, reject ) => {
-		const scriptUrl = Jetpack_Boost.site.assetPath + '/critical-css-gen.js';
+		const scriptUrl =
+			Jetpack_Boost.site.assetPath + '/critical-css-gen.js?ver=' + Jetpack_Boost.version;
 		const scriptTag = document.createElement( 'script' );
 		scriptTag.src = scriptUrl;
 
@@ -23,10 +24,7 @@ export async function loadCriticalCssLibrary(): Promise< void > {
 				new Error(
 					sprintf(
 						/* translators: %s refers to Critical CSS Gen library script url. */
-						__(
-							'Failed to load Critical CSS library at %s',
-							'jetpack-boost'
-						),
+						__( 'Failed to load Critical CSS library at %s', 'jetpack-boost' ),
 						scriptUrl
 					)
 				)
@@ -37,10 +35,7 @@ export async function loadCriticalCssLibrary(): Promise< void > {
 				new Error(
 					sprintf(
 						/* translators: %s refers to Critical CSS Gen library script url. */
-						__(
-							'Timeout while loading Critical CSS library at %s',
-							'jetpack-boost'
-						),
+						__( 'Timeout while loading Critical CSS library at %s', 'jetpack-boost' ),
 						scriptUrl
 					)
 				)

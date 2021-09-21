@@ -73,6 +73,36 @@ function JetpackRestApiClient( root, nonce ) {
 			cacheBusterCallback = callback;
 		},
 
+		registerSite: ( registrationNonce, redirectUri ) => {
+			const params = {
+				registration_nonce: registrationNonce,
+				no_iframe: true,
+			};
+
+			if ( null !== redirectUri ) {
+				params.redirect_uri = redirectUri;
+			}
+
+			return postRequest( `${ apiRoot }jetpack/v4/connection/register`, postParams, {
+				body: JSON.stringify( params ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse );
+		},
+
+		fetchAuthorizationUrl: redirectUri =>
+			getRequest(
+				`${ apiRoot }jetpack/v4/connection/authorize_url?no_iframe=1&redirect_uri=${ encodeURIComponent(
+					redirectUri
+				) }`,
+				getParams
+			)
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		fetchSiteConnectionData: () =>
+			getRequest( `${ apiRoot }jetpack/v4/connection/data`, getParams ).then( parseJsonResponse ),
+
 		fetchSiteConnectionStatus: () =>
 			getRequest( `${ apiRoot }jetpack/v4/connection`, getParams ).then( parseJsonResponse ),
 
@@ -287,6 +317,11 @@ function JetpackRestApiClient( root, nonce ) {
 
 		fetchRecommendationsData: () =>
 			getRequest( `${ apiRoot }jetpack/v4/recommendations/data`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		fetchRecommendationsProductSuggestions: () =>
+			getRequest( `${ apiRoot }jetpack/v4/recommendations/product-suggestions`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 

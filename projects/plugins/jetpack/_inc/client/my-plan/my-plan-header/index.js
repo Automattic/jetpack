@@ -116,8 +116,8 @@ class MyPlanHeader extends React.Component {
 					title: __( 'Jetpack Professional', 'jetpack' ),
 				};
 
-			case 'is-security-plan':
-			case 'is-security-pro-plan':
+			case 'is-security-t1-plan':
+			case 'is-security-t2-plan':
 				return {
 					...productProps,
 					details: expiration,
@@ -136,7 +136,7 @@ class MyPlanHeader extends React.Component {
 					title: __( 'Jetpack Complete', 'jetpack' ),
 				};
 
-			case 'is-backup-plan':
+			case 'is-backup-t1-plan':
 				return {
 					...productProps,
 					details: expiration,
@@ -151,7 +151,7 @@ class MyPlanHeader extends React.Component {
 					title: __( 'Jetpack Backup', 'jetpack' ),
 				};
 
-			case 'is-backup-pro-plan':
+			case 'is-backup-t2-plan':
 				return {
 					...productProps,
 					details: expiration,
@@ -198,7 +198,7 @@ class MyPlanHeader extends React.Component {
 					title: __( 'Jetpack Anti-Spam', 'jetpack' ),
 				};
 
-			// DEPRECATED: Daily and Real-time variations are no longer sold.
+			// DEPRECATED: Daily and Real-time variations will soon be retired.
 			// Remove after all customers are migrated to new products.
 			case 'is-daily-security-plan':
 				return {

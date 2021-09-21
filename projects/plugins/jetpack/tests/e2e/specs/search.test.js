@@ -1,8 +1,3 @@
-/**
- * Internal dependencies
- */
-import { syncJetpackPlanData } from '../lib/flows/jetpack-connect';
-import { activateModule } from '../lib/utils-helper';
 import Homepage from '../lib/pages/search-homepage';
 import {
 	enableInstantSearch,
@@ -10,11 +5,12 @@ import {
 	setupSidebarsWidgets,
 	setupSearchWidget,
 	disableInstantSearch,
-	disableSearchModule,
 	getBlockWidgets,
 	setupBlockWidgets,
 } from '../lib/search-helper';
 import { testStep } from '../lib/reporters/reporter';
+import { prerequisitesBuilder } from '../lib/env/prerequisites';
+import { Plans } from '../lib/env/types';
 
 /**
  *
@@ -27,10 +23,15 @@ describe( 'Search', () => {
 	let backupBlockWidgets;
 
 	beforeAll( async () => {
+		await prerequisitesBuilder()
+			.withLoggedIn( true )
+			.withConnection( true )
+			.withPlan( Plans.Complete )
+			.withActiveModules( [ 'search' ] )
+			.build();
+
 		backupSidebarsWidgets = await getSidebarsWidgets();
 		backupBlockWidgets = await getBlockWidgets();
-		await syncJetpackPlanData( 'complete' );
-		await activateModule( page, 'search' );
 		await enableInstantSearch();
 		await setupSidebarsWidgets();
 		await setupSearchWidget();
@@ -40,7 +41,6 @@ describe( 'Search', () => {
 	afterAll( async () => {
 		await setupSidebarsWidgets( backupSidebarsWidgets );
 		await setupBlockWidgets( backupBlockWidgets );
-		await disableSearchModule();
 		await disableInstantSearch();
 	} );
 

@@ -3,9 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 
-type Resolve< ReturnType = void > = (
-	value: ReturnType | PromiseLike< ReturnType >
-) => void;
+type Resolve< ReturnType = void > = ( value: ReturnType | PromiseLike< ReturnType > ) => void;
 
 type PollPromiseArgs< ReturnType = void > = {
 	interval: number;
@@ -39,9 +37,7 @@ export default async function pollPromise< ReturnType = void >( {
 
 	return new Promise< ReturnType >( ( resolve, reject ) => {
 		timeoutHandle = setTimeout( () => {
-			reject(
-				new Error( timeoutError || __( 'Timed out', 'jetpack-boost' ) )
-			);
+			reject( new Error( timeoutError || __( 'Timed out', 'jetpack-boost' ) ) );
 		}, timeout || 2 * 60 * 1000 );
 
 		intervalHandle = setInterval( async () => {

@@ -4,18 +4,18 @@
  */
 
 /**
+ * External dependencies
+ */
+import { __, sprintf } from '@wordpress/i18n';
+
+/**
  * Internal dependencies
  */
 import { ApiError } from './api-error';
 import type { JSONObject } from '../utils/json-types';
 
 function getEndpointUrl( path: string ): string {
-	return (
-		wpApiSettings.root +
-		Jetpack_Boost.api.namespace +
-		Jetpack_Boost.api.prefix +
-		path
-	);
+	return wpApiSettings.root + Jetpack_Boost.api.namespace + Jetpack_Boost.api.prefix + path;
 }
 
 async function sendRequest(
@@ -36,7 +36,36 @@ async function sendRequest(
 		args.headers[ 'Content-Type' ] = 'application/json';
 	}
 
-	return fetch( getEndpointUrl( path ), args );
+	const endpointFullUrl = getEndpointUrl( path );
+	let apiCall;
+
+	try {
+		apiCall = await fetch( endpointFullUrl, args );
+	} catch ( error ) {
+		const cleanupArgs = args;
+		delete cleanupArgs.body;
+		delete cleanupArgs.headers[ 'X-WP-Nonce' ];
+		const errorInfo = {
+			requestInitiator: window.location.href,
+			requestUrl: endpointFullUrl,
+			requestArgs: cleanupArgs,
+			originalErrorMessage: error.toString(),
+		};
+
+		// Throwing again an error so it can be caught higher up and displayed in the UI.
+		throw new Error(
+			sprintf(
+				/* Translators: %s refers to a string representation of an error object containing useful debug information  */
+				__(
+					'An error occurred while trying to communicate with the site REST API. Extra debug info: %s',
+					'jetpack-boost'
+				),
+				JSON.stringify( errorInfo )
+			)
+		);
+	}
+
+	return apiCall;
 }
 
 async function makeRequest< T = JSONObject >(
@@ -74,18 +103,12 @@ function get< T = JSONObject >( path: string ): Promise< T > {
 	return makeRequest< T >( 'get', path );
 }
 
-function post< T = JSONObject >(
-	path: string,
-	body: JSONObject | null = null
-): Promise< T > {
+function post< T = JSONObject >( path: string, body: JSONObject | null = null ): Promise< T > {
 	return makeRequest< T >( 'post', path, body );
 }
 
 // reserved word, can't use delete directly
-function doDelete< T = JSONObject >(
-	path: string,
-	body: JSONObject | null = null
-): Promise< T > {
+function doDelete< T = JSONObject >( path: string, body: JSONObject | null = null ): Promise< T > {
 	return makeRequest< T >( 'delete', path, body );
 }
 

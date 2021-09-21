@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Remove Custom CSS placeholder text to stay in sync with wpcom. The placeholder was only displaying on Simple Sites.

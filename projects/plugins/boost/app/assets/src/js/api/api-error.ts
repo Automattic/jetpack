@@ -50,10 +50,7 @@ export class ApiError extends Error {
 
 		return sprintf(
 			/* Translators: %d refers to numeric HTTP error code */
-			__(
-				'HTTP %d error received while communicating with the server.',
-				'jetpack-boost'
-			),
+			__( 'HTTP %d error received while communicating with the server.', 'jetpack-boost' ),
 			this.httpCode
 		);
 	}

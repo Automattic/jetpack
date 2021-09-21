@@ -8,10 +8,7 @@ import { derived, writable } from 'svelte/store';
  * Internal dependencies
  */
 import type { JSONObject } from '../utils/json-types';
-import type {
-	ProviderKeyUrls,
-	ProvidersSuccessRatio,
-} from '../utils/generate-critical-css';
+import type { ProviderKeyUrls, ProvidersSuccessRatio } from '../utils/generate-critical-css';
 import type { Viewport } from '../utils/types';
 
 export type CriticalCssErrorDetails = {
@@ -59,7 +56,7 @@ const { subscribe, update } = writable< CriticalCssStatus >( initialState );
  * Derived datastore: contains the number of provider keys which failed in the
  * latest Critical CSS generation run.
  */
-export const failedProviderKeyCount = derived( { subscribe }, ( state ) =>
+export const failedProviderKeyCount = derived( { subscribe }, state =>
 	state.providers_errors ? Object.keys( state.providers_errors ).length : 0
 );
 
@@ -67,7 +64,7 @@ export const failedProviderKeyCount = derived( { subscribe }, ( state ) =>
  * Derived datastore: Returns true if the Critical CSS status indicates the process
  * is complete - i.e.: is success or fail.
  */
-export const isFinished = derived( { subscribe }, ( state ) =>
+export const isFinished = derived( { subscribe }, state =>
 	[ success, fail ].includes( state.status )
 );
 
@@ -105,7 +102,7 @@ async function callCriticalCssEndpoint(
 		);
 	}
 
-	update( ( state ) => ( {
+	update( state => ( {
 		...state,
 		...response.status_update,
 	} ) );
@@ -119,11 +116,8 @@ async function callCriticalCssEndpoint(
  * @param {boolean} generating True if generation process is running.
  * @param {number}  progress   Progress expressed as a %.
  */
-export function updateGenerateStatus(
-	generating: boolean,
-	progress: number
-): void {
-	return update( ( state ) => ( {
+export function updateGenerateStatus( generating: boolean, progress: number ): void {
+	return update( state => ( {
 		...state,
 		generating,
 		progress,
@@ -141,7 +135,7 @@ export async function requestGeneration(
 	reset: boolean,
 	isShowstopperRetry: boolean
 ): Promise< CriticalCssStatus | false > {
-	update( ( state ) => ( {
+	update( state => ( {
 		...state,
 		retriedShowstopper: isShowstopperRetry,
 	} ) );
@@ -156,15 +150,11 @@ export async function sendGenerationResult(
 	endpoint: string,
 	body: JSONObject
 ): Promise< CriticalCssStatus | false > {
-	return callCriticalCssEndpoint(
-		'post',
-		`/critical-css/${ providerKey }/${ endpoint }`,
-		body
-	);
+	return callCriticalCssEndpoint( 'post', `/critical-css/${ providerKey }/${ endpoint }`, body );
 }
 
 export function storeGenerateError( error: Error ): void {
-	update( ( oldState ) => ( {
+	update( oldState => ( {
 		...oldState,
 		status: 'error',
 		status_error: error,

@@ -131,7 +131,8 @@ class Tokens {
 		 * Filter the URL of the first time the user gets redirected back to your site for connection
 		 * data processing.
 		 *
-		 * @since 8.0.0
+		 * @since 1.7.0
+		 * @since-jetpack 8.0.0
 		 *
 		 * @param string $redirect_url Defaults to the site admin URL.
 		 */
@@ -143,7 +144,8 @@ class Tokens {
 		* Filter the URL to redirect the user back to when the authentication process
 		* is complete.
 		*
-		* @since 8.0.0
+		* @since 1.7.0
+		* @since-jetpack 8.0.0
 		*
 		* @param string $redirect_url Defaults to the site URL.
 		*/
@@ -164,7 +166,8 @@ class Tokens {
 		/**
 		 * Filters the token request data.
 		 *
-		 * @since 8.0.0
+		 * @since 1.7.0
+		 * @since-jetpack 8.0.0
 		 *
 		 * @param array $request_data request data.
 		 */
@@ -498,7 +501,7 @@ class Tokens {
 	 * Returns an array of user_id's that have user tokens for communicating with wpcom.
 	 * Able to select by specific capability.
 	 *
-	 * @deprecated 9.9.1
+	 * @deprecated 1.30.0
 	 * @see Manager::get_connected_users
 	 *
 	 * @param string   $capability The capability of the user.
@@ -506,7 +509,7 @@ class Tokens {
 	 * @return array Array of WP_User objects if found.
 	 */
 	public function get_connected_users( $capability = 'any', $limit = null ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.9.1' );
+		_deprecated_function( __METHOD__, '1.30.0' );
 		return ( new Manager( 'jetpack' ) )->get_connected_users( $capability, $limit );
 	}
 
@@ -568,7 +571,7 @@ class Tokens {
 	/**
 	 * Gets the list of user tokens
 	 *
-	 * @since 9.9.1
+	 * @since 1.30.0
 	 *
 	 * @return bool|array An array of user tokens where keys are user IDs and values are the tokens. False if no user token is found.
 	 */
@@ -579,7 +582,7 @@ class Tokens {
 	/**
 	 * Updates the option that stores the user tokens
 	 *
-	 * @since 9.9.1
+	 * @since 1.30.0
 	 *
 	 * @param array $tokens An array of user tokens where keys are user IDs and values are the tokens.
 	 * @return bool Was the option successfully updated?

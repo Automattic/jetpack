@@ -18,7 +18,9 @@ export default class BlockEditorPage extends WpPage {
 	}
 
 	get searchBlockFldSel() {
-		return '.block-editor-inserter__search-input';
+		// There are 2 classes here because the class changed in Gutenberg 11.2 but is not yet in the WP bundled version.
+		//TODO: to remove .block-editor-inserter__search-input once WP will include GB version 11.2
+		return '.components-search-control__input,.block-editor-inserter__search-input';
 	}
 
 	blockSel( blockName ) {
@@ -70,7 +72,7 @@ export default class BlockEditorPage extends WpPage {
 		await testStep( `Search for block: ${ searchTerm }`, async () => {
 			logger.step( `Search block: '${ searchTerm }'` );
 			await this.click( this.insertBlockBtnSel );
-			await this.type( this.searchBlockFldSel, searchTerm );
+			await this.fill( this.searchBlockFldSel, searchTerm );
 		} );
 	}
 
@@ -78,7 +80,7 @@ export default class BlockEditorPage extends WpPage {
 		await this.searchForBlock( blockTitle );
 
 		await testStep( `Insert block with name: ${ blockName }`, async () => {
-			logger.step( `Insert block {name: ${ blockName }, title: ${ blockTitle }` );
+			logger.step( `Insert block { name: ${ blockName }, title: ${ blockTitle } }` );
 			await this.click( this.blockSel( blockName ) );
 		} );
 		return await this.getInsertedBlock( blockName );
@@ -90,10 +92,20 @@ export default class BlockEditorPage extends WpPage {
 		 ).getAttribute( 'data-block' );
 	}
 
+	async setTitle( title ) {
+		await this.selectPostTitle();
+		await this.fill( this.postTitleFldSel, title );
+	}
+
 	async publishPost() {
 		await testStep( `Publish post`, async () => {
 			logger.step( `Publish post` );
+			await this.click( '.editor-post-save-draft' );
+			await this.waitForElementToBeVisible( '.editor-post-saved-state.is-saved' );
 			await this.click( this.publishPanelToggleBtnSel );
+			// Wait for animation :shrug:
+			await page.waitForTimeout( 100 );
+
 			await this.click( this.publishPostBtnSel );
 			await this.waitForElementToBeVisible( this.postPublishViewPostBtnSel );
 		} );

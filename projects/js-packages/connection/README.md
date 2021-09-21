@@ -13,9 +13,11 @@ The component implements the connection screen page, and loads the `ConnectButto
 - *redirectUrl* - string, wp-admin URI to redirect a user to after Calypso connection flow.
 - *from* - string, custom string parameter to identify where the request is coming from.
 - *title* - string, page title.
+- *buttonLabel* - string, the "Connect" button label.
 - *statusCallback* - callback to pull connection status from the component.
 - *images* - array, images to display on the right side of the connection screen.
 - *assetBaseUrl* - string, path to the `/build` directory of the package consumer.
+- *autoTrigger* - Whether to initiate the connection process automatically upon rendering the component.
 
 ### Usage
 ```jsx
@@ -55,6 +57,9 @@ The component displays the connection button and handles the connection process,
 - *from* - string, custom string parameter to identify where the request is coming from.
 - *redirectUrl* - string, wp-admin URI to redirect a user to after Calypso connection flow.
 - *statusCallback* - callback to pull connection status from the component.
+- *connectionStatus* - object, the connection status info.
+- *connectionStatusIsFetching* - boolean, whether the connection status is being fetched at the moment.
+- *autoTrigger* - Whether to initiate the connection process automatically upon rendering the component.
 
 ### Basic Usage
 ```jsx
@@ -71,7 +76,34 @@ const onUserConnected = useCallback( () => alert( 'User Connected' ) );
 	onRegistered={ onRegistered }
 	from="connection-ui"
 	redirectUri="tools.php?page=wpcom-connection-manager"
+	connectionStatus={ connectionStatus }
+	connectionStatusIsFetching={ isFetching }
 />
+```
+
+### Higher-Order Component `withConnectionStatus`
+This HOC automatically fetches connection status via API, and passes it as a property to the component of your choosing.
+With this, you'll be able to skip the `connectionStatus` and `connectionStatusIsFetching` parameters.
+The `withConnectionStatus` HOC will pass them automatically.
+
+Here's an example:
+
+```jsx
+import ConnectButton from '../connect-button';
+import withConnectionStatus from '../with-connection-status';
+
+const ConnectButtonWithConnectionStatus = withConnectionStatus( ConnectButton );
+
+const SampleComponent = props => {
+    return <ConnectButtonWithConnectionStatus
+		apiRoot="https://example.org/wp-json/"
+		apiNonce="12345"
+		registrationNonce="54321"
+		from="connection-ui"
+	/>;
+};
+
+export default SampleComponent;
 ```
 
 ### Advanced Connection Status Handling
@@ -83,24 +115,31 @@ To do that, you should pass a custom callback function into the `JetpackConnecti
 ```jsx
 import React, { useState, useCallback } from 'react';
 import { ConnectButton } from '@automattic/jetpack-connection';
+import withConnectionStatus from '../with-connection-status';
 
-const [ connectionStatus, setConnectionStatus ] = useState( {} );
+const ConnectButtonWithConnectionStatus = withConnectionStatus( ConnectButton );
 
-const statusCallback = useCallback(
-		status => {
-			setConnectionStatus( status );
-		},
-		[ setConnectionStatus ]
-);
+const SampleComponent = props => {
+    const [ connectionStatus, setConnectionStatus ] = useState( {} );
 
-<ConnectButton
-	apiRoot="https://example.org/wp-json/" 
-	apiNonce="12345"
-	registrationNonce="54321"
-	from="connection-ui"
-	redirectUri="tools.php?page=wpcom-connection-manager"
-	statusCallback={ statusCallback }
-/>
+    const statusCallback = useCallback(
+        status => {
+            setConnectionStatus( status );
+        },
+        [setConnectionStatus]
+    );
+
+    return <ConnectButtonWithConnectionStatus
+        apiRoot="https://example.org/wp-json/"
+        apiNonce="12345"
+        registrationNonce="54321"
+        from="connection-ui"
+        redirectUri="tools.php?page=wpcom-connection-manager"
+        statusCallback={statusCallback}
+    />;
+};
+
+export default SampleComponent;
 ```
 
 ## Component `ConnectUser`
@@ -111,8 +150,8 @@ or renders the `InPlaceConnection` component.
 
 ### Properties
 
-- *connectUrl* - string (required), the authorization URL (the no-iframe version, will be adjusted for In-Place flow automatically).
-- *redirectUrl* - string, wp-admin URI to redirect a user to after Calypso connection flow.
+- *connectUrl* - string, the authorization URL (the no-iframe version). Fetched automatically if omitted.
+- *redirectUrl* - string, wp-admin URI to redirect a user to after Calypso connection flow. May be omitted if `connectUrl` is provided.
 - *from* - string, indicates where the connection request is coming from.
 - *redirectFunc* - function, the redirect function (`window.location.assign()` by default).
 

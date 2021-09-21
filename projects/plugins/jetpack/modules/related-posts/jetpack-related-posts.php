@@ -235,10 +235,6 @@ class Jetpack_RelatedPosts {
 			return '';
 		}
 
-		// For client-side rendering, enqueue both the styles and the scripts for fetching related posts.
-		// This supports related posts added via the shortcode, or via the hook for non-AMP requests.
-		$this->_enqueue_assets( true, true );
-
 		/**
 		 * Filter the Related Posts headline.
 		 *
@@ -367,10 +363,6 @@ EOT;
 	 * @return string
 	 */
 	public function render_block( $attributes ) {
-		// Enqueue styles for Related Posts. We do not need to enqueue the scripts, as the related posts are
-		// fetched server-side.
-		$this->_enqueue_assets( false, true );
-
 		$block_attributes = array(
 			'headline'        => isset( $attributes['headline'] ) ? $attributes['headline'] : null,
 			'show_thumbnails' => isset( $attributes['displayThumbnails'] ) && $attributes['displayThumbnails'],
@@ -1148,7 +1140,7 @@ EOT;
 			foreach ( array_merge( $with_post_thumbnails, $no_post_thumbnails ) as $index => $real_post ) {
 				$related_posts[ $index ]['id']      = $real_post->ID;
 				$related_posts[ $index ]['url']     = esc_url( get_permalink( $real_post ) );
-				$related_posts[ $index ]['title']   = $this->_to_utf8( $this->_get_title( $real_post->post_title, $real_post->post_content ) );
+				$related_posts[ $index ]['title']   = $this->_to_utf8( $this->get_title( $real_post->post_title, $real_post->post_content, $real_post->ID ) );
 				$related_posts[ $index ]['date']    = get_the_date( '', $real_post );
 				$related_posts[ $index ]['excerpt'] = html_entity_decode( $this->_to_utf8( $this->_get_excerpt( $real_post->post_excerpt, $real_post->post_content ) ), ENT_QUOTES, 'UTF-8' );
 				$related_posts[ $index ]['img']     = $this->_generate_related_post_image_params( $real_post->ID );
@@ -1194,13 +1186,16 @@ EOT;
 		$post = get_post( $post_id );
 
 		return array(
-			'id' => $post->ID,
-			'url' => get_permalink( $post->ID ),
-			'url_meta' => array( 'origin' => $origin, 'position' => $position ),
-			'title' => $this->_to_utf8( $this->_get_title( $post->post_title, $post->post_content ) ),
-			'date' => get_the_date( '', $post->ID ),
-			'format' => get_post_format( $post->ID ),
-			'excerpt' => html_entity_decode( $this->_to_utf8( $this->_get_excerpt( $post->post_excerpt, $post->post_content ) ), ENT_QUOTES, 'UTF-8' ),
+			'id'       => $post->ID,
+			'url'      => get_permalink( $post->ID ),
+			'url_meta' => array(
+				'origin'   => $origin,
+				'position' => $position,
+			),
+			'title'    => $this->_to_utf8( $this->get_title( $post->post_title, $post->post_content, $post->ID ) ),
+			'date'     => get_the_date( '', $post->ID ),
+			'format'   => get_post_format( $post->ID ),
+			'excerpt'  => html_entity_decode( $this->_to_utf8( $this->_get_excerpt( $post->post_excerpt, $post->post_content ) ), ENT_QUOTES, 'UTF-8' ),
 			/**
 			 * Filters the rel attribute for the Related Posts' links.
 			 *
@@ -1250,14 +1245,20 @@ EOT;
 	/**
 	 * Returns either the title or a small excerpt to use as title for post.
 	 *
-	 * @param string $post_title
-	 * @param string $post_content
-	 * @uses strip_shortcodes, wp_trim_words, __
+	 * @uses strip_shortcodes, wp_trim_words, __, apply_filters
+	 *
+	 * @param string $post_title   Post title.
+	 * @param string $post_content Post content.
+	 * @param int    $post_id Post ID.
+	 *
 	 * @return string
 	 */
-	protected function _get_title( $post_title, $post_content ) {
+	protected function get_title( $post_title, $post_content, $post_id ) {
 		if ( ! empty( $post_title ) ) {
-			return wp_strip_all_tags( $post_title );
+			return wp_strip_all_tags(
+				/** This filter is documented in core/src/wp-includes/post-template.php */
+				apply_filters( 'the_title', $post_title, $post_id )
+			);
 		}
 
 		$post_title = wp_trim_words( wp_strip_all_tags( strip_shortcodes( $post_content ) ), 5, '…' );
@@ -1649,9 +1650,23 @@ EOT;
 	 * @return null
 	 */
 	protected function _action_frontend_init_page() {
+		$this->_enqueue_assets( true, true );
 		$this->_setup_shortcode();
 
 		add_filter( 'the_content', array( $this, 'filter_add_target_to_dom' ), 40 );
+	}
+
+	/**
+	 * Determines if the scripts need be enqueued.
+	 *
+	 * @return bool
+	 */
+	protected function requires_scripts() {
+		return (
+			! ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) &&
+			! has_block( 'jetpack/related-posts' ) &&
+			! Blocks::is_fse_theme()
+		);
 	}
 
 	/**
@@ -1662,7 +1677,8 @@ EOT;
 	 */
 	protected function _enqueue_assets( $script, $style ) {
 		$dependencies = is_customize_preview() ? array( 'customize-base' ) : array();
-		if ( $script ) {
+		// Do not enqueue scripts unless they are required.
+		if ( $script && $this->requires_scripts() ) {
 			wp_enqueue_script(
 				'jetpack_related-posts',
 				Assets::get_file_url_for_environment(

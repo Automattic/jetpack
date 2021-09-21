@@ -26,10 +26,7 @@
 	<div class="jb-connection">
 		<div class="jb-connection__header">
 			<h1 class="jb-connection__title">
-				{__(
-					'Get faster loading times with Jetpack Boost',
-					'jetpack-boost'
-				)}
+				{__( 'Get faster loading times with Jetpack Boost', 'jetpack-boost' )}
 			</h1>
 			<p class="jb-connection__description">
 				{__(
@@ -50,10 +47,7 @@
 
 		{#if $connection.error}
 			<ErrorNotice
-				title={__(
-					'Failed to connect to WordPress.com',
-					'jetpack-boost'
-				)}
+				title={__( 'Failed to connect to WordPress.com', 'jetpack-boost' )}
 				suggestion={__(
 					'If you need further assistance, contact <support>Jetpack Boost Support</support>.',
 					'jetpack-boost'
@@ -86,9 +80,7 @@
 					)}
 					vars={{
 						...externalLinkTemplateVar(
-							jetpackURL(
-								'https://jetpack.com/redirect/?source=wpcom-tos'
-							),
+							jetpackURL( 'https://jetpack.com/redirect/?source=wpcom-tos' ),
 							'tosLink'
 						),
 						...externalLinkTemplateVar(
