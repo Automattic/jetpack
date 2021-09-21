@@ -24,6 +24,7 @@ services:
   db-upgrade:
     image: mariadb:latest
     volumes:
+      - ./logs/${COMPOSE_PROJECT_NAME}/mysql:/var/log/mysql
       - ./config/mysql.conf:/etc/mysql/conf.d/docker.cnf
       - ./bin:/var/scripts
     links:
