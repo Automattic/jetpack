@@ -5,7 +5,6 @@ import { get, isEqual } from 'lodash';
 import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import createSelector from 'rememo';
-import { store as editorStore } from '@wordpress/editor';
 
 /**
  * Internal dependencies
@@ -524,49 +523,11 @@ export function contentAttributesChanged( state, prevProps, props ) {
 }
 
 /**
- * Collect social media connections for the current post,
- * considering the collections stored in the post metadata,
- * but also checking the new connections stored in the jetpack/publicize store.
+ * Return social media connections.
  *
  * @param {state} state
  * @returns {Array} An array of fresh social media connections for the current post.
  */
 export function getConnections( state ) {
-	const cachedConnections = select( editorStore ).getEditedPostAttribute(
-		'jetpack_publicize_connections'
-	);
-	const cachedConnectionsIds = cachedConnections.map( connection => connection.id );
-
-	const { connections: jetpackPublicizeConnections } = state;
-
-	// Collect fresh connections here.
-	const freshConnections = [];
-
-	// jetpackPublicizeConnections rules the current connections for this post.
-	for ( const conn of jetpackPublicizeConnections ) {
-		let freshConnection;
-		if ( cachedConnectionsIds.includes( conn.id ) ) {
-			// The connection is already defined in the `jetpack_publicize_connections` metadata.
-			freshConnection = cachedConnections.filter( connection => connection.id === conn.id )[ 0 ];
-		} else {
-			// The connection is new. Add to fresh connection with initial state.
-			freshConnection = {
-				display_name: conn.display_name,
-				service_name: conn.service_name,
-				id: conn.id,
-				done: false,
-				enabled: true,
-				toggleable: true,
-			};
-		}
-
-		// Populate the connection with extra fresh data.
-		if ( conn.profile_picture ) {
-			freshConnection.profile_picture = conn.profile_picture;
-		}
-
-		freshConnections.push( freshConnection );
-	}
-
-	return freshConnections;
+	return state.connections;
 }
