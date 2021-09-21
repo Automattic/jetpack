@@ -18,6 +18,7 @@ import { modules, isEnabled } from '../stores/modules';
 import { loadCriticalCssLibrary } from './load-critical-css-library';
 import { removeShownAdminNotices } from './remove-admin-notices';
 import { clearDismissedRecommendations } from '../stores/critical-css-recommendations';
+import { castToNumber } from './cast-to-number';
 
 export type ProviderKeyUrls = {
 	[ providerKey: string ]: string[];
@@ -209,14 +210,25 @@ async function generateForKeys(
 				} );
 
 				stepsFailed++;
-				for ( const [ url, error ] of Object.entries( err.urlErrors ) as any ) {
+				const urlError = err.urlErrors as {
+					[ url: string ]: {
+						message: string;
+						type: string;
+						meta: JSONObject;
+					};
+				};
+
+				for ( const [ url, error ] of Object.entries( urlError ) ) {
 					// Track individual Critical CSS generation error.
-					const eventProps = {
+					const eventProps: TracksEventProperties = {
 						url,
 						provider_key: providerKey,
 						error_message: error.message,
 						error_type: error.type,
 					};
+					if ( error.type === 'HttpError' ) {
+						eventProps.error_meta = castToNumber( error.meta.code );
+					}
 					jpTracksAJAX.record_ajax_event( 'critical_css_url_error', 'click', eventProps );
 				}
 			} else {
@@ -233,7 +245,7 @@ async function generateForKeys(
 					time: Date.now() - startTime,
 					provider_key: providerKey,
 					error_message: err.message,
-					error_type: err.type,
+					error_type: err.type || ( err.constructor && err.constructor.name ) || 'unknown',
 				};
 				jpTracksAJAX.record_ajax_event( 'critical_css_failure', 'click', eventProps );
 
@@ -247,7 +259,7 @@ async function generateForKeys(
 		time: Date.now() - startTime,
 		block_count: stepsPassed,
 		error_count: stepsFailed,
-		average_size: totalSize / stepsPassed,
+		average_size: totalSize / Math.max( 1, stepsPassed ),
 		max_size: maxSize,
 		provider_keys: Object.keys( providerKeys ).join( ',' ),
 	};
