@@ -606,10 +606,10 @@ class Jetpack_Carousel {
 				! preg_match( '/wp-block-jetpack-slideshow_image/', $image_html ) ) {
 				$attachment_id = absint( $class_id[2] );
 				/**
-				 * If exactly the same image tag is used more than once, overwrite it.
-				 * All identical tags will be replaced later with 'str_replace()'.
+				 * The same image tag may be used more than once but with different attribs,
+				 * so save each of them against the attachment id.
 				 */
-				$selected_images[ $attachment_id  ] = $image_html;
+				$selected_images[ $attachment_id  ][] = $image_html;
 			}
 		}
 
@@ -629,16 +629,17 @@ class Jetpack_Carousel {
 		);
 
 		foreach ( $attachments as $attachment ) {
-			$image_html = $selected_images[ $attachment->ID ];
+			$image_elements = $selected_images[ $attachment->ID ];
 
 			$attributes      = $this->add_data_to_images( array(), $attachment );
 			$attributes_html = '';
 			foreach ( $attributes as $k => $v ) {
 				$attributes_html .= esc_attr( $k ) . '="' . esc_attr( $v ) . '" ';
 			}
-
-			$find[]    = $image_html;
-			$replace[] = str_replace( '<img ', "<img $attributes_html", $image_html );
+			foreach ( $image_elements as $image_html ) {
+				$find[]    = $image_html;
+				$replace[] = str_replace( '<img ', "<img $attributes_html", $image_html );
+			}
 		}
 
 		$content = str_replace( $find, $replace, $content );
