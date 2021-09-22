@@ -65,13 +65,6 @@ const initialState = Jetpack_Boost.criticalCssStatus || {
 
 const { subscribe, update } = writable< CriticalCssStatus >( initialState );
 
-// Keep a subscribed copy for quick reading.
-let currentStatus: CriticalCssStatus;
-subscribe( value => ( currentStatus = value ) );
-export function getCurrentStatus(): CriticalCssStatus {
-	return currentStatus;
-}
-
 /**
  * Derived datastore: contains the number of provider keys which failed in the
  * latest Critical CSS generation run.
