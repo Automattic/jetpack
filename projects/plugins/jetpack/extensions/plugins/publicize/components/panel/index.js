@@ -10,9 +10,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { compose } from '@wordpress/compose';
 import { Fragment } from '@wordpress/element';
-import { withSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -21,23 +19,20 @@ import PublicizeConnectionVerify from '../connection-verify';
 import PublicizeForm from '../form';
 import PublicizeTwitterOptions from '../twitter/options';
 
-const PublicizePanel = ( { connections, prePublish } ) => (
-	<Fragment>
-		{ connections && connections.some( connection => connection.enabled ) && (
+const PublicizePanel = ( { prePublish } ) => {
+	return (
+		<Fragment>
 			<PublicizeConnectionVerify />
-		) }
-		<div>
-			{ __( "Connect and select the accounts where you'd like to share your post.", 'jetpack' ) }
-		</div>
 
-		<PublicizeForm />
+			<div>
+				{ __( "Connect and select the accounts where you'd like to share your post.", 'jetpack' ) }
+			</div>
 
-		<PublicizeTwitterOptions prePublish={ prePublish } />
-	</Fragment>
-);
+			<PublicizeForm />
 
-export default compose( [
-	withSelect( select => ( {
-		connections: select( 'core/editor' ).getEditedPostAttribute( 'jetpack_publicize_connections' ),
-	} ) ),
-] )( PublicizePanel );
+			<PublicizeTwitterOptions prePublish={ prePublish } />
+		</Fragment>
+	);
+};
+
+export default PublicizePanel;
