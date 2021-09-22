@@ -5,6 +5,7 @@ import { flatMap, throttle } from 'lodash';
 import apiFetch from '@wordpress/api-fetch';
 import { serialize } from '@wordpress/blocks';
 import { select, dispatch } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 
 /**
  * Internal dependencies
@@ -19,7 +20,55 @@ import { SUPPORTED_CONTAINER_BLOCKS } from '../components/twitter';
 export async function refreshConnectionTestResults() {
 	try {
 		const results = await apiFetch( { path: '/wpcom/v2/publicize/connection-test-results' } );
-		return dispatch( 'jetpack/publicize' ).setConnectionTestResults( results );
+
+		// Combine current connections with new connections.
+		const prevConnections = select( 'jetpack/publicize' ).getConnections( results );
+		const prevConnectionIds = prevConnections.map( connection => connection.id );
+		const freshConnections = results;
+		const connections = [];
+
+		/*
+		 * Iterate connection by connection,
+		 * in order to refresh or update current connections.
+		 */
+		for ( const freshConnection of freshConnections ) {
+			let connection;
+			if ( prevConnectionIds.includes( freshConnection.id ) ) {
+				/*
+				 * The connection is already defined.
+				 * Do not overwrite the existing connection.
+				 */
+				connection = prevConnections.filter(
+					prevConnection => prevConnection.id === freshConnection.id
+				)[ 0 ];
+			} else {
+				/*
+				 * Here the connection is new.
+				 * Let's map it.
+				 */
+				connection = {
+					display_name: freshConnection.display_name,
+					service_name: freshConnection.service_name,
+					id: freshConnection.id,
+					done: false,
+					enabled: true,
+					toggleable: true,
+				};
+			}
+
+			// Populate the connection with extra fresh data.
+			if ( freshConnection.profile_picture ) {
+				connection.profile_picture = freshConnection.profile_picture;
+			}
+
+			connections.push( connection );
+		}
+
+		// Update post metadata.
+		dispatch( editorStore ).editPost( { jetpack_publicize_connections: connections } );
+
+		// Update connections in the piblicize store.
+		return dispatch( 'jetpack/publicize' ).setConnectionTestResults( connections );
 	} catch ( error ) {
 		// Refreshing connections failed
 	}
