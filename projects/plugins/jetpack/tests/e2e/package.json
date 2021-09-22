@@ -14,7 +14,7 @@
 	"author": "Automattic",
 	"scripts": {
 		"clean": "rm -rf output",
-		"distclean": "rm -rf node_modules && pnpm run clean",
+		"distclean": "rm -rf node_modules",
 		"env-start": "./node_modules/jetpack-e2e-commons/bin/env.sh start",
 		"env-stop": "./node_modules/jetpack-e2e-commons/bin/env.sh stop",
 		"env-reset": "./node_modules/jetpack-e2e-commons/bin/env.sh reset",
@@ -25,10 +25,11 @@
 		"pretest-e2e": "pnpm run clean",
 		"test-e2e": ". ./node_modules/jetpack-e2e-commons/bin/app-password.sh && NODE_CONFIG_DIR='./config' jest --config jest.config.js --runInBand --verbose --detectOpenHandles --json --outputFile=output/summary.json",
 		"test-decrypt-default-config": "openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./node_modules/jetpack-e2e-commons/config/encrypted.enc -out ./node_modules/jetpack-e2e-commons/config/local-test.js",
-		"test-decrypt-config": "pnpm run test-decrypt-default-config && openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./config/encrypted.enc -out ./config/local-test.js",
-		"test-encrypt-default-config": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in ./node_modules/jetpack-e2e-commons/config/local-test.js -out ./node_modules/jetpack-e2e-commons/config/encrypted.enc",
-		"test-encrypt-config": "pnpm run test-encrypt-default-config && openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in ./config/local-test.js -out ./config/encrypted.enc",
-	  	"slack": "NODE_CONFIG_DIR='./config' node ./node_modules/jetpack-e2e-commons/bin/slack.js",
+	  	"test-decrypt-config": "openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./config/encrypted.enc -out ./config/local-test.js",
+	  	"test-decrypt-all-config": "pnpm run test-decrypt-default-config && openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./node_modules/jetpack-e2e-commons/config/encrypted.enc -out ./node_modules/jetpack-e2e-commons/config/local-test.js",
+	  	"test-encrypt-default-config": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in ./node_modules/jetpack-e2e-commons/config/local-test.js -out ./node_modules/jetpack-e2e-commons/config/encrypted.enc",
+		"test-encrypt-config": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in ./config/local-test.js -out ./config/encrypted.enc",
+	  	"slack": "NODE_ENV=test NODE_CONFIG_DIR='./config' node ./node_modules/jetpack-e2e-commons/bin/slack.js",
 	  	"preinstall": "pnpm --prefix ../../../../../tools/e2e-commons install"
 	},
 	"devDependencies": {
@@ -43,7 +44,6 @@
 	  	"jest-circus": "^27.2.1",
 		"jest-junit": "12.0.0",
 		"jest-runner-groups": "2.0.1",
-		"jetpack-cli": "../../../../../tools/cli",
 		"jetpack-e2e-commons": "link:../../../../../tools/e2e-commons",
 		"pm2": "5.1.0"
 	},
