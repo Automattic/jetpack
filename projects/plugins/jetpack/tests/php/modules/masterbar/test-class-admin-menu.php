@@ -211,7 +211,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_inbox_menu();
 
-		$this->assertSame( 'https://wordpress.com/email/inbox/' . static::$domain, $menu['4.64424'][2] );
+		$this->assertSame( 'https://wordpress.com/inbox/' . static::$domain, $menu['4.64424'][2] );
 	}
 
 	/**
