@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import WpPage from './wp-page';
 
 export default class PostFrontendPage extends WpPage {

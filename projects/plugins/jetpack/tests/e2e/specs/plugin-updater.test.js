@@ -4,7 +4,7 @@ import {
 	execSyncShellCommand,
 	execWpCommand,
 	prepareUpdaterTest,
-} from 'jetpack-e2e-commons/utils-helper';
+} from 'jetpack-e2e-commons/helpers/utils-helper';
 import Sidebar from 'jetpack-e2e-commons/pages/wp-admin/sidebar';
 import PluginsPage from 'jetpack-e2e-commons/pages/wp-admin/plugins';
 import DashboardPage from 'jetpack-e2e-commons/pages/wp-admin/dashboard';

@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import PageActions from './page-actions';
 
 export default class WpPage extends PageActions {

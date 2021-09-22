@@ -6,7 +6,7 @@ import {
 	isLocalSite,
 	provisionJetpackStartConnection,
 	resetWordpressInstall,
-} from '../utils-helper';
+} from '../helpers/utils-helper';
 import fs from 'fs';
 import config from 'config';
 import { loginToWpCom, loginToWpSite } from '../flows/log-in';

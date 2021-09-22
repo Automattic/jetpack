@@ -1,9 +1,6 @@
-/**
- * Internal dependencies
- */
 import WpPage from '../wp-page';
 import logger from '../../logger';
-import { getDotComCredentials } from '../../utils-helper';
+import { getDotComCredentials } from '../../helpers/utils-helper';
 
 export default class LoginPage extends WpPage {
 	constructor( page ) {

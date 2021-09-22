@@ -5,7 +5,11 @@ const path = require( 'path' );
 const chalk = require( 'chalk' );
 const logger = require( '../logger' );
 const pwConfig = require( `${ path.resolve( process.env.NODE_CONFIG_DIR ) }/playwright.config` );
-const { fileNameFormatter, resolveSiteUrl, getJetpackVersion } = require( '../utils-helper' );
+const {
+	fileNameFormatter,
+	resolveSiteUrl,
+	getJetpackVersion,
+} = require( '../helpers/utils-helper' );
 const { takeScreenshot } = require( '../reporters/screenshot' );
 const config = require( 'config' );
 const { ContentType } = require( 'jest-circus-allure-environment' );

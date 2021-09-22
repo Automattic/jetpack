@@ -1,9 +1,6 @@
-/**
- * Internal dependencies
- */
 import WpPage from './wp-page';
 import logger from '../logger';
-import { searchResultForTest1, searchResultForTest2 } from '../search-helper';
+import { searchResultForTest1, searchResultForTest2 } from '../helpers/search-helper';
 
 export default class SearchHomepage extends WpPage {
 	static SEARCH_API_PATTERN = /^https:\/\/public-api\.wordpress.com\/rest\/v1.3\/sites\/\d+\/search.*/;

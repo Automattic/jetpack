@@ -1,14 +1,11 @@
-/**
- * External dependencies
- */
 const { execSync, exec } = require( 'child_process' );
 const config = require( 'config' );
 const fs = require( 'fs' );
 const path = require( 'path' );
 const shellescape = require( 'shell-escape' );
-const logger = require( './logger' );
+const logger = require( '../logger' );
 const { join } = require( 'path' );
-const WordpressAPI = require( './api/wp-api' );
+const WordpressAPI = require( '../api/wp-api' );
 const { E2E_DEBUG } = process.env;
 const BASE_DOCKER_CMD = 'pnpx jetpack docker --type e2e --name t1';
 

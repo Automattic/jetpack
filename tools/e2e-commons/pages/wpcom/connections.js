@@ -1,8 +1,5 @@
-/**
- * Internal dependencies
- */
 import WpPage from '../wp-page';
-import { getMailchimpCredentials } from '../../utils-helper';
+import { getMailchimpCredentials } from '../../helpers/utils-helper';
 
 export default class ConnectionsPage extends WpPage {
 	constructor( page ) {
