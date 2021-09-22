@@ -73,6 +73,8 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			if ( $nudge ) {
 				parent::add_upsell_nudge( $nudge );
 			}
+
+			$this->add_inbox_menu();
 			$this->add_new_site_link();
 		}
 
