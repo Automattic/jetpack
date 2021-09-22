@@ -353,7 +353,7 @@ class Admin {
 
 			wp_send_json( $response );
 		} else {
-			$error = new \WP_Error( 'authorization', __( 'You do not have permission to change this status.', 'jetpack-boost' ) );
+			$error = new \WP_Error( 'authorization', __( 'You do not have permission to take this action.', 'jetpack-boost' ) );
 			wp_send_json_error( $error, 403 );
 		}
 	}
