@@ -70,9 +70,8 @@ class Jetpack_Shortcode_Unavailable {
 function jetpack_init_shortcode_unavailable() {
 	new Jetpack_Shortcode_Unavailable(
 		array(
-			'hulu'                    => __( 'Hulu no longer allows embedding', 'jetpack' ),
-			'ustream'                 => __( 'Ustream has been replaced with IBM video', 'jetpack' ),
 			'digg'                    => __( 'The Digg API was shut down in 2014.', 'jetpack' ),
+			'hulu'                    => __( 'Hulu no longer allows embedding content.', 'jetpack' ),
 			'blip.tv'                 => __( 'The Blip.tv service has been shut down since August 20th, 2015.', 'jetpack' ),
 			'googlevideo'             => __( 'The Google Video embed service is not available anymore, it has been replaced by YouTube.', 'jetpack' ),
 			'jetpack-email-subscribe' => __( 'The Email Subscribe shortcode is now available as a block in the Block editor.', 'jetpack' ),
