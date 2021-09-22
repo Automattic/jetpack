@@ -1,11 +1,10 @@
 export const DEFAULT_STATE = {
-	connections: [],
 	tweets: [],
 	twitterCards: [],
 };
 
 /**
- * Reducer managing Publicize connection test results.
+ * Publicize reducer.
  *
  * @param {object} state - Current state.
  * @param {object} action - Dispatched action.
@@ -13,36 +12,8 @@ export const DEFAULT_STATE = {
  */
 export default function ( state = DEFAULT_STATE, action ) {
 	switch ( action.type ) {
-		case 'SET_CONNECTION_TEST_RESULTS': {
-			const { connections } = action;
-			return {
-				...state,
-				connections,
-			};
-		}
-
-		case 'REFRESH_CONNECTION_TEST_RESULTS': {
-			const { connections } = action;
-			return {
-				...state,
-				connections,
-			};
-		}
-
 		case 'TOGGLE_CONNECTION_BY_ID': {
-			/*
-			 * Map connections re-defining the enabled state of the connection,
-			 * based on the connection ID.
-			 */
-			const connections = state.connections.map( connection => ( {
-				...connection,
-				enabled: connection.id === action.connectionId ? ! connection.enabled : connection.enabled,
-			} ) );
-
-			return {
-				...state,
-				connections,
-			};
+			return state;
 		}
 
 		case 'SET_TWEETS':

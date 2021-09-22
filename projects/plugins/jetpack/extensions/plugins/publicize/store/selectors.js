@@ -2,9 +2,14 @@
  * External dependencies
  */
 import { get, isEqual } from 'lodash';
+import createSelector from 'rememo';
+
+/**
+ * WordPress dependencies
+ */
 import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import createSelector from 'rememo';
+import { store as editorStore } from '@wordpress/editor';
 
 /**
  * Internal dependencies
@@ -107,7 +112,7 @@ export function getFirstTweet( state ) {
 	const tweetTemplate = getTweetTemplate( state );
 
 	const { getMedia } = select( 'core' );
-	const { getEditedPostAttribute } = select( 'core/editor' );
+	const { getEditedPostAttribute } = select( editorStore );
 
 	const featuredImageId = getEditedPostAttribute( 'featured_media' );
 	const url = getEditedPostAttribute( 'link' );
@@ -141,11 +146,11 @@ export function getFirstTweet( state ) {
  */
 export function getLastTweet( state ) {
 	// This isn't defined properly in the test environment, so we have to skip this function.
-	if ( ! select( 'core/editor' ) ) {
+	if ( ! select( editorStore ) ) {
 		return;
 	}
 
-	const { getEditedPostAttribute } = select( 'core/editor' );
+	const { getEditedPostAttribute } = select( editorStore );
 	const url = getEditedPostAttribute( 'link' );
 
 	const message =
@@ -241,7 +246,7 @@ export function twitterCardIsCached( state, url ) {
  * @returns {string} The share message.
  */
 export function getShareMessage() {
-	const { getEditedPostAttribute } = select( 'core/editor' );
+	const { getEditedPostAttribute } = select( editorStore );
 	const meta = getEditedPostAttribute( 'meta' );
 	const postTitle = getEditedPostAttribute( 'title' );
 	const message = get( meta, [ 'jetpack_publicize_message' ], '' );
@@ -284,7 +289,7 @@ export function getShareMessageMaxLength() {
  * @returns {boolean} Whether or not it's a tweetstorm.
  */
 export function isTweetStorm() {
-	return !! select( 'core/editor' ).getEditedPostAttribute( 'meta' )?.jetpack_is_tweetstorm;
+	return !! select( editorStore ).getEditedPostAttribute( 'meta' )?.jetpack_is_tweetstorm;
 }
 
 /**
@@ -525,9 +530,15 @@ export function contentAttributesChanged( state, prevProps, props ) {
 /**
  * Return social media connections.
  *
- * @param {state} state
- * @returns {Array} An array of fresh social media connections for the current post.
+ * @returns {Array} An array of social media connections for the current post.
  */
-export function getConnections( state ) {
-	return state.connections;
+export function getConnections() {
+	const connections = select( editorStore ).getEditedPostAttribute(
+		'jetpack_publicize_connections'
+	);
+	if ( ! connections ) {
+		return [];
+	}
+
+	return connections;
 }

@@ -19,12 +19,13 @@ import { SUPPORTED_CONTAINER_BLOCKS } from '../components/twitter';
  */
 export async function refreshConnectionTestResults() {
 	try {
-		const results = await apiFetch( { path: '/wpcom/v2/publicize/connection-test-results' } );
+		const freshConnections = await apiFetch( {
+			path: '/wpcom/v2/publicize/connection-test-results',
+		} );
 
 		// Combine current connections with new connections.
 		const prevConnections = select( 'jetpack/publicize' ).getConnections();
 		const prevConnectionIds = prevConnections.map( connection => connection.id );
-		const freshConnections = results;
 		const connections = [];
 
 		/*
@@ -65,10 +66,7 @@ export async function refreshConnectionTestResults() {
 		}
 
 		// Update post metadata.
-		dispatch( editorStore ).editPost( { jetpack_publicize_connections: connections } );
-
-		// Update connections in the piblicize store.
-		return dispatch( 'jetpack/publicize' ).setConnectionTestResults( connections );
+		return dispatch( editorStore ).editPost( { jetpack_publicize_connections: connections } );
 	} catch ( error ) {
 		// Refreshing connections failed
 	}
@@ -77,9 +75,20 @@ export async function refreshConnectionTestResults() {
 /**
  * Effect handler which will update the connections
  * in the post metadata.
+ *
+ * @param {string} connections - The connections to update.
  */
-export async function toggleConnectionById() {
-	const connections = select( 'jetpack/publicize' ).getConnections();
+export async function toggleConnectionById( { connectionId } ) {
+	const currentConnections = select( 'jetpack/publicize' ).getConnections();
+
+	/*
+	 * Map connections re-defining the enabled state of the connection,
+	 * based on the connection ID.
+	 */
+	const connections = currentConnections.map( connection => ( {
+		...connection,
+		enabled: connection.id === connectionId ? ! connection.enabled : connection.enabled,
+	} ) );
 
 	// Update post metadata.
 	dispatch( editorStore ).editPost( { jetpack_publicize_connections: connections } );
