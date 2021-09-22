@@ -24,7 +24,7 @@ const MIN_ROUNDED_CORNERS = 0;
 const MAX_ROUNDED_CORNERS = 20;
 const DEFAULT_ROUNDED_CORNERS = 2;
 
-const TiledGallerySettings = props => {
+const TiledGallerySettings = () => {
 	const horizontalSettingsDivider = usePreferredColorSchemeStyle(
 		styles.horizontalBorder,
 		styles.horizontalBorderDark
@@ -36,8 +36,8 @@ const TiledGallerySettings = props => {
 
 	const linkSettingsOptions = {
 		url: {
-			label: __( 'Link URL' ),
-			placeholder: __( 'Add URL' ),
+			label: __( 'Link URL', 'jetpack' ),
+			placeholder: __( 'Add URL', 'jetpack' ),
 			autoFocus: true,
 			autoFill: true,
 		},
@@ -45,10 +45,10 @@ const TiledGallerySettings = props => {
 
 	return (
 		<InspectorControls>
-			<PanelBody title={ __( 'Tiled gallery settings' ) } />
+			<PanelBody title={ __( 'Tiled gallery settings', 'jetpack' ) } />
 			<PanelBody>
 				<UnitControl
-					label={ __( 'Columns' ) }
+					label={ __( 'Columns', 'jetpack' ) }
 					min={ MIN_COLUMNS }
 					max={ MAX_COLUMNS }
 					value={ columnNumber }
@@ -59,7 +59,7 @@ const TiledGallerySettings = props => {
 			</PanelBody>
 			<PanelBody style={ horizontalSettingsDivider }>
 				<RangeControl
-					label={ __( 'Rounded corners' ) }
+					label={ __( 'Rounded corners', 'jetpack' ) }
 					minimumValue={ MIN_ROUNDED_CORNERS }
 					maximumValue={ MAX_ROUNDED_CORNERS }
 					value={ roundedCornerRadius }
@@ -68,16 +68,18 @@ const TiledGallerySettings = props => {
 					} }
 				/>
 			</PanelBody>
-			<LinkSettingsNavigation
-				url={ linkToURL }
-				setAttributes={ value => {
-					setLinkToURL( value.url );
-				} }
-				withBottomSheet={ false }
-				hasPicker
-				options={ linkSettingsOptions }
-				showIcon={ false }
-			/>
+			<PanelBody>
+				<LinkSettingsNavigation
+					url={ linkToURL }
+					setAttributes={ value => {
+						setLinkToURL( value.url );
+					} }
+					withBottomSheet={ false }
+					hasPicker
+					options={ linkSettingsOptions }
+					showIcon={ false }
+				/>
+			</PanelBody>
 		</InspectorControls>
 	);
 };
