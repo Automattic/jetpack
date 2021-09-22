@@ -22,7 +22,7 @@ export async function refreshConnectionTestResults() {
 		const results = await apiFetch( { path: '/wpcom/v2/publicize/connection-test-results' } );
 
 		// Combine current connections with new connections.
-		const prevConnections = select( 'jetpack/publicize' ).getConnections( results );
+		const prevConnections = select( 'jetpack/publicize' ).getConnections();
 		const prevConnectionIds = prevConnections.map( connection => connection.id );
 		const freshConnections = results;
 		const connections = [];
@@ -72,6 +72,17 @@ export async function refreshConnectionTestResults() {
 	} catch ( error ) {
 		// Refreshing connections failed
 	}
+}
+
+/**
+ * Effect handler which will update the connections
+ * in the post metadata.
+ */
+export async function toggleConnectionById() {
+	const connections = select( 'jetpack/publicize' ).getConnections();
+
+	// Update post metadata.
+	dispatch( editorStore ).editPost( { jetpack_publicize_connections: connections } );
 }
 
 /**
@@ -164,6 +175,7 @@ export async function getTwitterCards( action ) {
 
 export default {
 	REFRESH_CONNECTION_TEST_RESULTS: refreshConnectionTestResults,
+	TOGGLE_CONNECTION_BY_ID: toggleConnectionById,
 	REFRESH_TWEETS: refreshTweets,
 	GET_TWITTER_CARDS: getTwitterCards,
 };

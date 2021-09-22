@@ -40,6 +40,13 @@ export function refreshConnectionTestResults( connections = null ) {
 	};
 }
 
+export function toggleConnectionById( connectionId ) {
+	return {
+		type: 'TOGGLE_CONNECTION_BY_ID',
+		connectionId,
+	};
+}
+
 /**
  * Returns an action object used in signalling that
  * we're initiating a fetch request to the REST API.
