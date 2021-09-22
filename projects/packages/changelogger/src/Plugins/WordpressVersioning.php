@@ -151,22 +151,32 @@ class WordpressVersioning implements VersioningPlugin {
 	}
 
 	/**
-	 * Extract the index and count from a prerelease string.
+	 * Extract the index and values from a prerelease string.
 	 *
 	 * @param string|null $s String.
-	 * @return array Two elements: index and count.
+	 * @return array Two elements: the index value of the pattern matched, and an array of matched catpure group values.
 	 * @throws InvalidArgumentException If the string is invalid.
 	 */
 	private function parsePrerelease( $s ) {
 		if ( null === $s ) {
-			return array( 100, 0 );
+			return array( 100, array( 0 => 0 ) );
 		}
-		foreach ( array( 'dev', 'alpha(\d*)', '\d\d(?:0[1-9]|1[0-2])\.(\d+)', 'beta(\d*)', 'rc(\d*)' ) as $i => $re ) {
+
+		$arr = array();
+		foreach ( array( 'dev', 'alpha(\d*)', '(\d\d(?:0[1-9]|1[0-2]))\.(\d+)', 'beta(\d*)', 'rc(\d*)' ) as $i => $re ) {
 			if ( preg_match( "/^{$re}\$/", $s, $m ) ) {
-				return array( $i, isset( $m[1] ) ? (int) $m[1] : 0 );
+				$arr[] = $i;
+				$arr[] = isset( $m[1] ) ? array_slice( $m, 1 ) : array( 0 => 0 );
+
+				break;
 			}
 		}
-		throw new InvalidArgumentException( "Invalid prerelease string \"$s\"" ); // @codeCoverageIgnore
+
+		if ( empty( $arr ) ) {
+			throw new InvalidArgumentException( "Invalid prerelease string \"$s\"" ); // @codeCoverageIgnore
+		}
+
+		return $arr;
 	}
 
 	/**
@@ -182,18 +192,28 @@ class WordpressVersioning implements VersioningPlugin {
 		$bb = $this->parseVersion( $b );
 		if ( $aa['major'] !== $bb['major'] ) {
 			return $aa['major'] < $bb['major'] ? -1 : 1;
-
 		}
 		if ( $aa['point'] !== $bb['point'] ) {
 			return $aa['point'] - $bb['point'];
 		}
 
-		list( $aindex, $acount ) = $this->parsePrerelease( $aa['prerelease'] );
-		list( $bindex, $bcount ) = $this->parsePrerelease( $bb['prerelease'] );
+		list( $aindex, $avalues ) = $this->parsePrerelease( $aa['prerelease'] );
+		list( $bindex, $bvalues ) = $this->parsePrerelease( $bb['prerelease'] );
+
 		if ( $aindex !== $bindex ) {
 			return $aindex - $bindex;
 		}
-		return $acount - $bcount;
+
+		// Prerelease version comparison on specific pattern 'x.y-YYMM.z' such as '10.2-2112.2'.
+		if ( 2 === $aindex && 2 === $bindex ) {
+			if ( $avalues[0] !== $bvalues[0] ) {
+				return $avalues[0] - $bvalues[0];
+			} elseif ( $avalues[1] !== $bvalues[1] ) {
+				return $avalues[1] - $bvalues[1];
+			}
+		}
+
+		return $avalues[0] - $bvalues[0];
 	}
 
 	/**
