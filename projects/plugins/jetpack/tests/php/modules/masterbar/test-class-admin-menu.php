@@ -202,6 +202,19 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests add_inbox_menu
+	 *
+	 * @covers ::add_inbox_menu
+	 */
+	public function test_add_inbox_menu() {
+		global $menu;
+
+		static::$admin_menu->add_inbox_menu();
+
+		$this->assertSame( 'https://wordpress.com/email/inbox/' . static::$domain, $menu['3.86682'][2] );
+	}
+
+	/**
 	 * Tests add_upgrades_menu
 	 *
 	 * @covers ::add_upgrades_menu

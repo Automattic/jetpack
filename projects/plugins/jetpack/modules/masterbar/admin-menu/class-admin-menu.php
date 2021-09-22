@@ -24,6 +24,7 @@ class Admin_Menu extends Base_Admin_Menu {
 		remove_menu_page( 'separator1' );
 
 		$this->add_stats_menu();
+		$this->add_inbox_menu();
 		$this->add_upgrades_menu();
 		$this->add_posts_menu();
 		$this->add_media_menu();
@@ -160,8 +161,15 @@ class Admin_Menu extends Base_Admin_Menu {
 	/**
 	 * Adds Stats menu.
 	 */
+	public function add_inbox_menu() {
+		add_menu_page( __( 'Inbox', 'jetpack' ), __( 'Inbox', 'jetpack' ), 'edit_posts', 'https://wordpress.com/email/inbox/' . $this->domain, null, 'dashicons-email', 4 );
+	}
+
+	/**
+	 * Adds Stats menu.
+	 */
 	public function add_stats_menu() {
-		add_menu_page( __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'view_stats', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 3 );
+		add_menu_page( __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'view_stats', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 2 );
 	}
 
 	/**
@@ -193,7 +201,7 @@ class Admin_Menu extends Base_Admin_Menu {
 				$site_upgrades = __( 'Upgrades', 'jetpack' );
 			}
 
-			add_menu_page( __( 'Upgrades', 'jetpack' ), $site_upgrades, 'manage_options', 'paid-upgrades.php', null, 'dashicons-cart', 4 );
+			add_menu_page( __( 'Upgrades', 'jetpack' ), $site_upgrades, 'manage_options', 'paid-upgrades.php', null, 'dashicons-cart', 3 );
 		}
 
 		add_submenu_page( 'paid-upgrades.php', __( 'Plans', 'jetpack' ), __( 'Plans', 'jetpack' ), 'manage_options', 'https://wordpress.com/plans/my-plan/' . $this->domain, null, 1 );
