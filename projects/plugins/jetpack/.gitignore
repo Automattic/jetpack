@@ -19,6 +19,3 @@
 /modules/module-headings.php
 /modules/photon-cdn/jetpack-manifest.php
 /tests/php/files/jetpack-150x150.jpg
-
-# @todo: Remove this when we remove tests/maybe-download-phpunit.sh
-/tests/php/phpunit-7.phar
