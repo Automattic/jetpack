@@ -60,7 +60,7 @@ fi
 
 # Copy single site htaccess if none is present
 if [ ! -f /var/www/html/.htaccess ]; then
-	cp /tmp/htaccess /var/www/html/.htaccess
+	cp /var/lib/jetpack-config/htaccess /var/www/html/.htaccess
 fi
 
 # Clean up old method of including psysh (used from 2019 until 2021)
@@ -91,7 +91,7 @@ if [ "$COMPOSE_PROJECT_NAME" == "jetpack_dev" ] ; then
 
 	# Create a wp-tests-config.php if there's none currently
 	if [ ! -f /tmp/wordpress-develop/wp-tests-config.php ]; then
-		cp /tmp/wp-tests-config.php /tmp/wordpress-develop/wp-tests-config.php
+		cp /var/lib/jetpack-config/wp-tests-config.php /tmp/wordpress-develop/wp-tests-config.php
 	fi
 
 	# Symlink jetpack into wordpress-develop for WP >= 5.6-beta1

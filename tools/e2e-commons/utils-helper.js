@@ -318,10 +318,14 @@ async function getJetpackVersion() {
 		const env = JSON.parse( fileContent );
 
 		const jetpack = env.plugins.filter( function ( p ) {
-			return p.plugin === 'jetpack-dev/jetpack' && p.status === 'active';
+			return p.plugin.endsWith( '/jetpack' ) && p.status === 'active';
 		} );
 
 		version = jetpack[ 0 ].version;
+
+		if ( process.env.GITHUB_SHA && ! process.env.TEST_SITE ) {
+			version += `-${ process.env.GITHUB_SHA }`;
+		}
 	} catch ( error ) {
 		console.log( `ERROR: Failed to get Jetpack version. ${ error }` );
 	}

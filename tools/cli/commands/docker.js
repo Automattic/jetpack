@@ -3,6 +3,7 @@
  */
 import { spawnSync } from 'child_process';
 import chalk from 'chalk';
+import * as envfile from 'envfile';
 import fs from 'fs';
 import { dockerFolder, setConfig } from '../helpers/docker-config';
 
@@ -483,11 +484,22 @@ export function dockerDefine( yargs ) {
 					command: 'build-image',
 					description: 'Builds local docker image',
 					handler: argv => {
+						const versions = envfile.parse(
+							fs.readFileSync( `${ dockerFolder }/../../.github/versions.sh`, 'utf8' )
+						);
 						const res = executor( argv, () =>
 							shellExecutor( argv, 'docker', [
 								'build',
 								'-t',
 								'automattic/jetpack-wordpress-dev',
+								'--build-arg',
+								`PHP_VERSION=${ versions.PHP_VERSION }`,
+								'--build-arg',
+								`COMPOSER_VERSION=${ versions.COMPOSER_VERSION }`,
+								'--build-arg',
+								`NODE_VERSION=${ versions.NODE_VERSION }`,
+								'--build-arg',
+								`PNPM_VERSION=${ versions.PNPM_VERSION }`,
 								dockerFolder,
 							] )
 						);
