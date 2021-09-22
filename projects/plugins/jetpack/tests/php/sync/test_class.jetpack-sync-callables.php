@@ -38,8 +38,11 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 	protected static $admin_id; // used in mock_xml_rpc_request
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 
 		$this->resetCallableAndConstantTimeouts();
 

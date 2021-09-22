@@ -58,8 +58,8 @@ class Test_Base_Admin_Menu extends WP_UnitTestCase {
 	/**
 	 * Set up data.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 
 		$admin_menu = $this->get_concrete_menu_admin();
 

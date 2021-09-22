@@ -30,8 +30,8 @@ class WP_Test_Jetpack_Shortcodes_SmartFrame extends WP_UnitTestCase {
 	/**
 	 * Check for external HTTP requests and register filter
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 
 		if ( in_array( 'external-http', $this->getGroups(), true ) ) {
 			// Used by WordPress.com - does nothing in Jetpack.

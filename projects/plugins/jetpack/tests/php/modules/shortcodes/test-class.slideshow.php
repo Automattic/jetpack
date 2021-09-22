@@ -18,7 +18,7 @@ class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 	 *
 	 * @inheritDoc
 	 */
-	public function setUp() {
+	public function set_up() {
 		if ( ! defined( 'TESTING_IN_JETPACK' ) || ! TESTING_IN_JETPACK ) {
 			switch_to_blog( 104104364 ); // test.wordpress.com
 			$this->ids = '161,162';
@@ -46,12 +46,12 @@ class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 	 *
 	 * @inheritDoc
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		if ( ! defined( 'TESTING_IN_JETPACK' ) || ! TESTING_IN_JETPACK ) {
 			restore_current_blog();
 		}
 
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**

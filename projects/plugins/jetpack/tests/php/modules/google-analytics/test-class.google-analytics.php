@@ -31,8 +31,8 @@ class WP_Test_Jetpack_Google_Analytics extends WP_UnitTestCase {
 	 *
 	 * @return void
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 
 		// Hijack the option for Jetpack_Google_Analytics_Options::get_tracking_code().
 		add_filter(

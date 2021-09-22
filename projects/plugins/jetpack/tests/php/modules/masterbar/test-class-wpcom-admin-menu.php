@@ -75,8 +75,8 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	/**
 	 * Set up data.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 		global $menu, $submenu;
 
 		$admin_menu = $this->getMockBuilder( WPcom_Admin_Menu::class )

@@ -55,8 +55,8 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	/**
 	 * Sets up the test.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 
 		// Preserving global variables.
 		global $content_width;
@@ -66,20 +66,20 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		// WP_UnitTestCase resets the action/filter state after every test:
 		// https://core.trac.wordpress.org/browser/trunk/tests/phpunit/includes/testcase.php?rev=43005#L273
 		// So we need to set these Photon filters for each test.
-		// see ::tearDown() ...
+		// see ::tear_down() ...
 		Jetpack_Photon::instance();
 	}
 
 	/**
 	 * Clean up after the test.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		// Restoring global variables.
 		global $content_width, $wp_the_query;
 		$content_width = $this->protected_globals['content_width'];
 		$wp_the_query  = new WP_Query(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
-		// ... see ::setUp()
+		// ... see ::set_up()
 		// Unfortunately Jetpack_Photon::instance() won't run Jetpack_Photon->setup()
 		// each time Jetpack_Photon::instance() is called, since it's gated by a
 		// static variable.
@@ -95,7 +95,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$instance->setAccessible( true );
 		$instance->setValue( null );
 
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**

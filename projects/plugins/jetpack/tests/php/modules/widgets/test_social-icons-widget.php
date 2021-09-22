@@ -12,8 +12,8 @@ class WP_Test_Social_Icons_Widget extends WP_UnitTestCase {
 	/**
 	 * This method is called before each test.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 		$this->social_icon_widget = new Jetpack_Widget_Social_Icons();
 	}
 

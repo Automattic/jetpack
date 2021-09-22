@@ -6,7 +6,7 @@
  * Contains the tests for the Jetpack_Plan class.
  */
 class WP_Test_Jetpack_Plan extends WP_UnitTestCase {
-	public function setUp() {
+	public function set_up() {
 		delete_option( 'jetpack_active_plan' );
 	}
 

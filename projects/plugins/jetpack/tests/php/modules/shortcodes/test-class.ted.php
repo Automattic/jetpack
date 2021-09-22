@@ -8,8 +8,11 @@ require_once __DIR__ . '/trait.http-request-cache.php';
 class WP_Test_Jetpack_Shortcodes_Ted extends WP_UnitTestCase {
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 
 		if ( in_array( 'external-http', $this->getGroups(), true ) ) {
 			// Used by WordPress.com - does nothing in Jetpack.
@@ -185,8 +188,8 @@ BODY;
 
 	/**
 	 * Uses a real HTTP request to Instagram's oEmbed endpoint.
-	 * @see ::setUp()
 	 *
+	 * @see ::set_up()
 	 * @author scotchfield
 	 * @covers ::shortcode_ted
 	 * @group external-http

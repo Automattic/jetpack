@@ -17,8 +17,8 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Sets up the test environment before the class tests begin.
 	 */
-	public static function setUpBeforeClass() {
-		parent::setUpBeforeClass();
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
 		define( 'DOING_AJAX', true ); // Defined so that 'exit' is not called in process_submission.
 
 		// Remove any relevant filters that might exist before running the tests.
@@ -39,8 +39,8 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Sets up the test environment before each unit test.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 
 		$this->set_globals();
 
@@ -75,8 +75,8 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Tears down the test environment after each unit test.
 	 */
-	public function tearDown() {
-		parent::tearDown();
+	public function tear_down() {
+		parent::tear_down();
 
 		// Remove filters after running tests.
 		remove_all_filters( 'wp_mail' );

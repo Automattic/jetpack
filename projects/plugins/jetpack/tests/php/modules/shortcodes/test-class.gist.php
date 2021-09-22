@@ -8,9 +8,9 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 	/**
 	 * After a test method runs, reset any state in WordPress the test method might have changed.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		wp_reset_postdata();
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**

@@ -18,7 +18,10 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 	 */
 	private $original_wp_query;
 
-	public function setUp() {
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
 		global $post, $wp_query;
 
 		$post            = new stdClass();
@@ -28,7 +31,10 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$this->original_wp_query = $wp_query;
 	}
 
-	public function tearDown() {
+	/**
+	 * Tear down.
+	 */
+	public function tear_down() {
 		global $wp_query;
 
 		Jetpack_Geo_Location::reset_instance();

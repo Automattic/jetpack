@@ -24,14 +24,14 @@ class WP_Test_Jetpack_Modules_Overrides extends WP_UnitTestCase {
 	/**
 	 * Test setup.
 	 */
-	public function setUp() {
+	public function set_up() {
 		$this->instance = Jetpack_Modules_Overrides::instance();
 	}
 
 	/**
 	 * Test tear down.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		remove_all_filters( 'option_jetpack_active_modules' );
 		remove_all_filters( 'jetpack_active_modules' );
 		$this->instance->clear_cache();

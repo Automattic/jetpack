@@ -3,8 +3,11 @@ require_jetpack_file( 'modules/sharedaddy/recaptcha.php' );
 
 class WP_Test_Jetpack_ReCaptcha extends WP_UnitTestCase {
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 
 		$this->site_key       = 'sitekey';
 		$this->secret_key     = 'secretkey';

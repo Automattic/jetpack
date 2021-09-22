@@ -14,8 +14,11 @@ class WP_Test_Jetpack_Shortcodes_Instagram extends WP_UnitTestCase {
 	 */
 	const CONTENT_WIDTH = 640;
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 
 		// Note: This forces the tests below to use the flow that's used when an auth token
 		// for the Instagram oEmbed REST API is set. This means that the call to the /oembed-proxy
@@ -40,9 +43,9 @@ class WP_Test_Jetpack_Shortcodes_Instagram extends WP_UnitTestCase {
 	 *
 	 * @inheritDoc
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		unset( $GLOBALS['content_width'] );
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	public function pre_http_request( $response, $args, $url ) {
@@ -244,8 +247,8 @@ BODY;
 
 	/**
 	 * Uses a real HTTP request to Instagram's oEmbed endpoint.
-	 * @see ::setUp()
 	 *
+	 * @see ::set_up()
 	 * @covers ::jetpack_shortcode_instagram
 	 * @group external-http
 	 */

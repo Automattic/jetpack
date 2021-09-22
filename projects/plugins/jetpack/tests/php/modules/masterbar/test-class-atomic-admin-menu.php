@@ -75,8 +75,8 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	/**
 	 * Set up data.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 		global $menu, $submenu;
 
 		// Initialize in setUp so it registers hooks for every test.

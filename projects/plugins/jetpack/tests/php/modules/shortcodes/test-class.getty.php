@@ -41,8 +41,11 @@ class WP_Test_Jetpack_Shortcodes_Getty extends WP_UnitTestCase {
 		return preg_replace( '/((id=\'[:alpha:\-]+)|[\?&]|&amp;|&#038;)(et=[\w-]+|sig=[\w-=]+)/', '', $str );
 	}
 
-	function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 
 		if ( in_array( 'external-http', $this->getGroups(), true ) ) {
 			// Used by WordPress.com - does nothing in Jetpack.

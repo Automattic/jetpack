@@ -58,8 +58,11 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 		) );
 	}
 
-	public function tearDown() {
-		parent::tearDown();
+	/**
+	 * Tear down.
+	 */
+	public function tear_down() {
+		parent::tear_down();
 		Constants::clear_constants();
 	}
 

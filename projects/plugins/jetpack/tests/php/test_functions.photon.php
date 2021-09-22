@@ -2,7 +2,10 @@
 
 class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
-	public function tearDown() {
+	/**
+	 * Tear down.
+	 */
+	public function tear_down() {
 		remove_filter( 'jetpack_photon_domain', array( $this, 'apply_custom_domain' ) );
 		unset( $this->custom_photon_domain );
 	}

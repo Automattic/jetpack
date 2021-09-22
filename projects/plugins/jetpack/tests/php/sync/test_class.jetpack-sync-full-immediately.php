@@ -22,8 +22,11 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 	private $test_posts_count = 20;
 	private $test_comments_count = 11;
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 		Settings::reset_data();
 
 		$this->full_sync = Modules::get_module( 'full-sync' );

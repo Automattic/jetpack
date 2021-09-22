@@ -37,8 +37,8 @@ class WP_Test_Jetpack_Shortcodes_Hulu extends WP_UnitTestCase {
 	 *
 	 * @since 4.5.0
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 
 		$this->src = 'https://www.hulu.com/embed.html?eid=';
 		$this->video_id = '771496';
@@ -127,8 +127,8 @@ class WP_Test_Jetpack_Shortcodes_Hulu extends WP_UnitTestCase {
 	/**
 	 * Uses a real HTTP request to Hulu's oEmbed endpoint to
 	 * translate id (human readable video ID) -> eid (Hulu's internal video ID).
-	 * @see ::setUp()
 	 *
+	 * @see ::set_up()
 	 * @group external-http
 	 */
 	public function test_shortcodes_hulu_id_via_oembed_http_request() {

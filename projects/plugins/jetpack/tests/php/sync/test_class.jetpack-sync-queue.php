@@ -7,8 +7,11 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 
 	private $queue;
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 
 		$this->queue = new Queue( 'my_queue' );
 	}

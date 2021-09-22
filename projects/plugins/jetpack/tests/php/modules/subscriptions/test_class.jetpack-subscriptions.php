@@ -2,7 +2,10 @@
 require dirname( __FILE__ ) . '/../../../../modules/subscriptions.php';
 
 class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
-	static function setupBeforeClass() {
+	/**
+	 * Set up before class.
+	 */
+	public static function set_up_before_class() {
 		Jetpack_Subscriptions::init();
 	}
 

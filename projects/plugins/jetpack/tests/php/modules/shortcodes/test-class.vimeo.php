@@ -10,9 +10,9 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	 *
 	 * @inheritDoc
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		unset( $GLOBALS['content_width'] );
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**

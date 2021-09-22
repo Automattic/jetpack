@@ -33,7 +33,10 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	protected $query;
 	protected $post_types;
 
-	function setup() {
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
 		$GLOBALS['wp_customize'] = new WP_Test_Jetpack_Search_Helpers_Customize();
 
 		$this->request_uri = $_SERVER['REQUEST_URI'];
@@ -45,7 +48,10 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		delete_option( Jetpack_Search_Helpers::get_widget_option_name() );
 	}
 
-	function tearDown() {
+	/**
+	 * Tear down.
+	 */
+	public function tear_down() {
 		$_SERVER['REQUEST_URI'] = $this->request_uri;
 		$_GET = $this->get;
 		$_POST = $this->post;

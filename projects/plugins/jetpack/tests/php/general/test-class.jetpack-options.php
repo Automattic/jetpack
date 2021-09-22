@@ -4,7 +4,10 @@ use Automattic\Jetpack\Constants;
 
 class WP_Test_Jetpack_Options extends WP_UnitTestCase {
 
-	function tearDown() {
+	/**
+	 * Tear down.
+	 */
+	public function tear_down() {
 		wp_cache_flush();
 	}
 

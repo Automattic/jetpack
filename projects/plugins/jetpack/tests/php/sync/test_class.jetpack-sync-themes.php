@@ -48,8 +48,8 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	/**
 	 * Move Dummy Themes to proper location for testing.
 	 */
-	public static function setUpBeforeClass() {
-		parent::setUpBeforeClass();
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
 
 		// Copy themes from tests/php/files/ to wp-content/themes.
 		foreach ( static::$themes as $theme ) {
@@ -68,8 +68,8 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	/**
 	 * Remove Dummy Themes.
 	 */
-	public static function tearDownAfterClass() {
-		parent::tearDownAfterClass();
+	public static function tear_down_after_class() {
+		parent::tear_down_after_class();
 
 		// Remove themes previously copied from tests/php/files/ to wp-content/themes.
 		foreach ( static::$themes as $theme ) {
@@ -84,8 +84,11 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 	}
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 
 		$current_theme = wp_get_theme();
 		$this->theme   = $current_theme->slug;

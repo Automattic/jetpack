@@ -9,8 +9,11 @@ use Automattic\Jetpack\Sync\Modules;
 class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 	protected $post_id;
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 		$this->sender->reset_data();
 		wp_set_current_user( 1 );
 		$this->sender->do_sync();

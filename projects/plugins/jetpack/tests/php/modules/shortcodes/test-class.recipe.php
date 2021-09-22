@@ -22,8 +22,8 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 *
 	 * @inheritDoc
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 		$this->instance = new Jetpack_Recipes();
 		$this->instance->action_init();
 	}
@@ -33,10 +33,10 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 *
 	 * @inheritDoc
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		wp_dequeue_script( 'jetpack-recipes-js' );
 		wp_dequeue_script( 'jetpack-recipes-printthis' );
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**

@@ -3,8 +3,11 @@ require dirname( __FILE__ ) . '/../../../../modules/infinite-scroll/infinity.php
 
 class WP_Test_The_Neverending_Home_Page extends WP_UnitTestCase {
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 
 		$this->infinite_scroll = new The_Neverending_Home_Page;
 	}

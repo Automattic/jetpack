@@ -16,8 +16,11 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	protected $post;
 	protected $test_already = false;
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 		$user_id = $this->factory->user->create();
 
 		// create a post
@@ -66,13 +69,13 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_add_post_syncs_request_is_auto_save() {
-		//Sync from setup should not be auto save
+		// Sync from setup should not be auto save.
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
 		$this->assertFalse( $event->args[3]['is_auto_save'] );
 
 		Constants::set_constant( 'DOING_AUTOSAVE', true );
 
-		//Performing sync here (even though setup() does it) to sync REQUEST_URI
+		// Performing sync here (even though set_up() does it) to sync REQUEST_URI.
 		$user_id = $this->factory->user->create();
 		$this->factory->post->create( array( 'post_author' => $user_id ) );
 		$this->sender->do_sync();
