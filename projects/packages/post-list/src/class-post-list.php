@@ -38,7 +38,6 @@ class Post_List {
 		if ( ! did_action( 'jetpack_on_posts_list_init' ) ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 			add_action( 'current_screen', array( $this, 'add_thumbnail_filters_and_actions' ) );
-			add_action( 'in_admin_footer', array( $this, 'create_app_root_element' ) );
 			add_filter( 'default_hidden_columns', array( $this, 'adjust_default_columns' ), 10, 2 );
 
 			/**
