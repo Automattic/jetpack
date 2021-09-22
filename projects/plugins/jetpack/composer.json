@@ -54,6 +54,9 @@
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run build-concurrently"
 		],
+		"phpunit": [
+			"tests/action-phpunit.sh"
+		],
 		"test-coverage": [
 			"Composer\\Config::disableProcessTimeout",
 			"@composer install",
