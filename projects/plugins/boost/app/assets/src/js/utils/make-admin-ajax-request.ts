@@ -22,7 +22,7 @@ export async function makeAdminAjaxRequest< T = JSONObject >( payload: JSONObjec
 		method: 'post',
 		body: new URLSearchParams( {
 			...payload,
-			...{ nonce: Jetpack_Boost.criticalCssDismissRecommendationsNonce },
+			...{},
 		} ),
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded;',

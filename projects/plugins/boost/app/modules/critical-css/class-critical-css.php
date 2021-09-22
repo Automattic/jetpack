@@ -986,7 +986,7 @@ class Critical_CSS extends Module {
 				'status' => 'ok',
 			);
 		} else {
-			$error = new \WP_Error( 'authorization', __( 'You do not have permission to change this status.', 'jetpack-boost' ) );
+			$error = new \WP_Error( 'authorization', __( 'You do not have permission to take this action.', 'jetpack-boost' ) );
 			wp_send_json_error( $error, 403 );
 		}
 
@@ -1016,7 +1016,7 @@ class Critical_CSS extends Module {
 				'status' => 'ok',
 			);
 		} else {
-			$error = new \WP_Error( 'authorization', __( 'You do not have permission to change this status.', 'jetpack-boost' ) );
+			$error = new \WP_Error( 'authorization', __( 'You do not have permission to take this action.', 'jetpack-boost' ) );
 			wp_send_json_error( $error, 403 );
 		}
 

@@ -121,6 +121,7 @@ export async function dismissRecommendation( key: string ): Promise< void > {
 	await makeAdminAjaxRequest( {
 		action: 'dismiss_recommendations',
 		providerKey: key,
+		nonce: Jetpack_Boost.criticalCssDismissRecommendationsNonce,
 	} );
 	dismissed.update( keys => [ ...keys, key ] );
 }
