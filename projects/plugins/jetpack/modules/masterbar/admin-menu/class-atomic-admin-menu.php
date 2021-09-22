@@ -74,7 +74,19 @@ class Atomic_Admin_Menu extends Admin_Menu {
 				parent::add_upsell_nudge( $nudge );
 			}
 
-			$this->add_inbox_menu();
+			/**
+			 * Whether to show the WordPress.com Inbox menu under Upgrades menu.
+			 *
+			 * @use add_filter( 'jetpack_show_wpcom_inbox_menu', '__return_true' );
+			 * @module masterbar
+			 *
+			 * @since 9.7.0
+			 *
+			 * @param bool $jetpack_show_wpcom_inbox_menu Load the WordPress.com Inbox menu item. Default to false.
+			 */
+			if ( apply_filters( 'jetpack_show_wpcom_inbox_menu', false ) ) {
+				$this->add_inbox_menu();
+			}
 			$this->add_new_site_link();
 		}
 
