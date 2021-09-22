@@ -538,7 +538,6 @@
 	"projects/plugins/jetpack/views/admin/must-connect-main-blog.php",
 	"projects/plugins/jetpack/views/admin/network-activated-notice.php",
 	"projects/plugins/jetpack/views/admin/network-admin-header.php",
-	"projects/plugins/jetpack/views/admin/network-settings.php",
 	"projects/plugins/vaultpress/class.vaultpress-database.php",
 	"projects/plugins/vaultpress/class.vaultpress-filesystem.php",
 	"projects/plugins/vaultpress/class.vaultpress-hotfixes.php",
