@@ -609,7 +609,7 @@ class Jetpack_Carousel {
 				 * The same image tag may be used more than once but with different attribs,
 				 * so save each of them against the attachment id.
 				 */
-				if ( ! isset( $selected_images[ $attachment_id ] ) || ! in_array ( $image_html, $selected_images[ $attachment_id ] ) ) {
+				if ( ! isset( $selected_images[ $attachment_id ] ) || ! in_array( $image_html, $selected_images[ $attachment_id ], true ) ) {
 					$selected_images[ $attachment_id ][] = $image_html;
 				}
 			}
