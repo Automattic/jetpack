@@ -14,7 +14,7 @@ export default class JetpackPage extends WpPage {
 		logger.step( 'Starting Jetpack connection' );
 		const connectButtonSelector = '.jp-connect-screen .jp-connect-button--button';
 		await this.click( connectButtonSelector );
-		await this.waitForElementToBeHidden( this.expectedSelectors[ 0 ], { timeout: 60000 } );
+		await this.waitForElementToBeHidden( this.selectors[ 0 ], { timeout: 60000 } );
 	}
 
 	async openMyPlan() {
