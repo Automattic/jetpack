@@ -39,7 +39,7 @@ describe( 'Jetpack updater', () => {
 		await execShellCommand(
 			'pnpx jetpack docker --type e2e --name t1 -v exec-silent -- rm /var/www/html/wp-content/plugins/jetpack'
 		);
-		await execSyncShellCommand(
+		execSyncShellCommand(
 			'pnpx jetpack docker --type e2e --name t1 -v exec-silent -- ln -s /usr/local/src/jetpack-monorepo/projects/plugins/jetpack/ /var/www/html/wp-content/plugins/jetpack'
 		);
 		await prerequisitesBuilder().withCleanEnv().build();

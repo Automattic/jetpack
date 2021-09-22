@@ -34,7 +34,6 @@
 		"jest-environment-node": "26.6.2",
 		"jest-junit": "12.0.0",
 		"jest-runner-groups": "2.0.1",
-		"jest-stare": "2.2.1",
 		"localtunnel": "2.0.1",
 		"lodash": "4.17.21",
 		"mkdirp": "1.0.4",
