@@ -1,11 +1,8 @@
-/**
- * Internal dependencies
- */
 import WpPage from '../wp-page';
 import logger from '../../logger';
 import { takeScreenshot } from '../../reporters/screenshot';
 import PageActions from '../page-actions';
-import { getSiteCredentials } from '../../utils-helper';
+import { getSiteCredentials } from '../../helpers/utils-helper';
 
 export default class WPLoginPage extends WpPage {
 	constructor( page ) {
