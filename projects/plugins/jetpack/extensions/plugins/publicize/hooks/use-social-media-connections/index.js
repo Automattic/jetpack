@@ -10,20 +10,13 @@ import { useDispatch, useSelect } from '@wordpress/data';
  */
 
 export default function useSocialMediaConnections() {
-	const { refreshConnectionTestResults: refresh } = useDispatch( 'jetpack/publicize' );
-	const connections = useSelect( select => select( 'jetpack/publicize' ).getConnections(), [] );
+	const { refreshConnectionTestResults: refresh, toggleConnectionById } = useDispatch(
+		'jetpack/publicize'
+	);
 
 	return {
-		connections,
-		toggleById: function ( id ) {
-			const jetpack_publicize_connections = connections.map( connection => ( {
-				...connection,
-				enabled: connection.id === id ? ! connection.enabled : connection.enabled,
-			} ) );
-
-			refresh( jetpack_publicize_connections );
-		},
-
+		connections: useSelect( select => select( 'jetpack/publicize' ).getConnections(), [] ),
+		toggleById: toggleConnectionById,
 		refresh,
 	};
 }
