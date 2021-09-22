@@ -2,18 +2,20 @@
 
 set -eo pipefail
 
+. tests/maybe-download-phpunit.sh
+
 echo "::group::Jetpack tests"
-phpunit
+$phpunit
 echo "::endgroup::"
 
 if [[ "$WP_BRANCH" == "master" ]]; then
 	echo "::group::Jetpack multisite tests"
-	WP_MULTISITE=1 phpunit -c tests/php.multisite.xml
+	WP_MULTISITE=1 $phpunit -c tests/php.multisite.xml
 	echo "::endgroup::"
 fi
 
 if [[ "$WP_BRANCH" == "latest" && "$PHP_VERSION" == "7.0" ]]; then
 	echo "::group::Jetpack Legacy Full Sync tests"
-	LEGACY_FULL_SYNC=1 phpunit --group=legacy-full-sync
+	LEGACY_FULL_SYNC=1 $phpunit --group=legacy-full-sync
 	echo "::endgroup::"
 fi
