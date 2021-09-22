@@ -29,6 +29,22 @@ export default function ( state = DEFAULT_STATE, action ) {
 			};
 		}
 
+		case 'TOGGLE_CONNECTION_BY_ID': {
+			/*
+			 * Map connections re-defining the enabled state of the connection,
+			 * based on the connection ID.
+			 */
+			const connections = state.connections.map( connection => ( {
+				...connection,
+				enabled: connection.id === action.connectionId ? ! connection.enabled : connection.enabled,
+			} ) );
+
+			return {
+				...state,
+				connections,
+			};
+		}
+
 		case 'SET_TWEETS':
 			return {
 				...state,
