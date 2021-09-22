@@ -154,7 +154,7 @@ class WordpressVersioning implements VersioningPlugin {
 	 * Extract the index and values from a prerelease string.
 	 *
 	 * @param string|null $s String.
-	 * @return array Two elements: the index value of the pattern matched, and an array of matched catpure group values.
+	 * @return array Two elements: the index value of the pattern matched, and an array of matched capture group values.
 	 * @throws InvalidArgumentException If the string is invalid.
 	 */
 	private function parsePrerelease( $s ) {
