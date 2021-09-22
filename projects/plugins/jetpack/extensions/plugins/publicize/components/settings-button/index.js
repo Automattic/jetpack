@@ -14,7 +14,6 @@ import PageVisibility from 'react-page-visibility';
  */
 import { __ } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';
-import { useEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -27,11 +26,6 @@ const refreshThreshold = 2000;
 export default function PublicizeSettingsButton() {
 	const { refresh } = useSelectSocialMediaConnections();
 	const siteFragment = getSiteFragment();
-
-	// Refresh connections when mounted.
-	useEffect( () => {
-		refresh();
-	}, [ refresh ] );
 
 	const debouncedRefresh = debounce( function ( isVisible ) {
 		if ( ! isVisible ) {
