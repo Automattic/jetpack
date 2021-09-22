@@ -3,10 +3,9 @@
  */
 import React, { useCallback } from 'react';
 import { useSelect, useDispatch } from '@wordpress/data';
-
-import { ConnectionStatusCard, ConnectScreen } from '@automattic/jetpack-connection';
-
 import { __ } from '@wordpress/i18n';
+import { ConnectionStatusCard, ConnectScreen } from '@automattic/jetpack-connection';
+import { IDCScreen } from '@automattic/jetpack-idc';
 
 /**
  * Internal dependencies
@@ -30,6 +29,10 @@ export default function Admin() {
 	const connectionStatus = useSelect( select => select( STORE_ID ).getConnectionStatus(), [] );
 	const { setConnectionStatus } = useDispatch( STORE_ID );
 
+	// Placeholder for testing purposes.
+	const hasIDC = true;
+	const IDCHomeURL = 'https://agutin.jurassic.tube/';
+
 	const statusCallback = useCallback(
 		status => {
 			setConnectionStatus( status );
@@ -40,6 +43,10 @@ export default function Admin() {
 	const onDisconnectedCallback = useCallback( () => {
 		setConnectionStatus( { isActive: false, isRegistered: false, isUserConnected: false } );
 	}, [ setConnectionStatus ] );
+
+	if ( hasIDC ) {
+		return <IDCScreen wpcomHomeUrl={ IDCHomeURL } />;
+	}
 
 	return (
 		<React.Fragment>
