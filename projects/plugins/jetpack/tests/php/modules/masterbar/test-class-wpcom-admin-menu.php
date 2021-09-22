@@ -273,6 +273,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_inbox_menu() {
 		global $menu;
 
+		add_filter( 'jetpack_show_wpcom_inbox_menu', '__return_true' );
 		static::$admin_menu->add_inbox_menu();
 
 		$this->assertSame( 'https://wordpress.com/inbox/' . static::$domain, $menu['4.64424'][2] );
