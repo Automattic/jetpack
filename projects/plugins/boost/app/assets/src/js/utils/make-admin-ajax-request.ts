@@ -20,10 +20,7 @@ class AdminAjaxError extends Error {
 export async function makeAdminAjaxRequest< T = JSONObject >( payload: JSONObject ): Promise< T > {
 	const args = {
 		method: 'post',
-		body: new URLSearchParams( {
-			...payload,
-			...{},
-		} ),
+		body: new URLSearchParams( payload as Record< string, string > ),
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded;',
 		},
