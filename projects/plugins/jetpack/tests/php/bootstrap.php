@@ -2,9 +2,7 @@
 /**
  * Bootstrap the plugin unit testing environment.
  *
- * Edit 'active_plugins' setting below to point to your main plugin file.
- *
- * @package wordpress-plugin-tests
+ * @package automattic/jetpack
  */
 
 /**
@@ -63,9 +61,12 @@ if ( ! is_readable( $jp_autoloader ) || ! is_readable( __DIR__ . '/../../modules
 	exit( 1 );
 }
 
-// WordPress requires PHPUnit 7.5 or earlier and hacks around a few things to
+require $jp_autoloader;
+
+// WordPress until recently required PHPUnit 7.5 or earlier and hacks around a few things to
 // make it work with PHP 8. Unfortunately for MockObjects they do it via
 // composer.json rather than bootstrap.php, so we have to manually do it here.
+// @todo: Remove this once either WP backports their bootstrap changes to 5.8.1 or they release 5.8.2.
 if ( version_compare( PHP_VERSION, '8.0', '>=' ) &&
 	( ! class_exists( PHPUnit\Runner\Version::class ) || version_compare( PHPUnit\Runner\Version::id(), '9.3', '<' ) )
 ) {
@@ -88,10 +89,9 @@ if ( version_compare( PHP_VERSION, '8.0', '>=' ) &&
 	}
 }
 
-if ( '1' != getenv( 'WP_MULTISITE' ) &&
- ( defined( 'WP_TESTS_MULTISITE') && ! WP_TESTS_MULTISITE ) ) {
- echo "To run Jetpack multisite, use -c tests/php.multisite.xml" . PHP_EOL;
- echo "Disregard Core's -c tests/phpunit/multisite.xml notice below." . PHP_EOL;
+if ( '1' !== getenv( 'WP_MULTISITE' ) && ( defined( 'WP_TESTS_MULTISITE' ) && ! WP_TESTS_MULTISITE ) ) {
+	echo 'To run Jetpack multisite, use -c tests/php.multisite.xml' . PHP_EOL;
+	echo "Disregard Core's -c tests/phpunit/multisite.xml notice below." . PHP_EOL;
 }
 
 if ( '1' != getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
@@ -105,7 +105,6 @@ if ( false === function_exists( 'wp_cache_is_enabled' ) ) {
 	 * "Mocking" function so that it exists and Automattic\Jetpack\Sync\Actions will load Automattic\Jetpack\Sync\Modules\WP_Super_Cache
 	 */
 	function wp_cache_is_enabled() {
-
 	}
 }
 
@@ -116,7 +115,7 @@ function _manually_load_plugin() {
 	if ( '1' == getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 		require JETPACK_WOOCOMMERCE_INSTALL_DIR . '/woocommerce.php';
 	}
-	require dirname( __FILE__ ) . '/../../jetpack.php';
+	require __DIR__ . '/../../jetpack.php';
 	$jetpack = Jetpack::init();
 	$jetpack->configure();
 }
@@ -185,8 +184,6 @@ function in_running_uninstall_group() {
 	global  $argv;
 	return is_array( $argv ) && in_array( '--group=uninstall', $argv );
 }
-
-require $jp_autoloader;
 
 // Using the Speed Trap Listener provided by WordPress Core testing suite to expose
 // slowest running tests. See the configuration in phpunit.xml.dist
