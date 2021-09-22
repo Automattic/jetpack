@@ -11,7 +11,7 @@ import type { JSONObject } from './json-types';
 declare const ajaxurl: string;
 
 class AdminAjaxError extends Error {
-	constructor( message ) {
+	constructor( message: string ) {
 		super( message );
 		this.name = 'AdminAjaxError';
 	}
@@ -56,5 +56,6 @@ export async function makeAdminAjaxRequest< T = JSONObject >( payload: JSONObjec
 		);
 	}
 
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	return jsonBody as any;
 }

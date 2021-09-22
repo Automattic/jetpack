@@ -17,8 +17,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 $plugins = Plugin::get_all_plugins( true );
-end( $plugins );
-$last_slug = key( $plugins );
 
 ?>
 

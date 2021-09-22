@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Add allow-popups permission to Google Calendar embed so that links internal to the iFrame will open.
