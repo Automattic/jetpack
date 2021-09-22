@@ -756,7 +756,7 @@ class Jetpack_Carousel {
 				$html = str_replace( '<div ', '<div ' . esc_attr( $data_key ) . "='" . wp_json_encode( $data_values ) . "' ", $html );
 				$html = str_replace( '<ul class="wp-block-gallery', '<ul ' . esc_attr( $data_key ) . "='" . wp_json_encode( $data_values ) . "' class=\"wp-block-gallery", $html );
 				$html = str_replace( '<ul class="blocks-gallery-grid', '<ul ' . esc_attr( $data_key ) . "='" . wp_json_encode( $data_values ) . "' class=\"blocks-gallery-grid", $html );
-				$html = preg_replace( '/\<figure(.*)class="(wp-block-gallery[^"].*?has-nested-images.*?)"/', '<figure ' . esc_attr( $data_key ) . "='" . wp_json_encode( $data_values ) . "' $1 class=\"$2\"", $html );
+				$html = preg_replace( '/\<figure([^>]*)class="(wp-block-gallery[^"]*?has-nested-images.*?)"/', '<figure ' . esc_attr( $data_key ) . "='" . wp_json_encode( $data_values ) . "' $1 class=\"$2\"", $html );
 			}
 		}
 
