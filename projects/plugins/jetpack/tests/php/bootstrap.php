@@ -150,7 +150,3 @@ function in_running_uninstall_group() {
 	global  $argv;
 	return is_array( $argv ) && in_array( '--group=uninstall', $argv );
 }
-
-// Using the Speed Trap Listener provided by WordPress Core testing suite to expose
-// slowest running tests. See the configuration in phpunit.xml.dist
-require $test_root . '/includes/listener-loader.php';
