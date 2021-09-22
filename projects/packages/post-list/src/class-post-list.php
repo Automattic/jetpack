@@ -38,6 +38,9 @@ class Post_List {
 		if ( ! did_action( 'jetpack_on_posts_list_init' ) ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 			add_action( 'current_screen', array( $this, 'add_thumbnail_filters_and_actions' ) );
+			add_action( 'in_admin_footer', array( $this, 'create_app_root_element' ) );
+			add_filter( 'default_hidden_columns', array( $this, 'adjust_default_columns' ), 10, 2 );
+
 			/**
 			 * Action called after initializing Post_List Admin resources.
 			 *
@@ -122,6 +125,28 @@ class Post_List {
 		} else {
 			echo '<span class="dashicons dashicons-format-image" title="No thumbnail found."></span>';
 		}
+	}
+
+	/**
+	 * Removes the tags and columns from the posts and pages
+	 * screens if the screen options haven't been changed from
+	 * the default.
+	 *
+	 * @param array     $cols The columns to hide.
+	 * @param WP_Screen $screen The current screen object.
+	 * @return array    The columns to hide by default.
+	 */
+	public function adjust_default_columns( $cols, $screen ) {
+		if ( ! ( 'edit' === $screen->base && in_array( $screen->post_type, array( 'post', 'page' ), true ) ) ) {
+			return $cols;
+		}
+
+		$cols[] = 'tags';
+		if ( 'post' === $screen->post_type ) {
+			$cols[] = 'categories';
+		}
+
+		return $cols;
 	}
 }
 
