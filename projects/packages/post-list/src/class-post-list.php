@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Post_List;
  */
 class Post_List {
 
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.1.0';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
@@ -43,7 +43,7 @@ class Post_List {
 			/**
 			 * Action called after initializing Post_List Admin resources.
 			 *
-			 * @since $$next-version$$
+			 * @since 0.1.0
 			 */
 			do_action( 'jetpack_on_posts_list_init' );
 		}
