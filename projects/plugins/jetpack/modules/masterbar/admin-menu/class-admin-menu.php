@@ -162,7 +162,7 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * Adds Inbox menu.
 	 */
 	public function add_inbox_menu() {
-		add_menu_page( __( 'Inbox', 'jetpack' ), __( 'Inbox', 'jetpack' ), 'edit_posts', 'https://wordpress.com/email/inbox/' . $this->domain, null, 'dashicons-email', 4.5 );
+		add_menu_page( __( 'Inbox', 'jetpack' ), __( 'Inbox', 'jetpack' ), 'edit_posts', 'https://wordpress.com/email/inbox/' . $this->domain, null, 'dashicons-email', '4.64424' );
 	}
 
 	/**
