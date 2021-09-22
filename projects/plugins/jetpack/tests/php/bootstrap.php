@@ -27,7 +27,8 @@ if ( ! is_readable( $jp_autoloader ) || ! is_readable( __DIR__ . '/../../modules
 	exit( 1 );
 }
 
-require $jp_autoloader;
+// Tell WordPress where yoast/phpunit-polyfill lives.
+define( 'WP_TESTS_PHPUNIT_POLYFILLS_PATH', __DIR__ . '/../../vendor/yoast/phpunit-polyfills/phpunitpolyfills-autoload.php' );
 
 // WordPress until recently required PHPUnit 7.5 or earlier and hacks around a few things to
 // make it work with PHP 8. Unfortunately for MockObjects they do it via
