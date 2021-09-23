@@ -255,15 +255,24 @@ async function generateForKeys(
 	}
 
 	// Track complete Critical CSS generation result.
-	const eventProps = {
-		time: Date.now() - startTime,
-		block_count: stepsPassed,
-		error_count: stepsFailed,
-		average_size: totalSize / Math.max( 1, stepsPassed ),
-		max_size: maxSize,
-		provider_keys: Object.keys( providerKeys ).join( ',' ),
-	};
-	jpTracksAJAX.record_ajax_event( 'critical_css_success', 'click', eventProps );
+	if ( stepsPassed === 0 ) {
+		const eventProps = {
+			time: Date.now() - startTime,
+			error_message: 'Critical CSS Generation failed for all the provider keys.',
+			error_type: 'allProvidersError',
+		};
+		jpTracksAJAX.record_ajax_event( 'critical_css_failure', 'click', eventProps );
+	} else {
+		const eventProps = {
+			time: Date.now() - startTime,
+			block_count: stepsPassed,
+			error_count: stepsFailed,
+			average_size: totalSize / Math.max( 1, stepsPassed ),
+			max_size: maxSize,
+			provider_keys: Object.keys( providerKeys ).join( ',' ),
+		};
+		jpTracksAJAX.record_ajax_event( 'critical_css_success', 'click', eventProps );
+	}
 
 	updateGenerateStatus( false, 0 );
 }
