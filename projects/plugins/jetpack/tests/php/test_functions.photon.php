@@ -1,6 +1,7 @@
 <?php
 
 class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;
 
 	/**
 	 * Tear down.
@@ -20,7 +21,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 	}
 
 	protected function assertMatchesPhotonHost( $host ) {
-		$this->assertRegExp( '/^i[0-2]\.wp\.com$/', $host );
+		$this->assertMatchesRegularExpression( '/^i[0-2]\.wp\.com$/', $host );
 	}
 
 	/**
