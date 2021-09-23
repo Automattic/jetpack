@@ -1,6 +1,7 @@
 <?php
 
 require_once dirname( dirname( __DIR__ ) ) . '/lib/class-wp-test-jetpack-rest-testcase.php';
+require_once JETPACK__PLUGIN_DIR . '/modules/subscriptions.php';
 
 /**
  * @group publicize
