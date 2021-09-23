@@ -21,9 +21,6 @@
 		"automattic/jetpack-changelogger": "^1.2"
 	},
 	"autoload": {
-		"files": [
-			"legacy/load-ixr.php"
-		],
 		"classmap": [
 			"legacy",
 			"src/"
