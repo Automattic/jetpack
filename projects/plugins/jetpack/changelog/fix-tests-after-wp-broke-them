@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Fix tests after WordPress backported polyfill stuff to WP 5.7 and 5.8.
