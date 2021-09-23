@@ -7,47 +7,48 @@
  */
 
 /**
- * External dependencies
+ * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { compose } from '@wordpress/compose';
 import { Fragment } from '@wordpress/element';
-import { withDispatch, withSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
 import PublicizeConnectionVerify from '../connection-verify';
 import PublicizeForm from '../form';
-import PublicizeSettingsButton from '../settings-button';
 import PublicizeTwitterOptions from '../twitter/options';
+import useSelectSocialMediaConnections from '../../hooks/use-social-media-connections';
+import usePostJustSave from '../../hooks/use-post-just-saved';
 
-const PublicizePanel = ( { connections, refreshConnections, prePublish } ) => (
-	<Fragment>
-		{ connections && connections.some( connection => connection.enabled ) && (
+const PublicizePanel = ( { prePublish } ) => {
+	const { refresh, hasEnabledConnections } = useSelectSocialMediaConnections();
+
+	// Refresh connections when the post is just saved.
+	usePostJustSave(
+		function () {
+			if ( ! hasEnabledConnections ) {
+				return;
+			}
+
+			refresh();
+		},
+		[ hasEnabledConnections, refresh ]
+	);
+
+	return (
+		<Fragment>
 			<PublicizeConnectionVerify />
-		) }
-		<div>
-			{ __( "Connect and select the accounts where you'd like to share your post.", 'jetpack' ) }
-		</div>
-		{ connections && connections.length > 0 && (
-			<PublicizeForm refreshCallback={ refreshConnections } />
-		) }
-		<PublicizeTwitterOptions prePublish={ prePublish } />
-		{ connections && 0 === connections.length && (
-			<PublicizeSettingsButton
-				className="jetpack-publicize-add-connection-wrapper"
-				refreshCallback={ refreshConnections }
-			/>
-		) }
-	</Fragment>
-);
 
-export default compose( [
-	withSelect( select => ( {
-		connections: select( 'core/editor' ).getEditedPostAttribute( 'jetpack_publicize_connections' ),
-	} ) ),
-	withDispatch( dispatch => ( {
-		refreshConnections: dispatch( 'core/editor' ).refreshPost,
-	} ) ),
-] )( PublicizePanel );
+			<div>
+				{ __( "Connect and select the accounts where you'd like to share your post.", 'jetpack' ) }
+			</div>
+
+			<PublicizeForm />
+
+			<PublicizeTwitterOptions prePublish={ prePublish } />
+		</Fragment>
+	);
+};
+
+export default PublicizePanel;
