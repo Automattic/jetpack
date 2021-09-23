@@ -154,29 +154,22 @@ class WordpressVersioning implements VersioningPlugin {
 	 * Extract the index and values from a prerelease string.
 	 *
 	 * @param string|null $s String.
-	 * @return array Two elements: the index value of the pattern matched, and an array of matched capture group values.
+	 * @return array First element being the index value of the pattern matched, subsequent elements being int values of the matched capture groups.
 	 * @throws InvalidArgumentException If the string is invalid.
 	 */
 	private function parsePrerelease( $s ) {
 		if ( null === $s ) {
-			return array( 100, array( 0 => 0 ) );
+			return array( 100, 0 );
 		}
 
-		$arr = array();
 		foreach ( array( 'dev', 'alpha(\d*)', '(\d\d(?:0[1-9]|1[0-2]))\.(\d+)', 'beta(\d*)', 'rc(\d*)' ) as $i => $re ) {
 			if ( preg_match( "/^{$re}\$/", $s, $m ) ) {
-				$arr[] = $i;
-				$arr[] = isset( $m[1] ) ? array_slice( $m, 1 ) : array( 0 => 0 );
-
-				break;
+				$m[0] = $i;
+				return array_map( 'intval', $m );
 			}
 		}
 
-		if ( empty( $arr ) ) {
-			throw new InvalidArgumentException( "Invalid prerelease string \"$s\"" ); // @codeCoverageIgnore
-		}
-
-		return $arr;
+		throw new InvalidArgumentException( "Invalid prerelease string \"$s\"" ); // @codeCoverageIgnore
 	}
 
 	/**
@@ -197,23 +190,17 @@ class WordpressVersioning implements VersioningPlugin {
 			return $aa['point'] - $bb['point'];
 		}
 
-		list( $aindex, $avalues ) = $this->parsePrerelease( $aa['prerelease'] );
-		list( $bindex, $bvalues ) = $this->parsePrerelease( $bb['prerelease'] );
+		$avalues = $this->parsePrerelease( $aa['prerelease'] );
+		$bvalues = $this->parsePrerelease( $bb['prerelease'] );
 
-		if ( $aindex !== $bindex ) {
-			return $aindex - $bindex;
-		}
-
-		// Prerelease version comparison on specific pattern 'x.y-YYMM.z' such as '10.2-2112.2'.
-		if ( 2 === $aindex && 2 === $bindex ) {
-			if ( $avalues[0] !== $bvalues[0] ) {
-				return $avalues[0] - $bvalues[0];
-			} elseif ( $avalues[1] !== $bvalues[1] ) {
-				return $avalues[1] - $bvalues[1];
+		$l = min( count( $avalues ), count( $bvalues ) );
+		for ( $i = 0; $i < $l; $i++ ) {
+			if ( $avalues[ $i ] !== $bvalues[ $i ] ) {
+				return $avalues[ $i ] - $bvalues[ $i ];
 			}
 		}
 
-		return $avalues[0] - $bvalues[0];
+		return count( $avalues ) - count( $bvalues );
 	}
 
 	/**

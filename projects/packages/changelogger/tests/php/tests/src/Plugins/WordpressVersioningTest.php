@@ -290,6 +290,7 @@ class WordpressVersioningTest extends TestCase {
 			array( '1.1.1-alpha9', '<', '1.1.1-beta1' ),
 			array( '1.1.1-beta9', '>', '1.1.1-beta1' ),
 			array( '1.1.1-beta9', '==', '1.1.1-beta9' ),
+			array( '1.1.1-alpha', '==', '1.1.1-alpha0' ),
 			array( '1.1.1-alpha2', '<', '1.1.1-alpha10' ),
 			array( '1.1.1+beta.9.1', '==', '1.1.1+beta.9' ),
 			array( '10.2-2109.1', '>', '10.1' ),
