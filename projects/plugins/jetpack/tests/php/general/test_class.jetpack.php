@@ -990,7 +990,8 @@ EXPECTED;
 
 		$login_url = wp_login_url( '/wp-admin?' . Jetpack::$jetpack_redirect_login . '=true' );
 		parse_str( wp_parse_url( $login_url, PHP_URL_QUERY ), $login_parts );
-		$this->assertArraySubset( array( Jetpack::$jetpack_redirect_login => 'true' ), $login_parts, true );
+		$this->assertArrayHasKey( Jetpack::$jetpack_redirect_login, $login_parts );
+		$this->assertSame( 'true', $login_parts[ Jetpack::$jetpack_redirect_login ] );
 	}
 
 	/**
