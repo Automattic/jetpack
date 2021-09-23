@@ -27,7 +27,7 @@ declare global {
 		connectionIframeOriginUrl: string;
 		connection: ConnectionStatus;
 		criticalCssStatus?: CriticalCssStatus;
-		criticalCssAjaxNonce?: string;
+		criticalCssDismissRecommendationsNonce?: string;
 		criticalCssDismissedRecommendations: string[];
 		site: {
 			url: string;

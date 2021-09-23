@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Register WP hooks even if WP isn't loaded yet.
