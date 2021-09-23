@@ -41,7 +41,7 @@ if ( isset( $_GET['error'] ) && 'jetpack_protect_whitelist' === $_GET['error'] )
 						printf(
 							/* Translators: placeholder is an IP address. */
 							esc_attr__( 'Your current IP: %1$s', 'jetpack' ),
-							esc_attr( $protect_ip )
+							esc_html( $protect_ip )
 						);
 					}
 					?>
@@ -50,7 +50,7 @@ if ( isset( $_GET['error'] ) && 'jetpack_protect_whitelist' === $_GET['error'] )
 					echo '<textarea name="global-whitelist" style="width: 100%;" rows="8">';
 
 					foreach ( $data['jetpack_protect_whitelist']['global'] as $ip ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
-						echo esc_attr( $ip ) . "\n";
+						echo esc_html( $ip ) . "\n";
 					}
 					?>
 					</textarea> <br />
