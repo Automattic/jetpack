@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Publicize: Refresh connections once the post saves.
