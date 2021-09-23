@@ -61,13 +61,9 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 			->setConstructorArgs( array( 'my_queue' ) )
 			->getMock();
 
-		$queue->expects( $this->at( 0 ) )
+		$queue->expects( $this->exactly( 2 ) )
 			->method( 'generate_option_name_timestamp' )
-			->will( $this->returnValue( '1.5' ) );
-
-		$queue->expects( $this->at( 1 ) )
-			->method( 'generate_option_name_timestamp' )
-			->will( $this->returnValue( '3.0' ) );
+			->willReturnOnConsecutiveCalls( '1.5', '3.0' );
 
 		$queue->reset();
 		$queue->add( 'foo' );
