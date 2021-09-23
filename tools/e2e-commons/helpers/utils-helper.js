@@ -323,6 +323,8 @@ async function getJetpackVersion() {
 		if ( process.env.GITHUB_SHA && ! process.env.TEST_SITE ) {
 			version += `-${ process.env.GITHUB_SHA }`;
 		}
+
+		logger.debug( `Jetpack version: ${ version }` );
 	} catch ( error ) {
 		console.log( `ERROR: Failed to get Jetpack version. ${ error }` );
 	}
