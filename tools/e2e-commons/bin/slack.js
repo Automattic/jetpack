@@ -11,6 +11,7 @@ const slackClient = new WebClient( config.get( 'slack.token' ), {
 	logLevel: LogLevel.ERROR,
 } );
 const slackChannel = config.get( 'slack.channel' );
+const rootPath = process.cwd();
 
 // region yargs
 // eslint-disable-next-line no-unused-expressions
@@ -61,17 +62,19 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
 
 	// If results summary file is not found send failure notification and exit
 	try {
-		result = JSON.parse( fs.readFileSync( 'output/summary.json', 'utf8' ) );
+		result = JSON.parse(
+			fs.readFileSync( path.join( rootPath, config.get( 'dirs.output' ), 'summary.json' ), 'utf8' )
+		);
 	} catch ( error ) {
 		const errMsg = 'There was a problem parsing the test results file.';
-		console.error( errMsg );
+		console.error( errMsg, error );
 		await sendMessage( await buildDefaultMessage( false, errMsg ), {} );
 		return;
 	}
 
 	const detailLines = [];
 	const failureDetails = [];
-	const screenshots = fs.readdirSync( config.get( 'dirs.screenshots' ) );
+	const screenshots = fs.readdirSync( path.join( rootPath, config.get( 'dirs.screenshots' ) ) );
 	const matchedScreenshots = [];
 
 	// Go through all test results and extract failure details
@@ -98,7 +101,7 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
 					if ( screenshot.indexOf( expectedScreenshotName ) > -1 ) {
 						failureDetails.push( {
 							type: 'file',
-							content: path.resolve( config.get( 'dirs.screenshots' ), screenshot ),
+							content: path.resolve( rootPath, config.get( 'dirs.screenshots' ), screenshot ),
 						} );
 						matchedScreenshots.push( screenshot );
 					}
@@ -112,7 +115,7 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
 	for ( const screenshot of remainingScreenshots ) {
 		failureDetails.push( {
 			type: 'file',
-			content: path.resolve( config.get( 'dirs.screenshots' ), screenshot ),
+			content: path.resolve( rootPath, config.get( 'dirs.screenshots' ), screenshot ),
 		} );
 	}
 
@@ -165,10 +168,12 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
 
 	// Upload log files
 	if ( failureDetails.length > 0 ) {
-		const logs = fs.readdirSync( config.get( 'dirs.logs' ) );
+		const logs = fs.readdirSync( path.join( rootPath, config.get( 'dirs.logs' ) ) );
 		for ( const logFile of logs ) {
 			if ( logFile.substring( logFile.lastIndexOf( '.' ) + 1 ) !== 'html' ) {
-				await uploadFile( path.resolve( config.get( 'dirs.logs' ), logFile ), { threadId } );
+				await uploadFile( path.resolve( rootPath, config.get( 'dirs.logs' ), logFile ), {
+					threadId,
+				} );
 			}
 		}
 	}
