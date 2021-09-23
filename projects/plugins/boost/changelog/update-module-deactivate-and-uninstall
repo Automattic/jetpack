@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+
+Add deactivate and uninstall hooks to Boost module base so that individual modules and can override and necessary tasks.
+Refactored Critical CSS uninstall tasks to align to new methodology.

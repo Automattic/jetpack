@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+E2E tests: include Github commit SHA in Jetpack version for local dev sites
