@@ -24,3 +24,25 @@ function ToggleConnectionControl() {
 ### connections
 
 The connections list for the site.
+
+### refresh()
+
+This method will refresh and save the current post in order to propagate the metadata where the connections store.
+
+```es6
+import { Button } from '@wordpress/components';
+import useSocialMediaConnections from './hooks/use-social-media-connection';
+
+function SocialMediaTextarea() {
+	const { refresh } = useSocialMediaConnection();
+
+	return (
+		<Button
+			value={ message }
+			onClick={ refresh }
+		>
+			Click on it to update the social media connections.
+		</Button>
+	);
+}
+```
