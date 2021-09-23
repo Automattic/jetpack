@@ -42,6 +42,8 @@ const TiledGalleryEdit = props => {
 
 	const { replaceInnerBlocks } = useDispatch( blockEditorStore );
 
+	const layout = 'squared';
+
 	useEffect( () => {
 		const { width } = sizes || {};
 		if ( width ) {
@@ -75,6 +77,7 @@ const TiledGalleryEdit = props => {
 				url: image.url,
 				caption: image.caption,
 				alt: image.alt,
+				className: `'is-style-'${ layout }`,
 			} );
 		} );
 
