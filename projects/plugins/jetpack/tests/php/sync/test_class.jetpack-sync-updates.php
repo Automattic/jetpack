@@ -174,6 +174,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 	public function test_sync_wp_version() {
 		global $wp_version;
 		$previous_version = $wp_version;
+		$this->sender->do_sync();
 		$this->assertEquals( $wp_version, $this->server_replica_storage->get_callable( 'wp_version' ) );
 
 		// Lets pretend that we updated the wp_version to bar.
