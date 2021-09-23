@@ -362,12 +362,9 @@ class Queue {
 
 		$items = $wpdb->get_results( $query, OBJECT ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		foreach ( $items as $item ) {
-			// if unserializable, the item is invalid and discardable.
-			if ( ! is_serialized( $item->value ) ) {
-				$item->value = false;
-			} else {
-				$item->value = maybe_unserialize( $item->value );
-			}
+			// @codingStandardsIgnoreStart
+			$item->value = @unserialize( $item->value );
+			// @codingStandardsIgnoreEnd
 		}
 
 		if ( count( $items ) === 0 ) {
@@ -701,7 +698,7 @@ class Queue {
 	/**
 	 * Unserialize item values.
 	 *
-	 * @param array $items Events from the Queue to be serialized.
+	 * @param array $items Events from the Queue to be unserialized.
 	 *
 	 * @return mixed
 	 */
@@ -709,12 +706,9 @@ class Queue {
 		array_walk(
 			$items,
 			function ( $item ) {
-				// if unserializable, the item is invalid and discardable.
-				if ( ! is_serialized( $item->value ) ) {
-					$item->value = false;
-				} else {
-					$item->value = maybe_unserialize( $item->value );
-				}
+				// @codingStandardsIgnoreStart
+				$item->value = @unserialize( $item->value );
+				// @codingStandardsIgnoreEnd
 			}
 		);
 
