@@ -82,6 +82,6 @@ class WP_Test_Jetpack_Site_Json_Api_Endpoints extends WP_UnitTestCase {
 		$this->assertTrue( $response['jetpack_connection'] );
 
 		$options = (array) $response['options'];
-		$this->assertContains( 'jetpack_connection_active_plugins', $options );
+		$this->assertArrayHasKey( 'jetpack_connection_active_plugins', $options );
 	}
 }
