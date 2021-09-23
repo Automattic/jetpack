@@ -4,10 +4,10 @@ It will run the callback when the post is just saved.
 Also, it accepts a dependency array passed to useEffect hook.
 
 ```es6
-import usePostJustSave from '../../hooks/use-post-just-saved';
+import usePostJustSaved from '../../hooks/use-post-just-saved';
 
 function SavingPostLabel() {
-	usePostJustSave( function() {
+	usePostJustSaved( function() {
 		console.log( 'The post has been saved!' );
 	} );
 }
