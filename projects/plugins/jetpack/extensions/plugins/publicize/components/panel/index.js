@@ -19,13 +19,13 @@ import PublicizeConnectionVerify from '../connection-verify';
 import PublicizeForm from '../form';
 import PublicizeTwitterOptions from '../twitter/options';
 import useSelectSocialMediaConnections from '../../hooks/use-social-media-connections';
-import usePostJustSave from '../../hooks/use-post-just-saved';
+import usePostJustSaved from '../../hooks/use-post-just-saved';
 
 const PublicizePanel = ( { prePublish } ) => {
 	const { refresh, hasEnabledConnections } = useSelectSocialMediaConnections();
 
 	// Refresh connections when the post is just saved.
-	usePostJustSave(
+	usePostJustSaved(
 		function () {
 			if ( ! hasEnabledConnections ) {
 				return;
