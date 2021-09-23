@@ -11,8 +11,6 @@ use Automattic\Jetpack\Sync\Settings;
  * @group legacy-full-sync
  */
 class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	private $full_sync;
 

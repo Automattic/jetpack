@@ -33,8 +33,6 @@ function jetpack_foo_is_anon_callable() {
  * Testing Functions
  */
 class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	protected $post;
 	protected $callable_module;

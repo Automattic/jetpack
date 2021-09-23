@@ -17,7 +17,6 @@ require_once dirname( dirname( __DIR__ ) ) . '/lib/class-wp-test-jetpack-rest-te
  * @group rest-api
  */
 class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Jetpack_REST_Testcase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	static private $user_id = 0;
 	static private $connection_ids = [];

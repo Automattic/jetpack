@@ -4,7 +4,6 @@ use Automattic\Jetpack\Sync\Queue;
 use Automattic\Jetpack\Sync\Queue_Buffer;
 
 class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	private $queue;
 

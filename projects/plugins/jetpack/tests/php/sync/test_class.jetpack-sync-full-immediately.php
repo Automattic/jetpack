@@ -13,7 +13,6 @@ if ( ! function_exists( 'jetpack_foo_full_sync_callable' ) ) {
 }
 
 class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	private $full_sync;
 

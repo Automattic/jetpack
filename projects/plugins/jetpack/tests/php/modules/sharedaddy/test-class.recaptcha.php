@@ -2,7 +2,6 @@
 require_jetpack_file( 'modules/sharedaddy/recaptcha.php' );
 
 class WP_Test_Jetpack_ReCaptcha extends WP_UnitTestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Set up.

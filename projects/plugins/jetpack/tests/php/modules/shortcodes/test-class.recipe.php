@@ -9,7 +9,6 @@ require_once __DIR__ . '/trait.http-request-cache.php';
  */
 class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * The tested instance.

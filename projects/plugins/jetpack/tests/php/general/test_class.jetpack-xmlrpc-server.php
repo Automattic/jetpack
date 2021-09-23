@@ -3,8 +3,6 @@
 use Automattic\Jetpack\Connection\Tokens;
 
 class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	static $xmlrpc_admin = 0;
 

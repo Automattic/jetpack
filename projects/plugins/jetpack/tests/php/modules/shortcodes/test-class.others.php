@@ -13,7 +13,6 @@ require_once __DIR__ . '/trait.http-request-cache.php';
  */
 class WP_Test_Jetpack_Shortcodes_Others extends WP_UnitTestCase {
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * After a test method runs, reset any state in WordPress the test method might have changed.

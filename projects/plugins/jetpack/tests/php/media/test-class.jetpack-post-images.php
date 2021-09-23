@@ -3,7 +3,6 @@
 require_jetpack_file( 'modules/shortcodes/slideshow.php' );
 
 class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	/**
 	 * @author blobaugh

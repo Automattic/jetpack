@@ -2,7 +2,6 @@
 require dirname( __FILE__ ) . '/../../../../modules/likes.php';
 
 class WP_Test_Likes extends WP_UnitTestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Test that the actions are not added if likes are not visible.

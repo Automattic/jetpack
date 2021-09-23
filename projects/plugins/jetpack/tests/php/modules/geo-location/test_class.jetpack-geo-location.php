@@ -3,7 +3,6 @@
 require_once JETPACK__PLUGIN_DIR . '/modules/geo-location/class.jetpack-geo-location.php';
 
 class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	const DISABLE_CONSTRUCTOR = true;
 

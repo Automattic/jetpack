@@ -6,7 +6,6 @@ use Automattic\Jetpack\Constants;
 
 class WP_Test_Jetpack_Shortcodes_Instagram extends WP_UnitTestCase {
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Mock global $content_width value.

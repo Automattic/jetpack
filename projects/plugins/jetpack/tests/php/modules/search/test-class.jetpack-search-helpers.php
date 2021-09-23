@@ -26,7 +26,6 @@ class WP_Test_Jetpack_Search_Helpers_Query {
 }
 
 class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	protected $request_uri;
 	protected $get;

@@ -13,7 +13,6 @@ require_jetpack_file( 'modules/contact-form/grunion-contact-form.php' );
  * @covers Grunion_Contact_Form
  */
 class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Sets up the test environment before the class tests begin.

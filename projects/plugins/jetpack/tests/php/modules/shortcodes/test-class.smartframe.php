@@ -19,7 +19,6 @@ require_once __DIR__ . '/trait.http-request-cache.php';
  */
 class WP_Test_Jetpack_Shortcodes_SmartFrame extends WP_UnitTestCase {
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	const SMARTFRAME_IDENTIFIER = 'mantymetsa_1630927773870';
 	const SMARTFRAME_SCRIPT_ID  = '6ae67829d1264ee0ea6071a788940eae';

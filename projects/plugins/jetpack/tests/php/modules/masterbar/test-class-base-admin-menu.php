@@ -15,7 +15,6 @@ use \Automattic\Jetpack\Dashboard_Customizations\Base_Admin_Menu;
  * @coversDefaultClass Automattic\Jetpack\Dashboard_Customizations\Base_Admin_Menu
  */
 class Test_Base_Admin_Menu extends WP_UnitTestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Admin menu instance.

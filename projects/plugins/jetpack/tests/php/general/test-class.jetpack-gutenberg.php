@@ -3,7 +3,6 @@
 use Automattic\Jetpack\Blocks;
 
 class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	public $master_user_id = false;
 

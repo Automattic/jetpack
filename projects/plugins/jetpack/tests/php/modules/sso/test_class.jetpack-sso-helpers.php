@@ -7,8 +7,6 @@ require_once( dirname( __FILE__ ) . '/../../../../modules/sso/class.jetpack-sso-
  * @since 4.1.0
  */
 class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	protected $user_data;
 

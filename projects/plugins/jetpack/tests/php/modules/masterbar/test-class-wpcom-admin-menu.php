@@ -17,7 +17,6 @@ require_jetpack_file( 'tests/php/modules/masterbar/data/admin-menu.php' );
  * @coversDefaultClass Automattic\Jetpack\Dashboard_Customizations\WPcom_Admin_Menu
  */
 class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Menu data fixture.

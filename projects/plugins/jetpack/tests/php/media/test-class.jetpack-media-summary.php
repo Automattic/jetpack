@@ -5,7 +5,6 @@ if ( ! class_exists( 'Jetpack_Media_Summary' ) ) {
 }
 
 class WP_Test_Jetpack_MediaSummary extends WP_UnitTestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	/**
 	 * @author scotchfield

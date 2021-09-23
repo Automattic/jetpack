@@ -5,7 +5,6 @@ require_jetpack_file( 'extensions/blocks/slideshow/slideshow.php' );
 
 class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * The mock IDs.

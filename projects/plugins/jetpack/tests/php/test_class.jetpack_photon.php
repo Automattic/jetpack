@@ -11,8 +11,6 @@
  * Class WP_Test_Jetpack_Photon
  */
 class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Test image.

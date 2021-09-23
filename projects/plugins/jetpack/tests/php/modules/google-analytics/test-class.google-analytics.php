@@ -11,7 +11,6 @@ require_jetpack_file( 'modules/google-analytics/wp-google-analytics.php' );
  * Class WP_Test_Jetpack_Google_Analytics.
  */
 class WP_Test_Jetpack_Google_Analytics extends WP_UnitTestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Testing Google Analytics account (UA).

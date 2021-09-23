@@ -11,8 +11,6 @@ if ( is_multisite() ) :
 	 * Test class for the Jetpack_Network class.
 	 */
 	class WP_Test_Jetpack_Network extends WP_UnitTestCase {
-		use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
-		use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 		/**
 		 * Confirms the instance is generated from the init.

@@ -47,8 +47,6 @@ class MockJetpack_XMLRPC_Server extends Jetpack_XMLRPC_Server {
 }
 
 class WP_Test_Jetpack extends WP_UnitTestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	static $admin_id = 0;
 

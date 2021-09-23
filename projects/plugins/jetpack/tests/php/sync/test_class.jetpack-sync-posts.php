@@ -12,8 +12,6 @@ use Automattic\Jetpack\Sync\Settings;
  * @group jetpack-sync
  */
 class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	protected $post;
 	protected $test_already = false;
