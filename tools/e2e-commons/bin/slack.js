@@ -74,7 +74,12 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
 
 	const detailLines = [];
 	const failureDetails = [];
-	const screenshots = fs.readdirSync( path.join( rootPath, config.get( 'dirs.screenshots' ) ) );
+	let screenshots = [];
+	const screenshotsPath = path.join( rootPath, config.get( 'dirs.screenshots' ) );
+	if ( fs.existsSync( screenshotsPath ) ) {
+		screenshots = fs.readdirSync( screenshotsPath );
+	}
+
 	const matchedScreenshots = [];
 
 	// Go through all test results and extract failure details
