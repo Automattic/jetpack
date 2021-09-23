@@ -2,30 +2,48 @@
  * External dependencies
  */
 import { select } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 
 /**
  * Returns an action object used in signalling that
  * we're setting the Publicize connection test results.
  *
- * @param {Array} results - Connection test results.
+ * @param {Array} connections - Processed connections list.
  * @returns {object} Action object.
  */
-export function setConnectionTestResults( results ) {
+export function setConnectionTestResults( connections ) {
 	return {
 		type: 'SET_CONNECTION_TEST_RESULTS',
-		results,
+		connections,
 	};
 }
 
 /**
  * Returns an action object used in signalling that
- * we're refreshing the Publicize connection test results.
+ * we're refreshing the Publicize connection.
  *
+ * It accepts an optional `connections` parameter, which
+ * can be used to refresh the connections straight away.
+ * Otherwise, it will pick the connections from the post metadata.
+ *
+ * @param {Array} connections - Processed connections list.
  * @returns {object} Action object.
  */
-export function refreshConnectionTestResults() {
+export function refreshConnectionTestResults( connections = null ) {
+	connections = connections
+		? connections
+		: select( editorStore ).getEditedPostAttribute( 'jetpack_publicize_connections' ) || [];
+
 	return {
 		type: 'REFRESH_CONNECTION_TEST_RESULTS',
+		connections,
+	};
+}
+
+export function toggleConnectionById( connectionId ) {
+	return {
+		type: 'TOGGLE_CONNECTION_BY_ID',
+		connectionId,
 	};
 }
 

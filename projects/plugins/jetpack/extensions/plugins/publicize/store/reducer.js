@@ -13,16 +13,38 @@ export const DEFAULT_STATE = {
  */
 export default function ( state = DEFAULT_STATE, action ) {
 	switch ( action.type ) {
-		case 'SET_CONNECTION_TEST_RESULTS':
+		case 'SET_CONNECTION_TEST_RESULTS': {
+			const { connections } = action;
 			return {
 				...state,
-				connections: action.results,
+				connections,
 			};
-		case 'REFRESH_CONNECTION_TEST_RESULTS':
+		}
+
+		case 'REFRESH_CONNECTION_TEST_RESULTS': {
+			const { connections } = action;
 			return {
 				...state,
-				connections: [],
+				connections,
 			};
+		}
+
+		case 'TOGGLE_CONNECTION_BY_ID': {
+			/*
+			 * Map connections re-defining the enabled state of the connection,
+			 * based on the connection ID.
+			 */
+			const connections = state.connections.map( connection => ( {
+				...connection,
+				enabled: connection.id === action.connectionId ? ! connection.enabled : connection.enabled,
+			} ) );
+
+			return {
+				...state,
+				connections,
+			};
+		}
+
 		case 'SET_TWEETS':
 			return {
 				...state,
