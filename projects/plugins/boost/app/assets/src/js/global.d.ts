@@ -17,6 +17,7 @@ declare global {
 	};
 
 	// Constants provided by the plugin.
+	// eslint-disable-next-line camelcase
 	const Jetpack_Boost: {
 		version: string;
 		api: {
@@ -26,7 +27,7 @@ declare global {
 		connectionIframeOriginUrl: string;
 		connection: ConnectionStatus;
 		criticalCssStatus?: CriticalCssStatus;
-		criticalCssAjaxNonce?: string;
+		criticalCssDismissRecommendationsNonce?: string;
 		criticalCssDismissedRecommendations: string[];
 		site: {
 			url: string;

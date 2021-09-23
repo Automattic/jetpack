@@ -11,19 +11,18 @@ import type { JSONObject } from './json-types';
 declare const ajaxurl: string;
 
 class AdminAjaxError extends Error {
-	constructor( message ) {
+	constructor( message: string ) {
 		super( message );
 		this.name = 'AdminAjaxError';
 	}
 }
 
-export async function makeAdminAjaxRequest< T = JSONObject >( payload: JSONObject ): Promise< T > {
+export async function makeAdminAjaxRequest< T = JSONObject >(
+	payload: Record< string, string >
+): Promise< T > {
 	const args = {
 		method: 'post',
-		body: new URLSearchParams( {
-			...payload,
-			...{ nonce: Jetpack_Boost.criticalCssAjaxNonce },
-		} ),
+		body: new URLSearchParams( payload ),
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded;',
 		},
@@ -56,5 +55,6 @@ export async function makeAdminAjaxRequest< T = JSONObject >( payload: JSONObjec
 		);
 	}
 
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	return jsonBody as any;
 }

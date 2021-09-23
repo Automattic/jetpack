@@ -15,7 +15,7 @@
 	"require": {
 		"ext-json": "*",
 		"automattic/jetpack-autoloader": "2.10.x-dev",
-		"automattic/jetpack-config": "1.4.x-dev",
+		"automattic/jetpack-config": "1.5.x-dev",
 		"automattic/jetpack-connection": "1.30.x-dev",
 		"automattic/jetpack-device-detection": "1.4.x-dev",
 		"automattic/jetpack-lazy-images": "2.0.x-dev",

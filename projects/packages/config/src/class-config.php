@@ -16,6 +16,7 @@ use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Connection\Plugin;
 use Automattic\Jetpack\JITM as JITM;
 use Automattic\Jetpack\JITMS\JITM as JITMS_JITM;
+use Automattic\Jetpack\Post_List\Post_List as Post_List;
 use Automattic\Jetpack\Sync\Main as Sync_Main;
 
 /**
@@ -36,6 +37,7 @@ class Config {
 		'jitm'       => false,
 		'connection' => false,
 		'sync'       => false,
+		'post_list'  => false,
 	);
 
 	/**
@@ -92,6 +94,11 @@ class Config {
 			( $this->ensure_class( 'Automattic\Jetpack\JITMS\JITM', false )
 				|| $this->ensure_class( 'Automattic\Jetpack\JITM' ) )
 			&& $this->ensure_feature( 'jitm' );
+		}
+
+		if ( $this->config['post_list'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\Post_List\Post_List' )
+				&& $this->ensure_feature( 'post_list' );
 		}
 	}
 
@@ -168,6 +175,15 @@ class Config {
 			// Provides compatibility with jetpack-jitm <v1.6.
 			JITM::configure();
 		}
+
+		return true;
+	}
+
+	/**
+	 * Enables the Post_List feature.
+	 */
+	protected function enable_post_list() {
+		Post_List::configure();
 
 		return true;
 	}

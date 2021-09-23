@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Search: Remove @wordpress/interface dependency for new configurator
