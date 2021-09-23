@@ -40,7 +40,7 @@ if ( isset( $_GET['error'] ) && 'jetpack_protect_whitelist' === $_GET['error'] )
 					if ( ! empty( $protect_ip ) ) {
 						printf(
 							/* Translators: placeholder is an IP address. */
-							esc_attr__( 'Your current IP: %1$s', 'jetpack' ),
+							esc_html__( 'Your current IP: %1$s', 'jetpack' ),
 							esc_html( $protect_ip )
 						);
 					}
