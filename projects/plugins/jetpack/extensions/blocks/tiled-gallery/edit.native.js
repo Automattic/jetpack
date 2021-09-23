@@ -26,6 +26,7 @@ import { useResizeObserver } from '@wordpress/compose';
 import { ALLOWED_MEDIA_TYPES } from './constants';
 import { icon } from '.';
 import styles from './styles.scss';
+import TiledGallerySettings from './settings';
 
 const TILE_SPACING = 8;
 
@@ -124,6 +125,7 @@ const TiledGalleryEdit = props => {
 	return (
 		<View blockProps={ blockProps }>
 			{ resizeObserver }
+			<TiledGallerySettings />
 			<View { ...innerBlocksProps } />
 			<View style={ [ styles.galleryAppender ] }>{ mediaPlaceholder }</View>
 		</View>
