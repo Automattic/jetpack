@@ -274,7 +274,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "574062ea08a3c58d80432455d9e9fc610deb3085"
+                "reference": "5d4521caf49f5304ba7b753cdf8a89244345c462"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -308,9 +308,6 @@
                 }
             },
             "autoload": {
-                "files": [
-                    "legacy/load-ixr.php"
-                ],
                 "classmap": [
                     "legacy",
                     "src/"
