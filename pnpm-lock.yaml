@@ -626,6 +626,7 @@ importers:
       react: 17.0.2
       react-click-outside: 3.0.1
       react-dom: 17.0.2
+      react-page-visibility: 6.4.0
       react-pure-render: 1.0.2
       react-redux: 6.0.1
       react-router-dom: 5.2.0
@@ -722,6 +723,7 @@ importers:
       q-flat: 1.0.7
       qss: 2.0.3
       query-string: 7.0.0
+      react-page-visibility: 6.4.0_react@17.0.2
       react-pure-render: 1.0.2
       react-redux: 6.0.1_react@17.0.2+redux@4.0.5
       react-router-dom: 5.2.0_react@17.0.2
@@ -18370,6 +18372,16 @@ packages:
       prop-types: 15.7.2
       react: 17.0.2
     dev: true
+
+  /react-page-visibility/6.4.0_react@17.0.2:
+    resolution: {integrity: sha512-5vQ0zQU2DvKCQAxle9l5V6uxw2m180Lk7Jem+obmTeQ503fvMJLSUzFgWtTEgUVynhUx2pd+RzafnuMAG8uD6A==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      react: ^16.13.1 || ^17.0.0
+    dependencies:
+      prop-types: 15.7.2
+      react: 17.0.2
+    dev: false
 
   /react-popper-tooltip/3.1.1_react@17.0.2:
     resolution: {integrity: sha512-EnERAnnKRptQBJyaee5GJScWNUKQPDD2ywvzZyUjst/wj5U64C8/CnSYLNEmP2hG0IJ3ZhtDxE8oDN+KOyavXQ==}
