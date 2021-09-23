@@ -124,6 +124,7 @@
 		"q-flat": "1.0.7",
 		"qss": "2.0.3",
 		"query-string": "7.0.0",
+		"react-page-visibility": "6.4.0",
 		"react-pure-render": "1.0.2",
 		"react-redux": "6.0.1",
 		"react-router-dom": "5.2.0",

@@ -15,7 +15,7 @@ import MessageBoxControl from '../message-box-control';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 
-export default function PublicizeForm( { refreshCallback } ) {
+export default function PublicizeForm() {
 	const { connections, toggleById } = useSocialMediaConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 
@@ -39,7 +39,7 @@ export default function PublicizeForm( { refreshCallback } ) {
 				) ) }
 			</ul>
 
-			<PublicizeSettingsButton refreshCallback={ refreshCallback } />
+			<PublicizeSettingsButton />
 
 			{ connections.some( connection => connection.enabled ) && (
 				<MessageBoxControl
