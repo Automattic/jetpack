@@ -37,6 +37,9 @@ abstract class Module {
 		if ( $this->has_rest_routes() ) {
 			add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		}
+
+		add_action( 'jetpack_boost_deactivate', array( $this, 'on_deactivate' ) );
+		add_action( 'jetpack_boost_uninstall', array( $this, 'on_uninstall' ) );
 	}
 
 	/**
@@ -55,6 +58,28 @@ abstract class Module {
 	final public function is_initialized() {
 		return $this->is_initialized;
 	}
+
+	/**
+	 * Run actions on plugin deactivation.
+	 *
+	 * Override this method in a specific module class to run deactivation
+	 * tasks hooked to jetpack_boost_deactivate action.
+	 *
+	 * @see Module::__construct()
+	 * @see Jetpack_Boost::deactivate()
+	 */
+	public function on_deactivate() {}
+
+	/**
+	 * Run actions on plugin uninstall.
+	 *
+	 * Override this method in a specific module class to run uninstall
+	 * tasks hooked to jetpack_boost_uninstall action.
+	 *
+	 * @see Module::__construct()
+	 * @see Jetpack_Boost::uninstall()
+	 */
+	public function on_uninstall() {}
 
 	/**
 	 * Check if the module extending this class is registering routes.
