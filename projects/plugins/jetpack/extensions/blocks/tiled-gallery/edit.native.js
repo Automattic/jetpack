@@ -17,7 +17,6 @@ import {
 import { createBlock } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useMemo } from '@wordpress/element';
-import { ToolbarGroup } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useResizeObserver } from '@wordpress/compose';
 
