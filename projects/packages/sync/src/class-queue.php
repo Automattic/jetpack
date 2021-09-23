@@ -49,6 +49,11 @@ class Queue {
 		global $wpdb;
 		$added = false;
 
+		// If empty, don't add.
+		if ( empty( $item ) ) {
+			return;
+		}
+
 		// Attempt to serialize data, if an exception (closures) return early.
 		try {
 			$item = serialize( $item ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
@@ -87,6 +92,10 @@ class Queue {
 		$rows        = array();
 		$count_items = count( $items );
 		for ( $i = 0; $i < $count_items; ++$i ) {
+			// skip empty items.
+			if ( empty( $items[ i ] ) ) {
+				continue;
+			}
 			try {
 				$option_name  = esc_sql( $base_option_name . '-' . $i );
 				$option_value = esc_sql( serialize( $items[ $i ] ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
@@ -353,7 +362,12 @@ class Queue {
 
 		$items = $wpdb->get_results( $query, OBJECT ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		foreach ( $items as $item ) {
-			$item->value = maybe_unserialize( $item->value );
+			// if unserializable, the item is invalid and discardable.
+			if ( ! is_serialized( $item->value ) ) {
+				$item->value = false;
+			} else {
+				$item->value = maybe_unserialize( $item->value );
+			}
 		}
 
 		if ( count( $items ) === 0 ) {
@@ -695,7 +709,12 @@ class Queue {
 		array_walk(
 			$items,
 			function ( $item ) {
-				$item->value = maybe_unserialize( $item->value );
+				// if unserializable, the item is invalid and discardable.
+				if ( ! is_serialized( $item->value ) ) {
+					$item->value = false;
+				} else {
+					$item->value = maybe_unserialize( $item->value );
+				}
 			}
 		);
 
