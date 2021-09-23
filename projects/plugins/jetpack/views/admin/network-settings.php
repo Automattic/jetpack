@@ -47,7 +47,7 @@ if ( isset( $_GET['error'] ) && 'jetpack_protect_whitelist' === $_GET['error'] )
 					?>
 					</strong></p>
 					<?php
-					echo '<textarea name="global-whitelist" style="width: 100%;" rows="8">';
+					echo '<textarea name="global-whitelist" style="width: 100%;" rows="8">'; // echo to avoid tabs displayed in textarea. See https://github.com/Automattic/jetpack/pull/21151/files#r713922521.
 
 					foreach ( $data['jetpack_protect_whitelist']['global'] as $ip ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 						echo esc_html( $ip ) . "\n";
