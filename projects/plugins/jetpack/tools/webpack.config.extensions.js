@@ -121,7 +121,7 @@ const extensionsWebpackConfig = getBaseWebpackConfig(
 			...viewBlocksScripts,
 		},
 		'output-filename': '[name].min.js',
-		'output-chunk-filename': '[name].[chunkhash].js',
+		'output-chunk-filename': '[name].[contenthash].js',
 		'output-path': path.join( path.dirname( __dirname ), '_inc', 'blocks' ),
 		'output-jsonp-function': 'webpackJsonpJetpack',
 		// Calypso-build defaults this to "window", which breaks things if no library.name is set.
@@ -138,7 +138,7 @@ const componentsWebpackConfig = getBaseWebpackConfig(
 				'./extensions/shared/components/index.jsx'
 			),
 		},
-		'output-chunk-filename': '[name].[chunkhash].js',
+		'output-chunk-filename': '[name].[contenthash].js',
 		'output-library-target': 'commonjs2',
 		'output-path': path.join( path.dirname( __dirname ), '_inc', 'blocks' ),
 		'output-pathinfo': true,

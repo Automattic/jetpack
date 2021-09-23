@@ -562,8 +562,7 @@ body .sd-social-icon .sd-content li.share-custom a span {
 
 
 .sd-social-icon .sd-content ul li[class*='share-'] a.sd-button:before {
-	top: 1px;
-	top: 0px\9; /* IE8 and below */
+	top: 0;
 }
 
 .sd-social-icon .sd-content ul li[class*='share-'] a.sd-button.share-custom {
