@@ -825,9 +825,7 @@ class Grunion_Contact_Form_Plugin {
 		 *
 		 * @param array $form The form values being sent to Akismet.
 		 */
-		$form = apply_filters( 'jetpack_contact_form_akismet_values', $form );
-
-		return $form;
+		return apply_filters( 'jetpack_contact_form_akismet_values', $form );
 	}
 
 	/**
