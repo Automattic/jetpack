@@ -11,6 +11,8 @@
  * Class WP_Test_Jetpack_Photon
  */
 class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
+
 	/**
 	 * Test image.
 	 *
@@ -1085,7 +1087,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 */
 	public function photon_attributes_when_filtered_data_provider() {
 		$assert_details = function ( $details ) {
-			$this->assertInternalType( 'array', $details );
+			$this->assertIsArray( $details );
 			$this->assertArrayHasKey( 'tag', $details );
 			$this->assertArrayHasKey( 'src', $details );
 			$this->assertArrayHasKey( 'src_orig', $details );
@@ -1370,7 +1372,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$data = $response->get_data();
 
 		$this->assertNotEmpty( $data );
-		$this->assertInternalType( 'array', $data[0] );
+		$this->assertIsArray( $data[0] );
 		$this->assertArrayHasKey( 'url', $data[0] );
 		$this->assertStringNotContainsString( 'wp.com', $data[0]['url'] );
 	}

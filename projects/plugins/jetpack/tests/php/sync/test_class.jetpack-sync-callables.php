@@ -33,6 +33,8 @@ function jetpack_foo_is_anon_callable() {
  * Testing Functions
  */
 class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
+
 	protected $post;
 	protected $callable_module;
 
@@ -479,7 +481,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$url_callables = array( 'home_url', 'site_url', 'main_network_site_url' );
 		foreach( $url_callables as $callable ) {
-			$this->assertInternalType( 'array', get_option( Urls::HTTPS_CHECK_OPTION_PREFIX . $callable ) );
+			$this->assertIsArray( get_option( Urls::HTTPS_CHECK_OPTION_PREFIX . $callable ) );
 		}
 
 		Sender::get_instance()->uninstall();
@@ -960,7 +962,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$taxonomies = Functions::get_taxonomies();
 		$taxonomy   = $taxonomies['example'];
 
-		$this->assertInternalType( 'object', $taxonomy );
+		$this->assertIsObject( $taxonomy );
 		// Did we get rid of the expected attributes?
 		$this->assertNull( $taxonomy->update_count_callback, 'example has the update_count_callback attribute, which should be removed since it is a callback' );
 		$this->assertNull( $taxonomy->meta_box_cb, 'example has the meta_box_cb attribute, which should be removed since it is a callback' );

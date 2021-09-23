@@ -17,6 +17,8 @@ require_once dirname( dirname( __DIR__ ) ) . '/lib/class-wp-test-jetpack-rest-te
  * @group rest-api
  */
 class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Jetpack_REST_Testcase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
+
 	static private $user_id = 0;
 	static private $connection_ids = [];
 
@@ -243,12 +245,12 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 		$data     = $response->get_data();
 
 		$this->assertArrayHasKey( 'jetpack_publicize_connections', $data );
-		$this->assertInternalType( 'array', $data['jetpack_publicize_connections'] );
+		$this->assertIsArray( $data['jetpack_publicize_connections'] );
 		$this->assertSame( self::$connection_ids, wp_list_pluck( $data['jetpack_publicize_connections'], 'id' ) );
 
 		$this->assertArrayHasKey( 'meta', $data );
 		$this->assertArrayHasKey( 'jetpack_publicize_message', $data['meta'] );
-		$this->assertInternalType( 'string', $data['meta']['jetpack_publicize_message'] );
+		$this->assertIsString( $data['meta']['jetpack_publicize_message'] );
 		$this->assertEmpty( $data['meta']['jetpack_publicize_message'] );
 	}
 

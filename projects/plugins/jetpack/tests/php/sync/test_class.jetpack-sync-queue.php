@@ -4,6 +4,7 @@ use Automattic\Jetpack\Sync\Queue;
 use Automattic\Jetpack\Sync\Queue_Buffer;
 
 class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	private $queue;
 
@@ -283,32 +284,32 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 		// Verify null returns an empty array.
 		$items = $this->queue->peek_by_id( null );
 		$this->assertEmpty( $items );
-		$this->assertInternalType( 'array', $items );
+		$this->assertIsArray( $items );
 
 		// Verify empty array returns an empty array.
 		$items = $this->queue->peek_by_id( array() );
 		$this->assertEmpty( $items );
-		$this->assertInternalType( 'array', $items );
+		$this->assertIsArray( $items );
 
 		// Verify unknown ids array returns an empty array.
 		$items = $this->queue->peek_by_id( array( 'blue' ) );
 		$this->assertEmpty( $items );
-		$this->assertInternalType( 'array', $items );
+		$this->assertIsArray( $items );
 
 		// Verify string returns an empty array.
 		$items = $this->queue->peek_by_id( 'blue' );
 		$this->assertEmpty( $items );
-		$this->assertInternalType( 'array', $items );
+		$this->assertIsArray( $items );
 
 		// Verify number returns an empty array.
 		$items = $this->queue->peek_by_id( 18 );
 		$this->assertEmpty( $items );
-		$this->assertInternalType( 'array', $items );
+		$this->assertIsArray( $items );
 
 		// Verify Error returns and empty array.
 		$items = $this->queue->peek_by_id( new \Automattic\Jetpack\Error( 'random', 'something happened.' ) );
 		$this->assertEmpty( $items );
-		$this->assertInternalType( 'array', $items );
+		$this->assertIsArray( $items );
 	}
 
 	function test_queue_is_persisted() {

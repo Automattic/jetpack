@@ -3,6 +3,7 @@
 require_jetpack_file( 'modules/shortcodes/slideshow.php' );
 
 class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	/**
 	 * @author blobaugh
@@ -15,7 +16,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 
 		$result = Jetpack_PostImages::from_html( $s );
 
-		$this->assertInternalType( 'array', $result );
+		$this->assertIsArray( $result );
 		$this->assertFalse( empty( $result ) );
 		$this->assertEquals( 'Alt Text.', $result[ 0 ][ 'alt_text' ] );
 	}
@@ -31,7 +32,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 
 		$result = Jetpack_PostImages::from_html( $s );
 
-		$this->assertInternalType( 'array', $result );
+		$this->assertIsArray( $result );
 		$this->assertFalse( empty( $result ) );
 		$this->assertEquals( 'Alt Text.', $result[ 0 ][ 'alt_text' ] );
 	}
@@ -50,7 +51,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 
 		$images = Jetpack_PostImages::from_slideshow( $post_id );
 
-		$this->assertInternalType( 'array', $images );
+		$this->assertIsArray( $images );
 	}
 
 	/**
@@ -65,7 +66,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 
 		$images = Jetpack_PostImages::from_gallery( $post_id );
 
-		$this->assertInternalType( 'array', $images );
+		$this->assertIsArray( $images );
 	}
 
 	/**

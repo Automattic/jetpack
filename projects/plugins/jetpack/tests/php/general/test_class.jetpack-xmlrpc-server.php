@@ -3,6 +3,8 @@
 use Automattic\Jetpack\Connection\Tokens;
 
 class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
+
 	static $xmlrpc_admin = 0;
 
 	public static function wpSetupBeforeClass( $factory ) {
@@ -85,7 +87,7 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		$server   = new Jetpack_XMLRPC_Server();
 		$response = $server->remote_provision( array( 'local_user' => 1 ) );
 
-		$this->assertInternalType( 'array', $response );
+		$this->assertIsArray( $response );
 
 		$expected_keys = array(
 			'jp_version',

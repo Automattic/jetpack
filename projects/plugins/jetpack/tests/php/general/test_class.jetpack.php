@@ -47,6 +47,8 @@ class MockJetpack_XMLRPC_Server extends Jetpack_XMLRPC_Server {
 }
 
 class WP_Test_Jetpack extends WP_UnitTestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
+
 	static $admin_id = 0;
 
 	static $activated_modules = array();
@@ -326,8 +328,8 @@ EXPECTED;
 		) );
 
 		$other_admins = Jetpack::get_other_linked_admins();
-		$this->assertInternalType( 'int', $other_admins );
-		$this->assertInternalType( 'int', get_transient( 'jetpack_other_linked_admins' ) );
+		$this->assertIsInt( $other_admins );
+		$this->assertIsInt( get_transient( 'jetpack_other_linked_admins' ) );
 	}
 
 	public function test_promoting_admin_clears_other_linked_admins_transient() {

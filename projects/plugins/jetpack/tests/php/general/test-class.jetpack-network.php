@@ -11,6 +11,7 @@ if ( is_multisite() ) :
 	 * Test class for the Jetpack_Network class.
 	 */
 	class WP_Test_Jetpack_Network extends WP_UnitTestCase {
+		use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 		/**
 		 * Confirms the instance is generated from the init.
@@ -34,7 +35,7 @@ if ( is_multisite() ) :
 			$url          = $jpms->get_url( 'network_admin_page' );
 			$expected_url = '/wp-admin/network/admin.php?page=jetpack';
 
-			$this->assertInternalType( 'string', $url );
+			$this->assertIsString( $url );
 			$this->assertStringEndsWith( $expected_url, $url );
 		}
 
@@ -69,7 +70,7 @@ if ( is_multisite() ) :
 			);
 			$expected_url = '/wp-admin/network/admin.php?page=jetpack&action=subsiteregister&site_id=123';
 
-			$this->assertInternalType( 'string', $url );
+			$this->assertIsString( $url );
 			$this->assertStringEndsWith( $expected_url, $url );
 
 		}
@@ -105,7 +106,7 @@ if ( is_multisite() ) :
 			);
 			$expected_url = '/wp-admin/network/admin.php?page=jetpack&action=subsitedisconnect&site_id=123';
 
-			$this->assertInternalType( 'string', $url );
+			$this->assertIsString( $url );
 			$this->assertStringEndsWith( $expected_url, $url );
 		}
 
@@ -132,7 +133,7 @@ if ( is_multisite() ) :
 
 			$classes = $jpms->body_class( '' );
 
-			$this->assertInternalType( 'string', $classes );
+			$this->assertIsString( $classes );
 			$this->assertContains( 'network-admin', $classes );
 		}
 

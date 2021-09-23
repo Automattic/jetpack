@@ -12,6 +12,7 @@ use Automattic\Jetpack\Sync\Settings;
  * @group jetpack-sync
  */
 class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	protected $post;
 	protected $test_already = false;
@@ -555,7 +556,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$post_on_server = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' )->args[1];
 		$this->assertObjectHasAttribute( 'featured_image', $post_on_server );
-		$this->assertInternalType( 'string', $post_on_server->featured_image );
+		$this->assertIsString( $post_on_server->featured_image );
 		$this->assertContains( 'test_image.png', $post_on_server->featured_image );
 	}
 

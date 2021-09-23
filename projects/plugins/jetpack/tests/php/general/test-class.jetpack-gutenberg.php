@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Blocks;
 
 class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	public $master_user_id = false;
 
@@ -147,14 +148,14 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 
 	function test_get_available_extensions() {
 		$extensions = Jetpack_Gutenberg::get_available_extensions( $this->get_extensions_whitelist() );
-		$this->assertInternalType( 'array', $extensions );
+		$this->assertIsArray( $extensions );
 		$this->assertNotEmpty( $extensions );
 		$this->assertContains( 'onion', $extensions );
 
 		update_option( 'jetpack_excluded_extensions', array( 'onion' ) );
 
 		$extensions = Jetpack_Gutenberg::get_available_extensions( $this->get_extensions_whitelist() );
-		$this->assertInternalType( 'array', $extensions );
+		$this->assertIsArray( $extensions );
 		$this->assertNotEmpty( $extensions );
 		$this->assertNotContains( 'onion', $extensions );
 	}

@@ -11,6 +11,8 @@ use Automattic\Jetpack\Sync\Settings;
  * @group legacy-full-sync
  */
 class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
+
 	private $full_sync;
 
 	private $full_sync_end_checksum;
@@ -1130,12 +1132,12 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( $should_be_status['queue'], $full_sync_status['queue'] );
 		$this->assertEquals( $should_be_status['config'], $full_sync_status['config'] );
-		$this->assertInternalType( 'int', $full_sync_status['started'] );
-		$this->assertInternalType( 'int', $full_sync_status['queue_finished'] );
+		$this->assertIsInt( $full_sync_status['started'] );
+		$this->assertIsInt( $full_sync_status['queue_finished'] );
 		$this->assertNull( $full_sync_status['send_started'] );
 		$this->assertNull( $full_sync_status['finished'] );
-		$this->assertInternalType( 'array', $full_sync_status['sent'] );
-		$this->assertInternalType( 'array', $full_sync_status['sent_total'] );
+		$this->assertIsArray( $full_sync_status['sent'] );
+		$this->assertIsArray( $full_sync_status['sent_total'] );
 	}
 
 	function test_full_sync_status_after_end() {
@@ -1191,10 +1193,10 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $full_sync_status['queue'], $should_be_status['queue'] );
 		$this->assertEquals( $full_sync_status['sent'], $should_be_status['sent'] );
 		$this->assertEquals( $full_sync_status['sent_total'], $should_be_status['sent_total'] );
-		$this->assertInternalType( 'int', $full_sync_status['started'] );
-		$this->assertInternalType( 'int', $full_sync_status['queue_finished'] );
-		$this->assertInternalType( 'int', $full_sync_status['send_started'] );
-		$this->assertInternalType( 'int', $full_sync_status['finished'] );
+		$this->assertIsInt( $full_sync_status['started'] );
+		$this->assertIsInt( $full_sync_status['queue_finished'] );
+		$this->assertIsInt( $full_sync_status['send_started'] );
+		$this->assertIsInt( $full_sync_status['finished'] );
 	}
 
 	function test_full_sync_respects_post_and_comment_filters() {
@@ -1453,10 +1455,10 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $full_sync_status['queue'], $should_be_status['queue'] );
 		$this->assertEquals( $full_sync_status['sent'], $should_be_status['sent'] );
 		$this->assertEquals( $full_sync_status['total'], $should_be_status['total'] );
-		$this->assertInternalType( 'int', $full_sync_status['started'], 'Started is not an integer' );
-		$this->assertInternalType( 'int', $full_sync_status['queue_finished'], 'Queue finished is not an integer' );
-		$this->assertInternalType( 'int', $full_sync_status['send_started'], 'Send started is not an integer' );
-		$this->assertInternalType( 'int', $full_sync_status['finished'], 'Finished is not an integer' );
+		$this->assertIsInt( $full_sync_status['started'], 'Started is not an integer' );
+		$this->assertIsInt( $full_sync_status['queue_finished'], 'Queue finished is not an integer' );
+		$this->assertIsInt( $full_sync_status['send_started'], 'Send started is not an integer' );
+		$this->assertIsInt( $full_sync_status['finished'], 'Finished is not an integer' );
 
 		// Reset all the defaults
 		$this->setSyncClientDefaults();

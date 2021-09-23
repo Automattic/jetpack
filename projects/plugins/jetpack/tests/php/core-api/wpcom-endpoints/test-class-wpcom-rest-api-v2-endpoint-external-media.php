@@ -11,6 +11,7 @@ require_once dirname( dirname( __DIR__ ) ) . '/lib/class-wp-test-jetpack-rest-te
  * @coversDefaultClass WPCOM_REST_API_V2_Endpoint_External_Media
  */
 class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_REST_Testcase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	/**
 	 * Mock user ID.
@@ -142,7 +143,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 		$this->assertArrayHasKey( 'type', $data );
 		$this->assertArrayHasKey( 'url', $data );
 		$this->assertEquals( 'image', $data['type'] );
-		$this->assertInternalType( 'int', $data['id'] );
+		$this->assertIsInt( $data['id'] );
 		$this->assertEmpty( $data['caption'] );
 		$this->assertEmpty( $data['alt'] );
 	}

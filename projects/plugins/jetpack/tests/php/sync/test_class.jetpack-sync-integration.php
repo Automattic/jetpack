@@ -6,6 +6,8 @@ use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Settings;
 
 class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
+
 	function test_sending_empties_queue() {
 		$this->factory->post->create();
 		$this->assertNotEmpty( $this->sender->get_sync_queue()->get_all() );
@@ -100,7 +102,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 	function test_cleanup_old_cron_job_on_update() {
 		wp_schedule_event( time() + HOUR_IN_SECONDS, 'daily', 'jetpack_sync_send_db_checksum' );
 
-		$this->assertInternalType( 'integer', wp_next_scheduled( 'jetpack_sync_send_db_checksum' ) );
+		$this->assertIsInt( wp_next_scheduled( 'jetpack_sync_send_db_checksum' ) );
 
 		/** This action is documented in class.jetpack.php */
 		do_action( 'updating_jetpack_version', '4.3', '4.2.1' );
@@ -136,8 +138,8 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 	function test_cleanup_cron_jobs_with_non_staggered_start() {
 		Actions::init_sync_cron_jobs();
 
-		$this->assertInternalType( 'integer', wp_next_scheduled( 'jetpack_sync_cron' ) );
-		$this->assertInternalType( 'integer', wp_next_scheduled( 'jetpack_sync_full_cron' ) );
+		$this->assertIsInt( wp_next_scheduled( 'jetpack_sync_cron' ) );
+		$this->assertIsInt( wp_next_scheduled( 'jetpack_sync_full_cron' ) );
 
 		/** This action is documented in class.jetpack.php */
 		do_action( 'updating_jetpack_version', '4.5', '4.2.1' );

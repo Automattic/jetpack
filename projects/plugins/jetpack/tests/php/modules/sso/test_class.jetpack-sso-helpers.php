@@ -7,6 +7,8 @@ require_once( dirname( __FILE__ ) . '/../../../../modules/sso/class.jetpack-sso-
  * @since 4.1.0
  */
 class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
+
 	protected $user_data;
 
 	/**
@@ -202,7 +204,7 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 	 */
 	public function test_allow_redirect_hosts_adds_default_hosts() {
 		$hosts = Jetpack_SSO_Helpers::allowed_redirect_hosts( array( 'test.com' ) );
-		$this->assertInternalType( 'array', $hosts );
+		$this->assertIsArray( $hosts );
 		$this->assertContains( 'test.com', $hosts );
 		$this->assertContains( 'wordpress.com', $hosts );
 		$this->assertContains( 'jetpack.wordpress.com', $hosts );
@@ -216,7 +218,7 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 			array( 'test.com' ),
 			'http://fakesite.com/jetpack.'
 		);
-		$this->assertInternalType( 'array', $hosts );
+		$this->assertIsArray( $hosts );
 		$this->assertCount( 6, $hosts );
 		$this->assertContains( 'fakesite.com', $hosts );
 	}
@@ -230,7 +232,7 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 			array( 'test.com' ),
 			'http://fakesite.com/jetpack.'
 		);
-		$this->assertInternalType( 'array', $hosts );
+		$this->assertIsArray( $hosts );
 		$this->assertCount( 6, $hosts );
 		$this->assertContains( 'fakesite.com', $hosts );
 		remove_filter( 'jetpack_development_version', '__return_true' );
@@ -241,7 +243,7 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 	 */
 	public function test_generate_user_returns_user_when_username_not_exists() {
 		$user = Jetpack_SSO_Helpers::generate_user( $this->user_data );
-		$this->assertInternalType( 'object', $user );
+		$this->assertIsObject( $user );
 		$this->assertInstanceOf( 'WP_User', $user );
 
 		wp_delete_user( $user->ID );
@@ -256,7 +258,7 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 
 		$user = Jetpack_SSO_Helpers::generate_user( $this->user_data );
 
-		$this->assertInternalType( 'object', $user );
+		$this->assertIsObject( $user );
 		$this->assertInstanceOf( 'WP_User', $user );
 
 		// If the username contains the user's ID, we know the username was generated with our random algo.
@@ -337,7 +339,7 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 		$original_request                        = 'http://website.com/wp-login.php?action=jetpack_json_api_authorization&token=my-token';
 		$_COOKIE['jetpack_sso_original_request'] = $original_request;
 		$environment                             = Jetpack_SSO_Helpers::get_json_api_auth_environment();
-		$this->assertInternalType( 'array', $environment );
+		$this->assertIsArray( $environment );
 		$this->assertSame(
 			$environment,
 			array(
