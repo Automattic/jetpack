@@ -34,6 +34,7 @@ function jetpack_foo_is_anon_callable() {
  */
 class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	protected $post;
 	protected $callable_module;
@@ -587,7 +588,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
-		$this->assertContains( 'core_site_icon_url', $this->server_replica_storage->get_callable( 'site_icon_url' ) );
+		$this->assertStringContainsString( 'core_site_icon_url', $this->server_replica_storage->get_callable( 'site_icon_url' ) );
 
 		delete_option( 'site_icon' );
 	}
@@ -597,7 +598,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		update_option( 'jetpack_site_icon_url', 'http://website.com/wp-content/uploads/2016/09/jetpack_site_icon.png' );
 		$this->sender->do_sync();
 
-		$this->assertContains( 'jetpack_site_icon', $this->server_replica_storage->get_callable( 'site_icon_url' ) );
+		$this->assertStringContainsString( 'jetpack_site_icon', $this->server_replica_storage->get_callable( 'site_icon_url' ) );
 	}
 
 	function test_calling_taxonomies_do_not_modify_global() {

@@ -9,6 +9,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
  */
 class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Set up.
@@ -227,7 +228,7 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 		ob_start();
 		the_content();
 		$actual = ob_get_clean();
-		$this->assertContains(
+		$this->assertStringContainsString(
 			sprintf(
 				'<div class="cs-rating pd-rating" id="pd_rating_holder_%1$d_post_%2$d"></div>',
 				$id,
@@ -254,7 +255,7 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 		ob_start();
 		the_content();
 		$actual = ob_get_clean();
-		$this->assertContains(
+		$this->assertStringContainsString(
 			sprintf(
 				'<div class="cs-rating pd-rating" id="pd_rating_holder_%1$d_post_%2$d"></div>',
 				$id,

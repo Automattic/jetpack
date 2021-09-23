@@ -12,6 +12,7 @@ if ( is_multisite() ) :
 	 */
 	class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 		use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
+		use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 		/**
 		 * Confirms the instance is generated from the init.
@@ -134,7 +135,7 @@ if ( is_multisite() ) :
 			$classes = $jpms->body_class( '' );
 
 			$this->assertIsString( $classes );
-			$this->assertContains( 'network-admin', $classes );
+			$this->assertStringContainsString( 'network-admin', $classes );
 		}
 
 		/**

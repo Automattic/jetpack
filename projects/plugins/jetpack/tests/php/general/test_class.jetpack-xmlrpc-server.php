@@ -4,6 +4,7 @@ use Automattic\Jetpack\Connection\Tokens;
 
 class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	static $xmlrpc_admin = 0;
 
@@ -61,7 +62,7 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		$response = $server->remote_provision( array( 'nonce' => '12345' ) );
 		$this->assertInstanceOf( 'IXR_Error', $response );
 		$this->assertEquals( 400, $response->code );
-		$this->assertContains( '[local_user_missing]', $response->message );
+		$this->assertStringContainsString( '[local_user_missing]', $response->message );
 	}
 
 	/**
@@ -72,7 +73,7 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		$response = $server->remote_provision( array() );
 
 		$this->assertInstanceOf( 'IXR_Error', $response );
-		$this->assertContains( 'local_user_missing', $response->message );
+		$this->assertStringContainsString( 'local_user_missing', $response->message );
 
 		$response = $server->remote_provision( array( 'local_user' => 'nonexistent' ) );
 

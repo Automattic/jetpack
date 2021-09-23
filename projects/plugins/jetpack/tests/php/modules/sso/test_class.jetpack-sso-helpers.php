@@ -8,6 +8,7 @@ require_once( dirname( __FILE__ ) . '/../../../../modules/sso/class.jetpack-sso-
  */
 class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	protected $user_data;
 
@@ -262,7 +263,7 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 		$this->assertInstanceOf( 'WP_User', $user );
 
 		// If the username contains the user's ID, we know the username was generated with our random algo.
-		$this->assertContains( (string) $this->user_data->ID, $user->user_login );
+		$this->assertStringContainsString( (string) $this->user_data->ID, $user->user_login );
 
 		wp_delete_user( $user->ID );
 	}

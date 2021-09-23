@@ -19,6 +19,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
  */
 class WP_Test_Jetpack_Shortcodes_SmartFrame extends WP_UnitTestCase {
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	const SMARTFRAME_IDENTIFIER = 'mantymetsa_1630927773870';
 	const SMARTFRAME_SCRIPT_ID  = '6ae67829d1264ee0ea6071a788940eae';
@@ -86,7 +87,7 @@ class WP_Test_Jetpack_Shortcodes_SmartFrame extends WP_UnitTestCase {
 
 		foreach ( $links as $link ) {
 			$this->assertTrue( $link->hasAttribute( 'data-image-id' ) );
-			$this->assertContains( self::SMARTFRAME_IDENTIFIER, $link->getAttribute( 'data-image-id' ) );
+			$this->assertStringContainsString( self::SMARTFRAME_IDENTIFIER, $link->getAttribute( 'data-image-id' ) );
 		}
 	}
 
@@ -114,6 +115,6 @@ class WP_Test_Jetpack_Shortcodes_SmartFrame extends WP_UnitTestCase {
 		$content           = "[smartframe script-id='$script_id' image-id='$image_id']";
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( $image_id, $shortcode_content );
+		$this->assertStringContainsString( $image_id, $shortcode_content );
 	}
 }

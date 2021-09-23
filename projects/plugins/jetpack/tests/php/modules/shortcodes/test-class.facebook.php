@@ -4,6 +4,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
 
 class WP_Test_Jetpack_Shortcodes_Facebook extends WP_UnitTestCase {
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * After a test method runs, reset any state in WordPress the test method might have changed.
@@ -55,7 +56,7 @@ class WP_Test_Jetpack_Shortcodes_Facebook extends WP_UnitTestCase {
 		ob_start();
 		the_content();
 		$actual = ob_get_clean();
-		$this->assertContains(
+		$this->assertStringContainsString(
 			sprintf(
 				'<div class="fb-video" data-allowfullscreen="true" data-href="%s"></div>',
 				$url
@@ -84,7 +85,7 @@ class WP_Test_Jetpack_Shortcodes_Facebook extends WP_UnitTestCase {
 		ob_start();
 		the_content();
 		$actual = ob_get_clean();
-		$this->assertContains(
+		$this->assertStringContainsString(
 			sprintf(
 				'<div class="fb-video" data-allowfullscreen="true" data-href="%s"></div>',
 				$url
@@ -113,7 +114,7 @@ class WP_Test_Jetpack_Shortcodes_Facebook extends WP_UnitTestCase {
 		ob_start();
 		the_content();
 		$actual = ob_get_clean();
-		$this->assertContains(
+		$this->assertStringContainsString(
 			sprintf(
 				'<div class="fb-video" data-allowfullscreen="true" data-href="%s"></div>',
 				$url

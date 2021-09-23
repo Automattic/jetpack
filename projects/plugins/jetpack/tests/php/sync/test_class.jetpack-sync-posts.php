@@ -13,6 +13,7 @@ use Automattic\Jetpack\Sync\Settings;
  */
 class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	protected $post;
 	protected $test_already = false;
@@ -557,7 +558,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$post_on_server = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' )->args[1];
 		$this->assertObjectHasAttribute( 'featured_image', $post_on_server );
 		$this->assertIsString( $post_on_server->featured_image );
-		$this->assertContains( 'test_image.png', $post_on_server->featured_image );
+		$this->assertStringContainsString( 'test_image.png', $post_on_server->featured_image );
 	}
 
 	function test_sync_post_not_includes_feature_image_meta_when_featured_image_not_set() {
@@ -806,7 +807,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		wp_update_post( $this->post );
 
-		$this->assertContains( '<form action=', apply_filters( 'the_content', $this->post->post_content ) );
+		$this->assertStringContainsString( '<form action=', apply_filters( 'the_content', $this->post->post_content ) );
 
 		$this->sender->do_sync();
 
@@ -833,7 +834,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		wp_update_post( $this->post );
 
-		$this->assertContains( 'div class=\'sharedaddy', apply_filters( 'the_content', $this->post->post_content ) );
+		$this->assertStringContainsString( 'div class=\'sharedaddy', apply_filters( 'the_content', $this->post->post_content ) );
 
 		$this->sender->do_sync();
 
@@ -860,7 +861,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		wp_update_post( $this->post );
 
-		$this->assertContains( 'class="sharedaddy sd-sharing-enabled"', apply_filters( 'the_content', $this->post->post_content ) );
+		$this->assertStringContainsString( 'class="sharedaddy sd-sharing-enabled"', apply_filters( 'the_content', $this->post->post_content ) );
 
 		$this->sender->do_sync();
 
@@ -893,7 +894,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		wp_update_post( $this->post );
 
-		$this->assertContains( '<div id=\'jp-relatedposts\'', apply_filters( 'the_content', $this->post->post_content ) );
+		$this->assertStringContainsString( '<div id=\'jp-relatedposts\'', apply_filters( 'the_content', $this->post->post_content ) );
 
 		$this->sender->do_sync();
 
@@ -916,7 +917,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		wp_update_post( $this->post );
 
-		$this->assertContains( '<!-- Jetpack Related Posts is not supported in this context. -->', apply_filters( 'the_content', $this->post->post_content ) );
+		$this->assertStringContainsString( '<!-- Jetpack Related Posts is not supported in this context. -->', apply_filters( 'the_content', $this->post->post_content ) );
 
 		$this->sender->do_sync();
 
@@ -1072,12 +1073,12 @@ That was a cool video.';
 		// This below is needed since Core inserts "loading=lazy" right after the iframe opener.
 		add_filter( 'wp_lazy_loading_enabled', '__return_false' );
 
-		$this->assertContains(
+		$this->assertStringContainsString(
 			$oembeded[0],
 			apply_filters( 'the_content', $this->post->post_content ),
 			'$oembeded is NOT the same as filtered $this->post->post_content'
 		);
-		$this->assertContains(
+		$this->assertStringContainsString(
 			$oembeded[1],
 			apply_filters( 'the_content', $this->post->post_content ),
 			'$oembeded is NOT the same as filtered $this->post->post_content'
@@ -1093,12 +1094,12 @@ That was a cool video.';
 		);
 
 		// do we get the same result after the sync?
-		$this->assertContains(
+		$this->assertStringContainsString(
 			$oembeded[0],
 			apply_filters( 'the_content', $filtered ),
 			'$oembeded is NOT the same as filtered $filtered'
 		);
-		$this->assertContains(
+		$this->assertStringContainsString(
 			$oembeded[1],
 			apply_filters( 'the_content', $filtered ),
 			'$oembeded is NOT the same as filtered $filtered'

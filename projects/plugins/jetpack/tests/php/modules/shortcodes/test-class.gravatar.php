@@ -4,6 +4,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
 
 class WP_Test_Jetpack_Shortcodes_Gravatar extends WP_UnitTestCase {
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Verify that [gravatar] exists.
@@ -37,8 +38,8 @@ class WP_Test_Jetpack_Shortcodes_Gravatar extends WP_UnitTestCase {
 		$content = "[gravatar email='user@example.org' size='48']";
 
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( "<img alt='' src='http://2.gravatar.com/avatar/572c3489ea700045927076136a969e27?s=48&#038;d=mm&#038;r=g'", $shortcode_content );
-		$this->assertContains( "class='avatar avatar-48 photo' height='48' width='48'", $shortcode_content );
+		$this->assertStringContainsString( "<img alt='' src='http://2.gravatar.com/avatar/572c3489ea700045927076136a969e27?s=48&#038;d=mm&#038;r=g'", $shortcode_content );
+		$this->assertStringContainsString( "class='avatar avatar-48 photo' height='48' width='48'", $shortcode_content );
 	}
 
 	/**
@@ -57,7 +58,7 @@ class WP_Test_Jetpack_Shortcodes_Gravatar extends WP_UnitTestCase {
 		wp_set_current_user( $user->ID );
 
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div class="grofile vcard" id="grofile-embed-0">', $shortcode_content );
-		$this->assertContains( '<img src="http://2.gravatar.com/avatar/572c3489ea700045927076136a969e27?s=96&#038;d=mm&#038;r=g" width="96" height="96" class="no-grav gravatar photo"', $shortcode_content );
+		$this->assertStringContainsString( '<div class="grofile vcard" id="grofile-embed-0">', $shortcode_content );
+		$this->assertStringContainsString( '<img src="http://2.gravatar.com/avatar/572c3489ea700045927076136a969e27?s=96&#038;d=mm&#038;r=g" width="96" height="96" class="no-grav gravatar photo"', $shortcode_content );
 	}
 }

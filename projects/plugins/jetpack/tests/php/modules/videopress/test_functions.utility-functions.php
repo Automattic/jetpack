@@ -11,6 +11,7 @@
  * Tests Jetpack_VideoPress_Utility_Functions
  */
 class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Tests a helper function to get the post by guid, when there is no post found.
@@ -206,7 +207,7 @@ class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
 
 		$filtered = jetpack_videopress_flash_embed_filter( $content );
 
-		$this->assertContains( $contains, $filtered );
+		$this->assertStringContainsString( $contains, $filtered );
 	}
 
 }

@@ -4,6 +4,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
 
 class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Runs on every test.
@@ -89,7 +90,7 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( $photo_link, $shortcode_content );
+		$this->assertStringContainsString( $photo_link, $shortcode_content );
 	}
 
 	/**
@@ -105,7 +106,7 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( $video_link, $shortcode_content );
+		$this->assertStringContainsString( $video_link, $shortcode_content );
 	}
 
 	/**
@@ -119,7 +120,7 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( $video_id, $shortcode_content );
+		$this->assertStringContainsString( $video_id, $shortcode_content );
 	}
 
 	/**
@@ -135,9 +136,9 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( $video_id, $shortcode_content );
-		$this->assertContains( "width: $width", $shortcode_content );
-		$this->assertContains( "height: $height", $shortcode_content );
+		$this->assertStringContainsString( $video_id, $shortcode_content );
+		$this->assertStringContainsString( "width: $width", $shortcode_content );
+		$this->assertStringContainsString( "height: $height", $shortcode_content );
 	}
 
 	/**

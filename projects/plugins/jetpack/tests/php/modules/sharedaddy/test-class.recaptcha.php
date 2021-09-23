@@ -2,6 +2,7 @@
 require_jetpack_file( 'modules/sharedaddy/recaptcha.php' );
 
 class WP_Test_Jetpack_ReCaptcha extends WP_UnitTestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Set up.
@@ -98,14 +99,14 @@ class WP_Test_Jetpack_ReCaptcha extends WP_UnitTestCase {
 		$html = $this->recaptcha->get_recaptcha_html();
 
 		// Make sure div tag appears with expected attributes.
-		$this->assertContains( '<div', $html );
-		$this->assertContains( $this->site_key, $html );
-		$this->assertContains( '</div>', $html );
+		$this->assertStringContainsString( '<div', $html );
+		$this->assertStringContainsString( $this->site_key, $html );
+		$this->assertStringContainsString( '</div>', $html );
 
 		// Make sure script tag appears with expected language.
-		$this->assertContains( '<script', $html );
-		$this->assertContains( $config['language'], $html );
-		$this->assertContains( '</script>', $html );
+		$this->assertStringContainsString( '<script', $html );
+		$this->assertStringContainsString( $config['language'], $html );
+		$this->assertStringContainsString( '</script>', $html );
 	}
 
 	/**
@@ -116,11 +117,11 @@ class WP_Test_Jetpack_ReCaptcha extends WP_UnitTestCase {
 		$html   = $this->recaptcha_lazy->get_recaptcha_html();
 
 		// Make sure div tag appears with expected attributes.
-		$this->assertContains( '<div', $html );
-		$this->assertContains( $this->site_key, $html );
+		$this->assertStringContainsString( '<div', $html );
+		$this->assertStringContainsString( $this->site_key, $html );
 		// Make sure script URL contains expected language.
-		$this->assertContains( $config['language'], $html );
-		$this->assertContains( '</div>', $html );
+		$this->assertStringContainsString( $config['language'], $html );
+		$this->assertStringContainsString( '</div>', $html );
 	}
 
 	public function pre_http_request_response_success() {

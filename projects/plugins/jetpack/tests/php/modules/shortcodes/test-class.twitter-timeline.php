@@ -12,6 +12,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
  */
 class WP_Test_Jetpack_Shortcodes_TwitterTimeline extends WP_UnitTestCase {
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * @author scotchfield
@@ -45,7 +46,7 @@ class WP_Test_Jetpack_Shortcodes_TwitterTimeline extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( 'data-partner="jetpack"', $shortcode_content );
+		$this->assertStringContainsString( 'data-partner="jetpack"', $shortcode_content );
 	}
 
 	public function test_shortcodes_twitter_timeline_missing_username() {

@@ -17,6 +17,7 @@ require_jetpack_file( 'tests/php/modules/masterbar/data/admin-menu.php' );
  * @coversDefaultClass Automattic\Jetpack\Dashboard_Customizations\WPcom_Admin_Menu
  */
 class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Menu data fixture.
@@ -210,19 +211,19 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_site_card_menu();
 
 		$menu = static::$admin_menu->set_site_card_menu_class( $menu );
-		$this->assertNotContains( 'has-site-icon', $menu[1][4] );
+		$this->assertStringNotContainsString( 'has-site-icon', $menu[1][4] );
 
 		// Atomic fallback site icon counts as no site icon.
 		add_filter( 'get_site_icon_url', array( $this, 'wpcomsh_site_icon_url' ) );
 		$menu = static::$admin_menu->set_site_card_menu_class( $menu );
 		remove_filter( 'get_site_icon_url', array( $this, 'wpcomsh_site_icon_url' ) );
-		$this->assertNotContains( 'has-site-icon', $menu[1][4] );
+		$this->assertStringNotContainsString( 'has-site-icon', $menu[1][4] );
 
 		// Custom site icon triggers CSS class.
 		add_filter( 'get_site_icon_url', array( $this, 'custom_site_icon_url' ) );
 		$menu = static::$admin_menu->set_site_card_menu_class( $menu );
 		remove_filter( 'get_site_icon_url', array( $this, 'custom_site_icon_url' ) );
-		$this->assertContains( 'has-site-icon', $menu[1][4] );
+		$this->assertStringContainsString( 'has-site-icon', $menu[1][4] );
 	}
 
 	/**

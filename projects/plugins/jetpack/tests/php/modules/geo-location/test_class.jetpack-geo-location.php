@@ -3,6 +3,8 @@
 require_once JETPACK__PLUGIN_DIR . '/modules/geo-location/class.jetpack-geo-location.php';
 
 class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
+
 	const DISABLE_CONSTRUCTOR = true;
 
 	const ENABLE_CONSTRUCTOR = false;
@@ -143,7 +145,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 	public function test_rss_namespace_method_renders_the_namespace() {
 		ob_start();
 		$this->get_instance()->rss_namespace();
-		$this->assertContains( 'georss.org', ob_get_clean() );
+		$this->assertStringContainsString( 'georss.org', ob_get_clean() );
 	}
 
 	public function test_rss_item_does_not_render_private_post() {
@@ -153,8 +155,8 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$instance->rss_item();
 		$output = ob_get_clean();
 
-		$this->assertNotContains( self::MOCK_LAT, $output );
-		$this->assertNotContains( self::MOCK_LONG, $output );
+		$this->assertStringNotContainsString( self::MOCK_LAT, $output );
+		$this->assertStringNotContainsString( self::MOCK_LONG, $output );
 	}
 
 	public function test_rss_item_does_render_public_post() {
@@ -164,8 +166,8 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$instance->rss_item();
 		$output = ob_get_clean();
 
-		$this->assertContains( self::MOCK_LAT, $output );
-		$this->assertContains( self::MOCK_LONG, $output );
+		$this->assertStringContainsString( self::MOCK_LAT, $output );
+		$this->assertStringContainsString( self::MOCK_LONG, $output );
 	}
 
 	public function test_rss_item_does_escape_malicious_post() {
@@ -175,9 +177,9 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$instance->rss_item();
 		$output = ob_get_clean();
 
-		$this->assertNotContains( '<attack>', $output );
-		$this->assertContains( '&#60;', $output );
-		$this->assertContains( '&#62;', $output );
+		$this->assertStringNotContainsString( '<attack>', $output );
+		$this->assertStringContainsString( '&#60;', $output );
+		$this->assertStringContainsString( '&#62;', $output );
 	}
 
 	public function test_wp_head_aborts_when_not_a_single_post_response() {
@@ -213,8 +215,8 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$instance->wp_head();
 		$output = ob_get_clean();
 
-		$this->assertContains( self::MOCK_LAT, $output );
-		$this->assertContains( self::MOCK_LONG, $output );
+		$this->assertStringContainsString( self::MOCK_LAT, $output );
+		$this->assertStringContainsString( self::MOCK_LONG, $output );
 	}
 
 	public function test_wp_head_escapes_malicious_meta_values() {
@@ -226,9 +228,9 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$instance->wp_head();
 		$output = ob_get_clean();
 
-		$this->assertNotContains( '<attack>', $output );
-		$this->assertContains( '&lt;', $output );
-		$this->assertContains( '&gt;', $output );
+		$this->assertStringNotContainsString( '<attack>', $output );
+		$this->assertStringContainsString( '&lt;', $output );
+		$this->assertStringContainsString( '&gt;', $output );
 	}
 
 	public function test_the_content_microformat_aborts_when_is_feed() {
@@ -255,10 +257,10 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$modified_content = $instance->the_content_microformat( 'Original content' );
 
 		$this->assertStringStartsWith( 'Original content', $modified_content );
-		$this->assertContains( self::MOCK_LAT, $modified_content );
-		$this->assertContains( self::MOCK_LONG, $modified_content );
-		$this->assertContains( '<span class="latitude">', $modified_content );
-		$this->assertContains( '<span class="longitude">', $modified_content );
+		$this->assertStringContainsString( self::MOCK_LAT, $modified_content );
+		$this->assertStringContainsString( self::MOCK_LONG, $modified_content );
+		$this->assertStringContainsString( '<span class="latitude">', $modified_content );
+		$this->assertStringContainsString( '<span class="longitude">', $modified_content );
 	}
 
 	public function test_the_content_microformat_escapes_malicious_meta_values() {
@@ -269,9 +271,9 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$modified_content = $instance->the_content_microformat( 'Original content' );
 
 		$this->assertStringStartsWith( 'Original content', $modified_content );
-		$this->assertNotContains( '<attack>', $modified_content );
-		$this->assertContains( '&lt;', $modified_content );
-		$this->assertContains( '&gt;', $modified_content );
+		$this->assertStringNotContainsString( '<attack>', $modified_content );
+		$this->assertStringContainsString( '&lt;', $modified_content );
+		$this->assertStringContainsString( '&gt;', $modified_content );
 	}
 
 	public function test_the_content_location_display_aborts_when_is_not_single() {
@@ -298,7 +300,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$modified_content = $instance->the_content_location_display( 'Original content' );
 
 		$this->assertStringStartsWith( 'Original content', $modified_content );
-		$this->assertContains( self::MOCK_ADDRESS, $modified_content );
+		$this->assertStringContainsString( self::MOCK_ADDRESS, $modified_content );
 	}
 
 	public function test_the_content_location_display_escapes_malicious_meta_values() {
@@ -309,9 +311,9 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$modified_content = $instance->the_content_location_display( 'Original content' );
 
 		$this->assertStringStartsWith( 'Original content', $modified_content );
-		$this->assertNotContains( '<attack>', $modified_content );
-		$this->assertContains( '&lt;', $modified_content );
-		$this->assertContains( '&gt;', $modified_content );
+		$this->assertStringNotContainsString( '<attack>', $modified_content );
+		$this->assertStringContainsString( '&lt;', $modified_content );
+		$this->assertStringContainsString( '&gt;', $modified_content );
 	}
 
 	private function get_instance() {

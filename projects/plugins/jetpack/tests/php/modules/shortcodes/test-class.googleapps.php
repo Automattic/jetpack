@@ -4,6 +4,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
 
 class WP_Test_Jetpack_Shortcodes_GoogleApps extends WP_UnitTestCase {
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	function test_presentation_variation_1() {
 		$embed     = '<iframe src="https://docs.google.com/present/embed?id=dhfhrphh_123drp8s65c&interval=15&autoStart=true&loop=true&size=l" frameborder="0" width="700" height="559"></iframe>';
@@ -50,7 +51,7 @@ class WP_Test_Jetpack_Shortcodes_GoogleApps extends WP_UnitTestCase {
 		add_shortcode( 'googleapps', 'googleapps_shortcode' );
 		$to_embed = do_shortcode( $shortcode );
 
-		$this->assertContains( $expected_output, $to_embed );
+		$this->assertStringContainsString( $expected_output, $to_embed );
 	}
 
 	function test_document_variation_2() {
@@ -88,7 +89,7 @@ class WP_Test_Jetpack_Shortcodes_GoogleApps extends WP_UnitTestCase {
 		add_shortcode( 'googleapps', 'googleapps_shortcode' );
 		$to_embed = do_shortcode( $shortcode );
 
-		$this->assertContains( $expected_output, $to_embed );
+		$this->assertStringContainsString( $expected_output, $to_embed );
 	}
 
 	function test_external_document() {
@@ -216,7 +217,7 @@ class WP_Test_Jetpack_Shortcodes_GoogleApps extends WP_UnitTestCase {
 		add_shortcode( 'googleapps', 'googleapps_shortcode' );
 		$to_embed = do_shortcode( $shortcode );
 
-		$this->assertContains( $expected_output, $to_embed );
+		$this->assertStringContainsString( $expected_output, $to_embed );
 	}
 
 }

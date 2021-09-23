@@ -4,6 +4,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
 
 class WP_Test_Jetpack_Shortcodes_Spotify extends WP_UnitTestCase {
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Verify that [spotify] exists.
@@ -38,7 +39,7 @@ class WP_Test_Jetpack_Shortcodes_Spotify extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( 'https://embed.spotify.com/?uri=' . urlencode( "spotify:track:$track_id" ), $shortcode_content );
+		$this->assertStringContainsString( 'https://embed.spotify.com/?uri=' . rawurlencode( "spotify:track:$track_id" ), $shortcode_content );
 	}
 
 	/**
@@ -53,7 +54,7 @@ class WP_Test_Jetpack_Shortcodes_Spotify extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( 'https://embed.spotify.com/?uri=' . urlencode( "https://play.spotify.com/track/$track_id" ), $shortcode_content );
+		$this->assertStringContainsString( 'https://embed.spotify.com/?uri=' . rawurlencode( "https://play.spotify.com/track/$track_id" ), $shortcode_content );
 	}
 
 	/**
@@ -66,7 +67,7 @@ class WP_Test_Jetpack_Shortcodes_Spotify extends WP_UnitTestCase {
 		$content = "spotify:track:$track_id";
 
 		$content = apply_filters( 'the_content', $content );
-		$this->assertContains( 'https://embed.spotify.com/?uri=' . urlencode( "spotify:track:$track_id" ), $content );
+		$this->assertStringContainsString( 'https://embed.spotify.com/?uri=' . rawurlencode( "spotify:track:$track_id" ), $content );
 	}
 
 	/**
@@ -79,7 +80,7 @@ class WP_Test_Jetpack_Shortcodes_Spotify extends WP_UnitTestCase {
 		$content = "This is another text spotify:track:$track_id surrounding this Spotify track.";
 
 		$content = apply_filters( 'the_content', $content );
-		$this->assertContains( "spotify:track:$track_id", $content );
+		$this->assertStringContainsString( "spotify:track:$track_id", $content );
 	}
 
 	/**
@@ -93,7 +94,7 @@ class WP_Test_Jetpack_Shortcodes_Spotify extends WP_UnitTestCase {
 		spotify:track:$track_id";
 
 		$content = apply_filters( 'the_content', $content );
-		$this->assertContains( 'https://embed.spotify.com/?uri=' . rawurlencode( "spotify:track:$track_id" ), $content );
+		$this->assertStringContainsString( 'https://embed.spotify.com/?uri=' . rawurlencode( "spotify:track:$track_id" ), $content );
 	}
 
 	/**
@@ -103,7 +104,7 @@ class WP_Test_Jetpack_Shortcodes_Spotify extends WP_UnitTestCase {
 		$content           = '[spotify https://open.spotify.com/album/4BC7xFBCxUMBEgGpxRBaCy width=\"400\" height=\"100\"]';
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( '<iframe', $shortcode_content );
-		$this->assertContains( 'loading="lazy"', $shortcode_content );
+		$this->assertStringContainsString( '<iframe', $shortcode_content );
+		$this->assertStringContainsString( 'loading="lazy"', $shortcode_content );
 	}
 }

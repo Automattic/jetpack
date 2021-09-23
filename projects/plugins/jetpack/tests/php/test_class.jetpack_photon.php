@@ -12,6 +12,7 @@
  */
 class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Test image.
@@ -1006,7 +1007,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 		$this->assertArrayNotHasKey( 'width', $attributes );
 		$this->assertArrayNotHasKey( 'height', $attributes );
-		$this->assertContains( 'data-recalc-dims', $filtered_content );
+		$this->assertStringContainsString( 'data-recalc-dims', $filtered_content );
 	}
 
 	/**
@@ -1186,7 +1187,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$this->assertStringEndsWith( $photon_src, html_entity_decode( $attributes['src']['value'] ) );
 		$this->assertArrayHasKey( 'width', $attributes );
 		$this->assertArrayHasKey( 'height', $attributes );
-		$this->assertNotContains( 'data-recalc-dims', $filtered_content );
+		$this->assertStringNotContainsString( 'data-recalc-dims', $filtered_content );
 	}
 
 	/**
@@ -1235,7 +1236,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 		$filtered_content = apply_filters( 'the_content', $content, $post->ID );
 
-		$this->assertContains(
+		$this->assertStringContainsString(
 			'.wp.com/example.com/wp-content/uploads/2019/06/huge.jpg?h=1280&#038;ssl=1',
 			$filtered_content
 		);
@@ -1263,8 +1264,8 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['full'] );
 		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['medium_large'] );
 
-		$this->assertContains( '?', $data['media_details']['sizes']['full']['source_url'] );
-		$this->assertContains( '?', $data['media_details']['sizes']['medium_large']['source_url'] );
+		$this->assertStringContainsString( '?', $data['media_details']['sizes']['full']['source_url'] );
+		$this->assertStringContainsString( '?', $data['media_details']['sizes']['medium_large']['source_url'] );
 	}
 
 	/**
@@ -1290,8 +1291,8 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['full'] );
 		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['medium_large'] );
 
-		$this->assertNotContains( '?', $data['media_details']['sizes']['full']['source_url'] );
-		$this->assertNotContains( '?', $data['media_details']['sizes']['medium_large']['source_url'] );
+		$this->assertStringNotContainsString( '?', $data['media_details']['sizes']['full']['source_url'] );
+		$this->assertStringNotContainsString( '?', $data['media_details']['sizes']['medium_large']['source_url'] );
 
 		// Subsequent ?context=view requests should still be Photonized.
 		$request = new WP_REST_Request( 'GET', sprintf( '/wp/v2/media/%d', $test_image ) );
@@ -1306,8 +1307,8 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['full'] );
 		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['medium_large'] );
 
-		$this->assertContains( '?', $data['media_details']['sizes']['full']['source_url'] );
-		$this->assertContains( '?', $data['media_details']['sizes']['medium_large']['source_url'] );
+		$this->assertStringContainsString( '?', $data['media_details']['sizes']['full']['source_url'] );
+		$this->assertStringContainsString( '?', $data['media_details']['sizes']['medium_large']['source_url'] );
 	}
 
 	/**

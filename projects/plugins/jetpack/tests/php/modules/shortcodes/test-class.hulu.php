@@ -4,6 +4,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
 
 class WP_Test_Jetpack_Shortcodes_Hulu extends WP_UnitTestCase {
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Stores the correct server to fetch Hulu embeds from.
@@ -76,14 +77,14 @@ class WP_Test_Jetpack_Shortcodes_Hulu extends WP_UnitTestCase {
 		$content  = "[hulu $this->video_id]";
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( $this->src . $this->video_eid, $shortcode_content );
+		$this->assertStringContainsString( $this->src . $this->video_eid, $shortcode_content );
 	}
 
 	public function test_shortcodes_hulu_url() {
 		$content  = "[hulu https://www.hulu.com/watch/$this->video_id]";
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( $this->src . $this->video_eid, $shortcode_content );
+		$this->assertStringContainsString( $this->src . $this->video_eid, $shortcode_content );
 	}
 
 	public function test_shortcodes_hulu_width_height() {
@@ -93,11 +94,11 @@ class WP_Test_Jetpack_Shortcodes_Hulu extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( $this->src . $this->video_eid, $shortcode_content );
-		$this->assertContains( 'width="' . $width . '"', $shortcode_content );
+		$this->assertStringContainsString( $this->src . $this->video_eid, $shortcode_content );
+		$this->assertStringContainsString( 'width="' . $width . '"', $shortcode_content );
 
 		// The height is modified in the shortcode so the video always shows in landscape ratio.
-		$this->assertContains( 'height="197"', $shortcode_content );
+		$this->assertStringContainsString( 'height="197"', $shortcode_content );
 	}
 
 	public function test_shortcodes_hulu_start_end_time_thumbnail() {
@@ -108,10 +109,10 @@ class WP_Test_Jetpack_Shortcodes_Hulu extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( $this->src . $this->video_eid, $shortcode_content );
-		$this->assertContains( 'st=' . $start, $shortcode_content );
-		$this->assertContains( 'et=' . $end, $shortcode_content );
-		$this->assertContains( 'it=i' . $thumbnail, $shortcode_content );
+		$this->assertStringContainsString( $this->src . $this->video_eid, $shortcode_content );
+		$this->assertStringContainsString( 'st=' . $start, $shortcode_content );
+		$this->assertStringContainsString( 'et=' . $end, $shortcode_content );
+		$this->assertStringContainsString( 'it=i' . $thumbnail, $shortcode_content );
 	}
 
 
@@ -136,6 +137,6 @@ class WP_Test_Jetpack_Shortcodes_Hulu extends WP_UnitTestCase {
 		$content  = "[hulu $this->video_id]";
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( $this->src . $this->video_eid, $shortcode_content );
+		$this->assertStringContainsString( $this->src . $this->video_eid, $shortcode_content );
 	}
 }

@@ -4,6 +4,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
 
 class WP_Test_Jetpack_Shortcodes_VR extends WP_UnitTestCase {
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * @author mkaz
@@ -38,7 +39,7 @@ class WP_Test_Jetpack_Shortcodes_VR extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( $img, $shortcode_content );
+		$this->assertStringContainsString( $img, $shortcode_content );
 	}
 
 	/**

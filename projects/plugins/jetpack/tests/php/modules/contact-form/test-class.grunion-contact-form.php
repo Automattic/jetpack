@@ -13,6 +13,7 @@ require_jetpack_file( 'modules/contact-form/grunion-contact-form.php' );
  * @covers Grunion_Contact_Form
  */
 class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Sets up the test environment before the class tests begin.
@@ -115,7 +116,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$submission = $feedback[0];
 		$email      = get_post_meta( $submission->ID, '_feedback_email', true );
 		$this->assertEquals( 'john <john@example.com>', $email['to'][0] );
-		$this->assertContains( 'IP Address: 127.0.0.1', $email['message'] );
+		$this->assertStringContainsString( 'IP Address: 127.0.0.1', $email['message'] );
 	}
 
 	/**
@@ -182,7 +183,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		// Default metadata should be saved.
 		$submission = $feedback[0];
 
-		$this->assertContains( 'SUBJECT: I\'m sorry, but the party\'s over', $submission->post_content, 'The stored subject didn\'t match the given' );
+		$this->assertStringContainsString( 'SUBJECT: I\'m sorry, but the party\'s over', $submission->post_content, 'The stored subject didn\'t match the given' );
 	}
 
 	/**
@@ -212,7 +213,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		// Default metadata should be saved.
 		$submission = $feedback[0];
 
-		$this->assertContains( 'SUBJECT: Hello John Doe from Kansas!', $submission->post_content, 'The stored subject didn\'t match the given' );
+		$this->assertStringContainsString( 'SUBJECT: Hello John Doe from Kansas!', $submission->post_content, 'The stored subject didn\'t match the given' );
 	}
 
 	/**
@@ -241,7 +242,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		// Default metadata should be saved.
 		$submission = $feedback[0];
 
-		$this->assertContains( 'SUBJECT: Hello John Doe from Kansas!', $submission->post_content, 'The stored subject didn\'t match the given' );
+		$this->assertStringContainsString( 'SUBJECT: Hello John Doe from Kansas!', $submission->post_content, 'The stored subject didn\'t match the given' );
 	}
 
 	/**
@@ -270,7 +271,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		// Default metadata should be saved.
 		$submission = $feedback[0];
 
-		$this->assertContains( 'SUBJECT: Hello John Doe from Kansas!', $submission->post_content, 'The stored subject didn\'t match the given' );
+		$this->assertStringContainsString( 'SUBJECT: Hello John Doe from Kansas!', $submission->post_content, 'The stored subject didn\'t match the given' );
 	}
 
 	/**
@@ -303,10 +304,10 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		// Default metadata should be saved.
 		$submission = $feedback[0];
 
-		$this->assertContains( '[1_Name] =&gt; John Doe', $submission->post_content, 'Post content did not contain the name label and/or value' );
-		$this->assertContains( '[2_Dropdown] =&gt; First option', $submission->post_content, 'Post content did not contain the dropdown label and/or value' );
-		$this->assertContains( '[3_Radio] =&gt; Second option', $submission->post_content, 'Post content did not contain the radio button label and/or value' );
-		$this->assertContains( '[4_Text] =&gt; Texty text', $submission->post_content, 'Post content did not contain the text field label and/or value' );
+		$this->assertStringContainsString( '[1_Name] =&gt; John Doe', $submission->post_content, 'Post content did not contain the name label and/or value' );
+		$this->assertStringContainsString( '[2_Dropdown] =&gt; First option', $submission->post_content, 'Post content did not contain the dropdown label and/or value' );
+		$this->assertStringContainsString( '[3_Radio] =&gt; Second option', $submission->post_content, 'Post content did not contain the radio button label and/or value' );
+		$this->assertStringContainsString( '[4_Text] =&gt; Texty text', $submission->post_content, 'Post content did not contain the text field label and/or value' );
 	}
 
 	/**
@@ -515,7 +516,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 *                    subject, message, headers, and attachments values.
 	 */
 	public function pre_test_process_submission_labels_message_as_spam_in_subject_if_marked_as_spam_with_true_and_sending_spam( $args ) {
-		$this->assertContains( '***SPAM***', $args['subject'] );
+		$this->assertStringContainsString( '***SPAM***', $args['subject'] );
 	}
 
 	/**

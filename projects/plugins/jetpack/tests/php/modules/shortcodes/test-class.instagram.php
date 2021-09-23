@@ -6,6 +6,7 @@ use Automattic\Jetpack\Constants;
 
 class WP_Test_Jetpack_Shortcodes_Instagram extends WP_UnitTestCase {
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Mock global $content_width value.
@@ -181,7 +182,7 @@ BODY;
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains(
+		$this->assertStringContainsString(
 			'<blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="' . $instagram_url,
 			$shortcode_content
 		);
@@ -207,7 +208,7 @@ BODY;
 		$actual = ob_get_clean();
 		wp_reset_postdata();
 
-		$this->assertContains(
+		$this->assertStringContainsString(
 			'<blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="' . $expected,
 			$actual
 		);
@@ -258,7 +259,7 @@ BODY;
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains(
+		$this->assertStringContainsString(
 			'<blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="' . $instagram_url,
 			$shortcode_content
 		);
@@ -342,7 +343,7 @@ BODY;
 	 */
 	public function test_shortcodes_instagram_non_amp( $shortcode_content ) {
 		add_filter( 'jetpack_is_amp_request', '__return_false' );
-		$this->assertNotContains( 'amp-instagram', do_shortcode( $shortcode_content ) );
+		$this->assertStringNotContainsString( 'amp-instagram', do_shortcode( $shortcode_content ) );
 	}
 
 	/**

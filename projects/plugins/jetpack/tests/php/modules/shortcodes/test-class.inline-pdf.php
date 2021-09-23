@@ -14,6 +14,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
  */
 class WP_Test_Jetpack_Shortcodes_Inline_Pdfs extends WP_UnitTestCase {
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * After a test method runs, reset any state in WordPress the test method might have changed.
@@ -44,7 +45,7 @@ class WP_Test_Jetpack_Shortcodes_Inline_Pdfs extends WP_UnitTestCase {
 		the_content();
 		$actual = ob_get_clean();
 
-		$this->assertContains(
+		$this->assertStringContainsString(
 			sprintf(
 				'<p><object data="%1$s" type="application/pdf" width="100%%" height="800" style="height: 800px;"><p><a href="%1$s">Click to access %2$s</a></p></object></p>' . "\n",
 				$url,
@@ -74,7 +75,7 @@ class WP_Test_Jetpack_Shortcodes_Inline_Pdfs extends WP_UnitTestCase {
 		the_content();
 		$actual = ob_get_clean();
 
-		$this->assertContains(
+		$this->assertStringContainsString(
 			sprintf(
 				'<p><a href="%1$s">PDF Document</a></p>',
 				$url

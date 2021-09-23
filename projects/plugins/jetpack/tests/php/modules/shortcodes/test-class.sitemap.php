@@ -4,6 +4,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
 
 class WP_Test_Jetpack_Shortcodes_Sitemap extends WP_UnitTestCase {
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Verify that [sitemap] exists.
@@ -51,9 +52,9 @@ class WP_Test_Jetpack_Shortcodes_Sitemap extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( '<ul class="jetpack-sitemap-shortcode"><li class="pagenav">', $shortcode_content );
-		$this->assertContains( '<ul><li class="page_item page-item-' . $page_1_id . ' page_item_has_children"><a href="http://example.org/?page_id=' . $page_1_id . '">Jetpack Parent</a>', $shortcode_content );
-		$this->assertContains( "<ul class='children'>", $shortcode_content );
-        $this->assertContains( '<li class="page_item page-item-' . $page_1_1_id . '"><a href="http://example.org/?page_id=' . $page_1_1_id . '">Jetpack Child</a></li>', $shortcode_content );
+		$this->assertStringContainsString( '<ul class="jetpack-sitemap-shortcode"><li class="pagenav">', $shortcode_content );
+		$this->assertStringContainsString( '<ul><li class="page_item page-item-' . $page_1_id . ' page_item_has_children"><a href="http://example.org/?page_id=' . $page_1_id . '">Jetpack Parent</a>', $shortcode_content );
+		$this->assertStringContainsString( "<ul class='children'>", $shortcode_content );
+		$this->assertStringContainsString( '<li class="page_item page-item-' . $page_1_1_id . '"><a href="http://example.org/?page_id=' . $page_1_1_id . '">Jetpack Child</a></li>', $shortcode_content );
 	}
 }

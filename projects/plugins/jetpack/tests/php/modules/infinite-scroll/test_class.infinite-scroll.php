@@ -2,6 +2,7 @@
 require dirname( __FILE__ ) . '/../../../../modules/infinite-scroll/infinity.php';
 
 class WP_Test_The_Neverending_Home_Page extends WP_UnitTestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Set up.
@@ -14,8 +15,8 @@ class WP_Test_The_Neverending_Home_Page extends WP_UnitTestCase {
 
 	public function test_body_class() {
 		$classes = $this->infinite_scroll->body_class();
-		$this->assertContains( 'infinite-scroll', $classes );
-		$this->assertContains( 'neverending', $classes );
+		$this->assertStringContainsString( 'infinite-scroll', $classes );
+		$this->assertStringContainsString( 'neverending', $classes );
 	}
 
 	/**

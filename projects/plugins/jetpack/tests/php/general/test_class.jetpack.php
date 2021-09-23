@@ -48,6 +48,7 @@ class MockJetpack_XMLRPC_Server extends Jetpack_XMLRPC_Server {
 
 class WP_Test_Jetpack extends WP_UnitTestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	static $admin_id = 0;
 
@@ -553,8 +554,8 @@ EXPECTED;
 		Constants::set_constant( 'SCRIPT_DEBUG', $is_script_debug );
 		$file_url = Jetpack::get_file_url_for_environment( $min_path, $non_min_path );
 
-		$this->assertContains( $$expected, $file_url );
-		$this->assertNotContains( $$not_expected, $file_url );
+		$this->assertStringContainsString( $$expected, $file_url );
+		$this->assertStringNotContainsString( $$not_expected, $file_url );
 	}
 
 	function get_file_url_for_environment_data_provider() {

@@ -15,6 +15,7 @@ use \Automattic\Jetpack\Dashboard_Customizations\Base_Admin_Menu;
  * @coversDefaultClass Automattic\Jetpack\Dashboard_Customizations\Base_Admin_Menu
  */
 class Test_Base_Admin_Menu extends WP_UnitTestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Admin menu instance.
@@ -104,9 +105,9 @@ class Test_Base_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_admin_menu_separator( 10, 'manage_options' );
 
 		$this->assertSame( 'manage_options', $menu[10][1] );
-		$this->assertContains( 'separator-custom-', $menu[10][2] );
+		$this->assertStringContainsString( 'separator-custom-', $menu[10][2] );
 		$this->assertSame( 'read', $menu[15][1] );
-		$this->assertContains( 'separator-custom-', $menu[15][2] );
+		$this->assertStringContainsString( 'separator-custom-', $menu[15][2] );
 
 		// Restore filtered $menu.
 		$menu = $temp_menu;

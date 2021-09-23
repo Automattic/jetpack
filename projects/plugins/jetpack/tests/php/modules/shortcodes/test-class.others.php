@@ -13,6 +13,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
  */
 class WP_Test_Jetpack_Shortcodes_Others extends WP_UnitTestCase {
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * After a test method runs, reset any state in WordPress the test method might have changed.
@@ -44,7 +45,7 @@ class WP_Test_Jetpack_Shortcodes_Others extends WP_UnitTestCase {
 		the_content();
 		$actual = ob_get_clean();
 
-		$this->assertContains(
+		$this->assertStringContainsString(
 			sprintf(
 				'src="%s" frameborder="0" allowtransparency allowfullscreen sandbox="allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox"></iframe>',
 				$expected
@@ -77,14 +78,14 @@ class WP_Test_Jetpack_Shortcodes_Others extends WP_UnitTestCase {
 		$actual = ob_get_clean();
 
 		// Test different attributes of the loom markup.
-		$this->assertContains(
+		$this->assertStringContainsString(
 			sprintf( 'src="https://www.loom.com/embed/%s" frameborder="0"', $embed_id ),
 			$actual
 		);
-		$this->assertContains( 'title="How To Install a WordPress Plugin"', $actual );
-		$this->assertContains( 'webkitallowfullscreen', $actual );
-		$this->assertContains( 'mozallowfullscreen', $actual );
-		$this->assertContains( 'allowfullscreen', $actual );
+		$this->assertStringContainsString( 'title="How To Install a WordPress Plugin"', $actual );
+		$this->assertStringContainsString( 'webkitallowfullscreen', $actual );
+		$this->assertStringContainsString( 'mozallowfullscreen', $actual );
+		$this->assertStringContainsString( 'allowfullscreen', $actual );
 	}
 
 	/**

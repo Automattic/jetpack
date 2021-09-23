@@ -4,6 +4,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
 
 class WP_Test_Jetpack_Shortcodes_Ustream extends WP_UnitTestCase {
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Verify that [ustream] and [ustreamsocial] exists.
@@ -50,7 +51,7 @@ class WP_Test_Jetpack_Shortcodes_Ustream extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( '<iframe src="https://www.ustream.tv/embed/recorded/' . $id, $shortcode_content );
+		$this->assertStringContainsString( '<iframe src="https://www.ustream.tv/embed/recorded/' . $id, $shortcode_content );
 	}
 
 	/**
@@ -64,6 +65,6 @@ class WP_Test_Jetpack_Shortcodes_Ustream extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( '<iframe id="SocialStream" src="https://www.ustream.tv/socialstream/' . $id, $shortcode_content );
+		$this->assertStringContainsString( '<iframe id="SocialStream" src="https://www.ustream.tv/socialstream/' . $id, $shortcode_content );
 	}
 }

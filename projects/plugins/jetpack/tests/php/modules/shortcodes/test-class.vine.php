@@ -4,6 +4,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
 
 class WP_Test_Jetpack_Shortcodes_Vine extends WP_UnitTestCase {
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * @author scotchfield
@@ -38,7 +39,7 @@ class WP_Test_Jetpack_Shortcodes_Vine extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( $url, $shortcode_content );
+		$this->assertStringContainsString( $url, $shortcode_content );
 	}
 
 	/**
@@ -68,9 +69,9 @@ class WP_Test_Jetpack_Shortcodes_Vine extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( $url, $shortcode_content );
-		$this->assertContains( 'width="' . $width . '"', $shortcode_content );
-		$this->assertContains( 'height="' . $height . '"', $shortcode_content );
+		$this->assertStringContainsString( $url, $shortcode_content );
+		$this->assertStringContainsString( 'width="' . $width . '"', $shortcode_content );
+		$this->assertStringContainsString( 'height="' . $height . '"', $shortcode_content );
 	}
 
 	/**
@@ -85,8 +86,8 @@ class WP_Test_Jetpack_Shortcodes_Vine extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( $url, $shortcode_content );
-		$this->assertContains( '/embed/' . $type, $shortcode_content );
+		$this->assertStringContainsString( $url, $shortcode_content );
+		$this->assertStringContainsString( '/embed/' . $type, $shortcode_content );
 	}
 
 }
