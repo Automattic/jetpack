@@ -521,3 +521,13 @@ export function contentAttributesChanged( state, prevProps, props ) {
 		attributeNames.map( attribute => ( { attribute, content: props.attributes[ attribute ] } ) )
 	);
 }
+
+/**
+ * Return social media connections.
+ *
+ * @param {state} state
+ * @returns {Array} An array of fresh social media connections for the current post.
+ */
+export function getConnections( state ) {
+	return state.connections;
+}
