@@ -93,7 +93,7 @@ class Queue {
 		$count_items = count( $items );
 		for ( $i = 0; $i < $count_items; ++$i ) {
 			// skip empty items.
-			if ( empty( $items[ i ] ) ) {
+			if ( empty( $items[ $i ] ) ) {
 				continue;
 			}
 			try {
