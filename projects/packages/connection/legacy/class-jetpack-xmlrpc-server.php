@@ -632,6 +632,9 @@ class Jetpack_XMLRPC_Server {
 				$code = -10520;
 			}
 			$message = sprintf( 'Jetpack: [%s] %s', $this->error->get_error_code(), $this->error->get_error_message() );
+			if ( ! class_exists( \IXR_Error::class ) ) {
+				require_once ABSPATH . WPINC . '/class-IXR.php';
+			}
 			return new \IXR_Error( $code, $message );
 		} elseif ( is_a( $this->error, 'IXR_Error' ) ) {
 			return $this->error;
