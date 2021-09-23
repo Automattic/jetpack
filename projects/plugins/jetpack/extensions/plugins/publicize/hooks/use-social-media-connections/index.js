@@ -14,8 +14,11 @@ export default function useSocialMediaConnections() {
 		'jetpack/publicize'
 	);
 
+	const connections = useSelect( select => select( 'jetpack/publicize' ).getConnections(), [] );
+
 	return {
-		connections: useSelect( select => select( 'jetpack/publicize' ).getConnections(), [] ),
+		connections,
+		hasEnabledConnections: connections && connections.some( connection => connection.enabled ),
 		toggleById: toggleConnectionById,
 		refresh,
 	};
