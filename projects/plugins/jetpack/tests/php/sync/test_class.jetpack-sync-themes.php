@@ -139,6 +139,9 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	 * Test that we support syncing all the different theme features still.
 	 */
 	public function test_theme_callable_syncs_theme_supports_data() {
+		// @todo: Figure out why it's necessary for the sync to happen twice for the test to pass when run standalone or with WordPress 5.9.
+		set_theme_mod( 'foo', 'bar' );
+		$this->sender->do_sync();
 
 		$this->sender->do_sync();
 		$theme_supports = $this->server_replica_storage->get_callable( 'theme_support' );
