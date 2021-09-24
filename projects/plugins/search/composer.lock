@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2d4b77ad0d0930ad15970e19c3ed930b",
+    "content-hash": "94b6ea6eb6e6e38fa6447f9178c0ae2f",
     "packages": [],
     "packages-dev": [
         {
@@ -13,7 +13,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "bf1a529ef0b8dbfbe44c96f9d2b5222aae947116"
+                "reference": "166316918b337e3128f12b5dddfd85f2d067f860"
             },
             "require": {
                 "php": ">=5.6",
@@ -32,7 +32,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-master": "1.2.x-dev"
+                    "dev-master": "2.0.x-dev"
                 },
                 "mirror-repo": "Automattic/jetpack-changelogger",
                 "version-constants": {
