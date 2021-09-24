@@ -273,7 +273,7 @@ class Plugins extends Module {
 		/**
 		 * Helps Sync log that a plugin was edited
 		 *
-		 * @since1.0.4
+		 * @since 1.6.3
 		 * @since-jetpack 4.9.0
 		 *
 		 * @param string $plugin, Plugin slug
