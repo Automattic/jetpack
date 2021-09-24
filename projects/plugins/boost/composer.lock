@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "da8488114b70e27e4a6a586747fc545c",
+    "content-hash": "7fb68a85088aa383e8f1803f75e8fcd5",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -174,7 +174,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/config",
-                "reference": "5cc8275ac867ff99e527da0df9e8f14ec53b11fd"
+                "reference": "60339b1753edd0fcd1886bb654c10174302c1835"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^1.2"
@@ -187,7 +187,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-config/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.4.x-dev"
+                    "dev-master": "1.5.x-dev"
                 }
             },
             "autoload": {
@@ -210,7 +210,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "698d77497d04f78a1526f78a59919dd448ead954"
+                "reference": "b28190e75539efef4052e8935683791b45864a8f"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -244,9 +244,6 @@
                 }
             },
             "autoload": {
-                "files": [
-                    "legacy/load-ixr.php"
-                ],
                 "classmap": [
                     "legacy",
                     "src/"
