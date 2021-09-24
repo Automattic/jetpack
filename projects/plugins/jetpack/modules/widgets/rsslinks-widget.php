@@ -22,37 +22,46 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 		);
 	}
 
-	function widget( $args, $instance ) {
+	/**
+	 * Display the widget.
+	 *
+	 * @param array $args Display arguments including before_title, after_title, before_widget, and after_widget.
+	 * @param array $instance The settings for the particular instance of the widget.
+	 */
+	public function widget( $args, $instance ) {
 		$instance = wp_parse_args( (array) $instance, $this->defaults() );
 
-		extract( $args );
+		$before_widget = isset( $args['before_widget'] ) ? $args['before_widget'] : '';
+		$before_title  = isset( $args['before_title'] ) ? $args['before_title'] : '';
+		$after_title   = isset( $args['after_title'] ) ? $args['after_title'] : '';
+		$after_widget  = isset( $args['after_widget'] ) ? $args['after_widget'] : '';
 
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $instance['title'] );
-		echo $before_widget;
+		echo $before_widget; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		if ( $title ) {
-			echo $before_title . stripslashes( $title ) . $after_title;
+			echo $before_title . esc_html( $title ) . $after_title; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
-		if ( 'text' == $instance['format'] ) {
+		if ( 'text' === $instance['format'] ) {
 			echo '<ul>';
 		}
 
-		if ( 'posts' == $instance['display'] ) {
+		if ( 'posts' === $instance['display'] ) {
 			$this->_rss_link( 'posts', $instance );
-		} elseif ( 'comments' == $instance['display'] ) {
+		} elseif ( 'comments' === $instance['display'] ) {
 			$this->_rss_link( 'comments', $instance );
-		} elseif ( 'posts-comments' == $instance['display'] ) {
+		} elseif ( 'posts-comments' === $instance['display'] ) {
 			$this->_rss_link( 'posts', $instance );
 			$this->_rss_link( 'comments', $instance );
 		}
 
-		if ( 'text' == $instance['format'] ) {
+		if ( 'text' === $instance['format'] ) {
 			echo '</ul>';
 		}
 
-		echo "\n" . $after_widget;
+		echo "\n" . $after_widget; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		/** This action is documented in modules/widgets/gravatar-profile.php */
 		do_action( 'jetpack_stats_extra', 'widget_view', 'rss-links' );
