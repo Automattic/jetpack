@@ -26,7 +26,6 @@ jobs:
       env:
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
       run: |
-        pnpm install --dir ../../../../tools/cli
         pnpm install
         pnpm run test-decrypt-all-config
 
