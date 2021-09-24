@@ -15,6 +15,7 @@ importers:
       jest-circus: ^27.2.1
       jest-junit: 12.0.0
       jest-runner-groups: 2.0.1
+      jetpack-cli: ../../../../../tools/cli
       jetpack-e2e-commons: link:../../../../../tools/e2e-commons
       pm2: 5.1.0
     devDependencies:
@@ -29,6 +30,7 @@ importers:
       jest-circus: 27.2.1
       jest-junit: 12.0.0
       jest-runner-groups: 2.0.1
+      jetpack-cli: link:../../../../../tools/cli
       jetpack-e2e-commons: link:../../../../../tools/e2e-commons
       pm2: 5.1.0
 
