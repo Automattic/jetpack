@@ -13,10 +13,10 @@ import { imagePath } from 'constants/urls';
  */
 import './style.scss';
 
-export const LoadingCard = () => {
+export const JetpackLoadingIcon = () => {
 	return (
-		<div className="jp-recommendations-loading-card">
-			<img src={ imagePath + '/jetpack-logomark-blue.svg' } alt="Loading recommendations" />
+		<div className="jp-loading-icon">
+			<img src={ imagePath + '/jetpack-logomark-blue.svg' } alt="Loading..." />
 		</div>
 	);
 };
