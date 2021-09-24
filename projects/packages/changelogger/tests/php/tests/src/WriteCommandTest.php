@@ -932,7 +932,7 @@ class WriteCommandTest extends CommandTestCase {
 				WriteCommand::FATAL_EXIT,
 				array( '{^Failed to determine new version: Invalid prerelease data$}m' ),
 			),
-			'Version in changelog valid'                   => array(
+			'Version in changelog invalid'                 => array(
 				array(),
 				array(
 					'changelog' => "## 2.0 - 2021-02-24\n\nThis is the \"problem in the future\" that comes of ignoring the warning about an invalid --use-version...\n",
@@ -941,7 +941,7 @@ class WriteCommandTest extends CommandTestCase {
 				WriteCommand::FATAL_EXIT,
 				array( '{^Changelog file contains invalid version 2\.0! Use --use-version to specify the new version\.$}m' ),
 			),
-			'Version in changelog valid, amending'         => array(
+			'Version in changelog invalid, amending'       => array(
 				array( '--amend' => true ),
 				array(
 					'changelog' => "## 2.0 - 2021-02-24\n\nThis is the \"problem in the future\" that comes of ignoring the warning about an invalid --use-version...\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n",
