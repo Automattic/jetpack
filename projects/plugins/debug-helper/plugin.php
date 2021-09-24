@@ -44,6 +44,11 @@ $jetpack_dev_debug_modules = array(
 		'name'        => 'Broken token Utilities',
 		'description' => '',
 	),
+	'idc-simulator'   => array(
+		'file'        => 'class-idc-simulator.php',
+		'name'        => 'Identity Crisis Simulation Utility',
+		'description' => '',
+	),
 	'sync-debug'      => array(
 		'file'        => 'class-jetpack-sync-debug-helper.php',
 		'name'        => 'Sync Debug Utilities',
