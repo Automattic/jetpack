@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Remove dependency on the identity-crisis package
+
+

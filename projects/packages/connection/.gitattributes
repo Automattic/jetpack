@@ -5,6 +5,16 @@
 docs/            export-ignore
 phpunit.xml.dist export-ignore
 tests/           export-ignore
+ackage.json      export-ignore
+webpack.config.js export-ignore
+gulpfile.babel.js export-ignore
+.babelrc          export-ignore
 
 # Files not needed in the production build.
-/changelog/**    production-exclude
+.gitignore        production-exclude
+_inc/**           production-exclude
+changelog/**      production-exclude
+
+
+# Files to include in the mirror repo
+/build/**           production-include

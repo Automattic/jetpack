@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Move the IDC files from the identity-crisis package to the connection package to resolve a circular dependency
