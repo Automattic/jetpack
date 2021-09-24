@@ -368,7 +368,7 @@ class Actions {
 		);
 
 		// Has the site opted in to IDC mitigation?
-		if ( Identity_Crisis::sync_idc_optin() ) {
+		if ( Identity_Crisis::should_handle_idc() ) {
 			$query_args['idc'] = true;
 		}
 

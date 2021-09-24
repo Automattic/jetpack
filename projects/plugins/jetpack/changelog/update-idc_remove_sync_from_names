@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Replace sync_idc_option call with should_handle_idc.
+
+
