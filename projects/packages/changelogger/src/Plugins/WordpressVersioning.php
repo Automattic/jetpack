@@ -42,20 +42,26 @@ class WordpressVersioning implements VersioningPlugin {
 	 * @return array With components:
 	 *  - major: (float) Major version.
 	 *  - point: (int) Point version.
+	 *  - version: (string) Major combined with point.
 	 *  - prerelease: (string|null) Pre-release string.
 	 *  - buildinfo: (string|null) Build metadata string.
 	 * @throws InvalidArgumentException If the version number is not in a recognized format.
 	 */
-	private function parseVersion( $version ) {
-		if ( ! preg_match( '/^(?P<major>\d+\.\d)(?:\.(?P<point>\d+))?(?:-(?P<prerelease>dev|(?:alpha|beta|rc)\d*))?(?:\+(?P<buildinfo>[0-9a-zA-Z.-]+))?$/', $version, $m ) ) {
+	public function parseVersion( $version ) {
+		if ( ! preg_match( '/^(?P<major>\d+\.\d)(?:\.(?P<point>\d+))?(?:-(?P<prerelease>dev|(?:alpha|beta|rc)\d*|\d\d(?:0[1-9]|1[0-2])\.\d+))?(?:\+(?P<buildinfo>[0-9a-zA-Z.-]+))?$/', $version, $m ) ) {
 			throw new InvalidArgumentException( "Version number \"$version\" is not in a recognized format." );
 		}
-		return array(
+		$ret            = array(
 			'major'      => (float) $m['major'],
 			'point'      => (int) ( isset( $m['point'] ) ? $m['point'] : null ),
 			'prerelease' => isset( $m['prerelease'] ) && '' !== $m['prerelease'] ? $m['prerelease'] : null,
 			'buildinfo'  => isset( $m['buildinfo'] ) && '' !== $m['buildinfo'] ? $m['buildinfo'] : null,
 		);
+		$ret['version'] = sprintf( '%.1f', (float) $m['major'] );
+		if ( 0 !== $ret['point'] ) {
+			$ret['version'] .= '.' . $ret['point'];
+		}
+		return $ret;
 	}
 
 	/**
@@ -73,6 +79,7 @@ class WordpressVersioning implements VersioningPlugin {
 				'buildinfo'  => null,
 			);
 			$test = $this->parseVersion( '0.0' );
+			unset( $test['version'] );
 			if ( array_intersect_key( $test, $info ) !== $test ) {
 				throw new InvalidArgumentException( 'Version array is not in a recognized format.' );
 			}
@@ -151,21 +158,24 @@ class WordpressVersioning implements VersioningPlugin {
 	}
 
 	/**
-	 * Extract the index and count from a prerelease string.
+	 * Extract the index and values from a prerelease string.
 	 *
 	 * @param string|null $s String.
-	 * @return array Two elements: index and count.
+	 * @return array First element being the index value of the pattern matched, subsequent elements being int values of the matched capture groups.
 	 * @throws InvalidArgumentException If the string is invalid.
 	 */
 	private function parsePrerelease( $s ) {
 		if ( null === $s ) {
 			return array( 100, 0 );
 		}
-		foreach ( array( 'dev', 'alpha(\d*)', 'beta(\d*)', 'rc(\d*)' ) as $i => $re ) {
+
+		foreach ( array( 'dev', 'alpha(\d*)', '(\d\d(?:0[1-9]|1[0-2]))\.(\d+)', 'beta(\d*)', 'rc(\d*)' ) as $i => $re ) {
 			if ( preg_match( "/^{$re}\$/", $s, $m ) ) {
-				return array( $i, isset( $m[1] ) ? (int) $m[1] : 0 );
+				$m[0] = $i;
+				return array_map( 'intval', $m );
 			}
 		}
+
 		throw new InvalidArgumentException( "Invalid prerelease string \"$s\"" ); // @codeCoverageIgnore
 	}
 
@@ -182,18 +192,22 @@ class WordpressVersioning implements VersioningPlugin {
 		$bb = $this->parseVersion( $b );
 		if ( $aa['major'] !== $bb['major'] ) {
 			return $aa['major'] < $bb['major'] ? -1 : 1;
-
 		}
 		if ( $aa['point'] !== $bb['point'] ) {
 			return $aa['point'] - $bb['point'];
 		}
 
-		list( $aindex, $acount ) = $this->parsePrerelease( $aa['prerelease'] );
-		list( $bindex, $bcount ) = $this->parsePrerelease( $bb['prerelease'] );
-		if ( $aindex !== $bindex ) {
-			return $aindex - $bindex;
+		$avalues = $this->parsePrerelease( $aa['prerelease'] );
+		$bvalues = $this->parsePrerelease( $bb['prerelease'] );
+
+		$l = min( count( $avalues ), count( $bvalues ) );
+		for ( $i = 0; $i < $l; $i++ ) {
+			if ( $avalues[ $i ] !== $bvalues[ $i ] ) {
+				return $avalues[ $i ] - $bvalues[ $i ];
+			}
 		}
-		return $acount - $bcount;
+
+		return count( $avalues ) - count( $bvalues );
 	}
 
 	/**
