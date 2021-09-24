@@ -31,7 +31,11 @@ import TiledGallerySettings, { DEFAULT_COLUMNS, MAX_COLUMNS } from './settings';
 const TILE_SPACING = 8;
 
 export function defaultColumnsNumber( images ) {
+<<<<<<< HEAD
 	return Math.min( MAX_COLUMNS, images.length );
+=======
+	return Math.min( 3, images.length );
+>>>>>>> 5fb3cad74 (WIP implementation of save.)
 }
 
 const TiledGalleryEdit = props => {
@@ -47,7 +51,7 @@ const TiledGalleryEdit = props => {
 		attributes: { columns, linkTo, roundedCorners },
 	} = props;
 
-	const { replaceInnerBlocks } = useDispatch( blockEditorStore );
+	const { replaceInnerBlocks, updateBlockAttributes } = useDispatch( blockEditorStore );
 
 	useEffect( () => {
 		const { width } = sizes || {};
@@ -79,6 +83,15 @@ const TiledGalleryEdit = props => {
 			} ) ),
 		[ innerBlockImages ]
 	);
+
+	useEffect( () => {
+		images?.forEach( newImage => {
+			updateBlockAttributes( newImage.clientId, {
+				...newImage.attributes,
+				id: newImage.id,
+			} );
+		} );
+	}, [ images ] );
 
 	const onSelectImages = imgs => {
 		const newBlocks = imgs.map( image => {

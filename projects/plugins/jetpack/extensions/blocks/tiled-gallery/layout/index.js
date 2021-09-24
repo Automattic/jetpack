@@ -22,6 +22,7 @@ export default class Layout extends Component {
 	// - Handlers need to be created by index so that the image changes can be applied correctly.
 	//   This is because the images are stored in an array in the block attributes.
 	renderImage( img, i ) {
+		console.log( 'img', img, 'i', i );
 		const {
 			columns,
 			imageFilter,
@@ -89,11 +90,14 @@ export default class Layout extends Component {
 			columnWidths,
 		} = this.props;
 		const LayoutRenderer = isSquareishLayout( layoutStyle ) ? Square : Mosaic;
+		// console.log('testing');
 		const renderedImages = this.props.images.map( this.renderImage, this );
+		// console.log('testin2');
 		const roundedCornersValue =
 			layoutStyle !== LAYOUT_CIRCLE ? Math.min( roundedCorners, MAX_ROUNDED_CORNERS ) : 0;
 
-		return (
+		// console.log('renderedImages', renderedImages);
+		const test = (
 			<div
 				className={ classnames( className, {
 					[ `has-rounded-corners-${ roundedCornersValue }` ]: roundedCornersValue > 0,
@@ -111,5 +115,8 @@ export default class Layout extends Component {
 				{ children }
 			</div>
 		);
+
+		console.log( 'test', test );
+		return test;
 	}
 }
