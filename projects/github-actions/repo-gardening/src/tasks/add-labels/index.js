@@ -245,19 +245,16 @@ async function addLabels( payload, octokit ) {
 		return;
 	}
 
-	if ( 100 <= labels.length ) {
-		debug( 'add-labels: Too many labels to add to that PR. We will only keep 100.' );
-		labels.length = 100;
-	}
-
 	debug( `add-labels: Adding labels to PR #${ number }` );
-
-	await octokit.rest.issues.addLabels( {
-		owner: owner.login,
-		repo: name,
-		issue_number: number,
-		labels,
-	} );
+	while ( labels.length > 0 ) {
+		const chunk = labels.splice( 0, 100 );
+		await octokit.rest.issues.addLabels( {
+			owner: owner.login,
+			repo: name,
+			issue_number: number,
+			labels: chunk,
+		} );
+	}
 }
 
 module.exports = addLabels;
