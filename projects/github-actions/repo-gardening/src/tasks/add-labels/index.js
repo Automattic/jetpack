@@ -245,6 +245,11 @@ async function addLabels( payload, octokit ) {
 		return;
 	}
 
+	if ( 100 <= labels.length ) {
+		debug( 'add-labels: Too many labels to add to that PR. We will only keep 100.' );
+		labels.length = 100;
+	}
+
 	debug( `add-labels: Adding labels to PR #${ number }` );
 
 	await octokit.rest.issues.addLabels( {

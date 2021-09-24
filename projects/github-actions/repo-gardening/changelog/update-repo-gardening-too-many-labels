@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Avoid errors when there are too many labels to add to a PR.
