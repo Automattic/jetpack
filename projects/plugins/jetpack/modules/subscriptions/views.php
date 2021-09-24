@@ -2,6 +2,7 @@
 
 class Jetpack_Subscriptions_Widget extends WP_Widget {
 	static $instance_count = 0;
+
 	/**
 	 * @var array When printing the submit button, what tags are allowed
 	 */
@@ -32,6 +33,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			'classname'                   => 'widget_blog_subscription jetpack_subscription_widget',
 			'description'                 => __( 'Add an email signup form to allow people to subscribe to your blog.', 'jetpack' ),
 			'customize_selective_refresh' => true,
+			'show_instance_in_rest'       => true,
 		);
 
 		$name = self::is_jetpack() ?
