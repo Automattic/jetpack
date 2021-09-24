@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Sync\Replicastore;
 
 use Automattic\Jetpack\Sync;
+use Automattic\Jetpack\Sync\Modules;
 use WP_Error;
 use WP_User_Query;
 
@@ -56,7 +57,7 @@ class Table_Checksum_Usermeta extends Table_Checksum {
 		$user_ids = $wpdb->get_col( $query );
 
 		// Chunk the array down to make sure we don't overload the database with queries that are too large.
-		$chunked_user_ids = array_chunk( $user_ids, 10000 );
+		$chunked_user_ids = array_chunk( $user_ids, 500 );
 
 		$checksum_entries = array();
 
@@ -64,13 +65,15 @@ class Table_Checksum_Usermeta extends Table_Checksum {
 			$user_objects = $this->get_user_objects_by_ids( $user_ids_chunk );
 
 			foreach ( $user_objects as $user_object ) {
+				// expand and sanitize desired meta based on WP.com logic.
+				$user_object = $this->expand_and_sanitize_user_meta( $user_object );
+				// Generate checksum entry based on the umeta_id order of WP.com.
 				$checksum_entry = array(
 					$this->salt,
-					$user_object->locale,
-					// Serializing the next values to make sure we only use strings, instead of objects.
-					wp_json_encode( $user_object->roles ),
-					wp_json_encode( $user_object->caps ),
-					wp_json_encode( get_allowed_mime_types( $user_object ) ),
+					maybe_serialize( $user_object->allcaps ), // umeta_id = 0.
+					maybe_serialize( $user_object->allowed_mime_types ), // umeta_id = 1.
+					maybe_serialize( $user_object->locale ), // umeta_id = 2.
+					maybe_serialize( $user_object->roles ), // umeta_id = 3.
 				);
 
 				// The `#` is used as a separate in the default checksum flow, so let's reuse it.
@@ -107,6 +110,47 @@ class Table_Checksum_Usermeta extends Table_Checksum {
 		ksort( $response );
 
 		return $response;
+	}
+
+	/**
+	 * Expand the User Object with additional meta santized by WP.com logic.
+	 *
+	 * @param mixed $user_object User Object from WP_User_Query.
+	 *
+	 * @return mixed $user_object expanded User Object.
+	 */
+	protected function expand_and_sanitize_user_meta( $user_object ) {
+		$user_module = Modules::get_module( 'users' );
+		// Expand User Objects based on Sync logic.
+		$user_object = $user_module->expand_user( $user_object );
+
+		// Sanitize location.
+		if ( ! empty( $user_object->locale ) ) {
+			$user_object->locale = wp_strip_all_tags( $user_object->locale, true );
+		}
+
+		// Sanitize allcaps.
+		if ( ! empty( $user_object->allcaps ) ) {
+			$user_object->allcaps = array_map(
+				function ( $cap ) {
+					return (bool) $cap;
+				},
+				$user_object->allcaps
+			);
+		}
+
+		// Sanitize allowed_mime_types.
+		foreach ( $user_object->allowed_mime_types as $allowed_mime_type_short => $allowed_mime_type_long ) {
+			$allowed_mime_type_short                                     = wp_strip_all_tags( (string) $allowed_mime_type_short, true );
+			$allowed_mime_type_long                                      = wp_strip_all_tags( (string) $allowed_mime_type_long, true );
+			$user_object->allowed_mime_types[ $allowed_mime_type_short ] = $allowed_mime_type_long;
+		}
+
+		// Sanitize roles.
+		if ( is_array( $user_object->roles ) ) {
+			$user_object->roles = array_map( 'sanitize_text_field', $user_object->roles );
+		}
+		return $user_object;
 	}
 
 	/**
