@@ -1,3 +1,3 @@
 # Changelog
 
-### This is a list detailing changes for the Jetpack RNA Components package releases.
+### This is a list detailing changes for the Jetpack RNA Analytics package releases.
