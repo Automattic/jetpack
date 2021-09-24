@@ -24,15 +24,7 @@ class Analytics {
 		add_action( 'admin_enqueue_scripts', array( $tracks, 'enqueue_tracks_scripts' ) );
 
 		// Universal ajax callback for all tracking events triggered via js.
-		add_action( 'wp_ajax_jetpack_boost_tracks', array( $tracks, 'ajax_tracks' ) );
-
-		add_filter(
-			'jptracks_ajax_l10n',
-			function ( $l10n ) {
-				$l10n['action'] = 'jetpack_boost_tracks';
-				return $l10n;
-			}
-		);
+		add_action( 'wp_ajax_jetpack_tracks', array( $tracks, 'ajax_tracks' ) );
 	}
 
 	/**

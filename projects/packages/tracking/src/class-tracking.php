@@ -140,13 +140,9 @@ class Tracking {
 		wp_localize_script(
 			'jptracks',
 			'jpTracksAJAX',
-			apply_filters(
-				'jptracks_ajax_l10n',
-				array(
-					'ajaxurl'            => admin_url( 'admin-ajax.php' ),
-					'jpTracksAJAX_nonce' => wp_create_nonce( 'jp-tracks-ajax-nonce' ),
-					'action'             => 'jetpack_tracks',
-				)
+			array(
+				'ajaxurl'            => admin_url( 'admin-ajax.php' ),
+				'jpTracksAJAX_nonce' => wp_create_nonce( 'jp-tracks-ajax-nonce' ),
 			)
 		);
 	}

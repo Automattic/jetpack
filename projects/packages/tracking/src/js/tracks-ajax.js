@@ -6,7 +6,7 @@
 	window.jpTracksAJAX.record_ajax_event = function ( eventName, eventType, eventProp ) {
 		var data = {
 			tracksNonce: jpTracksAJAX.jpTracksAJAX_nonce,
-			action: jpTracksAJAX.action || 'jetpack_tracks',
+			action: 'jetpack_tracks',
 			tracksEventType: eventType,
 			tracksEventName: eventName,
 			tracksEventProp: eventProp || false,
