@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 10.0
+Stable tag: 10.1
 Requires at least: 5.7
 Requires PHP: 5.6
 Tested up to: 5.8
@@ -242,29 +242,55 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.0 - 2021-08-03
+### 10.1 - 2021-09-07
+#### Major Enhancements
+- Search: add a Gutenberg powered customization interface.
+
 #### Enhancements
-- Carousel: add JS-based smooth scroll behavior for the footer buttons.
-- Carousel: on image zoom, fade out controls. Fade them back in when sized back to original, or the slide is advanced.
+- Carousel: photo info and comment sections stay open once toggled on.
+- Carousel: show image info icon even if Exif metadata option is off.
+- Carousel: use photo description as caption if caption and title fields are blank.
+- Form Block: scroll to subscription message after submitting the form.
+- Jetpack Assistant: introduce a new "Product Suggestion" step to inform new users of relevant Jetpack services.
+- Search: greater theme compatibility, including label coloring and custom checkbox margins.
+- Search: improves handling of breadcrumb display.
+- Search: visual, functional, and accessibility improvements to new wp-admin section and customization interface.
+- Secure Sign On: remove additional redirect during sign in process.
+- Shortcodes: allow wrapping quizzes together with the Quiz shortcode.
+- Spotify Shortcode: add lazy loading support.
+- Stats: add the ability to collapse the nudges UI.
+- Tiled Gallery Block: ensure it can be used when in Offline Mode.
+- Widget Visibility: rename taxonomy label "All Pages" in dropdown.
 
 #### Improved compatibility
-- Carousel: add a Swiper JS param to prevent interaction on the carousel while transitioning between slides.
-- Map Block: ensure theme styles do not override map button background colors.
-- Search: remove required attribute from search inputs.
+- Browser Compatibility: allow use of new JavaScript features not supported by Internet Explorer 11.
+- Image CDN: added support for the WEBP format.
+- Mailchimp Block: updates terminology to use "Audience" instead of "Lists".
+- Media: allow ZIP files to be uploaded to sites via WordPress.com.
+- Related Posts: allow shortcodes in Related Posts titles.
 
 #### Bug fixes
-- Carousel: fix carousel title formatting to prevent issues with quote conversion.
-- Comments: fix subsequent commenting when using a social profile.
-- Contact Form Block: remove specific form colors to prevent theme style clash.
-- Instant Search: fix visual glitch on breadcrumb in Firefox.
-- Instant Search: make sure ?s= is set when using filter links.
-- Like Button: add title and aria-hidden attributes to the Like button iframe.
-- OpenTable Block: fix input width when used in block editor.
-- Publicize: avoid PHP notices in edge-cases where no info about a post can be found.
-- Search: fix notice issue with WP 5.8's widget editor.
-- Select Dropdown Component: add content-box box sizing to prevent global box-sizing conflict.
-- SEO Tools: ensure functions are loaded before API endpoint attempts to use them.
-- Tiled Gallery: fix blurry display of images much wider than they are high.
+- Blocks: fix HTML markup of buttons added to blocks.
+- Carousel: fix a bug that changes the cursor to a pointer over all nested blocks.
+- Carousel: fix bug preventing user from swiping in gallery when images are configured to link to Attachment Page.
+- Carousel: hide UI controls in the carousel for single images.
+- Contact Form: disable the Block Editor for contact form submissions.
+- Custom CSS: ensure that short CSS is added inline instead of via an external file.
+- Dashboard: add a new message to the backup card if the site is too new to have an accurate status.
+- Dashboard: ensure that the image CDN does not get enabled by default when using the Site Accelerator toggle while in Offline mode.
+- Facebook Page Widget: fix a bug that prevented widget from being added in the wp-admin widget editor.
+- Form Block: fix form button alignment in editor.
+- Instant Search: ensure box-shadow and text-shadow aren't applied to search buttons.
+- Search: fix search widgets not saving in block widget editor.
+- Search: fix various issues with scrolling on both desktop and mobile devices.
+- Search: fix wrapping issue on super wide screens.
+- Search: hide search sub menu on site disconnection.
+- Search: improve style specificity for result highlights in Customberg.
+- Slideshow Block: fix intermittent issue where next/prev buttons sometimes don't respond to clicks.
+- Social Icons: fix being unable to remove icons from widget.
+- Social Icons Widget: fix issue in wp-admin widget editor where icons don't save on refresh.
+- Stats: allow better translations of page view counts in the Stats widget.
+- Video Block: fix resizing so that video block doesn't display black bars on the sides.
 
 --------
 

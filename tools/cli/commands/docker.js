@@ -3,6 +3,7 @@
  */
 import { spawnSync } from 'child_process';
 import chalk from 'chalk';
+import * as envfile from 'envfile';
 import fs from 'fs';
 import { dockerFolder, setConfig } from '../helpers/docker-config';
 
@@ -143,6 +144,18 @@ const shellExecutor = ( argv, cmd, args, opts = {} ) => {
 };
 
 /**
+ * Check command status, exit if it failed.
+ *
+ * @param {object} res - child_process object.
+ */
+const checkProcessResult = res => {
+	if ( res.status !== 0 ) {
+		console.error( chalk.red( `Command exited with status ${ res.status }` ) );
+		process.exit( res.status );
+	}
+};
+
+/**
  * Executor for `docker-compose` commands
  *
  * @param {object} argv - Yargs
@@ -150,7 +163,10 @@ const shellExecutor = ( argv, cmd, args, opts = {} ) => {
  * @param {object} envOpts - key-value pairs of the ENV variables to set
  */
 const composeExecutor = ( argv, opts, envOpts ) => {
-	executor( argv, () => shellExecutor( argv, 'docker-compose', opts, { env: envOpts } ) );
+	const res = executor( argv, () =>
+		shellExecutor( argv, 'docker-compose', opts, { env: envOpts } )
+	);
+	checkProcessResult( res );
 };
 
 /**
@@ -314,6 +330,17 @@ const buildExecCmd = argv => {
 	} else if ( cmd === 'db' ) {
 		opts.push( 'mysql', '--defaults-group-suffix=docker' );
 	} else if ( cmd === 'phpunit' ) {
+		// @todo: Fix this.
+		console.warn(
+			chalk.yellow(
+				"Due to recent changes to WordPress's test infrastructure, this command is currently broken."
+			)
+		);
+		console.warn(
+			chalk.yellow(
+				"You'll probably do better for the moment to do `jetpack docker sh` then run appropriate commands there."
+			)
+		);
 		const unitArgs = argv._.slice( 2 );
 
 		opts.push(
@@ -322,6 +349,17 @@ const buildExecCmd = argv => {
 			...unitArgs
 		);
 	} else if ( cmd === 'phpunit-multisite' ) {
+		// @todo: Fix this.
+		console.warn(
+			chalk.yellow(
+				"Due to recent changes to WordPress's test infrastructure, this command is currently broken."
+			)
+		);
+		console.warn(
+			chalk.yellow(
+				"You'll probably do better for the moment to do `jetpack docker sh` then run appropriate commands there."
+			)
+		);
 		const unitArgs = argv._.slice( 2 );
 		opts.push(
 			'phpunit',
@@ -398,7 +436,8 @@ const execJtCmdHandler = argv => {
 		cmd = jtTunnelFile;
 	}
 
-	executor( argv, () => shellExecutor( argv, cmd, opts.concat( jtOpts ) ) );
+	const jtResult = executor( argv, () => shellExecutor( argv, cmd, opts.concat( jtOpts ) ) );
+	checkProcessResult( jtResult );
 };
 
 /**
@@ -444,7 +483,7 @@ export function dockerDefine( yargs ) {
 					handler: async argv => {
 						await defaultDockerCmdHandler( argv );
 						const project = getProjectName( argv );
-						executor( argv, () =>
+						const res = executor( argv, () =>
 							shellExecutor(
 								argv,
 								'rm',
@@ -460,20 +499,33 @@ export function dockerDefine( yargs ) {
 								{ shell: true }
 							)
 						);
+						checkProcessResult( res );
 					},
 				} )
 				.command( {
 					command: 'build-image',
 					description: 'Builds local docker image',
 					handler: argv => {
-						executor( argv, () =>
+						const versions = envfile.parse(
+							fs.readFileSync( `${ dockerFolder }/../../.github/versions.sh`, 'utf8' )
+						);
+						const res = executor( argv, () =>
 							shellExecutor( argv, 'docker', [
 								'build',
 								'-t',
 								'automattic/jetpack-wordpress-dev',
+								'--build-arg',
+								`PHP_VERSION=${ versions.PHP_VERSION }`,
+								'--build-arg',
+								`COMPOSER_VERSION=${ versions.COMPOSER_VERSION }`,
+								'--build-arg',
+								`NODE_VERSION=${ versions.NODE_VERSION }`,
+								'--build-arg',
+								`PNPM_VERSION=${ versions.PNPM_VERSION }`,
 								dockerFolder,
 							] )
 						);
+						checkProcessResult( res );
 					},
 				} )
 
@@ -511,7 +563,7 @@ export function dockerDefine( yargs ) {
 				} )
 				.command( {
 					command: 'phpunit',
-					description: 'Run PHPUNIT tests inside container',
+					description: 'Run PHPUnit tests inside container',
 					builder: yargExec => defaultOpts( yargExec ),
 					handler: argv => execDockerCmdHandler( argv ),
 				} )
@@ -536,7 +588,7 @@ export function dockerDefine( yargs ) {
 				.command( {
 					command: 'phpunit-multisite',
 					alias: 'phpunit:multisite',
-					description: 'Run multisite PHPUNIT tests inside container ',
+					description: 'Run multisite PHPUnit tests inside container ',
 					builder: yargExec => defaultOpts( yargExec ),
 					handler: argv => execDockerCmdHandler( argv ),
 				} )

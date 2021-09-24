@@ -25,7 +25,7 @@
 
 <ErrorNotice {title}>
 	<p>
-		{$criticalCssStatus.retriedShowstopper
+		{$criticalCssStatus.retried_show_stopper
 			? __(
 					"Hmm, looks like something went wrong. We're still seeing an unexpected error. Please reach out to our support to get help.",
 					'jetpack-boost'
@@ -57,7 +57,7 @@
 	{/if}
 
 	<div slot="actionButton">
-		{#if $criticalCssStatus.retriedShowstopper}
+		{#if $criticalCssStatus.retried_show_stopper}
 			<a
 				class="button button-secondary"
 				href="https://wordpress.org/support/plugin/jetpack-boost/"

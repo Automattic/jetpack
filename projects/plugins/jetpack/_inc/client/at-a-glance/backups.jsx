@@ -28,7 +28,7 @@ import {
 import { getSitePlan } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import { getVaultPressData } from 'state/at-a-glance';
-import { getConnectUrl, hasConnectedOwner, isOfflineMode } from 'state/connection';
+import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
 import { getUpgradeUrl, showBackups } from 'state/initial-state';
 
 /**
@@ -62,6 +62,7 @@ class DashBackups extends Component {
 		siteRawUrl: PropTypes.string.isRequired,
 		getOptionValue: PropTypes.func.isRequired,
 		rewindStatus: PropTypes.string.isRequired,
+		rewindStatusReason: PropTypes.string.isRequired,
 
 		// Connected props
 		vaultPressData: PropTypes.any.isRequired,
@@ -69,7 +70,6 @@ class DashBackups extends Component {
 		isOfflineMode: PropTypes.bool.isRequired,
 		isVaultPressInstalled: PropTypes.bool.isRequired,
 		upgradeUrl: PropTypes.string.isRequired,
-		connectUrl: PropTypes.string.isRequired,
 		hasConnectedOwner: PropTypes.bool.isRequired,
 	};
 
@@ -165,7 +165,7 @@ class DashBackups extends Component {
 							'jetpack'
 						) }
 						disableHref="false"
-						href={ this.props.connectUrl }
+						onClick={ this.props.connectUser }
 						eventFeature="backups"
 						path="dashboard"
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SITE_BACKUPS_JETPACK ) }
@@ -234,6 +234,23 @@ class DashBackups extends Component {
 		return false;
 	}
 
+	renderFromRewindStatus() {
+		if (
+			'unavailable' === this.props.rewindStatus &&
+			'site_new' === this.props.rewindStatusReason
+		) {
+			return renderCard( {
+				className: 'jp-dash-item__is-inactive',
+				status: 'pro-inactive',
+				content: __( 'Your site is new and may still be preparing backup configuration.', 'jetpack' ),
+			} );
+			// this.props.rewindStatus is empty string on API error.
+		} else if ( 'unavailable' === this.props.rewindStatus || '' === this.props.rewindStatus ) {
+			return this.getVPContent();
+		}
+		return <div className="jp-dash-item">{ this.getRewindContent() }</div>;
+	}
+
 	render() {
 		if ( ! this.props.showBackups ) {
 			return null;
@@ -254,31 +271,30 @@ class DashBackups extends Component {
 		return (
 			<div>
 				<QueryVaultPressData />
-				{
-					// this.props.rewindStatus is empty string on API error.
-					'unavailable' === this.props.rewindStatus || '' === this.props.rewindStatus ? (
-						this.getVPContent()
-					) : (
-						<div className="jp-dash-item">{ this.getRewindContent() }</div>
-					)
-				}
+				{ this.renderFromRewindStatus() }
 			</div>
 		);
 	}
 }
 
-export default connect( state => {
-	const sitePlan = getSitePlan( state );
+export default connect(
+	state => {
+		const sitePlan = getSitePlan( state );
 
-	return {
-		vaultPressData: getVaultPressData( state ),
-		sitePlan,
-		planClass: getPlanClass( sitePlan ),
-		isOfflineMode: isOfflineMode( state ),
-		isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
-		showBackups: showBackups( state ),
-		upgradeUrl: getUpgradeUrl( state, 'aag-backups' ),
-		connectUrl: getConnectUrl( state ),
-		hasConnectedOwner: hasConnectedOwner( state ),
-	};
-} )( DashBackups );
+		return {
+			vaultPressData: getVaultPressData( state ),
+			sitePlan,
+			planClass: getPlanClass( sitePlan ),
+			isOfflineMode: isOfflineMode( state ),
+			isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
+			showBackups: showBackups( state ),
+			upgradeUrl: getUpgradeUrl( state, 'aag-backups' ),
+			hasConnectedOwner: hasConnectedOwner( state ),
+		};
+	},
+	dispatch => ( {
+		connectUser: () => {
+			return dispatch( connectUser() );
+		},
+	} )
+)( DashBackups );

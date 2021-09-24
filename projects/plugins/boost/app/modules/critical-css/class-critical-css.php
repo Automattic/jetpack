@@ -28,7 +28,7 @@ class Critical_CSS extends Module {
 	const CSS_CALLBACK_ACTION                   = 'jb-critical-css-callback';
 	const RESET_REASON_STORAGE_KEY              = 'jb-generate-critical-css-reset-reason';
 	const DISMISSED_RECOMMENDATIONS_STORAGE_KEY = 'jb-critical-css-dismissed-recommendations';
-	const AJAX_NONCE                            = 'ajax_nonce';
+	const DISMISS_CSS_RECOMMENDATIONS_NONCE     = 'dismiss_notice';
 
 	/**
 	 * Viewport sizes for this module.
@@ -162,6 +162,7 @@ class Critical_CSS extends Module {
 			$this->force_logged_out_render();
 		}
 
+		add_action( 'handle_theme_change', array( $this, 'clear_critical_css' ) );
 		add_action( 'jetpack_boost_clear_cache', array( $this, 'clear_critical_css' ) );
 		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_critical_css_constants' ) );
 
@@ -171,6 +172,14 @@ class Critical_CSS extends Module {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Run on plugin uninstall
+	 */
+	public function on_uninstall() {
+		self::clear_reset_reason();
+		self::clear_dismissed_recommendations();
 	}
 
 	/**
@@ -479,9 +488,9 @@ class Critical_CSS extends Module {
 	 */
 	public function add_critical_css_constants( $constants ) {
 		// Information about the current status of Critical CSS / generation.
-		$constants['criticalCssStatus']                   = $this->get_local_critical_css_generation_info();
-		$constants['criticalCssAjaxNonce']                = wp_create_nonce( self::AJAX_NONCE );
-		$constants['criticalCssDismissedRecommendations'] = \get_option( self::DISMISSED_RECOMMENDATIONS_STORAGE_KEY, array() );
+		$constants['criticalCssStatus']                      = $this->get_local_critical_css_generation_info();
+		$constants['criticalCssDismissRecommendationsNonce'] = wp_create_nonce( self::DISMISS_CSS_RECOMMENDATIONS_NONCE );
+		$constants['criticalCssDismissedRecommendations']    = \get_option( self::DISMISSED_RECOMMENDATIONS_STORAGE_KEY, array() );
 
 		return $constants;
 	}
@@ -763,9 +772,19 @@ class Critical_CSS extends Module {
 
 		$parsed = wp_parse_url( $src );
 
-		// If no domain specified, or domain matches current, no need to proxy.
+		// Build the resource origin host the requested asset belongs to.
+		$resource_origin = '';
+		if ( isset( $parsed['host'] ) ) {
+			$resource_origin = $parsed['host'];
+		}
+		if ( isset( $parsed['port'] ) ) {
+			$resource_origin .= ':' . $parsed['port'];
+		}
+
+		// Skip proxy in certain cases, i.e. if no origin specified, or origin matches current, no need to proxy.
 		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-		if ( empty( $parsed['host'] ) || $_SERVER['HTTP_HOST'] === $parsed['host'] ) {
+		$skipped_origins = array( '', $_SERVER['HTTP_HOST'] );
+		if ( in_array( $resource_origin, $skipped_origins, true ) ) {
 			return $src;
 		}
 
@@ -970,10 +989,14 @@ class Critical_CSS extends Module {
 	 * Dismiss Critical CSS recommendations.
 	 */
 	public function dismiss_recommendations() {
-		check_ajax_referer( self::AJAX_NONCE, 'nonce' );
-		$response = array(
-			'status' => 'ok',
-		);
+		if ( check_ajax_referer( self::DISMISS_CSS_RECOMMENDATIONS_NONCE, 'nonce' ) && current_user_can( 'manage_options' ) ) {
+			$response = array(
+				'status' => 'ok',
+			);
+		} else {
+			$error = new \WP_Error( 'authorization', __( 'You do not have permission to take this action.', 'jetpack-boost' ) );
+			wp_send_json_error( $error, 403 );
+		}
 
 		$provider_key = $_POST['providerKey'] ? filter_var( $_POST['providerKey'], FILTER_SANITIZE_STRING ) : '';
 		if ( empty( $provider_key ) ) {
@@ -996,10 +1019,14 @@ class Critical_CSS extends Module {
 	 * Reset dismissed Critical CSS recommendations.
 	 */
 	public function reset_dismissed_recommendations() {
-		check_ajax_referer( self::AJAX_NONCE, 'nonce' );
-		$response = array(
-			'status' => 'ok',
-		);
+		if ( check_ajax_referer( self::DISMISS_CSS_RECOMMENDATIONS_NONCE, 'nonce' ) && current_user_can( 'manage_options' ) ) {
+			$response = array(
+				'status' => 'ok',
+			);
+		} else {
+			$error = new \WP_Error( 'authorization', __( 'You do not have permission to take this action.', 'jetpack-boost' ) );
+			wp_send_json_error( $error, 403 );
+		}
 
 		self::clear_dismissed_recommendations();
 

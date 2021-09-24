@@ -30,11 +30,13 @@ const ConnectButtonWithConnectionStatus = withConnectionStatus( ConnectButton );
  * @param {Function} props.statusCallback -- Callback to pull connection status from the component.
  * @param {Array} props.images -- Images to display on the right side.
  * @param {string} props.assetBaseUrl -- The assets base URL.
+ * @param {boolean} props.autoTrigger -- Whether to initiate the connection process automatically upon rendering the component.
  * @returns {React.Component} The `ConnectScreen` component.
  */
 const ConnectScreen = props => {
 	const {
 		title,
+		buttonLabel,
 		apiRoot,
 		apiNonce,
 		registrationNonce,
@@ -44,6 +46,7 @@ const ConnectScreen = props => {
 		images,
 		children,
 		assetBaseUrl,
+		autoTrigger,
 	} = props;
 
 	const showImageSlider = images.length;
@@ -83,7 +86,8 @@ const ConnectScreen = props => {
 					from={ from }
 					redirectUri={ redirectUri }
 					statusCallback={ statusHandler }
-					connectLabel={ __( 'Set up Jetpack', 'jetpack' ) }
+					connectLabel={ buttonLabel }
+					autoTrigger={ autoTrigger }
 				/>
 
 				<div className="jp-connect-screen--tos">
@@ -126,6 +130,7 @@ const ConnectScreen = props => {
 ConnectScreen.propTypes = {
 	title: PropTypes.string,
 	body: PropTypes.string,
+	buttonLabel: PropTypes.string,
 	apiRoot: PropTypes.string.isRequired,
 	apiNonce: PropTypes.string.isRequired,
 	from: PropTypes.string,
@@ -134,12 +139,15 @@ ConnectScreen.propTypes = {
 	statusCallback: PropTypes.func,
 	images: PropTypes.arrayOf( PropTypes.string ),
 	assetBaseUrl: PropTypes.string,
+	autoTrigger: PropTypes.bool,
 };
 
 ConnectScreen.defaultProps = {
 	title: __( 'Over 5 million WordPress sites are faster and more secure', 'jetpack' ),
+	buttonLabel: __( 'Set up Jetpack', 'jetpack' ),
 	images: [],
 	redirectUri: null,
+	autoTrigger: false,
 };
 
 export default ConnectScreen;

@@ -54,6 +54,9 @@
 		<testsuite name="widgets">
 			<directory prefix="test_" suffix=".php">tests/php/modules/widgets</directory>
 		</testsuite>
+		<testsuite name="widget-visibility">
+			<directory prefix="test_" suffix=".php">tests/php/modules/widget-visibility</directory>
+		</testsuite>
 		<testsuite name="sitemaps">
 			<directory prefix="test" suffix=".php">tests/php/modules/sitemaps</directory>
 		</testsuite>
@@ -151,7 +154,7 @@
 		</whitelist>
 	</filter>
 	<listeners>
-		<listener class="SpeedTrapListener">
+		<listener class="JohnKary\PHPUnit\Listener\SpeedTrapListener">
 			<arguments>
 				<array>
 					<element key="slowThreshold">

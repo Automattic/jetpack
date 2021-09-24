@@ -699,6 +699,18 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		register_rest_route(
 			'jetpack/v4',
+			'/recommendations/product-suggestions',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => __CLASS__ . '::get_recommendations_product_suggestions',
+					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+				),
+			)
+		);
+
+		register_rest_route(
+			'jetpack/v4',
 			'/recommendations/upsell',
 			array(
 				array(
@@ -844,6 +856,46 @@ class Jetpack_Core_Json_Api_Endpoints {
 		Jetpack_Recommendations::update_recommendations_step( $step );
 
 		return true;
+	}
+
+	/**
+	 * Get product suggestions for the recommendations
+	 *
+	 * @return string|WP_Error The response from the wpcom product suggestions endpoint as a JSON object.
+	 */
+	public static function get_recommendations_product_suggestions() {
+		$blog_id = Jetpack_Options::get_option( 'id' );
+		if ( ! $blog_id ) {
+			return new WP_Error( 'site_not_registered', esc_html__( 'Site not registered.', 'jetpack' ) );
+		}
+
+		$user_connected = ( new Connection_Manager( 'jetpack' ) )->is_user_connected( get_current_user_id() );
+		if ( ! $user_connected ) {
+			return wp_json_encode( array() );
+		}
+
+		$request_path  = sprintf( '/sites/%s/jetpack-recommendations/product-suggestions?locale=' . get_user_locale(), $blog_id );
+		$wpcom_request = Client::wpcom_json_api_request_as_user(
+			$request_path,
+			'2',
+			array(
+				'method'  => 'GET',
+				'headers' => array(
+					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+				),
+			)
+		);
+
+		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
+		if ( 200 === $response_code ) {
+			return json_decode( wp_remote_retrieve_body( $wpcom_request ) );
+		} else {
+			return new WP_Error(
+				'failed_to_fetch_data',
+				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
+				array( 'status' => $response_code )
+			);
+		}
 	}
 
 	/**
@@ -2668,6 +2720,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'type'              => 'integer',
 				'default'           => 9,
 				'validate_callback' => __CLASS__ . '::validate_posint',
+				'jp_group'          => 'stats',
+			),
+			'collapse_nudges'                      => array(
+				'description'       => esc_html__( 'Collapse upgrade nudges', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'stats',
 			),
 
