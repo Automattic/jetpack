@@ -17,13 +17,12 @@ class AdminAjaxError extends Error {
 	}
 }
 
-export async function makeAdminAjaxRequest< T = JSONObject >( payload: JSONObject ): Promise< T > {
+export async function makeAdminAjaxRequest< T = JSONObject >(
+	payload: Record< string, string >
+): Promise< T > {
 	const args = {
 		method: 'post',
-		body: new URLSearchParams( {
-			...payload,
-			...{ nonce: Jetpack_Boost.criticalCssAjaxNonce },
-		} ),
+		body: new URLSearchParams( payload ),
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded;',
 		},

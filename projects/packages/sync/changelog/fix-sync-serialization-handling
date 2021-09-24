@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Sync Queue - better handling of serialization issues and empty actions
