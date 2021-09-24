@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: This change will turn the money back guarantee icon into a solid icon instead of outlined to match the checkout design and upcoming features. There is no reason for us to show this to customers.
+
+

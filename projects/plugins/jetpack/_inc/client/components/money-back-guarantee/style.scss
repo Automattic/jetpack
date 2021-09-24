@@ -8,15 +8,48 @@
 
 	color: $wpui-header-dark;
 	font-size: rem( 14px );
-	font-weight: bold;
 	line-height: 1.5;
 }
 
-.jetpack-money-back-guarantee svg {
-	display: block;
+.jetpack-money-back-guarantee__icon {
+	display: grid;
+}
 
-	margin-right: 10px;
+.jetpack-money-back-guarantee__icon > * {
+	grid-column: 1;
+	grid-row: 1;
+}
+
+.jetpack-money-back-guarantee__icon svg {
+	display: block;
 
 	height: 23px;
 	width: 23px;
+}
+
+.jetpack-money-back-guarantee__frequency {
+	align-self: center;
+
+	font-weight: bold;
+	font-size: 0.7em;
+}
+
+.jetpack-money-back-guarantee__text {
+	margin-left: 10px;
+}
+
+.jetpack-money-back-guarantee--solid {
+	.jetpack-money-back-guarantee__frequency {
+		color: $white;
+	}
+}
+
+.jetpack-money-back-guarantee--outlined {
+	.jetpack-money-back-guarantee__frequency {
+		color: #787C82;
+	}
+
+	.jetpack-money-back-guarantee__text {
+		font-weight: bold;
+	}
 }
