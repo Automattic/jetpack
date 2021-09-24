@@ -169,7 +169,13 @@ class IDC_Simulator {
 	 * @return array
 	 */
 	public function get_stored_settings() {
-		return get_option( self::STORED_OPTIONS_KEY );
+		return wp_parse_args(
+			get_option( self::STORED_OPTIONS_KEY ),
+			array(
+				'idc_siteurl'    => '',
+				'idc_simulation' => false,
+			)
+		);
 	}
 
 	/**
