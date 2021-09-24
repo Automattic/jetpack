@@ -365,6 +365,31 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 			do_action( 'update_option_home', $old_domain, $new_domain );
 			WP_CLI::success( "Sent the update_option_home action successfully." );
 		}
+
+		/**
+		 * Proxies wp language plugin install --all using the active site language
+		 *
+		 * After switching the site language, language packs for plugins are not automatically downloaded and the user
+		 * has to manually check for and install updates, this command installs language packs for all plugins,
+		 * using the active site language.
+		  * @subcommand install-plugin-language-packs
+		 */
+		public function install_plugin_language_packs() {
+			/**
+			 * Query the database directly as we previously hooked into pre_option_WPLANG to always return en_US,
+			 * but now we need the actual site language to figure out what language packs to install
+			 */
+			global $wpdb;
+			$lang = $wpdb->get_var( "SELECT option_value FROM " . $wpdb->options . " WHERE option_name = 'WPLANG'" );
+			if ( empty( $lang ) ) {
+				$lang = 'en_US';
+			}
+
+			$command = new Plugin_Language_Command();
+			$command->install( array( $lang ), array(
+				'all' => true
+			) );
+		}
 	}
 }
 
