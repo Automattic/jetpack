@@ -177,7 +177,7 @@ class Table_Checksum {
 	 *
 	 * @return array
 	 */
-	private function get_default_tables() {
+	protected function get_default_tables() {
 		global $wpdb;
 
 		return array(
@@ -287,15 +287,18 @@ class Table_Checksum {
 				'checksum_text_fields' => array( 'user_login', 'user_nicename', 'user_email', 'user_url', 'user_registered', 'user_status', 'display_name' ),
 				'filter_values'        => array(),
 			),
+			/**
+			 * Usermeta is a special table, as it needs to use a custom override flow,
+			 * as the user roles, capabilities, locale, mime types can be filtered by plugins.
+			 * This prevents us from doing a direct comparison in the database.
+			 */
 			'usermeta'                   => array(
-				'table'                => $wpdb->usermeta,
-				'range_field'          => 'user_id',
-				'key_fields'           => array( 'user_id', 'meta_key' ),
-				'checksum_text_fields' => array( 'meta_key', 'meta_value' ),
-				'filter_values'        => array(),
-				'parent_table'         => 'users',
-				'parent_join_field'    => 'ID',
-				'table_join_field'     => 'user_id',
+				'table'       => $wpdb->usermeta,
+				/**
+				 * Range field points to ID, which in this case is the `WP_User` ID,
+				 * since we're querying the whole WP_User objects, instead of meta entries in the DB.
+				 */
+				'range_field' => 'ID',
 			),
 		);
 	}
@@ -305,7 +308,7 @@ class Table_Checksum {
 	 *
 	 * @param array $table_configuration The table configuration array.
 	 */
-	private function prepare_fields( $table_configuration ) {
+	protected function prepare_fields( $table_configuration ) {
 		$this->key_fields                = $table_configuration['key_fields'];
 		$this->range_field               = $table_configuration['range_field'];
 		$this->checksum_fields           = isset( $table_configuration['checksum_fields'] ) ? $table_configuration['checksum_fields'] : array();
@@ -326,7 +329,7 @@ class Table_Checksum {
 	 * @return mixed|string
 	 * @throws Exception Throw an exception on validation failure.
 	 */
-	private function validate_table_name( $table ) {
+	protected function validate_table_name( $table ) {
 		if ( empty( $table ) ) {
 			throw new Exception( 'Invalid table name: empty' );
 		}
@@ -405,7 +408,7 @@ class Table_Checksum {
 	 *
 	 * @return array|null
 	 */
-	private function prepare_filter_values_as_sql( $filter_values = array(), $table_prefix = '' ) {
+	protected function prepare_filter_values_as_sql( $filter_values = array(), $table_prefix = '' ) {
 		global $wpdb;
 
 		if ( ! is_array( $filter_values ) ) {
@@ -787,7 +790,7 @@ class Table_Checksum {
 	 *
 	 * @return bool
 	 */
-	private function enable_woocommerce_tables() {
+	protected function enable_woocommerce_tables() {
 		/**
 		 * On WordPress.com, we can't directly check if the site has support for WooCommerce.
 		 * Having the option to override the functionality here helps with syncing WooCommerce tables.
