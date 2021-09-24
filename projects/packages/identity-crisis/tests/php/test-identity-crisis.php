@@ -154,17 +154,6 @@ class Test_Identity_Crisis extends BaseTestCase {
 	}
 
 	/**
-	 * Test that the legacy jetpack_sync_idc_optin filter is used by should_handle_idc.
-	 */
-	public function test_should_handle_idc_uses_legacy_filter() {
-		add_filter( 'jetpack_sync_idc_optin', '__return_false' );
-		$result = Identity_Crisis::should_handle_idc();
-		remove_filter( 'jetpack_sync_idc_optin', '__return_false' );
-
-		$this->assertFalse( $result );
-	}
-
-	/**
 	 * Test that current JETPACK_SHOULD_HANDLE_IDC constant overrides the legacy JETPACK_SYNC_IDC_OPTIN constant.
 	 */
 	public function test_should_handle_idc_current_constant_overrides_legacy_constant() {

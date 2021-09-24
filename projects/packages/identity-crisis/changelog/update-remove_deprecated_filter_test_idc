@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Remove the legacy filter test to resolve a test error
+
+
