@@ -45,9 +45,9 @@ class Table_Checksum_Usermeta extends Table_Checksum {
 
 		$query = "
 			SELECT
-				ID
+				DISTINCT user_id
 			FROM
-				{$wpdb->users}
+				{$wpdb->usermeta}
 			WHERE
 				{$range_filter_statement}
 		";
