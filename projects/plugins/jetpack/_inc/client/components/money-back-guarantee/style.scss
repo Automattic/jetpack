@@ -29,9 +29,12 @@
 
 .jetpack-money-back-guarantee__frequency {
 	align-self: center;
+	position: relative;
+	top: 1px;
 
 	font-weight: bold;
 	font-size: 0.7em;
+	line-height: 1;
 }
 
 .jetpack-money-back-guarantee__text {
