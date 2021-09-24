@@ -321,11 +321,10 @@ window.wp = window.wp || {};
 		 * @param {Object}            error    Contains code, message and sometimes file and other details.
 		 */
 		this.uploader.bind( 'Error', function ( up, pluploadError ) {
-			var message = pluploadL10n.default_error,
-				key;
+			var message = pluploadL10n.default_error;
 
 			// Check for plupload errors.
-			for ( key in Uploader.errorMap ) {
+			for ( var key in Uploader.errorMap ) {
 				if ( pluploadError.code === plupload[ key ] ) {
 					message = Uploader.errorMap[ key ];
 
@@ -334,6 +333,26 @@ window.wp = window.wp || {};
 					}
 
 					break;
+				}
+			}
+
+			if ( 'response' in pluploadError ) {
+				try {
+					var pluploadResponseObject = JSON.parse( pluploadError.response );
+					if ( typeof pluploadResponseObject === 'object' ) {
+						if (
+							'errors' in pluploadResponseObject &&
+							typeof pluploadResponseObject.errors === 'object'
+						) {
+							pluploadResponseObject = pluploadResponseObject.errors.shift();
+						}
+
+						if ( 'message' in pluploadResponseObject ) {
+							message = pluploadResponseObject.message;
+						}
+					}
+				} catch ( e ) {
+					// Do nothing ...
 				}
 			}
 
