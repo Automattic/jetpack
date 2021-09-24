@@ -1268,8 +1268,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 2, count( $comments ) );
 		$comment_ids = array( $comments[0]->comment_ID, $comments[1]->comment_ID );
 
-		$this->assertStringContainsString( $sync_comment_id, $comment_ids );
-		$this->assertStringContainsString( $sync_comment_id_2, $comment_ids );
+		$this->assertContains( $sync_comment_id, $comment_ids );
+		$this->assertContains( $sync_comment_id_2, $comment_ids );
 
 		$sync_status = $this->full_sync->get_status();
 		$this->assertEquals( array( $sync_comment_id, $sync_comment_id_2 ), $sync_status['config']['comments'] );
