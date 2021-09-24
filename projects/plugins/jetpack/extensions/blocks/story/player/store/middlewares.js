@@ -13,7 +13,6 @@ import effects from './effects';
  * Applies the custom middlewares used specifically for the Story Player.
  *
  * @param {Object} store  - Store Object.
- *
  * @returns {Object} Update Store Object.
  */
 export default function applyMiddlewares( store ) {

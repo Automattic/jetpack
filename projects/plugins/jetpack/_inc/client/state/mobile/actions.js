@@ -6,7 +6,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import restApi from 'rest-api';
+import restApi from '@automattic/jetpack-api';
 import {
 	JETPACK_MOBILE_LOGIN_SEND_LOGIN_EMAIL,
 	JETPACK_MOBILE_LOGIN_SEND_LOGIN_EMAIL_SUCCESS,

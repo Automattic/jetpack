@@ -477,6 +477,11 @@ class Plugin {
 			deactivate_plugins( 'jetpack-pressable-beta/jetpack.php' );
 		}
 
+		// If we're asked to install "unknown", that means the unknown stable version.
+		if ( 'unknown' === $source ) {
+			return $this->select_active( 'stable', true );
+		}
+
 		// Load the info array and identify if it's "dev" or "stable".
 		$ret = $this->get_which_and_info( $source, $id );
 		if ( is_wp_error( $ret ) ) {

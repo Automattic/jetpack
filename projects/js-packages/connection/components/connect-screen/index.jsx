@@ -11,8 +11,11 @@ import { createInterpolateElement } from '@wordpress/element';
  * Internal dependencies
  */
 import ConnectButton from '../connect-button';
+import withConnectionStatus from '../with-connection-status';
 import ImageSlider from './image-slider';
 import './style.scss';
+
+const ConnectButtonWithConnectionStatus = withConnectionStatus( ConnectButton );
 
 /**
  * The Connection Screen component.
@@ -27,12 +30,13 @@ import './style.scss';
  * @param {Function} props.statusCallback -- Callback to pull connection status from the component.
  * @param {Array} props.images -- Images to display on the right side.
  * @param {string} props.assetBaseUrl -- The assets base URL.
- *
+ * @param {boolean} props.autoTrigger -- Whether to initiate the connection process automatically upon rendering the component.
  * @returns {React.Component} The `ConnectScreen` component.
  */
 const ConnectScreen = props => {
 	const {
 		title,
+		buttonLabel,
 		apiRoot,
 		apiNonce,
 		registrationNonce,
@@ -42,6 +46,7 @@ const ConnectScreen = props => {
 		images,
 		children,
 		assetBaseUrl,
+		autoTrigger,
 	} = props;
 
 	const showImageSlider = images.length;
@@ -74,17 +79,18 @@ const ConnectScreen = props => {
 
 				{ children }
 
-				<ConnectButton
+				<ConnectButtonWithConnectionStatus
 					apiRoot={ apiRoot }
 					apiNonce={ apiNonce }
 					registrationNonce={ registrationNonce }
 					from={ from }
 					redirectUri={ redirectUri }
 					statusCallback={ statusHandler }
-					connectLabel={ __( 'Set up Jetpack', 'jetpack' ) }
+					connectLabel={ buttonLabel }
+					autoTrigger={ autoTrigger }
 				/>
 
-				<div className="jp-connnect-screen--tos">
+				<div className="jp-connect-screen--tos">
 					{ createInterpolateElement(
 						__(
 							'By clicking the button above, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with WordPress.com.',
@@ -110,11 +116,11 @@ const ConnectScreen = props => {
 				</div>
 			</div>
 
-			{ showImageSlider && (
+			{ showImageSlider ? (
 				<div className="jp-connect-screen--right">
 					<ImageSlider images={ images } assetBaseUrl={ assetBaseUrl } />
 				</div>
-			) }
+			) : null }
 
 			<div className="jp-connect-screen--clearfix"></div>
 		</div>
@@ -124,6 +130,7 @@ const ConnectScreen = props => {
 ConnectScreen.propTypes = {
 	title: PropTypes.string,
 	body: PropTypes.string,
+	buttonLabel: PropTypes.string,
 	apiRoot: PropTypes.string.isRequired,
 	apiNonce: PropTypes.string.isRequired,
 	from: PropTypes.string,
@@ -132,11 +139,15 @@ ConnectScreen.propTypes = {
 	statusCallback: PropTypes.func,
 	images: PropTypes.arrayOf( PropTypes.string ),
 	assetBaseUrl: PropTypes.string,
+	autoTrigger: PropTypes.bool,
 };
 
 ConnectScreen.defaultProps = {
 	title: __( 'Over 5 million WordPress sites are faster and more secure', 'jetpack' ),
+	buttonLabel: __( 'Set up Jetpack', 'jetpack' ),
 	images: [],
+	redirectUri: null,
+	autoTrigger: false,
 };
 
 export default ConnectScreen;

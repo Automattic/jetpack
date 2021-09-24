@@ -3,6 +3,7 @@
  */
 import WpPage from '../wp-page';
 import logger from '../../logger';
+import { testStep } from '../../reporters/reporter';
 
 export default class BlockEditorPage extends WpPage {
 	constructor( page ) {
@@ -17,7 +18,9 @@ export default class BlockEditorPage extends WpPage {
 	}
 
 	get searchBlockFldSel() {
-		return '.block-editor-inserter__search-input';
+		// There are 2 classes here because the class changed in Gutenberg 11.2 but is not yet in the WP bundled version.
+		//TODO: to remove .block-editor-inserter__search-input once WP will include GB version 11.2
+		return '.components-search-control__input,.block-editor-inserter__search-input';
 	}
 
 	blockSel( blockName ) {
@@ -66,15 +69,20 @@ export default class BlockEditorPage extends WpPage {
 	}
 
 	async searchForBlock( searchTerm ) {
-		logger.step( `Search block: '${ searchTerm }'` );
-		await this.click( this.insertBlockBtnSel );
-		await this.type( this.searchBlockFldSel, searchTerm );
+		await testStep( `Search for block: ${ searchTerm }`, async () => {
+			logger.step( `Search block: '${ searchTerm }'` );
+			await this.click( this.insertBlockBtnSel );
+			await this.fill( this.searchBlockFldSel, searchTerm );
+		} );
 	}
 
 	async insertBlock( blockName, blockTitle ) {
-		logger.step( `Insert block {name: ${ blockName }, title: ${ blockTitle }` );
 		await this.searchForBlock( blockTitle );
-		await this.click( this.blockSel( blockName ) );
+
+		await testStep( `Insert block with name: ${ blockName }`, async () => {
+			logger.step( `Insert block {name: ${ blockName }, title: ${ blockTitle }}` );
+			await this.click( this.blockSel( blockName ) );
+		} );
 		return await this.getInsertedBlock( blockName );
 	}
 
@@ -84,16 +92,30 @@ export default class BlockEditorPage extends WpPage {
 		 ).getAttribute( 'data-block' );
 	}
 
+	async setTitle( title ) {
+		await this.selectPostTitle();
+		await this.fill( this.postTitleFldSel, title );
+	}
+
 	async publishPost() {
-		logger.step( `Publish post` );
-		await this.click( this.publishPanelToggleBtnSel );
-		await this.click( this.publishPostBtnSel );
-		await this.waitForElementToBeVisible( this.postPublishViewPostBtnSel );
+		await testStep( `Publish post`, async () => {
+			logger.step( `Publish post` );
+			await this.click( '.editor-post-save-draft' );
+			await this.waitForElementToBeVisible( '.editor-post-saved-state.is-saved' );
+			await this.click( this.publishPanelToggleBtnSel );
+			// Wait for animation :shrug:
+			await page.waitForTimeout( 100 );
+
+			await this.click( this.publishPostBtnSel );
+			await this.waitForElementToBeVisible( this.postPublishViewPostBtnSel );
+		} );
 	}
 
 	async viewPost() {
-		logger.step( `View post` );
-		await this.click( this.postPublishViewPostBtnSel );
+		await testStep( `View post`, async () => {
+			logger.step( `View post` );
+			await this.click( this.postPublishViewPostBtnSel );
+		} );
 	}
 
 	async selectPostTitle() {

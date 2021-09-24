@@ -32,6 +32,7 @@ if ( file_exists( WP_PLUGIN_DIR . '/' . $plugin->plugin_file() ) ) {
 	$existing_branch = $plugin->source_info( 'release', $tmp['Version'] );
 	if ( ! $existing_branch || is_wp_error( $existing_branch ) ) {
 		$existing_branch = (object) array(
+			'which'          => 'stable',
 			'source'         => 'unknown',
 			'id'             => $tmp['Version'],
 			'version'        => $tmp['Version'],
@@ -41,26 +42,31 @@ if ( file_exists( WP_PLUGIN_DIR . '/' . $plugin->plugin_file() ) ) {
 }
 
 $active_branch = (object) array(
+	'which'  => null,
 	'source' => null,
 	'id'     => null,
 );
 $version       = null;
 if ( is_plugin_active( $plugin->plugin_file() ) ) {
 	$active_branch = $existing_branch;
+	$verslug       = $plugin->plugin_slug();
 	$version       = $active_branch->pretty_version;
 } elseif ( is_plugin_active( $plugin->dev_plugin_file() ) ) {
 	$active_branch = $plugin->dev_info();
 	if ( $active_branch ) {
+		$active_branch->which          = 'dev';
 		$active_branch->pretty_version = $plugin->dev_pretty_version();
 	} else {
 		$tmp           = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin->dev_plugin_file(), false, false );
 		$active_branch = (object) array(
+			'which'          => 'dev',
 			'source'         => 'unknown',
 			'id'             => $tmp['Version'],
 			'version'        => $tmp['Version'],
 			'pretty_version' => __( 'Unknown Development Version', 'jetpack-beta' ),
 		);
 	}
+	$verslug = $plugin->dev_plugin_slug();
 	$version = $active_branch->pretty_version . ' | ' . $active_branch->version;
 }
 
@@ -91,7 +97,7 @@ if ( is_plugin_active( $plugin->plugin_file() ) ) {
 			</span>
 		</div>
 		<div class="dops-foldable-card__content">
-			<p><?php echo wp_kses_post( $version ); ?></p>
+			<p data-jpbeta-version-for="<?php echo esc_attr( $verslug ); ?>"><?php echo wp_kses_post( $version ); ?></p>
 		</div>
 	</div>
 	<div class="dops-foldable-card has-expanded-summary dops-card">

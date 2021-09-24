@@ -7,11 +7,11 @@ import { __ } from '@wordpress/i18n';
 import { Button, Modal } from '@wordpress/components';
 import { JetpackLogo, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
+import restApi from '@automattic/jetpack-api';
 
 /**
  * Internal dependencies
  */
-import restApi from '../../tools/jetpack-rest-api-client';
 import './style.scss';
 
 /**
@@ -24,7 +24,6 @@ import './style.scss';
  * @param {Function} props.onDisconnected -- The callback to be called upon disconnection success.
  * @param {Function} props.onError -- The callback to be called upon disconnection failure.
  * @param {Function} props.errorMessage -- The error message to display upon disconnection failure.
- *
  * @returns {React.Component} The `DisconnectDialog` component.
  */
 

@@ -2,7 +2,7 @@
  * External Dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Dropdown, MenuItem, NavigableMenu, Path, SVG, Toolbar } from '@wordpress/components';
+import { Dropdown, MenuItem, NavigableMenu, Path, SVG, ToolbarGroup } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -17,7 +17,7 @@ export default function FormatPicker( { value, onChange } ) {
 			position="bottom right"
 			renderToggle={ ( { onToggle, isOpen } ) => {
 				return (
-					<Toolbar
+					<ToolbarGroup
 						controls={ [
 							{
 								icon: (

@@ -114,6 +114,10 @@ class Hooks {
 	public function upgrader_post_install( $worked, $hook_extras, $result ) {
 		global $wp_filesystem;
 
+		if ( ! isset( $hook_extras['plugin'] ) ) {
+			return $worked;
+		}
+
 		$updates = get_plugin_updates();
 		if ( isset( $updates[ $hook_extras['plugin'] ]->update->jpbeta_info ) ) {
 			$info = $updates[ $hook_extras['plugin'] ]->update->jpbeta_info;

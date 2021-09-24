@@ -17,7 +17,7 @@
 	}
 }
 
-.jp-content {
+#jetpack-backup-admin-container.jp-content {
 	position: relative;
 	font-size: var( --font-body );
 	line-height: 1.5;
@@ -33,6 +33,27 @@
 	}
 
 	h2 {
+		font-size: var( --font-title-small );
+		font-weight: 500;
+	}
+
+	.jp-section {
+		h2, h3 {
+			margin-bottom: 16px;
+		}
+
+		p {
+			margin-top: 16px;
+		}
+	}
+
+	p, li {
+		font-size: 16px;
+		line-height: 1.5;
+	}
+
+	.jp-connection-status-card h3 {
+		margin-top: 48px;
 		font-size: var( --font-title-small );
 		font-weight: 500;
 	}
@@ -58,6 +79,8 @@
 		background: var( --jp-black );
 		text-decoration: none;
 		border-radius: var( --jp-border-radius );
+		border: 0;
+		border-color: var( --jp-black );
 
 		&.is-full-width {
 			width: 100%;
@@ -105,4 +128,8 @@
 
 .jp-dashboard-footer {
 	padding: 40px 0;
+}
+
+.jp-connection-status-card--status {
+	margin: 24px 0;
 }

@@ -3,7 +3,8 @@
  */
 import { spawnSync } from 'child_process';
 import chalk from 'chalk';
-import { createWriteStream, existsSync } from 'fs';
+import * as envfile from 'envfile';
+import fs from 'fs';
 import { dockerFolder, setConfig } from '../helpers/docker-config';
 
 /**
@@ -67,9 +68,7 @@ const buildEnv = argv => {
  * Creates an .env file
  */
 const setEnv = () => {
-	createWriteStream( `${ dockerFolder }/.env`, {
-		flags: 'a',
-	} );
+	fs.closeSync( fs.openSync( `${ dockerFolder }/.env`, 'a' ) );
 };
 
 /**
@@ -145,6 +144,18 @@ const shellExecutor = ( argv, cmd, args, opts = {} ) => {
 };
 
 /**
+ * Check command status, exit if it failed.
+ *
+ * @param {object} res - child_process object.
+ */
+const checkProcessResult = res => {
+	if ( res.status !== 0 ) {
+		console.error( chalk.red( `Command exited with status ${ res.status }` ) );
+		process.exit( res.status );
+	}
+};
+
+/**
  * Executor for `docker-compose` commands
  *
  * @param {object} argv - Yargs
@@ -152,7 +163,10 @@ const shellExecutor = ( argv, cmd, args, opts = {} ) => {
  * @param {object} envOpts - key-value pairs of the ENV variables to set
  */
 const composeExecutor = ( argv, opts, envOpts ) => {
-	executor( argv, () => shellExecutor( argv, 'docker-compose', opts, { env: envOpts } ) );
+	const res = executor( argv, () =>
+		shellExecutor( argv, 'docker-compose', opts, { env: envOpts } )
+	);
+	checkProcessResult( res );
 };
 
 /**
@@ -221,11 +235,37 @@ const launchNgrok = argv => {
 };
 
 /**
+ * Performs the given action again and again until it does not throw an error.
+ *
+ * @param {Function} action - The action to perform.
+ * @param {object} options - options object
+ * @param {number} options.times - How many times to try before giving up.
+ * @param {number} [options.delay=5000] - How long, in milliseconds, to wait between each try.
+ * @returns {any} return value of action function
+ */
+async function retry( action, { times, delay = 5000 } ) {
+	const sleep = ms => new Promise( resolve => setTimeout( resolve, ms ) );
+
+	let tries = 0;
+	while ( tries < times ) {
+		try {
+			return await action();
+		} catch ( error ) {
+			if ( ++tries >= times ) {
+				throw error;
+			}
+			console.log( `Still waiting. Try: ${ tries }` );
+			await sleep( delay );
+		}
+	}
+}
+
+/**
  * Default handler for the monorepo Docker commands.
  *
  * @param {object} argv - Arguments passed.
  */
-const defaultDockerCmdHandler = argv => {
+const defaultDockerCmdHandler = async argv => {
 	printPreCmdMsg( argv );
 
 	executor( argv, setEnv );
@@ -237,6 +277,32 @@ const defaultDockerCmdHandler = argv => {
 	if ( argv.type === 'dev' && argv.ngrok ) {
 		executor( argv, launchNgrok );
 	}
+
+	// TODO: Make it work with all container types, not only e2e
+	if ( argv.type === 'e2e' && argv._[ 1 ] === 'up' && argv.detached ) {
+		console.log( 'Waiting for WordPress to be ready...' );
+		const getContent = () =>
+			new Promise( ( resolve, reject ) => {
+				const https = require( 'http' );
+				const request = https.get( `http://localhost:${ envOpts.PORT_WORDPRESS }/`, response => {
+					// handle http errors
+
+					if ( response.statusCode < 200 || response.statusCode > 399 ) {
+						reject( new Error( 'Failed to load page, status code: ' + response.statusCode ) );
+					}
+					// temporary data holder
+					const body = [];
+					// on every content chunk, push it to the data array
+					response.on( 'data', chunk => body.push( chunk ) );
+					// we are done, resolve promise with those joined chunks
+					response.on( 'end', () => resolve( body.join( '' ) ) );
+				} );
+				// handle connection errors of the request
+				request.on( 'error', err => reject( err ) );
+			} );
+
+		await retry( getContent, { times: 24 } ); // 24 * 5000 = 120 sec
+	}
 	printPostCmdMsg( argv );
 };
 
@@ -247,19 +313,34 @@ const defaultDockerCmdHandler = argv => {
  * @returns {Array} Array of options required for specified command
  */
 const buildExecCmd = argv => {
-	const opts = buildComposeFiles();
-	opts.push( 'exec', 'wordpress' );
+	const opts = [ 'exec', 'wordpress' ];
 	const cmd = argv._[ 1 ];
 
 	if ( cmd === 'exec' ) {
 		opts.push( ...argv._.slice( 2 ) );
+	} else if ( cmd === 'exec-silent' ) {
+		opts.splice( 1, 0, '-T' );
+		opts.push( ...argv._.slice( 2 ) );
 	} else if ( cmd === 'install' ) {
+		// Adding -T to resolve an issue when running this command within node context (e2e)
+		opts.splice( 1, 0, '-T' );
 		opts.push( '/var/scripts/install.sh' );
 	} else if ( cmd === 'sh' ) {
 		opts.push( 'bash' );
 	} else if ( cmd === 'db' ) {
 		opts.push( 'mysql', '--defaults-group-suffix=docker' );
 	} else if ( cmd === 'phpunit' ) {
+		// @todo: Fix this.
+		console.warn(
+			chalk.yellow(
+				"Due to recent changes to WordPress's test infrastructure, this command is currently broken."
+			)
+		);
+		console.warn(
+			chalk.yellow(
+				"You'll probably do better for the moment to do `jetpack docker sh` then run appropriate commands there."
+			)
+		);
 		const unitArgs = argv._.slice( 2 );
 
 		opts.push(
@@ -268,6 +349,17 @@ const buildExecCmd = argv => {
 			...unitArgs
 		);
 	} else if ( cmd === 'phpunit-multisite' ) {
+		// @todo: Fix this.
+		console.warn(
+			chalk.yellow(
+				"Due to recent changes to WordPress's test infrastructure, this command is currently broken."
+			)
+		);
+		console.warn(
+			chalk.yellow(
+				"You'll probably do better for the moment to do `jetpack docker sh` then run appropriate commands there."
+			)
+		);
 		const unitArgs = argv._.slice( 2 );
 		opts.push(
 			'phpunit',
@@ -276,6 +368,11 @@ const buildExecCmd = argv => {
 		);
 	} else if ( cmd === 'wp' ) {
 		const wpArgs = argv._.slice( 2 );
+		// Ugly solution to allow interactive shell work in dev context
+		// TODO: Look for prettier alternatives.
+		if ( argv.type === 'e2e' ) {
+			opts.splice( 1, 0, '-T' );
+		}
 		opts.push( 'wp', '--allow-root', '--path=/var/www/html/', ...wpArgs );
 	} else if ( cmd === 'tail' ) {
 		opts.push( '/var/scripts/tail.sh' );
@@ -294,7 +391,7 @@ const buildExecCmd = argv => {
 		opts.push( '/var/scripts/run-extras.sh' );
 	}
 
-	return opts;
+	return buildComposeFiles().concat( opts );
 };
 
 /**
@@ -320,7 +417,7 @@ const execJtCmdHandler = argv => {
 	const jtConfigFile = `${ dockerFolder }/bin/jt/config.sh`;
 	const jtTunnelFile = `${ dockerFolder }/bin/jt/tunnel.sh`;
 
-	if ( ! existsSync( jtConfigFile ) || ! existsSync( jtTunnelFile ) ) {
+	if ( ! fs.existsSync( jtConfigFile ) || ! fs.existsSync( jtTunnelFile ) ) {
 		console.log(
 			'Tunneling scripts are not installed. See the section "Jurassic Tube Tunneling Service" in tools/docker/README.md.'
 		);
@@ -339,14 +436,14 @@ const execJtCmdHandler = argv => {
 		cmd = jtTunnelFile;
 	}
 
-	executor( argv, () => shellExecutor( argv, cmd, opts.concat( jtOpts ) ) );
+	const jtResult = executor( argv, () => shellExecutor( argv, cmd, opts.concat( jtOpts ) ) );
+	checkProcessResult( jtResult );
 };
 
 /**
  * Definition for the Docker commands.
  *
  * @param {object} yargs - The Yargs dependency.
- *
  * @returns {object} Yargs with the Docker commands defined.
  */
 export function dockerDefine( yargs ) {
@@ -365,28 +462,28 @@ export function dockerDefine( yargs ) {
 							describe: 'Launch in detached mode',
 							type: 'bool',
 						} ),
-					handler: argv => defaultDockerCmdHandler( argv ),
+					handler: async argv => await defaultDockerCmdHandler( argv ),
 				} )
 				.command( {
 					command: 'stop',
 					description: 'Stop the containers',
 					builder: yargCmd => defaultOpts( yargCmd ),
-					handler: argv => defaultDockerCmdHandler( argv ),
+					handler: async argv => await defaultDockerCmdHandler( argv ),
 				} )
 				.command( {
 					command: 'down',
 					description: 'Down the containers',
 					builder: yargCmd => defaultOpts( yargCmd ),
-					handler: argv => defaultDockerCmdHandler( argv ),
+					handler: async argv => await defaultDockerCmdHandler( argv ),
 				} )
 				.command( {
 					command: 'clean',
 					description: 'Remove docker volumes, MySql and WordPress data and logs.',
 					builder: yargCmd => defaultOpts( yargCmd ),
-					handler: argv => {
-						defaultDockerCmdHandler( argv );
+					handler: async argv => {
+						await defaultDockerCmdHandler( argv );
 						const project = getProjectName( argv );
-						executor( argv, () =>
+						const res = executor( argv, () =>
 							shellExecutor(
 								argv,
 								'rm',
@@ -402,20 +499,33 @@ export function dockerDefine( yargs ) {
 								{ shell: true }
 							)
 						);
+						checkProcessResult( res );
 					},
 				} )
 				.command( {
 					command: 'build-image',
 					description: 'Builds local docker image',
 					handler: argv => {
-						executor( argv, () =>
+						const versions = envfile.parse(
+							fs.readFileSync( `${ dockerFolder }/../../.github/versions.sh`, 'utf8' )
+						);
+						const res = executor( argv, () =>
 							shellExecutor( argv, 'docker', [
 								'build',
 								'-t',
 								'automattic/jetpack-wordpress-dev',
+								'--build-arg',
+								`PHP_VERSION=${ versions.PHP_VERSION }`,
+								'--build-arg',
+								`COMPOSER_VERSION=${ versions.COMPOSER_VERSION }`,
+								'--build-arg',
+								`NODE_VERSION=${ versions.NODE_VERSION }`,
+								'--build-arg',
+								`PNPM_VERSION=${ versions.PNPM_VERSION }`,
 								dockerFolder,
 							] )
 						);
+						checkProcessResult( res );
 					},
 				} )
 
@@ -423,6 +533,13 @@ export function dockerDefine( yargs ) {
 				.command( {
 					command: 'exec',
 					description: 'Execute arbitrary shell command inside docker container',
+					builder: yargExec => defaultOpts( yargExec ),
+					handler: argv => execDockerCmdHandler( argv ),
+				} )
+				.command( {
+					command: 'exec-silent',
+					description:
+						'Execute arbitrary shell command inside docker container with disabled pseudo-tty allocation. Used in E2E context',
 					builder: yargExec => defaultOpts( yargExec ),
 					handler: argv => execDockerCmdHandler( argv ),
 				} )
@@ -446,7 +563,7 @@ export function dockerDefine( yargs ) {
 				} )
 				.command( {
 					command: 'phpunit',
-					description: 'Run PHPUNIT tests inside container',
+					description: 'Run PHPUnit tests inside container',
 					builder: yargExec => defaultOpts( yargExec ),
 					handler: argv => execDockerCmdHandler( argv ),
 				} )
@@ -471,7 +588,7 @@ export function dockerDefine( yargs ) {
 				.command( {
 					command: 'phpunit-multisite',
 					alias: 'phpunit:multisite',
-					description: 'Run multisite PHPUNIT tests inside container ',
+					description: 'Run multisite PHPUnit tests inside container ',
 					builder: yargExec => defaultOpts( yargExec ),
 					handler: argv => execDockerCmdHandler( argv ),
 				} )

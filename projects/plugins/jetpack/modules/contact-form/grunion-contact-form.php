@@ -167,6 +167,8 @@ class Grunion_Contact_Form_Plugin {
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		add_action( 'current_screen', array( $this, 'unread_count' ) );
 
+		add_filter( 'use_block_editor_for_post_type', array( $this, 'use_block_editor_for_post_type' ), 10, 2 );
+
 		// custom post type we'll use to keep copies of the feedback items
 		register_post_type(
 			'feedback', array(
@@ -814,7 +816,16 @@ class Grunion_Contact_Form_Plugin {
 			}
 		}
 
-		return $form;
+		/**
+		 * Filter the values that are sent to Akismet for the spam check.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 10.2.0
+		 *
+		 * @param array $form The form values being sent to Akismet.
+		 */
+		return apply_filters( 'jetpack_contact_form_akismet_values', $form );
 	}
 
 	/**
@@ -1722,6 +1733,17 @@ class Grunion_Contact_Form_Plugin {
 	public static function get_ip_address() {
 		return isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : null;
 	}
+
+	/**
+	 * Disable Block Editor for feedbacks.
+	 *
+	 * @param bool   $can_edit Whether the post type can be edited or not.
+	 * @param string $post_type The post type being checked.
+	 * @return bool
+	 */
+	public function use_block_editor_for_post_type( $can_edit, $post_type ) {
+		return 'feedback' === $post_type ? false : $can_edit;
+	}
 }
 
 /**
@@ -2251,7 +2273,16 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		$r .= '</div>';
 
-		return $r;
+		/**
+		 * Filter the contact form, allowing plugins to modify the HTML.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 10.2.0
+		 *
+		 * @param string $r The contact form HTML.
+		 */
+		return apply_filters( 'jetpack_contact_form_html', $r );
 	}
 
 	/**
@@ -2872,6 +2903,32 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 */
 		$headers = 'From: ' . $comment_author . ' <' . $from_email_addr . ">\r\n" .
 			'Reply-To: ' . $comment_author . ' <' . $reply_to_addr . ">\r\n";
+
+		/**
+		 * Allow customizing the email headers.
+		 *
+		 * Warning: DO NOT add headers or header data from the form submission without proper
+		 * escaping and validation, or you're liable to allow abusers to use your site to send spam.
+		 *
+		 * Especially DO NOT take email addresses from the form data to add as CC or BCC headers
+		 * without strictly validating each address against a list of allowed addresses.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 10.2.0
+		 *
+		 * @param string|array $headers        Email headers.
+		 * @param string       $comment_author Name of the author of the submitted feedback, if provided in form.
+		 * @param string       $reply_to_addr  Email of the author of the submitted feedback, if provided in form.
+		 * @param string|array $to             Array of valid email addresses, or single email address, where the form is sent.
+		 */
+		$headers = apply_filters(
+			'jetpack_contact_form_email_headers',
+			$headers,
+			$comment_author,
+			$reply_to_addr,
+			$to
+		);
 
 		$all_values['email_marketing_consent'] = $email_marketing_consent;
 
@@ -3785,6 +3842,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field .= "\t</div>\n";
 		return $field;
 	}
+
 }
 
 add_action( 'init', array( 'Grunion_Contact_Form_Plugin', 'init' ), 9 );

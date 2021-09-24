@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 /* eslint-disable no-console, no-process-exit */
+const isJetpackDraftMode = require( './jetpack-draft' );
 const execSync = require( 'child_process' ).execSync;
 const spawnSync = require( 'child_process' ).spawnSync;
 const chalk = require( 'chalk' );
@@ -71,7 +72,7 @@ function phpcsFilesToFilter( file ) {
  * @returns {boolean} If the file matches the requirelist.
  */
 function filterJsFiles( file ) {
-	return [ '.js', '.json', '.jsx', '.cjs' ].some( extension => file.endsWith( extension ) );
+	return [ '.js', '.json', '.jsx', '.cjs', '.ts' ].some( extension => file.endsWith( extension ) );
 }
 
 /**
@@ -145,7 +146,9 @@ function checkFileAgainstDirtyList( file, filesList ) {
  */
 function capturePreCommitTreeHash() {
 	if ( exitCode === 0 ) {
-		fs.writeFileSync( '.git/last-commit-tree', execSync( 'git write-tree' ) );
+		// .git folder location varies if this repo is used a submodule. Also, remove trailing new-line.
+		const gitFolderPath = execSync( 'git rev-parse --git-dir' ).toString().trim();
+		fs.writeFileSync( `${ gitFolderPath }/last-commit-tree`, execSync( 'git write-tree' ) );
 	}
 }
 
@@ -167,9 +170,11 @@ function runEslint( toLintFiles ) {
 		return;
 	}
 
+	const maxWarnings = isJetpackDraftMode() ? 100 : 0;
+
 	const eslintResult = spawnSync(
 		'pnpm',
-		[ 'run', 'lint-file', '--', '--max-warnings=0', ...toLintFiles ],
+		[ 'run', 'lint-file', '--', `--max-warnings=${ maxWarnings }`, ...toLintFiles ],
 		{
 			shell: true,
 			stdio: 'inherit',
@@ -193,17 +198,26 @@ function runEslintChanged( toLintFiles ) {
 		return;
 	}
 
+	// Apply .eslintignore.
+	const ignore = require( 'ignore' )();
+	ignore.add( fs.readFileSync( __dirname + '/../../../.eslintignore', 'utf8' ) );
+	toLintFiles = ignore.filter( toLintFiles );
+	if ( ! toLintFiles.length ) {
+		return;
+	}
+
 	const eslintResult = spawnSync( 'pnpm', [ 'run', 'lint-changed', '--', ...toLintFiles ], {
 		shell: true,
 		stdio: 'inherit',
 	} );
 
-	if ( eslintResult && eslintResult.status ) {
+	if ( eslintResult && eslintResult.status && ! isJetpackDraftMode() ) {
 		checkFailed();
 	}
 }
 
-/** Run php:lint
+/**
+ * Run php:lint
  *
  * @param {Array} toLintFiles - List of files to lint
  */
@@ -217,7 +231,7 @@ function runPHPLinter( toLintFiles ) {
 		stdio: 'inherit',
 	} );
 
-	if ( phpLintResult && phpLintResult.status ) {
+	if ( phpLintResult && phpLintResult.status && ! isJetpackDraftMode() ) {
 		checkFailed( 'PHP found linting/syntax errors!\n' );
 		exit( exitCode );
 	}
@@ -232,7 +246,7 @@ function runPHPCS() {
 		stdio: 'inherit',
 	} );
 
-	if ( phpcsResult && phpcsResult.status ) {
+	if ( phpcsResult && phpcsResult.status && ! isJetpackDraftMode() ) {
 		const phpcsStatus =
 			2 === phpcsResult.status
 				? 'PHPCS reported some problems and could not automatically fix them since there are unstaged changes in the file.\n'
@@ -293,7 +307,7 @@ function runPHPCSChanged( phpFilesToCheck ) {
 			}
 		} );
 
-		if ( phpChangedFail ) {
+		if ( phpChangedFail && ! isJetpackDraftMode() ) {
 			checkFailed();
 		}
 	}
@@ -313,14 +327,14 @@ function runCheckCopiedFiles() {
 }
 
 /**
- * Check that renovate's ignore list is up to date.
+ * Check that renovate's ignore list is up to date. Runs in draft mode but does not block commit.
  */
 function runCheckRenovateIgnoreList() {
 	const result = spawnSync( './tools/js-tools/check-renovate-ignore-list.js', [], {
 		shell: true,
 		stdio: 'inherit',
 	} );
-	if ( result && result.status ) {
+	if ( result && result.status && ! isJetpackDraftMode() ) {
 		checkFailed( '' );
 	}
 }
@@ -380,7 +394,11 @@ const toPrettify = jsFiles.filter( file => checkFileAgainstDirtyList( file, dirt
 toPrettify.forEach( file => console.log( `Prettier formatting staged file: ${ file }` ) );
 
 if ( toPrettify.length ) {
-	execSync( `tools/prettier --ignore-path .eslintignore --write ${ toPrettify.join( ' ' ) }` );
+	execSync(
+		`pnpx prettier --config .prettierrc.js --ignore-path .eslintignore --write ${ toPrettify.join(
+			' '
+		) }`
+	);
 	execSync( `git add ${ toPrettify.join( ' ' ) }` );
 }
 

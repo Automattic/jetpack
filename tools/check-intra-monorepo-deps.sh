@@ -10,12 +10,20 @@ BASE=$PWD
 # Print help and exit.
 function usage {
 	cat <<-EOH
-		usage: $0 [-u] [-v]
+		usage: $0 [-a] [-v] [-U|-u] [<slug> ...]
 
 		Check that all composer and pnpm dependencies between monorepo projects are up to date.
 
 		If \`-u\` is passed, update any that aren't and add changelogger change files
 		for the updates.
+
+		If \`-U\` is passed, update any that aren't but do not create a change file.
+
+		If <slug> is passed, only that project is checked.
+
+		Other options:
+		 -a: Pass --filename-auto-suffix to changelogger (avoids "file already exists" errors).
+		 -v: Output debug information.
 	EOH
 	exit 1
 }
@@ -23,10 +31,19 @@ function usage {
 # Sets options.
 UPDATE=false
 VERBOSE=false
-while getopts ":uvh" opt; do
+DOCL_EVER=true
+AUTO_SUFFIX=false
+while getopts ":uUvha" opt; do
 	case ${opt} in
 		u)
 			UPDATE=true
+			;;
+		U)
+			UPDATE=true
+			DOCL_EVER=false
+			;;
+		a)
+			AUTO_SUFFIX=true
 			;;
 		v)
 			VERBOSE=true
@@ -65,32 +82,45 @@ function get_packages {
 
 get_packages
 
-# Use a temp variable so pipefail works
-TMP="$(tools/get-build-order.php 2>/dev/null)"
-TMP=monorepo$'\n'"$TMP"
 SLUGS=()
-mapfile -t SLUGS <<<"$TMP"
+if [[ $# -le 0 ]]; then
+	# Use a temp variable so pipefail works
+	TMP="$(tools/get-build-order.php 2>/dev/null)"
+	TMP=monorepo$'\n'"$TMP"
+	mapfile -t SLUGS <<<"$TMP"
+else
+	SLUGS=( "$@" )
+fi
 
 if $UPDATE; then
-	debug "Making sure changelogger is runnable"
-	(cd projects/packages/changelogger && composer update --quiet)
+	DID_CL_INSTALL=false
 	CL="$BASE/projects/packages/changelogger/bin/changelogger"
 
 	function changelogger {
 		local SLUG="$1"
-		local ARGS
 
-		ARGS=()
-		ARGS=( add --no-interaction --significance=patch )
-		if [[ "$SLUG" == "plugins/jetpack" ]]; then
-			ARGS+=( --type=other )
-		else
-			ARGS+=( --type=changed )
+		if ! $DID_CL_INSTALL; then
+			debug "Making sure changelogger is runnable"
+			(cd "$BASE/projects/packages/changelogger" && composer update --quiet)
+			DID_CL_INSTALL=true
 		fi
-		ARGS+=( --entry="$2" --comment="$3" )
 
 		local OLDDIR=$PWD
 		cd "$BASE/projects/$SLUG"
+
+		local ARGS=()
+		ARGS=( add --no-interaction --significance=patch )
+		local CLTYPE="$(jq -r '.extra["changelogger-default-type"] // "changed"' composer.json)"
+		if [[ -n "$CLTYPE" ]]; then
+			ARGS+=( "--type=$CLTYPE" )
+		fi
+
+		if $AUTO_SUFFIX; then
+			ARGS+=( --filename-auto-suffix )
+		fi
+
+		ARGS+=( --entry="$2" --comment="$3" )
+
 		local CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
 		if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then
 			"$CL" "${ARGS[@]}"
@@ -106,6 +136,7 @@ if $UPDATE; then
 fi
 
 EXIT=0
+ANYJS=false
 for SLUG in "${SLUGS[@]}"; do
 	debug "Checking dependencies of $SLUG"
 	if [[ "$SLUG" == packages/* ]]; then
@@ -119,13 +150,13 @@ for SLUG in "${SLUGS[@]}"; do
 		PHPFILE=composer.json
 		JSFILE=package.json
 	else
-		DOCL=true
+		DOCL=$DOCL_EVER
 		DIR="projects/$SLUG"
 		PHPFILE="projects/$SLUG/composer.json"
 		JSFILE="projects/$SLUG/package.json"
 	fi
 	if $UPDATE; then
-		JSON=$(jq --argjson packages "$PACKAGES" -r 'def ver(e): if $packages[e.key] then if e.value[0:1] == "^" then $packages[e.key][1] else null end // $packages[e.key][0] else e.value end; if .require then .require |= with_entries( .value = ver(.) ) else . end | if .["require-dev"] then .["require-dev"] |= with_entries( .value = ver(.) ) else . end' "$PHPFILE" | tools/prettier --parser=json-stringify)
+		JSON=$(jq --tab --argjson packages "$PACKAGES" -r 'def ver(e): if $packages[e.key] then if e.value[0:1] == "^" then $packages[e.key][1] else null end // $packages[e.key][0] else e.value end; if .require then .require |= with_entries( .value = ver(.) ) else . end | if .["require-dev"] then .["require-dev"] |= with_entries( .value = ver(.) ) else . end' "$PHPFILE")
 		if [[ "$JSON" != "$(<"$PHPFILE")" ]]; then
 			info "PHP dependencies of $SLUG changed!"
 			echo "$JSON" > "$PHPFILE"
@@ -137,10 +168,11 @@ for SLUG in "${SLUGS[@]}"; do
 			fi
 		fi
 		if [[ -e "$JSFILE" ]]; then
-			JSON=$(jq --argjson packages "$JSPACKAGES" -r 'def ver(e): if $packages[e.key] then if e.value[0:1] == "^" then $packages[e.key][1] else null end // $packages[e.key][0] else e.value end; def proc(k): if .[k] then .[k] |= with_entries( .value = ver(.) ) else . end; proc("dependencies") | proc("devDependencies") | proc("peerDependencies") | proc("optionalDependencies")' "$JSFILE" | tools/prettier --parser=json-stringify)
+			JSON=$(jq --tab --argjson packages "$JSPACKAGES" -r 'def ver(e): if $packages[e.key] then if e.value[0:1] == "^" then $packages[e.key][1] else null end // $packages[e.key][0] else e.value end; def proc(k): if .[k] then .[k] |= with_entries( .value = ver(.) ) else . end; proc("dependencies") | proc("devDependencies") | proc("peerDependencies") | proc("optionalDependencies")' "$JSFILE")
 			if [[ "$JSON" != "$(<"$JSFILE")" ]]; then
 				info "JS dependencies of $SLUG changed!"
 				echo "$JSON" > "$JSFILE"
+				ANYJS=true
 
 				if $DOCL; then
 					info "Creating changelog entry for $SLUG"
@@ -184,9 +216,13 @@ for SLUG in "${SLUGS[@]}"; do
 	fi
 done
 
-if $UPDATE; then
+if $ANYJS; then
 	debug "Updating pnpm-lock.yaml"
-	pnpm install --silent
+	if [[ -n "$CI" ]]; then
+		pnpm install --no-frozen-lockfile
+	else
+		pnpm install --silent
+	fi
 fi
 
 if ! $UPDATE && [[ "$EXIT" != "0" ]]; then

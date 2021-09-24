@@ -1,0 +1,24 @@
+.jb-feature-toggle {
+	margin-bottom: 2em;
+	display: flex;
+	margin-left: auto;
+	margin-right: auto;
+
+
+	a {
+		text-decoration: underline;
+	}
+
+	h2 {
+		font-size: 22px;
+		margin-top: 0;
+	}
+
+	&__toggle {
+		// Compensate for header line height
+		// Manually move the switch to align it better
+		transform: translateY(8px);
+		margin-right: 2em;
+	}
+
+}

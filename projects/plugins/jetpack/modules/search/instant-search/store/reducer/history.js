@@ -3,7 +3,6 @@
  *
  * @param {object} state - Current state.
  * @param {object} action - Dispatched action.
- *
  * @returns {object} Updated state.
  */
 export function isHistoryNavigation( state = false, action ) {

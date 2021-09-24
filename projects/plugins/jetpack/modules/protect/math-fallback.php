@@ -57,9 +57,15 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 				Jetpack_Protect_Math_Authenticate::generate_math_page();
 			} elseif ( ! hash_equals( $salted_ans_1, $correct_ans ) && ! hash_equals( $salted_ans_2, $correct_ans ) ) {
 				wp_die(
-				__( '<strong>You failed to correctly answer the math problem.</strong>  This is used to combat spam when the Protect API is unavailable.  Please use your browser\'s back button to return to the login form, press the "refresh" button to generate a new math problem, and try to log in again.', 'jetpack' ),
-				'',
-				array ( 'response' => 401 )
+					wp_kses(
+						__(
+							'<strong>You failed to correctly answer the math problem.</strong> This is used to combat spam when the Protect API is unavailable. Please use your browser’s back button to return to the login form, press the "refresh" button to generate a new math problem, and try to log in again.',
+							'jetpack'
+						),
+						array( 'strong' => array() )
+					),
+					'',
+					array( 'response' => 401 )
 				);
 			} else {
 				return true;
@@ -74,7 +80,7 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 		static function generate_math_page( $error = false ) {
 			ob_start();
 			?>
-			<h2><?php esc_html_e( 'Please solve this math problem to prove that you are not a bot.  Once you solve it, you will need to log in again.', 'jetpack' ); ?></h2>
+			<h2><?php esc_html_e( 'Please solve this math problem to prove that you are not a bot. Once you solve it, you will need to log in again.', 'jetpack' ); ?></h2>
 			<?php if ($error): ?>
 				<h3><?php esc_html_e( 'Your answer was incorrect, please try again.', 'jetpack' ); ?></h3>
 			<?php endif ?>

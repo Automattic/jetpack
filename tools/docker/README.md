@@ -5,7 +5,6 @@ Unified environment for developing Jetpack using Docker containers providing fol
 * An Ubuntu base operating system.
 * Latest stable version of WordPress.
 * All monorepo plugins will be available as plugins within the Docker WP instance.
-* PHPUnit setup.
 * Xdebug setup.
 * WP-CLI installed.
 * MailDev to catch all the emails leaving WordPress so that you can observe them from browser.
@@ -44,7 +43,7 @@ Non-installed WordPress is running at [http://localhost](http://localhost) now. 
 jetpack docker install
 ```
 
-At this point, we encourage you to set up a service that can create local HTTP tunnels, such as [the Jurassic Tube Tunneling Service](#jurassic-tube-tunneling-service) if you are an Automattician, [ngrok](#using-ngrok-with-jetpack), or [another similar service](https://alternativeto.net/software/ngrok/). 
+At this point, we encourage you to set up a service that can create local HTTP tunnels, such as [the Jurassic Tube Tunneling Service](#jurassic-tube-tunneling-service) if you are an Automattician, [ngrok](#using-ngrok-with-jetpack), or [another similar service](https://alternativeto.net/software/ngrok/).
 With such a service, your site will be publicly accessible and you will be able to connect Jetpack to WordPress.com.
 
 _You are now ready to login to your new WordPress install and connect Jetpack, congratulations!_
@@ -77,7 +76,7 @@ Customizations should go into a `./tools/docker/.env` file you create, though, n
 
 ### Docker configurations
 
-Jetpack Docker provides two types of configurations: `dev` and `e2e`. These configurations define lists of services to start, volumes to map, etc. Both of them extend default configuration `tools/docker/docker-compose.yml` via the config file: `tools/docker/jetpack-docker-config-default.yml`. 
+Jetpack Docker provides two types of configurations: `dev` and `e2e`. These configurations define lists of services to start, volumes to map, etc. Both of them extend default configuration `tools/docker/docker-compose.yml` via the config file: `tools/docker/jetpack-docker-config-default.yml`.
 
 * `dev` configuration is used by default, and is aimed for Jetpack development.
 * `e2e` configuration is created specifically for Jetpack E2E tests.
@@ -89,7 +88,7 @@ Users can extended these configurations further via override config file `tools/
 The default config file `tools/docker/jetpack-docker-config-default.yml` includes inline comments explaining the structure of config, but here's quick overview. The configuration is grouped per environment type: `default`, `dev`, `e2e`. Each type may define `volumeMappings` and `extras`:
 
 * `volumeMappings` - list of key value pairs which defines local directory mappings with following structure: local_path: wordpress_container_path
-* `extras` - basically any other configuration that is supported by `docker-compose` 
+* `extras` - basically any other configuration that is supported by `docker-compose`
 
 ### Building on M1 Macs
 
@@ -262,9 +261,19 @@ define( 'JETPACK__SANDBOX_DOMAIN', '{your sandbox}.wordpress.com' );
 ```
 
 ## Jurassic Tube Tunneling Service
-If you are an Automattician, you can use Jurassic Tube tunneling service with functionality similar to Ngrok.
 
-As it is developed internally, you can review the source code and participate in adding new features.
+This is for Automatticians only. More information: PCYsg-snO-p2.
+
+If you have persistent trouble with the `jetpack docker jt-*` commands complaining that "Tunneling scripts are not installed", it could be because Docker wasn't running properly when you ran the installer.
+
+To solve this problem, run these commands from the repo root:
+
+```
+jetpack docker up -d
+chmod +x tools/docker/bin/jt/installer.sh && tools/docker/bin/jt/installer.sh
+```
+
+Once you have successfull installed Jurassic Tube, you can use these commands during development:
 
 * Start the tunnel: `jetpack docker jt-up your-username your-subdomain`
 * Break the connection: `jetpack docker jt-down`
@@ -279,8 +288,6 @@ That will let you omit those parameters while initiating the connection:
 ```shell script
 jetpack docker jt-up
 ```
-
-More information: PCYsg-snO-p2.
 
 ## Using Ngrok with Jetpack
 

@@ -1,0 +1,276 @@
+@use "sass:math";
+
+$bar_height: 42px;
+$label_z_index: 50;
+
+.jb-site-score {
+	h2 {
+		font-weight: 700;
+
+		@include breakpoint(xs) {
+			font-size: 27px;
+		}
+	}
+
+	&__offline, &__top {
+		margin-bottom: 2rem;
+	}
+
+	&__offline p {
+		font-weight: 400;
+		max-width: 560px;
+		line-height: 1.5;
+		color: $gray_70;
+	}
+
+	&__top {
+		display: flex;
+		align-items: center;
+		color: #000;
+
+		button {
+			margin-left: auto;
+		}
+	}
+
+	button {
+		color: $gray_90;
+
+		&.components-button.is-link {
+			margin-left: auto;
+		}
+
+		&.components-button.is-link:hover {
+			color: $gray_90;
+		}
+
+		svg {
+			margin: 4px 4px 2px 0;
+			fill: $jetpack-green;
+		}
+	}
+}
+
+.jb-site-score--error {
+	margin-top: 1em;
+	@include breakpoint(xs) {
+		.jb-site-score {
+			display: none;
+		}
+	}
+
+
+	.jb-score-bar__loading, .jb-score-bar__filler {
+		display: none;
+	}
+
+	.jb-score-bar__label {
+		opacity: 0.8;
+		color: $gray_50;
+	}
+
+	svg {
+		fill: $gray_50;
+	}
+}
+
+%score-pill {
+	background-color: #fff;
+	border-radius: $bar_height;
+	height: $bar_height;
+	display: flex;
+	align-items: center;
+	border: 2px solid transparent;
+}
+
+
+.jb-score-bar {
+	width: 100%;
+	display: flex;
+
+
+	&--mobile { // .jb-score-bar--mobile
+		margin-bottom: $halfling;
+	}
+
+	@include breakpoint(xs) {
+		flex-direction: column;
+		&__label {
+			background-color: transparent;
+		}
+	}
+
+
+	&__loading {
+		@extend %score-pill;
+		width: $bar_height;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	&__label {
+		@extend %score-pill;
+		display: grid;
+		grid-template-columns: 24px 1fr;
+		grid-column-gap: 10px;
+		justify-content: center;
+		position: relative;
+		font-size: 14px;
+		position: relative;
+		z-index: $label_z_index;
+
+		@include breakpoint(sm) {
+			padding-left: 15px;
+			padding-right: 15px;
+			width: 200px;
+		}
+	}
+
+	&__score {
+		@extend %score-pill;
+		border-radius: 100%;
+		font-weight: 700;
+		width: $bar_height;
+		justify-content: center;
+		position: absolute;
+		right: -1px;
+		height: $bar_height;
+	}
+
+	&__bounds {
+		background-color: #f1f1f1;
+		border-radius: math.div($bar-height, 2);
+		display: flex;
+		height: $bar_height;
+		width: 100%;
+		max-width: 100%;
+		position: relative;
+		z-index: $label_z_index - 10;
+		@include breakpoint(sm) {
+			width: calc(100% + #{$bar_height});
+			margin-left: - $bar_height;
+		}
+	}
+
+	&__filler {
+		display: flex;
+		min-width: 1px + $bar_height * 2;
+		justify-content: flex-end;
+		border-radius: $bar_height;
+		transition: width 300ms ease-in-out;
+		will-change: width;
+		width: 0;
+		position: relative;
+		@include breakpoint(xs) {
+			min-width: $bar_height + 1px;
+		}
+	}
+
+	.fill-loading {
+		background-color: white;
+		//min-width: 50px;
+	}
+
+	.fill-good {
+		background-color: $jetpack_green_40;
+	}
+
+	.fill-mediocre {
+		background-color: $orange_20;
+	}
+
+	.fill-bad {
+		background-color: $red_50;
+	}
+}
+
+.jb-score-context {
+	display: inline-block;
+	position: relative;
+	color: $primary-grey;
+	font-size: 16px;
+	line-height: 24px;
+
+	&__info-icon{
+		display: block;
+		width: 18px;
+		height: 18px;
+		font-size: 13px;
+		text-align: center;
+		border-radius: 50%;
+		vertical-align: middle;
+		border: 2px solid $gray_30;
+		cursor: pointer;
+		line-height: 1.1em;
+		font-weight: 700;
+		color: $gray_30;
+		margin-left: 8px;
+	}
+
+	&__info-container {
+		display: none;
+		min-width: 300px;
+		top: 30px;
+		left: -47px;
+		transform: translate(-50%, 0);
+		padding: 16px 16px;
+		background-color: $primary-white;
+		font-weight: normal;
+		border-radius: $border-radius;
+		position: absolute;
+		z-index: 1000;
+		box-shadow:0 1px 5px rgba(0,0,0,0.5);
+		text-align: left;
+
+		@include breakpoint(sm) {
+			left: -110px;
+		}
+
+		p {
+			margin: 0 0 20px 0;
+		}
+
+		i {
+			position: absolute;
+			bottom: 100%;
+			left: 202px;
+			width: 24px;
+			height: 12px;
+			overflow: hidden;
+			text-align: center;
+
+			@include breakpoint(sm) {
+				left: 265px;
+			}
+
+			&::after {
+				content:'';
+				position:absolute;
+				width:12px;
+				height:12px;
+				transform:translate(-50%,50%) rotate(45deg);
+				background-color:$primary-white;
+				box-shadow:0 1px 5px rgba(0,0,0,0.5);
+			}
+		}
+	}
+
+	&:hover {
+		.jb-score-context__info-container {
+			display:block;
+		}
+	}
+
+	table {
+		width: 49%;
+		margin: 0;
+		display: inline-block;
+	}
+
+	table td {
+		padding-left: 10px;
+	}
+}
+
+

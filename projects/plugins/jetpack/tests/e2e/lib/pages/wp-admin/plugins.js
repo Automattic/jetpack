@@ -49,6 +49,6 @@ export default class PluginsPage extends WpPage {
 		await this.waitForElementToBeVisible( updateCard );
 		await this.click( updateLink );
 		await this.waitForElementToBeVisible( isUpdatingMessage );
-		await this.waitForElementToBeVisible( updatedMessage, 3 * 30000 );
+		await this.waitForElementToBeVisible( updatedMessage, 5 * 30000 );
 	}
 }

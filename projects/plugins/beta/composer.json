@@ -13,7 +13,7 @@
 		"erusev/parsedown": "1.7.4"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "1.2.x-dev"
+		"automattic/jetpack-changelogger": "2.0.x-dev"
 	},
 	"scripts": {
 		"build-development": [
@@ -49,7 +49,7 @@
 	"prefer-stable": true,
 	"config": {
 		"sort-packages": true,
-		"autoloader-suffix": "567fa3f555de8fd218dfdc1688bb97b5_betaⓥ3_0_2_alpha"
+		"autoloader-suffix": "567fa3f555de8fd218dfdc1688bb97b5_betaⓥ3_0_3_alpha"
 	},
 	"extra": {
 		"autotagger": true,

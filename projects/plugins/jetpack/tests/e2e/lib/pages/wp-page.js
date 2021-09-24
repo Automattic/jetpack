@@ -12,7 +12,7 @@ export default class WpPage extends PageActions {
 	/**
 	 * Static method which initialize a page object and checks the page loaded
 	 *
-	 * @param {page} page Playwright representation of the page.
+	 * @param {page}    page           Playwright representation of the page.
 	 * @param {boolean} checkSelectors whether to also check for expected selectors
 	 * @return {WpPage} Instance of the Page Object class
 	 */
@@ -23,7 +23,7 @@ export default class WpPage extends PageActions {
 	}
 
 	/**
-	 * @param {page} page Playwright type representation of the page
+	 * @param {page}    page           Playwright type representation of the page
 	 * @param {boolean} checkSelectors whether to also check for expected selectors
 	 */
 	static async visit( page, checkSelectors = true ) {
@@ -37,7 +37,7 @@ export default class WpPage extends PageActions {
 	 * Adds the store_sandbox cookie
 	 *
 	 * @param {string} sandboxCookieValue Cookie value
-	 * @param {string} domain Cookie domain
+	 * @param {string} domain             Cookie domain
 	 */
 	async setSandboxModeForPayments( sandboxCookieValue, domain = '.wordpress.com' ) {
 		await this.setCookie( {

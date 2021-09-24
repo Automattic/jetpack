@@ -36,6 +36,9 @@ class Main {
 
 		// Initialize Identity Crisis.
 		add_action( 'plugins_loaded', array( 'Automattic\\Jetpack\\Identity_Crisis', 'init' ) );
+
+		// Set up package version hook.
+		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
 	}
 
 	/**
@@ -86,7 +89,7 @@ class Main {
 		 * Default value is false, filter to true to enable non-blocking mode which will have
 		 * WP.com return early and use the sync/close endpoint to check-in processed items.
 		 *
-		 * @since 8.6.0
+		 * @since 1.12.3
 		 *
 		 * @param bool $enabled Should non-blocking flow be enabled.
 		 */

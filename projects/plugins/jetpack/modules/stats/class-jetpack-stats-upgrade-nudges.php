@@ -37,6 +37,18 @@ class Jetpack_Stats_Upgrade_Nudges {
 	}
 
 	/**
+	 * Unsets the collapse nudges setting.
+	 */
+	public static function unset_nudges_setting() {
+		$stats_options = get_option( 'stats_options' );
+
+		if ( $stats_options ) {
+			unset( $stats_options['collapse_nudges'] );
+			update_option( 'stats_options', $stats_options );
+		}
+	}
+
+	/**
 	 * Determines whether Backup is active
 	 *
 	 * @return boolean
@@ -143,16 +155,35 @@ class Jetpack_Stats_Upgrade_Nudges {
 			$title = __( 'Security, performance, and growth tools for %s', 'jetpack' );
 		}
 		$title = sprintf( $title, get_bloginfo( 'site_name' ) );
+
+		$aria_expanded  = 'true';
+		$postbox_closed = '';
+
+		$stats_options = get_option( 'stats_options' );
+
+		if ( isset( $stats_options['collapse_nudges'] ) && $stats_options['collapse_nudges'] ) {
+			$aria_expanded  = 'false';
+			$postbox_closed = ' closed';
+		}
+
 		?>
 		<div id="jp-stats-report-upgrade-wrap">
-			<div class="dops-card dops-section-header is-compact jp-stats-report-upgrade-header">
-				<div class="dops-section-header__label">
-					<span class="dops-section-header__label-text">
-						<?php echo esc_html( $title ); ?>
-					</span>
-				</div>
-				<div class="dops-section-header__actions"></div>
-			</div>
+			<div class="meta-box-sortables">
+				<div class="postbox<?php echo esc_attr( $postbox_closed ); ?>">
+					<div class="dops-card dops-section-header is-compact jp-stats-report-upgrade-header">
+						<div class="dops-section-header__label">
+							<span class="dops-section-header__label-text">
+								<?php echo esc_html( $title ); ?>
+							</span>
+						</div>
+						<div class="dops-section-header__actions handle-actions hide-if-no-js">
+							<button type="button" id="stats_nudges_toggle" class="handlediv" aria-expanded="<?php echo esc_attr( $aria_expanded ); ?>">
+								<span class="screen-reader-text">Toggle Upgrade Nudges</span>
+								<span class="toggle-indicator" aria-hidden="true"></span>
+							</button>
+						</div>
+					</div>
+					<div class="inside">
 		<?php
 	}
 
@@ -163,6 +194,9 @@ class Jetpack_Stats_Upgrade_Nudges {
 	 */
 	private static function print_footer() {
 		?>
+					</div>
+				</div>
+			</div>
 		</div>
 		<?php
 	}
@@ -175,13 +209,16 @@ class Jetpack_Stats_Upgrade_Nudges {
 	private static function print_styles() {
 		?>
 		<style>
-			#jp-stats-report-upgrade-wrap {
-				background-color: white;
-				border: 1px solid #c3c4c7;
-			}
 			.dops-section-header.dops-card.jp-stats-report-upgrade-header {
 				font-weight: bold;
 				box-shadow: none;
+				flex-wrap: nowrap;
+			}
+			#jp-stats-report-upgrade-wrap .dops-section-header__label-text {
+				white-space: normal;
+			}
+			#stats_nudges_toggle {
+				height: 100%;
 			}
 			.dops-banner.dops-card.is-product.jp-stats-report-upgrade-item {
 				margin-bottom: 0px;
@@ -189,7 +226,6 @@ class Jetpack_Stats_Upgrade_Nudges {
 				box-shadow: none;
 				border-top: 1px solid #c3c4c7;
 				padding: 12px 24px;
-
 			}
 			.dops-banner.dops-card.jp-stats-report-upgrade-item.jp-stats-report-upgrade-subitem {
 				margin-left: 72px;
@@ -205,7 +241,49 @@ class Jetpack_Stats_Upgrade_Nudges {
 				margin: 5px 0 0 0;
 				font-weight: normal;
 			}
+			#jp-stats-report-upgrade-wrap .postbox {
+				background-color: white;
+				border: 1px solid #c3c4c7;
+				margin-bottom: 0;
+			}
+			#jp-stats-report-upgrade-wrap .postbox .inside {
+				padding: 0;
+			}
 		</style>
+		<?php
+	}
+	/**
+	 * Add a script which handles collapse/expansion of the nudge UI.
+	 */
+	private static function print_script() {
+		?>
+		<script>
+			(function(window, document, undefined){
+				window.onload = set_up_click_handler;
+
+				const stats_wrap = document.getElementById( 'jp-stats-wrap' );
+				stats_wrap.addEventListener( 'stats-loaded', function () {
+					const stat_chart = document.getElementById( 'statchart' );
+					if ( stat_chart === null ) {
+						document.getElementById( 'stats_nudges_toggle' ).style.display = 'none';
+					}
+				});
+
+				function set_up_click_handler(){
+					document.getElementById( 'stats_nudges_toggle' ).onclick = function () {
+						const collapseValue = 'true' === this.getAttribute( 'aria-expanded' );
+
+						fetch( '/wp-json/jetpack/v4/settings', {
+							method: 'post',
+							body: JSON.stringify( { collapse_nudges: collapseValue } ),
+							headers: {
+								'X-WP-Nonce': "<?php echo esc_js( wp_create_nonce( 'wp_rest' ) ); ?>",
+								'Content-type': 'application/json' }
+						} );
+					};
+				}
+			})(window, document, undefined);
+		</script>
 		<?php
 	}
 
@@ -247,7 +325,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 	 * @param string  $text The description of the item.
 	 * @param string  $icon The path of the icon, relative to Jetpack images folder.
 	 * @param string  $link The link of the button.
-	 * @param string  $tracks_id The id used to identify the tracks events. Automatically prefixed with "jetpack_stats_nudges_{view|click}_".
+	 * @param string  $tracks_id The id used to identify the tracks events. Automatically prefixed with "jetpack_stats_nudges_{view|click|learn_more}_".
 	 * @param string  $learn_more_link The target of the "Learn more" link.
 	 * @param boolean $subitem Whether it is a subitem or not.
 	 * @param string  $button_label The button label.
@@ -260,7 +338,10 @@ class Jetpack_Stats_Upgrade_Nudges {
 		$button_label       = is_null( $button_label ) ? __( 'Upgrade', 'jetpack' ) : $button_label;
 		$view_event         = "stats_nudges_view_$tracks_id";
 		$click_event        = "stats_nudges_click_$tracks_id";
+		$learn_more_event   = "stats_nudges_learn_more_$tracks_id";
+
 		self::track_event( $view_event );
+
 		?>
 			<div class="dops-card dops-banner has-call-to-action is-product jp-stats-report-upgrade-item <?php echo esc_attr( $additional_classes ); ?>">
 				<div class="dops-banner__icon-plan">
@@ -272,7 +353,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 							<?php echo esc_html( $title ); ?>
 							<p>
 								<?php echo esc_html( $text ); ?>
-								<a href="<?php echo esc_attr( $learn_more_link ); ?>" target="_blank" rel="noopener noreferrer">
+								<a href="<?php echo esc_attr( $learn_more_link ); ?>" class="jptracks" target="_blank" rel="noopener noreferrer" data-jptracks-name="<?php echo esc_attr( $learn_more_event ); ?>">
 									<?php esc_html_e( 'Learn more', 'jetpack' ); ?>
 								</a>
 							</p>
@@ -431,6 +512,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 		}
 
 		self::print_styles();
+		self::print_script();
 		self::print_header();
 		if ( ! self::has_security_plan() ) {
 			self::print_security();

@@ -28,7 +28,6 @@ export function ratioFromImage( { height, width } ) {
  *
  * @param   {Array.<number>}         ratios      - Ratios of images put into shape
  * @param   {number}                 columnCount - Number of columns
- *
  * @returns {Array.<Array.<number>>}             - Shape of rows and columns
  */
 export function ratiosToColumns( ratios, columnCount ) {

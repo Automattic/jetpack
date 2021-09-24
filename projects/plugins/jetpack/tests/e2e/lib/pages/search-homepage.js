@@ -24,7 +24,6 @@ export default class SearchHomepage extends WpPage {
 	 * call the function again to make sure.
 	 *
 	 * @see https://playwright.dev/docs/api/class-page#pagerouteurl-handler
-	 *
 	 */
 	async searchAPIRoute() {
 		this.page.route( SearchHomepage.SEARCH_API_PATTERN, ( route, request ) => {
@@ -85,12 +84,12 @@ export default class SearchHomepage extends WpPage {
 	}
 
 	async focusSearchInput() {
-		const searchInputSelector = 'input.search-field';
+		const searchInputSelector = 'input.wp-block-search__input';
 		return this.focus( searchInputSelector );
 	}
 
 	async enterQuery( query = 'test1', clear = true ) {
-		const searchInputSelector = 'input.search-field';
+		const searchInputSelector = 'input.wp-block-search__input';
 		if ( clear ) {
 			await this.clear( searchInputSelector );
 		}
@@ -106,7 +105,7 @@ export default class SearchHomepage extends WpPage {
 	}
 
 	async pressEnterInSearchInput() {
-		const searchInputSelector = 'input.search-field';
+		const searchInputSelector = 'input.wp-block-search__input';
 		return this.page.press( searchInputSelector, 'Enter' );
 	}
 

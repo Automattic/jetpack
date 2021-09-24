@@ -65,6 +65,8 @@ function stats_load() {
 	add_action( 'manage_posts_custom_column', 'jetpack_stats_post_table_cell', 10, 2 );
 	add_action( 'manage_pages_custom_column', 'jetpack_stats_post_table_cell', 10, 2 );
 
+	require_once __DIR__ . '/stats/class-jetpack-stats-upgrade-nudges.php';
+	add_action( 'updating_jetpack_version', array( 'Jetpack_Stats_Upgrade_Nudges', 'unset_nudges_setting' ) );
 }
 
 /**
@@ -547,6 +549,7 @@ if ( -1 == document.location.href.indexOf( 'noheader' ) ) {
 	jQuery( function( $ ) {
 		$.get( document.location.href + '&noheader', function( responseText ) {
 			$( '#stats-loading-wrap' ).replaceWith( responseText );
+			$( '#jp-stats-wrap' )[0].dispatchEvent( new Event( 'stats-loaded' ) );
 		} );
 	} );
 }
@@ -1308,8 +1311,10 @@ function stats_dashboard_widget_content() {
 				<p>
 				<?php
 				printf(
-					/* Translators: Stats dashboard widget postviews list: "$post_title $views Views". */
-					esc_html__( '%1$s %2$s Views', 'jetpack' ),
+					esc_html(
+						/* Translators: Stats dashboard widget Post list with view count: "Post Title 1 View (or Views if plural)". */
+						_n( '%1$s %2$s View', '%1$s %2$s Views', $post['views'], 'jetpack' )
+					),
 					'<a href="' . esc_url( get_permalink( $post['post_id'] ) ) . '">' . esc_html( get_the_title( $post['post_id'] ) ) . '</a>',
 					esc_html( number_format_i18n( $post['views'] ) )
 				);

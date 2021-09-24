@@ -19,7 +19,7 @@ import { STORE_ID } from '../store';
 /* eslint react/react-in-jsx-scope: 0 */
 const Admin = () => {
 	const [ connectionStatus, renderConnectScreen, renderConnectionStatusCard ] = useConnection();
-	const [ capabilities, setCapabilities ] = useState( null );
+	const [ capabilities, setCapabilities ] = useState( [] );
 	const [ capabilitiesError, setCapabilitiesError ] = useState( null );
 	const [ connectionLoaded, setConnectionLoaded ] = useState( false );
 	const [ capabilitiesLoaded, setCapabilitiesLoaded ] = useState( false );
@@ -51,7 +51,7 @@ const Admin = () => {
 	};
 
 	const hasBackupPlan = () => {
-		return capabilities !== null && capabilities.includes( 'backup' );
+		return capabilities.includes( 'backup' );
 	};
 
 	const renderNoBackupCapabilities = () => {
@@ -70,7 +70,7 @@ const Admin = () => {
 						</p>
 						<a
 							class="button"
-							href={ getRedirectUrl( 'backup-plugin-upgrade' ) }
+							href={ getRedirectUrl( 'backup-plugin-upgrade', { site: domain } ) }
 							target="_blank"
 							rel="noreferrer"
 						>
@@ -160,10 +160,6 @@ const Admin = () => {
 		}
 	};
 
-	const renderManageConnection = () => {
-		return renderConnectionStatusCard();
-	};
-
 	// Renders additional segments under the jp-hero area condition on having a backup plan
 	const renderBackupSegments = () => {
 		return (
@@ -176,7 +172,7 @@ const Admin = () => {
 							'jetpack-backup'
 						) }
 					</p>
-					{ ! capabilities.includes( 'backup-realtime' ) && (
+					{ hasBackupPlan() && ! capabilities.includes( 'backup-realtime' ) && (
 						<a
 							class="jp-cut"
 							href={ getRedirectUrl( 'backup-plugin-realtime-upgrade', { site: domain } ) }
@@ -200,15 +196,19 @@ const Admin = () => {
 							'jetpack-backup'
 						) }
 					</p>
-					<p>
-						<a
-							href={ getRedirectUrl( 'backup-plugin-activity-log', { site: domain } ) }
-							target="_blank"
-							rel="noreferrer"
-						>
-							{ __( "See your site's activity", 'jetpack-backup' ) }
-						</a>
-					</p>
+					{ hasBackupPlan() && (
+						<p>
+							<a
+								href={ getRedirectUrl( 'backup-plugin-activity-log', { site: domain } ) }
+								target="_blank"
+								rel="noreferrer"
+							>
+								{ __( "See your site's activity", 'jetpack-backup' ) }
+							</a>
+						</p>
+					) }
+
+					{ renderConnectionStatusCard() }
 				</div>
 			</div>
 		);
@@ -219,18 +219,7 @@ const Admin = () => {
 			<div className="content">
 				<div className="jp-hero">{ renderLoadedState() }</div>
 				<div className="jp-section">
-					<div className="jp-wrap">
-						{ hasBackupPlan() && renderBackupSegments() }
-						{ isFullyConnected() && (
-							<div className="jp-row">
-								<div class="lg-col-span-6 md-col-span-4 sm-col-span-4"></div>
-								<div class="lg-col-span-1 md-col-span-1 sm-col-span-0"></div>
-								<div class="lg-col-span-5 md-col-span-3 sm-col-span-4">
-									{ renderManageConnection() }
-								</div>
-							</div>
-						) }
-					</div>
+					<div className="jp-wrap">{ isFullyConnected() && renderBackupSegments() }</div>
 				</div>
 			</div>
 		);

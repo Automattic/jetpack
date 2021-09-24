@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-On resize of an image, fade out the bottom bar, and the close button. Fade it back in when sized back to original, or the image is swiped/tapped.

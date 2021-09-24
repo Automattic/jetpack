@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Sync;
 
+use WP_Error;
+
 /**
  * Simple version of a Jetpack Sync Server - just receives arrays of events and
  * issues them locally with the 'jetpack_sync_remote_action' action.
@@ -127,20 +129,21 @@ class Server {
 	public function receive( $data, $token = null, $sent_timestamp = null, $queue_id = null ) {
 		$start_time = microtime( true );
 		if ( ! is_array( $data ) ) {
-			return new \WP_Error( 'action_decoder_error', 'Events must be an array' );
+			return new WP_Error( 'action_decoder_error', 'Events must be an array' );
 		}
 
 		if ( $token && ! $this->attempt_request_lock( $token->blog_id ) ) {
 			/**
 			 * Fires when the server receives two concurrent requests from the same blog
 			 *
-			 * @since 4.2.0
+			 * @since 1.6.3
+			 * @since-jetpack 4.2.0
 			 *
 			 * @param token The token object of the misbehaving site
 			 */
 			do_action( 'jetpack_sync_multi_request_fail', $token );
 
-			return new \WP_Error( 'concurrent_request_error', 'There is another request running for the same blog ID' );
+			return new WP_Error( 'concurrent_request_error', 'There is another request running for the same blog ID' );
 		}
 
 		$events           = wp_unslash( array_map( array( $this->codec, 'decode' ), $data ) );
@@ -149,7 +152,8 @@ class Server {
 		/**
 		 * Fires when an array of actions are received from a remote Jetpack site
 		 *
-		 * @since 4.2.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
 		 *
 		 * @param array Array of actions received from the remote site
 		 */
@@ -161,7 +165,8 @@ class Server {
 			/**
 			 * Fires when an action is received from a remote Jetpack site
 			 *
-			 * @since 4.2.0
+			 * @since 1.6.3
+			 * @since-jetpack 4.2.0
 			 *
 			 * @param string $action_name The name of the action executed on the remote site
 			 * @param array $args The arguments passed to the action

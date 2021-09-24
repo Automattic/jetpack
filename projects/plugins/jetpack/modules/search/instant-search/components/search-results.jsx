@@ -117,7 +117,7 @@ class SearchResults extends Component {
 					dangerouslySetInnerHTML={ {
 						__html: `
 							.jetpack-instant-search *::selection,
-							.jetpack-instant-search .jetpack-instant-search__search-results .jetpack-instant-search__search-results-primary mark {
+							.jetpack-instant-search .jetpack-instant-search__search-results .jetpack-instant-search__search-results-primary .jetpack-instant-search__search-result mark {
 								color: ${ textColor };
 								background-color: ${ highlightColor };
 							}

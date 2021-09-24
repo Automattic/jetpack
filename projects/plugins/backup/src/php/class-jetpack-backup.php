@@ -107,11 +107,11 @@ class Jetpack_Backup {
 	public function admin_menu() {
 		return add_menu_page(
 			__( 'Jetpack Backup', 'jetpack-backup' ),
-			__( 'Backup', 'jetpack-backup' ),
+			__( 'Jetpack Backup', 'jetpack-backup' ),
 			'manage_options',
 			'jetpack-backup',
 			array( $this, 'plugin_settings_page' ),
-			'dashicons-image-rotate',
+			'dashicons-backup',
 			99
 		);
 	}

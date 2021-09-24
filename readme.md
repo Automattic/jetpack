@@ -28,7 +28,7 @@ On Windows (Vista and later), open an Administrator Command Prompt window and us
 Thank you for thinking about contributing to Jetpack! If you're unsure of anything, feel free to submit an issue or pull request on any topic. The worst that can happen is that you'll be politely directed to the best location to ask your question or to change something in your pull request. There are a variety of options for how you can help:
 
 - [Write and submit patches](./docs/CONTRIBUTING.md#write-and-submit-a-patch).
-- If you found a bug, [file a report here](https://github.com/Automattic/jetpack/issues/new). You can [check our recommendations to create great bug reports here](./docs/guides/report-bugs.md).
+- If you found a bug, [file a report here](https://github.com/Automattic/jetpack/issues/new?assignees=&labels=%5BType%5D+Bug&template=bug-report.yml). You can [check our recommendations to create great bug reports here](./docs/guides/report-bugs.md).
 - [Join our Jetpack Beta program](./docs/testing/beta-testing.md) and help us test new releases.
 - [Translate Jetpack in your language](./docs/translations.md).
 

@@ -3,9 +3,9 @@
  */
 import WpPage from '../wp-page';
 import logger from '../../logger';
-import config from 'config';
 import { takeScreenshot } from '../../reporters/screenshot';
 import PageActions from '../page-actions';
+import { getSiteCredentials } from '../../utils-helper';
 
 export default class WPLoginPage extends WpPage {
 	constructor( page ) {
@@ -17,19 +17,11 @@ export default class WPLoginPage extends WpPage {
 		return ! ( await new PageActions( page ).isElementVisible( '#user_login' ) );
 	}
 
-	async login(
-		username = config.WP_ADMIN_USER.username,
-		password = config.WP_ADMIN_USER.password,
-		{ retry = true } = {}
-	) {
+	async login( credentials = getSiteCredentials(), { retry = true } = {} ) {
 		logger.step( 'Log in to wp-admin' );
-		const ssoLoginButton = '.jetpack-sso.button';
-		if ( ( await this.page.$( ssoLoginButton ) ) !== null ) {
-			await this.toggleSSOLogin();
-		}
 
-		await this.fill( '#user_login', username );
-		await this.fill( '#user_pass', password );
+		await this.fill( '#user_login', credentials.username );
+		await this.fill( '#user_pass', credentials.password );
 
 		const navigationPromise = this.waitForDomContentLoaded();
 		await this.click( '#wp-submit' );
@@ -42,7 +34,7 @@ export default class WPLoginPage extends WpPage {
 				logger.warn( `The WPORG login didn't work as expected - retrying now: '${ e }'` );
 				await takeScreenshot( this.page, 'WPORG-login-failed' );
 
-				return await this.login( username, password, { retry: false } );
+				return await this.login( credentials, { retry: false } );
 			}
 			throw e;
 		}

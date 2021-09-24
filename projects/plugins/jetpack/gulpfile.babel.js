@@ -65,6 +65,16 @@ gulp.task( 'search-configure:watch', function () {
 	child.stdout.on( 'data', data => log( data.toString() ) );
 } );
 
+gulp.task( 'widget-visibility:watch', function () {
+	const child = require( 'child_process' ).execFile( 'pnpm', [
+		'run',
+		'build-widget-visibility',
+		'--',
+		'--watch',
+	] );
+	child.stdout.on( 'data', data => log( data.toString() ) );
+} );
+
 gulp.task( 'php:module-headings', function () {
 	const process = spawn( 'php', [ 'tools/build-module-headings-translations.php' ] );
 	process.stderr.on( 'data', function ( data ) {
@@ -92,7 +102,8 @@ gulp.task(
 		'old-styles:watch',
 		'blocks:watch',
 		'search-app:watch',
-		'search-configure:watch'
+		'search-configure:watch',
+		'widget-visibility:watch'
 	)
 );
 

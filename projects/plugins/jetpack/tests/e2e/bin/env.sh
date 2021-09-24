@@ -1,37 +1,47 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Exit if any command fails.
 set -e
 
-function usage {
+usage() {
 	echo "usage: $0 command"
 	echo "  start                        Setup the docker containers for E2E tests"
+	echo "  stop                         Stop the docker containers for E2E tests"
 	echo "  reset                        Reset the containers state"
 	echo "  gb-setup                     Setup Gutenberg plugin"
 	echo "  -h | usage                   Output this message"
 	exit 1
 }
 
+BASE_CMD='pnpx jetpack docker --type e2e --name t1'
+
 start_env() {
-	pnpx wp-env start
+	$BASE_CMD up -d
+	$BASE_CMD install
 	configure_wp_env
 }
 
 reset_env() {
-	pnpx wp-env clean
+	$BASE_CMD wp -- db reset --yes
+	$BASE_CMD install
 	configure_wp_env
+}
+
+stop_env() {
+	$BASE_CMD down
 }
 
 gb_setup() {
 	GB_ZIP="wp-content/gutenberg.zip"
-	pnpx wp-env run tests-wordpress "./wp-content/plugins/jetpack-dev/tests/e2e/bin/container-setup.sh gb-setup $GB_ZIP"
-	pnpx wp-env run tests-cli "wp plugin install $GB_ZIP"
-	pnpx wp-env run tests-cli "wp plugin activate gutenberg"
+	$BASE_CMD exec-silent -- /usr/local/src/jetpack-monorepo/projects/plugins/jetpack/tests/e2e/bin/container-setup.sh gb-setup $GB_ZIP
+	$BASE_CMD wp plugin install $GB_ZIP
+	$BASE_CMD wp plugin activate gutenberg
 }
 
 configure_wp_env() {
-	pnpx wp-env run tests-wordpress ./wp-content/plugins/jetpack-dev/tests/e2e/bin/container-setup.sh wp-config
-	pnpx wp-env run tests-cli wp plugin activate jetpack-dev
+	$BASE_CMD wp plugin activate jetpack
+	$BASE_CMD wp plugin activate e2e-plan-data-interceptor
+	$BASE_CMD wp option set permalink_structure ""
 
 	echo
 	echo "WordPress is ready!"
@@ -40,6 +50,8 @@ configure_wp_env() {
 
 if [ "${1}" == "start" ]; then
 	start_env
+elif [ "${1}" == "stop" ]; then
+	stop_env
 elif [ "${1}" == "reset" ]; then
 	reset_env
 elif [ "${1}" == "gb-setup" ]; then

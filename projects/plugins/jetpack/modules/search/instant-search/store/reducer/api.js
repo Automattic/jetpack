@@ -3,7 +3,6 @@
  *
  * @param {object} state - Current state.
  * @param {object} action - Dispatched action.
- *
  * @returns {object} Updated state.
  */
 export function hasError( state = false, action ) {
@@ -23,7 +22,6 @@ export function hasError( state = false, action ) {
  *
  * @param {object} state - Current state.
  * @param {object} action - Dispatched action.
- *
  * @returns {object} Updated state.
  */
 export function isLoading( state = false, action ) {
@@ -43,7 +41,6 @@ export function isLoading( state = false, action ) {
  *
  * @param {object} state - Current state.
  * @param {object} action - Dispatched action.
- *
  * @returns {object} Updated state.
  */
 export function response( state = {}, action ) {

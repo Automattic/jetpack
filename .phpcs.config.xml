@@ -27,6 +27,9 @@
 	<!-- Ignore WordPress included in packages -->
 	<exclude-pattern>/projects/packages/*/wordpress/*</exclude-pattern>
 
+	<!-- Ignore WordPress included in plugins -->
+	<exclude-pattern>/projects/plugins/*/wordpress/*</exclude-pattern>
+
 	<!-- Ignore built files -->
 	<exclude-pattern>/projects/packages/connection-ui/build/*</exclude-pattern>
 	<exclude-pattern>/projects/packages/identity-crisis/build/*</exclude-pattern>

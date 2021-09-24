@@ -19,7 +19,6 @@ const sendSlackMessage = require( '../../send-slack-message' );
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- *
  * @returns {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasNeedsDesignReviewLabel( octokit, owner, repo, number ) {
@@ -35,7 +34,6 @@ async function hasNeedsDesignReviewLabel( octokit, owner, repo, number ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- *
  * @returns {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasNeedsDesignLabel( octokit, owner, repo, number ) {
@@ -51,7 +49,6 @@ async function hasNeedsDesignLabel( octokit, owner, repo, number ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- *
  * @returns {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasDesignInputRequestedLabel( octokit, owner, repo, number ) {

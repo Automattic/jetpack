@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Move connection/data endpoint to Connection package.

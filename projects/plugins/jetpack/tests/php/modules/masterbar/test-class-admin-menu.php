@@ -94,7 +94,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		$this->assertSame(
 			array_keys( $menu ),
-			array( 2, '3.86682', 4, 5, 10, 15, 20, 25, 30, 50, 51, 59, 60, 61, 65, 70, 75, 80 ),
+			array( 2, '3.86682', 4, 5, 10, 15, 20, 25, 30, 50, 51, 58, 59, 60, 65, 70, 75, 80 ),
 			'Admin menu should not have unexpected top menu items.'
 		);
 
@@ -227,7 +227,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_posts_menu();
 
 		$this->assertSame( 'https://wordpress.com/posts/' . static::$domain, $submenu['edit.php'][0][2] );
-		$this->assertSame( 'https://wordpress.com/post/' . static::$domain, $submenu['edit.php'][1][2] );
+		$this->assertSame( 'https://wordpress.com/post/' . static::$domain, $submenu['edit.php'][2][2] );
 	}
 
 	/**
@@ -255,7 +255,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_page_menu();
 
 		$this->assertSame( 'https://wordpress.com/pages/' . static::$domain, $submenu['edit.php?post_type=page'][0][2] );
-		$this->assertSame( 'https://wordpress.com/page/' . static::$domain, $submenu['edit.php?post_type=page'][1][2] );
+		$this->assertSame( 'https://wordpress.com/page/' . static::$domain, $submenu['edit.php?post_type=page'][2][2] );
 	}
 
 	/**
@@ -287,8 +287,8 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		// Clean up.
 		unregister_post_type( 'custom_test_type' );
 
-		$this->assertSame( 'https://wordpress.com/types/custom_test_type/' . static::$domain, array_shift( $submenu['edit.php?post_type=custom_test_type'] )[2] );
-		$this->assertSame( 'https://wordpress.com/edit/custom_test_type/' . static::$domain, array_shift( $submenu['edit.php?post_type=custom_test_type'] )[2] );
+		$this->assertSame( 'https://wordpress.com/types/custom_test_type/' . static::$domain, $submenu['edit.php?post_type=custom_test_type'][0][2] );
+		$this->assertSame( 'https://wordpress.com/edit/custom_test_type/' . static::$domain, $submenu['edit.php?post_type=custom_test_type'][2][2] );
 	}
 
 	/**
@@ -316,9 +316,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_appearance_menu();
 
 		$this->assertSame( 'https://wordpress.com/themes/' . static::$domain, array_shift( $submenu['themes.php'] )[2] );
-		$this->assertSame( 'https://wordpress.com/customize/' . static::$domain, array_shift( $submenu['themes.php'] )[2] );
-		$this->assertSame( 'https://wordpress.com/customize/' . static::$domain . '?autofocus%5Bpanel%5D=nav_menus', array_shift( $submenu['themes.php'] )[2] );
-		$this->assertSame( 'https://wordpress.com/customize/' . static::$domain . '?autofocus%5Bpanel%5D=widgets', array_shift( $submenu['themes.php'] )[2] );
 	}
 
 	/**
@@ -387,8 +384,8 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_users_menu();
 
 		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, $submenu['users.php'][0][2] );
-		$this->assertSame( 'https://wordpress.com/people/new/' . static::$domain, $submenu['users.php'][1][2] );
-		$this->assertSame( 'https://wordpress.com/me', $submenu['users.php'][2][2] );
+		$this->assertSame( 'https://wordpress.com/people/new/' . static::$domain, $submenu['users.php'][2][2] );
+		$this->assertSame( 'https://wordpress.com/me', $submenu['users.php'][3][2] );
 		$this->assertSame( 'https://wordpress.com/me/account', $submenu['users.php'][6][2] );
 	}
 
@@ -404,8 +401,8 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		$this->assertSame( 'https://wordpress.com/marketing/tools/' . static::$domain, $submenu['tools.php'][0][2] );
 		$this->assertSame( 'https://wordpress.com/earn/' . static::$domain, $submenu['tools.php'][1][2] );
-		$this->assertSame( 'https://wordpress.com/import/' . static::$domain, $submenu['tools.php'][3][2] );
-		$this->assertSame( 'https://wordpress.com/export/' . static::$domain, $submenu['tools.php'][4][2] );
+		$this->assertSame( 'https://wordpress.com/import/' . static::$domain, $submenu['tools.php'][4][2] );
+		$this->assertSame( 'https://wordpress.com/export/' . static::$domain, $submenu['tools.php'][5][2] );
 	}
 
 	/**
@@ -448,19 +445,19 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		// FSE is no longer where it was put by default.
 		$this->assertArrayNotHasKey( 100, $menu );
-		$this->assertArrayHasKey( 61, $menu );
+		$this->assertArrayHasKey( 59, $menu );
 
 		$fse_link = 'https://wordpress.com/site-editor/' . static::$domain;
 		$fse_menu = array(
-			'Site Editor',
+			'Site Editor <span class="awaiting-mod">beta</span>',
 			'edit_theme_options',
 			$fse_link,
-			'Site Editor',
-			'menu-top toplevel_page_' . $fse_link,
-			'toplevel_page_' . $fse_link,
+			'Site Editor (beta)',
+			'menu-top toplevel_page_gutenberg-edit-site',
+			'toplevel_page_gutenberg-edit-site',
 			'dashicons-layout',
 		);
-		$this->assertSame( $menu[61], $fse_menu );
+		$this->assertSame( $menu[59], $fse_menu );
 	}
 
 	/**

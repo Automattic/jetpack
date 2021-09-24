@@ -22,20 +22,12 @@ const baseWebpackConfig = getBaseWebpackConfig(
 	{
 		entry: {
 			main: path.join( __dirname, '../modules/search/instant-search/loader.js' ),
-			'ie11-polyfill-loader': path.join(
-				__dirname,
-				'../modules/search/instant-search/ie11-polyfill.js'
-			),
-			'ie11-polyfill-payload': [
-				require.resolve( 'core-js' ),
-				require.resolve( 'regenerator-runtime/runtime' ),
-				require.resolve( 'whatwg-fetch' ),
-				require.resolve( 'abortcontroller-polyfill/dist/polyfill-patch-fetch' ),
-			],
 		},
-		'output-chunk-filename': 'jp-search.chunk-[name]-[hash].js',
+		'output-chunk-filename': 'jp-search.chunk-[name]-[contenthash].min.js',
 		'output-filename': 'jp-search-[name].bundle.js',
 		'output-path': path.join( __dirname, '../_inc/build/instant-search' ),
+		// Calypso-build defaults this to "window", which breaks things if no library.name is set.
+		'output-library-target': '',
 	}
 );
 
@@ -67,6 +59,7 @@ module.exports = {
 			react: 'preact/compat',
 			'react-dom/test-utils': 'preact/test-utils',
 			'react-dom': 'preact/compat', // Must be aliased after test-utils
+			fs: false,
 		},
 		modules: [
 			path.resolve( __dirname, '../_inc/client' ),
@@ -74,10 +67,7 @@ module.exports = {
 			'node_modules',
 		],
 		// We want the compiled version, not the "calypso:src" sources.
-		mainFields: undefined,
-	},
-	node: {
-		fs: 'empty',
+		mainFields: baseWebpackConfig.resolve.mainFields.filter( entry => 'calypso:src' !== entry ),
 	},
 	devtool: isDevelopment ? 'source-map' : false,
 	plugins: [

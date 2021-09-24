@@ -77,8 +77,8 @@ export default function Admin() {
 					<ul>
 						<li>{ __( 'Measure your impact with beautiful stats', 'jetpack' ) }</li>
 						<li>{ __( 'Speed up your site with optimized images', 'jetpack' ) }</li>
-						<li>{ __( 'Protect your site against bot attacs', 'jetpacks' ) }</li>
-						<li>{ __( 'Get notifications if your site goes offline', 'jetpacks' ) }</li>
+						<li>{ __( 'Protect your site against bot attacks', 'jetpack' ) }</li>
+						<li>{ __( 'Get notifications if your site goes offline', 'jetpack' ) }</li>
 						<li>{ __( 'Enhance your site with dozens of other features', 'jetpack' ) }</li>
 					</ul>
 				</ConnectScreen>

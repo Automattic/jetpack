@@ -10,7 +10,6 @@ import { MenuItem } from '@wordpress/components';
  * @property { string } price
  * @property { string } currency
  * @property { string } interval
- *
  * @typedef {object} Props
  * @property { Plan } plan
  * @property { string } className
@@ -18,9 +17,7 @@ import { MenuItem } from '@wordpress/components';
  * @property { () => void } onClose
  * @property { (plan: Plan) => void } onSelected
  * @property { (plan: Plan) => string } formatPrice
- *
  * @param { Props } props
- *
  * @returns {object} Information about plan.
  */
 export default function Plan( props ) {
@@ -37,7 +34,7 @@ export default function Plan( props ) {
 
 	return (
 		<MenuItem
-			onClick={ ( e ) => {
+			onClick={ e => {
 				e.preventDefault();
 				onSelected( plan );
 				onClose();

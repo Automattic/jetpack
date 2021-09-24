@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Remove the arrays_are_similar method and use PHPUnit's assertEquals method.
-
-

@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+
+Fix hostname comparison while deciding same origin css files to skip proxy. Same origin css files will now be skipped from
+proxy even if the port is something other than 80.

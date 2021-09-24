@@ -17,8 +17,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 $plugins = Plugin::get_all_plugins( true );
-end( $plugins );
-$last_slug = key( $plugins );
 
 ?>
 
@@ -39,12 +37,15 @@ $last_slug = key( $plugins );
 		$classes = array( 'dops-foldable-card', 'has-expanded-summary', 'dops-card' );
 		if ( is_plugin_active( $plugin->plugin_file() ) ) {
 			$classes[] = 'plugin-stable';
+			$verslug   = $plugin->plugin_slug();
 			$version   = $plugin->stable_pretty_version();
 		} elseif ( is_plugin_active( $plugin->dev_plugin_file() ) ) {
 			$classes[] = 'plugin-dev';
+			$verslug   = $plugin->dev_plugin_slug();
 			$version   = $plugin->dev_pretty_version();
 		} else {
 			$classes[] = 'plugin-inactive';
+			$verslug   = '';
 			$version   = __( 'Plugin is not active', 'jetpack-beta' );
 		}
 		$classes[] = 'is-compact';
@@ -61,7 +62,7 @@ $last_slug = key( $plugins );
 				<span class="dops-foldable-card__main">
 					<div class="dops-foldable-card__header-text">
 						<div class="dops-foldable-card__header-text branch-card-header"><?php echo esc_html( $plugin->get_name() ); ?></div>
-						<div class="dops-foldable-card__subheader"><?php echo esc_html( $version ); ?></div>
+						<div class="dops-foldable-card__subheader" data-jpbeta-version-for="<?php echo esc_attr( $verslug ); ?>"><?php echo esc_html( $version ); ?></div>
 					</div>
 				</span>
 				<span class="dops-foldable-card__secondary">

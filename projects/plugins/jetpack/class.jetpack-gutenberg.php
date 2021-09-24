@@ -573,7 +573,7 @@ class Jetpack_Gutenberg {
 		}
 
 		// Enqueue styles.
-		$style_relative_path = self::get_blocks_directory() . $type . '/view' . ( is_rtl() ? '.rtl' : '' ) . '.css';
+		$style_relative_path = self::get_blocks_directory() . $type . '/view.min' . ( is_rtl() ? '.rtl' : '' ) . '.css';
 		if ( self::block_has_asset( $style_relative_path ) ) {
 			$style_version = self::get_asset_version( $style_relative_path );
 			$view_style    = plugins_url( $style_relative_path, JETPACK__PLUGIN_FILE );
@@ -608,8 +608,8 @@ class Jetpack_Gutenberg {
 		}
 
 		// Enqueue script.
-		$script_relative_path  = self::get_blocks_directory() . $type . '/view.js';
-		$script_deps_path      = JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $type . '/view.asset.php';
+		$script_relative_path  = self::get_blocks_directory() . $type . '/view.min.js';
+		$script_deps_path      = JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $type . '/view.min.asset.php';
 		$script_dependencies[] = 'wp-polyfill';
 		if ( file_exists( $script_deps_path ) ) {
 			$asset_manifest      = include $script_deps_path;
@@ -701,18 +701,18 @@ class Jetpack_Gutenberg {
 			$blocks_env = '';
 		}
 
-		$editor_script = plugins_url( "{$blocks_dir}editor{$blocks_env}.js", JETPACK__PLUGIN_FILE );
-		$editor_style  = plugins_url( "{$blocks_dir}editor{$blocks_env}{$rtl}.css", JETPACK__PLUGIN_FILE );
+		$editor_script = plugins_url( "{$blocks_dir}editor{$blocks_env}.min.js", JETPACK__PLUGIN_FILE );
+		$editor_style  = plugins_url( "{$blocks_dir}editor{$blocks_env}.min{$rtl}.css", JETPACK__PLUGIN_FILE );
 
-		$editor_deps_path = JETPACK__PLUGIN_DIR . $blocks_dir . "editor{$blocks_env}.asset.php";
+		$editor_deps_path = JETPACK__PLUGIN_DIR . $blocks_dir . "editor{$blocks_env}.min.asset.php";
 		$editor_deps      = array( 'wp-polyfill' );
 		if ( file_exists( $editor_deps_path ) ) {
 			$asset_manifest = include $editor_deps_path;
 			$editor_deps    = $asset_manifest['dependencies'];
 		}
 
-		$version = Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . $blocks_dir . 'editor.js' )
-			? filemtime( JETPACK__PLUGIN_DIR . $blocks_dir . 'editor.js' )
+		$version = Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . $blocks_dir . 'editor.min.js' )
+			? filemtime( JETPACK__PLUGIN_DIR . $blocks_dir . 'editor.min.js' )
 			: JETPACK__VERSION;
 
 		wp_enqueue_script(
@@ -756,6 +756,7 @@ class Jetpack_Gutenberg {
 					/** This filter is documented in class.jetpack-gutenberg.php */
 					'enable_upgrade_nudge'      => apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ),
 					'is_private_site'           => '-1' === get_option( 'blog_public' ),
+					'is_offline_mode'           => $status->is_offline_mode(),
 				),
 				'siteFragment'     => $status->get_site_suffix(),
 				'adminUrl'         => esc_url( admin_url() ),

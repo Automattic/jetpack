@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.30.4] - 2021-09-02
+### Fixed
+- Remove invalid user token before reconnect.
+
+## [1.30.3] - 2021-08-30
+### Added
+- Limit repeated failed attempts to update remote DNA package versions.
+
+### Changed
+- Make sure generated secrets have the required length
+- Remove tracked package versions when disconnecting the site.
+- Run composer update on test-php command instead of phpunit
+- Tests: update PHPUnit polyfills dependency (yoast/phpunit-polyfills).
+- update annotations versions
+
+## [1.30.2] - 2021-08-12
+### Added
+- Add package version tracking.
+
+## [1.30.1] - 2021-07-27
+### Added
+- Add a package version constant.
+
+### Changed
+- Move connection/data endpoint to Connection package.
+- Move site disconnection endpoint to Connection package.
+
+### Fixed
+- Fix `@covers` directives in tests.
+
 ## [1.30.0] - 2021-07-13
 ### Added
 - Added second parameter to Tokens::get_connected_users to allow any connected user to be returned.
@@ -382,6 +412,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[1.30.4]: https://github.com/Automattic/jetpack-connection/compare/v1.30.3...v1.30.4
+[1.30.3]: https://github.com/Automattic/jetpack-connection/compare/v1.30.2...v1.30.3
+[1.30.2]: https://github.com/Automattic/jetpack-connection/compare/v1.30.1...v1.30.2
+[1.30.1]: https://github.com/Automattic/jetpack-connection/compare/v1.30.0...v1.30.1
 [1.30.0]: https://github.com/Automattic/jetpack-connection/compare/v1.29.0...v1.30.0
 [1.29.0]: https://github.com/Automattic/jetpack-connection/compare/v1.28.0...v1.29.0
 [1.28.0]: https://github.com/Automattic/jetpack-connection/compare/v1.27.0...v1.28.0

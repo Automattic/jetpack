@@ -24,7 +24,7 @@ export default class EventbriteBlock extends PageActions {
 		const inputSelector = this.getSelector( '.components-placeholder__input' );
 		const descriptionSelector = this.getSelector( "button[type='submit']" );
 
-		await this.type( inputSelector, this.embedUrl() );
+		await this.fill( inputSelector, this.embedUrl() );
 		await this.click( descriptionSelector );
 		await this.waitForElementToBeVisible( '.wp-block-jetpack-eventbrite .components-sandbox' );
 	}
@@ -36,7 +36,7 @@ export default class EventbriteBlock extends PageActions {
 	/**
 	 * Checks whether block is rendered on frontend
 	 *
-	 * @param {page} page Playwright page instance
+	 * @param {page}   page Playwright page instance
 	 * @param {Object} args An object of any additional required instance values
 	 */
 	static async isRendered( page, args ) {

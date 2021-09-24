@@ -7,7 +7,7 @@
  */
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 
 /**
  * Internal dependencies
@@ -83,9 +83,11 @@ describe( 'RelatedPostsControls', () => {
 
 		test( 'sets postsToShow attribute', () => {
 			render( <RelatedPostsInspectorControls { ...defaultProps } /> );
-			userEvent.clear( screen.getAllByLabelText( 'Number of posts' )[ 1 ] );
-
-			expect( setAttributes ).toHaveBeenCalledTimes( 1 );
+			const input = screen.getAllByLabelText( 'Number of posts' )[ 1 ];
+			input.focus();
+			fireEvent.change( input, { target: { value: '3' } } );
+			
+			expect( setAttributes ).toHaveBeenCalledWith( { postsToShow: 3 } );
 		} );
 	} );
 

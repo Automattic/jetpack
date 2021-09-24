@@ -1,0 +1,28 @@
+{
+	"name": "@automattic/jetpack-api",
+	"version": "0.2.1-alpha",
+	"description": "Jetpack Api Package",
+	"author": "Automattic",
+	"license": "GPL-2.0-or-later",
+	"dependencies": {
+		"lodash": "4.17.21"
+	},
+	"devDependencies": {
+		"chai-fetch-mock": "3.0.0",
+		"fetch-mock": "9.11.0",
+		"jetpack-js-test-runner": "workspace:*",
+		"nyc": "15.1.0"
+	},
+	"type": "module",
+	"exports": {
+		".": "./index.jsx"
+	},
+	"scripts": {
+		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./test/*.jsx'"
+	},
+	"engines": {
+		"node": "^14.17.6 || ^16.7.0",
+		"pnpm": "^6.5.0",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	}
+}
