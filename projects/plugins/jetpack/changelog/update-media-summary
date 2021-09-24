@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Ensures the custom excerpt is used when sharing to Facebook
