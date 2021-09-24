@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Allow for enabling and initializing new Post_List package from Config package.
