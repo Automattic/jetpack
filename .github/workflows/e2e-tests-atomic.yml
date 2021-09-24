@@ -1,7 +1,6 @@
 name: E2E Tests on Atomic sites
 
 on:
-  pull_request:
   schedule:
     - cron:  '0 */4 * * *'
 
