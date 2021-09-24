@@ -20,6 +20,7 @@ importers:
       jest-environment-node: 26.6.2
       jest-junit: 12.0.0
       jest-runner-groups: 2.0.1
+      jetpack-cli: link:../cli
       localtunnel: 2.0.1
       lodash: 4.17.21
       mkdirp: 1.0.4
@@ -47,6 +48,7 @@ importers:
       jest-environment-node: 26.6.2
       jest-junit: 12.0.0
       jest-runner-groups: 2.0.1
+      jetpack-cli: link:../cli
       localtunnel: 2.0.1
       lodash: 4.17.21
       mkdirp: 1.0.4
