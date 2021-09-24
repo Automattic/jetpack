@@ -287,6 +287,7 @@ class Table_Checksum {
 				'checksum_text_fields' => array( 'user_login', 'user_nicename', 'user_email', 'user_url', 'user_registered', 'user_status', 'display_name' ),
 				'filter_values'        => array(),
 			),
+
 			/**
 			 * Usermeta is a special table, as it needs to use a custom override flow,
 			 * as the user roles, capabilities, locale, mime types can be filtered by plugins.

@@ -45,9 +45,9 @@ class Table_Checksum_Usermeta extends Table_Checksum {
 
 		$query = "
 			SELECT
-				DISTINCT user_id
+				DISTINCT {$this->range_field}
 			FROM
-				{$wpdb->usermeta}
+				{$this->table}
 			WHERE
 				{$range_filter_statement}
 		";
@@ -61,8 +61,7 @@ class Table_Checksum_Usermeta extends Table_Checksum {
 		$checksum_entries = array();
 
 		foreach ( $chunked_user_ids as $user_ids_chunk ) {
-			$user_query   = new WP_User_Query( array( 'include' => $user_ids_chunk ) );
-			$user_objects = $user_query->get_results();
+			$user_objects = $this->get_user_objects_by_ids( $user_ids_chunk );
 
 			foreach ( $user_objects as $user_object ) {
 				$checksum_entry = array(
@@ -108,5 +107,18 @@ class Table_Checksum_Usermeta extends Table_Checksum {
 		ksort( $response );
 
 		return $response;
+	}
+
+	/**
+	 * Gets a list of `WP_User` objects by their IDs
+	 *
+	 * @param array $ids List of IDs to fetch.
+	 *
+	 * @return array
+	 */
+	protected function get_user_objects_by_ids( $ids ) {
+		$user_query = new WP_User_Query( array( 'include' => $ids ) );
+
+		return $user_query->get_results();
 	}
 }
