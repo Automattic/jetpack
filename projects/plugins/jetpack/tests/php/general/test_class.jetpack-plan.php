@@ -7,6 +7,7 @@
  */
 class WP_Test_Jetpack_Plan extends WP_UnitTestCase {
 	public function set_up() {
+		parent::set_up();
 		delete_option( 'jetpack_active_plan' );
 	}
 

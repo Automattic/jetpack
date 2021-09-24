@@ -25,6 +25,7 @@ class WP_Test_Jetpack_Modules_Overrides extends WP_UnitTestCase {
 	 * Test setup.
 	 */
 	public function set_up() {
+		parent::set_up();
 		$this->instance = Jetpack_Modules_Overrides::instance();
 	}
 
@@ -35,6 +36,7 @@ class WP_Test_Jetpack_Modules_Overrides extends WP_UnitTestCase {
 		remove_all_filters( 'option_jetpack_active_modules' );
 		remove_all_filters( 'jetpack_active_modules' );
 		$this->instance->clear_cache();
+		parent::tear_down();
 	}
 
 	/**

@@ -19,6 +19,8 @@ class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 	 * @inheritDoc
 	 */
 	public function set_up() {
+		parent::set_up();
+
 		if ( ! defined( 'TESTING_IN_JETPACK' ) || ! TESTING_IN_JETPACK ) {
 			switch_to_blog( 104104364 ); // test.wordpress.com
 			$this->ids = '161,162';

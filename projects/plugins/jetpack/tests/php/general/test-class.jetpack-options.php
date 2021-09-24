@@ -9,6 +9,7 @@ class WP_Test_Jetpack_Options extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		wp_cache_flush();
+		parent::tear_down();
 	}
 
 	function cache_option( $name, $value ) {

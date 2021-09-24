@@ -25,6 +25,8 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 	public function set_up() {
 		global $post, $wp_query;
 
+		parent::set_up();
+
 		$post            = new stdClass();
 		$post->ID        = 1;
 		$post->post_type = 'post';
@@ -41,6 +43,8 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		Jetpack_Geo_Location::reset_instance();
 
 		$wp_query = $this->original_wp_query;
+
+		parent::tear_down();
 	}
 
 	public function test_location_display_filter_skipped_when_lacking_theme_support() {

@@ -12,6 +12,7 @@ class WP_Test_Jetpack_AMP_Support extends WP_UnitTestCase {
 	 * Setup tests.
 	 */
 	public function set_up() {
+		parent::set_up();
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
 	}
 
@@ -20,6 +21,7 @@ class WP_Test_Jetpack_AMP_Support extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		remove_filter( 'jetpack_is_amp_request', '__return_true' );
+		parent::tear_down();
 	}
 
 	/**

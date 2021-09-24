@@ -38,6 +38,8 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	 * Set up.
 	 */
 	public function set_up() {
+		parent::set_up();
+
 		$GLOBALS['wp_customize'] = new WP_Test_Jetpack_Search_Helpers_Customize();
 
 		$this->request_uri = $_SERVER['REQUEST_URI'];
@@ -65,6 +67,8 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 
 		Constants::clear_constants();
 		remove_all_filters( 'jetpack_search_has_vip_index' );
+
+		parent::tear_down();
 	}
 
 	function test_get_search_url_removes_page_when_no_query_s() {

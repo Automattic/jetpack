@@ -19,6 +19,7 @@ class WP_Test_Jetpack_WPCOM_Block_Editor extends WP_UnitTestCase {
 	 * Runs the routine before each test is executed.
 	 */
 	public function set_up() {
+		parent::set_up();
 		$this->user_id = $this->factory->user->create( array(
 			'role' => 'administrator',
 		) );
