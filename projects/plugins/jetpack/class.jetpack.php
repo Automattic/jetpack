@@ -60,8 +60,8 @@ class Jetpack {
 	 * When making changes to that list, you must also update concat_list in tools/builder/frontend-css.js.
 	 */
 	public $concatenated_style_handles = array(
-		'jetpack-carousel',
 		'jetpack-carousel-swiper-css',
+		'jetpack-carousel',
 		'grunion.css',
 		'the-neverending-homepage',
 		'jetpack_likes',
@@ -695,11 +695,14 @@ class Jetpack {
 
 		add_filter( 'admin_body_class', array( $this, 'admin_body_class' ), 20 );
 
-		add_action( 'wp_dashboard_setup', array( $this, 'wp_dashboard_setup' ) );
 		// Filter the dashboard meta box order to swap the new one in in place of the old one.
 		add_filter( 'get_user_option_meta-box-order_dashboard', array( $this, 'get_user_option_meta_box_order_dashboard' ) );
 
-		// returns HTTPS support status
+		// WordPress dashboard widget.
+		require_once JETPACK__PLUGIN_DIR . 'class-jetpack-stats-dashboard-widget.php';
+		add_action( 'wp_dashboard_setup', array( new Jetpack_Stats_Dashboard_Widget(), 'init' ) );
+
+		// Returns HTTPS support status.
 		add_action( 'wp_ajax_jetpack-recheck-ssl', array( $this, 'ajax_recheck_ssl' ) );
 
 		add_action( 'wp_ajax_jetpack_connection_banner', array( $this, 'jetpack_connection_banner_callback' ) );
@@ -7018,45 +7021,6 @@ endif;
 		}
 	}
 
-	public function wp_dashboard_setup() {
-		if ( self::is_connection_ready() ) {
-			add_action( 'jetpack_dashboard_widget', array( __CLASS__, 'dashboard_widget_footer' ), 999 );
-		}
-
-		if ( has_action( 'jetpack_dashboard_widget' ) ) {
-			$jetpack_logo = new Jetpack_Logo();
-			$widget_title = sprintf(
-				/* translators: Placeholder is a Jetpack logo. */
-				__( 'Stats by %s', 'jetpack' ),
-				$jetpack_logo->get_jp_emblem( true )
-			);
-
-			// Wrap title in span so Logo can be properly styled.
-			$widget_title = sprintf(
-				'<span>%s</span>',
-				$widget_title
-			);
-
-			wp_add_dashboard_widget(
-				'jetpack_summary_widget',
-				$widget_title,
-				array( __CLASS__, 'dashboard_widget' )
-			);
-			wp_enqueue_style( 'jetpack-dashboard-widget', plugins_url( 'css/dashboard-widget.css', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
-			wp_style_add_data( 'jetpack-dashboard-widget', 'rtl', 'replace' );
-
-			// If we're inactive and not in offline mode, sort our box to the top.
-			if ( ! self::is_connection_ready() && ! ( new Status() )->is_offline_mode() ) {
-				global $wp_meta_boxes;
-
-				$dashboard = $wp_meta_boxes['dashboard']['normal']['core'];
-				$ours      = array( 'jetpack_summary_widget' => $dashboard['jetpack_summary_widget'] );
-
-				$wp_meta_boxes['dashboard']['normal']['core'] = array_merge( $ours, $dashboard );
-			}
-		}
-	}
-
 	/**
 	 * @param mixed $result Value for the user's option
 	 * @return mixed
@@ -7085,84 +7049,6 @@ endif;
 		}
 
 		return $sorted;
-	}
-
-	public static function dashboard_widget() {
-		/**
-		 * Fires when the dashboard is loaded.
-		 *
-		 * @since 3.4.0
-		 */
-		do_action( 'jetpack_dashboard_widget' );
-	}
-
-	public static function dashboard_widget_footer() {
-		?>
-		<footer>
-
-		<div class="protect">
-			<h3><?php esc_html_e( 'Brute force attack protection', 'jetpack' ); ?></h3>
-			<?php if ( self::is_module_active( 'protect' ) ) : ?>
-				<p class="blocked-count">
-					<?php echo number_format_i18n( get_site_option( 'jetpack_protect_blocked_attempts', 0 ) ); ?>
-				</p>
-				<p><?php echo esc_html_x( 'Blocked malicious login attempts', '{#} Blocked malicious login attempts -- number is on a prior line, text is a caption.', 'jetpack' ); ?></p>
-			<?php elseif ( current_user_can( 'jetpack_activate_modules' ) && ! ( new Status() )->is_offline_mode() ) : ?>
-				<a href="
-				<?php
-				echo esc_url(
-					wp_nonce_url(
-						self::admin_url(
-							array(
-								'action' => 'activate',
-								'module' => 'protect',
-							)
-						),
-						'jetpack_activate-protect'
-					)
-				);
-				?>
-							" class="button button-jetpack" title="<?php esc_attr_e( 'Protect helps to keep you secure from brute-force login attacks.', 'jetpack' ); ?>">
-					<?php esc_html_e( 'Activate brute force attack protection', 'jetpack' ); ?>
-				</a>
-			<?php else : ?>
-				<?php esc_html_e( 'Brute force attack protection is inactive.', 'jetpack' ); ?>
-			<?php endif; ?>
-		</div>
-
-		<div class="akismet">
-			<h3><?php esc_html_e( 'Anti-spam', 'jetpack' ); ?></h3>
-			<?php if ( is_plugin_active( 'akismet/akismet.php' ) ) : ?>
-				<p class="blocked-count">
-					<?php echo number_format_i18n( get_option( 'akismet_spam_count', 0 ) ); ?>
-				</p>
-				<p><?php echo esc_html_x( 'Blocked spam comments.', '{#} Spam comments blocked by Akismet -- number is on a prior line, text is a caption.', 'jetpack' ); ?></p>
-			<?php elseif ( current_user_can( 'activate_plugins' ) && ! is_wp_error( validate_plugin( 'akismet/akismet.php' ) ) ) : ?>
-				<a href="
-				<?php
-				echo esc_url(
-					wp_nonce_url(
-						add_query_arg(
-							array(
-								'action' => 'activate',
-								'plugin' => 'akismet/akismet.php',
-							),
-							admin_url( 'plugins.php' )
-						),
-						'activate-plugin_akismet/akismet.php'
-					)
-				);
-				?>
-							" class="button button-jetpack">
-					<?php esc_html_e( 'Activate Anti-spam', 'jetpack' ); ?>
-				</a>
-			<?php else : ?>
-				<p><a href="<?php echo esc_url( 'https://akismet.com/?utm_source=jetpack&utm_medium=link&utm_campaign=Jetpack%20Dashboard%20Widget%20Footer%20Link' ); ?>"><?php esc_html_e( 'Anti-spam can help to keep your blog safe from spam!', 'jetpack' ); ?></a></p>
-			<?php endif; ?>
-		</div>
-
-		</footer>
-		<?php
 	}
 
 	/*

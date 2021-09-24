@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Move the jetpack stats widget for the WordPress dashboard into its own class.

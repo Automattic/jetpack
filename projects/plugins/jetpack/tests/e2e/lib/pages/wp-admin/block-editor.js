@@ -80,7 +80,7 @@ export default class BlockEditorPage extends WpPage {
 		await this.searchForBlock( blockTitle );
 
 		await testStep( `Insert block with name: ${ blockName }`, async () => {
-			logger.step( `Insert block {name: ${ blockName }, title: ${ blockTitle }` );
+			logger.step( `Insert block {name: ${ blockName }, title: ${ blockTitle }}` );
 			await this.click( this.blockSel( blockName ) );
 		} );
 		return await this.getInsertedBlock( blockName );

@@ -434,7 +434,8 @@ class Sender {
 			 */
 			$item[1] = apply_filters( 'jetpack_sync_before_send_' . $item[0], $item[1], $item[2] );
 			wp_suspend_cache_addition( false );
-			if ( false === $item[1] ) {
+			// Serialization usage can lead to empty, null or false action_name. Lets skip as there is no information to send.
+			if ( empty( $item[0] ) || false === $item[1] ) {
 				$skipped_items_ids[] = $key;
 				continue;
 			}

@@ -5,7 +5,7 @@ const fs = require( 'fs' );
 const config = require( 'config' );
 const path = require( 'path' );
 const yargs = require( 'yargs' );
-const { fileNameFormatter } = require( '../lib/utils-helper' );
+const { fileNameFormatter, getJetpackVersion } = require( '../lib/utils-helper' );
 const slackClient = new WebClient( config.get( 'slack.token' ), {
 	retryConfig: retryPolicies.rapidRetryPolicy,
 	logLevel: LogLevel.ERROR,
@@ -65,7 +65,7 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
 	} catch ( error ) {
 		const errMsg = 'There was a problem parsing the test results file.';
 		console.error( errMsg );
-		await sendMessage( buildDefaultMessage( false, errMsg ), {} );
+		await sendMessage( await buildDefaultMessage( false, errMsg ), {} );
 		return;
 	}
 
@@ -117,7 +117,7 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
 	}
 
 	// build the notification blocks
-	const mainMsgBlocks = buildDefaultMessage( result.success );
+	const mainMsgBlocks = await buildDefaultMessage( result.success );
 
 	// Add a header line
 	let testListHeader = `*${ result.numTotalTests } ${ suite }* tests ran successfully`;
@@ -184,7 +184,7 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
  */
 async function reportJobRun( status ) {
 	const isSuccess = status === 'success';
-	await sendMessage( buildDefaultMessage( isSuccess ), {} );
+	await sendMessage( await buildDefaultMessage( isSuccess ), {} );
 }
 
 //endregion
@@ -231,7 +231,7 @@ function getGithubContext() {
 	return gh;
 }
 
-function buildDefaultMessage( isSuccess, forceHeaderText = undefined ) {
+async function buildDefaultMessage( isSuccess, forceHeaderText = undefined ) {
 	const gh = getGithubContext();
 
 	const btnStyle = isSuccess ? 'primary' : 'danger';
@@ -326,26 +326,54 @@ function buildDefaultMessage( isSuccess, forceHeaderText = undefined ) {
 		},
 	];
 
-	if ( ! gh.pr && ! isSuccess && gh.branch.name === config.get( 'repository.mainBranch' ) ) {
-		const mentions = config
-			.get( 'slack.mentions' )
-			.map( function ( userId ) {
-				return ` <@${ userId }>`;
-			} )
-			.join( ' ' );
+	// add Jetpack version
+	const jetpackVersion = await getJetpackVersion();
 
-		blocks.push(
-			{
-				type: 'section',
-				text: {
-					type: 'mrkdwn',
-					text: `cc ${ mentions }`,
-				},
+	if ( jetpackVersion ) {
+		blocks.splice( 1, 0, {
+			type: 'section',
+			text: {
+				type: 'mrkdwn',
+				text: `Jetpack version: ${ jetpackVersion }`,
 			},
-			{
-				type: 'divider',
+		} );
+	}
+
+	// mention interested parties
+	try {
+		let handles = [];
+
+		for ( const branchEntry of config.get( 'slack.mentions.branches' ) ) {
+			if ( gh.branch.name === branchEntry.name ) {
+				handles = handles.concat( branchEntry.users );
 			}
-		);
+		}
+
+		for ( const reportEntry of config.get( 'slack.mentions.reports' ) ) {
+			if ( yargs.argv.report === reportEntry.name ) {
+				handles = handles.concat( reportEntry.users );
+			}
+		}
+
+		if ( handles.length > 0 && ! isSuccess ) {
+			// Create a single string of unique Slack handles
+			const mentions = [ ...new Set( handles ) ].join( ' ' );
+
+			blocks.push(
+				{
+					type: 'section',
+					text: {
+						type: 'mrkdwn',
+						text: `cc ${ mentions }`,
+					},
+				},
+				{
+					type: 'divider',
+				}
+			);
+		}
+	} catch ( error ) {
+		console.log( `ERROR: ${ error }` );
 	}
 
 	return blocks;

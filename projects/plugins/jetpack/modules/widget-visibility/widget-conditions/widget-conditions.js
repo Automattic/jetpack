@@ -1,4 +1,4 @@
-/* global isRtl, widget_conditions_parent_pages, widget_conditions_data, jQuery */
+/* global isRtl, widget_conditions_parent_pages, widget_conditions_data */
 
 jQuery( function ( $ ) {
 	//  Gutenberg 'widgets.php' screen.
