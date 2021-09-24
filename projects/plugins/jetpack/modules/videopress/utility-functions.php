@@ -499,8 +499,9 @@ function videopress_make_video_get_path( $guid ) {
  */
 function videopress_make_media_upload_path( $blog_id ) {
 	return sprintf(
-		'https://public-api.wordpress.com/rest/v1.1/sites/%s/media/new',
-		$blog_id
+		'https://public-api.wordpress.com/rest/v1.1/sites/%s/media/new?locale=%s',
+		$blog_id,
+		get_locale()
 	);
 }
 
