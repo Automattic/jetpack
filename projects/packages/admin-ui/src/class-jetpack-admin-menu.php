@@ -63,6 +63,8 @@ class Admin_Menu {
 			);
 		}
 
+		remove_submenu_page( 'jetpack', 'jetpack' );
+
 		if ( ! $can_see_menu ) {
 			remove_menu_page( 'jetpack' );
 		}
