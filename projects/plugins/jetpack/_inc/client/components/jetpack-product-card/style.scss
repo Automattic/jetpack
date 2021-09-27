@@ -228,10 +228,6 @@
 }
 
 .jp-product-card--has-media {
-	//@include breakpoint( '<660px' ) {
-	//	padding-bottom: 45px;
-	//}
-
 	@include breakpoint( '>480px' ) {
 		display: block;
 	}
