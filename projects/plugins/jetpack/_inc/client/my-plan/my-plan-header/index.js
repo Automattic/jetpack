@@ -242,6 +242,14 @@ class MyPlanHeader extends React.Component {
 					} ),
 				};
 
+			case 'is-videopress-plan':
+				return {
+					...productProps,
+					details: expiration,
+					tagLine: __( 'High-quality, ad-free video built specifically for WordPress.', 'jetpack' ),
+					title: __( 'Jetpack VideoPress', 'jetpack' ),
+				};
+
 			default:
 				return {
 					...productProps,
