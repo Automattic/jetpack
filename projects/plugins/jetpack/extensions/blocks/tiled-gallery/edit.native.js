@@ -38,7 +38,7 @@ const TiledGalleryEdit = props => {
 	const [ resizeObserver, sizes ] = useResizeObserver();
 	const [ maxWidth, setMaxWidth ] = useState( 0 );
 
-	const { className, clientId, noticeUI, onFocus } = props;
+	const { className, clientId, noticeUI, onFocus, imageCrop } = props;
 
 	const { replaceInnerBlocks } = useDispatch( blockEditorStore );
 
@@ -123,6 +123,7 @@ const TiledGalleryEdit = props => {
 
 	const blockProps = useBlockProps( {
 		className: className,
+		imageCrop: imageCrop,
 	} );
 
 	return (
