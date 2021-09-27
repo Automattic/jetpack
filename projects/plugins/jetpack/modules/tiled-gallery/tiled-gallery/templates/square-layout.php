@@ -12,7 +12,6 @@ foreach ( $context['rows'] as $row ) : // phpcs:ignore VariableAnalysis.CodeAnal
 		data-original-width="<?php echo esc_attr( $row->width ); ?>"
 		data-original-height="<?php echo esc_attr( $row->height ); ?>"
 	>
-		<?php $add_link = 'none' !== $link; ?>
 		<?php foreach ( $row->images as $item ) : ?>
 			<div class="gallery-group"
 				style="width: <?php echo esc_attr( $row->group_size ); ?>px; height: <?php echo esc_attr( $row->group_size ); ?>px;"
