@@ -33,7 +33,7 @@ describe( 'Recommendations – Summary', () => {
 				initialState: buildInitialState( { productSlug: undefined } ),
 			} );
 
-			expect( screen.getAllByAltText( 'Loading recommendations' ) ).to.be.not.null;
+			expect( screen.getAllByAltText( 'Loading...' ) ).to.be.not.null;
 		} );
 
 		it( "shows loading card when site's Rewind state is being fetched", () => {
@@ -41,7 +41,7 @@ describe( 'Recommendations – Summary', () => {
 				initialState: buildInitialState( { productSlug: 'jetpack_free', rewindStatus: {} } ),
 			} );
 
-			expect( screen.getAllByAltText( 'Loading recommendations' ) ).to.be.not.null;
+			expect( screen.getAllByAltText( 'Loading...' ) ).to.be.not.null;
 		} );
 	} );
 
