@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+IDC: Rename the Identity_Crisis::sync_idc_optin method to Identity_Crisis:should_handle_idc. Add a new filter and constant that use the new name.

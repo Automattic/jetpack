@@ -381,7 +381,7 @@ class Jetpack_Media_Summary {
 	public static function get_excerpt( $post_content, $post_excerpt, $max_words = 16, $max_chars = 256, $requested_post = null ) {
 		global $post;
 		$original_post = $post; // Saving the global for later use.
-		if ( function_exists( 'wpcom_enhanced_excerpt_extract_excerpt' ) ) {
+		if ( empty( $post_excerpt ) && function_exists( 'wpcom_enhanced_excerpt_extract_excerpt' ) ) {
 			return self::clean_text(
 				wpcom_enhanced_excerpt_extract_excerpt(
 					array(
