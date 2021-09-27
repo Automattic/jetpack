@@ -1037,7 +1037,8 @@ class Replicastore implements Replicastore_Interface {
 			/**
 			 * Fires immediately before an object-term relationship is deleted.
 			 *
-			 * @since 2.9.0
+			 * @since 1.6.3
+			 * @since-jetpack 2.9.0
 			 *
 			 * @param int   $object_id Object ID.
 			 * @param array $tt_ids    An array of term taxonomy IDs.
@@ -1051,7 +1052,8 @@ class Replicastore implements Replicastore_Interface {
 				/**
 				 * Fires immediately after an object-term relationship is deleted.
 				 *
-				 * @since 2.9.0
+				 * @since 1.6.3
+				 * @since-jetpack 2.9.0
 				 *
 				 * @param int   $object_id Object ID.
 				 * @param array $tt_ids    An array of term taxonomy IDs.
