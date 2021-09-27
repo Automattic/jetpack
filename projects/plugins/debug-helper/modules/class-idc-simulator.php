@@ -18,7 +18,7 @@ class IDC_Simulator {
 	 *
 	 * @var mixed|string
 	 */
-	public $notice_type = '';
+	public $notice_type = 'success';
 
 	/**
 	 * Whether to enable siteurl spoofing.
@@ -57,6 +57,10 @@ class IDC_Simulator {
 			$settings['idc_siteurl'] : 'https://example.org/';
 
 		add_filter( 'jetpack_sync_site_url', array( $this, 'spoof_siteurl' ) );
+
+		if ( isset( $_GET['idc_notice'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			add_action( 'admin_notices', array( $this, 'admin_notice__success' ) );
+		}
 	}
 
 	/**
@@ -150,7 +154,6 @@ class IDC_Simulator {
 	 */
 	public function admin_post_store_current_options() {
 		check_admin_referer( 'store-current-options' );
-		$this->notice_type = 'store-options';
 
 		update_option(
 			self::STORED_OPTIONS_KEY,
@@ -161,6 +164,17 @@ class IDC_Simulator {
 		);
 
 		$this->admin_post_redirect_referrer();
+	}
+
+	/**
+	 * Shows a simple success notice.
+	 */
+	public function admin_notice__success() {
+		?>
+		<div class="notice notice-success is-dismissible">
+			<p>IDC simulation settings have been saved!</p>
+		</div>
+		<?php
 	}
 
 	/**
@@ -193,8 +207,7 @@ class IDC_Simulator {
 			wp_safe_redirect(
 				add_query_arg(
 					array(
-						'notice' => $this->notice_type,
-						'nonce'  => wp_create_nonce( 'jetpack_debug_broken_token_admin_notice' ),
+						'idc_notice' => $this->notice_type,
 					),
 					wp_get_referer()
 				)
@@ -202,22 +215,6 @@ class IDC_Simulator {
 		} else {
 			wp_safe_redirect( get_home_url() );
 		}
-	}
-
-	/**
-	 * Displays an admin notice...
-	 */
-	public function render_admin_notice() {
-		switch ( $this->notice_type ) {
-			case 'store-options':
-				$message = 'IDC Simulation settings saved successfully!';
-				break;
-			default:
-				$message = 'Setting saved!';
-				break;
-		}
-
-		printf( '<div class="notice notice-success"><p>%s</p></div>', esc_html( $message ) );
 	}
 }
 
