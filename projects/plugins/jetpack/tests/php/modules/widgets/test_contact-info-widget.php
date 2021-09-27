@@ -14,8 +14,8 @@ class WP_Test_Contact_Info_Widget extends WP_UnitTestCase {
 	/**
 	 * This method is called before each test.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 		remove_all_filters( 'jetpack_google_maps_api_key' );
 		$this->contact_info_widget = new Jetpack_Contact_Info_Widget();
 	}

@@ -8,9 +8,9 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 	/**
 	 * After a test method runs, reset any state in WordPress the test method might have changed.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		wp_reset_postdata();
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**
@@ -92,7 +92,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div style="tab-size: 8" id="gist', $shortcode_content );
+		$this->assertStringContainsString( '<div style="tab-size: 8" id="gist', $shortcode_content );
 
 		// Test AMP version.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -116,7 +116,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div style="tab-size: 8" id="gist', $shortcode_content );
+		$this->assertStringContainsString( '<div style="tab-size: 8" id="gist', $shortcode_content );
 
 		// Test AMP version.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -140,7 +140,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div style="tab-size: 8" id="gist', $shortcode_content );
+		$this->assertStringContainsString( '<div style="tab-size: 8" id="gist', $shortcode_content );
 
 		// Test AMP version.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -164,7 +164,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div style="tab-size: 8" id="gist', $shortcode_content );
+		$this->assertStringContainsString( '<div style="tab-size: 8" id="gist', $shortcode_content );
 
 		// Test AMP version.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -188,7 +188,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div style="tab-size: 8" id="gist', $shortcode_content );
+		$this->assertStringContainsString( '<div style="tab-size: 8" id="gist', $shortcode_content );
 
 		// Test AMP version.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -212,7 +212,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div style="tab-size: 8" id="gist', $shortcode_content );
+		$this->assertStringContainsString( '<div style="tab-size: 8" id="gist', $shortcode_content );
 
 		// Test AMP version.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -244,7 +244,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 		);
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div style="tab-size: 8" id="gist', $shortcode_content );
+		$this->assertStringContainsString( '<div style="tab-size: 8" id="gist', $shortcode_content );
 
 		// Test AMP version.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -281,7 +281,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div style="tab-size: 8" id="gist', $shortcode_content );
+		$this->assertStringContainsString( '<div style="tab-size: 8" id="gist', $shortcode_content );
 
 		// Test AMP version.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -350,7 +350,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div style="tab-size: 8" id="gist', $shortcode_content );
+		$this->assertStringContainsString( '<div style="tab-size: 8" id="gist', $shortcode_content );
 
 		// Test AMP version.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -374,7 +374,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div style="tab-size: 8" id="gist', $shortcode_content );
+		$this->assertStringContainsString( '<div style="tab-size: 8" id="gist', $shortcode_content );
 
 		// Test AMP version.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -398,7 +398,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div style="tab-size: 8" id="gist', $shortcode_content );
+		$this->assertStringContainsString( '<div style="tab-size: 8" id="gist', $shortcode_content );
 
 		// Test AMP version.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -422,7 +422,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div style="tab-size: 8" id="gist', $shortcode_content );
+		$this->assertStringContainsString( '<div style="tab-size: 8" id="gist', $shortcode_content );
 
 		// Test AMP version.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -454,7 +454,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 		ob_start();
 		the_content();
 		$actual = ob_get_clean();
-		$this->assertContains( '<div style="tab-size: 8" id="gist', $actual );
+		$this->assertStringContainsString( '<div style="tab-size: 8" id="gist', $actual );
 
 		// Test AMP version.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -489,7 +489,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 		ob_start();
 		the_content();
 		$actual = ob_get_clean();
-		$this->assertContains( '<div style="tab-size: 8" id="gist', $actual );
+		$this->assertStringContainsString( '<div style="tab-size: 8" id="gist', $actual );
 
 		// Test AMP version.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -515,7 +515,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div style="tab-size: 4" id="gist', $shortcode_content );
+		$this->assertStringContainsString( '<div style="tab-size: 4" id="gist', $shortcode_content );
 
 		// Test AMP version *lacks* tab size.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -539,7 +539,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div style="tab-size: 4" id="gist', $shortcode_content );
+		$this->assertStringContainsString( '<div style="tab-size: 4" id="gist', $shortcode_content );
 
 		// Test AMP version *lacks* tab size.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -563,7 +563,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div style="tab-size: 4" id="gist', $shortcode_content );
+		$this->assertStringContainsString( '<div style="tab-size: 4" id="gist', $shortcode_content );
 
 		// Test AMP version *lacks* tab size.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -587,7 +587,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div style="tab-size: 4" id="gist', $shortcode_content );
+		$this->assertStringContainsString( '<div style="tab-size: 4" id="gist', $shortcode_content );
 
 		// Test AMP version *lacks* tab size.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -619,7 +619,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 		ob_start();
 		the_content();
 		$actual = ob_get_clean();
-		$this->assertContains( '<div style="tab-size: 4" id="gist', $actual );
+		$this->assertStringContainsString( '<div style="tab-size: 4" id="gist', $actual );
 
 		// Test AMP version *lacks* tab size.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );

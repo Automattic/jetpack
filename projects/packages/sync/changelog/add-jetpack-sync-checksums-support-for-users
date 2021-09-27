@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add support for checksumming user-related tabled - wp_users and wp_usermeta

@@ -63,6 +63,19 @@ importers:
     devDependencies:
       '@vercel/ncc': 0.28.5
 
+  projects/js-packages/analytics:
+    specifiers:
+      debug: 4.3.1
+      jetpack-js-test-runner: workspace:*
+      lodash: 4.17.21
+      nyc: 15.1.0
+    dependencies:
+      lodash: 4.17.21
+    devDependencies:
+      debug: 4.3.1
+      jetpack-js-test-runner: link:../../../tools/js-test-runner
+      nyc: 15.1.0
+
   projects/js-packages/api:
     specifiers:
       chai-fetch-mock: 3.0.0
@@ -493,6 +506,7 @@ importers:
       '@automattic/color-studio': 2.5.0
       '@automattic/components': 1.0.0-alpha.3
       '@automattic/format-currency': 1.0.0-alpha.0
+      '@automattic/jetpack-analytics': workspace:^0.1.0-alpha
       '@automattic/jetpack-api': workspace:^0.2.1-alpha
       '@automattic/jetpack-components': workspace:^0.3.1-alpha
       '@automattic/jetpack-connection': workspace:^0.7.0-alpha
@@ -631,6 +645,7 @@ importers:
       '@automattic/calypso-color-schemes': 2.1.1
       '@automattic/components': 1.0.0-alpha.3_react-dom@17.0.2+react@17.0.2
       '@automattic/format-currency': 1.0.0-alpha.0
+      '@automattic/jetpack-analytics': link:../../js-packages/analytics
       '@automattic/jetpack-api': link:../../js-packages/api
       '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
