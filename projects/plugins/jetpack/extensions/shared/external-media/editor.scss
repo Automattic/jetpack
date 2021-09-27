@@ -76,6 +76,11 @@ $grid-size: 8px;
 	flex-direction: column;
 	align-items: flex-start;
 
+	@media only screen and ( min-width: 600px ) {
+		flex-direction: row;
+		align-items: center;
+	}
+
 	.jetpack-external-media-browser__media {
 		width: 100%;
 	}
