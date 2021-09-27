@@ -319,6 +319,9 @@ export function getPlanClass( plan ) {
 		case PLAN_JETPACK_ANTI_SPAM:
 		case PLAN_JETPACK_ANTI_SPAM_MONTHLY:
 			return 'is-anti-spam-plan';
+		case PLAN_JETPACK_VIDEOPRESS:
+		case PLAN_JETPACK_VIDEOPRESS_MONTHLY:
+			return 'is-videopress-plan';
 
 		// DEPRECATED: Daily and Real-time variations will soon be retired.
 		// Remove after all customers are migrated to new products.
@@ -334,9 +337,6 @@ export function getPlanClass( plan ) {
 		case PLAN_JETPACK_BACKUP_REALTIME:
 		case PLAN_JETPACK_BACKUP_REALTIME_MONTHLY:
 			return 'is-realtime-backup-plan';
-		case PLAN_JETPACK_VIDEOPRESS:
-		case PLAN_JETPACK_VIDEOPRESS_MONTHLY:
-			return 'is-videopress-plan';
 
 		default:
 			return '';
