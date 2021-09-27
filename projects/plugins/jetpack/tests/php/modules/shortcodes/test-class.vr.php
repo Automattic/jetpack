@@ -38,7 +38,7 @@ class WP_Test_Jetpack_Shortcodes_VR extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( $img, $shortcode_content );
+		$this->assertStringContainsString( $img, $shortcode_content );
 	}
 
 	/**

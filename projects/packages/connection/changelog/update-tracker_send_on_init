@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Package Version Tracker: send package versions to wpcom on the init hook instead of plugins_loaded

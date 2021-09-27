@@ -30,8 +30,8 @@ class WP_Test_Jetpack_Shortcodes_SmartFrame extends WP_UnitTestCase {
 	/**
 	 * Check for external HTTP requests and register filter
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 
 		if ( in_array( 'external-http', $this->getGroups(), true ) ) {
 			// Used by WordPress.com - does nothing in Jetpack.
@@ -86,7 +86,7 @@ class WP_Test_Jetpack_Shortcodes_SmartFrame extends WP_UnitTestCase {
 
 		foreach ( $links as $link ) {
 			$this->assertTrue( $link->hasAttribute( 'data-image-id' ) );
-			$this->assertContains( self::SMARTFRAME_IDENTIFIER, $link->getAttribute( 'data-image-id' ) );
+			$this->assertStringContainsString( self::SMARTFRAME_IDENTIFIER, $link->getAttribute( 'data-image-id' ) );
 		}
 	}
 
@@ -114,6 +114,6 @@ class WP_Test_Jetpack_Shortcodes_SmartFrame extends WP_UnitTestCase {
 		$content           = "[smartframe script-id='$script_id' image-id='$image_id']";
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( $image_id, $shortcode_content );
+		$this->assertStringContainsString( $image_id, $shortcode_content );
 	}
 }

@@ -10,9 +10,9 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	 *
 	 * @inheritDoc
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		unset( $GLOBALS['content_width'] );
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**
@@ -48,7 +48,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( 'vimeo.com/video/' . $video_id, $shortcode_content );
+		$this->assertStringContainsString( 'vimeo.com/video/' . $video_id, $shortcode_content );
 	}
 
 	/**
@@ -63,7 +63,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( 'vimeo.com/video/' . $video_id, $shortcode_content );
+		$this->assertStringContainsString( 'vimeo.com/video/' . $video_id, $shortcode_content );
 	}
 
 	/**
@@ -79,9 +79,9 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( 'vimeo.com/video/' . $video_id, $shortcode_content );
-		$this->assertContains( 'width="' . $width . '"', $shortcode_content );
-		$this->assertContains( 'height="' . $height . '"', $shortcode_content );
+		$this->assertStringContainsString( 'vimeo.com/video/' . $video_id, $shortcode_content );
+		$this->assertStringContainsString( 'width="' . $width . '"', $shortcode_content );
+		$this->assertStringContainsString( 'height="' . $height . '"', $shortcode_content );
 	}
 
 	/**
@@ -96,9 +96,9 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( 'vimeo.com/video/' . $video_id, $shortcode_content );
-		$this->assertContains( 'width="' . $width . '"', $shortcode_content );
-		$this->assertContains( 'height="' . $height . '"', $shortcode_content );
+		$this->assertStringContainsString( 'vimeo.com/video/' . $video_id, $shortcode_content );
+		$this->assertStringContainsString( 'width="' . $width . '"', $shortcode_content );
+		$this->assertStringContainsString( 'height="' . $height . '"', $shortcode_content );
 	}
 
 	/**
@@ -114,9 +114,9 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( 'vimeo.com/video/' . $video_id, $shortcode_content );
-		$this->assertContains( 'width="' . $width . '"', $shortcode_content );
-		$this->assertContains( 'height="' . $height . '"', $shortcode_content );
+		$this->assertStringContainsString( 'vimeo.com/video/' . $video_id, $shortcode_content );
+		$this->assertStringContainsString( 'width="' . $width . '"', $shortcode_content );
+		$this->assertStringContainsString( 'height="' . $height . '"', $shortcode_content );
 	}
 
 	/**
@@ -144,12 +144,12 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 		the_content();
 		$actual = ob_get_clean();
 		wp_reset_postdata();
-		$this->assertContains( '<div class="embed-vimeo"', $actual );
+		$this->assertStringContainsString( '<div class="embed-vimeo"', $actual );
 
 		if ( wp_lazy_loading_enabled( 'iframe', null ) ) {
-			$this->assertContains( '<iframe loading="lazy" src="https://player.vimeo.com/video/' . $video_id . '"', $actual );
+			$this->assertStringContainsString( '<iframe loading="lazy" src="https://player.vimeo.com/video/' . $video_id . '"', $actual );
 		} else {
-			$this->assertContains( '<iframe src="https://player.vimeo.com/video/' . $video_id . '"', $actual );
+			$this->assertStringContainsString( '<iframe src="https://player.vimeo.com/video/' . $video_id . '"', $actual );
 		}
 	}
 
@@ -164,23 +164,25 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 		$text_link = 'Vimeo <a href="https://vimeo.com/123456">link</a>';
 		$url_link = 'Link <a href="https://vimeo.com/123456">https://vimeo.com/123456</a>';
 
-		$this->assertContains( $player, vimeo_link( "[vimeo $video_id]" ) );
-		$this->assertContains( $player, vimeo_link( "[vimeo http://vimeo.com/$video_id]" ) );
-		$this->assertContains( $player, vimeo_link( "[vimeo https://vimeo.com/$video_id]" ) );
-		$this->assertContains( $player, vimeo_link( "[vimeo //vimeo.com/$video_id]" ) );
-		$this->assertContains( $player, vimeo_link( "[vimeo vimeo.com/$video_id]" ) );
-		$this->assertContains( $player, vimeo_link( "http://vimeo.com/$video_id" ) );
-		$this->assertContains( $player, vimeo_link( "https://vimeo.com/$video_id" ) );
-		$this->assertContains( $player, vimeo_link( "//vimeo.com/$video_id" ) );
-		$this->assertContains( $player, vimeo_link( "vimeo.com/$video_id" ) );
+		$this->assertStringContainsString( $player, vimeo_link( "[vimeo $video_id]" ) );
+		$this->assertStringContainsString( $player, vimeo_link( "[vimeo http://vimeo.com/$video_id]" ) );
+		$this->assertStringContainsString( $player, vimeo_link( "[vimeo https://vimeo.com/$video_id]" ) );
+		$this->assertStringContainsString( $player, vimeo_link( "[vimeo //vimeo.com/$video_id]" ) );
+		$this->assertStringContainsString( $player, vimeo_link( "[vimeo vimeo.com/$video_id]" ) );
+		$this->assertStringContainsString( $player, vimeo_link( "http://vimeo.com/$video_id" ) );
+		$this->assertStringContainsString( $player, vimeo_link( "https://vimeo.com/$video_id" ) );
+		$this->assertStringContainsString( $player, vimeo_link( "//vimeo.com/$video_id" ) );
+		$this->assertStringContainsString( $player, vimeo_link( "vimeo.com/$video_id" ) );
 
 		$this->assertEquals( $text_link, vimeo_link( $text_link ) );
-		//$this->assertEquals( $url_link, vimeo_link( $url_link ) );
+		// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+		// $this->assertEquals( $url_link, vimeo_link( $url_link ) );
 
 		$mixed = vimeo_link( "[vimeo $video_id]\nvimeo.com/$video_id\n$text_link\n$url_link" );
-		$this->assertContains( $player, $mixed );
-		$this->assertContains( $text_link, $mixed );
-		//$this->assertContains( $url_link, $mixed );
+		$this->assertStringContainsString( $player, $mixed );
+		$this->assertStringContainsString( $text_link, $mixed );
+		// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+		// $this->assertStringContainsString( $url_link, $mixed );
 	}
 
 	public function test_shortcodes_vimeo_autoplay_loop() {
@@ -191,9 +193,9 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( 'vimeo.com/video/' . $video_id, $shortcode_content );
-		$this->assertContains( 'loop=' . $loop, $shortcode_content );
-		$this->assertContains( 'autoplay=' . $autoplay, $shortcode_content );
+		$this->assertStringContainsString( 'vimeo.com/video/' . $video_id, $shortcode_content );
+		$this->assertStringContainsString( 'loop=' . $loop, $shortcode_content );
+		$this->assertStringContainsString( 'autoplay=' . $autoplay, $shortcode_content );
 	}
 
 	public function test_shortcodes_vimeo_autoplay_loop_off() {
@@ -204,9 +206,9 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( 'vimeo.com/video/' . $video_id, $shortcode_content );
-		$this->assertNotContains( 'loop=' . $loop, $shortcode_content );
-		$this->assertNotContains( 'autoplay=' . $autoplay, $shortcode_content );
+		$this->assertStringContainsString( 'vimeo.com/video/' . $video_id, $shortcode_content );
+		$this->assertStringNotContainsString( 'loop=' . $loop, $shortcode_content );
+		$this->assertStringNotContainsString( 'autoplay=' . $autoplay, $shortcode_content );
 	}
 
 	public function test_shortcodes_vimeo_old_args() {
@@ -216,9 +218,9 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( 'vimeo.com/video/' . $video_id, $shortcode_content );
-		$this->assertContains( 'width="350"', $shortcode_content );
-		$this->assertContains( 'height="500"', $shortcode_content );
+		$this->assertStringContainsString( 'vimeo.com/video/' . $video_id, $shortcode_content );
+		$this->assertStringContainsString( 'width="350"', $shortcode_content );
+		$this->assertStringContainsString( 'height="500"', $shortcode_content );
 	}
 
 	public function test_vimeo_embed_to_shortcode_1() {
