@@ -1,0 +1,43 @@
+@import '../../scss/functions/rem';
+@import '../../scss/mixin_breakpoint.scss';
+@import '../../scss/typography';
+@import '../../scss/variables/colors';
+
+.jp-product-description > * {
+	margin-bottom: 26px;
+}
+
+.jp-product-description--split {
+	@include breakpoint( '>960px' ) {
+		display: grid;
+		grid-template-columns: 50% 50%;
+		column-gap: 26px;
+	}
+
+	@include breakpoint( '>1040px' ) {
+		grid-template-columns: auto 410px;
+	}
+}
+
+.jp-product-description__introductory-pricing {
+	color: $black;
+	font-size: $font-body-small;
+	line-height: 1.5;
+	letter-spacing: 0.1px;
+	text-align: center;
+	margin-bottom: 10px;
+}
+
+.jp-product-description__money-back-guarantee {
+	text-align: center;
+	margin-bottom: 24px;
+}
+
+/*
+* Workaround to display "remove bug" icon at approximately
+* the same perceived icon size as the other icons, since it
+* has lines that increase its vertical size.
+*/
+.jp-product-description .jp-product-card__icon .lines-outside {
+	height: 150%;
+}
