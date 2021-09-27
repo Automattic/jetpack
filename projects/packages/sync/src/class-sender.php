@@ -427,7 +427,8 @@ class Sender {
 			 * For example, during full sync this expands Post ID's into full Post objects,
 			 * so that we don't have to serialize the whole object into the queue.
 			 *
-			 * @since 4.2.0
+			 * @since 1.6.3
+			 * @since-jetpack 4.2.0
 			 *
 			 * @param array The action parameters
 			 * @param int The ID of the user who triggered the action
@@ -515,7 +516,8 @@ class Sender {
 			 * Return false or WP_Error to abort the sync (e.g. if there's an error)
 			 * The items will be automatically re-sent later
 			 *
-			 * @since 4.2.0
+			 * @since 1.6.3
+			 * @since-jetpack 4.2.0
 			 *
 			 * @param array  $data The action buffer
 			 * @param string $codec The codec name used to encode the data
@@ -562,7 +564,8 @@ class Sender {
 				 * Allows us to keep track of all the actions that have been sent.
 				 * Allows us to calculate the progress of specific actions.
 				 *
-				 * @since 4.2.0
+				 * @since 1.6.3
+				 * @since-jetpack 4.2.0
 				 *
 				 * @param array $processed_actions The actions that we send successfully.
 				 */
@@ -605,7 +608,8 @@ class Sender {
 		 *
 		 * @param array $processed_actions The actions that we send successfully.
 		 *
-		 * @since 4.2.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
 		 */
 		do_action( 'jetpack_sync_processed_actions', $action_to_send );
 
@@ -655,7 +659,8 @@ class Sender {
 	 * Register additional sync XML-RPC methods available to Jetpack for authenticated users.
 	 *
 	 * @access public
-	 * @since 7.8
+	 * @since 1.6.3
+	 * @since-jetpack 7.8.0
 	 *
 	 * @param array $jetpack_methods XML-RPC methods available to the Jetpack Server.
 	 * @return array Filtered XML-RPC methods.

@@ -1,9 +1,8 @@
 /**
  * WordPress dependencies
  */
-import { Button, VisuallyHidden } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { useViewportMatch } from '@wordpress/compose';
 import { Icon, cog } from '@wordpress/icons';
 
 /**
@@ -20,20 +19,13 @@ import './styles.scss';
  * @returns {Element} component instance
  */
 function Header( { enableSidebar } ) {
-	const isMediumViewport = useViewportMatch( 'medium' );
+	// translators: Product name 'Jetpack Search' should not be translated
+	const title = __( 'Customize Jetpack Search', 'jetpack' );
 
 	return (
 		<div className="jp-search-configure-header">
 			<div className="jp-search-configure-header__navigable-toolbar-wrapper">
-				{ isMediumViewport ? (
-					<h1 className="jp-search-configure-header__title">
-						{ __( 'Jetpack Search', 'jetpack' ) }
-					</h1>
-				) : (
-					<VisuallyHidden as="h1" className="jp-search-configure-header__title">
-						{ __( 'Jetpack Search', 'jetpack' ) }
-					</VisuallyHidden>
-				) }
+				<h1 className="jp-search-configure-header__title">{ title }</h1>
 			</div>
 			<div className="jp-search-configure-header__actions">
 				<SaveButton />
