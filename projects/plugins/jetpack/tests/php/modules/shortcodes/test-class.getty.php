@@ -41,8 +41,11 @@ class WP_Test_Jetpack_Shortcodes_Getty extends WP_UnitTestCase {
 		return preg_replace( '/((id=\'[:alpha:\-]+)|[\?&]|&amp;|&#038;)(et=[\w-]+|sig=[\w-=]+)/', '', $str );
 	}
 
-	function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 
 		if ( in_array( 'external-http', $this->getGroups(), true ) ) {
 			// Used by WordPress.com - does nothing in Jetpack.
@@ -85,7 +88,7 @@ class WP_Test_Jetpack_Shortcodes_Getty extends WP_UnitTestCase {
 
 		foreach( $links as $link ) {
 			$this->assertTrue( $link->hasAttribute( 'href' ) );
-			$this->assertContains( self::GETTY_IDENTIFIER, $link->getAttribute( 'href' ) );
+			$this->assertStringContainsString( self::GETTY_IDENTIFIER, $link->getAttribute( 'href' ) );
 		}
 	}
 
@@ -157,7 +160,7 @@ class WP_Test_Jetpack_Shortcodes_Getty extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( $image_id, $shortcode_content );
+		$this->assertStringContainsString( $image_id, $shortcode_content );
 	}
 
 	/**
@@ -174,6 +177,6 @@ class WP_Test_Jetpack_Shortcodes_Getty extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( $image_id, $shortcode_content );
+		$this->assertStringContainsString( $image_id, $shortcode_content );
 	}
 }

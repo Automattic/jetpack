@@ -34,6 +34,7 @@ class Story_Block_Test extends \WP_UnitTestCase {
 	 * @before
 	 */
 	public function set_up() {
+		parent::set_up();
 		$this->was_registered = \Automattic\Jetpack\Blocks::is_registered( 'jetpack/story' );
 		\Automattic\Jetpack\Extensions\Story\register_block();
 		add_filter( 'get_post_metadata', array( $this, 'get_metadata' ), 10, 2 );
@@ -49,6 +50,7 @@ class Story_Block_Test extends \WP_UnitTestCase {
 			unregister_block_type( 'jetpack/story' );
 		}
 		remove_filter( 'get_post_metadata', array( $this, 'get_attachment_metadata' ) );
+		parent::tear_down();
 	}
 
 	/**

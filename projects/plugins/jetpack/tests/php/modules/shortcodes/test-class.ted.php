@@ -8,8 +8,11 @@ require_once __DIR__ . '/trait.http-request-cache.php';
 class WP_Test_Jetpack_Shortcodes_Ted extends WP_UnitTestCase {
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 
 		if ( in_array( 'external-http', $this->getGroups(), true ) ) {
 			// Used by WordPress.com - does nothing in Jetpack.
@@ -131,8 +134,8 @@ BODY;
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( 'ted.com/talks/louie_schwartzberg_hidden_miracles_of_the_natural_world', $shortcode_content );
-		$this->assertContains( 'sandbox="allow-popups allow-scripts allow-same-origin"', $shortcode_content );
+		$this->assertStringContainsString( 'ted.com/talks/louie_schwartzberg_hidden_miracles_of_the_natural_world', $shortcode_content );
+		$this->assertStringContainsString( 'sandbox="allow-popups allow-scripts allow-same-origin"', $shortcode_content );
 
 		unset( $GLOBALS[ 'post' ] );
 	}
@@ -155,8 +158,8 @@ BODY;
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( 'width="' . $width . '"', $shortcode_content );
-		$this->assertContains( 'height="' . $height . '"', $shortcode_content );
+		$this->assertStringContainsString( 'width="' . $width . '"', $shortcode_content );
+		$this->assertStringContainsString( 'height="' . $height . '"', $shortcode_content );
 
 		unset( $GLOBALS[ 'post' ] );
 	}
@@ -178,15 +181,15 @@ BODY;
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( '/lang/' . $lang . '/', $shortcode_content );
+		$this->assertStringContainsString( '/lang/' . $lang . '/', $shortcode_content );
 
 		unset( $GLOBALS[ 'post' ] );
 	}
 
 	/**
 	 * Uses a real HTTP request to Instagram's oEmbed endpoint.
-	 * @see ::setUp()
 	 *
+	 * @see ::set_up()
 	 * @author scotchfield
 	 * @covers ::shortcode_ted
 	 * @group external-http
@@ -204,7 +207,7 @@ BODY;
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( 'ted.com/talks/louie_schwartzberg_hidden_miracles_of_the_natural_world', $shortcode_content );
+		$this->assertStringContainsString( 'ted.com/talks/louie_schwartzberg_hidden_miracles_of_the_natural_world', $shortcode_content );
 
 		unset( $GLOBALS[ 'post' ] );
 	}

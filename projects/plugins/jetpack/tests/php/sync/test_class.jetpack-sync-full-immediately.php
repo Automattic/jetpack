@@ -13,6 +13,7 @@ if ( ! function_exists( 'jetpack_foo_full_sync_callable' ) ) {
 }
 
 class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
+
 	private $full_sync;
 
 	private $full_sync_end_checksum;
@@ -22,8 +23,11 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 	private $test_posts_count = 20;
 	private $test_comments_count = 11;
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 		Settings::reset_data();
 
 		$this->full_sync = Modules::get_module( 'full-sync' );
@@ -916,9 +920,9 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 
 		$full_sync_status = $this->full_sync->get_status();
 
-		$this->assertInternalType( 'int', $full_sync_status['started'] );
+		$this->assertIsInt( $full_sync_status['started'] );
 		$this->assertFalse( $full_sync_status['finished'] );
-		$this->assertInternalType( 'array', $full_sync_status['progress'] );
+		$this->assertIsArray( $full_sync_status['progress'] );
 		$this->assertEquals( count( \Automattic\Jetpack\Sync\Defaults::get_constants_whitelist() ), $full_sync_status['progress']['constants']['total'] );
 	}
 
@@ -937,7 +941,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 			$this->assertTrue( $module_status['finished'] ); // TODO: this could be a timestamp
 		}
 
-		$this->assertInternalType( 'int', $status['finished'] );
+		$this->assertIsInt( $status['finished'] );
 	}
 
 	function test_full_sync_respects_post_and_comment_filters() {
@@ -1012,10 +1016,10 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$comments = $synced_comments_event->args[0];
 
 		$this->assertEquals( 2, count( $comments ) );
-		$comment_IDs = array( $comments[0]->comment_ID, $comments[1]->comment_ID );
+		$comment_ids = array( (int) $comments[0]->comment_ID, (int) $comments[1]->comment_ID );
 
-		$this->assertContains( $sync_comment_id, $comment_IDs );
-		$this->assertContains( $sync_comment_id_2, $comment_IDs );
+		$this->assertContains( $sync_comment_id, $comment_ids );
+		$this->assertContains( $sync_comment_id_2, $comment_ids );
 
 		$sync_status = $this->full_sync->get_status();
 		$this->assertEquals( array( $sync_comment_id, $sync_comment_id_2 ), $sync_status['config']['comments'] );
