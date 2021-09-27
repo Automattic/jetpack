@@ -60,7 +60,17 @@ fi
 
 # Copy single site htaccess if none is present
 if [ ! -f /var/www/html/.htaccess ]; then
-	cp /tmp/htaccess /var/www/html/.htaccess
+	cp /var/lib/jetpack-config/htaccess /var/www/html/.htaccess
+fi
+
+# Clean up old method of including psysh (used from 2019 until 2021)
+if [[ -e /var/www/html/wp-cli.yml ]] && grep -q '^require: /usr/local/bin/psysh$' /var/www/html/wp-cli.yml; then
+	TMP="$(grep -v '^require: /usr/local/bin/psysh$' /var/www/html/wp-cli.yml || true)"
+	if [[ -z "$TMP" ]]; then
+		rm /var/www/html/wp-cli.yml
+	else
+		echo "$TMP" > /var/www/html/wp-cli.yml
+	fi
 fi
 
 if [ "$COMPOSE_PROJECT_NAME" == "jetpack_dev" ] ; then
@@ -81,7 +91,7 @@ if [ "$COMPOSE_PROJECT_NAME" == "jetpack_dev" ] ; then
 
 	# Create a wp-tests-config.php if there's none currently
 	if [ ! -f /tmp/wordpress-develop/wp-tests-config.php ]; then
-		cp /tmp/wp-tests-config.php /tmp/wordpress-develop/wp-tests-config.php
+		cp /var/lib/jetpack-config/wp-tests-config.php /tmp/wordpress-develop/wp-tests-config.php
 	fi
 
 	# Symlink jetpack into wordpress-develop for WP >= 5.6-beta1
@@ -89,9 +99,6 @@ if [ "$COMPOSE_PROJECT_NAME" == "jetpack_dev" ] ; then
 	if [ ! -L $WP_TESTS_JP_DIR ] || [ ! -e $WP_TESTS_JP_DIR ]; then
 		ln -s /var/www/html/wp-content/plugins/jetpack $WP_TESTS_JP_DIR
 	fi
-
-	# Add a PsySH dependency to wp-cli
-	echo 'require: /usr/local/bin/psysh' >> /var/www/html/wp-cli.yml
 fi
 
 for DIR in /usr/local/src/jetpack-monorepo/projects/plugins/*; do

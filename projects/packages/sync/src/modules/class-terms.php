@@ -220,7 +220,8 @@ class Terms extends Module {
 			/**
 			 * Fires when the client needs to add a new term
 			 *
-			 * @since 5.0.0
+			 * @since 1.6.3
+			 * @since-jetpack 5.0.0
 			 *
 			 * @param object the Term object
 			 */
@@ -231,7 +232,8 @@ class Terms extends Module {
 		/**
 		 * Fires when the client needs to update a term
 		 *
-		 * @since 4.2.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
 		 *
 		 * @param object the Term object
 		 */
