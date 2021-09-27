@@ -11,6 +11,7 @@
 			"groupName": "Monorepo packages",
 			"matchPackageNames": [
 				"@automattic/eslint-changed",
+				"@automattic/jetpack-analytics",
 				"@automattic/jetpack-api",
 				"@automattic/jetpack-base-styles",
 				"@automattic/jetpack-components",

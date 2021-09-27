@@ -30,7 +30,7 @@ class Test_Identity_Crisis extends BaseTestCase {
 	 * @after
 	 */
 	public function tear_down() {
-		Constants::clear_single_constant( 'JETPACK_DISABLE_RAW_OPTIONS' );
+		Constants::clear_constants();
 
 		// Reset IDC singleton.
 		$idc        = Identity_Crisis::init();
@@ -88,66 +88,89 @@ class Test_Identity_Crisis extends BaseTestCase {
 	}
 
 	/**
-	 * Test the sync_idc_optin option default value.
+	 * Test the should_handle_idc default value.
 	 */
-	public function test_idc_optin_default() {
+	public function test_should_handle_idc_default() {
 		if ( is_multisite() ) {
-			$this->assertFalse( Identity_Crisis::sync_idc_optin() );
+			$this->assertFalse( Identity_Crisis::should_handle_idc() );
 		} else {
-			$this->assertTrue( Identity_Crisis::sync_idc_optin() );
+			$this->assertTrue( Identity_Crisis::should_handle_idc() );
 		}
 	}
 
 	/**
-	 * Test that the jetpack_sync_idc_optin filter overrides the jetpack_development_version filter.
+	 * Test that the jetpack_should_handle_idc filter casts values to a bool.
 	 */
-	public function test_idc_optin_filter_overrides_development_version() {
-		add_filter( 'jetpack_development_version', '__return_true' );
-		add_filter( 'jetpack_sync_idc_optin', '__return_false' );
-		$result = Identity_Crisis::sync_idc_optin();
-		remove_filter( 'jetpack_development_version', '__return_true' );
-		remove_filter( 'jetpack_sync_idc_optin', '__return_false' );
-
-		$this->assertFalse( $result );
-	}
-
-	/**
-	 * Test that the jetpack_sync_idc_optin filter casts values to a bool.
-	 */
-	public function test_idc_optin_casts_to_bool() {
-		add_filter( 'jetpack_sync_idc_optin', array( $this, 'return_string_1' ) );
-		$result = Identity_Crisis::sync_idc_optin();
-		remove_filter( 'jetpack_sync_idc_optin', array( $this, 'return_string_1' ) );
+	public function test_jetpack_should_handle_idc_casts_to_bool() {
+		add_filter( 'jetpack_should_handle_idc', array( $this, 'return_string_1' ) );
+		$result = Identity_Crisis::should_handle_idc();
+		remove_filter( 'jetpack_should_handle_idc', array( $this, 'return_string_1' ) );
 
 		$this->assertTrue( $result );
 	}
 
 	/**
-	 * Test that sync_idc_optin returns true when the JETPACK_SYNC_IDC_OPTIN constant is true.
+	 * Test that should_handle_idc returns true when the JETPACK_SHOULD_HANDLE_IDC constant is true.
 	 */
-	public function test_idc_optin_true_when_constant_true() {
-		Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', true );
-		$this->assertTrue( Identity_Crisis::sync_idc_optin() );
+	public function test_should_handle_idc_true_when_constant_true() {
+		Constants::set_constant( 'JETPACK_SHOULD_HANDLE_IDC', true );
+		$this->assertTrue( Identity_Crisis::should_handle_idc() );
 	}
 
 	/**
-	 * Test that sync_idc_optin returns false when the JETPACK_SYNC_IDC_OPTIN constant is false.
+	 * Test that should_handle_idc returns false when the JETPACK_SHOULD_HANDLE_IDC constant is false.
 	 */
-	public function test_idc_optin_false_when_constant_false() {
+	public function test_should_handle_idc_false_when_constant_false() {
+		Constants::set_constant( 'JETPACK_SHOULD_HANDLE_IDC', false );
+		$this->assertFalse( Identity_Crisis::should_handle_idc() );
+	}
+
+	/**
+	 * Test that the jetpack_should_handle_idc filter overrides the JETPACK_SHOULD_HANDLE_IDC constant.
+	 */
+	public function test_jetpack_should_handle_idc_filter_overrides_constant() {
+		Constants::set_constant( 'JETPACK_SHOULD_HANDLE_IDC', true );
+		add_filter( 'jetpack_should_handle_idc', '__return_false' );
+		$result = Identity_Crisis::should_handle_idc();
+		remove_filter( 'jetpack_should_handle_idc', '__return_false' );
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Test that should_handle_idc returns true when the legacy JETPACK_SYNC_IDC_OPTIN constant is true.
+	 */
+	public function test_should_handle_idc_true_when_legacy_constant_true() {
+		Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', true );
+		$this->assertTrue( Identity_Crisis::should_handle_idc() );
+	}
+
+	/**
+	 * Test that should_handle_idc returns false when the legacy JETPACK_SYNC_IDC_OPTIN constant is false.
+	 */
+	public function test_should_handle_idc_false_when_legacy_constant_false() {
 		Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', false );
-		$this->assertFalse( Identity_Crisis::sync_idc_optin() );
+		$this->assertFalse( Identity_Crisis::should_handle_idc() );
 	}
 
 	/**
-	 * Test that the jetpack_sync_idc_optin filter overrides the JETPACK_SYNC_IDC_OPTIN constant.
+	 * Test that the legacy jetpack_sync_idc_optin filter is used by should_handle_idc.
 	 */
-	public function test_idc_optin_filter_overrides_constant() {
-		Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', true );
+	public function test_should_handle_idc_uses_legacy_filter() {
 		add_filter( 'jetpack_sync_idc_optin', '__return_false' );
-		$result = Identity_Crisis::sync_idc_optin();
+		$result = Identity_Crisis::should_handle_idc();
 		remove_filter( 'jetpack_sync_idc_optin', '__return_false' );
 
 		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Test that current JETPACK_SHOULD_HANDLE_IDC constant overrides the legacy JETPACK_SYNC_IDC_OPTIN constant.
+	 */
+	public function test_should_handle_idc_current_constant_overrides_legacy_constant() {
+		Constants::set_constant( 'JETPACK_SHOULD_HANDLE_IDC', true );
+		Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', false );
+		$this->assertTrue( Identity_Crisis::should_handle_idc() );
 	}
 
 	/**
@@ -163,13 +186,13 @@ class Test_Identity_Crisis extends BaseTestCase {
 	 * matches the expected value.
 	 */
 	public function test_sync_error_idc_validation_returns_true_when_option_matches_expected() {
-		add_filter( 'jetpack_sync_idc_optin', '__return_true' );
+		add_filter( 'jetpack_should_handle_idc', '__return_true' );
 		Jetpack_Options::update_option( 'sync_error_idc', Identity_Crisis::get_sync_error_idc_option() );
 
 		$result = Identity_Crisis::validate_sync_error_idc_option();
 
 		Jetpack_Options::delete_option( 'sync_error_idc' );
-		remove_filter( 'jetpack_sync_idc_optin', '__return_true' );
+		remove_filter( 'jetpack_should_handle_idc', '__return_true' );
 
 		$this->assertTrue( $result );
 	}
@@ -178,7 +201,7 @@ class Test_Identity_Crisis extends BaseTestCase {
 	 * Verify that validate_sync_error returns false if wpcom_ is set and matches expected.
 	 */
 	public function test_sync_error_idc_validation_returns_false_when_wpcom_option_matches_expected() {
-		add_filter( 'jetpack_sync_idc_optin', '__return_true' );
+		add_filter( 'jetpack_should_handle_idc', '__return_true' );
 
 		$option                  = Identity_Crisis::get_sync_error_idc_option();
 		$option['wpcom_home']    = $option['home'];
@@ -192,7 +215,7 @@ class Test_Identity_Crisis extends BaseTestCase {
 
 		Jetpack_Options::delete_option( 'sync_error_idc' );
 		Jetpack_Options::delete_option( 'migrate_for_idc' );
-		remove_filter( 'jetpack_sync_idc_optin', '__return_true' );
+		remove_filter( 'jetpack_should_handle_idc', '__return_true' );
 
 		$this->assertFalse( $validation_result );
 		$this->assertTrue( $option_result );
@@ -202,7 +225,7 @@ class Test_Identity_Crisis extends BaseTestCase {
 	 * Verify that validate_sync_error returns true if wpcom_ is set and does not match.
 	 */
 	public function test_sync_error_idc_validation_returns_true_when_wpcom_option_does_not_match_expected() {
-		add_filter( 'jetpack_sync_idc_optin', '__return_true' );
+		add_filter( 'jetpack_should_handle_idc', '__return_true' );
 
 		$option                  = Identity_Crisis::get_sync_error_idc_option();
 		$option['wpcom_home']    = $option['home'];
@@ -216,7 +239,7 @@ class Test_Identity_Crisis extends BaseTestCase {
 
 		Jetpack_Options::delete_option( 'sync_error_idc' );
 		Jetpack_Options::delete_option( 'migrate_for_idc' );
-		remove_filter( 'jetpack_sync_idc_optin', '__return_true' );
+		remove_filter( 'jetpack_should_handle_idc', '__return_true' );
 
 		$this->assertTrue( $validation_result );
 		$this->assertNotTrue( $option_result );
@@ -252,11 +275,11 @@ class Test_Identity_Crisis extends BaseTestCase {
 
 	/**
 	 * Test the validate_sync_error_idc_option returns false and the sync_error_idc option is cleaned up
-	 * when the JETPACK_SYNC_IDC_OPTIN constant is false.
+	 * when the JETPACK_SHOULD_HANDLE_IDC constant is false.
 	 */
 	public function test_sync_error_idc_validation_returns_false_and_cleans_up_when_opted_out() {
 		Jetpack_Options::update_option( 'sync_error_idc', Identity_Crisis::get_sync_error_idc_option() );
-		Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', false );
+		Constants::set_constant( 'JETPACK_SHOULD_HANDLE_IDC', false );
 
 		$this->assertFalse( Identity_Crisis::validate_sync_error_idc_option() );
 		$this->assertFalse( Jetpack_Options::get_option( 'sync_error_idc' ) );
