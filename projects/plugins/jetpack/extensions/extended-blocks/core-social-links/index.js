@@ -3,13 +3,12 @@
  */
 import { addFilter } from '@wordpress/hooks';
 import { createBlock } from '@wordpress/blocks';
+import services from './services';
 
 /**
  * The Social Icons widget and Social Links block determine the link source
- * differently. The widget instance includes no data that can be easily used
- * to transfer to the new block.
- *
- * This will return a blank 'core/social-links' block
+ * differently. This loops through all current icons and compares the URL against
+ * an array of available services in order to populate the new blocks.
  *
  * @param {object} instance - The widget instance returned from the API
  * @param {string} idBase - The widget name
@@ -27,8 +26,24 @@ const socialLinksTransform = {
 				}
 				return idBase === 'jetpack_widget_social_icons';
 			},
-			transform: () => {
-				return createBlock( 'core/social-links' );
+			transform: ( { instance } ) => {
+				let innerBlocks = [];
+				const icons = instance.raw.icons;
+
+				icons.forEach( icon => {
+					const iconUrl = new URL( icon.url.includes( ':' ) ? icon.url : 'https://' + icon.url );
+					const iconHostname = iconUrl.hostname ? iconUrl.hostname : iconUrl.protocol;
+					const iconService = services.find( service => {
+						return iconHostname.includes( service.url ) || service.url.includes( iconHostname );
+					} );
+
+					const innerBlock = createBlock( 'core/social-link', {
+						service: iconService ? iconService.name : 'default',
+						url: icon.url,
+					} );
+					innerBlocks = [ ...innerBlocks, innerBlock ];
+				} );
+				return createBlock( 'core/social-links', {}, innerBlocks );
 			},
 		},
 	],
