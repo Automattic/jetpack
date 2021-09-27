@@ -1,7 +1,7 @@
 module.exports = {
 	apps: [
 		{
-			script: require( 'path' ).dirname( __filename ) + '/tunnel.js',
+			script: __dirname + '/tunnel.js',
 			args: 'on',
 			name: 'tunnel',
 			time: true,
