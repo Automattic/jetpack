@@ -159,7 +159,7 @@ export const SettingsCard = props => {
 				) : (
 					<JetpackBanner
 						title={ __(
-							'Connect your WordPress.com account to upgrade and generate income with high-quality adds.',
+							'Connect your WordPress.com account to upgrade and generate income with high-quality ads.',
 							'jetpack'
 						) }
 						callToAction={ connectLabel }

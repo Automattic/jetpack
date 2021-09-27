@@ -282,24 +282,6 @@ else
 	version_range 'Composer' "$BIN" 'composer' "$VER" "$VX.0" "$COMPOSER_VERSION" "$VX.9999999" true
 fi
 
-checking '[optional] Usable version of PHPUnit'
-BIN="$(command -v phpunit)"
-THATS_OK="That's ok if you're not testing plugins or are using the Docker environment to test them."
-if [[ -z "$BIN" ]]; then
-	warning "no phpunit found" 'phpunit' "$THATS_OK"
-else
-	VER="$(phpunit --version 2>/dev/null | sed -n -E 's/^PHPUnit ([0-9]+\.[0-9]+)\.[0-9a-zA-Z.-]+ by .*/\1/p')"
-	if [[ -z "$VER" ]]; then
-		warning 'unknown' 'phpunit' "PHPUnit version from $BIN could not be determined. Output was:" "" "  $(phpunit --version 2>&1)" "" "$THATS_OK"
-	elif version_compare "$VER" "8.0"; then
-		warning "too new" 'phpunit' "PHPUnit at $BIN is version $VER. Only 5.4 to 7.5 are supported." "$THATS_OK"
-	elif version_compare "$VER" "5.4"; then
-		success "ok (version $VER)"
-	else
-		warning "too old" 'phpunit' "PHPUnit at $BIN is version $VER. Only 5.4 to 7.5 are supported." "$THATS_OK"
-	fi
-fi
-
 echo ""
 echo "JavaScript tools"
 echo "================"
@@ -354,11 +336,20 @@ else
 	version_range 'Git' "$BIN" '' "$VER" "0" "$GITVER" "9999999"
 
 	checking 'If this is a git checkout'
-	if [[ ! -d .git ]]; then
-		failure "no" 'clone-the-repository'
-	else
+	GIT_DIR="$(git rev-parse --git-dir 2>/dev/null)"
+	OK=false
+	if [[ -d .git && "$GIT_DIR" == '.git' ]]; then
 		success 'yes'
-
+		OK=true
+	elif [[ -f .git && -d "$GIT_DIR" ]]; then
+		success 'yes (as a submodule)'
+		OK=true
+	elif [[ -d "$GIT_DIR" ]]; then
+		failure 'unknown' 'clone-the-repository' "It seems to be in a git repo, but it's not clearly a Jetpack monorepo checkout."
+	else
+		failure "no" 'clone-the-repository'
+	fi
+	if $OK; then
 		checking 'If the repo is checked out using ssh'
 		URL="$(git remote get-url --push origin 2>/dev/null)"
 		if [[ -z "$URL" ]]; then
