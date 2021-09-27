@@ -67,17 +67,15 @@ class Table_Checksum_Usermeta extends Table_Checksum {
 			foreach ( $user_objects as $user_object ) {
 				// expand and sanitize desired meta based on WP.com logic.
 				$user_object = $this->expand_and_sanitize_user_meta( $user_object );
+
 				// Generate checksum entry based on the umeta_id order of WP.com.
-				$checksum_entry = array(
-					$this->salt,
-					maybe_serialize( $user_object->allcaps ), // umeta_id = 0.
-					maybe_serialize( $user_object->allowed_mime_types ), // umeta_id = 1.
-					maybe_serialize( $user_object->locale ), // umeta_id = 2.
-					maybe_serialize( $user_object->roles ), // umeta_id = 3.
-				);
+				$checksum_entry  = crc32( implode( '#', array( $this->salt, 'roles', maybe_serialize( $user_object->roles ) ) ) );
+				$checksum_entry += crc32( implode( '#', array( $this->salt, 'capabilities', maybe_serialize( $user_object->allcaps ) ) ) );
+				$checksum_entry += crc32( implode( '#', array( $this->salt, 'locale', maybe_serialize( $user_object->locale ) ) ) );
+				$checksum_entry += crc32( implode( '#', array( $this->salt, 'allowed_mime_types', maybe_serialize( $user_object->allowed_mime_types ) ) ) );
 
 				// The `#` is used as a separate in the default checksum flow, so let's reuse it.
-				$checksum_entries[ $user_object->ID ] = implode( '#', $checksum_entry );
+				$checksum_entries[ $user_object->ID ] = $checksum_entry;
 			}
 		}
 
@@ -85,7 +83,7 @@ class Table_Checksum_Usermeta extends Table_Checksum {
 		if ( ! $granular_result ) {
 			$checksum_sum = 0;
 			foreach ( $checksum_entries as $entry ) {
-				$checksum_sum += crc32( $entry );
+				$checksum_sum += $entry;
 			}
 
 			if ( $simple_return_value ) {
@@ -100,11 +98,7 @@ class Table_Checksum_Usermeta extends Table_Checksum {
 		}
 
 		// Granular results.
-		$response = array();
-
-		foreach ( $checksum_entries as $checksum_entry_id => $string_to_checksum ) {
-			$response[ $checksum_entry_id ] = crc32( $string_to_checksum );
-		}
+		$response = $checksum_entries;
 
 		// Sort the return value for easier comparisons and code flows further down the line.
 		ksort( $response );
