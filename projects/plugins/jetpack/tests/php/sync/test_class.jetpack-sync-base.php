@@ -33,13 +33,16 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 	protected $server_replica_storage;
 	protected $server_event_storage;
 
-	public function setUp() {
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
 
 		$_SERVER['HTTP_USER_AGENT'] = 'Jetpack Unit Tests';
 		$this->listener = Listener::get_instance();
 		$this->sender   = Sender::get_instance();
 
-		parent::setUp();
+		parent::set_up();
 
 		$this->setSyncClientDefaults();
 
@@ -58,8 +61,11 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 		$this->server_event_storage->init();
 	}
 
-	public function tearDown() {
-		parent::tearDown();
+	/**
+	 * Tear down.
+	 */
+	public function tear_down() {
+		parent::tear_down();
 		unset( $_SERVER['HTTP_USER_AGENT'] );
 	}
 

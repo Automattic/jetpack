@@ -21,6 +21,7 @@ import DashAkismet from './akismet';
 import DashBackups from './backups';
 import DashPhoton from './photon';
 import DashSearch from './search';
+import DashVideoPress from './videopress';
 import DashConnections from './connections';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import QuerySite from 'components/data/query-site';
@@ -135,6 +136,9 @@ class AtAGlance extends Component {
 			}
 			if ( 'inactive' !== this.props.getModuleOverride( 'search' ) ) {
 				performanceCards.push( <DashSearch { ...settingsProps } /> );
+			}
+			if ( 'inactive' !== this.props.getModuleOverride( 'videopress' ) ) {
+				performanceCards.push( <DashVideoPress { ...settingsProps } /> );
 			}
 			if ( performanceCards.length ) {
 				pairs.push( {

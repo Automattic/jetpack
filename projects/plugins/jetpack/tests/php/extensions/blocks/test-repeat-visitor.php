@@ -61,8 +61,8 @@ class Repeat_Visitor_Block_Test extends \Jetpack_Block_Fixture_TestCase {
 	 *
 	 * @before
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 		$this->was_registered = \Automattic\Jetpack\Blocks::is_registered( self::BLOCK_NAME );
 		\Automattic\Jetpack\Extensions\Repeat_Visitor\register_block();
 
@@ -76,7 +76,7 @@ class Repeat_Visitor_Block_Test extends \Jetpack_Block_Fixture_TestCase {
 	 *
 	 * @after
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		if ( ! $this->was_registered ) {
 			unregister_block_type( self::BLOCK_NAME );
 		}
@@ -85,7 +85,7 @@ class Repeat_Visitor_Block_Test extends \Jetpack_Block_Fixture_TestCase {
 			$_COOKIE['jp-visit-counter'] = $this->original_visit_counter;
 		}
 
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**

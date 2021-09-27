@@ -90,8 +90,8 @@ trait HttpRequestCacheTrait {
 	 * @before
 	 */
 	public function setup_http_request_cache() {
-		// This gets called before WP_UnitTestCase_Base::setUp(), so make sure the hooks are saved before we start adding some
-		// so they'll get removed correctly by WP_UnitTestCase_Base::tearDown().
+		// This gets called before WP_UnitTestCase_Base::set_up(), so make sure the hooks are saved before we start adding some
+		// so they'll get removed correctly by WP_UnitTestCase_Base::tear_down().
 		if ( ! self::$hooks_saved ) {
 			$this->_backup_hooks();
 		}
