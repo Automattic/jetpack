@@ -1,10 +1,11 @@
 <?php
 
-/*
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
+
+/**
  * Tests all known implementations of the codec
  */
-
-class WP_Test_Jetpack_Sync_Codec_Interface extends PHPUnit_Framework_TestCase {
+class WP_Test_Jetpack_Sync_Codec_Interface extends TestCase {
 
 	static $all_codecs;
 

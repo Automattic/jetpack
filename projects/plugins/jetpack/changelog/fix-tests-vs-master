@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Fix tests to run with WordPress master (5.9-in-progress).
