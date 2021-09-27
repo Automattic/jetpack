@@ -74,7 +74,6 @@ class Table_Checksum_Usermeta extends Table_Checksum {
 				$checksum_entry += crc32( implode( '#', array( $this->salt, 'locale', maybe_serialize( $user_object->locale ) ) ) );
 				$checksum_entry += crc32( implode( '#', array( $this->salt, 'allowed_mime_types', maybe_serialize( $user_object->allowed_mime_types ) ) ) );
 
-				// The `#` is used as a separate in the default checksum flow, so let's reuse it.
 				$checksum_entries[ $user_object->ID ] = $checksum_entry;
 			}
 		}
