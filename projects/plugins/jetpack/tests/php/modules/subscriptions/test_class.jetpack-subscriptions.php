@@ -1,8 +1,12 @@
 <?php
-require dirname( __FILE__ ) . '/../../../../modules/subscriptions.php';
+require_once __DIR__ . '/../../../../modules/subscriptions.php';
 
 class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
-	static function setupBeforeClass() {
+	/**
+	 * Set up before class.
+	 */
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
 		Jetpack_Subscriptions::init();
 	}
 

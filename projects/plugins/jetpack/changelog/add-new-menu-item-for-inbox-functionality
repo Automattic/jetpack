@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Added a new "Inbox" menu item in the left side menu, just after Upgrades item. Only visible for wpcom and atomic sites.

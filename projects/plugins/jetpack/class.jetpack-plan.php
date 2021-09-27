@@ -322,6 +322,11 @@ class Jetpack_Plan {
 			return true;
 		}
 
+		// As of Q3 2021 - a videopress free tier is available to all plans.
+		if ( 'videopress' === $feature ) {
+			return true;
+		}
+
 		$plan = self::get();
 
 		// Manually mapping WordPress.com features to Jetpack module slugs.
