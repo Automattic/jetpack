@@ -24,7 +24,6 @@ import './style.scss';
  * @param {string} props.redirectUri -- The redirect admin URI.
  * @param {string} props.from -- Where the connection request is coming from.
  * @param {string} props.title -- Page title.
- * @param {Function} props.statusCallback -- Callback to pull connection status from the component.
  * @param {Array} props.images -- Images to display on the right side.
  * @param {string} props.assetBaseUrl -- The assets base URL.
  * @param {boolean} props.autoTrigger -- Whether to initiate the connection process automatically upon rendering the component.
@@ -120,7 +119,6 @@ ConnectScreen.propTypes = {
 	from: PropTypes.string,
 	redirectUri: PropTypes.string.isRequired,
 	registrationNonce: PropTypes.string.isRequired,
-	statusCallback: PropTypes.func,
 	images: PropTypes.arrayOf( PropTypes.string ),
 	assetBaseUrl: PropTypes.string,
 	autoTrigger: PropTypes.bool,
