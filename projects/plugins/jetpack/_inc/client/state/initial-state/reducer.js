@@ -452,48 +452,28 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
  * @returns Array of Products that you can purchase.
  */
 export function getProductsForPurchase( state ) {
-	const products = get( state.jetpack.initialState, 'products', [] );
+	const staticProducts = get( state.jetpack.initialState, 'products', {} );
 	const siteProducts = getSiteProducts( state );
+	const products = {};
 
-	return products.map( product => {
-		const optionKey = product.options[ 0 ].key;
-		return {
+	for ( const [ key, product ] of Object.entries( staticProducts ) ) {
+		products[ key ] = {
 			title: product.title,
-			key: product.key,
-			shortDescription: product.short_description,
-			labelPopup: product.label_popup,
-			optionsLabel: product.options_label,
-			defaultOption: product.default_option,
-			options: getProductOptions( state, product, siteProducts ),
-			learnMore: product.learn_more,
-			learnMoreUrl: getUpgradeUrl( state, `aag-${ product.key }` ),
+			slug: product.slug,
+			key: key,
+			description: product.description,
+			features: product.features,
+			available: get( siteProducts, [ product.slug, 'available' ], false ),
+			currencyCode: get( siteProducts, [ product.slug, 'currency_code' ], '' ),
 			showPromotion: product.show_promotion,
 			promotionPercentage: product.discount_percent,
-			recordCount: get( siteProducts, [ optionKey, 'price_tier_usage_quantity' ], '0' ),
 			includedInPlans: product.included_in_plans,
+			fullPrice: get( siteProducts, [ product.slug, 'cost' ], '' ),
+			upgradeUrl: getUpgradeUrl( state, key ),
 		};
-	} );
-}
+	}
 
-function getProductOptions( state, product, siteProducts ) {
-	return product.options.map( option => {
-		return {
-			name: option.name,
-			type: option.type,
-			key: option.key,
-			slug: option.slug,
-			description: option.description,
-			currencyCode: get( siteProducts, [ option.key, 'currency_code' ], '' ),
-			yearly: {
-				fullPrice: get( siteProducts, [ option.key, 'cost' ], '' ),
-				upgradeUrl: getUpgradeUrl( state, option.slug ),
-			},
-			monthly: {
-				fullPrice: get( siteProducts, [ `${ option.key }_monthly`, 'cost' ], '' ),
-				upgradeUrl: getUpgradeUrl( state, `${ option.slug }-monthly` ),
-			},
-		};
-	} );
+	return products;
 }
 
 /**

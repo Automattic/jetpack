@@ -7386,94 +7386,78 @@ endif;
 	 */
 	public static function get_products_for_purchase() {
 		$products = array();
-		if ( ! is_multisite() ) {
-			$products[] = array(
-				'key'               => 'backup',
-				'title'             => __( 'Jetpack Backup', 'jetpack' ),
-				'short_description' => __( 'Always-on backups ensure you never lose your site.', 'jetpack' ),
-				'learn_more'        => __( 'Which backup option is best for me?', 'jetpack' ),
-				'description'       => __( 'Always-on backups ensure you never lose your site. Your changes are saved as you edit and you have unlimited backup archives.', 'jetpack' ),
-				'options_label'     => __( 'Select a backup option:', 'jetpack' ),
-				'options'           => array(
-					array(
-						'type'        => 'daily',
-						'slug'        => 'jetpack-backup-daily',
-						'key'         => 'jetpack_backup_daily',
-						'name'        => __( 'Daily Backups', 'jetpack' ),
-						'description' => __( 'Your data is being securely backed up daily.', 'jetpack' ),
-					),
-					array(
-						'type'        => 'realtime',
-						'slug'        => 'jetpack-backup-realtime',
-						'key'         => 'jetpack_backup_realtime',
-						'name'        => __( 'Real-Time Backups', 'jetpack' ),
-						'description' => __( 'Your data is being securely backed up as you edit.', 'jetpack' ),
-					),
-				),
-				'default_option'    => 'realtime',
-				'show_promotion'    => true,
-				'discount_percent'  => 70,
-				'included_in_plans' => array( 'personal-plan', 'premium-plan', 'business-plan', 'daily-backup-plan', 'realtime-backup-plan' ),
-			);
 
-			$products[] = array(
-				'key'               => 'scan',
-				'title'             => __( 'Jetpack Scan', 'jetpack' ),
-				'short_description' => __( 'Automatic scanning and one-click fixes keep your site one step ahead of security threats.', 'jetpack' ),
-				'learn_more'        => __( 'Learn More', 'jetpack' ),
-				'description'       => __( 'Automatic scanning and one-click fixes keep your site one step ahead of security threats.', 'jetpack' ),
-				'show_promotion'    => true,
-				'discount_percent'  => 30,
-				'options'           => array(
-					array(
-						'type' => 'scan',
-						'slug' => 'jetpack-scan',
-						'key'  => 'jetpack_scan',
-						'name' => __( 'Daily Scan', 'jetpack' ),
-					),
-				),
-				'default_option'    => 'scan',
-				'included_in_plans' => array( 'premium-plan', 'business-plan', 'scan-plan' ),
-			);
-		}
-
-		$products[] = array(
-			'key'               => 'search',
-			'title'             => __( 'Jetpack Search', 'jetpack' ),
-			'short_description' => __( 'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.', 'jetpack' ),
-			'learn_more'        => __( 'Learn More', 'jetpack' ),
-			'description'       => __( 'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.', 'jetpack' ),
-			'label_popup'       => __( 'Records are all posts, pages, custom post types, and other types of content indexed by Jetpack Search.', 'jetpack' ),
-			'options'           => array(
-				array(
-					'type' => 'search',
-					'slug' => 'jetpack-search',
-					'key'  => 'jetpack_search',
-					'name' => __( 'Search', 'jetpack' ),
-				),
+		$products['jetpack-backup-daily'] = array(
+			'title'             => __( 'Jetpack Backup', 'jetpack' ),
+			'slug'              => 'jetpack_backup_daily',
+			'description'       => __( 'Never lose a word, image, page, or time worrying about your site with automated backups & one-click restores.', 'jetpack' ),
+			'show_promotion'    => true,
+			'discount_percent'  => 40,
+			'included_in_plans' => array( 'jetpack-security-daily' ),
+			'features'          => array(
+				_x( 'Automated daily backups (off-site)', 'Backup Product Feature', 'jetpack' ),
+				_x( 'One-click restores', 'Backup Product Feature', 'jetpack' ),
+				_x( 'Unlimited backup storage', 'Backup Product Feature', 'jetpack' ),
 			),
-			'tears'             => array(),
-			'default_option'    => 'search',
-			'show_promotion'    => false,
-			'included_in_plans' => array( 'search-plan' ),
 		);
 
-		$products[] = array(
-			'key'               => 'anti-spam',
-			'title'             => __( 'Jetpack Anti-Spam', 'jetpack' ),
-			'short_description' => __( 'Automatically clear spam from comments and forms. Save time, get more responses, give your visitors a better experience – all without lifting a finger.', 'jetpack' ),
-			'learn_more'        => __( 'Learn More', 'jetpack' ),
-			'description'       => __( 'Automatically clear spam from comments and forms. Save time, get more responses, give your visitors a better experience – all without lifting a finger.', 'jetpack' ),
-			'options'           => array(
-				array(
-					'type' => 'anti-spam',
-					'slug' => 'jetpack-anti-spam',
-					'key'  => 'jetpack_anti_spam',
-					'name' => __( 'Anti-Spam', 'jetpack' ),
-				),
+		$products['jetpack-scan'] = array(
+			'title'             => __( 'Jetpack Scan', 'jetpack' ),
+			'slug'              => 'jetpack_scan',
+			'description'       => __( 'Automatic scanning and one-click fixes keep your site one step ahead of security threats and malware.', 'jetpack' ),
+			'show_promotion'    => true,
+			'discount_percent'  => 40,
+			'included_in_plans' => array( 'jetpack-security-daily' ),
+			'features'          => array(
+				_x( 'Automated daily scanning', 'Scan Product Feature', 'jetpack' ),
+				_x( 'One-click fixes for most issues', 'Scan Product Feature', 'jetpack' ),
+				_x( 'Instant email notifications', 'Scan Product Feature', 'jetpack' ),
 			),
-			'default_option'    => 'anti-spam',
-			'included_in_plans' => array( 'personal-plan', 'premium-plan', 'business-plan', 'anti-spam-plan' ),
+		);
+
+		$products['jetpack-search'] = array(
+			'title'             => __( 'Jetpack Search', 'jetpack' ),
+			'slug'              => 'jetpack_search',
+			'description'       => __( 'Help your site visitors find answers instantly so they keep reading and buying. Great for sites with a lot of content.', 'jetpack' ),
+			'show_promotion'    => true,
+			'discount_percent'  => 40,
+			'included_in_plans' => array( 'search-plan' ),
+			'features'          => array(
+				_x( 'Instant search and indexing', 'Search Product Feature', 'jetpack' ),
+				_x( 'Powerful filtering', 'Search Product Feature', 'jetpack' ),
+				_x( 'Supports 29 languages', 'Search Product Feature', 'jetpack' ),
+				_x( 'Spelling correction', 'Search Product Feature', 'jetpack' ),
+			),
+		);
+
+		$products['jetpack-anti-spam'] = array(
+			'title'             => __( 'Jetpack Anti-Spam', 'jetpack' ),
+			'slug'              => 'jetpack_anti_spam',
+			'description'       => __( 'Save time and get better responses by automatically blocking spam from your comments and forms.', 'jetpack' ),
+			'show_promotion'    => true,
+			'discount_percent'  => 40,
+			'included_in_plans' => array( 'jetpack-security-daily' ),
+			'features'          => array(
+				_x( 'Comment and form spam protection', 'Anti-Spam Product Feature', 'jetpack' ),
+				_x( 'Powered by Akismet', 'Anti-Spam Product Feature', 'jetpack' ),
+				_x( 'Block spam without CAPTCHAs', 'Anti-Spam Product Feature', 'jetpack' ),
+				_x( 'Advanced stats', 'Anti-Spam Product Feature', 'jetpack' ),
+			),
+		);
+
+		$products['jetpack-security-daily'] = array(
+			'title'             => __( 'Security Bundle', 'jetpack' ),
+			'slug'              => 'jetpack_security_daily',
+			'description'       => __( 'Get all security products including backups, site scanning, and anti-spam.', 'jetpack' ),
+			'show_promotion'    => true,
+			'discount_percent'  => 40,
+			'included_in_plans' => array(),
+			'features'          => array(
+				_x( 'All Backup Features ', 'Security Daily Plan Feature', 'jetpack' ),
+				_x( 'Automated real-time malware scan', 'Security Daily Plan Feature', 'jetpack' ),
+				_x( 'One-click fixes for most threats', 'Security Daily Plan Feature', 'jetpack' ),
+				_x( 'Comment & form spam protection', 'Security Daily Plan Feature', 'jetpack' ),
+			),
 		);
 
 		return $products;
