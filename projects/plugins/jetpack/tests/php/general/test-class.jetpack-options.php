@@ -19,7 +19,7 @@ class WP_Test_Jetpack_Options extends WP_UnitTestCase {
 	 */
 	private function setup_option_cache() {
 		$cache_option = function ( $name, $value = false ) {
-			$this->cache = $value;
+			$this->option_cache = $value;
 		};
 		add_action( 'add_option_test_option', $cache_option, 10, 2 );
 		add_action( 'update_option_test_option', $cache_option, 10, 2 );
@@ -27,7 +27,7 @@ class WP_Test_Jetpack_Options extends WP_UnitTestCase {
 		add_filter(
 			'option_test_option',
 			function ( $value ) {
-				return false === $this->cache ? $value : $this->cache;
+				return false === $this->option_cache ? $value : $this->option_cache;
 			}
 		);
 	}
