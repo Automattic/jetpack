@@ -25,6 +25,7 @@ class SemverVersioning implements VersioningPlugin {
 	 *  - major: (int) Major version.
 	 *  - minor: (int) Minor version.
 	 *  - patch: (int) Patch version.
+	 *  - version: (string) Major.minor.patch.
 	 *  - prerelease: (string|null) Pre-release string.
 	 *  - buildinfo: (string|null) Build metadata string.
 	 * @throws InvalidArgumentException If the version number is not in a recognized format.
@@ -34,19 +35,35 @@ class SemverVersioning implements VersioningPlugin {
 		if ( ! preg_match( '/^(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)(?:-(?P<prerelease>(?:[0-9a-zA-Z-]+)(?:\.(?:[0-9a-zA-Z-]+))*))?(?:\+(?P<buildinfo>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/', $version, $m ) ) {
 			throw new InvalidArgumentException( "Version number \"$version\" is not in a recognized format." );
 		}
-		return array(
+		$info = array(
 			'major'      => (int) $m['major'],
 			'minor'      => (int) $m['minor'],
 			'patch'      => (int) $m['patch'],
+			'version'    => sprintf( '%d.%d.%d', $m['major'], $m['minor'], $m['patch'] ),
 			'prerelease' => isset( $m['prerelease'] ) && '' !== $m['prerelease'] ? $m['prerelease'] : null,
 			'buildinfo'  => isset( $m['buildinfo'] ) && '' !== $m['buildinfo'] ? $m['buildinfo'] : null,
 		);
+
+		if ( null !== $info['prerelease'] ) {
+			$sep        = '';
+			$prerelease = '';
+			foreach ( explode( '.', $info['prerelease'] ) as $part ) {
+				if ( ctype_digit( $part ) ) {
+					$part = (int) $part;
+				}
+				$prerelease .= $sep . $part;
+				$sep         = '.';
+			}
+			$info['prerelease'] = $prerelease;
+		}
+
+		return $info;
 	}
 
 	/**
 	 * Check and normalize a version number.
 	 *
-	 * @param string|array $version Version string, or array as from `parseVersion()`.
+	 * @param string|array $version Version string, or array as from `parseVersion()` (ignoring a `version` key).
 	 * @return string Normalized version.
 	 * @throws InvalidArgumentException If the version number is not in a recognized format.
 	 */
@@ -57,8 +74,13 @@ class SemverVersioning implements VersioningPlugin {
 				'buildinfo'  => null,
 			);
 			$test = $this->parseVersion( '0.0.0' );
+			unset( $test['version'] );
 			if ( array_intersect_key( $test, $info ) !== $test ) {
 				throw new InvalidArgumentException( 'Version array is not in a recognized format.' );
+			}
+
+			if ( null !== $info['prerelease'] ) {
+				$info['prerelease'] = $this->parseVersion( '0.0.0-' . $info['prerelease'] )['prerelease'];
 			}
 		} else {
 			$info = $this->parseVersion( $version );
@@ -66,14 +88,7 @@ class SemverVersioning implements VersioningPlugin {
 
 		$ret = sprintf( '%d.%d.%d', $info['major'], $info['minor'], $info['patch'] );
 		if ( null !== $info['prerelease'] ) {
-			$sep = '-';
-			foreach ( explode( '.', $info['prerelease'] ) as $part ) {
-				if ( ctype_digit( $part ) ) {
-					$part = (int) $part;
-				}
-				$ret .= $sep . $part;
-				$sep  = '.';
-			}
+			$ret .= '-' . $info['prerelease'];
 		}
 		if ( null !== $info['buildinfo'] ) {
 			$ret .= '+' . $info['buildinfo'];

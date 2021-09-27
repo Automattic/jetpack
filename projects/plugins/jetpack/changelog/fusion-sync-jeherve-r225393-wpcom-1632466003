@@ -1,0 +1,5 @@
+Significance: patch
+Type: bugfix
+Comment: Masterbar: replace deprecated get_called_class() function
+
+

@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Beautiful Math: avoid using extract() t(and avoid PHPCS warnings in the process)
