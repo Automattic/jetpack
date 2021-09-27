@@ -294,12 +294,12 @@ class Table_Checksum {
 			 * This prevents us from doing a direct comparison in the database.
 			 */
 			'usermeta'                   => array(
-				'table'           => $wpdb->usermeta,
+				'table'           => $wpdb->users,
 				/**
 				 * Range field points to ID, which in this case is the `WP_User` ID,
 				 * since we're querying the whole WP_User objects, instead of meta entries in the DB.
 				 */
-				'range_field'     => 'user_id',
+				'range_field'     => 'ID',
 				'key_fields'      => array(),
 				'checksum_fields' => array(),
 			),
@@ -665,7 +665,7 @@ class Table_Checksum {
 
 		// Only make the distinct count when we know there can be multiple entries for the range column.
 		$distinct_count = '';
-		if ( count( $this->key_fields ) > 1 || 'terms' === $this->table || 'usermeta' === $this->table ) {
+		if ( count( $this->key_fields ) > 1 || 'terms' === $this->table ) {
 			$distinct_count = 'DISTINCT';
 		}
 
