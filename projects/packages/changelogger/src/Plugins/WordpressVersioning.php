@@ -42,20 +42,26 @@ class WordpressVersioning implements VersioningPlugin {
 	 * @return array With components:
 	 *  - major: (float) Major version.
 	 *  - point: (int) Point version.
+	 *  - version: (string) Major combined with point.
 	 *  - prerelease: (string|null) Pre-release string.
 	 *  - buildinfo: (string|null) Build metadata string.
 	 * @throws InvalidArgumentException If the version number is not in a recognized format.
 	 */
-	private function parseVersion( $version ) {
+	public function parseVersion( $version ) {
 		if ( ! preg_match( '/^(?P<major>\d+\.\d)(?:\.(?P<point>\d+))?(?:-(?P<prerelease>dev|(?:alpha|beta|rc)\d*))?(?:\+(?P<buildinfo>[0-9a-zA-Z.-]+))?$/', $version, $m ) ) {
 			throw new InvalidArgumentException( "Version number \"$version\" is not in a recognized format." );
 		}
-		return array(
+		$ret            = array(
 			'major'      => (float) $m['major'],
 			'point'      => (int) ( isset( $m['point'] ) ? $m['point'] : null ),
 			'prerelease' => isset( $m['prerelease'] ) && '' !== $m['prerelease'] ? $m['prerelease'] : null,
 			'buildinfo'  => isset( $m['buildinfo'] ) && '' !== $m['buildinfo'] ? $m['buildinfo'] : null,
 		);
+		$ret['version'] = sprintf( '%.1f', (float) $m['major'] );
+		if ( 0 !== $ret['point'] ) {
+			$ret['version'] .= '.' . $ret['point'];
+		}
+		return $ret;
 	}
 
 	/**
@@ -73,6 +79,7 @@ class WordpressVersioning implements VersioningPlugin {
 				'buildinfo'  => null,
 			);
 			$test = $this->parseVersion( '0.0' );
+			unset( $test['version'] );
 			if ( array_intersect_key( $test, $info ) !== $test ) {
 				throw new InvalidArgumentException( 'Version array is not in a recognized format.' );
 			}

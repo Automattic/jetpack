@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix console error on critical-css module subscription status

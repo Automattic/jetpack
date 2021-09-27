@@ -18,7 +18,7 @@ window.addEventListener( 'hashchange', () => {
  *
  * @param {string} fragment URL fragment to navigate to.
  */
-export function navigateTo( fragment: string = '' ) {
+export function navigateTo( fragment = '' ): void {
 	window.location.hash = fragment;
 }
 

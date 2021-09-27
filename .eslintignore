@@ -40,6 +40,7 @@ projects/plugins/boost/app/assets/dist/**
 projects/plugins/boost/tests/**
 projects/plugins/boost/docker/**
 projects/plugins/boost/wordpress/**
+!projects/plugins/boost/app/assets/src/js/**/*.d.ts
 
 # Temporary ignore until Jest is set up
 projects/plugins/jetpack/extensions/**/test/

@@ -16,7 +16,7 @@ wp --allow-root core multisite-convert
 wp --allow-root config set DOMAIN_CURRENT_SITE "${WP_DOMAIN}" --type=constant
 
 # Use multisite htaccess template
-cp -f /tmp/htaccess-multi /var/www/html/.htaccess
+cp -f /var/lib/jetpack-config/htaccess-multi /var/www/html/.htaccess
 
 # Update domain to DB
 wp --allow-root db query "UPDATE wp_blogs SET domain='${WP_DOMAIN}' WHERE blog_id=1;"
