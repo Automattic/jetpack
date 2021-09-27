@@ -16,7 +16,7 @@
 		"tunnel:logs": "pm2 logs --nostream --lines 10000 > output/logs/tunnel.log",
 		"config:decrypt": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -d -in ./config/encrypted.enc -out ./config/local-test.js",
 		"config:encrypt": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in ./config/local-test.js -out ./config/encrypted.enc",
-	  	"preinstall": "pnpm --prefix ../cli install"
+		"preinstall": "pnpm --prefix ../cli install"
 	},
 	"devDependencies": {
 		"@babel/core": "7.13.16",
@@ -29,7 +29,7 @@
 		"config": "3.3.6",
 		"eslint": "7.24.0",
 		"eslint-plugin-jest": "24.3.5",
-	  	"jetpack-cli": "../cli",
+		"jetpack-cli": "../cli",
 		"jest": "26.6.3",
 		"jest-circus": "26.6.3",
 		"jest-circus-allure-environment": "1.1.0",
@@ -53,10 +53,10 @@
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"browserslist": [],
-  	"bin": {
+	"bin": {
 		"e2e-env": "./bin/e2e-env.sh",
 		"app-password": "./bin/app-password.sh",
 		"tunnel": "./bin/tunnel.js",
 		"slack": "./bin/slack.js"
-  	}
+	}
 }
