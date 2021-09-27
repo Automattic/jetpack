@@ -11,8 +11,11 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 	protected $full_sync;
 	static $woo_enabled;
 
-	public static function setUpBeforeClass() {
-		parent::setUpBeforeClass();
+	/**
+	 * Set up before class.
+	 */
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
 
 		if ( "1" != getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 			return;
@@ -56,12 +59,15 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 		require_once( $woo_tests_dir . '/framework/helpers/class-wc-helper-settings.php' );
 	}
 
-	public function setUp() {
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
 		if ( ! self::$woo_enabled ) {
 			$this->markTestSkipped();
 			return;
 		}
-		parent::setUp();
+		parent::set_up();
 		$this->full_sync = Modules::get_module( 'full-sync' );
 	}
 

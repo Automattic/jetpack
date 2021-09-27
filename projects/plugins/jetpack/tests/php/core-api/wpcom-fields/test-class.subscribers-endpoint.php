@@ -1,6 +1,7 @@
 <?php
 
 require_once dirname( dirname( __DIR__ ) ) . '/lib/class-wp-test-jetpack-rest-testcase.php';
+require_once JETPACK__PLUGIN_DIR . '/modules/subscriptions.php';
 
 /**
  * @group publicize
@@ -16,8 +17,11 @@ class Test_WPCOM_REST_API_V2_Subscribers_Endpoint extends WP_Test_Jetpack_REST_T
 		self::$subscriber_user_id = $factory->user->create( array( 'role' => 'subscriber' ) );
 	}
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 		self::set_subscribers_count( 100 );
 	}
 

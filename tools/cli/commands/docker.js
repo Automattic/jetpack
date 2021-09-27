@@ -330,6 +330,17 @@ const buildExecCmd = argv => {
 	} else if ( cmd === 'db' ) {
 		opts.push( 'mysql', '--defaults-group-suffix=docker' );
 	} else if ( cmd === 'phpunit' ) {
+		// @todo: Fix this.
+		console.warn(
+			chalk.yellow(
+				"Due to recent changes to WordPress's test infrastructure, this command is currently broken."
+			)
+		);
+		console.warn(
+			chalk.yellow(
+				"You'll probably do better for the moment to do `jetpack docker sh` then run appropriate commands there."
+			)
+		);
 		const unitArgs = argv._.slice( 2 );
 
 		opts.push(
@@ -338,6 +349,17 @@ const buildExecCmd = argv => {
 			...unitArgs
 		);
 	} else if ( cmd === 'phpunit-multisite' ) {
+		// @todo: Fix this.
+		console.warn(
+			chalk.yellow(
+				"Due to recent changes to WordPress's test infrastructure, this command is currently broken."
+			)
+		);
+		console.warn(
+			chalk.yellow(
+				"You'll probably do better for the moment to do `jetpack docker sh` then run appropriate commands there."
+			)
+		);
 		const unitArgs = argv._.slice( 2 );
 		opts.push(
 			'phpunit',
@@ -541,7 +563,7 @@ export function dockerDefine( yargs ) {
 				} )
 				.command( {
 					command: 'phpunit',
-					description: 'Run PHPUNIT tests inside container',
+					description: 'Run PHPUnit tests inside container',
 					builder: yargExec => defaultOpts( yargExec ),
 					handler: argv => execDockerCmdHandler( argv ),
 				} )
@@ -566,7 +588,7 @@ export function dockerDefine( yargs ) {
 				.command( {
 					command: 'phpunit-multisite',
 					alias: 'phpunit:multisite',
-					description: 'Run multisite PHPUNIT tests inside container ',
+					description: 'Run multisite PHPUnit tests inside container ',
 					builder: yargExec => defaultOpts( yargExec ),
 					handler: argv => execDockerCmdHandler( argv ),
 				} )

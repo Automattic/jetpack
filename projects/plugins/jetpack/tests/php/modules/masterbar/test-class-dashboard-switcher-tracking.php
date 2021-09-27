@@ -33,8 +33,8 @@ class Test_Dashboard_Switcher_Tracking extends \WP_UnitTestCase {
 	/**
 	 * Set up data.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 		wp_set_current_user( static::$user_id );
 	}
 

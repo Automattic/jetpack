@@ -39,7 +39,7 @@ class Test_CSS_Nudge_Customize_Control extends \WP_UnitTestCase {
 		ob_start();
 		$control->render_content();
 		$content = ob_get_contents();
-		ob_end_flush();
+		ob_end_clean();
 		$expected_output = '<div class="nudge-container">
 				<p>
 					foo

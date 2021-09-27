@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Sync\Replicastore\Table_Checksum;
+use Automattic\Jetpack\Sync\Replicastore\Table_Checksum_Usermeta;
 use Exception;
 use WP_Error;
 
@@ -1037,7 +1038,8 @@ class Replicastore implements Replicastore_Interface {
 			/**
 			 * Fires immediately before an object-term relationship is deleted.
 			 *
-			 * @since 2.9.0
+			 * @since 1.6.3
+			 * @since-jetpack 2.9.0
 			 *
 			 * @param int   $object_id Object ID.
 			 * @param array $tt_ids    An array of term taxonomy IDs.
@@ -1051,7 +1053,8 @@ class Replicastore implements Replicastore_Interface {
 				/**
 				 * Fires immediately after an object-term relationship is deleted.
 				 *
-				 * @since 2.9.0
+				 * @since 1.6.3
+				 * @since-jetpack 2.9.0
 				 *
 				 * @param int   $object_id Object ID.
 				 * @param array $tt_ids    An array of term taxonomy IDs.
@@ -1309,7 +1312,7 @@ class Replicastore implements Replicastore_Interface {
 
 		$wpdb->queries = array();
 		try {
-			$checksum_table = new Table_Checksum( $table, $salt, $perform_text_conversion );
+			$checksum_table = $this->get_table_checksum_instance( $table, $salt, $perform_text_conversion );
 		} catch ( Exception $ex ) {
 			return new WP_Error( 'checksum_disabled', $ex->getMessage() );
 		}
@@ -1404,7 +1407,7 @@ class Replicastore implements Replicastore_Interface {
 	private function calculate_buckets( $table, $start_id = null, $end_id = null ) {
 		// Get # of objects.
 		try {
-			$checksum_table = new Table_Checksum( $table );
+			$checksum_table = $this->get_table_checksum_instance( $table );
 		} catch ( Exception $ex ) {
 			return new WP_Error( 'checksum_disabled', $ex->getMessage() );
 		}
@@ -1426,5 +1429,25 @@ class Replicastore implements Replicastore_Interface {
 		}
 
 		return (int) ceil( $object_count / $bucket_size );
+	}
+
+	/**
+	 * Return an instance for `Table_Checksum`, depending on the table.
+	 *
+	 * Some tables require custom instances, due to different checksum logic.
+	 *
+	 * @param string $table The table that we want to get the instance for.
+	 * @param null   $salt  Salt to be used when generating the checksums.
+	 * @param false  $perform_text_conversion Should we perform text encoding conversion when calculating the checksum.
+	 *
+	 * @return Table_Checksum|Table_Checksum_Usermeta
+	 * @throws Exception Might throw an exception if any of the input parameters were invalid.
+	 */
+	public function get_table_checksum_instance( $table, $salt = null, $perform_text_conversion = false ) {
+		if ( 'usermeta' === $table ) {
+			return new Table_Checksum_Usermeta( $table, $salt, $perform_text_conversion );
+		}
+
+		return new Table_Checksum( $table, $salt, $perform_text_conversion );
 	}
 }
