@@ -88,7 +88,7 @@ abstract class Base_Admin_Menu {
 	 * @return Admin_Menu
 	 */
 	public static function get_instance() {
-		$class = get_called_class();
+		$class = static::class;
 
 		if ( empty( static::$instances[ $class ] ) ) {
 			static::$instances[ $class ] = new $class();

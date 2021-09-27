@@ -30,8 +30,8 @@ declare global {
 		connectionIframeOriginUrl: string;
 		connection: ConnectionStatus;
 		criticalCssStatus?: CriticalCssStatus;
-		criticalCssAjaxNonce?: string;
 		showRatingPromptNonce?: string;
+		criticalCssDismissRecommendationsNonce?: string;
 		criticalCssDismissedRecommendations: string[];
 		site: {
 			url: string;

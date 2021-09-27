@@ -166,20 +166,20 @@ class Jetpack_Boost {
 	 * Plugin deactivation handler. Clear cache, and reset admin notices.
 	 */
 	public function deactivate() {
+		do_action( 'jetpack_boost_deactivate' );
+
 		$this->clear_cache();
 		Admin::clear_dismissed_notices();
-		Admin::clear_show_rating_prompt();
-		Critical_CSS::clear_reset_reason();
-		Critical_CSS::clear_dismissed_recommendations();
 	}
 
 	/**
 	 * Plugin uninstallation handler. Delete all settings and cache.
 	 */
 	public function uninstall() {
-		$this->clear_cache();
+		do_action( 'jetpack_boost_uninstall' );
 
 		Speed_Score_History::clear_all();
+		$this->clear_cache();
 		delete_option( apply_filters( 'jetpack_boost_options_store_key_name', 'jetpack_boost_config' ) );
 	}
 
