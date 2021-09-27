@@ -68,12 +68,20 @@ class Table_Checksum_Usermeta extends Table_Checksum {
 				// expand and sanitize desired meta based on WP.com logic.
 				$user_object = $this->expand_and_sanitize_user_meta( $user_object );
 
-				// Generate checksum entry based on the umeta_id order of WP.com.
-				$checksum_entry  = crc32( implode( '#', array( $this->salt, 'roles', maybe_serialize( $user_object->roles ) ) ) );
-				$checksum_entry += crc32( implode( '#', array( $this->salt, 'capabilities', maybe_serialize( $user_object->allcaps ) ) ) );
-				$checksum_entry += crc32( implode( '#', array( $this->salt, 'locale', maybe_serialize( $user_object->locale ) ) ) );
-				$checksum_entry += crc32( implode( '#', array( $this->salt, 'allowed_mime_types', maybe_serialize( $user_object->allowed_mime_types ) ) ) );
-
+				// Generate checksum entry based on the serialized value if not empty.
+				$checksum_entry = 0;
+				if ( ! empty( $user_object->roles ) ) {
+					$checksum_entry = crc32( implode( '#', array( $this->salt, 'roles', maybe_serialize( $user_object->roles ) ) ) );
+				}
+				if ( ! empty( $user_object->allcaps ) ) {
+					$checksum_entry += crc32( implode( '#', array( $this->salt, 'capabilities', maybe_serialize( $user_object->allcaps ) ) ) );
+				}
+				if ( ! empty( $user_object->locale ) ) {
+					$checksum_entry += crc32( implode( '#', array( $this->salt, 'locale', maybe_serialize( $user_object->locale ) ) ) );
+				}
+				if ( ! empty( $user_object->allowed_mime_types ) ) {
+					$checksum_entry += crc32( implode( '#', array( $this->salt, 'allowed_mime_types', maybe_serialize( $user_object->allowed_mime_types ) ) ) );
+				}
 				$checksum_entries[ $user_object->ID ] = $checksum_entry;
 			}
 		}
