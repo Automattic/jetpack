@@ -4,10 +4,10 @@
 import { imagePath } from 'constants/urls';
 
 export const PRODUCT_DESCRIPTION_PRODUCTS = {
-	JETPACK_ANTI_SPAM: 'jetpack-anti-spam',
-	JETPACK_BACKUP_DAILY: 'jetpack-backup-daily',
-	JETPACK_SCAN: 'jetpack-scan',
-	JETPACK_SEARCH: 'jetpack-search',
+	JETPACK_ANTI_SPAM: 'akismet',
+	JETPACK_BACKUP_DAILY: 'backups',
+	JETPACK_SCAN: 'scan',
+	JETPACK_SEARCH: 'search',
 };
 
 export const productDescriptionRoutes = [

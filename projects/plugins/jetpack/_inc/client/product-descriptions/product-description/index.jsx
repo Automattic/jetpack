@@ -28,7 +28,7 @@ import {
 import './style.scss';
 
 const getRelatedProductPlan = ( product, availableProductsAndPlans ) => {
-	const upsellPlan = 'jetpack-security-daily';
+	const upsellPlan = 'security';
 
 	if (
 		isEmpty( product.includedInPlans ) ||

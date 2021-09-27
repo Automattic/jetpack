@@ -25,11 +25,12 @@ import {
 	getJetpackProductUpsellByFeature,
 	FEATURE_SITE_BACKUPS_JETPACK,
 } from 'lib/plans/constants';
+import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import { getSitePlan } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import { getVaultPressData } from 'state/at-a-glance';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
-import { getUpgradeUrl, showBackups } from 'state/initial-state';
+import { showBackups } from 'state/initial-state';
 
 /**
  * Displays a card for Backups based on the props given.
@@ -291,7 +292,7 @@ export default connect(
 			isOfflineMode: isOfflineMode( state ),
 			isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
 			showBackups: showBackups( state ),
-			upgradeUrl: getUpgradeUrl( state, 'aag-backups' ),
+			upgradeUrl: getProductDescriptionUrl( state, 'backups' ),
 			hasConnectedOwner: hasConnectedOwner( state ),
 		};
 	},
