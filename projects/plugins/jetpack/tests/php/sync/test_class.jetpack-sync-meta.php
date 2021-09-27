@@ -18,8 +18,11 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 
 	protected $whitelisted_post_meta = 'foobar';
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 
 		// create a post
 		$this->meta_module = Modules::get_module( "meta" );

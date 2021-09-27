@@ -15,7 +15,7 @@
 			<directory prefix="test" suffix=".php">php/general</directory>
 		</testsuite>
 		<testsuite name="core-api">
-			<directory phpVersion="5.6.0" phpVersionOperator=">=" prefix="test" suffix=".php">tests/php/core-api</directory>
+			<directory phpVersion="5.6.0" phpVersionOperator=">=" prefix="test" suffix=".php">php/core-api</directory>
 		</testsuite>
 		<testsuite name="media">
 			<directory prefix="test" suffix=".php">php/media</directory>
@@ -23,7 +23,7 @@
 		<testsuite name="photon">
 			<file>php/test_class.jetpack_photon.php</file>
 			<file>php/test_functions.photon.php</file>
-			<directory prefix="test_" suffix=".php">tests/php/modules/photon</directory>
+			<directory prefix="test_" suffix=".php">php/modules/photon</directory>
 			<file>php/test_class.functions.opengraph.php</file>
 		</testsuite>
 		<testsuite name="json-api">

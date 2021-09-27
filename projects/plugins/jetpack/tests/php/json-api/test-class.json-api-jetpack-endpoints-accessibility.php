@@ -54,8 +54,8 @@ class WP_Test_Jetpack_Json_Api_Endpoints_Accessibility extends WP_UnitTestCase {
 	/**
 	 *  Called before every test.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 
 		global $blog_id;
 
