@@ -152,7 +152,8 @@ class Comments extends Module {
 			 * Signals to the sync listener that this comment's contents were modified and a sync action
 			 * reflecting the change(s) to the content should be sent
 			 *
-			 * @since 4.9.0
+			 * @since 1.6.3
+			 * @since-jetpack 4.9.0
 			 *
 			 * @param int $new_comment['comment_ID'] ID of comment whose content was modified
 			 * @param mixed $changes Array of changed comment fields with before and after values
@@ -184,7 +185,8 @@ class Comments extends Module {
 		/**
 		 * Comment types present in this list will sync their status changes to WordPress.com.
 		 *
-		 * @since 7.6.0
+		 * @since 1.6.3
+		 * @since-jetpack 7.6.0
 		 *
 		 * @param array A list of comment types.
 		 */
@@ -416,7 +418,8 @@ class Comments extends Module {
 		 * Jetpacks data but will prevent us from displaying the data on in the API as well as
 		 * other services.
 		 *
-		 * @since 4.2.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
 		 *
 		 * @param boolean false prevent post data from bing synced to WordPress.com
 		 * @param mixed $comment WP_COMMENT object
