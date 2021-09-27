@@ -1038,7 +1038,8 @@ class Replicastore implements Replicastore_Interface {
 			/**
 			 * Fires immediately before an object-term relationship is deleted.
 			 *
-			 * @since 2.9.0
+			 * @since 1.6.3
+			 * @since-jetpack 2.9.0
 			 *
 			 * @param int   $object_id Object ID.
 			 * @param array $tt_ids    An array of term taxonomy IDs.
@@ -1052,7 +1053,8 @@ class Replicastore implements Replicastore_Interface {
 				/**
 				 * Fires immediately after an object-term relationship is deleted.
 				 *
-				 * @since 2.9.0
+				 * @since 1.6.3
+				 * @since-jetpack 2.9.0
 				 *
 				 * @param int   $object_id Object ID.
 				 * @param array $tt_ids    An array of term taxonomy IDs.
@@ -1184,8 +1186,6 @@ class Replicastore implements Replicastore_Interface {
 		$terms_checksum              = $this->checksum_histogram( 'terms', null, null, null, null, true, '', false, false, $perform_text_conversion );
 		$term_relationships_checksum = $this->checksum_histogram( 'term_relationships', null, null, null, null, true, '', false, false, $perform_text_conversion );
 		$term_taxonomy_checksum      = $this->checksum_histogram( 'term_taxonomy', null, null, null, null, true, '', false, false, $perform_text_conversion );
-		$users_checksum              = $this->checksum_histogram( 'users', null, null, null, null, true, '', false, false, $perform_text_conversion );
-		$usermeta_checksum           = $this->checksum_histogram( 'usermeta', null, null, null, null, true, '', false, false, $perform_text_conversion );
 
 		$result = array(
 			'posts'              => $this->summarize_checksum_histogram( $post_checksum ),
@@ -1195,8 +1195,6 @@ class Replicastore implements Replicastore_Interface {
 			'terms'              => $this->summarize_checksum_histogram( $terms_checksum ),
 			'term_relationships' => $this->summarize_checksum_histogram( $term_relationships_checksum ),
 			'term_taxonomy'      => $this->summarize_checksum_histogram( $term_taxonomy_checksum ),
-			'users'              => $this->summarize_checksum_histogram( $users_checksum ),
-			'usermeta'           => $this->summarize_checksum_histogram( $usermeta_checksum ),
 		);
 
 		/**

@@ -664,8 +664,10 @@ class Table_Checksum {
 		}
 
 		// Only make the distinct count when we know there can be multiple entries for the range column.
-		// TODO merge/make this better.
-		$distinct_count = ( count( $this->key_fields ) > 1 || 'wp_usermeta' === $this->table ) ? 'DISTINCT' : '';
+		$distinct_count = '';
+		if ( count( $this->key_fields ) > 1 || 'terms' === $this->table ) {
+			$distinct_count = 'DISTINCT';
+		}
 
 		$query = "
 			SELECT

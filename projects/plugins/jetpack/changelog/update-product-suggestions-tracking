@@ -1,0 +1,5 @@
+Significance: patch
+Type: bugfix
+Comment: This change will correctly add properties to tracks which does not make sense to highlight for Jetpack customers.
+
+

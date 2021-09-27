@@ -63,6 +63,19 @@ importers:
     devDependencies:
       '@vercel/ncc': 0.28.5
 
+  projects/js-packages/analytics:
+    specifiers:
+      debug: 4.3.1
+      jetpack-js-test-runner: workspace:*
+      lodash: 4.17.21
+      nyc: 15.1.0
+    dependencies:
+      lodash: 4.17.21
+    devDependencies:
+      debug: 4.3.1
+      jetpack-js-test-runner: link:../../../tools/js-test-runner
+      nyc: 15.1.0
+
   projects/js-packages/api:
     specifiers:
       chai-fetch-mock: 3.0.0
@@ -493,6 +506,7 @@ importers:
       '@automattic/color-studio': 2.5.0
       '@automattic/components': 1.0.0-alpha.3
       '@automattic/format-currency': 1.0.0-alpha.0
+      '@automattic/jetpack-analytics': workspace:^0.1.0-alpha
       '@automattic/jetpack-api': workspace:^0.2.1-alpha
       '@automattic/jetpack-components': workspace:^0.3.1-alpha
       '@automattic/jetpack-connection': workspace:^0.6.1-alpha
@@ -582,7 +596,6 @@ importers:
       node-polyfill-webpack-plugin: 1.1.4
       node-wp-i18n: 1.2.4
       nyc: 15.1.0
-      page: 1.7.1
       photon: 4.0.0
       plugin-error: 1.0.1
       postcss-custom-properties: 10.0.0
@@ -596,6 +609,7 @@ importers:
       react: 17.0.2
       react-click-outside: 3.0.1
       react-dom: 17.0.2
+      react-page-visibility: 6.4.0
       react-pure-render: 1.0.2
       react-redux: 6.0.1
       react-router-dom: 5.2.0
@@ -631,6 +645,7 @@ importers:
       '@automattic/calypso-color-schemes': 2.1.1
       '@automattic/components': 1.0.0-alpha.3_react-dom@17.0.2+react@17.0.2
       '@automattic/format-currency': 1.0.0-alpha.0
+      '@automattic/jetpack-analytics': link:../../js-packages/analytics
       '@automattic/jetpack-api': link:../../js-packages/api
       '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
@@ -683,7 +698,6 @@ importers:
       jsdom: 16.4.0
       mapbox-gl: 1.13.0
       markdown-it: 12.0.4
-      page: 1.7.1
       photon: 4.0.0
       plugin-error: 1.0.1
       postcss-custom-properties: 10.0.0
@@ -693,6 +707,7 @@ importers:
       q-flat: 1.0.7
       qss: 2.0.3
       query-string: 7.0.0
+      react-page-visibility: 6.4.0_react@17.0.2
       react-pure-render: 1.0.2
       react-redux: 6.0.1_react@17.0.2+redux@4.0.5
       react-router-dom: 5.2.0_react@17.0.2
@@ -778,6 +793,7 @@ importers:
       chai: 4.3.4
       chalk: 4.1.1
       configstore: 5.0.1
+      envfile: 6.17.0
       esm: 3.2.25
       execa: 5.0.0
       inquirer: 7.3.3
@@ -797,6 +813,7 @@ importers:
       '@octokit/rest': 18.6.7
       chalk: 4.1.1
       configstore: 5.0.1
+      envfile: 6.17.0
       esm: 3.2.25
       execa: 5.0.0
       inquirer: 7.3.3
@@ -10819,6 +10836,12 @@ packages:
   /entities/2.2.0:
     resolution: {integrity: sha512-p92if5Nz619I0w+akJrLZH0MX0Pb5DX39XOwQTtXSdQQOaYH03S1uIQp4mhOZtAXrxq4ViO67YTiLBo2638o9A==}
 
+  /envfile/6.17.0:
+    resolution: {integrity: sha512-RnhtVw3auDZeeh5VtaNrbE7s6Kq8BoRtGIzcbMpMsJ+wIpRgs5jiDG4gQjW+vfws5QPlizE57/fUU0Tj6Nrs8A==}
+    engines: {node: '>=10'}
+    hasBin: true
+    dev: false
+
   /envinfo/7.8.1:
     resolution: {integrity: sha512-/o+BXHmB7ocbHEAs6F2EnG0ogybVVUdkRunTT2glZU9XAaGmhqskrvKwqXuDfNjEO0LZKWdejEEpnq8aM0tOaw==}
     engines: {node: '>=4'}
@@ -16805,12 +16828,6 @@ packages:
       release-zalgo: 1.0.0
     dev: true
 
-  /page/1.7.1:
-    resolution: {integrity: sha1-OIbBR7iVSHeDdZs36AChEhO8OO0=}
-    dependencies:
-      path-to-regexp: 1.2.1
-    dev: false
-
   /pako/1.0.11:
     resolution: {integrity: sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==}
     dev: true
@@ -16975,12 +16992,6 @@ packages:
   /path-to-regexp/0.1.7:
     resolution: {integrity: sha1-32BBeABfUi8V60SQ5yR6G/qmf4w=}
     dev: true
-
-  /path-to-regexp/1.2.1:
-    resolution: {integrity: sha1-szcFwUAjTYc8hyHHuf2LVB7Tr/k=}
-    dependencies:
-      isarray: 0.0.1
-    dev: false
 
   /path-to-regexp/1.8.0:
     resolution: {integrity: sha512-n43JRhlUKUAlibEJhPeir1ncUID16QnEjNpwzNdO3Lm4ywrBpBZ5oLD0I6br9evr1Y9JTqwRtAh7JLoOzAQdVA==}
@@ -18345,6 +18356,16 @@ packages:
       prop-types: 15.7.2
       react: 17.0.2
     dev: true
+
+  /react-page-visibility/6.4.0_react@17.0.2:
+    resolution: {integrity: sha512-5vQ0zQU2DvKCQAxle9l5V6uxw2m180Lk7Jem+obmTeQ503fvMJLSUzFgWtTEgUVynhUx2pd+RzafnuMAG8uD6A==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      react: ^16.13.1 || ^17.0.0
+    dependencies:
+      prop-types: 15.7.2
+      react: 17.0.2
+    dev: false
 
   /react-popper-tooltip/3.1.1_react@17.0.2:
     resolution: {integrity: sha512-EnERAnnKRptQBJyaee5GJScWNUKQPDD2ywvzZyUjst/wj5U64C8/CnSYLNEmP2hG0IJ3ZhtDxE8oDN+KOyavXQ==}
