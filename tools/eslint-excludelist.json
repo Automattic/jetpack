@@ -50,7 +50,6 @@
 	"projects/plugins/jetpack/_inc/client/config.js",
 	"projects/plugins/jetpack/_inc/client/discussion/comments.jsx",
 	"projects/plugins/jetpack/_inc/client/lib/accessible-focus/index.js",
-	"projects/plugins/jetpack/_inc/client/lib/analytics/index.js",
 	"projects/plugins/jetpack/_inc/client/lib/decode-entities/index.js",
 	"projects/plugins/jetpack/_inc/client/lib/plans/constants.js",
 	"projects/plugins/jetpack/_inc/client/lib/touch-detect/index.js",
