@@ -14,7 +14,7 @@ use WP_REST_Server;
 /**
  * This class will handle Sync v4 REST Endpoints.
  *
- * @since 9.9.0
+ * @since 1.23.1
  */
 class REST_Endpoints {
 
@@ -311,7 +311,7 @@ class REST_Endpoints {
 	/**
 	 * Trigger a Full Sync of specified modules.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -352,7 +352,7 @@ class REST_Endpoints {
 	/**
 	 * Return Sync's status.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -366,7 +366,7 @@ class REST_Endpoints {
 	/**
 	 * Return table checksums.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -388,7 +388,7 @@ class REST_Endpoints {
 	/**
 	 * Return Histogram.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -442,7 +442,7 @@ class REST_Endpoints {
 	/**
 	 * Update Sync health.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -470,7 +470,7 @@ class REST_Endpoints {
 	/**
 	 * Obtain Sync settings.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @return \WP_REST_Response
 	 */
@@ -481,7 +481,7 @@ class REST_Endpoints {
 	/**
 	 * Update Sync settings.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -515,7 +515,7 @@ class REST_Endpoints {
 	/**
 	 * Retrieve Sync Objects.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -549,7 +549,7 @@ class REST_Endpoints {
 	/**
 	 * Request Sync processing.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -575,7 +575,7 @@ class REST_Endpoints {
 	/**
 	 * Request sync data from specified queue.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -607,7 +607,7 @@ class REST_Endpoints {
 	/**
 	 * Unlock a Sync queue.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -634,7 +634,7 @@ class REST_Endpoints {
 	/**
 	 * Checkin Sync actions.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -702,7 +702,7 @@ class REST_Endpoints {
 	/**
 	 * Retrieve range of Object Ids for a specified Sync module.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -728,7 +728,7 @@ class REST_Endpoints {
 	/**
 	 * Verify that request has default permissions to perform sync actions.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @return bool Whether user has capability 'manage_options' or a blog token is used.
 	 */

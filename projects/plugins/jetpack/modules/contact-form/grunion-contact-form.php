@@ -816,7 +816,16 @@ class Grunion_Contact_Form_Plugin {
 			}
 		}
 
-		return $form;
+		/**
+		 * Filter the values that are sent to Akismet for the spam check.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 10.2.0
+		 *
+		 * @param array $form The form values being sent to Akismet.
+		 */
+		return apply_filters( 'jetpack_contact_form_akismet_values', $form );
 	}
 
 	/**
@@ -2264,7 +2273,16 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		$r .= '</div>';
 
-		return $r;
+		/**
+		 * Filter the contact form, allowing plugins to modify the HTML.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 10.2.0
+		 *
+		 * @param string $r The contact form HTML.
+		 */
+		return apply_filters( 'jetpack_contact_form_html', $r );
 	}
 
 	/**

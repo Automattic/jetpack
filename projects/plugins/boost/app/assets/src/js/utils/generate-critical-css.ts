@@ -19,6 +19,7 @@ import { loadCriticalCssLibrary } from './load-critical-css-library';
 import { removeShownAdminNotices } from './remove-admin-notices';
 import { clearDismissedRecommendations } from '../stores/critical-css-recommendations';
 import { castToNumber } from './cast-to-number';
+import { recordBoostEvent } from './analytics';
 
 export type ProviderKeyUrls = {
 	[ providerKey: string ]: string[];
@@ -229,7 +230,7 @@ async function generateForKeys(
 					if ( error.type === 'HttpError' ) {
 						eventProps.error_meta = castToNumber( error.meta.code );
 					}
-					jpTracksAJAX.record_ajax_event( 'critical_css_url_error', 'click', eventProps );
+					recordBoostEvent( 'critical_css_url_error', 'click', eventProps );
 				}
 			} else {
 				await sendGenerationResult( providerKey, 'error', {
@@ -247,7 +248,7 @@ async function generateForKeys(
 					error_message: err.message,
 					error_type: err.type || ( err.constructor && err.constructor.name ) || 'unknown',
 				};
-				jpTracksAJAX.record_ajax_event( 'critical_css_failure', 'click', eventProps );
+				recordBoostEvent( 'critical_css_failure', 'click', eventProps );
 
 				return;
 			}
@@ -261,7 +262,7 @@ async function generateForKeys(
 			error_message: 'Critical CSS Generation failed for all the provider keys.',
 			error_type: 'allProvidersError',
 		};
-		jpTracksAJAX.record_ajax_event( 'critical_css_failure', 'click', eventProps );
+		recordBoostEvent( 'critical_css_failure', 'click', eventProps );
 	} else {
 		const eventProps = {
 			time: Date.now() - startTime,
@@ -271,7 +272,7 @@ async function generateForKeys(
 			max_size: maxSize,
 			provider_keys: Object.keys( providerKeys ).join( ',' ),
 		};
-		jpTracksAJAX.record_ajax_event( 'critical_css_success', 'click', eventProps );
+		recordBoostEvent( 'critical_css_success', 'click', eventProps );
 	}
 
 	updateGenerateStatus( false, 0 );
