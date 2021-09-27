@@ -38,7 +38,7 @@ class WP_Test_Jetpack_Shortcodes_Medium extends WP_UnitTestCase {
 
 		$content = apply_filters( 'the_content', $profile_url );
 
-		$this->assertContains(
+		$this->assertStringContainsString(
 			'<a class="m-profile" href="' . $profile_url,
 			$content
 		);
@@ -54,7 +54,7 @@ class WP_Test_Jetpack_Shortcodes_Medium extends WP_UnitTestCase {
 
 		$content = apply_filters( 'the_content', $story_url );
 
-		$this->assertContains(
+		$this->assertStringContainsString(
 			'<a class="m-story" href="' . $story_url,
 			$content
 		);
@@ -70,7 +70,7 @@ class WP_Test_Jetpack_Shortcodes_Medium extends WP_UnitTestCase {
 
 		$content = apply_filters( 'the_content', $collection_url );
 
-		$this->assertContains(
+		$this->assertStringContainsString(
 			'<a href="' . $collection_url . '" target="_blank" rel="noopener noreferrer">View this collection on Medium.com</a>',
 			$content
 		);
