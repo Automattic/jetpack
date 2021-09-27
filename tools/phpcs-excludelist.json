@@ -18,7 +18,6 @@
 	"projects/packages/analyzer/src/class-differences.php",
 	"projects/packages/analyzer/src/class-invocations.php",
 	"projects/packages/analyzer/src/class-utils.php",
-	"projects/plugins/jetpack/_inc/header.php",
 	"projects/plugins/jetpack/_inc/lib/admin-pages/class.jetpack-admin-page.php",
 	"projects/plugins/jetpack/_inc/lib/admin-pages/class.jetpack-landing-page.php",
 	"projects/plugins/jetpack/_inc/lib/admin-pages/class.jetpack-react-page.php",
