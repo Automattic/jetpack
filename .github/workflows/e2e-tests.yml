@@ -71,7 +71,7 @@ jobs:
     - name: Set up Gutenberg
       if: matrix.group == 'gutenberg'
       working-directory: projects/plugins/jetpack/tests/e2e
-      run: ./bin/env.sh gb-setup
+      run: ./bin/e2e-env.sh gb-setup
 
     - name: Run ${{ matrix.group }} tests
       working-directory: projects/plugins/jetpack/tests/e2e
