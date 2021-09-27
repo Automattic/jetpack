@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Publicize: Refresh connections once the post saves.
+Publicize: Refresh connections only when the post publishes.
