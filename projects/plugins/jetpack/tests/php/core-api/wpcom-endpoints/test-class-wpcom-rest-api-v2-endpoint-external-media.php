@@ -313,7 +313,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	 */
 	public function mock_wpcom_api_response_connection_google_photos( $response, $args, $url ) {
 		$this->assertEquals( WP_REST_Server::READABLE, $args['method'] );
-		$this->assertEquals( 'https://public-api.wordpress.com/wpcom/v2/meta/external-media/connection/google_photos', $url );
+		$this->assertStringStartsWith( 'https://public-api.wordpress.com/wpcom/v2/meta/external-media/connection/google_photos', $url );
 
 		return array(
 			'headers'  => array(
@@ -338,7 +338,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	 */
 	public function mock_wpcom_api_response_delete_connection_google_photos( $response, $args, $url ) {
 		$this->assertEquals( WP_REST_Server::DELETABLE, $args['method'] );
-		$this->assertEquals( 'https://public-api.wordpress.com/wpcom/v2/meta/external-media/connection/google_photos', $url );
+		$this->assertStringStartsWith( 'https://public-api.wordpress.com/wpcom/v2/meta/external-media/connection/google_photos', $url );
 
 		return array(
 			'headers'  => array(
@@ -362,7 +362,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	 * @return array
 	 */
 	public function mock_wpcom_api_external_media_connection_response_with_error( $response, $args, $url ) {
-		$this->assertEquals( 'https://public-api.wordpress.com/wpcom/v2/meta/external-media/connection/google_photos', $url );
+		$this->assertStringStartsWith( 'https://public-api.wordpress.com/wpcom/v2/meta/external-media/connection/google_photos', $url );
 
 		return array(
 			'headers'  => array(
