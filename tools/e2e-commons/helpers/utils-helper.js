@@ -42,7 +42,7 @@ function execSyncShellCommand( cmd ) {
 }
 
 async function resetWordpressInstall() {
-	const cmd = `${ __dirname }/../bin/e2e-env.sh reset`;
+	const cmd = 'pnpx e2e-env reset';
 	execSyncShellCommand( cmd );
 }
 
