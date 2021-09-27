@@ -206,7 +206,7 @@ class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
 
 		$filtered = jetpack_videopress_flash_embed_filter( $content );
 
-		$this->assertContains( $contains, $filtered );
+		$this->assertStringContainsString( $contains, $filtered );
 	}
 
 }

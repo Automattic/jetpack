@@ -45,7 +45,7 @@ class WP_Test_Jetpack_Shortcodes_TwitterTimeline extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( 'data-partner="jetpack"', $shortcode_content );
+		$this->assertStringContainsString( 'data-partner="jetpack"', $shortcode_content );
 	}
 
 	public function test_shortcodes_twitter_timeline_missing_username() {
