@@ -24,8 +24,11 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		) );
 	}
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 		foreach ( self::$SAVE_SERVER_KEYS as $key ) {
 			if ( isset( $_SERVER[ $key ] ) ) {
 				$this->server_values[ $key ] = $_SERVER[ $key ];
@@ -37,8 +40,11 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		add_filter( 'rest_pre_dispatch', array( $this, 'rest_pre_dispatch' ), 100, 2 );
 	}
 
-	public function tearDown() {
-		parent::tearDown();
+	/**
+	 * Tear down.
+	 */
+	public function tear_down() {
+		parent::tear_down();
 		unset(
 			$_SERVER['HTTP_CONTENT_TYPE'],
 			$_GET['_for'],
