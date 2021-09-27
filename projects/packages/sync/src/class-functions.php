@@ -268,7 +268,8 @@ class Functions {
 		 *
 		 * @module json-api
 		 *
-		 * @since 2.2.3
+		 * @since 1.6.3
+		 * @since-jetpack 2.2.3
 		 *
 		 * @param array $whitelisted_meta Array of metadata that is accessible by the REST API.
 		 */
@@ -326,41 +327,49 @@ class Functions {
 	 * Helper function that is used when getting home or siteurl values. Decides
 	 * whether to get the raw or filtered value.
 	 *
+	 * @deprecated 1.23.1
+	 *
 	 * @param string $url_type URL to get, home or siteurl.
 	 * @return string
 	 */
 	public static function get_raw_or_filtered_url( $url_type ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.9', '\\Automattic\\Jetpack\\Connection\\Urls::get_raw_or_filtered_url' );
+		_deprecated_function( __METHOD__, '1.23.1', '\\Automattic\\Jetpack\\Connection\\Urls::get_raw_or_filtered_url' );
 		return Urls::get_raw_or_filtered_url( $url_type );
 	}
 
 	/**
 	 * Return the escaped home_url.
 	 *
+	 * @deprecated 1.23.1
+	 *
 	 * @return string
 	 */
 	public static function home_url() {
-		_deprecated_function( __METHOD__, 'jetpack-9.9', '\\Automattic\\Jetpack\\Connection\\Urls::home_url' );
+		_deprecated_function( __METHOD__, '1.23.1', '\\Automattic\\Jetpack\\Connection\\Urls::home_url' );
 		return Urls::home_url();
 	}
 
 	/**
 	 * Return the escaped siteurl.
 	 *
+	 * @deprecated 1.23.1
+	 *
 	 * @return string
 	 */
 	public static function site_url() {
-		_deprecated_function( __METHOD__, 'jetpack-9.9', '\\Automattic\\Jetpack\\Connection\\Urls::site_url' );
+		_deprecated_function( __METHOD__, '1.23.1', '\\Automattic\\Jetpack\\Connection\\Urls::site_url' );
 		return Urls::site_url();
 	}
 
 	/**
 	 * Return main site URL with a normalized protocol.
 	 *
+	 * @deprecated 1.23.1
+	 *
 	 * @return string
 	 */
 	public static function main_network_site_url() {
-		_deprecated_function( __METHOD__, 'jetpack-9.9', '\\Automattic\\Jetpack\\Connection\\Urls::main_network_site_url' );
+		_deprecated_function( __METHOD__, '1.23.1', '\\Automattic\\Jetpack\\Connection\\Urls::main_network_site_url' );
 		return Urls::main_network_site_url();
 	}
 
@@ -390,36 +399,42 @@ class Functions {
 	/**
 	 * Return URL with a normalized protocol.
 	 *
+	 * @deprecated 1.23.1
+	 *
 	 * @param callable $callable Function to retrieve URL option.
 	 * @param string   $new_value URL Protocol to set URLs to.
 	 * @return string Normalized URL.
 	 */
 	public static function get_protocol_normalized_url( $callable, $new_value ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.9', '\\Automattic\\Jetpack\\Connection\\Urls::get_protocol_normalized_url' );
+		_deprecated_function( __METHOD__, '1.23.1', '\\Automattic\\Jetpack\\Connection\\Urls::get_protocol_normalized_url' );
 		return Urls::get_protocol_normalized_url( $callable, $new_value );
 	}
 
 	/**
 	 * Return URL from option or PHP constant.
 	 *
+	 * @deprecated 1.23.1
+	 *
 	 * @param string $option_name (e.g. 'home').
 	 *
 	 * @return mixed|null URL.
 	 */
 	public static function get_raw_url( $option_name ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.9', '\\Automattic\\Jetpack\\Connection\\Urls::get_raw_url' );
+		_deprecated_function( __METHOD__, '1.23.1', '\\Automattic\\Jetpack\\Connection\\Urls::get_raw_url' );
 		return Urls::get_raw_url( $option_name );
 	}
 
 	/**
 	 * Normalize domains by removing www unless declared in the site's option.
 	 *
+	 * @deprecated 1.23.1
+	 *
 	 * @param string   $option Option value from the site.
 	 * @param callable $url_function Function retrieving the URL to normalize.
 	 * @return mixed|string URL.
 	 */
 	public static function normalize_www_in_url( $option, $url_function ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.9', '\\Automattic\\Jetpack\\Connection\\Urls::normalize_www_in_url' );
+		_deprecated_function( __METHOD__, '1.23.1', '\\Automattic\\Jetpack\\Connection\\Urls::normalize_www_in_url' );
 		return Urls::normalize_www_in_url( $option, $url_function );
 	}
 
@@ -576,7 +591,7 @@ class Functions {
 	/**
 	 * Wraps data in a way so that we can distinguish between objects and array and also prevent object recursion.
 	 *
-	 * @since 9.5.0
+	 * @since 1.21.0
 	 *
 	 * @param array|obj $any        Source data to be cleaned up.
 	 * @param array     $seen_nodes Built array of nodes.
