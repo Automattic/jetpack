@@ -97,11 +97,8 @@ input.jetpack-instant-search__box-input.search-field {
 
 	&::-webkit-search-results-button,
 	&::-webkit-search-results-decoration {
+		appearance: none;
 		display: initial;
-	}
-
-	&::-webkit-search-decoration,
-	&::-webkit-search-cancel-button {
 		-webkit-appearance: none;
 	}
 
