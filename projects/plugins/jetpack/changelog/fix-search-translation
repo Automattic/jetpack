@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Search: fix some interface strings are not being localized
+Search: ensure translations are available for lazy-loaded payloads
