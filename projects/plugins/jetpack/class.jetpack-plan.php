@@ -46,6 +46,7 @@ class Jetpack_Plan {
 				'send-a-message',
 				'whatsapp-button',
 				'social-previews',
+				'videopress',
 
 				'core/video',
 				'core/cover',
@@ -64,6 +65,7 @@ class Jetpack_Plan {
 				'akismet',
 				'recurring-payments',
 				'premium-content/container',
+				'videopress',
 			),
 		),
 		'premium'  => array(
