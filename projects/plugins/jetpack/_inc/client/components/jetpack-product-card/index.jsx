@@ -53,10 +53,12 @@ const JetpackProductCard = props => {
 
 	const discountedPrice = discount ? ( price * ( 100 - discount ) ) / 100 : false;
 	const hasMedia = !! illustrationPath;
+	const hasCta = !! callToAction;
 
 	const classes = classNames( {
 		'jp-product-card': true,
-		'jp-product-card--with-media': hasMedia,
+		'jp-product-card--has-media': hasMedia,
+		'jp-product-card--has-cta': hasCta,
 	} );
 
 	const buttonClasses = classNames( [
@@ -66,7 +68,7 @@ const JetpackProductCard = props => {
 
 	return (
 		<div className={ classes }>
-			{ !! callToAction && (
+			{ hasCta && (
 				<div className="jp-product-card__cta">
 					<Gridicon icon="star" /> { callToAction }
 				</div>

@@ -7,15 +7,19 @@
 .jp-product-card {
 	position: relative;
 	box-sizing: border-box;
-	padding: 33px 24px 30px;
+	padding: 30px 24px 45px;
 	width: 100%;
 	background: $white;
 	box-shadow: 0 2px 6px rgba( 0, 0, 0, 0.03 ), 0 1px 2px rgba( 0, 0, 0, 0.03 );
 	border: 1px solid $gray-lighten-20;
 	border-radius: 4px;
 
-	@include breakpoint( '>480px' ) {
-		padding: 66px 48px 60px;
+	@include breakpoint( '>660px' ) {
+		padding: 40px 48px 65px;
+	}
+
+	@include breakpoint( '>960px' ) {
+		padding-top: 65px;
 	}
 }
 
@@ -29,6 +33,11 @@
 .jp-product-card__icon {
 	height: 16px;
 	margin-bottom: 24px;
+	display: none;
+
+	@include breakpoint( '>960px' ) {
+		display: block;
+	}
 }
 
 .jp-product-card__icon svg {
@@ -193,12 +202,21 @@
 	margin-right: 5px;
 }
 
+.jp-product-card--has-cta {
+	padding-top: 60px;
+}
+
 .jp-product-card__media {
+	display: none;
 	max-width: 100%;
 	align-self: center;
 	width: auto;
 	height: auto;
 	margin-top: 36px;
+
+	@include breakpoint( '>480px' ) {
+		display: block;
+	}
 
 	@include breakpoint( '>660px' ) {
 		min-width: 240px;
@@ -209,11 +227,23 @@
 	}
 }
 
-.jp-product-card--with-media {
+.jp-product-card--has-media {
+	//@include breakpoint( '<660px' ) {
+	//	padding-bottom: 45px;
+	//}
+
+	@include breakpoint( '>480px' ) {
+		display: block;
+	}
+
 	@include breakpoint( '>960px' ) {
 		display: grid;
-		grid-template-columns: auto auto;
+		grid-template-columns: 55% 45%;
 		column-gap: 26px;
+	}
+
+	@include breakpoint( '>1040px' ) {
+		grid-template-columns: auto auto;
 	}
 
 	.jp-product-card__price {
