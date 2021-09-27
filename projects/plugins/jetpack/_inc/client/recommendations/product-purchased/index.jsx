@@ -31,7 +31,17 @@ import {
  */
 import './style.scss';
 
-const getPurchasedSuggestion = ( sitePlan, activePurchases, suggestions ) => {
+const getPurchasedSuggestion = ( {
+	activePurchases,
+	isFetchingSiteData,
+	isFetchingSuggestions,
+	sitePlan,
+	suggestions,
+} ) => {
+	if ( isFetchingSiteData || isFetchingSuggestions ) {
+		return false;
+	}
+
 	if ( ! suggestions || ! isArray( suggestions ) ) {
 		return false;
 	}
@@ -60,16 +70,8 @@ const getPurchasedSuggestion = ( sitePlan, activePurchases, suggestions ) => {
 };
 
 const ProductPurchasedComponent = props => {
-	const {
-		sitePlan,
-		activePurchases,
-		isFetchingSiteData,
-		isFetchingSuggestions,
-		nextRoute,
-		suggestions,
-	} = props;
-
-	let suggestion = false;
+	const { nextRoute } = props;
+	const suggestion = getPurchasedSuggestion( props );
 
 	useEffect( () => {
 		if ( suggestion ) {
@@ -79,11 +81,9 @@ const ProductPurchasedComponent = props => {
 		}
 	}, [ suggestion ] );
 
-	if ( isFetchingSiteData || isFetchingSuggestions ) {
+	if ( ! suggestion ) {
 		return <LoadingCard />;
 	}
-
-	suggestion = getPurchasedSuggestion( sitePlan, activePurchases, suggestions );
 
 	const answerSection = (
 		<div className="jp-recommendations-product-purchased">
