@@ -76,7 +76,7 @@ const TiledGalleryEdit = props => {
 				id: image.id,
 				url: image.url,
 				alt: image.alt,
-				className: `styles.is-style-${ layout }`,
+				className: styles[ 'is-style-' + layout ],
 			} );
 		} );
 
