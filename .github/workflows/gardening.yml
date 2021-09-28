@@ -1,7 +1,9 @@
 name: Gardening
 on:
+  pull_request: # Used to clean up PRs once they've been merged.
+    types: [closed]
   pull_request_target: # When a PR is opened, edited, updated, closed, or a label is added.
-    types: [opened, reopened, synchronize, edited, labeled, closed]
+    types: [opened, reopened, synchronize, edited, labeled]
   issues: # For auto-triage of issues.
     types: [opened, reopened]
   push:
