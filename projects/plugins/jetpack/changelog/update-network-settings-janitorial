@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Multisite Settings: remove old commented out code and fix PHPCS linting errors.

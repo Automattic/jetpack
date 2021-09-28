@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.13.10] - 2021-09-28
+### Changed
+- Updated package dependencies.
+
 ## [1.13.9] - 2021-08-30
 ### Changed
 - Run composer update on test-php command instead of phpunit
@@ -159,6 +163,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Create package for Jetpack Tracking
 
+[1.13.10]: https://github.com/Automattic/jetpack-tracking/compare/v1.13.9...v1.13.10
 [1.13.9]: https://github.com/Automattic/jetpack-tracking/compare/v1.13.8...v1.13.9
 [1.13.8]: https://github.com/Automattic/jetpack-tracking/compare/v1.13.7...v1.13.8
 [1.13.7]: https://github.com/Automattic/jetpack-tracking/compare/v1.13.6...v1.13.7
