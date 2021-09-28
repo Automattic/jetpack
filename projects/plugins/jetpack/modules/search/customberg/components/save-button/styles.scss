@@ -1,0 +1,17 @@
+@import '../../lib/base-styles';
+
+// Used in header and the sidebar.
+.jp-search-configure-save-button {
+	margin-right: $grid-unit-05;
+
+	&:first-of-type {
+		margin-left: auto;
+	}
+
+	@include break-small() {
+		margin-right: $grid-unit-10;
+	}
+	@include break-medium() {
+		display: none;
+	}
+}
