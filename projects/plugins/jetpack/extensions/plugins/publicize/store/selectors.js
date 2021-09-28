@@ -2,9 +2,14 @@
  * External dependencies
  */
 import { get, isEqual } from 'lodash';
+import createSelector from 'rememo';
+
+/**
+ * WordPress dependencies
+ */
 import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import createSelector from 'rememo';
+import { store as editorStore } from '@wordpress/editor';
 
 /**
  * Internal dependencies
@@ -26,7 +31,8 @@ const DEFAULT_TWEETSTORM_MESSAGE = '\n\n' + __( 'A thread ⬇️', 'jetpack' );
  * @returns {Array} List of connections.
  */
 export function getFailedConnections( state ) {
-	return state.connections.filter( connection => false === connection.test_success );
+	const connections = getConnections( state );
+	return connections.filter( connection => false === connection.test_success );
 }
 
 /**
@@ -37,7 +43,8 @@ export function getFailedConnections( state ) {
  * @returns {Array} List of service names that need reauthentication.
  */
 export function getMustReauthConnections( state ) {
-	return state.connections
+	const connections = getConnections( state );
+	return connections
 		.filter( connection => 'must_reauth' === connection.test_success )
 		.map( connection => connection.service_name );
 }
@@ -49,9 +56,8 @@ export function getMustReauthConnections( state ) {
  * @returns {object} The Twitter account data.
  */
 export function getTweetTemplate( state ) {
-	const twitterAccount = state.connections?.find(
-		connection => 'twitter' === connection.service_name
-	);
+	const connections = getConnections( state );
+	const twitterAccount = connections?.find( connection => 'twitter' === connection.service_name );
 
 	return {
 		date: Date.now(),
@@ -524,10 +530,10 @@ export function contentAttributesChanged( state, prevProps, props ) {
 
 /**
  * Return social media connections.
+ * This selector consumes the post metadata like primary source data.
  *
- * @param {state} state
  * @returns {Array} An array of fresh social media connections for the current post.
  */
-export function getConnections( state ) {
-	return state.connections;
+export function getConnections() {
+	return select( editorStore ).getEditedPostAttribute( 'jetpack_publicize_connections' ) || [];
 }
