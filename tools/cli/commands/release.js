@@ -26,7 +26,7 @@ import { readComposerJson } from '../helpers/json';
  */
 export function releaseDefine( yargs ) {
 	yargs.command(
-		'release [project] [beta, b] [script]',
+		'release [project] [script]',
 		'Runs a release script for a project.',
 		yarg => {
 			yarg
@@ -39,6 +39,7 @@ export function releaseDefine( yargs ) {
 					alias: 's',
 					describe: 'The release script to run',
 					type: 'string',
+                    choices: [ 'changelog', 'readme', 'release-branch' ]
 				} )
 				.option( 'beta', {
 					alias: 'b',
@@ -73,13 +74,10 @@ export async function releaseCli( argv ) {
     if ( ! argv.beta ){
         argv = await promptBeta( argv );
     }
-	/*
-	if ( argv.script ) {
-		await parseScript( argv );
-	} else {
-		await promptForScript( argv );
+
+	if ( ! argv.script || argv.script === '' ) {
+		argv = await promptForScript( argv );
 	}
-*/
 
 	console.log( argv );
 }
@@ -125,3 +123,34 @@ export async function parseProj( argv ) {
 	return argv;
 }
 
+/**
+ * Asks for what part of the release process we want to run.
+ *
+ * @param {object} argv the arguments passed 
+ * @returns argv 
+ */
+ export async function promptForScript( argv ) {
+    const response = await inquirer.prompt( [
+		{
+			type: 'list',
+			name: 'script',
+			message: `What step of the release process are you looking to do for ${argv.project}?`,
+			choices: [
+				{
+					name: `[Update changelog.md  ] - Compile all changelog files into ${argv.project}'s CHANGELOG.md `,
+					value: 'changelog',
+				},
+				{
+					name: `[Update readme.txt    ] - Update ${argv.project}'s readme.txt file based on the updated changelog.`,
+					value: 'readme',
+				},
+				{
+					name: `[Create release branch] - Create a release branch for  ${argv.project}`,
+					value: 'release-branch',
+				},
+			],
+		},
+	] );
+	argv.script = response.script;
+	return argv;
+}
