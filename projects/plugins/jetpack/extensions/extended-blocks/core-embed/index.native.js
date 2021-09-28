@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 export const reactivateFacebookEmbedBlockVariation = () => require( './facebook' );
 export const reactivateInstagramEmbedBlockVariation = () => require( './instagram' );
 export const registerLoomVariation = () => require( './loom' );
