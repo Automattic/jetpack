@@ -1,78 +1,65 @@
-## 10.1
+## 10.2
 
 ### Before you start
 
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://codex.wordpress.org/Using_Your_Browser_to_Diagnose_JavaScript_Errors#Step_3:_Diagnosis) and see if there are any errors reported by Jetpack there.**
 - Use "Debug Bar" or "Query Monitor" to help make PHP notices and warnings more noticeable and report anything you see.
 
-### Connection Changes
+### Widget Visibility
 
-There were some connection changes in 10.1. It's recommended you test the flows as best you can. Here is a suggested flow: 
+Widget visibility controls have been added for blocks when using the block-based widget editor. To test:
 
-**Basic Flow:**
+* In Jetpack writing settings `/wp-admin/admin.php?page=jetpack#/writing`, make sure the `Enable widget visibility controls to display widgets only on particular posts or pages` setting under "Widgets" is enabled.
+* Then access the block-based widget editor, `/wp-admin/widgets.php`.
+* Add any block widget, a Paragraph block will work for example.
+* With that block selected, navigate to the block settings panel and open the `Advanced` options.
+* Under `Visibility`, try adding new visibility rules.
+* Visit the frontend of the site to verify your rules are working.
 
-1. Disconnect Jetpack.
-2. Go to the connection screen, confirm that it looks good.
-3. Complete the connection process, confirm that it works as usual.
-4. Disconnect Jetpack, confirm that the Connection Screen appears without reloading the page.
+### VideoPress
 
-**In Depth Flows:**
+VideoPress is being added as a standalone Jetpack product. This is best tested on a Jetpack connected site without a paid Jetpack plan:
 
-1. Disconnect Jetpack, connect it in site-only mode (connect, but don't authorize the WordPress.com connection).
-2. Go to Jetpack Dashboard, click "Connect" in one of the "Security" or "Performance" cards. The connection screen should appear, saying "Unlock all the amazing features..."
-3. Click "Connect your user account". You should get redirected to Calypso connection flow. No need to "Approve" the connection for now, you can just go back to the Dashboard.
-4. Scroll down to the "Account connection" card, click "Connect your WordPress.com" account. Confirm that the connection screen appears again.
-5. Finish the connection, confirm that it works correctly, then disconnect. Connect again in site-only mode.
-6. Go to "Settings", click "Connect your WordPress.com account" under one of the greyed out cards.
-7. The connection screen should appear, but this time instead of the generic title, it should say "Unlock [feature name] and more amazing features".
-8. Click "Connect your user account". You should get redirected to the Calypso flow. Complete the connection, confirm that it went fine.
+* The VideoPress module can now be activated from the Modules page (even for sites without a paid plan): `/wp-admin/admin.php?page=jetpack_modules`
+* Once VideoPress is activated, on the Jetpack dashboard `/wp-admin/admin.php?page=jetpack#/dashboard` you will see a VideoPress card that will mention the status such as `1 free video available. Upgrade now to unlock more videos and 1TB of storage`. You can toggle the VideoPress module on/off from this card.
+* If VideoPress is enabled on a site without a paid Jetpack plan, you are able to upload one free video to VideoPress.
+* For uploading videos to VideoPress there are two methods:
+  1. From WordPress.com, go to My Site(s) → Media. Drag the video file from your computer into the media library, or click Add New and select the video file from your computer.
+  2. From the WP Admin dashboard, go to Media → Library and drag the video file from your computer into the media library. Note: Clicking Media → Add New and selecting the video file in WP Admin will not upload the video to Jetpack. In order to upload video, make sure the grid view (Grid View) in media library is selected, and then you can drag the file into the WP Admin media library, or you can click Add New. Clicking Add New in the list view (List View) in media library will not upload the video to Jetpack.
 
-### Carousel: Info and Comment Changes
+### Contact Form Custom Email Headers
 
-When the Jetpack carousel is enabled, the info (i) should always appear even if "Display EXIF" is disabled, allowing you to select the option to see the full size of the image. The information and comments section should also be persistent and let you scroll down to view them without toggling them on every time you switch images.
+There is a new filter available for customizing the email headers for Jetpack contact forms. For testing, try:
 
-Suggested flow: 
+* Add a new Jetpack contact form to a test page.
+* Add the following snippet to your site using a functionality plugin:
 
-* Enable the carousel in Jetpack -> Settings -> Writing. Disable showing EXIF data.
-* Add any gallery to a post. It will help if one of the images has a long description for testing.
-* When viewing that image in the carousel, click the `i` info icon to expand the info section and scroll down.
-* Without scrolling to the very top, advance the slide. The next slide should scroll to the top.
-* The info section should still be toggled on. Similar behavior should exist for the comment section if that is toggled on instead of the info section.
-* Toggle EXIF Data on. Behavior should be the same, plus any additional EXIF data that may exist for the images.
-* Check on various screen sizes, mobile devices, etc.
+```php
+add_filter(
+	'jetpack_contact_form_email_headers',
+	function ( $headers, $comment_author, $reply_to_addr, $to ) {
+		$headers .= 'Bcc: ' . $reply_to_addr . "\r\n";
+		return $headers;
+	},
+	10,
+	4
+);
+```
 
-Issues with Swiper specificity should also be fixed, improving compatibility with third party galleries such as Elementor. 
+* Make a test submission to the form you created.
+* An email should be sent to the email address specified in the added snippet.
+* Warning: DO NOT add headers or header data from the form submission without proper escaping and validation, or you're liable to allow abusers to use your site to send spam. Especially DO NOT take email addresses from the form data to add as CC or BCC headers without strictly validating each address against a list of allowed addresses.
 
-### Slideshow Block
+### SEO Tools Archive Title
 
-Issues where the slideshow block wouldn't always respond to swipes/clicks has been addressed. Give the block a try! You should be able to zoom along. 
+For custom Archive page titles a new `Archive Title` option replaces the `Date` option. To test:
 
-### Tiled Gallery - Fix issue with transforming.
-
-Issues transforming the Jetpack tiled gallery to a regular core gallery block and back should be fixed.
-
-* Add a Jetpack **slideshow** gallery and then transform it to a Jetpack **tiled** gallery. Make make sure the image elements are saved in the post content.
-* Save the post and reload and make sure images still show in the tiled gallery
-* Repeat by transforming for the **core gallery** and a single core **image block**. 
-
-### Search
-
-There were some large changes to Jetpack Search, a paid upgrade to the Jetpack plugin that provides higher quality results and an improved search experience!
-
-The biggest is the ability to customize the search experience using a Gutenberg editor. 
-
-* Make sure you've purchased a Jetpack Search subscription that is added to your site.
-* Navigate to the new customization page at `/wp-admin/admin.php?page=jetpack-search-customize`.
-* Ensure that the page renders a Gutenberg layout with a header, a sidebar to the right, and the Jetpack Search application in the center/left.
-* Ensure that you can customize the search application via the controls in the options tab within the sidebar.
-* Ensure that the "Jetpack Search" tab renders a description of customization interface and includes a link to the WordPress Customizer.
-* Try resizing the page. Ensure that the page works as expected in all viewports ranging from mobile to desktop.
-
-### Widget Fixes
-
-This PR includes some fixes to the Facebook Page and Social Icons widgets. To test, make sure the option to use additional widgets is checked off in the Jetpack Writing settings. Test in both the Customizer and in WP-Admin under Appearance -> Widgets.
-
-- Adding the Facebook Page Widget should let you enter a Facebook page URL without seeing an error about an incorrect URL on the front end.
-- Social Icons - adding icons in both wp-admin and customizer should work and be retained upon saving.
+* At `/wp-admin/admin.php?page=jetpack#/traffic` make sure `Customize your SEO settings` is enabled.
+* Click on `Expand to customize the page title structures of your site`.
+* For `Archives` use the buttons to insert each token presented (Site Title, Tagline, and Archive Title).
+* The live preview should show "Example Archive Title/Date" for the inserted `Archive Title`
+* Save the SEO settings.
+* Check a custom post type archive page. For example you can enable Jetpack's custom Portfolio type, then view that archive at `example.com/portfolio/`. In the `<title>` you should see "Projects" replacing the `Archive Title"` inserted via button.
+* Check a date archive (e.g. `example.com/2019/09`). You should see the appropriate date replacing the `Archive Title` inserted via button.
 
 **Thank you for all your help!**

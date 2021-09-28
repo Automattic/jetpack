@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Load WordPress's IXR classes on demand.
