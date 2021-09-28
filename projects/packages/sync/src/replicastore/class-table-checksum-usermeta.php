@@ -115,7 +115,7 @@ class Table_Checksum_Usermeta extends Table_Checksum {
 					}
 				}
 
-				$checksum_entries[ $user_object->ID ] = $checksum_entry;
+				$checksum_entries[ $user_object->ID ] = '' . $checksum_entry;
 			}
 		}
 
@@ -123,16 +123,16 @@ class Table_Checksum_Usermeta extends Table_Checksum {
 		if ( ! $granular_result ) {
 			$checksum_sum = 0;
 			foreach ( $checksum_entries as $entry ) {
-				$checksum_sum += $entry;
+				$checksum_sum += intval( $entry );
 			}
 
 			if ( $simple_return_value ) {
-				return $checksum_sum;
+				return '' . $checksum_sum;
 			}
 
 			return array(
 				'range'    => $range_from . '-' . $range_to,
-				'checksum' => $checksum_sum,
+				'checksum' => '' . $checksum_sum,
 			);
 
 		}
