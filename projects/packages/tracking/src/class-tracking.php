@@ -47,12 +47,6 @@ class Tracking {
 			// TODO We should always pass a Connection.
 			$this->connection = new Connection\Manager();
 		}
-
-		if ( ! did_action( 'jetpack_set_tracks_ajax_hook' ) ) {
-			add_action( 'wp_ajax_jetpack_tracks', array( $this, 'ajax_tracks' ) );
-
-			do_action( 'jetpack_set_tracks_ajax_hook' );
-		}
 	}
 
 	/**
@@ -88,7 +82,7 @@ class Tracking {
 			}
 		}
 
-		$this->record_user_event( $_REQUEST['tracksEventName'], $tracks_data, null, false );
+		$this->record_user_event( $_REQUEST['tracksEventName'], $tracks_data );
 
 		wp_send_json_success();
 	}
@@ -156,13 +150,11 @@ class Tracking {
 	/**
 	 * Send an event in Tracks.
 	 *
-	 * @param string $event_type         Type of the event.
-	 * @param array  $data               Data to send with the event.
-	 * @param mixed  $user               Username, user_id, or WP_user object.
-	 * @param bool   $use_product_prefix Whether to use the object's product name as a prefix to the event type. If
-	 *                                   set to false, the prefix will be 'jetpack_'.
+	 * @param string $event_type Type of the event.
+	 * @param array  $data       Data to send with the event.
+	 * @param mixed  $user       username, user_id, or WP_user object.
 	 */
-	public function record_user_event( $event_type, $data = array(), $user = null, $use_product_prefix = true ) {
+	public function record_user_event( $event_type, $data = array(), $user = null ) {
 		if ( ! $user ) {
 			$user = wp_get_current_user();
 		}
@@ -176,8 +168,7 @@ class Tracking {
 
 		// Top level events should not be namespaced.
 		if ( '_aliasUser' !== $event_type ) {
-			$prefix     = $use_product_prefix ? $this->product_name : 'jetpack';
-			$event_type = $prefix . '_' . $event_type;
+			$event_type = $this->product_name . '_' . $event_type;
 		}
 
 		$data['jetpack_version'] = defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : '0';
