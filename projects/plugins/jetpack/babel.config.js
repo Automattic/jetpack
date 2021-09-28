@@ -1,10 +1,13 @@
 /**
- * A babel preset wrapper to set @babel/plugin-transform-runtime's absoluteRuntime to true.
+ * Mangle calypso-build's babel preset to work around some problems.
+ *
+ * - Set `absoluteRuntime` true for `@babel/plugin-transform-runtime`.
+ * - Remove the broken `babel-plugin-optimize-i18n`.
  *
  * @param {string|Function} preset - The preset being wrapped.
  * @returns {Function} The wrapped preset-function.
  */
-function presetOverrideBabelPluginTransformRuntimeAbsoluteRuntime( preset ) {
+function overrideCalypsoBuildPreset( preset ) {
 	if ( 'string' === typeof preset ) {
 		preset = require( preset );
 	}
@@ -17,16 +20,15 @@ function presetOverrideBabelPluginTransformRuntimeAbsoluteRuntime( preset ) {
 				p[ 1 ].absoluteRuntime = true;
 			}
 		} );
+		ret.plugins = ret.plugins.filter(
+			p => ! ( typeof p === 'string' && p.endsWith( '/babel-plugin-optimize-i18n.js' ) )
+		);
 		return ret;
 	};
 }
 
 const config = {
-	presets: [
-		presetOverrideBabelPluginTransformRuntimeAbsoluteRuntime(
-			'@automattic/calypso-build/babel/default'
-		),
-	],
+	presets: [ overrideCalypsoBuildPreset( '@automattic/calypso-build/babel/default' ) ],
 	plugins: [ '@babel/plugin-proposal-nullish-coalescing-operator' ],
 	overrides: [
 		{
@@ -38,28 +40,18 @@ const config = {
 			test: [ './gulpfile.babel.js', './tools/webpack.config.js', './tools/builder/' ],
 			presets: [
 				[
-					presetOverrideBabelPluginTransformRuntimeAbsoluteRuntime(
-						'@automattic/calypso-build/babel/default'
-					),
+					overrideCalypsoBuildPreset( '@automattic/calypso-build/babel/default' ),
 					{ modules: 'commonjs' },
 				],
 			],
 		},
 		{
 			test: './modules/search/instant-search',
-			presets: [
-				presetOverrideBabelPluginTransformRuntimeAbsoluteRuntime(
-					'./modules/search/instant-search/babel.config.js'
-				),
-			],
+			presets: [ overrideCalypsoBuildPreset( './modules/search/instant-search/babel.config.js' ) ],
 		},
 		{
 			test: './modules/search/customberg',
-			presets: [
-				presetOverrideBabelPluginTransformRuntimeAbsoluteRuntime(
-					'./modules/search/customberg/babel.config.js'
-				),
-			],
+			presets: [ overrideCalypsoBuildPreset( './modules/search/customberg/babel.config.js' ) ],
 		},
 	],
 	env: {

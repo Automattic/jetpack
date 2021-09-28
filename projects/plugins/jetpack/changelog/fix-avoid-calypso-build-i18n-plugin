@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Update babel config to avoid calypso-build's "babel-plugin-optimize-i18n" plugin.
