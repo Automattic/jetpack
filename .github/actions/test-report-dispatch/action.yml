@@ -1,6 +1,9 @@
 name: "Test report dispatch"
 description: "Trigger a test report workflow in jetpack-e2e-report repo actions"
 inputs:
+  token:
+    required: true
+    description: "The user token used to authenticate the dispatch call."
   report_name:
     required: false
     description: "The name of the report to group multiple runs under."
@@ -11,7 +14,7 @@ runs:
     - name: Trigger test report workflow
       shell: bash
       env:
-        TOKEN: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
+        TOKEN: ${{ inputs.token }}
         PR_TITLE: ${{ github.event.pull_request.title }}
         PR_NUMBER: ${{ github.event.pull_request.number }}
       run: |
