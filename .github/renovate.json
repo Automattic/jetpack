@@ -18,6 +18,7 @@
 				"@automattic/jetpack-storybook",
 				"automattic/jetpack-a8c-mc-stats",
 				"automattic/jetpack-abtest",
+				"automattic/jetpack-admin-ui",
 				"automattic/jetpack-analyzer",
 				"automattic/jetpack-assets",
 				"automattic/jetpack-autoloader",
