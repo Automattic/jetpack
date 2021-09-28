@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.3] - 2021-09-28
+### Changed
+- Updated package dependencies.
+
 ## [1.5.2] - 2021-08-31
 ### Changed
 - Run composer update on test-php command instead of phpunit.
@@ -74,6 +78,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add partner subsidiary id to upgrade URLs.
 
+[1.5.3]: https://github.com/Automattic/jetpack-partner/compare/v1.5.2...v1.5.3
 [1.5.2]: https://github.com/Automattic/jetpack-partner/compare/v1.5.1...v1.5.2
 [1.5.1]: https://github.com/Automattic/jetpack-partner/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/Automattic/jetpack-partner/compare/v1.4.3...v1.5.0
