@@ -51,6 +51,13 @@ class Tracking {
 		if ( ! did_action( 'jetpack_set_tracks_ajax_hook' ) ) {
 			add_action( 'wp_ajax_jetpack_tracks', array( $this, 'ajax_tracks' ) );
 
+			/**
+			 * Fires when the Tracking::ajax_tracks() callback has been hooked to the
+			 * wp_ajax_jetpack_tracks action. This action is used to ensure that
+			 * the callback is hooked only once.
+			 *
+			 * @since $$next-version$$
+			 */
 			do_action( 'jetpack_set_tracks_ajax_hook' );
 		}
 	}
