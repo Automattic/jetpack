@@ -29,13 +29,10 @@ import styles from './styles.scss';
 import TiledGallerySettings, { DEFAULT_COLUMNS, MAX_COLUMNS } from './settings';
 
 const TILE_SPACING = 8;
+const DEFAULT_COLUMNS = 1;
 
 export function defaultColumnsNumber( images ) {
-<<<<<<< HEAD
 	return Math.min( MAX_COLUMNS, images.length );
-=======
-	return Math.min( 3, images.length );
->>>>>>> 5fb3cad74 (WIP implementation of save.)
 }
 
 const TiledGalleryEdit = props => {
@@ -91,6 +88,15 @@ const TiledGalleryEdit = props => {
 				id: newImage.id,
 			} );
 		} );
+		
+		const newIds = images?.map(image => image.id);
+		setAttributes({ ids: newIds });
+	}, [ images ] );
+
+	useEffect( () => {
+		if ( ! columns ) {
+			setAttributes( { columns: DEFAULT_COLUMNS });
+		}
 	}, [ images ] );
 
 	const onSelectImages = imgs => {

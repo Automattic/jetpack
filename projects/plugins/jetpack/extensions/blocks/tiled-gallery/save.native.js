@@ -21,16 +21,11 @@ export default function TiledGallerySave( { attributes, innerBlocks } ) {
 		linkTo,
 		roundedCorners,
 		columnWidths,
+		ids,
 	} = attributes;
-
-	const ids = innerBlocks.map( innerBlock => innerBlock.attributes.id );
-	const cw = [ [ '100' ] ];
-
-	console.log( 'ids', ids );
 
 	return (
 		<Layout
-			{ ...useBlockProps.save( { className, ids, cw } ) }
 			align={ align }
 			className={ className }
 			columns={ columns }
@@ -43,7 +38,7 @@ export default function TiledGallerySave( { attributes, innerBlocks } ) {
 			layoutStyle={ 'square' }
 			linkTo={ linkTo }
 			roundedCorners={ roundedCorners }
-			columnWidths={ cw }
+			columnWidths={ columnWidths }
 			ids={ ids }
 		/>
 	);
