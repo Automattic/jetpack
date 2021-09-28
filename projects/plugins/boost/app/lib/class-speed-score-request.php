@@ -57,7 +57,7 @@ class Speed_Score_Request extends Cacheable {
 	public function __construct( $url, $created = null, $status = 'pending', $error = null ) {
 		$this->set_cache_id( self::generate_cache_id_from_url( $url ) );
 
-		$this->url     = Url::normalize( $url );
+		$this->url     = $url;
 		$this->created = is_null( $created ) ? microtime( true ) : $created;
 		$this->status  = $status;
 		$this->error   = $error;
@@ -134,7 +134,7 @@ class Speed_Score_Request extends Cacheable {
 			null,
 			array(
 				'request_id' => $this->get_cache_id(),
-				'url'        => $this->url,
+				'url'        => Url::normalize( $this->url ),
 			)
 		);
 
@@ -226,9 +226,9 @@ class Speed_Score_Request extends Cacheable {
 	private function record_history( $response ) {
 		$history = new Speed_Score_History( $this->url );
 
-		// Only change if there is a difference from last score.
 		$latest = $history->latest();
-		// phpcs:ignore
+
+		// Only change if there is a difference from last score.
 		if ( $latest !== $response->scores ) {
 			$history->push(
 				array(

@@ -27,7 +27,7 @@ type SpeedScoresSet = {
 };
 
 type ParsedApiResponse = {
-	id?: string;
+	status: string;
 	scores?: SpeedScoresSet;
 };
 
@@ -77,6 +77,7 @@ function parseResponse( response: JSONObject ): ParsedApiResponse {
 	// Check if ready.
 	if ( isJsonObject( response.scores ) ) {
 		return {
+			status: 'success',
 			scores: {
 				current: isJsonObject( response.scores.current )
 					? {
@@ -98,13 +99,13 @@ function parseResponse( response: JSONObject ): ParsedApiResponse {
 	}
 
 	// No metrics yet. Make sure there is an id for polling.
-	const requestId = castToString( response.id );
-	if ( ! requestId ) {
+	const requestStatus = castToString( response.status );
+	if ( ! requestStatus ) {
 		throw new Error( __( 'Invalid response while requesting metrics', 'jetpack-boost' ) );
 	}
 
 	return {
-		id: requestId,
+		status: requestStatus,
 	};
 }
 
