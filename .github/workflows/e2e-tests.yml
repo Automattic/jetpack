@@ -146,3 +146,5 @@ jobs:
 
       - name: Trigger test report workflow
         uses: ./.github/actions/test-report-dispatch
+        with:
+          token: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
