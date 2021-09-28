@@ -21,20 +21,6 @@ class IDC_Simulator {
 	public $notice_type = 'success';
 
 	/**
-	 * Whether to enable siteurl spoofing.
-	 *
-	 * @var Boolean
-	 */
-	protected $idc_simulation_enabled = false;
-
-	/**
-	 * What URL to use instead of the real siteurl.
-	 *
-	 * @var Boolean
-	 */
-	protected $idc_siteurl;
-
-	/**
 	 * Options.
 	 */
 	const STORED_OPTIONS_KEY = 'idc_simulator_stored_options';
@@ -50,14 +36,6 @@ class IDC_Simulator {
 		// Stored options.
 		add_action( 'admin_post_store_current_options', array( $this, 'admin_post_store_current_options' ) );
 
-		$settings                     = $this->get_stored_settings();
-		$this->idc_simulation_enabled = 1 === intval( $settings['idc_simulation'] ) ?
-			true : false;
-		$this->idc_siteurl            = ( ! empty( $settings['idc_siteurl'] ) && is_string( $settings['idc_siteurl'] ) ) ?
-			$settings['idc_siteurl'] : 'https://example.org/';
-
-		add_filter( 'jetpack_sync_site_url', array( $this, 'spoof_siteurl' ) );
-
 		if ( isset( $_GET['idc_notice'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			add_action( 'admin_notices', array( $this, 'admin_notice__success' ) );
 		}
@@ -68,16 +46,22 @@ class IDC_Simulator {
 	 *
 	 * @param string $url the siteurl value.
 	 */
-	public function spoof_siteurl( $url ) {
-		if ( false === $this->idc_simulation_enabled ) {
-			return $url;
-		}
-
+	public static function spoof_siteurl( $url ) {
 		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) {
 			return $url;
 		}
 
-		return $this->idc_siteurl;
+		$settings                   = self::get_stored_settings();
+		$settings['idc_simulation'] = $settings['idc_simulation'] ?
+			true : false;
+		$settings['idc_siteurl']    = ( ! empty( $settings['idc_siteurl'] ) && is_string( $settings['idc_siteurl'] ) ) ?
+			$settings['idc_siteurl'] : 'https://example.org/';
+
+		if ( false === $settings['idc_simulation'] ) {
+			return $url;
+		}
+
+		return $settings['idc_siteurl'];
 	}
 
 	/**
@@ -119,6 +103,8 @@ class IDC_Simulator {
 		<p>Site URL spoofing: <?php echo esc_html( $settings['idc_simulation'] ); ?></p>
 		<p>Site URL value: <?php echo esc_html( $settings['idc_siteurl'] ); ?></p>
 
+		<hr>
+
 		<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
 
 			<table class="form-table" role="presentation">
@@ -144,6 +130,15 @@ class IDC_Simulator {
 			<?php wp_nonce_field( 'store-current-options' ); ?>
 			<input type="submit" value="Store these options" class="button button-primary">
 		</form>
+
+		<hr>
+
+		<h2>Current IDC transient values</h2>
+		<h3>jetpack_idc_local</h3>
+		<pre><?php var_dump( get_transient( 'jetpack_idc_local' ) ); //phpcs:ignore ?></pre>
+
+		<h3>jetpack_idc_option</h3>
+		<pre><?php var_dump( get_transient( 'jetpack_idc_option' ) ); //phpcs:ignore ?></pre>
 
 		<hr>
 		<?php
@@ -182,7 +177,7 @@ class IDC_Simulator {
 	 *
 	 * @return array
 	 */
-	public function get_stored_settings() {
+	public static function get_stored_settings() {
 		return wp_parse_args(
 			get_option( self::STORED_OPTIONS_KEY ),
 			array(
@@ -190,6 +185,13 @@ class IDC_Simulator {
 				'idc_simulation' => false,
 			)
 		);
+	}
+
+	/**
+	 * Early initialization needed for some option value spoofing.
+	 */
+	public static function early_init() {
+		add_filter( 'jetpack_sync_site_url', array( 'IDC_Simulator', 'spoof_siteurl' ) );
 	}
 
 	/**
@@ -237,5 +239,7 @@ function register_idc_simulator() {
 function idc_simulator_jetpack_not_active() {
 	echo '<div class="notice info"><p>Jetpack Debug tools: Jetpack_Options package must be present for the IDC Simulator to work.</p></div>';
 }
+
+IDC_Simulator::early_init();
 
 // phpcs:enable
