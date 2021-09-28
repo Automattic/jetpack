@@ -31,27 +31,17 @@ class Speed_Score {
 			JETPACK_BOOST_REST_PREFIX . '/speed-scores',
 			array(
 				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'fetch_speed_score' ),
+				'permission_callback' => array( $this, 'can_access_speed_scores' ),
+			)
+		);
+
+		register_rest_route(
+			JETPACK_BOOST_REST_NAMESPACE,
+			JETPACK_BOOST_REST_PREFIX . '/speed-scores/refresh',
+			array(
+				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'dispatch_speed_score_request' ),
-				'permission_callback' => array( $this, 'can_access_speed_scores' ),
-			)
-		);
-
-		register_rest_route(
-			JETPACK_BOOST_REST_NAMESPACE,
-			JETPACK_BOOST_REST_PREFIX . '/speed-scores',
-			array(
-				'methods'             => \WP_REST_Server::DELETABLE,
-				'callback'            => array( $this, 'delete_speed_score_request' ),
-				'permission_callback' => array( $this, 'can_access_speed_scores' ),
-			)
-		);
-
-		register_rest_route(
-			JETPACK_BOOST_REST_NAMESPACE,
-			JETPACK_BOOST_REST_PREFIX . '/speed-scores/(?P<requestId>[^/]+)/update',
-			array(
-				'methods'             => \WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'fetch_speed_score_request' ),
 				'permission_callback' => array( $this, 'can_access_speed_scores' ),
 			)
 		);
@@ -82,7 +72,7 @@ class Speed_Score {
 	}
 
 	/**
-	 * Handler for POST /speed-scores.
+	 * Handler for POST /speed-scores/refresh.
 	 *
 	 * @param \WP_REST_Request $request The request object.
 	 *
@@ -98,10 +88,10 @@ class Speed_Score {
 			Speed_Score_Request::generate_cache_id_from_url( $url )
 		);
 
-		if ( empty( $score_request ) ) {
+		if ( empty( $score_request ) || ! $score_request->is_pending() ) {
 			// Create and store the Speed Score request.
 			$score_request = new Speed_Score_Request( $url );
-			$score_request->store();
+			$score_request->store( 1800 ); // Keep the request for 30 minutes even if no one access the results.
 
 			// Send the request.
 			$response = $score_request->execute();
@@ -111,54 +101,40 @@ class Speed_Score {
 			}
 		}
 
-		return rest_ensure_response( $score_request->jsonSerialize() );
+		return $this->prepare_speed_score_response( $url, $score_request );
 	}
 
 	/**
-	 * Handler for DELETE /speed-scores.
+	 * Handler for POST /speed-scores.
 	 *
 	 * @param \WP_REST_Request $request The request object.
 	 *
 	 * @return \WP_REST_Response|\WP_Error The response.
 	 */
-	public function delete_speed_score_request( $request ) {
+	public function fetch_speed_score( $request ) {
 		$url = $this->process_url_arg( $request );
 		if ( is_wp_error( $url ) ) {
 			return $url;
 		}
 
-		Speed_Score_Request::delete_by_cache_id(
+		$score_request = Speed_Score_Request::get(
 			Speed_Score_Request::generate_cache_id_from_url( $url )
 		);
 
-		return rest_ensure_response( array( 'status' => 'success' ) );
-	}
-
-	/**
-	 * Handler for POST /speed-scores/<requestId>/update
-	 *
-	 * @param \WP_REST_Request $request The request object.
-	 *
-	 * @return \WP_REST_Response|\WP_Error The response.
-	 */
-	public function fetch_speed_score_request( $request ) {
-		$score_request = Speed_Score_Request::get( $request['requestId'] );
-
-		if ( ! $score_request ) {
-			/* translators: %s: request id */
-			$error_message = sprintf( __( 'The speed score request with ID %s could not be found', 'jetpack-boost' ), $request['requestId'] );
-
-			return new \WP_Error( 'resource_not_found', $error_message, array( 'status' => 404 ) );
-		}
-
-		if ( $score_request->is_pending() ) {
+		if ( $score_request && $score_request->is_pending() ) {
 			$response = $score_request->poll_update();
 			if ( is_wp_error( $response ) ) {
 				return $response;
 			}
 		}
 
-		return rest_ensure_response( $score_request->jsonSerialize() );
+		// If this is a fresh install, there might not be any speed score history. In which case, we want to fetch the initial scores.
+		$history = new Speed_Score_History( $url );
+		if ( null === $history->latest() ) {
+			return $this->dispatch_speed_score_request( $request );
+		}
+
+		return $this->prepare_speed_score_response( $url, $score_request );
 	}
 
 	/**
@@ -175,5 +151,34 @@ class Speed_Score {
 	 */
 	public function clear_speed_score_request_cache() {
 		Speed_Score_Request::clear_cache();
+	}
+
+	/**
+	 * Prepare the speed score response.
+	 *
+	 * @param string              $url URL of the speed is requested for.
+	 * @param Speed_Score_Request $score_request A new speed score request to save.
+	 *
+	 * @return \WP_Error|\WP_HTTP_Response|\WP_REST_Response
+	 */
+	private function prepare_speed_score_response( $url, $score_request ) {
+		$history = new Speed_Score_History( $url );
+
+		$response = array();
+
+		// Even if score request is expired or not present, we can get the existing results from history.
+		if ( ! $score_request || $score_request->is_success() ) {
+			$response['status'] = 'success';
+
+			$response['scores'] = array(
+				'current'  => $history->latest(),
+				'previous' => $history->latest( 1 ),
+			);
+		} else {
+			// Serialized version of score request contains the status property and error description if any.
+			$response = $score_request->jsonSerialize();
+		}
+
+		return rest_ensure_response( $response );
 	}
 }
