@@ -58,6 +58,7 @@ echo "::endgroup::"
 export COMPOSER_MIRROR_PATH_REPOS=true
 
 BASE="$(pwd)"
+PKGVERSIONS="$(jq -nc 'reduce inputs as $in ({}; .[$in.name] |= ( $in.extra["branch-alias"]["dev-master"] // "dev-master" ) )' projects/packages/*/composer.json)"
 for PLUGIN in projects/plugins/*/composer.json; do
 	DIR="${PLUGIN%/composer.json}"
 	NAME="$(basename "$DIR")"
@@ -80,7 +81,7 @@ for PLUGIN in projects/plugins/*/composer.json; do
 	ln -s "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$NAME" "/tmp/wordpress-$WP_BRANCH/tests/phpunit/data/plugins/$NAME"
 
 	# Update monorepo repo entry in composer.json to point back here, and to mirror per COMPOSER_MIRROR_PATH_REPOS.
-	JSON="$(jq --tab --arg dir "$BASE/$DIR" '( .repositories // empty | .[] | select( .options.monorepo ) ) |= ( .url |= "\($dir)/\(.)" | .options.symlink |= false )' "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$NAME/composer.json")"
+	JSON="$(jq --tab --arg dir "$BASE/$DIR" --argjson pkgversions "$PKGVERSIONS" '( .repositories // empty | .[] | select( .options.monorepo ) ) |= ( .url |= "\($dir)/\(.)" | .options.symlink |= false | .options.versions |= $pkgversions )' "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$NAME/composer.json")"
 	echo "$JSON" > "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$NAME/composer.json"
 
 	echo "::endgroup::"
