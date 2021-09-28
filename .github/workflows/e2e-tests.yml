@@ -142,5 +142,7 @@ jobs:
     needs: e2e-tests
 
     steps:
+      - uses: actions/checkout@v2
+
       - name: Trigger test report workflow
         uses: ./.github/actions/test-report-dispatch
