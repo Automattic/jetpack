@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Add a fallback for the Manager::is_connected method in the Jetpack::is_connected_ready method
+
+
