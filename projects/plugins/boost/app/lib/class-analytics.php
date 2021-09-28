@@ -22,9 +22,6 @@ class Analytics {
 
 		// For tracking events via js/ajax.
 		add_action( 'admin_enqueue_scripts', array( $tracks, 'enqueue_tracks_scripts' ) );
-
-		// Universal ajax callback for all tracking events triggered via js.
-		add_action( 'wp_ajax_jetpack_tracks', array( $tracks, 'ajax_tracks' ) );
 	}
 
 	/**
