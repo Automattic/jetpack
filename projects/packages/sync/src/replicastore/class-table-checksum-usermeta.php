@@ -141,11 +141,13 @@ class Table_Checksum_Usermeta extends Table_Checksum {
 		}
 
 		// Sanitize allowed_mime_types.
-		foreach ( $user_object->allowed_mime_types as $allowed_mime_type_short => $allowed_mime_type_long ) {
-			$allowed_mime_type_short                                     = wp_strip_all_tags( (string) $allowed_mime_type_short, true );
-			$allowed_mime_type_long                                      = wp_strip_all_tags( (string) $allowed_mime_type_long, true );
-			$user_object->allowed_mime_types[ $allowed_mime_type_short ] = $allowed_mime_type_long;
+		$allowed_mime_types = $user_object->allowed_mime_types;
+		foreach ( $allowed_mime_types as $allowed_mime_type_short => $allowed_mime_type_long ) {
+			$allowed_mime_type_short                        = wp_strip_all_tags( (string) $allowed_mime_type_short, true );
+			$allowed_mime_type_long                         = wp_strip_all_tags( (string) $allowed_mime_type_long, true );
+			$allowed_mime_types[ $allowed_mime_type_short ] = $allowed_mime_type_long;
 		}
+		$user_object->allowed_mime_types = $allowed_mime_types;
 
 		// Sanitize roles.
 		if ( is_array( $user_object->roles ) ) {
