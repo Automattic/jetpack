@@ -2043,7 +2043,11 @@ class Jetpack {
 			$modules = array_diff( $modules, $updated_modules );
 		}
 
-		$is_site_connection = self::connection()->is_site_connection();
+		$is_site_connection = false;
+
+		if ( method_exists( self::connection(), 'is_site_connection' ) ) {
+			$is_site_connection = self::connection()->is_site_connection();
+		}
 
 		foreach ( $modules as $index => $module ) {
 			// If we're in offline/site-connection mode, disable modules requiring a connection/user connection.
