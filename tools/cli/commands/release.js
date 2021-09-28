@@ -75,7 +75,7 @@ export async function releaseCli( argv ) {
     }
 	/*
 	if ( argv.script ) {
-		await parseToClean( argv );
+		await parseScript( argv );
 	} else {
 		await promptForScript( argv );
 	}
@@ -121,6 +121,7 @@ export async function parseProj( argv ) {
 		},
 	] );
 	argv.beta = response.beta;
+    argv.b = response.beta;
 	return argv;
 }
 
