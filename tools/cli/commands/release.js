@@ -70,6 +70,9 @@ export async function releaseCli( argv ) {
 		argv = await promptForProject( argv );
 	}
 
+    if ( ! argv.beta ){
+        argv = await promptBeta( argv );
+    }
 	/*
 	if ( argv.script ) {
 		await parseToClean( argv );
@@ -81,6 +84,12 @@ export async function releaseCli( argv ) {
 	console.log( argv );
 }
 
+/**
+ * Checks the project we're releasing.
+ *
+ * @param {object} argv the arguments passed 
+ * @returns argv 
+ */
 export async function parseProj( argv ) {
 	// If we're passing a specific project
 	const allProj = allProjects();
@@ -95,3 +104,23 @@ export async function parseProj( argv ) {
 	argv = await promptForProject( argv );
 	return argv;
 }
+
+/**
+ * Checks the project we're releasing.
+ *
+ * @param {object} argv the arguments passed 
+ * @returns argv 
+ */
+ export async function promptBeta( argv ) {
+    const response = await inquirer.prompt( [
+		{
+			type: 'confirm',
+			name: 'beta',
+			message: `Are you releasing a beta version of ${argv.project}`,
+            default: false,
+		},
+	] );
+	argv.beta = response.beta;
+	return argv;
+}
+
