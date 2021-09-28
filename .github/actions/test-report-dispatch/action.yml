@@ -17,7 +17,7 @@ runs:
         TOKEN: ${{ inputs.token }}
         PR_TITLE: ${{ github.event.pull_request.title }}
         PR_NUMBER: ${{ github.event.pull_request.number }}
-        REPORT_NAME: ${{ input.report_name }}
+        REPORT_NAME: ${{ inputs.report_name }}
       run: |
         if [ "$GITHUB_EVENT_NAME" == pull_request ]; then
           BRANCH=$GITHUB_HEAD_REF
