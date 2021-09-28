@@ -48,6 +48,8 @@ import {
 	PLAN_JETPACK_SECURITY_T2_MONTHLY,
 	PLAN_JETPACK_COMPLETE,
 	PLAN_JETPACK_COMPLETE_MONTHLY,
+	PLAN_JETPACK_VIDEOPRESS,
+	PLAN_JETPACK_VIDEOPRESS_MONTHLY,
 
 	// DEPRECATED: Daily and Real-time variations will soon be retired.
 	// Remove after all customers are migrated to new products.
@@ -106,6 +108,8 @@ const PRODUCT_ICON_MAP = {
 	[ PLAN_JETPACK_SECURITY_T2_MONTHLY ]: '/plans/jetpack-security.svg',
 	[ PLAN_JETPACK_COMPLETE ]: '/plans/jetpack-complete.svg',
 	[ PLAN_JETPACK_COMPLETE_MONTHLY ]: '/plans/jetpack-complete.svg',
+	[ PLAN_JETPACK_VIDEOPRESS ]: '/products/product-jetpack-videopress.svg',
+	[ PLAN_JETPACK_VIDEOPRESS_MONTHLY ]: '/products/product-jetpack-videopress.svg',
 
 	// DEPRECATED: Daily and Real-time variations will soon be retired.
 	// Remove after all customers are migrated to new products.
