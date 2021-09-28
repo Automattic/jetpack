@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Sync\Replicastore;
 
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Sync;
 use Automattic\Jetpack\Sync\Modules;
 use WP_Error;
@@ -73,15 +74,47 @@ class Table_Checksum_Usermeta extends Table_Checksum {
 				if ( ! empty( $user_object->roles ) ) {
 					$checksum_entry = crc32( implode( '#', array( $this->salt, 'roles', maybe_serialize( $user_object->roles ) ) ) );
 				}
-				if ( ! empty( $user_object->allcaps ) ) {
-					$checksum_entry += crc32( implode( '#', array( $this->salt, 'capabilities', maybe_serialize( $user_object->allcaps ) ) ) );
+
+				// Meta only persisted if user is connected to WP.com.
+				if ( ( new Manager( 'jetpack' ) )->is_user_connected( $user_object->ID ) ) {
+					if ( ! empty( $user_object->allcaps ) ) {
+						$checksum_entry += crc32(
+							implode(
+								'#',
+								array(
+									$this->salt,
+									'capabilities',
+									maybe_serialize( $user_object->allcaps ),
+								)
+							)
+						);
+					}
+					if ( ! empty( $user_object->locale ) ) {
+						$checksum_entry += crc32(
+							implode(
+								'#',
+								array(
+									$this->salt,
+									'locale',
+									maybe_serialize( $user_object->locale ),
+								)
+							)
+						);
+					}
+					if ( ! empty( $user_object->allowed_mime_types ) ) {
+						$checksum_entry += crc32(
+							implode(
+								'#',
+								array(
+									$this->salt,
+									'allowed_mime_types',
+									maybe_serialize( $user_object->allowed_mime_types ),
+								)
+							)
+						);
+					}
 				}
-				if ( ! empty( $user_object->locale ) ) {
-					$checksum_entry += crc32( implode( '#', array( $this->salt, 'locale', maybe_serialize( $user_object->locale ) ) ) );
-				}
-				if ( ! empty( $user_object->allowed_mime_types ) ) {
-					$checksum_entry += crc32( implode( '#', array( $this->salt, 'allowed_mime_types', maybe_serialize( $user_object->allowed_mime_types ) ) ) );
-				}
+
 				$checksum_entries[ $user_object->ID ] = $checksum_entry;
 			}
 		}
