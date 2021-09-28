@@ -79,9 +79,26 @@ export async function releaseCli( argv ) {
 		argv = await promptForScript( argv );
 	}
 
+    scriptRouter( argv );
 	console.log( argv );
 }
 
+/**
+ * Determine which script to run.
+ *
+ * @param {object} argv the arguments passed 
+ * @returns argv 
+ */
+ export async function scriptRouter( argv ) {
+     switch ( argv.script ) {
+        case 'changelog':
+        case 'readme':
+        case 'release-branch':
+            console.log( 'Not implemented yet!' );
+            break;
+     }
+ 
+}
 /**
  * Checks the project we're releasing.
  *
