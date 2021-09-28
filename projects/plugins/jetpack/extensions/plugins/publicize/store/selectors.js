@@ -29,8 +29,8 @@ const DEFAULT_TWEETSTORM_MESSAGE = '\n\n' + __( 'A thread ⬇️', 'jetpack' );
  *
  * @returns {Array} List of connections.
  */
-export function getFailedConnections() {
-	const connections = getConnections();
+export function getFailedConnections( state ) {
+	const connections = getConnections( state );
 	return connections.filter( connection => false === connection.test_success );
 }
 
@@ -40,8 +40,8 @@ export function getFailedConnections() {
  *
  * @returns {Array} List of service names that need reauthentication.
  */
-export function getMustReauthConnections() {
-	const connections = getConnections();
+export function getMustReauthConnections( state ) {
+	const connections = getConnections( state );
 	return connections
 		.filter( connection => 'must_reauth' === connection.test_success )
 		.map( connection => connection.service_name );
