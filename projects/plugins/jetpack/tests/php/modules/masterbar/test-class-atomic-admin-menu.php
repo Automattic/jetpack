@@ -75,8 +75,8 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	/**
 	 * Set up data.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 		global $menu, $submenu;
 
 		// Initialize in setUp so it registers hooks for every test.
@@ -213,19 +213,19 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_site_card_menu();
 
 		$menu = static::$admin_menu->set_site_card_menu_class( $menu );
-		$this->assertNotContains( 'has-site-icon', $menu[1][4] );
+		$this->assertStringNotContainsString( 'has-site-icon', $menu[1][4] );
 
 		// Atomic fallback site icon counts as no site icon.
 		add_filter( 'get_site_icon_url', array( $this, 'wpcomsh_site_icon_url' ) );
 		$menu = static::$admin_menu->set_site_card_menu_class( $menu );
 		remove_filter( 'get_site_icon_url', array( $this, 'wpcomsh_site_icon_url' ) );
-		$this->assertNotContains( 'has-site-icon', $menu[1][4] );
+		$this->assertStringNotContainsString( 'has-site-icon', $menu[1][4] );
 
 		// Custom site icon triggers CSS class.
 		add_filter( 'get_site_icon_url', array( $this, 'custom_site_icon_url' ) );
 		$menu = static::$admin_menu->set_site_card_menu_class( $menu );
 		remove_filter( 'get_site_icon_url', array( $this, 'custom_site_icon_url' ) );
-		$this->assertContains( 'has-site-icon', $menu[1][4] );
+		$this->assertStringContainsString( 'has-site-icon', $menu[1][4] );
 	}
 
 	/**
