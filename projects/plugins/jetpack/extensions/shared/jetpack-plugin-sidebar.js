@@ -7,6 +7,7 @@ import { PluginSidebar, PluginSidebarMoreMenuItem } from '@wordpress/edit-post';
 import { registerPlugin } from '@wordpress/plugins';
 import { dispatch } from '@wordpress/data';
 import { getQueryArg } from '@wordpress/url';
+import domReady from '@wordpress/dom-ready';
 
 /**
  * Internal dependencies
@@ -31,7 +32,7 @@ function openJetpackSidebar() {
 		'jetpack-sidebar/jetpack'
 	);
 }
-openJetpackSidebar();
+domReady( openJetpackSidebar );
 
 registerPlugin( 'jetpack-sidebar', {
 	render: () => (
