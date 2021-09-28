@@ -299,18 +299,6 @@ function render( $name, $template_props = array(), $print = true ) {
 		return '';
 	}
 
-	/*
-	 * Optionally provided an assoc array of data to pass to template.
-	 * IMPORTANT: It will be extracted into variables.
-	 */
-	if ( is_array( $template_props ) ) {
-		/*
-		 * It ignores the `discouraging` sniffer rule for extract, since it's needed
-		 * to make the templating system works.
-		 */
-		extract( $template_props ); // phpcs:ignore WordPress.PHP.DontExtract.extract_extract
-	}
-
 	if ( $print ) {
 		include $template_path;
 	} else {

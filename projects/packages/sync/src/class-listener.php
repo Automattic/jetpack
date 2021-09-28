@@ -230,7 +230,8 @@ class Listener {
 			/**
 			 * Modify or reject the data within an action before it is enqueued locally.
 			 *
-			 * @since 4.2.0
+			 * @since 1.6.3
+			 * @since-jetpack 4.2.0
 			 *
 			 * @module sync
 			 *
@@ -276,14 +277,16 @@ class Listener {
 		 *
 		 * @module sync
 		 *
-		 * @since 5.9.0
+		 * @since 1.6.3
+		 * @since-jetpack 5.9.0
 		 */
 		do_action( 'jetpack_sync_action_before_enqueue' );
 
 		/**
 		 * Modify or reject the data within an action before it is enqueued locally.
 		 *
-		 * @since 4.2.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
 		 *
 		 * @param array The action parameters
 		 */
@@ -443,7 +446,8 @@ class Listener {
 		/**
 		 * Allow or deny sending actor's user data ( IP and UA ) during a sync event
 		 *
-		 * @since 5.8.0
+		 * @since 1.6.3
+		 * @since-jetpack 5.8.0
 		 *
 		 * @module sync
 		 *
