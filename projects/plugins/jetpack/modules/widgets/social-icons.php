@@ -57,7 +57,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 			add_action( 'wp_footer', array( $this, 'include_svg_icons' ), 9999 );
 		}
 
-		// add_filter( 'widget_types_to_hide_from_legacy_widget_block', array( $this, 'hide_widget_in_block_editor' ) );
+		add_filter( 'widget_types_to_hide_from_legacy_widget_block', array( $this, 'hide_widget_in_block_editor' ) );
 	}
 
 	/**

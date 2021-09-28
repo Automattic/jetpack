@@ -1,5 +1,5 @@
 /**
- * Services list to help with convert to block
+ * Services list to help with transforming widget urls to social-link block
  */
 
 const services = [
@@ -72,12 +72,24 @@ const services = [
 		url: [ 'instagram.com' ],
 	},
 	{
+		name: 'lastfm',
+		url: [ 'last.fm' ],
+	},
+	{
 		name: 'linkedin',
 		url: [ 'linkedin.com' ],
 	},
 	{
 		name: 'mail',
 		url: [ 'mailto:' ],
+	},
+	{
+		name: 'linkedin',
+		url: [ 'linkedin.com' ],
+	},
+	{
+		name: 'mastodon',
+		url: [ 'mastodon.social' ],
 	},
 	{
 		name: 'meetup',

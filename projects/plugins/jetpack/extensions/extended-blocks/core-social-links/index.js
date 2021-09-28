@@ -38,7 +38,7 @@ const socialLinksTransform = {
 					} );
 
 					const innerBlock = createBlock( 'core/social-link', {
-						service: iconService ? iconService.name : 'default',
+						service: iconService ? iconService.name : 'chain',
 						url: icon.url,
 					} );
 					innerBlocks = [ ...innerBlocks, innerBlock ];
