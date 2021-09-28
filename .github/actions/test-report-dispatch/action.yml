@@ -27,7 +27,7 @@ runs:
           EVENT_NAME="Report for $BRANCH branch"
         fi
 
-        if [ -z "$REPORT_NAME" ]; then
+        if [ ! -z "$REPORT_NAME" ]; then
           EVENT_NAME="Report for $REPORT_NAME run"
         fi
 
