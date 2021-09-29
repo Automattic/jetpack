@@ -19,21 +19,30 @@ import PublicizeConnectionVerify from '../connection-verify';
 import PublicizeForm from '../form';
 import PublicizeTwitterOptions from '../twitter/options';
 import useSelectSocialMediaConnections from '../../hooks/use-social-media-connections';
-import { usePostJustPublished } from '../../hooks/use-saving-post';
+import { usePostJustBeforeToPublish } from '../../hooks/use-saving-post';
 
 const PublicizePanel = ( { prePublish } ) => {
-	const { refresh, hasEnabledConnections } = useSelectSocialMediaConnections();
+	const { refresh, connections } = useSelectSocialMediaConnections();
 
 	// Refresh connections when the post is just published.
-	usePostJustPublished(
+	usePostJustBeforeToPublish(
 		function () {
-			if ( ! hasEnabledConnections ) {
-				return;
-			}
+			/*
+			 * Being optimistic, it sets the connections
+			 * that are going to be used
+			 * to share the post as `done`.
+			 * The sharing process is handled by an async action,
+			 * in the server-side.
+			 */
+			const updatedConnections = connections.map( connection => ( {
+				...connection,
+				done: connection.enabled,
+				toggleable: ! connection.enabled,
+			} ) );
 
-			refresh();
+			refresh( updatedConnections );
 		},
-		[ hasEnabledConnections, refresh ]
+		[ refresh ]
 	);
 
 	return (
