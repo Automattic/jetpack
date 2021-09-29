@@ -228,12 +228,16 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 		const conditions = useMemo( () => attributes.conditions || {}, [ attributes ] );
 		const rules = useMemo( () => conditions.rules || [], [ conditions ] );
 
-		const isParentWidgetArea = useSelect(
+		// Is this block the top-most level block in a widget?.
+		const isTopLevelWidgetBlock = useSelect(
 			select => {
 				const { getBlockParents, getBlock } = select( 'core/block-editor' );
 				const parents = getBlockParents( clientId, true );
 				const parentBlock = parents ? getBlock( parents[ 0 ] ) : undefined;
-				return parentBlock && parentBlock.name === 'core/widget-area';
+				// Customizer: There is no parent.
+				// Widgets.php: Parent is core/widget area.
+				// Both are OK.
+				return ! parentBlock || ( parentBlock && parentBlock.name === 'core/widget-area' );
 			},
 			[ clientId ]
 		);
@@ -393,10 +397,10 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 		return (
 			<Fragment>
 				<BlockEdit { ...props } />
-				{ isSelected && isParentWidgetArea && blockHasVisibilitySettings( props.name ) && (
+				{ isSelected && isTopLevelWidgetBlock && blockHasVisibilitySettings( props.name ) && (
 					<InspectorAdvancedControls>{ mainRender }</InspectorAdvancedControls>
 				) }
-				{ isSelected && ! isParentWidgetArea && blockHasVisibilitySettings( props.name ) && (
+				{ isSelected && ! isTopLevelWidgetBlock && blockHasVisibilitySettings( props.name ) && (
 					<InspectorAdvancedControls>
 						<BaseControl
 							id="widget-vis__wrapper"
