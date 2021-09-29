@@ -7,11 +7,13 @@ import { select } from '@wordpress/data';
  * Returns an action object used in signalling that
  * we're refreshing the Publicize connection.
  *
+ * @param {Array} connections  - Connections list (optional).
  * @returns {object} Action object.
  */
-export function refreshConnectionTestResults() {
+export function refreshConnectionTestResults( connections = [] ) {
 	return {
 		type: 'REFRESH_CONNECTION_TEST_RESULTS',
+		connections,
 	};
 }
 
