@@ -13,7 +13,7 @@ function SavingPostLabel() {
 ```
 
 # usePostJustPublished() hook
-React hook to detect when the post is just saved.
+React hook to detect when the post is just publihsed.
 Also, it accepts a dependency array passed to useEffect hook.
 
 ```es6

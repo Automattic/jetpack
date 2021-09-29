@@ -24,7 +24,7 @@ import { usePostJustPublished } from '../../hooks/use-saving-post';
 const PublicizePanel = ( { prePublish } ) => {
 	const { refresh, hasEnabledConnections } = useSelectSocialMediaConnections();
 
-	// Refresh connections when the post is just saved.
+	// Refresh connections when the post is just published.
 	usePostJustPublished(
 		function () {
 			if ( ! hasEnabledConnections ) {
