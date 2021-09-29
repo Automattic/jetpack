@@ -1,10 +1,10 @@
 /**
  * WordPress dependencies
  */
-import { Button } from '@wordpress/components';
+import { Button, PanelRow } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
-export default function SharePostButton() {
+function SharePostButton() {
 	function onPostShareHander() {}
 
 	return (
@@ -15,5 +15,13 @@ export default function SharePostButton() {
 		>
 			{ __( 'Share this post', 'jetpack' ) }
 		</Button>
+	);
+}
+
+export default function SharePostSection() {
+	return (
+		<PanelRow>
+			<SharePostButton />
+		</PanelRow>
 	);
 }

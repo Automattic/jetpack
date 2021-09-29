@@ -20,7 +20,7 @@ import PublicizeForm from '../form';
 import PublicizeTwitterOptions from '../twitter/options';
 import useSelectSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { usePostJustBeforePublish } from '../../hooks/use-saving-post';
-import SharePostButton from '../share-post-button';
+import SharePostSection from '../share-post';
 
 const PublicizePanel = ( { prePublish } ) => {
 	const { refresh, connections } = useSelectSocialMediaConnections();
@@ -51,7 +51,7 @@ const PublicizePanel = ( { prePublish } ) => {
 			<PublicizeConnectionVerify />
 			<PublicizeForm />
 			<PublicizeTwitterOptions prePublish={ prePublish } />
-			<SharePostButton />
+			<SharePostSection />
 		</PanelBody>
 	);
 };
