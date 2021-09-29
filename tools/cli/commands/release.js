@@ -39,7 +39,7 @@ export function releaseDefine( yargs ) {
 					alias: 's',
 					describe: 'The release script to run',
 					type: 'string',
-                    choices: [ 'changelog', 'readme', 'release-branch' ]
+                    choices: [ 'changelog', 'readme', 'release-branch', 'amend' ]
 				} )
 				.option( 'beta', {
 					alias: 'b',
@@ -92,6 +92,7 @@ export async function releaseCli( argv ) {
  export async function scriptRouter( argv ) {
      switch ( argv.script ) {
         case 'changelog':
+            argv.script = 
         case 'readme':
         case 'release-branch':
             console.log( 'Not implemented yet!' );
@@ -154,7 +155,7 @@ export async function parseProj( argv ) {
 			message: `What step of the release process are you looking to do for ${argv.project}?`,
 			choices: [
 				{
-					name: `[Update changelog.md  ] - Compile all changelog files into ${argv.project}'s CHANGELOG.md `,
+					name: `[Create changelog.md  ] - Compile all changelog files into ${argv.project}'s CHANGELOG.md `,
 					value: 'changelog',
 				},
 				{
@@ -164,6 +165,10 @@ export async function parseProj( argv ) {
 				{
 					name: `[Create release branch] - Create a release branch for  ${argv.project}`,
 					value: 'release-branch',
+				},
+                {
+					name: `[Amend changelog.md  ] - Updates changelog.md with any files cherry picked to release branch prior to release.`,
+					value: 'amend',
 				},
 			],
 		},
