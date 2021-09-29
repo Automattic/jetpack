@@ -11,6 +11,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { PanelRow } from '@wordpress/components';
+import { Fragment } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -30,22 +31,26 @@ export default function PublicizeForm() {
 	}
 
 	return (
-		<PanelRow>
-			{ __( "Connect and select the accounts where you'd like to share your post.", 'jetpack' ) }
+		<Fragment>
+			<div>
+				{ __( "Connect and select the accounts where you'd like to share your post.", 'jetpack' ) }
+			</div>
 
-			<ul className="jetpack-publicize__connections-list">
-				{ connections.map( ( { display_name, enabled, id, service_name, toggleable } ) => (
-					<PublicizeConnection
-						disabled={ ! toggleable }
-						enabled={ enabled }
-						key={ id }
-						id={ id }
-						label={ display_name }
-						name={ service_name }
-						toggleConnection={ toggleById }
-					/>
-				) ) }
-			</ul>
+			<PanelRow>
+				<ul className="jetpack-publicize__connections-list">
+					{ connections.map( ( { display_name, enabled, id, service_name, toggleable } ) => (
+						<PublicizeConnection
+							disabled={ ! toggleable }
+							enabled={ enabled }
+							key={ id }
+							id={ id }
+							label={ display_name }
+							name={ service_name }
+							toggleConnection={ toggleById }
+						/>
+					) ) }
+				</ul>
+			</PanelRow>
 
 			<PublicizeSettingsButton />
 
@@ -57,6 +62,6 @@ export default function PublicizeForm() {
 					message={ message }
 				/>
 			) }
-		</PanelRow>
+		</Fragment>
 	);
 }
