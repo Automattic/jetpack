@@ -15,14 +15,19 @@ import { SUPPORTED_CONTAINER_BLOCKS } from '../components/twitter';
 /**
  * Effect handler which will refresh the connection test results.
  *
- * @returns {object} Refresh connection test results action.
+ * @param {object} action              - Action which had initiated the effect handler.
+ * @param {Array} action.connections  - Current connections list.
+ * @returns {object} Refresh connection test results action in the post metadata.
  */
-export async function refreshConnectionTestResults() {
+export async function refreshConnectionTestResults( { connections: prevConnections } ) {
 	try {
 		const results = await apiFetch( { path: '/wpcom/v2/publicize/connection-test-results' } );
 
-		// Combine current connections with new connections.
-		const prevConnections = select( 'jetpack/publicize' ).getConnections();
+		// Define initial conncetions list.
+		prevConnections = prevConnections?.length
+			? prevConnections
+			: select( 'jetpack/publicize' ).getConnections();
+
 		const prevConnectionIds = prevConnections.map( connection => connection.id );
 		const freshConnections = results;
 		const connections = [];
@@ -36,7 +41,7 @@ export async function refreshConnectionTestResults() {
 			if ( prevConnectionIds.includes( freshConnection.id ) ) {
 				/*
 				 * The connection is already defined.
-				 * Do not overwrite the existing connection.
+				 * Do not overwrite.
 				 */
 				connection = prevConnections.filter(
 					prevConnection => prevConnection.id === freshConnection.id
