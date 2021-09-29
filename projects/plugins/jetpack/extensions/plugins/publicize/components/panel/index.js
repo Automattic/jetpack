@@ -10,7 +10,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Fragment } from '@wordpress/element';
+import { PanelBody } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -46,17 +46,11 @@ const PublicizePanel = ( { prePublish } ) => {
 	);
 
 	return (
-		<Fragment>
+		<PanelBody title={ __( 'Share this post', 'jetpack' ) }>
 			<PublicizeConnectionVerify />
-
-			<div>
-				{ __( "Connect and select the accounts where you'd like to share your post.", 'jetpack' ) }
-			</div>
-
 			<PublicizeForm />
-
 			<PublicizeTwitterOptions prePublish={ prePublish } />
-		</Fragment>
+		</PanelBody>
 	);
 };
 
