@@ -4,6 +4,7 @@
 import { __, _x } from '@wordpress/i18n';
 import { InnerBlocks } from '@wordpress/block-editor';
 import { Path } from '@wordpress/components';
+import { createBlock } from '@wordpress/blocks';
 
 /**
  * Internal dependencies
@@ -50,6 +51,26 @@ export const settings = {
 	supports: {
 		align: [ 'wide', 'full' ],
 		html: false,
+	},
+	// Transform from classic widget
+	transforms: {
+		from: [
+			{
+				type: 'block',
+				blocks: [ 'core/legacy-widget' ],
+				isMatch: ( { idBase, instance } ) => {
+					if ( ! instance?.raw ) {
+						return false;
+					}
+					return idBase === 'widget_contact_info';
+				},
+				transform: ( { instance } ) => {
+					return createBlock( 'jetpack/contact-info', {
+						name: instance.raw.name,
+					} );
+				},
+			},
+		],
 	},
 	attributes,
 	edit,
