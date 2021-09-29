@@ -21,10 +21,11 @@ import './style.scss';
  * @param {React.Component} props.logo - The screen logo, Jetpack by default.
  * @param {string} props.headerText - The header text, 'Safe Mode' by default.
  * @param {string} props.wpcomHomeUrl - The original site URL.
+ * @param {string} props.currentUrl - The current site URL.
  * @returns {React.Component} The `ConnectScreen` component.
  */
 const IDCScreen = props => {
-	const { logo, headerText, wpcomHomeUrl } = props;
+	const { logo, headerText, wpcomHomeUrl, currentUrl } = props;
 
 	return (
 		<div className="jp-idc-screen-base">
@@ -57,9 +58,9 @@ const IDCScreen = props => {
 			<h3>{ __( 'Please select an option', 'jetpack' ) }</h3>
 
 			<div className="jp-idc-cards">
-				<CardMigrate wpcomHomeUrl={ wpcomHomeUrl } />
+				<CardMigrate wpcomHomeUrl={ wpcomHomeUrl } currentUrl={ currentUrl } />
 				<div className="jp-idc-cards-separator">or</div>
-				<CardFresh wpcomHomeUrl={ wpcomHomeUrl } />
+				<CardFresh wpcomHomeUrl={ wpcomHomeUrl } currentUrl={ currentUrl } />
 			</div>
 		</div>
 	);
@@ -69,6 +70,7 @@ IDCScreen.propTypes = {
 	logo: PropTypes.object.isRequired,
 	headerText: PropTypes.string.isRequired,
 	wpcomHomeUrl: PropTypes.string.isRequired,
+	newUrl: PropTypes.string.isRequired,
 };
 
 IDCScreen.defaultProps = {

@@ -31,7 +31,8 @@ export default function Admin() {
 
 	// Placeholder for testing purposes.
 	const hasIDC = true;
-	const IDCHomeURL = 'https://agutin.jurassic.tube/';
+	const IDCHomeUrl = 'https://site1.local/';
+	const currentUrl = 'https://site2.local/';
 
 	const statusCallback = useCallback(
 		status => {
@@ -45,7 +46,7 @@ export default function Admin() {
 	}, [ setConnectionStatus ] );
 
 	if ( hasIDC ) {
-		return <IDCScreen wpcomHomeUrl={ IDCHomeURL } />;
+		return <IDCScreen wpcomHomeUrl={ IDCHomeUrl } currentUrl={ currentUrl } />;
 	}
 
 	return (

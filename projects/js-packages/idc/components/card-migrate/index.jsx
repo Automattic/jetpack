@@ -9,17 +9,21 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Spinner } from '@automattic/jetpack-components';
 
 /**
+ * Internal dependencies
+ */
+import extractHostname from '../../tools/extract-hostname';
+
+/**
  * The "migrate" card.
  *
  * @param {object} props - The properties.
  * @param {string} props.wpcomHomeUrl - The original site URL.
+ * @param {string} props.currentUrl - The current site URL.
  * @returns {React.Component} The `ConnectScreen` component.
  */
 const CardMigrate = props => {
-	const wpcomHostName = /^https?:\/\//.test( props.wpcomHomeUrl )
-		? new URL( props.wpcomHomeUrl ).hostname
-		: props.wpcomHomeUrl;
-	const currentHostName = location.hostname;
+	const wpcomHostName = extractHostname( props.wpcomHomeUrl );
+	const currentHostName = extractHostname( props.currentUrl );
 
 	const buttonLabel = __( 'Move your settings', 'jetpack' );
 
