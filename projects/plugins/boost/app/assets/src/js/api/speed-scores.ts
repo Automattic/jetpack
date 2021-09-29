@@ -57,8 +57,7 @@ export async function requestSpeedScores( force = false ): Promise< SpeedScoresS
 
 /**
  * Helper method for parsing a response from a speed score API request. Returns
- * scores (if ready), or a request id to use for future polling if the speed
- * score is not yet ready.
+ * scores (if ready), and a status (success|pending|error).
  *
  * @param {JSONObject} response - API response to parse
  * @return {ParsedApiResponse} API response, processed.
