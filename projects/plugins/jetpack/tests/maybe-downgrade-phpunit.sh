@@ -12,9 +12,6 @@ then
 
 	TMP1="$(<composer.json)"
 	TMP2="$(<composer.lock)"
-	if [[ ! -d ../../packages/ ]]; then
-		jq '.repositories |= empty' <<<"$TMP1" > composer.json
-	fi
 	composer require --with-all-dependencies --ignore-platform-reqs phpunit/phpunit=^7.5
 	echo "$TMP1" > composer.json
 	echo "$TMP2" > composer.lock
