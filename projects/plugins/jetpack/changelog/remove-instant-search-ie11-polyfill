@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-Instant Search: As IE11 support was removed in Jetpack 10.1, remove an IE11 polyfill.
