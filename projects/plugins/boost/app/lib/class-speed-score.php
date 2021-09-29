@@ -9,8 +9,6 @@
 
 namespace Automattic\Jetpack_Boost\Lib;
 
-use Automattic\Jetpack_Boost\Jetpack_Boost;
-
 /**
  * Class Speed_Score
  */
@@ -218,10 +216,7 @@ class Speed_Score {
 	 * @return string
 	 */
 	private function get_boost_modules_disabled_url( $url ) {
-		$modules     = Jetpack_Boost::MODULES;
-		$keys_string = implode( ',', array_keys( $modules ) );
-
-		return add_query_arg( 'jb-disable-modules', $keys_string, $url );
+		return add_query_arg( 'jb-disable-modules', 'all', $url );
 	}
 
 	/**
