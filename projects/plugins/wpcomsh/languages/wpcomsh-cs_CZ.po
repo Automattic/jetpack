@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2021-02-06 11:03:49+0000\n"
+"PO-Revision-Date: 2021-07-17 07:44:31+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -42,7 +42,7 @@ msgstr ""
 
 #: private-site/access-denied-coming-soon-template.php:53
 msgid "Start your website"
-msgstr ""
+msgstr "Začít s vlastním webem"
 
 #: private-site/access-denied-coming-soon-template.php:49
 msgid "Build a website. Sell your stuff. Write a blog. And so much more."
@@ -54,15 +54,15 @@ msgstr "Připravujeme"
 
 #: wpcomsh.php:980
 msgid "Disk space quota"
-msgstr ""
+msgstr "Kvóta diskového úložiště "
 
 #: wpcomsh.php:976
 msgid "Disk space used"
-msgstr ""
+msgstr "Prostoru úložiště využito"
 
 #: widgets/category-cloud.php:167
 msgid "Click for more information"
-msgstr ""
+msgstr "Klikněte pro více infomrací"
 
 #: widgets/category-cloud.php:166
 msgid "Count items in sub-categories toward parent total."
@@ -106,7 +106,7 @@ msgstr ""
 
 #: private-site/logged-in-banner.php:72
 msgid "Update visibility"
-msgstr ""
+msgstr "Aktualizovat viditelnost"
 
 #: private-site/logged-in-banner.php:68
 msgid "Launch site"
@@ -142,7 +142,7 @@ msgstr ""
 
 #: widgets/twitter.php:399
 msgid "Include retweets"
-msgstr ""
+msgstr "Včetně retweetů"
 
 #: widgets/twitter.php:392
 msgid "Hide Tweets pushed by Publicize"
@@ -206,7 +206,7 @@ msgstr ""
 
 #: widgets/tag-cloud-widget.php:137
 msgid "Number of Tags:"
-msgstr ""
+msgstr "Počet štítků:"
 
 #: widgets/tag-cloud-widget.php:41
 msgid "Tags"
@@ -230,7 +230,7 @@ msgstr ""
 
 #: widgets/instagram/instagram.php:237
 msgid "Number of columns:"
-msgstr ""
+msgstr "Počet sloupců:"
 
 #: widgets/instagram/instagram.php:236
 msgid "Layout"
@@ -262,7 +262,7 @@ msgstr ""
 
 #: widgets/instagram/instagram.php:28 widgets/instagram/instagram.php:43
 msgid "Instagram"
-msgstr ""
+msgstr "Instagram"
 
 #: widgets/aboutme.php:141
 msgid "Biography"
@@ -413,11 +413,11 @@ msgstr "Uložit"
 
 #: customizer-fixes/customizer-fixes.php:8
 msgid "Activate &amp; Save"
-msgstr ""
+msgstr "Aktivovat &amp; Uložit"
 
 #: private-site/private-site.php:168
 msgid "Manage your site visibility settings"
-msgstr ""
+msgstr "Spravovat nastavení viditelnosti webu"
 
 #: wpcomsh.php:338
 msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
@@ -453,7 +453,7 @@ msgstr "Nejlépe hodnocené"
 
 #: widgets/top-rated.php:10
 msgid "A list of your top rated posts, pages or comments."
-msgstr ""
+msgstr "Seznam vašich nejlépe hodnocených příspěvků, stránek nebo komentářů."
 
 #: widgets/top-clicks.php:61
 msgid "Top Clicks are calculated from 48-72 hours of stats. They take a while to change."
@@ -482,7 +482,7 @@ msgstr ""
 
 #: widgets/tlkio/tlkio.php:55
 msgid "Channel:"
-msgstr ""
+msgstr "Kanál:"
 
 #: widgets/tlkio/tlkio.php:26
 msgid "tlk.io Webchat"
@@ -654,11 +654,11 @@ msgstr ""
 
 #: widgets/gravatar.php:144
 msgid "You can modify your Gravatar from your <a href=\"/wp-admin/profile.php\">profile page</a>."
-msgstr ""
+msgstr "Svůj Gravatar můžete upravit na své <a href=\"/wp-admin/profile.php\">profilové stránce</a>."
 
 #: widgets/gravatar.php:143
 msgid "Text displayed after Gravatar. This is optional and can be used to describe yourself or what your blog is about."
-msgstr ""
+msgstr "Text zobrazený za Gravatarem. Tento údaj je nepovinný a můžete jej použít k popisu sebe sama nebo toho, o čem je váš blog."
 
 #: widgets/gravatar.php:142
 msgid "Gravatar link. This is an optional URL that will be used when anyone clicks on your Gravatar:"
@@ -817,7 +817,7 @@ msgstr ""
 
 #: logo-tool/logo-tool.php:70
 msgid "Create logo"
-msgstr ""
+msgstr "Vytvořit logo"
 
 #: logo-tool/logo-tool.php:60
 msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."

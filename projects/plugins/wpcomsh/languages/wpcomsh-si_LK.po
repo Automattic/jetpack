@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-03-27 11:20:40+0000\n"
+"PO-Revision-Date: 2021-09-04 01:51:54+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -186,7 +186,7 @@ msgstr ""
 
 #: widgets/twitter.php:26
 msgid "Twitter"
-msgstr ""
+msgstr "ට්විටර්"
 
 #: widgets/tag-cloud-widget.php:177
 msgid "Taxonomy:"
@@ -298,7 +298,7 @@ msgstr ""
 
 #: widgets/aboutme.php:104
 msgid "Your about.me URL"
-msgstr ""
+msgstr "ඔබගේ about.me ඒ.ස.නි. (URL)"
 
 #: widgets/aboutme.php:97
 msgid "Widget title"
@@ -718,7 +718,7 @@ msgstr ""
 
 #: widgets/gravatar.php:22
 msgid "Gravatar"
-msgstr ""
+msgstr "ග්‍රැවටාර්"
 
 #: widgets/gravatar.php:20
 msgid "Insert a Gravatar image"

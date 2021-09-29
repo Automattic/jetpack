@@ -461,6 +461,70 @@ function wpcomsh_cli_plugin_symlink( $args, $assoc_args = array() ) {
 	}
 }
 
+/**
+ * Symlinks a managed theme into the site's themes directory.
+ *
+ * ## OPTIONS
+ *
+ * <theme>
+ * : The managed theme to symlink.
+ */
+function wpcomsh_cli_theme_symlink( $args, $assoc_args = array() ) {
+	$theme_to_symlink = $args[0];
+
+	$themes_dir = get_theme_root();
+	if ( false === chdir( $themes_dir ) ) {
+		WP_CLI::error( "Cannot switch to themes directory '$themes_dir'" );
+	}
+
+	$candidate_managed_theme_paths = array(
+		"../../../../wordpress/themes/$theme_to_symlink/latest",
+		// NOTE: pub and premium themes don't have nested `latest`and version directories
+		"../../../../wordpress/themes/pub/$theme_to_symlink",
+		"../../../../wordpress/themes/premium/$theme_to_symlink",
+	);
+
+	$managed_theme_path = false;
+	foreach ( $candidate_managed_theme_paths as $candidate_path ) {
+		if ( false !== realpath( $candidate_path ) ) {
+			$managed_theme_path = $candidate_path;
+			break;
+		}
+	}
+
+	if ( false == $managed_theme_path ) {
+		WP_CLI::error( "'$theme_to_symlink' is not a managed theme" );
+	}
+
+	if ( realpath( $theme_to_symlink ) === realpath( $managed_theme_path ) ) {
+		WP_CLI::success( "Theme '$theme_to_symlink' is already symlinked" );
+		exit( -1 );
+	}
+
+	if ( is_dir( $theme_to_symlink ) ) {
+		$answer = wpcomsh_cli_confirm( "Theme '$theme_to_symlink' exists. Delete it and replace with symlink?" );
+		if ( false === $answer ) {
+			exit( -1 );
+		}
+
+		WP_CLI::runcommand(
+			"--skip-plugins --skip-themes theme delete '$theme_to_symlink'",
+			array(
+				'launch' => false,
+				'exit_error' => true,
+			)
+		);
+	}
+
+	if ( symlink( $managed_theme_path, $theme_to_symlink ) ) {
+		WP_CLI::success( "Symlinked '$theme_to_symlink' theme" );
+		exit( 0 );
+	} else {
+		WP_CLI::error( "Failed to symlink '$theme_to_symlink' theme" );
+		exit( -1 );
+	}
+}
+
 // Cleanup via WP-Cron event
 add_action( WPCOMSH_CLI_DEACTIVATED_PLUGIN_RECORD_CLEANUP_JOB, 'wpcomsh_cli_remove_expired_from_deactivation_record' );
 
@@ -482,3 +546,4 @@ add_action( 'activated_plugin', 'wpcomsh_cli_forget_plugin_deactivation' );
 WP_CLI::add_command( 'wpcomsh', 'WPCOMSH_CLI_Commands' );
 WP_CLI::add_command( 'wpcomsh plugin verify-checksums', 'Checksum_Plugin_Command_WPCOMSH' );
 WP_CLI::add_command( 'plugin symlink', 'wpcomsh_cli_plugin_symlink' );
+WP_CLI::add_command( 'theme symlink', 'wpcomsh_cli_theme_symlink' );

@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-07-22 11:42:54+0000\n"
+"PO-Revision-Date: 2021-09-27 02:59:22+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -42,11 +42,11 @@ msgstr ""
 
 #: private-site/access-denied-coming-soon-template.php:53
 msgid "Start your website"
-msgstr ""
+msgstr "Tạo trang của bạn"
 
 #: private-site/access-denied-coming-soon-template.php:49
 msgid "Build a website. Sell your stuff. Write a blog. And so much more."
-msgstr ""
+msgstr "Tạo trang web. Bán sản phẩm. Viết blog. Và nhiều hơn nữa."
 
 #: private-site/access-denied-coming-soon-template.php:43
 msgid "Coming Soon"
@@ -150,7 +150,7 @@ msgstr ""
 
 #: widgets/twitter.php:385
 msgid "Hide replies"
-msgstr ""
+msgstr "Ẩn trả lời"
 
 #: widgets/twitter.php:371
 msgid "Maximum number of Tweets to show:"
@@ -262,7 +262,7 @@ msgstr ""
 
 #: widgets/instagram/instagram.php:28 widgets/instagram/instagram.php:43
 msgid "Instagram"
-msgstr ""
+msgstr "Instagram"
 
 #: widgets/aboutme.php:141
 msgid "Biography"
@@ -334,7 +334,7 @@ msgstr ""
 
 #: footer-credit/footer-credit/footer-credit.php:101
 msgid "Powered by WordPress.com"
-msgstr ""
+msgstr "Tạo trên Wordpress.com."
 
 #: footer-credit/footer-credit/footer-credit.php:98
 #: footer-credit/theme-optimizations.php:30
@@ -344,7 +344,7 @@ msgstr "Blog tại WordPress.com"
 
 #: footer-credit/footer-credit/footer-credit.php:97
 msgid "A WordPress.com Website"
-msgstr ""
+msgstr "Trang web từ WordPress.com"
 
 #: footer-credit/footer-credit/footer-credit.php:96
 msgid "WordPress.com Logo"
@@ -718,7 +718,7 @@ msgstr ""
 
 #: widgets/gravatar.php:22
 msgid "Gravatar"
-msgstr ""
+msgstr "Gravatar"
 
 #: widgets/gravatar.php:20
 msgid "Insert a Gravatar image"
@@ -768,12 +768,12 @@ msgstr ""
 
 #: private-site/private-site.php:555
 msgid "Private Site"
-msgstr ""
+msgstr "Trang Riêng Tư"
 
 #: private-site/private-site.php:391 private-site/private-site.php:493
 #: private-site/private-site.php:687
 msgid "This site is private."
-msgstr ""
+msgstr "Đây là trang riêng tư."
 
 #: private-site/access-denied-coming-soon-template.php:52
 #: private-site/access-denied-private-site-template.php:45

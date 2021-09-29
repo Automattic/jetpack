@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WP.com Site Helper\n"
 "Report-Msgid-Bugs-To: help@wordpress.com\n"
-"POT-Creation-Date: 2021-02-06 13:23+0100\n"
+"POT-Creation-Date: 2021-09-29 13:08-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -41,8 +41,44 @@ msgstr ""
 msgid "Save Settings"
 msgstr ""
 
-#: feature-plugins/masterbar.php:64
+#: feature-manager/class-manage-additional-css-feature.php:94
+#: feature-manager/class-manage-additional-css-feature.php:97
+msgid "CSS"
+msgstr ""
+
+#: feature-manager/class-manage-additional-css-feature.php:94
+#: feature-manager/class-manage-additional-css-feature.php:97
+msgid "Additional CSS"
+msgstr ""
+
+#: feature-plugins/masterbar.php:87
 msgid "Set your color scheme on WordPress.com."
+msgstr ""
+
+#: feature-plugins/unsupported-plan-mods.php:34
+msgid "You do not have permission to access this page."
+msgstr ""
+
+#: feature-plugins/unsupported-plan-mods.php:40
+msgid ""
+"Proxied only: You can see this because you are proxied. Do not use this if "
+"you don't know why you are here."
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:114
+msgid "Proudly powered by WordPress"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:130
+msgid "Theme"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:147
+msgid "by"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:159
+msgid "Design by"
 msgstr ""
 
 #: footer-credit/footer-credit/customizer.php:41
@@ -88,22 +124,6 @@ msgstr ""
 msgid "Powered by WordPress.com"
 msgstr ""
 
-#: footer-credit/footer-credit-optimizations.php:114
-msgid "Proudly powered by WordPress"
-msgstr ""
-
-#: footer-credit/footer-credit-optimizations.php:130
-msgid "Theme"
-msgstr ""
-
-#: footer-credit/footer-credit-optimizations.php:147
-msgid "by"
-msgstr ""
-
-#: footer-credit/footer-credit-optimizations.php:159
-msgid "Design by"
-msgstr ""
-
 #: footer-credit/theme-optimizations.php:32
 msgid "Create a free website at WordPress.com"
 msgstr ""
@@ -112,13 +132,13 @@ msgstr ""
 msgid "Create a free website or blog at WordPress.com"
 msgstr ""
 
-#: logo-tool/logo-tool.php:60
+#: logo-tool/logo-tool.php:66
 msgid ""
-"Add a logo to display on your site. No logo? Buy a pro one from Fiverr — "
-"Click “Create logo” to start."
+"Add a logo to display on your site. No logo? Buy a pro one today — Click "
+"“Create logo” to start."
 msgstr ""
 
-#: logo-tool/logo-tool.php:70
+#: logo-tool/logo-tool.php:73
 msgid "Create logo"
 msgstr ""
 
@@ -824,33 +844,33 @@ msgstr ""
 #. translators: Message about how a managed theme is updated.
 #. translators: Information about how a managed plugin is updated, for debugging purposes.
 #. translators: Information about how a managed theme is updated, for debugging purposes.
-#: wpcomsh.php:300 wpcomsh.php:306 wpcomsh.php:312
+#: wpcomsh.php:416 wpcomsh.php:422 wpcomsh.php:428
 msgid "Updates managed by WordPress.com"
 msgstr ""
 
-#: wpcomsh.php:412
+#: wpcomsh.php:528
 #, php-format
 msgid "%s is automatically managed for you."
 msgstr ""
 
-#: wpcomsh.php:415
+#: wpcomsh.php:531
 msgid ""
 "This plugin was installed by WordPress.com and provides features offered in "
 "your plan subscription."
 msgstr ""
 
-#: wpcomsh.php:947
+#: wpcomsh.php:1060
 #, php-format
 msgid ""
 "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> "
 "upload limit (%3$s%%)."
 msgstr ""
 
-#: wpcomsh.php:975
+#: wpcomsh.php:1088
 msgid "Disk space used"
 msgstr ""
 
-#: wpcomsh.php:979
+#: wpcomsh.php:1092
 msgid "Disk space quota"
 msgstr ""
 

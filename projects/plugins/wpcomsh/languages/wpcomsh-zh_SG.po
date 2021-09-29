@@ -13,7 +13,7 @@ msgstr ""
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
-msgstr ""
+msgstr "WordPress.com 在所有 Atomic 站点上均提供已进行预安装并激活的功能和工具 "
 
 #. translators: Message about how a managed theme is updated.
 #. translators: Information about how a managed plugin is updated, for
@@ -22,215 +22,215 @@ msgstr ""
 #. purposes.
 #: wpcomsh.php:262 wpcomsh.php:268 wpcomsh.php:274
 msgid "Updates managed by WordPress.com"
-msgstr ""
+msgstr "更新由 WordPress.com 进行管理"
 
 #: notices/plan-notices.php:44
 msgid "The Business plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr ""
+msgstr "<strong>%3$s</strong> 的商务版套餐将于 %2$s 过期，<a href=\"%1$s\">续订套餐</a>以继续使用商务版套餐功能，例如自定义插件和主题、SFTP 和 phpMyAdmin 访问等。"
 
 #: notices/plan-notices.php:38
 msgid "The eCommerce plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr ""
+msgstr "<strong>%3$s</strong> 的电子商务版套餐将于 %2$s 过期，<a href=\"%1$s\">续订套餐</a> 以继续使用电子商务版套餐功能，例如自定义插件和主题、SFTP 和 phpMyAdmin 访问等。"
 
 #: private-site/access-denied-preview-login-template.php:61
 msgid "This site is private. You need to log in to the preview to see it."
-msgstr ""
+msgstr "此站点是私人站点。您需要登录才能预览并查看。"
 
 #: private-site/access-denied-preview-login-template.php:58
 msgid "This site is private. You need to log in as a user with permissions before previewing it."
-msgstr ""
+msgstr "此站点是私人站点。您需要以拥有相应权限的用户身份登录才能预览。"
 
 #: private-site/access-denied-coming-soon-template.php:53
 msgid "Start your website"
-msgstr ""
+msgstr "开始打造您的网站"
 
 #: private-site/access-denied-coming-soon-template.php:49
 msgid "Build a website. Sell your stuff. Write a blog. And so much more."
-msgstr ""
+msgstr "创建网站。销售商品。撰写博客。还有更多用途待您发掘。"
 
 #: private-site/access-denied-coming-soon-template.php:43
 msgid "Coming Soon"
-msgstr ""
+msgstr "快来了"
 
 #: wpcomsh.php:980
 msgid "Disk space quota"
-msgstr ""
+msgstr "磁盘空间配额"
 
 #: wpcomsh.php:976
 msgid "Disk space used"
-msgstr ""
+msgstr "已用磁盘空间"
 
 #: widgets/category-cloud.php:167
 msgid "Click for more information"
-msgstr ""
+msgstr "点击了解更多信息"
 
 #: widgets/category-cloud.php:166
 msgid "Count items in sub-categories toward parent total."
-msgstr ""
+msgstr "将子类别中的项目计算到父级总计中。"
 
 #: widgets/category-cloud.php:156
 msgid "Maximum font percentage:"
-msgstr ""
+msgstr "最大字体比例："
 
 #: widgets/category-cloud.php:149
 msgid "Minimum font percentage:"
-msgstr ""
+msgstr "最小字体比例："
 
 #: widgets/category-cloud.php:144
 msgid "Category IDs, separated by commas"
-msgstr ""
+msgstr "类别 ID（以逗号分隔）"
 
 #: widgets/category-cloud.php:141
 msgid "Exclude:"
-msgstr ""
+msgstr "除了："
 
 #: widgets/category-cloud.php:134
 msgid "Maximum number of categories to show:"
-msgstr ""
+msgstr "待显示的类别的最大数量："
 
 #: widgets/category-cloud.php:108
 msgid "If you use more <a href=\"%s\">categories</a> on your site, they will appear here."
-msgstr ""
+msgstr "如果您在站点上使用更多<a href=\"%s\">类别</a>，它们会出现在这里。"
 
 #: widgets/category-cloud.php:18
 msgid "Your most used categories in cloud format."
-msgstr ""
+msgstr "您最常用的云格式类别。"
 
 #: widgets/category-cloud.php:16 widgets/category-cloud.php:42
 msgid "Category Cloud"
-msgstr ""
+msgstr "分类"
 
 #: private-site/private-site.php:162
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
-msgstr ""
+msgstr "已断开与 Jetpack 的连接，且站点为私人站点。重新连接 Jetpack 以管理站点可见性设置。"
 
 #: private-site/logged-in-banner.php:72
 msgid "Update visibility"
-msgstr ""
+msgstr "更新可见性"
 
 #: private-site/logged-in-banner.php:68
 msgid "Launch site"
-msgstr ""
+msgstr "发布站点"
 
 #: private-site/logged-in-banner.php:63
 msgid "Dismiss"
-msgstr ""
+msgstr "不再显示"
 
 #: private-site/logged-in-banner.php:56
 msgid "Your site has been launched; now you can share it with the world!"
-msgstr ""
+msgstr "您的站点已启动，您现在可以与全世界分享了！"
 
 #: private-site/logged-in-banner.php:52
 msgid "Your site is marked as \"Coming Soon\" and hidden from visitors until it's ready."
-msgstr ""
+msgstr "您的站点已标记为“即将推出”，并且会在准备就绪之前对访客隐藏。"
 
 #: private-site/logged-in-banner.php:54
 msgid "Your site hasn't been launched yet. Only you can see it until it is launched."
-msgstr ""
+msgstr "您的站点尚未发布。站点只有在发布后您才能看到。"
 
 #: wpcomsh.php:909
 msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
-msgstr ""
+msgstr "您目前使用了 <strong>%1$s</strong>，上传限制为 <strong>%2$s</strong>，即占上传限制的 %3$s%%。"
 
 #: widgets/twitter.php:412
 msgid "Text to display between Tweet and timestamp:"
-msgstr ""
+msgstr "要在推文和时间戳之间显示的文本："
 
 #: widgets/twitter.php:406
 msgid "Display Follow Button"
-msgstr ""
+msgstr "显示“关注”按钮"
 
 #: widgets/twitter.php:399
 msgid "Include retweets"
-msgstr ""
+msgstr "包括转发推文"
 
 #: widgets/twitter.php:392
 msgid "Hide Tweets pushed by Publicize"
-msgstr ""
+msgstr "隐藏 Publicize 推送的推文"
 
 #: widgets/twitter.php:385
 msgid "Hide replies"
-msgstr ""
+msgstr "隐藏回复"
 
 #: widgets/twitter.php:371
 msgid "Maximum number of Tweets to show:"
-msgstr ""
+msgstr "待显示的推文的最大数量："
 
 #: widgets/twitter.php:364
 msgid "Twitter username:"
-msgstr ""
+msgstr "Twitter 用户名："
 
 #: widgets/twitter.php:353
 msgid "Please switch to the 'Twitter Timeline' widget. This widget will be going away in the future and the new widget allows for more customization."
-msgstr ""
+msgstr "请切换到“Twitter 时间轴”小工具。此小工具以后将弃用，我们会提供新的小工具，以实现更多的自定义功能。"
 
 #: widgets/twitter.php:289
 msgid "Error: Please make sure the Twitter account is %1$spublic%2$s."
-msgstr ""
+msgstr "错误：请确保 Twitter 帐户为%1$s公共%2$s帐户。"
 
 #: widgets/twitter.php:262 widgets/twitter.php:275 widgets/twitter.php:296
 msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
-msgstr ""
+msgstr "错误：Twitter 未响应。请稍等几分钟并刷新此页面。"
 
 #: widgets/twitter.php:61
 msgid "Twitter Updates"
-msgstr ""
+msgstr "Twitter 更新"
 
 #: widgets/twitter.php:51
 msgid "Please configure your Twitter username for the <a href=\"%s\">Twitter Widget</a>."
-msgstr ""
+msgstr "请配置 <a href=\"%s\">Twitter 小工具</a>的 Twitter 用户名。"
 
 #: widgets/twitter.php:29
 msgid "Display your Tweets from Twitter"
-msgstr ""
+msgstr "显示您的 Twitter 中的推文"
 
 #: widgets/twitter.php:26
 msgid "Twitter"
-msgstr ""
+msgstr "Twitter"
 
 #: widgets/tag-cloud-widget.php:177
 msgid "Taxonomy:"
-msgstr ""
+msgstr "分类法："
 
 #: widgets/tag-cloud-widget.php:159
 msgid "The tag cloud will not be displayed since there are no taxonomies that support the tag cloud widget."
-msgstr ""
+msgstr "标签云未被显示，因为不存在支持标签云挂件的分类法。"
 
 #: widgets/tag-cloud-widget.php:152
 msgid "Show tag counts"
-msgstr ""
+msgstr "显示标签计数"
 
 #: widgets/tag-cloud-widget.php:139
 msgid "Maximum number of tags displayed"
-msgstr ""
+msgstr "显示的最大标签数量"
 
 #: widgets/tag-cloud-widget.php:137
 msgid "Number of Tags:"
-msgstr ""
+msgstr "标签数量："
 
 #: widgets/tag-cloud-widget.php:41
 msgid "Tags"
-msgstr ""
+msgstr "标签"
 
 #: widgets/tag-cloud-widget.php:21
 msgid "Tag Cloud"
-msgstr ""
+msgstr "标签云"
 
 #: widgets/tag-cloud-widget.php:18
 msgid "A cloud of your most used tags."
-msgstr ""
+msgstr "您最常使用的标签云。"
 
 #: widgets/aboutme.php:148
 msgid "Apps"
-msgstr ""
+msgstr "应用程序"
 
 #: widgets/instagram/instagram.php:245
 msgid "New images may take up to %d minutes to show up on your site."
-msgstr ""
+msgstr "新图像最多可能需要 %d 分钟才能显示在您的站点上。"
 
 #: widgets/instagram/instagram.php:237
 msgid "Number of columns:"
-msgstr ""
+msgstr "列数："
 
 #: widgets/instagram/instagram.php:236
 msgid "Layout"
@@ -244,230 +244,230 @@ msgstr ""
 
 #: widgets/instagram/instagram.php:226
 msgid "Number to display:"
-msgstr ""
+msgstr "待显示的数字："
 
 #: widgets/instagram/instagram.php:225
 msgid "Images"
-msgstr ""
+msgstr "图像"
 
 #: widgets/instagram/instagram.php:221
 msgid "Widget Title"
-msgstr ""
+msgstr "小工具标题"
 
 #: widgets/instagram/instagram.php:189
 msgid "No Instagram images were found."
-msgstr ""
+msgstr "未找到任何 Instagram 图像。"
 
 #: widgets/instagram/instagram.php:186
 msgid "There was an error retrieving images from Instagram. An attempt will be remade in a few minutes."
-msgstr ""
+msgstr "从 Instagram 中检索图像时出现错误。几分钟后将重新尝试。"
 
 #: widgets/instagram/instagram.php:30
 msgid "Display your latest Instagram photos."
-msgstr ""
+msgstr "显示最新的 Instagram 照片。"
 
 #: widgets/instagram/instagram.php:28 widgets/instagram/instagram.php:43
 msgid "Instagram"
-msgstr ""
+msgstr "Instagram"
 
 #: widgets/aboutme.php:141
 msgid "Biography"
-msgstr ""
+msgstr "传记"
 
 #: widgets/aboutme.php:134
 msgid "Headline"
-msgstr ""
+msgstr "大标题"
 
 #: widgets/aboutme.php:127
 msgid "Photo"
-msgstr ""
+msgstr "照片"
 
 #: widgets/aboutme.php:123
 msgid "Don't Display Name"
-msgstr ""
+msgstr "不显示名称"
 
 #: widgets/aboutme.php:121
 msgid "Display Small"
-msgstr ""
+msgstr "显示小图"
 
 #: widgets/aboutme.php:119
 msgid "Display Medium"
-msgstr ""
+msgstr "显示中图"
 
 #: widgets/aboutme.php:117
 msgid "Display Large"
-msgstr ""
+msgstr "显示大图"
 
 #: widgets/aboutme.php:115
 msgid "Display X-Large"
-msgstr ""
+msgstr "显示 X 大图"
 
 #: widgets/aboutme.php:104
 msgid "Your about.me URL"
-msgstr ""
+msgstr "您的 about.me URL"
 
 #: widgets/aboutme.php:97
 msgid "Widget title"
-msgstr ""
+msgstr "小工具标题"
 
 #: widgets/aboutme.php:90
 msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
-msgstr ""
+msgstr "自 2016 年 7 月 1 日起，about.me 小组件将无法再使用。在此日期之后，该小组件将显示一个简单的文本链接，指向您的 about.me 个人资料。请删除此小组件。"
 
 #: widgets/aboutme.php:37
 msgid "The about.me widget is no longer available. To remove this widget, <a href=\"%s\">visit your settings</a>. This message is not shown to visitors to your site."
-msgstr ""
+msgstr "about.me 小组件无法再使用。要删除此小组件，请<a href=\"%s\">访问您的设置</a>。此消息不会向您站点的访客显示。"
 
 #: widgets/aboutme.php:20
 msgid "About.me Widget"
-msgstr ""
+msgstr "about.me 小组件"
 
 #: widgets/aboutme.php:18
 msgid "Display your about.me profile with thumbnail"
-msgstr ""
+msgstr "以缩略图形式显示您的 about.me 个人资料"
 
 #: safeguard/utils.php:58
 msgid "Unable to fetch the requested data."
-msgstr ""
+msgstr "无法提取所请求的数据。"
 
 #: footer-credit/theme-optimizations.php:37
 msgid "Create a free website or blog at WordPress.com"
-msgstr ""
+msgstr "通过访问 WordPress.com 创建免费网站或博客"
 
 #: footer-credit/theme-optimizations.php:32
 msgid "Create a free website at WordPress.com"
-msgstr ""
+msgstr "通过访问 WordPress.com 创建免费网站"
 
 #: footer-credit/footer-credit/footer-credit.php:101
 msgid "Powered by WordPress.com"
-msgstr ""
+msgstr "由 WordPress.com 提供支持"
 
 #: footer-credit/footer-credit/footer-credit.php:98
 #: footer-credit/theme-optimizations.php:30
 #: footer-credit/theme-optimizations.php:35
 msgid "Blog at WordPress.com"
-msgstr ""
+msgstr "在WordPress.com的博客"
 
 #: footer-credit/footer-credit/footer-credit.php:97
 msgid "A WordPress.com Website"
-msgstr ""
+msgstr "WordPress.com 站点"
 
 #: footer-credit/footer-credit/footer-credit.php:96
 msgid "WordPress.com Logo"
-msgstr ""
+msgstr "WordPress.com 徽标"
 
 #: footer-credit/footer-credit/footer-credit.php:41
 #: footer-credit/footer-credit/footer-credit.php:205
 msgid "Create a website or blog at WordPress.com"
-msgstr ""
+msgstr "在 WordPress.com 上创建免费网站或博客"
 
 #: footer-credit/footer-credit/customizer.php:85
 msgid "Footer Credit"
-msgstr ""
+msgstr "注脚文本"
 
 #: footer-credit/footer-credit/customizer.php:62
 msgid "Upgrade to Business"
-msgstr ""
+msgstr "升级至企业版"
 
 #: footer-credit/footer-credit/customizer.php:54
 msgid "Hide (Business Plan Required)"
-msgstr ""
+msgstr "隐藏（需订阅商务版套餐）"
 
 #: footer-credit/footer-credit/customizer.php:52
 msgid "Hide"
-msgstr ""
+msgstr "隐藏"
 
 #: footer-credit/footer-credit/customizer.php:41
 msgid "Default"
-msgstr ""
+msgstr "默认"
 
 #: footer-credit/footer-credit-optimizations.php:159
 msgid "Design by"
-msgstr ""
+msgstr "设计者"
 
 #: footer-credit/footer-credit-optimizations.php:147
 msgid "by"
-msgstr ""
+msgstr "由"
 
 #: footer-credit/footer-credit-optimizations.php:130
 msgid "Theme"
-msgstr ""
+msgstr "主题"
 
 #: footer-credit/footer-credit-optimizations.php:114
 msgid "Proudly powered by WordPress"
-msgstr ""
+msgstr "由 WordPress 强力驱动"
 
 #: customizer-fixes/customizer-fixes.php:13
 msgid "Save Settings"
-msgstr ""
+msgstr "保存设置"
 
 #: customizer-fixes/customizer-fixes.php:12
 msgid "Are you sure you want to discard your unsaved changes?"
-msgstr ""
+msgstr "您是否确定要丢弃未保存的更改？"
 
 #: customizer-fixes/customizer-fixes.php:11
 msgid "Saved"
-msgstr ""
+msgstr "已保存"
 
 #: customizer-fixes/customizer-fixes.php:10
 msgid "Save Changes"
-msgstr ""
+msgstr "保存更改"
 
 #: customizer-fixes/customizer-fixes.php:9
 msgid "Save"
-msgstr ""
+msgstr "保存"
 
 #: customizer-fixes/customizer-fixes.php:8
 msgid "Activate &amp; Save"
-msgstr ""
+msgstr "激活并保存"
 
 #: private-site/private-site.php:168
 msgid "Manage your site visibility settings"
-msgstr ""
+msgstr "管理您的站点可见性设置"
 
 #: wpcomsh.php:338
 msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
-msgstr ""
+msgstr "此插件通过 WordPress.com 安装，提供套餐订阅中的功能。"
 
 #: wpcomsh.php:335
 msgid "%s is automatically managed for you."
-msgstr ""
+msgstr "系统会自动为您管理 %s。"
 
 #: widgets/top-rated.php:141
 msgid "How many items would you like to display?"
-msgstr ""
+msgstr "您希望显示多少个项目？"
 
 #: widgets/top-rated.php:137
 msgid "Filter by category"
-msgstr ""
+msgstr "按分类过滤"
 
 #: widgets/top-rated.php:131
 msgid "Show for comments"
-msgstr ""
+msgstr "显示评论"
 
 #: widgets/top-rated.php:125
 msgid "Show for pages"
-msgstr ""
+msgstr "显示页面"
 
 #: widgets/top-rated.php:119
 msgid "Show for posts"
-msgstr ""
+msgstr "显示文章"
 
 #: widgets/top-rated.php:11 widgets/top-rated.php:32
 msgid "Top Rated"
-msgstr ""
+msgstr "评分最高"
 
 #: widgets/top-rated.php:10
 msgid "A list of your top rated posts, pages or comments."
-msgstr ""
+msgstr "评分最高的文章、页面或评论列表。"
 
 #: widgets/top-clicks.php:61
 msgid "Top Clicks are calculated from 48-72 hours of stats. They take a while to change."
-msgstr ""
+msgstr "根据 48-72 小时的统计数据计算热门点击次数。其变化需要一会儿时间。"
 
 #: widgets/top-clicks.php:53
 msgid "URLs to show:"
-msgstr ""
+msgstr "要显示的 URL："
 
 #: widgets/top-clicks.php:47
 msgid "Display length:"
@@ -475,280 +475,280 @@ msgstr "视觉长度"
 
 #: widgets/top-clicks.php:14
 msgid "List the most-clicked links on your blog."
-msgstr ""
+msgstr "列出您博客中点击次数最多的链接。"
 
 #: widgets/top-clicks.php:13 widgets/top-clicks.php:22
 #: widgets/top-clicks.php:66
 msgid "Top Clicks"
-msgstr ""
+msgstr "最高点击"
 
 #: widgets/tlkio/tlkio.php:59
 msgid "Height (in pixel):"
-msgstr ""
+msgstr "高度（像素）："
 
 #: widgets/tlkio/tlkio.php:55
 msgid "Channel:"
-msgstr ""
+msgstr "频道："
 
 #: widgets/tlkio/tlkio.php:26
 msgid "tlk.io Webchat"
-msgstr ""
+msgstr "tlk.io Webchat"
 
 #: widgets/tlkio/tlkio.php:25
 msgid "Add a tlk.io webchat."
-msgstr ""
+msgstr "添加 tlk.io webchat。"
 
 #: widgets/reservations.php:55
 msgid "Show:"
-msgstr ""
+msgstr "查看："
 
 #: widgets/reservations.php:50
 msgid "E-mail Subject:"
-msgstr ""
+msgstr "电子邮件主题："
 
 #: widgets/reservations.php:44
 msgid "Recipient E-mail Address:"
-msgstr ""
+msgstr "收件人电子邮件地址："
 
 #: widgets/reservations.php:29
 msgid "Departure"
-msgstr ""
+msgstr "离开"
 
 #: widgets/reservations.php:28
 msgid "Arrival"
-msgstr ""
+msgstr "到达"
 
 #: widgets/reservations.php:27
 msgid "# Children"
-msgstr ""
+msgstr "儿童人数"
 
 #: widgets/reservations.php:26
 msgid "# Adults"
-msgstr ""
+msgstr "成人人数"
 
 #: widgets/reservations.php:25
 msgid "Message"
-msgstr ""
+msgstr "信息内容"
 
 #: widgets/reservations.php:24
 msgid "Phone"
-msgstr ""
+msgstr "电话"
 
 #: widgets/reservations.php:23
 msgid "Email"
-msgstr ""
+msgstr "电子邮箱"
 
 #: widgets/aboutme.php:111 widgets/reservations.php:22
 msgid "Name"
-msgstr ""
+msgstr "名称"
 
 #: widgets/reservations.php:16
 msgid "Reservation Inquiry"
-msgstr ""
+msgstr "预订查询"
 
 #: widgets/reservations.php:10 widgets/reservations.php:15
 msgid "Reservations"
-msgstr ""
+msgstr "预订"
 
 #: widgets/recent-comments-widget.php:384
 msgid "Show comments from:"
-msgstr ""
+msgstr "显示以下来源的评论："
 
 #: widgets/recent-comments-widget.php:379
 msgid "Text background color:"
-msgstr ""
+msgstr "文本背景颜色："
 
 #: widgets/recent-comments-widget.php:373
 msgid "Avatar background color:"
-msgstr ""
+msgstr "头像背景颜色："
 
 #: widgets/recent-comments-widget.php:362
 msgid "No Avatars"
-msgstr ""
+msgstr "无头像"
 
 #: widgets/recent-comments-widget.php:355
 msgid "(at most 15)"
-msgstr ""
+msgstr "(至多15篇)"
 
 #: widgets/recent-comments-widget.php:349
 msgid "Number of comments to show:"
-msgstr ""
+msgstr "显示评论的数量："
 
 #: widgets/recent-comments-widget.php:284
 msgid "There are no public comments available to display."
-msgstr ""
+msgstr "无公开评论可显示。"
 
 #. translators: comments widget: 1: comment author, 2: post link
 #: widgets/recent-comments-widget.php:275
 #: widgets/recent-comments-widget.php:308
 msgctxt "widgets"
 msgid "%1$s on %2$s"
-msgstr ""
+msgstr "%1$s发表在《%2$s》"
 
 #: widgets/recent-comments-widget.php:252
 msgid "Anonymous"
-msgstr ""
+msgstr "匿名"
 
 #: widgets/recent-comments-widget.php:30
 msgid "Display your site's most recent comments"
-msgstr ""
+msgstr "显示您站点的最新评论"
 
 #: widgets/recent-comments-widget.php:29 widgets/recent-comments-widget.php:146
 msgid "Recent Comments"
-msgstr ""
+msgstr "近期评论"
 
 #: widgets/posts-i-like.php:269
 msgid "You have not recently liked any posts. Once you do, this <a href=\"%s\">Posts I Like</a> widget will display them."
-msgstr ""
+msgstr "您最近还没有为任何文章点过赞。点赞后，此<a href=\"%s\">我点赞的博客</a>小工具将显示这些文章。"
 
 #: widgets/posts-i-like.php:259
 msgid "on"
-msgstr ""
+msgstr "于"
 
 #: widgets/posts-i-like.php:236
 msgctxt "1: Post Title, 2: Blog Name"
 msgid "%1$s on %2$s"
-msgstr ""
+msgstr "%2$s 上的 %1$s"
 
 #: widgets/posts-i-like.php:113
 msgid "Author's likes to display:"
-msgstr ""
+msgstr "待显示的作者的赞："
 
 #: widgets/posts-i-like.php:98
 msgid "Grid"
-msgstr ""
+msgstr "网格"
 
 #: widgets/posts-i-like.php:97
 msgid "List"
-msgstr ""
+msgstr "列表"
 
 #: widgets/posts-i-like.php:95
 msgid "Display as:"
-msgstr ""
+msgstr "显示为："
 
 #: widgets/posts-i-like.php:90
 msgid "Number of posts to show (1 to 15):"
-msgstr ""
+msgstr "待显示的帖子数量（1 到 15 个）："
 
 #: widgets/posts-i-like.php:27
 msgid "A list of the posts I most recently liked"
-msgstr ""
+msgstr "我最近点过赞的文章列表"
 
 #: widgets/posts-i-like.php:25 widgets/posts-i-like.php:32
 msgid "Posts I Like"
-msgstr ""
+msgstr "我喜欢的文章"
 
 #: widgets/music-player.php:82
 msgid "Choose songs"
-msgstr ""
+msgstr "选择歌曲"
 
 #: widgets/music-player.php:16 widgets/music-player.php:87
 msgid "Music Player"
-msgstr ""
+msgstr "音乐播放器"
 
 #: widgets/music-player.php:15
 msgid "A multi-song music player"
-msgstr ""
+msgstr "多歌曲音乐播放器"
 
 #: widgets/i-voted.php:33
 msgid "I Voted"
-msgstr ""
+msgstr "我已投票"
 
 #: widgets/i-voted.php:31
 msgid "Show your readers that you voted with an \"I Voted\" sticker."
-msgstr ""
+msgstr "向您的读者展示您已使用“我已投票”贴纸投票。"
 
 #: widgets/gravatar.php:144
 msgid "You can modify your Gravatar from your <a href=\"/wp-admin/profile.php\">profile page</a>."
-msgstr ""
+msgstr "您可以通过自己的<a href=\"/wp-admin/profile.php\">个人资料页面</a>修改 Gravatar。"
 
 #: widgets/gravatar.php:143
 msgid "Text displayed after Gravatar. This is optional and can be used to describe yourself or what your blog is about."
-msgstr ""
+msgstr "在 Gravatar 后显示的文本。这是可选项，可用于描述您自己或您的文章内容。"
 
 #: widgets/gravatar.php:142
 msgid "Gravatar link. This is an optional URL that will be used when anyone clicks on your Gravatar:"
-msgstr ""
+msgstr "Gravatar 链接。这是有人点击您的 Gravatar 时将使用的可选 URL："
 
 #: widgets/gravatar.php:134
 msgid "Gravatar alignment:"
-msgstr ""
+msgstr "Gravatar 对齐："
 
 #: widgets/gravatar.php:125
 msgid "Size:"
-msgstr ""
+msgstr "大小："
 
 #: widgets/gravatar.php:122
 msgid "Custom Email Address:"
-msgstr ""
+msgstr "自定义电子邮件地址："
 
 #: widgets/gravatar.php:119
 msgid "Select a user or pick \"custom\" and enter a custom email address."
-msgstr ""
+msgstr "选择用户或选择“自定义”，并输入一个自定义电子邮件地址。"
 
 #: widgets/gravatar.php:115
 msgid "Center"
-msgstr ""
+msgstr "中"
 
 #: widgets/gravatar.php:115
 msgid "Right"
-msgstr ""
+msgstr "右"
 
 #: widgets/gravatar.php:115
 msgid "Left"
-msgstr ""
+msgstr "左"
 
 #: widgets/gravatar.php:115 widgets/top-clicks.php:108
 msgid "None"
-msgstr ""
+msgstr "无"
 
 #: widgets/gravatar.php:114
 msgid "Extra Large (256 pixels)"
-msgstr ""
+msgstr "超大图（256 像素）"
 
 #: widgets/gravatar.php:114
 msgid "Large (128 pixels)"
-msgstr ""
+msgstr "大图（128 像素）"
 
 #: widgets/gravatar.php:114
 msgid "Medium (96 pixels)"
-msgstr ""
+msgstr "中图（96 像素）"
 
 #: widgets/gravatar.php:114
 msgid "Small (64 pixels)"
-msgstr ""
+msgstr "小图（64 像素）"
 
 #: widgets/gravatar.php:84
 msgid "You need to pick a user or enter an email address in your <a href=\"%s\">Gravatar Widget</a> settings."
-msgstr ""
+msgstr "您需要选择一个用户或者在 <a href=\"%s\">Gravatar 小工具</a>设置中输入电子邮件地址。"
 
 #: widgets/gravatar.php:22
 msgid "Gravatar"
-msgstr ""
+msgstr "头像"
 
 #: widgets/gravatar.php:20
 msgid "Insert a Gravatar image"
-msgstr ""
+msgstr "插入一张 Gravatar 图像"
 
 #: widgets/freshly-pressed.php:60
 msgid "Choose an image to display in your sidebar:"
-msgstr ""
+msgstr "选择要在边栏中显示的图像："
 
 #: widgets/freshly-pressed.php:10
 msgid "Freshly Pressed"
-msgstr ""
+msgstr "最新出版"
 
 #: widgets/freshly-pressed.php:8
 msgid "Display a Freshly Pressed badge in your sidebar"
-msgstr ""
+msgstr "在您的边栏显示新压印的徽章"
 
 #: widgets/author-grid.php:102 widgets/recent-comments-widget.php:360
 msgid "Avatar Size (px):"
-msgstr ""
+msgstr "头像大小（像素）："
 
 #: widgets/author-grid.php:97
 msgid "Display all authors (including those who have not written any posts)"
-msgstr ""
+msgstr "显示所有作者（包括未写过任何文章的作者）"
 
 #: widgets/author-grid.php:91 widgets/category-cloud.php:127
 #: widgets/freshly-pressed.php:56 widgets/gravatar.php:117
@@ -758,41 +758,41 @@ msgstr ""
 #: widgets/tlkio/tlkio.php:51 widgets/top-clicks.php:41
 #: widgets/top-rated.php:115 widgets/twitter.php:357
 msgid "Title:"
-msgstr ""
+msgstr "标题："
 
 #: widgets/author-grid.php:44
 msgid "Authors"
-msgstr ""
+msgstr "作者"
 
 #: widgets/author-grid.php:12
 msgid "Show a grid of author avatar images."
-msgstr ""
+msgstr "显示作者头像网格。"
 
 #: widgets/author-grid.php:11
 msgid "Author Grid"
-msgstr ""
+msgstr "作者网格"
 
 #: private-site/private-site.php:555
 msgid "Private Site"
-msgstr ""
+msgstr "私人站点"
 
 #: private-site/private-site.php:391 private-site/private-site.php:493
 #: private-site/private-site.php:687
 msgid "This site is private."
-msgstr ""
+msgstr "此站点是私人站点。"
 
 #: private-site/access-denied-coming-soon-template.php:52
 #: private-site/access-denied-private-site-template.php:45
 msgid "Log in"
-msgstr ""
+msgstr "登录"
 
 #: private-site/access-denied-private-site-template.php:45
 msgid "Switch user"
-msgstr ""
+msgstr "切换用户"
 
 #: private-site/access-denied-private-site-template.php:43
 msgid "You need to be logged in as a user who has permission to view this site."
-msgstr ""
+msgstr "您需要以有权查看此站点的用户身份登录。"
 
 #: privacy/participating-plugins.php:144
 msgid ""
@@ -801,6 +801,10 @@ msgid ""
 "information for non-participating plugins. It is your responsibility to\n"
 "obtain privacy policy information for non-participating plugins separately."
 msgstr ""
+"请注意 - 此工具仅显示由 WordPress 和所用插件\n"
+"提供的隐私政策信息，不包括未使用插件的\n"
+"隐私政策信息。您需要自行\n"
+"单独获取未使用插件的隐私政策信息。"
 
 #: privacy/participating-plugins.php:94
 msgid ""
@@ -810,6 +814,11 @@ msgid ""
 "stored by non-participating plugins separately. The personal data exported\n"
 "includes only the following items at this time:"
 msgstr ""
+"请注意 - 此工具仅导出由 WordPress 和所用插件\n"
+"存储的个人数据，不会导出由未使用插件\n"
+"存储的个人数据。您需要自行单独导出由未使用插件\n"
+"存储的个人数据。导出的个人数据\n"
+"目前仅包含以下项目："
 
 #: privacy/participating-plugins.php:47
 msgid ""
@@ -820,15 +829,21 @@ msgid ""
 "plugins. The personal data erased includes only the following items at this\n"
 "time:"
 msgstr ""
+"请注意 - 此工具仅擦除由 WordPress 和所用插件\n"
+"存储的个人数据，不会删除注册用户，也不会擦除\n"
+"由未使用插件存储的个人数据。您需要自行\n"
+"删除注册用户以及由未使用插件\n"
+"存储的个人数据。擦除的个人数据目前仅包含以下\n"
+"项目："
 
 #: logo-tool/logo-tool.php:70
 msgid "Create logo"
-msgstr ""
+msgstr "创建徽标"
 
 #: logo-tool/logo-tool.php:60
 msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
-msgstr ""
+msgstr "添加要在站点上显示的徽标。还没有徽标?在 Looka 中购买专业徽标 - 点击“创建徽标”即可开始创建。"
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"
-msgstr ""
+msgstr "WP.com Site Helper"

@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-09-11 09:36:53+0000\n"
+"PO-Revision-Date: 2021-07-15 05:44:54+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -50,7 +50,7 @@ msgstr ""
 
 #: private-site/access-denied-coming-soon-template.php:43
 msgid "Coming Soon"
-msgstr ""
+msgstr "Тун Удахгүй"
 
 #: wpcomsh.php:980
 msgid "Disk space quota"
@@ -718,7 +718,7 @@ msgstr ""
 
 #: widgets/gravatar.php:22
 msgid "Gravatar"
-msgstr ""
+msgstr "Граватар"
 
 #: widgets/gravatar.php:20
 msgid "Insert a Gravatar image"

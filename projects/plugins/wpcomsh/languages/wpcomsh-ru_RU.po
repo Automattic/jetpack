@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-09-24 14:54:04+0000\n"
+"PO-Revision-Date: 2021-07-29 10:12:53+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -26,7 +26,7 @@ msgstr "Обновления под управлением WordPress.com"
 
 #: notices/plan-notices.php:44
 msgid "The Business plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr ""
+msgstr "Срок действия тарифного плана Business для <strong>%3$s</strong> истекает через %2$s. <a href=\"%1$s\">Продлите подписку на тарифный план</a>, чтобы продолжить использовать его возможности — например, пользовательские плагины и темы, SFTP и доступ с помощью phpMyAdmin."
 
 #: notices/plan-notices.php:38
 msgid "The eCommerce plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."

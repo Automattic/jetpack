@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-07-20 11:40:25+0000\n"
+"PO-Revision-Date: 2021-03-09 12:18:16+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -361,7 +361,7 @@ msgstr "ਹੇਠਲਾ ਸਿਹਰਾ"
 
 #: footer-credit/footer-credit/customizer.php:62
 msgid "Upgrade to Business"
-msgstr ""
+msgstr "ਕਾਰੋਬਾਰੀ ਯੋਜਨਾ ਵਿੱਚ ਵਧਾਓ"
 
 #: footer-credit/footer-credit/customizer.php:54
 msgid "Hide (Business Plan Required)"
@@ -602,7 +602,7 @@ msgstr ""
 #: widgets/posts-i-like.php:236
 msgctxt "1: Post Title, 2: Blog Name"
 msgid "%1$s on %2$s"
-msgstr ""
+msgstr "%2$s 'ਤੇ %1$s"
 
 #: widgets/posts-i-like.php:113
 msgid "Author's likes to display:"
@@ -610,7 +610,7 @@ msgstr ""
 
 #: widgets/posts-i-like.php:98
 msgid "Grid"
-msgstr ""
+msgstr "ਜਾਲ਼ੀ"
 
 #: widgets/posts-i-like.php:97
 msgid "List"
