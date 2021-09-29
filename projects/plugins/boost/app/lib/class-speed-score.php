@@ -255,8 +255,8 @@ class Speed_Score {
 			$response['status'] = 'success';
 
 			$response['scores'] = array(
-				'current'  => $history->latest_scores(),
-				'previous' => $history_no_boost->latest_scores(),
+				'current' => $history->latest_scores(),
+				'noBoost' => $history_no_boost->latest_scores(),
 			);
 		} else {
 			// If either request ended up in error, we can just return the one with error so front-end can take action. The relevent url is available on the serialized object.
