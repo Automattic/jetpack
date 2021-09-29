@@ -66,16 +66,32 @@ class Speed_Score_History {
 	/**
 	 * Find the latest available speed score history record.
 	 *
-	 * @param int  $offset         Instead of receiving the last one, you can use offset to receive a slightly older speed score.
-	 * @param bool $with_timestamp Return the timestamp the score was taken along with the scores.
+	 * @param int $offset Instead of receiving the last one, you can use offset to receive a slightly older speed score.
 	 *
 	 * @return array|null
 	 */
-	public function latest( $offset = 0, $with_timestamp = false ) {
+	public function latest( $offset = 0 ) {
 		$index = $this->count() - ( $offset + 1 );
 
 		if ( $index >= 0 ) {
-			return $with_timestamp ? $this->entries[ $index ] : $this->entries[ $index ]['scores'];
+			return $this->entries[ $index ];
+		}
+
+		return null;
+	}
+
+	/**
+	 * Find the latest available speed scores.
+	 *
+	 * @param int $offset Instead of receiving the last one, you can use offset to receive a slightly older speed score.
+	 *
+	 * @return array|null
+	 */
+	public function latest_scores( $offset = 0 ) {
+		$index = $this->count() - ( $offset + 1 );
+
+		if ( $index >= 0 ) {
+			return $this->entries[ $index ]['scores'];
 		}
 
 		return null;

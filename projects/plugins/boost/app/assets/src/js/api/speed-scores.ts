@@ -98,7 +98,6 @@ function parseResponse( response: JSONObject ): ParsedApiResponse {
 		};
 	}
 
-	// No metrics yet. Make sure there is an id for polling.
 	const requestStatus = castToString( response.status );
 	if ( ! requestStatus ) {
 		throw new Error( __( 'Invalid response while requesting metrics', 'jetpack-boost' ) );

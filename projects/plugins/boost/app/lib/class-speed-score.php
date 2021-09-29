@@ -100,7 +100,7 @@ class Speed_Score {
 			}
 		}
 
-		$score_request_no_boost = $this->maybe_dispatch_previous_score_request( $url );
+		$score_request_no_boost = $this->maybe_dispatch_no_boost_score_request( $url );
 
 		return $this->prepare_speed_score_response( $url, $score_request, $score_request_no_boost );
 	}
@@ -155,7 +155,7 @@ class Speed_Score {
 
 		// If this is a fresh install, there might not be any speed score history. In which case, we want to fetch the initial scores.
 		$history = new Speed_Score_History( $url );
-		if ( null === $history->latest() && empty( $score_request ) ) {
+		if ( null === $history->latest_scores() && empty( $score_request ) ) {
 			return $this->dispatch_speed_score_request( $request );
 		}
 
@@ -169,21 +169,21 @@ class Speed_Score {
 	 *
 	 * @return Speed_Score_Request
 	 */
-	private function maybe_dispatch_previous_score_request( $url ) {
+	private function maybe_dispatch_no_boost_score_request( $url ) {
 
 		// Allow `jb-disable-module` URL param to fetch score without boost modules being active.
 		add_filter( 'jetpack_boost_excluded_query_parameters', array( $this, 'allow_jb_disable_module' ) );
 
 		$url_no_boost = $this->get_boost_modules_disabled_url( $url );
 
-		$history       = new Speed_Score_History( $url_no_boost );
-		$latest_score  = $history->latest( 0, true );
-		$score_request = $this->get_score_request_by_url( $url_no_boost );
+		$history        = new Speed_Score_History( $url_no_boost );
+		$latest_history = $history->latest();
+		$score_request  = $this->get_score_request_by_url( $url_no_boost );
 
 		// Refetch the score without boost if it is older than a day.
-		if ( ( empty( $score_request ) || ! $score_request->is_pending() ) && ( null === $latest_score || $latest_score['timestamp'] < strtotime( '- 24 hours' ) ) ) {
+		if ( ( empty( $score_request ) || ! $score_request->is_pending() ) && ( null === $latest_history || $latest_history['timestamp'] < strtotime( '- 24 hours' ) ) ) {
 			$score_request = new Speed_Score_Request( $url_no_boost ); // Dispatch a new speed score request to measure score without boost.
-			$score_request->store( 1800 ); // Keep the request for 30 minutes even if no one access the results.
+			$score_request->store( 3600 ); // Keep the request for 1 hour even if no one access the results. The value is persisted for 1 hour in wp.com from initial request.
 
 			// Send the request.
 			$response = $score_request->execute();
@@ -260,8 +260,8 @@ class Speed_Score {
 			$response['status'] = 'success';
 
 			$response['scores'] = array(
-				'current'  => $history->latest(),
-				'previous' => $history_no_boost->latest(),
+				'current'  => $history->latest_scores(),
+				'previous' => $history_no_boost->latest_scores(),
 			);
 		} else {
 			// If either request ended up in error, we can just return the one with error so front-end can take action. The relevent url is available on the serialized object.

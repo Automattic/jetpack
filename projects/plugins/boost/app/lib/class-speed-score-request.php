@@ -226,7 +226,7 @@ class Speed_Score_Request extends Cacheable {
 	private function record_history( $response ) {
 		$history = new Speed_Score_History( $this->url );
 
-		$latest = $history->latest();
+		$latest = $history->latest_scores();
 
 		// Only change if there is a difference from last score.
 		if ( $latest !== $response->scores ) {
