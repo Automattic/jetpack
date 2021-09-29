@@ -4,7 +4,11 @@
 import React, { useCallback } from 'react';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { ConnectionStatusCard, ConnectScreen } from '@automattic/jetpack-connection';
+import {
+	ConnectionStatusCard,
+	ConnectScreen,
+	withConnectionStatus,
+} from '@automattic/jetpack-connection';
 import { IDCScreen } from '@automattic/jetpack-idc';
 
 /**
@@ -14,6 +18,8 @@ import { STORE_ID } from '../../store';
 import Header from '../header';
 import './style.scss';
 import ConnectRight from './assets/connect-right.png';
+
+const ConnectScreenWithConnectionStatus = withConnectionStatus( ConnectScreen );
 
 /**
  * The Connection IU Admin App.
@@ -65,7 +71,7 @@ export default function Admin() {
 			) }
 
 			{ ! connectionStatus.isRegistered && (
-				<ConnectScreen
+				<ConnectScreenWithConnectionStatus
 					apiRoot={ APIRoot }
 					apiNonce={ APINonce }
 					registrationNonce={ registrationNonce }
@@ -89,7 +95,7 @@ export default function Admin() {
 						<li>{ __( 'Get notifications if your site goes offline', 'jetpack' ) }</li>
 						<li>{ __( 'Enhance your site with dozens of other features', 'jetpack' ) }</li>
 					</ul>
-				</ConnectScreen>
+				</ConnectScreenWithConnectionStatus>
 			) }
 		</React.Fragment>
 	);
