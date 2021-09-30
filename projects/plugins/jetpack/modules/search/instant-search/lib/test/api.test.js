@@ -25,60 +25,42 @@ describe( 'generateDateRangeFilter', () => {
 } );
 
 describe( 'mergeCachedAggregations', () => {
-	test( 'merge new aggregations to the cache and set doc_count to zero', () => {
+	test( 'merge new aggregations to the old one', () => {
 		expect(
 			mergeCachedAggregations(
 				{
-					date_histogram_2: {
-						buckets: [
-							{
-								key_as_string: '2009-01-01 00:00:00',
-								key: 1230768000000,
-								doc_count: 0,
-							},
-						],
-					},
-					taxonomy_0: {
-						doc_count_error_upper_bound: 0,
-						sum_other_doc_count: 0,
-						buckets: [
-							{
-								key: 'others/Others',
-								doc_count: 0,
-							},
-						],
-					},
+					date_histogram_2: {},
+					taxonomy_0: {},
 				},
+				{
+					date_histogram_2: {},
+				}
+			)
+		).toEqual( {
+			// keys with same name would be overridden.
+			date_histogram_2: {},
+			// keys only from the old object is retained.
+			taxonomy_0: {},
+		} );
+	} );
+	test( 'set doc_count of every new aggregation to 0', () => {
+		expect(
+			mergeCachedAggregations(
+				{},
 				{
 					date_histogram_2: {
 						buckets: [
 							{
-								key_as_string: '2010-01-01 00:00:00',
-								key: 1262304000000,
-								doc_count: 1,
+								doc_count: 10,
 							},
 						],
 					},
 				}
 			)
 		).toEqual( {
-			// keys with same name would be overridden.
 			date_histogram_2: {
 				buckets: [
 					{
-						key_as_string: '2010-01-01 00:00:00',
-						key: 1262304000000,
-						doc_count: 0, // doc_count set to zero.
-					},
-				],
-			},
-			// keys only from the old object is retained.
-			taxonomy_0: {
-				doc_count_error_upper_bound: 0,
-				sum_other_doc_count: 0,
-				buckets: [
-					{
-						key: 'others/Others',
 						doc_count: 0,
 					},
 				],
