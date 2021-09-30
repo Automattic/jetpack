@@ -36,8 +36,8 @@ export function SharePostButton( { disabled } ) {
 	);
 }
 
-export function SharePostRow( { isPostPublished } ) {
-	if ( ! isPostPublished ) {
+export function SharePostRow( { isEnabled } ) {
+	if ( ! isEnabled ) {
 		return null;
 	}
 

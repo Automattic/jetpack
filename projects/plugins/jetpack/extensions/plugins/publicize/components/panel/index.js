@@ -89,7 +89,7 @@ const PublicizePanel = ( { prePublish } ) => {
 			<PublicizeConnectionVerify />
 			<PublicizeForm isPublicizeEnabled={ isEnabled } />
 			<PublicizeTwitterOptions prePublish={ prePublish } />
-			<SharePostRow isPostPublished={ isPostPublished } />
+			<SharePostRow isEnabled={ isPostPublished && isEnabled } />
 		</PanelBody>
 	);
 };
