@@ -9,9 +9,11 @@ import { useState } from '@wordpress/element';
  * Internal dependencies
  */
 import { useSharePost } from '../../hooks/use-share-post';
+import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 
 export function SharePostButton() {
 	const [ isSharing, setIsSharing ] = useState( false );
+	const { hasEnabledConnections } = useSocialMediaConnections();
 
 	const onPostShareHander = useSharePost( function ( errors ) {
 		if ( errors?.length ) {
@@ -28,10 +30,10 @@ export function SharePostButton() {
 				setIsSharing( true );
 				onPostShareHander();
 			} }
-			disabled={ isSharing }
+			disabled={ isSharing || ! hasEnabledConnections }
 			isBusy={ isSharing }
 		>
-			{ __( 'Share this post', 'jetpack' ) }
+			{ __( 'Share post', 'jetpack' ) }
 		</Button>
 	);
 }
