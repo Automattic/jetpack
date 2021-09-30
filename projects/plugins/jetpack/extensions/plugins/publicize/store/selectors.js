@@ -543,3 +543,14 @@ export function contentAttributesChanged( state, prevProps, props ) {
 export function getConnections() {
 	return select( editorStore ).getEditedPostAttribute( 'jetpack_publicize_connections' ) || [];
 }
+
+/**
+ * Return True if the Post Share Feature is enabled.
+ * Otherwise, return False.
+ *
+ * @param {object} state - State object.
+ * @returns {boolean} Whether or not the post share feature is enabled.
+ */
+export function isPostFeatureEnabled( state ) {
+	return state.postFeatureEnabled;
+}

@@ -1,6 +1,7 @@
 export const DEFAULT_STATE = {
 	tweets: [],
 	twitterCards: [],
+	postFeatureEnabled: false,
 };
 
 /**
@@ -17,6 +18,12 @@ export default function ( state = DEFAULT_STATE, action ) {
 
 		case 'TOGGLE_CONNECTION_BY_ID':
 			return state;
+
+		case 'TOGGLE_SHARE_POST_FEATURE':
+			return {
+				...state,
+				postFeatureEnabled: ! state.postFeatureEnabled,
+			};
 
 		case 'SET_TWEETS':
 			return {
