@@ -112,7 +112,8 @@ export async function scriptRouter( argv ) {
 		case 'readme':
 		case 'release-branch':
 		case 'append':
-			console.log( 'Not implemented yet!' );
+			console.log( `${ argv.script } is not implemented yet!` );
+			process.exit();
 			break;
 	}
 }
@@ -171,19 +172,19 @@ export async function promptForScript( argv ) {
 			message: `What step of the release process are you looking to do for ${ argv.project }?`,
 			choices: [
 				{
-					name: `[Create changelog.md  ] - Compile all changelog files into ${ argv.project }'s CHANGELOG.md `,
+					name: `[Create Changelog.md  ] - Compile all changelog files into ${ argv.project }'s CHANGELOG.md `,
 					value: 'changelog',
 				},
 				{
-					name: `[Update readme.txt    ] - Update ${ argv.project }'s readme.txt file based on the updated changelog.`,
+					name: `[Update Readme.txt    ] - Update ${ argv.project }'s readme.txt file based on the updated changelog.`,
 					value: 'readme',
 				},
 				{
-					name: `[Create release branch] - Create a release branch for  ${ argv.project }`,
+					name: `[Create Release Branch] - Create a release branch for  ${ argv.project }`,
 					value: 'release-branch',
 				},
 				{
-					name: `[Amend changelog.md  ] - Updates changelog.md with any files cherry picked to release branch prior to release.`,
+					name: `[Amend Changelog.md  ] - Updates changelog.md with any files cherry picked to release branch prior to release.`,
 					value: 'amend',
 				},
 			],
