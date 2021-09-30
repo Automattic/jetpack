@@ -1319,16 +1319,16 @@
         },
         {
             "name": "automattic/jetpack-tracking",
-            "version": "v1.13.10",
+            "version": "v1.13.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-tracking.git",
-                "reference": "ab152bf58aafa2dd0bdf925055dae44ef6d16aee"
+                "reference": "ed8ce7054fd04d1c75e2bdd87683e17d4b852295"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-tracking/zipball/ab152bf58aafa2dd0bdf925055dae44ef6d16aee",
-                "reference": "ab152bf58aafa2dd0bdf925055dae44ef6d16aee",
+                "url": "https://api.github.com/repos/Automattic/jetpack-tracking/zipball/ed8ce7054fd04d1c75e2bdd87683e17d4b852295",
+                "reference": "ed8ce7054fd04d1c75e2bdd87683e17d4b852295",
                 "shasum": ""
             },
             "require": {
@@ -1339,6 +1339,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^2.0",
+                "brain/monkey": "2.6.0",
                 "yoast/phpunit-polyfills": "1.0.1"
             },
             "type": "library",
@@ -1364,9 +1365,9 @@
             ],
             "description": "Tracking for Jetpack",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-tracking/tree/v1.13.10"
+                "source": "https://github.com/Automattic/jetpack-tracking/tree/v1.13.11"
             },
-            "time": "2021-09-28T18:19:59+00:00"
+            "time": "2021-09-30T18:26:36+00:00"
         },
         {
             "name": "nojimage/twitter-text-php",
