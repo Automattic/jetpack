@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Consider eventbrite URLs without event IDs incorrect
