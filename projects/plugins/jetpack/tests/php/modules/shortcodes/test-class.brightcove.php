@@ -40,6 +40,6 @@ class WP_Test_Jetpack_Shortcodes_Brightcove extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( '<iframe src="//players.brightcove.net/' . $account_id . '/default_default/index.html?videoId=' . $video_id . '"', $shortcode_content );
+		$this->assertStringContainsString( '<iframe src="//players.brightcove.net/' . $account_id . '/default_default/index.html?videoId=' . $video_id . '"', $shortcode_content );
 	}
 }

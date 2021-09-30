@@ -31,8 +31,8 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	/**
 	 * Setup the environment for a test.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 
 		wp_set_current_user( static::$user_id );
 		add_action( 'admin_menu', array( $this, 'add_orphan_submenu' ) );

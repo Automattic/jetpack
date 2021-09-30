@@ -7,5 +7,3 @@ if ( E2E_DEBUG ) {
 }
 
 jest.retryTimes( parseInt( E2E_RETRY_TIMES ) || 0 );
-
-require( 'jest-circus-allure-environment' );

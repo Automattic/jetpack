@@ -10,8 +10,11 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 	protected $post;
 	protected $options_module;
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 
 		$this->options_module = Modules::get_module( "options" );
 

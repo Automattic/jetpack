@@ -10,8 +10,11 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 abstract class WP_Test_Jetpack_REST_Testcase extends WP_Test_REST_TestCase {
 	protected $server;
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 
 		/** @var WP_REST_Server $wp_rest_server */
 		global $wp_rest_server;
@@ -19,8 +22,11 @@ abstract class WP_Test_Jetpack_REST_Testcase extends WP_Test_REST_TestCase {
 		do_action( 'rest_api_init' );
 	}
 
-	public function tearDown() {
-		parent::tearDown();
+	/**
+	 * Tear down.
+	 */
+	public function tear_down() {
+		parent::tear_down();
 
 		/** @var WP_REST_Server $wp_rest_server */
 		global $wp_rest_server;

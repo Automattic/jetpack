@@ -14,6 +14,7 @@ const baseWebpackConfig = getBaseWebpackConfig(
 	{
 		entry: {}, // We'll override later
 		'output-filename': '[name].js',
+		'output-chunk-filename': '[name].[contenthash].js',
 		'output-path': path.join( path.dirname( __dirname ), '_inc', 'build' ),
 		// Calypso-build defaults this to "window", which breaks things if no library.name is set.
 		'output-library-target': '',
@@ -22,6 +23,11 @@ const baseWebpackConfig = getBaseWebpackConfig(
 
 const sharedWebpackConfig = {
 	...baseWebpackConfig,
+	optimization: {
+		...baseWebpackConfig.optimization,
+		// This optimization sometimes causes webpack to drop `__()` and such.
+		concatenateModules: false,
+	},
 	resolve: {
 		...baseWebpackConfig.resolve,
 		modules: [ path.resolve( path.dirname( __dirname ), '_inc/client' ), 'node_modules' ],

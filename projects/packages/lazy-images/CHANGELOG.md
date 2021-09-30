@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2021-09-28
+### Changed
+- Allow Node ^14.17.6 to be used in this project. This shouldn't change the behavior of the code itself.
+- Updated package dependencies.
+
 ## [2.0.0] - 2021-08-31
 ### Changed
 - Run composer update on test-php command instead of phpunit.
@@ -107,6 +112,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Lazy Images: Move into a package
 
+[2.0.1]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/Automattic/jetpack-lazy-images/compare/v1.5.1...v2.0.0
 [1.5.1]: https://github.com/Automattic/jetpack-lazy-images/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/Automattic/jetpack-lazy-images/compare/v1.4.4...v1.5.0
