@@ -13,7 +13,7 @@ import PageVisibility from 'react-page-visibility';
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { ExternalLink } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -24,7 +24,7 @@ import useSelectSocialMediaConnections from '../../hooks/use-social-media-connec
 const refreshThreshold = 2000;
 
 export default function PublicizeSettingsButton() {
-	const { refresh } = useSelectSocialMediaConnections();
+	const { refresh, hasConnections } = useSelectSocialMediaConnections();
 	const siteFragment = getSiteFragment();
 
 	const debouncedRefresh = debounce( function ( isVisible ) {
@@ -47,11 +47,11 @@ export default function PublicizeSettingsButton() {
 
 	return (
 		<PageVisibility onChange={ debouncedRefresh }>
-			<div className="jetpack-publicize-add-connection-wrapper">
-				<ExternalLink href={ href } target="_blank">
-					{ __( 'Connect an account', 'jetpack' ) }
-				</ExternalLink>
-			</div>
+			<Button href={ href } target="_blank" isSecondary isLink>
+				{ hasConnections
+					? __( 'Admin social media accounts', 'jetpack' )
+					: __( 'Connect social media accounts', 'jetpack' ) }
+			</Button>
 		</PageVisibility>
 	);
 }
