@@ -2,7 +2,6 @@
  * External dependencies
  */
 import debugFactory from 'debug';
-import page from 'page';
 
 /**
  * Internal dependencies
@@ -45,13 +44,8 @@ export default {
 		}
 
 		debug( 'search posts for:', keywords );
-		if ( this.props.search && keywords ) {
-			debug( 'replacing URL: ' + searchURL );
-			page.replace( searchURL );
-		} else {
-			debug( 'setting URL: ' + searchURL );
-			page( searchURL );
-		}
+		debug( 'setting URL: ' + searchURL );
+		window.location.href = searchURL;
 	},
 
 	getSearchOpen: function () {

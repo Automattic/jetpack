@@ -33,8 +33,8 @@ class Test_Dashboard_Switcher_Tracking extends \WP_UnitTestCase {
 	/**
 	 * Set up data.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 		wp_set_current_user( static::$user_id );
 	}
 
@@ -60,7 +60,7 @@ class Test_Dashboard_Switcher_Tracking extends \WP_UnitTestCase {
 		);
 
 		$tracking->expects( $this->once() )->method( 'record_user_event' )->with(
-			Dashboard_Switcher_Tracking::EVENT_NAME,
+			Dashboard_Switcher_Tracking::JETPACK_EVENT_NAME,
 			$event_properties
 		);
 

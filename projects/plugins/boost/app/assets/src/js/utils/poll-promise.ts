@@ -33,7 +33,7 @@ export default async function pollPromise< ReturnType = void >( {
 	timeout,
 	timeoutError,
 }: PollPromiseArgs< ReturnType > ): Promise< ReturnType > {
-	let timeoutHandle, intervalHandle;
+	let timeoutHandle: number, intervalHandle: number;
 
 	return new Promise< ReturnType >( ( resolve, reject ) => {
 		timeoutHandle = setTimeout( () => {

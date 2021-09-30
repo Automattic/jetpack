@@ -14,7 +14,7 @@ import {
 } from '../stores/critical-css-status';
 import type { JSONObject } from './json-types';
 import type { Viewport } from './types';
-import { isEnabled } from '../stores/modules';
+import { modules, isEnabled } from '../stores/modules';
 import { loadCriticalCssLibrary } from './load-critical-css-library';
 import { removeShownAdminNotices } from './remove-admin-notices';
 import { clearDismissedRecommendations } from '../stores/critical-css-recommendations';
@@ -24,7 +24,7 @@ export type ProviderKeyUrls = {
 };
 
 export type ProvidersSuccessRatio = {
-	[ providerKey: string ]: Number;
+	[ providerKey: string ]: number;
 };
 
 export type MajorMinorCallback = (
@@ -37,10 +37,20 @@ export type MajorMinorCallback = (
 let hasGenerateRun = false;
 
 /**
+ * Reset hasGenerateRun if the module is disabled to ensure generateCriticalCss
+ * runs if the module is enabled again.
+ */
+modules.subscribe( modulesState => {
+	if ( ! modulesState[ 'critical-css' ] || ! modulesState[ 'critical-css' ].enabled ) {
+		hasGenerateRun = false;
+	}
+} );
+
+/**
  * Call generateCriticalCss if it hasn't been called before this app execution
  * (browser pageload), to verify if Critical CSS needs to be generated.
  */
-export async function maybeGenerateCriticalCss() {
+export async function maybeGenerateCriticalCss(): Promise< void > {
 	if ( hasGenerateRun ) {
 		return;
 	}
@@ -56,14 +66,14 @@ export async function maybeGenerateCriticalCss() {
  * @param {boolean} isShowstopperRetry - Set this flag to indicate this attempt is retrying after a showstopper error.
  */
 export default async function generateCriticalCss(
-	reset: boolean = true,
-	isShowstopperRetry: boolean = false
+	reset = true,
+	isShowstopperRetry = false
 ): Promise< void > {
 	hasGenerateRun = true;
 	let cancelling = false;
 
 	if ( reset ) {
-		clearDismissedRecommendations();
+		await clearDismissedRecommendations();
 		updateGenerateStatus( true, 0 );
 	}
 
@@ -114,7 +124,7 @@ export default async function generateCriticalCss(
 		// Swallow errors if cancelling the process.
 		if ( ! cancelling ) {
 			// Record thrown errors as Critical CSS status.
-			await storeGenerateError( err );
+			storeGenerateError( err );
 		}
 	} finally {
 		// Always update generate status to not generating at the end.
@@ -200,7 +210,7 @@ async function generateForKeys(
 		}
 	}
 
-	await updateGenerateStatus( false, 0 );
+	updateGenerateStatus( false, 0 );
 }
 
 /**
@@ -231,6 +241,12 @@ function keepAtRule( name: string ): boolean {
 
 /**
  * Helper method to filter out properties that we don't want.
+ * Note this function is used as a filter in the generateCriticalCSS function
+ * in the jetpack-boost-critical-css-gen library (https://github.com/Automattic/jetpack-boost-critical-css-gen).
+ *
+ * This function has a value parameter which is not being used here but other implementations of this
+ * helper function for the library may require the value parameter for filtering.
+ * As a result we are retaining the value parameters here.
  *
  * @param {string} name  Name of the property to evaluate
  * @param {string} value Value of the property to evaluate
@@ -260,6 +276,20 @@ function wrapCallback( offset: number, cb: ( percent: number ) => void ): MajorM
 	};
 }
 
+/**
+ * Function to verify that a specific page is valid to run the Critical CSS process on it.
+ *
+ * Note that this function is used as a callback in the generateCriticalCSS function
+ * in the jetpack-boost-critical-css-gen library (https://github.com/Automattic/jetpack-boost-critical-css-gen).
+ *
+ * This function has a url and innerWindow parameters which are not being used here but this method
+ * is called with URL and InnerWindow in that library to offer flexibility of the verification for other implementation.
+ * As a result we are retaining the url and innerWindow parameters here.
+ *
+ * @param {string}   url           Url of the page being verified.
+ * @param {Window}   innerWindow   Inner Window object of the page being verified.
+ * @param {Document} innerDocument Inner Document object of the page being verified.
+ */
 function verifyPage( url: string, innerWindow: Window, innerDocument: Document ): boolean {
 	return !! innerDocument.querySelector( 'meta[name="jb-generate-critical-css"]' );
 }

@@ -29,11 +29,11 @@
 	"devDependencies": {
 		"@automattic/calypso-build": "9.0.0",
 		"@wordpress/browserslist-config": "4.1.0",
-		"eslint": "7.31.0",
+		"eslint": "7.32.0",
 		"webpack": "5.51.1"
 	},
 	"engines": {
-		"node": "^16.7.0",
+		"node": "^14.17.6 || ^16.7.0",
 		"pnpm": "^6.5.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}

@@ -11,6 +11,7 @@
 			"groupName": "Monorepo packages",
 			"matchPackageNames": [
 				"@automattic/eslint-changed",
+				"@automattic/jetpack-analytics",
 				"@automattic/jetpack-api",
 				"@automattic/jetpack-base-styles",
 				"@automattic/jetpack-components",
@@ -41,6 +42,7 @@
 				"automattic/jetpack-options",
 				"automattic/jetpack-partner",
 				"automattic/jetpack-password-checker",
+				"automattic/jetpack-post-list",
 				"automattic/jetpack-redirect",
 				"automattic/jetpack-roles",
 				"automattic/jetpack-status",

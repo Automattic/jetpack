@@ -73,8 +73,11 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field_Inactive extends W
 		unregister_post_type( 'example-without' );
 	}
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 
 		wp_set_current_user( self::$user_id );
 	}

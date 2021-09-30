@@ -26,9 +26,9 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 *
 	 * @since 4.4.0
 	 */
-	public function setUp() {
+	public function set_up() {
 
-		parent::setUp();
+		parent::set_up();
 
 		global $wp_rest_server;
 		$this->server = $wp_rest_server = new WP_REST_Server;
@@ -40,8 +40,8 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 *
 	 * @since 4.4.0
 	 */
-	public function tearDown() {
-		parent::tearDown();
+	public function tear_down() {
+		parent::tear_down();
 
 		global $wp_rest_server;
 		$wp_rest_server = null;
@@ -1057,7 +1057,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		// Create a user and set it up as current.
 		$user = $this->create_and_get_user( 'administrator' );
 		wp_set_current_user( $user->ID );
-
 		// Mock a connection.
 		Jetpack_Options::update_option( 'master_user', $user->ID );
 		Jetpack_Options::update_option( 'id', 1234 );
@@ -1080,36 +1079,31 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		$this->assertEquals( 200, $response->get_status() );
 
-		$expected = array(
-			'currentUser'     => array(
-				'isConnected' => true,
-				'isMaster'    => true,
-				'username'    => $user->user_login,
-				'id'          => $user->ID,
-				'wpcomUser'   => $dummy_wpcom_user_data,
-				'permissions' => array(
-					'connect'            => true,
-					'connect_user'       => true,
-					'disconnect'         => true,
-					'admin_page'         => true,
-					'manage_modules'     => true,
-					'network_admin'      => false,
-					'network_sites_page' => false,
-					'edit_posts'         => true,
-					'publish_posts'      => true,
-					'manage_options'     => true,
-					'view_stats'         => false,
-					'manage_plugins'     => true,
-				),
-			),
-			'connectionOwner' => $user->user_login,
-		);
-
 		$response_data = $response->get_data();
-		// Remove gravatar as the url is random.
-		unset( $response_data['currentUser']['gravatar'] );
+		// Remove avatar as the url is random.
 		unset( $response_data['currentUser']['wpcomUser']['avatar'] );
-		$this->assertSame( $expected, $response_data );
+
+		$this->assertTrue( $response_data['currentUser']['isConnected'] );
+		$this->assertTrue( $response_data['currentUser']['isMaster'] );
+		$this->assertSame( $user->user_login, $response_data['currentUser']['username'] );
+		$this->assertSame( $user->ID, $response_data['currentUser']['id'] );
+		$this->assertSame( $dummy_wpcom_user_data, $response_data['currentUser']['wpcomUser'] );
+		$this->assertSame( $user->user_login, $response_data['connectionOwner'] );
+
+		$expected_permissions = array(
+			'connect',
+			'connect_user',
+			'disconnect',
+			'admin_page',
+			'manage_modules',
+			'network_admin',
+			'network_sites_page',
+			'edit_posts',
+			'publish_posts',
+			'view_stats',
+			'manage_plugins',
+		);
+		$this->assertEmpty( array_diff( $expected_permissions, array_keys( $response_data['currentUser']['permissions'] ) ) );
 	}
 
 	/**

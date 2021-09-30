@@ -9,6 +9,8 @@ jobs:
     name: "E2E tests"
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    env:
+      TEST_SITE: atomic
 
     steps:
     - uses: actions/checkout@v2
@@ -23,14 +25,11 @@ jobs:
       env:
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
       run: |
-        pnpm install --dir ../../../../tools/cli
         pnpm install
-        pnpm run test-decrypt-config
+        pnpm run test-decrypt-all-config
 
     - name: Run tests
       working-directory: projects/plugins/jetpack/tests/e2e
-      env:
-        TEST_SITE: atomic
       run: pnpm run test-e2e -- --group=atomic --testNamePattern='^(?!Paid blocks WordAds block).*$'
 
     - name: Upload test artifacts
@@ -46,7 +45,7 @@ jobs:
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       working-directory: projects/plugins/jetpack/tests/e2e
-      run: NODE_ENV=test node ./bin/slack.js suite atomic --report atomic
+      run: pnpm slack -- suite atomic --report atomic
 
     - uses: testspace-com/setup-testspace@v1
       with:
@@ -65,6 +64,7 @@ jobs:
     env:
       CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
       GITHUB_CONTEXT: ${{ toJson(github) }}
+      TEST_SITE: atomic
 
     steps:
       - uses: actions/checkout@v2
@@ -80,8 +80,8 @@ jobs:
           RESULT: ${{ needs.e2e-tests.result }}
         run: |
           pnpm install
-          pnpm run test-decrypt-config
-          NODE_ENV=test node ./bin/slack.js status $RESULT --report atomic
+          pnpm run test-decrypt-all-config
+          pnpm slack -- status $RESULT --report atomic
 
   test-reports:
     name: "Trigger test report workflow"

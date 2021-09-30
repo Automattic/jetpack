@@ -37,7 +37,7 @@ async function sendRequest(
 	}
 
 	const endpointFullUrl = getEndpointUrl( path );
-	let apiCall;
+	let apiCall: Response;
 
 	try {
 		apiCall = await fetch( endpointFullUrl, args );
@@ -96,6 +96,7 @@ async function makeRequest< T = JSONObject >(
 		throw new ApiError( response.status, jsonBody, null );
 	}
 
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	return jsonBody as any;
 }
 

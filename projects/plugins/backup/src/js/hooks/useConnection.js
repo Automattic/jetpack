@@ -3,7 +3,11 @@
  */
 import React, { useCallback } from 'react';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { ConnectScreen, ConnectionStatusCard } from '@automattic/jetpack-connection';
+import {
+	ConnectScreen,
+	ConnectionStatusCard,
+	withConnectionStatus,
+} from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -11,6 +15,8 @@ import { __ } from '@wordpress/i18n';
  */
 import { STORE_ID } from '../store';
 import ConnectRight from './assets/connect-right.png';
+
+const ConnectScreenWithConnectionStatus = withConnectionStatus( ConnectScreen );
 
 /**
  * Expose the `connectionStatus` state object and `renderConnectScreen()` to show a component used for connection.
@@ -39,7 +45,7 @@ export default function useConnection() {
 
 	const renderConnectScreen = () => {
 		return (
-			<ConnectScreen
+			<ConnectScreenWithConnectionStatus
 				apiRoot={ APIRoot }
 				apiNonce={ APINonce }
 				registrationNonce={ registrationNonce }
@@ -55,7 +61,7 @@ export default function useConnection() {
 						'jetpack-backup'
 					) }
 				</p>
-			</ConnectScreen>
+			</ConnectScreenWithConnectionStatus>
 		);
 	};
 

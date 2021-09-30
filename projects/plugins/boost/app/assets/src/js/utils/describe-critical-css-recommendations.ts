@@ -435,6 +435,34 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 			],
 		} ),
 	},
+
+	XFrameDenyError: {
+		describeSet: set =>
+			_n(
+				"Jetpack Boost couldn't load the following page due to its X-Frame-Options configuration:",
+				"Jetpack Boost couldn't load the following page due to their X-Frame-Options configuration:",
+				urlCount( set ),
+				'jetpack-boost'
+			),
+		rawError: set => Object.values( set.byUrl )[ 0 ].message,
+		suggestion: set => ( {
+			paragraph: __(
+				'Jetpack Boost uses iframes while generating your Critical CSS. Unfortunately, your site has a special configuration header which prevents it from loading inside an iframe. The header is called "X-Frame-Options: DENY". This can be added to a WordPress site either by using a plugin, or by server configuration.',
+				'jetpack-boost'
+			),
+			list: [
+				__(
+					'Check that you are not using any plugins which add extra HTTP headers to your WordPress site, and deactivate them if you are.',
+					'jetpack-boost'
+				),
+				__(
+					'If you are unsure of what these headers are, or where they come from please contact your hosting provider and ask them to remove the "X-Frame-Options" header from your site',
+					'jetpack-boost'
+				),
+				__( '<retry>Try again</retry> to generate the Critical CSS.', 'jetpack-boost' ),
+			],
+		} ),
+	},
 };
 
 function getErrorSpec( type: string ): ErrorTypeSpec {
