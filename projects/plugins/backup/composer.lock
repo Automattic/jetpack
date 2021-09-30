@@ -62,10 +62,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "f25bcebf6c33dba213d599247e1a27f8cbb32d2f"
+                "reference": "8a5a37c701553bad6e818d7356a8d18ae4333773"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^1.1",
+                "automattic/jetpack-changelogger": "^2.0",
                 "automattic/wordbless": "dev-master",
                 "yoast/phpunit-polyfills": "1.0.1"
             },
@@ -73,6 +73,9 @@
             "extra": {
                 "branch-alias": {
                     "dev-master": "0.1.x-dev"
+                },
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-admin-menu.php"
                 }
             },
             "autoload": {
