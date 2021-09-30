@@ -1,18 +1,16 @@
 /**
  * WordPress dependencies
  */
-import { Button, PanelRow, ToggleControl } from '@wordpress/components';
+import { Button, PanelRow } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { useState, Fragment } from '@wordpress/element';
-import { useSelect } from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor';
+import { useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
 import { useSharePost } from '../../hooks/use-share-post';
 
-function SharePostButton( { disabled } ) {
+export function SharePostButton( { disabled } ) {
 	const [ isSharing, setIsSharing ] = useState( false );
 
 	const onPostShareHander = useSharePost( function ( errors ) {
@@ -38,24 +36,14 @@ function SharePostButton( { disabled } ) {
 	);
 }
 
-export default function SharePostSection() {
-	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
-	const [ shareOncePublihsed, setShareOncePublished ] = useState( ! isPostPublished );
+export function SharePostRow( { isPostPublished } ) {
+	if ( ! isPostPublished ) {
+		return null;
+	}
 
 	return (
-		<Fragment>
-			<PanelRow>
-				<ToggleControl
-					label={ __( 'Share once publihsed', 'jetpack' ) }
-					onChange={ setShareOncePublished }
-					checked={ shareOncePublihsed }
-					disabled={ isPostPublished }
-				/>
-			</PanelRow>
-
-			<PanelRow>
-				<SharePostButton disabled={ shareOncePublihsed || ! isPostPublished } />
-			</PanelRow>
-		</Fragment>
+		<PanelRow>
+			<SharePostButton />
+		</PanelRow>
 	);
 }
