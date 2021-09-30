@@ -28,7 +28,7 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.2.6-alpha';
+	const PACKAGE_VERSION = '0.2.6';
 
 	/**
 	 * Instance of the object.
@@ -432,7 +432,7 @@ class Identity_Crisis {
 	 * @return bool
 	 * @since 0.2.0
 	 * @since-jetpack 4.3.2
-	 * @deprecated $$next-version$$ Use should_handle_idc()
+	 * @deprecated 0.2.6 Use should_handle_idc()
 	 * @see Automattic\Jetpack\Identity_Crisis::should_handle_idc
 	 */
 	public static function sync_idc_optin() {
@@ -449,7 +449,7 @@ class Identity_Crisis {
 	 * handled.
 	 *
 	 * @return bool
-	 * @since $$next-version$$
+	 * @since 0.2.6
 	 */
 	public static function should_handle_idc() {
 		if ( Constants::is_defined( 'JETPACK_SHOULD_HANDLE_IDC' ) ) {
@@ -471,7 +471,7 @@ class Identity_Crisis {
 		 *
 		 * @param bool $default Whether the site is opted in to IDC mitigation.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.2.6
 		 */
 		return (bool) apply_filters( 'jetpack_should_handle_idc', $default );
 	}
@@ -480,7 +480,7 @@ class Identity_Crisis {
 	 * Returns the value for the deprecated filter, 'jetpack_sync_idc_optin'. That filter has been replaced with the
 	 * 'jetpack_should_handle_idc' filter.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.2.6
 	 *
 	 * @param bool $default Whether the site is opted in to IDC mitigation.
 	 */
@@ -494,7 +494,7 @@ class Identity_Crisis {
 		 *
 		 * @since 0.2.0
 		 * @since-jetpack 4.3.2
-		 * @deprecated $$next-version$$ Use jetpack_should_handle_idc
+		 * @deprecated 0.2.6 Use jetpack_should_handle_idc
 		 */
 		return (bool) apply_filters_deprecated( 'jetpack_sync_idc_optin', array( $default ), '0.2.6', 'jetpack_should_handle_idc' );
 	}

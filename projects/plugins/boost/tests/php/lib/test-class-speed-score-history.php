@@ -84,10 +84,10 @@ class WP_Test_Speed_Score_History extends Base_Test_Case {
 	 * Test if we can accessing latest score by offset works.
 	 */
 	public function test_receiving_latest_by_offset() {
-		$this->assertEquals( 20, $this->history->latest( 1 )->mobile );
-		$this->assertEquals( 25, $this->history->latest( 1 )->desktop );
+		$this->assertEquals( 20, $this->history->latest_scores( 1 )->mobile );
+		$this->assertEquals( 25, $this->history->latest_scores( 1 )->desktop );
 
-		$this->assertEquals( 30, $this->history->latest()->mobile );
-		$this->assertEquals( 35, $this->history->latest()->desktop );
+		$this->assertEquals( 30, $this->history->latest_scores()->mobile );
+		$this->assertEquals( 35, $this->history->latest_scores()->desktop );
 	}
 }
