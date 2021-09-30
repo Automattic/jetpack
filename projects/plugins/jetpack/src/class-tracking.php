@@ -30,9 +30,6 @@ class Tracking {
 		// For tracking stuff via js/ajax.
 		add_action( 'admin_enqueue_scripts', array( $this->tracking, 'enqueue_tracks_scripts' ) );
 
-		// Universal ajax callback for all tracking events triggered via js.
-		add_action( 'wp_ajax_jetpack_tracks', array( $this->tracking, 'ajax_tracks' ) );
-
 		add_action( 'jetpack_activate_module', array( $this, 'jetpack_activate_module' ), 1, 1 );
 		add_action( 'jetpack_deactivate_module', array( $this, 'jetpack_deactivate_module' ), 1, 1 );
 		add_action( 'jetpack_user_authorized', array( $this, 'jetpack_user_authorized' ) );
