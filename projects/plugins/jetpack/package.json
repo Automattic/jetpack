@@ -66,7 +66,7 @@
 		"@automattic/jetpack-analytics": "workspace:^0.1.0",
 		"@automattic/jetpack-api": "workspace:^0.2.1",
 		"@automattic/jetpack-components": "workspace:^0.3.1",
-		"@automattic/jetpack-connection": "workspace:^0.6.1",
+		"@automattic/jetpack-connection": "workspace:^0.7.0-alpha",
 		"@automattic/popup-monitor": "1.0.0",
 		"@automattic/request-external-access": "1.0.0",
 		"@automattic/social-previews": "1.1.1",
