@@ -9,7 +9,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { PanelRow } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 
@@ -23,7 +22,7 @@ import useSocialMediaConnections from '../../hooks/use-social-media-connections'
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 
 export default function PublicizeForm() {
-	const { connections, toggleById } = useSocialMediaConnections();
+	const { connections, toggleById, hasConnections } = useSocialMediaConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 
 	function isDisabled() {
@@ -32,25 +31,23 @@ export default function PublicizeForm() {
 
 	return (
 		<Fragment>
-			<p>
-				{ __( "Connect and select the accounts where you'd like to share your post.", 'jetpack' ) }
-			</p>
-
-			<PanelRow>
-				<ul className="jetpack-publicize__connections-list">
-					{ connections.map( ( { display_name, enabled, id, service_name, toggleable } ) => (
-						<PublicizeConnection
-							disabled={ ! toggleable }
-							enabled={ enabled }
-							key={ id }
-							id={ id }
-							label={ display_name }
-							name={ service_name }
-							toggleConnection={ toggleById }
-						/>
-					) ) }
-				</ul>
-			</PanelRow>
+			{ hasConnections && (
+				<PanelRow>
+					<ul className="jetpack-publicize__connections-list">
+						{ connections.map( ( { display_name, enabled, id, service_name, toggleable } ) => (
+							<PublicizeConnection
+								disabled={ ! toggleable }
+								enabled={ enabled }
+								key={ id }
+								id={ id }
+								label={ display_name }
+								name={ service_name }
+								toggleConnection={ toggleById }
+							/>
+						) ) }
+					</ul>
+				</PanelRow>
+			) }
 
 			<PublicizeSettingsButton />
 
