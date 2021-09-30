@@ -5,7 +5,7 @@
 	export let showPrevScores = false;
 	export let active = true;
 	export let prevScore = 0;
-	export let previousScoreTooltip = null;
+	export let noBoostScoreTooltip = null;
 
 	let fillColor;
 	let prevScoreOffset;
@@ -46,13 +46,13 @@
 
 			{#if showPrevScores && prevScore && prevScore < score}
 				<div
-					class="jb-score-bar__previous_score"
+					class="jb-score-bar__no_boost_score"
 					style="left: min({prevScoreOffset}%, calc(100% - var(--clearance-space))"
 				>
 					{prevScore}
-					{#if previousScoreTooltip}
-						<div class="jb-score-bar__previous_score_tooltip">
-							{previousScoreTooltip}
+					{#if noBoostScoreTooltip}
+						<div class="jb-score-bar__no_boost_score_tooltip">
+							{noBoostScoreTooltip}
 						</div>
 					{/if}
 				</div>

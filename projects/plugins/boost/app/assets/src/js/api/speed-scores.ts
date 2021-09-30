@@ -23,11 +23,11 @@ type SpeedScores = {
 
 type SpeedScoresSet = {
 	current: SpeedScores;
-	previous: SpeedScores;
+	noBoost: SpeedScores;
 };
 
 type ParsedApiResponse = {
-	id?: string;
+	status: string;
 	scores?: SpeedScoresSet;
 };
 
@@ -57,8 +57,7 @@ export async function requestSpeedScores( force = false ): Promise< SpeedScoresS
 
 /**
  * Helper method for parsing a response from a speed score API request. Returns
- * scores (if ready), or a request id to use for future polling if the speed
- * score is not yet ready.
+ * scores (if ready), and a status (success|pending|error).
  *
  * @param {JSONObject} response - API response to parse
  * @return {ParsedApiResponse} API response, processed.
@@ -77,6 +76,7 @@ function parseResponse( response: JSONObject ): ParsedApiResponse {
 	// Check if ready.
 	if ( isJsonObject( response.scores ) ) {
 		return {
+			status: 'success',
 			scores: {
 				current: isJsonObject( response.scores.current )
 					? {
@@ -87,24 +87,23 @@ function parseResponse( response: JSONObject ): ParsedApiResponse {
 							mobile: 0,
 							desktop: 0,
 					  },
-				previous: isJsonObject( response.scores.previous )
+				noBoost: isJsonObject( response.scores.noBoost )
 					? {
-							mobile: castToNumber( response.scores.previous.mobile, 0 ),
-							desktop: castToNumber( response.scores.previous.desktop, 0 ),
+							mobile: castToNumber( response.scores.noBoost.mobile, 0 ),
+							desktop: castToNumber( response.scores.noBoost.desktop, 0 ),
 					  }
 					: null,
 			},
 		};
 	}
 
-	// No metrics yet. Make sure there is an id for polling.
-	const requestId = castToString( response.id );
-	if ( ! requestId ) {
+	const requestStatus = castToString( response.status );
+	if ( ! requestStatus ) {
 		throw new Error( __( 'Invalid response while requesting metrics', 'jetpack-boost' ) );
 	}
 
 	return {
-		id: requestId,
+		status: requestStatus,
 	};
 }
 
@@ -170,22 +169,22 @@ export function getScoreLetter( mobile: number, desktop: number ): string {
  */
 export function didScoresImprove( scores: SpeedScoresSet ): boolean {
 	const current = scores.current;
-	const previous = scores.previous;
+	const noBoost = scores.noBoost;
 
 	// Consider the score was improved if either desktop or mobile improved and neither worsened.
 	return (
 		null !== current &&
-		null !== previous &&
-		current.mobile >= previous.mobile &&
-		current.desktop >= previous.desktop &&
-		current.mobile + current.desktop > previous.mobile + previous.desktop
+		null !== noBoost &&
+		current.mobile >= noBoost.mobile &&
+		current.desktop >= noBoost.desktop &&
+		current.mobile + current.desktop > noBoost.mobile + noBoost.desktop
 	);
 }
 
 export function getScoreImprovementPercentage( scores: SpeedScoresSet ): number {
 	const current = scores.current.mobile + scores.current.desktop;
-	const previous = scores.previous.mobile + scores.previous.desktop;
-	const improvement = current / previous - 1;
+	const noBoost = scores.noBoost.mobile + scores.noBoost.desktop;
+	const improvement = current / noBoost - 1;
 
 	return Math.round( improvement * 100 );
 }
