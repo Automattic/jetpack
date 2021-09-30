@@ -24,9 +24,11 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Share_Post extends WP_REST_Contr
 		$this->namespace = 'wpcom/v2';
 		$this->rest_base = '/publicize/share';
 
+		// $wpcom_is_wpcom_only_endpoint true keeps the WPCOM endpoint from trying to loop back to the Jetpack endpoint.
 		$this->wpcom_is_wpcom_only_endpoint = true;
-		$this->is_wpcom                     = false;
 
+		// Determine if this endpoint is running on WPCOM or not.
+		$this->is_wpcom = false;
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$this->is_wpcom = true;
 		}
@@ -35,47 +37,51 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Share_Post extends WP_REST_Contr
 	}
 
 	/**
-	 * This is the function we reference in the add_action callback in the constructor.
-	 * It registers the endpoint route: http://{$site}/wp-json/wpcom/v2/publicize/share/{$postId}
+	 * This is the function we reference in the add_action callback in the constructor. It registers:
+	 * Jetpack route: http://{$site}/wp-json/wpcom/v2/publicize/share/{$postId}
+	 * WPCom route: https://public-api.wordpress.com/wpcom/v2/sites/{$siteId}/publicize/share/{$postId}
 	 */
 	public function register_routes() {
 		register_rest_route(
 			$this->namespace,
 			$this->rest_base . '/(?P<postId>[\d]+)',
 			array(
-				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'share_post' ),
-				'permission_callback' => array( $this, 'permissions_check' ),
-				'args'                => array(
-					'postId'               => array(
-						'description'       => __( 'The WordPress Post ID.', 'jetpack' ),
-						'type'              => 'int',
-						'required'          => 'true',
-						'validate_callback' => function ( $param ) {
-							return is_numeric( $param );
-						},
-					),
-					'message'              => array(
-						'description'       => __( 'The message to share.', 'jetpack' ),
-						'type'              => 'string',
-						'required'          => 'true',
-						'validate_callback' => function ( $param ) {
-							return is_string( $param );
-						},
-						'sanitize_callback' => 'sanitize_textarea_field',
-					),
-					'skippedConnectionIds' => array(
-						'description'       => __( 'Array of external connection IDs to skip sharing.', 'jetpack' ),
-						'type'              => 'array',
-						'required'          => 'true',
-						'validate_callback' => function ( $param ) {
-							return is_array( $param );
-						},
-						'sanitize_callback' => function ( $param ) {
-							return array_map( 'absint', $param );
-						},
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'share_post' ),
+					'permission_callback' => array( $this, 'permissions_check' ),
+					'args'                => array(
+						'postId'            => array(
+							'description'       => __( 'The WordPress Post ID.', 'jetpack' ),
+							'type'              => 'int',
+							'required'          => true,
+							'validate_callback' => function ( $param ) {
+								return is_numeric( $param );
+							},
+						),
+						'message'           => array(
+							'description'       => __( 'The message to share.', 'jetpack' ),
+							'type'              => 'string',
+							'required'          => true,
+							'validate_callback' => function ( $param ) {
+								return is_string( $param );
+							},
+							'sanitize_callback' => 'sanitize_textarea_field',
+						),
+						'skipConnectionIds' => array(
+							'description'       => __( 'Array of external connection IDs to skip sharing.', 'jetpack' ),
+							'type'              => 'array',
+							'required'          => true,
+							'validate_callback' => function ( $param ) {
+								return is_array( $param );
+							},
+							'sanitize_callback' => function ( $param ) {
+								return array_map( 'absint', $param );
+							},
+						),
 					),
 				),
+				'schema' => 'prefix_get_comment_schema',
 			)
 		);
 	}
@@ -108,7 +114,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Share_Post extends WP_REST_Contr
 	public function share_post( $request ) {
 		$post_id             = $request->get_param( 'postId' );
 		$message             = trim( $request->get_param( 'message' ) );
-		$skipped_connections = $request->get_param( 'skipped_connections' );
+		$skip_connection_ids = $request->get_param( 'skipConnectionIds' );
 
 		if ( $this->is_wpcom ) {
 			$post = get_post( $post_id );
@@ -121,7 +127,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Share_Post extends WP_REST_Contr
 			}
 
 			$publicize = publicize_init();
-			$result    = $publicize->republicize_post( (int) $post_id, $message, $skipped_connections );
+			$result    = $publicize->republicize_post( (int) $post_id, $message, $skip_connection_ids );
 			if ( false === $result ) {
 				return new WP_Error( 'not_found', 'Cannot find that post', array( 'status' => 404 ) );
 			}
@@ -133,7 +139,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Share_Post extends WP_REST_Contr
 			 * [POST] wpcom/v2/sites/<site-id>/posts/<post-id>/share
 			 * body:
 			 *   - message: string
-			 *   - skipped_connections: array of connection ids to skip
+			 *   - skip_connection_ids: array of connection ids to skip
 			 */
 			$url = sprintf(
 				'/sites/%d/publicize/share/%d',
@@ -148,8 +154,8 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Share_Post extends WP_REST_Contr
 					'method' => 'POST',
 				),
 				array(
-					'message'             => $message,
-					'skipped_connections' => $skipped_connections,
+					'message'           => $message,
+					'skipConnectionIds' => $skip_connection_ids,
 				)
 			);
 
