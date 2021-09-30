@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import { useSelect } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 
 /**
@@ -48,5 +48,12 @@ export function useSharePost( callback ) {
 			.catch( error => {
 				callback( [ error ] );
 			} );
+	};
+}
+
+export function useSharePostFeature() {
+	return {
+		isEnabled: useSelect( select => select( 'jetpack/publicize' ).isPostFeatureEnabled() ),
+		toggleEnable: useDispatch( 'jetpack/publicize' ).toggleSharePostFeature,
 	};
 }
