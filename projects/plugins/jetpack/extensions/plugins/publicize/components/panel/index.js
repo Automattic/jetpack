@@ -10,7 +10,10 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { PanelBody } from '@wordpress/components';
+import { PanelBody, PanelRow, ToggleControl } from '@wordpress/components';
+import { useState } from '@wordpress/element';
+import { store as editorStore } from '@wordpress/editor';
+import { useSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -20,10 +23,13 @@ import PublicizeForm from '../form';
 import PublicizeTwitterOptions from '../twitter/options';
 import useSelectSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { usePostJustBeforePublish } from '../../hooks/use-saving-post';
-import SharePostSection from '../share-post';
+import { SharePostRow } from '../share-post';
 
 const PublicizePanel = ( { prePublish } ) => {
-	const { refresh, connections } = useSelectSocialMediaConnections();
+	const { refresh, connections, hasEnabledConnections } = useSelectSocialMediaConnections();
+	const [ isEnabled, setIsEnabled ] = useState( false );
+	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
+	const hasConnections = !! connections?.length;
 
 	// Refresh connections when the post is just published.
 	usePostJustBeforePublish(
@@ -46,12 +52,43 @@ const PublicizePanel = ( { prePublish } ) => {
 		[ refresh ]
 	);
 
+	let mainMessage = __(
+		'Start sharing your posts automatically by connecting your social media accounts.',
+		'jetpack'
+	);
+	if ( hasConnections && ( ! isEnabled || ! hasEnabledConnections ) ) {
+		mainMessage = __(
+			'Use this tool to automatically share your post on all your social media accounts.',
+			'jetpack'
+		);
+	} else if ( isEnabled && hasEnabledConnections ) {
+		mainMessage = __(
+			'This post will be shared on all your connected and enabled social media the moment you publish the post.',
+			'jetpack'
+		);
+	}
+
 	return (
 		<PanelBody title={ __( 'Share this post', 'jetpack' ) }>
+			<PanelRow>
+				<ToggleControl
+					label={
+						isEnabled
+							? __( 'Sharing is enabled', 'jetpack' )
+							: __( 'Sharing is disabled', 'jetpack' )
+					}
+					onChange={ setIsEnabled }
+					checked={ isEnabled }
+					disabled={ ! hasConnections }
+				/>
+			</PanelRow>
+
+			<p>{ mainMessage }</p>
+
 			<PublicizeConnectionVerify />
 			<PublicizeForm />
 			<PublicizeTwitterOptions prePublish={ prePublish } />
-			<SharePostSection />
+			<SharePostRow isPostPublished={ isPostPublished } />
 		</PanelBody>
 	);
 };
