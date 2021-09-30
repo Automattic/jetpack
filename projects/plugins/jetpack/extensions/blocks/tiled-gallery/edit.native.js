@@ -88,14 +88,14 @@ const TiledGalleryEdit = props => {
 				id: newImage.id,
 			} );
 		} );
-		
-		const newIds = images?.map(image => image.id);
-		setAttributes({ ids: newIds });
+
+		const newIds = images?.map( image => image.id );
+		setAttributes( { ids: newIds } );
 	}, [ images ] );
 
 	useEffect( () => {
 		if ( ! columns ) {
-			setAttributes( { columns: DEFAULT_COLUMNS });
+			setAttributes( { columns: DEFAULT_COLUMNS } );
 		}
 	}, [ images ] );
 
