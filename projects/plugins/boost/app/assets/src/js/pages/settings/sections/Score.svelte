@@ -67,13 +67,12 @@
 	let currentScoreConfigString = $scoreConfigString;
 
 	async function refreshScore( force = false ) {
-		isLoading = true;
-		loadError = undefined;
-
-
 		if ( ! siteIsOnline ) {
 			return;
 		}
+		
+		isLoading = true;
+		loadError = undefined;
 
 		try {
 			scores = await requestSpeedScores( force );
