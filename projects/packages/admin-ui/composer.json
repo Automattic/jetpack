@@ -42,6 +42,9 @@
 	"extra": {
 		"branch-alias": {
 			"dev-master": "0.1.x-dev"
+		},
+		"version-constants": {
+			"::PACKAGE_VERSION": "src/class-admin-menu.php"
 		}
 	}
 }
