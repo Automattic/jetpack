@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Moved the Package Tracker execution to the shutdown hook for performance improvement
