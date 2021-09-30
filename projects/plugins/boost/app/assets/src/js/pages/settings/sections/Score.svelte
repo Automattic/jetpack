@@ -34,9 +34,7 @@
 	let showRatingCard = false;
 	let improvementPercentage = 0;
 
-	if ( siteIsOnline ) {
-		refreshScore( false );
-	}
+	refreshScore( false );
 
 	/**
 	 * Derived datastore which makes it easy to check if module states are currently in sync with server.
@@ -69,6 +67,10 @@
 	let currentScoreConfigString = $scoreConfigString;
 
 	async function refreshScore( force = false ) {
+		if ( ! siteIsOnline ) {
+			return;
+		}
+		
 		isLoading = true;
 		loadError = undefined;
 
