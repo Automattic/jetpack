@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v2
       - id: create-matrix
         run: |
-          MATRIX='[{"group":"pre-connection"},{"group":"connection"},{"group":"post-connection"},{"group":"gutenberg"}]'
+          MATRIX='[{"group":"pre-connection"},{"group":"connection"},{"group":"post-connection"}]'
           if [ "$GITHUB_EVENT_NAME" == schedule ]; then
             MATRIX=$(echo $MATRIX | jq '. + [{"group": "gutenberg"}]' | jq -c .)
           fi
