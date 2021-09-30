@@ -1,3 +1,8 @@
+/**
+ * Internal dependencies
+ */
+import { mergeCachedAggregations } from '../../lib/api';
+
 let cachedAggregations = {};
 /**
  * Reducer for recording if the previous search request yielded an error.
@@ -91,30 +96,4 @@ export function response( state = {}, action ) {
 	}
 
 	return state;
-}
-
-/**
- * The function only merge on the top level, it doesn't merge the buckets.
- * Tried to merge the buckets, but which seems a bit bumpy.
- * Note: doc_count of cached aggregations is always set to 0.
- *
- * @param {object} previousCachedAggregations - Cached aggregations.
- * @param {object} newAggregations - New aggregations to merge.
- * @returns {object} Merged aggregations.
- */
-function mergeCachedAggregations( previousCachedAggregations, newAggregations ) {
-	return {
-		...previousCachedAggregations,
-		...Object.fromEntries(
-			Object.entries( newAggregations )
-				.filter( ( [ , aggregation ] ) => aggregation?.buckets?.length > 0 )
-				.map( ( [ aggregationKey, aggregation ] ) => {
-					const buckets = aggregation.buckets.map( bucket => ( {
-						...bucket,
-						doc_count: 0,
-					} ) );
-					return [ aggregationKey, { ...aggregation, buckets } ];
-				} )
-		),
-	};
 }

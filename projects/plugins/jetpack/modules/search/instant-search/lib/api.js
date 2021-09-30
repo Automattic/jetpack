@@ -44,6 +44,33 @@ export function buildFilterAggregations( widgets = [] ) {
 }
 
 /**
+ * The function only merge on the top level, it doesn't merge the buckets.
+ * Tried to merge the buckets, but which would show too many filters.
+ *
+ * Note: The doc_count of every aggregation is always set to 0.
+ *
+ * @param {object} previousCachedAggregations - Cached aggregations.
+ * @param {object} newAggregations - New aggregations to merge.
+ * @returns {object} Merged aggregations.
+ */
+export function mergeCachedAggregations( previousCachedAggregations, newAggregations ) {
+	return {
+		...previousCachedAggregations,
+		...Object.fromEntries(
+			Object.entries( newAggregations )
+				.filter( ( [ , aggregation ] ) => aggregation?.buckets?.length > 0 )
+				.map( ( [ aggregationKey, aggregation ] ) => {
+					const buckets = aggregation.buckets.map( bucket => ( {
+						...bucket,
+						doc_count: 0,
+					} ) );
+					return [ aggregationKey, { ...aggregation, buckets } ];
+				} )
+		),
+	};
+}
+
+/**
  * Builds ElasticSearch aggregations for a given filter.
  *
  * @param {object[]} filter - a filter object from a widget configuration object.
