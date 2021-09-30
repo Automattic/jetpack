@@ -59,21 +59,27 @@ export function releaseDefine( yargs ) {
  * @param {object} argv - the arguments passed.
  */
 export async function releaseCli( argv ) {
+	// Verify we have a valid project.
 	if ( argv.project ) {
 		argv = await parseProj( argv );
 	} else {
 		argv = await promptForProject( argv );
 	}
 
+	// Check if we're working with a beta version.
 	if ( ! argv.beta ) {
 		argv = await promptBeta( argv );
 	}
 
+	// Verify we have a valid script.
 	if ( ! argv.script || argv.script === '' ) {
 		argv = await promptForScript( argv );
 	}
 
+	// Get the info we need for the script.
 	scriptRouter( argv );
+
+	// Run the script.
 	await runScript( argv );
 }
 
@@ -102,11 +108,10 @@ export async function runScript( argv ) {
  * @param {object} argv - the arguments passed
  */
 export async function scriptRouter( argv ) {
-	const isBeta = argv.beta ? '-b' : '';
 	switch ( argv.script ) {
 		case 'changelog':
 			argv.script = `tools/changelogger-release.sh`;
-			argv.scriptArgs = [ isBeta, argv.project ];
+			argv.scriptArgs = argv.beta ? [ '-b', argv.project ] : [ argv.project ];
 			argv.next = `Finished! Next: \n	- Create a new branch off master, review the changes, make any necessary adjustments. \n	- Commit your changes. \n	- To continue with the release process, update the readme.txt by running:\n		jetpack release ${ argv.project } readme \n`;
 			break;
 		case 'readme':
