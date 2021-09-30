@@ -54,5 +54,5 @@ dev:
 e2e:
   # Volumes to mount inside the environment, as above. Merged with those above.
   volumeMappings:
-    projects/plugins/jetpack/tests/e2e/plugins/e2e-plugin-updater.php: /var/www/html/wp-content/plugins/e2e-plugin-updater.php
-    projects/plugins/jetpack/tests/e2e/plugins/e2e-plan-data-interceptor.php: /var/www/html/wp-content/plugins/e2e-plan-data-interceptor.php
+    tools/e2e-commons/plugins/e2e-plugin-updater.php: /var/www/html/wp-content/plugins/e2e-plugin-updater.php
+    tools/e2e-commons/plugins/e2e-plan-data-interceptor.php: /var/www/html/wp-content/plugins/e2e-plan-data-interceptor.php

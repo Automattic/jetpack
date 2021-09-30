@@ -64,14 +64,14 @@ jobs:
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
       run: |
         pnpm install
-        pnpm run test-decrypt-config
+        pnpm run test-decrypt-all-config
         pnpm run env-start
         pnpm run tunnel-on
 
     - name: Set up Gutenberg
       if: matrix.group == 'gutenberg'
       working-directory: projects/plugins/jetpack/tests/e2e
-      run: ./bin/env.sh gb-setup
+      run: pnpx e2e-env gb-setup
 
     - name: Run ${{ matrix.group }} tests
       working-directory: projects/plugins/jetpack/tests/e2e
@@ -98,7 +98,7 @@ jobs:
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       working-directory: projects/plugins/jetpack/tests/e2e
-      run: NODE_ENV=test node ./bin/slack.js suite $GROUP
+      run: pnpm slack -- suite $GROUP
 
     - uses: testspace-com/setup-testspace@v1
       with:
@@ -132,8 +132,8 @@ jobs:
           RESULT: ${{ needs.e2e-tests.result }}
         run: |
           pnpm install
-          pnpm run test-decrypt-config
-          NODE_ENV=test node ./bin/slack.js status $RESULT
+          pnpm run test-decrypt-all-config
+          pnpm slack -- status $RESULT
 
   test-reports:
     name: "Trigger test report workflow"
