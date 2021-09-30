@@ -62,9 +62,14 @@ const PublicizePanel = ( { prePublish } ) => {
 			'Use this tool to automatically share your post on all your social media accounts.',
 			'jetpack'
 		);
-	} else if ( isEnabled && hasEnabledConnections ) {
+	} else if ( isEnabled && hasEnabledConnections && ! isPostPublished ) {
 		mainMessage = __(
-			'This post will be shared on all your connected and enabled social media the moment you publish the post.',
+			'This post will be shared on all your enabled social media accounts the moment you publish the post.',
+			'jetpack'
+		);
+	} else if ( isEnabled && hasEnabledConnections && isPostPublished ) {
+		mainMessage = __(
+			'Share this post on all your enabled social media accounts by clicking on the share post button.',
 			'jetpack'
 		);
 	}
