@@ -47,7 +47,12 @@ export default function PublicizeSettingsButton() {
 
 	return (
 		<PageVisibility onChange={ debouncedRefresh }>
-			<Button href={ href } target="_blank" isSecondary isLink>
+			<Button
+				href={ href }
+				target="_blank"
+				isSecondary={ ! hasConnections }
+				isLink={ hasConnections }
+			>
 				{ hasConnections
 					? __( 'Admin social media accounts', 'jetpack' )
 					: __( 'Connect social media accounts', 'jetpack' ) }
