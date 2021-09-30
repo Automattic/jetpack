@@ -101,7 +101,7 @@ const PublicizePanel = ( { prePublish } ) => {
 
 			<PublicizeConnectionVerify />
 			<PublicizeForm isPublicizeEnabled={ isEnabled } />
-			<PublicizeTwitterOptions prePublish={ prePublish } />
+			{ isEnabled && <PublicizeTwitterOptions prePublish={ prePublish } /> }
 			<SharePostRow isEnabled={ isPostPublished && isEnabled } />
 		</PanelBody>
 	);
