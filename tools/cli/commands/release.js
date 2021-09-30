@@ -3,20 +3,14 @@
  */
 import chalk from 'chalk';
 import child_process from 'child_process';
-import fs from 'fs';
-import path from 'path';
-import process from 'process';
 import inquirer from 'inquirer';
-import simpleGit from 'simple-git';
 
 /**
  * Internal dependencies
  */
 import promptForProject from '../helpers/promptForProject';
 import { chalkJetpackGreen } from '../helpers/styling';
-import { normalizeProject } from '../helpers/normalizeArgv';
-import { allProjects, projectTypes } from '../helpers/projectHelpers';
-import { readComposerJson } from '../helpers/json';
+import { allProjects } from '../helpers/projectHelpers';
 
 /**
  * Command definition for the release subcommand.
@@ -81,31 +75,39 @@ export async function releaseCli( argv ) {
 
 	scriptRouter( argv );
 	await runScript( argv );
-	console.log( argv );
 }
 
 /**
  * Run the script.
  *
- * @param {object} argv the arguments passed
- * @returns argv
+ * @param {object} argv - the arguments passed
  */
 export async function runScript( argv ) {
-	child_process.execSync( `${ argv.script }` );
+	console.log( chalkJetpackGreen( `Running ${ argv.script }! Just a moment...` ) );
+
+	try {
+		child_process.spawnSync( argv.script, [ ...argv.scriptArgs ], {
+			stdio: 'inherit',
+		} );
+	} catch ( err ) {
+		console.error( 'Error running script!', err );
+	}
+
+	console.log( argv.next );
 }
 
 /**
  * Determine which script to run.
  *
- * @param {object} argv the arguments passed
- * @returns argv
+ * @param {object} argv - the arguments passed
  */
 export async function scriptRouter( argv ) {
 	const isBeta = argv.beta ? '-b' : '';
 	switch ( argv.script ) {
 		case 'changelog':
-			argv.script = `tools/changelogger-release.sh ${ isBeta } ${ argv.project }`;
-			argv.next = 'Next, review the changes in ';
+			argv.script = `tools/changelogger-release.sh`;
+			argv.scriptArgs = [ isBeta, argv.project ];
+			argv.next = `Finished! Next: \n	- Create a new branch off master, review the changes, make any necessary adjustments. \n	- Commit your changes. \n	- To continue with the release process, update the readme.txt by running:\n		jetpack release ${ argv.project } readme \n`;
 			break;
 		case 'readme':
 		case 'release-branch':
@@ -117,8 +119,8 @@ export async function scriptRouter( argv ) {
 /**
  * Checks the project we're releasing.
  *
- * @param {object} argv the arguments passed
- * @returns argv
+ * @param {object} argv - the arguments passed
+ * @returns {object} argv
  */
 export async function parseProj( argv ) {
 	// If we're passing a specific project
@@ -138,8 +140,8 @@ export async function parseProj( argv ) {
 /**
  * Checks the project we're releasing.
  *
- * @param {object} argv the arguments passed
- * @returns argv
+ * @param {object} argv - the arguments passed
+ * @returns {object} argv
  */
 export async function promptBeta( argv ) {
 	const response = await inquirer.prompt( [
@@ -158,8 +160,8 @@ export async function promptBeta( argv ) {
 /**
  * Asks for what part of the release process we want to run.
  *
- * @param {object} argv the arguments passed
- * @returns argv
+ * @param {object} argv - the arguments passed
+ * @returns {object} argv
  */
 export async function promptForScript( argv ) {
 	const response = await inquirer.prompt( [
