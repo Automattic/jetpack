@@ -19,15 +19,9 @@ import PublicizeConnection from '../connection';
 import PublicizeSettingsButton from '../settings-button';
 import MessageBoxControl from '../message-box-control';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
-import useSocialMediaMessage from '../../hooks/use-social-media-message';
 
 export default function PublicizeForm( { isPublicizeEnabled } ) {
 	const { connections, toggleById, hasConnections } = useSocialMediaConnections();
-	const { message, updateMessage, maxLength } = useSocialMediaMessage();
-
-	function isDisabled() {
-		return connections.every( connection => ! connection.toggleable );
-	}
 
 	return (
 		<Fragment>
@@ -51,14 +45,7 @@ export default function PublicizeForm( { isPublicizeEnabled } ) {
 
 			<PublicizeSettingsButton />
 
-			{ connections.some( connection => connection.enabled ) && (
-				<MessageBoxControl
-					disabled={ isDisabled() }
-					maxLength={ maxLength }
-					onChange={ updateMessage }
-					message={ message }
-				/>
-			) }
+			{ isPublicizeEnabled && <MessageBoxControl /> }
 		</Fragment>
 	);
 }
