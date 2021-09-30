@@ -401,26 +401,29 @@ const VideoPressEdit = CoreVideoEdit =>
 				</Fragment>
 			);
 
-			if ( isUploading ) {
+			const isFetching = ! isUploading && ( isFetchingMedia || isFetchingPreview );
+			const useCoreVideo = ! isUploading && ! isFetching && ( fallback || ! preview );
+			const useCoreVideoOrLoading = isUploading || isFetching || useCoreVideo;
+
+			// In order for the media placeholder to keep its state for error messages, we need to keep the CoreVideoEdit component in the tree
+			if ( useCoreVideoOrLoading ) {
 				return (
 					<Fragment>
-						{ blockSettings }
-						<Loading text={ __( 'Uploading…', 'jetpack' ) } />
+						<div className={ ! isUploading && ! isFetching ? 'videopress-block-hide' : '' }>
+							{ blockSettings }
+							<Loading
+								text={
+									isUploading
+										? __( 'Uploading…', 'jetpack' )
+										: __( 'Generating preview…', 'jetpack' )
+								}
+							/>
+						</div>
+						<div className={ ! useCoreVideo ? 'videopress-block-hide' : '' }>
+							<CoreVideoEdit { ...this.props } />;
+						</div>
 					</Fragment>
 				);
-			}
-
-			if ( isFetchingMedia || isFetchingPreview ) {
-				return (
-					<Fragment>
-						{ blockSettings }
-						<Loading text={ __( 'Generating preview…', 'jetpack' ) } />
-					</Fragment>
-				);
-			}
-
-			if ( fallback || ! preview ) {
-				return <CoreVideoEdit { ...this.props } />;
 			}
 
 			const { html, scripts } = preview;
