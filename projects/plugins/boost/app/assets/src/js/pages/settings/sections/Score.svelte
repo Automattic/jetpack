@@ -178,7 +178,7 @@
 				active={siteIsOnline}
 				{isLoading}
 				{showPrevScores}
-				noBoostScoreTooltip={__( 'Your mobile score without boost', 'jetpack-boost' )}
+				noBoostScoreTooltip={__( 'Your mobile score without Boost', 'jetpack-boost' )}
 			/>
 		</div>
 
@@ -193,7 +193,7 @@
 				active={siteIsOnline}
 				{isLoading}
 				{showPrevScores}
-				noBoostScoreTooltip={__( 'Your desktop score without boost', 'jetpack-boost' )}
+				noBoostScoreTooltip={__( 'Your desktop score without Boost', 'jetpack-boost' )}
 			/>
 		</div>
 	</div>
