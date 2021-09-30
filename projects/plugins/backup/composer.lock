@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "86be81eec635dd20396aa55beab7c895",
+    "content-hash": "22267bd20787b34928ac25b96fce1b98",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -344,7 +344,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection-ui",
-                "reference": "a1efc00c1d036d4ef1710cc8c468d67f597b0b54"
+                "reference": "89941983a01853129dd64b22e13143f4f68ce0bf"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.30",
@@ -362,7 +362,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection-ui/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.4.x-dev"
+                    "dev-master": "1.5.x-dev"
                 }
             },
             "autoload": {
@@ -1031,7 +1031,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/tracking",
-                "reference": "eda11e3c314f6dd3eefd5fa9c0f1c13efdcfe34e"
+                "reference": "7d6238640b64fb8fe2860a83c1f2aa50e528b04c"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.11",
@@ -1041,6 +1041,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^2.0",
+                "brain/monkey": "2.6.0",
                 "yoast/phpunit-polyfills": "1.0.1"
             },
             "type": "library",

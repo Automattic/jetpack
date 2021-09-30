@@ -148,6 +148,18 @@ export const reducer = combineReducers( {
 } );
 
 /**
+ * Get the whole connection status object.
+ *
+ * @param  {object} state - Global state tree
+ * @returns {object} Connection status object.
+ */
+export function getConnectionStatus( state ) {
+	return 'object' === typeof state.jetpack.connection.status.siteConnected
+		? state.jetpack.connection.status.siteConnected
+		: false;
+}
+
+/**
  * Returns true if site is connected to WordPress.com
  *
  * @param  {Object}      state Global state tree

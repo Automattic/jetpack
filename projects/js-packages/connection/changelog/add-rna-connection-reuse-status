@@ -1,0 +1,4 @@
+Significance: major
+Type: removed
+
+Connection Screen component no longer pulls conneciton status from the API, it only relies on the properties. Use WithConnectionStatus HOC instead.
