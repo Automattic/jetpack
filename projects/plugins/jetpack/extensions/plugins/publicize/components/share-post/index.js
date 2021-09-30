@@ -10,7 +10,7 @@ import { store as editorStore } from '@wordpress/editor';
 /**
  * Internal dependencies
  */
-import { useSharePost } from '../../hooks/use-social-media-connections';
+import { useSharePost } from '../../hooks/use-share-post';
 
 function SharePostButton( { disabled } ) {
 	const [ isSharing, setIsSharing ] = useState( false );
