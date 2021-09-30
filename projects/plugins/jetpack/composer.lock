@@ -390,16 +390,16 @@
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "v1.30.5",
+            "version": "v1.30.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-connection.git",
-                "reference": "2c0f6a8c37601afe5497b2ba8a62e119684e3e53"
+                "reference": "a76d26bb08da9db1be1301acdd470233053f2340"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-connection/zipball/2c0f6a8c37601afe5497b2ba8a62e119684e3e53",
-                "reference": "2c0f6a8c37601afe5497b2ba8a62e119684e3e53",
+                "url": "https://api.github.com/repos/Automattic/jetpack-connection/zipball/a76d26bb08da9db1be1301acdd470233053f2340",
+                "reference": "a76d26bb08da9db1be1301acdd470233053f2340",
                 "shasum": ""
             },
             "require": {
@@ -445,9 +445,9 @@
             ],
             "description": "Everything needed to connect to the Jetpack infrastructure",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-connection/tree/v1.30.5"
+                "source": "https://github.com/Automattic/jetpack-connection/tree/v1.30.6"
             },
-            "time": "2021-09-28T18:20:00+00:00"
+            "time": "2021-09-30T20:57:08+00:00"
         },
         {
             "name": "automattic/jetpack-connection-ui",
