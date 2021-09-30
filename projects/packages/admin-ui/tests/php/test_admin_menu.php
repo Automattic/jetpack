@@ -5,7 +5,7 @@
  * @package automattic/jetpack-admin-ui
  */
 
-namespace Automattic\Jetpack;
+namespace Automattic\Jetpack\Admin_UI;
 
 use WorDBless\BaseTestCase;
 
