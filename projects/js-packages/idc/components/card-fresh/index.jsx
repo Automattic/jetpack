@@ -85,6 +85,7 @@ const CardFresh = props => {
 
 CardFresh.propTypes = {
 	wpcomHomeUrl: PropTypes.string.isRequired,
+	currentUrl: PropTypes.string.isRequired,
 };
 
 export default CardFresh;

@@ -70,7 +70,7 @@ IDCScreen.propTypes = {
 	logo: PropTypes.object.isRequired,
 	headerText: PropTypes.string.isRequired,
 	wpcomHomeUrl: PropTypes.string.isRequired,
-	newUrl: PropTypes.string.isRequired,
+	currentUrl: PropTypes.string.isRequired,
 };
 
 IDCScreen.defaultProps = {
