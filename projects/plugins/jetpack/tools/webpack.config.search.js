@@ -90,10 +90,13 @@ module.exports = {
 		definePaletteColorsAsStaticVariables(),
 	],
 	optimization: {
+		...baseWebpackConfig.optimization,
 		splitChunks: {
 			cacheGroups: {
 				vendors: false,
 			},
 		},
+		// This optimization sometimes causes webpack to drop `__()` and such.
+		concatenateModules: false,
 	},
 };
