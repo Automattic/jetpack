@@ -10,7 +10,7 @@ import { useState } from '@wordpress/element';
  */
 import { useSharePost } from '../../hooks/use-share-post';
 
-export function SharePostButton( { disabled } ) {
+export function SharePostButton() {
 	const [ isSharing, setIsSharing ] = useState( false );
 
 	const onPostShareHander = useSharePost( function ( errors ) {
@@ -28,7 +28,7 @@ export function SharePostButton( { disabled } ) {
 				setIsSharing( true );
 				onPostShareHander();
 			} }
-			disabled={ disabled || isSharing }
+			disabled={ isSharing }
 			isBusy={ isSharing }
 		>
 			{ __( 'Share this post', 'jetpack' ) }
