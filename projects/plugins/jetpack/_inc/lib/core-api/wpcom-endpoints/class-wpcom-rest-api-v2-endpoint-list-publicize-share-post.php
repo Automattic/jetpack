@@ -22,8 +22,10 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Share_Post extends WP_REST_Contr
 	 */
 	public function __construct() {
 		$this->namespace = 'wpcom/v2';
-		$this->rest_base = 'publicize/share';
-		$this->is_wpcom  = false;
+		$this->rest_base = '/publicize/share';
+
+		$this->wpcom_is_wpcom_only_endpoint = true;
+		$this->is_wpcom                     = false;
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$this->is_wpcom = true;
@@ -39,7 +41,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Share_Post extends WP_REST_Contr
 	public function register_routes() {
 		register_rest_route(
 			$this->namespace,
-			'/' . $this->rest_base . '/(?P<postId>[\d]+)',
+			$this->rest_base . '/(?P<postId>[\d]+)',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'share_post' ),
@@ -143,11 +145,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Share_Post extends WP_REST_Contr
 				$url,
 				'v2',
 				array(
-					'method'  => 'POST',
-					'headers' => array(
-						'Content-Type'    => 'application/json',
-						'X-Forwarded-For' => Jetpack::current_user_ip( true ),
-					),
+					'method' => 'POST',
 				),
 				array(
 					'message'             => $message,
@@ -164,4 +162,4 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Share_Post extends WP_REST_Contr
 	}
 }
 
-wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections' );
+wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_List_Publicize_Share_Post' );
