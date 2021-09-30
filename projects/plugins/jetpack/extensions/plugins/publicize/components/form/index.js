@@ -34,10 +34,10 @@ export default function PublicizeForm( { isPublicizeEnabled } ) {
 			{ hasConnections && (
 				<PanelRow>
 					<ul className="jetpack-publicize__connections-list">
-						{ connections.map( ( { display_name, enabled, id, service_name, toggleable } ) => (
+						{ connections.map( ( { display_name, enabled, id, service_name } ) => (
 							<PublicizeConnection
-								disabled={ ! toggleable || ! isPublicizeEnabled }
-								enabled={ enabled && isPublicizeEnabled }
+								disabled={ ! isPublicizeEnabled }
+								enabled={ enabled }
 								key={ id }
 								id={ id }
 								label={ display_name }
