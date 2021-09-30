@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Set up the ajax hook in the Tracking class
