@@ -60,9 +60,13 @@ export class EventbriteEdit extends Component {
 					...newAttributes,
 					url: resolvedUrl,
 				} );
-				setAttributes( newValidatedAttributes );
-				this.setState( { editedUrl: resolvedUrl } );
-				noticeOperations.removeAllNotices();
+				if ( newValidatedAttributes.eventId ) {
+					setAttributes( newValidatedAttributes );
+					this.setState( { editedUrl: resolvedUrl } );
+					noticeOperations.removeAllNotices();
+				} else {
+					this.setErrorNotice();
+				}
 			} )
 			.catch( () => {
 				setAttributes( { eventId: undefined, url: undefined } );
