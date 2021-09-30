@@ -32,9 +32,9 @@ export default function PublicizeForm() {
 
 	return (
 		<Fragment>
-			<div>
+			<p>
 				{ __( "Connect and select the accounts where you'd like to share your post.", 'jetpack' ) }
-			</div>
+			</p>
 
 			<PanelRow>
 				<ul className="jetpack-publicize__connections-list">
