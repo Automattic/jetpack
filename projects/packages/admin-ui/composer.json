@@ -40,6 +40,11 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"autotagger": true,
+		"mirror-repo": "Automattic/jetpack-admin-ui",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-admin-ui/compare/${old}...${new}"
+		},
 		"branch-alias": {
 			"dev-master": "0.1.x-dev"
 		},
