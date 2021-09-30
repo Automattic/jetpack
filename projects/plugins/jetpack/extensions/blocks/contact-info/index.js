@@ -78,10 +78,14 @@ export const settings = {
 						createBlock( 'jetpack/address', {
 							address: instance.raw.address,
 						} ),
-						createBlock( 'core/paragraph', {
-							content: instance.raw.hours,
-						} ),
 					];
+
+					if ( instance.raw.hours ) {
+						innerBlocks = [
+							...innerBlocks,
+							createBlock( 'core/paragraph', { content: instance.raw.hours } ),
+						];
+					}
 
 					if ( instance.raw.showmap ) {
 						innerBlocks = [ ...innerBlocks, createBlock( 'jetpack/map', {} ) ];
