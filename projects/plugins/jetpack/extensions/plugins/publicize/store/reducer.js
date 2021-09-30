@@ -20,10 +20,7 @@ export default function ( state = DEFAULT_STATE, action ) {
 			return state;
 
 		case 'TOGGLE_SHARE_POST_FEATURE':
-			return {
-				...state,
-				postFeatureEnabled: ! state.postFeatureEnabled,
-			};
+			return state;
 
 		case 'SET_TWEETS':
 			return {

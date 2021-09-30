@@ -548,9 +548,10 @@ export function getConnections() {
  * Return True if the Post Share Feature is enabled.
  * Otherwise, return False.
  *
- * @param {object} state - State object.
  * @returns {boolean} Whether or not the post share feature is enabled.
  */
-export function isPostFeatureEnabled( state ) {
-	return state.postFeatureEnabled;
+export function isPostFeatureEnabled() {
+	const { getEditedPostAttribute } = select( editorStore );
+	const meta = getEditedPostAttribute( 'meta' );
+	return get( meta, [ 'jetpack_share_post_enabled' ], false );
 }

@@ -101,6 +101,18 @@ export async function toggleConnectionById( { connectionId } ) {
 }
 
 /**
+ * Effect handler to toggle and store Post Share enable feature state.
+ *
+ * @returns {object} Updateting jetpack_share_post_enabled post meta action.
+ */
+export async function toggleSharePostFeature() {
+	const isPostFeatureEnabledStatus = select( 'jetpack/publicize' ).isPostFeatureEnabled();
+	return dispatch( editorStore ).editPost( {
+		meta: { jetpack_share_post_enabled: ! isPostFeatureEnabledStatus },
+	} );
+}
+
+/**
  * Given an array of blocks, this will return an array of just the blocks (including child blocks of
  * those blocks passed) that we support transforming into tweet content.
  *
@@ -191,6 +203,7 @@ export async function getTwitterCards( action ) {
 export default {
 	REFRESH_CONNECTION_TEST_RESULTS: refreshConnectionTestResults,
 	TOGGLE_CONNECTION_BY_ID: toggleConnectionById,
+	TOGGLE_SHARE_POST_FEATURE: toggleSharePostFeature,
 	REFRESH_TWEETS: refreshTweets,
 	GET_TWITTER_CARDS: getTwitterCards,
 };
