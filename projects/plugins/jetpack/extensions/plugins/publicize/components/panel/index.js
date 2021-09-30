@@ -11,7 +11,6 @@
  */
 import { __ } from '@wordpress/i18n';
 import { PanelBody, PanelRow, ToggleControl } from '@wordpress/components';
-import { useState } from '@wordpress/element';
 import { store as editorStore } from '@wordpress/editor';
 import { useSelect } from '@wordpress/data';
 
@@ -24,10 +23,12 @@ import PublicizeTwitterOptions from '../twitter/options';
 import useSelectSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { usePostJustBeforePublish } from '../../hooks/use-saving-post';
 import { SharePostRow } from '../share-post';
+import { useSharePostFeature } from '../../hooks/use-share-post';
 
 const PublicizePanel = ( { prePublish } ) => {
 	const { refresh, connections, hasEnabledConnections } = useSelectSocialMediaConnections();
-	const [ isEnabled, setIsEnabled ] = useState( false );
+	const { isEnabled, toggleEnable } = useSharePostFeature();
+
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 	const hasConnections = !! connections?.length;
 
@@ -77,7 +78,7 @@ const PublicizePanel = ( { prePublish } ) => {
 							? __( 'Sharing is enabled', 'jetpack' )
 							: __( 'Sharing is disabled', 'jetpack' )
 					}
-					onChange={ setIsEnabled }
+					onChange={ toggleEnable }
 					checked={ isEnabled }
 					disabled={ ! hasConnections }
 				/>
