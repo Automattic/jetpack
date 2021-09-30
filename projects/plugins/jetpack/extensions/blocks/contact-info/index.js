@@ -65,7 +65,7 @@ export const settings = {
 					return idBase === 'widget_contact_info';
 				},
 				transform: ( { instance } ) => {
-					const innerBlocks = [
+					let innerBlocks = [
 						createBlock( 'core/heading', {
 							content: instance.raw.title,
 						} ),
@@ -82,6 +82,10 @@ export const settings = {
 							content: instance.raw.hours,
 						} ),
 					];
+
+					if ( instance.raw.showmap ) {
+						innerBlocks = [ ...innerBlocks, createBlock( 'jetpack/map', {} ) ];
+					}
 
 					return createBlock( 'jetpack/contact-info', {}, innerBlocks );
 				},
