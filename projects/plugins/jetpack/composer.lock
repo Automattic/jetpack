@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "00b25093cebe17cbeb3d7a9513d0400a",
+    "content-hash": "3822a7ac4e53bf739b8f0826886cc93e",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1326,9 +1326,10 @@
                 "reference": "ab152bf58aafa2dd0bdf925055dae44ef6d16aee"
             },
             "dist": {
-                "type": "path",
-                "url": "../../packages/tracking",
-                "reference": "7d6238640b64fb8fe2860a83c1f2aa50e528b04c"
+                "type": "zip",
+                "url": "https://api.github.com/repos/Automattic/jetpack-tracking/zipball/ab152bf58aafa2dd0bdf925055dae44ef6d16aee",
+                "reference": "ab152bf58aafa2dd0bdf925055dae44ef6d16aee",
+                "shasum": ""
             },
             "require": {
                 "automattic/jetpack-assets": "^1.11",
@@ -1338,7 +1339,6 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^2.0",
-                "brain/monkey": "2.6.0",
                 "yoast/phpunit-polyfills": "1.0.1"
             },
             "type": "library",

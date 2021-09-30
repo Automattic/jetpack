@@ -56,7 +56,7 @@ class Tracking {
 			 * wp_ajax_jetpack_tracks action. This action is used to ensure that
 			 * the callback is hooked only once.
 			 *
-			 * @since $$next-version$$
+			 * @since 1.13.11
 			 */
 			do_action( 'jetpack_set_tracks_ajax_hook' );
 		}
