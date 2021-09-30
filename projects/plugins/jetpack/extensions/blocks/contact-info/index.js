@@ -65,29 +65,23 @@ export const settings = {
 					return idBase === 'widget_contact_info';
 				},
 				transform: ( { instance } ) => {
-					let innerBlocks = [];
-
-					const headingBlock = createBlock( 'core/heading', {
-						content: instance.raw.title,
-					} );
-
-					const emailBlock = createBlock( 'jetpack/email', {
-						email: instance.raw.email,
-					} );
-
-					const phoneBlock = createBlock( 'jetpack/phone', {
-						phone: instance.raw.phone,
-					} );
-
-					const addressBlock = createBlock( 'jetpack/address', {
-						address: instance.raw.address,
-					} );
-
-					const hoursBlock = createBlock( 'core/paragraph', {
-						content: instance.raw.hours,
-					} );
-
-					innerBlocks = [ headingBlock, emailBlock, phoneBlock, addressBlock, hoursBlock ];
+					const innerBlocks = [
+						createBlock( 'core/heading', {
+							content: instance.raw.title,
+						} ),
+						createBlock( 'jetpack/email', {
+							email: instance.raw.email,
+						} ),
+						createBlock( 'jetpack/phone', {
+							phone: instance.raw.phone,
+						} ),
+						createBlock( 'jetpack/address', {
+							address: instance.raw.address,
+						} ),
+						createBlock( 'core/paragraph', {
+							content: instance.raw.hours,
+						} ),
+					];
 
 					return createBlock( 'jetpack/contact-info', {}, innerBlocks );
 				},
