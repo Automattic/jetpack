@@ -90,10 +90,7 @@ const ProductSuggestionsComponent = props => {
 				{ __( 'Special introductory pricing, all renewals are at full price.', 'jetpack' ) }
 			</div>
 			<div className="jp-recommendations-product-suggestion__money-back-guarantee">
-				<MoneyBackGuarantee
-					text={ __( '14-day money-back guarantee', 'jetpack' ) }
-					frequency="yearly"
-				/>
+				<MoneyBackGuarantee text={ __( '14-day money-back guarantee', 'jetpack' ) } />
 			</div>
 			<a
 				className="jp-recommendations-product-suggestion__skip"
