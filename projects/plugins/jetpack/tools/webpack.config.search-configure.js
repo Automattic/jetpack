@@ -28,6 +28,11 @@ const baseWebpackConfig = getBaseWebpackConfig(
 
 module.exports = {
 	...baseWebpackConfig,
+	optimization: {
+		...baseWebpackConfig.optimization,
+		// This optimization sometimes causes webpack to drop `__()` and such.
+		concatenateModules: false,
+	},
 	resolve: {
 		...baseWebpackConfig.resolve,
 		modules: [
