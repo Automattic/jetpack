@@ -30,8 +30,7 @@ class Sharing_Service {
 	 * Gets a generic list of all services, without any config
 	 */
 	public function get_all_services_blog() {
-		$options = get_option( 'sharing-options' );
-
+		$options  = get_option( 'sharing-options' );
 		$all      = $this->get_all_services();
 		$services = array();
 
@@ -782,6 +781,13 @@ function sharing_display( $text = '', $echo = false ) {
 	$post_status = get_post_status( $post->ID );
 
 	if ( 'private' === $post_status ) {
+		$show = false;
+	}
+
+	// Is the post password protected?
+	$post_password = $post->post_password;
+
+	if ( '' !== $post_password ) {
 		$show = false;
 	}
 
