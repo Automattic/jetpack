@@ -23,7 +23,7 @@ export async function refreshConnectionTestResults( { connections: prevConnectio
 	try {
 		const results = await apiFetch( { path: '/wpcom/v2/publicize/connection-test-results' } );
 
-		// Define initial conncetions list.
+		// Define initial connections list.
 		prevConnections = prevConnections?.length
 			? prevConnections
 			: select( 'jetpack/publicize' ).getConnections();
