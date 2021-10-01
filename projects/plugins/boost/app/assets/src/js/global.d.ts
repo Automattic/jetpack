@@ -8,11 +8,7 @@
 import type { ConnectionStatus } from './stores/connection';
 import type { CriticalCssStatus } from './stores/critical-css-status';
 import type { ModulesState } from './stores/modules';
-import type {
-	BrowserInterfaceIframe,
-	CriticalCssError,
-	generateCriticalCSS,
-} from './vendor/jetpack-boost-critical-css-gen';
+import type { BrowserInterfaceIframe, generateCriticalCSS } from 'jetpack-boost-critical-css-gen';
 
 declare global {
 	const wpApiSettings: {
@@ -21,7 +17,11 @@ declare global {
 	};
 
 	// Constants provided by the plugin.
+	// eslint-disable-next-line camelcase
 	const Jetpack_Boost: {
+		preferences: {
+			showRatingPrompt: boolean;
+		};
 		version: string;
 		api: {
 			namespace: string;
@@ -30,7 +30,8 @@ declare global {
 		connectionIframeOriginUrl: string;
 		connection: ConnectionStatus;
 		criticalCssStatus?: CriticalCssStatus;
-		criticalCssAjaxNonce?: string;
+		showRatingPromptNonce?: string;
+		criticalCssDismissRecommendationsNonce?: string;
 		criticalCssDismissedRecommendations: string[];
 		site: {
 			url: string;
@@ -45,7 +46,17 @@ declare global {
 	const CriticalCSSGenerator: {
 		generateCriticalCSS: typeof generateCriticalCSS;
 		BrowserInterfaceIframe: typeof BrowserInterfaceIframe;
-		CriticalCssError: typeof CriticalCssError;
+	};
+
+	type TracksEventProperties = { [ key: string ]: string | number };
+
+	const jpTracksAJAX: {
+		// eslint-disable-next-line camelcase
+		record_ajax_event(
+			eventName: string,
+			eventType: string,
+			eventProp: TracksEventProperites
+		): void;
 	};
 }
 

@@ -305,7 +305,7 @@
 
 		var gallerySelector =
 			'div.gallery, div.tiled-gallery, ul.wp-block-gallery, ul.blocks-gallery-grid, ' +
-			'figure.blocks-gallery-grid, div.wp-block-jetpack-tiled-gallery, a.single-image-gallery';
+			'figure.wp-block-gallery.has-nested-images, div.wp-block-jetpack-tiled-gallery, a.single-image-gallery';
 
 		// Selector for items within a gallery or tiled gallery.
 		var galleryItemSelector =
@@ -770,27 +770,17 @@
 
 			var current = carousel.currentSlide;
 			var attachmentId = current.attrs.attachmentId;
-			var extraInfoContainer = carousel.info.querySelector( '.jp-carousel-info-extra' );
-			var photoMetaContainer = carousel.info.querySelector( '.jp-carousel-image-meta' );
-			var commentsContainer = carousel.info.querySelector( '.jp-carousel-comments-wrapper' );
 			var infoIcon = carousel.info.querySelector( '.jp-carousel-icon-info' );
 			var commentsIcon = carousel.info.querySelector( '.jp-carousel-icon-comments' );
 
-			// Hide comments and photo info
-			if ( extraInfoContainer ) {
-				extraInfoContainer.classList.remove( 'jp-carousel-show' );
-			}
-			if ( photoMetaContainer ) {
-				photoMetaContainer.classList.remove( 'jp-carousel-show' );
-			}
-			if ( infoIcon ) {
-				infoIcon.classList.remove( 'jp-carousel-selected' );
-			}
-			if ( commentsContainer ) {
-				commentsContainer.classList.remove( 'jp-carousel-show' );
-			}
-			if ( commentsIcon ) {
-				commentsIcon.classList.remove( 'jp-carousel-selected' );
+			// If the comment/info section is toggled open, it's kept open, but scroll to top of the next slide.
+			if (
+				( infoIcon && infoIcon.classList.contains( 'jp-carousel-selected' ) ) ||
+				( commentsIcon && commentsIcon.classList.contains( 'jp-carousel-selected' ) )
+			) {
+				if ( carousel.overlay.scrollTop !== 0 ) {
+					domUtil.scrollToElement( carousel.overlay, carousel.overlay );
+				}
 			}
 
 			loadFullImage( carousel.slides[ index ] );
@@ -1050,6 +1040,11 @@
 				if ( desc ) {
 					descriptionElement.innerHTML = desc;
 					domUtil.show( descriptionElement );
+
+					if ( ! title && ! caption ) {
+						captionMainElement.innerHTML = domUtil.stripHTML( desc );
+						domUtil.show( captionMainElement );
+					}
 				}
 
 				if ( title ) {

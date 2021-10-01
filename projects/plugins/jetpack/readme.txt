@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 10.0
+Stable tag: 10.1
 Requires at least: 5.7
 Requires PHP: 5.6
 Tested up to: 5.8
@@ -242,29 +242,40 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.0 - 2021-08-03
+### 10.2-beta - 2021-09-28
 #### Enhancements
-- Carousel: add JS-based smooth scroll behavior for the footer buttons.
-- Carousel: on image zoom, fade out controls. Fade them back in when sized back to original, or the slide is advanced.
+- Contact Form: add two filters to improve anti-spam functionality.
+- Contact Form: add filter to allow customizing email headers.
+- Related Posts: enable lazy loading for images.
+- Search: improve filter label formatting for longer text entries.
+- Search: title customization improvements.
+- SEO Tools: add "Archive Title" option for custom archive page titles.
+- SmartFrame Embeds: add support for SmartFrame embed using URLs, embed code, and shortcodes.
+- VideoPress: add new VideoPress product and enables VideoPress to be used for free for 1 video upload.
+- Widgets: add visibility settings to widgets using the block editor, under the advanced section of the sidebar.
 
 #### Improved compatibility
-- Carousel: add a Swiper JS param to prevent interaction on the carousel while transitioning between slides.
-- Map Block: ensure theme styles do not override map button background colors.
-- Search: remove required attribute from search inputs.
+- External Media: update verbiage around Google Photos to improve compatibility with their UX guidelines.
+- Instagram Widget: remove from Legacy Widget block.
+- Search: as IE11 support was removed in Jetpack 10.1, remove an IE11 polyfill.
+- Publicize: replace native text-area with custom/core-based component.
+- VideoPress: file url field now displays the HLS playlist if one was generated. The fragmented mp4 file is not meant to be played on its own. MP4 file will only be displayed as the video url if it was created prior to the HLS update.
 
 #### Bug fixes
-- Carousel: fix carousel title formatting to prevent issues with quote conversion.
-- Comments: fix subsequent commenting when using a social profile.
-- Contact Form Block: remove specific form colors to prevent theme style clash.
-- Instant Search: fix visual glitch on breadcrumb in Firefox.
-- Instant Search: make sure ?s= is set when using filter links.
-- Like Button: add title and aria-hidden attributes to the Like button iframe.
-- OpenTable Block: fix input width when used in block editor.
-- Publicize: avoid PHP notices in edge-cases where no info about a post can be found.
-- Search: fix notice issue with WP 5.8's widget editor.
-- Select Dropdown Component: add content-box box sizing to prevent global box-sizing conflict.
-- SEO Tools: ensure functions are loaded before API endpoint attempts to use them.
-- Tiled Gallery: fix blurry display of images much wider than they are high.
+- Contact Form: make sure the set height of the Spacer block nested inside a Contact Form block is respected.
+- Custom Content Type: improve the performance of the Testimonial CPT.
+- Dashboard: improve the performance of the query used to display Anti-spam stats.
+- Embeds: add allow-popups permission to Google Calendar embed so that links internal to the iFrame will open.
+- Publicize: improve refreshing connections list.
+- Publicize: ensure the custom excerpt is used when sharing to Facebook.
+- Search: ensure Safari input clear button is hidden.
+- Search: fix dashboard buttons too big on Safari.
+- Sharing: fix the icon position in icon-only button style.
+- Shortcodes: remove Hulu from available embeds.
+- Slideshow: fix fade transition background.
+- Theme Tools: remove unnecessary extra Social Menu added in the Twenty Twenty theme.
+- VideoPress: fix a bug related to deleting VideoPress videos.
+- Widgets: fix a conflict between various Jetpack blocks and some WordPress core legacy widgets.
 
 --------
 

@@ -19,6 +19,7 @@ body:
         - Beta
         - Debug Helper
         - VaultPress
+        - None / Other
       multiple: true
     validations:
       required: true
@@ -61,6 +62,7 @@ body:
         - Linux
         - Android
         - iOS
+        - Other
       multiple: true
   - type: input
     id: os_version
@@ -77,6 +79,7 @@ body:
         - Microsoft Edge
         - Microsoft Edge (legacy)
         - Safari
+        - Other / Not applicable
       multiple: true
     validations:
       required: true

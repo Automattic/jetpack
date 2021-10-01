@@ -1,13 +1,12 @@
 import {
-	doInPlaceConnection,
 	doSiteLevelConnection,
 	doClassicConnection,
-} from '../lib/flows/jetpack-connect';
-import Sidebar from '../lib/pages/wp-admin/sidebar';
-import JetpackPage from '../lib/pages/wp-admin/jetpack';
-import DashboardPage from '../lib/pages/wp-admin/dashboard';
-import { testStep } from '../lib/reporters/reporter';
-import { prerequisitesBuilder } from '../lib/env/prerequisites';
+} from 'jetpack-e2e-commons/flows/jetpack-connect';
+import Sidebar from 'jetpack-e2e-commons/pages/wp-admin/sidebar';
+import JetpackPage from 'jetpack-e2e-commons/pages/wp-admin/jetpack';
+import DashboardPage from 'jetpack-e2e-commons/pages/wp-admin/dashboard';
+import { testStep } from 'jetpack-e2e-commons/reporters/reporter';
+import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites';
 
 /**
  *
@@ -26,17 +25,6 @@ describe( 'Connection', () => {
 
 	afterEach( async () => {
 		await prerequisitesBuilder().withCleanEnv().build();
-	} );
-
-	it( 'In-place', async () => {
-		await testStep( 'Can start in-place connection', async () => {
-			await doInPlaceConnection();
-		} );
-
-		await testStep( 'Can assert that site is connected', async () => {
-			const jetpackPage = await JetpackPage.init( page );
-			expect( await jetpackPage.isConnected() ).toBeTruthy();
-		} );
 	} );
 
 	it( 'User-less', async () => {

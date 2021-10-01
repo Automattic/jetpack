@@ -3,7 +3,11 @@
  */
 import React, { useCallback } from 'react';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { ConnectScreen, ConnectionStatusCard } from '@automattic/jetpack-connection';
+import {
+	ConnectScreen,
+	ConnectionStatusCard,
+	withConnectionStatus,
+} from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -11,6 +15,8 @@ import { __ } from '@wordpress/i18n';
  */
 import { STORE_ID } from '../store';
 import ConnectRight from './assets/connect-right.png';
+
+const ConnectScreenWithConnectionStatus = withConnectionStatus( ConnectScreen );
 
 /**
  * Expose the `connectionStatus` state object and `renderConnectScreen()` to show a component used for connection.
@@ -21,6 +27,7 @@ export default function useConnection() {
 	const APINonce = useSelect( select => select( STORE_ID ).getAPINonce(), [] );
 	const APIRoot = useSelect( select => select( STORE_ID ).getAPIRoot(), [] );
 	const registrationNonce = useSelect( select => select( STORE_ID ).getRegistrationNonce(), [] );
+	const assetBuildUrl = useSelect( select => select( STORE_ID ).getAssetBuildUrl(), [] );
 
 	const connectionStatus = useSelect( select => select( STORE_ID ).getConnectionStatus(), [] );
 	const { setConnectionStatus } = useDispatch( STORE_ID );
@@ -38,7 +45,7 @@ export default function useConnection() {
 
 	const renderConnectScreen = () => {
 		return (
-			<ConnectScreen
+			<ConnectScreenWithConnectionStatus
 				apiRoot={ APIRoot }
 				apiNonce={ APINonce }
 				registrationNonce={ registrationNonce }
@@ -46,6 +53,7 @@ export default function useConnection() {
 				redirectUri="admin.php?page=jetpack-backup"
 				statusCallback={ statusCallback }
 				images={ [ ConnectRight ] }
+				assetBaseUrl={ assetBuildUrl }
 			>
 				<p>
 					{ __(
@@ -53,7 +61,7 @@ export default function useConnection() {
 						'jetpack-backup'
 					) }
 				</p>
-			</ConnectScreen>
+			</ConnectScreenWithConnectionStatus>
 		);
 	};
 

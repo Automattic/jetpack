@@ -1,13 +1,13 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "0.2.2-alpha",
+	"version": "0.3.1",
 	"description": "Jetpack Components Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
 		"@wordpress/browserslist-config": "4.1.0",
-		"@wordpress/components": "14.2.0",
-		"@wordpress/i18n": "3.20.0",
+		"@wordpress/components": "17.0.0",
+		"@wordpress/i18n": "4.2.2",
 		"classnames": "2.3.1",
 		"lodash": "4.17.21",
 		"prop-types": "^15.7.2"
@@ -17,13 +17,16 @@
 		"nyc": "15.1.0",
 		"react": "17.0.2",
 		"react-dom": "17.0.2",
-		"react-test-renderer": "16.14.0"
+		"react-test-renderer": "17.0.2"
 	},
 	"peerDependencies": {
 		"react": "^17.0.2",
 		"react-dom": "^17.0.2"
 	},
 	"type": "module",
+	"exports": {
+		".": "./index.jsx"
+	},
 	"sideEffects": [
 		"*.css",
 		"*.scss"
@@ -32,7 +35,7 @@
 		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.jsx'"
 	},
 	"engines": {
-		"node": "^14.16.1",
+		"node": "^14.17.6 || ^16.7.0",
 		"pnpm": "^6.5.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}

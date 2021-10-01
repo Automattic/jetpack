@@ -150,7 +150,8 @@ class Secrets {
 		/**
 		 * We've begun verifying the previously generated secret.
 		 *
-		 * @since 7.5.0
+		 * @since 1.7.0
+		 * @since-jetpack 7.5.0
 		 *
 		 * @param string   $action The type of secret to verify.
 		 * @param \WP_User $user The user object.
@@ -161,7 +162,8 @@ class Secrets {
 			/**
 			 * Verifying of the previously generated secret has failed.
 			 *
-			 * @since 7.5.0
+			 * @since 1.7.0
+			 * @since-jetpack 7.5.0
 			 *
 			 * @param string    $action  The type of secret to verify.
 			 * @param \WP_User  $user The user object.
@@ -266,7 +268,8 @@ class Secrets {
 		/**
 		 * We've succeeded at verifying the previously generated secret.
 		 *
-		 * @since 7.5.0
+		 * @since 1.7.0
+		 * @since-jetpack 7.5.0
 		 *
 		 * @param string   $action The type of secret to verify.
 		 * @param \WP_User $user The user object.

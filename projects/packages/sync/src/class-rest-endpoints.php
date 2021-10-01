@@ -14,7 +14,7 @@ use WP_REST_Server;
 /**
  * This class will handle Sync v4 REST Endpoints.
  *
- * @since 9.9.0
+ * @since 1.23.1
  */
 class REST_Endpoints {
 
@@ -233,6 +233,13 @@ class REST_Endpoints {
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::data_check',
 				'permission_callback' => __CLASS__ . '::verify_default_permissions',
+				'args'                => array(
+					'perform_text_conversion' => array(
+						'description' => __( 'If text fields should be converted to UTF8 in checksum calculation.', 'jetpack' ),
+						'type'        => 'boolean',
+						'required'    => false,
+					),
+				),
 			)
 		);
 
@@ -245,48 +252,53 @@ class REST_Endpoints {
 				'callback'            => __CLASS__ . '::data_histogram',
 				'permission_callback' => __CLASS__ . '::verify_default_permissions',
 				'args'                => array(
-					'columns'            => array(
+					'columns'                 => array(
 						'description' => __( 'Column mappings', 'jetpack' ),
 						'type'        => 'array',
 						'required'    => false,
 					),
-					'object_type'        => array(
+					'object_type'             => array(
 						'description' => __( 'Object Type', 'jetpack' ),
 						'type'        => 'string',
 						'required'    => false,
 					),
-					'buckets'            => array(
+					'buckets'                 => array(
 						'description' => __( 'Number of histogram buckets.', 'jetpack' ),
 						'type'        => 'int',
 						'required'    => false,
 					),
-					'start_id'           => array(
+					'start_id'                => array(
 						'description' => __( 'Start ID for the histogram', 'jetpack' ),
 						'type'        => 'int',
 						'required'    => false,
 					),
-					'end_id'             => array(
+					'end_id'                  => array(
 						'description' => __( 'End ID for the histogram', 'jetpack' ),
 						'type'        => 'int',
 						'required'    => false,
 					),
-					'strip_non_ascii'    => array(
+					'strip_non_ascii'         => array(
 						'description' => __( 'Strip non-ascii characters?', 'jetpack' ),
 						'type'        => 'boolean',
 						'required'    => false,
 					),
-					'shared_salt'        => array(
+					'shared_salt'             => array(
 						'description' => __( 'Shared Salt to use when generating checksum', 'jetpack' ),
 						'type'        => 'string',
 						'required'    => false,
 					),
-					'only_range_edges'   => array(
+					'only_range_edges'        => array(
 						'description' => __( 'Should only range endges be returned', 'jetpack' ),
 						'type'        => 'boolean',
 						'required'    => false,
 					),
-					'detailed_drilldown' => array(
+					'detailed_drilldown'      => array(
 						'description' => __( 'Do we want the checksum or object ids.', 'jetpack' ),
+						'type'        => 'boolean',
+						'required'    => false,
+					),
+					'perform_text_conversion' => array(
+						'description' => __( 'If text fields should be converted to UTF8 in checksum calculation.', 'jetpack' ),
 						'type'        => 'boolean',
 						'required'    => false,
 					),
@@ -299,7 +311,7 @@ class REST_Endpoints {
 	/**
 	 * Trigger a Full Sync of specified modules.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -340,7 +352,7 @@ class REST_Endpoints {
 	/**
 	 * Return Sync's status.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -354,21 +366,29 @@ class REST_Endpoints {
 	/**
 	 * Return table checksums.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
+	 *
+	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
 	 * @return \WP_REST_Response
 	 */
-	public static function data_check() {
+	public static function data_check( $request ) {
 		// Disable Sync during this call, so we can resolve faster.
 		Actions::mark_sync_read_only();
 		$store = new Replicastore();
-		return rest_ensure_response( $store->checksum_all() );
+
+		$perform_text_conversion = false;
+		if ( true === $request->get_param( 'perform_text_conversion' ) ) {
+			$perform_text_conversion = true;
+		}
+
+		return rest_ensure_response( $store->checksum_all( $perform_text_conversion ) );
 	}
 
 	/**
 	 * Return Histogram.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -389,6 +409,10 @@ class REST_Endpoints {
 			$args['strip_non_ascii'] = true;
 		}
 
+		if ( true !== $args['perform_text_conversion'] ) {
+			$args['perform_text_conversion'] = false;
+		}
+
 		/**
 		 * Hack: nullify the values of `start_id` and `end_id` if we're only requesting ranges.
 		 *
@@ -405,7 +429,7 @@ class REST_Endpoints {
 		}
 
 		$store     = new Replicastore();
-		$histogram = $store->checksum_histogram( $args['object_type'], $args['buckets'], $args['start_id'], $args['end_id'], $args['columns'], $args['strip_non_ascii'], $args['shared_salt'], $args['only_range_edges'], $args['detailed_drilldown'] );
+		$histogram = $store->checksum_histogram( $args['object_type'], $args['buckets'], $args['start_id'], $args['end_id'], $args['columns'], $args['strip_non_ascii'], $args['shared_salt'], $args['only_range_edges'], $args['detailed_drilldown'], $args['perform_text_conversion'] );
 
 		return rest_ensure_response(
 			array(
@@ -418,7 +442,7 @@ class REST_Endpoints {
 	/**
 	 * Update Sync health.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -446,7 +470,7 @@ class REST_Endpoints {
 	/**
 	 * Obtain Sync settings.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @return \WP_REST_Response
 	 */
@@ -457,7 +481,7 @@ class REST_Endpoints {
 	/**
 	 * Update Sync settings.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -491,7 +515,7 @@ class REST_Endpoints {
 	/**
 	 * Retrieve Sync Objects.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -525,7 +549,7 @@ class REST_Endpoints {
 	/**
 	 * Request Sync processing.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -551,7 +575,7 @@ class REST_Endpoints {
 	/**
 	 * Request sync data from specified queue.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -583,7 +607,7 @@ class REST_Endpoints {
 	/**
 	 * Unlock a Sync queue.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -610,7 +634,7 @@ class REST_Endpoints {
 	/**
 	 * Checkin Sync actions.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -678,7 +702,7 @@ class REST_Endpoints {
 	/**
 	 * Retrieve range of Object Ids for a specified Sync module.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -704,7 +728,7 @@ class REST_Endpoints {
 	/**
 	 * Verify that request has default permissions to perform sync actions.
 	 *
-	 * @since 9.9.0
+	 * @since 1.23.1
 	 *
 	 * @return bool Whether user has capability 'manage_options' or a blog token is used.
 	 */

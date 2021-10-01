@@ -62,15 +62,15 @@ export default function SidebarOptions() {
 
 	return (
 		<Panel
-			className={ classNames( 'jp-search-customize-sidebar-options', {
-				'jp-search-customize-sidebar-options--is-disabled': isDisabled,
+			className={ classNames( 'jp-search-configure-sidebar-options', {
+				'jp-search-configure-sidebar-options--is-disabled': isDisabled,
 			} ) }
 		>
 			<PanelBody title={ __( 'Styling', 'jetpack' ) } initialOpen={ true }>
 				<ThemeControl disabled={ isDisabled } onChange={ setTheme } value={ theme } />
 				<RadioControl
-					className="jp-search-customize-result-format-radios"
-					label={ __( 'Result Format', 'jetpack' ) }
+					className="jp-search-configure-result-format-radios"
+					label={ __( 'Result format', 'jetpack' ) }
 					selected={ resultFormat }
 					options={ [
 						{ label: __( 'Minimal', 'jetpack' ), value: 'minimal' },
@@ -82,10 +82,10 @@ export default function SidebarOptions() {
 				<ColorControl disabled={ isDisabled } onChange={ setColor } value={ color } />
 			</PanelBody>
 
-			<PanelBody title={ __( 'Search Options', 'jetpack' ) } initialOpen={ true }>
+			<PanelBody title={ __( 'Search options', 'jetpack' ) } initialOpen={ true }>
 				<SelectControl
 					disabled={ isDisabled }
-					label={ __( 'Default Sort', 'jetpack' ) }
+					label={ __( 'Default sort', 'jetpack' ) }
 					value={ sort }
 					options={ [
 						{ label: __( 'Relevance (recommended)', 'jetpack' ), value: 'relevance' },
@@ -96,11 +96,12 @@ export default function SidebarOptions() {
 				/>
 				<SelectControl
 					disabled={ isDisabled }
-					label={ __( 'Overlay Trigger', 'jetpack' ) }
+					label={ __( 'Overlay trigger', 'jetpack' ) }
 					value={ trigger }
 					options={ [
 						{ label: __( 'Open when the user starts typing', 'jetpack' ), value: 'immediate' },
 						{ label: __( 'Open when results are available', 'jetpack' ), value: 'results' },
+						{ label: __( 'Open when user submits the form', 'jetpack' ), value: 'submit' },
 					] }
 					onChange={ setTrigger }
 				/>
@@ -111,7 +112,7 @@ export default function SidebarOptions() {
 				/>
 			</PanelBody>
 
-			<PanelBody title={ __( 'Additional Settings', 'jetpack' ) } initialOpen={ true }>
+			<PanelBody title={ __( 'Additional settings', 'jetpack' ) } initialOpen={ true }>
 				<ToggleControl
 					checked={ sortEnabled }
 					disabled={ isDisabled }
@@ -121,7 +122,7 @@ export default function SidebarOptions() {
 				<ToggleControl
 					checked={ infiniteScroll }
 					disabled={ isDisabled }
-					label={ __( 'Enable Infinite Scroll', 'jetpack' ) }
+					label={ __( 'Enable infinite scroll', 'jetpack' ) }
 					onChange={ setInfiniteScroll }
 				/>
 				<ToggleControl

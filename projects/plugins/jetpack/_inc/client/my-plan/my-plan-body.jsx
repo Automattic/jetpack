@@ -276,7 +276,7 @@ class MyPlanBody extends React.Component {
 						</p>
 						<Button
 							onClick={ this.handleButtonClickForTracking( 'view_search_customizer' ) }
-							href={ this.props.siteAdminUrl + 'customize.php?autofocus[section]=jetpack_search' }
+							href={ this.props.siteAdminUrl + 'admin.php?page=jetpack-search-configure' }
 						>
 							{ __( 'Customize Search', 'jetpack' ) }
 						</Button>
@@ -379,7 +379,7 @@ class MyPlanBody extends React.Component {
 									</div>
 									<div className="jp-landing__plan-features-text">
 										<h3 className="jp-landing__plan-features-title">
-											{ __( 'Video hosting', 'jetpack' ) }
+											{ __( 'VideoPress', 'jetpack' ) }
 										</h3>
 										<p>
 											{ __(
@@ -399,7 +399,7 @@ class MyPlanBody extends React.Component {
 												onClick={ this.activateVideoPress }
 												disabled={ this.props.isActivatingFeature( 'videopress' ) }
 											>
-												{ __( 'Activate video hosting', 'jetpack' ) }
+												{ __( 'Activate VideoPress', 'jetpack' ) }
 											</Button>
 										) }
 									</div>

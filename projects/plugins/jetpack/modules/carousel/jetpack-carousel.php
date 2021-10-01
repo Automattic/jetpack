@@ -427,20 +427,18 @@ class Jetpack_Carousel {
 						<h2 class="jp-carousel-photo-caption"></h2>
 					</div>
 					<div class="jp-carousel-photo-icons-container">
-						<?php if ( $localize_strings['display_exif'] ) : ?>
-							<a href="#" class="jp-carousel-icon-btn jp-carousel-icon-info" aria-label="<?php esc_attr_e( 'Toggle photo metadata visibility', 'jetpack' ); ?>">
-								<span class="jp-carousel-icon">
-									<svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-										<mask id="maskInfo" mask-type="alpha" maskUnits="userSpaceOnUse" x="2" y="2" width="21" height="20">
-											<path fill-rule="evenodd" clip-rule="evenodd" d="M12.7537 2C7.26076 2 2.80273 6.48 2.80273 12C2.80273 17.52 7.26076 22 12.7537 22C18.2466 22 22.7046 17.52 22.7046 12C22.7046 6.48 18.2466 2 12.7537 2ZM11.7586 7V9H13.7488V7H11.7586ZM11.7586 11V17H13.7488V11H11.7586ZM4.79292 12C4.79292 16.41 8.36531 20 12.7537 20C17.142 20 20.7144 16.41 20.7144 12C20.7144 7.59 17.142 4 12.7537 4C8.36531 4 4.79292 7.59 4.79292 12Z" fill="white"/>
-										</mask>
-										<g mask="url(#maskInfo)">
-											<rect x="0.8125" width="23.8823" height="24" fill="#FFFFFF"/>
-										</g>
-									</svg>
-								</span>
-							</a>
-						<?php endif; ?>
+						<a href="#" class="jp-carousel-icon-btn jp-carousel-icon-info" aria-label="<?php esc_attr_e( 'Toggle photo metadata visibility', 'jetpack' ); ?>">
+							<span class="jp-carousel-icon">
+								<svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<mask id="maskInfo" mask-type="alpha" maskUnits="userSpaceOnUse" x="2" y="2" width="21" height="20">
+										<path fill-rule="evenodd" clip-rule="evenodd" d="M12.7537 2C7.26076 2 2.80273 6.48 2.80273 12C2.80273 17.52 7.26076 22 12.7537 22C18.2466 22 22.7046 17.52 22.7046 12C22.7046 6.48 18.2466 2 12.7537 2ZM11.7586 7V9H13.7488V7H11.7586ZM11.7586 11V17H13.7488V11H11.7586ZM4.79292 12C4.79292 16.41 8.36531 20 12.7537 20C17.142 20 20.7144 16.41 20.7144 12C20.7144 7.59 17.142 4 12.7537 4C8.36531 4 4.79292 7.59 4.79292 12Z" fill="white"/>
+									</mask>
+									<g mask="url(#maskInfo)">
+										<rect x="0.8125" width="23.8823" height="24" fill="#FFFFFF"/>
+									</g>
+								</svg>
+							</span>
+						</a>
 						<?php if ( $localize_strings['display_comments'] ) : ?>
 						<a href="#" class="jp-carousel-icon-btn jp-carousel-icon-comments" aria-label="<?php esc_attr_e( 'Toggle photo comments visibility', 'jetpack' ); ?>">
 							<span class="jp-carousel-icon">
@@ -608,10 +606,12 @@ class Jetpack_Carousel {
 				! preg_match( '/wp-block-jetpack-slideshow_image/', $image_html ) ) {
 				$attachment_id = absint( $class_id[2] );
 				/**
-				 * If exactly the same image tag is used more than once, overwrite it.
-				 * All identical tags will be replaced later with 'str_replace()'.
+				 * The same image tag may be used more than once but with different attribs,
+				 * so save each of them against the attachment id.
 				 */
-				$selected_images[ $attachment_id  ] = $image_html;
+				if ( ! isset( $selected_images[ $attachment_id ] ) || ! in_array( $image_html, $selected_images[ $attachment_id ], true ) ) {
+					$selected_images[ $attachment_id ][] = $image_html;
+				}
 			}
 		}
 
@@ -631,16 +631,17 @@ class Jetpack_Carousel {
 		);
 
 		foreach ( $attachments as $attachment ) {
-			$image_html = $selected_images[ $attachment->ID ];
+			$image_elements = $selected_images[ $attachment->ID ];
 
 			$attributes      = $this->add_data_to_images( array(), $attachment );
 			$attributes_html = '';
 			foreach ( $attributes as $k => $v ) {
 				$attributes_html .= esc_attr( $k ) . '="' . esc_attr( $v ) . '" ';
 			}
-
-			$find[]    = $image_html;
-			$replace[] = str_replace( '<img ', "<img $attributes_html", $image_html );
+			foreach ( $image_elements as $image_html ) {
+				$find[]    = $image_html;
+				$replace[] = str_replace( '<img ', "<img $attributes_html", $image_html );
+			}
 		}
 
 		$content = str_replace( $find, $replace, $content );
@@ -758,7 +759,7 @@ class Jetpack_Carousel {
 				$html = str_replace( '<div ', '<div ' . esc_attr( $data_key ) . "='" . wp_json_encode( $data_values ) . "' ", $html );
 				$html = str_replace( '<ul class="wp-block-gallery', '<ul ' . esc_attr( $data_key ) . "='" . wp_json_encode( $data_values ) . "' class=\"wp-block-gallery", $html );
 				$html = str_replace( '<ul class="blocks-gallery-grid', '<ul ' . esc_attr( $data_key ) . "='" . wp_json_encode( $data_values ) . "' class=\"blocks-gallery-grid", $html );
-				$html = str_replace( '<figure class="wp-block-gallery blocks-gallery-grid', '<figure ' . esc_attr( $data_key ) . "='" . wp_json_encode( $data_values ) . "' class=\"wp-block-gallery  blocks-gallery-grid", $html );
+				$html = preg_replace( '/\<figure([^>]*)class="(wp-block-gallery[^"]*?has-nested-images.*?)"/', '<figure ' . esc_attr( $data_key ) . "='" . wp_json_encode( $data_values ) . "' $1 class=\"$2\"", $html );
 			}
 		}
 

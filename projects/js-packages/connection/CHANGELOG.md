@@ -2,6 +2,28 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.6.1 - 2021-09-28
+### Added
+- Set 'exports' in package.json.
+
+### Changed
+- Allow Node ^14.17.6 to be used in this project. This shouldn't change the behavior of the code itself.
+- Updated package dependencies.
+
+### Fixed
+- Display an error message on site registration failure.
+
+## 0.6.0 - 2021-08-31
+### Added
+- Add the spinner to the connection button.
+
+### Changed
+- Bump version number
+- Extract connection status fetching into a higher order component.
+- Make redirect URI optional for connection screen and button components.
+- Updated package dependencies.
+- Use Node 16.7.0 in tooling.
+
 ## 0.5.1 - 2021-08-12
 ### Changed
 - Move API calls to jetpack-api package

@@ -25,10 +25,10 @@ import {
 	isFetchingConnectUrl as _isFetchingConnectUrl,
 	getConnectUrl as _getConnectUrl,
 	unlinkUser,
-	authorizeUserInPlace,
+	connectUser as _connectUser,
 	isCurrentUserLinked as _isCurrentUserLinked,
 	isUnlinkingUser as _isUnlinkingUser,
-	isAuthorizingUserInPlace as _isAuthorizingUserInPlace,
+	isConnectingUser as _isConnectingUser,
 } from 'state/connection';
 import { getSiteRawUrl, isSafari, doNotUseConnectionIframe } from 'state/initial-state';
 import onKeyDownCallback from 'utils/onkeydown-callback';
@@ -94,7 +94,7 @@ export class ConnectButton extends React.Component {
 			this.props.customConnect();
 		} else {
 			// Dispatch user in place authorization.
-			this.props.authorizeUserInPlace();
+			this.props.doConnectUser();
 		}
 	};
 
@@ -244,7 +244,7 @@ export default connect(
 			connectUrl: _getConnectUrl( state ),
 			isLinked: _isCurrentUserLinked( state ),
 			isUnlinking: _isUnlinkingUser( state ),
-			isAuthorizing: _isAuthorizingUserInPlace( state ),
+			isAuthorizing: _isConnectingUser( state ),
 			isSafari: isSafari( state ),
 			doNotUseConnectionIframe: doNotUseConnectionIframe( state ),
 		};
@@ -257,8 +257,8 @@ export default connect(
 			unlinkUser: () => {
 				return dispatch( unlinkUser() );
 			},
-			authorizeUserInPlace: () => {
-				return dispatch( authorizeUserInPlace() );
+			doConnectUser: () => {
+				return dispatch( _connectUser() );
 			},
 		};
 	}

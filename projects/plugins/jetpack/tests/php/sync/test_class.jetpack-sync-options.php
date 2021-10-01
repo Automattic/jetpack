@@ -10,8 +10,11 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 	protected $post;
 	protected $options_module;
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 
 		$this->options_module = Modules::get_module( "options" );
 
@@ -279,15 +282,6 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		);
 	}
 
-	public function test_add_whitelisted_option_on_init_89() {
-		add_action( 'init', array( $this, 'add_option_on_89' ), 89 );
-		do_action( 'init' );
-
-		$whitelist = $this->options_module->get_options_whitelist();
-
-		$this->assertTrue( in_array( 'foo_option_bar', $whitelist ) );
-	}
-
 	function assertOptionIsSynced( $option_name, $value ) {
 		$this->assertEqualsObject( $value, $this->server_replica_storage->get_option( $option_name ), 'Option ' . $option_name . ' did\'t have the extected value of ' . json_encode( $value ) );
 	}
@@ -295,12 +289,6 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 	public function add_jetpack_options_whitelist_filter( $options ) {
 		$options[] = 'foo_option_bar';
 		return $options;
-	}
-
-
-
-	function add_option_on_89() {
-		add_filter( 'jetpack_options_whitelist', array( $this, 'add_jetpack_options_whitelist_filter' ) );
 	}
 
 	/**
@@ -326,8 +314,10 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 	 * Verify that get_object_by_id returns settings logic for jetpack_sync_settings_* options.
 	 */
 	public function test_get_objects_by_id_sync_settings() {
-		$module      = Modules::get_module( 'options' );
-		$settings    = Settings::get_settings();
+		$module   = Modules::get_module( 'options' );
+		$settings = Settings::get_settings();
+		// Reload the proper allowlist of options, as `setUp` only lists `test_option`.
+		$this->options_module->update_options_whitelist();
 		$get_options = $module->get_objects_by_id( 'option', array( 'jetpack_sync_settings_post_meta_whitelist' ) );
 		$this->assertEquals( $settings['post_meta_whitelist'], $get_options['jetpack_sync_settings_post_meta_whitelist'] );
 	}

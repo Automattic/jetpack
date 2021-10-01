@@ -104,7 +104,8 @@ class Actions {
 		 * By default this returns true for cron jobs, non-GET-requests, or requests where the
 		 * user is logged-in.
 		 *
-		 * @since 4.2.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
 		 *
 		 * @param bool should we load sync listener code for this request
 		 */
@@ -130,7 +131,8 @@ class Actions {
 		 * By default this returns true for cron jobs, POST requests, admin requests, or requests
 		 * by users who can manage_options.
 		 *
-		 * @since 4.2.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
 		 *
 		 * @param bool should we load sync sender code for this request
 		 */
@@ -368,7 +370,7 @@ class Actions {
 		);
 
 		// Has the site opted in to IDC mitigation?
-		if ( Identity_Crisis::sync_idc_optin() ) {
+		if ( Identity_Crisis::should_handle_idc() ) {
 			$query_args['idc'] = true;
 		}
 
@@ -384,7 +386,8 @@ class Actions {
 		/**
 		 * Filters query parameters appended to the Sync request URL sent to WordPress.com.
 		 *
-		 * @since 4.7.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.7.0
 		 *
 		 * @param array $query_args associative array of query parameters.
 		 */
@@ -723,7 +726,8 @@ class Actions {
 		 * Allows overriding the offset that the sync cron jobs will first run. This can be useful when scheduling
 		 * cron jobs across multiple sites in a network.
 		 *
-		 * @since 4.5.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.5.0
 		 *
 		 * @param int    $start_time_offset
 		 * @param string $hook
@@ -789,7 +793,8 @@ class Actions {
 		/**
 		 * Allows overriding of the default incremental sync cron schedule which defaults to once every 5 minutes.
 		 *
-		 * @since 4.3.2
+		 * @since 1.6.3
+		 * @since-jetpack 4.3.2
 		 *
 		 * @param string self::DEFAULT_SYNC_CRON_INTERVAL_NAME
 		 */
@@ -799,7 +804,8 @@ class Actions {
 		/**
 		 * Allows overriding of the full sync cron schedule which defaults to once every 5 minutes.
 		 *
-		 * @since 4.3.2
+		 * @since 1.6.3
+		 * @since-jetpack 4.3.2
 		 *
 		 * @param string self::DEFAULT_SYNC_CRON_INTERVAL_NAME
 		 */

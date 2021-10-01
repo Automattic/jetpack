@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useCallback, useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { __ } from '@wordpress/i18n';
 import { JetpackLogo, getRedirectUrl } from '@automattic/jetpack-components';
@@ -24,39 +24,28 @@ import './style.scss';
  * @param {string} props.redirectUri -- The redirect admin URI.
  * @param {string} props.from -- Where the connection request is coming from.
  * @param {string} props.title -- Page title.
- * @param {Function} props.statusCallback -- Callback to pull connection status from the component.
  * @param {Array} props.images -- Images to display on the right side.
  * @param {string} props.assetBaseUrl -- The assets base URL.
+ * @param {boolean} props.autoTrigger -- Whether to initiate the connection process automatically upon rendering the component.
  * @returns {React.Component} The `ConnectScreen` component.
  */
 const ConnectScreen = props => {
 	const {
 		title,
+		buttonLabel,
 		apiRoot,
 		apiNonce,
 		registrationNonce,
 		from,
 		redirectUri,
-		statusCallback,
 		images,
 		children,
 		assetBaseUrl,
+		autoTrigger,
+		connectionStatus,
 	} = props;
 
 	const showImageSlider = images.length;
-
-	const [ connectionStatus, setConnectionStatus ] = useState( {} );
-
-	const statusHandler = useCallback(
-		status => {
-			setConnectionStatus( status );
-
-			if ( statusCallback && {}.toString.call( statusCallback ) === '[object Function]' ) {
-				return statusCallback( status );
-			}
-		},
-		[ statusCallback, setConnectionStatus ]
-	);
 
 	return (
 		<div
@@ -79,11 +68,12 @@ const ConnectScreen = props => {
 					registrationNonce={ registrationNonce }
 					from={ from }
 					redirectUri={ redirectUri }
-					statusCallback={ statusHandler }
-					connectLabel={ __( 'Set up Jetpack', 'jetpack' ) }
+					connectionStatus={ connectionStatus }
+					connectLabel={ buttonLabel }
+					autoTrigger={ autoTrigger }
 				/>
 
-				<div className="jp-connnect-screen--tos">
+				<div className="jp-connect-screen--tos">
 					{ createInterpolateElement(
 						__(
 							'By clicking the button above, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with WordPress.com.',
@@ -109,11 +99,11 @@ const ConnectScreen = props => {
 				</div>
 			</div>
 
-			{ showImageSlider && (
+			{ showImageSlider ? (
 				<div className="jp-connect-screen--right">
 					<ImageSlider images={ images } assetBaseUrl={ assetBaseUrl } />
 				</div>
-			) }
+			) : null }
 
 			<div className="jp-connect-screen--clearfix"></div>
 		</div>
@@ -123,19 +113,24 @@ const ConnectScreen = props => {
 ConnectScreen.propTypes = {
 	title: PropTypes.string,
 	body: PropTypes.string,
+	buttonLabel: PropTypes.string,
 	apiRoot: PropTypes.string.isRequired,
 	apiNonce: PropTypes.string.isRequired,
 	from: PropTypes.string,
 	redirectUri: PropTypes.string.isRequired,
 	registrationNonce: PropTypes.string.isRequired,
-	statusCallback: PropTypes.func,
 	images: PropTypes.arrayOf( PropTypes.string ),
 	assetBaseUrl: PropTypes.string,
+	autoTrigger: PropTypes.bool,
+	connectionStatus: PropTypes.object.isRequired,
 };
 
 ConnectScreen.defaultProps = {
 	title: __( 'Over 5 million WordPress sites are faster and more secure', 'jetpack' ),
+	buttonLabel: __( 'Set up Jetpack', 'jetpack' ),
 	images: [],
+	redirectUri: null,
+	autoTrigger: false,
 };
 
 export default ConnectScreen;

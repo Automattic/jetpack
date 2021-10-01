@@ -1,29 +1,34 @@
 @import '../../lib/base-styles';
 
-.components-panel__header.jp-search-customize-sidebar__panel-tabs {
+.components-panel__header.jp-search-configure-sidebar__panel-tabs {
 	justify-content: flex-start;
 	padding-left: 0;
-	padding-right: $grid-unit-05;
+	padding-right: $grid-unit-15;
 	border-top: 0;
 	margin-top: 0;
 
 	ul {
 		display: flex;
+		height: 100%;
 	}
 	li {
 		margin: 0;
 	}
-	.components-button.has-icon {
-		display: none;
+	.components-button.jp-search-configure-sidebar__hide-settings-button {
 		margin-left: auto;
+		margin-right: $grid-unit-05;
+
+		@include break-small() {
+			margin-right: $grid-unit-15;
+		}
 
 		@include break-medium() {
-			display: flex;
+			display: none;
 		}
 	}
 }
 
-.components-button.jp-search-customize-sidebar__panel-tab {
+.components-button.jp-search-configure-sidebar__panel-tab {
 	border-radius: 0;
 	height: 50px - $border-width;
 	background: transparent;
@@ -35,6 +40,7 @@
 	margin-left: 0;
 	font-weight: 400;
 	color: $gray-900;
+	height: 100%;
 
 	// This pseudo-element "duplicates" the tab label and sets the text to bold.
 	// This ensures that the tab doesn't change width when selected.
@@ -78,7 +84,7 @@
 	}
 }
 
-.jp-search-customize-sidebar-description {
+.jp-search-configure-sidebar-description {
 	display: flex;
 	padding: $grid-unit-20;
 	.block-editor-block-icon {
@@ -86,7 +92,7 @@
 	}
 }
 
-.jp-search-customize-sidebar-options {
+.jp-search-configure-sidebar-options {
 	.components-base-control {
 		margin-bottom: $grid-unit-30;
 
@@ -105,11 +111,11 @@
 	}
 }
 
-.jp-search-customize-result-format-radios {
+.jp-search-configure-result-format-radios {
 	margin-bottom: 1em;
 }
 
-.jp-search-customize-sidebar-options .jp-search-customize-theme-buttons {
+.jp-search-configure-sidebar-options .jp-search-configure-theme-buttons {
 	display: flex;
 	justify-content: space-around;
 	margin-bottom: $grid-unit-15;
@@ -134,43 +140,13 @@
 			border-radius: 3px;
 			margin-bottom: $grid-unit-05;
 		}
-		&.jp-search-customize-theme-button--selected svg {
+		&.jp-search-configure-theme-button--selected svg {
 			border-color: $gray-800;
 		}
 	}
 }
 
-.jp-search-customize-color-input {
-	display: flex;
-	flex-flow: wrap;
-
-	.jp-search-customize-color-input__label {
-		display: flex;
-		padding-bottom: 4px;
-	}
-
-	.components-circular-option-picker__option-wrapper {
-		margin-bottom: 0;
-
-		&:focus:after {
-			top: -4px;
-			left: -4px;
-		}
-	}
-	.components-circular-option-picker__option:focus:after {
-		top: -4px;
-		left: -4px;
-	}
-	.components-circular-option-picker {
-		display: flex;
-		justify-content: space-between;
-	}
-	.components-circular-option-picker__custom-clear-wrapper {
-		align-self: flex-end;
-	}
-}
-
-.jp-search-customize-sidebar-options--is-disabled {
+.jp-search-configure-sidebar-options--is-disabled {
 	input {
 		pointer-events: none;
 		cursor: not-allowed;
@@ -186,33 +162,10 @@
 		background: $gray-400;
 		border-color: $gray-400;
 	}
-
-	.jp-search-customize-color-input .components-button {
-		pointer-events: none;
-		cursor: not-allowed;
-		filter: grayscale( 0.8 );
-	}
-	.components-circular-option-picker__option-wrapper:hover {
-		transform: scale( 1 );
-	}
 }
 
 .components-checkbox-control__input:disabled {
 	background: $gray-300;
 	border-color: $gray-300;
 	cursor: not-allowed;
-}
-
-.jp-search-customize-excluded-post-types-control {
-	margin-top: $grid-unit;
-
-	.jp-search-customize-excluded-post-types-control__label {
-		margin-bottom: $grid-unit;
-	}
-
-	.components-notice {
-		margin: $grid-unit 0;
-		padding-top: $grid-unit-05;
-		padding-bottom: $grid-unit-05;
-	}
 }

@@ -50,60 +50,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Read tool versions
-      id: versions
-      uses: ./.github/actions/read-versions
-
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: ${{ steps.versions.outputs.php-version }}
-        tools: composer:${{ steps.versions.outputs.composer-version }}
-        extensions: mysql, imagick
-        coverage: none
-
-    - name: Setup Node
-      uses: actions/setup-node@v2
-      with:
-        node-version: ${{ steps.versions.outputs.node-version }}
-
-    - name: Get Composer cache directory
-      id: composer-cache
-      run: |
-        echo "::set-output name=dir::$(composer config cache-files-dir)"
-    - name: Use composer cache
-      uses: actions/cache@v2
-      with:
-        path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-composer-
-
-    - name: Use pnpm cache
-      uses: actions/cache@v2
-      with:
-        path: ~/.pnpm-store
-        key: ${{ runner.os }}-pnpm-${{ steps.versions.outputs.node-version }}-${{ hashFiles('**/package.json') }}
-        restore-keys: |
-          ${{ runner.os }}-pnpm-${{ steps.versions.outputs.node-version }}-
-
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v2.0.1
-      with:
-        version: ${{ steps.versions.outputs.pnpm-version }}
-
-    - name: Tool versions
-      run: |
-        which php
-        php --version
-        which composer
-        composer --version
-        which node
-        node --version
-        which pnpm
-        pnpm --version
-        which jq
-        jq --version
+    - name: Setup tools
+      uses: ./.github/actions/tool-setup
 
     - name: Build Production Jetpack
       run: |
@@ -116,14 +64,14 @@ jobs:
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
       run: |
         pnpm install
-        pnpm run test-decrypt-config
+        pnpm run test-decrypt-all-config
         pnpm run env-start
         pnpm run tunnel-on
 
     - name: Set up Gutenberg
       if: matrix.group == 'gutenberg'
       working-directory: projects/plugins/jetpack/tests/e2e
-      run: ./bin/env.sh gb-setup
+      run: pnpx e2e-env gb-setup
 
     - name: Run ${{ matrix.group }} tests
       working-directory: projects/plugins/jetpack/tests/e2e
@@ -150,7 +98,7 @@ jobs:
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       working-directory: projects/plugins/jetpack/tests/e2e
-      run: NODE_ENV=test node ./bin/slack.js run $GROUP
+      run: pnpm slack -- suite $GROUP
 
     - uses: testspace-com/setup-testspace@v1
       with:
@@ -173,34 +121,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Read tool versions
-        id: versions
-        uses: ./.github/actions/read-versions
-
-      - name: Setup Node
-        uses: actions/setup-node@v2
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
         with:
-          node-version: ${{ steps.versions.outputs.node-version }}
-
-      - name: Use pnpm cache
-        uses: actions/cache@v2
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-pnpm-${{ steps.versions.outputs.node-version }}-${{ hashFiles('**/package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-${{ steps.versions.outputs.node-version }}-
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2.0.1
-        with:
-          version: ${{ steps.versions.outputs.pnpm-version }}
-
-      - name: Tool versions
-        run: |
-          which node
-          node --version
-          which pnpm
-          pnpm --version
+          php: false
 
       - name: Send Slack notification
         working-directory: projects/plugins/jetpack/tests/e2e
@@ -208,8 +132,8 @@ jobs:
           RESULT: ${{ needs.e2e-tests.result }}
         run: |
           pnpm install
-          pnpm run test-decrypt-config
-          NODE_ENV=test node ./bin/slack.js job $RESULT
+          pnpm run test-decrypt-all-config
+          pnpm slack -- status $RESULT
 
   test-reports:
     name: "Trigger test report workflow"

@@ -244,7 +244,7 @@ window.wp = window.wp || {};
 				);
 
 				// Handle early mime type scanning for images.
-				image = /(?:jpe?g|png|gif)$/i.exec( file.name );
+				image = /(?:jpe?g|png|gif|webp)$/i.exec( file.name );
 
 				// For images set the model's type and subtype attributes.
 				if ( image ) {

@@ -21,9 +21,9 @@ function collapseWpAdminSidebar() {
  *
  * @param {string} id - Id of the root element to render the screen.
  */
-export function initialize( id ) {
+function initialize( id ) {
 	collapseWpAdminSidebar();
 	render( <Layout />, document.getElementById( id ) );
 }
 
-global.jetpackSearchCustomizeInit = initialize;
+global.jetpackSearchConfigureInit = initialize;

@@ -2,17 +2,16 @@
 	"extends": [ "config:base" ],
 	"labels": [ "[Type] Janitorial", "[Status] Needs Review" ],
 	"prHourlyLimit": 1,
-	"supportPolicy": [ "lts_latest" ],
 	"timezone": "UTC",
 	"schedule": [ "before 3am on the first day of the month" ],
 	"updateNotScheduled": false,
 	"gitIgnoredAuthors": [ "matticbot@users.noreply.github.com" ],
-	"ignoreDeps": [ "mockery/mockery", "php-mock/php-mock", "phpunit/phpunit" ],
 	"packageRules": [
 		{
 			"groupName": "Monorepo packages",
 			"matchPackageNames": [
 				"@automattic/eslint-changed",
+				"@automattic/jetpack-analytics",
 				"@automattic/jetpack-api",
 				"@automattic/jetpack-base-styles",
 				"@automattic/jetpack-components",
@@ -43,6 +42,7 @@
 				"automattic/jetpack-options",
 				"automattic/jetpack-partner",
 				"automattic/jetpack-password-checker",
+				"automattic/jetpack-post-list",
 				"automattic/jetpack-redirect",
 				"automattic/jetpack-roles",
 				"automattic/jetpack-status",
@@ -53,7 +53,7 @@
 			"enabled": false
 		},
 		{
-			"extends": "monorepo:wordpress",
+			"extends": [ "monorepo:wordpress" ],
 			"separateMajorMinor": false,
 			"prPriority": 1
 		},
@@ -62,8 +62,12 @@
 			"matchDepTypes": [ "monorepo:wordpress", "monorepo:react" ]
 		},
 		{
-			"groupName": "Eslint and plugins",
-			"matchPackagePatterns": [ "^eslint$", "^eslint-plugin-", "^eslint-config-" ]
+			"extends": [ "packages:eslint" ],
+			"groupName": "Eslint packages"
+		},
+		{
+			"extends": [ "packages:jsUnitTest" ],
+			"groupName": "JS unit testing packages"
 		},
 		{
 			"matchPaths": [ "packages/codesniffer/composer.json" ],
@@ -85,6 +89,10 @@
 			"labels": [ "Search", "Instant Search" ]
 		}
 	],
+	"lockFileMaintenance": {
+		"enabled": true,
+		"schedule": [ "before 3:00 am on Monday on the 7th through 13th day of the month" ]
+	},
 	"dependencyDashboard": true,
 	"dependencyDashboardTitle": "Renovate Dependency Updates",
 	"dependencyDashboardLabels": [ "Primary Issue", "[Type] Janitorial" ]

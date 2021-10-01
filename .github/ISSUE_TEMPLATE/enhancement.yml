@@ -15,6 +15,7 @@ body:
         - Beta
         - Debug Helper
         - VaultPress
+        - None / Other
       multiple: true
     validations:
       required: true

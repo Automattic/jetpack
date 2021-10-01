@@ -1,11 +1,11 @@
-import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
-import PostFrontendPage from '../lib/pages/postFrontend';
-import PinterestBlock from '../lib/pages/wp-admin/blocks/pinterest';
-import EventbriteBlock from '../lib/pages/wp-admin/blocks/eventbrite';
+import BlockEditorPage from 'jetpack-e2e-commons/pages/wp-admin/block-editor';
+import PostFrontendPage from 'jetpack-e2e-commons/pages/postFrontend';
+import PinterestBlock from 'jetpack-e2e-commons/pages/wp-admin/blocks/pinterest';
+import EventbriteBlock from 'jetpack-e2e-commons/pages/wp-admin/blocks/eventbrite';
 import config from 'config';
-import { testStep } from '../lib/reporters/reporter';
-import { prerequisitesBuilder } from '../lib/env/prerequisites';
-import { Plans } from '../lib/env/types';
+import { testStep } from 'jetpack-e2e-commons/reporters/reporter';
+import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites';
+import { Plans } from 'jetpack-e2e-commons/env/types';
 
 /**
  *
@@ -21,6 +21,7 @@ describe( 'Free blocks', () => {
 
 	beforeAll( async () => {
 		await prerequisitesBuilder()
+			.withWpComLoggedIn( true )
 			.withLoggedIn( true )
 			.withConnection( true )
 			.withPlan( Plans.Free )

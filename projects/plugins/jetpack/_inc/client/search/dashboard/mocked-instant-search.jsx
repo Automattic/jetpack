@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -17,8 +17,8 @@ import './mocked-instant-search.scss';
  * @returns {React.Component}	Mocked Search instant dialog component.
  */
 export default function MockedInstantSearch() {
-	const renderFilterOption = () => (
-		<div className="jp-mocked-instant-search__search-filter">
+	const renderFilterOption = ( val, key ) => (
+		<div className="jp-mocked-instant-search__search-filter" key={ key }>
 			<label>
 				<input type="checkbox" disabled="disabled" />{ ' ' }
 				<TextRowPlaceHolder style={ { width: '30%' } } />
@@ -32,7 +32,7 @@ export default function MockedInstantSearch() {
 				style={ {
 					height: '2.5em',
 					width: '50%',
-					'max-width': '200px',
+					maxWidth: '200px',
 					margin: '0.1em 0.1em 1em 0.1em',
 				} }
 			/>
@@ -45,20 +45,23 @@ export default function MockedInstantSearch() {
 		<div className="jp-mocked-instant-search" aria-hidden="true">
 			<div className="jp-mocked-instant-search__search-controls">
 				<div className="jp-mocked-instant-search__search-icon">
-					<Gridicon icon="search" size="24" />
+					<Gridicon icon="search" size={ 24 } />
 				</div>
 				<div className="jp-mocked-instant-search__search-mock-input">
-					<TextRowPlaceHolder style={ { height: '50px', width: '80%', 'max-width': '212px' } } />
+					<TextRowPlaceHolder style={ { height: '50px', width: '80%', maxWidth: '212px' } } />
 				</div>
 				<div className="jp-mocked-instant-search__close-button">
-					<Gridicon icon="cross" size="24" />
+					<Gridicon icon="cross" size={ 24 } />
 				</div>
 			</div>
 			<div className="jp-mocked-instant-search__search-results">
 				<div className="jp-mocked-instant-search__search-results-primary">
 					<div className="jp-mocked-instant-search__search-results-header">
 						<div className="jp-mocked-instant-search__result-statistics">
-							{ __( 'Found 27 results', 'jetpack' ) }
+							{
+								/* translators: %s is replaced with the number of search results */
+								sprintf( __( 'Found %s results', 'jetpack' ), '27' )
+							}
 						</div>
 						<div className="jp-mocked-instant-search__result-sort-list">
 							<span className="jp-mocked-instant-search__result-sort-selected">
@@ -76,7 +79,7 @@ export default function MockedInstantSearch() {
 				</div>
 				<div className="jp-mocked-instant-search__search-results-secondary">
 					<div className="jp-mocked-instant-search__search-filter-header">
-						{ __( 'Filter Options', 'jetpack' ) }
+						{ __( 'Filter options', 'jetpack' ) }
 					</div>
 					<div className="jp-mocked-instant-search__search-filter-list">
 						{ Array.apply( null, Array( 2 ) ).map( renderFilterOption ) }
