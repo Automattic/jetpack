@@ -11,15 +11,6 @@
 	line-height: 1.5;
 }
 
-.jetpack-money-back-guarantee__icon {
-	display: grid;
-}
-
-.jetpack-money-back-guarantee__icon > * {
-	grid-column: 1;
-	grid-row: 1;
-}
-
 .jetpack-money-back-guarantee__icon svg {
 	display: block;
 
@@ -27,32 +18,6 @@
 	width: 23px;
 }
 
-.jetpack-money-back-guarantee__frequency {
-	align-self: center;
-	position: relative;
-	top: 1px;
-
-	font-weight: bold;
-	font-size: 0.7em;
-	line-height: 1;
-}
-
 .jetpack-money-back-guarantee__text {
 	margin-left: 8px;
-}
-
-.jetpack-money-back-guarantee--solid {
-	.jetpack-money-back-guarantee__frequency {
-		color: $white;
-	}
-}
-
-.jetpack-money-back-guarantee--outlined {
-	.jetpack-money-back-guarantee__frequency {
-		color: #787C82;
-	}
-
-	.jetpack-money-back-guarantee__text {
-		font-weight: bold;
-	}
 }
