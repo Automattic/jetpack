@@ -19,13 +19,13 @@ import PublicizeConnectionVerify from '../connection-verify';
 import PublicizeForm from '../form';
 import PublicizeTwitterOptions from '../twitter/options';
 import useSelectSocialMediaConnections from '../../hooks/use-social-media-connections';
-import { usePostJustBeforeToPublish } from '../../hooks/use-saving-post';
+import { usePostJustBeforePublish } from '../../hooks/use-saving-post';
 
 const PublicizePanel = ( { prePublish } ) => {
 	const { refresh, connections } = useSelectSocialMediaConnections();
 
 	// Refresh connections when the post is just published.
-	usePostJustBeforeToPublish(
+	usePostJustBeforePublish(
 		function () {
 			/*
 			 * Being optimistic, it sets the connections
