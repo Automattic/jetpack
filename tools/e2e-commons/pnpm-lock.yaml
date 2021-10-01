@@ -29,7 +29,7 @@ importers:
       rimraf: 3.0.2
       shell-escape: 0.2.0
       winston: 3.3.3
-      wpapi: ^1.2.2
+      wpapi: 1.2.2
       yargs: 16.2.0
     devDependencies:
       '@babel/core': 7.13.16
