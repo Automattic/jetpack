@@ -1,7 +1,7 @@
 <?php // phpcs:ignore
 /**
  * Tests for WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post.
- * To run this test by itself, using the following command:
+ * To run this test by itself use the following command:
  * jetpack docker phpunit -- --filter=WP_Test_WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post
  */
 
@@ -37,26 +37,19 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_Test_Je
 
 	/**
 	 * Create 2 mock blog users and a mock blog post.
-	 *
-	 * @param WP_UnitTest_Factory $factory Fixture factory.
 	 */
-	public static function wpSetUpBeforeClass( $factory ) {
-		static::$user_id_editor     = $factory->user->create( array( 'role' => 'editor' ) );
-		static::$user_id_subscriber = $factory->user->create( array( 'role' => 'subscriber' ) );
+	public function set_up() {
+		parent::set_up();
 
-		static::$post_id = $factory->post->create(
+		static::$user_id_editor     = $this->factory->user->create( array( 'role' => 'editor' ) );
+		static::$user_id_subscriber = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+
+		static::$post_id = $this->factory->post->create(
 			array(
 				'post_status' => 'published',
 				'post_author' => (string) static::$user_id_editor,
 			)
 		);
-	}
-
-	/**
-	 * Set up the environment for testing.
-	 */
-	public function set_up() {
-		parent::set_up();
 
 		wp_set_current_user( static::$user_id_editor );
 

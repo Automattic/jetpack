@@ -24,7 +24,7 @@ class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_REST_Controller
 		$this->namespace = 'wpcom/v2';
 		$this->rest_base = '/publicize/share';
 
-		// $wpcom_is_wpcom_only_endpoint = true keeps the WPCOM from trying to loop back to the Jetpack endpoint.
+		// $wpcom_is_wpcom_only_endpoint = true keeps WPCOM from trying to loop back to the Jetpack endpoint.
 		$this->wpcom_is_wpcom_only_endpoint = true;
 
 		// Determine if this endpoint is running on WPCOM or not.
