@@ -58,6 +58,27 @@ class Jetpack_VideoPress {
 
 		VideoPress_Scheduler::init();
 		VideoPress_XMLRPC::init();
+
+		if ( $this->is_videopress_enabled() ) {
+			add_action('admin_notices', array( $this, 'media_new_page_admin_notice' ) );
+		}
+	}
+
+	/**
+	 * media-new.php isn't supported for uploading to VideoPress.
+	 *
+	 * There is either a technical reason for this (bulk uploader isn't overridable),
+	 * or it is an intentional way to give site owners an option for uploading videos that bypass VideoPress.
+	 */
+	public function media_new_page_admin_notice(){
+		global $pagenow;
+
+		if ( $pagenow == 'media-new.php' ) {
+			 echo '<div class="notice notice-warning is-dismissible">
+				 <p>' . __( 'Videos added here will be uploaded directly to your server.') . '</p>
+				 <p>' . sprintf( __( 'If you want to upload for VideoPress, please add your videos from the <a href="%s">Media Library</a>' ), '/wp-admin/upload.php' )  . '</p>
+			 </div>';
+		}
 	}
 
 	/**
@@ -294,6 +315,10 @@ class Jetpack_VideoPress {
 			return false;
 		}
 
+		return $this->is_videopress_enabled();
+	}
+
+	protected function is_videopress_enabled() {
 		$options = VideoPress_Options::get_options();
 
 		return $options['shadow_blog_id'] > 0;
