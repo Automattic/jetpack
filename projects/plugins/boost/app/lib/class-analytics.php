@@ -15,6 +15,16 @@ use Automattic\Jetpack\Tracking;
  */
 class Analytics {
 	/**
+	 * Initialize tracking.
+	 */
+	public function init() {
+		$tracks = self::get_tracking();
+
+		// For tracking events via js/ajax.
+		add_action( 'admin_enqueue_scripts', array( $tracks, 'enqueue_tracks_scripts' ) );
+	}
+
+	/**
 	 * Get the tracking and manager objects for Boost.
 	 */
 	public static function get_tracking() {
