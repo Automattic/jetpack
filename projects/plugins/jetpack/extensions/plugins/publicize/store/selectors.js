@@ -27,11 +27,10 @@ const DEFAULT_TWEETSTORM_MESSAGE = '\n\n' + __( 'A thread ⬇️', 'jetpack' );
 /**
  * Returns the failed Publicize connections.
  *
- * @param {object} state - State object.
  * @returns {Array} List of connections.
  */
-export function getFailedConnections( state ) {
-	const connections = getConnections( state );
+export function getFailedConnections() {
+	const connections = getConnections();
 	return connections.filter( connection => false === connection.test_success );
 }
 
@@ -39,11 +38,10 @@ export function getFailedConnections( state ) {
  * Returns a list of Publicize connection service names that require reauthentication from users.
  * iFor example, when LinkedIn switched its API from v1 to v2.
  *
- * @param {object} state - State object.
  * @returns {Array} List of service names that need reauthentication.
  */
-export function getMustReauthConnections( state ) {
-	const connections = getConnections( state );
+export function getMustReauthConnections() {
+	const connections = getConnections();
 	return connections
 		.filter( connection => 'must_reauth' === connection.test_success )
 		.map( connection => connection.service_name );
@@ -52,11 +50,10 @@ export function getMustReauthConnections( state ) {
 /**
  * Returns a template for tweet data, based on the first Twitter account found.
  *
- * @param {object} state - State object.
  * @returns {object} The Twitter account data.
  */
-export function getTweetTemplate( state ) {
-	const connections = getConnections( state );
+export function getTweetTemplate() {
+	const connections = getConnections();
 	const twitterAccount = connections?.find( connection => 'twitter' === connection.service_name );
 
 	return {
