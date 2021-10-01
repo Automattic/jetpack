@@ -346,6 +346,130 @@ class Test_Identity_Crisis extends BaseTestCase {
 	}
 
 	/**
+	 * Test the check_response_for_idc method when the response does not contain an error code.
+	 *
+	 * @param mixed $input  The input to the check_response_for_idc method.
+	 *
+	 * @dataProvider data_provider_test_check_response_for_idc_no_error_code
+	 */
+	public function test_check_response_for_idc_no_error_code( $input ) {
+		// Delete option before each test.
+		Jetpack_Options::delete_option( 'sync_error_idc' );
+
+		$result = Identity_Crisis::init()->check_response_for_idc( $input );
+		$option = Jetpack_Options::get_option( 'sync_error_idc' );
+		$this->assertFalse( $result );
+		$this->assertFalse( $option );
+	}
+
+	/**
+	 * Data provider for test_check_response_for_idc_no_error_code.
+	 *
+	 * @return array The test data.
+	 */
+	public function data_provider_test_check_response_for_idc_no_error_code() {
+		return array(
+			'input is null'               => array( null ),
+			'input is empty array'        => array( array() ),
+			'input is a string'           => array( 'test' ),
+			'input is with no error code' => array(
+				array(
+					'request_siteurl' => 'example.org/test',
+					'request_home'    => 'example.org/test',
+					'wpcom_siteurl'   => 'example.com',
+					'wpcom_home'      => 'example.com',
+				),
+			),
+		);
+	}
+
+	/**
+	 * Test the check_response_for_idc method when the response does contain an error code.
+	 *
+	 * @param mixed $input         The input to the check_response_for_idc method.
+	 * @param bool  $option_updated Whether the check_response_for_idc method should update the
+	 *                              sync_error_idc option.
+	 *
+	 * @dataProvider data_provider_test_check_response_for_idc_with_error_code
+	 */
+	public function test_check_response_for_idc_with_error_code( $input, $option_updated ) {
+		// Delete option before each test.
+		Jetpack_Options::delete_option( 'sync_error_idc' );
+
+		if ( $option_updated ) {
+			$expected_option = array_merge(
+				// WorDBless sets the siteurl and home options to example.org.
+				array(
+					'home'    => 'example.org/',
+					'siteurl' => 'example.org/',
+				),
+				$input
+			);
+		} else {
+			$expected_option = false;
+		}
+
+		$result = Identity_Crisis::init()->check_response_for_idc( $input );
+		$option = Jetpack_Options::get_option( 'sync_error_idc' );
+
+		$this->assertTrue( $result );
+		$this->assertSame( $expected_option, $option );
+	}
+
+	/**
+	 * Data provider for test_check_response_for_idc_with_error_code
+	 *
+	 * @return The test data with the structure:
+	 *    'input'           => The input for the check_response_for_idc method.
+	 *     'option_updated' => Whether the check_response_for_idc method should update
+	 *                         the sync_error_idc option.
+	 */
+	public function data_provider_test_check_response_for_idc_with_error_code() {
+		return array(
+			'input is non-matching error code'      => array(
+				'input'          => array(
+					'error_code'      => 'not an idc error code',
+					'request_siteurl' => 'example.org/',
+					'request_home'    => 'example.org/',
+					'wpcom_siteurl'   => 'example.com/',
+					'wpcom_home'      => 'example.com/',
+				),
+				'option_updated' => false,
+			),
+			'input has url mismatch error code'     => array(
+				'input'          => array(
+					'error_code'      => 'jetpack_url_mismatch',
+					'request_siteurl' => 'example.org/',
+					'request_home'    => 'example.org/',
+					'wpcom_siteurl'   => 'example.com/',
+					'wpcom_home'      => 'example.com/',
+				),
+				'option_updated' => true,
+			),
+			'input has home mismatch error code'    => array(
+				'input'          => array(
+					'error_code'      => 'jetpack_home_url_mismatch',
+					'request_siteurl' => 'example.org/',
+					'request_home'    => 'example.org/',
+					'wpcom_siteurl'   => 'example.com/',
+					'wpcom_home'      => 'example.com/',
+				),
+				'option_updated' => true,
+			),
+			'input has siteurl mismatch error code' => array(
+				'input'          => array(
+					'error_code'      => 'jetpack_site_url_mismatch',
+					'request_siteurl' => 'example.org/',
+					'request_home'    => 'example.org/',
+					'wpcom_siteurl'   => 'example.com/',
+					'wpcom_home'      => 'example.com/',
+				),
+				'option_updated' => true,
+			),
+		);
+	}
+
+	/**
 	 * Return string '1'.
 	 *
 	 * @return string

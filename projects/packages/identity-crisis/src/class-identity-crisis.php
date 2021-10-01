@@ -265,6 +265,40 @@ class Identity_Crisis {
 	}
 
 	/**
+	 * Checks the WPCOM response to determine if the site is in an identity crisis. Updates the
+	 * sync_error_idc option if it is.
+	 *
+	 * @param array $response The response data.
+	 *
+	 * @return bool Whether the site is in an identity crisis.
+	 */
+	public function check_response_for_idc( $response ) {
+		if ( ! is_array( $response ) ) {
+			return false;
+		}
+
+		if ( is_array( $response ) && isset( $response['error_code'] ) ) {
+			$error_code              = $response['error_code'];
+			$allowed_idc_error_codes = array(
+				'jetpack_url_mismatch',
+				'jetpack_home_url_mismatch',
+				'jetpack_site_url_mismatch',
+			);
+
+			if ( in_array( $error_code, $allowed_idc_error_codes, true ) ) {
+				\Jetpack_Options::update_option(
+					'sync_error_idc',
+					self::get_sync_error_idc_option( $response )
+				);
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Prepare URL for display.
 	 *
 	 * @param string $url URL to display.
