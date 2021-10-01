@@ -13,12 +13,15 @@ class WP_Test_Jetpack_Json_Api_Plugins_Endpoints extends WP_UnitTestCase {
 		grant_super_admin( self::$super_admin_user_id );
 	}
 
-	public function setUp() {
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
 		if ( ! defined( 'WPCOM_JSON_API__BASE' ) ) {
 			define( 'WPCOM_JSON_API__BASE', 'public-api.wordpress.com/rest/v1' );
 		}
 
-		parent::setUp();
+		parent::set_up();
 
 		$this->set_globals();
 

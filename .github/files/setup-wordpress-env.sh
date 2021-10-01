@@ -34,7 +34,13 @@ case "$WP_BRANCH" in
 		git clone --depth=1 --branch master git://develop.git.wordpress.org/ /tmp/wordpress-master
 		;;
 	latest)
-		git clone --depth=1 --branch "$(php ./tools/get-wp-version.php)" git://develop.git.wordpress.org/ /tmp/wordpress-latest
+		LATEST=$(php ./tools/get-wp-version.php)
+		# 5.8.1 does not have the polyfill stuff backported.
+		# @todo: Remove this once 5.8.1 is no longer "latest".
+		if [[ "$LATEST" == "5.8.1" ]]; then
+			LATEST=5.8
+		fi
+		git clone --depth=1 --branch "$LATEST" git://develop.git.wordpress.org/ /tmp/wordpress-latest
 		;;
 	previous)
 		# We hard-code the version here because there's a time near WP releases where
@@ -52,6 +58,7 @@ echo "::endgroup::"
 export COMPOSER_MIRROR_PATH_REPOS=true
 
 BASE="$(pwd)"
+PKGVERSIONS="$(jq -nc 'reduce inputs as $in ({}; .[$in.name] |= ( $in.extra["branch-alias"]["dev-master"] // "dev-master" ) )' projects/packages/*/composer.json)"
 for PLUGIN in projects/plugins/*/composer.json; do
 	DIR="${PLUGIN%/composer.json}"
 	NAME="$(basename "$DIR")"
@@ -72,6 +79,11 @@ for PLUGIN in projects/plugins/*/composer.json; do
 	cp -r "$DIR" "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$NAME"
 	# Plugin dir for tests in WP >= 5.6-beta1
 	ln -s "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$NAME" "/tmp/wordpress-$WP_BRANCH/tests/phpunit/data/plugins/$NAME"
+
+	# Update monorepo repo entry in composer.json to point back here, and to mirror per COMPOSER_MIRROR_PATH_REPOS.
+	JSON="$(jq --tab --arg dir "$BASE/$DIR" --argjson pkgversions "$PKGVERSIONS" '( .repositories // empty | .[] | select( .options.monorepo ) ) |= ( .url |= "\($dir)/\(.)" | .options.symlink |= false | .options.versions |= $pkgversions )' "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$NAME/composer.json")"
+	echo "$JSON" > "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$NAME/composer.json"
+
 	echo "::endgroup::"
 done
 
