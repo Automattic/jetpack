@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Search: ensure translations are available for lazy-loaded payloads
