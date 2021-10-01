@@ -401,6 +401,22 @@ abstract class Publicize_Base {
 	}
 
 	/**
+	 * Returns a profile picture for the Connection
+	 *
+	 * @param object|array $connection The Connection object (WordPress.com) or array (Jetpack).
+	 * @return string
+	 */
+	private function get_profile_picture( $connection ) {
+		$cmeta = $this->get_connection_meta( $connection );
+
+		if ( isset( $cmeta['profile_picture'] ) ) {
+			return $cmeta['profile_picture'];
+		}
+
+		return '';
+	}
+
+	/**
 	 * Whether the user needs to select additional options after connecting
 	 *
 	 * @param string $service_name 'facebook', 'twitter', etc.
@@ -720,15 +736,16 @@ abstract class Publicize_Base {
 				}
 
 				$connection_list[] = array(
-					'unique_id'     => $unique_id,
-					'service_name'  => $service_name,
-					'service_label' => $this->get_service_label( $service_name ),
-					'display_name'  => $this->get_display_name( $service_name, $connection ),
+					'unique_id'       => $unique_id,
+					'service_name'    => $service_name,
+					'service_label'   => $this->get_service_label( $service_name ),
+					'display_name'    => $this->get_display_name( $service_name, $connection ),
+					'profile_picture' => $this->get_profile_picture( $connection ),
 
-					'enabled'      => $enabled,
-					'done'         => $done,
-					'toggleable'   => $toggleable,
-					'global'       => 0 == $connection_data['user_id'],
+					'enabled'         => $enabled,
+					'done'            => $done,
+					'toggleable'      => $toggleable,
+					'global'          => 0 == $connection_data['user_id'],
 				);
 			}
 		}

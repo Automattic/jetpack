@@ -6,12 +6,13 @@
  * { # Post Object
  *   ...
  *   jetpack_publicize_connections: { # Defined below in this file. See schema for more detail.
- *     id:           (string)  Connection unique_id
- *     service_name: (string)  Service slug
- *     display_name: (string)  User name/display name of user/connection on Service
- *     enabled:      (boolean) Is this connection slated to be shared to? context=edit only
- *     done:         (boolean) Is this post (or connection) done sharing? context=edit only
- *     toggleable:   (boolean) Can the current user change the `enabled` setting for this Connection+Post? context=edit only
+ *     id:              (string)  Connection unique_id
+ *     service_name:    (string)  Service slug
+ *     display_name:    (string)  User name/display name of user/connection on Service
+ * 	   profile_picture: (string) Profile picture of user/connection on Service
+ *     enabled:         (boolean) Is this connection slated to be shared to? context=edit only
+ *     done:            (boolean) Is this post (or connection) done sharing? context=edit only
+ *     toggleable:      (boolean) Can the current user change the `enabled` setting for this Connection+Post? context=edit only
  *   }
  *   ...
  *   meta: { # Not defined in this file. Handled in modules/publicize/publicize.php via `register_meta()`
@@ -85,6 +86,12 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 				),
 				'display_name' => array(
 					'description' => __( 'Username of the connected account', 'jetpack' ),
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+					'readonly'    => true,
+				),
+				'profile_picture' => array(
+					'description' => __( 'Profile picture of the connected account', 'jetpack' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
