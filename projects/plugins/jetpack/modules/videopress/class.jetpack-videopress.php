@@ -77,14 +77,11 @@ class Jetpack_VideoPress {
 			echo '<div class="notice notice-warning is-dismissible">' .
 					'<p>' .
 					wp_kses(
-						__( 'Videos added here will be uploaded directly to your server.', 'jetpack' ),
-						array()
-					) .
-					'</p>' .
-					'<p>' .
-					wp_kses(
-						/* translators: %s is the url to the Media Library */
-						sprintf( __( 'If you want to upload for VideoPress, please add your videos from the <a href="%s">Media Library</a>', 'jetpack' ), '/wp-admin/upload.php' ),
+						sprintf(
+							/* translators: %s is the url to the Media Library */
+							__( 'Videos added here will be uploaded directly to your server. If you want to upload for VideoPress, please add your videos from the <a href="%s">Media Library</a>', 'jetpack' ),
+							'/wp-admin/upload.php'
+						),
 						array(
 							'a' => array( 'href' => array() ),
 						)
