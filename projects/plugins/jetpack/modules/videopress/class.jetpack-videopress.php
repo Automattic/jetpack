@@ -74,7 +74,6 @@ class Jetpack_VideoPress {
 		global $pagenow;
 
 		if ( 'media-new.php' === $pagenow ) {
-
 			echo wp_kses(
 				'<div class="notice notice-warning is-dismissible">' .
 					'<p>' .
