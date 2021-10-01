@@ -80,6 +80,7 @@ class Identity_Crisis {
 		add_action( 'jetpack_sync_processed_actions', array( $this, 'maybe_clear_migrate_option' ) );
 		add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\IdentityCrisis\\REST_Endpoints', 'initialize_rest_api' ) );
 		add_action( 'jetpack_idc_disconnect', array( __CLASS__, 'do_jetpack_idc_disconnect' ) );
+		add_action( 'jetpack_received_remote_request_response', array( $this, 'check_http_response_for_idc_detected' ) );
 
 		add_filter( 'jetpack_connection_disconnect_site_wpcom', array( __CLASS__, 'jetpack_connection_disconnect_site_wpcom_filter' ) );
 
@@ -265,6 +266,27 @@ class Identity_Crisis {
 	}
 
 	/**
+	 * Checks the HTTP response body for the 'idc_detected' key. If the key exists,
+	 * checks the idc_detected value for a valid idc error.
+	 *
+	 * @param array|WP_Error $http_response The HTTP response.
+	 *
+	 * @return bool Whether the site is in an identity crisis.
+	 */
+	public function check_http_response_for_idc_detected( $http_response ) {
+		if ( ! is_array( $http_response ) ) {
+			return false;
+		}
+		$response_body = json_decode( wp_remote_retrieve_body( $http_response ), true );
+
+		if ( isset( $response_body['idc_detected'] ) ) {
+			return $this->check_response_for_idc( $response_body['idc_detected'] );
+		}
+
+		return false;
+	}
+
+	/**
 	 * Checks the WPCOM response to determine if the site is in an identity crisis. Updates the
 	 * sync_error_idc option if it is.
 	 *
@@ -348,6 +370,7 @@ class Identity_Crisis {
 		$sync_error = Jetpack_Options::get_option( 'sync_error_idc' );
 		if ( $sync_error && self::should_handle_idc() ) {
 			$local_options = self::get_sync_error_idc_option();
+
 			// Ensure all values are set.
 			if ( isset( $sync_error['home'] ) && isset( $local_options['home'] ) && isset( $sync_error['siteurl'] ) && isset( $local_options['siteurl'] ) ) {
 				// If the WP.com expected home and siteurl match local home and siteurl it is not valid IDC.
