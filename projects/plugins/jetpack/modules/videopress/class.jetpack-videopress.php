@@ -74,18 +74,23 @@ class Jetpack_VideoPress {
 		global $pagenow;
 
 		if ( 'media-new.php' === $pagenow ) {
-			echo wp_kses(
-				'<div class="notice notice-warning is-dismissible">' .
+			echo '<div class="notice notice-warning is-dismissible">' .
 					'<p>' .
-						__( 'Videos added here will be uploaded directly to your server.', 'jetpack' ) .
+					wp_kses(
+						__( 'Videos added here will be uploaded directly to your server.', 'jetpack' ),
+						array()
+					) .
 					'</p>' .
 					'<p>' .
+					wp_kses(
 						/* translators: %s is the url to the Media Library */
-						sprintf( __( 'If you want to upload for VideoPress, please add your videos from the <a href="%s">Media Library</a>', 'jetpack' ), '/wp-admin/upload.php' ) .
+						sprintf( __( 'If you want to upload for VideoPress, please add your videos from the <a href="%s">Media Library</a>', 'jetpack' ), '/wp-admin/upload.php' ),
+						array(
+							'a' => array( 'href' => array() ),
+						)
+					) .
 					'</p>' .
-				'</div>',
-				array( 'a' => array( 'href' => array() ) )
-			);
+				'</div>';
 		}
 	}
 
