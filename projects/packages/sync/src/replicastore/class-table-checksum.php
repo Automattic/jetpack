@@ -36,7 +36,7 @@ class Table_Checksum {
 	 *
 	 * @var boolean
 	 */
-	private $perform_text_conversion = false;
+	protected $perform_text_conversion = false;
 
 	/**
 	 * Field to be used for range queries.
@@ -106,28 +106,28 @@ class Table_Checksum {
 	 *
 	 * @var mixed|null
 	 */
-	private $parent_table = null;
+	protected $parent_table = null;
 
 	/**
 	 * What field to use for the parent table join, if it has a "parent" table.
 	 *
 	 * @var mixed|null
 	 */
-	private $parent_join_field = null;
+	protected $parent_join_field = null;
 
 	/**
 	 * What field to use for the table join, if it has a "parent" table.
 	 *
 	 * @var mixed|null
 	 */
-	private $table_join_field = null;
+	protected $table_join_field = null;
 
 	/**
 	 * Some tables might not exist on the remote, and we want to verify they exist, before trying to query them.
 	 *
 	 * @var callable
 	 */
-	private $is_table_enabled_callback = false;
+	protected $is_table_enabled_callback = false;
 
 	/**
 	 * Table_Checksum constructor.
@@ -177,7 +177,7 @@ class Table_Checksum {
 	 *
 	 * @return array
 	 */
-	private function get_default_tables() {
+	protected function get_default_tables() {
 		global $wpdb;
 
 		return array(
@@ -280,6 +280,29 @@ class Table_Checksum {
 				'table_join_field'          => 'order_item_id',
 				'is_table_enabled_callback' => array( $this, 'enable_woocommerce_tables' ),
 			),
+			'users'                      => array(
+				'table'                => $wpdb->users,
+				'range_field'          => 'ID',
+				'key_fields'           => array( 'ID' ),
+				'checksum_text_fields' => array( 'user_login', 'user_nicename', 'user_email', 'user_url', 'user_registered', 'user_status', 'display_name' ),
+				'filter_values'        => array(),
+			),
+
+			/**
+			 * Usermeta is a special table, as it needs to use a custom override flow,
+			 * as the user roles, capabilities, locale, mime types can be filtered by plugins.
+			 * This prevents us from doing a direct comparison in the database.
+			 */
+			'usermeta'                   => array(
+				'table'           => $wpdb->users,
+				/**
+				 * Range field points to ID, which in this case is the `WP_User` ID,
+				 * since we're querying the whole WP_User objects, instead of meta entries in the DB.
+				 */
+				'range_field'     => 'ID',
+				'key_fields'      => array(),
+				'checksum_fields' => array(),
+			),
 		);
 	}
 
@@ -288,7 +311,7 @@ class Table_Checksum {
 	 *
 	 * @param array $table_configuration The table configuration array.
 	 */
-	private function prepare_fields( $table_configuration ) {
+	protected function prepare_fields( $table_configuration ) {
 		$this->key_fields                = $table_configuration['key_fields'];
 		$this->range_field               = $table_configuration['range_field'];
 		$this->checksum_fields           = isset( $table_configuration['checksum_fields'] ) ? $table_configuration['checksum_fields'] : array();
@@ -309,7 +332,7 @@ class Table_Checksum {
 	 * @return mixed|string
 	 * @throws Exception Throw an exception on validation failure.
 	 */
-	private function validate_table_name( $table ) {
+	protected function validate_table_name( $table ) {
 		if ( empty( $table ) ) {
 			throw new Exception( 'Invalid table name: empty' );
 		}
@@ -328,7 +351,7 @@ class Table_Checksum {
 	 *
 	 * @throws Exception Throw an exception on failure to validate.
 	 */
-	private function validate_fields( $fields ) {
+	protected function validate_fields( $fields ) {
 		foreach ( $fields as $field ) {
 			if ( ! preg_match( '/^[0-9,a-z,A-Z$_]+$/i', $field ) ) {
 				throw new Exception( "Invalid field name: $field is not allowed" );
@@ -346,7 +369,7 @@ class Table_Checksum {
 	 * @return bool
 	 * @throws Exception Throw an exception on failure to validate.
 	 */
-	private function validate_fields_against_table( $fields ) {
+	protected function validate_fields_against_table( $fields ) {
 		global $wpdb;
 
 		$valid_fields = array();
@@ -373,7 +396,7 @@ class Table_Checksum {
 	 *
 	 * @throws Exception Throw an exception on failure to validate in the internal functions.
 	 */
-	private function validate_input() {
+	protected function validate_input() {
 		$fields = array_merge( array( $this->range_field ), $this->key_fields, $this->checksum_fields, $this->checksum_text_fields );
 
 		$this->validate_fields( $fields );
@@ -388,7 +411,7 @@ class Table_Checksum {
 	 *
 	 * @return array|null
 	 */
-	private function prepare_filter_values_as_sql( $filter_values = array(), $table_prefix = '' ) {
+	protected function prepare_filter_values_as_sql( $filter_values = array(), $table_prefix = '' ) {
 		global $wpdb;
 
 		if ( ! is_array( $filter_values ) ) {
@@ -497,7 +520,7 @@ class Table_Checksum {
 	 *
 	 * @throws Exception Throws and exception if validation fails in the internal function calls.
 	 */
-	private function build_checksum_query( $range_from = null, $range_to = null, $filter_values = null, $granular_result = false ) {
+	protected function build_checksum_query( $range_from = null, $range_to = null, $filter_values = null, $granular_result = false ) {
 		global $wpdb;
 
 		// Escape the salt.
@@ -641,7 +664,10 @@ class Table_Checksum {
 		}
 
 		// Only make the distinct count when we know there can be multiple entries for the range column.
-		$distinct_count = count( $this->key_fields ) > 1 ? 'DISTINCT' : '';
+		$distinct_count = '';
+		if ( count( $this->key_fields ) > 1 || 'terms' === $this->table ) {
+			$distinct_count = 'DISTINCT';
+		}
 
 		$query = "
 			SELECT
@@ -770,7 +796,7 @@ class Table_Checksum {
 	 *
 	 * @return bool
 	 */
-	private function enable_woocommerce_tables() {
+	protected function enable_woocommerce_tables() {
 		/**
 		 * On WordPress.com, we can't directly check if the site has support for WooCommerce.
 		 * Having the option to override the functionality here helps with syncing WooCommerce tables.

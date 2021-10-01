@@ -6,8 +6,11 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 
 	public $master_user_id = false;
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 		if ( ! function_exists( 'register_block_type' ) ) {
 			$this->markTestSkipped( 'register_block_type not available' );
 			return;
@@ -33,8 +36,11 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		Jetpack_Gutenberg::init();
 	}
 
-	public function tearDown() {
-		parent::tearDown();
+	/**
+	 * Tear down.
+	 */
+	public function tear_down() {
+		parent::tear_down();
 
 		Jetpack_Gutenberg::reset();
 		remove_filter( 'jetpack_set_available_extensions', array( __CLASS__, 'get_extensions_whitelist' ) );
@@ -141,14 +147,14 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 
 	function test_get_available_extensions() {
 		$extensions = Jetpack_Gutenberg::get_available_extensions( $this->get_extensions_whitelist() );
-		$this->assertInternalType( 'array', $extensions );
+		$this->assertIsArray( $extensions );
 		$this->assertNotEmpty( $extensions );
 		$this->assertContains( 'onion', $extensions );
 
 		update_option( 'jetpack_excluded_extensions', array( 'onion' ) );
 
 		$extensions = Jetpack_Gutenberg::get_available_extensions( $this->get_extensions_whitelist() );
-		$this->assertInternalType( 'array', $extensions );
+		$this->assertIsArray( $extensions );
 		$this->assertNotEmpty( $extensions );
 		$this->assertNotContains( 'onion', $extensions );
 	}

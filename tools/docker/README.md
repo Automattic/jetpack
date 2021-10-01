@@ -5,7 +5,6 @@ Unified environment for developing Jetpack using Docker containers providing fol
 * An Ubuntu base operating system.
 * Latest stable version of WordPress.
 * All monorepo plugins will be available as plugins within the Docker WP instance.
-* PHPUnit setup.
 * Xdebug setup.
 * WP-CLI installed.
 * MailDev to catch all the emails leaving WordPress so that you can observe them from browser.
