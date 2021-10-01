@@ -23,7 +23,11 @@ const baseWebpackConfig = getBaseWebpackConfig(
 		entry: {
 			main: path.join( __dirname, '../modules/search/instant-search/loader.js' ),
 		},
-		'output-chunk-filename': 'jp-search.chunk-[name]-[contenthash].min.js',
+		// Putting a cache buster in the query string is not documented, but confirmed by the author of Webpack.
+		// `But better use the hash in filename and use no query parameter.`
+		// The reason probably is because it's not the best way to do cache busting.
+		// More information: https://github.com/webpack/webpack/issues/2329
+		'output-chunk-filename': 'jp-search.chunk-[name].min.js?ver=[contenthash]',
 		'output-filename': 'jp-search-[name].bundle.js',
 		'output-path': path.join( __dirname, '../_inc/build/instant-search' ),
 		// Calypso-build defaults this to "window", which breaks things if no library.name is set.
