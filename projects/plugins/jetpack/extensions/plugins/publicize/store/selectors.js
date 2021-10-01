@@ -29,8 +29,8 @@ const DEFAULT_TWEETSTORM_MESSAGE = '\n\n' + __( 'A thread ⬇️', 'jetpack' );
  *
  * @returns {Array} List of connections.
  */
-export function getFailedConnections( state ) {
-	const connections = getConnections( state );
+export function getFailedConnections() {
+	const connections = getConnections();
 	return connections.filter( connection => false === connection.test_success );
 }
 
@@ -40,8 +40,8 @@ export function getFailedConnections( state ) {
  *
  * @returns {Array} List of service names that need reauthentication.
  */
-export function getMustReauthConnections( state ) {
-	const connections = getConnections( state );
+export function getMustReauthConnections() {
+	const connections = getConnections();
 	return connections
 		.filter( connection => 'must_reauth' === connection.test_success )
 		.map( connection => connection.service_name );
@@ -50,7 +50,6 @@ export function getMustReauthConnections( state ) {
 /**
  * Returns a template for tweet data, based on the first Twitter account found.
  *
- * @param {object} state - State object.
  * @returns {object} The Twitter account data.
  */
 export function getTweetTemplate( state ) {
