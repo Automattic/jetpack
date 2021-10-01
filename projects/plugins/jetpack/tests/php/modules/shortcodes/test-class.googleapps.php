@@ -50,7 +50,7 @@ class WP_Test_Jetpack_Shortcodes_GoogleApps extends WP_UnitTestCase {
 		add_shortcode( 'googleapps', 'googleapps_shortcode' );
 		$to_embed = do_shortcode( $shortcode );
 
-		$this->assertContains( $expected_output, $to_embed );
+		$this->assertStringContainsString( $expected_output, $to_embed );
 	}
 
 	function test_document_variation_2() {
@@ -88,7 +88,7 @@ class WP_Test_Jetpack_Shortcodes_GoogleApps extends WP_UnitTestCase {
 		add_shortcode( 'googleapps', 'googleapps_shortcode' );
 		$to_embed = do_shortcode( $shortcode );
 
-		$this->assertContains( $expected_output, $to_embed );
+		$this->assertStringContainsString( $expected_output, $to_embed );
 	}
 
 	function test_external_document() {
@@ -216,7 +216,7 @@ class WP_Test_Jetpack_Shortcodes_GoogleApps extends WP_UnitTestCase {
 		add_shortcode( 'googleapps', 'googleapps_shortcode' );
 		$to_embed = do_shortcode( $shortcode );
 
-		$this->assertContains( $expected_output, $to_embed );
+		$this->assertStringContainsString( $expected_output, $to_embed );
 	}
 
 }

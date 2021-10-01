@@ -738,7 +738,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/tracking",
-                "reference": "eda11e3c314f6dd3eefd5fa9c0f1c13efdcfe34e"
+                "reference": "7d6238640b64fb8fe2860a83c1f2aa50e528b04c"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.11",
@@ -748,6 +748,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^2.0",
+                "brain/monkey": "2.6.0",
                 "yoast/phpunit-polyfills": "1.0.1"
             },
             "type": "library",
@@ -4404,5 +4405,5 @@
     "platform-overrides": {
         "ext-intl": "0.0.0"
     },
-    "plugin-api-version": "2.0.0"
+    "plugin-api-version": "2.1.0"
 }

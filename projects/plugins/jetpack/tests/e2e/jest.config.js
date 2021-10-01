@@ -9,9 +9,9 @@ if ( process.env.E2E_DEBUG ) {
 }
 
 module.exports = {
-	testEnvironment: '<rootDir>/lib/env/playwright-environment.js',
-	globalSetup: '<rootDir>/lib/env/global-setup.js',
-	globalTeardown: '<rootDir>/lib/env/global-teardown.js',
+	testEnvironment: require.resolve( 'jetpack-e2e-commons/env/playwright-environment.js' ),
+	globalSetup: require.resolve( 'jetpack-e2e-commons/env/global-setup.js' ),
+	globalTeardown: require.resolve( 'jetpack-e2e-commons/env/global-teardown.js' ),
 	setupFilesAfterEnv: [ '<rootDir>/jest.setup.js' ],
 	testRunner: 'jest-circus/runner',
 	runner: 'groups',
@@ -27,13 +27,6 @@ module.exports = {
 				outputDirectory: 'output/reports',
 				outputName: 'junit-results.xml',
 				uniqueOutputName: 'true',
-			},
-		],
-		[
-			'jest-stare',
-			{
-				resultDir: `output/reports/jest-stare`,
-				reportTitle: 'Jetpack E2E tests',
 			},
 		],
 	],
