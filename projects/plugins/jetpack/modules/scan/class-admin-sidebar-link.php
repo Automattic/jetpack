@@ -65,24 +65,21 @@ class Admin_Sidebar_Link {
 			return;
 		}
 
-		$has_scan          = $this->has_scan();
-		$has_backup        = $this->has_backup();
-		$has_backup_plugin = $this->has_backup_plugin();
-		$menu_label        = '';
+		$has_scan    = $this->has_scan();
+		$show_backup = $this->should_show_backup();
+		$url         = Redirect::get_url( 'calypso-backups' );
 
-		$url = Redirect::get_url( 'calypso-backups' );
-		if ( $has_scan && ! $has_backup || $has_scan && $has_backup && $has_backup_plugin ) {
+		if ( $has_scan && ! $show_backup ) {
 			$menu_label = __( 'Scan', 'jetpack' );
 			$url        = Redirect::get_url( 'calypso-scanner' );
-		} elseif ( ! $has_scan && $has_backup && ! $has_backup_plugin ) {
+		} elseif ( ! $has_scan && $show_backup ) {
 			$menu_label = __( 'Backup', 'jetpack' );
-		} elseif ( $has_scan && $has_backup && ! $has_backup_plugin ) {
+		} else {
+			// Will be both, as the code won't get this far if neither is true (see should_show_link()).
 			$menu_label = __( 'Backup & Scan', 'jetpack' );
 		}
 
-		if ( ! empty( $menu_label ) ) {
-			add_submenu_page( 'jetpack', $menu_label, esc_html( $menu_label ) . ' <span class="dashicons dashicons-external"></span>', 'manage_options', esc_url( $url ), null, $this->get_link_offset() );
-		}
+		add_submenu_page( 'jetpack', $menu_label, esc_html( $menu_label ) . ' <span class="dashicons dashicons-external"></span>', 'manage_options', esc_url( $url ), null, $this->get_link_offset() );
 
 	}
 
@@ -131,7 +128,18 @@ class Admin_Sidebar_Link {
 			return false;
 		}
 
-		return $this->has_backup() || $this->has_scan();
+		return $this->has_scan() || $this->should_show_backup();
+	}
+
+	/**
+	 * Check if we should display the Backup menu item.
+	 *
+	 * It will only be displayed if site has Backup enabled and the stand-alone Backup plugin is not active, because it will have a menu item of its own.
+	 *
+	 * @return boolean
+	 */
+	private function should_show_backup() {
+		return $this->has_backup() && ! $this->has_backup_plugin();
 	}
 
 	/**
