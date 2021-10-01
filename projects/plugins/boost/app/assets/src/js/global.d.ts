@@ -19,6 +19,9 @@ declare global {
 	// Constants provided by the plugin.
 	// eslint-disable-next-line camelcase
 	const Jetpack_Boost: {
+		preferences: {
+			showRatingPrompt: boolean;
+		};
 		version: string;
 		api: {
 			namespace: string;
@@ -27,7 +30,8 @@ declare global {
 		connectionIframeOriginUrl: string;
 		connection: ConnectionStatus;
 		criticalCssStatus?: CriticalCssStatus;
-		criticalCssAjaxNonce?: string;
+		showRatingPromptNonce?: string;
+		criticalCssDismissRecommendationsNonce?: string;
 		criticalCssDismissedRecommendations: string[];
 		site: {
 			url: string;
@@ -42,6 +46,17 @@ declare global {
 	const CriticalCSSGenerator: {
 		generateCriticalCSS: typeof generateCriticalCSS;
 		BrowserInterfaceIframe: typeof BrowserInterfaceIframe;
+	};
+
+	type TracksEventProperties = { [ key: string ]: string | number };
+
+	const jpTracksAJAX: {
+		// eslint-disable-next-line camelcase
+		record_ajax_event(
+			eventName: string,
+			eventType: string,
+			eventProp: TracksEventProperites
+		): void;
 	};
 }
 

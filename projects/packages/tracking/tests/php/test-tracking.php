@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack;
 
+use Brain\Monkey;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -20,10 +21,21 @@ class Test_Tracking extends TestCase {
 	 * @before
 	 */
 	public function set_up() {
+		Monkey\setUp();
+
 		$this->connection = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
 			->setMethods( array( 'is_user_connected' ) )
 			->getMock();
 		$this->tracking   = new Tracking( 'jetpack', $this->connection );
+	}
+
+	/**
+	 * Test teardown.
+	 *
+	 * @after
+	 */
+	public function tear_down() {
+		Monkey\tearDown();
 	}
 
 	/**

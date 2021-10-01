@@ -18,6 +18,8 @@ import { modules, isEnabled } from '../stores/modules';
 import { loadCriticalCssLibrary } from './load-critical-css-library';
 import { removeShownAdminNotices } from './remove-admin-notices';
 import { clearDismissedRecommendations } from '../stores/critical-css-recommendations';
+import { castToNumber } from './cast-to-number';
+import { recordBoostEvent } from './analytics';
 
 export type ProviderKeyUrls = {
 	[ providerKey: string ]: string[];
@@ -154,6 +156,13 @@ async function generateForKeys(
 	const majorSteps = Object.keys( providerKeys ).length + 1;
 	let majorStep = 0;
 
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return
+	const startTime = Date.now();
+	let totalSize = 0;
+	let stepsPassed = 0;
+	let stepsFailed = 0;
+	let maxSize = 0;
+
 	// Run through each set of URLs.
 	for ( const [ providerKey, urls ] of Object.entries( providerKeys ) ) {
 		callback( ++majorStep, majorSteps, 0, 0 );
@@ -185,6 +194,10 @@ async function generateForKeys(
 			if ( updateResult === false ) {
 				return;
 			}
+
+			stepsPassed++;
+			totalSize += css.length;
+			maxSize = css.length > maxSize ? css.length : maxSize;
 		} catch ( err ) {
 			// Success Target Errors indicate that URLs failed, but the process itself succeeded.
 			if ( err.isSuccessTargetError ) {
@@ -196,6 +209,29 @@ async function generateForKeys(
 					},
 					passthrough,
 				} );
+
+				stepsFailed++;
+				const urlError = err.urlErrors as {
+					[ url: string ]: {
+						message: string;
+						type: string;
+						meta: JSONObject;
+					};
+				};
+
+				for ( const [ url, error ] of Object.entries( urlError ) ) {
+					// Track individual Critical CSS generation error.
+					const eventProps: TracksEventProperties = {
+						url,
+						provider_key: providerKey,
+						error_message: error.message,
+						error_type: error.type,
+					};
+					if ( error.type === 'HttpError' ) {
+						eventProps.error_meta = castToNumber( error.meta.code );
+					}
+					recordBoostEvent( 'critical_css_url_error', 'click', eventProps );
+				}
 			} else {
 				await sendGenerationResult( providerKey, 'error', {
 					data: {
@@ -205,9 +241,38 @@ async function generateForKeys(
 					passthrough,
 				} );
 
+				// Track showstopper Critical CSS generation error.
+				const eventProps = {
+					time: Date.now() - startTime,
+					provider_key: providerKey,
+					error_message: err.message,
+					error_type: err.type || ( err.constructor && err.constructor.name ) || 'unknown',
+				};
+				recordBoostEvent( 'critical_css_failure', 'click', eventProps );
+
 				return;
 			}
 		}
+	}
+
+	// Track complete Critical CSS generation result.
+	if ( stepsPassed === 0 ) {
+		const eventProps = {
+			time: Date.now() - startTime,
+			error_message: 'Critical CSS Generation failed for all the provider keys.',
+			error_type: 'allProvidersError',
+		};
+		recordBoostEvent( 'critical_css_failure', 'click', eventProps );
+	} else {
+		const eventProps = {
+			time: Date.now() - startTime,
+			block_count: stepsPassed,
+			error_count: stepsFailed,
+			average_size: totalSize / Math.max( 1, stepsPassed ),
+			max_size: maxSize,
+			provider_keys: Object.keys( providerKeys ).join( ',' ),
+		};
+		recordBoostEvent( 'critical_css_success', 'click', eventProps );
 	}
 
 	updateGenerateStatus( false, 0 );
