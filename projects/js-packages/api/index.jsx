@@ -422,6 +422,13 @@ function JetpackRestApiClient( root, nonce ) {
 			postRequest( `${ apiRoot }jetpack/v4/identity-crisis/confirm-safe-mode`, postParams ).then(
 				checkStatus
 			),
+
+		startIDCFresh: redirect_uri =>
+			postRequest( `${ apiRoot }jetpack/v4/identity-crisis/start-fresh`, postParams, {
+				body: JSON.stringify( { redirect_uri } ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 	};
 
 	/**

@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import { Button, Dashicon } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import restApi from '@automattic/jetpack-api';
 import { Spinner } from '@automattic/jetpack-components';
 
 /**
@@ -19,11 +20,13 @@ import extractHostname from '../../tools/extract-hostname';
  * @param {object} props - The properties.
  * @param {string} props.wpcomHomeUrl - The original site URL.
  * @param {string} props.currentUrl - The current site URL.
+ * @param {string} props.redirectUri - The redirect URI to redirect users back to after connecting.
  * @returns {React.Component} The `ConnectScreen` component.
  */
 const CardFresh = props => {
 	const wpcomHostName = extractHostname( props.wpcomHomeUrl );
 	const currentHostName = extractHostname( props.currentUrl );
+	const redirectUri = props.redirectUri;
 
 	const buttonLabel = __( 'Create a fresh connection', 'jetpack' );
 
@@ -36,12 +39,20 @@ const CardFresh = props => {
 	 * @todo Add the actual migration functionality.
 	 */
 	const doStartFresh = useCallback( () => {
-		setIsInProgress( true );
+		if ( ! isInProgress ) {
+			setIsInProgress( true );
 
-		setTimeout( () => {
-			setIsInProgress( false );
-		}, 3000 );
-	}, [ setIsInProgress ] );
+			restApi
+				.startIDCFresh( redirectUri )
+				.then( connectUrl => {
+					window.location.href = connectUrl + '&from=idc-notice';
+				} )
+				.catch( error => {
+					setIsInProgress( false );
+					throw error;
+				} );
+		}
+	}, [ isInProgress, setIsInProgress, redirectUri ] );
 
 	return (
 		<div className="jp-idc-card-action-base">
@@ -86,6 +97,7 @@ const CardFresh = props => {
 CardFresh.propTypes = {
 	wpcomHomeUrl: PropTypes.string.isRequired,
 	currentUrl: PropTypes.string.isRequired,
+	redirectUri: PropTypes.string.isRequired,
 };
 
 export default CardFresh;
