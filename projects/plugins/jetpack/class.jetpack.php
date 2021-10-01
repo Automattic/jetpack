@@ -1735,6 +1735,14 @@ class Jetpack {
 	 * @return bool is the site connection ready to be used?
 	 */
 	public static function is_connection_ready() {
+		$is_connected = false;
+
+		if ( method_exists( self::connection(), 'is_connected' ) ) {
+			$is_connected = self::connection()->is_connected();
+		} elseif ( method_exists( self::connection(), 'is_registered' ) ) {
+			$is_connected = self::connection()->is_registered();
+		}
+
 		/**
 		 * Allows filtering whether the connection is ready to be used. If true, this will enable the Jetpack UI and modules
 		 *
@@ -1745,7 +1753,7 @@ class Jetpack {
 		 * @param bool                                  $is_connection_ready Is the connection ready?
 		 * @param Automattic\Jetpack\Connection\Manager $connection_manager Instance of the Manager class, can be used to check the connection status.
 		 */
-		return apply_filters( 'jetpack_is_connection_ready', self::connection()->is_connected(), self::connection() );
+		return apply_filters( 'jetpack_is_connection_ready', $is_connected, self::connection() );
 	}
 
 	/**
@@ -2035,7 +2043,11 @@ class Jetpack {
 			$modules = array_diff( $modules, $updated_modules );
 		}
 
-		$is_site_connection = self::connection()->is_site_connection();
+		$is_site_connection = false;
+
+		if ( method_exists( self::connection(), 'is_site_connection' ) ) {
+			$is_site_connection = self::connection()->is_site_connection();
+		}
 
 		foreach ( $modules as $index => $module ) {
 			// If we're in offline/site-connection mode, disable modules requiring a connection/user connection.

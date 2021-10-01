@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Disable webpack's concatenateModules optimization, it can break WordPress's translation extraction.
