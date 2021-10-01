@@ -3351,7 +3351,7 @@ p {
 		$source_type  = 'unknown';
 		$source_query = null;
 
-		if ( ! is_array( $referer ) ) {
+		if ( ! is_array( $referer ) || ! isset( $referer['path'] ) ) {
 			return array( $source_type, $source_query );
 		}
 
