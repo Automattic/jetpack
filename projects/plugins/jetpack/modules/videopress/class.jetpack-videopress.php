@@ -79,7 +79,7 @@ class Jetpack_VideoPress {
 					wp_kses(
 						sprintf(
 							/* translators: %s is the url to the Media Library */
-							__( 'Videos added here will be uploaded directly to your server. If you want to upload for VideoPress, please add your videos from the <a href="%s">Media Library</a>', 'jetpack' ),
+							__( 'VideoPress uploads are not supported here. To upload to VideoPress, add your videos from the <a href="%s">Media Library</a>', 'jetpack' ),
 							'/wp-admin/upload.php'
 						),
 						array(
