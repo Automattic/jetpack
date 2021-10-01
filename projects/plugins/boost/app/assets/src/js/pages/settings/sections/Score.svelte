@@ -29,14 +29,12 @@
 			mobile: 0,
 			desktop: 0,
 		},
-		previous: null,
+		noBoost: null,
 	};
 	let showRatingCard = false;
 	let improvementPercentage = 0;
 
-	if ( siteIsOnline ) {
-		refreshScore( false );
-	}
+	refreshScore( false );
 
 	/**
 	 * Derived datastore which makes it easy to check if module states are currently in sync with server.
@@ -69,6 +67,10 @@
 	let currentScoreConfigString = $scoreConfigString;
 
 	async function refreshScore( force = false ) {
+		if ( ! siteIsOnline ) {
+			return;
+		}
+		
 		isLoading = true;
 		loadError = undefined;
 
@@ -173,12 +175,12 @@
 				<div>{__( 'Mobile score', 'jetpack-boost' )}</div>
 			</div>
 			<ScoreBar
-				prevScore={scores.previous?.mobile}
+				prevScore={scores.noBoost?.mobile}
 				score={scores.current.mobile}
 				active={siteIsOnline}
 				{isLoading}
 				{showPrevScores}
-				previousScoreTooltip={__( 'Your previous mobile score', 'jetpack-boost' )}
+				noBoostScoreTooltip={__( 'Your mobile score without Boost', 'jetpack-boost' )}
 			/>
 		</div>
 
@@ -188,12 +190,12 @@
 				<div>{__( 'Desktop score', 'jetpack-boost' )}</div>
 			</div>
 			<ScoreBar
-				prevScore={scores.previous?.desktop}
+				prevScore={scores.noBoost?.desktop}
 				score={scores.current.desktop}
 				active={siteIsOnline}
 				{isLoading}
 				{showPrevScores}
-				previousScoreTooltip={__( 'Your previous desktop score', 'jetpack-boost' )}
+				noBoostScoreTooltip={__( 'Your desktop score without Boost', 'jetpack-boost' )}
 			/>
 		</div>
 	</div>
