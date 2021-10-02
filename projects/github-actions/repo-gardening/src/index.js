@@ -37,7 +37,7 @@ const automations = [
 		task: ifNotClosed( addLabels ),
 	},
 	{
-		event: 'pull_request',
+		event: 'pull_request_target',
 		action: [ 'closed' ],
 		task: cleanLabels,
 	},

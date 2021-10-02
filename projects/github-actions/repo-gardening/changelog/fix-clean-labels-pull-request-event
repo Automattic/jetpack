@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Use the pull_request event for post-merge label cleaning task.
