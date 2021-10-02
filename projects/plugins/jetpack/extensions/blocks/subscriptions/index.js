@@ -76,6 +76,7 @@ export const settings = {
 						showSubscribersTotal: instance.raw.show_subscribers_total,
 						submitButtonText: instance.raw.subscribe_button,
 						subscribePlaceholder: instance.raw.subscribe_placeholder,
+						successMessage: instance.raw.success_message,
 					} );
 				},
 			},

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { ToggleControl, PanelBody, RangeControl } from '@wordpress/components';
+import { ToggleControl, PanelBody, RangeControl, TextareaControl } from '@wordpress/components';
 import {
 	ContrastChecker,
 	PanelColorSettings,
@@ -51,6 +51,7 @@ export default function SubscriptionControls( {
 	subscriberCount,
 	textColor,
 	buttonWidth,
+	successMessage,
 } ) {
 	return (
 		<>
@@ -243,6 +244,14 @@ export default function SubscriptionControls( {
 					onChange={ () => {
 						setAttributes( { buttonOnNewLine: ! buttonOnNewLine } );
 					} }
+				/>
+			</PanelBody>
+
+			<PanelBody title={ __( 'Success Message Text', 'jetpack' ) }>
+				<TextareaControl
+					value={ successMessage }
+					help="Save your custom message to display when a user subscribes to your website."
+					onChange={ newSuccessMessage => setAttributes( { successMessage: newSuccessMessage } ) }
 				/>
 			</PanelBody>
 		</>
