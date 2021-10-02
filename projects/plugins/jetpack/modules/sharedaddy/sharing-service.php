@@ -788,7 +788,9 @@ function sharing_display( $text = '', $echo = false ) {
 	$post_password = $post->post_password;
 
 	if ( '' !== $post_password ) {
-		$show = false;
+		if ( post_password_required( $post->ID ) ) {
+			$show = false;
+		}
 	}
 
 	/**
