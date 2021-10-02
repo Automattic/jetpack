@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Eventbrite Block: consider event URLs without event IDs invalid.
