@@ -4,7 +4,7 @@
 /**
  * Internal dependencies
  */
-import { generateDateRangeFilter, mergeCachedAggregations } from '../api';
+import { generateDateRangeFilter, setAggregationCountToZero } from '../api';
 
 describe( 'generateDateRangeFilter', () => {
 	test( 'generates correct ranges for yearly date ranges', () => {
@@ -24,39 +24,18 @@ describe( 'generateDateRangeFilter', () => {
 	} );
 } );
 
-describe( 'mergeCachedAggregations', () => {
-	test( 'merge new aggregations to the old one', () => {
+describe( 'setAggregationCountToZero', () => {
+	test( 'Can set doc_count of every new aggregation to 0', () => {
 		expect(
-			mergeCachedAggregations(
-				{
-					date_histogram_2: {},
-					taxonomy_0: {},
+			setAggregationCountToZero( {
+				date_histogram_2: {
+					buckets: [
+						{
+							doc_count: 10,
+						},
+					],
 				},
-				{
-					date_histogram_2: {},
-				}
-			)
-		).toEqual( {
-			// keys with same name would be overridden.
-			date_histogram_2: {},
-			// keys only from the old object is retained.
-			taxonomy_0: {},
-		} );
-	} );
-	test( 'set doc_count of every new aggregation to 0', () => {
-		expect(
-			mergeCachedAggregations(
-				{},
-				{
-					date_histogram_2: {
-						buckets: [
-							{
-								doc_count: 10,
-							},
-						],
-					},
-				}
-			)
+			} )
 		).toEqual( {
 			date_histogram_2: {
 				buckets: [
@@ -66,5 +45,10 @@ describe( 'mergeCachedAggregations', () => {
 				],
 			},
 		} );
+	} );
+
+	test( 'Can deal with in empty parameter and return an object', () => {
+		expect( setAggregationCountToZero( null ) ).toEqual( {} );
+		expect( setAggregationCountToZero( {} ) ).toEqual( {} );
 	} );
 } );

@@ -44,30 +44,25 @@ export function buildFilterAggregations( widgets = [] ) {
 }
 
 /**
- * The function only merge on the top level, it doesn't merge the buckets.
- * Tried to merge the buckets, but which would show too many filters.
+ * The function set the aggregation count to zero which is just meant for users to uncheck.
+ * Tried to merge the buckets, but which ended up showing too many filters.
  *
- * Note: The doc_count of every aggregation is always set to 0.
- *
- * @param {object} previousCachedAggregations - Cached aggregations.
- * @param {object} newAggregations - New aggregations to merge.
- * @returns {object} Merged aggregations.
+ * @param {object} newAggregations - New aggregations to operate on.
+ * @returns {object} - Aggregations with doc_count set to 0.
  */
-export function mergeCachedAggregations( previousCachedAggregations, newAggregations ) {
-	return {
-		...previousCachedAggregations,
-		...Object.fromEntries(
-			Object.entries( newAggregations )
-				.filter( ( [ , aggregation ] ) => aggregation?.buckets?.length > 0 )
-				.map( ( [ aggregationKey, aggregation ] ) => {
-					const buckets = aggregation.buckets.map( bucket => ( {
-						...bucket,
-						doc_count: 0,
-					} ) );
-					return [ aggregationKey, { ...aggregation, buckets } ];
-				} )
-		),
-	};
+export function setAggregationCountToZero( newAggregations ) {
+	newAggregations = newAggregations ?? {};
+	return Object.fromEntries(
+		Object.entries( newAggregations )
+			.filter( ( [ , aggregation ] ) => aggregation?.buckets?.length > 0 )
+			.map( ( [ aggregationKey, aggregation ] ) => {
+				const buckets = aggregation.buckets.map( bucket => ( {
+					...bucket,
+					doc_count: 0,
+				} ) );
+				return [ aggregationKey, { ...aggregation, buckets } ];
+			} )
+	);
 }
 
 /**

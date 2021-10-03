@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { mergeCachedAggregations } from '../../lib/api';
+import { setAggregationCountToZero } from '../../lib/api';
 
 let cachedAggregations = {};
 /**
@@ -83,8 +83,8 @@ export function response( state = {}, action ) {
 			// - we use the cache to show filters if there are not results
 			if ( ! action.options.pageHandle ) {
 				if ( newState.results?.length > 0 ) {
-					// cachedAggregations is used to cache the aggregations object.
-					cachedAggregations = mergeCachedAggregations( cachedAggregations, newState.aggregations );
+					// cachedAggregations is used to cache the most recent aggregations object when results is not empty.
+					cachedAggregations = setAggregationCountToZero( newState.aggregations );
 				} else {
 					// If there is no result to show, we show the cached aggregations.
 					newState.aggregations = cachedAggregations;
