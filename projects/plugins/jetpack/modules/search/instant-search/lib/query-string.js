@@ -2,13 +2,21 @@
  * External dependencies
  */
 import { encode } from 'qss';
+/*eslint lodash/import-scope: [2, "method"]*/
+import debounce from 'lodash/debounce';
 
 /**
  * Internal dependencies
  */
-import { SERVER_OBJECT_NAME, VALID_RESULT_FORMAT_KEYS } from './constants';
+import {
+	SERVER_OBJECT_NAME,
+	VALID_RESULT_FORMAT_KEYS,
+	DEBOUNCED_TIME_TO_SET_QUERY_MILLISECONDS,
+} from './constants';
 import { getFilterKeys, getStaticFilterKeys } from './filters';
 import { decode } from '../external/query-string-decode';
+
+let mostRecentQueryObject = {};
 
 /**
  * Parses the address bar's query string into an object.
@@ -21,12 +29,21 @@ export function getQuery( search = window.location.search ) {
 }
 
 /**
+ * Debounce for 1s to really change the query string.
+ */
+const debouncedSetQuery = debounce(
+	() => pushQueryString( encode( mostRecentQueryObject ) ),
+	DEBOUNCED_TIME_TO_SET_QUERY_MILLISECONDS
+);
+
+/**
  * Updates the browser's query string via a query object.
  *
  * @param {object} queryObject - a query object.
  */
 export function setQuery( queryObject ) {
-	pushQueryString( encode( queryObject ) );
+	mostRecentQueryObject = queryObject;
+	debouncedSetQuery();
 }
 
 /**
