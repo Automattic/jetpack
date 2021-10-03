@@ -16,7 +16,7 @@ import {
 import { getFilterKeys, getStaticFilterKeys } from './filters';
 import { decode } from '../external/query-string-decode';
 
-let mostRecentQueryObject = {};
+let mostRecentQueryObject = null;
 
 /**
  * Parses the address bar's query string into an object.
