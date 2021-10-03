@@ -49,6 +49,7 @@ describe( 'setAggregationCountToZero', () => {
 
 	test( 'Can deal with in empty parameter and return an object', () => {
 		expect( setAggregationCountToZero( null ) ).toEqual( {} );
+		expect( setAggregationCountToZero( undefined ) ).toEqual( {} );
 		expect( setAggregationCountToZero( {} ) ).toEqual( {} );
 	} );
 } );
