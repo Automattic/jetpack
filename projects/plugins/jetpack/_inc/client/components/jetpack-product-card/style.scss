@@ -15,11 +15,11 @@
 	border-radius: 4px;
 
 	@include breakpoint( '>660px' ) {
-		padding: 40px 48px 65px;
+		padding: 40px 48px 60px;
 	}
 
 	@include breakpoint( '>960px' ) {
-		padding-top: 65px;
+		padding-top: 60px;
 	}
 }
 
