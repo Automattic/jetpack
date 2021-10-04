@@ -433,10 +433,10 @@ class Jetpack_Stats_Upgrade_Nudges {
 	 * @return void
 	 */
 	private static function print_search() {
-		$upgrade_link = self::get_upgrade_link( 'stats-nudges-search' );
-		$learn_link   = self::get_upgrade_link( 'stats-nudges-search-learn' );
-		$text         = __( 'Help your site visitors instantly find what they\'re looking for so they read and buy more.', 'jetpack' );
-		self::print_item( __( 'Search', 'jetpack' ), $text, 'product-jetpack-search.svg', $upgrade_link, 'search', $learn_link );
+		$link       = self::get_upgrade_link( 'search' );
+		$learn_link = self::get_upgrade_link( 'stats-nudges-search-learn' );
+		$text       = __( 'Help your site visitors instantly find what they\'re looking for so they read and buy more.', 'jetpack' );
+		self::print_item( __( 'Search', 'jetpack' ), $text, 'product-jetpack-search.svg', $link, 'search', $learn_link );
 	}
 
 	/**
