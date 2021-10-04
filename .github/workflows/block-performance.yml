@@ -54,7 +54,7 @@ jobs:
         pnpm env:start
         pnpm tunnel:on
         pnpm jetpack-connect
-        jetpack docker --type e2e --name t1 wp jetpack module deactivate sso
+        pnpx jetpack docker --type e2e --name t1 wp jetpack module deactivate sso
 
     - name: Run performance test
       working-directory: gutenberg
