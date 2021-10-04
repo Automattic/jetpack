@@ -402,15 +402,16 @@ const VideoPressEdit = CoreVideoEdit =>
 				</Fragment>
 			);
 
-			const isFetching = ! isUploading && ( isFetchingMedia || isFetchingPreview );
-			const useCoreVideo = ! isUploading && ! isFetching && ( fallback || ! preview );
-			const useCoreVideoOrLoading = isUploading || isFetching || useCoreVideo;
+			const isFetchingVideo = isFetchingMedia || isFetchingPreview;
+			const displayCoreVideoBlock = ! isUploading && ! isFetchingVideo && ( fallback || ! preview );
+			const renderCoreVideoAndLoadingBlocks =
+				isUploading || isFetchingVideo || displayCoreVideoBlock;
 
-			// In order for the media placeholder to keep its state for error messages, we need to keep the CoreVideoEdit component in the tree
-			if ( useCoreVideoOrLoading ) {
+			// In order for the media placeholder to keep its state for error messages, we need to keep the CoreVideoEdit component in the tree during file uploads.
+			if ( renderCoreVideoAndLoadingBlocks ) {
 				return (
 					<Fragment>
-						<div className={ ! isUploading && ! isFetching ? 'videopress-block-hide' : '' }>
+						<div className={ ! isUploading && ! isFetchingVideo ? 'videopress-block-hide' : '' }>
 							{ blockSettings }
 							<Loading
 								text={
@@ -420,7 +421,7 @@ const VideoPressEdit = CoreVideoEdit =>
 								}
 							/>
 						</div>
-						<div className={ ! useCoreVideo ? 'videopress-block-hide' : '' }>
+						<div className={ ! displayCoreVideoBlock ? 'videopress-block-hide' : '' }>
 							<CoreVideoEdit { ...this.props } />;
 						</div>
 					</Fragment>
