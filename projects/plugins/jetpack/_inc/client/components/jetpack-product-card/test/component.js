@@ -23,15 +23,22 @@ describe( 'Jetpack Product Card', () => {
 		checkoutUrl: '#some-url',
 		currencyCode: 'USD',
 		billingDescription: 'Monthly, paid yearly',
+		features: [
+			'Feature One',
+			'Feature Two',
+			'Feature Three',
+		],
 	};
 
-	it( 'text attributes are shown', () => {
+	it( 'show introduction text', () => {
 		render( <JetpackProductCard { ...mockAttributes } /> );
 
 		expect( screen.getByRole( 'heading', { name: mockAttributes.title } ) ).to.exist;
 		expect( screen.getAllByText( mockAttributes.description ) ).to.exist;
-		expect( screen.getAllByText( mockAttributes.billingDescription ) ).to.exist;
-		expect( screen.getByRole( 'link', { name: mockAttributes.checkoutText, } ) ).to.exist;
+
+		mockAttributes.features.map( ( feature ) => {
+			expect( screen.getAllByText( feature ) ).to.exist;
+		} );
 	} );
 
 	it( 'price is shown', () => {
@@ -41,6 +48,7 @@ describe( 'Jetpack Product Card', () => {
 		expect( getNodeText( container.querySelector( '.jp-product-card__currency-symbol' ) ) ).to.be.equal( priceObject.symbol );
 		expect( getNodeText( container.querySelector( '.jp-product-card__price-integer' ) ) ).to.be.equal( priceObject.integer );
 		expect( getNodeText( container.querySelector( '.jp-product-card__price-fraction' ) ) ).to.be.equal( priceObject.fraction );
+		expect( screen.getAllByText( mockAttributes.billingDescription ) ).to.exist;
 	} );
 
 	it( 'discounted price is shown', () => {
@@ -64,21 +72,6 @@ describe( 'Jetpack Product Card', () => {
 		const ctaText = 'Buy this upgrade!';
 		render( <JetpackProductCard { ...mockAttributes } callToAction={ ctaText }/> );
 		expect( screen.getAllByText( ctaText ) ).to.exist;
-	} );
-
-	it( 'track event - jetpack_product_card_view', () => {
-		const recordEventStub = sinon.stub( analytics.tracks, 'recordEvent' );
-
-		render( <JetpackProductCard { ...mockAttributes }/> );
-
-		expect(
-			recordEventStub.withArgs(
-				'jetpack_product_card_view',
-				{ type: mockAttributes.productSlug },
-			).callCount
-		).to.be.equal( 1 );
-
-		recordEventStub.restore();
 	} );
 
 	it( 'track event - jetpack_product_card_view', () => {
