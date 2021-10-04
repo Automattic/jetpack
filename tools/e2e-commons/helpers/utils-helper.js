@@ -63,15 +63,10 @@ async function prepareUpdaterTest() {
 async function provisionJetpackStartConnection( userId, plan = 'free', user = 'wordpress' ) {
 	logger.info( `Provisioning Jetpack start connection [userId: ${ userId }, plan: ${ plan }]` );
 	const [ clientID, clientSecret ] = config.get( 'jetpackStartSecrets' );
-	console.log(
-		'PATH:: ',
-		'[../partner-provision.sh]: ',
-		path.resolve( '../partner-provision.sh' ),
-		'[__dirname ../../partner-provision.sh]: ',
-		path.resolve( __dirname, '../../partner-provision.sh' )
-	);
+
 	const cmd = `sh ${ path.resolve(
-		'../partner-provision.sh'
+		__dirname,
+		'../../partner-provision.sh'
 	) } --partner_id=${ clientID } --partner_secret=${ clientSecret } --user=${ user } --plan=${ plan } --url=${ siteUrl } --wpcom_user_id=${ userId }`;
 
 	const response = execSyncShellCommand( cmd );
