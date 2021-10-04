@@ -165,18 +165,25 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 1. Manage your Jetpack Boost settings
 
 == Changelog ==
-### 1.2.0 - 2021-08-12
+### 1.3.0-beta - 2021-10-04
+#### Security
+- Critical CSS: Add permissions checks to AJAX endpoints used when dismissing Critical CSS Recommendations.
+
 #### Added
-- Critical CSS: Added a new Advanced Critical CSS recommendations page.
+- Critical CSS: Add extra information to "fetch" errors when generating Critical CSS.
+- Critical CSS: Added explanation for mod-security HTTP 418 errors.
+- Critical CSS: Added stats tracking for generation outcomes.
+- Critical CSS: Added step-by-step instructions for Advanced Recommendations.
+- Critical CSS: More descriptive error message if critical css is failing because of x-frame-options deny config.
+- Speed Scores: Added "without Boost" speed score indicator.
 
 #### Changed
-- Critical CSS: Updated error reporting for Critical CSS to offer more users more guidance.
-- Tooling: Moved all development to the Jetpack monorepo.
-- Boost is now compatible with WordPress 5.8.
+- Critical CSS: Take port numbers into account when comparing origins for proxying.
 
 #### Fixed
-- Tooling: Fix PHP unit testing dependency on later versions of PHP.
-- Critical CSS: Ensure generator library uses cache-busting to load the latest version after updates.
+- Critical CSS: Clear generated CSS on theme change.
+- Critical CSS: Ensure generator process is resumed after module deactivated and reactivated without reload.
+- Speed Scores: Clear speed score on plugin deactivation.
 --------
 
 [See the previous changelogs here](https://github.com/Automattic/jetpack/blob/master/projects/plugins/boost/CHANGELOG.md#changelog) 
