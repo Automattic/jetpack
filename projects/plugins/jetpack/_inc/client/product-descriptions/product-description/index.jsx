@@ -70,6 +70,7 @@ const renderProduct = ( product, priority, hasRelatedPlan, arePromotionsActive )
 		<JetpackProductCard
 			icon={ icon }
 			title={ product.title }
+			productSlug={ product.slug }
 			description={ product.description }
 			features={ product.features }
 			currencyCode={ product.currencyCode }

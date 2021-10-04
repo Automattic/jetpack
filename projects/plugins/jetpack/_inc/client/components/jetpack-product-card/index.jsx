@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { getCurrencyObject } from '@automattic/format-currency';
@@ -10,6 +10,7 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 
@@ -38,6 +39,7 @@ const JetpackProductCard = props => {
 	const {
 		icon,
 		title,
+		productSlug,
 		description,
 		features,
 		currencyCode,
@@ -54,6 +56,12 @@ const JetpackProductCard = props => {
 	const discountedPrice = discount ? ( price * ( 100 - discount ) ) / 100 : false;
 	const hasMedia = !! illustrationPath;
 	const hasCta = !! callToAction;
+
+	const onClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_product_card_checkout_click', {
+			type: productSlug,
+		} );
+	}, [ productSlug ] );
 
 	const classes = classNames( {
 		'jp-product-card': true,
@@ -97,7 +105,7 @@ const JetpackProductCard = props => {
 				</div>
 				<span className="jp-product-card__price-description">{ billingDescription }</span>
 
-				<Button className={ buttonClasses } href={ checkoutUrl }>
+				<Button className={ buttonClasses } href={ checkoutUrl } onClick={ onClick }>
 					{ checkoutText }
 				</Button>
 			</div>
