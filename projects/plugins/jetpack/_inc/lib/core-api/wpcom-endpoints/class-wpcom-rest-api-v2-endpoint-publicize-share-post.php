@@ -39,7 +39,7 @@ class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_REST_Controller
 	/**
 	 * This file is synced from Jetpack to WPCOM and this method creates a slightly different route for both sites.
 	 * Jetpack route: http://{$site}/wp-json/wpcom/v2/publicize/share/{$postId}
-	 * WPCom route: https://public-api.wordpress.com/wpcom/v2/sites/{$siteId}/publicize/share/{$postId}
+	 * WPCOM route: https://public-api.wordpress.com/wpcom/v2/sites/{$siteId}/publicize/share/{$postId}
 	 */
 	public function register_routes() {
 		register_rest_route(
@@ -55,7 +55,7 @@ class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_REST_Controller
 						'type'              => 'string',
 						'required'          => true,
 						'validate_callback' => function ( $param ) {
-							return is_string( $param );
+							return is_string( $param ) && '' !== $param;
 						},
 						'sanitize_callback' => 'sanitize_textarea_field',
 					),
@@ -127,7 +127,7 @@ class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_REST_Controller
 		} else {
 			/*
 			 * Publicize endpoint on WPCOM:
-			 * [POST] wpcom/v2/sites/<site-id>/posts/<post-id>/share
+			 * [POST] wpcom/v2/sites/{$siteId}/publicize/share/{$postId}
 			 * body:
 			 *   - message: string
 			 *   - skipConnectionIds: array of connection ids to skip

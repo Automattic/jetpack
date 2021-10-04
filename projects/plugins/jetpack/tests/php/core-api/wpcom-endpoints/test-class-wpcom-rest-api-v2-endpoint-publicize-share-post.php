@@ -118,4 +118,110 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_Test_Je
 
 		$this->assertErrorResponse( 'unauthorized', $response, 401 );
 	}
+
+	/**
+	 * Test that we check for invalid parameters.
+	 *
+	 * @dataProvider rest_invalid_params
+	 *
+	 * @param string $input The test post content to parse.
+	 */
+	public function test_publicize_share_post_rest_invalid_param( $input ) {
+		wp_set_current_user( static::$user_id_subscriber );
+
+		$request = wp_rest_request( Requests::POST, '/wpcom/v2/publicize/share/' . static::$post_id );
+		$request->set_body_params( $input );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertErrorResponse( 'rest_invalid_param', $response, 400 );
+	}
+
+	/**
+	 * Test that we check for missing parameters.
+	 *
+	 * @dataProvider rest_missing_callback_params
+	 *
+	 * @param string $input The test post content to parse.
+	 */
+	public function test_publicize_share_post_rest_missing_callback_param( $input ) {
+		wp_set_current_user( static::$user_id_subscriber );
+
+		$request = wp_rest_request( Requests::POST, '/wpcom/v2/publicize/share/' . static::$post_id );
+		$request->set_body_params( $input );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertErrorResponse( 'rest_missing_callback_param', $response, 400 );
+	}
+
+	/**
+	 * Data provider for missing parameters.
+	 *
+	 * @return array[]
+	 */
+	public function rest_missing_callback_params() {
+		return array(
+			'message can not be null.'           => array(
+				array(
+					'message'           => null,
+					'skipConnectionIds' => array(),
+				),
+			),
+			'message is required.'               => array(
+				array(
+					'skipConnectionIds' => array(),
+				),
+			),
+			'skipConnectionIds can not be null.' => array(
+				array(
+					'message'           => 'string',
+					'skipConnectionIds' => null,
+				),
+			),
+			'skipConnectionIds is required.'     => array(
+				array(
+					'message' => 'string',
+				),
+			),
+		);
+	}
+
+	/**
+	 * Data provider for invalid parameters.
+	 *
+	 * @return array[]
+	 */
+	public function rest_invalid_params() {
+		return array(
+			'message can not be an int.'             => array(
+				array(
+					'message'           => 123,
+					'skipConnectionIds' => array(),
+				),
+			),
+			'message can not be an empty string.'    => array(
+				array(
+					'message'           => '',
+					'skipConnectionIds' => array(),
+				),
+			),
+			'message can not be an array.'           => array(
+				array(
+					'message'           => array(),
+					'skipConnectionIds' => array(),
+				),
+			),
+			'skipConnectionIds can not be an int.'   => array(
+				array(
+					'message'           => 'string',
+					'skipConnectionIds' => 123,
+				),
+			),
+			'skipConnectionIds can not be a string.' => array(
+				array(
+					'message'           => 'string',
+					'skipConnectionIds' => 'string',
+				),
+			),
+		);
+	}
 }
