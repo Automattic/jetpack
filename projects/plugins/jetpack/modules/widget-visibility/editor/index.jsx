@@ -250,9 +250,8 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 					...maybeAddDefaultConditions( conditions ),
 					match_all: conditions.match_all === '0' ? '1' : '0',
 				},
-			} ),
-				[ setAttributes, conditions ];
-		} );
+			} );
+		}, [ setAttributes, conditions ] );
 
 		const setAction = useCallback(
 			value =>
