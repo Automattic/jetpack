@@ -23,6 +23,20 @@ jobs:
     - name: Setup tools
       uses: ./.github/actions/tool-setup
 
+
+    - uses: actions/checkout@v2
+      with:
+        repository: 'WordPress/gutenberg'
+        path: 'gutenberg'
+
+    - name: Build Gutenberg
+      working-directory: gutenberg
+
+      run: |
+        npm ci
+        npm build
+
+
     - name: Build Production Jetpack
       run: |
         pnpm install
@@ -39,18 +53,6 @@ jobs:
         pnpm env:start
         pnpm tunnel:on
         pnpm jetpack-connect
-
-    - uses: actions/checkout@v2
-      with:
-        repository: 'WordPress/gutenberg'
-        path: 'gutenberg'
-
-    - name: Build Gutenberg
-      working-directory: gutenberg
-
-      run: |
-        npm ci
-        npm build
 
     - name: Run performance test
       working-directory: gutenberg
