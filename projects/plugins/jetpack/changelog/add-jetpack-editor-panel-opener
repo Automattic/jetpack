@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Open Jetpack plugin sidebar by default when URL includes query param.

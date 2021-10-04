@@ -895,7 +895,7 @@ class Jetpack {
 			add_action( 'init', array( 'Jetpack_Keyring_Service_Helper', 'init' ), 9, 0 );
 		}
 
-		if ( ( new Tracking( $this->connection_manager ) )->should_enable_tracking( new Terms_Of_Service(), new Status() ) ) {
+		if ( ( new Tracking( 'jetpack', $this->connection_manager ) )->should_enable_tracking( new Terms_Of_Service(), new Status() ) ) {
 			add_action( 'init', array( new Plugin_Tracking(), 'init' ) );
 		} else {
 			/**
@@ -3351,7 +3351,7 @@ p {
 		$source_type  = 'unknown';
 		$source_query = null;
 
-		if ( ! is_array( $referer ) ) {
+		if ( ! is_array( $referer ) || ! isset( $referer['path'] ) ) {
 			return array( $source_type, $source_query );
 		}
 
