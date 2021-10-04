@@ -9,14 +9,17 @@ services:
   ## We map a local directory (data/mysql) so we can have the mysql data locally
   ## and reuse it if we need to remove containers and images for rebuilding from scratch.
   db:
-    image: mysql:5.7
+    image: mariadb:latest
     volumes:
       - ./data/${COMPOSE_PROJECT_NAME}_mysql:/var/lib/mysql
       - ./logs/${COMPOSE_PROJECT_NAME}/mysql:/var/log/mysql
       - ./config/mysql.conf:/etc/mysql/conf.d/docker.cnf
+      - ./bin:/var/scripts
     env_file:
       - default.env
       - .env
+    entrypoint: [ '/bin/bash', '/var/scripts/docker-db-start-and-autoupgrade.sh' ]
+    command: [ 'mysqld' ]
 
   ## - The container wordpress is a very basic but custom container with WordPress and all of the tools we need
   ##   for development.

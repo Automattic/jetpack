@@ -149,6 +149,8 @@ export const disconnectSite = ( reloadAfter = false ) => {
 
 				if ( reloadAfter ) {
 					window.location.reload();
+				} else {
+					dispatch( fetchSiteConnectionStatus() );
 				}
 			} )
 			.catch( error => {

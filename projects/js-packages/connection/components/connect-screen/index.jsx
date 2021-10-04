@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useCallback, useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { __ } from '@wordpress/i18n';
 import { JetpackLogo, getRedirectUrl } from '@automattic/jetpack-components';
@@ -11,11 +11,8 @@ import { createInterpolateElement } from '@wordpress/element';
  * Internal dependencies
  */
 import ConnectButton from '../connect-button';
-import withConnectionStatus from '../with-connection-status';
 import ImageSlider from './image-slider';
 import './style.scss';
-
-const ConnectButtonWithConnectionStatus = withConnectionStatus( ConnectButton );
 
 /**
  * The Connection Screen component.
@@ -27,7 +24,6 @@ const ConnectButtonWithConnectionStatus = withConnectionStatus( ConnectButton );
  * @param {string} props.redirectUri -- The redirect admin URI.
  * @param {string} props.from -- Where the connection request is coming from.
  * @param {string} props.title -- Page title.
- * @param {Function} props.statusCallback -- Callback to pull connection status from the component.
  * @param {Array} props.images -- Images to display on the right side.
  * @param {string} props.assetBaseUrl -- The assets base URL.
  * @param {boolean} props.autoTrigger -- Whether to initiate the connection process automatically upon rendering the component.
@@ -42,27 +38,14 @@ const ConnectScreen = props => {
 		registrationNonce,
 		from,
 		redirectUri,
-		statusCallback,
 		images,
 		children,
 		assetBaseUrl,
 		autoTrigger,
+		connectionStatus,
 	} = props;
 
 	const showImageSlider = images.length;
-
-	const [ connectionStatus, setConnectionStatus ] = useState( {} );
-
-	const statusHandler = useCallback(
-		status => {
-			setConnectionStatus( status );
-
-			if ( statusCallback && {}.toString.call( statusCallback ) === '[object Function]' ) {
-				return statusCallback( status );
-			}
-		},
-		[ statusCallback, setConnectionStatus ]
-	);
 
 	return (
 		<div
@@ -79,13 +62,13 @@ const ConnectScreen = props => {
 
 				{ children }
 
-				<ConnectButtonWithConnectionStatus
+				<ConnectButton
 					apiRoot={ apiRoot }
 					apiNonce={ apiNonce }
 					registrationNonce={ registrationNonce }
 					from={ from }
 					redirectUri={ redirectUri }
-					statusCallback={ statusHandler }
+					connectionStatus={ connectionStatus }
 					connectLabel={ buttonLabel }
 					autoTrigger={ autoTrigger }
 				/>
@@ -136,10 +119,10 @@ ConnectScreen.propTypes = {
 	from: PropTypes.string,
 	redirectUri: PropTypes.string.isRequired,
 	registrationNonce: PropTypes.string.isRequired,
-	statusCallback: PropTypes.func,
 	images: PropTypes.arrayOf( PropTypes.string ),
 	assetBaseUrl: PropTypes.string,
 	autoTrigger: PropTypes.bool,
+	connectionStatus: PropTypes.object.isRequired,
 };
 
 ConnectScreen.defaultProps = {
