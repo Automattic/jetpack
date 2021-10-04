@@ -138,6 +138,7 @@ JetpackProductCard.propTypes = {
 	price: PropTypes.number.isRequired,
 	currencyCode: PropTypes.string.isRequired,
 	billingDescription: PropTypes.string.isRequired,
+	productSlug: PropTypes.string.isRequired,
 	description: PropTypes.string,
 	features: PropTypes.array,
 	discount: PropTypes.number,
