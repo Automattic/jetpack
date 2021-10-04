@@ -32,11 +32,9 @@ jobs:
 
     - name: Build Gutenberg
       working-directory: gutenberg
-
       run: |
-        npm install
-        npm build
-
+        npm ci
+        npm run build
 
     - name: Build Production Jetpack
       run: |
