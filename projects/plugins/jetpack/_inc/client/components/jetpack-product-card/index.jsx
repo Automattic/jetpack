@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { getCurrencyObject } from '@automattic/format-currency';
@@ -56,6 +56,12 @@ const JetpackProductCard = props => {
 	const discountedPrice = discount ? ( price * ( 100 - discount ) ) / 100 : false;
 	const hasMedia = !! illustrationPath;
 	const hasCta = !! callToAction;
+
+	useEffect( () => {
+		analytics.tracks.recordEvent( 'jetpack_product_card_view', {
+			type: productSlug,
+		} );
+	}, [ productSlug ] );
 
 	const onClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_product_card_checkout_click', {
