@@ -130,10 +130,6 @@ const blockAttributes = {
 			},
 		},
 	},
-	hideImageCaption: {
-		type: 'boolean',
-		default: true,
-	},
 	imageCrop: {
 		type: 'boolean',
 		default: true,
@@ -302,7 +298,6 @@ export const settings = {
 	save,
 	providesContext: {
 		imageCrop: 'imageCrop',
-		hideImageCaption: 'hideImageCaption',
 	},
 	deprecated,
 	example: {
