@@ -426,7 +426,7 @@ class Test_Identity_Crisis extends BaseTestCase {
 	 */
 	public function data_provider_test_check_response_for_idc_with_error_code() {
 		return array(
-			'input is non-matching error code'      => array(
+			'input has non-matching error code'     => array(
 				'input'          => array(
 					'error_code'      => 'not an idc error code',
 					'request_siteurl' => 'example.org/',
@@ -451,7 +451,7 @@ class Test_Identity_Crisis extends BaseTestCase {
 					'error_code'      => 'jetpack_home_url_mismatch',
 					'request_siteurl' => 'example.org/',
 					'request_home'    => 'example.org/',
-					'wpcom_siteurl'   => 'example.com/',
+					'wpcom_siteurl'   => 'example.org/',
 					'wpcom_home'      => 'example.com/',
 				),
 				'option_updated' => true,
@@ -462,9 +462,109 @@ class Test_Identity_Crisis extends BaseTestCase {
 					'request_siteurl' => 'example.org/',
 					'request_home'    => 'example.org/',
 					'wpcom_siteurl'   => 'example.com/',
-					'wpcom_home'      => 'example.com/',
+					'wpcom_home'      => 'example.org/',
 				),
 				'option_updated' => true,
+			),
+		);
+	}
+
+	/**
+	 * Test the check_http_response_for_idc_detected method with invalid inputs. These inputs should
+	 * cause the method to return false.
+	 *
+	 * @param mixed $input The input value.
+	 *
+	 * @dataProvider data_provider_test_check_http_response_for_idc_detected_invalid_input
+	 */
+	public function test_check_http_response_for_idc_detected_invalid_input( $input ) {
+		$this->assertFalse( Identity_Crisis::init()->check_http_response_for_idc_detected( $input ) );
+	}
+
+	/**
+	 * Data provider for test_check_http_response_for_idc_detected_invalid_input
+	 *
+	 * @return array The test data.
+	 */
+	public function data_provider_test_check_http_response_for_idc_detected_invalid_input() {
+		$no_idc_detected_body = wp_json_encode(
+			array(
+				'test1' => 'test 1',
+				'test2' => 'test 2',
+			)
+		);
+
+		return array(
+			'input is null'                       => array(
+				null,
+			),
+			'input is string'                     => array(
+				'test',
+			),
+			'input is array, no idc_detected key' => array(
+				array(
+					'body' => $no_idc_detected_body,
+				),
+			),
+		);
+	}
+
+	/**
+	 * Test the check_http_response_for_idc_detected method with an inputs that contains the idc_detected key.
+	 *
+	 * @param mixed $input         The input to the check_response_for_idc method.
+	 *
+	 * @dataProvider data_provider_test_check_http_response_for_idc_detected_idc_detected
+	 */
+	public function test_check_http_response_for_idc_detected_idc_detected( $input ) {
+		$this->assertTrue( Identity_Crisis::init()->check_http_response_for_idc_detected( $input ) );
+	}
+
+	/**
+	 * Data provider for test_check_http_response_for_idc_detected_idc_detected
+	 *
+	 * @return The test data with the structure:
+	 *    'input'           => The input for the check_response_for_idc method.
+	 *     'option_updated' => Whether the check_response_for_idc method should update
+	 *                         the sync_error_idc option.
+	 */
+	public function data_provider_test_check_http_response_for_idc_detected_idc_detected() {
+		$nonmatching_error_code_body = wp_json_encode(
+			array(
+				'idc_detected' => array(
+					'error_code'      => 'not an idc error code',
+					'request_siteurl' => 'example.org/',
+					'request_home'    => 'example.org/',
+					'wpcom_siteurl'   => 'example.com/',
+					'wpcom_home'      => 'example.com/',
+				),
+				'test'         => 'test value',
+			)
+		);
+
+		$matching_error_code_body = wp_json_encode(
+			array(
+				'idc_detected' => array(
+					'error_code'      => 'jetpack_url_mismatch',
+					'request_siteurl' => 'example.org/',
+					'request_home'    => 'example.org/',
+					'wpcom_siteurl'   => 'example.com/',
+					'wpcom_home'      => 'example.com/',
+				),
+				'test'         => 'test value',
+			)
+		);
+
+		return array(
+			'input has non-matching error code' => array(
+				array(
+					'body' => $nonmatching_error_code_body,
+				),
+			),
+			'input has url mismatch error code' => array(
+				array(
+					'body' => $matching_error_code_body,
+				),
 			),
 		);
 	}
