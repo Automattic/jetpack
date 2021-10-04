@@ -78,7 +78,6 @@ export default function AppWrapper() {
 			/* translators: accessibility text for the widgets screen content landmark region. */
 			aria-label={ __( 'Jetpack Search customization preview', 'jetpack' ) }
 			className="jp-search-configure-app-wrapper"
-			// className="interface-interface-skeleton__content"
 			role="region"
 			tabIndex="-1"
 		>
