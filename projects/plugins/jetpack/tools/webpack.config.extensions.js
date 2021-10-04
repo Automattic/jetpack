@@ -167,6 +167,11 @@ overrideCalypsoBuildFileConfig( componentsWebpackConfig );
 module.exports = [
 	{
 		...extensionsWebpackConfig,
+		optimization: {
+			...extensionsWebpackConfig.optimization,
+			// This optimization sometimes causes webpack to drop `__()` and such.
+			concatenateModules: false,
+		},
 		resolve: {
 			...extensionsWebpackConfig.resolve,
 			// We want the compiled version, not the "calypso:src" sources.
@@ -189,6 +194,11 @@ module.exports = [
 	},
 	{
 		...componentsWebpackConfig,
+		optimization: {
+			...extensionsWebpackConfig.optimization,
+			// This optimization sometimes causes webpack to drop `__()` and such.
+			concatenateModules: false,
+		},
 		resolve: {
 			...componentsWebpackConfig.resolve,
 			// We want the compiled version, not the "calypso:src" sources.

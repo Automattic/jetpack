@@ -1,0 +1,4 @@
+node_modules/
+/config/local-*
+/config/tmp/*
+/output

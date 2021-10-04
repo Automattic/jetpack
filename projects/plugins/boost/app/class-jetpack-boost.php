@@ -220,7 +220,7 @@ class Jetpack_Boost {
 
 		foreach ( self::MODULES as $module_slug => $module_class ) {
 			// Don't register modules that have been forcibly disabled from the url 'jb-disable-modules' query string parameter.
-			if ( in_array( $module_slug, $forced_disabled_modules, true ) ) {
+			if ( in_array( $module_slug, $forced_disabled_modules, true ) || in_array( 'all', $forced_disabled_modules, true ) ) {
 				continue;
 			}
 
