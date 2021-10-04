@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-Add new publicize checkbox component that includes service avatar, username, and icon.
+Add the user's profile picture and new styling to the Publicize toggle.
