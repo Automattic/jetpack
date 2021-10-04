@@ -7399,7 +7399,7 @@ endif;
 	public static function get_products_for_purchase() {
 		$products = array();
 
-		$products['backups'] = array(
+		$products['backup'] = array(
 			'title'             => __( 'Jetpack Backup', 'jetpack' ),
 			'slug'              => 'jetpack_backup_daily',
 			'description'       => __( 'Never lose a word, image, page, or time worrying about your site with automated backups & one-click restores.', 'jetpack' ),

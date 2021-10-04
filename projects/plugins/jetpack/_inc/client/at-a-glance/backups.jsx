@@ -292,7 +292,7 @@ export default connect(
 			isOfflineMode: isOfflineMode( state ),
 			isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
 			showBackups: showBackups( state ),
-			upgradeUrl: getProductDescriptionUrl( state, 'backups' ),
+			upgradeUrl: getProductDescriptionUrl( state, 'backup' ),
 			hasConnectedOwner: hasConnectedOwner( state ),
 		};
 	},

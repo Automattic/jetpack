@@ -63,7 +63,10 @@ const renderProduct = ( product, priority, hasRelatedPlan, arePromotionsActive )
 			break;
 		case 'jetpack_security_daily':
 			icon = bundleIcon;
-			cta = __( 'Popular upgrade', 'jetpack' );
+
+			if ( 'secondary' === priority ) {
+				cta = __( 'Popular upgrade', 'jetpack' );
+			}
 			break;
 	}
 
