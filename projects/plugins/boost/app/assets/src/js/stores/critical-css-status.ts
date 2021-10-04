@@ -48,6 +48,8 @@ export interface CriticalCssStatus {
 	// eslint-disable-next-line camelcase
 	success_count?: number;
 	created?: number;
+	// eslint-disable-next-line camelcase
+	percent_complete?: number;
 	viewports?: Viewport[];
 }
 
