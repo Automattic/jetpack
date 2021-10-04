@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
@@ -11,6 +11,7 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
 import JetpackProductCard from 'components/jetpack-product-card';
 import { MoneyBackGuarantee } from 'components/money-back-guarantee';
 import { getProductsForPurchase } from 'state/initial-state';
@@ -94,6 +95,12 @@ const ProductDescription = props => {
 	const { arePromotionsActive, availableProductsAndPlans, product } = props;
 
 	const relatedPlan = getRelatedProductPlan( product, availableProductsAndPlans );
+
+	useEffect( () => {
+		analytics.tracks.recordEvent( 'jetpack_product_description_view', {
+			type: product.slug,
+		} );
+	}, [ product ] );
 
 	const classes = classNames( {
 		'jp-product-description': true,
