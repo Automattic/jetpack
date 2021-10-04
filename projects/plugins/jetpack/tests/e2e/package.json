@@ -33,20 +33,19 @@
 		"preinstall": "pnpm --prefix ../../../../../tools/e2e-commons install"
 	},
 	"devDependencies": {
-		"@babel/core": "7.15.5",
-		"@babel/preset-env": "7.15.6",
-		"@wordpress/eslint-plugin": "9.1.2",
-		"babel-jest": "27.2.4",
-		"config": "3.3.6",
-		"eslint": "7.32.0",
-		"eslint-plugin-jest": "24.5.0",
-		"jest": "27.2.4",
-		"jest-circus": "27.2.4",
-		"jest-junit": "12.3.0",
-		"jest-runner-groups": "2.1.0",
-		"jetpack-cli": "link:../../../../../tools/cli",
+		"@babel/core": "^7.15.5",
+		"@babel/preset-env": "^7.15.6",
+		"@wordpress/eslint-plugin": "^9.1.2",
+		"babel-jest": "^27.2.4",
+		"config": "^3.3.6",
+		"eslint": "^7.32.0",
+		"eslint-plugin-jest": "^24.5.2",
+		"jest": "^27.2.4",
+		"jest-junit": "^12.3.0",
+		"jest-runner-groups": "^2.1.0",
+		"jetpack-cli": "../../../../../tools/cli",
 		"jetpack-e2e-commons": "link:../../../../../tools/e2e-commons",
-		"pm2": "5.1.2"
+		"pm2": "^5.1.2"
 	},
 	"engines": {
 		"node": "^14.17.6 || ^16.7.0",

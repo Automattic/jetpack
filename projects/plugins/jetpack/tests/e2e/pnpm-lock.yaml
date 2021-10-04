@@ -4,20 +4,19 @@ importers:
 
   .:
     specifiers:
-      '@babel/core': 7.15.5
-      '@babel/preset-env': 7.15.6
-      '@wordpress/eslint-plugin': 9.1.2
-      babel-jest: 27.2.4
-      config: 3.3.6
-      eslint: 7.32.0
-      eslint-plugin-jest: 24.5.0
-      jest: 27.2.4
-      jest-circus: 27.2.4
-      jest-junit: 12.3.0
-      jest-runner-groups: 2.1.0
-      jetpack-cli: link:../../../../../tools/cli
+      '@babel/core': ^7.15.5
+      '@babel/preset-env': ^7.15.6
+      '@wordpress/eslint-plugin': ^9.1.2
+      babel-jest: ^27.2.4
+      config: ^3.3.6
+      eslint: ^7.32.0
+      eslint-plugin-jest: ^24.5.2
+      jest: ^27.2.4
+      jest-junit: ^12.3.0
+      jest-runner-groups: ^2.1.0
+      jetpack-cli: ../../../../../tools/cli
       jetpack-e2e-commons: link:../../../../../tools/e2e-commons
-      pm2: 5.1.2
+      pm2: ^5.1.2
     devDependencies:
       '@babel/core': 7.15.5
       '@babel/preset-env': 7.15.6_@babel+core@7.15.5
@@ -25,9 +24,8 @@ importers:
       babel-jest: 27.2.4_@babel+core@7.15.5
       config: 3.3.6
       eslint: 7.32.0
-      eslint-plugin-jest: 24.5.0_eslint@7.32.0
+      eslint-plugin-jest: 24.5.2_eslint@7.32.0
       jest: 27.2.4
-      jest-circus: 27.2.4
       jest-junit: 12.3.0
       jest-runner-groups: 2.1.0
       jetpack-cli: link:../../../../../tools/cli
@@ -2747,8 +2745,8 @@ packages:
       - typescript
     dev: true
 
-  /eslint-plugin-jest/24.5.0_eslint@7.32.0:
-    resolution: {integrity: sha512-Cm+XdX7Nms2UXGRnivHFVcM3ZmlKheHvc9VD78iZLO1XcqB59WbVjrMSiesCbHDlToxWjMJDiJMgc1CzFE13Vg==}
+  /eslint-plugin-jest/24.5.2_eslint@7.32.0:
+    resolution: {integrity: sha512-lrI3sGAyZi513RRmP08sIW241Ti/zMnn/6wbE4ZBhb3M2pJ9ztaZMnSKSKKBUfotVdwqU8W1KtD8ao2/FR8DIg==}
     engines: {node: '>=10'}
     peerDependencies:
       '@typescript-eslint/eslint-plugin': '>= 4'
