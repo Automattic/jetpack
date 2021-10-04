@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.4] - 2021-09-28
+### Changed
+- Updated package dependencies.
+
 ## [1.4.3] - 2021-08-31
 ### Changed
 - Run composer update on test-php command instead of phpunit.
@@ -62,6 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Moving jetpack_is_mobile into a package
 
+[1.4.4]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.3...v1.4.4
 [1.4.3]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.2...v1.4.3
 [1.4.2]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.0...v1.4.1

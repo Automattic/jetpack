@@ -6,8 +6,11 @@ class SalPostsTest extends WP_UnitTestCase {
 	static $token;
 	static $site;
 
-	static function setUpBeforeClass() {
-		parent::setUpBeforeClass();
+	/**
+	 * Set up before class.
+	 */
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
 
 		self::$token = (object) array(
 			'blog_id'          => get_current_blog_id(),
