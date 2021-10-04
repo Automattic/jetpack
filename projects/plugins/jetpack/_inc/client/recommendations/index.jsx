@@ -4,6 +4,7 @@
 import React from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -70,7 +71,7 @@ const RecommendationsComponent = props => {
 			<QuerySitePlugins />
 			{ isLoading ? (
 				<div className="jp-recommendations__loading">
-					<JetpackLoadingIcon />
+					<JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />
 				</div>
 			) : (
 				<Switch>

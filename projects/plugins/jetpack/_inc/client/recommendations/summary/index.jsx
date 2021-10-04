@@ -58,7 +58,7 @@ const SummaryComponent = props => {
 	}, [ updateRecommendationsStep ] );
 
 	const mainContent = isFetchingMainData ? (
-		<JetpackLoadingIcon />
+		<JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />
 	) : (
 		<>
 			<div className="jp-recommendations-summary__configuration">
@@ -130,11 +130,11 @@ const SummaryComponent = props => {
 
 	let sidebarCard;
 	if ( isFetchingSidebarData ) {
-		sidebarCard = <JetpackLoadingIcon />;
+		sidebarCard = <JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />;
 	} else {
 		switch ( sidebarCardSlug ) {
 			case 'loading':
-				sidebarCard = <JetpackLoadingIcon />;
+				sidebarCard = <JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />;
 				break;
 			case 'upsell':
 				sidebarCard = upsell.hide_upsell ? (

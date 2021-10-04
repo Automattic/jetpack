@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * Internal dependencies
@@ -13,10 +14,20 @@ import { imagePath } from 'constants/urls';
  */
 import './style.scss';
 
-export const JetpackLoadingIcon = () => {
+const JetpackLoadingIcon = ( { altText } ) => {
 	return (
 		<div className="jp-loading-icon">
-			<img src={ imagePath + '/jetpack-logomark-blue.svg' } alt="Loading..." />
+			<img src={ imagePath + '/jetpack-logomark-blue.svg' } alt={ altText } />
 		</div>
 	);
 };
+
+JetpackLoadingIcon.propTypes = {
+	altText: PropTypes.string,
+};
+
+JetpackLoadingIcon.defaultProps = {
+	altText: 'Loading...',
+};
+
+export { JetpackLoadingIcon };
