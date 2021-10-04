@@ -11,7 +11,11 @@
 	@include break-small() {
 		margin-right: $grid-unit-10;
 	}
-	@include break-medium() {
-		display: none;
+
+	// Only hide the save button when being shown in sidebar in mobile breakpoints.
+	.jp-search-configure-sidebar & {
+		@include break-medium() {
+			display: none;
+		}
 	}
 }
