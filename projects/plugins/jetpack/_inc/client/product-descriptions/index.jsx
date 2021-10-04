@@ -40,7 +40,7 @@ const ProductDescriptions = props => {
 			}
 
 			routes.push(
-				<Route path={ `/product/${ key }` }>
+				<Route key={ key } path={ `/product/${ key }` }>
 					<ProductDescription product={ product } arePromotionsActive={ arePromotionsActive } />
 				</Route>
 			);
