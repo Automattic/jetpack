@@ -72,7 +72,7 @@ export async function refreshConnectionTestResults( { connections: prevConnectio
 		// Update post metadata.
 		return dispatch( editorStore ).editPost( { jetpack_publicize_connections: connections } );
 	} catch ( error ) {
-		// console.error( error );
+		// Refreshing connections failed
 	}
 }
 
