@@ -328,6 +328,11 @@ class Jetpack_VideoPress {
 		return $this->is_videopress_enabled();
 	}
 
+	/**
+	 * Detects if VideoPress is enabled.
+	 *
+	 * @return bool
+	 */
 	protected function is_videopress_enabled() {
 		$options = VideoPress_Options::get_options();
 
