@@ -26,6 +26,7 @@ import {
 	reconnectSite,
 	getConnectUrl,
 	getConnectingUserFeatureLabel,
+	getConnectionStatus,
 } from 'state/connection';
 import {
 	setInitialState,
@@ -156,6 +157,8 @@ class Main extends React.Component {
 		}
 
 		return (
+			JSON.stringify( nextProps.connectionStatus ) !==
+				JSON.stringify( this.props.connectionStatus ) ||
 			nextProps.siteConnectionStatus !== this.props.siteConnectionStatus ||
 			nextProps.isLinked !== this.props.isLinked ||
 			nextProps.isConnectingUser !== this.props.isConnectingUser ||
@@ -209,6 +212,7 @@ class Main extends React.Component {
 					assetBaseUrl={ this.props.pluginBaseUrl }
 					autoTrigger={ this.shouldAutoTriggerConnection() }
 					redirectUri="admin.php?page=jetpack"
+					connectionStatus={ this.props.connectionStatus }
 				>
 					<p>
 						{ __(
@@ -247,6 +251,7 @@ class Main extends React.Component {
 					}
 					buttonLabel={ __( 'Connect your user account', 'jetpack' ) }
 					redirectUri="admin.php?page=jetpack"
+					connectionStatus={ this.props.connectionStatus }
 				>
 					<ul>
 						<li>{ __( 'Receive instant downtime alerts', 'jetpack' ) }</li>
@@ -512,6 +517,7 @@ class Main extends React.Component {
 export default connect(
 	state => {
 		return {
+			connectionStatus: getConnectionStatus( state ),
 			siteConnectionStatus: getSiteConnectionStatus( state ),
 			isLinked: isCurrentUserLinked( state ),
 			isConnectingUser: isConnectingUser( state ),
