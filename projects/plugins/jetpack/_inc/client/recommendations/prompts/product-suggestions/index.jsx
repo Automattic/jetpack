@@ -54,7 +54,7 @@ const ProductSuggestionsComponent = props => {
 	// This should only happen if the "step" is accessed directly and not
 	// as part of the initial flow where the user selects the site type.
 	if ( isFetchingSuggestions ) {
-		return <JetpackLoadingIcon />;
+		return <JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />;
 	}
 
 	// Redirect the user to the next step if they are not eligible for the product

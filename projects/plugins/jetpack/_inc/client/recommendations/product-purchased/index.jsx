@@ -82,7 +82,7 @@ const ProductPurchasedComponent = props => {
 	}, [ suggestion ] );
 
 	if ( ! suggestion ) {
-		return <JetpackLoadingIcon />;
+		return <JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />;
 	}
 
 	const answerSection = (
