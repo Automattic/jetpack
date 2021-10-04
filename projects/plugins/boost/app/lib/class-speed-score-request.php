@@ -189,6 +189,13 @@ class Speed_Score_Request extends Cacheable {
 
 		switch ( $response->status ) {
 			case 'pending':
+				// The initial job probalby failed, dispatch again if so.
+				if ( $this->created <= strtotime( '-15 mins' ) ) {
+					$this->execute();
+					$this->created = time();
+					$this->store();
+				}
+
 				break;
 
 			case 'error':
