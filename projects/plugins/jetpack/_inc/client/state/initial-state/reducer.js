@@ -469,7 +469,9 @@ export function getProductsForPurchase( state ) {
 			promotionPercentage: product.discount_percent,
 			includedInPlans: product.included_in_plans,
 			fullPrice: get( siteProducts, [ product.slug, 'cost' ], '' ),
-			upgradeUrl: getUpgradeUrl( state, `aag-${ key }` ),
+			upgradeUrl: getRedirectUrl( 'jetpack-product-description-checkout', {
+				path: product.slug,
+			} ),
 		};
 	}
 
