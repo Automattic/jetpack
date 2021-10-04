@@ -9,7 +9,7 @@
  *     id:              (string)  Connection unique_id
  *     service_name:    (string)  Service slug
  *     display_name:    (string)  User name/display name of user/connection on Service
- * 	   profile_picture: (string) Profile picture of user/connection on Service
+ *     profile_picture: (string) Profile picture of user/connection on Service
  *     enabled:         (boolean) Is this connection slated to be shared to? context=edit only
  *     done:            (boolean) Is this post (or connection) done sharing? context=edit only
  *     toggleable:      (boolean) Can the current user change the `enabled` setting for this Connection+Post? context=edit only
@@ -72,19 +72,19 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 			'title'      => 'jetpack-publicize-post-connection',
 			'type'       => 'object',
 			'properties' => array(
-				'id'           => array(
+				'id'              => array(
 					'description' => __( 'Unique identifier for the Publicize Connection', 'jetpack' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
-				'service_name' => array(
+				'service_name'    => array(
 					'description' => __( 'Alphanumeric identifier for the Publicize Service', 'jetpack' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
-				'display_name' => array(
+				'display_name'    => array(
 					'description' => __( 'Username of the connected account', 'jetpack' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
@@ -96,18 +96,18 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
-				'enabled'      => array(
+				'enabled'         => array(
 					'description' => __( 'Whether to share to this connection', 'jetpack' ),
 					'type'        => 'boolean',
 					'context'     => array( 'edit' ),
 				),
-				'done'         => array(
+				'done'            => array(
 					'description' => __( 'Whether Publicize has already finished sharing for this post', 'jetpack' ),
 					'type'        => 'boolean',
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
 				),
-				'toggleable'   => array(
+				'toggleable'      => array(
 					'description' => __( 'Whether `enable` can be changed for this post/connection', 'jetpack' ),
 					'type'        => 'boolean',
 					'context'     => array( 'edit' ),
