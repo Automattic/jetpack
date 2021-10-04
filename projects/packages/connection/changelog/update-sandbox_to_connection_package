@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Sandbox Server: add the sandbox-server class to the connection package.
