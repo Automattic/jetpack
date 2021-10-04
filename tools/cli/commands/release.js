@@ -118,7 +118,7 @@ export async function scriptRouter( argv ) {
 		case 'release-branch':
 		case 'append':
 			console.log( `${ argv.script } is not implemented yet!` );
-			process.exit();
+			process.exit( 1 );
 			break;
 	}
 }
