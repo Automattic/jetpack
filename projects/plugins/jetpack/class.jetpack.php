@@ -7428,7 +7428,7 @@ endif;
 		);
 
 		$products['search'] = array(
-			'title'             => __( 'Jetpack Search', 'jetpack' ),
+			'title'             => __( 'Jetpack Site Search', 'jetpack' ),
 			'slug'              => 'jetpack_search',
 			'description'       => __( 'Help your site visitors find answers instantly so they keep reading and buying. Great for sites with a lot of content.', 'jetpack' ),
 			'show_promotion'    => true,
