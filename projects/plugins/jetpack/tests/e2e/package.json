@@ -43,7 +43,7 @@
 		"jest": "^27.2.4",
 		"jest-junit": "^12.3.0",
 		"jest-runner-groups": "^2.1.0",
-		"jetpack-cli": "../../../../../tools/cli",
+		"jetpack-cli": "link:../../../../../tools/cli",
 		"jetpack-e2e-commons": "link:../../../../../tools/e2e-commons",
 		"pm2": "^5.1.2"
 	},

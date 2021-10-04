@@ -29,9 +29,9 @@
 		"config": "^3.3.6",
 		"eslint": "^7.32.0",
 		"eslint-plugin-jest": "^24.5.2",
-		"jetpack-cli": "../cli",
 		"jest": "^27.2.4",
 		"jest-circus-allure-environment": "1.1.0",
+		"jetpack-cli": "link:../cli",
 		"localtunnel": "^2.0.2",
 		"lodash": "^4.17.21",
 		"mkdirp": "^1.0.4",
@@ -41,7 +41,7 @@
 		"shell-escape": "^0.2.0",
 		"winston": "^3.3.3",
 		"wpapi": "^1.2.2",
-		"yargs": "16.2.0"
+		"yargs": "^17.2.1"
 	},
 	"engines": {
 		"node": "^14.17.6 || ^16.7.0",
