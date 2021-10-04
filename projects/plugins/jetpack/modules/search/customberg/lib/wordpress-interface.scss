@@ -166,35 +166,6 @@ html.interface-interface-skeleton__html-container {
 
 @include editor-left( '.interface-interface-skeleton' );
 
-.interface-interface-skeleton__body {
-	flex-grow: 1;
-	display: flex;
-
-	// Even on Mobile, we choose to scroll this element on its own.
-	// This helps enable a fixed-to-top toolbar that makes the editing experience
-	// on Mobile Safari usable.
-	// Unfortunately an issue still exists where if you swipe the top toolbar
-	// or beyond the bottom of the page when the soft keyboard is showing, you scroll
-	// the body element and can scroll the toolbar out of view.
-	// This is still preferable, though, as it allows the editor to function at all.
-	overflow: auto;
-
-	// In future versions of Mobile Safari, hopefully overscroll-behavior will be supported.
-	// This allows us to disallow the scroll-chaining and rubber-banding that is currently
-	// is the cause of the issue outlined above.
-	// In other words, the following behavior doesn't yet work in Safari, but if/when
-	// it is added, it should take care of the issue.
-	// See also: https://drafts.csswg.org/css-overscroll/
-	overscroll-behavior-y: none;
-
-	// Footer overlap prevention
-	.has-footer & {
-		@include break-medium() {
-			padding-bottom: $button-size-small + $border-width;
-		}
-	}
-}
-
 .interface-interface-skeleton__secondary-sidebar,
 .interface-interface-skeleton__sidebar {
 	display: block;

@@ -32,7 +32,7 @@ export default function Interface( props ) {
 				>
 					<Header enableSidebar={ enableSidebar } />
 				</div>
-				<div className="interface-interface-skeleton__body">
+				<div className="jp-search-configure-layout__body">
 					<AppWrapper />
 					{ /* Ensure sidebar is enabled before rendering. */ }
 					{ !! enabledSidebarName && (
