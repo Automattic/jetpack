@@ -18,7 +18,7 @@ import { includes } from 'lodash';
  * Internal dependencies
  */
 import getSiteFragment from '../../../../shared/get-site-fragment';
-import PublicizeCheckbox from '../publicize-checkbox';
+import ConnectionToggle from '../connection-toggle';
 
 class PublicizeConnection extends Component {
 	/**
@@ -66,10 +66,10 @@ class PublicizeConnection extends Component {
 		// Genericon names are dash separated
 		const serviceName = name.replace( '_', '-' );
 
-		let checkbox = (
-			<PublicizeCheckbox
+		let toggle = (
+			<ConnectionToggle
 				id={ fieldId }
-				className="jetpack-publicize-connection-checkbox"
+				className="jetpack-publicize-connection-toggle"
 				checked={ enabled }
 				onChange={ this.onConnectionChange }
 				serviceName={ serviceName }
@@ -79,13 +79,13 @@ class PublicizeConnection extends Component {
 		);
 
 		if ( disabled || this.connectionIsFailing() || this.connectionNeedsReauth() ) {
-			checkbox = <Disabled>{ checkbox }</Disabled>;
+			toggle = <Disabled>{ toggle }</Disabled>;
 		}
 
 		return (
 			<li>
 				{ this.maybeDisplayLinkedInNotice() }
-				<div className="publicize-jetpack-connection-container">{ checkbox }</div>
+				<div className="publicize-jetpack-connection-container">{ toggle }</div>
 			</li>
 		);
 	}
