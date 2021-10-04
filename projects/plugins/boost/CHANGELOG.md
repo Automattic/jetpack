@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Critical CSS: Clear generated CSS on theme change.
 - Critical CSS: Ensure generator process is resumed after module deactivated and reactivated without reload.
-- Speed Scores: Clear speed score on plugin deactivation.
+- Speed Scores: Clear speed score on plugin deactivation and uninstallation.
 
 ## [1.2.0] - 2021-08-12
 ### Added
