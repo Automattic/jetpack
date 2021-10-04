@@ -17,7 +17,7 @@
 		"config:decrypt": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -d -in ./config/encrypted.enc -out ./config/local-test.js",
 		"config:encrypt": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in ./config/local-test.js -out ./config/encrypted.enc",
 		"preinstall": "pnpm --prefix ../cli install",
-		"jetpack-connect": "NODE_ENV=test NODE_CONFIG_DIR=../../projects/plugins/jetpack/tests/e2e/config pnpm exec babel-node bin/e2e-jetpack-connector.js"
+		"jetpack-connect": "NODE_ENV=test pnpm exec babel-node bin/e2e-jetpack-connector.js"
 	},
 	"devDependencies": {
 		"@babel/core": "7.13.16",
