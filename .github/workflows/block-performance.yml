@@ -1,0 +1,102 @@
+name: Jetpack block performance
+
+on:
+  pull_request:
+    paths-ignore:
+    - '**.md'
+  push:
+    branches: [master]
+    paths-ignore:
+    - '**.md'
+  schedule:
+    - cron:  '0 */12 * * *'
+
+jobs:
+  block-performance:
+    name: "Performance tests"
+    runs-on: ubuntu-latest
+    timeout-minutes: 25  # 2021-04-16: Successful runs seem to take 11-17 minutes
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup tools
+      uses: ./.github/actions/tool-setup
+
+    - name: Build Production Jetpack
+      run: |
+        pnpm install
+        pnpx jetpack build plugins/jetpack -v --production
+
+    - name: Environment set-up
+      working-directory: tools/e2e-commons
+      env:
+        CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
+      run: |
+        pnpm install
+        pnpm config:decrypt
+        echo "    gutenberg/packages/e2e-tests/plugins/disable-animations.php: /var/www/html/wp-content/plugins/disable-animations.php" >> ../docker/jetpack-docker-config-default.yml
+        pnpm env:start
+        pnpm tunnel:on
+        pnpm jetpack-connect
+
+    - uses: actions/checkout@v2
+      with:
+        repository: 'WordPress/gutenberg'
+        path: 'gutenberg'
+
+    - name: Build Gutenberg
+      working-directory: gutenberg
+
+      run: |
+        npm ci
+        npm build
+
+    - name: Run performance test
+      working-directory: gutenberg
+      run: |
+        export TUNNEL_URL=$(cat ../tools/e2e-commons/config/tmp/e2e-tunnels.txt)
+        WP_BASE_URL=$TUNNEL_URL WP_USERNAME=wordpress WP_PASSWORD=wordpress npm run test-performance packages/e2e-tests/specs/performance/post-editor.test.js
+        cp packages/e2e-tests/specs/performance/post-editor.test.results.json ../projects/plugins/jetpack/tests/e2e/output
+
+    - name: Environment tear-down
+      if: ${{ always() }}
+      working-directory: tools/e2e-commons
+      continue-on-error: true
+      run: |
+        pnpm run tunnel-off
+
+    - name: Upload test artifacts
+      if: ${{ always() }}
+      continue-on-error: true
+      uses: actions/upload-artifact@v2
+      with:
+        name: test-output-block-perf
+        path: gutenberg/packages/e2e-tests/specs/performance/post-editor.test.results.json
+
+  # test-reports:
+  #   name: "Trigger test report workflow"
+  #   runs-on: ubuntu-latest
+  #   if: ${{ ! cancelled() }}
+  #   needs: e2e-tests
+
+  #   steps:
+  #     - name: Trigger test report workflow
+  #       env:
+  #         TOKEN: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
+  #       run: |
+  #         	BRANCH=${GITHUB_REF:11}
+  #           EVENT_NAME="Run $GITHUB_RUN_ID"
+
+  #         curl -X POST https://api.github.com/repos/automattic/jetpack-e2e-reports/dispatches \
+  #         -H "Accept: application/vnd.github.v3+json" \
+  #         -u "user:$TOKEN" \
+  #         --data "{\"event_type\": \"$EVENT_NAME\",
+  #         \"client_payload\": {
+  #         \"repository\": \"$GITHUB_REPOSITORY\",
+  #         \"run_id\": \"$GITHUB_RUN_ID\",
+  #         \"run_number\": \"$GITHUB_RUN_NUMBER\",
+  #         \"branch\": \"$BRANCH\",
+  #         \"pr_title\": \"$PR_TITLE\",
+  #         \"pr_number\": \"$PR_NUMBER\"
+  #         }}"
