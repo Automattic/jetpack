@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0-beta] - 2021-10-04
+### Security
+- Critical CSS: Add permissions checks to AJAX endpoints used when dismissing Critical CSS Recommendations.
+
+### Added
+- Critical CSS: Add extra information to "fetch" errors when generating Critical CSS.
+- Critical CSS: Added explanation for mod-security HTTP 418 errors.
+- Critical CSS: Added stats tracking for generation outcomes.
+- Critical CSS: Added step-by-step instructions for Advanced Recommendations.
+- Critical CSS: More descriptive error message if critical css is failing because of x-frame-options deny config.
+- Speed Scores: Added "without Boost" speed score indicator.
+
+### Changed
+- Critical CSS: Take port numbers into account when comparing origins for proxying.
+
+### Fixed
+- Critical CSS: Clear generated CSS on theme change.
+- Critical CSS: Ensure generator process is resumed after module deactivated and reactivated without reload.
+- Speed Scores: Clear speed score on plugin deactivation.
+
 ## [1.2.0] - 2021-08-12
 ### Added
 - Critical CSS: Added a new Advanced Critical CSS recommendations page.
@@ -75,4 +95,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[1.3.0-beta]: https://github.com/Automattic/jetpack-boost-production/compare/v1.2.0...v1.3.0-beta
 [1.2.0]: https://github.com/Automattic/jetpack-boost-production/compare/v1.1.0...v1.2.0-beta
