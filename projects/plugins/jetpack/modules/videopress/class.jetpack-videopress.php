@@ -80,7 +80,7 @@ class Jetpack_VideoPress {
 						sprintf(
 							/* translators: %s is the url to the Media Library */
 							__( 'VideoPress uploads are not supported here. To upload to VideoPress, add your videos from the <a href="%s">Media Library</a>.', 'jetpack' ),
-							'/wp-admin/upload.php'
+							esc_url( admin_url( 'upload.php' ) )
 						),
 						array(
 							'a' => array( 'href' => array() ),
