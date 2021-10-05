@@ -7,6 +7,7 @@ import { __, _x } from '@wordpress/i18n';
 import { InspectorAdvancedControls } from '@wordpress/block-editor'; // eslint-disable-line import/no-unresolved
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
+import analytics from '../../../_inc/client/lib/analytics';
 
 /* global widget_conditions_data, wpcom */
 /* eslint-disable react/react-in-jsx-scope */
@@ -242,16 +243,15 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 			[ clientId ]
 		);
 
-		const toggleMatchAll = useCallback(
-			() =>
-				setAttributes( {
-					conditions: {
-						...maybeAddDefaultConditions( conditions ),
-						match_all: conditions.match_all === '0' ? '1' : '0',
-					},
-				} ),
-			[ setAttributes, conditions ]
-		);
+		const toggleMatchAll = useCallback( () => {
+			analytics.tracks.recordEvent( 'jetpack_widget_visibility_toggle_match_all_click' );
+			setAttributes( {
+				conditions: {
+					...maybeAddDefaultConditions( conditions ),
+					match_all: conditions.match_all === '0' ? '1' : '0',
+				},
+			} );
+		}, [ setAttributes, conditions ] );
 
 		const setAction = useCallback(
 			value =>
@@ -265,6 +265,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 		);
 		const addNewRule = useCallback( () => {
 			const newRules = [ ...rules, { major: '', minor: '' } ];
+			analytics.tracks.recordEvent( 'jetpack_widget_visibility_add_new_rule_click' );
 			setAttributes( {
 				conditions: {
 					...maybeAddDefaultConditions( conditions ),
@@ -276,6 +277,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 		const deleteRule = useCallback(
 			i => {
 				const newRules = [ ...rules.slice( 0, i ), ...rules.slice( i + 1 ) ];
+				analytics.tracks.recordEvent( 'jetpack_widget_visibility_delete_rule_click' );
 				setAttributes( {
 					conditions: {
 						...maybeAddDefaultConditions( conditions ),
@@ -288,6 +290,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 
 		const setMajor = useCallback(
 			( i, majorValue ) => {
+				analytics.tracks.recordEvent( 'jetpack_widget_visibility_set_major_rule_click' );
 				// When changing majors, also change the minor to the first available option
 				let minorValue = '';
 				if (
@@ -315,6 +318,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 
 		const setMinor = useCallback(
 			( i, value ) => {
+				analytics.tracks.recordEvent( 'jetpack_widget_visibility_set_minor_rule_click' );
 				// Don't allow section headings to be set
 				if ( value && value.includes( '__HEADER__' ) ) {
 					return;
