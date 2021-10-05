@@ -79,7 +79,7 @@ class Post_List {
 	public function add_thumbnail_filters_and_actions( $current_screen ) {
 		if ( 'edit' === $current_screen->base ) {
 			// Add the thumbnail column to the "Posts" admin table.
-			add_filter( 'manage_posts_columns', array( $this, 'add_thumbnail_column' ) );
+			add_filter( 'manage_posts_columns', array( $this, 'add_thumbnail_column' ), 10, 2 );
 			add_action( 'manage_posts_custom_column', array( $this, 'populate_thumbnail_rows' ), 10, 2 );
 
 			// Add the thumbnail column to the "Pages" admin table.
@@ -91,10 +91,15 @@ class Post_List {
 	/**
 	 * Adds a new column header for displaying the thumbnail of a post.
 	 *
-	 * @param array $columns An array of column names.
+	 * @param array  $columns An array of column names.
+	 * @param string $post_type The post type being displayed in the post list. Defaults to 'page'.
 	 * @return array An array of column names.
 	 */
-	public function add_thumbnail_column( $columns ) {
+	public function add_thumbnail_column( $columns, $post_type = 'page' ) {
+		if ( ! post_type_supports( $post_type, 'thumbnail' ) ) {
+			return $columns;
+		}
+
 		$new_column = array( 'thumbnail' => '<span>' . __( 'Thumbnail', 'jetpack' ) . '</span>' );
 		$keys       = array_keys( $columns );
 		$position   = array_search( 'title', $keys, true );
