@@ -308,7 +308,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 	 * @return string
 	 */
 	private static function get_product_description_link( $product_key ) {
-		return admin_url( sprintf( '?page=jetpack#/product/%s', $product_key ) );
+		return Jetpack::admin_url( array( 'page' => sprintf( 'jetpack#/product/%s', $product_key ) ) );
 	}
 
 	/**
