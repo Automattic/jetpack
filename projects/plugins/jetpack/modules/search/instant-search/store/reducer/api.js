@@ -78,9 +78,9 @@ export function response( state = {}, action ) {
 				newState.total = newState.results.length;
 			}
 
-			// If it's a new search - not pagination requests
-			// - we cache the query aggregations if there are results
-			// - we use the cache to show filters if there are not results
+			// For a new search requests (i.e. not pagination requests):
+			// - Cache aggregations if query yields results
+			// - Show previously cached aggregations if query does not yield any results
 			if ( ! action.options.pageHandle ) {
 				if ( newState.results?.length > 0 ) {
 					// cachedAggregations is used to cache the most recent aggregations object when results is not empty.
