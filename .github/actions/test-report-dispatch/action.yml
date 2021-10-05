@@ -5,7 +5,7 @@ inputs:
     required: true
     description: "The user token used to authenticate the dispatch call."
   report_name:
-    required: false
+    required: true
     description: "The name of the report to group multiple runs under."
 
 runs:
@@ -34,7 +34,7 @@ runs:
         curl -X POST https://api.github.com/repos/automattic/jetpack-e2e-reports/dispatches \
         -H "Accept: application/vnd.github.v3+json" \
         -u "user:$TOKEN" \
-        --data "{\"event_type\": \"$EVENT_NAME\",
+        --data "{\"event_type\": \"$REPORT_NAME\",
         \"client_payload\": {
         \"repository\": \"$GITHUB_REPOSITORY\",
         \"run_id\": \"$GITHUB_RUN_ID\",
@@ -42,5 +42,6 @@ runs:
         \"branch\": \"$BRANCH\",
         \"pr_title\": \"$PR_TITLE\",
         \"pr_number\": \"$PR_NUMBER\",
-        \"report_name\": \"$REPORT_NAME\"
+        \"report_name\": \"$REPORT_NAME\",
+        \"event_name\": \"$EVENT_NAME\",
         }}"
