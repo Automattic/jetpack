@@ -189,7 +189,7 @@ describe( 'response Reducer', () => {
 		);
 		expect( state ).toEqual( initialState );
 	} );
-	test( 'could replace aggregation with cached aggregation when result is empty', () => {
+	test( 'returns cached aggregations when no search results are available', () => {
 		let state = response(
 			undefined,
 			recordSuccessfulSearchRequest( {
