@@ -101,6 +101,8 @@ abstract class SAL_Site {
 
 	abstract public function is_multisite();
 
+	abstract public function get_site_owner();
+
 	abstract public function is_single_user_site();
 
 	abstract public function get_plan();
