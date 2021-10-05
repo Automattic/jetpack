@@ -119,6 +119,7 @@ class Jetpack_XMLRPC_Server {
 	public function authorize_xmlrpc_methods() {
 		return array(
 			'jetpack.remoteAuthorize' => array( $this, 'remote_authorize' ),
+			'jetpack.remoteRegister'  => array( $this, 'remote_already_registered' ),
 		);
 	}
 
@@ -350,6 +351,20 @@ class Jetpack_XMLRPC_Server {
 
 		return array(
 			'client_id' => Jetpack_Options::get_option( 'id' ),
+		);
+	}
+
+	/**
+	 * This is a substitute for remote_register() when the blog is already registered which returns an error code
+	 * signifying that state.
+	 * This is an unauthorized call and we should not be responding with any data other than the error code.
+	 *
+	 * @return \IXR_Error
+	 */
+	public function remote_already_registered() {
+		return $this->error(
+			new \WP_Error( 'already_registered', __( 'Blog is already registered', 'jetpack' ), 400 ),
+			'remote_register'
 		);
 	}
 

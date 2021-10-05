@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Change the error code returned when a remoteRegister XMLRPC call is executed to the more helpful "already_registered" when the blog is already registered
