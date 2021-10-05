@@ -27,7 +27,7 @@ export function getQuery( search = window.location.search ) {
 }
 
 /**
- * Debounce for 1s to really change the query string.
+ * Change the query string.
  *
  * @param {*} queryObject - a query object.
  */
@@ -36,6 +36,7 @@ function setQuery( queryObject ) {
 }
 
 // Create debounced function.
+// Debounce for 1s to really change the query string.
 const setQueryDebounced = debounce( setQuery, DEBOUNCED_TIME_TO_SET_QUERY_MILLISECONDS );
 
 // Export debounced function with original function name.
