@@ -198,7 +198,7 @@ class Identity_Crisis {
 	 * @param string $url The remote request url.
 	 */
 	public function add_idc_query_args_to_url( $url ) {
-		if ( ! is_string( $url ) ) {
+		if ( ! is_string( $url ) || \Jetpack_Options::get_option( 'sync_error_idc', false ) ) {
 			return $url;
 		}
 
