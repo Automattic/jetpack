@@ -10,6 +10,7 @@ import { __ } from '@wordpress/i18n';
 import { eventPrefix, recordEvent } from '../../lib/analytics';
 import useEntityRecordState from '../../hooks/use-entity-record-state';
 import { SERVER_OBJECT_NAME } from '../../../instant-search/lib/constants';
+import './styles.scss';
 
 /**
  * Component for saving pending entity record changes.
@@ -39,6 +40,7 @@ export default function SaveButton() {
 	return (
 		<Button
 			aria-disabled={ isSaving }
+			className="jp-search-configure-save-button"
 			disabled={ ! hasUnsavedEdits }
 			isBusy={ isSaving }
 			isPrimary
