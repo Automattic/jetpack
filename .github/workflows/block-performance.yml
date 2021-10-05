@@ -89,4 +89,4 @@ jobs:
           token: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
           repository: automattic/jetpack-e2e-reports
           event-type: block-perf
-          client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "run_id": "$GITHUB_RUN_ID", "repository": "$GITHUB_REPOSITORY"}'
+          client-payload: '{"run_id": "${{github.run_id}}", "repository": "${{github.repository}}"}'
