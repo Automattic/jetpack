@@ -90,7 +90,7 @@ if [[ $# -le 0 ]]; then
 	TMP="$(tools/get-build-order.php 2>/dev/null)"
 	mapfile -t SLUGS <<<"$TMP"
 	SLUGS+=( 'monorepo' )
-	TMP="$(git ls-files '**/composer.json' '**/package.json' | sed -ne '\!^projects/[^/]*/[^/]*/\(composer\|package\).json$! d' -e 's!/\(composer\|package\).json$!!' -e 's/^/nonproject:/p' | sort -u)"
+	TMP="$(git ls-files '**/composer.json' '**/package.json' | sed -E -n -e '\!^projects/[^/]*/[^/]*/(composer|package)\.json$! d' -e 's!/(composer|package)\.json$!!' -e 's/^/nonproject:/p' | sort -u)"
 	mapfile -t -O ${#SLUGS[@]} SLUGS <<<"$TMP"
 else
 	SLUGS=( "$@" )
