@@ -118,12 +118,12 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		 * This filter is specific to WPCOM, that's why there is no
 		 * need to use `jetpack_` prefix.
 		 *
-		 * @use add_filter( 'wpcom_marketplace', '__return_true' );
+		 * @use add_filter( 'wpcom_marketplace_enabled', '__return_true' );
 		 * @module masterbar
 		 * @since 10.3
-		 * @param bool $wpcom_marketplace Load the WordPress.com Marketplace feature. Default to false.
+		 * @param bool $wpcom_marketplace_enabled Load the WordPress.com Marketplace feature. Default to false.
 		 */
-		if ( apply_filters( 'wpcom_marketplace', false ) ) {
+		if ( apply_filters( 'wpcom_marketplace_enabled', false ) ) {
 			$submenus_to_update = array( 'plugin-install.php' => 'https://wordpress.com/plugins/' . $this->domain );
 			$this->update_submenus( 'plugins.php', $submenus_to_update );
 		}
