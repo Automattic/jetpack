@@ -6,6 +6,7 @@ import { BaseControl, Button, SelectControl, ToggleControl } from '@wordpress/co
 import { __, _x } from '@wordpress/i18n';
 import { InspectorAdvancedControls } from '@wordpress/block-editor'; // eslint-disable-line import/no-unresolved
 import { createHigherOrderComponent } from '@wordpress/compose';
+import { useSelect } from '@wordpress/data';
 
 /* global widget_conditions_data, wpcom */
 /* eslint-disable react/react-in-jsx-scope */
@@ -223,9 +224,23 @@ const maybeAddDefaultConditions = conditions => ( {
 
 const visibilityAdvancedControls = createHigherOrderComponent(
 	BlockEdit => props => {
-		const { attributes, setAttributes, isSelected } = props;
+		const { clientId, attributes, setAttributes, isSelected } = props;
 		const conditions = useMemo( () => attributes.conditions || {}, [ attributes ] );
 		const rules = useMemo( () => conditions.rules || [], [ conditions ] );
+
+		// Is this block the top-most level block in a widget?.
+		const isTopLevelWidgetBlock = useSelect(
+			select => {
+				const { getBlockParents, getBlock } = select( 'core/block-editor' );
+				const parents = getBlockParents( clientId, true );
+				const parentBlock = parents ? getBlock( parents[ 0 ] ) : undefined;
+				// Customizer: There is no parent.
+				// Widgets.php: Parent is core/widget area.
+				// Both are OK.
+				return ! parentBlock || ( parentBlock && parentBlock.name === 'core/widget-area' );
+			},
+			[ clientId ]
+		);
 
 		const toggleMatchAll = useCallback(
 			() =>
@@ -382,8 +397,21 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 		return (
 			<Fragment>
 				<BlockEdit { ...props } />
-				{ isSelected && blockHasVisibilitySettings( props.name ) && (
+				{ isSelected && isTopLevelWidgetBlock && blockHasVisibilitySettings( props.name ) && (
 					<InspectorAdvancedControls>{ mainRender }</InspectorAdvancedControls>
+				) }
+				{ isSelected && ! isTopLevelWidgetBlock && blockHasVisibilitySettings( props.name ) && (
+					<InspectorAdvancedControls>
+						<BaseControl
+							id="widget-vis__wrapper"
+							className="widget-vis__wrapper"
+							label={ __( 'Visibility', 'jetpack' ) }
+							help={ __(
+								'Please select the top level block of this widget to apply visibility rules.',
+								'jetpack'
+							) }
+						></BaseControl>
+					</InspectorAdvancedControls>
 				) }
 			</Fragment>
 		);
