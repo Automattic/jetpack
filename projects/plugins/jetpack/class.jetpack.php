@@ -830,6 +830,7 @@ class Jetpack {
 			array(
 				'sync',
 				'jitm',
+				'identity_crisis',
 			)
 			as $feature
 		) {
