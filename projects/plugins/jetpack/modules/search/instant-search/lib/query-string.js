@@ -16,8 +16,6 @@ import {
 import { getFilterKeys, getStaticFilterKeys } from './filters';
 import { decode } from '../external/query-string-decode';
 
-let mostRecentQueryObject = null;
-
 /**
  * Parses the address bar's query string into an object.
  *
@@ -30,21 +28,18 @@ export function getQuery( search = window.location.search ) {
 
 /**
  * Debounce for 1s to really change the query string.
- */
-const debouncedSetQuery = debounce(
-	() => pushQueryString( encode( mostRecentQueryObject ) ),
-	DEBOUNCED_TIME_TO_SET_QUERY_MILLISECONDS
-);
-
-/**
- * Updates the browser's query string via a query object.
  *
- * @param {object} queryObject - a query object.
+ * @param {*} queryObject - a query object.
  */
-export function setQuery( queryObject ) {
-	mostRecentQueryObject = queryObject;
-	debouncedSetQuery();
+function setQuery( queryObject ) {
+	pushQueryString( encode( queryObject ) );
 }
+
+// Create debounced function.
+const setQueryDebounced = debounce( setQuery, DEBOUNCED_TIME_TO_SET_QUERY_MILLISECONDS );
+
+// Export debounced function with original function name.
+export { setQueryDebounced as setQuery };
 
 /**
  * Updates the browser's query string via an encoded query string.
