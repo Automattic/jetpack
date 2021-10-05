@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Only add the thumbnail column for post types that support it
