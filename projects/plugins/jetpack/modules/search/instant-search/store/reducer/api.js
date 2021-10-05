@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { setAggregationCountToZero } from '../../lib/api';
+import { setDocumentCountsToZero } from '../../lib/api';
 
 let cachedAggregations = {};
 /**
@@ -84,7 +84,7 @@ export function response( state = {}, action ) {
 			if ( ! action.options.pageHandle ) {
 				if ( newState.results?.length > 0 ) {
 					// cachedAggregations is used to cache the most recent aggregations object when results is not empty.
-					cachedAggregations = setAggregationCountToZero( newState.aggregations );
+					cachedAggregations = setDocumentCountsToZero( newState.aggregations );
 				} else {
 					// If there is no result to show, we show the cached aggregations.
 					newState.aggregations = cachedAggregations;

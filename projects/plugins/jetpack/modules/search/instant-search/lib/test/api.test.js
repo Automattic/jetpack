@@ -4,7 +4,7 @@
 /**
  * Internal dependencies
  */
-import { generateDateRangeFilter, setAggregationCountToZero } from '../api';
+import { generateDateRangeFilter, setDocumentCountsToZero } from '../api';
 
 describe( 'generateDateRangeFilter', () => {
 	test( 'generates correct ranges for yearly date ranges', () => {
@@ -24,10 +24,10 @@ describe( 'generateDateRangeFilter', () => {
 	} );
 } );
 
-describe( 'setAggregationCountToZero', () => {
+describe( 'setDocumentCountsToZero', () => {
 	test( 'Can set doc_count of every new aggregation to 0', () => {
 		expect(
-			setAggregationCountToZero( {
+			setDocumentCountsToZero( {
 				date_histogram_2: {
 					buckets: [
 						{
@@ -48,8 +48,8 @@ describe( 'setAggregationCountToZero', () => {
 	} );
 
 	test( 'Can deal with in empty parameter and return an object', () => {
-		expect( setAggregationCountToZero( null ) ).toEqual( {} );
-		expect( setAggregationCountToZero( undefined ) ).toEqual( {} );
-		expect( setAggregationCountToZero( {} ) ).toEqual( {} );
+		expect( setDocumentCountsToZero( null ) ).toEqual( {} );
+		expect( setDocumentCountsToZero( undefined ) ).toEqual( {} );
+		expect( setDocumentCountsToZero( {} ) ).toEqual( {} );
 	} );
 } );

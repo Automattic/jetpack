@@ -50,7 +50,7 @@ export function buildFilterAggregations( widgets = [] ) {
  * @param {object} newAggregations - New aggregations to operate on.
  * @returns {object} - Aggregations with doc_count set to 0.
  */
-export function setAggregationCountToZero( newAggregations ) {
+export function setDocumentCountsToZero( newAggregations ) {
 	newAggregations = newAggregations ?? {};
 	return Object.fromEntries(
 		Object.entries( newAggregations )
