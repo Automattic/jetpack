@@ -409,7 +409,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 	 * @return void
 	 */
 	private static function print_scan() {
-		$link       = self::get_product_description_link( 'security' );
+		$link       = self::get_product_description_link( 'scan' );
 		$learn_link = self::get_upgrade_link( 'stats-nudges-scan-learn' );
 		$text       = __( 'Stay ahead of security threats with automated scanning and one-click fixes.', 'jetpack' );
 		self::print_item( __( 'Scan', 'jetpack' ), $text, 'product-jetpack-scan.svg', $link, 'scan', $learn_link, true );
