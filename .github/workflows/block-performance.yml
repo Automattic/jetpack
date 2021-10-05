@@ -16,7 +16,9 @@ jobs:
     name: "Performance tests"
     runs-on: ubuntu-latest
     timeout-minutes: 25  # 2021-04-16: Successful runs seem to take 11-17 minutes
-
+    env:
+      WP_USERNAME: wordpress
+      WP_PASSWORD: wordpress
     steps:
     - uses: actions/checkout@v2
 
@@ -51,15 +53,37 @@ jobs:
         echo "    gutenberg/packages/e2e-tests/plugins/disable-animations.php: /var/www/html/wp-content/plugins/disable-animations.php" >> ../docker/jetpack-docker-config-default.yml
         pnpm env:start
         pnpm tunnel:on
-        pnpm jetpack-connect
-        pnpx jetpack docker --type e2e --name t1 wp jetpack module deactivate sso
+        pnpx jetpack docker --type e2e --name t1 wp plugin deactivate jetpack
+        mkdir results
 
-    - name: Run performance test
+    - name: Run performance base test
       working-directory: gutenberg
       run: |
-        export TUNNEL_URL=$(cat ../tools/e2e-commons/config/tmp/e2e-tunnels.txt)
+        export WP_BASE_URL=$(cat ../tools/e2e-commons/config/tmp/e2e-tunnels.txt)
+
         # We use || to get away from some random request failures which does not affect the results but generating non-zero exit code.
-        WP_BASE_URL=$TUNNEL_URL WP_USERNAME=wordpress WP_PASSWORD=wordpress npm run test-performance packages/e2e-tests/specs/performance/post-editor.test.js || true
+        npm run test-performance packages/e2e-tests/specs/performance/post-editor.test.js || true
+        mv packages/e2e-tests/specs/performance/post-editor.test.results.json ../tools/e2e-commons/results/base.test.results.json
+
+    - name: Set up Jetpack connection
+      working-directory: tools/e2e-commons
+      env:
+        CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
+      run: |
+        pnpm env:reset
+        pnpm tunnel:reset
+        pnpm jetpack-connect
+        pnpx jetpack docker --type e2e --name t1 wp plugin activate jetpack
+        pnpx jetpack docker --type e2e --name t1 wp jetpack module deactivate sso
+
+    - name: Run performance Jetpack test
+      working-directory: gutenberg
+      run: |
+        export WP_BASE_URL=$(cat ../tools/e2e-commons/config/tmp/e2e-tunnels.txt)
+
+        # We use || to get away from some random request failures which does not affect the results but generating non-zero exit code.
+        npm run test-performance packages/e2e-tests/specs/performance/post-editor.test.js || true
+        mv packages/e2e-tests/specs/performance/post-editor.test.results.json ../tools/e2e-commons/results/jetpack.test.results.json
 
     - name: Environment tear-down
       if: ${{ always() }}
@@ -74,7 +98,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: test-output-block-perf
-        path: gutenberg/packages/e2e-tests/specs/performance/post-editor.test.results.json
+        path: tools/e2e-commons/results
 
   test-reports:
     name: "Trigger test report workflow"
