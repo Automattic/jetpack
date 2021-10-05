@@ -3,6 +3,7 @@ import path from 'path';
 import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper';
 import config from 'config';
 import logger from 'jetpack-e2e-commons/logger';
+import SearchHomepage from 'jetpack-e2e-commons/pages/search-homepage';
 
 export async function enableInstantSearch() {
 	return execWpCommand( 'option update instant_search_enabled 1' );
@@ -119,9 +120,7 @@ function getSidebarsWidgetsData() {
  * @see https://playwright.dev/docs/api/class-page#pagerouteurl-handler
  */
 export async function searchAPIRoute( page ) {
-	const SEARCH_API_PATTERN = /^https:\/\/public-api\.wordpress.com\/rest\/v1.3\/sites\/\d+\/search.*/;
-
-	await page.route( SEARCH_API_PATTERN, ( route, request ) => {
+	await page.route( SearchHomepage.SEARCH_API_PATTERN, ( route, request ) => {
 		logger.info( `intercepted search API call: ${ request.url() }` );
 		const url = new URL( request.url() );
 		const params = url.searchParams;
