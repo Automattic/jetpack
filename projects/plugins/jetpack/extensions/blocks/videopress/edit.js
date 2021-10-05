@@ -403,7 +403,9 @@ const VideoPressEdit = CoreVideoEdit =>
 			);
 
 			const isFetchingVideo = isFetchingMedia || isFetchingPreview;
-			const displayCoreVideoBlock = ! isUploading && ! isFetchingVideo && ( fallback || ! preview );
+			const isVideoFallbackOrNotPreview = fallback || ! preview;
+			const displayCoreVideoBlock =
+				isVideoFallbackOrNotPreview && ! isUploading && ! isFetchingVideo;
 			const renderCoreVideoAndLoadingBlocks =
 				isUploading || isFetchingVideo || displayCoreVideoBlock;
 
