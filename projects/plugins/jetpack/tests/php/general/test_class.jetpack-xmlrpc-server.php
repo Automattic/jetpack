@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Connection\Tokens;
 
 class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
+
 	static $xmlrpc_admin = 0;
 
 	public static function wpSetupBeforeClass( $factory ) {
@@ -59,7 +60,7 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		$response = $server->remote_provision( array( 'nonce' => '12345' ) );
 		$this->assertInstanceOf( 'IXR_Error', $response );
 		$this->assertEquals( 400, $response->code );
-		$this->assertContains( '[local_user_missing]', $response->message );
+		$this->assertStringContainsString( '[local_user_missing]', $response->message );
 	}
 
 	/**
@@ -70,7 +71,7 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		$response = $server->remote_provision( array() );
 
 		$this->assertInstanceOf( 'IXR_Error', $response );
-		$this->assertContains( 'local_user_missing', $response->message );
+		$this->assertStringContainsString( 'local_user_missing', $response->message );
 
 		$response = $server->remote_provision( array( 'local_user' => 'nonexistent' ) );
 
@@ -85,7 +86,7 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		$server   = new Jetpack_XMLRPC_Server();
 		$response = $server->remote_provision( array( 'local_user' => 1 ) );
 
-		$this->assertInternalType( 'array', $response );
+		$this->assertIsArray( $response );
 
 		$expected_keys = array(
 			'jp_version',

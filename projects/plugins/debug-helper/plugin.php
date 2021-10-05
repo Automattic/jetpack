@@ -3,7 +3,7 @@
  * Plugin Name: Jetpack Debug Tools
  * Description: Give me a Jetpack connection, and I'll break it every way possible.
  * Author: Automattic - Jetpack Crew
- * Version: 1.1.1-alpha
+ * Version: 1.2.0-alpha
  * Text Domain: jetpack
  *
  * @package automattic/jetpack-debug-helper.
@@ -33,7 +33,7 @@ define( 'JETPACK_DEBUG_HELPER_BASE_PLUGIN_FILE', __FILE__ );
  * The plugin version.
  * Increase that if you do any edits to ensure refreshing the cached assets.
  */
-define( 'JETPACK_DEBUG_HELPER_VERSION', '1.1.1-alpha' );
+define( 'JETPACK_DEBUG_HELPER_VERSION', '1.2.0-alpha' );
 
 /**
  * Include file names from the modules directory here.
@@ -42,6 +42,11 @@ $jetpack_dev_debug_modules = array(
 	'broken-token'    => array(
 		'file'        => 'class-broken-token.php',
 		'name'        => 'Broken token Utilities',
+		'description' => '',
+	),
+	'idc-simulator'   => array(
+		'file'        => 'class-idc-simulator.php',
+		'name'        => 'Identity Crisis Simulation Utility',
 		'description' => '',
 	),
 	'sync-debug'      => array(

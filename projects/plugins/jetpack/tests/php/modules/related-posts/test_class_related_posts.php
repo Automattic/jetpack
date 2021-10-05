@@ -4,8 +4,11 @@ require dirname( __FILE__ ) . '/../../../../modules/related-posts.php';
 
 class WP_Test_Jetpack_RelatedPosts extends WP_UnitTestCase {
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 
 		Jetpack_RelatedPosts_Module::instance()->action_on_load();
 		add_filter( 'jetpack_relatedposts_filter_options', '__return_null' );

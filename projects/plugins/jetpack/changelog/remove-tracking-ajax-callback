@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Remove ajax callback for Tracks within the Jetpack plugin since it is set up in jetpack-tracking library.

@@ -36,10 +36,10 @@ class Test_Admin_Color_Schemes extends WP_Test_Jetpack_REST_Testcase {
 	/**
 	 * Set up each test.
 	 */
-	public function setUp() {
+	public function set_up() {
 		new Admin_Color_Schemes();
 
-		parent::setUp();
+		parent::set_up();
 	}
 
 	/**

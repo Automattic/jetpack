@@ -31,8 +31,8 @@ class WP_Test_Jetpack_Google_Analytics extends WP_UnitTestCase {
 	 *
 	 * @return void
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 
 		// Hijack the option for Jetpack_Google_Analytics_Options::get_tracking_code().
 		add_filter(
@@ -150,12 +150,12 @@ class WP_Test_Jetpack_Google_Analytics extends WP_UnitTestCase {
 		$instance->insert_code();
 		$actual = ob_get_clean();
 
-		$this->assertContains(
+		$this->assertStringContainsString(
 			'gtag( "event", "jetpack_testing_event", {"event_category":"somecat","event_label":"somelabel","value":"someval"} )',
 			$actual
 		);
 
-		$this->assertContains(
+		$this->assertStringContainsString(
 			'gtag( "event", "another_jetpack_testing_event", {"event_category":"foo","event_label":"bar","value":"baz"} );',
 			$actual
 		);

@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Social Icons Widget: deprecate widget and transform to Social Links block

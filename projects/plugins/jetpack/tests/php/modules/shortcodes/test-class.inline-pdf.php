@@ -18,9 +18,9 @@ class WP_Test_Jetpack_Shortcodes_Inline_Pdfs extends WP_UnitTestCase {
 	/**
 	 * After a test method runs, reset any state in WordPress the test method might have changed.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		wp_reset_postdata();
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**
@@ -44,7 +44,7 @@ class WP_Test_Jetpack_Shortcodes_Inline_Pdfs extends WP_UnitTestCase {
 		the_content();
 		$actual = ob_get_clean();
 
-		$this->assertContains(
+		$this->assertStringContainsString(
 			sprintf(
 				'<p><object data="%1$s" type="application/pdf" width="100%%" height="800" style="height: 800px;"><p><a href="%1$s">Click to access %2$s</a></p></object></p>' . "\n",
 				$url,
@@ -74,7 +74,7 @@ class WP_Test_Jetpack_Shortcodes_Inline_Pdfs extends WP_UnitTestCase {
 		the_content();
 		$actual = ob_get_clean();
 
-		$this->assertContains(
+		$this->assertStringContainsString(
 			sprintf(
 				'<p><a href="%1$s">PDF Document</a></p>',
 				$url

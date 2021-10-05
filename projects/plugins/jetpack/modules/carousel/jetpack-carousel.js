@@ -305,7 +305,7 @@
 
 		var gallerySelector =
 			'div.gallery, div.tiled-gallery, ul.wp-block-gallery, ul.blocks-gallery-grid, ' +
-			'figure.blocks-gallery-grid, div.wp-block-jetpack-tiled-gallery, a.single-image-gallery';
+			'figure.wp-block-gallery.has-nested-images, div.wp-block-jetpack-tiled-gallery, a.single-image-gallery';
 
 		// Selector for items within a gallery or tiled gallery.
 		var galleryItemSelector =

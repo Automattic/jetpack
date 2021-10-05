@@ -46,8 +46,8 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	/**
 	 * Setup the environment for a test.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 
 		wp_set_current_user( static::$user_id );
 
@@ -57,10 +57,10 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	/**
 	 * Reset the environment to its original state after the test.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		remove_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ) );
 
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**
@@ -142,7 +142,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 		$this->assertArrayHasKey( 'type', $data );
 		$this->assertArrayHasKey( 'url', $data );
 		$this->assertEquals( 'image', $data['type'] );
-		$this->assertInternalType( 'int', $data['id'] );
+		$this->assertIsInt( $data['id'] );
 		$this->assertEmpty( $data['caption'] );
 		$this->assertEmpty( $data['alt'] );
 	}
