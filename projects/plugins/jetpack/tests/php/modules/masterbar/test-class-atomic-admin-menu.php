@@ -315,4 +315,20 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		// Gutenberg plugin menu should not be visible.
 		$this->assertArrayNotHasKey( 101, $menu );
 	}
+
+	/**
+	 * Tests add_plugins_menu
+	 *
+	 * @covers ::add_plugins_menu
+	 */
+	public function test_add_plugins_menu() {
+		global $submenu;
+
+		static::$admin_menu->add_plugins_menu();
+		$this->assertSame( static::$domain . '/wp-admin/plugin-install.php', $submenu['plugin-install.php'][11][2] );
+
+		add_filter( 'wpcom_marketplace_enabled', '__return_true' );
+		static::$admin_menu->add_plugins_menu();
+		$this->assertSame( 'https://wordpress.com/plugins/' . static::$domain, $submenu['plugin-install.php'][11][2] );
+	}
 }
