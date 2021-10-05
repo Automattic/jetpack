@@ -76,29 +76,17 @@ jobs:
         name: test-output-block-perf
         path: gutenberg/packages/e2e-tests/specs/performance/post-editor.test.results.json
 
-  # test-reports:
-  #   name: "Trigger test report workflow"
-  #   runs-on: ubuntu-latest
-  #   if: ${{ ! cancelled() }}
-  #   needs: e2e-tests
+  test-reports:
+    name: "Trigger test report workflow"
+    runs-on: ubuntu-latest
+    if: ${{ ! cancelled() }}
+    needs: block-performance
 
-  #   steps:
-  #     - name: Trigger test report workflow
-  #       env:
-  #         TOKEN: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
-  #       run: |
-  #         	BRANCH=${GITHUB_REF:11}
-  #           EVENT_NAME="Run $GITHUB_RUN_ID"
-
-  #         curl -X POST https://api.github.com/repos/automattic/jetpack-e2e-reports/dispatches \
-  #         -H "Accept: application/vnd.github.v3+json" \
-  #         -u "user:$TOKEN" \
-  #         --data "{\"event_type\": \"$EVENT_NAME\",
-  #         \"client_payload\": {
-  #         \"repository\": \"$GITHUB_REPOSITORY\",
-  #         \"run_id\": \"$GITHUB_RUN_ID\",
-  #         \"run_number\": \"$GITHUB_RUN_NUMBER\",
-  #         \"branch\": \"$BRANCH\",
-  #         \"pr_title\": \"$PR_TITLE\",
-  #         \"pr_number\": \"$PR_NUMBER\"
-  #         }}"
+    steps:
+      - name: Repository Dispatch
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
+          repository: automattic/jetpack-e2e-reports
+          event-type: block-perf
+          client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "run_id": "$GITHUB_RUN_ID", "repository": "$GITHUB_REPOSITORY"}'
