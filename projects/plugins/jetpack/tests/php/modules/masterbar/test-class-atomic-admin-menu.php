@@ -324,11 +324,16 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_plugins_menu() {
 		global $submenu;
 
+		// Make sure that nothing changes if wpcom_marketplace is not enabled.
 		static::$admin_menu->add_plugins_menu();
-		$this->assertSame( static::$domain . '/wp-admin/plugin-install.php', $submenu['plugin-install.php'][11][2] );
+		$this->assertSame( 'plugin-install.php', $submenu['plugins.php'][10][2] );
 
+		// Enable wpcom_marketplace and test again.
 		add_filter( 'wpcom_marketplace_enabled', '__return_true' );
 		static::$admin_menu->add_plugins_menu();
-		$this->assertSame( 'https://wordpress.com/plugins/' . static::$domain, $submenu['plugin-install.php'][11][2] );
+		// Make sure that initial menu item is hidden.
+		$this->assertSame( 'hide-if-js', $submenu['plugins.php'][1][4] );
+		// Make sure that the new menu item is inserted.
+		$this->assertSame( 'https://wordpress.com/plugins/' . static::$domain, $submenu['plugins.php'][2][2] );
 	}
 }
