@@ -22,7 +22,6 @@ class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_REST_Controller
 	 */
 	public function __construct() {
 		$this->namespace = 'wpcom/v2';
-		$this->rest_base = '/publicize/share';
 
 		// $wpcom_is_wpcom_only_endpoint = true keeps WPCOM from trying to loop back to the Jetpack endpoint.
 		$this->wpcom_is_wpcom_only_endpoint = true;
@@ -38,19 +37,19 @@ class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_REST_Controller
 
 	/**
 	 * This file is synced from Jetpack to WPCOM and this method creates a slightly different route for both sites.
-	 * Jetpack route: http://{$site}/wp-json/wpcom/v2/publicize/share/{$postId}
-	 * WPCOM route: https://public-api.wordpress.com/wpcom/v2/sites/{$siteId}/publicize/share/{$postId}
+	 * Jetpack route: http://{$site}/wp-json/wpcom/v2/posts/{$postId}/publicize
+	 * WPCOM route: https://public-api.wordpress.com/wpcom/v2/sites/{$siteId}/posts/{$postId}/publicize
 	 */
 	public function register_routes() {
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/(?P<postId>[\d]+)',
+			'/posts/(?P<postId>\d+)/publicize',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'share_post' ),
 				'permission_callback' => array( $this, 'permissions_check' ),
 				'args'                => array(
-					'message'           => array(
+					'message'             => array(
 						'description'       => __( 'The message to share.', 'jetpack' ),
 						'type'              => 'string',
 						'required'          => true,
@@ -59,10 +58,10 @@ class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_REST_Controller
 						},
 						'sanitize_callback' => 'sanitize_textarea_field',
 					),
-					'skipConnectionIds' => array(
+					'skipped_connections' => array(
 						'description'       => __( 'Array of external connection IDs to skip sharing.', 'jetpack' ),
 						'type'              => 'array',
-						'required'          => true,
+						'required'          => false,
 						'validate_callback' => function ( $param ) {
 							return is_array( $param );
 						},
@@ -71,7 +70,10 @@ class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_REST_Controller
 						},
 					),
 				),
-			)
+			),
+			// override = true because this API route was commandeered from the file
+			// wp-content/rest-api-plugins/endpoints/sites-publicize.php on WPCOM.
+			true
 		);
 	}
 
@@ -105,7 +107,7 @@ class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_REST_Controller
 	public function share_post( $request ) {
 		$post_id             = $request->get_param( 'postId' );
 		$message             = trim( $request->get_param( 'message' ) );
-		$skip_connection_ids = $request->get_param( 'skipConnectionIds' );
+		$skip_connection_ids = $request->get_param( 'skipped_connections' );
 
 		if ( $this->is_wpcom ) {
 			$post = get_post( $post_id );
@@ -127,13 +129,13 @@ class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_REST_Controller
 		} else {
 			/*
 			 * Publicize endpoint on WPCOM:
-			 * [POST] wpcom/v2/sites/{$siteId}/publicize/share/{$postId}
+			 * [POST] wpcom/v2/sites/{$siteId}/posts/{$postId}/publicize
 			 * body:
 			 *   - message: string
 			 *   - skipConnectionIds: array of connection ids to skip
 			 */
 			$url = sprintf(
-				'/sites/%d/publicize/share/%d',
+				'/sites/%d/posts/%d/publicize',
 				Jetpack_Options::get_option( 'id' ),
 				$post_id
 			);

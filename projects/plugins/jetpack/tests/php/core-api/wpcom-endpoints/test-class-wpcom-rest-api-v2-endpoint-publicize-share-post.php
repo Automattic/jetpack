@@ -29,11 +29,11 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_Test_Je
 	private static $user_id_subscriber = 0;
 
 	/**
-	 * Mock post ID.
+	 * Route to endpoint.
 	 *
-	 * @var int
+	 * @var string
 	 */
-	private static $post_id = 0;
+	private static $path = '';
 
 	/**
 	 * Create 2 mock blog users and a mock blog post.
@@ -44,12 +44,14 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_Test_Je
 		static::$user_id_editor     = $this->factory->user->create( array( 'role' => 'editor' ) );
 		static::$user_id_subscriber = $this->factory->user->create( array( 'role' => 'subscriber' ) );
 
-		static::$post_id = $this->factory->post->create(
+		$post_id = $this->factory->post->create(
 			array(
 				'post_status' => 'published',
 				'post_author' => (string) static::$user_id_editor,
 			)
 		);
+
+		static::$path = "/wpcom/v2/posts/$post_id/publicize";
 
 		wp_set_current_user( static::$user_id_editor );
 
@@ -87,11 +89,11 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_Test_Je
 	public function test_publicize_share_post_permissions_check_wrong_user() {
 		wp_set_current_user( 0 );
 
-		$request = wp_rest_request( Requests::POST, '/wpcom/v2/publicize/share/' . static::$post_id );
+		$request = wp_rest_request( Requests::POST, static::$path );
 		$request->set_body_params(
 			array(
-				'message'           => 'test',
-				'skipConnectionIds' => array(),
+				'message'             => 'string',
+				'skipped_connections' => array(),
 			)
 		);
 		$response = $this->server->dispatch( $request );
@@ -107,11 +109,11 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_Test_Je
 	public function test_publicize_share_post_permissions_check_wrong_role() {
 		wp_set_current_user( static::$user_id_subscriber );
 
-		$request = wp_rest_request( Requests::POST, '/wpcom/v2/publicize/share/' . static::$post_id );
+		$request = wp_rest_request( Requests::POST, static::$path );
 		$request->set_body_params(
 			array(
-				'message'           => 'test',
-				'skipConnectionIds' => array(),
+				'message'             => 'string',
+				'skipped_connections' => array(),
 			)
 		);
 		$response = $this->server->dispatch( $request );
@@ -129,7 +131,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_Test_Je
 	public function test_publicize_share_post_rest_invalid_param( $input ) {
 		wp_set_current_user( static::$user_id_subscriber );
 
-		$request = wp_rest_request( Requests::POST, '/wpcom/v2/publicize/share/' . static::$post_id );
+		$request = wp_rest_request( Requests::POST, static::$path );
 		$request->set_body_params( $input );
 		$response = $this->server->dispatch( $request );
 
@@ -146,7 +148,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_Test_Je
 	public function test_publicize_share_post_rest_missing_callback_param( $input ) {
 		wp_set_current_user( static::$user_id_subscriber );
 
-		$request = wp_rest_request( Requests::POST, '/wpcom/v2/publicize/share/' . static::$post_id );
+		$request = wp_rest_request( Requests::POST, static::$path );
 		$request->set_body_params( $input );
 		$response = $this->server->dispatch( $request );
 
@@ -160,26 +162,15 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_Test_Je
 	 */
 	public function rest_missing_callback_params() {
 		return array(
-			'message can not be null.'           => array(
+			'message can not be null.' => array(
 				array(
-					'message'           => null,
-					'skipConnectionIds' => array(),
+					'message'             => null,
+					'skipped_connections' => array(),
 				),
 			),
-			'message is required.'               => array(
+			'message is required.'     => array(
 				array(
-					'skipConnectionIds' => array(),
-				),
-			),
-			'skipConnectionIds can not be null.' => array(
-				array(
-					'message'           => 'string',
-					'skipConnectionIds' => null,
-				),
-			),
-			'skipConnectionIds is required.'     => array(
-				array(
-					'message' => 'string',
+					'skipped_connections' => array(),
 				),
 			),
 		);
@@ -192,34 +183,34 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_Test_Je
 	 */
 	public function rest_invalid_params() {
 		return array(
-			'message can not be an int.'             => array(
+			'message can not be an int.'               => array(
 				array(
-					'message'           => 123,
-					'skipConnectionIds' => array(),
+					'message'             => 123,
+					'skipped_connections' => array(),
 				),
 			),
-			'message can not be an empty string.'    => array(
+			'message can not be an empty string.'      => array(
 				array(
-					'message'           => '',
-					'skipConnectionIds' => array(),
+					'message'             => '',
+					'skipped_connections' => array(),
 				),
 			),
-			'message can not be an array.'           => array(
+			'message can not be an array.'             => array(
 				array(
-					'message'           => array(),
-					'skipConnectionIds' => array(),
+					'message'             => array(),
+					'skipped_connections' => array(),
 				),
 			),
-			'skipConnectionIds can not be an int.'   => array(
+			'skipped_connections can not be an int.'   => array(
 				array(
-					'message'           => 'string',
-					'skipConnectionIds' => 123,
+					'message'             => 'string',
+					'skipped_connections' => 123,
 				),
 			),
-			'skipConnectionIds can not be a string.' => array(
+			'skipped_connections can not be a string.' => array(
 				array(
-					'message'           => 'string',
-					'skipConnectionIds' => 'string',
+					'message'             => 'string',
+					'skipped_connections' => 'string',
 				),
 			),
 		);
