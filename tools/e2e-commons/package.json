@@ -22,7 +22,7 @@
 	"devDependencies": {
 		"@babel/core": "^7.15.5",
 		"@babel/preset-env": "^7.15.6",
-		"@babel/node": "7.13",
+		"@babel/node": "^7.15.4",
 		"@slack/web-api": "^6.4.0",
 		"@wordpress/eslint-plugin": "^9.1.2",
 		"axios": "^0.22.0",
