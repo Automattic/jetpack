@@ -93,7 +93,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * @return string
 	 */
 	public function get_preferred_view( $screen, $fallback_global_preference = true ) {
-		// Plugins and Export on Atomic sites are always managed on WP Admin.
+		// Export on Atomic sites are always managed on WP Admin.
 		if ( in_array( $screen, array( 'export.php' ), true ) ) {
 			return self::CLASSIC_VIEW;
 		}
