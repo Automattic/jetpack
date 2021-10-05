@@ -25,8 +25,12 @@
 			grid-area: 1 / 1 / 2 / 2;
 			margin-top: 14px;
 			margin-left: 14px;
-			border-radius: 1px;
+			border-radius: 2px;
 			background-color: white;
+
+			&.is-facebook {
+				border-radius: 50%;
+			}
 		}
 	}
 }
