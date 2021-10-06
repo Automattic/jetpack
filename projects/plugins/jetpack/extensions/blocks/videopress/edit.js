@@ -402,12 +402,16 @@ const VideoPressEdit = CoreVideoEdit =>
 				</Fragment>
 			);
 
+			// If we're fetching the video, we need to display the "Generate preview..." message in the Loading block.
 			const isFetchingVideo = isFetchingMedia || isFetchingPreview;
 			const isVideoFallbackOrNotPreview = fallback || ! preview;
-			const displayCoreVideoBlock =
-				isVideoFallbackOrNotPreview && ! isUploading && ! isFetchingVideo;
-			const renderCoreVideoAndLoadingBlocks =
-				isUploading || isFetchingVideo || displayCoreVideoBlock;
+			// If the video is uploading or fetching, we should display the Loading component.
+			const displayLoadingBlock = isUploading || isFetchingVideo;
+			// If the component is in fallback mode or not in preview mode, and we don't need to display the loading block,
+			// then we should display the CoreVideoEdit block
+			const displayCoreVideoBlock = isVideoFallbackOrNotPreview && ! displayLoadingBlock;
+			// If we need to display the CoreVideoEdit or Loading block, then we need to render them in the tree.
+			const renderCoreVideoAndLoadingBlocks = displayLoadingBlock || displayCoreVideoBlock;
 
 			// In order for the media placeholder to keep its state for error messages, we need to keep the CoreVideoEdit component in the tree during file uploads.
 			if ( renderCoreVideoAndLoadingBlocks ) {
