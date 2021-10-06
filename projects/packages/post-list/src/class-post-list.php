@@ -87,7 +87,10 @@ class Post_List {
 		add_filter( 'manage_pages_columns', array( $this, 'add_thumbnail_column' ) );
 		add_action( 'manage_pages_custom_column', array( $this, 'populate_thumbnail_rows' ), 10, 2 );
 
-		if ( in_array( $current_screen->post_type, array( 'post', 'page' ), true ) && apply_filters( 'jetpack_can_share_post', false, $current_screen->post_type ) ) {
+		if (
+			in_array( $current_screen->post_type, array( 'post', 'page' ), true ) &&
+			apply_filters( 'jetpack_can_share_post', false, $current_screen->post_type )
+		) {
 			// Add Share post action.
 			add_filter( 'post_row_actions', array( $this, 'add_share_action' ), 20, 2 );
 			add_filter( 'page_row_actions', array( $this, 'add_share_action' ), 20, 2 );
