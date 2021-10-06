@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Reduce transient expiration for how often we check the state of the queue.
