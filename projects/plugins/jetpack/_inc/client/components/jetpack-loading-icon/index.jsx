@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -27,7 +28,7 @@ JetpackLoadingIcon.propTypes = {
 };
 
 JetpackLoadingIcon.defaultProps = {
-	altText: 'Loading...',
+	altText: __( 'Loading...', 'jetpack' ),
 };
 
 export { JetpackLoadingIcon };
