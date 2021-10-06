@@ -4,7 +4,7 @@
 /**
  * Internal dependencies
  */
-import { generateDateRangeFilter } from '../api';
+import { generateDateRangeFilter, setDocumentCountsToZero } from '../api';
 
 describe( 'generateDateRangeFilter', () => {
 	test( 'generates correct ranges for yearly date ranges', () => {
@@ -21,5 +21,35 @@ describe( 'generateDateRangeFilter', () => {
 		expect( generateDateRangeFilter( 'something', '2020-12-01 00:00:00', 'month' ) ).toEqual( {
 			range: { [ 'something' ]: { gte: '2020-12-01', lt: '2021-01-01' } },
 		} );
+	} );
+} );
+
+describe( 'setDocumentCountsToZero', () => {
+	test( 'Can set doc_count of every new aggregation to 0', () => {
+		expect(
+			setDocumentCountsToZero( {
+				date_histogram_2: {
+					buckets: [
+						{
+							doc_count: 10,
+						},
+					],
+				},
+			} )
+		).toEqual( {
+			date_histogram_2: {
+				buckets: [
+					{
+						doc_count: 0,
+					},
+				],
+			},
+		} );
+	} );
+
+	test( 'Can deal with in empty parameter and return an object', () => {
+		expect( setDocumentCountsToZero( null ) ).toEqual( {} );
+		expect( setDocumentCountsToZero( undefined ) ).toEqual( {} );
+		expect( setDocumentCountsToZero( {} ) ).toEqual( {} );
 	} );
 } );
