@@ -72,6 +72,7 @@ class PublicizeConnection extends Component {
 				className="jetpack-publicize-connection-toggle"
 				checked={ enabled }
 				onChange={ this.onConnectionChange }
+				disabled={ disabled }
 				serviceName={ serviceName }
 				label={ label }
 				profilePicture={ profilePicture }
