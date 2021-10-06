@@ -207,9 +207,11 @@ importers:
 
   projects/js-packages/licensing:
     specifiers:
+      '@automattic/jetpack-components': workspace:^0.3.1
       jetpack-js-test-runner: workspace:*
       prop-types: 15.7.2
     dependencies:
+      '@automattic/jetpack-components': link:../components
       jetpack-js-test-runner: link:../../../tools/js-test-runner
       prop-types: 15.7.2
 
