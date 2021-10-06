@@ -28,7 +28,7 @@ class WP_Test_Jetpack_Sync_Settings extends WP_Test_Jetpack_Sync_Base {
 		$updated_settings = Settings::get_settings();
 
 		// reset original value.
-		$settings['$dequeue_max_bytes'] = $dequeue_max_bytes;
+		$settings['dequeue_max_bytes'] = $dequeue_max_bytes;
 		Settings::update_settings( $settings );
 
 		$this->assertSame( 50, $updated_settings['dequeue_max_bytes'] );
