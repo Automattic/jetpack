@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 10.1
+Stable tag: 10.2
 Requires at least: 5.7
 Requires PHP: 5.6
 Tested up to: 5.8
@@ -242,10 +242,10 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.2-beta - 2021-09-28
+### 10.2 - 2021-10-05
 #### Enhancements
-- Contact Form: add two filters to improve anti-spam functionality.
 - Contact Form: add filter to allow customizing email headers.
+- Contact Form: add two filters to improve anti-spam functionality.
 - Related Posts: enable lazy loading for images.
 - Search: improve filter label formatting for longer text entries.
 - Search: title customization improvements.
@@ -257,8 +257,8 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 #### Improved compatibility
 - External Media: update verbiage around Google Photos to improve compatibility with their UX guidelines.
 - Instagram Widget: remove from Legacy Widget block.
-- Search: as IE11 support was removed in Jetpack 10.1, remove an IE11 polyfill.
 - Publicize: replace native text-area with custom/core-based component.
+- Search: as IE11 support was removed in Jetpack 10.1, remove an IE11 polyfill.
 - VideoPress: file url field now displays the HLS playlist if one was generated. The fragmented mp4 file is not meant to be played on its own. MP4 file will only be displayed as the video url if it was created prior to the HLS update.
 
 #### Bug fixes
@@ -266,9 +266,11 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Custom Content Type: improve the performance of the Testimonial CPT.
 - Dashboard: improve the performance of the query used to display Anti-spam stats.
 - Embeds: add allow-popups permission to Google Calendar embed so that links internal to the iFrame will open.
-- Publicize: improve refreshing connections list.
 - Publicize: ensure the custom excerpt is used when sharing to Facebook.
+- Publicize: improve refreshing connections list.
+- Related Posts: avoid errors if main div is not in the DOM.
 - Search: ensure Safari input clear button is hidden.
+- Search: ensure translations are available for lazy-loaded payloads.
 - Search: fix dashboard buttons too big on Safari.
 - Sharing: fix the icon position in icon-only button style.
 - Shortcodes: remove Hulu from available embeds.

@@ -50,7 +50,7 @@ jobs:
         working-directory: ./projects/github-actions/repo-gardening
 
       - name: Checkout the PR
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request_target' && github.event.action != 'closed'
         uses: actions/checkout@v2
         with:
           ref: ${{ github.event.pull_request.head.ref }}

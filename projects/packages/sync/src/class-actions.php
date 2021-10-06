@@ -436,21 +436,7 @@ class Actions {
 		$response = $rpc->getResponse();
 
 		// Check if WordPress.com IDC mitigation blocked the sync request.
-		if ( is_array( $response ) && isset( $response['error_code'] ) ) {
-			$error_code              = $response['error_code'];
-			$allowed_idc_error_codes = array(
-				'jetpack_url_mismatch',
-				'jetpack_home_url_mismatch',
-				'jetpack_site_url_mismatch',
-			);
-
-			if ( in_array( $error_code, $allowed_idc_error_codes, true ) ) {
-				\Jetpack_Options::update_option(
-					'sync_error_idc',
-					Identity_Crisis::get_sync_error_idc_option( $response )
-				);
-			}
-
+		if ( Identity_Crisis::init()->check_response_for_idc( $response ) ) {
 			return new WP_Error(
 				'sync_error_idc',
 				esc_html__( 'Sync has been blocked from WordPress.com because it would cause an identity crisis', 'jetpack' )
