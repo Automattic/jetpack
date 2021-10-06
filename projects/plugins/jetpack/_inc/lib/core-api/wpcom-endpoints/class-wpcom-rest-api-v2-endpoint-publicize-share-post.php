@@ -127,37 +127,50 @@ class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_REST_Controller
 
 			return $result;
 		} else {
-			/*
-			 * Publicize endpoint on WPCOM:
-			 * [POST] wpcom/v2/sites/{$siteId}/posts/{$postId}/publicize
-			 * body:
-			 *   - message: string
-			 *   - skipped_connections: array of connection ids to skip
-			 */
-			$url = sprintf(
-				'/sites/%d/posts/%d/publicize',
-				Jetpack_Options::get_option( 'id' ),
-				$post_id
-			);
-
-			$response = Client::wpcom_json_api_request_as_user(
-				$url,
-				'v2',
-				array(
-					'method' => 'POST',
-				),
-				array(
-					'message'             => $message,
-					'skipped_connections' => $skip_connection_ids,
-				)
-			);
-
+			$response = $this->proxy_request( $post_id, $message, $skip_connection_ids );
 			if ( is_wp_error( $response ) ) {
 				return rest_ensure_response( $response );
 			}
 
 			return json_decode( wp_remote_retrieve_body( $response ), true );
 		}
+	}
+
+	/**
+	 * Passes the request on to the WPCOM endpoint, and returns the result.
+	 *
+	 * @param int    $post_id             The post ID being shared.
+	 * @param string $message             The custom message to be used.
+	 * @param array  $skip_connection_ids An array of connection IDs where the post shouldn't be shared.
+	 *
+	 * @return array|WP_Error $response Response data, else WP_Error on failure.
+	 */
+	public function proxy_request( $post_id, $message, $skip_connection_ids ) {
+		/*
+		 * Publicize endpoint on WPCOM:
+		 * [POST] wpcom/v2/sites/{$siteId}/posts/{$postId}/publicize
+		 * body:
+		 *   - message: string
+		 *   - skipped_connections: array of connection ids to skip
+		 */
+		$url = sprintf(
+			'/sites/%d/posts/%d/publicize',
+			Jetpack_Options::get_option( 'id' ),
+			$post_id
+		);
+
+		return Client::wpcom_json_api_request_as_user(
+			$url,
+			'v2',
+			array(
+				'method' => 'POST',
+			),
+			array(
+				'message'             => $message,
+				'skipped_connections' => $skip_connection_ids,
+			)
+		);
+
 	}
 }
 
