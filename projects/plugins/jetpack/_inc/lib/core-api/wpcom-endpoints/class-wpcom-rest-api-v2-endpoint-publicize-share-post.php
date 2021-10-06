@@ -132,7 +132,7 @@ class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_REST_Controller
 			 * [POST] wpcom/v2/sites/{$siteId}/posts/{$postId}/publicize
 			 * body:
 			 *   - message: string
-			 *   - skipConnectionIds: array of connection ids to skip
+			 *   - skipped_connections: array of connection ids to skip
 			 */
 			$url = sprintf(
 				'/sites/%d/posts/%d/publicize',
@@ -147,8 +147,8 @@ class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_REST_Controller
 					'method' => 'POST',
 				),
 				array(
-					'message'           => $message,
-					'skipConnectionIds' => $skip_connection_ids,
+					'message'             => $message,
+					'skipped_connections' => $skip_connection_ids,
 				)
 			);
 
