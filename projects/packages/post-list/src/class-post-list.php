@@ -98,7 +98,7 @@ class Post_List {
 			 * @param boolean Whether we should show the share action for this post type.
 			 * @param string  The current post type.
 			 */
-			apply_filters( 'jetpack_can_share_post', false, $current_screen->post_type )
+			apply_filters( 'jetpack_post_list_display_share_action', false, $current_screen->post_type )
 		) {
 			// Add Share post action.
 			add_filter( 'post_row_actions', array( $this, 'add_share_action' ), 20, 2 );
