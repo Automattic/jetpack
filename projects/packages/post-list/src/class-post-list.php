@@ -89,6 +89,15 @@ class Post_List {
 
 		if (
 			in_array( $current_screen->post_type, array( 'post', 'page' ), true ) &&
+			/**
+			 * Determine whether we should show the share action for this post type.
+			 * The default is false.
+			 *
+			 * @since $$next_version$$
+			 *
+			 * @param boolean Whether we should show the share action for this post type.
+			 * @param string  The current post type.
+			 */
 			apply_filters( 'jetpack_can_share_post', false, $current_screen->post_type )
 		) {
 			// Add Share post action.
