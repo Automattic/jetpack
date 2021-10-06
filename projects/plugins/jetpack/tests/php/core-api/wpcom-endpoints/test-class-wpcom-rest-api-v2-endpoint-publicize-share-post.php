@@ -189,12 +189,6 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_Test_Je
 					'skipped_connections' => array(),
 				),
 			),
-			'message can not be an empty string.'      => array(
-				array(
-					'message'             => '',
-					'skipped_connections' => array(),
-				),
-			),
 			'message can not be an array.'             => array(
 				array(
 					'message'             => array(),
