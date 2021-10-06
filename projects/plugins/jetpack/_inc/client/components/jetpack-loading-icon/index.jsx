@@ -28,7 +28,7 @@ JetpackLoadingIcon.propTypes = {
 };
 
 JetpackLoadingIcon.defaultProps = {
-	altText: __( 'Loading...', 'jetpack' ),
+	altText: __( 'Loading…', 'jetpack' ),
 };
 
 export { JetpackLoadingIcon };
