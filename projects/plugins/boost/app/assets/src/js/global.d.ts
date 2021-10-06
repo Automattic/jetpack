@@ -47,6 +47,17 @@ declare global {
 		generateCriticalCSS: typeof generateCriticalCSS;
 		BrowserInterfaceIframe: typeof BrowserInterfaceIframe;
 	};
+
+	type TracksEventProperties = { [ key: string ]: string | number };
+
+	const jpTracksAJAX: {
+		// eslint-disable-next-line camelcase
+		record_ajax_event(
+			eventName: string,
+			eventType: string,
+			eventProp: TracksEventProperites
+		): void;
+	};
 }
 
 export {};

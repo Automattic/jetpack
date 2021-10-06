@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add a new action to the Client::remote_request method, jetpack_received_remote_request_response
