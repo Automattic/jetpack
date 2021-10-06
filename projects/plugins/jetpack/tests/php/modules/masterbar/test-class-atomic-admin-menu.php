@@ -328,12 +328,16 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_plugins_menu();
 		$this->assertSame( 'plugin-install.php', $submenu['plugins.php'][10][2] );
 
-		// Enable wpcom_marketplace and test again.
-		add_filter( 'wpcom_marketplace_enabled', '__return_true' );
-		static::$admin_menu->add_plugins_menu();
-		// Make sure that initial menu item is hidden.
-		$this->assertSame( 'hide-if-js', $submenu['plugins.php'][1][4] );
-		// Make sure that the new menu item is inserted.
-		$this->assertSame( 'https://wordpress.com/plugins/' . static::$domain, $submenu['plugins.php'][2][2] );
+		if ( ! is_multisite() ) {
+			// All Atomic sites are single site installations.
+			// Enable wpcom_marketplace and test again.
+			add_filter( 'wpcom_marketplace_enabled', '__return_true' );
+			static::$admin_menu->add_plugins_menu();
+
+			// Make sure that initial menu item is hidden.
+			$this->assertSame( 'hide-if-js', $submenu['plugins.php'][1][4] );
+			// Make sure that the new menu item is inserted.
+			$this->assertSame( 'https://wordpress.com/plugins/' . static::$domain, $submenu['plugins.php'][2][2] );
+		}
 	}
 }
