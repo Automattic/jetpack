@@ -399,7 +399,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'is_multisite' :
 				$response[ $key ] = $this->site->is_multisite();
 				break;
-			case 'site_owner' :
+			case 'site_owner':
 				$response[ $key ] = $this->site->get_site_owner();
 				break;
 			case 'organization_id':
