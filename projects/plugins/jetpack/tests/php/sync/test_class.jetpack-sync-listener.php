@@ -79,6 +79,11 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		do_action( 'my_action' );
 		$this->assertEquals( 3, $this->listener->get_sync_queue()->size() );
 
+		// reset queue settings.
+		Settings::update_settings( array( 'max_queue_size' => Defaults::$default_max_queue_size ) );
+		Settings::update_settings( array( 'max_queue_lag' => Defaults::$default_max_queue_lag ) );
+		$this->listener->set_defaults(); // should reset queue size limit.
+
 		remove_action( 'my_action', array( $this->listener, 'action_handler' ) );
 	}
 
