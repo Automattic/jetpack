@@ -79,7 +79,10 @@ class Test_Post_List extends BaseTestCase {
 		$this->assertFalse( has_filter( 'manage_pages_columns' ) );
 		$this->assertFalse( has_action( 'manage_pages_custom_column' ) );
 
-		$current_screen = (object) array( 'base' => 'edit' );
+		$current_screen = (object) array(
+			'base'      => 'edit',
+			'post_type' => 'post',
+		);
 		$post_list->add_filters_and_actions( $current_screen );
 
 		// Assert that our style, filter, and action has been added.
@@ -94,7 +97,10 @@ class Test_Post_List extends BaseTestCase {
 	 */
 	public function test_add_filters_and_actions_wrong_screen() {
 		$post_list      = Post_List::get_instance();
-		$current_screen = (object) array( 'base' => 'edit-tags' );
+		$current_screen = (object) array(
+			'base'      => 'edit-tags',
+			'post_type' => 'post',
+		);
 		$post_list->add_filters_and_actions( $current_screen );
 
 		// Confirm that our style, filter, and action have not been added before the enqueue_scripts() method call.
