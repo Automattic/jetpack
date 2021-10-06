@@ -45,7 +45,13 @@ const ConnectionToggle: React.FC< ConnectionToggleProps > = props => {
 				label={ label }
 				profilePicture={ profilePicture }
 			/>
-			<FormToggle id={ id } className={ className } checked={ checked } onChange={ onChange } />
+			<FormToggle
+				id={ id }
+				className={ className }
+				checked={ checked }
+				onChange={ onChange }
+				disabled={ disabled }
+			/>
 		</div>
 	);
 };
