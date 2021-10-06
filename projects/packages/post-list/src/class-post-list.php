@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Post_List;
  */
 class Post_List {
 
-	const PACKAGE_VERSION = '0.2.0-alpha';
+	const PACKAGE_VERSION = '0.2.0';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
@@ -93,7 +93,7 @@ class Post_List {
 			 * Determine whether we should show the share action for this post type.
 			 * The default is false.
 			 *
-			 * @since $$next_version$$
+			 * @since 0.2.0
 			 *
 			 * @param boolean Whether we should show the share action for this post type.
 			 * @param string  The current post type.
