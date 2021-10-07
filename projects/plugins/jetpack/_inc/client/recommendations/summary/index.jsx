@@ -12,7 +12,7 @@ import { connect } from 'react-redux';
  * Internal dependencies
  */
 import { FeatureSummary } from '../feature-summary';
-import { LoadingCard } from '../sidebar/loading-card';
+import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { OneClickRestores } from '../sidebar/one-click-restores';
 import { Security } from '../sidebar/security';
 import { MobileApp } from '../sidebar/mobile-app';
@@ -58,7 +58,7 @@ const SummaryComponent = props => {
 	}, [ updateRecommendationsStep ] );
 
 	const mainContent = isFetchingMainData ? (
-		<LoadingCard />
+		<JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />
 	) : (
 		<>
 			<div className="jp-recommendations-summary__configuration">
@@ -130,11 +130,11 @@ const SummaryComponent = props => {
 
 	let sidebarCard;
 	if ( isFetchingSidebarData ) {
-		sidebarCard = <LoadingCard />;
+		sidebarCard = <JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />;
 	} else {
 		switch ( sidebarCardSlug ) {
 			case 'loading':
-				sidebarCard = <LoadingCard />;
+				sidebarCard = <JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />;
 				break;
 			case 'upsell':
 				sidebarCard = upsell.hide_upsell ? (
