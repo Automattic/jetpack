@@ -435,6 +435,7 @@
 	"projects/plugins/jetpack/tests/php/modules/post-by-email/test-class.post-by-email-api.php",
 	"projects/plugins/jetpack/tests/php/modules/publicize/test_class.publicize.php",
 	"projects/plugins/jetpack/tests/php/modules/related-posts/test_class_related_posts.php",
+	"projects/plugins/jetpack/tests/php/modules/search/test-class.jetpack-search-helpers.php",
 	"projects/plugins/jetpack/tests/php/modules/sharedaddy/test-class.recaptcha.php",
 	"projects/plugins/jetpack/tests/php/modules/shortcodes/test-class.archiveorg.php",
 	"projects/plugins/jetpack/tests/php/modules/shortcodes/test-class.archives.php",
