@@ -7,6 +7,8 @@
  * @since      5.8.0
  */
 
+use Automattic\Jetpack\Search\Helper as Jetpack_Search_Helpers;
+
 /**
  * Class that has various methods for outputting functionality into a theme that doesn't support widgets.
  * Additionally the widget itself makes use of these class.

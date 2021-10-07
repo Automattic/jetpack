@@ -7,16 +7,17 @@
  * @since      5.8.0
  */
 
-use Automattic\Jetpack\Constants;
+namespace Automattic\Jetpack\Search;
 
-require_once dirname( __FILE__ ) . '/class-jetpack-search-options.php';
+use GP_Locales;
+use Jetpack;
 
 /**
  * Various helper functions for reuse throughout the Jetpack Search code.
  *
  * @since 5.8.0
  */
-class Jetpack_Search_Helpers {
+class Helper {
 
 	/**
 	 * The search widget's base ID.
@@ -33,10 +34,10 @@ class Jetpack_Search_Helpers {
 	 *
 	 * @return string The search URL.
 	 */
-	static function get_search_url() {
+	public static function get_search_url() {
 		$query_args = stripslashes_deep( $_GET );
 
-		// Handle the case where a permastruct is being used, such as /search/{$query}
+		// Handle the case where a permastruct is being used, such as /search/{$query}.
 		if ( ! isset( $query_args['s'] ) ) {
 			$query_args['s'] = get_search_query();
 		}
@@ -63,7 +64,7 @@ class Jetpack_Search_Helpers {
 	 *
 	 * @return string New URL query string (unescaped).
 	 */
-	static function add_query_arg( $key, $value = false, $url = false ) {
+	public static function add_query_arg( $key, $value = false, $url = false ) {
 		$url = empty( $url ) ? self::get_search_url() : $url;
 		if ( is_array( $key ) ) {
 			return add_query_arg( $key, $url );
@@ -80,11 +81,11 @@ class Jetpack_Search_Helpers {
 	 * @since 5.8.0
 	 *
 	 * @param string|array $key   Query key or keys to remove.
-	 * @param bool|string  $query Optional. A URL to act upon.  Defaults to the current search URL.
+	 * @param bool|string  $url Optional. A URL to act upon.  Defaults to the current search URL.
 	 *
 	 * @return string New URL query string (unescaped).
 	 */
-	static function remove_query_arg( $key, $url = false ) {
+	public static function remove_query_arg( $key, $url = false ) {
 		$url = empty( $url ) ? self::get_search_url() : $url;
 
 		return remove_query_arg( $key, $url );
@@ -97,7 +98,7 @@ class Jetpack_Search_Helpers {
 	 *
 	 * @return string The search widget option name.
 	 */
-	static function get_widget_option_name() {
+	public static function get_widget_option_name() {
 		return sprintf( 'widget_%s', self::FILTER_WIDGET_BASE );
 	}
 
@@ -108,10 +109,10 @@ class Jetpack_Search_Helpers {
 	 *
 	 * @return array The widget options.
 	 */
-	static function get_widgets_from_option() {
+	public static function get_widgets_from_option() {
 		$widget_options = get_option( self::get_widget_option_name(), array() );
 
-		// We don't need this
+		// We don't need this.
 		if ( ! empty( $widget_options ) && isset( $widget_options['_multiwidget'] ) ) {
 			unset( $widget_options['_multiwidget'] );
 		}
@@ -126,7 +127,7 @@ class Jetpack_Search_Helpers {
 	 *
 	 * @return string The widget's numeric ID prefixed with the search widget base.
 	 */
-	static function build_widget_id( $number ) {
+	public static function build_widget_id( $number ) {
 		return sprintf( '%s-%d', self::FILTER_WIDGET_BASE, $number );
 	}
 
@@ -141,7 +142,7 @@ class Jetpack_Search_Helpers {
 	 *
 	 * @return bool Whether the widget is active or not.
 	 */
-	static function is_active_widget( $widget_id ) {
+	public static function is_active_widget( $widget_id ) {
 		return (bool) is_active_widget( false, $widget_id, self::FILTER_WIDGET_BASE, true );
 	}
 
@@ -198,7 +199,7 @@ class Jetpack_Search_Helpers {
 	 *
 	 * @return string The filter label.
 	 */
-	static function get_date_filter_type_name( $type, $is_updated = false ) {
+	public static function get_date_filter_type_name( $type, $is_updated = false ) {
 		switch ( $type ) {
 			case 'year':
 				$string = ( $is_updated )
@@ -225,7 +226,7 @@ class Jetpack_Search_Helpers {
 	 *
 	 * @return string The suggested filter name.
 	 */
-	static function generate_widget_filter_name( $widget_filter ) {
+	public static function generate_widget_filter_name( $widget_filter ) {
 		$name = '';
 
 		if ( ! isset( $widget_filter['type'] ) ) {
@@ -283,12 +284,12 @@ class Jetpack_Search_Helpers {
 	 *
 	 * @return bool
 	 */
-	static function should_rerun_search_in_customizer_preview() {
+	public static function should_rerun_search_in_customizer_preview() {
 		// Only update when in a customizer preview and data is being posted.
 		// Check for $_POST removes an extra update when the customizer loads.
 		//
 		// Note: We use $GLOBALS['wp_customize'] here instead of is_customize_preview() to support unit tests.
-		if ( ! isset( $GLOBALS['wp_customize'] ) || ! $GLOBALS['wp_customize']->is_preview() || empty( $_POST ) ) {
+		if ( ! isset( $GLOBALS['wp_customize'] ) || ! $GLOBALS['wp_customize']->is_preview() || empty( $_POST ) ) { // phpcs:ignore
 			return false;
 		}
 
@@ -301,12 +302,12 @@ class Jetpack_Search_Helpers {
 	 *
 	 * @since 5.8.0
 	 *
-	 * @param array $array_1
-	 * @param array $array_2
+	 * @param array $array_1 The first array.
+	 * @param array $array_2 The second array.
 	 *
 	 * @return array
 	 */
-	static function array_diff( $array_1, $array_2 ) {
+	public static function array_diff( $array_1, $array_2 ) {
 		// If the array counts are the same, then the order doesn't matter. If the count of
 		// $array_1 is higher than $array_2, that's also fine. If the count of $array_2 is higher,
 		// we need to swap the array order though.
@@ -316,7 +317,7 @@ class Jetpack_Search_Helpers {
 			$array_2 = $temp;
 		}
 
-		// Disregard keys
+		// Disregard keys.
 		return array_values( array_diff( $array_1, $array_2 ) );
 	}
 
@@ -329,7 +330,7 @@ class Jetpack_Search_Helpers {
 	 *
 	 * @return bool
 	 */
-	static function post_types_differ_searchable( $post_types ) {
+	public static function post_types_differ_searchable( $post_types ) {
 		if ( empty( $post_types ) ) {
 			return false;
 		}
@@ -349,7 +350,7 @@ class Jetpack_Search_Helpers {
 	 *
 	 * @return bool
 	 */
-	static function post_types_differ_query( $post_types ) {
+	public static function post_types_differ_query( $post_types ) {
 		if ( empty( $post_types ) ) {
 			return false;
 		}
@@ -379,7 +380,7 @@ class Jetpack_Search_Helpers {
 	 *
 	 * @return array|false False if the widget wasn't updated, otherwise an array of the Tracks action and widget properties.
 	 */
-	static function get_widget_tracks_value( $old_value, $new_value ) {
+	public static function get_widget_tracks_value( $old_value, $new_value ) {
 		$old_value = (array) $old_value;
 		if ( isset( $old_value['_multiwidget'] ) ) {
 			unset( $old_value['_multiwidget'] );
@@ -393,13 +394,13 @@ class Jetpack_Search_Helpers {
 		$old_keys = array_keys( $old_value );
 		$new_keys = array_keys( $new_value );
 
-		if ( count( $new_keys ) > count( $old_keys ) ) { // This is the case for a widget being added
+		if ( count( $new_keys ) > count( $old_keys ) ) { // This is the case for a widget being added.
 			$diff   = self::array_diff( $new_keys, $old_keys );
 			$action = 'widget_added';
 			$widget = empty( $diff ) || ! isset( $new_value[ $diff[0] ] )
 				? false
 				: $new_value[ $diff[0] ];
-		} elseif ( count( $old_keys ) > count( $new_keys ) ) { // This is the case for a widget being deleted
+		} elseif ( count( $old_keys ) > count( $new_keys ) ) { // This is the case for a widget being deleted.
 			$diff   = self::array_diff( $old_keys, $new_keys );
 			$action = 'widget_deleted';
 			$widget = empty( $diff ) || ! isset( $old_value[ $diff[0] ] )
@@ -417,14 +418,14 @@ class Jetpack_Search_Helpers {
 				}
 				$old_instance = $old_value[ $key ];
 
-				// First, let's test the keys of each instance
+				// First, let's test the keys of each instance.
 				$diff = self::array_diff( array_keys( $new_instance ), array_keys( $old_instance ) );
 				if ( ! empty( $diff ) ) {
 					$widget = $new_instance;
 					break;
 				}
 
-				// Next, lets's loop over each value and compare it
+				// Next, lets's loop over each value and compare it.
 				foreach ( $new_instance as $k => $v ) {
 					if ( is_scalar( $v ) && (string) $v !== (string) $old_instance[ $k ] ) {
 						$widget = $new_instance;
@@ -468,7 +469,7 @@ class Jetpack_Search_Helpers {
 	 *
 	 * @return array The widget properties.
 	 */
-	static function get_widget_properties_for_tracks( $widget ) {
+	public static function get_widget_properties_for_tracks( $widget ) {
 		$sanitized = array();
 
 		foreach ( (array) $widget as $key => $value ) {
@@ -499,7 +500,7 @@ class Jetpack_Search_Helpers {
 	 *
 	 * @return array The filter properties.
 	 */
-	static function get_filter_properties_for_tracks( $filters ) {
+	public static function get_filter_properties_for_tracks( $filters ) {
 		if ( empty( $filters ) ) {
 			return $filters;
 		}
@@ -579,12 +580,12 @@ class Jetpack_Search_Helpers {
 	 * @return string The URL with added post types.
 	 */
 	public static function add_post_types_to_url( $url, $post_types ) {
-		$url = Jetpack_Search_Helpers::remove_query_arg( 'post_type', $url );
+		$url = self::remove_query_arg( 'post_type', $url );
 		if ( empty( $post_types ) ) {
 			return $url;
 		}
 
-		$url = Jetpack_Search_Helpers::add_query_arg(
+		$url = self::add_query_arg(
 			'post_type',
 			implode( ',', $post_types ),
 			$url
@@ -672,7 +673,7 @@ class Jetpack_Search_Helpers {
 	 * @return int
 	 */
 	public static function get_max_posts_per_page() {
-		return Jetpack_Search_Options::site_has_vip_index() ? 1000 : 100;
+		return Options::site_has_vip_index() ? 1000 : 100;
 	}
 
 	/**
@@ -683,7 +684,7 @@ class Jetpack_Search_Helpers {
 	 * @return int
 	 */
 	public static function get_max_offset() {
-		return Jetpack_Search_Options::site_has_vip_index() ? 9000 : 1000;
+		return Options::site_has_vip_index() ? 9000 : 1000;
 	}
 
 	/**
@@ -719,7 +720,6 @@ class Jetpack_Search_Helpers {
 			: JETPACK__VERSION;
 	}
 
-
 	/**
 	 * Generates a customizer settings ID for a given post type.
 	 *
@@ -728,7 +728,7 @@ class Jetpack_Search_Helpers {
 	 * @return string $customizer_id Customizer setting ID.
 	 */
 	public static function generate_post_type_customizer_id( $post_type ) {
-		return Jetpack_Search_Options::OPTION_PREFIX . 'disable_post_type_' . $post_type->name;
+		return Options::OPTION_PREFIX . 'disable_post_type_' . $post_type->name;
 	}
 
 	/**
@@ -818,7 +818,7 @@ class Jetpack_Search_Helpers {
 			);
 		}
 
-		$prefix         = Jetpack_Search_Options::OPTION_PREFIX;
+		$prefix         = Options::OPTION_PREFIX;
 		$posts_per_page = (int) get_option( 'posts_per_page' );
 		if ( ( $posts_per_page > 20 ) || ( $posts_per_page <= 0 ) ) {
 			$posts_per_page = 20;
@@ -839,7 +839,7 @@ class Jetpack_Search_Helpers {
 			$excluded_post_types = array();
 		}
 
-		$is_wpcom                  = defined( 'IS_WPCOM' ) && IS_WPCOM;
+		$is_wpcom                  = defined( 'IS_WPCOM' ) && constant( 'IS_WPCOM' );
 		$is_private_site           = '-1' === get_option( 'blog_public' );
 		$is_jetpack_photon_enabled = method_exists( 'Jetpack', 'is_module_active' ) && Jetpack::is_module_active( 'photon' );
 
@@ -850,7 +850,7 @@ class Jetpack_Search_Helpers {
 				'enableSort'        => get_option( $prefix . 'enable_sort', '1' ) === '1',
 				'highlightColor'    => get_option( $prefix . 'highlight_color', '#FFC' ),
 				'overlayTrigger'    => get_option( $prefix . 'overlay_trigger', 'immediate' ),
-				'resultFormat'      => get_option( $prefix . 'result_format', Jetpack_Search_Options::RESULT_FORMAT_MINIMAL ),
+				'resultFormat'      => get_option( $prefix . 'result_format', Options::RESULT_FORMAT_MINIMAL ),
 				'showPoweredBy'     => get_option( $prefix . 'show_powered_by', '1' ) === '1',
 
 				// These options require kicking off a new search.

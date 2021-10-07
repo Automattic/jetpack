@@ -8,6 +8,8 @@
  */
 
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Search\Helper as Jetpack_Search_Helpers;
+use Automattic\Jetpack\Search\Options as Jetpack_Search_Options;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
 
@@ -20,9 +22,6 @@ function jetpack_search_widget_init() {
 	) {
 		return;
 	}
-
-	require_once JETPACK__PLUGIN_DIR . 'modules/search/class.jetpack-search-helpers.php';
-	require_once JETPACK__PLUGIN_DIR . 'modules/search/class-jetpack-search-options.php';
 
 	register_widget( 'Jetpack_Search_Widget' );
 }

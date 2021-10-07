@@ -6,6 +6,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Search;
+
 /**
  * Class to load Instant Search experience on the site.
  *
@@ -81,7 +83,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			add_action( 'init', array( $this, 'set_filters_from_widgets' ) );
 
 			add_action( 'wp_enqueue_scripts', array( $this, 'load_assets' ) );
-			add_action( 'wp_footer', array( 'Jetpack_Search_Helpers', 'print_instant_search_sidebar' ) );
+			add_action( 'wp_footer', array( 'Automattic\Jetpack\Search\Helper', 'print_instant_search_sidebar' ) );
 			add_filter( 'body_class', array( $this, 'add_body_class' ), 10 );
 		} else {
 			add_action( 'update_option', array( $this, 'track_widget_updates' ), 10, 3 );
@@ -121,7 +123,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			return;
 		}
 
-		$script_version = Jetpack_Search_Helpers::get_asset_version( $script_relative_path );
+		$script_version = Search\Helper::get_asset_version( $script_relative_path );
 		$script_path    = plugins_url( $script_relative_path, $plugin_base_path );
 		wp_enqueue_script( 'jetpack-instant-search', $script_path, array(), $script_version, true );
 		wp_set_script_translations( 'jetpack-instant-search', 'jetpack' );
@@ -162,7 +164,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 * Passes all options to the JS app.
 	 */
 	protected function inject_javascript_options() {
-		$options = Jetpack_Search_Helpers::generate_initial_javascript_state();
+		$options = Search\Helper::generate_initial_javascript_state();
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
 		wp_add_inline_script( 'jetpack-instant-search', 'var JetpackInstantSearchOptions=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $options ) ) . '"));', 'before' );
 	}
@@ -379,7 +381,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		}
 
 		// Set default result format to "expanded".
-		update_option( Jetpack_Search_Options::OPTION_PREFIX . 'result_format', Jetpack_Search_Options::RESULT_FORMAT_EXPANDED );
+		update_option( Search\Options::OPTION_PREFIX . 'result_format', Search\Options::RESULT_FORMAT_EXPANDED );
 
 		$this->auto_config_excluded_post_types();
 		$this->auto_config_overlay_sidebar_widgets();
@@ -394,7 +396,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	public function auto_config_overlay_sidebar_widgets() {
 		global $wp_registered_sidebars;
 		$sidebars = get_option( 'sidebars_widgets', array() );
-		$slug     = Jetpack_Search_Helpers::FILTER_WIDGET_BASE;
+		$slug     = Search\Helper::FILTER_WIDGET_BASE;
 
 		if ( isset( $sidebars['jetpack-instant-search-sidebar'] ) ) {
 			foreach ( (array) $sidebars['jetpack-instant-search-sidebar'] as $widget_id ) {
@@ -418,14 +420,14 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 					$sidebar_searchbox_idx = $idx;
 				}
 				if ( 0 === strpos( $widget_id, $slug ) ) {
-					$sidebar_id = (int) str_replace( Jetpack_Search_Helpers::FILTER_WIDGET_BASE . '-', '', $widget_id );
+					$sidebar_id = (int) str_replace( Search\Helper::FILTER_WIDGET_BASE . '-', '', $widget_id );
 					break;
 				}
 			}
 		}
 
 		$next_id         = 1;
-		$widget_opt_name = Jetpack_Search_Helpers::get_widget_option_name();
+		$widget_opt_name = Search\Helper::get_widget_option_name();
 		$widget_options  = get_option( $widget_opt_name, array() );
 		foreach ( $widget_options as $id => $w ) {
 			if ( $id >= $next_id ) {
@@ -441,7 +443,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			if ( ! isset( $sidebars['jetpack-instant-search-sidebar'] ) ) {
 				$sidebars['jetpack-instant-search-sidebar'] = array();
 			}
-			array_unshift( $sidebars['jetpack-instant-search-sidebar'], Jetpack_Search_Helpers::build_widget_id( $next_id ) );
+			array_unshift( $sidebars['jetpack-instant-search-sidebar'], Search\Helper::build_widget_id( $next_id ) );
 			update_option( 'sidebars_widgets', $sidebars );
 
 			return;
@@ -456,15 +458,15 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			$widget_options[ $next_id ] = $preconfig_opts;
 			if ( false !== $sidebar_searchbox_idx ) {
 				// Replace Core search box.
-				$sidebars['sidebar-1'][ $sidebar_searchbox_idx ] = Jetpack_Search_Helpers::build_widget_id( $next_id );
+				$sidebars['sidebar-1'][ $sidebar_searchbox_idx ] = Search\Helper::build_widget_id( $next_id );
 			} else {
 				// Add to top.
-				array_unshift( $sidebars['sidebar-1'], Jetpack_Search_Helpers::build_widget_id( $next_id ) );
+				array_unshift( $sidebars['sidebar-1'], Search\Helper::build_widget_id( $next_id ) );
 			}
 			$next_id++;
 		}
 		$widget_options[ $next_id ] = $preconfig_opts;
-		array_unshift( $sidebars['jetpack-instant-search-sidebar'], Jetpack_Search_Helpers::build_widget_id( $next_id ) );
+		array_unshift( $sidebars['jetpack-instant-search-sidebar'], Search\Helper::build_widget_id( $next_id ) );
 
 		update_option( $widget_opt_name, $widget_options );
 		update_option( 'sidebars_widgets', $sidebars );
@@ -557,7 +559,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			)
 		);
 		$enabled_post_types = array();
-		$widget_options     = get_option( Jetpack_Search_Helpers::get_widget_option_name(), array() );
+		$widget_options     = get_option( Search\Helper::get_widget_option_name(), array() );
 
 		// Prior to Jetpack 8.8, post types were enabled via Jetpack Search widgets rather than disabled via the Customizer.
 		// To continue supporting post types set up in the old way, we iterate through each Jetpack Search
@@ -572,7 +574,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 
 		if ( ! empty( $enabled_post_types ) ) {
 			$post_types_to_disable = array_diff( $post_types, $enabled_post_types );
-			update_option( Jetpack_Search_Options::OPTION_PREFIX . 'excluded_post_types', join( ',', $post_types_to_disable ) );
+			update_option( Search\Options::OPTION_PREFIX . 'excluded_post_types', join( ',', $post_types_to_disable ) );
 		}
 	}
 
@@ -591,7 +593,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			return false;
 		}
 
-		update_option( Jetpack_Search_Options::OPTION_PREFIX . 'result_format', Jetpack_Search_Options::RESULT_FORMAT_PRODUCT );
+		update_option( Search\Options::OPTION_PREFIX . 'result_format', Search\Options::RESULT_FORMAT_PRODUCT );
 	}
 
 	/**

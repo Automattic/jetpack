@@ -9,8 +9,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
-
-require_once __DIR__ . '/class-jetpack-search-options.php';
+use Automattic\Jetpack\Search\Helper as Jetpack_Search_Helpers;
 
 /**
  * The main class for the Jetpack Search module.
@@ -139,7 +138,7 @@ class Jetpack_Search {
 	 */
 	public static function instance() {
 		if ( ! isset( self::$instance ) ) {
-			if ( Jetpack_Search_Options::is_instant_enabled() ) {
+			if ( Automattic\Jetpack\Search\Options::is_instant_enabled() ) {
 				require_once __DIR__ . '/class-jetpack-instant-search.php';
 				self::$instance = new Jetpack_Instant_Search();
 			} else {
@@ -199,7 +198,6 @@ class Jetpack_Search {
 	 * Loads the PHP common to all search. Should be called from extending classes.
 	 */
 	protected function base_load_php() {
-		require_once __DIR__ . '/class.jetpack-search-helpers.php';
 		require_once __DIR__ . '/class.jetpack-search-template-tags.php';
 		require_once JETPACK__PLUGIN_DIR . 'modules/widgets/search.php';
 	}

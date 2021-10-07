@@ -7,6 +7,8 @@
  * @since      8.3.0
  */
 
+namespace Automattic\Jetpack\Search;
+
 use Automattic\Jetpack\Constants;
 
 /**
@@ -14,7 +16,7 @@ use Automattic\Jetpack\Constants;
  *
  * @since 8.3.0
  */
-class Jetpack_Search_Options {
+class Options {
 
 	/**
 	 * The search widget's base ID.
