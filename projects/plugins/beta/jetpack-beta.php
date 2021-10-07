@@ -3,7 +3,7 @@
  * Plugin Name: Jetpack Beta Tester
  * Plugin URI: https://jetpack.com/beta/
  * Description: Use the Beta plugin to get a sneak peek at new features and test them on your site.
- * Version: 3.0.3
+ * Version: 3.0.4-alpha
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
@@ -34,7 +34,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 define( 'JPBETA__PLUGIN_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
-define( 'JPBETA_VERSION', '3.0.3' );
+define( 'JPBETA_VERSION', '3.0.4-alpha' );
 
 define( 'JETPACK_BETA_PLUGINS_URL', 'https://betadownload.jetpack.me/plugins.json' );
 

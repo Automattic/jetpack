@@ -537,7 +537,7 @@ importers:
       '@automattic/color-studio': 2.5.0
       '@automattic/components': 1.0.0-alpha.3
       '@automattic/format-currency': 1.0.0-alpha.0
-      '@automattic/jetpack-analytics': workspace:^0.1.0
+      '@automattic/jetpack-analytics': workspace:^0.1.1-alpha
       '@automattic/jetpack-api': workspace:^0.3.0-alpha
       '@automattic/jetpack-components': workspace:^0.3.1
       '@automattic/jetpack-connection': workspace:^0.7.0-alpha

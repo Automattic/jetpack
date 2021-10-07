@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Update package dependencies
+Updated package dependencies
