@@ -13,12 +13,12 @@
 		"testFile": [ "extensions/all.md" ]
 	},
 	{
-		"regex": "extensions/blocks/contact-form.*",
+		"regex": "extensions/blocks/contact-form",
 		"testFile": [ "extensions/blocks/contact-form.md" ]
 	},
 
 	{
-		"regex": "modules/publicize.*",
+		"regex": "modules/publicize",
 		"testFile": [ "modules/publicize.md" ]
 	},
 	{
