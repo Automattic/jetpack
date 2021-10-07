@@ -51,10 +51,7 @@ Yes, VaultPress supports Multisite installs. Each site will require its own subs
 ### 2.2.0-beta - 2021-10-07
 #### Changed
 - Tests: update PHPUnit polyfills dependency (yoast/phpunit-polyfills).
-- Updated package dependencies
-- Updated package dependencies
 - Updated package dependencies.
-- Update package dependencies
 
 #### Removed
 - VaultPress: Remove obsolete hotfixes
