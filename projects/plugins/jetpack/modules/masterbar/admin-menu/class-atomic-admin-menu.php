@@ -93,8 +93,8 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * @return string
 	 */
 	public function get_preferred_view( $screen, $fallback_global_preference = true ) {
-		// Plugins and Export on Atomic sites are always managed on WP Admin.
-		if ( in_array( $screen, array( 'plugins.php', 'export.php' ), true ) ) {
+		// Export on Atomic sites are always managed on WP Admin.
+		if ( in_array( $screen, array( 'export.php' ), true ) ) {
 			return self::CLASSIC_VIEW;
 		}
 
@@ -107,6 +107,26 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		}
 
 		return parent::get_preferred_view( $screen, $fallback_global_preference );
+	}
+
+	/**
+	 * Adds Plugins menu.
+	 */
+	public function add_plugins_menu() {
+		/**
+		 * Whether to enable the marketplace feature entrypoint.
+		 * This filter is specific to WPCOM, that's why there is no
+		 * need to use `jetpack_` prefix.
+		 *
+		 * @use add_filter( 'wpcom_marketplace_enabled', '__return_true' );
+		 * @module masterbar
+		 * @since 10.3
+		 * @param bool $wpcom_marketplace_enabled Load the WordPress.com Marketplace feature. Default to false.
+		 */
+		if ( apply_filters( 'wpcom_marketplace_enabled', false ) ) {
+			$submenus_to_update = array( 'plugin-install.php' => 'https://wordpress.com/plugins/' . $this->domain );
+			$this->update_submenus( 'plugins.php', $submenus_to_update );
+		}
 	}
 
 	/**
