@@ -13,7 +13,9 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 	abstract public function get_jetpack_version();
 
 	/**
-	 * Get the user ID of the site owner
+	 * Points to the user ID of the site owner
+	 *
+	 * @return int
 	 */
 	abstract public function get_site_owner();
 
