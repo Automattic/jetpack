@@ -48,50 +48,19 @@ A VaultPress subscription is for a single WordPress site. You can purchase addit
 Yes, VaultPress supports Multisite installs. Each site will require its own subscription.
 
 == Changelog ==
+### 2.2.0-beta - 2021-10-07
+#### Changed
+- Tests: update PHPUnit polyfills dependency (yoast/phpunit-polyfills).
+- Updated package dependencies
+- Updated package dependencies
+- Updated package dependencies.
+- Update package dependencies
 
-= 2.1.4 =
+#### Removed
+- VaultPress: Remove obsolete hotfixes
 
-* Release date: August 7, 2020
-
-** Opcache Conflict **
-
-* General: Revert autoloader version to prior 1.7.0 version, to resolve an intermittent issue during the upgrade process for some users.
-
-= 2.1.3 =
-
-* Release date: August 6, 2020
-
-** Compatibility **
-
-* General: Handle new user meta actions.
-* General: Implement the spread operator for our IXR class methods to match WordPress Core behavior in 5.5.
-* General: Update some miscellaneous dependencies.
-
-= 2.1.2 =
-
-* Release date: Not publicly released, all changes shipped in subsequent version instead.
-
-= 2.1.1 =
-
-* Release date: December 10, 2019
-
-**Compatibility**
-
-* General: the VaultPress plugin now requires PHP 5.6, just like WordPress.
-* General: avoid using PHP short array syntax to load plugin files.
-
-= 2.1 =
-
-* Release date: December 9, 2019
-
-**Compatibility**
-
-* General: avoid PHP deprecation notices when using a newer version of the Jetpack plugin.
-* Admin Page: do not display a dashboard link if not registered.
-* Admin Page: update reset settings card wording.
-* Connect button: update link to current VaultPress page.
-* Notices: only display notices in specific locations.
-* Notices: update wording for the VaultPress connection notice
+#### Fixed
+- General: avoid PHP notices when using recent versions of PHP.
 
 --------
 
