@@ -6,7 +6,7 @@
 
 	// Minimal Mozilla Cookie library.
 	// https://developer.mozilla.org/en-US/docs/Web/API/Document/cookie/Simple_document.cookie_framework
-	var cookieLib = ( window.cookieLib = {
+	var cookieLib = {
 		getItem: function ( e ) {
 			return (
 				( e &&
@@ -56,7 +56,7 @@
 				! 0
 			);
 		},
-	} );
+	};
 
 	// Implement IAB USP API.
 	window.__uspapi = function ( command, version, callback ) {
