@@ -9,7 +9,6 @@ import PropTypes from 'prop-types';
  */
 import ActivationScreenControls from '../activation-screen-controls';
 import ActivationScreenIllustration from '../activation-screen-illustration';
-import validateLicense from '../../helpers/validate-license';
 
 /**
  * Style dependencies
@@ -31,7 +30,7 @@ const ActivationScreen = props => {
 
 	const [license, setLicense] = useState('');
 
-	const licenseError = validateLicense(license);
+	const licenseError = null;
 
 	return (
 		<div className="jp-license-activation-screen">
