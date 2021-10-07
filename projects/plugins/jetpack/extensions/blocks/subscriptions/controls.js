@@ -250,7 +250,12 @@ export default function SubscriptionControls( {
 			<PanelBody title={ __( 'Success Message Text', 'jetpack' ) }>
 				<TextareaControl
 					value={ successMessage }
-					help="Save your custom message to display when a user subscribes to your website."
+					label={ __( 'Success Message Text', 'jetpack' ) }
+					hideLabelFromVision={ true }
+					help={ __(
+						'Save your custom message to display when a user subscribes your website.',
+						'jetpack'
+					) }
 					onChange={ newSuccessMessage => setAttributes( { successMessage: newSuccessMessage } ) }
 				/>
 			</PanelBody>
