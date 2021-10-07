@@ -396,6 +396,11 @@ class Jetpack_Stats_Upgrade_Nudges {
 	/**
 	 * Prints the Scan item
 	 *
+	 * @since 10.1
+	 * @since 10.3 The scan nudge has been removed, but leaving this here in case we reverse course.
+	 *
+	 * @todo Remove this function is not used ~6 months.
+	 *
 	 * @return void
 	 */
 	private static function print_scan() {
@@ -407,6 +412,11 @@ class Jetpack_Stats_Upgrade_Nudges {
 
 	/**
 	 * Prints the Akismet item
+	 *
+	 * @since 10.1
+	 * @since 10.3 The anti-spam nudge has been removed, but leaving this here in case we reverse course.
+	 *
+	 * @todo Remove this function is not used ~6 months.
 	 *
 	 * @return void
 	 */
@@ -461,6 +471,11 @@ class Jetpack_Stats_Upgrade_Nudges {
 	 *
 	 * @param bool $print Whether to print the item output or just check whether it would be printed or not.
 	 *
+	 * @since 10.1
+	 * @since 10.3 The CRM nudge has been removed, but leaving this here in case we reverse course.
+	 *
+	 * @todo Remove this function is not used ~6 months.
+	 *
 	 * @return bool
 	 */
 	private static function get_crm_output( $print = true ) {
@@ -502,11 +517,8 @@ class Jetpack_Stats_Upgrade_Nudges {
 		if (
 			self::has_security_plan() &&
 			self::is_backup_active() &&
-			self::is_scan_active() &&
-			self::is_akismet_active() &&
 			self::is_search_active() &&
-			! self::get_boost_output( false ) &&
-			! self::get_crm_output( false )
+			! self::get_boost_output( false )
 		) {
 			return;
 		}
@@ -519,18 +531,11 @@ class Jetpack_Stats_Upgrade_Nudges {
 			if ( ! self::is_backup_active() ) {
 				self::print_backup();
 			}
-			if ( ! self::is_scan_active() ) {
-				self::print_scan();
-			}
-			if ( ! self::is_akismet_active() ) {
-				self::print_akismet();
-			}
 		}
 		if ( ! self::is_search_active() ) {
 			self::print_search();
 		}
 		self::get_boost_output();
-		self::get_crm_output();
 		self::print_footer();
 	}
 
