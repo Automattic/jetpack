@@ -24,8 +24,10 @@ import useSelectSocialMediaConnections from '../../hooks/use-social-media-connec
 import { usePostJustBeforePublish } from '../../hooks/use-saving-post';
 import { SharePostRow } from '../share-post';
 import { useSharePostFeature } from '../../hooks/use-share-post';
+import usePublicizeConfig from '../../hooks/use-publicize-config';
 
 const PublicizePanel = ( { prePublish } ) => {
+	const { isRePublicizeFeatureEnabled } = usePublicizeConfig();
 	const { refresh, connections, hasEnabledConnections } = useSelectSocialMediaConnections();
 	const { isEnabled, toggleEnable } = useSharePostFeature();
 
@@ -82,27 +84,42 @@ const PublicizePanel = ( { prePublish } ) => {
 		);
 	}
 
+	// Override the main message if the feature is disabled.
+	if ( ! isRePublicizeFeatureEnabled ) {
+		mainMessage = __(
+			'This post will be shared on all your enabled social media accounts the moment you publish the post.',
+			'jetpack'
+		);
+	}
+
+	const hideBehindRePublicizeFlag = isEnabled || ! isRePublicizeFeatureEnabled;
+
 	return (
 		<PanelBody title={ __( 'Share this post', 'jetpack' ) }>
-			<PanelRow>
-				<ToggleControl
-					label={
-						isEnabled
-							? __( 'Sharing is enabled', 'jetpack' )
-							: __( 'Sharing is disabled', 'jetpack' )
-					}
-					onChange={ toggleEnable }
-					checked={ isEnabled }
-					disabled={ ! hasConnections }
-				/>
-			</PanelRow>
+			{ isRePublicizeFeatureEnabled && (
+				<PanelRow>
+					<ToggleControl
+						label={
+							isEnabled
+								? __( 'Sharing is enabled', 'jetpack' )
+								: __( 'Sharing is disabled', 'jetpack' )
+						}
+						onChange={ toggleEnable }
+						checked={ isEnabled }
+						disabled={ ! hasConnections }
+					/>
+				</PanelRow>
+			) }
 
 			<p>{ mainMessage }</p>
 
 			<PublicizeConnectionVerify />
-			<PublicizeForm isPublicizeEnabled={ isEnabled } />
-			{ isEnabled && <PublicizeTwitterOptions prePublish={ prePublish } /> }
-			<SharePostRow isEnabled={ isPostPublished && isEnabled } />
+			<PublicizeForm
+				isPublicizeEnabled={ hideBehindRePublicizeFlag }
+				isRePublicizeFeatureEnabled={ isRePublicizeFeatureEnabled }
+			/>
+			{ hideBehindRePublicizeFlag && <PublicizeTwitterOptions prePublish={ prePublish } /> }
+			{ isRePublicizeFeatureEnabled && <SharePostRow isEnabled={ isPostPublished && isEnabled } /> }
 		</PanelBody>
 	);
 };
