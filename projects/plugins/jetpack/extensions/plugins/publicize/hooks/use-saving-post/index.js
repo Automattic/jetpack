@@ -21,13 +21,11 @@ function useProcessingPost( params, fn, deps = [] ) {
 	const isProcessing = useSelect( select => select( editorStore )[ selector ](), [] );
 	const wasProcessing = usePrevious( isProcessing );
 
-	useEffect( () => after === wasProcessing && after !== isProcessing && fn(), [
-		isProcessing,
-		wasProcessing,
-		after,
-		fn,
-		deps,
-	] );
+	useEffect( () => {
+		if ( after === wasProcessing && after !== isProcessing ) {
+			fn();
+		}
+	}, [ isProcessing, wasProcessing, after, fn, deps ] );
 }
 
 /**
