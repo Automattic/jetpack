@@ -34,7 +34,7 @@ When you want to release a new version of the plugin, follow the steps below:
 4. Visit [this page](https://github.com/Automattic/jetpack-beta/releases), and click on the tag.
 5. Download the zip file of your tag.
 6. Locally, unzip that zip file, and rename the extracted folder to `jetpack-beta`.
-7. Compress that folder back to `jetpack-beta.zip`.
+7. Compress that folder back to `jetpack-beta.zip`. Do not use the MacOS UI! Use `zip -r jetpack-beta.php jetpack-beta/`.
 8. Create a new release from the tag.
 	- You'll want to fill in the release title with `Jetpack Beta xx`
 	- Add the body of your changelog as release description.
