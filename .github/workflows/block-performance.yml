@@ -48,7 +48,9 @@ jobs:
           # Gutenberg Performance tests require disable-animations.php test plugin to be available on a site. Below we inject the mapping for that plugin into a Docker config file
 
           echo "BEFORE ECHO"
-          echo "e2e:\n  volumeMappings:\n    gutenberg/packages/e2e-tests/plugins/disable-animations.php: /var/www/html/wp-content/plugins/disable-animations.php" >> ../docker/jetpack-docker-config.yml
+          echo "e2e:" >> ../docker/jetpack-docker-config.yml
+          echo "  volumeMappings:" >> ../docker/jetpack-docker-config.yml
+          echo "    gutenberg/packages/e2e-tests/plugins/disable-animations.php: /var/www/html/wp-content/plugins/disable-animations.php" >> ../docker/jetpack-docker-config.yml
           echo "AFTER ECHO"
 
           mkdir results
@@ -56,6 +58,7 @@ jobs:
           pnpm config:decrypt
           pnpm env:start
 
+          cat ../docker/jetpack-docker-config.yml
           cat ../docker/compose-mappings.built.yml
 
           pnpm tunnel:on
