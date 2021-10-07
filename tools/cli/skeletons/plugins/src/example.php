@@ -1,6 +1,6 @@
 <?php
 /**
- * Put your classes in this `src` file!
+ * Put your classes in this `src` folder!
  *
  * @package automattic/PACKAGE-NAME
  */
