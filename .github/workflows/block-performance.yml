@@ -48,13 +48,16 @@ jobs:
         env:
           CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
         run: |
+          ## Gutenberg Performance tests require disable-animations.php test plugin to be available on a site. Below we inject the mapping for that plugin into a Docker config file
+          echo "e2e:\n  volumeMappings:\n    gutenberg/packages/e2e-tests/plugins/disable-animations.php: /var/www/html/wp-content/plugins/disable-animations.php" >> ../docker/jetpack-docker-config.yml
+
+          mkdir results
           pnpm install
           pnpm config:decrypt
-          echo "    gutenberg/packages/e2e-tests/plugins/disable-animations.php: /var/www/html/wp-content/plugins/disable-animations.php" >> ../docker/jetpack-docker-config-default.yml
           pnpm env:start
           pnpm tunnel:on
           pnpx jetpack docker --type e2e --name t1 wp plugin deactivate jetpack
-          mkdir results
+          pnpx jetpack docker --type e2e --name t1 wp user create admin admin@example.com --role=administrator --user_pass=password
 
       - name: Run performance base test
         working-directory: gutenberg
@@ -67,14 +70,13 @@ jobs:
 
       - name: Set up Jetpack connection
         working-directory: tools/e2e-commons
-        env:
-          CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
         run: |
           pnpm env:reset
           pnpm tunnel:reset
           pnpm jetpack-connect
           pnpx jetpack docker --type e2e --name t1 wp plugin activate jetpack
           pnpx jetpack docker --type e2e --name t1 wp jetpack module deactivate sso
+          pnpx jetpack docker --type e2e --name t1 wp user create admin admin@example.com --role=administrator --user_pass=password
 
       - name: Run performance Jetpack test
         working-directory: gutenberg
