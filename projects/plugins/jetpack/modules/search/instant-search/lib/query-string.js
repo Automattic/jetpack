@@ -29,7 +29,7 @@ export function getQuery( search = window.location.search ) {
 /**
  * Change the query string.
  *
- * @param {object} queryObject - a query object.
+ * @param {object|null} queryObject - a query object.
  */
 function setQuery( queryObject ) {
 	pushQueryString( encode( queryObject ) );
