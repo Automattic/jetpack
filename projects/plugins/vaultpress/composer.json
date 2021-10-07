@@ -8,8 +8,8 @@
 		"issues": "https://github.com/Automattic/jetpack/issues"
 	},
 	"require": {
-		"automattic/jetpack-logo": "1.5.x-dev",
-		"automattic/jetpack-autoloader": "2.10.x-dev"
+		"automattic/jetpack-logo": "^1.5",
+		"automattic/jetpack-autoloader": "^2.10"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.2",
@@ -42,15 +42,7 @@
 			"rm -rf vendor/"
 		]
 	},
-	"repositories": [
-		{
-			"type": "path",
-			"url": "../../packages/*",
-			"options": {
-				"monorepo": true
-			}
-		}
-	],
+	"repositories": [],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
