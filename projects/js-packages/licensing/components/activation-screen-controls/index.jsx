@@ -9,6 +9,11 @@ import PropTypes from 'prop-types';
 import { createInterpolateElement } from '@wordpress/element';
 
 /**
+ * Internal dependencies
+ */
+import ErrorGridicon from './error-gridicon';
+
+/**
  * Style dependencies
  */
 import './style.scss';
@@ -18,12 +23,15 @@ import './style.scss';
  * @param {object} props -- The properties.
  * @param {string} props.siteUrl
  * @param {string} props.license
+ * @param {?string} props.licenseError
  * @param {function} props.onLicenseChange
  * @param {function} props.submitLicense
  * @returns {React.Component} The `ActivationScreenControls` component.
  */
 const ActivationScreenControls = props => {
-	const { license, onLicenseChange, siteUrl } = props;
+	const { license, licenseError, onLicenseChange, siteUrl } = props;
+
+	const hasLicenseError = licenseError !== null;
 
 	return (
 		<div className="jp-license-activation-screen-controls">
@@ -45,12 +53,22 @@ const ActivationScreenControls = props => {
 				)}
 			</p>
 			<TextControl
-				className="jp-license-activation-screen-controls--license-field"
+				className={
+					!hasLicenseError
+						? 'jp-license-activation-screen-controls--license-field'
+						: 'jp-license-activation-screen-controls--license-field-with-error'
+				}
 				label={__('License key', 'jetpack')}
 				placeholder="jp-Product34623432423423"
 				value={license}
 				onChange={onLicenseChange}
 			/>
+			{hasLicenseError && (
+				<div className="jp-license-activation-screen-controls--license-field-error">
+					<ErrorGridicon />
+					<span>{licenseError}</span>
+				</div>
+			)}
 			<Button className="jp-license-activation-screen-controls--button">
 				{__('Activate', 'jetpack')}
 			</Button>
