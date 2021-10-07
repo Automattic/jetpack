@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Added a message in case a 418 error occured during critical CSS generation

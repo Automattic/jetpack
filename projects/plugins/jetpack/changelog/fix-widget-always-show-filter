@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Search: fix user could not uncheck filter when result is empty

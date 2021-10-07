@@ -120,12 +120,12 @@ $no_boost_score_size: 28px;
 		position: relative;
 		font-size: 14px;
 		position: relative;
-		z-index: $label_z_index;
 
 		@include breakpoint(sm) {
 			padding-left: 15px;
 			padding-right: 15px;
 			width: 200px;
+			z-index: $label_z_index;
 		}
 	}
 

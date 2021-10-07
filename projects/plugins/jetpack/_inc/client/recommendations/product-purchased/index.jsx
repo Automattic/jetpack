@@ -11,7 +11,7 @@ import { ProgressBar } from '@automattic/components';
  * Internal dependencies
  */
 import { PromptLayout } from '../prompts/prompt-layout';
-import { LoadingCard } from '../sidebar/loading-card';
+import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import analytics from 'lib/analytics';
@@ -82,7 +82,7 @@ const ProductPurchasedComponent = props => {
 	}, [ suggestion ] );
 
 	if ( ! suggestion ) {
-		return <LoadingCard />;
+		return <JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />;
 	}
 
 	const answerSection = (
