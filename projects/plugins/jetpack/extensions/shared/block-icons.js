@@ -21,7 +21,7 @@ export function getIconColor() {
 	if ( isAtomicSite() || isSimpleSite() ) {
 		// Default Gutenberg G2 Black
 		// https://github.com/WordPress/gutenberg/blob/34ed2a6042d42fa18a5dcd0853d59bdff6a068d9/packages/base-styles/_colors.scss#L29
-		return '#1e1e1e';
+		return null;
 	}
 
 	// Jetpack Green
