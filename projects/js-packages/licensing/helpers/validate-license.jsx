@@ -1,3 +1,5 @@
+import { __ } from '@wordpress/i18n';
+
 const licenseRegexp = /^jp-[A-Za-z]*[0-9]{14}$/;
 
 /**
