@@ -2,7 +2,7 @@
 /**
  * Put your classes in this `src` folder!
  *
- * @package automattic/PACKAGE-NAME
+ * @package automattic/jetpack-search
  */
 
 // Start your code here!
