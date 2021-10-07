@@ -77,7 +77,7 @@ export async function releaseCli( argv ) {
 	}
 
 	// Get the info we need for the script.
-	scriptRouter( argv );
+	await scriptRouter( argv );
 
 	// Run the script.
 	await runScript( argv );
