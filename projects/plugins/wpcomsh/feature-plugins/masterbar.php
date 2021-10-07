@@ -278,3 +278,8 @@ function wpcomsh_update_plugin_add_filter() {
 	add_filter( 'self_admin_url', 'wpcomsh_update_plugin_link_destinaion', 10, 3 );
 }
 add_action( 'admin_menu', 'wpcomsh_update_plugin_add_filter' );
+
+/**
+ * Enable the mailbox in WPCOMSH sites.
+ */
+add_filter( 'jetpack_show_wpcom_inbox_menu', '__return_true' );
