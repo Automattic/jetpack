@@ -127,31 +127,7 @@ class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_REST_Controller
 
 			return $result;
 		} else {
-			/*
-			 * Publicize endpoint on WPCOM:
-			 * [POST] wpcom/v2/sites/{$siteId}/posts/{$postId}/publicize
-			 * body:
-			 *   - message: string
-			 *   - skipped_connections: array of connection ids to skip
-			 */
-			$url = sprintf(
-				'/sites/%d/posts/%d/publicize',
-				Jetpack_Options::get_option( 'id' ),
-				$post_id
-			);
-
-			$response = Client::wpcom_json_api_request_as_user(
-				$url,
-				'v2',
-				array(
-					'method' => 'POST',
-				),
-				array(
-					'message'             => $message,
-					'skipped_connections' => $skip_connection_ids,
-				)
-			);
-
+			$response = $this->proxy_request( $post_id, $message, $skip_connection_ids );
 			if ( is_wp_error( $response ) ) {
 				return rest_ensure_response( $response );
 			}
