@@ -54,7 +54,7 @@ class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_REST_Controller
 						'type'              => 'string',
 						'required'          => true,
 						'validate_callback' => function ( $param ) {
-							return is_string( $param ) && '' !== $param;
+							return is_string( $param );
 						},
 						'sanitize_callback' => 'sanitize_textarea_field',
 					),
