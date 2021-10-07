@@ -19,8 +19,7 @@ const COLOR_JETPACK = PALETTE[ 'Jetpack Green 40' ];
  */
 export function getIconColor() {
 	if ( isAtomicSite() || isSimpleSite() ) {
-		// Default Gutenberg G2 Black
-		// https://github.com/WordPress/gutenberg/blob/34ed2a6042d42fa18a5dcd0853d59bdff6a068d9/packages/base-styles/_colors.scss#L29
+		// Return null to match core block styling
 		return null;
 	}
 
