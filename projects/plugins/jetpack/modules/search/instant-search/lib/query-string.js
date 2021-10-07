@@ -36,7 +36,7 @@ function setQuery( queryObject ) {
 }
 
 // Create debounced function.
-// Debounce for 1s to really change the query string.
+// Uses a longer delay to ensure we're not filling up the user's browser history with part-typed queries.
 const setQueryDebounced = debounce( setQuery, DEBOUNCED_TIME_TO_SET_QUERY_MILLISECONDS );
 
 // Export debounced function with original function name.
