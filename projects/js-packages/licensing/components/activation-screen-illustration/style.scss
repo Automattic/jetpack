@@ -1,8 +1,10 @@
 @import '../rna-styles';
 
 .jp-license-activation-screen-illustration {
+	align-items: center;
 	background: var(--jp-white-off);
 	display: flex;
 	flex-direction: column;
-	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 32px;
 }

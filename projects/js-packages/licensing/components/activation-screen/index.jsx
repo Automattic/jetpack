@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
 /**
@@ -9,6 +9,7 @@ import PropTypes from 'prop-types';
  */
 import ActivationScreenControls from '../activation-screen-controls';
 import ActivationScreenIllustration from '../activation-screen-illustration';
+import validateLicense from '../../helpers/validate-license';
 
 /**
  * Style dependencies
@@ -28,9 +29,18 @@ import './style.scss';
 const ActivationScreen = props => {
 	const { assetBaseUrl, lockImage, siteRawUrl } = props;
 
+	const [license, setLicense] = useState('');
+
+	const licenseError = validateLicense(license);
+
 	return (
 		<div className="jp-license-activation-screen">
-			<ActivationScreenControls siteUrl={siteRawUrl} />
+			<ActivationScreenControls
+				license={license}
+				onLicenseChange={value => setLicense(value)}
+				siteUrl={siteRawUrl}
+				licenseError={licenseError}
+			/>
 			<ActivationScreenIllustration imageUrl={assetBaseUrl + lockImage} />
 		</div>
 	);
