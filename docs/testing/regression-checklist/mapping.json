@@ -1,10 +1,10 @@
 [
 	{
-		"regex": "packages/connection/(?!CHANGELOG|changelog/)",
+		"regex": "^projects/packages/connection/(?!CHANGELOG|changelog/)",
 		"testFile": [ "packages/connection.md" ]
 	},
 	{
-		"regex": "packages/sync/(?!CHANGELOG|changelog/)",
+		"regex": "^projects/packages/sync/(?!CHANGELOG|changelog/)",
 		"testFile": [ "packages/sync.md" ]
 	},
 
