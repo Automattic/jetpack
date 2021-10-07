@@ -97,6 +97,7 @@ export async function runScript( argv ) {
 		} );
 	} catch ( err ) {
 		console.error( 'Error running script!', err );
+		process.exit( 1 );
 	}
 
 	console.log( argv.next );
