@@ -6,7 +6,8 @@
 	min-height: calc(100vh - 60px);
 	display: flex;
 	flex-direction: column;
-
+  	position: relative;
+  	overflow-x: hidden;
 }
 
 .jb-section {
