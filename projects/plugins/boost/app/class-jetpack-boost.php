@@ -103,6 +103,26 @@ class Jetpack_Boost {
 	public $connection;
 
 	/**
+	 * The unique instance of the plugin.
+	 *
+	 * @var Jetpack_Boost
+	 */
+	private static $instance;
+
+	/**
+	 * Gets an instance of our plugin.
+	 *
+	 * @return Jetpack_Boost
+	 */
+	public static function get_instance() {
+		if ( null === self::$instance ) {
+			self::$instance = new self();
+		}
+
+		return self::$instance;
+	}
+
+	/**
 	 * Define the core functionality of the plugin.
 	 *
 	 * Set the plugin name and the plugin version that can be used throughout the plugin.
@@ -455,7 +475,7 @@ class Jetpack_Boost {
 		 */
 		require_once plugin_dir_path( __FILE__ ) . 'admin/class-admin.php';
 
-		new Admin( $this );
+		new Admin();
 	}
 
 	/**

@@ -56,13 +56,10 @@ class Admin {
 	/**
 	 * Initialize the class and set its properties.
 	 *
-	 * @param Jetpack_Boost $jetpack_boost Main plugin instance.
-	 *
 	 * @since    1.0.0
 	 */
-	public function __construct( Jetpack_Boost $jetpack_boost ) {
-		$this->jetpack_boost = $jetpack_boost;
-		$this->speed_score   = new Speed_Score();
+	public function __construct() {
+		$this->speed_score = new Speed_Score();
 		Environment_Change_Detector::init();
 
 		add_action( 'init', array( new Analytics(), 'init' ) );
@@ -126,7 +123,7 @@ class Admin {
 		$internal_path = apply_filters( 'jetpack_boost_asset_internal_path', 'app/assets/dist/' );
 
 		wp_enqueue_style(
-			$this->jetpack_boost->get_plugin_name() . '-css',
+			Jetpack_Boost::get_instance()->get_plugin_name() . '-css',
 			plugins_url( $internal_path . 'jetpack-boost.css', JETPACK_BOOST_PATH ),
 			array( 'wp-components' ),
 			JETPACK_BOOST_VERSION
@@ -145,7 +142,7 @@ class Admin {
 
 		$internal_path = apply_filters( 'jetpack_boost_asset_internal_path', 'app/assets/dist/' );
 
-		$admin_js_handle = $this->jetpack_boost->get_plugin_name() . '-admin';
+		$admin_js_handle = Jetpack_Boost::get_instance()->get_plugin_name() . '-admin';
 
 		wp_register_script(
 			$admin_js_handle,
@@ -162,8 +159,8 @@ class Admin {
 				'namespace' => JETPACK_BOOST_REST_NAMESPACE,
 				'prefix'    => JETPACK_BOOST_REST_PREFIX,
 			),
-			'modules'             => $this->jetpack_boost->get_available_modules(),
-			'config'              => $this->jetpack_boost->config()->get_data(),
+			'modules'             => Jetpack_Boost::get_instance()->get_available_modules(),
+			'config'              => Jetpack_Boost::get_instance()->config()->get_data(),
 			'locale'              => get_locale(),
 			'site'                => array(
 				'url'       => get_site_url(),
@@ -207,7 +204,7 @@ class Admin {
 	 */
 	public function render_settings() {
 		wp_localize_script(
-			$this->jetpack_boost->get_plugin_name() . '-admin',
+			Jetpack_Boost::get_instance()->get_plugin_name() . '-admin',
 			'wpApiSettings',
 			array(
 				'root'  => esc_url_raw( rest_url() ),
@@ -264,10 +261,10 @@ class Admin {
 		}
 
 		$module_slug = $request['slug'];
-		$this->jetpack_boost->set_module_status( (bool) $params['status'], $module_slug );
+		Jetpack_Boost::get_instance()->set_module_status( (bool) $params['status'], $module_slug );
 
 		return rest_ensure_response(
-			$this->jetpack_boost->get_module_status( $module_slug )
+			Jetpack_Boost::get_instance()->get_module_status( $module_slug )
 		);
 	}
 
@@ -278,7 +275,7 @@ class Admin {
 		// Determine if we're already on the settings page.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$on_settings_page = isset( $_GET['page'] ) && self::MENU_SLUG === $_GET['page'];
-		$notices          = $this->jetpack_boost->get_admin_notices();
+		$notices          = Jetpack_Boost::get_instance()->get_admin_notices();
 
 		// Filter out any that have been dismissed, unless newer than the dismissal.
 		$dismissed_notices = \get_option( self::DISMISSED_NOTICE_OPTION, array() );
@@ -309,7 +306,7 @@ class Admin {
 	 * @return array List of notice ids.
 	 */
 	private function get_shown_admin_notice_ids() {
-		$notices = $this->jetpack_boost->get_admin_notices();
+		$notices = Jetpack_Boost::get_instance()->get_admin_notices();
 		$ids     = array();
 		foreach ( $notices as $notice ) {
 			$ids[] = $notice->get_id();

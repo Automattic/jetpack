@@ -115,7 +115,7 @@ require plugin_dir_path( __FILE__ ) . 'app/class-jetpack-boost.php';
  * @since 0.1.0
  */
 function run_jetpack_boost() {
-	new Jetpack_Boost();
+	Jetpack_Boost::get_instance();
 }
 
 add_action( 'plugins_loaded', '\Automattic\Jetpack_Boost\run_jetpack_boost', 1 );
@@ -144,6 +144,6 @@ register_uninstall_hook( __FILE__, 'Automattic\Jetpack_Boost\jetpack_boost_unins
  * Clean up when uninstalling Jetpack Boost
  */
 function jetpack_boost_uninstall() {
-	$boost = new Jetpack_Boost();
+	$boost = Jetpack_Boost::get_instance();
 	$boost->uninstall();
 }
