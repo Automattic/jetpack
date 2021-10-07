@@ -9,6 +9,8 @@
 
 namespace Automattic\Jetpack_Boost\Lib;
 
+use Automattic\Jetpack_Boost\Jetpack_Boost;
+
 /**
  * Class Speed_Score
  */
@@ -177,9 +179,10 @@ class Speed_Score {
 		$history        = new Speed_Score_History( $url_no_boost );
 		$latest_history = $history->latest();
 		$score_request  = $this->get_score_request_by_url( $url_no_boost );
+		$jetpack_boost  = Jetpack_Boost::get_instance();
 
 		// Refetch the score without boost if it is older than a day.
-		if ( ( empty( $score_request ) || ! $score_request->is_pending() ) && ( null === $latest_history || $latest_history['timestamp'] < strtotime( '- 24 hours' ) ) ) {
+		if ( ! empty( $jetpack_boost->get_active_modules() ) && ( empty( $score_request ) || ! $score_request->is_pending() ) && ( null === $latest_history || $latest_history['timestamp'] < strtotime( '- 24 hours' ) ) ) {
 			$score_request = new Speed_Score_Request( $url_no_boost ); // Dispatch a new speed score request to measure score without boost.
 			$score_request->store( 3600 ); // Keep the request for 1 hour even if no one access the results. The value is persisted for 1 hour in wp.com from initial request.
 
@@ -256,8 +259,14 @@ class Speed_Score {
 
 			$response['scores'] = array(
 				'current' => $history->latest_scores(),
-				'noBoost' => $history_no_boost->latest_scores(),
+				'noBoost' => null,
 			);
+
+			// Only include noBoost scores if at least one modules is enabled.
+			$jetpack_boost = Jetpack_Boost::get_instance();
+			if ( ! empty( $jetpack_boost->get_active_modules() ) ) {
+				$response['scores']['noBoost'] = $history_no_boost->latest_scores();
+			}
 		} else {
 			// If either request ended up in error, we can just return the one with error so front-end can take action. The relevent url is available on the serialized object.
 			if ( ( $score_request && $score_request->is_error() ) || ( $score_request_no_boost && $score_request_no_boost->is_error() ) ) {
