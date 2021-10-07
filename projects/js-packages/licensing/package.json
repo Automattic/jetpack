@@ -1,0 +1,33 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-licensing",
+	"version": "0.1.0-alpha",
+	"description": "Activate Jetpack licenses from within a plugin",
+	"homepage": "https://jetpack.com",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.@(jsx|js)'"
+	},
+	"devDependencies": {},
+	"engines": {
+		"node": "^14.17.6 || ^16.7.0",
+		"pnpm": "^6.5.0",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	},
+	"exports": {
+		".": "./index.jsx",
+		"./state": "./src/state",
+		"./action-types": "./src/state/action-types"
+	},
+	"dependencies": {
+		"jetpack-js-test-runner": "workspace:*"
+	}
+}
