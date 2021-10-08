@@ -9,15 +9,28 @@
 
 namespace Automattic\Jetpack_Boost\Lib;
 
+use Automattic\Jetpack_Boost\Jetpack_Boost;
+
 /**
  * Class Speed_Score
  */
 class Speed_Score {
 
 	/**
-	 * Constructor.
+	 * Main plugin instance.
+	 *
+	 * @var Jetpack_Boost Plugin.
 	 */
-	public function __construct() {
+	private $jetpack_boost;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param Jetpack_Boost $jetpack_boost Main plugin instance.
+	 */
+	public function __construct( Jetpack_Boost $jetpack_boost ) {
+		$this->jetpack_boost = $jetpack_boost;
+
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'jetpack_boost_clear_cache', array( $this, 'clear_speed_score_request_cache' ) );
 	}
@@ -178,8 +191,16 @@ class Speed_Score {
 		$latest_history = $history->latest();
 		$score_request  = $this->get_score_request_by_url( $url_no_boost );
 
-		// Refetch the score without boost if it is older than a day.
-		if ( ( empty( $score_request ) || ! $score_request->is_pending() ) && ( null === $latest_history || $latest_history['timestamp'] < strtotime( '- 24 hours' ) ) ) {
+		if (
+			// If there isn't already a pending request.
+			( empty( $score_request ) || ! $score_request->is_pending() )
+			&& ! empty( $this->jetpack_boost->get_active_modules() )
+			&& (
+				null === $latest_history
+				|| $latest_history['timestamp'] < strtotime( '- 24 hours' ) // Refetch if it is older than a day.
+				|| wp_get_theme()->get( 'Name' ) !== $latest_history['theme'] // Refetch if then theme was changed.
+			)
+		) {
 			$score_request = new Speed_Score_Request( $url_no_boost ); // Dispatch a new speed score request to measure score without boost.
 			$score_request->store( 3600 ); // Keep the request for 1 hour even if no one access the results. The value is persisted for 1 hour in wp.com from initial request.
 
@@ -256,8 +277,13 @@ class Speed_Score {
 
 			$response['scores'] = array(
 				'current' => $history->latest_scores(),
-				'noBoost' => $history_no_boost->latest_scores(),
+				'noBoost' => null,
 			);
+
+			// Only include noBoost scores if at least one modules is enabled.
+			if ( ! empty( $this->jetpack_boost->get_active_modules() ) ) {
+				$response['scores']['noBoost'] = $history_no_boost->latest_scores();
+			}
 		} else {
 			// If either request ended up in error, we can just return the one with error so front-end can take action. The relevent url is available on the serialized object.
 			if ( ( $score_request && $score_request->is_error() ) || ( $score_request_no_boost && $score_request_no_boost->is_error() ) ) {
