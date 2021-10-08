@@ -1,5 +1,4 @@
 export const DEFAULT_STATE = {
-	connections: [],
 	tweets: [],
 	twitterCards: [],
 };
@@ -13,43 +12,18 @@ export const DEFAULT_STATE = {
  */
 export default function ( state = DEFAULT_STATE, action ) {
 	switch ( action.type ) {
-		case 'SET_CONNECTION_TEST_RESULTS': {
-			const { connections } = action;
-			return {
-				...state,
-				connections,
-			};
-		}
+		case 'REFRESH_CONNECTION_TEST_RESULTS':
+			return state;
 
-		case 'REFRESH_CONNECTION_TEST_RESULTS': {
-			const { connections } = action;
-			return {
-				...state,
-				connections,
-			};
-		}
-
-		case 'TOGGLE_CONNECTION_BY_ID': {
-			/*
-			 * Map connections re-defining the enabled state of the connection,
-			 * based on the connection ID.
-			 */
-			const connections = state.connections.map( connection => ( {
-				...connection,
-				enabled: connection.id === action.connectionId ? ! connection.enabled : connection.enabled,
-			} ) );
-
-			return {
-				...state,
-				connections,
-			};
-		}
+		case 'TOGGLE_CONNECTION_BY_ID':
+			return state;
 
 		case 'SET_TWEETS':
 			return {
 				...state,
 				tweets: action.tweets,
 			};
+
 		case 'GET_TWITTER_CARDS': {
 			const loadingCards = {};
 			action.urls.forEach( url => ( loadingCards[ url ] = { error: 'loading' } ) );
