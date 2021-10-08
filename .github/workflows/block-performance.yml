@@ -63,7 +63,7 @@ jobs:
 
           pnpm tunnel:on
           pnpx jetpack docker --type e2e --name t1 wp plugin deactivate jetpack
-          pnpx jetpack docker --type e2e --name t1 wp user create admin admin@example.com --role=administrator --user_pass=password
+          pnpx jetpack docker --type e2e --name t1 wp -- user create admin admin@example.com --role=administrator --user_pass=password
 
       - name: Run performance base test
         working-directory: gutenberg
@@ -82,7 +82,7 @@ jobs:
           pnpm jetpack-connect
           pnpx jetpack docker --type e2e --name t1 wp plugin activate jetpack
           pnpx jetpack docker --type e2e --name t1 wp jetpack module deactivate sso
-          pnpx jetpack docker --type e2e --name t1 wp user create admin admin@example.com --role=administrator --user_pass=password
+          pnpx jetpack docker --type e2e --name t1 wp -- user create admin admin@example.com --role=administrator --user_pass=password
 
       - name: Run performance Jetpack test
         working-directory: gutenberg
