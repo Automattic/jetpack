@@ -10,7 +10,7 @@
 		"env:start": "./bin/e2e-env.sh start",
 		"env:stop": "./bin/e2e-env.sh stop",
 		"env:reset": "./bin/e2e-env.sh reset",
-		"tunnel:on": "pnpm run tunnel:off && pm2 start config/ecosystem.config.js && pm2 logs --nostream --lines 4",
+		"tunnel:on": "pm2 start config/ecosystem.config.js && pm2 logs --nostream --lines 4",
 		"tunnel:reset": "rm -rf config/tmp && pnpm run tunnel:on",
 		"tunnel:off": "pm2 delete config/ecosystem.config.js && NODE_ENV=test node bin/tunnel.js off",
 		"tunnel:logs": "pm2 logs --nostream --lines 10000 > output/logs/tunnel.log",
