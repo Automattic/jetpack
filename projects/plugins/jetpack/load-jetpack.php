@@ -41,6 +41,7 @@ add_filter( 'jetpack_should_use_minified_assets', 'jetpack_should_use_minified_a
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-network.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-client-server.php';
+require_once JETPACK__PLUGIN_DIR . 'class.jetpack-user-agent.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-post-images.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-heartbeat.php';
 require_once JETPACK__PLUGIN_DIR . 'class.photon.php';
