@@ -9,12 +9,12 @@ import { get, includes } from 'lodash';
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import ExternalLink from 'components/external-link';
-import getRedirectUrl from 'lib/jp-redirect';
 import TextInput from 'components/text-input';
 import { FormFieldset, FormLabel } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';

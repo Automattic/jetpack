@@ -1,5 +1,5 @@
 packages:
   - 'projects/*/*'
   - 'tools/cli'
-  - 'tools/eslint'
   - 'tools/js-test-runner'
+  - 'tools/js-tools'

@@ -10,16 +10,13 @@ import Plan from './plan';
 
 /**
  * @typedef { import('./plan').Plan } Plan
- *
  * @typedef {object} Props
  * @property { Plan[] } plans
  * @property { undefined | Plan } selectedPlan
  * @property { (plan: Plan) => void } onSelected
  * @property { () => void } onClose
  * @property { string } className
- *
  * @param {Props} props
- *
  * @returns {object} Available plans.
  */
 export default function Plans( props ) {
@@ -27,7 +24,7 @@ export default function Plans( props ) {
 
 	return (
 		<MenuGroup>
-			{ plans.map( ( plan ) => (
+			{ plans.map( plan => (
 				<Plan
 					{ ...props }
 					key={ plan.id }

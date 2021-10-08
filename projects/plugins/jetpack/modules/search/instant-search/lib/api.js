@@ -44,6 +44,28 @@ export function buildFilterAggregations( widgets = [] ) {
 }
 
 /**
+ * The function set the aggregation count to zero which is just meant for users to uncheck.
+ * Tried to merge the buckets, but which ended up showing too many filters.
+ *
+ * @param {object} newAggregations - New aggregations to operate on.
+ * @returns {object} - Aggregations with doc_count set to 0.
+ */
+export function setDocumentCountsToZero( newAggregations ) {
+	newAggregations = newAggregations ?? {};
+	return Object.fromEntries(
+		Object.entries( newAggregations )
+			.filter( ( [ , aggregation ] ) => aggregation?.buckets?.length > 0 )
+			.map( ( [ aggregationKey, aggregation ] ) => {
+				const buckets = aggregation.buckets.map( bucket => ( {
+					...bucket,
+					doc_count: 0,
+				} ) );
+				return [ aggregationKey, { ...aggregation, buckets } ];
+			} )
+	);
+}
+
+/**
  * Builds ElasticSearch aggregations for a given filter.
  *
  * @param {object[]} filter - a filter object from a widget configuration object.
@@ -219,7 +241,6 @@ function mapSortToApiValue( sort ) {
  * Generate the query string for an API request
  *
  * @param {object} options - Options object for the function
- *
  * @returns {string} The generated query string.
  */
 function generateApiQueryString( {
@@ -300,24 +321,6 @@ function generateApiQueryString( {
 	return encode( flatten( params ) );
 }
 /* eslint-enable jsdoc/require-param,jsdoc/check-param-names */
-
-/**
- * Turn a proxy request into a promise
- *
- * @param {Function} proxyRequest - The wpcom-proxy-request function
- * @param {string} path - The API path to use
- * @returns {Promise} A promise to a proxy request response
- */
-function promiseifedProxyRequest( proxyRequest, path ) {
-	return new Promise( function ( resolve, reject ) {
-		proxyRequest( { path, apiVersion: '1.3' }, function ( err, body, headers ) {
-			if ( err ) {
-				reject( err );
-			}
-			resolve( body, headers );
-		} );
-	} );
-}
 
 /**
  * Generate an error handler for a given cache key
@@ -407,19 +410,19 @@ export function search( options, requestId ) {
 
 	const pathForPublicApi = `/sites/${ options.siteId }/search?${ queryString }`;
 
-	const { apiNonce, apiRoot, isPrivateSite, isWpcom } = window[ SERVER_OBJECT_NAME ];
-	if ( isPrivateSite && isWpcom ) {
-		return import( '../external/wpcom-proxy-request' ).then( ( { default: proxyRequest } ) => {
-			return promiseifedProxyRequest( proxyRequest, pathForPublicApi )
-				.catch( errorHandler )
-				.then( responseHandler );
-		} );
-	}
+	const { apiNonce, apiRoot, homeUrl, isPrivateSite, isWpcom } = window[ SERVER_OBJECT_NAME ];
 
-	// NOTE: Both atomic and Jetpack sites can be set to "private".
+	// NOTE: Both simple and atomic sites can be set to "private".
+	//       "Private" Jetpack sites are not yet supported.
 	const urlForPublicApi = `https://public-api.wordpress.com/rest/v1.3${ pathForPublicApi }`;
-	const urlForPrivateApi = `${ apiRoot }wpcom/v2/search?${ queryString }`;
-	const url = isPrivateSite ? urlForPrivateApi : urlForPublicApi;
+	const urlForWpcomOrigin = `${ homeUrl }/wp-json/wpcom-origin/v1.3${ pathForPublicApi }`;
+	const urlForAtomicOrigin = `${ apiRoot }wpcom/v2/search?${ queryString }`;
+	let url = urlForPublicApi;
+	if ( isPrivateSite && isWpcom ) {
+		url = urlForWpcomOrigin;
+	} else if ( isPrivateSite ) {
+		url = urlForAtomicOrigin;
+	}
 
 	resetAbortController();
 

@@ -10,12 +10,13 @@ import { connect } from 'react-redux';
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import Card from 'components/card';
-import restApi from 'rest-api';
+import restApi from '@automattic/jetpack-api';
 import analytics from 'lib/analytics';
 import { getSitePlan, isFetchingSiteData } from 'state/site';
 import { getScanStatus, isFetchingScanStatus } from 'state/scan';
@@ -26,9 +27,9 @@ import {
 	getVaultPressData,
 } from 'state/at-a-glance';
 import {
-	getConnectUrl,
 	hasConnectedOwner as hasConnectedOwnerSelector,
 	isOfflineMode,
+	connectUser,
 } from 'state/connection';
 import DashItem from 'components/dash-item';
 import { get, isArray } from 'lodash';
@@ -40,7 +41,6 @@ import {
 	getJetpackProductUpsellByFeature,
 	FEATURE_SECURITY_SCANNING_JETPACK,
 } from 'lib/plans/constants';
-import getRedirectUrl from 'lib/jp-redirect';
 import { numberFormat } from 'components/number-format';
 
 /**
@@ -94,7 +94,6 @@ class DashScan extends Component {
 		isVaultPressInstalled: PropTypes.bool.isRequired,
 		fetchingSiteData: PropTypes.bool.isRequired,
 		upgradeUrl: PropTypes.string.isRequired,
-		connectUrl: PropTypes.string.isRequired,
 		hasConnectedOwner: PropTypes.bool.isRequired,
 	};
 
@@ -273,7 +272,7 @@ class DashScan extends Component {
 					'jetpack'
 				) }
 				disableHref="false"
-				href={ this.props.connectUrl }
+				onClick={ this.props.connectUser }
 				eventFeature="scan"
 				path="dashboard"
 				plan={ getJetpackProductUpsellByFeature( FEATURE_SECURITY_SCANNING_JETPACK ) }
@@ -446,12 +445,14 @@ export default connect(
 			planClass: getPlanClass( get( sitePlan, 'product_slug', '' ) ),
 			showBackups: showBackups( state ),
 			upgradeUrl: getUpgradeUrl( state, 'aag-scan' ),
-			connectUrl: getConnectUrl( state ),
 			hasConnectedOwner: hasConnectedOwnerSelector( state ),
 		};
 	},
-	{
+	dispatch => ( {
 		createNotice,
 		removeNotice,
-	}
+		connectUser: () => {
+			return dispatch( connectUser() );
+		},
+	} )
 )( DashScan );

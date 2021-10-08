@@ -27,6 +27,7 @@ const config = {
 			'@automattic/calypso-build/babel/default'
 		),
 	],
+	plugins: [ '@babel/plugin-proposal-nullish-coalescing-operator' ],
 	overrides: [
 		{
 			test: './extensions/',
@@ -49,6 +50,14 @@ const config = {
 			presets: [
 				presetOverrideBabelPluginTransformRuntimeAbsoluteRuntime(
 					'./modules/search/instant-search/babel.config.js'
+				),
+			],
+		},
+		{
+			test: './modules/search/customberg',
+			presets: [
+				presetOverrideBabelPluginTransformRuntimeAbsoluteRuntime(
+					'./modules/search/customberg/babel.config.js'
 				),
 			],
 		},

@@ -1,0 +1,30 @@
+{
+	"name": "automattic/js-api",
+	"description": "Jetpack API Library.",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "2.0.x-dev"
+	},
+	"scripts": {
+		"test-js": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm install",
+			"pnpm run test"
+		],
+		"test-coverage": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm install",
+			"pnpx nyc --report-dir=\"$COVERAGE_DIR\" pnpm run test"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	]
+}

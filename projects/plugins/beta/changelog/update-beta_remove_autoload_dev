@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Remove the jetpack_autoload_dev option and the JETPACK_AUTOLOAD_DEV constant update

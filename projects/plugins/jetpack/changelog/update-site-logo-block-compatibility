@@ -1,4 +1,0 @@
-Significance: minor
-Type: compat
-
-Updates the legacy site-logo feature to use an attachment ID for the `site_logo` option, rather than a settings array, for compatibility with WordPress 5.8.

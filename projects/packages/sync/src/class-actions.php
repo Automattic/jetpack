@@ -12,6 +12,7 @@ use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Status;
+use WP_Error;
 
 /**
  * The role of this class is to hook the Sync subsystem into WordPress - when to listen for actions,
@@ -103,7 +104,8 @@ class Actions {
 		 * By default this returns true for cron jobs, non-GET-requests, or requests where the
 		 * user is logged-in.
 		 *
-		 * @since 4.2.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
 		 *
 		 * @param bool should we load sync listener code for this request
 		 */
@@ -129,7 +131,8 @@ class Actions {
 		 * By default this returns true for cron jobs, POST requests, admin requests, or requests
 		 * by users who can manage_options.
 		 *
-		 * @since 4.2.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
 		 *
 		 * @param bool should we load sync sender code for this request
 		 */
@@ -367,7 +370,7 @@ class Actions {
 		);
 
 		// Has the site opted in to IDC mitigation?
-		if ( Identity_Crisis::sync_idc_optin() ) {
+		if ( Identity_Crisis::should_handle_idc() ) {
 			$query_args['idc'] = true;
 		}
 
@@ -383,7 +386,8 @@ class Actions {
 		/**
 		 * Filters query parameters appended to the Sync request URL sent to WordPress.com.
 		 *
-		 * @since 4.7.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.7.0
 		 *
 		 * @param array $query_args associative array of query parameters.
 		 */
@@ -395,7 +399,7 @@ class Actions {
 		// If we're currently updating to Jetpack 7.7, the IXR client may be missing briefly
 		// because since 7.7 it's being autoloaded with Composer.
 		if ( ! class_exists( '\\Jetpack_IXR_Client' ) ) {
-			return new \WP_Error(
+			return new WP_Error(
 				'ixr_client_missing',
 				esc_html__( 'Sync has been aborted because the IXR client is missing.', 'jetpack' )
 			);
@@ -432,22 +436,8 @@ class Actions {
 		$response = $rpc->getResponse();
 
 		// Check if WordPress.com IDC mitigation blocked the sync request.
-		if ( is_array( $response ) && isset( $response['error_code'] ) ) {
-			$error_code              = $response['error_code'];
-			$allowed_idc_error_codes = array(
-				'jetpack_url_mismatch',
-				'jetpack_home_url_mismatch',
-				'jetpack_site_url_mismatch',
-			);
-
-			if ( in_array( $error_code, $allowed_idc_error_codes, true ) ) {
-				\Jetpack_Options::update_option(
-					'sync_error_idc',
-					Identity_Crisis::get_sync_error_idc_option( $response )
-				);
-			}
-
-			return new \WP_Error(
+		if ( Identity_Crisis::init()->check_response_for_idc( $response ) ) {
+			return new WP_Error(
 				'sync_error_idc',
 				esc_html__( 'Sync has been blocked from WordPress.com because it would cause an identity crisis', 'jetpack' )
 			);
@@ -722,7 +712,8 @@ class Actions {
 		 * Allows overriding the offset that the sync cron jobs will first run. This can be useful when scheduling
 		 * cron jobs across multiple sites in a network.
 		 *
-		 * @since 4.5.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.5.0
 		 *
 		 * @param int    $start_time_offset
 		 * @param string $hook
@@ -788,7 +779,8 @@ class Actions {
 		/**
 		 * Allows overriding of the default incremental sync cron schedule which defaults to once every 5 minutes.
 		 *
-		 * @since 4.3.2
+		 * @since 1.6.3
+		 * @since-jetpack 4.3.2
 		 *
 		 * @param string self::DEFAULT_SYNC_CRON_INTERVAL_NAME
 		 */
@@ -798,7 +790,8 @@ class Actions {
 		/**
 		 * Allows overriding of the full sync cron schedule which defaults to once every 5 minutes.
 		 *
-		 * @since 4.3.2
+		 * @since 1.6.3
+		 * @since-jetpack 4.3.2
 		 *
 		 * @param string self::DEFAULT_SYNC_CRON_INTERVAL_NAME
 		 */

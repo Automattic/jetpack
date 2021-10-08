@@ -24,14 +24,14 @@ class WP_Test_Jetpack_Site_Json_Api_Endpoints extends WP_UnitTestCase {
 	/**
 	 * Prepare the environment for the test.
 	 */
-	public function setUp() {
+	public function set_up() {
 		global $blog_id;
 
 		if ( ! defined( 'WPCOM_JSON_API__BASE' ) ) {
 			define( 'WPCOM_JSON_API__BASE', 'public-api.wordpress.com/rest/v1' );
 		}
 
-		parent::setUp();
+		parent::set_up();
 
 		$this->set_globals();
 
@@ -43,6 +43,15 @@ class WP_Test_Jetpack_Site_Json_Api_Endpoints extends WP_UnitTestCase {
 	 */
 	public function test_get_site() {
 		global $blog_id;
+
+		// Fetch as admin so that options is also present in the response.
+		$admin = $this->factory->user->create_and_get(
+			array(
+				'role' => 'administrator',
+			)
+		);
+
+		wp_set_current_user( $admin->ID );
 
 		$endpoint = new WPCOM_JSON_API_GET_Site_Endpoint(
 			array(
@@ -71,5 +80,8 @@ class WP_Test_Jetpack_Site_Json_Api_Endpoints extends WP_UnitTestCase {
 
 		$this->assertTrue( $response['jetpack'] );
 		$this->assertTrue( $response['jetpack_connection'] );
+
+		$options = (array) $response['options'];
+		$this->assertArrayHasKey( 'jetpack_connection_active_plugins', $options );
 	}
 }

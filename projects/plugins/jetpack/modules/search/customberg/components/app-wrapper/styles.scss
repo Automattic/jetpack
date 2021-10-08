@@ -1,0 +1,28 @@
+@import '../../lib/base-styles';
+@import '../../../instant-search/lib/styles/helper';
+
+.jp-search-configure-app-wrapper {
+	flex-grow: 1;
+
+	.jp-search-configure-loading-spinner {
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		transform: translate( -50%, -50% );
+	}
+
+	.jetpack-instant-search {
+		background: $gray-100;
+		position: absolute;
+		padding-top: 2em;
+
+		.jetpack-instant-search__search-results {
+			max-width: initial;
+		}
+
+		// Disables opening search results without disabling the sort option selector.
+		a:not( .jetpack-instant-search__search-sort-option ) {
+			pointer-events: none;
+		}
+	}
+}

@@ -13,7 +13,6 @@ const getFiles = require( '../../get-files' );
  * - Capitalize.
  *
  * @param {string} name - Feature name.
- *
  * @returns {string} Cleaned up feature name.
  */
 function cleanName( name ) {
@@ -69,7 +68,7 @@ function cleanName( name ) {
 
 	// render-blocking-js is a Boost feature.
 	if ( name === 'render-blocking-js' ) {
-		name = 'Defer Non-Essential JS';
+		name = 'Defer JS';
 	}
 
 	return (
@@ -90,7 +89,6 @@ function cleanName( name ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- *
  * @returns {Promise<Array>} Promise resolving to an array of keywords we'll search for.
  */
 async function getLabelsToAdd( octokit, owner, repo, number ) {
@@ -152,7 +150,7 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 		}
 
 		// Docker.
-		const docker = file.match( /^(docker|tools\/docker)\// );
+		const docker = file.match( /^(projects\/plugins\/boost\/docker|tools\/docker)\// );
 		if ( docker !== null ) {
 			keywords.add( 'Docker' );
 		}
@@ -167,17 +165,23 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 			keywords.add( 'Docs' );
 		}
 
-		// Existing blocks.
+		// Existing blocks and block plugins.
 		const blocks = file.match(
-			/^projects\/plugins\/jetpack\/extensions\/blocks\/(?<block>[^/]*)\//
+			/^projects\/plugins\/jetpack\/extensions\/(?<type>blocks|plugins)\/(?<block>[^/]*)\//
 		);
-		const blockName = blocks && blocks.groups.block;
-		if ( blockName ) {
-			keywords.add( `[Block] ${ cleanName( blockName ) }` );
+		if ( blocks !== null ) {
+			const { groups: { type: blockType, block: blockName } = {} } = blocks;
+			if ( blockType && blockName ) {
+				keywords.add(
+					`[${ 'plugins' === blockType ? 'Extension' : 'Block' }] ${ cleanName( blockName ) }`
+				);
+			}
 		}
 
 		// React Dashboard and Boost Admin.
-		const reactAdmin = file.match( /^(app\/admin|projects\/plugins\/jetpack\/_inc\/client)\// );
+		const reactAdmin = file.match(
+			/^(projects\/plugins\/boost\/app\/admin|projects\/plugins\/jetpack\/_inc\/client)\//
+		);
 		if ( reactAdmin !== null ) {
 			keywords.add( 'Admin Page' );
 		}
@@ -197,14 +201,18 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 		}
 
 		// Boost Critical CSS.
-		const boostModules = file.match( /^app\/modules\/(?<boostModule>[^/]*)\// );
+		const boostModules = file.match(
+			/^projects\/plugins\/boost\/app\/modules\/(?<boostModule>[^/]*)\//
+		);
 		const boostModuleName = boostModules && boostModules.groups.boostModule;
 		if ( boostModuleName ) {
-			keywords.add( `${ cleanName( boostModuleName ) }` );
+			keywords.add( `[Boost Feature] ${ cleanName( boostModuleName ) }` );
 		}
 
 		// Compatibility with 3rd party tools (Boost and Jetpack).
-		const compat = file.match( /^(compatibility|projects\/plugins\/jetpack\/3rd-party)\// );
+		const compat = file.match(
+			/^(projects\/plugins\/boost\/compatibility|projects\/plugins\/jetpack\/3rd-party)\//
+		);
 		if ( compat ) {
 			keywords.add( 'Compatibility' );
 		}

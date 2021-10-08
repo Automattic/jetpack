@@ -1,0 +1,88 @@
+name: Bug Report
+description: Report issues with one of our products.
+labels: [ '[Type] Bug' ]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for contributing to Jetpack!
+        Pick a clear title ("Sharing: add new Facebook button") and proceed.
+  - type: dropdown
+    id: plugin-type
+    attributes:
+      label: Impacted plugin
+      description: Multiple selection is supported.
+      options:
+        - Jetpack
+        - Backup
+        - Boost
+        - Beta
+        - Debug Helper
+        - VaultPress
+        - None / Other
+      multiple: true
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      placeholder: |
+        1. Go to '...'
+        2. Click on '....'
+        3. Scroll down to '....'
+        ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: A clear and concise description of what you expected to happen.
+      placeholder: |
+        eg. Post should be liked.
+  - type: textarea
+    id: actual
+    attributes:
+      label: What actually happened
+      placeholder: |
+        eg. Clicking the button does nothing visibly.
+  - type: textarea
+    id: other
+    attributes:
+      label: Other information
+      placeholder: Screenshots, additional logs, notes, etc.
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      description: Multiple selection is supported.
+      options:
+        - Windows
+        - macOS
+        - Linux
+        - Android
+        - iOS
+        - Other
+      multiple: true
+  - type: input
+    id: os_version
+    attributes:
+      label: OS Version
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser
+      description: Multiple selection is supported.
+      options:
+        - Chrome/Chromium
+        - Firefox
+        - Microsoft Edge
+        - Microsoft Edge (legacy)
+        - Safari
+        - Other / Not applicable
+      multiple: true
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Browser Version(s)

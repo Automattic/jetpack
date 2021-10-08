@@ -168,6 +168,7 @@ class Defaults {
 		'wp_mobile_featured_images',
 		'wp_mobile_app_promos',
 		'wp_page_for_privacy_policy',
+		'wpcom_is_fse_activated',
 		'wpcom_publish_posts_with_markdown',
 		'wpcom_publish_comments_with_markdown',
 	);
@@ -185,7 +186,8 @@ class Defaults {
 		 *
 		 * @module sync
 		 *
-		 * @since 4.8.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.8.0
 		 *
 		 * @param array The default list of options.
 		 */
@@ -217,7 +219,8 @@ class Defaults {
 		 *
 		 * @module sync
 		 *
-		 * @since 6.1.0
+		 * @since 1.6.3
+		 * @since-jetpack 6.1.0
 		 *
 		 * @param array The list of options synced without content.
 		 */
@@ -263,7 +266,8 @@ class Defaults {
 		 *
 		 * @module sync
 		 *
-		 * @since 4.8.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.8.0
 		 *
 		 * @param array The default list of constants options.
 		 */
@@ -303,6 +307,7 @@ class Defaults {
 		'paused_plugins'                   => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_plugins' ),
 		'theme_support'                    => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_theme_support' ),
 		'wp_get_environment_type'          => 'wp_get_environment_type',
+		'is_fse_theme'                     => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_is_fse_theme' ),
 	);
 
 	/**
@@ -353,7 +358,8 @@ class Defaults {
 		 *
 		 * @module sync
 		 *
-		 * @since 4.8.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.8.0
 		 *
 		 * @param array The default list of callables.
 		 */
@@ -667,7 +673,8 @@ class Defaults {
 		 *
 		 * @module sync
 		 *
-		 * @since 4.8.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.8.0
 		 *
 		 * @param array The default list of multisite callables.
 		 */
@@ -732,7 +739,8 @@ class Defaults {
 		 *
 		 * @module sync
 		 *
-		 * @since 4.8.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.8.0
 		 *
 		 * @param array The default list of meta data keys.
 		 */
@@ -762,7 +770,8 @@ class Defaults {
 		 *
 		 * @module sync
 		 *
-		 * @since 5.7.0
+		 * @since 1.6.3
+		 * @since-jetpack 5.7.0
 		 *
 		 * @param array The default list of comment meta data keys.
 		 */
@@ -900,7 +909,8 @@ class Defaults {
 		 *
 		 * @module sync
 		 *
-		 * @since 5.5.0
+		 * @since 1.6.3
+		 * @since-jetpack 5.5.0
 		 *
 		 * @param array The default list of capabilities.
 		 */
@@ -951,7 +961,8 @@ class Defaults {
 	 * Keys are the class name of the known importer.
 	 * Values are the friendly name.
 	 *
-	 * @since 7.3.0
+	 * @since 1.6.3
+	 * @since-jetpack 7.3.0
 	 *
 	 * @var array
 	 */
@@ -967,7 +978,8 @@ class Defaults {
 	/**
 	 * Returns a list of known importers.
 	 *
-	 * @since 7.3.0
+	 * @since 1.6.3
+	 * @since-jetpack 7.3.0
 	 *
 	 * @return array Known importers with importer class names as keys and friendly names as values.
 	 */
@@ -977,7 +989,8 @@ class Defaults {
 		 *
 		 * @module sync
 		 *
-		 * @since 7.3.0
+		 * @since 1.6.3
+		 * @since-jetpack 7.3.0
 		 *
 		 * @param array The default list of known importers.
 		 */
@@ -988,7 +1001,8 @@ class Defaults {
 	 * Whether this is a system with a multiple networks.
 	 * We currently need this static wrapper because we statically define our default list of callables.
 	 *
-	 * @since 7.6.0
+	 * @since 1.6.3
+	 * @since-jetpack 7.6.0
 	 *
 	 * @uses Automattic\Jetpack\Status::is_multi_network
 	 *

@@ -21,6 +21,7 @@ import DashAkismet from './akismet';
 import DashBackups from './backups';
 import DashPhoton from './photon';
 import DashSearch from './search';
+import DashVideoPress from './videopress';
 import DashConnections from './connections';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import QuerySite from 'components/data/query-site';
@@ -85,6 +86,7 @@ class AtAGlance extends Component {
 		);
 		// Status can be unavailable, active, provisioning, awaiting_credentials
 		const rewindStatus = get( this.props.rewindStatus, [ 'state' ], '' );
+		const rewindStatusReason = get( this.props.rewindStatus, [ 'reason' ], '' );
 		const securityCards = [];
 
 		// Backup won't work with multi-sites, but Scan does if VaultPress is enabled
@@ -100,6 +102,7 @@ class AtAGlance extends Component {
 					{ ...settingsProps }
 					siteRawUrl={ this.props.siteRawUrl }
 					rewindStatus={ rewindStatus }
+					rewindStatusReason={ rewindStatusReason }
 				/>
 			);
 		}
@@ -133,6 +136,9 @@ class AtAGlance extends Component {
 			}
 			if ( 'inactive' !== this.props.getModuleOverride( 'search' ) ) {
 				performanceCards.push( <DashSearch { ...settingsProps } /> );
+			}
+			if ( 'inactive' !== this.props.getModuleOverride( 'videopress' ) ) {
+				performanceCards.push( <DashVideoPress { ...settingsProps } /> );
 			}
 			if ( performanceCards.length ) {
 				pairs.push( {

@@ -5,14 +5,14 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"dealerdirect/phpcodesniffer-composer-installer": "^0.7",
-		"mediawiki/mediawiki-codesniffer": "^36.0",
+		"mediawiki/mediawiki-codesniffer": "^37.0",
 		"phpcompatibility/phpcompatibility-wp": "^2.1",
 		"sirbrillig/phpcs-variable-analysis": "^2.10",
 		"wp-coding-standards/wpcs": "^2.3"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "0.2.0",
-		"automattic/jetpack-changelogger": "^1.2"
+		"yoast/phpunit-polyfills": "1.0.2",
+		"automattic/jetpack-changelogger": "^2.0"
 	},
 	"autoload": {
 		"classmap": [
@@ -24,14 +24,15 @@
 	},
 	"scripts": {
 		"phpunit": [
-			"@composer update",
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
 		"test-coverage": [
 			"@composer update",
 			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
-		"test-php": "./tests/action-test-php.sh"
+		"test-php": [
+			"./tests/action-test-php.sh"
+		]
 	},
 	"repositories": [
 		{

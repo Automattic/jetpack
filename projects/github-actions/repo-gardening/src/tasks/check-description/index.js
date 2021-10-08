@@ -14,6 +14,7 @@ const getFiles = require( '../../get-files' );
 const getLabels = require( '../../get-labels' );
 const getNextValidMilestone = require( '../../get-next-valid-milestone' );
 const getPluginNames = require( '../../get-plugin-names' );
+const getPrWorkspace = require( '../../get-pr-workspace' );
 
 /* global GitHub, WebhookPayloadPullRequest */
 
@@ -24,7 +25,6 @@ const getPluginNames = require( '../../get-plugin-names' );
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- *
  * @returns {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasUnverifiedCommit( octokit, owner, repo, number ) {
@@ -48,7 +48,6 @@ async function hasUnverifiedCommit( octokit, owner, repo, number ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- *
  * @returns {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasStatusLabels( octokit, owner, repo, number ) {
@@ -64,7 +63,6 @@ async function hasStatusLabels( octokit, owner, repo, number ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- *
  * @returns {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasNeedsReviewLabel( octokit, owner, repo, number ) {
@@ -80,7 +78,6 @@ async function hasNeedsReviewLabel( octokit, owner, repo, number ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- *
  * @returns {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasProgressLabel( octokit, owner, repo, number ) {
@@ -94,7 +91,6 @@ async function hasProgressLabel( octokit, owner, repo, number ) {
  *
  * @param {string} plugin        - Plugin name.
  * @param {object} nextMilestone - Information about next milestone as returnde by GitHub.
- *
  * @returns {Promise<string>} Promise resolving to info about the release (code freeze, release date).
  */
 async function getMilestoneDates( plugin, nextMilestone ) {
@@ -148,7 +144,6 @@ async function getMilestoneDates( plugin, nextMilestone ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- *
  * @returns {Promise<string>} Promise resolving to info about the next release for that plugin.
  */
 async function buildMilestoneInfo( octokit, owner, repo, number ) {
@@ -178,7 +173,6 @@ async function buildMilestoneInfo( octokit, owner, repo, number ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- *
  * @returns {Promise<number>} Promise resolving to boolean.
  */
 async function getCheckComment( octokit, owner, repo, number ) {
@@ -210,7 +204,6 @@ async function getCheckComment( octokit, owner, repo, number ) {
  * @param {boolean} isFailure - Boolean condition to determine if check failed.
  * @param {string} checkMessage - Sentence describing successful check.
  * @param {string} severity - Optional. Check severity. Could be one of `error`, `warning`, `notice`
- *
  * @returns {string} - List item with status emoji and a sentence describing check.
  */
 function statusEntry( isFailure, checkMessage, severity = 'error' ) {
@@ -232,23 +225,23 @@ function statusEntry( isFailure, checkMessage, severity = 'error' ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- *
  * @returns {Array} - list of affected projects without changelog entry
  */
 async function getChangelogEntries( octokit, owner, repo, number ) {
+	const baseDir = getPrWorkspace();
 	const files = await getFiles( octokit, owner, repo, number );
 	const affectedProjects = getAffectedChangeloggerProjects( files );
 	debug( `check-description: affected changelogger projects: ${ affectedProjects }` );
 
 	return affectedProjects.reduce( ( acc, project ) => {
-		const composerFile = process.env.GITHUB_WORKSPACE + `/projects/${ project }/composer.json`;
+		const composerFile = `${ baseDir }/projects/${ project }/composer.json`;
 		const json = JSON.parse( fs.readFileSync( composerFile ) );
 		// Changelog directory could customized via .extra.changelogger.changes-dir in composer.json. Lets check for it.
 		const changelogDir =
 			path.relative(
-				process.env.GITHUB_WORKSPACE,
+				baseDir,
 				path.resolve(
-					process.env.GITHUB_WORKSPACE + `/projects/${ project }`,
+					`${ baseDir }/projects/${ project }`,
 					( json.extra && json.extra.changelogger && json.extra.changelogger[ 'changes-dir' ] ) ||
 						'changelog'
 				)
@@ -275,7 +268,6 @@ async function getChangelogEntries( octokit, owner, repo, number ) {
  *
  * @param {WebhookPayloadPullRequest} payload - Pull request event payload.
  * @param {GitHub}                    octokit - Initialized Octokit REST client.
- *
  * @returns {string} List of checks with appropriate status emojis.
  */
 async function getStatusChecks( payload, octokit ) {
@@ -307,7 +299,6 @@ async function getStatusChecks( payload, octokit ) {
  * Compose a list of checks for the PR
  *
  * @param {object} statusChecks - Map of all checks with boolean as a value
- *
  * @returns {string} part of the comment with list of checks
  */
 function renderStatusChecks( statusChecks ) {
@@ -361,7 +352,6 @@ function renderStatusChecks( statusChecks ) {
  * Compose a list of recommendations based on failed checks
  *
  * @param {object} statusChecks - Map of all checks with boolean as a value
- *
  * @returns {string} part of the comment with recommendations
  */
 function renderRecommendations( statusChecks ) {

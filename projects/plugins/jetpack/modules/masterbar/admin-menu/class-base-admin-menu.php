@@ -76,7 +76,9 @@ abstract class Base_Admin_Menu {
 			add_filter( 'admin_menu', array( $this, 'override_svg_icons' ), 99999 );
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ), 11 );
 			add_action( 'admin_head', array( $this, 'set_site_icon_inline_styles' ) );
-			add_filter( 'screen_settings', array( $this, 'register_dashboard_switcher' ), 99999, 2 );
+			add_filter( 'screen_settings', array( $this, 'register_dashboard_switcher' ), 99999 );
+			add_action( 'admin_menu', array( $this, 'handle_preferred_view' ), 99997 );
+			add_action( 'wp_ajax_set_preferred_view', array( $this, 'handle_preferred_view_ajax' ) );
 		}
 	}
 
@@ -86,7 +88,7 @@ abstract class Base_Admin_Menu {
 	 * @return Admin_Menu
 	 */
 	public static function get_instance() {
-		$class = get_called_class();
+		$class = static::class;
 
 		if ( empty( static::$instances[ $class ] ) ) {
 			static::$instances[ $class ] = new $class();
@@ -216,7 +218,7 @@ abstract class Base_Admin_Menu {
 				isset( $submenu_item[1] ) ? $submenu_item[1] : 'read',
 				$submenus_to_update[ $submenu_item[2] ],
 				'',
-				$i
+				0 === $i ? 0 : $i + 1
 			);
 		}
 	}
@@ -272,6 +274,14 @@ abstract class Base_Admin_Menu {
 			array(),
 			JETPACK__VERSION,
 			true
+		);
+
+		wp_localize_script(
+			'jetpack-admin-menu',
+			'jpAdminMenu',
+			array(
+				'screen' => $this->get_current_screen(),
+			)
 		);
 	}
 
@@ -582,6 +592,70 @@ abstract class Base_Admin_Menu {
 		}
 
 		return $preferred_views[ $screen ];
+	}
+
+	/**
+	 * Gets the identifier of the current screen.
+	 *
+	 * @return string
+	 */
+	public function get_current_screen() {
+		// phpcs:disable WordPress.Security.NonceVerification
+		global $pagenow;
+		$screen = isset( $_REQUEST['screen'] ) ? $_REQUEST['screen'] : $pagenow;
+		if ( isset( $_GET['post_type'] ) ) {
+			$screen = add_query_arg( 'post_type', $_GET['post_type'], $screen );
+		}
+		if ( isset( $_GET['taxonomy'] ) ) {
+			$screen = add_query_arg( 'taxonomy', $_GET['taxonomy'], $screen );
+		}
+		if ( isset( $_GET['page'] ) ) {
+			$screen = add_query_arg( 'page', $_GET['page'], $screen );
+		}
+		return sanitize_text_field( wp_unslash( $screen ) );
+		// phpcs:enable WordPress.Security.NonceVerification
+	}
+
+	/**
+	 * Stores the preferred view for the current screen.
+	 */
+	public function handle_preferred_view() {
+		// phpcs:disable WordPress.Security.NonceVerification
+		if ( ! isset( $_GET['preferred-view'] ) ) {
+			return;
+		}
+
+		// phpcs:disable WordPress.Security.NonceVerification
+		$preferred_view = $_GET['preferred-view'];
+
+		if ( ! in_array( $preferred_view, array( self::DEFAULT_VIEW, self::CLASSIC_VIEW ), true ) ) {
+			return;
+		}
+
+		$current_screen = $this->get_current_screen();
+
+		$this->set_preferred_view( $current_screen, $preferred_view );
+
+		/**
+		 * Dashboard Quick switcher action triggered when a user switches to a different view.
+		 *
+		 * @module masterbar
+		 *
+		 * @since 9.9.1
+		 *
+		 * @param string The current screen of the user.
+		 * @param string The preferred view the user selected.
+		 */
+		\do_action( 'jetpack_dashboard_switcher_changed_view', $current_screen, $preferred_view );
+		// phpcs:enable WordPress.Security.NonceVerification
+	}
+
+	/**
+	 * Handles AJAX requests setting a preferred view for a given screen.
+	 */
+	public function handle_preferred_view_ajax() {
+		$this->handle_preferred_view();
+		wp_die();
 	}
 
 	/**

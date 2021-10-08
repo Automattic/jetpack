@@ -31,6 +31,9 @@ jobs:
       # Whether any lock files have changed.
       lockfiles: ${{ steps.filter.outputs.lockfiles }}
 
+      # Whether any GitHub Actions yaml files have changed.
+      ghactionsfiles: ${{ steps.filter.outputs.ghactionsfiles }}
+
       # Whether any miscellaneous files related to linting have changed.
       misc: ${{ steps.filter.outputs.misc }}
 
@@ -67,12 +70,14 @@ jobs:
                 - '**.cjs'
                 - '**.js'
                 - '**.jsx'
+                - '**.ts'
             excludelist:
               # If any PHP or JS file changed or was deleted, we need to check the excludelist.
               - modified|deleted:
                 - '**.php'
                 - '**.js'
                 - '**.jsx'
+                - '**.ts'
             lockfiles:
               - 'composer.json'
               - 'composer.lock'
@@ -81,6 +86,10 @@ jobs:
               - '**/composer.json'
               - '**/composer.lock'
               - '**/package.json'
+            ghactionsfiles:
+              - '.github/workflows/*.{yml,yaml}'
+              - '.github/actions/*/action.{yml,yaml}'
+              - 'projects/github-actions/*/action.{yml,yaml}'
             misc_php:
               # If composer or phpcs config changed, there may be a new standard.
               - 'composer.json'
@@ -105,7 +114,7 @@ jobs:
               - 'tools/eslint-excludelist.json'
             misc_excludelist:
               - 'tools/cleanup-excludelists.sh'
-              - '.github/files/check-excludelist-diff.js'
+              - 'tools/js-tools/check-excludelist-diff.js'
             misc:
               # If the workflow itself changed, everything should re-run.
               - '.github/workflows/linting.yml'
@@ -158,36 +167,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Read PHP and Node versions
-        id: versions
-        uses: ./.github/actions/read-versions
-
-      - uses: shivammathur/setup-php@v2
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
         with:
-          php-version: ${{ matrix.php-versions }}
-          tools: composer:${{ steps.versions.outputs.composer-version }}
-          coverage: none
-
-      - name: Get Composer cache directory
-        id: composer-cache
-        run: |
-          echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - name: Use composer cache
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
-
-      - name: Tool versions
-        run: |
-          which php
-          php --version
-          which composer
-          composer --version
-          which jq
-          jq --version
+          php: ${{ matrix.php-versions }}
+          node: false
 
       - name: Install dependencies
         run: |
@@ -215,38 +199,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Read PHP and Node versions
-        id: versions
-        uses: ./.github/actions/read-versions
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
         with:
-          php-version: ${{ steps.versions.outputs.php-version }}
-          tools: composer:${{ steps.versions.outputs.composer-version }}
-          extensions: mysql, imagick
-          coverage: none
-
-      - name: Get Composer cache directory
-        id: composer-cache
-        run: |
-          echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - name: Use composer cache
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
-
-      - name: Tool versions
-        run: |
-          which php
-          php --version
-          which composer
-          composer --version
-          which jq
-          jq --version
+          node: false
 
       - name: Install dependencies
         run: composer install
@@ -269,38 +225,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Read PHP and Node versions
-        id: versions
-        uses: ./.github/actions/read-versions
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
         with:
-          php-version: ${{ steps.versions.outputs.php-version }}
-          tools: composer:${{ steps.versions.outputs.composer-version }}
-          extensions: mysql, imagick
-          coverage: none
-
-      - name: Get Composer cache directory
-        id: composer-cache
-        run: |
-          echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - name: Use composer cache
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
-
-      - name: Tool versions
-        run: |
-          which php
-          php --version
-          which composer
-          composer --version
-          which jq
-          jq --version
+          node: false
 
       - name: Install dependencies
         run: composer install
@@ -332,38 +260,10 @@ jobs:
           fetch-depth: 10
       - uses: ./.github/actions/deepen-to-merge-base
 
-      - name: Read PHP and Node versions
-        id: versions
-        uses: ./.github/actions/read-versions
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
         with:
-          php-version: ${{ steps.versions.outputs.php-version }}
-          tools: composer:${{ steps.versions.outputs.composer-version }}
-          extensions: mysql, imagick
-          coverage: none
-
-      - name: Get Composer cache directory
-        id: composer-cache
-        run: |
-          echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - name: Use composer cache
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
-
-      - name: Tool versions
-        run: |
-          which php
-          php --version
-          which composer
-          composer --version
-          which jq
-          jq --version
+          node: false
 
       - name: Install dependencies
         run: composer install
@@ -371,10 +271,11 @@ jobs:
       - name: Run phpcs-changed
         shell: bash
         env:
+          SHA: ${{ github.event.pull_request.base.sha }}
           FILES: ${{ needs.changed_files.outputs.php_excluded_files }}
         run: |
           echo "::add-matcher::.github/matchers/phpcs-problem-matcher.json"
-          composer phpcs:changed -- --report=json --standard=.github/files/php-linting-phpcs.xml --git-base=${{ github.event.pull_request.base.sha }} $(jq -rn --argjson files "$FILES" '$files[]') |
+          composer phpcs:changed -- --report=json --standard=.github/files/php-linting-phpcs.xml --git-base=$SHA $(jq -rn --argjson files "$FILES" '$files[]') |
             jq -r '.files | to_entries | .[] | .key as $key | .value.messages[] | [ $key, ":", .line, ":", .column, ": ", .type, " - ", .message, " (", .source, ")" ] | map(tostring) | join("")'
           echo "::remove-matcher owner=phpcs"
 
@@ -390,62 +291,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Read tool versions
-        id: versions
-        uses: ./.github/actions/read-versions
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ steps.versions.outputs.php-version }}
-          tools: composer:${{ steps.versions.outputs.composer-version }}
-          extensions: mysql, imagick
-          coverage: none
-
-      - name: Setup Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ steps.versions.outputs.node-version }}
-
-      - name: Get Composer cache directory
-        id: composer-cache
-        run: |
-          echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - name: Use composer cache
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
-
-      - name: Use pnpm cache
-        uses: actions/cache@v2
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-pnpm-${{ steps.versions.outputs.node-version }}-${{ hashFiles('**/package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-${{ steps.versions.outputs.node-version }}-
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2.0.1
-        with:
-          version: ${{ steps.versions.outputs.pnpm-version }}
-
-      - name: Tool versions
-        run: |
-          which php
-          php --version
-          which composer
-          composer --version
-          which node
-          node --version
-          which pnpm
-          pnpm --version
-          which jq
-          jq --version
-
-      - run: pnpm install
+      - name: Monorepo pnpm install
+        run: pnpm install
+      - name: Jetpack E2E tests pnpm install
+        working-directory: projects/plugins/jetpack/tests/e2e
+        run: pnpm install
       - run: pnpx jetpack install --all -v # Ensure there are no unresolved import errors.
       - run: pnpm run lint-required
 
@@ -470,67 +323,40 @@ jobs:
           fetch-depth: 10
       - uses: ./.github/actions/deepen-to-merge-base
 
-      - name: Read tool versions
-        id: versions
-        uses: ./.github/actions/read-versions
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ steps.versions.outputs.php-version }}
-          tools: composer:${{ steps.versions.outputs.composer-version }}
-          extensions: mysql, imagick
-          coverage: none
-
-      - name: Setup Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ steps.versions.outputs.node-version }}
-
-      - name: Get Composer cache directory
-        id: composer-cache
-        run: |
-          echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - name: Use composer cache
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
-
-      - name: Use pnpm cache
-        uses: actions/cache@v2
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-pnpm-${{ steps.versions.outputs.node-version }}-${{ hashFiles('**/package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-${{ steps.versions.outputs.node-version }}-
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2.0.1
-        with:
-          version: ${{ steps.versions.outputs.pnpm-version }}
-
-      - name: Tool versions
-        run: |
-          which php
-          php --version
-          which composer
-          composer --version
-          which node
-          node --version
-          which pnpm
-          pnpm --version
-          which jq
-          jq --version
-
-      - run: pnpm install
+      - name: Monorepo pnpm install
+        run: pnpm install
+      - name: Jetpack E2E tests pnpm install
+        working-directory: projects/plugins/jetpack/tests/e2e
+        run: pnpm install
       - run: pnpx jetpack install --all -v # Ensure there are no unresolved import errors.
       - name: Run eslint-changed
         env:
+          SHA: ${{ github.event.pull_request.base.sha }}
           FILES: ${{ needs.changed_files.outputs.js_excluded_files }}
-        run: pnpm run lint-changed -- --git-base=${{ github.event.pull_request.base.sha }} $(jq -rn --argjson files "$FILES" '$files[]')
+        run: pnpm run lint-changed -- --git-base=$SHA $(jq -rn --argjson files "$FILES" '$files[]')
+
+  ### Lints GitHub Actions yaml files.
+  # Local equivalent: `./tools/js-tools/lint-gh-actions.js <files>`
+  lint_gh_actions:
+    name: Lint GitHub Actions yaml files
+    runs-on: ubuntu-latest
+    needs: changed_files
+    if: needs.changed_files.outputs.ghactionsfiles == 'true' || needs.changed_files.outputs.misc == 'true'
+    timeout-minutes: 5  # 2021-03-24: Pnpm stuff takes about a minute.
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+        with:
+          php: false
+
+      - run: pnpm install
+      - name: Run lint
+        run: ./tools/js-tools/lint-gh-actions.js -v '.github/workflows/*.{yml,yaml}' '.github/actions/*/action.{yml,yaml}' 'projects/github-actions/*/action.{yml,yaml}'
 
   ### Checks that copied files (e.g. readme, license) are in sync
   # Local equivalent: `./tools/check-copied-files.sh`
@@ -554,119 +380,46 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Read tool versions
-        id: versions
-        uses: ./.github/actions/read-versions
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ steps.versions.outputs.php-version }}
-          tools: composer:${{ steps.versions.outputs.composer-version }}
-          extensions: mysql, imagick
-          coverage: none
-
-      - name: Setup Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ steps.versions.outputs.node-version }}
-
-      - name: Get Composer cache directory
-        id: composer-cache
-        run: |
-          echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - name: Use composer cache
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
-
-      - name: Use pnpm cache
-        uses: actions/cache@v2
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-pnpm-${{ steps.versions.outputs.node-version }}-${{ hashFiles('**/package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-${{ steps.versions.outputs.node-version }}-
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2.0.1
-        with:
-          version: ${{ steps.versions.outputs.pnpm-version }}
-
-      - name: Tool versions
-        run: |
-          which php
-          php --version
-          which composer
-          composer --version
-          which node
-          node --version
-          which pnpm
-          pnpm --version
-          which jq
-          jq --version
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
 
       - run: composer install
-      - run: pnpm install
+      - name: Monorepo pnpm install
+        run: pnpm install
+      - name: Jetpack E2E tests pnpm install
+        working-directory: projects/plugins/jetpack/tests/e2e
+        run: pnpm install
       - run: pnpx jetpack install --all -v # Ensure there are no unresolved import errors.
 
       - name: Cleanup excludelists
         run: tools/cleanup-excludelists.sh
       - name: Check for changes to exclude lists
-        run: .github/files/check-excludelist-diff.js
+        run: tools/js-tools/check-excludelist-diff.js
 
   ### Checks that changelogger change files are being created.
-  # No good equivalent, since it depends on the diff.
+  # Local equivalent: Probably `tools/check-changelogger-use.php origin/master HEAD`
   changelogger_used:
     name: Changelogger use
     runs-on: ubuntu-latest
     timeout-minutes: 5  # 2021-03-24: Takes about a minute.
     steps:
-      # We don't need full git history, but require-change-file-for-touched-projects.php does need everything up to the merge-base.
+      # We don't need full git history, but tools/check-changelogger-use.php does need everything up to the merge-base.
       - uses: actions/checkout@v2
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 10
       - uses: ./.github/actions/deepen-to-merge-base
 
-      - name: Read PHP and Node versions
-        id: versions
-        uses: ./.github/actions/read-versions
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
         with:
-          php-version: ${{ steps.versions.outputs.php-version }}
-          tools: composer:${{ steps.versions.outputs.composer-version }}
-          extensions: mysql, imagick
-          coverage: none
-
-      - name: Get Composer cache directory
-        id: composer-cache
-        run: |
-          echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - name: Use composer cache
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
-
-      - name: Tool versions
-        run: |
-          which php
-          php --version
-          which composer
-          composer --version
-          which jq
-          jq --version
+          node: false
 
       - name: Check change files are touched for touched projects
-        run: .github/files/require-change-file-for-touched-projects.php --debug
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: tools/check-changelogger-use.php --debug "$BASE" "$HEAD"
 
   ### Checks that changelogger change files are valid.
   # Local equivalent: `./tools/changelogger-validate-all.sh`
@@ -677,38 +430,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Read PHP and Node versions
-        id: versions
-        uses: ./.github/actions/read-versions
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
         with:
-          php-version: ${{ steps.versions.outputs.php-version }}
-          tools: composer:${{ steps.versions.outputs.composer-version }}
-          extensions: mysql, imagick
-          coverage: none
-
-      - name: Get Composer cache directory
-        id: composer-cache
-        run: |
-          echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - name: Use composer cache
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
-
-      - name: Tool versions
-        run: |
-          which php
-          php --version
-          which composer
-          composer --version
-          which jq
-          jq --version
+          node: false
 
       - name: Check change file validity
         run: tools/changelogger-validate-all.sh --debug
@@ -725,65 +450,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Read tool versions
-        id: versions
-        uses: ./.github/actions/read-versions
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ steps.versions.outputs.php-version }}
-          tools: composer:${{ steps.versions.outputs.composer-version }}
-          extensions: mysql, imagick
-          coverage: none
-
-      - name: Setup Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ steps.versions.outputs.node-version }}
-
-      - name: Get Composer cache directory
-        id: composer-cache
-        run: |
-          echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - name: Use composer cache
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
-
-      - name: Use pnpm cache
-        uses: actions/cache@v2
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-pnpm-${{ steps.versions.outputs.node-version }}-${{ hashFiles('**/package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-${{ steps.versions.outputs.node-version }}-
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2.0.1
-        with:
-          version: ${{ steps.versions.outputs.pnpm-version }}
-
-      - name: Tool versions
-        run: |
-          which php
-          php --version
-          which composer
-          composer --version
-          which node
-          node --version
-          which pnpm
-          pnpm --version
-          which jq
-          jq --version
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
 
       - run: .github/files/check-lock-files.sh
 
   ### Check that monorepo packages are correctly referenced.
-  # Local equivalent: tools/check-composer-deps.sh -v && .github/files/check-monorepo-package-repos.sh
+  # Local equivalent: tools/check-intra-monorepo-deps.sh -v && .github/files/check-monorepo-package-repos.sh
   monorepo_package_refs:
     name: Monorepo package version refs
     runs-on: ubuntu-latest
@@ -796,7 +469,7 @@ jobs:
         run: |
           which jq
           jq --version
-      - run: tools/check-composer-deps.sh -v
+      - run: tools/check-intra-monorepo-deps.sh -v
       - run: .github/files/check-monorepo-package-repos.sh
 
   ### Checks against project structure, e.g. that composer.json exists.
@@ -808,40 +481,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Read tool versions
-        id: versions
-        uses: ./.github/actions/read-versions
-
-      - name: Setup Node
-        uses: actions/setup-node@v2
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
         with:
-          node-version: ${{ steps.versions.outputs.node-version }}
-
-      - name: Use pnpm cache
-        uses: actions/cache@v2
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-pnpm-${{ steps.versions.outputs.node-version }}-${{ hashFiles('**/package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-${{ steps.versions.outputs.node-version }}-
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2.0.1
-        with:
-          version: ${{ steps.versions.outputs.pnpm-version }}
-
-      - name: Tool versions
-        run: |
-          which php
-          php --version
-          which composer
-          composer --version
-          which node
-          node --version
-          which pnpm
-          pnpm --version
-          which jq
-          jq --version
+          php: false
 
       - run: pnpm install
       - run: .github/files/lint-project-structure.sh

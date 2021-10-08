@@ -1,0 +1,27 @@
+{
+	"name": "@automattic/jetpack-analytics",
+	"version": "0.1.1-alpha",
+	"description": "Jetpack Analytics Package",
+	"author": "Automattic",
+	"license": "GPL-2.0-or-later",
+	"dependencies": {
+		"lodash": "4.17.21"
+	},
+	"devDependencies": {
+		"debug": "4.3.1",
+		"jetpack-js-test-runner": "workspace:*",
+		"nyc": "15.1.0"
+	},
+	"type": "module",
+	"exports": {
+		".": "./index.jsx"
+	},
+	"scripts": {
+		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom 'glob:./test/*.@(jsx|js)'"
+	},
+	"engines": {
+		"node": "^14.17.6 || ^16.7.0",
+		"pnpm": "^6.5.0",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	}
+}

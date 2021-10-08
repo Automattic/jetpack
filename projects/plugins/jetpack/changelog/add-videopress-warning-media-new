@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Added an admin notice to media-new.php notifying the user that videos uploaded here will not be sent to VideoPress.

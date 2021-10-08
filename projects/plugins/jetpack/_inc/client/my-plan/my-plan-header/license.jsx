@@ -14,7 +14,7 @@ import {
 	successNotice as successNoticeAction,
 	errorNotice as errorNoticeAction,
 } from 'components/global-notices/state/notices/actions';
-import restApi from 'rest-api';
+import restApi from '@automattic/jetpack-api';
 
 const License = ( { errorNotice, successNotice } ) => {
 	const [ isSaving, setIsSaving ] = useState( false );

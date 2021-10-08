@@ -12,10 +12,7 @@
 		function texturize( text ) {
 			// Ensure we get a string.
 			text = text + '';
-			text = text
-				.replace( /'/g, '&#8217;' )
-				.replace( /&#039;/g, '&#8217;' )
-				.replace( /[\u2019]/g, '&#8217;' );
+			text = text.replace( /'/g, '&#8217;' ).replace( /&#039;/g, '&#8217;' );
 			text = text
 				.replace( /"/g, '&#8221;' )
 				.replace( /&#034;/g, '&#8221;' )
@@ -174,16 +171,85 @@
 			el.dispatchEvent( e );
 		}
 
-		function scrollToElement( el ) {
-			if ( ! el || typeof el.scrollIntoView !== 'function' ) {
+		// From: https://easings.net/#easeInOutQuad
+		function easeInOutQuad( num ) {
+			return num < 0.5 ? 2 * num * num : 1 - Math.pow( -2 * num + 2, 2 ) / 2;
+		}
+
+		function getFooterClearance( container ) {
+			var footer = container.querySelector( '.jp-carousel-info-footer' );
+			var infoArea = container.querySelector( '.jp-carousel-info-extra' );
+			var contentArea = container.querySelector( '.jp-carousel-info-content-wrapper' );
+
+			if ( footer && infoArea && contentArea ) {
+				var styles = window.getComputedStyle( infoArea );
+				var padding = parseInt( styles.paddingTop, 10 ) + parseInt( styles.paddingBottom, 10 );
+				padding = isNaN( padding ) ? 0 : padding;
+				return contentArea.offsetHeight + footer.offsetHeight + padding;
+			}
+			return 0;
+		}
+
+		function isTouch() {
+			return (
+				'ontouchstart' in window || ( window.DocumentTouch && document instanceof DocumentTouch )
+			);
+		}
+
+		function scrollToElement( el, container, callback ) {
+			if ( ! el || ! container ) {
+				if ( callback ) {
+					return callback();
+				}
 				return;
 			}
 
-			if ( 'scrollBehavior' in document.documentElement.style ) {
-				el.scrollIntoView( { behavior: 'smooth' } );
-			} else {
-				el.scrollIntoView();
+			// For iOS Safari compatibility, use JS to set the minimum height.
+			var infoArea = container.querySelector( '.jp-carousel-info-extra' );
+			if ( infoArea ) {
+				// 64px is the same height as `.jp-carousel-info-footer` in the CSS.
+				infoArea.style.minHeight = window.innerHeight - 64 + 'px';
 			}
+
+			var isScrolling = true;
+			var startTime = Date.now();
+			var duration = 300;
+			var originalPosition = container.scrollTop;
+			var targetPosition = Math.max(
+				0,
+				el.offsetTop - Math.max( 0, window.innerHeight - getFooterClearance( container ) )
+			);
+			var distance = targetPosition - container.scrollTop;
+			distance = Math.min( distance, container.scrollHeight - window.innerHeight );
+
+			function stopScroll() {
+				isScrolling = false;
+			}
+
+			function runScroll() {
+				var now = Date.now();
+				var progress = easeInOutQuad( ( now - startTime ) / duration );
+
+				progress = progress > 1 ? 1 : progress;
+				var newVal = progress * distance;
+				container.scrollTop = originalPosition + newVal;
+
+				if ( now <= startTime + duration && isScrolling ) {
+					return requestAnimationFrame( runScroll );
+				}
+				if ( callback ) {
+					callback();
+				}
+				if ( infoArea ) {
+					infoArea.style.minHeight = '';
+				}
+				isScrolling = false;
+				container.removeEventListener( 'wheel', stopScroll );
+			}
+
+			// Allow scroll to be cancelled by user interaction.
+			container.addEventListener( 'wheel', stopScroll );
+			runScroll();
 		}
 
 		function getJSONAttribute( el, attr ) {
@@ -204,6 +270,10 @@
 			return dummy.innerHTML;
 		}
 
+		function stripHTML( text ) {
+			return text.replace( /<[^>]*>?/gm, '' );
+		}
+
 		return {
 			closest: closest,
 			matches: matches,
@@ -214,7 +284,9 @@
 			scrollToElement: scrollToElement,
 			getJSONAttribute: getJSONAttribute,
 			convertToPlainText: convertToPlainText,
+			stripHTML: stripHTML,
 			emitEvent: emitEvent,
+			isTouch: isTouch,
 		};
 	} )();
 
@@ -233,11 +305,14 @@
 
 		var gallerySelector =
 			'div.gallery, div.tiled-gallery, ul.wp-block-gallery, ul.blocks-gallery-grid, ' +
-			'figure.blocks-gallery-grid, div.wp-block-jetpack-tiled-gallery, a.single-image-gallery';
+			'figure.wp-block-gallery.has-nested-images, div.wp-block-jetpack-tiled-gallery, a.single-image-gallery';
 
-		var itemSelector =
-			'.gallery-item, .tiled-gallery-item, .blocks-gallery-item, ' +
-			' .tiled-gallery__item, .wp-block-image';
+		// Selector for items within a gallery or tiled gallery.
+		var galleryItemSelector =
+			'.gallery-item, .tiled-gallery-item, .blocks-gallery-item, ' + ' .tiled-gallery__item';
+
+		// Selector for all items including single images.
+		var itemSelector = galleryItemSelector + ', .wp-block-image';
 
 		var carousel = {};
 
@@ -295,10 +370,8 @@
 
 			if ( window.innerWidth <= 760 ) {
 				screenPadding = Math.round( ( window.innerWidth / 760 ) * baseScreenPadding );
-				var isTouch =
-					'ontouchstart' in window || ( window.DocumentTouch && document instanceof DocumentTouch );
 
-				if ( screenPadding < 40 && isTouch ) {
+				if ( screenPadding < 40 && domUtil.isTouch() ) {
 					screenPadding = 0;
 				}
 			}
@@ -350,8 +423,6 @@
 						closeCarousel();
 					} else if ( target.classList.contains( 'jp-carousel-image-download' ) ) {
 						stat( 'download_original_click' );
-					} else if ( target.classList.contains( 'jp-carousel-commentlink' ) ) {
-						handleCommentLinkClick( e );
 					} else if ( target.classList.contains( 'jp-carousel-comment-login' ) ) {
 						handleCommentLoginClick( e );
 					} else if ( domUtil.closest( target, '#jp-carousel-comment-form-container' ) ) {
@@ -370,6 +441,11 @@
 
 				carousel.overlay.addEventListener( 'jp_carousel.afterOpen', function () {
 					enableKeyboardNavigation();
+
+					// Don't show navigation if there's only one image.
+					if ( carousel.slides.length <= 1 ) {
+						return;
+					}
 					// Show dot pagination if slide count is <= 5, otherwise show n/total.
 					if ( carousel.slides.length <= 5 ) {
 						domUtil.show( carousel.info.querySelector( '.jp-swiper-pagination' ) );
@@ -383,6 +459,13 @@
 
 					// Fixes some themes where closing carousel brings view back to top.
 					document.documentElement.style.removeProperty( 'height' );
+
+					// If we disable the swiper (because there's only one image)
+					// we have to re-enable it here again as Swiper doesn't, for some reason,
+					// show the navigation buttons again after reinitialization.
+					if ( swiper ) {
+						swiper.enable();
+					}
 
 					// Hide pagination.
 					domUtil.hide( carousel.info.querySelector( '.jp-swiper-pagination' ) );
@@ -411,18 +494,6 @@
 					}
 				} );
 			}
-		}
-
-		function handleCommentLinkClick( e ) {
-			e.preventDefault();
-			e.stopPropagation();
-			disableKeyboardNavigation();
-			domUtil.scrollToElement( carousel.info );
-			domUtil.show(
-				carousel.overlay.querySelector( '#jp-carousel-comment-form-submit-and-info-wrapper' )
-			);
-			var field = carousel.commentField;
-			field.focus();
 		}
 
 		function handleCommentLoginClick() {
@@ -562,10 +633,7 @@
 			var infoIcon = carousel.info.querySelector( '.jp-carousel-icon-info' );
 			var commentsIcon = carousel.info.querySelector( '.jp-carousel-icon-comments' );
 
-			if (
-				domUtil.closest( target, '.jp-carousel-icon-info' ) ||
-				target.classList.contains( 'jp-carousel-photo-title' )
-			) {
+			function handleInfoToggle() {
 				if ( commentsIcon ) {
 					commentsIcon.classList.remove( 'jp-carousel-selected' );
 				}
@@ -578,14 +646,13 @@
 					photoMetaContainer.classList.toggle( 'jp-carousel-show' );
 					if ( photoMetaContainer.classList.contains( 'jp-carousel-show' ) ) {
 						extraInfoContainer.classList.add( 'jp-carousel-show' );
-						domUtil.scrollToElement( extraInfoContainer );
 					} else {
 						extraInfoContainer.classList.remove( 'jp-carousel-show' );
 					}
 				}
 			}
 
-			if ( domUtil.closest( target, '.jp-carousel-icon-comments' ) ) {
+			function handleCommentToggle() {
 				if ( infoIcon ) {
 					infoIcon.classList.remove( 'jp-carousel-selected' );
 				}
@@ -598,10 +665,30 @@
 					commentsContainer.classList.toggle( 'jp-carousel-show' );
 					if ( commentsContainer.classList.contains( 'jp-carousel-show' ) ) {
 						extraInfoContainer.classList.add( 'jp-carousel-show' );
-						domUtil.scrollToElement( extraInfoContainer );
 					} else {
 						extraInfoContainer.classList.remove( 'jp-carousel-show' );
 					}
+				}
+			}
+
+			if (
+				domUtil.closest( target, '.jp-carousel-icon-info' ) ||
+				target.classList.contains( 'jp-carousel-photo-title' )
+			) {
+				if ( photoMetaContainer && photoMetaContainer.classList.contains( 'jp-carousel-show' ) ) {
+					domUtil.scrollToElement( carousel.overlay, carousel.overlay, handleInfoToggle );
+				} else {
+					handleInfoToggle();
+					domUtil.scrollToElement( carousel.info, carousel.overlay );
+				}
+			}
+
+			if ( domUtil.closest( target, '.jp-carousel-icon-comments' ) ) {
+				if ( commentsContainer && commentsContainer.classList.contains( 'jp-carousel-show' ) ) {
+					domUtil.scrollToElement( carousel.overlay, carousel.overlay, handleCommentToggle );
+				} else {
+					handleCommentToggle();
+					domUtil.scrollToElement( carousel.info, carousel.overlay );
 				}
 			}
 		}
@@ -609,15 +696,21 @@
 		function processSingleImageGallery() {
 			var images = document.querySelectorAll( 'a img[data-attachment-id]' );
 			Array.prototype.forEach.call( images, function ( image ) {
-				var container = image.parentElement;
+				var link = image.parentElement;
+				var container = link.parentElement;
 
 				// Skip if image was already added to gallery by shortcode.
-				if ( container.parentElement.classList.contains( 'gallery-icon' ) ) {
+				if ( container.classList.contains( 'gallery-icon' ) ) {
 					return;
 				}
 
-				// Skip if the container is not a link.
-				if ( ! container.hasAttribute( 'href' ) ) {
+				// Skip if image is part of a gallery.
+				if ( domUtil.closest( container, galleryItemSelector ) ) {
+					return;
+				}
+
+				// Skip if the parent is not actually a link.
+				if ( ! link.hasAttribute( 'href' ) ) {
 					return;
 				}
 
@@ -625,7 +718,7 @@
 
 				// If link points to 'Media File' (ignoring GET parameters) and flag is set, allow it.
 				if (
-					container.getAttribute( 'href' ).split( '?' )[ 0 ] ===
+					link.getAttribute( 'href' ).split( '?' )[ 0 ] ===
 						image.getAttribute( 'data-orig-file' ).split( '?' )[ 0 ] &&
 					Number( jetpackCarouselStrings.single_image_gallery_media_file ) === 1
 				) {
@@ -633,7 +726,7 @@
 				}
 
 				// If link points to 'Attachment Page', allow it.
-				if ( container.getAttribute( 'href' ) === image.getAttribute( 'data-permalink' ) ) {
+				if ( link.getAttribute( 'href' ) === image.getAttribute( 'data-permalink' ) ) {
 					valid = true;
 				}
 
@@ -643,9 +736,9 @@
 				}
 
 				// Make this node a gallery recognizable by event listener above.
-				container.classList.add( 'single-image-gallery' );
+				link.classList.add( 'single-image-gallery' );
 				// blog_id is needed to allow posting comments to correct blog.
-				container.setAttribute(
+				link.setAttribute(
 					'data-carousel-extra',
 					JSON.stringify( {
 						blog_id: Number( jetpackCarouselStrings.blog_id ),
@@ -677,28 +770,17 @@
 
 			var current = carousel.currentSlide;
 			var attachmentId = current.attrs.attachmentId;
-			var captionHtml;
-			var extraInfoContainer = carousel.info.querySelector( '.jp-carousel-info-extra' );
-			var photoMetaContainer = carousel.info.querySelector( '.jp-carousel-image-meta' );
-			var commentsContainer = carousel.info.querySelector( '.jp-carousel-comments-wrapper' );
 			var infoIcon = carousel.info.querySelector( '.jp-carousel-icon-info' );
 			var commentsIcon = carousel.info.querySelector( '.jp-carousel-icon-comments' );
 
-			// Hide comments and photo info
-			if ( extraInfoContainer ) {
-				extraInfoContainer.classList.remove( 'jp-carousel-show' );
-			}
-			if ( photoMetaContainer ) {
-				photoMetaContainer.classList.remove( 'jp-carousel-show' );
-			}
-			if ( infoIcon ) {
-				infoIcon.classList.remove( 'jp-carousel-selected' );
-			}
-			if ( commentsContainer ) {
-				commentsContainer.classList.remove( 'jp-carousel-show' );
-			}
-			if ( commentsIcon ) {
-				commentsIcon.classList.remove( 'jp-carousel-selected' );
+			// If the comment/info section is toggled open, it's kept open, but scroll to top of the next slide.
+			if (
+				( infoIcon && infoIcon.classList.contains( 'jp-carousel-selected' ) ) ||
+				( commentsIcon && commentsIcon.classList.contains( 'jp-carousel-selected' ) )
+			) {
+				if ( carousel.overlay.scrollTop !== 0 ) {
+					domUtil.scrollToElement( carousel.overlay, carousel.overlay );
+				}
 			}
 
 			loadFullImage( carousel.slides[ index ] );
@@ -711,7 +793,11 @@
 			}
 
 			domUtil.hide( carousel.caption );
-			updateTitleAndDesc( { title: current.attrs.title, desc: current.attrs.desc } );
+			updateTitleCaptionAndDesc( {
+				caption: current.attrs.caption,
+				title: current.attrs.title,
+				desc: current.attrs.desc,
+			} );
 
 			var imageMeta = carousel.slides[ index ].attrs.imageMeta;
 			updateExif( imageMeta );
@@ -721,31 +807,6 @@
 				testCommentsOpened( carousel.slides[ index ].attrs.commentsOpened );
 				fetchComments( attachmentId );
 				domUtil.hide( carousel.info.querySelector( '#jp-carousel-comment-post-results' ) );
-			}
-
-			if ( current.attrs.caption ) {
-				captionHtml = domUtil.convertToPlainText( current.attrs.caption );
-
-				if ( domUtil.convertToPlainText( current.attrs.title ) === captionHtml ) {
-					var title = carousel.info.querySelector( '.jp-carousel-photo-title' );
-					domUtil.fadeOut( title, function () {
-						title.innerHTML = '';
-					} );
-				}
-
-				if ( domUtil.convertToPlainText( current.attrs.desc ) === captionHtml ) {
-					var desc = carousel.info.querySelector( '.jp-carousel-photo-description' );
-					domUtil.fadeOut( desc, function () {
-						desc.innerHTML = '';
-					} );
-				}
-
-				carousel.caption.innerHTML = current.attrs.caption;
-				domUtil.fadeIn( carousel.caption );
-			} else {
-				domUtil.fadeOut( carousel.caption, function () {
-					carousel.caption.innerHTML = '';
-				} );
 			}
 
 			// Update pagination in footer.
@@ -864,13 +925,9 @@
 					// If we have a really large image load a smaller version
 					// that is closer to the viewable size
 					if ( args.origWidth > args.maxWidth || args.origHeight > args.maxHeight ) {
-						// If the image is smaller than 1000px in width or height, @2x it so
-						// we get a high enough resolution for zooming.
-						if ( args.origMaxWidth < 1000 || args.origMaxWidth < 1000 ) {
-							args.origMaxWidth = args.maxWidth * 2;
-							args.origMaxHeight = args.maxHeight * 2;
-						}
-
+						// @2x the max sizes so we get a high enough resolution for zooming.
+						args.origMaxWidth = args.maxWidth * 2;
+						args.origMaxHeight = args.maxHeight * 2;
 						origPhotonUrl += '?fit=' + args.origMaxWidth + '%2C' + args.origMaxHeight;
 					}
 				}
@@ -935,40 +992,73 @@
 			return value;
 		}
 
-		function updateTitleAndDesc( data ) {
+		function updateTitleCaptionAndDesc( data ) {
+			var caption = '';
 			var title = '';
 			var desc = '';
-			var titleElements;
+			var captionMainElement;
+			var captionInfoExtraElement;
+			var titleElement;
 			var descriptionElement;
-			var i;
 
-			titleElements = document.querySelectorAll( '.jp-carousel-photo-title' );
-			descriptionElement = document.querySelector( '.jp-carousel-photo-description' );
+			captionMainElement = carousel.overlay.querySelector( '.jp-carousel-photo-caption' );
+			captionInfoExtraElement = carousel.overlay.querySelector( '.jp-carousel-caption' );
 
-			for ( i = 0; i < titleElements.length; i++ ) {
-				domUtil.hide( titleElements[ i ] );
-			}
+			titleElement = carousel.overlay.querySelector( '.jp-carousel-photo-title' );
+			descriptionElement = carousel.overlay.querySelector( '.jp-carousel-photo-description' );
 
+			domUtil.hide( captionMainElement );
+			domUtil.hide( captionInfoExtraElement );
+			domUtil.hide( titleElement );
 			domUtil.hide( descriptionElement );
 
+			caption = parseTitleOrDesc( data.caption ) || '';
 			title = parseTitleOrDesc( data.title ) || '';
 			desc = parseTitleOrDesc( data.desc ) || '';
 
-			if ( title || desc ) {
-				// Convert from HTML to plain text (including HTML entities decode, etc)
-				if ( domUtil.convertToPlainText( title ) === domUtil.convertToPlainText( desc ) ) {
+			if ( caption || title || desc ) {
+				if ( caption ) {
+					captionMainElement.innerHTML = caption;
+					captionInfoExtraElement.innerHTML = caption;
+
+					domUtil.show( captionMainElement );
+					domUtil.show( captionInfoExtraElement );
+				}
+
+				if ( domUtil.stripHTML( caption ) === domUtil.stripHTML( title ) ) {
+					title = '';
+				}
+
+				if ( domUtil.stripHTML( caption ) === domUtil.stripHTML( desc ) ) {
+					desc = '';
+				}
+
+				if ( domUtil.stripHTML( title ) === domUtil.stripHTML( desc ) ) {
 					desc = '';
 				}
 
 				if ( desc ) {
 					descriptionElement.innerHTML = desc;
 					domUtil.show( descriptionElement );
+
+					if ( ! title && ! caption ) {
+						captionMainElement.innerHTML = domUtil.stripHTML( desc );
+						domUtil.show( captionMainElement );
+					}
 				}
 
-				// Need maximum browser support, hence the for loop over NodeList.
-				for ( i = 0; i < titleElements.length; i++ ) {
-					titleElements[ i ].innerHTML = title;
-					domUtil.show( titleElements[ i ] );
+				if ( title ) {
+					var plainTitle = domUtil.stripHTML( title );
+					titleElement.innerHTML = plainTitle;
+
+					if ( ! caption ) {
+						captionMainElement.innerHTML = plainTitle;
+						captionInfoExtraElement.innerHTML = plainTitle;
+
+						domUtil.show( captionMainElement );
+					}
+
+					domUtil.show( titleElement );
 				}
 			}
 		}
@@ -1027,8 +1117,10 @@
 				original = currentSlide.attrs.origFile.replace( /\?.+$/, '' );
 			}
 
+			var downloadText = carousel.info.querySelector( '.jp-carousel-download-text' );
 			var permalink = carousel.info.querySelector( '.jp-carousel-image-download' );
-			permalink.innerHTML = util.applyReplacements(
+
+			downloadText.innerHTML = util.applyReplacements(
 				jetpackCarouselStrings.download_original,
 				origSize
 			);
@@ -1038,16 +1130,11 @@
 
 		function testCommentsOpened( opened ) {
 			var commentForm = carousel.container.querySelector( '.jp-carousel-comment-form-container' );
-			var commentLink = carousel.container.querySelector( '.jp-carousel-commentlink' );
-			var buttons = carousel.container.querySelector( '.jp-carousel-buttons' );
-			var control = Number( jetpackCarouselStrings.is_logged_in ) === 1 ? commentLink : buttons;
 			var isOpened = parseInt( opened, 10 ) === 1;
 
 			if ( isOpened ) {
-				domUtil.fadeIn( control );
 				domUtil.fadeIn( commentForm );
 			} else {
-				domUtil.fadeOut( control );
 				domUtil.fadeOut( commentForm );
 			}
 		}
@@ -1250,15 +1337,23 @@
 
 			// create the 'slide'
 			Array.prototype.forEach.call( items, function ( item, i ) {
-				var galleryItem = domUtil.closest( item, '.gallery-item' );
-				var captionEl = galleryItem && galleryItem.querySelector( '.gallery-caption' );
 				var permalinkEl = domUtil.closest( item, 'a' );
 				var origFile = item.getAttribute( 'data-orig-file' ) || item.getAttribute( 'src-orig' );
+				var attrID =
+					item.getAttribute( 'data-attachment-id' ) || item.getAttribute( 'data-id' ) || '0';
+				var caption = document.querySelector(
+					'img[data-attachment-id="' + attrID + '"] + figcaption'
+				);
+
+				if ( caption ) {
+					caption = caption.innerHTML;
+				} else {
+					caption = item.getAttribute( 'data-image-caption' );
+				}
 
 				var attrs = {
 					originalElement: item,
-					attachmentId:
-						item.getAttribute( 'data-attachment-id' ) || item.getAttribute( 'data-id' ) || '0',
+					attachmentId: attrID,
 					commentsOpened: item.getAttribute( 'data-comments-opened' ) || '0',
 					imageMeta: domUtil.getJSONAttribute( item, 'data-image-meta' ) || {},
 					title: item.getAttribute( 'data-image-title' ) || '',
@@ -1267,7 +1362,7 @@
 					largeFile: item.getAttribute( 'data-large-file' ) || '',
 					origFile: origFile || '',
 					thumbSize: { width: item.naturalWidth, height: item.naturalHeight },
-					caption: ( captionEl && captionEl.innerHTML ) || '',
+					caption: caption || '',
 					permalink: permalinkEl && permalinkEl.getAttribute( 'href' ),
 					src: origFile || item.getAttribute( 'src' ) || '',
 				};
@@ -1340,7 +1435,7 @@
 		}
 
 		function loadSwiper( gallery, options ) {
-			if ( ! window.Swiper ) {
+			if ( ! window.Swiper670 ) {
 				var loader = document.querySelector( '#jp-carousel-loading-overlay' );
 				domUtil.show( loader );
 				var jsScript = document.createElement( 'script' );
@@ -1368,6 +1463,7 @@
 			};
 
 			var data = domUtil.getJSONAttribute( gallery, 'data-carousel-extra' );
+			var tapTimeout;
 
 			if ( ! data ) {
 				return; // don't run if the default gallery functions weren't used
@@ -1411,10 +1507,12 @@
 
 			initCarouselSlides( gallery.querySelectorAll( settings.imgSelector ), settings.startIndex );
 
-			swiper = new window.Swiper( '.jp-carousel-swiper-container', {
+			swiper = new window.Swiper670( '.jp-carousel-swiper-container', {
 				centeredSlides: true,
 				zoom: true,
-				loop: carousel.slides.length > 1 ? true : false,
+				loop: carousel.slides.length > 1,
+				// Turn off interactions and hide navigation arrows if there is only one slide.
+				enabled: carousel.slides.length > 1,
 				pagination: {
 					el: '.jp-swiper-pagination',
 					clickable: true,
@@ -1431,10 +1529,11 @@
 				},
 				preventClicks: false,
 				preventClicksPropagation: false,
+				preventInteractionOnTransition: ! domUtil.isTouch(),
 				threshold: 5,
 			} );
 
-			swiper.on( 'slideChange', function () {
+			swiper.on( 'slideChange', function ( swiper ) {
 				var index;
 				// Swiper indexes slides from 1, plus when looping to left last slide ends up
 				// as 0 and looping to right first slide as total slides + 1. These are adjusted
@@ -1447,6 +1546,36 @@
 					index = swiper.activeIndex - 1;
 				}
 				selectSlideAtIndex( index );
+
+				carousel.overlay.classList.remove( 'jp-carousel-hide-controls' );
+			} );
+
+			swiper.on( 'zoomChange', function ( swiper, scale ) {
+				if ( scale > 1 ) {
+					carousel.overlay.classList.add( 'jp-carousel-hide-controls' );
+				}
+
+				if ( scale === 1 ) {
+					carousel.overlay.classList.remove( 'jp-carousel-hide-controls' );
+				}
+			} );
+
+			swiper.on( 'doubleTap', function ( swiper ) {
+				clearTimeout( tapTimeout );
+				if ( swiper.zoom.scale === 1 ) {
+					var zoomTimeout = setTimeout( function () {
+						carousel.overlay.classList.remove( 'jp-carousel-hide-controls' );
+						clearTimeout( zoomTimeout );
+					}, 150 );
+				}
+			} );
+
+			swiper.on( 'tap', function () {
+				if ( swiper.zoom.scale > 1 ) {
+					tapTimeout = setTimeout( function () {
+						carousel.overlay.classList.toggle( 'jp-carousel-hide-controls' );
+					}, 150 );
+				}
 			} );
 
 			domUtil.fadeIn( carousel.overlay, function () {

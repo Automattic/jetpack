@@ -113,28 +113,17 @@ class SearchApp extends Component {
 			this.props.setSort( this.state.overlayOptions.defaultSort );
 		}
 		if (
-			prevState.overlayOptions.excludedPostTypes !== this.state.overlayOptions.excludedPostTypes
+			stringify( prevState.overlayOptions.excludedPostTypes ) !==
+			stringify( this.state.overlayOptions.excludedPostTypes )
 		) {
 			this.getResults();
 		}
-	}
-
-	componentWillUnmount() {
-		this.restoreBodyScroll();
 	}
 
 	initializeAnalytics() {
 		initializeTracks();
 		resetTrackingCookies();
 		identifySite( this.props.options.siteId );
-	}
-
-	preventBodyScroll() {
-		document.body.style.overflowY = 'hidden';
-	}
-
-	restoreBodyScroll() {
-		document.body.style.overflowY = null;
 	}
 
 	getResultFormat = () => {
@@ -170,7 +159,10 @@ class SearchApp extends Component {
 	};
 
 	hideResults = isHistoryNav => {
-		this.restoreBodyScroll();
+		if ( ! this.props.shouldIntegrateWithDom ) {
+			return;
+		}
+
 		restorePreviousHref(
 			this.props.initialHref,
 			() => {
@@ -183,6 +175,11 @@ class SearchApp extends Component {
 
 	// Used for showResults and Customizer integration.
 	toggleResults = isVisible => {
+		// Prevent interaction if being shown in Customberg context.
+		if ( ! this.props.shouldIntegrateWithDom ) {
+			return;
+		}
+
 		// Necessary when reacting to onMessage transport Customizer controls.
 		// Both bindCustomizerChanges and bindCustomizerMessages are bound to such controls.
 		if ( this.state.isVisible === isVisible ) {
@@ -192,14 +189,7 @@ class SearchApp extends Component {
 		// If there are static filters available, but they are not part of the url/state, we will set their default value
 		isVisible && this.initializeStaticFilters();
 
-		this.setState( { isVisible }, () => {
-			if ( isVisible ) {
-				this.preventBodyScroll();
-			} else {
-				// This codepath will only be executed in the Customizer.
-				this.restoreBodyScroll();
-			}
-		} );
+		this.setState( { isVisible } );
 	};
 
 	showResults = this.toggleResults.bind( this, true );

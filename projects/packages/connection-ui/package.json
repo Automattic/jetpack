@@ -1,6 +1,6 @@
 {
 	"name": "jetpack-connection-manager-ui",
-	"version": "1.2.0",
+	"version": "1.5.0-alpha",
 	"description": "Jetpack Connection Manager UI",
 	"main": "_inc/admin.jsx",
 	"repository": "https://github.com/Automattic/jetpack-connection-ui",
@@ -14,29 +14,30 @@
 		"watch": "pnpm run build && pnpx gulp watch"
 	},
 	"dependencies": {
-		"@automattic/calypso-build": "6.5.0",
-		"@automattic/jetpack-components": "workspace:^0.1.0-alpha",
-		"@automattic/jetpack-connection": "workspace:^0.4.0-alpha",
-		"@babel/core": "7.12.10",
-		"@babel/helper-module-imports": "7.12.5",
-		"@babel/preset-env": "7.12.11",
-		"@babel/register": "7.12.10",
-		"@wordpress/data": "4.14.2",
+		"@automattic/calypso-build": "9.0.0",
+		"@automattic/jetpack-api": "workspace:^0.3.0-alpha",
+		"@automattic/jetpack-connection": "workspace:^0.7.0-alpha",
+		"@automattic/jetpack-idc": "workspace:^0.2.0-alpha",
+		"@babel/core": "7.15.0",
+		"@babel/helper-module-imports": "7.14.5",
+		"@babel/preset-env": "7.15.0",
+		"@babel/register": "7.15.3",
+		"@wordpress/data": "6.1.0",
 		"fancy-log": "1.3.3",
 		"gulp": "4.0.2",
-		"react": "16.14.0",
-		"react-dom": "16.14.0",
+		"react": "17.0.2",
+		"react-dom": "17.0.2",
 		"static-site-generator-webpack-plugin": "3.4.2",
-		"webpack": "4.46.0"
+		"webpack": "5.51.1"
 	},
 	"devDependencies": {
-		"@babel/runtime": "7.14.0",
-		"@wordpress/dependency-extraction-webpack-plugin": "2.9.0",
+		"@babel/runtime": "7.15.3",
+		"@wordpress/dependency-extraction-webpack-plugin": "3.2.1",
 		"enzyme": "3.11.0",
-		"jest": "26.6.3"
+		"jest": "27.0.4"
 	},
 	"engines": {
-		"node": "^14.16.1",
+		"node": "^14.17.6 || ^16.7.0",
 		"pnpm": "^6.5.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}

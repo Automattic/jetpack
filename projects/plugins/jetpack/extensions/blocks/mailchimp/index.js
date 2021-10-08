@@ -35,7 +35,7 @@ export const innerButtonBlock = {
 	name: 'jetpack/button',
 	attributes: {
 		element: 'button',
-		text: __( 'Join my email list', 'jetpack' ),
+		text: __( 'Join my Mailchimp audience', 'jetpack' ),
 		uniqueId: 'mailchimp-widget-id',
 	},
 };
@@ -46,7 +46,7 @@ export const settings = {
 		src: icon,
 		foreground: getIconColor(),
 	},
-	description: __( 'A form enabling readers to join a Mailchimp list.', 'jetpack' ),
+	description: __( 'A form enabling readers to join a Mailchimp audience.', 'jetpack' ),
 	category: 'grow',
 	keywords: [
 		_x( 'email', 'block search term', 'jetpack' ),

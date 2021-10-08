@@ -1,44 +1,65 @@
-## 9.9
+## 10.2
 
 ### Before you start
 
-- If you have the opportunity to test in an older browser like IE11, please do so. You may catch some interesting bugs!
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://codex.wordpress.org/Using_Your_Browser_to_Diagnose_JavaScript_Errors#Step_3:_Diagnosis) and see if there are any errors reported by Jetpack there.**
 - Use "Debug Bar" or "Query Monitor" to help make PHP notices and warnings more noticeable and report anything you see.
 
-### Instant Search
+### Widget Visibility
 
-Improvements were made to Jetpack Search, a paid upgrade to the Jetpack plugin that provides higher quality results and an improved search experience.
+Widget visibility controls have been added for blocks when using the block-based widget editor. To test:
 
-To test, try:
+* In Jetpack writing settings `/wp-admin/admin.php?page=jetpack#/writing`, make sure the `Enable widget visibility controls to display widgets only on particular posts or pages` setting under "Widgets" is enabled.
+* Then access the block-based widget editor, `/wp-admin/widgets.php`.
+* Add any block widget, a Paragraph block will work for example.
+* With that block selected, navigate to the block settings panel and open the `Advanced` options.
+* Under `Visibility`, try adding new visibility rules.
+* Visit the frontend of the site to verify your rules are working.
 
-- Add the Jetpack Search widget to your site.
-- Run some test searches and make sure results appear as expected and that there are no design conflicts
-- The Instant Search overlay shouldn't appear while typing. The sliding animation has been removed and the overlay should appear faster.
-- Make sure searches are paginated properly and that pagination works correctly.
+### VideoPress
 
-### Carousel
+VideoPress is being added as a standalone Jetpack product. This is best tested on a Jetpack connected site without a paid Jetpack plan:
 
-The Jetpack carousel module for galleries has been [updated](https://github.com/Automattic/jetpack/pull/20107) for both mobile and desktop experiences. For testing, try:
+* The VideoPress module can now be activated from the Modules page (even for sites without a paid plan): `/wp-admin/admin.php?page=jetpack_modules`
+* Once VideoPress is activated, on the Jetpack dashboard `/wp-admin/admin.php?page=jetpack#/dashboard` you will see a VideoPress card that will mention the status such as `1 free video available. Upgrade now to unlock more videos and 1TB of storage`. You can toggle the VideoPress module on/off from this card.
+* If VideoPress is enabled on a site without a paid Jetpack plan, you are able to upload one free video to VideoPress.
+* For uploading videos to VideoPress there are two methods:
+  1. From WordPress.com, go to My Site(s) → Media. Drag the video file from your computer into the media library, or click Add New and select the video file from your computer.
+  2. From the WP Admin dashboard, go to Media → Library and drag the video file from your computer into the media library. Note: Clicking Media → Add New and selecting the video file in WP Admin will not upload the video to Jetpack. In order to upload video, make sure the grid view (Grid View) in media library is selected, and then you can drag the file into the WP Admin media library, or you can click Add New. Clicking Add New in the list view (List View) in media library will not upload the video to Jetpack.
 
-* **When viewing the galleries, please test across different web browsers (mobile and desktop)!**
-* In `/wp-admin/admin.php?page=jetpack#/writing` make sure the carousel feature is activated.
-* Create a new post/page with galleries using: Gallery block (wp:gallery), Tiled Gallery block (wp:jetpack/tiled-gallery), and insert a Classic block and use the `Add Media` toolbar option to create a gallery (a [gallery] shortcode will be generated).
-* Add a Gallery widget to one of your site's widget areas.
-* On Desktop, make sure the gallery/lightbox functions well. Test leaving comments and viewing the image info (`i`), also try zoom/pan on the image.
-* On Mobile, make sure that you are able to swipe between images smoothly, also try double tap to zoom/pan. Also check comments/info.
-* Check that the gallery you placed in a widget area functions as expected.
-* In `/wp-admin/admin.php?page=jetpack#/performance` toggle "Enable site accelerator / Speed up image load times" (aka Photon). When Photon is enabled, this should provide the best experience for larger dimension images.
-* In `/wp-admin/options-media.php` make sure toggling Exif & comment options works as expected. Also try changing the carousel background color and check for any design conflicts.
-* Try changing themes (perhaps to an older theme) and look for any conflicts.
+### Contact Form Custom Email Headers
 
-You'll want to make sure Carousel works as expected in all scenarios, in different browsers. You can also test things when disabling Jetpack's Site Accelerator under Jetpack > Settings > Performance.
+There is a new filter available for customizing the email headers for Jetpack contact forms. For testing, try:
 
-### WordPress 5.8 Compatibility
+* Add a new Jetpack contact form to a test page.
+* Add the following snippet to your site using a functionality plugin:
 
-With WordPress 5.8 releasing in July, feel free to install and activate the WordPress Beta Tester plugin and test the Jetpack 9.9 Beta alongside WordPress 5.8. Things to check would be:
-- Jetpack blocks (in the editor and the Full Site Editing interface, such as the site footer).
-- Jetpack widgets 
-- Any and all feedback is welcome!
+```php
+add_filter(
+	'jetpack_contact_form_email_headers',
+	function ( $headers, $comment_author, $reply_to_addr, $to ) {
+		$headers .= 'Bcc: ' . $reply_to_addr . "\r\n";
+		return $headers;
+	},
+	10,
+	4
+);
+```
+
+* Make a test submission to the form you created.
+* An email should be sent to the email address specified in the added snippet.
+* Warning: DO NOT add headers or header data from the form submission without proper escaping and validation, or you're liable to allow abusers to use your site to send spam. Especially DO NOT take email addresses from the form data to add as CC or BCC headers without strictly validating each address against a list of allowed addresses.
+
+### SEO Tools Archive Title
+
+For custom Archive page titles a new `Archive Title` option replaces the `Date` option. To test:
+
+* At `/wp-admin/admin.php?page=jetpack#/traffic` make sure `Customize your SEO settings` is enabled.
+* Click on `Expand to customize the page title structures of your site`.
+* For `Archives` use the buttons to insert each token presented (Site Title, Tagline, and Archive Title).
+* The live preview should show "Example Archive Title/Date" for the inserted `Archive Title`
+* Save the SEO settings.
+* Check a custom post type archive page. For example you can enable Jetpack's custom Portfolio type, then view that archive at `example.com/portfolio/`. In the `<title>` you should see "Projects" replacing the `Archive Title"` inserted via button.
+* Check a date archive (e.g. `example.com/2019/09`). You should see the appropriate date replacing the `Archive Title` inserted via button.
 
 **Thank you for all your help!**

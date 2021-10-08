@@ -18,14 +18,13 @@ $image-square-size: 128px;
 	color: $color-text-lighter;
 	font-size: 0.9375em;
 	margin: 0 0 0.4em;
-	line-height: 1.3;
 }
 
 .jetpack-instant-search__search-result-expanded__copy-container {
 	max-width: 100%;
 
 	@include break-small-up() {
-		width: 100%;
+		width: calc(100% - #{$image-square-size} - 1em);
 	}
 
 	.jetpack-instant-search__search-result-expanded--no-image & {

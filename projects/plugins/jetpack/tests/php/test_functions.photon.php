@@ -2,9 +2,13 @@
 
 class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
-	public function tearDown() {
+	/**
+	 * Tear down.
+	 */
+	public function tear_down() {
 		remove_filter( 'jetpack_photon_domain', array( $this, 'apply_custom_domain' ) );
 		unset( $this->custom_photon_domain );
+		parent::tear_down();
 	}
 
 	public function apply_custom_domain( $domain ) {
@@ -17,7 +21,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 	}
 
 	protected function assertMatchesPhotonHost( $host ) {
-		$this->assertRegExp( '/^i[0-2]\.wp\.com$/', $host );
+		$this->assertMatchesRegularExpression( '/^i[0-2]\.wp\.com$/', $host );
 	}
 
 	/**

@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
-Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, scarstocea, scottsweb, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
-Tags: Security, backup, WooCommerce, malware, scan, spam, CDN, search, social
-Stable tag: 9.8.1
+Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
+Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
+Stable tag: 10.2
 Requires at least: 5.7
 Requires PHP: 5.6
 Tested up to: 5.8
@@ -45,7 +45,7 @@ Create and customize your WordPress site, optimize it for visitors and revenue, 
 * Easily share Instagram posts on your pages and blog posts.
 * Collect a payment or donation, sell a product, service, or membership with simple integrations with PayPal and Stripe.
 * Grow traffic with SEO tools for Google, Bing, Twitter, Facebook, and WordPress.com. XML sitemap created automatically.
-* Advertise on your site to generate revenue. The Jetpack ad network automatically does the work for you to find high-quality ads that are placed on your site.
+* Advertise on your site to generate revenue. The ad network automatically does the work for you to find high-quality ads that are placed on your site.
 * Manage Jetpack features from anywhere with the official WordPress mobile app, available for Apple iOS (iPhone or iPad) and Google Android.
 * Looking for Customer Relationship Management? Check out the [Jetpack CRM plugin](https://jetpackcrm.com) which works alongside Jetpack to give you a simple and practical way to build relationships with your customers and leads.
 
@@ -242,43 +242,42 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 9.9-beta - 2021-06-29
-#### Major Enhancements
-- Carousel: improve carousel usability, performance, accessibility, mobile friendliness.
-- Carousel: improve stability, fixes multiple bugs.
-
+### 10.2 - 2021-10-05
 #### Enhancements
-- Blocks: additional automated tests to improve reliability. 
-- Editor: added Social Preview panel to the pre-publish sidebar to increase visibility.
-- Dashboard: provide more useful information and an option to contact support when there are display issues in the Jetpack dashboard.
-- Instant Search: improve modal animation and transition speed.
-
-#### General
-- Jetpack now requires WordPress 5.7 in anticipation of WordPress 5.8 coming later this month.
+- Contact Form: add filter to allow customizing email headers.
+- Contact Form: add two filters to improve anti-spam functionality.
+- Related Posts: enable lazy loading for images.
+- Search: improve filter label formatting for longer text entries.
+- Search: title customization improvements.
+- SEO Tools: add "Archive Title" option for custom archive page titles.
+- SmartFrame Embeds: add support for SmartFrame embed using URLs, embed code, and shortcodes.
+- VideoPress: add new VideoPress product and enables VideoPress to be used for free for 1 video upload.
+- Widgets: add visibility settings to widgets using the block editor, under the advanced section of the sidebar.
 
 #### Improved compatibility
-- Blocks: make sure connection notices in blocks work with the widget and customizer block editors.
-- Full Site Editing: disable admin bar in Jetpack notifications to prevent keystroke hijacking in the Site Editor.
-- Podcast Block: Ensure compatability with latest version of Gutenberg plugin and WordPress 5.8.
-- Search: improve Search Widget compatibility with WordPress 5.8 widget editor.
-- Shortcode Embeds: enable compatibility with WordPress' "Lazy Loading".
-- Slideshow Block: update icon.
-- Site Logo: improve compatibility with WordPress 5.8's new Site Logo block.
+- External Media: update verbiage around Google Photos to improve compatibility with their UX guidelines.
+- Instagram Widget: remove from Legacy Widget block.
+- Publicize: replace native text-area with custom/core-based component.
+- Search: as IE11 support was removed in Jetpack 10.1, remove an IE11 polyfill.
+- VideoPress: file url field now displays the HLS playlist if one was generated. The fragmented mp4 file is not meant to be played on its own. MP4 file will only be displayed as the video url if it was created prior to the HLS update.
 
 #### Bug fixes
-- Custom CSS: allow leading decimal zeros.
-- WordPress.com API: properly allow requests to upgrade a plugin outside of autoupdates.
-- Blocks: GIF block supports the widget editor and customizer preview pane.
-- AMP: Fix top AMP ad unit from being cropped on mobile devices
-- Inline PDFs: Fix height of PDF embeds for greater theme compatability.
-- Instant Search: ensure alt text does not contain mark element.
-- Instant Search: prevent theme from overriding modal close button styles.
-- Instant Search: prevent overlay from opening when composing text using an input method editor for Chinese, Japanese, Korean, and Indic languages.
-- Instant Search: fix render-breaking typo for Expanded search results.
-- Instant Search: show correct count for paginated results.
-- Shortcode Embeds: correctly handle YouTube URLs that include a start time.
-- Story Block: improve navigation, fix issues with long press to pause and exiting story on last tap.
-- Payments Block: do not hide block configuration instructions when block is nested.
+- Contact Form: make sure the set height of the Spacer block nested inside a Contact Form block is respected.
+- Custom Content Type: improve the performance of the Testimonial CPT.
+- Dashboard: improve the performance of the query used to display Anti-spam stats.
+- Embeds: add allow-popups permission to Google Calendar embed so that links internal to the iFrame will open.
+- Publicize: ensure the custom excerpt is used when sharing to Facebook.
+- Publicize: improve refreshing connections list.
+- Related Posts: avoid errors if main div is not in the DOM.
+- Search: ensure Safari input clear button is hidden.
+- Search: ensure translations are available for lazy-loaded payloads.
+- Search: fix dashboard buttons too big on Safari.
+- Sharing: fix the icon position in icon-only button style.
+- Shortcodes: remove Hulu from available embeds.
+- Slideshow: fix fade transition background.
+- Theme Tools: remove unnecessary extra Social Menu added in the Twenty Twenty theme.
+- VideoPress: fix a bug related to deleting VideoPress videos.
+- Widgets: fix a conflict between various Jetpack blocks and some WordPress core legacy widgets.
 
 --------
 

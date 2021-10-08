@@ -11,6 +11,7 @@ import { connect } from 'react-redux';
 import { createInterpolateElement } from '@wordpress/element';
 import { dateI18n } from '@wordpress/date';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -19,7 +20,6 @@ import analytics from 'lib/analytics';
 import Button from 'components/button';
 import Card from 'components/card';
 import ConnectButton from 'components/connect-button';
-import getRedirectUrl from 'lib/jp-redirect';
 import { numberFormat } from 'components/number-format';
 import { userCanConnectAccount } from 'state/initial-state';
 

@@ -27,7 +27,19 @@ class Client {
 		if ( ! $result || is_wp_error( $result ) ) {
 			return $result;
 		}
-		return self::_wp_remote_request( $result['url'], $result['request'] );
+
+		$response = self::_wp_remote_request( $result['url'], $result['request'] );
+
+		/**
+		 * Fired when the remote request response has been received.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array|WP_Error The HTTP response.
+		 */
+		do_action( 'jetpack_received_remote_request_response', $response );
+
+		return $response;
 	}
 
 	/**
@@ -215,7 +227,8 @@ class Client {
 		 * Return `true` to ENABLE SSL verification, return `false`
 		 * to DISABLE SSL verification.
 		 *
-		 * @since 3.6.0
+		 * @since 1.7.0
+		 * @since-jetpack 3.6.0
 		 *
 		 * @param bool Whether to force `sslverify` or not.
 		 */

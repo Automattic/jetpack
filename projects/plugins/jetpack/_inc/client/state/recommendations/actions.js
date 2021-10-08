@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import restApi from 'rest-api';
+import restApi from '@automattic/jetpack-api';
 import {
 	JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION,
 	JETPACK_RECOMMENDATIONS_DATA_ADD_SKIPPED_RECOMMENDATION,
@@ -15,6 +15,9 @@ import {
 	JETPACK_RECOMMENDATIONS_STEP_UPDATE,
 	JETPACK_RECOMMENDATIONS_STEP_UPDATE_SUCCESS,
 	JETPACK_RECOMMENDATIONS_STEP_UPDATE_FAIL,
+	JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH,
+	JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH_RECEIVE,
+	JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH_FAIL,
 	JETPACK_RECOMMENDATIONS_UPSELL_FETCH,
 	JETPACK_RECOMMENDATIONS_UPSELL_FETCH_RECEIVE,
 	JETPACK_RECOMMENDATIONS_UPSELL_FETCH_FAIL,
@@ -86,6 +89,23 @@ export const updateRecommendationsStep = step => {
 			.catch( error => {
 				dispatch( { type: JETPACK_RECOMMENDATIONS_STEP_UPDATE_FAIL, error } );
 			} );
+	};
+};
+
+export const fetchRecommendationsProductSuggestions = () => {
+	return dispatch => {
+		dispatch( { type: JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH } );
+		return restApi
+			.fetchRecommendationsProductSuggestions()
+			.then( productSuggestions => {
+				dispatch( {
+					type: JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH_RECEIVE,
+					productSuggestions,
+				} );
+			} )
+			.catch( error =>
+				dispatch( { type: JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH_FAIL, error } )
+			);
 	};
 };
 

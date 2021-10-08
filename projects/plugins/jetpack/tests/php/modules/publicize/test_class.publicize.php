@@ -37,8 +37,11 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 */
 	const GLOBAL_CONNECTION_INDEX = 1;
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 
 		$this->publicize = publicize_init();
 		$this->publicized_post_id = null;
@@ -83,10 +86,13 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		$this->original_user = get_current_user_id();
 	}
 
-	public function tearDown() {
+	/**
+	 * Tear down.
+	 */
+	public function tear_down() {
 		wp_set_current_user( $this->original_user );
 
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	public function test_fires_jetpack_publicize_post_on_save_as_published() {

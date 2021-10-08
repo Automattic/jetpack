@@ -5,12 +5,14 @@ import React, { useEffect, useCallback, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
 import PropTypes from 'prop-types';
+import restApi from '@automattic/jetpack-api';
+import { Spinner } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
-import restApi from '../../tools/jetpack-rest-api-client';
 import ConnectUser from '../connect-user';
+import './style.scss';
 
 /**
  * The RNA connection component.
@@ -21,17 +23,19 @@ import ConnectUser from '../connect-user';
  * @param {string} props.apiNonce -- API Nonce, required.
  * @param {string} props.registrationNonce -- Separate registration nonce, required.
  * @param {Function} props.onRegistered -- The callback to be called upon registration success.
- *
+ * @param {string} props.redirectUri -- The redirect admin URI.
+ * @param {string} props.from -- Where the connection request is coming from.
+ * @param {object} props.connectionStatus -- The connection status object.
+ * @param {boolean} props.connectionStatusIsFetching -- The flag indicating that connection status is being fetched.
+ * @param {boolean} props.autoTrigger -- Whether to initiate the connection process automatically upon rendering the component.
  * @returns {React.Component} The RNA connection component.
  */
 const ConnectButton = props => {
 	const [ isRegistering, setIsRegistering ] = useState( false );
 	const [ isUserConnecting, setIsUserConnecting ] = useState( false );
+	const [ registationError, setRegistrationError ] = useState( false );
 
 	const [ authorizationUrl, setAuthorizationUrl ] = useState( null );
-
-	const [ isFetchingConnectionStatus, setIsFetchingConnectionStatus ] = useState( false );
-	const [ connectionStatus, setConnectionStatus ] = useState( {} );
 
 	const {
 		apiRoot,
@@ -41,7 +45,9 @@ const ConnectButton = props => {
 		registrationNonce,
 		redirectUri,
 		from,
-		children,
+		connectionStatus,
+		connectionStatusIsFetching,
+		autoTrigger,
 	} = props;
 
 	/**
@@ -53,30 +59,13 @@ const ConnectButton = props => {
 	}, [ apiRoot, apiNonce ] );
 
 	/**
-	 * Fetch the connection status on the first render.
-	 * To be only run once.
-	 */
-	useEffect( () => {
-		setIsFetchingConnectionStatus( true );
-
-		restApi
-			.fetchSiteConnectionStatus()
-			.then( response => {
-				setIsFetchingConnectionStatus( false );
-				setConnectionStatus( response );
-			} )
-			.catch( error => {
-				setIsFetchingConnectionStatus( false );
-				throw error;
-			} );
-	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
-
-	/**
 	 * Initialize the site registration process.
 	 */
 	const registerSite = useCallback(
 		e => {
 			e && e.preventDefault();
+
+			setRegistrationError( false );
 
 			if ( connectionStatus.isRegistered ) {
 				setIsUserConnecting( true );
@@ -96,12 +85,10 @@ const ConnectButton = props => {
 
 					setAuthorizationUrl( response.authorizeUrl );
 					setIsUserConnecting( true );
-					setConnectionStatus( status => {
-						return { ...status, isRegistered: true };
-					} );
 				} )
 				.catch( error => {
 					setIsRegistering( false );
+					setRegistrationError( error );
 					throw error;
 				} );
 		},
@@ -109,36 +96,43 @@ const ConnectButton = props => {
 			setIsRegistering,
 			setAuthorizationUrl,
 			connectionStatus,
-			setConnectionStatus,
 			onRegistered,
 			registrationNonce,
 			redirectUri,
 		]
 	);
 
-	const childrenCallback = useCallback( () => {
-		if ( children && {}.toString.call( children ) === '[object Function]' ) {
-			return children( connectionStatus );
+	/**
+	 * Auto-trigger the flow, only do it once.
+	 */
+	useEffect( () => {
+		if ( autoTrigger && ! isRegistering && ! isUserConnecting ) {
+			registerSite();
 		}
-	}, [ connectionStatus, children ] );
+	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	return (
-		<div className="jp-connection-main">
-			{ childrenCallback() }
-
-			{ isFetchingConnectionStatus && `Loading...` }
+		<div className="jp-connect-button">
+			{ connectionStatusIsFetching && `Loading...` }
 
 			{ ( ! connectionStatus.isRegistered || ! connectionStatus.isUserConnected ) &&
-				! isFetchingConnectionStatus && (
+				! connectionStatusIsFetching && (
 					<Button
+						className="jp-connect-button--button"
 						label={ connectLabel }
 						onClick={ registerSite }
 						isPrimary
 						disabled={ isRegistering || isUserConnecting }
 					>
-						{ connectLabel }
+						{ isRegistering || isUserConnecting ? <Spinner /> : connectLabel }
 					</Button>
 				) }
+
+			{ registationError && (
+				<p className="jp-connect-button__error">
+					{ __( 'An error occurred. Please try again.', 'jetpack' ) }
+				</p>
+			) }
 
 			{ isUserConnecting && (
 				<ConnectUser connectUrl={ authorizationUrl } redirectUri={ redirectUri } from={ from } />
@@ -154,10 +148,14 @@ ConnectButton.propTypes = {
 	onRegistered: PropTypes.func,
 	from: PropTypes.string,
 	redirectUri: PropTypes.string.isRequired,
+	registrationNonce: PropTypes.string.isRequired,
+	autoTrigger: PropTypes.bool,
 };
 
 ConnectButton.defaultProps = {
 	connectLabel: __( 'Connect', 'jetpack' ),
+	redirectUri: null,
+	autoTrigger: false,
 };
 
 export default ConnectButton;

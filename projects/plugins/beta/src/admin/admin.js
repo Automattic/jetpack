@@ -1,16 +1,19 @@
 ( function () {
 	// Elements
-	let prs = document.getElementById( 'section-pr' ).querySelectorAll( '.branch-card' );
-	const tags = document.getElementById( 'section-tags' ).querySelectorAll( '.tag-card' );
+	let prs = document.getElementById( 'section-pr' )?.querySelectorAll( '.branch-card' );
+	if ( ! prs ) {
+		return; // Return early if on main plugin selection screen.
+	}
+	const releases = document.getElementById( 'section-releases' ).querySelectorAll( '.branch-card' );
 	const search_input_prs = document.getElementById( 'search-component-prs' );
-	const search_input_tags = document.getElementById( 'search-component-tags' );
+	const search_input_releases = document.getElementById( 'search-component-releases' );
 	const search_close_link_prs = document.getElementById( 'search-component-prs-close' );
-	const search_close_link_tags = document.getElementById( 'search-component-tags-close' );
+	const search_close_link_releases = document.getElementById( 'search-component-releases-close' );
 	const activate_links = document.querySelectorAll( '.activate-branch' );
 	const toggle_links = document.querySelectorAll( '.form-toggle__label' );
 
 	const pr_index = [];
-	const tag_index = [];
+	const release_index = [];
 	const each = Array.prototype.forEach;
 	let clicked_activate = false;
 	let clicked_toggle = false;
@@ -26,29 +29,33 @@
 		};
 	} );
 
-	// Build index of tags
-	each.call( tags, function ( element, index ) {
+	// Build index of releases
+	each.call( releases, function ( element, index ) {
 		hide( element );
 		element.querySelector( '.activate-branch' ).setAttribute( 'data-index', index );
-		tag_index[ index ] = {
-			header: element.querySelector( '.tag-card-header' ).textContent,
-			key: element.getAttribute( 'data-tag' ),
+		release_index[ index ] = {
+			header: element.querySelector( '.branch-card-header' ).textContent,
+			key: element.getAttribute( 'data-release' ),
 			element: element,
 		};
 	} );
 
 	search_input_listener( search_input_prs );
-	search_input_listener( search_input_tags );
+	search_input_listener( search_input_releases );
 	/**
 	 * Attaches keyup event listener to the search inputs.
 	 *
 	 * @param {object} input_area - Search input DOM Element object.
 	 */
 	function search_input_listener( input_area ) {
+		if ( ! input_area ) {
+			return;
+		}
+
 		input_area.addEventListener( 'keyup', function ( event ) {
 			const section_id = event.srcElement.id;
 			const search_for = pr_to_header( input_area.value );
-			const index = 'search-component-tags' === section_id ? tag_index : pr_index;
+			const index = 'search-component-releases' === section_id ? release_index : pr_index;
 
 			if ( ! search_for ) {
 				if ( input_area.id === 'search-component-prs' ) {
@@ -56,9 +63,9 @@
 					hide( search_close_link_prs );
 				}
 
-				if ( input_area.id === 'search-component-tags' ) {
-					each.call( tags, hide );
-					hide( search_close_link_tags );
+				if ( input_area.id === 'search-component-releases' ) {
+					each.call( releases, hide );
+					hide( search_close_link_releases );
 				}
 
 				return;
@@ -68,8 +75,8 @@
 				show( search_close_link_prs );
 			}
 
-			if ( input_area.id === 'search-component-tags' ) {
-				show( search_close_link_tags );
+			if ( input_area.id === 'search-component-releases' ) {
+				show( search_close_link_releases );
 			}
 
 			index.forEach( show_found.bind( this, search_for, section_id ) );
@@ -80,14 +87,13 @@
 	 * Displays matching search results.
 	 *
 	 * @param {string} search_for - Search input term.
-	 * @param {string} section    - Which search section to display result in (pr/tag).
-	 * @param {object} found      - A matching prs or tags array item from the search.
+	 * @param {string} section    - Which search section to display result in (pr/release).
+	 * @param {object} found      - A matching prs or releases array item from the search.
 	 */
 	function show_found( search_for, section, found ) {
 		const element = found.element;
-		const header_text = parseInt( search_for ) > 0 ? found.key.toString() : found.header;
-		const class_selector =
-			'search-component-tags' === section ? '.tag-card-header' : '.branch-card-header';
+		const header_text = /^ *[0-9]+ *$/.test( search_for ) ? `${ found.key }` : found.header;
+		const class_selector = '.branch-card-header';
 
 		const found_position = header_text.indexOf( search_for );
 		if ( -1 === found_position ) {
@@ -100,7 +106,7 @@
 	}
 
 	hide_search_close_link( search_close_link_prs );
-	hide_search_close_link( search_close_link_tags );
+	hide_search_close_link( search_close_link_releases );
 	/**
 	 * Attaches click event listener that controls hiding search results and clearing search inputs.
 	 * Also handles hiding the close search icon when search input is empty.
@@ -108,6 +114,10 @@
 	 * @param {object} section - DOM Element object for a close search icon.
 	 */
 	function hide_search_close_link( section ) {
+		if ( ! section ) {
+			return;
+		}
+
 		hide( section );
 		section.addEventListener( 'click', function ( event ) {
 			if ( section.id === 'search-component-prs-close' ) {
@@ -116,10 +126,10 @@
 				search_input_prs.value = '';
 			}
 
-			if ( section.id === 'search-component-tags-close' ) {
-				each.call( tags, hide );
+			if ( section.id === 'search-component-releases-close' ) {
+				each.call( releases, hide );
 				hide( section );
-				search_input_tags.value = '';
+				search_input_releases.value = '';
 			}
 
 			event.preventDefault();
@@ -189,32 +199,30 @@
 	// Helper functions
 
 	/**
-	 * Massage search input to match pr/tag 'header'.
+	 * Massage search input to match pr/release 'header'.
 	 *
 	 * @param   {string} search - The raw search input text.
-	 *
 	 * @returns {string} The massaged search string.
 	 */
 	function pr_to_header( search ) {
 		return search
-			.replace( '/', ' / ' )
-			.replace( new RegExp( '\\-', 'g' ), ' ' )
+			.replace( /\//g, ' / ' )
+			.replace( /-/g, ' ' )
 			.replace( /  +/g, ' ' )
-			.toLowerCase();
+			.toLowerCase()
+			.trim();
 	}
 
 	/**
 	 * Highlights text in search results matching the search input text.
 	 *
 	 * @param {string} word   - The search input term.
-	 * @param {string} phrase - The full pr/tag header text.
-	 *
+	 * @param {string} phrase - The full pr/release header text.
 	 * @returns {string} Search result with span wrapping matching word (search input) for styling.
 	 */
 	function highlight_word( word, phrase ) {
-		const regExp = new RegExp( word, 'g' );
 		const replace = '<span class="highlight">' + word + '</span>';
-		return phrase.replace( regExp, replace );
+		return phrase.replace( word, replace );
 	}
 
 	/**
@@ -223,7 +231,7 @@
 	 * @param {object} element - DOM Element object.
 	 */
 	function hide( element ) {
-		element.style.display = 'none';
+		element.classList.add( 'branch-card-hide' );
 	}
 
 	/**
@@ -232,7 +240,7 @@
 	 * @param {object} element - DOM Element object.
 	 */
 	function show( element ) {
-		element.style.display = '';
+		element.classList.remove( 'branch-card-hide' );
 	}
 
 	/**

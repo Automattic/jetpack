@@ -10,7 +10,7 @@ import { find, isEmpty } from 'lodash';
  * WordPress dependencies
  */
 import { createInterpolateElement } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -30,6 +30,9 @@ import {
 } from 'state/initial-state';
 import License from './license';
 import MyPlanCard from '../my-plan-card';
+
+const BACKUP_STORAGE_GB = 200;
+const BACKUP_PRO_STORAGE_TB = 2;
 
 class MyPlanHeader extends React.Component {
 	getProductProps( productSlug ) {
@@ -113,26 +116,13 @@ class MyPlanHeader extends React.Component {
 					title: __( 'Jetpack Professional', 'jetpack' ),
 				};
 
-			case 'is-daily-security-plan':
+			case 'is-security-t1-plan':
+			case 'is-security-t2-plan':
 				return {
 					...productProps,
 					details: expiration,
-					tagLine: __(
-						'Enjoy the peace of mind of complete site protection. Great for brochure sites, restaurants, blogs, and resume sites.',
-						'jetpack'
-					),
-					title: __( 'Jetpack Security Daily', 'jetpack' ),
-				};
-
-			case 'is-realtime-security-plan':
-				return {
-					...productProps,
-					details: expiration,
-					tagLine: __(
-						'Additional security for sites with 24/7 activity. Recommended for eCommerce stores, news organizations, and online forums.',
-						'jetpack'
-					),
-					title: __( 'Jetpack Security Real-Time', 'jetpack' ),
+					tagLine: __( 'Enjoy the peace of mind of complete site protection.', 'jetpack' ),
+					title: __( 'Jetpack Security', 'jetpack' ),
 				};
 
 			case 'is-complete-plan':
@@ -146,27 +136,34 @@ class MyPlanHeader extends React.Component {
 					title: __( 'Jetpack Complete', 'jetpack' ),
 				};
 
-			case 'is-daily-backup-plan':
+			case 'is-backup-t1-plan':
 				return {
 					...productProps,
 					details: expiration,
-					tagLine: __(
-						'Your data is being securely backed up every day with a 30-day archive.',
-						'jetpack'
+					tagLine: sprintf(
+						/* translators: %1$d is the number of gigabytes of storage space the the site has. */
+						__(
+							'Your data is being securely backed up as you edit. You have %1$dGB of storage space.',
+							'jetpack'
+						),
+						BACKUP_STORAGE_GB
 					),
-					title: createInterpolateElement( __( 'Jetpack Backup <em>Daily</em>', 'jetpack' ), {
-						em: <em />,
-					} ),
+					title: __( 'Jetpack Backup', 'jetpack' ),
 				};
 
-			case 'is-realtime-backup-plan':
+			case 'is-backup-t2-plan':
 				return {
 					...productProps,
 					details: expiration,
-					tagLine: __( 'Your data is being securely backed up as you edit.', 'jetpack' ),
-					title: createInterpolateElement( __( 'Jetpack Backup <em>Real-Time</em>', 'jetpack' ), {
-						em: <em />,
-					} ),
+					tagLine: sprintf(
+						/* translators: %1$d is the number of terabytes of storage space the the site has. */
+						__(
+							'Your data is being securely backed up as you edit. You have %1$dTB of storage space.',
+							'jetpack'
+						),
+						BACKUP_PRO_STORAGE_TB
+					),
+					title: __( 'Jetpack Backup', 'jetpack' ),
 				};
 
 			case 'is-search-plan':
@@ -199,6 +196,58 @@ class MyPlanHeader extends React.Component {
 						'jetpack'
 					),
 					title: __( 'Jetpack Anti-Spam', 'jetpack' ),
+				};
+
+			// DEPRECATED: Daily and Real-time variations will soon be retired.
+			// Remove after all customers are migrated to new products.
+			case 'is-daily-security-plan':
+				return {
+					...productProps,
+					details: expiration,
+					tagLine: __(
+						'Enjoy the peace of mind of complete site protection. Great for brochure sites, restaurants, blogs, and resume sites.',
+						'jetpack'
+					),
+					title: __( 'Jetpack Security Daily', 'jetpack' ),
+				};
+			case 'is-realtime-security-plan':
+				return {
+					...productProps,
+					details: expiration,
+					tagLine: __(
+						'Additional security for sites with 24/7 activity. Recommended for eCommerce stores, news organizations, and online forums.',
+						'jetpack'
+					),
+					title: __( 'Jetpack Security Real-Time', 'jetpack' ),
+				};
+			case 'is-daily-backup-plan':
+				return {
+					...productProps,
+					details: expiration,
+					tagLine: __(
+						'Your data is being securely backed up every day with a 30-day archive.',
+						'jetpack'
+					),
+					title: createInterpolateElement( __( 'Jetpack Backup <em>Daily</em>', 'jetpack' ), {
+						em: <em />,
+					} ),
+				};
+			case 'is-realtime-backup-plan':
+				return {
+					...productProps,
+					details: expiration,
+					tagLine: __( 'Your data is being securely backed up as you edit.', 'jetpack' ),
+					title: createInterpolateElement( __( 'Jetpack Backup <em>Real-Time</em>', 'jetpack' ), {
+						em: <em />,
+					} ),
+				};
+
+			case 'is-videopress-plan':
+				return {
+					...productProps,
+					details: expiration,
+					tagLine: __( 'High-quality, ad-free video built specifically for WordPress.', 'jetpack' ),
+					title: __( 'Jetpack VideoPress', 'jetpack' ),
 				};
 
 			default:

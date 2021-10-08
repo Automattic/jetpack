@@ -16,7 +16,6 @@ import projectBuildCommand from '../projectBuildCommand';
  * Preps the task for an individual project.
  *
  * @param {object} argv - Argv object for an build command.
- *
  * @returns {object} - The project install task per Listr format.
  */
 export default function buildProjectTask( argv ) {

@@ -33,11 +33,6 @@ $tools = array(
 	'theme-tools/social-menu.php',
 	'theme-tools/content-options.php',
 	'theme-tools/devicepx.php',
-	// Needed for SEO Tools.
-	'seo-tools/jetpack-seo-utils.php',
-	'seo-tools/jetpack-seo-titles.php',
-	'seo-tools/jetpack-seo-posts.php',
-	'verification-tools/verification-tools-utils.php',
 	// Needed for VideoPress, so videos keep working in existing posts/pages when the module is deactivated.
 	'videopress/utility-functions.php',
 	'videopress/class.videopress-gutenberg.php',

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import restApi from 'rest-api';
+import restApi from '@automattic/jetpack-api';
 
 /**
  * Internal dependencies

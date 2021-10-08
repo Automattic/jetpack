@@ -12,12 +12,11 @@
 		"automattic/jetpack-autoloader": "2.10.x-dev"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "0.2.0",
-		"automattic/jetpack-changelogger": "^1.2"
+		"yoast/phpunit-polyfills": "1.0.2",
+		"automattic/jetpack-changelogger": "^2.0"
 	},
 	"scripts": {
 		"phpunit": [
-			"@composer install",
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
 		"test-coverage": [
@@ -25,6 +24,7 @@
 			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
+			"@composer install",
 			"@composer phpunit"
 		],
 		"build-development": [
@@ -54,7 +54,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
-		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_vaultpressⓥ2_2_0_alpha"
+		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_vaultpressⓥ2_2_1_alpha"
 	},
 	"extra": {
 		"mirror-repo": "Automattic/vaultpress",

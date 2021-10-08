@@ -11,7 +11,7 @@ import rename from 'gulp-rename';
 import rtlcss from 'gulp-rtlcss';
 import log from 'fancy-log';
 
-const admincss = [
+export const adminCSSFiles = [
 	// Non-concatenated, non-admin styles to be processed
 	'modules/custom-post-types/comics/comics.css',
 	'modules/shortcodes/css/recipes.css',
@@ -40,7 +40,7 @@ const admincss = [
 // Minimizes admin css for modules.  Outputs to same folder as min.css
 gulp.task( 'admincss', function () {
 	return gulp
-		.src( admincss, { base: './' } )
+		.src( adminCSSFiles, { base: './' } )
 		.pipe( autoprefixer() )
 		.pipe( cleanCSS() )
 		.pipe( rename( { suffix: '.min' } ) )
@@ -58,7 +58,7 @@ gulp.task( 'admincss', function () {
 // Admin RTL CSS for modules.  Auto-prefix, RTL, Minify, RTL the minimized version.
 gulp.task( 'admincss:rtl', function () {
 	return gulp
-		.src( admincss, { base: './' } )
+		.src( adminCSSFiles, { base: './' } )
 		.pipe( autoprefixer() )
 		.pipe( rtlcss() )
 		.pipe( rename( { suffix: '-rtl' } ) )

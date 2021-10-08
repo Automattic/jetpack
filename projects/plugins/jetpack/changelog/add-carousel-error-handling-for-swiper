@@ -1,5 +1,0 @@
-Significance: patch
-Type: bugfix
-Comment: Carousel: add error handling when swiper fails to load.
-
-

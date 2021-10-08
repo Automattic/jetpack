@@ -21,13 +21,14 @@ class Jetpack_Photon {
 	/**
 	 * Allowed extensions.
 	 *
-	 * @var string[] Allowed extensions must match https://code.trac.wordpress.org/browser/photon/index.php#L31
+	 * @var string[] Allowed extensions must match https://code.trac.wordpress.org/browser/photon/index.php#L41
 	 */
 	protected static $extensions = array(
 		'gif',
 		'jpg',
 		'jpeg',
 		'png',
+		'webp', // Jetpack assumes Photon_OpenCV backend class is being used on the server. See link in docblock.
 	);
 
 	/**

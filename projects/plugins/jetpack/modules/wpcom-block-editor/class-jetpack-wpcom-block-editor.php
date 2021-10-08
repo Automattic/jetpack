@@ -51,6 +51,7 @@ class Jetpack_WPCOM_Block_Editor {
 	 * Add in all hooks.
 	 */
 	public function init_actions() {
+		global $wp_version;
 		// Bail early if Jetpack's block editor extensions are disabled on the site.
 		/* This filter is documented in class.jetpack-gutenberg.php */
 		if ( ! apply_filters( 'jetpack_gutenberg', true ) ) {
@@ -64,11 +65,16 @@ class Jetpack_WPCOM_Block_Editor {
 
 		require_once __DIR__ . '/functions.editor-type.php';
 		add_action( 'edit_form_top', 'Jetpack\EditorType\remember_classic_editor' );
-		add_filter( 'block_editor_settings', 'Jetpack\EditorType\remember_block_editor', 10, 2 );
 		add_action( 'login_init', array( $this, 'allow_block_editor_login' ), 1 );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ), 9 );
 		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_assets' ) );
 		add_filter( 'mce_external_plugins', array( $this, 'add_tinymce_plugins' ) );
+		// @todo simplify once 5.8 is the minimum supported version.
+		if ( version_compare( $wp_version, '5.8', '>=' ) ) {
+			add_filter( 'block_editor_settings_all', 'Jetpack\EditorType\remember_block_editor', 10, 2 );
+		} else {
+			add_filter( 'block_editor_settings', 'Jetpack\EditorType\remember_block_editor', 10, 2 );
+		}
 
 		$this->enable_cross_site_auth_cookies();
 	}
@@ -304,6 +310,13 @@ class Jetpack_WPCOM_Block_Editor {
 	 * Enqueues the WordPress.com block editor integration assets for the editor.
 	 */
 	public function enqueue_block_editor_assets() {
+		global $pagenow;
+
+		// Bail if we're not in the post editor, but on the widget settings screen.
+		if ( is_customize_preview() || 'widgets.php' === $pagenow ) {
+			return;
+		}
+
 		$debug   = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
 		$version = gmdate( 'Ymd' );
 

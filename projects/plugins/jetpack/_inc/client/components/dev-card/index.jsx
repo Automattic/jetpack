@@ -207,6 +207,72 @@ export class DevCard extends React.Component {
 						</label>
 					</li>
 					<li>
+						<label htmlFor="jetpack_security_t1">
+							<input
+								type="radio"
+								id="jetpack_security_t1"
+								value="jetpack_security_t1_yearly"
+								name="jetpack_security_t1_yearly"
+								checked={ 'is-security-t1-plan' === planClass }
+								onChange={ this.onPlanChange }
+							/>
+							Security (Tier 1)
+						</label>
+					</li>
+					<li>
+						<label htmlFor="jetpack_security_t2">
+							<input
+								type="radio"
+								id="jetpack_security_t2"
+								value="jetpack_security_t2_yearly"
+								name="jetpack_security_t2_yearly"
+								checked={ 'is-security-t2-plan' === planClass }
+								onChange={ this.onPlanChange }
+							/>
+							Security (Tier 2)
+						</label>
+					</li>
+					<li>
+						<label htmlFor="jetpack_complete">
+							<input
+								type="radio"
+								id="jetpack_complete"
+								value="jetpack_complete"
+								name="jetpack_complete"
+								checked={ 'is-complete-plan' === planClass }
+								onChange={ this.onPlanChange }
+							/>
+							Complete
+						</label>
+					</li>
+					<li>
+						<label htmlFor="jetpack_backup_t1">
+							<input
+								type="radio"
+								id="jetpack_backup_t1"
+								value="jetpack_backup_t1_yearly"
+								name="jetpack_backup_t1_yearly"
+								checked={ 'is-backup-t1-plan' === planClass }
+								onChange={ this.onPlanChange }
+							/>
+							Backup (Tier 1)
+						</label>
+					</li>
+					<li>
+						<label htmlFor="jetpack_backup_t2">
+							<input
+								type="radio"
+								id="jetpack_backup_t2"
+								value="jetpack_backup_t2_yearly"
+								name="jetpack_backup_t2_yearly"
+								checked={ 'is-backup-t2-plan' === planClass }
+								onChange={ this.onPlanChange }
+							/>
+							Backup (Tier 2)
+						</label>
+					</li>
+					<li className="jp-dev-card__deprecated-plans-list-header">&mdash; DEPRECATED &mdash;</li>
+					<li>
 						<label htmlFor="jetpack_security_daily">
 							<input
 								type="radio"
@@ -233,19 +299,6 @@ export class DevCard extends React.Component {
 						</label>
 					</li>
 					<li>
-						<label htmlFor="jetpack_complete">
-							<input
-								type="radio"
-								id="jetpack_complete"
-								value="jetpack_complete"
-								name="jetpack_complete"
-								checked={ 'is-complete-plan' === planClass }
-								onChange={ this.onPlanChange }
-							/>
-							Complete
-						</label>
-					</li>
-					<li>
 						<label htmlFor="jetpack_backup_daily">
 							<input
 								type="radio"
@@ -255,7 +308,7 @@ export class DevCard extends React.Component {
 								checked={ 'is-daily-backup-plan' === planClass }
 								onChange={ this.onPlanChange }
 							/>
-							Jetpack Backup Daily
+							Backup Daily
 						</label>
 					</li>
 					<li>
@@ -268,7 +321,7 @@ export class DevCard extends React.Component {
 								checked={ 'is-realtime-backup-plan' === planClass }
 								onChange={ this.onPlanChange }
 							/>
-							Jetpack Backup Reatime
+							Backup Real-time
 						</label>
 					</li>
 				</ul>

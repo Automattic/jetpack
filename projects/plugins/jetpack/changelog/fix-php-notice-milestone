@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Widgets: avoid PHP notice when using the Milestone Widget within the upcoming widget management screen in WordPress 5.8.

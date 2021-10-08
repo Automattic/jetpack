@@ -3,7 +3,7 @@
  * Plugin Name: Jetpack Beta Tester
  * Plugin URI: https://jetpack.com/beta/
  * Description: Use the Beta plugin to get a sneak peek at new features and test them on your site.
- * Version: 3.0.0-alpha
+ * Version: 3.0.4-alpha
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
@@ -33,33 +33,68 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+define( 'JPBETA__PLUGIN_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
+define( 'JPBETA_VERSION', '3.0.4-alpha' );
+
+define( 'JETPACK_BETA_PLUGINS_URL', 'https://betadownload.jetpack.me/plugins.json' );
+
 /**
- * How this plugin works.
- * Jetpack beta manages files inside jetpack-dev folder this folder should contain
+ * This is where the loading of Jetpack Beta begins.
+ *
+ * First, we try to load our composer autoloader.
+ *
+ * - If it fails, we "pause" Jetpack Beta by ending the loading process
+ *   and displaying an admin_notice to inform the site owner.
+ *   (We want to fail gracefully if `composer install` has not been executed yet, so we are checking for the autoloader.)
+ * - If it succeeds, we continue.
  */
-define( 'JPBETA__PLUGIN_FOLDER', basename( __DIR__ ) );
-define( 'JPBETA__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-define( 'JPBETA__PLUGIN_FILE', __FILE__ );
-define( 'JPBETA_VERSION', '3.0.0-alpha' );
+$jetpack_beta_autoloader = plugin_dir_path( __FILE__ ) . '/vendor/autoload_packages.php';
+if ( is_readable( $jetpack_beta_autoloader ) ) {
+	require $jetpack_beta_autoloader;
+} else {
+	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			sprintf(
+				/* translators: Placeholder is a link to a support document. */
+				__( 'Your installation of Jetpack Beta is incomplete. If you installed Jetpack Beta from GitHub, please refer to this document to set up your development environment: %1$s', 'jetpack-beta' ),
+				'https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md'
+			)
+		);
+	}
 
-define( 'JPBETA_DEFAULT_BRANCH', 'rc_only' );
+	/**
+	 * Outputs an admin notice for folks running Jetpack Beta without having run composer install.
+	 *
+	 * @since 3.0.0
+	 */
+	function jetpack_beta_admin_missing_autoloader() {
+		?>
+		<div class="notice notice-error is-dismissible">
+			<p>
+				<?php
+				printf(
+					wp_kses(
+						/* translators: Placeholder is a link to a support document. */
+						__( 'Your installation of Jetpack Beta is incomplete. If you installed Jetpack Beta from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment.', 'jetpack-beta' ),
+						array(
+							'a' => array(
+								'href'   => array(),
+								'target' => array(),
+								'rel'    => array(),
+							),
+						)
+					),
+					'https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md'
+				);
+				?>
+			</p>
+		</div>
+		<?php
+	}
 
-define( 'JETPACK_BETA_MANIFEST_URL', 'https://betadownload.jetpack.me/jetpack-branches.json' );
-define( 'JETPACK_ORG_API_URL', 'https://api.wordpress.org/plugins/info/1.0/jetpack.json' );
-define( 'JETPACK_GITHUB_API_URL', 'https://api.github.com/repos/Automattic/Jetpack/' );
-define( 'JETPACK_GITHUB_URL', 'https://github.com/Automattic/jetpack' );
-define( 'JETPACK_DEFAULT_URL', 'https://jetpack.com' );
-
-define( 'JETPACK_DEV_PLUGIN_SLUG', 'jetpack-dev' );
-
-define( 'JETPACK_PLUGIN_FILE', 'jetpack/jetpack.php' );
-define( 'JETPACK_DEV_PLUGIN_FILE', 'jetpack-dev/jetpack.php' );
-
-define( 'JETPACK_BETA_REPORT_URL', 'https://jetpack.com/contact-support/beta-group/' );
-
-defined( 'JETPACK_GREEN' ) || define( 'JETPACK_GREEN', '#2fb41f' );
-
-require_once plugin_dir_path( __FILE__ ) . '/vendor/autoload_packages.php';
+	add_action( 'admin_notices', 'jetpack_beta_admin_missing_autoloader' );
+	return;
+}
 
 add_action( 'init', array( Automattic\JetpackBeta\AutoupdateSelf::class, 'instance' ) );
 

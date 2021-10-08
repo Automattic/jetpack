@@ -8,7 +8,6 @@ import UpdateRenderer from 'listr-update-renderer';
  * Returns standard options for verbose renderers.
  *
  * @param {object} options - Argv from command line.
- *
  * @returns {object} - Options object for Listr.
  */
 export default function listrOpts( options ) {

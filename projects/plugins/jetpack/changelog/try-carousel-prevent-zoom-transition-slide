@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Disabling transitions on prev/next images to prevent flash effect on pinch, zoom and swipe.

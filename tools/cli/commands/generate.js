@@ -49,7 +49,6 @@ export async function generateCli( argv ) {
  * Command definition for the generate subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
- *
  * @returns {object} Yargs with the generate commands defined.
  */
 export function generateDefine( yargs ) {
@@ -82,7 +81,6 @@ export function generateDefine( yargs ) {
  * If no project is passed via `options`, then it will prompt for the type of project and the project itself.
  *
  * @param {object} options - Passthrough of the argv object.
- *
  * @returns {object} argv object with the project property.
  */
 async function promptForGenerate( options ) {
@@ -146,7 +144,6 @@ async function promptForGenerate( options ) {
  * Returns the appropriate list of questions.
  *
  * @param {string} type - The project type. Must be one of projectTypes
- *
  * @returns {Array} - Array of questions to ask.
  */
 export function getQuestions( type ) {
@@ -186,6 +183,7 @@ export function getQuestions( type ) {
 		},
 	];
 	const packageQuestions = [];
+	const jsPackageQuestions = [];
 	const pluginQuestions = [
 		{
 			type: 'input',
@@ -206,6 +204,8 @@ export function getQuestions( type ) {
 			return defaultQuestions.concat( extensionQuestions );
 		case 'github-action':
 			return defaultQuestions.concat( githubQuestions );
+		case 'js-package':
+			return defaultQuestions.concat( jsPackageQuestions );
 	}
 }
 
@@ -239,6 +239,8 @@ export async function generateProject(
 
 	switch ( answers.type ) {
 		case 'package':
+			break;
+		case 'js-package':
 			break;
 		case 'plugin':
 			generatePlugin( answers, projDir );
@@ -274,7 +276,6 @@ function generatePlugin( answers, pluginDir ) {
  *
  * @param {object} answers - Answers from questions.
  * @param {string} actDir - Github action directory path.
- *
  */
 function generateAction( answers, actDir ) {
 	// Create the YAML file
@@ -288,15 +289,14 @@ function generateAction( answers, actDir ) {
  * @param {string} type - Type of project.
  * @param {string} dir - Directory of new project.
  * @param {string} name - Name of new project.
- *
  */
 function createSkeleton( type, dir, name ) {
 	const skeletonDir = path.join( __dirname, '../skeletons' );
 
 	// Copy the skeletons over.
 	try {
-		mergeDirs( path.join( skeletonDir, '/common' ), dir, name );
-		mergeDirs( path.join( skeletonDir, '/' + type ), dir, name );
+		mergeDirs( path.join( skeletonDir, '/common' ), dir, name, true );
+		mergeDirs( path.join( skeletonDir, '/' + type ), dir, name, true );
 	} catch ( e ) {
 		console.error( e );
 	}
@@ -307,10 +307,24 @@ function createSkeleton( type, dir, name ) {
  *
  * @param {object} packageJson - The parsed skeleton JSON package file for the project.
  * @param {object} answers - Answers returned for project creation.
- *
  */
 function createPackageJson( packageJson, answers ) {
 	packageJson.description = answers.description;
+	packageJson.name = `@automattic/jetpack-${ answers.name }`;
+	packageJson.version = '0.1.0-alpha';
+
+	if ( answers.type === 'js-package' ) {
+		packageJson.exports = {
+			'.': './index.jsx',
+			'./state': './src/state',
+			'./action-types': './src/state/action-types',
+		};
+		packageJson.scripts = {
+			test:
+				"NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.@(jsx|js)'",
+		};
+		packageJson.dependencies = { 'jetpack-js-test-runner': 'workspace:*' };
+	}
 }
 
 /**
@@ -318,7 +332,6 @@ function createPackageJson( packageJson, answers ) {
  *
  * @param {object} composerJson - The parsed skeleton JSON composer file for the project.
  * @param {object} answers - Answers returned for project creation.
- *
  */
 async function createComposerJson( composerJson, answers ) {
 	composerJson.description = answers.description;
@@ -351,7 +364,7 @@ async function createComposerJson( composerJson, answers ) {
 	try {
 		if ( answers.mirrorrepo ) {
 			// For testing, add a third arg here for the org.
-			await mirrorRepo( composerJson, name );
+			await mirrorRepo( composerJson, name, answers.type );
 		}
 	} catch ( e ) {
 		// This means we couldn't create the mirror repo or something else failed, GitHub API is down, etc.
@@ -360,10 +373,27 @@ async function createComposerJson( composerJson, answers ) {
 		// Since we're catching an errors here, it'll continue executing.
 	}
 
-	if ( answers.type === 'package' ) {
-		composerJson.extra = composerJson.extra || {};
-		composerJson.extra[ 'branch-alias' ] = composerJson.extra[ 'branch-alias' ] || {};
-		composerJson.extra[ 'branch-alias' ][ 'dev-master' ] = '0.1.x-dev';
+	switch ( answers.type ) {
+		case 'package':
+			composerJson.extra = composerJson.extra || {};
+			composerJson.extra[ 'branch-alias' ] = composerJson.extra[ 'branch-alias' ] || {};
+			composerJson.extra[ 'branch-alias' ][ 'dev-master' ] = '0.1.x-dev';
+			break;
+		case 'plugin':
+			composerJson.extra = composerJson.extra || {};
+			composerJson.extra[ 'release-branch-prefix' ] = answers.name;
+			composerJson.type = 'wordpress-plugin';
+			break;
+		case 'js-package':
+			composerJson[ 'require-dev ' ] = { 'automattic/jetpack-changelogger': '^2.0' };
+			composerJson.scripts = {
+				'test-js': [ 'Composer\\Config::disableProcessTimeout', 'pnpm install', 'pnpm run test' ],
+				'test-coverage': [
+					'Composer\\Config::disableProcessTimeout',
+					'pnpm install',
+					'pnpx nyc --report-dir="$COVERAGE_DIR" pnpm run test',
+				],
+			};
 	}
 }
 
@@ -372,9 +402,10 @@ async function createComposerJson( composerJson, answers ) {
  *
  * @param {object} composerJson - the composer.json object being developed by the generator.
  * @param {string} name - The name of the project.
+ * @param {string} type - The tyope of project that's being generated.
  * @param {string} org - The GitHub owner for the project.
  */
-async function mirrorRepo( composerJson, name, org = 'Automattic' ) {
+async function mirrorRepo( composerJson, name, type, org = 'Automattic' ) {
 	const repo = org + '/' + name;
 	const exists = await doesRepoExist( name, org );
 	const answers = await inquirer.prompt( [
@@ -408,6 +439,7 @@ async function mirrorRepo( composerJson, name, org = 'Automattic' ) {
 			name: 'autotagger',
 			default: true,
 			message: 'Configure mirror repo to create new tags automatically (based on CHANGELOG.md)?',
+			when: type !== 'plugin',
 		},
 	] );
 
@@ -425,7 +457,7 @@ async function mirrorRepo( composerJson, name, org = 'Automattic' ) {
 	if ( answers.useExisting ) {
 		await addMirrorRepo( composerJson, name, org, answers.autotagger );
 	} else if ( answers.newName ) {
-		await mirrorRepo( composerJson, answers.newName, org ); // Rerun this function so we can check if the new name exists or not, etc.
+		await mirrorRepo( composerJson, answers.newName, type, org ); // Rerun this function so we can check if the new name exists or not, etc.
 	} else {
 		await addMirrorRepo( composerJson, name, org, answers.autotagger );
 	}
@@ -458,7 +490,6 @@ function addMirrorRepo( composerJson, name, org, autotagger ) {
  * Creates custom readme.md content.
  *
  * @param {object} answers - Answers returned for project creation.
- *
  * @returns {string} content - The content we're writing to the readme.txt file.
  */
 function createReadMeMd( answers ) {
@@ -490,7 +521,6 @@ function createReadMeMd( answers ) {
  * Creates header for main plugin file.
  *
  * @param {object} answers - Answers returned for project creation.
- *
  * @returns {string} content - The content we're writing to the main plugin file.
  */
 function createPluginHeader( answers ) {
@@ -518,7 +548,6 @@ function createPluginHeader( answers ) {
  * Creates custom readme.txt content for plugins.
  *
  * @param {object} answers - Answers returned for project creation.
- *
  * @returns {string} content - The content we're writing to the readme.txt file.
  */
 function createReadMeTxt( answers ) {
@@ -529,7 +558,7 @@ function createReadMeTxt( answers ) {
 		'Requires at least: 5.7\n' +
 		'Requires PHP: 5.6\n' +
 		'Tested up to: 5.8\n' +
-		'Stable tag: 1.0\n' +
+		`Stable tag: ${ answers.version }\n` +
 		'License: GPLv2 or later\n' +
 		'License URI: http://www.gnu.org/licenses/gpl-2.0.html\n' +
 		'\n' +
@@ -538,11 +567,11 @@ function createReadMeTxt( answers ) {
 	return content;
 }
 
-/** Creates YAML file skeleton for github actions.
+/**
+ * Creates YAML file skeleton for github actions.
  *
  * @param {string} dir - file path we're writing to.
  * @param {string} answers - the answers to fill in the skeleton.
- *
  * @returns {string} yamlFile - the YAML file we've created.
  */
 function createYaml( dir, answers ) {
@@ -556,11 +585,11 @@ function createYaml( dir, answers ) {
 	}
 }
 
-/** Writes to files.
+/**
+ * Writes to files.
  *
  * @param {string} file - file path we're writing to.
  * @param {string} content - the content we're writing.
- *
  */
 function writeToFile( file, content ) {
 	try {

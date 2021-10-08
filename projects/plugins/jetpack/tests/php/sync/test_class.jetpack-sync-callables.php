@@ -33,13 +33,17 @@ function jetpack_foo_is_anon_callable() {
  * Testing Functions
  */
 class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
+
 	protected $post;
 	protected $callable_module;
 
 	protected static $admin_id; // used in mock_xml_rpc_request
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 
 		$this->resetCallableAndConstantTimeouts();
 
@@ -126,6 +130,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'main_network_site_wpcom_id'       => Functions::main_network_site_wpcom_id(),
 			'theme_support'                    => Functions::get_theme_support(),
 			'wp_get_environment_type'          => wp_get_environment_type(),
+			'is_fse_theme'                     => Functions::get_is_fse_theme(),
 		);
 
 		if ( function_exists( 'wp_cache_is_enabled' ) ) {
@@ -475,7 +480,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$url_callables = array( 'home_url', 'site_url', 'main_network_site_url' );
 		foreach( $url_callables as $callable ) {
-			$this->assertInternalType( 'array', get_option( Urls::HTTPS_CHECK_OPTION_PREFIX . $callable ) );
+			$this->assertIsArray( get_option( Urls::HTTPS_CHECK_OPTION_PREFIX . $callable ) );
 		}
 
 		Sender::get_instance()->uninstall();
@@ -581,7 +586,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
-		$this->assertContains( 'core_site_icon_url', $this->server_replica_storage->get_callable( 'site_icon_url' ) );
+		$this->assertStringContainsString( 'core_site_icon_url', $this->server_replica_storage->get_callable( 'site_icon_url' ) );
 
 		delete_option( 'site_icon' );
 	}
@@ -591,7 +596,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		update_option( 'jetpack_site_icon_url', 'http://website.com/wp-content/uploads/2016/09/jetpack_site_icon.png' );
 		$this->sender->do_sync();
 
-		$this->assertContains( 'jetpack_site_icon', $this->server_replica_storage->get_callable( 'site_icon_url' ) );
+		$this->assertStringContainsString( 'jetpack_site_icon', $this->server_replica_storage->get_callable( 'site_icon_url' ) );
 	}
 
 	function test_calling_taxonomies_do_not_modify_global() {
@@ -956,7 +961,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$taxonomies = Functions::get_taxonomies();
 		$taxonomy   = $taxonomies['example'];
 
-		$this->assertInternalType( 'object', $taxonomy );
+		$this->assertIsObject( $taxonomy );
 		// Did we get rid of the expected attributes?
 		$this->assertNull( $taxonomy->update_count_callback, 'example has the update_count_callback attribute, which should be removed since it is a callback' );
 		$this->assertNull( $taxonomy->meta_box_cb, 'example has the meta_box_cb attribute, which should be removed since it is a callback' );

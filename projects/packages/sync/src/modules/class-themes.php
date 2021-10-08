@@ -35,14 +35,16 @@ class Themes extends Module {
 		add_action( 'upgrader_process_complete', array( $this, 'check_upgrader' ), 10, 2 );
 		add_action( 'jetpack_installed_theme', $callable, 10, 2 );
 		add_action( 'jetpack_updated_themes', $callable, 10, 2 );
-		add_action( 'delete_site_transient_update_themes', array( $this, 'detect_theme_deletion' ) );
-		add_action( 'jetpack_deleted_theme', $callable, 10, 2 );
 		add_filter( 'wp_redirect', array( $this, 'detect_theme_edit' ) );
 		add_action( 'jetpack_edited_theme', $callable, 10, 2 );
 		add_action( 'wp_ajax_edit-theme-plugin-file', array( $this, 'theme_edit_ajax' ), 0 );
 		add_action( 'update_site_option_allowedthemes', array( $this, 'sync_network_allowed_themes_change' ), 10, 4 );
 		add_action( 'jetpack_network_disabled_themes', $callable, 10, 2 );
 		add_action( 'jetpack_network_enabled_themes', $callable, 10, 2 );
+
+		// @todo Switch to use the new `deleted_theme` hook once WP 5.8 is the minimum version. See https://core.trac.wordpress.org/changeset/50826
+		add_action( 'delete_site_transient_update_themes', array( $this, 'detect_theme_deletion' ) );
+		add_action( 'jetpack_deleted_theme', $callable, 10, 2 );
 
 		// Sidebar updates.
 		add_action( 'update_option_sidebars_widgets', array( $this, 'sync_sidebar_widgets_actions' ), 10, 2 );
@@ -88,7 +90,8 @@ class Themes extends Module {
 		/**
 		 * Trigger action to alert $callable sync listener that a widget was edited.
 		 *
-		 * @since 5.0.0
+		 * @since 1.6.3
+		 * @since-jetpack 5.0.0
 		 *
 		 * @param string $widget_name , Name of edited widget
 		 */
@@ -123,7 +126,8 @@ class Themes extends Module {
 			/**
 			 * Trigger action to alert $callable sync listener that network themes were disabled.
 			 *
-			 * @since 5.0.0
+			 * @since 1.6.3
+			 * @since-jetpack 5.0.0
 			 *
 			 * @param mixed $newly_disabled_themes, Array of info about network disabled themes
 			 * @param mixed $all_enabled_theme_slugs, Array of slugs of all enabled themes
@@ -137,7 +141,8 @@ class Themes extends Module {
 		/**
 		 * Trigger action to alert $callable sync listener that network themes were enabled
 		 *
-		 * @since 5.0.0
+		 * @since 1.6.3
+		 * @since-jetpack 5.0.0
 		 *
 		 * @param mixed $newly_enabled_themes , Array of info about network enabled themes
 		 * @param mixed $all_enabled_theme_slugs, Array of slugs of all enabled themes
@@ -203,7 +208,8 @@ class Themes extends Module {
 		/**
 		 * Trigger action to alert $callable sync listener that a theme was edited.
 		 *
-		 * @since 5.0.0
+		 * @since 1.6.3
+		 * @since-jetpack 5.0.0
 		 *
 		 * @param string $query_params['theme'], Slug of edited theme
 		 * @param string $theme_data, Information about edited them
@@ -349,7 +355,8 @@ class Themes extends Module {
 		 * Signals to the sync listener that a theme was deleted and a sync action
 		 * reflecting the deletion and theme slug should be sent
 		 *
-		 * @since 5.0.0
+		 * @since 1.6.3
+		 * @since-jetpack 5.0.0
 		 *
 		 * @param string $slug Theme slug
 		 * @param array $theme_data Theme info Since 5.3
@@ -389,7 +396,8 @@ class Themes extends Module {
 			 * Signals to the sync listener that a theme was installed and a sync action
 			 * reflecting the installation and the theme info should be sent
 			 *
-			 * @since 4.9.0
+			 * @since 1.6.3
+			 * @since-jetpack 4.9.0
 			 *
 			 * @param string $theme->theme_root Text domain of the theme
 			 * @param mixed $theme_info Array of abbreviated theme info
@@ -427,7 +435,8 @@ class Themes extends Module {
 			 * Signals to the sync listener that one or more themes was updated and a sync action
 			 * reflecting the update and the theme info should be sent
 			 *
-			 * @since 6.2.0
+			 * @since 1.6.3
+			 * @since-jetpack 6.2.0
 			 *
 			 * @param mixed $themes Array of abbreviated theme info
 			 */
@@ -461,7 +470,8 @@ class Themes extends Module {
 		/**
 		 * Fires when the client needs to sync theme support info
 		 *
-		 * @since 4.2.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
 		 *
 		 * @param array the theme support array
 		 * @param array the previous theme since Jetpack 6.5.0
@@ -483,7 +493,8 @@ class Themes extends Module {
 		/**
 		 * Tells the client to sync all theme data to the server
 		 *
-		 * @since 4.2.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
 		 *
 		 * @param boolean Whether to expand theme data (should always be true)
 		 */
@@ -612,7 +623,8 @@ class Themes extends Module {
 			/**
 			 * Helps Sync log that a widget got added
 			 *
-			 * @since 4.9.0
+			 * @since 1.6.3
+			 * @since-jetpack 4.9.0
 			 *
 			 * @param string $sidebar, Sidebar id got changed
 			 * @param string $added_widget, Widget id got added
@@ -652,7 +664,8 @@ class Themes extends Module {
 				/**
 				 * Helps Sync log that a widgte got removed
 				 *
-				 * @since 4.9.0
+				 * @since 1.6.3
+				 * @since-jetpack 4.9.0
 				 *
 				 * @param string $sidebar, Sidebar id got changed
 				 * @param string $removed_widget, Widget id got removed
@@ -695,7 +708,8 @@ class Themes extends Module {
 			/**
 			 * Helps Sync log that a sidebar id got reordered
 			 *
-			 * @since 4.9.0
+			 * @since 1.6.3
+			 * @since-jetpack 4.9.0
 			 *
 			 * @param string $sidebar, Sidebar id got changed
 			 * @param string $sidebar_name, Name of the sidebar that changed  Since 5.0.0
@@ -758,7 +772,8 @@ class Themes extends Module {
 			/**
 			 * Helps Sync log that a widgets IDs got moved to in active
 			 *
-			 * @since 4.9.0
+			 * @since 1.6.3
+			 * @since-jetpack 4.9.0
 			 *
 			 * @param array $moved_to_inactive_ids, Array of widgets id that moved to inactive id got changed
 			 * @param array $moved_to_inactive_names, Array of widgets names that moved to inactive id got changed Since 5.0.0
@@ -768,7 +783,8 @@ class Themes extends Module {
 			/**
 			 * Helps Sync log that a got cleared from inactive.
 			 *
-			 * @since 4.9.0
+			 * @since 1.6.3
+			 * @since-jetpack 4.9.0
 			 */
 			do_action( 'jetpack_cleared_inactive_widgets' );
 		}

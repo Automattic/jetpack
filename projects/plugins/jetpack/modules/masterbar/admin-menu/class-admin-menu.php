@@ -158,6 +158,25 @@ class Admin_Menu extends Base_Admin_Menu {
 	}
 
 	/**
+	 * Adds Inbox menu.
+	 */
+	public function add_inbox_menu() {
+		/**
+		 * Whether to show the WordPress.com Inbox menu under Upgrades menu.
+		 *
+		 * @use add_filter( 'jetpack_show_wpcom_inbox_menu', '__return_true' );
+		 * @module masterbar
+		 *
+		 * @since 9.7.0
+		 *
+		 * @param bool $jetpack_show_wpcom_inbox_menu Load the WordPress.com Inbox menu item. Default to false.
+		 */
+		if ( apply_filters( 'jetpack_show_wpcom_inbox_menu', false ) ) {
+			add_menu_page( __( 'Inbox', 'jetpack' ), __( 'Inbox', 'jetpack' ), 'edit_posts', 'https://wordpress.com/inbox/' . $this->domain, null, 'dashicons-email', '4.64424' );
+		}
+	}
+
+	/**
 	 * Adds Stats menu.
 	 */
 	public function add_stats_menu() {
@@ -312,9 +331,7 @@ class Admin_Menu extends Base_Admin_Menu {
 		// TODO: Remove Colors_Manager::modify_header_menu_links() and Colors_Manager_Common::modify_header_menu_links().
 		$default_customize_background_slug_2 = add_query_arg( array( 'autofocus' => array( 'section' => 'colors_manager_tool' ) ), admin_url( 'customize.php' ) );
 
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'customize.php' ) ) {
-			$customize_url = 'https://wordpress.com/customize/' . $this->domain;
-		} elseif ( $this->is_api_request ) {
+		if ( $this->is_api_request ) {
 			// In case this is an api request we will have to add the 'return' querystring via JS.
 			$customize_url = 'customize.php';
 		} else {
@@ -327,16 +344,13 @@ class Admin_Menu extends Base_Admin_Menu {
 			$default_customize_header_slug_2     => add_query_arg( array( 'autofocus' => array( 'control' => 'header_image' ) ), $customize_url ),
 			$default_customize_background_slug_1 => add_query_arg( array( 'autofocus' => array( 'section' => 'colors_manager_tool' ) ), $customize_url ),
 			$default_customize_background_slug_2 => add_query_arg( array( 'autofocus' => array( 'section' => 'colors_manager_tool' ) ), $customize_url ),
+			'widgets.php'                        => add_query_arg( array( 'autofocus' => array( 'panel' => 'widgets' ) ), $customize_url ),
+			'gutenberg-widgets'                  => add_query_arg( array( 'autofocus' => array( 'panel' => 'widgets' ) ), $customize_url ),
+			'nav-menus.php'                      => add_query_arg( array( 'autofocus' => array( 'panel' => 'nav_menus' ) ), $customize_url ),
 		);
 
 		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'themes.php' ) ) {
 			$submenus_to_update['themes.php'] = 'https://wordpress.com/themes/' . $this->domain;
-		}
-
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'customize.php' ) ) {
-			$submenus_to_update['widgets.php']       = add_query_arg( array( 'autofocus' => array( 'panel' => 'widgets' ) ), $customize_url );
-			$submenus_to_update['gutenberg-widgets'] = add_query_arg( array( 'autofocus' => array( 'panel' => 'widgets' ) ), $customize_url );
-			$submenus_to_update['nav-menus.php']     = add_query_arg( array( 'autofocus' => array( 'panel' => 'nav_menus' ) ), $customize_url );
 		}
 
 		$this->update_submenus( 'themes.php', $submenus_to_update );
@@ -351,10 +365,6 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * Adds Plugins menu.
 	 */
 	public function add_plugins_menu() {
-		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'plugins.php' ) ) {
-			return;
-		}
-
 		$this->hide_submenu_page( 'plugins.php', 'plugin-install.php' );
 		$this->hide_submenu_page( 'plugins.php', 'plugin-editor.php' );
 
@@ -420,6 +430,8 @@ class Admin_Menu extends Base_Admin_Menu {
 		}
 
 		$this->update_submenus( 'options-general.php', $submenus_to_update );
+
+		add_submenu_page( 'options-general.php', esc_attr__( 'Performance', 'jetpack' ), __( 'Performance', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/performance/' . $this->domain, null, 1 );
 	}
 
 	/**
@@ -453,51 +465,14 @@ class Admin_Menu extends Base_Admin_Menu {
 	}
 
 	/**
-	 * Re-adds the Site Editor menu without the (beta) tag, and where we want it.
+	 * Update Site Editor menu item's link and position.
 	 */
 	public function add_gutenberg_menus() {
-		// We can bail if we don't meet the conditions of the Site Editor.
-		if ( ! ( function_exists( 'gutenberg_is_fse_theme' ) && gutenberg_is_fse_theme() ) ) {
+		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'admin.php?page=gutenberg-edit-site' ) ) {
 			return;
 		}
 
-		// Core Gutenberg registers without an explicit position, and we don't want the (beta) tag.
-		remove_menu_page( 'gutenberg-edit-site' );
-		// Core Gutenberg tries to manage its position, foiling our best laid plans. Unfoil.
-		remove_filter( 'menu_order', 'gutenberg_menu_order' );
-
-		$wp_admin = self::CLASSIC_VIEW === $this->get_preferred_view( 'admin.php?page=gutenberg-edit-site' );
-
-		$link = $wp_admin ? 'gutenberg-edit-site' : 'https://wordpress.com/site-editor/' . $this->domain;
-
-		add_menu_page(
-			__( 'Site Editor', 'jetpack' ),
-			__( 'Site Editor', 'jetpack' ),
-			'edit_theme_options',
-			$link,
-			$wp_admin ? 'gutenberg_edit_site_page' : null,
-			'dashicons-layout',
-			61 // Just under Appearance.
-		);
-	}
-
-	/**
-	 * Returns the current slug from the URL.
-	 *
-	 * @param object $screen Screen object (undocumented).
-	 *
-	 * @return string
-	 */
-	public function get_current_slug( $screen ) {
-		$slug = "{$screen->base}.php";
-		if ( '' !== $screen->post_type ) {
-			$slug = add_query_arg( 'post_type', $screen->post_type, $slug );
-		}
-		if ( '' !== $screen->taxonomy ) {
-			$slug = add_query_arg( 'taxonomy', $screen->taxonomy, $slug );
-		}
-
-		return $slug;
+		$this->update_menu( 'gutenberg-edit-site', 'https://wordpress.com/site-editor/' . $this->domain, null, null, null, 59 );
 	}
 
 	/**
@@ -505,16 +480,15 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * Callback for the 'screen_settings' filter (available in WP 3.0 and up).
 	 *
 	 * @param string $current The currently added panels in screen options.
-	 * @param object $screen Screen object (undocumented).
 	 *
 	 * @return string The HTML code to append to "Screen Options"
 	 */
-	public function register_dashboard_switcher( $current, $screen ) {
+	public function register_dashboard_switcher( $current ) {
 		$menu_mappings = require __DIR__ . '/menu-mappings.php';
-		$slug          = $this->get_current_slug( $screen );
+		$screen        = $this->get_current_screen();
 
 		// Let's show the switcher only in screens that we have a Calypso mapping to switch to.
-		if ( ! isset( $menu_mappings[ $slug ] ) ) {
+		if ( ! isset( $menu_mappings[ $screen ] ) ) {
 			return;
 		}
 
@@ -522,7 +496,7 @@ class Admin_Menu extends Base_Admin_Menu {
 			'<div id="dashboard-switcher"><h5>%s</h5><p class="dashboard-switcher-text">%s</p><a class="button button-primary dashboard-switcher-button" href="%s">%s</a></div>',
 			__( 'Screen features', 'jetpack' ),
 			__( 'Currently you are seeing the classic WP-Admin view of this page. Would you like to see the default WordPress.com view?', 'jetpack' ),
-			$menu_mappings[ $slug ] . $this->domain,
+			$menu_mappings[ $screen ] . $this->domain,
 			__( 'Use WordPress.com view', 'jetpack' )
 		);
 

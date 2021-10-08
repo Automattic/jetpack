@@ -104,9 +104,11 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 
 		$all_users = $this->manager->get_connected_users();
 		$admins    = $this->manager->get_connected_users( 'manage_options' );
+		$limited   = $this->manager->get_connected_users( 'any', 1 );
 
 		$this->assertCount( 2, $all_users );
 		$this->assertCount( 1, $admins );
+		$this->assertCount( 1, $limited );
 		$this->assertSame( $id_admin, $admins[0]->ID );
 	}
 

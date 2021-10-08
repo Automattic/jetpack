@@ -17,9 +17,9 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 	 *
 	 * @inheritDoc
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		unset( $GLOBALS['content_width'] );
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**
@@ -56,7 +56,7 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( $youtube_id, $shortcode_content );
+		$this->assertStringContainsString( $youtube_id, $shortcode_content );
 	}
 
 	/**
@@ -73,7 +73,7 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 	public function test_shortcodes_youtube_id_options( $url, $expected ) {
 		$output = youtube_id( $url );
 
-		$this->assertContains( $expected, $output );
+		$this->assertStringContainsString( $expected, $output );
 	}
 
 	/**
@@ -113,9 +113,9 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 		remove_all_filters( 'wp_lazy_loading_enabled' );
 		$actual = ob_get_clean();
 		wp_reset_postdata();
-		$this->assertContains( '<span class="embed-youtube"', $actual );
-		$this->assertContains( '<iframe class="youtube-player"', $actual );
-		$this->assertContains( "https://www.youtube.com/embed/$youtube_id", $actual );
+		$this->assertStringContainsString( '<span class="embed-youtube"', $actual );
+		$this->assertStringContainsString( '<iframe class="youtube-player"', $actual );
+		$this->assertStringContainsString( "https://www.youtube.com/embed/$youtube_id", $actual );
 
 	}
 

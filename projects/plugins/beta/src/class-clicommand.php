@@ -14,105 +14,176 @@ use WP_CLI_Command;
  * Control your local Jetpack Beta Tester plugin.
  */
 class CliCommand extends WP_CLI_Command {
+
 	/**
-	 * Activate a branch version
+	 * Deprecated entry point.
 	 *
-	 * ## OPTIONS
+	 * ## Options
 	 *
-	 * activate master: Get a version of the master branch built every 15 minutes
-	 * activate stable: Get the latest stable version of Jetpack
-	 * activate branch_name: Get a version of PR. PR must be built and unit-tested before it become availabe
-	 * list: Get list of available jetpack branches to install
+	 * <subcommand>
+	 * : Subcommand to run. Either 'list' or 'activate'.
 	 *
-	 * ## EXAMPLES
+	 * [<args>...]
+	 * : Any additional args to the subcommand.
 	 *
-	 * wp jetpack-beta branch activate master
-	 * wp jetpack-beta branch activate stable
-	 * wp jetpack-beta branch activate branch_name
-	 * wp jetpack-beta branch list
-	 *
-	 * @param array $args arguments passed to CLI, per the examples above.
+	 * @deprecated since 3.0.0
+	 * @param array $args Arguments passed to CLI.
 	 */
 	public function branch( $args ) {
+		$this->validation_checks();
 
-		$this->validation_checks( $args );
-
-		if ( 'list' === $args[0] ) {
-			return $this->branches_list();
-		}
-
-		$branches = array( 'master', 'stable', 'rc' );
-
-		if ( in_array( $args[1], $branches, true ) ) {
-			return $this->install_jetpack( $args[1], $args[1] );
+		$subcommand = array_shift( $args );
+		if ( 'list' === $subcommand ) {
+			WP_CLI::warning( __( 'Command `wp jetpack-beta branch list` is deprecated. Use `wp jetpack-beta list jetpack` instead.', 'jetpack-beta' ) );
+			WP_CLI::run_command( array( 'jetpack-beta', 'list', 'jetpack' ) );
+		} elseif ( 'activate' === $subcommand ) {
+			WP_CLI::warning( __( 'Command `wp jetpack-beta branch activate <branch>` is deprecated. Use `wp jetpack-beta activate jetpack <branch>` instead.', 'jetpack-beta' ) );
+			WP_CLI::run_command( array_merge( array( 'jetpack-beta', 'activate', 'jetpack' ), $args ) );
 		} else {
-			$branch_name = str_replace( '/', '_', $args[1] );
-			$url         = Utils::get_install_url( $branch_name, 'pr' );
-			if ( null === $url ) {
-				return WP_CLI::error( __( 'Invalid branch name. Try `wp jetpack-beta branch list` for list of available branches', 'jetpack-beta' ) );
+			WP_CLI::warning( __( 'Command `wp jetpack-beta branch` is deprecated. See `wp help jetpack-beta` for available commands.', 'jetpack-beta' ) );
+			WP_CLI::error( __( 'Specify subcommand. "activate" and "list" subcommands are supported', 'jetpack-beta' ) );
+		}
+	}
+
+	/**
+	 * List available plugins or branches.
+	 *
+	 * ## Options
+	 *
+	 * [<plugin>]
+	 * : If specified, list branches available for the plugin.
+	 *
+	 * ## Examples
+	 *
+	 *     wp jetpack-beta list
+	 *     wp jetpack-beta list jetpack
+	 *
+	 * @subcommand list
+	 * @param array $args Arguments passed to CLI.
+	 */
+	public function do_list( $args ) {
+		$this->validation_checks();
+
+		if ( ! $args ) {
+			$plugins = Plugin::get_all_plugins( true );
+			if ( ! $plugins ) {
+				WP_CLI::error( __( 'No plugins are available', 'jetpack-beta' ) );
 			}
-			return $this->install_jetpack( $branch_name, 'pr' );
-		}
-		return WP_CLI::error( __( 'Unrecognized branch version. ', 'jetpack-beta' ) );
-	}
 
-	/**
-	 * Validate that we can switch branches.
-	 *
-	 * @param array $args arguments passed to CLI.
-	 */
-	private function validation_checks( $args ) {
-
-		if ( is_multisite() && ! is_main_site() ) {
-			return WP_CLI::error( __( 'Secondary sites in multisite instalations are not supported', 'jetpack-beta' ) );
+			$l = 0;
+			foreach ( $plugins as $slug => $plugin ) {
+				$l = max( $l, strlen( $slug ) );
+			}
+			WP_CLI::line( 'Available plugins: ' );
+			foreach ( $plugins as $slug => $plugin ) {
+				WP_CLI::line( sprintf( "  %-{$l}s - %s", $slug, $plugin->get_name() ) );
+			}
+			return;
 		}
 
-		if ( empty( $args ) ) {
-			return WP_CLI::error( __( 'Specify subcommand. "activate" and "list" subcommands are supported', 'jetpack-beta' ) );
+		$plugin = Plugin::get_plugin( $args[0], true );
+		if ( ! $plugin ) {
+			// translators: %s: subcommand that was not found.
+			WP_CLI::error( sprintf( __( 'Plugin \'%s\' is not known. Use `wp jetpack-beta list` to list known plugins', 'jetpack-beta' ), $args[0] ) );
 		}
 
-		if ( 'activate' !== $args[0] && 'list' !== $args[0] ) {
-			return WP_CLI::error( __( 'Only "activate" and "list" subcommands are supported', 'jetpack-beta' ) );
+		$manifest      = $plugin->get_manifest();
+		$dev_info      = $plugin->dev_info();
+		$active_branch = $dev_info ? $dev_info->branch : null;
+		$branches      = array( 'stable', 'master', 'rc' );
+		foreach ( $manifest->pr as $pr ) {
+			$branches[] = $pr->branch;
 		}
-
-		if ( 'activate' === $args[0] && empty( $args[1] ) ) {
-			return WP_CLI::error( __( 'Specify branch name. Try `wp jetpack-beta branch list` for list of available branches', 'jetpack-beta' ) );
-		}
-	}
-
-	/**
-	 * Install Jetpack using selected branch.
-	 *
-	 * @param array $branch is the selected branch.
-	 * @param array $section what we're specifically installing (PR, master, stable, etc).
-	 */
-	private function install_jetpack( $branch, $section ) {
-
-		WP_CLI::line( 'Activating ' . $branch . ' branch...' );
-
-		$result = Utils::install_and_activate( $branch, $section );
-		if ( is_wp_error( $result ) ) {
-			return WP_CLI::error( __( 'Error', 'jetpack-beta' ) . $result->get_error_message() );
-		}
-		// translators: $branch is what branch we've switched to.
-		return WP_CLI::success( printf( esc_html__( 'Jetpack is currently on %s branch', 'jetpack-beta' ), esc_html( $branch ) ) );
-	}
-
-	/**
-	 * Display list of branches.
-	 */
-	private function branches_list() {
-		$manifest            = Utils::get_beta_manifest();
-		$jetpack_beta_active = get_option( 'jetpack_beta_active' );
-		$current_branch      = str_replace( '_', '/', $jetpack_beta_active[0] );
-		$branches            = array( 'stable', 'master', 'rc' );
-		foreach ( get_object_vars( $manifest->pr ) as $key ) {
-			$branches[] = $key->branch;
-		}
-		sort( $branches );
+		asort( $branches );
 		WP_CLI::line( 'Available branches: ' );
 		foreach ( $branches as $branch ) {
-			WP_CLI::line( $current_branch === $branch ? '* ' . $branch : '  ' . $branch );
+			WP_CLI::line( ( $active_branch === $branch ? '* ' : '  ' ) . $branch );
 		}
 	}
+
+	/**
+	 * Activate a branch for a plugin.
+	 *
+	 * ## Options
+	 *
+	 * <plugin>
+	 * : The plugin to activate a branch for.
+	 *
+	 * <branch>
+	 * : The branch to activate.
+	 *
+	 * ## Examples
+	 *
+	 *     wp jetpack-beta activate jetpack master
+	 *     wp jetpack-beta activate jetpack stable
+	 *     wp jetpack-beta activate jetpack rc
+	 *     wp jetpack-beta activate jetpack 9.8
+	 *     wp jetpack-beta activate jetpack update/some-branch
+	 *
+	 * @param array $args Arguments passed to CLI.
+	 */
+	public function activate( $args ) {
+		$this->validation_checks();
+
+		$plugin = Plugin::get_plugin( $args[0], true );
+		if ( ! $plugin ) {
+			// translators: %s: Plugin slug that was not found.
+			WP_CLI::error( sprintf( __( 'Plugin \'%s\' is not known. Use `wp jetpack-beta list` to list known plugins', 'jetpack-beta' ), $args[0] ) );
+		}
+
+		if ( 'master' === $args[1] ) {
+			$source = 'master';
+			$id     = '';
+			// translators: %1$s: Plugin name.
+			$premsg = __( 'Activating %1$s master branch', 'jetpack-beta' );
+			// translators: %1$s: Plugin name.
+			$postmsg = __( '%1$s is now on the master branch', 'jetpack-beta' );
+		} elseif ( 'stable' === $args[1] ) {
+			$source = 'stable';
+			$id     = '';
+			// translators: %1$s: Plugin name.
+			$premsg = __( 'Activating %1$s latest release', 'jetpack-beta' );
+			// translators: %1$s: Plugin name.
+			$postmsg = __( '%1$s is now on the latest release', 'jetpack-beta' );
+		} elseif ( 'rc' === $args[1] ) {
+			$source = 'rc';
+			$id     = '';
+			// translators: %1$s: Plugin name.
+			$premsg = __( 'Activating %1$s release candidate', 'jetpack-beta' );
+			// translators: %1$s: Plugin name.
+			$postmsg = __( '%1$s is now on the latest release candidate', 'jetpack-beta' );
+		} elseif ( preg_match( '/^\d+(?:\.\d+)(?:-beta\d*)?$/', $args[1] ) ) {
+			$source = 'release';
+			$id     = $args[1];
+			// translators: %1$s: Plugin name. %2$s: Version number.
+			$premsg = __( 'Activating %1$s release version %2$s', 'jetpack-beta' );
+			// translators: %1$s: Plugin name. %2$s: Version number.
+			$postmsg = __( '%1$s is now on release version %2$s', 'jetpack-beta' );
+		} else {
+			$source = 'pr';
+			$id     = $args[1];
+			// translators: %1$s: Plugin name. %2$s: Branch name.
+			$premsg = __( 'Activating %1$s branch %2$s', 'jetpack-beta' );
+			// translators: %1$s: Plugin name. %2$s: Branch name.
+			$postmsg = __( '%1$s is now on branch %2$s', 'jetpack-beta' );
+		}
+
+		WP_CLI::line( sprintf( $premsg, $plugin->get_name(), $id ) );
+		$ret = $plugin->install_and_activate( $source, $id );
+		if ( is_wp_error( $ret ) ) {
+			WP_CLI::error( $ret->get_error_message() );
+		} else {
+			WP_CLI::line( sprintf( $postmsg, $plugin->get_name(), $id ) );
+		}
+	}
+
+	/**
+	 * Validate environment.
+	 */
+	private function validation_checks() {
+		if ( is_multisite() && ! is_main_site() ) {
+			WP_CLI::error( __( 'Secondary sites in multisite instalations are not supported', 'jetpack-beta' ) );
+		}
+	}
+
 }

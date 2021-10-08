@@ -8,11 +8,11 @@ if [[ -z "$BUILD_BASE" ]]; then
 	BUILD_BASE=$(mktemp -d "${TMPDIR:-/tmp}/jetpack-project-mirrors.XXXXXXXX")
 elif [[ ! -e "$BUILD_BASE" ]]; then
 	mkdir -p "$BUILD_BASE"
-elif [[ ! -d "$BUILD_DIR" ]]; then
-	echo "$BUILD_DIR already exists, and is not a directory." >&2
+elif [[ ! -d "$BUILD_BASE" ]]; then
+	echo "$BUILD_BASE already exists, and is not a directory." >&2
 	exit 1
-elif [[ "$(ls -A -- "$BUILD_DIR")" ]]; then
-	echo "Directory $BUILD_DIR already exists, and is not empty." >&2
+elif [[ "$(ls -A -- "$BUILD_BASE")" ]]; then
+	echo "Directory $BUILD_BASE already exists, and is not empty." >&2
 	exit 1
 fi
 
@@ -60,7 +60,7 @@ for SLUG in "${SLUGS[@]}"; do
 	# That allows us to pick up the built version for plugins like Jetpack.
 	# Also save the old contents to restore post-build to help with local testing.
 	OLDJSON=$(<composer.json)
-	JSON=$(jq --argjson repo "$REPO" '( .repositories // [] | map( .options.monorepo or false ) | index(true) ) as $i | if $i != null then .repositories[$i:$i] |= [ $repo ] else . end' composer.json | "$BASE/tools/prettier" --parser=json-stringify)
+	JSON=$(jq --tab --argjson repo "$REPO" '( .repositories // [] | map( .options.monorepo or false ) | index(true) ) as $i | if $i != null then .repositories[$i:$i] |= [ $repo ] else . end' composer.json)
 	if [[ "$JSON" != "$OLDJSON" ]]; then
 		echo "$JSON" > composer.json
 		if [[ -e "composer.lock" ]]; then
@@ -116,6 +116,15 @@ for SLUG in "${SLUGS[@]}"; do
 				continue
 			fi
 			echo "::endgroup::"
+			echo '::group::Updating $$next-version$$'
+			VER="$($CHANGELOGGER version current)"
+			if ! "$BASE"/tools/replace-next-version-tag.sh -v "$SLUG" "$VER"; then
+				EXIT=1
+				echo "::endgroup::"
+				echo "::error::\$\$next-version\$\$ update for ${SLUG} failed"
+				continue
+			fi
+			echo "::endgroup::"
 		else
 			echo "Not updating changelog, there are no change files."
 		fi
@@ -136,9 +145,15 @@ for SLUG in "${SLUGS[@]}"; do
 	# Copy standard .github
 	cp -r "$BASE/.github/files/mirror-.github" "$BUILD_DIR/.github"
 
-	# Copy autotagger if enabled
+	# Copy autotagger, autorelease, and/or npmjs-autopublisher if enabled
 	if jq -e '.extra.autotagger // false' composer.json > /dev/null; then
 		cp -r "$BASE/.github/files/gh-autotagger/." "$BUILD_DIR/.github/."
+	fi
+	if jq -e '.extra.autorelease // false' composer.json > /dev/null; then
+		cp -r "$BASE/.github/files/gh-autorelease/." "$BUILD_DIR/.github/."
+	fi
+	if jq -e '.extra["npmjs-autopublish"] // false' composer.json > /dev/null; then
+		cp -r "$BASE/.github/files/gh-npmjs-autopublisher/." "$BUILD_DIR/.github/."
 	fi
 
 	# Copy license.
@@ -173,9 +188,56 @@ for SLUG in "${SLUGS[@]}"; do
 		xargs cp --parents --target-directory="$BUILD_DIR"
 
 	# Remove monorepo repos from composer.json
-	JSON=$(jq 'if .repositories then .repositories |= map( select( .options.monorepo | not ) ) else . end' "$BUILD_DIR/composer.json" | "$BASE/tools/prettier" --parser=json-stringify)
+	JSON=$(jq --tab 'if .repositories then .repositories |= map( select( .options.monorepo | not ) ) else . end' "$BUILD_DIR/composer.json")
 	if [[ "$JSON" != "$(<"$BUILD_DIR/composer.json")" ]]; then
 		echo "$JSON" > "$BUILD_DIR/composer.json"
+	fi
+
+	# Remove engines from package.json
+	if [[ -e "$BUILD_DIR/package.json" ]]; then
+		JSON=$(jq --tab 'if .publish_engines then .engines = .publish_engines | .publish_engines |= empty else .engines |= empty end' "$BUILD_DIR/package.json")
+		if [[ "$JSON" != "$(<"$BUILD_DIR/package.json")" ]]; then
+			echo "$JSON" > "$BUILD_DIR/package.json"
+		fi
+	fi
+
+	# If npmjs-autopublish is active, default to ignoring .github and composer.json (and not ignoring anything else) in the publish.
+	if jq -e '.extra["npmjs-autopublish"] // false' composer.json > /dev/null; then
+		TMP=
+		if [[ -e "$BUILD_DIR/.npmignore" ]]; then
+			TMP="$(<"$BUILD_DIR/.npmignore")"
+		fi
+		cat <<-EOF > "$BUILD_DIR/.npmignore"
+			# Automatically generated ignore rules.
+			/.github/
+			/composer.json
+		EOF
+		if [[ -n "$TMP" ]]; then
+			cat <<-EOF >> "$BUILD_DIR/.npmignore"
+
+				# Package ignore file.
+				$TMP
+			EOF
+		fi
+	fi
+
+	# If autorelease is active, flag .git files to be excluded from the archive.
+	if jq -e '.extra.autorelease // false' composer.json > /dev/null; then
+		TMP=
+		if [[ -e "$BUILD_DIR/.gitattributes" ]]; then
+			TMP="$(<"$BUILD_DIR/.gitattributes")"
+		fi
+		cat <<-EOF > "$BUILD_DIR/.gitattributes"
+			# Automatically generated rules.
+			/.git*	export-ignore
+		EOF
+		if [[ -n "$TMP" ]]; then
+			cat <<-EOF >> "$BUILD_DIR/.gitattributes"
+
+				# Package attributes file.
+				$TMP
+			EOF
+		fi
 	fi
 
 	echo "Build succeeded!"

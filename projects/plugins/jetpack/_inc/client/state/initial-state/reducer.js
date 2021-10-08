@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { assign, get, merge } from 'lodash';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -10,7 +11,6 @@ import { JETPACK_SET_INITIAL_STATE, MOCK_SWITCH_USER_PERMISSIONS } from 'state/a
 import { getPlanDuration } from 'state/plans/reducer';
 import { getSiteProducts } from 'state/site-products';
 import { isCurrentUserLinked } from 'state/connection';
-import getRedirectUrl from 'lib/jp-redirect';
 
 export const initialState = ( state = window.Initial_State, action ) => {
 	switch ( action.type ) {
@@ -221,6 +221,26 @@ export function getApiNonce( state ) {
 
 export function getApiRootUrl( state ) {
 	return get( state.jetpack.initialState, 'WP_API_root' );
+}
+
+/**
+ * Returns the registration nonce.
+ *
+ * @param {object} state - Global state tree
+ * @returns {string} The registration nonce
+ */
+export function getRegistrationNonce( state ) {
+	return get( state.jetpack.initialState, 'registrationNonce' );
+}
+
+/**
+ * Returns the plugin base URL.
+ *
+ * @param {object} state - Global state tree
+ * @returns {string} The registration nonce
+ */
+export function getPluginBaseUrl( state ) {
+	return get( state.jetpack.initialState, 'pluginBaseUrl' );
 }
 
 /**

@@ -3,7 +3,6 @@
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Status;
 
@@ -48,6 +47,7 @@ class MockJetpack_XMLRPC_Server extends Jetpack_XMLRPC_Server {
 }
 
 class WP_Test_Jetpack extends WP_UnitTestCase {
+
 	static $admin_id = 0;
 
 	static $activated_modules = array();
@@ -59,8 +59,11 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 		) );
 	}
 
-	public function tearDown() {
-		parent::tearDown();
+	/**
+	 * Tear down.
+	 */
+	public function tear_down() {
+		parent::tear_down();
 		Constants::clear_constants();
 	}
 
@@ -324,8 +327,8 @@ EXPECTED;
 		) );
 
 		$other_admins = Jetpack::get_other_linked_admins();
-		$this->assertInternalType( 'int', $other_admins );
-		$this->assertInternalType( 'int', get_transient( 'jetpack_other_linked_admins' ) );
+		$this->assertIsInt( $other_admins );
+		$this->assertIsInt( get_transient( 'jetpack_other_linked_admins' ) );
 	}
 
 	public function test_promoting_admin_clears_other_linked_admins_transient() {
@@ -369,129 +372,6 @@ EXPECTED;
 	function test_other_linked_admins_transient_set_to_zero_returns_false() {
 		set_transient( 'jetpack_other_linked_admins', 0, HOUR_IN_SECONDS );
 		$this->assertFalse( Jetpack::get_other_linked_admins() );
-	}
-
-	function test_idc_optin_default() {
-		if ( is_multisite() ) {
-			$this->assertFalse( Identity_Crisis::sync_idc_optin() );
-		} else {
-			$this->assertTrue( Identity_Crisis::sync_idc_optin() );
-		}
-	}
-
-	function test_idc_optin_filter_overrides_development_version() {
-		add_filter( 'jetpack_development_version', '__return_true' );
-		add_filter( 'jetpack_sync_idc_optin', '__return_false' );
-		$this->assertFalse( Identity_Crisis::sync_idc_optin() );
-		remove_filter( 'jetpack_development_version', '__return_true' );
-		remove_filter( 'jetpack_sync_idc_optin', '__return_false' );
-	}
-
-	function test_idc_optin_casts_to_bool() {
-		add_filter( 'jetpack_sync_idc_optin', array( $this, 'return_string_1' ) );
-		$this->assertTrue( Identity_Crisis::sync_idc_optin() );
-		remove_filter( 'jetpack_sync_idc_optin', array( $this, 'return_string_1' ) );
-	}
-
-	function test_idc_optin_true_when_constant_true() {
-		Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', true );
-		$this->assertTrue( Identity_Crisis::sync_idc_optin() );
-	}
-
-	function test_idc_optin_false_when_constant_false() {
-		Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', false );
-		$this->assertFalse( Identity_Crisis::sync_idc_optin() );
-	}
-
-	function test_idc_optin_filter_overrides_constant() {
-		Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', true );
-		add_filter( 'jetpack_sync_idc_optin', '__return_false' );
-		$this->assertFalse( Identity_Crisis::sync_idc_optin() );
-		remove_filter( 'jetpack_sync_idc_optin', '__return_false' );
-	}
-
-	function test_sync_error_idc_validation_returns_false_if_no_option() {
-		Jetpack_Options::delete_option( 'sync_error_idc' );
-		$this->assertFalse( Identity_Crisis::validate_sync_error_idc_option() );
-	}
-
-	function test_sync_error_idc_validation_returns_true_when_option_matches_expected() {
-		add_filter( 'jetpack_sync_idc_optin', '__return_true' );
-		Jetpack_Options::update_option( 'sync_error_idc', Identity_Crisis::get_sync_error_idc_option() );
-		$this->assertTrue( Identity_Crisis::validate_sync_error_idc_option() );
-		Jetpack_Options::delete_option( 'sync_error_idc' );
-		remove_filter( 'jetpack_sync_idc_optin', '__return_true' );
-	}
-
-	/**
-	 * Verify that validate_sync_error returns false if wpcom_ is set and matches expected.
-	 */
-	public function test_sync_error_idc_validation_returns_false_when_wpcom_option_matches_expected() {
-		add_filter( 'jetpack_sync_idc_optin', '__return_true' );
-		$option                  = Identity_Crisis::get_sync_error_idc_option();
-		$option['wpcom_home']    = $option['home'];
-		$option['wpcom_siteurl'] = $option['siteurl'];
-		Jetpack_Options::update_option( 'sync_error_idc', $option );
-		$this->assertFalse( Identity_Crisis::validate_sync_error_idc_option() );
-
-		// Verify the migrate_for_idc is set.
-		$this->assertTrue( Jetpack_Options::get_option( 'migrate_for_idc' ) );
-
-		Jetpack_Options::delete_option( 'sync_error_idc' );
-		Jetpack_Options::delete_option( 'migrate_for_idc' );
-		remove_filter( 'jetpack_sync_idc_optin', '__return_true' );
-	}
-
-	/**
-	 * Verify that validate_sync_error returns true if wpcom_ is set and does not match.
-	 */
-	public function test_sync_error_idc_validation_returns_true_when_wpcom_option_does_not_match_expected() {
-		add_filter( 'jetpack_sync_idc_optin', '__return_true' );
-		$option                  = Identity_Crisis::get_sync_error_idc_option();
-		$option['wpcom_home']    = $option['home'];
-		$option['wpcom_siteurl'] = 'coolrunnings.test';
-		Jetpack_Options::update_option( 'sync_error_idc', $option );
-		$this->assertTrue( Identity_Crisis::validate_sync_error_idc_option() );
-
-		// Verify the migrate_for_idc is not set.
-		$this->assertNotTrue( Jetpack_Options::get_option( 'migrate_for_idc' ) );
-
-		Jetpack_Options::delete_option( 'sync_error_idc' );
-		Jetpack_Options::delete_option( 'migrate_for_idc' );
-		remove_filter( 'jetpack_sync_idc_optin', '__return_true' );
-	}
-
-	function test_sync_error_idc_validation_cleans_up_when_validation_fails() {
-		Jetpack_Options::update_option( 'sync_error_idc', array(
-			'home'    => 'coolsite.com/',
-			'siteurl' => 'coolsite.com/wp/',
-		) );
-
-		$this->assertFalse( Identity_Crisis::validate_sync_error_idc_option() );
-		$this->assertFalse( Jetpack_Options::get_option( 'sync_error_idc' ) );
-	}
-
-	function test_sync_error_idc_validation_cleans_up_when_part_of_validation_fails() {
-		$test            = Identity_Crisis::get_sync_error_idc_option();
-		$test['siteurl'] = 'coolsite.com/wp/';
-		Jetpack_Options::update_option( 'sync_error_idc', $test );
-
-		$this->assertFalse( Identity_Crisis::validate_sync_error_idc_option() );
-		$this->assertFalse( Jetpack_Options::get_option( 'sync_error_idc' ) );
-	}
-
-	function test_sync_error_idc_validation_returns_false_and_cleans_up_when_opted_out() {
-		Jetpack_Options::update_option( 'sync_error_idc', Identity_Crisis::get_sync_error_idc_option() );
-		Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', false );
-
-		$this->assertFalse( Identity_Crisis::validate_sync_error_idc_option() );
-		$this->assertFalse( Jetpack_Options::get_option( 'sync_error_idc' ) );
-	}
-
-	function test_is_staging_site_true_when_sync_error_idc_is_valid() {
-		add_filter( 'jetpack_sync_error_idc_validation', '__return_true' );
-		$this->assertTrue( ( new Status() )->is_staging_site() );
-		remove_filter( 'jetpack_sync_error_idc_validation', '__return_false' );
 	}
 
 	function test_is_dev_version_true_with_alpha() {
@@ -539,44 +419,6 @@ EXPECTED;
 		add_filter( 'jetpack_offline_mode', '__return_zero' );
 		$this->assertFalse( ( new Status() )->is_offline_mode() );
 		remove_filter( 'jetpack_offline_mode', '__return_zero' );
-	}
-
-	function test_get_sync_idc_option_sanitizes_out_www_and_protocol() {
-		$original_home    = get_option( 'home' );
-		$original_siteurl = get_option( 'siteurl' );
-
-		update_option( 'home', 'http://www.coolsite.com' );
-		update_option( 'siteurl', 'http://www.coolsite.com/wp' );
-
-		$expected = array(
-			'home' => 'coolsite.com/',
-			'siteurl' => 'coolsite.com/wp/'
-		);
-
-		$this->assertSame( $expected, Identity_Crisis::get_sync_error_idc_option() );
-
-		// Cleanup
-		update_option( 'home', $original_home );
-		update_option( 'siteurl', $original_siteurl );
-	}
-
-	function test_get_sync_idc_option_with_ip_address_in_option() {
-		$original_home    = get_option( 'home' );
-		$original_siteurl = get_option( 'siteurl' );
-
-		update_option( 'home', 'http://72.182.131.109/~wordpress' );
-		update_option( 'siteurl', 'http://72.182.131.109/~wordpress/wp' );
-
-		$expected = array(
-			'home' => '72.182.131.109/~wordpress/',
-			'siteurl' => '72.182.131.109/~wordpress/wp/'
-		);
-
-		$this->assertSame( $expected, Identity_Crisis::get_sync_error_idc_option() );
-
-		// Cleanup
-		update_option( 'home', $original_home );
-		update_option( 'siteurl', $original_siteurl );
 	}
 
 	function test_normalize_url_protocol_agnostic_strips_protocol_and_www_for_subdir_subdomain() {
@@ -710,8 +552,8 @@ EXPECTED;
 		Constants::set_constant( 'SCRIPT_DEBUG', $is_script_debug );
 		$file_url = Jetpack::get_file_url_for_environment( $min_path, $non_min_path );
 
-		$this->assertContains( $$expected, $file_url );
-		$this->assertNotContains( $$not_expected, $file_url );
+		$this->assertStringContainsString( $$expected, $file_url );
+		$this->assertStringNotContainsString( $$not_expected, $file_url );
 	}
 
 	function get_file_url_for_environment_data_provider() {
@@ -797,15 +639,6 @@ EXPECTED;
 			$password .= $password;
 		}
 		return $password;
-	}
-
-	/**
-	 * Return string '1'.
-	 *
-	 * @return string
-	 */
-	public function return_string_1() {
-		return '1';
 	}
 
 	/**
@@ -1155,7 +988,8 @@ EXPECTED;
 
 		$login_url = wp_login_url( '/wp-admin?' . Jetpack::$jetpack_redirect_login . '=true' );
 		parse_str( wp_parse_url( $login_url, PHP_URL_QUERY ), $login_parts );
-		$this->assertArraySubset( array( Jetpack::$jetpack_redirect_login => 'true' ), $login_parts, true );
+		$this->assertArrayHasKey( Jetpack::$jetpack_redirect_login, $login_parts );
+		$this->assertSame( 'true', $login_parts[ Jetpack::$jetpack_redirect_login ] );
 	}
 
 	/**

@@ -463,7 +463,6 @@ async function changedProjects() {
  *
  * @param {string} fileName - what we want to name the file.
  * @param {Array} needChangelog - projects that need changelog.
- *
  * @returns {argv}.
  */
 function doesFilenameExist( fileName, needChangelog ) {
@@ -669,7 +668,6 @@ async function promptChangelog( argv, needChangelog ) {
  * @param {object} argv - the arguments passed.
  * @param {Array} needChangelog - files that need changelogs.
  * @param {Array} uniqueProjects - projects with unique changelog types.
- *
  * @returns {argv}.
  */
 async function changelogAddPrompt( argv, needChangelog, uniqueProjects ) {

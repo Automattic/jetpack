@@ -4,6 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { __, _x } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -12,7 +13,6 @@ import analytics from 'lib/analytics';
 import Button from 'components/button';
 import ClipboardButtonInput from 'components/clipboard-button-input';
 import { FormFieldset, FormLegend, FormLabel } from 'components/forms';
-import getRedirectUrl from 'lib/jp-redirect';
 import { ModuleToggle } from 'components/module-toggle';
 import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';

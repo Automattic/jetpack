@@ -16,13 +16,14 @@ const wpcomCommitReminder = require( './tasks/wpcom-commit-reminder' );
 const notifyDesign = require( './tasks/notify-design' );
 const notifyEditorial = require( './tasks/notify-editorial' );
 const flagOss = require( './tasks/flag-oss' );
+const triageNewIssues = require( './tasks/triage-new-issues' );
 const debug = require( './debug' );
 const ifNotFork = require( './if-not-fork' );
 const ifNotClosed = require( './if-not-closed' );
 
 const automations = [
 	{
-		event: 'pull_request',
+		event: 'pull_request_target',
 		action: [ 'opened', 'synchronize', 'edited' ],
 		task: ifNotFork( assignIssues ),
 	},
@@ -31,19 +32,20 @@ const automations = [
 		task: addMilestone,
 	},
 	{
-		event: 'pull_request',
+		event: 'pull_request_target',
 		action: [ 'opened', 'reopened', 'synchronize', 'edited', 'labeled' ],
 		task: ifNotClosed( addLabels ),
 	},
 	{
-		event: 'pull_request',
+		event: 'pull_request_target',
 		action: [ 'closed' ],
 		task: cleanLabels,
 	},
 	{
-		event: 'pull_request',
+		event: 'pull_request_target',
 		action: [ 'opened', 'reopened', 'synchronize', 'edited', 'labeled' ],
 		task: ifNotClosed( checkDescription ),
+		// Note this task requires a PR checkout. See README.md for details.
 	},
 	{
 		event: 'pull_request_target',
@@ -63,6 +65,11 @@ const automations = [
 		event: 'pull_request_target',
 		action: [ 'opened' ],
 		task: flagOss,
+	},
+	{
+		event: 'issues',
+		action: [ 'opened', 'reopened' ],
+		task: triageNewIssues,
 	},
 ];
 

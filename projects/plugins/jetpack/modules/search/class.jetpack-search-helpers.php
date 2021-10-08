@@ -862,7 +862,7 @@ class Jetpack_Search_Helpers {
 			'homeUrl'               => home_url(),
 			'locale'                => str_replace( '_', '-', self::is_valid_locale( get_locale() ) ? get_locale() : 'en_US' ),
 			'postsPerPage'          => $posts_per_page,
-			'siteId'                => Jetpack::get_option( 'id' ),
+			'siteId'                => class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'get_option' ) ? Jetpack::get_option( 'id' ) : get_current_blog_id(),
 			'postTypes'             => $post_type_labels,
 			'webpackPublicPath'     => plugins_url( '_inc/build/instant-search/', JETPACK__PLUGIN_FILE ),
 			'isPhotonEnabled'       => ( $is_wpcom || $is_jetpack_photon_enabled ) && ! $is_private_site,
@@ -890,5 +890,18 @@ class Jetpack_Search_Helpers {
 		 * @param array $options Array of parameters used in Instant Search queries.
 		 */
 		return apply_filters( 'jetpack_instant_search_options', $options );
+	}
+
+	/**
+	 * Prints the Instant Search sidebar.
+	 */
+	public static function print_instant_search_sidebar() {
+		?>
+		<div class="jetpack-instant-search__widget-area" style="display: none">
+			<?php if ( is_active_sidebar( 'jetpack-instant-search-sidebar' ) ) { ?>
+				<?php dynamic_sidebar( 'jetpack-instant-search-sidebar' ); ?>
+			<?php } ?>
+		</div>
+		<?php
 	}
 }

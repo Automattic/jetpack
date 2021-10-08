@@ -1,14 +1,14 @@
 name: Gardening
 on:
-  pull_request_target:
-    types: [opened, labeled]
-  pull_request: # When a PR is opened, edited, updated, closed, or a label is added.
-    types: [opened, synchronize, labeled, edited, closed]
+  pull_request_target: # When a PR is opened, edited, updated, closed, or a label is added.
+    types: [opened, reopened, synchronize, edited, labeled, closed]
+  issues: # For auto-triage of issues.
+    types: [opened, reopened]
   push:
     branches:
       - master # Every time a PR is merged to master.
 concurrency:
-  # For pull_request and pull_request_target, cancel any concurrent jobs with the same type (e.g. "opened", "labeled") and branch.
+  # For pull_request_target, cancel any concurrent jobs with the same type (e.g. "opened", "labeled") and branch.
   # Don't cancel any for pushes, accomplished by grouping on the unique run_id.
   group: gardening-${{ github.event_name }}-${{ github.event_name == 'push' && github.run_id || github.event.action }}-${{ github.ref }}
   cancel-in-progress: true
@@ -17,7 +17,7 @@ jobs:
   # review-crew-afk:
   #   name: "Review check"
   #   runs-on: ubuntu-latest
-  #   if: github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == '[Status] Needs Review'
+  #   if: github.event_name == 'pull_request_target' && github.event.action == 'labeled' && github.event.label.name == '[Status] Needs Review'
   #   timeout-minutes: 1  # 2021-01-18: Successful runs probably take a few seconds
   #   steps:
   #     - name: Comment
@@ -40,40 +40,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Read tool versions
-        id: versions
-        uses: ./.github/actions/read-versions
-
-      - name: Setup Node
-        uses: actions/setup-node@v2
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
         with:
-          node-version: ${{ steps.versions.outputs.node-version }}
-
-      - name: Use pnpm cache
-        uses: actions/cache@v2
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-pnpm-${{ steps.versions.outputs.node-version }}-${{ hashFiles('**/package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-${{ steps.versions.outputs.node-version }}-
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2.0.1
-        with:
-          version: ${{ steps.versions.outputs.pnpm-version }}
-
-      - name: Tool versions
-        run: |
-          which node
-          node --version
-          which pnpm
-          pnpm --version
-          which jq
-          jq --version
+          php: false
 
       - name: Building Action
         run: composer build-development
         working-directory: ./projects/github-actions/repo-gardening
+
+      - name: Checkout the PR
+        if: github.event_name == 'pull_request_target' && github.event.action != 'closed'
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          # DO NOT run any code in this checkout. Not even an `npm install`.
+          path: ./pr-checkout
 
       - name: Wait for prior instances of the workflow to finish
         uses: softprops/turnstyle@v1
@@ -82,6 +65,8 @@ jobs:
 
       - name: "Run the action (assign, manage milestones, for issues and PRs)"
         uses: ./projects/github-actions/repo-gardening
+        env:
+          PR_WORKSPACE: ${{ github.workspace }}${{ github.event_name == 'pull_request_target' && '/pr-checkout' || '' }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           slack_token: ${{ secrets.SLACK_TOKEN }}

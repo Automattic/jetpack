@@ -1,6 +1,28 @@
 <?php
 
 class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
+
+	/**
+	 * @dataProvider provider_deprecated_file_paths
+	 */
+	public function test_deprecated_file_paths( $file_path, $replacement_path ) {
+		// WordPress 5.9 starts adding this hook. Simplest way to make the tests work
+		// is to add it for earlier versions too.
+		// @todo Remove the add_action once we drop support for WordPress < 5.9.
+		add_action( 'deprecated_file_included', array( $this, 'deprecated_function_run' ) );
+		$this->setExpectedDeprecated( $file_path );
+
+		$mock = $this->getMockBuilder( stdClass::class )
+			->setMethods( array( 'action' ) )
+			->getMock();
+		$mock->expects( $this->once() )->method( 'action' )->with( $file_path, $replacement_path );
+
+		add_action( 'deprecated_file_included', array( $mock, 'action' ), 10, 2 );
+		add_filter( 'deprecated_file_trigger_error', '__return_false' );
+
+		require_once JETPACK__PLUGIN_DIR . $file_path;
+	}
+
 	/**
 	 * @dataProvider provider_deprecated_method_stubs
 	 */

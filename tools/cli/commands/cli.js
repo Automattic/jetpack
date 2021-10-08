@@ -14,6 +14,15 @@ import PATH from 'path-name';
 import { chalkJetpackGreen } from '../helpers/styling';
 
 /**
+ * Show us the status of the cli, such as the currenet linked directory.
+ */
+function cliStatus() {
+	console.log(
+		chalkJetpackGreen( 'Jetpack CLI is currently linked to ' + path.join( __dirname, `../../../` ) )
+	);
+	console.log( 'To change the linked directory of the CLI, run `pnpm cli-setup` ' );
+}
+/**
  * CLI link.
  *
  * @param {object} options - The argv options.
@@ -87,7 +96,6 @@ function cliUnlink( options ) {
  * Command definition for the build subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
- *
  * @returns {object} Yargs with the CLI commands defined.
  */
 export function cliDefine( yargs ) {
@@ -114,6 +122,17 @@ export function cliDefine( yargs ) {
 						console.log( argv );
 					}
 				}
+			)
+			.command(
+				'status',
+				'Get the status of the CLI',
+				() => {},
+				argv => {
+					cliStatus( argv );
+					if ( argv.v ) {
+						console.log( argv );
+					}
+				}
 			);
 	} );
 
@@ -126,7 +145,6 @@ export function cliDefine( yargs ) {
  * @param {string} cmd - The command to normalize.
  * @param {boolean} verbose - If verbose is enabled or not.
  * @param {string} cwd - Current working directory.
- *
  * @returns {object} - The execa command to run.
  */
 function command( cmd, verbose, cwd ) {
