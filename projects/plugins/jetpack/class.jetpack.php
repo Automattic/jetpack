@@ -3445,10 +3445,35 @@ p {
 			Jetpack_Options::update_options( compact( 'version', 'old_version' ) );
 		}
 
+		self::activate_default_modules_when_already_connected();
+
 		self::load_modules();
 
 		Jetpack_Options::delete_option( 'do_activate' );
 		Jetpack_Options::delete_option( 'dismissed_connection_banner' );
+	}
+
+	/**
+	 * Activates the default modules when the site has already been connected via another plugin.
+	 */
+	private static function activate_default_modules_when_already_connected() {
+		if ( self::is_connection_ready() ) {
+			$active_modules = Jetpack_Options::get_option( 'active_modules' );
+			if ( $active_modules ) {
+				self::delete_active_modules();
+
+				// If there was previously activated modules (a reconnection), re-activate them all including those that require a user, and do not re-activate those that have been deactivated.
+				self::activate_default_modules( 999, 1, $active_modules, false );
+			} else {
+				self::activate_default_modules( false, false, array(), false, null, null, false );
+
+				// Check for a user connection.
+				if ( ( new Connection_Manager() )->is_user_connected() ) {
+					self::activate_default_modules( false, false, array(), false, null, null, true );
+					Jetpack_Options::update_option( 'active_modules_initialized', true );
+				}
+			}
+		}
 	}
 
 	/**
