@@ -35,13 +35,14 @@ const DisconnectDialog = props => {
 	const [ isDisconnecting, setIsDisconnecting ] = useState( false );
 	const [ isDisconnected, setIsDisconnected ] = useState( false );
 	const [ disconnectError, setDisconnectError ] = useState( false );
-
 	const [ isProvidingFeedback, setIsProvidingFeedback ] = useState( false );
 	const [ isFeedbackProvided, setIsFeedbackProvided ] = useState( false );
 
 	const {
 		apiRoot,
 		apiNonce,
+		connectedPlugins,
+		connectedPluginsIsFetching,
 		title,
 		activateButtonText,
 		activateButtonClass,
@@ -50,8 +51,8 @@ const DisconnectDialog = props => {
 		onError,
 		children,
 		disconnectStepComponent,
-		preloadComponent,
 		context,
+		disconnectingPlugin,
 	} = props;
 
 	/**
@@ -170,15 +171,20 @@ const DisconnectDialog = props => {
 			return (
 				<StepDisconnect
 					title={ title }
-					// what shows here can vary based on context/ what is passed by the parent.
-					// not all WP REST API methods are available by default for this package (depends on what plugins are active).
 					contents={ children }
-					disconnectStepComponent={ disconnectStepComponent } // component that renders as part of the disconnect step, if passed
+					connectedPlugins={ connectedPlugins.filter( plugin => {
+						return disconnectingPlugin ? plugin.slug !== disconnectingPlugin : true;
+					} ) }
+					connectedPluginsIsFetching={ connectedPluginsIsFetching }
+					// Component that renders as part of the disconnect step, if passed.
+					// If Jetpack plugin is active, can show output about Jetpack's benefits/ active modules - this is passed as another component
+					disconnectStepComponent={ disconnectStepComponent }
 					isDisconnecting={ isDisconnecting }
 					closeModal={ closeModal }
 					onDisconnect={ handleDisconnect }
 					errorMessage={ disconnectError }
-					context={ context }
+					context={ context } // Where is the modal showing? ( most important for when it loads on the plugins page )
+					disconnectingPlugin={ disconnectingPlugin } // Which plugin is initiating the disconnect
 				/>
 			);
 		} else if ( isDisconnected && ! isProvidingFeedback && ! isFeedbackProvided ) {
@@ -214,8 +220,6 @@ const DisconnectDialog = props => {
 				{ activateButtonText }
 			</Button>
 
-			{ preloadComponent }
-
 			{ isOpen && (
 				<Modal
 					title=""
@@ -247,6 +251,9 @@ DisconnectDialog.propTypes = {
 	onError: PropTypes.func,
 	errorMessage: PropTypes.string,
 	context: PropTypes.string,
+	connectedPlugins: PropTypes.array,
+	connectedPluginsIsFetching: PropTypes.bool,
+	disconnectingPlugin: PropTypes.string,
 };
 
 DisconnectDialog.defaultProps = {
