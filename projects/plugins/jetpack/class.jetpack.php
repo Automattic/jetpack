@@ -5231,6 +5231,19 @@ endif;
 	/* Client Server API */
 
 	/**
+	 * Loads the Jetpack XML-RPC client.
+	 * No longer necessary, as the XML-RPC client will be automagically loaded.
+	 *
+	 * Note: we cannot remove this function yet as it is used in this plugin:
+	 * https://wordpress.org/plugins/jetpack-subscription-form/
+	 *
+	 * @deprecated since 7.7.0
+	 */
+	public static function load_xml_rpc_client() {
+		_deprecated_function( __METHOD__, 'jetpack-7.7' );
+	}
+
+	/**
 	 * State is passed via cookies from one request to the next, but never to subsequent requests.
 	 * SET: state( $key, $value );
 	 * GET: $value = state( $key );
