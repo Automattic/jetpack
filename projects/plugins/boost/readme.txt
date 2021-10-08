@@ -1,5 +1,5 @@
 === Jetpack Boost ===
-Contributors: automattic, xwp, thingalon, pyronaur, davidlonjon, danwalmsley, luchad0res, ebinnion, jpolakovic, rheinardkorf, scruffian, exelero
+Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, ebinnion, exelero, jeherve, jpolakovic, karthikbhatb, kraftbj, luchad0res, pyronaur, rheinardkorf, scruffian, thingalon
 Donate link: https://automattic.com
 Tags: performance, speed, pagespeed, web vitals, critical css, optimize, defer
 Requires at least: 5.5
@@ -97,7 +97,7 @@ For example, our “Optimize CSS Loading” feature ensures the most important C
 
 Jetpack Boost is a part of the Jetpack brand, but it doesn’t require Jetpack plugin to run. This is a separate plugin from Jetpack and it will always remain that way.
 
-= Will this plugin be able to improve performance on any website? = 
+= Will this plugin be able to improve performance on any website? =
 
 This plugin includes a range of performance improvements, which can help almost any WordPress site perform better.
 
@@ -116,7 +116,7 @@ Every site is different and so performance benefits for each module may vary fro
 
 Google PageSpeed measurements are built-in the Jetpack Boost dashboard.
 
-= Is Speed Optimization with Jetpack Boost safe? = 
+= Is Speed Optimization with Jetpack Boost safe? =
 
 Yes, it’s safe to try Jetpack Boost on any WordPress site.
 
@@ -140,11 +140,11 @@ Jetpack Boost does not include any optimizations that target large databases at 
 
 = Does Jetpack Boost help with image optimization? =
 
-Jetpack Boost can help sites with large images perform better through lazy-loading, preventing images from loading until they are scrolled into view. 
+Jetpack Boost can help sites with large images perform better through lazy-loading, preventing images from loading until they are scrolled into view.
 
 However, it currently does not have any Image Format Optimization features. We are always looking for ways to improve the plugin, so watch this space for more features in the near future.
 
-= Is Jetpack Boost compatible with other caching and speed optimization plugins? = 
+= Is Jetpack Boost compatible with other caching and speed optimization plugins? =
 
 With few exceptions, Jetpack Boost has no problems running alongside most caching and speed optimization plugins. As a guideline, we don’t recommend enabling the same feature in multiple optimization plugins.
 
@@ -186,4 +186,4 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 - Speed Scores: Clear speed score on plugin deactivation.
 --------
 
-[See the previous changelogs here](https://github.com/Automattic/jetpack/blob/master/projects/plugins/boost/CHANGELOG.md#changelog) 
+[See the previous changelogs here](https://github.com/Automattic/jetpack/blob/master/projects/plugins/boost/CHANGELOG.md#changelog)
