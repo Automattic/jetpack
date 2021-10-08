@@ -15,7 +15,7 @@
 	import { __ } from '@wordpress/i18n';
 	import { criticalCssStatus } from '../../../stores/critical-css-status';
 	import { modules } from '../../../stores/modules';
-	import { derived } from 'svelte/store';
+	import { derived, writable } from 'svelte/store';
 	import RatingCard from '../elements/RatingCard.svelte';
 
 	const siteIsOnline = Jetpack_Boost.site.online;
@@ -24,15 +24,15 @@
 	let isLoading = siteIsOnline;
 	let showPrevScores;
 	let scoreLetter = '';
-	let scores = {
+	let improvementPercentage = 0;
+
+	const scores = writable({
 		current: {
 			mobile: 0,
 			desktop: 0,
 		},
 		noBoost: null,
-	};
-	let showRatingCard = false;
-	let improvementPercentage = 0;
+	});
 
 	refreshScore( false );
 
@@ -75,9 +75,9 @@
 		loadError = undefined;
 
 		try {
-			scores = await requestSpeedScores( force );
-			scoreLetter = getScoreLetter( scores.current.mobile, scores.current.desktop );
-			showPrevScores = didScoresImprove( scores );
+			scores.set(await requestSpeedScores( force ));
+			scoreLetter = getScoreLetter( $scores.current.mobile, $scores.current.desktop );
+			showPrevScores = didScoresImprove( $scores );
 			currentScoreConfigString = $scoreConfigString;
 		} catch ( err ) {
 			console.log( err );
@@ -107,15 +107,20 @@
 		}
 	}, 2000 );
 
+	const respawnRatingPrompt = writable(Jetpack_Boost.preferences.showRatingPrompt);
+
+	const showRatingCard = derived(
+		[scores, respawnRatingPrompt],
+		( [ $scores, $respawnRatingPrompt ] ) => didScoresImprove( $scores ) && $respawnRatingPrompt
+	)
+
 	$: if ( $needRefresh ) {
 		debouncedRefreshScore( true );
 	}
 
 	$: {
-		if ( didScoresImprove( scores ) && Jetpack_Boost.preferences.showRatingPrompt ) {
-			showRatingCard = true;
-			Jetpack_Boost.preferences.showRatingPrompt = false;
-			improvementPercentage = getScoreImprovementPercentage( scores );
+		if ( $showRatingCard ) {
+			improvementPercentage = getScoreImprovementPercentage( $scores );
 		}
 	}
 </script>
@@ -175,8 +180,8 @@
 				<div>{__( 'Mobile score', 'jetpack-boost' )}</div>
 			</div>
 			<ScoreBar
-				prevScore={scores.noBoost?.mobile}
-				score={scores.current.mobile}
+				prevScore={$scores.noBoost?.mobile}
+				score={$scores.current.mobile}
 				active={siteIsOnline}
 				{isLoading}
 				{showPrevScores}
@@ -190,8 +195,8 @@
 				<div>{__( 'Desktop score', 'jetpack-boost' )}</div>
 			</div>
 			<ScoreBar
-				prevScore={scores.noBoost?.desktop}
-				score={scores.current.desktop}
+				prevScore={$scores.noBoost?.desktop}
+				score={$scores.current.desktop}
 				active={siteIsOnline}
 				{isLoading}
 				{showPrevScores}
@@ -200,6 +205,6 @@
 		</div>
 	</div>
 </div>
-{#if showRatingCard}
-	<RatingCard on:dismiss={() => ( showRatingCard = false )} improvement={improvementPercentage} />
+{#if $showRatingCard}
+	<RatingCard on:dismiss={() => ( $respawnRatingPrompt.set(false) )} improvement={improvementPercentage} />
 {/if}
