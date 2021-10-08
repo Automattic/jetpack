@@ -189,6 +189,13 @@ class Speed_Score_Request extends Cacheable {
 
 		switch ( $response->status ) {
 			case 'pending':
+				// The initial job probalby failed, dispatch again if so.
+				if ( $this->created <= strtotime( '-15 mins' ) ) {
+					$this->execute();
+					$this->created = time();
+					$this->store();
+				}
+
 				break;
 
 			case 'error':
@@ -224,16 +231,19 @@ class Speed_Score_Request extends Cacheable {
 	 * @param object $response Response from api.
 	 */
 	private function record_history( $response ) {
-		$history = new Speed_Score_History( $this->url );
+		$history       = new Speed_Score_History( $this->url );
+		$last_history  = $history->latest();
+		$last_scores   = $last_history ? $last_history['scores'] : null;
+		$last_theme    = $last_history ? $last_history['theme'] : null;
+		$current_theme = wp_get_theme()->get( 'Name' );
 
-		$latest = $history->latest_scores();
-
-		// Only change if there is a difference from last score.
-		if ( $latest !== $response->scores ) {
+		// Only change if there is a difference from last score or the theme changed.
+		if ( $last_scores !== $response->scores || $current_theme !== $last_theme ) {
 			$history->push(
 				array(
 					'timestamp' => time(),
 					'scores'    => $response->scores,
+					'theme'     => $current_theme,
 				)
 			);
 		}
