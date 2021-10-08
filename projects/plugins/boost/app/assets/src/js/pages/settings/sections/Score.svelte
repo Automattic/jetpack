@@ -70,7 +70,7 @@
 		if ( ! siteIsOnline ) {
 			return;
 		}
-		
+
 		isLoading = true;
 		loadError = undefined;
 

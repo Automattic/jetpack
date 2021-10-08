@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add the new check_response_for_idc method to the Identity_Crisis class

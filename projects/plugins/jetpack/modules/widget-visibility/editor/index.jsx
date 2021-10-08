@@ -6,6 +6,8 @@ import { BaseControl, Button, SelectControl, ToggleControl } from '@wordpress/co
 import { __, _x } from '@wordpress/i18n';
 import { InspectorAdvancedControls } from '@wordpress/block-editor'; // eslint-disable-line import/no-unresolved
 import { createHigherOrderComponent } from '@wordpress/compose';
+import { useSelect } from '@wordpress/data';
+import analytics from '../../../_inc/client/lib/analytics';
 
 /* global widget_conditions_data, wpcom */
 /* eslint-disable react/react-in-jsx-scope */
@@ -223,20 +225,33 @@ const maybeAddDefaultConditions = conditions => ( {
 
 const visibilityAdvancedControls = createHigherOrderComponent(
 	BlockEdit => props => {
-		const { attributes, setAttributes, isSelected } = props;
+		const { clientId, attributes, setAttributes, isSelected } = props;
 		const conditions = useMemo( () => attributes.conditions || {}, [ attributes ] );
 		const rules = useMemo( () => conditions.rules || [], [ conditions ] );
 
-		const toggleMatchAll = useCallback(
-			() =>
-				setAttributes( {
-					conditions: {
-						...maybeAddDefaultConditions( conditions ),
-						match_all: conditions.match_all === '0' ? '1' : '0',
-					},
-				} ),
-			[ setAttributes, conditions ]
+		// Is this block the top-most level block in a widget?.
+		const isTopLevelWidgetBlock = useSelect(
+			select => {
+				const { getBlockParents, getBlock } = select( 'core/block-editor' );
+				const parents = getBlockParents( clientId, true );
+				const parentBlock = parents ? getBlock( parents[ 0 ] ) : undefined;
+				// Customizer: There is no parent.
+				// Widgets.php: Parent is core/widget area.
+				// Both are OK.
+				return ! parentBlock || ( parentBlock && parentBlock.name === 'core/widget-area' );
+			},
+			[ clientId ]
 		);
+
+		const toggleMatchAll = useCallback( () => {
+			analytics.tracks.recordEvent( 'jetpack_widget_visibility_toggle_match_all_click' );
+			setAttributes( {
+				conditions: {
+					...maybeAddDefaultConditions( conditions ),
+					match_all: conditions.match_all === '0' ? '1' : '0',
+				},
+			} );
+		}, [ setAttributes, conditions ] );
 
 		const setAction = useCallback(
 			value =>
@@ -250,6 +265,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 		);
 		const addNewRule = useCallback( () => {
 			const newRules = [ ...rules, { major: '', minor: '' } ];
+			analytics.tracks.recordEvent( 'jetpack_widget_visibility_add_new_rule_click' );
 			setAttributes( {
 				conditions: {
 					...maybeAddDefaultConditions( conditions ),
@@ -261,6 +277,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 		const deleteRule = useCallback(
 			i => {
 				const newRules = [ ...rules.slice( 0, i ), ...rules.slice( i + 1 ) ];
+				analytics.tracks.recordEvent( 'jetpack_widget_visibility_delete_rule_click' );
 				setAttributes( {
 					conditions: {
 						...maybeAddDefaultConditions( conditions ),
@@ -273,6 +290,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 
 		const setMajor = useCallback(
 			( i, majorValue ) => {
+				analytics.tracks.recordEvent( 'jetpack_widget_visibility_set_major_rule_click' );
 				// When changing majors, also change the minor to the first available option
 				let minorValue = '';
 				if (
@@ -300,6 +318,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 
 		const setMinor = useCallback(
 			( i, value ) => {
+				analytics.tracks.recordEvent( 'jetpack_widget_visibility_set_minor_rule_click' );
 				// Don't allow section headings to be set
 				if ( value && value.includes( '__HEADER__' ) ) {
 					return;
@@ -382,8 +401,21 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 		return (
 			<Fragment>
 				<BlockEdit { ...props } />
-				{ isSelected && blockHasVisibilitySettings( props.name ) && (
+				{ isSelected && isTopLevelWidgetBlock && blockHasVisibilitySettings( props.name ) && (
 					<InspectorAdvancedControls>{ mainRender }</InspectorAdvancedControls>
+				) }
+				{ isSelected && ! isTopLevelWidgetBlock && blockHasVisibilitySettings( props.name ) && (
+					<InspectorAdvancedControls>
+						<BaseControl
+							id="widget-vis__wrapper"
+							className="widget-vis__wrapper"
+							label={ __( 'Visibility', 'jetpack' ) }
+							help={ __(
+								'Please select the top level block of this widget to apply visibility rules.',
+								'jetpack'
+							) }
+						></BaseControl>
+					</InspectorAdvancedControls>
 				) }
 			</Fragment>
 		);

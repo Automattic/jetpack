@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2023729cd0801daa010c42bed86d27ad",
+    "content-hash": "1cb7b394125ff740cd4cefa9d2c41378",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -12,11 +12,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/a8c-mc-stats",
-                "reference": "4c942f9e9056954ee672ff07adfc50bae4ab4c5b"
+                "reference": "4a88109ab1990ce961aceb6bd9b5e24400f63779"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^2.0",
-                "yoast/phpunit-polyfills": "1.0.1"
+                "yoast/phpunit-polyfills": "1.0.2"
             },
             "type": "library",
             "extra": {
@@ -62,7 +62,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "54e2dabdaa38ae3f46389c18049f05cf5ad8cc8f"
+                "reference": "b121257361e5c63f263c0d3322e22f7166228ba0"
             },
             "require": {
                 "automattic/jetpack-constants": "^1.6"
@@ -70,7 +70,7 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "^2.0",
                 "brain/monkey": "2.6.0",
-                "yoast/phpunit-polyfills": "1.0.1"
+                "yoast/phpunit-polyfills": "1.0.2"
             },
             "type": "library",
             "extra": {
@@ -116,14 +116,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "a592e6619b98fc423dff2db4283a1d757decb663"
+                "reference": "4c1ab2315df974769c334391af285c1526a1b5ed"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^2.0",
-                "yoast/phpunit-polyfills": "1.0.1"
+                "yoast/phpunit-polyfills": "1.0.2"
             },
             "type": "composer-plugin",
             "extra": {
@@ -210,7 +210,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "5d4521caf49f5304ba7b753cdf8a89244345c462"
+                "reference": "729fe9e9cc1caf3846ae36b935db60197bb5d1d4"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -227,7 +227,7 @@
                 "automattic/jetpack-changelogger": "^2.0",
                 "automattic/wordbless": "@dev",
                 "brain/monkey": "2.6.0",
-                "yoast/phpunit-polyfills": "1.0.1"
+                "yoast/phpunit-polyfills": "1.0.2"
             },
             "type": "library",
             "extra": {
@@ -280,12 +280,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/constants",
-                "reference": "f17826fdae95b44a924d224ba026916e3b3bf9f5"
+                "reference": "2cc807bebc3fb0fabaacc4b21aa8c8ad1d3f19c5"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^2.0",
                 "brain/monkey": "2.6.0",
-                "yoast/phpunit-polyfills": "1.0.1"
+                "yoast/phpunit-polyfills": "1.0.2"
             },
             "type": "library",
             "extra": {
@@ -331,11 +331,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/device-detection",
-                "reference": "34fea2138fdf91fbb9b621496a6eae6e0c87158a"
+                "reference": "473571637b17c617f906d4471dd4a7d069644793"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^2.0",
-                "yoast/phpunit-polyfills": "1.0.1"
+                "yoast/phpunit-polyfills": "1.0.2"
             },
             "type": "library",
             "extra": {
@@ -421,7 +421,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/lazy-images",
-                "reference": "983e66ed8c53db1d5b71bc741569ba0ad5cbcd32"
+                "reference": "673ee89a659456f27721294e0b36a57335539273"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.11",
@@ -430,7 +430,7 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "^2.0",
                 "automattic/wordbless": "dev-master",
-                "yoast/phpunit-polyfills": "1.0.1"
+                "yoast/phpunit-polyfills": "1.0.2"
             },
             "type": "library",
             "extra": {
@@ -487,14 +487,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/options",
-                "reference": "58a6c04cc898afd39b6674e035448bba3f93f571"
+                "reference": "f429bab0fb12fd6e5d15a958056e388de6c52fb4"
             },
             "require": {
                 "automattic/jetpack-constants": "^1.6"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^2.0",
-                "yoast/phpunit-polyfills": "1.0.1"
+                "yoast/phpunit-polyfills": "1.0.2"
             },
             "type": "library",
             "extra": {
@@ -527,7 +527,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/redirect",
-                "reference": "5d1b12a5dd24c617e0f10776598ca59a1bf79c07"
+                "reference": "7b2f988fe73f15846781309c7bf804633b6d40ce"
             },
             "require": {
                 "automattic/jetpack-status": "^1.8"
@@ -535,7 +535,7 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "^2.0",
                 "brain/monkey": "2.6.0",
-                "yoast/phpunit-polyfills": "1.0.1"
+                "yoast/phpunit-polyfills": "1.0.2"
             },
             "type": "library",
             "extra": {
@@ -581,12 +581,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/roles",
-                "reference": "900495e9b185d2c7cca6b9e01d19cd7eb59c4d87"
+                "reference": "6498252ae4c4f4be8005621e4cf89cfd258536ea"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^2.0",
                 "brain/monkey": "2.6.0",
-                "yoast/phpunit-polyfills": "1.0.1"
+                "yoast/phpunit-polyfills": "1.0.2"
             },
             "type": "library",
             "extra": {
@@ -632,12 +632,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "dd0586e563d07b7c60f86bd03313df945a2bf8d4"
+                "reference": "172161bf743646700947a2e24c7cf663e3650892"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^2.0",
                 "brain/monkey": "2.6.0",
-                "yoast/phpunit-polyfills": "1.0.1"
+                "yoast/phpunit-polyfills": "1.0.2"
             },
             "type": "library",
             "extra": {
@@ -683,7 +683,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/terms-of-service",
-                "reference": "504fa912ed66b3df9ba99268f099cfb4c3b9a503"
+                "reference": "f83ee88e08d3d75f667d100b11c3600ea39a7162"
             },
             "require": {
                 "automattic/jetpack-options": "^1.13",
@@ -692,7 +692,7 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "^2.0",
                 "brain/monkey": "2.6.0",
-                "yoast/phpunit-polyfills": "1.0.1"
+                "yoast/phpunit-polyfills": "1.0.2"
             },
             "type": "library",
             "extra": {
@@ -738,7 +738,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/tracking",
-                "reference": "eda11e3c314f6dd3eefd5fa9c0f1c13efdcfe34e"
+                "reference": "c81c62f91f4f0eb31020db97fc4520199a1c6b63"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.11",
@@ -748,7 +748,8 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^2.0",
-                "yoast/phpunit-polyfills": "1.0.1"
+                "brain/monkey": "2.6.0",
+                "yoast/phpunit-polyfills": "1.0.2"
             },
             "type": "library",
             "extra": {
@@ -901,7 +902,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "166316918b337e3128f12b5dddfd85f2d067f860"
+                "reference": "6d27f48d2239caf9f090375961414452e2005f8f"
             },
             "require": {
                 "php": ">=5.6",
@@ -911,7 +912,7 @@
             },
             "require-dev": {
                 "wikimedia/testing-access-wrapper": "^1.0 | ^2.0",
-                "yoast/phpunit-polyfills": "1.0.1"
+                "yoast/phpunit-polyfills": "1.0.2"
             },
             "bin": [
                 "bin/changelogger"
@@ -1606,16 +1607,16 @@
         },
         {
             "name": "phpdocumentor/type-resolver",
-            "version": "1.5.0",
+            "version": "1.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/TypeResolver.git",
-                "reference": "30f38bffc6f24293dadd1823936372dfa9e86e2f"
+                "reference": "a12f7e301eb7258bb68acd89d4aefa05c2906cae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/30f38bffc6f24293dadd1823936372dfa9e86e2f",
-                "reference": "30f38bffc6f24293dadd1823936372dfa9e86e2f",
+                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/a12f7e301eb7258bb68acd89d4aefa05c2906cae",
+                "reference": "a12f7e301eb7258bb68acd89d4aefa05c2906cae",
                 "shasum": ""
             },
             "require": {
@@ -1650,9 +1651,9 @@
             "description": "A PSR-5 based resolver of Class names, Types and Structural Element Names",
             "support": {
                 "issues": "https://github.com/phpDocumentor/TypeResolver/issues",
-                "source": "https://github.com/phpDocumentor/TypeResolver/tree/1.5.0"
+                "source": "https://github.com/phpDocumentor/TypeResolver/tree/1.5.1"
             },
-            "time": "2021-09-17T15:28:14+00:00"
+            "time": "2021-10-02T14:08:47+00:00"
         },
         {
             "name": "phpspec/prophecy",
@@ -2041,16 +2042,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "9.5.9",
+            "version": "9.5.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "ea8c2dfb1065eb35a79b3681eee6e6fb0a6f273b"
+                "reference": "c814a05837f2edb0d1471d6e3f4ab3501ca3899a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/ea8c2dfb1065eb35a79b3681eee6e6fb0a6f273b",
-                "reference": "ea8c2dfb1065eb35a79b3681eee6e6fb0a6f273b",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/c814a05837f2edb0d1471d6e3f4ab3501ca3899a",
+                "reference": "c814a05837f2edb0d1471d6e3f4ab3501ca3899a",
                 "shasum": ""
             },
             "require": {
@@ -2066,7 +2067,7 @@
                 "phar-io/version": "^3.0.2",
                 "php": ">=7.3",
                 "phpspec/prophecy": "^1.12.1",
-                "phpunit/php-code-coverage": "^9.2.3",
+                "phpunit/php-code-coverage": "^9.2.7",
                 "phpunit/php-file-iterator": "^3.0.5",
                 "phpunit/php-invoker": "^3.1.1",
                 "phpunit/php-text-template": "^2.0.3",
@@ -2128,7 +2129,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.5.9"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.5.10"
             },
             "funding": [
                 {
@@ -2140,7 +2141,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2021-08-31T06:47:40+00:00"
+            "time": "2021-09-25T07:38:51+00:00"
         },
         {
             "name": "psr/container",
@@ -4321,16 +4322,16 @@
         },
         {
             "name": "yoast/phpunit-polyfills",
-            "version": "1.0.1",
+            "version": "1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Yoast/PHPUnit-Polyfills.git",
-                "reference": "f014fb21c2b0038fd329515d59025af42fb98715"
+                "reference": "1a582ab1d91e86aa450340c4d35631a85314ff9f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Yoast/PHPUnit-Polyfills/zipball/f014fb21c2b0038fd329515d59025af42fb98715",
-                "reference": "f014fb21c2b0038fd329515d59025af42fb98715",
+                "url": "https://api.github.com/repos/Yoast/PHPUnit-Polyfills/zipball/1a582ab1d91e86aa450340c4d35631a85314ff9f",
+                "reference": "1a582ab1d91e86aa450340c4d35631a85314ff9f",
                 "shasum": ""
             },
             "require": {
@@ -4338,9 +4339,7 @@
                 "phpunit/phpunit": "^4.8.36 || ^5.7.21 || ^6.0 || ^7.0 || ^8.0 || ^9.0"
             },
             "require-dev": {
-                "php-parallel-lint/php-console-highlighter": "^0.5",
-                "php-parallel-lint/php-parallel-lint": "^1.3.0",
-                "yoast/yoastcs": "^2.1.0"
+                "yoast/yoastcs": "^2.2.0"
             },
             "type": "library",
             "extra": {
@@ -4380,7 +4379,7 @@
                 "issues": "https://github.com/Yoast/PHPUnit-Polyfills/issues",
                 "source": "https://github.com/Yoast/PHPUnit-Polyfills"
             },
-            "time": "2021-08-09T16:28:08+00:00"
+            "time": "2021-10-03T08:40:26+00:00"
         }
     ],
     "aliases": [],

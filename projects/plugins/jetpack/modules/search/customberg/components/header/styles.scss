@@ -32,24 +32,14 @@
 .jp-search-configure-header__actions {
 	display: flex;
 
-	.components-button {
-		margin-left: $grid-unit-15;
-
-		&:first-child {
-			margin-left: 0;
+	.components-button.jp-search-configure-header__show-settings-button {
+		@include break-small() {
+			margin-right: $grid-unit-10;
 		}
 
-		&.jp-search-configure-header__show-settings-button {
-			display: block;
-
-			@include break-small() {
-				margin-right: $grid-unit-10;
-			}
-
-			@include break-medium() {
-				display: none;
-				margin-left: 0;
-			}
+		@include break-medium() {
+			display: none;
+			margin-left: 0;
 		}
 	}
 }
