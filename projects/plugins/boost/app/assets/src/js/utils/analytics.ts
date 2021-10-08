@@ -7,7 +7,8 @@ export function recordBoostEvent(
 	eventType: string,
 	eventProp: TracksEventProperties
 ): void {
-	if ( ! ( 'boost_version' in eventProp ) ) {
+	// eslint-disable-next-line camelcase
+	if ( ! ( 'boost_version' in eventProp ) && 'version' in Jetpack_Boost ) {
 		eventProp.boost_version = Jetpack_Boost.version;
 	}
 
