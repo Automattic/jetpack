@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import WpPage from 'jetpack-e2e-tests/lib/pages/wp-page';
+import WpPage from 'jetpack-e2e-commons/pages/wp-page';
 
 const apiEndpointsRegex = {
 	'critical-css-status': /jetpack-boost\/v1\/module\/critical-css\/status/,

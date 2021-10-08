@@ -1,5 +1,5 @@
-import logger from 'jetpack-e2e-tests/lib/logger';
-import { execWpCommand } from 'jetpack-e2e-tests/lib/utils-helper';
+import logger from 'jetpack-e2e-commons/logger';
+import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper';
 
 export function boostPrerequisitesBuilder() {
 	const state = {

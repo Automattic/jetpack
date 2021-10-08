@@ -1,17 +1,37 @@
-const jetpackTestsRootDir = 'node_modules/jetpack-e2e-tests';
-const sharedConfig = require( `./${ jetpackTestsRootDir }/jest.config` );
+/**
+ * For a detailed explanation of configuration properties, visit:
+ * https://jestjs.io/docs/en/configuration.html
+ */
 
-let sharedConfigAsString = JSON.stringify( sharedConfig );
-sharedConfigAsString = sharedConfigAsString.replace(
-	/<rootDir>/g,
-	`<rootDir>/${ jetpackTestsRootDir }`
-);
-sharedConfigAsString = sharedConfigAsString.replace( /Jetpack/g, 'Jetpack Boost' );
-
-const finalSharedConfig = JSON.parse( sharedConfigAsString );
-finalSharedConfig.setupFilesAfterEnv.push( 'expect-playwright' );
-finalSharedConfig.setupFilesAfterEnv.push( '<rootDir>/lib/setupTests.js' );
+if ( process.env.E2E_DEBUG ) {
+	process.env.DEBUG = 'pw:browser|api|error';
+	process.env.PWDEBUG = 1;
+}
 
 module.exports = {
-	...finalSharedConfig,
+	testEnvironment: require.resolve( 'jetpack-e2e-commons/env/playwright-environment.js' ),
+	globalSetup: require.resolve( 'jetpack-e2e-commons/env/global-setup.js' ),
+	globalTeardown: require.resolve( 'jetpack-e2e-commons/env/global-teardown.js' ),
+	setupFilesAfterEnv: [
+		'expect-playwright',
+		'<rootDir>/lib/setupTests.js',
+		'<rootDir>/jest.setup.js',
+	],
+	testRunner: 'jest-circus/runner',
+	runner: 'groups',
+	testEnvironmentOptions: {
+		resultsDir: 'output/allure-results',
+	},
+	reporters: [
+		'default',
+		[
+			'jest-junit',
+			{
+				suiteName: 'Jetpack Boost E2E tests',
+				outputDirectory: 'output/reports',
+				outputName: 'junit-results.xml',
+				uniqueOutputName: 'true',
+			},
+		],
+	],
 };
