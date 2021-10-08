@@ -250,7 +250,8 @@ class Callables extends Module {
 		/**
 		 * Tells the client to sync all callables to the server
 		 *
-		 * @since 4.2.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
 		 *
 		 * @param boolean Whether to expand callables (should always be true)
 		 */
@@ -494,7 +495,8 @@ class Callables extends Module {
 					 * @param string The name of the callable
 					 * @param mixed The value of the callable
 					 *
-					 * @since 4.2.0
+					 * @since 1.6.3
+					 * @since-jetpack 4.2.0
 					 */
 					do_action( 'jetpack_sync_callable', $name, $value );
 				}

@@ -20,7 +20,8 @@ class WP_Test_Get_Modules extends WP_UnitTestCase {
 	/**
 	 * This is an expensive operation so let's make it only once
 	 */
-	public static function setUpBeforeClass() {
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
 		self::$all_modules = Jetpack::get_available_modules();
 	}
 

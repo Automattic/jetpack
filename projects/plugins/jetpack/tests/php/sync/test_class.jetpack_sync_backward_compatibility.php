@@ -5,10 +5,6 @@
  */
 class WP_Test_Jetpack_Sync_Backward_Compatibility extends WP_Test_Jetpack_Sync_Base {
 
-	public function setUp() {
-		parent::setUp();
-	}
-
 	public function test_backwards_compatibility_sync_options() {
 		require_once JETPACK__PLUGIN_DIR . '3rd-party/crowdsignal.php';
 		$this->setExpectedDeprecated( 'Jetpack_Sync::sync_options' );

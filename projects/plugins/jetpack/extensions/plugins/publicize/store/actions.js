@@ -5,27 +5,20 @@ import { select } from '@wordpress/data';
 
 /**
  * Returns an action object used in signalling that
- * we're setting the Publicize connection test results.
- *
- * @param {Array} results - Connection test results.
- * @returns {object} Action object.
- */
-export function setConnectionTestResults( results ) {
-	return {
-		type: 'SET_CONNECTION_TEST_RESULTS',
-		results,
-	};
-}
-
-/**
- * Returns an action object used in signalling that
- * we're refreshing the Publicize connection test results.
+ * we're refreshing the Publicize connection.
  *
  * @returns {object} Action object.
  */
 export function refreshConnectionTestResults() {
 	return {
 		type: 'REFRESH_CONNECTION_TEST_RESULTS',
+	};
+}
+
+export function toggleConnectionById( connectionId ) {
+	return {
+		type: 'TOGGLE_CONNECTION_BY_ID',
+		connectionId,
 	};
 }
 

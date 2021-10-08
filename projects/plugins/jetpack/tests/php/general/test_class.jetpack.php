@@ -47,6 +47,7 @@ class MockJetpack_XMLRPC_Server extends Jetpack_XMLRPC_Server {
 }
 
 class WP_Test_Jetpack extends WP_UnitTestCase {
+
 	static $admin_id = 0;
 
 	static $activated_modules = array();
@@ -58,8 +59,11 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 		) );
 	}
 
-	public function tearDown() {
-		parent::tearDown();
+	/**
+	 * Tear down.
+	 */
+	public function tear_down() {
+		parent::tear_down();
 		Constants::clear_constants();
 	}
 
@@ -323,8 +327,8 @@ EXPECTED;
 		) );
 
 		$other_admins = Jetpack::get_other_linked_admins();
-		$this->assertInternalType( 'int', $other_admins );
-		$this->assertInternalType( 'int', get_transient( 'jetpack_other_linked_admins' ) );
+		$this->assertIsInt( $other_admins );
+		$this->assertIsInt( get_transient( 'jetpack_other_linked_admins' ) );
 	}
 
 	public function test_promoting_admin_clears_other_linked_admins_transient() {
@@ -548,8 +552,8 @@ EXPECTED;
 		Constants::set_constant( 'SCRIPT_DEBUG', $is_script_debug );
 		$file_url = Jetpack::get_file_url_for_environment( $min_path, $non_min_path );
 
-		$this->assertContains( $$expected, $file_url );
-		$this->assertNotContains( $$not_expected, $file_url );
+		$this->assertStringContainsString( $$expected, $file_url );
+		$this->assertStringNotContainsString( $$not_expected, $file_url );
 	}
 
 	function get_file_url_for_environment_data_provider() {
@@ -984,7 +988,8 @@ EXPECTED;
 
 		$login_url = wp_login_url( '/wp-admin?' . Jetpack::$jetpack_redirect_login . '=true' );
 		parse_str( wp_parse_url( $login_url, PHP_URL_QUERY ), $login_parts );
-		$this->assertArraySubset( array( Jetpack::$jetpack_redirect_login => 'true' ), $login_parts, true );
+		$this->assertArrayHasKey( Jetpack::$jetpack_redirect_login, $login_parts );
+		$this->assertSame( 'true', $login_parts[ Jetpack::$jetpack_redirect_login ] );
 	}
 
 	/**

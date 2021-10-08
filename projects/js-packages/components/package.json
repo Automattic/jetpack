@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "0.3.1-alpha",
+	"version": "0.3.1",
 	"description": "Jetpack Components Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -17,7 +17,7 @@
 		"nyc": "15.1.0",
 		"react": "17.0.2",
 		"react-dom": "17.0.2",
-		"react-test-renderer": "16.14.0"
+		"react-test-renderer": "17.0.2"
 	},
 	"peerDependencies": {
 		"react": "^17.0.2",

@@ -1,0 +1,131 @@
+@import '@wordpress/base-styles/breakpoints';
+@import '@wordpress/base-styles/mixins';
+
+.jp-idc-screen-base {
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen-Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif;
+	background: white;
+	padding: 10px;
+	box-shadow: 0 0 40px rgba(0, 0, 0, 0.04);
+	border-radius: 4px;
+	border-left: 4px solid #E68B28;
+	max-width: 1128px;
+	box-sizing: border-box;
+	margin: 0 auto;
+
+	@include break-small {
+		padding: 48px;
+	}
+
+	.jp-idc-header {
+		display: flex;
+		align-items: center;
+
+		.jp-idc-logo-label {
+			font-size: 14px;
+			line-height: 22px;
+			margin: -7px 0 0 8px;
+		}
+	}
+
+	h2 {
+		margin: 32px 0 16px;
+		font-weight: 600;
+		font-size: 24px;
+		line-height: 28px;
+	}
+
+	h3 {
+		margin: 24px 0 0;
+		font-weight: 600;
+		font-size: 20px;
+		line-height: 28px;
+	}
+
+	p {
+		margin: 0;
+		max-width: 710px;
+		font-size: 16px;
+		line-height: 24px;
+		color: #2C3338;
+	}
+
+	.jp-idc-cards {
+		display: flex;
+		flex-wrap: wrap;
+		flex-direction: column;
+		align-items: center;
+
+		@media only screen and ( min-width: 1400px ) {
+			flex-direction: row;
+		}
+
+		.jp-idc-cards-separator {
+			font-weight: 600;
+			font-size: 20px;
+			line-height: 28px;
+			color: #23282D;
+			margin: 0 24px;
+			align-self: center;
+		}
+
+		.jp-idc-card-action-base {
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
+			max-width: 100%;
+			width: 480px;
+			border: 1px solid #C3C4C7;
+			border-radius: 4px;
+			padding: 10px;
+			margin: 24px 0;
+
+			@include break-small {
+				padding: 24px;
+			}
+
+			h4 {
+				margin: 0 0 8px;
+				font-weight: normal;
+				font-size: 20px;
+				line-height: 28px;
+			}
+
+			p {
+				margin: 0 0 24px;
+			}
+
+			.jp-idc-card-action-sitename {
+				width: 100%;
+				background: #F9F9F6;
+				border-radius: 33px;
+				font-weight: bold;
+				font-size: 16px;
+				line-height: 24px;
+				color: #2C3338;
+				text-align: center;
+				padding: 16px;
+				overflow-wrap: anywhere;
+			}
+
+			.jp-idc-card-action-separator {
+				margin: 12px auto;
+				display: block;
+			}
+
+			.jp-idc-card-action-button {
+				margin-top: 24px;
+				padding: 8px 24px;
+				width: 100%;
+				height: auto;
+				min-height: 40px;
+				background: #000000;
+				border-radius: 4px;
+				font-weight: 600;
+				font-size: 16px;
+				line-height: 24px;
+				color: #FFFFFF;
+				justify-content: center;
+			}
+		}
+	}
+}

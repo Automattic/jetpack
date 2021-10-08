@@ -69,8 +69,8 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	/**
 	 * Set up data.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 		global $menu, $submenu;
 
 		// Initialize in setUp so it registers hooks for every test.
@@ -330,16 +330,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		$this->assertSame( 'https://wordpress.com/plugins/' . static::$domain, $menu[65][2] );
 		$this->assertFalse( self::$admin_menu->has_visible_items( $submenu['plugins.php'] ) );
-
-		// Reset.
-		$menu    = static::$menu_data;
-		$submenu = static::$submenu_data;
-
-		// Check submenu are kept when using WP Admin links.
-		static::$admin_menu->set_preferred_view( 'plugins.php', 'classic' );
-		static::$admin_menu->add_plugins_menu();
-		$this->assertSame( 'plugins.php', $menu[65][2] );
-		$this->assertTrue( self::$admin_menu->has_visible_items( $submenu['plugins.php'] ) );
 	}
 
 	/**

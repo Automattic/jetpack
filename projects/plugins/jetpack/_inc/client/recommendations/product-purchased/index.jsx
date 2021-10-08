@@ -11,7 +11,7 @@ import { ProgressBar } from '@automattic/components';
  * Internal dependencies
  */
 import { PromptLayout } from '../prompts/prompt-layout';
-import { LoadingCard } from '../sidebar/loading-card';
+import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import analytics from 'lib/analytics';
@@ -31,7 +31,17 @@ import {
  */
 import './style.scss';
 
-const getPurchasedSuggestion = ( sitePlan, activePurchases, suggestions ) => {
+const getPurchasedSuggestion = ( {
+	activePurchases,
+	isFetchingSiteData,
+	isFetchingSuggestions,
+	sitePlan,
+	suggestions,
+} ) => {
+	if ( isFetchingSiteData || isFetchingSuggestions ) {
+		return false;
+	}
+
 	if ( ! suggestions || ! isArray( suggestions ) ) {
 		return false;
 	}
@@ -60,16 +70,8 @@ const getPurchasedSuggestion = ( sitePlan, activePurchases, suggestions ) => {
 };
 
 const ProductPurchasedComponent = props => {
-	const {
-		sitePlan,
-		activePurchases,
-		isFetchingSiteData,
-		isFetchingSuggestions,
-		nextRoute,
-		suggestions,
-	} = props;
-
-	let suggestion = false;
+	const { nextRoute } = props;
+	const suggestion = getPurchasedSuggestion( props );
 
 	useEffect( () => {
 		if ( suggestion ) {
@@ -79,11 +81,9 @@ const ProductPurchasedComponent = props => {
 		}
 	}, [ suggestion ] );
 
-	if ( isFetchingSiteData || isFetchingSuggestions ) {
-		return <LoadingCard />;
+	if ( ! suggestion ) {
+		return <JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />;
 	}
-
-	suggestion = getPurchasedSuggestion( sitePlan, activePurchases, suggestions );
 
 	const answerSection = (
 		<div className="jp-recommendations-product-purchased">

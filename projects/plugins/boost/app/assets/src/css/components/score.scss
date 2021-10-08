@@ -2,6 +2,8 @@
 
 $bar_height: 42px;
 $label_z_index: 50;
+$score_pointer_size: 6px;
+$no_boost_score_size: 28px;
 
 .jb-site-score {
 	h2 {
@@ -118,12 +120,12 @@ $label_z_index: 50;
 		position: relative;
 		font-size: 14px;
 		position: relative;
-		z-index: $label_z_index;
 
 		@include breakpoint(sm) {
 			padding-left: 15px;
 			padding-right: 15px;
 			width: 200px;
+			z-index: $label_z_index;
 		}
 	}
 
@@ -148,8 +150,8 @@ $label_z_index: 50;
 		position: relative;
 		z-index: $label_z_index - 10;
 		@include breakpoint(sm) {
-			width: calc(100% + #{$bar_height});
-			margin-left: - $bar_height;
+			width: calc(100% + #{math.div($bar-height, 2)});
+			margin-left: math.div( -$bar_height, 2) ;
 		}
 	}
 
@@ -157,7 +159,7 @@ $label_z_index: 50;
 		display: flex;
 		min-width: 1px + $bar_height * 2;
 		justify-content: flex-end;
-		border-radius: $bar_height;
+		border-radius: 0 $bar_height $bar_height 0;
 		transition: width 300ms ease-in-out;
 		will-change: width;
 		width: 0;
@@ -165,6 +167,74 @@ $label_z_index: 50;
 		@include breakpoint(xs) {
 			min-width: $bar_height + 1px;
 		}
+	}
+
+	&__no_boost_score {
+
+		--clearance-space: #{$bar_height + $no_boost_score_size + 4px};
+
+		position: absolute;
+		background: #fff;
+		border-radius: 50%;
+		padding: 3px;
+		top: $score_pointer_size;
+		width: $no_boost_score_size;
+		height: $no_boost_score_size;
+		font-size: 0.7em;
+		text-align: center;
+		cursor: pointer;
+		z-index: 2;
+		border: 2px solid transparent;
+		background-clip: padding-box;
+
+		&:hover {
+			border: 2px solid rgba(255, 255, 255, 0.5);
+		}
+
+		&::after {
+			content: " ";
+			width: 0;
+			height: 0;
+			border-left: $score_pointer_size solid transparent;
+			border-right: $score_pointer_size solid transparent;
+			border-bottom: $score_pointer_size solid #fff;
+
+			position: absolute;
+			top: $bar_height - $score_pointer_size * 2 - 2px;
+			left: $score_pointer_size;
+		}
+	}
+
+	&__no_boost_score_tooltip {
+		@include box-shadow();
+
+		position: absolute;
+		top: -62px;
+		left: -10em;
+		width: 20em;
+		background: #FFF;
+		padding: 16px;
+		border-radius: 4px;
+		margin: 0 16px;
+		display: none;
+
+		&::after {
+			content: " ";
+			width: 0;
+			height: 0;
+			border-left: $score_pointer_size solid transparent;
+			border-right: $score_pointer_size solid transparent;
+			border-top: $score_pointer_size solid #fff;
+
+			position: absolute;
+			bottom: -$score_pointer_size;
+			left: 10em;
+			margin: 0 -10px
+		}
+	}
+
+  	&__no_boost_score:hover &__no_boost_score_tooltip {
+		display: block;
 	}
 
 	.fill-loading {
