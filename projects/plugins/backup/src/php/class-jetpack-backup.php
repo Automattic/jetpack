@@ -9,6 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 
 /**
@@ -24,13 +25,15 @@ class Jetpack_Backup {
 
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 
-		add_action(
-			'admin_menu',
-			function () {
-				$page_suffix = $this->admin_menu();
-				add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
-			}
+		$page_suffix = Admin_Menu::add_menu(
+			__( 'Jetpack Backup', 'jetpack-backup' ),
+			__( 'Jetpack Backup', 'jetpack-backup' ),
+			'manage_options',
+			'jetpack-backup',
+			array( $this, 'plugin_settings_page' ),
+			99
 		);
+		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
 
 		// Init Jetpack packages and ConnectionUI.
 		add_action(
@@ -107,23 +110,6 @@ class Jetpack_Backup {
 			'jetpack-backup-style',
 			'rtl',
 			plugins_url( 'build/index.rtl.css', JETPACK_BACKUP_PLUGIN_ROOT_FILE )
-		);
-	}
-
-	/**
-	 * Plugin admin menu setup.
-	 *
-	 * @return string The toplevel plugin admin page hook_suffix.
-	 */
-	public function admin_menu() {
-		return add_menu_page(
-			__( 'Jetpack Backup', 'jetpack-backup' ),
-			__( 'Jetpack Backup', 'jetpack-backup' ),
-			'manage_options',
-			'jetpack-backup',
-			array( $this, 'plugin_settings_page' ),
-			'dashicons-backup',
-			99
 		);
 	}
 
