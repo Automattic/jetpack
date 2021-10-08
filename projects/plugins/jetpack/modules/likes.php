@@ -276,10 +276,11 @@ class Jetpack_Likes {
 
 	/** Initialize action */
 	public function action_init() {
-
-		// Only check if the module is enabled here because
-		// we are not currently in The Loop and do not yet have access to check
-		// the switch_like_status post meta flag for the post to be loaded.
+		/*
+		 * Only check if the module is enabled here because
+		 * we are not currently in The Loop and do not yet have access to check
+		 * the switch_like_status post meta flag for the post to be loaded.
+		 */
 		if ( is_admin() || ! $this->settings->is_likes_module_enabled() ) {
 			return;
 		}
