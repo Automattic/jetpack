@@ -43,6 +43,12 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 		await this.global.context.close();
 	}
 
+	/**
+	 * See https://github.com/facebook/jest/blob/main/packages/jest-types/src/Circus.ts
+	 *
+	 * @param {Object} event
+	 * @param {Object} state
+	 */
 	async handleTestEvent( event, state ) {
 		let eventName;
 
@@ -55,24 +61,6 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 		}
 
 		switch ( event.name ) {
-			case 'setup':
-				break;
-			case 'add_hook':
-				break;
-			case 'add_test':
-				break;
-			case 'run_start':
-				break;
-			case 'test_skip':
-				break;
-			case 'test_todo':
-				break;
-			case 'start_describe_definition':
-				break;
-			case 'finish_describe_definition':
-				break;
-			case 'run_describe_start':
-				break;
 			case 'test_start':
 				await this.newPage();
 				break;
@@ -110,12 +98,6 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 			case 'test_done':
 				await this.closeAllPages( eventName, event.test.errors.length > 0 );
 				break;
-			case 'run_describe_finish':
-				break;
-			case 'run_finish':
-				break;
-			case 'teardown':
-				break;
 			case 'error':
 				break;
 			default:
@@ -126,6 +108,10 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 		// allure reporter closes the tests events in super method and this need to happen
 		// after we close pages and save the videos or other resources we need attached
 		await super.handleTestEvent( event, state );
+	}
+
+	getVmContext() {
+		return super.getVmContext();
 	}
 
 	async newContext() {

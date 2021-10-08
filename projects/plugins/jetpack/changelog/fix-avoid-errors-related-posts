@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Avoid console errors if Related Posts main div is not in the DOM
