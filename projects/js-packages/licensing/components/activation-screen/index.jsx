@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
 
 /**
@@ -29,14 +29,20 @@ const ActivationScreen = props => {
 	const { assetBaseUrl, lockImage, siteRawUrl } = props;
 
 	const [license, setLicense] = useState('');
+	const [licenseError, setLicenseError] = useState(null);
 
-	const licenseError = null;
+	const activateLicense = useCallback(e => {
+		e && e.preventDefault();
+
+		setLicenseError('Endpoint is not yet created');
+	});
 
 	return (
 		<div className="jp-license-activation-screen">
 			<ActivationScreenControls
 				license={license}
-				onLicenseChange={value => setLicense(value)}
+				onLicenseChange={setLicense}
+				activateLicense={activateLicense}
 				siteUrl={siteRawUrl}
 				licenseError={licenseError}
 			/>

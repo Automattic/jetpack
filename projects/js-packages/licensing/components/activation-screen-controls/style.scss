@@ -76,18 +76,29 @@
 
 	margin-top: 24px;
 
-	&:hover,
+	&:hover {
+		background-color: #007117;
+		border-color: #007117;
+		color: var(--jp-white);
+	}
+
 	&:focus {
-		background-color: var(--jp-green-secondary);
-		border-color: var(--jp-green-secondary);
+		background-color: #005b18;
+		border-color: var(--jp-white);
+		box-shadow: 0 0 0 1px #005b18;
+		color: var(--jp-white);
+	}
+
+	&:active {
+		background: #007117;
+		border-color: #007117;
 		color: var(--jp-white);
 	}
 
 	&[disabled],
-	&:disabled,
-	&.disabled {
-		color: var(--jp-gray);
-		background-color: var(--jp-white);
-		border-color: var(--jp-gray-off);
+	&:disabled {
+		background: #dcdcde;
+		color: #a7aaad;
+		border-color: #dcdcde;
 	}
 }

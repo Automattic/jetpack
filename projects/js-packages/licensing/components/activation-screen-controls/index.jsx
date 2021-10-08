@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useState } from 'react';
+import React from 'react';
 import { JetpackLogo } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { Button, TextControl } from '@wordpress/components';
@@ -25,11 +25,11 @@ import './style.scss';
  * @param {string} props.license
  * @param {?string} props.licenseError
  * @param {function} props.onLicenseChange
- * @param {function} props.submitLicense
+ * @param {function} props.activateLicense
  * @returns {React.Component} The `ActivationScreenControls` component.
  */
 const ActivationScreenControls = props => {
-	const { license, licenseError, onLicenseChange, siteUrl } = props;
+	const { license, licenseError, onLicenseChange, siteUrl, activateLicense } = props;
 
 	const hasLicenseError = licenseError !== null;
 
@@ -69,7 +69,11 @@ const ActivationScreenControls = props => {
 					<span>{licenseError}</span>
 				</div>
 			)}
-			<Button className="jp-license-activation-screen-controls--button">
+			<Button
+				className="jp-license-activation-screen-controls--button"
+				onClick={activateLicense}
+				disabled={license.length <= 0}
+			>
 				{__('Activate', 'jetpack')}
 			</Button>
 		</div>
@@ -81,7 +85,7 @@ ActivationScreenControls.PropTypes = {
 	siteUrl: PropTypes.string.isRequired,
 	onLicenseChange: PropTypes.func.isRequired,
 	licenseError: PropTypes.string,
-	// submitLicense: PropTypes.func.isRequired,
+	activateLicense: PropTypes.func.isRequired,
 };
 
 export default ActivationScreenControls;
