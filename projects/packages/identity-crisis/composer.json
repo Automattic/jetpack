@@ -13,7 +13,7 @@
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "^2.0",
-		"yoast/phpunit-polyfills": "1.0.1",
+		"yoast/phpunit-polyfills": "1.0.2",
 		"automattic/wordbless": "@dev"
 	},
 	"autoload": {

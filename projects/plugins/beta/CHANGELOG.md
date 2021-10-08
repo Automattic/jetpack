@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.0.3 - 2021-10-06
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Remove unused variable in plugin-select.template.php.
+
 ## 3.0.2 - 2021-07-29
 ### Added
 - Use WP core's ajax updater to apply updates.
