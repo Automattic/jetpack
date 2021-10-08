@@ -54,7 +54,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
-		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_vaultpressⓥ2_2_0_alpha"
+		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_vaultpressⓥ2_2_0_beta"
 	},
 	"extra": {
 		"mirror-repo": "Automattic/vaultpress",

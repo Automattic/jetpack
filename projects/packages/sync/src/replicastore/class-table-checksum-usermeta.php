@@ -89,7 +89,8 @@ class Table_Checksum_Usermeta extends Table_Checksum {
 							)
 						);
 					}
-					if ( ! empty( $user_object->locale ) ) {
+					// Explicitly check that locale is not same as site locale.
+					if ( ! empty( $user_object->locale ) && get_locale() !== $user_object->locale ) {
 						$checksum_entry += crc32(
 							implode(
 								'#',
