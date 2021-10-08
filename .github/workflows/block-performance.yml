@@ -35,6 +35,13 @@ jobs:
           npm ci
           npm run build
 
+      - uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('gutenberg/**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       - name: Build Production Jetpack
         run: |
           pnpm install
