@@ -21,10 +21,12 @@
 	const siteIsOnline = Jetpack_Boost.site.online;
 
 	let loadError;
-	let isLoading = siteIsOnline;
 	let showPrevScores;
 	let scoreLetter = '';
 	let improvementPercentage = 0;
+
+
+	const isLoading = writable(siteIsOnline);
 
 	const scores = writable({
 		current: {
@@ -71,7 +73,7 @@
 			return;
 		}
 
-		isLoading = true;
+		isLoading.set(true);
 		loadError = undefined;
 
 		try {
@@ -83,7 +85,7 @@
 			console.log( err );
 			loadError = err;
 		} finally {
-			isLoading = false;
+			isLoading.set(false);
 		}
 	}
 
@@ -110,27 +112,25 @@
 	const respawnRatingPrompt = writable(Jetpack_Boost.preferences.showRatingPrompt);
 
 	const showRatingCard = derived(
-		[scores, respawnRatingPrompt],
-		( [ $scores, $respawnRatingPrompt ] ) => didScoresImprove( $scores ) && $respawnRatingPrompt
+		[ scores, respawnRatingPrompt, isLoading],
+		( [ $scores, $respawnRatingPrompt, $isLoading ] ) => didScoresImprove( $scores ) && $respawnRatingPrompt && !$isLoading
 	)
 
 	$: if ( $needRefresh ) {
 		debouncedRefreshScore( true );
 	}
 
-	$: {
-		if ( $showRatingCard ) {
-			improvementPercentage = getScoreImprovementPercentage( $scores );
-		}
+	$: if ( $showRatingCard ) {
+		improvementPercentage = getScoreImprovementPercentage( $scores );
 	}
 </script>
 
 <div class="jb-container">
-	<div class="jb-site-score" class:loading={isLoading}>
+	<div class="jb-site-score" class:loading={$isLoading}>
 		{#if siteIsOnline}
 			<div class="jb-site-score__top">
 				<h2>
-					{#if isLoading}
+					{#if $isLoading}
 						{__( 'Loading…', 'jetpack-boost' )}
 					{:else if loadError}
 						{__( 'Whoops, something went wrong', 'jetpack-boost' )}
@@ -138,13 +138,13 @@
 						{__( 'Overall score', 'jetpack-boost' )}: {scoreLetter}
 					{/if}
 				</h2>
-				{#if ! isLoading && ! loadError}
+				{#if ! $isLoading && ! loadError}
 					<ScoreContext />
 				{/if}
 				<button
 					type="button"
 					class="components-button is-link"
-					disabled={isLoading}
+					disabled={$isLoading}
 					on:click={() => refreshScore( true )}
 				>
 					<RefreshIcon />
@@ -183,7 +183,7 @@
 				prevScore={$scores.noBoost?.mobile}
 				score={$scores.current.mobile}
 				active={siteIsOnline}
-				{isLoading}
+				isLoading={$isLoading}
 				{showPrevScores}
 				noBoostScoreTooltip={__( 'Your mobile score without Boost', 'jetpack-boost' )}
 			/>
@@ -198,7 +198,7 @@
 				prevScore={$scores.noBoost?.desktop}
 				score={$scores.current.desktop}
 				active={siteIsOnline}
-				{isLoading}
+				isLoading={$isLoading}
 				{showPrevScores}
 				noBoostScoreTooltip={__( 'Your desktop score without Boost', 'jetpack-boost' )}
 			/>
