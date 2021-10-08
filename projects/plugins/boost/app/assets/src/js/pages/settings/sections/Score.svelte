@@ -206,5 +206,5 @@
 	</div>
 </div>
 {#if $showRatingCard}
-	<RatingCard on:dismiss={() => ( $respawnRatingPrompt.set(false) )} improvement={improvementPercentage} />
+	<RatingCard on:dismiss={() => ( respawnRatingPrompt.set(false) )} improvement={improvementPercentage} />
 {/if}
