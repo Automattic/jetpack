@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import { Button, Dashicon } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import restApi from '@automattic/jetpack-api';
 import { Spinner } from '@automattic/jetpack-components';
 
 /**
@@ -19,11 +20,14 @@ import extractHostname from '../../tools/extract-hostname';
  * @param {object} props - The properties.
  * @param {string} props.wpcomHomeUrl - The original site URL.
  * @param {string} props.currentUrl - The current site URL.
+ * @param {Function} props.onMigrated - The callback to be called when migration has completed.
  * @returns {React.Component} The `ConnectScreen` component.
  */
 const CardMigrate = props => {
 	const wpcomHostName = extractHostname( props.wpcomHomeUrl );
 	const currentHostName = extractHostname( props.currentUrl );
+
+	const { onMigrated } = props;
 
 	const buttonLabel = __( 'Move your settings', 'jetpack' );
 
@@ -38,10 +42,24 @@ const CardMigrate = props => {
 	const doMigrate = useCallback( () => {
 		setIsMigrating( true );
 
-		setTimeout( () => {
-			setIsMigrating( false );
-		}, 3000 );
-	}, [ setIsMigrating ] );
+		if ( ! isMigrating ) {
+			setIsMigrating( true );
+
+			restApi
+				.migrateIDC()
+				.then( () => {
+					setIsMigrating( false );
+
+					if ( onMigrated && {}.toString.call( onMigrated ) === '[object Function]' ) {
+						onMigrated();
+					}
+				} )
+				.catch( error => {
+					setIsMigrating( false );
+					throw error;
+				} );
+		}
+	}, [ isMigrating, setIsMigrating, onMigrated ] );
 
 	return (
 		<div className="jp-idc-card-action-base">
@@ -82,6 +100,7 @@ const CardMigrate = props => {
 CardMigrate.propTypes = {
 	wpcomHomeUrl: PropTypes.string.isRequired,
 	currentUrl: PropTypes.string.isRequired,
+	onMigrated: PropTypes.func,
 };
 
 export default CardMigrate;
