@@ -65,10 +65,7 @@ export async function refreshConnectionTestResults() {
 		}
 
 		// Update post metadata.
-		dispatch( editorStore ).editPost( { jetpack_publicize_connections: connections } );
-
-		// Update connections in the piblicize store.
-		return dispatch( 'jetpack/publicize' ).setConnectionTestResults( connections );
+		return dispatch( editorStore ).editPost( { jetpack_publicize_connections: connections } );
 	} catch ( error ) {
 		// Refreshing connections failed
 	}
@@ -77,12 +74,25 @@ export async function refreshConnectionTestResults() {
 /**
  * Effect handler which will update the connections
  * in the post metadata.
+ *
+ * @param {object} action              - Action which had initiated the effect handler.
+ * @param {string} action.connectionId - Connection ID to switch.
+ * @returns {object} Switch connection enable-status action.
  */
-export async function toggleConnectionById() {
+export async function toggleConnectionById( { connectionId } ) {
 	const connections = select( 'jetpack/publicize' ).getConnections();
 
+	/*
+	 * Map connections re-defining the enabled state of the connection,
+	 * based on the connection ID.
+	 */
+	const updatedConnections = connections.map( connection => ( {
+		...connection,
+		enabled: connection.id === connectionId ? ! connection.enabled : connection.enabled,
+	} ) );
+
 	// Update post metadata.
-	dispatch( editorStore ).editPost( { jetpack_publicize_connections: connections } );
+	return dispatch( editorStore ).editPost( { jetpack_publicize_connections: updatedConnections } );
 }
 
 /**
