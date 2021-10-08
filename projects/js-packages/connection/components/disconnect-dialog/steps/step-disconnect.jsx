@@ -11,6 +11,7 @@ import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
 import PropTypes from 'prop-types';
+import DisconnectCard from '../disconnect-card';
 
 const StepDisconnect = props => {
 	const {
@@ -20,6 +21,8 @@ const StepDisconnect = props => {
 		onDisconnect,
 		disconnectError,
 		disconnectStepComponent,
+		connectedPlugins,
+		connectedPluginsIsFetching,
 		closeModal,
 		context,
 		errorMessage,
@@ -44,12 +47,37 @@ const StepDisconnect = props => {
 		);
 	};
 
+	const renderConnectedPlugins = () => {
+		if ( connectedPluginsIsFetching ) {
+			return (
+				<React.Fragment>
+					<h3>Connected Plugins</h3>
+					<p> Checking for plugins that are using the Jetpack Connection...</p>
+				</React.Fragment>
+			);
+		} else if ( connectedPlugins && connectedPlugins.length > 0 ) {
+			return (
+				<React.Fragment>
+					<p>
+						Jetpack is powering other plugins on your site. If you disconnect, these plugins will no
+						longer work.
+					</p>
+					{ connectedPlugins.map( plugin => {
+						// TODO: would we want to show the name of the plugin the user is disconnecting from?
+						// probably would not make sense to show from within the Jetpack plugin.
+						return <DisconnectCard title={ plugin.name } />;
+					} ) }
+				</React.Fragment>
+			);
+		}
+	};
+
 	return (
 		<div>
 			<div className="jp-disconnect-dialog__content">
 				<h1 id="jp-disconnect-dialog__heading">{ title }</h1>
 				{ contents }
-				{ /* Show dependent plugins here - need to add another component */ }
+				{ renderConnectedPlugins() }
 				{ disconnectStepComponent }
 			</div>
 
