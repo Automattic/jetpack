@@ -61,11 +61,10 @@ class Admin_Menu {
 	 * @return void
 	 */
 	public static function admin_menu_hook_callback() {
-		global $submenu;
+		$can_see_toplevel_menu  = true;
+		$jetpack_plugin_present = class_exists( 'Jetpack_React_Page' );
 
-		$can_see_toplevel_menu = true;
-
-		if ( ! isset( $submenu['jetpack'] ) ) {
+		if ( ! $jetpack_plugin_present ) {
 			add_action( 'admin_print_scripts', array( __CLASS__, 'enqueue_style' ) );
 			add_menu_page(
 				'Jetpack',
@@ -76,6 +75,7 @@ class Admin_Menu {
 				'div',
 				3
 			);
+
 			// If Jetpack plugin is not present, user will only be able to see this menu if they have enough capability to at least one of the sub menus being added.
 			$can_see_toplevel_menu = false;
 		}
@@ -98,7 +98,9 @@ class Admin_Menu {
 			);
 		}
 
-		remove_submenu_page( 'jetpack', 'jetpack' );
+		if ( ! $jetpack_plugin_present ) {
+			remove_submenu_page( 'jetpack', 'jetpack' );
+		}
 
 		if ( ! $can_see_toplevel_menu ) {
 			remove_menu_page( 'jetpack' );
