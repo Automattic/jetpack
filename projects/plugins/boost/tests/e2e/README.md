@@ -15,12 +15,12 @@ Automated end-to-end acceptance tests for the Jetpack Boost plugin.
 * Make sure you built Jetpack Boost first. `pnpm install && pnpx jetpack build plugin/boost` in the monorepo root directory should walk you through it. You can also refer to the Jetpack Boost [documentation](../../docs/DEVELOPEMENT_GUIDE.md) in how to build Jetpack Boost.
 * Run `pnpm install` from the Jetpack Boost E2E tests directory. This command install all the required dependencies
 
-Jetpack Boost E2E tests also rely on an encrypted configuration file, which is included in the Jetpack plugin e2e tests config folder repo as [`encrypted.enc`](./config/encrypted.enc). To be able to run tests - that file should be decrypted first.
+Jetpack Boost E2E tests also rely on an encrypted configuration file, which is included in the Jetpack plugin e2e tests config folder repo as [`encrypted.enc`](../../../jetpack/tests/e2e/config/encrypted.enc). To be able to run tests - that file should be decrypted first.
 
 To decrypt the config file (a8c only):
 
 - Find a decryption key. Search secret store for "E2E Jetpack CONFIG_KEY"
-- From the Jetpack Boost E2E tests directory, run `CONFIG_KEY=YOUR_KEY pnpm test-decrypt-config`. This command should create a new file [`local-test.js`](./config/local-test.js)
+- From the Jetpack Boost E2E tests directory, run `CONFIG_KEY=YOUR_KEY pnpm test-decrypt-config`. This command should create a new file `local-test.js`.
 
 ## Getting Started
 
