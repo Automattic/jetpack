@@ -9,7 +9,9 @@
     "automattic/custom-fonts-typekit": "1.0.8",
     "automattic/text-media-widget-styles": "~1.0",
     "automattic/wc-calypso-bridge": "1.8.1",
-    "wordpress/classic-editor-plugin": "1.5"
+    "wordpress/classic-editor-plugin": "1.5",
+    "automattic/jetpack-config": "^1.5",
+    "automattic/jetpack-post-list": "^0.2.2"
   },
   "require-dev": {
     "php": ">=7.0.0"
