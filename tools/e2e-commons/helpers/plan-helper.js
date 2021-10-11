@@ -16,6 +16,10 @@ export async function persistPlanData( planType = 'jetpack_complete' ) {
 	await execWpCommand( cmd );
 }
 
+export async function activatePlanDataInterceptor() {
+	return await execWpCommand( 'plugin activate e2e-plan-data-interceptor' );
+}
+
 async function getSiteId() {
 	const output = await execWpCommand( 'jetpack options get id' );
 	return output.split( ':' )[ 1 ].trim();

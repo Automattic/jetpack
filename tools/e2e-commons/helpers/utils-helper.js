@@ -15,7 +15,7 @@ const BASE_DOCKER_CMD = 'pnpx jetpack docker --type e2e --name t1';
  * @param {string} cmd shell command
  * @return {Promise<string>} output
  */
-export async function execShellCommand( cmd ) {
+async function execShellCommand( cmd ) {
 	return new Promise( resolve => {
 		let result = '';
 		const cmdExec = exec( cmd, error => {
@@ -37,16 +37,16 @@ export async function execShellCommand( cmd ) {
 	} );
 }
 
-export function execSyncShellCommand( cmd ) {
+function execSyncShellCommand( cmd ) {
 	return execSync( cmd ).toString();
 }
 
-export async function resetWordpressInstall() {
+async function resetWordpressInstall() {
 	const cmd = 'pnpx e2e-env reset';
 	execSyncShellCommand( cmd );
 }
 
-export async function prepareUpdaterTest() {
+async function prepareUpdaterTest() {
 	const cmd = `${ BASE_DOCKER_CMD } -v exec-silent /usr/local/src/jetpack-monorepo/tools/e2e-commons/bin/prep.sh`;
 
 	await execShellCommand( cmd );
@@ -60,7 +60,7 @@ export async function prepareUpdaterTest() {
  * @param {string} user   Local user name, id, or e-mail
  * @return {string} authentication URL
  */
-export async function provisionJetpackStartConnection( userId, plan = 'free', user = 'wordpress' ) {
+async function provisionJetpackStartConnection( userId, plan = 'free', user = 'wordpress' ) {
 	logger.info( `Provisioning Jetpack start connection [userId: ${ userId }, plan: ${ plan }]` );
 	const [ clientID, clientSecret ] = config.get( 'jetpackStartSecrets' );
 
@@ -92,7 +92,7 @@ export async function provisionJetpackStartConnection( userId, plan = 'free', us
  * @param {page}   page   Playwright page object
  * @param {string} module Jetpack module name
  */
-export async function activateModule( page, module ) {
+async function activateModule( page, module ) {
 	const cliCmd = `jetpack module activate ${ module }`;
 	const activeModulesCmd = 'option get jetpack_active_modules --format=json';
 	await execWpCommand( cliCmd );
@@ -110,7 +110,7 @@ export async function activateModule( page, module ) {
 	return true;
 }
 
-export async function execWpCommand( wpCmd, sendUrl = true ) {
+async function execWpCommand( wpCmd, sendUrl = true ) {
 	const urlArgument = sendUrl ? `--url="${ siteUrl }"` : '';
 	const cmd = `${ BASE_DOCKER_CMD } wp -- ${ wpCmd } ${ urlArgument }`;
 	const result = await execShellCommand( cmd );
@@ -123,7 +123,7 @@ export async function execWpCommand( wpCmd, sendUrl = true ) {
 	return result;
 }
 
-export async function logDebugLog() {
+async function logDebugLog() {
 	let log;
 	try {
 		log = execSyncShellCommand( `${ BASE_DOCKER_CMD } exec-silent cat wp-content/debug.log` );
@@ -153,7 +153,7 @@ export async function logDebugLog() {
 	}
 }
 
-export async function logAccessLog() {
+async function logAccessLog() {
 	// const apacheLog = execSyncShellCommand( 'pnpx wp-env logs tests --watch=false' );
 	const apacheLog = 'EMPTY';
 	const escapedDate = new Date().toISOString().split( '.' )[ 0 ].replace( /:/g, '-' );
@@ -168,7 +168,7 @@ export async function logAccessLog() {
  * @param {boolean} includeTimestamp if true, the current timestamp will be added as a prefix
  * @return {string} the formatted file path
  */
-export function fileNameFormatter( filePath, includeTimestamp = true ) {
+function fileNameFormatter( filePath, includeTimestamp = true ) {
 	const parts = path.parse( path.normalize( filePath ) );
 	let fileName = parts.name;
 	const ext = parts.ext;
@@ -183,18 +183,18 @@ export function fileNameFormatter( filePath, includeTimestamp = true ) {
 	return path.join( dirname, `${ fileName }${ ext }` );
 }
 
-export function getConfigTestSite() {
+function getConfigTestSite() {
 	const testSite = process.env.TEST_SITE ? process.env.TEST_SITE : 'default';
 	logger.debug( `Using '${ testSite }' test site config` );
 	return config.get( `testSites.${ testSite }` );
 }
 
-export function getSiteCredentials() {
+function getSiteCredentials() {
 	const site = getConfigTestSite();
 	return { username: site.username, password: site.password, apiPassword: site.apiPassword };
 }
 
-export function getDotComCredentials() {
+function getDotComCredentials() {
 	const site = getConfigTestSite();
 	return {
 		username: site.dotComAccount[ 0 ],
@@ -204,7 +204,7 @@ export function getDotComCredentials() {
 	};
 }
 
-export function getMailchimpCredentials() {
+function getMailchimpCredentials() {
 	const site = getConfigTestSite();
 	return {
 		username: site.mailchimpLogin[ 0 ],
@@ -219,7 +219,7 @@ export function getMailchimpCredentials() {
  *
  * @return {string} the file content, or undefined in file doesn't exist or cannot be read
  */
-export function getReusableUrlFromFile() {
+function getReusableUrlFromFile() {
 	let urlFromFile;
 	try {
 		urlFromFile = fs
@@ -242,7 +242,7 @@ export function getReusableUrlFromFile() {
  * 2. Configure a test site in local config and use a TEST_SITE env variable with the config property name. This overrides any value written in file
  * If none of the above is valid we throw an error
  */
-export function resolveSiteUrl() {
+function resolveSiteUrl() {
 	let url;
 
 	if ( process.env.TEST_SITE ) {
@@ -262,7 +262,7 @@ export function resolveSiteUrl() {
  *
  * @param {string} url the string to to be validated as URL
  */
-export function validateUrl( url ) {
+function validateUrl( url ) {
 	if ( ! new URL( url ) ) {
 		throw new Error( `Undefined or invalid url!` );
 	}
@@ -273,11 +273,11 @@ export function validateUrl( url ) {
  *
  * @return {boolean} true if site is local
  */
-export function isLocalSite() {
+function isLocalSite() {
 	return ! process.env.TEST_SITE;
 }
 
-export async function logEnvironment() {
+async function logEnvironment() {
 	try {
 		const envFilePath = join( `${ config.get( 'dirs.output' ) }`, 'environment.json' );
 
@@ -304,7 +304,7 @@ export async function logEnvironment() {
 	}
 }
 
-export async function getJetpackVersion() {
+async function getJetpackVersion() {
 	let version;
 
 	try {
@@ -334,3 +334,25 @@ export async function getJetpackVersion() {
 
 	return version;
 }
+
+module.exports = {
+	execShellCommand,
+	execSyncShellCommand,
+	resetWordpressInstall,
+	prepareUpdaterTest,
+	provisionJetpackStartConnection,
+	activateModule,
+	execWpCommand,
+	logDebugLog,
+	logAccessLog,
+	fileNameFormatter,
+	getReusableUrlFromFile,
+	resolveSiteUrl,
+	validateUrl,
+	isLocalSite,
+	getSiteCredentials,
+	getDotComCredentials,
+	getMailchimpCredentials,
+	logEnvironment,
+	getJetpackVersion,
+};

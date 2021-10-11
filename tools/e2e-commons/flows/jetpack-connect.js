@@ -8,7 +8,8 @@ import {
 	MyPlanPage,
 	LoginPage,
 } from '../pages/wpcom';
-import { execWpCommand, persistPlanData, syncPlanData } from '../helpers';
+import { execWpCommand } from '../helpers/utils-helper';
+import { persistPlanData, syncPlanData } from '../helpers/plan-helper';
 import logger from '../logger';
 
 const cardCredentials = config.get( 'testCardCredentials' );

@@ -4,7 +4,7 @@ import {
 	execSyncShellCommand,
 	execWpCommand,
 	prepareUpdaterTest,
-} from 'jetpack-e2e-commons/helpers';
+} from 'jetpack-e2e-commons/helpers/utils-helper';
 import {
 	Sidebar,
 	PluginsPage,

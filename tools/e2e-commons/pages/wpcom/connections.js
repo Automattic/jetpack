@@ -1,5 +1,5 @@
 import { WpPage } from '..';
-import { getMailchimpCredentials } from '../../helpers';
+import { getMailchimpCredentials } from '../../helpers/utils-helper';
 
 export default class ConnectionsPage extends WpPage {
 	constructor( page ) {
