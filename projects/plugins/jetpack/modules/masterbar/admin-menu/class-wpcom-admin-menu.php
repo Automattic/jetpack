@@ -436,7 +436,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		 *
 		 * @use add_filter( 'jetpack_show_wpcom_woocommerce_installation_menu', '__return_true' );
 		 * @module masterbar
-		 * @since 9.10.0
+		 * @since 10.3.0
 		 * @param bool $jetpack_show_wpcom_woocommerce_installation_menu Load the WordPress.com WooCommerce Installation menu item. Default to false.
 		 */
 		if ( apply_filters( 'jetpack_show_wpcom_woocommerce_installation_menu', false ) ) {
