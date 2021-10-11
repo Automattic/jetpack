@@ -49,6 +49,10 @@ const PublicizePanel = ( { prePublish } ) => {
 
 	return (
 		<PanelBody title={ __( 'Share this post', 'jetpack' ) }>
+			<div>
+				{ __( "Connect and select the accounts where you'd like to share your post.", 'jetpack' ) }
+			</div>
+
 			{ isRePublicizeFeatureEnabled && (
 				<PanelRow>
 					<ToggleControl
