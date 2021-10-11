@@ -1,10 +1,11 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl, JetpackLogo } from '@automattic/jetpack-components';
 
 /**
@@ -12,20 +13,31 @@ import { getRedirectUrl, JetpackLogo } from '@automattic/jetpack-components';
  */
 import CardMigrate from '../card-migrate';
 import CardFresh from '../card-fresh';
+import SafeMode from '../safe-mode';
 import './style.scss';
 
 /**
- * The safe mode screen component.
+ * The IDC screen component.
  *
  * @param {object} props - The properties.
  * @param {React.Component} props.logo - The screen logo, Jetpack by default.
  * @param {string} props.headerText - The header text, 'Safe Mode' by default.
  * @param {string} props.wpcomHomeUrl - The original site URL.
  * @param {string} props.currentUrl - The current site URL.
+ * @param {string} props.apiRoot -- API root URL, required.
+ * @param {string} props.apiNonce -- API Nonce, required.
  * @returns {React.Component} The `ConnectScreen` component.
  */
 const IDCScreen = props => {
-	const { logo, headerText, wpcomHomeUrl, currentUrl } = props;
+	const { logo, headerText, wpcomHomeUrl, currentUrl, apiNonce, apiRoot } = props;
+
+	/**
+	 * Initialize the REST API.
+	 */
+	useEffect( () => {
+		restApi.setApiRoot( apiRoot );
+		restApi.setApiNonce( apiNonce );
+	}, [ apiRoot, apiNonce ] );
 
 	return (
 		<div className="jp-idc-screen-base">
@@ -62,6 +74,8 @@ const IDCScreen = props => {
 				<div className="jp-idc-cards-separator">or</div>
 				<CardFresh wpcomHomeUrl={ wpcomHomeUrl } currentUrl={ currentUrl } />
 			</div>
+
+			<SafeMode />
 		</div>
 	);
 };
@@ -71,6 +85,8 @@ IDCScreen.propTypes = {
 	headerText: PropTypes.string.isRequired,
 	wpcomHomeUrl: PropTypes.string.isRequired,
 	currentUrl: PropTypes.string.isRequired,
+	apiRoot: PropTypes.string.isRequired,
+	apiNonce: PropTypes.string.isRequired,
 };
 
 IDCScreen.defaultProps = {

@@ -62,7 +62,7 @@ class Admin {
 	 */
 	public function __construct( Jetpack_Boost $jetpack_boost ) {
 		$this->jetpack_boost = $jetpack_boost;
-		$this->speed_score   = new Speed_Score();
+		$this->speed_score   = new Speed_Score( $jetpack_boost );
 		Environment_Change_Detector::init();
 
 		add_action( 'init', array( new Analytics(), 'init' ) );

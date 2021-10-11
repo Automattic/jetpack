@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Sync Checksums - exclude locale from checksum if same as site setting
