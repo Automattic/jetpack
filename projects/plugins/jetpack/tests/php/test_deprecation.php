@@ -91,4 +91,13 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 	function test_jetpack_sync_action_sender_exists() {
 		$this->assertTrue( property_exists( 'Jetpack_Sync_Actions', 'sender' ) );
 	}
+
+	/**
+	 * Provides deprecated files and expected replacements.
+	 *
+	 * @return array
+	 */
+	public function provider_deprecated_file_paths() {
+		return array();
+	}
 }
