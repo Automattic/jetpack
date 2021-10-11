@@ -32,6 +32,8 @@ function definePaletteColorsAsStaticVariables() {
  * Returns an instance of the AddReadableJsAssetsWebpackPlugin that adds readable JS assets.
  * The plugin now only works for Search assets, i.e. asset file name pattern /(\.[a-f0-9]{20})?\.min\.js$/
  *
+ * Original webpack plugin: https://github.com/WordPress/gutenberg/blob/b1fd6b2ce6221f1297da78b6c48aeee56130501b/packages/readable-js-assets-webpack-plugin/index.js
+ *
  * 1. For translation strings extraction - for now, `.min.js` files are excluded.
  * 2. It also removes contentHash/hash from the chunk file name, which makes it possible for
  * PHP easier to inline translations - and this is essential for WPCOM, as we deploy whenever
@@ -43,15 +45,13 @@ function defineReadableJSAssetsPluginForSearch() {
 	return new ( class AddReadableJsAssetsWebpackPlugin {
 		extractUnminifiedFiles( compilation ) {
 			const files = Array.from( compilation.chunks ).flatMap( chunk => Array.from( chunk.files ) );
-			compilation.unminifiedAssets = files
-				.map( file => {
-					const asset = compilation.assets[ file ];
-					// Remove the hash in chunk file names for the sake of translations loading from PHP.
-					// The setting here should be aligned with the `output-chunk-filename`
-					const unminifiedFile = file.replace( /(\.[a-f0-9]{20})?\.min\.js$/, '.js' );
-					return [ unminifiedFile, asset.source() ];
-				} )
-				.filter( val => val );
+			compilation.unminifiedAssets = files.map( file => {
+				const asset = compilation.assets[ file ];
+				// Remove the hash in chunk file names for the sake of translations loading from PHP.
+				// The setting here should be aligned with the `output-chunk-filename`
+				const unminifiedFile = file.replace( /(\.[a-f0-9]{20})?\.min\.js$/, '.js' );
+				return [ unminifiedFile, asset.source() ];
+			} );
 		}
 		async writeUnminifiedFiles( compilation ) {
 			for ( const [ file, source ] of compilation.unminifiedAssets ) {
