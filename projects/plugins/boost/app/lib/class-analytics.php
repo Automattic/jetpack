@@ -38,6 +38,10 @@ class Analytics {
 	 * @param array  $data Optional event data.
 	 */
 	public static function record_user_event( $slug, $data = array() ) {
+		if ( ! isset( $data['boost_version'] ) && defined( 'JETPACK_BOOST_VERSION' ) ) {
+			$data['boost_version'] = JETPACK_BOOST_VERSION;
+		}
+
 		return self::get_tracking()->record_user_event( $slug, $data );
 	}
 }
