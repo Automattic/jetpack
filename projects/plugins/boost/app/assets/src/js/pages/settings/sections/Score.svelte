@@ -24,6 +24,7 @@
 	let showPrevScores;
 	let scoreLetter = '';
 	let improvementPercentage = 0;
+	let currentPercentage = 0;
 
 
 	const isLoading = writable(siteIsOnline);
@@ -122,6 +123,7 @@
 
 	$: if ( $showRatingCard ) {
 		improvementPercentage = getScoreImprovementPercentage( $scores );
+		currentPercentage = ( $scores.current.mobile + $scores.current.desktop ) / 2;
 	}
 </script>
 
@@ -206,5 +208,5 @@
 	</div>
 </div>
 {#if $showRatingCard}
-	<RatingCard on:dismiss={() => ( respawnRatingPrompt.set(false) )} improvement={improvementPercentage} />
+	<RatingCard on:dismiss={() => ( respawnRatingPrompt.set(false) )} improvement={improvementPercentage} {currentPercentage} />
 {/if}
