@@ -1,4 +1,4 @@
-import { WpPage } from '.';
+import WpPage from './wp-page';
 
 export default class PostFrontendPage extends WpPage {
 	constructor( page ) {
