@@ -4,6 +4,7 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
+		"automattic/jetpack-admin-ui": "0.1.x-dev",
 		"automattic/jetpack-autoloader": "2.10.x-dev",
 		"automattic/jetpack-backup": "1.1.x-dev",
 		"automattic/jetpack-config": "1.5.x-dev",
