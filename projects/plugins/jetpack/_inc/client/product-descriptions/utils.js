@@ -19,7 +19,7 @@ import { productDescriptionRoutes } from './constants';
  * @returns {string} URL for a product or the .
  */
 export const getProductDescriptionUrl = ( state, productKey ) => {
-	const baseUrl = `${ getSiteAdminUrl( state ) }?page=jetpack#`;
+	const baseUrl = `${ getSiteAdminUrl( state ) }admin.php?page=jetpack#`;
 
 	if ( productDescriptionRoutes.includes( `/product/${ productKey }` ) ) {
 		return `${ baseUrl }/product/${ productKey }`;
