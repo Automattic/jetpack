@@ -48,12 +48,12 @@ A VaultPress subscription is for a single WordPress site. You can purchase addit
 Yes, VaultPress supports Multisite installs. Each site will require its own subscription.
 
 == Changelog ==
-### 2.2.0-beta - 2021-10-07
+### 2.2.0 - 2021-10-11
 #### Changed
 - Tests: update PHPUnit polyfills dependency (yoast/phpunit-polyfills).
 - Updated package dependencies.
 
-#### Removed
+#### Security
 - VaultPress: Remove obsolete hotfixes
 
 #### Fixed
