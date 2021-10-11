@@ -125,7 +125,7 @@ const PublicizePanel = ( { prePublish } ) => {
 			) }
 
 			<PublicizeConnectionVerify />
-			<PublicizeForm />
+			<PublicizeForm isEnabled={ isRePublicizeFeatureEnabled ? isSharingEnabled : true } />
 			<PublicizeTwitterOptions prePublish={ prePublish } />
 		</PanelBody>
 	);
