@@ -2,7 +2,7 @@ import { WpPage } from '..';
 import logger from '../../logger';
 import { takeScreenshot } from '../../reporters';
 import PageActions from '../page-actions';
-import { getSiteCredentials } from '../../helpers/utils-helper';
+import { getSiteCredentials } from '../../helpers';
 
 export default class WPLoginPage extends WpPage {
 	constructor( page ) {

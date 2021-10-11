@@ -3,7 +3,7 @@ const config = require( 'config' );
 const logger = require( '../logger' );
 const fs = require( 'fs' );
 const { ContentType } = require( 'jest-circus-allure-environment' );
-const { fileNameFormatter } = require( '../helpers/utils-helper' );
+const { fileNameFormatter } = require( '../helpers' );
 
 /**
  * Takes a screenshot of the given page

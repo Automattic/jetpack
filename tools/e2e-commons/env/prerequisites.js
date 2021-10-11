@@ -6,7 +6,7 @@ import {
 	isLocalSite,
 	provisionJetpackStartConnection,
 	resetWordpressInstall,
-} from '../helpers/utils-helper';
+} from '../helpers';
 import fs from 'fs';
 import config from 'config';
 import assert from 'assert';

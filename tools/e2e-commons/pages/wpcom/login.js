@@ -1,6 +1,6 @@
 import { WpPage } from '..';
 import logger from '../../logger';
-import { getDotComCredentials } from '../../helpers/utils-helper';
+import { getDotComCredentials } from '../../helpers';
 
 export default class LoginPage extends WpPage {
 	constructor( page ) {
