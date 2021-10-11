@@ -1,7 +1,9 @@
-import Sidebar from 'jetpack-e2e-commons/pages/wp-admin/sidebar';
-import PluginsPage from 'jetpack-e2e-commons/pages/wp-admin/plugins';
-import DashboardPage from 'jetpack-e2e-commons/pages/wp-admin/dashboard';
-import JetpackPage from 'jetpack-e2e-commons/pages/wp-admin/jetpack';
+import {
+	Sidebar,
+	PluginsPage,
+	DashboardPage,
+	JetpackPage,
+} from 'jetpack-e2e-commons/pages/wp-admin';
 import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites';
 

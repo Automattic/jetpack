@@ -1,8 +1,10 @@
-import BlockEditorPage from 'jetpack-e2e-commons/pages/wp-admin/block-editor';
-import PostFrontendPage from 'jetpack-e2e-commons/pages/postFrontend';
-import MailchimpBlock from 'jetpack-e2e-commons/pages/wp-admin/blocks/mailchimp';
-import SimplePaymentBlock from 'jetpack-e2e-commons/pages/wp-admin/blocks/simple-payments';
-import WordAdsBlock from 'jetpack-e2e-commons/pages/wp-admin/blocks/word-ads';
+import {
+	BlockEditorPage,
+	MailchimpBlock,
+	SimplePaymentBlock,
+	WordAdsBlock,
+} from 'jetpack-e2e-commons/pages/wp-admin';
+import { PostFrontendPage } from 'jetpack-e2e-commons/pages';
 import { testStep } from 'jetpack-e2e-commons/reporters/reporter';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites';
 import { Plans } from 'jetpack-e2e-commons/env/types';

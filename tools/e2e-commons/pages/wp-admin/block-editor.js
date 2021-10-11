@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import WpPage from '../wp-page';
 import logger from '../../logger';
 import { testStep } from '../../reporters/reporter';

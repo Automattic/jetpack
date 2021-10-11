@@ -1,4 +1,4 @@
-import Homepage from 'jetpack-e2e-commons/pages/search-homepage';
+import { SearchHomepage } from 'jetpack-e2e-commons/pages';
 import {
 	enableInstantSearch,
 	getSidebarsWidgets,
@@ -45,7 +45,7 @@ describe( 'Search', () => {
 	} );
 
 	beforeEach( async () => {
-		homepage = await Homepage.visit( page );
+		homepage = await SearchHomepage.visit( page );
 		await homepage.searchAPIRoute();
 		await homepage.waitForNetworkIdle();
 	} );

@@ -1,4 +1,4 @@
-import RecommendationsPage from 'jetpack-e2e-commons/pages/wp-admin/recommendations';
+import { RecommendationsPage } from 'jetpack-e2e-commons/pages/wp-admin';
 import { testStep } from 'jetpack-e2e-commons/reporters/reporter';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites';
 
