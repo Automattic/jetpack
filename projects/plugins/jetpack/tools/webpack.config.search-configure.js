@@ -4,12 +4,14 @@
 const path = require( 'path' );
 const getBaseWebpackConfig = require( '@automattic/calypso-build/webpack.config.js' );
 const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
-const AddReadableJsAssetsWebpackPlugin = require( './plugins/readable-js-assets-webpack-plugin' );
 
 /**
  * Internal dependencies
  */
-const { definePaletteColorsAsStaticVariables } = require( './webpack.helpers' );
+const {
+	definePaletteColorsAsStaticVariables,
+	defineReadableJSAssetsPluginForSearch,
+} = require( './webpack.helpers' );
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -50,6 +52,6 @@ module.exports = {
 		...baseWebpackConfig.plugins,
 		new DependencyExtractionWebpackPlugin( { injectPolyfill: true } ),
 		definePaletteColorsAsStaticVariables(),
-		new AddReadableJsAssetsWebpackPlugin( { assetFileName: 'jp-search-configure' } ),
+		defineReadableJSAssetsPluginForSearch(),
 	],
 };
