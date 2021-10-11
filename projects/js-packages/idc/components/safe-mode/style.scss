@@ -1,0 +1,14 @@
+.jp-idc-screen-base .jp-idc-safe-mode {
+	text-align: center;
+
+	&, button {
+		font-size: 16px;
+		line-height: 24px;
+		color: #2C3338;
+	}
+
+	button {
+		padding: 0;
+		text-decoration: underline;
+	}
+}

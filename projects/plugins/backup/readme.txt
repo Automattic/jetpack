@@ -1,5 +1,5 @@
 === Jetpack Backup ===
-Contributors: automattic, fgiannar, jwebbdev, kraftbj, samiff, sermitr,
+Contributors: automattic, bjorsch, fgiannar, jeherve, jwebbdev, kraftbj, macbre, samiff, sermitr, williamvianas
 Tags: jetpack
 Requires at least: 5.7
 Requires PHP: 5.6
