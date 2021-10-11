@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix the Speed_Score_History::clear_all declaration property

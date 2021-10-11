@@ -1,0 +1,31 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-admin-ui",
+	"version": "0.1.0-alpha",
+	"description": "Generic Jetpack wp-admin UI elements",
+	"homepage": "https://jetpack.com",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "echo 'Not implemented.",
+		"build-js": "echo 'Not implemented.",
+		"build-production": "echo 'Not implemented.",
+		"build-production-js": "echo 'Not implemented.",
+		"clean": "true",
+		"distclean": "rm -rf node_modules && pnpm run clean",
+		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile"
+	},
+	"devDependencies": {},
+	"engines": {
+		"node": "^14.17.6 || ^16.7.0",
+		"pnpm": "^6.5.0",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	}
+}

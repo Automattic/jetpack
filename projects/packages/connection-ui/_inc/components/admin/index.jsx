@@ -52,7 +52,14 @@ export default function Admin() {
 	}, [ setConnectionStatus ] );
 
 	if ( hasIDC ) {
-		return <IDCScreen wpcomHomeUrl={ IDCHomeUrl } currentUrl={ currentUrl } />;
+		return (
+			<IDCScreen
+				wpcomHomeUrl={ IDCHomeUrl }
+				currentUrl={ currentUrl }
+				apiRoot={ APIRoot }
+				apiNonce={ APINonce }
+			/>
+		);
 	}
 
 	return (
