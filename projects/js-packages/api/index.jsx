@@ -417,6 +417,11 @@ function JetpackRestApiClient( root, nonce ) {
 			postRequest( `${ apiRoot }jetpack/v4/recommendations/step`, postParams, {
 				body: JSON.stringify( { step } ),
 			} ).then( checkStatus ),
+
+		confirmIDCSafeMode: () =>
+			postRequest( `${ apiRoot }jetpack/v4/identity-crisis/confirm-safe-mode`, postParams ).then(
+				checkStatus
+			),
 	};
 
 	/**

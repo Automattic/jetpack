@@ -148,3 +148,4 @@ jobs:
         uses: ./.github/actions/test-report-dispatch
         with:
           token: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
+          event_type: e2e
