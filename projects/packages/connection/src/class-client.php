@@ -39,7 +39,18 @@ class Client {
 			return $result;
 		}
 
-		return self::_wp_remote_request( $result['url'], $result['request'] );
+		$response = self::_wp_remote_request( $result['url'], $result['request'] );
+
+		/**
+		 * Fired when the remote request response has been received.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array|WP_Error The HTTP response.
+		 */
+		do_action( 'jetpack_received_remote_request_response', $response );
+
+		return $response;
 	}
 
 	/**

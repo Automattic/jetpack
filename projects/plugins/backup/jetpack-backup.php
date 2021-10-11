@@ -127,6 +127,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 
 	return;
 }
+register_deactivation_hook( __FILE__, array( 'Jetpack_Backup', 'plugin_deactivation' ) );
 
 // Main plugin class.
 new Jetpack_Backup();

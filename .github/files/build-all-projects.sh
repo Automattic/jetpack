@@ -145,9 +145,12 @@ for SLUG in "${SLUGS[@]}"; do
 	# Copy standard .github
 	cp -r "$BASE/.github/files/mirror-.github" "$BUILD_DIR/.github"
 
-	# Copy autotagger and npmjs-autopublisher if enabled
+	# Copy autotagger, autorelease, and/or npmjs-autopublisher if enabled
 	if jq -e '.extra.autotagger // false' composer.json > /dev/null; then
 		cp -r "$BASE/.github/files/gh-autotagger/." "$BUILD_DIR/.github/."
+	fi
+	if jq -e '.extra.autorelease // false' composer.json > /dev/null; then
+		cp -r "$BASE/.github/files/gh-autorelease/." "$BUILD_DIR/.github/."
 	fi
 	if jq -e '.extra["npmjs-autopublish"] // false' composer.json > /dev/null; then
 		cp -r "$BASE/.github/files/gh-npmjs-autopublisher/." "$BUILD_DIR/.github/."
@@ -213,6 +216,25 @@ for SLUG in "${SLUGS[@]}"; do
 			cat <<-EOF >> "$BUILD_DIR/.npmignore"
 
 				# Package ignore file.
+				$TMP
+			EOF
+		fi
+	fi
+
+	# If autorelease is active, flag .git files to be excluded from the archive.
+	if jq -e '.extra.autorelease // false' composer.json > /dev/null; then
+		TMP=
+		if [[ -e "$BUILD_DIR/.gitattributes" ]]; then
+			TMP="$(<"$BUILD_DIR/.gitattributes")"
+		fi
+		cat <<-EOF > "$BUILD_DIR/.gitattributes"
+			# Automatically generated rules.
+			/.git*	export-ignore
+		EOF
+		if [[ -n "$TMP" ]]; then
+			cat <<-EOF >> "$BUILD_DIR/.gitattributes"
+
+				# Package attributes file.
 				$TMP
 			EOF
 		fi
