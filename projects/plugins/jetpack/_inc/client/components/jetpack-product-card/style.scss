@@ -3,6 +3,7 @@
 @import '../../scss/mixin_breakpoint.scss';
 @import '../../scss/typography';
 @import '../../scss/variables/colors';
+@import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
 
 .jp-product-card {
 	position: relative;
@@ -91,7 +92,7 @@
 
 .jp-product-card__raw-price--is-old-price {
 	position: relative;
-	color: #a7aaad;
+	color: $studio-gray-20;
 
 	&::after {
 		content: " ";
@@ -129,7 +130,7 @@
 .jp-product-card__price-description {
 	display: block;
 	font-size: $font-body-small;
-	color: #787C82;
+	color: $studio-gray-40;
 	margin-bottom: 32px;
 	letter-spacing: 0.2px;
 }
@@ -187,7 +188,7 @@
 	left: 0;
 	right: 0;
 	padding: 9px 10px;
-	background: #000;
+	background: $black;
 	color: $white;
 	font-size: rem( 13px );
 	font-weight: 600;
