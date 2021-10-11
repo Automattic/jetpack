@@ -18,6 +18,7 @@ export default function useSocialMediaConnections() {
 
 	return {
 		connections,
+		hasConnections: connections.length > 0,
 		hasEnabledConnections: connections && connections.some( connection => connection.enabled ),
 		toggleById: toggleConnectionById,
 		refresh,
