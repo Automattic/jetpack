@@ -115,7 +115,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 * @param string $plugin_base_path - Base path for use in plugins_url.
 	 */
 	public function load_assets_with_parameters( $path_prefix, $plugin_base_path ) {
-		$script_relative_path = $path_prefix . '_inc/build/instant-search/jp-search-main.bundle.js';
+		$script_relative_path = $path_prefix . '_inc/build/instant-search/jp-search-main.bundle.min.js';
 
 		if ( ! file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) ) {
 			return;
@@ -131,7 +131,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		// It only inline the translations for the script, but does not load it.
 		$this->inject_translation_for_script(
 			plugins_url(
-				$path_prefix . '_inc/build/instant-search/jp-search.chunk-main-payload.min.js',
+				$path_prefix . '_inc/build/instant-search/jp-search.chunk-main-payload.js',
 				$plugin_base_path
 			)
 		);
