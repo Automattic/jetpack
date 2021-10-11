@@ -39,7 +39,6 @@ export function releaseDefine( yargs ) {
 					alias: 'b',
 					describe: 'Is this a beta?',
 					type: 'boolean',
-					default: false,
 				} );
 		},
 		async argv => {
@@ -67,7 +66,7 @@ export async function releaseCli( argv ) {
 	}
 
 	// Check if we're working with a beta version.
-	if ( ! argv.beta ) {
+	if ( typeof argv.beta === 'undefined' ) {
 		argv = await promptBeta( argv );
 	}
 
