@@ -91,15 +91,16 @@ export async function releaseCli( argv ) {
 export async function runScript( argv ) {
 	console.log( chalkJetpackGreen( `Running ${ argv.script }! Just a moment...` ) );
 
-	try {
-		child_process.spawnSync( argv.script, [ ...argv.scriptArgs ], {
-			stdio: 'inherit',
-		} );
-	} catch ( err ) {
-		console.error( 'Error running script!', err );
+	const scriptProcess = child_process.spawnSync( argv.script, [ ...argv.scriptArgs ], {
+		stdio: 'inherit',
+	} );
+
+	if ( scriptProcess.status !== 0 ) {
+		console.error( `Error running script! Exited with status code ${ scriptProcess.status }.` );
 		process.exit( 1 );
 	}
 
+	// Display the next step of the release process.
 	console.log( argv.next );
 }
 
