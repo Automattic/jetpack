@@ -7396,6 +7396,10 @@ endif;
 
 	/**
 	 * Returns the list of products that we have available for purchase.
+	 *
+	 * This method will not take current purchases or upgrades into account
+	 * but is instead a static list of products Jetpack offers with some
+	 * corresponding sales text/materials.
 	 */
 	public static function get_products_for_purchase() {
 		$products = array();
