@@ -190,7 +190,7 @@ export async function promptForScript( argv ) {
 					value: 'release-branch',
 				},
 				{
-					name: `[Amend Changelog.md  ] - Updates changelog.md with any files cherry picked to release branch prior to release.`,
+					name: `[Amend Changelog.md   ] - Updates changelog.md with any files cherry picked to release branch prior to release.`,
 					value: 'amend',
 				},
 			],
