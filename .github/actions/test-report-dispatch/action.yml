@@ -6,7 +6,7 @@ inputs:
     description: "The user token used to authenticate the dispatch call."
   event_type:
     required: true
-    description: "Unique event identifier. Used to distinguish dispatch events."
+    description: "Unique event identifier. Used to distinguish dispatch events. Supported values: block-perf, e2e."
   report_name:
     required: false
     description: "The name of the report to group multiple runs under."
@@ -40,5 +40,5 @@ runs:
         \"branch\": \"$BRANCH\",
         \"pr_title\": \"$PR_TITLE\",
         \"pr_number\": \"$PR_NUMBER\",
-        \"report_name\": \"$REPORT_NAME\",
+        \"report_name\": \"$REPORT_NAME\"
         }}"
