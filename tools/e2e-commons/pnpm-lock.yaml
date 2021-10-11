@@ -5,7 +5,7 @@ importers:
   .:
     specifiers:
       '@babel/core': 7.15.8
-      '@babel/node': ^7.15.8
+      '@babel/node': 7.15.8
       '@babel/preset-env': 7.15.8
       '@slack/web-api': 6.4.0
       '@wordpress/eslint-plugin': 9.1.2
@@ -2344,7 +2344,7 @@ packages:
   /axios/0.22.0:
     resolution: {integrity: sha512-Z0U3uhqQeg1oNcihswf4ZD57O3NrR1+ZXhxaROaWpDmsDTx7T2HNBV2ulBtie2hwJptu8UvgnJoK+BIqdzh/1w==}
     dependencies:
-      follow-redirects: 1.14.4
+      follow-redirects: 1.14.4_debug@4.3.2
     transitivePeerDependencies:
       - debug
     dev: true
