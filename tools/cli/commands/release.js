@@ -97,7 +97,7 @@ export async function runScript( argv ) {
 
 	if ( scriptProcess.status !== 0 ) {
 		console.error( `Error running script! Exited with status code ${ scriptProcess.status }.` );
-		process.exit( 1 );
+		process.exit( scriptProcess.status );
 	}
 
 	// Display the next step of the release process.
