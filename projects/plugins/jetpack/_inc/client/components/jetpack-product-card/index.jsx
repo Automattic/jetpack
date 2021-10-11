@@ -53,7 +53,8 @@ const JetpackProductCard = props => {
 		illustrationPath,
 	} = props;
 
-	const discountedPrice = discount ? ( price * ( 100 - discount ) ) / 100 : false;
+	const discountedPrice = ( price * ( 100 - discount ) ) / 100;
+	const isDiscounted = discount > 0;
 	const hasMedia = !! illustrationPath;
 	const hasCta = !! callToAction;
 
@@ -106,8 +107,8 @@ const JetpackProductCard = props => {
 				) }
 
 				<div className="jp-product-card__price">
-					{ formatPrice( price, currencyCode, !! discountedPrice ) }
-					{ !! discountedPrice && formatPrice( discountedPrice, currencyCode ) }
+					{ formatPrice( price, currencyCode, !! isDiscounted ) }
+					{ !! isDiscounted && formatPrice( discountedPrice, currencyCode ) }
 				</div>
 				<span className="jp-product-card__price-description">{ billingDescription }</span>
 
@@ -151,6 +152,7 @@ JetpackProductCard.propTypes = {
 JetpackProductCard.defaultProps = {
 	arePromotionsActive: false,
 	description: '',
+	discount: 0,
 	features: [],
 	priority: 'primary',
 	showIllustration: '',
