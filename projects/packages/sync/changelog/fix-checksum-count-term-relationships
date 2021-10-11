@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Sync Checksums - use distinct query when calculating count of Term Relationships
