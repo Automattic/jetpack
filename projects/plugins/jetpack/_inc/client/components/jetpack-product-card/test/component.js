@@ -74,6 +74,16 @@ describe( 'Jetpack Product Card', () => {
 		expect( screen.getAllByText( ctaText ) ).to.exist;
 	} );
 
+	it( 'features list hidden with empty array', () => {
+		const mockAttributesWithoutFeatures = {
+			...mockAttributes,
+			features: [],
+		};
+
+		const { container } = render( <JetpackProductCard { ...mockAttributesWithoutFeatures } /> );
+		expect( container.querySelector( '.jp-product-card__features' ) ).to.not.exist;
+	} );
+
 	it( 'track event - jetpack_product_card_view', () => {
 		const recordEventStub = sinon.stub( analytics.tracks, 'recordEvent' );
 

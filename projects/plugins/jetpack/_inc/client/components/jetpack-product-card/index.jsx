@@ -94,7 +94,7 @@ const JetpackProductCard = props => {
 				<h3 className="jp-product-card__title">{ title }</h3>
 				<p className="jp-product-card__description">{ description }</p>
 
-				{ features && (
+				{ features.length && (
 					<ul className="jp-product-card__features">
 						{ features.map( ( feature, key ) => (
 							<li className="jp-product-card__feature" key={ key }>
