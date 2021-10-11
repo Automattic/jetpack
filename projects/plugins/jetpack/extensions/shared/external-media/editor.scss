@@ -74,11 +74,6 @@ $grid-size: 8px;
 	background: white;
 	display: flex;
 
-	&:not( .components-modal__frame ) {
-		flex-direction: column;
-		align-items: flex-start;
-	}
-
 	.jetpack-external-media-browser__media {
 		width: 100%;
 	}
@@ -399,6 +394,7 @@ $grid-size: 8px;
 .jetpack-external-media-auth {
 	max-width: 340px;
 	margin: 0 auto;
+	padding-bottom: 80px;
 	text-align: center;
 
 	p {
