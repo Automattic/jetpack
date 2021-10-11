@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Component } from 'react';
+import { useEffect } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { isEmpty } from 'lodash';
@@ -9,34 +9,36 @@ import { isEmpty } from 'lodash';
 /**
  * Internal dependencies
  */
-import { fetchSiteProducts, isFetchingSiteProducts, getSiteProducts } from 'state/site-products';
+import {
+	fetchSiteProducts as fetchSiteProductsAction,
+	isFetchingSiteProducts as isFetchingSiteProductsReducer,
+	getSiteProducts,
+} from 'state/site-products';
 
-class QuerySiteProducts extends Component {
-	static propTypes = {
-		isFetchingSiteProducts: PropTypes.bool,
-	};
-
-	static defaultProps = {
-		isFetchingSiteProducts: false,
-	};
-
-	componentDidMount() {
-		if ( ! this.props.isFetchingSiteProducts && isEmpty( this.props.products ) ) {
-			this.props.fetchSiteProducts();
+const QuerySiteProducts = ( { fetchSiteProducts, isFetchingSiteProducts, products } ) => {
+	useEffect( () => {
+		if ( ! isFetchingSiteProducts && isEmpty( products ) ) {
+			fetchSiteProducts();
 		}
-	}
+	}, [ fetchSiteProducts, isFetchingSiteProducts, products ] );
 
-	render() {
-		return null;
-	}
-}
+	return null;
+};
+
+QuerySiteProducts.propTypes = {
+	isFetchingSiteProducts: PropTypes.bool,
+};
+
+QuerySiteProducts.defaultProps = {
+	isFetchingSiteProducts: false,
+};
 
 export default connect(
 	state => ( {
-		isFetchingSiteProducts: isFetchingSiteProducts( state ),
+		isFetchingSiteProducts: isFetchingSiteProductsReducer( state ),
 		products: getSiteProducts( state ),
 	} ),
 	dispatch => ( {
-		fetchSiteProducts: () => dispatch( fetchSiteProducts() ),
+		fetchSiteProducts: () => dispatch( fetchSiteProductsAction() ),
 	} )
 )( QuerySiteProducts );
