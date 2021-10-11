@@ -11,6 +11,8 @@
  */
 import { __ } from '@wordpress/i18n';
 import { PanelBody, PanelRow, ToggleControl } from '@wordpress/components';
+import { store as editorStore } from '@wordpress/editor';
+import { useSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -22,8 +24,55 @@ import useSelectSocialMediaConnections from '../../hooks/use-social-media-connec
 import { usePostJustPublished } from '../../hooks/use-saving-post';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 
+function getPanelDescription(
+	isPostPublished,
+	isRePublicizeFeatureEnabled,
+	hasConnections,
+	hasEnabledConnections,
+	isSharingEnabled
+) {
+	if ( ! isRePublicizeFeatureEnabled ) {
+		if ( isPostPublished ) {
+			return __(
+				'Start sharing your posts automatically by connecting your social media accounts.',
+				'jetpack'
+			);
+		}
+
+		return __(
+			'This post will be shared on all your enabled social media accounts the moment you publish the post.',
+			'jetpack'
+		);
+	}
+
+	if ( hasConnections && ( ! isSharingEnabled || ! hasEnabledConnections ) ) {
+		if ( isPostPublished ) {
+			return __( 'Use this tool to share your post on all your social media accounts.', 'jetpack' );
+		}
+
+		return __(
+			'Use this tool to automatically share your post on all your social media accounts.',
+			'jetpack'
+		);
+	}
+
+	if ( isSharingEnabled && hasEnabledConnections && ! isPostPublished ) {
+		return __(
+			'This post will be shared on all your enabled social media accounts the moment you publish the post.',
+			'jetpack'
+		);
+	}
+
+	return __(
+		'Share this post on all your enabled social media accounts by clicking on the share post button.',
+		'jetpack'
+	);
+}
+
 const PublicizePanel = ( { prePublish } ) => {
 	const { refresh, hasConnections, hasEnabledConnections } = useSelectSocialMediaConnections();
+
+	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
 	/*
 	 * Check whether the Republicize feature is enabled.
@@ -50,7 +99,13 @@ const PublicizePanel = ( { prePublish } ) => {
 	return (
 		<PanelBody title={ __( 'Share this post', 'jetpack' ) }>
 			<div>
-				{ __( "Connect and select the accounts where you'd like to share your post.", 'jetpack' ) }
+				{ getPanelDescription(
+					isPostPublished,
+					isRePublicizeFeatureEnabled,
+					isSharingEnabled,
+					hasConnections,
+					hasEnabledConnections
+				) }
 			</div>
 
 			{ isRePublicizeFeatureEnabled && (
