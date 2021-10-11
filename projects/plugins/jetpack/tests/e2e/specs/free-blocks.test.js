@@ -5,9 +5,8 @@ import {
 } from 'jetpack-e2e-commons/pages/wp-admin';
 import { PostFrontendPage } from 'jetpack-e2e-commons/pages';
 import config from 'config';
-import { testStep } from 'jetpack-e2e-commons/reporters/reporter';
-import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites';
-import { Plans } from 'jetpack-e2e-commons/env/types';
+import { testStep } from 'jetpack-e2e-commons/reporters';
+import { prerequisitesBuilder, Plans } from 'jetpack-e2e-commons/env';
 
 /**
  *

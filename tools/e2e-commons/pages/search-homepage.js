@@ -1,4 +1,4 @@
-import WpPage from './wp-page';
+import { WpPage } from '.';
 import logger from '../logger';
 import { searchResultForTest1, searchResultForTest2 } from '../helpers/search-helper';
 

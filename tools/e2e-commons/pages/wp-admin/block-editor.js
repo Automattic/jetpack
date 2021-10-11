@@ -1,6 +1,6 @@
-import WpPage from '../wp-page';
+import { WpPage } from '..';
 import logger from '../../logger';
-import { testStep } from '../../reporters/reporter';
+import { testStep } from '../../reporters';
 
 export default class BlockEditorPage extends WpPage {
 	constructor( page ) {

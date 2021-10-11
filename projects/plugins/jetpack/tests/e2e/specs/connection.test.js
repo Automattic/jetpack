@@ -1,10 +1,7 @@
-import {
-	doSiteLevelConnection,
-	doClassicConnection,
-} from 'jetpack-e2e-commons/flows/jetpack-connect';
+import { doSiteLevelConnection, doClassicConnection } from 'jetpack-e2e-commons/flows';
 import { Sidebar, JetpackPage, DashboardPage } from 'jetpack-e2e-commons/pages/wp-admin';
-import { testStep } from 'jetpack-e2e-commons/reporters/reporter';
-import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites';
+import { testStep } from 'jetpack-e2e-commons/reporters';
+import { prerequisitesBuilder } from 'jetpack-e2e-commons/env';
 
 /**
  *

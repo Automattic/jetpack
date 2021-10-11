@@ -8,9 +8,8 @@ import {
 	getBlockWidgets,
 	setupBlockWidgets,
 } from 'jetpack-e2e-commons/helpers/search-helper';
-import { testStep } from 'jetpack-e2e-commons/reporters/reporter';
-import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites';
-import { Plans } from 'jetpack-e2e-commons/env/types';
+import { testStep } from 'jetpack-e2e-commons/reporters';
+import { prerequisitesBuilder, Plans } from 'jetpack-e2e-commons/env';
 
 /**
  *

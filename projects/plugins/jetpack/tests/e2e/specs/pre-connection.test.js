@@ -5,7 +5,7 @@ import {
 	JetpackPage,
 } from 'jetpack-e2e-commons/pages/wp-admin';
 import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper';
-import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites';
+import { prerequisitesBuilder } from 'jetpack-e2e-commons/env';
 
 /**
  *

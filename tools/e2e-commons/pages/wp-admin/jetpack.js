@@ -1,4 +1,4 @@
-import WpPage from '../wp-page';
+import { WpPage } from '..';
 import logger from '../../logger';
 
 export default class JetpackPage extends WpPage {
