@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a new higher order component to the connection js package to query for connected plugins.
