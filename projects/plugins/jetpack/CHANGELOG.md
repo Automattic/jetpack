@@ -2,6 +2,48 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 10.3-2110.1 - 2021-10-12
+### Enhancements
+- Add Publicize Share POST endpoint
+- Open Jetpack plugin sidebar by default when URL includes query param.
+- Publicize: use post metadata to store publicize data
+- Search: Always show save button for mobile Customberg
+- Secure Sign On: add new filter allowing one to customize the explanation displayed next to the SSO button.
+- VideoPress upload errors are now displayed properly from the Media Library and the Gutenberg editor (video block)
+
+### Improved compatibility
+- Hide Backup from submenu if Backup plugin is present
+- Social Icons Widget: deprecate widget and transform to Social Links block
+
+### Bug fixes
+- Calendly block: Fix the preview in the block inserter
+- Correct AMP validation errors.
+- Eventbrite Block: consider event URLs without event IDs invalid.
+- General: avoid PHP notices that may happen when installing the plugin.
+- Publicize: Refresh connections only when the post publishes.
+- Search: Fix infinite scroll in Customberg
+- Search: fix user could not uncheck filter when result is empty
+- Search: reduce browser history noise by debounce setQuery requests
+- Update Sync Unit Tests to reset settings modified during tests.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add a wpcom menu item linking to wordpess.com/woocommerce-installation/
+- Add click tracking for Widget Visibility
+- Added an admin notice to media-new.php notifying the user that videos uploaded here will not be sent to VideoPress.
+- Allow empty string in message parameter.
+- Bump the RNA API version.
+- E2E tests: extract shared e2e tools
+- E2E tests: updated dependencies
+- Embed block: Add native version of index file to control the available variations.
+- Exclude `vendor/` from code coverage.
+- Init Jetpack 10.3 release cycle.
+- Init the identity-crisis package using the Config package
+- Nav Unification feature flag check. It only affects WPCOM Atomic sites.
+- P2: Conditionally hide Pattern admin menu items for hubs/spaces
+- Remove "beta testing" item from the menu for all users
+- Updated package dependencies
+- Update Jetpack 10.2 to-test.md
+
 ## 10.2 - 2021-10-05
 ### Enhancements
 - Contact Form: add filter to allow customizing email headers.
