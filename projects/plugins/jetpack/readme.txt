@@ -242,7 +242,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.3-2110.1 - 2021-10-12
+### 10.3-a.1 - 2021-10-12
 #### Enhancements
 - Instant Search: always show the save button on the mobile view of the Search Settings dashboard.
 - Secure Sign On: add new filter allowing one to customize the explanation displayed next to the SSO button.
