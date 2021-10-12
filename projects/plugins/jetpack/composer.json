@@ -100,7 +100,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ10_4_alpha"
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ10_3_a_2"
 	},
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-production",
@@ -109,6 +109,7 @@
 			"JETPACK__VERSION": "jetpack.php"
 		},
 		"wp-plugin-slug": "jetpack",
+		"dev-releases": true,
 		"changelogger-default-type": "other",
 		"changelogger": {
 			"versioning": "wordpress",

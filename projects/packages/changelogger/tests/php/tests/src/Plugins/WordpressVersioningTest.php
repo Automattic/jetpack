@@ -238,15 +238,15 @@ class WordpressVersioningTest extends TestCase {
 				'1.2.3-alpha0001+000foobar000....0002',
 			),
 			array(
-				'1.2.0-2109.1',
+				'1.2.0-a.1',
 				array(
 					'major'      => 1.2,
 					'point'      => 0,
-					'prerelease' => '2109.1',
+					'prerelease' => 'a.1',
 					'buildinfo'  => null,
 					'version'    => '1.2',
 				),
-				'1.2-2109.1',
+				'1.2-a.1',
 			),
 
 			array( '1.22', new InvalidArgumentException( 'Version number "1.22" is not in a recognized format.' ) ),
@@ -266,8 +266,6 @@ class WordpressVersioningTest extends TestCase {
 			array( '1.2.3-?', new InvalidArgumentException( 'Version number "1.2.3-?" is not in a recognized format.' ) ),
 			array( '1.2.3+?', new InvalidArgumentException( 'Version number "1.2.3+?" is not in a recognized format.' ) ),
 			array( '1.2.3-a..b', new InvalidArgumentException( 'Version number "1.2.3-a..b" is not in a recognized format.' ) ),
-			array( '10.1-2113.1', new InvalidArgumentException( 'Version number "10.1-2113.1" is not in a recognized format.' ) ),
-			array( '10.1-2100.1', new InvalidArgumentException( 'Version number "10.1-2100.1" is not in a recognized format.' ) ),
 		);
 	}
 
@@ -520,12 +518,11 @@ class WordpressVersioningTest extends TestCase {
 			array( '1.1.1-alpha', '==', '1.1.1-alpha0' ),
 			array( '1.1.1-alpha2', '<', '1.1.1-alpha10' ),
 			array( '1.1.1+beta.9.1', '==', '1.1.1+beta.9' ),
-			array( '10.2-2109.1', '>', '10.1' ),
-			array( '10.2-2109.1', '<', '10.2' ),
-			array( '10.2-2109.1', '>', '10.2-alpha' ),
-			array( '10.2-2109.1', '<', '10.2-beta' ),
-			array( '10.2-2109.2', '<', '10.2-2109.10' ),
-			array( '10.2-2112.2', '<', '10.2-2201.1' ),
+			array( '10.2-a.1', '>', '10.1' ),
+			array( '10.2-a.1', '<', '10.2' ),
+			array( '10.2-a.1', '>', '10.2-alpha' ),
+			array( '10.2-a.1', '<', '10.2-beta' ),
+			array( '10.2-a.2', '<', '10.2-a.10' ),
 		);
 	}
 
