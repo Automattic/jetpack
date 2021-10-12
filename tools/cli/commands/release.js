@@ -66,7 +66,7 @@ export async function releaseCli( argv ) {
 	}
 
 	// Check if we're working with a beta version.
-	if ( typeof argv.beta === 'undefined' ) {
+	if ( typeof argv.beta === 'undefined' && argv.script === 'changelog' ) {
 		argv = await promptBeta( argv );
 	}
 
