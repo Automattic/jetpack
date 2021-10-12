@@ -29,9 +29,9 @@
 	<CloseButton on:click={() => dispatch( 'dismiss' )} />
 	<h3 class="jb-rating-card__headline">
 		{#if improvement >= 5}
-		{sprintf( __( 'Faster by %d%%', 'jetpack-boost' ), improvement )}
+			{sprintf( __( 'Faster by %d%%', 'jetpack-boost' ), improvement )}
 		{:else}
-		{sprintf( __( 'You achieved a score of %d!'), currentPercentage )}
+			{sprintf( __( 'You achieved a score of %d!'), currentPercentage )}
 		{/if}
 	</h3>
 	<p class="jb-rating-card__paragraph">
