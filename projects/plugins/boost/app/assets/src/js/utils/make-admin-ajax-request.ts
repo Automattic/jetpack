@@ -24,7 +24,7 @@ export async function makeAdminAjaxRequest< T = JSONObject >(
 		method: 'post',
 		body: new URLSearchParams( payload ),
 		headers: {
-			'Content-Type': 'application/x-www-form-urlencoded;',
+			'Content-Type': 'application/x-www-form-urlencoded',
 		},
 	};
 
