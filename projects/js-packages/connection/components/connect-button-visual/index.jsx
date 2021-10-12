@@ -10,7 +10,7 @@ import { Spinner } from '@automattic/jetpack-components';
 /**
  * Internal dependencies
  */
-//import './style.scss';
+import './style.scss';
 
 /**
  * The RNA connection component.
