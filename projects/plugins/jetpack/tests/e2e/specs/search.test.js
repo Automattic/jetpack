@@ -7,7 +7,8 @@ import {
 	disableInstantSearch,
 	getBlockWidgets,
 	setupBlockWidgets,
-} from 'jetpack-e2e-commons/helpers/search-helper';
+	searchAPIRoute,
+} from '../helpers/search-helper';
 import { testStep } from 'jetpack-e2e-commons/reporters/reporter';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites';
 import { Plans } from 'jetpack-e2e-commons/env/types';
@@ -46,7 +47,7 @@ describe( 'Search', () => {
 
 	beforeEach( async () => {
 		homepage = await Homepage.visit( page );
-		await homepage.searchAPIRoute();
+		await searchAPIRoute( homepage.page );
 		await homepage.waitForNetworkIdle();
 	} );
 
