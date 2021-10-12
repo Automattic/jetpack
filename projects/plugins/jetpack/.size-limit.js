@@ -1,6 +1,6 @@
 module.exports = [
 	{
-		path: '_inc/build/instant-search/jp-search-main.bundle.js',
+		path: '_inc/build/instant-search/jp-search-main.bundle.min.js',
 		running: false,
 		limit: '4 KiB',
 	},
