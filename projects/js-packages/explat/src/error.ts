@@ -18,7 +18,7 @@ export const logError = ( error: Record< string, string > & { message: string } 
 				...properties,
 				context: 'explat',
 				/* @todo Jetpack: dynamically replace "wpcom" with relevant platform. */
-				explat_client: 'woocommerce',
+				explat_client: 'wpcom',
 			},
 		};
 
