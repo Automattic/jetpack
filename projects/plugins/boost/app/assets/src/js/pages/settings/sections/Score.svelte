@@ -26,16 +26,15 @@
 	let improvementPercentage = 0;
 	let currentPercentage = 0;
 
+	const isLoading = writable( siteIsOnline );
 
-	const isLoading = writable(siteIsOnline);
-
-	const scores = writable({
+	const scores = writable( {
 		current: {
 			mobile: 0,
 			desktop: 0,
 		},
 		noBoost: null,
-	});
+	} );
 
 	refreshScore( false );
 
@@ -74,11 +73,11 @@
 			return;
 		}
 
-		isLoading.set(true);
+		isLoading.set( true );
 		loadError = undefined;
 
 		try {
-			scores.set(await requestSpeedScores( force ));
+			scores.set( await requestSpeedScores( force ) );
 			scoreLetter = getScoreLetter( $scores.current.mobile, $scores.current.desktop );
 			showPrevScores = didScoresImprove( $scores );
 			currentScoreConfigString = $scoreConfigString;
@@ -86,7 +85,7 @@
 			console.log( err );
 			loadError = err;
 		} finally {
-			isLoading.set(false);
+			isLoading.set( false );
 		}
 	}
 
@@ -110,12 +109,13 @@
 		}
 	}, 2000 );
 
-	const respawnRatingPrompt = writable(Jetpack_Boost.preferences.showRatingPrompt);
+	const respawnRatingPrompt = writable( Jetpack_Boost.preferences.showRatingPrompt );
 
 	const showRatingCard = derived(
-		[ scores, respawnRatingPrompt, isLoading],
-		( [ $scores, $respawnRatingPrompt, $isLoading ] ) => didScoresImprove( $scores ) && $respawnRatingPrompt && !$isLoading
-	)
+		[ scores, respawnRatingPrompt, isLoading ],
+		( [ $scores, $respawnRatingPrompt, $isLoading ] ) =>
+			didScoresImprove( $scores ) && $respawnRatingPrompt && ! $isLoading
+	);
 
 	$: if ( $needRefresh ) {
 		debouncedRefreshScore( true );
@@ -208,5 +208,9 @@
 	</div>
 </div>
 {#if $showRatingCard}
-	<RatingCard on:dismiss={() => ( respawnRatingPrompt.set(false) )} improvement={improvementPercentage} {currentPercentage} />
+	<RatingCard
+		on:dismiss={() => respawnRatingPrompt.set( false )}
+		improvement={improvementPercentage}
+		{currentPercentage}
+	/>
 {/if}
