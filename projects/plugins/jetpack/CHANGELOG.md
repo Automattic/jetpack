@@ -4,29 +4,28 @@
 
 ## 10.3-2110.1 - 2021-10-12
 ### Enhancements
-- Add Publicize Share POST endpoint
-- Open Jetpack plugin sidebar by default when URL includes query param.
-- Publicize: use post metadata to store publicize data
-- Search: Always show save button for mobile Customberg
+- Instant Search: always show the save button on the mobile view of the Search Settings dashboard.
 - Secure Sign On: add new filter allowing one to customize the explanation displayed next to the SSO button.
-- VideoPress upload errors are now displayed properly from the Media Library and the Gutenberg editor (video block)
+- VideoPress: improve the display of upload errors in the Media Library and the block editor.
 
 ### Improved compatibility
-- Hide Backup from submenu if Backup plugin is present
-- Social Icons Widget: deprecate widget and transform to Social Links block
+- Jetpack Backup: improve the display of the different plugin menus when using both Jetpack and Jetpack Backup.
+- Social Icons Widget: deprecate widget and offer the option to transform into a Social Links block.
 
 ### Bug fixes
-- Calendly block: Fix the preview in the block inserter
-- Correct AMP validation errors.
-- Eventbrite Block: consider event URLs without event IDs invalid.
+- Calendly block: fix the preview in the block inserter.
+- Eventbrite Block: improve the event URL detection and avoid errors when using links without an event ID.
 - General: avoid PHP notices that may happen when installing the plugin.
-- Publicize: Refresh connections only when the post publishes.
-- Search: Fix infinite scroll in Customberg
-- Search: fix user could not uncheck filter when result is empty
-- Search: reduce browser history noise by debounce setQuery requests
-- Update Sync Unit Tests to reset settings modified during tests.
+- Instant Search: fix the display of filters when there are no results to display for a query.
+- Instant Search: fix the preview of the infinite scroll option in the Search Settings dashboard.
+- Instant Search: reduce browser history noise as search is being typed in the form.
+- Publicize: refresh connections only when the post publishes.
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add Publicize Share POST endpoint
+- Open Jetpack plugin sidebar by default when URL includes query param.
+- Correct AMP validation errors.
+- Publicize: use post metadata to store publicize data
 - Add a wpcom menu item linking to wordpess.com/woocommerce-installation/
 - Add click tracking for Widget Visibility
 - Added an admin notice to media-new.php notifying the user that videos uploaded here will not be sent to VideoPress.
@@ -43,6 +42,7 @@
 - Remove "beta testing" item from the menu for all users
 - Updated package dependencies
 - Update Jetpack 10.2 to-test.md
+- Update Sync Unit Tests to reset settings modified during tests.
 
 ## 10.2 - 2021-10-05
 ### Enhancements
