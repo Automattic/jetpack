@@ -27,9 +27,9 @@ import usePublicizeConfig from '../../hooks/use-publicize-config';
 function getPanelDescription(
 	isPostPublished,
 	isRePublicizeFeatureEnabled,
+	isPublicizeEnabled,
 	hasConnections,
-	hasEnabledConnections,
-	isPublicizeEnabled
+	hasEnabledConnections
 ) {
 	// Use constants when the string is used in multiple places.
 	const start_your_posts_string = __(
@@ -125,7 +125,7 @@ const PublicizePanel = ( { prePublish } ) => {
 			) }
 
 			<PublicizeConnectionVerify />
-			<PublicizeForm isEnabled={ isRePublicizeFeatureEnabled ? isSharingEnabled : true } />
+			<PublicizeForm isEnabled={ isRePublicizeFeatureEnabled ? isRePublicizeFeatureEnabled : true } />
 			<PublicizeTwitterOptions prePublish={ prePublish } />
 		</PanelBody>
 	);
