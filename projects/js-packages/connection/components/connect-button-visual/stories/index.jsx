@@ -7,6 +7,7 @@ import { text, boolean } from '@storybook/addon-knobs';
 
 export default {
 	title: 'Playground/Connect Button',
+	component: ConnectButtonVisual,
 };
 
 // Export Default story using knobs
