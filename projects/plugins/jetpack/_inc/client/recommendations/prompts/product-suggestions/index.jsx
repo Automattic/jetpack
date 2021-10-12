@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import { __, _x } from '@wordpress/i18n';
 import { ProgressBar } from '@automattic/components';
+import { Experiment } from '@automattic/jetpack-explat';
 
 /**
  * Internal dependencies
@@ -102,10 +103,23 @@ const ProductSuggestionsComponent = props => {
 		</div>
 	);
 
+	const question = (
+		<Experiment
+			name="jetpack_plugin_implementation_test"
+			defaultExperience={ _x( 'Choose a plan', 'Recommendations Product Suggestions', 'jetpack' ) }
+			treatmentExperience={ _x(
+				'Select a plan',
+				'Recommendations Product Suggestions',
+				'jetpack'
+			) }
+			loadingExperience={ '⏰ Loading title... ⏰' }
+		/>
+	);
+
 	return (
 		<PromptLayout
 			progressBar={ <ProgressBar color={ '#00A32A' } value={ '33' } /> }
-			question={ _x( 'Choose a plan', 'Recommendations Product Suggestions', 'jetpack' ) }
+			question={ question }
 			description={ _x(
 				'These are the most popular Jetpack plans for sites like yours:',
 				'Recommendations Product Suggestions',
