@@ -124,6 +124,15 @@ class Critical_CSS extends Module {
 	protected $state;
 
 	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		parent::__construct();
+
+		add_filter( 'jetpack_boost_js_constants', array( $this, 'always_add_critical_css_constants' ) );
+	}
+
+	/**
 	 * This is only run if Critical CSS module has been activated.
 	 *
 	 * @return bool
@@ -480,7 +489,20 @@ class Critical_CSS extends Module {
 	// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 	/**
-	 * Add Critical CSS related constants to be passed to JavaScript.
+	 * Add Critical CSS related constants to be passed to JavaScript whether or not the module is enabled.
+	 *
+	 * @param array $constants Constants to be passed to JavaScript.
+	 *
+	 * @return array
+	 */
+	public function always_add_critical_css_constants( $constants ) {
+		$constants['criticalCssDismissRecommendationsNonce'] = wp_create_nonce( self::DISMISS_CSS_RECOMMENDATIONS_NONCE );
+
+		return $constants;
+	}
+
+	/**
+	 * Add Critical CSS related constants to be passed to JavaScript only if the module is enabled.
 	 *
 	 * @param array $constants Constants to be passed to JavaScript.
 	 *
@@ -488,9 +510,8 @@ class Critical_CSS extends Module {
 	 */
 	public function add_critical_css_constants( $constants ) {
 		// Information about the current status of Critical CSS / generation.
-		$constants['criticalCssStatus']                      = $this->get_local_critical_css_generation_info();
-		$constants['criticalCssDismissRecommendationsNonce'] = wp_create_nonce( self::DISMISS_CSS_RECOMMENDATIONS_NONCE );
-		$constants['criticalCssDismissedRecommendations']    = \get_option( self::DISMISSED_RECOMMENDATIONS_STORAGE_KEY, array() );
+		$constants['criticalCssStatus']                   = $this->get_local_critical_css_generation_info();
+		$constants['criticalCssDismissedRecommendations'] = \get_option( self::DISMISSED_RECOMMENDATIONS_STORAGE_KEY, array() );
 
 		return $constants;
 	}
