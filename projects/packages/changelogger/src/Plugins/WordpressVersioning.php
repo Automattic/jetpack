@@ -68,10 +68,11 @@ class WordpressVersioning implements VersioningPlugin {
 	 * Check and normalize a version number.
 	 *
 	 * @param string $version Version string.
+	 * @param array  $extra Extra components for the version, replacing any in `$version`.
 	 * @return string Normalized version.
-	 * @throws InvalidArgumentException If the version number is not in a recognized format.
+	 * @throws InvalidArgumentException If the version number is not in a recognized format or extra is invalid.
 	 */
-	public function normalizeVersion( $version ) {
+	public function normalizeVersion( $version, $extra = array() ) {
 		// The ability to pass an array is an internal-only feature.
 		if ( is_array( $version ) ) {
 			$info = $version + array(
@@ -86,6 +87,7 @@ class WordpressVersioning implements VersioningPlugin {
 		} else {
 			$info = $this->parseVersion( $version );
 		}
+		$info = array_merge( $info, $this->validateExtra( $extra, false ) );
 
 		$ret = sprintf( '%.1f', $info['major'] );
 		if ( 0 !== $info['point'] ) {
@@ -104,10 +106,11 @@ class WordpressVersioning implements VersioningPlugin {
 	 * Validate an `$extra` array.
 	 *
 	 * @param array $extra Extra components for the version. See `nextVersion()`.
+	 * @param bool  $nulls Return nulls for unset fields.
 	 * @return array
 	 * @throws InvalidArgumentException If the `$extra` data is invalid.
 	 */
-	private function validateExtra( array $extra ) {
+	private function validateExtra( array $extra, $nulls = true ) {
 		$info = array();
 
 		if ( isset( $extra['prerelease'] ) ) {
@@ -116,7 +119,7 @@ class WordpressVersioning implements VersioningPlugin {
 			} catch ( InvalidArgumentException $ex ) {
 				throw new InvalidArgumentException( 'Invalid prerelease data' );
 			}
-		} else {
+		} elseif ( $nulls || array_key_exists( 'prerelease', $extra ) ) {
 			$info['prerelease'] = null;
 		}
 		if ( isset( $extra['buildinfo'] ) ) {
@@ -125,7 +128,7 @@ class WordpressVersioning implements VersioningPlugin {
 			} catch ( InvalidArgumentException $ex ) {
 				throw new InvalidArgumentException( 'Invalid buildinfo data' );
 			}
-		} else {
+		} elseif ( $nulls || array_key_exists( 'buildinfo', $extra ) ) {
 			$info['buildinfo'] = null;
 		}
 

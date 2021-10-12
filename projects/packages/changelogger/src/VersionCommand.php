@@ -134,11 +134,9 @@ EOF
 
 		// For current and next, if the changelog was empty of versions (and it didn't error out
 		// earlier) then guess the first version.
-		$extra = array_filter(
-			array(
-				'prerelease' => $input->getOption( 'prerelease' ),
-				'buildinfo'  => $input->getOption( 'buildinfo' ),
-			)
+		$extra = array(
+			'prerelease' => $input->getOption( 'prerelease' ),
+			'buildinfo'  => $input->getOption( 'buildinfo' ),
 		);
 		if ( ! $versions ) {
 			try {
@@ -181,7 +179,48 @@ EOF
 			}
 		}
 		try {
-			$output->writeln( $versioning->nextVersion( $versions[0], $changes, $extra ), OutputInterface::VERBOSITY_QUIET );
+			$curversion     = $versions[0];
+			$releaseversion = null;
+			foreach ( $versions as $v ) {
+				try {
+					$parsed = $versioning->parseVersion( $v );
+				} catch ( \Exception $ex ) {
+					$output->writeln( "<warning>Failed to parse version $v from changelog</>", OutputInterface::VERBOSITY_VERBOSE );
+					break;
+				}
+				if ( null === $parsed['prerelease'] ) {
+					$releaseversion = $parsed['version'];
+					break;
+				}
+			}
+
+			// Simple case, current version is a release version.
+			if ( $curversion === $releaseversion ) {
+				$output->writeln( $versioning->nextVersion( $curversion, $changes, $extra ), OutputInterface::VERBOSITY_QUIET );
+				return 0;
+			}
+
+			// Some DWIM going on here, when the current version is a prerelease:
+			// 1. First, find the most recent non-prerelease version and calculate "next" based on that.
+			// 2. If the above returned a version earlier than the most recent version, re-normalize with the new $extra.
+			// 3. If that returned an earlier version too, try a patch bump.
+			$newversion = null;
+			if ( null !== $releaseversion ) {
+				$newversion = $versioning->nextVersion( $releaseversion, $changes, $extra );
+				if ( $versioning->compareVersions( $curversion, $newversion ) >= 0 ) {
+					$newversion = null;
+				}
+			}
+			if ( null === $newversion ) {
+				$newversion = $versioning->normalizeVersion( $curversion, $extra );
+				if ( $versioning->compareVersions( $curversion, $newversion ) >= 0 ) {
+					$newversion = null;
+				}
+			}
+			if ( null === $newversion ) {
+				$newversion = $versioning->nextVersion( $curversion, array(), $extra );
+			}
+			$output->writeln( $newversion, OutputInterface::VERBOSITY_QUIET );
 			return 0;
 		} catch ( \Exception $ex ) {
 			$output->writeln( "<error>{$ex->getMessage()}</>" );
