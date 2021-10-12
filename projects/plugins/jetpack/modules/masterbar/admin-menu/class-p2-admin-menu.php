@@ -167,5 +167,9 @@ class P2_Admin_Menu extends WPcom_Admin_Menu {
 			'edit-tags.php?taxonomy=post_tag&amp;post_type=p2_pattern'
 		);
 	}
-}
 
+	/**
+	 * Override, don't add the woocommerce installation menu on any p2s.
+	 */
+	public function add_woocommerce_installation_menu() {}
+}
