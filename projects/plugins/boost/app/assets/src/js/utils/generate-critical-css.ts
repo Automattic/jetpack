@@ -313,11 +313,11 @@ function keepAtRule( name: string ): boolean {
  * helper function for the library may require the value parameter for filtering.
  * As a result we are retaining the value parameters here.
  *
- * @param {string} name  Name of the property to evaluate
- * @param {string} value Value of the property to evaluate
+ * @param {string} name   Name of the property to evaluate
+ * @param {string} _value Value of the property to evaluate
  * @return {boolean} indicating whether or not the property is wanted.
  */
-function keepProperty( name: string, value: string ): boolean {
+function keepProperty( name: string, _value: string ): boolean {
 	const stripped = stripVendorPrefix( name );
 	return ! stripped.startsWith( 'animation' );
 }
