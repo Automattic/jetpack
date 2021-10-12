@@ -34,10 +34,11 @@ function definePaletteColorsAsStaticVariables() {
  *
  * Original webpack plugin: https://github.com/WordPress/gutenberg/blob/b1fd6b2ce6221f1297da78b6c48aeee56130501b/packages/readable-js-assets-webpack-plugin/index.js
  *
- * 1. For translation strings extraction - for now, `.min.js` files are excluded.
- * 2. It also removes contentHash/hash from the chunk file name, which makes it possible for
- * PHP easier to inline translations - and this is essential for WPCOM, as we deploy whenever
- * a PR is merged.
+ * 1. Our translations pipeline ignores all files suffixed with `.min.js`.
+ * 2. This plugin will generate a non-minified JS file for each `.min.js` asset.
+ * 3. This plugin will also strip the `[hash]`/`[contentHash]` from the non-minified 
+      JS file, enabling inlining translations within PHP. This is essential for WPCOM,
+      where we generate unique hash/contentHash for every PR deployment.
  *
  * @returns {object} AddReadableJsAssetsWebpackPlugin instance.
  */
