@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Remove initialization of the identity-crisis package. That will be handled by the Config package.
