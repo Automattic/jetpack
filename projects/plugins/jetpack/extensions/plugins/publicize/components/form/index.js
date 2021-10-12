@@ -22,7 +22,7 @@ import useSocialMediaConnections from '../../hooks/use-social-media-connections'
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 
 export default function PublicizeForm( { isEnabled } ) {
-	const { connections, toggleById } = useSocialMediaConnections();
+	const { connections, toggleById, hasConnections } = useSocialMediaConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 
 	function isDisabled() {
@@ -31,21 +31,23 @@ export default function PublicizeForm( { isEnabled } ) {
 
 	return (
 		<Fragment>
-			<PanelRow>
-				<ul className="jetpack-publicize__connections-list">
-					{ connections.map( ( { display_name, enabled, id, service_name, toggleable } ) => (
-						<PublicizeConnection
-							disabled={ ! toggleable || ! isEnabled }
-							enabled={ enabled }
-							key={ id }
-							id={ id }
-							label={ display_name }
-							name={ service_name }
-							toggleConnection={ toggleById }
-						/>
-					) ) }
-				</ul>
-			</PanelRow>
+			{ hasConnections && (
+				<PanelRow>
+					<ul className="jetpack-publicize__connections-list">
+						{ connections.map( ( { display_name, enabled, id, service_name, toggleable } ) => (
+							<PublicizeConnection
+								disabled={ ! toggleable || ! isEnabled }
+								enabled={ enabled }
+								key={ id }
+								id={ id }
+								label={ display_name }
+								name={ service_name }
+								toggleConnection={ toggleById }
+							/>
+						) ) }
+					</ul>
+				</PanelRow>
+			) }
 
 			<PublicizeSettingsButton />
 
