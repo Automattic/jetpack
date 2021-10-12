@@ -178,7 +178,7 @@ foreach ( $touched_projects as $slug => $files ) {
 		} elseif ( getenv( 'CI' ) ) {
 			printf( "---\n" ); // Bracket message containing newlines for better visibility in GH's logs.
 			printf(
-				"::error::Project %s is being changed, but no change file in %s is touched!%%0A%%0AUse `jetpack changelogger add %s` to add a change file.%%0AGuidelines: https://github.com/Automattic/jetpack/blob/master/docs/writing-a-good-changelog-entry.md\n",
+				"::error::Project %s is being changed, but no change file in %s is touched!%%0A%%0AUse `jetpack changelog add %s` to add a change file.%%0AGuidelines: https://github.com/Automattic/jetpack/blob/master/docs/writing-a-good-changelog-entry.md\n",
 				$slug,
 				"projects/$slug/{$changelogger_projects[ $slug ]['changes-dir']}/",
 				$slug
@@ -196,7 +196,7 @@ foreach ( $touched_projects as $slug => $files ) {
 	}
 }
 if ( $exit && ! getenv( 'CI' ) && ! $list ) {
-	printf( "\e[32mUse `jetpack changelogger add <slug>` to add a change file for each project.\e[0m\n" );
+	printf( "\e[32mUse `jetpack changelog add <slug>` to add a change file for each project.\e[0m\n" );
 	printf( "\e[32mGuidelines: https://github.com/Automattic/jetpack/blob/master/docs/writing-a-good-changelog-entry.md\e[0m\n" );
 }
 
