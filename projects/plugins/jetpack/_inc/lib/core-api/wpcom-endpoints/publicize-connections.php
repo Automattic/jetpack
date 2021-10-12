@@ -121,7 +121,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 					'service_name'         => $service_name,
 					'display_name'         => $publicize->get_display_name( $service_name, $connection ),
 					'profile_display_name' => ! empty( $connection_meta['profile_display_name'] ) ? $connection_meta['profile_display_name'] : '',
-					'profile_picture'      => ! empty( $connection_meta['profile_picture'] ) ? $connection_meta['profile_picture'] : '',
+					'profile_picture'      => ! empty( $connection_meta['profile_picture'] ) ? $connection_meta['profile_picture'] : $this->get_profile_picture( $connection ),
 					// phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison -- We expect an integer, but do loose comparison below in case some other type is stored.
 					'global'               => 0 == $connection_data['user_id'],
 				);
@@ -129,6 +129,30 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 		}
 
 		return $items;
+	}
+
+	/**
+	 * Helper for retrieving profile pictures. Used by this endpoint and by
+	 * the Connection Test Result endpoint.
+	 *
+	 * @param object $connection Connection being used as a keyring token here.
+	 * @return string Picture URL or empty string.
+	 */
+	protected function get_profile_picture( $connection ) {
+		require_lib( 'external-connections' );
+		$external_connections = WPCOM_External_Connections::init();
+
+		if ( ! method_exists( $external_connections, 'get_keyring_profile_picture' ) ) {
+			return '';
+		}
+
+		$profile_picture = $external_connections->get_keyring_profile_picture( $connection );
+
+		if ( isset( $profile_picture ) ) {
+			return $profile_picture;
+		}
+
+		return '';
 	}
 
 	/**
