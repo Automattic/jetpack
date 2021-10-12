@@ -176,6 +176,23 @@ importers:
       jetpack-js-test-runner: link:../../../tools/js-test-runner
       nyc: 15.1.0
 
+  projects/js-packages/explat:
+    specifiers:
+      '@automattic/explat-client': 0.0.2
+      '@automattic/explat-client-react-helpers': 0.0.2
+      '@types/cookie': 0.4.1
+      cookie: ^0.4.1
+      jetpack-js-test-runner: workspace:*
+      qs: 6.9.6
+    dependencies:
+      '@automattic/explat-client': 0.0.2
+      '@automattic/explat-client-react-helpers': 0.0.2
+      cookie: 0.4.1
+      jetpack-js-test-runner: link:../../../tools/js-test-runner
+      qs: 6.9.6
+    devDependencies:
+      '@types/cookie': 0.4.1
+
   projects/js-packages/idc:
     specifiers:
       '@automattic/jetpack-api': workspace:^0.3.0-alpha
@@ -544,6 +561,7 @@ importers:
       '@automattic/jetpack-api': workspace:^0.3.0-alpha
       '@automattic/jetpack-components': workspace:^0.3.1
       '@automattic/jetpack-connection': workspace:^0.7.0-alpha
+      '@automattic/jetpack-explat': workspace:^0.1.0-alpha
       '@automattic/popup-monitor': 1.0.0
       '@automattic/request-external-access': 1.0.0
       '@automattic/social-previews': 1.1.1
@@ -683,6 +701,7 @@ importers:
       '@automattic/jetpack-api': link:../../js-packages/api
       '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
+      '@automattic/jetpack-explat': link:../../js-packages/explat
       '@automattic/popup-monitor': 1.0.0
       '@automattic/request-external-access': 1.0.0
       '@automattic/social-previews': 1.1.1_e3caced6dfd46fdc5acad859788fe6d3
@@ -1215,6 +1234,18 @@ packages:
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       react-modal: 3.14.3_react-dom@17.0.2+react@17.0.2
+    dev: false
+
+  /@automattic/explat-client-react-helpers/0.0.2:
+    resolution: {integrity: sha512-0B4Z8u54sCrbPmD+Vy25JKEz6CpdFYJUSnrWuD3s90Gz+s3RsewDwW2LTm9w1BggXNslz0PzeK/x7JlsYWD3XQ==}
+    dependencies:
+      '@automattic/explat-client': 0.0.2
+      react: 16.14.0
+      tslib: 2.3.1
+    dev: false
+
+  /@automattic/explat-client/0.0.2:
+    resolution: {integrity: sha512-HOuudV8eRkDmEFCNO8aXiJfirPYBKglIXCNXfNqDzTrEP9rPfomry3DS2bmV17ZcVauQbNHaXjXpxHtEskeYZg==}
     dev: false
 
   /@automattic/format-currency/1.0.0-alpha.0:
@@ -6158,6 +6189,10 @@ packages:
 
   /@types/color-name/1.1.1:
     resolution: {integrity: sha512-rr+OQyAjxze7GgWrSaJwydHStIhHq2lvY3BOC2Mj7KnzI7XK0Uw1TOOdI9lDoajEbSWLiYgoo4f1R51erQfhPQ==}
+    dev: true
+
+  /@types/cookie/0.4.1:
+    resolution: {integrity: sha512-XW/Aa8APYr6jSVVA1y/DEIZX0/GMKLEVekNG727R8cs56ahETkRAy/3DR7+fJyh7oUgGwNQaRfXCun0+KbWY7Q==}
     dev: true
 
   /@types/eslint-scope/3.7.1:
@@ -19109,6 +19144,11 @@ packages:
     resolution: {integrity: sha512-VCdBRNFTX1fyE7Nb6FYoURo/SPe62QCaAyzJvUjwRaIsc+NePBEniHlvxFmmX56+HZphIGtV0XeCirBtpDrTyQ==}
     engines: {node: '>=0.6'}
     dev: true
+
+  /qs/6.9.6:
+    resolution: {integrity: sha512-TIRk4aqYLNoJUbd+g2lEdz5kLWIuTMRagAXxl78Q0RiVjAOugHmeKNGdd3cwo/ktpf9aL9epCfFqWDEKysUlLQ==}
+    engines: {node: '>=0.6'}
+    dev: false
 
   /qss/2.0.3:
     resolution: {integrity: sha512-j48ZBT5IZbSqJiSU8EX4XrN8nXiflHvmMvv2XpFc31gh7n6EpSs75bNr6+oj3FOLWyT8m09pTmqLNl34L7/uPQ==}
