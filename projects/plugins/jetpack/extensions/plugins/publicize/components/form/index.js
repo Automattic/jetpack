@@ -21,7 +21,7 @@ import MessageBoxControl from '../message-box-control';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 
-export default function PublicizeForm( { isEnabled } ) {
+export default function PublicizeForm( { isPublicizeEnabled, isRePublicizeFeatureEnabled } ) {
 	const { connections, toggleById, hasConnections } = useSocialMediaConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 
@@ -36,7 +36,7 @@ export default function PublicizeForm( { isEnabled } ) {
 					<ul className="jetpack-publicize__connections-list">
 						{ connections.map( ( { display_name, enabled, id, service_name, toggleable } ) => (
 							<PublicizeConnection
-								disabled={ ! toggleable || ! isEnabled }
+								disabled={ isRePublicizeFeatureEnabled ? ! isPublicizeEnabled : ! toggleable }
 								enabled={ enabled }
 								key={ id }
 								id={ id }
