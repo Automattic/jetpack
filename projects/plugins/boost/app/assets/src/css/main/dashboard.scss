@@ -6,7 +6,8 @@
 	min-height: calc(100vh - 60px);
 	display: flex;
 	flex-direction: column;
-
+  	position: relative;
+  	overflow-x: hidden;
 }
 
 .jb-section {
@@ -23,7 +24,6 @@
 .jb-section--scores {
 	margin-bottom: $halfling;
   	position: relative;
-  	overflow: hidden;
 }
 
 .jb-section--main {

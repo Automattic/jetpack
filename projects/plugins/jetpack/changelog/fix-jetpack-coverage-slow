@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Exclude `vendor/` from code coverage.
