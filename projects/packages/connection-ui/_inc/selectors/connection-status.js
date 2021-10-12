@@ -1,5 +1,3 @@
-const connectionSelectors = {
-	getConnectionStatus: state => state.connectionStatus || {},
-};
+const connectionSelectors = {};
 
 export default connectionSelectors;

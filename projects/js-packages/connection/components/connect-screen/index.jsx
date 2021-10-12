@@ -27,6 +27,7 @@ import './style.scss';
  * @param {Array} props.images -- Images to display on the right side.
  * @param {string} props.assetBaseUrl -- The assets base URL.
  * @param {boolean} props.autoTrigger -- Whether to initiate the connection process automatically upon rendering the component.
+ * @param {object} props.connectionStatus -- The connection status object.
  * @returns {React.Component} The `ConnectScreen` component.
  */
 const ConnectScreen = props => {

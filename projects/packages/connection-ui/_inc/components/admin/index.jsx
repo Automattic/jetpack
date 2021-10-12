@@ -1,15 +1,14 @@
 /**
  * External dependencies
  */
-import React, { useCallback } from 'react';
-import { useSelect, useDispatch } from '@wordpress/data';
+import React, { useEffect } from 'react';
+import { useSelect, withSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import {
 	ConnectionStatusCard,
 	ConnectScreen,
-	withConnectionStatus,
+	CONNECTION_STORE_ID,
 } from '@automattic/jetpack-connection';
-import { IDCScreen } from '@automattic/jetpack-idc';
 
 /**
  * Internal dependencies
@@ -18,49 +17,27 @@ import { STORE_ID } from '../../store';
 import Header from '../header';
 import './style.scss';
 import ConnectRight from './assets/connect-right.png';
-
-const ConnectScreenWithConnectionStatus = withConnectionStatus( ConnectScreen );
+import restApi from '@automattic/jetpack-api';
 
 /**
  * The Connection IU Admin App.
  *
+ * @param {object} props - The properties.
+ * @param {object} props.connectionStatus - The connection status object.
  * @returns {object} The Admin component.
  */
-export default function Admin() {
+const Admin = props => {
 	const APINonce = useSelect( select => select( STORE_ID ).getAPINonce(), [] );
 	const APIRoot = useSelect( select => select( STORE_ID ).getAPIRoot(), [] );
 	const registrationNonce = useSelect( select => select( STORE_ID ).getRegistrationNonce(), [] );
 	const assetBuildUrl = useSelect( select => select( STORE_ID ).getAssetBuildUrl(), [] );
 
-	const connectionStatus = useSelect( select => select( STORE_ID ).getConnectionStatus(), [] );
-	const { setConnectionStatus } = useDispatch( STORE_ID );
+	const { connectionStatus } = props;
 
-	// Placeholder for testing purposes.
-	const hasIDC = true;
-	const IDCHomeUrl = 'https://site1.local/';
-	const currentUrl = 'https://site2.local/';
-
-	const statusCallback = useCallback(
-		status => {
-			setConnectionStatus( status );
-		},
-		[ setConnectionStatus ]
-	);
-
-	const onDisconnectedCallback = useCallback( () => {
-		setConnectionStatus( { isActive: false, isRegistered: false, isUserConnected: false } );
-	}, [ setConnectionStatus ] );
-
-	if ( hasIDC ) {
-		return (
-			<IDCScreen
-				wpcomHomeUrl={ IDCHomeUrl }
-				currentUrl={ currentUrl }
-				apiRoot={ APIRoot }
-				apiNonce={ APINonce }
-			/>
-		);
-	}
+	useEffect( () => {
+		restApi.setApiRoot( APIRoot );
+		restApi.setApiNonce( APINonce );
+	}, [ APIRoot, APINonce ] );
 
 	return (
 		<React.Fragment>
@@ -72,19 +49,18 @@ export default function Admin() {
 					isUserConnected={ connectionStatus.isUserConnected }
 					apiRoot={ APIRoot }
 					apiNonce={ APINonce }
-					onDisconnected={ onDisconnectedCallback }
 					redirectUri="tools.php?page=wpcom-connection-manager"
 				/>
 			) }
 
 			{ ! connectionStatus.isRegistered && (
-				<ConnectScreenWithConnectionStatus
+				<ConnectScreen
+					connectionStatus={ connectionStatus }
 					apiRoot={ APIRoot }
 					apiNonce={ APINonce }
 					registrationNonce={ registrationNonce }
 					from="connection-ui"
 					redirectUri="tools.php?page=wpcom-connection-manager"
-					statusCallback={ statusCallback }
 					images={ [ ConnectRight ] }
 					assetBaseUrl={ assetBuildUrl }
 				>
@@ -102,8 +78,14 @@ export default function Admin() {
 						<li>{ __( 'Get notifications if your site goes offline', 'jetpack' ) }</li>
 						<li>{ __( 'Enhance your site with dozens of other features', 'jetpack' ) }</li>
 					</ul>
-				</ConnectScreenWithConnectionStatus>
+				</ConnectScreen>
 			) }
 		</React.Fragment>
 	);
-}
+};
+
+export default withSelect( select => {
+	return {
+		connectionStatus: select( CONNECTION_STORE_ID ).getConnectionStatus(),
+	};
+} )( Admin );

@@ -81,67 +81,6 @@ const onUserConnected = useCallback( () => alert( 'User Connected' ) );
 />
 ```
 
-### Higher-Order Component `withConnectionStatus`
-This HOC automatically fetches connection status via API, and passes it as a property to the component of your choosing.
-With this, you'll be able to skip the `connectionStatus` and `connectionStatusIsFetching` parameters.
-The `withConnectionStatus` HOC will pass them automatically.
-
-Here's an example:
-
-```jsx
-import ConnectButton from '../connect-button';
-import withConnectionStatus from '../with-connection-status';
-
-const ConnectButtonWithConnectionStatus = withConnectionStatus( ConnectButton );
-
-const SampleComponent = props => {
-    return <ConnectButtonWithConnectionStatus
-		apiRoot="https://example.org/wp-json/"
-		apiNonce="12345"
-		registrationNonce="54321"
-		from="connection-ui"
-	/>;
-};
-
-export default SampleComponent;
-```
-
-### Advanced Connection Status Handling
-
-You can use the component to keep the connection status updated in your application.
-
-To do that, you should pass a custom callback function into the `JetpackConnection` component:
-
-```jsx
-import React, { useState, useCallback } from 'react';
-import { ConnectButton } from '@automattic/jetpack-connection';
-import withConnectionStatus from '../with-connection-status';
-
-const ConnectButtonWithConnectionStatus = withConnectionStatus( ConnectButton );
-
-const SampleComponent = props => {
-    const [ connectionStatus, setConnectionStatus ] = useState( {} );
-
-    const statusCallback = useCallback(
-        status => {
-            setConnectionStatus( status );
-        },
-        [setConnectionStatus]
-    );
-
-    return <ConnectButtonWithConnectionStatus
-        apiRoot="https://example.org/wp-json/"
-        apiNonce="12345"
-        registrationNonce="54321"
-        from="connection-ui"
-        redirectUri="tools.php?page=wpcom-connection-manager"
-        statusCallback={statusCallback}
-    />;
-};
-
-export default SampleComponent;
-```
-
 ## Component `ConnectUser`
 This component encapsulates the user connecting functionality.
 
@@ -249,6 +188,7 @@ const onDisconnectedCallback = useCallback( () => alert( 'Successfully Disconnec
 </DisconnectDialog>
 ```
 
+
 ## Component `ConnectionStatusCard`
 The `ConnectionStatusCard` component displays the current site and user connection status as well as the corresponding actions.
 This component is meant to be used when at least the site level connection has been established, aka there's a status to display.
@@ -306,4 +246,46 @@ import { thirdPartyCookiesFallbackHelper } from '@automattic/jetpack-connection/
 	onThirdPartyCookiesBlocked={ () => thirdPartyCookiesFallbackHelper( 'https://example.org/fallback-url/' ) }
 	// Other properties.
 />
+```
+
+## Fetching connection status and other data from the store
+The package relies [controls](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-data/#controls-2)
+and [resolvers](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-data/#resolvers)
+to pull some data from the API into the package state store.
+Other data is supposed to be provided via initial state, or generated on the fly and simply reflects the current state of the application.
+
+No matter where the data comes from, you can always pull it directly from the `jetpack-connection` store using `@wordpress/data` tooling.
+
+### Basic Usage
+
+Let's say you have a component that requires connection data.
+You could pull that data directly from the REST API, but you'll likely run into the following problems:
+- If you're also using the Jetpack Connection components, you'll end up with two separate copies of connection status in two separate stores.
+- There'll be two API requests sent to the same endpoint, both retrieving connection status: your app and the Connection package.
+- It's just not as convenient. Why handle the data yourself, when you can simply load it from the Jetpack Connection store?
+
+So, we'll use the [`withSelect`](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-data/#withselect) higher-order component to pull the data:
+
+```jsx
+// Import the `withSelect` HOC.
+import { withSelect } from '@wordpress/data';
+
+// Import the Jetpack Connection store ID.
+import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+
+// The component requires the `connectionStatus` parameter.
+const SampleComponent = props => {
+    const { connecitonStatus } = props;
+    return <div>{ JSON.stringify( connectionStatus ) }</div>;
+}
+
+// We wrap `SampleComponent` into the `withSelect` HOC,
+// which will pull the data from the store and pass as a parameter into the component.
+// Connection status object doesn't exist at the first render,
+// it's pulled from the API using WP Data controls and resolvers.
+export default withSelect( select => {
+	return {
+		connectionStatus: select( CONNECTION_STORE_ID ).getConnectionStatus(),
+	}
+} )( SampleComponent );
 ```

@@ -1,7 +1,7 @@
-/**
- * Internal dependencies
- */
-import connectionSelectors from '../components/with-connection-status/state/selectors';
+const connectionSelectors = {
+	getConnectionStatus: state => state.connectionStatus || {},
+	getConnectionStatusIsFetching: state => state.connectionStatusIsFetching || false,
+};
 
 const selectors = {
 	...connectionSelectors,
