@@ -36,9 +36,9 @@ function definePaletteColorsAsStaticVariables() {
  *
  * 1. Our translations pipeline ignores all files suffixed with `.min.js`.
  * 2. This plugin will generate a non-minified JS file for each `.min.js` asset.
- * 3. This plugin will also strip the `[hash]`/`[contentHash]` from the non-minified 
-      JS file, enabling inlining translations within PHP. This is essential for WPCOM,
-      where we generate unique hash/contentHash for every PR deployment.
+ * 3. This plugin will also strip the `[hash]`/`[contentHash]` from the non-minified
+ * JS file, enabling inlining translations within PHP. This is essential for WPCOM,
+ * where we generate unique hash/contentHash for every PR deployment.
  *
  * @returns {object} AddReadableJsAssetsWebpackPlugin instance.
  */
