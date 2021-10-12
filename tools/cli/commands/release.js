@@ -121,9 +121,10 @@ export async function scriptRouter( argv ) {
 			argv.next = `Finished! Next: 
 				\n	- If this is a beta, ensure the stable tag in readme.txt is latest stable. 
 				\n	- Create a PR and have your changes reviewed and merged.
-				\n	- After the PR is merged, wait and make sure changes are propagated to mirror repos for each updated package.
+				\n	- Wait and make sure changes are propagated to mirror repos for each updated package.
 				\n  - After propagation, if you need to create a release branch, stand on master and then run:
 				\n		jetpack release ${ argv.project } release-branch \n`;
+			break;
 		case 'release-branch':
 		case 'append':
 			console.log( `${ argv.script } is not implemented yet!` );
