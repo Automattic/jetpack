@@ -32,7 +32,7 @@ function definePaletteColorsAsStaticVariables() {
  * Returns an instance of the AddReadableJsAssetsWebpackPlugin that adds readable JS assets.
  * The plugin now only works for Search assets, i.e. asset file name pattern /(\.[a-f0-9]{20})?\.min\.js$/
  *
- * Original webpack plugin: https://github.com/WordPress/gutenberg/blob/b1fd6b2ce6221f1297da78b6c48aeee56130501b/packages/readable-js-assets-webpack-plugin/index.js
+ * Forked from: https://github.com/WordPress/gutenberg/blob/b1fd6b2ce6221f1297da78b6c48aeee56130501b/packages/readable-js-assets-webpack-plugin/index.js
  *
  * 1. Our translations pipeline ignores all files suffixed with `.min.js`.
  * 2. This plugin will generate a non-minified JS file for each `.min.js` asset.
