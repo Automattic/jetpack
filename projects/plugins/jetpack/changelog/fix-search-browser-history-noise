@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Search: reduce browser history noise by debounce setQuery requests
