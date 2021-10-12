@@ -3,16 +3,14 @@
  */
 import React, { useEffect, useCallback, useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { Button } from '@wordpress/components';
 import PropTypes from 'prop-types';
 import restApi from '@automattic/jetpack-api';
-import { Spinner } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import ConnectUser from '../connect-user';
-import './style.scss';
+import ConnectButtonVisual from '../connect-button-visual';
 
 /**
  * The RNA connection component.
@@ -117,22 +115,15 @@ const ConnectButton = props => {
 
 			{ ( ! connectionStatus.isRegistered || ! connectionStatus.isUserConnected ) &&
 				! connectionStatusIsFetching && (
-					<Button
-						className="jp-connect-button--button"
-						label={ connectLabel }
-						onClick={ registerSite }
-						isPrimary
-						disabled={ isRegistering || isUserConnecting }
-					>
-						{ isRegistering || isUserConnecting ? <Spinner /> : connectLabel }
-					</Button>
+					<ConnectButtonVisual
+						connectLabel="{ connectLabel }"
+						onButtonClick={ registerSite }
+						connectionStatus={ connectionStatus }
+						connectionStatusIsFetching={ connectionStatusIsFetching }
+						isRegistering={ isRegistering }
+						registationError={ registationError }
+					/>
 				) }
-
-			{ registationError && (
-				<p className="jp-connect-button__error">
-					{ __( 'An error occurred. Please try again.', 'jetpack' ) }
-				</p>
-			) }
 
 			{ isUserConnecting && (
 				<ConnectUser connectUrl={ authorizationUrl } redirectUri={ redirectUri } from={ from } />
