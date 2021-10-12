@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Secure Sign On: add new filter allowing one to customize the explanation displayed next to the SSO button.

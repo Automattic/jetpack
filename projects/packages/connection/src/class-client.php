@@ -33,7 +33,7 @@ class Client {
 		/**
 		 * Fired when the remote request response has been received.
 		 *
-		 * @since 1.30.8
+		 * @since $$next-version$$
 		 *
 		 * @param array|WP_Error The HTTP response.
 		 */
