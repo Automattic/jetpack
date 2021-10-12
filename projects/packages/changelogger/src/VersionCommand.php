@@ -58,6 +58,54 @@ EOF
 	}
 
 	/**
+	 * Get the next version based on the changelog.
+	 *
+	 * @param string[]      $versions Existing versions from the changelog.
+	 * @param ChangeEntry[] $changes Changes.
+	 * @param array         $extra Extra components for the version.
+	 * @return string $version
+	 * @throws InvalidArgumentException If something is wrong.
+	 */
+	public static function getNextVersion( array $versions, array $changes, array $extra ) {
+		$versioning = Config::versioningPlugin();
+
+		$curversion     = $versions[0];
+		$releaseversion = null;
+		foreach ( $versions as $v ) {
+			try {
+				$parsed = $versioning->parseVersion( $v );
+			} catch ( \Exception $ex ) {
+				break;
+			}
+			if ( null === $parsed['prerelease'] ) {
+				$releaseversion = $parsed['version'];
+				break;
+			}
+		}
+
+		// Simple case, current version is a release version.
+		if ( $curversion === $releaseversion ) {
+			return $versioning->nextVersion( $curversion, $changes, $extra );
+		}
+
+		// Some DWIM going on here, when the current version is a prerelease:
+		// 1. First, find the most recent non-prerelease version and calculate "next" based on that.
+		// 2. If the above returned a version earlier than the most recent version, re-normalize with the new $extra.
+		// 3. If that returned an earlier version too, try a patch bump.
+		if ( null !== $releaseversion ) {
+			$newversion = $versioning->nextVersion( $releaseversion, $changes, $extra );
+			if ( $versioning->compareVersions( $curversion, $newversion ) < 0 ) {
+				return $newversion;
+			}
+		}
+		$newversion = $versioning->normalizeVersion( $curversion, $extra );
+		if ( $versioning->compareVersions( $curversion, $newversion ) < 0 ) {
+			return $newversion;
+		}
+		return $versioning->nextVersion( $curversion, array(), $extra );
+	}
+
+	/**
 	 * Executes the command.
 	 *
 	 * @param InputInterface  $input InputInterface.
@@ -179,48 +227,7 @@ EOF
 			}
 		}
 		try {
-			$curversion     = $versions[0];
-			$releaseversion = null;
-			foreach ( $versions as $v ) {
-				try {
-					$parsed = $versioning->parseVersion( $v );
-				} catch ( \Exception $ex ) {
-					$output->writeln( "<warning>Failed to parse version $v from changelog</>", OutputInterface::VERBOSITY_VERBOSE );
-					break;
-				}
-				if ( null === $parsed['prerelease'] ) {
-					$releaseversion = $parsed['version'];
-					break;
-				}
-			}
-
-			// Simple case, current version is a release version.
-			if ( $curversion === $releaseversion ) {
-				$output->writeln( $versioning->nextVersion( $curversion, $changes, $extra ), OutputInterface::VERBOSITY_QUIET );
-				return 0;
-			}
-
-			// Some DWIM going on here, when the current version is a prerelease:
-			// 1. First, find the most recent non-prerelease version and calculate "next" based on that.
-			// 2. If the above returned a version earlier than the most recent version, re-normalize with the new $extra.
-			// 3. If that returned an earlier version too, try a patch bump.
-			$newversion = null;
-			if ( null !== $releaseversion ) {
-				$newversion = $versioning->nextVersion( $releaseversion, $changes, $extra );
-				if ( $versioning->compareVersions( $curversion, $newversion ) >= 0 ) {
-					$newversion = null;
-				}
-			}
-			if ( null === $newversion ) {
-				$newversion = $versioning->normalizeVersion( $curversion, $extra );
-				if ( $versioning->compareVersions( $curversion, $newversion ) >= 0 ) {
-					$newversion = null;
-				}
-			}
-			if ( null === $newversion ) {
-				$newversion = $versioning->nextVersion( $curversion, array(), $extra );
-			}
-			$output->writeln( $newversion, OutputInterface::VERBOSITY_QUIET );
+			$output->writeln( self::getNextVersion( $versions, $changes, $extra ), OutputInterface::VERBOSITY_QUIET );
 			return 0;
 		} catch ( \Exception $ex ) {
 			$output->writeln( "<error>{$ex->getMessage()}</>" );
