@@ -24,11 +24,7 @@
 	  	"tunnel-write-logs": "pm2 logs --nostream --lines 10000 > output/logs/tunnel.log",
 	  	"pretest-e2e": "pnpm run clean",
 	  	"test-e2e": ". ./node_modules/jetpack-e2e-commons/bin/app-password.sh && NODE_CONFIG_DIR='./config' jest --config jest.config.js --runInBand --verbose --detectOpenHandles --json --outputFile=output/summary.json",
-	  	"test-decrypt-default-config": "openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./node_modules/jetpack-e2e-commons/config/encrypted.enc -out ./node_modules/jetpack-e2e-commons/config/local-test.js",
-	  	"test-decrypt-config": "openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ../../../jetpack/tests/e2e/config/encrypted.enc -out ./config/local-test.js",
-	  	"test-decrypt-all-config": "pnpm test-decrypt-default-config && pnpm test-decrypt-config",
-	  	"test-encrypt-default-config": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in ./node_modules/jetpack-e2e-commons/config/local-test.js -out ./node_modules/jetpack-e2e-commons/config/encrypted.enc",
-	  	"test-encrypt-config": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in ./config/local-test.js -out ../../../jetpack/tests/e2e/config/encrypted.enc",
+	  	"test-decrypt-config": "openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./node_modules/jetpack-e2e-commons/config/encrypted.enc -out ./config/local-test.js",
 	  	"preinstall": "pnpm --prefix ../../../../../tools/e2e-commons install"
 	},
 	"devDependencies": {
