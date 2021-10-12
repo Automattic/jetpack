@@ -15,7 +15,7 @@
 	},
 	"dependencies": {
 		"@automattic/calypso-build": "9.0.0",
-		"@automattic/jetpack-api": "workspace:^0.3.0",
+		"@automattic/jetpack-api": "workspace:^0.4.0-alpha",
 		"@automattic/jetpack-connection": "workspace:^0.7.0",
 		"@automattic/jetpack-idc": "workspace:^0.2.0",
 		"@babel/core": "7.15.0",
