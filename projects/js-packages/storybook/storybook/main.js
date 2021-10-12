@@ -12,6 +12,7 @@ const modulesDir = path.join( __dirname, '../node_modules' );
 const stories = [
 	process.env.NODE_ENV !== 'test' && './stories/**/*.@(js|jsx|mdx)',
 	path.join( modulesDir, '@automattic/jetpack-components/components/**/stories/*.@(js|jsx|mdx)' ),
+	path.join( modulesDir, '@automattic/jetpack-connection/components/**/stories/*.@(js|jsx|mdx)' ),
 	path.join( modulesDir, '@automattic/jetpack-base-styles/stories/*.@(js|jsx|mdx)' ),
 ].filter( Boolean );
 
