@@ -24,7 +24,7 @@
 		"build-php": "composer install --ignore-platform-reqs",
 		"build-production": "pnpm run distclean && pnpm run install-if-deps-outdated && pnpm run build-production-client && pnpm run build-production-php && pnpm run build-production-extensions && pnpm run build-production-search && pnpm run build-asset-cdn-json",
 		"build-production-concurrently": "pnpm run distclean && pnpm run install-if-deps-outdated && pnpx concurrently 'pnpm:build-production-client' 'pnpm:build-production-php' 'NODE_ENV=production pnpm run build-extensions' 'NODE_ENV=production pnpm run build-search' 'NODE_ENV=production pnpm run build-widget-visibility' && pnpm run build-asset-cdn-json",
-		"build-production-client": "NODE_ENV=production BABEL_ENV=production pnpm run build-client && pnpm run validate-es10 -- ./_inc/build/",
+		"build-production-client": "NODE_ENV=production BABEL_ENV=production pnpm run build-client && pnpm run validate-es10 -- ./_inc/build/**.min.js",
 		"build-production-extensions": "NODE_ENV=production BABEL_ENV=production pnpm run build-extensions",
 		"build-production-php": "COMPOSER_MIRROR_PATH_REPOS=1 COMPOSER_ROOT_VERSION=dev-master composer install -o --no-dev --classmap-authoritative --prefer-dist",
 		"build-production-search": "NODE_ENV=production BABEL_ENV=production pnpm run build-search && pnpm run validate-es10 -- ./_inc/build/instant-search/**.min.js",
