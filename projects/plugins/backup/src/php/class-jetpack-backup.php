@@ -28,7 +28,7 @@ class Jetpack_Backup {
 
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'Jetpack Backup', 'jetpack-backup' ),
-			__( 'Jetpack Backup', 'jetpack-backup' ),
+			_x( 'Backup', 'The Jetpack Backup product name, without the Jetpack prefix', 'jetpack-backup' ),
 			'manage_options',
 			'jetpack-backup',
 			array( $this, 'plugin_settings_page' ),
