@@ -35,6 +35,11 @@ export function releaseDefine( yargs ) {
 					type: 'string',
 					choices: [ 'changelog', 'readme', 'release-branch', 'amend' ],
 				} )
+				.option( 'dev-release', {
+					alias: 'a',
+					describe: 'Is this a dev release?',
+					type: 'boolean',
+				} )
 				.option( 'beta', {
 					alias: 'b',
 					describe: 'Is this a beta?',
@@ -66,7 +71,7 @@ export async function releaseCli( argv ) {
 	}
 
 	// Check if we're working with a beta version.
-	if ( typeof argv.beta === 'undefined' ) {
+	if ( ! argv.devRelease && typeof argv.beta === 'undefined' ) {
 		argv = await promptBeta( argv );
 	}
 
@@ -112,7 +117,12 @@ export async function scriptRouter( argv ) {
 	switch ( argv.script ) {
 		case 'changelog':
 			argv.script = `tools/changelogger-release.sh`;
-			argv.scriptArgs = argv.beta ? [ '-b', argv.project ] : [ argv.project ];
+			argv.scriptArgs = [ argv.project ];
+			if ( argv.devRelease ) {
+				argv.scriptArgs.unshift( '-a' );
+			} else if ( argv.beta ) {
+				argv.scriptArgs.unshift( '-b' );
+			}
 			argv.next = `Finished! Next: \n	- Create a new branch off master, review the changes, make any necessary adjustments. \n	- Commit your changes. \n	- To continue with the release process, update the readme.txt by running:\n		jetpack release ${ argv.project } readme \n`;
 			break;
 		case 'readme':
