@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Retry if a score request job is stuck for more than 15 minutes

@@ -15,24 +15,26 @@
 	import { __ } from '@wordpress/i18n';
 	import { criticalCssStatus } from '../../../stores/critical-css-status';
 	import { modules } from '../../../stores/modules';
-	import { derived } from 'svelte/store';
+	import { derived, writable } from 'svelte/store';
 	import RatingCard from '../elements/RatingCard.svelte';
 
 	const siteIsOnline = Jetpack_Boost.site.online;
 
 	let loadError;
-	let isLoading = siteIsOnline;
 	let showPrevScores;
 	let scoreLetter = '';
-	let scores = {
+	let improvementPercentage = 0;
+	let currentPercentage = 0;
+
+	const isLoading = writable( siteIsOnline );
+
+	const scores = writable( {
 		current: {
 			mobile: 0,
 			desktop: 0,
 		},
 		noBoost: null,
-	};
-	let showRatingCard = false;
-	let improvementPercentage = 0;
+	} );
 
 	refreshScore( false );
 
@@ -70,20 +72,20 @@
 		if ( ! siteIsOnline ) {
 			return;
 		}
-		
-		isLoading = true;
+
+		isLoading.set( true );
 		loadError = undefined;
 
 		try {
-			scores = await requestSpeedScores( force );
-			scoreLetter = getScoreLetter( scores.current.mobile, scores.current.desktop );
-			showPrevScores = didScoresImprove( scores );
+			scores.set( await requestSpeedScores( force ) );
+			scoreLetter = getScoreLetter( $scores.current.mobile, $scores.current.desktop );
+			showPrevScores = didScoresImprove( $scores );
 			currentScoreConfigString = $scoreConfigString;
 		} catch ( err ) {
 			console.log( err );
 			loadError = err;
 		} finally {
-			isLoading = false;
+			isLoading.set( false );
 		}
 	}
 
@@ -107,25 +109,30 @@
 		}
 	}, 2000 );
 
+	const respawnRatingPrompt = writable( Jetpack_Boost.preferences.showRatingPrompt );
+
+	const showRatingCard = derived(
+		[ scores, respawnRatingPrompt, isLoading ],
+		( [ $scores, $respawnRatingPrompt, $isLoading ] ) =>
+			didScoresImprove( $scores ) && $respawnRatingPrompt && ! $isLoading
+	);
+
 	$: if ( $needRefresh ) {
 		debouncedRefreshScore( true );
 	}
 
-	$: {
-		if ( didScoresImprove( scores ) && Jetpack_Boost.preferences.showRatingPrompt ) {
-			showRatingCard = true;
-			Jetpack_Boost.preferences.showRatingPrompt = false;
-			improvementPercentage = getScoreImprovementPercentage( scores );
-		}
+	$: if ( $showRatingCard ) {
+		improvementPercentage = getScoreImprovementPercentage( $scores );
+		currentPercentage = ( $scores.current.mobile + $scores.current.desktop ) / 2;
 	}
 </script>
 
 <div class="jb-container">
-	<div class="jb-site-score" class:loading={isLoading}>
+	<div class="jb-site-score" class:loading={$isLoading}>
 		{#if siteIsOnline}
 			<div class="jb-site-score__top">
 				<h2>
-					{#if isLoading}
+					{#if $isLoading}
 						{__( 'Loading…', 'jetpack-boost' )}
 					{:else if loadError}
 						{__( 'Whoops, something went wrong', 'jetpack-boost' )}
@@ -133,13 +140,13 @@
 						{__( 'Overall score', 'jetpack-boost' )}: {scoreLetter}
 					{/if}
 				</h2>
-				{#if ! isLoading && ! loadError}
+				{#if ! $isLoading && ! loadError}
 					<ScoreContext />
 				{/if}
 				<button
 					type="button"
 					class="components-button is-link"
-					disabled={isLoading}
+					disabled={$isLoading}
 					on:click={() => refreshScore( true )}
 				>
 					<RefreshIcon />
@@ -175,10 +182,10 @@
 				<div>{__( 'Mobile score', 'jetpack-boost' )}</div>
 			</div>
 			<ScoreBar
-				prevScore={scores.noBoost?.mobile}
-				score={scores.current.mobile}
+				prevScore={$scores.noBoost?.mobile}
+				score={$scores.current.mobile}
 				active={siteIsOnline}
-				{isLoading}
+				isLoading={$isLoading}
 				{showPrevScores}
 				noBoostScoreTooltip={__( 'Your mobile score without Boost', 'jetpack-boost' )}
 			/>
@@ -190,16 +197,20 @@
 				<div>{__( 'Desktop score', 'jetpack-boost' )}</div>
 			</div>
 			<ScoreBar
-				prevScore={scores.noBoost?.desktop}
-				score={scores.current.desktop}
+				prevScore={$scores.noBoost?.desktop}
+				score={$scores.current.desktop}
 				active={siteIsOnline}
-				{isLoading}
+				isLoading={$isLoading}
 				{showPrevScores}
 				noBoostScoreTooltip={__( 'Your desktop score without Boost', 'jetpack-boost' )}
 			/>
 		</div>
 	</div>
 </div>
-{#if showRatingCard}
-	<RatingCard on:dismiss={() => ( showRatingCard = false )} improvement={improvementPercentage} />
+{#if $showRatingCard}
+	<RatingCard
+		on:dismiss={() => respawnRatingPrompt.set( false )}
+		improvement={improvementPercentage}
+		{currentPercentage}
+	/>
 {/if}

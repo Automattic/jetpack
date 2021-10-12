@@ -120,12 +120,12 @@ $no_boost_score_size: 28px;
 		position: relative;
 		font-size: 14px;
 		position: relative;
-		z-index: $label_z_index;
 
 		@include breakpoint(sm) {
 			padding-left: 15px;
 			padding-right: 15px;
 			width: 200px;
+			z-index: $label_z_index;
 		}
 	}
 
@@ -290,8 +290,9 @@ $no_boost_score_size: 28px;
 		border-radius: $border-radius;
 		position: absolute;
 		z-index: 1000;
-		box-shadow:0 1px 5px rgba(0,0,0,0.5);
 		text-align: left;
+
+		@include box-shadow();
 
 		@include breakpoint(sm) {
 			left: -110px;
@@ -321,7 +322,8 @@ $no_boost_score_size: 28px;
 				height:12px;
 				transform:translate(-50%,50%) rotate(45deg);
 				background-color:$primary-white;
-				box-shadow:0 1px 5px rgba(0,0,0,0.5);
+				
+				@include box-shadow();
 			}
 		}
 	}
