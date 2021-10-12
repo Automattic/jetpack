@@ -281,7 +281,8 @@ class Speed_Score {
 			);
 
 			// Only include noBoost scores if at least one modules is enabled.
-			if ( ! empty( $this->jetpack_boost->get_active_modules() ) ) {
+			$latest_history = $history_no_boost->latest();
+			if ( ! empty( $this->jetpack_boost->get_active_modules() ) && wp_get_theme()->get( 'Name' ) === $latest_history['theme'] ) {
 				$response['scores']['noBoost'] = $history_no_boost->latest_scores();
 			}
 		} else {
