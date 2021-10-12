@@ -116,6 +116,14 @@ export async function scriptRouter( argv ) {
 			argv.next = `Finished! Next: \n	- Create a new branch off master, review the changes, make any necessary adjustments. \n	- Commit your changes. \n	- To continue with the release process, update the readme.txt by running:\n		jetpack release ${ argv.project } readme \n`;
 			break;
 		case 'readme':
+			argv.script = `tools/plugin-changelog-to-readme.sh`;
+			argv.scriptArgs = [ argv.project ];
+			argv.next = `Finished! Next: 
+				\n	- If this is a beta, ensure the stable tag in readme.txt is latest stable. 
+				\n	- Create a PR and have your changes reviewed and merged.
+				\n	- After the PR is merged, wait and make sure changes are propagated to mirror repos for each updated package.
+				\n  - After propagation, if you need to create a release branch, stand on master and then run:
+				\n		jetpack release ${ argv.project } release-branch \n`;
 		case 'release-branch':
 		case 'append':
 			console.log( `${ argv.script } is not implemented yet!` );
