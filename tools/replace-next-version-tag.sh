@@ -68,7 +68,7 @@ fi
 # Determine the version
 [[ -z "$2" ]] && die "A version must be specified."
 VERSION="$2"
-if ! grep -E -q '^[0-9]+(\.[0-9]+)+(-(alpha|beta)([-.]?[0-9]+)?)?$' <<<"$VERSION"; then
+if ! grep -E -q '^[0-9]+(\.[0-9]+)+(-(a|alpha|beta)([-.]?[0-9]+)?)?$' <<<"$VERSION"; then
 	proceed_p "Version $VERSION does not seem to be a valid version number." "Continue?"
 fi
 VE=$(sed 's/[&\\/]/\\&/g' <<<"$VERSION")
