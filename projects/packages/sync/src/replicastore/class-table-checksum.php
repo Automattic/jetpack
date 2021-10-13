@@ -665,7 +665,7 @@ class Table_Checksum {
 
 		// Only make the distinct count when we know there can be multiple entries for the range column.
 		$distinct_count = '';
-		if ( count( $this->key_fields ) > 1 || 'terms' === $this->table || 'term_relationships' === $this->table ) {
+		if ( count( $this->key_fields ) > 1 || $wpdb->terms === $this->table || $wpdb->term_relationships === $this->table ) {
 			$distinct_count = 'DISTINCT';
 		}
 
