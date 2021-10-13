@@ -56,8 +56,11 @@ wp.apiFetch.use( function ( options, next ) {
 				} );
 				resolve( gutenbergMediaObject );
 			} )
-			.catch( function () {
-				reject();
+			.catch( function ( error ) {
+				if ( 'errors' in error && 'object' === typeof error.errors && error.errors.length > 0 ) {
+					error = error.errors.shift();
+				}
+				reject( error );
 			} );
 	} );
 } );

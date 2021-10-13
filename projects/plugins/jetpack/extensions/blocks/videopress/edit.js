@@ -402,26 +402,36 @@ const VideoPressEdit = CoreVideoEdit =>
 				</Fragment>
 			);
 
-			if ( isUploading ) {
+			// If we're fetching the video, we need to display the "Generate preview..." message in the Loading block.
+			const isFetchingVideo = isFetchingMedia || isFetchingPreview;
+			const isVideoFallbackOrNotPreview = fallback || ! preview;
+			// If the video is uploading or fetching, we should display the Loading component.
+			const displayLoadingBlock = isUploading || isFetchingVideo;
+			// If the component is in fallback mode or not in preview mode, and we don't need to display the loading block,
+			// then we should display the CoreVideoEdit block
+			const displayCoreVideoBlock = isVideoFallbackOrNotPreview && ! displayLoadingBlock;
+			// If we need to display the CoreVideoEdit or Loading block, then we need to render them in the tree.
+			const renderCoreVideoAndLoadingBlocks = displayLoadingBlock || displayCoreVideoBlock;
+
+			// In order for the media placeholder to keep its state for error messages, we need to keep the CoreVideoEdit component in the tree during file uploads.
+			if ( renderCoreVideoAndLoadingBlocks ) {
 				return (
 					<Fragment>
-						{ blockSettings }
-						<Loading text={ __( 'Uploading…', 'jetpack' ) } />
+						<div className={ ! isUploading && ! isFetchingVideo ? 'videopress-block-hide' : '' }>
+							{ blockSettings }
+							<Loading
+								text={
+									isUploading
+										? __( 'Uploading…', 'jetpack' )
+										: __( 'Generating preview…', 'jetpack' )
+								}
+							/>
+						</div>
+						<div className={ ! displayCoreVideoBlock ? 'videopress-block-hide' : '' }>
+							<CoreVideoEdit { ...this.props } />;
+						</div>
 					</Fragment>
 				);
-			}
-
-			if ( isFetchingMedia || isFetchingPreview ) {
-				return (
-					<Fragment>
-						{ blockSettings }
-						<Loading text={ __( 'Generating preview…', 'jetpack' ) } />
-					</Fragment>
-				);
-			}
-
-			if ( fallback || ! preview ) {
-				return <CoreVideoEdit { ...this.props } />;
 			}
 
 			const { html, scripts } = preview;
