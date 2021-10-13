@@ -7,6 +7,12 @@
  */
 
 /**
+ * WordPress dependencies
+ */
+import { PanelRow } from '@wordpress/components';
+import { Fragment } from '@wordpress/element';
+
+/**
  * Internal dependencies
  */
 import PublicizeConnection from '../connection';
@@ -24,20 +30,22 @@ export default function PublicizeForm() {
 	}
 
 	return (
-		<div id="publicize-form">
-			<ul className="jetpack-publicize__connections-list">
-				{ connections.map( ( { display_name, enabled, id, service_name, toggleable } ) => (
-					<PublicizeConnection
-						disabled={ ! toggleable }
-						enabled={ enabled }
-						key={ id }
-						id={ id }
-						label={ display_name }
-						name={ service_name }
-						toggleConnection={ toggleById }
-					/>
-				) ) }
-			</ul>
+		<Fragment>
+			<PanelRow>
+				<ul className="jetpack-publicize__connections-list">
+					{ connections.map( ( { display_name, enabled, id, service_name, toggleable } ) => (
+						<PublicizeConnection
+							disabled={ ! toggleable }
+							enabled={ enabled }
+							key={ id }
+							id={ id }
+							label={ display_name }
+							name={ service_name }
+							toggleConnection={ toggleById }
+						/>
+					) ) }
+				</ul>
+			</PanelRow>
 
 			<PublicizeSettingsButton />
 
@@ -49,6 +57,6 @@ export default function PublicizeForm() {
 					message={ message }
 				/>
 			) }
-		</div>
+		</Fragment>
 	);
 }
