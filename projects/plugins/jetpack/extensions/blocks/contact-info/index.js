@@ -88,7 +88,23 @@ export const settings = {
 					}
 
 					if ( instance.raw.showmap ) {
-						innerBlocks = [ ...innerBlocks, createBlock( 'jetpack/map', {} ) ];
+						innerBlocks = [
+							...innerBlocks,
+							createBlock( 'jetpack/map', {
+								points: [
+									{
+										title: instance.raw.title,
+										placeTitle: instance.raw.title,
+										caption: instance.raw.address,
+										coordinates: {
+											latitude: 48.14472,
+											longitude: 17.11278,
+										},
+									},
+								],
+								address: 'Pezinok',
+							} ),
+						];
 					}
 
 					return createBlock( 'jetpack/contact-info', {}, innerBlocks );

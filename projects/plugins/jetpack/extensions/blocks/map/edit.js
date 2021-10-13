@@ -52,6 +52,34 @@ class MapEdit extends Component {
 			apiState: API_STATE_LOADING,
 		};
 		this.mapRef = createRef();
+
+		//console.log( 'I am constructing' );
+
+		// Maybe check for existence for address prop
+		// and resolve the coordinates (call the helper function)
+		// and add to the pointsList (setAttributes(...atributes, { pointsList })
+		// Question 1: Is constructor the right place to do this?
+		// Question 2: What is that apiState API_STATE_LOADING above mean? Does it mean that API keys might not exist during construct stage?
+		// Fallback considerations: If there is no apiKey (self hosted), don't do anything perhaps.
+		const { attributes, setAttributes } = this.props;
+		const { address } = attributes;
+		if ( address ) {
+			//console.log( attributes );
+			//console.log( 'Address: ' + address );
+			const newPoint = [
+				{
+					title: 'title goes here',
+					placeTitle: 'placeTitle goes here',
+					caption: 'caption goes here',
+					coordinates: {
+						latitude: 44.14472,
+						longitude: 17.11278,
+					},
+				},
+			];
+			setAttributes( { points: newPoint } );
+			//this.addPoint(newPoint);
+		}
 	}
 
 	addPoint = point => {
