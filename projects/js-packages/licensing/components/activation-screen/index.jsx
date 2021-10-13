@@ -34,8 +34,8 @@ const ActivationScreen = props => {
 	const [licenseError, setLicenseError] = useState(null);
 	const [isSaving, setIsSaving] = useState(false);
 
-	// const [activatedProduct, setActivatedProduct] = useState(null);
-	const [activatedProduct, setActivatedProduct] = useState(2100);
+	const [activatedProduct, setActivatedProduct] = useState(null);
+	// const [activatedProduct, setActivatedProduct] = useState(2100);
 
 	const activateLicense = useCallback(() => {
 		if (!license || isSaving) {
@@ -63,7 +63,10 @@ const ActivationScreen = props => {
 				dashboardUrl={'https://cloud.jetpack.com/landing/' + siteRawUrl}
 				productId={activatedProduct}
 			/>
-			<ActivationScreenIllustration imageUrl={assetBaseUrl + successImage} />
+			<ActivationScreenIllustration
+				imageUrl={assetBaseUrl + successImage}
+				showSupportLink={false}
+			/>
 		</div>
 	);
 
@@ -76,7 +79,7 @@ const ActivationScreen = props => {
 				siteUrl={siteRawUrl}
 				licenseError={licenseError}
 			/>
-			<ActivationScreenIllustration imageUrl={assetBaseUrl + lockImage} />
+			<ActivationScreenIllustration imageUrl={assetBaseUrl + lockImage} showSupportLink />
 		</div>
 	);
 
