@@ -1474,6 +1474,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 			'jpeg'    => array( 'http://example.com/example-150x150.jpeg', true ),
 			'png'     => array( 'http://example.com/example-150x150.png', true ),
 			'webp'    => array( 'http://example.com/example-150x150.webp', true ),
+			'heic'    => array( 'http://example.com/example-150x150.heic', true ),
 			'invalid' => array( 'http://example.com/example-150x150.invalid', false ),
 
 		);

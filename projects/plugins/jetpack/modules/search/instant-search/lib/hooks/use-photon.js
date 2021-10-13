@@ -30,9 +30,9 @@ export function usePhoton( initialSrc, width, height, isPhotonEnabled = true ) {
 	const [ src, setSrc ] = useState( null );
 	const initialSrcWithoutQueryString = stripQueryString( initialSrc );
 
-	// Photon only supports GIF, JPG, PNG and WebP images
+	// Photon supports GIF, JPG, PNG, WebP, and HEIC images
 	// @see https://developer.wordpress.com/docs/photon/
-	const supportedImageTypes = [ 'gif', 'jpg', 'jpeg', 'png', 'webp' ];
+	const supportedImageTypes = [ 'gif', 'jpg', 'jpeg', 'png', 'webp', 'heic' ];
 	const fileExtension = initialSrcWithoutQueryString
 		?.substring( initialSrcWithoutQueryString.lastIndexOf( '.' ) + 1 )
 		.toLowerCase();

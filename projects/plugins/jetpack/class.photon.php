@@ -29,6 +29,7 @@ class Jetpack_Photon {
 		'jpeg',
 		'png',
 		'webp', // Jetpack assumes Photon_OpenCV backend class is being used on the server. See link in docblock.
+		'heic',
 	);
 
 	/**
