@@ -765,6 +765,11 @@ class Critical_CSS extends Module {
 			wp_die( '', 400 );
 		}
 
+		// Reject any request made when not generating.
+		if ( ! $this->state->is_pending() ) {
+			wp_die( '', 400 );
+		}
+
 		// Validate URL and fetch.
 		$proxy_url = filter_var( wp_unslash( $_REQUEST['proxy_url'] ), FILTER_VALIDATE_URL );
 		if ( ! wp_http_validate_url( $proxy_url ) ) {
