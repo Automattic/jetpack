@@ -245,8 +245,8 @@ class Licensing {
 		 *
 		 * @since 1.4.0
 		 *
-		 * @param bool False by default.
+		 * @param bool True by default.
 		 */
-		return apply_filters( 'jetpack_licensing_ui_enabled', false ) && current_user_can( 'jetpack_connect_user' );
+		return apply_filters( 'jetpack_licensing_ui_enabled', true ) && current_user_can( 'jetpack_connect_user' );
 	}
 }

@@ -3,6 +3,7 @@
  */
 import React, { useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
+import restApi from '@automattic/jetpack-api';
 
 /**
  * Internal dependencies
@@ -30,12 +31,29 @@ const ActivationScreen = props => {
 
 	const [license, setLicense] = useState('');
 	const [licenseError, setLicenseError] = useState(null);
+	const [isSaving, setIsSaving] = useState(false);
 
-	const activateLicense = useCallback(e => {
-		e && e.preventDefault();
+	const activateLicense = useCallback(() => {
+		if (!license || isSaving) {
+			return;
+		}
 
-		setLicenseError('Endpoint is not yet created');
-	});
+		setIsSaving(true);
+
+		restApi
+			.attachLicenseKey(license)
+			.then((...args) => {
+				console.log('success');
+				console.log(args);
+
+				setIsSaving(false);
+				setLicense('');
+			})
+			.catch(error => {
+				setIsSaving(false);
+				setLicenseError(error.response.message);
+			});
+	}, [isSaving, license]);
 
 	return (
 		<div className="jp-license-activation-screen">
