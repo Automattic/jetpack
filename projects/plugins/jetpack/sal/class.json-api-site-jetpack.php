@@ -118,6 +118,10 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 		return false;
 	}
 
+	function get_site_owner() {
+		return false;
+	}
+
 	function has_wordads() {
 		return Jetpack::is_module_active( 'wordads' );
 	}
