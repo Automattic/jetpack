@@ -6,7 +6,7 @@
 // TODO Extract into other files
 
 .jp-hidden-on-mobile {
-	@include breakpoint( "<660px" ) {
+	@include breakpoint( '<660px' ) {
 		display: none;
 	}
 }
@@ -27,29 +27,29 @@
 	font-size: $font-body-small;
 }
 
-	.jetpack-pagestyles a {
-		text-decoration: none;
-	}
+.jetpack-pagestyles a {
+	text-decoration: none;
+}
 
-	// Hello Dolly positioning overwrite
-	.jetpack-pagestyles #dolly {
-		float: none;
-		position: relative;
-		right: 0;
-		left: 0;
-		top: 0;
-		padding: rem( 10px );
-		text-align: right;
-		background: $white;
-		font-size: rem( 12px );
-		font-style: italic;
-		color: $gray;
-		border-bottom: 1px lighten( $gray, 30% ) solid;
+// Hello Dolly positioning overwrite
+.jetpack-pagestyles #dolly {
+	float: none;
+	position: relative;
+	right: 0;
+	left: 0;
+	top: 0;
+	padding: rem( 10px );
+	text-align: right;
+	background: $white;
+	font-size: rem( 12px );
+	font-style: italic;
+	color: $gray;
+	border-bottom: 1px lighten( $gray, 30% ) solid;
 
-		@include breakpoint( "<660px" ) {
-			display: none;
-		}
+	@include breakpoint( '<660px' ) {
+		display: none;
 	}
+}
 
 .dops-notice__text a {
 	text-decoration: underline;
@@ -66,16 +66,19 @@
 	max-width: rem( 1040px );
 	padding: rem( 24px );
 
+	&.jp-licensing-screen {
+		max-width: rem( 1128px );
+	}
+
 	&.jp-main-connect-screen,
-	&.jp-user-connect-screen, {
+	&.jp-user-connect-screen {
 		max-width: rem( 1128px );
 		box-sizing: content-box;
 	}
 
-	@media (max-width: 1250px) {
+	@media ( max-width: 1250px ) {
 		max-width: 95%;
 	}
-
 }
 
 #contextual-help-link-wrap {
@@ -87,13 +90,15 @@
 }
 
 @keyframes pulse-light {
-	50% { background-color: lighten( $gray, 30% ); }
+	50% {
+		background-color: lighten( $gray, 30% );
+	}
 }
 
 .blur {
-  -webkit-filter: blur(5px);
-  -moz-filter: blur(5px);
-  -o-filter: blur(5px);
-  -ms-filter: blur(5px);
-  filter: blur(5px);
+	-webkit-filter: blur( 5px );
+	-moz-filter: blur( 5px );
+	-o-filter: blur( 5px );
+	-ms-filter: blur( 5px );
+	filter: blur( 5px );
 }

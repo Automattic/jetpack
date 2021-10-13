@@ -1,12 +1,12 @@
 /**
  * External dependencies
  */
-import React from 'react';
-import { JetpackLogo } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { Button, TextControl } from '@wordpress/components';
-import PropTypes from 'prop-types';
 import { createInterpolateElement } from '@wordpress/element';
+import { JetpackLogo } from '@automattic/jetpack-components';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 /**
  * Internal dependencies
@@ -28,64 +28,72 @@ import './style.scss';
  * @param {function} props.activateLicense
  * @returns {React.Component} The `ActivationScreenControls` component.
  */
-const ActivationScreenControls = props => {
-	const { license, licenseError, onLicenseChange, siteUrl, activateLicense } = props;
-
+const ActivationScreenControls = ({
+	activateLicense,
+	license,
+	licenseError,
+	onLicenseChange,
+	siteUrl,
+}) => {
 	const hasLicenseError = licenseError !== null;
 
 	return (
 		<div className="jp-license-activation-screen-controls">
-			<JetpackLogo showText={false} height={48} logoColor="#069E08" />
-			<h1>{__('Activate a product', 'jetpack')}</h1>
-			<p>
-				{createInterpolateElement(
-					sprintf(
-						/* translators: "%s" is the url of the site i.e. hopeful-weevil.jurassic.ninja . */
-						__(
-							'Enter the license key we sent to your email to activate your product for <strong>%s</strong>',
-							'jetpack'
+			<div className="jp-license-activation-screen-controls--content">
+				<JetpackLogo showText={false} height={48} logoColor="#069E08" />
+				<h1>{__('Activate a product', 'jetpack')}</h1>
+				<p>
+					{createInterpolateElement(
+						sprintf(
+							/* translators: "%s" is the url of the site i.e. hopeful-weevil.jurassic.ninja . */
+							__(
+								'Enter the license key we sent to your email to activate your product for <strong>%s</strong>',
+								'jetpack'
+							),
+							siteUrl
 						),
-						siteUrl
-					),
-					{
-						strong: <strong></strong>,
+						{
+							strong: <strong></strong>,
+						}
+					)}
+				</p>
+				<TextControl
+					className={
+						!hasLicenseError
+							? 'jp-license-activation-screen-controls--license-field'
+							: 'jp-license-activation-screen-controls--license-field-with-error'
 					}
+					label={__('License key', 'jetpack')}
+					placeholder="jp-Product34623432423423"
+					value={license}
+					onChange={onLicenseChange}
+				/>
+				{hasLicenseError && (
+					<div className="jp-license-activation-screen-controls--license-field-error">
+						<ErrorGridicon />
+						<span>{licenseError}</span>
+					</div>
 				)}
-			</p>
-			<TextControl
-				className={
-					!hasLicenseError
-						? 'jp-license-activation-screen-controls--license-field'
-						: 'jp-license-activation-screen-controls--license-field-with-error'
-				}
-				label={__('License key', 'jetpack')}
-				placeholder="jp-Product34623432423423"
-				value={license}
-				onChange={onLicenseChange}
-			/>
-			{hasLicenseError && (
-				<div className="jp-license-activation-screen-controls--license-field-error">
-					<ErrorGridicon />
-					<span>{licenseError}</span>
-				</div>
-			)}
-			<Button
-				className="jp-license-activation-screen-controls--button"
-				onClick={activateLicense}
-				disabled={license.length <= 0}
-			>
-				{__('Activate', 'jetpack')}
-			</Button>
+			</div>
+			<div>
+				<Button
+					className="jp-license-activation-screen-controls--button"
+					onClick={activateLicense}
+					disabled={license.length <= 0}
+				>
+					{__('Activate', 'jetpack')}
+				</Button>
+			</div>
 		</div>
 	);
 };
 
 ActivationScreenControls.PropTypes = {
-	license: PropTypes.string.isRequired,
-	siteUrl: PropTypes.string.isRequired,
-	onLicenseChange: PropTypes.func.isRequired,
-	licenseError: PropTypes.string,
 	activateLicense: PropTypes.func.isRequired,
+	license: PropTypes.string.isRequired,
+	licenseError: PropTypes.string,
+	onLicenseChange: PropTypes.func.isRequired,
+	siteUrl: PropTypes.string.isRequired,
 };
 
 export default ActivationScreenControls;

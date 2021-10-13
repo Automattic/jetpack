@@ -10,6 +10,7 @@ import restApi from '@automattic/jetpack-api';
  */
 import ActivationScreenControls from '../activation-screen-controls';
 import ActivationScreenIllustration from '../activation-screen-illustration';
+import ActivationScreenSuccessInfo from '../activation-screen-success-info';
 
 /**
  * Style dependencies
@@ -27,11 +28,14 @@ import './style.scss';
  * @returns {React.Component} The `ActivationScreen` component.
  */
 const ActivationScreen = props => {
-	const { assetBaseUrl, lockImage, siteRawUrl } = props;
+	const { assetBaseUrl, lockImage, siteRawUrl, successImage } = props;
 
 	const [license, setLicense] = useState('');
 	const [licenseError, setLicenseError] = useState(null);
 	const [isSaving, setIsSaving] = useState(false);
+
+	// const [activatedProduct, setActivatedProduct] = useState(null);
+	const [activatedProduct, setActivatedProduct] = useState(2100);
 
 	const activateLicense = useCallback(() => {
 		if (!license || isSaving) {
@@ -42,10 +46,8 @@ const ActivationScreen = props => {
 
 		restApi
 			.attachLicenseKey(license)
-			.then((...args) => {
-				console.log('success');
-				console.log(args);
-
+			.then(activatedProductId => {
+				setActivatedProduct(activatedProductId);
 				setIsSaving(false);
 				setLicense('');
 			})
@@ -55,7 +57,17 @@ const ActivationScreen = props => {
 			});
 	}, [isSaving, license]);
 
-	return (
+	const renderActivationSuccess = () => (
+		<div className="jp-license-activation-screen">
+			<ActivationScreenSuccessInfo
+				dashboardUrl={'https://cloud.jetpack.com/landing/' + siteRawUrl}
+				productId={activatedProduct}
+			/>
+			<ActivationScreenIllustration imageUrl={assetBaseUrl + successImage} />
+		</div>
+	);
+
+	const renderActivationControl = () => (
 		<div className="jp-license-activation-screen">
 			<ActivationScreenControls
 				license={license}
@@ -67,6 +79,8 @@ const ActivationScreen = props => {
 			<ActivationScreenIllustration imageUrl={assetBaseUrl + lockImage} />
 		</div>
 	);
+
+	return null !== activatedProduct ? renderActivationSuccess() : renderActivationControl();
 };
 
 ActivationScreen.propTypes = {

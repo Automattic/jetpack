@@ -3,9 +3,13 @@
 .jp-license-activation-screen-controls {
 	background: var(--jp-white);
 	padding: 64px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
 
 	h1 {
 		font-size: var(--font-title-large);
+		font-weight: 700;
 	}
 
 	p {

@@ -484,6 +484,15 @@ class Main extends React.Component {
 	}
 
 	/**
+	 * Checks if this is a licensing screen page.
+	 *
+	 * @returns {boolean} Whether this is a licensing screen page.
+	 */
+	isLicensingScreen() {
+		return this.props.location.pathname.startsWith( '/license' );
+	}
+
+	/**
 	 * Check if the connection flow should get triggered automatically.
 	 *
 	 * @returns {boolean} Whether to trigger the connection flow automatically.
@@ -501,6 +510,10 @@ class Main extends React.Component {
 
 		if ( this.isUserConnectScreen() ) {
 			jpClasses.push( 'jp-user-connect-screen' );
+		}
+
+		if ( this.isLicensingScreen() ) {
+			jpClasses.push( 'jp-licensing-screen' );
 		}
 
 		return (
