@@ -33,7 +33,6 @@ const ActivationScreen = props => {
 	const [license, setLicense] = useState('');
 	const [licenseError, setLicenseError] = useState(null);
 	const [isSaving, setIsSaving] = useState(false);
-
 	const [activatedProduct, setActivatedProduct] = useState(null);
 	// const [activatedProduct, setActivatedProduct] = useState(2100);
 
@@ -46,7 +45,7 @@ const ActivationScreen = props => {
 
 		restApi
 			.attachLicenseKey(license)
-			.then(activatedProductId => {
+			.then(({ activatedProductId }) => {
 				setActivatedProduct(activatedProductId);
 				setIsSaving(false);
 				setLicense('');
@@ -78,6 +77,7 @@ const ActivationScreen = props => {
 				activateLicense={activateLicense}
 				siteUrl={siteRawUrl}
 				licenseError={licenseError}
+				isSaving={isSaving}
 			/>
 			<ActivationScreenIllustration imageUrl={assetBaseUrl + lockImage} showSupportLink />
 		</div>

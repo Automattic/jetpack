@@ -26,10 +26,12 @@ import './style.scss';
  * @param {?string} props.licenseError
  * @param {function} props.onLicenseChange
  * @param {function} props.activateLicense
+ * @param {boolean} props.disabled
  * @returns {React.Component} The `ActivationScreenControls` component.
  */
 const ActivationScreenControls = ({
 	activateLicense,
+	isSaving,
 	license,
 	licenseError,
 	onLicenseChange,
@@ -67,6 +69,7 @@ const ActivationScreenControls = ({
 					placeholder="jp-Product34623432423423"
 					value={license}
 					onChange={onLicenseChange}
+					disabled={isSaving}
 				/>
 				{hasLicenseError && (
 					<div className="jp-license-activation-screen-controls--license-field-error">
@@ -79,7 +82,7 @@ const ActivationScreenControls = ({
 				<Button
 					className="jp-license-activation-screen-controls--button"
 					onClick={activateLicense}
-					disabled={license.length <= 0}
+					disabled={license.length <= 0 || isSaving}
 				>
 					{__('Activate', 'jetpack')}
 				</Button>

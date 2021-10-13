@@ -3869,26 +3869,19 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function attach_jetpack_license( $request ) {
 		$license = trim( sanitize_text_field( $request['license'] ) );
-		$results = Licensing::instance()->attach_licenses( array( $license ) );
+		$result = Licensing::instance()->attach_license( $license );
 
-		if ( is_wp_error( $results ) ) {
-			return $results;
+		if ( is_wp_error( $result ) ) {
+			return $result;
 		}
 
-		// We only sent one license, so we can just extract the result from the first element of the array
-		$license_result = array_shift( $results );
-
-		if ( is_null( $license_result ) ) {
-			return new WP_Error( 'no_result', '', array( 'status' => 404 ) );
-		}
-
-		if ( $license_result->errors ) {
-			foreach ( $license_result->errors as $error_status => $error_message_array ) {
+		if ( $result->errors ) {
+			foreach ( $result->errors as $error_status => $error_message_array ) {
 				return new WP_Error( 'attach_license_error', implode( $error_message_array ), array( 'status' => $error_status ) );
 			}
 		}
 
-		return rest_ensure_response( $license_result );
+		return rest_ensure_response( $result );
 	}
 
 	/**
