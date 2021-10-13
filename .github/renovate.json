@@ -1,11 +1,11 @@
 {
-	"extends": ["config:base"],
-	"labels": ["[Type] Janitorial", "[Status] Needs Review"],
+	"extends": [ "config:base" ],
+	"labels": [ "[Type] Janitorial", "[Status] Needs Review" ],
 	"prHourlyLimit": 1,
 	"timezone": "UTC",
-	"schedule": ["before 3am on the first day of the month"],
+	"schedule": [ "before 3am on the first day of the month" ],
 	"updateNotScheduled": false,
-	"gitIgnoredAuthors": ["matticbot@users.noreply.github.com"],
+	"gitIgnoredAuthors": [ "matticbot@users.noreply.github.com" ],
 	"packageRules": [
 		{
 			"groupName": "Monorepo packages",
@@ -56,28 +56,28 @@
 			"enabled": false
 		},
 		{
-			"extends": ["monorepo:wordpress"],
+			"extends": [ "monorepo:wordpress" ],
 			"separateMajorMinor": false,
 			"prPriority": 1
 		},
 		{
 			"groupName": "React and WordPress monorepos",
-			"matchDepTypes": ["monorepo:wordpress", "monorepo:react"]
+			"matchDepTypes": [ "monorepo:wordpress", "monorepo:react" ]
 		},
 		{
-			"extends": ["packages:eslint"],
+			"extends": [ "packages:eslint" ],
 			"groupName": "Eslint packages"
 		},
 		{
-			"extends": ["packages:jsUnitTest"],
+			"extends": [ "packages:jsUnitTest" ],
 			"groupName": "JS unit testing packages"
 		},
 		{
-			"matchPaths": ["packages/codesniffer/composer.json"],
+			"matchPaths": [ "packages/codesniffer/composer.json" ],
 			"rangeStrategy": "replace"
 		},
 		{
-			"matchPackageNames": ["johnkary/phpunit-speedtrap"],
+			"matchPackageNames": [ "johnkary/phpunit-speedtrap" ],
 			"rangeStrategy": "widen"
 		},
 		{
@@ -92,15 +92,15 @@
 				"uuid",
 				"@testing-library/preact"
 			],
-			"reviewers": ["team:jetpack-search"],
-			"labels": ["Search", "Instant Search"]
+			"reviewers": [ "team:jetpack-search" ],
+			"labels": [ "Search", "Instant Search" ]
 		}
 	],
 	"lockFileMaintenance": {
 		"enabled": true,
-		"schedule": ["before 3:00 am on Monday on the 7th through 13th day of the month"]
+		"schedule": [ "before 3:00 am on Monday on the 7th through 13th day of the month" ]
 	},
 	"dependencyDashboard": true,
 	"dependencyDashboardTitle": "Renovate Dependency Updates",
-	"dependencyDashboardLabels": ["Primary Issue", "[Type] Janitorial"]
+	"dependencyDashboardLabels": [ "Primary Issue", "[Type] Janitorial" ]
 }

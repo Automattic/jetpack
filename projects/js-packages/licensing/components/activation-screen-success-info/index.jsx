@@ -20,12 +20,12 @@ import {
  */
 import './style.scss';
 
-const productIdToDetails = (productId, dashboardUrl) => {
-	switch (productId) {
+const productIdToDetails = ( productId, dashboardUrl ) => {
+	switch ( productId ) {
 		case 2100:
-			return <JetpackBackupDailyProductDetails dashboardUrl={dashboardUrl} />;
+			return <JetpackBackupDailyProductDetails dashboardUrl={ dashboardUrl } />;
 		case 2010:
-			return <JetpackSecurityDailyProductDetails dashboardUrl={dashboardUrl} />;
+			return <JetpackSecurityDailyProductDetails dashboardUrl={ dashboardUrl } />;
 		default:
 			return null;
 	}
@@ -38,15 +38,15 @@ const productIdToDetails = (productId, dashboardUrl) => {
  * @param {number} props.dashboardUrl -- The url that links to the site dashboard
  * @returns {React.Component} The `ActivationSuccessInfo` component.
  */
-const ActivationSuccessInfo = ({ dashboardUrl, productId }) => (
+const ActivationSuccessInfo = ( { dashboardUrl, productId } ) => (
 	<div className="jp-license-activation-screen-success-info">
 		<div className="jp-license-activation-screen-success-info--content">
-			<JetpackLogo showText={false} height={48} logoColor="#069E08" />
+			<JetpackLogo showText={ false } height={ 48 } logoColor="#069E08" />
 		</div>
-		{productIdToDetails(productId, dashboardUrl)}
+		{ productIdToDetails( productId, dashboardUrl ) }
 		<div>
-			<Button className="jp-license-activation-screen-success-info--button" href={dashboardUrl}>
-				{__('Go to Dashboard', 'jetpack')}
+			<Button className="jp-license-activation-screen-success-info--button" href={ dashboardUrl }>
+				{ __( 'Go to Dashboard', 'jetpack' ) }
 			</Button>
 		</div>
 	</div>

@@ -9,7 +9,7 @@ const ErrorGridicon = () => {
 			className="error-gridicon"
 			xmlns="http://www.w3.org/2000/svg"
 			viewBox="0 0 24 24"
-			height={24}
+			height={ 24 }
 		>
 			<rect x="0" fill="none" width="24" height="24" />
 			<g>

@@ -29,23 +29,23 @@ import './style.scss';
  * @param {boolean} props.disabled
  * @returns {React.Component} The `ActivationScreenControls` component.
  */
-const ActivationScreenControls = ({
+const ActivationScreenControls = ( {
 	activateLicense,
 	isSaving,
 	license,
 	licenseError,
 	onLicenseChange,
 	siteUrl,
-}) => {
+} ) => {
 	const hasLicenseError = licenseError !== null;
 
 	return (
 		<div className="jp-license-activation-screen-controls">
 			<div className="jp-license-activation-screen-controls--content">
-				<JetpackLogo showText={false} height={48} logoColor="#069E08" />
-				<h1>{__('Activate a product', 'jetpack')}</h1>
+				<JetpackLogo showText={ false } height={ 48 } logoColor="#069E08" />
+				<h1>{ __( 'Activate a product', 'jetpack' ) }</h1>
 				<p>
-					{createInterpolateElement(
+					{ createInterpolateElement(
 						sprintf(
 							/* translators: "%s" is the url of the site i.e. hopeful-weevil.jurassic.ninja . */
 							__(
@@ -57,34 +57,34 @@ const ActivationScreenControls = ({
 						{
 							strong: <strong></strong>,
 						}
-					)}
+					) }
 				</p>
 				<TextControl
 					className={
-						!hasLicenseError
+						! hasLicenseError
 							? 'jp-license-activation-screen-controls--license-field'
 							: 'jp-license-activation-screen-controls--license-field-with-error'
 					}
-					label={__('License key', 'jetpack')}
+					label={ __( 'License key', 'jetpack' ) }
 					placeholder="jp-Product34623432423423"
-					value={license}
-					onChange={onLicenseChange}
-					disabled={isSaving}
+					value={ license }
+					onChange={ onLicenseChange }
+					disabled={ isSaving }
 				/>
-				{hasLicenseError && (
+				{ hasLicenseError && (
 					<div className="jp-license-activation-screen-controls--license-field-error">
 						<ErrorGridicon />
-						<span>{licenseError}</span>
+						<span>{ licenseError }</span>
 					</div>
-				)}
+				) }
 			</div>
 			<div>
 				<Button
 					className="jp-license-activation-screen-controls--button"
-					onClick={activateLicense}
-					disabled={license.length <= 0 || isSaving}
+					onClick={ activateLicense }
+					disabled={ license.length <= 0 || isSaving }
 				>
-					{__('Activate', 'jetpack')}
+					{ __( 'Activate', 'jetpack' ) }
 				</Button>
 			</div>
 		</div>

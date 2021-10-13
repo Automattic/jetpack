@@ -30,41 +30,41 @@ import './style.scss';
 const ActivationScreen = props => {
 	const { assetBaseUrl, lockImage, siteRawUrl, successImage } = props;
 
-	const [license, setLicense] = useState('');
-	const [licenseError, setLicenseError] = useState(null);
-	const [isSaving, setIsSaving] = useState(false);
-	const [activatedProduct, setActivatedProduct] = useState(null);
+	const [ license, setLicense ] = useState( '' );
+	const [ licenseError, setLicenseError ] = useState( null );
+	const [ isSaving, setIsSaving ] = useState( false );
+	const [ activatedProduct, setActivatedProduct ] = useState( null );
 	// const [activatedProduct, setActivatedProduct] = useState(2100);
 
-	const activateLicense = useCallback(() => {
-		if (!license || isSaving) {
+	const activateLicense = useCallback( () => {
+		if ( ! license || isSaving ) {
 			return;
 		}
 
-		setIsSaving(true);
+		setIsSaving( true );
 
 		restApi
-			.attachLicenseKey(license)
-			.then(({ activatedProductId }) => {
-				setActivatedProduct(activatedProductId);
-				setIsSaving(false);
-				setLicense('');
-			})
-			.catch(error => {
-				setIsSaving(false);
-				setLicenseError(error.response.message);
-			});
-	}, [isSaving, license]);
+			.attachLicenseKey( license )
+			.then( ( { activatedProductId } ) => {
+				setActivatedProduct( activatedProductId );
+				setIsSaving( false );
+				setLicense( '' );
+			} )
+			.catch( error => {
+				setIsSaving( false );
+				setLicenseError( error.response.message );
+			} );
+	}, [ isSaving, license ] );
 
 	const renderActivationSuccess = () => (
 		<div className="jp-license-activation-screen">
 			<ActivationScreenSuccessInfo
-				dashboardUrl={'https://cloud.jetpack.com/landing/' + siteRawUrl}
-				productId={activatedProduct}
+				dashboardUrl={ 'https://cloud.jetpack.com/landing/' + siteRawUrl }
+				productId={ activatedProduct }
 			/>
 			<ActivationScreenIllustration
-				imageUrl={assetBaseUrl + successImage}
-				showSupportLink={false}
+				imageUrl={ assetBaseUrl + successImage }
+				showSupportLink={ false }
 			/>
 		</div>
 	);
@@ -72,14 +72,14 @@ const ActivationScreen = props => {
 	const renderActivationControl = () => (
 		<div className="jp-license-activation-screen">
 			<ActivationScreenControls
-				license={license}
-				onLicenseChange={setLicense}
-				activateLicense={activateLicense}
-				siteUrl={siteRawUrl}
-				licenseError={licenseError}
-				isSaving={isSaving}
+				license={ license }
+				onLicenseChange={ setLicense }
+				activateLicense={ activateLicense }
+				siteUrl={ siteRawUrl }
+				licenseError={ licenseError }
+				isSaving={ isSaving }
 			/>
-			<ActivationScreenIllustration imageUrl={assetBaseUrl + lockImage} showSupportLink />
+			<ActivationScreenIllustration imageUrl={ assetBaseUrl + lockImage } showSupportLink />
 		</div>
 	);
 
