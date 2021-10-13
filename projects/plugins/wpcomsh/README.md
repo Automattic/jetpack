@@ -142,6 +142,10 @@ We don’t allow users to deactivate and edit Akismet, Jetpack, VaultPress so th
 
 We also hide the bulk plugins deactivation on the wp-admin/plugins page for all the plugins as it was not easily possible to do it only for the aforementioned plugins.
 
+### Hiding the Jetpack version number on wp-admin/plugins page
+
+That version is managed by the Atomic platform, so does not need to be displayed to site owners. They always run the latest version, which may be a version that is not yet released in the WordPress.org directory.
+
 ### Showing that a plugin is auto-managed
 
 We show a similar message to the update one under Akismet, Jetpack and VaultPress telling users that those plugins are auto-managed for them (an explanation why they can’t deactivate or edit them).

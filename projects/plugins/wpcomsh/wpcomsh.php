@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.8.36
+ * Version: 2.8.37
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.8.36' );
+define( 'WPCOMSH_VERSION', '2.8.37' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -517,6 +517,30 @@ function wpcomsh_hide_plugin_deactivate_edit_links( $links ) {
 
 	return $links;
 }
+
+/**
+ * Hide the Jetpack version number from the plugin list.
+ * That version is managed by the Atomic platform.
+ *
+ * @param string[] $plugin_meta An array of the plugin's metadata, including
+ *                              the version, author, author URI, and plugin URI.
+ * @param string   $plugin_file Path to the plugin file relative to the plugins directory.
+ * @param array    $plugin_data An array of plugin data.
+ * @param string   $status      Status filter currently applied to the plugin list.
+ */
+function wpcom_hide_jetpack_version_number( $plugin_meta, $plugin_file, $plugin_data, $status ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	if (
+		is_array( $plugin_meta )
+		&& isset( $plugin_data['slug'], $plugin_data['Version'] )
+		&& 'jetpack' === $plugin_data['slug']
+		&& false !== strpos( $plugin_meta[0], $plugin_data['Version'] )
+	) {
+		unset( $plugin_meta[0] );
+	}
+
+	return $plugin_meta;
+}
+add_filter( 'plugin_row_meta', 'wpcom_hide_jetpack_version_number', 10, 4 );
 
 function wpcomsh_show_plugin_auto_managed_notice( $file, $plugin_data ) {
 	$plugin_name = 'The plugin';
