@@ -7,10 +7,15 @@
  */
 
 /**
+ * External dependencies
+ */
+import classNames from 'classnames';
+
+/**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { PanelBody, PanelRow, ToggleControl } from '@wordpress/components';
+import { PanelBody, PanelRow, ToggleControl, Button } from '@wordpress/components';
 import { store as editorStore } from '@wordpress/editor';
 import { useSelect } from '@wordpress/data';
 
@@ -24,6 +29,8 @@ import useSelectSocialMediaConnections from '../../hooks/use-social-media-connec
 import { usePostJustPublished } from '../../hooks/use-saving-post';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import { SharePostRow } from '../../components/share-post';
+import { getRequiredPlan } from '../../../../shared/plan-utils';
+import useUpgradeFlow from '../../../../shared/use-upgrade-flow';
 
 function getPanelDescription(
 	isPostPublished,
@@ -83,6 +90,7 @@ const PublicizePanel = ( { prePublish } ) => {
 	const {
 		isRePublicizeFeatureEnabled,
 		isPublicizeEnabled,
+		isRePublicizeFeatureUpgradable,
 		togglePublicizeFeature,
 	} = usePublicizeConfig();
 
@@ -98,6 +106,9 @@ const PublicizePanel = ( { prePublish } ) => {
 		[ hasEnabledConnections, refresh ]
 	);
 
+	const requiredPlan = getRequiredPlan( 'republicize' );
+	const [ checkoutUrl, goToCheckoutPage, isRedirecting ] = useUpgradeFlow( requiredPlan );
+
 	return (
 		<PanelBody title={ __( 'Share this post', 'jetpack' ) }>
 			<div>
@@ -109,6 +120,29 @@ const PublicizePanel = ( { prePublish } ) => {
 					hasEnabledConnections
 				) }
 			</div>
+
+			{ isRePublicizeFeatureEnabled && isRePublicizeFeatureUpgradable && (
+				<div className="jetpack-publicize__upsell">
+					<div className="jetpack-publicize__upsell-description">
+						{ __(
+							'To re-publicize and schedule a post, you need to upgrade to the Personal Plan',
+							'jetpack'
+						) }
+					</div>
+
+					<Button
+						href={ isRedirecting ? null : checkoutUrl } // Only for server-side rendering, since onClick doesn't work there.
+						onClick={ goToCheckoutPage }
+						target="_top"
+						className={ classNames( 'jetpack-publicize__upsell-button is-primary', {
+							'jetpack-upgrade-plan__hidden': ! checkoutUrl,
+						} ) }
+						isBusy={ isRedirecting }
+					>
+						{ isRedirecting ? __( 'Redirecting…', 'jetpack' ) : __( 'Upgrade now', 'jetpack' ) }
+					</Button>
+				</div>
+			) }
 
 			{ isRePublicizeFeatureEnabled && (
 				<PanelRow>
