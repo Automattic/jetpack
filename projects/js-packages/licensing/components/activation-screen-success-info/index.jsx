@@ -10,7 +10,10 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import { JetpackBackupDailyProductDetails } from './product-details';
+import {
+	JetpackBackupDailyProductDetails,
+	JetpackSecurityDailyProductDetails,
+} from './product-details';
 
 /**
  * Style dependencies
@@ -21,6 +24,8 @@ const productIdToDetails = (productId, dashboardUrl) => {
 	switch (productId) {
 		case 2100:
 			return <JetpackBackupDailyProductDetails dashboardUrl={dashboardUrl} />;
+		case 2010:
+			return <JetpackSecurityDailyProductDetails dashboardUrl={dashboardUrl} />;
 		default:
 			return null;
 	}
