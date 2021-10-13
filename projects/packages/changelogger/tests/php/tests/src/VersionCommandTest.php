@@ -342,6 +342,18 @@ class VersionCommandTest extends CommandTestCase {
 				0,
 				'1.0.1-beta',
 			),
+			'Next, changelog has a prerelease version, --prerelease is later, major' => array(
+				array(
+					'which'        => 'next',
+					'--prerelease' => 'beta',
+				),
+				array(
+					'CHANGELOG.md'  => "## 2.0.0-alpha - 2021-10-12\n## 1.0.0 - 2021-10-11",
+					'significances' => array( 'major' ),
+				),
+				0,
+				'2.0.0-beta',
+			),
 			'Next, changelog has a prerelease version, --prerelease is earlier' => array(
 				array(
 					'which'        => 'next',
