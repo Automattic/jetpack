@@ -3,19 +3,22 @@
  */
 import React from 'react';
 import ConnectButtonVisual from '../index.jsx';
+import { action } from '@storybook/addon-actions';
 
 export default {
 	title: 'Playground/Connect Button',
 	component: ConnectButtonVisual,
+	// TODO: actinos are not working. See https://github.com/storybookjs/storybook/issues/7215
+	argTypes: {
+		onButtonClick: { action: 'clicked' },
+	},
 };
 
 // Export additional stories using pre-defined values
 const Template = args => <ConnectButtonVisual { ...args } />;
 
 const DefaultArgs = {
-	onButtonClick: () => {
-		return;
-	},
+	onButtonClick: action( 'onButtonClick' ),
 	isRegistered: false,
 	isUserConnected: false,
 	connectionStatusIsFetching: false,
