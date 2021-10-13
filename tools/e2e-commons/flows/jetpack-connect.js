@@ -1,16 +1,16 @@
 import config from 'config';
-import Sidebar from '../pages/wp-admin/sidebar';
-import JetpackPage from '../pages/wp-admin/jetpack';
-import AuthorizePage from '../pages/wpcom/authorize';
-import PickAPlanPage from '../pages/wpcom/pick-a-plan';
-import CheckoutPage from '../pages/wpcom/checkout';
-import ThankYouPage from '../pages/wpcom/thank-you';
-import MyPlanPage from '../pages/wpcom/my-plan';
+import { Sidebar, JetpackPage, RecommendationsPage } from '../pages/wp-admin';
+import {
+	AuthorizePage,
+	PickAPlanPage,
+	CheckoutPage,
+	ThankYouPage,
+	MyPlanPage,
+	LoginPage,
+} from '../pages/wpcom';
 import { execWpCommand } from '../helpers/utils-helper';
 import { persistPlanData, syncPlanData } from '../helpers/plan-helper';
 import logger from '../logger';
-import RecommendationsPage from '../pages/wp-admin/recommendations';
-import LoginPage from '../pages/wpcom/login';
 
 const cardCredentials = config.get( 'testCardCredentials' );
 
@@ -89,20 +89,4 @@ export async function syncJetpackPlanData( plan, mockPlanData = true ) {
 	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
 		throw new Error( `Site does not have ${ plan } plan` );
 	}
-}
-
-export async function isBlogTokenSet() {
-	const cliCmd = 'jetpack options get blog_token';
-	const result = await execWpCommand( cliCmd );
-	if ( typeof result !== 'object' ) {
-		return true;
-	}
-	const txt = result.toString();
-	if (
-		txt.includes( 'Error: Option not found or is empty' ) ||
-		txt.includes( "Error: 'jetpack' is not a registered wp command" )
-	) {
-		return false;
-	}
-	throw result;
 }
