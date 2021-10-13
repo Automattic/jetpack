@@ -25,6 +25,7 @@ import previewPlaceholder from './map-preview.jpg';
 import { compose } from '@wordpress/compose';
 import { withDispatch } from '@wordpress/data';
 import { getActiveStyleName } from '../../shared/block-styles';
+import { getCoordinates } from './get-coordinates.js';
 
 const API_STATE_LOADING = 0;
 const API_STATE_FAILURE = 1;
@@ -64,16 +65,18 @@ class MapEdit extends Component {
 		const { attributes, setAttributes } = this.props;
 		const { address } = attributes;
 		if ( address ) {
+			//console.log( this.props );
 			//console.log( attributes );
 			//console.log( 'Address: ' + address );
+			const coordinates = getCoordinates( address );
 			const newPoint = [
 				{
 					title: 'title goes here',
 					placeTitle: 'placeTitle goes here',
 					caption: 'caption goes here',
 					coordinates: {
-						latitude: 44.14472,
-						longitude: 17.11278,
+						latitude: coordinates.latitude,
+						longitude: coordinates.longitude,
 					},
 				},
 			];
