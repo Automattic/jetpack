@@ -110,25 +110,23 @@ const ConnectButton = props => {
 	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	return (
-		<div className="jp-connect-button">
+		<>
 			{ connectionStatusIsFetching && `Loading...` }
 
 			{ ( ! connectionStatus.isRegistered || ! connectionStatus.isUserConnected ) &&
 				! connectionStatusIsFetching && (
 					<ConnectButtonVisual
-						connectLabel="{ connectLabel }"
-						onButtonClick={ registerSite }
-						connectionStatus={ connectionStatus }
-						connectionStatusIsFetching={ connectionStatusIsFetching }
-						isRegistering={ isRegistering }
-						registationError={ registationError }
+						connectLabel={ connectLabel }
+						onClick={ registerSite }
+						displayError={ registationError }
+						isLoading={ isRegistering || isUserConnecting }
 					/>
 				) }
 
 			{ isUserConnecting && (
 				<ConnectUser connectUrl={ authorizationUrl } redirectUri={ redirectUri } from={ from } />
 			) }
-		</div>
+		</>
 	);
 };
 

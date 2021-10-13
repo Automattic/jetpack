@@ -18,33 +18,23 @@ import './style.scss';
  * This button is part of the Jetpack Connection package and implements the button used to establish a Jetpack connection.
  */
 const ConnectButtonVisual = props => {
-	const {
-		connectLabel,
-		onButtonClick,
-		isRegistered,
-		isUserConnected,
-		connectionStatusIsFetching,
-		isRegistering,
-		registationError,
-	} = props;
+	const { connectLabel, onClick, isLoading, displayError } = props;
 
 	return (
 		<div className="jp-connect-button">
-			{ connectionStatusIsFetching && `Loading...` }
-
-			{ ( ! isRegistered || ! isUserConnected ) && ! connectionStatusIsFetching && (
+			{
 				<Button
 					className="jp-connect-button--button"
 					label={ connectLabel }
-					onClick={ onButtonClick }
+					onClick={ onClick }
 					isPrimary
-					disabled={ isRegistering }
+					disabled={ isLoading }
 				>
-					{ isRegistering ? <Spinner /> : connectLabel }
+					{ isLoading ? <Spinner /> : connectLabel }
 				</Button>
-			) }
+			}
 
-			{ registationError && (
+			{ displayError && (
 				<p className="jp-connect-button__error">
 					{ __( 'An error occurred. Please try again.', 'jetpack' ) }
 				</p>
@@ -57,26 +47,17 @@ ConnectButtonVisual.propTypes = {
 	/** The "Connect" button label. */
 	connectLabel: PropTypes.string,
 	/** The callback to be called on click. */
-	onButtonClick: PropTypes.func,
-	/** Whether the site is already registered. */
-	isRegistered: PropTypes.bool,
-	/** Whether the current user is connected. */
-	isUserConnected: PropTypes.bool,
-	/** The flag indicating that connection status is being fetched. */
-	connectionStatusIsFetching: PropTypes.bool,
-	/** The flag indicating that registration is being processed. */
-	isRegistering: PropTypes.bool,
-	/** The flag indicating that registration failed. */
-	registationError: PropTypes.bool,
+	onClick: PropTypes.func,
+	/** Will disable the button and display a spinner if set to true. */
+	isLoading: PropTypes.bool,
+	/** Displays an error message */
+	displayError: PropTypes.bool,
 };
 
 ConnectButtonVisual.defaultProps = {
 	connectLabel: __( 'Connect', 'jetpack' ),
-	isRegistered: false,
-	isUserConnected: false,
-	connectionStatusIsFetching: false,
-	isRegistering: false,
-	registationError: false,
+	isLoading: false,
+	displayError: false,
 };
 
 export default ConnectButtonVisual;
