@@ -66,6 +66,7 @@ class Jetpack_Plan {
 				'recurring-payments',
 				'premium-content/container',
 				'videopress',
+				'republicize',
 			),
 		),
 		'premium'  => array(
