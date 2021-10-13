@@ -1,5 +1,5 @@
 import logger from '../logger';
-import { isBlogTokenSet, syncJetpackPlanData } from '../flows/jetpack-connect';
+import { syncJetpackPlanData, loginToWpCom, loginToWpSite } from '../flows';
 import {
 	execWpCommand,
 	getDotComCredentials,
@@ -9,7 +9,6 @@ import {
 } from '../helpers/utils-helper';
 import fs from 'fs';
 import config from 'config';
-import { loginToWpCom, loginToWpSite } from '../flows/log-in';
 import assert from 'assert';
 
 export function prerequisitesBuilder() {
@@ -194,4 +193,20 @@ export async function deactivateModules( modulesList ) {
 		const result = await execWpCommand( `jetpack module deactivate ${ module }` );
 		assert.match( result, new RegExp( `Success: .* has been deactivated.`, 'i' ) );
 	}
+}
+
+export async function isBlogTokenSet() {
+	const cliCmd = 'jetpack options get blog_token';
+	const result = await execWpCommand( cliCmd );
+	if ( typeof result !== 'object' ) {
+		return true;
+	}
+	const txt = result.toString();
+	if (
+		txt.includes( 'Error: Option not found or is empty' ) ||
+		txt.includes( "Error: 'jetpack' is not a registered wp command" )
+	) {
+		return false;
+	}
+	throw result;
 }

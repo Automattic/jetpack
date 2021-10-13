@@ -1,7 +1,4 @@
-/**
- * Internal dependencies
- */
-import WpPage from '../wp-page';
+import { WpPage } from '..';
 
 export default class InPlacePlansPage extends WpPage {
 	constructor( page ) {
