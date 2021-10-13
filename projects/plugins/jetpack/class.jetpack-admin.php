@@ -40,6 +40,8 @@ class Jetpack_Admin {
 		jetpack_require_lib( 'admin-pages/class-jetpack-search-dashboard-page' );
 		$this->jetpack_search = new Jetpack_Search_Dashboard_Page();
 
+		$this->jetpack_search2 = new Automattic\Jetpack\Search\Dashboard();
+
 		add_action( 'admin_init', array( $this->jetpack_react, 'react_redirects' ), 0 );
 		add_action( 'admin_menu', array( $this->jetpack_react, 'add_actions' ), 998 );
 		add_action( 'admin_menu', array( $this->jetpack_search, 'add_actions' ), 999 );

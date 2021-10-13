@@ -3,7 +3,10 @@
 	"description": "Tools to assist with enabling cloud search for Jetpack sites.",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
-	"require": {},
+	"require": {
+		"automattic/jetpack-admin-ui": "0.1.x-dev",
+		"automattic/jetpack-tracking": "1.13.x-dev"
+	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "^2.0",
 		"yoast/phpunit-polyfills": "1.0.1"
