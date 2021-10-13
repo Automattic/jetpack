@@ -156,19 +156,22 @@ No, Jetpack Backup does not currently support split site or split home URLs.
 2. Your site backups are stored in multiple locations on our world-class cloud infrastructure so you can recover them at any moment.
 
 == Changelog ==
-### 0.2.0 - 2021-08-18
+### 1.0.0-beta - 2021-10-13
 #### Added
-- Added Backup UI, placeholders, and supporting end points.
-- Added design for No Backup Capabilities view. Removed unused CSS. Minor styling fixes.
-- Added Jetpack header and footer
-- Added UI options to manage your Jetpack connection
+- Added link to the plugins list table for "Settings" to match other Jetpack plugins.
+- Plugin now disconnects Jetpack on deactivation if it's the last plugin using the connection.
+- Updated Backup plugin readme text and remove dummy tag.
+- Updated readme.md installation instructions.
+- Updated plugin menu structure.
 
 #### Changed
-- Changed backup storage and heartbeat info blocks to only display with a backup plan
-- Updated all external links to use jetpack redirect service
-- Updated Jetpack Backup menu item title and icon
+- Changed menu label.
+- Updated package dependencies.
+- Updated styles for buttons in backup panel and spacing for sections below.
 
 #### Fixed
-- Added a state to display before a first backup starts
-- Fix minor styling issue for the "no plan" page.
+- Adjust dashboard styling.
 
+--------
+
+[See the previous changelogs here](https://github.com/Automattic/jetpack/blob/master/projects/plugins/backup/CHANGELOG.md#changelog)
