@@ -103,14 +103,6 @@ class Critical_CSS extends Module {
 	protected $request_cached_css;
 
 	/**
-	 * Used to track real admin user id when generating Critical CSS,
-	 * to ensure all nonces belong to the correct user.
-	 *
-	 * @var int
-	 */
-	protected $nonce_admin_user_id;
-
-	/**
 	 * Critical CSS storage class instance.
 	 *
 	 * @var Critical_CSS_Storage
@@ -754,30 +746,9 @@ class Critical_CSS extends Module {
 		$current_user_id = get_current_user_id();
 
 		if ( 0 !== $current_user_id ) {
-			// Add a filter to force all nonces generated to belong to the current user (if any).
-			$this->nonce_admin_user_id = $current_user_id;
-			add_filter( 'nonce_user_logged_out', array( $this, 'force_nonce_admin_user' ), 10, 2 );
-
 			// Force current user to 0 to ensure page is rendered as a non-logged-in user.
 			wp_set_current_user( 0 );
 		}
-	}
-
-	/**
-	 * Filter to force nonces created during Critical CSS render to belong to the correct admin user.
-	 * Only affects 'jb-proxy-*' nonces used for proxying external CSS resources.
-	 *
-	 * @param int    $uid    ID of the nonce-owning user.
-	 * @param string $action The nonce action.
-	 *
-	 * @return int
-	 */
-	public function force_nonce_admin_user( $uid, $action ) {
-		if ( strncmp( $action, 'jb-proxy-', 9 ) === 0 ) {
-			return $this->nonce_admin_user_id;
-		}
-
-		return $uid;
 	}
 
 	/**
