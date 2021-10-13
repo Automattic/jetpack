@@ -12,7 +12,7 @@
 	"require-dev": {
 		"brain/monkey": "2.6.0",
 		"yoast/phpunit-polyfills": "1.0.2",
-		"automattic/jetpack-changelogger": "^2.0"
+		"automattic/jetpack-changelogger": "^3.0"
 	},
 	"autoload": {
 		"classmap": [

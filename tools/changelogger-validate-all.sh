@@ -6,6 +6,7 @@ cd "$( dirname "${BASH_SOURCE[0]}" )/.."
 BASE="$PWD"
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
+. "$BASE/tools/includes/alpha-tag.sh"
 
 ARGS=( "--basedir=$BASE" )
 ARGS2=()
@@ -59,10 +60,11 @@ for FILE in projects/*/*/composer.json; do
 
 	info "Checking version numbers $SLUG"
 	CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
+	PRERELEASE=$(alpha_tag $CHANGELOGGER composer.json 0)
 	if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then
-		VER=$($CHANGELOGGER version next --default-first-version --prerelease=alpha) || { err "$VER"; EXIT=1; continue; }
+		VER=$($CHANGELOGGER version next --default-first-version --prerelease=$PRERELEASE) || { err "$VER"; EXIT=1; continue; }
 	else
-		VER=$($CHANGELOGGER version current --default-first-version --prerelease=alpha) || { err "$VER"; EXIT=1; continue; }
+		VER=$($CHANGELOGGER version current --default-first-version --prerelease=$PRERELEASE) || { err "$VER"; EXIT=1; continue; }
 	fi
 	if ! $BASE/tools/project-version.sh "${ARGS2[@]}" -c "$VER" "$SLUG"; then
 		EXIT=1
