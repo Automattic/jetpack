@@ -87,21 +87,10 @@ export const settings = {
 						];
 					}
 
-					if ( instance.raw.showmap ) {
+					if ( instance.raw.showmap && instance.raw.address ) {
 						innerBlocks = [
 							...innerBlocks,
 							createBlock( 'jetpack/map', {
-								points: [
-									{
-										title: instance.raw.title,
-										placeTitle: instance.raw.title,
-										caption: instance.raw.address,
-										coordinates: {
-											latitude: 48.14472,
-											longitude: 17.11278,
-										},
-									},
-								],
 								address: instance.raw.address,
 							} ),
 						];
