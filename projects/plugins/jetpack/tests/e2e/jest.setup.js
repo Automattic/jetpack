@@ -1,4 +1,3 @@
-// test comment
 const { E2E_TIMEOUT, E2E_DEBUG, E2E_RETRY_TIMES } = process.env;
 
 // The Jest timeout is increased because these tests are a bit slow
