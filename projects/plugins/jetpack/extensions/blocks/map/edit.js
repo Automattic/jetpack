@@ -156,9 +156,13 @@ class MapEdit extends Component {
 		} );
 	}
 	componentDidMount() {
-		this.apiCall().then( () => {
-			this.geoCodeAddress( this.props.attributes?.address, this.state.apiKey );
-		} );
+		this.apiCall()
+			.then( () => {
+				if ( this.props.attributes?.address ) {
+					this.geoCodeAddress( this.props.attributes?.address, this.state.apiKey );
+				}
+			} )
+			.catch( error => Error( error ) );
 	}
 	onError = ( code, message ) => {
 		const { noticeOperations } = this.props;
