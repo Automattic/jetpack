@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Sync Checksums - Update distinct clause to use $wpdb-> table names to accouunt for differences in prefixes.
