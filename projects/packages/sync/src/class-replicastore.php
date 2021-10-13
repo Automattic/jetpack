@@ -1174,7 +1174,7 @@ class Replicastore implements Replicastore_Interface {
 	 *
 	 * @access public
 	 *
-	 * @param boolean $perform_text_conversion If text fields should be UTF8 converted.
+	 * @param boolean $perform_text_conversion If text fields should be latin1 converted.
 	 *
 	 * @return array Checksums.
 	 */
@@ -1302,7 +1302,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @param string $salt                    Salt, used for $wpdb->prepare()'s args.
 	 * @param bool   $only_range_edges        Only return the range edges and not the actual checksums.
 	 * @param bool   $detailed_drilldown      If the call should return a detailed drilldown for the checksum or only the checksum.
-	 * @param bool   $perform_text_conversion If text fields should be converted to UTF8 during the checksum calculation.
+	 * @param bool   $perform_text_conversion If text fields should be converted to latin1 during the checksum calculation.
 	 *
 	 * @return array|WP_Error The checksum histogram.
 	 * @throws Exception Throws an exception if data validation fails inside `Table_Checksum` calls.
