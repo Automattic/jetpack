@@ -757,6 +757,7 @@ class Jetpack_Gutenberg {
 					'enable_upgrade_nudge'      => apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ),
 					'is_private_site'           => '-1' === get_option( 'blog_public' ),
 					'is_offline_mode'           => $status->is_offline_mode(),
+					'republicize_enabled'       => apply_filters( 'jetpack_block_editor_republicize_feature', false ),
 				),
 				'siteFragment'     => $status->get_site_suffix(),
 				'adminUrl'         => esc_url( admin_url() ),
