@@ -469,7 +469,7 @@ importers:
       expect-puppeteer: 5.0.4
       jest: 27.0.6
       jest-puppeteer: ^5.0.4
-      jetpack-boost-critical-css-gen: github:automattic/jetpack-boost-critical-css-gen#release-0.0.1
+      jetpack-boost-critical-css-gen: github:automattic/jetpack-boost-critical-css-gen#add/fetch-interface
       node-wp-i18n: 1.2.6
       npm-run-all: 4.1.5
       prettier: npm:wp-prettier@2.2.1-beta-1
@@ -492,7 +492,7 @@ importers:
     dependencies:
       '@wordpress/components': 17.0.0_@babel+core@7.15.0
       '@wordpress/element': 4.0.1
-      jetpack-boost-critical-css-gen: github.com/automattic/jetpack-boost-critical-css-gen/06b6b19c1e1208aacb26d54a304a4ea6741f0f21
+      jetpack-boost-critical-css-gen: github.com/automattic/jetpack-boost-critical-css-gen/a887d548b274dfe534c673b3d68e142bccca35af
     devDependencies:
       '@babel/core': 7.15.0
       '@babel/preset-env': 7.15.0_@babel+core@7.15.0
@@ -24229,8 +24229,8 @@ packages:
     resolution: {integrity: sha512-V50KMwwzqJV0NpZIZFwfOD5/lyny3WlSzRiXgA0G7VUnRlqttta1L6UQIHzd6EuBY/cHGfwTIck7w1yH6Q5zUw==}
     dev: true
 
-  github.com/automattic/jetpack-boost-critical-css-gen/06b6b19c1e1208aacb26d54a304a4ea6741f0f21:
-    resolution: {tarball: https://codeload.github.com/automattic/jetpack-boost-critical-css-gen/tar.gz/06b6b19c1e1208aacb26d54a304a4ea6741f0f21}
+  github.com/automattic/jetpack-boost-critical-css-gen/a887d548b274dfe534c673b3d68e142bccca35af:
+    resolution: {tarball: https://codeload.github.com/automattic/jetpack-boost-critical-css-gen/tar.gz/a887d548b274dfe534c673b3d68e142bccca35af}
     name: jetpack-boost-critical-css-gen
     version: 0.0.1
     prepare: true

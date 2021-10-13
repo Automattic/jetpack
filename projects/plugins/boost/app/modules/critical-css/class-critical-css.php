@@ -25,6 +25,7 @@ class Critical_CSS extends Module {
 
 	const MODULE_SLUG                           = 'critical-css';
 	const GENERATE_QUERY_ACTION                 = 'jb-generate-critical-css';
+	const GENERATE_PROXY_NONCE                  = 'jb-generate-proxy-nonce';
 	const CSS_CALLBACK_ACTION                   = 'jb-critical-css-callback';
 	const RESET_REASON_STORAGE_KEY              = 'jb-generate-critical-css-reset-reason';
 	const DISMISSED_RECOMMENDATIONS_STORAGE_KEY = 'jb-critical-css-dismissed-recommendations';
@@ -151,9 +152,6 @@ class Critical_CSS extends Module {
 		// Update ready flag used to indicate Boost optimizations are warmed up in metatag.
 		add_filter( 'jetpack_boost_url_ready', array( $this, 'is_ready_filter' ), 10, 1 );
 
-		// Check for the appropriate GET parameters to act as a CSS proxy and handle them.
-		$this->handle_css_proxy();
-
 		if ( $this->should_display_critical_css() ) {
 			Admin_Bar_Css_Compat::init();
 			add_action( 'wp_head', array( $this, 'display_critical_css' ), 0 );
@@ -165,9 +163,7 @@ class Critical_CSS extends Module {
 		$this->generating_critical_css = $this->check_generate_query();
 
 		if ( $this->generating_critical_css ) {
-			add_filter( 'style_loader_src', array( $this, 'force_proxied_css' ), 10, 4 );
 			add_action( 'wp_head', array( $this, 'display_generate_meta' ), 0 );
-
 			$this->force_logged_out_render();
 		}
 
@@ -178,6 +174,7 @@ class Critical_CSS extends Module {
 		if ( is_admin() ) {
 			add_action( 'wp_ajax_dismiss_recommendations', array( $this, 'dismiss_recommendations' ) );
 			add_action( 'wp_ajax_reset_dismissed_recommendations', array( $this, 'reset_dismissed_recommendations' ) );
+			add_action( 'wp_ajax_boost_proxy_css', array( $this, 'handle_css_proxy' ) );
 		}
 
 		return true;
@@ -527,8 +524,11 @@ class Critical_CSS extends Module {
 		// Add viewport sizes.
 		$status['viewports'] = self::VIEWPORT_SIZES;
 
-		// Add a nonce to use when requesting pages for Critical CSS generation (i.e.: To turn off admin features).
+		// Add a userless nonce to use when requesting pages for Critical CSS generation (i.e.: To turn off admin features).
 		$status['generation_nonce'] = Nonce::create( self::GENERATE_QUERY_ACTION );
+
+		// Add a user-bound nonce to use when proxying CSS for Critical CSS generation.
+		$status['proxy_nonce'] = wp_create_nonce( self::GENERATE_PROXY_NONCE );
 
 		// Add a passthrough block to include in all response callbacks.
 		$status['callback_passthrough'] = array(
@@ -781,65 +781,26 @@ class Critical_CSS extends Module {
 	}
 
 	/**
-	 * Filter used during local critical CSS generation to replace external CSS references with
-	 * proxied URLs.
-	 *
-	 * @param string $src - URL of external CSS resource.
-	 *
-	 * @return string - Proxied URL for external resources, or unaltered $src for local.
+	 * AJAX handler to handle proxying of external CSS resources.
 	 */
-	public function force_proxied_css( $src ) {
-		global $wp;
-
-		$parsed = wp_parse_url( $src );
-
-		// Build the resource origin host the requested asset belongs to.
-		$resource_origin = '';
-		if ( isset( $parsed['host'] ) ) {
-			$resource_origin = $parsed['host'];
-		}
-		if ( isset( $parsed['port'] ) ) {
-			$resource_origin .= ':' . $parsed['port'];
+	public function handle_css_proxy() {
+		// Verify valid nonce.
+		if ( empty( $_REQUEST['nonce'] ) || ! wp_verify_nonce( sanitize_key( $_REQUEST['nonce'] ), self::GENERATE_PROXY_NONCE ) ) {
+			wp_die( '', 400 );
 		}
 
-		// Skip proxy in certain cases, i.e. if no origin specified, or origin matches current, no need to proxy.
-		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-		$skipped_origins = array( '', $_SERVER['HTTP_HOST'] );
-		if ( in_array( $resource_origin, $skipped_origins, true ) ) {
-			return $src;
+		// Make sure currently logged in as admin.
+		if ( ! $this->current_user_can_modify_critical_css() ) {
+			wp_die( '', 400 );
 		}
 
-		// Copy the scheme in from the current URL if missing.
-		if ( empty( $parsed['scheme'] ) ) {
-			$scheme = empty( $_SERVER['HTTPS'] ) ? 'http://' : 'https://';
-			$src    = $scheme . ltrim( $src, ':/' );
-		}
-
-		// Prepare a proxied URL to allow the JavaScript to access this.
-		$nonce       = wp_create_nonce( 'jb-proxy-' . sanitize_key( $src ) );
-		$proxied_url = add_query_arg(
-			array(
-				'jb-critical-css-render-proxy' => rawurlencode( $src ),
-				'nonce'                        => $nonce,
-			),
-			home_url( $wp->request )
-		);
-
-		return $proxied_url;
-	}
-
-	/**
-	 * Proxy external CSS script - used when jb-critical-css-render-proxy and an appropriate
-	 * nonce are supplied. Useful while generating critical CSS locally.
-	 *
-	 * @param string $src_url - External CSS URL to proxy.
-	 */
-	private function proxy_css( $src_url ) {
-		if ( ! wp_http_validate_url( $src_url ) ) {
+		// Validate URL and fetch.
+		$proxy_url = filter_var( wp_unslash( $_REQUEST['proxy_url'] ), FILTER_VALIDATE_URL );
+		if ( ! wp_http_validate_url( $proxy_url ) ) {
 			die( 'Invalid URL' );
 		}
 
-		$response = wp_remote_get( $src_url );
+		$response = wp_remote_get( $proxy_url );
 		if ( is_wp_error( $response ) ) {
 			// TODO: Nicer error handling.
 			die( 'error' );
@@ -853,35 +814,6 @@ class Critical_CSS extends Module {
 
 		die();
 	}
-
-	/**
-	 * Check for a special GET parameter used to proxy CSS requests while generating new Critical CSS.
-	 * Requires admin permission to use, and is verified by nonce.
-	 *
-	 * phpcs:disable WordPress.Security.NonceVerification.Recommended
-	 */
-	private function handle_css_proxy() {
-		// Exit as early as possible if not trying to proxy.
-		if ( empty( $_GET['jb-critical-css-render-proxy'] ) ) {
-			return;
-		}
-
-		$proxy_url = filter_var( wp_unslash( $_GET['jb-critical-css-render-proxy'] ), FILTER_VALIDATE_URL );
-
-		// Verify valid nonce.
-		if ( empty( $_GET['nonce'] ) || ! wp_verify_nonce( sanitize_key( $_GET['nonce'] ), 'jb-proxy-' . sanitize_key( $proxy_url ) ) ) {
-			wp_die( '', 400 );
-		}
-
-		// Make sure currently logged in as admin.
-		if ( ! $this->current_user_can_modify_critical_css() ) {
-			wp_die( '', 400 );
-		}
-
-		$this->proxy_css( $proxy_url );
-	}
-
-	// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 	/**
 	 * API helper for ensuring this module is enabled before allowing an API
