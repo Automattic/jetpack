@@ -53,37 +53,37 @@ class MapEdit extends Component {
 			apiState: API_STATE_LOADING,
 		};
 		this.mapRef = createRef();
-
-		//console.log( 'I am constructing' );
-
-		// Maybe check for existence for address prop
-		// and resolve the coordinates (call the helper function)
-		// and add to the pointsList (setAttributes(...atributes, { pointsList })
-		// Question 1: Is constructor the right place to do this?
-		// Question 2: What is that apiState API_STATE_LOADING above mean? Does it mean that API keys might not exist during construct stage?
-		// Fallback considerations: If there is no apiKey (self hosted), don't do anything perhaps.
-		const { attributes, setAttributes } = this.props;
-		const { address } = attributes;
-		if ( address ) {
-			//console.log( this.props );
-			//console.log( attributes );
-			//console.log( 'Address: ' + address );
-			const coordinates = getCoordinates( address );
-			const newPoint = [
-				{
-					title: 'title goes here',
-					placeTitle: 'placeTitle goes here',
-					caption: 'caption goes here',
-					coordinates: {
-						latitude: coordinates.latitude,
-						longitude: coordinates.longitude,
-					},
-				},
-			];
-			setAttributes( { points: newPoint } );
-			//this.addPoint(newPoint);
-		}
 	}
+	geoCodeAddress = ( address, apiKey ) => {
+		if ( ! apiKey ) {
+			return;
+		}
+		getCoordinates( address, apiKey )
+			.then( result => {
+				const newPoint = [
+					{
+						title: result.features?.[ 0 ].text,
+						placeTitle: result.features?.[ 0 ].text,
+						caption: result.features?.[ 0 ].place_name,
+						id: result.features?.[ 0 ].id,
+						coordinates: {
+							latitude: result.features?.[ 0 ].center[ 1 ],
+							longitude: result.features?.[ 0 ].center[ 0 ],
+						},
+					},
+				];
+				this.props.setAttributes( { points: newPoint } );
+			} )
+			.catch( error => Error( error ) );
+	};
+
+	componentDidUpdate = previousProps => {
+		const address = this.props.attributes?.address;
+		const previousAddress = previousProps.attributes?.address;
+		if ( address && previousAddress !== address ) {
+			this.geoCodeAddress( address, this.state.apiKey );
+		}
+	};
 
 	addPoint = point => {
 		const { attributes, setAttributes } = this.props;
@@ -120,39 +120,45 @@ class MapEdit extends Component {
 		this.apiCall( null, 'DELETE' );
 	};
 	apiCall( serviceApiKey = null, method = 'GET' ) {
-		const { noticeOperations } = this.props;
-		const path = '/wpcom/v2/service-api-keys/mapbox';
-		const fetch = serviceApiKey
-			? { path, method, data: { service_api_key: serviceApiKey } }
-			: { path, method };
-		this.setState( { apiRequestOutstanding: true }, () => {
-			apiFetch( fetch ).then(
-				( { service_api_key: apiKey, service_api_key_source: apiKeySource } ) => {
-					noticeOperations.removeAllNotices();
+		return new Promise( ( resolve, reject ) => {
+			const { noticeOperations } = this.props;
+			const path = '/wpcom/v2/service-api-keys/mapbox';
+			const fetch = serviceApiKey
+				? { path, method, data: { service_api_key: serviceApiKey } }
+				: { path, method };
+			this.setState( { apiRequestOutstanding: true }, () => {
+				apiFetch( fetch ).then(
+					( { service_api_key: apiKey, service_api_key_source: apiKeySource } ) => {
+						noticeOperations.removeAllNotices();
 
-					const apiState = apiKey ? API_STATE_SUCCESS : API_STATE_FAILURE;
-					const apiKeyControl = 'wpcom' === apiKeySource ? '' : apiKey;
+						const apiState = apiKey ? API_STATE_SUCCESS : API_STATE_FAILURE;
+						const apiKeyControl = 'wpcom' === apiKeySource ? '' : apiKey;
 
-					this.setState( {
-						apiState,
-						apiKey,
-						apiKeyControl,
-						apiKeySource,
-						apiRequestOutstanding: false,
-					} );
-				},
-				( { message } ) => {
-					this.onError( null, message );
-					this.setState( {
-						apiState: API_STATE_FAILURE,
-						apiRequestOutstanding: false,
-					} );
-				}
-			);
+						this.setState( {
+							apiState,
+							apiKey,
+							apiKeyControl,
+							apiKeySource,
+							apiRequestOutstanding: false,
+						} );
+						resolve();
+					},
+					( { message } ) => {
+						this.onError( null, message );
+						this.setState( {
+							apiState: API_STATE_FAILURE,
+							apiRequestOutstanding: false,
+						} );
+						reject();
+					}
+				);
+			} );
 		} );
 	}
 	componentDidMount() {
-		this.apiCall();
+		this.apiCall().then( () => {
+			this.geoCodeAddress( this.props.attributes?.address, this.state.apiKey );
+		} );
 	}
 	onError = ( code, message ) => {
 		const { noticeOperations } = this.props;

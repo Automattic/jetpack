@@ -102,7 +102,7 @@ export const settings = {
 										},
 									},
 								],
-								address: 'Pezinok',
+								address: instance.raw.address,
 							} ),
 						];
 					}
