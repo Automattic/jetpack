@@ -91,7 +91,9 @@ EOF
 		// Some DWIM going on here, when the current version is a prerelease:
 		// 1. First, find the most recent non-prerelease version and calculate "next" based on that.
 		// 2. If the above returned a version earlier than the most recent version, re-normalize with the new $extra.
-		// 3. If that returned an earlier version too, try a patch bump.
+		// This handles the situation where you're going from 1.2.3-alpha to 1.2.3-beta.
+		// 3. If that returned an earlier version too, bump to the next version from the most recent version.
+		// This handles the situation where you have 1.2.3-beta to eventually make 1.2.3 while meanwhile you're looking at the following -alpha version.
 		if ( null !== $releaseversion ) {
 			$newversion = $versioning->nextVersion( $releaseversion, $changes, $extra );
 			if ( $versioning->compareVersions( $curversion, $newversion ) < 0 ) {
@@ -102,7 +104,7 @@ EOF
 		if ( $versioning->compareVersions( $curversion, $newversion ) < 0 ) {
 			return $newversion;
 		}
-		return $versioning->nextVersion( $curversion, array(), $extra );
+		return $versioning->nextVersion( $curversion, $changes, $extra );
 	}
 
 	/**

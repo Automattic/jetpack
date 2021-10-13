@@ -364,7 +364,7 @@ class VersionCommandTest extends CommandTestCase {
 					'significances' => array( 'major' ),
 				),
 				0,
-				'2.0.1-alpha',
+				'3.0.0-alpha',
 			),
 			'Next, changelog has a prerelease version, no --prerelease but current is later anyway' => array(
 				array( 'which' => 'next' ),
