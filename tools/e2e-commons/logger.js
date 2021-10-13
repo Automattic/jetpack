@@ -2,7 +2,6 @@ const { createLogger, format, transports, addColors } = require( 'winston' );
 const config = require( 'config' );
 const path = require( 'path' );
 
-// test comment
 const myCustomLevels = {
 	levels: {
 		error: 3,
