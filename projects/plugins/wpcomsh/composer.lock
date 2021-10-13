@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "adbb1455724ff7d87174942e1ba21395",
+    "content-hash": "55ab735ac606f0506aed6e5bdb51fca4",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -122,9 +122,6 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Asset management utilities for Jetpack ecosystem packages",
-            "support": {
-                "source": "https://github.com/Automattic/jetpack-assets/tree/v1.11.7"
-            },
             "time": "2021-09-28T18:19:47+00:00"
         },
         {
@@ -165,9 +162,6 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Jetpack configuration package that initializes other packages and configures Jetpack's functionality. Can be used as a base for all variants of Jetpack package usage.",
-            "support": {
-                "source": "https://github.com/Automattic/jetpack-config/tree/v1.5.1"
-            },
             "time": "2021-09-28T18:19:35+00:00"
         },
         {
@@ -210,9 +204,6 @@
                 "GPL-2.0-or-later"
             ],
             "description": "A wrapper for defining constants in a more testable way.",
-            "support": {
-                "source": "https://github.com/Automattic/jetpack-constants/tree/v1.6.7"
-            },
             "time": "2021-09-28T18:19:36+00:00"
         },
         {
@@ -261,9 +252,6 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Enhance the classic view of the Admin section of your WordPress site",
-            "support": {
-                "source": "https://github.com/Automattic/jetpack-post-list/tree/v0.2.2"
-            },
             "time": "2021-10-08T19:59:56+00:00"
         },
         {
@@ -290,16 +278,16 @@
         },
         {
             "name": "automattic/wc-calypso-bridge",
-            "version": "v1.8.1",
+            "version": "v1.8.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wc-calypso-bridge.git",
-                "reference": "fab490cf2d1312c224316c8d9194257a9375280a"
+                "reference": "26db9f7487e9238897dabe837239103b2e6d33e3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/fab490cf2d1312c224316c8d9194257a9375280a",
-                "reference": "fab490cf2d1312c224316c8d9194257a9375280a",
+                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/26db9f7487e9238897dabe837239103b2e6d33e3",
+                "reference": "26db9f7487e9238897dabe837239103b2e6d33e3",
                 "shasum": ""
             },
             "require": {
@@ -337,7 +325,7 @@
                     "phpcbf -p"
                 ]
             },
-            "time": "2021-10-04T02:41:02+00:00"
+            "time": "2021-10-13T03:27:06+00:00"
         },
         {
             "name": "composer/installers",
@@ -511,5 +499,5 @@
     "platform-dev": {
         "php": ">=7.0.0"
     },
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "1.1.0"
 }
