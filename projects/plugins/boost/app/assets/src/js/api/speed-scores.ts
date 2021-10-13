@@ -177,7 +177,8 @@ export function didScoresImprove( scores: SpeedScoresSet ): boolean {
 		null !== noBoost &&
 		current.mobile >= noBoost.mobile &&
 		current.desktop >= noBoost.desktop &&
-		current.mobile + current.desktop > noBoost.mobile + noBoost.desktop
+		current.mobile + current.desktop > noBoost.mobile + noBoost.desktop &&
+		( getScoreImprovementPercentage( scores ) >= 5 || current.desktop + current.mobile > 180 )
 	);
 }
 

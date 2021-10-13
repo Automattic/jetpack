@@ -6,6 +6,7 @@ cd $(dirname "${BASH_SOURCE[0]}")/..
 BASE=$PWD
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
+. "$BASE/tools/includes/alpha-tag.sh"
 
 # Print help and exit.
 function usage {
@@ -131,7 +132,8 @@ if $UPDATE; then
 		else
 			"$CL" "${ARGS[@]}"
 			info "Updating version for $SLUG"
-			VER=$("$CL" version next --default-first-version --prerelease=alpha) || { error "$VER"; EXIT=1; cd "$OLDDIR"; return; }
+			local PRERELEASE=$(alpha_tag "$CL" composer.json 0)
+			local VER=$("$CL" version next --default-first-version --prerelease=$PRERELEASE) || { error "$VER"; EXIT=1; cd "$OLDDIR"; return; }
 			"$BASE/tools/project-version.sh" -v -u "$VER" "$SLUG"
 			get_packages
 		fi

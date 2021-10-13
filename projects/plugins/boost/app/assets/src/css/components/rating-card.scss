@@ -8,4 +8,8 @@
   background-color: #ffffff;
   z-index: 60;
   padding: 24px;
+
+  & &__headline {
+    margin-right: 21px;
+  }
 }

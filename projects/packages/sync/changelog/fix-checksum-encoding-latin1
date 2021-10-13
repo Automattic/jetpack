@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Sync Checksums: Convert text fields to latin1 before generating checksum.
