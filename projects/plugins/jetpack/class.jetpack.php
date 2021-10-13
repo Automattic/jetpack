@@ -3475,7 +3475,7 @@ p {
 			self::activate_default_modules( false, false, array(), false, null, null, false );
 
 			// Check for a user connection.
-			if ( $should_activate_user_modules && ( new Connection_Manager() )->get_connection_owner_id()() ) {
+			if ( $should_activate_user_modules && ( new Connection_Manager() )->get_connection_owner_id() ) {
 				self::activate_default_modules( false, false, array(), false, null, null, true );
 				Jetpack_Options::update_option( 'active_modules_initialized', true );
 			}
