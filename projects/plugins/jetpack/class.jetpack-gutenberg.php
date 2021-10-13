@@ -815,6 +815,26 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
+	 * Loads PHP block editor plugins.
+	 *
+	 * @since 8.9.0
+	 */
+	public static function load_block_editor_plugins() {
+		if ( self::should_load() ) {
+			$extended_blocks = glob( JETPACK__PLUGIN_DIR . 'extensions/plugins/*' );
+
+			foreach ( $extended_blocks as $block ) {
+				$name = basename( $block );
+				$path = JETPACK__PLUGIN_DIR . 'extensions/plugins/' . $name . '/' . $name . '.php';
+
+				if ( file_exists( $path ) ) {
+					include_once $path;
+				}
+			}
+		}
+	}
+
+	/**
 	 * Get CSS classes for a block.
 	 *
 	 * @since 7.7.0
