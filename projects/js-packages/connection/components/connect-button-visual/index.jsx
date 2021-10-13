@@ -13,22 +13,16 @@ import { Spinner } from '@automattic/jetpack-components';
 import './style.scss';
 
 /**
- * The RNA connection component.
+ * The Jetpack Connect button.
  *
- * @param {object} props -- The properties.
- * @param {string} props.connectLabel -- The "Connect" button label.
- * @param {Function} props.onButtonClick -- The callback to be called click.
- * @param {object} props.connectionStatus -- The connection status object.
- * @param {boolean} props.connectionStatusIsFetching -- The flag indicating that connection status is being fetched.
- * @param {boolean} props.isRegistering -- The flag indicating that registration is being processed.
- * @param {boolean} props.registationError -- The flag indicating that registration failed.
- * @returns {React.Component} The RNA connection component.
+ * This button is part of the Jetpack Connection package and implements the button used to establish a Jetpack connection.
  */
 const ConnectButtonVisual = props => {
 	const {
 		connectLabel,
 		onButtonClick,
-		connectionStatus,
+		isRegistered,
+		isUserConnected,
 		connectionStatusIsFetching,
 		isRegistering,
 		registationError,
@@ -38,18 +32,17 @@ const ConnectButtonVisual = props => {
 		<div className="jp-connect-button">
 			{ connectionStatusIsFetching && `Loading...` }
 
-			{ ( ! connectionStatus.isRegistered || ! connectionStatus.isUserConnected ) &&
-				! connectionStatusIsFetching && (
-					<Button
-						className="jp-connect-button--button"
-						label={ connectLabel }
-						onClick={ onButtonClick }
-						isPrimary
-						disabled={ isRegistering }
-					>
-						{ isRegistering ? <Spinner /> : connectLabel }
-					</Button>
-				) }
+			{ ( ! isRegistered || ! isUserConnected ) && ! connectionStatusIsFetching && (
+				<Button
+					className="jp-connect-button--button"
+					label={ connectLabel }
+					onClick={ onButtonClick }
+					isPrimary
+					disabled={ isRegistering }
+				>
+					{ isRegistering ? <Spinner /> : connectLabel }
+				</Button>
+			) }
 
 			{ registationError && (
 				<p className="jp-connect-button__error">
@@ -61,12 +54,29 @@ const ConnectButtonVisual = props => {
 };
 
 ConnectButtonVisual.propTypes = {
+	/** The "Connect" button label. */
 	connectLabel: PropTypes.string,
+	/** The callback to be called on click. */
 	onButtonClick: PropTypes.func,
+	/** Whether the site is already registered. */
+	isRegistered: PropTypes.bool,
+	/** Whether the current user is connected. */
+	isUserConnected: PropTypes.bool,
+	/** The flag indicating that connection status is being fetched. */
+	connectionStatusIsFetching: PropTypes.bool,
+	/** The flag indicating that registration is being processed. */
+	isRegistering: PropTypes.bool,
+	/** The flag indicating that registration failed. */
+	registationError: PropTypes.bool,
 };
 
 ConnectButtonVisual.defaultProps = {
 	connectLabel: __( 'Connect', 'jetpack' ),
+	isRegistered: false,
+	isUserConnected: false,
+	connectionStatusIsFetching: false,
+	isRegistering: false,
+	registationError: false,
 };
 
 export default ConnectButtonVisual;
