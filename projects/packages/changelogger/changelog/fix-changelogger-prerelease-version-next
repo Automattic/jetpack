@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed handling of `changelogger version next` when the current version is a prerelease.
