@@ -756,7 +756,7 @@ class Critical_CSS extends Module {
 	 */
 	public function handle_css_proxy() {
 		// Verify valid nonce.
-		if ( empty( $_REQUEST['nonce'] ) || ! wp_verify_nonce( sanitize_key( $_REQUEST['nonce'] ), self::GENERATE_PROXY_NONCE ) ) {
+		if ( empty( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_key( $_POST['nonce'] ), self::GENERATE_PROXY_NONCE ) ) {
 			wp_die( '', 400 );
 		}
 
@@ -771,7 +771,7 @@ class Critical_CSS extends Module {
 		}
 
 		// Validate URL and fetch.
-		$proxy_url = filter_var( wp_unslash( $_REQUEST['proxy_url'] ), FILTER_VALIDATE_URL );
+		$proxy_url = filter_var( wp_unslash( $_POST['proxy_url'] ), FILTER_VALIDATE_URL );
 		if ( ! wp_http_validate_url( $proxy_url ) ) {
 			die( 'Invalid URL' );
 		}
