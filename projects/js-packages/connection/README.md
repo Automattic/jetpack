@@ -275,7 +275,7 @@ import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 
 // The component requires the `connectionStatus` parameter.
 const SampleComponent = props => {
-    const { connecitonStatus } = props;
+    const { connectionStatus } = props;
     return <div>{ JSON.stringify( connectionStatus ) }</div>;
 }
 
