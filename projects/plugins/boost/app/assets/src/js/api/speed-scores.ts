@@ -94,7 +94,7 @@ function parseResponse( response: JSONObject ): ParsedApiResponse {
 							desktop: castToNumber( response.scores.noBoost.desktop, 0 ),
 					  }
 					: null,
-				isStale: <boolean>response.scores.isStale,
+				isStale: !! response.scores.isStale,
 			},
 		};
 	}
