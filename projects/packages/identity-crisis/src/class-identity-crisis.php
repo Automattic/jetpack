@@ -283,6 +283,10 @@ class Identity_Crisis {
 			return $this->check_response_for_idc( $response_body['idc_detected'] );
 		}
 
+		if ( isset( $response_body['migrated_for_idc'] ) ) {
+			Jetpack_Options::delete_option( 'migrate_for_idc' );
+		}
+
 		return false;
 	}
 
