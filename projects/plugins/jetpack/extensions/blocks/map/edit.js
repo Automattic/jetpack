@@ -25,6 +25,7 @@ import previewPlaceholder from './map-preview.jpg';
 import { compose } from '@wordpress/compose';
 import { withDispatch } from '@wordpress/data';
 import { getActiveStyleName } from '../../shared/block-styles';
+import { getCoordinates } from './get-coordinates.js';
 
 const API_STATE_LOADING = 0;
 const API_STATE_FAILURE = 1;
@@ -53,7 +54,35 @@ class MapEdit extends Component {
 		};
 		this.mapRef = createRef();
 	}
-
+	geoCodeAddress = ( address, apiKey ) => {
+		if ( ! apiKey ) {
+			return;
+		}
+		getCoordinates( address, apiKey )
+			.then( result => {
+				const newPoint = [
+					{
+						title: result.features?.[ 0 ].text,
+						placeTitle: result.features?.[ 0 ].text,
+						caption: result.features?.[ 0 ].place_name,
+						id: result.features?.[ 0 ].id,
+						coordinates: {
+							latitude: result.features?.[ 0 ].center[ 1 ],
+							longitude: result.features?.[ 0 ].center[ 0 ],
+						},
+					},
+				];
+				this.props.setAttributes( { points: newPoint } );
+			} ) /* eslint-disable no-console */
+			.catch( error => console.error( error ) );
+	};
+	componentDidUpdate = previousProps => {
+		const address = this.props.attributes?.address;
+		const previousAddress = previousProps.attributes?.address;
+		if ( address && previousAddress !== address ) {
+			this.geoCodeAddress( address, this.state.apiKey );
+		}
+	};
 	addPoint = point => {
 		const { attributes, setAttributes } = this.props;
 		const { points } = attributes;
@@ -89,39 +118,49 @@ class MapEdit extends Component {
 		this.apiCall( null, 'DELETE' );
 	};
 	apiCall( serviceApiKey = null, method = 'GET' ) {
-		const { noticeOperations } = this.props;
-		const path = '/wpcom/v2/service-api-keys/mapbox';
-		const fetch = serviceApiKey
-			? { path, method, data: { service_api_key: serviceApiKey } }
-			: { path, method };
-		this.setState( { apiRequestOutstanding: true }, () => {
-			apiFetch( fetch ).then(
-				( { service_api_key: apiKey, service_api_key_source: apiKeySource } ) => {
-					noticeOperations.removeAllNotices();
+		return new Promise( ( resolve, reject ) => {
+			const { noticeOperations } = this.props;
+			const path = '/wpcom/v2/service-api-keys/mapbox';
+			const fetch = serviceApiKey
+				? { path, method, data: { service_api_key: serviceApiKey } }
+				: { path, method };
+			this.setState( { apiRequestOutstanding: true }, () => {
+				apiFetch( fetch ).then(
+					( { service_api_key: apiKey, service_api_key_source: apiKeySource } ) => {
+						noticeOperations.removeAllNotices();
 
-					const apiState = apiKey ? API_STATE_SUCCESS : API_STATE_FAILURE;
-					const apiKeyControl = 'wpcom' === apiKeySource ? '' : apiKey;
+						const apiState = apiKey ? API_STATE_SUCCESS : API_STATE_FAILURE;
+						const apiKeyControl = 'wpcom' === apiKeySource ? '' : apiKey;
 
-					this.setState( {
-						apiState,
-						apiKey,
-						apiKeyControl,
-						apiKeySource,
-						apiRequestOutstanding: false,
-					} );
-				},
-				( { message } ) => {
-					this.onError( null, message );
-					this.setState( {
-						apiState: API_STATE_FAILURE,
-						apiRequestOutstanding: false,
-					} );
-				}
-			);
+						this.setState( {
+							apiState,
+							apiKey,
+							apiKeyControl,
+							apiKeySource,
+							apiRequestOutstanding: false,
+						} );
+						resolve();
+					},
+					( { message } ) => {
+						this.onError( null, message );
+						this.setState( {
+							apiState: API_STATE_FAILURE,
+							apiRequestOutstanding: false,
+						} );
+						reject();
+					}
+				);
+			} );
 		} );
 	}
 	componentDidMount() {
-		this.apiCall();
+		this.apiCall()
+			.then( () => {
+				if ( this.props.attributes?.address ) {
+					this.geoCodeAddress( this.props.attributes?.address, this.state.apiKey );
+				}
+			} ) /* eslint-disable no-console */
+			.catch( error => console.error( error ) );
 	}
 	onError = ( code, message ) => {
 		const { noticeOperations } = this.props;
