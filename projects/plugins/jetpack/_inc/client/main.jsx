@@ -189,17 +189,6 @@ class Main extends React.Component {
 	}
 
 	renderMainContent = route => {
-		if ( ! this.props.userCanManageModules ) {
-			if ( ! this.props.siteConnectionStatus ) {
-				return false;
-			}
-			return (
-				<div aria-live="assertive">
-					<NonAdminView { ...this.props } />
-				</div>
-			);
-		}
-
 		if ( this.isMainConnectScreen() ) {
 			return (
 				<ConnectScreen
@@ -281,6 +270,17 @@ class Main extends React.Component {
 						</li>
 					</ul>
 				</ConnectScreen>
+			);
+		}
+
+		if ( ! this.props.userCanManageModules ) {
+			if ( ! this.props.siteConnectionStatus ) {
+				return false;
+			}
+			return (
+				<div aria-live="assertive">
+					<NonAdminView { ...this.props } />
+				</div>
 			);
 		}
 
