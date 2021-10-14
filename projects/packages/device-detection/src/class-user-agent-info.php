@@ -801,33 +801,6 @@ class User_Agent_Info {
 	}
 
 	/**
-	 * Detects if the current browser is Opera Mobile or Mini.
-	 * DEPRECATED: use is_opera_mobile or is_opera_mini
-	 *
-	 * Opera Mini 5 Beta: Opera/9.80 (J2ME/MIDP; Opera Mini/5.0.15650/756; U; en) Presto/2.2.0
-	 * Opera Mini 8: Opera/8.01 (J2ME/MIDP; Opera Mini/3.0.6306/1528; en; U; ssr)
-	 */
-	public static function is_OperaMobile() {
-		_deprecated_function( __FUNCTION__, 'always', 'is_opera_mini() or is_opera_mobile()' );
-
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-			return false;
-		}
-
-		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
-
-		if ( strpos( $ua, 'opera' ) !== false ) {
-			if ( ( strpos( $ua, 'mini' ) !== false ) || ( strpos( $ua, 'mobi' ) !== false ) ) {
-				return true;
-			} else {
-				return false;
-			}
-		} else {
-			return false;
-		}
-	}
-
-	/**
 	 * Detects if the current browser is a Windows Phone 7 device.
 	 * ex: Mozilla/4.0 (compatible; MSIE 7.0; Windows Phone OS 7.0; Trident/3.1; IEMobile/7.0; LG; GW910)
 	 */
