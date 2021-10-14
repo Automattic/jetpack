@@ -64,15 +64,15 @@ jobs:
             org.opencontainers.image.description=Unified environment for developing in the Jetpack Monorepo using Docker containers.
             org.opencontainers.image.documentation=${{ github.server_url }}/${{ github.repository }}/blob/master/tools/docker/README.md
 
-#      - name: Build and push Docker image
-#        uses: docker/build-push-action@v2
-#        with:
-#          context: tools/docker
-#          push: true
-#          tags: ${{ steps.meta.outputs.tags }}
-#          labels: ${{ steps.meta.outputs.labels }}
-#          build-args: |
-#            PHP_VERSION=${{ steps.buildargs.outputs.php-version }}
-#            COMPOSER_VERSION=${{ steps.buildargs.outputs.composer-version }}
-#            NODE_VERSION=${{ steps.buildargs.outputs.node-version }}
-#            PNPM_VERSION=${{ steps.buildargs.outputs.pnpm-version }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: tools/docker
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            PHP_VERSION=${{ steps.buildargs.outputs.php-version }}
+            COMPOSER_VERSION=${{ steps.buildargs.outputs.composer-version }}
+            NODE_VERSION=${{ steps.buildargs.outputs.node-version }}
+            PNPM_VERSION=${{ steps.buildargs.outputs.pnpm-version }}
