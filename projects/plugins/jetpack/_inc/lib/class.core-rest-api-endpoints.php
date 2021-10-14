@@ -1034,7 +1034,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function get_user_license_counts() {
 		$wpcom_request = Client::wpcom_json_api_request_as_user(
-			'/jetpack-licensing/licenses/user',
+			'/jetpack-licensing/licenses/user/counts',
 			'2',
 			array(
 				'method'  => 'GET',
