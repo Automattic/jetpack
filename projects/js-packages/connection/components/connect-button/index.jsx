@@ -5,12 +5,12 @@ import React, { useEffect, useCallback, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import restApi from '@automattic/jetpack-api';
+import { ActionButton } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import ConnectUser from '../connect-user';
-import ConnectButtonVisual from '../connect-button-visual';
 
 /**
  * The RNA connection component.
@@ -115,7 +115,7 @@ const ConnectButton = props => {
 
 			{ ( ! connectionStatus.isRegistered || ! connectionStatus.isUserConnected ) &&
 				! connectionStatusIsFetching && (
-					<ConnectButtonVisual
+					<ActionButton
 						connectLabel={ connectLabel }
 						onClick={ registerSite }
 						displayError={ registationError }

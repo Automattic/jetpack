@@ -2,12 +2,12 @@
  * External dependencies
  */
 import React from 'react';
-import ConnectButtonVisual from '../index.jsx';
+import ActionButton from '../index.jsx';
 import { action } from '@storybook/addon-actions';
 
 export default {
-	title: 'Playground/Connect Button',
-	component: ConnectButtonVisual,
+	title: 'Playground/Action Button',
+	component: ActionButton,
 	// TODO: actinos are not working. See https://github.com/storybookjs/storybook/issues/7215
 	argTypes: {
 		onButtonClick: { action: 'clicked' },
@@ -15,7 +15,7 @@ export default {
 };
 
 // Export additional stories using pre-defined values
-const Template = args => <ConnectButtonVisual { ...args } />;
+const Template = args => <ActionButton { ...args } />;
 
 const DefaultArgs = {
 	onButtonClick: action( 'onButtonClick' ),
@@ -27,8 +27,8 @@ const DefaultArgs = {
 export const _default = Template.bind( {} );
 _default.args = DefaultArgs;
 
-export const Registering = Template.bind( {} );
-Registering.args = {
+export const Loading = Template.bind( {} );
+Loading.args = {
 	...DefaultArgs,
 	isLoading: true,
 };
