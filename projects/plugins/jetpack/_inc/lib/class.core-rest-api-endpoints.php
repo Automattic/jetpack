@@ -1028,9 +1028,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Gets the users number of unattached "user" (not partner) licenses.
+	 * Gets the users licenses counts.
 	 *
-	 * @return int|WP_Error The number of unattached "user" licenses if the request was successful, or a WP_Error otherwise.
+	 * @return {string}|WP_Error A JSON object of user license counts if the request was successful, or a WP_Error otherwise.
 	 */
 	public static function get_user_license_counts() {
 		$wpcom_request = Client::wpcom_json_api_request_as_user(
@@ -1050,7 +1050,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			$license_counts = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
 			return $license_counts;
 		} else {
-			// Something went wrong so we'll just return the response without caching.
 			return new WP_Error(
 				'failed_to_fetch_data',
 				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
