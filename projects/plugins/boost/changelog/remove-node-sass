@@ -1,5 +1,0 @@
-Significance: patch
-Type: removed
-Comment: Remove `node-sass` dep, use `sass` instead. And update the dep to the latest version for good measure.
-
-

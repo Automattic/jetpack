@@ -1,4 +1,4 @@
-import Homepage from '../lib/pages/search-homepage';
+import { SearchHomepage } from 'jetpack-e2e-commons/pages';
 import {
 	enableInstantSearch,
 	getSidebarsWidgets,
@@ -7,10 +7,10 @@ import {
 	disableInstantSearch,
 	getBlockWidgets,
 	setupBlockWidgets,
-} from '../lib/search-helper';
-import { testStep } from '../lib/reporters/reporter';
-import { prerequisitesBuilder } from '../lib/env/prerequisites';
-import { Plans } from '../lib/env/types';
+	searchAPIRoute,
+} from '../helpers/search-helper';
+import { testStep } from 'jetpack-e2e-commons/reporters';
+import { prerequisitesBuilder, Plans } from 'jetpack-e2e-commons/env';
 
 /**
  *
@@ -45,8 +45,8 @@ describe( 'Search', () => {
 	} );
 
 	beforeEach( async () => {
-		homepage = await Homepage.visit( page );
-		await homepage.searchAPIRoute();
+		homepage = await SearchHomepage.visit( page );
+		await searchAPIRoute( homepage.page );
 		await homepage.waitForNetworkIdle();
 	} );
 

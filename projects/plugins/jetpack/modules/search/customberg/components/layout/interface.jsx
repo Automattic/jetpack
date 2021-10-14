@@ -32,16 +32,8 @@ export default function Interface( props ) {
 				>
 					<Header enableSidebar={ enableSidebar } />
 				</div>
-				<div className="interface-interface-skeleton__body">
-					<div
-						/* translators: accessibility text for the widgets screen content landmark region. */
-						aria-label={ __( 'Jetpack Search customization preview', 'jetpack' ) }
-						className="interface-interface-skeleton__content"
-						role="region"
-						tabIndex="-1"
-					>
-						<AppWrapper />
-					</div>
+				<div className="jp-search-configure-layout__body">
+					<AppWrapper />
 					{ /* Ensure sidebar is enabled before rendering. */ }
 					{ !! enabledSidebarName && (
 						<div

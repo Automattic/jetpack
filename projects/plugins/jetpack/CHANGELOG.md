@@ -2,10 +2,52 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 10.2-beta - 2021-09-28
+## 10.3-a.1 - 2021-10-12
 ### Enhancements
-- Contact Form: add two filters to improve anti-spam functionality.
+- Instant Search: always show the save button on the mobile view of the Search Settings dashboard.
+- Secure Sign On: add new filter allowing one to customize the explanation displayed next to the SSO button.
+- VideoPress: improve the display of upload errors in the Media Library and the block editor.
+
+### Improved compatibility
+- Jetpack Backup: improve the display of the different plugin menus when using both Jetpack and Jetpack Backup.
+- Social Icons Widget: deprecate widget and offer the option to transform into a Social Links block.
+
+### Bug fixes
+- Calendly block: fix the preview in the block inserter.
+- Eventbrite Block: improve the event URL detection and avoid errors when using links without an event ID.
+- General: avoid PHP notices that may happen when installing the plugin.
+- Instant Search: fix the display of filters when there are no results to display for a query.
+- Instant Search: fix the preview of the infinite scroll option in the Search Settings dashboard.
+- Instant Search: reduce browser history noise as search is being typed in the form.
+- Publicize: refresh connections only when the post publishes.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add Publicize Share POST endpoint
+- Open Jetpack plugin sidebar by default when URL includes query param.
+- Correct AMP validation errors.
+- Publicize: use post metadata to store publicize data
+- Add a wpcom menu item linking to wordpess.com/woocommerce-installation/
+- Add click tracking for Widget Visibility
+- Added an admin notice to media-new.php notifying the user that videos uploaded here will not be sent to VideoPress.
+- Allow empty string in message parameter.
+- Bump the RNA API version.
+- E2E tests: extract shared e2e tools
+- E2E tests: updated dependencies
+- Embed block: Add native version of index file to control the available variations.
+- Exclude `vendor/` from code coverage.
+- Init Jetpack 10.3 release cycle.
+- Init the identity-crisis package using the Config package
+- Nav Unification feature flag check. It only affects WPCOM Atomic sites.
+- P2: Conditionally hide Pattern admin menu items for hubs/spaces
+- Remove "beta testing" item from the menu for all users
+- Updated package dependencies
+- Update Jetpack 10.2 to-test.md
+- Update Sync Unit Tests to reset settings modified during tests.
+
+## 10.2 - 2021-10-05
+### Enhancements
 - Contact Form: add filter to allow customizing email headers.
+- Contact Form: add two filters to improve anti-spam functionality.
 - Related Posts: enable lazy loading for images.
 - Search: improve filter label formatting for longer text entries.
 - Search: title customization improvements.
@@ -17,8 +59,8 @@
 ### Improved compatibility
 - External Media: update verbiage around Google Photos to improve compatibility with their UX guidelines.
 - Instagram Widget: remove from Legacy Widget block.
-- Search: as IE11 support was removed in Jetpack 10.1, remove an IE11 polyfill.
 - Publicize: replace native text-area with custom/core-based component.
+- Search: as IE11 support was removed in Jetpack 10.1, remove an IE11 polyfill.
 - VideoPress: file url field now displays the HLS playlist if one was generated. The fragmented mp4 file is not meant to be played on its own. MP4 file will only be displayed as the video url if it was created prior to the HLS update.
 
 ### Bug fixes
@@ -26,9 +68,11 @@
 - Custom Content Type: improve the performance of the Testimonial CPT.
 - Dashboard: improve the performance of the query used to display Anti-spam stats.
 - Embeds: add allow-popups permission to Google Calendar embed so that links internal to the iFrame will open.
-- Publicize: improve refreshing connections list.
 - Publicize: ensure the custom excerpt is used when sharing to Facebook.
+- Publicize: improve refreshing connections list.
+- Related Posts: avoid errors if main div is not in the DOM.
 - Search: ensure Safari input clear button is hidden.
+- Search: ensure translations are available for lazy-loaded payloads.
 - Search: fix dashboard buttons too big on Safari.
 - Sharing: fix the icon position in icon-only button style.
 - Shortcodes: remove Hulu from available embeds.
@@ -43,6 +87,7 @@
 - Admin menu: improve security by sanitizing return value of get_current_screen function.
 - Dashboard: do not display Jetpack version on WoA sites.
 - Dashboard: show the Connect button on the Media card in site-only mode.
+- Disable webpack's concatenateModules optimization, it can break WordPress's translation extraction.
 - E2e tests: fixed logged Jetpack version.
 - E2E tests: fixed stacktrace sometimes missing from Slack notification.
 - E2E tests: generate application password at environment start.
@@ -59,6 +104,7 @@
 - Publicize: plugin to the proper extension folder.
 - Publicize: re-implement main form, add React hooks.
 - Refactor extract() usage used in the monorepo.
+- Remove ajax callback for Tracks within the Jetpack plugin since it is set up in jetpack-tracking library.
 - Remove Custom CSS placeholder text to stay in sync with wpcom. The placeholder was only displaying on Simple Sites.
 - Replace `page` library with equivalent plain JavaScript.
 - Search: remove @wordpress/interface dependency for new configurator.
@@ -71,6 +117,7 @@
 - Use `[contenthash]` in Webpack chunk names for better long-term caching.
 - VideoPress: can now be managed on the Modules page for any plan type.
 - VideoPress: update the edit icon design in the VideoPress block toolbar.
+- Widget Visibility: Restrict to top level blocks in each widget.
 - WPcom: added a new "Inbox" menu item in the left side menu, just after Upgrades item. Only visible for wpcom and atomic sites.
 - WPcom: fix various shortcode rendering in notifications.
 

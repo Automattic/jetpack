@@ -10,6 +10,7 @@ namespace Automattic\Jetpack_Boost\Admin;
 
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack_Boost\Jetpack_Boost;
+use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
 use Automattic\Jetpack_Boost\Lib\Speed_Score;
 
@@ -61,9 +62,10 @@ class Admin {
 	 */
 	public function __construct( Jetpack_Boost $jetpack_boost ) {
 		$this->jetpack_boost = $jetpack_boost;
-		$this->speed_score   = new Speed_Score();
+		$this->speed_score   = new Speed_Score( $jetpack_boost );
 		Environment_Change_Detector::init();
 
+		add_action( 'init', array( new Analytics(), 'init' ) );
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
