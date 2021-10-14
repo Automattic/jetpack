@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Publicize: store the enabling feature state into the store
