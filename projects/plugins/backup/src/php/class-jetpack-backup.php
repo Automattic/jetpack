@@ -13,11 +13,13 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\Status;
 
 /**
  * Class Jetpack_Backup
  */
 class Jetpack_Backup {
+
 	/**
 	 * Constructor.
 	 */
@@ -86,6 +88,9 @@ class Jetpack_Backup {
 	 * Enqueue plugin admin scripts and styles.
 	 */
 	public function enqueue_admin_scripts() {
+		$status       = new Status();
+		$manager      = new Connection_Manager( 'jetpack-backup' );
+
 		Assets::register_script(
 			'jetpack-backup',
 			'build/index.js',
@@ -96,6 +101,11 @@ class Jetpack_Backup {
 		// Initial JS state including JP Connection data.
 		wp_add_inline_script( 'jetpack-backup', $this->get_initial_state(), 'before' );
 		wp_set_script_translations( 'jetpack-backup', 'jetpack-backup' );
+
+		// Load script for analytics.
+		if ( ! $status->is_offline_mode() && $manager->is_connected() ) {
+			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+		}
 	}
 
 	/**

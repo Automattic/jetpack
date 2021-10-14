@@ -5,6 +5,7 @@
  * @package automattic/jetpack-backup-plugin
  */
 
+use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Status;
 
 /**
@@ -18,16 +19,17 @@ class Initial_State {
 	 */
 	private function get_data() {
 		return array(
-			'API'           => array(
+			'API'              => array(
 				'WP_API_root'       => esc_url_raw( rest_url() ),
 				'WP_API_nonce'      => wp_create_nonce( 'wp_rest' ),
 				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
 			),
-			'jetpackStatus' => array(
+			'jetpackStatus'    => array(
 				'calypsoSlug' => ( new Status() )->get_site_suffix(),
 			),
-			'assets'        => array(
-				'buildUrl' => plugins_url( 'build/', JETPACK_BACKUP_PLUGIN_ROOT_FILE ),
+			'connectedPlugins' => Connection_Plugin_Storage::get_all(),
+			'assets'           => array(
+				'buildUrl'         => plugins_url( 'build/', JETPACK_BACKUP_PLUGIN_ROOT_FILE ),
 			),
 		);
 	}
