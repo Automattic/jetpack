@@ -22,7 +22,7 @@ jobs:
     permissions:
       packages: write
       contents: read
-    #timeout-minutes: 20  # 2021-10-14: Fill this in once we have a good guess.
+    timeout-minutes: 20  # 2021-10-14: Test run took 5 minutes, but there's lots of downloading involved.
 
     steps:
       - uses: actions/checkout@v2
@@ -49,16 +49,28 @@ jobs:
           echo "::set-output name=node-version::$NODE_VERSION"
           echo "::set-output name=pnpm-version::$PNPM_VERSION"
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v2
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v3
         with:
-          context: tools/docker
-          push: true
-          build-args: |
-            PHP_VERSION=${{ steps.buildargs.outputs.php-version }}
-            COMPOSER_VERSION=${{ steps.buildargs.outputs.composer-version }}
-            NODE_VERSION=${{ steps.buildargs.outputs.node-version }}
-            PNPM_VERSION=${{ steps.buildargs.outputs.pnpm-version }}
-          tags: |
-            automattic/jetpack-wordpress-dev:latest
-            ghcr.io/automattic/jetpack-wordpress-dev:latest
+          images: |
+            automattic/jetpack-wordpress-dev
+            ghcr.io/automattic/jetpack-wordpress-dev
+
+      - name: Show metadata
+        env:
+          DATA: ${{ steps.meta.outputs.json }}
+        run: echo "$DATA"
+
+#      - name: Build and push Docker image
+#        uses: docker/build-push-action@v2
+#        with:
+#          context: tools/docker
+#          push: true
+#          tags: ${{ steps.meta.outputs.tags }}
+#          labels: ${{ steps.meta.outputs.labels }}
+#          build-args: |
+#            PHP_VERSION=${{ steps.buildargs.outputs.php-version }}
+#            COMPOSER_VERSION=${{ steps.buildargs.outputs.composer-version }}
+#            NODE_VERSION=${{ steps.buildargs.outputs.node-version }}
+#            PNPM_VERSION=${{ steps.buildargs.outputs.pnpm-version }}
