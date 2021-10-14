@@ -1,4 +1,4 @@
-FROM ubuntu:focal
+FROM ubuntu:20.04
 
 VOLUME ["/var/www/html"]
 
@@ -21,6 +21,7 @@ RUN \
 		apache2 \
 		curl \
 		git \
+		jq \
 		less \
 		libsodium23 \
 		mysql-client \
