@@ -170,8 +170,9 @@ class Jetpack_Redux_State_Helper {
 			'isSafari'                    => $is_safari || User_Agent_Info::is_opera_desktop(), // @todo Rename isSafari everywhere.
 			'doNotUseConnectionIframe'    => Constants::is_true( 'JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME' ),
 			'licensing'                   => array(
-				'error'           => Licensing::instance()->last_error(),
-				'showLicensingUi' => Licensing::instance()->is_licensing_input_enabled(),
+				'error'                       => Licensing::instance()->last_error(),
+				'showLicensingUi'             => Licensing::instance()->is_licensing_input_enabled(),
+				'unattachedUserLicensesCount' => Jetpack_Core_Json_Api_Endpoints::get_unattached_user_licenses_count(),
 			),
 		);
 	}
