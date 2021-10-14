@@ -118,8 +118,13 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 		return false;
 	}
 
-	function get_site_owner() {
-		return false;
+	/**
+	 * Points to the user ID of the site owner
+	 *
+	 * @return null for Jetpack sites
+	 */
+	public function get_site_owner() {
+		return null;
 	}
 
 	function has_wordads() {

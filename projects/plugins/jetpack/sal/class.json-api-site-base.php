@@ -104,7 +104,7 @@ abstract class SAL_Site {
 	/**
 	 * Points to the user ID of the site owner
 	 *
-	 * @return int
+	 * @return int for WP.com, null for Jetpack
 	 */
 	abstract public function get_site_owner();
 
