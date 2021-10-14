@@ -15,7 +15,7 @@ import Spinner from '../spinner';
 /**
  * The Jetpack Action button.
  *
- * This component extends the regular `Button` component and adds a `isLoadin` prop that will disable and display a spinner, giving the user the feedback that some action is happening. It also provides a generic error message.
+ * This component extends the regular `Button` component and adds a `isLoading` prop that will disable and display a spinner, giving the user the feedback that some action is happening. It also provides a generic error message.
  *
  * It is useful to async actions when the user has to wait the result of a request or process.
  */
