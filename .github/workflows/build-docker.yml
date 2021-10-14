@@ -8,9 +8,6 @@ on:
       - 'tools/docker/config/*'
       - '.github/versions.sh'
       - '.github/workflows/build-docker.yml'
-  # Temporarily run on pull request, for testing the PR. Remove this before merging.
-  pull_request:
-    branches: [ 'master' ]
 concurrency:
   group: build-docker-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
