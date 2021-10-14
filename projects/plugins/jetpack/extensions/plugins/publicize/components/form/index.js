@@ -9,7 +9,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { PanelRow } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 
@@ -32,10 +31,6 @@ export default function PublicizeForm() {
 
 	return (
 		<Fragment>
-			<div>
-				{ __( "Connect and select the accounts where you'd like to share your post.", 'jetpack' ) }
-			</div>
-
 			<PanelRow>
 				<ul className="jetpack-publicize__connections-list">
 					{ connections.map( ( { display_name, enabled, id, service_name, toggleable } ) => (

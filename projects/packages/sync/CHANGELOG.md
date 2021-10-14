@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.26.4] - 2021-10-13
+### Changed
+- Sync Checksums: Convert text fields to latin1 before generating checksum.
+- Updated package dependencies.
+
+### Fixed
+- Sync Checksums - Update distinct clause to use $wpdb-> table names to accouunt for differences in prefixes.
+
 ## [1.26.3] - 2021-10-12
 ### Changed
 - Updated package dependencies
@@ -492,6 +500,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[1.26.4]: https://github.com/Automattic/jetpack-sync/compare/v1.26.3...v1.26.4
 [1.26.3]: https://github.com/Automattic/jetpack-sync/compare/v1.26.2...v1.26.3
 [1.26.2]: https://github.com/Automattic/jetpack-sync/compare/v1.26.1...v1.26.2
 [1.26.1]: https://github.com/Automattic/jetpack-sync/compare/v1.26.0...v1.26.1
