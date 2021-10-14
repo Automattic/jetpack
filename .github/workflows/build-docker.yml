@@ -53,14 +53,12 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3
         with:
+          # We're not tagging for the env. Just tag "latest".
+          tags: |
+            type=raw,latest
           images: |
             automattic/jetpack-wordpress-dev
             ghcr.io/automattic/jetpack-wordpress-dev
-
-      - name: Show metadata
-        env:
-          DATA: ${{ steps.meta.outputs.json }}
-        run: echo "$DATA"
 
 #      - name: Build and push Docker image
 #        uses: docker/build-push-action@v2
