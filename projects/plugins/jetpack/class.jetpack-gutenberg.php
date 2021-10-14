@@ -817,7 +817,7 @@ class Jetpack_Gutenberg {
 	/**
 	 * Loads PHP block editor plugins.
 	 *
-	 * @since 8.9.0
+	 * @since 10.3.0
 	 */
 	public static function load_block_editor_plugins() {
 		if ( self::should_load() ) {
