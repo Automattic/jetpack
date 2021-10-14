@@ -9,7 +9,7 @@
  *     id:              (string)  Connection unique_id
  *     service_name:    (string)  Service slug
  *     display_name:    (string)  User name/display name of user/connection on Service
- *     profile_picture: (string) Profile picture of user/connection on Service
+ *     profile_picture: (string)  Profile picture of user/connection on Service
  *     enabled:         (boolean) Is this connection slated to be shared to? context=edit only
  *     done:            (boolean) Is this post (or connection) done sharing? context=edit only
  *     toggleable:      (boolean) Can the current user change the `enabled` setting for this Connection+Post? context=edit only
