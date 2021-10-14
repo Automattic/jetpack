@@ -474,17 +474,4 @@ class Client {
 
 		return $data;
 	}
-
-	/**
-	 * Gets protocol string.
-	 *
-	 * @return string Always 'https'.
-	 *
-	 * @deprecated 1.19.2 WP.com API no longer supports requests using `http://`.
-	 */
-	public static function protocol() {
-		_deprecated_function( __METHOD__, '1.19.2' );
-
-		return 'https';
-	}
 }
