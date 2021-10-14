@@ -8,9 +8,9 @@ on:
       - 'tools/docker/config/*'
       - '.github/versions.sh'
       - '.github/workflows/build-docker.yml'
-  # Temporarily run on pull request to the PR branch, for testing the PR. If this didn't get removed before merge to master, feel free to remove it now.
+  # Temporarily run on pull request, for testing the PR. Remove this before merging.
   pull_request:
-    branches: [ 'add/docker-build-action' ]
+    branches: [ 'master' ]
 concurrency:
   group: build-docker-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
