@@ -8,7 +8,7 @@
     "automattic/custom-fonts": "1.1.1",
     "automattic/custom-fonts-typekit": "1.0.8",
     "automattic/text-media-widget-styles": "~1.0",
-    "automattic/wc-calypso-bridge": "1.8.2",
+    "automattic/wc-calypso-bridge": "1.8.3",
     "wordpress/classic-editor-plugin": "1.5",
     "automattic/jetpack-config": "^1.5",
     "automattic/jetpack-post-list": "^0.2.2"

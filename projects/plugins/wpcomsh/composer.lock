@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "55ab735ac606f0506aed6e5bdb51fca4",
+    "content-hash": "50fce6a46578b9c8001a70cbaa280f0a",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -81,25 +81,25 @@
         },
         {
             "name": "automattic/jetpack-assets",
-            "version": "v1.11.7",
+            "version": "v1.11.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-assets.git",
-                "reference": "d109f5d135d0cef2a42642d20b9bc4a13bab3197"
+                "reference": "7e2fc169af1b3dfce5ea70e0b225aaf6ad49b77a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-assets/zipball/d109f5d135d0cef2a42642d20b9bc4a13bab3197",
-                "reference": "d109f5d135d0cef2a42642d20b9bc4a13bab3197",
+                "url": "https://api.github.com/repos/Automattic/jetpack-assets/zipball/7e2fc169af1b3dfce5ea70e0b225aaf6ad49b77a",
+                "reference": "7e2fc169af1b3dfce5ea70e0b225aaf6ad49b77a",
                 "shasum": ""
             },
             "require": {
                 "automattic/jetpack-constants": "^1.6"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^2.0",
+                "automattic/jetpack-changelogger": "^3.0",
                 "brain/monkey": "2.6.0",
-                "yoast/phpunit-polyfills": "1.0.1"
+                "yoast/phpunit-polyfills": "1.0.2"
             },
             "type": "library",
             "extra": {
@@ -122,24 +122,24 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Asset management utilities for Jetpack ecosystem packages",
-            "time": "2021-09-28T18:19:47+00:00"
+            "time": "2021-10-13T17:11:16+00:00"
         },
         {
             "name": "automattic/jetpack-config",
-            "version": "v1.5.1",
+            "version": "v1.5.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-config.git",
-                "reference": "9bcf1c63b6e5e619de211cd74a3270837b7d67a8"
+                "reference": "3526c284d3b845d57275fe1f64fbb2c71649b16e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-config/zipball/9bcf1c63b6e5e619de211cd74a3270837b7d67a8",
-                "reference": "9bcf1c63b6e5e619de211cd74a3270837b7d67a8",
+                "url": "https://api.github.com/repos/Automattic/jetpack-config/zipball/3526c284d3b845d57275fe1f64fbb2c71649b16e",
+                "reference": "3526c284d3b845d57275fe1f64fbb2c71649b16e",
                 "shasum": ""
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^2.0"
+                "automattic/jetpack-changelogger": "^3.0"
             },
             "type": "library",
             "extra": {
@@ -162,26 +162,26 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Jetpack configuration package that initializes other packages and configures Jetpack's functionality. Can be used as a base for all variants of Jetpack package usage.",
-            "time": "2021-09-28T18:19:35+00:00"
+            "time": "2021-10-13T17:10:55+00:00"
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "v1.6.7",
+            "version": "v1.6.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-constants.git",
-                "reference": "464173d25c5923d92131fedde2232063587b7ecd"
+                "reference": "b4764b5050367692f173d62220cf1e69f4f7af0b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-constants/zipball/464173d25c5923d92131fedde2232063587b7ecd",
-                "reference": "464173d25c5923d92131fedde2232063587b7ecd",
+                "url": "https://api.github.com/repos/Automattic/jetpack-constants/zipball/b4764b5050367692f173d62220cf1e69f4f7af0b",
+                "reference": "b4764b5050367692f173d62220cf1e69f4f7af0b",
                 "shasum": ""
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^2.0",
+                "automattic/jetpack-changelogger": "^3.0",
                 "brain/monkey": "2.6.0",
-                "yoast/phpunit-polyfills": "1.0.1"
+                "yoast/phpunit-polyfills": "1.0.2"
             },
             "type": "library",
             "extra": {
@@ -204,7 +204,7 @@
                 "GPL-2.0-or-later"
             ],
             "description": "A wrapper for defining constants in a more testable way.",
-            "time": "2021-09-28T18:19:36+00:00"
+            "time": "2021-10-13T17:10:57+00:00"
         },
         {
             "name": "automattic/jetpack-post-list",
@@ -278,16 +278,16 @@
         },
         {
             "name": "automattic/wc-calypso-bridge",
-            "version": "v1.8.2",
+            "version": "v1.8.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wc-calypso-bridge.git",
-                "reference": "26db9f7487e9238897dabe837239103b2e6d33e3"
+                "reference": "75e5a6cb74efd5936b4158144e1d86031ec11ba8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/26db9f7487e9238897dabe837239103b2e6d33e3",
-                "reference": "26db9f7487e9238897dabe837239103b2e6d33e3",
+                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/75e5a6cb74efd5936b4158144e1d86031ec11ba8",
+                "reference": "75e5a6cb74efd5936b4158144e1d86031ec11ba8",
                 "shasum": ""
             },
             "require": {
@@ -325,20 +325,20 @@
                     "phpcbf -p"
                 ]
             },
-            "time": "2021-10-13T03:27:06+00:00"
+            "time": "2021-10-14T01:53:42+00:00"
         },
         {
             "name": "composer/installers",
-            "version": "v1.10.0",
+            "version": "v1.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/installers.git",
-                "reference": "1a0357fccad9d1cc1ea0c9a05b8847fbccccb78d"
+                "reference": "d20a64ed3c94748397ff5973488761b22f6d3f19"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/installers/zipball/1a0357fccad9d1cc1ea0c9a05b8847fbccccb78d",
-                "reference": "1a0357fccad9d1cc1ea0c9a05b8847fbccccb78d",
+                "url": "https://api.github.com/repos/composer/installers/zipball/d20a64ed3c94748397ff5973488761b22f6d3f19",
+                "reference": "d20a64ed3c94748397ff5973488761b22f6d3f19",
                 "shasum": ""
             },
             "require": {
@@ -432,10 +432,12 @@
                 "majima",
                 "mako",
                 "mediawiki",
+                "miaoxing",
                 "modulework",
                 "modx",
                 "moodle",
                 "osclass",
+                "pantheon",
                 "phpbb",
                 "piwik",
                 "ppi",
@@ -449,6 +451,7 @@
                 "sydes",
                 "sylius",
                 "symfony",
+                "tastyigniter",
                 "typo3",
                 "wordpress",
                 "yawik",
@@ -469,7 +472,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-01-14T11:07:16+00:00"
+            "time": "2021-09-13T08:19:44+00:00"
         },
         {
             "name": "wordpress/classic-editor-plugin",
