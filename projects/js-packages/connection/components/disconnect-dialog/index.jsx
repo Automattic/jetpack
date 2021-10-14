@@ -72,8 +72,10 @@ const DisconnectDialog = props => {
 	 * This allows the connected plugins to be iterated over more easily for display.
 	 */
 	useEffect( () => {
-		const keys = Object.keys( connectedPlugins );
-		keys.forEach( key => ( connectedPlugins[ key ].slug = key ) );
+		if ( connectedPlugins ) {
+			const keys = Object.keys( connectedPlugins );
+			keys.forEach( key => ( connectedPlugins[ key ].slug = key ) );
+		}
 	}, [ connectedPlugins ] );
 
 	/**
