@@ -48,10 +48,6 @@ export const settings = {
 			type: 'array',
 			default: [],
 		},
-		address: {
-			type: 'string',
-			default: '',
-		},
 		mapDetails: {
 			type: 'boolean',
 			default: true,
