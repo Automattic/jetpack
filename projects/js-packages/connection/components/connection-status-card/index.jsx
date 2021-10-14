@@ -28,6 +28,8 @@ import './style.scss';
  * @param {string}   props.title -- The Card title.
  * @param {string}   props.connectionInfoText -- The text that will be displayed under the title, containing info how to leverage the connection.
  * @param {Function} props.onDisconnected -- The callback to be called upon disconnection success.
+ * @param {object}   props.connectedPlugins -- An object of the plugins currently using the Jetpack connection.
+ * @param {string}   props.currentPlugin -- The slug of the plugin where this component is being used.
  * @returns {React.Component} The `ConnectionStatusCard` component.
  */
 
@@ -41,6 +43,8 @@ const ConnectionStatusCard = props => {
 		title,
 		connectionInfoText,
 		onDisconnected,
+		connectedPlugins,
+		currentPlugin,
 	} = props;
 
 	const [ isFetchingConnectionData, setIsFetchingConnectionData ] = useState( false );
@@ -124,13 +128,9 @@ const ConnectionStatusCard = props => {
 						apiRoot={ apiRoot }
 						apiNonce={ apiNonce }
 						onDisconnected={ onDisconnectedCallback }
-					>
-						<h2>
-							{ __( 'Jetpack is currently powering multiple products on your site.', 'jetpack' ) }
-							<br />
-							{ __( 'Once you disconnect Jetpack, these will no longer work.', 'jetpack' ) }
-						</h2>
-					</DisconnectDialog>
+						connectedPlugins={ connectedPlugins }
+						disconnectingPlugin={ currentPlugin }
+					/>
 				</li>
 
 				{ isUserConnected && ! isFetchingConnectionData && (
@@ -168,9 +168,11 @@ ConnectionStatusCard.propTypes = {
 	isRegistered: PropTypes.bool.isRequired,
 	isUserConnected: PropTypes.bool.isRequired,
 	redirectUri: PropTypes.string.isRequired,
+	connectedPlugins: PropTypes.object,
 	title: PropTypes.string,
 	connectionInfoText: PropTypes.string,
 	onDisconnected: PropTypes.func,
+	currentPlugin: PropTypes.string,
 };
 
 ConnectionStatusCard.defaultProps = {

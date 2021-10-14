@@ -13,25 +13,42 @@ import { Button } from '@wordpress/components';
 import PropTypes from 'prop-types';
 import DisconnectCard from '../disconnect-card';
 
+/**
+ * Disconnect step in disconnection flow.
+ *
+ * @param {string} props.title - The title to show for this section.
+ * @param {boolean} props.isDisconnecting - Whether or not a request to disconnect is in progress.
+ * @param {Function} props.onDisconnect - Callback function that is triggered by clicking the "Disconnect" button.
+ * @param {object} props.disconnectError - An error that occurred during a request to disconnect.
+ * @param {React.Component} props.disconnectStepComponent - a component to be rendered as part of this step
+ * @param {Function} props.closeModal - Callback function that closes the modal.
+ * @param {string} props.context - Where this modal is being rendered.
+ * @returns {React.Component} - The StepDisconnect component
+ */
+
 const StepDisconnect = props => {
 	const {
 		title,
-		contents,
 		isDisconnecting,
 		onDisconnect,
 		disconnectError,
 		disconnectStepComponent,
 		connectedPlugins,
-		connectedPluginsIsFetching,
 		closeModal,
 		context,
-		errorMessage,
 	} = props;
 
+	/**
+	 * Render the disconnect button, allows for some variance based on context.
+	 *
+	 * @returns {React.Component} - Button used for disconnect.
+	 */
 	const renderDisconnectButton = () => {
 		let buttonText = __( 'Disconnect', 'jetpack' );
-		// showing on the plugins page, this button should deactivate the plugin as well
-		if ( context === 'plugins' ) {
+		// When showing on the plugins page, this button should deactivate the plugin as well.
+		if ( isDisconnecting ) {
+			buttonText = __( 'Disconnecting…', 'jetpack' );
+		} else if ( context === 'plugins' ) {
 			buttonText = __( 'Disconnect and Deactivate', 'jetpack' );
 		}
 
@@ -47,24 +64,24 @@ const StepDisconnect = props => {
 		);
 	};
 
+	/**
+	 * Show other plugins using the Jetpack connection, if they are passed in the props.
+	 *
+	 * @returns {React.Component} - A list of connected plugins, if provided.
+	 */
 	const renderConnectedPlugins = () => {
-		if ( connectedPluginsIsFetching ) {
+		if ( connectedPlugins && connectedPlugins.length > 0 ) {
 			return (
 				<React.Fragment>
-					<h3>Connected Plugins</h3>
-					<p> Checking for plugins that are using the Jetpack Connection...</p>
-				</React.Fragment>
-			);
-		} else if ( connectedPlugins && connectedPlugins.length > 0 ) {
-			return (
-				<React.Fragment>
-					<p>
-						Jetpack is powering other plugins on your site. If you disconnect, these plugins will no
-						longer work.
-					</p>
+					<div className="jp-disconnect-dialog__step-copy">
+						<p className="jp-disconnect-dialog__large-text">
+							{ __(
+								'Jetpack is powering other plugins on your site. If you disconnect, these plugins will no longer work.',
+								'jetpack'
+							) }
+						</p>
+					</div>
 					{ connectedPlugins.map( plugin => {
-						// TODO: would we want to show the name of the plugin the user is disconnecting from?
-						// probably would not make sense to show from within the Jetpack plugin.
 						return <DisconnectCard title={ plugin.name } />;
 					} ) }
 				</React.Fragment>
@@ -72,13 +89,33 @@ const StepDisconnect = props => {
 		}
 	};
 
+	/**
+	 * Show some fallback output if there are no connected plugins to show and no passed disconnect component.
+	 * This is a more generic message about disconnecting Jetpack.
+	 *
+	 * @returns {React.ElementType} - Fallback message for when there are no connected plugins or passed components to show.
+	 */
+	const renderFallbackOutput = () => {
+		if ( ( ! connectedPlugins || connectedPlugins.length === 0 ) && ! disconnectStepComponent ) {
+			return (
+				<div className="jp-disconnect-dialog__step-copy">
+					<p className="jp-disconnect-dialog__large-text">
+						{ __( 'Jetpack is currently powering multiple products on your site.', 'jetpack' ) }
+						<br />
+						{ __( 'Once you disconnect Jetpack, these will no longer work.', 'jetpack' ) }
+					</p>
+				</div>
+			);
+		}
+	};
+
 	return (
-		<div>
+		<React.Fragment>
 			<div className="jp-disconnect-dialog__content">
 				<h1 id="jp-disconnect-dialog__heading">{ title }</h1>
-				{ contents }
 				{ renderConnectedPlugins() }
 				{ disconnectStepComponent }
+				{ renderFallbackOutput() }
 			</div>
 
 			<div className="jp-disconnect-dialog__actions">
@@ -126,18 +163,21 @@ const StepDisconnect = props => {
 						{ renderDisconnectButton() }
 					</div>
 				</div>
-				{ disconnectError && <p className="jp-disconnect-dialog__error">{ errorMessage }</p> }
+				{ disconnectError && <p className="jp-disconnect-dialog__error">{ disconnectError }</p> }
 			</div>
-		</div>
+		</React.Fragment>
 	);
 };
 
 StepDisconnect.propTypes = {
 	title: PropTypes.string,
-	contents: PropTypes.elementType,
 	isDisconnecting: PropTypes.bool,
-	disconnect: PropTypes.func,
+	onDisconnect: PropTypes.func,
 	disconnectError: PropTypes.bool,
+	disconnectStepComponent: PropTypes.elementType,
+	connectedPlugins: PropTypes.array,
+	closeModal: PropTypes.func,
+	context: PropTypes.string,
 };
 
 export default StepDisconnect;
