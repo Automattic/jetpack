@@ -411,17 +411,6 @@ class Publicize extends Publicize_Base {
 		}
 		// Only do this when a post transitions to being published
 		if ( get_post_meta( $post->ID, $this->PENDING ) && $this->post_type_is_publicizeable( $post->post_type ) ) {
-			$connected_services = $this->get_all_connections();
-			if ( ! empty( $connected_services ) ) {
-				/**
-				 * Fires when a post is saved that has is marked as pending publicizing
-				 *
-				 * @since 4.1.0
-				 *
-				 * @param int The post ID
-				 */
-				do_action_deprecated( 'jetpack_publicize_post', $post->ID, '4.8.0', 'jetpack_published_post_flags' );
-			}
 			delete_post_meta( $post->ID, $this->PENDING );
 			update_post_meta( $post->ID, $this->POST_DONE . 'all', true );
 		}

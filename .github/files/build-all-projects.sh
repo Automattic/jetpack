@@ -4,6 +4,8 @@
 set -eo pipefail
 
 BASE=$(pwd)
+. tools/includes/alpha-tag.sh
+
 if [[ -z "$BUILD_BASE" ]]; then
 	BUILD_BASE=$(mktemp -d "${TMPDIR:-/tmp}/jetpack-project-mirrors.XXXXXXXX")
 elif [[ ! -e "$BUILD_BASE" ]]; then
@@ -109,7 +111,8 @@ for SLUG in "${SLUGS[@]}"; do
 		CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
 		if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then
 			echo "::group::Updating changelog"
-			if ! $CHANGELOGGER write --prologue='This is an alpha version! The changes listed here are not final.' --default-first-version --prerelease=alpha --release-date=unreleased --no-interaction --yes -vvv; then
+			PRERELEASE=$(alpha_tag $CHANGELOGGER composer.json 0)
+			if ! $CHANGELOGGER write --prologue='This is an alpha version! The changes listed here are not final.' --default-first-version --prerelease=$PRERELEASE --release-date=unreleased --no-interaction --yes -vvv; then
 				echo "::endgroup::"
 				echo "::error::Changelog update for ${SLUG} failed"
 				EXIT=1
