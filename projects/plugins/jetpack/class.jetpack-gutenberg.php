@@ -795,11 +795,11 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Loads PHP components of extended-blocks.
+	 * Loads PHP components of block editor extensions.
 	 *
 	 * @since 8.9.0
 	 */
-	public static function load_extended_blocks() {
+	public static function load_block_editor_extensions() {
 		if ( self::should_load() ) {
 			// Block editor extensions to load.
 			$extensions_to_load = array(
