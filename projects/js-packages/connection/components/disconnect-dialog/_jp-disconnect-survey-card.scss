@@ -1,0 +1,56 @@
+.jp-disconnect-survey-card {
+	border: 2px solid transparent;
+	width: 800px;
+	max-width: 100%;
+	margin-left: auto;
+	margin-right: auto;
+	border-radius: 4px;
+	text-align: left;
+	padding: 1rem;
+	position: relative;
+
+	&--selected {
+		border-color: var( --jp-black );
+		background: #EEE;
+	}
+
+	&::after {
+		content: '';
+		display: block;
+		width: 5px;
+		height: 5px;
+		position: absolute;
+		top: 50%;
+		right: 1.5rem;
+		border-top: 2px solid var( --jp-black );
+		border-right: 2px solid var( --jp-black );
+		transform: translateY( -50% ) rotate( 45deg );
+	}
+
+	&:hover {
+		cursor: pointer;
+	}
+
+	&:hover,
+	&:focus {
+		&:not( .jp-disconnect-survey-card--selected ) {
+			border-color: var( --jp-black-80 )
+		}
+	}
+}
+
+input.jp-disconnect-survey-card__input {
+	-webkit-appearance: none;
+	border: none;
+	background-color: transparent;
+	color: var( --jp-black-80 );
+	flex-grow: 1;
+	padding-right: 40px;
+}
+
+.jp-disconnect-survey-card__answer {
+	font-weight: bold;
+	margin: 0;
+	display: flex;
+	align-items: center;
+}

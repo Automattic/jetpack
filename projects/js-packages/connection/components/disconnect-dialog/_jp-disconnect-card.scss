@@ -1,66 +1,68 @@
 // Used to show cards in the disconnection flow for active plugins and site benefits.
 .jp-disconnect-card {
-  background-color: #FFFFFF;
-  width: 800px;
-  max-width: 100%;
-  padding: 1rem 2rem;
-  border: none;
-  border-radius: 3px;
-  box-shadow: 0 0 10px #EEEEEE
+	background-color: #FFFFFF;
+	width: 800px;
+	max-width: 100%;
+	padding: 1rem 2rem;
+	border: none;
+	border-radius: 3px;
+	box-shadow: 0 0 10px #EEEEEE;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 .jp-disconnect-card__card-content {
-  display: block;
-  font-size: 0.875rem;
+	display: block;
+	font-size: 0.875rem;
 
-  @media only screen and ( min-width: 782px ) {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-  }
+	@media only screen and (min-width: 782px) {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
 }
 
 .jp-disconnect-card__card-headline,
 p.jp-disconnect-card__card-headline { // Override rule from disconnect-modal
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-top: 0;
-  margin-bottom: 0.5rem;
-  flex-shrink: 0;
+	font-size: 1.25rem;
+	font-weight: 600;
+	margin-top: 0;
+	margin-bottom: 0.5rem;
+	flex-shrink: 0;
 
-  @media only screen and ( min-width: 782px ) {
-	font-size: 1.5rem;
-	margin-bottom: 0;
-	margin-right: 1.5rem;
-  }
+	@media only screen and (min-width: 782px) {
+		font-size: 1.5rem;
+		margin-bottom: 0;
+		margin-right: 1.5rem;
+	}
 }
 
 .jp-disconnect-card__card-stat-block {
-  display: flex;
-  align-items: baseline;
-  flex-grow: 1;
+	display: flex;
+	align-items: baseline;
+	flex-grow: 1;
 
-  @media only screen and ( min-width: 782px ) {
-	flex-direction: row-reverse;
-  }
+	@media only screen and (min-width: 782px) {
+		flex-direction: row-reverse;
+	}
 }
 
 .jp-disconnect-card__card-description {
-  flex-grow: 1;
+	flex-grow: 1;
 
-  @media only screen and ( min-width: 782px ) {
-	text-align: right;
-  }
+	@media only screen and (min-width: 782px) {
+		text-align: right;
+	}
 }
 
 .jp-disconnect-card__card-stat {
-  font-size: 1rem;
-  font-weight: 600;
-  margin-right: 0.5rem;
+	font-size: 1rem;
+	font-weight: 600;
+	margin-right: 0.5rem;
 
-  @media only screen and ( min-width: 782px ) {
-	font-size: 1.5rem;
-	margin-right: 0;
-	margin-left: 1rem;
-  }
+	@media only screen and (min-width: 782px) {
+		font-size: 1.5rem;
+		margin-right: 0;
+		margin-left: 1rem;
+	}
 }

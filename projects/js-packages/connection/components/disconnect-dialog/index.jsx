@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import { __ } from '@wordpress/i18n';
 import { Button, Modal } from '@wordpress/components';
 import restApi from '@automattic/jetpack-api';
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 
 /**
  * Internal dependencies
@@ -23,15 +24,20 @@ import StepThankYou from './steps/step-thank-you';
  * @param {string} props.apiRoot -- API root URL, required.
  * @param {string} props.apiNonce -- API Nonce, required.
  * @param {string} props.title -- The modal title.
+ * @param {string} props.activateButtonText -- Text to show for the button that opens the modal.
+ * @param {string} props.activateButtonClass -- Class to use on the button that opens the modal.
+ * @param {Function} props.disconnectCallback -- Callback function that is called just before the request to disconnect is made.
  * @param {Function} props.onDisconnected -- The callback to be called upon disconnection success.
  * @param {Function} props.onError -- The callback to be called upon disconnection failure.
+ * @param {React.Component} props.disconnectStepComponent -- A component to render as part of the disconnect step.
+ * @param {string} props.context -- The context in which this component is being used.
+ * @param {string} props.disconnectingPlugin -- The plugin where this component is being used that initiated the disconnect flow.
  * @param {Function} props.errorMessage -- The error message to display upon disconnection failure.
  * @returns {React.Component} The `DisconnectDialog` component.
  */
 
 const DisconnectDialog = props => {
 	const [ isOpen, setOpen ] = useState( false );
-
 	const [ isDisconnecting, setIsDisconnecting ] = useState( false );
 	const [ isDisconnected, setIsDisconnected ] = useState( false );
 	const [ disconnectError, setDisconnectError ] = useState( false );
@@ -42,14 +48,12 @@ const DisconnectDialog = props => {
 		apiRoot,
 		apiNonce,
 		connectedPlugins,
-		connectedPluginsIsFetching,
 		title,
 		activateButtonText,
 		activateButtonClass,
 		disconnectCallback,
 		onDisconnected,
 		onError,
-		children,
 		disconnectStepComponent,
 		context,
 		disconnectingPlugin,
@@ -62,6 +66,15 @@ const DisconnectDialog = props => {
 		restApi.setApiRoot( apiRoot );
 		restApi.setApiNonce( apiNonce );
 	}, [ apiRoot, apiNonce ] );
+
+	/**
+	 * Add a slug property to each ConnectedPlugins object so they can be converted to an array.
+	 * This allows the connected plugins to be iterated over more easily for display.
+	 */
+	useEffect( () => {
+		const keys = Object.keys( connectedPlugins );
+		keys.forEach( key => ( connectedPlugins[ key ].slug = key ) );
+	}, [ connectedPlugins ] );
 
 	/**
 	 * Open the Disconnect Dialog.
@@ -85,6 +98,10 @@ const DisconnectDialog = props => {
 		[ setOpen ]
 	);
 
+	/**
+	 * Disconnect the site.
+	 * Uses the rest API to remove the Jetpack connection.
+	 */
 	const _disconnect = useCallback( () => {
 		restApi
 			.disconnectSite()
@@ -103,6 +120,16 @@ const DisconnectDialog = props => {
 	}, [ setIsDisconnecting, setIsDisconnected, setDisconnectError, onError ] );
 
 	/**
+	 * Submit the optional survey following disconnection.
+	 */
+	const _submitSurvey = useCallback( surveyData => {
+		// Use tracks to record the survey response.
+		// This requires analytics scripts to be loaded.
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_plugin_disconnect_survey', surveyData );
+		setIsFeedbackProvided( true );
+	}, [] );
+
+	/**
 	 * Disconnect - Triggered upon clicking the 'Disconnect' button.
 	 */
 	const handleDisconnect = useCallback(
@@ -112,18 +139,38 @@ const DisconnectDialog = props => {
 			setDisconnectError( false );
 			setIsDisconnecting( true );
 
-			// allow the disconnect action to be picked up by another component
-			// this is primarily for the plugin context where the plugin needs to be deactivated as well
+			// Allow the disconnect action to be picked up by another component.
+			// This is primarily for the plugin context where the plugin needs to be deactivated as well.
 			if ( disconnectCallback ) {
 				disconnectCallback( e );
-				// maybe do some more stuff here before returning?
 				return;
 			}
 
-			// default to making the disconnect API call here
+			// Default to making the disconnect API call here.
 			_disconnect();
 		},
 		[ setDisconnectError, setIsDisconnecting, disconnectCallback, _disconnect ]
+	);
+
+	/**
+	 * Submit Survey - triggered by clicking on the "Submit Feedback" button.
+	 * Assembles the survey response.
+	 */
+	const handleSubmitSurvey = useCallback(
+		( surveyAnswerId, surveyAnswerText, e ) => {
+			e && e.preventDefault();
+
+			const surveyData = {
+				disconnect_reason: surveyAnswerId,
+			};
+
+			if ( surveyAnswerText ) {
+				surveyData.disconnect_reason_text = surveyAnswerText;
+			}
+
+			_submitSurvey( surveyData );
+		},
+		[ _submitSurvey ]
 	);
 
 	/**
@@ -143,21 +190,15 @@ const DisconnectDialog = props => {
 		[ onDisconnected, closeModal ]
 	);
 
+	/**
+	 * Update the local state to show the survey step.
+	 */
 	const handleProvideFeedback = useCallback(
 		e => {
 			e && e.preventDefault();
 			setIsProvidingFeedback( true );
 		},
 		[ setIsProvidingFeedback ]
-	);
-
-	const handleFeedbackProvided = useCallback(
-		e => {
-			e && e.preventDefault();
-			setIsProvidingFeedback( false );
-			setIsFeedbackProvided( true );
-		},
-		[ setIsFeedbackProvided, setIsProvidingFeedback ]
 	);
 
 	/**
@@ -171,25 +212,26 @@ const DisconnectDialog = props => {
 			return (
 				<StepDisconnect
 					title={ title }
-					contents={ children }
-					connectedPlugins={ connectedPlugins.filter( plugin => {
-						return disconnectingPlugin ? plugin.slug !== disconnectingPlugin : true;
-					} ) }
-					connectedPluginsIsFetching={ connectedPluginsIsFetching }
+					// Filter out the current plugin ( if provided ) from the connected plugins.
+					connectedPlugins={
+						connectedPlugins
+							? Object.values( connectedPlugins ).filter( plugin => {
+									return disconnectingPlugin ? plugin.slug !== disconnectingPlugin : true;
+							  } )
+							: []
+					}
 					// Component that renders as part of the disconnect step, if passed.
-					// If Jetpack plugin is active, can show output about Jetpack's benefits/ active modules - this is passed as another component
 					disconnectStepComponent={ disconnectStepComponent }
 					isDisconnecting={ isDisconnecting }
 					closeModal={ closeModal }
 					onDisconnect={ handleDisconnect }
-					errorMessage={ disconnectError }
+					disconnectError={ disconnectError }
 					context={ context } // Where is the modal showing? ( most important for when it loads on the plugins page )
-					disconnectingPlugin={ disconnectingPlugin } // Which plugin is initiating the disconnect
+					disconnectingPlugin={ disconnectingPlugin } // Which plugin is initiating the disconnect.
 				/>
 			);
 		} else if ( isDisconnected && ! isProvidingFeedback && ! isFeedbackProvided ) {
-			// disconnect confirm
-			// ask the user about the survey
+			// Confirm the disconnection, ask user about providing feedback.
 			return (
 				<StepDisconnectConfirm
 					onProvideFeedback={ handleProvideFeedback }
@@ -197,15 +239,8 @@ const DisconnectDialog = props => {
 				/>
 			);
 		} else if ( isProvidingFeedback && ! isFeedbackProvided ) {
-			// survey step
-			// no data needed from site
-			// send response to collection endpoint
-			return (
-				<StepSurvey onFeedBackProvided={ handleFeedbackProvided } onExit={ backToWordpress } />
-			);
+			return <StepSurvey onFeedBackProvided={ handleSubmitSurvey } onExit={ backToWordpress } />;
 		} else if ( isFeedbackProvided ) {
-			// thank you step
-			// only visual output
 			return <StepThankYou onExit={ backToWordpress } />;
 		}
 	};
@@ -251,7 +286,7 @@ DisconnectDialog.propTypes = {
 	onError: PropTypes.func,
 	errorMessage: PropTypes.string,
 	context: PropTypes.string,
-	connectedPlugins: PropTypes.array,
+	connectedPlugins: PropTypes.object,
 	connectedPluginsIsFetching: PropTypes.bool,
 	disconnectingPlugin: PropTypes.string,
 };
