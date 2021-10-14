@@ -87,8 +87,13 @@ export const settings = {
 						];
 					}
 
-					if ( instance.raw.showmap ) {
-						innerBlocks = [ ...innerBlocks, createBlock( 'jetpack/map', {} ) ];
+					if ( instance.raw.showmap && instance.raw.address ) {
+						innerBlocks = [
+							...innerBlocks,
+							createBlock( 'jetpack/map', {
+								address: instance.raw.address,
+							} ),
+						];
 					}
 
 					return createBlock( 'jetpack/contact-info', {}, innerBlocks );
