@@ -5,12 +5,12 @@ import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
 import PropTypes from 'prop-types';
-import { Spinner } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import './style.scss';
+import Spinner from '../spinner';
 
 /**
  * The Jetpack Action button.

@@ -116,7 +116,7 @@ const ConnectButton = props => {
 			{ ( ! connectionStatus.isRegistered || ! connectionStatus.isUserConnected ) &&
 				! connectionStatusIsFetching && (
 					<ActionButton
-						connectLabel={ connectLabel }
+						label={ connectLabel }
 						onClick={ registerSite }
 						displayError={ registationError }
 						isLoading={ isRegistering || isUserConnecting }
