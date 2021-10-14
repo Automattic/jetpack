@@ -53,8 +53,8 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3
         with:
+          # We're not git-tagging for the env. Just tag all builds as latest.
           tags: |
-            # We're not git-tagging for the env. Just tag all builds as latest.
             type=raw,latest
           images: |
             automattic/jetpack-wordpress-dev
