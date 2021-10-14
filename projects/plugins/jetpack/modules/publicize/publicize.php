@@ -606,14 +606,15 @@ abstract class Publicize_Base {
 	 * @return array {
 	 *     Array of UI setup data for connection list form.
 	 *
-	 *     @type string 'unique_id'     ID string representing connection
-	 *     @type string 'service_name'  Slug of the connection's service (facebook, twitter, ...)
-	 *     @type string 'service_label' Service Label (Facebook, Twitter, ...)
-	 *     @type string 'display_name'  Connection's human-readable Username: "@jetpack"
-	 *     @type bool   'enabled'       Default value for the connection (e.g., for a checkbox).
-	 *     @type bool   'done'          Has this connection already been publicized to?
-	 *     @type bool   'toggleable'    Is the user allowed to change the value for the connection?
-	 *     @type bool   'global'        Is this connection a global one?
+	 *     @type string 'unique_id'        ID string representing connection
+	 *     @type string 'service_name'     Slug of the connection's service (facebook, twitter, ...)
+	 *     @type string 'service_label'    Service Label (Facebook, Twitter, ...)
+	 *     @type string 'display_name'     Connection's human-readable Username: "@jetpack"
+	 *     @type string 'profile_picture'  Connection profile picture.
+	 *     @type bool   'enabled'          Default value for the connection (e.g., for a checkbox).
+	 *     @type bool   'done'             Has this connection already been publicized to?
+	 *     @type bool   'toggleable'       Is the user allowed to change the value for the connection?
+	 *     @type bool   'global'           Is this connection a global one?
 	 * }
 	 */
 	public function get_filtered_connection_data( $selected_post_id = null ) {
