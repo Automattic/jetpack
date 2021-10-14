@@ -11,7 +11,6 @@ use Automattic\Jetpack\Connection\Secrets;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Roles;
-use Automattic\Jetpack\Sync\Sender;
 
 /**
  * Just a sack of functions.  Not actually an IXR_Server
@@ -744,20 +743,6 @@ class Jetpack_XMLRPC_Server {
 			$user_id,
 			(bool) $user_id
 		);
-	}
-
-	/**
-	 * Returns any object that is able to be synced.
-	 *
-	 * @deprecated since jetpack 7.8.0
-	 * @see Automattic\Jetpack\Sync\Sender::sync_object()
-	 *
-	 * @param array $args the synchronized object parameters.
-	 * @return string Encoded sync object.
-	 */
-	public function sync_object( $args ) {
-		_deprecated_function( __METHOD__, 'jetpack-7.8', 'Automattic\\Jetpack\\Sync\\Sender::sync_object' );
-		return Sender::get_instance()->sync_object( $args );
 	}
 
 	/**
