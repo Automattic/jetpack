@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.3.1 - 2021-10-13
+### Changed
+- Updated package dependencies.
+
 ## 0.3.0 - 2021-10-12
 ### Added
 - Add the IDC Safe Mode API call.
