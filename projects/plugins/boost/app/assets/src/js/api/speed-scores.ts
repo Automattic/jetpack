@@ -24,6 +24,7 @@ type SpeedScores = {
 type SpeedScoresSet = {
 	current: SpeedScores;
 	noBoost: SpeedScores;
+	isStale: boolean;
 };
 
 type ParsedApiResponse = {
@@ -93,6 +94,7 @@ function parseResponse( response: JSONObject ): ParsedApiResponse {
 							desktop: castToNumber( response.scores.noBoost.desktop, 0 ),
 					  }
 					: null,
+				isStale: !! response.scores.isStale,
 			},
 		};
 	}
@@ -177,7 +179,8 @@ export function didScoresImprove( scores: SpeedScoresSet ): boolean {
 		null !== noBoost &&
 		current.mobile >= noBoost.mobile &&
 		current.desktop >= noBoost.desktop &&
-		current.mobile + current.desktop > noBoost.mobile + noBoost.desktop
+		current.mobile + current.desktop > noBoost.mobile + noBoost.desktop &&
+		( getScoreImprovementPercentage( scores ) >= 5 || current.desktop + current.mobile > 180 )
 	);
 }
 

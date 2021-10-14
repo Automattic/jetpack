@@ -2,6 +2,48 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 10.3-a.1 - 2021-10-12
+### Enhancements
+- Instant Search: always show the save button on the mobile view of the Search Settings dashboard.
+- Secure Sign On: add new filter allowing one to customize the explanation displayed next to the SSO button.
+- VideoPress: improve the display of upload errors in the Media Library and the block editor.
+
+### Improved compatibility
+- Jetpack Backup: improve the display of the different plugin menus when using both Jetpack and Jetpack Backup.
+- Social Icons Widget: deprecate widget and offer the option to transform into a Social Links block.
+
+### Bug fixes
+- Calendly block: fix the preview in the block inserter.
+- Eventbrite Block: improve the event URL detection and avoid errors when using links without an event ID.
+- General: avoid PHP notices that may happen when installing the plugin.
+- Instant Search: fix the display of filters when there are no results to display for a query.
+- Instant Search: fix the preview of the infinite scroll option in the Search Settings dashboard.
+- Instant Search: reduce browser history noise as search is being typed in the form.
+- Publicize: refresh connections only when the post publishes.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add Publicize Share POST endpoint
+- Open Jetpack plugin sidebar by default when URL includes query param.
+- Correct AMP validation errors.
+- Publicize: use post metadata to store publicize data
+- Add a wpcom menu item linking to wordpess.com/woocommerce-installation/
+- Add click tracking for Widget Visibility
+- Added an admin notice to media-new.php notifying the user that videos uploaded here will not be sent to VideoPress.
+- Allow empty string in message parameter.
+- Bump the RNA API version.
+- E2E tests: extract shared e2e tools
+- E2E tests: updated dependencies
+- Embed block: Add native version of index file to control the available variations.
+- Exclude `vendor/` from code coverage.
+- Init Jetpack 10.3 release cycle.
+- Init the identity-crisis package using the Config package
+- Nav Unification feature flag check. It only affects WPCOM Atomic sites.
+- P2: Conditionally hide Pattern admin menu items for hubs/spaces
+- Remove "beta testing" item from the menu for all users
+- Updated package dependencies
+- Update Jetpack 10.2 to-test.md
+- Update Sync Unit Tests to reset settings modified during tests.
+
 ## 10.2 - 2021-10-05
 ### Enhancements
 - Contact Form: add filter to allow customizing email headers.

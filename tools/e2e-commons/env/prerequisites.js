@@ -1,5 +1,5 @@
 import logger from '../logger';
-import { isBlogTokenSet, syncJetpackPlanData } from '../flows/jetpack-connect';
+import { syncJetpackPlanData, loginToWpCom, loginToWpSite } from '../flows';
 import {
 	execWpCommand,
 	getDotComCredentials,
@@ -9,7 +9,7 @@ import {
 } from '../helpers/utils-helper';
 import fs from 'fs';
 import config from 'config';
-import { loginToWpCom, loginToWpSite } from '../flows/log-in';
+import assert from 'assert';
 
 export function prerequisitesBuilder() {
 	const state = {
@@ -109,7 +109,7 @@ async function connect() {
 
 	await provisionJetpackStartConnection( creds.userId, 'free' );
 
-	expect( await isBlogTokenSet() ).toBeTruthy();
+	assert.ok( await isBlogTokenSet() );
 
 	// We are connected. Let's save the existing connection options just in case.
 	const result = await execWpCommand( 'option get jetpack_private_options --format=json' );
@@ -117,11 +117,10 @@ async function connect() {
 }
 
 async function disconnect() {
-	// await resetWordpressInstall();
 	await execWpCommand( 'option delete jetpack_private_options' );
 	await execWpCommand( 'option delete jetpack_sync_error_idc' );
 
-	expect( await isBlogTokenSet() ).toBeFalsy();
+	assert.ok( ! ( await isBlogTokenSet() ) );
 }
 
 async function ensureCleanState( shouldReset ) {
@@ -184,7 +183,7 @@ export async function activateModules( modulesList ) {
 	for ( const module of modulesList ) {
 		logger.prerequisites( `Activating module ${ module }` );
 		const result = await execWpCommand( `jetpack module activate ${ module }` );
-		expect( result ).toMatch( new RegExp( `Success: .* has been activated.`, 'i' ) );
+		assert.match( result, new RegExp( `Success: .* has been activated.`, 'i' ) );
 	}
 }
 
@@ -192,6 +191,22 @@ export async function deactivateModules( modulesList ) {
 	for ( const module of modulesList ) {
 		logger.prerequisites( `Deactivating module ${ module }` );
 		const result = await execWpCommand( `jetpack module deactivate ${ module }` );
-		expect( result ).toMatch( new RegExp( `Success: .* has been deactivated.`, 'i' ) );
+		assert.match( result, new RegExp( `Success: .* has been deactivated.`, 'i' ) );
 	}
+}
+
+export async function isBlogTokenSet() {
+	const cliCmd = 'jetpack options get blog_token';
+	const result = await execWpCommand( cliCmd );
+	if ( typeof result !== 'object' ) {
+		return true;
+	}
+	const txt = result.toString();
+	if (
+		txt.includes( 'Error: Option not found or is empty' ) ||
+		txt.includes( "Error: 'jetpack' is not a registered wp command" )
+	) {
+		return false;
+	}
+	throw result;
 }

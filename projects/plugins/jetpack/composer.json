@@ -41,7 +41,7 @@
 		"nojimage/twitter-text-php": "3.1.2"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "2.0.x-dev",
+		"automattic/jetpack-changelogger": "3.0.x-dev",
 		"johnkary/phpunit-speedtrap": "^4.0.0 || ^2.0.0 || ^1.1.0",
 		"yoast/phpunit-polyfills": "1.0.2"
 	},
@@ -100,7 +100,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ10_3_alpha"
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ10_3_a_2"
 	},
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-production",
@@ -109,6 +109,7 @@
 			"JETPACK__VERSION": "jetpack.php"
 		},
 		"wp-plugin-slug": "jetpack",
+		"dev-releases": true,
 		"changelogger-default-type": "other",
 		"changelogger": {
 			"versioning": "wordpress",
