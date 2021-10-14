@@ -29,23 +29,41 @@ function getPanelDescription(
 	isRePublicizeFeatureEnabled,
 	hasConnections,
 	hasEnabledConnections,
-	isSharingEnabled
+	isPublicizeEnabled,
 ) {
+	// Use constants when the string is used in multiple places.
+	const start_your_posts_string = __(
+		'Start sharing your posts by connecting your social media accounts.',
+		'jetpack'
+	);
+	const this_post_will_string = __(
+		'This post will be shared on all your enabled social media accounts the moment you publish the post.',
+		'jetpack'
+	);
+
+	// RePublicize feature is disabled.
 	if ( ! isRePublicizeFeatureEnabled ) {
 		if ( isPostPublished ) {
+			return start_your_posts_string;
+		}
+
+		return this_post_will_string;
+	}
+
+	// RePublicize feature is enabled.
+	// No connections.
+	if ( ! hasConnections ) {
+		if ( ! isPostPublished ) {
 			return __(
 				'Start sharing your posts automatically by connecting your social media accounts.',
 				'jetpack'
 			);
 		}
 
-		return __(
-			'This post will be shared on all your enabled social media accounts the moment you publish the post.',
-			'jetpack'
-		);
+		return start_your_posts_string;
 	}
 
-	if ( hasConnections && ( ! isSharingEnabled || ! hasEnabledConnections ) ) {
+	if ( hasConnections && ( ! isPublicizeEnabled || ! hasEnabledConnections ) ) {
 		if ( isPostPublished ) {
 			return __( 'Use this tool to share your post on all your social media accounts.', 'jetpack' );
 		}
@@ -56,11 +74,8 @@ function getPanelDescription(
 		);
 	}
 
-	if ( isSharingEnabled && hasEnabledConnections && ! isPostPublished ) {
-		return __(
-			'This post will be shared on all your enabled social media accounts the moment you publish the post.',
-			'jetpack'
-		);
+	if ( isPublicizeEnabled && hasEnabledConnections && ! isPostPublished ) {
+		return this_post_will_string;
 	}
 
 	return __(
@@ -102,7 +117,7 @@ const PublicizePanel = ( { prePublish } ) => {
 				{ getPanelDescription(
 					isPostPublished,
 					isRePublicizeFeatureEnabled,
-					isSharingEnabled,
+					isPublicizeEnabled,
 					hasConnections,
 					hasEnabledConnections
 				) }
