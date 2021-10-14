@@ -53,12 +53,15 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3
         with:
-          # We're not tagging for the env. Just tag "latest".
           tags: |
+            # We're not git-tagging for the env. Just tag "latest".
             type=raw,latest
           images: |
             automattic/jetpack-wordpress-dev
             ghcr.io/automattic/jetpack-wordpress-dev
+          labels: |
+            org.opencontainers.image.title=Jetpack Development Environment
+            org.opencontainers.image.description=Unified environment for developing in the Jetpack Monorepo using Docker containers.
 
 #      - name: Build and push Docker image
 #        uses: docker/build-push-action@v2
