@@ -7,6 +7,11 @@
  */
 
 /**
+ * External dependencies
+ */
+import { useEffect } from 'react';
+
+/**
  * WordPress dependencies
  */
 import { PanelRow } from '@wordpress/components';
@@ -22,12 +27,16 @@ import useSocialMediaConnections from '../../hooks/use-social-media-connections'
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 
 export default function PublicizeForm() {
-	const { connections, toggleById } = useSocialMediaConnections();
+	const { connections, toggleById, refresh } = useSocialMediaConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 
 	function isDisabled() {
 		return connections.every( connection => ! connection.toggleable );
 	}
+
+	useEffect( () => {
+		refresh();
+	}, [ connections, refresh ] );
 
 	return (
 		<Fragment>
