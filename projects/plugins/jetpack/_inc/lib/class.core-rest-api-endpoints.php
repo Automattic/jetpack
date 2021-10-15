@@ -3869,7 +3869,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function attach_jetpack_license( $request ) {
 		$license = trim( sanitize_text_field( $request['license'] ) );
-		$result = Licensing::instance()->attach_license( $license );
+		$result  = Licensing::instance()->attach_license( $license );
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
