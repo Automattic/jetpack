@@ -129,11 +129,11 @@ export async function scriptRouter( argv ) {
 			argv.script = `tools/plugin-changelog-to-readme.sh`;
 			argv.scriptArgs = [ argv.project ];
 			argv.next = `Finished! Next: 
-				\n  - If this is a beta, ensure the stable tag in readme.txt is latest stable. 
-				\n  - Create a PR and have your changes reviewed and merged.
-				\n  - Wait and make sure changes are propagated to mirror repos for each updated package.
-				\n  - After propagation, if you need to create a release branch, stand on master and then run:
-				\n      jetpack release ${ argv.project } release-branch \n`;
+				  - If this is a beta, ensure the stable tag in readme.txt is latest stable. 
+				  - Create a PR and have your changes reviewed and merged.
+				  - Wait and make sure changes are propagated to mirror repos for each updated package.
+				  - After propagation, if you need to create a release branch, stand on master and then run:
+				      jetpack release ${ argv.project } release-branch \n`.replace( /^\t+/gm, '' );
 			break;
 		case 'release-branch':
 		case 'append':
