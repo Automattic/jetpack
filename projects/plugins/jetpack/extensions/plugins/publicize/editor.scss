@@ -2,7 +2,12 @@
 
 .jetpack-publicize__connections-list {
 	list-style-type: none;
-	margin: 13px 0;
+	margin: 0;
+	width: 100%;
+
+	.components-notice {
+		margin: 5px 0 10px;
+	}
 }
 
 .publicize-jetpack-connection-container {
@@ -52,10 +57,4 @@
 
 .jetpack-publicize-add-connection-wrapper {
 	margin: 15px 0;
-}
-
-.jetpack-publicize__connections-list {
-	.components-notice {
-		margin: 5px 0 10px;
-	}
 }

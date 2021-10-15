@@ -9,6 +9,7 @@
 	import { makeAdminAjaxRequest } from '../../../utils/make-admin-ajax-request';
 
 	export let improvement;
+	export let currentPercentage;
 
 	const dispatch = createEventDispatcher();
 	async function disableRatingPrompt() {
@@ -27,7 +28,11 @@
 <div class="jb-rating-card" transition:slideRightTransition>
 	<CloseButton on:click={() => dispatch( 'dismiss' )} />
 	<h3 class="jb-rating-card__headline">
-		{sprintf( __( 'Faster by %d%%', 'jetpack-boost' ), improvement )}
+		{#if improvement >= 5}
+			{sprintf( __( 'Faster by %d%%', 'jetpack-boost' ), improvement )}
+		{:else}
+			{sprintf( __( 'You achieved a score of %d!' ), currentPercentage )}
+		{/if}
 	</h3>
 	<p class="jb-rating-card__paragraph">
 		{__(

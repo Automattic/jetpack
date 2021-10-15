@@ -52,7 +52,7 @@ interface VersioningPlugin {
 	 *  - version: (string) Version number, without any prerelease or buildinfo.
 	 *  - prerelease: (string|null) Prerelease version, e.g. "dev", "alpha", or "beta", if any.
 	 *  - buildinfo: (string|null) Build info, if any.
-	 * @throws InvalidArgumentException If the version number is not in a recognized format.
+	 * @throws InvalidArgumentException If the version number is not in a recognized format or extra is invalid.
 	 */
 	public function parseVersion( $version );
 
@@ -60,10 +60,11 @@ interface VersioningPlugin {
 	 * Check and normalize a version number.
 	 *
 	 * @param string $version Version.
+	 * @param array  $extra Extra components for the version, replacing any in `$version`.
 	 * @return string Normalized version.
 	 * @throws InvalidArgumentException If the version number is not in a recognized format.
 	 */
-	public function normalizeVersion( $version );
+	public function normalizeVersion( $version, $extra = array() );
 
 	/**
 	 * Determine the next version given a current version and a set of changes.
