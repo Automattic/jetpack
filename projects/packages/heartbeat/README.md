@@ -6,7 +6,7 @@ These are internal usage stats for Automattic, not visible to site owners.
 
 ## Usage
 
-### 1. Make sure Hearbeat is initialized:
+### 1. Make sure Heartbeat is initialized:
 
 ```php
 Automattic\Jetpack\Heartbeat::init();

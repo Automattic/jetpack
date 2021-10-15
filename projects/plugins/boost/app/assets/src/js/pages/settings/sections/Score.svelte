@@ -34,6 +34,7 @@
 			desktop: 0,
 		},
 		noBoost: null,
+		isStale: false,
 	} );
 
 	refreshScore( false );
@@ -79,7 +80,7 @@
 		try {
 			scores.set( await requestSpeedScores( force ) );
 			scoreLetter = getScoreLetter( $scores.current.mobile, $scores.current.desktop );
-			showPrevScores = didScoresImprove( $scores );
+			showPrevScores = didScoresImprove( $scores ) && ! $scores.isStale;
 			currentScoreConfigString = $scoreConfigString;
 		} catch ( err ) {
 			console.log( err );
@@ -93,12 +94,12 @@
 	 * A store that checks the speed score needs a refresh.
 	 */
 	const needRefresh = derived(
-		[ criticalCssStatus, modulesInSync, scoreConfigString ],
-		( [ $criticalCssStatus, $modulesInSync, $scoreConfigString ] ) => {
+		[ criticalCssStatus, modulesInSync, scoreConfigString, scores ],
+		( [ $criticalCssStatus, $modulesInSync, $scoreConfigString, $scores ] ) => {
 			return (
 				! $criticalCssStatus.generating &&
 				$modulesInSync &&
-				$scoreConfigString !== currentScoreConfigString
+				( $scoreConfigString !== currentScoreConfigString || $scores.isStale )
 			);
 		}
 	);
@@ -114,7 +115,7 @@
 	const showRatingCard = derived(
 		[ scores, respawnRatingPrompt, isLoading ],
 		( [ $scores, $respawnRatingPrompt, $isLoading ] ) =>
-			didScoresImprove( $scores ) && $respawnRatingPrompt && ! $isLoading
+			didScoresImprove( $scores ) && $respawnRatingPrompt && ! $isLoading && ! $scores.isStale
 	);
 
 	$: if ( $needRefresh ) {
