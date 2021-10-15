@@ -302,6 +302,16 @@ class Jetpack_Stats_Upgrade_Nudges {
 	}
 
 	/**
+	 * Gets the product description link.
+	 *
+	 * @param string $product_key The product key of the product we wish to display.
+	 * @return string
+	 */
+	private static function get_product_description_link( $product_key ) {
+		return Jetpack::admin_url( array( 'page' => sprintf( 'jetpack#/product/%s', $product_key ) ) );
+	}
+
+	/**
 	 * Tracks an event in Tracks
 	 *
 	 * @param string $event_name The event name.
@@ -339,7 +349,6 @@ class Jetpack_Stats_Upgrade_Nudges {
 		$view_event         = "stats_nudges_view_$tracks_id";
 		$click_event        = "stats_nudges_click_$tracks_id";
 		$learn_more_event   = "stats_nudges_learn_more_$tracks_id";
-
 		self::track_event( $view_event );
 
 		?>
@@ -375,10 +384,10 @@ class Jetpack_Stats_Upgrade_Nudges {
 	 * @return void
 	 */
 	private static function print_security() {
-		$upgrade_link = self::get_upgrade_link( 'stats-nudges-security' );
-		$learn_link   = self::get_upgrade_link( 'stats-nudges-security-learn' );
-		$text         = __( 'Comprehensive protection for your site, including Backup, Scan, and Anti-spam.', 'jetpack' );
-		self::print_item( __( 'Security', 'jetpack' ), $text, 'product-jetpack-security-bundle.svg', $upgrade_link, 'security', $learn_link );
+		$link       = self::get_product_description_link( 'security' );
+		$learn_link = self::get_upgrade_link( 'stats-nudges-security-learn' );
+		$text       = __( 'Comprehensive protection for your site, including Backup, Scan, and Anti-spam.', 'jetpack' );
+		self::print_item( __( 'Security', 'jetpack' ), $text, 'product-jetpack-security-bundle.svg', $link, 'security', $learn_link );
 	}
 
 	/**
@@ -387,10 +396,10 @@ class Jetpack_Stats_Upgrade_Nudges {
 	 * @return void
 	 */
 	private static function print_backup() {
-		$upgrade_link = self::get_upgrade_link( 'stats-nudges-backup' );
-		$learn_link   = self::get_upgrade_link( 'stats-nudges-backup-learn' );
-		$text         = __( 'Save every change and get back online quickly with one-click restores.', 'jetpack' );
-		self::print_item( __( 'Backup', 'jetpack' ), $text, 'product-jetpack-backup.svg', $upgrade_link, 'backup', $learn_link, true );
+		$link       = self::get_product_description_link( 'backup' );
+		$learn_link = self::get_upgrade_link( 'stats-nudges-backup-learn' );
+		$text       = __( 'Save every change and get back online quickly with one-click restores.', 'jetpack' );
+		self::print_item( __( 'Backup', 'jetpack' ), $text, 'product-jetpack-backup.svg', $link, 'backup', $learn_link, true );
 	}
 
 	/**
@@ -404,10 +413,10 @@ class Jetpack_Stats_Upgrade_Nudges {
 	 * @return void
 	 */
 	private static function print_scan() {
-		$upgrade_link = self::get_upgrade_link( 'stats-nudges-scan' );
-		$learn_link   = self::get_upgrade_link( 'stats-nudges-scan-learn' );
-		$text         = __( 'Stay ahead of security threats with automated scanning and one-click fixes.', 'jetpack' );
-		self::print_item( __( 'Scan', 'jetpack' ), $text, 'product-jetpack-scan.svg', $upgrade_link, 'scan', $learn_link, true );
+		$link       = self::get_product_description_link( 'scan' );
+		$learn_link = self::get_upgrade_link( 'stats-nudges-scan-learn' );
+		$text       = __( 'Stay ahead of security threats with automated scanning and one-click fixes.', 'jetpack' );
+		self::print_item( __( 'Scan', 'jetpack' ), $text, 'product-jetpack-scan.svg', $link, 'scan', $learn_link, true );
 	}
 
 	/**
@@ -421,10 +430,10 @@ class Jetpack_Stats_Upgrade_Nudges {
 	 * @return void
 	 */
 	private static function print_akismet() {
-		$upgrade_link = self::get_upgrade_link( 'stats-nudges-akismet' );
-		$learn_link   = self::get_upgrade_link( 'stats-nudges-akismet-learn' );
-		$text         = __( 'Automatically clear spam from comments and forms.', 'jetpack' );
-		self::print_item( __( 'Anti-spam', 'jetpack' ), $text, 'product-jetpack-anti-spam.svg', $upgrade_link, 'akismet', $learn_link, true );
+		$link       = self::get_product_description_link( 'akismet' );
+		$learn_link = self::get_upgrade_link( 'stats-nudges-akismet-learn' );
+		$text       = __( 'Automatically clear spam from comments and forms.', 'jetpack' );
+		self::print_item( __( 'Anti-spam', 'jetpack' ), $text, 'product-jetpack-anti-spam.svg', $link, 'akismet', $learn_link, true );
 	}
 
 	/**
@@ -433,10 +442,10 @@ class Jetpack_Stats_Upgrade_Nudges {
 	 * @return void
 	 */
 	private static function print_search() {
-		$upgrade_link = self::get_upgrade_link( 'stats-nudges-search' );
-		$learn_link   = self::get_upgrade_link( 'stats-nudges-search-learn' );
-		$text         = __( 'Help your site visitors instantly find what they\'re looking for so they read and buy more.', 'jetpack' );
-		self::print_item( __( 'Search', 'jetpack' ), $text, 'product-jetpack-search.svg', $upgrade_link, 'search', $learn_link );
+		$link       = self::get_product_description_link( 'search' );
+		$learn_link = self::get_upgrade_link( 'stats-nudges-search-learn' );
+		$text       = __( 'Help your site visitors instantly find what they\'re looking for so they read and buy more.', 'jetpack' );
+		self::print_item( __( 'Search', 'jetpack' ), $text, 'product-jetpack-search.svg', $link, 'search', $learn_link );
 	}
 
 	/**
