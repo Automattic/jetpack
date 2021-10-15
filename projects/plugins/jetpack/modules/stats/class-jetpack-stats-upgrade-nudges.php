@@ -472,9 +472,6 @@ class Jetpack_Stats_Upgrade_Nudges {
 	 * @param bool $print Whether to print the item output or just check whether it would be printed or not.
 	 *
 	 * @since 10.1
-	 * @since 10.3 The CRM nudge has been removed, but leaving this here in case we reverse course.
-	 *
-	 * @todo Remove this function is not used ~6 months.
 	 *
 	 * @return bool
 	 */
@@ -518,8 +515,9 @@ class Jetpack_Stats_Upgrade_Nudges {
 			self::has_security_plan() &&
 			self::is_backup_active() &&
 			self::is_search_active() &&
-			! self::get_boost_output( false )
-		) {
+			! self::get_boost_output( false ) &&
+			! self::get_crm_output( false )
+			) {
 			return;
 		}
 
@@ -536,6 +534,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 			self::print_search();
 		}
 		self::get_boost_output();
+		self::get_crm_output();
 		self::print_footer();
 	}
 
