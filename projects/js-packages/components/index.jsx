@@ -19,3 +19,4 @@ export { default as getRedirectUrl } from './tools/jp-redirect';
 export { default as AutomatticBylineLogo } from './components/automattic-byline-logo';
 export { default as JetpackFooter } from './components/jetpack-footer';
 export { default as Spinner } from './components/spinner';
+export { default as withErrorMessage } from './components/with-error-message';

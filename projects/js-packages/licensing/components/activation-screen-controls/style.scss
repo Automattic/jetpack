@@ -22,8 +22,7 @@
 	}
 }
 
-.jp-license-activation-screen-controls--license-field,
-.jp-license-activation-screen-controls--license-field-with-error {
+.jp-license-activation-screen-controls--license-field {
 	label {
 		font-weight: 600;
 		font-size: var(--font-body);
@@ -37,33 +36,9 @@
 		margin: 0;
 		min-height: 48px;
 	}
-}
 
-.jp-license-activation-screen-controls--license-field {
-	input.components-text-control__input {
-		border: 1px solid #787c82;
-	}
-}
-
-.jp-license-activation-screen-controls--license-field-with-error {
-	input.components-text-control__input {
-		border: 1px solid var(--jp-red);
-	}
-}
-
-.jp-license-activation-screen-controls--license-field-error {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	color: var(--jp-red);
-
-	.error-gridicon {
-		margin-right: 4px;
-		fill: var(--jp-red);
-	}
-
-	span {
-		font-size: var(--font-body);
+	&.jp-components-error-message--has-error input.components-text-control__input {
+		border-color: var(--jp-red);
 	}
 }
 

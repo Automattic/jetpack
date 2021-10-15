@@ -4,19 +4,16 @@
 import { __ } from '@wordpress/i18n';
 import { Button, TextControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
-import { JetpackLogo } from '@automattic/jetpack-components';
+import { JetpackLogo, withErrorMessage } from '@automattic/jetpack-components';
 import PropTypes from 'prop-types';
 import React from 'react';
-
-/**
- * Internal dependencies
- */
-import ErrorGridicon from './error-gridicon';
 
 /**
  * Style dependencies
  */
 import './style.scss';
+
+const TextControlWithErrorMessage = withErrorMessage( TextControl );
 
 /**
  * The Activation Screen Controls component.
@@ -37,8 +34,6 @@ const ActivationScreenControls = ( {
 	onLicenseChange,
 	siteUrl,
 } ) => {
-	const hasLicenseError = licenseError !== null;
-
 	return (
 		<div className="jp-license-activation-screen-controls">
 			<div className="jp-license-activation-screen-controls--content">
@@ -59,24 +54,15 @@ const ActivationScreenControls = ( {
 						}
 					) }
 				</p>
-				<TextControl
-					className={
-						! hasLicenseError
-							? 'jp-license-activation-screen-controls--license-field'
-							: 'jp-license-activation-screen-controls--license-field-with-error'
-					}
+				<TextControlWithErrorMessage
+					className="jp-license-activation-screen-controls--license-field"
 					label={ __( 'License key', 'jetpack' ) }
 					placeholder="jp-Product34623432423423"
 					value={ license }
 					onChange={ onLicenseChange }
 					disabled={ isSaving }
+					errorMessage={ licenseError }
 				/>
-				{ hasLicenseError && (
-					<div className="jp-license-activation-screen-controls--license-field-error">
-						<ErrorGridicon />
-						<span>{ licenseError }</span>
-					</div>
-				) }
 			</div>
 			<div>
 				<Button
