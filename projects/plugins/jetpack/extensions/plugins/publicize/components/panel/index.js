@@ -29,7 +29,7 @@ function getPanelDescription(
 	isRePublicizeFeatureEnabled,
 	hasConnections,
 	hasEnabledConnections,
-	isPublicizeEnabled,
+	isPublicizeEnabled
 ) {
 	// Use constants when the string is used in multiple places.
 	const start_your_posts_string = __(
@@ -129,7 +129,7 @@ const PublicizePanel = ( { prePublish } ) => {
 			) }
 
 			<PublicizeConnectionVerify />
-			<PublicizeForm isEnabled={ isRePublicizeFeatureEnabled ? isPublicizeEnabled : true } />
+			<PublicizeForm />
 			<PublicizeTwitterOptions prePublish={ prePublish } />
 		</PanelBody>
 	);
