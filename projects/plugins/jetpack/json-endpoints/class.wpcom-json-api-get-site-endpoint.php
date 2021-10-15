@@ -670,6 +670,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'anchor_podcast':
 					$options[ $key ] = $site->get_anchor_podcast();
 					break;
+				case 'is_difm_lite_in_progress':
+					$options[ $key ] = $site->is_difm_lite_in_progress();
+					break;
 				case 'site_intent':
 					$options[ $key ] = $site->get_site_intent();
 					break;

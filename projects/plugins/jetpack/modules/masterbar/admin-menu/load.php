@@ -62,6 +62,13 @@ function get_admin_menu_class() {
 			return Domain_Only_Admin_Menu::class;
 		}
 
+		// DIFM Lite In Progress Sites. Uses the same menu used for domain-only sites.
+		$is_difm_lite_in_progress = has_blog_sticker( 'difm-lite-in-progress' );
+		if ( $is_difm_lite_in_progress ) {
+			require_once __DIR__ . '/class-domain-only-admin-menu.php';
+			return Domain_Only_Admin_Menu::class;
+		}
+
 		// P2 sites.
 		require_once WP_CONTENT_DIR . '/lib/wpforteams/functions.php';
 		if ( \WPForTeams\is_wpforteams_site( $blog_id ) ) {
