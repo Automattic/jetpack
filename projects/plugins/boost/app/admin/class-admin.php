@@ -8,6 +8,7 @@
 
 namespace Automattic\Jetpack_Boost\Admin;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack_Boost\Jetpack_Boost;
 use Automattic\Jetpack_Boost\Lib\Analytics;
@@ -66,9 +67,6 @@ class Admin {
 		Environment_Change_Detector::init();
 
 		add_action( 'init', array( new Analytics(), 'init' ) );
-		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_filter( 'plugin_action_links_' . JETPACK_BOOST_PLUGIN_BASE, array( $this, 'plugin_page_settings_link' ) );
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'admin_notices', array( $this, 'show_notices' ) );
@@ -76,41 +74,23 @@ class Admin {
 		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_js_constants' ) );
 
 		$this->handle_get_parameters();
-	}
 
-	/**
-	 * Runs the function that generates the admin menu for the plugin.
-	 */
-	public function admin_menu() {
-		add_menu_page(
-			__( 'Jetpack Boost', 'jetpack-boost' ),
-			__( 'Jetpack Boost', 'jetpack-boost' ),
-			'manage_options',
-			JETPACK_BOOST_SLUG,
-			array( $this, 'render_settings' ),
-			'dashicons-chart-line',
-			77 // Between Tools & Settings.
-		);
-
-		add_submenu_page(
-			'jetpack-boost',
+		$page_suffix = Admin_Menu::add_menu(
 			__( 'Jetpack Boost - Settings', 'jetpack-boost' ),
-			__( 'Settings', 'jetpack-boost' ),
+			'Boost',
 			'manage_options',
 			JETPACK_BOOST_SLUG,
 			array( $this, 'render_settings' )
 		);
+		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
 	}
 
 	/**
-	 * Returns true if on Jetpack Boost admin page.
-	 *
-	 * @return bool
+	 * Enqueue scripts and styles for the admin page.
 	 */
-	public function on_boost_admin_page() {
-		$screen = get_current_screen();
-
-		return 'toplevel_page_jetpack-boost' === $screen->id;
+	public function admin_init() {
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 	}
 
 	/**
@@ -119,10 +99,6 @@ class Admin {
 	 * @since    1.0.0
 	 */
 	public function enqueue_styles() {
-		if ( ! $this->on_boost_admin_page() ) {
-			return;
-		}
-
 		$internal_path = apply_filters( 'jetpack_boost_asset_internal_path', 'app/assets/dist/' );
 
 		wp_enqueue_style(
@@ -139,10 +115,6 @@ class Admin {
 	 * @since    1.0.0
 	 */
 	public function enqueue_scripts() {
-		if ( ! $this->on_boost_admin_page() ) {
-			return;
-		}
-
 		$internal_path = apply_filters( 'jetpack_boost_asset_internal_path', 'app/assets/dist/' );
 
 		$admin_js_handle = $this->jetpack_boost->get_plugin_name() . '-admin';

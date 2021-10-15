@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix spelling of 'deprecated' in pnpm tasks
