@@ -70,14 +70,14 @@ export async function releaseCli( argv ) {
 		argv = await promptForProject( argv );
 	}
 
-	// Check if we're working with a beta version and only if generating changlog.
-	if ( ! argv.devRelease && typeof argv.beta === 'undefined' && argv.script === 'changelog' ) {
-		argv = await promptBeta( argv );
-	}
-
 	// Verify we have a valid script.
 	if ( ! argv.script || argv.script === '' ) {
 		argv = await promptForScript( argv );
+	}
+
+	// Check if we're working with a beta version and only if generating changlog.
+	if ( ! argv.devRelease && typeof argv.beta === 'undefined' && argv.script === 'changelog' ) {
+		argv = await promptBeta( argv );
 	}
 
 	// Get the info we need for the script.
