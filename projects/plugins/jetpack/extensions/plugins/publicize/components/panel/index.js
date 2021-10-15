@@ -63,15 +63,8 @@ function getPanelDescription(
 		return start_your_posts_string;
 	}
 
-	if ( hasConnections && ( ! isPublicizeEnabled || ! hasEnabledConnections ) ) {
-		if ( isPostPublished ) {
-			return __( 'Use this tool to share your post on all your social media accounts.', 'jetpack' );
-		}
-
-		return __(
-			'Use this tool to automatically share your post on all your social media accounts.',
-			'jetpack'
-		);
+	if ( ! isSharingEnabled || ! hasEnabledConnections ) {
+		return __( 'Use this tool to share your post on all your social media accounts.', 'jetpack' );
 	}
 
 	if ( isPublicizeEnabled && hasEnabledConnections && ! isPostPublished ) {
