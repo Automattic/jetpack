@@ -809,7 +809,7 @@ class Jetpack_Gutenberg {
 
 			// Collect the extension paths.
 			foreach ( $extensions_to_load as $extension_to_load ) {
-				$extensions_folder = glob( JETPACK__PLUGIN_DIR . "extensions/$extension_to_load/*" );
+				$extensions_folder = glob( JETPACK__PLUGIN_DIR . 'extensions/' . $extension_to_load . '/*' );
 
 				// Require each of the extension files, in case it exists.
 				foreach ( $extensions_folder as $extension_folder ) {
