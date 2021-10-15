@@ -19,18 +19,21 @@ import './style.scss';
  * @param {boolean} props.showSupportLink -- The assets base URL.
  * @returns {React.Component} The `ActivationScreenIllustration` component.
  */
-const ActivationScreenIllustration = ( { imageUrl, showSupportLink = false } ) => (
-	<div className="jp-license-activation-screen-illustration">
-		<img src={ imageUrl } alt="" />
-		{ showSupportLink && (
-			<p>
-				{ createInterpolateElement( __( 'Do you need help? <a>Contact us.</a>', 'jetpack' ), {
-					a: <a href={ getRedirectUrl( 'jetpack-support' ) } />,
-				} ) }
-			</p>
-		) }
-	</div>
-);
+const ActivationScreenIllustration = props => {
+	const { imageUrl, showSupportLink = false } = props;
+	return (
+		<div className="jp-license-activation-screen-illustration">
+			<img src={ imageUrl } alt="" />
+			{ showSupportLink && (
+				<p>
+					{ createInterpolateElement( __( 'Do you need help? <a>Contact us.</a>', 'jetpack' ), {
+						a: <a href={ getRedirectUrl( 'jetpack-support' ) } />,
+					} ) }
+				</p>
+			) }
+		</div>
+	);
+};
 
 ActivationScreenIllustration.PropTypes = {
 	imageUrl: PropTypes.String,

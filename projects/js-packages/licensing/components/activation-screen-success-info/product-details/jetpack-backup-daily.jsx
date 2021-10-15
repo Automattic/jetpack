@@ -12,25 +12,28 @@ import React from 'react';
  * @param {number} props.dashboardUrl -- The url that links to the site dashboard
  * @returns {React.Component} The `JetpackBackupDailyProductDetails` component.
  */
-const JetpackBackupDailyProductDetails = ( { dashboardUrl } ) => (
-	<div>
-		<h1>
-			{ __( 'Your Jetpack Daily Backup is active!', 'jetpack' ) }{ ' ' }
-			{ String.fromCodePoint( 0x1f389 ) }
-			{ /* Celebration emoji 🎉 */ }
-		</h1>
-		<p>
-			{ createInterpolateElement(
-				__(
-					'You can see your backups, restore your site on <a>cloud.jetpack.com</a>. If you ever lose access to your site, you can restore it there.'
-				),
-				{
-					a: <a href={ dashboardUrl } />,
-				}
-			) }
-		</p>
-	</div>
-);
+const JetpackBackupDailyProductDetails = props => {
+	const { dashboardUrl } = props;
+	return (
+		<div>
+			<h1>
+				{ __( 'Your Jetpack Daily Backup is active!', 'jetpack' ) }{ ' ' }
+				{ String.fromCodePoint( 0x1f389 ) }
+				{ /* Celebration emoji 🎉 */ }
+			</h1>
+			<p>
+				{ createInterpolateElement(
+					__(
+						'You can see your backups, restore your site on <a>cloud.jetpack.com</a>. If you ever lose access to your site, you can restore it there.'
+					),
+					{
+						a: <a href={ dashboardUrl } />,
+					}
+				) }
+			</p>
+		</div>
+	);
+};
 
 JetpackBackupDailyProductDetails.PropTypes = {
 	dashboardUrl: PropTypes.string,

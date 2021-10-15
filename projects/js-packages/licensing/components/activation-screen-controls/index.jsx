@@ -26,14 +26,8 @@ const TextControlWithErrorMessage = withErrorMessage( TextControl );
  * @param {boolean} props.disabled
  * @returns {React.Component} The `ActivationScreenControls` component.
  */
-const ActivationScreenControls = ( {
-	activateLicense,
-	isSaving,
-	license,
-	licenseError,
-	onLicenseChange,
-	siteUrl,
-} ) => {
+const ActivationScreenControls = props => {
+	const { activateLicense, isSaving, license, licenseError, onLicenseChange, siteUrl } = props;
 	return (
 		<div className="jp-license-activation-screen-controls">
 			<div className="jp-license-activation-screen-controls--content">

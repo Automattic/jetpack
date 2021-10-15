@@ -38,19 +38,22 @@ const productIdToDetails = ( productId, dashboardUrl ) => {
  * @param {number} props.dashboardUrl -- The url that links to the site dashboard
  * @returns {React.Component} The `ActivationSuccessInfo` component.
  */
-const ActivationSuccessInfo = ( { dashboardUrl, productId } ) => (
-	<div className="jp-license-activation-screen-success-info">
-		<div className="jp-license-activation-screen-success-info--content">
-			<JetpackLogo showText={ false } height={ 48 } logoColor="#069E08" />
+const ActivationSuccessInfo = props => {
+	const { dashboardUrl, productId } = props;
+	return (
+		<div className="jp-license-activation-screen-success-info">
+			<div className="jp-license-activation-screen-success-info--content">
+				<JetpackLogo showText={ false } height={ 48 } logoColor="#069E08" />
+			</div>
+			{ productIdToDetails( productId, dashboardUrl ) }
+			<div>
+				<Button className="jp-license-activation-screen-success-info--button" href={ dashboardUrl }>
+					{ __( 'Go to Dashboard', 'jetpack' ) }
+				</Button>
+			</div>
 		</div>
-		{ productIdToDetails( productId, dashboardUrl ) }
-		<div>
-			<Button className="jp-license-activation-screen-success-info--button" href={ dashboardUrl }>
-				{ __( 'Go to Dashboard', 'jetpack' ) }
-			</Button>
-		</div>
-	</div>
-);
+	);
+};
 
 ActivationSuccessInfo.PropTypes = {
 	productId: PropTypes.number,
