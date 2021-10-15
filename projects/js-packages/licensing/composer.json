@@ -1,5 +1,5 @@
 {
-	"name": "automattic/jetpack-licensing",
+	"name": "automattic/js-jetpack-licensing",
 	"description": "Activate Jetpack licenses from within a plugin",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
