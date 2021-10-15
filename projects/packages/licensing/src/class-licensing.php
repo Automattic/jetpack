@@ -170,7 +170,7 @@ class Licensing {
 		$response = array_shift( $response );
 
 		if ( is_null( $response ) ) {
-			return new WP_Error( 'no_result', '');
+			return new WP_Error( 'no_result', '' );
 		}
 
 		if ( isset( $response['faultCode'] ) || isset( $response['faultString'] ) ) {
