@@ -1,4 +1,4 @@
 Significance: patch
-Type: added
+Type: changed
 
-Add API method to retrieve user licenses count
+Add updateUserLicensesCounts API method
