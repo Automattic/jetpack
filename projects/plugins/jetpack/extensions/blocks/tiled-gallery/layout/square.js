@@ -22,7 +22,7 @@ export default function Square( { columns, renderedImages } ) {
 				...( remainder ? [ take( renderedImages, remainder ) ] : [] ),
 				...chunk( drop( renderedImages, remainder ), columnCount ),
 			].map( ( imagesInRow, rowIndex ) => (
-				<Row key={ rowIndex } className={ `columns-${ imagesInRow.length }` }>
+				<Row key={ rowIndex }>
 					{ imagesInRow.map( ( image, colIndex ) => (
 						<Column key={ colIndex }>{ image }</Column>
 					) ) }

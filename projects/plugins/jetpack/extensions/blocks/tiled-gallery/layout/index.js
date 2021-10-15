@@ -50,7 +50,7 @@ export default class Layout extends Component {
 		return (
 			<Image
 				alt={ img.alt }
-				aria-label={ ariaLabel }
+				ariaLabel={ ariaLabel }
 				columns={ columns }
 				height={ img.height }
 				id={ img.id }
@@ -93,7 +93,7 @@ export default class Layout extends Component {
 		const roundedCornersValue =
 			layoutStyle !== LAYOUT_CIRCLE ? Math.min( roundedCorners, MAX_ROUNDED_CORNERS ) : 0;
 
-		const test = (
+		return (
 			<div
 				className={ classnames( className, {
 					[ `has-rounded-corners-${ roundedCornersValue }` ]: roundedCornersValue > 0,
@@ -111,7 +111,5 @@ export default class Layout extends Component {
 				{ children }
 			</div>
 		);
-
-		return test;
 	}
 }

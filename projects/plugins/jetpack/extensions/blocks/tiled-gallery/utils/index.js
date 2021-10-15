@@ -67,15 +67,15 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 	 */
 
 	let src;
-	if ( isSquareishLayout( layoutStyle ) && width && height ) {
-		// Layouts with 1:1 width/height ratio should be made square
-		const size = Math.min( PHOTON_MAX_RESIZE, width, height );
-		src = photonImplementation( url, {
-			resize: `${ size },${ size }`,
-		} );
-	} else {
-		src = photonImplementation( url );
-	}
+	// if ( isSquareishLayout( layoutStyle ) && width && height ) {
+	// 	// Layouts with 1:1 width/height ratio should be made square
+	// 	const size = Math.min( PHOTON_MAX_RESIZE, width, height );
+	// 	src = photonImplementation( url, {
+	// 		resize: `${ size },${ size }`,
+	// 	} );
+	// } else {
+	src = photonImplementation( url );
+	// }
 
 	/**
 	 * Build a sensible `srcSet` that will let the browser get an optimized image based on

@@ -29,7 +29,6 @@ import styles from './styles.scss';
 import TiledGallerySettings, { DEFAULT_COLUMNS, MAX_COLUMNS } from './settings';
 
 const TILE_SPACING = 8;
-const DEFAULT_COLUMNS = 1;
 
 export function defaultColumnsNumber( images ) {
 	return Math.min( MAX_COLUMNS, images.length );
@@ -95,7 +94,8 @@ const TiledGalleryEdit = props => {
 
 	useEffect( () => {
 		if ( ! columns ) {
-			setAttributes( { columns: DEFAULT_COLUMNS } );
+			const col = Math.min( images.length, DEFAULT_COLUMNS );
+			setAttributes( { columns: Math.max( col, 1 ) } );
 		}
 	}, [ images ] );
 
