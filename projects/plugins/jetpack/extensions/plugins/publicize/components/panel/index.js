@@ -53,10 +53,6 @@ function getPanelDescription(
 	// RePublicize feature is enabled.
 	// No connections.
 	if ( ! hasConnections ) {
-		if ( ! isPostPublished ) {
-			return __( 'Start sharing your posts by connecting your social media accounts.', 'jetpack' );
-		}
-
 		return start_your_posts_string;
 	}
 
