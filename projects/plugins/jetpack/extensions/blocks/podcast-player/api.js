@@ -9,7 +9,12 @@ import { PODCAST_FEED, EMBED_BLOCK } from './constants';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 
-export const fetchPodcastFeed = async ( { url, guids = [], fetchEpisodeOptions = false } ) => {
+export const fetchPodcastFeed = async ( {
+	url,
+	guids = [],
+	fetchEpisodeOptions = false,
+	itemsToShow = 10,
+} ) => {
 	// First try calling our endpoint for Podcast parsing.
 	let feedData, feedError;
 	try {
@@ -17,6 +22,7 @@ export const fetchPodcastFeed = async ( { url, guids = [], fetchEpisodeOptions =
 			path: addQueryArgs( '/wpcom/v2/podcast-player', {
 				url,
 				guids,
+				itemsToShow,
 				[ 'episode-options' ]: fetchEpisodeOptions,
 			} ),
 		} );

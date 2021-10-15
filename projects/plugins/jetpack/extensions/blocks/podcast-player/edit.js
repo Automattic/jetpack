@@ -53,7 +53,7 @@ import { PODCAST_FEED, EMBED_BLOCK } from './constants';
 import { maybeCopyElementsToSiteEditorContext } from '../../shared/block-editor-asset-loader';
 
 const DEFAULT_MIN_ITEMS = 1;
-const DEFAULT_MAX_ITEMS = 10;
+const DEFAULT_MAX_ITEMS = 100;
 
 const debug = debugFactory( 'jetpack:podcast-player:edit' );
 
@@ -211,6 +211,16 @@ const PodcastPlayerEdit = ( {
 		}
 	}, [ isSelected, state.isInteractive ] );
 
+	// Call feed API when itemsToShow value is modified.
+	useEffect( () => {
+		fetchFeed( {
+			url: checkUrl,
+			guids: selectedGuid ? [ selectedGuid ] : [],
+			itemsToShow,
+		} );
+		return () => cancellableFetch?.current?.cancel?.();
+	}, [ itemsToShow, checkUrl, fetchFeed, selectedGuid ] );
+
 	/**
 	 * Check if the current URL of the Podcast RSS feed is valid. If so, set the
 	 * block attribute and changes the edition mode. This function is bound to the
@@ -334,6 +344,7 @@ const PodcastPlayerEdit = ( {
 							max={ DEFAULT_MAX_ITEMS }
 							required
 							disabled={ !! selectedGuid }
+							help={ __( 'You can change number of items ranging from 1 to 100', 'jetpack' ) }
 						/>
 					) }
 					{ ComboboxControl && (

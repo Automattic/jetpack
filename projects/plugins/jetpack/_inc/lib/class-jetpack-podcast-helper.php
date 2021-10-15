@@ -41,6 +41,7 @@ class Jetpack_Podcast_Helper {
 	public function get_player_data( $args = array() ) {
 		$guids           = isset( $args['guids'] ) && $args['guids'] ? $args['guids'] : array();
 		$episode_options = isset( $args['episode-options'] ) && $args['episode-options'];
+		$items_to_show   = isset( $args['items_to_show'] ) ? $args['items_to_show'] : 10;
 
 		// Try loading data from the cache.
 		$transient_key = 'jetpack_podcast_' . md5( $this->feed . implode( ',', $guids ) . "-$episode_options" );
@@ -65,7 +66,7 @@ class Jetpack_Podcast_Helper {
 					}
 				);
 			} else {
-				$tracks = $this->get_track_list();
+				$tracks = $this->get_track_list( $items_to_show );
 			}
 
 			if ( empty( $tracks ) ) {
@@ -165,9 +166,10 @@ class Jetpack_Podcast_Helper {
 	/**
 	 * Gets a list of tracks for the supplied RSS feed.
 	 *
+	 * @param int $items_to_show Number of tracks fetched. Default is 10.
 	 * @return array|WP_Error The feed's tracks or a error object.
 	 */
-	public function get_track_list() {
+	public function get_track_list( $items_to_show ) {
 		$rss = $this->load_feed();
 
 		if ( is_wp_error( $rss ) ) {
@@ -183,7 +185,7 @@ class Jetpack_Podcast_Helper {
 		 * @param int    $number Number of tracks fetched. Default is 10.
 		 * @param object $rss    The SimplePie object built from core's `fetch_feed` call.
 		 */
-		$tracks_quantity = apply_filters( 'jetpack_podcast_helper_list_quantity', 10, $rss );
+		$tracks_quantity = apply_filters( 'jetpack_podcast_helper_list_quantity', $items_to_show, $rss );
 
 		// Process the requested number of items from our feed.
 		$track_list = array_map( array( __CLASS__, 'setup_tracks_callback' ), $rss->get_items( 0, $tracks_quantity ) );

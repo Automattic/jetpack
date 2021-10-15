@@ -92,6 +92,10 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 			$args['episode-options'] = true;
 		}
 
+		if ( isset( $request['itemsToShow'] ) ) {
+			$args['items_to_show'] = (int) $request['itemsToShow'];
+		}
+
 		$player_data = $helper->get_player_data( $args );
 
 		if ( is_wp_error( $player_data ) ) {
