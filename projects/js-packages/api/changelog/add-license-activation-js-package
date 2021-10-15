@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add new `/licensing/attach-license` endpoint
