@@ -8,7 +8,7 @@ import { action } from '@storybook/addon-actions';
 export default {
 	title: 'Playground/Action Button',
 	component: ActionButton,
-	// TODO: actinos are not working. See https://github.com/storybookjs/storybook/issues/7215
+	// TODO: Storybook Actions are not working. See https://github.com/storybookjs/storybook/issues/7215
 	argTypes: {
 		onButtonClick: { action: 'clicked' },
 	},
