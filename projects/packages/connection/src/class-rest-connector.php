@@ -134,7 +134,7 @@ class REST_Connector {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => __CLASS__ . '::get_user_connection_data',
-					'permission_callback' => __CLASS__ . '::jetpack_connect_user_permission_check',
+					'permission_callback' => __CLASS__ . '::user_connection_data_permission_check',
 				)
 			);
 		}
@@ -198,7 +198,7 @@ class REST_Connector {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'connection_authorize_url' ),
-				'permission_callback' => __CLASS__ . '::jetpack_connect_user_permission_check',
+				'permission_callback' => __CLASS__ . '::user_connection_data_permission_check',
 				'args'                => array(
 					'no_iframe'    => array(
 						'description' => __( 'Disable In-Place connection flow and go straight to Calypso', 'jetpack' ),
@@ -483,7 +483,7 @@ class REST_Connector {
 	 *
 	 * @return bool|WP_Error
 	 */
-	public static function jetpack_connect_user_permission_check() {
+	public static function user_connection_data_permission_check() {
 		if ( current_user_can( 'jetpack_connect_user' ) ) {
 			return true;
 		}
