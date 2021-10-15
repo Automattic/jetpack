@@ -66,7 +66,6 @@ class Jetpack_Plan {
 				'recurring-payments',
 				'premium-content/container',
 				'videopress',
-				'republicize',
 			),
 		),
 		'premium'  => array(
@@ -82,6 +81,7 @@ class Jetpack_Plan {
 				'simple-payments',
 				'vaultpress',
 				'videopress',
+				'republicize',
 			),
 		),
 		'security' => array(
