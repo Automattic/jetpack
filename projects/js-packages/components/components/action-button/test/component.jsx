@@ -12,7 +12,9 @@ import ShallowRenderer from 'react-test-renderer/shallow';
 import ActionButton from '../index';
 
 describe( 'ActionButton', () => {
-	const testProps = {};
+	const testProps = {
+		label: 'Action!',
+	};
 
 	describe( 'Render the ActionButton component', () => {
 		const renderer = new ShallowRenderer();

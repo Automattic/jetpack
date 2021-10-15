@@ -21,6 +21,7 @@ const DefaultArgs = {
 	onButtonClick: action( 'onButtonClick' ),
 	displayError: false,
 	isLoading: false,
+	label: 'Action!',
 };
 
 // Export Default story using knobs

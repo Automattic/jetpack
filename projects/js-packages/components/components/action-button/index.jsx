@@ -46,7 +46,7 @@ const ActionButton = props => {
 
 ActionButton.propTypes = {
 	/** The button label. */
-	label: PropTypes.string,
+	label: PropTypes.string.isRequired,
 	/** The callback to be called on click. */
 	onClick: PropTypes.func,
 	/** Will disable the button and display a spinner if set to true. */
@@ -58,7 +58,6 @@ ActionButton.propTypes = {
 };
 
 ActionButton.defaultProps = {
-	label: 'Action!',
 	isLoading: false,
 	displayError: false,
 	errorMessage: __( 'An error occurred. Please try again.', 'jetpack' ),
