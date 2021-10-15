@@ -1,4 +1,0 @@
-Significance: major
-Type: added
-
-Plugin now disconnects Jetpack on deactivation if it's the last plugin using the connection

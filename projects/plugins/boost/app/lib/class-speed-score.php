@@ -281,9 +281,13 @@ class Speed_Score {
 			);
 
 			// Only include noBoost scores if at least one modules is enabled.
+			$latest_history = $history->latest();
 			if ( ! empty( $this->jetpack_boost->get_active_modules() ) ) {
 				$response['scores']['noBoost'] = $history_no_boost->latest_scores();
 			}
+
+			$response['scores']['isStale'] = wp_get_theme()->get( 'Name' ) !== $latest_history['theme'];
+
 		} else {
 			// If either request ended up in error, we can just return the one with error so front-end can take action. The relevent url is available on the serialized object.
 			if ( ( $score_request && $score_request->is_error() ) || ( $score_request_no_boost && $score_request_no_boost->is_error() ) ) {
