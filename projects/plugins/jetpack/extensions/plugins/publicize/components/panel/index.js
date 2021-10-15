@@ -143,9 +143,11 @@ const PublicizePanel = ( { prePublish } ) => {
 				isRePublicizeFeatureEnabled={ isRePublicizeFeatureEnabled }
 			/>
 			<PublicizeTwitterOptions prePublish={ prePublish } />
-			<Button isSecondary onClick={ onPostShareHander }>
-				{ __( 'Share post', 'jetpack' ) }
-			</Button>
+			{ isRePublicizeFeatureEnabled && (
+				<Button isSecondary onClick={ onPostShareHander }>
+					{ __( 'Share post', 'jetpack' ) }
+				</Button>
+			) }
 		</PanelBody>
 	);
 };
