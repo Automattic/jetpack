@@ -349,7 +349,6 @@ class Jetpack_Stats_Upgrade_Nudges {
 		$view_event         = "stats_nudges_view_$tracks_id";
 		$click_event        = "stats_nudges_click_$tracks_id";
 		$learn_more_event   = "stats_nudges_learn_more_$tracks_id";
-
 		self::track_event( $view_event );
 
 		?>
@@ -433,7 +432,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 	 * @return void
 	 */
 	private static function print_search() {
-		$link       = self::get_upgrade_link( 'search' );
+		$link       = self::get_product_description_link( 'search' );
 		$learn_link = self::get_upgrade_link( 'stats-nudges-search-learn' );
 		$text       = __( 'Help your site visitors instantly find what they\'re looking for so they read and buy more.', 'jetpack' );
 		self::print_item( __( 'Search', 'jetpack' ), $text, 'product-jetpack-search.svg', $link, 'search', $learn_link );
