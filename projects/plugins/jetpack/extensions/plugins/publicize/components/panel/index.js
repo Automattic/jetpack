@@ -11,7 +11,6 @@
  */
 import { __ } from '@wordpress/i18n';
 import { PanelBody, PanelRow, ToggleControl } from '@wordpress/components';
-import { useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -26,14 +25,15 @@ import usePublicizeConfig from '../../hooks/use-publicize-config';
 const PublicizePanel = ( { prePublish } ) => {
 	const { refresh, hasConnections, hasEnabledConnections } = useSelectSocialMediaConnections();
 
-	// Store the enable/disable state of the sharing feature.
-	const [ isSharingEnabled, setIsSharingEnabled ] = useState( false );
-
 	/*
 	 * Check whether the Republicize feature is enabled.
 	 * it can be defined via the `jetpack_block_editor_republicize_feature` backend filter.
 	 */
-	const { isRePublicizeFeatureEnabled } = usePublicizeConfig();
+	const {
+		isRePublicizeFeatureEnabled,
+		isPublicizeEnabled,
+		togglePublicizeFeature,
+	} = usePublicizeConfig();
 
 	// Refresh connections when the post is just published.
 	usePostJustPublished(
@@ -57,12 +57,12 @@ const PublicizePanel = ( { prePublish } ) => {
 				<PanelRow>
 					<ToggleControl
 						label={
-							isSharingEnabled
+							isPublicizeEnabled
 								? __( 'Sharing is enabled', 'jetpack' )
 								: __( 'Sharing is disabled', 'jetpack' )
 						}
-						onChange={ setIsSharingEnabled }
-						checked={ isSharingEnabled }
+						onChange={ togglePublicizeFeature }
+						checked={ isPublicizeEnabled }
 						disabled={ ! hasConnections }
 					/>
 				</PanelRow>
