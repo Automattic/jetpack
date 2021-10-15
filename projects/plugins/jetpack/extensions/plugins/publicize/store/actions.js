@@ -24,6 +24,18 @@ export function toggleConnectionById( connectionId ) {
 
 /**
  * Returns an action object used in signalling that
+ * we're toggling the post share feature.
+ *
+ * @returns {object} Action object.
+ */
+export function togglePublicizeFeature() {
+	return {
+		type: 'TOGGLE_PUBLICIZE_FEATURE',
+	};
+}
+
+/**
+ * Returns an action object used in signalling that
  * we're initiating a fetch request to the REST API.
  *
  * @param {string} path - API endpoint path.
