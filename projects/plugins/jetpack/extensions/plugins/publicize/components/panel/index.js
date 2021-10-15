@@ -54,16 +54,13 @@ function getPanelDescription(
 	// No connections.
 	if ( ! hasConnections ) {
 		if ( ! isPostPublished ) {
-			return __(
-				'Start sharing your posts automatically by connecting your social media accounts.',
-				'jetpack'
-			);
+			return __( 'Start sharing your posts by connecting your social media accounts.', 'jetpack' );
 		}
 
 		return start_your_posts_string;
 	}
 
-	if ( ! isSharingEnabled || ! hasEnabledConnections ) {
+	if ( ! isPublicizeEnabled || ! hasEnabledConnections ) {
 		return __( 'Use this tool to share your post on all your social media accounts.', 'jetpack' );
 	}
 
@@ -132,7 +129,7 @@ const PublicizePanel = ( { prePublish } ) => {
 			) }
 
 			<PublicizeConnectionVerify />
-			<PublicizeForm />
+			<PublicizeForm isEnabled={ isRePublicizeFeatureEnabled ? isPublicizeEnabled : true } />
 			<PublicizeTwitterOptions prePublish={ prePublish } />
 		</PanelBody>
 	);
