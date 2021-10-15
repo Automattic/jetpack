@@ -31,7 +31,7 @@ import ConnectUser from '../connect-user';
 const ConnectButton = props => {
 	const [ isRegistering, setIsRegistering ] = useState( false );
 	const [ isUserConnecting, setIsUserConnecting ] = useState( false );
-	const [ registationError, setRegistrationError ] = useState( false );
+	const [ registrationError, setRegistrationError ] = useState( false );
 
 	const [ authorizationUrl, setAuthorizationUrl ] = useState( null );
 
@@ -118,7 +118,7 @@ const ConnectButton = props => {
 					<ActionButton
 						label={ connectLabel }
 						onClick={ registerSite }
-						displayError={ registationError }
+						displayError={ registrationError }
 						isLoading={ isRegistering || isUserConnecting }
 					/>
 				) }
