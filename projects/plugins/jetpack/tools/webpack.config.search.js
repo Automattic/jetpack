@@ -13,7 +13,10 @@ const webpack = require( 'webpack' );
 /**
  * Internal dependencies
  */
-const { definePaletteColorsAsStaticVariables } = require( './webpack.helpers' );
+const {
+	definePaletteColorsAsStaticVariables,
+	defineReadableJSAssetsPluginForSearch,
+} = require( './webpack.helpers' );
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -27,8 +30,8 @@ const baseWebpackConfig = getBaseWebpackConfig(
 		// `But better use the hash in filename and use no query parameter.`
 		// The reason probably is because it's not the best way to do cache busting.
 		// More information: https://github.com/webpack/webpack/issues/2329
-		'output-chunk-filename': 'jp-search.chunk-[name].min.js?ver=[contenthash]',
-		'output-filename': 'jp-search-[name].bundle.js',
+		'output-chunk-filename': 'jp-search.chunk-[name].[contenthash:20].min.js',
+		'output-filename': 'jp-search-[name].bundle.min.js',
 		'output-path': path.join( __dirname, '../_inc/build/instant-search' ),
 		// Calypso-build defaults this to "window", which breaks things if no library.name is set.
 		'output-library-target': '',
@@ -92,6 +95,7 @@ module.exports = {
 			requestToHandle: defaultRequestToHandle,
 		} ),
 		definePaletteColorsAsStaticVariables(),
+		defineReadableJSAssetsPluginForSearch(),
 	],
 	optimization: {
 		...baseWebpackConfig.optimization,
