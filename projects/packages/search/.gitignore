@@ -1,4 +1,4 @@
 vendor/
 node_modules/
-inc/
+_inc/
 .cache
