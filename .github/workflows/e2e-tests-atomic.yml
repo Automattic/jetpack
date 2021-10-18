@@ -25,9 +25,8 @@ jobs:
       env:
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
       run: |
-        pnpm install --dir ../../../../tools/cli
         pnpm install
-        pnpm run test-decrypt-config
+        pnpm run test-decrypt-all-config
 
     - name: Run tests
       working-directory: projects/plugins/jetpack/tests/e2e
@@ -46,7 +45,7 @@ jobs:
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       working-directory: projects/plugins/jetpack/tests/e2e
-      run: NODE_ENV=test node ./bin/slack.js suite atomic --report atomic
+      run: pnpm slack -- suite atomic --report atomic
 
     - uses: testspace-com/setup-testspace@v1
       with:
@@ -81,8 +80,8 @@ jobs:
           RESULT: ${{ needs.e2e-tests.result }}
         run: |
           pnpm install
-          pnpm run test-decrypt-config
-          NODE_ENV=test node ./bin/slack.js status $RESULT --report atomic
+          pnpm run test-decrypt-all-config
+          pnpm slack -- status $RESULT --report atomic
 
   test-reports:
     name: "Trigger test report workflow"
@@ -91,30 +90,11 @@ jobs:
     needs: e2e-tests
 
     steps:
-      - name: Trigger test report workflow
-        env:
-          TOKEN: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
-          PR_TITLE: ${{ github.event.pull_request.title }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          if [ "$GITHUB_EVENT_NAME" == pull_request ]; then
-          	BRANCH=$GITHUB_HEAD_REF
-            EVENT_NAME="$PR_NUMBER: $PR_TITLE"
-          else
-          	BRANCH=${GITHUB_REF:11}
-            EVENT_NAME="Run $GITHUB_RUN_ID"
-          fi
+      - uses: actions/checkout@v2
 
-          curl -X POST https://api.github.com/repos/automattic/jetpack-e2e-reports/dispatches \
-          -H "Accept: application/vnd.github.v3+json" \
-          -u "user:$TOKEN" \
-          --data "{\"event_type\": \"$EVENT_NAME\",
-          \"client_payload\": {
-          \"repository\": \"$GITHUB_REPOSITORY\",
-          \"run_id\": \"$GITHUB_RUN_ID\",
-          \"run_number\": \"$GITHUB_RUN_NUMBER\",
-          \"branch\": \"$BRANCH\",
-          \"pr_title\": \"$PR_TITLE\",
-          \"pr_number\": \"$PR_NUMBER\",
-          \"report_name\": \"atomic\"
-          }}"
+      - name: Trigger test report workflow
+        uses: ./.github/actions/test-report-dispatch
+        with:
+          token: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
+          event_type: e2e
+          report_name: atomic

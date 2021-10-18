@@ -18,6 +18,7 @@ use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Config;
 use Automattic\Jetpack_Boost\Lib\Connection;
+use Automattic\Jetpack_Boost\Lib\Speed_Score_History;
 use Automattic\Jetpack_Boost\Lib\Viewport;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Modules\Critical_CSS\Regenerate_Admin_Notice;
@@ -177,6 +178,7 @@ class Jetpack_Boost {
 	public function uninstall() {
 		do_action( 'jetpack_boost_uninstall' );
 
+		Speed_Score_History::clear_all();
 		$this->clear_cache();
 		delete_option( apply_filters( 'jetpack_boost_options_store_key_name', 'jetpack_boost_config' ) );
 	}
@@ -218,7 +220,7 @@ class Jetpack_Boost {
 
 		foreach ( self::MODULES as $module_slug => $module_class ) {
 			// Don't register modules that have been forcibly disabled from the url 'jb-disable-modules' query string parameter.
-			if ( in_array( $module_slug, $forced_disabled_modules, true ) ) {
+			if ( in_array( $module_slug, $forced_disabled_modules, true ) || in_array( 'all', $forced_disabled_modules, true ) ) {
 				continue;
 			}
 
@@ -427,6 +429,7 @@ class Jetpack_Boost {
 				Lazy_Images::MODULE_SLUG        => array(
 					'enabled' => false,
 				),
+				'show_rating_prompt'            => true,
 			)
 		);
 	}

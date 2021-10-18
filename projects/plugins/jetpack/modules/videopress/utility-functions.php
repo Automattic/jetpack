@@ -67,62 +67,6 @@ function videopress_get_video_details( $guid ) {
 	return apply_filters( 'videopress_get_video_details', $data, $guid );
 }
 
-
-/**
- * Get an attachment ID given a URL.
- *
- * Modified from https://wpscholar.com/blog/get-attachment-id-from-wp-image-url/
- *
- * @deprecated since 8.4.0
- * @see videopress_get_post_id_by_guid()
- *
- * @param string $url
- *
- * @return int|bool Attachment ID on success, false on failure
- */
-function videopress_get_attachment_id_by_url( $url ) {
-	_deprecated_function( __FUNCTION__, 'jetpack-8.4' );
-
-	$wp_upload_dir = wp_upload_dir();
-	// Strip out protocols, so it doesn't fail because searching for http: in https: dir.
-	$dir = set_url_scheme( trailingslashit( $wp_upload_dir['baseurl'] ), 'relative' );
-
-	// Is URL in uploads directory?
-	if ( false !== strpos( $url, $dir ) ) {
-
-		$file = basename( $url );
-
-		$query_args = array(
-			'post_type'   => 'attachment',
-			'post_status' => 'inherit',
-			'fields'      => 'ids',
-			'meta_query'  => array(
-				array(
-					'key'     => '_wp_attachment_metadata',
-					'compare' => 'LIKE',
-					'value'   => $file,
-				),
-			),
-		);
-
-		$query = new WP_Query( $query_args );
-
-		if ( $query->have_posts() ) {
-			foreach ( $query->posts as $attachment_id ) {
-				$meta          = wp_get_attachment_metadata( $attachment_id );
-				$original_file = basename( $meta['file'] );
-				$cropped_files = wp_list_pluck( $meta['sizes'], 'file' );
-
-				if ( $original_file === $file || in_array( $file, $cropped_files ) ) {
-					return (int) $attachment_id;
-				}
-			}
-		}
-	}
-
-	return false;
-}
-
 /**
  * Similar to `media_sideload_image` -- but returns an ID.
  *
@@ -499,8 +443,9 @@ function videopress_make_video_get_path( $guid ) {
  */
 function videopress_make_media_upload_path( $blog_id ) {
 	return sprintf(
-		'https://public-api.wordpress.com/rest/v1.1/sites/%s/media/new',
-		$blog_id
+		'https://public-api.wordpress.com/rest/v1.1/sites/%s/media/new?locale=%s',
+		$blog_id,
+		get_locale()
 	);
 }
 
@@ -645,22 +590,6 @@ function videopress_get_post_by_guid( $guid ) {
 	}
 
 	return false;
-}
-
-/**
- * Using a GUID, find a post.
- *
- * Kept for backward compatibility. Use videopress_get_post_by_guid() instead.
- *
- * @deprecated since 8.4.0
- * @see videopress_get_post_by_guid()
- *
- * @param string $guid The post guid.
- * @return WP_Post|false The post for that guid, or false if none is found.
- */
-function video_get_post_by_guid( $guid ) {
-	_deprecated_function( __FUNCTION__, 'jetpack-8.4' );
-	return videopress_get_post_by_guid( $guid );
 }
 
 /**

@@ -235,7 +235,7 @@ class REST_Endpoints {
 				'permission_callback' => __CLASS__ . '::verify_default_permissions',
 				'args'                => array(
 					'perform_text_conversion' => array(
-						'description' => __( 'If text fields should be converted to UTF8 in checksum calculation.', 'jetpack' ),
+						'description' => __( 'If text fields should be converted to latin1 in checksum calculation.', 'jetpack' ),
 						'type'        => 'boolean',
 						'required'    => false,
 					),
@@ -298,7 +298,7 @@ class REST_Endpoints {
 						'required'    => false,
 					),
 					'perform_text_conversion' => array(
-						'description' => __( 'If text fields should be converted to UTF8 in checksum calculation.', 'jetpack' ),
+						'description' => __( 'If text fields should be converted to latin1 in checksum calculation.', 'jetpack' ),
 						'type'        => 'boolean',
 						'required'    => false,
 					),

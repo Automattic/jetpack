@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix the situation where the current is "1.2.3-beta" and we're looking at the dev branch towards the -alpha following the 1.2.3 release, it shouldn't ignore significances.

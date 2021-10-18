@@ -26,7 +26,7 @@ class ScrollButton extends Component {
 	checkScroll = debounce( () => {
 		if (
 			this.props.enableLoadOnScroll &&
-			window.innerHeight + this.overlayElement.scrollTop === this.overlayElement.scrollHeight
+			window.innerHeight + this.overlayElement.scrollTop >= this.overlayElement.scrollHeight
 		) {
 			this.props.onLoadNextPage();
 		}

@@ -23,6 +23,11 @@ const baseWebpackConfig = getBaseWebpackConfig(
 
 const sharedWebpackConfig = {
 	...baseWebpackConfig,
+	optimization: {
+		...baseWebpackConfig.optimization,
+		// This optimization sometimes causes webpack to drop `__()` and such.
+		concatenateModules: false,
+	},
 	resolve: {
 		...baseWebpackConfig.resolve,
 		modules: [ path.resolve( path.dirname( __dirname ), '_inc/client' ), 'node_modules' ],

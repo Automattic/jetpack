@@ -87,3 +87,17 @@ mapfile -t TO_UPDATE < <(
 	) | sort -u
 )
 COMPOSER_ROOT_VERSION=dev-master composer update "${COMPOSER_ARGS[@]}" --working-dir="$DIR" -- "${TO_UPDATE[@]}"
+
+# Point out if the user's composer version is outdated.
+VER="$(composer --version 2>/dev/null | sed -n -E 's/^Composer( version)? ([0-9]+\.[0-9]+\.[0-9a-zA-Z.-]+) [0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}.*/\2/p')"
+if [[ -z "$VER" ]]; then
+	warn "Your composer version is not recognized: $(composer --version)"
+	warn "It may not work properly with the monorepo tooling."
+else
+	VA="$(sed -E 's/^([0-9]+\.[0-9]+)\..*/\1/' <<<"$VER")"
+	source "$BASE/.github/versions.sh"
+	VB="$(sed -E 's/^([0-9]+\.[0-9]+)\..*/\1/' <<<"$COMPOSER_VERSION")"
+	if [[ "$VA" != "$VB" ]]; then
+		warn "You have Composer version $VER. Version $VB.x is recommended to work properly with the monorepo tooling."
+	fi
+fi

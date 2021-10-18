@@ -13,7 +13,7 @@
 		"erusev/parsedown": "1.7.4"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "2.0.x-dev"
+		"automattic/jetpack-changelogger": "3.0.x-dev"
 	},
 	"scripts": {
 		"build-development": [
@@ -49,10 +49,13 @@
 	"prefer-stable": true,
 	"config": {
 		"sort-packages": true,
-		"autoloader-suffix": "567fa3f555de8fd218dfdc1688bb97b5_betaⓥ3_0_3_alpha"
+		"autoloader-suffix": "567fa3f555de8fd218dfdc1688bb97b5_betaⓥ3_0_4_alpha"
 	},
 	"extra": {
 		"autotagger": true,
+		"autorelease": {
+			"titlefmt": "Jetpack Beta %s"
+		},
 		"mirror-repo": "Automattic/jetpack-beta",
 		"release-branch-prefix": "jetpack-beta",
 		"version-constants": {
