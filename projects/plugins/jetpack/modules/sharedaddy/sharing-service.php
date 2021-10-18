@@ -784,13 +784,9 @@ function sharing_display( $text = '', $echo = false ) {
 		$show = false;
 	}
 
-	// Is the post password protected?
-	$post_password = $post->post_password;
-
-	if ( '' !== $post_password ) {
-		if ( post_password_required( $post->ID ) ) {
+	// Hide on password protected posts unless password is provided.
+	if ( post_password_required( $post->ID ) ) {
 			$show = false;
-		}
 	}
 
 	/**
