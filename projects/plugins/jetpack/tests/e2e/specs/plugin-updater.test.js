@@ -1,16 +1,18 @@
-import { doClassicConnection } from '../lib/flows/jetpack-connect';
+import { doClassicConnection } from 'jetpack-e2e-commons/flows';
 import {
 	execShellCommand,
 	execSyncShellCommand,
 	execWpCommand,
 	prepareUpdaterTest,
-} from '../lib/utils-helper';
-import Sidebar from '../lib/pages/wp-admin/sidebar';
-import PluginsPage from '../lib/pages/wp-admin/plugins';
-import DashboardPage from '../lib/pages/wp-admin/dashboard';
-import JetpackPage from '../lib/pages/wp-admin/jetpack';
-import { testStep } from '../lib/reporters/reporter';
-import { prerequisitesBuilder } from '../lib/env/prerequisites';
+} from 'jetpack-e2e-commons/helpers/utils-helper';
+import {
+	Sidebar,
+	PluginsPage,
+	DashboardPage,
+	JetpackPage,
+} from 'jetpack-e2e-commons/pages/wp-admin';
+import { testStep } from 'jetpack-e2e-commons/reporters';
+import { prerequisitesBuilder } from 'jetpack-e2e-commons/env';
 
 /**
  *
@@ -39,7 +41,7 @@ describe( 'Jetpack updater', () => {
 		await execShellCommand(
 			'pnpx jetpack docker --type e2e --name t1 -v exec-silent -- rm /var/www/html/wp-content/plugins/jetpack'
 		);
-		await execSyncShellCommand(
+		execSyncShellCommand(
 			'pnpx jetpack docker --type e2e --name t1 -v exec-silent -- ln -s /usr/local/src/jetpack-monorepo/projects/plugins/jetpack/ /var/www/html/wp-content/plugins/jetpack'
 		);
 		await prerequisitesBuilder().withCleanEnv().build();

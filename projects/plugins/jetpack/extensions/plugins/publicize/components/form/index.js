@@ -7,6 +7,12 @@
  */
 
 /**
+ * WordPress dependencies
+ */
+import { PanelRow } from '@wordpress/components';
+import { Fragment } from '@wordpress/element';
+
+/**
  * Internal dependencies
  */
 import PublicizeConnection from '../connection';
@@ -15,7 +21,7 @@ import MessageBoxControl from '../message-box-control';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 
-export default function PublicizeForm( { refreshCallback } ) {
+export default function PublicizeForm() {
 	const { connections, toggleById } = useSocialMediaConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 
@@ -24,22 +30,24 @@ export default function PublicizeForm( { refreshCallback } ) {
 	}
 
 	return (
-		<div id="publicize-form">
-			<ul className="jetpack-publicize__connections-list">
-				{ connections.map( ( { display_name, enabled, id, service_name, toggleable } ) => (
-					<PublicizeConnection
-						disabled={ ! toggleable }
-						enabled={ enabled }
-						key={ id }
-						id={ id }
-						label={ display_name }
-						name={ service_name }
-						toggleConnection={ toggleById }
-					/>
-				) ) }
-			</ul>
+		<Fragment>
+			<PanelRow>
+				<ul className="jetpack-publicize__connections-list">
+					{ connections.map( ( { display_name, enabled, id, service_name, toggleable } ) => (
+						<PublicizeConnection
+							disabled={ ! toggleable }
+							enabled={ enabled }
+							key={ id }
+							id={ id }
+							label={ display_name }
+							name={ service_name }
+							toggleConnection={ toggleById }
+						/>
+					) ) }
+				</ul>
+			</PanelRow>
 
-			<PublicizeSettingsButton refreshCallback={ refreshCallback } />
+			<PublicizeSettingsButton />
 
 			{ connections.some( connection => connection.enabled ) && (
 				<MessageBoxControl
@@ -49,6 +57,6 @@ export default function PublicizeForm( { refreshCallback } ) {
 					message={ message }
 				/>
 			) }
-		</div>
+		</Fragment>
 	);
 }

@@ -11,13 +11,16 @@
 			"groupName": "Monorepo packages",
 			"matchPackageNames": [
 				"@automattic/eslint-changed",
+				"@automattic/jetpack-analytics",
 				"@automattic/jetpack-api",
 				"@automattic/jetpack-base-styles",
 				"@automattic/jetpack-components",
 				"@automattic/jetpack-connection",
+				"@automattic/jetpack-idc",
 				"@automattic/jetpack-storybook",
 				"automattic/jetpack-a8c-mc-stats",
 				"automattic/jetpack-abtest",
+				"automattic/jetpack-admin-ui",
 				"automattic/jetpack-analyzer",
 				"automattic/jetpack-assets",
 				"automattic/jetpack-autoloader",
@@ -71,6 +74,10 @@
 		{
 			"matchPaths": [ "packages/codesniffer/composer.json" ],
 			"rangeStrategy": "replace"
+		},
+		{
+			"matchPackageNames": [ "johnkary/phpunit-speedtrap" ],
+			"rangeStrategy": "widen"
 		},
 		{
 			"groupName": "Instant Search Dependency Updates",

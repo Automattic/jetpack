@@ -1,4 +1,4 @@
-FROM ubuntu:focal
+FROM ubuntu:20.04
 
 VOLUME ["/var/www/html"]
 
@@ -21,6 +21,7 @@ RUN \
 		apache2 \
 		curl \
 		git \
+		jq \
 		less \
 		libsodium23 \
 		mysql-client \
@@ -97,11 +98,6 @@ RUN mkdir /usr/local/src/psysh \
 	&& mkdir ~/.wp-cli \
 	&& echo "require: /usr/local/src/psysh/vendor/autoload.php" > ~/.wp-cli/config.yml \
 	&& rm -rf ~/.cache ~/.config ~/.local ~/.subversion
-
-# Install old version of PHPUnit needed for WP unit tests.
-RUN curl https://phar.phpunit.de/phpunit-7.phar -fSL -o phpunit.phar \
-	&& chmod +x phpunit.phar \
-	&& mv phpunit.phar /usr/local/bin/phpunit
 
 # Copy a default config file for an apache host.
 COPY ./config/apache_default /etc/apache2/sites-available/000-default.conf

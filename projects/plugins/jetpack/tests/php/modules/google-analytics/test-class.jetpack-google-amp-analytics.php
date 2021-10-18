@@ -27,8 +27,8 @@ class WP_Test_Jetpack_Google_AMP_Analytics extends WP_UnitTestCase {
 	/**
 	 * Runs the routine before setting up all tests.
 	 */
-	public static function setUpBeforeClass() {
-		parent::setUpBeforeClass();
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
 
 		if ( 1 !== (int) getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 			return;
@@ -49,13 +49,13 @@ class WP_Test_Jetpack_Google_AMP_Analytics extends WP_UnitTestCase {
 	 *
 	 * @return void
 	 */
-	public function setUp() {
+	public function set_up() {
 		if ( ! self::$woo_enabled ) {
 			$this->markTestSkipped();
 			return;
 		}
 
-		parent::setUp();
+		parent::set_up();
 
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
 

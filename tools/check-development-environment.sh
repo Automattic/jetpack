@@ -261,7 +261,7 @@ if [[ -z "$BIN" ]]; then
 	failure "no php found" 'php'
 else
 	VER="$(php -r 'echo PHP_VERSION;')"
-	if php -r "exit( version_compare( PHP_VERSION, '$MAX_PHP_VERSION', '>=' ) ? 0 : 1 );"; then
+	if php -r "exit( version_compare( PHP_VERSION, '$MAX_PHP_VERSION.9999999', '>=' ) ? 0 : 1 );"; then
 		warning "ok (version $VER)" 'php' "PHP at $BIN is version $VER. We've only tested with PHP up to $MAX_PHP_VERSION."
 	elif php -r "exit( version_compare( PHP_VERSION, '$PHP_VERSION', '>=' ) ? 0 : 1 );"; then
 		success "ok (version $VER)"
@@ -280,24 +280,6 @@ else
 	VER="$(composer --version 2>/dev/null | sed -n -E 's/^Composer( version)? ([0-9]+\.[0-9]+\.[0-9a-zA-Z.-]+) [0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}.*/\2/p')"
 	VX="$(sed -E 's/^([0-9]+\.[0-9]+)\..*/\1/' <<<"$COMPOSER_VERSION")"
 	version_range 'Composer' "$BIN" 'composer' "$VER" "$VX.0" "$COMPOSER_VERSION" "$VX.9999999" true
-fi
-
-checking '[optional] Usable version of PHPUnit'
-BIN="$(command -v phpunit)"
-THATS_OK="That's ok if you're not testing plugins or are using the Docker environment to test them."
-if [[ -z "$BIN" ]]; then
-	warning "no phpunit found" 'phpunit' "$THATS_OK"
-else
-	VER="$(phpunit --version 2>/dev/null | sed -n -E 's/^PHPUnit ([0-9]+\.[0-9]+)\.[0-9a-zA-Z.-]+ by .*/\1/p')"
-	if [[ -z "$VER" ]]; then
-		warning 'unknown' 'phpunit' "PHPUnit version from $BIN could not be determined. Output was:" "" "  $(phpunit --version 2>&1)" "" "$THATS_OK"
-	elif version_compare "$VER" "8.0"; then
-		warning "too new" 'phpunit' "PHPUnit at $BIN is version $VER. Only 5.4 to 7.5 are supported." "$THATS_OK"
-	elif version_compare "$VER" "5.4"; then
-		success "ok (version $VER)"
-	else
-		warning "too old" 'phpunit' "PHPUnit at $BIN is version $VER. Only 5.4 to 7.5 are supported." "$THATS_OK"
-	fi
 fi
 
 echo ""

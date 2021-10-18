@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix connection for non-admin users.

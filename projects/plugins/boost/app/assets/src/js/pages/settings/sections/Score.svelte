@@ -5,48 +5,135 @@
 	import ScoreBar from '../elements/ScoreBar.svelte';
 	import ScoreContext from '../elements/ScoreContext.svelte';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
-	import { getScoreLetter, clearCache, requestSpeedScores } from '../../../api/speed-scores';
+	import {
+		getScoreLetter,
+		requestSpeedScores,
+		didScoresImprove,
+		getScoreImprovementPercentage,
+	} from '../../../api/speed-scores';
+	import debounce from '../../../utils/debounce';
 	import { __ } from '@wordpress/i18n';
+	import { criticalCssStatus } from '../../../stores/critical-css-status';
+	import { modules } from '../../../stores/modules';
+	import { derived, writable } from 'svelte/store';
+	import RatingCard from '../elements/RatingCard.svelte';
 
 	const siteIsOnline = Jetpack_Boost.site.online;
 
 	let loadError;
-	let isLoading = siteIsOnline;
+	let showPrevScores;
 	let scoreLetter = '';
-	let scores = {
-		mobile: 0,
-		desktop: 0,
-	};
+	let improvementPercentage = 0;
+	let currentPercentage = 0;
 
-	if ( siteIsOnline ) {
-		refreshScore( false );
-	}
+	const isLoading = writable( siteIsOnline );
+
+	const scores = writable( {
+		current: {
+			mobile: 0,
+			desktop: 0,
+		},
+		noBoost: null,
+		isStale: false,
+	} );
+
+	refreshScore( false );
+
+	/**
+	 * Derived datastore which makes it easy to check if module states are currently in sync with server.
+	 */
+	const modulesInSync = derived( modules, $modules => {
+		return ! Object.values( $modules ).some( m => m.synced === false );
+	} );
+
+	/**
+	 * String representation of the current state that may impact the score.
+	 *
+	 * @type {Readable<string>}
+	 */
+	const scoreConfigString = derived(
+		[ modules, criticalCssStatus ],
+		( [ $modules, $criticalCssStatus ] ) =>
+			JSON.stringify( {
+				modules: $modules,
+				criticalCss: {
+					created: $criticalCssStatus.created,
+				},
+			} )
+	);
+
+	/**
+	 * The configuration that led to latest speed score.
+	 *
+	 * @type {Readable<string>}
+	 */
+	let currentScoreConfigString = $scoreConfigString;
 
 	async function refreshScore( force = false ) {
-		isLoading = true;
+		if ( ! siteIsOnline ) {
+			return;
+		}
+
+		isLoading.set( true );
 		loadError = undefined;
 
 		try {
-			if ( force ) {
-				await clearCache();
-			}
-
-			scores = await requestSpeedScores();
-			scoreLetter = getScoreLetter( scores.mobile, scores.desktop );
+			scores.set( await requestSpeedScores( force ) );
+			scoreLetter = getScoreLetter( $scores.current.mobile, $scores.current.desktop );
+			showPrevScores = didScoresImprove( $scores ) && ! $scores.isStale;
+			currentScoreConfigString = $scoreConfigString;
 		} catch ( err ) {
+			console.log( err );
 			loadError = err;
 		} finally {
-			isLoading = false;
+			isLoading.set( false );
 		}
+	}
+
+	/**
+	 * A store that checks the speed score needs a refresh.
+	 */
+	const needRefresh = derived(
+		[ criticalCssStatus, modulesInSync, scoreConfigString, scores ],
+		( [ $criticalCssStatus, $modulesInSync, $scoreConfigString, $scores ] ) => {
+			return (
+				! $criticalCssStatus.generating &&
+				$modulesInSync &&
+				( $scoreConfigString !== currentScoreConfigString || $scores.isStale )
+			);
+		}
+	);
+
+	const debouncedRefreshScore = debounce( force => {
+		if ( $needRefresh ) {
+			refreshScore( force );
+		}
+	}, 2000 );
+
+	const respawnRatingPrompt = writable( Jetpack_Boost.preferences.showRatingPrompt );
+
+	const showRatingCard = derived(
+		[ scores, respawnRatingPrompt, isLoading ],
+		( [ $scores, $respawnRatingPrompt, $isLoading ] ) =>
+			didScoresImprove( $scores ) && $respawnRatingPrompt && ! $isLoading && ! $scores.isStale
+	);
+
+	$: if ( $needRefresh ) {
+		debouncedRefreshScore( true );
+	}
+
+	$: if ( $showRatingCard ) {
+		improvementPercentage = getScoreImprovementPercentage( $scores );
+		currentPercentage = ( $scores.current.mobile + $scores.current.desktop ) / 2;
 	}
 </script>
 
 <div class="jb-container">
-	<div class="jb-site-score" class:loading={isLoading}>
+	<div class="jb-site-score" class:loading={$isLoading}>
 		{#if siteIsOnline}
 			<div class="jb-site-score__top">
 				<h2>
-					{#if isLoading}
+					{#if $isLoading}
 						{__( 'Loading…', 'jetpack-boost' )}
 					{:else if loadError}
 						{__( 'Whoops, something went wrong', 'jetpack-boost' )}
@@ -54,13 +141,13 @@
 						{__( 'Overall score', 'jetpack-boost' )}: {scoreLetter}
 					{/if}
 				</h2>
-				{#if ! isLoading && ! loadError}
+				{#if ! $isLoading && ! loadError}
 					<ScoreContext />
 				{/if}
 				<button
 					type="button"
 					class="components-button is-link"
-					disabled={isLoading}
+					disabled={$isLoading}
 					on:click={() => refreshScore( true )}
 				>
 					<RefreshIcon />
@@ -95,7 +182,14 @@
 				<MobileIcon />
 				<div>{__( 'Mobile score', 'jetpack-boost' )}</div>
 			</div>
-			<ScoreBar bind:score={scores.mobile} active={siteIsOnline} {isLoading} />
+			<ScoreBar
+				prevScore={$scores.noBoost?.mobile}
+				score={$scores.current.mobile}
+				active={siteIsOnline}
+				isLoading={$isLoading}
+				{showPrevScores}
+				noBoostScoreTooltip={__( 'Your mobile score without Boost', 'jetpack-boost' )}
+			/>
 		</div>
 
 		<div class="jb-score-bar jb-score-bar--desktop">
@@ -103,7 +197,21 @@
 				<ComputerIcon />
 				<div>{__( 'Desktop score', 'jetpack-boost' )}</div>
 			</div>
-			<ScoreBar bind:score={scores.desktop} active={siteIsOnline} {isLoading} />
+			<ScoreBar
+				prevScore={$scores.noBoost?.desktop}
+				score={$scores.current.desktop}
+				active={siteIsOnline}
+				isLoading={$isLoading}
+				{showPrevScores}
+				noBoostScoreTooltip={__( 'Your desktop score without Boost', 'jetpack-boost' )}
+			/>
 		</div>
 	</div>
 </div>
+{#if $showRatingCard}
+	<RatingCard
+		on:dismiss={() => respawnRatingPrompt.set( false )}
+		improvement={improvementPercentage}
+		{currentPercentage}
+	/>
+{/if}

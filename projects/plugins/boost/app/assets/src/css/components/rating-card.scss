@@ -1,0 +1,15 @@
+.jb-rating-card {
+  @include box-shadow();
+
+  width: 300px;
+  position: absolute;
+  top: 40px;
+  right: 0;
+  background-color: #ffffff;
+  z-index: 60;
+  padding: 24px;
+
+  & &__headline {
+    margin-right: 21px;
+  }
+}

@@ -16,13 +16,13 @@ class Post_Thumbnail {
 	 * neither exists returns the image array with null values.
 	 *
 	 * @param object $post The current post.
-	 * @return array The thumbnail image id and URLs
+	 * @return array|null The thumbnail image id and URLs
 	 */
 	public static function get_post_thumbnail( $post ) {
 		$image_id    = null;
 		$image_url   = null;
-		$image_thumb = null;
 		$image_alt   = null;
+		$image_thumb = false;
 
 		$post_id = $post->ID;
 
@@ -31,7 +31,7 @@ class Post_Thumbnail {
 			$image_id    = get_post_thumbnail_id( $post_id );
 			$image_url   = get_the_post_thumbnail_url( $post_id );
 			$image_thumb = get_the_post_thumbnail_url( $post_id, array( 50, 50 ) );
-			$image_alt   = get_post_meta( $post_id, '_wp_attachment_image_alt', true );
+			$image_alt   = get_post_meta( $image_id, '_wp_attachment_image_alt', true );
 		} else {
 			// If a featured image does not exist look for the first "media library" hosted image on the post.
 			$attachment_id = self::get_first_image_id_from_post_content( $post->post_content );
@@ -42,6 +42,11 @@ class Post_Thumbnail {
 				$image_thumb = wp_get_attachment_image_url( $attachment_id, array( 50, 50 ) );
 				$image_alt   = get_post_meta( $attachment_id, '_wp_attachment_image_alt', true );
 			}
+		}
+
+		// If no thumbnail is found return null.
+		if ( false === $image_thumb ) {
+			return null;
 		}
 
 		// Escape values just in case.

@@ -25,11 +25,12 @@ import {
 	getJetpackProductUpsellByFeature,
 	FEATURE_SITE_BACKUPS_JETPACK,
 } from 'lib/plans/constants';
+import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import { getSitePlan } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import { getVaultPressData } from 'state/at-a-glance';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
-import { getUpgradeUrl, showBackups } from 'state/initial-state';
+import { showBackups } from 'state/initial-state';
 
 /**
  * Displays a card for Backups based on the props given.
@@ -242,7 +243,10 @@ class DashBackups extends Component {
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
 				status: 'pro-inactive',
-				content: __( 'Your site is new and may still be preparing backup configuration.', 'jetpack' ),
+				content: __(
+					'Your site is new and may still be preparing backup configuration.',
+					'jetpack'
+				),
 			} );
 			// this.props.rewindStatus is empty string on API error.
 		} else if ( 'unavailable' === this.props.rewindStatus || '' === this.props.rewindStatus ) {
@@ -288,7 +292,7 @@ export default connect(
 			isOfflineMode: isOfflineMode( state ),
 			isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
 			showBackups: showBackups( state ),
-			upgradeUrl: getUpgradeUrl( state, 'aag-backups' ),
+			upgradeUrl: getProductDescriptionUrl( state, 'backup' ),
 			hasConnectedOwner: hasConnectedOwner( state ),
 		};
 	},

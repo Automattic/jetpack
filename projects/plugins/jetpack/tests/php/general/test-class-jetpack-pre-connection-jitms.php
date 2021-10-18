@@ -5,7 +5,7 @@
  * @package jetpack
  */
 
-use PHPUnit\Framework\TestCase;
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 require_once __DIR__ . '/../../../class-jetpack-pre-connection-jitms.php';
 

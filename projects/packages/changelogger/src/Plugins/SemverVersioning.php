@@ -25,6 +25,7 @@ class SemverVersioning implements VersioningPlugin {
 	 *  - major: (int) Major version.
 	 *  - minor: (int) Minor version.
 	 *  - patch: (int) Patch version.
+	 *  - version: (string) Major.minor.patch.
 	 *  - prerelease: (string|null) Pre-release string.
 	 *  - buildinfo: (string|null) Build metadata string.
 	 * @throws InvalidArgumentException If the version number is not in a recognized format.
@@ -34,46 +35,62 @@ class SemverVersioning implements VersioningPlugin {
 		if ( ! preg_match( '/^(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)(?:-(?P<prerelease>(?:[0-9a-zA-Z-]+)(?:\.(?:[0-9a-zA-Z-]+))*))?(?:\+(?P<buildinfo>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/', $version, $m ) ) {
 			throw new InvalidArgumentException( "Version number \"$version\" is not in a recognized format." );
 		}
-		return array(
+		$info = array(
 			'major'      => (int) $m['major'],
 			'minor'      => (int) $m['minor'],
 			'patch'      => (int) $m['patch'],
+			'version'    => sprintf( '%d.%d.%d', $m['major'], $m['minor'], $m['patch'] ),
 			'prerelease' => isset( $m['prerelease'] ) && '' !== $m['prerelease'] ? $m['prerelease'] : null,
 			'buildinfo'  => isset( $m['buildinfo'] ) && '' !== $m['buildinfo'] ? $m['buildinfo'] : null,
 		);
+
+		if ( null !== $info['prerelease'] ) {
+			$sep        = '';
+			$prerelease = '';
+			foreach ( explode( '.', $info['prerelease'] ) as $part ) {
+				if ( ctype_digit( $part ) ) {
+					$part = (int) $part;
+				}
+				$prerelease .= $sep . $part;
+				$sep         = '.';
+			}
+			$info['prerelease'] = $prerelease;
+		}
+
+		return $info;
 	}
 
 	/**
 	 * Check and normalize a version number.
 	 *
-	 * @param string|array $version Version string, or array as from `parseVersion()`.
+	 * @param string|array $version Version string, or array as from `parseVersion()` (ignoring a `version` key).
+	 * @param array        $extra Extra components for the version, replacing any in `$version`.
 	 * @return string Normalized version.
-	 * @throws InvalidArgumentException If the version number is not in a recognized format.
+	 * @throws InvalidArgumentException If the version number is not in a recognized format or extra is invalid.
 	 */
-	public function normalizeVersion( $version ) {
+	public function normalizeVersion( $version, $extra = array() ) {
 		if ( is_array( $version ) ) {
 			$info = $version + array(
 				'prerelease' => null,
 				'buildinfo'  => null,
 			);
 			$test = $this->parseVersion( '0.0.0' );
+			unset( $test['version'] );
 			if ( array_intersect_key( $test, $info ) !== $test ) {
 				throw new InvalidArgumentException( 'Version array is not in a recognized format.' );
+			}
+
+			if ( null !== $info['prerelease'] ) {
+				$info['prerelease'] = $this->parseVersion( '0.0.0-' . $info['prerelease'] )['prerelease'];
 			}
 		} else {
 			$info = $this->parseVersion( $version );
 		}
+		$info = array_merge( $info, $this->validateExtra( $extra, false ) );
 
 		$ret = sprintf( '%d.%d.%d', $info['major'], $info['minor'], $info['patch'] );
 		if ( null !== $info['prerelease'] ) {
-			$sep = '-';
-			foreach ( explode( '.', $info['prerelease'] ) as $part ) {
-				if ( ctype_digit( $part ) ) {
-					$part = (int) $part;
-				}
-				$ret .= $sep . $part;
-				$sep  = '.';
-			}
+			$ret .= '-' . $info['prerelease'];
 		}
 		if ( null !== $info['buildinfo'] ) {
 			$ret .= '+' . $info['buildinfo'];
@@ -85,10 +102,11 @@ class SemverVersioning implements VersioningPlugin {
 	 * Validate an `$extra` array.
 	 *
 	 * @param array $extra Extra components for the version. See `nextVersion()`.
+	 * @param bool  $nulls Return nulls for unset fields.
 	 * @return array
 	 * @throws InvalidArgumentException If the `$extra` data is invalid.
 	 */
-	private function validateExtra( array $extra ) {
+	private function validateExtra( array $extra, $nulls = true ) {
 		$info = array();
 
 		if ( isset( $extra['prerelease'] ) ) {
@@ -97,7 +115,7 @@ class SemverVersioning implements VersioningPlugin {
 			} catch ( InvalidArgumentException $ex ) {
 				throw new InvalidArgumentException( 'Invalid prerelease data' );
 			}
-		} else {
+		} elseif ( $nulls || array_key_exists( 'prerelease', $extra ) ) {
 			$info['prerelease'] = null;
 		}
 		if ( isset( $extra['buildinfo'] ) ) {
@@ -106,7 +124,7 @@ class SemverVersioning implements VersioningPlugin {
 			} catch ( InvalidArgumentException $ex ) {
 				throw new InvalidArgumentException( 'Invalid buildinfo data' );
 			}
-		} else {
+		} elseif ( $nulls || array_key_exists( 'buildinfo', $extra ) ) {
 			$info['buildinfo'] = null;
 		}
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Do not show noBoost score if no modules are active.

@@ -25,6 +25,7 @@ class Example_WPCOM_REST_API_V2_Field_Controller extends WPCOM_REST_API_V2_Field
  * @group rest-api
  */
 class Test_WPCOM_REST_API_V2_Field_Controller extends WP_UnitTestCase {
+
 	public function provide_type_defaults() {
 		return array(
 			'string'  => array( 'string',  '' ),
@@ -73,7 +74,7 @@ class Test_WPCOM_REST_API_V2_Field_Controller extends WP_UnitTestCase {
 
 		$actual = $controller->get_default_value( $schema );
 
-		$this->assertInternalType( 'object', $actual );
+		$this->assertIsObject( $actual );
 		$this->assertEquals( new stdClass, $actual );
 	}
 
@@ -254,7 +255,7 @@ class Test_WPCOM_REST_API_V2_Field_Controller extends WP_UnitTestCase {
 		$actual = $controller->filter_response_by_context( $value, $schema, $context );
 
 		// ->filter_response_by_context() casts to (object)
-		$this->assertInternalType( 'object', $actual );
+		$this->assertIsObject( $actual );
 
 		$this->assertEquals( (object) array( 'one' => 1 ), $actual );
 	}
@@ -295,7 +296,7 @@ class Test_WPCOM_REST_API_V2_Field_Controller extends WP_UnitTestCase {
 		$actual = $controller->filter_response_by_context( $value, $schema, $context );
 
 		// ->filter_response_by_context() casts to (object)
-		$this->assertInternalType( 'object', $actual );
+		$this->assertIsObject( $actual );
 
 		$this->assertEquals( (object) array(
 			'one' => (object) array( 'example' => 1 ),

@@ -834,18 +834,13 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		     ->method( 'get_instances_sites' )
 		     ->will( $this->returnValue( array( 'test_url_1', 'test_url_2', 'test_url_3' ) ) );
 
-		$mock->expects( $this->at( 2 ) )
-		     ->method( 'update_instance' )
-		     ->with( 'test_url_1' );
-
-		$mock->expects( $this->at( 3 ) )
-		     ->method( 'update_instance' )
-		     ->with( 'test_url_2' );
-
-		$mock->expects( $this->at( 4 ) )
-		     ->method( 'update_instance' )
-		     ->with( 'test_url_3' );
-
+		$mock->expects( $this->exactly( 3 ) )
+			->method( 'update_instance' )
+			->withConsecutive(
+				array( 'test_url_1' ),
+				array( 'test_url_2' ),
+				array( 'test_url_3' )
+			);
 
 		$result = $mock->cron_task();
 
@@ -1439,26 +1434,21 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		             ->disableOriginalConstructor()
 		             ->getMock();
 
-		$mock->expects( $this->at( 0 ) )
-		     ->method( 'wp_wp_remote_get' )
-		     ->with( $mock->service_url.'first_endpoint', array( 'timeout' => 15 ) )
-		     ->will( $this->returnValue( 'first_endpoint response' ) );
+		$mock->expects( $this->exactly( 2 ) )
+			->method( 'wp_wp_remote_get' )
+			->withConsecutive(
+				array( $mock->service_url . 'first_endpoint', array( 'timeout' => 15 ) ),
+				array( $mock->service_url . 'second_endpoint', array( 'timeout' => 15 ) )
+			)
+			->willReturnOnConsecutiveCalls( 'first_endpoint response', 'second_endpoint response' );
 
-
-		$mock->expects( $this->at( 1 ) )
-		     ->method( 'parse_service_response' )
-		     ->with( 'first_endpoint response' )
-		     ->will( $this->returnValue( 'first test' ) );
-
-		$mock->expects( $this->at( 2 ) )
-		     ->method( 'wp_wp_remote_get' )
-		     ->with( $mock->service_url.'second_endpoint', array( 'timeout' => 15 ) )
-		     ->will( $this->returnValue( 'second_endpoint response' ) );
-
-		$mock->expects( $this->at( 3 ) )
-		      ->method( 'parse_service_response' )
-		      ->with( 'second_endpoint response' )
-		      ->will( $this->returnValue( 'second test' ) );
+		$mock->expects( $this->exactly( 2 ) )
+			->method( 'parse_service_response' )
+			->withConsecutive(
+				array( 'first_endpoint response' ),
+				array( 'second_endpoint response' )
+			)
+			->willReturnOnConsecutiveCalls( 'first test', 'second test' );
 
 		$result1 = $mock->fetch_service_endpoint( 'first_endpoint' );
 

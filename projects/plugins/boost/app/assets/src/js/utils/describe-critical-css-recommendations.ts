@@ -270,7 +270,7 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 				urlCount( set ),
 				'jetpack-boost'
 			),
-		suggestion: set => ( {
+		suggestion: _set => ( {
 			paragraph: __(
 				'This may indicate that a WordPress plugin is redirecting users who are not logged in to a different location, or it may indicate that your hosting provider is redirecting your WordPress site to a different URL.',
 				'jetpack-boost'
@@ -445,7 +445,7 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 				'jetpack-boost'
 			),
 		rawError: set => Object.values( set.byUrl )[ 0 ].message,
-		suggestion: set => ( {
+		suggestion: _set => ( {
 			paragraph: __(
 				'Jetpack Boost uses iframes while generating your Critical CSS. Unfortunately, your site has a special configuration header which prevents it from loading inside an iframe. The header is called "X-Frame-Options: DENY". This can be added to a WordPress site either by using a plugin, or by server configuration.',
 				'jetpack-boost'
