@@ -1,6 +1,7 @@
 export const DEFAULT_STATE = {
 	tweets: [],
 	twitterCards: [],
+	connectionsUpdated: false,
 };
 
 /**
@@ -14,6 +15,12 @@ export default function ( state = DEFAULT_STATE, action ) {
 	switch ( action.type ) {
 		case 'REFRESH_CONNECTION_TEST_RESULTS':
 			return state;
+
+		case 'SIGNAL_CONNECTIONS_UPDATE':
+			return {
+				...state,
+				connectionsUpdated: true,
+			};
 
 		case 'TOGGLE_CONNECTION_BY_ID':
 			return state;

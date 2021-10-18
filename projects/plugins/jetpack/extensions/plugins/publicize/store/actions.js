@@ -15,6 +15,17 @@ export function refreshConnectionTestResults() {
 	};
 }
 
+/**
+ * Signal that connections have updated.
+ *
+ * @returns {object} Action object.
+ */
+export function signalConnectionsUpdate() {
+	return {
+		type: 'SIGNAL_CONNECTIONS_UPDATE',
+	};
+}
+
 export function toggleConnectionById( connectionId ) {
 	return {
 		type: 'TOGGLE_CONNECTION_BY_ID',

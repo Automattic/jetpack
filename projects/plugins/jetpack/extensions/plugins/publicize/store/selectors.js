@@ -546,6 +546,16 @@ export function getConnections() {
 }
 
 /**
+ * Return whether connections have updated.
+ *
+ * @param {object} state - State object.
+ * @returns {boolean} Whether connections have updated.
+ */
+export function getConnectionsUpdated( state ) {
+	return state.connectionsUpdated;
+}
+
+/**
  * Return True if Publicize Feature is enabled.
  * Otherwise, return False.
  *

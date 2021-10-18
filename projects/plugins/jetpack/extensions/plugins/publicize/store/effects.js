@@ -65,7 +65,10 @@ export async function refreshConnectionTestResults() {
 		}
 
 		// Update post metadata.
-		return dispatch( editorStore ).editPost( { jetpack_publicize_connections: connections } );
+		await dispatch( editorStore ).editPost( { jetpack_publicize_connections: connections } );
+
+		// Signal connections have updated.
+		return dispatch( 'jetpack/publicize' ).signalConnectionsUpdate();
 	} catch ( error ) {
 		// Refreshing connections failed
 	}
