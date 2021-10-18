@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a compatibility file for Elementor plugin to ignore its library custom post type from the list of providers

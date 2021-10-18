@@ -218,7 +218,7 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 		}
 
 		// E2E tests.
-		const e2e = file.match( /^projects\/plugins\/jetpack\/tests\/e2e\// );
+		const e2e = file.match( /\/tests\/e2e\/|^tools\/e2e-commons\// );
 		if ( e2e ) {
 			keywords.add( 'E2E Tests' );
 		}

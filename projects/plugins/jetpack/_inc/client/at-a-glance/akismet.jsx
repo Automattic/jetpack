@@ -22,7 +22,8 @@ import { createNotice, removeNotice } from 'components/global-notices/state/noti
 import DashItem from 'components/dash-item';
 import { getAkismetData } from 'state/at-a-glance';
 import { getSitePlan } from 'state/site';
-import { getApiNonce, getUpgradeUrl } from 'state/initial-state';
+import { getApiNonce } from 'state/initial-state';
+import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import { getJetpackProductUpsellByFeature, FEATURE_SPAM_AKISMET_PLUS } from 'lib/plans/constants';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
 import JetpackBanner from 'components/jetpack-banner';
@@ -271,7 +272,7 @@ export default connect(
 			akismetData: getAkismetData( state ),
 			sitePlan: getSitePlan( state ),
 			isOfflineMode: isOfflineMode( state ),
-			upgradeUrl: getUpgradeUrl( state, 'aag-akismet' ),
+			upgradeUrl: getProductDescriptionUrl( state, 'akismet' ),
 			nonce: getApiNonce( state ),
 			hasConnectedOwner: hasConnectedOwner( state ),
 		};
