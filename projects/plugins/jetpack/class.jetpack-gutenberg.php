@@ -683,6 +683,15 @@ class Jetpack_Gutenberg {
 					'enable_upgrade_nudge'      => apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ),
 					'is_private_site'           => '-1' === get_option( 'blog_public' ),
 					'is_offline_mode'           => $status->is_offline_mode(),
+					/**
+					 * Enable the RePublicize UI in wp-admin.
+					 *
+					 * @module publicize
+					 *
+					 * @since 10.3.0
+					 *
+					 * @param boom false Enable the RePublicize UI in wp-admin. defaults to false.
+					 */
 					'republicize_enabled'       => apply_filters( 'jetpack_block_editor_republicize_feature', false ),
 				),
 				'siteFragment'     => $status->get_site_suffix(),
