@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0e93f4aee3c676e8e6505ab0c21432c3",
+    "content-hash": "460b0860c0b4df3169b8cb8747815647",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1298,6 +1298,57 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Utilities, related with user roles and capabilities.",
+            "transport-options": {
+                "monorepo": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-search",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/search",
+                "reference": "7a9a04ee0680c8012f0a8d623cebd8f425db7fe3"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "^3.0",
+                "yoast/phpunit-polyfills": "1.0.2"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.1.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer install",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer install",
+                    "@composer phpunit"
+                ],
+                "build-production": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
+                "build-development": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Search package",
             "transport-options": {
                 "monorepo": true,
                 "relative": true
@@ -4807,6 +4858,7 @@
         "automattic/jetpack-partner": 20,
         "automattic/jetpack-redirect": 20,
         "automattic/jetpack-roles": 20,
+        "automattic/jetpack-search": 20,
         "automattic/jetpack-status": 20,
         "automattic/jetpack-sync": 20,
         "automattic/jetpack-terms-of-service": 20,

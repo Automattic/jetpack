@@ -37,7 +37,7 @@ class Jetpack_Admin {
 		jetpack_require_lib( 'admin-pages/class-jetpack-about-page' );
 		$this->jetpack_about = new Jetpack_About_Page();
 
-		require_once __DIR__ . '/modules/search/class-jetpack-search-dashboard.php';
+		require_once __DIR__ . '/vendor/automattic/jetpack-search/src/php/class-jetpack-search-dashboard.php';
 		Automattic\Jetpack\Search\Jetpack_Search_Dashboard::instance();
 
 		add_action( 'admin_init', array( $this->jetpack_react, 'react_redirects' ), 0 );
