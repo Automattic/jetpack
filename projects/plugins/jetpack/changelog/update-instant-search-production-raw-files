@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Build: do not include Instant Search Settings raw files in production build

@@ -115,7 +115,10 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 * @param string $plugin_base_path - Base path for use in plugins_url.
 	 */
 	public function load_assets_with_parameters( $path_prefix, $plugin_base_path ) {
-		$script_relative_path = $path_prefix . '_inc/build/instant-search/jp-search-main.bundle.js';
+		// We added `.min` to the file names of all minimized assets, and there's a non-minimized version for each asset.
+		// For example, there is a `_inc/build/instant-search/jp-search-main.bundle.js` for `_inc/build/instant-search/jp-search-main.bundle.min.js`.
+		// which is for the extraction of strings for translations as `.min.js` files are omitted.
+		$script_relative_path = $path_prefix . '_inc/build/instant-search/jp-search-main.bundle.min.js';
 
 		if ( ! file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) ) {
 			return;
@@ -128,10 +131,12 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		$this->load_and_initialize_tracks();
 		$this->inject_javascript_options();
 
-		// It only inline the translations for the script, but does not load it.
+		// It only inlines the translations for the script, but does not actually load the script.
+		// The injected translations is actually for script `_inc/build/instant-search/jp-search.chunk-main-payload.[contentHash].min.js` lazy-loaded by `_inc/build/instant-search/jp-search-main.bundle.min.js`.
+		// The [contentHash] changes almost on every build, so we make the un-minimized file name fixed for the sake of loading translations.
 		$this->inject_translation_for_script(
 			plugins_url(
-				$path_prefix . '_inc/build/instant-search/jp-search.chunk-main-payload.min.js',
+				$path_prefix . '_inc/build/instant-search/jp-search.chunk-main-payload.js',
 				$plugin_base_path
 			)
 		);

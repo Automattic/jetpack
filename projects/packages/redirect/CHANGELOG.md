@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.4] - 2021-10-13
+### Changed
+- Updated package dependencies.
+
 ## [1.7.3] - 2021-10-12
 ### Changed
 - Updated package dependencies
@@ -92,6 +96,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Create Jetpack Redirect package
 
+[1.7.4]: https://github.com/Automattic/jetpack-redirect/compare/v1.7.3...v1.7.4
 [1.7.3]: https://github.com/Automattic/jetpack-redirect/compare/v1.7.2...v1.7.3
 [1.7.2]: https://github.com/Automattic/jetpack-redirect/compare/v1.7.1...v1.7.2
 [1.7.1]: https://github.com/Automattic/jetpack-redirect/compare/v1.7.0...v1.7.1

@@ -45,6 +45,8 @@ import {
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
 import { getSearchTerm } from 'state/search';
 import { Recommendations } from 'recommendations';
+import ProductDescriptions from 'product-descriptions';
+import { productDescriptionRoutes } from 'product-descriptions/constants';
 import AtAGlance from 'at-a-glance/index.jsx';
 import MyPlan from 'my-plan/index.jsx';
 import Footer from 'components/footer';
@@ -360,6 +362,11 @@ class Main extends React.Component {
 				}
 				break;
 			default:
+				if ( productDescriptionRoutes.includes( route ) ) {
+					pageComponent = <ProductDescriptions />;
+					break;
+				}
+
 				this.props.history.replace( '/dashboard' );
 				pageComponent = this.getAtAGlance();
 				break;
@@ -409,9 +416,12 @@ class Main extends React.Component {
 
 	shouldShowFooter() {
 		// Only show on the dashboard, settings, and recommendations pages
-		return [ ...dashboardRoutes, ...settingsRoutes, ...recommendationsRoutes ].includes(
-			this.props.location.pathname
-		);
+		return [
+			...dashboardRoutes,
+			...settingsRoutes,
+			...recommendationsRoutes,
+			...productDescriptionRoutes,
+		].includes( this.props.location.pathname );
 	}
 
 	shouldBlurMainContent() {
@@ -573,7 +583,11 @@ window.wpNavMenuClassChange = function ( pageOrder = { dashboard: 1, settings: 2
 
 	// Set the current sub-nav item according to the current hash route
 	hash = hash.split( '?' )[ 0 ].replace( /#/, '' );
-	if ( dashboardRoutes.includes( hash ) || recommendationsRoutes.includes( hash ) ) {
+	if (
+		dashboardRoutes.includes( hash ) ||
+		recommendationsRoutes.includes( hash ) ||
+		productDescriptionRoutes.includes( hash )
+	) {
 		getJetpackSubNavItem( pageOrder.dashboard ).classList.add( 'current' );
 	} else if ( settingsRoutes.includes( hash ) ) {
 		getJetpackSubNavItem( pageOrder.settings ).classList.add( 'current' );

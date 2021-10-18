@@ -7,7 +7,6 @@
 	"projects/plugins/jetpack/_inc/client/components/chart/legend.jsx",
 	"projects/plugins/jetpack/_inc/client/components/count/docs/example.jsx",
 	"projects/plugins/jetpack/_inc/client/components/count/index.jsx",
-	"projects/plugins/jetpack/_inc/client/components/data/query-site-products/index.js",
 	"projects/plugins/jetpack/_inc/client/components/external-link/index.jsx",
 	"projects/plugins/jetpack/_inc/client/components/form/counter.js",
 	"projects/plugins/jetpack/_inc/client/components/form/index.jsx",
