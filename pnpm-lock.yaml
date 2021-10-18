@@ -401,6 +401,7 @@ importers:
     specifiers:
       '@automattic/calypso-build': 9.0.0
       '@automattic/calypso-color-schemes': 2.1.1
+      '@automattic/color-studio': 2.5.0
       '@automattic/components': 1.0.0-alpha.3
       '@automattic/format-currency': 1.0.0-alpha.0
       '@automattic/jetpack-analytics': workspace:^0.1.2-alpha
@@ -492,6 +493,7 @@ importers:
     dependencies:
       '@automattic/calypso-build': 9.0.0_webpack@5.51.1
       '@automattic/calypso-color-schemes': 2.1.1
+      '@automattic/color-studio': 2.5.0
       '@automattic/components': 1.0.0-alpha.3
       '@automattic/format-currency': 1.0.0-alpha.0
       '@automattic/jetpack-analytics': link:../../js-packages/analytics
@@ -1359,7 +1361,7 @@ packages:
       terser-webpack-plugin: 5.2.4_webpack@5.51.1
       thread-loader: 3.0.4_webpack@5.51.1
       typescript: 4.4.3
-      webpack: 5.51.1
+      webpack: 5.51.1_webpack-cli@4.8.0
       webpack-cli: 4.8.0_webpack@5.51.1
     transitivePeerDependencies:
       - '@swc/core'
@@ -1383,7 +1385,6 @@ packages:
 
   /@automattic/color-studio/2.5.0:
     resolution: {integrity: sha512-gZWaJbx3p1oennAIoJtMGluTmoM95Efk4rc44TSBxWSZZ8gH3Am2eh1o3i1NhrZmg2Zt3AiVFeZZ4AJccIpBKQ==}
-    dev: true
 
   /@automattic/components/1.0.0-alpha.3:
     resolution: {integrity: sha512-6PgogtcbvKEM7dQDXMUBbnGkwhf+0h29p/6sd8jfNoDlSxJJylcfZCio0yWuVKiSLAm9KWozeY5cqgI0nRcuzg==}
@@ -1486,7 +1487,7 @@ packages:
       '@romainberger/css-diff': 1.0.3
       async: 2.6.3
       rtlcss: 3.3.0
-      webpack: 5.51.1
+      webpack: 5.51.1_webpack-cli@4.8.0
 
   /@babel/cli/7.15.7_@babel+core@7.15.0:
     resolution: {integrity: sha512-YW5wOprO2LzMjoWZ5ZG6jfbY9JnkDxuHDwvnrThnuYtByorova/I0HNXJedrUfwuXFQfYOjcqDA4PU3qlZGZjg==}
@@ -8791,7 +8792,7 @@ packages:
       webpack: ^4.8.3 || ^5.0.0
     dependencies:
       json2php: 0.0.4
-      webpack: 5.51.1
+      webpack: 5.51.1_webpack-cli@4.8.0
       webpack-sources: 2.3.1
 
   /@wordpress/deprecated/2.12.3:
@@ -10564,7 +10565,7 @@ packages:
       loader-utils: 1.4.0
       make-dir: 3.1.0
       schema-utils: 2.7.1
-      webpack: 5.51.1
+      webpack: 5.51.1_webpack-cli@4.8.0
 
   /babel-loader/8.2.2_80927b313c74087b681f254ee0e3e2fc:
     resolution: {integrity: sha512-JvTd0/D889PQBtUXJ2PXaKU/pjZDMtHA9V2ecm+eNRmmBCMR09a+fmpGTNwnJtFmFl5Ei7Vy47LjBb+L0wQ99g==}
@@ -11382,7 +11383,7 @@ packages:
       mkdirp: 0.5.5
       neo-async: 2.6.2
       schema-utils: 2.7.1
-      webpack: 5.51.1
+      webpack: 5.51.1_webpack-cli@4.8.0
 
   /caching-transform/4.0.0:
     resolution: {integrity: sha512-kpqOvwXnjjN44D89K5ccQC+RUrsy7jB/XLlRrx0D7/2HNcTPqzsb6XgYoErwko6QsV184CA2YgS1fxDiiDZMWA==}
@@ -12377,7 +12378,7 @@ packages:
       postcss-value-parser: 4.1.0
       schema-utils: 3.1.1
       semver: 7.3.5
-      webpack: 5.51.1
+      webpack: 5.51.1_webpack-cli@4.8.0
 
   /css-loader/6.2.0_webpack@5.51.1:
     resolution: {integrity: sha512-/rvHfYRjIpymZblf49w8jYcRo2y9gj6rV8UroHGmBxKrIyGLokpycyKzp9OkitvqT29ZSpzJ0Ic7SpnJX3sC8g==}
@@ -12413,7 +12414,7 @@ packages:
       schema-utils: 3.1.1
       serialize-javascript: 5.0.1
       source-map: 0.6.1
-      webpack: 5.51.1
+      webpack: 5.51.1_webpack-cli@4.8.0
       webpack-sources: 1.4.3
 
   /css-select-base-adapter/0.1.1:
@@ -18540,7 +18541,7 @@ packages:
     dependencies:
       loader-utils: 2.0.0
       schema-utils: 3.1.1
-      webpack: 5.51.1
+      webpack: 5.51.1_webpack-cli@4.8.0
       webpack-sources: 1.4.3
 
   /minimalistic-assert/1.0.1:
@@ -19831,7 +19832,7 @@ packages:
       cosmiconfig: 7.0.1
       klona: 2.0.4
       semver: 7.3.5
-      webpack: 5.51.1
+      webpack: 5.51.1_webpack-cli@4.8.0
 
   /postcss-merge-longhand/4.0.11:
     resolution: {integrity: sha512-alx/zmoeXvJjp7L4mxEMjh8lxVlDFX1gqWHzaaQewwMZiVhLo42TEClKaeHbRf6J7j82ZOdTJ808RtN0ZOZwvw==}
@@ -22495,7 +22496,7 @@ packages:
       klona: 2.0.4
       neo-async: 2.6.2
       sass: 1.38.1
-      webpack: 5.51.1
+      webpack: 5.51.1_webpack-cli@4.8.0
 
   /sass-loader/12.1.0_sass@1.39.0:
     resolution: {integrity: sha512-FVJZ9kxVRYNZTIe2xhw93n3xJNYZADr+q69/s98l9nTCrWASo+DR2Ot0s5xTKQDDEosUkatsGeHxcH4QBp5bSg==}
@@ -23688,7 +23689,7 @@ packages:
       serialize-javascript: 6.0.0
       source-map: 0.6.1
       terser: 5.8.0
-      webpack: 5.51.1
+      webpack: 5.51.1_webpack-cli@4.8.0
 
   /terser/3.17.0:
     resolution: {integrity: sha512-/FQzzPJmCpjAH9Xvk2paiWrFq+5M6aVOf+2KRbwhByISDX/EujxsK+BAvrhb6H+2rtrLCHK9N01wO014vrIwVQ==}
@@ -23742,7 +23743,7 @@ packages:
       loader-utils: 2.0.0
       neo-async: 2.6.2
       schema-utils: 3.1.1
-      webpack: 5.51.1
+      webpack: 5.51.1_webpack-cli@4.8.0
 
   /throat/6.0.1:
     resolution: {integrity: sha512-8hmiGIJMDlwjg7dlJ4yKGLK8EsYqKgPWbG3b4wjJddKNwc7N7Dpn08Df4szr/sZdMVeOstrdYSsqzX6BYbcB+w==}

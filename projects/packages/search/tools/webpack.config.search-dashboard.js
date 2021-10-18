@@ -33,7 +33,7 @@ module.exports = {
 		modules: [
 			path.resolve( __dirname, '../node_modules' ),
 			'node_modules',
-			path.join( __dirname, '../modules/search/dashboard/' ),
+			path.join( __dirname, '../src/js/dashboard/' ),
 			'lodash',
 		],
 		alias: {

@@ -25,6 +25,7 @@
 	"dependencies": {
 		"@automattic/calypso-build": "9.0.0",
 		"@automattic/calypso-color-schemes": "2.1.1",
+		"@automattic/color-studio": "2.5.0",
 		"@automattic/components": "1.0.0-alpha.3",
 		"@automattic/format-currency": "1.0.0-alpha.0",
 		"@automattic/jetpack-analytics": "workspace:^0.1.2-alpha",
@@ -114,7 +115,6 @@
 		"webpack": "5.51.1",
 		"webpack-cli": "4.8.0"
 	},
-	"devDependencies": {},
 	"engines": {
 		"node": "^14.17.6 || ^16.7.0",
 		"pnpm": "^6.5.0",
