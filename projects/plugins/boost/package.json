@@ -1,6 +1,6 @@
 {
 	"name": "jetpack-boost",
-	"version": "1.3.1-alpha",
+	"version": "1.4.0-alpha",
 	"description": "Boost your WordPress site's performance, from the creators of Jetpack",
 	"directories": {
 		"test": "tests"
@@ -8,7 +8,7 @@
 	"dependencies": {
 		"@wordpress/components": "17.0.0",
 		"@wordpress/element": "4.0.1",
-		"jetpack-boost-critical-css-gen": "github:automattic/jetpack-boost-critical-css-gen#release-0.0.1"
+		"jetpack-boost-critical-css-gen": "github:automattic/jetpack-boost-critical-css-gen#release-0.0.2"
 	},
 	"devDependencies": {
 		"@babel/core": "7.15.0",
