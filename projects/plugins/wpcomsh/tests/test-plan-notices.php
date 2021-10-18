@@ -16,10 +16,12 @@ class PlanNoticesTest extends WP_UnitTestCase {
 		Atomic_Persistent_Data::set( 'WPCOM_PLAN', Atomic_Plan_Manager::BUSINESS_PLAN_SLUG );
 		Atomic_Persistent_Data::set( 'WPCOM_PLAN_EXPIRATION', time() + WEEK_IN_SECONDS );
 
+		$plan_date = date( 'F j, Y', time() + WEEK_IN_SECONDS );
+
 		ob_start();
 		wpcomsh_plan_notices();
 		$string = ob_get_clean();
 
-		$this->assertContains( 'expires in 1 week', $string );
+		$this->assertContains( 'expires on ' . $plan_date, $string );
 	}
 }
