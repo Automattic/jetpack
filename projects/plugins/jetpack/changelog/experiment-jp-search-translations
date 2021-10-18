@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Search: fix translations not available for .min.js assets
