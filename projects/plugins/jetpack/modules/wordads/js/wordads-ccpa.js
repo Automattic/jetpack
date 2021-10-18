@@ -108,7 +108,7 @@
 		var value = '1---';
 		var domain =
 			'.wordpress.com' === location.hostname.slice( -14 ) ? '.rootDomain' : location.hostname;
-		cookieLib.setItem( 'usprivacy', value, 365 * 24 * 60 * 60, '/', domain );
+		cookieLib.setItem( 'usprivacy', value, 24 * 60 * 60, '/', domain );
 	};
 
 	var setCcpaAppliesCookie = function ( value ) {
