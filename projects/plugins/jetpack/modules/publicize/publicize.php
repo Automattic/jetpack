@@ -900,7 +900,7 @@ abstract class Publicize_Base {
 			'type'          => 'boolean',
 			'description'   => __( 'Whether or not the Share Post feature is enabled.', 'jetpack' ),
 			'single'        => true,
-			'default'       => false,
+			'default'       => true,
 			'show_in_rest'  => array(
 				'name' => 'jetpack_publicize_feature_enabled',
 			),
