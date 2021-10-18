@@ -63,6 +63,23 @@ class Jetpack_Search_Options {
 		return true === (bool) get_option( 'instant_search_enabled' );
 	}
 
+	public static function is_module_enabled() {
+		$active_modules = Jetpack_Options::get_option( 'active_modules' );
+		$active_modules = $active_modules === false ? array() : $active_modules;
+		/**
+		 * Allow filtering of the active modules.
+		 *
+		 * Gives theme and plugin developers the power to alter the modules that
+		 * are activated on the fly.
+		 *
+		 * @since 5.8.0
+		 *
+		 * @param array $active Array of active module slugs.
+		 */
+		$active_modules = apply_filters( 'jetpack_active_modules', $active_modules );
+		return in_array( 'search', $active_modules, true );
+	}
+
 	/**
 	 * Returns a boolean for whether the current site has a VIP index.
 	 *

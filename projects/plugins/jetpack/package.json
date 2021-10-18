@@ -31,6 +31,7 @@
 		"build-search": "pnpm run clean-search && pnpm run build-search-app && pnpm run build-search-configure",
 		"build-search-app": "webpack --config ./tools/webpack.config.search.js",
 		"build-search-configure": "webpack --config ./tools/webpack.config.search-configure.js",
+		"build-search-dashboard": "webpack --config ./tools/webpack.config.search-dashboard.js",
 		"build-widget-visibility": "webpack --config ./tools/webpack.config.widget-visibility.js",
 		"clean": "pnpm run clean-client && pnpm run clean-extensions && pnpm run clean-composer",
 		"clean-client": "rm -rf _inc/build/ css/",
