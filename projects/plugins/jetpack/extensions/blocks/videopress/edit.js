@@ -26,7 +26,7 @@ import {
 } from '@wordpress/block-editor';
 import { Component, createRef, Fragment } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import { Icon, pencil, help } from '@wordpress/icons';
+import { Icon, pencil } from '@wordpress/icons';
 import classnames from 'classnames';
 import { get, indexOf } from 'lodash';
 
@@ -239,19 +239,6 @@ const VideoPressEdit = CoreVideoEdit =>
 			);
 		}
 
-		renderControlLabelWithTooltipIcon( label, tooltipText ) {
-			return (
-				<Fragment>
-					<span>{ label }</span>
-					<Tooltip text={ tooltipText } position="top">
-						<span>
-							<Icon icon={ help } style={ { verticalAlign: 'middle' } } />
-						</span>
-					</Tooltip>
-				</Fragment>
-			);
-		}
-
 		onChangeRating = rating => {
 			const { id } = this.props.attributes;
 			const originalRating = this.state.rating;
@@ -329,7 +316,7 @@ const VideoPressEdit = CoreVideoEdit =>
 								label={ this.renderControlLabelWithTooltip(
 									__( 'Loop', 'jetpack' ),
 									/* translators: Tooltip describing the "loop" option for the VideoPress player */
-									__( 'Restart the video when reaching the end', 'jetpack' )
+									__( 'Restarts the video when it reaches the end', 'jetpack' )
 								) }
 								onChange={ this.toggleAttribute( 'loop' ) }
 								checked={ loop }
@@ -343,7 +330,7 @@ const VideoPressEdit = CoreVideoEdit =>
 								label={ this.renderControlLabelWithTooltip(
 									__( 'Playback Controls', 'jetpack' ),
 									/* translators: Tooltip describing the "controls" option for the VideoPress player */
-									__( 'Display the video playback controls (play, pause, …)', 'jetpack' )
+									__( 'Display the video playback controls', 'jetpack' )
 								) }
 								onChange={ this.toggleAttribute( 'controls' ) }
 								checked={ controls }
@@ -352,16 +339,13 @@ const VideoPressEdit = CoreVideoEdit =>
 								label={ this.renderControlLabelWithTooltip(
 									__( 'Play Inline', 'jetpack' ),
 									/* translators: Tooltip describing the "playsinline" option for the VideoPress player */
-									__(
-										'Play the video in place instead of full screen on mobile devices',
-										'jetpack'
-									)
+									__( 'Play the video inline instead of full-screen on mobile devices', 'jetpack' )
 								) }
 								onChange={ this.toggleAttribute( 'playsinline' ) }
 								checked={ playsinline }
 							/>
 							<SelectControl
-								label={ this.renderControlLabelWithTooltipIcon(
+								label={ this.renderControlLabelWithTooltip(
 									__( 'Preload', 'jetpack' ),
 									/* translators: Tooltip describing the "preload" option for the VideoPress player */
 									__( 'Content to dowload before the video is played', 'jetpack' )
