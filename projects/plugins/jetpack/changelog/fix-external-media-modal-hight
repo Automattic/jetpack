@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fixes a bug where the external media modal collapsed on larger screens and did not leave enough whitespace.
