@@ -1,4 +1,4 @@
 Significance: minor
 Type: compat
 
-For videos uploaded to VideoPress, the originally uploaded video file will be played in all non-VideoPress players. The Video URL field in the Media Library will be a link to the originally uploaded video file.
+For videos uploaded to VideoPress, the originally uploaded video file will be played in all non-VideoPress players. The File URL field in the Media Library will be a link to the originally uploaded video file.
