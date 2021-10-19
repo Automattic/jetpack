@@ -4,6 +4,8 @@
 import React, { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Dashicon } from '@wordpress/components';
+import { compose } from '@wordpress/compose';
+import { withSelect, withDispatch } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Spinner } from '@automattic/jetpack-components';
@@ -11,6 +13,7 @@ import { Spinner } from '@automattic/jetpack-components';
 /**
  * Internal dependencies
  */
+import { STORE_ID } from '../../state/store';
 import extractHostname from '../../tools/extract-hostname';
 
 /**
@@ -19,15 +22,18 @@ import extractHostname from '../../tools/extract-hostname';
  * @param {object} props - The properties.
  * @param {string} props.wpcomHomeUrl - The original site URL.
  * @param {string} props.currentUrl - The current site URL.
+ * @param {boolean} props.isActionInProgress - Whether there's already an action in progress.
+ * @param {Function} props.setIsActionInProgress - Function to set the "action in progress" flag.
  * @returns {React.Component} The `ConnectScreen` component.
  */
 const CardFresh = props => {
 	const wpcomHostName = extractHostname( props.wpcomHomeUrl );
 	const currentHostName = extractHostname( props.currentUrl );
+	const { isActionInProgress, setIsActionInProgress } = props;
 
 	const buttonLabel = __( 'Create a fresh connection', 'jetpack' );
 
-	const [ isInProgress, setIsInProgress ] = useState( false );
+	const [ isStartingFresh, setIsStartingFresh ] = useState( false );
 
 	/**
 	 * Initiate the migration.
@@ -36,12 +42,16 @@ const CardFresh = props => {
 	 * @todo Add the actual migration functionality.
 	 */
 	const doStartFresh = useCallback( () => {
-		setIsInProgress( true );
+		if ( ! isActionInProgress ) {
+			setIsActionInProgress( true );
+			setIsStartingFresh( true );
 
-		setTimeout( () => {
-			setIsInProgress( false );
-		}, 3000 );
-	}, [ setIsInProgress ] );
+			setTimeout( () => {
+				setIsActionInProgress( false );
+				setIsStartingFresh( false );
+			}, 3000 );
+		}
+	}, [ setIsStartingFresh, isActionInProgress, setIsActionInProgress ] );
 
 	return (
 		<div className="jp-idc-card-action-base">
@@ -75,8 +85,9 @@ const CardFresh = props => {
 					className="jp-idc-card-action-button"
 					label={ buttonLabel }
 					onClick={ doStartFresh }
+					disabled={ isActionInProgress }
 				>
-					{ isInProgress ? <Spinner /> : buttonLabel }
+					{ isStartingFresh ? <Spinner /> : buttonLabel }
 				</Button>
 			</div>
 		</div>
@@ -86,6 +97,19 @@ const CardFresh = props => {
 CardFresh.propTypes = {
 	wpcomHomeUrl: PropTypes.string.isRequired,
 	currentUrl: PropTypes.string.isRequired,
+	isActionInProgress: PropTypes.bool,
+	setIsActionInProgress: PropTypes.func.isRequired,
 };
 
-export default CardFresh;
+export default compose( [
+	withSelect( select => {
+		return {
+			isActionInProgress: select( STORE_ID ).getIsActionInProgress(),
+		};
+	} ),
+	withDispatch( dispatch => {
+		return {
+			setIsActionInProgress: dispatch( STORE_ID ).setIsActionInProgress,
+		};
+	} ),
+] )( CardFresh );

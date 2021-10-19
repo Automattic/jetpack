@@ -135,6 +135,10 @@ function include_compatibility_files() {
 	if ( class_exists( '\Google\Web_Stories\Plugin' ) ) {
 		require_once __DIR__ . '/compatibility/web-stories.php';
 	}
+
+	if ( class_exists( '\Elementor\TemplateLibrary\Source_Local' ) ) {
+		require_once __DIR__ . '/compatibility/elementor.php';
+	}
 }
 
 add_action( 'plugins_loaded', __NAMESPACE__ . '\include_compatibility_files' );
