@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-E2E tests: move search helpers from e2e-commons to plugin e2e checks project

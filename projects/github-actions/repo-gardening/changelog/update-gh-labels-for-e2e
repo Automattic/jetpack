@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Update regex for e2e tests paths to add relevant labels in PRs

@@ -4,13 +4,17 @@
 import React, { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Dashicon } from '@wordpress/components';
+import { compose } from '@wordpress/compose';
+import { withDispatch, withSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import restApi from '@automattic/jetpack-api';
 import { Spinner } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
+import { STORE_ID } from '../../state/store';
 import extractHostname from '../../tools/extract-hostname';
 
 /**
@@ -19,11 +23,18 @@ import extractHostname from '../../tools/extract-hostname';
  * @param {object} props - The properties.
  * @param {string} props.wpcomHomeUrl - The original site URL.
  * @param {string} props.currentUrl - The current site URL.
+ * @param {Function} props.onMigrated - The callback to be called when migration has completed.
+ * @param {boolean} props.isActionInProgress - Whether there's already an action in progress.
+ * @param {Function} props.setIsActionInProgress - Function to set the "action in progress" flag.
  * @returns {React.Component} The `ConnectScreen` component.
  */
 const CardMigrate = props => {
 	const wpcomHostName = extractHostname( props.wpcomHomeUrl );
 	const currentHostName = extractHostname( props.currentUrl );
+
+	const { isActionInProgress, setIsActionInProgress } = props;
+
+	const { onMigrated } = props;
 
 	const buttonLabel = __( 'Move your settings', 'jetpack' );
 
@@ -36,12 +47,26 @@ const CardMigrate = props => {
 	 * @todo Add the actual migration functionality.
 	 */
 	const doMigrate = useCallback( () => {
-		setIsMigrating( true );
+		if ( ! isActionInProgress ) {
+			setIsActionInProgress( true );
+			setIsMigrating( true );
 
-		setTimeout( () => {
-			setIsMigrating( false );
-		}, 3000 );
-	}, [ setIsMigrating ] );
+			restApi
+				.migrateIDC()
+				.then( () => {
+					setIsMigrating( false );
+
+					if ( onMigrated && {}.toString.call( onMigrated ) === '[object Function]' ) {
+						onMigrated();
+					}
+				} )
+				.catch( error => {
+					setIsActionInProgress( false );
+					setIsMigrating( false );
+					throw error;
+				} );
+		}
+	}, [ setIsMigrating, onMigrated, isActionInProgress, setIsActionInProgress ] );
 
 	return (
 		<div className="jp-idc-card-action-base">
@@ -71,7 +96,12 @@ const CardMigrate = props => {
 				<Dashicon icon="arrow-down-alt" className="jp-idc-card-action-separator" />
 				<div className="jp-idc-card-action-sitename">{ currentHostName }</div>
 
-				<Button className="jp-idc-card-action-button" label={ buttonLabel } onClick={ doMigrate }>
+				<Button
+					className="jp-idc-card-action-button"
+					label={ buttonLabel }
+					onClick={ doMigrate }
+					disabled={ isActionInProgress }
+				>
 					{ isMigrating ? <Spinner /> : buttonLabel }
 				</Button>
 			</div>
@@ -82,6 +112,20 @@ const CardMigrate = props => {
 CardMigrate.propTypes = {
 	wpcomHomeUrl: PropTypes.string.isRequired,
 	currentUrl: PropTypes.string.isRequired,
+	onMigrated: PropTypes.func,
+	isActionInProgress: PropTypes.bool,
+	setIsActionInProgress: PropTypes.func.isRequired,
 };
 
-export default CardMigrate;
+export default compose( [
+	withSelect( select => {
+		return {
+			isActionInProgress: select( STORE_ID ).getIsActionInProgress(),
+		};
+	} ),
+	withDispatch( dispatch => {
+		return {
+			setIsActionInProgress: dispatch( STORE_ID ).setIsActionInProgress,
+		};
+	} ),
+] )( CardMigrate );

@@ -1,7 +1,7 @@
 {
 	"extends": "@tsconfig/svelte/tsconfig.json",
-	"include": [ "app/assets/src/**/*" ],
-	"exclude": [ "node_modules/*", "app/assets/dist/*", "tests/integration/**/*" ],
+	"include": [ "app/assets/src/js/**/*" ],
+	"exclude": [ "node_modules/*", "app/assets/dist/*", "tests/e2e/*" ],
 	"compilerOptions": {
 		"types": [ "svelte" ],
 		"typeRoots": [ "./node_modules/@types/", "./app/assets/src/js" ],

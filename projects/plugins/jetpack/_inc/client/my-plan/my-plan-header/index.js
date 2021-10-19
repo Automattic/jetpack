@@ -31,8 +31,8 @@ import {
 import License from './license';
 import MyPlanCard from '../my-plan-card';
 
-const BACKUP_STORAGE_GB = 200;
-const BACKUP_PRO_STORAGE_TB = 2;
+const BACKUP_STORAGE_GB = 10;
+const BACKUP_PRO_STORAGE_TB = 1;
 
 class MyPlanHeader extends React.Component {
 	getProductProps( productSlug ) {

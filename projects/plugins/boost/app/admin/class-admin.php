@@ -168,7 +168,7 @@ class Admin {
 	 * @param array $links the array of links.
 	 */
 	public function plugin_page_settings_link( $links ) {
-		$settings_link = '<a href="' . admin_url( '?page=jetpack-boost' ) . '">' . esc_html__( 'Settings', 'jetpack-boost' ) . '</a>';
+		$settings_link = '<a href="' . admin_url( 'admin.php?page=jetpack-boost' ) . '">' . esc_html__( 'Settings', 'jetpack-boost' ) . '</a>';
 		array_unshift( $links, $settings_link );
 
 		return $links;
