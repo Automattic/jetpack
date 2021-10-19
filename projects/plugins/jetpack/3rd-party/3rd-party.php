@@ -51,9 +51,18 @@ function load_3rd_party() {
  */
 function atomic_weekly_override( $development_version ) {
 	if ( Constants::is_true( 'ATOMIC_SITE_ID' ) && Constants::is_true( 'ATOMIC_CLIENT_ID' ) ) {
-		return false;
+		$haystack = Constants::get_constant( 'JETPACK__PLUGIN_DIR' );
+		$needle   = '/jetpack-dev/';
+		if (
+			( function_exists( 'str_ends_with' ) && str_ends_with( $haystack, $needle ) ) ||
+			0 === substr_compare( $haystack, $needle, strlen( $needle ) )
+		) {
+			return $development_version; // Returns the default response if the active Jetpack version is from the beta plugin.
+		}
+
+		$development_version = false; // Returns false for regular installs on Atomic.
 	}
-	return $development_version;
+	return $development_version; // Return default if not on Atomic.
 }
 
 load_3rd_party();
