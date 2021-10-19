@@ -544,3 +544,15 @@ export function contentAttributesChanged( state, prevProps, props ) {
 export function getConnections() {
 	return select( editorStore ).getEditedPostAttribute( 'jetpack_publicize_connections' ) || [];
 }
+
+/**
+ * Return True if Publicize Feature is enabled.
+ * Otherwise, return False.
+ *
+ * @returns {boolean} Whether or not the publicize feature is enabled.
+ */
+export function getFeatureEnableState() {
+	const { getEditedPostAttribute } = select( editorStore );
+	const meta = getEditedPostAttribute( 'meta' );
+	return get( meta, [ 'jetpack_publicize_feature_enabled' ], true );
+}
