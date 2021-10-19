@@ -4,7 +4,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -67,6 +67,7 @@ export default function useSharePost( callback, deps = [] ) {
 	const { message } = useSocialMediaMessage();
 	const { connections } = useSocialMediaConnections();
 	const currentPostId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
+	const [ isFetching, setIsFetching ] = useState( false );
 
 	const skipConnectionIds = connections
 		.filter( connection => ! connection.enabled )
@@ -75,6 +76,8 @@ export default function useSharePost( callback, deps = [] ) {
 	const onPostShareHander = useCallback(
 		function ( { postId } = {} ) {
 			postId = postId || currentPostId;
+
+			setIsFetching( true );
 
 			apiFetch( {
 				path: `/wpcom/v2/posts/${ postId }/publicize`,
@@ -97,13 +100,14 @@ export default function useSharePost( callback, deps = [] ) {
 				} )
 				.catch( error => {
 					callback( getHumanReadableError( error ) );
+				} )
+				.finally( () => {
+					setIsFetching( false );
 				} );
 		},
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[ callback, currentPostId, message, skipConnectionIds, deps ]
+		[ callback, currentPostId, message, skipConnectionIds, setIsFetching, deps ]
 	);
 
-	return {
-		onPostShareHander,
-	};
+	return { onPostShareHander, isFetching };
 }

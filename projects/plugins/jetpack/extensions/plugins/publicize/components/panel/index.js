@@ -100,7 +100,7 @@ const PublicizePanel = ( { prePublish } ) => {
 
 	// Testing post sharing function handler.
 	// @TODO: replace with the final implementation
-	const { onPostShareHander } = useSharePost( function ( error, results ) {
+	const { isFetching, onPostShareHander } = useSharePost( function ( error, results ) {
 		if ( error ) {
 			// eslint-disable-next-line no-console
 			return console.log( { error } );
@@ -109,6 +109,9 @@ const PublicizePanel = ( { prePublish } ) => {
 		// eslint-disable-next-line no-console
 		console.log( 'results: ', { results } );
 	} );
+
+	// eslint-disable-next-line no-console
+	console.log( 'isFetching: ', isFetching );
 
 	return (
 		<PanelBody title={ __( 'Share this post', 'jetpack' ) }>
