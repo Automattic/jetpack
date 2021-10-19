@@ -4,7 +4,7 @@
 ( function () {
 	/* global ccpaSettings */
 
-	// Minimal Mozilla Cookie library
+	// Minimal Mozilla Cookie library.
 	// https://developer.mozilla.org/en-US/docs/Web/API/Document/cookie/Simple_document.cookie_framework
 	var cookieLib = {
 		getItem: function ( e ) {
@@ -60,16 +60,18 @@
 
 	// Implement IAB USP API.
 	window.__uspapi = function ( command, version, callback ) {
+		// Validate callback.
 		if ( typeof callback !== 'function' ) {
 			return;
 		}
 
+		// Validate the given command.
 		if ( command !== 'getUSPData' || version !== 1 ) {
 			callback( null, false );
 			return;
 		}
 
-		// Check for GPC.
+		// Check for GPC. If set, override any stored cookie.
 		if ( navigator.globalPrivacyControl ) {
 			callback( { version: 1, uspString: '1YYN' }, true );
 			return;
@@ -78,19 +80,35 @@
 		// Check for cookie.
 		var consent = cookieLib.getItem( 'usprivacy' );
 
+		// Invalid cookie.
 		if ( null === consent ) {
 			callback( null, false );
 			return;
 		}
 
+		// Everything checks out. Fire the provided callback with the consent data.
 		callback( { version: 1, uspString: consent }, true );
 	};
 
 	var setDefaultOptInCookie = function () {
-		var value = ccpaSettings.defaultOptinCookieString;
+		var value = ccpaSettings.defaultOptInCookieString;
 		var domain =
 			'.wordpress.com' === location.hostname.slice( -14 ) ? '.rootDomain' : location.hostname;
 		cookieLib.setItem( 'usprivacy', value, 365 * 24 * 60 * 60, '/', domain );
+	};
+
+	var setDefaultOptOutCookie = function () {
+		var value = ccpaSettings.defaultOptOutCookieString;
+		var domain =
+			'.wordpress.com' === location.hostname.slice( -14 ) ? '.rootDomain' : location.hostname;
+		cookieLib.setItem( 'usprivacy', value, 24 * 60 * 60, '/', domain );
+	};
+
+	var setDefaultNotApplicableCookie = function () {
+		var value = '1---';
+		var domain =
+			'.wordpress.com' === location.hostname.slice( -14 ) ? '.rootDomain' : location.hostname;
+		cookieLib.setItem( 'usprivacy', value, 24 * 60 * 60, '/', domain );
 	};
 
 	var setCcpaAppliesCookie = function ( value ) {
@@ -174,12 +192,11 @@
 						);
 					} );
 
-					// need to init status based on cookie
+					// Set initial toggle status based on cookie data.
 					var usprivacyCookie = cookieLib.getItem( 'usprivacy' );
-
 					var optout = usprivacyCookie && 'Y' === usprivacyCookie[ 2 ];
-
 					var toggle = document.querySelector( '#ccpa-modal .opt-out' );
+
 					toggle.checked = optout;
 
 					if ( optout ) {
@@ -200,19 +217,47 @@
 		request.send();
 	};
 
-	var doNotSellCallback = function () {
+	var dispatchInitializedEvent = function ( ccpaApplies ) {
+		// Dispatches a custom event with data indicating if the CCPA applies or not once it has been determined.
+		// Sites can listen for this event and do additional processing, e.g. showing or hiding additional elements.
+		var event = document.createEvent( 'CustomEvent' );
+		event.initCustomEvent( 'wordads-ccpa-initialized', true, false, { ccpaApplies: ccpaApplies } );
+		document.dispatchEvent( event );
+	};
+
+	var initialize = function ( ccpaApplies, usprivacyCookie ) {
+		// Get any Do Not Sell links on the page.
 		var dnsLinks = document.querySelectorAll( '.ccpa-do-not-sell' );
 
-		if ( 0 === dnsLinks.length ) {
-			return false;
+		// No usprivacy cookie, so we need to set it.
+		if ( null === usprivacyCookie ) {
+			if ( ccpaApplies ) {
+				if ( 0 === dnsLinks.length ) {
+					// Could not find a Do Not Sell link as required, so default to opt-OUT just to be safe.
+					setDefaultOptOutCookie();
+				} else {
+					// Found a Do Not Sell link, so set default opt-in.
+					setDefaultOptInCookie();
+				}
+			} else {
+				// CCPA does not apply.
+				setDefaultNotApplicableCookie();
+			}
 		}
 
+		// If CCPA does not apply, and we are not overriding it for admins, then we can stop here.
+		if ( ! ccpaApplies && 'false' === ccpaSettings.forceApplies ) {
+			dispatchInitializedEvent( false );
+			return;
+		}
+
+		// Displays Do Not Sell links and adds handlers to display the modal when clicked.
 		Array.prototype.forEach.call( dnsLinks, function ( dnsLink ) {
 			dnsLink.addEventListener( 'click', function ( e ) {
 				e.preventDefault();
 
 				if ( ! ccpaSettings.stylesLoaded ) {
-					// Load wordads-ccpa.min.css
+					// Load wordads-ccpa.min.css.
 					var ccpaCss = document.createElement( 'link' );
 					ccpaCss.rel = 'stylesheet';
 					ccpaCss.type = 'text/css';
@@ -225,25 +270,39 @@
 				injectModal();
 			} );
 
+			// Make the link visible.
 			dnsLink.style.display = '';
 		} );
 
-		return true;
+		// CCPA applies (or we're forcing it to display for admins). Let any listeners know.
+		dispatchInitializedEvent( true );
 	};
 
-	// Initialization.
+	// Setup CCPA on DOM loaded.
 	document.addEventListener( 'DOMContentLoaded', function () {
-		// CCPA consent value storage.
+		// Look for usprivacy cookies first.
 		var usprivacyCookie = cookieLib.getItem( 'usprivacy' );
 
+		// Found a usprivacy cookie.
 		if ( null !== usprivacyCookie ) {
-			doNotSellCallback();
+			// CCPA does not apply.
+			if ( '1---' === usprivacyCookie ) {
+				initialize( false, usprivacyCookie );
+			} else {
+				// CCPA applies.
+				initialize( true, usprivacyCookie );
+			}
+
+			// No more processing needed.
 			return;
 		}
 
-		// Cache for geo location.
+		// We don't have a usprivacy cookie, so check to see if we have a CCPA applies cookie.
 		var ccpaCookie = cookieLib.getItem( 'ccpa_applies' );
 
+		// No CCPA applies cookie found, so we'll need to geolocate if this visitor is from California.
+		// This needs to happen client side because we do not have region geo data in our $SERVER headers,
+		// only country data -- therefore we can't vary cache on the region.
 		if ( null === ccpaCookie ) {
 			var request = new XMLHttpRequest();
 			request.open( 'GET', 'https://public-api.wordpress.com/geo/', true );
@@ -251,39 +310,30 @@
 			request.onreadystatechange = function () {
 				if ( 4 === this.readyState ) {
 					if ( 200 === this.status ) {
+						// Got a geo response. Parse out the region data.
 						var data = JSON.parse( this.response );
-						var ccpa_applies = data[ 'region' ] && data[ 'region' ].toLowerCase() === 'california';
+						var ccpaApplies = data.region && 'california' === data.region.toLowerCase();
 
-						setCcpaAppliesCookie( ccpa_applies );
+						// Set CCPA applies cookie. This keeps us from having to make a geo request too frequently.
+						setCcpaAppliesCookie( ccpaApplies );
 
-						if ( ccpa_applies ) {
-							if ( doNotSellCallback() ) {
-								setDefaultOptInCookie();
-							}
-						}
+						// Perform the rest of the initialization.
+						initialize( ccpaApplies, null );
 					} else {
+						// Geolocation request failed, so default to CCPA applies just to be safe.
 						setCcpaAppliesCookie( true );
 
-						if ( doNotSellCallback() ) {
-							setDefaultOptInCookie();
-						}
+						// Perform the rest of the initialization.
+						initialize( true, null );
 					}
 				}
 			};
 
+			// Send the geo request.
 			request.send();
 		} else {
-			if ( ccpaCookie === 'true' ) {
-				if ( doNotSellCallback() ) {
-					setDefaultOptInCookie();
-				}
-			}
-		}
-
-		// Check for override for site admins.
-		if ( 'true' === ccpaSettings.forceApplies ) {
-			doNotSellCallback();
-			return;
+			// We found a CCPA applies cookie. Continue with initialization.
+			initialize( 'true' === ccpaCookie, null );
 		}
 	} );
 } )();

@@ -429,6 +429,11 @@ function JetpackRestApiClient( root, nonce ) {
 			postRequest( `${ apiRoot }jetpack/v4/identity-crisis/confirm-safe-mode`, postParams ).then(
 				checkStatus
 			),
+
+		migrateIDC: () =>
+			postRequest( `${ apiRoot }jetpack/v4/identity-crisis/migrate`, postParams ).then(
+				checkStatus
+			),
 	};
 
 	/**
