@@ -593,7 +593,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "a3c652c7125446cf95e3cfa75b33f262d95e572a"
+                "reference": "a9cabeec4cf44cc53b5dda1e726b55444f1b0d2e"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.30",
@@ -619,7 +619,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-identity-crisis/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "0.2.x-dev"
+                    "dev-master": "0.3.x-dev"
                 }
             },
             "autoload": {
@@ -966,13 +966,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "bd28b3296769113bdacf4af5a5a669717aeb4d56"
+                "reference": "3a03fafdc056dbe1d4b89bd62423b1d77f2da44e"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.30",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-heartbeat": "^1.3",
-                "automattic/jetpack-identity-crisis": "^0.2",
+                "automattic/jetpack-identity-crisis": "^0.3",
                 "automattic/jetpack-options": "^1.13",
                 "automattic/jetpack-password-checker": "^0.1",
                 "automattic/jetpack-roles": "^1.4",
