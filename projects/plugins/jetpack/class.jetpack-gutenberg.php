@@ -684,7 +684,7 @@ class Jetpack_Gutenberg {
 					'is_private_site'           => '-1' === get_option( 'blog_public' ),
 					'is_offline_mode'           => $status->is_offline_mode(),
 					/**
-					 * Enable the RePublicize UI in wp-admin.
+					 * Enable the RePublicize UI in the block editor context.
 					 *
 					 * @module publicize
 					 *
