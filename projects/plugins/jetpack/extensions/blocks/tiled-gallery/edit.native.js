@@ -26,19 +26,26 @@ import { useResizeObserver } from '@wordpress/compose';
 import { ALLOWED_MEDIA_TYPES } from './constants';
 import { icon } from '.';
 import styles from './styles.scss';
-import TiledGallerySettings from './settings';
+import TiledGallerySettings, { DEFAULT_COLUMNS } from './settings';
 
 const TILE_SPACING = 8;
 
-export function defaultColumnsNumber( attributes ) {
-	return Math.min( 3, attributes.images.length );
+export function defaultColumnsNumber( images ) {
+	return Math.min( 3, images.length );
 }
 
 const TiledGalleryEdit = props => {
 	const [ resizeObserver, sizes ] = useResizeObserver();
 	const [ maxWidth, setMaxWidth ] = useState( 0 );
 
-	const { className, clientId, noticeUI, onFocus } = props;
+	const {
+		className,
+		clientId,
+		noticeUI,
+		onFocus,
+		setAttributes,
+		attributes: { columns, linkTo, roundedCorners },
+	} = props;
 
 	const { replaceInnerBlocks } = useDispatch( blockEditorStore );
 
@@ -46,8 +53,13 @@ const TiledGalleryEdit = props => {
 		const { width } = sizes || {};
 		if ( width ) {
 			setMaxWidth( width );
+
+			if ( columns ) {
+				const columnWidths = new Array( columns ).fill( Math.floor( width / columns ) );
+				setAttributes( { columnWidths: [ columnWidths ] } );
+			}
 		}
-	}, [ sizes ] );
+	}, [ sizes, columns, setAttributes ] );
 
 	const innerBlockImages = useSelect(
 		select => {
@@ -81,6 +93,13 @@ const TiledGalleryEdit = props => {
 		replaceInnerBlocks( clientId, concat( innerBlockImages, newBlocks ) );
 	};
 
+	useEffect( () => {
+		if ( ! columns ) {
+			const col = Math.min( images.length, DEFAULT_COLUMNS );
+			setAttributes( { columns: Math.max( col, 1 ) } );
+		}
+	}, [ images, columns, setAttributes ] );
+
 	const innerBlocksProps = useInnerBlocksProps(
 		{},
 		{
@@ -88,12 +107,12 @@ const TiledGalleryEdit = props => {
 			allowedBlocks: [ 'core/image' ],
 			orientation: 'horizontal',
 			renderAppender: false,
-			numColumns: 3,
+			numColumns: columns,
 			marginHorizontal: TILE_SPACING,
 			marginVertical: TILE_SPACING,
 			__experimentalLayout: { type: 'default', alignments: [] },
 			gridProperties: {
-				numColumns: 3,
+				numColumns: columns,
 			},
 			parentWidth: maxWidth + 2 * TILE_SPACING,
 		}
@@ -125,7 +144,12 @@ const TiledGalleryEdit = props => {
 	return (
 		<View blockProps={ blockProps }>
 			{ resizeObserver }
-			<TiledGallerySettings />
+			<TiledGallerySettings
+				setAttributes={ props.setAttributes }
+				linkTo={ linkTo }
+				columns={ columns }
+				roundedCorners={ roundedCorners }
+			/>
 			<View { ...innerBlocksProps } />
 			<View style={ [ styles.galleryAppender ] }>{ mediaPlaceholder }</View>
 		</View>
