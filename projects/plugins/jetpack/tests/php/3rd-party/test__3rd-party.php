@@ -26,9 +26,7 @@ class WP_Test_Third_Party_Support extends WP_UnitTestCase {
 	 * Clean up tests.
 	 */
 	public function tear_down() {
-		Constants::clear_single_constant( 'ATOMIC_SITE_ID' );
-		Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
-		Constants::clear_single_constant( 'JETPACK__VERSION', '10.3-a.1' );
+		Constants::clear_constants();
 		parent::tear_down();
 	}
 
@@ -46,6 +44,18 @@ class WP_Test_Third_Party_Support extends WP_UnitTestCase {
 		Constants::set_constant( 'JETPACK__PLUGIN_DIR', '/srv/www/public/wp-content/plugins/jetpack-dev/' );
 		$this->assertTrue( Jetpack::is_development_version() );
 		Constants::clear_single_constant( 'JETPACK__PLUGIN_DIR' );
+	}
+
+	/**
+	 * Test that Development Versions via the Beta plugin are still considered as Development versions.
+	 */
+	public function test_atomic_returns_expected_if_not_on_atomic() {
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', false );
+		Constants::set_constant( 'ATOMIC_SITE_ID', false );
+		$this->assertTrue( Jetpack::is_development_version() );
+
+		Constants::set_constant( 'JETPACK__VERSION', '10.3.0' );
+		$this->assertFalse( Jetpack::is_development_version() );
 	}
 
 }
