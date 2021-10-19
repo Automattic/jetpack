@@ -64,7 +64,11 @@
 		"prettier:fix": "prettier --write --plugin-search-dir=. ./**/*.svelte",
 		"lint": "pnpm run prettier && echo 'Running eslint...' && eslint app/assets/src/js && pnpm run validate -- --threshold warning && echo '✔ prettier, eslint and svelte validate ran successfully.'",
 		"lint:fix": "pnpm run prettier:fix && echo 'Running eslint...' && eslint app/assets/src/js --fix && pnpm run validate -- --threshold warning && echo '✔ prettier fix, eslint fix and svelte validate ran successfully.'",
-		"clear-dist": "rm -rf app/assets/dist/*"
+		"clear-dist": "rm -rf app/assets/dist/*",
+		"test-e2e:start": "pnpm --prefix tests/e2e run tunnel-on && pnpm --prefix tests/e2e run env-start",
+		"test-e2e:run": "pnpm --prefix tests/e2e run test-e2e",
+		"test-e2e:stop": "pnpm --prefix tests/e2e run tunnel-off && pnpm --prefix tests/e2e run env-stop",
+		"test-e2e:decrypt-config": "pnpm --prefix tests/e2e run test-decrypt-config"
 	},
 	"private": true,
 	"repository": {
