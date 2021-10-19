@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3822a7ac4e53bf739b8f0826886cc93e",
+    "content-hash": "aec129c0075202bd17d1adbd2719e13b",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -451,16 +451,16 @@
         },
         {
             "name": "automattic/jetpack-connection-ui",
-            "version": "v1.5.2",
+            "version": "v1.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-connection-ui.git",
-                "reference": "66dc48bf3c1d9531792c9d3cb08a7e1354f1edb3"
+                "reference": "be40cbab419791ce398eab701f3b1dc8340f6c24"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-connection-ui/zipball/66dc48bf3c1d9531792c9d3cb08a7e1354f1edb3",
-                "reference": "66dc48bf3c1d9531792c9d3cb08a7e1354f1edb3",
+                "url": "https://api.github.com/repos/Automattic/jetpack-connection-ui/zipball/be40cbab419791ce398eab701f3b1dc8340f6c24",
+                "reference": "be40cbab419791ce398eab701f3b1dc8340f6c24",
                 "shasum": ""
             },
             "require": {
@@ -469,7 +469,7 @@
                 "automattic/jetpack-device-detection": "^1.4"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^3.0"
+                "automattic/jetpack-changelogger": "^2.0"
             },
             "type": "library",
             "extra": {
@@ -479,7 +479,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection-ui/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.5.x-dev"
+                    "dev-master": "1.4.x-dev"
                 }
             },
             "autoload": {
@@ -493,9 +493,9 @@
             ],
             "description": "Jetpack Connection UI",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-connection-ui/tree/v1.5.2"
+                "source": "https://github.com/Automattic/jetpack-connection-ui/tree/v1.4.1"
             },
-            "time": "2021-10-19T10:39:58+00:00"
+            "time": "2021-09-28T18:20:06+00:00"
         },
         {
             "name": "automattic/jetpack-constants",

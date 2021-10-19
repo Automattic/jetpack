@@ -20,7 +20,7 @@
 		"automattic/jetpack-compat": "^1.6",
 		"automattic/jetpack-config": "^1.5",
 		"automattic/jetpack-connection": "^1.30",
-		"automattic/jetpack-connection-ui": "^1.4",
+		"automattic/jetpack-connection-ui": "1.4.1",
 		"automattic/jetpack-constants": "^1.6",
 		"automattic/jetpack-device-detection": "^1.4",
 		"automattic/jetpack-error": "^1.3",
