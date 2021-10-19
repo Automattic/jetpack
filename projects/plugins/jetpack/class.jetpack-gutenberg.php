@@ -690,7 +690,7 @@ class Jetpack_Gutenberg {
 					 *
 					 * @since 10.3.0
 					 *
-					 * @param boom false Enable the RePublicize UI in wp-admin. defaults to false.
+					 * @param bool false Enable the RePublicize UI in wp-admin. Defaults to false.
 					 */
 					'republicize_enabled'       => apply_filters( 'jetpack_block_editor_republicize_feature', false ),
 				),
