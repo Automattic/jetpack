@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Improve e2e tooling for better support from other plugins making use of the Jetpack e2e framework

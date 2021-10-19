@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix permission check for authorization_url endpoint.

@@ -25,6 +25,10 @@ function ToggleConnectionControl() {
 
 The connections list for the site.
 
+### hasConnections
+
+Boolean value that is True when there are available connections. Otherwise, False.
+
 ### refresh()
 
 This method will refresh and save the current post in order to propagate the metadata where the connections store.
