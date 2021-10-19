@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+publicize: do not disable connection toggle after sharing
