@@ -19,6 +19,8 @@ jobs:
     name: "Jetpack Boost E2E tests"
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    env:
+      TEST_SITE: boost
 
     steps:
       - uses: actions/checkout@v2
@@ -85,6 +87,7 @@ jobs:
     env:
       CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
       GITHUB_CONTEXT: ${{ toJson(github) }}
+      TEST_SITE: boost
 
     steps:
       - uses: actions/checkout@v2
