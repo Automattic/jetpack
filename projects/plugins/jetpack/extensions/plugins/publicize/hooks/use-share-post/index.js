@@ -73,7 +73,7 @@ export default function useSharePost( callback, deps = [] ) {
 		.filter( connection => ! connection.enabled )
 		.map( connection => connection.id );
 
-	const onPostShareHander = useCallback(
+	const onSharePostHandler = useCallback(
 		function ( { postId } = {} ) {
 			postId = postId || currentPostId;
 
@@ -109,5 +109,5 @@ export default function useSharePost( callback, deps = [] ) {
 		[ callback, currentPostId, message, skipConnectionIds, setIsFetching, deps ]
 	);
 
-	return { onPostShareHander, isFetching };
+	return { onSharePostHandler, isFetching };
 }

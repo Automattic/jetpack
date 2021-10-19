@@ -100,7 +100,7 @@ const PublicizePanel = ( { prePublish } ) => {
 
 	// Testing post sharing function handler.
 	// @TODO: replace with the final implementation
-	const { isFetching, onPostShareHander } = useSharePost( function ( error, results ) {
+	const { isFetching, onSharePostHandler } = useSharePost( function ( error, results ) {
 		if ( error ) {
 			// eslint-disable-next-line no-console
 			return console.log( { error } );
@@ -147,7 +147,7 @@ const PublicizePanel = ( { prePublish } ) => {
 			/>
 			<PublicizeTwitterOptions prePublish={ prePublish } />
 			{ isRePublicizeFeatureEnabled && (
-				<Button isSecondary onClick={ onPostShareHander }>
+				<Button isSecondary onClick={ onSharePostHandler }>
 					{ __( 'Share post', 'jetpack' ) }
 				</Button>
 			) }

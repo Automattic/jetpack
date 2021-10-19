@@ -13,7 +13,7 @@ The returned callback provides two parameters:
 
 ```es6
 function MyComponent() {
-	const { onPostShareHander } = useSharePost( function( error, result ) {
+	const { onSharePostHandler } = useSharePost( function( error, result ) {
 		if ( error ) {
 			return console.error( 'Something went wrong!!!' );
 		}
