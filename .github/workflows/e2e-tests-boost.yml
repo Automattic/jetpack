@@ -8,8 +8,6 @@ on:
     branches: [master]
     paths-ignore:
     - '**.md'
-  schedule:
-    - cron:  '0 */12 * * *'
 concurrency:
   group: e2e-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
