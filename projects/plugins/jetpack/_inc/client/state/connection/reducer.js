@@ -43,6 +43,10 @@ export const status = (
 			return assign( {}, state, { siteConnected: action.siteConnected } );
 		case DISCONNECT_SITE_SUCCESS:
 			return assign( {}, state, { siteConnected: action.siteConnected } );
+		case UNLINK_USER_SUCCESS:
+			return assign( {}, state, {
+				siteConnected: { ...state.siteConnected, isUserConnected: false },
+			} );
 		case USER_CONNECTION_DATA_FETCH_SUCCESS:
 			if ( true === action.userConnectionData?.currentUser?.isConnected ) {
 				return assign( {}, state, {
