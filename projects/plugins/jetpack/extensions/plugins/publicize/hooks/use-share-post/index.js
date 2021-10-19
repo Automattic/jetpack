@@ -72,7 +72,7 @@ export default function useSharePost( callback, deps = [] ) {
 		.filter( connection => ! connection.enabled )
 		.map( connection => connection.id );
 
-	return useCallback(
+	const onPostShareHander = useCallback(
 		function ( { postId } = {} ) {
 			postId = postId || currentPostId;
 
@@ -102,4 +102,8 @@ export default function useSharePost( callback, deps = [] ) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[ callback, currentPostId, message, skipConnectionIds, deps ]
 	);
+
+	return {
+		onPostShareHander,
+	};
 }

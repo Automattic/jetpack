@@ -100,7 +100,7 @@ const PublicizePanel = ( { prePublish } ) => {
 
 	// Testing post sharing function handler.
 	// @TODO: replace with the final implementation
-	const onPostShareHander = useSharePost( function ( error, results ) {
+	const { onPostShareHander } = useSharePost( function ( error, results ) {
 		if ( error ) {
 			// eslint-disable-next-line no-console
 			return console.log( { error } );
