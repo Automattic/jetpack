@@ -67,7 +67,7 @@ class Jetpack_Search_Customberg {
 		// Only load assets if Customberg is supported.
 		if ( $this->wp_supports_customberg() ) {
 			add_action( "admin_print_scripts-$hook", array( $this, 'load_assets' ) );
-			add_action( 'admin_footer', array( 'Helper', 'print_instant_search_sidebar' ) );
+			add_action( 'admin_footer', array( 'Automattic\Jetpack\Search\Helper', 'print_instant_search_sidebar' ) );
 		} else {
 			add_action( "admin_print_scripts-$hook", array( $this, 'add_redirect_if_necessary' ) );
 		}

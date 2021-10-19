@@ -1,6 +1,6 @@
 <?php
 /**
- * Jetpack Search: Jetpack_Search_Widget class
+ * The Jetpack Search widget, which supports both Classic and Instant Search variants.
  *
  * @package    Jetpack
  * @subpackage Jetpack Search
@@ -13,8 +13,13 @@ use Automattic\Jetpack\Search\Options as Jetpack_Search_Options;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
 
+require_once JETPACK__PLUGIN_DIR . 'modules/search/class-jetpack-search-template-tags.php';
+
 add_action( 'widgets_init', 'jetpack_search_widget_init' );
 
+/**
+ * Registers the Jetpack Search widget if supported by the site's curent plan.
+ */
 function jetpack_search_widget_init() {
 	if (
 		! Jetpack::is_connection_ready()
@@ -27,10 +32,9 @@ function jetpack_search_widget_init() {
 }
 
 /**
- * Provides a widget to show available/selected filters on searches.
+ * Defines the Jetpack Search widget.
  *
  * @since 5.0.0
- *
  * @see   WP_Widget
  */
 class Jetpack_Search_Widget extends WP_Widget {
@@ -316,12 +320,14 @@ class Jetpack_Search_Widget extends WP_Widget {
 	public function widget_non_instant( $args, $instance ) {
 		$display_filters = false;
 
+		$blog_id = Jetpack::get_option( 'id' );
+
 		if ( is_search() ) {
 			if ( Jetpack_Search_Helpers::should_rerun_search_in_customizer_preview() ) {
-				Jetpack_Search::instance()->update_search_results_aggregations();
+				Automattic\Jetpack\Search\Classic_Search::instance( $blog_id )->update_search_results_aggregations();
 			}
 
-			$filters = Jetpack_Search::instance()->get_filters();
+			$filters = Automattic\Jetpack\Search\Classic_Search::instance( $blog_id )->get_filters();
 
 			if ( ! Jetpack_Search_Helpers::are_filters_by_widget_disabled() && ! $this->should_display_sitewide_filters() ) {
 				$filters = array_filter( $filters, array( $this, 'is_for_current_widget' ) );
@@ -421,11 +427,13 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * @param array $instance The current widget instance.
 	 */
 	public function widget_instant( $args, $instance ) {
+		$blog_id = Jetpack::get_option( 'id' );
+
 		if ( Jetpack_Search_Helpers::should_rerun_search_in_customizer_preview() ) {
-			Jetpack_Search::instance()->update_search_results_aggregations();
+			Automattic\Jetpack\Search\Instant_Search::instance( $blog_id )->update_search_results_aggregations();
 		}
 
-		$filters = Jetpack_Search::instance()->get_filters();
+		$filters = Automattic\Jetpack\Search\Instant_Search::instance( $blog_id )->get_filters();
 		if ( ! Jetpack_Search_Helpers::are_filters_by_widget_disabled() && ! $this->should_display_sitewide_filters() ) {
 			$filters = array_filter( $filters, array( $this, 'is_for_current_widget' ) );
 		}

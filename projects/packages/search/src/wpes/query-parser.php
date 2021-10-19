@@ -30,7 +30,6 @@
  *
  * Example usage (from Search on Reader Manage):
  *
- *		require_lib( 'jetpack-wpes-query-builder/jetpack-wpes-search-query-parser' );
  *		$parser = new Jetpack_WPES_Search_Query_Parser( $args['q'], array( $lang ) );
  *
  *		//author
@@ -107,10 +106,9 @@
  *
  */
 
-jetpack_require_lib( 'jetpack-wpes-query-builder' );
+namespace Automattic\Jetpack\Search\WPES;
 
-class Jetpack_WPES_Search_Query_Parser extends Jetpack_WPES_Query_Builder {
-
+class Query_Parser extends Query_Builder {
 	protected $orig_query = '';
 	protected $current_query = '';
 	protected $langs;

@@ -1,10 +1,8 @@
 <?php
 /**
- * Jetpack Search: Jetpack_Search_Helpers class
+ * Helper class providing various static utility functions for use in Search.
  *
- * @package    Jetpack
- * @subpackage Jetpack Search
- * @since      5.8.0
+ * @package    automattic/jetpack-search
  */
 
 namespace Automattic\Jetpack\Search;
@@ -696,6 +694,7 @@ class Helper {
 	 * @return bool
 	 */
 	public static function is_valid_locale( $locale ) {
+		// TODO: Replace JETPACK__GLOTPRESS_LOCALES_PATH.
 		if ( ! class_exists( 'GP_Locales' ) ) {
 			if ( defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) && file_exists( JETPACK__GLOTPRESS_LOCALES_PATH ) ) {
 				require JETPACK__GLOTPRESS_LOCALES_PATH;
@@ -715,6 +714,8 @@ class Helper {
 	 * @return string $script_version Version number.
 	 */
 	public static function get_asset_version( $file ) {
+		// TODO: Replace Jetpack:: invocation.
+		// TODO: Replace JETPACK__PLUGIN_DIR and JETPACK__VERSION.
 		return Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . $file )
 			? filemtime( JETPACK__PLUGIN_DIR . $file )
 			: JETPACK__VERSION;
@@ -864,7 +865,7 @@ class Helper {
 			'postsPerPage'          => $posts_per_page,
 			'siteId'                => class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'get_option' ) ? Jetpack::get_option( 'id' ) : get_current_blog_id(),
 			'postTypes'             => $post_type_labels,
-			'webpackPublicPath'     => plugins_url( '_inc/build/instant-search/', JETPACK__PLUGIN_FILE ),
+			'webpackPublicPath'     => plugins_url( '/build/instant-search/', __DIR__ ),
 			'isPhotonEnabled'       => ( $is_wpcom || $is_jetpack_photon_enabled ) && ! $is_private_site,
 
 			// config values related to private site support.
@@ -903,5 +904,27 @@ class Helper {
 			<?php } ?>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Gets all of the active plugins via site options.
+	 * Forked from Jetpack::get_active_plugins from the Jetpack plugin.
+	 *
+	 * @return string[]
+	 */
+	public static function get_active_plugins() {
+		// active_plugins plugins as values.
+		$active_plugins = (array) get_option( 'active_plugins', array() );
+
+		// active_sitewide_plugins stores plugins as keys.
+		if ( is_multisite() ) {
+			$network_plugins = array_keys( get_site_option( 'active_sitewide_plugins', array() ) );
+			if ( $network_plugins ) {
+				$active_plugins = array_merge( $active_plugins, $network_plugins );
+			}
+		}
+
+		sort( $active_plugins );
+		return array_unique( $active_plugins );
 	}
 }

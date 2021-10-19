@@ -22,8 +22,9 @@
  *
  */
 
-class Jetpack_WPES_Query_Builder {
+namespace Automattic\Jetpack\Search\WPES;
 
+class Query_Builder {
 	protected $es_filters = array();
 
 	// Custom boosting with function_score

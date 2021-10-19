@@ -29,7 +29,7 @@
 		"build-production-php": "COMPOSER_MIRROR_PATH_REPOS=1 COMPOSER_ROOT_VERSION=dev-master composer install -o --no-dev --classmap-authoritative --prefer-dist",
 		"build-production-search": "NODE_ENV=production BABEL_ENV=production pnpm run build-search && pnpm run validate-es10 -- ./_inc/build/instant-search/",
 		"build-search": "pnpm run clean-search && pnpm run build-search-app && pnpm run build-search-configure",
-		"build-search-app": "webpack --config ./tools/webpack.config.search.js",
+		"build-search-app": "echo 'Instant Search build not yet implemented in Jetpack plugin, build manually in Search package.'",
 		"build-search-configure": "webpack --config ./tools/webpack.config.search-configure.js",
 		"build-widget-visibility": "webpack --config ./tools/webpack.config.widget-visibility.js",
 		"clean": "pnpm run clean-client && pnpm run clean-extensions && pnpm run clean-composer",
