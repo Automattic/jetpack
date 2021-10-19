@@ -21,8 +21,8 @@ import MessageBoxControl from '../message-box-control';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 
-export default function PublicizeForm() {
-	const { connections, toggleById } = useSocialMediaConnections();
+export default function PublicizeForm( { isPublicizeEnabled, isRePublicizeFeatureEnabled } ) {
+	const { connections, toggleById, hasConnections } = useSocialMediaConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 
 	function isDisabled() {
@@ -31,21 +31,23 @@ export default function PublicizeForm() {
 
 	return (
 		<Fragment>
-			<PanelRow>
-				<ul className="jetpack-publicize__connections-list">
-					{ connections.map( ( { display_name, enabled, id, service_name, toggleable } ) => (
-						<PublicizeConnection
-							disabled={ ! toggleable }
-							enabled={ enabled }
-							key={ id }
-							id={ id }
-							label={ display_name }
-							name={ service_name }
-							toggleConnection={ toggleById }
-						/>
-					) ) }
-				</ul>
-			</PanelRow>
+			{ hasConnections && (
+				<PanelRow>
+					<ul className="jetpack-publicize__connections-list">
+						{ connections.map( ( { display_name, enabled, id, service_name, toggleable } ) => (
+							<PublicizeConnection
+								disabled={ isRePublicizeFeatureEnabled ? ! isPublicizeEnabled : ! toggleable }
+								enabled={ enabled }
+								key={ id }
+								id={ id }
+								label={ display_name }
+								name={ service_name }
+								toggleConnection={ toggleById }
+							/>
+						) ) }
+					</ul>
+				</PanelRow>
+			) }
 
 			<PublicizeSettingsButton />
 
