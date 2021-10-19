@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a new Github actions workflow for Jetpack Boost plugin E2E tests
