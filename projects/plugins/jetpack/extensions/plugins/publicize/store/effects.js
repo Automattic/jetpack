@@ -58,7 +58,8 @@ export async function refreshConnectionTestResults() {
 
 			// Populate the connection with extra fresh data.
 			if ( freshConnection.profile_picture ) {
-				connection.profile_picture = freshConnection.profile_picture;
+				// Make sure we get a new object reference.
+				connection = { ...connection, profile_picture: freshConnection.profile_picture };
 			}
 
 			connections.push( connection );
