@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Subscription Widget: removed from Legacy Widget block and added transform

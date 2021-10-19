@@ -31,6 +31,13 @@ abstract class Publicize_Base {
 	 */
 	public $POST_TWEETSTORM = '_wpas_is_tweetstorm';
 
+	/**
+	 * Post meta key for the flagging when the post share feature is disabled.
+	 *
+	 * @var bool
+	 */
+	public $POST_PUBLICIZE_FEATURE_ENABLED = '_wpas_feature_enabled';
+
 	public $POST_SKIP         = '_wpas_skip_'; // connection id appended to indicate that a connection should NOT be publicized to
 	public $POST_DONE         = '_wpas_done_'; // connection id appended to indicate a connection has already been publicized to
 	public $USER_AUTH         = 'wpas_authorize';
@@ -889,16 +896,29 @@ abstract class Publicize_Base {
 			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
 		);
 
+		$publicize_feature_enable_args = array(
+			'type'          => 'boolean',
+			'description'   => __( 'Whether or not the Share Post feature is enabled.', 'jetpack' ),
+			'single'        => true,
+			'default'       => true,
+			'show_in_rest'  => array(
+				'name' => 'jetpack_publicize_feature_enabled',
+			),
+			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
+		);
+
 		foreach ( get_post_types() as $post_type ) {
 			if ( ! $this->post_type_is_publicizeable( $post_type ) ) {
 				continue;
 			}
 
-			$message_args['object_subtype']    = $post_type;
-			$tweetstorm_args['object_subtype'] = $post_type;
+			$message_args['object_subtype']                  = $post_type;
+			$tweetstorm_args['object_subtype']               = $post_type;
+			$publicize_feature_enable_args['object_subtype'] = $post_type;
 
 			register_meta( 'post', $this->POST_MESS, $message_args );
 			register_meta( 'post', $this->POST_TWEETSTORM, $tweetstorm_args );
+			register_meta( 'post', $this->POST_PUBLICIZE_FEATURE_ENABLED, $publicize_feature_enable_args );
 		}
 	}
 

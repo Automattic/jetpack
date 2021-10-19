@@ -32,7 +32,7 @@ class Table_Checksum {
 	public $table_configuration = array();
 
 	/**
-	 * Perform Text Conversion to UTF8.
+	 * Perform Text Conversion to latin1.
 	 *
 	 * @var boolean
 	 */
@@ -60,7 +60,7 @@ class Table_Checksum {
 	public $checksum_fields = array();
 
 	/**
-	 * Field(s) to be used in generating the checksum value that need utf8 conversion.
+	 * Field(s) to be used in generating the checksum value that need latin1 conversion.
 	 *
 	 * @var array
 	 */
@@ -134,7 +134,7 @@ class Table_Checksum {
 	 *
 	 * @param string  $table The table to calculate checksums for.
 	 * @param string  $salt  Optional salt to add to the checksum.
-	 * @param boolean $perform_text_conversion If text fields should be UTF8 converted.
+	 * @param boolean $perform_text_conversion If text fields should be latin1 converted.
 	 *
 	 * @throws Exception Throws exception from inner functions.
 	 */
@@ -542,11 +542,11 @@ class Table_Checksum {
 		foreach ( $this->checksum_fields as $field ) {
 			$checksum_fields[] = $this->table . '.' . $field;
 		}
-		// Apply utf8 conversion if enabled.
+		// Apply latin1 conversion if enabled.
 		if ( $this->perform_text_conversion ) {
 			// Convert text fields to allow for encoding discrepancies as WP.com is latin1.
 			foreach ( $this->checksum_text_fields as $field ) {
-				$checksum_fields[] = 'CONVERT(' . $this->table . '.' . $field . ' using utf8 )';
+				$checksum_fields[] = 'CONVERT(' . $this->table . '.' . $field . ' using latin1 )';
 			}
 		} else {
 			// Conversion disabled, default to table prefixing.
@@ -665,7 +665,7 @@ class Table_Checksum {
 
 		// Only make the distinct count when we know there can be multiple entries for the range column.
 		$distinct_count = '';
-		if ( count( $this->key_fields ) > 1 || 'terms' === $this->table ) {
+		if ( count( $this->key_fields ) > 1 || $wpdb->terms === $this->table || $wpdb->term_relationships === $this->table ) {
 			$distinct_count = 'DISTINCT';
 		}
 
