@@ -1,4 +1,4 @@
-Significance: minor
+Significance: patch
 Type: added
 
 Added the _wpas_feature_enabled meta key to the sync list
