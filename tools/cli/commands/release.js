@@ -70,14 +70,14 @@ export async function releaseCli( argv ) {
 		argv = await promptForProject( argv );
 	}
 
-	// Check if we're working with a beta version.
-	if ( ! argv.devRelease && typeof argv.beta === 'undefined' ) {
-		argv = await promptBeta( argv );
-	}
-
 	// Verify we have a valid script.
 	if ( ! argv.script || argv.script === '' ) {
 		argv = await promptForScript( argv );
+	}
+
+	// Check if we're working with a beta version and only if generating changlog.
+	if ( ! argv.devRelease && typeof argv.beta === 'undefined' && argv.script === 'changelog' ) {
+		argv = await promptBeta( argv );
 	}
 
 	// Get the info we need for the script.
@@ -126,6 +126,15 @@ export async function scriptRouter( argv ) {
 			argv.next = `Finished! Next: \n	- Create a new branch off master, review the changes, make any necessary adjustments. \n	- Commit your changes. \n	- To continue with the release process, update the readme.txt by running:\n		jetpack release ${ argv.project } readme \n`;
 			break;
 		case 'readme':
+			argv.script = `tools/plugin-changelog-to-readme.sh`;
+			argv.scriptArgs = [ argv.project ];
+			argv.next = `Finished! Next: 
+				  - If this is a beta, ensure the stable tag in readme.txt is latest stable. 
+				  - Create a PR and have your changes reviewed and merged.
+				  - Wait and make sure changes are propagated to mirror repos for each updated package.
+				  - After propagation, if you need to create a release branch, stand on master and then run:
+				      jetpack release ${ argv.project } release-branch \n`.replace( /^\t+/gm, '' );
+			break;
 		case 'release-branch':
 		case 'append':
 			console.log( `${ argv.script } is not implemented yet!` );
