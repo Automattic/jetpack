@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-General: avoid PHP notices that may happen when installing the plugin.

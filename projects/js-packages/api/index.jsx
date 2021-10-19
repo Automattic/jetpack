@@ -429,6 +429,11 @@ function JetpackRestApiClient( root, nonce ) {
 			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
+
+		migrateIDC: () =>
+			postRequest( `${ apiRoot }jetpack/v4/identity-crisis/migrate`, postParams ).then(
+				checkStatus
+			),
 	};
 
 	/**

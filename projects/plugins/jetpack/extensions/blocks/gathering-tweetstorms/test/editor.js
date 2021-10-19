@@ -2,11 +2,23 @@
  * External dependencies
  */
 import { mount } from 'enzyme';
+import { useSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
 import addTweetstormToTweets from '../editor';
+
+jest.mock( '@wordpress/data/build/components/use-select', () => jest.fn() );
+
+useSelect.mockImplementation( ( cb ) => {
+	return cb( () => ( {
+		getEditedPostAttribute: () => ( { } ),
+		isFirstMultiSelectedBlock: jest.fn().mockReturnValueOnce( true ),
+		getMultiSelectedBlockClientIds: () => [],
+		getBlockName: () => 'DaName',
+	} ) );
+} );
 
 describe( 'addTweetstormToTweets', () => {
 	const baseEditFunction = () => {
@@ -60,7 +72,7 @@ describe( 'addTweetstormToTweets', () => {
 		const wrapper = mount( <wrappedBlock.edit { ...block.props } /> );
 
 		expect( wrapper.exists( '#baseEdit' ) ).toEqual( true );
-		expect( wrapper.find( 'BlockControlsFill' ) ).toHaveLength( 1 );
+		expect( wrapper.find( 'BlockControlsFill' ) ).toHaveLength( 2 );
 	} );
 
 	it( 'should not add block controls when passed a core/embed block definition with a different providerNameSlug', () => {

@@ -253,7 +253,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_upgrades_menu();
 
-		$this->assertSame( 'https://wordpress.com/plans/my-plan/' . static::$domain, $submenu['paid-upgrades.php'][1][2] );
+		$this->assertSame( 'https://wordpress.com/plans/' . static::$domain, $submenu['paid-upgrades.php'][1][2] );
 		$this->assertSame( 'https://wordpress.com/domains/manage/' . static::$domain, $submenu['paid-upgrades.php'][2][2] );
 
 		/** This filter is already documented in modules/masterbar/admin-menu/class-atomic-admin-menu.php */
@@ -317,5 +317,21 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 
 		// Gutenberg plugin menu should not be visible.
 		$this->assertArrayNotHasKey( 101, $menu );
+	}
+
+	/**
+	 * Tests add_woocommerce_installation_menu
+	 *
+	 * @covers ::add_woocommerce_installation_menu
+	 */
+	public function test_add_woocommerce_installation_menu() {
+		global $menu;
+
+		add_filter( 'jetpack_show_wpcom_woocommerce_installation_menu', '__return_true' );
+
+		static::$admin_menu->add_woocommerce_installation_menu();
+
+		$this->assertMatchesRegularExpression( '/^separator-custom-.*/', $menu['54'][2] );
+		$this->assertSame( 'https://wordpress.com/woocommerce-installation/' . static::$domain, $menu['55'][2] );
 	}
 }
