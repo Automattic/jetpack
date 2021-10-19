@@ -1,4 +1,0 @@
-Significance: minor
-Type: bugfix
-
-Add a "cover" option to the VideoPress iframe and shortcode to handle video resizing to its container
