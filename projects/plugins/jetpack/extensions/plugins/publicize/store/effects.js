@@ -58,17 +58,18 @@ export async function refreshConnectionTestResults() {
 
 			// Populate the connection with extra fresh data.
 			if ( freshConnection.profile_picture ) {
-				connection.profile_picture = freshConnection.profile_picture;
+				// Make sure we get a new object reference.
+				connection = {
+					...connection,
+					profile_picture: freshConnection.profile_picture,
+				};
 			}
 
 			connections.push( connection );
 		}
 
 		// Update post metadata.
-		await dispatch( editorStore ).editPost( { jetpack_publicize_connections: connections } );
-
-		// Signal connections have updated.
-		return dispatch( 'jetpack/publicize' ).signalConnectionsUpdate();
+		return dispatch( editorStore ).editPost( { jetpack_publicize_connections: connections } );
 	} catch ( error ) {
 		// Refreshing connections failed
 	}
