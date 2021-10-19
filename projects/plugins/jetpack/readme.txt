@@ -242,24 +242,23 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.3-2110.1 - 2021-10-12
+### 10.3-a.3 - 2021-10-19
 #### Enhancements
-- Instant Search: always show the save button on the mobile view of the Search Settings dashboard.
-- Secure Sign On: add new filter allowing one to customize the explanation displayed next to the SSO button.
-- VideoPress: improve the display of upload errors in the Media Library and the block editor.
+- Dashboard: add a new view that shortly summarize available Jetpack products and facilitates the purchase process.
+- Publicize editor settings: refactor, improve layout and wording in preparation for the addition of RePublicize.
+- Stats: remove some upgrade notifications.
+- Subscriptions: add an option to transform the Legacy Subscription Widget into a Subscription Block in the new block-based Widget editor.
+- WordAds: update handling and setting CCPA related cookies.
 
 #### Improved compatibility
-- Jetpack Backup: improve the display of the different plugin menus when using both Jetpack and Jetpack Backup.
-- Social Icons Widget: deprecate widget and offer the option to transform into a Social Links block.
+- VideoPress: avoid video upload issues when other plugins modify WordPress' API fetching features in the block editor.
 
 #### Bug fixes
-- Calendly block: fix the preview in the block inserter.
-- Eventbrite Block: improve the event URL detection and avoid errors when using links without an event ID.
-- General: avoid PHP notices that may happen when installing the plugin.
-- Instant Search: fix the display of filters when there are no results to display for a query.
-- Instant Search: fix the preview of the infinite scroll option in the Search Settings dashboard.
-- Instant Search: reduce browser history noise as search is being typed in the form.
-- Publicize: refresh connections only when the post publishes.
+- Dashboard: fix the connection flow for non-admin users.
+- External Media block options: fix a bug where the external media modal collapsed on larger screens and did not leave enough whitespace.
+- Instant Search: fix translations not available for minified Instant Search Modal assets.
+- Widgets: fix styles of the Milestone widget fields.
+- VideoPress: add a "cover" option to the VideoPress iframe and shortcode to handle video resizing to its container.
 
 --------
 
