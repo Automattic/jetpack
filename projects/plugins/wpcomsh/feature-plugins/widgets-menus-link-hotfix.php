@@ -19,9 +19,8 @@ function wpcomsh_use_widget_menus_link_hotfix( $admin_menu_class ) {
 		return $admin_menu_class;
 	}
 
-
 	// Do not clash with fixes already shipped.
-	if ( version_compare( JETPACK__VERSION, '10.3-a.2', '>=' ) ) {
+	if ( version_compare( JETPACK__VERSION, '10.3-a.4', '>=' ) ) {
 		return $admin_menu_class;
 	}
 
