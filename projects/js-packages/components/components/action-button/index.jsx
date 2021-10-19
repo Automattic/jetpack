@@ -26,10 +26,10 @@ const ActionButton = props => {
 	const { label, onClick, isLoading, displayError, errorMessage } = props;
 
 	return (
-		<div className="jp-connect-button">
+		<div className="jp-action-button">
 			{
 				<Button
-					className="jp-connect-button--button"
+					className="jp-action-button--button"
 					label={ label }
 					onClick={ onClick }
 					isPrimary
@@ -39,7 +39,7 @@ const ActionButton = props => {
 				</Button>
 			}
 
-			{ displayError && <p className="jp-connect-button__error">{ errorMessage }</p> }
+			{ displayError && <p className="jp-action-button__error">{ errorMessage }</p> }
 		</div>
 	);
 };
