@@ -38,6 +38,22 @@ function load_3rd_party() {
 			require_once JETPACK__PLUGIN_DIR . '/3rd-party/' . $file;
 		}
 	}
+
+	add_filter( 'jetpack_development_version', __NAMESPACE__ . '\atomic_weekly_override' );
+}
+
+/**
+ * Handles suppressing development version notices on Atomic-hosted sites.
+ *
+ * @param bool $development_version Filterable value if this is a development version of Jetpack.
+ *
+ * @return bool
+ */
+function atomic_weekly_override( $development_version ) {
+	if ( Constants::is_true( 'ATOMIC_SITE_ID' ) && Constants::is_true( 'ATOMIC_CLIENT_ID' ) ) {
+		return false;
+	}
+	return $development_version;
 }
 
 load_3rd_party();
