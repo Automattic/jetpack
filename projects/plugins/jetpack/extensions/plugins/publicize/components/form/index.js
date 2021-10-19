@@ -7,11 +7,6 @@
  */
 
 /**
- * External dependencies
- */
-import { useEffect, useState } from 'react';
-
-/**
  * WordPress dependencies
  */
 import { PanelRow } from '@wordpress/components';
@@ -29,24 +24,17 @@ import useSocialMediaMessage from '../../hooks/use-social-media-message';
 export default function PublicizeForm() {
 	const { connections, toggleById } = useSocialMediaConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
-	const [ activeConnections, setActiveConnections ] = useState( {} );
 
 	function isDisabled() {
 		return connections.every( connection => ! connection.toggleable );
 	}
 
-	useEffect( () => {
-		setTimeout( () => {
-			setActiveConnections( connections );
-		}, 6000 );
-	}, [ connections ] );
-
 	return (
 		<Fragment>
 			<PanelRow>
-				<ul className="jetpack-publicize__connections-list">
-					{ activeConnections.length > 0 &&
-						activeConnections.map(
+				{ connections.length > 0 && (
+					<ul className="jetpack-publicize__connections-list">
+						{ connections.map(
 							( { display_name, enabled, id, service_name, toggleable, profile_picture } ) => (
 								<PublicizeConnection
 									disabled={ ! toggleable }
@@ -60,7 +48,8 @@ export default function PublicizeForm() {
 								/>
 							)
 						) }
-				</ul>
+					</ul>
+				) }
 			</PanelRow>
 
 			<PublicizeSettingsButton />
