@@ -4,7 +4,7 @@
 
 ## 10.3-a.3 - 2021-10-19
 ### Enhancements
-- Dashboard: add a new view that shortly summarize available Jetpack products and facilitates the purchase process.
+- Dashboard: add a new view that shortly summarizes available Jetpack products and facilitates the purchase process.
 - Publicize editor settings: refactor, improve layout and wording in preparation for the addition of RePublicize.
 - Stats: remove some upgrade notifications.
 - Subscriptions: add an option to transform the Legacy Subscription Widget into a Subscription Block in the new block-based Widget editor.
