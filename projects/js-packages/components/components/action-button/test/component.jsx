@@ -4,7 +4,6 @@
 import React from 'react';
 import { expect } from 'chai';
 import { shallow } from 'enzyme';
-import ShallowRenderer from 'react-test-renderer/shallow';
 
 /**
  * Internal dependencies
@@ -17,19 +16,14 @@ describe( 'ActionButton', () => {
 	};
 
 	describe( 'Render the ActionButton component', () => {
-		const renderer = new ShallowRenderer();
-		renderer.render( <ActionButton { ...testProps } /> );
-
-		const wrapper = shallow( renderer.getRenderOutput() );
+		const wrapper = shallow( <ActionButton { ...testProps } /> );
 
 		it( 'component exists', () => {
 			expect( wrapper.find( 'ActionButton' ) ).to.exist;
 		} );
 
-		const button = wrapper.find( 'ForwardRef(Button)' );
-
 		it( 'renders the register button', () => {
-			expect( button.text() ).to.be.equal( 'Action!' );
+			expect( wrapper.find( 'ActionButton' ).render().text() ).to.be.equal( 'Action!' );
 		} );
 	} );
 } );
