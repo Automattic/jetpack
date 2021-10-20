@@ -18,7 +18,7 @@ import { usePreferredColorSchemeStyle } from '@wordpress/compose';
 import styles from './styles.scss';
 
 const MIN_COLUMNS = 1;
-const MAX_COLUMNS = 3;
+export const MAX_COLUMNS = 8;
 export const DEFAULT_COLUMNS = 2;
 const MIN_ROUNDED_CORNERS = 0;
 const MAX_ROUNDED_CORNERS = 20;

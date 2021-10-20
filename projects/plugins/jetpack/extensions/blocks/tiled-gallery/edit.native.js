@@ -26,12 +26,12 @@ import { useResizeObserver } from '@wordpress/compose';
 import { ALLOWED_MEDIA_TYPES } from './constants';
 import { icon } from '.';
 import styles from './styles.scss';
-import TiledGallerySettings, { DEFAULT_COLUMNS } from './settings';
+import TiledGallerySettings, { DEFAULT_COLUMNS, MAX_COLUMNS } from './settings';
 
 const TILE_SPACING = 8;
 
 export function defaultColumnsNumber( images ) {
-	return Math.min( 3, images.length );
+	return Math.min( MAX_COLUMNS, images.length );
 }
 
 const TiledGalleryEdit = props => {
@@ -95,10 +95,9 @@ const TiledGalleryEdit = props => {
 
 	useEffect( () => {
 		if ( ! columns ) {
-			const col = Math.min( images.length, DEFAULT_COLUMNS );
-			setAttributes( { columns: Math.max( col, 1 ) } );
+			setAttributes( { columns: DEFAULT_COLUMNS } );
 		}
-	}, [ images, columns, setAttributes ] );
+	}, [ columns, setAttributes ] );
 
 	const innerBlocksProps = useInnerBlocksProps(
 		{},
