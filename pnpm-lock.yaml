@@ -437,17 +437,14 @@ importers:
 
   projects/packages/lazy-images:
     specifiers:
-      '@automattic/calypso-build': 9.0.0
-      '@wordpress/browserslist-config': 4.1.0
-      eslint: 7.32.0
+      '@automattic/jetpack-webpack-config': workspace:^0.1.0-alpha
+      copy-webpack-plugin: 9.0.1
       intersection-observer: 0.12.0
       webpack: 5.51.1
-    dependencies:
-      intersection-observer: 0.12.0
     devDependencies:
-      '@automattic/calypso-build': 9.0.0_webpack@5.51.1
-      '@wordpress/browserslist-config': 4.1.0
-      eslint: 7.32.0
+      '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
+      copy-webpack-plugin: 9.0.1_webpack@5.51.1
+      intersection-observer: 0.12.0
       webpack: 5.51.1
 
   projects/plugins/backup:
@@ -1235,6 +1232,7 @@ packages:
       - utf-8-validate
       - webpack-bundle-analyzer
       - webpack-dev-server
+    dev: false
 
   /@automattic/calypso-color-schemes/2.1.1:
     resolution: {integrity: sha512-X5gmQEDJVtw8N9NARgZGM/pmalfapV8ZyRzEn2o0sCLmTAXGYg6A28ucLCQdBIn1l9t2rghBDFkY71vyqjyyFQ==}
@@ -7028,6 +7026,7 @@ packages:
       prop-types: 15.7.2
       react-is: 17.0.2
       react-test-renderer: 17.0.2
+    dev: false
 
   /@wojtekmaj/enzyme-adapter-react-17/0.6.3_enzyme@3.11.0:
     resolution: {integrity: sha512-Kp1ZJxtHkKEnUksaWrcMABNTOgL4wOt8VI6k2xOek2aH9PtZcWRXJNUEgnKrdJrqg5UqIjRslbVF9uUqwQJtFg==}
@@ -7096,6 +7095,7 @@ packages:
       object.assign: 4.1.2
       object.fromentries: 2.0.4
       prop-types: 15.7.2
+    dev: false
 
   /@wojtekmaj/enzyme-adapter-utils/0.1.1_react@17.0.2:
     resolution: {integrity: sha512-bNPWtN/d8huKOkC6j1E3EkSamnRrHHT7YuR6f9JppAQqtoAm3v4/vERe4J14jQKmHLCyEBHXrlgb7H6l817hVg==}
@@ -11112,8 +11112,7 @@ packages:
       p-limit: 3.1.0
       schema-utils: 3.1.1
       serialize-javascript: 6.0.0
-      webpack: 5.51.1_webpack-cli@4.8.0
-    dev: false
+      webpack: 5.51.1
 
   /core-js-compat/3.18.0:
     resolution: {integrity: sha512-tRVjOJu4PxdXjRMEgbP7lqWy1TWJu9a01oBkn8d+dNrhgmBwdTkzhHZpVJnEmhISLdoJI1lX08rcBcHi3TZIWg==}
@@ -13898,7 +13897,6 @@ packages:
     engines: {node: '>=10.13.0'}
     dependencies:
       is-glob: 4.0.1
-    dev: false
 
   /glob-promise/3.4.0_glob@7.1.7:
     resolution: {integrity: sha512-q08RJ6O+eJn+dVanerAndJwIcumgbDdYiUT7zFQl3Wm1xD6fBKtah7H8ZJChj4wP+8C+QfeVy8xautR7rdmKEw==}
@@ -14904,7 +14902,7 @@ packages:
 
   /intersection-observer/0.12.0:
     resolution: {integrity: sha512-2Vkz8z46Dv401zTWudDGwO7KiGHNDkMv417T5ItcNYfmvHR/1qCTVBO9vwH8zZmQ0WkA/1ARwpysR9bsnop4NQ==}
-    dev: false
+    dev: true
 
   /invariant/2.2.4:
     resolution: {integrity: sha512-phJfQVBuaJM5raOpJjSfkiD6BpbCE4Ns//LaXl6wGYtUBY83nWS6Rf9tXm2e8VaK60JEjYldbPif/A2B1C2gNA==}
@@ -15663,6 +15661,7 @@ packages:
       - canvas
       - supports-color
       - utf-8-validate
+    dev: false
 
   /jest-environment-enzyme/7.1.2_65d41ffd1d349f14c496d249b6f0b04f:
     resolution: {integrity: sha512-3tfaYAzO7qZSRrv+srQnfK16Vu5XwH/pHi8FpoqSHjKKngbHzXf7aBCBuWh8y3w0OtknHRfDMFrC60Khj+g1hA==}
@@ -15758,6 +15757,7 @@ packages:
       - react
       - supports-color
       - utf-8-validate
+    dev: false
 
   /jest-enzyme/7.1.2_65d41ffd1d349f14c496d249b6f0b04f:
     resolution: {integrity: sha512-j+jkph3t5hGBS12eOldpfsnERYRCHi4c/0KWPMnqRPoJJXvCpLIc5th1MHl0xDznQDXVU0AHUXg3rqMrf8vGpA==}
@@ -19689,6 +19689,7 @@ packages:
     dependencies:
       object-assign: 4.1.1
       react-is: 17.0.2
+    dev: false
 
   /react-shallow-renderer/16.14.1_react@17.0.2:
     resolution: {integrity: sha512-rkIMcQi01/+kxiTE9D3fdS959U1g7gs+/rborw++42m1O9FAQiNI/UNRZExVUoAOprn4umcXf+pFRou8i4zuBg==}
@@ -19750,6 +19751,7 @@ packages:
       react-is: 17.0.2
       react-shallow-renderer: 16.14.1
       scheduler: 0.20.2
+    dev: false
 
   /react-test-renderer/17.0.2_react@17.0.2:
     resolution: {integrity: sha512-yaQ9cB89c17PUb0x6UfWRs7kQCorVdHlutU1boVPEsB8IDZH6n9tHxMacc3y0JoXOJUsZb/t/Mb8FUWMKaM7iQ==}
