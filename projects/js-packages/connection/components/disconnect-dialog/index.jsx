@@ -26,13 +26,14 @@ import StepThankYou from './steps/step-thank-you';
  * @param {string} props.title -- The modal title.
  * @param {string} props.activateButtonText -- Text to show for the button that opens the modal.
  * @param {string} props.activateButtonClass -- Class to use on the button that opens the modal.
- * @param {Function} props.disconnectCallback -- Callback function that is called just before the request to disconnect is made.
+ * @param {Function} props.pluginScreenDisconnectCallback -- Callback function that is called just before the request to disconnect is made when the context is "plugins".
  * @param {Function} props.onDisconnected -- The callback to be called upon disconnection success.
  * @param {Function} props.onError -- The callback to be called upon disconnection failure.
  * @param {React.Component} props.disconnectStepComponent -- A component to render as part of the disconnect step.
  * @param {string} props.context -- The context in which this component is being used.
  * @param {string} props.disconnectingPlugin -- The plugin where this component is being used that initiated the disconnect flow.
  * @param {Function} props.errorMessage -- The error message to display upon disconnection failure.
+ * @param {object} props.connectedUser -- An object representing the connected user.
  * @returns {React.Component} The `DisconnectDialog` component.
  */
 
@@ -51,12 +52,13 @@ const DisconnectDialog = props => {
 		title,
 		activateButtonText,
 		activateButtonClass,
-		disconnectCallback,
+		pluginScreenDisconnectCallback,
 		onDisconnected,
 		onError,
 		disconnectStepComponent,
 		context,
 		disconnectingPlugin,
+		connectedUser,
 	} = props;
 
 	/**
@@ -68,15 +70,14 @@ const DisconnectDialog = props => {
 	}, [ apiRoot, apiNonce ] );
 
 	/**
-	 * Add a slug property to each ConnectedPlugins object so they can be converted to an array.
-	 * This allows the connected plugins to be iterated over more easily for display.
+	 * Initialize tracks with user data.
+	 * Should run when we have a connected user.
 	 */
 	useEffect( () => {
-		if ( connectedPlugins ) {
-			const keys = Object.keys( connectedPlugins );
-			keys.forEach( key => ( connectedPlugins[ key ].slug = key ) );
+		if ( connectedUser ) {
+			jetpackAnalytics.initialize( connectedUser.ID, connectedUser.login );
 		}
-	}, [ connectedPlugins ] );
+	}, [ connectedUser ] );
 
 	/**
 	 * Open the Disconnect Dialog.
@@ -141,17 +142,21 @@ const DisconnectDialog = props => {
 			setDisconnectError( false );
 			setIsDisconnecting( true );
 
-			// Allow the disconnect action to be picked up by another component.
-			// This is primarily for the plugin context where the plugin needs to be deactivated as well.
-			if ( disconnectCallback ) {
-				disconnectCallback( e );
+			// Detect the plugin context, where the plugin needs to be deactivated.
+			if ( context === 'plugins' ) {
+				// Use a callback function to handle deactivating the plugin.
+				// This should effectively short-circuit the disconnect flow by redirecting to deactivate the plugin.
+				if ( pluginScreenDisconnectCallback ) {
+					pluginScreenDisconnectCallback( e );
+				}
+				// Do not disconnect if context is the plugin screen, the plugin deactivation routine will handle disconnection.
 				return;
 			}
 
 			// Default to making the disconnect API call here.
 			_disconnect();
 		},
-		[ setDisconnectError, setIsDisconnecting, disconnectCallback, _disconnect ]
+		[ setDisconnectError, setIsDisconnecting, pluginScreenDisconnectCallback, context, _disconnect ]
 	);
 
 	/**
@@ -215,13 +220,7 @@ const DisconnectDialog = props => {
 				<StepDisconnect
 					title={ title }
 					// Filter out the current plugin ( if provided ) from the connected plugins.
-					connectedPlugins={
-						connectedPlugins
-							? Object.values( connectedPlugins ).filter( plugin => {
-									return disconnectingPlugin ? plugin.slug !== disconnectingPlugin : true;
-							  } )
-							: []
-					}
+					connectedPlugins={ connectedPlugins }
 					// Component that renders as part of the disconnect step, if passed.
 					disconnectStepComponent={ disconnectStepComponent }
 					isDisconnecting={ isDisconnecting }
@@ -291,6 +290,8 @@ DisconnectDialog.propTypes = {
 	connectedPlugins: PropTypes.object,
 	connectedPluginsIsFetching: PropTypes.bool,
 	disconnectingPlugin: PropTypes.string,
+	pluginScreenDisconnectCallback: PropTypes.func,
+	connectedUser: PropTypes.object,
 };
 
 DisconnectDialog.defaultProps = {

@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
 import PropTypes from 'prop-types';
-import DisconnectCard from '../disconnect-card';
+import ConnectedPlugins from '../../connected-plugins';
 
 /**
  * Disconnect step in disconnection flow.
@@ -65,38 +65,13 @@ const StepDisconnect = props => {
 	};
 
 	/**
-	 * Show other plugins using the Jetpack connection, if they are passed in the props.
-	 *
-	 * @returns {React.Component} - A list of connected plugins, if provided.
-	 */
-	const renderConnectedPlugins = () => {
-		if ( connectedPlugins && connectedPlugins.length > 0 ) {
-			return (
-				<React.Fragment>
-					<div className="jp-disconnect-dialog__step-copy">
-						<p className="jp-disconnect-dialog__large-text">
-							{ __(
-								'Jetpack is powering other plugins on your site. If you disconnect, these plugins will no longer work.',
-								'jetpack'
-							) }
-						</p>
-					</div>
-					{ connectedPlugins.map( plugin => {
-						return <DisconnectCard title={ plugin.name } />;
-					} ) }
-				</React.Fragment>
-			);
-		}
-	};
-
-	/**
 	 * Show some fallback output if there are no connected plugins to show and no passed disconnect component.
 	 * This is a more generic message about disconnecting Jetpack.
 	 *
 	 * @returns {React.ElementType} - Fallback message for when there are no connected plugins or passed components to show.
 	 */
 	const renderFallbackOutput = () => {
-		if ( ( ! connectedPlugins || connectedPlugins.length === 0 ) && ! disconnectStepComponent ) {
+		if ( ! connectedPlugins && ! disconnectStepComponent ) {
 			return (
 				<div className="jp-disconnect-dialog__step-copy">
 					<p className="jp-disconnect-dialog__large-text">
@@ -113,7 +88,7 @@ const StepDisconnect = props => {
 		<React.Fragment>
 			<div className="jp-disconnect-dialog__content">
 				<h1 id="jp-disconnect-dialog__heading">{ title }</h1>
-				{ renderConnectedPlugins() }
+				<ConnectedPlugins connectedPlugins={ connectedPlugins } />
 				{ disconnectStepComponent }
 				{ renderFallbackOutput() }
 			</div>

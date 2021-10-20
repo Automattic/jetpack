@@ -2,7 +2,7 @@
  * External Dependencies
  */
 import React from 'react';
-import DecorativeCard from '../decorative-card';
+import DecorativeCard from '../../decorative-card';
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
