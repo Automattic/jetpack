@@ -722,6 +722,21 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
+		/**
+		 * Get Jetpack user license counts.
+		 */
+		register_rest_route(
+			'jetpack/v4',
+			'licensing/user/counts',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => __CLASS__ . '::get_user_license_counts',
+					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+				),
+			)
+		);
+
 		/*
 		 * Manage the Jetpack CRM plugin's integration with Jetpack contact forms.
 		 */
@@ -1004,6 +1019,37 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return json_decode( wp_remote_retrieve_body( $wpcom_request ) );
 		} else {
 			// Something went wrong so we'll just return the response without caching.
+			return new WP_Error(
+				'failed_to_fetch_data',
+				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
+				array( 'status' => $response_code )
+			);
+		}
+	}
+
+	/**
+	 * Gets the users licenses counts.
+	 *
+	 * @return string|WP_Error A JSON object of user license counts if the request was successful, or a WP_Error otherwise.
+	 */
+	public static function get_user_license_counts() {
+		$wpcom_request = Client::wpcom_json_api_request_as_user(
+			'/jetpack-licensing/licenses/user/counts',
+			'2',
+			array(
+				'method'  => 'GET',
+				'headers' => array(
+					'Content-Type'    => 'application/json',
+					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+				),
+			)
+		);
+
+		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
+		if ( 200 === $response_code ) {
+			$license_counts = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
+			return $license_counts;
+		} else {
 			return new WP_Error(
 				'failed_to_fetch_data',
 				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),

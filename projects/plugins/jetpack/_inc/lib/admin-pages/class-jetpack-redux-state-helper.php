@@ -172,6 +172,7 @@ class Jetpack_Redux_State_Helper {
 			'licensing'                   => array(
 				'error'           => Licensing::instance()->last_error(),
 				'showLicensingUi' => Licensing::instance()->is_licensing_input_enabled(),
+				'userCounts'      => Jetpack_Core_Json_Api_Endpoints::get_user_license_counts(),
 			),
 		);
 	}
