@@ -182,6 +182,7 @@ info "Creating MO files"
 wp --allow-root --debug i18n make-mo "$TMPDIR/pot/"
 
 info "Copying translations into /var/www/html/wp-content/languages/plugins/"
+mkdir -p /var/www/html/wp-content/languages/plugins/
 rm -f "/var/www/html/wp-content/languages/plugins/$DOMAIN-en_"*
 cp "$TMPDIR/pot/$DOMAIN-en"* "/var/www/html/wp-content/languages/plugins/"
 cp "$TMPDIR/pot/en_"* "/var/www/html/wp-content/languages/"
