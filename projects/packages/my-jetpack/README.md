@@ -2,13 +2,19 @@
 
 WP Admin page with information and configuration shared among all Jetpack stand-alone plugins
 
-## How to install my-jetpack
+## Usage
 
-### Installation From Git Repo
+Every Jetpack plugin must include the My Jetpack package.
 
-## Contribute
+Require this package and initialize it:
 
-## Get Help
+```PHP
+add_action( 'init', function() {
+	Automattc\Jetpack\My_Jetpack\My_Jetpack::init();
+});
+```
+
+That's all!
 
 ## Security
 
