@@ -53,7 +53,7 @@ export default function PublicizeForm( { isPublicizeEnabled, isRePublicizeFeatur
 
 			{ connections.some( connection => connection.enabled ) && (
 				<MessageBoxControl
-					disabled={ isDisabled() }
+					disabled={ isRePublicizeFeatureEnabled ? false : isDisabled() }
 					maxLength={ maxLength }
 					onChange={ updateMessage }
 					message={ message }
