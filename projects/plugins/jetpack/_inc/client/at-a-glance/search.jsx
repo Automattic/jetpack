@@ -63,6 +63,7 @@ const renderCard = props => (
 class DashSearch extends Component {
 	static propTypes = {
 		getOptionValue: PropTypes.func.isRequired,
+		trackUpgradeBanner: PropTypes.func,
 
 		// Connected props
 		isOfflineMode: PropTypes.bool.isRequired,
@@ -72,6 +73,7 @@ class DashSearch extends Component {
 	static defaultProps = {
 		getOptionValue: noop,
 		isOfflineMode: false,
+		trackUpgradeBanner: noop,
 	};
 
 	trackSearchLink() {
@@ -87,6 +89,14 @@ class DashSearch extends Component {
 			search: true,
 			...( this.props.hasSearchProduct ? { instant_search_enabled: true } : {} ),
 		} );
+	};
+
+	onUpgradeClick = () => {
+		this.props.trackUpgradeBanner( 'click', 'search' );
+	};
+
+	trackBannerDisplay = () => {
+		this.props.trackUpgradeBanner( 'view', 'search' );
 	};
 
 	render() {
@@ -121,6 +131,8 @@ class DashSearch extends Component {
 						path="dashboard"
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SEARCH_JETPACK ) }
 						icon="search"
+						onClick={ this.onUpgradeClick }
+						trackBannerDisplay={ this.trackBannerDisplay }
 					/>
 				) : (
 					<JetpackBanner

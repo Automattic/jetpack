@@ -50,6 +50,10 @@ const renderPairs = layout =>
 class AtAGlance extends Component {
 	trackSecurityClick = () => analytics.tracks.recordJetpackClick( 'aag_manage_security_wpcom' );
 
+	trackUpgradeBanner = ( action = 'click', feature = '' ) => {
+		analytics.tracks.recordEvent( `jetpack_wpa_aag_upgrade_button_${ action }`, { feature } );
+	};
+
 	render() {
 		const settingsProps = {
 			updateOptions: this.props.updateOptions,
@@ -93,7 +97,9 @@ class AtAGlance extends Component {
 		const hasVaultPressScanning =
 			! this.props.fetchingScanStatus && this.props.scanStatus?.reason === 'vp_active_on_site';
 		if ( ! this.props.multisite || hasVaultPressScanning ) {
-			securityCards.push( <DashScan { ...settingsProps } { ...urls } /> );
+			securityCards.push(
+				<DashScan { ...settingsProps } { ...urls } trackUpgradeBanner={ this.trackUpgradeBanner } />
+			);
 		}
 
 		if ( ! this.props.multisite ) {
@@ -103,10 +109,13 @@ class AtAGlance extends Component {
 					siteRawUrl={ this.props.siteRawUrl }
 					rewindStatus={ rewindStatus }
 					rewindStatusReason={ rewindStatusReason }
+					trackUpgradeBanner={ this.trackUpgradeBanner }
 				/>
 			);
 		}
-		securityCards.push( <DashAkismet { ...urls } /> );
+		securityCards.push(
+			<DashAkismet { ...urls } trackUpgradeBanner={ this.trackUpgradeBanner } />
+		);
 
 		if ( 'inactive' !== this.props.getModuleOverride( 'protect' ) ) {
 			securityCards.push( <DashProtect { ...settingsProps } /> );
@@ -135,10 +144,14 @@ class AtAGlance extends Component {
 				performanceCards.push( <DashPhoton { ...settingsProps } /> );
 			}
 			if ( 'inactive' !== this.props.getModuleOverride( 'search' ) ) {
-				performanceCards.push( <DashSearch { ...settingsProps } /> );
+				performanceCards.push(
+					<DashSearch { ...settingsProps } trackUpgradeBanner={ this.trackUpgradeBanner } />
+				);
 			}
 			if ( 'inactive' !== this.props.getModuleOverride( 'videopress' ) ) {
-				performanceCards.push( <DashVideoPress { ...settingsProps } /> );
+				performanceCards.push(
+					<DashVideoPress { ...settingsProps } trackUpgradeBanner={ this.trackUpgradeBanner } />
+				);
 			}
 			if ( performanceCards.length ) {
 				pairs.push( {

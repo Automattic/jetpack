@@ -4,7 +4,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { includes } from 'lodash';
+import { includes, noop } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -38,9 +38,22 @@ class DashVideoPress extends Component {
 		hasConnectedOwner: PropTypes.bool.isRequired,
 		isOfflineMode: PropTypes.bool.isRequired,
 		isModuleAvailable: PropTypes.bool.isRequired,
+		trackUpgradeBanner: PropTypes.func,
+	};
+
+	static defaultProps = {
+		trackUpgradeBanner: noop,
 	};
 
 	activateVideoPress = () => this.props.updateOptions( { videopress: true } );
+
+	onUpgradeClick = () => {
+		this.props.trackUpgradeBanner( 'click', 'videopress' );
+	};
+
+	trackBannerDisplay = () => {
+		this.props.trackUpgradeBanner( 'view', 'videopress' );
+	};
 
 	getContent() {
 		const labelName = __( 'VideoPress', 'jetpack' );
@@ -124,6 +137,8 @@ class DashVideoPress extends Component {
 									plan={ getJetpackProductUpsellByFeature( FEATURE_VIDEOPRESS ) }
 									feature="jetpack_videopress"
 									href={ upgradeUrl }
+									onClick={ this.onUpgradeClick }
+									trackBannerDisplay={ this.trackBannerDisplay }
 								/>
 							) }
 						</>
