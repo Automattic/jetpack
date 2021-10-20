@@ -154,13 +154,11 @@ class MapEdit extends Component {
 		} );
 	}
 	componentDidMount() {
-		this.apiCall()
-			.then( () => {
-				if ( this.props.attributes?.address ) {
-					this.geoCodeAddress( this.props.attributes?.address, this.state.apiKey );
-				}
-			} ) /* eslint-disable no-console */
-			.catch( error => console.error( error ) );
+		this.apiCall().then( () => {
+			if ( this.props.attributes?.address ) {
+				this.geoCodeAddress( this.props.attributes?.address, this.state.apiKey );
+			}
+		} );
 	}
 	onError = ( code, message ) => {
 		const { noticeOperations } = this.props;
