@@ -8,6 +8,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
  */
 import getJetpackExtensionAvailability from '../../../../shared/get-jetpack-extension-availability';
 import { isUpgradable } from '../../../../shared/plan-utils';
+import { isAtomicSite, isSimpleSite } from '../../../../shared/site-type-utils';
 
 const republicizeFeatureName = 'republicize';
 
@@ -28,6 +29,7 @@ export default function usePublicizeConfig() {
 		isPublicizeEnabled,
 		togglePublicizeFeature,
 		isRePublicizeFeatureAvailable: available,
-		isRePublicizeFeatureUpgradable: isUpgradable( republicizeFeatureName ),
+		isRePublicizeFeatureUpgradable:
+			isUpgradable( republicizeFeatureName ) && ( isAtomicSite() || isSimpleSite() ),
 	};
 }
