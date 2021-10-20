@@ -42,19 +42,16 @@ const withErrorMessage = ComponentToWrap => {
 	 * @returns {React.Component} The higher order component.
 	 */
 	const WrappedComponent = props => {
-		const { displayError, errorMessage } = props;
-
-		if ( displayError ) {
-			if ( ! props.hasOwnProperty( 'className' ) ) {
-				props.className = '';
-			}
-
-			props.className += ' jp-components-error-message--has-error';
-		}
+		const { displayError, errorMessage, className } = props;
 
 		return (
 			<>
-				<ComponentToWrap { ...props } />
+				<ComponentToWrap
+					{ ...props }
+					className={
+						className + ( displayError ? ' jp-components-error-message--has-error' : '' )
+					}
+				/>
 
 				{ displayError && renderErrorMessage( errorMessage ) }
 			</>
@@ -64,6 +61,7 @@ const withErrorMessage = ComponentToWrap => {
 	WrappedComponent.defaultProps = {
 		errorMessage: __( 'An error occurred. Please try again.', 'jetpack' ),
 		hasError: false,
+		className: '',
 	};
 
 	WrappedComponent.propTypes = {
@@ -71,6 +69,8 @@ const withErrorMessage = ComponentToWrap => {
 		errorMessage: PropTypes.string,
 		/** Whether to display the error message */
 		displayError: PropTypes.bool,
+		/** Custom CSS class names */
+		className: PropTypes.string,
 	};
 
 	return WrappedComponent;
