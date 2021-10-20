@@ -23,7 +23,7 @@ const PricingCard = props => {
 				</div>
 			) }
 			<h1 className="pricing__card--title">{ props.title }</h1>
-			<div className="pricing__card--price">
+			<div className="pricing__card--pricing">
 				<div className="pricing__card--price-before">
 					<span className="pricing__card--currency">{ props.currencySymbol }</span>
 					<span className="pricing__card--price">{ parseInt( props.priceBefore ) }</span>
@@ -36,7 +36,7 @@ const PricingCard = props => {
 					<span className="pricing__card--currency">{ props.currencySymbol }</span>
 					<span className="pricing__card--price">{ parseInt( props.priceAfter ) }</span>
 					{ priceAfterDecimal && (
-						<span className="pricing__card--price-decimal"> .{ priceAfterDecimal }</span>
+						<span className="pricing__card--price-decimal">.{ priceAfterDecimal }</span>
 					) }
 					<span className="pricing__card--price-details">{ props.priceDetails }</span>
 				</div>
