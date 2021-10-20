@@ -23,6 +23,7 @@ class JetpackBanner extends Banner {
 		icon: PropTypes.string,
 		list: PropTypes.arrayOf( PropTypes.string ),
 		onClick: PropTypes.func,
+		trackBannerDisplay: PropTypes.func,
 		path: PropTypes.string,
 		plan: PropTypes.string,
 		siteSlug: PropTypes.string,
@@ -31,12 +32,19 @@ class JetpackBanner extends Banner {
 
 	static defaultProps = {
 		onClick: noop,
+		trackBannerDisplay: noop,
 		plan: '',
 	};
 
+	componentDidMount() {
+		if ( ! this.props.hidePromotionBanner ) {
+			this.props.trackBannerDisplay();
+		}
+	}
+
 	render() {
 		// Hide promotion banners from non-admins, since they can't upgrade the site.
-		if ( this.props.plan && ! this.props.userCanPurchasePlan ) {
+		if ( this.props.hidePromotionBanner ) {
 			return false;
 		}
 
@@ -44,9 +52,12 @@ class JetpackBanner extends Banner {
 	}
 }
 
-export default connect( state => {
+export default connect( ( state, ownProps ) => {
+	const userCanPurchasePlan = userCanManageModules( state );
+
 	return {
 		arePromotionsActive: arePromotionsActive( state ),
-		userCanPurchasePlan: userCanManageModules( state ),
+		userCanPurchasePlan: userCanPurchasePlan,
+		hidePromotionBanner: !! ownProps.plan && ! userCanPurchasePlan,
 	};
 } )( JetpackBanner );
