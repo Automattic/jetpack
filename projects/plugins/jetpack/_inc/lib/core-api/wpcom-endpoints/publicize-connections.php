@@ -139,6 +139,10 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 	 * @return string Picture URL or empty string.
 	 */
 	protected function get_profile_picture( $connection ) {
+		if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
+			return '';
+		}
+
 		require_lib( 'external-connections' );
 		$external_connections = WPCOM_External_Connections::init();
 
