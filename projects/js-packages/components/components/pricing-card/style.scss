@@ -1,0 +1,89 @@
+@import '../rna-styles';
+
+.pricing__card {
+	width: -moz-fit-content;
+  	width: fit-content;
+  	max-width: 384px;
+	padding: 32px 32px 44px;
+	background:var( --jp-white );
+	box-shadow: 0px 0px 40px rgba( 0, 0, 0, 0.08 );
+	border-radius: var( --jp-border-radius );
+
+	&--icon {
+		img {
+			height: 24px;
+			width: 24px;
+		}
+	}
+
+	&--title {
+		margin: 24px 0;
+		color: #101517;
+		font-size: 32px;
+		line-height: 38px;
+	}
+
+	&--price-before {
+		position: relative;
+		font-size: 54px;
+		line-height: 40px;
+		display: inline-block;
+		margin-right: 20px;
+		color: var( --jp-gray-20 );
+	}
+
+	&--price-strikethrough {
+		position: absolute;
+		width: 100%;
+		height: 0;
+		left: 0px;
+		top: 22px;
+		border: 2px solid var( --jp-red );
+	}
+
+	&--price-after {
+		font-size: 54px;
+		line-height: 40px;
+		display: inline-block;
+		color: var( --jp-black );
+	}
+
+	&--currency {
+		vertical-align: super;
+		font-size: var( --font-title-small );
+		line-height: 20px;
+	}
+
+	&--price-details {
+		font-size: 14px;
+		line-height: 17px;
+		color: var( --jp-gray-40 );
+		letter-spacing: -0.02em;
+	}
+
+	&--price-decimal {
+		font-size: var( --font-label );
+		line-height: 14px;
+		vertical-align: top;
+	}
+
+	&--button {
+		width: 100%;
+		height: auto;
+		font-size: 18px;
+		background: var( --jp-black );
+		color: var( --jp-white ) !important;
+		border-radius: var( --jp-border-radius );
+		padding: 10px 24px;
+		margin: 32px 0px;
+		justify-content: center;
+		align-items: center;
+	}
+
+	&--info {
+		font-size: var( --font-label );
+		line-height: 20px;
+		letter-spacing: -0.02em;
+		color: var( --jp-gray-60 );
+	}
+}
