@@ -21,6 +21,8 @@ import ConnectedPlugins from '../../connected-plugins';
  * @param {Function} props.onDisconnect - Callback function that is triggered by clicking the "Disconnect" button.
  * @param {object} props.disconnectError - An error that occurred during a request to disconnect.
  * @param {React.Component} props.disconnectStepComponent - a component to be rendered as part of this step
+ * @param {object} props.connectedPlugins - Plugins that are using the Jetpack connection.
+ * @param {string} props.disconnectingPlugin - The slug of the plugin that is initiating the disconnection.
  * @param {Function} props.closeModal - Callback function that closes the modal.
  * @param {string} props.context - Where this modal is being rendered.
  * @returns {React.Component} - The StepDisconnect component
@@ -34,6 +36,7 @@ const StepDisconnect = props => {
 		disconnectError,
 		disconnectStepComponent,
 		connectedPlugins,
+		disconnectingPlugin,
 		closeModal,
 		context,
 	} = props;
@@ -88,7 +91,10 @@ const StepDisconnect = props => {
 		<React.Fragment>
 			<div className="jp-disconnect-dialog__content">
 				<h1 id="jp-disconnect-dialog__heading">{ title }</h1>
-				<ConnectedPlugins connectedPlugins={ connectedPlugins } />
+				<ConnectedPlugins
+					connectedPlugins={ connectedPlugins }
+					disconnectingPlugin={ disconnectingPlugin }
+				/>
 				{ disconnectStepComponent }
 				{ renderFallbackOutput() }
 			</div>
