@@ -4,8 +4,9 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useCallback, useState } from '@wordpress/element';
+import { useState, useEffect, useReducer } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { usePrevious } from '@wordpress/compose';
 
 /**
  * Internal dependencies
@@ -63,51 +64,122 @@ function getHumanReadableError( result ) {
 	};
 }
 
-export default function useSharePost( callback, deps = [] ) {
+/**
+ * Simple reducer used to increment a counter.
+ *
+ * @param {number} state - Previous counter value.
+ * @returns {number} New state value.
+ */
+const counterReducer = state => state + 1;
+
+export default function useSharePost( postId ) {
+	// Sharing data.
 	const { message } = useSocialMediaMessage();
-	const { connections } = useSocialMediaConnections();
+	const { skippedConnections: skipped_connections } = useSocialMediaConnections();
+
+	// Get post ID to share.
 	const currentPostId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
-	const [ isFetching, setIsFetching ] = useState( false );
+	postId = postId || currentPostId;
 
-	const skipConnectionIds = connections
-		.filter( connection => ! connection.enabled )
-		.map( connection => connection.id );
+	/*
+	 * Create a reducer to trigger the request
+	 * by calling triggerRequest().
+	 */
+	const [ requestNumber, doPublicize ] = useReducer( counterReducer, 0 );
 
-	const onSharePostHandler = useCallback(
-		function ( { postId } = {} ) {
-			postId = postId || currentPostId;
+	/*
+	 * Store the previous request number.
+	 * Used below to detect whether should perform a new request.
+	 */
+	const prevRequestNumber = usePrevious( requestNumber );
 
-			setIsFetching( true );
+	const [ data, setData ] = useState( {
+		isFetching: false,
+		isError: false,
+		isSuccess: false,
+		data: [],
+		error: [],
+		postId,
+	} );
 
-			apiFetch( {
-				path: `/wpcom/v2/posts/${ postId }/publicize`,
-				method: 'POST',
-				data: {
-					message,
-					skipped_connections: skipConnectionIds,
-				},
+	useEffect( () => {
+		// Bail early when no triggered request
+		if ( requestNumber === 0 ) {
+			return;
+		}
+
+		// Bail early when same request is in process.
+		if ( requestNumber === prevRequestNumber ) {
+			return;
+		}
+
+		// Bail early when still fetching.
+		if ( data.isFetching ) {
+			return;
+		}
+
+		// Start the request.
+		setData( prev => ( {
+			...prev,
+			isFetching: true,
+		} ) );
+
+		apiFetch( {
+			path: `/wpcom/v2/posts/${ postId }/publicize`,
+			method: 'POST',
+			data: {
+				message,
+				skipped_connections,
+			},
+		} )
+			.then( ( result = {} ) => {
+				const hasError = getHumanReadableError( result );
+				if ( hasError ) {
+					return setData( prev => ( {
+						...prev,
+						isSuccess: false,
+						isError: true,
+						data: [],
+						error: hasError,
+					} ) );
+				}
+
+				// Success.
+				setData( prev => ( {
+					...prev,
+					isSuccess: true,
+					isError: false,
+					data: result?.results,
+					error: [],
+				} ) );
 			} )
-				.then( ( result = {} ) => {
-					const hasError = getHumanReadableError( result );
-					if ( hasError ) {
-						return callback( hasError );
-					}
+			.catch( error => {
+				setData( prev => ( {
+					...prev,
+					isSuccess: false,
+					isError: true,
+					data: [],
+					error: getHumanReadableError( error ),
+				} ) );
+			} )
+			.finally( () => {
+				setData( prev => ( {
+					...prev,
+					isFetching: false,
+				} ) );
+			} );
 
-					return callback( null, {
-						shared: result?.results,
-						postId,
-					} );
-				} )
-				.catch( error => {
-					callback( getHumanReadableError( error ) );
-				} )
-				.finally( () => {
-					setIsFetching( false );
-				} );
-		},
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[ callback, currentPostId, message, skipConnectionIds, setIsFetching, deps ]
-	);
+		return function () {
+			setData( {
+				isFetching: false,
+				isError: false,
+				isSuccess: false,
+				data: [],
+				error: [],
+				postId,
+			} );
+		};
+	}, [ postId, message, skipped_connections, requestNumber, prevRequestNumber, data.isFetching ] );
 
-	return { onSharePostHandler, isFetching };
+	return { ...data, doPublicize };
 }
