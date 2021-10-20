@@ -126,7 +126,7 @@ importers:
 
   projects/js-packages/connection:
     specifiers:
-      '@automattic/jetpack-api': workspace:^0.4.0
+      '@automattic/jetpack-api': workspace:^0.4.1-alpha
       '@automattic/jetpack-components': workspace:^0.4.0-alpha
       '@wordpress/base-styles': 4.0.0
       '@wordpress/browserslist-config': 4.1.0
@@ -178,7 +178,7 @@ importers:
 
   projects/js-packages/idc:
     specifiers:
-      '@automattic/jetpack-api': workspace:^0.4.0
+      '@automattic/jetpack-api': workspace:^0.4.1-alpha
       '@automattic/jetpack-components': workspace:^0.4.0-alpha
       '@wordpress/base-styles': 4.0.0
       '@wordpress/components': 17.0.0
@@ -293,7 +293,7 @@ importers:
   projects/packages/connection-ui:
     specifiers:
       '@automattic/calypso-build': 9.0.0
-      '@automattic/jetpack-api': workspace:^0.4.0
+      '@automattic/jetpack-api': workspace:^0.4.1-alpha
       '@automattic/jetpack-connection': workspace:^0.8.0-alpha
       '@automattic/jetpack-idc': workspace:^0.3.1-alpha
       '@babel/core': 7.15.0
@@ -406,7 +406,7 @@ importers:
   projects/plugins/backup:
     specifiers:
       '@automattic/calypso-build': 9.0.0
-      '@automattic/jetpack-api': workspace:^0.4.0
+      '@automattic/jetpack-api': workspace:^0.4.1-alpha
       '@automattic/jetpack-components': workspace:^0.4.0-alpha
       '@automattic/jetpack-connection': workspace:^0.8.0-alpha
       '@babel/core': 7.15.0
@@ -547,7 +547,7 @@ importers:
       '@automattic/components': 1.0.0-alpha.3
       '@automattic/format-currency': 1.0.0-alpha.0
       '@automattic/jetpack-analytics': workspace:^0.1.2
-      '@automattic/jetpack-api': workspace:^0.4.0
+      '@automattic/jetpack-api': workspace:^0.4.1-alpha
       '@automattic/jetpack-components': workspace:^0.4.0-alpha
       '@automattic/jetpack-connection': workspace:^0.8.0-alpha
       '@automattic/popup-monitor': 1.0.0
@@ -23510,7 +23510,7 @@ packages:
       serialize-javascript: 6.0.0
       source-map: 0.6.1
       terser: 5.8.0
-      webpack: 5.51.1_webpack-cli@4.8.0
+      webpack: 5.51.1
 
   /terser/3.17.0:
     resolution: {integrity: sha512-/FQzzPJmCpjAH9Xvk2paiWrFq+5M6aVOf+2KRbwhByISDX/EujxsK+BAvrhb6H+2rtrLCHK9N01wO014vrIwVQ==}
