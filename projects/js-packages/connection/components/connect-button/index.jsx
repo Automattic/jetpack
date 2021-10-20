@@ -111,6 +111,8 @@ const ConnectButton = props => {
 
 	return (
 		<>
+			{ connectionStatusIsFetching && `Loading...` }
+
 			{ ( ! connectionStatus.isRegistered || ! connectionStatus.isUserConnected ) &&
 				! connectionStatusIsFetching && (
 					<ActionButton
