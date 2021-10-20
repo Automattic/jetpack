@@ -3,7 +3,9 @@
 	"description": "Used to retrieve information about the current status of Jetpack and the site overall.",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
-	"require": {},
+	"require": {
+		"automattic/jetpack-constants": "1.6.x-dev"
+	},
 	"require-dev": {
 		"brain/monkey": "2.6.0",
 		"yoast/phpunit-polyfills": "1.0.2",
