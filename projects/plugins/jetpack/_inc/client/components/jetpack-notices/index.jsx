@@ -4,6 +4,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 
 /**
  * WordPress dependencies
@@ -217,6 +218,8 @@ class JetpackNotices extends React.Component {
 			error.hasOwnProperty( 'action' )
 		);
 
+		const isUserConnectScreen = '/connect-user' === this.props.location.pathname;
+
 		return (
 			<div aria-live="polite">
 				<NoticesList />
@@ -247,7 +250,8 @@ class JetpackNotices extends React.Component {
 					this.props.userCanConnectAccount &&
 					this.props.hasConnectedOwner &&
 					! siteDataErrors.length &&
-					! this.props.connectionErrors.length && (
+					! this.props.connectionErrors.length &&
+					! isUserConnectScreen && (
 						<UserUnlinked
 							connectUrl={ this.props.connectUrl }
 							siteConnected={ true === this.props.siteConnectionStatus }
@@ -304,4 +308,4 @@ export default connect(
 			},
 		};
 	}
-)( JetpackNotices );
+)( withRouter( JetpackNotices ) );

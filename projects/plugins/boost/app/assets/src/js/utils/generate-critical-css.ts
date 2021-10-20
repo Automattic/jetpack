@@ -20,6 +20,8 @@ import { removeShownAdminNotices } from './remove-admin-notices';
 import { clearDismissedRecommendations } from '../stores/critical-css-recommendations';
 import { castToNumber } from './cast-to-number';
 import { recordBoostEvent } from './analytics';
+import { isSameOrigin } from './is-same-origin';
+import { prepareAdminAjaxRequest } from './make-admin-ajax-request';
 
 export type ProviderKeyUrls = {
 	[ providerKey: string ]: string[];
@@ -120,7 +122,8 @@ export default async function generateCriticalCss(
 			cssStatus.viewports,
 			cssStatus.callback_passthrough,
 			wrappedCallback,
-			cssStatus.provider_success_ratio
+			cssStatus.provider_success_ratio,
+			cssStatus.proxy_nonce
 		);
 	} catch ( err ) {
 		// Swallow errors if cancelling the process.
@@ -135,6 +138,36 @@ export default async function generateCriticalCss(
 }
 
 /**
+ * Helper method to prepare a Browser Interface for Critical CSS generation.
+ *
+ * @param {Object} requestGetParameters - GET parameters to include with each request.
+ * @param {string} proxyNonce           - Nonce to use when proxying CSS requests.
+ */
+function createBrowserInterface( requestGetParameters, proxyNonce ) {
+	return new ( class extends CriticalCSSGenerator.BrowserInterfaceIframe {
+		constructor() {
+			super( {
+				requestGetParameters,
+				verifyPage,
+				allowScripts: false,
+			} );
+		}
+
+		fetch( url, options, context ) {
+			if ( context === 'css' && ! isSameOrigin( url ) ) {
+				return prepareAdminAjaxRequest( {
+					action: 'boost_proxy_css',
+					proxy_url: url,
+					nonce: proxyNonce,
+				} );
+			}
+
+			return fetch( url, options );
+		}
+	} )();
+}
+
+/**
  * Generate Critical CSS for the specified Provider Keys, sending each block
  * to the server. Throws on error or cancellation.
  *
@@ -144,6 +177,7 @@ export default async function generateCriticalCss(
  * @param {JSONObject}         passthrough          - JSON data to include in callbacks to API.
  * @param {MajorMinorCallback} callback             - Callback to send minor / major progress step info to.
  * @param {Array}              successRatios        - Success ratios.
+ * @param {string}             proxyNonce           - Nonce to use when proxying CSS requests.
  */
 async function generateForKeys(
 	providerKeys: ProviderKeyUrls,
@@ -151,7 +185,8 @@ async function generateForKeys(
 	viewports: Viewport[],
 	passthrough: JSONObject,
 	callback: MajorMinorCallback,
-	successRatios: ProvidersSuccessRatio
+	successRatios: ProvidersSuccessRatio,
+	proxyNonce: string
 ): Promise< void > {
 	const majorSteps = Object.keys( providerKeys ).length + 1;
 	let majorStep = 0;
@@ -168,11 +203,7 @@ async function generateForKeys(
 		callback( ++majorStep, majorSteps, 0, 0 );
 		try {
 			const [ css, warnings ] = await CriticalCSSGenerator.generateCriticalCSS( {
-				browserInterface: new CriticalCSSGenerator.BrowserInterfaceIframe( {
-					requestGetParameters,
-					verifyPage,
-					allowScripts: false,
-				} ),
+				browserInterface: createBrowserInterface( requestGetParameters, proxyNonce ),
 				urls,
 				viewports,
 				progressCallback: ( step: number, stepCount: number ) => {
@@ -313,11 +344,11 @@ function keepAtRule( name: string ): boolean {
  * helper function for the library may require the value parameter for filtering.
  * As a result we are retaining the value parameters here.
  *
- * @param {string} name  Name of the property to evaluate
- * @param {string} value Value of the property to evaluate
+ * @param {string} name   Name of the property to evaluate
+ * @param {string} _value Value of the property to evaluate
  * @return {boolean} indicating whether or not the property is wanted.
  */
-function keepProperty( name: string, value: string ): boolean {
+function keepProperty( name: string, _value: string ): boolean {
 	const stripped = stripVendorPrefix( name );
 	return ! stripped.startsWith( 'animation' );
 }

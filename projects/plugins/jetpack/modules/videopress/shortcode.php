@@ -80,6 +80,7 @@ class VideoPress_Shortcode {
 			'permalink'       => true,  // Whether to display the permalink to the video
 			'flashonly'       => false, // Whether to support the Flash player exclusively
 			'defaultlangcode' => false, // Default language code
+			'cover'           => true,  // Whether to scale the video to its container.
 		);
 
 		$attr = shortcode_atts( $defaults, $attr, 'videopress' );
@@ -90,6 +91,7 @@ class VideoPress_Shortcode {
 		$attr['width']   = absint( $attr['w'] );
 		$attr['hd']      = (bool) $attr['hd'];
 		$attr['freedom'] = (bool) $attr['freedom'];
+		$attr['cover']   = (bool) $attr['cover'];
 
 		/**
 		 * If the provided width is less than the minimum allowed
@@ -129,6 +131,7 @@ class VideoPress_Shortcode {
 			array(
 				'at'              => (int) $attr['at'],
 				'hd'              => $attr['hd'],
+				'cover'           => $attr['cover'],
 				'loop'            => $attr['loop'],
 				'freedom'         => $attr['freedom'],
 				'autoplay'        => $attr['autoplay'],
