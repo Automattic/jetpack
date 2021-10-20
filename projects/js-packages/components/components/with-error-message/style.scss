@@ -1,0 +1,22 @@
+// TODO: to be extracted into the `base-styles` package.
+:root {
+	--font-body: 16px;
+	--jp-red: #D63639;
+}
+
+.jp-components-error-message--error-message {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	color: var(--jp-red);
+	margin: 16px 0;
+
+	.error-gridicon {
+		margin-right: 4px;
+		fill: var(--jp-red);
+	}
+
+	span {
+		font-size: var(--font-body);
+	}
+}

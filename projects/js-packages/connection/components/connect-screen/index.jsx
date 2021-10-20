@@ -62,16 +62,18 @@ const ConnectScreen = props => {
 
 				{ children }
 
-				<ConnectButton
-					apiRoot={ apiRoot }
-					apiNonce={ apiNonce }
-					registrationNonce={ registrationNonce }
-					from={ from }
-					redirectUri={ redirectUri }
-					connectionStatus={ connectionStatus }
-					connectLabel={ buttonLabel }
-					autoTrigger={ autoTrigger }
-				/>
+				<div className="jp-connect-screen--button">
+					<ConnectButton
+						apiRoot={ apiRoot }
+						apiNonce={ apiNonce }
+						registrationNonce={ registrationNonce }
+						from={ from }
+						redirectUri={ redirectUri }
+						connectionStatus={ connectionStatus }
+						connectLabel={ buttonLabel }
+						autoTrigger={ autoTrigger }
+					/>
+				</div>
 
 				<div className="jp-connect-screen--tos">
 					{ createInterpolateElement(
