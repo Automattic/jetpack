@@ -60,19 +60,29 @@ class MapEdit extends Component {
 		}
 		getCoordinates( address, apiKey )
 			.then( result => {
-				const newPoint = [
-					{
-						title: result.features?.[ 0 ].text,
-						placeTitle: result.features?.[ 0 ].text,
-						caption: result.features?.[ 0 ].place_name,
-						id: result.features?.[ 0 ].id,
-						coordinates: {
-							latitude: result.features?.[ 0 ].center[ 1 ],
-							longitude: result.features?.[ 0 ].center[ 0 ],
+				if ( ! result.features.length ) {
+					this.onError(
+						null,
+						__(
+							'Could not find the coordinates of the provided address. Displaying default location. Feel free to add the location manually.',
+							'jetpack'
+						)
+					);
+				} else {
+					const newPoint = [
+						{
+							title: result.features?.[ 0 ].text,
+							placeTitle: result.features?.[ 0 ].text,
+							caption: result.features?.[ 0 ].place_name,
+							id: result.features?.[ 0 ].id,
+							coordinates: {
+								latitude: result.features?.[ 0 ].center[ 1 ],
+								longitude: result.features?.[ 0 ].center[ 0 ],
+							},
 						},
-					},
-				];
-				this.props.setAttributes( { points: newPoint } );
+					];
+					this.props.setAttributes( { points: newPoint } );
+				}
 			} )
 			.catch( error => this.onError( null, error.message ) );
 	};
