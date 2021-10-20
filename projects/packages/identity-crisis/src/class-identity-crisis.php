@@ -28,7 +28,7 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.2.8';
+	const PACKAGE_VERSION = '0.2.9-alpha';
 
 	/**
 	 * Instance of the object.
@@ -281,6 +281,10 @@ class Identity_Crisis {
 
 		if ( isset( $response_body['idc_detected'] ) ) {
 			return $this->check_response_for_idc( $response_body['idc_detected'] );
+		}
+
+		if ( isset( $response_body['migrated_for_idc'] ) ) {
+			Jetpack_Options::delete_option( 'migrate_for_idc' );
 		}
 
 		return false;
