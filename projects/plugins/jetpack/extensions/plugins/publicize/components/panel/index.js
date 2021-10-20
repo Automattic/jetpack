@@ -13,6 +13,7 @@ import { __ } from '@wordpress/i18n';
 import { PanelBody, PanelRow, ToggleControl, Button } from '@wordpress/components';
 import { store as editorStore } from '@wordpress/editor';
 import { useSelect } from '@wordpress/data';
+import { useEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -99,19 +100,13 @@ const PublicizePanel = ( { prePublish } ) => {
 	);
 
 	// Testing post sharing function handler.
-	// @TODO: replace with the final implementation
-	const { isFetching, onSharePostHandler } = useSharePost( function ( error, results ) {
-		if ( error ) {
-			// eslint-disable-next-line no-console
-			return console.log( { error } );
-		}
+	// @TODO{: replace with the final implementation
+	const { isFetching, data, error, doPublicize } = useSharePost();
 
+	useEffect( () => {
 		// eslint-disable-next-line no-console
-		console.log( 'results: ', { results } );
-	} );
-
-	// eslint-disable-next-line no-console
-	console.log( 'isFetching: ', isFetching );
+		console.log( isFetching, error, data );
+	}, [ isFetching, data, error ] );
 
 	return (
 		<PanelBody title={ __( 'Share this post', 'jetpack' ) }>
@@ -147,7 +142,7 @@ const PublicizePanel = ( { prePublish } ) => {
 			/>
 			<PublicizeTwitterOptions prePublish={ prePublish } />
 			{ isRePublicizeFeatureEnabled && (
-				<Button isSecondary onClick={ onSharePostHandler }>
+				<Button isSecondary onClick={ doPublicize }>
 					{ __( 'Share post', 'jetpack' ) }
 				</Button>
 			) }
