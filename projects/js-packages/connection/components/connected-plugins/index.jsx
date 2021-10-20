@@ -1,7 +1,7 @@
 /**
  * External Dependencies
  */
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -13,6 +13,8 @@ import DisconnectCard from '../disconnect-card';
  * Render a list of connected plugins.
  *
  * @param props
+ * @param {object} props.connectedPlugins - Plugins that are using the Jetpack connection.
+ * @param {string} props.disconnectingPlugin - Slug of the plugin that has initiated the disconnect.
  * @returns {React.Component} - The ConnectedPlugins React component
  */
 
@@ -23,17 +25,15 @@ const ConnectedPlugins = props => {
 	 * Add a slug property to each ConnectedPlugins object so they can be converted to an array.
 	 * This allows the connected plugins to be iterated over more easily for display.
 	 */
-	useEffect( () => {
+	const connectedPluginsArray = useMemo( () => {
 		if ( connectedPlugins ) {
 			const keys = Object.keys( connectedPlugins );
 			keys.forEach( key => ( connectedPlugins[ key ].slug = key ) );
 		}
-	}, [ connectedPlugins ] );
 
-	const connectedPluginsArray = useMemo( () => {
 		return connectedPlugins
 			? Object.values( connectedPlugins ).filter( plugin => {
-					return disconnectingPlugin ? plugin.slug !== disconnectingPlugin : true;
+					return disconnectingPlugin ? disconnectingPlugin !== plugin.slug : true;
 			  } )
 			: [];
 	}, [ connectedPlugins, disconnectingPlugin ] );

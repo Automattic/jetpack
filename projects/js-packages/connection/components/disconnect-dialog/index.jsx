@@ -219,7 +219,6 @@ const DisconnectDialog = props => {
 			return (
 				<StepDisconnect
 					title={ title }
-					// Filter out the current plugin ( if provided ) from the connected plugins.
 					connectedPlugins={ connectedPlugins }
 					// Component that renders as part of the disconnect step, if passed.
 					disconnectStepComponent={ disconnectStepComponent }
