@@ -6,7 +6,7 @@ import { Button, PanelRow } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as noticesStore } from '@wordpress/notices';
 import { store as editorStore } from '@wordpress/editor';
-import { useEffect, useCallback } from '@wordpress/element';
+import { useEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -22,27 +22,7 @@ export function SharePostButton( { isPublicizeEnabled } ) {
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 	const shouldSavePost = useSelect( select => select( editorStore ).isEditedPostDirty(), [] );
 
-	const { isFetching, isError, isSucess, data, error, doPublicize } = useSharePost();
-
-	const showErrorMessage = useCallback(
-		function () {
-			createErrorNotice( error.message, {
-				id: 'publicize-post-share-message',
-			} );
-		},
-		[ error.message, createErrorNotice ]
-	);
-
-	const showSuccessMessage = useCallback(
-		function () {
-			createSuccessNotice( __( 'Post shared', 'jetpack' ), {
-				id: 'publicize-post-share-message',
-				type: 'snackbar',
-				actions: data.map( ( { url } ) => ( { url, label: 'View' } ) ),
-			} );
-		},
-		[ data, createSuccessNotice ]
-	);
+	const { isFetching, isError, isSuccess, doPublicize } = useSharePost();
 
 	useEffect( () => {
 		if ( isFetching ) {
@@ -50,15 +30,20 @@ export function SharePostButton( { isPublicizeEnabled } ) {
 		}
 
 		if ( isError ) {
-			return showErrorMessage();
+			return createErrorNotice( __( 'Unable to share the Post', 'jetpack' ), {
+				id: 'publicize-post-share-message',
+			} );
 		}
 
-		if ( ! isSucess ) {
+		if ( ! isSuccess ) {
 			return;
 		}
 
-		showSuccessMessage();
-	}, [ isFetching, isError, isSucess, showErrorMessage, showSuccessMessage ] );
+		createSuccessNotice( __( 'Post shared', 'jetpack' ), {
+			id: 'publicize-post-share-message',
+			type: 'snackbar',
+		} );
+	}, [ isFetching, isError, isSuccess, createErrorNotice, createSuccessNotice ] );
 
 	/*
 	 * Disabled button when
