@@ -14,6 +14,7 @@ use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Responsible for populating the initial Redux state.
@@ -140,7 +141,7 @@ class Jetpack_Redux_State_Helper {
 				 * @param bool $are_promotions_active Status of promotions visibility. True by default.
 				 */
 				'showPromotions'             => apply_filters( 'jetpack_show_promotions', true ),
-				'isAtomicSite'               => jetpack_is_atomic_site(),
+				'isAtomicSite'               => ( new Host() )->is_woa_site(),
 				'plan'                       => Jetpack_Plan::get(),
 				'showBackups'                => Jetpack::show_backups_ui(),
 				'showRecommendations'        => Jetpack_Recommendations::is_enabled(),

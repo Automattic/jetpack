@@ -1023,7 +1023,7 @@ class Jetpack_Gutenberg {
 		$slug           = self::remove_extension_prefix( $slug );
 		$features_data  = array();
 		$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
-		$is_atomic_site = jetpack_is_atomic_site();
+		$is_atomic_site = ( new Status\Host() )->is_woa_site();
 
 		// Check feature availability for Simple and Atomic sites.
 		if ( $is_simple_site || $is_atomic_site ) {
@@ -1108,6 +1108,6 @@ class Jetpack_Gutenberg {
  *
  * More doc: https://github.com/Automattic/jetpack/tree/master/projects/plugins/jetpack/extensions#upgrades-for-blocks
  */
-if ( jetpack_is_atomic_site() ) {
+if ( ( new Status\Host() )->is_woa_site() ) {
 	add_filter( 'jetpack_block_editor_enable_upgrade_nudge', '__return_true' );
 }
