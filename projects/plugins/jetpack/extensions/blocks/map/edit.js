@@ -73,8 +73,8 @@ class MapEdit extends Component {
 					},
 				];
 				this.props.setAttributes( { points: newPoint } );
-			} ) /* eslint-disable no-console */
-			.catch( error => console.error( error ) );
+			} )
+			.catch( error => this.onError( null, error.message ) );
 	};
 	componentDidUpdate = previousProps => {
 		const address = this.props.attributes?.address;
