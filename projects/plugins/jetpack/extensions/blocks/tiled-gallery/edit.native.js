@@ -90,14 +90,14 @@ const TiledGalleryEdit = props => {
 
 		const newIds = images?.map( image => image.id );
 		setAttributes( { ids: newIds } );
-	}, [ images ] );
+	}, [ images, setAttributes, updateBlockAttributes ] );
 
 	useEffect( () => {
 		if ( ! columns ) {
 			const col = Math.min( images.length, DEFAULT_COLUMNS );
 			setAttributes( { columns: Math.max( col, 1 ) } );
 		}
-	}, [ images ] );
+	}, [ columns, images, setAttributes ] );
 
 	const populateInnerBlocksWithImages = ( imgs, replace = false ) => {
 		const newBlocks = imgs.map( image => {
@@ -117,7 +117,7 @@ const TiledGalleryEdit = props => {
 			setAttributes( { columns: DEFAULT_COLUMNS } );
 		}
 	}, [ columns, setAttributes ] );
-	
+
 	if ( attributeImages.length && ! images.length ) {
 		populateInnerBlocksWithImages( attributeImages, true );
 	}

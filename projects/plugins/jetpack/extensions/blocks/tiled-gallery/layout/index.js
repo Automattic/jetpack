@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __, sprintf } from '@wordpress/i18n';
-import { Component } from '@wordpress/element';
+import { Component, Platform } from '@wordpress/element';
 import classnames from 'classnames';
 
 /**
@@ -47,10 +47,13 @@ export default class Layout extends Component {
 
 		const { src, srcSet } = photonizedImgProps( img, { layoutStyle } );
 
+		const isWeb = Platform.OS === 'web';
+
 		return (
 			<Image
 				alt={ img.alt }
-				ariaLabel={ ariaLabel }
+				aria-label={ isWeb ? ariaLabel : undefined }
+				ariaLabel={ isWeb ? undefined : ariaLabel }
 				columns={ columns }
 				height={ img.height }
 				id={ img.id }
