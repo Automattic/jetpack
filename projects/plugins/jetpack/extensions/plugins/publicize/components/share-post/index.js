@@ -17,10 +17,8 @@ import usePublicizeConfig from '../../hooks/use-publicize-config';
 
 export function SharePostButton( { isPublicizeEnabled } ) {
 	const { createErrorNotice, removeNotice, createSuccessNotice } = useDispatch( noticesStore );
-	const { savePost } = useDispatch( editorStore );
 	const { hasEnabledConnections } = useSocialMediaConnections();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
-	const shouldSavePost = useSelect( select => select( editorStore ).isEditedPostDirty(), [] );
 
 	const { isFetching, isError, isSuccess, doPublicize } = useSharePost();
 
@@ -66,14 +64,7 @@ export function SharePostButton( { isPublicizeEnabled } ) {
 				}
 
 				removeNotice( 'publicize-post-share-message' );
-
-				// Should save post before sharing?
-				if ( ! shouldSavePost ) {
-					return doPublicize();
-				}
-
-				// Save post before sharing.
-				savePost().then( doPublicize );
+				doPublicize();
 			} }
 			disabled={ isButtonDisabled }
 			isBusy={ isFetching }
