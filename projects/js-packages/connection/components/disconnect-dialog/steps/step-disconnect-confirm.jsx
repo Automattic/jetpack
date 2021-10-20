@@ -9,8 +9,7 @@ import React from 'react';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
-import '../_jp-decorative-card.scss';
-import DecorativeCard from '../decorative-card';
+import DecorativeCard from '../../decorative-card';
 
 /**
  * Shows the step that confirms the site has been disconnected, asks if user would like to provide feedback.

@@ -6,10 +6,10 @@ import React from 'react';
 /**
  * Internal Dependencies
  */
-import './_jp-decorative-card.scss';
+import './style.scss';
 
 const DecorativeCard = props => {
-	const { format, icon } = props;
+	const { format, icon, imageUrl } = props;
 
 	const renderIcon = () => {
 		if ( icon ) {
@@ -23,7 +23,10 @@ const DecorativeCard = props => {
 
 	return (
 		<div className={ 'jp-decorative-card ' + ( format ? 'jp-decorative-card--' + format : '' ) }>
-			<div className="jp-decorative-card__image"></div>
+			<div
+				className="jp-decorative-card__image"
+				style={ { backgroundImage: imageUrl ? 'url(' + imageUrl + ')' : '' } }
+			></div>
 			<div className="jp-decorative-card__content">
 				<div className="jp-decorative-card__lines"></div>
 			</div>

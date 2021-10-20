@@ -6,7 +6,7 @@ import React from 'react';
 /**
  * Internal Dependencies
  */
-import './_jp-disconnect-card.scss';
+import './style.scss';
 
 const DisconnectCard = props => {
 	const { title, value, description } = props;

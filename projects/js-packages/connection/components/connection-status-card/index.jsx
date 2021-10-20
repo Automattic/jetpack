@@ -130,6 +130,7 @@ const ConnectionStatusCard = props => {
 						onDisconnected={ onDisconnectedCallback }
 						connectedPlugins={ connectedPlugins }
 						disconnectingPlugin={ currentPlugin }
+						connectedUser={ connectedUserData }
 					/>
 				</li>
 
