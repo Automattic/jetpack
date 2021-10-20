@@ -27,7 +27,7 @@ import {
 	FEATURE_SITE_BACKUPS_JETPACK,
 } from 'lib/plans/constants';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
-import { getSitePlan } from 'state/site';
+import { getActiveBackupPurchase, getSitePlan, hasActiveBackupPurchase } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import { getVaultPressData } from 'state/at-a-glance';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
@@ -289,7 +289,9 @@ export default connect(
 		return {
 			vaultPressData: getVaultPressData( state ),
 			sitePlan,
-			planClass: getPlanClass( sitePlan ),
+			planClass: hasActiveBackupPurchase( state )
+				? getPlanClass( getActiveBackupPurchase( state ).product_slug )
+				: getPlanClass( sitePlan.product_slug ),
 			isOfflineMode: isOfflineMode( state ),
 			isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
 			showBackups: showBackups( state ),
