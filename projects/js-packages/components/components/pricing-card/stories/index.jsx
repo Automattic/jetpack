@@ -25,7 +25,7 @@ const Template = args => <PricingCard { ...args } />;
 const DefaultArgs = {
 	title: 'Jetpack Backup',
 	icon:
-		"data:image/svg+xml,%3Csvg width='32' height='32' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cmask id='a' maskUnits='userSpaceOnUse' x='0' y='5' width='32' height='22'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M16 5.333c4.853 0 8.893 3.453 9.8 8.053 3.467.24 6.2 3.094 6.2 6.614a6.67 6.67 0 01-6.667 6.666H8c-4.413 0-8-3.586-8-8 0-4.12 3.12-7.52 7.133-7.946A9.994 9.994 0 0116 5.333zM8.667 18l4.666 4.666 8.787-8.786L20.24 12l-6.907 6.906-2.786-2.786L8.667 18z' fill='%23fff'%3E%3C/path%3E%3C/mask%3E%3Cg mask='url(%23a)'%3E%3Cpath fill='%23000' d='M0 0h32v32H0z'%3E%3C/path%3E%3C/g%3E%3C/svg%3E",
+		"data:image/svg+xml,%3Csvg width='32' height='32' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='m21.092 15.164.019-1.703v-.039c0-1.975-1.803-3.866-4.4-3.866-2.17 0-3.828 1.351-4.274 2.943l-.426 1.524-1.581-.065a2.92 2.92 0 0 0-.12-.002c-1.586 0-2.977 1.344-2.977 3.133 0 1.787 1.388 3.13 2.973 3.133H22.399c1.194 0 2.267-1.016 2.267-2.4 0-1.235-.865-2.19-1.897-2.368l-1.677-.29Zm-10.58-3.204a4.944 4.944 0 0 0-.201-.004c-2.75 0-4.978 2.298-4.978 5.133s2.229 5.133 4.978 5.133h12.088c2.357 0 4.267-1.97 4.267-4.4 0-2.18-1.538-3.99-3.556-4.339v-.06c0-3.24-2.865-5.867-6.4-5.867-2.983 0-5.49 1.871-6.199 4.404Z' fill='%23000'/%3E%3C/svg%3E",
 	priceBefore: '9',
 	priceAfter: '4.50',
 	ctaText: 'Get Jetpack Backup',

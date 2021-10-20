@@ -19,7 +19,7 @@ const PricingCard = props => {
 		<div className="pricing__card">
 			{ props.icon && (
 				<div className="pricing__card--icon">
-					<img src={ props.icon } alt="" />
+					<img src={ props.icon } alt={ __( 'Icon for the product ', 'jetpack' ) + props.title } />
 				</div>
 			) }
 			<h1 className="pricing__card--title">{ props.title }</h1>
@@ -38,8 +38,8 @@ const PricingCard = props => {
 					{ priceAfterDecimal && (
 						<span className="pricing__card--price-decimal">.{ priceAfterDecimal }</span>
 					) }
-					<span className="pricing__card--price-details">{ props.priceDetails }</span>
 				</div>
+				<span className="pricing__card--price-details">{ props.priceDetails }</span>
 			</div>
 			<div className="pricing__card--cta">
 				<Button
