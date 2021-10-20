@@ -6,7 +6,7 @@ import classNames from 'classnames';
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
 
 /**
@@ -20,7 +20,7 @@ export default function UpsellNotice() {
 	const { isRePublicizeFeatureEnabled, isRePublicizeFeatureUpgradable } = usePublicizeConfig();
 
 	const requiredPlan = getRequiredPlan( 'republicize' );
-	const [ checkoutUrl, goToCheckoutPage, isRedirecting ] = useUpgradeFlow( requiredPlan );
+	const [ checkoutUrl, goToCheckoutPage, isRedirecting, planData ] = useUpgradeFlow( requiredPlan );
 
 	if ( ! isRePublicizeFeatureEnabled || ! isRePublicizeFeatureUpgradable ) {
 		return null;
@@ -29,9 +29,10 @@ export default function UpsellNotice() {
 	return (
 		<div className="jetpack-publicize__upsell">
 			<div className="jetpack-publicize__upsell-description">
-				{ __(
-					'To re-publicize and schedule a post, you need to upgrade to the Personal Plan',
-					'jetpack'
+				{ sprintf(
+					/* translators: placeholder is the product name of the plan. */
+					'To re publicize a post, you need to upgrade to the %s plan',
+					planData?.product_name
 				) }
 			</div>
 
