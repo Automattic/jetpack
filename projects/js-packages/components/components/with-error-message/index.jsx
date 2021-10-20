@@ -43,11 +43,16 @@ const withErrorMessage = ComponentToWrap => {
 	 */
 	const WrappedComponent = props => {
 		const { displayError, errorMessage, className } = props;
+		const componentProps = Object.assign( {}, props );
+
+		delete componentProps.displayError;
+		delete componentProps.errorMessage;
+		delete componentProps.className;
 
 		return (
 			<>
 				<ComponentToWrap
-					{ ...props }
+					{ ...componentProps }
 					className={
 						className + ( displayError ? ' jp-components-error-message--has-error' : '' )
 					}
@@ -60,7 +65,7 @@ const withErrorMessage = ComponentToWrap => {
 
 	WrappedComponent.defaultProps = {
 		errorMessage: __( 'An error occurred. Please try again.', 'jetpack' ),
-		hasError: false,
+		displayError: false,
 		className: '',
 	};
 
