@@ -15,12 +15,9 @@ export default function useSocialMediaConnections() {
 	);
 
 	const connections = useSelect( select => select( 'jetpack/publicize' ).getConnections(), [] );
-<<<<<<< HEAD
 	const skippedConnections = connections
 		.filter( connection => ! connection.enabled )
 		.map( connection => connection.id );
-=======
->>>>>>> 8ebc95ca01 ([not verified] Fix rebase, back out connections updated state, get new object ref for connection)
 
 	return {
 		connections,
