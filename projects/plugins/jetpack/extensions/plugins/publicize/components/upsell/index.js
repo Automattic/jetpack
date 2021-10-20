@@ -31,7 +31,7 @@ export default function UpsellNotice() {
 			<div className="jetpack-publicize__upsell-description">
 				{ sprintf(
 					/* translators: placeholder is the product name of the plan. */
-					'To re publicize a post, you need to upgrade to the %s plan',
+					__( 'To re publicize a post, you need to upgrade to the %s plan', 'jetpack' ),
 					planData?.product_name
 				) }
 			</div>
@@ -45,7 +45,13 @@ export default function UpsellNotice() {
 				} ) }
 				isBusy={ isRedirecting }
 			>
-				{ isRedirecting ? __( 'Redirecting…', 'jetpack' ) : __( 'Upgrade now', 'jetpack' ) }
+				{ isRedirecting
+					? __( 'Redirecting…', 'jetpack' )
+					: sprintf(
+							/* translators: placeholder is the product name of the plan. */
+							'Upgrade now for %s',
+							planData?.formatted_price
+					  ) }
 			</Button>
 		</div>
 	);
