@@ -21,6 +21,7 @@ import DashItem from 'components/dash-item';
 import JetpackBanner from 'components/jetpack-banner';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
 import {
+	containsBackupRealtime,
 	getPlanClass,
 	getJetpackProductUpsellByFeature,
 	FEATURE_SITE_BACKUPS_JETPACK,
@@ -217,7 +218,7 @@ class DashBackups extends Component {
 					</React.Fragment>
 				);
 			case 'active':
-				const message = [ 'is-business-plan', 'is-realtime-backup-plan' ].includes( planClass )
+				const message = containsBackupRealtime( planClass )
 					? __( 'We are backing up your site in real-time.', 'jetpack' )
 					: __( 'We are backing up your site daily.', 'jetpack' );
 
