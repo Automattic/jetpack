@@ -45,3 +45,5 @@ post/page/etc has changes to save. If so, it saves them before to redirect.
 - `isRedirecting` (`bool`): If the component is in the process of redirecting the
   user. It may be waiting for a save to complete before redirecting. Use
   this to set a button as busy or in a loading state.
+
+- `planData` (`object`) An object with full data about the plan.
