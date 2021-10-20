@@ -139,6 +139,7 @@ importers:
 
   projects/js-packages/connection:
     specifiers:
+      '@automattic/jetpack-analytics': workspace:^0.1.1-alpha
       '@automattic/jetpack-api': workspace:^0.7.1-alpha
       '@automattic/jetpack-base-styles': workspace:^0.1.0
       '@automattic/jetpack-components': workspace:^0.6.4-alpha
@@ -156,6 +157,7 @@ importers:
       react-dom: 17.0.2
       react-test-renderer: 17.0.2
     dependencies:
+      '@automattic/jetpack-analytics': link:../analytics
       '@automattic/jetpack-api': link:../api
       '@automattic/jetpack-components': link:../components
       '@wordpress/base-styles': 4.0.3
