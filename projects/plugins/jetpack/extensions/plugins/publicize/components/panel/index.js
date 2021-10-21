@@ -84,8 +84,9 @@ const PublicizePanel = ( { prePublish } ) => {
 	 */
 	const {
 		isRePublicizeFeatureEnabled,
-		isPublicizeEnabled,
+		isPublicizeEnabled: isPublicizeEnabledFromConfig,
 		togglePublicizeFeature,
+		isRePublicizeFeatureUpgradable,
 	} = usePublicizeConfig();
 
 	// Refresh connections when the post is just published.
@@ -99,6 +100,14 @@ const PublicizePanel = ( { prePublish } ) => {
 		},
 		[ hasEnabledConnections, refresh ]
 	);
+
+	/*
+	 * Publicize is enabled by toggling the control,
+	 * but also disabled when the post is already published,
+	 * and the feature is upgradable.
+	 */
+	const isPublicizeDisabledBySitePlan = isPostPublished && isRePublicizeFeatureUpgradable;
+	const isPublicizeEnabled = isPublicizeEnabledFromConfig && ! isPublicizeDisabledBySitePlan;
 
 	return (
 		<PanelBody title={ __( 'Share this post', 'jetpack' ) }>
