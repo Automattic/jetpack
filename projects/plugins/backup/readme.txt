@@ -4,7 +4,7 @@ Tags: jetpack
 Requires at least: 5.7
 Requires PHP: 5.6
 Tested up to: 5.8
-Stable tag: 0.2.0
+Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -13,8 +13,6 @@ Jetpack is the most proven WordPress backup plugin with over 270 million backups
 == Description ==
 
 Jetpack Backup is a new plugin that focuses specifically on Jetpack's Backup features.
-
-Note: We are currently in a public beta with this plugin. We have tested it rigorously, but as it is a beta release, it is possible that you could encounter some issues while using it.
 
 ### Restoring your site has never been easier
 
@@ -156,7 +154,7 @@ No, Jetpack Backup does not currently support split site or split home URLs.
 2. Your site backups are stored in multiple locations on our world-class cloud infrastructure so you can recover them at any moment.
 
 == Changelog ==
-### 1.0.0-beta - 2021-10-13
+### 1.0.0 - 2021-10-13
 #### Added
 - Added link to the plugins list table for "Settings" to match other Jetpack plugins.
 - Plugin now disconnects Jetpack on deactivation if it's the last plugin using the connection.

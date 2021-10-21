@@ -101,6 +101,13 @@ abstract class SAL_Site {
 
 	abstract public function is_multisite();
 
+	/**
+	 * Points to the user ID of the site owner
+	 *
+	 * @return int for WP.com, null for Jetpack
+	 */
+	abstract public function get_site_owner();
+
 	abstract public function is_single_user_site();
 
 	abstract public function get_plan();

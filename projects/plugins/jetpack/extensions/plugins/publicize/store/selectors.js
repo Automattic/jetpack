@@ -554,5 +554,5 @@ export function getConnections() {
 export function getFeatureEnableState() {
 	const { getEditedPostAttribute } = select( editorStore );
 	const meta = getEditedPostAttribute( 'meta' );
-	return get( meta, [ 'jetpack_publicize_feature_enabled' ], false );
+	return get( meta, [ 'jetpack_publicize_feature_enabled' ], true );
 }
