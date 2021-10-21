@@ -38,26 +38,6 @@ class Jetpack_Monitor {
 	}
 
 	/**
-	 * Send an API request to check if the monitor is active.
-	 *
-	 * @return mixed
-	 *
-	 * @deprecated 8.9.0 The method is not being used since Jetpack 4.2.0, to be removed.
-	 */
-	public function is_active() {
-		_deprecated_function( __METHOD__, 'jetpack-8.9.0' );
-
-		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => get_current_user_id()
-		) );
-		$xml->query( 'jetpack.monitor.isActive' );
-		if ( $xml->isError() ) {
-			wp_die( sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() ) );
-		}
-		return $xml->getResponse();
-	}
-
-	/**
 	 * Whether to receive the notifications.
 	 *
 	 * @param bool $value `true` to enable notifications, `false` to disable them.
@@ -104,50 +84,6 @@ class Jetpack_Monitor {
 			}
 		}
 		return $xml->getResponse();
-	}
-
-	/**
-	 * Send an API request to activate the monitor.
-	 *
-	 * @return bool
-	 *
-	 * @deprecated 8.9.0 The method is not being used since Jetpack 4.2.0, to be removed.
-	 */
-	public function activate_monitor() {
-		_deprecated_function( __METHOD__, 'jetpack-8.9.0' );
-
-		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => get_current_user_id()
-		) );
-
-		$xml->query( 'jetpack.monitor.activate' );
-
-		if ( $xml->isError() ) {
-			wp_die( sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() ) );
-		}
-		return true;
-	}
-
-	/**
-	 * Send an API request to deactivate the monitor.
-	 *
-	 * @return bool
-	 *
-	 * @deprecated 8.9.0 The method is not being used since Jetpack 4.2.0, to be removed.
-	 */
-	public function deactivate_monitor() {
-		_deprecated_function( __METHOD__, 'jetpack-8.9.0' );
-
-		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => get_current_user_id()
-		) );
-
-		$xml->query( 'jetpack.monitor.deactivate' );
-
-		if ( $xml->isError() ) {
-			wp_die( sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() ) );
-		}
-		return true;
 	}
 
 	/*

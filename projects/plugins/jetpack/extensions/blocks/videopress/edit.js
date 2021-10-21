@@ -428,7 +428,7 @@ const VideoPressEdit = CoreVideoEdit =>
 							/>
 						</div>
 						<div className={ ! displayCoreVideoBlock ? 'videopress-block-hide' : '' }>
-							<CoreVideoEdit { ...this.props } />;
+							<CoreVideoEdit { ...this.props } />
 						</div>
 					</Fragment>
 				);

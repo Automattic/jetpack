@@ -622,6 +622,10 @@ class VideoPress_Player {
 			$this->options['hd'] = (bool) get_option( 'video_player_high_quality', false );
 		}
 
+		if ( ! array_key_exists( 'cover', $this->options ) ) {
+			$this->options['cover'] = true;
+		}
+
 		$videopress_options = array(
 			'width'  => absint( $this->video->calculated_width ),
 			'height' => absint( $this->video->calculated_height ),
@@ -638,6 +642,7 @@ class VideoPress_Player {
 				case 'hd':
 				case 'loop':
 				case 'permalink':
+				case 'cover':
 					if ( in_array( $value, array( 1, 'true' ) ) ) {
 						$videopress_options[ $option ] = true;
 					} elseif ( in_array( $value, array( 0, 'false' ) ) ) {

@@ -165,8 +165,9 @@ class Speed_Score {
 		}
 
 		// If this is a fresh install, there might not be any speed score history. In which case, we want to fetch the initial scores.
+		// While updating plugin from 1.2 -> 1.3, the history will be missing along with a non-pending score request due to data structure change.
 		$history = new Speed_Score_History( $url );
-		if ( null === $history->latest_scores() && empty( $score_request ) ) {
+		if ( null === $history->latest_scores() && ( empty( $score_request ) || ! $score_request->is_pending() ) ) {
 			return $this->dispatch_speed_score_request( $request );
 		}
 
@@ -281,10 +282,13 @@ class Speed_Score {
 			);
 
 			// Only include noBoost scores if at least one modules is enabled.
-			$latest_history = $history_no_boost->latest();
-			if ( ! empty( $this->jetpack_boost->get_active_modules() ) && wp_get_theme()->get( 'Name' ) === $latest_history['theme'] ) {
+			$latest_history = $history->latest();
+			if ( ! empty( $this->jetpack_boost->get_active_modules() ) ) {
 				$response['scores']['noBoost'] = $history_no_boost->latest_scores();
 			}
+
+			$response['scores']['isStale'] = wp_get_theme()->get( 'Name' ) !== $latest_history['theme'];
+
 		} else {
 			// If either request ended up in error, we can just return the one with error so front-end can take action. The relevent url is available on the serialized object.
 			if ( ( $score_request && $score_request->is_error() ) || ( $score_request_no_boost && $score_request_no_boost->is_error() ) ) {

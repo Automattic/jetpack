@@ -1,0 +1,75 @@
+name: Build Docker
+on:
+  push:
+    branches: [ 'master' ]
+    paths:
+      - 'tools/docker/Dockerfile'
+      - 'tools/docker/bin/run.sh'
+      - 'tools/docker/config/*'
+      - '.github/versions.sh'
+      - '.github/workflows/build-docker.yml'
+concurrency:
+  group: build-docker-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build and publish Jetpack Dev Environment
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    timeout-minutes: 20  # 2021-10-14: Test run took 5 minutes, but there's lots of downloading involved.
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: matticbot
+          password: ${{ secrets.DOCKER_HUB_MATTICBOT_TOKEN }}
+
+      - name: Log in to GitHub Packages
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fetch build args
+        id: buildargs
+        run: |
+          source .github/versions.sh
+          echo "::set-output name=php-version::$PHP_VERSION"
+          echo "::set-output name=composer-version::$COMPOSER_VERSION"
+          echo "::set-output name=node-version::$NODE_VERSION"
+          echo "::set-output name=pnpm-version::$PNPM_VERSION"
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          # We're not git-tagging for the env. Just tag all builds as latest.
+          tags: |
+            type=raw,latest
+          images: |
+            automattic/jetpack-wordpress-dev
+            ghcr.io/automattic/jetpack-wordpress-dev
+          labels: |
+            org.opencontainers.image.title=Jetpack Development Environment
+            org.opencontainers.image.description=Unified environment for developing in the Jetpack Monorepo using Docker containers.
+            org.opencontainers.image.documentation=${{ github.server_url }}/${{ github.repository }}/blob/master/tools/docker/README.md
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: tools/docker
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            PHP_VERSION=${{ steps.buildargs.outputs.php-version }}
+            COMPOSER_VERSION=${{ steps.buildargs.outputs.composer-version }}
+            NODE_VERSION=${{ steps.buildargs.outputs.node-version }}
+            PNPM_VERSION=${{ steps.buildargs.outputs.pnpm-version }}

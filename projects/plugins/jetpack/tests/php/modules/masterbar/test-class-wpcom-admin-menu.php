@@ -253,7 +253,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_upgrades_menu();
 
-		$this->assertSame( 'https://wordpress.com/plans/my-plan/' . static::$domain, $submenu['paid-upgrades.php'][1][2] );
+		$this->assertSame( 'https://wordpress.com/plans/' . static::$domain, $submenu['paid-upgrades.php'][1][2] );
 		$this->assertSame( 'https://wordpress.com/domains/manage/' . static::$domain, $submenu['paid-upgrades.php'][2][2] );
 
 		/** This filter is already documented in modules/masterbar/admin-menu/class-atomic-admin-menu.php */
