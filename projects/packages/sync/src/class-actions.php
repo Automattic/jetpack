@@ -314,7 +314,7 @@ class Actions {
 		}
 
 		// Sync Logs.
-		$debug['debug_details']['last_succesful_sync'] = get_option( self::LAS_SUCCESS_PREFIX . 'sync', '' );
+		$debug['debug_details']['last_succesful_sync'] = get_option( self::LAST_SUCCESS_PREFIX . 'sync', '' );
 		$debug['debug_details']['sync_error_log']      = get_option( self::ERROR_LOG_PREFIX . 'sync', '' );
 
 		return $debug;
