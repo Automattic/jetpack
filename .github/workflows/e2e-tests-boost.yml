@@ -24,9 +24,10 @@ jobs:
       - name: Setup tools
         uses: ./.github/actions/tool-setup
 
-      - name: Build Production Jetpack Boost
+      - name: Build Production Jetpack & Jetpack Boost
         run: |
           pnpm install
+          pnpx jetpack build plugins/jetpack -v --production
           pnpx jetpack build plugins/boost -v --production
 
       - name: Environment set-up
