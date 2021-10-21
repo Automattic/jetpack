@@ -2,12 +2,20 @@ name: Jetpack Boost E2E Tests
 
 on:
   pull_request:
-    paths-ignore:
-      - '**.md'
+    paths:
+      - 'projects/plugins/boost/**'
+      - '!projects/plugins/boost/**.md'
+      - '!projects/plugins/boost/**.txt'
+      - '!projects/plugins/boost/docs/**'
+      - '!projects/plugins/boost/changelog/**'
   push:
     branches: [master]
-    paths-ignore:
-      - '**.md'
+    paths:
+      - 'projects/plugins/boost/**'
+      - '!projects/plugins/boost/**.md'
+      - '!projects/plugins/boost/**.txt'
+      - '!projects/plugins/boost/docs/**'
+      - '!projects/plugins/boost/changelog/**'
 concurrency:
   group: e2e-tests-boost-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
