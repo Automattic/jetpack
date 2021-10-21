@@ -69,15 +69,16 @@ class MapEdit extends Component {
 						)
 					);
 				} else {
+					const feature = result.features[ 0 ];
 					const newPoint = [
 						{
-							title: result.features?.[ 0 ].text,
-							placeTitle: result.features?.[ 0 ].text,
-							caption: result.features?.[ 0 ].place_name,
-							id: result.features?.[ 0 ].id,
+							title: feature.text,
+							placeTitle: feature.text,
+							caption: feature.place_name,
+							id: feature.id,
 							coordinates: {
-								latitude: result.features?.[ 0 ].center[ 1 ],
-								longitude: result.features?.[ 0 ].center[ 0 ],
+								latitude: feature.center[ 1 ],
+								longitude: feature.center[ 0 ],
 							},
 						},
 					];
