@@ -9,6 +9,7 @@ export const PRODUCT_DESCRIPTION_PRODUCTS = {
 	JETPACK_SCAN: 'scan',
 	JETPACK_SEARCH: 'search',
 	JETPACK_SECURITY: 'security',
+	JETPACK_VIDEOPRESS: 'videopress',
 };
 
 export const productDescriptionRoutes = [
@@ -17,6 +18,7 @@ export const productDescriptionRoutes = [
 	`/product/${ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_SCAN }`,
 	`/product/${ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_SEARCH }`,
 	`/product/${ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_SECURITY }`,
+	`/product/${ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_VIDEOPRESS }`,
 ];
 
 export const productIllustrations = {
@@ -25,4 +27,5 @@ export const productIllustrations = {
 	[ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_SCAN ]: `${ imagePath }products/illustration-scan.png`,
 	[ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_SEARCH ]: `${ imagePath }products/illustration-search.png`,
 	[ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_SECURITY ]: `${ imagePath }products/illustration-scan.png`,
+	[ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_VIDEOPRESS ]: `${ imagePath }products/illustration-search.png`,
 };
