@@ -10,7 +10,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { PanelBody, PanelRow, ToggleControl } from '@wordpress/components';
+import { PanelBody, PanelRow, ToggleControl, Disabled } from '@wordpress/components';
 import { store as editorStore } from '@wordpress/editor';
 import { useSelect } from '@wordpress/data';
 
@@ -109,6 +109,8 @@ const PublicizePanel = ( { prePublish } ) => {
 	const isPublicizeDisabledBySitePlan = isPostPublished && isRePublicizeFeatureUpgradable;
 	const isPublicizeEnabled = isPublicizeEnabledFromConfig && ! isPublicizeDisabledBySitePlan;
 
+	const PanelRowWithDisabled = isPublicizeDisabledBySitePlan ? Disabled : PanelRow;
+
 	return (
 		<PanelBody
 			title={ __( 'Share this post', 'jetpack' ) }
@@ -127,8 +129,9 @@ const PublicizePanel = ( { prePublish } ) => {
 			{ isPostPublished && <UpsellNotice /> }
 
 			{ isRePublicizeFeatureEnabled && (
-				<PanelRow>
+				<PanelRowWithDisabled>
 					<ToggleControl
+						className="jetpack-publicize-toggle"
 						label={
 							isPublicizeEnabled || isPublicizeDisabledBySitePlan
 								? __( 'Sharing is enabled', 'jetpack' )
@@ -136,9 +139,9 @@ const PublicizePanel = ( { prePublish } ) => {
 						}
 						onChange={ togglePublicizeFeature }
 						checked={ isPublicizeEnabled }
-						disabled={ ! hasConnections || isPublicizeDisabledBySitePlan }
+						disabled={ ! hasConnections }
 					/>
-				</PanelRow>
+				</PanelRowWithDisabled>
 			) }
 
 			<PublicizeConnectionVerify />
