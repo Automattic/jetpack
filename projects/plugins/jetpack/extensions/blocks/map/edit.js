@@ -60,7 +60,7 @@ class MapEdit extends Component {
 		}
 		getCoordinates( address, apiKey )
 			.then( result => {
-				if ( ! result.features.length ) {
+				if ( ! result.features?.length ) {
 					this.onError(
 						null,
 						__(
