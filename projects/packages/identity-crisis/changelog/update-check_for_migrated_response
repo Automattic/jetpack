@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Delete the migrate_for_idc option when a remote request returns migrated_for_idc

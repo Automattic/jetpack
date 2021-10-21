@@ -1,0 +1,189 @@
+/********* RNA styles *********/
+// We should extract this into a package
+
+:root {
+	--font-title-large: 36px;
+	--font-title-small: 24px;
+	--font-body: 16px;
+	--font-label: 12px;
+	
+	--jp-black:           #000000;
+	--jp-black-80:        #2C3338;
+	--jp-white:           #FFFFFF;
+	--jp-white-off:       #F9F9F6;
+	--jp-gray:            #DCDCDE;
+	--jp-gray-20:         #A7AAAD;
+	--jp-gray-40:         #787C82;
+	--jp-gray-50:         #646970;
+	--jp-gray-60:         #50575E;
+	--jp-gray-off:        #E2E2DF;
+	--jp-red:             #D63639;
+	--jp-pink:            #C9356E;
+
+	--jp-green-primary:   #069E08;
+	--jp-green-secondary: #2FB41F;
+
+	--jp-border-radius: 4px;
+	--jp-menu-border-height: 1px;
+	--jp-underline-thickness: 2px;
+}
+
+/********* Mixins *********/
+@mixin for-phone-up {
+	@media (min-width: 600px) { @content; }
+}
+@mixin for-tablet-up {
+	@media (min-width: 960px) { @content; }
+}
+
+@mixin for-phone-down {
+	@media (max-width: 600px) { @content; }
+}
+@mixin for-tablet-down {
+	@media (max-width: 960px) { @content; }
+}
+
+/********* Generic styles *********/
+$wp-gray-dark: #23282D;
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	min-height: 100%;
+	margin: 0;
+	padding: 0;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
+}
+.jp-wrap {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	max-width: 1128px;
+	margin: 0 auto;
+}
+
+.jp-row {
+	display: grid;
+	grid-gap: 24px;
+	grid-template-columns: repeat(4, 1fr);
+	width: 100%;
+	margin: 0 16px;
+	
+	@include for-phone-up {
+		grid-template-columns: repeat(8, 1fr);
+		margin: 0 18px;
+	}
+	
+	@include for-tablet-up {
+		grid-template-columns: repeat(12, 1fr);
+		max-width: 1128px;
+		margin: 0 24px;
+	}
+}
+
+@for $i from 1 through 4 {
+	.sm-col-span-#{$i} {
+		grid-column-end: span #{$i};
+	}
+}
+
+@include for-phone-up {
+	@for $i from 1 through 8 {
+		.md-col-span-#{$i} {
+			grid-column-end: span #{$i};
+		}
+	}
+}
+
+@include for-tablet-up {
+	@for $i from 1 through 12 {
+		.lg-col-span-#{$i} {
+			grid-column-end: span #{$i};
+		}
+	}
+}
+
+@include for-tablet-down {
+	.md-col-span-0 {
+		display: none;
+	}
+}
+
+@include for-phone-down {
+	.sm-col-span-0 {
+		display: none;
+	}
+}
+
+.jp-wrap {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	max-width: 1128px;
+	margin: 0 auto;
+}
+
+.jp-row {
+	display: grid;
+	grid-gap: 24px;
+	grid-template-columns: repeat(4, 1fr);
+	width: 100%;
+	margin: 0 16px;
+	
+	@include for-phone-up {
+		grid-template-columns: repeat(8, 1fr);
+		margin: 0 18px;
+	}
+	
+	@include for-tablet-up {
+		grid-template-columns: repeat(12, 1fr);
+		max-width: 1128px;
+		margin: 0 24px;
+	}
+}
+
+.jp-cut {
+	position: relative;
+	display: block;
+	margin: 32px 0;
+	padding: 16px 64px 16px 24px;
+	border: 2px solid var( --jp-green-primary );
+	border-radius: var( --jp-border-radius );
+	text-decoration: none;
+
+	span {
+		display: block;
+
+		&:last-of-type {
+			font-weight: 600;
+		}
+	}
+
+	&:hover,
+	&:focus {
+		//box-shadow: 0px 0px 40px rgba( 0, 0, 0, 0.08 );
+
+		span:last-of-type {
+			text-decoration: underline;
+			text-decoration-thickness: var( --jp-underline-thickness );
+		}
+
+		&:after {
+			transform: translateY( -50% ) translateX( 8px );
+		}
+	}
+
+	&:after {
+		content: "→";
+		position: absolute;
+		top: 50%;
+		right: 24px;
+		font-size: 24px;
+		font-weight: 600;
+		color: var( --jp-green-primary );
+		transform: translateY( -50% );
+		transition: transform 0.15s ease-out;
+	}
+}
