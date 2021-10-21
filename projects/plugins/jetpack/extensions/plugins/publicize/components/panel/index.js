@@ -144,7 +144,7 @@ const PublicizePanel = ( { prePublish } ) => {
 				isRePublicizeFeatureEnabled={ isRePublicizeFeatureEnabled }
 				isPublicizeDisabledBySitePlan={ isPublicizeDisabledBySitePlan }
 			/>
-			<PublicizeTwitterOptions prePublish={ prePublish } />
+			{ ! isPublicizeDisabledBySitePlan && <PublicizeTwitterOptions prePublish={ prePublish } /> }
 
 			<SharePostRow />
 		</PanelBody>
