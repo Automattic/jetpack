@@ -4,6 +4,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@wordpress/components';
+import { getCurrencyObject } from '@automattic/format-currency';
 import { sprintf, __ } from '@wordpress/i18n';
 
 /**
@@ -12,8 +13,8 @@ import { sprintf, __ } from '@wordpress/i18n';
 import './style.scss';
 
 const PricingCard = props => {
-	const priceBeforeDecimal = props.priceBefore.split( '.' )[ 1 ];
-	const priceAfterDecimal = props.priceAfter.split( '.' )[ 1 ];
+	const currencyObjectBefore = getCurrencyObject( props.priceBefore, props.currencyCode );
+	const currencyObjectAfter = getCurrencyObject( props.priceAfter, props.currencyCode );
 
 	return (
 		<div className="pricing__card">
@@ -32,18 +33,18 @@ const PricingCard = props => {
 			<h1 className="pricing__card--title">{ props.title }</h1>
 			<div className="pricing__card--pricing">
 				<div className="pricing__card--price-before">
-					<span className="pricing__card--currency">{ props.currencySymbol }</span>
-					<span className="pricing__card--price">{ parseInt( props.priceBefore ) }</span>
-					{ priceBeforeDecimal && (
-						<span className="pricing__card--price-decimal"> .{ priceBeforeDecimal }</span>
+					<span className="pricing__card--currency">{ currencyObjectBefore.symbol }</span>
+					<span className="pricing__card--price">{ currencyObjectBefore.integer }</span>
+					{ '.00' !== currencyObjectBefore.fraction && (
+						<span className="pricing__card--price-decimal"> { currencyObjectBefore.fraction }</span>
 					) }
 					<div className="pricing__card--price-strikethrough"></div>
 				</div>
 				<div className="pricing__card--price-after">
-					<span className="pricing__card--currency">{ props.currencySymbol }</span>
-					<span className="pricing__card--price">{ parseInt( props.priceAfter ) }</span>
-					{ priceAfterDecimal && (
-						<span className="pricing__card--price-decimal">.{ priceAfterDecimal }</span>
+					<span className="pricing__card--currency">{ currencyObjectAfter.symbol }</span>
+					<span className="pricing__card--price">{ currencyObjectAfter.integer }</span>
+					{ '.00' !== currencyObjectAfter.fraction && (
+						<span className="pricing__card--price-decimal">{ currencyObjectAfter.fraction }</span>
 					) }
 				</div>
 				<span className="pricing__card--price-details">{ props.priceDetails }</span>
@@ -73,8 +74,8 @@ PricingCard.propTypes = {
 	priceAfter: PropTypes.string.isRequired,
 	/** Price details. */
 	priceDetails: PropTypes.string,
-	/** The Currency. */
-	currencySymbol: PropTypes.oneOf( [ '$', '€' ] ),
+	/** The Currency code, eg 'USD'. */
+	currencyCode: PropTypes.string,
 	/** The CTA copy. */
 	ctaText: PropTypes.string.isRequired,
 	/** The CTA callback to be called on click. */
@@ -84,7 +85,7 @@ PricingCard.propTypes = {
 };
 
 PricingCard.defaultProps = {
-	currencySymbol: '$',
+	currencyCode: 'USD',
 	priceDetails: __( '/month, paid yearly', 'jetpack' ),
 };
 
