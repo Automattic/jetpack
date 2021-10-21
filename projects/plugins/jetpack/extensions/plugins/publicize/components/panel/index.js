@@ -136,7 +136,7 @@ const PublicizePanel = ( { prePublish } ) => {
 			/>
 			<PublicizeTwitterOptions prePublish={ prePublish } />
 
-			<SharePostRow isPublicizeEnabled={ isPublicizeEnabled } />
+			<SharePostRow />
 		</PanelBody>
 	);
 };

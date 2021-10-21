@@ -34,8 +34,10 @@ function showSuccessNotice() {
 	} );
 }
 
-export function SharePostButton( { isPublicizeEnabled } ) {
+
+export function SharePostButton() {
 	const { hasEnabledConnections } = useSocialMediaConnections();
+	const { isPublicizeEnabled } = usePublicizeConfig();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
 	const { isFetching, isError, isSuccess, doPublicize } = useSharePost();
@@ -87,16 +89,15 @@ export function SharePostButton( { isPublicizeEnabled } ) {
 	);
 }
 
-export function SharePostRow( { isPublicizeEnabled } ) {
+export function SharePostRow() {
 	const { isRePublicizeFeatureEnabled } = usePublicizeConfig();
-
 	if ( ! isRePublicizeFeatureEnabled ) {
 		return null;
 	}
 
 	return (
 		<PanelRow>
-			<SharePostButton isPublicizeEnabled={ isPublicizeEnabled } />
+			<SharePostButton />
 		</PanelRow>
 	);
 }
