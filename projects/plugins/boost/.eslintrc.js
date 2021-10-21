@@ -24,9 +24,6 @@ module.exports = {
 		},
 	],
 	settings: {
-		jest: {
-			version: 26,
-		},
 		'svelte3/typescript': true,
 
 		// named-blocks is required for interoperability between
