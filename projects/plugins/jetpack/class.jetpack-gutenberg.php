@@ -10,6 +10,7 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Wrapper function to safely register a gutenberg block type
@@ -1023,7 +1024,7 @@ class Jetpack_Gutenberg {
 		$slug           = self::remove_extension_prefix( $slug );
 		$features_data  = array();
 		$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
-		$is_atomic_site = ( new Status\Host() )->is_woa_site();
+		$is_atomic_site = ( new Host() )->is_woa_site();
 
 		// Check feature availability for Simple and Atomic sites.
 		if ( $is_simple_site || $is_atomic_site ) {
@@ -1108,6 +1109,6 @@ class Jetpack_Gutenberg {
  *
  * More doc: https://github.com/Automattic/jetpack/tree/master/projects/plugins/jetpack/extensions#upgrades-for-blocks
  */
-if ( ( new Status\Host() )->is_woa_site() ) {
+if ( ( new Host() )->is_woa_site() ) {
 	add_filter( 'jetpack_block_editor_enable_upgrade_nudge', '__return_true' );
 }
