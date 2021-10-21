@@ -4,7 +4,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { sprintf, __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -19,7 +19,14 @@ const PricingCard = props => {
 		<div className="pricing__card">
 			{ props.icon && (
 				<div className="pricing__card--icon">
-					<img src={ props.icon } alt={ __( 'Icon for the product ', 'jetpack' ) + props.title } />
+					<img
+						src={ props.icon }
+						alt={ sprintf(
+							/* translators: placeholder is a product name */
+							__( 'Icon for the product %s', 'jetpack' ),
+							props.title
+						) }
+					/>
 				</div>
 			) }
 			<h1 className="pricing__card--title">{ props.title }</h1>
