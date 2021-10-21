@@ -127,13 +127,13 @@ const PublicizePanel = ( { prePublish } ) => {
 				<PanelRow>
 					<ToggleControl
 						label={
-							isPublicizeEnabled
+							isPublicizeEnabled || isPublicizeDisabledBySitePlan
 								? __( 'Sharing is enabled', 'jetpack' )
 								: __( 'Sharing is disabled', 'jetpack' )
 						}
 						onChange={ togglePublicizeFeature }
 						checked={ isPublicizeEnabled }
-						disabled={ ! hasConnections }
+						disabled={ ! hasConnections || isPublicizeDisabledBySitePlan }
 					/>
 				</PanelRow>
 			) }
