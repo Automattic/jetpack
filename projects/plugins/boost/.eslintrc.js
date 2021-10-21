@@ -38,8 +38,6 @@ module.exports = {
 	ignorePatterns: [
 		'node_modules',
 		'.eslintrc.js',
-		'jest.config.js',
-		'jest-puppeteer.config.js',
 		'rollup.config.js',
 		'babel.config.js',
 		'wordpress',
