@@ -28,8 +28,8 @@ define( 'MARKDOWNEXTRA_VERSION',  "1.2.8" ); # 29 Nov 2013
 @define( 'MARKDOWN_TAB_WIDTH',     4 );
 
 # Optional title attribute for footnote links and backlinks.
-@define( 'MARKDOWN_FN_LINK_TITLE',         "" );
-@define( 'MARKDOWN_FN_BACKLINK_TITLE',     "" );
+@define( 'MARKDOWN_FN_LINK_TITLE',     __( 'Read footnote.', 'jetpack' ) );
+@define( 'MARKDOWN_FN_BACKLINK_TITLE', __( 'Return to main content.', 'jetpack' ) );
 
 # Optional class attribute for footnote links and backlinks.
 @define( 'MARKDOWN_FN_LINK_CLASS',         "jetpack-footnote" );
