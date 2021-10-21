@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Add a npm slack command to the e2e package.json file to allow for slack notifications during the Github Action e2e worflow
+Add a pnpm slack command to the e2e package.json file to allow for slack notifications during the Github Action e2e worflow
