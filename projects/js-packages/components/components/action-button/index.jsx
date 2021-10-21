@@ -54,4 +54,6 @@ ActionButton.defaultProps = {
 	className: '',
 };
 
+export const ActionButtonComponent = ActionButton;
+
 export default withErrorMessage( ActionButton );

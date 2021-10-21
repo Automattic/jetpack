@@ -7,11 +7,11 @@ import { action } from '@storybook/addon-actions';
 /**
  * Internal dependencies
  */
-import ActionButton from '../index';
+import { ActionButtonComponent } from '../index';
 
 export default {
 	title: 'Playground/Action Button',
-	component: ActionButton,
+	component: ActionButtonComponent,
 	// TODO: Storybook Actions are not working. See https://github.com/storybookjs/storybook/issues/7215
 	argTypes: {
 		onButtonClick: { action: 'clicked' },
@@ -19,7 +19,7 @@ export default {
 };
 
 // Export additional stories using pre-defined values
-const Template = args => <ActionButton { ...args } />;
+const Template = args => <ActionButtonComponent { ...args } />;
 
 const DefaultArgs = {
 	onButtonClick: action( 'onButtonClick' ),
