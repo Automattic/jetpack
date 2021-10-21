@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
-use \Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
 /**
