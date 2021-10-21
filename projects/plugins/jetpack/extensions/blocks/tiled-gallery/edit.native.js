@@ -44,10 +44,10 @@ const TiledGalleryEdit = props => {
 		noticeUI,
 		onFocus,
 		setAttributes,
-		attributes: { columns, linkTo, roundedCorners },
+		attributes: { columns, images: attributeImages, linkTo, roundedCorners },
 	} = props;
 
-	const { replaceInnerBlocks } = useDispatch( blockEditorStore );
+	const { replaceInnerBlocks, updateBlockAttributes } = useDispatch( blockEditorStore );
 
 	useEffect( () => {
 		const { width } = sizes || {};
@@ -80,7 +80,26 @@ const TiledGalleryEdit = props => {
 		[ innerBlockImages ]
 	);
 
-	const onSelectImages = imgs => {
+	useEffect( () => {
+		images?.forEach( newImage => {
+			updateBlockAttributes( newImage.clientId, {
+				...newImage.attributes,
+				id: newImage.id,
+			} );
+		} );
+
+		const newIds = images?.map( image => image.id );
+		setAttributes( { ids: newIds } );
+	}, [ images, setAttributes, updateBlockAttributes ] );
+
+	useEffect( () => {
+		if ( ! columns ) {
+			const col = Math.min( images.length, DEFAULT_COLUMNS );
+			setAttributes( { columns: Math.max( col, 1 ) } );
+		}
+	}, [ columns, images, setAttributes ] );
+
+	const populateInnerBlocksWithImages = ( imgs, replace = false ) => {
 		const newBlocks = imgs.map( image => {
 			return createBlock( 'core/image', {
 				id: image.id,
@@ -90,7 +109,7 @@ const TiledGalleryEdit = props => {
 			} );
 		} );
 
-		replaceInnerBlocks( clientId, concat( innerBlockImages, newBlocks ) );
+		replaceInnerBlocks( clientId, replace ? newBlocks : concat( innerBlockImages, newBlocks ) );
 	};
 
 	useEffect( () => {
@@ -98,6 +117,10 @@ const TiledGalleryEdit = props => {
 			setAttributes( { columns: DEFAULT_COLUMNS } );
 		}
 	}, [ columns, setAttributes ] );
+
+	if ( attributeImages.length && ! images.length ) {
+		populateInnerBlocksWithImages( attributeImages, true );
+	}
 
 	const innerBlocksProps = useInnerBlocksProps(
 		{},
@@ -126,7 +149,7 @@ const TiledGalleryEdit = props => {
 				title: __( 'Tiled Gallery', 'jetpack' ),
 				name: __( 'images', 'jetpack' ),
 			} }
-			onSelect={ onSelectImages }
+			onSelect={ populateInnerBlocksWithImages }
 			accept="image/*"
 			allowedTypes={ ALLOWED_MEDIA_TYPES }
 			multiple
