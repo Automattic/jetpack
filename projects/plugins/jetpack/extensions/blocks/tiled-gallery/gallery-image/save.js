@@ -3,9 +3,10 @@
  */
 import classnames from 'classnames';
 import { isBlobURL } from '@wordpress/blob';
+import { Platform } from '@wordpress/element';
 
 export default function GalleryImageSave( props ) {
-	const { alt, imageFilter, height, id, link, linkTo, origUrl, url, width } = props;
+	const { alt, ariaLabel, imageFilter, height, id, link, linkTo, origUrl, url, width } = props;
 
 	if ( isBlobURL( origUrl ) ) {
 		return null;
@@ -31,7 +32,7 @@ export default function GalleryImageSave( props ) {
 			data-url={ origUrl }
 			data-width={ width }
 			src={ url }
-			data-amp-layout={ 'responsive' }
+			aria-label={ Platform.OS === 'web' ? undefined : ariaLabel }
 		/>
 	);
 
