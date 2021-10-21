@@ -47,16 +47,6 @@ jobs:
       working-directory: projects/plugins/jetpack/tests/e2e
       run: pnpm slack -- suite atomic --report atomic
 
-    - uses: testspace-com/setup-testspace@v1
-      with:
-        domain: ${{github.repository_owner}}
-      if: always()
-    - name: Publish to Testspace
-      working-directory: projects/plugins/jetpack/tests/e2e
-      run: |
-        testspace "[${GROUP}]output/reports/junit-*.xml"
-      if: always()
-
   slack-notification:
     name: "Slack notification"
     runs-on: ubuntu-latest

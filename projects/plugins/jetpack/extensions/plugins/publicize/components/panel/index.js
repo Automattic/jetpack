@@ -23,6 +23,7 @@ import PublicizeTwitterOptions from '../twitter/options';
 import useSelectSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { usePostJustPublished } from '../../hooks/use-saving-post';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
+import { SharePostRow } from '../../components/share-post';
 
 function getPanelDescription(
 	isPostPublished,
@@ -130,6 +131,8 @@ const PublicizePanel = ( { prePublish } ) => {
 				isRePublicizeFeatureEnabled={ isRePublicizeFeatureEnabled }
 			/>
 			<PublicizeTwitterOptions prePublish={ prePublish } />
+
+			<SharePostRow isPublicizeEnabled={ isPublicizeEnabled } />
 		</PanelBody>
 	);
 };
