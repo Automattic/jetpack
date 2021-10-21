@@ -9,7 +9,7 @@
 /**
  * WordPress dependencies
  */
-import { PanelRow } from '@wordpress/components';
+import { PanelRow, Disabled } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 
 /**
@@ -38,8 +38,10 @@ export default function PublicizeForm( {
 		return connections.every( connection => ! connection.toggleable );
 	}
 
+	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
+
 	return (
-		<Fragment>
+		<Wrapper>
 			{ hasConnections && (
 				<PanelRow>
 					<ul className="jetpack-publicize__connections-list">
@@ -72,6 +74,6 @@ export default function PublicizeForm( {
 					) }
 				</Fragment>
 			) }
-		</Fragment>
+		</Wrapper>
 	);
 }

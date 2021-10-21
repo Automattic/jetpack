@@ -110,7 +110,10 @@ const PublicizePanel = ( { prePublish } ) => {
 	const isPublicizeEnabled = isPublicizeEnabledFromConfig && ! isPublicizeDisabledBySitePlan;
 
 	return (
-		<PanelBody title={ __( 'Share this post', 'jetpack' ) }>
+		<PanelBody
+			title={ __( 'Share this post', 'jetpack' ) }
+			className={ isPublicizeDisabledBySitePlan ? 'jetpack-publicize-disabled' : '' }
+		>
 			<div>
 				{ getPanelDescription(
 					isPostPublished,

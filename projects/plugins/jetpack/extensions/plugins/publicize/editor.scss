@@ -84,3 +84,10 @@
 		}
 	}
 }
+
+// Disable styles
+.jetpack-publicize-disabled {
+	.jetpack-publicize__connections-list {
+		opacity: 0.5;
+	}
+}
