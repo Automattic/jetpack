@@ -22,7 +22,7 @@ concurrency:
 
 jobs:
   e2e-tests:
-    name: "Jetpack Boost E2E tests"
+    name: "E2E tests"
     runs-on: ubuntu-latest
     timeout-minutes: 25
 
