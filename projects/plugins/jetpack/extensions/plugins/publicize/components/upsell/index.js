@@ -22,6 +22,10 @@ export default function UpsellNotice() {
 	const requiredPlan = getRequiredPlan( 'republicize' );
 	const [ checkoutUrl, goToCheckoutPage, isRedirecting, planData ] = useUpgradeFlow( requiredPlan );
 
+	/*
+	 * Do not render either when the feature is not enabled,
+	 * or when the feature is enabled and not upgradable.
+	 */
 	if ( ! isRePublicizeFeatureEnabled || ! isRePublicizeFeatureUpgradable ) {
 		return null;
 	}
