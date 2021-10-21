@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-Removed old filters added to Jetpack in order to test Inbox menu prior its official release.
+Removed filters from Jetpack that were used to test the Inbox menu prior to its official release.
