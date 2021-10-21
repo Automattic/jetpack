@@ -142,6 +142,7 @@ const PublicizePanel = ( { prePublish } ) => {
 			<PublicizeForm
 				isPublicizeEnabled={ isPublicizeEnabled }
 				isRePublicizeFeatureEnabled={ isRePublicizeFeatureEnabled }
+				isPublicizeDisabledBySitePlan={ isPublicizeDisabledBySitePlan }
 			/>
 			<PublicizeTwitterOptions prePublish={ prePublish } />
 
