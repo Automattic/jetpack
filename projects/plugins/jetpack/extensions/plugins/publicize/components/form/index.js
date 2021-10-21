@@ -58,15 +58,19 @@ export default function PublicizeForm( {
 				</PanelRow>
 			) }
 
-			<PublicizeSettingsButton />
+			{ ! isPublicizeDisabledBySitePlan && (
+				<Fragment>
+					<PublicizeSettingsButton />
 
-			{ connections.some( connection => connection.enabled ) && (
-				<MessageBoxControl
-					disabled={ isDisabled() }
-					maxLength={ maxLength }
-					onChange={ updateMessage }
-					message={ message }
-				/>
+					{ connections.some( connection => connection.enabled ) && (
+						<MessageBoxControl
+							disabled={ isDisabled() }
+							maxLength={ maxLength }
+							onChange={ updateMessage }
+							message={ message }
+						/>
+					) }
+				</Fragment>
 			) }
 		</Fragment>
 	);
