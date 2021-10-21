@@ -75,8 +75,8 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	/**
 	 * Set up data.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 		global $menu, $submenu;
 
 		$admin_menu = $this->getMockBuilder( WPcom_Admin_Menu::class )
@@ -210,19 +210,19 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_site_card_menu();
 
 		$menu = static::$admin_menu->set_site_card_menu_class( $menu );
-		$this->assertNotContains( 'has-site-icon', $menu[1][4] );
+		$this->assertStringNotContainsString( 'has-site-icon', $menu[1][4] );
 
 		// Atomic fallback site icon counts as no site icon.
 		add_filter( 'get_site_icon_url', array( $this, 'wpcomsh_site_icon_url' ) );
 		$menu = static::$admin_menu->set_site_card_menu_class( $menu );
 		remove_filter( 'get_site_icon_url', array( $this, 'wpcomsh_site_icon_url' ) );
-		$this->assertNotContains( 'has-site-icon', $menu[1][4] );
+		$this->assertStringNotContainsString( 'has-site-icon', $menu[1][4] );
 
 		// Custom site icon triggers CSS class.
 		add_filter( 'get_site_icon_url', array( $this, 'custom_site_icon_url' ) );
 		$menu = static::$admin_menu->set_site_card_menu_class( $menu );
 		remove_filter( 'get_site_icon_url', array( $this, 'custom_site_icon_url' ) );
-		$this->assertContains( 'has-site-icon', $menu[1][4] );
+		$this->assertStringContainsString( 'has-site-icon', $menu[1][4] );
 	}
 
 	/**
@@ -253,7 +253,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_upgrades_menu();
 
-		$this->assertSame( 'https://wordpress.com/plans/my-plan/' . static::$domain, $submenu['paid-upgrades.php'][1][2] );
+		$this->assertSame( 'https://wordpress.com/plans/' . static::$domain, $submenu['paid-upgrades.php'][1][2] );
 		$this->assertSame( 'https://wordpress.com/domains/manage/' . static::$domain, $submenu['paid-upgrades.php'][2][2] );
 
 		/** This filter is already documented in modules/masterbar/admin-menu/class-atomic-admin-menu.php */
@@ -263,6 +263,19 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		} else {
 			$this->assertSame( 'https://wordpress.com/purchases/subscriptions/' . static::$domain, $submenu['paid-upgrades.php'][3][2] );
 		}
+	}
+
+	/**
+	 * Tests add_inbox_menu
+	 *
+	 * @covers ::add_inbox_menu
+	 */
+	public function test_add_inbox_menu() {
+		global $menu;
+
+		static::$admin_menu->add_inbox_menu();
+
+		$this->assertSame( 'https://wordpress.com/inbox/' . static::$domain, $menu['4.64424'][2] );
 	}
 
 	/**
@@ -303,5 +316,21 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 
 		// Gutenberg plugin menu should not be visible.
 		$this->assertArrayNotHasKey( 101, $menu );
+	}
+
+	/**
+	 * Tests add_woocommerce_installation_menu
+	 *
+	 * @covers ::add_woocommerce_installation_menu
+	 */
+	public function test_add_woocommerce_installation_menu() {
+		global $menu;
+
+		add_filter( 'jetpack_show_wpcom_woocommerce_installation_menu', '__return_true' );
+
+		static::$admin_menu->add_woocommerce_installation_menu();
+
+		$this->assertMatchesRegularExpression( '/^separator-custom-.*/', $menu['54'][2] );
+		$this->assertSame( 'https://wordpress.com/woocommerce-installation/' . static::$domain, $menu['55'][2] );
 	}
 }

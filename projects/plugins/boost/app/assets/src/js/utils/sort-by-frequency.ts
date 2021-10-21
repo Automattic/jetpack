@@ -1,5 +1,5 @@
 /**
- * Given a set of strings, sort them by how fequently they occur in the set,
+ * Given a set of strings, sort them by how frequently they occur in the set,
  * and return each unique string sorted from most frequent to least frequent.
  *
  * @param {string[]} strings Strings to sort by frequency

@@ -2,11 +2,23 @@
  * External dependencies
  */
 import { mount } from 'enzyme';
+import { useSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
 import addTweetstormToTweets from '../editor';
+
+jest.mock( '@wordpress/data/build/components/use-select', () => jest.fn() );
+
+useSelect.mockImplementation( ( cb ) => {
+	return cb( () => ( {
+		getEditedPostAttribute: () => ( { } ),
+		isFirstMultiSelectedBlock: jest.fn().mockReturnValueOnce( true ),
+		getMultiSelectedBlockClientIds: () => [],
+		getBlockName: () => 'DaName',
+	} ) );
+} );
 
 describe( 'addTweetstormToTweets', () => {
 	const baseEditFunction = () => {

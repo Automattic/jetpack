@@ -17,12 +17,14 @@ export type CriticalCssErrorDetails = {
 	meta: JSONObject;
 };
 
+/* eslint-disable camelcase */
 export interface CriticalCssStatus {
 	generating: boolean;
 	progress: number;
-	retriedShowstopper: boolean;
+	retried_show_stopper: boolean;
 	callback_passthrough?: JSONObject;
 	generation_nonce?: string;
+	proxy_nonce?: string;
 	pending_provider_keys?: ProviderKeyUrls;
 	provider_success_ratio?: ProvidersSuccessRatio;
 	status: string;
@@ -37,8 +39,10 @@ export interface CriticalCssStatus {
 	provider_key_labels?: { [ name: string ]: string };
 	success_count?: number;
 	created?: number;
+	percent_complete?: number;
 	viewports?: Viewport[];
 }
+/* eslint-enable camelcase */
 
 const success = 'success';
 const fail = 'fail';
@@ -47,7 +51,7 @@ const initialState = Jetpack_Boost.criticalCssStatus || {
 	generating: false,
 	progress: 0,
 	status: 'not_generated',
-	retriedShowstopper: false,
+	retried_show_stopper: false,
 };
 
 const { subscribe, update } = writable< CriticalCssStatus >( initialState );
@@ -71,6 +75,7 @@ export const isFinished = derived( { subscribe }, state =>
 type CriticalCssApiResponse = {
 	status: string;
 	code?: string;
+	// eslint-disable-next-line camelcase
 	status_update?: CriticalCssStatus;
 };
 
@@ -96,7 +101,9 @@ async function callCriticalCssEndpoint(
 	if ( response.status !== success ) {
 		throw new Error(
 			response.code ||
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				( response as any ).message ||
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				( response as any ).error ||
 				JSON.stringify( response )
 		);
@@ -137,7 +144,7 @@ export async function requestGeneration(
 ): Promise< CriticalCssStatus | false > {
 	update( state => ( {
 		...state,
-		retriedShowstopper: isShowstopperRetry,
+		retried_show_stopper: isShowstopperRetry,
 	} ) );
 
 	return callCriticalCssEndpoint( 'post', '/critical-css/request-generate', {

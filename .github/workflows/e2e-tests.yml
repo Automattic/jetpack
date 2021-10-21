@@ -64,14 +64,14 @@ jobs:
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
       run: |
         pnpm install
-        pnpm run test-decrypt-config
+        pnpm run test-decrypt-all-config
         pnpm run env-start
         pnpm run tunnel-on
 
     - name: Set up Gutenberg
       if: matrix.group == 'gutenberg'
       working-directory: projects/plugins/jetpack/tests/e2e
-      run: ./bin/env.sh gb-setup
+      run: pnpx e2e-env gb-setup
 
     - name: Run ${{ matrix.group }} tests
       working-directory: projects/plugins/jetpack/tests/e2e
@@ -98,17 +98,7 @@ jobs:
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       working-directory: projects/plugins/jetpack/tests/e2e
-      run: NODE_ENV=test node ./bin/slack.js suite $GROUP
-
-    - uses: testspace-com/setup-testspace@v1
-      with:
-        domain: ${{github.repository_owner}}
-      if: always()
-    - name: Publish to Testspace
-      working-directory: projects/plugins/jetpack/tests/e2e
-      run: |
-        testspace "[${GROUP}]output/reports/junit-*.xml"
-      if: always()
+      run: pnpm slack -- suite $GROUP
 
   slack-notification:
     name: "Slack notification"
@@ -132,8 +122,8 @@ jobs:
           RESULT: ${{ needs.e2e-tests.result }}
         run: |
           pnpm install
-          pnpm run test-decrypt-config
-          NODE_ENV=test node ./bin/slack.js status $RESULT
+          pnpm run test-decrypt-all-config
+          pnpm slack -- status $RESULT
 
   test-reports:
     name: "Trigger test report workflow"
@@ -142,29 +132,10 @@ jobs:
     needs: e2e-tests
 
     steps:
-      - name: Trigger test report workflow
-        env:
-          TOKEN: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
-          PR_TITLE: ${{ github.event.pull_request.title }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          if [ "$GITHUB_EVENT_NAME" == pull_request ]; then
-          	BRANCH=$GITHUB_HEAD_REF
-            EVENT_NAME="$PR_NUMBER: $PR_TITLE"
-          else
-          	BRANCH=${GITHUB_REF:11}
-            EVENT_NAME="Run $GITHUB_RUN_ID"
-          fi
+      - uses: actions/checkout@v2
 
-          curl -X POST https://api.github.com/repos/automattic/jetpack-e2e-reports/dispatches \
-          -H "Accept: application/vnd.github.v3+json" \
-          -u "user:$TOKEN" \
-          --data "{\"event_type\": \"$EVENT_NAME\",
-          \"client_payload\": {
-          \"repository\": \"$GITHUB_REPOSITORY\",
-          \"run_id\": \"$GITHUB_RUN_ID\",
-          \"run_number\": \"$GITHUB_RUN_NUMBER\",
-          \"branch\": \"$BRANCH\",
-          \"pr_title\": \"$PR_TITLE\",
-          \"pr_number\": \"$PR_NUMBER\"
-          }}"
+      - name: Trigger test report workflow
+        uses: ./.github/actions/test-report-dispatch
+        with:
+          token: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
+          event_type: e2e

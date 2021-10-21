@@ -42,43 +42,212 @@ class WordpressVersioningTest extends TestCase {
 	/**
 	 * Test normalizeVersion and parseVersion.
 	 *
-	 * @dataProvider provideNormalizeVersion
+	 * @dataProvider provideParseVersion
 	 * @param string                          $version Version.
-	 * @param string|InvalidArgumentException $expect Expected result.
+	 * @param string|InvalidArgumentException $expect Expected parse result.
+	 * @param string|null                     $normalized Normalized value, if different from `$version`.
 	 */
-	public function testNormalizeVersion( $version, $expect ) {
+	public function testParseVersion( $version, $expect, $normalized = null ) {
 		$obj = new WordpressVersioning( array() );
 		if ( $expect instanceof InvalidArgumentException ) {
 			$this->expectException( InvalidArgumentException::class );
 			$this->expectExceptionMessage( $expect->getMessage() );
-			$obj->normalizeVersion( $version );
+			$obj->parseVersion( $version );
 		} else {
-			$this->assertSame( $expect, $obj->normalizeVersion( $version ) );
+			$this->assertSame( $expect, $obj->parseVersion( $version ) );
+			$this->assertSame( null === $normalized ? $version : $normalized, $obj->normalizeVersion( $version ) );
 		}
 	}
 
 	/**
-	 * Data provider for testNormalizeVersion.
+	 * Data provider for testParseVersion.
 	 */
-	public function provideNormalizeVersion() {
+	public function provideParseVersion() {
 		return array(
-			array( '1.2', '1.2' ),
-			array( '1000.2', '1000.2' ),
-			array( '1000.2.999', '1000.2.999' ),
-			array( '1.2.3', '1.2.3' ),
-			array( '1.2.0', '1.2' ),
-			array( '0.0.0', '0.0' ),
-			array( '1.2-dev', '1.2-dev' ),
-			array( '1.2.3-dev', '1.2.3-dev' ),
-			array( '1.2.3-alpha', '1.2.3-alpha' ),
-			array( '1.2-alpha1', '1.2-alpha1' ),
-			array( '1.2.3-beta', '1.2.3-beta' ),
-			array( '1.2-beta1', '1.2-beta1' ),
-			array( '1.2.3-rc', '1.2.3-rc' ),
-			array( '1.2-rc1', '1.2-rc1' ),
-			array( '1.2.3-alpha+foobar', '1.2.3-alpha+foobar' ),
-			array( '1.2.3-alpha1+foobar.2', '1.2.3-alpha1+foobar.2' ),
-			array( '0001.2.0003-alpha0001+000foobar000....0002', '1.2.3-alpha0001+000foobar000....0002' ),
+			array(
+				'1.2',
+				array(
+					'major'      => 1.2,
+					'point'      => 0,
+					'prerelease' => null,
+					'buildinfo'  => null,
+					'version'    => '1.2',
+				),
+			),
+			array(
+				'1000.2',
+				array(
+					'major'      => 1000.2,
+					'point'      => 0,
+					'prerelease' => null,
+					'buildinfo'  => null,
+					'version'    => '1000.2',
+				),
+			),
+			array(
+				'1000.2.999',
+				array(
+					'major'      => 1000.2,
+					'point'      => 999,
+					'prerelease' => null,
+					'buildinfo'  => null,
+					'version'    => '1000.2.999',
+				),
+			),
+			array(
+				'1.2.3',
+				array(
+					'major'      => 1.2,
+					'point'      => 3,
+					'prerelease' => null,
+					'buildinfo'  => null,
+					'version'    => '1.2.3',
+				),
+			),
+			array(
+				'1.2.0',
+				array(
+					'major'      => 1.2,
+					'point'      => 0,
+					'prerelease' => null,
+					'buildinfo'  => null,
+					'version'    => '1.2',
+				),
+				'1.2',
+			),
+			array(
+				'0.0.0',
+				array(
+					'major'      => 0.0,
+					'point'      => 0,
+					'prerelease' => null,
+					'buildinfo'  => null,
+					'version'    => '0.0',
+				),
+				'0.0',
+			),
+			array(
+				'1.2-dev',
+				array(
+					'major'      => 1.2,
+					'point'      => 0,
+					'prerelease' => 'dev',
+					'buildinfo'  => null,
+					'version'    => '1.2',
+				),
+			),
+			array(
+				'1.2.3-dev',
+				array(
+					'major'      => 1.2,
+					'point'      => 3,
+					'prerelease' => 'dev',
+					'buildinfo'  => null,
+					'version'    => '1.2.3',
+				),
+			),
+			array(
+				'1.2.3-alpha',
+				array(
+					'major'      => 1.2,
+					'point'      => 3,
+					'prerelease' => 'alpha',
+					'buildinfo'  => null,
+					'version'    => '1.2.3',
+				),
+			),
+			array(
+				'1.2-alpha1',
+				array(
+					'major'      => 1.2,
+					'point'      => 0,
+					'prerelease' => 'alpha1',
+					'buildinfo'  => null,
+					'version'    => '1.2',
+				),
+			),
+			array(
+				'1.2.3-beta',
+				array(
+					'major'      => 1.2,
+					'point'      => 3,
+					'prerelease' => 'beta',
+					'buildinfo'  => null,
+					'version'    => '1.2.3',
+				),
+			),
+			array(
+				'1.2-beta1',
+				array(
+					'major'      => 1.2,
+					'point'      => 0,
+					'prerelease' => 'beta1',
+					'buildinfo'  => null,
+					'version'    => '1.2',
+				),
+			),
+			array(
+				'1.2.3-rc',
+				array(
+					'major'      => 1.2,
+					'point'      => 3,
+					'prerelease' => 'rc',
+					'buildinfo'  => null,
+					'version'    => '1.2.3',
+				),
+			),
+			array(
+				'1.2-rc1',
+				array(
+					'major'      => 1.2,
+					'point'      => 0,
+					'prerelease' => 'rc1',
+					'buildinfo'  => null,
+					'version'    => '1.2',
+				),
+			),
+			array(
+				'1.2.3-alpha+foobar',
+				array(
+					'major'      => 1.2,
+					'point'      => 3,
+					'prerelease' => 'alpha',
+					'buildinfo'  => 'foobar',
+					'version'    => '1.2.3',
+				),
+			),
+			array(
+				'1.2.3-alpha1+foobar.2',
+				array(
+					'major'      => 1.2,
+					'point'      => 3,
+					'prerelease' => 'alpha1',
+					'buildinfo'  => 'foobar.2',
+					'version'    => '1.2.3',
+				),
+			),
+			array(
+				'0001.2.0003-alpha0001+000foobar000....0002',
+				array(
+					'major'      => 1.2,
+					'point'      => 3,
+					'prerelease' => 'alpha0001',
+					'buildinfo'  => '000foobar000....0002',
+					'version'    => '1.2.3',
+				),
+				'1.2.3-alpha0001+000foobar000....0002',
+			),
+			array(
+				'1.2.0-a.1',
+				array(
+					'major'      => 1.2,
+					'point'      => 0,
+					'prerelease' => 'a.1',
+					'buildinfo'  => null,
+					'version'    => '1.2',
+				),
+				'1.2-a.1',
+			),
 
 			array( '1.22', new InvalidArgumentException( 'Version number "1.22" is not in a recognized format.' ) ),
 			array( '1.2.x', new InvalidArgumentException( 'Version number "1.2.x" is not in a recognized format.' ) ),
@@ -97,6 +266,65 @@ class WordpressVersioningTest extends TestCase {
 			array( '1.2.3-?', new InvalidArgumentException( 'Version number "1.2.3-?" is not in a recognized format.' ) ),
 			array( '1.2.3+?', new InvalidArgumentException( 'Version number "1.2.3+?" is not in a recognized format.' ) ),
 			array( '1.2.3-a..b', new InvalidArgumentException( 'Version number "1.2.3-a..b" is not in a recognized format.' ) ),
+		);
+	}
+
+	/**
+	 * Test normalizeVersion, beyond what testParseVersion tests.
+	 *
+	 * @dataProvider provideNormalizeVersion
+	 * @param string|array                    $version Version.
+	 * @param string|InvalidArgumentException $expect Expected result.
+	 * @param array                           $extra Extra, if any.
+	 */
+	public function testNormalizeVersion( $version, $expect, $extra = array() ) {
+		$obj = new WordpressVersioning( array() );
+		if ( $expect instanceof InvalidArgumentException ) {
+			$this->expectException( InvalidArgumentException::class );
+			$this->expectExceptionMessage( $expect->getMessage() );
+			$obj->normalizeVersion( $version, $extra );
+		} else {
+			$this->assertSame( $expect, $obj->normalizeVersion( $version, $extra ) );
+		}
+	}
+
+	/**
+	 * Data provider for testNormalizeVersion.
+	 */
+	public function provideNormalizeVersion() {
+		return array(
+			array(
+				'1.2',
+				'1.2-alpha',
+				array( 'prerelease' => 'alpha' ),
+			),
+			array(
+				'1.2-alpha',
+				'1.2-beta+12345',
+				array(
+					'prerelease' => 'beta',
+					'buildinfo'  => '12345',
+				),
+			),
+			array(
+				'1.2-beta+12345',
+				'1.2',
+				array(
+					'prerelease' => null,
+					'buildinfo'  => null,
+				),
+			),
+
+			'Invalid prerelease component' => array(
+				'1.2.3',
+				new InvalidArgumentException( 'Invalid prerelease data' ),
+				array( 'prerelease' => 'delta?' ),
+			),
+			'Invalid buildinfo component'  => array(
+				'1.2.3',
+				new InvalidArgumentException( 'Invalid buildinfo data' ),
+				array( 'buildinfo' => 'build?' ),
+			),
 		);
 	}
 
@@ -287,8 +515,14 @@ class WordpressVersioningTest extends TestCase {
 			array( '1.1.1-alpha9', '<', '1.1.1-beta1' ),
 			array( '1.1.1-beta9', '>', '1.1.1-beta1' ),
 			array( '1.1.1-beta9', '==', '1.1.1-beta9' ),
+			array( '1.1.1-alpha', '==', '1.1.1-alpha0' ),
 			array( '1.1.1-alpha2', '<', '1.1.1-alpha10' ),
 			array( '1.1.1+beta.9.1', '==', '1.1.1+beta.9' ),
+			array( '10.2-a.1', '>', '10.1' ),
+			array( '10.2-a.1', '<', '10.2' ),
+			array( '10.2-a.1', '>', '10.2-alpha' ),
+			array( '10.2-a.1', '<', '10.2-beta' ),
+			array( '10.2-a.2', '<', '10.2-a.10' ),
 		);
 	}
 

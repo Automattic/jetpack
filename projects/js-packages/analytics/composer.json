@@ -1,0 +1,34 @@
+{
+	"name": "automattic/jetpack-analytics",
+	"description": "Jetpack Analytics library",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "1.0.2",
+		"automattic/jetpack-changelogger": "3.0.x-dev"
+	},
+	"scripts": {
+		"test-js": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm install",
+			"pnpm run test"
+		],
+		"test-coverage": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm install",
+			"pnpx nyc --report-dir=\"$COVERAGE_DIR\" pnpm run test"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true
+}

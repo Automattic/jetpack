@@ -18,7 +18,9 @@ class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 	 *
 	 * @inheritDoc
 	 */
-	public function setUp() {
+	public function set_up() {
+		parent::set_up();
+
 		if ( ! defined( 'TESTING_IN_JETPACK' ) || ! TESTING_IN_JETPACK ) {
 			switch_to_blog( 104104364 ); // test.wordpress.com
 			$this->ids = '161,162';
@@ -46,12 +48,12 @@ class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 	 *
 	 * @inheritDoc
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		if ( ! defined( 'TESTING_IN_JETPACK' ) || ! TESTING_IN_JETPACK ) {
 			restore_current_blog();
 		}
 
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**
@@ -154,6 +156,6 @@ class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 	public function test_shortcodes_slideshow_amp( $shortcode, $expected ) {
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
 
-		$this->assertContains( $expected, do_shortcode( $shortcode ) );
+		$this->assertStringContainsString( $expected, do_shortcode( $shortcode ) );
 	}
 }

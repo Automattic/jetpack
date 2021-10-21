@@ -33,7 +33,8 @@ import {
 } from 'state/connection';
 import DashItem from 'components/dash-item';
 import { get, isArray } from 'lodash';
-import { getUpgradeUrl, isAtomicSite, showBackups } from 'state/initial-state';
+import { isAtomicSite, showBackups } from 'state/initial-state';
+import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import JetpackBanner from 'components/jetpack-banner';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import {
@@ -444,7 +445,7 @@ export default connect(
 			sitePlan,
 			planClass: getPlanClass( get( sitePlan, 'product_slug', '' ) ),
 			showBackups: showBackups( state ),
-			upgradeUrl: getUpgradeUrl( state, 'aag-scan' ),
+			upgradeUrl: getProductDescriptionUrl( state, 'scan' ),
 			hasConnectedOwner: hasConnectedOwnerSelector( state ),
 		};
 	},

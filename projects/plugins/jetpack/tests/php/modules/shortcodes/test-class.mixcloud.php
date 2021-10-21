@@ -19,8 +19,8 @@ class WP_Test_Jetpack_Shortcodes_Mixcloud extends WP_UnitTestCase {
 	 *
 	 * @return void
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 		$this->invalid_markup = '<!-- mixcloud error: invalid mixcloud resource -->';
 
 	}

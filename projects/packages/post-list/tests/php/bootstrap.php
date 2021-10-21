@@ -6,7 +6,7 @@
  */
 
 /**
- * Composer's autoloader is all we need.
+ * Composer's autoloader.
  */
 require_once __DIR__ . '/../../vendor/autoload.php';
 

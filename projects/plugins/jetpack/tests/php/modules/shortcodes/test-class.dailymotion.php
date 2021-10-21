@@ -45,7 +45,7 @@ class WP_Test_Jetpack_Shortcodes_Dailymotion extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( $id, $shortcode_content );
+		$this->assertStringContainsString( $id, $shortcode_content );
 	}
 
 	/**
@@ -73,7 +73,7 @@ class WP_Test_Jetpack_Shortcodes_Dailymotion extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( $id, $shortcode_content );
+		$this->assertStringContainsString( $id, $shortcode_content );
 	}
 
 	/**
@@ -88,7 +88,7 @@ class WP_Test_Jetpack_Shortcodes_Dailymotion extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( $id, $shortcode_content );
+		$this->assertStringContainsString( $id, $shortcode_content );
 	}
 
 	/**
@@ -103,7 +103,7 @@ class WP_Test_Jetpack_Shortcodes_Dailymotion extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( $id, $shortcode_content );
+		$this->assertStringContainsString( $id, $shortcode_content );
 	}
 
 	/**
@@ -119,9 +119,9 @@ class WP_Test_Jetpack_Shortcodes_Dailymotion extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( $video_id, $shortcode_content );
-		$this->assertContains( 'width="' . $width . '"', $shortcode_content );
-		$this->assertContains( 'height="' . $height . '"', $shortcode_content );
+		$this->assertStringContainsString( $video_id, $shortcode_content );
+		$this->assertStringContainsString( 'width="' . $width . '"', $shortcode_content );
+		$this->assertStringContainsString( 'height="' . $height . '"', $shortcode_content );
 	}
 
 		/**
@@ -138,17 +138,17 @@ class WP_Test_Jetpack_Shortcodes_Dailymotion extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( $video_id, $shortcode_content );
-		$this->assertContains( 'autoplay=1', $shortcode_content );
-		$this->assertContains( 'endscreen-enable=0', $shortcode_content );
-		$this->assertContains( 'mute=1', $shortcode_content );
-		$this->assertContains( 'sharing-enable=0', $shortcode_content );
-		$this->assertContains( 'start=45', $shortcode_content );
-		$this->assertContains( 'subtitles-default=en', $shortcode_content );
-		$this->assertContains( 'ui-highlight=ffcc33', $shortcode_content );
-		$this->assertContains( 'ui-logo=0', $shortcode_content );
-		$this->assertContains( 'ui-start-screen-info=0', $shortcode_content );
-		$this->assertContains( 'ui-theme=dark', $shortcode_content );
+		$this->assertStringContainsString( $video_id, $shortcode_content );
+		$this->assertStringContainsString( 'autoplay=1', $shortcode_content );
+		$this->assertStringContainsString( 'endscreen-enable=0', $shortcode_content );
+		$this->assertStringContainsString( 'mute=1', $shortcode_content );
+		$this->assertStringContainsString( 'sharing-enable=0', $shortcode_content );
+		$this->assertStringContainsString( 'start=45', $shortcode_content );
+		$this->assertStringContainsString( 'subtitles-default=en', $shortcode_content );
+		$this->assertStringContainsString( 'ui-highlight=ffcc33', $shortcode_content );
+		$this->assertStringContainsString( 'ui-logo=0', $shortcode_content );
+		$this->assertStringContainsString( 'ui-start-screen-info=0', $shortcode_content );
+		$this->assertStringContainsString( 'ui-theme=dark', $shortcode_content );
 	}
 
 	/**
@@ -224,7 +224,7 @@ class WP_Test_Jetpack_Shortcodes_Dailymotion extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_dailymotion_non_amp( $shortcode_content ) {
 		add_filter( 'jetpack_is_amp_request', '__return_false' );
-		$this->assertNotContains( 'amp-dailymotion', do_shortcode( $shortcode_content ) );
+		$this->assertStringNotContainsString( 'amp-dailymotion', do_shortcode( $shortcode_content ) );
 	}
 
 }

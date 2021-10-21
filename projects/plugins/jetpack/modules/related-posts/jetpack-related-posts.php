@@ -5,7 +5,7 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Sync\Settings;
 
 class Jetpack_RelatedPosts {
-	const VERSION   = '20210604';
+	const VERSION   = '20210930';
 	const SHORTCODE = 'jetpack-related-posts';
 
 	private static $instance     = null;
@@ -303,7 +303,7 @@ EOT;
 
 		if ( ! empty( $block_attributes['show_thumbnails'] ) && ! empty( $related_post['img']['src'] ) ) {
 			$img_link = sprintf(
-				'<li class="jp-related-posts-i2__post-img-link"><a href="%1$s" %2$s><img src="%3$s" width="%4$s" height="%5$s" alt="%6$s" /></a></li>',
+				'<li class="jp-related-posts-i2__post-img-link"><a href="%1$s" %2$s><img src="%3$s" width="%4$s" height="%5$s" alt="%6$s" loading="lazy" /></a></li>',
 				esc_url( $related_post['url'] ),
 				( ! empty( $related_post['rel'] ) ? 'rel="' . esc_attr( $related_post['rel'] ) . '"' : '' ),
 				esc_url( $related_post['img']['src'] ),

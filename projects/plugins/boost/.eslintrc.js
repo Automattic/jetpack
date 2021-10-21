@@ -2,10 +2,10 @@ module.exports = {
 	root: true,
 	parser: '@typescript-eslint/parser',
 	extends: [
+		'@sveltejs',
 		'../../../.eslintrc.js',
 		'plugin:@typescript-eslint/recommended',
 		'plugin:@wordpress/eslint-plugin/recommended',
-		'@sveltejs',
 	],
 	parserOptions: {
 		babelOptions: {
@@ -44,6 +44,7 @@ module.exports = {
 		'babel.config.js',
 		'wordpress',
 		'vendor',
+		'tests',
 		'app/assets/dist',
 	],
 	rules: {

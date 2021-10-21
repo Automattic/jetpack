@@ -17,6 +17,7 @@ require_once dirname( dirname( __DIR__ ) ) . '/lib/class-wp-test-jetpack-rest-te
  * @group rest-api
  */
 class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Jetpack_REST_Testcase {
+
 	static private $user_id = 0;
 	static private $connection_ids = [];
 
@@ -102,16 +103,19 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 		self::$connection_ids[] = 'test-unique-id123';
 	}
 
-	public function setUp() {
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
 		$this->draft_id = $this->factory->post->create( array( 'post_status' => 'draft', 'post_author' => self::$user_id ) );
 
-		parent::setUp();
+		parent::set_up();
 
 		$this->setup_fields();
 
 		wp_set_current_user( self::$user_id );
 
-		// Not sure why this needs to be done in ->setUp() instead of in ::wpSetUpBeforeClass(),
+		// Not sure why this needs to be done in ->set_up() instead of in ::wpSetUpBeforeClass(),
 		// but it does. Otherwise, test_update_message passes when:
 		// phpunit --filter=Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field
 		// but fails when:
@@ -133,7 +137,10 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 		$GLOBALS['wp_rest_server']->override_by_default = false;
 	}
 
-	public function tearDown() {
+	/**
+	 * Tear down.
+	 */
+	public function tear_down() {
 		$publicizeable_post_types = [];
 		// Clean up custom meta from publicizeable post types
 		foreach ( get_post_types() as $post_type ) {
@@ -156,7 +163,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 
 		$this->teardown_fields();
 
-		parent::tearDown();
+		parent::tear_down();
 
 		wp_delete_post( $this->draft_id, true );
 	}
@@ -237,12 +244,12 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 		$data     = $response->get_data();
 
 		$this->assertArrayHasKey( 'jetpack_publicize_connections', $data );
-		$this->assertInternalType( 'array', $data['jetpack_publicize_connections'] );
+		$this->assertIsArray( $data['jetpack_publicize_connections'] );
 		$this->assertSame( self::$connection_ids, wp_list_pluck( $data['jetpack_publicize_connections'], 'id' ) );
 
 		$this->assertArrayHasKey( 'meta', $data );
 		$this->assertArrayHasKey( 'jetpack_publicize_message', $data['meta'] );
-		$this->assertInternalType( 'string', $data['meta']['jetpack_publicize_message'] );
+		$this->assertIsString( $data['meta']['jetpack_publicize_message'] );
 		$this->assertEmpty( $data['meta']['jetpack_publicize_message'] );
 	}
 

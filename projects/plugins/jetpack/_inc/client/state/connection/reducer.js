@@ -43,6 +43,10 @@ export const status = (
 			return assign( {}, state, { siteConnected: action.siteConnected } );
 		case DISCONNECT_SITE_SUCCESS:
 			return assign( {}, state, { siteConnected: action.siteConnected } );
+		case UNLINK_USER_SUCCESS:
+			return assign( {}, state, {
+				siteConnected: { ...state.siteConnected, isUserConnected: false },
+			} );
 		case USER_CONNECTION_DATA_FETCH_SUCCESS:
 			if ( true === action.userConnectionData?.currentUser?.isConnected ) {
 				return assign( {}, state, {
@@ -146,6 +150,18 @@ export const reducer = combineReducers( {
 	user,
 	requests,
 } );
+
+/**
+ * Get the whole connection status object.
+ *
+ * @param  {object} state - Global state tree
+ * @returns {object} Connection status object.
+ */
+export function getConnectionStatus( state ) {
+	return 'object' === typeof state.jetpack.connection.status.siteConnected
+		? state.jetpack.connection.status.siteConnected
+		: false;
+}
 
 /**
  * Returns true if site is connected to WordPress.com

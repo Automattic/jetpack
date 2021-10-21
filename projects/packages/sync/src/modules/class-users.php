@@ -332,7 +332,8 @@ class Users extends Module {
 		/**
 		 * Fires when a user is logged into a site.
 		 *
-		 * @since 7.2.0
+		 * @since 1.6.3
+		 * @since-jetpack 7.2.0
 		 *
 		 * @param int      $user_id The user ID.
 		 * @param \WP_User $user    The User Object  of the user that currently logged in.
@@ -396,7 +397,8 @@ class Users extends Module {
 		/**
 		 * Fires when a user is deleted on a site
 		 *
-		 * @since 5.4.0
+		 * @since 1.6.3
+		 * @since-jetpack 5.4.0
 		 *
 		 * @param int $deleted_user_id - ID of the deleted user.
 		 * @param int $reassigned_user_id - ID of the user the deleted user's posts are reassigned to (if any).
@@ -424,7 +426,8 @@ class Users extends Module {
 		/**
 		 * Fires when a new user is registered on a site
 		 *
-		 * @since 4.9.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.9.0
 		 *
 		 * @param object The WP_User object
 		 */
@@ -453,7 +456,8 @@ class Users extends Module {
 		/**
 		 * Fires when a user is added on a site
 		 *
-		 * @since 4.9.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.9.0
 		 *
 		 * @param object The WP_User object
 		 */
@@ -501,7 +505,8 @@ class Users extends Module {
 		/**
 		 * Fires when the client needs to sync an updated user.
 		 *
-		 * @since 4.2.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
 		 *
 		 * @param \WP_User The WP_User object
 		 * @param array    State - New since 5.8.0
@@ -754,7 +759,8 @@ class Users extends Module {
 		/**
 		 * Fires when a user is removed from a blog on a multisite installation
 		 *
-		 * @since 5.4.0
+		 * @since 1.6.3
+		 * @since-jetpack 5.4.0
 		 *
 		 * @param int $user_id - ID of the removed user
 		 * @param int $reassigned_user_id - ID of the user the removed user's posts are reassigned to (if any).

@@ -47,6 +47,7 @@ class Jetpack_Widget_Conditions {
 		$add_data_assets_to_page = false;
 		$add_html_to_form        = false;
 		$handle_widget_updates   = false;
+		$add_block_controls      = false;
 
 		$using_classic_experience = ( ! function_exists( 'wp_use_widgets_block_editor' ) || ! wp_use_widgets_block_editor() );
 		if ( $using_classic_experience &&
@@ -63,6 +64,7 @@ class Jetpack_Widget_Conditions {
 			// On a screen that is hosting the API in the gutenberg editing experience.
 			if ( is_customize_preview() || 'widgets.php' === $pagenow ) {
 				$add_data_assets_to_page = true;
+				$add_block_controls      = true;
 			}
 
 			// Encoding for a particular widget end point.
@@ -96,6 +98,10 @@ class Jetpack_Widget_Conditions {
 			add_action( 'sidebar_admin_setup', array( __CLASS__, 'widget_admin_setup' ) );
 		}
 
+		if ( $add_block_controls ) {
+			add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'setup_block_controls' ) );
+		}
+
 		if ( ! $add_html_to_form && ! $handle_widget_updates && ! $add_data_assets_to_page &&
 			! in_array( $pagenow, array( 'wp-login.php', 'wp-register.php' ), true )
 		) {
@@ -104,6 +110,60 @@ class Jetpack_Widget_Conditions {
 			add_filter( 'sidebars_widgets', array( __CLASS__, 'sidebars_widgets' ) );
 			add_action( 'template_redirect', array( __CLASS__, 'template_redirect' ) );
 		}
+	}
+
+	/**
+	 * Enqueue the block-based widget visibility scripts.
+	 */
+	public static function setup_block_controls() {
+		$manifest_path       = JETPACK__PLUGIN_DIR . '_inc/build/widget-visibility/editor/index.min.asset.php';
+		$script_path         = plugins_url( '_inc/build/widget-visibility/editor/index.min.js', JETPACK__PLUGIN_FILE );
+		$script_dependencies = array( 'wp-polyfill' );
+		if ( file_exists( $manifest_path ) ) {
+			$asset_manifest      = include $manifest_path;
+			$script_dependencies = $asset_manifest['dependencies'];
+		}
+
+		// Enqueue built script.
+		wp_enqueue_script(
+			'widget-visibility-editor',
+			$script_path,
+			$script_dependencies,
+			JETPACK__VERSION,
+			true
+		);
+		wp_set_script_translations( 'widget-visibility-editor', 'jetpack' );
+	}
+
+	/**
+	 * Add the 'conditions' attribute, where visibility rules are stored, to some blocks.
+	 *
+	 * We normally add the block attributes in the browser's javascript env only,
+	 * but these blocks use a ServerSideRender dynamic preview, so the php env needs
+	 * to know about the new attribute, too.
+	 */
+	public static function add_block_attributes_filter() {
+		$blocks_to_add_visibility_conditions = array(
+			// These use <ServerSideRender>.
+			'core/calendar',
+			'core/latest-comments',
+			'core/rss',
+			'core/archives',
+			'core/tag-cloud',
+			'core/page-list',
+			'core/latest-posts',
+		);
+
+		$filter_metadata_registration = function ( $settings, $metadata ) use ( $blocks_to_add_visibility_conditions ) {
+			if ( in_array( $metadata['name'], $blocks_to_add_visibility_conditions, true ) && ! empty( $settings['attributes'] ) ) {
+				$settings['attributes']['conditions'] = array(
+					'type' => 'object',
+				);
+			}
+			return $settings;
+		};
+
+		add_filter( 'block_type_metadata_settings', $filter_metadata_registration, 10, 2 );
 	}
 
 	/**
@@ -699,25 +759,60 @@ class Jetpack_Widget_Conditions {
 	 * @return array Settings to display or bool false to hide.
 	 */
 	public static function filter_widget( $instance ) {
-		global $wp_query;
-
-		if ( empty( $instance['conditions'] ) || empty( $instance['conditions']['rules'] ) ) {
-			return $instance;
-		}
-
 		// Don't filter widgets from the REST API when it's called via the widgets admin page - otherwise they could get
 		// filtered out and become impossible to edit.
 		if ( strpos( wp_get_raw_referer(), '/wp-admin/widgets.php' ) && false !== strpos( $_SERVER['REQUEST_URI'], '/wp-json/' ) ) {
 			return $instance;
 		}
+		// WordPress.com specific check - here, referer ends in /rest-proxy/ and doesn't tell us what's requesting.
+		$current_url = ! empty( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+		$nonce       = ! empty( $_REQUEST['_gutenberg_nonce'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['_gutenberg_nonce'] ) ) : '';
+		$context     = ! empty( $_REQUEST['context'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['context'] ) ) : '';
+		if ( wp_verify_nonce( $nonce, 'gutenberg_request' ) &&
+			1 === preg_match( '~^/wp/v2/sites/\d+/(sidebars|widgets)~', $current_url ) && 'edit' === $context ) {
+			return $instance;
+		}
 
+		if ( ! empty( $instance['conditions']['rules'] ) ) {
+			// Legacy widgets: visibility found.
+			if ( self::filter_widget_check_conditions( $instance['conditions'] ) ) {
+				return $instance;
+			}
+			return false;
+		} elseif ( ! empty( $instance['content'] ) && has_blocks( $instance['content'] ) ) {
+			// Block-Based widgets: We have gutenberg blocks that could have the 'conditions' attribute.
+			$blocks = parse_blocks( $instance['content'] );
+			if ( empty( $blocks[0]['attrs']['conditions']['rules'] ) ) {
+				// No Rules: Display widget.
+				return $instance;
+			}
+			if ( self::filter_widget_check_conditions( $blocks[0]['attrs']['conditions'] ) ) {
+				// Rules passed checks: Display widget.
+				return $instance;
+			}
+			// Rules failed checks: Hide widget.
+			return false;
+		}
+
+		// No visibility found.
+		return $instance;
+	}
+
+	/**
+	 * Determine whether the widget should be displayed based on conditions set by the user.
+	 *
+	 * @param array $conditions Visibility Conditions: An array with keys 'rules', 'action', and 'match_all'.
+	 * @return bool If the widget controlled by these conditions should show.
+	 */
+	public static function filter_widget_check_conditions( $conditions ) {
+		global $wp_query;
 		// Store the results of all in-page condition lookups so that multiple widgets with
 		// the same visibility conditions don't result in duplicate DB queries.
 		static $condition_result_cache = array();
 
 		$condition_result = false;
 
-		foreach ( $instance['conditions']['rules'] as $rule ) {
+		foreach ( $conditions['rules'] as $rule ) {
 			$condition_result = false;
 			$condition_key    = self::generate_condition_key( $rule );
 
@@ -920,8 +1015,8 @@ class Jetpack_Widget_Conditions {
 			}
 
 			if (
-				isset( $instance['conditions']['match_all'] )
-				&& $instance['conditions']['match_all'] == '1'
+				isset( $conditions['match_all'] )
+				&& '1' === $conditions['match_all']
 				&& ! $condition_result
 			) {
 
@@ -929,8 +1024,8 @@ class Jetpack_Widget_Conditions {
 				break;
 			} elseif (
 				(
-					empty( $instance['conditions']['match_all'] )
-					|| $instance['conditions']['match_all'] !== '1'
+					empty( $conditions['match_all'] )
+					|| '1' !== $conditions['match_all']
 				)
 				&& $condition_result
 			) {
@@ -942,17 +1037,17 @@ class Jetpack_Widget_Conditions {
 
 		if (
 			(
-				'show' == $instance['conditions']['action']
+				'show' === $conditions['action']
 				&& ! $condition_result
 			) || (
-				'hide' == $instance['conditions']['action']
+				'hide' === $conditions['action']
 				&& $condition_result
 			)
 		) {
 			return false;
 		}
 
-		return $instance;
+		return true;
 	}
 
 	public static function strcasecmp_name( $a, $b ) {
@@ -1044,3 +1139,11 @@ class Jetpack_Widget_Conditions {
 }
 
 add_action( 'init', array( 'Jetpack_Widget_Conditions', 'init' ) );
+
+// Add the 'conditions' attribute to server side rendered blocks
+// 'init' happens too late to hook on block registration.
+global $pagenow;
+$current_url = ! empty( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+if ( is_customize_preview() || 'widgets.php' === $pagenow || ( false !== strpos( $current_url, '/wp-json/wp/v2/block-renderer' ) ) ) {
+	Jetpack_Widget_Conditions::add_block_attributes_filter();
+}

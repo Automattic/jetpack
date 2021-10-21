@@ -24,8 +24,8 @@ class WP_Test_Twitter_Timeline_Widget extends WP_UnitTestCase {
 	 *
 	 * @inheritDoc
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 		$this->instance = new Jetpack_Twitter_Timeline_Widget();
 	}
 

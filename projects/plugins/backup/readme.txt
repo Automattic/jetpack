@@ -1,10 +1,10 @@
 === Jetpack Backup ===
-Contributors: automattic, fgiannar, jwebbdev, kraftbj, samiff, sermitr,
+Contributors: automattic, bjorsch, fgiannar, jeherve, jwebbdev, kraftbj, macbre, samiff, sermitr, williamvianas
 Tags: jetpack
 Requires at least: 5.7
 Requires PHP: 5.6
 Tested up to: 5.8
-Stable tag: 0.2.0
+Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -13,8 +13,6 @@ Jetpack is the most proven WordPress backup plugin with over 270 million backups
 == Description ==
 
 Jetpack Backup is a new plugin that focuses specifically on Jetpack's Backup features.
-
-Note: We are currently in a public beta with this plugin. We have tested it rigorously, but as it is a beta release, it is possible that you could encounter some issues while using it.
 
 ### Restoring your site has never been easier
 
@@ -66,15 +64,17 @@ Installation is free, quick, and easy. It only takes a few minutes to install Je
 
 ### Automated installation
 
-* The first option is to install Jetpack Backup from within your WP Admin.
-* To begin, click on the Plugins link in the left hand sidebar, then click Add New.
-* Search for Jetpack Backup. The latest version will be in the search results. Click the Install Now button:
-* Next, click the Activate button. After activating, you will be prompted to set up Jetpack Backup.
+The first option is to install Jetpack Backup from within your WP Admin.
+
+1. To begin, click on the Plugins link in the left hand sidebar, then click Add New.
+2. Search for Jetpack Backup. The latest version will be in the search results. Click the Install Now button:
+3. Next, click the Activate button. After activating, you will be prompted to set up Jetpack Backup.
 
 ### Manual Alternatives
 
 Alternatively, install Jetpack Backup via the plugin directory, or upload the files manually to your server and follow the on-screen instructions.
 
+Detailed instructions on installing Jetpack Backup can be found in our [Getting Started with the Jetpack Backup Plugin](https://jetpack.com/support/the-jetpack-backup-plugin/getting-started-with-the-jetpack-backup-plugin/) article.
 
 == Frequently Asked Questions ==
 
@@ -90,7 +90,7 @@ It’s easy to restore your site in just a few clicks. Check out this quick vide
   <iframe src="https://youtu.be/AYbPsp4eLvc" frameborder="0" allowfullscreen="true"> </iframe>
 </figure>
 
-For more detailed assistance, check out [the full support article.](https://jetpack.com/support/restoring-with-jetpack-backup/)
+For more detailed assistance, check out [the full support article](https://jetpack.com/support/the-jetpack-backup-plugin/restoring-with-the-jetpack-backup-plugin/).
 
 = Doesn’t my host already have backups? =
 
@@ -100,7 +100,7 @@ Jetpack’s off-site backup storage allows you to restore a clean version of you
 
 = How do I create a WordPress backup for my site? =
 
-If you don’t have Backups as part of your Jetpack plan, go to your WordPress admin dashboard and then go to **Jetpack > Dashboard > Plans**. Depending on your plan, you can get daily or real-time WordPress backups. Daily backups are archived for 30 days, and real-time backups have unlimited storage.
+If you don’t have Backups as part of your Jetpack plan, go to your WP Admin and then go to **Jetpack > Dashboard > Plans**. Depending on your plan, you can get daily or real-time WordPress backups. Daily backups are archived for 30 days, and real-time backups have unlimited storage.
 
 As soon as you purchase Jetpack Backup, it will be activated, and the first backup will be completed. There are barely any settings to configure, and you don’t need coding experience.
 
@@ -110,21 +110,21 @@ You’ll know your WordPress backup has been created if you see a **Backup compl
 
 = Don’t see your WordPress backup in the activity log? =
 
-If you notice that backups are not being saved yet, update your [site credentials](https://jetpack.com/support/ssh-sftp-and-ftp-credentials/). Go to **Manage > Settings > Jetpack**. You should see a form that allows you to add your site credentials.
+If you notice that backups are not being saved yet, update your [site credentials](https://jetpack.com/support/the-jetpack-backup-plugin/adding-credentials-to-the-jetpack-backup-plugin/). Go to the [**Jetpack Cloud**](https://cloud.jetpack.com/) and click **Settings**. You should see a form that allows you to add your site credentials.
 
 If Jetpack cannot make contact with your site and it’s not able to create backups, you’ll receive an email after two failed attempts.
 
 = Can I use Jetpack to back up my WordPress database? =
 
-Yes, the Jetpack Backup plugin backs up your WordPress database. Specifically, any tables that begin with your WordPress table prefix and also have a unique key or primary key. For more details, visit [the support page.](https://jetpack.com/support/backup/)
+Yes, the Jetpack Backup plugin backs up your WordPress database. Specifically, any tables that begin with your WordPress table prefix and also have a unique key or primary key. For more details, visit [the support page](https://jetpack.com/support/the-jetpack-backup-plugin/).
 
 = Can I use Jetpack to back up my files? =
 
-Yes, the Jetpack Backup plugin backs up your WordPress database. This includes all files in the plugins, mu-plugins, themes, and uploads directories. For more details, visit [the support page.](https://jetpack.com/support/backup/)
+Yes, the Jetpack Backup plugin backs up your WordPress database. This includes all files in the *plugins*, *mu-plugins*, *themes*, and *uploads* directories. For more details, visit [the support page](https://jetpack.com/support/the-jetpack-backup-plugin/).
 
-= Can I use Jetpack to back up my site without plugins? = 
+= Can I use Jetpack to back up my site without plugins? =
 
-Yes. We will exclude any directory containing a file named .donotbackup. If need be, you can create these files yourself to intentionally prevent certain directories from being backed up. If a directory named donotbackup is added, we will also exclude all files inside that directory. For more details, visit [the support page.](https://jetpack.com/support/backup/)
+Yes. We will exclude any directory containing a file named *.donotbackup*. If need be, you can create these files yourself to intentionally prevent certain directories from being backed up. If a directory named *donotbackup* is added, we will also exclude all files inside that directory. For more details, visit [the support page](https://jetpack.com/support/the-jetpack-backup-plugin/).
 
 = Can Jetpack Backup save files to Google Drive or Dropbox? =
 
@@ -132,9 +132,9 @@ Jetpack Backup doesn’t support saving files directly onto Google Drive or Drop
 
 = Can I download my backups? =
 
-Yes. To download your backup, open your [activity log](https://jetpack.com/support/activity-log/). Use the filters to find the event that you’d like to use, then click the ellipsis (three dots) icon, and choose Download backup. For more details, visit [the support page.](https://jetpack.com/support/restoring-with-jetpack-backup/)
+Yes. To download your backup, open your [activity log](https://jetpack.com/support/the-jetpack-backup-plugin/activity-log-in-the-jetpack-backup-plugin/). Use the filters to find the event or backup that you’d like to use, then click **Actions**, and choose **Download backup**. For more details, visit [the support page](https://jetpack.com/support/restoring-with-jetpack-backup/).
 
-= Does Jetpack Backup support WordPress multisite? = 
+= Does Jetpack Backup support WordPress multisite? =
 
 No, Jetpack Backup does not currently support WordPress multisite.
 
@@ -144,8 +144,8 @@ No, Jetpack Backup does not currently support split site or split home URLs.
 
 = Need help? =
 
-* [Getting started](https://jetpack.com/support/backup/)
-* [Using the activity log](https://jetpack.com/support/activity/)
+* [Getting started](https://jetpack.com/support/the-jetpack-backup-plugin/getting-started-with-the-jetpack-backup-plugin/)
+* [Using the Activity Log](https://jetpack.com/support/the-jetpack-backup-plugin/activity-log-in-the-jetpack-backup-plugin/)
 * [Scope of support](https://jetpack.com/support/scope-of-support/)
 
 == Screenshots ==
@@ -154,19 +154,22 @@ No, Jetpack Backup does not currently support split site or split home URLs.
 2. Your site backups are stored in multiple locations on our world-class cloud infrastructure so you can recover them at any moment.
 
 == Changelog ==
-### 0.2.0 - 2021-08-18
+### 1.0.0 - 2021-10-13
 #### Added
-- Added Backup UI, placeholders, and supporting end points.
-- Added design for No Backup Capabilities view. Removed unused CSS. Minor styling fixes.
-- Added Jetpack header and footer
-- Added UI options to manage your Jetpack connection
+- Added link to the plugins list table for "Settings" to match other Jetpack plugins.
+- Plugin now disconnects Jetpack on deactivation if it's the last plugin using the connection.
+- Updated Backup plugin readme text and remove dummy tag.
+- Updated readme.md installation instructions.
+- Updated plugin menu structure.
 
 #### Changed
-- Changed backup storage and heartbeat info blocks to only display with a backup plan
-- Updated all external links to use jetpack redirect service
-- Updated Jetpack Backup menu item title and icon
+- Changed menu label.
+- Updated package dependencies.
+- Updated styles for buttons in backup panel and spacing for sections below.
 
 #### Fixed
-- Added a state to display before a first backup starts
-- Fix minor styling issue for the "no plan" page.
+- Adjust dashboard styling.
 
+--------
+
+[See the previous changelogs here](https://github.com/Automattic/jetpack/blob/master/projects/plugins/backup/CHANGELOG.md#changelog)

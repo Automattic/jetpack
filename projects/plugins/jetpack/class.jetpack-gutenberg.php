@@ -31,41 +31,6 @@ function jetpack_register_block( $slug, $args = array() ) {
 }
 
 /**
- * Helper function to register a Jetpack Gutenberg plugin
- *
- * @deprecated 7.1.0 Use Jetpack_Gutenberg::set_extension_available() instead
- *
- * @param string $slug Slug of the plugin.
- *
- * @since 6.9.0
- *
- * @return void
- */
-function jetpack_register_plugin( $slug ) {
-	_deprecated_function( __FUNCTION__, '7.1', 'Jetpack_Gutenberg::set_extension_available' );
-
-	Jetpack_Gutenberg::register_plugin( $slug );
-}
-
-/**
- * Set the reason why an extension (block or plugin) is unavailable
- *
- * @deprecated 7.1.0 Use Jetpack_Gutenberg::set_extension_unavailable() instead
- *
- * @param string $slug Slug of the block.
- * @param string $reason A string representation of why the extension is unavailable.
- *
- * @since 7.0.0
- *
- * @return void
- */
-function jetpack_set_extension_unavailability_reason( $slug, $reason ) {
-	_deprecated_function( __FUNCTION__, '7.1', 'Jetpack_Gutenberg::set_extension_unavailable' );
-
-	Jetpack_Gutenberg::set_extension_unavailability_reason( $slug, $reason );
-}
-
-/**
  * General Gutenberg editor specific functionality
  */
 class Jetpack_Gutenberg {
@@ -183,19 +148,6 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Register a plugin
-	 *
-	 * @deprecated 7.1.0 Use Jetpack_Gutenberg::set_extension_available() instead
-	 *
-	 * @param string $slug Slug of the plugin.
-	 */
-	public static function register_plugin( $slug ) {
-		_deprecated_function( __METHOD__, '7.1', 'Jetpack_Gutenberg::set_extension_available' );
-
-		self::set_extension_available( $slug );
-	}
-
-	/**
 	 * Set a (non-block) extension as available
 	 *
 	 * @param string $slug Slug of the extension.
@@ -241,20 +193,6 @@ class Jetpack_Gutenberg {
 			'reason'  => $reason,
 			'details' => $details,
 		);
-	}
-
-	/**
-	 * Set the reason why an extension (block or plugin) is unavailable
-	 *
-	 * @deprecated 7.1.0 Use set_extension_unavailable() instead
-	 *
-	 * @param string $slug Slug of the extension.
-	 * @param string $reason A string representation of why the extension is unavailable.
-	 */
-	public static function set_extension_unavailability_reason( $slug, $reason ) {
-		_deprecated_function( __METHOD__, '7.1', 'Jetpack_Gutenberg::set_extension_unavailable' );
-
-		self::set_extension_unavailable( $slug, $reason );
 	}
 
 	/**
@@ -387,18 +325,6 @@ class Jetpack_Gutenberg {
 		$blocks_variation           = self::blocks_variation();
 
 		return self::get_extensions_preset_for_variation( $preset_extensions_manifest, $blocks_variation );
-	}
-
-	/**
-	 * Returns a list of Jetpack Gutenberg extensions (blocks and plugins), based on index.json
-	 *
-	 * @deprecated 8.7.0 Use get_jetpack_gutenberg_extensions_allowed_list()
-	 *
-	 * @return array A list of blocks: eg [ 'publicize', 'markdown' ]
-	 */
-	public static function get_jetpack_gutenberg_extensions_whitelist() {
-		_deprecated_function( __FUNCTION__, 'jetpack-8.7.0', 'Jetpack_Gutenberg::get_jetpack_gutenberg_extensions_allowed_list' );
-		return self::get_jetpack_gutenberg_extensions_allowed_list();
 	}
 
 	/**
@@ -757,6 +683,16 @@ class Jetpack_Gutenberg {
 					'enable_upgrade_nudge'      => apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ),
 					'is_private_site'           => '-1' === get_option( 'blog_public' ),
 					'is_offline_mode'           => $status->is_offline_mode(),
+					/**
+					 * Enable the RePublicize UI in the block editor context.
+					 *
+					 * @module publicize
+					 *
+					 * @since 10.3.0
+					 *
+					 * @param bool false Enable the RePublicize UI in the block editor context. Defaults to false.
+					 */
+					'republicize_enabled'       => apply_filters( 'jetpack_block_editor_republicize_feature', false ),
 				),
 				'siteFragment'     => $status->get_site_suffix(),
 				'adminUrl'         => esc_url( admin_url() ),
@@ -794,22 +730,33 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Loads PHP components of extended-blocks.
+	 * Loads PHP components of block editor extensions.
 	 *
 	 * @since 8.9.0
 	 */
-	public static function load_extended_blocks() {
+	public static function load_block_editor_extensions() {
 		if ( self::should_load() ) {
-			$extended_blocks = glob( JETPACK__PLUGIN_DIR . 'extensions/extended-blocks/*' );
+			// Block editor extensions to load.
+			$extensions_to_load = array(
+				'extended-blocks',
+				'plugins',
+			);
 
-			foreach ( $extended_blocks as $block ) {
-				$name = basename( $block );
-				$path = JETPACK__PLUGIN_DIR . 'extensions/extended-blocks/' . $name . '/' . $name . '.php';
+			// Collect the extension paths.
+			foreach ( $extensions_to_load as $extension_to_load ) {
+				$extensions_folder = glob( JETPACK__PLUGIN_DIR . 'extensions/' . $extension_to_load . '/*' );
 
-				if ( file_exists( $path ) ) {
-					include_once $path;
+				// Require each of the extension files, in case it exists.
+				foreach ( $extensions_folder as $extension_folder ) {
+					$name                = basename( $extension_folder );
+					$extension_file_path = JETPACK__PLUGIN_DIR . 'extensions/' . $extension_to_load . '/' . $name . '/' . $name . '.php';
+
+					if ( file_exists( $extension_file_path ) ) {
+						include_once $extension_file_path;
+					}
 				}
-			}
+			};
+
 		}
 	}
 
