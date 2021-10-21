@@ -27,6 +27,7 @@ import {
 	getConnectUrl,
 	getConnectingUserFeatureLabel,
 	getConnectionStatus,
+	hasConnectedOwner,
 } from 'state/connection';
 import {
 	setInitialState,
@@ -191,48 +192,10 @@ class Main extends React.Component {
 	}
 
 	renderMainContent = route => {
-		if ( ! this.props.userCanManageModules ) {
-			if ( ! this.props.siteConnectionStatus ) {
-				return false;
-			}
-			return (
-				<div aria-live="assertive">
-					<NonAdminView { ...this.props } />
-				</div>
-			);
-		}
-
-		if ( this.isMainConnectScreen() ) {
-			return (
-				<ConnectScreen
-					apiNonce={ this.props.apiNonce }
-					registrationNonce={ this.props.registrationNonce }
-					apiRoot={ this.props.apiRoot }
-					images={ [ '/images/connect-right.jpg' ] }
-					assetBaseUrl={ this.props.pluginBaseUrl }
-					autoTrigger={ this.shouldAutoTriggerConnection() }
-					redirectUri="admin.php?page=jetpack"
-					connectionStatus={ this.props.connectionStatus }
-				>
-					<p>
-						{ __(
-							"Secure and speed up your site for free with Jetpack's powerful WordPress tools.",
-							'jetpack'
-						) }
-					</p>
-
-					<ul>
-						<li>{ __( 'Measure your impact with beautiful stats', 'jetpack' ) }</li>
-						<li>{ __( 'Speed up your site with optimized images', 'jetpack' ) }</li>
-						<li>{ __( 'Protect your site against bot attacks', 'jetpack' ) }</li>
-						<li>{ __( 'Get notifications if your site goes offline', 'jetpack' ) }</li>
-						<li>{ __( 'Enhance your site with dozens of other features', 'jetpack' ) }</li>
-					</ul>
-				</ConnectScreen>
-			);
-		}
-
-		if ( this.isUserConnectScreen() ) {
+		if (
+			this.isUserConnectScreen() &&
+			( this.props.userCanManageModules || this.props.hasConnectedOwner )
+		) {
 			return (
 				<ConnectScreen
 					apiNonce={ this.props.apiNonce }
@@ -281,6 +244,47 @@ class Main extends React.Component {
 								<Dashicon icon="external" />
 							</a>
 						</li>
+					</ul>
+				</ConnectScreen>
+			);
+		}
+
+		if ( ! this.props.userCanManageModules ) {
+			if ( ! this.props.siteConnectionStatus ) {
+				return false;
+			}
+			return (
+				<div aria-live="assertive">
+					<NonAdminView { ...this.props } />
+				</div>
+			);
+		}
+
+		if ( this.isMainConnectScreen() ) {
+			return (
+				<ConnectScreen
+					apiNonce={ this.props.apiNonce }
+					registrationNonce={ this.props.registrationNonce }
+					apiRoot={ this.props.apiRoot }
+					images={ [ '/images/connect-right.jpg' ] }
+					assetBaseUrl={ this.props.pluginBaseUrl }
+					autoTrigger={ this.shouldAutoTriggerConnection() }
+					redirectUri="admin.php?page=jetpack"
+					connectionStatus={ this.props.connectionStatus }
+				>
+					<p>
+						{ __(
+							"Secure and speed up your site for free with Jetpack's powerful WordPress tools.",
+							'jetpack'
+						) }
+					</p>
+
+					<ul>
+						<li>{ __( 'Measure your impact with beautiful stats', 'jetpack' ) }</li>
+						<li>{ __( 'Speed up your site with optimized images', 'jetpack' ) }</li>
+						<li>{ __( 'Protect your site against bot attacks', 'jetpack' ) }</li>
+						<li>{ __( 'Get notifications if your site goes offline', 'jetpack' ) }</li>
+						<li>{ __( 'Enhance your site with dozens of other features', 'jetpack' ) }</li>
 					</ul>
 				</ConnectScreen>
 			);
@@ -524,6 +528,7 @@ export default connect(
 			siteConnectionStatus: getSiteConnectionStatus( state ),
 			isLinked: isCurrentUserLinked( state ),
 			isConnectingUser: isConnectingUser( state ),
+			hasConnectedOwner: hasConnectedOwner( state ),
 			siteRawUrl: getSiteRawUrl( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
 			searchTerm: getSearchTerm( state ),

@@ -385,7 +385,6 @@ async function createComposerJson( composerJson, answers ) {
 			composerJson.type = 'wordpress-plugin';
 			break;
 		case 'js-package':
-			composerJson[ 'require-dev ' ] = { 'automattic/jetpack-changelogger': '^2.0' };
 			composerJson.scripts = {
 				'test-js': [ 'Composer\\Config::disableProcessTimeout', 'pnpm install', 'pnpm run test' ],
 				'test-coverage': [
