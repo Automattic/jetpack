@@ -23,7 +23,7 @@ export default {
 	},
 	itemsToShow: {
 		type: 'integer',
-		default: 5,
+		default: 10,
 	},
 	showCoverArt: {
 		type: 'boolean',
