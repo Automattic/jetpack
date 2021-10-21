@@ -460,7 +460,7 @@ class Actions {
 			}
 			// Trim existing array to last 4 entries.
 			if ( 5 <= count( $error_log ) ) {
-				$error_log = array_slice( $error_log, -4 );
+				$error_log = array_slice( $error_log, -4, null, true );
 			}
 			// Add new error indexed to time.
 			$error_log[ microtime( true ) ] = $rpc->get_jetpack_error();
