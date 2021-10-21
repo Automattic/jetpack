@@ -651,7 +651,9 @@ function videopress_get_attachment_url( $post_id ) {
 
 	$meta = wp_get_attachment_metadata( $post_id );
 
-	if ( ! isset( $meta['videopress']['files']['hd']['mp4'] ) ) {
+	// As of Jetpack 10.3 transcoded video files are reserved for the VideoPress player.
+	// All other video file requests will receive the originally uploaded file, stored on the wpcom cdn.
+	if ( ! isset( $meta['videopress']['original'] ) ) {
 		// Use the original file as the url if it isn't transcoded yet.
 		if ( isset( $meta['original'] ) ) {
 			$return = $meta['original'];
@@ -660,11 +662,7 @@ function videopress_get_attachment_url( $post_id ) {
 			return null;
 		}
 	} else {
-		$return = $meta['videopress']['file_url_base']['https'] . (
-			isset( $meta['videopress']['files']['hd']['hls'] )
-			? $meta['videopress']['files']['hd']['hls']
-			: $meta['videopress']['files']['hd']['mp4']
-		);
+		$return = $meta['videopress']['original'];
 	}
 
 	// If the URL is a string, return it. Otherwise, we shouldn't to avoid errors downstream, so null.
