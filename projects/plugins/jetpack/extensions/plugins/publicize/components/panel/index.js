@@ -112,7 +112,7 @@ const PublicizePanel = ( { prePublish } ) => {
 				) }
 			</div>
 
-			<UpsellNotice />
+			{ isPostPublished && <UpsellNotice /> }
 
 			{ isRePublicizeFeatureEnabled && (
 				<PanelRow>
