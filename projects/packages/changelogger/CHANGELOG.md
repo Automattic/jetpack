@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.1] - 2021-10-19
+### Fixed
+- Fix the situation where the current is "1.2.3-beta" and we're looking at the dev branch towards the -alpha following the 1.2.3 release, it shouldn't ignore significances.
+
 ## [3.0.0] - 2021-10-13
 ### Changed
 - BREAKING: `VersioningPlugin::normalizeVersion` now takes an `$extra` parameter.
@@ -61,6 +65,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Added
 - Initial version.
 
+[3.0.1]: https://github.com/Automattic/jetpack-changelogger/compare/3.0.0...3.0.1
 [3.0.0]: https://github.com/Automattic/jetpack-changelogger/compare/2.0.1...3.0.0
 [2.0.1]: https://github.com/Automattic/jetpack-changelogger/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/Automattic/jetpack-changelogger/compare/1.2.1...2.0.0
