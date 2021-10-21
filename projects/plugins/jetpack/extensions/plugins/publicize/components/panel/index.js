@@ -133,7 +133,7 @@ const PublicizePanel = ( { prePublish } ) => {
 					<ToggleControl
 						className="jetpack-publicize-toggle"
 						label={
-							isPublicizeEnabled || isPublicizeDisabledBySitePlan
+							isPublicizeEnabled && ! isPublicizeDisabledBySitePlan
 								? __( 'Sharing is enabled', 'jetpack' )
 								: __( 'Sharing is disabled', 'jetpack' )
 						}
