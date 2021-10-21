@@ -40,6 +40,7 @@
 		"@emotion/react": "11.4.1",
 		"@emotion/styled": "11.3.0",
 		"@emotion/utils": "1.0.0",
+		"@storybook/addon-essentials": "6.3.11",
 		"@storybook/addon-a11y": "6.3.10",
 		"@storybook/addon-docs": "6.3.10",
 		"@storybook/addon-knobs": "6.3.1",

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Updated is_true docblock to be more accurate.
