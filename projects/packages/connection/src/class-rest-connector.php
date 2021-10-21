@@ -198,7 +198,7 @@ class REST_Connector {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'connection_authorize_url' ),
-				'permission_callback' => __CLASS__ . '::jetpack_register_permission_check',
+				'permission_callback' => __CLASS__ . '::user_connection_data_permission_check',
 				'args'                => array(
 					'no_iframe'    => array(
 						'description' => __( 'Disable In-Place connection flow and go straight to Calypso', 'jetpack' ),

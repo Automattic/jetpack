@@ -81,6 +81,7 @@ class Jetpack_Plan {
 				'simple-payments',
 				'vaultpress',
 				'videopress',
+				'republicize',
 			),
 		),
 		'security' => array(

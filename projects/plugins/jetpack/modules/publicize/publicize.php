@@ -34,9 +34,9 @@ abstract class Publicize_Base {
 	/**
 	 * Post meta key for the flagging when the post share feature is disabled.
 	 *
-	 * @var bool
+	 * @var string
 	 */
-	public $POST_PUBLICIZE_FEATURE_ENABLED = '_wpas_feature_enabled';
+	const POST_PUBLICIZE_FEATURE_ENABLED = '_wpas_feature_enabled';
 
 	public $POST_SKIP         = '_wpas_skip_'; // connection id appended to indicate that a connection should NOT be publicized to
 	public $POST_DONE         = '_wpas_done_'; // connection id appended to indicate a connection has already been publicized to
@@ -900,7 +900,7 @@ abstract class Publicize_Base {
 			'type'          => 'boolean',
 			'description'   => __( 'Whether or not the Share Post feature is enabled.', 'jetpack' ),
 			'single'        => true,
-			'default'       => false,
+			'default'       => true,
 			'show_in_rest'  => array(
 				'name' => 'jetpack_publicize_feature_enabled',
 			),
@@ -918,7 +918,7 @@ abstract class Publicize_Base {
 
 			register_meta( 'post', $this->POST_MESS, $message_args );
 			register_meta( 'post', $this->POST_TWEETSTORM, $tweetstorm_args );
-			register_meta( 'post', $this->POST_PUBLICIZE_FEATURE_ENABLED, $publicize_feature_enable_args );
+			register_meta( 'post', self::POST_PUBLICIZE_FEATURE_ENABLED, $publicize_feature_enable_args );
 		}
 	}
 
