@@ -1031,12 +1031,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wordbless.git",
-                "reference": "eaecfb3fdc96eef4ecd23b9272f2f5bdbf8e616c"
+                "reference": "fc36fd22a43a9cfd2a47cd576a0584ee88afe521"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wordbless/zipball/eaecfb3fdc96eef4ecd23b9272f2f5bdbf8e616c",
-                "reference": "eaecfb3fdc96eef4ecd23b9272f2f5bdbf8e616c",
+                "url": "https://api.github.com/repos/Automattic/wordbless/zipball/fc36fd22a43a9cfd2a47cd576a0584ee88afe521",
+                "reference": "fc36fd22a43a9cfd2a47cd576a0584ee88afe521",
                 "shasum": ""
             },
             "require": {
@@ -1064,9 +1064,9 @@
             "description": "WorDBless allows you to use WordPress core functions in your PHPUnit tests without having to set up a database and the whole WordPress environment",
             "support": {
                 "issues": "https://github.com/Automattic/wordbless/issues",
-                "source": "https://github.com/Automattic/wordbless/tree/master"
+                "source": "https://github.com/Automattic/wordbless/tree/0.3.1"
             },
-            "time": "2021-10-21T13:30:47+00:00"
+            "time": "2021-07-07T13:01:21+00:00"
         },
         {
             "name": "brain/monkey",
