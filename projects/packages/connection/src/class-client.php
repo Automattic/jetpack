@@ -44,7 +44,7 @@ class Client {
 		/**
 		 * Fired when the remote request response has been received.
 		 *
-		 * @since $$next-version$$
+		 * @since 1.30.8
 		 *
 		 * @param array|WP_Error The HTTP response.
 		 */
@@ -484,18 +484,5 @@ class Client {
 		}
 
 		return $data;
-	}
-
-	/**
-	 * Gets protocol string.
-	 *
-	 * @return string Always 'https'.
-	 *
-	 * @deprecated 1.19.2 WP.com API no longer supports requests using `http://`.
-	 */
-	public static function protocol() {
-		_deprecated_function( __METHOD__, '1.19.2' );
-
-		return 'https';
 	}
 }

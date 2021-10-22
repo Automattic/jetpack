@@ -644,7 +644,7 @@ class Test_Identity_Crisis extends BaseTestCase {
 	}
 
 	/**
-	 * Data provider for test_check_http_response_for_idc_detected_idc_detected
+	 * Data provider for test_check_http_response_for_idc_detected_idc_detected.
 	 *
 	 * @return The test data with the structure:
 	 *    'input'           => The input for the check_response_for_idc method.
@@ -690,6 +690,26 @@ class Test_Identity_Crisis extends BaseTestCase {
 				),
 			),
 		);
+	}
+
+	/**
+	 * Test the check_response_for_idc method when the response does contain an error code.
+	 */
+	public function test_check_http_response_for_idc_detected_migrated_for_idc() {
+		Jetpack_Options::update_option( 'migrate_for_idc', 1 );
+
+		$input = array(
+			'body' => wp_json_encode(
+				array(
+					'migrated_for_idc' => true,
+				)
+			),
+		);
+
+		$result = Identity_Crisis::init()->check_http_response_for_idc_detected( $input );
+
+		$this->assertFalse( $result );
+		$this->assertNull( Jetpack_Options::get_option( 'migrate_for_idc', null ) );
 	}
 
 	/**

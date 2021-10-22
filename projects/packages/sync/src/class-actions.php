@@ -366,7 +366,8 @@ class Actions {
 			'buffer_id'  => $buffer_id,
 		);
 
-		$query_args['timeout'] = Settings::is_doing_cron() ? 30 : 15;
+		$query_args['timeout'] = Settings::is_doing_cron() ? 30 : 20;
+
 		if ( 'immediate-send' === $queue_id ) {
 			$query_args['timeout'] = 30;
 		}

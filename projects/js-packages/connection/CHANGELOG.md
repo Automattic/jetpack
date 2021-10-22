@@ -2,6 +2,21 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.7.2 - 2021-10-19
+### Changed
+- Bump the RNA API version.
+
+## 0.7.1 - 2021-10-13
+### Changed
+- Updated package dependencies.
+
+## 0.7.0 - 2021-10-12
+### Changed
+- Bump the RNA API version.
+
+### Removed
+- Connection Screen component no longer pulls conneciton status from the API, it only relies on the properties. Use WithConnectionStatus HOC instead.
+
 ## 0.6.1 - 2021-09-28
 ### Added
 - Set 'exports' in package.json.

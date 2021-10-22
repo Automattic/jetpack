@@ -55,7 +55,7 @@
 		flex-direction: column;
 		align-items: center;
 
-		@media only screen and ( min-width: 1400px ) {
+		@media only screen and (min-width: 1400px) {
 			flex-direction: row;
 		}
 
@@ -113,18 +113,78 @@
 			}
 
 			.jp-idc-card-action-button {
-				margin-top: 24px;
-				padding: 8px 24px;
 				width: 100%;
-				height: auto;
-				min-height: 40px;
-				background: #000000;
-				border-radius: 4px;
-				font-weight: 600;
-				font-size: 16px;
-				line-height: 24px;
-				color: #FFFFFF;
-				justify-content: center;
+				padding: 8px 24px;
+			}
+		}
+	}
+
+	.jp-idc-card-action-button {
+		margin-top: 24px;
+		padding: 8px;
+		height: auto;
+		min-height: 40px;
+		background: #000000;
+		border-radius: 4px;
+		font-weight: 600;
+		font-size: 16px;
+		line-height: 24px;
+		color: #FFFFFF;
+		justify-content: center;
+	}
+
+	.jp-idc-card-action-button-migrated {
+		width: 141px;
+		margin-top: 64px;
+	}
+
+	.jp-idc-card-migrated {
+		display: flex;
+		flex-wrap: wrap;
+		flex-direction: column;
+		align-items: center;
+		width: 100%;
+		margin-top: 24px;
+
+		.jp-idc-card-migrated-hostname {
+			border: 1px solid #C3C4C7;
+			border-radius: 4px;
+			padding: 24px;
+			font-weight: bold;
+			font-size: 16px;
+			line-height: 24px;
+			color: #2C3338;
+			flex-grow: 1;
+			width: 100%;
+		}
+
+		.jp-idc-card-migrated-separator-wide {
+			display: none;
+		}
+
+		.jp-idc-card-migrated-separator {
+			display: block;
+		}
+
+		.jp-idc-card-migrated-separator,
+		.jp-idc-card-migrated-separator-wide {
+			margin: 28px;
+		}
+
+		@media only screen and (min-width: 1400px) {
+			flex-direction: row;
+			width: auto;
+
+			.jp-idc-card-migrated-separator {
+				display: none;
+			}
+
+			.jp-idc-card-migrated-separator-wide {
+				display: block;
+			}
+
+			.jp-idc-card-migrated-hostname {
+				width: auto;
 			}
 		}
 	}

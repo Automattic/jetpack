@@ -1,4 +1,4 @@
-import WpPage from '../wp-page';
+import { WpPage } from '..';
 
 export default class PickAPlanPage extends WpPage {
 	constructor( page ) {
@@ -10,7 +10,7 @@ export default class PickAPlanPage extends WpPage {
 
 	async waitForPage() {
 		await super.waitForPage();
-		await this.waitForElementToBeHidden( '.jetpack-product-card-alt__price-placeholder' );
+		await this.waitForElementToBeHidden( '.display-price__price-placeholder' );
 	}
 
 	async select( product = 'free' ) {

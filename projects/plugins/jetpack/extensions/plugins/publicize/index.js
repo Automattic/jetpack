@@ -12,7 +12,6 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { PanelBody } from '@wordpress/components';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { PostTypeSupportCheck } from '@wordpress/editor';
 
@@ -31,11 +30,11 @@ export const settings = {
 	render: () => (
 		<PostTypeSupportCheck supportKeys="publicize">
 			<TwitterThreadListener />
+
 			<JetpackPluginSidebar>
-				<PanelBody title={ __( 'Share this post', 'jetpack' ) }>
-					<PublicizePanel />
-				</PanelBody>
+				<PublicizePanel />
 			</JetpackPluginSidebar>
+
 			<PluginPrePublishPanel
 				initialOpen
 				id="publicize-title"
