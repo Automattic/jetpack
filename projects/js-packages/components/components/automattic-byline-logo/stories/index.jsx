@@ -1,8 +1,9 @@
 /* eslint-disable react/react-in-jsx-scope */
+
 /**
  * External dependencies
  */
-import { text } from '@storybook/addon-knobs';
+import React from 'react';
 
 /**
  * Internal dependencies
@@ -11,14 +12,16 @@ import AutomatticBylineLogo from '../index.jsx';
 
 export default {
 	title: 'Playground/Automattic Byline Logo',
+	component: AutomatticBylineLogo,
 };
 
-export const _default = () => {
-	const defaultProps = {
-		title: text( 'Title', true ),
-		height: text( 'Height', '50px' ),
-		className: text( 'Class Name', 'sample-classname' ),
-	};
+const Template = args => <AutomatticBylineLogo { ...args } />;
 
-	return <AutomatticBylineLogo { ...defaultProps } />;
+const DefaultArgs = {
+	title: 'Title',
+	height: '50px',
+	className: 'sample-classname',
 };
+
+export const _default = Template.bind( {} );
+_default.args = DefaultArgs;

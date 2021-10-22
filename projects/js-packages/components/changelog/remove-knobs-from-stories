@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Removing knobs from Storybook and using propTypes in components instead
