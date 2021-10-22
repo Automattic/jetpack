@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1904fb4c64a9c78b9aecce17f8b2aeb4",
+    "content-hash": "b40ada97c5739d9d56abd18a4f3b46b8",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -738,7 +738,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "a3c652c7125446cf95e3cfa75b33f262d95e572a"
+                "reference": "a9cabeec4cf44cc53b5dda1e726b55444f1b0d2e"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.30",
@@ -764,7 +764,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-identity-crisis/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "0.2.x-dev"
+                    "dev-master": "0.3.x-dev"
                 }
             },
             "autoload": {
@@ -1360,13 +1360,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "75afca8d7852ebe765ce26058a4de40a02fca338"
+                "reference": "ed861caa2a15b673f0e48b4ce75a7835541abf3f"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.30",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-heartbeat": "^1.3",
-                "automattic/jetpack-identity-crisis": "^0.2",
+                "automattic/jetpack-identity-crisis": "^0.3",
                 "automattic/jetpack-options": "^1.13",
                 "automattic/jetpack-password-checker": "^0.1",
                 "automattic/jetpack-roles": "^1.4",
@@ -3569,6 +3569,7 @@
                     "type": "github"
                 }
             ],
+            "abandoned": true,
             "time": "2020-09-28T06:45:17+00:00"
         },
         {
