@@ -13,8 +13,17 @@ import { sprintf, __ } from '@wordpress/i18n';
 import './style.scss';
 
 const PricingCard = props => {
-	const currencyObjectBefore = getCurrencyObject( props.priceBefore, props.currencyCode );
-	const currencyObjectAfter = getCurrencyObject( props.priceAfter, props.currencyCode );
+	const currencyOptions = { decimal: '.', grouping: ',' };
+	const currencyObjectBefore = getCurrencyObject(
+		props.priceBefore,
+		props.currencyCode,
+		currencyOptions
+	);
+	const currencyObjectAfter = getCurrencyObject(
+		props.priceAfter,
+		props.currencyCode,
+		currencyOptions
+	);
 
 	return (
 		<div className="pricing__card">
