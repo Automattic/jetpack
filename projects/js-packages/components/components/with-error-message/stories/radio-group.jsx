@@ -10,7 +10,7 @@ import {
 /**
  * Internal dependencies
  */
-import withErrorMessage from '../index';
+import { withErrorMessage } from '../index';
 
 RadioGroupStory.displayName = 'RadioGroup';
 

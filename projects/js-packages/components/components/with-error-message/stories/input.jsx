@@ -7,7 +7,7 @@ import { __experimentalInputControl as InputControlStory } from '@wordpress/comp
 /**
  * Internal dependencies
  */
-import withErrorMessage from '../index';
+import { withErrorMessage } from '../index';
 
 InputControlStory.displayName = 'InputControl';
 

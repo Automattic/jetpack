@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
  */
 import './style.scss';
 import Spinner from '../spinner';
-import withErrorMessage from '../with-error-message';
+import { useErrorMessage } from '../with-error-message';
 
 /**
  * The Jetpack Action button.
@@ -23,18 +23,24 @@ import withErrorMessage from '../with-error-message';
  * @returns {React.Component} The `ActionButton` component.
  */
 const ActionButton = props => {
-	const { label, onClick, isLoading, className } = props;
+	const { label, onClick, isLoading, className, displayError, errorMessage } = props;
+
+	const [ errorClassName, errorMessageElement ] = useErrorMessage( displayError, errorMessage );
 
 	return (
-		<Button
-			className={ 'jp-action-button--button ' + className }
-			label={ label }
-			onClick={ onClick }
-			isPrimary
-			disabled={ isLoading }
-		>
-			{ isLoading ? <Spinner /> : label }
-		</Button>
+		<>
+			<Button
+				className={ 'jp-action-button--button ' + className + ' ' + errorClassName }
+				label={ label }
+				onClick={ onClick }
+				isPrimary
+				disabled={ isLoading }
+			>
+				{ isLoading ? <Spinner /> : label }
+			</Button>
+
+			{ errorMessageElement }
+		</>
 	);
 };
 
@@ -47,6 +53,10 @@ ActionButton.propTypes = {
 	isLoading: PropTypes.bool,
 	/** Button custom CSS class names */
 	className: PropTypes.string,
+	/** Whether to display the error message */
+	displayError: PropTypes.bool,
+	/** The error message string */
+	errorMessage: PropTypes.string,
 };
 
 ActionButton.defaultProps = {
@@ -54,4 +64,4 @@ ActionButton.defaultProps = {
 	className: '',
 };
 
-export default withErrorMessage( ActionButton, 'ActionButton' );
+export default ActionButton;

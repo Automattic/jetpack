@@ -12,6 +12,20 @@ import ErrorGridicon from './error-gridicon';
 import './style.scss';
 
 /**
+ * CSS class name to be assigned to the element or passed into the wrapped component if error occurs.
+ *
+ * @type {string}
+ */
+const componentErrorClassName = 'jp-components-error-message--has-error';
+
+/**
+ * Default error message.
+ *
+ * @type {string}
+ */
+const defaultErrorMessage = __( 'An error occurred. Please try again.', 'jetpack' );
+
+/**
  * Render the error message element.
  *
  * @param {string} errorMessage - The error message.
@@ -30,10 +44,9 @@ const renderErrorMessage = errorMessage => {
  * Higher order component to display the error message near the element.
  *
  * @param {React.Component} ComponentToWrap - The component that may display the error.
- * @param {string} displayName - Custom name for the wrapped component, optional.
  * @returns {React.Component} The higher order component.
  */
-const withErrorMessage = ( ComponentToWrap, displayName ) => {
+const withErrorMessage = ComponentToWrap => {
 	/**
 	 * The `ComponentToWrap` with error message if needed.
 	 *
@@ -54,9 +67,7 @@ const withErrorMessage = ( ComponentToWrap, displayName ) => {
 			<>
 				<ComponentToWrap
 					{ ...componentProps }
-					className={
-						className + ( displayError ? ' jp-components-error-message--has-error' : '' )
-					}
+					className={ className + ( displayError ? ' ' + componentErrorClassName : '' ) }
 				/>
 
 				{ displayError && renderErrorMessage( errorMessage ) }
@@ -64,11 +75,12 @@ const withErrorMessage = ( ComponentToWrap, displayName ) => {
 		);
 	};
 
-	WrappedComponent.displayName =
-		displayName || `withErrorMessage(${ ComponentToWrap.displayName })`;
+	WrappedComponent.displayName = ComponentToWrap.displayName
+		? `withErrorMessage(${ ComponentToWrap.displayName })`
+		: 'withErrorMessage';
 
 	WrappedComponent.defaultProps = {
-		errorMessage: __( 'An error occurred. Please try again.', 'jetpack' ),
+		errorMessage: defaultErrorMessage,
 		displayError: false,
 		className: '',
 	};
@@ -85,4 +97,19 @@ const withErrorMessage = ( ComponentToWrap, displayName ) => {
 	return WrappedComponent;
 };
 
-export default withErrorMessage;
+/**
+ * Custom hook to display error message in your component.
+ *
+ * @param {boolean} displayError - Whether to display the error.
+ * @param {string} errorMessage - The error message.
+ * @returns {Array} The array of [ className, errorMessageElement ].
+ */
+const useErrorMessage = ( displayError, errorMessage ) => {
+	if ( ! displayError ) {
+		return [ null, null ];
+	}
+
+	return [ componentErrorClassName, renderErrorMessage( errorMessage || defaultErrorMessage ) ];
+};
+
+export { useErrorMessage, withErrorMessage };
