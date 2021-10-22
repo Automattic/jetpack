@@ -12,6 +12,8 @@ import {
  */
 import withErrorMessage from '../index';
 
+RadioGroupStory.displayName = 'RadioGroup';
+
 const RadioGroupWithErrorMessage = withErrorMessage( RadioGroupStory );
 
 export default {

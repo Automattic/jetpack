@@ -9,6 +9,8 @@ import { __experimentalInputControl as InputControlStory } from '@wordpress/comp
  */
 import withErrorMessage from '../index';
 
+InputControlStory.displayName = 'InputControl';
+
 const InputWithErrorMessage = withErrorMessage( InputControlStory );
 
 export default {
