@@ -4,11 +4,11 @@
 import ReactDOM from 'react-dom';
 import React from 'react';
 
-// portal entry point loaded in the footer
+// Portal entry point loaded in the footer.
 const portalSidecar = document.getElementById( 'jetpack-plugin-portal-sidecar' );
 
-// super cool pattern from React docs: https://reactjs.org/docs/portals.html
-// this approach (creating arbitrary DOM nodes to bind to) does not seem to work with a functional component
+// Portal pattern from React docs: https://reactjs.org/docs/portals.html.
+// This approach (creating arbitrary DOM nodes to bind to) does not seem to work with a functional component.
 class PortalSidecar extends React.Component {
 	constructor( props ) {
 		super( props );

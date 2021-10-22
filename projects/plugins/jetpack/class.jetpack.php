@@ -6,7 +6,6 @@ use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Nonce_Handler;
-use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Connection\Secrets;
 use Automattic\Jetpack\Connection\Tokens;
@@ -3829,7 +3828,7 @@ p {
 			wp_register_style(
 				'jetpack-dops-style',
 				plugins_url( '_inc/build/admin.css', JETPACK__PLUGIN_FILE ),
-				array(),
+				array(), // Load styles for components so the modal can be used.
 				JETPACK__VERSION
 			);
 		}
@@ -3861,7 +3860,7 @@ p {
 	}
 
 	/**
-	 * Adds the deactivation warning modal if there are other active plugins using the connection
+	 * Adds the deactivation warning modal for Jetpack.
 	 *
 	 * @param string $hook The current admin page.
 	 *
@@ -3873,62 +3872,45 @@ p {
 			&& self::is_connection_ready()
 		) {
 
-			$active_plugins_using_connection = Connection_Plugin_Storage::get_all();
+			// Register jp-tracks-functions dependency.
+			Tracking::register_tracks_functions_scripts( true );
 
-			if ( count( $active_plugins_using_connection ) > 1 ) {
-
-				// Register jp-tracks-functions dependency.
-				Tracking::register_tracks_functions_scripts();
-
-				// add a deactivation script that will pick up deactivation actions for the Jetpack plugin.
-				$script_deps_path    = JETPACK__PLUGIN_DIR . '_inc/build/admin-portal.asset.php';
-				$script_dependencies = array( 'wp-polyfill' );
-				if ( file_exists( $script_deps_path ) ) {
-					$asset_manifest      = include $script_deps_path;
-					$script_dependencies = $asset_manifest['dependencies'];
-				}
-
-				wp_enqueue_script(
-					'jetpack-plugin-portal-js',
-					plugins_url( '_inc/build/admin-portal.js', JETPACK__PLUGIN_FILE ),
-					$script_dependencies,
-					JETPACK__VERSION,
-					true
-				);
-
-				// load this on pages where needed.
-				wp_localize_script(
-					'jetpack-plugin-portal-js',
-					'deactivate_dialog',
-					array(
-						'title'            => __( 'Deactivate Jetpack', 'jetpack' ),
-						'deactivate_label' => __( 'Disconnect and Deactivate', 'jetpack' ),
-						'tracksUserData'   => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
-					)
-				);
-
-				wp_set_script_translations( 'jetpack-plugin-portal-js', 'jetpack' );
-
-				// Add objects to be passed to the initial state of the app.
-				// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
-				wp_add_inline_script( 'jetpack-plugin-portal-js', 'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Jetpack_Redux_State_Helper::get_initial_state() ) ) . '"));', 'before' );
-
-				add_action( 'admin_print_styles', array( $this, 'admin_banner_styles' ) );
-				// may be able to add this more generally where React entrypoints are needed.
-				add_action( 'admin_footer', array( $this, 'jetpack_plugin_portal_content' ) );
+			// add a deactivation script that will pick up deactivation actions for the Jetpack plugin.
+			$script_deps_path    = JETPACK__PLUGIN_DIR . '_inc/build/plugins-page.asset.php';
+			$script_dependencies = array( 'wp-polyfill' );
+			if ( file_exists( $script_deps_path ) ) {
+				$asset_manifest      = include $script_deps_path;
+				$script_dependencies = $asset_manifest['dependencies'];
 			}
-		}
-	}
 
-	/**
-	 * Outputs the content of the deactivation modal
-	 *
-	 * @return void
-	 */
-	public function deactivate_dialog_content() {
-		$active_plugins_using_connection = Connection_Plugin_Storage::get_all();
-		unset( $active_plugins_using_connection['jetpack'] );
-		$this->load_view( 'admin/deactivation-dialog.php', $active_plugins_using_connection );
+			wp_enqueue_script(
+				'jetpack-plugins-page-js',
+				plugins_url( '_inc/build/plugins-page.js', JETPACK__PLUGIN_FILE ),
+				$script_dependencies,
+				JETPACK__VERSION,
+				true
+			);
+
+			// load this on pages where needed.
+			wp_localize_script(
+				'jetpack-plugins-page-js',
+				'deactivate_dialog',
+				array(
+					'title'            => __( 'Deactivate Jetpack', 'jetpack' ),
+					'deactivate_label' => __( 'Disconnect and Deactivate', 'jetpack' ),
+				)
+			);
+
+			wp_set_script_translations( 'jetpack-plugins-page-js', 'jetpack' );
+
+			// Add objects to be passed to the initial state of the app.
+			// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
+			wp_add_inline_script( 'jetpack-plugins-page-js', 'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Jetpack_Redux_State_Helper::get_initial_state() ) ) . '"));', 'before' );
+
+			// Include styles for WP Components ( Includes the modal used for disconnection ).
+			wp_enqueue_style( 'wp-components' );
+			add_action( 'admin_footer', array( $this, 'jetpack_plugin_portal_containers' ) );
+		}
 	}
 
 	/**
@@ -3937,8 +3919,8 @@ p {
 	 *
 	 * @return void
 	 */
-	public function jetpack_plugin_portal_content() {
-		$this->load_view( 'admin/jetpack-plugin-portal.php' );
+	public function jetpack_plugin_portal_containers() {
+		$this->load_view( 'admin/jetpack-plugin-portal-containers.php' );
 	}
 
 	/**

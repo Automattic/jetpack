@@ -83,7 +83,7 @@ module.exports = [
 				},
 			},
 			'search-dashboard': path.join( __dirname, '../_inc/client', 'search-dashboard-entry.js' ),
-			'admin-portal': path.join( __dirname, '../_inc/client', 'admin-portal-entry.js' ),
+			'plugins-page': path.join( __dirname, '../_inc/client', 'plugins-entry.js' ),
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,

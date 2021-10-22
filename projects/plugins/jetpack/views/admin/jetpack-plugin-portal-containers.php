@@ -9,7 +9,7 @@
 <div id="jetpack-plugin-portal-app">
 	<!--
 	React Managed
-	The portal app renders here
+	The app that needs to make use of portals can render here.
 	-->
 </div>
 <div id="jetpack-plugin-portal-sidecar">
