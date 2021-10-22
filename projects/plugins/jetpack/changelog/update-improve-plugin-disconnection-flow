@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-Disconnection Flow: improve Jetpack disconnection flow to better highlight the site features Jetpack is powering
+Disconnection Flow: Improve Jetpack disconnection flow on dashboard and plugins page to better highlight the site features Jetpack is powering and ask for feedback.
