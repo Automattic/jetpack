@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Publicize: do not disable message text control when RePublicize is enabled
