@@ -7,8 +7,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
  * Internal dependencies
  */
 import getJetpackExtensionAvailability from '../../../../shared/get-jetpack-extension-availability';
-import { isUpgradable } from '../../../../shared/plan-utils';
-import { isAtomicSite, isSimpleSite } from '../../../../shared/site-type-utils';
+import { isUpgradable, isUpgradeNudgeEnabled } from '../../../../shared/plan-utils';
 
 const republicizeFeatureName = 'republicize';
 
@@ -30,6 +29,6 @@ export default function usePublicizeConfig() {
 		togglePublicizeFeature,
 		isRePublicizeFeatureAvailable: available,
 		isRePublicizeFeatureUpgradable:
-			isUpgradable( republicizeFeatureName ) && ( isAtomicSite() || isSimpleSite() ),
+			isUpgradable( republicizeFeatureName ) && isUpgradeNudgeEnabled(),
 	};
 }
