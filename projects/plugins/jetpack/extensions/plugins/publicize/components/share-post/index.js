@@ -34,7 +34,6 @@ function showSuccessNotice() {
 	} );
 }
 
-
 export function SharePostButton() {
 	const { hasEnabledConnections } = useSocialMediaConnections();
 	const { isPublicizeEnabled } = usePublicizeConfig();
