@@ -3,13 +3,20 @@
  */
 import ReactDOM from 'react-dom';
 import React from 'react';
-import { Provider } from 'react-redux';
+
+/**
+ * WordPress dependencies
+ */
+import { createReduxStore, register } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
-import store from 'state/redux-store';
+import { STORE_ID, storeConfig } from './store';
 import SearchDashboard from './index.jsx';
+
+const store = createReduxStore( STORE_ID, storeConfig );
+register( store );
 
 /**
  * Mounts the Search Dashboard to #jp-search-dashboard if available.
@@ -21,12 +28,7 @@ function init() {
 		return;
 	}
 
-	ReactDOM.render(
-		<Provider store={ store }>
-			<SearchDashboard />
-		</Provider>,
-		container
-	);
+	ReactDOM.render( <SearchDashboard />, container );
 }
 
 // Initialize the dashboard when DOMContentLoaded is fired, or immediately if it already has been.

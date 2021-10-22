@@ -490,6 +490,7 @@ importers:
       uuid: 8.3.2
       webpack: 5.51.1
       webpack-cli: 4.8.0
+      wepack-cli: 0.0.1-security
     dependencies:
       '@automattic/calypso-build': 9.0.0_webpack@5.51.1
       '@automattic/calypso-color-schemes': 2.1.1
@@ -582,6 +583,7 @@ importers:
       uuid: 8.3.2
       webpack: 5.51.1_webpack-cli@4.8.0
       webpack-cli: 4.8.0_webpack@5.51.1
+      wepack-cli: 0.0.1-security
 
   projects/plugins/backup:
     specifiers:
@@ -24910,6 +24912,10 @@ packages:
       - '@swc/core'
       - esbuild
       - uglify-js
+
+  /wepack-cli/0.0.1-security:
+    resolution: {integrity: sha512-10l/6mMWz+LWQO+Pic8ZZRZtEHvs0JIiyZsnbWVVm8SHA3dOkxl2nu8EyCag4W/lSDXoWHcVgFCImkHkAw1aVQ==}
+    dev: false
 
   /whatwg-encoding/1.0.5:
     resolution: {integrity: sha512-b5lim54JOPN9HtzvK9HFXvBma/rnfFeqsic0hSpjtDbVxR3dJKLc+KB4V6GgiGOvl7CY/KNh8rxSo9DKQrnUEw==}

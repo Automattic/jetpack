@@ -150,7 +150,7 @@ class Jetpack_Search_Dashboard {
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
 		wp_add_inline_script(
 			'jp-search-dashboard',
-			'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( static::get_initial_state() ) ) . '"));',
+			'var JETPACK_SEARCH_DASHBOARD_INITIAL_STATE=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( static::get_initial_state() ) ) . '"));',
 			'before'
 		);
 
@@ -161,24 +161,11 @@ class Jetpack_Search_Dashboard {
 		$current_user_data = self::current_user_data();
 
 		return array(
-			'WP_API_root'       => esc_url_raw( rest_url() ),
-			'WP_API_nonce'      => wp_create_nonce( 'wp_rest' ),
-			'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
-			'purchaseToken'     => self::get_purchase_token(),
-			'pluginBaseUrl'     => plugins_url( '', JETPACK__PLUGIN_FILE ),
-			'connectUrl'        => false == $current_user_data['isConnected'] // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
-				? Jetpack::init()->build_connect_url( true, false, false )
-				: '',
-			'currentVersion'    => JETPACK__VERSION,
-			'rawUrl'            => ( new Status() )->get_site_suffix(),
-			'adminUrl'          => esc_url( admin_url() ),
-			'siteTitle'         => (string) htmlspecialchars_decode( get_option( 'blogname' ), ENT_QUOTES ),
-			'currentIp'         => function_exists( 'jetpack_protect_get_ip' ) ? jetpack_protect_get_ip() : false,
-			'connectionStatus'  => REST_Connector::connection_status( false ),
-			'userData'          => array(
-				'currentUser' => $current_user_data,
-			),
-			'siteData'          => array(
+			'siteData'        => array(
+				'WP_API_root'       => esc_url_raw( rest_url() ),
+				'WP_API_nonce'      => wp_create_nonce( 'wp_rest' ),
+				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
+				'purchaseToken'     => self::get_purchase_token(),
 				// 'siteVisibleToSearchEngines' => '1' == get_option( 'blog_public' ), // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 				/**
 				 * Whether promotions are visible or not.
@@ -187,12 +174,27 @@ class Jetpack_Search_Dashboard {
 				 *
 				 * @param bool $are_promotions_active Status of promotions visibility. True by default.
 				 */
-				'showPromotions' => apply_filters( 'jetpack_show_promotions', true ),
+				'showPromotions'    => apply_filters( 'jetpack_show_promotions', true ),
 				// 'isAtomicSite'               => jetpack_is_atomic_site(),
 				// 'plan'                       => Jetpack_Plan::get(),
 				// 'isMultisite'                => is_multisite(),
+				'adminUrl'          => esc_url( admin_url() ),
 			),
-			'settings'          => array(
+			// 'pluginBaseUrl'    => plugins_url( '', JETPACK__PLUGIN_FILE ),
+			// 'connectUrl'       => false == $current_user_data['isConnected'] // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+			// ? Jetpack::init()->build_connect_url( true, false, false )
+			// : '',
+			// 'currentVersion'   => JETPACK__VERSION,
+			// 'rawUrl'           => ( new Status() )->get_site_suffix(),
+			// 'adminUrl'         => esc_url( admin_url() ),
+			// 'siteTitle'        => (string) htmlspecialchars_decode( get_option( 'blogname' ), ENT_QUOTES ),
+			// 'currentIp'        => function_exists( 'jetpack_protect_get_ip' ) ? jetpack_protect_get_ip() : false,
+			// 'connectionStatus' => REST_Connector::connection_status( false ),
+			'userData'        => array(
+				'currentUser' => $current_user_data,
+			),
+			'jetpackStatus'   => array(),
+			'jetpackSettings' => array(
 				'search'                 => Jetpack_Search_Options::is_module_enabled(),
 				'instant_search_enabled' => Jetpack_Search_Options::is_instant_enabled(),
 			),

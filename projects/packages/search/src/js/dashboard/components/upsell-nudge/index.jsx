@@ -9,7 +9,7 @@ import { __ } from '@wordpress/i18n';
  */
 import './style.scss';
 
-const InstantSearchUpsellNudge = ( props = { upgrade: true } ) => {
+export default function ( props = { upgrade: true } ) {
 	return (
 		<a className="jp-instant-search-upsell-nudge jp-search-dashboard-cut" href={ props.href }>
 			<span>
@@ -24,6 +24,4 @@ const InstantSearchUpsellNudge = ( props = { upgrade: true } ) => {
 			</span>
 		</a>
 	);
-};
-
-export default InstantSearchUpsellNudge;
+}

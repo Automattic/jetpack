@@ -2,20 +2,17 @@
  * External dependencies
  */
 import React, { Fragment, useCallback, useEffect } from 'react';
-import { connect } from 'react-redux';
 import { sprintf, __ } from '@wordpress/i18n';
 import { createInterpolateElement } from '@wordpress/element';
+import { select, useDispatch, useSelect } from '@wordpress/data';
+import classNames from 'classnames';
 
 /**
  * Internal dependencies
  */
-import QuerySite from '../data/query-site';
 import CompactFormToggle from '../form/form-toggle/compact';
-import { ModuleToggle } from '../module-toggle';
-import SettingsGroup from '../settings-group';
-import { withModuleSettingsFormHelpers } from '../module-settings/with-module-settings-form-helpers';
+import Card from 'components/card';
 import Button from '../button';
-import { getPlanClass } from 'lib/plans/constants';
 import InstantSearchUpsellNudge from '../upsell-nudge';
 import analytics from 'lib/analytics';
 import 'scss/rna-styles.scss';
@@ -24,15 +21,7 @@ import './style.scss';
 /**
  * State dependencies
  */
-import { isOfflineMode } from 'state/connection';
-import { getUpgradeUrl, getSiteAdminUrl, arePromotionsActive } from 'state/initial-state';
-import {
-	getSitePlan,
-	hasActiveSearchPurchase as selectHasActiveSearchPurchase,
-	isFetchingSitePurchases,
-	getSiteID,
-} from 'state/site';
-import { hasUpdatedSetting, isSettingActivated, isUpdatingSetting } from 'state/settings';
+import { STORE_ID } from '../../store';
 
 const SEARCH_DESCRIPTION = __(
 	'Jetpack Search is an incredibly powerful and customizable replacement for the search capability built into WordPress that helps your visitors find the right content.',
@@ -49,22 +38,44 @@ const WIDGETS_EDITOR_URL = 'customize.php?autofocus[panel]=widgets&return=%s';
 /**
  * Search settings component to be used within the Performance section.
  *
- * @param  {object} props - Component properties.
  * @returns {React.Component}	Search settings component.
  */
-function Search( props ) {
-	const {
-		failedToEnableSearch,
-		hasActiveSearchPurchase,
-		updateOptions,
-		siteAdminUrl,
-		isInstantSearchPromotionActive,
-	} = props;
-	const isModuleEnabled = props.getOptionValue( 'search' );
-	const isInstantSearchEnabled = props.getOptionValue( 'instant_search_enabled', 'search' );
+export default function SearchModuleControl() {
+	// todo: change this
+	const failedToEnableSearch = false;
+	const inOfflineMode = false;
+	const isLoading = false;
+	const updateOptions = useDispatch( STORE_ID ).updateJetpackSettings;
+
+	const hasActiveSearchPurchase = useSelect(
+		select => select( STORE_ID ).hasActiveSearchPurchase(),
+		[]
+	);
+	const siteAdminUrl = select( STORE_ID ).getSiteAdminUrl();
+	const isInstantSearchPromotionActive = select( STORE_ID ).isInstantSearchPromotionActive();
+	const isBusinessPlan = select( STORE_ID ).hasBusinessPlan();
+	const { isModuleEnabled, isInstantSearchEnabled } = useSelect(
+		select => select( STORE_ID ).getSearchModuleStatus(),
+		[]
+	);
+
+	const togglingModule = false; //TODO //!!props.isSavingAnyOption('search');
+	const togglingInstantSearch = false; //TODO //!!props.isSavingAnyOption('instant_search_enabled');
+	const isSavingEitherOption = togglingModule || togglingInstantSearch;
+	// Site has Legacy Search included in Business plan but doesn't have Jetpack Search subscription.
+	const hasOnlyLegacySearch = isBusinessPlan && ! hasActiveSearchPurchase;
+	const hasEitherSearch = isBusinessPlan || hasActiveSearchPurchase;
+
+	const isInstantSearchCustomizeButtonDisabled =
+		isSavingEitherOption ||
+		! isModuleEnabled ||
+		! isInstantSearchEnabled ||
+		! hasActiveSearchPurchase;
+	const isWidgetsEditorButtonDisabled = isSavingEitherOption || ! isModuleEnabled;
+	const returnUrl = encodeURIComponent( siteAdminUrl + RETURN_PATH );
 
 	const toggleSearchModule = useCallback( () => {
-		const newOption = { search: ! isModuleEnabled };
+		const newOption = { search: ! isModuleEnabled, instant_search_enabled: isInstantSearchEnabled };
 		if ( hasActiveSearchPurchase && isInstantSearchEnabled !== ! isModuleEnabled ) {
 			newOption.instant_search_enabled = ! isModuleEnabled;
 		}
@@ -75,8 +86,10 @@ function Search( props ) {
 	const toggleInstantSearch = useCallback( () => {
 		const newOption = {
 			instant_search_enabled: hasActiveSearchPurchase && ! isInstantSearchEnabled,
+			search: isModuleEnabled,
 		};
-		if ( newOption.instant_search_enabled && ! isModuleEnabled ) {
+		// if (newOption.instant_search_enabled && !isModuleEnabled) {
+		if ( newOption.instant_search_enabled ) {
 			newOption.search = true;
 		}
 		updateOptions( newOption );
@@ -89,21 +102,6 @@ function Search( props ) {
 			toggleSearchModule();
 		}
 	}, [ failedToEnableSearch, hasActiveSearchPurchase, updateOptions, toggleSearchModule ] );
-
-	const togglingModule = !! props.isSavingAnyOption( 'search' );
-	const togglingInstantSearch = !! props.isSavingAnyOption( 'instant_search_enabled' );
-	const isSavingEitherOption = togglingModule || togglingInstantSearch;
-	// Site has Legacy Search included in Business plan but doesn't have Jetpack Search subscription.
-	const hasOnlyLegacySearch = props.isBusinessPlan && ! props.hasActiveSearchPurchase;
-	const hasEitherSearch = props.isBusinessPlan || props.hasActiveSearchPurchase;
-
-	const isInstantSearchCustomizeButtonDisabled =
-		isSavingEitherOption ||
-		! isModuleEnabled ||
-		! isInstantSearchEnabled ||
-		! hasActiveSearchPurchase;
-	const isWidgetsEditorButtonDisabled = isSavingEitherOption || ! isModuleEnabled;
-	const returnUrl = encodeURIComponent( siteAdminUrl + RETURN_PATH );
 
 	const renderInstantSearchButtons = () => {
 		return (
@@ -139,14 +137,10 @@ function Search( props ) {
 				<div className="jp-search-dashboard-row">
 					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 					{ /* <div className="jp-form-search-settings-group__toggle-container"> */ }
-					<ModuleToggle
-						activated={ isModuleEnabled && hasEitherSearch }
-						compact
-						disabled={
-							isSavingEitherOption || ( ! props.hasActiveSearchPurchase && ! props.isBusinessPlan )
-						}
-						slug="search"
-						toggleModule={ toggleSearchModule }
+					<CompactFormToggle
+						checked={ isModuleEnabled && hasEitherSearch }
+						disabled={ isSavingEitherOption || ( ! hasActiveSearchPurchase && ! isBusinessPlan ) }
+						onChange={ toggleSearchModule }
 						toggling={ togglingModule }
 						className="is-search-admin"
 						switchClassNames="lg-col-span-1 md-col-span-1 sm-col-span-1"
@@ -154,7 +148,7 @@ function Search( props ) {
 						aria-label={ __( 'Enable Jetpack Search', 'jetpack' ) }
 					>
 						{ __( 'Enable Jetpack Search', 'jetpack' ) }
-					</ModuleToggle>
+					</CompactFormToggle>
 					{ /* </div> */ }
 					{ /* <div className="jp-form-search-settings-group__toggle_label lg-col-span-7 md-col-span-5 sm-col-span-3"> */ }
 					{ /* { __( 'Enable Jetpack Search', 'jetpack' ) } */ }
@@ -181,8 +175,8 @@ function Search( props ) {
 					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 					{ /* <div className="jp-form-search-settings-group__toggle-container"> */ }
 					<CompactFormToggle
-						checked={ isModuleEnabled && isInstantSearchEnabled && props.hasActiveSearchPurchase }
-						disabled={ isSavingEitherOption || ! props.hasActiveSearchPurchase }
+						checked={ isModuleEnabled && isInstantSearchEnabled && hasActiveSearchPurchase }
+						disabled={ isSavingEitherOption || ! hasActiveSearchPurchase }
 						onChange={ toggleInstantSearch }
 						toggling={ togglingInstantSearch }
 						className="is-search-admin"
@@ -206,20 +200,20 @@ function Search( props ) {
 				<div className="jp-search-dashboard-row">
 					<div className="lg-col-span-3 md-col-span-2 sm-col-span-1"></div>
 					<div className="jp-form-search-settings-group__toggle-description lg-col-span-7 md-col-span-5 sm-col-span-3">
-						{ props.hasActiveSearchPurchase && (
+						{ hasActiveSearchPurchase && (
 							<Fragment>
 								<p className="jp-form-search-settings-group__toggle-explanation">
 									{ INSTANT_SEARCH_DESCRIPTION }
 								</p>
 							</Fragment>
 						) }
-						{ ! props.hasActiveSearchPurchase && isInstantSearchPromotionActive && (
-							<InstantSearchUpsellNudge href={ props.upgradeUrl } upgrade={ hasOnlyLegacySearch } />
+						{ ! hasActiveSearchPurchase && isInstantSearchPromotionActive && (
+							<InstantSearchUpsellNudge href={ upgradeUrl } upgrade={ hasOnlyLegacySearch } />
 						) }
 					</div>
 					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 				</div>
-				{ props.hasActiveSearchPurchase && renderInstantSearchButtons() }
+				{ hasActiveSearchPurchase && renderInstantSearchButtons() }
 			</div>
 		);
 	};
@@ -235,37 +229,20 @@ function Search( props ) {
 
 	return (
 		<Fragment>
-			<QuerySite />
-			<SettingsGroup
-				disableInOfflineMode
-				hasChild
-				module={ { module: 'search' } }
-				className="jp-form-search-settings-group"
-			>
-				{ props.inOfflineMode && <p>__( 'Unavailable in Offline Mode', 'jetpack' )</p> }
+			<div className="jp-form-settings-group jp-form-search-settings-group">
+				<Card
+					className={ classNames( {
+						'jp-form-has-child': true,
+						'jp-form-settings-disable': false, //disableInOfflineMode || disableInSiteConnectionMode,
+					} ) }
+				>
+					{ inOfflineMode && <p>__( 'Unavailable in Offline Mode', 'jetpack' )</p> }
 
-				{ ! props.inOfflineMode && props.isLoading && <p>__( 'Loading…', 'jetpack' )</p> }
+					{ ! inOfflineMode && isLoading && <p>__( 'Loading…', 'jetpack' )</p> }
 
-				{ ! props.inOfflineMode && ! props.isLoading && renderToggles() }
-			</SettingsGroup>
+					{ ! inOfflineMode && ! isLoading && renderToggles() }
+				</Card>
+			</div>
 		</Fragment>
 	);
 }
-
-export default connect( state => {
-	const planClass = getPlanClass( getSitePlan( state ).product_slug );
-	return {
-		hasActiveSearchPurchase: selectHasActiveSearchPurchase( state ),
-		inOfflineMode: isOfflineMode( state ),
-		isBusinessPlan: 'is-business-plan' === planClass,
-		isLoading: isFetchingSitePurchases( state ),
-		failedToEnableSearch:
-			! isSettingActivated( state, 'search' ) &&
-			! isUpdatingSetting( state, 'search' ) &&
-			false === hasUpdatedSetting( state, 'search' ),
-		siteID: getSiteID( state ),
-		upgradeUrl: getUpgradeUrl( state, 'jetpack-search' ),
-		siteAdminUrl: getSiteAdminUrl( state ),
-		isInstantSearchPromotionActive: arePromotionsActive( state ),
-	};
-} )( withModuleSettingsFormHelpers( Search ) );

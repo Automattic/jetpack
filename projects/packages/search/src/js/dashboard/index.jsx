@@ -6,33 +6,38 @@ import { connect } from 'react-redux';
 import { __ } from '@wordpress/i18n';
 
 /**
+ * WordPress dependencies
+ */
+import { useSelect, select, useDispatch } from '@wordpress/data';
+
+/**
  * Internal dependencies
  */
 import { JetpackFooter, JetpackLogo } from '@automattic/jetpack-components';
 import restApi from '@automattic/jetpack-api';
 import ModuleControl from 'components/module-control';
 import MockedSearch from 'components/mocked-search';
-import analytics from 'lib/analytics';
+import { STORE_ID } from './store';
 import 'scss/rna-styles.scss';
 import 'style.scss';
 
 /**
  * State dependencies
  */
-import { isFetchingSitePurchases } from 'state/site';
-import {
-	setInitialState,
-	getApiNonce,
-	getApiRootUrl,
-	getSiteAdminUrl,
-	getTracksUserData,
-	getCurrentVersion,
-} from 'state/initial-state';
+// import { isFetchingSitePurchases } from 'state/site';
+// import {
+// 	setInitialState,
+// 	getApiNonce,
+// 	getApiRootUrl,
+// 	getSiteAdminUrl,
+// 	getTracksUserData,
+// 	getCurrentVersion,
+// } from 'state/initial-state';
 
-const useComponentWillMount = func => {
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	useMemo( func, [] );
-};
+// const useComponentWillMount = func => {
+// 	// eslint-disable-next-line react-hooks/exhaustive-deps
+// 	useMemo(func, []);
+// };
 
 /**
  * SearchDashboard component definition.
@@ -40,34 +45,31 @@ const useComponentWillMount = func => {
  * @param {object} props - Component properties.
  * @returns {React.Component} Search dashboard component.
  */
-function SearchDashboard( props ) {
-	// NOTE: API root and nonce must be set before any components are mounted!
-	const {
-		apiRootUrl,
-		apiNonce,
-		setInitialState: setSearchDashboardInitialState,
-		siteAdminUrl,
-	} = props;
+export default function SearchDashboard( props ) {
+	const siteAdminUrl = select( STORE_ID ).getSiteAdminUrl();
 
-	const initializeAnalytics = () => {
-		const tracksUser = props.tracksUserData;
+	const { queryJetpackSettings } = useDispatch( STORE_ID );
 
-		if ( tracksUser ) {
-			analytics.initialize( tracksUser.userid, tracksUser.username, {
-				blog_id: tracksUser.blogid,
-			} );
-		}
-	};
+	// const initializeAnalytics = () => {
+	// 	const tracksUser = props.tracksUserData;
 
-	useComponentWillMount( () => {
+	// 	if (tracksUser) {
+	// 		analytics.initialize(tracksUser.userid, tracksUser.username, {
+	// 			blog_id: tracksUser.blogid,
+	// 		});
+	// 	}
+	// };
+
+	useMemo( async () => {
+		const apiRootUrl = select( STORE_ID ).getAPIRootUrl();
+		const apiNonce = select( STORE_ID ).getAPINonce();
 		apiRootUrl && restApi.setApiRoot( apiRootUrl );
 		apiNonce && restApi.setApiNonce( apiNonce );
-		setSearchDashboardInitialState && setSearchDashboardInitialState();
-		initializeAnalytics();
-		analytics.tracks.recordEvent( 'jetpack_search_admin_page_view', {
-			current_version: props.currentVersion,
-		} );
-	} );
+		// initializeAnalytics();
+		// analytics.tracks.recordEvent('jetpack_search_admin_page_view', {
+		// 	current_version: props.currentVersion,
+		// });
+	}, [] );
 
 	const aboutPageUrl = siteAdminUrl + 'admin.php?page=jetpack_about';
 
@@ -152,16 +154,16 @@ function SearchDashboard( props ) {
 	);
 }
 
-export default connect(
-	state => {
-		return {
-			apiRootUrl: getApiRootUrl( state ),
-			apiNonce: getApiNonce( state ),
-			isLoading: isFetchingSitePurchases( state ),
-			siteAdminUrl: getSiteAdminUrl( state ),
-			tracksUserData: getTracksUserData( state ),
-			currentVersion: getCurrentVersion( state ),
-		};
-	},
-	{ setInitialState }
-)( SearchDashboard );
+// export default connect(
+// 	state => {
+// 		return {
+// 			apiRootUrl: getApiRootUrl( state ),
+// 			apiNonce: getApiNonce( state ),
+// 			isLoading: isFetchingSitePurchases( state ),
+// 			siteAdminUrl: getSiteAdminUrl( state ),
+// 			tracksUserData: getTracksUserData( state ),
+// 			currentVersion: getCurrentVersion( state ),
+// 		};
+// 	},
+// 	{ setInitialState }
+// )( SearchDashboard );
