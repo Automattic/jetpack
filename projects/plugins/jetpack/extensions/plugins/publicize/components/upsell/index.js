@@ -52,7 +52,7 @@ export default function UpsellNotice() {
 				{ isRedirecting
 					? __( 'Redirecting…', 'jetpack' )
 					: sprintf(
-							/* translators: placeholder is the product name of the plan. */
+							/* translators: placeholder is the price for upgrading. */
 							'Upgrade now for %s',
 							planData?.formatted_price
 					  ) }
