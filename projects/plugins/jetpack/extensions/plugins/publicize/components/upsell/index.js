@@ -8,6 +8,7 @@ import classNames from 'classnames';
  */
 import { __, sprintf } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
+import { external } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -44,6 +45,7 @@ export default function UpsellNotice() {
 				href={ isRedirecting ? null : checkoutUrl } // Only for server-side rendering, since onClick doesn't work there.
 				onClick={ goToCheckoutPage }
 				target="_top"
+				icon={ external }
 				className={ classNames( 'jetpack-publicize__upsell-button is-primary', {
 					'jetpack-upgrade-plan__hidden': ! checkoutUrl,
 				} ) }
