@@ -54,4 +54,4 @@ ActionButton.defaultProps = {
 	className: '',
 };
 
-export default withErrorMessage( ActionButton );
+export default withErrorMessage( ActionButton, 'ActionButton' );

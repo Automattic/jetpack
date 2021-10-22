@@ -30,9 +30,10 @@ const renderErrorMessage = errorMessage => {
  * Higher order component to display the error message near the element.
  *
  * @param {React.Component} ComponentToWrap - The component that may display the error.
+ * @param {string} displayName - Custom name for the wrapped component, optional.
  * @returns {React.Component} The higher order component.
  */
-const withErrorMessage = ComponentToWrap => {
+const withErrorMessage = ( ComponentToWrap, displayName ) => {
 	/**
 	 * The `ComponentToWrap` with error message if needed.
 	 *
@@ -62,6 +63,9 @@ const withErrorMessage = ComponentToWrap => {
 			</>
 		);
 	};
+
+	WrappedComponent.displayName =
+		displayName || `withErrorMessage(${ ComponentToWrap.displayName })`;
 
 	WrappedComponent.defaultProps = {
 		errorMessage: __( 'An error occurred. Please try again.', 'jetpack' ),
