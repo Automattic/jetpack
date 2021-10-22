@@ -8,6 +8,8 @@
  */
 
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Status\Host;
+
 /**
  * WordPress.com Block editor for Jetpack
  */
@@ -157,7 +159,7 @@ class Jetpack_WPCOM_Block_Editor {
 			// If SSO is active, we'll let WordPress.com handle authentication...
 			if ( Jetpack::is_module_active( 'sso' ) ) {
 				// ...but only if it's not an Atomic site. They already do that.
-				if ( ! jetpack_is_atomic_site() ) {
+				if ( ! ( new Host() )->is_woa_site() ) {
 					add_filter( 'jetpack_sso_bypass_login_forward_wpcom', '__return_true' );
 				}
 			} else {
@@ -350,7 +352,7 @@ class Jetpack_WPCOM_Block_Editor {
 			)
 		);
 
-		if ( jetpack_is_atomic_site() ) {
+		if ( ( new Host() )->is_woa_site() ) {
 			wp_enqueue_script(
 				'wpcom-block-editor-wpcom-editor-script',
 				$debug

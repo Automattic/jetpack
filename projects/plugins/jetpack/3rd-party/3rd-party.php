@@ -8,6 +8,8 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Status\Host;
+
 /**
  * Loads the individual 3rd-party compat files.
  */
@@ -50,7 +52,7 @@ function load_3rd_party() {
  * @return bool
  */
 function atomic_weekly_override( $development_version ) {
-	if ( Constants::is_true( 'ATOMIC_SITE_ID' ) && Constants::is_true( 'ATOMIC_CLIENT_ID' ) ) {
+	if ( ( new Host() )->is_atomic_platform() ) {
 		$haystack = Constants::get_constant( 'JETPACK__PLUGIN_DIR' );
 		$needle   = '/jetpack-dev/';
 		if (
