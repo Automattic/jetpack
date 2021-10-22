@@ -192,19 +192,18 @@ class Speed_Score {
 		$history        = new Speed_Score_History( $url_no_boost );
 		$latest_history = $history->latest();
 		$score_request  = $this->get_score_request_by_url( $url_no_boost );
-		$active_modules = array_keys( $this->jetpack_boost->get_active_modules() );
 
 		if (
 			// If there isn't already a pending request.
 			( empty( $score_request ) || ! $score_request->is_pending() )
-			&& ! empty( $active_modules )
+			&& ! empty( $this->jetpack_boost->get_active_modules() )
 			&& (
 				null === $latest_history
 				|| $latest_history['timestamp'] < strtotime( '- 24 hours' ) // Refetch if it is older than a day.
 				|| wp_get_theme()->get( 'Name' ) !== $latest_history['theme'] // Refetch if then theme was changed.
 			)
 		) {
-			$score_request = new Speed_Score_Request( $url_no_boost, $active_modules ); // Dispatch a new speed score request to measure score without boost.
+			$score_request = new Speed_Score_Request( $url_no_boost ); // Dispatch a new speed score request to measure score without boost.
 			$score_request->store( 3600 ); // Keep the request for 1 hour even if no one access the results. The value is persisted for 1 hour in wp.com from initial request.
 
 			// Send the request.
