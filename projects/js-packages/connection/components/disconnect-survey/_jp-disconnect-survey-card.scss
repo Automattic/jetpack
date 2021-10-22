@@ -8,10 +8,11 @@
 	text-align: left;
 	padding: 1rem;
 	position: relative;
+	box-shadow: 0 0 15px #EEEEEE;
 
 	&--selected {
 		border-color: var( --jp-black );
-		background: #EEE;
+		background: #EEEEEE;
 	}
 
 	&::after {

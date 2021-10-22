@@ -30,6 +30,7 @@ import './style.scss';
  * @param {Function} props.onDisconnected -- The callback to be called upon disconnection success.
  * @param {object}   props.connectedPlugins -- An object of the plugins currently using the Jetpack connection.
  * @param {string}   props.currentPlugin -- The slug of the plugin where this component is being used.
+ * @param {string}   props.assetBaseUrl -- The base URL of the asset folder for the plugin using this component ( needed for inclusion of images ).
  * @returns {React.Component} The `ConnectionStatusCard` component.
  */
 
@@ -45,11 +46,13 @@ const ConnectionStatusCard = props => {
 		onDisconnected,
 		connectedPlugins,
 		currentPlugin,
+		assetBaseUrl,
 	} = props;
 
 	const [ isFetchingConnectionData, setIsFetchingConnectionData ] = useState( false );
 	const [ connectedUserData, setConnectedUserData ] = useState( {} );
 	const [ isUserConnecting, setIsUserConnecting ] = useState( false );
+	const [ isDisconnectDialogOpen, setIsDisconnectDialogOpen ] = useState( false );
 	const { setConnectionStatus } = useDispatch( STORE_ID );
 
 	const avatarRef = useRef();
@@ -84,6 +87,28 @@ const ConnectionStatusCard = props => {
 				throw error;
 			} );
 	}, [ setIsFetchingConnectionData, setConnectedUserData ] );
+
+	/**
+	 * Open the Disconnect Dialog.
+	 */
+	const openDisconnectDialog = useCallback(
+		e => {
+			e && e.preventDefault();
+			setIsDisconnectDialogOpen( true );
+		},
+		[ setIsDisconnectDialogOpen ]
+	);
+
+	/**
+	 * Close the Disconnect Dialog.
+	 */
+	const closeDisconnectDialog = useCallback(
+		e => {
+			e && e.preventDefault();
+			setIsDisconnectDialogOpen( false );
+		},
+		[ setIsDisconnectDialogOpen ]
+	);
 
 	const onDisconnectedCallback = useCallback(
 		e => {
@@ -124,6 +149,13 @@ const ConnectionStatusCard = props => {
 			<ul className="jp-connection-status-card--list">
 				<li className="jp-connection-status-card--list-item-success">
 					{ __( 'Site connected.', 'jetpack' ) }&nbsp;
+					<Button
+						variant="link"
+						onClick={ openDisconnectDialog }
+						className="jp-disconnect-dialog__link"
+					>
+						{ __( 'Disconnect', 'jetpack' ) }
+					</Button>
 					<DisconnectDialog
 						apiRoot={ apiRoot }
 						apiNonce={ apiNonce }
@@ -131,6 +163,9 @@ const ConnectionStatusCard = props => {
 						connectedPlugins={ connectedPlugins }
 						disconnectingPlugin={ currentPlugin }
 						connectedUser={ connectedUserData }
+						isOpen={ isDisconnectDialogOpen }
+						onClose={ closeDisconnectDialog }
+						assetBaseUrl={ assetBaseUrl }
 					/>
 				</li>
 
@@ -174,6 +209,7 @@ ConnectionStatusCard.propTypes = {
 	connectionInfoText: PropTypes.string,
 	onDisconnected: PropTypes.func,
 	currentPlugin: PropTypes.string,
+	assetBaseUrl: PropTypes.string,
 };
 
 ConnectionStatusCard.defaultProps = {

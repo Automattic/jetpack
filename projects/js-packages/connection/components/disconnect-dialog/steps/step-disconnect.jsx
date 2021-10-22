@@ -101,7 +101,7 @@ const StepDisconnect = props => {
 
 			<div className="jp-disconnect-dialog__actions">
 				<div className="jp-row">
-					<div className="lg-col-span-8 md-col-span-8 sm-col-span-4">
+					<div className="lg-col-span-7 md-col-span-8 sm-col-span-4">
 						<p>
 							{ createInterpolateElement(
 								__(
@@ -132,7 +132,7 @@ const StepDisconnect = props => {
 							) }
 						</p>
 					</div>
-					<div className="jp-disconnect-dialog__button-wrap lg-col-span-4 md-col-span-8 sm-col-span-4">
+					<div className="jp-disconnect-dialog__button-wrap lg-col-span-5 md-col-span-8 sm-col-span-4">
 						<Button
 							isPrimary
 							disabled={ isDisconnecting }

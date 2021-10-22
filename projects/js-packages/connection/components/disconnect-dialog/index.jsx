@@ -4,7 +4,7 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
 import { __ } from '@wordpress/i18n';
-import { Button, Modal } from '@wordpress/components';
+import { Modal } from '@wordpress/components';
 import restApi from '@automattic/jetpack-api';
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 
@@ -34,11 +34,13 @@ import StepThankYou from './steps/step-thank-you';
  * @param {string} props.disconnectingPlugin -- The plugin where this component is being used that initiated the disconnect flow.
  * @param {Function} props.errorMessage -- The error message to display upon disconnection failure.
  * @param {object} props.connectedUser -- An object representing the connected user.
+ * @param {boolean} props.isOpen -- Whether or not the dialog modal should be open.
+ * @param {Function} props.onClose -- Callback function for when the modal closes.
+ * @param {string} props.assetBaseUrl -- Base URL for where webpack-ed images will be stored for the consumer of this component.
  * @returns {React.Component} The `DisconnectDialog` component.
  */
 
 const DisconnectDialog = props => {
-	const [ isOpen, setOpen ] = useState( false );
 	const [ isDisconnecting, setIsDisconnecting ] = useState( false );
 	const [ isDisconnected, setIsDisconnected ] = useState( false );
 	const [ disconnectError, setDisconnectError ] = useState( false );
@@ -50,8 +52,6 @@ const DisconnectDialog = props => {
 		apiNonce,
 		connectedPlugins,
 		title,
-		activateButtonText,
-		activateButtonClass,
 		pluginScreenDisconnectCallback,
 		onDisconnected,
 		onError,
@@ -59,6 +59,9 @@ const DisconnectDialog = props => {
 		context,
 		disconnectingPlugin,
 		connectedUser,
+		isOpen,
+		onClose,
+		assetBaseUrl,
 	} = props;
 
 	/**
@@ -78,28 +81,6 @@ const DisconnectDialog = props => {
 			jetpackAnalytics.initialize( connectedUser.ID, connectedUser.login );
 		}
 	}, [ connectedUser ] );
-
-	/**
-	 * Open the Disconnect Dialog.
-	 */
-	const openModal = useCallback(
-		e => {
-			e && e.preventDefault();
-			setOpen( true );
-		},
-		[ setOpen ]
-	);
-
-	/**
-	 * Close the Disconnect Dialog.
-	 */
-	const closeModal = useCallback(
-		e => {
-			e && e.preventDefault();
-			setOpen( false );
-		},
-		[ setOpen ]
-	);
 
 	/**
 	 * Disconnect the site.
@@ -192,9 +173,9 @@ const DisconnectDialog = props => {
 				onDisconnected();
 			}
 
-			closeModal();
+			onClose();
 		},
-		[ onDisconnected, closeModal ]
+		[ onDisconnected, onClose ]
 	);
 
 	/**
@@ -215,7 +196,7 @@ const DisconnectDialog = props => {
 	 */
 	const getCurrentStep = () => {
 		if ( ! isDisconnected ) {
-			// disconnection screen
+			// Disconnection screen.
 			return (
 				<StepDisconnect
 					title={ title }
@@ -223,7 +204,7 @@ const DisconnectDialog = props => {
 					// Component that renders as part of the disconnect step, if passed.
 					disconnectStepComponent={ disconnectStepComponent }
 					isDisconnecting={ isDisconnecting }
-					closeModal={ closeModal }
+					closeModal={ onClose }
 					onDisconnect={ handleDisconnect }
 					disconnectError={ disconnectError }
 					context={ context } // Where is the modal showing? ( most important for when it loads on the plugins page )
@@ -236,25 +217,18 @@ const DisconnectDialog = props => {
 				<StepDisconnectConfirm
 					onProvideFeedback={ handleProvideFeedback }
 					onExit={ backToWordpress }
+					assetBaseUrl={ assetBaseUrl }
 				/>
 			);
 		} else if ( isProvidingFeedback && ! isFeedbackProvided ) {
 			return <StepSurvey onFeedBackProvided={ handleSubmitSurvey } onExit={ backToWordpress } />;
 		} else if ( isFeedbackProvided ) {
-			return <StepThankYou onExit={ backToWordpress } />;
+			return <StepThankYou onExit={ backToWordpress } assetBaseUrl={ assetBaseUrl } />;
 		}
 	};
 
 	return (
 		<>
-			<Button
-				variant="link"
-				onClick={ openModal }
-				className={ 'jp-disconnect-dialog__link ' + activateButtonClass }
-			>
-				{ activateButtonText }
-			</Button>
-
 			{ isOpen && (
 				<Modal
 					title=""
@@ -262,7 +236,7 @@ const DisconnectDialog = props => {
 					aria={ {
 						labelledby: 'jp-disconnect-dialog__heading',
 					} }
-					onRequestClose={ closeModal }
+					onRequestClose={ onClose }
 					shouldCloseOnClickOutside={ false }
 					shouldCloseOnEsc={ false }
 					isDismissible={ false }
@@ -291,6 +265,9 @@ DisconnectDialog.propTypes = {
 	disconnectingPlugin: PropTypes.string,
 	pluginScreenDisconnectCallback: PropTypes.func,
 	connectedUser: PropTypes.object,
+	isOpen: PropTypes.bool,
+	onClose: PropTypes.func,
+	assetBaseUrl: PropTypes.string,
 };
 
 DisconnectDialog.defaultProps = {

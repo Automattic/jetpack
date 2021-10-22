@@ -1,8 +1,10 @@
+@import '../rna-styles';
+
 .jp-decorative-card {
 	display: flex;
-	border-radius: 4px;
+	border-radius: 8px;
 	overflow: hidden;
-	box-shadow: 2px 2px 10px #DDDDDD;
+	box-shadow: 0 0 15px #DDDDDD;
 	position: relative;
 	width: 360px;
 	max-width: 100%;
@@ -19,6 +21,18 @@
 .jp-decorative-card__image {
 	background: #DDDDDD;
 	background-size: cover;
+	position: relative;
+
+	&:before {
+		content: '';
+		display: block;
+		position: absolute;
+		top: 24px;
+		left: 24px;
+		width: 38px;
+		height: 8px;
+		background-image: url('data:image/svg+xml;uf8,<svg width="38" height="8" viewBox="0 0 38 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 7C1 7 2.37087 1 6.89831 1C11.4257 1 14.3709 7 18.8983 7C23.4257 7 26.7777 1 31.3051 1C35.912 1 37 7 37 7" stroke="white" stroke-width="1.5" stroke-linejoin="round"/></svg>');
+	}
 }
 
 .jp-decorative-card__content {
@@ -57,7 +71,7 @@
 	width: 100%;
 	height: 12px;
 	border-radius: 6px;
-	background: var(--jp-gray);
+	background: #E9EFF5;
 	position: relative;
 
 	&::before,
@@ -67,7 +81,7 @@
 		width: 100%;
 		height: 12px;
 		border-radius: 6px;
-		background: var(--jp-gray);
+		background: #E9EFF5;
 		position: relative;
 		top: calc(100% + 16px);
 	}
