@@ -3909,6 +3909,12 @@ p {
 
 			// Include styles for WP Components ( Includes the modal used for disconnection ).
 			wp_enqueue_style( 'wp-components' );
+			wp_enqueue_style(
+				'jetpack-plugins-page-css',
+				plugins_url( '_inc/build/plugins-page.css', JETPACK__PLUGIN_FILE ),
+				array(),
+				JETPACK__VERSION
+			);
 			add_action( 'admin_footer', array( $this, 'jetpack_plugin_portal_containers' ) );
 		}
 	}
