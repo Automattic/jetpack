@@ -137,9 +137,6 @@ class IDC_Simulator {
 		<h3>jetpack_idc_local</h3>
 		<pre><?php var_dump( get_transient( 'jetpack_idc_local' ) ); //phpcs:ignore ?></pre>
 
-		<h3>jetpack_idc_option</h3>
-		<pre><?php var_dump( get_transient( 'jetpack_idc_option' ) ); //phpcs:ignore ?></pre>
-
 		<hr>
 		<?php
 	}
