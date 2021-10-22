@@ -75,7 +75,6 @@ function getPanelDescription(
 
 const PublicizePanel = ( { prePublish } ) => {
 	const { refresh, hasConnections, hasEnabledConnections } = useSelectSocialMediaConnections();
-
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
 	/*
@@ -83,11 +82,20 @@ const PublicizePanel = ( { prePublish } ) => {
 	 * it can be defined via the `jetpack_block_editor_republicize_feature` backend filter.
 	 */
 	const {
-		isRePublicizeFeatureEnabled,
-		isPublicizeEnabled: isPublicizeEnabledFromConfig,
+		isRePublicizeFeatureEnabled, // <- defined by the server-side feature flag check
+		isPublicizeEnabled: isPublicizeEnabledFromConfig, // <- usually handled by the UI
+		isRePublicizeFeatureUpgradable, // <- defined by the `republicize` feature availability check
 		togglePublicizeFeature,
-		isRePublicizeFeatureUpgradable,
 	} = usePublicizeConfig();
+
+	/*
+	 * Publicize is enabled by toggling the control,
+	 * but also disabled when the post is already published,
+	 * and the feature is upgradable.
+	 */
+	const isPublicizeDisabledBySitePlan =
+		isPostPublished && isRePublicizeFeatureUpgradable && isRePublicizeFeatureEnabled;
+	const isPublicizeEnabled = isPublicizeEnabledFromConfig && ! isPublicizeDisabledBySitePlan;
 
 	// Refresh connections when the post is just published.
 	usePostJustPublished(
@@ -101,14 +109,7 @@ const PublicizePanel = ( { prePublish } ) => {
 		[ hasEnabledConnections, refresh ]
 	);
 
-	/*
-	 * Publicize is enabled by toggling the control,
-	 * but also disabled when the post is already published,
-	 * and the feature is upgradable.
-	 */
-	const isPublicizeDisabledBySitePlan = isPostPublished && isRePublicizeFeatureUpgradable;
-	const isPublicizeEnabled = isPublicizeEnabledFromConfig && ! isPublicizeDisabledBySitePlan;
-
+	// Disable the panel when no proper site plan is available.
 	const PanelRowWithDisabled = isPublicizeDisabledBySitePlan ? Disabled : PanelRow;
 
 	return (
