@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Minor change that ensures the same price format will be used for displaying prices in PricingCard
+
+
