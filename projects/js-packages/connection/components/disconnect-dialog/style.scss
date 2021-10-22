@@ -25,7 +25,8 @@
 		font-size: 1.5rem;
 	}
 
-	&__link{
+	&__link,
+	.jp-disconnect-dialog__link {
 		font-size: var( --font-body );
 		color: var( --jp-black );
 		text-decoration: underline;
@@ -86,7 +87,25 @@
 
 	&__actions{
 		background: var( --jp-white );
-		padding: 10px 48px;
+		padding: 2rem 3rem;
+		position: sticky;
+		bottom: 0;
+		border-top: 1px solid var( --jp-gray );
+
+		p {
+			margin-bottom: 0;
+		}
+
+		&::before {
+			content: '';
+			display: block;
+			width: 100%;
+			position: absolute;
+			height: 80px;
+			background: linear-gradient(to bottom, rgba( 0,0,0,0 ), var( --jp-white-off ));
+			bottom: calc( 100% + 1px );
+			left: 0;
+		}
 	}
 
 	&__btn-dismiss{
@@ -103,7 +122,11 @@
 	}
 
 	&__button-wrap{
-		text-align: center;
+		text-align: left;
+
+		@media (min-width: 960px) {
+			text-align: center;
+		}
 	}
 
 	&__error{
@@ -116,8 +139,12 @@
 
 	// Limit the copy width on the steps.
 	&__step-copy {
-		max-width: 650px;
+		max-width: 800px;
 		margin: 0 auto;
+
+		&--narrow {
+			max-width: 600px;
+		}
 	}
 }
 

@@ -10,6 +10,13 @@ import { __ } from '@wordpress/i18n';
  */
 import SurveyChoice from './survey-choice';
 
+/**
+ * Handles showing the disconnect survey.
+ *
+ * @param {object} props - The component props.
+ * @param {Function} props.onSubmit - Callback handler function for when the survey response is submitted.
+ * @returns {React.Component} - DisconnectSurvey component.
+ */
 const DisconnectSurvey = props => {
 	const { onSubmit } = props;
 	const [ selectedAnswer, setSelectedAnswer ] = useState();

@@ -6,9 +6,17 @@
 	padding: 1rem 2rem;
 	border: none;
 	border-radius: 3px;
-	box-shadow: 0 0 10px #EEEEEE;
+	box-shadow: 0 0 15px #EEEEEE;
 	margin-left: auto;
 	margin-right: auto;
+	margin-top: 0;
+	margin-bottom: 1rem;
+	text-align: left;
+}
+
+.jp-disconnect-card__group {
+	margin-bottom: 1rem;
+	max-width: 100%;
 }
 
 .jp-disconnect-card__card-content {
@@ -23,17 +31,24 @@
 }
 
 .jp-disconnect-card__card-headline,
-p.jp-disconnect-card__card-headline { // Override rule from disconnect-modal
+.jp-disconnect-card .jp-disconnect-card__card-headline { // Override rule from disconnect-modal
 	font-size: 1.25rem;
 	font-weight: 600;
 	margin-top: 0;
-	margin-bottom: 0.5rem;
 	flex-shrink: 0;
+	margin-bottom: 0;
 
 	@media only screen and (min-width: 782px) {
 		font-size: 1.5rem;
-		margin-bottom: 0;
 		margin-right: 1.5rem;
+	}
+
+	// smaller screens
+	@media only screen and (max-width: 782px) {
+		// When a headline is above a stats block, add some space.
+		& + .jp-disconnect-card__card-stat-block {
+			margin-top: 0.5rem;
+		}
 	}
 }
 

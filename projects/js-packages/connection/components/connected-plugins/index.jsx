@@ -49,9 +49,11 @@ const ConnectedPlugins = props => {
 						) }
 					</p>
 				</div>
-				{ connectedPluginsArray.map( plugin => {
-					return <DisconnectCard title={ plugin.name } />;
-				} ) }
+				<div className="jp-disconnect-card__group">
+					{ connectedPluginsArray.map( plugin => {
+						return <DisconnectCard title={ plugin.name } />;
+					} ) }
+				</div>
 			</React.Fragment>
 		);
 	}
