@@ -118,6 +118,7 @@ class Publicize extends Publicize_Base {
 	}
 
 	function get_all_connections() {
+		$this->refresh_connections();
 		$connections = Jetpack_Options::get_option( 'publicize_connections' );
 		if ( isset( $connections['google_plus'] ) ) {
 			unset( $connections['google_plus'] );
@@ -270,6 +271,29 @@ class Publicize extends Publicize_Base {
 			$response = $xml->getResponse();
 			$this->receive_updated_publicize_connections( $response );
 		}
+	}
+
+	/**
+	 * Grabs a fresh copy of the publicize connections data.
+	 * Only refreshes once every 12 hours or retries after an hour with an error.
+	 */
+	public function refresh_connections() {
+		if ( get_transient( 'jetpack_publicize_connection_refresh_wait' ) ) {
+			return;
+		}
+		$xml = new Jetpack_IXR_Client();
+		$xml->query( 'jetpack.fetchPublicizeConnections' );
+		$wait_time = HOUR_IN_SECONDS * 12;
+
+		if ( ! $xml->isError() ) {
+			$response = $xml->getResponse();
+			$this->receive_updated_publicize_connections( $response );
+		} else {
+			// Retry a bit quicker, but still wait.
+			$wait_time = HOUR_IN_SECONDS;
+		}
+
+		set_transient( 'jetpack_publicize_connection_refresh_wait', microtime( true ), $wait_time );
 	}
 
 	function connect_url( $service_name, $for = 'publicize' ) {
