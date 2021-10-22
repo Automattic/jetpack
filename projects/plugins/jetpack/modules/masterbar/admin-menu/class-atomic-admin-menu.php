@@ -123,13 +123,14 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		 */
 		if ( apply_filters( 'wpcom_marketplace_enabled', false ) ) {
 			global $submenu;
-			$plugins_submenu = $submenu[ 'plugins.php' ];
-			$slug_to_update = 'plugin-install.php';
+			$plugins_submenu = $submenu['plugins.php'];
+			$slug_to_update  = 'plugin-install.php';
 
 			// Move "Add New" plugin submenu ( `plugin-install.php` ) to the top position.
-			foreach ($plugins_submenu as $submenu_key => $submenu_keys) {
-				if ( $submenu_keys[ 2 ] === $slug_to_update ) {
-					$submenu[ 'plugins.php' ] = array( $submenu_key => $plugins_submenu[ $submenu_key ] ) + $plugins_submenu;
+			foreach ( $plugins_submenu as $submenu_key => $submenu_keys ) {
+				if ( $submenu_keys[2] === $slug_to_update ) {
+					// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+					$submenu['plugins.php'] = array( $submenu_key => $plugins_submenu[ $submenu_key ] ) + $plugins_submenu;
 				}
 			}
 
