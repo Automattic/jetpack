@@ -27,5 +27,5 @@ export const productIllustrations = {
 	[ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_SCAN ]: `${ imagePath }products/illustration-scan.png`,
 	[ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_SEARCH ]: `${ imagePath }products/illustration-search.png`,
 	[ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_SECURITY ]: `${ imagePath }products/illustration-scan.png`,
-	[ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_VIDEOPRESS ]: `${ imagePath }products/illustration-search.png`,
+	[ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_VIDEOPRESS ]: `${ imagePath }products/illustration-videopress.png`,
 };
