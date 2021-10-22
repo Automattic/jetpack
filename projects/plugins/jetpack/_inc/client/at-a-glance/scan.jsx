@@ -86,7 +86,7 @@ class DashScan extends Component {
 	static propTypes = {
 		siteRawUrl: PropTypes.string.isRequired,
 		siteAdminUrl: PropTypes.string.isRequired,
-		trackUpgradeBanner: PropTypes.func,
+		trackUpgradeButtonView: PropTypes.func,
 
 		// Connected props
 		vaultPressData: PropTypes.any.isRequired,
@@ -108,7 +108,7 @@ class DashScan extends Component {
 		isOfflineMode: false,
 		isVaultPressInstalled: false,
 		fetchingSiteData: false,
-		trackUpgradeBanner: noop,
+		trackUpgradeButtonView: noop,
 	};
 
 	onActivateVaultPressClick = () => {
@@ -136,14 +136,6 @@ class DashScan extends Component {
 			} );
 
 		return false;
-	};
-
-	onUpgradeClick = () => {
-		this.props.trackUpgradeBanner( 'click', 'scan' );
-	};
-
-	trackBannerDisplay = () => {
-		this.props.trackUpgradeBanner( 'view', 'scan' );
 	};
 
 	getVPContent() {
@@ -270,8 +262,7 @@ class DashScan extends Component {
 				eventFeature="scan"
 				path="dashboard"
 				plan={ getJetpackProductUpsellByFeature( FEATURE_SECURITY_SCANNING_JETPACK ) }
-				onClick={ this.onUpgradeClick }
-				trackBannerDisplay={ this.trackBannerDisplay }
+				trackBannerDisplay={ this.props.trackUpgradeButtonView }
 			/>
 		);
 	}

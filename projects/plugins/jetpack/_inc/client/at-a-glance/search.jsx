@@ -91,14 +91,6 @@ class DashSearch extends Component {
 		} );
 	};
 
-	onUpgradeClick = () => {
-		this.props.trackUpgradeBanner( 'click', 'search' );
-	};
-
-	trackBannerDisplay = () => {
-		this.props.trackUpgradeBanner( 'view', 'search' );
-	};
-
 	render() {
 		if ( this.props.isFetching ) {
 			return renderCard( {
@@ -131,8 +123,7 @@ class DashSearch extends Component {
 						path="dashboard"
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SEARCH_JETPACK ) }
 						icon="search"
-						onClick={ this.onUpgradeClick }
-						trackBannerDisplay={ this.trackBannerDisplay }
+						trackBannerDisplay={ this.props.trackUpgradeButtonView }
 					/>
 				) : (
 					<JetpackBanner

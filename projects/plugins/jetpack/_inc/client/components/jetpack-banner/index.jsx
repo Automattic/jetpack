@@ -37,7 +37,7 @@ class JetpackBanner extends Banner {
 	};
 
 	componentDidMount() {
-		if ( ! this.props.hidePromotionBanner ) {
+		if ( ! this.props.hidePromotionBanner && this.props.arePromotionsActive ) {
 			this.props.trackBannerDisplay();
 		}
 	}
@@ -45,7 +45,7 @@ class JetpackBanner extends Banner {
 	render() {
 		// Hide promotion banners from non-admins, since they can't upgrade the site.
 		if ( this.props.hidePromotionBanner ) {
-			return false;
+			return null;
 		}
 
 		return this.props.arePromotionsActive ? <Banner { ...this.props } /> : null;

@@ -50,8 +50,8 @@ const renderPairs = layout =>
 class AtAGlance extends Component {
 	trackSecurityClick = () => analytics.tracks.recordJetpackClick( 'aag_manage_security_wpcom' );
 
-	trackUpgradeBanner = ( action = 'click', feature = '' ) => {
-		analytics.tracks.recordEvent( `jetpack_wpa_aag_upgrade_button_${ action }`, { feature } );
+	trackUpgradeButtonView = ( feature = '' ) => {
+		return () => analytics.tracks.recordEvent( `jetpack_wpa_aag_upgrade_button_view`, { feature } );
 	};
 
 	render() {
@@ -98,7 +98,11 @@ class AtAGlance extends Component {
 			! this.props.fetchingScanStatus && this.props.scanStatus?.reason === 'vp_active_on_site';
 		if ( ! this.props.multisite || hasVaultPressScanning ) {
 			securityCards.push(
-				<DashScan { ...settingsProps } { ...urls } trackUpgradeBanner={ this.trackUpgradeBanner } />
+				<DashScan
+					{ ...settingsProps }
+					{ ...urls }
+					trackUpgradeButtonView={ this.trackUpgradeButtonView( 'scan' ) }
+				/>
 			);
 		}
 
@@ -109,12 +113,15 @@ class AtAGlance extends Component {
 					siteRawUrl={ this.props.siteRawUrl }
 					rewindStatus={ rewindStatus }
 					rewindStatusReason={ rewindStatusReason }
-					trackUpgradeBanner={ this.trackUpgradeBanner }
+					trackUpgradeButtonView={ this.trackUpgradeButtonView( 'backups' ) }
 				/>
 			);
 		}
 		securityCards.push(
-			<DashAkismet { ...urls } trackUpgradeBanner={ this.trackUpgradeBanner } />
+			<DashAkismet
+				{ ...urls }
+				trackUpgradeButtonView={ this.trackUpgradeButtonView( 'akismet' ) }
+			/>
 		);
 
 		if ( 'inactive' !== this.props.getModuleOverride( 'protect' ) ) {
@@ -145,12 +152,18 @@ class AtAGlance extends Component {
 			}
 			if ( 'inactive' !== this.props.getModuleOverride( 'search' ) ) {
 				performanceCards.push(
-					<DashSearch { ...settingsProps } trackUpgradeBanner={ this.trackUpgradeBanner } />
+					<DashSearch
+						{ ...settingsProps }
+						trackUpgradeButtonView={ this.trackUpgradeButtonView( 'search' ) }
+					/>
 				);
 			}
 			if ( 'inactive' !== this.props.getModuleOverride( 'videopress' ) ) {
 				performanceCards.push(
-					<DashVideoPress { ...settingsProps } trackUpgradeBanner={ this.trackUpgradeBanner } />
+					<DashVideoPress
+						{ ...settingsProps }
+						trackUpgradeButtonView={ this.trackUpgradeButtonView( 'videopress' ) }
+					/>
 				);
 			}
 			if ( performanceCards.length ) {
