@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Optimizes product images that are displayed on the Upgrade page. This reduces their file size and will improve the performance when downloading them
