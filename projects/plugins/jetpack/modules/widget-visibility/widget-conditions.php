@@ -49,10 +49,13 @@ class Jetpack_Widget_Conditions {
 		$handle_widget_updates   = false;
 		$add_block_controls      = false;
 
+		// Check to see if using the customizer, but not using the preview. The preview should filter out widgets,
+		// the customizer controls in the sidebar should not (so they can be edited).
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$customizer_not_previewer = is_customize_preview() && ! isset( $_GET['customize_changeset_uuid'] );
 		$using_classic_experience = ( ! function_exists( 'wp_use_widgets_block_editor' ) || ! wp_use_widgets_block_editor() );
 		if ( $using_classic_experience &&
-			(
-				is_customize_preview() || 'widgets.php' === $pagenow ||
+			( $customizer_not_previewer || 'widgets.php' === $pagenow ||
 				// phpcs:ignore WordPress.Security.NonceVerification.Missing
 				( 'admin-ajax.php' === $pagenow && array_key_exists( 'action', $_POST ) && 'save-widget' === $_POST['action'] )
 			)
@@ -62,7 +65,7 @@ class Jetpack_Widget_Conditions {
 			$handle_widget_updates   = true;
 		} else {
 			// On a screen that is hosting the API in the gutenberg editing experience.
-			if ( is_customize_preview() || 'widgets.php' === $pagenow ) {
+			if ( $customizer_not_previewer || 'widgets.php' === $pagenow ) {
 				$add_data_assets_to_page = true;
 				$add_block_controls      = true;
 			}
