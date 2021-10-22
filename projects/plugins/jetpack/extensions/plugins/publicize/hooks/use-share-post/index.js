@@ -72,7 +72,7 @@ export default function useSharePost( postId ) {
 	const currentPostId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 	postId = postId || currentPostId;
 
-	const [ data, setData ] = useState( {} );
+	const [ data, setData ] = useState( { data: [], error: {} } );
 
 	const doPublicize = useCallback(
 		function () {
@@ -81,7 +81,7 @@ export default function useSharePost( postId ) {
 				isError: false,
 				isSuccess: false,
 				data: [],
-				error: [],
+				error: {},
 				postId,
 			};
 
@@ -109,6 +109,7 @@ export default function useSharePost( postId ) {
 					if ( hasError ) {
 						return setData( prev => ( {
 							...prev,
+							isFetching: false,
 							isSuccess: false,
 							isError: true,
 							data: [],
@@ -119,37 +120,26 @@ export default function useSharePost( postId ) {
 					// Success.
 					setData( prev => ( {
 						...prev,
+						isFetching: false,
 						isSuccess: true,
 						isError: false,
 						data: result?.results,
-						error: [],
+						error: {},
 					} ) );
 				} )
 				.catch( error => {
 					setData( prev => ( {
 						...prev,
+						isFetching: false,
 						isSuccess: false,
 						isError: true,
 						data: [],
 						error: getHumanReadableError( error ),
 					} ) );
-				} )
-				.finally( () => {
-					setData( {
-						...initialState,
-						isFetching: false,
-					} );
 				} );
 
 			return function () {
-				setData( {
-					isFetching: false,
-					isError: false,
-					isSuccess: false,
-					data: [],
-					error: [],
-					postId,
-				} );
+				setData( initialState ); // clean the state.
 			};
 		},
 		[ postId, message, skipped_connections, data.isFetching ]

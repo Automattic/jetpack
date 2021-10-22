@@ -26,6 +26,11 @@ export default function PublicizeForm( { isPublicizeEnabled, isRePublicizeFeatur
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 
 	function isDisabled() {
+		// Do not disable when RePublicize is enabled.
+		if ( isRePublicizeFeatureEnabled ) {
+			return false;
+		}
+
 		return connections.every( connection => ! connection.toggleable );
 	}
 
