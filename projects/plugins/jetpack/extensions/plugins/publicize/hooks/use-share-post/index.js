@@ -109,6 +109,7 @@ export default function useSharePost( postId ) {
 					if ( hasError ) {
 						return setData( prev => ( {
 							...prev,
+							isFetching: false,
 							isSuccess: false,
 							isError: true,
 							data: [],
@@ -119,6 +120,7 @@ export default function useSharePost( postId ) {
 					// Success.
 					setData( prev => ( {
 						...prev,
+						isFetching: false,
 						isSuccess: true,
 						isError: false,
 						data: result?.results,
@@ -128,17 +130,12 @@ export default function useSharePost( postId ) {
 				.catch( error => {
 					setData( prev => ( {
 						...prev,
+						isFetching: false,
 						isSuccess: false,
 						isError: true,
 						data: [],
 						error: getHumanReadableError( error ),
 					} ) );
-				} )
-				.finally( () => {
-					setData( {
-						...initialState,
-						isFetching: false,
-					} );
 				} );
 
 			return function () {
