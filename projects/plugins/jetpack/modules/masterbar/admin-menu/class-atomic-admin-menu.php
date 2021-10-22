@@ -122,7 +122,18 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		 * @param bool $wpcom_marketplace_enabled Load the WordPress.com Marketplace feature. Default to false.
 		 */
 		if ( apply_filters( 'wpcom_marketplace_enabled', false ) ) {
-			$submenus_to_update = array( 'plugin-install.php' => 'https://wordpress.com/plugins/' . $this->domain );
+			global $submenu;
+			$plugins_submenu = $submenu[ 'plugins.php' ];
+			$slug_to_update = 'plugin-install.php';
+
+			// Move "Add New" plugin submenu ( `plugin-install.php` ) to the top position.
+			foreach ($plugins_submenu as $submenu_key => $submenu_keys) {
+				if ( $submenu_keys[ 2 ] === $slug_to_update ) {
+					$submenu[ 'plugins.php' ] = array( $submenu_key => $plugins_submenu[ $submenu_key ] ) + $plugins_submenu;
+				}
+			}
+
+			$submenus_to_update = array( $slug_to_update => 'https://wordpress.com/plugins/' . $this->domain );
 			$this->update_submenus( 'plugins.php', $submenus_to_update );
 		}
 	}
