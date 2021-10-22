@@ -423,6 +423,13 @@ function JetpackRestApiClient( root, nonce ) {
 				checkStatus
 			),
 
+		startIDCFresh: redirectUri =>
+			postRequest( `${ apiRoot }jetpack/v4/identity-crisis/start-fresh`, postParams, {
+				body: JSON.stringify( { redirect_uri: redirectUri } ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		migrateIDC: () =>
 			postRequest( `${ apiRoot }jetpack/v4/identity-crisis/migrate`, postParams ).then(
 				checkStatus

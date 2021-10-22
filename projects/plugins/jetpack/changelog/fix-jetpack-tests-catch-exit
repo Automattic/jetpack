@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+PHPUnit tests will now catch `exit` calls, instead of exiting PHPUnit.

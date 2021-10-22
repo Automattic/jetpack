@@ -39,6 +39,7 @@ export default function Admin() {
 	const hasIDC = true;
 	const IDCHomeUrl = 'https://site1.local/';
 	const currentUrl = 'https://site2.local/';
+	const redirectUri = 'tools.php?page=wpcom-connection-manager';
 
 	const statusCallback = useCallback(
 		status => {
@@ -58,6 +59,7 @@ export default function Admin() {
 				currentUrl={ currentUrl }
 				apiRoot={ APIRoot }
 				apiNonce={ APINonce }
+				redirectUri={ redirectUri }
 			/>
 		);
 	}
