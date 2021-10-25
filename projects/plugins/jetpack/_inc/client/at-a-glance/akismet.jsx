@@ -135,6 +135,22 @@ class DashAkismet extends Component {
 		};
 
 		const getBanner = () => {
+			if ( this.props.isOfflineMode ) {
+				return (
+					<DashItem
+						label={ labelName }
+						module="akismet"
+						support={ support }
+						pro={ true }
+						className="jp-dash-item__is-inactive"
+					>
+						<p className="jp-dash-item__description">
+							{ __( 'Unavailable in Offline Mode.', 'jetpack' ) }
+						</p>
+					</DashItem>
+				);
+			}
+
 			return this.props.hasConnectedOwner ? getAkismetUpgradeBanner() : getConnectBanner();
 		};
 

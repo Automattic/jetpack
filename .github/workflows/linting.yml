@@ -436,7 +436,7 @@ jobs:
           node: false
 
       - name: Check change file validity
-        run: tools/changelogger-validate-all.sh --debug
+        run: tools/changelogger-validate-all.sh -vv
 
   ### Checks that lock files are up to date.
   # Local equivalent: .github/files/check-lock-files.sh

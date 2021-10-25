@@ -140,7 +140,8 @@ class DashVideoPress extends Component {
 				className="jp-dash-item__is-inactive"
 				noToggle={ ! hasConnectedOwner }
 				overrideContent={
-					! hasConnectedOwner && (
+					! hasConnectedOwner &&
+					! isOffline && (
 						<JetpackBanner
 							callToAction={ __( 'Connect', 'jetpack' ) }
 							title={ __(
