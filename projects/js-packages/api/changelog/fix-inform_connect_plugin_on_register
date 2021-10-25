@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added from parameter to the registerSite method to inform the plugin that is performing the registration
