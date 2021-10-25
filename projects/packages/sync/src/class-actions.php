@@ -23,13 +23,31 @@ use WP_Error;
 class Actions {
 
 	/**
-	 * Name of the retry-after option prefix
+	 * Name of the retry-after option prefix.
 	 *
 	 * @access public
 	 *
 	 * @var string
 	 */
 	const RETRY_AFTER_PREFIX = 'jp_sync_retry_after_';
+
+	/**
+	 * Name of the error log option prefix.
+	 *
+	 * @access public
+	 *
+	 * @var string
+	 */
+	const ERROR_LOG_PREFIX = 'jp_sync_error_log_';
+
+	/**
+	 * Name of the last successful sync option prefix.
+	 *
+	 * @access public
+	 *
+	 * @var string
+	 */
+	const LAST_SUCCESS_PREFIX = 'jp_sync_last_success_';
 
 	/**
 	 * A variable to hold a sync sender object.
@@ -294,6 +312,11 @@ class Actions {
 				$debug['debug_details']['active_connection'] = false;
 			}
 		}
+
+		// Sync Logs.
+		$debug['debug_details']['last_succesful_sync'] = get_option( self::LAST_SUCCESS_PREFIX . 'sync', '' );
+		$debug['debug_details']['sync_error_log']      = get_option( self::ERROR_LOG_PREFIX . 'sync', '' );
+
 		return $debug;
 
 	}
@@ -430,6 +453,21 @@ class Actions {
 				// We received a non standard response from WP.com, lets backoff from sending requests for 1 minute.
 				update_option( self::RETRY_AFTER_PREFIX . $queue_id, microtime( true ) + 60, false );
 			}
+			// Record Sync Errors.
+			$error_log = get_option( self::ERROR_LOG_PREFIX . $queue_id, array() );
+			if ( ! is_array( $error_log ) ) {
+				$error_log = array();
+			}
+			// Trim existing array to last 4 entries.
+			if ( 5 <= count( $error_log ) ) {
+				$error_log = array_slice( $error_log, -4, null, true );
+			}
+			// Add new error indexed to time.
+			$error_log[ microtime( true ) ] = $rpc->get_jetpack_error();
+			// Update the error log.
+			update_option( self::ERROR_LOG_PREFIX . $queue_id, $error_log );
+
+			// return request error.
 			return $rpc->get_jetpack_error();
 		}
 
@@ -442,6 +480,9 @@ class Actions {
 				esc_html__( 'Sync has been blocked from WordPress.com because it would cause an identity crisis', 'jetpack' )
 			);
 		}
+
+		// Record last successful sync.
+		update_option( self::LAST_SUCCESS_PREFIX . $queue_id, microtime( true ), false );
 
 		return $response;
 	}

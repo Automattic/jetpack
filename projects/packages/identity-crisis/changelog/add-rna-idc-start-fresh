@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add redirect_uri parameter for IDC Start Fresh endpoint.
