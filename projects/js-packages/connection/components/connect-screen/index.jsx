@@ -22,7 +22,7 @@ import './style.scss';
  * @param {string} props.apiNonce -- API Nonce, required.
  * @param {string} props.registrationNonce -- Separate registration nonce, required.
  * @param {string} props.redirectUri -- The redirect admin URI.
- * @param {string} props.from -- Where the connection request is coming from.
+ * @param {string} props.from -- Indicates where the registration action was triggered for tracking/segmentation purposes (e.g. the plugin slug).
  * @param {string} props.title -- Page title.
  * @param {Array} props.images -- Images to display on the right side.
  * @param {string} props.assetBaseUrl -- The assets base URL.

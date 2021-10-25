@@ -22,7 +22,7 @@ import ConnectUser from '../connect-user';
  * @param {string} props.registrationNonce -- Separate registration nonce, required.
  * @param {Function} props.onRegistered -- The callback to be called upon registration success.
  * @param {string} props.redirectUri -- The redirect admin URI.
- * @param {string} props.from -- Where the connection request is coming from.
+ * @param {string} props.from -- Indicates where the registration action was triggered for tracking/segmentation purposes (e.g. the plugin slug).
  * @param {object} props.connectionStatus -- The connection status object.
  * @param {boolean} props.connectionStatusIsFetching -- The flag indicating that connection status is being fetched.
  * @param {boolean} props.autoTrigger -- Whether to initiate the connection process automatically upon rendering the component.
@@ -73,7 +73,7 @@ const ConnectButton = props => {
 			setIsRegistering( true );
 
 			restApi
-				.registerSite( registrationNonce, redirectUri )
+				.registerSite( registrationNonce, redirectUri, from )
 				.then( response => {
 					setIsRegistering( false );
 
@@ -97,6 +97,7 @@ const ConnectButton = props => {
 			onRegistered,
 			registrationNonce,
 			redirectUri,
+			from,
 		]
 	);
 

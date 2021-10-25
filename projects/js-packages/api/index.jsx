@@ -73,9 +73,10 @@ function JetpackRestApiClient( root, nonce ) {
 			cacheBusterCallback = callback;
 		},
 
-		registerSite: ( registrationNonce, redirectUri ) => {
+		registerSite: ( registrationNonce, redirectUri, from = '' ) => {
 			const params = {
 				registration_nonce: registrationNonce,
+				from: from,
 				no_iframe: true,
 			};
 

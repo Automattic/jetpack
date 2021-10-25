@@ -638,9 +638,23 @@ class REST_Connector {
 			return new WP_Error( 'invalid_nonce', __( 'Unable to verify your request.', 'jetpack' ), array( 'status' => 403 ) );
 		}
 
-		if ( isset( $request['from'] ) ) {
+		if ( ! empty( $request['from'] ) ) {
 			$this->connection->add_register_request_param( 'from', (string) $request['from'] );
+
+			// If `from` matches a plugin using the connection, let's also use this to inform the plugin that is establishing the connection.
+			$connected_plugin = Plugin_Storage::get_one( (string) $request['from'] );
+			if ( ! is_wp_error( $connected_plugin ) && ! empty( $connected_plugin ) ) {
+				$this->connection->set_plugin_instance( new Plugin( (string) $request['from'] ) );
+			}
+		} else {
+			// If there's only one plugin using the connection, let's use this to inform the first connected plugin.
+			$connected_plugins = Plugin_Storage::get_all();
+			if ( ! is_wp_error( $connected_plugins ) && 1 === count( $connected_plugins ) ) {
+				$plugin_slug = array_keys( $connected_plugins )[0];
+				$this->connection->set_plugin_instance( new Plugin( $plugin_slug ) );
+			}
 		}
+
 		$result = $this->connection->try_registration();
 
 		if ( is_wp_error( $result ) ) {
