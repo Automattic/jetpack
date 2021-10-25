@@ -30,7 +30,7 @@ define( 'MARKDOWNEXTRA_VERSION',  "1.2.8" ); # 29 Nov 2013
 @define( 'MARKDOWN_TAB_WIDTH',     4 );
 
 // Optional title attribute for footnote links and backlinks.
-@define( 'MARKDOWN_FN_LINK_TITLE',     esc_attr__( 'Read footnote.', 'jetpack' ) );
+@define( 'MARKDOWN_FN_LINK_TITLE', esc_attr__( 'Read footnote.', 'jetpack' ) );
 @define( 'MARKDOWN_FN_BACKLINK_TITLE', esc_attr__( 'Return to main content.', 'jetpack' ) );
 
 # Optional class attribute for footnote links and backlinks.
@@ -1532,13 +1532,13 @@ class Markdown_Parser {
 		}
 		return $line;
 	}
+
+	/**
+	 * Check for the availability of the function in the `utf8_strlen` property
+	 * (initially `mb_strlen`). If the function is not available, use jetpack_utf8_strlen
+	 * that will loosely count the number of UTF-8 characters with a regular expression.
+	 */
 	function _initDetab() {
-	#
-	# Check for the availability of the function in the `utf8_strlen` property
-	# (initially `mb_strlen`). If the function is not available, use jetpack_utf8_strlen 
-	# that will loosely count the number of UTF-8 characters with a
-	# regular expression.
-	#
 		if ( function_exists( $this->utf8_strlen ) )  {
 			return;
 		}
