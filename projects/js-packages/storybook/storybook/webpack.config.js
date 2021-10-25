@@ -27,7 +27,6 @@ module.exports = ( { config } ) => {
 			use: [
 				'style-loader',
 				'css-loader',
-				'sass-loader',
 				{
 					loader: 'postcss-loader',
 					options: {
