@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+General: ensure that no notices are output when Jetpack is used alongside plugins that modify the output of core comments.

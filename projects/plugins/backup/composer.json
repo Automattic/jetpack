@@ -10,7 +10,7 @@
 		"automattic/jetpack-config": "1.5.x-dev",
 		"automattic/jetpack-connection": "1.30.x-dev",
 		"automattic/jetpack-connection-ui": "1.5.x-dev",
-		"automattic/jetpack-sync": "1.26.x-dev",
+		"automattic/jetpack-sync": "1.27.x-dev",
 		"automattic/jetpack-status": "1.8.x-dev"
 	},
 	"require-dev": {
