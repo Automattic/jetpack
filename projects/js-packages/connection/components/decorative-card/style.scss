@@ -4,7 +4,7 @@
 	display: flex;
 	border-radius: 8px;
 	overflow: hidden;
-	box-shadow: 0 0 15px #DDDDDD;
+	box-shadow: 0 0 15px var( --jp-gray );
 	position: relative;
 	width: 360px;
 	max-width: 100%;
@@ -19,7 +19,7 @@
 }
 
 .jp-decorative-card__image {
-	background: #DDDDDD;
+	background: var( --jp-gray );
 	background-size: cover;
 	position: relative;
 

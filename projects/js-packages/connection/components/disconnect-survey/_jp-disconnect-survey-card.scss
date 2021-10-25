@@ -1,3 +1,5 @@
+@import '../rna-styles';
+
 .jp-disconnect-survey-card {
 	border: 2px solid transparent;
 	width: 800px;
@@ -8,11 +10,11 @@
 	text-align: left;
 	padding: 1rem;
 	position: relative;
-	box-shadow: 0 0 15px #EEEEEE;
+	box-shadow: 0 0 15px var( --jp-gray-off );
 
 	&--selected {
 		border-color: var( --jp-black );
-		background: #EEEEEE;
+		background: var( --jp-gray-off );
 	}
 
 	&::after {

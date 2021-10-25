@@ -28,14 +28,17 @@ const ConnectedPlugins = props => {
 	const connectedPluginsArray = useMemo( () => {
 		if ( connectedPlugins ) {
 			const keys = Object.keys( connectedPlugins );
-			keys.forEach( key => ( connectedPlugins[ key ].slug = key ) );
+			return keys
+				.map( key => {
+					return Object.assign( { slug: key }, connectedPlugins[ key ] );
+				} )
+				.filter( plugin => {
+					return disconnectingPlugin !== plugin.slug;
+				} );
 		}
 
-		return connectedPlugins
-			? Object.values( connectedPlugins ).filter( plugin => {
-					return disconnectingPlugin ? disconnectingPlugin !== plugin.slug : true;
-			  } )
-			: [];
+		// No connected plugins.
+		return [];
 	}, [ connectedPlugins, disconnectingPlugin ] );
 
 	if ( connectedPlugins && connectedPluginsArray.length > 0 ) {
