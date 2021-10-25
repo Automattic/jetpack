@@ -21,12 +21,13 @@ import DashItem from 'components/dash-item';
 import JetpackBanner from 'components/jetpack-banner';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
 import {
+	containsBackupRealtime,
 	getPlanClass,
 	getJetpackProductUpsellByFeature,
 	FEATURE_SITE_BACKUPS_JETPACK,
 } from 'lib/plans/constants';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
-import { getSitePlan } from 'state/site';
+import { getActiveBackupPurchase, getSitePlan, hasActiveBackupPurchase } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import { getVaultPressData } from 'state/at-a-glance';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
@@ -220,7 +221,7 @@ class DashBackups extends Component {
 					</React.Fragment>
 				);
 			case 'active':
-				const message = [ 'is-business-plan', 'is-realtime-backup-plan' ].includes( planClass )
+				const message = containsBackupRealtime( planClass )
 					? __( 'We are backing up your site in real-time.', 'jetpack' )
 					: __( 'We are backing up your site daily.', 'jetpack' );
 
@@ -291,7 +292,9 @@ export default connect(
 		return {
 			vaultPressData: getVaultPressData( state ),
 			sitePlan,
-			planClass: getPlanClass( sitePlan ),
+			planClass: hasActiveBackupPurchase( state )
+				? getPlanClass( getActiveBackupPurchase( state ).product_slug )
+				: getPlanClass( sitePlan.product_slug ),
 			isOfflineMode: isOfflineMode( state ),
 			isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
 			showBackups: showBackups( state ),

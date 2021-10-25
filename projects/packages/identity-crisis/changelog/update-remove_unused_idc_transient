@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Remove the unused jetpack_idc_option transient
+
+
