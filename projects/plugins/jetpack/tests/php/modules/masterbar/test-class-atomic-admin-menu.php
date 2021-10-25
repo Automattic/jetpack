@@ -336,7 +336,9 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 			// Make sure that initial menu item is hidden.
 			$this->assertSame( 'hide-if-js', $submenu['plugins.php'][1][4] );
 			// Make sure that the new menu item is inserted.
-			$this->assertSame( 'https://wordpress.com/plugins/' . static::$domain, $submenu['plugins.php'][2][2] );
+			$this->assertSame( 'https://wordpress.com/plugins/' . static::$domain, $submenu['plugins.php'][0][2] );
+			// Make sure that Installed Plugins menu item is still in place.
+			$this->assertSame( 'plugins.php', $submenu['plugins.php'][2][2] );
 		}
 	}
 }

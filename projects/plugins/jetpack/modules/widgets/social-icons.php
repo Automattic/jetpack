@@ -646,6 +646,11 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Stack Overflow',
 			),
 			array(
+				'url'   => array( 'strava.com' ),
+				'icon'  => 'strava',
+				'label' => 'Strava',
+			),
+			array(
 				'url'   => array( 'stumbleupon.com' ),
 				'icon'  => 'stumbleupon',
 				'label' => 'StumbleUpon',

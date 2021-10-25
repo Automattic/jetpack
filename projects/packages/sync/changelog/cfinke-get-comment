@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Check the return value of get_comment() before to use it.

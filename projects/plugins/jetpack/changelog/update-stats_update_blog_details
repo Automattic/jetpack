@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Stats: remove the wpcom blog details update that occurs when the stats module is first activated
