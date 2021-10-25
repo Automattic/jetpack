@@ -16,8 +16,8 @@ describe( 'PricingCard', () => {
 	const testProps = {
 		title: 'Dummy Pricing Card',
 		icon: 'dummy_icon',
-		priceBefore: '9',
-		priceAfter: '4.50',
+		priceBefore: 9,
+		priceAfter: 4.5,
 		ctaText: 'Get Dummy Offer',
 		infoText: 'Dummy Info Text',
 		onCtaClick: noop,

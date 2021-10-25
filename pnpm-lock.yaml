@@ -215,6 +215,7 @@ importers:
     specifiers:
       '@automattic/jetpack-base-styles': workspace:^0.1.0-alpha
       '@automattic/jetpack-components': workspace:^0.4.0-alpha
+      '@automattic/jetpack-connection': workspace:^0.8.0-alpha
       '@babel/core': 7.15.0
       '@babel/plugin-syntax-jsx': 7.14.5
       '@babel/runtime-corejs3': 7.15.3
@@ -252,6 +253,7 @@ importers:
     devDependencies:
       '@automattic/jetpack-base-styles': link:../base-styles
       '@automattic/jetpack-components': link:../components
+      '@automattic/jetpack-connection': link:../connection
       '@babel/core': 7.15.0
       '@babel/plugin-syntax-jsx': 7.14.5_@babel+core@7.15.0
       '@babel/runtime-corejs3': 7.15.3
@@ -20820,7 +20822,7 @@ packages:
     dependencies:
       array.prototype.flat: 1.2.4
       global-cache: 1.2.1
-      react-with-styles: 3.2.3_react-dom@17.0.2+react@17.0.2
+      react-with-styles: 3.2.3
 
   /react-with-styles/3.2.3:
     resolution: {integrity: sha512-MTI1UOvMHABRLj5M4WpODfwnveHaip6X7QUMI2x6zovinJiBXxzhA9AJP7MZNaKqg1JRFtHPXZdroUC8KcXwlQ==}

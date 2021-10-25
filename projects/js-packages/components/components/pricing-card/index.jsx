@@ -16,6 +16,10 @@ const PricingCard = props => {
 	const currencyObjectBefore = getCurrencyObject( props.priceBefore, props.currencyCode );
 	const currencyObjectAfter = getCurrencyObject( props.priceAfter, props.currencyCode );
 
+	const showPriceDecimals = currencyObject => {
+		return currencyObject.fraction.indexOf( '00' ) === -1;
+	};
+
 	return (
 		<div className="pricing__card">
 			{ props.icon && (
@@ -35,7 +39,7 @@ const PricingCard = props => {
 				<div className="pricing__card--price-before">
 					<span className="pricing__card--currency">{ currencyObjectBefore.symbol }</span>
 					<span className="pricing__card--price">{ currencyObjectBefore.integer }</span>
-					{ '.00' !== currencyObjectBefore.fraction && (
+					{ showPriceDecimals( currencyObjectBefore ) && (
 						<span className="pricing__card--price-decimal"> { currencyObjectBefore.fraction }</span>
 					) }
 					<div className="pricing__card--price-strikethrough"></div>
@@ -43,21 +47,29 @@ const PricingCard = props => {
 				<div className="pricing__card--price-after">
 					<span className="pricing__card--currency">{ currencyObjectAfter.symbol }</span>
 					<span className="pricing__card--price">{ currencyObjectAfter.integer }</span>
-					{ '.00' !== currencyObjectAfter.fraction && (
+					{ showPriceDecimals( currencyObjectAfter ) && (
 						<span className="pricing__card--price-decimal">{ currencyObjectAfter.fraction }</span>
 					) }
 				</div>
 				<span className="pricing__card--price-details">{ props.priceDetails }</span>
 			</div>
-			<div className="pricing__card--cta">
-				<Button
-					className="pricing__card--button"
-					label={ props.ctaText }
-					onClick={ props.onCtaClick }
-				>
-					{ props.ctaText }
-				</Button>
-			</div>
+
+			{ props.children && (
+				<div className="pricing__card--extra-content-wrapper">{ props.children }</div>
+			) }
+
+			{ props.ctaText && (
+				<div className="pricing__card--cta">
+					<Button
+						className="pricing__card--button"
+						label={ props.ctaText }
+						onClick={ props.onCtaClick }
+					>
+						{ props.ctaText }
+					</Button>
+				</div>
+			) }
+
 			{ props.infoText && <div className="pricing__card--info">{ props.infoText }</div> }
 		</div>
 	);
@@ -69,19 +81,19 @@ PricingCard.propTypes = {
 	/** The Icon. */
 	icon: PropTypes.string,
 	/** Price before discount. */
-	priceBefore: PropTypes.string.isRequired,
+	priceBefore: PropTypes.number.isRequired,
 	/** Price after discount. */
-	priceAfter: PropTypes.string.isRequired,
+	priceAfter: PropTypes.number.isRequired,
 	/** Price details. */
 	priceDetails: PropTypes.string,
 	/** The Currency code, eg 'USD'. */
 	currencyCode: PropTypes.string,
 	/** The CTA copy. */
-	ctaText: PropTypes.string.isRequired,
+	ctaText: PropTypes.string,
 	/** The CTA callback to be called on click. */
-	onCtaClick: PropTypes.func.isRequired,
+	onCtaClick: PropTypes.func,
 	/** Optional informative text. */
-	infoText: PropTypes.string,
+	infoText: PropTypes.oneOfType( [ PropTypes.string, PropTypes.object ] ),
 };
 
 PricingCard.defaultProps = {

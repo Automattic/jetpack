@@ -118,7 +118,7 @@ const ConnectButton = props => {
 					<ActionButton
 						label={ connectLabel }
 						onClick={ registerSite }
-						displayError={ registrationError }
+						displayError={ registrationError ? true : false }
 						isLoading={ isRegistering || isUserConnecting }
 					/>
 				) }
