@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Use the `from` parameter to inform the first plugin to register the site in the v4/register endpoint
