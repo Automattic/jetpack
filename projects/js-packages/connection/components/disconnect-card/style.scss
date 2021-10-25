@@ -1,12 +1,14 @@
+@import '../rna-styles';
+
 // Used to show cards in the disconnection flow for active plugins and site benefits.
 .jp-disconnect-card {
-	background-color: #FFFFFF;
+	background-color: var( --jp-white );
 	width: 800px;
 	max-width: 100%;
 	padding: 1rem 2rem;
 	border: none;
 	border-radius: 3px;
-	box-shadow: 0 0 15px #EEEEEE;
+	box-shadow: 0 0 15px var( --jp-gray-off );
 	margin-left: auto;
 	margin-right: auto;
 	margin-top: 0;

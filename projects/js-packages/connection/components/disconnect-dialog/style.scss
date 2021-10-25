@@ -148,6 +148,15 @@
 	}
 }
 
+// When the screen height is shorter, hide the decorative cards to show the text and controls without scrolling.
+.jp-disconnect-dialog__content {
+	@media (max-height: 900px) {
+		.jp-decorative-card {
+			display: none;
+		}
+	}
+}
+
 
 @media (min-width: 960px){
 	.jp-disconnect-dialog{

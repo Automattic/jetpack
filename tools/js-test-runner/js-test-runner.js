@@ -11,6 +11,8 @@ const noop = () => false;
 require.extensions[ '.css' ] = noop;
 require.extensions[ '.scss' ] = noop;
 require.extensions[ '.svg' ] = noop;
+require.extensions[ '.jpg' ] = noop;
+require.extensions[ '.png' ] = noop;
 
 const path = require( 'path' );
 const basepath = path.dirname( path.dirname( __dirname ) );

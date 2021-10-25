@@ -128,7 +128,7 @@ importers:
 
   projects/js-packages/connection:
     specifiers:
-      '@automattic/jetpack-analytics': workspace:^0.1.1-alpha
+      '@automattic/jetpack-analytics': workspace:^0.1.2
       '@automattic/jetpack-api': workspace:^0.5.0-alpha
       '@automattic/jetpack-components': workspace:^0.4.0-alpha
       '@wordpress/base-styles': 4.0.0
@@ -1035,7 +1035,7 @@ packages:
       terser-webpack-plugin: 5.2.4_webpack@5.51.1
       thread-loader: 3.0.4_webpack@5.51.1
       typescript: 4.4.3
-      webpack: 5.51.1_webpack-cli@4.8.0
+      webpack: 5.51.1
       webpack-cli: 4.8.0_webpack@5.51.1
     transitivePeerDependencies:
       - '@swc/core'
@@ -20822,7 +20822,7 @@ packages:
     dependencies:
       array.prototype.flat: 1.2.4
       global-cache: 1.2.1
-      react-with-styles: 3.2.3_react-dom@17.0.2+react@17.0.2
+      react-with-styles: 3.2.3
 
   /react-with-styles/3.2.3:
     resolution: {integrity: sha512-MTI1UOvMHABRLj5M4WpODfwnveHaip6X7QUMI2x6zovinJiBXxzhA9AJP7MZNaKqg1JRFtHPXZdroUC8KcXwlQ==}
