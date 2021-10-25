@@ -834,7 +834,7 @@ class Jetpack_PostImages {
 	 * @since 7.1
 	 *
 	 * @param int $attachment_id The Post ID of the media.
-	 * @return string The alt text value or an emptry string.
+	 * @return string The alt text value or an empty string.
 	 */
 	public static function get_alt_text( $attachment_id ) {
 		return get_post_meta( $attachment_id, '_wp_attachment_image_alt', true );
