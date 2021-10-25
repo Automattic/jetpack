@@ -671,7 +671,7 @@ class Jetpack {
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-gutenberg.php';
 		add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'init' ) );
 		add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'load_independent_blocks' ) );
-		add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'load_extended_blocks' ), 9 );
+		add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'load_block_editor_extensions' ), 9 );
 		add_action( 'enqueue_block_editor_assets', array( 'Jetpack_Gutenberg', 'enqueue_block_editor_assets' ) );
 
 		add_action( 'set_user_role', array( $this, 'maybe_clear_other_linked_admins_transient' ), 10, 3 );
@@ -6769,6 +6769,21 @@ endif;
 				_x( 'Automated real-time malware scan', 'Security Daily Plan Feature', 'jetpack' ),
 				_x( 'One-click fixes for most threats', 'Security Daily Plan Feature', 'jetpack' ),
 				_x( 'Comment & form spam protection', 'Security Daily Plan Feature', 'jetpack' ),
+			),
+		);
+
+		$products['videopress'] = array(
+			'title'             => __( 'Jetpack VideoPress', 'jetpack' ),
+			'slug'              => 'jetpack_videopress',
+			'description'       => __( 'High-quality, ad-free video built specifically for WordPress.', 'jetpack' ),
+			'show_promotion'    => true,
+			'discount_percent'  => 40,
+			'included_in_plans' => array(),
+			'features'          => array(
+				_x( '1TB of storage', 'VideoPress Product Feature', 'jetpack' ),
+				_x( 'Built into WordPress editor', 'VideoPress Product Feature', 'jetpack' ),
+				_x( 'Ad-free and brandable player', 'VideoPress Product Feature', 'jetpack' ),
+				_x( 'Unlimited users', 'VideoPress Product Feature', 'jetpack' ),
 			),
 		);
 

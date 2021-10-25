@@ -683,6 +683,15 @@ class Jetpack_Gutenberg {
 					'enable_upgrade_nudge'      => apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ),
 					'is_private_site'           => '-1' === get_option( 'blog_public' ),
 					'is_offline_mode'           => $status->is_offline_mode(),
+					/**
+					 * Enable the RePublicize UI in the block editor context.
+					 *
+					 * @module publicize
+					 *
+					 * @since 10.3.0
+					 *
+					 * @param bool false Enable the RePublicize UI in the block editor context. Defaults to false.
+					 */
 					'republicize_enabled'       => apply_filters( 'jetpack_block_editor_republicize_feature', false ),
 				),
 				'siteFragment'     => $status->get_site_suffix(),
@@ -721,22 +730,33 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Loads PHP components of extended-blocks.
+	 * Loads PHP components of block editor extensions.
 	 *
 	 * @since 8.9.0
 	 */
-	public static function load_extended_blocks() {
+	public static function load_block_editor_extensions() {
 		if ( self::should_load() ) {
-			$extended_blocks = glob( JETPACK__PLUGIN_DIR . 'extensions/extended-blocks/*' );
+			// Block editor extensions to load.
+			$extensions_to_load = array(
+				'extended-blocks',
+				'plugins',
+			);
 
-			foreach ( $extended_blocks as $block ) {
-				$name = basename( $block );
-				$path = JETPACK__PLUGIN_DIR . 'extensions/extended-blocks/' . $name . '/' . $name . '.php';
+			// Collect the extension paths.
+			foreach ( $extensions_to_load as $extension_to_load ) {
+				$extensions_folder = glob( JETPACK__PLUGIN_DIR . 'extensions/' . $extension_to_load . '/*' );
 
-				if ( file_exists( $path ) ) {
-					include_once $path;
+				// Require each of the extension files, in case it exists.
+				foreach ( $extensions_folder as $extension_folder ) {
+					$name                = basename( $extension_folder );
+					$extension_file_path = JETPACK__PLUGIN_DIR . 'extensions/' . $extension_to_load . '/' . $name . '/' . $name . '.php';
+
+					if ( file_exists( $extension_file_path ) ) {
+						include_once $extension_file_path;
+					}
 				}
-			}
+			};
+
 		}
 	}
 

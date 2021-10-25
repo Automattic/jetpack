@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Cleanup left over Jest framework setup and setting and fix link in the README file

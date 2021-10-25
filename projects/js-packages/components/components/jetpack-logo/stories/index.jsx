@@ -2,7 +2,7 @@
 /**
  * External dependencies
  */
-import { boolean, number, text } from '@storybook/addon-knobs';
+import React from 'react';
 
 /**
  * Internal dependencies
@@ -11,16 +11,18 @@ import JetpackLogo from '../index.jsx';
 
 export default {
 	title: 'Playground/Jetpack Logo',
+	component: JetpackLogo,
+	argTypes: {
+		logoColor: { control: 'color' },
+	},
 };
 
-export const _default = () => {
-	const defaultProps = {
-		width: number( 'Width', 150 ),
-		height: number( 'Height', 150 ),
-		showText: boolean( 'Show Text', true ),
-		logoColor: text( 'Color', '#AFA' ),
-		className: text( 'Class Name', 'sample-classname' ),
-	};
+const Template = args => <JetpackLogo { ...args } />;
 
-	return <JetpackLogo { ...defaultProps } />;
+const DefaultArgs = {
+	width: 150,
+	className: 'sample-classname',
 };
+
+export const _default = Template.bind( {} );
+_default.args = DefaultArgs;

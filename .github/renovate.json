@@ -47,6 +47,7 @@
 				"automattic/jetpack-post-list",
 				"automattic/jetpack-redirect",
 				"automattic/jetpack-roles",
+				"automattic/jetpack-search",
 				"automattic/jetpack-status",
 				"automattic/jetpack-sync",
 				"automattic/jetpack-terms-of-service",
