@@ -122,8 +122,9 @@ class Jetpack_Boost {
 
 		$this->register_deactivation_hook();
 
-		if ( class_exists( 'WP_CLI' ) ) {
-			CLI::register( $this );
+		if ( defined( 'WP_CLI' ) && WP_CLI ) {
+			$cli_instance = new CLI( $this );
+			\WP_CLI::add_command( 'jetpack-boost', $cli_instance );
 		}
 
 		// Initialize the config module separately.
@@ -220,7 +221,7 @@ class Jetpack_Boost {
 
 		foreach ( self::MODULES as $module_slug => $module_class ) {
 			// Don't register modules that have been forcibly disabled from the url 'jb-disable-modules' query string parameter.
-			if ( in_array( $module_slug, $forced_disabled_modules, true ) ) {
+			if ( in_array( $module_slug, $forced_disabled_modules, true ) || in_array( 'all', $forced_disabled_modules, true ) ) {
 				continue;
 			}
 

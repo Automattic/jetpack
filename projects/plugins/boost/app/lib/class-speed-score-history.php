@@ -74,6 +74,23 @@ class Speed_Score_History {
 		$index = $this->count() - ( $offset + 1 );
 
 		if ( $index >= 0 ) {
+			return $this->entries[ $index ];
+		}
+
+		return null;
+	}
+
+	/**
+	 * Find the latest available speed scores.
+	 *
+	 * @param int $offset Instead of receiving the last one, you can use offset to receive a slightly older speed score.
+	 *
+	 * @return array|null
+	 */
+	public function latest_scores( $offset = 0 ) {
+		$index = $this->count() - ( $offset + 1 );
+
+		if ( $index >= 0 ) {
 			return $this->entries[ $index ]['scores'];
 		}
 
@@ -94,7 +111,7 @@ class Speed_Score_History {
 	/**
 	 * Remove all speed score history.
 	 */
-	public function clear_all() {
+	public static function clear_all() {
 		global $wpdb;
 
 		/**

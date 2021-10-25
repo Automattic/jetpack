@@ -1,11 +1,12 @@
-import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
-import PostFrontendPage from '../lib/pages/postFrontend';
-import PinterestBlock from '../lib/pages/wp-admin/blocks/pinterest';
-import EventbriteBlock from '../lib/pages/wp-admin/blocks/eventbrite';
+import {
+	BlockEditorPage,
+	PinterestBlock,
+	EventbriteBlock,
+} from 'jetpack-e2e-commons/pages/wp-admin';
+import { PostFrontendPage } from 'jetpack-e2e-commons/pages';
 import config from 'config';
-import { testStep } from '../lib/reporters/reporter';
-import { prerequisitesBuilder } from '../lib/env/prerequisites';
-import { Plans } from '../lib/env/types';
+import { testStep } from 'jetpack-e2e-commons/reporters';
+import { prerequisitesBuilder, Plans } from 'jetpack-e2e-commons/env';
 
 /**
  *

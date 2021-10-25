@@ -434,6 +434,10 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	public function copy_image( $file ) {
 		copy( static::$image_path, $file['tmp_name'] );
 
+		// Stream wrappers like Patchwork probably resulted in an incorrect stat
+		// cache entry for the file. So clear it.
+		clearstatcache();
+
 		return $file;
 	}
 

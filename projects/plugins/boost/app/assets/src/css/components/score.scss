@@ -3,7 +3,7 @@
 $bar_height: 42px;
 $label_z_index: 50;
 $score_pointer_size: 6px;
-$previous_score_size: 28px;
+$no_boost_score_size: 28px;
 
 .jb-site-score {
 	h2 {
@@ -120,12 +120,12 @@ $previous_score_size: 28px;
 		position: relative;
 		font-size: 14px;
 		position: relative;
-		z-index: $label_z_index;
 
 		@include breakpoint(sm) {
 			padding-left: 15px;
 			padding-right: 15px;
 			width: 200px;
+			z-index: $label_z_index;
 		}
 	}
 
@@ -169,17 +169,17 @@ $previous_score_size: 28px;
 		}
 	}
 
-	&__previous_score {
+	&__no_boost_score {
 
-		--clearance-space: #{$bar_height + $previous_score_size + 4px};
+		--clearance-space: #{$bar_height + $no_boost_score_size + 4px};
 
 		position: absolute;
 		background: #fff;
 		border-radius: 50%;
 		padding: 3px;
 		top: $score_pointer_size;
-		width: $previous_score_size;
-		height: $previous_score_size;
+		width: $no_boost_score_size;
+		height: $no_boost_score_size;
 		font-size: 0.7em;
 		text-align: center;
 		cursor: pointer;
@@ -205,7 +205,7 @@ $previous_score_size: 28px;
 		}
 	}
 
-	&__previous_score_tooltip {
+	&__no_boost_score_tooltip {
 		@include box-shadow();
 
 		position: absolute;
@@ -233,7 +233,7 @@ $previous_score_size: 28px;
 		}
 	}
 
-  	&__previous_score:hover &__previous_score_tooltip {
+  	&__no_boost_score:hover &__no_boost_score_tooltip {
 		display: block;
 	}
 
@@ -290,8 +290,9 @@ $previous_score_size: 28px;
 		border-radius: $border-radius;
 		position: absolute;
 		z-index: 1000;
-		box-shadow:0 1px 5px rgba(0,0,0,0.5);
 		text-align: left;
+
+		@include box-shadow();
 
 		@include breakpoint(sm) {
 			left: -110px;
@@ -321,7 +322,8 @@ $previous_score_size: 28px;
 				height:12px;
 				transform:translate(-50%,50%) rotate(45deg);
 				background-color:$primary-white;
-				box-shadow:0 1px 5px rgba(0,0,0,0.5);
+				
+				@include box-shadow();
 			}
 		}
 	}

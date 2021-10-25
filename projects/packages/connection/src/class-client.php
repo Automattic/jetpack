@@ -27,7 +27,19 @@ class Client {
 		if ( ! $result || is_wp_error( $result ) ) {
 			return $result;
 		}
-		return self::_wp_remote_request( $result['url'], $result['request'] );
+
+		$response = self::_wp_remote_request( $result['url'], $result['request'] );
+
+		/**
+		 * Fired when the remote request response has been received.
+		 *
+		 * @since 1.30.8
+		 *
+		 * @param array|WP_Error The HTTP response.
+		 */
+		do_action( 'jetpack_received_remote_request_response', $response );
+
+		return $response;
 	}
 
 	/**
@@ -461,18 +473,5 @@ class Client {
 		}
 
 		return $data;
-	}
-
-	/**
-	 * Gets protocol string.
-	 *
-	 * @return string Always 'https'.
-	 *
-	 * @deprecated 1.19.2 WP.com API no longer supports requests using `http://`.
-	 */
-	public static function protocol() {
-		_deprecated_function( __METHOD__, '1.19.2' );
-
-		return 'https';
 	}
 }

@@ -14,7 +14,7 @@ use Automattic\Jetpack\Roles;
  */
 class Listener {
 	const QUEUE_STATE_CHECK_TRANSIENT = 'jetpack_sync_last_checked_queue_state';
-	const QUEUE_STATE_CHECK_TIMEOUT   = 300; // 5 minutes.
+	const QUEUE_STATE_CHECK_TIMEOUT   = 30; // 30 seconds.
 
 	/**
 	 * Sync queue.

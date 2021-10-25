@@ -8,7 +8,10 @@ const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extrac
 /**
  * Internal dependencies
  */
-const { definePaletteColorsAsStaticVariables } = require( './webpack.helpers' );
+const {
+	definePaletteColorsAsStaticVariables,
+	defineReadableJSAssetsPluginForSearch,
+} = require( './webpack.helpers' );
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -19,7 +22,7 @@ const baseWebpackConfig = getBaseWebpackConfig(
 			main: path.join( __dirname, '../modules/search/customberg/index.jsx' ),
 		},
 		'output-filename': 'jp-search-configure-[name].min.js',
-		'output-chunk-filename': 'jp-search-configure-[name].[contenthash].min.js',
+		'output-chunk-filename': 'jp-search-configure-[name].[contenthash:20].min.js',
 		'output-path': path.join( __dirname, '../_inc/build/instant-search' ),
 		// Calypso-build defaults this to "window", which breaks things if no library.name is set.
 		'output-library-target': '',
@@ -28,6 +31,11 @@ const baseWebpackConfig = getBaseWebpackConfig(
 
 module.exports = {
 	...baseWebpackConfig,
+	optimization: {
+		...baseWebpackConfig.optimization,
+		// This optimization sometimes causes webpack to drop `__()` and such.
+		concatenateModules: false,
+	},
 	resolve: {
 		...baseWebpackConfig.resolve,
 		modules: [
@@ -44,5 +52,6 @@ module.exports = {
 		...baseWebpackConfig.plugins,
 		new DependencyExtractionWebpackPlugin( { injectPolyfill: true } ),
 		definePaletteColorsAsStaticVariables(),
+		defineReadableJSAssetsPluginForSearch(),
 	],
 };

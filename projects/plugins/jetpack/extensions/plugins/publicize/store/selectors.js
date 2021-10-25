@@ -2,9 +2,14 @@
  * External dependencies
  */
 import { get, isEqual } from 'lodash';
+import createSelector from 'rememo';
+
+/**
+ * WordPress dependencies
+ */
 import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import createSelector from 'rememo';
+import { store as editorStore } from '@wordpress/editor';
 
 /**
  * Internal dependencies
@@ -22,22 +27,22 @@ const DEFAULT_TWEETSTORM_MESSAGE = '\n\n' + __( 'A thread ⬇️', 'jetpack' );
 /**
  * Returns the failed Publicize connections.
  *
- * @param {object} state - State object.
  * @returns {Array} List of connections.
  */
-export function getFailedConnections( state ) {
-	return state.connections.filter( connection => false === connection.test_success );
+export function getFailedConnections() {
+	const connections = getConnections();
+	return connections.filter( connection => false === connection.test_success );
 }
 
 /**
  * Returns a list of Publicize connection service names that require reauthentication from users.
  * iFor example, when LinkedIn switched its API from v1 to v2.
  *
- * @param {object} state - State object.
  * @returns {Array} List of service names that need reauthentication.
  */
-export function getMustReauthConnections( state ) {
-	return state.connections
+export function getMustReauthConnections() {
+	const connections = getConnections();
+	return connections
 		.filter( connection => 'must_reauth' === connection.test_success )
 		.map( connection => connection.service_name );
 }
@@ -49,9 +54,17 @@ export function getMustReauthConnections( state ) {
  * @returns {object} The Twitter account data.
  */
 export function getTweetTemplate( state ) {
-	const twitterAccount = state.connections?.find(
-		connection => 'twitter' === connection.service_name
-	);
+	/*
+	 * state.connections is not used anymore,
+	 * since they are stored into the post meta.
+	 * This is kept for backward compatibility,
+	 * especially for the selector tests.
+	 * it should be removed in the future.
+	 * Take a look at the getTweetstormHelper
+	 * helper for more details,
+	 */
+	const connections = state.connections || getConnections();
+	const twitterAccount = connections?.find( connection => 'twitter' === connection.service_name );
 
 	return {
 		date: Date.now(),
@@ -524,10 +537,22 @@ export function contentAttributesChanged( state, prevProps, props ) {
 
 /**
  * Return social media connections.
+ * This selector consumes the post metadata like primary source data.
  *
- * @param {state} state
  * @returns {Array} An array of fresh social media connections for the current post.
  */
-export function getConnections( state ) {
-	return state.connections;
+export function getConnections() {
+	return select( editorStore ).getEditedPostAttribute( 'jetpack_publicize_connections' ) || [];
+}
+
+/**
+ * Return True if Publicize Feature is enabled.
+ * Otherwise, return False.
+ *
+ * @returns {boolean} Whether or not the publicize feature is enabled.
+ */
+export function getFeatureEnableState() {
+	const { getEditedPostAttribute } = select( editorStore );
+	const meta = getEditedPostAttribute( 'meta' );
+	return get( meta, [ 'jetpack_publicize_feature_enabled' ], true );
 }
