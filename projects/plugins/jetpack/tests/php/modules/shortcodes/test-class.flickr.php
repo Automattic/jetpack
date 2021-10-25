@@ -211,7 +211,7 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 
 		$shortcode_content = wp_kses_post( $content );
 
-		$this->assertEquals( $shortcode_content, '[flickr photo="http://www.flickr.com/photos/batmoo/5265478228/" w=375 h=500]' );
+		$this->assertEquals( '[flickr photo="http://www.flickr.com/photos/batmoo/5265478228/" w=375 h=500]', $shortcode_content );
 	}
 
 	/**
@@ -222,6 +222,6 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 
 		$shortcode_content = wp_kses_post( $content );
 
-		$this->assertEquals( $shortcode_content, '[flickr video="https://www.flickr.com/photos/kalakeli/49931239842/" w=500 h=300 controls="yes" autoplay="yes"]' );
+		$this->assertEquals( '[flickr video="https://www.flickr.com/photos/kalakeli/49931239842/" w=500 h=300 controls="yes" autoplay="yes"]', $shortcode_content );
 	}
 }
