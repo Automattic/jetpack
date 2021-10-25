@@ -156,12 +156,33 @@ class IDC_Simulator {
 		</form>
 
 		<hr>
+		<hr>
 
-		<h2>Current IDC transient values</h2>
-		<h3>jetpack_idc_local</h3>
+		<?php $this->display_idc_transients_options(); ?>
+
+		<?php
+	}
+
+	/**
+	 * Display the IDC transient and option values.
+	 */
+	private function display_idc_transients_options() {
+		?>
+		<h2>Information about IDC</h2>
+		<h3>Current IDC transient values</h3>
+		<h4>jetpack_idc_local</h4>
 		<pre><?php var_dump( get_transient( 'jetpack_idc_local' ) ); //phpcs:ignore ?></pre>
 
 		<hr>
+
+		<h3>Current IDC option values</h3>
+		<h4>jetpack_sync_error_idc</h4>
+		<pre><?php var_dump( get_option( 'jetpack_sync_error_idc' ) ); //phpcs:ignore ?></pre>
+		<h4>jetpack_migrate_for_idc</h4>
+		<pre><?php var_dump( get_option( 'jetpack_migrate_for_idc' ) ); //phpcs:ignore ?></pre>
+		<h4>jetpack_safe_mode_confirmed</h4>
+		<pre><?php var_dump( get_option( 'jetpack_safe_mode_confirmed' ) ); //phpcs:ignore ?></pre>
+
 		<?php
 	}
 
