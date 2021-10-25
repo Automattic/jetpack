@@ -30,8 +30,8 @@ import {
 	hasConnectedOwner as hasConnectedOwnerSelector,
 	isOfflineMode,
 } from 'state/connection';
-import { getUpgradeUrl } from 'state/initial-state';
 import { hasActiveVideoPressPurchase, getSitePlan, getVideoPressStorageUsed } from 'state/site';
+import { getProductDescriptionUrl } from 'product-descriptions/utils';
 
 class DashVideoPress extends Component {
 	static propTypes = {
@@ -187,7 +187,7 @@ export default connect(
 		isModuleAvailable: isModuleAvailable( state, 'videopress' ),
 		isOffline: isOfflineMode( state ),
 		sitePlan: getSitePlan( state ),
-		upgradeUrl: getUpgradeUrl( state, 'videopress-upgrade' ),
+		upgradeUrl: getProductDescriptionUrl( state, 'videopress' ),
 		videoPressStorageUsed: getVideoPressStorageUsed( state ),
 	} ),
 	dispatch => ( {
