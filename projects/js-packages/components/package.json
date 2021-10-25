@@ -6,6 +6,7 @@
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
 		"@automattic/format-currency": "1.0.0-alpha.0",
+		"@automattic/jetpack-base-styles": "workspace:^0.1.0-alpha",
 		"@wordpress/browserslist-config": "4.1.0",
 		"@wordpress/components": "17.0.0",
 		"@wordpress/i18n": "4.2.2",

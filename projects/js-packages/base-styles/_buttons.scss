@@ -1,3 +1,6 @@
+@import './variables';
+@import './colors';
+
 .components-button {
 	border-radius: var( --jp-border-radius );
 
@@ -22,7 +25,7 @@
 	}
 
 	&:active:not(:disabled) {
-		
+
 	}
 }
 
@@ -69,7 +72,7 @@
 	}
 
 	&.is-link {
-		
+
 		&:hover:not(:disabled) {
 			box-shadow: none;
 		}

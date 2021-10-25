@@ -74,7 +74,11 @@
 			margin-top: 40px;
 
 			button {
+				font-size: 14px;
+				width: 264px;
 				max-width: 100%;
+				height: 40px;
+				justify-content: center;
 
 				&:disabled {
 					color: hsla(0,0%,100%,.4);

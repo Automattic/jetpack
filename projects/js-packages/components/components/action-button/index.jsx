@@ -13,6 +13,29 @@ import './style.scss';
 import Spinner from '../spinner';
 
 /**
+ * Return `variant` CSS classes.
+ * Polyfill for versions of `@wordpress/components` < 14.2.0.
+ * To be removed once WordPress updates its dependencies.
+ *
+ * @param {string} variant - The button variant.
+ * @returns {string} - The appropriate class name.
+ */
+const variantPolyfill = variant => {
+	switch ( variant ) {
+		case 'primary':
+			return 'is-primary';
+		case 'secondary':
+			return 'is-secondary';
+		case 'tertiary':
+			return 'is-tertiary';
+		case 'link':
+			return 'is-link';
+	}
+
+	return '';
+};
+
+/**
  * The Jetpack Action button.
  *
  * This component extends the regular `Button` component and adds a `isLoading` prop that will disable and display a spinner, giving the user the feedback that some action is happening. It also provides a generic error message.
@@ -23,16 +46,16 @@ import Spinner from '../spinner';
  * @returns {React.Component} The `ActionButton` component.
  */
 const ActionButton = props => {
-	const { label, onClick, isLoading, displayError, errorMessage } = props;
+	const { label, onClick, isLoading, displayError, errorMessage, variant } = props;
 
 	return (
 		<div className="jp-action-button">
 			{
 				<Button
-					className="jp-action-button--button"
+					className={ 'jp-action-button--button ' + variantPolyfill( variant ) }
 					label={ label }
 					onClick={ onClick }
-					isPrimary
+					variant={ variant }
 					disabled={ isLoading }
 				>
 					{ isLoading ? <Spinner /> : label }
@@ -55,12 +78,15 @@ ActionButton.propTypes = {
 	displayError: PropTypes.bool,
 	/** The error message string */
 	errorMessage: PropTypes.string,
+	/** The button variant (primary, secondary, tertiary, link) */
+	variant: PropTypes.string.isRequired,
 };
 
 ActionButton.defaultProps = {
 	isLoading: false,
 	displayError: false,
 	errorMessage: __( 'An error occurred. Please try again.', 'jetpack' ),
+	variant: 'primary',
 };
 
 export default ActionButton;
