@@ -115,7 +115,7 @@ ConnectScreenRequiredPlanVisual.propTypes = {
 	autoTrigger: PropTypes.bool,
 	/** The Pricing Card Icon. */
 	pricingIcon: PropTypes.string,
-	/** Button element */
+	/** Connect button render function */
 	renderConnectBtn: PropTypes.func.isRequired,
 };
 
