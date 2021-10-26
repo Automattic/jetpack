@@ -723,6 +723,24 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
+		register_rest_route(
+			'jetpack/v4',
+			'/licensing/attach-license',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::attach_jetpack_license',
+				'permission_callback' => __CLASS__ . '::set_jetpack_license_key_permission_check',
+				'args'                => array(
+					'license' => array(
+						'required'          => true,
+						'type'              => 'string',
+						'validate_callback' => __CLASS__ . '::validate_string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+				),
+			)
+		);
+
 		/*
 		 * Manage the Jetpack CRM plugin's integration with Jetpack contact forms.
 		 */
@@ -3839,6 +3857,32 @@ class Jetpack_Core_Json_Api_Endpoints {
 			esc_html__( 'Could not set this license key. Please try again.', 'jetpack' ),
 			array( 'status' => 500 )
 		);
+	}
+
+	/**
+	 * Attach a Jetpack license
+	 *
+	 * @since 10.3.0
+	 *
+	 * @param WP_REST_Request $request The request.
+	 *
+	 * @return WP_REST_Response|WP_Error A response object if the option was successfully updated, or a WP_Error if it failed.
+	 */
+	public static function attach_jetpack_license( $request ) {
+		$license = trim( sanitize_text_field( $request['license'] ) );
+		$result  = Licensing::instance()->attach_license( $license );
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		if ( $result->errors ) {
+			foreach ( $result->errors as $error_status => $error_message_array ) {
+				return new WP_Error( 'attach_license_error', implode( $error_message_array ), array( 'status' => $error_status ) );
+			}
+		}
+
+		return rest_ensure_response( $result );
 	}
 
 	/**
