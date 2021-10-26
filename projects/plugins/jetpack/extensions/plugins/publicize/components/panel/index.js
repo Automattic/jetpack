@@ -129,13 +129,13 @@ const PublicizePanel = ( { prePublish } ) => {
 
 			{ isPostPublished && <UpsellNotice /> }
 
-			{ isRePublicizeFeatureEnabled && (
+			{ isRePublicizeFeatureEnabled && ! isPostPublished && (
 				<PanelRowWithDisabled>
 					<ToggleControl
 						className="jetpack-publicize-toggle"
 						label={
 							isPublicizeEnabled && ! isPublicizeDisabledBySitePlan
-								? __( 'Sharing is enabled', 'jetpack' )
+								? __( 'Share when publishing', 'jetpack' )
 								: __( 'Sharing is disabled', 'jetpack' )
 						}
 						onChange={ togglePublicizeFeature }
