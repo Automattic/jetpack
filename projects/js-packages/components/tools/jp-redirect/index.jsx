@@ -2,9 +2,9 @@
 /**
  * Builds an URL using the jetpack.com/redirect/ service
  *
- * If $source is a simple slug, it will be sent using the source query parameter. e.g. jetpack.com/redirect/?source=slug
+ * If source is a simple slug, it will be sent using the source query parameter. e.g. jetpack.com/redirect/?source=slug
  *
- * If $source is a full URL, starting with https://, it will be sent using the url query parameter. e.g. jetpack.com/redirect/?url=https://wordpress.com
+ * If source is a full URL, starting with https://, it will be sent using the url query parameter. e.g. jetpack.com/redirect/?url=https://wordpress.com
  *
  * Note: if using full URL, query parameters and anchor must be passed in args. Any querystring of url fragment in the URL will be discarded.
  *
@@ -13,10 +13,10 @@
  * @param {object}  args - {
  *
  * Additional arguments to build the url.  This is not a complete list as any argument passed here will be sent to as a query parameter to the Redirect server. These parameters will not necessarily be passed over to the final destination URL. If you want to add a parameter to the final destination URL, use the `query` argument.
- * @type {string}  site URL of the current site. Will default to the value of jetpack_redirects.currentSiteRawUrl, if available.
- * @type {string}  path Additional path to be appended to the URL
+ * @type {string}  site URL of the current site. Will default to the value of jetpack_redirects.currentSiteRawUrl, if available. Used to fill in the `[site]` placeholder in the target.
+ * @type {string}  path Additional path to be appended to the URL. Used to fill in the `[path]` placeholder in the target.
  * @type {string}  query Query parameters to be added to the final destination URL. should be in query string format (e.g. 'key=value&foo=bar').
- * @type {string}  anchor Anchor to be added to the URL
+ * @type {string}  anchor Anchor to be added to the URL. Must be a single string. Example: `section1`.
  * }
  * @returns {string} The redirect URL
  */
