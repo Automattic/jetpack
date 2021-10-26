@@ -21,9 +21,9 @@ const PricingCard = props => {
 	};
 
 	return (
-		<div className="pricing__card">
+		<div className="jp-components__pricing-card">
 			{ props.icon && (
-				<div className="pricing__card--icon">
+				<div className="jp-components__pricing-card__icon">
 					<img
 						src={ props.icon }
 						alt={ sprintf(
@@ -34,34 +34,47 @@ const PricingCard = props => {
 					/>
 				</div>
 			) }
-			<h1 className="pricing__card--title">{ props.title }</h1>
-			<div className="pricing__card--pricing">
-				<div className="pricing__card--price-before">
-					<span className="pricing__card--currency">{ currencyObjectBefore.symbol }</span>
-					<span className="pricing__card--price">{ currencyObjectBefore.integer }</span>
+			<h1 className="jp-components__pricing-card__title">{ props.title }</h1>
+			<div className="jp-components__pricing-card__pricing">
+				<div className="jp-components__pricing-card__price-before">
+					<span className="jp-components__pricing-card__currency">
+						{ currencyObjectBefore.symbol }
+					</span>
+					<span className="jp-components__pricing-card__price">
+						{ currencyObjectBefore.integer }
+					</span>
 					{ showPriceDecimals( currencyObjectBefore ) && (
-						<span className="pricing__card--price-decimal"> { currencyObjectBefore.fraction }</span>
+						<span className="jp-components__pricing-card__price-decimal">
+							{ ' ' }
+							{ currencyObjectBefore.fraction }
+						</span>
 					) }
-					<div className="pricing__card--price-strikethrough"></div>
+					<div className="jp-components__pricing-card__price-strikethrough"></div>
 				</div>
-				<div className="pricing__card--price-after">
-					<span className="pricing__card--currency">{ currencyObjectAfter.symbol }</span>
-					<span className="pricing__card--price">{ currencyObjectAfter.integer }</span>
+				<div className="jp-components__pricing-card__price-after">
+					<span className="jp-components__pricing-card__currency">
+						{ currencyObjectAfter.symbol }
+					</span>
+					<span className="jp-components__pricing-card__price">
+						{ currencyObjectAfter.integer }
+					</span>
 					{ showPriceDecimals( currencyObjectAfter ) && (
-						<span className="pricing__card--price-decimal">{ currencyObjectAfter.fraction }</span>
+						<span className="jp-components__pricing-card__price-decimal">
+							{ currencyObjectAfter.fraction }
+						</span>
 					) }
 				</div>
-				<span className="pricing__card--price-details">{ props.priceDetails }</span>
+				<span className="jp-components__pricing-card__price-details">{ props.priceDetails }</span>
 			</div>
 
 			{ props.children && (
-				<div className="pricing__card--extra-content-wrapper">{ props.children }</div>
+				<div className="jp-components__pricing-card__extra-content-wrapper">{ props.children }</div>
 			) }
 
 			{ props.ctaText && (
-				<div className="pricing__card--cta">
+				<div className="jp-components__pricing-card__cta">
 					<Button
-						className="pricing__card--button"
+						className="jp-components__pricing-card__button"
 						label={ props.ctaText }
 						onClick={ props.onCtaClick }
 					>
@@ -70,7 +83,9 @@ const PricingCard = props => {
 				</div>
 			) }
 
-			{ props.infoText && <div className="pricing__card--info">{ props.infoText }</div> }
+			{ props.infoText && (
+				<div className="jp-components__pricing-card__info">{ props.infoText }</div>
+			) }
 		</div>
 	);
 };
