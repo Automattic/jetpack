@@ -4,6 +4,7 @@
 import { __, _x } from '@wordpress/i18n';
 import { InnerBlocks } from '@wordpress/block-editor';
 import { Path } from '@wordpress/components';
+import { createBlock } from '@wordpress/blocks';
 
 /**
  * Internal dependencies
@@ -50,6 +51,55 @@ export const settings = {
 	supports: {
 		align: [ 'wide', 'full' ],
 		html: false,
+	},
+	// Transform from classic widget
+	transforms: {
+		from: [
+			{
+				type: 'block',
+				blocks: [ 'core/legacy-widget' ],
+				isMatch: ( { idBase, instance } ) => {
+					if ( ! instance?.raw ) {
+						return false;
+					}
+					return idBase === 'widget_contact_info';
+				},
+				transform: ( { instance } ) => {
+					let innerBlocks = [
+						createBlock( 'core/heading', {
+							content: instance.raw.title,
+						} ),
+						createBlock( 'jetpack/email', {
+							email: instance.raw.email,
+						} ),
+						createBlock( 'jetpack/phone', {
+							phone: instance.raw.phone,
+						} ),
+						createBlock( 'jetpack/address', {
+							address: instance.raw.address,
+						} ),
+					];
+
+					if ( instance.raw.hours ) {
+						innerBlocks = [
+							...innerBlocks,
+							createBlock( 'core/paragraph', { content: instance.raw.hours } ),
+						];
+					}
+
+					if ( instance.raw.showmap && instance.raw.address ) {
+						innerBlocks = [
+							...innerBlocks,
+							createBlock( 'jetpack/map', {
+								address: instance.raw.address,
+							} ),
+						];
+					}
+
+					return createBlock( 'jetpack/contact-info', {}, innerBlocks );
+				},
+			},
+		],
 	},
 	attributes,
 	edit,
