@@ -34,10 +34,11 @@ class Config {
 	 * @var Array
 	 */
 	protected $config = array(
-		'jitm'       => false,
-		'connection' => false,
-		'sync'       => false,
-		'post_list'  => false,
+		'jitm'            => false,
+		'connection'      => false,
+		'sync'            => false,
+		'post_list'       => false,
+		'identity_crisis' => false,
 	);
 
 	/**
@@ -99,6 +100,11 @@ class Config {
 		if ( $this->config['post_list'] ) {
 			$this->ensure_class( 'Automattic\Jetpack\Post_List\Post_List' )
 				&& $this->ensure_feature( 'post_list' );
+		}
+
+		if ( $this->config['identity_crisis'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\Identity_Crisis' )
+				&& $this->ensure_feature( 'identity_crisis' );
 		}
 	}
 
@@ -204,6 +210,13 @@ class Config {
 		Manager::configure();
 
 		return true;
+	}
+
+	/**
+	 * Enables the identity-crisis feature.
+	 */
+	protected function enable_identity_crisis() {
+		Identity_Crisis::init();
 	}
 
 	/**

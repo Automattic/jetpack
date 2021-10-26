@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Use `[contenthash]` in Webpack chunk names for better long-term caching.

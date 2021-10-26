@@ -3,12 +3,13 @@
  */
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Icon, closeSmall } from '@wordpress/icons';
+import { Icon, image } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
 import { JP_SEARCH_TAB_IDENTIFIER, OPTIONS_TAB_IDENTIFIER } from '../../lib/constants';
+import SaveButton from '../save-button';
 import SidebarDescription from './sidebar-description';
 import SidebarOptions from './sidebar-options';
 import Tabs from './tabs';
@@ -30,13 +31,14 @@ export default function Sidebar( props ) {
 				tabindex="-1"
 			>
 				<Tabs enabledSidebarName={ enabledSidebarName } enableSidebar={ enableSidebar } />
+				<SaveButton />
 				<Button
-					aria-label={ __( 'Close settings', 'jetpack' ) }
+					aria-label={ __( 'Show preview', 'jetpack' ) }
 					className="jp-search-configure-sidebar__hide-settings-button"
 					isSecondary
 					onClick={ disableSidebar }
 				>
-					<Icon icon={ closeSmall } />
+					<Icon icon={ image } />
 				</Button>
 			</div>
 			<div className="components-panel">

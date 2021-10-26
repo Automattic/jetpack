@@ -212,7 +212,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_upgrades_menu( 'Test Plan' );
 
 		$this->assertSame( 'Upgrades<span class="inline-text" style="display:none">Test Plan</span>', $submenu['paid-upgrades.php'][0][0] );
-		$this->assertSame( 'https://wordpress.com/plans/my-plan/' . static::$domain, $submenu['paid-upgrades.php'][1][2] );
+		$this->assertSame( 'https://wordpress.com/plans/' . static::$domain, $submenu['paid-upgrades.php'][1][2] );
 		$this->assertSame( 'https://wordpress.com/purchases/subscriptions/' . static::$domain, $submenu['paid-upgrades.php'][2][2] );
 	}
 
@@ -330,16 +330,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		$this->assertSame( 'https://wordpress.com/plugins/' . static::$domain, $menu[65][2] );
 		$this->assertFalse( self::$admin_menu->has_visible_items( $submenu['plugins.php'] ) );
-
-		// Reset.
-		$menu    = static::$menu_data;
-		$submenu = static::$submenu_data;
-
-		// Check submenu are kept when using WP Admin links.
-		static::$admin_menu->set_preferred_view( 'plugins.php', 'classic' );
-		static::$admin_menu->add_plugins_menu();
-		$this->assertSame( 'plugins.php', $menu[65][2] );
-		$this->assertTrue( self::$admin_menu->has_visible_items( $submenu['plugins.php'] ) );
 	}
 
 	/**

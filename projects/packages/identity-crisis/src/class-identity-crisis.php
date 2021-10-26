@@ -28,7 +28,7 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.2.6-alpha';
+	const PACKAGE_VERSION = '0.3.0';
 
 	/**
 	 * Instance of the object.
@@ -80,6 +80,7 @@ class Identity_Crisis {
 		add_action( 'jetpack_sync_processed_actions', array( $this, 'maybe_clear_migrate_option' ) );
 		add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\IdentityCrisis\\REST_Endpoints', 'initialize_rest_api' ) );
 		add_action( 'jetpack_idc_disconnect', array( __CLASS__, 'do_jetpack_idc_disconnect' ) );
+		add_action( 'jetpack_received_remote_request_response', array( $this, 'check_http_response_for_idc_detected' ) );
 
 		add_filter( 'jetpack_connection_disconnect_site_wpcom', array( __CLASS__, 'jetpack_connection_disconnect_site_wpcom_filter' ) );
 
@@ -265,6 +266,65 @@ class Identity_Crisis {
 	}
 
 	/**
+	 * Checks the HTTP response body for the 'idc_detected' key. If the key exists,
+	 * checks the idc_detected value for a valid idc error.
+	 *
+	 * @param array|WP_Error $http_response The HTTP response.
+	 *
+	 * @return bool Whether the site is in an identity crisis.
+	 */
+	public function check_http_response_for_idc_detected( $http_response ) {
+		if ( ! is_array( $http_response ) ) {
+			return false;
+		}
+		$response_body = json_decode( wp_remote_retrieve_body( $http_response ), true );
+
+		if ( isset( $response_body['idc_detected'] ) ) {
+			return $this->check_response_for_idc( $response_body['idc_detected'] );
+		}
+
+		if ( isset( $response_body['migrated_for_idc'] ) ) {
+			Jetpack_Options::delete_option( 'migrate_for_idc' );
+		}
+
+		return false;
+	}
+
+	/**
+	 * Checks the WPCOM response to determine if the site is in an identity crisis. Updates the
+	 * sync_error_idc option if it is.
+	 *
+	 * @param array $response The response data.
+	 *
+	 * @return bool Whether the site is in an identity crisis.
+	 */
+	public function check_response_for_idc( $response ) {
+		if ( ! is_array( $response ) ) {
+			return false;
+		}
+
+		if ( is_array( $response ) && isset( $response['error_code'] ) ) {
+			$error_code              = $response['error_code'];
+			$allowed_idc_error_codes = array(
+				'jetpack_url_mismatch',
+				'jetpack_home_url_mismatch',
+				'jetpack_site_url_mismatch',
+			);
+
+			if ( in_array( $error_code, $allowed_idc_error_codes, true ) ) {
+				\Jetpack_Options::update_option(
+					'sync_error_idc',
+					self::get_sync_error_idc_option( $response )
+				);
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Prepare URL for display.
 	 *
 	 * @param string $url URL to display.
@@ -314,6 +374,7 @@ class Identity_Crisis {
 		$sync_error = Jetpack_Options::get_option( 'sync_error_idc' );
 		if ( $sync_error && self::should_handle_idc() ) {
 			$local_options = self::get_sync_error_idc_option();
+
 			// Ensure all values are set.
 			if ( isset( $sync_error['home'] ) && isset( $local_options['home'] ) && isset( $sync_error['siteurl'] ) && isset( $local_options['siteurl'] ) ) {
 				// If the WP.com expected home and siteurl match local home and siteurl it is not valid IDC.
@@ -420,8 +481,6 @@ class Identity_Crisis {
 			$returned_values[ $key ] = $normalized_url;
 		}
 
-		set_transient( 'jetpack_idc_option', $returned_values, MINUTE_IN_SECONDS );
-
 		return $returned_values;
 	}
 
@@ -432,7 +491,7 @@ class Identity_Crisis {
 	 * @return bool
 	 * @since 0.2.0
 	 * @since-jetpack 4.3.2
-	 * @deprecated $$next-version$$ Use should_handle_idc()
+	 * @deprecated 0.2.6 Use should_handle_idc()
 	 * @see Automattic\Jetpack\Identity_Crisis::should_handle_idc
 	 */
 	public static function sync_idc_optin() {
@@ -449,7 +508,7 @@ class Identity_Crisis {
 	 * handled.
 	 *
 	 * @return bool
-	 * @since $$next-version$$
+	 * @since 0.2.6
 	 */
 	public static function should_handle_idc() {
 		if ( Constants::is_defined( 'JETPACK_SHOULD_HANDLE_IDC' ) ) {
@@ -471,7 +530,7 @@ class Identity_Crisis {
 		 *
 		 * @param bool $default Whether the site is opted in to IDC mitigation.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.2.6
 		 */
 		return (bool) apply_filters( 'jetpack_should_handle_idc', $default );
 	}
@@ -480,7 +539,7 @@ class Identity_Crisis {
 	 * Returns the value for the deprecated filter, 'jetpack_sync_idc_optin'. That filter has been replaced with the
 	 * 'jetpack_should_handle_idc' filter.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.2.6
 	 *
 	 * @param bool $default Whether the site is opted in to IDC mitigation.
 	 */
@@ -494,7 +553,7 @@ class Identity_Crisis {
 		 *
 		 * @since 0.2.0
 		 * @since-jetpack 4.3.2
-		 * @deprecated $$next-version$$ Use jetpack_should_handle_idc
+		 * @deprecated 0.2.6 Use jetpack_should_handle_idc
 		 */
 		return (bool) apply_filters_deprecated( 'jetpack_sync_idc_optin', array( $default ), '0.2.6', 'jetpack_should_handle_idc' );
 	}

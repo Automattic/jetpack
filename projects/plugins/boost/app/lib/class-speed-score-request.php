@@ -26,6 +26,13 @@ class Speed_Score_Request extends Cacheable {
 	private $url;
 
 	/**
+	 * Active Jetpack Boost modules.
+	 *
+	 * @var array $active_modules Active modules.
+	 */
+	private $active_modules;
+
+	/**
 	 * When the Speed Scores request was created, in seconds since epoch.
 	 *
 	 * @var float $created Speed Scores request creation timestamp.
@@ -33,11 +40,11 @@ class Speed_Score_Request extends Cacheable {
 	private $created;
 
 	/**
-	 * The speed scores result, as an associative array.
+	 * Current status of the Speed Score request.
 	 *
-	 * @var array $scores
+	 * @var string $status Speed Scores request status.
 	 */
-	private $scores;
+	private $status;
 
 	/**
 	 * The error returned
@@ -49,18 +56,20 @@ class Speed_Score_Request extends Cacheable {
 	/**
 	 * Constructor.
 	 *
-	 * @param string $url     The URL to get the Speed Scores for.
-	 * @param float  $created When the Speed Scores request was created, in seconds since epoch.
-	 * @param array  $scores  The Speed Scores result.
-	 * @param string $error   The Speed Scores error.
+	 * @param string $url The URL to get the Speed Scores for.
+	 * @param array  $active_modules Active modules.
+	 * @param null   $created When the Speed Scores request was created, in seconds since epoch.
+	 * @param string $status Status of the Speed Scores request.
+	 * @param null   $error The Speed Scores error.
 	 */
-	public function __construct( $url, $created = null, $scores = null, $error = null ) {
+	public function __construct( $url, $active_modules = array(), $created = null, $status = 'pending', $error = null ) {
 		$this->set_cache_id( self::generate_cache_id_from_url( $url ) );
 
-		$this->url     = Url::normalize( $url );
-		$this->created = is_null( $created ) ? microtime( true ) : $created;
-		$this->scores  = $scores;
-		$this->error   = $error;
+		$this->url            = $url;
+		$this->active_modules = $active_modules;
+		$this->created        = is_null( $created ) ? microtime( true ) : $created;
+		$this->status         = $status;
+		$this->error          = $error;
 	}
 
 	/**
@@ -81,11 +90,12 @@ class Speed_Score_Request extends Cacheable {
 	 */
 	public function jsonSerialize() {
 		return array(
-			'id'      => $this->get_cache_id(),
-			'url'     => $this->url,
-			'created' => $this->created,
-			'scores'  => $this->scores,
-			'error'   => $this->error,
+			'id'             => $this->get_cache_id(),
+			'url'            => $this->url,
+			'active_modules' => $this->active_modules,
+			'created'        => $this->created,
+			'status'         => $this->status,
+			'error'          => $this->error,
 		);
 	}
 
@@ -99,8 +109,9 @@ class Speed_Score_Request extends Cacheable {
 	public static function jsonUnserialize( $data ) {
 		$object = new Speed_Score_Request(
 			$data['url'],
+			$data['active_modules'],
 			$data['created'],
-			$data['scores'],
+			$data['status'],
 			$data['error']
 		);
 
@@ -133,8 +144,9 @@ class Speed_Score_Request extends Cacheable {
 			sprintf( '/sites/%d/jetpack-boost/speed-scores', $blog_id ),
 			null,
 			array(
-				'request_id' => $this->get_cache_id(),
-				'url'        => $this->url,
+				'request_id'     => $this->get_cache_id(),
+				'url'            => Url::normalize( $this->url ),
+				'active_modules' => $this->active_modules,
 			)
 		);
 
@@ -149,7 +161,21 @@ class Speed_Score_Request extends Cacheable {
 	 * Is this request pending?
 	 */
 	public function is_pending() {
-		return empty( $this->error ) && empty( $this->score );
+		return 'pending' === $this->status;
+	}
+
+	/**
+	 * Did the request fail?
+	 */
+	public function is_error() {
+		return 'error' === $this->status;
+	}
+
+	/**
+	 * Did the request succeed?
+	 */
+	public function is_success() {
+		return 'success' === $this->status;
 	}
 
 	/**
@@ -175,16 +201,26 @@ class Speed_Score_Request extends Cacheable {
 
 		switch ( $response->status ) {
 			case 'pending':
+				// The initial job probalby failed, dispatch again if so.
+				if ( $this->created <= strtotime( '-15 mins' ) ) {
+					$this->execute();
+					$this->created = time();
+					$this->store();
+				}
+
 				break;
 
 			case 'error':
-				$this->error = $response->error;
+				$this->status = 'error';
+				$this->error  = $response->error;
 				$this->store();
 				break;
 
 			case 'success':
-				$this->scores = $response->scores;
+				$this->status = 'success';
 				$this->store();
+				$this->record_history( $response );
+
 				break;
 
 			default:
@@ -199,5 +235,29 @@ class Speed_Score_Request extends Cacheable {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Save the speed score record to history.
+	 *
+	 * @param object $response Response from api.
+	 */
+	private function record_history( $response ) {
+		$history       = new Speed_Score_History( $this->url );
+		$last_history  = $history->latest();
+		$last_scores   = $last_history ? $last_history['scores'] : null;
+		$last_theme    = $last_history ? $last_history['theme'] : null;
+		$current_theme = wp_get_theme()->get( 'Name' );
+
+		// Only change if there is a difference from last score or the theme changed.
+		if ( $last_scores !== $response->scores || $current_theme !== $last_theme ) {
+			$history->push(
+				array(
+					'timestamp' => time(),
+					'scores'    => $response->scores,
+					'theme'     => $current_theme,
+				)
+			);
+		}
 	}
 }

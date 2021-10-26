@@ -6,12 +6,13 @@
 	"require": {
 		"automattic/jetpack-assets": "^1.11",
 		"automattic/jetpack-options": "^1.13",
-		"automattic/jetpack-status": "^1.8",
+		"automattic/jetpack-status": "^1.9",
 		"automattic/jetpack-terms-of-service": "^1.9"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.0.1",
-		"automattic/jetpack-changelogger": "^2.0"
+		"brain/monkey": "2.6.0",
+		"yoast/phpunit-polyfills": "1.0.2",
+		"automattic/jetpack-changelogger": "^3.0"
 	},
 	"autoload": {
 		"classmap": [

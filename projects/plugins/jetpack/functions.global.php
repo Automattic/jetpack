@@ -3,7 +3,7 @@
  * This file is meant to be the home for any generic & reusable functions
  * that can be accessed anywhere within Jetpack.
  *
- * This file is loaded whether or not Jetpack is active.
+ * This file is loaded whether Jetpack is active.
  *
  * Please namespace with jetpack_
  *
@@ -13,6 +13,7 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Device_Detection;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Sync\Functions;
 
 /**
@@ -143,29 +144,17 @@ function jetpack_get_future_removed_version( $version ) {
 }
 
 /**
- * Set the admin language, based on user language.
- *
- * @since 4.5.0
- * @deprecated 6.6.0 Use Core function instead.
- *
- * @return string
- */
-function jetpack_get_user_locale() {
-	_deprecated_function( __FUNCTION__, 'jetpack-6.6.0', 'get_user_locale' );
-	return get_user_locale();
-}
-
-/**
- * Determine if this site is an Atomic site or not looking first at the 'at_options' option.
+ * Determine if this site is an WoA site or not looking first at the 'at_options' option.
  * As a fallback, check for presence of wpcomsh plugin to determine if a current site has undergone AT.
  *
  * @since 4.8.1
+ * @deprecated  $$next_version$$
  *
  * @return bool
  */
 function jetpack_is_atomic_site() {
-	$at_options = get_option( 'at_options', array() );
-	return ! empty( $at_options ) || defined( 'WPCOMSH__PLUGIN_FILE' );
+	jetpack_deprecated_function( __FUNCTION__, 'Automattic/Jetpack/Status/Host::is_woa_site', '$$next_version$$' );
+	return ( new Host() )->is_woa_site();
 }
 
 /**

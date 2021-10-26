@@ -3,10 +3,13 @@
  */
 import React, { useCallback } from 'react';
 import { useSelect, useDispatch } from '@wordpress/data';
-
-import { ConnectionStatusCard, ConnectScreen } from '@automattic/jetpack-connection';
-
 import { __ } from '@wordpress/i18n';
+import {
+	ConnectionStatusCard,
+	ConnectScreen,
+	withConnectionStatus,
+} from '@automattic/jetpack-connection';
+import { IDCScreen } from '@automattic/jetpack-idc';
 
 /**
  * Internal dependencies
@@ -15,6 +18,8 @@ import { STORE_ID } from '../../store';
 import Header from '../header';
 import './style.scss';
 import ConnectRight from './assets/connect-right.png';
+
+const ConnectScreenWithConnectionStatus = withConnectionStatus( ConnectScreen );
 
 /**
  * The Connection IU Admin App.
@@ -30,6 +35,12 @@ export default function Admin() {
 	const connectionStatus = useSelect( select => select( STORE_ID ).getConnectionStatus(), [] );
 	const { setConnectionStatus } = useDispatch( STORE_ID );
 
+	// Placeholder for testing purposes.
+	const hasIDC = true;
+	const IDCHomeUrl = 'https://site1.local/';
+	const currentUrl = 'https://site2.local/';
+	const redirectUri = 'tools.php?page=wpcom-connection-manager';
+
 	const statusCallback = useCallback(
 		status => {
 			setConnectionStatus( status );
@@ -40,6 +51,18 @@ export default function Admin() {
 	const onDisconnectedCallback = useCallback( () => {
 		setConnectionStatus( { isActive: false, isRegistered: false, isUserConnected: false } );
 	}, [ setConnectionStatus ] );
+
+	if ( hasIDC ) {
+		return (
+			<IDCScreen
+				wpcomHomeUrl={ IDCHomeUrl }
+				currentUrl={ currentUrl }
+				apiRoot={ APIRoot }
+				apiNonce={ APINonce }
+				redirectUri={ redirectUri }
+			/>
+		);
+	}
 
 	return (
 		<React.Fragment>
@@ -57,7 +80,7 @@ export default function Admin() {
 			) }
 
 			{ ! connectionStatus.isRegistered && (
-				<ConnectScreen
+				<ConnectScreenWithConnectionStatus
 					apiRoot={ APIRoot }
 					apiNonce={ APINonce }
 					registrationNonce={ registrationNonce }
@@ -81,7 +104,7 @@ export default function Admin() {
 						<li>{ __( 'Get notifications if your site goes offline', 'jetpack' ) }</li>
 						<li>{ __( 'Enhance your site with dozens of other features', 'jetpack' ) }</li>
 					</ul>
-				</ConnectScreen>
+				</ConnectScreenWithConnectionStatus>
 			) }
 		</React.Fragment>
 	);

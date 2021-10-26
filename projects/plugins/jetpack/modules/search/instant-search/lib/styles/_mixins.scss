@@ -66,7 +66,7 @@
 	}
 }
 
-$customberg-container-selector: '.interface-interface-skeleton__content > .jp-search-configure-app-wrapper' !default;
+$customberg-container-selector: '.jp-search-configure-app-wrapper' !default;
 
 // NOTE: Only works if first breakpoint is more restrictive than the customberg breakpoint.
 //       E.g. multiple-breaks-for-customberg( '<l', '<xl' );

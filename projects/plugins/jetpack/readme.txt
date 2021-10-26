@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
-Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
+Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 10.1
+Stable tag: 10.2.1
 Requires at least: 5.7
 Requires PHP: 5.6
 Tested up to: 5.8
@@ -242,55 +242,46 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.1 - 2021-09-07
-#### Major Enhancements
-- Search: add a Gutenberg powered customization interface.
-
+### 10.3-beta - 2021-10-26
 #### Enhancements
-- Carousel: photo info and comment sections stay open once toggled on.
-- Carousel: show image info icon even if Exif metadata option is off.
-- Carousel: use photo description as caption if caption and title fields are blank.
-- Form Block: scroll to subscription message after submitting the form.
-- Jetpack Assistant: introduce a new "Product Suggestion" step to inform new users of relevant Jetpack services.
-- Search: greater theme compatibility, including label coloring and custom checkbox margins.
-- Search: improves handling of breadcrumb display.
-- Search: visual, functional, and accessibility improvements to new wp-admin section and customization interface.
-- Secure Sign On: remove additional redirect during sign in process.
-- Shortcodes: allow wrapping quizzes together with the Quiz shortcode.
-- Spotify Shortcode: add lazy loading support.
-- Stats: add the ability to collapse the nudges UI.
-- Tiled Gallery Block: ensure it can be used when in Offline Mode.
-- Widget Visibility: rename taxonomy label "All Pages" in dropdown.
+- Dashboard: add a new screen to provide more information about the VideoPress feature.
+- Dashboard: add a new view that shortly summarizes available Jetpack products and facilitates the purchase process.
+- Dashboard: optimize the size of all product images displayed in the dashboard, to improve overall performance.
+- Instagram Widget: improve the connection flow when the widget has not been connected to WordPress.com yet.
+- Instant Search: always show the save button on the mobile view of the Search Settings dashboard.
+- Map Block: Add address attribute to the block.
+- Publicize editor settings: refactor, improve layout and wording in preparation for the addition of RePublicize.
+- Secure Sign On: add new filter allowing one to customize the explanation displayed next to the SSO button.
+- Stats: add information about the VideoPress feature at the bottom of the page.
+- Stats: remove some upgrade notifications.
+- Social Icons Widget: Added Strava icon to Social Icons Widget.
+- VideoPress: add tooltips to video block settings in the block editor.
+- VideoPress: improve the display of upload errors in the Media Library and the block editor.
+- VideoPress: remove X-18 rating from the block settings.
+- WordAds: update handling and setting CCPA related cookies.
 
 #### Improved compatibility
-- Browser Compatibility: allow use of new JavaScript features not supported by Internet Explorer 11.
-- Image CDN: added support for the WEBP format.
-- Mailchimp Block: updates terminology to use "Audience" instead of "Lists".
-- Media: allow ZIP files to be uploaded to sites via WordPress.com.
-- Related Posts: allow shortcodes in Related Posts titles.
+- Contact Info & Map widget: allow transforming this widget into a block in Block-based widget editor.
+- General: ensure that no notices are output when Jetpack is used alongside plugins that modify the output of core comments.
+- Jetpack Backup: improve the display of the different plugin menus when using both Jetpack and Jetpack Backup.
+- Subscriptions: add an option to transform the Legacy Subscription Widget into a Subscription Block in the new block-based Widget editor.
+- Social Icons Widget: deprecate widget and offer the option to transform into a Social Links block.
+- VideoPress: improve handling of Video files when using a third-party video player.
 
 #### Bug fixes
-- Blocks: fix HTML markup of buttons added to blocks.
-- Carousel: fix a bug that changes the cursor to a pointer over all nested blocks.
-- Carousel: fix bug preventing user from swiping in gallery when images are configured to link to Attachment Page.
-- Carousel: hide UI controls in the carousel for single images.
-- Contact Form: disable the Block Editor for contact form submissions.
-- Custom CSS: ensure that short CSS is added inline instead of via an external file.
-- Dashboard: add a new message to the backup card if the site is too new to have an accurate status.
-- Dashboard: ensure that the image CDN does not get enabled by default when using the Site Accelerator toggle while in Offline mode.
-- Facebook Page Widget: fix a bug that prevented widget from being added in the wp-admin widget editor.
-- Form Block: fix form button alignment in editor.
-- Instant Search: ensure box-shadow and text-shadow aren't applied to search buttons.
-- Search: fix search widgets not saving in block widget editor.
-- Search: fix various issues with scrolling on both desktop and mobile devices.
-- Search: fix wrapping issue on super wide screens.
-- Search: hide search sub menu on site disconnection.
-- Search: improve style specificity for result highlights in Customberg.
-- Slideshow Block: fix intermittent issue where next/prev buttons sometimes don't respond to clicks.
-- Social Icons: fix being unable to remove icons from widget.
-- Social Icons Widget: fix issue in wp-admin widget editor where icons don't save on refresh.
-- Stats: allow better translations of page view counts in the Stats widget.
-- Video Block: fix resizing so that video block doesn't display black bars on the sides.
+- Calendly block: fix the preview in the block inserter.
+- Dashboard: ensure feature cards display the right information when the site uses Jetpack's Offline mode.
+- Eventbrite Block: improve the event URL detection and avoid errors when using links without an event ID.
+- External Media block options: fix a bug where the external media modal collapsed on larger screens and did not leave enough whitespace.
+- General: avoid PHP notices that may happen when installing the plugin.
+- Instant Search: fix the display of filters when there are no results to display for a query.
+- Instant Search: fix the preview of the infinite scroll option in the Search Settings dashboard.
+- Instant Search: reduce browser history noise as search is being typed in the form.
+- Markdown: add title attributes to footnotes to improve accessibility.
+- Publicize: refresh connections only when the post publishes.
+- Stats: remove extra request to WordPress.com that occurs when the stats feature is first activated.
+- VideoPress: add a "cover" option to the VideoPress iframe and shortcode to handle video resizing to its container.
+- Widgets: fix styles of the Milestone widget fields.
 
 --------
 

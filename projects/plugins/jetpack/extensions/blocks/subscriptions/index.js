@@ -3,6 +3,7 @@
  */
 import { __, _x } from '@wordpress/i18n';
 import { Rect, Path, SVG } from '@wordpress/components';
+import { createBlock } from '@wordpress/blocks';
 
 /**
  * Internal dependencies
@@ -58,6 +59,28 @@ export const settings = {
 	attributes,
 	edit,
 	save,
+	transforms: {
+		from: [
+			{
+				type: 'block',
+				isMultiBlock: false,
+				blocks: [ 'core/legacy-widget' ],
+				isMatch: ( { idBase, instance } ) => {
+					if ( ! instance?.raw ) {
+						return false;
+					}
+					return idBase === 'blog_subscription';
+				},
+				transform: ( { instance } ) => {
+					return createBlock( 'jetpack/subscriptions', {
+						showSubscribersTotal: instance.raw.show_subscribers_total,
+						submitButtonText: instance.raw.subscribe_button,
+						subscribePlaceholder: instance.raw.subscribe_placeholder,
+					} );
+				},
+			},
+		],
+	},
 	example: {
 		attributes: {},
 	},

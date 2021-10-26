@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2021-10-26
+### Added
+- Add redirect_uri parameter for IDC Start Fresh endpoint.
+- Delete the migrate_for_idc option when a remote request returns migrated_for_idc
+
+### Changed
+- Updated package dependencies
+
+## [0.2.8] - 2021-10-13
+### Changed
+- Updated package dependencies.
+
+## [0.2.7] - 2021-10-12
+### Added
+- Add the new check_response_for_idc method to the Identity_Crisis class
+
+### Changed
+- Updated package dependencies
+
+## [0.2.6] - 2021-09-28
+### Changed
+- Allow Node ^14.17.6 to be used in this project. This shouldn't change the behavior of the code itself.
+- IDC: Rename the Identity_Crisis::sync_idc_optin method to Identity_Crisis:should_handle_idc. Add a new filter and constant that use the new name.
+- Updated package dependencies.
+
 ## [0.2.5] - 2021-08-31
 ### Changed
 - Updated package dependencies.
@@ -45,6 +70,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Use Connection/Urls for home_url and site_url functions migrated from Sync.
 
+[0.3.0]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.2.8...v0.3.0
+[0.2.8]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.2.7...v0.2.8
+[0.2.7]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.2.6...v0.2.7
+[0.2.6]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.2.5...v0.2.6
 [0.2.5]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.2.4...v0.2.5
 [0.2.4]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.2.2...v0.2.3

@@ -31,6 +31,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				'classname'                   => 'widget_contact_info',
 				'description'                 => __( 'Display a map with your location, hours, and contact information.', 'jetpack' ),
 				'customize_selective_refresh' => true,
+				'show_instance_in_rest'       => true,
 			);
 			parent::__construct(
 				'widget_contact_info',

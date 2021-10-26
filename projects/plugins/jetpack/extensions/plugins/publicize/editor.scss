@@ -1,8 +1,14 @@
 @import '../../shared/styles/gutenberg-base-styles.scss';
+@import "~@automattic/color-studio/dist/color-variables";
 
 .jetpack-publicize__connections-list {
 	list-style-type: none;
-	margin: 13px 0;
+	margin: 0;
+	width: 100%;
+
+	.components-notice {
+		margin: 5px 0 10px;
+	}
 }
 
 .publicize-jetpack-connection-container {
@@ -54,8 +60,36 @@
 	margin: 15px 0;
 }
 
-.jetpack-publicize__connections-list {
-	.components-notice {
-		margin: 5px 0 10px;
+.jetpack-publicize__upsell {
+	margin: 10px 0;
+	padding: 5px 0;
+}
+
+.jetpack-publicize__upsell-description {
+	margin-bottom: 10px;
+	font-weight: 600;
+}
+
+.jetpack-publicize__upsell-button {
+	&.is-primary {
+		background: $studio-pink-40;
+		color: $studio-white;
+		padding-right: 10px;
+
+		&:hover {
+			background: $studio-pink-30;
+		}
+		&.is-busy {
+			background-size: 100px 100%;
+			background-image: linear-gradient(-45deg, $studio-pink-40 28%, $studio-pink-60 28%, $studio-pink-60 72%, $studio-pink-40 72%);
+		}
+	}
+}
+
+// Disable styles
+.jetpack-publicize-disabled {
+	.jetpack-publicize-toggle,
+	.jetpack-publicize__connections-list {
+		opacity: 0.5;
 	}
 }

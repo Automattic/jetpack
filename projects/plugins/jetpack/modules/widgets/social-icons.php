@@ -4,6 +4,9 @@
  * Social Icons Widget.
  */
 class Jetpack_Widget_Social_Icons extends WP_Widget {
+
+	const ID_BASE = 'jetpack_widget_social_icons';
+
 	/**
 	 * Default widget options.
 	 *
@@ -20,6 +23,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 		$widget_ops = array(
 			'classname'                   => 'jetpack_widget_social_icons',
 			'description'                 => __( 'Add social-media icons to your site.', 'jetpack' ),
+			'show_instance_in_rest'       => true,
 			'customize_selective_refresh' => true,
 		);
 
@@ -52,6 +56,19 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_icon_scripts' ) );
 			add_action( 'wp_footer', array( $this, 'include_svg_icons' ), 9999 );
 		}
+
+		add_filter( 'widget_types_to_hide_from_legacy_widget_block', array( $this, 'hide_widget_in_block_editor' ) );
+	}
+
+	/**
+	 * Remove Social Icons widget from Legacy Widget block.
+	 *
+	 * @param array $widget_types Widget type data.
+	 * This only applies to new blocks being added.
+	 */
+	public function hide_widget_in_block_editor( $widget_types ) {
+		$widget_types[] = self::ID_BASE;
+		return $widget_types;
 	}
 
 	/**
@@ -627,6 +644,11 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'url'   => array( 'stackoverflow.com' ),
 				'icon'  => 'stackoverflow',
 				'label' => 'Stack Overflow',
+			),
+			array(
+				'url'   => array( 'strava.com' ),
+				'icon'  => 'strava',
+				'label' => 'Strava',
 			),
 			array(
 				'url'   => array( 'stumbleupon.com' ),

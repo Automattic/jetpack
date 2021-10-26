@@ -161,19 +161,7 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * Adds Inbox menu.
 	 */
 	public function add_inbox_menu() {
-		/**
-		 * Whether to show the WordPress.com Inbox menu under Upgrades menu.
-		 *
-		 * @use add_filter( 'jetpack_show_wpcom_inbox_menu', '__return_true' );
-		 * @module masterbar
-		 *
-		 * @since 9.7.0
-		 *
-		 * @param bool $jetpack_show_wpcom_inbox_menu Load the WordPress.com Inbox menu item. Default to false.
-		 */
-		if ( apply_filters( 'jetpack_show_wpcom_inbox_menu', false ) ) {
-			add_menu_page( __( 'Inbox', 'jetpack' ), __( 'Inbox', 'jetpack' ), 'edit_posts', 'https://wordpress.com/inbox/' . $this->domain, null, 'dashicons-email', '4.64424' );
-		}
+		add_menu_page( __( 'Inbox', 'jetpack' ), __( 'Inbox', 'jetpack' ), 'edit_posts', 'https://wordpress.com/inbox/' . $this->domain, null, 'dashicons-email', '4.64424' );
 	}
 
 	/**
@@ -215,7 +203,7 @@ class Admin_Menu extends Base_Admin_Menu {
 			add_menu_page( __( 'Upgrades', 'jetpack' ), $site_upgrades, 'manage_options', 'paid-upgrades.php', null, 'dashicons-cart', 4 );
 		}
 
-		add_submenu_page( 'paid-upgrades.php', __( 'Plans', 'jetpack' ), __( 'Plans', 'jetpack' ), 'manage_options', 'https://wordpress.com/plans/my-plan/' . $this->domain, null, 1 );
+		add_submenu_page( 'paid-upgrades.php', __( 'Plans', 'jetpack' ), __( 'Plans', 'jetpack' ), 'manage_options', 'https://wordpress.com/plans/' . $this->domain, null, 1 );
 		add_submenu_page( 'paid-upgrades.php', __( 'Purchases', 'jetpack' ), __( 'Purchases', 'jetpack' ), 'manage_options', 'https://wordpress.com/purchases/subscriptions/' . $this->domain, null, 2 );
 
 		if ( ! $menu_exists ) {
@@ -344,9 +332,6 @@ class Admin_Menu extends Base_Admin_Menu {
 			$default_customize_header_slug_2     => add_query_arg( array( 'autofocus' => array( 'control' => 'header_image' ) ), $customize_url ),
 			$default_customize_background_slug_1 => add_query_arg( array( 'autofocus' => array( 'section' => 'colors_manager_tool' ) ), $customize_url ),
 			$default_customize_background_slug_2 => add_query_arg( array( 'autofocus' => array( 'section' => 'colors_manager_tool' ) ), $customize_url ),
-			'widgets.php'                        => add_query_arg( array( 'autofocus' => array( 'panel' => 'widgets' ) ), $customize_url ),
-			'gutenberg-widgets'                  => add_query_arg( array( 'autofocus' => array( 'panel' => 'widgets' ) ), $customize_url ),
-			'nav-menus.php'                      => add_query_arg( array( 'autofocus' => array( 'panel' => 'nav_menus' ) ), $customize_url ),
 		);
 
 		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'themes.php' ) ) {
@@ -365,10 +350,6 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * Adds Plugins menu.
 	 */
 	public function add_plugins_menu() {
-		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'plugins.php' ) ) {
-			return;
-		}
-
 		$this->hide_submenu_page( 'plugins.php', 'plugin-install.php' );
 		$this->hide_submenu_page( 'plugins.php', 'plugin-editor.php' );
 
@@ -477,14 +458,6 @@ class Admin_Menu extends Base_Admin_Menu {
 		}
 
 		$this->update_menu( 'gutenberg-edit-site', 'https://wordpress.com/site-editor/' . $this->domain, null, null, null, 59 );
-	}
-
-	/**
-	 * Adds Beta Testing link.
-	 */
-	public function add_beta_testing_menu() {
-		$icon = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxOCAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTE1LjE5MDEgMTAuODU2N0MxNC45NTc0IDEwLjYyNCAxNC42NjExIDEwLjQ2NTQgMTQuMzM4NCAxMC40MDA4TDEyLjM0OTMgMTAuMDAzM0MxMS4yNTkgOS43ODUzIDEwLjEyNzEgOS45MzY5IDkuMTMyNjIgMTAuNDM0Mkw4Ljg2NzYxIDEwLjU2NThDNy44NzMxMiAxMS4wNjMxIDYuNzQxMjUgMTEuMjE0NyA1LjY1MDk1IDEwLjk5NjdMNC4wNDE3OCAxMC42NzVDMy43NzI3OCAxMC42MjEzIDMuNDk0NjggMTAuNjM0OCAzLjIzMjE0IDEwLjcxNDNDMi45Njk2MSAxMC43OTM4IDIuNzMwNzYgMTAuOTM2OSAyLjUzNjc4IDExLjEzMDhNNC42NjY3OCAxLjMzMzM0SDEzLjMzMzRMMTEuNTAwMSAyLjE2NjY4VjYuNDc2NjhDMTEuNTAwMiA2LjkxODY3IDExLjY3NTkgNy4zNDI1MiAxMS45ODg0IDcuNjU1MDFMMTYuMTU1MSAxMS44MjE3QzE3LjIwNTEgMTIuODcxNyAxNi40NjA5IDE0LjY2NjcgMTQuOTc1OSAxNC42NjY3SDMuMDIzNDVDMS41Mzg0NSAxNC42NjY3IDAuNzk1MTE2IDEyLjg3MTcgMS44NDUxMiAxMS44MjE3TDYuMDExNzggNy42NTUwMUM2LjMyNDM2IDcuMzQyNTIgNi41MDAwMiA2LjkxODY3IDYuNTAwMTEgNi40NzY2OFYyLjE2NjY4TDQuNjY2NzggMS4zMzMzNFoiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InNxdWFyZSIgc3Ryb2tlLWxpbmVqb2luPSJiZXZlbCIvPgo8cmVjdCB4PSIxLjcyNzU0IiB5PSIxMC43MjczIiB3aWR0aD0iMTQuNTQ1NSIgaGVpZ2h0PSIzLjYzNjM2IiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K';
-		add_menu_page( 'beta-testing', __( 'Beta Testing', 'jetpack' ), 'manage_options', 'https://wordpress.com/beta-testing/' . $this->domain, null, $icon, null );
 	}
 
 	/**
