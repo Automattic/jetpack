@@ -698,7 +698,7 @@ class Jetpack_Search {
 		}
 
 		$es_args = $this->last_query_info['args'];
-		$builder = new Jetpack_WPES_Query_Builder();
+		$builder = new Automattic\Jetpack\Search\WPES\Query_Builder();
 		$this->add_aggregations_to_es_query_builder( $this->aggregations, $builder );
 		$es_args['aggregations'] = $builder->build_aggregation();
 
@@ -909,7 +909,7 @@ class Jetpack_Search {
 
 		$args = wp_parse_args( $args, $defaults );
 
-		$parser = new Jetpack_WPES_Search_Query_Parser(
+		$parser = new Automattic\Jetpack\Search\WPES\Query_Parser(
 			$args['query'],
 			/**
 			 * Filter the languages used by Jetpack Search's Query Parser.
@@ -1273,14 +1273,14 @@ class Jetpack_Search {
 	}
 
 	/**
-	 * Given an array of aggregations, parse and add them onto the Jetpack_WPES_Query_Builder object for use in Elasticsearch.
+	 * Given an array of aggregations, parse and add them onto the query builder object for use in Elasticsearch.
 	 *
 	 * @since 5.0.0
 	 *
-	 * @param array                      $aggregations Array of aggregations (filters) to add to the Jetpack_WPES_Query_Builder.
-	 * @param Jetpack_WPES_Query_Builder $builder      The builder instance that is creating the Elasticsearch query.
+	 * @param array                                        $aggregations Array of aggregations (filters) to add to the query builder.
+	 * @param Automattic\Jetpack\Search\WPES\Query_Builder $builder      The builder instance that is creating the Elasticsearch query.
 	 */
-	public function add_aggregations_to_es_query_builder( array $aggregations, Jetpack_WPES_Query_Builder $builder ) {
+	public function add_aggregations_to_es_query_builder( array $aggregations, $builder ) {
 		foreach ( $aggregations as $label => $aggregation ) {
 			if ( ! isset( $aggregation['type'] ) ) {
 				continue;
@@ -1305,15 +1305,15 @@ class Jetpack_Search {
 	}
 
 	/**
-	 * Given an individual taxonomy aggregation, add it to the Jetpack_WPES_Query_Builder object for use in Elasticsearch.
+	 * Given an individual taxonomy aggregation, add it to the query builder object for use in Elasticsearch.
 	 *
 	 * @since 5.0.0
 	 *
-	 * @param array                      $aggregation The aggregation to add to the query builder.
-	 * @param string                     $label       The 'label' (unique id) for this aggregation.
-	 * @param Jetpack_WPES_Query_Builder $builder     The builder instance that is creating the Elasticsearch query.
+	 * @param array                                        $aggregation The aggregation to add to the query builder.
+	 * @param string                                       $label       The 'label' (unique id) for this aggregation.
+	 * @param Automattic\Jetpack\Search\WPES\Query_Builder $builder     The builder instance that is creating the Elasticsearch query.
 	 */
-	public function add_taxonomy_aggregation_to_es_query_builder( array $aggregation, $label, Jetpack_WPES_Query_Builder $builder ) {
+	public function add_taxonomy_aggregation_to_es_query_builder( array $aggregation, $label, $builder ) {
 		$field = null;
 
 		switch ( $aggregation['taxonomy'] ) {
@@ -1342,15 +1342,15 @@ class Jetpack_Search {
 	}
 
 	/**
-	 * Given an individual post_type aggregation, add it to the Jetpack_WPES_Query_Builder object for use in Elasticsearch.
+	 * Given an individual post_type aggregation, add it to the query builder object for use in Elasticsearch.
 	 *
 	 * @since 5.0.0
 	 *
-	 * @param array                      $aggregation The aggregation to add to the query builder.
-	 * @param string                     $label       The 'label' (unique id) for this aggregation.
-	 * @param Jetpack_WPES_Query_Builder $builder     The builder instance that is creating the Elasticsearch query.
+	 * @param array                                        $aggregation The aggregation to add to the query builder.
+	 * @param string                                       $label       The 'label' (unique id) for this aggregation.
+	 * @param Automattic\Jetpack\Search\WPES\Query_Builder $builder     The builder instance that is creating the Elasticsearch query.
 	 */
-	public function add_post_type_aggregation_to_es_query_builder( array $aggregation, $label, Jetpack_WPES_Query_Builder $builder ) {
+	public function add_post_type_aggregation_to_es_query_builder( array $aggregation, $label, $builder ) {
 		$builder->add_aggs(
 			$label,
 			array(
@@ -1363,15 +1363,15 @@ class Jetpack_Search {
 	}
 
 	/**
-	 * Given an individual date_histogram aggregation, add it to the Jetpack_WPES_Query_Builder object for use in Elasticsearch.
+	 * Given an individual date_histogram aggregation, add it to the query builder object for use in Elasticsearch.
 	 *
 	 * @since 5.0.0
 	 *
-	 * @param array                      $aggregation The aggregation to add to the query builder.
-	 * @param string                     $label       The 'label' (unique id) for this aggregation.
-	 * @param Jetpack_WPES_Query_Builder $builder     The builder instance that is creating the Elasticsearch query.
+	 * @param array                                        $aggregation The aggregation to add to the query builder.
+	 * @param string                                       $label       The 'label' (unique id) for this aggregation.
+	 * @param Automattic\Jetpack\Search\WPES\Query_Builder $builder     The builder instance that is creating the Elasticsearch query.
 	 */
-	public function add_date_histogram_aggregation_to_es_query_builder( array $aggregation, $label, Jetpack_WPES_Query_Builder $builder ) {
+	public function add_date_histogram_aggregation_to_es_query_builder( array $aggregation, $label, $builder ) {
 		$args = array(
 			'interval' => $aggregation['interval'],
 			'field'    => ( ! empty( $aggregation['field'] ) && 'post_date_gmt' === $aggregation['field'] ) ? 'date_gmt' : 'date',

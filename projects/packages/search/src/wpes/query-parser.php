@@ -2,7 +2,7 @@
 
 /**
  * Parse a pure text query into WordPress Elasticsearch query. This builds on
- * the Jetpack_WPES_Query_Builder() to provide search query parsing.
+ * the Query_Builder() to provide search query parsing.
  *
  * The key part of this parser is taking a user's query string typed into a box
  * and converting it into an ES search query.
@@ -30,8 +30,7 @@
  *
  * Example usage (from Search on Reader Manage):
  *
- *		require_lib( 'jetpack-wpes-query-builder/jetpack-wpes-search-query-parser' );
- *		$parser = new Jetpack_WPES_Search_Query_Parser( $args['q'], array( $lang ) );
+ *		$parser = new Query_Parser( $args['q'], array( $lang ) );
  *
  *		//author
  *		$parser->author_field_filter( array(
@@ -107,10 +106,9 @@
  *
  */
 
-jetpack_require_lib( 'jetpack-wpes-query-builder' );
+namespace Automattic\Jetpack\Search\WPES;
 
-class Jetpack_WPES_Search_Query_Parser extends Jetpack_WPES_Query_Builder {
-
+class Query_Parser extends Query_Builder {
 	protected $orig_query = '';
 	protected $current_query = '';
 	protected $langs;

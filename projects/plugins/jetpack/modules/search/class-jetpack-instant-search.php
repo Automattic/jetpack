@@ -244,9 +244,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			return;
 		}
 
-		jetpack_require_lib( 'jetpack-wpes-query-builder/jetpack-wpes-query-builder' );
-
-		$builder = new Jetpack_WPES_Query_Builder();
+		$builder = new Automattic\Jetpack\Search\WPES\Query_Builder();
 		$this->add_aggregations_to_es_query_builder( $this->aggregations, $builder );
 		$this->search_result = $this->instant_api(
 			array(

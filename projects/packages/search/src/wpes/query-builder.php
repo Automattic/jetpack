@@ -5,7 +5,7 @@
  * combines multiple ranking signals.
  *
  *
- * $bldr = new Jetpack_WPES_Query_Builder();
+ * $bldr = new Query_Builder();
  * $bldr->add_filter( ... );
  * $bldr->add_filter( ... );
  * $bldr->add_query( ... );
@@ -22,8 +22,9 @@
  *
  */
 
-class Jetpack_WPES_Query_Builder {
+namespace Automattic\Jetpack\Search\WPES;
 
+class Query_Builder {
 	protected $es_filters = array();
 
 	// Custom boosting with function_score
@@ -110,7 +111,7 @@ class Jetpack_WPES_Query_Builder {
 	/**
 	 * Add a scoring function to the query
 	 *
-	 * NOTE: For decays (linear, exp, or gauss), use Jetpack_WPES_Query_Builder::add_decay() instead
+	 * NOTE: For decays (linear, exp, or gauss), use Query_Builder::add_decay() instead
 	 *
 	 * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html
 	 *
@@ -128,7 +129,7 @@ class Jetpack_WPES_Query_Builder {
 	/**
 	 * Add a decay function to score results
 	 *
-	 * This method should be used instead of Jetpack_WPES_Query_Builder::add_function() for decays, as the internal  ES structure
+	 * This method should be used instead of Query_Builder::add_function() for decays, as the internal  ES structure
 	 * is slightly different for them.
 	 *
 	 * @see https://www.elastic.co/guide/en/elasticsearch/guide/current/decay-functions.html
