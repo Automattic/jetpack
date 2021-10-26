@@ -26,7 +26,7 @@ jobs:
     permissions:
       packages: write
       contents: read
-    timeout-minutes: 20  # 2021-10-14: Test run took 5 minutes, but there's lots of downloading involved.
+    timeout-minutes: 60  # 2021-10-26: Build for arm64 is S-L-O-W. Sigh.
 
     steps:
       - uses: actions/checkout@v2
