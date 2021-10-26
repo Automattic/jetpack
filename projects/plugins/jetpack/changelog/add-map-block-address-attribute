@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Map block: Add `address` attribute to the block

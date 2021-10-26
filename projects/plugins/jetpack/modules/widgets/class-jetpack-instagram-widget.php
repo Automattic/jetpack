@@ -400,8 +400,8 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 			echo '<p>';
 			printf(
 				// translators: %1$1 and %2$s are the opening and closing a tags creating a link to the Jetpack dashboard.
-				esc_html__( 'In order to use this widget you need %1$scomplete your Jetpack connection%2$s by authorizing your user.', 'jetpack' ),
-				'<a href="' . esc_url( Jetpack::admin_url() ) . '">',
+				esc_html__( 'In order to use this widget you need to %1$scomplete your Jetpack connection%2$s by authorizing your user.', 'jetpack' ),
+				'<a href="' . esc_url( Jetpack::admin_url( array( 'page' => 'jetpack#/connect-user' ) ) ) . '">',
 				'</a>'
 			);
 			echo '</p>';

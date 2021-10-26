@@ -32,7 +32,7 @@ class WP_Test_Jetpack_Sitemap_Manager extends WP_UnitTestCase {
 		// Check default value.
 		$manager->callback_action_filter_sitemap_location();
 		$location = get_option( 'jetpack_sitemap_location' );
-		$this->assertEquals( $location, '' );
+		$this->assertSame( '', $location );
 
 		// Clean up.
 		delete_option( 'jetpack_sitemap_location' );
@@ -60,7 +60,7 @@ class WP_Test_Jetpack_Sitemap_Manager extends WP_UnitTestCase {
 
 		$manager->callback_action_filter_sitemap_location();
 		$location = get_option( 'jetpack_sitemap_location' );
-		$this->assertEquals( $location, '/blah' );
+		$this->assertEquals( '/blah', $location );
 
 		// Clean up.
 		delete_option( 'jetpack_sitemap_location' );

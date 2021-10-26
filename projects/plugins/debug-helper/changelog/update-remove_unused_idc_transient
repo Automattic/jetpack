@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Rmove the unusaed jetpack_idc_option transient from the UI
