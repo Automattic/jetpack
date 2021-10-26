@@ -1,4 +1,0 @@
-Significance: minor
-Type: compat
-
-Deprecate `jetpack_is_atomic` for the new Automattic\Jetpack\Status\Host->is_woa_site() function.
