@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Use the first few characters of the post content (vs title) as the default publicize message.
