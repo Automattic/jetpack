@@ -129,7 +129,7 @@ const PublicizePanel = ( { prePublish } ) => {
 
 			{ isPostPublished && <UpsellNotice /> }
 
-			{ isRePublicizeFeatureEnabled && (
+			{ isRePublicizeFeatureEnabled && ! isPostPublished && (
 				<PanelRowWithDisabled>
 					<ToggleControl
 						className="jetpack-publicize-toggle"
