@@ -32,7 +32,6 @@ class PHP_Autoloader {
 		if ( ! $autoload_chain ) {
 			return;
 		}
-		
 		foreach ( $autoload_chain as $autoloader ) {
 			// We can identify a v2 autoloader using the namespace.
 			$namespace_check = null;
