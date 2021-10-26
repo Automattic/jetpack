@@ -256,26 +256,17 @@ export function twitterCardIsCached( state, url ) {
 export function getShareMessage() {
 	const { getEditedPostAttribute } = select( 'core/editor' );
 	const meta = getEditedPostAttribute( 'meta' );
-	const plainTextPostContent = getPlainText( getEditedPostAttribute( 'content' ) );
 	const postTitle = getEditedPostAttribute( 'title' );
 	const message = get( meta, [ 'jetpack_publicize_message' ], '' );
-	const hasEditedShareMessage = get( meta, [ 'jetpack_publicize_hasEditedShareMessage' ], false );
 
 	if ( message ) {
 		return message.substr( 0, getShareMessageMaxLength() );
 	}
 
-	if ( hasEditedShareMessage && message === '' ) {
-		return '';
-	}
-
-	if ( isTweetStorm() && postTitle ) {
-		return postTitle.substr( 0, getShareMessageMaxLength() ) + DEFAULT_TWEETSTORM_MESSAGE;
-	}
-
-	if ( plainTextPostContent ) {
-		const lastSpaceIndex = plainTextPostContent.lastIndexOf( ' ', getShareMessageMaxLength() );
-		return plainTextPostContent.substr( 0, lastSpaceIndex );
+	if ( isTweetStorm() ) {
+		if ( postTitle ) {
+			return postTitle.substr( 0, getShareMessageMaxLength() ) + DEFAULT_TWEETSTORM_MESSAGE;
+		}
 	}
 
 	return '';
