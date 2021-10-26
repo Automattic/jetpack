@@ -13,7 +13,6 @@ import { store as editorStore } from '@wordpress/editor';
 /**
  * Internal dependencies
  */
-import { getPlainText } from '../../../blocks/conversation/utils.js';
 import { SUPPORTED_BLOCKS, SUPPORTED_CONTAINER_BLOCKS } from '../components/twitter';
 
 // Links and media attached to tweets take up 24 characters each.
