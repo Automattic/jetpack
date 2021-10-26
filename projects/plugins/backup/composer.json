@@ -11,7 +11,7 @@
 		"automattic/jetpack-connection": "1.30.x-dev",
 		"automattic/jetpack-connection-ui": "1.5.x-dev",
 		"automattic/jetpack-sync": "1.27.x-dev",
-		"automattic/jetpack-status": "1.8.x-dev"
+		"automattic/jetpack-status": "1.9.x-dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.2",
