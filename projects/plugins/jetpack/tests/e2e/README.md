@@ -4,6 +4,8 @@
 
 Automated end-to-end acceptance tests for the Jetpack plugin.
 
+These tests are using the [e2e commons package](../../../../../tools/e2e-commons). For brevity, this doc will not repeat setup information inherited from e2e-commons.
+
 ## Table of contents
 
 - [Pre-requisites](#pre-requisites)
@@ -122,11 +124,11 @@ We use the following tools to write e2e tests:
 ## Tests Architecture
 
 Tests are kept in `/specs` folder. Every file represents a test suite, which is designed around specific feature under test.
-Every test suite is responsible for setting up the environment configuration for the suite. Some of the specs require an active Connection, some do not. Prerequisites APIs provide an abstraction to set up the site the way is needed.
-Its logic can be found in the [`jetpack-connect.js`](lib/flows/jetpack-connect.js).
+Every test suite is responsible for setting up the environment configuration for the suite. Some specs require an active Connection, some do not. Prerequisites APIs provide an abstraction to set up the site the way is needed.
+Its logic can be found in the [`jetpack-connect.js`](../../../../../tools/e2e-commons/flows/jetpack-connect.js).
 
 The tests are using the `PageObject` pattern, which is a way to separate test logic from implementation. Page objects are basically abstractions around specific pages and page components.
-There are two base classes that should be extended by page objects: [`WpPage`](lib/pages/wp-page.js) and [`PageActions`](lib/pages/page-actions.js) class.
+There are two base classes that should be extended by page objects: [`WpPage`](../../../../../tools/e2e-commons/pages/wp-page.js) and [`PageActions`](../../../../../tools/e2e-commons/pages/page-actions.js) class.
 
 - `WpPage` implements common page methods, like `init` - static method that initializes a page object and checks the displayed page is the expected one and `visit` - method that navigates to a page URL and then performs all the `init` checks.
 - `PageActions` takes care of all the common lower level page actions, like click on elements, filling forms, etc. Basically all interactions with a browser page should go through this class's methods.
@@ -145,7 +147,7 @@ constructor( page ) {
 
 ## CI Configuration
 
-Both local runs and CI sharing the same Docker based configuration
+Both local runs and CI are sharing the same Docker based configuration
 
 ## Functionality plugins
 

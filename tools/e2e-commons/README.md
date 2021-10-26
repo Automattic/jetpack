@@ -32,7 +32,7 @@ Add this project as a dev dependency in your e2e tests project:
 pnpm add -D path/to/tools/e2e-commons
 ```
 
-Optional, you can also add a `preinstall` script to install this project.
+Optionally, you can also add a `preinstall` script to install this project.
 
 ```shell
 "preinstall": "pnpm --prefix path/to/tools/e2e-commons install"
@@ -109,25 +109,23 @@ touch config/playwright.config.js
 echo "module.exports = require( 'jetpack-e2e-commons/config/playwright.config.default' );" >> config/playwright.config.js
 ```
 
-### Run the test against a local environment
+### Use the local Docker environment
 
-#### Build the test environment
-
-1. Build Jetpack
+#### 1.1. Build Jetpack
 
 ```shell
 pnpm jetpack build plugins/jetpack
 ```
 
-2. Build your plugin
+#### 1.2. Build your plugin
 
 Assuming you're building tests for a standalone plugin, don't forget to also build that.
 
-3. Start the local environment
+#### 1.3. Start the local environment
 
 ```shell
 ## Decrypt default config file
-CONFIG_KEY=secret_key openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./node_modules/jetpack-e2e-commons/config/encrypted.enc -out ./node_modules/jetpack-e2e-commons/config/local-test.js
+CONFIG_KEY=secret_key openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./node_modules/jetpack-e2e-commons/config/encrypted.enc -out config/local-test.js
 
 ## Start and the Docker environment and configure
 pnpm e2e-env start
@@ -136,13 +134,21 @@ pnpm e2e-env start
 pnpm tunnel on 
 ```
 
-#### Run the tests
+#### 1.4. Run the tests
 
 ```shell
 NODE_CONFIG_DIR='./config' pnpm jest
 ```
 
-### Run the test against an external preconfigured site
+### 2. Use a remote preconfigured site
+
+#### 2.1. Add the test site details in the config file
+
+```js
+...
+```
+
+#### 2.2. Run the tests
 
 ```shell
 TEST_SITE=mySite NODE_CONFIG_DIR='./config' pnpm jest
