@@ -38,7 +38,7 @@ This is not a complete list as any argument passed here will be sent to as a que
 
 This will return the following URL: `https://jetpack.com/redirect?source=jetpack&anchor=section&query=foo%3Dbar`
 
-When accessing this URL, the user will redirected to: `https://jetpack.com/?foo=bar#section`
+When accessing this URL, the user will be redirected to: `https://jetpack.com/?foo=bar#section`
 
 ### Example 2 (placeholders):
 
