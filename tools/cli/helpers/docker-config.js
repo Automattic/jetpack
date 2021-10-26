@@ -177,9 +177,7 @@ const setMappings = ( argv, config ) => {
 
 	if ( argv.type === 'dev' ) {
 		mappingsCompose.services.sftp = {
-			volumes: volumesMapping.map( vol =>
-				vol.startsWith( '/var/www/html' ) ? '/home/wordpress' + vol : vol
-			),
+			volumes: volumesMapping.map( vol => vol.replace( ':', ':/home/wordpress' ) ),
 		};
 	}
 
