@@ -1370,21 +1370,6 @@ class Classic_Search {
 	}
 
 	/**
-	 * Set the search's facets (deprecated).
-	 *
-	 * @deprecated 5.0 Please use Jetpack_Search::set_filters() instead.
-	 *
-	 * @see        Jetpack_Search::set_filters()
-	 *
-	 * @param array $facets Array of facets to apply to the search.
-	 */
-	public function set_facets( array $facets ) {
-		_deprecated_function( __METHOD__, 'jetpack-5.0', 'Jetpack_Search::set_filters()' );
-
-		$this->set_filters( $facets );
-	}
-
-	/**
 	 * Get the raw Aggregation results from the Elasticsearch response.
 	 *
 	 * @since  5.0.0
@@ -1403,21 +1388,6 @@ class Classic_Search {
 		}
 
 		return $aggregations;
-	}
-
-	/**
-	 * Get the raw Facet results from the Elasticsearch response.
-	 *
-	 * @deprecated 5.0 Please use Jetpack_Search::get_search_aggregations_results() instead.
-	 *
-	 * @see        Jetpack_Search::get_search_aggregations_results()
-	 *
-	 * @return array Array of Facets performed on the search.
-	 */
-	public function get_search_facets() {
-		_deprecated_function( __METHOD__, 'jetpack-5.0', 'Jetpack_Search::get_search_aggregations_results()' );
-
-		return $this->get_search_aggregations_results();
 	}
 
 	/**
@@ -1698,21 +1668,6 @@ class Classic_Search {
 	}
 
 	/**
-	 * Get the results of the facets performed.
-	 *
-	 * @deprecated 5.0 Please use Jetpack_Search::get_filters() instead.
-	 *
-	 * @see        Jetpack_Search::get_filters()
-	 *
-	 * @return array $facets Array of facets applied and info about them.
-	 */
-	public function get_search_facet_data() {
-		_deprecated_function( __METHOD__, 'jetpack-5.0', 'Jetpack_Search::get_filters()' );
-
-		return $this->get_filters();
-	}
-
-	/**
 	 * Get the filters that are currently applied to this search.
 	 *
 	 * @since 5.0.0
@@ -1739,21 +1694,6 @@ class Classic_Search {
 		}
 
 		return $active_buckets;
-	}
-
-	/**
-	 * Get the filters that are currently applied to this search.
-	 *
-	 * @deprecated 5.0 Please use Jetpack_Search::get_active_filter_buckets() instead.
-	 *
-	 * @see        Jetpack_Search::get_active_filter_buckets()
-	 *
-	 * @return array Array of filters that were applied.
-	 */
-	public function get_current_filters() {
-		_deprecated_function( __METHOD__, 'jetpack-5.0', 'Jetpack_Search::get_active_filter_buckets()' );
-
-		return $this->get_active_filter_buckets();
 	}
 
 	/**

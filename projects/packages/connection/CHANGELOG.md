@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.30.10] - 2021-10-19
+### Deprecated
+- General: remove numerous long-deprecated functions.
+
+### Fixed
+- Fix permission check for authorization_url endpoint.
+
+## [1.30.9] - 2021-10-13
+### Changed
+- Updated package dependencies.
+
+## [1.30.8] - 2021-10-12
+### Added
+- Add a new action to the Client::remote_request method, jetpack_received_remote_request_response
+
+### Changed
+- Updated package dependencies
+
 ## [1.30.7] - 2021-10-04
 ### Added
 - Sandbox Server: add the sandbox-server class to the connection package.
@@ -428,6 +446,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[1.30.10]: https://github.com/Automattic/jetpack-connection/compare/v1.30.9...v1.30.10
+[1.30.9]: https://github.com/Automattic/jetpack-connection/compare/v1.30.8...v1.30.9
+[1.30.8]: https://github.com/Automattic/jetpack-connection/compare/v1.30.7...v1.30.8
 [1.30.7]: https://github.com/Automattic/jetpack-connection/compare/v1.30.6...v1.30.7
 [1.30.6]: https://github.com/Automattic/jetpack-connection/compare/v1.30.5...v1.30.6
 [1.30.5]: https://github.com/Automattic/jetpack-connection/compare/v1.30.4...v1.30.5

@@ -12,6 +12,7 @@ import {
 	ToggleControl,
 	ToolbarButton,
 	ToolbarGroup,
+	Tooltip,
 } from '@wordpress/components';
 import { compose, createHigherOrderComponent, withInstanceId } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
@@ -220,6 +221,24 @@ const VideoPressEdit = CoreVideoEdit =>
 				: null;
 		};
 
+		getPreloadHelp() {
+			const { attributes } = this.props;
+			return 'auto' === attributes.preload
+				? __(
+						'Note: Automatically downloading videos may cause issues if there are many videos displayed on the same page.',
+						'jetpack'
+				  )
+				: null;
+		}
+
+		renderControlLabelWithTooltip( label, tooltipText ) {
+			return (
+				<Tooltip text={ tooltipText } position="top">
+					<span>{ label }</span>
+				</Tooltip>
+			);
+		}
+
 		onChangeRating = rating => {
 			const { id } = this.props.attributes;
 			const originalRating = this.state.rating;
@@ -284,13 +303,21 @@ const VideoPressEdit = CoreVideoEdit =>
 					<InspectorControls>
 						<PanelBody title={ __( 'Video Settings', 'jetpack' ) }>
 							<ToggleControl
-								label={ __( 'Autoplay', 'jetpack' ) }
+								label={ this.renderControlLabelWithTooltip(
+									__( 'Autoplay', 'jetpack' ),
+									/* translators: Tooltip describing the "autoplay" option for the VideoPress player */
+									__( 'Start playing the video as soon as the page loads', 'jetpack' )
+								) }
 								onChange={ this.toggleAttribute( 'autoplay' ) }
 								checked={ autoplay }
 								help={ this.getAutoplayHelp }
 							/>
 							<ToggleControl
-								label={ __( 'Loop', 'jetpack' ) }
+								label={ this.renderControlLabelWithTooltip(
+									__( 'Loop', 'jetpack' ),
+									/* translators: Tooltip describing the "loop" option for the VideoPress player */
+									__( 'Restarts the video when it reaches the end', 'jetpack' )
+								) }
 								onChange={ this.toggleAttribute( 'loop' ) }
 								checked={ loop }
 							/>
@@ -300,17 +327,29 @@ const VideoPressEdit = CoreVideoEdit =>
 								checked={ muted }
 							/>
 							<ToggleControl
-								label={ __( 'Playback Controls', 'jetpack' ) }
+								label={ this.renderControlLabelWithTooltip(
+									__( 'Playback Controls', 'jetpack' ),
+									/* translators: Tooltip describing the "controls" option for the VideoPress player */
+									__( 'Display the video playback controls', 'jetpack' )
+								) }
 								onChange={ this.toggleAttribute( 'controls' ) }
 								checked={ controls }
 							/>
 							<ToggleControl
-								label={ __( 'Play Inline', 'jetpack' ) }
+								label={ this.renderControlLabelWithTooltip(
+									__( 'Play Inline', 'jetpack' ),
+									/* translators: Tooltip describing the "playsinline" option for the VideoPress player */
+									__( 'Play the video inline instead of full-screen on mobile devices', 'jetpack' )
+								) }
 								onChange={ this.toggleAttribute( 'playsinline' ) }
 								checked={ playsinline }
 							/>
 							<SelectControl
-								label={ __( 'Preload', 'jetpack' ) }
+								label={ this.renderControlLabelWithTooltip(
+									__( 'Preload', 'jetpack' ),
+									/* translators: Tooltip describing the "preload" option for the VideoPress player */
+									__( 'Content to dowload before the video is played', 'jetpack' )
+								) }
 								value={ preload }
 								onChange={ value => setAttributes( { preload: value } ) }
 								options={ [
@@ -321,6 +360,7 @@ const VideoPressEdit = CoreVideoEdit =>
 									},
 									{ value: 'none', label: _x( 'None', 'VideoPress preload setting', 'jetpack' ) },
 								] }
+								help={ this.getPreloadHelp() }
 							/>
 							<MediaUploadCheck>
 								<BaseControl
@@ -402,26 +442,36 @@ const VideoPressEdit = CoreVideoEdit =>
 				</Fragment>
 			);
 
-			if ( isUploading ) {
+			// If we're fetching the video, we need to display the "Generate preview..." message in the Loading block.
+			const isFetchingVideo = isFetchingMedia || isFetchingPreview;
+			const isVideoFallbackOrNotPreview = fallback || ! preview;
+			// If the video is uploading or fetching, we should display the Loading component.
+			const displayLoadingBlock = isUploading || isFetchingVideo;
+			// If the component is in fallback mode or not in preview mode, and we don't need to display the loading block,
+			// then we should display the CoreVideoEdit block
+			const displayCoreVideoBlock = isVideoFallbackOrNotPreview && ! displayLoadingBlock;
+			// If we need to display the CoreVideoEdit or Loading block, then we need to render them in the tree.
+			const renderCoreVideoAndLoadingBlocks = displayLoadingBlock || displayCoreVideoBlock;
+
+			// In order for the media placeholder to keep its state for error messages, we need to keep the CoreVideoEdit component in the tree during file uploads.
+			if ( renderCoreVideoAndLoadingBlocks ) {
 				return (
 					<Fragment>
-						{ blockSettings }
-						<Loading text={ __( 'Uploading…', 'jetpack' ) } />
+						<div className={ ! isUploading && ! isFetchingVideo ? 'videopress-block-hide' : '' }>
+							{ blockSettings }
+							<Loading
+								text={
+									isUploading
+										? __( 'Uploading…', 'jetpack' )
+										: __( 'Generating preview…', 'jetpack' )
+								}
+							/>
+						</div>
+						<div className={ ! displayCoreVideoBlock ? 'videopress-block-hide' : '' }>
+							<CoreVideoEdit { ...this.props } />
+						</div>
 					</Fragment>
 				);
-			}
-
-			if ( isFetchingMedia || isFetchingPreview ) {
-				return (
-					<Fragment>
-						{ blockSettings }
-						<Loading text={ __( 'Generating preview…', 'jetpack' ) } />
-					</Fragment>
-				);
-			}
-
-			if ( fallback || ! preview ) {
-				return <CoreVideoEdit { ...this.props } />;
 			}
 
 			const { html, scripts } = preview;

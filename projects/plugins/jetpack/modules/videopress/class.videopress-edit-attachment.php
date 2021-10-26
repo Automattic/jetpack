@@ -267,7 +267,7 @@ HTML;
 		if ( $info->display_embed ) {
 			$out .= ' checked="checked"';
 		}
-		$out .= ' />' . __( 'Display share menu and allow viewers to embed or download this video', 'jetpack' ) . '</label>';
+		$out .= ' />' . __( 'Display share menu and allow viewers to copy a link or embed this video', 'jetpack' ) . '</label>';
 		return $out;
 	}
 

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Sync Error Log to capture failed sync requests.

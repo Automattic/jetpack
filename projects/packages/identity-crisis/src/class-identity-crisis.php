@@ -28,7 +28,7 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.2.7-alpha';
+	const PACKAGE_VERSION = '0.3.0-alpha';
 
 	/**
 	 * Instance of the object.
@@ -283,6 +283,10 @@ class Identity_Crisis {
 			return $this->check_response_for_idc( $response_body['idc_detected'] );
 		}
 
+		if ( isset( $response_body['migrated_for_idc'] ) ) {
+			Jetpack_Options::delete_option( 'migrate_for_idc' );
+		}
+
 		return false;
 	}
 
@@ -476,8 +480,6 @@ class Identity_Crisis {
 
 			$returned_values[ $key ] = $normalized_url;
 		}
-
-		set_transient( 'jetpack_idc_option', $returned_values, MINUTE_IN_SECONDS );
 
 		return $returned_values;
 	}

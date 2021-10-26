@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Update Sync Unit Tests to reset settings modified during tests.

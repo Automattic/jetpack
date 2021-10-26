@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.0 - 2021-10-13
+### Added
+- Added link to the plugins list table for "Settings" to match other Jetpack plugins.
+- Plugin now disconnects Jetpack on deactivation if it's the last plugin using the connection.
+- Updated Backup plugin readme text and remove dummy tag.
+- Updated readme.md installation instructions.
+- Updated plugin menu structure.
+
+### Changed
+- Changed menu label.
+- Updated package dependencies.
+- Updated styles for buttons in backup panel and spacing for sections below.
+
+### Fixed
+- Adjust dashboard styling.
+
 ## 0.2.0 - 2021-08-18
 ### Added
 - Added Backup UI, placeholders, and supporting end points.
