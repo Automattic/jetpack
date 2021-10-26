@@ -32,13 +32,7 @@ Add this project as a dev dependency in your e2e tests project:
 pnpm add -D path/to/tools/e2e-commons
 ```
 
-pm2 is also required
-
-```shell
-pnpm add -D pm2
-```
-
-Optional, you can also add a `preinstall` script to install this project
+Optional, you can also add a `preinstall` script to install this project.
 
 ```shell
 "preinstall": "pnpm --prefix path/to/tools/e2e-commons install"
@@ -65,11 +59,16 @@ Assuming you're building tests for a standalone plugin, don't forget to also bui
 3. Start the local environment
 
 ```shell
-## env
-e2e-env start
+## Decrypt default config file
+pnpm 
 
-## tunnel
+## Start and the Docker environment and configure
+pnpm e2e-env start
+
+## Create a tunnel
+pnpm tunnel on 
 ```
+
 #### Run the test
 
 ```shell
