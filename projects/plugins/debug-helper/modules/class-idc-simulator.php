@@ -26,6 +26,11 @@ class IDC_Simulator {
 	const STORED_OPTIONS_KEY = 'idc_simulator_stored_options';
 
 	/**
+	 * Request option key.
+	 */
+	const REQUESTS_OPTION_KEY = 'idc_simulator_requests_option';
+
+	/**
 	 * IDC_Simulator constructor.
 	 */
 	public function __construct() {
@@ -162,7 +167,100 @@ class IDC_Simulator {
 		<pre><?php var_dump( get_transient( 'jetpack_idc_local' ) ); //phpcs:ignore ?></pre>
 
 		<hr>
+		<hr>
+
 		<?php
+		$this->display_last_five_requests();
+	}
+
+	/**
+	 * Displays the last five authenticated remote requests to WPCOM.
+	 */
+	private function display_last_five_requests() {
+		?>
+		<h3>Last Five Authenticated Remote Requests (the most recent request is at the top)</h3>
+		<style>
+				.requests-table,
+				.requests-table th,
+				.requests-table td {
+					padding: 10px;
+					border: 1px solid grey;
+					border-collapse: collapse;
+				}
+
+				.requests-table .requests-table-url-header {
+					width: 500px;
+				}
+
+				.requests-table .requests-table-response-header {
+					width: 120px;
+				}
+
+				.requests-table .requests-table-url{
+					word-break: break-all;
+				}
+
+				.requests-table .requests-table-response{
+					text-align: center;
+				}
+
+
+		</style>
+		<table class='requests-table'>
+			<thead>
+				<tr>
+					<th class="requests-table-url-header">Request URL</th>
+					<th class="requests-table-response-header">idc_detected</th>
+					<th class="requests-table-response-header">migrated_for_idc</th>
+				</tr>
+			</thead>
+
+		<?php
+		$requests = get_option( self::REQUESTS_OPTION_KEY, array() );
+
+		foreach ( $requests as $request ) {
+			$idc_detected     = empty( $request['idc_detected'] ) ? 'false' : 'true';
+			$migrated_for_idc = empty( $request['migrated_for_idc'] ) ? 'false' : 'true';
+			?>
+			<tr>
+				<td class="requests-table-url"><?php echo esc_html( $request['url'] ); ?></td>
+				<td class="requests-table-response"><?php echo esc_html( $idc_detected ); ?>
+				<td class="requests-table-response"><?php echo esc_html( $migrated_for_idc ); ?></td>
+			</tr>
+			<?php
+		}
+		?>
+
+		</table>
+		<p>Note that only REST requests will return the <code>idc_detected</code> and <code>migrated_for_idc</code> values. Sync's xmlrpc requests return data in a different way.</p>
+		<?php
+	}
+
+	/**
+	 * Intercept the authenticated remote request responses and store the url and IDC responses.
+	 *
+	 * @param array|WP_Error $response The HTTP response.
+	 */
+	public static function intercept_request_response( $response ) {
+		if ( ! is_array( $response ) ) {
+			return;
+		}
+
+		$request_option = get_option( self::REQUESTS_OPTION_KEY, array() );
+
+		$response_body = json_decode( wp_remote_retrieve_body( $response ), true );
+		$response      = array(
+			'url'              => $response['http_response']->get_response_object()->url,
+			'idc_detected'     => isset( $response_body['idc_detected'] ) ? $response_body['idc_detected'] : false,
+			'migrated_for_idc' => isset( $response_body['migrated_for_idc'] ) ? $response_body['migrated_for_idc'] : false,
+		);
+
+		array_unshift( $request_option, $response );
+		if ( count( $request_option ) > 5 ) {
+			array_pop( $request_option );
+		}
+
+		update_option( self::REQUESTS_OPTION_KEY, $request_option );
 	}
 
 	/**
@@ -218,6 +316,7 @@ class IDC_Simulator {
 	public static function early_init() {
 		add_filter( 'jetpack_sync_site_url', array( 'IDC_Simulator', 'spoof_url' ) );
 		add_filter( 'jetpack_sync_home_url', array( 'IDC_Simulator', 'spoof_url' ) );
+		add_action( 'jetpack_received_remote_request_response', array( 'IDC_Simulator', 'intercept_request_response' ) );
 	}
 
 	/**
