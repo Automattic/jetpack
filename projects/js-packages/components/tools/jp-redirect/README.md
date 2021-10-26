@@ -6,7 +6,10 @@ If you are an automattician, refer to PCYsg-pY7-p2 for all related information a
 
 ## Usage
 
-`getRedirectUrl( required source, optional args );`
+```jsx
+import { getRedirectUrl } from '@automattic/jetpack-components';
+getRedirectUrl( source, args );
+```
 
 ### source (required)
 
