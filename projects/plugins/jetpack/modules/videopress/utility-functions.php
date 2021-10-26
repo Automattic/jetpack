@@ -708,7 +708,7 @@ function jetpack_videopress_flash_embed_filter( $content ) {
  * @return bool
  */
 function videopress_is_valid_video_rating( $rating ) {
-	return in_array( $rating, array( 'G', 'PG-13', 'R-17', 'X-18' ), true );
+	return in_array( $rating, array( 'G', 'PG-13', 'R-17' ), true );
 }
 
 add_filter( 'the_content', 'jetpack_videopress_flash_embed_filter', 7 ); // Needs to be priority 7 to allow Core to oEmbed.

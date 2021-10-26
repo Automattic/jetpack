@@ -63,6 +63,7 @@ const renderCard = props => (
 class DashSearch extends Component {
 	static propTypes = {
 		getOptionValue: PropTypes.func.isRequired,
+		trackUpgradeBanner: PropTypes.func,
 
 		// Connected props
 		isOfflineMode: PropTypes.bool.isRequired,
@@ -72,6 +73,7 @@ class DashSearch extends Component {
 	static defaultProps = {
 		getOptionValue: noop,
 		isOfflineMode: false,
+		trackUpgradeBanner: noop,
 	};
 
 	trackSearchLink() {
@@ -121,6 +123,7 @@ class DashSearch extends Component {
 						path="dashboard"
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SEARCH_JETPACK ) }
 						icon="search"
+						trackBannerDisplay={ this.props.trackUpgradeButtonView }
 					/>
 				) : (
 					<JetpackBanner

@@ -90,7 +90,7 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 
 		$return_value = $client_server->deactivate_plugin( 'herp', 'derp' );
 
-		$this->assertEquals( $return_value, 0 );
+		$this->assertSame( 0, $return_value );
 	}
 
 	/**
