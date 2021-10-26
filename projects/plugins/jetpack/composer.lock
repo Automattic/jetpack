@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0e93f4aee3c676e8e6505ab0c21432c3",
+    "content-hash": "8b1a351c2fa09fd41ff0cc6c21951bd1",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -232,11 +232,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "52904fe1dcbc97497db4c3c3d8311dfb746da082"
+                "reference": "3004cd93220280ec924cdb2cc6d42b9ff71a1f1e"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.30",
-                "automattic/jetpack-sync": "^1.26"
+                "automattic/jetpack-sync": "^1.27"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -738,7 +738,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "a3c652c7125446cf95e3cfa75b33f262d95e572a"
+                "reference": "a9cabeec4cf44cc53b5dda1e726b55444f1b0d2e"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.30",
@@ -764,7 +764,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-identity-crisis/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "0.2.x-dev"
+                    "dev-master": "0.3.x-dev"
                 }
             },
             "autoload": {
@@ -1360,13 +1360,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "bd28b3296769113bdacf4af5a5a669717aeb4d56"
+                "reference": "ed861caa2a15b673f0e48b4ce75a7835541abf3f"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.30",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-heartbeat": "^1.3",
-                "automattic/jetpack-identity-crisis": "^0.2",
+                "automattic/jetpack-identity-crisis": "^0.3",
                 "automattic/jetpack-options": "^1.13",
                 "automattic/jetpack-password-checker": "^0.1",
                 "automattic/jetpack-roles": "^1.4",
@@ -1388,7 +1388,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.26.x-dev"
+                    "dev-master": "1.27.x-dev"
                 }
             },
             "autoload": {
@@ -1606,6 +1606,54 @@
         }
     ],
     "packages-dev": [
+        {
+            "name": "antecedent/patchwork",
+            "version": "2.1.17",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/antecedent/patchwork.git",
+                "reference": "df5aba175a44c2996ced4edf8ec9f9081b5348c0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/antecedent/patchwork/zipball/df5aba175a44c2996ced4edf8ec9f9081b5348c0",
+                "reference": "df5aba175a44c2996ced4edf8ec9f9081b5348c0",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": ">=4"
+            },
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ignas Rudaitis",
+                    "email": "ignas.rudaitis@gmail.com"
+                }
+            ],
+            "description": "Method redefinition (monkey-patching) functionality for PHP.",
+            "homepage": "http://patchwork2.org/",
+            "keywords": [
+                "aop",
+                "aspect",
+                "interception",
+                "monkeypatching",
+                "redefinition",
+                "runkit",
+                "testing"
+            ],
+            "support": {
+                "issues": "https://github.com/antecedent/patchwork/issues",
+                "source": "https://github.com/antecedent/patchwork/tree/2.1.17"
+            },
+            "time": "2021-10-21T14:22:43+00:00"
+        },
         {
             "name": "automattic/jetpack-changelogger",
             "version": "dev-master",
@@ -3569,6 +3617,7 @@
                     "type": "github"
                 }
             ],
+            "abandoned": true,
             "time": "2020-09-28T06:45:17+00:00"
         },
         {

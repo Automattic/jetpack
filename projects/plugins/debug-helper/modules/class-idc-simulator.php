@@ -46,22 +46,39 @@ class IDC_Simulator {
 	 *
 	 * @param string $url the siteurl value.
 	 */
-	public static function spoof_siteurl( $url ) {
+	public static function spoof_url( $url ) {
 		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) {
 			return $url;
 		}
 
-		$settings                   = self::get_stored_settings();
-		$settings['idc_simulation'] = $settings['idc_simulation'] ?
-			true : false;
-		$settings['idc_siteurl']    = ( ! empty( $settings['idc_siteurl'] ) && is_string( $settings['idc_siteurl'] ) ) ?
-			$settings['idc_siteurl'] : 'https://example.org/';
+		$settings = self::get_stored_settings();
 
-		if ( false === $settings['idc_simulation'] ) {
+		if ( ! $settings['idc_simulation'] || ! self::should_spoof_url( $settings ) ) {
 			return $url;
 		}
 
+		$settings['idc_siteurl'] = ( ! empty( $settings['idc_siteurl'] ) && is_string( $settings['idc_siteurl'] ) ) ?
+			$settings['idc_siteurl'] : 'https://example.org/';
+
 		return $settings['idc_siteurl'];
+	}
+
+	/**
+	 * Determines whether the filtered url should be spoofed based on the IDC simulator settings.
+	 *
+	 * @param array $settings The IDC simulator settings.
+	 *
+	 * @return bool Whether the filtered siteurl or home values should be spoofed.
+	 */
+	public static function should_spoof_url( $settings ) {
+		$filter_name = current_filter();
+
+		if ( ( 'jetpack_sync_site_url' === $filter_name && ! $settings['idc_spoof_siteurl'] )
+			|| ( 'jetpack_sync_home_url' === $filter_name && ! $settings['idc_spoof_home'] ) ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -100,8 +117,8 @@ class IDC_Simulator {
 		<p>Cause an IDC on your site without having to clone it</p>
 
 		<h2>Current ICD simulation settings:</h2>
-		<p>Site URL spoofing: <?php echo esc_html( $settings['idc_simulation'] ); ?></p>
-		<p>Site URL value: <?php echo esc_html( $settings['idc_siteurl'] ); ?></p>
+		<p>URL spoofing: <?php echo esc_html( $settings['idc_simulation'] ); ?></p>
+		<p>URL value: <?php echo esc_html( $settings['idc_siteurl'] ); ?></p>
 
 		<hr>
 
@@ -122,6 +139,13 @@ class IDC_Simulator {
 				<th scope="row"><label for="idc_siteurl">Spoof URL</label></th>
 				<td><input name="idc_siteurl" type="text" id="blogname" value="<?php echo esc_attr( $settings['idc_siteurl'] ); ?>" class="regular-text"></td>
 			</tr>
+			<tr>
+				<th scope="row">URLs to spoof</th>
+				<td>
+					<label><input type="checkbox" name="idc_spoof_siteurl" <?php echo ( $settings['idc_spoof_siteurl'] ? 'checked="checked"' : '' ); ?>> Site URL</label><br>
+					<label><input type="checkbox" name="idc_spoof_home" <?php echo ( $settings['idc_spoof_home'] ? 'checked="checked"' : '' ); ?>> Home URL</label><br>
+				</td>
+			</tr>
 
 			</tbody>
 			</table>
@@ -137,9 +161,6 @@ class IDC_Simulator {
 		<h3>jetpack_idc_local</h3>
 		<pre><?php var_dump( get_transient( 'jetpack_idc_local' ) ); //phpcs:ignore ?></pre>
 
-		<h3>jetpack_idc_option</h3>
-		<pre><?php var_dump( get_transient( 'jetpack_idc_option' ) ); //phpcs:ignore ?></pre>
-
 		<hr>
 		<?php
 	}
@@ -153,8 +174,10 @@ class IDC_Simulator {
 		update_option(
 			self::STORED_OPTIONS_KEY,
 			array(
-				'idc_siteurl'    => $_POST['idc_siteurl'],
-				'idc_simulation' => $_POST['idc_simulation'],
+				'idc_siteurl'       => $_POST['idc_siteurl'],
+				'idc_simulation'    => $_POST['idc_simulation'],
+				'idc_spoof_siteurl' => isset( $_POST['idc_spoof_siteurl'] ) ? true : false,
+				'idc_spoof_home'    => isset( $_POST['idc_spoof_home'] ) ? true : false,
 			)
 		);
 
@@ -181,8 +204,10 @@ class IDC_Simulator {
 		return wp_parse_args(
 			get_option( self::STORED_OPTIONS_KEY ),
 			array(
-				'idc_siteurl'    => '',
-				'idc_simulation' => false,
+				'idc_siteurl'       => '',
+				'idc_simulation'    => false,
+				'idc_spoof_siteurl' => true,
+				'idc_spoof_home'    => true,
 			)
 		);
 	}
@@ -191,7 +216,8 @@ class IDC_Simulator {
 	 * Early initialization needed for some option value spoofing.
 	 */
 	public static function early_init() {
-		add_filter( 'jetpack_sync_site_url', array( 'IDC_Simulator', 'spoof_siteurl' ) );
+		add_filter( 'jetpack_sync_site_url', array( 'IDC_Simulator', 'spoof_url' ) );
+		add_filter( 'jetpack_sync_home_url', array( 'IDC_Simulator', 'spoof_url' ) );
 	}
 
 	/**
