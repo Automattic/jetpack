@@ -30,43 +30,54 @@ describe( 'PricingCard', () => {
 		const wrapper = shallow( renderer.getRenderOutput() );
 
 		it( 'renders the title', () => {
-			expect( wrapper.find( '.pricing__card--title' ).render().text() ).to.be.equal(
+			expect( wrapper.find( '.jp-components__pricing-card__title' ).render().text() ).to.be.equal(
 				'Dummy Pricing Card'
 			);
 		} );
 
 		it( 'renders the icon', () => {
-			expect( wrapper.find( '.pricing__card--icon img' ).prop( 'src' ) ).to.be.equal(
+			expect( wrapper.find( '.jp-components__pricing-card__icon img' ).prop( 'src' ) ).to.be.equal(
 				'dummy_icon'
 			);
 		} );
 
 		it( 'renders the price before', () => {
 			expect(
-				wrapper.find( '.pricing__card--price-before .pricing__card--price' ).render().text()
+				wrapper
+					.find( '.jp-components__pricing-card__price-before .jp-components__pricing-card__price' )
+					.render()
+					.text()
 			).to.be.equal( '9' );
 		} );
 
 		it( 'renders the integer portion of the price after', () => {
 			expect(
-				wrapper.find( '.pricing__card--price-after .pricing__card--price' ).render().text()
+				wrapper
+					.find( '.jp-components__pricing-card__price-after .jp-components__pricing-card__price' )
+					.render()
+					.text()
 			).to.be.equal( '4' );
 		} );
 
 		it( 'renders the decimal portion of the price after', () => {
 			expect(
-				wrapper.find( '.pricing__card--price-after .pricing__card--price-decimal' ).render().text()
+				wrapper
+					.find(
+						'.jp-components__pricing-card__price-after .jp-components__pricing-card__price-decimal'
+					)
+					.render()
+					.text()
 			).to.be.equal( '.50' );
 		} );
 
 		it( 'renders the CTA button', () => {
-			expect( wrapper.find( '.pricing__card--button' ).render().text() ).to.be.equal(
+			expect( wrapper.find( '.jp-components__pricing-card__button' ).render().text() ).to.be.equal(
 				'Get Dummy Offer'
 			);
 		} );
 
 		it( 'renders the info text', () => {
-			expect( wrapper.find( '.pricing__card--info' ).render().text() ).to.be.equal(
+			expect( wrapper.find( '.jp-components__pricing-card__info' ).render().text() ).to.be.equal(
 				'Dummy Info Text'
 			);
 		} );
