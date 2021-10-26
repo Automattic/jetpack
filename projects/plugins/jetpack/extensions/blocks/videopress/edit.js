@@ -88,9 +88,13 @@ const VideoPressEdit = CoreVideoEdit =>
 		setRating = async () => {
 			const id = get( this.props, 'attributes.id' );
 			const media = await this.requestMedia( id );
-			const rating = get( media, 'jetpack_videopress.rating' );
+			let rating = get( media, 'jetpack_videopress.rating' );
 
 			if ( rating ) {
+				// X-18 was previously supported but is now removed to better comply with our TOS.
+				if ( 'X-18' === rating ) {
+					rating = 'R-17';
+				}
 				this.setState( { rating } );
 			}
 		};
@@ -247,7 +251,12 @@ const VideoPressEdit = CoreVideoEdit =>
 				return;
 			}
 
-			if ( -1 === indexOf( [ 'G', 'PG-13', 'R-17', 'X-18' ], rating ) ) {
+			// X-18 was previously supported but is now removed to better comply with our TOS.
+			if ( 'X-18' === rating ) {
+				rating = 'R-17';
+			}
+
+			if ( -1 === indexOf( [ 'G', 'PG-13', 'R-17' ], rating ) ) {
 				return;
 			}
 
@@ -429,10 +438,6 @@ const VideoPressEdit = CoreVideoEdit =>
 											'jetpack'
 										),
 										value: 'R-17',
-									},
-									{
-										label: _x( 'X', 'Video rating for "Explicit" content.', 'jetpack' ),
-										value: 'X-18',
 									},
 								] }
 								onChange={ this.onChangeRating }
