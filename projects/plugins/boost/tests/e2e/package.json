@@ -18,10 +18,10 @@
 		"env-start": "e2e-env start --activate-plugins boost",
 		"env-stop": "e2e-env stop",
 		"env-reset": "e2e-env reset --activate-plugins boost",
-		"tunnel-on": "pm2 start ./node_modules/jetpack-e2e-commons/config/ecosystem.config.js && pm2 logs --nostream --lines 4",
-		"tunnel-reset": "rm -rf config/tmp && pnpm run tunnel-on",
-		"tunnel-off": "pm2 delete ./node_modules/jetpack-e2e-commons/config/ecosystem.config.js && NODE_ENV=test tunnel off",
-		"tunnel-write-logs": "pm2 logs --nostream --lines 10000 > output/logs/tunnel.log",
+		"tunnel-on": "tunnel up",
+		"tunnel-reset": "tunnel reset",
+		"tunnel-off": "tunnel down",
+		"tunnel-write-logs": "tunnel logs output/logs/tunnel.log",
 		"pretest-e2e": "pnpm run clean",
 		"test-e2e": ". ./node_modules/jetpack-e2e-commons/bin/app-password.sh && NODE_CONFIG_DIR='./config' jest --config jest.config.js --runInBand --verbose --detectOpenHandles --json --outputFile=output/summary.json",
 		"test-decrypt-config": "openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./node_modules/jetpack-e2e-commons/config/encrypted.enc -out ./config/local-test.js",
@@ -39,9 +39,8 @@
 		"jest": "^27.2.4",
 		"jest-junit": "^12.3.0",
 		"jest-runner-groups": "^2.1.0",
-		"jetpack-cli": "link:../../../../../tools/cli",
-		"jetpack-e2e-commons": "link:../../../../../tools/e2e-commons",
-		"pm2": "^5.1.2"
+	  	"jetpack-cli": "link:../../../../../tools/cli",
+		"jetpack-e2e-commons": "link:../../../../../tools/e2e-commons"
 	},
 	"engines": {
 		"node": "^14.17.6 || ^16.7.0",

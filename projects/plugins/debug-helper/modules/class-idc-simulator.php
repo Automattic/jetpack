@@ -164,6 +164,16 @@ class IDC_Simulator {
 				</td>
 			</tr>
 
+			<tr>
+				<th scope="row">Sync</th>
+				<td>
+					<fieldset><legend class="screen-reader-text"><span>Control Whether Sync is Enabled</span></legend>
+					<label><input type="radio" name="idc_sync_status" value="1" <?php echo ( $settings['idc_sync_status'] ? 'checked="checked"' : '' ); ?>> enabled</label><br>
+					<label><input type="radio" name="idc_sync_status" value="0" <?php echo ( ! $settings['idc_sync_status'] ? 'checked="checked"' : '' ); ?>> disabled</label><br>
+					</fieldset>
+				</td>
+			</tr>
+
 			</tbody>
 			</table>
 
@@ -178,12 +188,32 @@ class IDC_Simulator {
 		<?php $this->display_request_button(); ?>
 
 		<hr>
+		<hr>
 
-		<h2>Current IDC transient values</h2>
-		<h3>jetpack_idc_local</h3>
+		<?php $this->display_idc_transients_options(); ?>
+
+		<?php
+	}
+
+	/**
+	 * Display the IDC transient and option values.
+	 */
+	private function display_idc_transients_options() {
+		?>
+		<h2>Information about IDC</h2>
+		<h3>Current IDC transient values</h3>
+		<h4>jetpack_idc_local</h4>
 		<pre><?php var_dump( get_transient( 'jetpack_idc_local' ) ); //phpcs:ignore ?></pre>
 
 		<hr>
+
+		<h3>Current IDC option values</h3>
+		<h4>jetpack_sync_error_idc</h4>
+		<pre><?php var_dump( get_option( 'jetpack_sync_error_idc' ) ); //phpcs:ignore ?></pre>
+		<h4>jetpack_migrate_for_idc</h4>
+		<pre><?php var_dump( get_option( 'jetpack_migrate_for_idc' ) ); //phpcs:ignore ?></pre>
+		<h4>jetpack_safe_mode_confirmed</h4>
+		<pre><?php var_dump( get_option( 'jetpack_safe_mode_confirmed' ) ); //phpcs:ignore ?></pre>
 
 		<?php
 	}
@@ -202,6 +232,7 @@ class IDC_Simulator {
 				<?php wp_nonce_field( 'idc-send-remote-request' ); ?>
 			<input type="submit" value="Send Remote Request" class="button button-primary">
 		</form>
+
 		<?php
 	}
 
@@ -218,6 +249,7 @@ class IDC_Simulator {
 				'idc_simulation'    => $_POST['idc_simulation'],
 				'idc_spoof_siteurl' => isset( $_POST['idc_spoof_siteurl'] ) ? true : false,
 				'idc_spoof_home'    => isset( $_POST['idc_spoof_home'] ) ? true : false,
+				'idc_sync_status'   => $_POST['idc_sync_status'],
 			)
 		);
 
@@ -325,6 +357,7 @@ class IDC_Simulator {
 				'idc_simulation'    => false,
 				'idc_spoof_siteurl' => true,
 				'idc_spoof_home'    => true,
+				'idc_sync_status'   => true,
 			)
 		);
 	}
@@ -335,6 +368,13 @@ class IDC_Simulator {
 	public static function early_init() {
 		add_filter( 'jetpack_sync_site_url', array( 'IDC_Simulator', 'spoof_url' ) );
 		add_filter( 'jetpack_sync_home_url', array( 'IDC_Simulator', 'spoof_url' ) );
+
+		$settings = self::get_stored_settings();
+
+		if ( ! $settings['idc_sync_status'] ) {
+			// Turn Sync off.
+			add_filter( 'option_jetpack_sync_settings_disable', '__return_true' );
+		}
 	}
 
 	/**
