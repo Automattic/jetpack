@@ -133,6 +133,25 @@ class Jetpack_Stats_Upgrade_Nudges {
 	}
 
 	/**
+	 * Determines whether the Site has a specific product.
+	 *
+	 * @param string $target_product_slug The product slug we are looking for.
+	 *
+	 * @return boolean
+	 */
+	private static function has_product( $target_product_slug ) {
+		$site_products_slugs = array_column( Jetpack_Plan::get_products(), 'product_slug' );
+
+		foreach ( $site_products_slugs as $product_slug ) {
+			if ( wp_startswith( $product_slug, $target_product_slug ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Determines whether Akismet is active
 	 *
 	 * @return boolean
@@ -449,6 +468,18 @@ class Jetpack_Stats_Upgrade_Nudges {
 	}
 
 	/**
+	 * Prints the VideoPress item
+	 *
+	 * @return void
+	 */
+	private static function print_videopress() {
+		$link       = self::get_product_description_link( 'videopress' );
+		$learn_link = self::get_upgrade_link( 'stats-nudges-videopress-learn' );
+		$text       = __( 'Engage your visitors with high-quality, ad-free videos built specifically for WordPress.', 'jetpack' );
+		self::print_item( __( 'VideoPress', 'jetpack' ), $text, 'product-jetpack-videopress.svg', $link, 'videopress', $learn_link );
+	}
+
+	/**
 	 * Prints the Boost item
 	 *
 	 * @param bool $print Whether to print the item output or just check whether it would be printed or not.
@@ -541,6 +572,9 @@ class Jetpack_Stats_Upgrade_Nudges {
 		}
 		if ( ! self::is_search_active() ) {
 			self::print_search();
+		}
+		if ( ! self::has_product( 'jetpack_videopress' ) ) {
+			self::print_videopress();
 		}
 		self::get_boost_output();
 		self::get_crm_output();

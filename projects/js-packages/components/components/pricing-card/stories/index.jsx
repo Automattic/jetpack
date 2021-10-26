@@ -34,6 +34,6 @@ const DefaultArgs = {
 	onCtaClick: action( 'onCtaClick' ),
 };
 
-// Export Default story using knobs
+// Export Default story
 export const _default = Template.bind( {} );
 _default.args = DefaultArgs;

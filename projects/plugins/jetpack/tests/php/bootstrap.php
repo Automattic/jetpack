@@ -5,6 +5,9 @@
  * @package automattic/jetpack
  */
 
+// Catch `exit()` and `die()` so they won't make PHPUnit exit.
+require __DIR__ . '/redefine-exit.php';
+
 /**
  * For tests that should be skipped in Jetpack but run in WPCOM (or vice versa), test against this constant.
  *

@@ -395,8 +395,6 @@ function stats_upgrade_options( $options ) {
 		return false;
 	}
 
-	stats_update_blog();
-
 	return $new_options;
 }
 
@@ -943,12 +941,18 @@ function stats_admin_bar_menu( &$wp_admin_bar ) {
 }
 
 /**
+ *
+ * Deprecated. The stats module should not update blog details. This is handled by Sync.
+ *
  * Stats Update Blog.
  *
  * @access public
  * @return void
+ *
+ * @deprecated since 10.3.
  */
 function stats_update_blog() {
+	deprecated_function( __METHOD__, 'jetpack-10.3' );
 	XMLRPC_Async_Call::add_call( 'jetpack.updateBlog', 0, stats_get_blog() );
 }
 
