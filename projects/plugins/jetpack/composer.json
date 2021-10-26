@@ -101,7 +101,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ10_3_a_4"
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ10_3_beta"
 	},
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-production",
