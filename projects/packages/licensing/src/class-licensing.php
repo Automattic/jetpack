@@ -146,6 +146,41 @@ class Licensing {
 	}
 
 	/**
+ 	 * Attach the given license.
+ 	 *
+ 	 * @param string $license Licenses to attach.
+ 	 * @return array|WP_Error Results the license (which may include WP_Error instances) or a WP_Error instance.
+ 	 */
+	  public function attach_license( $license ) {
+		if ( ! $this->connection()->has_connected_owner() ) {
+			return new WP_Error( 'not_connected', __( 'Jetpack doesn\'t have a connected owner.', 'jetpack' ) );
+		}
+
+		$xml = new Jetpack_IXR_ClientMulticall();
+		$xml->addCall( 'jetpack.attachLicense', $license );
+		$xml->query();
+
+		if ( $xml->isError() ) {
+			$error = new WP_Error( 'request_failed', __( 'License attach request failed.', 'jetpack' ) );
+			$error->add( $xml->getErrorCode(), $xml->getErrorMessage() );
+			return $error;
+		}
+
+		$response = $xml->getResponse();
+		$response = array_shift( $response );
+
+		if ( is_null( $response ) ) {
+			return new WP_Error( 'no_result', '' );
+		}
+
+		if ( isset( $response['faultCode'] ) || isset( $response['faultString'] ) ) {
+			return new WP_Error( $response['faultCode'], $response['faultString'] );
+		}
+
+		return array_shift( $response );
+	}
+
+	/**
 	 * Attach the given licenses.
 	 *
 	 * @param string[] $licenses Licenses to attach.
