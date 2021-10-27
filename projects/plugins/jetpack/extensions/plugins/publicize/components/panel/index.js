@@ -115,12 +115,15 @@ const PublicizePanel = ( { prePublish } ) => {
 
 	// Panel wrapper.
 	const PanelWrapper = prePublish ? Fragment : PanelBody;
+	const wrapperProps = prePublish
+		? {}
+		: {
+				title: __( 'Share this post', 'jetpack' ),
+				className: isPublicizeDisabledBySitePlan ? 'jetpack-publicize-disabled' : '',
+		  };
 
 	return (
-		<PanelWrapper
-			title={ __( 'Share this post', 'jetpack' ) }
-			className={ isPublicizeDisabledBySitePlan ? 'jetpack-publicize-disabled' : '' }
-		>
+		<PanelWrapper { ...wrapperProps }>
 			<div>
 				{ getPanelDescription(
 					isPostPublished,
