@@ -141,6 +141,7 @@ We use `composer.json` to hold metadata about projects. Much of our generic tool
     ```
 * `.extra.wp-plugin-slug`: This specifies the WordPress.org plugin slug, for use by scripts that deploy the plugin to WordPress.org.
   * `.extra.beta-plugin-slug`: This specifies the plugin slug for the Jetpack Beta Tester plugin, for cases where a plugin has not been published to WordPress.org but should still be offered by that plugin.
+* `.extra.wp-svn-autopublish`: Set truthy to enable automatic publishing of tagged versions to WordPress.org. See [Mirror repositories > WordPress.org SVN Auto-publisher](#wordpressorg-svn-auto-publisher) for details.
 
 Our mirroring tooling also uses `.gitattributes` to specify built files to include in the mirror and unnecessary files to exclude.
 
@@ -291,6 +292,15 @@ Note the following will also be done by the build process:
 
 Before you create the first release tag, you may want to check out the mirror and run `npm publish --dry-run` to ensure that only the files you want published will be published.
 If additional files need to be excluded, create an `.npmignore`.
+
+### WordPress.org SVN Auto-publisher
+
+If `.extra.wp-svn-autopublish` is set to a truthy value in the project's `composer.json`, a GitHub Action will be included in the mirror repo that will automatically publish tags to WordPress.org's SVN when a version tag is created. This works with Autotagger.
+
+Note that, for this to work, you'll need to create secrets `WPSVN_USERNAME` and `WPSVN_PASSWORD` in the mirror repo. See PCYsg-xsv-p2#mirror-repo-secrets for details.
+Also note that `.extra.wp-plugin-slug` must be set in the project's `composer.json` or the action will fail.
+
+The action will update the plugin's trunk to the tagged source and will create a tag in SVN for the tagged version. If the tagged version does not have a prerelease component, the "Stable tag" field in the tag's readme.txt will be updated too. The "Stable tag" in trunk will not be updated; this must be done manually.
 
 ## Plugin release tooling
 
