@@ -8,11 +8,6 @@
 		"yoast/phpunit-polyfills": "1.0.2",
 		"automattic/jetpack-changelogger": "^3.0"
 	},
-	"autoload": {
-		"classmap": [
-			"src/"
-		]
-	},
 	"scripts": {
 		"test-js": [
 			"Composer\\Config::disableProcessTimeout",
