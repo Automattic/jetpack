@@ -6,6 +6,7 @@ use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Licensing;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Register WP REST API endpoints for Jetpack.
@@ -1578,7 +1579,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$scan_state = self::scan_state();
 
 		if ( ! is_wp_error( $scan_state ) ) {
-			if ( jetpack_is_atomic_site() && ! empty( $scan_state->threats ) ) {
+			if ( ( new Host() )->is_woa_site() && ! empty( $scan_state->threats ) ) {
 				$scan_state->threats = array();
 			}
 			return rest_ensure_response(
