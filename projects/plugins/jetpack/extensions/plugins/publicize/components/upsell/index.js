@@ -22,16 +22,21 @@ export default function UpsellNotice( { isPostPublished } ) {
 	const requiredPlan = getRequiredPlan( 'republicize' );
 	const [ checkoutUrl, goToCheckoutPage, isRedirecting, planData ] = useUpgradeFlow( requiredPlan );
 
-	// Nothing to show here. Move on...
+	/*
+	 * When post is not published,
+	 * there is nothing to show here. Move on...
+	 */
 	if ( ! isPostPublished ) {
 		return null;
 	}
 
-	/*
-	 * Do not render either when the feature is not enabled,
-	 * or when the feature is enabled and not upgradable.
-	 */
-	if ( ! isRePublicizeFeatureEnabled || ! isRePublicizeFeatureUpgradable ) {
+	// Bail early with null when feature flag is not enabled.
+	if ( ! isRePublicizeFeatureEnabled ) {
+		return null;
+	}
+
+	// Bail early when the feature is not upgradable.
+	if ( ! isRePublicizeFeatureUpgradable ) {
 		return null;
 	}
 
