@@ -1,7 +1,7 @@
 @import '../rna-styles';
 
 // Used to show cards in the disconnection flow for active plugins and site benefits.
-.jp-disconnect-card {
+.jp-connection__disconnect-card {
 	background-color: var( --jp-white );
 	width: 800px;
 	max-width: 100%;
@@ -14,72 +14,72 @@
 	margin-top: 0;
 	margin-bottom: 1rem;
 	text-align: left;
-}
 
-.jp-disconnect-card__group {
-	margin-bottom: 1rem;
-	max-width: 100%;
-}
-
-.jp-disconnect-card__card-content {
-	display: block;
-	font-size: 0.875rem;
-
-	@media only screen and (min-width: 782px) {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-	}
-}
-
-.jp-disconnect-card__card-headline,
-.jp-disconnect-card .jp-disconnect-card__card-headline { // Override rule from disconnect-modal
-	font-size: 1.25rem;
-	font-weight: 600;
-	margin-top: 0;
-	flex-shrink: 0;
-	margin-bottom: 0;
-
-	@media only screen and (min-width: 782px) {
-		font-size: 1.5rem;
-		margin-right: 1.5rem;
+	&__group {
+		margin-bottom: 1rem;
+		max-width: 100%;
 	}
 
-	// smaller screens
-	@media only screen and (max-width: 782px) {
-		// When a headline is above a stats block, add some space.
-		& + .jp-disconnect-card__card-stat-block {
-			margin-top: 0.5rem;
+	&__card-content {
+		display: block;
+		font-size: 0.875rem;
+
+		@media only screen and (min-width: 782px) {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
 		}
 	}
-}
 
-.jp-disconnect-card__card-stat-block {
-	display: flex;
-	align-items: baseline;
-	flex-grow: 1;
+	&__card-headline,
+	.jp-connection__disconnect-card__card-headline { // Override rule from disconnect-modal
+		font-size: 1.25rem;
+		font-weight: 600;
+		margin-top: 0;
+		flex-shrink: 0;
+		margin-bottom: 0;
 
-	@media only screen and (min-width: 782px) {
-		flex-direction: row-reverse;
+		@media only screen and (min-width: 782px) {
+			font-size: 1.5rem;
+			margin-right: 1.5rem;
+		}
+
+		// smaller screens
+		@media only screen and (max-width: 782px) {
+			// When a headline is above a stats block, add some space.
+			& + .jp-disconnect-card__card-stat-block {
+				margin-top: 0.5rem;
+			}
+		}
 	}
-}
 
-.jp-disconnect-card__card-description {
-	flex-grow: 1;
+	&__card-stat-block {
+		display: flex;
+		align-items: baseline;
+		flex-grow: 1;
 
-	@media only screen and (min-width: 782px) {
-		text-align: right;
+		@media only screen and (min-width: 782px) {
+			flex-direction: row-reverse;
+		}
 	}
-}
 
-.jp-disconnect-card__card-stat {
-	font-size: 1rem;
-	font-weight: 600;
-	margin-right: 0.5rem;
+	&__card-description {
+		flex-grow: 1;
 
-	@media only screen and (min-width: 782px) {
-		font-size: 1.5rem;
-		margin-right: 0;
-		margin-left: 1rem;
+		@media only screen and (min-width: 782px) {
+			text-align: right;
+		}
+	}
+
+	&__card-stat {
+		font-size: 1rem;
+		font-weight: 600;
+		margin-right: 0.5rem;
+
+		@media only screen and (min-width: 782px) {
+			font-size: 1.5rem;
+			margin-right: 0;
+			margin-left: 1rem;
+		}
 	}
 }

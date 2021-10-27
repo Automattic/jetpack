@@ -22,10 +22,14 @@ describe( 'StepDisconnect', () => {
 		const wrapper = shallow( <StepDisconnect { ...testProps } /> );
 
 		it( 'renders the button to dismiss the modal', () => {
-			expect( wrapper.find( '.jp-disconnect-dialog__btn-dismiss' ) ).to.have.lengthOf( 1 );
+			expect( wrapper.find( '.jp-connection__disconnect-dialog__btn-dismiss' ) ).to.have.lengthOf(
+				1
+			);
 		} );
 		it( 'renders the button to initiate the disconnection', () => {
-			expect( wrapper.find( '.jp-disconnect-dialog__btn-disconnect' ) ).to.have.lengthOf( 1 );
+			expect(
+				wrapper.find( '.jp-connection__disconnect-dialog__btn-disconnect' )
+			).to.have.lengthOf( 1 );
 		} );
 	} );
 
@@ -33,7 +37,7 @@ describe( 'StepDisconnect', () => {
 		const wrapper = shallow( <StepDisconnect { ...testProps } /> );
 
 		wrapper
-			.find( '.jp-disconnect-dialog__btn-disconnect' )
+			.find( '.jp-connection__disconnect-dialog__btn-disconnect' )
 			.simulate( 'click', { preventDefault: () => undefined } );
 
 		it( 'calls the disconnect callback', () => {
@@ -45,7 +49,7 @@ describe( 'StepDisconnect', () => {
 		const wrapper = shallow( <StepDisconnect { ...testProps } /> );
 
 		wrapper
-			.find( '.jp-disconnect-dialog__btn-dismiss' )
+			.find( '.jp-connection__disconnect-dialog__btn-dismiss' )
 			.simulate( 'click', { preventDefault: () => undefined } );
 
 		it( 'calls the closeModal callback', () => {

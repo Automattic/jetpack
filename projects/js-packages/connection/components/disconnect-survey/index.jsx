@@ -2,19 +2,19 @@
  * External Dependencies
  */
 import React, { useCallback, useState } from 'react';
-import { Button } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import PropTypes from 'prop-types';
 
 /**
  * Internal Dependencies
  */
+import { Button } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import SurveyChoice from './survey-choice';
 
 /**
  * Handles showing the disconnect survey.
  *
  * @param {object} props - The component props.
- * @param {Function} props.onSubmit - Callback handler function for when the survey response is submitted.
  * @returns {React.Component} - DisconnectSurvey component.
  */
 const DisconnectSurvey = props => {
@@ -80,7 +80,7 @@ const DisconnectSurvey = props => {
 	 */
 	const selectedClass = optionId => {
 		if ( optionId === selectedAnswer ) {
-			return 'jp-disconnect-survey-card--selected';
+			return 'jp-connect__disconnect-survey-card--selected';
 		}
 
 		return '';
@@ -118,9 +118,9 @@ const DisconnectSurvey = props => {
 					id={ option.id }
 					onClick={ setSelectedAnswer }
 					onKeyDown={ handleAnswerKeyDown }
-					className={ 'card jp-disconnect-survey-card ' + selectedClass( option.id ) }
+					className={ 'card jp-connect__disconnect-survey-card ' + selectedClass( option.id ) }
 				>
-					<p className="jp-disconnect-survey-card__answer">{ option.answerText }</p>
+					<p className="jp-connect__disconnect-survey-card__answer">{ option.answerText }</p>
 				</SurveyChoice>
 			);
 		} );
@@ -138,13 +138,13 @@ const DisconnectSurvey = props => {
 				id={ customOption.id }
 				onClick={ setSelectedAnswer }
 				onKeyDown={ handleAnswerKeyDown }
-				className={ 'card jp-disconnect-survey-card ' + selectedClass( customOption.id ) }
+				className={ 'card jp-connect__disconnect-survey-card ' + selectedClass( customOption.id ) }
 			>
-				<p className="jp-disconnect-survey-card__answer">
-					Other:{ ' ' }
+				<p className="jp-connect__disconnect-survey-card__answer">
+					{ __( 'Other:', 'jetpack' ) }{ ' ' }
 					<input
-						placeholder="share your experience"
-						className="jp-disconnect-survey-card__input"
+						placeholder={ __( 'share your experience', 'jetpack' ) }
+						className="jp-connect__disconnect-survey-card__input"
 						type="text"
 						value={ customResponse }
 						onChange={ handleCustomResponse }
@@ -156,7 +156,7 @@ const DisconnectSurvey = props => {
 
 	return (
 		<React.Fragment>
-			<div className="jp-disconnect-dialog__survey">
+			<div className="jp-connection__disconnect-dialog__survey">
 				{ renderOptions() }
 				{ renderCustomOption() }
 			</div>
@@ -165,13 +165,18 @@ const DisconnectSurvey = props => {
 					disabled={ ! selectedAnswer }
 					isPrimary
 					onClick={ handleSurveySubmit }
-					className="jp-disconnect-dialog__btn-back-to-wp"
+					className="jp-connection__disconnect-dialog__btn-back-to-wp"
 				>
 					{ __( 'Submit Feedback', 'jetpack' ) }
 				</Button>
 			</p>
 		</React.Fragment>
 	);
+};
+
+DisconnectSurvey.PropTypes = {
+	/** Callback handler function for when the survey response is submitted. */
+	onSubmit: PropTypes.func,
 };
 
 export default DisconnectSurvey;

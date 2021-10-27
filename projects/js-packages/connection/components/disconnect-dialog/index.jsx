@@ -21,25 +21,8 @@ import StepThankYou from './steps/step-thank-you';
  * The RNA Disconnect Dialog component.
  *
  * @param {object} props -- The properties.
- * @param {string} props.apiRoot -- API root URL, required.
- * @param {string} props.apiNonce -- API Nonce, required.
- * @param {string} props.title -- The modal title.
- * @param {string} props.activateButtonText -- Text to show for the button that opens the modal.
- * @param {string} props.activateButtonClass -- Class to use on the button that opens the modal.
- * @param {Function} props.pluginScreenDisconnectCallback -- Callback function that is called just before the request to disconnect is made when the context is "plugins".
- * @param {Function} props.onDisconnected -- The callback to be called upon disconnection success.
- * @param {Function} props.onError -- The callback to be called upon disconnection failure.
- * @param {React.Component} props.disconnectStepComponent -- A component to render as part of the disconnect step.
- * @param {string} props.context -- The context in which this component is being used.
- * @param {string} props.disconnectingPlugin -- The plugin where this component is being used that initiated the disconnect flow.
- * @param {Function} props.errorMessage -- The error message to display upon disconnection failure.
- * @param {object} props.connectedUser -- An object representing the connected user.
- * @param {boolean} props.isOpen -- Whether or not the dialog modal should be open.
- * @param {Function} props.onClose -- Callback function for when the modal closes.
- * @param {string} props.assetBaseUrl -- Base URL for where webpack-ed images will be stored for the consumer of this component.
  * @returns {React.Component} The `DisconnectDialog` component.
  */
-
 const DisconnectDialog = props => {
 	const [ isDisconnecting, setIsDisconnecting ] = useState( false );
 	const [ isDisconnected, setIsDisconnected ] = useState( false );
@@ -77,10 +60,10 @@ const DisconnectDialog = props => {
 	 * Should run when we have a connected user.
 	 */
 	useEffect( () => {
-		if ( connectedUser ) {
+		if ( connectedUser && connectedUser.ID && connectedUser.login ) {
 			jetpackAnalytics.initialize( connectedUser.ID, connectedUser.login );
 		}
-	}, [ connectedUser ] );
+	}, [ connectedUser, connectedUser.ID, connectedUser.login ] );
 
 	/**
 	 * Disconnect the site.
@@ -109,7 +92,7 @@ const DisconnectDialog = props => {
 	const _submitSurvey = useCallback( surveyData => {
 		// Use tracks to record the survey response.
 		// This requires analytics scripts to be loaded.
-		jetpackAnalytics.tracks.recordEvent( 'jetpack_plugin_disconnect_survey', surveyData );
+		jetpackAnalytics.tracks.recordEvent( 'plugin_jetpack_disconnect_survey', surveyData );
 		setIsFeedbackProvided( true );
 	}, [] );
 
@@ -150,6 +133,7 @@ const DisconnectDialog = props => {
 
 			const surveyData = {
 				disconnect_reason: surveyAnswerId,
+				plugin: disconnectingPlugin,
 			};
 
 			if ( surveyAnswerText ) {
@@ -158,7 +142,7 @@ const DisconnectDialog = props => {
 
 			_submitSurvey( surveyData );
 		},
-		[ _submitSurvey ]
+		[ disconnectingPlugin, _submitSurvey ]
 	);
 
 	/**
@@ -234,14 +218,15 @@ const DisconnectDialog = props => {
 					title=""
 					contentLabel={ title }
 					aria={ {
-						labelledby: 'jp-disconnect-dialog__heading',
+						labelledby: 'jp-connection__disconnect-dialog__heading',
 					} }
 					onRequestClose={ onClose }
 					shouldCloseOnClickOutside={ false }
 					shouldCloseOnEsc={ false }
 					isDismissible={ false }
 					className={
-						'jp-disconnect-dialog' + ( isDisconnected ? ' jp-disconnect-dialog__success' : '' )
+						'jp-connection__disconnect-dialog' +
+						( isDisconnected ? ' jp-connection__disconnect-dialog__success' : '' )
 					}
 				>
 					{ getCurrentStep() }
@@ -252,29 +237,40 @@ const DisconnectDialog = props => {
 };
 
 DisconnectDialog.propTypes = {
+	/** API root URL, required. */
 	apiRoot: PropTypes.string.isRequired,
+	/** API Nonce, required. */
 	apiNonce: PropTypes.string.isRequired,
+	/** The modal title. */
 	title: PropTypes.string,
-	activateButtonText: PropTypes.string,
+	/** The callback to be called upon disconnection success. */
 	onDisconnected: PropTypes.func,
+	/** The callback to be called upon disconnection failure. */
 	onError: PropTypes.func,
-	errorMessage: PropTypes.string,
+	/** The context in which this component is being used. */
 	context: PropTypes.string,
+	/** Plugins that are using the Jetpack connection. */
 	connectedPlugins: PropTypes.object,
-	connectedPluginsIsFetching: PropTypes.bool,
+	/** The plugin where this component is being used that initiated the disconnect flow. */
 	disconnectingPlugin: PropTypes.string,
+	/** Callback function that is called just before the request to disconnect is made when the context is "plugins". */
 	pluginScreenDisconnectCallback: PropTypes.func,
+	/** A component to render as part of the disconnect step. */
+	disconnectStepComponent: PropTypes.element,
+	/** An object representing the connected user. */
 	connectedUser: PropTypes.object,
+	/** Whether or not the dialog modal should be open. */
 	isOpen: PropTypes.bool,
+	/** Callback function for when the modal closes. */
 	onClose: PropTypes.func,
+	/** Base URL for where webpack-ed images will be stored for the consumer of this component. */
 	assetBaseUrl: PropTypes.string,
 };
 
 DisconnectDialog.defaultProps = {
 	title: __( 'Are you sure you want to disconnect?', 'jetpack' ),
-	activateButtonText: __( 'Disconnect', 'jetpack' ),
-	errorMessage: __( 'Failed to disconnect. Please try again.', 'jetpack' ),
 	context: 'jetpack-dashboard',
+	connectedUser: {}, // Pass empty object to avoid undefined errors.
 };
 
 export default DisconnectDialog;

@@ -2,6 +2,7 @@
  * External Dependencies
  */
 import React, { useMemo } from 'react';
+import PropTypes from 'prop-types';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -12,9 +13,7 @@ import DisconnectCard from '../disconnect-card';
 /**
  * Render a list of connected plugins.
  *
- * @param props
- * @param {object} props.connectedPlugins - Plugins that are using the Jetpack connection.
- * @param {string} props.disconnectingPlugin - Slug of the plugin that has initiated the disconnect.
+ * @param {object} props - The properties
  * @returns {React.Component} - The ConnectedPlugins React component
  */
 
@@ -44,15 +43,15 @@ const ConnectedPlugins = props => {
 	if ( connectedPlugins && connectedPluginsArray.length > 0 ) {
 		return (
 			<React.Fragment>
-				<div className="jp-disconnect-dialog__step-copy">
-					<p className="jp-disconnect-dialog__large-text">
+				<div className="jp-connection__disconnect-dialog__step-copy">
+					<p className="jp-connection__disconnect-dialog__large-text">
 						{ __(
 							'Jetpack is powering other plugins on your site. If you disconnect, these plugins will no longer work.',
 							'jetpack'
 						) }
 					</p>
 				</div>
-				<div className="jp-disconnect-card__group">
+				<div className="jp-connection__disconnect-card__group">
 					{ connectedPluginsArray.map( plugin => {
 						return <DisconnectCard title={ plugin.name } />;
 					} ) }
@@ -63,6 +62,13 @@ const ConnectedPlugins = props => {
 
 	// Default to null if there are no connected plugins passed on the props
 	return null;
+};
+
+ConnectedPlugins.PropTypes = {
+	/** Plugins that are using the Jetpack connection. */
+	connectedPlugins: PropTypes.object,
+	/** Slug of the plugin that has initiated the disconnect. */
+	disconnectingPlugin: PropTypes.string,
 };
 
 export default ConnectedPlugins;

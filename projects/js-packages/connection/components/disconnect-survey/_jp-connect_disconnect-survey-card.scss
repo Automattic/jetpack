@@ -1,6 +1,6 @@
 @import '../rna-styles';
 
-.jp-disconnect-survey-card {
+.jp-connect__disconnect-survey-card {
 	border: 2px solid transparent;
 	width: 800px;
 	max-width: 100%;
@@ -40,20 +40,20 @@
 			border-color: var( --jp-black-80 )
 		}
 	}
+
+	&__answer {
+		font-weight: bold;
+		margin: 0;
+		display: flex;
+		align-items: center;
+	}
 }
 
-input.jp-disconnect-survey-card__input {
+input.jp-connect__disconnect-survey-card__input {
 	-webkit-appearance: none;
 	border: none;
 	background-color: transparent;
 	color: var( --jp-black-80 );
 	flex-grow: 1;
 	padding-right: 40px;
-}
-
-.jp-disconnect-survey-card__answer {
-	font-weight: bold;
-	margin: 0;
-	display: flex;
-	align-items: center;
 }
