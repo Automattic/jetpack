@@ -28,6 +28,11 @@
 		"./action-types": "./src/state/action-types"
 	},
 	"dependencies": {
-		"jetpack-js-test-runner": "workspace:*"
+		"@automattic/jetpack-api": "workspace:^0.5.0",
+		"@automattic/jetpack-components": "workspace:^0.4.0-alpha",
+		"@wordpress/components": "17.0.0",
+		"@wordpress/element": "4.0.1",
+		"jetpack-js-test-runner": "workspace:*",
+		"prop-types": "15.7.2"
 	}
 }

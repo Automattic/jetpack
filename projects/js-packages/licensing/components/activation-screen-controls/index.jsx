@@ -4,7 +4,8 @@
 import { __ } from '@wordpress/i18n';
 import { Button, TextControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
-import { JetpackLogo, withErrorMessage } from '@automattic/jetpack-components';
+// import { JetpackLogo, withErrorMessage } from '@automattic/jetpack-components';
+import { JetpackLogo } from '@automattic/jetpack-components';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -13,7 +14,7 @@ import React from 'react';
  */
 import './style.scss';
 
-const TextControlWithErrorMessage = withErrorMessage( TextControl );
+// const TextControlWithErrorMessage = withErrorMessage(TextControl);
 
 /**
  * The Activation Screen Controls component.
@@ -48,7 +49,8 @@ const ActivationScreenControls = props => {
 						}
 					) }
 				</p>
-				<TextControlWithErrorMessage
+				{ /* <TextControlWithErrorMessage */ }
+				<TextControl
 					className="jp-license-activation-screen-controls--license-field"
 					label={ __( 'License key', 'jetpack' ) }
 					placeholder="jp-Product34623432423423"
