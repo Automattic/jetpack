@@ -12,10 +12,24 @@ import { sprintf, __ } from '@wordpress/i18n';
  */
 import './style.scss';
 
+/**
+ * Whether or not to display a price's decimal part in the UI.
+ * Needed as `getCurrencyObject` will always return the decimal part populated even if it
+ * doesn't exist.
+ *
+ * @param {object} currencyObject -- A currency object returned from `getCurrencyObject`.
+ * @returns {boolean} Whether or not to display the price decimal part.
+ */
 const showPriceDecimals = currencyObject => {
 	return currencyObject.fraction.indexOf( '00' ) === -1;
 };
 
+/**
+ * The Pricing card component.
+ *
+ * @param {object} props -- The properties.
+ * @returns {React.Component} The `PricingCard` component.
+ */
 const PricingCard = props => {
 	const currencyObjectBefore = getCurrencyObject( props.priceBefore, props.currencyCode );
 	const currencyObjectAfter = getCurrencyObject( props.priceAfter, props.currencyCode );
