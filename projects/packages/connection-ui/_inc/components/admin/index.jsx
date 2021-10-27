@@ -6,7 +6,6 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import {
 	ConnectionStatusCard,
-	ConnectScreen,
 	ConnectScreenRequiredPlan,
 	withConnectionStatus,
 } from '@automattic/jetpack-connection';
@@ -18,7 +17,6 @@ import { IDCScreen } from '@automattic/jetpack-idc';
 import { STORE_ID } from '../../store';
 import Header from '../header';
 import './style.scss';
-import ConnectRight from './assets/connect-right.png';
 
 const ConnectScreenWithConnectionStatus = withConnectionStatus( ConnectScreenRequiredPlan );
 
@@ -31,7 +29,6 @@ export default function Admin() {
 	const APINonce = useSelect( select => select( STORE_ID ).getAPINonce(), [] );
 	const APIRoot = useSelect( select => select( STORE_ID ).getAPIRoot(), [] );
 	const registrationNonce = useSelect( select => select( STORE_ID ).getRegistrationNonce(), [] );
-	const assetBuildUrl = useSelect( select => select( STORE_ID ).getAssetBuildUrl(), [] );
 
 	const connectionStatus = useSelect( select => select( STORE_ID ).getConnectionStatus(), [] );
 	const { setConnectionStatus } = useDispatch( STORE_ID );
