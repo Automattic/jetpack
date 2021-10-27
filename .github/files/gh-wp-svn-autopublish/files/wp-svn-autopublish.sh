@@ -61,20 +61,46 @@ while IFS=" " read -r FLAG FILE; do
 done < <( svn status )
 echo '::endgroup::'
 
-echo "::group::Tagging release"
-svn cp trunk "tags/$TAG"
-
-# Update the stable tag in the tag if it's not a beta version.
-if [[ "$TAG" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
-	sed -i -e "s/Stable tag: .*/Stable tag: $TAG/" "tags/$TAG/readme.txt"
-fi
-echo '::endgroup::'
-
 if [[ -n "$CI" ]]; then
 	echo "::group::Committing to SVN"
 	svn commit -m "Update to version $TAG from GitHub" --no-auth-cache --non-interactive  --username "$WPSVN_USERNAME" --password "$WPSVN_PASSWORD"
 	echo '::endgroup::'
 else
+	echo "----"
 	echo "Not running in CI, skipping commit"
 	echo "  svn commit -m \"Update to version $TAG from GitHub\" --no-auth-cache --non-interactive  --username \"$WPSVN_USERNAME\" --password \"$WPSVN_PASSWORD\""
+	echo "----"
+fi
+
+if [[ -n "$CI" ]]; then
+	echo "::group::Creating tag"
+	svn cp ^/$WPSLUG/trunk ^/$WPSLUG/tags/$TAG --no-auth-cache --non-interactive  --username "$WPSVN_USERNAME" --password "$WPSVN_PASSWORD"
+	echo '::endgroup::'
+else
+	echo "----"
+	echo "Not running in CI, skipping commit"
+	echo "  svn cp ^/$WPSLUG/trunk ^/$WPSLUG/tags/$TAG --no-auth-cache --non-interactive  --username \"$WPSVN_USERNAME\" --password \"$WPSVN_PASSWORD\""
+	echo "----"
+fi
+
+# Update the "Stable tag" in the tag if it's not a beta version.
+if [[ "$TAG" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
+	if [[ -n "$CI" ]]; then
+		echo "::group::Checking out new tag"
+		svn up tags/$TAG
+		echo '::endgroup::'
+		sed -i -e "s/Stable tag: .*/Stable tag: $TAG/" "tags/$TAG/readme.txt"
+		echo "::group::Committing to SVN"
+		svn commit -m "Updating stable tag in version $TAG" --no-auth-cache --non-interactive  --username "$WPSVN_USERNAME" --password "$WPSVN_PASSWORD"
+		echo '::endgroup::'
+	else
+		echo "----"
+		echo "Not running in CI, skipping tag \"Stable tag\" update"
+		echo "  svn up tags/$TAG"
+		echo "  sed -i -e \"s/Stable tag: .*/Stable tag: $TAG/\" \"tags/$TAG/readme.txt\""
+		echo "  svn commit -m \"Updating stable tag in version $TAG\" --no-auth-cache --non-interactive  --username \"$WPSVN_USERNAME\" --password \"$WPSVN_PASSWORD\""
+		echo "----"
+	fi
+else
+	echo "This is a prerelease version, not updating \"Stable tag\" in tag."
 fi
