@@ -17,11 +17,11 @@ import './style.scss';
  * The Activation Screen Controls component.
  *
  * @param {object} props -- The properties.
- * @param {function} props.activateLicense -- function to handle submitting a license
+ * @param {Function} props.activateLicense -- function to handle submitting a license
  * @param {boolean} props.disabled -- should the controls be disabled
  * @param {string} props.license -- the license code to edit or submit
  * @param {?string} props.licenseError -- any error that occurred while activating a license
- * @param {function} props.onLicenseChange -- function to handle changes to license
+ * @param {Function} props.onLicenseChange -- function to handle changes to license
  * @param {string} props.siteUrl -- the url of the site
  * @returns {React.Component} The `ActivationScreenControls` component.
  */
