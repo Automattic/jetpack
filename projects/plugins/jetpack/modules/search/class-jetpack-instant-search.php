@@ -84,7 +84,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			add_action( 'init', array( $this, 'set_filters_from_widgets' ) );
 
 			add_action( 'wp_enqueue_scripts', array( $this, 'load_assets' ) );
-			add_action( 'wp_footer', array( 'Automattic\Jetpack\Search\Options', 'print_instant_search_sidebar' ) );
+			add_action( 'wp_footer', array( 'Automattic\Jetpack\Search\Helper', 'print_instant_search_sidebar' ) );
 			add_filter( 'body_class', array( $this, 'add_body_class' ), 10 );
 		} else {
 			add_action( 'update_option', array( $this, 'track_widget_updates' ), 10, 3 );
