@@ -1,0 +1,4 @@
+Significance: minor
+Type: major
+
+Licenses Activation FLow: Added a new flow to allow users to acitvate a Jetpack plan or product via a license code in the plugin.
