@@ -1,6 +1,6 @@
 @import '../rna-styles';
 
-.jp-disconnect-dialog {
+.jp-connection__disconnect-dialog {
 	h1 {
 		margin-top: 0;
 		line-height: 1.2;
@@ -21,12 +21,12 @@
 	}
 
 	&__large-text,
-	p.jp-disconnect-dialog__large-text {
+	p.jp-connection__disconnect-dialog__large-text {
 		font-size: 1.5rem;
 	}
 
 	&__link,
-	.jp-disconnect-dialog__link {
+	.jp-connection__disconnect-dialog__link {
 		font-size: var( --font-body );
 		color: var( --jp-black );
 		text-decoration: underline;
@@ -149,7 +149,7 @@
 }
 
 // When the screen height is shorter, hide the decorative cards to show the text and controls without scrolling.
-.jp-disconnect-dialog__content {
+.jp-connection__disconnect-dialog__content {
 	@media (max-height: 900px) {
 		.jp-decorative-card {
 			display: none;
@@ -159,7 +159,7 @@
 
 
 @media (min-width: 960px){
-	.jp-disconnect-dialog{
+	.jp-connection__disconnect-dialog{
 		width: 1200px;
 		height: 900px;
 		display: flex;

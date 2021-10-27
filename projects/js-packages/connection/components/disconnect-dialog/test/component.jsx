@@ -21,7 +21,7 @@ describe( 'DisconnectDialog', () => {
 		const wrapper = shallow( <DisconnectDialog { ...testProps } /> );
 
 		it( 'renders the Modal', () => {
-			expect( wrapper.find( '.jp-disconnect-dialog' ) ).to.have.lengthOf( 1 );
+			expect( wrapper.find( '.jp-connection__disconnect-dialog' ) ).to.have.lengthOf( 1 );
 		} );
 
 		it( 'renders the "StepDisconnect" step', () => {

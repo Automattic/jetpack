@@ -6,7 +6,7 @@ import React, { useCallback } from 'react';
 /**
  * Internal Dependencies
  */
-import './_jp-disconnect-survey-card.scss';
+import './_jp-connect_disconnect-survey-card.scss';
 
 /**
  * SurveyChoice - Present one choice in the survey.
@@ -39,7 +39,7 @@ const SurveyChoice = props => {
 			role="button"
 			onClick={ handleClick }
 			onKeyDown={ handleKeyDown }
-			className={ 'card jp-disconnect-survey-card ' + className }
+			className={ 'card jp-connect__disconnect-survey-card ' + className }
 		>
 			{ children }
 		</div>
