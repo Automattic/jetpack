@@ -1,10 +1,10 @@
-export const QUERY_SITE_PLANS = 'QUERY_SITE_PLANS';
+export const SET_SEARCH_PLAN_INFO = 'SET_SEARCH_PLAN_INFO';
 
-const sitePlanActions = {
-	querySitePlans: options => ( {
-		type: 'QUERY_SITE_PLANS',
+function setSearchPlanInfo( options ) {
+	return {
+		type: 'SET_SEARCH_PLAN_INFO',
 		options,
-	} ),
-};
+	};
+}
 
-export default sitePlanActions;
+export default { setSearchPlanInfo };

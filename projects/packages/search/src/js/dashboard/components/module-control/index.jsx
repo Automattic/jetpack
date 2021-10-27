@@ -4,7 +4,7 @@
 import React, { Fragment, useCallback, useEffect } from 'react';
 import { sprintf, __ } from '@wordpress/i18n';
 import { createInterpolateElement } from '@wordpress/element';
-import { select, useDispatch, useSelect } from '@wordpress/data';
+import { select, useDispatch, useSelect, isResolving } from '@wordpress/data';
 import classNames from 'classnames';
 
 /**
@@ -46,25 +46,27 @@ export default function SearchModuleControl() {
 	const inOfflineMode = false;
 	const isLoading = false;
 	const updateOptions = useDispatch( STORE_ID ).updateJetpackSettings;
+	const upgradeUrl = '';
 
-	const hasActiveSearchPurchase = useSelect(
-		select => select( STORE_ID ).hasActiveSearchPurchase(),
-		[]
-	);
 	const siteAdminUrl = select( STORE_ID ).getSiteAdminUrl();
 	const isInstantSearchPromotionActive = select( STORE_ID ).isInstantSearchPromotionActive();
-	const isBusinessPlan = select( STORE_ID ).hasBusinessPlan();
+
 	const { isModuleEnabled, isInstantSearchEnabled } = useSelect(
 		select => select( STORE_ID ).getSearchModuleStatus(),
 		[]
 	);
 
-	const togglingModule = false; //TODO //!!props.isSavingAnyOption('search');
-	const togglingInstantSearch = false; //TODO //!!props.isSavingAnyOption('instant_search_enabled');
-	const isSavingEitherOption = togglingModule || togglingInstantSearch;
-	// Site has Legacy Search included in Business plan but doesn't have Jetpack Search subscription.
-	const hasOnlyLegacySearch = isBusinessPlan && ! hasActiveSearchPurchase;
-	const hasEitherSearch = isBusinessPlan || hasActiveSearchPurchase;
+	const isSavingEitherOption = useSelect( select => select( STORE_ID ).isUpdatingOptions(), [] );
+	const isTogglingModule = useSelect( select => select( STORE_ID ).isTogglingModule(), [] );
+	const isTogglingInstantSearch = useSelect(
+		select => select( STORE_ID ).isTogglingInstantSearch(),
+		[]
+	);
+	const {
+		supportsOnlyClassicSearch: hasOnlyLegacySearch,
+		supportsSearch: hasEitherSearch,
+		supportsInstantSearch: hasActiveSearchPurchase,
+	} = useSelect( select => select( STORE_ID ).getSearchPlanInfo() );
 
 	const isInstantSearchCustomizeButtonDisabled =
 		isSavingEitherOption ||
@@ -88,7 +90,6 @@ export default function SearchModuleControl() {
 			instant_search_enabled: hasActiveSearchPurchase && ! isInstantSearchEnabled,
 			search: isModuleEnabled,
 		};
-		// if (newOption.instant_search_enabled && !isModuleEnabled) {
 		if ( newOption.instant_search_enabled ) {
 			newOption.search = true;
 		}
@@ -110,7 +111,9 @@ export default function SearchModuleControl() {
 				<Button
 					className="jp-form-search-settings-group-buttons__button is-customize-search lg-col-span-4 md-col-span-5 sm-col-span-3"
 					href={
-						! isInstantSearchCustomizeButtonDisabled && sprintf( SEARCH_CUSTOMIZE_URL, returnUrl )
+						! isInstantSearchCustomizeButtonDisabled
+							? sprintf( SEARCH_CUSTOMIZE_URL, returnUrl )
+							: undefined
 					}
 					disabled={ isInstantSearchCustomizeButtonDisabled }
 				>
@@ -121,7 +124,9 @@ export default function SearchModuleControl() {
 				<div className="lg-col-span-0 md-col-span-2 sm-col-span-1"></div>
 				<Button
 					className="jp-form-search-settings-group-buttons__button is-widgets-editor lg-col-span-3 md-col-span-5 sm-col-span-3"
-					href={ ! isWidgetsEditorButtonDisabled && sprintf( WIDGETS_EDITOR_URL, returnUrl ) }
+					href={
+						! isWidgetsEditorButtonDisabled ? sprintf( WIDGETS_EDITOR_URL, returnUrl ) : undefined
+					}
 					disabled={ isWidgetsEditorButtonDisabled }
 				>
 					<span>{ __( 'Edit sidebar widgets', 'jetpack' ) }</span>
@@ -136,12 +141,11 @@ export default function SearchModuleControl() {
 			<div className="jp-form-search-settings-group__toggle is-search jp-search-dashboard-wrap">
 				<div className="jp-search-dashboard-row">
 					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
-					{ /* <div className="jp-form-search-settings-group__toggle-container"> */ }
 					<CompactFormToggle
 						checked={ isModuleEnabled && hasEitherSearch }
-						disabled={ isSavingEitherOption || ( ! hasActiveSearchPurchase && ! isBusinessPlan ) }
+						disabled={ isSavingEitherOption || ! hasEitherSearch }
 						onChange={ toggleSearchModule }
-						toggling={ togglingModule }
+						toggling={ isTogglingModule }
 						className="is-search-admin"
 						switchClassNames="lg-col-span-1 md-col-span-1 sm-col-span-1"
 						labelClassNames=" lg-col-span-7 md-col-span-5 sm-col-span-3"
@@ -149,10 +153,6 @@ export default function SearchModuleControl() {
 					>
 						{ __( 'Enable Jetpack Search', 'jetpack' ) }
 					</CompactFormToggle>
-					{ /* </div> */ }
-					{ /* <div className="jp-form-search-settings-group__toggle_label lg-col-span-7 md-col-span-5 sm-col-span-3"> */ }
-					{ /* { __( 'Enable Jetpack Search', 'jetpack' ) } */ }
-					{ /* </div> */ }
 					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 				</div>
 				<div className="jp-search-dashboard-row">
@@ -173,12 +173,11 @@ export default function SearchModuleControl() {
 			<div className="jp-form-search-settings-group__toggle is-instant-search jp-search-dashboard-wrap">
 				<div className="jp-search-dashboard-row">
 					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
-					{ /* <div className="jp-form-search-settings-group__toggle-container"> */ }
 					<CompactFormToggle
 						checked={ isModuleEnabled && isInstantSearchEnabled && hasActiveSearchPurchase }
 						disabled={ isSavingEitherOption || ! hasActiveSearchPurchase }
 						onChange={ toggleInstantSearch }
-						toggling={ togglingInstantSearch }
+						toggling={ isTogglingInstantSearch }
 						className="is-search-admin"
 						switchClassNames="lg-col-span-1 md-col-span-1 sm-col-span-1"
 						labelClassNames=" lg-col-span-7 md-col-span-5 sm-col-span-3"
@@ -189,13 +188,6 @@ export default function SearchModuleControl() {
 							{ span: <span /> }
 						) }
 					</CompactFormToggle>
-					{ /* </div> */ }
-					{ /* <div className="jp-form-search-settings-group__toggle_label">
-						{ createInterpolateElement(
-							__( 'Enable instant search experience <span>(recommended)</span>', 'jetpack' ),
-							{ span: <span /> }
-						) }
-					</div> */ }
 				</div>
 				<div className="jp-search-dashboard-row">
 					<div className="lg-col-span-3 md-col-span-2 sm-col-span-1"></div>

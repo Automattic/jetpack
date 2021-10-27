@@ -1,5 +1,8 @@
+/**
+ * Internal dependencies
+ */
 import {
-	fetchJetpackSetttings as fetchJetpackSetttingsControl,
+	fetchJetpackSettings as fetchJetpackSettingsControl,
 	updateJetpackSettings as updateJetpackSettingsControl,
 } from '../controls';
 
@@ -8,9 +11,19 @@ export const TOGGLE_SEARCH_MODULE = 'TOGGLE_SEARCH_MODULE';
 
 function* updateJetpackSettings( settings ) {
 	yield setJetpackSettings( settings );
+	yield setJetpackSettingsNetworkBusy();
 	yield updateJetpackSettingsControl( settings );
-	const updatedSettings = yield fetchJetpackSetttingsControl();
+	const updatedSettings = yield fetchJetpackSettingsControl();
+	yield setJetpackSettingsNetworkFree();
 	return setJetpackSettings( updatedSettings );
+}
+
+function setJetpackSettingsNetworkBusy() {
+	return setJetpackSettings( { isUpdatingOptions: true } );
+}
+
+function setJetpackSettingsNetworkFree() {
+	return setJetpackSettings( { isUpdatingOptions: false } );
 }
 
 function setJetpackSettings( options ) {

@@ -2,18 +2,18 @@
  * External dependencies
  */
 import React, { Fragment, useMemo } from 'react';
-import { connect } from 'react-redux';
 import { __ } from '@wordpress/i18n';
 
 /**
  * WordPress dependencies
  */
-import { useSelect, select, useDispatch } from '@wordpress/data';
+import { useSelect, select } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
 import { JetpackFooter, JetpackLogo } from '@automattic/jetpack-components';
+import analytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import ModuleControl from 'components/module-control';
 import MockedSearch from 'components/mocked-search';
@@ -22,56 +22,45 @@ import 'scss/rna-styles.scss';
 import 'style.scss';
 
 /**
- * State dependencies
- */
-// import { isFetchingSitePurchases } from 'state/site';
-// import {
-// 	setInitialState,
-// 	getApiNonce,
-// 	getApiRootUrl,
-// 	getSiteAdminUrl,
-// 	getTracksUserData,
-// 	getCurrentVersion,
-// } from 'state/initial-state';
-
-// const useComponentWillMount = func => {
-// 	// eslint-disable-next-line react-hooks/exhaustive-deps
-// 	useMemo(func, []);
-// };
-
-/**
  * SearchDashboard component definition.
  *
- * @param {object} props - Component properties.
  * @returns {React.Component} Search dashboard component.
  */
-export default function SearchDashboard( props ) {
+export default function SearchDashboard() {
 	const siteAdminUrl = select( STORE_ID ).getSiteAdminUrl();
+	const aboutPageUrl = siteAdminUrl + 'admin.php?page=jetpack_about';
 
-	const { queryJetpackSettings } = useDispatch( STORE_ID );
+	useSelect( select => select( STORE_ID ).getSearchPlanInfo() );
+	useSelect( select => select( STORE_ID ).getSearchModuleStatus() );
 
-	// const initializeAnalytics = () => {
-	// 	const tracksUser = props.tracksUserData;
+	const isLoading = useSelect(
+		select =>
+			select( STORE_ID ).isResolving( 'getSearchPlanInfo' ) ||
+			! select( STORE_ID ).hasStartedResolution( 'getSearchPlanInfo' ) ||
+			select( STORE_ID ).isResolving( 'getSearchModuleStatus' ) ||
+			! select( STORE_ID ).hasStartedResolution( 'getSearchModuleStatus' )
+	);
 
-	// 	if (tracksUser) {
-	// 		analytics.initialize(tracksUser.userid, tracksUser.username, {
-	// 			blog_id: tracksUser.blogid,
-	// 		});
-	// 	}
-	// };
+	const initializeAnalytics = () => {
+		const tracksUser = false; //select(STORE_ID).getUser();
 
-	useMemo( async () => {
+		if ( tracksUser ) {
+			analytics.initialize( tracksUser.userid, tracksUser.username, {
+				blog_id: tracksUser.blogid,
+			} );
+		}
+	};
+
+	useMemo( () => {
 		const apiRootUrl = select( STORE_ID ).getAPIRootUrl();
 		const apiNonce = select( STORE_ID ).getAPINonce();
 		apiRootUrl && restApi.setApiRoot( apiRootUrl );
 		apiNonce && restApi.setApiNonce( apiNonce );
-		// initializeAnalytics();
-		// analytics.tracks.recordEvent('jetpack_search_admin_page_view', {
-		// 	current_version: props.currentVersion,
-		// });
+		initializeAnalytics();
+		analytics.tracks.recordEvent( 'jetpack_search_admin_page_view', {
+			current_version: select( STORE_ID ).getVersion,
+		} );
 	}, [] );
-
-	const aboutPageUrl = siteAdminUrl + 'admin.php?page=jetpack_about';
 
 	const renderHeader = () => {
 		return (
@@ -109,7 +98,7 @@ export default function SearchDashboard( props ) {
 		);
 	};
 
-	const renderAdminSection = () => {
+	const renderModuleControl = () => {
 		return (
 			<div className="jp-search-dashboard-bottom">
 				<ModuleControl />
@@ -133,7 +122,7 @@ export default function SearchDashboard( props ) {
 
 	return (
 		<div className="jp-search-dashboard-page">
-			{ props.isLoading && (
+			{ isLoading && (
 				<img
 					className="jp-search-dashboard-page-loading-spinner"
 					width="32"
@@ -142,28 +131,14 @@ export default function SearchDashboard( props ) {
 					src="//en.wordpress.com/i/loading/loading-64.gif"
 				/>
 			) }
-			{ ! props.isLoading && (
+			{ ! isLoading && (
 				<Fragment>
 					{ renderHeader() }
 					{ renderMockedSearchInterface() }
-					{ renderAdminSection() }
+					{ renderModuleControl() }
 					{ renderFooter() }
 				</Fragment>
 			) }
 		</div>
 	);
 }
-
-// export default connect(
-// 	state => {
-// 		return {
-// 			apiRootUrl: getApiRootUrl( state ),
-// 			apiNonce: getApiNonce( state ),
-// 			isLoading: isFetchingSitePurchases( state ),
-// 			siteAdminUrl: getSiteAdminUrl( state ),
-// 			tracksUserData: getTracksUserData( state ),
-// 			currentVersion: getCurrentVersion( state ),
-// 		};
-// 	},
-// 	{ setInitialState }
-// )( SearchDashboard );

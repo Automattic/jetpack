@@ -17,6 +17,8 @@
 // Include everything.
 require_once __DIR__ . '/search/class.jetpack-search.php';
 require_once __DIR__ . '/search/class-jetpack-search-customberg.php';
+require_once __DIR__ . '/../vendor/automattic/jetpack-search/src/php/class-rest-controller.php';
 
 Jetpack_Search::instance();
 Automattic\Jetpack\Search\Jetpack_Search_Customberg::instance();
+add_action( 'rest_api_init', array( new Automattic\Jetpack\Search\REST_Controller(), 'register_rest_routes' ) );

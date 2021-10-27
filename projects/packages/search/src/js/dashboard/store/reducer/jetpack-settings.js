@@ -5,8 +5,13 @@ const jetpackSettings = ( state = {}, action ) => {
 		case SET_JETPACK_SETTINGS:
 			return {
 				...state,
-				search: action.options?.search,
-				instant_search_enabled: action.options?.instant_search_enabled,
+				...action.options,
+				is_toggling_module:
+					state.jetpackSettings?.search !== action.options.search &&
+					action.options.isUpdatingOptions,
+				is_toggling_instant_search:
+					state.jetpackSettings?.instant_search_enabled !== action.options.instant_search_enabled &&
+					action.options.isUpdatingOptions,
 			};
 	}
 	return state;

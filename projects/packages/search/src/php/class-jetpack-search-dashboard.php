@@ -14,7 +14,6 @@ use Jetpack_Plan;
 use Jetpack;
 use Jetpack_Search_Helpers;
 use Jetpack_Options;
-use Jetpack_Redux_State_Helper;
 use Jetpack_Search_Options;
 
 /**

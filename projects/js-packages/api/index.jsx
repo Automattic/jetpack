@@ -422,6 +422,11 @@ function JetpackRestApiClient( root, nonce ) {
 			postRequest( `${ apiRoot }jetpack/v4/identity-crisis/confirm-safe-mode`, postParams ).then(
 				checkStatus
 			),
+
+		fetchSearchPlanInfo: () =>
+			getRequest(`${apiRoot}jetpack/v4/search/plan`, getParams)
+			.then(checkStatus)
+			.then(parseJsonResponse),
 	};
 
 	/**
