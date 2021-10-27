@@ -105,7 +105,7 @@ const StepDisconnect = props => {
 						<p>
 							{ createInterpolateElement(
 								__(
-									'<strong>Need help?</strong> Learn more about the <jpConnectionInfoLink>Jetpack connection</jpConnectionInfoLink> or <jpSupportLink>contact Jetpack support</jpSupportLink>',
+									'<strong>Need help?</strong> Learn more about the <jpConnectionInfoLink>Jetpack connection</jpConnectionInfoLink> or <jpSupportLink>contact Jetpack support</jpSupportLink>.',
 									'jetpack'
 								),
 								{
