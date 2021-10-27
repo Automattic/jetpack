@@ -33,6 +33,7 @@ const productIdToDetails = ( productId, dashboardUrl ) => {
 
 /**
  * The Activation Screen Illustration component.
+ *
  * @param {object} props -- The properties.
  * @param {number} props.productId -- The id of the product activated
  * @param {number} props.dashboardUrl -- The url that links to the site dashboard

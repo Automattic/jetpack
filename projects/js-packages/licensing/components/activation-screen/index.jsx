@@ -23,8 +23,8 @@ import './style.scss';
  * @param {object} props -- The properties.
  * @param {string} props.assetBaseUrl -- The assets base URL.
  * @param {string} props.lockImage -- Image to display within the illustration.
+ * @param {string} props.siteRawUrl -- url of the Jetpack Site
  * @param {string} props.successImage -- Image to display within the illustration.
- * @param {string} props.siteRawUrl
  * @returns {React.Component} The `ActivationScreen` component.
  */
 const ActivationScreen = props => {
@@ -34,7 +34,6 @@ const ActivationScreen = props => {
 	const [ licenseError, setLicenseError ] = useState( null );
 	const [ isSaving, setIsSaving ] = useState( false );
 	const [ activatedProduct, setActivatedProduct ] = useState( null );
-	// const [activatedProduct, setActivatedProduct] = useState(2100);
 
 	const activateLicense = useCallback( () => {
 		if ( ! license || isSaving ) {
@@ -88,6 +87,9 @@ const ActivationScreen = props => {
 
 ActivationScreen.propTypes = {
 	assetBaseUrl: PropTypes.string,
+	lockImage: PropTypes.string,
+	siteRawUrl: PropTypes.string,
+	successImage: PropTypes.string,
 };
 
 export default ActivationScreen;

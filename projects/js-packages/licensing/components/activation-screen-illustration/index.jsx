@@ -14,6 +14,7 @@ import './style.scss';
 
 /**
  * The Activation Screen Illustration component.
+ *
  * @param {object} props -- The properties.
  * @param {string} props.imageUrl -- The assets base URL.
  * @param {boolean} props.showSupportLink -- The assets base URL.
@@ -36,7 +37,8 @@ const ActivationScreenIllustration = props => {
 };
 
 ActivationScreenIllustration.PropTypes = {
-	imageUrl: PropTypes.String,
+	imageUrl: PropTypes.string.isRequired,
+	showSupportLink: PropTypes.bool,
 };
 
 export default ActivationScreenIllustration;

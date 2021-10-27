@@ -1,11 +1,10 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { Button, TextControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
-// import { JetpackLogo, withErrorMessage } from '@automattic/jetpack-components';
 import { JetpackLogo } from '@automattic/jetpack-components';
+import { sprintf, __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -14,17 +13,16 @@ import React from 'react';
  */
 import './style.scss';
 
-// const TextControlWithErrorMessage = withErrorMessage(TextControl);
-
 /**
  * The Activation Screen Controls component.
+ *
  * @param {object} props -- The properties.
- * @param {string} props.siteUrl
- * @param {string} props.license
- * @param {?string} props.licenseError
- * @param {function} props.onLicenseChange
- * @param {function} props.activateLicense
- * @param {boolean} props.disabled
+ * @param {function} props.activateLicense -- function to handle submitting a license
+ * @param {boolean} props.disabled -- should the controls be disabled
+ * @param {string} props.license -- the license code to edit or submit
+ * @param {?string} props.licenseError -- any error that occurred while activating a license
+ * @param {function} props.onLicenseChange -- function to handle changes to license
+ * @param {string} props.siteUrl -- the url of the site
  * @returns {React.Component} The `ActivationScreenControls` component.
  */
 const ActivationScreenControls = props => {
@@ -75,6 +73,7 @@ const ActivationScreenControls = props => {
 
 ActivationScreenControls.PropTypes = {
 	activateLicense: PropTypes.func.isRequired,
+	disabled: PropTypes.bool.isRequired,
 	license: PropTypes.string.isRequired,
 	licenseError: PropTypes.string,
 	onLicenseChange: PropTypes.func.isRequired,

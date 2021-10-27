@@ -8,6 +8,7 @@ import React from 'react';
 
 /**
  * The Jetpack Security Daily Product Details component.
+ *
  * @param {object} props -- The properties.
  * @param {number} props.dashboardUrl -- The url that links to the site dashboard
  * @returns {React.Component} The `JetpackBackupDailyProductDetails` component.
@@ -23,7 +24,7 @@ const JetpackSecurityDailyProductDetails = props => {
 			</h1>
 			<p>
 				{ createInterpolateElement(
-					__( 'You can scan and fix your site on <a>cloud.jetpack.com</a>.' ),
+					__( 'You can scan and fix your site on <a>cloud.jetpack.com</a>.', 'jetpack' ),
 					{
 						a: <a href={ dashboardUrl } />,
 					}
