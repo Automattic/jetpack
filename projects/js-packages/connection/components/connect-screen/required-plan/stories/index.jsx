@@ -9,7 +9,7 @@ import { ActionButton } from '@automattic/jetpack-components';
 /**
  * Internal dependencies
  */
-import ConnectScreenRequiredPlanVisual from '../index.jsx';
+import ConnectScreenRequiredPlanVisual from '../visual';
 
 export default {
 	title: 'Connection/Connect Screen with Required Plan',

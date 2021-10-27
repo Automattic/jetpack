@@ -12,13 +12,13 @@ import { sprintf, __ } from '@wordpress/i18n';
  */
 import './style.scss';
 
+const showPriceDecimals = currencyObject => {
+	return currencyObject.fraction.indexOf( '00' ) === -1;
+};
+
 const PricingCard = props => {
 	const currencyObjectBefore = getCurrencyObject( props.priceBefore, props.currencyCode );
 	const currencyObjectAfter = getCurrencyObject( props.priceAfter, props.currencyCode );
-
-	const showPriceDecimals = currencyObject => {
-		return currencyObject.fraction.indexOf( '00' ) === -1;
-	};
 
 	return (
 		<div className="jp-components__pricing-card">

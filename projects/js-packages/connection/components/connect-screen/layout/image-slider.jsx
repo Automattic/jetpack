@@ -22,13 +22,13 @@ const ImageSlider = props => {
 	const imagesHTML = [];
 	images.forEach( image =>
 		imagesHTML.push(
-			<React.Fragment>
+			<React.Fragment key={ image }>
 				<img src={ assetBaseUrl + image } alt="" />
 			</React.Fragment>
 		)
 	);
 
-	return <div className="jp-connect-screen--image-slider">{ imagesHTML }</div>;
+	return <div className="jp-connection__connect-screen__image-slider">{ imagesHTML }</div>;
 };
 
 ImageSlider.propTypes = {

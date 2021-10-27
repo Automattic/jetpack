@@ -8,32 +8,29 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import ConnectButton from '../connect-button';
-import ConnectScreenRequiredPlanVisual from '../connect-screen-required-plan-visual';
+import ConnectButton from '../../connect-button';
+import ConnectScreenVisual from './visual';
 
 /**
- * The Connection Screen component for consumers that require a Plan.
+ * The Connection Screen component.
  *
  * @param {object} props -- The properties.
- * @returns {React.Component} The `ConnectScreenForRequiredPlan` component.
+ * @returns {React.Component} The `ConnectScreen` component.
  */
-const ConnectScreenRequiredPlan = props => {
+const ConnectScreen = props => {
 	const {
 		title,
-		autoTrigger,
 		buttonLabel,
 		apiRoot,
 		apiNonce,
 		registrationNonce,
 		from,
 		redirectUri,
+		images,
 		children,
+		assetBaseUrl,
+		autoTrigger,
 		connectionStatus,
-		priceBefore,
-		priceAfter,
-		pricingIcon,
-		pricingTitle,
-		pricingCurrencyCode,
 	} = props;
 
 	const renderConnectBtn = useCallback(
@@ -55,24 +52,21 @@ const ConnectScreenRequiredPlan = props => {
 	);
 
 	return (
-		<ConnectScreenRequiredPlanVisual
+		<ConnectScreenVisual
 			title={ title }
 			autoTrigger={ autoTrigger }
 			buttonLabel={ buttonLabel }
-			priceBefore={ priceBefore }
-			priceAfter={ priceAfter }
-			pricingIcon={ pricingIcon }
-			pricingTitle={ pricingTitle }
-			pricingCurrencyCode={ pricingCurrencyCode }
+			images={ images }
+			assetBaseUrl={ assetBaseUrl }
 			connectionStatus={ connectionStatus }
 			renderConnectBtn={ renderConnectBtn }
 		>
 			{ children }
-		</ConnectScreenRequiredPlanVisual>
+		</ConnectScreenVisual>
 	);
 };
 
-ConnectScreenRequiredPlan.propTypes = {
+ConnectScreen.propTypes = {
 	/** The Title. */
 	title: PropTypes.string,
 	/** The Connect Button label. */
@@ -91,23 +85,18 @@ ConnectScreenRequiredPlan.propTypes = {
 	connectionStatus: PropTypes.object.isRequired,
 	/** Whether to initiate the connection process automatically upon rendering the component. */
 	autoTrigger: PropTypes.bool,
-	/** The Pricing Card Title. */
-	pricingTitle: PropTypes.string.isRequired,
-	/** The Pricing Card Icon. */
-	icon: PropTypes.string,
-	/** Price before discount. */
-	priceBefore: PropTypes.number.isRequired,
-	/** Price after discount. */
-	priceAfter: PropTypes.number.isRequired,
-	/** The Currency code, eg 'USD'. */
-	pricingCurrencyCode: PropTypes.string,
+	/** Images to display on the right side. */
+	images: PropTypes.arrayOf( PropTypes.string ),
+	/** The assets base URL. */
+	assetBaseUrl: PropTypes.string,
 };
 
-ConnectScreenRequiredPlan.defaultProps = {
+ConnectScreen.defaultProps = {
 	title: __( 'Over 5 million WordPress sites are faster and more secure', 'jetpack' ),
 	buttonLabel: __( 'Set up Jetpack', 'jetpack' ),
-	pricingCurrencyCode: 'USD',
+	images: [],
+	redirectUri: null,
 	autoTrigger: false,
 };
 
-export default ConnectScreenRequiredPlan;
+export default ConnectScreen;

@@ -4,12 +4,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { __ } from '@wordpress/i18n';
-import { getRedirectUrl, JetpackLogo, PricingCard } from '@automattic/jetpack-components';
+import { getRedirectUrl, PricingCard } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
+import ConnectScreenLayout from '../layout';
 import './style.scss';
 
 /**
@@ -60,7 +61,8 @@ const ConnectScreenRequiredPlanVisual = props => {
 	);
 
 	return (
-		<div
+		<ConnectScreenLayout
+			title={ title }
 			className={
 				'jp-connection__connect-screen-required-plan' +
 				( connectionStatus.hasOwnProperty( 'isRegistered' )
@@ -69,10 +71,6 @@ const ConnectScreenRequiredPlanVisual = props => {
 			}
 		>
 			<div className="jp-connection__connect-screen-required-plan__content">
-				<JetpackLogo />
-
-				<h2>{ title }</h2>
-
 				{ children }
 
 				<div className="jp-connection__connect-screen-required-plan__pricing-card">
@@ -92,7 +90,7 @@ const ConnectScreenRequiredPlanVisual = props => {
 					{ withSubscription }
 				</div>
 			</div>
-		</div>
+		</ConnectScreenLayout>
 	);
 };
 
