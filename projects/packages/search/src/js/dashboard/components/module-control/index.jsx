@@ -1,10 +1,10 @@
 /**
  * External dependencies
  */
-import React, { Fragment, useCallback, useEffect } from 'react';
+import React, { Fragment, useCallback } from 'react';
 import { sprintf, __ } from '@wordpress/i18n';
 import { createInterpolateElement } from '@wordpress/element';
-import { select, useDispatch, useSelect, isResolving } from '@wordpress/data';
+import { select, useDispatch, useSelect } from '@wordpress/data';
 import classNames from 'classnames';
 
 /**
@@ -41,14 +41,10 @@ const WIDGETS_EDITOR_URL = 'customize.php?autofocus[panel]=widgets&return=%s';
  * @returns {React.Component}	Search settings component.
  */
 export default function SearchModuleControl() {
-	// todo: change this
-	const failedToEnableSearch = false;
-	const inOfflineMode = false;
-	const isLoading = false;
 	const updateOptions = useDispatch( STORE_ID ).updateJetpackSettings;
+	// TODO add upgradeUrl
 	const upgradeUrl = '';
 
-	const siteAdminUrl = select( STORE_ID ).getSiteAdminUrl();
 	const isInstantSearchPromotionActive = select( STORE_ID ).isInstantSearchPromotionActive();
 
 	const { isModuleEnabled, isInstantSearchEnabled } = useSelect(
@@ -62,32 +58,31 @@ export default function SearchModuleControl() {
 		select => select( STORE_ID ).isTogglingInstantSearch(),
 		[]
 	);
-	const {
-		supportsOnlyClassicSearch: hasOnlyLegacySearch,
-		supportsSearch: hasEitherSearch,
-		supportsInstantSearch: hasActiveSearchPurchase,
-	} = useSelect( select => select( STORE_ID ).getSearchPlanInfo() );
+	const { supportsOnlyClassicSearch, supportsSearch, supportsInstantSearch } = useSelect( select =>
+		select( STORE_ID ).getSearchPlanInfo()
+	);
 
 	const isInstantSearchCustomizeButtonDisabled =
 		isSavingEitherOption ||
 		! isModuleEnabled ||
 		! isInstantSearchEnabled ||
-		! hasActiveSearchPurchase;
+		! supportsInstantSearch;
 	const isWidgetsEditorButtonDisabled = isSavingEitherOption || ! isModuleEnabled;
+	const siteAdminUrl = select( STORE_ID ).getSiteAdminUrl();
 	const returnUrl = encodeURIComponent( siteAdminUrl + RETURN_PATH );
 
 	const toggleSearchModule = useCallback( () => {
 		const newOption = { search: ! isModuleEnabled, instant_search_enabled: isInstantSearchEnabled };
-		if ( hasActiveSearchPurchase && isInstantSearchEnabled !== ! isModuleEnabled ) {
+		if ( supportsInstantSearch && isInstantSearchEnabled !== ! isModuleEnabled ) {
 			newOption.instant_search_enabled = ! isModuleEnabled;
 		}
 		updateOptions( newOption );
 		analytics.tracks.recordEvent( 'jetpack_search_module_toggle', newOption );
-	}, [ hasActiveSearchPurchase, isModuleEnabled, updateOptions, isInstantSearchEnabled ] );
+	}, [ supportsInstantSearch, isModuleEnabled, updateOptions, isInstantSearchEnabled ] );
 
 	const toggleInstantSearch = useCallback( () => {
 		const newOption = {
-			instant_search_enabled: hasActiveSearchPurchase && ! isInstantSearchEnabled,
+			instant_search_enabled: supportsInstantSearch && ! isInstantSearchEnabled,
 			search: isModuleEnabled,
 		};
 		if ( newOption.instant_search_enabled ) {
@@ -95,14 +90,14 @@ export default function SearchModuleControl() {
 		}
 		updateOptions( newOption );
 		analytics.tracks.recordEvent( 'jetpack_search_instant_toggle', newOption );
-	}, [ hasActiveSearchPurchase, isInstantSearchEnabled, isModuleEnabled, updateOptions ] );
+	}, [ supportsInstantSearch, isInstantSearchEnabled, isModuleEnabled, updateOptions ] );
 
-	useEffect( () => {
-		if ( failedToEnableSearch && hasActiveSearchPurchase ) {
-			updateOptions( { has_jetpack_search_product: true } );
-			toggleSearchModule();
-		}
-	}, [ failedToEnableSearch, hasActiveSearchPurchase, updateOptions, toggleSearchModule ] );
+	// useEffect( () => {
+	// 	if ( failedToEnableSearch && hasActiveSearchPurchase ) {
+	// 		updateOptions( { has_jetpack_search_product: true } );
+	// 		toggleSearchModule();
+	// 	}
+	// }, [ failedToEnableSearch, hasActiveSearchPurchase, updateOptions, toggleSearchModule ] );
 
 	const renderInstantSearchButtons = () => {
 		return (
@@ -142,8 +137,8 @@ export default function SearchModuleControl() {
 				<div className="jp-search-dashboard-row">
 					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 					<CompactFormToggle
-						checked={ isModuleEnabled && hasEitherSearch }
-						disabled={ isSavingEitherOption || ! hasEitherSearch }
+						checked={ isModuleEnabled && supportsSearch }
+						disabled={ isSavingEitherOption || ! supportsSearch }
 						onChange={ toggleSearchModule }
 						toggling={ isTogglingModule }
 						className="is-search-admin"
@@ -174,8 +169,8 @@ export default function SearchModuleControl() {
 				<div className="jp-search-dashboard-row">
 					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 					<CompactFormToggle
-						checked={ isModuleEnabled && isInstantSearchEnabled && hasActiveSearchPurchase }
-						disabled={ isSavingEitherOption || ! hasActiveSearchPurchase }
+						checked={ isModuleEnabled && isInstantSearchEnabled && supportsInstantSearch }
+						disabled={ isSavingEitherOption || ! supportsInstantSearch }
 						onChange={ toggleInstantSearch }
 						toggling={ isTogglingInstantSearch }
 						className="is-search-admin"
@@ -192,49 +187,37 @@ export default function SearchModuleControl() {
 				<div className="jp-search-dashboard-row">
 					<div className="lg-col-span-3 md-col-span-2 sm-col-span-1"></div>
 					<div className="jp-form-search-settings-group__toggle-description lg-col-span-7 md-col-span-5 sm-col-span-3">
-						{ hasActiveSearchPurchase && (
+						{ supportsInstantSearch && (
 							<Fragment>
 								<p className="jp-form-search-settings-group__toggle-explanation">
 									{ INSTANT_SEARCH_DESCRIPTION }
 								</p>
 							</Fragment>
 						) }
-						{ ! hasActiveSearchPurchase && isInstantSearchPromotionActive && (
-							<InstantSearchUpsellNudge href={ upgradeUrl } upgrade={ hasOnlyLegacySearch } />
+						{ ! supportsInstantSearch && isInstantSearchPromotionActive && (
+							<InstantSearchUpsellNudge href={ upgradeUrl } upgrade={ supportsOnlyClassicSearch } />
 						) }
 					</div>
 					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 				</div>
-				{ hasActiveSearchPurchase && renderInstantSearchButtons() }
-			</div>
-		);
-	};
-
-	const renderToggles = () => {
-		return (
-			<div className="jp-form-search-settings-group-inside">
-				{ renderSearchToggle() }
-				{ renderInstantSearchToggle() }
+				{ supportsInstantSearch && renderInstantSearchButtons() }
 			</div>
 		);
 	};
 
 	return (
-		<Fragment>
-			<div className="jp-form-settings-group jp-form-search-settings-group">
-				<Card
-					className={ classNames( {
-						'jp-form-has-child': true,
-						'jp-form-settings-disable': false, //disableInOfflineMode || disableInSiteConnectionMode,
-					} ) }
-				>
-					{ inOfflineMode && <p>__( 'Unavailable in Offline Mode', 'jetpack' )</p> }
-
-					{ ! inOfflineMode && isLoading && <p>__( 'Loading…', 'jetpack' )</p> }
-
-					{ ! inOfflineMode && ! isLoading && renderToggles() }
-				</Card>
-			</div>
-		</Fragment>
+		<div className="jp-form-settings-group jp-form-search-settings-group">
+			<Card
+				className={ classNames( {
+					'jp-form-has-child': true,
+					'jp-form-settings-disable': false,
+				} ) }
+			>
+				<div className="jp-form-search-settings-group-inside">
+					{ renderSearchToggle() }
+					{ renderInstantSearchToggle() }
+				</div>
+			</Card>
+		</div>
 	);
 }

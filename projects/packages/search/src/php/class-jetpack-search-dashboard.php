@@ -178,6 +178,8 @@ class Jetpack_Search_Dashboard {
 				// 'plan'                       => Jetpack_Plan::get(),
 				// 'isMultisite'                => is_multisite(),
 				'adminUrl'          => esc_url( admin_url() ),
+				'blogId'            => Jetpack_Options::get_option( 'id', 0 ),
+				'version'           => defined( 'JETPACK_SEARCH_PACKAGE_VERSION' ) && JETPACK_SEARCH_PACKAGE_VERSION,
 			),
 			// 'pluginBaseUrl'    => plugins_url( '', JETPACK__PLUGIN_FILE ),
 			// 'connectUrl'       => false == $current_user_data['isConnected'] // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison

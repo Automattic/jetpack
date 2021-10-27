@@ -4,7 +4,8 @@ const siteDataSelectors = {
 	getRegistrationNonce: state => state.siteData?.registrationNonce ?? null,
 	getSiteAdminUrl: state => state.siteData?.siteAdminUrl ?? null,
 	isInstantSearchPromotionActive: state => state.siteData?.showPromotions ?? true,
-	getVersion: () => 'v1.0.1',
+	getBlogId: state => state.siteData?.blogId ?? 0,
+	getVersion: state => state.siteData?.version ?? 'development',
 };
 
 export default siteDataSelectors;

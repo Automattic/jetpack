@@ -42,11 +42,12 @@ export default function SearchDashboard() {
 	);
 
 	const initializeAnalytics = () => {
-		const tracksUser = false; //select(STORE_ID).getUser();
+		const tracksUser = select( STORE_ID ).getWpcomUser();
+		const blogId = select( STORE_ID ).getBlogId();
 
 		if ( tracksUser ) {
-			analytics.initialize( tracksUser.userid, tracksUser.username, {
-				blog_id: tracksUser.blogid,
+			analytics.initialize( tracksUser.ID, tracksUser.login, {
+				blog_id: blogId,
 			} );
 		}
 	};
@@ -58,7 +59,7 @@ export default function SearchDashboard() {
 		apiNonce && restApi.setApiNonce( apiNonce );
 		initializeAnalytics();
 		analytics.tracks.recordEvent( 'jetpack_search_admin_page_view', {
-			current_version: select( STORE_ID ).getVersion,
+			current_version: select( STORE_ID ).getVersion(),
 		} );
 	}, [] );
 
