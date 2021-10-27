@@ -30,7 +30,6 @@ const JetpackBenefits = props => {
 					{
 						a: (
 							<a
-								className="jetpack-termination-dialog__link"
 								href={ getRedirectUrl( 'jetpack-features-design-content-delivery-network' ) }
 								rel="noopener noreferrer"
 								target="_blank"
@@ -53,7 +52,6 @@ const JetpackBenefits = props => {
 					{
 						a: (
 							<a
-								className="jetpack-termination-dialog__link"
 								href={ getRedirectUrl( 'jetpack-features-security' ) }
 								rel="noopener noreferrer"
 								target="_blank"
@@ -73,7 +71,6 @@ const JetpackBenefits = props => {
 					{
 						a: (
 							<a
-								className="jetpack-termination-dialog__link"
 								href={ getRedirectUrl( 'jetpack-support-social' ) }
 								rel="noopener noreferrer"
 								target="_blank"
@@ -89,15 +86,15 @@ const JetpackBenefits = props => {
 		<React.Fragment>
 			{ siteBenefits.length > 0 && (
 				<React.Fragment>
-					<div className="jp-disconnect-dialog__step-copy">
-						<p className="jp-disconnect-dialog__large-text">
+					<div className="jp-connection__disconnect-dialog__step-copy">
+						<p className="jp-connection__disconnect-dialog__large-text">
 							{ __(
 								'Jetpack is currently powering features on your site. Once you disconnect Jetpack, these features will no longer be available and your site may no longer function the same way.',
 								'jetpack'
 							) }
 						</p>
 					</div>
-					<div className="jp-disconnect-card__group">
+					<div className="jp-connection__disconnect-card__group">
 						{ siteBenefits.map( ( { value, description, title } ) => (
 							<DisconnectCard title={ title } value={ value } description={ description } />
 						) ) }
@@ -106,7 +103,7 @@ const JetpackBenefits = props => {
 			) }
 			{ siteBenefits.length <= 2 && (
 				<div className="jetpack-benefits__general-benefits-section">
-					<p className="jp-disconnect-dialog__large-text">
+					<p className="jp-connection__disconnect-dialog__large-text">
 						{ __(
 							'Jetpack has many powerful tools that can help you achieve your goals',
 							'jetpack'

@@ -98,7 +98,7 @@ class Jetpack_Redux_State_Helper {
 		$connection_status = array_merge( REST_Connector::connection_status( false ), $connection_status );
 
 		$host = new Host();
-		
+
 		// Get Jetpack benefits for this site.
 		$jetpack_benefits_response = Jetpack_Core_API_Site_Endpoint::get_benefits();
 		$jetpack_benefits          = 200 === $jetpack_benefits_response->status ? json_decode( $jetpack_benefits_response->data['data'] ) : array();
