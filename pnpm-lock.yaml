@@ -565,7 +565,6 @@ importers:
 
   projects/plugins/jetpack:
     specifiers:
-      '@automattic/calypso-build': 9.0.0
       '@automattic/calypso-color-schemes': 2.1.1
       '@automattic/color-studio': 2.5.0
       '@automattic/components': 1.0.0-alpha.3
@@ -574,12 +573,14 @@ importers:
       '@automattic/jetpack-api': workspace:^0.5.0
       '@automattic/jetpack-components': workspace:^0.5.0-alpha
       '@automattic/jetpack-connection': workspace:^0.9.0-alpha
+      '@automattic/jetpack-webpack-config': workspace:^0.1.0-alpha
       '@automattic/popup-monitor': 1.0.0
       '@automattic/request-external-access': 1.0.0
       '@automattic/social-previews': 1.1.1
       '@automattic/viewport': 1.0.0
       '@babel/core': 7.15.0
       '@babel/plugin-proposal-nullish-coalescing-operator': 7.14.5
+      '@babel/plugin-transform-react-jsx': 7.14.9
       '@babel/plugin-transform-runtime': 7.15.0
       '@babel/preset-env': 7.15.0
       '@babel/preset-react': 7.14.5
@@ -593,6 +594,7 @@ importers:
       '@testing-library/react-hooks': 4.0.1
       '@testing-library/user-event': 12.8.3
       '@wordpress/annotations': 2.2.5
+      '@wordpress/babel-plugin-import-jsx-pragma': 3.1.0
       '@wordpress/base-styles': 4.0.2
       '@wordpress/block-editor': 7.0.4
       '@wordpress/blocks': 11.1.2
@@ -662,7 +664,9 @@ importers:
       nyc: 15.1.0
       photon: 4.0.0
       plugin-error: 1.0.1
+      postcss: 8.3.11
       postcss-custom-properties: 10.0.0
+      postcss-loader: 6.2.0
       preact: 10.5.7
       prettier: npm:wp-prettier@2.0.5
       progress-event: 1.0.0
@@ -705,7 +709,6 @@ importers:
       webpack: 5.51.1
       webpack-cli: 4.8.0
     dependencies:
-      '@automattic/calypso-build': 9.0.0_1fe407fcee7f7b1b50bfdbf31ccbc0fe
       '@automattic/calypso-color-schemes': 2.1.1
       '@automattic/components': 1.0.0-alpha.3_react-dom@17.0.2+react@17.0.2
       '@automattic/format-currency': 1.0.0-alpha.0
@@ -717,7 +720,6 @@ importers:
       '@automattic/request-external-access': 1.0.0
       '@automattic/social-previews': 1.1.1_e6f416a553290d40762829ad0237e012
       '@automattic/viewport': 1.0.0
-      '@babel/runtime': 7.15.3
       '@wordpress/annotations': 2.2.5_react@17.0.2+redux@4.0.5
       '@wordpress/base-styles': 4.0.2
       '@wordpress/block-editor': 7.0.4_2ccf75bd525644be36fe60c4756fa1e9
@@ -800,19 +802,23 @@ importers:
       react-dom: 17.0.2_react@17.0.2
     devDependencies:
       '@automattic/color-studio': 2.5.0
+      '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
       '@babel/core': 7.15.0
       '@babel/plugin-proposal-nullish-coalescing-operator': 7.14.5_@babel+core@7.15.0
+      '@babel/plugin-transform-react-jsx': 7.14.9_@babel+core@7.15.0
       '@babel/plugin-transform-runtime': 7.15.0_@babel+core@7.15.0
       '@babel/preset-env': 7.15.0_@babel+core@7.15.0
       '@babel/preset-react': 7.14.5_@babel+core@7.15.0
       '@babel/preset-typescript': 7.15.0_@babel+core@7.15.0
       '@babel/register': 7.15.3_@babel+core@7.15.0
+      '@babel/runtime': 7.15.3
       '@size-limit/preset-app': 4.10.2_size-limit@5.0.3
       '@testing-library/jest-dom': 5.12.0
       '@testing-library/preact': 2.0.1_preact@10.5.7
       '@testing-library/react': 11.2.7_react-dom@17.0.2+react@17.0.2
       '@testing-library/react-hooks': 4.0.1_509016fd322278d497c1e58f6164ce1d
       '@testing-library/user-event': 12.8.3
+      '@wordpress/babel-plugin-import-jsx-pragma': 3.1.0_@babel+core@7.15.0
       '@wordpress/components': 19.0.0_2ccf75bd525644be36fe60c4756fa1e9
       '@wordpress/core-data': 4.0.4_react@17.0.2+redux@4.0.5
       '@wordpress/dependency-extraction-webpack-plugin': 3.2.1_webpack@5.51.1
@@ -837,6 +843,8 @@ importers:
       node-polyfill-webpack-plugin: 1.1.4_webpack@5.51.1
       node-wp-i18n: 1.2.4
       nyc: 15.1.0
+      postcss: 8.3.11
+      postcss-loader: 6.2.0_postcss@8.3.11+webpack@5.51.1
       prettier: /wp-prettier/2.0.5
       react-click-outside: 3.0.1
       react-test-renderer: 17.0.2_react@17.0.2
@@ -1012,78 +1020,6 @@ packages:
     resolution: {integrity: sha512-VRYHGQV1rqnROJqdMvGUbY/Kn8vriQe/F9HR2AlYHzmKuM/p3kjNuXhmdBfcVgsvRWTz5C5XW5xvndZrVBuAYg==}
     dependencies:
       tunnel: 0.0.6
-    dev: false
-
-  /@automattic/calypso-build/9.0.0_1fe407fcee7f7b1b50bfdbf31ccbc0fe:
-    resolution: {integrity: sha512-5HUUBkInuV53BjYXvslYG/CtzxfC+4Bt2f5afRjWsDQbZv9DZ5JQgItK5GPRXDMzd5X2or8YmsNzxkYN6m+H3g==}
-    hasBin: true
-    peerDependencies:
-      enzyme: ^3.11.0
-      jest: '>=27.0.6'
-      postcss: ^8.2.15
-      react: ^16.0.0
-      react-dom: ^16.0.0
-      webpack: ^5.46.0
-    dependencies:
-      '@automattic/webpack-rtl-plugin': 5.0.0_webpack@5.51.1
-      '@babel/cli': 7.15.7_@babel+core@7.15.5
-      '@babel/compat-data': 7.15.0
-      '@babel/core': 7.15.5
-      '@babel/helpers': 7.15.4
-      '@babel/plugin-proposal-class-properties': 7.14.5_@babel+core@7.15.5
-      '@babel/plugin-transform-react-jsx': 7.14.9_@babel+core@7.15.5
-      '@babel/plugin-transform-runtime': 7.15.0_@babel+core@7.15.5
-      '@babel/preset-env': 7.15.6_@babel+core@7.15.5
-      '@babel/preset-react': 7.14.5_@babel+core@7.15.5
-      '@babel/preset-typescript': 7.15.0_@babel+core@7.15.5
-      '@types/webpack-env': 1.16.2
-      '@wordpress/babel-plugin-import-jsx-pragma': 3.1.0_@babel+core@7.15.5
-      '@wordpress/browserslist-config': 3.0.3
-      '@wordpress/dependency-extraction-webpack-plugin': 3.2.1_webpack@5.51.1
-      autoprefixer: 10.3.4
-      babel-jest: 27.2.1_@babel+core@7.15.5
-      babel-loader: 8.2.2_80927b313c74087b681f254ee0e3e2fc
-      browserslist: 4.17.4
-      cache-loader: 4.1.0_webpack@5.51.1
-      css-loader: 5.2.7_webpack@5.51.1
-      css-minimizer-webpack-plugin: 1.3.0_webpack@5.51.1
-      duplicate-package-checker-webpack-plugin: 3.0.0
-      enzyme: 3.11.0
-      enzyme-adapter-react-16: /@wojtekmaj/enzyme-adapter-react-17/0.6.3_fae758709a8810ba97b4c03852dde4d0
-      enzyme-to-json: 3.6.2_enzyme@3.11.0
-      jest: 27.0.4
-      jest-config: 27.2.1
-      jest-emotion: 10.0.32
-      jest-enzyme: 7.1.2_65d41ffd1d349f14c496d249b6f0b04f
-      mini-css-extract-plugin: 1.6.2_webpack@5.51.1
-      postcss-custom-properties: 11.0.0
-      postcss-loader: 5.3.0_webpack@5.51.1
-      react: 17.0.2
-      react-dom: 17.0.2_react@17.0.2
-      recursive-copy: 2.0.13
-      sass: 1.39.0
-      sass-loader: 11.1.1_sass@1.39.0+webpack@5.51.1
-      semver: 7.3.5
-      terser-webpack-plugin: 5.2.4_webpack@5.51.1
-      thread-loader: 3.0.4_webpack@5.51.1
-      typescript: 4.4.3
-      webpack: 5.51.1_webpack-cli@4.8.0
-      webpack-cli: 4.8.0_webpack@5.51.1
-    transitivePeerDependencies:
-      - '@swc/core'
-      - '@webpack-cli/generators'
-      - '@webpack-cli/migrate'
-      - bufferutil
-      - canvas
-      - esbuild
-      - fibers
-      - node-sass
-      - supports-color
-      - ts-node
-      - uglify-js
-      - utf-8-validate
-      - webpack-bundle-analyzer
-      - webpack-dev-server
     dev: false
 
   /@automattic/calypso-build/9.0.0_webpack@5.51.1:
@@ -6974,26 +6910,6 @@ packages:
       react-test-renderer: 17.0.2
     dev: false
 
-  /@wojtekmaj/enzyme-adapter-react-17/0.6.3_fae758709a8810ba97b4c03852dde4d0:
-    resolution: {integrity: sha512-Kp1ZJxtHkKEnUksaWrcMABNTOgL4wOt8VI6k2xOek2aH9PtZcWRXJNUEgnKrdJrqg5UqIjRslbVF9uUqwQJtFg==}
-    peerDependencies:
-      enzyme: ^3.0.0
-      react: ^17.0.0-0
-      react-dom: ^17.0.0-0
-    dependencies:
-      '@wojtekmaj/enzyme-adapter-utils': 0.1.1_react@17.0.2
-      enzyme: 3.11.0
-      enzyme-shallow-equal: 1.0.4
-      has: 1.0.3
-      object.assign: 4.1.2
-      object.values: 1.1.4
-      prop-types: 15.7.2
-      react: 17.0.2
-      react-dom: 17.0.2_react@17.0.2
-      react-is: 17.0.2
-      react-test-renderer: 17.0.2_react@17.0.2
-    dev: false
-
   /@wojtekmaj/enzyme-adapter-utils/0.1.1:
     resolution: {integrity: sha512-bNPWtN/d8huKOkC6j1E3EkSamnRrHHT7YuR6f9JppAQqtoAm3v4/vERe4J14jQKmHLCyEBHXrlgb7H6l817hVg==}
     peerDependencies:
@@ -7004,19 +6920,6 @@ packages:
       object.assign: 4.1.2
       object.fromentries: 2.0.4
       prop-types: 15.7.2
-    dev: false
-
-  /@wojtekmaj/enzyme-adapter-utils/0.1.1_react@17.0.2:
-    resolution: {integrity: sha512-bNPWtN/d8huKOkC6j1E3EkSamnRrHHT7YuR6f9JppAQqtoAm3v4/vERe4J14jQKmHLCyEBHXrlgb7H6l817hVg==}
-    peerDependencies:
-      react: ^17.0.0-0
-    dependencies:
-      function.prototype.name: 1.1.4
-      has: 1.0.3
-      object.assign: 4.1.2
-      object.fromentries: 2.0.4
-      prop-types: 15.7.2
-      react: 17.0.2
     dev: false
 
   /@wordpress/a11y/2.15.3:
@@ -7065,6 +6968,15 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       '@babel/runtime': 7.15.4
+
+  /@wordpress/babel-plugin-import-jsx-pragma/3.1.0_@babel+core@7.15.0:
+    resolution: {integrity: sha512-518mL3goaSeXtJCQcPK9OYHUUiA0sjXuoGWHBwRalkyTIQZZy5ZZzlwrlSc9ESZcOw9BZ+Uo8CJRjV2OWnx+Zw==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      '@babel/core': ^7.12.9
+    dependencies:
+      '@babel/core': 7.15.0
+    dev: true
 
   /@wordpress/babel-plugin-import-jsx-pragma/3.1.0_@babel+core@7.15.5:
     resolution: {integrity: sha512-518mL3goaSeXtJCQcPK9OYHUUiA0sjXuoGWHBwRalkyTIQZZy5ZZzlwrlSc9ESZcOw9BZ+Uo8CJRjV2OWnx+Zw==}
@@ -11886,16 +11798,6 @@ packages:
       deep-equal-ident: 1.1.1
     dev: false
 
-  /enzyme-matchers/7.1.2_enzyme@3.11.0:
-    resolution: {integrity: sha512-03WqAg2XDl7id9rARIO97HQ1JIw9F2heJ3R4meGu/13hx0ULTDEgl0E67MGl2Uq1jq1DyRnJfto1/VSzskdV5A==}
-    peerDependencies:
-      enzyme: '>=3.4.0'
-    dependencies:
-      circular-json-es6: 2.0.2
-      deep-equal-ident: 1.1.1
-      enzyme: 3.11.0
-    dev: false
-
   /enzyme-shallow-equal/1.0.4:
     resolution: {integrity: sha512-MttIwB8kKxypwHvRynuC3ahyNc+cFbR8mjVIltnmzQ0uKGqmsfO4bfBuLxb0beLNPhjblUEYvEbsg+VSygvF1Q==}
     dependencies:
@@ -11909,18 +11811,6 @@ packages:
       enzyme: ^3.4.0
     dependencies:
       '@types/cheerio': 0.22.30
-      lodash: 4.17.21
-      react-is: 16.13.1
-    dev: false
-
-  /enzyme-to-json/3.6.2_enzyme@3.11.0:
-    resolution: {integrity: sha512-Ynm6Z6R6iwQ0g2g1YToz6DWhxVnt8Dy1ijR2zynRKxTyBGA8rCDXU3rs2Qc4OKvUvc2Qoe1bcFK6bnPs20TrTg==}
-    engines: {node: '>=6.0.0'}
-    peerDependencies:
-      enzyme: ^3.4.0
-    dependencies:
-      '@types/cheerio': 0.22.30
-      enzyme: 3.11.0
       lodash: 4.17.21
       react-is: 16.13.1
     dev: false
@@ -15334,24 +15224,6 @@ packages:
       - utf-8-validate
     dev: false
 
-  /jest-environment-enzyme/7.1.2_65d41ffd1d349f14c496d249b6f0b04f:
-    resolution: {integrity: sha512-3tfaYAzO7qZSRrv+srQnfK16Vu5XwH/pHi8FpoqSHjKKngbHzXf7aBCBuWh8y3w0OtknHRfDMFrC60Khj+g1hA==}
-    peerDependencies:
-      enzyme: 3.x
-      jest: '>=22.0.0'
-      react: ^0.13.0 || ^0.14.0 || ^15.0.0 || >=16.x
-    dependencies:
-      enzyme: 3.11.0
-      jest: 27.0.4
-      jest-environment-jsdom: 26.6.2
-      react: 17.0.2
-    transitivePeerDependencies:
-      - bufferutil
-      - canvas
-      - supports-color
-      - utf-8-validate
-    dev: false
-
   /jest-environment-jsdom/26.6.2:
     resolution: {integrity: sha512-jgPqCruTlt3Kwqg5/WVFyHIOJHsiAvhcp2qiR2QQstuG9yWox5+iHpU3ZrcBxW14T4fe5Z68jAfLRh7joCSP2Q==}
     engines: {node: '>= 10.14.2'}
@@ -15407,25 +15279,6 @@ packages:
       enzyme-matchers: 7.1.2
       enzyme-to-json: 3.6.2
       jest-environment-enzyme: 7.1.2
-    transitivePeerDependencies:
-      - bufferutil
-      - canvas
-      - react
-      - supports-color
-      - utf-8-validate
-    dev: false
-
-  /jest-enzyme/7.1.2_65d41ffd1d349f14c496d249b6f0b04f:
-    resolution: {integrity: sha512-j+jkph3t5hGBS12eOldpfsnERYRCHi4c/0KWPMnqRPoJJXvCpLIc5th1MHl0xDznQDXVU0AHUXg3rqMrf8vGpA==}
-    peerDependencies:
-      enzyme: '>=3.4.0'
-      jest: '>=22.0.0'
-    dependencies:
-      enzyme: 3.11.0
-      enzyme-matchers: 7.1.2_enzyme@3.11.0
-      enzyme-to-json: 3.6.2_enzyme@3.11.0
-      jest: 27.0.4
-      jest-environment-enzyme: 7.1.2_65d41ffd1d349f14c496d249b6f0b04f
     transitivePeerDependencies:
       - bufferutil
       - canvas
@@ -17035,6 +16888,12 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
+  /nanoid/3.1.30:
+    resolution: {integrity: sha512-zJpuPDwOv8D2zq2WRoMe1HsfZthVewpel9CAvTfc/2mBD1uUT/agc5f7GHGWXlYkFvi1mVxe4IjvP2HNrop7nQ==}
+    engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
+    hasBin: true
+    dev: true
+
   /nanomatch/1.2.13:
     resolution: {integrity: sha512-fpoe2T0RbHwBTBUOftAfBPaDEi06ufaUai0mE6Yn1kacc3SnTErfb/h+X94VXzI64rKFHYImXSvdwGGCmwOqCA==}
     engines: {node: '>=0.10.0'}
@@ -18160,6 +18019,20 @@ packages:
       webpack: 5.51.1_webpack-cli@4.8.0
     dev: false
 
+  /postcss-loader/6.2.0_postcss@8.3.11+webpack@5.51.1:
+    resolution: {integrity: sha512-H9hv447QjQJVDbHj3OUdciyAXY3v5+UDduzEytAlZCVHCpNAAg/mCSwhYYqZr9BiGYhmYspU8QXxZwiHTLn3yA==}
+    engines: {node: '>= 12.13.0'}
+    peerDependencies:
+      postcss: ^7.0.0 || ^8.0.1
+      webpack: ^5.0.0
+    dependencies:
+      cosmiconfig: 7.0.1
+      klona: 2.0.4
+      postcss: 8.3.11
+      semver: 7.3.5
+      webpack: 5.51.1_webpack-cli@4.8.0
+    dev: true
+
   /postcss-merge-longhand/4.0.11:
     resolution: {integrity: sha512-alx/zmoeXvJjp7L4mxEMjh8lxVlDFX1gqWHzaaQewwMZiVhLo42TEClKaeHbRf6J7j82ZOdTJ808RtN0ZOZwvw==}
     engines: {node: '>=6.9.0'}
@@ -18444,6 +18317,15 @@ packages:
       chalk: 2.4.2
       source-map: 0.6.1
       supports-color: 6.1.0
+
+  /postcss/8.3.11:
+    resolution: {integrity: sha512-hCmlUAIlUiav8Xdqw3Io4LcpA1DOt7h3LSTAC4G6JGHFFaWzI6qvFt9oilvl8BmkbBRX1IhM90ZAmpk68zccQA==}
+    engines: {node: ^10 || ^12 || >=14}
+    dependencies:
+      nanoid: 3.1.30
+      picocolors: 1.0.0
+      source-map-js: 0.6.2
+    dev: true
 
   /postcss/8.3.6:
     resolution: {integrity: sha512-wG1cc/JhRgdqB6WHEuyLTedf3KIRuD0hG6ldkFEZNCjRxiC+3i6kkWUUbiJQayP28iwG35cEmAbe98585BYV0A==}
@@ -19374,6 +19256,7 @@ packages:
       object-assign: 4.1.1
       react: 17.0.2
       react-is: 17.0.2
+    dev: true
 
   /react-sizeme/3.0.2:
     resolution: {integrity: sha512-xOIAOqqSSmKlKFJLO3inBQBdymzDuXx4iuwkNcJmC96jeiOg5ojByvL+g3MW9LPEsojLbC6pf68zOfobK8IPlw==}
@@ -19438,6 +19321,7 @@ packages:
       react-is: 17.0.2
       react-shallow-renderer: 16.14.1_react@17.0.2
       scheduler: 0.20.2
+    dev: true
 
   /react-textarea-autosize/8.3.3_react@17.0.2:
     resolution: {integrity: sha512-2XlHXK2TDxS6vbQaoPbMOfQ8GK7+irc2fVK6QFIcC8GOnH3zI/v481n+j1L0WaPVvKxwesnY93fEfH++sus2rQ==}
