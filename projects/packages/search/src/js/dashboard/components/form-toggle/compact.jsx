@@ -8,7 +8,7 @@ import { omit } from 'lodash';
 /**
  * Internal dependencies
  */
-import Toggle from './';
+import Toggle from 'components/form-toggle';
 
 export default class CompactFormToggle extends React.Component {
 	static displayName = 'CompactFormToggle';

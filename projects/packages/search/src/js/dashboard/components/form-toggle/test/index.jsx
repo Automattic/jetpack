@@ -9,7 +9,7 @@ import { unique } from 'lodash';
 /**
  * Internal dependencies
  */
-import CompactFormToggle from 'components/forms/form-toggle/compact';
+import CompactFormToggle from 'components/form-toggle/compact';
 
 describe( 'CompactFormToggle', function () {
 	describe( 'rendering', function () {
