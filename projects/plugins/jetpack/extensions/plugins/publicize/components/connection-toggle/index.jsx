@@ -2,6 +2,7 @@
  * External dependencies
  */
 import classnames from 'classnames';
+import PropTypes from 'prop-types';
 
 /**
  * WordPress dependencies
@@ -18,18 +19,7 @@ import ConnectionIcon from '../connection-icon';
  */
 import './style.scss';
 
-type ConnectionToggleProps = {
-	className: string;
-	checked: boolean;
-	id: string;
-	disabled: boolean;
-	onChange: () => void;
-	serviceName: string;
-	label: string;
-	profilePicture: string;
-};
-
-const ConnectionToggle: React.FC< ConnectionToggleProps > = props => {
+const ConnectionToggle = props => {
 	const { className, checked, id, disabled, onChange, serviceName, label, profilePicture } = props;
 
 	const wrapperClasses = classnames( 'components-connection-toggle', {
@@ -54,6 +44,17 @@ const ConnectionToggle: React.FC< ConnectionToggleProps > = props => {
 			/>
 		</div>
 	);
+};
+
+ConnectionToggle.propTypes = {
+	className: PropTypes.string,
+	checked: PropTypes.bool,
+	id: PropTypes.string.isRequired,
+	disabled: PropTypes.bool,
+	onChange: PropTypes.func,
+	serviceName: PropTypes.string,
+	label: PropTypes.string,
+	profilePicture: PropTypes.string,
 };
 
 export default ConnectionToggle;
