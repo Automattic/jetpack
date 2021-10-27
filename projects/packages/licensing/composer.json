@@ -1,5 +1,5 @@
 {
-	"name": "automattic/js-jetpack-licensing",
+	"name": "automattic/jetpack-licensing",
 	"description": "Everything needed to manage Jetpack licenses client-side.",
 	"type": "library",
 	"license": "GPL-2.0-or-later",

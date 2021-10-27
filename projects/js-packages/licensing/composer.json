@@ -1,5 +1,5 @@
 {
-	"name": "automattic/jetpack-licensing",
+	"name": "automattic/jetpack-js-licensing",
 	"description": "Jetpack licensing flow",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
