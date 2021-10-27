@@ -1176,4 +1176,13 @@ class Identity_Crisis {
 		 */
 		return apply_filters( 'jetpack_idc_non_admin_contact_admin_text', $string );
 	}
+
+	/**
+	 * Whether the site is undergoing identity crisis.
+	 *
+	 * @return bool
+	 */
+	public static function has_identity_crisis() {
+		return current_user_can( 'jetpack_disconnect' ) && false !== static::check_identity_crisis() && ! static::$is_safe_mode_confirmed;
+	}
 }

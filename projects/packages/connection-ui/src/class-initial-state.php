@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\ConnectionUI;
 
+use Automattic\Jetpack\Identity_Crisis;
+
 /**
  * The React initial state.
  */
@@ -27,7 +29,33 @@ class Initial_State {
 			'assets' => array(
 				'buildUrl' => plugins_url( 'build/', __DIR__ ),
 			),
+			'IDC'    => $this->get_idc_data(),
 		);
+	}
+
+	/**
+	 * Get the IDC data for initial state.
+	 *
+	 * @return array
+	 */
+	private function get_idc_data() {
+		$has_idc = Identity_Crisis::has_identity_crisis();
+
+		$idc_data = array(
+			'hasIDC' => $has_idc,
+		);
+
+		if ( ! $has_idc ) {
+			return $idc_data;
+		}
+
+		$data = Identity_Crisis::check_identity_crisis();
+
+		$idc_data['wpcomHomeUrl'] = $data['wpcom_home'];
+		$idc_data['currentUrl']   = $data['home'];
+		$idc_data['redirectUri']  = $_SERVER['REQUEST_URI'];
+
+		return $idc_data;
 	}
 
 	/**

@@ -31,15 +31,10 @@ export default function Admin() {
 	const APIRoot = useSelect( select => select( STORE_ID ).getAPIRoot(), [] );
 	const registrationNonce = useSelect( select => select( STORE_ID ).getRegistrationNonce(), [] );
 	const assetBuildUrl = useSelect( select => select( STORE_ID ).getAssetBuildUrl(), [] );
+	const IDCData = useSelect( select => select( STORE_ID ).getIDCData(), [] );
 
 	const connectionStatus = useSelect( select => select( STORE_ID ).getConnectionStatus(), [] );
 	const { setConnectionStatus } = useDispatch( STORE_ID );
-
-	// Placeholder for testing purposes.
-	const hasIDC = true;
-	const IDCHomeUrl = 'https://site1.local/';
-	const currentUrl = 'https://site2.local/';
-	const redirectUri = 'tools.php?page=wpcom-connection-manager';
 
 	const statusCallback = useCallback(
 		status => {
@@ -52,14 +47,14 @@ export default function Admin() {
 		setConnectionStatus( { isActive: false, isRegistered: false, isUserConnected: false } );
 	}, [ setConnectionStatus ] );
 
-	if ( hasIDC ) {
+	if ( IDCData.hasIDC ) {
 		return (
 			<IDCScreen
-				wpcomHomeUrl={ IDCHomeUrl }
-				currentUrl={ currentUrl }
+				wpcomHomeUrl={ IDCData.wpcomHomeUrl }
+				currentUrl={ IDCData.currentUrl }
 				apiRoot={ APIRoot }
 				apiNonce={ APINonce }
-				redirectUri={ redirectUri }
+				redirectUri={ IDCData.redirectUri }
 			/>
 		);
 	}
