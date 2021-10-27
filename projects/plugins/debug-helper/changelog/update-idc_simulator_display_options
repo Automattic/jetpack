@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Display the IDC option values (sync_error_idc, migrate_for_idc, and safe_mode_confirmed)

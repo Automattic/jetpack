@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack_Plan;
@@ -123,13 +124,14 @@ class Dashboard_Switcher_Tracking {
 	 * @param array $event_properties The event properties.
 	 */
 	private function record_jetpack_event( $event_properties ) {
-		if ( \jetpack_is_atomic_site() ) {
+		$woa = ( new Host() )->is_woa_site();
+		if ( $woa ) {
 			add_filter( 'jetpack_options', array( __CLASS__, 'mark_jetpack_tos_as_read' ), 10, 2 );
 		}
 
 		$this->tracking->record_user_event( self::JETPACK_EVENT_NAME, $event_properties );
 
-		if ( \jetpack_is_atomic_site() ) {
+		if ( $woa ) {
 			\remove_filter( 'jetpack_options', array( __CLASS__, 'mark_jetpack_tos_as_read' ) );
 		}
 	}
@@ -152,7 +154,7 @@ class Dashboard_Switcher_Tracking {
 	 * @return string
 	 */
 	public static function get_jetpack_tracking_product() {
-		return \jetpack_is_atomic_site() ? 'atomic' : 'jetpack';
+		return ( new Host() )->is_woa_site() ? 'atomic' : 'jetpack';
 	}
 
 	/**

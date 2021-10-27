@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Extensions\Premium_Content;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Status\Host;
 use Jetpack_Gutenberg;
 
 const BUTTONS_NAME = 'premium-content/buttons';
@@ -19,7 +20,7 @@ const BUTTONS_NAME = 'premium-content/buttons';
  */
 function register_buttons_block() {
 	// Only load this block on WordPress.com.
-	if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || jetpack_is_atomic_site() ) {
+	if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ( new Host() )->is_woa_site() ) {
 		Blocks::jetpack_register_block(
 			BUTTONS_NAME,
 			array(
