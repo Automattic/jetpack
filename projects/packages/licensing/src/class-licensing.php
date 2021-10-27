@@ -146,12 +146,12 @@ class Licensing {
 	}
 
 	/**
- 	 * Attach the given license.
- 	 *
- 	 * @param string $license Licenses to attach.
- 	 * @return array|WP_Error Results the license (which may include WP_Error instances) or a WP_Error instance.
- 	 */
-	  public function attach_license( $license ) {
+	 * Attach the given license.
+	 *
+	 * @param string $license Licenses to attach.
+	 * @return array|WP_Error Results the license (which may include WP_Error instances) or a WP_Error instance.
+	 */
+	public function attach_license( $license ) {
 		if ( ! $this->connection()->has_connected_owner() ) {
 			return new WP_Error( 'not_connected', __( 'Jetpack doesn\'t have a connected owner.', 'jetpack' ) );
 		}
