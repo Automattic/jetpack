@@ -13,11 +13,11 @@ getRedirectUrl( source, args );
 
 ### source (required)
 
-Source can be either a “source handler” or a URL.
+Source can be either a “source handler” or an URL.
 
 A “source handler” must be registered in the Jetpack Redirects service, on the server side. It’s a slug that points to an URL that may or may not have dynamic parts in it.
 
-A “URL” is a string that must start with “https://" and doesn’t need to be registered on the server. However, if it is registered, it will point to the URL set as target there rather than to the source. (Note: It will only work for whitelisted domains, unless the URL is explicitly registered on the server)
+An “URL” is a string that must start with “https://" and doesn’t need to be registered on the server. However, if it is registered, it will point to the URL set as target there rather than to the source. (Note: It will only work for whitelisted domains, unless the URL is explicitly registered on the server)
 
 ### args (optional)
 
