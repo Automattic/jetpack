@@ -12,9 +12,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require_once __DIR__ . '/class.jetpack-search-helpers.php';
-require_once __DIR__ . '/class-jetpack-search-options.php';
-
 /**
  * Class to customize search on the site.
  *

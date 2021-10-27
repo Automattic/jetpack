@@ -10,8 +10,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require_once __DIR__ . '/class-jetpack-search-options.php';
-
 /**
  * Class to initialize search settings on the site.
  *

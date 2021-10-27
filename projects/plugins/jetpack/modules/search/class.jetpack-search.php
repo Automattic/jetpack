@@ -11,8 +11,6 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Search\Helper;
 
-require_once __DIR__ . '/class-jetpack-search-options.php';
-
 /**
  * The main class for the Jetpack Search module.
  *
