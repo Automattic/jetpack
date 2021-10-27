@@ -413,8 +413,15 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
-		updateUserLicensesCounts: () =>
+		getUserLicensesCounts: () =>
 			getRequest( `${ apiRoot }jetpack/v4/licensing/user/counts`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		updateLicensingActivationNoticeDismiss: lastDetachedCount =>
+			postRequest( `${ apiRoot }jetpack/v4/licensing/user/activation-notice-dismiss`, postParams, {
+				body: JSON.stringify( { last_detached_count: lastDetachedCount } ),
+			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 

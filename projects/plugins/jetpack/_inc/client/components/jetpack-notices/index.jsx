@@ -18,6 +18,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
  */
 import ConnectionBanner from 'components/connection-banner';
 import DismissableNotices from './dismissable';
+import UserLicenseActivationNotice from './user-license-activation';
 import {
 	getSiteConnectionStatus,
 	getSiteOfflineMode,
@@ -35,7 +36,7 @@ import {
 	userIsSubscriber,
 	getConnectionErrors,
 } from 'state/initial-state';
-import { getLicensingError, clearLicensingError, hasDetachedUserLicenses } from 'state/licensing';
+import { getLicensingError, clearLicensingError } from 'state/licensing';
 import { getSiteDataErrors } from 'state/site';
 import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 import JetpackStateNotices from './state-notices';
@@ -276,16 +277,7 @@ class JetpackNotices extends React.Component {
 						onDismissClick={ this.props.clearLicensingError }
 					/>
 				) }
-				{ this.props.hasDetachedUserLicenses && (
-					<SimpleNotice
-						showDismiss={ true }
-						text={ __( 'You have an inactive product.', 'jetpack' ) }
-					>
-						<NoticeAction href={ '/wp-admin/admin.php?page=jetpack#/my-plan' }>
-							{ __( 'Activate now', 'jetpack' ) }
-						</NoticeAction>
-					</SimpleNotice>
-				) }
+				<UserLicenseActivationNotice />
 			</div>
 		);
 	}
@@ -309,7 +301,6 @@ export default connect(
 			isReconnectingSite: isReconnectingSite( state ),
 			licensingError: getLicensingError( state ),
 			hasConnectedOwner: hasConnectedOwner( state ),
-			hasDetachedUserLicenses: hasDetachedUserLicenses( state ),
 		};
 	},
 	dispatch => {

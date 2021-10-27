@@ -10,6 +10,7 @@ import { combineReducers } from 'redux';
 import {
 	JETPACK_LICENSING_ERROR_UPDATE,
 	JETPACK_LICENSING_USER_LICENSE_COUNTS_UPDATE,
+	JETPACK_LICENSING_ACTIVATION_NOTICE_DISMISS_UPDATE,
 } from 'state/action-types';
 
 /**
@@ -36,11 +37,33 @@ export const error = ( state = window.Initial_State.licensing.error, action ) =>
  * @param {object} action - The action
  * @returns {object} - The counts of user licenses
  */
-
 export const userCounts = ( state = window.Initial_State.licensing.userCounts ?? {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_LICENSING_USER_LICENSE_COUNTS_UPDATE:
 			return assign( {}, state, action.counts );
+
+		default:
+			return state;
+	}
+};
+
+/**
+ * "user"-licenses activation notice dismissal info.
+ *
+ * @param {number} state - Global state tree
+ * @param {object} action - The action
+ * @returns {object} - The 'last_detached_count' and 'last_dismissed_time'
+ */
+export const activationNoticeDismiss = (
+	state = window.Initial_State.licensing.activationNoticeDismiss ?? {
+		last_detached_count: null,
+		last_dismissed_time: null,
+	},
+	action
+) => {
+	switch ( action.type ) {
+		case JETPACK_LICENSING_ACTIVATION_NOTICE_DISMISS_UPDATE:
+			return assign( {}, state, action.dismissData );
 
 		default:
 			return state;
@@ -53,6 +76,7 @@ export const userCounts = ( state = window.Initial_State.licensing.userCounts ??
 export const reducer = combineReducers( {
 	error,
 	userCounts,
+	activationNoticeDismiss,
 } );
 
 /**
@@ -73,4 +97,24 @@ export function getLicensingError( state ) {
  */
 export function hasDetachedUserLicenses( state ) {
 	return !! get( state.jetpack.licensing.userCounts, [ 'detached' ], 0 );
+}
+
+/**
+ * Get the user's number of detached licenses.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {number} - Number of detached licenses.
+ */
+export function getDetachedLicensesCount( state ) {
+	return get( state.jetpack.licensing.userCounts, [ 'detached' ], 0 );
+}
+
+/**
+ * Get the license activation notice dismiss info.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {object} - An object containing last_detached_count and last_dismissed_time.
+ */
+export function getActivationNoticeDismissInfo( state ) {
+	return get( state.jetpack.licensing, [ 'activationNoticeDismiss' ], {} );
 }

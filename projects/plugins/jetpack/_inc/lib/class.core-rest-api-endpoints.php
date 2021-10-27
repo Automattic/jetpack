@@ -737,6 +737,30 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
+		register_rest_route(
+			'jetpack/v4',
+			'licensing/user/activation-notice-dismiss',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => __CLASS__ . '::get_licensing_activation_notice_dismiss',
+					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+				),
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => __CLASS__ . '::update_licensing_activation_notice_dismiss',
+					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+					'args'                => array(
+						'last_detached_count' => array(
+							'required'          => true,
+							'type'              => 'integer',
+							'validate_callback' => __CLASS__ . '::validate_non_neg_int',
+						),
+					),
+				),
+			)
+		);
+
 		/*
 		 * Manage the Jetpack CRM plugin's integration with Jetpack contact forms.
 		 */
@@ -1030,11 +1054,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Gets the users licenses counts.
 	 *
+	 * @since 10.4.0
+	 *
 	 * @return string|WP_Error A JSON object of user license counts if the request was successful, or a WP_Error otherwise.
 	 */
 	public static function get_user_license_counts() {
 		$wpcom_request = Client::wpcom_json_api_request_as_user(
-			'/jetpack-licensing/licenses/user/counts',
+			'/jetpack-licensing/user/licenses/counts',
 			'2',
 			array(
 				'method'  => 'GET',
@@ -1056,6 +1082,38 @@ class Jetpack_Core_Json_Api_Endpoints {
 				array( 'status' => $response_code )
 			);
 		}
+	}
+
+	/**
+	 * Update the user-licenses activation notice dismissal data.
+	 *
+	 * @since 10.4.0
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return array|WP_Error
+	 */
+	public static function update_licensing_activation_notice_dismiss( $request ) {
+
+		if ( ! isset( $request['last_detached_count'] ) ) {
+			return new WP_Error( 'invalid_param', esc_html__( 'Missing parameter "last_detached_count".', 'jetpack' ), array( 'status' => 404 ) );
+		}
+
+		$default             = array(
+			'last_detached_count' => null,
+			'last_dismissed_time' => null,
+		);
+		$last_detached_count = ( '' === $request['last_detached_count'] )
+			? $default['last_detached_count']
+			: $request['last_detached_count'];
+		$last_dismissed_time = ( new DateTime( 'NOW' ) )->format( 'c' );
+		$notice_data         = array(
+			'last_detached_count' => $last_detached_count,
+			'last_dismissed_time' => $last_dismissed_time,
+		);
+
+		update_option( 'jetpack_licensing_activation_notice_dismiss', $notice_data );
+		return rest_ensure_response( get_option( 'jetpack_licensing_activation_notice_dismiss', $default ) );
 	}
 
 	public static function submit_survey( $request ) {
@@ -2880,6 +2938,28 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function validate_posint( $value, $request, $param ) {
 		if ( ! is_numeric( $value ) || $value <= 0 ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be a positive integer.', 'jetpack' ), $param ) );
+		}
+		return true;
+	}
+
+	/**
+	 * Validates that the parameter is a non-negative integer (includes 0).
+	 *
+	 * @since 4.3.0
+	 *
+	 * @param int             $value Value to check.
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @param string          $param Name of the parameter passed to endpoint holding $value.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function validate_non_neg_int( $value, $request, $param ) {
+		if ( ! is_numeric( $value ) || $value < 0 ) {
+			return new WP_Error(
+				'invalid_param',
+				/* translators: %s: The literal parameter name. Should not be translated. */
+				sprintf( esc_html__( '%s must be a non-negative integer.', 'jetpack' ), $param )
+			);
 		}
 		return true;
 	}

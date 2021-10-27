@@ -170,9 +170,10 @@ class Jetpack_Redux_State_Helper {
 			'isSafari'                    => $is_safari || User_Agent_Info::is_opera_desktop(), // @todo Rename isSafari everywhere.
 			'doNotUseConnectionIframe'    => Constants::is_true( 'JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME' ),
 			'licensing'                   => array(
-				'error'           => Licensing::instance()->last_error(),
-				'showLicensingUi' => Licensing::instance()->is_licensing_input_enabled(),
-				'userCounts'      => Jetpack_Core_Json_Api_Endpoints::get_user_license_counts(),
+				'error'                   => Licensing::instance()->last_error(),
+				'showLicensingUi'         => Licensing::instance()->is_licensing_input_enabled(),
+				'userCounts'              => Jetpack_Core_Json_Api_Endpoints::get_user_license_counts(),
+				'activationNoticeDismiss' => self::get_license_activation_notice_dismiss(),
 			),
 		);
 	}
@@ -358,6 +359,22 @@ class Jetpack_Redux_State_Helper {
 	 */
 	public static function generate_purchase_token() {
 		return wp_generate_password( 12, false );
+	}
+
+	/**
+	 * Gets the user license activation notice dismissal info.
+	 *
+	 * @since 10.4.0
+	 * @return array|boolean
+	 */
+	public static function get_license_activation_notice_dismiss() {
+
+		$default = array(
+			'last_detached_count' => null,
+			'last_dismissed_time' => null,
+		);
+
+		return get_option( 'jetpack_licensing_activation_notice_dismiss', $default );
 	}
 }
 
