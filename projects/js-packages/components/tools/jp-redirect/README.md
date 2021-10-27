@@ -54,7 +54,7 @@ getRedirectUrl(
 	}
 )
 ```
-This will return the following URL: `ttps://jetpack.com/redirect?site=example.org&source=calypso-edit-post&path=1234`
+This will return the following URL: `https://jetpack.com/redirect?site=example.org&source=calypso-edit-post&path=1234`
 
 The `calypso-edit-post` source is registered on the server and points to `https://wordpress.com/post/[site]/[path]`, so the final URL that the user will be redirected to is:
 
