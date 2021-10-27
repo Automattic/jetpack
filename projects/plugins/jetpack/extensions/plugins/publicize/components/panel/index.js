@@ -13,6 +13,7 @@ import { __ } from '@wordpress/i18n';
 import { PanelBody, PanelRow, ToggleControl, Disabled } from '@wordpress/components';
 import { store as editorStore } from '@wordpress/editor';
 import { useSelect } from '@wordpress/data';
+import { Fragment } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -112,8 +113,11 @@ const PublicizePanel = ( { prePublish } ) => {
 	// Disable the panel when no proper site plan is available.
 	const PanelRowWithDisabled = isPublicizeDisabledBySitePlan ? Disabled : PanelRow;
 
+	// Panel wrapper.
+	const PanelWrapper = prePublish ? Fragment : PanelBody;
+
 	return (
-		<PanelBody
+		<PanelWrapper
 			title={ __( 'Share this post', 'jetpack' ) }
 			className={ isPublicizeDisabledBySitePlan ? 'jetpack-publicize-disabled' : '' }
 		>
@@ -154,7 +158,7 @@ const PublicizePanel = ( { prePublish } ) => {
 			{ ! isPublicizeDisabledBySitePlan && <PublicizeTwitterOptions prePublish={ prePublish } /> }
 
 			<SharePostRow />
-		</PanelBody>
+		</PanelWrapper>
 	);
 };
 
