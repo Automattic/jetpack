@@ -20,17 +20,6 @@ import './style.scss';
  * The RNA Connection Status Card component.
  *
  * @param {object}   props -- The properties.
- * @param {string}   props.apiRoot -- API root URL, required.
- * @param {string}   props.apiNonce -- API Nonce, required.
- * @param {boolean}  props.isRegistered -- Whether a site level connection has already been established, required. If not, the component will not render.
- * @param {string}   props.isUserConnected -- Whether the current user has connected their WordPress.com account, required.
- * @param {string}   props.redirectUri -- The redirect admin URI after the user has connected their WordPress.com account.
- * @param {string}   props.title -- The Card title.
- * @param {string}   props.connectionInfoText -- The text that will be displayed under the title, containing info how to leverage the connection.
- * @param {Function} props.onDisconnected -- The callback to be called upon disconnection success.
- * @param {object}   props.connectedPlugins -- An object of the plugins currently using the Jetpack connection.
- * @param {string}   props.currentPlugin -- The slug of the plugin where this component is being used.
- * @param {string}   props.assetBaseUrl -- The base URL of the asset folder for the plugin using this component ( needed for inclusion of images ).
  * @returns {React.Component} The `ConnectionStatusCard` component.
  */
 
@@ -199,16 +188,27 @@ const ConnectionStatusCard = props => {
 };
 
 ConnectionStatusCard.propTypes = {
+	/** API root URL, required. */
 	apiRoot: PropTypes.string.isRequired,
+	/** API Nonce, required. */
 	apiNonce: PropTypes.string.isRequired,
+	/** Whether a site level connection has already been established, required. If not, the component will not render. */
 	isRegistered: PropTypes.bool.isRequired,
+	/** Whether the current user has connected their WordPress.com account, required. */
 	isUserConnected: PropTypes.bool.isRequired,
+	/** The redirect admin URI after the user has connected their WordPress.com account. */
 	redirectUri: PropTypes.string.isRequired,
+	/** An object of the plugins currently using the Jetpack connection. */
 	connectedPlugins: PropTypes.object,
+	/** The Card title. */
 	title: PropTypes.string,
+	/** The text that will be displayed under the title, containing info how to leverage the connection. */
 	connectionInfoText: PropTypes.string,
+	/** The callback to be called upon disconnection success. */
 	onDisconnected: PropTypes.func,
+	/** The slug of the plugin where this component is being used. */
 	currentPlugin: PropTypes.string,
+	/** The base URL of the asset folder for the plugin using this component ( needed for inclusion of images ). */
 	assetBaseUrl: PropTypes.string,
 };
 
