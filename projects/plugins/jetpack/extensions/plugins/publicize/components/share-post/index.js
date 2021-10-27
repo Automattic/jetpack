@@ -64,7 +64,7 @@ export function SharePostButton() {
 	 * - is sharing post
 	 */
 	const isButtonDisabled =
-		! isPublicizeEnabled || ! hasEnabledConnections || ! isPostPublished || isFetching;
+		( ! isPostPublished && ! isPublicizeEnabled ) || ! hasEnabledConnections || isFetching;
 
 	return (
 		<Button

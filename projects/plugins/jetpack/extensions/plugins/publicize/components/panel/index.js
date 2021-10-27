@@ -95,7 +95,8 @@ const PublicizePanel = ( { prePublish } ) => {
 	 */
 	const isPublicizeDisabledBySitePlan =
 		isPostPublished && isRePublicizeFeatureUpgradable && isRePublicizeFeatureEnabled;
-	const isPublicizeEnabled = isPublicizeEnabledFromConfig && ! isPublicizeDisabledBySitePlan;
+	const isPublicizeEnabled =
+		( isPostPublished || isPublicizeEnabledFromConfig ) && ! isPublicizeDisabledBySitePlan;
 
 	// Refresh connections when the post is just published.
 	usePostJustPublished(
