@@ -274,7 +274,7 @@ DisconnectDialog.defaultProps = {
 	title: __( 'Are you sure you want to disconnect?', 'jetpack' ),
 	activateButtonText: __( 'Disconnect', 'jetpack' ),
 	errorMessage: __( 'Failed to disconnect. Please try again.', 'jetpack' ),
-	context: __( 'jetpack-dashboard' ),
+	context: 'jetpack-dashboard',
 };
 
 export default DisconnectDialog;
