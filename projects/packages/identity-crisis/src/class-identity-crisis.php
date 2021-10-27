@@ -84,6 +84,8 @@ class Identity_Crisis {
 
 		add_filter( 'jetpack_connection_disconnect_site_wpcom', array( __CLASS__, 'jetpack_connection_disconnect_site_wpcom_filter' ) );
 
+		add_filter( 'jetpack_remote_request_url', array( $this, 'add_idc_query_args_to_url' ) );
+
 		$urls_in_crisis = self::check_identity_crisis();
 		if ( false === $urls_in_crisis ) {
 			return;
@@ -189,6 +191,32 @@ class Identity_Crisis {
 			add_action( 'admin_notices', array( $this, 'display_idc_notice' ) );
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_idc_notice_files' ) );
 		}
+	}
+
+	/**
+	 * Add the idc query arguments to the url.
+	 *
+	 * @param string $url The remote request url.
+	 */
+	public function add_idc_query_args_to_url( $url ) {
+		if ( ! is_string( $url ) || self::validate_sync_error_idc_option() ) {
+			return $url;
+		}
+
+		$query_args = array(
+			'home'    => Urls::home_url(),
+			'siteurl' => Urls::site_url(),
+		);
+
+		if ( self::should_handle_idc() ) {
+			$query_args['idc'] = true;
+		}
+
+		if ( \Jetpack_Options::get_option( 'migrate_for_idc', false ) ) {
+			$query_args['migrate_for_idc'] = true;
+		}
+
+		return add_query_arg( $query_args, $url );
 	}
 
 	/**
