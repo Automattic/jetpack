@@ -1,145 +1,39 @@
 /**
  * External dependencies
  */
-import React, { Fragment, useMemo } from 'react';
-import { __ } from '@wordpress/i18n';
+import ReactDOM from 'react-dom';
+import React from 'react';
 
 /**
  * WordPress dependencies
  */
-import { useSelect, select } from '@wordpress/data';
+import { createReduxStore, register } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
-import { JetpackFooter, JetpackLogo } from '@automattic/jetpack-components';
-import analytics from '@automattic/jetpack-analytics';
-import restApi from '@automattic/jetpack-api';
-import ModuleControl from 'components/module-control';
-import MockedSearch from 'components/mocked-search';
-import { STORE_ID } from './store';
-import 'scss/rna-styles.scss';
-import 'style.scss';
+import { STORE_ID, storeConfig } from './store';
+import SearchDashboard from './components/dashboard';
+
+const store = createReduxStore( STORE_ID, storeConfig );
+register( store );
 
 /**
- * SearchDashboard component definition.
- *
- * @returns {React.Component} Search dashboard component.
+ * Mounts the Search Dashboard to #jp-search-dashboard if available.
  */
-export default function SearchDashboard() {
-	const siteAdminUrl = select( STORE_ID ).getSiteAdminUrl();
-	const aboutPageUrl = siteAdminUrl + 'admin.php?page=jetpack_about';
+function init() {
+	const container = document.getElementById( 'jp-search-dashboard' );
 
-	useSelect( select => select( STORE_ID ).getSearchPlanInfo() );
-	useSelect( select => select( STORE_ID ).getSearchModuleStatus() );
+	if ( container === null ) {
+		return;
+	}
 
-	const isLoading = useSelect(
-		select =>
-			select( STORE_ID ).isResolving( 'getSearchPlanInfo' ) ||
-			! select( STORE_ID ).hasStartedResolution( 'getSearchPlanInfo' ) ||
-			select( STORE_ID ).isResolving( 'getSearchModuleStatus' ) ||
-			! select( STORE_ID ).hasStartedResolution( 'getSearchModuleStatus' )
-	);
+	ReactDOM.render( <SearchDashboard />, container );
+}
 
-	const initializeAnalytics = () => {
-		const tracksUser = select( STORE_ID ).getWpcomUser();
-		const blogId = select( STORE_ID ).getBlogId();
-
-		if ( tracksUser ) {
-			analytics.initialize( tracksUser.ID, tracksUser.login, {
-				blog_id: blogId,
-			} );
-		}
-	};
-
-	useMemo( () => {
-		const apiRootUrl = select( STORE_ID ).getAPIRootUrl();
-		const apiNonce = select( STORE_ID ).getAPINonce();
-		apiRootUrl && restApi.setApiRoot( apiRootUrl );
-		apiNonce && restApi.setApiNonce( apiNonce );
-		initializeAnalytics();
-		analytics.tracks.recordEvent( 'jetpack_search_admin_page_view', {
-			current_version: select( STORE_ID ).getVersion(),
-		} );
-	}, [] );
-
-	const renderHeader = () => {
-		return (
-			<div className="jp-search-dashboard-header jp-search-dashboard-wrap">
-				<div className="jp-search-dashboard-row">
-					<div className="lg-col-span-12 md-col-span-8 sm-col-span-4">
-						<div className="jp-search-dashboard-header__logo-container">
-							<JetpackLogo className="jp-search-dashboard-header__masthead" />
-						</div>
-					</div>
-				</div>
-			</div>
-		);
-	};
-
-	const renderMockedSearchInterface = () => {
-		return (
-			<div className="jp-search-dashboard-top jp-search-dashboard-wrap">
-				<div className="jp-search-dashboard-row">
-					<div className="jp-search-dashboard-top__title lg-col-span-6 md-col-span-7 sm-col-span-4">
-						<h1>
-							{ __( "Help your visitors find exactly what they're looking for, fast", 'jetpack' ) }
-						</h1>
-					</div>
-					<div className=" lg-col-span-6 md-col-span-1 sm-col-span-0"></div>
-				</div>
-				<div className="jp-search-dashboard-row" aria-hidden="true">
-					<div className="lg-col-span-1 md-col-span-1 sm-col-span-0"></div>
-					<div className="jp-search-dashboard-top__mocked-search-interface lg-col-span-10 md-col-span-6 sm-col-span-4">
-						<MockedSearch />
-					</div>
-					<div className="lg-col-span-1 md-col-span-1 sm-col-span-0"></div>
-				</div>
-			</div>
-		);
-	};
-
-	const renderModuleControl = () => {
-		return (
-			<div className="jp-search-dashboard-bottom">
-				<ModuleControl />
-			</div>
-		);
-	};
-
-	const renderFooter = () => {
-		return (
-			<div className="jp-search-dashboard-footer jp-search-dashboard-wrap">
-				<div className="jp-search-dashboard-row">
-					<JetpackFooter
-						a8cLogoHref={ aboutPageUrl }
-						moduleName={ __( 'Jetpack Search', 'jetpack' ) }
-						className="lg-col-span-12 md-col-span-8 sm-col-span-4"
-					/>
-				</div>
-			</div>
-		);
-	};
-
-	return (
-		<div className="jp-search-dashboard-page">
-			{ isLoading && (
-				<img
-					className="jp-search-dashboard-page-loading-spinner"
-					width="32"
-					height="32"
-					alt={ __( 'Loading', 'jetpack' ) }
-					src="//en.wordpress.com/i/loading/loading-64.gif"
-				/>
-			) }
-			{ ! isLoading && (
-				<Fragment>
-					{ renderHeader() }
-					{ renderMockedSearchInterface() }
-					{ renderModuleControl() }
-					{ renderFooter() }
-				</Fragment>
-			) }
-		</div>
-	);
+// Initialize the dashboard when DOMContentLoaded is fired, or immediately if it already has been.
+if ( document.readyState !== 'loading' ) {
+	init();
+} else {
+	document.addEventListener( 'DOMContentLoaded', init );
 }

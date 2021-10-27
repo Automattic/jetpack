@@ -11,7 +11,7 @@ const baseWebpackConfig = getBaseWebpackConfig(
 	{ WP: false },
 	{
 		entry: {
-			main: path.join( __dirname, '../src/js/dashboard/loader.js' ),
+			main: path.join( __dirname, '../src/js/dashboard/index.jsx' ),
 		},
 		'output-filename': 'jp-search-dashboard-[name].min.js',
 		'output-chunk-filename': 'jp-search-dashboard-[name].[contenthash].min.js',
