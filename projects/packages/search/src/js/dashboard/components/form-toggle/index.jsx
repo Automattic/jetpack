@@ -39,43 +39,43 @@ export default class FormToggle extends Component {
 	static idNum = 0;
 
 	constructor() {
-		super(...arguments);
+		super( ...arguments );
 
-		this.onKeyDown = this.onKeyDown.bind(this);
-		this.onClick = this.onClick.bind(this);
-		this.onLabelClick = this.onLabelClick.bind(this);
+		this.onKeyDown = this.onKeyDown.bind( this );
+		this.onClick = this.onClick.bind( this );
+		this.onLabelClick = this.onLabelClick.bind( this );
 	}
 
 	UNSAFE_componentWillMount() {
 		this.id = this.constructor.idNum++;
 	}
 
-	onKeyDown(event) {
-		if (this.props.disabled) {
+	onKeyDown( event ) {
+		if ( this.props.disabled ) {
 			return;
 		}
 
-		if (event.key === 'Enter' || event.key === ' ') {
+		if ( event.key === 'Enter' || event.key === ' ' ) {
 			event.preventDefault();
 			this.props.onChange();
 		}
 
-		this.props.onKeyDown(event);
+		this.props.onKeyDown( event );
 	}
 
 	onClick() {
-		if (!this.props.disabled) {
+		if ( ! this.props.disabled ) {
 			this.props.onChange();
 		}
 	}
 
-	onLabelClick(event) {
-		if (this.props.disabled) {
+	onLabelClick( event ) {
+		if ( this.props.disabled ) {
 			return;
 		}
 
 		const nodeName = event.target.nodeName.toLowerCase();
-		if (nodeName !== 'a' && nodeName !== 'input' && nodeName !== 'select') {
+		if ( nodeName !== 'a' && nodeName !== 'input' && nodeName !== 'select' ) {
 			event.preventDefault();
 			this.props.onChange();
 		}
@@ -83,41 +83,41 @@ export default class FormToggle extends Component {
 
 	render() {
 		const id = this.props.id || 'toggle-' + this.id;
-		const toggleClasses = classNames('form-toggle', this.props.className, {
+		const toggleClasses = classNames( 'form-toggle', this.props.className, {
 			'is-toggling': this.props.toggling,
-		});
+		} );
 
 		return (
 			<Fragment>
 				<input
-					className={toggleClasses}
+					className={ toggleClasses }
 					type="checkbox"
-					checked={this.props.checked}
-					readOnly={true}
-					disabled={this.props.disabled}
+					checked={ this.props.checked }
+					readOnly={ true }
+					disabled={ this.props.disabled }
 				/>
 
 				<span
-					className={classNames('form-toggle__switch', this.props.switchClassNames)}
-					disabled={this.props.disabled}
-					id={id}
-					onClick={this.onClick}
-					onKeyDown={this.onKeyDown}
+					className={ classNames( 'form-toggle__switch', this.props.switchClassNames ) }
+					disabled={ this.props.disabled }
+					id={ id }
+					onClick={ this.onClick }
+					onKeyDown={ this.onKeyDown }
 					role="checkbox"
-					aria-checked={this.props.checked}
-					aria-label={this.props['aria-label']}
-					tabIndex={this.props.disabled ? -1 : 0}
+					aria-checked={ this.props.checked }
+					aria-label={ this.props[ 'aria-label' ] }
+					tabIndex={ this.props.disabled ? -1 : 0 }
 					ref="toggleSwitch"
 				/>
 				<label
-					className={classNames('form-toggle__label', this.props.labelClassNames)}
-					htmlFor={id}
+					className={ classNames( 'form-toggle__label', this.props.labelClassNames ) }
+					htmlFor={ id }
 				>
 					<span
-						className={classNames('form-toggle__label-content', this.props.labelClassNames)}
-						onClick={this.onLabelClick}
+						className={ classNames( 'form-toggle__label-content', this.props.labelClassNames ) }
+						onClick={ this.onLabelClick }
 					>
-						{this.props.children}
+						{ this.props.children }
 					</span>
 				</label>
 			</Fragment>

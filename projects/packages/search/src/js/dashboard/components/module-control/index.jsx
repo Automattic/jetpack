@@ -10,11 +10,11 @@ import classNames from 'classnames';
 /**
  * Internal dependencies
  */
-import CompactFormToggle from '../form/form-toggle/compact';
+import CompactFormToggle from '../form-toggle/compact';
 import Card from 'components/card';
 import Button from '../button';
 import InstantSearchUpsellNudge from '../upsell-nudge';
-import analytics from 'lib/analytics';
+import analytics from '@automattic/jetpack-analytics';
 import 'scss/rna-styles.scss';
 import './style.scss';
 

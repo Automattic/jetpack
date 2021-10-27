@@ -43,9 +43,9 @@ class Jetpack_Search_Dashboard {
 		$is_offline_mode = ( new Status() )->is_offline_mode();
 
 		// If user is not an admin and site is in Offline Mode or not connected yet then don't do anything.
-		// if ( ! current_user_can( 'manage_options' ) && ( $is_offline_mode || ! Jetpack::is_connection_ready() ) ) {
-		// return;
-		// }
+		if ( ! current_user_can( 'manage_options' ) && ( $is_offline_mode || ! Jetpack::is_connection_ready() ) ) {
+			return;
+		}
 
 		// Is Jetpack not connected and not offline?
 		// True means that Jetpack is NOT connected and NOT in offline mode.
@@ -179,7 +179,7 @@ class Jetpack_Search_Dashboard {
 				// 'isMultisite'                => is_multisite(),
 				'adminUrl'          => esc_url( admin_url() ),
 				'blogId'            => Jetpack_Options::get_option( 'id', 0 ),
-				'version'           => defined( 'JETPACK_SEARCH_PACKAGE_VERSION' ) && JETPACK_SEARCH_PACKAGE_VERSION,
+				'version'           => defined( 'JETPACK_SEARCH_PACKAGE_VERSION' ) ? JETPACK_SEARCH_PACKAGE_VERSION : 'dev',
 			),
 			// 'pluginBaseUrl'    => plugins_url( '', JETPACK__PLUGIN_FILE ),
 			// 'connectUrl'       => false == $current_user_data['isConnected'] // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
