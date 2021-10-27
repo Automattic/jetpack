@@ -17,11 +17,15 @@ import { getRequiredPlan } from '../../../../shared/plan-utils';
 import useUpgradeFlow from '../../../../shared/use-upgrade-flow';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 
-export default function UpsellNotice() {
+export default function UpsellNotice( { isPostPublished } ) {
 	const { isRePublicizeFeatureEnabled, isRePublicizeFeatureUpgradable } = usePublicizeConfig();
-
 	const requiredPlan = getRequiredPlan( 'republicize' );
 	const [ checkoutUrl, goToCheckoutPage, isRedirecting, planData ] = useUpgradeFlow( requiredPlan );
+
+	// Nothing to show here. Move on...
+	if ( ! isPostPublished ) {
+		return null;
+	}
 
 	/*
 	 * Do not render either when the feature is not enabled,
