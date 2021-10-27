@@ -6,12 +6,8 @@
 	</testsuites>
 	<filter>
 		<whitelist processUncoveredFilesFromWhitelist="false">
-			<directory suffix=".php">.</directory>
-			<exclude>
-				<directory suffix=".php">tests</directory>
-				<directory suffix=".php">vendor</directory>
-				<directory suffix=".php">wordpress</directory>
-			</exclude>
+			<directory suffix=".php">src</directory>
+			<file>jetpack-search.php</file>
 		</whitelist>
 	</filter>
 </phpunit>
