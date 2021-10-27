@@ -7,7 +7,7 @@ import classNames from 'classnames';
  * WordPress dependencies
  */
 import { __, sprintf } from '@wordpress/i18n';
-import { Button } from '@wordpress/components';
+import { Button, ExternalLink } from '@wordpress/components';
 import { external } from '@wordpress/icons';
 
 /**
@@ -16,13 +16,19 @@ import { external } from '@wordpress/icons';
 import { getRequiredPlan } from '../../../../shared/plan-utils';
 import useUpgradeFlow from '../../../../shared/use-upgrade-flow';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
+import { isAtomicSite, isSimpleSite } from '../../../../shared/site-type-utils';
 
 export default function UpsellNotice( { isPostPublished } ) {
-	const { isRePublicizeFeatureEnabled, isRePublicizeFeatureUpgradable } = usePublicizeConfig();
+	const {
+		isRePublicizeFeatureEnabled,
+		isRePublicizeFeatureUpgradable,
+		isRePublicizeFeatureAvailable,
+	} = usePublicizeConfig();
 	const requiredPlan = getRequiredPlan( 'republicize' );
 	const [ checkoutUrl, goToCheckoutPage, isRedirecting, planData ] = useUpgradeFlow( requiredPlan );
 
 	/*
+	 * Publicize:
 	 * When post is not published,
 	 * there is nothing to show here. Move on...
 	 */
@@ -35,9 +41,41 @@ export default function UpsellNotice( { isPostPublished } ) {
 		return null;
 	}
 
-	// Bail early when the feature is not upgradable.
-	if ( ! isRePublicizeFeatureUpgradable ) {
-		return null;
+	// Define plan name, with a fallback value.
+	const planName = planData?.product_name || __( 'Paid', 'jetpack' );
+
+	const isPureJetpackSite = ! isAtomicSite() && ! isSimpleSite();
+	const upgradeFeatureTitle = isPureJetpackSite
+		? __( 'Re-Sharing your content', 'jetpack' )
+		: __( 'Share Your Content Again', 'jetpack' );
+
+	// Doc page URL.
+	const docPageUrl = isPureJetpackSite
+		? 'https://jetpack.com/support/publicize/#re-sharing-your-content'
+		: 'https://wordpress.com/support/publicize/#share-your-content-again';
+
+	/*
+	 * Render an info message when the feature is not available,
+	 * but also when it isn't available (pure Jetpack site escenario).
+	 */
+	if ( ! isRePublicizeFeatureAvailable && ! isRePublicizeFeatureUpgradable ) {
+		return (
+			<div className="jetpack-publicize__upsell">
+				<strong>{ upgradeFeatureTitle }</strong>
+
+				<br />
+
+				{ sprintf(
+					/* translators: placeholder is the product name of the plan. */
+					__( 'This feature is for sites with a %s plan.', 'jetpack' ),
+					planName
+				) }
+
+				<br />
+
+				<ExternalLink href={ docPageUrl }>{ __( 'More information.', 'jetpack' ) }</ExternalLink>
+			</div>
+		);
 	}
 
 	return (
@@ -46,7 +84,7 @@ export default function UpsellNotice( { isPostPublished } ) {
 				{ sprintf(
 					/* translators: placeholder is the product name of the plan. */
 					__( 'To re publicize a post, you need to upgrade to the %s plan', 'jetpack' ),
-					planData?.product_name
+					planName
 				) }
 			</div>
 
