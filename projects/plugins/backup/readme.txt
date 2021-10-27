@@ -14,6 +14,8 @@ Jetpack is the most proven WordPress backup plugin with over 270 million backups
 
 Jetpack Backup is a new plugin that focuses specifically on Jetpack's Backup features.
 
+Note: To use this plugin you will need to have a paid Jetpack plan that includes Backup.
+
 ### Restoring your site has never been easier
 
 If you make money from your site, or spend hours perfecting content, you need WordPress backups. Protect your investment by getting your site back online in seconds. Our automated WordPress backup plugin is powerful enough for pros, but easy enough for beginners.
@@ -59,6 +61,8 @@ We have a global team of Happiness Engineers ready to provide incredible support
 ### Get Started
 
 Installation is free, quick, and easy. It only takes a few minutes to install Jetpack Backup.
+
+Note: To use this plugin you will need to have a paid Jetpack plan that includes Backup.
 
 == Installation ==
 

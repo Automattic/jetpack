@@ -12,7 +12,7 @@
 		"automattic/jetpack-options": "^1.13",
 		"automattic/jetpack-partner": "^1.5",
 		"automattic/jetpack-redirect": "^1.7",
-		"automattic/jetpack-status": "^1.8",
+		"automattic/jetpack-status": "^1.9",
 		"automattic/jetpack-tracking": "^1.13"
 	},
 	"require-dev": {

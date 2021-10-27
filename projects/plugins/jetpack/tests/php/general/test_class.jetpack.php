@@ -845,6 +845,7 @@ EXPECTED;
 
 		$required = array(
 			'jetpack.remoteAuthorize',
+			'jetpack.remoteRegister',
 		);
 
 		// Nothing else is allowed.

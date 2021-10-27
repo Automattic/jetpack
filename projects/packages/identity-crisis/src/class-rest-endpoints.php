@@ -54,6 +54,12 @@ class REST_Endpoints {
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => __CLASS__ . '::start_fresh_connection',
 				'permission_callback' => __CLASS__ . '::identity_crisis_mitigation_permission_check',
+				'args'                => array(
+					'redirect_uri' => array(
+						'description' => __( 'URI of the admin page where the user should be redirected after connection flow', 'jetpack' ),
+						'type'        => 'string',
+					),
+				),
 			)
 		);
 
@@ -124,9 +130,12 @@ class REST_Endpoints {
 	 *
 	 * @since 0.2.0
 	 * @since-jetpack 4.4.0
-	 * @return WP_REST_Response|WP_Error
+	 *
+	 * @param \WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return \WP_REST_Response|WP_Error
 	 */
-	public static function start_fresh_connection() {
+	public static function start_fresh_connection( $request ) {
 		/**
 		 * Fires when Users have requested through Identity Crisis for the connection to be reset.
 		 * Should be used to disconnect any connections and reset options.
@@ -142,14 +151,17 @@ class REST_Endpoints {
 		if ( ! $result || is_wp_error( $result ) ) {
 			return rest_ensure_response( $result );
 		}
+
+		$redirect_uri = $request->get_param( 'redirect_uri' ) ? admin_url( $request->get_param( 'redirect_uri' ) ) : null;
+
 		/**
 		 * Filters the connection url that users should be redirected to for re-establishing their connection.
 		 *
 		 * @since 0.2.0
 		 *
-		 * @param WP_REST_Response|WP_Error    $connection_url Connection URL user should be redirected to.
+		 * @param \WP_REST_Response|WP_Error    $connection_url Connection URL user should be redirected to.
 		 */
-		return apply_filters( 'jetpack_idc_authorization_url', rest_ensure_response( $connection->get_authorization_url( null, null ) ) );
+		return apply_filters( 'jetpack_idc_authorization_url', rest_ensure_response( $connection->get_authorization_url( null, $redirect_uri ) ) );
 	}
 
 	/**
@@ -158,7 +170,7 @@ class REST_Endpoints {
 	 * @since 0.2.0
 	 * @since-jetpack 4.4.0
 	 *
-	 * @return bool Whether user has capability 'jetpack_disconnect'.
+	 * @return true|WP_Error True if the user has capability 'jetpack_disconnect', an error object otherwise.
 	 */
 	public static function identity_crisis_mitigation_permission_check() {
 		if ( current_user_can( 'jetpack_disconnect' ) ) {

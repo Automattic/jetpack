@@ -99,7 +99,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/banana', 'bar' );
 		$availability = Jetpack_Gutenberg::get_availability();
 		$this->assertFalse( $availability['banana']['available'], 'banana is available!' );
-		$this->assertEquals( $availability['banana']['unavailable_reason'], 'bar', 'unavailable_reason is not "bar"' );
+		$this->assertEquals( 'bar', $availability['banana']['unavailable_reason'], 'unavailable_reason is not "bar"' );
 	}
 
 	function test_registered_block_is_not_available_when_not_defined_in_whitelist() {
@@ -113,7 +113,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 
 		// 'unavailable_reason' should be 'missing_module' if the block wasn't registered
 		$this->assertFalse( $availability['grape']['available'], 'Availability is not false exists' );
-		$this->assertEquals( $availability['grape']['unavailable_reason'], 'missing_module', 'unavailable_reason is not "missing_module"'  );
+		$this->assertEquals( 'missing_module', $availability['grape']['unavailable_reason'], 'unavailable_reason is not "missing_module"' );
 	}
 
 	// Plugins
@@ -127,7 +127,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/potato', 'bar' );
 		$availability = Jetpack_Gutenberg::get_availability();
 		$this->assertFalse( $availability['potato']['available'], 'potato is available!' );
-		$this->assertEquals( $availability['potato']['unavailable_reason'], 'bar', 'unavailable_reason is not "bar"' );
+		$this->assertEquals( 'bar', $availability['potato']['unavailable_reason'], 'unavailable_reason is not "bar"' );
 	}
 
 	function test_registered_plugin_is_not_available_when_not_defined_in_whitelist() {
@@ -142,7 +142,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 
 		// 'unavailable_reason' should be 'missing_module' if the block wasn't registered
 		$this->assertFalse( $availability['tomato']['available'], 'Availability is not false exists' );
-		$this->assertEquals( $availability['tomato']['unavailable_reason'], 'missing_module', 'unavailable_reason is not "missing_module"'  );
+		$this->assertEquals( 'missing_module', $availability['tomato']['unavailable_reason'], 'unavailable_reason is not "missing_module"' );
 	}
 
 	function test_get_available_extensions() {

@@ -9,7 +9,7 @@
 /**
  * WordPress dependencies
  */
-import { PanelRow } from '@wordpress/components';
+import { PanelRow, Disabled } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 
 /**
@@ -21,23 +21,34 @@ import MessageBoxControl from '../message-box-control';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 
-export default function PublicizeForm( { isPublicizeEnabled, isRePublicizeFeatureEnabled } ) {
+export default function PublicizeForm( {
+	isPublicizeEnabled,
+	isRePublicizeFeatureEnabled,
+	isPublicizeDisabledBySitePlan,
+} ) {
 	const { connections, toggleById, hasConnections } = useSocialMediaConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 
 	function isDisabled() {
+		// Do not disable when RePublicize is enabled.
+		if ( isRePublicizeFeatureEnabled ) {
+			return false;
+		}
+
 		return connections.every( connection => ! connection.toggleable );
 	}
 
+	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
+
 	return (
-		<Fragment>
+		<Wrapper>
 			{ hasConnections && (
 				<PanelRow>
 					<ul className="jetpack-publicize__connections-list">
 						{ connections.map( ( { display_name, enabled, id, service_name, toggleable } ) => (
 							<PublicizeConnection
 								disabled={ isRePublicizeFeatureEnabled ? ! isPublicizeEnabled : ! toggleable }
-								enabled={ enabled }
+								enabled={ enabled && ! isPublicizeDisabledBySitePlan }
 								key={ id }
 								id={ id }
 								label={ display_name }
@@ -49,16 +60,20 @@ export default function PublicizeForm( { isPublicizeEnabled, isRePublicizeFeatur
 				</PanelRow>
 			) }
 
-			<PublicizeSettingsButton />
+			{ ! isPublicizeDisabledBySitePlan && (
+				<Fragment>
+					<PublicizeSettingsButton />
 
-			{ connections.some( connection => connection.enabled ) && (
-				<MessageBoxControl
-					disabled={ isDisabled() }
-					maxLength={ maxLength }
-					onChange={ updateMessage }
-					message={ message }
-				/>
+					{ connections.some( connection => connection.enabled ) && (
+						<MessageBoxControl
+							disabled={ isDisabled() }
+							maxLength={ maxLength }
+							onChange={ updateMessage }
+							message={ message }
+						/>
+					) }
+				</Fragment>
 			) }
-		</Fragment>
+		</Wrapper>
 	);
 }

@@ -10,10 +10,9 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { PanelBody, PanelRow, ToggleControl, Button } from '@wordpress/components';
+import { PanelBody, PanelRow, ToggleControl, Disabled } from '@wordpress/components';
 import { store as editorStore } from '@wordpress/editor';
 import { useSelect } from '@wordpress/data';
-import { useEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -24,7 +23,9 @@ import PublicizeTwitterOptions from '../twitter/options';
 import useSelectSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { usePostJustPublished } from '../../hooks/use-saving-post';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
-import useSharePost from '../../hooks/use-share-post';
+
+import { SharePostRow } from '../../components/share-post';
+import UpsellNotice from '../upsell';
 
 function getPanelDescription(
 	isPostPublished,
@@ -74,7 +75,6 @@ function getPanelDescription(
 
 const PublicizePanel = ( { prePublish } ) => {
 	const { refresh, hasConnections, hasEnabledConnections } = useSelectSocialMediaConnections();
-
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
 	/*
@@ -82,10 +82,20 @@ const PublicizePanel = ( { prePublish } ) => {
 	 * it can be defined via the `jetpack_block_editor_republicize_feature` backend filter.
 	 */
 	const {
-		isRePublicizeFeatureEnabled,
-		isPublicizeEnabled,
+		isRePublicizeFeatureEnabled, // <- defined by the server-side feature flag check
+		isPublicizeEnabled: isPublicizeEnabledFromConfig, // <- usually handled by the UI
+		isRePublicizeFeatureUpgradable, // <- defined by the `republicize` feature availability check
 		togglePublicizeFeature,
 	} = usePublicizeConfig();
+
+	/*
+	 * Publicize is enabled by toggling the control,
+	 * but also disabled when the post is already published,
+	 * and the feature is upgradable.
+	 */
+	const isPublicizeDisabledBySitePlan =
+		isPostPublished && isRePublicizeFeatureUpgradable && isRePublicizeFeatureEnabled;
+	const isPublicizeEnabled = isPublicizeEnabledFromConfig && ! isPublicizeDisabledBySitePlan;
 
 	// Refresh connections when the post is just published.
 	usePostJustPublished(
@@ -99,17 +109,14 @@ const PublicizePanel = ( { prePublish } ) => {
 		[ hasEnabledConnections, refresh ]
 	);
 
-	// Testing post sharing function handler.
-	// @TODO{: replace with the final implementation
-	const { isFetching, data, error, doPublicize } = useSharePost();
-
-	useEffect( () => {
-		// eslint-disable-next-line no-console
-		console.log( isFetching, error, data );
-	}, [ isFetching, data, error ] );
+	// Disable the panel when no proper site plan is available.
+	const PanelRowWithDisabled = isPublicizeDisabledBySitePlan ? Disabled : PanelRow;
 
 	return (
-		<PanelBody title={ __( 'Share this post', 'jetpack' ) }>
+		<PanelBody
+			title={ __( 'Share this post', 'jetpack' ) }
+			className={ isPublicizeDisabledBySitePlan ? 'jetpack-publicize-disabled' : '' }
+		>
 			<div>
 				{ getPanelDescription(
 					isPostPublished,
@@ -120,32 +127,33 @@ const PublicizePanel = ( { prePublish } ) => {
 				) }
 			</div>
 
-			{ isRePublicizeFeatureEnabled && (
-				<PanelRow>
+			{ isPostPublished && <UpsellNotice /> }
+
+			{ isRePublicizeFeatureEnabled && ! isPostPublished && (
+				<PanelRowWithDisabled>
 					<ToggleControl
+						className="jetpack-publicize-toggle"
 						label={
-							isPublicizeEnabled
-								? __( 'Sharing is enabled', 'jetpack' )
+							isPublicizeEnabled && ! isPublicizeDisabledBySitePlan
+								? __( 'Share when publishing', 'jetpack' )
 								: __( 'Sharing is disabled', 'jetpack' )
 						}
 						onChange={ togglePublicizeFeature }
 						checked={ isPublicizeEnabled }
 						disabled={ ! hasConnections }
 					/>
-				</PanelRow>
+				</PanelRowWithDisabled>
 			) }
 
 			<PublicizeConnectionVerify />
 			<PublicizeForm
 				isPublicizeEnabled={ isPublicizeEnabled }
 				isRePublicizeFeatureEnabled={ isRePublicizeFeatureEnabled }
+				isPublicizeDisabledBySitePlan={ isPublicizeDisabledBySitePlan }
 			/>
-			<PublicizeTwitterOptions prePublish={ prePublish } />
-			{ isRePublicizeFeatureEnabled && (
-				<Button isSecondary onClick={ doPublicize }>
-					{ __( 'Share post', 'jetpack' ) }
-				</Button>
-			) }
+			{ ! isPublicizeDisabledBySitePlan && <PublicizeTwitterOptions prePublish={ prePublish } /> }
+
+			<SharePostRow />
 		</PanelBody>
 	);
 };
