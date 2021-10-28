@@ -54,6 +54,14 @@ export default function UpsellNotice( { isPostPublished } ) {
 		? 'https://jetpack.com/support/publicize/#re-sharing-your-content'
 		: 'https://wordpress.com/support/publicize/#share-your-content-again';
 
+	const buttonText = planData?.formatted_price
+		? sprintf(
+				/* translators: placeholder is the price for upgrading. */
+				'Upgrade now for %s',
+				planData.formatted_price
+		  )
+		: __( 'Upgrade now', 'jetpack' );
+
 	/*
 	 * Render an info message when the feature is not available
 	 * and when it shouldn't show upgrade notices.
@@ -99,13 +107,7 @@ export default function UpsellNotice( { isPostPublished } ) {
 				} ) }
 				isBusy={ isRedirecting }
 			>
-				{ isRedirecting
-					? __( 'Redirecting…', 'jetpack' )
-					: sprintf(
-							/* translators: placeholder is the price for upgrading. */
-							'Upgrade now for %s',
-							planData?.formatted_price
-					  ) }
+				{ isRedirecting ? __( 'Redirecting…', 'jetpack' ) : buttonText }
 			</Button>
 		</div>
 	);
