@@ -71,6 +71,7 @@ jobs:
                 - '**.js'
                 - '**.jsx'
                 - '**.ts'
+                - '**.svelte'
             excludelist:
               # If any PHP or JS file changed or was deleted, we need to check the excludelist.
               - modified|deleted:
@@ -78,6 +79,7 @@ jobs:
                 - '**.js'
                 - '**.jsx'
                 - '**.ts'
+                - '**.svelte'
             lockfiles:
               - 'composer.json'
               - 'composer.lock'
@@ -299,6 +301,9 @@ jobs:
       - name: Jetpack E2E tests pnpm install
         working-directory: projects/plugins/jetpack/tests/e2e
         run: pnpm install
+      - name: Jetpack Boost E2E tests pnpm install
+        working-directory: projects/plugins/boost/tests/e2e
+        run: pnpm install
       - run: pnpx jetpack install --all -v # Ensure there are no unresolved import errors.
       - run: pnpm run lint-required
 
@@ -330,6 +335,9 @@ jobs:
         run: pnpm install
       - name: Jetpack E2E tests pnpm install
         working-directory: projects/plugins/jetpack/tests/e2e
+        run: pnpm install
+      - name: Jetpack E2E tests pnpm install
+        working-directory: projects/plugins/boost/tests/e2e
         run: pnpm install
       - run: pnpx jetpack install --all -v # Ensure there are no unresolved import errors.
       - name: Run eslint-changed
