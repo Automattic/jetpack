@@ -3451,6 +3451,7 @@ p {
 		}
 
 		add_action( 'load-plugins.php', array( $this, 'intercept_plugin_error_scrape_init' ) );
+		add_action( 'load-plugins.php', array( $this, 'plugins_page_init_jetpack_state' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_menu_css' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'deactivate_dialog' ) );
 
@@ -3513,6 +3514,14 @@ p {
 				trigger_error( sprintf( __( 'Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin.', 'jetpack' ), 'WordPress.com Stats' ), E_USER_ERROR );
 			}
 		}
+	}
+
+	/**
+	 * Call to Jetpack::state on the load-plugins.php hook.
+	 * In case the jetpackState cookie is populated, this call will read and re-set the cookie before HTTP headers are sent.
+	 */
+	public function plugins_page_init_jetpack_state() {
+		self::state( 'message' );
 	}
 
 	function intercept_plugin_error_scrape_init() {

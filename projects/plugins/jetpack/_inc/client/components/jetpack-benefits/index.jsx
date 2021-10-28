@@ -22,66 +22,6 @@ import './style.scss';
 const JetpackBenefits = props => {
 	const { siteBenefits } = props;
 
-	const renderCDNReason = () => {
-		return (
-			<li key="reason-cdn">
-				{ createInterpolateElement(
-					__( 'Speed up your site and provide mobile-ready images with <a>our CDN</a>', 'jetpack' ),
-					{
-						a: (
-							<a
-								href={ getRedirectUrl( 'jetpack-features-design-content-delivery-network' ) }
-								rel="noopener noreferrer"
-								target="_blank"
-							/>
-						),
-					}
-				) }
-			</li>
-		);
-	};
-
-	const renderProtectReason = () => {
-		return (
-			<li key="reason-brute-force">
-				{ createInterpolateElement(
-					__(
-						'Block <a>brute force attacks</a> and get immediate notifications if your site is down',
-						'jetpack'
-					),
-					{
-						a: (
-							<a
-								href={ getRedirectUrl( 'jetpack-features-security' ) }
-								rel="noopener noreferrer"
-								target="_blank"
-							/>
-						),
-					}
-				) }
-			</li>
-		);
-	};
-
-	const renderSocialReason = () => {
-		return (
-			<li key="reason-social">
-				{ createInterpolateElement(
-					__( 'Grow your traffic with automated social <a>publishing and sharing</a>', 'jetpack' ),
-					{
-						a: (
-							<a
-								href={ getRedirectUrl( 'jetpack-support-social' ) }
-								rel="noopener noreferrer"
-								target="_blank"
-							/>
-						),
-					}
-				) }
-			</li>
-		);
-	};
-
 	return (
 		<React.Fragment>
 			{ siteBenefits.length > 0 && (
@@ -110,9 +50,57 @@ const JetpackBenefits = props => {
 						) }
 					</p>
 					<ul className="jetpack-benefits__general-benefits-list">
-						{ renderCDNReason() }
-						{ renderProtectReason() }
-						{ renderSocialReason() }
+						<li key="reason-cdn">
+							{ createInterpolateElement(
+								__(
+									'Speed up your site and provide mobile-ready images with <a>our CDN</a>',
+									'jetpack'
+								),
+								{
+									a: (
+										<a
+											href={ getRedirectUrl( 'jetpack-features-design-content-delivery-network' ) }
+											rel="noopener noreferrer"
+											target="_blank"
+										/>
+									),
+								}
+							) }
+						</li>
+						<li key="reason-brute-force">
+							{ createInterpolateElement(
+								__(
+									'Block <a>brute force attacks</a> and get immediate notifications if your site is down',
+									'jetpack'
+								),
+								{
+									a: (
+										<a
+											href={ getRedirectUrl( 'jetpack-features-security' ) }
+											rel="noopener noreferrer"
+											target="_blank"
+										/>
+									),
+								}
+							) }
+						</li>
+						<li key="reason-social">
+							{ createInterpolateElement(
+								__(
+									'Grow your traffic with automated social <a>publishing and sharing</a>',
+									'jetpack'
+								),
+								{
+									a: (
+										<a
+											href={ getRedirectUrl( 'jetpack-support-social' ) }
+											rel="noopener noreferrer"
+											target="_blank"
+										/>
+									),
+								}
+							) }
+						</li>
 					</ul>
 				</div>
 			) }
