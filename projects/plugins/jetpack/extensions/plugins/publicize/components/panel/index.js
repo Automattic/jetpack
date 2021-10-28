@@ -87,6 +87,7 @@ const PublicizePanel = ( { prePublish } ) => {
 		isPublicizeEnabled: isPublicizeEnabledFromConfig, // <- usually handled by the UI
 		isRePublicizeFeatureUpgradable, // <- defined by the `republicize` feature availability check
 		togglePublicizeFeature,
+		isRePublicizeFeatureAvailable,
 	} = usePublicizeConfig();
 
 	/*
@@ -96,6 +97,16 @@ const PublicizePanel = ( { prePublish } ) => {
 	 */
 	const isPublicizeDisabledBySitePlan =
 		isPostPublished && isRePublicizeFeatureUpgradable && isRePublicizeFeatureEnabled;
+
+	/*
+	 * When the site doesn't have the feature available
+	 * becouse of the site plan and / or product feature,
+	 * when it is not upgradable, and when the post is already published,
+	 * it needs to hide part of the Publicize feature.
+	 */
+	const hideRePublicizeFeature =
+		isPostPublished && ! isRePublicizeFeatureAvailable && ! isRePublicizeFeatureUpgradable;
+
 	const isPublicizeEnabled = isPublicizeEnabledFromConfig && ! isPublicizeDisabledBySitePlan;
 
 	// Refresh connections when the post is just published.
@@ -136,31 +147,37 @@ const PublicizePanel = ( { prePublish } ) => {
 
 			<UpsellNotice isPostPublished={ isPostPublished } />
 
-			{ isRePublicizeFeatureEnabled && ! isPostPublished && (
-				<PanelRowWithDisabled>
-					<ToggleControl
-						className="jetpack-publicize-toggle"
-						label={
-							isPublicizeEnabled && ! isPublicizeDisabledBySitePlan
-								? __( 'Share when publishing', 'jetpack' )
-								: __( 'Sharing is disabled', 'jetpack' )
-						}
-						onChange={ togglePublicizeFeature }
-						checked={ isPublicizeEnabled }
-						disabled={ ! hasConnections }
+			{ ! hideRePublicizeFeature && (
+				<Fragment>
+					{ isRePublicizeFeatureEnabled && ! isPostPublished && (
+						<PanelRowWithDisabled>
+							<ToggleControl
+								className="jetpack-publicize-toggle"
+								label={
+									isPublicizeEnabled && ! isPublicizeDisabledBySitePlan
+										? __( 'Share when publishing', 'jetpack' )
+										: __( 'Sharing is disabled', 'jetpack' )
+								}
+								onChange={ togglePublicizeFeature }
+								checked={ isPublicizeEnabled }
+								disabled={ ! hasConnections }
+							/>
+						</PanelRowWithDisabled>
+					) }
+
+					<PublicizeConnectionVerify />
+					<PublicizeForm
+						isPublicizeEnabled={ isPublicizeEnabled }
+						isRePublicizeFeatureEnabled={ isRePublicizeFeatureEnabled }
+						isPublicizeDisabledBySitePlan={ isPublicizeDisabledBySitePlan }
 					/>
-				</PanelRowWithDisabled>
+					{ ! isPublicizeDisabledBySitePlan && (
+						<PublicizeTwitterOptions prePublish={ prePublish } />
+					) }
+
+					<SharePostRow />
+				</Fragment>
 			) }
-
-			<PublicizeConnectionVerify />
-			<PublicizeForm
-				isPublicizeEnabled={ isPublicizeEnabled }
-				isRePublicizeFeatureEnabled={ isRePublicizeFeatureEnabled }
-				isPublicizeDisabledBySitePlan={ isPublicizeDisabledBySitePlan }
-			/>
-			{ ! isPublicizeDisabledBySitePlan && <PublicizeTwitterOptions prePublish={ prePublish } /> }
-
-			<SharePostRow />
 		</PanelWrapper>
 	);
 };
