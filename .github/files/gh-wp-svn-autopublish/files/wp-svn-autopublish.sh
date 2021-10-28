@@ -7,11 +7,12 @@ set -eo pipefail
 : "${WPSVN_PASSWORD:?Build argument needs to be set and non-empty.}"
 
 ## Determine tag
-if ! [[ "$GITHUB_REF" =~ ^refs/tags/v[0-9]+(\.[0-9]+)+(-[a-z0-9._-]+)?$ ]]; then
-	echo "::error::Expected GITHUB_REF like \`refs/tags/v1.2.3\`, got \`$GITHUB_REF\`"
+if ! [[ "$GITHUB_REF" =~ ^refs/tags/v?[0-9]+(\.[0-9]+)+(-[a-z0-9._-]+)?$ ]]; then
+	echo "::error::Expected GITHUB_REF like \`refs/tags/v1.2.3\` or \`refs/tags/1.2.3\`, got \`$GITHUB_REF\`"
 	exit 1
 fi
-TAG="${GITHUB_REF#refs/tags/v}"
+TAG="${GITHUB_REF#refs/tags/}"
+TAG="${TAG#v}"
 
 ## Determine slug
 WPSLUG=$(jq -r '.extra["wp-plugin-slug"] // ""' "src/composer.json")
