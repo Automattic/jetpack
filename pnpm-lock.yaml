@@ -630,6 +630,7 @@ importers:
       debug: 4.3.1
       email-validator: 2.0.4
       enzyme: 3.11.0
+      enzyme-to-json: 3.6.2
       eslint: 7.32.0
       fancy-log: 1.3.3
       fast-json-stable-stringify: 2.1.0
@@ -651,6 +652,7 @@ importers:
       gulp-sourcemaps: 3.0.0
       jest: 27.0.4
       jest-environment-jsdom: ^27.0.6
+      jest-enzyme: 7.1.2
       jetpack-js-test-runner: workspace:*
       jsdom: 16.4.0
       lodash: 4.17.21
@@ -830,11 +832,13 @@ importers:
       concurrently: 6.0.2
       css-loader: 6.2.0_webpack@5.51.1
       enzyme: 3.11.0
+      enzyme-to-json: 3.6.2_enzyme@3.11.0
       eslint: 7.32.0
       fs-extra: 10.0.0
       glob: 7.1.6
       jest: 27.0.4
       jest-environment-jsdom: 27.2.0
+      jest-enzyme: 7.1.2_65d41ffd1d349f14c496d249b6f0b04f
       jetpack-js-test-runner: link:../../../tools/js-test-runner
       lodash: 4.17.21
       mocha: 8.2.1
@@ -4162,7 +4166,6 @@ packages:
       '@jest/types': 26.6.2
       '@types/node': 16.9.4
       jest-mock: 26.6.2
-    dev: false
 
   /@jest/environment/27.2.0:
     resolution: {integrity: sha512-iPWmQI0wRIYSZX3wKu4FXHK4eIqkfq6n1DCDJS+v3uby7SOXrHvX4eiTBuEdSvtDRMTIH2kjrSkjHf/F9JIYyQ==}
@@ -4183,7 +4186,6 @@ packages:
       jest-message-util: 26.6.2
       jest-mock: 26.6.2
       jest-util: 26.6.2
-    dev: false
 
   /@jest/fake-timers/27.2.0:
     resolution: {integrity: sha512-gSu3YHvQOoVaTWYGgHFB7IYFtcF2HBzX4l7s47VcjvkUgL4/FBnE20x7TNLa3W6ABERtGd5gStSwsA8bcn+c4w==}
@@ -6197,7 +6199,6 @@ packages:
     resolution: {integrity: sha512-t7ZVArWZlq3dFa9Yt33qFBQIK4CQd1Q3UJp0V+UhP6vgLWLM6Qug7vZuRSGXg45zXeB1Fm5X2vmBkEX58LV2Tw==}
     dependencies:
       '@types/node': 16.9.4
-    dev: false
 
   /@types/color-convert/2.0.0:
     resolution: {integrity: sha512-m7GG7IKKGuJUXvkZ1qqG3ChccdIM/qBBo913z+Xft0nKCX4hAU/IxKwZBU4cpRZ7GS5kV4vOblUkILtSShCPXQ==}
@@ -10227,7 +10228,6 @@ packages:
 
   /circular-json-es6/2.0.2:
     resolution: {integrity: sha512-ODYONMMNb3p658Zv+Pp+/XPa5s6q7afhz3Tzyvo+VRh9WIrJ64J76ZC4GQxnlye/NesTn09jvOiuE8+xxfpwhQ==}
-    dev: false
 
   /cjs-module-lexer/1.2.2:
     resolution: {integrity: sha512-cOU9usZw8/dXIXKtwa8pM0OTJQuJkxMN6w30csNRUerHfeQ5R6U3kkU/FtJeIf3M202OHfY2U8ccInBG7/xogA==}
@@ -11255,7 +11255,6 @@ packages:
     resolution: {integrity: sha1-BvS4nlNxDNbOpKd4HHqVZkLejck=}
     dependencies:
       lodash.isequal: 3.0.4
-    dev: false
 
   /deep-is/0.1.4:
     resolution: {integrity: sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==}
@@ -11798,6 +11797,16 @@ packages:
       deep-equal-ident: 1.1.1
     dev: false
 
+  /enzyme-matchers/7.1.2_enzyme@3.11.0:
+    resolution: {integrity: sha512-03WqAg2XDl7id9rARIO97HQ1JIw9F2heJ3R4meGu/13hx0ULTDEgl0E67MGl2Uq1jq1DyRnJfto1/VSzskdV5A==}
+    peerDependencies:
+      enzyme: '>=3.4.0'
+    dependencies:
+      circular-json-es6: 2.0.2
+      deep-equal-ident: 1.1.1
+      enzyme: 3.11.0
+    dev: true
+
   /enzyme-shallow-equal/1.0.4:
     resolution: {integrity: sha512-MttIwB8kKxypwHvRynuC3ahyNc+cFbR8mjVIltnmzQ0uKGqmsfO4bfBuLxb0beLNPhjblUEYvEbsg+VSygvF1Q==}
     dependencies:
@@ -11814,6 +11823,18 @@ packages:
       lodash: 4.17.21
       react-is: 16.13.1
     dev: false
+
+  /enzyme-to-json/3.6.2_enzyme@3.11.0:
+    resolution: {integrity: sha512-Ynm6Z6R6iwQ0g2g1YToz6DWhxVnt8Dy1ijR2zynRKxTyBGA8rCDXU3rs2Qc4OKvUvc2Qoe1bcFK6bnPs20TrTg==}
+    engines: {node: '>=6.0.0'}
+    peerDependencies:
+      enzyme: ^3.4.0
+    dependencies:
+      '@types/cheerio': 0.22.30
+      enzyme: 3.11.0
+      lodash: 4.17.21
+      react-is: 16.13.1
+    dev: true
 
   /enzyme/3.11.0:
     resolution: {integrity: sha512-Dw8/Gs4vRjxY6/6i9wU0V+utmQO9kvh9XLnz3LIudviOnVYDEe2ec+0k+NQoMamn1VrjKgCUOWj5jG/5M5M0Qw==}
@@ -15224,6 +15245,24 @@ packages:
       - utf-8-validate
     dev: false
 
+  /jest-environment-enzyme/7.1.2_65d41ffd1d349f14c496d249b6f0b04f:
+    resolution: {integrity: sha512-3tfaYAzO7qZSRrv+srQnfK16Vu5XwH/pHi8FpoqSHjKKngbHzXf7aBCBuWh8y3w0OtknHRfDMFrC60Khj+g1hA==}
+    peerDependencies:
+      enzyme: 3.x
+      jest: '>=22.0.0'
+      react: ^0.13.0 || ^0.14.0 || ^15.0.0 || >=16.x
+    dependencies:
+      enzyme: 3.11.0
+      jest: 27.0.4
+      jest-environment-jsdom: 26.6.2
+      react: 17.0.2
+    transitivePeerDependencies:
+      - bufferutil
+      - canvas
+      - supports-color
+      - utf-8-validate
+    dev: true
+
   /jest-environment-jsdom/26.6.2:
     resolution: {integrity: sha512-jgPqCruTlt3Kwqg5/WVFyHIOJHsiAvhcp2qiR2QQstuG9yWox5+iHpU3ZrcBxW14T4fe5Z68jAfLRh7joCSP2Q==}
     engines: {node: '>= 10.14.2'}
@@ -15240,7 +15279,6 @@ packages:
       - canvas
       - supports-color
       - utf-8-validate
-    dev: false
 
   /jest-environment-jsdom/27.2.0:
     resolution: {integrity: sha512-wNQJi6Rd/AkUWqTc4gWhuTIFPo7tlMK0RPZXeM6AqRHZA3D3vwvTa9ktAktyVyWYmUoXdYstOfyYMG3w4jt7eA==}
@@ -15286,6 +15324,25 @@ packages:
       - supports-color
       - utf-8-validate
     dev: false
+
+  /jest-enzyme/7.1.2_65d41ffd1d349f14c496d249b6f0b04f:
+    resolution: {integrity: sha512-j+jkph3t5hGBS12eOldpfsnERYRCHi4c/0KWPMnqRPoJJXvCpLIc5th1MHl0xDznQDXVU0AHUXg3rqMrf8vGpA==}
+    peerDependencies:
+      enzyme: '>=3.4.0'
+      jest: '>=22.0.0'
+    dependencies:
+      enzyme: 3.11.0
+      enzyme-matchers: 7.1.2_enzyme@3.11.0
+      enzyme-to-json: 3.6.2_enzyme@3.11.0
+      jest: 27.0.4
+      jest-environment-enzyme: 7.1.2_65d41ffd1d349f14c496d249b6f0b04f
+    transitivePeerDependencies:
+      - bufferutil
+      - canvas
+      - react
+      - supports-color
+      - utf-8-validate
+    dev: true
 
   /jest-get-type/27.0.6:
     resolution: {integrity: sha512-XTkK5exIeUbbveehcSR8w0bhH+c0yloW/Wpl+9vZrjzztCPWrxhHwkIFpZzCt71oRBsgxmuUfxEqOYoZI2macg==}
@@ -15385,7 +15442,6 @@ packages:
       pretty-format: 26.6.2
       slash: 3.0.0
       stack-utils: 2.0.5
-    dev: false
 
   /jest-message-util/27.2.0:
     resolution: {integrity: sha512-y+sfT/94CiP8rKXgwCOzO1mUazIEdEhrLjuiu+RKmCP+8O/TJTSne9dqQRbFIHBtlR2+q7cddJlWGir8UATu5w==}
@@ -15407,7 +15463,6 @@ packages:
     dependencies:
       '@jest/types': 26.6.2
       '@types/node': 16.9.4
-    dev: false
 
   /jest-mock/27.1.1:
     resolution: {integrity: sha512-SClsFKuYBf+6SSi8jtAYOuPw8DDMsTElUWEae3zq7vDhH01ayVSIHUSIa8UgbDOUalCFp6gNsaikN0rbxN4dbw==}
@@ -16162,15 +16217,12 @@ packages:
       lodash.isarray: 3.0.4
       lodash.istypedarray: 3.0.6
       lodash.keys: 3.1.2
-    dev: false
 
   /lodash._bindcallback/3.0.1:
     resolution: {integrity: sha1-5THCdkTPi1epnhftlbNcdIeJOS4=}
-    dev: false
 
   /lodash._getnative/3.9.1:
     resolution: {integrity: sha1-VwvH3t5G1hzc3mh9ZdPuy6o6r/U=}
-    dev: false
 
   /lodash.assignin/4.2.0:
     resolution: {integrity: sha1-uo31+4QesKPoBEIysOJjqNxqKKI=}
@@ -16214,25 +16266,21 @@ packages:
 
   /lodash.isarguments/3.1.0:
     resolution: {integrity: sha1-L1c9hcaiQon/AGY7SRwdM4/zRYo=}
-    dev: false
 
   /lodash.isarray/3.0.4:
     resolution: {integrity: sha1-eeTriMNqgSKvhvhEqpvNhRtfu1U=}
-    dev: false
 
   /lodash.isequal/3.0.4:
     resolution: {integrity: sha1-HDXrO27wzR/1F0Pj6jz3/f/ay2Q=}
     dependencies:
       lodash._baseisequal: 3.0.7
       lodash._bindcallback: 3.0.1
-    dev: false
 
   /lodash.isequal/4.5.0:
     resolution: {integrity: sha1-QVxEePK8wwEgwizhDtMib30+GOA=}
 
   /lodash.istypedarray/3.0.6:
     resolution: {integrity: sha1-yaR3SYYHUB2OhJTSg7h8OSgc72I=}
-    dev: false
 
   /lodash.keys/3.1.2:
     resolution: {integrity: sha1-TbwEcrFWvlCgsoaFXRvQsMZWCYo=}
@@ -16240,7 +16288,6 @@ packages:
       lodash._getnative: 3.9.1
       lodash.isarguments: 3.1.0
       lodash.isarray: 3.0.4
-    dev: false
 
   /lodash.map/4.6.0:
     resolution: {integrity: sha1-dx7Hg540c9nEzeKLGTlMNWL09tM=}
