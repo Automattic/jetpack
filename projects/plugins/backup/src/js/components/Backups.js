@@ -26,7 +26,7 @@ import BackupAnim3 from './icons/backup-animation-3.svg';
 /* eslint react/react-in-jsx-scope: 0 */
 const Backups = () => {
 	// State information
-	const [ progress, setProgress ] = useState( null );
+	const [ progress, setProgress ] = useState( 0 );
 	const [ trackProgress, setTrackProgress ] = useState( 0 );
 	const [ latestTime, setLatestTime ] = useState( '' );
 	const [ stats, setStats ] = useState( {
@@ -271,19 +271,6 @@ const Backups = () => {
 		);
 	};
 
-	const renderNoBackups = () => {
-		return (
-			<div class="jp-row">
-				<div class="lg-col-span-5 md-col-span-4 sm-col-span-4">
-					<h1>{ __( 'Welcome to Jetpack Backup!', 'jetpack-backup' ) }</h1>
-					<p>{ __( "You're all set! Your first backup will start soon.", 'jetpack-backup' ) }</p>
-				</div>
-				<div class="lg-col-span-1 md-col-span-4 sm-col-span-0"></div>
-				<div class="lg-col-span-6 md-col-span-2 sm-col-span-2"></div>
-			</div>
-		);
-	};
-
 	const renderLoading = () => {
 		return <div class="jp-row"></div>;
 	};
@@ -291,7 +278,7 @@ const Backups = () => {
 	return (
 		<div className="jp-wrap">
 			{ BACKUP_STATE.LOADING === backupState && renderLoading() }
-			{ BACKUP_STATE.NO_BACKUPS === backupState && renderNoBackups() }
+			{ BACKUP_STATE.NO_BACKUPS === backupState && renderInProgressBackup() }
 			{ BACKUP_STATE.IN_PROGRESS === backupState && renderInProgressBackup() }
 			{ BACKUP_STATE.COMPLETE === backupState && renderCompleteBackup() }
 			{ BACKUP_STATE.NO_GOOD_BACKUPS === backupState && renderNoGoodBackups() }

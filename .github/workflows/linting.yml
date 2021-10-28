@@ -161,7 +161,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-versions: [ '5.6', '7.0', '7.4', '8.0' ]
+        php-versions: [ '5.6', '7.0', '7.4', '8.0', '8.1' ]
         experimental: [ false ]
 
     steps:
@@ -436,7 +436,7 @@ jobs:
           node: false
 
       - name: Check change file validity
-        run: tools/changelogger-validate-all.sh --debug
+        run: tools/changelogger-validate-all.sh -vv
 
   ### Checks that lock files are up to date.
   # Local equivalent: .github/files/check-lock-files.sh

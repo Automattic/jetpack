@@ -237,6 +237,10 @@ module.exports = [
 					navigator: {},
 					window: {
 						addEventListener: _.noop,
+						console: {
+							error: _.noop,
+							warn: _.noop,
+						},
 						// See https://github.com/WordPress/gutenberg/blob/f3b6379327ce3fb48a97cb52ffb7bf9e00e10130/packages/jest-preset-default/scripts/setup-globals.js
 						matchMedia: () => ( {
 							addListener: () => {},

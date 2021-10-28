@@ -65,14 +65,18 @@ done
 shift "$(($OPTIND -1))"
 
 if ! $VERBOSE; then
+	. "$BASE/tools/includes/spin.sh"
 	function debug {
 		:
 	}
-elif [[ -n "$CI" ]]; then
-	function debug {
-		# Grey doesn't work well in GH's output.
-		blue "$@"
-	}
+else
+	. "$BASE/tools/includes/nospin.sh"
+	if [[ -n "$CI" ]]; then
+		function debug {
+			# Grey doesn't work well in GH's output.
+			blue "$@"
+		}
+	fi
 fi
 
 function get_packages {
@@ -144,6 +148,7 @@ fi
 EXIT=0
 ANYJS=false
 for SLUG in "${SLUGS[@]}"; do
+	spin
 	debug "Checking dependencies of $SLUG"
 	if [[ "$SLUG" == monorepo ]]; then
 		PACKAGES="$PACKAGES_DEV"
@@ -239,6 +244,7 @@ for SLUG in "${SLUGS[@]}"; do
 done
 
 if $ANYJS; then
+	spin
 	debug "Updating pnpm-lock.yaml"
 	if [[ -n "$CI" ]]; then
 		pnpm install --no-frozen-lockfile
@@ -246,6 +252,8 @@ if $ANYJS; then
 		pnpm install --silent
 	fi
 fi
+
+spinclear
 
 if ! $UPDATE && [[ "$EXIT" != "0" ]]; then
 	jetpackGreen 'You might use `tools/check-intra-monorepo-deps.sh -u` to fix these errors.'

@@ -265,7 +265,7 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_upgrades_menu();
 
-		$this->assertSame( 'https://wordpress.com/plans/my-plan/' . static::$domain, $submenu['paid-upgrades.php'][1][2] );
+		$this->assertSame( 'https://wordpress.com/plans/' . static::$domain, $submenu['paid-upgrades.php'][1][2] );
 		$this->assertSame( 'https://wordpress.com/domains/manage/' . static::$domain, $submenu['paid-upgrades.php'][2][2] );
 
 		/** This filter is already documented in modules/masterbar/admin-menu/class-atomic-admin-menu.php */
@@ -285,7 +285,6 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_inbox_menu() {
 		global $menu;
 
-		add_filter( 'jetpack_show_wpcom_inbox_menu', '__return_true' );
 		static::$admin_menu->add_inbox_menu();
 
 		$this->assertSame( 'https://wordpress.com/inbox/' . static::$domain, $menu['4.64424'][2] );
@@ -337,7 +336,9 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 			// Make sure that initial menu item is hidden.
 			$this->assertSame( 'hide-if-js', $submenu['plugins.php'][1][4] );
 			// Make sure that the new menu item is inserted.
-			$this->assertSame( 'https://wordpress.com/plugins/' . static::$domain, $submenu['plugins.php'][2][2] );
+			$this->assertSame( 'https://wordpress.com/plugins/' . static::$domain, $submenu['plugins.php'][0][2] );
+			// Make sure that Installed Plugins menu item is still in place.
+			$this->assertSame( 'plugins.php', $submenu['plugins.php'][2][2] );
 		}
 	}
 }

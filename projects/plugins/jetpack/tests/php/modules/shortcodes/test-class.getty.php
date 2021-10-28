@@ -144,8 +144,8 @@ class WP_Test_Jetpack_Shortcodes_Getty extends WP_UnitTestCase {
 		);
 
 		$this->assertEquals(
-			$provider_url,
-			'https://www.youtube.com/oembed?maxwidth=471&maxheight=594&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DdQw4w9WgXcQ'
+			'https://www.youtube.com/oembed?maxwidth=471&maxheight=594&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DdQw4w9WgXcQ',
+			$provider_url
 		);
 	}
 
