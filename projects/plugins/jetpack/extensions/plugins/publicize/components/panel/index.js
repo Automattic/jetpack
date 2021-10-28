@@ -85,7 +85,7 @@ const PublicizePanel = ( { prePublish } ) => {
 	const {
 		isRePublicizeFeatureEnabled, // <- defined by the server-side feature flag check
 		isPublicizeEnabled: isPublicizeEnabledFromConfig, // <- usually handled by the UI
-		isRePublicizeFeatureUpgradable, // <- defined by the `republicize` feature availability check
+		isRePublicizeUpgradableViaUpsell, // <- defined by the `republicize` feature availability check
 		togglePublicizeFeature,
 		isRePublicizeFeatureAvailable,
 	} = usePublicizeConfig();
@@ -96,16 +96,17 @@ const PublicizePanel = ( { prePublish } ) => {
 	 * and the feature is upgradable.
 	 */
 	const isPublicizeDisabledBySitePlan =
-		isPostPublished && isRePublicizeFeatureUpgradable && isRePublicizeFeatureEnabled;
+		isPostPublished && isRePublicizeUpgradableViaUpsell && isRePublicizeFeatureEnabled;
 
 	/*
 	 * When the site doesn't have the feature available
-	 * becouse of the site plan and / or product feature,
-	 * when it is not upgradable, and when the post is already published,
+	 * because of the lack of site plan and/or product feature,
+	 * when it is not upgradable via an upsell,
+	 * and when the post is already published,
 	 * it needs to hide part of the Publicize feature.
 	 */
 	const hideRePublicizeFeature =
-		isPostPublished && ! isRePublicizeFeatureAvailable && ! isRePublicizeFeatureUpgradable;
+		isPostPublished && ! isRePublicizeFeatureAvailable && ! isRePublicizeUpgradableViaUpsell;
 
 	const isPublicizeEnabled = isPublicizeEnabledFromConfig && ! isPublicizeDisabledBySitePlan;
 

@@ -12,11 +12,9 @@ import { isUpgradable, isUpgradeNudgeEnabled } from '../../../../shared/plan-uti
 const republicizeFeatureName = 'republicize';
 
 export default function usePublicizeConfig() {
-	// Actions.
 	const { togglePublicizeFeature } = useDispatch( 'jetpack/publicize' );
 	const { available } = getJetpackExtensionAvailability( republicizeFeatureName );
 
-	// Data.
 	const isPublicizeEnabled = useSelect(
 		select => select( 'jetpack/publicize' ).getFeatureEnableState(),
 		[]
@@ -28,7 +26,7 @@ export default function usePublicizeConfig() {
 		isPublicizeEnabled,
 		togglePublicizeFeature,
 		isRePublicizeFeatureAvailable: available,
-		isRePublicizeFeatureUpgradable:
+		isRePublicizeUpgradableViaUpsell:
 			isUpgradable( republicizeFeatureName ) && isUpgradeNudgeEnabled(),
 	};
 }

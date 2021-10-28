@@ -21,7 +21,7 @@ import { isAtomicSite, isSimpleSite } from '../../../../shared/site-type-utils';
 export default function UpsellNotice( { isPostPublished } ) {
 	const {
 		isRePublicizeFeatureEnabled,
-		isRePublicizeFeatureUpgradable,
+		isRePublicizeUpgradableViaUpsell,
 		isRePublicizeFeatureAvailable,
 	} = usePublicizeConfig();
 	const requiredPlan = getRequiredPlan( 'republicize' );
@@ -58,7 +58,7 @@ export default function UpsellNotice( { isPostPublished } ) {
 	 * Render an info message when the feature is not available,
 	 * but also when it isn't available (pure Jetpack site escenario).
 	 */
-	if ( ! isRePublicizeFeatureAvailable && ! isRePublicizeFeatureUpgradable ) {
+	if ( ! isRePublicizeFeatureAvailable && ! isRePublicizeUpgradableViaUpsell ) {
 		return (
 			<div className="jetpack-publicize__upsell">
 				<strong>{ upgradeFeatureTitle }</strong>
