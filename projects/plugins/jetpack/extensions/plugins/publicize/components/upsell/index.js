@@ -55,8 +55,9 @@ export default function UpsellNotice( { isPostPublished } ) {
 		: 'https://wordpress.com/support/publicize/#share-your-content-again';
 
 	/*
-	 * Render an info message when the feature is not available,
-	 * but also when it isn't available (pure Jetpack site escenario).
+	 * Render an info message when the feature is not available
+	 * and when it shouldn't show upgrade notices.
+	 * (pure Jetpack sites, for instance).
 	 */
 	if ( ! isRePublicizeFeatureAvailable && ! isRePublicizeUpgradableViaUpsell ) {
 		return (
