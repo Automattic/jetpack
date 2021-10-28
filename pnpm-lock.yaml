@@ -128,7 +128,7 @@ importers:
 
   projects/js-packages/connection:
     specifiers:
-      '@automattic/jetpack-api': workspace:^0.5.0
+      @automattic/jetpack-api': workspace:^0.6.0-alpha
       '@automattic/jetpack-components': workspace:^0.5.0-alpha
       '@wordpress/base-styles': 4.0.2
       '@wordpress/browserslist-config': 4.1.0
@@ -180,7 +180,7 @@ importers:
 
   projects/js-packages/idc:
     specifiers:
-      '@automattic/jetpack-api': workspace:^0.5.0
+      '@automattic/jetpack-api': workspace:^0.6.0-alpha
       '@automattic/jetpack-components': workspace:^0.5.0-alpha
       '@wordpress/base-styles': 4.0.2
       '@wordpress/components': 19.0.0
@@ -213,7 +213,7 @@ importers:
 
   projects/js-packages/licensing:
     specifiers:
-      '@automattic/jetpack-api': workspace:^0.5.0
+      '@automattic/jetpack-api': workspace:^0.6.0-alpha
       '@automattic/jetpack-components': workspace:^0.4.1-alpha
       '@wordpress/components': 17.0.0
       '@wordpress/element': 4.0.1
@@ -311,7 +311,7 @@ importers:
   projects/packages/connection-ui:
     specifiers:
       '@automattic/calypso-build': 9.0.0
-      '@automattic/jetpack-api': workspace:^0.5.0
+      '@automattic/jetpack-api': workspace:^0.6.0-alpha
       '@automattic/jetpack-connection': workspace:^0.9.0-alpha
       '@automattic/jetpack-idc': workspace:^0.4.1-alpha
       '@babel/core': 7.15.0
@@ -424,7 +424,7 @@ importers:
   projects/plugins/backup:
     specifiers:
       '@automattic/calypso-build': 9.0.0
-      '@automattic/jetpack-api': workspace:^0.5.0
+      '@automattic/jetpack-api': workspace:^0.6.0-alpha
       '@automattic/jetpack-components': workspace:^0.5.0-alpha
       '@automattic/jetpack-connection': workspace:^0.9.0-alpha
       '@babel/core': 7.15.0
@@ -555,10 +555,10 @@ importers:
       '@automattic/components': 1.0.0-alpha.3
       '@automattic/format-currency': 1.0.0-alpha.0
       '@automattic/jetpack-analytics': workspace:^0.1.2
-      '@automattic/jetpack-api': workspace:^0.5.0
+      '@automattic/jetpack-api': workspace:^0.6.0-alpha
       '@automattic/jetpack-components': workspace:^0.5.0-alpha
       '@automattic/jetpack-connection': workspace:^0.9.0-alpha
-       '@automattic/jetpack-licensing': workspace:^0.1.0-alpha
+      '@automattic/jetpack-licensing': workspace:^0.1.0-alpha
       '@automattic/popup-monitor': 1.0.0
       '@automattic/request-external-access': 1.0.0
       '@automattic/social-previews': 1.1.1
@@ -575,7 +575,7 @@ importers:
       '@testing-library/jest-dom': 5.12.0
       '@testing-library/preact': 2.0.1
       '@testing-library/react': 11.2.7
-      '@testing-library/react-hooks': 4.0.1
+      '@testing-library/react-hooks': 4..1
       '@testing-library/user-event': 12.8.3
       '@wordpress/annotations': 2.2.5
       '@wordpress/base-styles': 4.0.2

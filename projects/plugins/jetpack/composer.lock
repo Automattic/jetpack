@@ -948,10 +948,16 @@
         {
             "name": "automattic/jetpack-licensing",
             "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Automattic/jetpack-licensing.git",
+                "reference": "8fae6f4056026fff42247383f63d14e777cd2c3b"
+            },
             "dist": {
-                "type": "path",
-                "url": "../../packages/licensing",
-                "reference": "43c0b265f8f9f4456045d7c1f28133c98c60a219"
+                "type": "zip",
+                "url": "https://api.github.com/repos/Automattic/jetpack-licensing/zipball/8fae6f4056026fff42247383f63d14e777cd2c3b",
+                "reference": "8fae6f4056026fff42247383f63d14e777cd2c3b",
+                "shasum": ""
             },
             "require": {
                 "automattic/jetpack-connection": "^1.30",
@@ -962,6 +968,7 @@
                 "automattic/wordbless": "@dev",
                 "yoast/phpunit-polyfills": "1.0.2"
             },
+            "default-branch": true,
             "type": "library",
             "extra": {
                 "autotagger": true,
@@ -978,30 +985,15 @@
                     "src/"
                 ]
             },
-            "scripts": {
-                "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "post-update-cmd": [
-                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
-                ],
-                "test-coverage": [
-                    "@composer update",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
-                "test-php": [
-                    "@composer update",
-                    "@composer phpunit"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0-or-later"
             ],
             "description": "Everything needed to manage Jetpack licenses client-side.",
-            "transport-options": {
-                "monorepo": true,
-                "relative": true
-            }
+            "support": {
+                "source": "https://github.com/Automattic/jetpack-licensing/tree/master"
+            },
+            "time": "2021-10-26T18:55:47+00:00"
         },
         {
             "name": "automattic/jetpack-logo",
