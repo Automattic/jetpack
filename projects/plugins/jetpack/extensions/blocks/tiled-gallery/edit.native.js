@@ -106,6 +106,7 @@ const TiledGalleryEdit = props => {
 			return createBlock( 'core/image', {
 				id: image.id,
 				url: image.url,
+				caption: image.caption,
 				alt: image.alt,
 				className: styles[ 'is-style-' + layout ],
 			} );
