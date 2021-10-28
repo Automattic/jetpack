@@ -417,11 +417,11 @@ importers:
 
   projects/packages/jitm:
     specifiers:
-      eslint: 7.32.0
+      '@automattic/jetpack-webpack-config': workspace:^0.1.0-alpha
       webpack: 5.51.1
       webpack-cli: 4.8.0
     devDependencies:
-      eslint: 7.32.0
+      '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
       webpack: 5.51.1_webpack-cli@4.8.0
       webpack-cli: 4.8.0_webpack@5.51.1
 
