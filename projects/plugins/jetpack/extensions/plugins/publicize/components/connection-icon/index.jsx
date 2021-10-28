@@ -18,12 +18,8 @@ const ConnectionIcon = props => {
 
 	return (
 		<label htmlFor={ id } className="jetpack-publicize-connection-label">
-			<div className="components-connection-icon__picture">
-				{ profilePicture ? (
-					<img src={ profilePicture } alt={ label } />
-				) : (
-					<span className="placeholder" />
-				) }
+			<div className={ profilePicture ? 'components-connection-icon__picture' : '' }>
+				{ profilePicture && <img src={ profilePicture } alt={ label } /> }
 				<SocialServiceIcon
 					serviceName={ serviceName }
 					className="jetpack-publicize-gutenberg-social-icon"
