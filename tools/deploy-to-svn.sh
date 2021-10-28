@@ -161,7 +161,6 @@ else
 fi
 
 proceed_p "We're ready to update trunk and tag $TAG!" "Do it?"
-die "Nope"
 info "Updating trunk"
 svn commit -m "Updating trunk to version $TAG"
 success "Done!"
