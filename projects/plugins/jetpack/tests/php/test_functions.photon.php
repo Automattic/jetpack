@@ -401,6 +401,10 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 				true,
 				'https://www.paypalobjects.com/en_US/i/btn/btn_buynow_LG.gif',
 			),
+			'Banned Wikipedia domain'    => array(
+				true,
+				'https://en.wikipedia.org/wiki/File:MM10249.jpg',
+			),
 		);
 	}
 }
