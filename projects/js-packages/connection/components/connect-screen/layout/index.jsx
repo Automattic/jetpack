@@ -11,8 +11,8 @@ import { JetpackLogo } from '@automattic/jetpack-components';
 /**
  * Internal dependencies
  */
-import ImageSlider from './images-slider';
-import './styles.scss';
+import ImageSlider from './image-slider';
+import './style.scss';
 
 /**
  * The Connection Screen Layout component.
