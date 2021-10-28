@@ -65,6 +65,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		$this->add_my_home_menu();
 		$this->add_inbox_menu();
+		$this->hide_search_menu_for_calypso();
 
 		// Not needed outside of wp-admin.
 		if ( ! $this->is_api_request ) {
@@ -370,5 +371,17 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		);
 
 		wp_die();
+	}
+
+	/**
+	 * Hide Calypso Search menu for Atomic sites.
+	 *
+	 * For Atomic sites, the admin-menu is originated from the sites and forwarded by
+	 * WPCOM `public-api`. We have search dashboard for Atomic/JP sites already, so we
+	 * need to hide the duplicated menu. For simple sites, where search dashboard doesn't
+	 * exist, we fallback to Calypso Jetpack Search page.
+	 */
+	public function hide_search_menu_for_calypso() {
+		$this->hide_submenu_page( 'jetpack', 'search' );
 	}
 }
