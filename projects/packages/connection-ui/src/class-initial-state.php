@@ -14,6 +14,8 @@ use Automattic\Jetpack\Identity_Crisis;
  */
 class Initial_State {
 
+	const CONNECTION_MANAGER_URI = '/tools.php?page=wpcom-connection-manager';
+
 	/**
 	 * Get the initial state data.
 	 *
@@ -53,7 +55,7 @@ class Initial_State {
 
 		$idc_data['wpcomHomeUrl'] = $data['wpcom_home'];
 		$idc_data['currentUrl']   = $data['home'];
-		$idc_data['redirectUri']  = $_SERVER['REQUEST_URI'];
+		$idc_data['redirectUri']  = static::CONNECTION_MANAGER_URI;
 
 		return $idc_data;
 	}
