@@ -878,8 +878,6 @@ class Jetpack_Search {
 	 * @return array Array of ES style query arguments.
 	 */
 	public function convert_wp_es_to_es_args( array $args ) {
-		jetpack_require_lib( 'jetpack-wpes-query-builder/jetpack-wpes-query-parser' );
-
 		$defaults = array(
 			'blog_id'        => get_current_blog_id(),
 			'query'          => null,    // Search phrase.
