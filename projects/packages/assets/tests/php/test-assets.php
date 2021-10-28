@@ -243,7 +243,7 @@ class AssetsTest extends TestCase {
 	/**
 	 * Test whether static resources are properly updated to use a WordPress.com static domain.
 	 *
-	 * @covers Automattic\Jetpack\Status::staticize_subdomain
+	 * @covers Automattic\Jetpack\Assets::staticize_subdomain
 	 * @dataProvider get_resources_urls
 	 *
 	 * @param string $original       Source URL.
