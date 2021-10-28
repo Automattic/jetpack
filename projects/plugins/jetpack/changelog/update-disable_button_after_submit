@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Contact Form: prevent multiple button clicks from submitting multiple form submissions

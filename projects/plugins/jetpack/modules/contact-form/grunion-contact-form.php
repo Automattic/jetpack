@@ -2206,6 +2206,8 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			}
 
 			$r .= "<form action='" . esc_url( $url ) . "' method='post' class='" . esc_attr( $form_classes ) . "'>\n";
+			$r .= self::get_script_for_form();
+
 			$r .= $form->body;
 
 			// In new versions of the contact form block the button is an inner block
@@ -2310,6 +2312,28 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				'p'          => array(),
 			)
 		);
+	}
+
+	/**
+	 * Returns a script that disables the contact form button after a form submission.
+	 *
+	 * @return string The script.
+	 */
+	private static function get_script_for_form() {
+		return "<script>
+			( function () {
+				const contact_forms = document.getElementsByClassName('contact-form');
+				const buttons = document.getElementsByTagName('button');
+
+				for ( form of contact_forms ) {
+					form.onsubmit = function() {
+						for( button of buttons ) {
+							button.setAttribute('disabled', true);
+						}
+					}
+				}
+			} )();
+		</script>";
 	}
 
 	/**
