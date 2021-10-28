@@ -376,10 +376,9 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	/**
 	 * Hide Calypso Search menu for Atomic sites.
 	 *
-	 * For Atomic sites, the admin-menu is originated from the sites and forwarded by
-	 * WPCOM `public-api`. We have search dashboard for Atomic/JP sites already, so we
-	 * need to hide the duplicated menu. For simple sites, where search dashboard doesn't
-	 * exist, we fallback to Calypso Jetpack Search page.
+	 * For simple sites, where search dashboard doesn't exist, we use the Calypso page / menu item.
+	 * For Atomic sites, the admin-menu is originated from the sites and forwarded by WPCOM `public-api`.
+	 * We have search dashboard for Atomic/JP sites, so we need to hide the duplicated menu item.
 	 */
 	public function hide_search_menu_for_calypso() {
 		$this->hide_submenu_page( 'jetpack', 'search' );
