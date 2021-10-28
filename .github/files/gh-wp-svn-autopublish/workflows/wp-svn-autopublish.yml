@@ -3,7 +3,7 @@ name: WordPress SVN auto-publisher
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - '*.*'
 
 jobs:
   publish:
