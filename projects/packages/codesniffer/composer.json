@@ -5,14 +5,14 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"dealerdirect/phpcodesniffer-composer-installer": "^0.7",
-		"mediawiki/mediawiki-codesniffer": "^37.0",
+		"mediawiki/mediawiki-codesniffer": "^38.0",
 		"phpcompatibility/phpcompatibility-wp": "^2.1",
 		"sirbrillig/phpcs-variable-analysis": "^2.10",
 		"wp-coding-standards/wpcs": "^2.3"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.0.1",
-		"automattic/jetpack-changelogger": "^1.2"
+		"yoast/phpunit-polyfills": "1.0.2",
+		"automattic/jetpack-changelogger": "^3.0"
 	},
 	"autoload": {
 		"classmap": [
@@ -52,7 +52,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-codesniffer/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "2.2.x-dev"
+			"dev-master": "2.3.x-dev"
 		}
 	}
 }

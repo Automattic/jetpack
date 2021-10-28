@@ -21,15 +21,17 @@ import DashItem from 'components/dash-item';
 import JetpackBanner from 'components/jetpack-banner';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
 import {
+	containsBackupRealtime,
 	getPlanClass,
 	getJetpackProductUpsellByFeature,
 	FEATURE_SITE_BACKUPS_JETPACK,
 } from 'lib/plans/constants';
-import { getSitePlan } from 'state/site';
+import { getProductDescriptionUrl } from 'product-descriptions/utils';
+import { getActiveBackupPurchase, getSitePlan, hasActiveBackupPurchase } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import { getVaultPressData } from 'state/at-a-glance';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
-import { getUpgradeUrl, showBackups } from 'state/initial-state';
+import { showBackups } from 'state/initial-state';
 
 /**
  * Displays a card for Backups based on the props given.
@@ -63,6 +65,7 @@ class DashBackups extends Component {
 		getOptionValue: PropTypes.func.isRequired,
 		rewindStatus: PropTypes.string.isRequired,
 		rewindStatusReason: PropTypes.string.isRequired,
+		trackUpgradeButtonView: PropTypes.func,
 
 		// Connected props
 		vaultPressData: PropTypes.any.isRequired,
@@ -81,6 +84,7 @@ class DashBackups extends Component {
 		isOfflineMode: false,
 		isVaultPressInstalled: false,
 		rewindStatus: '',
+		trackUpgradeButtonView: noop,
 	};
 
 	getVPContent() {
@@ -156,6 +160,7 @@ class DashBackups extends Component {
 						eventFeature="backups"
 						path="dashboard"
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SITE_BACKUPS_JETPACK ) }
+						trackBannerDisplay={ this.props.trackUpgradeButtonView }
 					/>
 				) : (
 					<JetpackBanner
@@ -216,7 +221,7 @@ class DashBackups extends Component {
 					</React.Fragment>
 				);
 			case 'active':
-				const message = [ 'is-business-plan', 'is-realtime-backup-plan' ].includes( planClass )
+				const message = containsBackupRealtime( planClass )
 					? __( 'We are backing up your site in real-time.', 'jetpack' )
 					: __( 'We are backing up your site daily.', 'jetpack' );
 
@@ -242,7 +247,10 @@ class DashBackups extends Component {
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
 				status: 'pro-inactive',
-				content: __( 'Your site is new and may still be preparing backup configuration.', 'jetpack' ),
+				content: __(
+					'Your site is new and may still be preparing backup configuration.',
+					'jetpack'
+				),
 			} );
 			// this.props.rewindStatus is empty string on API error.
 		} else if ( 'unavailable' === this.props.rewindStatus || '' === this.props.rewindStatus ) {
@@ -284,11 +292,13 @@ export default connect(
 		return {
 			vaultPressData: getVaultPressData( state ),
 			sitePlan,
-			planClass: getPlanClass( sitePlan ),
+			planClass: hasActiveBackupPurchase( state )
+				? getPlanClass( getActiveBackupPurchase( state ).product_slug )
+				: getPlanClass( sitePlan.product_slug ),
 			isOfflineMode: isOfflineMode( state ),
 			isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
 			showBackups: showBackups( state ),
-			upgradeUrl: getUpgradeUrl( state, 'aag-backups' ),
+			upgradeUrl: getProductDescriptionUrl( state, 'backup' ),
 			hasConnectedOwner: hasConnectedOwner( state ),
 		};
 	},

@@ -3,11 +3,13 @@
 	"description": "Used to retrieve information about the current status of Jetpack and the site overall.",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
-	"require": {},
+	"require": {
+		"automattic/jetpack-constants": "^1.6"
+	},
 	"require-dev": {
 		"brain/monkey": "2.6.0",
-		"yoast/phpunit-polyfills": "1.0.1",
-		"automattic/jetpack-changelogger": "^1.2"
+		"yoast/phpunit-polyfills": "1.0.2",
+		"automattic/jetpack-changelogger": "^3.0"
 	},
 	"autoload": {
 		"classmap": [
@@ -45,7 +47,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.8.x-dev"
+			"dev-master": "1.9.x-dev"
 		}
 	}
 }

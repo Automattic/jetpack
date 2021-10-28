@@ -4,7 +4,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { get } from 'lodash';
+import { get, noop } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -22,7 +22,8 @@ import { createNotice, removeNotice } from 'components/global-notices/state/noti
 import DashItem from 'components/dash-item';
 import { getAkismetData } from 'state/at-a-glance';
 import { getSitePlan } from 'state/site';
-import { getApiNonce, getUpgradeUrl } from 'state/initial-state';
+import { getApiNonce } from 'state/initial-state';
+import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import { getJetpackProductUpsellByFeature, FEATURE_SPAM_AKISMET_PLUS } from 'lib/plans/constants';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
 import JetpackBanner from 'components/jetpack-banner';
@@ -33,6 +34,7 @@ class DashAkismet extends Component {
 	static propTypes = {
 		siteRawUrl: PropTypes.string.isRequired,
 		siteAdminUrl: PropTypes.string.isRequired,
+		trackUpgradeButtonView: PropTypes.func,
 
 		// Connected props
 		akismetData: PropTypes.oneOfType( [ PropTypes.string, PropTypes.object ] ).isRequired,
@@ -46,6 +48,7 @@ class DashAkismet extends Component {
 		siteAdminUrl: '',
 		akismetData: 'N/A',
 		isOfflineMode: '',
+		trackUpgradeButtonView: noop,
 	};
 
 	trackActivateClick() {
@@ -112,6 +115,7 @@ class DashAkismet extends Component {
 					eventFeature="akismet"
 					path="dashboard"
 					plan={ getJetpackProductUpsellByFeature( FEATURE_SPAM_AKISMET_PLUS ) }
+					trackBannerDisplay={ this.props.trackUpgradeButtonView }
 				/>
 			);
 		};
@@ -134,6 +138,22 @@ class DashAkismet extends Component {
 		};
 
 		const getBanner = () => {
+			if ( this.props.isOfflineMode ) {
+				return (
+					<DashItem
+						label={ labelName }
+						module="akismet"
+						support={ support }
+						pro={ true }
+						className="jp-dash-item__is-inactive"
+					>
+						<p className="jp-dash-item__description">
+							{ __( 'Unavailable in Offline Mode.', 'jetpack' ) }
+						</p>
+					</DashItem>
+				);
+			}
+
 			return this.props.hasConnectedOwner ? getAkismetUpgradeBanner() : getConnectBanner();
 		};
 
@@ -271,7 +291,7 @@ export default connect(
 			akismetData: getAkismetData( state ),
 			sitePlan: getSitePlan( state ),
 			isOfflineMode: isOfflineMode( state ),
-			upgradeUrl: getUpgradeUrl( state, 'aag-akismet' ),
+			upgradeUrl: getProductDescriptionUrl( state, 'akismet' ),
 			nonce: getApiNonce( state ),
 			hasConnectedOwner: hasConnectedOwner( state ),
 		};

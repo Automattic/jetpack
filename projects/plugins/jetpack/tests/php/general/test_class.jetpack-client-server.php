@@ -1,13 +1,17 @@
 <?php
+/**
+ * Tests for Jetpack_Client_Server.
+ *
+ * @covers Jetpack_Client_Server
+ */
 class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 
-	static public function setUpBeforeClass() {
-		parent::setUpBeforeClass();
+	/**
+	 * Set up before class.
+	 */
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
 		self::$ignore_files = TRUE;
-	}
-
-	public function setUp() {
-		parent::setUp();
 	}
 
 	/**
@@ -22,7 +26,6 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Client_Server::authorize
 	 * @since 3.2
 	 */
 	public function test_jetpack_client_server_authorize_role_cap() {
@@ -43,7 +46,6 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Client_Server::authorize
 	 * @since 3.2
 	 */
 	public function test_jetpack_client_server_authorize_no_role() {
@@ -63,7 +65,6 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Client_Server::authorize
 	 * @since 3.2
 	 */
 	public function test_jetpack_client_server_authorize_data_error() {
@@ -83,7 +84,6 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Client_Server::deactivate_plugin
 	 * @since 3.2
 	 */
 	public function test_jetpack_client_server_deactivate_plugin() {
@@ -91,12 +91,11 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 
 		$return_value = $client_server->deactivate_plugin( 'herp', 'derp' );
 
-		$this->assertEquals( $return_value, 0 );
+		$this->assertSame( 0, $return_value );
 	}
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Client_Server::get_token
 	 * @since 3.2
 	 */
 	public function test_jetpack_client_server_get_token() {

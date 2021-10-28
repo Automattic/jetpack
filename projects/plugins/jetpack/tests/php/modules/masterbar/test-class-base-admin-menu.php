@@ -58,8 +58,8 @@ class Test_Base_Admin_Menu extends WP_UnitTestCase {
 	/**
 	 * Set up data.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 
 		$admin_menu = $this->get_concrete_menu_admin();
 
@@ -104,9 +104,9 @@ class Test_Base_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_admin_menu_separator( 10, 'manage_options' );
 
 		$this->assertSame( 'manage_options', $menu[10][1] );
-		$this->assertContains( 'separator-custom-', $menu[10][2] );
+		$this->assertStringContainsString( 'separator-custom-', $menu[10][2] );
 		$this->assertSame( 'read', $menu[15][1] );
-		$this->assertContains( 'separator-custom-', $menu[15][2] );
+		$this->assertStringContainsString( 'separator-custom-', $menu[15][2] );
 
 		// Restore filtered $menu.
 		$menu = $temp_menu;
@@ -140,7 +140,6 @@ class Test_Base_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::handle_preferred_view
 	 */
 	public function test_handle_preferred_view() {
-		$this->markTestSkipped( 'Test causing PHPUnit process to silently exit' );
 		global $pagenow;
 		$pagenow                = 'test.php';
 		$_GET['preferred-view'] = 'classic';

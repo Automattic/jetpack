@@ -18,6 +18,7 @@ import {
 	getCurrentVersion,
 	userCanManageOptions,
 	getSiteAdminUrl,
+	isAtomicPlatform,
 } from 'state/initial-state';
 import { isInIdentityCrisis, getSiteConnectionStatus } from 'state/connection';
 import onKeyDownCallback from 'utils/onkeydown-callback';
@@ -176,17 +177,9 @@ export class Footer extends React.Component {
 			}
 		};
 
-		const aboutPageUrl = this.props.siteConnectionStatus
-			? this.props.siteAdminUrl + 'admin.php?page=jetpack_about'
-			: getRedirectUrl( 'jetpack' );
-
-		const privacyUrl = this.props.siteConnectionStatus
-			? this.props.siteAdminUrl + 'admin.php?page=jetpack#/privacy'
-			: getRedirectUrl( 'a8c-privacy' );
-
-		return (
-			<div className={ classes }>
-				<ul className="jp-footer__links">
+		const maybeShowVersionNumber = () => {
+			if ( ! this.props.isAtomicPlatform ) {
+				return (
 					<li className="jp-footer__link-item">
 						<a
 							onClick={ this.trackVersionClick }
@@ -205,6 +198,22 @@ export class Footer extends React.Component {
 								: 'Jetpack' }
 						</a>
 					</li>
+				);
+			}
+		};
+
+		const aboutPageUrl = this.props.siteConnectionStatus
+			? this.props.siteAdminUrl + 'admin.php?page=jetpack_about'
+			: getRedirectUrl( 'jetpack' );
+
+		const privacyUrl = this.props.siteConnectionStatus
+			? this.props.siteAdminUrl + 'admin.php?page=jetpack#/privacy'
+			: getRedirectUrl( 'a8c-privacy' );
+
+		return (
+			<div className={ classes }>
+				<ul className="jp-footer__links">
+					{ maybeShowVersionNumber() }
 					<li className="jp-footer__link-item">
 						<a
 							onClick={ this.trackAboutClick }
@@ -257,6 +266,7 @@ export default connect(
 		return {
 			currentVersion: getCurrentVersion( state ),
 			displayDevCard: canDisplayDevCard( state ),
+			isAtomicPlatform: isAtomicPlatform( state ),
 			isDevVersion: _isDevVersion( state ),
 			isInIdentityCrisis: isInIdentityCrisis( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),

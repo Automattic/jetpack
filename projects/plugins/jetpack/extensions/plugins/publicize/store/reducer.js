@@ -1,5 +1,4 @@
 export const DEFAULT_STATE = {
-	connections: [],
 	tweets: [],
 	twitterCards: [],
 };
@@ -13,21 +12,21 @@ export const DEFAULT_STATE = {
  */
 export default function ( state = DEFAULT_STATE, action ) {
 	switch ( action.type ) {
-		case 'SET_CONNECTION_TEST_RESULTS':
-			return {
-				...state,
-				connections: action.results,
-			};
 		case 'REFRESH_CONNECTION_TEST_RESULTS':
-			return {
-				...state,
-				connections: [],
-			};
+			return state;
+
+		case 'TOGGLE_CONNECTION_BY_ID':
+			return state;
+
+		case 'TOGGLE_PUBLICIZE_FEATURE':
+			return state;
+
 		case 'SET_TWEETS':
 			return {
 				...state,
 				tweets: action.tweets,
 			};
+
 		case 'GET_TWITTER_CARDS': {
 			const loadingCards = {};
 			action.urls.forEach( url => ( loadingCards[ url ] = { error: 'loading' } ) );

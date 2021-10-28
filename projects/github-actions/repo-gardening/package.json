@@ -1,6 +1,6 @@
 {
 	"name": "repo-gardening",
-	"version": "1.4.1-alpha",
+	"version": "2.0.0-alpha",
 	"description": "Manage PR and issues in your Open Source project (automate labelling, milestones, feedback to PR authors, ...)",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",

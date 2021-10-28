@@ -25,7 +25,7 @@ import {
 	FEATURE_SEARCH_JETPACK,
 } from 'lib/plans/constants';
 import { getSitePlan, hasActiveSearchPurchase, isFetchingSitePurchases } from 'state/site';
-import { getUpgradeUrl } from 'state/initial-state';
+import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
 import JetpackBanner from 'components/jetpack-banner';
 
@@ -63,6 +63,7 @@ const renderCard = props => (
 class DashSearch extends Component {
 	static propTypes = {
 		getOptionValue: PropTypes.func.isRequired,
+		trackUpgradeBanner: PropTypes.func,
 
 		// Connected props
 		isOfflineMode: PropTypes.bool.isRequired,
@@ -72,6 +73,7 @@ class DashSearch extends Component {
 	static defaultProps = {
 		getOptionValue: noop,
 		isOfflineMode: false,
+		trackUpgradeBanner: noop,
 	};
 
 	trackSearchLink() {
@@ -121,6 +123,7 @@ class DashSearch extends Component {
 						path="dashboard"
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SEARCH_JETPACK ) }
 						icon="search"
+						trackBannerDisplay={ this.props.trackUpgradeButtonView }
 					/>
 				) : (
 					<JetpackBanner
@@ -202,7 +205,7 @@ export default connect(
 			isOfflineMode: isOfflineMode( state ),
 			isFetching: isFetchingSitePurchases( state ),
 			hasSearchProduct: hasActiveSearchPurchase( state ),
-			upgradeUrl: getUpgradeUrl( state, 'aag-search' ),
+			upgradeUrl: getProductDescriptionUrl( state, 'search' ),
 			hasConnectedOwner: hasConnectedOwner( state ),
 		};
 	},

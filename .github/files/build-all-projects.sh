@@ -4,6 +4,8 @@
 set -eo pipefail
 
 BASE=$(pwd)
+. tools/includes/alpha-tag.sh
+
 if [[ -z "$BUILD_BASE" ]]; then
 	BUILD_BASE=$(mktemp -d "${TMPDIR:-/tmp}/jetpack-project-mirrors.XXXXXXXX")
 elif [[ ! -e "$BUILD_BASE" ]]; then
@@ -109,7 +111,8 @@ for SLUG in "${SLUGS[@]}"; do
 		CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
 		if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then
 			echo "::group::Updating changelog"
-			if ! $CHANGELOGGER write --prologue='This is an alpha version! The changes listed here are not final.' --default-first-version --prerelease=alpha --release-date=unreleased --no-interaction --yes -vvv; then
+			PRERELEASE=$(alpha_tag $CHANGELOGGER composer.json 0)
+			if ! $CHANGELOGGER write --prologue='This is an alpha version! The changes listed here are not final.' --default-first-version --prerelease=$PRERELEASE --release-date=unreleased --no-interaction --yes -vvv; then
 				echo "::endgroup::"
 				echo "::error::Changelog update for ${SLUG} failed"
 				EXIT=1
@@ -145,9 +148,12 @@ for SLUG in "${SLUGS[@]}"; do
 	# Copy standard .github
 	cp -r "$BASE/.github/files/mirror-.github" "$BUILD_DIR/.github"
 
-	# Copy autotagger and npmjs-autopublisher if enabled
+	# Copy autotagger, autorelease, and/or npmjs-autopublisher if enabled
 	if jq -e '.extra.autotagger // false' composer.json > /dev/null; then
 		cp -r "$BASE/.github/files/gh-autotagger/." "$BUILD_DIR/.github/."
+	fi
+	if jq -e '.extra.autorelease // false' composer.json > /dev/null; then
+		cp -r "$BASE/.github/files/gh-autorelease/." "$BUILD_DIR/.github/."
 	fi
 	if jq -e '.extra["npmjs-autopublish"] // false' composer.json > /dev/null; then
 		cp -r "$BASE/.github/files/gh-npmjs-autopublisher/." "$BUILD_DIR/.github/."
@@ -213,6 +219,25 @@ for SLUG in "${SLUGS[@]}"; do
 			cat <<-EOF >> "$BUILD_DIR/.npmignore"
 
 				# Package ignore file.
+				$TMP
+			EOF
+		fi
+	fi
+
+	# If autorelease is active, flag .git files to be excluded from the archive.
+	if jq -e '.extra.autorelease // false' composer.json > /dev/null; then
+		TMP=
+		if [[ -e "$BUILD_DIR/.gitattributes" ]]; then
+			TMP="$(<"$BUILD_DIR/.gitattributes")"
+		fi
+		cat <<-EOF > "$BUILD_DIR/.gitattributes"
+			# Automatically generated rules.
+			/.git*	export-ignore
+		EOF
+		if [[ -n "$TMP" ]]; then
+			cat <<-EOF >> "$BUILD_DIR/.gitattributes"
+
+				# Package attributes file.
 				$TMP
 			EOF
 		fi

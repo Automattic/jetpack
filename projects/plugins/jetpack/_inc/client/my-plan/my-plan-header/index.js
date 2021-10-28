@@ -31,8 +31,8 @@ import {
 import License from './license';
 import MyPlanCard from '../my-plan-card';
 
-const BACKUP_STORAGE_GB = 200;
-const BACKUP_PRO_STORAGE_TB = 2;
+const BACKUP_STORAGE_GB = 10;
+const BACKUP_PRO_STORAGE_TB = 1;
 
 class MyPlanHeader extends React.Component {
 	getProductProps( productSlug ) {
@@ -240,6 +240,14 @@ class MyPlanHeader extends React.Component {
 					title: createInterpolateElement( __( 'Jetpack Backup <em>Real-Time</em>', 'jetpack' ), {
 						em: <em />,
 					} ),
+				};
+
+			case 'is-videopress-plan':
+				return {
+					...productProps,
+					details: expiration,
+					tagLine: __( 'High-quality, ad-free video built specifically for WordPress.', 'jetpack' ),
+					title: __( 'Jetpack VideoPress', 'jetpack' ),
 				};
 
 			default:

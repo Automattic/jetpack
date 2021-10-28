@@ -1,18 +1,26 @@
 <?php
 require dirname( __FILE__ ) . '/../../../../modules/infinite-scroll/infinity.php';
 
+/**
+ * Tests for The_Neverending_Home_Page.
+ *
+ * @covers The_Neverending_Home_Page
+ */
 class WP_Test_The_Neverending_Home_Page extends WP_UnitTestCase {
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 
 		$this->infinite_scroll = new The_Neverending_Home_Page;
 	}
 
 	public function test_body_class() {
 		$classes = $this->infinite_scroll->body_class();
-		$this->assertContains( 'infinite-scroll', $classes );
-		$this->assertContains( 'neverending', $classes );
+		$this->assertStringContainsString( 'infinite-scroll', $classes );
+		$this->assertStringContainsString( 'neverending', $classes );
 	}
 
 	/**
@@ -20,7 +28,6 @@ class WP_Test_The_Neverending_Home_Page extends WP_UnitTestCase {
 	 *
 	 * @dataProvider get_posts_per_page_in_request_data
 	 * @author fgiannar
-	 * @covers ::posts_per_page
 	 *
 	 * @param mixed $posts_per_page_query_arg The $_REQUEST['query_args']['posts_per_page'] value.
 	 * @param int   $expected The expected return value of the posts_per_page method.

@@ -2,10 +2,10 @@ module.exports = {
 	root: true,
 	parser: '@typescript-eslint/parser',
 	extends: [
+		'@sveltejs',
 		'../../../.eslintrc.js',
 		'plugin:@typescript-eslint/recommended',
 		'plugin:@wordpress/eslint-plugin/recommended',
-		'@sveltejs',
 	],
 	parserOptions: {
 		babelOptions: {
@@ -24,9 +24,6 @@ module.exports = {
 		},
 	],
 	settings: {
-		jest: {
-			version: 26,
-		},
 		'svelte3/typescript': true,
 
 		// named-blocks is required for interoperability between
@@ -38,12 +35,11 @@ module.exports = {
 	ignorePatterns: [
 		'node_modules',
 		'.eslintrc.js',
-		'jest.config.js',
-		'jest-puppeteer.config.js',
 		'rollup.config.js',
 		'babel.config.js',
 		'wordpress',
 		'vendor',
+		'tests',
 		'app/assets/dist',
 	],
 	rules: {

@@ -14,7 +14,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 /**
  * Internal dependencies
  */
-import { getCurrentVersion, getSiteAdminUrl } from 'state/initial-state';
+import { getCurrentVersion, getSiteAdminUrl, isAtomicPlatform } from 'state/initial-state';
 import {
 	getJetpackStateNoticesErrorCode,
 	getJetpackStateNoticesMessageCode,
@@ -202,16 +202,18 @@ class JetpackStateNotices extends React.Component {
 		switch ( key ) {
 			// This is the message that is shown on first page load after a Jetpack plugin update.
 			case 'modules_activated':
-				message = createInterpolateElement(
-					sprintf(
-						/* translators: placeholder is a version number, like 8.8. */
-						__( 'Welcome to <s>Jetpack %s</s>!', 'jetpack' ),
-						this.props.currentVersion
-					),
-					{
-						s: <strong />,
-					}
-				);
+				if ( ! this.props.isAtomicPlatform ) {
+					message = createInterpolateElement(
+						sprintf(
+							/* translators: placeholder is a version number, like 8.8. */
+							__( 'Welcome to <s>Jetpack %s</s>!', 'jetpack' ),
+							this.props.currentVersion
+						),
+						{
+							s: <strong />,
+						}
+					);
+				}
 				break;
 			case 'already_authorized':
 				message = __( 'Your Jetpack is already connected.', 'jetpack' );
@@ -278,7 +280,7 @@ class JetpackStateNotices extends React.Component {
 		}
 
 		// Show custom message for updated Jetpack.
-		if ( messageContent && messageContent.release_post_content ) {
+		if ( messageContent && messageContent.release_post_content && ! this.props.isAtomicPlatform ) {
 			return (
 				<UpgradeNoticeContent
 					dismiss={ this.dismissJetpackStateNotice }
@@ -295,6 +297,10 @@ class JetpackStateNotices extends React.Component {
 			noticeText = messageData[ 0 ];
 			status = messageData[ 1 ];
 			action = messageData[ 2 ];
+		}
+
+		if ( '' === noticeText ) {
+			return;
 		}
 
 		return (
@@ -316,6 +322,7 @@ class JetpackStateNotices extends React.Component {
 export default connect( state => {
 	return {
 		currentVersion: getCurrentVersion( state ),
+		isAtomicPlatform: isAtomicPlatform( state ),
 		jetpackStateNoticesErrorCode: getJetpackStateNoticesErrorCode( state ),
 		jetpackStateNoticesMessageCode: getJetpackStateNoticesMessageCode( state ),
 		jetpackStateNoticesErrorDescription: getJetpackStateNoticesErrorDescription( state ),

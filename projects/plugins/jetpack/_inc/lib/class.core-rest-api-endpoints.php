@@ -6,6 +6,7 @@ use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Licensing;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Register WP REST API endpoints for Jetpack.
@@ -532,21 +533,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
-		/**
-		 * Install and Activate the Akismet plugin.
-		 *
-		 * @deprecated 8.9.0 Use the /plugins route instead.
-		 */
-		register_rest_route(
-			'jetpack/v4',
-			'/plugins/akismet/activate',
-			array(
-				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::activate_akismet',
-				'permission_callback' => __CLASS__ . '::activate_plugins_permission_check',
-			)
-		);
-
 		// Plugins: check if the plugin is active.
 		register_rest_route(
 			'jetpack/v4',
@@ -604,37 +590,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 						'type'              => 'integer',
 						'validate_callback' => __CLASS__ . '::validate_posint',
 					),
-				),
-			)
-		);
-
-		// Get and set API keys.
-		// Note: permission_callback intentionally omitted from the GET method.
-		// Map block requires open access to API keys on the front end.
-		register_rest_route(
-			'jetpack/v4',
-			'/service-api-keys/(?P<service>[a-z\-_]+)',
-			array(
-				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => __CLASS__ . '::get_service_api_key',
-					'permission_callback' => '__return_true',
-				),
-				array(
-					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => __CLASS__ . '::update_service_api_key',
-					'permission_callback' => array( 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys', 'edit_others_posts_check' ),
-					'args'                => array(
-						'service_api_key' => array(
-							'required' => true,
-							'type'     => 'text',
-						),
-					),
-				),
-				array(
-					'methods'             => WP_REST_Server::DELETABLE,
-					'callback'            => __CLASS__ . '::delete_service_api_key',
-					'permission_callback' => array( 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys', 'edit_others_posts_check' ),
 				),
 			)
 		);
@@ -1192,21 +1147,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Handles verification that a site is registered
-	 *
-	 * @since 5.4.0
-	 * @deprecated 8.8.0 The method is moved to the `REST_Connector` class.
-	 *
-	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 *
-	 * @return array|wp-error
-	 */
-	public static function remote_authorize( $request ) {
-		_deprecated_function( __METHOD__, 'jetpack-8.8.0', '\Automattic\Jetpack\Connection\REST_Connector::remote_authorize' );
-		return REST_Connector::remote_authorize( $request );
-	}
-
-	/**
 	 * Handles dismissing of Jetpack Notices
 	 *
 	 * @since 4.3.0
@@ -1391,35 +1331,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'invalid_permission_manage_purchase_token', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
-	}
-
-	/**
-	 * Deprecated - Contextual HTTP error code for authorization failure.
-	 *
-	 * @deprecated since version 8.8.0.
-	 *
-	 * Taken from rest_authorization_required_code() in WP-API plugin until is added to core.
-	 * @see https://github.com/WP-API/WP-API/commit/7ba0ae6fe4f605d5ffe4ee85b1cd5f9fb46900a6
-	 *
-	 * @since 4.3.0
-	 *
-	 * @return int
-	 */
-	public static function rest_authorization_required_code() {
-		_deprecated_function( __METHOD__, 'jetpack-8.8.0', 'rest_authorization_required_code' );
-		return rest_authorization_required_code();
-	}
-
-	/**
-	 * Get connection status for this Jetpack site.
-	 *
-	 * @since 4.3.0
-	 *
-	 * @return WP_REST_Response Connection information.
-	 */
-	public static function jetpack_connection_status() {
-		_deprecated_function( __METHOD__, 'jetpack-8.8.0', '\Automattic\Jetpack\Connection\REST_Connector::connection_status' );
-		return REST_Connector::connection_status();
 	}
 
 	/**
@@ -1668,7 +1579,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$scan_state = self::scan_state();
 
 		if ( ! is_wp_error( $scan_state ) ) {
-			if ( jetpack_is_atomic_site() && ! empty( $scan_state->threats ) ) {
+			if ( ( new Host() )->is_woa_site() && ! empty( $scan_state->threats ) ) {
 				$scan_state->threats = array();
 			}
 			return rest_ensure_response(
@@ -3590,105 +3501,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Deprecated - Get third party plugin API keys.
-	 *
-	 * @deprecated
-	 *
-	 * @param WP_REST_Request $request {
-	 *     Array of parameters received by request.
-	 *
-	 *     @type string $slug Plugin slug with the syntax 'plugin-directory/plugin-main-file.php'.
-	 * }
-	 */
-	public static function get_service_api_key( $request ) {
-		_deprecated_function( __METHOD__, 'jetpack-6.9.0', 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys::get_service_api_key' );
-		return WPCOM_REST_API_V2_Endpoint_Service_API_Keys::get_service_api_key( $request );
-	}
-
-	/**
-	 * Deprecated - Update third party plugin API keys.
-	 *
-	 * @deprecated
-	 *
-	 * @param WP_REST_Request $request {
-	 *     Array of parameters received by request.
-	 *
-	 *     @type string $slug Plugin slug with the syntax 'plugin-directory/plugin-main-file.php'.
-	 * }
-	 */
-	public static function update_service_api_key( $request ) {
-		_deprecated_function( __METHOD__, 'jetpack-6.9.0', 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys::update_service_api_key' );
-		return WPCOM_REST_API_V2_Endpoint_Service_API_Keys::update_service_api_key( $request );
-	}
-
-	/**
-	 * Deprecated - Delete a third party plugin API key.
-	 *
-	 * @deprecated
-	 *
-	 * @param WP_REST_Request $request {
-	 *     Array of parameters received by request.
-	 *
-	 *     @type string $slug Plugin slug with the syntax 'plugin-directory/plugin-main-file.php'.
-	 * }
-	 */
-	public static function delete_service_api_key( $request ) {
-		_deprecated_function( __METHOD__, 'jetpack-6.9.0', 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys::delete_service_api_key' );
-		return WPCOM_REST_API_V2_Endpoint_Service_API_Keys::delete_service_api_key( $request );
-	}
-
-	/**
-	 * Deprecated - Validate the service provided in /service-api-keys/ endpoints.
-	 * To add a service to these endpoints, add the service name to $valid_services
-	 * and add '{service name}_api_key' to the non-compact return array in get_option_names(),
-	 * in class-jetpack-options.php
-	 *
-	 * @deprecated
-	 *
-	 * @param string $service The service the API key is for.
-	 * @return string Returns the service name if valid, null if invalid.
-	 */
-	public static function validate_service_api_service( $service = null ) {
-		_deprecated_function( __METHOD__, 'jetpack-6.9.0', 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys::validate_service_api_service' );
-		return WPCOM_REST_API_V2_Endpoint_Service_API_Keys::validate_service_api_service( $service );
-	}
-
-	/**
-	 * Error response for invalid service API key requests with an invalid service.
-	 */
-	public static function service_api_invalid_service_response() {
-		_deprecated_function( __METHOD__, 'jetpack-6.9.0', 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys::service_api_invalid_service_response' );
-		return WPCOM_REST_API_V2_Endpoint_Service_API_Keys::service_api_invalid_service_response();
-	}
-
-	/**
-	 * Deprecated - Validate API Key
-	 *
-	 * @deprecated
-	 *
-	 * @param string $key The API key to be validated.
-	 * @param string $service The service the API key is for.
-	 */
-	public static function validate_service_api_key( $key = null, $service = null ) {
-		_deprecated_function( __METHOD__, 'jetpack-6.9.0', 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys::validate_service_api_key' );
-		return WPCOM_REST_API_V2_Endpoint_Service_API_Keys::validate_service_api_key( $key, $service );
-	}
-
-	/**
-	 * Deprecated - Validate Mapbox API key
-	 * Based loosely on https://github.com/mapbox/geocoding-example/blob/master/php/MapboxTest.php
-	 *
-	 * @deprecated
-	 *
-	 * @param string $key The API key to be validated.
-	 */
-	public static function validate_service_api_key_mapbox( $key ) {
-		_deprecated_function( __METHOD__, 'jetpack-6.9.0', 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys::validate_service_api_key' );
-		return WPCOM_REST_API_V2_Endpoint_Service_API_Keys::validate_service_api_key_mapbox( $key );
-
-	}
-
-	/**
 	 * Get plugins data in site.
 	 *
 	 * @since 4.2.0
@@ -3704,25 +3516,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'not_found', esc_html__( 'Unable to list plugins.', 'jetpack' ), array( 'status' => 404 ) );
-	}
-
-	/**
-	 * Ensures that Akismet is installed and activated.
-	 *
-	 * @since 7.7
-	 *
-	 * @deprecated 8.9.0 Use install_plugin instead.
-	 *
-	 * @return WP_REST_Response A response indicating whether or not the installation was successful.
-	 */
-	public static function activate_akismet() {
-		_deprecated_function( __METHOD__, 'jetpack-8.9.0', 'install_plugin' );
-
-		$args = array(
-			'slug'   => 'akismet',
-			'status' => 'active',
-		);
-		return self::install_plugin( $args );
 	}
 
 	/**

@@ -4,9 +4,13 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	height: $header-height;
+	height: $grid-unit-60; // Match .components-panel__header height.
 	padding: 0 $grid-unit-20;
 	overflow: auto;
+
+	@include break-medium() {
+		height: $header-height; // Match headers of other editor interfaces.
+	}
 
 	@include break-small {
 		overflow: visible;
@@ -28,15 +32,14 @@
 .jp-search-configure-header__actions {
 	display: flex;
 
-	.components-button {
-		margin-right: $grid-unit-05;
-
+	.components-button.jp-search-configure-header__show-settings-button {
 		@include break-small() {
-			margin-right: $grid-unit-15;
+			margin-right: $grid-unit-10;
 		}
-	}
 
-	.interface-pinned-items .components-button {
-		margin-right: 0;
+		@include break-medium() {
+			display: none;
+			margin-left: 0;
+		}
 	}
 }

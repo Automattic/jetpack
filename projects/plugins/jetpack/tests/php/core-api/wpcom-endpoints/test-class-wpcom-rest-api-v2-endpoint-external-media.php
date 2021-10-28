@@ -46,8 +46,8 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	/**
 	 * Setup the environment for a test.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 
 		wp_set_current_user( static::$user_id );
 
@@ -57,10 +57,10 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	/**
 	 * Reset the environment to its original state after the test.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		remove_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ) );
 
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**
@@ -142,7 +142,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 		$this->assertArrayHasKey( 'type', $data );
 		$this->assertArrayHasKey( 'url', $data );
 		$this->assertEquals( 'image', $data['type'] );
-		$this->assertInternalType( 'int', $data['id'] );
+		$this->assertIsInt( $data['id'] );
 		$this->assertEmpty( $data['caption'] );
 		$this->assertEmpty( $data['alt'] );
 	}
@@ -313,7 +313,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	 */
 	public function mock_wpcom_api_response_connection_google_photos( $response, $args, $url ) {
 		$this->assertEquals( WP_REST_Server::READABLE, $args['method'] );
-		$this->assertEquals( 'https://public-api.wordpress.com/wpcom/v2/meta/external-media/connection/google_photos', $url );
+		$this->assertStringStartsWith( 'https://public-api.wordpress.com/wpcom/v2/meta/external-media/connection/google_photos', $url );
 
 		return array(
 			'headers'  => array(
@@ -338,7 +338,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	 */
 	public function mock_wpcom_api_response_delete_connection_google_photos( $response, $args, $url ) {
 		$this->assertEquals( WP_REST_Server::DELETABLE, $args['method'] );
-		$this->assertEquals( 'https://public-api.wordpress.com/wpcom/v2/meta/external-media/connection/google_photos', $url );
+		$this->assertStringStartsWith( 'https://public-api.wordpress.com/wpcom/v2/meta/external-media/connection/google_photos', $url );
 
 		return array(
 			'headers'  => array(
@@ -362,7 +362,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	 * @return array
 	 */
 	public function mock_wpcom_api_external_media_connection_response_with_error( $response, $args, $url ) {
-		$this->assertEquals( 'https://public-api.wordpress.com/wpcom/v2/meta/external-media/connection/google_photos', $url );
+		$this->assertStringStartsWith( 'https://public-api.wordpress.com/wpcom/v2/meta/external-media/connection/google_photos', $url );
 
 		return array(
 			'headers'  => array(
@@ -433,6 +433,10 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	 */
 	public function copy_image( $file ) {
 		copy( static::$image_path, $file['tmp_name'] );
+
+		// Stream wrappers like Patchwork probably resulted in an incorrect stat
+		// cache entry for the file. So clear it.
+		clearstatcache();
 
 		return $file;
 	}

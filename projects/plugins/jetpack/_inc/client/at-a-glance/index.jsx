@@ -21,6 +21,7 @@ import DashAkismet from './akismet';
 import DashBackups from './backups';
 import DashPhoton from './photon';
 import DashSearch from './search';
+import DashVideoPress from './videopress';
 import DashConnections from './connections';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import QuerySite from 'components/data/query-site';
@@ -48,6 +49,10 @@ const renderPairs = layout =>
 
 class AtAGlance extends Component {
 	trackSecurityClick = () => analytics.tracks.recordJetpackClick( 'aag_manage_security_wpcom' );
+
+	trackUpgradeButtonView = ( feature = '' ) => {
+		return () => analytics.tracks.recordEvent( `jetpack_wpa_aag_upgrade_button_view`, { feature } );
+	};
 
 	render() {
 		const settingsProps = {
@@ -92,7 +97,13 @@ class AtAGlance extends Component {
 		const hasVaultPressScanning =
 			! this.props.fetchingScanStatus && this.props.scanStatus?.reason === 'vp_active_on_site';
 		if ( ! this.props.multisite || hasVaultPressScanning ) {
-			securityCards.push( <DashScan { ...settingsProps } { ...urls } /> );
+			securityCards.push(
+				<DashScan
+					{ ...settingsProps }
+					{ ...urls }
+					trackUpgradeButtonView={ this.trackUpgradeButtonView( 'scan' ) }
+				/>
+			);
 		}
 
 		if ( ! this.props.multisite ) {
@@ -102,10 +113,16 @@ class AtAGlance extends Component {
 					siteRawUrl={ this.props.siteRawUrl }
 					rewindStatus={ rewindStatus }
 					rewindStatusReason={ rewindStatusReason }
+					trackUpgradeButtonView={ this.trackUpgradeButtonView( 'backups' ) }
 				/>
 			);
 		}
-		securityCards.push( <DashAkismet { ...urls } /> );
+		securityCards.push(
+			<DashAkismet
+				{ ...urls }
+				trackUpgradeButtonView={ this.trackUpgradeButtonView( 'akismet' ) }
+			/>
+		);
 
 		if ( 'inactive' !== this.props.getModuleOverride( 'protect' ) ) {
 			securityCards.push( <DashProtect { ...settingsProps } /> );
@@ -134,7 +151,20 @@ class AtAGlance extends Component {
 				performanceCards.push( <DashPhoton { ...settingsProps } /> );
 			}
 			if ( 'inactive' !== this.props.getModuleOverride( 'search' ) ) {
-				performanceCards.push( <DashSearch { ...settingsProps } /> );
+				performanceCards.push(
+					<DashSearch
+						{ ...settingsProps }
+						trackUpgradeButtonView={ this.trackUpgradeButtonView( 'search' ) }
+					/>
+				);
+			}
+			if ( 'inactive' !== this.props.getModuleOverride( 'videopress' ) ) {
+				performanceCards.push(
+					<DashVideoPress
+						{ ...settingsProps }
+						trackUpgradeButtonView={ this.trackUpgradeButtonView( 'videopress' ) }
+					/>
+				);
 			}
 			if ( performanceCards.length ) {
 				pairs.push( {

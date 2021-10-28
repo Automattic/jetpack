@@ -8,7 +8,7 @@ on:
   schedule:
     - cron: '0 19 * * 0'
 concurrency:
-  group: codeql-${{ github.event_name }}-${{ github.ref }}
+  group: codeql-analysis-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
