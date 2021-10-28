@@ -161,12 +161,6 @@ importers:
       react-dom: 17.0.2_react@17.0.2
       react-test-renderer: 17.0.2_react@17.0.2
 
-  projects/js-packages/env:
-    specifiers:
-      jetpack-js-test-runner: workspace:*
-    dependencies:
-      jetpack-js-test-runner: link:../../../tools/js-test-runner
-
   projects/js-packages/eslint-changed:
     specifiers:
       chalk: 4.1.1
@@ -216,6 +210,12 @@ importers:
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       react-test-renderer: 17.0.2_react@17.0.2
+
+  projects/js-packages/registry:
+    specifiers:
+      jetpack-js-test-runner: workspace:*
+    dependencies:
+      jetpack-js-test-runner: link:../../../tools/js-test-runner
 
   projects/js-packages/storybook:
     specifiers:

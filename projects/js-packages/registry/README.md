@@ -1,14 +1,10 @@
-# env
+# Jetpack Registry
 
-Handles environment variables that can be shared across all Jetpack JS packages
+The registry is a container for storing objects and values in the Jetpack packages space. By storing the value in the registry, the same value is always available throughout all Jetpack modules and components in your application.
 
-## How to install env
+## Usage
 
-### Installation From Git Repo
 
-## Contribute
-
-## Get Help
 
 ## Security
 

@@ -1,8 +1,8 @@
 {
 	"private": true,
-	"name": "@automattic/jetpack-env",
+	"name": "@automattic/jetpack-registry",
 	"version": "0.1.0-alpha",
-	"description": "Handles environment variables that can be shared across all Jetpack JS packages",
+	"description": "The registry is a container for storing objects and values in the Jetpack packages space",
 	"homepage": "https://jetpack.com",
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/issues"
@@ -23,9 +23,7 @@
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"exports": {
-		".": "./index.jsx",
-		"./state": "./src/state",
-		"./action-types": "./src/state/action-types"
+		".": "./src/index.jsx"
 	},
 	"dependencies": {
 		"jetpack-js-test-runner": "workspace:*"
