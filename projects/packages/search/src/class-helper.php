@@ -285,11 +285,7 @@ class Helper {
 		// Check for $_POST removes an extra update when the customizer loads.
 		//
 		// Note: We use $GLOBALS['wp_customize'] here instead of is_customize_preview() to support unit tests.
-		if ( ! isset( $GLOBALS['wp_customize'] ) || ! $GLOBALS['wp_customize']->is_preview() || empty( $_POST ) ) { // phpcs:ignore
-			return false;
-		}
-
-		return true;
+		return isset( $GLOBALS['wp_customize'] ) && $GLOBALS['wp_customize']->is_preview() && ! empty( $_POST ); // phpcs:ignore
 	}
 
 	/**
