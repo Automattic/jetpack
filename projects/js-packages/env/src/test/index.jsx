@@ -9,9 +9,14 @@ it( 'sets and gets', () => {
 	expect( getEnv( 'test1' ) ).to.equal( 1234 );
 } );
 
-it( 'should throw if setting a key that already exists', () => {
+it( 'sets and gets works if sets the same value again', () => {
+	setEnv( 'test1', 1234 );
+	expect( getEnv( 'test1' ) ).to.equal( 1234 );
+} );
+
+it( 'should throw if chaging the value of a key that already exists', () => {
 	expect( () => {
-		setEnv( 'test1', 2345 );
+		setEnv( 'test1', 2344 );
 	} ).throw( 'Env variable "test1" is already set.' );
 } );
 

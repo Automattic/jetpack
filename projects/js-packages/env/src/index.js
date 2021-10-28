@@ -1,15 +1,19 @@
-const env = {};
+window.jetpack_env = {};
 
 export const setEnv = ( key, value ) => {
-	if ( env.hasOwnProperty( key ) ) {
-		throw 'Env variable "' + key + '" is already set.';
+	if ( window.jetpack_env.hasOwnProperty( key ) && window.jetpack_env[ key ] !== value ) {
+		throw 'Jetpack Env variable "' + key + '" is already set.';
 	}
-	env[ key ] = value;
+	window.jetpack_env[ key ] = value;
 };
 
 export const getEnv = key => {
-	if ( ! env.hasOwnProperty( key ) ) {
-		throw 'This app requires the "' + key + '" env variable to be defined.';
+	if ( ! window.jetpack_env.hasOwnProperty( key ) ) {
+		throw (
+			'This app requires the "' +
+			key +
+			'" Jetpack Env variable to be defined. See __link_to_docs__.'
+		);
 	}
-	return env[ key ];
+	return window.jetpack_env[ key ];
 };
