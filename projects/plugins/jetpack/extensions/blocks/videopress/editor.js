@@ -181,6 +181,13 @@ const addVideoPressSupport = ( settings, name ) => {
 				src: {
 					type: 'string',
 				},
+				videoPressTracks: {
+					type: 'array',
+					items: {
+						type: 'object',
+					},
+					default: [],
+				},
 				videoPressClassNames: {
 					type: 'string',
 				},

@@ -1,3 +1,5 @@
+@import 'variables.scss';
+
 .no-videopress-media-placeholder {
 	.components-placeholder__fieldset {
 		flex-direction: row-reverse;
@@ -21,4 +23,97 @@
 
 .videopress-block-hide {
 	display: none;
+}
+
+.videopress-block-tracks-editor > .components-popover__content {
+	width: 360px;
+}
+
+.videopress-block-tracks-editor__track-list-track {
+	display: flex;
+	place-content: space-between;
+	align-items: center;
+	padding: $grid-unit-05 0 $grid-unit-05 $grid-unit-15;
+	min-height: 23px;
+}
+
+.videopress-block-tracks-editor__track-list-track-delete {
+	display: flex;
+	align-items: center;
+}
+
+.videopress-block-tracks-editor__single-track-editor-label-language {
+	display: flex;
+	margin-top: $grid-unit-15;
+	& > .components-base-control {
+		width: 50%;
+	}
+	& > .components-base-control:first-child {
+		margin-right: $grid-unit-20;
+	}
+}
+
+.videopress-block-tracks-editor__single-track-editor-kind-select {
+	max-width: 240px;
+}
+
+.videopress-block-tracks-editor__single-track-editor-buttons-container {
+	display: flex;
+	place-content: space-between;
+	margin-top: $grid-unit-40;
+	min-height: 36px;
+}
+
+.videopress-block-tracks-editor__single-track-editor-label {
+	color: #757575;
+	text-transform: uppercase;
+	font-size: 11px;
+	font-weight: 500;
+	display: block;
+	margin-top: $grid-unit-05;
+	margin-bottom: $grid-unit-15;
+}
+
+.videopress-block-tracks-editor > .components-popover__content > div {
+	padding: 0;
+}
+.videopress-block-tracks-editor__track-list,
+.videopress-block-tracks-editor__add-tracks-container {
+	.components-menu-group__label {
+		padding: 0;
+	}
+}
+
+.videopress-block-tracks-editor__single-track-editor,
+.videopress-block-tracks-editor__track-list,
+.videopress-block-tracks-editor__add-tracks-container {
+	padding: $grid-unit-15;
+}
+
+.videopress-block-tracks-editor__single-track-editor .components-base-control {
+	.components-base-control__label {
+		margin-bottom: $grid-unit-05;
+	}
+	.components-base-control__field {
+		margin-bottom: $grid-unit-15;
+	}
+	.components-text-control__input {
+		margin-left: 0;
+	}
+	.components-input-control__label {
+		margin-bottom: $grid-unit-05;
+	}
+}
+
+.videopress-block-tracks-editor__single-track-editor-edit-file-label {
+	display: flex;
+
+	.components-form-file-upload, .videopress-block-tracks-editor__single-track-editor-edit-file-label-name {
+		margin-inline-start: $grid-unit;
+	}
+}
+
+.videopress-block-tracks-editor__single-track-editor-error {
+	padding: $grid-unit-15 0;
+	color: #cc1818;
 }
