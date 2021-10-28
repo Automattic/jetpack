@@ -17,6 +17,7 @@
 				"@automattic/jetpack-components",
 				"@automattic/jetpack-connection",
 				"@automattic/jetpack-idc",
+				"@automattic/jetpack-registry",
 				"@automattic/jetpack-storybook",
 				"automattic/jetpack-a8c-mc-stats",
 				"automattic/jetpack-abtest",
