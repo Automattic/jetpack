@@ -1,6 +1,6 @@
 {
-	"name": "automattic/jetpack-env",
-	"description": "Handles environment variables that can be shared across all Jetpack JS packages",
+	"name": "automattic/jetpack-registry",
+	"description": "The registry is a container for storing objects and values in the Jetpack packages space",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {},
