@@ -8,6 +8,7 @@
 namespace Private_Site;
 
 use Jetpack;
+use Automattic\Jetpack\Connection\Rest_Authentication;
 use WP_Error;
 use WP_REST_Request;
 use function checked;
@@ -305,6 +306,12 @@ function should_prevent_site_access() {
 
 	if ( isset( $cached ) ) {
 		return $cached;
+	}
+
+	// If Jetpack is enabled, check to see if blog token requests are authenticated before disallowing access
+	// This allows Jetpack Sync to run for private sites
+	if ( class_exists( 'Automattic\Jetpack\Connection\Rest_Authentication' ) && Rest_Authentication::is_signed_with_blog_token() ) {
+		return $cached = false;
 	}
 
 	if (
