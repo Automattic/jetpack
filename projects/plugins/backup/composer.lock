@@ -401,12 +401,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection-ui",
-                "reference": "73cb90c8f6780718ff4c009e77a18ca351b3247c"
+                "reference": "a4700e35ecd909a58bb9acce79005fb03cebf1c5"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.30",
                 "automattic/jetpack-constants": "^1.6",
-                "automattic/jetpack-device-detection": "^1.4"
+                "automattic/jetpack-device-detection": "^1.4",
+                "automattic/jetpack-identity-crisis": "^0.4"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0"
@@ -593,7 +594,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "973a4a14a59a209c16d7007a32b8d1653c84013f"
+                "reference": "8584468d1243dbd1db6122b710273903c8db6597"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.30",
@@ -619,7 +620,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-identity-crisis/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "0.3.x-dev"
+                    "dev-master": "0.4.x-dev"
                 }
             },
             "autoload": {
@@ -969,13 +970,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "c4857020268c97d26c0a9c63ce1da1f4b801eafd"
+                "reference": "06232c83ba67efff8a685ff6e4ecd30c147c5c6c"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.30",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-heartbeat": "^1.3",
-                "automattic/jetpack-identity-crisis": "^0.3",
+                "automattic/jetpack-identity-crisis": "^0.4",
                 "automattic/jetpack-options": "^1.13",
                 "automattic/jetpack-password-checker": "^0.1",
                 "automattic/jetpack-roles": "^1.4",
