@@ -1107,7 +1107,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$last_detached_count = ( '' === $request['last_detached_count'] )
 			? $default['last_detached_count']
 			: $request['last_detached_count'];
-		$last_dismissed_time = ( new DateTime( 'NOW' ) )->format( 'c' );
+		// Use UTC timezone and convert to ISO8601 format(DateTime::W3C) for best compatibility with JavaScript Date in all browsers.
+		$last_dismissed_time = ( new DateTime( 'NOW', new DateTimeZone( 'UTC' ) ) )->format( DateTime::W3C );
 		$notice_data         = array(
 			'last_detached_count' => $last_detached_count,
 			'last_dismissed_time' => $last_dismissed_time,
@@ -2946,7 +2947,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Validates that the parameter is a non-negative integer (includes 0).
 	 *
-	 * @since 4.3.0
+	 * @since 10.4.0
 	 *
 	 * @param int             $value Value to check.
 	 * @param WP_REST_Request $request The request sent to the WP REST API.

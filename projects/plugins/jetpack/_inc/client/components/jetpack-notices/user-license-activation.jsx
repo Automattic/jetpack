@@ -4,7 +4,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import moment from 'moment';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
@@ -33,9 +32,10 @@ class UserLicenseActivationNotice extends React.Component {
 	};
 
 	render() {
-		// TODO: Update this link to point to the user-licensing activation route.
+		// TODO: Update this link to point to the user-license activation route.
 		const USER_LICENSE_ACTIVATION_ROUTE = '/wp-admin/admin.php?page=jetpack#/my-plan';
-		const MAX_DISMISS_TIME = [ 2, 'weeks' ];
+		const DAY_IN_MILLISECONDS = 24 * 3600 * 1000;
+		const MAX_DAYS_DISMISSED = 14;
 
 		const {
 			detachedLicensesCount: currentDetachedCount,
@@ -47,19 +47,20 @@ class UserLicenseActivationNotice extends React.Component {
 			last_dismissed_time: lastDismissedDateTime,
 		} = this.props.activationNoticeDismissInfo;
 
-		const now = moment();
-		const lastDismissedTime = moment( lastDismissedDateTime ? lastDismissedDateTime : moment() );
 		const userHasDetachedLicenses = !! currentDetachedCount;
 		const userHasNewDetachedLicenses = currentDetachedCount > ( lastDetachedCount || 0 );
-		const hasBeenDismissedMoreThanTwoWeeks = lastDismissedTime
-			.add( ...MAX_DISMISS_TIME )
-			.isSameOrBefore( now );
+
+		const now = new Date();
+		const lastDismissedTime = new Date(
+			lastDismissedDateTime ? lastDismissedDateTime : new Date()
+		);
+		const daysNoticeHasBeenDismissed = ( now - lastDismissedTime ) / DAY_IN_MILLISECONDS;
 
 		// Show the notice when the user acquires a new license, Or when the user has an available
 		// license(s), but has dismissed the notice and it's been over 2 weeks without activating it.
 		if (
 			userHasDetachedLicenses &&
-			( userHasNewDetachedLicenses || hasBeenDismissedMoreThanTwoWeeks )
+			( userHasNewDetachedLicenses || daysNoticeHasBeenDismissed > MAX_DAYS_DISMISSED )
 		) {
 			return (
 				<SimpleNotice
