@@ -19,13 +19,8 @@ module.exports = {
 	},
 	overrides: [
 		{
-			// for files matching this pattern
 			files: [ '*.js' ],
-			// following config will override "normal" config
 			parser: 'babel-eslint',
-			parserOptions: {
-				// override parser options
-			},
 			extends: [ '../../../.eslintrc.js' ],
 		},
 		{
