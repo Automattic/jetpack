@@ -548,6 +548,7 @@ importers:
       '@automattic/jetpack-api': workspace:^0.5.0
       '@automattic/jetpack-components': workspace:^0.5.0-alpha
       '@automattic/jetpack-connection': workspace:^0.9.0-alpha
+       '@automattic/jetpack-licensing': workspace:^0.1.0-alpha
       '@automattic/popup-monitor': 1.0.0
       '@automattic/request-external-access': 1.0.0
       '@automattic/social-previews': 1.1.1
@@ -687,6 +688,7 @@ importers:
       '@automattic/jetpack-api': link:../../js-packages/api
       '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
+      '@automattic/jetpack-licensing': link:../../js-packages/licensing
       '@automattic/popup-monitor': 1.0.0
       '@automattic/request-external-access': 1.0.0
       '@automattic/social-previews': 1.1.1_e6f416a553290d40762829ad0237e012
@@ -22055,7 +22057,7 @@ packages:
       serialize-javascript: 6.0.0
       source-map: 0.6.1
       terser: 5.8.0
-      webpack: 5.51.1
+      webpack: 5.51.1_webpack-cli@4.8.0
 
   /terser/3.17.0:
     resolution: {integrity: sha512-/FQzzPJmCpjAH9Xvk2paiWrFq+5M6aVOf+2KRbwhByISDX/EujxsK+BAvrhb6H+2rtrLCHK9N01wO014vrIwVQ==}
