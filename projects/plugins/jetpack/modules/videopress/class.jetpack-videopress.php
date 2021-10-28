@@ -44,6 +44,7 @@ class Jetpack_VideoPress {
 		add_action( 'wp_enqueue_media', array( $this, 'enqueue_admin_scripts' ) );
 		add_filter( 'plupload_default_settings', array( $this, 'videopress_pluploder_config' ) );
 		add_filter( 'wp_get_attachment_url', array( $this, 'update_attachment_url_for_videopress' ), 10, 2 );
+		add_filter( 'get_attached_file', array( $this, 'update_attached_file_for_videopress' ), 10, 2 );
 
 		if ( Jetpack_Plan::supports( 'videopress' ) ) {
 			add_filter( 'upload_mimes', array( $this, 'add_video_upload_mimes' ), 999 );
@@ -265,6 +266,26 @@ class Jetpack_VideoPress {
 		}
 
 		return $url;
+	}
+
+	/**
+	 * An override for the attached file path, which returns back the WPCOM VideoPress processed url.
+	 *
+	 * This is an action proxy to the videopress_get_attachment_url() utility function.
+	 *
+	 * @param string $file    The current filename.
+	 * @param int    $post_id The post id for the current attachment.
+	 *
+	 * @return string
+	 */
+	public function update_attached_file_for_videopress( $file, $post_id ) {
+		$videopress_url = videopress_get_attachment_url( $post_id );
+
+		if ( null !== $videopress_url ) {
+			return $videopress_url;
+		}
+
+		return $file;
 	}
 
 	/**
