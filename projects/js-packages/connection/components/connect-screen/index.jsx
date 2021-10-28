@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import { __ } from '@wordpress/i18n';
 import { JetpackLogo, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
+import { getEnv } from '@automattic/jetpack-env';
 
 /**
  * Internal dependencies
@@ -46,6 +47,9 @@ const ConnectScreen = props => {
 	} = props;
 
 	const showImageSlider = images.length;
+
+	console.log( 'connectScreen' );
+	console.log( getEnv( 'plugin_slug' ) );
 
 	return (
 		<div

@@ -8,7 +8,9 @@ import { __, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectScreen } from '@automattic/jetpack-connection';
 import { Dashicon } from '@wordpress/components';
+import { setEnv } from '@automattic/jetpack-env';
 
+setEnv( 'plugin_slug', 'jetpack' );
 /**
  * Internal dependencies
  */
