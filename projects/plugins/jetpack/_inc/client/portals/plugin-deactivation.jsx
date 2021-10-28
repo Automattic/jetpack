@@ -37,7 +37,7 @@ const PluginDeactivation = props => {
 	// Modify the deactivation link.
 	// deactivate_dialog is a localized variable.
 	const deactivate_dialog = window.deactivate_dialog;
-	const deactivationLink = document.getElementById( 'deactivate-jetpack' ); // ID set by WP on the deactivation link.
+	const deactivationLink = document.querySelector( '#deactivate-jetpack, #deactivate-jetpack-dev' ); // ID set by WP on the deactivation link.
 
 	deactivationLink.setAttribute( 'title', deactivate_dialog.title );
 	deactivationLink.textContent = deactivate_dialog.deactivate_label;
