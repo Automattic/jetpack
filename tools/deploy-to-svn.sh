@@ -105,7 +105,6 @@ debug "Using build dir $DIR"
 info "Checking mirror repo"
 git init -q .
 git remote add origin "https://github.com/${MIRROR}.git"
-git remote update
 if [[ "$(git ls-remote --tags origin "$TAG" 2>/dev/null)" ]]; then
 	: # Tag exists
 elif [[ "$(git ls-remote --heads origin "$TAG" 2>/dev/null)" ]]; then
@@ -119,7 +118,8 @@ svn -q checkout "https://plugins.svn.wordpress.org/$WPSLUG/" --depth=empty "$DIR
 success "Done!"
 
 info "Checking out SVN trunk to $DIR/trunk"
-svn -q up trunk
+svn up trunk | while IFS= read -r LINE; do printf "\r\e[K%s" $LINE; done
+printf "\r\e[K"
 success "Done!"
 
 info "Checking out SVN tags shallowly to $DIR/tags"
@@ -143,15 +143,39 @@ find . -name '.git*' -print -exec rm -rf {} +
 find . -type d -empty -print -delete
 success "Done!"
 
-success "Your SVN checkout is at $DIR"
+info "Checking for added and removed files"
+ANY=false
+while IFS=" " read -r FLAG FILE; do
+	if [[ "$FLAG" == '!' ]]; then
+		svn rm "$FILE"
+		ANY=true
+	elif [[ "$FLAG" == "?" ]]; then
+		svn add "$FILE"
+		ANY=true
+	fi
+done < <( svn status )
+if $ANY; then
+	proceed_p "Files were added and/or removed."
+else
+	success "None found!"
+fi
 
-# Tag the release.
-# svn cp trunk tags/$TAG
-
-# Change stable tag in the tag itself, and commit (tags shouldn't be modified after comitted)
-# perl -pi -e "s/Stable tag: .*/Stable tag: $TAG/" tags/$TAG/readme.txt
-# svn ci
-
-# Update trunk to point to the freshly tagged and shipped release.
-# perl -pi -e "s/Stable tag: .*/Stable tag: $TAG/" trunk/readme.txt
-# svn ci
+proceed_p "We're ready to update trunk and tag $TAG!" "Do it?"
+die "Nope"
+info "Updating trunk"
+svn commit -m "Updating trunk to version $TAG"
+success "Done!"
+info "Tagging $TAG"
+svn cp ^/$WPSLUG/trunk ^/$WPSLUG/tags/$TAG
+success "Done!"
+if [[ "$TAG" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
+	info "Updating stable tag in readme.txt in SVN tags/$TAG"
+	svn up tags/$TAG | while IFS= read -r LINE; do printf "\r\e[K%s" $LINE; done
+	printf "\r\e[K"
+	sed -i.bak -e "s/Stable tag: .*/Stable tag: $TAG/" "tags/$TAG/readme.txt"
+	rm "tags/$TAG/readme.txt.bak"
+	svn commit -m "Updating stable tag in version $TAG"
+	success "Done!"
+else
+	debug "As $TAG appears to be a prerelease version, skipping update of stable tag in readme.txt in SVN tags/$TAG"
+fi
