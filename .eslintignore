@@ -8,6 +8,7 @@ tools/docker/wordpress/
 
 # Ignored by default, but we should check it
 !.github/
+!.prettierrc.js
 
 ### Jetpack
 projects/plugins/jetpack/.size-limit.js
@@ -52,5 +53,3 @@ projects/plugins/backup/build
 
 ### Storybook files
 **/@(storybook|stories)/**/*.js
-
-!.prettierrc.js
