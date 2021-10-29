@@ -160,6 +160,17 @@ else
 	success "None found!"
 fi
 
+cd "$DIR"
+
+STABLE_TAG="$(sed -n -E -e 's/^Stable tag: +([^ ]+) *$/\1/p' trunk/readme.txt)"
+if [[ "$TAG" == "$STABLE_TAG" ]]; then
+	warn "The stable tag in trunk/readme.txt is already $STABLE_TAG!"
+	echo "Usually we wait until a final, manual step to update the stable tag."
+	proceed_p ""
+else
+	debug "Stable tag in trunk/readme.txt is $STABLE_TAG. Good, that's !== $TAG."
+fi
+
 proceed_p "We're ready to update trunk and tag $TAG!" "Do it?"
 info "Updating trunk"
 svn commit -m "Updating trunk to version $TAG"
