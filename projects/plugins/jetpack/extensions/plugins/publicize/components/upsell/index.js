@@ -46,7 +46,7 @@ export default function UpsellNotice( { isPostPublished } ) {
 
 	const isPureJetpackSite = ! isAtomicSite() && ! isSimpleSite();
 	const upgradeFeatureTitle = isPureJetpackSite
-		? __( 'Re-Sharing your content', 'jetpack' )
+		? __( 'Re-sharing your content', 'jetpack' )
 		: __( 'Share Your Content Again', 'jetpack' );
 
 	// Doc page URL.
