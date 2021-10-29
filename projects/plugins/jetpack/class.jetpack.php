@@ -6772,6 +6772,21 @@ endif;
 			),
 		);
 
+		$products['videopress'] = array(
+			'title'             => __( 'Jetpack VideoPress', 'jetpack' ),
+			'slug'              => 'jetpack_videopress',
+			'description'       => __( 'High-quality, ad-free video built specifically for WordPress.', 'jetpack' ),
+			'show_promotion'    => true,
+			'discount_percent'  => 40,
+			'included_in_plans' => array(),
+			'features'          => array(
+				_x( '1TB of storage', 'VideoPress Product Feature', 'jetpack' ),
+				_x( 'Built into WordPress editor', 'VideoPress Product Feature', 'jetpack' ),
+				_x( 'Ad-free and brandable player', 'VideoPress Product Feature', 'jetpack' ),
+				_x( 'Unlimited users', 'VideoPress Product Feature', 'jetpack' ),
+			),
+		);
+
 		return $products;
 	}
 
