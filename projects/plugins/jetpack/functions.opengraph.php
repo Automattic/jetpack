@@ -375,9 +375,10 @@ function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null )
 			isset( $logo[0], $logo[1], $logo[2] )
 			&& ( _jetpack_og_get_image_validate_size( $logo[1], $logo[2], $width, $height ) )
 		) {
-			$image['src']    = $logo[0];
-			$image['width']  = $logo[1];
-			$image['height'] = $logo[2];
+			$image['src']      = $logo[0];
+			$image['width']    = $logo[1];
+			$image['height']   = $logo[2];
+			$image['alt_text'] = Jetpack_PostImages::get_alt_text( $image_id );
 		}
 	}
 
@@ -389,9 +390,10 @@ function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null )
 			isset( $icon[0], $icon[1], $icon[2] )
 			&& ( _jetpack_og_get_image_validate_size( $icon[1], $icon[2], $width, $height ) )
 		) {
-			$image['src']    = $icon[0];
-			$image['width']  = $icon[1];
-			$image['height'] = $icon[2];
+			$image['src']      = $icon[0];
+			$image['width']    = $icon[1];
+			$image['height']   = $icon[2];
+			$image['alt_text'] = Jetpack_PostImages::get_alt_text( $image_id );
 		}
 	}
 
