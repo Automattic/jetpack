@@ -233,30 +233,47 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 	}
 
 	/**
-	 * Test if jetpack_og_get_image returns the correct alt text.
+	 * Test if jetpack_og_get_image returns the correct default alt text.
 	 *
 	 * @author automattic
 	 * @covers ::jetpack_og_get_image
 	 * @since  $$next-version$$
 	 */
-	public function test_jetpack_og_get_image_alt_text() {
+	public function test_jetpack_og_get_image_alt_text_default() {
 		$this->go_to( get_permalink( $this->icon_id ) );
 
-		// Make sure the default alt is an empty string.
 		$image = jetpack_og_get_image();
 
 		$this->assertEquals( $image['alt_text'], '' );
+	}
 
-		// Make sure the filter works.
+	/**
+	 * Test if jetpack_og_get_image returns the correct filtered alt text.
+	 *
+	 * @author automattic
+	 * @covers ::jetpack_og_get_image
+	 * @since  $$next-version$$
+	 */
+	public function test_jetpack_og_get_image_alt_text_filter() {
+		$this->go_to( get_permalink( $this->icon_id ) );
+
 		add_filter( 'jetpack_open_graph_image_default_alt_text', array( $this, 'get_default_alt_text' ) );
-
 		$image = jetpack_og_get_image();
-
 		remove_filter( 'jetpack_open_graph_image_default_alt_text', array( $this, 'get_default_alt_text' ) );
 
 		$this->assertEquals( $image['alt_text'], $this->get_default_alt_text() );
+	}
 
-		// Check if it returns the correct alt text when set.
+	/**
+	 * Test if jetpack_og_get_image returns the correct alt text when set.
+	 *
+	 * @author automattic
+	 * @covers ::jetpack_og_get_image
+	 * @since  $$next-version$$
+	 */
+	public function test_jetpack_og_get_image_alt_text_when_set() {
+		$this->go_to( get_permalink( $this->icon_id ) );
+
 		$alt_text = 'Example Alt Text';
 
 		update_post_meta( $this->icon_id, '_wp_attachment_image_alt', $alt_text );
