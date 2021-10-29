@@ -31,7 +31,9 @@ projects/plugins/boost/**/*.min.js
 projects/plugins/boost/node_modules/**
 projects/plugins/boost/vendor/**
 projects/plugins/boost/app/assets/dist/**
-projects/plugins/boost/tests/**
+projects/plugins/boost/tests/e2e/output/**
+projects/plugins/boost/tests/e2e/config/**
+projects/plugins/boost/tests/e2e/node_modules/**
 projects/plugins/boost/wordpress/**
 !projects/plugins/boost/app/assets/src/js/**/*.d.ts
 
