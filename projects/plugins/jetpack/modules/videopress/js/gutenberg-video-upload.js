@@ -63,10 +63,8 @@ window.videoPressDeleteTrack = function ( guid, kind, srcLang ) {
 
 			body.append( 'kind', kind );
 			body.append( 'srclang', srcLang );
-
 			options.body = body;
 
-			wp.apiFetch( options );
 			wp.apiFetch( options )
 				.then( function ( res ) {
 					resolve( res );
