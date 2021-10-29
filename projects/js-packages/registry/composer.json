@@ -7,11 +7,6 @@
 	"require-dev": {
 		"automattic/jetpack-changelogger": "^3.0"
 	},
-	"autoload": {
-		"classmap": [
-			"src/"
-		]
-	},
 	"scripts": {
 		"test-js": [
 			"Composer\\Config::disableProcessTimeout",
