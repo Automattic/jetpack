@@ -130,6 +130,10 @@ const blockAttributes = {
 			},
 		},
 	},
+	imageCrop: {
+		type: 'boolean',
+		default: true,
+	},
 	linkTo: {
 		default: 'none',
 		type: 'string',
@@ -292,6 +296,9 @@ export const settings = {
 	},
 	edit,
 	save,
+	providesContext: {
+		imageCrop: 'imageCrop',
+	},
 	deprecated,
 	example: {
 		attributes: exampleAttributes,
