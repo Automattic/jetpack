@@ -5,14 +5,26 @@ import Layout from './layout';
 import { defaultColumnsNumber } from './edit';
 
 export default function TiledGallerySave( { attributes, innerBlocks } ) {
-	if ( ! innerBlocks.length ) {
+	if ( ! attributes.images.length && ! innerBlocks.length ) {
 		return null;
 	}
+
+	const imageData = innerBlocks.length ? innerBlocks : attributes.images;
+	const images = imageData.map( image => {
+		if ( image.attributes ) {
+			return {
+				...image.attributes,
+				width: 100,
+				height: 100,
+			};
+		}
+		return image;
+	} );
 
 	const {
 		align,
 		className,
-		columns = defaultColumnsNumber( innerBlocks ),
+		columns = defaultColumnsNumber( images ),
 		linkTo,
 		roundedCorners,
 		columnWidths,
@@ -24,11 +36,7 @@ export default function TiledGallerySave( { attributes, innerBlocks } ) {
 			align={ align }
 			className={ className }
 			columns={ columns }
-			images={ innerBlocks.map( innerBlock => ( {
-				...innerBlock.attributes,
-				height: 100,
-				width: 100,
-			} ) ) }
+			images={ images }
 			isSave
 			layoutStyle={ 'square' }
 			linkTo={ linkTo }
