@@ -1,0 +1,38 @@
+{
+	"name": "automattic/jetpack-config",
+	"description": "Handles Jetpack global configuration shared across all packages",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "^3.0"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"test-js": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm install",
+			"pnpm run test"
+		],
+		"test-coverage": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm install",
+			"pnpx nyc --report-dir=\"$COVERAGE_DIR\" pnpm run test"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true
+}
