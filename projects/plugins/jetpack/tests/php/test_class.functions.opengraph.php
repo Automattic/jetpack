@@ -252,9 +252,9 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 
 		$image = jetpack_og_get_image();
 
-		$this->assertEquals( $image['alt_text'], $this->get_default_alt_text() );
-
 		remove_filter( 'jetpack_open_graph_image_default_alt_text', array( $this, 'get_default_alt_text' ) );
+
+		$this->assertEquals( $image['alt_text'], $this->get_default_alt_text() );
 
 		// Check if it returns the correct alt text when set.
 		$alt_text = 'Example Alt Text';
