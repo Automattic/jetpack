@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
 import {
 	NavigableMenu,
@@ -50,22 +51,89 @@ const captionIcon = (
 	</SVG>
 );
 
+/**
+ * Determines if api requests should be made via the `gutenberg-video-upload` script (Jetpack only).
+ *
+ * @returns {boolean} if the upload script should be used or not.
+ */
+const shouldUseJetpackVideoFetch = () => {
+	return 'videoPressUploadTrack' in window;
+};
+
+/**
+ * Uploads a track to a video.
+ * Uses different methods depending on Jetpack or WPCOM.
+ *
+ * @param {object} track - the track file
+ * @param {string} guid - the video guid
+ * @returns {Promise} the api request promise
+ */
+const uploadTrackForGuid = ( track, guid ) => {
+	if ( shouldUseJetpackVideoFetch() ) {
+		return window.videoPressUploadTrack(
+			guid,
+			track.kind,
+			track.srcLang,
+			track.label,
+			track.tmpFile
+		);
+	}
+
+	const options = {
+		method: 'POST',
+		path: `/videos/${ guid }/tracks`,
+		apiNamespace: 'rest/v1.1',
+		global: true,
+		parse: false,
+		formData: [
+			[ 'kind', track.kind ],
+			[ 'srclang', track.srcLang ],
+			[ 'label', track.label ],
+			[ 'vtt', track.tmpFile ],
+		],
+	};
+
+	return apiFetch( options );
+};
+
+/**
+ * -Deletes a track from a video.
+ * -Uses different methods depending on Jetpack or WPCOM.
+ *
+ * @param {object} track - the track file
+ * @param {string} guid - the video guid
+ * @returns {Promise} the api request promise.
+ */
+const deleteTrackForGuid = ( track, guid ) => {
+	if ( shouldUseJetpackVideoFetch() ) {
+		return window.videoPressDeleteTrack( guid, track.kind, track.srcLang );
+	}
+
+	const options = {
+		method: 'POST',
+		path: `/videos/${ guid }/tracks/delete`,
+		apiNamespace: 'rest/v1.1',
+		global: true,
+		parse: false,
+		formData: [
+			[ 'kind', track.kind ],
+			[ 'srclang', track.srcLang ],
+		],
+	};
+
+	return apiFetch( options );
+};
+
 function TrackList( { tracks, onChange, guid } ) {
 	const [ isDeletingTrackIndex = -1, setIsDeletingTrackIndex ] = useState();
 
 	const onDeleteTrack = trackIndex => {
 		const trackToDelete = tracks[ trackIndex ];
 		setIsDeletingTrackIndex( trackIndex );
-		if ( 'videoPressUploadTrack' in window ) {
-			window
-				.videoPressDeleteTrack( guid, trackToDelete.kind, trackToDelete.srcLang )
-				.finally( () => {
-					onChange( tracks.filter( ( _track, index ) => index !== trackIndex ) );
-					setIsDeletingTrackIndex( -1 );
-				} );
-		} else {
-			// wpcom code here?
-		}
+		deleteTrackForGuid( trackToDelete, guid ).finally( () => {
+			onChange( tracks.filter( ( _track, index ) => index !== trackIndex ) );
+			setIsDeletingTrackIndex( -1 );
+		} );
 	};
 
 	let content;
@@ -238,31 +306,20 @@ function SingleTrackEditor( { track, onChange, onClose, onCancel, guid } ) {
 
 								setIsSavingTrack( true );
 
-								if ( 'videoPressUploadTrack' in window ) {
-									window
-										.videoPressUploadTrack(
-											guid,
-											track.kind,
-											track.srcLang,
-											track.label,
-											track.tmpFile
-										)
-										.then( () => {
-											onChange( track );
-											setErrorMessage( null );
-											onClose();
-										} )
-										.catch( error => {
-											if ( error.message ) {
-												setErrorMessage( error.message );
-											}
-										} )
-										.finally( () => {
-											setIsSavingTrack( false );
-										} );
-								} else {
-									// wpcom code here?
-								}
+								uploadTrackForGuid( track, guid )
+									.then( () => {
+										onChange( track );
+										setErrorMessage( null );
+										onClose();
+									} )
+									.catch( error => {
+										if ( error.message ) {
+											setErrorMessage( error.message );
+										}
+									} )
+									.finally( () => {
+										setIsSavingTrack( false );
+									} );
 							} }
 						>
 							{ __( 'Save', 'jetpack' ) }

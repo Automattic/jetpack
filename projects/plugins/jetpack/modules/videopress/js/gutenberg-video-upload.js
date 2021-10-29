@@ -82,7 +82,6 @@ wp.apiFetch.use( function ( options, next ) {
 	var path = options.path;
 	var method = options.method;
 	var body = options.body;
-
 	var file = body ? body.get( 'file' ) : null;
 
 	// Override only requests to the WP REST API media endpoint uploading new videos.

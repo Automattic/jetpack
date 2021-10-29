@@ -202,6 +202,7 @@ const VideoPressEdit = CoreVideoEdit =>
 			await apiFetch( {
 				url: `https://public-api.wordpress.com/rest/v1.1/videos/${ guid }`,
 				credentials: 'omit',
+				global: true,
 			} ).then( videoInfo => {
 				// Convert API object response to an array that works better with the tracks editor component
 				const tracks = [];
