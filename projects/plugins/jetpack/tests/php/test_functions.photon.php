@@ -327,24 +327,19 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Testing the filter allowing to skip Photon for specific domains.
+	 *
 	 * @author aduth
 	 * @covers ::jetpack_photon_banned_domains
 	 * @since  5.0.0
 	 * @group  jetpack_photon_banned_domains
+	 * @dataProvider get_photon_domains
+	 *
+	 * @param bool   $skip If the image should be skipped by Photon.
+	 * @param string $image_url URL of the image.
 	 */
-	public function test_photon_banned_domains_banned() {
-		$this->assertTrue( jetpack_photon_banned_domains( false, 'http://graph.facebook.com/37512822/picture' ) );
-		$this->assertTrue( jetpack_photon_banned_domains( false, 'https://scontent-mrs1-1.xx.fbcdn.net/v/t31.0-8/00000000_000000000000000_0000000000000000000_o.jpg' ) );
-	}
-
-	/**
-	 * @author aduth
-	 * @covers ::jetpack_photon_banned_domains
-	 * @since  5.0.0
-	 * @group  jetpack_photon_banned_domains
-	 */
-	public function test_photon_banned_domains_not_banned() {
-		$this->assertFalse( jetpack_photon_banned_domains( false, 'https://s.w.org/style/images/wp-header-logo-2x.png' ) );
+	public function test_photon_banned_domains( $skip, $image_url ) {
+		$this->assertEquals( $skip, jetpack_photon_banned_domains( false, $image_url ) );
 	}
 
 	/**
@@ -377,4 +372,39 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 		$this->assertSame( 'videos.files.wordpress.com', wp_parse_url( $url )['host'], 'VideoPress poster image source should not be wrapped in Photon URL.' );
 	}
 
+	/**
+	 * Data provider for test_photon_banned_domains_banned
+	 */
+	public function get_photon_domains() {
+		return array(
+			'Banned Facebook domain'     => array(
+				true,
+				'http://graph.facebook.com/37512822/picture',
+			),
+			'Banned Facebook CDN domain' => array(
+				true,
+				'https://scontent-mrs1-1.xx.fbcdn.net/v/t31.0-8/00000000_000000000000000_0000000000000000000_o.jpg',
+			),
+			'Allowed W.org subdomain'    => array(
+				false,
+				'https://s.w.org/style/images/wp-header-logo-2x.png',
+			),
+			'Banned Wikimedia domain'    => array(
+				true,
+				'https://commons.wikimedia.org/wiki/File:Dapper_Gentleman.jpg',
+			),
+			'Banned Dropbox domain'      => array(
+				true,
+				'https://www.dropbox.com/s/b4ezvx00mm35y7l/step29A.png',
+			),
+			'Banned Paypal domain'       => array(
+				true,
+				'https://www.paypalobjects.com/en_US/i/btn/btn_buynow_LG.gif',
+			),
+			'Banned Wikipedia domain'    => array(
+				true,
+				'https://en.wikipedia.org/wiki/File:MM10249.jpg',
+			),
+		);
+	}
 }

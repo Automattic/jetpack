@@ -1,21 +1,20 @@
 @import '@wordpress/base-styles/breakpoints';
 @import '@wordpress/base-styles/mixins';
 
-.jp-connect-screen {
-	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen-Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif;
-	background: #FFFFFF;
+.jp-connection__connect-screen-layout {
+	background: var( --jp-white );
 	box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
 	border-radius: 4px;
 
-	&.jp-connect-screen--loading {
+	&__loading {
 		display: none;
 	}
 
-	.jp-connect-screen--left, .jp-connect-screen--right {
+	&__left, &__right {
 		box-sizing: border-box;
 	}
 
-	.jp-connect-screen--left {
+	&__left {
 		padding: 25px;
 
 		@include break-small {
@@ -31,7 +30,17 @@
 			font-weight: bold;
 			font-size: 36px;
 			line-height: 40px;
-			color: #000;
+			color: var( --jp-black );
+			margin-top: 32px;
+			margin-bottom: 0;
+		}
+
+		h3 {
+			font-style: normal;
+			font-weight: 500;
+			font-size: 24px;
+			line-height: 32px;
+			color: var( --jp-black );
 			margin-top: 32px;
 			margin-bottom: 0;
 		}
@@ -48,47 +57,40 @@
 			margin: 16px 0;
 		}
 
+		a {
+			font-size: var( --font-body );
+			color: var( --jp-black );
+			text-decoration: underline;
+			height: auto;
+			font: inherit;
+			padding: 0;
+
+			&:hover {
+				color: var( --jp-black );
+				text-decoration-thickness: var( --jp-underline-thickness );
+			}
+
+			&:focus {
+				color: var( --jp-black );
+				box-shadow: none !important;
+			}
+		}
+
 		ul {
 			list-style-type: none;
+			padding: 0;
 
 			li {
 				background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAANlBMVEVHcEwFnwUInggGnggGnggHnAcAnwUFnQcAnwcGnwkFnQgGnQgFnwcGnQYFnQcFnAcGnQkDnwdhiL0pAAAAEnRSTlMAMF//f2Aw7yBQ3+9gcIBgcED+HDbkAAAAZklEQVR4Ae3LNwICARDDQC0+cv7/Y8mwV9odSfWIcf/+VegnGkIvDaGXKvTTn/Gz+Uf5xTL0K1XotS7fs5H6GHvvaO8d7c3j7rdgHne/A/PYt/cO+R42oYdN6OEQetiFHo4A//6dAXqtBEkmtWutAAAAAElFTkSuQmCC) no-repeat;
 				background-size: 24px;
 				padding-left: 30px;
 				margin-bottom: 9px;
-				color: #000;
-
-				a {
-					color: #000;
-					text-decoration: underline;
-				}
+				color: var( --jp-black );
 			}
-		}
-
-		a.jp-connection-screen-icon {
-			text-decoration: none;
-			padding-left: 5px;
-		}
-
-		.jp-action-button {
-			margin-top: 40px;
-
-			button {
-				max-width: 100%;
-
-				&:disabled {
-					color: hsla(0,0%,100%,.4);
-				}
-			}
-		}
-
-		.jp-connect-screen--tos {
-			margin-top: 28px;
-			max-width: 360px;
 		}
 	}
 
-	.jp-connect-screen--right {
+	&__right {
 		padding: 64px 0;
 
 		img {
@@ -96,8 +98,8 @@
 		}
 	}
 
-	&.jp-connect-screen--two-columns {
-		.jp-connect-screen--left {
+	&__two-columns {
+		.jp-connection__connect-screen-layout__left {
 			float: left;
 			width: 100%;
 
@@ -106,7 +108,7 @@
 			}
 		}
 
-		.jp-connect-screen--right {
+		.jp-connection__connect-screen-layout__right {
 			float: right;
 			width: 47%;
 			background: #F9F9F6;
@@ -118,7 +120,7 @@
 		}
 	}
 
-	.jp-connect-screen--clearfix {
+	&__clearfix {
 		clear: both;
 	}
 }
