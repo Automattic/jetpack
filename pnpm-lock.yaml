@@ -136,6 +136,7 @@ importers:
     specifiers:
       '@automattic/jetpack-api': workspace:^0.5.0
       '@automattic/jetpack-components': workspace:^0.5.0-alpha
+      '@automattic/jetpack-config': workspace:0.1.0-alpha
       '@wordpress/base-styles': 4.0.2
       '@wordpress/browserslist-config': 4.1.0
       '@wordpress/components': 19.0.0
@@ -152,6 +153,7 @@ importers:
     dependencies:
       '@automattic/jetpack-api': link:../api
       '@automattic/jetpack-components': link:../components
+      '@automattic/jetpack-config': link:../config
       '@wordpress/base-styles': 4.0.2
       '@wordpress/browserslist-config': 4.1.0
       '@wordpress/components': 19.0.0_react-dom@17.0.2+react@17.0.2

@@ -6,6 +6,7 @@ import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import restApi from '@automattic/jetpack-api';
 import { ActionButton } from '@automattic/jetpack-components';
+import { jetpackConfigGet } from '@automattic/jetpack-config';
 
 /**
  * Internal dependencies
@@ -47,6 +48,8 @@ const ConnectButton = props => {
 		connectionStatusIsFetching,
 		autoTrigger,
 	} = props;
+
+	console.log( jetpackConfigGet( 'plugin_slug' ) );
 
 	/**
 	 * Initialize the REST API.

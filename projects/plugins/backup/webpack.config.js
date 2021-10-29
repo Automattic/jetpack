@@ -13,6 +13,7 @@ const baseConfig = getBaseWebpackConfig(
 		entry: {}, // We'll override later
 		'output-filename': '[name].js',
 		'output-path': path.join( __dirname, './build' ),
+		'output-library-target': '',
 	}
 );
 
@@ -29,5 +30,9 @@ module.exports = [
 			...baseConfig.plugins,
 			new DependencyExtractionWebpackPlugin( { injectPolyfill: true } ),
 		],
+		externals: {
+			...baseConfig.externals,
+			jetpackConfig: JSON.stringify( { plugin_slug: 'backup' } ),
+		},
 	},
 ];
