@@ -4,7 +4,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { includes } from 'lodash';
+import { includes, noop } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -30,14 +30,19 @@ import {
 	hasConnectedOwner as hasConnectedOwnerSelector,
 	isOfflineMode,
 } from 'state/connection';
-import { getUpgradeUrl } from 'state/initial-state';
 import { hasActiveVideoPressPurchase, getSitePlan, getVideoPressStorageUsed } from 'state/site';
+import { getProductDescriptionUrl } from 'product-descriptions/utils';
 
 class DashVideoPress extends Component {
 	static propTypes = {
 		hasConnectedOwner: PropTypes.bool.isRequired,
 		isOfflineMode: PropTypes.bool.isRequired,
 		isModuleAvailable: PropTypes.bool.isRequired,
+		trackUpgradeButtonView: PropTypes.func,
+	};
+
+	static defaultProps = {
+		trackUpgradeButtonView: noop,
 	};
 
 	activateVideoPress = () => this.props.updateOptions( { videopress: true } );
@@ -124,6 +129,7 @@ class DashVideoPress extends Component {
 									plan={ getJetpackProductUpsellByFeature( FEATURE_VIDEOPRESS ) }
 									feature="jetpack_videopress"
 									href={ upgradeUrl }
+									trackBannerDisplay={ this.props.trackUpgradeButtonView }
 								/>
 							) }
 						</>
@@ -187,7 +193,7 @@ export default connect(
 		isModuleAvailable: isModuleAvailable( state, 'videopress' ),
 		isOffline: isOfflineMode( state ),
 		sitePlan: getSitePlan( state ),
-		upgradeUrl: getUpgradeUrl( state, 'videopress-upgrade' ),
+		upgradeUrl: getProductDescriptionUrl( state, 'videopress' ),
 		videoPressStorageUsed: getVideoPressStorageUsed( state ),
 	} ),
 	dispatch => ( {
