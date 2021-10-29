@@ -308,6 +308,7 @@ importers:
       css-loader: 6.2.0
       duplicate-package-checker-webpack-plugin: 3.0.0
       mini-css-extract-plugin: 2.4.2
+      schema-utils: 3.1.1
       thread-loader: 3.0.4
       webpack: 5.51.1
       webpack-cli: 4.8.0
@@ -327,6 +328,7 @@ importers:
       css-loader: 6.2.0_webpack@5.51.1
       duplicate-package-checker-webpack-plugin: 3.0.0
       mini-css-extract-plugin: 2.4.2_webpack@5.51.1
+      schema-utils: 3.1.1
       thread-loader: 3.0.4_webpack@5.51.1
     devDependencies:
       '@babel/core': 7.15.0
