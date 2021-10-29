@@ -381,6 +381,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * We have search dashboard for Atomic/JP sites, so we need to hide the duplicated menu item.
 	 */
 	public function hide_search_menu_for_calypso() {
-		remove_submenu_page( 'jetpack', 'search' );
+		$this->hide_submenu_page( 'jetpack', 'https://wordpress.com/jetpack-search/' . $this->domain );
 	}
 }
