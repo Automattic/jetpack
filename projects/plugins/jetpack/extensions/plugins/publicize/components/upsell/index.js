@@ -17,28 +17,86 @@ import { getRequiredPlan } from '../../../../shared/plan-utils';
 import useUpgradeFlow from '../../../../shared/use-upgrade-flow';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import { isAtomicSite, isSimpleSite } from '../../../../shared/site-type-utils';
+import useSocialMediaConnections from '../../hooks/use-social-media-connections';
+
+function getPanelDescription(
+	isPostPublished,
+	isRePublicizeFeatureEnabled,
+	isPublicizeEnabled,
+	hasConnections,
+	hasEnabledConnections
+) {
+	// Use constants when the string is used in multiple places.
+	const start_your_posts_string = __(
+		'Start sharing your posts by connecting your social media accounts.',
+		'jetpack'
+	);
+	const this_post_will_string = __(
+		'This post will be shared on all your enabled social media accounts the moment you publish the post.',
+		'jetpack'
+	);
+
+	// RePublicize feature is disabled.
+	if ( ! isRePublicizeFeatureEnabled ) {
+		if ( isPostPublished ) {
+			return start_your_posts_string;
+		}
+
+		return this_post_will_string;
+	}
+
+	// RePublicize feature is enabled.
+	// No connections.
+	if ( ! hasConnections ) {
+		return start_your_posts_string;
+	}
+
+	if ( ! isPublicizeEnabled || ! hasEnabledConnections ) {
+		return __( 'Use this tool to share your post on all your social media accounts.', 'jetpack' );
+	}
+
+	if ( isPublicizeEnabled && hasEnabledConnections && ! isPostPublished ) {
+		return this_post_will_string;
+	}
+
+	return __(
+		'Share this post on all your enabled social media accounts by clicking on the share post button.',
+		'jetpack'
+	);
+}
 
 export default function UpsellNotice( { isPostPublished } ) {
 	const {
 		isRePublicizeFeatureEnabled,
 		isRePublicizeUpgradableViaUpsell,
 		isRePublicizeFeatureAvailable,
+		isPublicizeEnabled: isPublicizeEnabledFromConfig,
 	} = usePublicizeConfig();
 	const requiredPlan = getRequiredPlan( 'republicize' );
 	const [ checkoutUrl, goToCheckoutPage, isRedirecting, planData ] = useUpgradeFlow( requiredPlan );
+	const { hasConnections, hasEnabledConnections } = useSocialMediaConnections();
+	const isPublicizeEnabled =
+		isPublicizeEnabledFromConfig &&
+		! ( isRePublicizeUpgradableViaUpsell && isRePublicizeFeatureEnabled );
 
 	/*
 	 * Publicize:
-	 * When post is not published,
-	 * there is nothing to show here. Move on...
+	 * When post is not published yet,
+	 * or when the feature flag is disabled,
+	 * just show the feature description and bail early.
 	 */
-	if ( ! isPostPublished ) {
-		return null;
-	}
-
-	// Bail early with null when feature flag is not enabled.
-	if ( ! isRePublicizeFeatureEnabled ) {
-		return null;
+	if ( ! isPostPublished || ! isRePublicizeFeatureEnabled ) {
+		return (
+			<div>
+				{ getPanelDescription(
+					isPostPublished,
+					isRePublicizeFeatureEnabled,
+					isPublicizeEnabled,
+					hasConnections,
+					hasEnabledConnections
+				) }
+			</div>
+		);
 	}
 
 	// Define plan name, with a fallback value.
