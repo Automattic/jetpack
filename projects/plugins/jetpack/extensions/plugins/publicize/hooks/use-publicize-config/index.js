@@ -8,7 +8,7 @@ import { store as editorStore } from '@wordpress/editor';
  * Internal dependencies
  */
 import getJetpackExtensionAvailability from '../../../../shared/get-jetpack-extension-availability';
-import { isUpgradable, isUpgradeNudgeEnabled } from '../../../../shared/plan-utils';
+import { isUpgradable } from '../../../../shared/plan-utils';
 
 const republicizeFeatureName = 'republicize';
 
@@ -44,9 +44,7 @@ export default function usePublicizeConfig() {
 	 * but also whether the upgrade nudge is enable
 	 * in the site context/platform (Simple, Atomic, Jetpack, etc...).
 	 */
-
-	const isRePublicizeUpgradableViaUpsell =
-		isUpgradable( republicizeFeatureName ) && isUpgradeNudgeEnabled();
+	const isRePublicizeUpgradableViaUpsell = isUpgradable( republicizeFeatureName );
 
 	/*
 	 * isPublicizeEnabled:

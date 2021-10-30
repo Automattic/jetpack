@@ -85,7 +85,11 @@ export default function UpsellNotice( { isPostPublished } ) {
 	 * or when the feature flag is disabled,
 	 * just show the feature description and bail early.
 	 */
-	if ( ! isPostPublished || ! isRePublicizeFeatureEnabled ) {
+	if (
+		! isPostPublished ||
+		! isRePublicizeFeatureEnabled ||
+		( isPostPublished && isRePublicizeFeatureAvailable )
+	) {
 		return (
 			<div>
 				{ getPanelDescription(
@@ -100,7 +104,7 @@ export default function UpsellNotice( { isPostPublished } ) {
 	}
 
 	// Define plan name, with a fallback value.
-	const planName = planData?.product_name || __( 'Paid', 'jetpack' );
+	const planName = planData?.product_name || __( 'paid', 'jetpack' );
 
 	const isPureJetpackSite = ! isAtomicSite() && ! isSimpleSite();
 	const upgradeFeatureTitle = isPureJetpackSite
