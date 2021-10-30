@@ -15,7 +15,7 @@ All of the extensions that Jetpack adds to the core's REST API infrastructure de
 If you go to the Jetpack wp-admin page (/wp-admin/admin.php?page=jetpack) on you WordPress site, you can open the console there and write an AJAX request using `jQuery.ajax`. This comes in handy when testing as every request demands a nonce generated for the REST API specifically. More details about this nonce in [API Authentication and authorization](#api-request-authorization-via-nonces).
 
 **Example GET request**
-```
+```javascript
 jQuery.ajax( {
     url: '/wp-json/jetpack/v4/settings/',
     method: 'get',
@@ -33,7 +33,7 @@ jQuery.ajax( {
 
 **Example POST request**
 
-```
+```javascript
 jQuery.ajax( {
     url: '/wp-json/jetpack/v4/settings/',
     method: 'post',
@@ -55,7 +55,7 @@ jQuery.ajax( {
 ### Requesting with the fetch API from the browser's console.
 
 **Example GET request**
-```
+```javascript
 fetch( '/wp-json/jetpack/v4/settings', {
 	credentials: 'same-origin',
 	headers: {
@@ -69,7 +69,7 @@ fetch( '/wp-json/jetpack/v4/settings', {
 
 **Example POST request**
 
-```
+```javascript
 fetch( '/wp-json/jetpack/v4/settings', {
 	method: 'post',
 	body: JSON.stringify( { masterbar: true } ),
@@ -138,7 +138,7 @@ Fetch a list of Jetpack settings.
 
 **Example response**
 
-```
+```json
 {
 	"onpublish":false,
 	"onupdate":false,
@@ -172,7 +172,7 @@ This endpoint is quite permissive, so you will be able to try to update settings
 You can also try to activate a module an set any of its options on the same request.
 
 Accepts a JSON object in the body like:
-```
+```json
 {
 	"carousel_display_exif": false,
 	"carousel": true
@@ -188,7 +188,7 @@ Fetch Jetpack's current connection status.
 
 **Example Response**
 
-```
+```json
 {
 	"isActive": true,
 	"isStaging": false,
@@ -219,7 +219,7 @@ Fetch the data of the current's user WordPress.com account.
 
 **Example response**
 
-```
+```json
 {
     "currentUser": {
         "isConnected": true,
@@ -260,7 +260,7 @@ Disconnect the Jetpack installation from WordPress.com servers.
 
 Accepts a JSON object in the body like:
 
-```
+```json
 {
 	"isActive": false
 }
@@ -274,7 +274,7 @@ Unlink current user from the related WordPress.com account.
 
 Accepts a JSON object in the body like:
 
-```
+```json
 {
 	"linked": false
 }
@@ -295,7 +295,7 @@ Get a list of all Jetpack's modules, its description, other properties and the m
 
 The response is huge. Try it on your browser's console for discovery. Here's a cut down version of it:
 
-```
+```json
 {
 	"protect": {
 	        "name": "Protect",
@@ -334,7 +334,7 @@ Get a single module description and properties by its slug.
 
 **Example response** for `/module/likes`
 
-```
+```json
 {
     "name": "Likes",
     "description": "Give visitors an easy way to show they appreciate your content.",
@@ -386,7 +386,7 @@ Get a single module description and properties by its slug.
 Activate or deactivate a module by its slug
 
 Accepts a JSON object in the body like:
-```
+```json
 {
 	"active": true
 }
@@ -564,7 +564,7 @@ Get stats from Akismet filtered spam.
 
 **Example response**
 
-```
+```json
 {
     "6-months": {
         "spam": 0,
