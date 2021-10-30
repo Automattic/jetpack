@@ -513,7 +513,8 @@ function admin_bar_delete_page() {
 
 	if ( $path ) {
 		if ( isset( $_GET['admin'] ) ) {
-			prune_super_cache( $path, true );
+			global $file_prefix;
+			wp_cache_clean_cache( $file_prefix );
 			wp_safe_redirect( admin_url( '/' ) );
 			exit;
 		}
