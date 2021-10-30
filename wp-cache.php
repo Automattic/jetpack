@@ -512,6 +512,11 @@ function admin_bar_delete_page() {
 	$path = $valid_nonce ? realpath( trailingslashit( get_supercache_dir() . str_replace( '..', '', preg_replace( '/:.*$/', '', $req_path ) ) ) ) : false;
 
 	if ( $path ) {
+		if ( isset( $_GET['admin'] ) ) {
+			prune_super_cache( $path, true );
+			wp_safe_redirect( admin_url( '/' ) );
+			exit;
+		}
 		$path           = trailingslashit( $path );
 		$supercachepath = realpath( get_supercache_dir() );
 
@@ -522,6 +527,11 @@ function admin_bar_delete_page() {
 		}
 
 		wpsc_delete_files( $path );
+	}
+
+	if ( isset( $_GET['admin'] ) ) {
+		wp_safe_redirect( admin_url( '/' ) );
+		exit;
 	}
 
 	if ( $referer && $req_path && ( false !== stripos( $referer, $req_path ) || 0 === stripos( $referer, wp_login_url() ) ) ) {
@@ -3275,8 +3285,10 @@ function wpsc_admin_bar_render( $wp_admin_bar ) {
 		return false;
 	}
 
+	$path_to_home = rtrim( (string) parse_url( get_option( 'home' ), PHP_URL_PATH ), '/' );
 	if ( ( is_singular() || is_archive() || is_front_page() || is_search() ) && current_user_can(  'delete_others_posts' ) ) {
-		$site_regex = preg_quote( rtrim( (string) parse_url( get_option( 'home' ), PHP_URL_PATH ), '/' ), '`' );
+
+		$site_regex = preg_quote( $path_to_home, '`' );
 		$req_uri    = preg_replace( '/[ <>\'\"\r\n\t\(\)]/', '', $_SERVER[ 'REQUEST_URI' ] );
 		$path       = preg_replace( '`^' . $site_regex . '`', '', $req_uri );
 
@@ -3289,13 +3301,13 @@ function wpsc_admin_bar_render( $wp_admin_bar ) {
 					) );
 	}
 
-	if ( is_admin() && wpsupercache_site_admin() && current_user_can( 'manage_options' ) ) {
+	if ( is_admin() && ( wpsupercache_site_admin() || current_user_can( 'delete_others_posts' ) ) ) {
 		$wp_admin_bar->add_menu( array(
 					'parent' => '',
 					'id' => 'delete-cache',
 					'title' => __( 'Delete Cache', 'wp-super-cache' ),
 					'meta' => array( 'title' => __( 'Delete Super Cache cached files', 'wp-super-cache' ) ),
-					'href' => wp_nonce_url( admin_url( 'options-general.php?page=wpsupercache&tab=contents&wp_delete_cache=1' ), 'wp-cache' )
+					'href' => wp_nonce_url( admin_url( 'index.php?admin=1&action=delcachepage&path=' . rawurlencode( trailingslashit( $path_to_home ) ) ), 'delete-cache' )
 					) );
 	}
 }
