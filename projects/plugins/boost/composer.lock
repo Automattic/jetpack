@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "16c2a4f11c22454a8e3ebb4eace2ec83",
+    "content-hash": "76c805066089a6d9508602c839f83235",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -267,7 +267,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "047e6bc32be905fb4f282e38e1f560efdd347cdc"
+                "reference": "5ab0c2586815f558f97fb563395545dfa3dc0a70"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -276,7 +276,7 @@
                 "automattic/jetpack-options": "^1.13",
                 "automattic/jetpack-redirect": "^1.7",
                 "automattic/jetpack-roles": "^1.4",
-                "automattic/jetpack-status": "^1.8",
+                "automattic/jetpack-status": "^1.9",
                 "automattic/jetpack-terms-of-service": "^1.9",
                 "automattic/jetpack-tracking": "^1.13"
             },
@@ -584,10 +584,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/redirect",
-                "reference": "5b0dc4ca597044b0a2f211544b39fd509586a361"
+                "reference": "7c4c39cc68439aa3dfd732ee337ed546e3102cbf"
             },
             "require": {
-                "automattic/jetpack-status": "^1.8"
+                "automattic/jetpack-status": "^1.9"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -689,7 +689,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "e1ee707b99db540ad6ff853d053784e70d99bfd7"
+                "reference": "571e2e935ec72d87ebc020942221b932c1c8de7b"
+            },
+            "require": {
+                "automattic/jetpack-constants": "^1.6"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -704,7 +707,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.8.x-dev"
+                    "dev-master": "1.9.x-dev"
                 }
             },
             "autoload": {
@@ -740,11 +743,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/terms-of-service",
-                "reference": "3594a0ceb044973ed4a8198cca4b420c39d4e67b"
+                "reference": "b076ade5374c5fd5301e9fbab8f7e6783d6ac957"
             },
             "require": {
                 "automattic/jetpack-options": "^1.13",
-                "automattic/jetpack-status": "^1.8"
+                "automattic/jetpack-status": "^1.9"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -795,12 +798,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/tracking",
-                "reference": "0c8562d1f209ef123b72e607f79d76140e67f5a4"
+                "reference": "a9ed9bde1de5ab89483369ef2e76d06376efc695"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.11",
                 "automattic/jetpack-options": "^1.13",
-                "automattic/jetpack-status": "^1.8",
+                "automattic/jetpack-status": "^1.9",
                 "automattic/jetpack-terms-of-service": "^1.9"
             },
             "require-dev": {
@@ -907,16 +910,16 @@
     "packages-dev": [
         {
             "name": "antecedent/patchwork",
-            "version": "2.1.15",
+            "version": "2.1.17",
             "source": {
                 "type": "git",
                 "url": "https://github.com/antecedent/patchwork.git",
-                "reference": "0430ceaac7f447f1778c199ec19d7e4362a6f961"
+                "reference": "df5aba175a44c2996ced4edf8ec9f9081b5348c0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/antecedent/patchwork/zipball/0430ceaac7f447f1778c199ec19d7e4362a6f961",
-                "reference": "0430ceaac7f447f1778c199ec19d7e4362a6f961",
+                "url": "https://api.github.com/repos/antecedent/patchwork/zipball/df5aba175a44c2996ced4edf8ec9f9081b5348c0",
+                "reference": "df5aba175a44c2996ced4edf8ec9f9081b5348c0",
                 "shasum": ""
             },
             "require": {
@@ -949,9 +952,9 @@
             ],
             "support": {
                 "issues": "https://github.com/antecedent/patchwork/issues",
-                "source": "https://github.com/antecedent/patchwork/tree/2.1.15"
+                "source": "https://github.com/antecedent/patchwork/tree/2.1.17"
             },
-            "time": "2021-08-22T08:00:13+00:00"
+            "time": "2021-10-21T14:22:43+00:00"
         },
         {
             "name": "automattic/jetpack-changelogger",
@@ -1024,7 +1027,7 @@
         },
         {
             "name": "automattic/wordbless",
-            "version": "dev-master",
+            "version": "0.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wordbless.git",
@@ -1043,7 +1046,6 @@
             "require-dev": {
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5 || ^9.0"
             },
-            "default-branch": true,
             "type": "wordpress-dropin",
             "autoload": {
                 "psr-4": {
@@ -1608,16 +1610,16 @@
         },
         {
             "name": "phpdocumentor/reflection-docblock",
-            "version": "5.2.2",
+            "version": "5.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/ReflectionDocBlock.git",
-                "reference": "069a785b2141f5bcf49f3e353548dc1cce6df556"
+                "reference": "622548b623e81ca6d78b721c5e029f4ce664f170"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/ReflectionDocBlock/zipball/069a785b2141f5bcf49f3e353548dc1cce6df556",
-                "reference": "069a785b2141f5bcf49f3e353548dc1cce6df556",
+                "url": "https://api.github.com/repos/phpDocumentor/ReflectionDocBlock/zipball/622548b623e81ca6d78b721c5e029f4ce664f170",
+                "reference": "622548b623e81ca6d78b721c5e029f4ce664f170",
                 "shasum": ""
             },
             "require": {
@@ -1628,7 +1630,8 @@
                 "webmozart/assert": "^1.9.1"
             },
             "require-dev": {
-                "mockery/mockery": "~1.3.2"
+                "mockery/mockery": "~1.3.2",
+                "psalm/phar": "^4.8"
             },
             "type": "library",
             "extra": {
@@ -1658,9 +1661,9 @@
             "description": "With this component, a library can provide support for annotations via DocBlocks or otherwise retrieve information that is embedded in a DocBlock.",
             "support": {
                 "issues": "https://github.com/phpDocumentor/ReflectionDocBlock/issues",
-                "source": "https://github.com/phpDocumentor/ReflectionDocBlock/tree/master"
+                "source": "https://github.com/phpDocumentor/ReflectionDocBlock/tree/5.3.0"
             },
-            "time": "2020-09-03T19:13:55+00:00"
+            "time": "2021-10-19T17:43:47+00:00"
         },
         {
             "name": "phpdocumentor/type-resolver",
@@ -3227,6 +3230,7 @@
                     "type": "github"
                 }
             ],
+            "abandoned": true,
             "time": "2020-09-28T06:45:17+00:00"
         },
         {
@@ -4449,8 +4453,7 @@
         "automattic/jetpack-device-detection": 20,
         "automattic/jetpack-lazy-images": 20,
         "automattic/jetpack-terms-of-service": 20,
-        "automattic/jetpack-tracking": 20,
-        "automattic/wordbless": 20
+        "automattic/jetpack-tracking": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

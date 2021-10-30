@@ -3,7 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { Button, PanelRow } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { dispatch, useSelect } from '@wordpress/data';
 import { store as noticesStore } from '@wordpress/notices';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect } from '@wordpress/element';
@@ -15,12 +15,30 @@ import useSharePost from '../../hooks/use-share-post';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 
-export function SharePostButton( { isPublicizeEnabled } ) {
-	const { createErrorNotice, removeNotice, createSuccessNotice } = useDispatch( noticesStore );
-	const { hasEnabledConnections } = useSocialMediaConnections();
-	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
+function cleanNotice() {
+	dispatch( noticesStore ).removeNotice( 'publicize-post-share-message' );
+}
 
+function showErrorNotice( message = __( 'Unable to share the Post', 'jetpack' ) ) {
+	const { createErrorNotice } = dispatch( noticesStore );
+	createErrorNotice( message, {
+		id: 'publicize-post-share-message',
+	} );
+}
+
+function showSuccessNotice() {
+	const { createSuccessNotice } = dispatch( noticesStore );
+	createSuccessNotice( __( 'Post shared', 'jetpack' ), {
+		id: 'publicize-post-share-message',
+		type: 'snackbar',
+	} );
+}
+
+export function SharePostButton() {
+	const { hasEnabledConnections } = useSocialMediaConnections();
+	const { isPublicizeEnabled } = usePublicizeConfig();
 	const { isFetching, isError, isSuccess, doPublicize } = useSharePost();
+	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
 	useEffect( () => {
 		if ( isFetching ) {
@@ -28,20 +46,15 @@ export function SharePostButton( { isPublicizeEnabled } ) {
 		}
 
 		if ( isError ) {
-			return createErrorNotice( __( 'Unable to share the Post', 'jetpack' ), {
-				id: 'publicize-post-share-message',
-			} );
+			return showErrorNotice();
 		}
 
 		if ( ! isSuccess ) {
 			return;
 		}
 
-		createSuccessNotice( __( 'Post shared', 'jetpack' ), {
-			id: 'publicize-post-share-message',
-			type: 'snackbar',
-		} );
-	}, [ isFetching, isError, isSuccess, createErrorNotice, createSuccessNotice ] );
+		showSuccessNotice();
+	}, [ isFetching, isError, isSuccess ] );
 
 	/*
 	 * Disabled button when
@@ -58,12 +71,12 @@ export function SharePostButton( { isPublicizeEnabled } ) {
 			isSecondary
 			onClick={ function () {
 				if ( ! isPostPublished ) {
-					return createErrorNotice(
+					return showErrorNotice(
 						__( 'You must publish your post before you can share it.', 'jetpack' )
 					);
 				}
 
-				removeNotice( 'publicize-post-share-message' );
+				cleanNotice( 'publicize-post-share-message' );
 				doPublicize();
 			} }
 			disabled={ isButtonDisabled }
@@ -74,16 +87,31 @@ export function SharePostButton( { isPublicizeEnabled } ) {
 	);
 }
 
-export function SharePostRow( { isPublicizeEnabled } ) {
-	const { isRePublicizeFeatureEnabled } = usePublicizeConfig();
+export function SharePostRow() {
+	const { isRePublicizeFeatureEnabled, isRePublicizeFeatureUpgradable } = usePublicizeConfig();
+	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
+	// Do not render when RePublicize feature is not enabled.
 	if ( ! isRePublicizeFeatureEnabled ) {
+		return null;
+	}
+
+	// Do not render the button when the post is not published.
+	if ( ! isPostPublished ) {
+		return null;
+	}
+
+	/*
+	 * Do not render when the feature is upgradable.
+	 * We show the upsale notice instead.
+	 */
+	if ( isRePublicizeFeatureUpgradable ) {
 		return null;
 	}
 
 	return (
 		<PanelRow>
-			<SharePostButton isPublicizeEnabled={ isPublicizeEnabled } />
+			<SharePostButton />
 		</PanelRow>
 	);
 }

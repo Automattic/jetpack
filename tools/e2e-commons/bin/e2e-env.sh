@@ -3,6 +3,9 @@
 # Exit if any command fails.
 set -e
 
+BASE_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+export PATH="$BASE_DIR/../node_modules/.bin:$PATH"
+
 usage() {
 	echo "usage: $0 command"
 	echo "  start [--activate-plugins plugin1 plugin2 ...]    Setup the docker containers for E2E tests and optionally activate additional plugins"
@@ -13,7 +16,7 @@ usage() {
 	exit 1
 }
 
-BASE_CMD='pnpx jetpack docker --type e2e --name t1'
+BASE_CMD='jetpack docker --type e2e --name t1'
 
 start_env() {
 	$BASE_CMD up -d
