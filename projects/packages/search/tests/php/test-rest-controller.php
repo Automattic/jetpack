@@ -123,6 +123,74 @@ class Test_REST_Controller extends TestCase {
 	}
 
 	/**
+	 * Testing the `POST /jetpack/v4/search/settings` endpoint with editor user.
+	 */
+	public function test_update_search_settings_unauthorized() {
+		wp_set_current_user( $this->editor_id );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body(
+			wp_json_encode(
+				array(
+					'module_status'          => true,
+					'instant_search_enabled' => true,
+				)
+			)
+		);
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 403, $response->get_status() );
+		$this->assertEquals( 'You are not allowed to perform this action.', $response->get_data()['message'] );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/search/settings` endpoint with editor user.
+	 */
+	public function test_update_search_settings_success() {
+		wp_set_current_user( $this->admin_id );
+		$new_settings = array(
+			'module_status'          => true,
+			'instant_search_enabled' => true,
+		);
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( $new_settings ) );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( $new_settings, $response->get_data() );
+		$this->assertArrayHasKey( 'module_status', $response->get_data() );
+		$this->assertArrayHasKey( 'instant_search_enabled', $response->get_data() );
+	}
+
+	/**
+	 * Testing the `GET /jetpack/v4/search/settings` endpoint with editor user.
+	 */
+	public function test_get_search_settings_unauthorized() {
+		wp_set_current_user( $this->editor_id );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 403, $response->get_status() );
+		$this->assertEquals( 'You are not allowed to perform this action.', $response->get_data()['message'] );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/search/settings` endpoint with editor user.
+	 */
+	public function test_get_search_settings_success() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertArrayHasKey( 'module_status', $response->get_data() );
+		$this->assertArrayHasKey( 'instant_search_enabled', $response->get_data() );
+	}
+
+	/**
 	 * Intercept the `Jetpack_Options` call and mock the values.
 	 * Site-level connection set-up.
 	 *
