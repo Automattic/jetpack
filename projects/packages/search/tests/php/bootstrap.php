@@ -2,10 +2,14 @@
 /**
  * Initialize the testing environment.
  *
- * @package automattic/jetpack-backup
+ * @package automattic/jetpack-search
  */
 
 /**
  * Load the composer autoloader.
  */
 require_once __DIR__ . '/../../vendor/autoload.php';
+
+define( 'WP_DEBUG', true );
+
+\WorDBless\Load::load();

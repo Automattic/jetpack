@@ -65,7 +65,7 @@ class REST_Controller {
 		$response = Client::wpcom_json_api_request_as_user(
 			'/sites/' . $blog_id . '/jetpack-search/plan',
 			'v2',
-			array(),
+			array( 'blog_id' => 999 ),
 			null,
 			'wpcom'
 		);
