@@ -29,7 +29,34 @@ class REST_Controller {
 			'/search/plan',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'search_plan' ),
+				'callback'            => array( $this, 'get_search_plan' ),
+				'permission_callback' => array( $this, 'search_permissions_callback' ),
+			)
+		);
+		register_rest_route(
+			'jetpack/v4',
+			'/search/plan',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'update_settings' ),
+				'permission_callback' => array( $this, 'search_permissions_callback' ),
+			)
+		);
+		register_rest_route(
+			'jetpack/v4',
+			'/search/plan',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_settings' ),
+				'permission_callback' => array( $this, 'search_permissions_callback' ),
+			)
+		);
+		register_rest_route(
+			'jetpack/v4',
+			'/search/plan',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'search' ),
 				'permission_callback' => array( $this, 'search_permissions_callback' ),
 			)
 		);
@@ -37,9 +64,6 @@ class REST_Controller {
 
 	/**
 	 * Only administrators can access the API.
-	 *
-	 * @access public
-	 * @static
 	 *
 	 * @return bool|WP_Error True if a blog token was used to sign the request, WP_Error otherwise.
 	 */
@@ -58,8 +82,10 @@ class REST_Controller {
 
 	/**
 	 * Proxy the request to WPCOM and return the response.
+	 *
+	 * GET `jetpack/v4/search/plan`
 	 */
-	public function search_plan() {
+	public function get_search_plan() {
 		$blog_id = Jetpack_Options::get_option( 'id' );
 
 		$response = Client::wpcom_json_api_request_as_user(
@@ -83,6 +109,25 @@ class REST_Controller {
 		);
 	}
 
-	// TODO the module / instant search read/write API.
+	/**
+	 * POST `jetpack/v4/search/settings`
+	 */
+	public function update_settings() {
+
+	}
+
+	/**
+	 * GET `jetpack/v4/search/settings`
+	 */
+	public function get_settings() {
+
+	}
+
+	/**
+	 * GET `jetpack/v4/search/search`
+	 */
+	public function search() {
+
+	}
 
 }
