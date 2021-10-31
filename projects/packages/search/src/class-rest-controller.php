@@ -11,6 +11,7 @@ namespace Automattic\Jetpack\Search;
 use Automattic\Jetpack\Connection\Client;
 use Jetpack_Options;
 use WP_Error;
+use WP_REST_Request;
 use WP_REST_Server;
 
 /**
@@ -35,16 +36,16 @@ class REST_Controller {
 		);
 		register_rest_route(
 			'jetpack/v4',
-			'/search/plan',
+			'/search/settings',
 			array(
-				'methods'             => WP_REST_Server::READABLE,
+				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'update_settings' ),
 				'permission_callback' => array( $this, 'search_permissions_callback' ),
 			)
 		);
 		register_rest_route(
 			'jetpack/v4',
-			'/search/plan',
+			'/search/settings',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_settings' ),
@@ -53,10 +54,11 @@ class REST_Controller {
 		);
 		register_rest_route(
 			'jetpack/v4',
-			'/search/plan',
+			'/search/',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'search' ),
+				// TODO.
 				'permission_callback' => array( $this, 'search_permissions_callback' ),
 			)
 		);
@@ -111,16 +113,40 @@ class REST_Controller {
 
 	/**
 	 * POST `jetpack/v4/search/settings`
+	 *
+	 * @param WP_REST_Request $request - REST request.
 	 */
-	public function update_settings() {
+	public function update_settings( $request ) {
+		$module_status          = (bool) $request->get_json_params( 'module_status' );
+		$instant_search_enabled = (bool) $request->get_json_params( 'instant_search_enabled' );
 
+		if ( Module_Control::get_instance()->is_activated() !== $module_status ) {
+			if ( $module_status ) {
+				Module_Control::get_instance()->activate();
+			} else {
+				Module_Control::get_instance()->deactive();
+			}
+		}
+
+		if ( Module_Control::get_instance()->is_instant_enabled() !== $instant_search_enabled ) {
+			if ( $instant_search_enabled ) {
+				Module_Control::get_instance()->enable_instant_search();
+			} else {
+				Module_Control::get_instance()->disable_instant_search();
+			}
+		}
+
+		return $this->get_settings();
 	}
 
 	/**
 	 * GET `jetpack/v4/search/settings`
 	 */
 	public function get_settings() {
-
+		return array(
+			'module_status'          => Module_Control::get_instance()->is_activated(),
+			'instant_search_enabled' => Module_Control::get_instance()->is_instant_enabled(),
+		);
 	}
 
 	/**
