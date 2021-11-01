@@ -253,7 +253,7 @@ class Jetpack_VideoPress {
 	/**
 	 * Returns the VideoPress URL for the give post id, otherwise returns the provided default.
 	 *
-	 * This is an attachment-based filter handler to the videopress_get_attachment_url() utility function.
+	 * This is an attachment-based filter handler.
 	 *
 	 * @param string $default The default return value if post id is not a VideoPress video.
 	 * @param int    $post_id The post id for the current attachment.
