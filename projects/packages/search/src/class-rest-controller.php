@@ -54,12 +54,11 @@ class REST_Controller {
 		);
 		register_rest_route(
 			'jetpack/v4',
-			'/search/',
+			'/search',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'search' ),
-				// TODO.
-				'permission_callback' => array( $this, 'search_permissions_callback' ),
+				'callback'            => array( $this, 'get_search_results' ),
+				'permission_callback' => 'is_user_logged_in',
 			)
 		);
 	}
@@ -92,10 +91,7 @@ class REST_Controller {
 
 		$response = Client::wpcom_json_api_request_as_user(
 			'/sites/' . $blog_id . '/jetpack-search/plan',
-			'v2',
-			array( 'blog_id' => 999 ),
-			null,
-			'wpcom'
+			'v2'
 		);
 
 		if ( is_wp_error( $response ) ) {
@@ -150,10 +146,39 @@ class REST_Controller {
 	}
 
 	/**
-	 * GET `jetpack/v4/search/search`
+	 * Search Endpoint for private sites.
+	 *
+	 * GET `jetpack/v4/search`
 	 */
-	public function search() {
+	public function get_search_results() {
+		$blog_id  = Jetpack_Options::get_option( 'id' );
+		$path     = sprintf( '/sites/%d/search', absint( $blog_id ) );
+		$response = Client::wpcom_json_api_request_as_user( $path, '2' );
+		return $this->make_proper_response( $response );
+	}
 
+	/**
+	 * Forward remote response to client with error handling.
+	 *
+	 * @param array|WP_Error $response - Resopnse from WPCOM.
+	 */
+	private function make_proper_response( $response ) {
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$body        = json_decode( wp_remote_retrieve_body( $response ) );
+		$status_code = wp_remote_retrieve_response_code( $response );
+
+		if ( 200 === $status_code ) {
+			return $body;
+		}
+
+		return new WP_Error(
+			$body->error,
+			$body->message,
+			$status_code
+		);
 	}
 
 }
