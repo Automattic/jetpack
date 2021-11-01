@@ -191,6 +191,32 @@ class Test_REST_Controller extends TestCase {
 	}
 
 	/**
+	 * Testing the `GET /jetpack/v4/search` endpoint with editor user.
+	 */
+	public function test_get_search_results_unauthorized() {
+		wp_set_current_user( 0 );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/search' );
+		$request->set_header( 'content-type', 'application/json' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
+	 * Testing the `GET /jetpack/v4/search` endpoint with editor user.
+	 */
+	public function test_get_search_results_success() {
+		wp_set_current_user( $this->editor_id );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/search' );
+		$request->set_header( 'content-type', 'application/json' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 500, $response->get_status() );
+		$this->assertEquals( 'missing_token', $response->get_data()['code'] );
+	}
+
+	/**
 	 * Intercept the `Jetpack_Options` call and mock the values.
 	 * Site-level connection set-up.
 	 *
