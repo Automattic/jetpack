@@ -121,11 +121,11 @@ class REST_Controller {
 		$module_status          = (bool) $request->get_json_params( 'module_status' );
 		$instant_search_enabled = (bool) $request->get_json_params( 'instant_search_enabled' );
 
-		if ( Module_Control::get_instance()->is_activated() !== $module_status ) {
+		if ( Module_Control::get_instance()->is_active() !== $module_status ) {
 			if ( $module_status ) {
 				Module_Control::get_instance()->activate();
 			} else {
-				Module_Control::get_instance()->deactive();
+				Module_Control::get_instance()->deactivate();
 			}
 		}
 
@@ -145,7 +145,7 @@ class REST_Controller {
 	 */
 	public function get_settings() {
 		return array(
-			'module_status'          => Module_Control::get_instance()->is_activated(),
+			'module_active'          => Module_Control::get_instance()->is_active(),
 			'instant_search_enabled' => Module_Control::get_instance()->is_instant_enabled(),
 		);
 	}
