@@ -181,7 +181,7 @@ Tests rely on functionality plugins that provide some additional functionality, 
 
 ### e2e-plan-data-interceptor.php
 
-The purpose of this plugin is to provide a way to `mock` Jetpack plan, for cases when we test functionality that does not directly use paid services. Great example of this purpose is a paid Gutenberg blocks.
+The purpose of this plugin is to provide a way to `mock` a Jetpack plan, for cases when we test functionality that does not directly use paid services. A great example of this purpose is testing paid Gutenberg blocks.
 
 # Test architecture
 
