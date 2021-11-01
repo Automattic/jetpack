@@ -7,12 +7,20 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Status;
+use Jetpack_Options;
+
 /**
  * To get and set Searh module settings
  */
 class Module_Control {
-	const SEARCH_MODULE_STATUS_OPTION_KEY         = 'jetpack-search-module-status';
+	/**
+	 * We use the same options as Jetpack the plugin to flag whether Search is active.
+	 */
+	const JETPACK_ACTIVE_MODULES_OPTION_KEY       = 'active_modules';
+	const JETPACK_SEARCH_MODULE_SLUG              = 'search';
 	const SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY = 'instant_search_enabled';
+
 	/**
 	 * Singleton Instance
 	 *
@@ -41,8 +49,8 @@ class Module_Control {
 	 *
 	 * @return bool
 	 */
-	public function is_activated() {
-		return (bool) get_option( self::SEARCH_MODULE_STATUS_OPTION_KEY );
+	public function is_active() {
+		return in_array( self::JETPACK_SEARCH_MODULE_SLUG, self::get_active_modules(), true );
 	}
 
 	/**
@@ -58,15 +66,94 @@ class Module_Control {
 	 * Activiate Search module
 	 */
 	public function activate() {
-		// TODO need to see what happens in the search activiate process.
-		return update_option( self::SEARCH_MODULE_STATUS_OPTION_KEY, true );
+		/**
+		 * Fires before a module is activated.
+		 *
+		 * @since 2.6.0
+		 *
+		 * @param string $module Module slug.
+		 * @param bool $exit Should we exit after the module has been activated. Default to true.
+		 * @param bool $redirect Should the user be redirected after module activation? Default to true.
+		 */
+		do_action( 'jetpack_pre_activate_module', self::JETPACK_SEARCH_MODULE_SLUG );
+
+		// If it's already active, then don't do it again.
+		if ( $this->is_active() ) {
+			return true;
+		}
+
+		$is_offline_mode = ( new Status() )->is_offline_mode();
+		if ( $is_offline_mode ) {// TODO whether to consider onboarding?
+			return false;
+		}
+
+		// TODO check Plan supports search.
+
+		$active_modules   = self::get_active_modules();
+		$active_modules[] = self::JETPACK_SEARCH_MODULE_SLUG;
+
+		$success = Jetpack_Options::update_option( self::JETPACK_ACTIVE_MODULES_OPTION_KEY, $active_modules );
+
+		/**
+		 * Fired after a module has been deactivated.
+		 *
+		 * @since 4.2.0
+		 *
+		 * @param string $module Module slug.
+		 * @param boolean $success whether the module was deactivated.
+		 */
+		do_action( 'jetpack_activate_module', self::JETPACK_SEARCH_MODULE_SLUG, $success );
+		/**
+		 * Fires when a module is deactivated.
+		 * The dynamic part of the filter, $module, is the module slug.
+		 *
+		 * @since 1.9.0
+		 *
+		 * @param string $module Module slug.
+		 */
+		do_action( 'jetpack_activate_module_' . self::JETPACK_SEARCH_MODULE_SLUG );
+
+		return $success;
 	}
 
 	/**
 	 * Deactiviate Search module
 	 */
-	public function deactive() {
-		return update_option( self::SEARCH_MODULE_STATUS_OPTION_KEY, false );
+	public function deactivate() {
+		/**
+		 * Fires when a module is deactivated.
+		 *
+		 * @since 1.9.0
+		 *
+		 * @param string $module Module slug.
+		 */
+		do_action( 'jetpack_pre_deactivate_module', self::JETPACK_SEARCH_MODULE_SLUG );
+
+		$active_modules = self::get_active_modules();
+		$active_modules = array_values( array_diff( $active_modules, array( self::JETPACK_SEARCH_MODULE_SLUG ) ) );
+
+		$success = Jetpack_Options::update_option( self::JETPACK_ACTIVE_MODULES_OPTION_KEY, $active_modules );
+
+		/**
+		 * Fired after a module has been deactivated.
+		 *
+		 * @since 4.2.0
+		 *
+		 * @param string $module Module slug.
+		 * @param boolean $success whether the module was deactivated.
+		 */
+		do_action( 'jetpack_deactivate_module', self::JETPACK_SEARCH_MODULE_SLUG, $success );
+		/**
+		 * Fires when a module is deactivated.
+		 * The dynamic part of the filter, $module, is the module slug.
+		 *
+		 * @since 1.9.0
+		 *
+		 * @param string $module Module slug.
+		 */
+		do_action( 'jetpack_deactivate_module_' . self::JETPACK_SEARCH_MODULE_SLUG );
+
+		return $success;
 	}
 
 	/**
@@ -82,4 +169,30 @@ class Module_Control {
 	public function enable_instant_search() {
 		return update_option( self::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY, true );
 	}
+
+	/**
+	 * Get a list of activated modules as an array of module slugs.
+	 */
+	public static function get_active_modules() {
+		$active_modules = Jetpack_Options::get_option( self::JETPACK_ACTIVE_MODULES_OPTION_KEY );
+
+		if ( ! is_array( $active_modules ) ) {
+			$active_modules = array();
+		}
+
+		/**
+		 * Allow filtering of the active modules.
+		 *
+		 * Gives theme and plugin developers the power to alter the modules that
+		 * are activated on the fly.
+		 *
+		 * @since 5.8.0
+		 *
+		 * @param array $active Array of active module slugs.
+		 */
+		$active_modules = apply_filters( 'jetpack_active_modules', $active_modules );
+
+		return array_unique( $active_modules );
+	}
+
 }
