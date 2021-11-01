@@ -4,11 +4,11 @@
 This project is intended to be used as a dependency by other e2e tests projects for Jetpack plugins.
 There are no tests defined here.
 
-With this project you'll be able to:
-- consistently launch and configure a Jetpack environment
+The scope of this library is to:
+- provide a consistent way to launch and configure a Jetpack environment for e2e testing
 - create test results, send Slack notifications
-- use the most common pages modeled as page objects (see [Page objects model](https://playwright.dev/docs/test-pom)).
-- use the most common flows (login, connect Jetpack)
+- provide the most common pages modeled as page objects (see [Page objects model](https://playwright.dev/docs/test-pom)).
+- provide implementation of the most common flows (login, connect Jetpack)
 
 # Prerequisites
 
@@ -23,6 +23,8 @@ The following test specific tools are used:
 - [Allure](https://docs.qameta.io/allure/) as test reporter
 
 # Getting started
+
+This is a step-by-step guide to have a simple running test using this library. A node project is expected to exist already in the Jetpack monorepo.
 
 ## Add dependencies
 
@@ -48,10 +50,10 @@ Add a `jest.config.js`
 
 ```js
 module.exports = {
-	testEnvironment: require.resolve( 'jetpack-e2e-commons/env/playwright-environment.js' ),
-	globalSetup: require.resolve( 'jetpack-e2e-commons/env/global-setup.js' ),
-	globalTeardown: require.resolve( 'jetpack-e2e-commons/env/global-teardown.js' ),
-	setupFilesAfterEnv: [ require.resolve( 'jetpack-e2e-commons/jest.setup.js' ), ],
+    testEnvironment: require.resolve( 'jetpack-e2e-commons/env/playwright-environment.js' ),
+    globalSetup: require.resolve( 'jetpack-e2e-commons/env/global-setup.js' ),
+    globalTeardown: require.resolve( 'jetpack-e2e-commons/env/global-teardown.js' ),
+    setupFilesAfterEnv: [ require.resolve( 'jetpack-e2e-commons/jest.setup.js' ), ],
 };
 ```
 
@@ -59,38 +61,38 @@ Add a `babel.config.js`
 
 ```js
 module.exports = {
-	presets: [
-		[
-			'@babel/preset-env',
-			{
-				targets: {
-					node: 'current',
-				},
-			},
-		],
-	],
+    presets: [
+        [
+            '@babel/preset-env',
+            {
+                targets: {
+                    node: 'current',
+                },
+            },
+        ],
+    ],
 };
 ```
 
 ## Create a simple test
 
-Create a test file `specs/quick-start.test.js`
+Create a test file `specs/quick-start.test.js`, with recommended content:
 
 ```js
 import { Sidebar, DashboardPage } from 'jetpack-e2e-commons/pages/wp-admin';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env';
 
 describe( 'Quick start test suite', () => {
-	beforeEach( async () => {
-		await prerequisitesBuilder()
-			.withLoggedIn( true )
-			.build();
-	} );
+    beforeEach( async () => {
+        await prerequisitesBuilder()
+            .withLoggedIn( true )
+            .build();
+    } );
 
-	it( 'Visit Jetpack page', async () => {
-		await DashboardPage.visit( page );
-		await ( await Sidebar.init( page ) ).selectJetpack();
-	} );
+    it( 'Visit Jetpack page', async () => {
+        await DashboardPage.visit( page )
+        await ( await Sidebar.init( page ) ).selectJetpack();
+    } );
 } );
 ``` 
 
@@ -156,10 +158,10 @@ Edit the encrypted config file and add an entry in the `testSites` object with t
 
 ```js
 mySite: {
-	url: '', 
-	username: '',
-	password: '',
-	dotComAccount: ['username', 'password'],
+    url: 'site-url', 
+    username: 'username',
+    password: 'password',
+    dotComAccount: ['username', 'password']
 }
 ```
 
@@ -175,8 +177,6 @@ TEST_SITE=mySite NODE_CONFIG_DIR='./config' pnpm jest
 
 Tests rely on functionality plugins that provide some additional functionality, provide shortcuts, etc.
 
-
-
 ### e2e-plan-data-interceptor.php
 
 The purpose of this plugin is to provide a way to `mock` Jetpack plan, for cases when we test functionality that does not directly use paid services. Great example of this purpose is a paid Gutenberg blocks.
@@ -186,9 +186,9 @@ The purpose of this plugin is to provide a way to `mock` Jetpack plan, for cases
 ## Pages
 
 The tests are using the `PageObject` pattern, which is a way to separate test logic from implementation. Page objects are basically abstractions around specific pages and page components.
-There are two base classes that should be extended by page objects: [`WpPage`](../../../../../tools/e2e-commons/pages/wp-page.js) and [`PageActions`](../../../../../tools/e2e-commons/pages/page-actions.js) class.
+There are two base classes that should be extended by page objects: [`WpPage`](./pages/wp-page.js) and [`PageActions`](./pages/page-actions.js) class.
 
-- `WpPage` implements common page methods, like `init` - static method that initializes a page object and checks the displayed page is the expected one and `visit` - method that navigates to a page URL and then performs all the `init` checks.
+`WpPage` implements common page methods, like `init` - static method that initializes a page object and checks the displayed page is the expected one, and `visit` - method that navigates to a page URL and then performs all the `init` checks.
 
 `WpPage` extends `PageActions`.
 `WpPage` should be extended by all page objects that represent full pages. Rule of thumb: if it has a URL it should extend WpPage. Otherwise, it's probably representing a page component (like a block) and should directly extend `PageActions`.
@@ -198,6 +198,17 @@ Make sure you pass these selectors in a page constructor to the `super` construc
 
 ```js
 constructor( page ) {
-	super( page, { expectedSelectors: [ '.selector_1', '#selector_2' ] } );
+    super( page, { expectedSelectors: [ '.selector_1', '#selector_2' ] } );
 }
+```
+
+# Test reports
+
+Allure results are generated in the allure-results folder. You can use these results to generate a full report, but the Allure cli tool is needed for that.
+
+1. [Install Allure cli](https://docs.qameta.io/allure/#_installing_a_commandline)
+2. Generate and open the report using Allure's builtin webserver
+
+```shell
+allure serve
 ```
