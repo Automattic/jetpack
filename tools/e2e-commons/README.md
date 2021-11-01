@@ -128,7 +128,7 @@ Assuming you're building tests for a standalone plugin, don't forget to also bui
 ### 1.3. Start the local environment
 
 Sensitive information like credentials and other secrets is stored in an encrypted config file. This file needs to be decrypted before starting the environment.
-If you're an a12n you can find the key in the secret store and set it in the `CONFIG_KEY` env var, as shown below. 
+If you're an a11n you can find the key in the secret store and set it in the `CONFIG_KEY` env var, as shown below. 
 
 To bypass the offline mode you will need your site to have a publicly accessible url that will proxy all requests to your locally running WordPress installation.
 We use `localtunnel` library to expose `localhost:8889` via a public url.
