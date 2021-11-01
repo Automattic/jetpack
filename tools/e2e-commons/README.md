@@ -104,8 +104,7 @@ Create the `config/default.js` and `config/playwright.config.js` files.
 
 ```shell
 mkdir config
-touch config/default.js
-echo "module.exports = require( 'jetpack-e2e-commons/config/default' );" >> config/default.js
+echo "module.exports = require( 'jetpack-e2e-commons/config/default' );" > config/default.js
 
 touch config/playwright.config.js
 echo "module.exports = require( 'jetpack-e2e-commons/config/playwright.config.default' );" >> config/playwright.config.js
