@@ -129,7 +129,7 @@ class REST_Controller {
 			}
 		}
 
-		if ( Module_Control::get_instance()->is_instant_enabled() !== $instant_search_enabled ) {
+		if ( Module_Control::get_instance()->is_instant_search_enabled() !== $instant_search_enabled ) {
 			if ( $instant_search_enabled ) {
 				Module_Control::get_instance()->enable_instant_search();
 			} else {
@@ -146,7 +146,7 @@ class REST_Controller {
 	public function get_settings() {
 		return array(
 			'module_active'          => Module_Control::get_instance()->is_active(),
-			'instant_search_enabled' => Module_Control::get_instance()->is_instant_enabled(),
+			'instant_search_enabled' => Module_Control::get_instance()->is_instant_search_enabled(),
 		);
 	}
 

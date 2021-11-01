@@ -58,7 +58,7 @@ class Module_Control {
 	 *
 	 * @return bool
 	 */
-	public function is_instant_enabled() {
+	public function is_instant_search_enabled() {
 		return (bool) get_option( self::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY );
 	}
 
