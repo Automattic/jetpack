@@ -32,38 +32,13 @@ const PublicizePanel = ( { prePublish } ) => {
 	const { refresh, hasConnections, hasEnabledConnections } = useSelectSocialMediaConnections();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
-	/*
-	 * Check whether the Republicize feature is enabled.
-	 * it can be defined via the `jetpack_block_editor_republicize_feature` backend filter.
-	 */
 	const {
-		isRePublicizeFeatureEnabled, // <- defined by the server-side feature flag check
+		isRePublicizeFeatureEnabled,
 		isPublicizeEnabled: isPublicizeEnabledFromConfig, // <- usually handled by the UI
-		isRePublicizeUpgradableViaUpsell, // <- defined by the `republicize` feature availability check
 		togglePublicizeFeature,
-		isRePublicizeFeatureAvailable,
+		isPublicizeDisabledBySitePlan,
+		hideRePublicizeFeature,
 	} = usePublicizeConfig();
-
-	/*
-	 * Publicize is enabled by toggling the control,
-	 * but also disabled when the post is already published,
-	 * and the feature is upgradable.
-	 */
-	const isPublicizeDisabledBySitePlan =
-		isPostPublished && isRePublicizeUpgradableViaUpsell && isRePublicizeFeatureEnabled;
-
-	/*
-	 * When the site doesn't have the feature available
-	 * because of the lack of site plan and/or product feature,
-	 * when it is not upgradable via an upsell,
-	 * and when the post is already published,
-	 * it needs to hide part of the Publicize feature.
-	 */
-	const hideRePublicizeFeature =
-		isPostPublished &&
-		! isRePublicizeFeatureAvailable &&
-		! isRePublicizeUpgradableViaUpsell &&
-		isRePublicizeFeatureEnabled;
 
 	const isPublicizeEnabled = isPublicizeEnabledFromConfig && ! isPublicizeDisabledBySitePlan;
 
