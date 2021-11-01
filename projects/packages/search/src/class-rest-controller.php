@@ -19,6 +19,21 @@ use WP_REST_Server;
  */
 class REST_Controller {
 	/**
+	 * Whether it's run on WPCOM.
+	 *
+	 * @var bool
+	 */
+	protected $is_wpcom;
+
+	/**
+	 * Constructor
+	 *
+	 * @param bool $is_wpcom - Whether it's run on WPCOM.
+	 */
+	public function __construct( $is_wpcom = false ) {
+		$this->is_wpcom = $is_wpcom;
+	}
+	/**
 	 * Registers the REST routes for Search.
 	 *
 	 * @access public
@@ -149,11 +164,17 @@ class REST_Controller {
 	 * Search Endpoint for private sites.
 	 *
 	 * GET `jetpack/v4/search`
+	 *
+	 * @param WP_REST_Request $request - REST request.
 	 */
-	public function get_search_results() {
-		$blog_id  = Jetpack_Options::get_option( 'id' );
+	public function get_search_results( $request ) {
+		$blog_id  = $this->get_blog_id();
 		$path     = sprintf( '/sites/%d/search', absint( $blog_id ) );
-		$response = Client::wpcom_json_api_request_as_user( $path, '2' );
+		$path     = add_query_arg(
+			$request->get_query_params(),
+			sprintf( '/sites/%d/search', absint( $blog_id ) )
+		);
+		$response = Client::wpcom_json_api_request_as_user( $path, '1.3', array(), null, 'rest' );
 		return $this->make_proper_response( $response );
 	}
 
@@ -179,6 +200,13 @@ class REST_Controller {
 			$body->message,
 			$status_code
 		);
+	}
+
+	/**
+	 * Get blog id
+	 */
+	protected function get_blog_id() {
+		return $this->is_wpcom ? get_current_blog_id() : Jetpack_Options::get_option( 'id' );
 	}
 
 }

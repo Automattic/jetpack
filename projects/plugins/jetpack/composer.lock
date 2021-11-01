@@ -1313,8 +1313,12 @@
                 "url": "../../packages/search",
                 "reference": "8b3cf6895223e44cb728fc1c89fd5b26b390b1ea"
             },
+            "require": {
+                "automattic/jetpack-connection": "1.30.x-dev"
+            },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
+                "automattic/wordbless": "^0.3.1",
                 "yoast/phpunit-polyfills": "1.0.2"
             },
             "type": "library",
