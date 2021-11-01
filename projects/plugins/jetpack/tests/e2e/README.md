@@ -32,7 +32,7 @@ pnpx jetpack build plugins/jetpack
 
 ## Test configuration
 
-Jetpack E2E tests relies on 2 encrypted configuration file, one included in this repo as [`config/encrypted.enc`](./config/encrypted.enc), which extends on a default one from e2e-commons. To be able to successfully create a local environment and run the tests both files need to be decrypted first.
+Jetpack E2E tests relies on 2 encrypted configuration files, one included in this repo as [`config/encrypted.enc`](./config/encrypted.enc), which extends on a default one from e2e-commons. To be able to successfully create a local environment and run the tests both files need to be decrypted first.
 
 To decrypt the config files (a8c only):
 - Find a decryption key. Search secret store for "E2E Jetpack CONFIG_KEY"
