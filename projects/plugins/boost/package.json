@@ -24,7 +24,7 @@
 		"@wordpress/i18n": "4.2.3",
 		"@wordpress/prettier-config": "1.1.1",
 		"eslint": "7.32.0",
-		"eslint-plugin-import": "2.24.2",
+		"eslint-plugin-import": "2.25.2",
 		"eslint-plugin-svelte3": "3.2.1",
 		"node-wp-i18n": "1.2.6",
 		"npm-run-all": "4.1.5",
