@@ -83,7 +83,7 @@ class Module_Control {
 		}
 
 		$is_offline_mode = ( new Status() )->is_offline_mode();
-		if ( $is_offline_mode ) {// TODO whether to consider onboarding?
+		if ( $is_offline_mode ) {
 			return false;
 		}
 
