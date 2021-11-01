@@ -195,7 +195,7 @@ There are two base classes that should be extended by page objects: [`WpPage`](.
 `WpPage` extends `PageActions`.
 `WpPage` should be extended by all page objects that represent full pages. Rule of thumb: if it has a URL it should extend WpPage. Otherwise, it's probably representing a page component (like a block) and should directly extend `PageActions`.
 
-Since most of the Playwright functionality is `async`, and JavaScript constructors are not - we should initialize pages with `init()` static method: `await BlockEditorPage.init( page )` to make sure we would wait for `expectedSelectors` checks.
+Since most of the Playwright functionality is `async` - and JavaScript constructors are not - we should initialize pages with the `init()` static method: `await BlockEditorPage.init( page )` to make sure we would wait for `expectedSelectors` checks.
 Make sure you pass these selectors in a page constructor to the `super` constructor by using the `expectedSelectors` argument. This expects an array of strings, so you can pass multiple selectors in case you want to check more elements on the page.
 
 ```js
