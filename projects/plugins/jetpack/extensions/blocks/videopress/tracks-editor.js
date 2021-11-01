@@ -152,7 +152,7 @@ function TrackList( { tracks, onChange, guid } ) {
 					<span>{ track.label }</span>
 					<div className="videopress-block-tracks-editor__track-list-track-delete">
 						<Button
-							variant="link"
+							isLink
 							isDestructive
 							onClick={ () => {
 								onDeleteTrack( index );
@@ -228,7 +228,7 @@ function SingleTrackEditor( { track, onChange, onClose, onCancel, guid } ) {
 							render={ ( { openFileDialog } ) => {
 								return (
 									<Button
-										variant="link"
+										isLink
 										onClick={ () => {
 											openFileDialog();
 										} }
@@ -324,7 +324,7 @@ function SingleTrackEditor( { track, onChange, onClose, onCancel, guid } ) {
 							{ __( 'Save', 'jetpack' ) }
 						</Button>
 					) }
-					<Button variant="link" onClick={ onCancel }>
+					<Button isLink onClick={ onCancel }>
 						{ __( 'Close', 'jetpack' ) }
 					</Button>
 				</div>
