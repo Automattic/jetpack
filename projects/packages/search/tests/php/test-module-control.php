@@ -90,7 +90,7 @@ class Test_Module_Control extends TestCase {
 	 * Test Module_Control::disable_instant_search()
 	 */
 	public function test_disable_instant_search() {
-		delete_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY );
+		update_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY, true );
 		Module_Control::get_instance()->disable_instant_search();
 		$this->assertFalse( get_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY ) );
 	}
