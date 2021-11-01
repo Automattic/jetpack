@@ -397,7 +397,6 @@
 	"projects/plugins/jetpack/sal/class.json-api-site-jetpack-base.php",
 	"projects/plugins/jetpack/sal/class.json-api-site-jetpack.php",
 	"projects/plugins/jetpack/sal/class.json-api-token.php",
-	"projects/plugins/jetpack/src/class-tracking.php",
 	"projects/plugins/jetpack/tests/php/_inc/lib/test_class.rest-api-authentication.php",
 	"projects/plugins/jetpack/tests/php/_inc/lib/test_class.rest-api-endpoints.php",
 	"projects/plugins/jetpack/tests/php/attachment_test_case.php",

@@ -10,9 +10,9 @@
 		"env:start": "./bin/e2e-env.sh start",
 		"env:stop": "./bin/e2e-env.sh stop",
 		"env:reset": "./bin/e2e-env.sh reset",
-		"tunnel:on": "pm2 start config/ecosystem.config.js && pm2 logs --nostream --lines 4",
-		"tunnel:reset": "rm -rf config/tmp && pnpm run tunnel:on",
-		"tunnel:off": "pm2 delete config/ecosystem.config.js && NODE_ENV=test node bin/tunnel.js off",
+		"tunnel:on": "./bin/tunnel.sh up",
+		"tunnel:reset": "./bin/tunnel.sh reset",
+		"tunnel:off": "./bin/tunnel.sh down",
 		"tunnel:logs": "pm2 logs --nostream --lines 10000 > output/logs/tunnel.log",
 		"config:decrypt": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -d -in ./config/encrypted.enc -out ./config/local-test.js",
 		"config:encrypt": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in ./config/local-test.js -out ./config/encrypted.enc",
@@ -31,7 +31,7 @@
 		"config": "3.3.6",
 		"eslint": "7.32.0",
 		"eslint-plugin-jest": "24.7.0",
-		"jest": "^27.2.4",
+		"jest": "27.3.1",
 		"jest-circus-allure-environment": "1.1.0",
 		"jetpack-cli": "link:../cli",
 		"localtunnel": "2.0.2",
@@ -54,7 +54,7 @@
 	"bin": {
 		"e2e-env": "./bin/e2e-env.sh",
 		"app-password": "./bin/app-password.sh",
-		"tunnel": "./bin/tunnel.js",
+		"tunnel": "./bin/tunnel.sh",
 		"slack": "./bin/slack.js"
 	}
 }

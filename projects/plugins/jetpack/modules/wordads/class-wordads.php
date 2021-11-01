@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Status\Host;
+
 define( 'WORDADS_ROOT', __DIR__ );
 define( 'WORDADS_BASENAME', plugin_basename( __FILE__ ) );
 define( 'WORDADS_FILE_PATH', WORDADS_ROOT . '/' . basename( __FILE__ ) );
@@ -360,7 +362,7 @@ class WordAds {
 		if ( self::is_amp() ) {
 			return;
 		}
-		$hosting_type = jetpack_is_atomic_site() ? 1 : 2; // 1 = WPCOM, 2 = Jetpack.
+		$hosting_type = ( new Host() )->is_woa_site() ? 1 : 2; // 1 = WPCOM, 2 = Jetpack.
 		$pagetype     = (int) $this->params->get_page_type_ipw();
 		$data_tags    = ( $this->params->cloudflare ) ? ' data-cfasync="false"' : '';
 		$site_id      = $this->params->blog_id;
