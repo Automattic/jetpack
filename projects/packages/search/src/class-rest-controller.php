@@ -109,17 +109,7 @@ class REST_Controller {
 			'v2'
 		);
 
-		if ( is_wp_error( $response ) ) {
-			return null;
-		}
-
-		if ( 200 !== $response['response']['code'] ) {
-			return null;
-		}
-
-		return rest_ensure_response(
-			json_decode( $response['body'], true )
-		);
+		return $this->make_proper_response( $response );
 	}
 
 	/**
@@ -183,7 +173,7 @@ class REST_Controller {
 	 *
 	 * @param array|WP_Error $response - Resopnse from WPCOM.
 	 */
-	private function make_proper_response( $response ) {
+	protected function make_proper_response( $response ) {
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
@@ -196,7 +186,7 @@ class REST_Controller {
 		}
 
 		return new WP_Error(
-			$body->error,
+			'remote-error-' . $body->error,
 			$body->message,
 			$status_code
 		);
