@@ -33,6 +33,7 @@ class REST_Controller {
 	public function __construct( $is_wpcom = false ) {
 		$this->is_wpcom = $is_wpcom;
 	}
+
 	/**
 	 * Registers the REST routes for Search.
 	 *
@@ -118,11 +119,11 @@ class REST_Controller {
 	 * @param WP_REST_Request $request - REST request.
 	 */
 	public function update_settings( $request ) {
-		$module_status          = (bool) $request->get_json_params( 'module_status' );
+		$module_active          = (bool) $request->get_json_params( 'module_active' );
 		$instant_search_enabled = (bool) $request->get_json_params( 'instant_search_enabled' );
 
-		if ( Module_Control::get_instance()->is_active() !== $module_status ) {
-			if ( $module_status ) {
+		if ( Module_Control::get_instance()->is_active() !== $module_active ) {
+			if ( $module_active ) {
 				Module_Control::get_instance()->activate();
 			} else {
 				Module_Control::get_instance()->deactivate();
