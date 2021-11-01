@@ -14,7 +14,7 @@
 		"@babel/core": "7.15.0",
 		"@babel/preset-env": "7.15.0",
 		"@rollup/plugin-commonjs": "19.0.2",
-		"@rollup/plugin-node-resolve": "13.0.4",
+		"@rollup/plugin-node-resolve": "13.0.6",
 		"@rollup/plugin-typescript": "8.2.5",
 		"@sveltejs/eslint-config": "github:sveltejs/eslint-config",
 		"@tsconfig/svelte": "2.0.1",
