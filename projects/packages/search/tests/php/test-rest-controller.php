@@ -212,7 +212,7 @@ class Test_REST_Controller extends TestCase {
 		$request = new WP_REST_Request( 'GET', '/jetpack/v4/search' );
 		$request->set_header( 'content-type', 'application/json' );
 		$response = $this->server->dispatch( $request );
-
+		// Missing token because the site is not connected.
 		$this->assertEquals( 500, $response->get_status() );
 		$this->assertEquals( 'missing_token', $response->get_data()['code'] );
 	}
