@@ -22,7 +22,6 @@ import { MediaUploadCheck, store as blockEditorStore } from '@wordpress/block-ed
 import { upload } from '@wordpress/icons';
 import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
-import { getFilename } from '@wordpress/url';
 
 const DEFAULT_KIND = 'subtitles';
 
@@ -188,9 +187,9 @@ function TrackList( { tracks, onChange, guid } ) {
 function SingleTrackEditor( { track, onChange, onClose, onCancel, guid } ) {
 	const [ errorMessage, setErrorMessage ] = useState();
 	const [ isSavingTrack = false, setIsSavingTrack ] = useState();
-	const { src = '', label = '', srcLang = '', kind = DEFAULT_KIND } = track;
+	const { label = '', srcLang = '', kind = DEFAULT_KIND } = track;
 
-	const fileName = track.tmpFile ? track.tmpFile.name : getFilename( src ) || '';
+	const fileName = track.tmpFile ? track.tmpFile.name : '';
 
 	const mediaUpload = useSelect( select => {
 		return select( blockEditorStore ).getSettings().mediaUpload;
