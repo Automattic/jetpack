@@ -118,8 +118,9 @@ class Test_REST_Controller extends TestCase {
 		$request = new WP_REST_Request( 'GET', '/jetpack/v4/search/plan' );
 		$request->set_header( 'content-type', 'application/json' );
 		$response = $this->server->dispatch( $request );
+		// TODO
 		// The request is not actually successfully forwarded to WPCOM as the blog is not properly connected.
-		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( 500, $response->get_status() );
 	}
 
 	/**
@@ -133,7 +134,7 @@ class Test_REST_Controller extends TestCase {
 		$request->set_body(
 			wp_json_encode(
 				array(
-					'module_status'          => true,
+					'module_active'          => true,
 					'instant_search_enabled' => true,
 				)
 			)
@@ -149,7 +150,7 @@ class Test_REST_Controller extends TestCase {
 	public function test_update_search_settings_success() {
 		wp_set_current_user( $this->admin_id );
 		$new_settings = array(
-			'module_status'          => true,
+			'module_active'          => true,
 			'instant_search_enabled' => true,
 		);
 
@@ -159,7 +160,7 @@ class Test_REST_Controller extends TestCase {
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertEquals( $new_settings, $response->get_data() );
-		$this->assertArrayHasKey( 'module_status', $response->get_data() );
+		$this->assertArrayHasKey( 'module_active', $response->get_data() );
 		$this->assertArrayHasKey( 'instant_search_enabled', $response->get_data() );
 	}
 
@@ -186,7 +187,7 @@ class Test_REST_Controller extends TestCase {
 		$request->set_header( 'content-type', 'application/json' );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status() );
-		$this->assertArrayHasKey( 'module_status', $response->get_data() );
+		$this->assertArrayHasKey( 'module_active', $response->get_data() );
 		$this->assertArrayHasKey( 'instant_search_enabled', $response->get_data() );
 	}
 
