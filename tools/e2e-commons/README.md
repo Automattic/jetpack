@@ -111,7 +111,11 @@ touch config/playwright.config.js
 echo "module.exports = require( 'jetpack-e2e-commons/config/playwright.config.default' );" >> config/playwright.config.js
 ```
 
-## Use the local Docker environment
+## Run the tests
+
+Now you can run the test in2 different ways: against a local site, in a Docker environment, or against a remote site, that you preconfigured.
+
+## 1. Use the local Docker environment
 
 ### 1.1. Build Jetpack
 
@@ -210,5 +214,21 @@ Allure results are generated in the allure-results folder. You can use these res
 2. Generate and open the report using Allure's builtin webserver
 
 ```shell
+# Run this in the path where `allure-results` folder is
 allure serve
+```
+
+## Update the result path
+
+All test output (logs, screenshots, video files) is configured to be written in `output` folder, so it's recommended to have the allure results in the same place, especially if in CI you're using the [Jetpack e2e reports tools](https://github.com/Automattic/jetpack-e2e-reports/), which expects the allure results to be inside `output/allure-results` when generating the report.
+
+Update your jest.config.js file to configure the result path: 
+
+```js
+module.exports = {    
+    [...]
+    testEnvironmentOptions: {
+        resultsDir: 'output/allure-results',
+    }
+};
 ```
