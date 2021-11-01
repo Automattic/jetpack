@@ -111,7 +111,7 @@ echo "module.exports = require( 'jetpack-e2e-commons/config/playwright.config.de
 
 ## Run the tests
 
-Now you can run the test in2 different ways: against a local site, in a Docker environment, or against a remote site, that you preconfigured.
+Now you can run the test in two different ways: against a local site, in a Docker environment; or against a remote site, that you preconfigured.
 
 ## 1. Use the local Docker environment
 
