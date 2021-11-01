@@ -156,7 +156,7 @@ NODE_CONFIG_DIR='./config' pnpm jest
 
 ### 2.1. Add the test site details in the config file
 
-Edit the encrypted config file and add an entry in the `testSites` object with the details of your test site
+Edit the decrypted config file to add an entry in the `testSites` object with the details of your test site
 
 ```js
 mySite: {
