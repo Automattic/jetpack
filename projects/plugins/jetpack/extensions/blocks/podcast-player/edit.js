@@ -344,7 +344,7 @@ const PodcastPlayerEdit = ( {
 							max={ DEFAULT_MAX_ITEMS }
 							required
 							disabled={ !! selectedGuid }
-							help={ __( 'You can change number of items ranging from 1 to 100', 'jetpack' ) }
+							help={ __( 'You can change number of items ranging from 1 to 10', 'jetpack' ) }
 						/>
 					) }
 					{ ComboboxControl && (
