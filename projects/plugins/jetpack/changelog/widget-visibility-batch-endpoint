@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Allow /wp/v2/sites/1234/batch endpoint to process widget updates
