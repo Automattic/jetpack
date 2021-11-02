@@ -59,8 +59,9 @@ class Initial_State {
 			return $return_data;
 		}
 
-		$return_data               += $idc_urls;
-		$return_data['redirectUri'] = static::CONNECTION_MANAGER_URI;
+		$return_data['wpcomHomeUrl'] = $idc_urls['wpcom_url'];
+		$return_data['currentUrl']   = $idc_urls['current_url'];
+		$return_data['redirectUri']  = static::CONNECTION_MANAGER_URI;
 
 		return $return_data;
 	}
