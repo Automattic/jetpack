@@ -70,8 +70,10 @@ jobs:
                 - '**.cjs'
                 - '**.js'
                 - '**.jsx'
+                - '**.mjs'
                 - '**.ts'
                 - '**.svelte'
+                - '**.tsx'
             excludelist:
               # If any PHP or JS file changed or was deleted, we need to check the excludelist.
               - modified|deleted:
