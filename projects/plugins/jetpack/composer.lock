@@ -1311,10 +1311,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "8b3cf6895223e44cb728fc1c89fd5b26b390b1ea"
+                "reference": "263ad65acd9679854d63fd7fc8601da8f1774f7f"
             },
             "require": {
-                "automattic/jetpack-connection": "1.30.x-dev"
+                "automattic/jetpack-connection": "^1.30"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
