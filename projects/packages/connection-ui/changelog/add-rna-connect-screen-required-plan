@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Use ConnectScreenRequiredPlan instead of ConnectScreen.
