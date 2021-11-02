@@ -11,6 +11,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
+import { getSiteAdminUrl } from 'state/initial-state';
 import {
 	getDetachedLicensesCount,
 	getActivationNoticeDismissInfo,
@@ -28,8 +29,6 @@ import SimpleNotice from 'components/notice';
  * @returns {React.Component} The `UserLicenseActivationNotice` component.
  */
 const UserLicenseActivationNotice = props => {
-	// TODO: Update this link to point to the user-license activation route.
-	const USER_LICENSE_ACTIVATION_ROUTE = '/wp-admin/admin.php?page=jetpack#/my-plan';
 	const DAY_IN_MILLISECONDS = 24 * 3600 * 1000;
 	const MAX_DAYS_DISMISSED = 14;
 
@@ -37,12 +36,16 @@ const UserLicenseActivationNotice = props => {
 		detachedLicensesCount,
 		activationNoticeDismissInfo,
 		updateLicensingActivationNoticeDismiss,
+		siteAdminUrl,
 	} = props;
 
 	const {
 		last_detached_count: lastDetachedCount,
 		last_dismissed_time: lastDismissedDateTime,
 	} = activationNoticeDismissInfo;
+
+	// TODO: Update this link to point to the user-license activation route.
+	const USER_LICENSE_ACTIVATION_ROUTE = `${ siteAdminUrl }admin.php?page=jetpack#/my-plan`;
 
 	const userHasDetachedLicenses = !! detachedLicensesCount;
 	const userHasNewDetachedLicenses = detachedLicensesCount > ( lastDetachedCount || 0 );
@@ -84,9 +87,10 @@ const UserLicenseActivationNotice = props => {
 UserLicenseActivationNotice.propTypes = {
 	detachedLicensesCount: PropTypes.number.isRequired,
 	activationNoticeDismissInfo: PropTypes.shape( {
-		last_detached_count: PropTypes.number,
-		last_dismiss_time: PropTypes.string,
+		last_detached_count: PropTypes.number.isRequired,
+		last_dismiss_time: PropTypes.string.isRequired,
 	} ),
+	siteAdminUrl: PropTypes.string.isRequired,
 };
 
 export default connect(
@@ -94,6 +98,7 @@ export default connect(
 		return {
 			detachedLicensesCount: getDetachedLicensesCount( state ),
 			activationNoticeDismissInfo: getActivationNoticeDismissInfo( state ),
+			siteAdminUrl: getSiteAdminUrl( state ),
 		};
 	},
 	dispatch => {
