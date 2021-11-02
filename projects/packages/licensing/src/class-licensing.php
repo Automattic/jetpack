@@ -147,7 +147,7 @@ class Licensing {
 	}
 
 	/**
-	 * Make an authenticated WP.com XMLRPC multicall request to attach the provided license key.
+	 * Make an authenticated WP.com XMLRPC request to attach the provided license key.
 	 *
 	 * @param string $license License key to attach.
 	 * @return Jetpack_IXR_Client
