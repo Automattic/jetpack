@@ -290,8 +290,8 @@ function SingleTrackEditor( { track, onChange, onClose, onCancel, guid } ) {
 						<Spinner />
 					) : (
 						<Button
+							isSecondary
 							disabled={ ! track.tmpFile }
-							variant="secondary"
 							onClick={ () => {
 								if ( label === '' ) {
 									track.label = __( 'English', 'jetpack' );
