@@ -508,7 +508,6 @@ class Test_Licensing extends BaseTestCase {
 
 		$result = $licensing->attach_license( $license );
 
-
 		$this->assertSame( 1, $result );
 	}
 }
