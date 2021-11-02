@@ -125,7 +125,7 @@ class REST_Controller {
 		$instant_search_enabled = isset( $request_body['instant_search_enabled'] ) ? $request_body['instant_search_enabled'] : null;
 
 		if ( ( true === $instant_search_enabled && false === $module_active ) || ( is_null( $module_active ) && is_null( $instant_search_enabled ) ) ) {
-			return new WP_Error( 'rest_cookie_invalid_arguments', 'The arguments passed in are invalid.' );
+			return new WP_Error( 'rest_invalid_arguments', 'The arguments passed in are invalid.', array( 'status' => 400 ) );
 		}
 
 		if ( false === $module_active ) {
@@ -201,7 +201,7 @@ class REST_Controller {
 		return new WP_Error(
 			'remote-error-' . $body->error,
 			$body->message,
-			$status_code
+			array( 'status' => $status_code )
 		);
 	}
 

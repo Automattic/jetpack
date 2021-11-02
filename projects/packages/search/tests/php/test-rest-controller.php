@@ -147,7 +147,7 @@ class Test_REST_Controller extends TestCase {
 	/**
 	 * Testing the `POST /jetpack/v4/search/settings` endpoint with editor user.
 	 */
-	public function test_update_search_settings_success() {
+	public function test_update_search_settings_success_both_enable() {
 		wp_set_current_user( $this->admin_id );
 		$new_settings = array(
 			'module_active'          => true,
@@ -160,8 +160,83 @@ class Test_REST_Controller extends TestCase {
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertEquals( $new_settings, $response->get_data() );
-		$this->assertArrayHasKey( 'module_active', $response->get_data() );
-		$this->assertArrayHasKey( 'instant_search_enabled', $response->get_data() );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/search/settings` endpoint with editor user.
+	 */
+	public function test_update_search_settings_invalid_request_1() {
+		wp_set_current_user( $this->admin_id );
+		$new_settings = array(
+			'module_active'          => false,
+			'instant_search_enabled' => true,
+		);
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( $new_settings ) );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 400, $response->get_status() );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/search/settings` endpoint with editor user.
+	 */
+	public function test_update_search_settings_success_both_disable() {
+		wp_set_current_user( $this->admin_id );
+		$new_settings = array(
+			'module_active'          => false,
+			'instant_search_enabled' => false,
+		);
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( $new_settings ) );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( $new_settings, $response->get_data() );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/search/settings` endpoint with editor user.
+	 */
+	public function test_update_search_settings_success_disable_module_only() {
+		wp_set_current_user( $this->admin_id );
+		$new_settings = array(
+			'module_active' => false,
+		);
+		$expected     = array(
+			'module_active'          => false,
+			'instant_search_enabled' => false,
+		);
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( $new_settings ) );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( $expected, $response->get_data() );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/search/settings` endpoint with editor user.
+	 */
+	public function test_update_search_settings_success_disable_instant_only() {
+		wp_set_current_user( $this->admin_id );
+		$new_settings = array(
+			'instant_search_enabled' => true,
+		);
+		$expected     = array(
+			'module_active'          => true,
+			'instant_search_enabled' => true,
+		);
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( $new_settings ) );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( $expected, $response->get_data() );
 	}
 
 	/**
