@@ -733,11 +733,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => __CLASS__ . '::get_user_license_counts',
-					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+					'permission_callback' => __CLASS__ . '::unlink_user_permission_callback',
 				),
 			)
 		);
 
+		/**
+		 * Update user-licensing activation notice dismiss info.
+		 */
 		register_rest_route(
 			'jetpack/v4',
 			'licensing/user/activation-notice-dismiss',
@@ -745,12 +748,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => __CLASS__ . '::get_licensing_activation_notice_dismiss',
-					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+					'permission_callback' => __CLASS__ . '::unlink_user_permission_callback',
 				),
 				array(
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => __CLASS__ . '::update_licensing_activation_notice_dismiss',
-					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+					'permission_callback' => __CLASS__ . '::unlink_user_permission_callback',
 					'args'                => array(
 						'last_detached_count' => array(
 							'required'          => true,
