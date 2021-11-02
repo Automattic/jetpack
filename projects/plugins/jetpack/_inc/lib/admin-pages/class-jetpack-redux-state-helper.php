@@ -379,7 +379,7 @@ class Jetpack_Redux_State_Helper {
 			'last_dismissed_time' => null,
 		);
 
-		return get_option( 'jetpack_licensing_activation_notice_dismiss', $default );
+		return Jetpack_Options::get_option( 'licensing_activation_notice_dismiss', $default );
 	}
 }
 

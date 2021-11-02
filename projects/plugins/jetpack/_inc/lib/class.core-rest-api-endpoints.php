@@ -1114,8 +1114,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'last_dismissed_time' => $last_dismissed_time,
 		);
 
-		update_option( 'jetpack_licensing_activation_notice_dismiss', $notice_data );
-		return rest_ensure_response( get_option( 'jetpack_licensing_activation_notice_dismiss', $default ) );
+		Jetpack_Options::update_option( 'licensing_activation_notice_dismiss', $notice_data, true );
+		return rest_ensure_response( Jetpack_Options::get_option( 'licensing_activation_notice_dismiss', $default ) );
 	}
 
 	public static function submit_survey( $request ) {
