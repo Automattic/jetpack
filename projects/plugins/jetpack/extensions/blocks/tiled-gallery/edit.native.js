@@ -106,6 +106,7 @@ const TiledGalleryEdit = props => {
 				url: image.url,
 				caption: image.caption,
 				alt: image.alt,
+				className: styles[ 'is-style-squared' ],
 			} );
 		} );
 
