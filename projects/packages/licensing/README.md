@@ -4,7 +4,8 @@ A Licensing Package that attaches Jetpack licenses.
 
 ### Usage
 
-Initialize to automatically attach licenses when:
+#### Initialize to automatically attach licenses when:
+
 - The `jetpack_licenses` option is updated.
 - Jetpack is connected.
 
@@ -14,7 +15,15 @@ use Automattic\Jetpack\Licensing;
 Licensing::instance()->initialize();
 ```
 
-Attach an array of license keys.
+#### Attach a single license key.
+
+```php
+use Automattic\Jetpack\Licensing;
+
+$product_id  = Licensing::instance()->attach_license( 'license_key' );
+```
+
+#### Attach an array of license keys.
 
 ```php
 use Automattic\Jetpack\Licensing;

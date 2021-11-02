@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Jetpack_IXR_Client;
 use Jetpack_IXR_ClientMulticall;
 use stdClass;
 use WorDBless\BaseTestCase;
@@ -382,5 +383,132 @@ class Test_Licensing extends BaseTestCase {
 			->method( 'attach_stored_licenses' );
 
 		$licensing->attach_stored_licenses_on_connection();
+	}
+
+	/**
+	 * Test attach_license() without an active Jetpack connection.
+	 */
+	public function test_attach_license__without_connection() {
+		$connection = $this->createMock( Connection_Manager::class );
+
+		$connection->method( 'has_connected_owner' )->willReturn( false );
+
+		$licensing = $this->createPartialMock(
+			Licensing::class,
+			array( 'connection' )
+		);
+
+		$licensing->method( 'connection' )->willReturn( $connection );
+
+		$result = $licensing->attach_license( '' );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'not_connected', $result->get_error_code() );
+	}
+
+	/**
+	 * Test attach_license() with request failure.
+	 */
+	public function test_attach_license__request_failure() {
+		$license = 'foo';
+
+		$connection = $this->createMock( Connection_Manager::class );
+
+		$connection->method( 'has_connected_owner' )->willReturn( true );
+
+		$licensing = $this->createPartialMock(
+			Licensing::class,
+			array( 'connection', 'attach_license_request' )
+		);
+
+		$licensing->expects( $this->once() )
+			->method( 'connection' )
+			->willReturn( $connection );
+
+		$ixr_client = $this->createMock( Jetpack_IXR_Client::class );
+		$ixr_client->method( 'isError' )->willReturn( true );
+		$ixr_client->method( 'getErrorCode' )->willReturn( 1 );
+		$ixr_client->method( 'getErrorMessage' )->willReturn( 'Expected error message' );
+
+		$licensing->expects( $this->once() )
+			->method( 'attach_license_request' )
+			->with( $license )
+			->willReturn( $ixr_client );
+
+		$result = $licensing->attach_license( $license );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( array( 'request_failed', 1 ), $result->get_error_codes() );
+		$this->assertSame( 'Expected error message', $result->get_error_messages()[1] );
+	}
+
+	/**
+	 * Test attach_license() without correct response failure.
+	 */
+	public function test_attach_license__incorrect_response_failure() {
+		$license = 'foo';
+
+		$connection = $this->createMock( Connection_Manager::class );
+
+		$connection->method( 'has_connected_owner' )->willReturn( true );
+
+		$licensing = $this->createPartialMock(
+			Licensing::class,
+			array( 'connection', 'attach_license_request' )
+		);
+
+		$licensing->expects( $this->once() )
+			->method( 'connection' )
+			->willReturn( $connection );
+
+		$ixr_client = $this->createMock( Jetpack_IXR_Client::class );
+		$ixr_client->method( 'isError' )->willReturn( false );
+		$ixr_client->method( 'query' )->willReturn( null );
+		$ixr_client->method( 'getResponse' )->willReturn( array() );
+
+		$licensing->expects( $this->once() )
+			->method( 'attach_license_request' )
+			->with( $license )
+			->willReturn( $ixr_client );
+
+		$result = $licensing->attach_license( $license );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( array( 'no_result' ), $result->get_error_codes() );
+	}
+
+	/**
+	 * Test attach_license() with correct response.
+	 */
+	public function test_attach_license__returns_product_id_on_success() {
+		$license = 'foo';
+
+		$connection = $this->createMock( Connection_Manager::class );
+
+		$connection->method( 'has_connected_owner' )->willReturn( true );
+
+		$licensing = $this->createPartialMock(
+			Licensing::class,
+			array( 'connection', 'attach_license_request' )
+		);
+
+		$licensing->expects( $this->once() )
+			->method( 'connection' )
+			->willReturn( $connection );
+
+		$ixr_client = $this->createMock( Jetpack_IXR_Client::class );
+		$ixr_client->method( 'isError' )->willReturn( false );
+		$ixr_client->method( 'query' )->willReturn( null );
+		$ixr_client->method( 'getResponse' )->willReturn( array( 'activatedProductId' => 1 ) );
+
+		$licensing->expects( $this->once() )
+			->method( 'attach_license_request' )
+			->with( $license )
+			->willReturn( $ixr_client );
+
+		$result = $licensing->attach_license( $license );
+
+
+		$this->assertSame( 1, $result );
 	}
 }
