@@ -4,69 +4,76 @@
 
 Automated end-to-end acceptance tests for the Jetpack plugin.
 
+These tests are using the [e2e commons package](../../../../../tools/e2e-commons). Please refer to [their docs](../../../../../tools/e2e-commons/README.md) for more detailed information.
+
 ## Table of contents
 
 - [Pre-requisites](#pre-requisites)
 - [Environment setup](#environment-setup)
 	- [Test Configuration](#test-configuration)
-	- [WP Site Configuration](#wp-site-configuration)
+	- [Docker environment](#docker-environment)
 	- [Tunnel](#local-tunnel)
-	- [Environment Variables](#environment-variables)
 - [Running tests](#running-tests)
-- [Writing tests](#writing-tests)
 - [Tests Architecture](#tests-architecture)
 - [CI configuration](#ci-configuration)
 - [Test reports](#test-reports)
 
 ## Pre-requisites
 
-- This readme assumes that `node`, `pnpm` and `docker` are already installed on your machine.
-- Make sure you built Jetpack first. `pnpm install && pnpx jetpack build` in the monorepo root directory should walk you through it. You can also refer to the monorepo documentation in how to build Jetpack.
+- Make sure you built Jetpack first `pnpm install && pnpx jetpack build` in the monorepo root directory should walk you through it. You can also refer to the monorepo documentation in how to build Jetpack.
+
+```shell
+# run in the monorepo root
+pnpm install
+pnpx jetpack build plugins/jetpack
+```
 
 ## Environment setup
 
-### Test Configuration
+### Test configuration
 
-Jetpack E2E tests relies on encrypted configuration file, which is included in this repo as [`encrypted.enc`](./config/encrypted.enc). To be able to run tests - that file should be decrypted first.
+Jetpack E2E tests relies on 2 encrypted configuration files, one included in this repo as [`config/encrypted.enc`](./config/encrypted.enc), which extends on a default one from e2e-commons. To be able to successfully create a local environment and run the tests both files need to be decrypted first.
 
-To decrypt the config file (a8c only):
-
+To decrypt the config files (a8c only):
 - Find a decryption key. Search secret store for "E2E Jetpack CONFIG_KEY"
-- Run `CONFIG_KEY=YOUR_KEY pnpm test-decrypt-config`. This command should create a new file [`local-test.js`](./config/local-test.js)
+- Run `CONFIG_KEY=YOUR_KEY pnpm test-decrypt-all-config`. This command should create a new file [`config/local-test.js`](./config/local-test.js)
 
-### WP Site Configuration
+### Docker environment
 
-Test environment is a bit complex (It's Jetpack, you know ;)). Tests expect to have WP installation with installed Jetpack accessible via a local tunnel. Required environment could easily be created using Jetpack's Docker infrastructure.
+Tests expect to have a WordPress installation with Jetpack installed, accessible via a local tunnel. 
 
-To set up tests environment:
+To start the environment:
 
-1. Make sure that Docker is installed locally
-2. Run `pnpm env-start` to start a container. It will start one WordPress container and a DB container.
+```shell
+pnpm env-start
+```
 
-### Local tunnel
+This will create the Docker environment and configure the WordPress installation. It will start one WordPress container and one database container. The WordPress installation is available at `localhost:8889`.
+
+#### Local tunnel
 
 To bypass the offline mode you will need your site to have a publicly accessible url that will proxy all requests to your locally running WordPress installation.
-These tests use `localtunnel` library to expose localhost:8889 via a public url.
+These tests use `localtunnel` library to expose `localhost:8889` via a public url.
 
-To start a tunnel:
+To start a tunnel
 
 ```
 pnpm tunnel-on
 ```
 
-To stop the tunnel:
+To stop the tunnel
 
 ```
 pnpm tunnel-off
 ```
 
-The tunnel url will be stored in a file so that it can be read by the tests and then reused by the tunnel script. See config files for details. If you want a different url, simply delete the file or update its content.
+The tunnel url will be stored in a file so that it can be read by the tests and then reused by the tunnel script. See config files for details. 
 
-### Environment variables
+If you want a different url, use the `reset` command.
 
-- `HEADLESS` - default `true`. Whether to run tests in a headless mode or not.
-- `E2E_DEBUG` - default `false`. Will log debug information into console. Also forces browser headfull mode, any value for the above `HEADLESS` var will be ignored.
-- `PAUSE_ON_FAILURE` - default `false`. Combined with `E2E_DEBUG=true` will pause the test execution when an error occurs and will open Playwright Inspector.
+```
+pnpm tunnel-reset
+```
 
 ## Running tests
 
@@ -109,51 +116,37 @@ pnpm test-e2e -- --testPathIgnorePatterns=updater
 
 # Filter by groups - run all tests in 'post-connection' group
 pnpm test-e2e -- --group=post-connection
-
 ```
 
-## Writing tests
+### Environment variables
 
-We use the following tools to write e2e tests:
-
-- [Playwright](https://github.com/microsoft/playwright) – a Node library which provides a high-level API to control the browser over the DevTools Protocol
-- [jest](https://jestjs.io/) – The test library, with `jest-circus` as test runner.
+- `HEADLESS` - default `true`. Whether to run tests in a headless mode or not.
+- `E2E_DEBUG` - default `false`. Will log debug information into console. Also forces browser headfull mode, any value for the above `HEADLESS` var will be ignored.
+- `PAUSE_ON_FAILURE` - default `false`. Combined with `E2E_DEBUG=true` will pause the test execution when an error occurs and will open Playwright Inspector.
 
 ## Tests Architecture
 
+### Specs
+
 Tests are kept in `/specs` folder. Every file represents a test suite, which is designed around specific feature under test.
-Every test suite is responsible for setting up the environment configuration for the suite. Some of the specs require an active Connection, some do not. Prerequisites APIs provide an abstraction to set up the site the way is needed.
-Its logic can be found in the [`jetpack-connect.js`](lib/flows/jetpack-connect.js).
+Every test suite is responsible for setting up the environment configuration for the suite. [e2e-commons' prerequisites APIs](../../../../../tools/e2e-commons/env/prerequisites.js) provide an abstraction to set up the site the way is needed.
+
+Some specs require an active Jetpack connection
+Its logic can be found in the [`jetpack-connect.js`](../../../../../tools/e2e-commons/flows/jetpack-connect.js).
+
+### Pages
 
 The tests are using the `PageObject` pattern, which is a way to separate test logic from implementation. Page objects are basically abstractions around specific pages and page components.
-There are two base classes that should be extended by page objects: [`WpPage`](lib/pages/wp-page.js) and [`PageActions`](lib/pages/page-actions.js) class.
+Most common pages are already modeled in [e2e-commons' pages module](../../../../../tools/e2e-commons/pages).
 
-- `WpPage` implements common page methods, like `init` - static method that initializes a page object and checks the displayed page is the expected one and `visit` - method that navigates to a page URL and then performs all the `init` checks.
-- `PageActions` takes care of all the common lower level page actions, like click on elements, filling forms, etc. Basically all interactions with a browser page should go through this class's methods.
-
-`WpPage` extends `PageActions`.
-`WpPage` should be extended by all page objects that represent full pages. Rule of thumb: if it has a URL it should extend WpPage. Otherwise, it's probably representing a page component (like a block) and should directly extend `PageActions`.
-
-Since most of the Playwright functionality is `async`, and JavaScript constructors are not - we should initialize pages with `init()` static method: `await BlockEditorPage.init( page )` to make sure we would wait for `expectedSelectors` checks.
-Make sure you pass these selectors in a page constructor to the `super` constructor by using the `expectedSelectors` argument. This expects an array of strings, so you can pass multiple selectors in case you want to check more elements on the page.
-
-```js
-constructor( page ) {
-	super( page, { expectedSelectors: [ '.selector_1', '#selector_2' ] } );
-}
-```
+If you need to add a new page, please add it in the `pages` folder.
+Each page should extend e2e-commons's [`WpPage`](../../../../../tools/e2e-commons/pages/wp-page.js) or [`PageActions`](../../../../../tools/e2e-commons/pages/page-actions.js).
+`WpPage` should be extended by all page objects that represent full pages. Rule of thumb: if it has a URL it should extend `WpPage`. Otherwise, it's probably representing a page component (like a block) and should directly extend `PageActions`.
 
 ## CI Configuration
 
-Both local runs and CI sharing the same Docker based configuration
-
-## Functionality plugins
-
-Tests rely on functionality plugins that provide some additional functionality, provide shortcuts, etc.
-
-### e2e-plan-data-interceptor.php
-
-The purpose of this plugin is to provide a way to `mock` Jetpack plan, for cases when we test functionality that does not directly use paid services. Great example of this purpose is a paid Gutenberg blocks.
+Both local runs and CI are sharing the same Docker based configuration.
+See [workflows prefixed with e2e](../../../../../.github/workflows) for CI configuration.
 
 ## Test reports
 
