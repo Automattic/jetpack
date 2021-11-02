@@ -8,6 +8,13 @@ const path = require( 'path' );
  */
 const postcssPlugins = require( '@wordpress/postcss-plugins-preset' );
 
+const includePaths = [
+	path.resolve( __dirname ),
+	path.join( __dirname, '../../base-styles/stories' ),
+	path.join( __dirname, '../../components/components' ),
+	path.join( __dirname, '../../connection/components' ),
+];
+
 module.exports = ( { config } ) => {
 	config.module.rules.push(
 		{
@@ -31,11 +38,7 @@ module.exports = ( { config } ) => {
 				},
 				'sass-loader',
 			],
-			include: [
-				path.resolve( __dirname ),
-				path.join( __dirname, '../../components/components' ),
-				path.join( __dirname, '../../base-styles/stories' ),
-			],
+			include: includePaths,
 		}
 	);
 

@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+E2E tests: update pnpm commands to use new tunnel wrapper script
