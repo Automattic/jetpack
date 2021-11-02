@@ -34,8 +34,11 @@ const Spinner = props => {
 };
 
 Spinner.propTypes = {
+	/** The spinner color. */
 	color: PropTypes.string,
+	/** CSS class names. */
 	className: PropTypes.string,
+	/** The spinner size. */
 	size: PropTypes.number,
 };
 

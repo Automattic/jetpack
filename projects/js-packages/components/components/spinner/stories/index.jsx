@@ -10,7 +10,7 @@ import React from 'react';
 import Spinner from '../index.jsx';
 
 export default {
-	title: 'Playground/Jetpack Spinner',
+	title: 'Playground/Spinner',
 	component: Spinner,
 };
 
