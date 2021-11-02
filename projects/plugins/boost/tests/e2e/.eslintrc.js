@@ -1,4 +1,4 @@
 // .eslintrc.js
 module.exports = {
-	extends: [ './node_modules/jetpack-e2e-commons/.eslintrc.js' ],
+	extends: [ require.resolve( 'jetpack-e2e-commons/.eslintrc.js' ) ],
 };
