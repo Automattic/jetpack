@@ -303,8 +303,8 @@ window.wp = window.wp || {};
 			var att = wp.media.model.Attachment.get( response.data.id, file.attachment );
 
 			/* Once the new "empty" attachment is added to the collection above, check if it exists on the server, then set the new data.
-			 * If it happens to not be there (xmlrpc delayed or not working), then the emtpy media item will still be there, so no need
-			 * to do any special error handling here on the sync.
+			 * If it happens to not exist on the server yet (xmlrpc delayed or not working), then the empty media item will still be on the page,
+			 *  so no need to do any special error handling here on the sync.
 			 *
 			 * This is only necessary if `vp.handleRestApiResponse` was used above, as it is what returns the "empty" media item.
 			 */
