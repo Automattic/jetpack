@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 10.2
+Stable tag: 10.3
 Requires at least: 5.7
 Requires PHP: 5.6
 Tested up to: 5.8
@@ -242,24 +242,13 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.3-2110.1 - 2021-10-12
+### 10.4-a.1 - 2021-11-02
 #### Enhancements
-- Instant Search: always show the save button on the mobile view of the Search Settings dashboard.
-- Secure Sign On: add new filter allowing one to customize the explanation displayed next to the SSO button.
-- VideoPress: improve the display of upload errors in the Media Library and the block editor.
-
-#### Improved compatibility
-- Jetpack Backup: improve the display of the different plugin menus when using both Jetpack and Jetpack Backup.
-- Social Icons Widget: deprecate widget and offer the option to transform into a Social Links block.
+- Publicize: update the interface and include a profile picture for each service.
 
 #### Bug fixes
-- Calendly block: fix the preview in the block inserter.
-- Eventbrite Block: improve the event URL detection and avoid errors when using links without an event ID.
-- General: avoid PHP notices that may happen when installing the plugin.
-- Instant Search: fix the display of filters when there are no results to display for a query.
-- Instant Search: fix the preview of the infinite scroll option in the Search Settings dashboard.
-- Instant Search: reduce browser history noise as search is being typed in the form.
-- Publicize: refresh connections only when the post publishes.
+- Image CDN: ensure that Wikipedia URLs are not served via our image CDN.
+- Publicize: make the default publicize social media message blank.
 
 --------
 

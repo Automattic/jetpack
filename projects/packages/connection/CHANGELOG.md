@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.30.12] - 2021-11-02
+### Added
+- Client: add IDC query args to remote requests
+
+### Changed
+- Set `convertDeprecationsToExceptions` true in PHPUnit config.
+- Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
+
+## [1.30.11] - 2021-10-26
+### Changed
+- Change the error code returned when a remoteRegister XMLRPC call is executed to the more helpful "already_registered" when the blog is already registered
+- Updated package dependencies.
+
+## [1.30.10] - 2021-10-19
+### Deprecated
+- General: remove numerous long-deprecated functions.
+
+### Fixed
+- Fix permission check for authorization_url endpoint.
+
+## [1.30.9] - 2021-10-13
+### Changed
+- Updated package dependencies.
+
 ## [1.30.8] - 2021-10-12
 ### Added
 - Add a new action to the Client::remote_request method, jetpack_received_remote_request_response
@@ -435,6 +459,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[1.30.12]: https://github.com/Automattic/jetpack-connection/compare/v1.30.11...v1.30.12
+[1.30.11]: https://github.com/Automattic/jetpack-connection/compare/v1.30.10...v1.30.11
+[1.30.10]: https://github.com/Automattic/jetpack-connection/compare/v1.30.9...v1.30.10
+[1.30.9]: https://github.com/Automattic/jetpack-connection/compare/v1.30.8...v1.30.9
 [1.30.8]: https://github.com/Automattic/jetpack-connection/compare/v1.30.7...v1.30.8
 [1.30.7]: https://github.com/Automattic/jetpack-connection/compare/v1.30.6...v1.30.7
 [1.30.6]: https://github.com/Automattic/jetpack-connection/compare/v1.30.5...v1.30.6

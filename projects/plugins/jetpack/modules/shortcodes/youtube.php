@@ -441,38 +441,6 @@ function youtube_shortcode( $atts ) {
 add_shortcode( 'youtube', 'youtube_shortcode' );
 
 /**
- * Renders the [youtube] shortcode as an AMP component.
- *
- * @since 8.0.0
- * @deprecated Use youtube_id() instead.
- *
- * @param string $url The YouTube URL.
- *
- * @return string The AMP-compatible rendered shortcode.
- */
-function jetpack_amp_youtube_shortcode( $url ) {
-	_deprecated_function( __FUNCTION__, 'jetpack-9.1.0', 'youtube_id' );
-	$video_id = jetpack_get_youtube_id( $url );
-	if ( empty( $video_id ) ) {
-		return sprintf(
-			'<a href="%1$s" class="amp-wp-embed-fallback">%1$s</a>',
-			esc_url( $url )
-		);
-	}
-
-	$sanitized_url          = youtube_sanitize_url( $url );
-	$parsed_url             = wp_parse_url( $sanitized_url );
-	$args                   = jetpack_shortcode_youtube_args( $parsed_url );
-	list( $width, $height ) = jetpack_shortcode_youtube_dimensions( $args );
-	return sprintf(
-		'<amp-youtube data-videoid="%s" layout="responsive" width="%d" height="%d"></amp-youtube>',
-		esc_attr( $video_id ),
-		absint( $width ),
-		absint( $height )
-	);
-}
-
-/**
  * Gets the dimensions of the [youtube] shortcode.
  *
  * Calculates the width and height, taking $content_width into consideration.

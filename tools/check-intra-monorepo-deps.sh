@@ -6,6 +6,7 @@ cd $(dirname "${BASH_SOURCE[0]}")/..
 BASE=$PWD
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
+. "$BASE/tools/includes/alpha-tag.sh"
 
 # Print help and exit.
 function usage {
@@ -64,14 +65,18 @@ done
 shift "$(($OPTIND -1))"
 
 if ! $VERBOSE; then
+	. "$BASE/tools/includes/spin.sh"
 	function debug {
 		:
 	}
-elif [[ -n "$CI" ]]; then
-	function debug {
-		# Grey doesn't work well in GH's output.
-		blue "$@"
-	}
+else
+	. "$BASE/tools/includes/nospin.sh"
+	if [[ -n "$CI" ]]; then
+		function debug {
+			# Grey doesn't work well in GH's output.
+			blue "$@"
+		}
+	fi
 fi
 
 function get_packages {
@@ -131,7 +136,8 @@ if $UPDATE; then
 		else
 			"$CL" "${ARGS[@]}"
 			info "Updating version for $SLUG"
-			VER=$("$CL" version next --default-first-version --prerelease=alpha) || { error "$VER"; EXIT=1; cd "$OLDDIR"; return; }
+			local PRERELEASE=$(alpha_tag "$CL" composer.json 0)
+			local VER=$("$CL" version next --default-first-version --prerelease=$PRERELEASE) || { error "$VER"; EXIT=1; cd "$OLDDIR"; return; }
 			"$BASE/tools/project-version.sh" -v -u "$VER" "$SLUG"
 			get_packages
 		fi
@@ -142,6 +148,7 @@ fi
 EXIT=0
 ANYJS=false
 for SLUG in "${SLUGS[@]}"; do
+	spin
 	debug "Checking dependencies of $SLUG"
 	if [[ "$SLUG" == monorepo ]]; then
 		PACKAGES="$PACKAGES_DEV"
@@ -237,6 +244,7 @@ for SLUG in "${SLUGS[@]}"; do
 done
 
 if $ANYJS; then
+	spin
 	debug "Updating pnpm-lock.yaml"
 	if [[ -n "$CI" ]]; then
 		pnpm install --no-frozen-lockfile
@@ -244,6 +252,8 @@ if $ANYJS; then
 		pnpm install --silent
 	fi
 fi
+
+spinclear
 
 if ! $UPDATE && [[ "$EXIT" != "0" ]]; then
 	jetpackGreen 'You might use `tools/check-intra-monorepo-deps.sh -u` to fix these errors.'

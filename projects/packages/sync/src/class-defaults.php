@@ -712,6 +712,7 @@ class Defaults {
 		'_wp_attachment_metadata',
 		'_wp_page_template',
 		'_wp_trash_meta_comments_status',
+		'_wpas_feature_enabled',
 		'_wpas_mess',
 		'_wpas_is_tweetstorm',
 		'content_width',

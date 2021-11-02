@@ -53,12 +53,8 @@ export async function refreshConnectionTestResults() {
 					done: false,
 					enabled: true,
 					toggleable: true,
+					profile_picture: freshConnection.profile_picture,
 				};
-			}
-
-			// Populate the connection with extra fresh data.
-			if ( freshConnection.profile_picture ) {
-				connection.profile_picture = freshConnection.profile_picture;
 			}
 
 			connections.push( connection );
@@ -93,6 +89,18 @@ export async function toggleConnectionById( { connectionId } ) {
 
 	// Update post metadata.
 	return dispatch( editorStore ).editPost( { jetpack_publicize_connections: updatedConnections } );
+}
+
+/**
+ * Effect handler to toggle and store Post Share enable feature state.
+ *
+ * @returns {object} Updateting jetpack_publicize_feature_enabled post meta action.
+ */
+export async function togglePublicizeFeature() {
+	const isPublicizeFeatureEnabled = select( 'jetpack/publicize' ).getFeatureEnableState();
+	return dispatch( editorStore ).editPost( {
+		meta: { jetpack_publicize_feature_enabled: ! isPublicizeFeatureEnabled },
+	} );
 }
 
 /**
@@ -186,6 +194,7 @@ export async function getTwitterCards( action ) {
 export default {
 	REFRESH_CONNECTION_TEST_RESULTS: refreshConnectionTestResults,
 	TOGGLE_CONNECTION_BY_ID: toggleConnectionById,
+	TOGGLE_PUBLICIZE_FEATURE: togglePublicizeFeature,
 	REFRESH_TWEETS: refreshTweets,
 	GET_TWITTER_CARDS: getTwitterCards,
 };

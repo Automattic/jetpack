@@ -12,6 +12,7 @@ import {
 	ToggleControl,
 	ToolbarButton,
 	ToolbarGroup,
+	Tooltip,
 } from '@wordpress/components';
 import { compose, createHigherOrderComponent, withInstanceId } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
@@ -87,9 +88,13 @@ const VideoPressEdit = CoreVideoEdit =>
 		setRating = async () => {
 			const id = get( this.props, 'attributes.id' );
 			const media = await this.requestMedia( id );
-			const rating = get( media, 'jetpack_videopress.rating' );
+			let rating = get( media, 'jetpack_videopress.rating' );
 
 			if ( rating ) {
+				// X-18 was previously supported but is now removed to better comply with our TOS.
+				if ( 'X-18' === rating ) {
+					rating = 'R-17';
+				}
 				this.setState( { rating } );
 			}
 		};
@@ -220,6 +225,24 @@ const VideoPressEdit = CoreVideoEdit =>
 				: null;
 		};
 
+		getPreloadHelp() {
+			const { attributes } = this.props;
+			return 'auto' === attributes.preload
+				? __(
+						'Note: Automatically downloading videos may cause issues if there are many videos displayed on the same page.',
+						'jetpack'
+				  )
+				: null;
+		}
+
+		renderControlLabelWithTooltip( label, tooltipText ) {
+			return (
+				<Tooltip text={ tooltipText } position="top">
+					<span>{ label }</span>
+				</Tooltip>
+			);
+		}
+
 		onChangeRating = rating => {
 			const { id } = this.props.attributes;
 			const originalRating = this.state.rating;
@@ -228,7 +251,12 @@ const VideoPressEdit = CoreVideoEdit =>
 				return;
 			}
 
-			if ( -1 === indexOf( [ 'G', 'PG-13', 'R-17', 'X-18' ], rating ) ) {
+			// X-18 was previously supported but is now removed to better comply with our TOS.
+			if ( 'X-18' === rating ) {
+				rating = 'R-17';
+			}
+
+			if ( -1 === indexOf( [ 'G', 'PG-13', 'R-17' ], rating ) ) {
 				return;
 			}
 
@@ -284,13 +312,21 @@ const VideoPressEdit = CoreVideoEdit =>
 					<InspectorControls>
 						<PanelBody title={ __( 'Video Settings', 'jetpack' ) }>
 							<ToggleControl
-								label={ __( 'Autoplay', 'jetpack' ) }
+								label={ this.renderControlLabelWithTooltip(
+									__( 'Autoplay', 'jetpack' ),
+									/* translators: Tooltip describing the "autoplay" option for the VideoPress player */
+									__( 'Start playing the video as soon as the page loads', 'jetpack' )
+								) }
 								onChange={ this.toggleAttribute( 'autoplay' ) }
 								checked={ autoplay }
 								help={ this.getAutoplayHelp }
 							/>
 							<ToggleControl
-								label={ __( 'Loop', 'jetpack' ) }
+								label={ this.renderControlLabelWithTooltip(
+									__( 'Loop', 'jetpack' ),
+									/* translators: Tooltip describing the "loop" option for the VideoPress player */
+									__( 'Restarts the video when it reaches the end', 'jetpack' )
+								) }
 								onChange={ this.toggleAttribute( 'loop' ) }
 								checked={ loop }
 							/>
@@ -300,17 +336,29 @@ const VideoPressEdit = CoreVideoEdit =>
 								checked={ muted }
 							/>
 							<ToggleControl
-								label={ __( 'Playback Controls', 'jetpack' ) }
+								label={ this.renderControlLabelWithTooltip(
+									__( 'Playback Controls', 'jetpack' ),
+									/* translators: Tooltip describing the "controls" option for the VideoPress player */
+									__( 'Display the video playback controls', 'jetpack' )
+								) }
 								onChange={ this.toggleAttribute( 'controls' ) }
 								checked={ controls }
 							/>
 							<ToggleControl
-								label={ __( 'Play Inline', 'jetpack' ) }
+								label={ this.renderControlLabelWithTooltip(
+									__( 'Play Inline', 'jetpack' ),
+									/* translators: Tooltip describing the "playsinline" option for the VideoPress player */
+									__( 'Play the video inline instead of full-screen on mobile devices', 'jetpack' )
+								) }
 								onChange={ this.toggleAttribute( 'playsinline' ) }
 								checked={ playsinline }
 							/>
 							<SelectControl
-								label={ __( 'Preload', 'jetpack' ) }
+								label={ this.renderControlLabelWithTooltip(
+									__( 'Preload', 'jetpack' ),
+									/* translators: Tooltip describing the "preload" option for the VideoPress player */
+									__( 'Content to dowload before the video is played', 'jetpack' )
+								) }
 								value={ preload }
 								onChange={ value => setAttributes( { preload: value } ) }
 								options={ [
@@ -321,6 +369,7 @@ const VideoPressEdit = CoreVideoEdit =>
 									},
 									{ value: 'none', label: _x( 'None', 'VideoPress preload setting', 'jetpack' ) },
 								] }
+								help={ this.getPreloadHelp() }
 							/>
 							<MediaUploadCheck>
 								<BaseControl
@@ -390,10 +439,6 @@ const VideoPressEdit = CoreVideoEdit =>
 										),
 										value: 'R-17',
 									},
-									{
-										label: _x( 'X', 'Video rating for "Explicit" content.', 'jetpack' ),
-										value: 'X-18',
-									},
 								] }
 								onChange={ this.onChangeRating }
 							/>
@@ -428,7 +473,7 @@ const VideoPressEdit = CoreVideoEdit =>
 							/>
 						</div>
 						<div className={ ! displayCoreVideoBlock ? 'videopress-block-hide' : '' }>
-							<CoreVideoEdit { ...this.props } />;
+							<CoreVideoEdit { ...this.props } />
 						</div>
 					</Fragment>
 				);

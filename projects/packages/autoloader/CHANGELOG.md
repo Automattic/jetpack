@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.9] - 2021-11-02
+### Changed
+- Set `convertDeprecationsToExceptions` true in PHPUnit config.
+
+## [2.10.8] - 2021-10-13
+### Changed
+- Updated package dependencies.
+
 ## [2.10.7] - 2021-10-07
 ### Changed
 - Updated package dependencies
@@ -204,6 +212,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add Custom Autoloader
 
+[2.10.9]: https://github.com/Automattic/jetpack-autoloader/compare/v2.10.8...v2.10.9
+[2.10.8]: https://github.com/Automattic/jetpack-autoloader/compare/v2.10.7...v2.10.8
 [2.10.7]: https://github.com/Automattic/jetpack-autoloader/compare/v2.10.6...v2.10.7
 [2.10.6]: https://github.com/Automattic/jetpack-autoloader/compare/v2.10.5...v2.10.6
 [2.10.5]: https://github.com/Automattic/jetpack-autoloader/compare/v2.10.4...v2.10.5

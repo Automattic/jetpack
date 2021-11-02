@@ -1,4 +1,4 @@
-import WpPage from '../wp-page';
+import { WpPage } from '..';
 import { getMailchimpCredentials } from '../../helpers/utils-helper';
 
 export default class ConnectionsPage extends WpPage {

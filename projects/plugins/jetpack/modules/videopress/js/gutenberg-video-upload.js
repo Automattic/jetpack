@@ -48,6 +48,13 @@ wp.apiFetch.use( function ( options, next ) {
 
 	return new Promise( function ( resolve, reject ) {
 		result
+			.then( function ( response ) {
+				if ( response instanceof Response && response.ok ) {
+					return response.json();
+				}
+
+				return response; // if not a response object, then its our parsed body so return that
+			} )
 			.then( function ( data ) {
 				var wpcomMediaObject = lodash.get( data, 'media[0]' );
 				var id = lodash.get( wpcomMediaObject, 'ID' );

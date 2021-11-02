@@ -3,16 +3,14 @@
  */
 import React, { useEffect, useCallback, useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { Button } from '@wordpress/components';
 import PropTypes from 'prop-types';
 import restApi from '@automattic/jetpack-api';
-import { Spinner } from '@automattic/jetpack-components';
+import { ActionButton } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import ConnectUser from '../connect-user';
-import './style.scss';
 
 /**
  * The RNA connection component.
@@ -33,7 +31,7 @@ import './style.scss';
 const ConnectButton = props => {
 	const [ isRegistering, setIsRegistering ] = useState( false );
 	const [ isUserConnecting, setIsUserConnecting ] = useState( false );
-	const [ registationError, setRegistrationError ] = useState( false );
+	const [ registrationError, setRegistrationError ] = useState( false );
 
 	const [ authorizationUrl, setAuthorizationUrl ] = useState( null );
 
@@ -112,32 +110,23 @@ const ConnectButton = props => {
 	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	return (
-		<div className="jp-connect-button">
+		<>
 			{ connectionStatusIsFetching && `Loading...` }
 
 			{ ( ! connectionStatus.isRegistered || ! connectionStatus.isUserConnected ) &&
 				! connectionStatusIsFetching && (
-					<Button
-						className="jp-connect-button--button"
+					<ActionButton
 						label={ connectLabel }
 						onClick={ registerSite }
-						isPrimary
-						disabled={ isRegistering || isUserConnecting }
-					>
-						{ isRegistering || isUserConnecting ? <Spinner /> : connectLabel }
-					</Button>
+						displayError={ registrationError ? true : false }
+						isLoading={ isRegistering || isUserConnecting }
+					/>
 				) }
-
-			{ registationError && (
-				<p className="jp-connect-button__error">
-					{ __( 'An error occurred. Please try again.', 'jetpack' ) }
-				</p>
-			) }
 
 			{ isUserConnecting && (
 				<ConnectUser connectUrl={ authorizationUrl } redirectUri={ redirectUri } from={ from } />
 			) }
-		</div>
+		</>
 	);
 };
 

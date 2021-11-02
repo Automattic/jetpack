@@ -9,7 +9,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
  */
 import { JETPACK_SET_INITIAL_STATE, MOCK_SWITCH_USER_PERMISSIONS } from 'state/action-types';
 import { getPlanDuration } from 'state/plans/reducer';
-import { getSiteProducts } from 'state/site-products';
+import { getProducts } from 'state/products';
 import { isCurrentUserLinked } from 'state/connection';
 
 export const initialState = ( state = window.Initial_State, action ) => {
@@ -298,12 +298,33 @@ export function arePromotionsActive( state ) {
 /**
  * Check if the site is an Automated Transfer site.
  *
- * @param {Object} state   Global state tree.
+ * @todo Deprecated soon for isWoASite();
+ * @param {object} state - Global state tree.
  *
- * @return {boolean} True if this is an Atomic site, false otherwise.
+ * @returns {boolean} True if this is an WoA site, false otherwise.
  */
 export function isAtomicSite( state ) {
 	return get( state.jetpack.initialState.siteData, 'isAtomicSite', false );
+}
+
+/**
+ * Check if the site is a WordPress.com-on-Atomic site.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if this is an WoA site, false otherwise.
+ */
+export function isWoASite( state ) {
+	return get( state.jetpack.initialState.siteData, 'isWoASite', false );
+}
+
+/**
+ * Check if the site is an Atomic-hosted site.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if this is an Atomic-hosted site, false otherwise.
+ */
+export function isAtomicPlatform( state ) {
+	return get( state.jetpack.initialState.siteData, 'isAtomicPlatform', false );
 }
 
 /**
@@ -452,48 +473,30 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
  * @returns Array of Products that you can purchase.
  */
 export function getProductsForPurchase( state ) {
-	const products = get( state.jetpack.initialState, 'products', [] );
-	const siteProducts = getSiteProducts( state );
+	const staticProducts = get( state.jetpack.initialState, 'products', {} );
+	const jetpackProducts = getProducts( state );
+	const products = {};
 
-	return products.map( product => {
-		const optionKey = product.options[ 0 ].key;
-		return {
+	for ( const [ key, product ] of Object.entries( staticProducts ) ) {
+		products[ key ] = {
 			title: product.title,
-			key: product.key,
-			shortDescription: product.short_description,
-			labelPopup: product.label_popup,
-			optionsLabel: product.options_label,
-			defaultOption: product.default_option,
-			options: getProductOptions( state, product, siteProducts ),
-			learnMore: product.learn_more,
-			learnMoreUrl: getUpgradeUrl( state, `aag-${ product.key }` ),
+			slug: product.slug,
+			key: key,
+			description: product.description,
+			features: product.features,
+			available: get( jetpackProducts, [ product.slug, 'available' ], false ),
+			currencyCode: get( jetpackProducts, [ product.slug, 'currency_code' ], '' ),
 			showPromotion: product.show_promotion,
 			promotionPercentage: product.discount_percent,
-			recordCount: get( siteProducts, [ optionKey, 'price_tier_usage_quantity' ], '0' ),
 			includedInPlans: product.included_in_plans,
+			fullPrice: get( jetpackProducts, [ product.slug, 'cost' ], '' ),
+			upgradeUrl: getRedirectUrl( 'jetpack-product-description-checkout', {
+				path: product.slug,
+			} ),
 		};
-	} );
-}
+	}
 
-function getProductOptions( state, product, siteProducts ) {
-	return product.options.map( option => {
-		return {
-			name: option.name,
-			type: option.type,
-			key: option.key,
-			slug: option.slug,
-			description: option.description,
-			currencyCode: get( siteProducts, [ option.key, 'currency_code' ], '' ),
-			yearly: {
-				fullPrice: get( siteProducts, [ option.key, 'cost' ], '' ),
-				upgradeUrl: getUpgradeUrl( state, option.slug ),
-			},
-			monthly: {
-				fullPrice: get( siteProducts, [ `${ option.key }_monthly`, 'cost' ], '' ),
-				upgradeUrl: getUpgradeUrl( state, `${ option.slug }-monthly` ),
-			},
-		};
-	} );
+	return products;
 }
 
 /**

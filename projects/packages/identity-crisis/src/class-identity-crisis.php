@@ -28,7 +28,7 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.2.7';
+	const PACKAGE_VERSION = '0.3.1';
 
 	/**
 	 * Instance of the object.
@@ -83,6 +83,8 @@ class Identity_Crisis {
 		add_action( 'jetpack_received_remote_request_response', array( $this, 'check_http_response_for_idc_detected' ) );
 
 		add_filter( 'jetpack_connection_disconnect_site_wpcom', array( __CLASS__, 'jetpack_connection_disconnect_site_wpcom_filter' ) );
+
+		add_filter( 'jetpack_remote_request_url', array( $this, 'add_idc_query_args_to_url' ) );
 
 		$urls_in_crisis = self::check_identity_crisis();
 		if ( false === $urls_in_crisis ) {
@@ -192,6 +194,32 @@ class Identity_Crisis {
 	}
 
 	/**
+	 * Add the idc query arguments to the url.
+	 *
+	 * @param string $url The remote request url.
+	 */
+	public function add_idc_query_args_to_url( $url ) {
+		if ( ! is_string( $url ) || self::validate_sync_error_idc_option() ) {
+			return $url;
+		}
+
+		$query_args = array(
+			'home'    => Urls::home_url(),
+			'siteurl' => Urls::site_url(),
+		);
+
+		if ( self::should_handle_idc() ) {
+			$query_args['idc'] = true;
+		}
+
+		if ( \Jetpack_Options::get_option( 'migrate_for_idc', false ) ) {
+			$query_args['migrate_for_idc'] = true;
+		}
+
+		return add_query_arg( $query_args, $url );
+	}
+
+	/**
 	 * Non-admins current screen check.
 	 *
 	 * @param object $current_screen Current screen.
@@ -281,6 +309,10 @@ class Identity_Crisis {
 
 		if ( isset( $response_body['idc_detected'] ) ) {
 			return $this->check_response_for_idc( $response_body['idc_detected'] );
+		}
+
+		if ( isset( $response_body['migrated_for_idc'] ) ) {
+			Jetpack_Options::delete_option( 'migrate_for_idc' );
 		}
 
 		return false;
@@ -476,8 +508,6 @@ class Identity_Crisis {
 
 			$returned_values[ $key ] = $normalized_url;
 		}
-
-		set_transient( 'jetpack_idc_option', $returned_values, MINUTE_IN_SECONDS );
 
 		return $returned_values;
 	}

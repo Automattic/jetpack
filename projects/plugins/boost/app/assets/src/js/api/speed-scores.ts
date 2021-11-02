@@ -24,6 +24,7 @@ type SpeedScores = {
 type SpeedScoresSet = {
 	current: SpeedScores;
 	noBoost: SpeedScores;
+	isStale: boolean;
 };
 
 type ParsedApiResponse = {
@@ -93,6 +94,7 @@ function parseResponse( response: JSONObject ): ParsedApiResponse {
 							desktop: castToNumber( response.scores.noBoost.desktop, 0 ),
 					  }
 					: null,
+				isStale: !! response.scores.isStale,
 			},
 		};
 	}

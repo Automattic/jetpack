@@ -20,10 +20,10 @@
 		"glob": "7.1.6",
 		"global-jsdom": "8.1.0",
 		"jsdom": "16.4.0",
-		"mocha": "8.2.1",
-		"nock": "13.0.7",
+		"mocha": "8.4.0",
+		"nock": "13.1.4",
 		"sinon": "9.2.4",
-		"sinon-chai": "3.5.0"
+		"sinon-chai": "3.7.0"
 	},
 	"engines": {
 		"node": "^14.17.6 || ^16.7.0",

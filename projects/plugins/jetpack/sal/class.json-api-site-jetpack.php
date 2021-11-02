@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Sync\Functions;
 
 require_once dirname( __FILE__ ) . '/class.json-api-site-jetpack-base.php';
@@ -118,6 +119,15 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 		return false;
 	}
 
+	/**
+	 * Points to the user ID of the site owner
+	 *
+	 * @return null for Jetpack sites
+	 */
+	public function get_site_owner() {
+		return null;
+	}
+
 	function has_wordads() {
 		return Jetpack::is_module_active( 'wordads' );
 	}
@@ -177,7 +187,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	}
 
 	function get_atomic_cloud_site_option( $option ) {
-		if ( ! jetpack_is_atomic_site() ) {
+		if ( ! ( new Host() )->is_woa_site() ) {
 			return false;
 		}
 
