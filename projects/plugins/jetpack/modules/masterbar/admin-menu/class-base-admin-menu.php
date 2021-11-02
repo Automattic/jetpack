@@ -643,8 +643,8 @@ abstract class Base_Admin_Menu {
 		if ( self::DEFAULT_VIEW === $preferred_view ) {
 			$menu_mappings = require __DIR__ . '/menu-mappings.php';
 			if ( isset( $menu_mappings[ $current_screen ] ) ) {
-				\Jetpack::$instance->add_wpcom_to_allowed_redirect_hosts();
-				wp_safe_redirect( $menu_mappings[ $current_screen ] . $this->domain );
+				// Using `wp_redirect` intentionally because we're redirecting to Calypso.
+				wp_redirect( $menu_mappings[ $current_screen ] . $this->domain ); // phpcs:ignore WordPress.Security.SafeRedirect
 				exit;
 			}
 		}
