@@ -6,7 +6,7 @@ Automated end-to-end acceptance tests for the Jetpack plugin.
 
 These tests are using the [e2e commons package](../../../../../tools/e2e-commons). Please refer to [their docs](../../../../../tools/e2e-commons/README.md) for more detailed information.
 
-# Table of contents
+## Table of contents
 
 - [Pre-requisites](#pre-requisites)
 - [Environment setup](#environment-setup)
@@ -18,7 +18,7 @@ These tests are using the [e2e commons package](../../../../../tools/e2e-commons
 - [CI configuration](#ci-configuration)
 - [Test reports](#test-reports)
 
-# Pre-requisites
+## Pre-requisites
 
 - Make sure you built Jetpack first `pnpm install && pnpx jetpack build` in the monorepo root directory should walk you through it. You can also refer to the monorepo documentation in how to build Jetpack.
 
@@ -28,9 +28,9 @@ pnpm install
 pnpx jetpack build plugins/jetpack
 ```
 
-# Environment setup
+## Environment setup
 
-## Test configuration
+### Test configuration
 
 Jetpack E2E tests relies on 2 encrypted configuration files, one included in this repo as [`config/encrypted.enc`](./config/encrypted.enc), which extends on a default one from e2e-commons. To be able to successfully create a local environment and run the tests both files need to be decrypted first.
 
@@ -38,7 +38,7 @@ To decrypt the config files (a8c only):
 - Find a decryption key. Search secret store for "E2E Jetpack CONFIG_KEY"
 - Run `CONFIG_KEY=YOUR_KEY pnpm test-decrypt-all-config`. This command should create a new file [`config/local-test.js`](./config/local-test.js)
 
-## Docker environment
+### Docker environment
 
 Tests expect to have a WordPress installation with Jetpack installed, accessible via a local tunnel. 
 
@@ -50,7 +50,7 @@ pnpm env-start
 
 This will create the Docker environment and configure the WordPress installation. It will start one WordPress container and one database container. The WordPress installation is available at `localhost:8889`.
 
-### Local tunnel
+#### Local tunnel
 
 To bypass the offline mode you will need your site to have a publicly accessible url that will proxy all requests to your locally running WordPress installation.
 These tests use `localtunnel` library to expose `localhost:8889` via a public url.
@@ -75,7 +75,7 @@ If you want a different url, use the `reset` command.
 pnpm tunnel-reset
 ```
 
-# Running tests
+## Running tests
 
 Once your target WP environment is running on `localhost:8889` you can run the tests.
 
@@ -99,7 +99,7 @@ For the best experience while debugging and/or writing new tests `E2E_DEBUG` con
 E2E_DEBUG=true pnpm test-e2e -- ./specs/some.test.js -t 'Test name'
 ```
 
-## Selecting tests to run
+### Selecting tests to run
 
 ```bash
 # One spec (test file)
@@ -118,15 +118,15 @@ pnpm test-e2e -- --testPathIgnorePatterns=updater
 pnpm test-e2e -- --group=post-connection
 ```
 
-## Environment variables
+### Environment variables
 
 - `HEADLESS` - default `true`. Whether to run tests in a headless mode or not.
 - `E2E_DEBUG` - default `false`. Will log debug information into console. Also forces browser headfull mode, any value for the above `HEADLESS` var will be ignored.
 - `PAUSE_ON_FAILURE` - default `false`. Combined with `E2E_DEBUG=true` will pause the test execution when an error occurs and will open Playwright Inspector.
 
-# Tests Architecture
+## Tests Architecture
 
-## Specs
+### Specs
 
 Tests are kept in `/specs` folder. Every file represents a test suite, which is designed around specific feature under test.
 Every test suite is responsible for setting up the environment configuration for the suite. [e2e-commons' prerequisites APIs](../../../../../tools/e2e-commons/env/prerequisites.js) provide an abstraction to set up the site the way is needed.
@@ -134,7 +134,7 @@ Every test suite is responsible for setting up the environment configuration for
 Some specs require an active Jetpack connection
 Its logic can be found in the [`jetpack-connect.js`](../../../../../tools/e2e-commons/flows/jetpack-connect.js).
 
-## Pages
+### Pages
 
 The tests are using the `PageObject` pattern, which is a way to separate test logic from implementation. Page objects are basically abstractions around specific pages and page components.
 Most common pages are already modeled in [e2e-commons' pages module](../../../../../tools/e2e-commons/pages).
@@ -143,11 +143,11 @@ If you need to add a new page, please add it in the `pages` folder.
 Each page should extend e2e-commons's [`WpPage`](../../../../../tools/e2e-commons/pages/wp-page.js) or [`PageActions`](../../../../../tools/e2e-commons/pages/page-actions.js).
 `WpPage` should be extended by all page objects that represent full pages. Rule of thumb: if it has a URL it should extend `WpPage`. Otherwise, it's probably representing a page component (like a block) and should directly extend `PageActions`.
 
-# CI Configuration
+## CI Configuration
 
 Both local runs and CI are sharing the same Docker based configuration.
 See [workflows prefixed with e2e](../../../../../.github/workflows) for CI configuration.
 
-# Test reports
+## Test reports
 
 Test reports are generated for every CI run and stored in [jetpack-e2e-reports](https://github.com/Automattic/jetpack-e2e-reports) repo. A dashboard displaying information about stored reports can be accessed at this link: [https://automattic.github.io/jetpack-e2e-reports](https://automattic.github.io/jetpack-e2e-reports)
