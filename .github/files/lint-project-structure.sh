@@ -78,7 +78,7 @@ for PROJECT in projects/*/*; do
 
 	# - package.json for js modules should look like a library to renovate.
 	if [[ "$PROJECT" == projects/js-packages/* && -e "$PROJECT/package.json" ]]; then
-		! IFS= read -r INDEX < <( ls -- "$PROJECT"/index.{js,jsx,cjs,ts,tsx,d.ts} 2>/dev/null )
+		! IFS= read -r INDEX < <( ls -- "$PROJECT"/index.{js,jsx,cjs,mjs,ts,tsx,d.ts} 2>/dev/null )
 		if [[ -n "$INDEX" ]] && ! jq -e '.private // .main // .exports' "$PROJECT/package.json" >/dev/null; then
 			echo "::error file=$PROJECT/package.json::$SLUG appears to be a library (it has ${INDEX#$PROJECT/}), but does not specify \`.main\` or \`.exports\` in package.json. This will confuse renovate."
 		fi
