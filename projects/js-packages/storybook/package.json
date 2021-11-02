@@ -21,13 +21,14 @@
 		"clean": "true",
 		"distclean": "rm -rf node_modules && pnpm run clean",
 		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
-		"storybook:build": "build-storybook -c ./storybook -o ./docs",
+		"storybook:build": "build-storybook -s ./public -c ./storybook -o ./docs",
 		"dev:packages": "echo 'TODO dev:packages'",
-		"storybook:dev": "concurrently \"pnpm run dev:packages\" \"start-storybook -c ./storybook -p 50240\""
+		"storybook:dev": "concurrently \"pnpm run dev:packages\" \"start-storybook -c ./storybook -p 50240 -s ./public\""
 	},
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:^0.1.0-alpha",
-		"@automattic/jetpack-components": "workspace:^0.4.0",
+		"@automattic/jetpack-components": "workspace:^0.5.0",
+		"@automattic/jetpack-connection": "workspace:^0.9.0",
 		"@babel/core": "7.15.0",
 		"@babel/plugin-syntax-jsx": "7.14.5",
 		"@babel/runtime-corejs3": "7.15.3",

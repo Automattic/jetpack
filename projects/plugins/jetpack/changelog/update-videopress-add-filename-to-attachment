@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+The "File Name" will now be set in the Media Library for VideoPress videos.

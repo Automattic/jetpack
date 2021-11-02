@@ -46,6 +46,11 @@ class MockJetpack_XMLRPC_Server extends Jetpack_XMLRPC_Server {
 	}
 }
 
+/**
+ * Tests for the Jetpack monolith-class.
+ *
+ * @covers Jetpack
+ */
 class WP_Test_Jetpack extends WP_UnitTestCase {
 
 	static $admin_id = 0;
@@ -77,7 +82,6 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 
 	/**
 	 * @author blobaugh
-	 * @covers Jetpack::init
 	 * @since 2.3.3
 	 */
 	public function test_init() {
@@ -86,7 +90,6 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 
 	/**
 	 * @author enkrates
-	 * @covers Jetpack::sort_modules
 	 * @since 3.2
 	 */
 	public function test_sort_modules_with_equal_sort_values() {
@@ -101,7 +104,6 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 
 	/**
 	 * @author enkrates
-	 * @covers Jetpack::sort_modules
 	 * @since 3.2
 	 */
 	public function test_sort_modules_with_different_sort_values() {
@@ -118,7 +120,6 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 
 	/**
 	 * @author georgestephanis
-	 * @covers Jetpack::absolutize_css_urls
 	 */
 	public function test_absolutize_css_urls_properly_handles_use_cases() {
 
@@ -173,7 +174,6 @@ EXPECTED;
 
 	/*
 	 * @author tonykova
-	 * @covers Jetpack::implode_frontend_css
 	 */
 	public function test_implode_frontend_css_enqueues_bundle_file_handle() {
 		global $wp_styles;
@@ -206,7 +206,6 @@ EXPECTED;
 
 	/**
 	 * @author tonykova
-	 * @covers Jetpack::implode_frontend_css
 	 * @since 3.2.0
 	 */
 	public function test_implode_frontend_css_does_not_enqueue_bundle_when_disabled_through_filter() {
@@ -401,8 +400,6 @@ EXPECTED;
 
 	/**
 	 * Tests is_offline_mode filter.
-	 *
-	 * @covers \Automattic\Jetpack\Status::is_offline_mode
 	 */
 	public function test_is_offline_mode_filter() {
 		add_filter( 'jetpack_offline_mode', '__return_true' );
@@ -412,8 +409,6 @@ EXPECTED;
 
 	/**
 	 * Tests is_offline_mode filter's bool type casting.
-	 *
-	 * @covers \Automattic\Jetpack\Status::is_offline_mode
 	 */
 	public function test_is_offline_mode_bool() {
 		add_filter( 'jetpack_offline_mode', '__return_zero' );
@@ -485,7 +480,6 @@ EXPECTED;
 
 	/**
 	 * @author tyxla
-	 * @covers Jetpack::get_assumed_site_creation_date()
 	 */
 	function test_get_assumed_site_creation_date_user_earliest() {
 		$user_id = $this->factory->user->create( array(
@@ -505,7 +499,6 @@ EXPECTED;
 
 	/**
 	 * @author tyxla
-	 * @covers Jetpack::get_assumed_site_creation_date()
 	 */
 	function test_get_assumed_site_creation_date_post_earliest() {
 		$user_id = $this->factory->user->create( array(
@@ -525,7 +518,6 @@ EXPECTED;
 
 	/**
 	 * @author tyxla
-	 * @covers Jetpack::get_assumed_site_creation_date()
 	 */
 	function test_get_assumed_site_creation_date_only_admins() {
 		$admin_id = $this->factory->user->create( array(
@@ -1060,7 +1052,6 @@ EXPECTED;
 	 * @param string  $set_screen The $current_screen->base test value.
 	 * @param boolean $expected_output The expected output of Jetpack::should_set_cookie().
 	 *
-	 * @covers Jetpack::should_set_cookie
 	 * @dataProvider should_set_cookie_provider
 	 */
 	public function test_should_set_cookie( $key, $set_screen, $expected_output ) {

@@ -1,0 +1,126 @@
+@import '@wordpress/base-styles/breakpoints';
+@import '@wordpress/base-styles/mixins';
+
+.jp-connection__connect-screen-layout {
+	background: var( --jp-white );
+	box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+	border-radius: 4px;
+
+	&__loading {
+		display: none;
+	}
+
+	&__left, &__right {
+		box-sizing: border-box;
+	}
+
+	&__left {
+		padding: 25px;
+
+		@include break-small {
+			padding: 64px 96px;
+		}
+
+		.jetpack-logo {
+			margin-bottom: 24px;
+		}
+
+		h2 {
+			font-style: normal;
+			font-weight: bold;
+			font-size: 36px;
+			line-height: 40px;
+			color: var( --jp-black );
+			margin-top: 32px;
+			margin-bottom: 0;
+		}
+
+		h3 {
+			font-style: normal;
+			font-weight: 500;
+			font-size: 24px;
+			line-height: 32px;
+			color: var( --jp-black );
+			margin-top: 32px;
+			margin-bottom: 0;
+		}
+
+		p, li {
+			font-style: normal;
+			font-weight: normal;
+			font-size: 16px;
+			line-height: 24px;
+		}
+
+		p {
+			color: #101517;
+			margin: 16px 0;
+		}
+
+		a {
+			font-size: var( --font-body );
+			color: var( --jp-black );
+			text-decoration: underline;
+			height: auto;
+			font: inherit;
+			padding: 0;
+
+			&:hover {
+				color: var( --jp-black );
+				text-decoration-thickness: var( --jp-underline-thickness );
+			}
+
+			&:focus {
+				color: var( --jp-black );
+				box-shadow: none !important;
+			}
+		}
+
+		ul {
+			list-style-type: none;
+			padding: 0;
+
+			li {
+				background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAANlBMVEVHcEwFnwUInggGnggGnggHnAcAnwUFnQcAnwcGnwkFnQgGnQgFnwcGnQYFnQcFnAcGnQkDnwdhiL0pAAAAEnRSTlMAMF//f2Aw7yBQ3+9gcIBgcED+HDbkAAAAZklEQVR4Ae3LNwICARDDQC0+cv7/Y8mwV9odSfWIcf/+VegnGkIvDaGXKvTTn/Gz+Uf5xTL0K1XotS7fs5H6GHvvaO8d7c3j7rdgHne/A/PYt/cO+R42oYdN6OEQetiFHo4A//6dAXqtBEkmtWutAAAAAElFTkSuQmCC) no-repeat;
+				background-size: 24px;
+				padding-left: 30px;
+				margin-bottom: 9px;
+				color: var( --jp-black );
+			}
+		}
+	}
+
+	&__right {
+		padding: 64px 0;
+
+		img {
+			max-width: 100%;
+		}
+	}
+
+	&__two-columns {
+		.jp-connection__connect-screen-layout__left {
+			float: left;
+			width: 100%;
+
+			@include break-xlarge {
+				width: 52%;
+			}
+		}
+
+		.jp-connection__connect-screen-layout__right {
+			float: right;
+			width: 47%;
+			background: #F9F9F6;
+			display: none;
+
+			@include break-xlarge {
+				display: block;
+			}
+		}
+	}
+
+	&__clearfix {
+		clear: both;
+	}
+}
