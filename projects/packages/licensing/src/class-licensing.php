@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Jetpack_IXR_Client;
 use Jetpack_IXR_ClientMulticall;
 use Jetpack_Options;
 use WP_Error;
@@ -143,6 +144,55 @@ class Licensing {
 		$xml->query();
 
 		return $xml;
+	}
+
+	/**
+	 * Make an authenticated WP.com XMLRPC multicall request to attach the provided license key.
+	 *
+	 * @param string $license License key to attach.
+	 * @return Jetpack_IXR_Client
+	 */
+	protected function attach_license_request( $license ) {
+		$ixr_client = new Jetpack_IXR_Client();
+
+		$ixr_client->query(
+			'jetpack.attachLicense',
+			$license
+		);
+
+		return $ixr_client;
+	}
+
+	/**
+	 * Attach the given single license.
+	 *
+	 * @param string $license License to attach.
+	 * @return number|WP_Error The product id of the license attached or a WP_Error instance.
+	 */
+	public function attach_license( $license ) {
+		if ( ! $this->connection()->has_connected_owner() ) {
+			return new WP_Error( 'not_connected', __( 'Jetpack doesn\'t have a connected owner.', 'jetpack' ) );
+		}
+
+		$ixr_client = $this->attach_license_request( $license );
+
+		if ( $ixr_client->isError() ) {
+			$error = new WP_Error( 'request_failed', __( 'License attach request failed.', 'jetpack' ) );
+			$error->add( $ixr_client->getErrorCode(), $ixr_client->getErrorMessage() );
+			return $error;
+		}
+
+		$response = $ixr_client->getResponse();
+
+		if ( is_null( $response ) || ! isset( $response['activatedProductId'] ) ) {
+			return new WP_Error( 'no_result', __( 'License attach request failed.', 'jetpack' ) );
+		}
+
+		if ( isset( $response['faultCode'] ) || isset( $response['faultString'] ) ) {
+			return new WP_Error( $response['faultCode'], $response['faultString'] );
+		}
+
+		return $response['activatedProductId'];
 	}
 
 	/**
