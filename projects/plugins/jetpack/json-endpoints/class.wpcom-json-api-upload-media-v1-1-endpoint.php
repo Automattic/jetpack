@@ -194,7 +194,7 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 
 		if ( $file_size > WPCOM_MAX_UPLOAD_FILE_SIZE ) {
 			/* translators: %s: Maximum allowed file size in kilobytes. */
-			$file['error'] = 'rest_upload_file_too_big|' . sprintf( __( 'This file is too big. Files must be less than %s KB in size.', 'default' ), WPCOM_MAX_UPLOAD_FILE_SIZE / KB_IN_BYTES );
+			$file['error'] = 'rest_upload_file_too_big|' . sprintf( __( 'This file is too big. Files must be less than %s KB in size.', 'jetpack' ), WPCOM_MAX_UPLOAD_FILE_SIZE / KB_IN_BYTES );
 		}
 
 		if ( upload_is_user_over_quota( false ) ) {
