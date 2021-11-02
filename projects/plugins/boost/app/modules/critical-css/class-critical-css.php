@@ -748,6 +748,9 @@ class Critical_CSS extends Module {
 		if ( 0 !== $current_user_id ) {
 			// Force current user to 0 to ensure page is rendered as a non-logged-in user.
 			wp_set_current_user( 0 );
+
+			// Turn off display of admin bar.
+			add_filter( 'show_admin_bar', '__return_false', PHP_INT_MAX );
 		}
 	}
 
