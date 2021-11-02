@@ -9,17 +9,27 @@
 
 	&__tos {
 		margin-top: 28px;
-		max-width: 360px;
+		font-size: 12px;
+		line-height: 20px;
+		color: var( --jp-gray-60 );
+
+		@include break-small {
+			max-width: 360px;
+		}
 	}
 
 	.jp-action-button {
 		margin-top: 40px;
 
 		button {
-			max-width: 100%;
+			width: 100%;
 
 			&:disabled {
 				color: hsla(0,0%,100%,.4);
+			}
+
+			@include break-small {
+				width: 220px;
 			}
 		}
 	}

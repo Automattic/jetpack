@@ -2,6 +2,7 @@
 @import '@wordpress/base-styles/mixins';
 
 .jp-connection__connect-screen-layout {
+	max-width: 1128px;
 	background: var( --jp-white );
 	box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
 	border-radius: 4px;
@@ -15,10 +16,10 @@
 	}
 
 	&__left {
-		padding: 25px;
+		padding: 24px;
 
 		@include break-small {
-			padding: 64px 96px;
+			padding: 64px;
 		}
 
 		.jetpack-logo {
@@ -41,7 +42,7 @@
 			font-size: 24px;
 			line-height: 32px;
 			color: var( --jp-black );
-			margin-top: 32px;
+			margin-top: 16px;
 			margin-bottom: 0;
 		}
 
@@ -55,6 +56,10 @@
 		p {
 			color: #101517;
 			margin: 16px 0;
+		}
+
+		li {
+			font-size: 14px;
 		}
 
 		a {
@@ -91,7 +96,6 @@
 	}
 
 	&__right {
-		padding: 64px 0;
 
 		img {
 			max-width: 100%;

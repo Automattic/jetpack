@@ -3,7 +3,7 @@
 
 .jp-connection__connect-screen-layout__left {
 	@include break-xlarge {
-		width: 70%;
+		width: 60%;
 	}
 }
 
@@ -18,11 +18,13 @@
 	}
 
 	&__pricing-card {
+		margin-top: 24px;
 
 		@include break-xlarge {
 			position: absolute;
 			top: 14%;
 			left: 62%;
+			margin-top: 0;
 		}
 
 		.components-button  {
@@ -30,9 +32,6 @@
 			height: auto;
 			font-size: 18px;
 			font-weight: 500;
-			background: var( --jp-black ) !important;
-			color: var( --jp-white ) !important;
-			border-radius: var( --jp-border-radius );
 			padding: 14px 24px;
 			margin: 24px 0px 32px;
 			justify-content: center;
@@ -51,29 +50,12 @@
 			display: inline;
 			font-size: var( --font-title-small );
 			line-height: 20px;
-			color: var( --jp-black ) !important;
-			background: inherit !important;
-			text-decoration: underline;
+			font-size: 12px;
 
 			width: auto;
 			height: auto;
 			font: inherit;
 			padding: 0;
-
-			&:hover {
-			background: inherit;
-				text-decoration-thickness: var( --jp-underline-thickness );
-			}
-
-			&:focus {
-				background: inherit;
-				box-shadow: none !important;
-			}
-		}
-
-		.jp-components-spinner__inner, .jp-components-spinner__outer {
-			border-top-color: var( --jp-black ); 
-			border-right-color: var( --jp-black ); 
 		}
 	}
 }
