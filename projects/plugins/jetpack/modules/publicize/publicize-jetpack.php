@@ -521,7 +521,6 @@ class Publicize extends Publicize_Base {
 		?>
 
 		<div id="thickbox-content">
-
 			<?php
 			ob_start();
 			Publicize_UI::connected_notice( 'Facebook' );
