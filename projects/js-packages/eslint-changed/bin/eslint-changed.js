@@ -3,12 +3,13 @@
 /* eslint-env node */
 /* eslint-disable no-console, no-process-exit */
 
+const { ESLint } = require( 'eslint' );
 const parseDiff = require( 'parse-diff' );
 const fs = require( 'fs' );
 const path = require( 'path' );
 const chalk = require( 'chalk' );
 
-const APP_VERSION = '1.0.2-alpha';
+const APP_VERSION = '2.0.0-alpha';
 
 const { program } = require( 'commander' );
 program
@@ -82,7 +83,6 @@ if ( argv.diff !== undefined && argv.git ) {
 	}
 } );
 
-const formatter = require( 'eslint' ).CLIEngine.getFormatter( argv.format );
 const debug = argv.debug ? ( ...m ) => console.debug( chalk.grey( ...m ) ) : () => {};
 
 /**
@@ -126,10 +126,12 @@ function doCmd( cmd, cmdArgs ) {
  * Main method.
  */
 async function main() {
+	const eslint = new ESLint();
+	debug( 'Using ESLint version', eslint.version );
+	const formatter = await eslint.loadFormatter( argv.format );
+
 	let diff, diffBase, files, eslintOrig, eslintNew;
 	if ( argv.git ) {
-		const eslint = process.env.ESLINT || 'eslint';
-		const eslintArgs = [];
 		const git = process.env.GIT || 'git';
 		let origRef, newRef, args, ret;
 
@@ -141,15 +143,6 @@ async function main() {
 			process.exit( 1 );
 		}
 		debug( 'Using git version', ret.stdout.trim() );
-
-		ret = spawnSync( eslint, [ '--version' ], spawnOpt );
-		if ( ret.error ) {
-			console.error(
-				`error: failed to execute ESLint as \`${ eslint }\`. Use environment variable \`ESLINT\` to override.`
-			);
-			process.exit( 1 );
-		}
-		debug( 'Using ESLint version', ret.stdout.trim() );
 
 		args = [ 'rev-parse', '--show-toplevel' ];
 		debug( 'Getting git top level:', git, args.join( ' ' ) );
@@ -185,7 +178,7 @@ async function main() {
 
 		eslintOrig = [];
 		eslintNew = [];
-		files.forEach( file => {
+		for ( const file of files ) {
 			let content;
 
 			args = [ 'cat-file', '-e', origRef + ':' + file ];
@@ -196,30 +189,26 @@ async function main() {
 				args = [ 'show', origRef + ':' + file ];
 				debug( 'Fetching orig file contents:', git, args.join( ' ' ) );
 				content = doCmd( git, args );
-				args = eslintArgs.concat( [ '--stdin', '--stdin-filename', file, '--format=json' ] );
-				debug( 'Executing ESLint for orig file:', eslint, args.join( ' ' ) );
-				ret = spawnSync( eslint, args, { ...spawnOpt, input: content } );
-				if ( ret.error ) {
-					throw ret.error;
-				}
-				eslintOrig = eslintOrig.concat( JSON.parse( ret.stdout ) );
+				debug( 'Executing ESLint for orig file' );
+				ret = await eslint.lintText( content, {
+					filePath: file,
+				} );
+				eslintOrig = eslintOrig.concat( ret );
 			}
 
 			if ( newRef === null ) {
-				content = fs.readFileSync( file );
+				content = fs.readFileSync( file, 'utf8' );
 			} else {
 				args = [ 'show', newRef + ':' + file ];
 				debug( 'Fetching new file contents:', git, args.join( ' ' ) );
 				content = doCmd( git, args );
 			}
-			args = eslintArgs.concat( [ '--stdin', '--stdin-filename', file, '--format=json' ] );
-			debug( 'Executing ESLint for new file:', eslint, args.join( ' ' ) );
-			ret = spawnSync( eslint, args, { ...spawnOpt, input: content } );
-			if ( ret.error ) {
-				throw ret.error;
-			}
-			eslintNew = eslintNew.concat( JSON.parse( ret.stdout ) );
-		} );
+			debug( 'Executing ESLint for new file' );
+			ret = await eslint.lintText( content, {
+				filePath: file,
+			} );
+			eslintNew = eslintNew.concat( ret );
+		}
 	} else if ( argv.diff ) {
 		diff = parseDiff( fs.readFileSync( argv.diff, 'utf8' ) );
 		diffBase = argv.diffBase || process.cwd();
@@ -346,7 +335,7 @@ async function main() {
 		} );
 	} );
 
-	console.log( formatter( eslintNew, {} ) );
+	console.log( formatter.format( eslintNew ) );
 	process.exit( exitCode );
 }
 
