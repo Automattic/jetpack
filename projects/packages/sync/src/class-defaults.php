@@ -233,6 +233,7 @@ class Defaults {
 	 * @var array Default constants whitelist
 	 */
 	public static $default_constants_whitelist = array(
+		'ATOMIC_CLIENT_ID',
 		'EMPTY_TRASH_DAYS',
 		'WP_POST_REVISIONS',
 		'AUTOMATIC_UPDATER_DISABLED',
