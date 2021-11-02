@@ -13,7 +13,7 @@
 	}
 }
 
-.components-button.is-primary {
+.components-button.is-primary:not(.is-destructive) {
 	background: var( --jp-color-black );
 
 	&:hover:not(:disabled) {
@@ -24,8 +24,9 @@
 		box-shadow: inset 0 0 0 1px var( --jp-color-white ), 0 0 0 var(--wp-admin-border-width-focus) var( --jp-color-black );
 	}
 
-	&:active:not(:disabled) {
-
+	&:disabled {
+		color: rgba( var( --jp-color-white-rgb ), 0.4 );
+		background: var( --jp-color-black );
 	}
 }
 
@@ -41,6 +42,10 @@
 
 	&:focus:not(:disabled) {
 		box-shadow: inset 0 0 0 1px var( --jp-color-white ), 0 0 0 var(--wp-admin-border-width-focus) var( --jp-color-black );
+	}
+
+	&:disabled {
+		color: rgba( var( --jp-color-black-rgb ), 0.4 );
 	}
 }
 
@@ -62,6 +67,10 @@
 	&:focus:not(:disabled) {
 		color: var( --jp-color-white );
 		box-shadow: inset 0 0 0 1px var( --jp-color-white ), 0 0 0 var(--wp-admin-border-width-focus) var( --jp-color-red-60 );
+	}
+
+	&:disabled {
+		color: rgba( var( --jp-color-white-rgb ), 0.4 );
 	}
 
 	&.is-secondary {
