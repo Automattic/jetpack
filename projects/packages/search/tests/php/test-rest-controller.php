@@ -179,6 +179,20 @@ class Test_REST_Controller extends TestCase {
 		$this->assertEquals( 400, $response->get_status() );
 	}
 
+		/**
+		 * Testing the `POST /jetpack/v4/search/settings` endpoint with editor user.
+		 */
+	public function test_update_search_settings_invalid_request_2() {
+		wp_set_current_user( $this->admin_id );
+		$new_settings = array();
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( $new_settings ) );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 400, $response->get_status() );
+	}
+
 	/**
 	 * Testing the `POST /jetpack/v4/search/settings` endpoint with editor user.
 	 */
