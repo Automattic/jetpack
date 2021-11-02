@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { includes, noop } from 'lodash';
+import moment from 'moment';
 
 /**
  * WordPress dependencies
@@ -21,6 +22,8 @@ import {
 	getPlanClass,
 	getJetpackProductUpsellByFeature,
 	FEATURE_VIDEOPRESS,
+	PLAN_JETPACK_SECURITY_DAILY,
+	PLAN_JETPACK_SECURITY_DAILY_MONTHLY,
 } from 'lib/plans/constants';
 import { ProgressBar } from '@automattic/components';
 import JetpackBanner from 'components/jetpack-banner';
@@ -30,7 +33,12 @@ import {
 	hasConnectedOwner as hasConnectedOwnerSelector,
 	isOfflineMode,
 } from 'state/connection';
-import { hasActiveVideoPressPurchase, getSitePlan, getVideoPressStorageUsed } from 'state/site';
+import {
+	hasActiveVideoPressPurchase,
+	getSitePlan,
+	getSitePurchases,
+	getVideoPressStorageUsed,
+} from 'state/site';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
 
 class DashVideoPress extends Component {
@@ -61,6 +69,7 @@ class DashVideoPress extends Component {
 		const planClass = getPlanClass( this.props.sitePlan.product_slug );
 		const {
 			hasConnectedOwner,
+			hasLegacySecurityDailyPlan,
 			hasVideoPressPurchase,
 			isOffline,
 			upgradeUrl,
@@ -69,15 +78,11 @@ class DashVideoPress extends Component {
 
 		const hasUpgrade =
 			includes(
-				[
-					'is-premium-plan',
-					'is-business-plan',
-					'is-daily-security-plan',
-					'is-realtime-security-plan',
-					'is-complete-plan',
-				],
+				[ 'is-premium-plan', 'is-business-plan', 'is-realtime-security-plan', 'is-complete-plan' ],
 				planClass
-			) || hasVideoPressPurchase;
+			) ||
+			hasLegacySecurityDailyPlan ||
+			hasVideoPressPurchase;
 
 		const shouldDisplayStorage = hasVideoPressPurchase && null !== videoPressStorageUsed;
 		const shouldDisplayBanner = hasConnectedOwner && ! hasUpgrade && ! isOffline;
@@ -186,10 +191,24 @@ class DashVideoPress extends Component {
 	}
 }
 
+/**
+ * Security Daily plan no longer includes VideoPress as of end of day Oct 6 2021 UTC.
+ * This check enforces the upsell appears only for customers that purchased Security Daily after that date.
+ *
+ * @param {*} purchase - The site purchase object.
+ * @returns {boolean} Whether or not the provided plan is a legacy Security Daily plan.
+ */
+const checkForLegacySecurityDailyPlan = purchase =>
+	purchase.active &&
+	( PLAN_JETPACK_SECURITY_DAILY_MONTHLY === purchase.product_slug ||
+		PLAN_JETPACK_SECURITY_DAILY === purchase.product_slug ) &&
+	moment( purchase.subscribed_date ).isBefore( moment.utc( '2021-10-07' ) );
+
 export default connect(
 	state => ( {
 		hasConnectedOwner: hasConnectedOwnerSelector( state ),
 		hasVideoPressPurchase: hasActiveVideoPressPurchase( state ),
+		hasLegacySecurityDailyPlan: getSitePurchases( state ).find( checkForLegacySecurityDailyPlan ),
 		isModuleAvailable: isModuleAvailable( state, 'videopress' ),
 		isOffline: isOfflineMode( state ),
 		sitePlan: getSitePlan( state ),
