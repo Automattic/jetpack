@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Image CDN: ensure that Wikipedia URLs are not served via our image CDN.
