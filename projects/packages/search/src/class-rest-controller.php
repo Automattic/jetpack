@@ -119,10 +119,22 @@ class REST_Controller {
 	 * @param WP_REST_Request $request - REST request.
 	 */
 	public function update_settings( $request ) {
-		$module_active          = (bool) $request->get_json_params( 'module_active' );
-		$instant_search_enabled = (bool) $request->get_json_params( 'instant_search_enabled' );
+		$request_body = $request->get_json_params();
 
-		if ( Module_Control::get_instance()->is_active() !== $module_active ) {
+		$module_active          = isset( $request_body['module_active'] ) ? $request_body['module_active'] : null;
+		$instant_search_enabled = isset( $request_body['instant_search_enabled'] ) ? $request_body['instant_search_enabled'] : null;
+
+		if ( ( true === $instant_search_enabled && false === $module_active ) || ( is_null( $module_active ) && is_null( $instant_search_enabled ) ) ) {
+			return new WP_Error( 'rest_cookie_invalid_arguments', 'The arguments passed in are invalid.' );
+		}
+
+		if ( false === $module_active ) {
+			$instant_search_enabled = false;
+		} elseif ( true === $instant_search_enabled ) {
+			$module_active = true;
+		}
+
+		if ( ! is_null( $module_active ) && Module_Control::get_instance()->is_active() !== $module_active ) {
 			if ( $module_active ) {
 				Module_Control::get_instance()->activate();
 			} else {
@@ -130,7 +142,7 @@ class REST_Controller {
 			}
 		}
 
-		if ( Module_Control::get_instance()->is_instant_search_enabled() !== $instant_search_enabled ) {
+		if ( ! is_null( $instant_search_enabled ) && Module_Control::get_instance()->is_instant_search_enabled() !== $instant_search_enabled ) {
 			if ( $instant_search_enabled ) {
 				Module_Control::get_instance()->enable_instant_search();
 			} else {
