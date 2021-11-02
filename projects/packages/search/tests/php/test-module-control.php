@@ -52,6 +52,11 @@ class Test_Module_Control extends TestCase {
 	public function test_activate_module() {
 		Module_Control::get_instance()->activate();
 		$this->assertContains( 'search', get_option( 'jetpack_' . Module_Control::JETPACK_ACTIVE_MODULES_OPTION_KEY, array() ) );
+
+		add_filter( 'jetpack_options', array( $this, 'return_active_modules_array_without_search' ) );
+		Module_Control::get_instance()->activate();
+		$this->assertEquals( array( 'some-module-1', 'some-module-2', 'some-module-3', Module_Control::JETPACK_SEARCH_MODULE_SLUG ), get_option( 'jetpack_' . Module_Control::JETPACK_ACTIVE_MODULES_OPTION_KEY, array() ) );
+		remove_filter( 'jetpack_options', array( $this, 'return_active_modules_array_without_search' ) );
 	}
 
 	/**
@@ -61,6 +66,7 @@ class Test_Module_Control extends TestCase {
 		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
 		Module_Control::get_instance()->deactivate();
 		$this->assertNotContains( 'search', get_option( 'jetpack_' . Module_Control::JETPACK_ACTIVE_MODULES_OPTION_KEY, array() ) );
+		$this->assertEquals( array( 'some-module-1', 'some-module-2', 'some-module-3' ), get_option( 'jetpack_' . Module_Control::JETPACK_ACTIVE_MODULES_OPTION_KEY, array() ) );
 		remove_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
 	}
 
@@ -106,7 +112,14 @@ class Test_Module_Control extends TestCase {
 	 * Returns an array with 'search' in it
 	 */
 	public function return_search_active_array() {
-		return array( Module_Control::JETPACK_SEARCH_MODULE_SLUG );
+		return array( 'some-module-1', Module_Control::JETPACK_SEARCH_MODULE_SLUG, 'some-module-2', 'some-module-3' );
+	}
+
+	/**
+	 * Returns an array with 'search' in it
+	 */
+	public function return_active_modules_array_without_search() {
+		return array( 'some-module-1', 'some-module-2', 'some-module-3' );
 	}
 
 }
