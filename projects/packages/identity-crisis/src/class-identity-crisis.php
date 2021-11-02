@@ -1211,6 +1211,35 @@ class Identity_Crisis {
 	 * @return bool
 	 */
 	public static function has_identity_crisis() {
-		return current_user_can( 'jetpack_disconnect' ) && false !== static::check_identity_crisis() && ! static::$is_safe_mode_confirmed;
+		return false !== static::check_identity_crisis() && ! static::$is_safe_mode_confirmed;
+	}
+
+	/**
+	 * Returns the mismatched URLs.
+	 *
+	 * @return array|bool The mismatched urls, or false if the site is not connected, offline, in safe mode, or the IDC error is not valid.
+	 */
+	public static function get_mismatched_urls() {
+		if ( ! static::has_identity_crisis() ) {
+			return false;
+		}
+
+		$data = static::check_identity_crisis();
+
+		if ( ! $data ) {
+			return false;
+		}
+
+		if ( 'jetpack_site_url_mismatch' === $data['error_code'] ) {
+			return array(
+				'wpcom_url'   => $data['wpcom_siteurl'],
+				'current_url' => $data['siteurl'],
+			);
+		}
+
+		return array(
+			'wpcom_url'   => $data['wpcom_home'],
+			'current_url' => $data['home'],
+		);
 	}
 }

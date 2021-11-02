@@ -43,21 +43,26 @@ class Initial_State {
 	private function get_idc_data() {
 		$has_idc = Identity_Crisis::has_identity_crisis();
 
-		$idc_data = array(
+		$return_data = array(
 			'hasIDC' => $has_idc,
 		);
 
-		if ( ! $has_idc ) {
-			return $idc_data;
+		// TODO: replace the `jetpack_disconnect` check with a non-admin IDC screen.
+		if ( ! $has_idc || ! current_user_can( 'jetpack_disconnect' ) ) {
+			return $return_data;
 		}
 
-		$data = Identity_Crisis::check_identity_crisis();
+		$idc_data = Identity_Crisis::check_identity_crisis();
+		$idc_urls = Identity_Crisis::get_mismatched_urls();
 
-		$idc_data['wpcomHomeUrl'] = $data['wpcom_home'];
-		$idc_data['currentUrl']   = $data['home'];
-		$idc_data['redirectUri']  = static::CONNECTION_MANAGER_URI;
+		if ( ! $idc_data || ! $idc_urls ) {
+			return $return_data;
+		}
 
-		return $idc_data;
+		$return_data               += $idc_urls;
+		$return_data['redirectUri'] = static::CONNECTION_MANAGER_URI;
+
+		return $return_data;
 	}
 
 	/**
