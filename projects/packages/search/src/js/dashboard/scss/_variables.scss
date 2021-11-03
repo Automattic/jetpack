@@ -2,7 +2,7 @@
 // Variables
 //
 @import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
-@import './variables/_colors.scss';
+// @import './variables/_colors.scss';
 
 /********* RNA styles *********/
 // Copied from plugins/backup/src/js/components
@@ -28,6 +28,10 @@ $jp-menu-border-height: 1px;
 $jp-underline-thickness: 2px;
 /********* Generic styles *********/
 $wp-gray-dark: #23282d;
+$black: #000;
+$white: #fff;
+$blue-medium: #3582c4;
+$color-plan: #069e08; // $studio-jetpack-green-40
 
 /********* Mixins *********/
 @mixin for-phone-up {
