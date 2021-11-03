@@ -12,19 +12,19 @@ const webpack = jetpackWebpackConfig.webpack;
 /**
  * Internal dependencies
  */
-const {
-	definePaletteColorsAsStaticVariables,
-	defineReadableJSAssetsPluginForSearch,
-} = require( './webpack.helpers' );
+const definePaletteColorsAsStaticVariables = require( './define-palette-colors-as-static-variables' );
+const AddReadableJSAssetsPlugin = require( './add-readable-js-assets' );
 
 /**
- * Determines if the module import request should be externalized.
+ * Used to determine if the module import request should be externalized.
+ * For instant search, we prevent react and react-dom from being externalized by the Gutenberg toolchain.
+ * This enables us to alias Preact to all React imports.
  *
  * @param {string} request - Requested module
  * @returns {(string|string[]|undefined)} Script global
  */
 function requestToExternal( request ) {
-	// Prevent React from being externalized. This ensures that React will be properly aliased to preact/compat.
+	// Ensure that React will be aliased to preact/compat by preventing externalization.
 	if ( request === 'react' || request === 'react-dom' ) {
 		return;
 	}
@@ -35,14 +35,14 @@ module.exports = {
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
 	entry: {
-		main: path.join( __dirname, '../modules/search/instant-search/loader.js' ),
+		main: path.join( __dirname, '../src/instant-search/loader.js' ),
 	},
 	output: {
 		...jetpackWebpackConfig.output,
 		// @todo: Make the file naming regular.
 		filename: 'jp-search-[name].bundle.min.js',
 		chunkFilename: 'jp-search.chunk-[name].[contenthash:20].min.js',
-		path: path.join( __dirname, '../_inc/build/instant-search' ),
+		path: path.join( __dirname, 'build/instant-search' ),
 	},
 	optimization: {
 		...jetpackWebpackConfig.optimization,
@@ -82,11 +82,11 @@ module.exports = {
 			: [
 					new webpack.NormalModuleReplacementPlugin(
 						/^debug$/,
-						path.resolve( __dirname, '../modules/search/instant-search/lib/dummy-debug' )
+						path.resolve( __dirname, '../src/instant-search/lib/dummy-debug' )
 					),
 			  ] ),
 		definePaletteColorsAsStaticVariables(),
-		defineReadableJSAssetsPluginForSearch(),
+		new AddReadableJSAssetsPlugin(),
 	],
 	module: {
 		strictExportPresence: true,
@@ -125,3 +125,5 @@ module.exports = {
 		],
 	},
 };
+
+module.exports = instantSearchConfig;
