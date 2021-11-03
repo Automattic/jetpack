@@ -18,7 +18,7 @@
 	},
 	"dependencies": {
 		"@automattic/calypso-build": "9.0.0",
-		"@automattic/webpack-rtl-plugin": "5.0.0",
+		"@automattic/webpack-rtl-plugin": "5.1.0",
 		"@babel/plugin-proposal-class-properties": "7.14.5",
 		"@babel/plugin-transform-runtime": "7.15.0",
 		"@babel/preset-env": "7.15.0",

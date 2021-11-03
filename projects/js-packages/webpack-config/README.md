@@ -165,8 +165,6 @@ Options are:
 
 This provides an instance of [@automattic/webpack-rtl-plugin](https://www.npmjs.com/package/@automattic/webpack-rtl-plugin). The `options` are passed to the plugin.
 
-Note that, despite its documentation, it does not actually recognize options `filename` or `minify`.
-
 ##### `DuplicatePackageCheckerPlugin( options )`
 
 This provides an instance of [duplicate-package-checker-webpack-plugin](https://www.npmjs.com/package/duplicate-package-checker-webpack-plugin). The `options` are passed to the plugin.
