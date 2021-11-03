@@ -12,8 +12,7 @@ export const TOGGLE_SEARCH_MODULE = 'TOGGLE_SEARCH_MODULE';
 function* updateJetpackSettings( settings ) {
 	yield setJetpackSettings( settings );
 	yield setJetpackSettingsNetworkBusy();
-	yield updateJetpackSettingsControl( settings );
-	const updatedSettings = yield fetchJetpackSettingsControl();
+	const updatedSettings = yield updateJetpackSettingsControl( settings );
 	yield setJetpackSettingsNetworkFree();
 	return setJetpackSettings( updatedSettings );
 }
