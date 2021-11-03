@@ -25,6 +25,8 @@ import { useState } from '@wordpress/element';
 
 const DEFAULT_KIND = 'subtitles';
 
+const ACCEPTED_FILE_TYPES = '.vtt,text/vtt';
+
 const KIND_OPTIONS = [
 	{ label: __( 'Subtitles', 'jetpack' ), value: 'subtitles' },
 	{ label: __( 'Captions', 'jetpack' ), value: 'captions' },
@@ -240,43 +242,51 @@ function SingleTrackEditor( { track, guid, onChange, onClose, onCancel, trackExi
 				<span className="videopress-block-tracks-editor__single-track-editor-label">
 					{ __( 'Edit track', 'jetpack' ) }
 				</span>
-				<div className="videopress-block-tracks-editor__single-track-editor-edit-file-label">
-					<span>{ __( 'File', 'jetpack' ) }:</span>
-					{ '' !== fileName && (
-						<span className="videopress-block-tracks-editor__single-track-editor-edit-file-label-name">
-							<strong>{ fileName }</strong>
-						</span>
-					) }
-					<MediaUploadCheck>
-						<FormFileUpload
-							onChange={ event => {
-								const files = event.target.files;
+				<div className="videopress-block-tracks-editor__single-track-editor-upload-file">
+					<div className="videopress-block-tracks-editor__single-track-editor-upload-file-label">
+						<span>{ __( 'File', 'jetpack' ) }:</span>
+						{ '' !== fileName && (
+							<span className="videopress-block-tracks-editor__single-track-editor-upload-file-label-name">
+								<strong>{ fileName }</strong>
+							</span>
+						) }
+						<MediaUploadCheck>
+							<FormFileUpload
+								onChange={ event => {
+									const files = event.target.files;
 
-								if ( ! files.length > 0 ) {
-									return;
-								}
+									if ( ! files.length > 0 ) {
+										return;
+									}
 
-								track.tmpFile = files[ 0 ];
-								onChange( track );
-							} }
-							accept=".vtt,text/vtt"
-							render={ ( { openFileDialog } ) => {
-								return (
-									<Button
-										isLink
-										onClick={ () => {
-											openFileDialog();
-										} }
-									>
-										{ '' === fileName
-											? __( 'Select track', 'jetpack' )
-											: __( 'Change track', 'jetpack' ) }
-									</Button>
-								);
-							} }
-							disabled={ isSavingTrack }
-						/>
-					</MediaUploadCheck>
+									track.tmpFile = files[ 0 ];
+									onChange( track );
+								} }
+								accept={ ACCEPTED_FILE_TYPES }
+								render={ ( { openFileDialog } ) => {
+									return (
+										<Button
+											isLink
+											onClick={ () => {
+												openFileDialog();
+											} }
+										>
+											{ '' === fileName
+												? __( 'Select track', 'jetpack' )
+												: __( 'Change track', 'jetpack' ) }
+										</Button>
+									);
+								} }
+								disabled={ isSavingTrack }
+							/>
+						</MediaUploadCheck>
+					</div>
+					<div className="videopress-block-tracks-editor__single-track-editor-upload-file-help">
+						{
+							/* translators: %s: The allowed file types to be uploaded as a video text track." */
+							sprintf( __( 'Allowed formats: %s', 'jetpack' ), ACCEPTED_FILE_TYPES )
+						}
+					</div>
 				</div>
 				<div className="videopress-block-tracks-editor__single-track-editor-label-language">
 					<TextControl
@@ -308,6 +318,7 @@ function SingleTrackEditor( { track, guid, onChange, onClose, onCancel, trackExi
 					className="videopress-block-tracks-editor__single-track-editor-kind-select"
 					options={ KIND_OPTIONS }
 					value={ kind }
+					/* translators: %s: The kind of video text track e.g: "Subtitles, Captions" */
 					label={ __( 'Kind', 'jetpack' ) }
 					onChange={ newKind => {
 						onChange( {
@@ -331,7 +342,10 @@ function SingleTrackEditor( { track, guid, onChange, onClose, onCancel, trackExi
 				</div>
 				{ errorMessage && (
 					<div className="videopress-block-tracks-editor__single-track-editor-error">
-						{ __( 'Error: ', 'jetpack' ) + errorMessage }
+						{
+							/* translators: %s: An error message returned after a failed video track file upload." */
+							sprintf( __( 'Error: %s', 'jetpack' ), errorMessage )
+						}
 					</div>
 				) }
 			</div>

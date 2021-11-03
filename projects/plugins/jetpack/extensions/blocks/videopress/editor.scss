@@ -64,6 +64,12 @@
 	min-height: 36px;
 }
 
+.videopress-block-tracks-editor__single-track-editor-upload-file-help {
+	font-size: 12px;
+	color: $gray-700;
+	margin-top: $grid-unit-15;
+}
+
 .videopress-block-tracks-editor__single-track-editor-label {
 	color: $gray-700;
 	text-transform: uppercase;
@@ -105,10 +111,10 @@
 	}
 }
 
-.videopress-block-tracks-editor__single-track-editor-edit-file-label {
+.videopress-block-tracks-editor__single-track-editor-upload-file-label {
 	display: flex;
 
-	.components-form-file-upload, .videopress-block-tracks-editor__single-track-editor-edit-file-label-name {
+	.components-form-file-upload, .videopress-block-tracks-editor__single-track-editor-upload-file-label-name {
 		margin-inline-start: $grid-unit;
 	}
 }
