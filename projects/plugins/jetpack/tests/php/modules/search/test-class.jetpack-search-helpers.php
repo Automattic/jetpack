@@ -1,9 +1,5 @@
 <?php
 
-if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-	require_once WPMU_PLUGIN_DIR . '/jetpack-plugin/vendor/autoload_packages.php';
-}
-
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Search\Helper as Jetpack_Search_Helpers;
 

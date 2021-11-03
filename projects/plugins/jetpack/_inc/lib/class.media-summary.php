@@ -417,7 +417,7 @@ class Jetpack_Media_Summary {
 	 * @return array Array of words.
 	 */
 	public static function split_content_in_words( $text ) {
-		$words = preg_split( '/[\s!?;,.]+/', $text, null, PREG_SPLIT_NO_EMPTY );
+		$words = preg_split( '/[\s!?;,.]+/', $text, -1, PREG_SPLIT_NO_EMPTY );
 
 		// Return an empty array if the split above fails.
 		return $words ? $words : array();
