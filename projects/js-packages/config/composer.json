@@ -1,5 +1,5 @@
 {
-	"name": "automattic/jetpack-config",
+	"name": "automattic/jetpack-js-config",
 	"description": "Handles Jetpack global configuration shared across all packages",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
