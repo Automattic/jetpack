@@ -7,7 +7,9 @@ In order to do that, we use the `externals` property:
 ```JS
 	externals: {
 		...baseConfig.externals,
-		jetpackConfig: JSON.stringify( { plugins_slug: 'my-plugin-slug' } ),
+		jetpackConfig: JSON.stringify( {
+			plugins_slug: 'my-plugin-slug',
+		} ),
 	}
 ```
 
