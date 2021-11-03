@@ -184,7 +184,7 @@ function TrackList( { tracks, onChange, guid } ) {
 	);
 }
 
-function SingleTrackEditor( { track, onChange, onClose, onCancel, guid } ) {
+function SingleTrackEditor( { track, guid, onChange, onClose, onCancel, trackExists } ) {
 	const [ errorMessage, setErrorMessage ] = useState();
 	const [ isSavingTrack = false, setIsSavingTrack ] = useState();
 	const { label = '', srcLang = '', kind = DEFAULT_KIND } = track;
@@ -293,6 +293,7 @@ function SingleTrackEditor( { track, onChange, onClose, onCancel, guid } ) {
 							isSecondary
 							disabled={ ! track.tmpFile }
 							onClick={ () => {
+								setErrorMessage( null );
 								if ( label === '' ) {
 									track.label = __( 'English', 'jetpack' );
 								}
@@ -301,6 +302,13 @@ function SingleTrackEditor( { track, onChange, onClose, onCancel, guid } ) {
 								}
 								if ( track.kind === undefined ) {
 									track.kind = DEFAULT_KIND;
+								}
+
+								if ( trackExists( track ) ) {
+									setErrorMessage(
+										__( 'A track already exists for that language and kind.', 'jetpack' )
+									);
+									return;
 								}
 
 								setIsSavingTrack( true );
@@ -374,6 +382,7 @@ export default function TracksEditor( { tracks = [], onChange, guid } ) {
 					return (
 						<SingleTrackEditor
 							track={ tracks[ trackBeingEdited ] }
+							guid={ guid }
 							onChange={ newTrack => {
 								const newTracks = [ ...tracks ];
 								newTracks[ trackBeingEdited ] = newTrack;
@@ -384,7 +393,17 @@ export default function TracksEditor( { tracks = [], onChange, guid } ) {
 								onChange( tracks.filter( ( _track, index ) => index !== trackBeingEdited ) );
 								setTrackBeingEdited( null );
 							} }
-							guid={ guid }
+							trackExists={ newTrack => {
+								const oldTracks = tracks.filter( ( value, index ) => {
+									return index !== trackBeingEdited;
+								} );
+								return (
+									-1 !==
+									oldTracks.findIndex( track => {
+										return track.kind === newTrack.kind && track.srcLang === newTrack.srcLang;
+									} )
+								);
+							} }
 						/>
 					);
 				}
