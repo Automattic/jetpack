@@ -199,6 +199,41 @@ function SingleTrackEditor( { track, guid, onChange, onClose, onCancel, trackExi
 		return null;
 	}
 
+	const onSave = () => {
+		setErrorMessage( null );
+		if ( label === '' ) {
+			track.label = __( 'English', 'jetpack' );
+		}
+		if ( srcLang === '' ) {
+			track.srcLang = 'en';
+		}
+		if ( track.kind === undefined ) {
+			track.kind = DEFAULT_KIND;
+		}
+
+		if ( trackExists( track ) ) {
+			setErrorMessage( __( 'A track already exists for that language and kind.', 'jetpack' ) );
+			return;
+		}
+
+		setIsSavingTrack( true );
+
+		uploadTrackForGuid( track, guid )
+			.then( () => {
+				onChange( track );
+				setErrorMessage( null );
+				onClose();
+			} )
+			.catch( error => {
+				if ( error.message ) {
+					setErrorMessage( error.message );
+				}
+			} )
+			.finally( () => {
+				setIsSavingTrack( false );
+			} );
+	};
+
 	return (
 		<NavigableMenu>
 			<div className="videopress-block-tracks-editor__single-track-editor">
@@ -245,9 +280,6 @@ function SingleTrackEditor( { track, guid, onChange, onClose, onCancel, trackExi
 				</div>
 				<div className="videopress-block-tracks-editor__single-track-editor-label-language">
 					<TextControl
-						/* eslint-disable jsx-a11y/no-autofocus */
-						autoFocus
-						/* eslint-enable jsx-a11y/no-autofocus */
 						onChange={ newLabel =>
 							onChange( {
 								...track,
@@ -289,46 +321,7 @@ function SingleTrackEditor( { track, guid, onChange, onClose, onCancel, trackExi
 					{ isSavingTrack ? (
 						<Spinner />
 					) : (
-						<Button
-							isSecondary
-							disabled={ ! track.tmpFile }
-							onClick={ () => {
-								setErrorMessage( null );
-								if ( label === '' ) {
-									track.label = __( 'English', 'jetpack' );
-								}
-								if ( srcLang === '' ) {
-									track.srcLang = 'en';
-								}
-								if ( track.kind === undefined ) {
-									track.kind = DEFAULT_KIND;
-								}
-
-								if ( trackExists( track ) ) {
-									setErrorMessage(
-										__( 'A track already exists for that language and kind.', 'jetpack' )
-									);
-									return;
-								}
-
-								setIsSavingTrack( true );
-
-								uploadTrackForGuid( track, guid )
-									.then( () => {
-										onChange( track );
-										setErrorMessage( null );
-										onClose();
-									} )
-									.catch( error => {
-										if ( error.message ) {
-											setErrorMessage( error.message );
-										}
-									} )
-									.finally( () => {
-										setIsSavingTrack( false );
-									} );
-							} }
-						>
+						<Button isSecondary disabled={ ! track.tmpFile } onClick={ onSave }>
 							{ __( 'Save', 'jetpack' ) }
 						</Button>
 					) }
