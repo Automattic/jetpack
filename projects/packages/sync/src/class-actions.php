@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
-use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Status;
@@ -384,24 +383,14 @@ class Actions {
 			'codec'      => $codec_name,
 			'timestamp'  => $sent_timestamp,
 			'queue'      => $queue_id,
-			'home'       => Urls::home_url(),  // Send home url option to check for Identity Crisis server-side.
-			'siteurl'    => Urls::site_url(),  // Send siteurl option to check for Identity Crisis server-side.
 			'cd'         => sprintf( '%.4f', $checkout_duration ),
 			'pd'         => sprintf( '%.4f', $preprocess_duration ),
 			'queue_size' => $queue_size,
 			'buffer_id'  => $buffer_id,
 		);
 
-		// Has the site opted in to IDC mitigation?
-		if ( Identity_Crisis::should_handle_idc() ) {
-			$query_args['idc'] = true;
-		}
-
-		if ( \Jetpack_Options::get_option( 'migrate_for_idc', false ) ) {
-			$query_args['migrate_for_idc'] = true;
-		}
-
 		$query_args['timeout'] = Settings::is_doing_cron() ? 30 : 20;
+
 		if ( 'immediate-send' === $queue_id ) {
 			$query_args['timeout'] = 30;
 		}
