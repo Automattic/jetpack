@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Fix `@covers` directives in various tests.

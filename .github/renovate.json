@@ -18,6 +18,7 @@
 				"@automattic/jetpack-connection",
 				"@automattic/jetpack-idc",
 				"@automattic/jetpack-storybook",
+				"@automattic/jetpack-webpack-config",
 				"automattic/jetpack-a8c-mc-stats",
 				"automattic/jetpack-abtest",
 				"automattic/jetpack-admin-ui",

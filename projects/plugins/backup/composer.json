@@ -9,7 +9,7 @@
 		"automattic/jetpack-backup": "1.1.x-dev",
 		"automattic/jetpack-config": "1.5.x-dev",
 		"automattic/jetpack-connection": "1.30.x-dev",
-		"automattic/jetpack-connection-ui": "1.6.x-dev",
+		"automattic/jetpack-connection-ui": "1.7.x-dev",
 		"automattic/jetpack-sync": "1.27.x-dev",
 		"automattic/jetpack-status": "1.9.x-dev"
 	},
