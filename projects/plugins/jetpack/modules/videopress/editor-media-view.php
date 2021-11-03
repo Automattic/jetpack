@@ -210,16 +210,16 @@ function videopress_override_media_templates() {
 				};
 			} else { /* console.log( 'media.video undefined' ); */ }
 
-			// override the media modal in order to exdent the escape method to unload the player on hide
+			// override the media modal in order to extend the escape method to unload the player on hide
 			var BaseMediaModal = wp.media.view.Modal;
 
-			wp.media.view.Modal = BaseMediaModal.extend({
-				escape() {
-					BaseMediaModal.prototype.escape.apply(this);
-					var playerIframe = document.getElementsByClassName("videopress-iframe")[0];
+			wp.media.view.Modal = BaseMediaModal.extend( {
+				escape: function () {
+					BaseMediaModal.prototype.escape.apply( this );
+					var playerIframe = document.getElementsByClassName( "videopress-iframe" )[0];
 					playerIframe.parentElement.removeChild( playerIframe );
 				}
-			});
+			} );
 		})( wp.media );
 	</script>
 	<?php
