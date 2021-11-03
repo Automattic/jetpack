@@ -12,6 +12,7 @@ import { ProgressBar } from '@automattic/components';
  * Internal dependencies
  */
 import {
+	checkForLegacySecurityDailyPlan,
 	getPlanClass,
 	getJetpackProductUpsellByFeature,
 	FEATURE_VIDEOPRESS,
@@ -27,7 +28,12 @@ import { getUpgradeUrl } from 'state/initial-state';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { hasConnectedOwner as hasConnectedOwnerSelector, isOfflineMode } from 'state/connection';
-import { getSitePlan, getVideoPressStorageUsed, hasActiveVideoPressPurchase } from 'state/site';
+import {
+	getSitePlan,
+	getSitePurchases,
+	getVideoPressStorageUsed,
+	hasActiveVideoPressPurchase,
+} from 'state/site';
 
 class Media extends React.Component {
 	render() {
@@ -41,6 +47,7 @@ class Media extends React.Component {
 		const planClass = getPlanClass( this.props.sitePlan.product_slug );
 		const {
 			hasConnectedOwner,
+			hasLegacySecurityDailyPlan,
 			hasVideoPressPurchase,
 			isOffline,
 			upgradeUrl,
@@ -51,15 +58,11 @@ class Media extends React.Component {
 
 		const hasUpgrade =
 			includes(
-				[
-					'is-premium-plan',
-					'is-business-plan',
-					'is-daily-security-plan',
-					'is-realtime-security-plan',
-					'is-complete-plan',
-				],
+				[ 'is-premium-plan', 'is-business-plan', 'is-realtime-security-plan', 'is-complete-plan' ],
 				planClass
-			) || hasVideoPressPurchase;
+			) ||
+			hasLegacySecurityDailyPlan ||
+			hasVideoPressPurchase;
 
 		const bannerText =
 			! hasVideoPressPurchase && null !== videoPressStorageUsed && 0 === videoPressStorageUsed
@@ -145,6 +148,7 @@ export default connect( state => {
 		isModuleFound: module_name => _isModuleFound( state, module_name ),
 		sitePlan: getSitePlan( state ),
 		hasVideoPressPurchase: hasActiveVideoPressPurchase( state ),
+		hasLegacySecurityDailyPlan: getSitePurchases( state ).find( checkForLegacySecurityDailyPlan ),
 		hasConnectedOwner: hasConnectedOwnerSelector( state ),
 		isOffline: isOfflineMode( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),

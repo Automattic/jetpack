@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { includes, noop } from 'lodash';
-import moment from 'moment';
 
 /**
  * WordPress dependencies
@@ -19,11 +18,10 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
  */
 import DashItem from 'components/dash-item';
 import {
+	checkForLegacySecurityDailyPlan,
 	getPlanClass,
 	getJetpackProductUpsellByFeature,
 	FEATURE_VIDEOPRESS,
-	PLAN_JETPACK_SECURITY_DAILY,
-	PLAN_JETPACK_SECURITY_DAILY_MONTHLY,
 } from 'lib/plans/constants';
 import { ProgressBar } from '@automattic/components';
 import JetpackBanner from 'components/jetpack-banner';
@@ -190,19 +188,6 @@ class DashVideoPress extends Component {
 		return this.props.isModuleAvailable && this.getContent();
 	}
 }
-
-/**
- * Security Daily plan no longer includes VideoPress as of end of day Oct 6 2021 UTC.
- * This check enforces the upsell appears only for customers that purchased Security Daily after that date.
- *
- * @param {*} purchase - The site purchase object.
- * @returns {boolean} Whether or not the provided plan is a legacy Security Daily plan.
- */
-const checkForLegacySecurityDailyPlan = purchase =>
-	purchase.active &&
-	( PLAN_JETPACK_SECURITY_DAILY_MONTHLY === purchase.product_slug ||
-		PLAN_JETPACK_SECURITY_DAILY === purchase.product_slug ) &&
-	moment( purchase.subscribed_date ).isBefore( moment.utc( '2021-10-07' ) );
 
 export default connect(
 	state => ( {

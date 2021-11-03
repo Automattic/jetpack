@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { includes } from 'lodash';
+import moment from 'moment';
 
 // plans constants
 export const PLAN_BUSINESS = 'business-bundle';
@@ -407,3 +408,16 @@ export function containsBackupRealtime( planClass ) {
 		'is-realtime-backup-plan',
 	].includes( planClass );
 }
+
+/**
+ * Security Daily plan no longer includes VideoPress as of end of day Oct 6 2021 UTC.
+ * This check enforces the upsell appears only for customers that purchased Security Daily after that date.
+ *
+ * @param {*} purchase - The site purchase object.
+ * @returns {boolean} Whether or not the provided plan is a legacy Security Daily plan.
+ */
+export const checkForLegacySecurityDailyPlan = purchase =>
+	purchase.active &&
+	( PLAN_JETPACK_SECURITY_DAILY_MONTHLY === purchase.product_slug ||
+		PLAN_JETPACK_SECURITY_DAILY === purchase.product_slug ) &&
+	moment( purchase.subscribed_date ).isBefore( moment.utc( '2021-10-07' ) );
