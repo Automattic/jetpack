@@ -208,23 +208,23 @@
         },
         {
             "name": "automattic/jetpack-post-list",
-            "version": "v0.2.2",
+            "version": "v0.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-post-list.git",
-                "reference": "10cd23fbd9c6cb7ae020b7d8b454012ca9e42e47"
+                "reference": "7804ad7e9cb023e181ed4ad549943b501a893985"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-post-list/zipball/10cd23fbd9c6cb7ae020b7d8b454012ca9e42e47",
-                "reference": "10cd23fbd9c6cb7ae020b7d8b454012ca9e42e47",
+                "url": "https://api.github.com/repos/Automattic/jetpack-post-list/zipball/7804ad7e9cb023e181ed4ad549943b501a893985",
+                "reference": "7804ad7e9cb023e181ed4ad549943b501a893985",
                 "shasum": ""
             },
             "require": {
                 "automattic/jetpack-assets": "^1.11"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^2.0",
+                "automattic/jetpack-changelogger": "^3.0",
                 "automattic/wordbless": "@dev",
                 "yoast/phpunit-polyfills": "1.0.2"
             },
@@ -252,7 +252,10 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Enhance the classic view of the Admin section of your WordPress site",
-            "time": "2021-10-08T19:59:56+00:00"
+            "support": {
+                "source": "https://github.com/Automattic/jetpack-post-list/tree/v0.2.3"
+            },
+            "time": "2021-11-02T17:18:42+00:00"
         },
         {
             "name": "automattic/text-media-widget-styles",
