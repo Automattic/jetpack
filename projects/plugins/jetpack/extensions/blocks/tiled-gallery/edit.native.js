@@ -149,6 +149,7 @@ const TiledGalleryEdit = props => {
 			labels={ {
 				title: __( 'Tiled Gallery', 'jetpack' ),
 				name: __( 'images', 'jetpack' ),
+				instructions: __( 'ADD MEDIA', 'jetpack' ),
 			} }
 			onSelect={ populateInnerBlocksWithImages }
 			accept="image/*"
