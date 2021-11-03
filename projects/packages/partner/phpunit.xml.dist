@@ -2,6 +2,7 @@
 		bootstrap="tests/php/bootstrap.php"
 		backupGlobals="false"
 		colors="true"
+		convertDeprecationsToExceptions="true"
 >
 	<testsuites>
 		<testsuite name="general">
@@ -10,11 +11,7 @@
 	</testsuites>
 	<filter>
 		<whitelist processUncoveredFilesFromWhitelist="false">
-			<directory suffix=".php">.</directory>
-			<exclude>
-				<directory suffix=".php">tests</directory>
-				<directory suffix=".php">vendor</directory>
-			</exclude>
+			<directory suffix=".php">src</directory>
 		</whitelist>
 	</filter>
 </phpunit>

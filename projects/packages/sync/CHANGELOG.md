@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.27.1] - 2021-11-02
+### Changed
+- Set `convertDeprecationsToExceptions` true in PHPUnit config.
+- Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
+
+## [1.27.0] - 2021-10-26
+### Added
+- Added the _wpas_feature_enabled meta key to the sync list
+- Sync Error Log to capture failed sync requests.
+
+### Fixed
+- Check the return value of get_comment() before to use it.
+- Increase send timeout to 20 seconds allowing capture of WP.com 408 responses.
+
 ## [1.26.4] - 2021-10-13
 ### Changed
 - Sync Checksums: Convert text fields to latin1 before generating checksum.
@@ -500,6 +514,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[1.27.1]: https://github.com/Automattic/jetpack-sync/compare/v1.27.0...v1.27.1
+[1.27.0]: https://github.com/Automattic/jetpack-sync/compare/v1.26.4...v1.27.0
 [1.26.4]: https://github.com/Automattic/jetpack-sync/compare/v1.26.3...v1.26.4
 [1.26.3]: https://github.com/Automattic/jetpack-sync/compare/v1.26.2...v1.26.3
 [1.26.2]: https://github.com/Automattic/jetpack-sync/compare/v1.26.1...v1.26.2

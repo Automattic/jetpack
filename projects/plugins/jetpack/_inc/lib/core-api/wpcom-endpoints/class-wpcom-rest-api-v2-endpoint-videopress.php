@@ -52,7 +52,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 						'sanitize_callback' => 'sanitize_text_field',
 					),
 					'rating'        => array(
-						'description'       => __( 'The video content rating. One of G, PG-13, R-17 or X-18', 'jetpack' ),
+						'description'       => __( 'The video content rating. One of G, PG-13 or R-17', 'jetpack' ),
 						'type'              => 'string',
 						'required'          => false,
 						'sanitize_callback' => 'sanitize_text_field',

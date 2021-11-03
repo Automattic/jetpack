@@ -34,11 +34,11 @@ function showSuccessNotice() {
 	} );
 }
 
-export function SharePostButton( { isPublicizeEnabled } ) {
+export function SharePostButton() {
 	const { hasEnabledConnections } = useSocialMediaConnections();
-	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
-
+	const { isPublicizeEnabled } = usePublicizeConfig();
 	const { isFetching, isError, isSuccess, doPublicize } = useSharePost();
+	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
 	useEffect( () => {
 		if ( isFetching ) {
@@ -87,16 +87,31 @@ export function SharePostButton( { isPublicizeEnabled } ) {
 	);
 }
 
-export function SharePostRow( { isPublicizeEnabled } ) {
-	const { isRePublicizeFeatureEnabled } = usePublicizeConfig();
+export function SharePostRow() {
+	const { isRePublicizeFeatureEnabled, isRePublicizeFeatureUpgradable } = usePublicizeConfig();
+	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
+	// Do not render when RePublicize feature is not enabled.
 	if ( ! isRePublicizeFeatureEnabled ) {
+		return null;
+	}
+
+	// Do not render the button when the post is not published.
+	if ( ! isPostPublished ) {
+		return null;
+	}
+
+	/*
+	 * Do not render when the feature is upgradable.
+	 * We show the upsale notice instead.
+	 */
+	if ( isRePublicizeFeatureUpgradable ) {
 		return null;
 	}
 
 	return (
 		<PanelRow>
-			<SharePostButton isPublicizeEnabled={ isPublicizeEnabled } />
+			<SharePostButton />
 		</PanelRow>
 	);
 }
