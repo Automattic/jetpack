@@ -438,6 +438,11 @@ class REST_Connector {
 		$wpcom_user_data   = $connection->get_connected_user_data();
 
 		// Add connected user gravatar to the returned wpcom_user_data.
+		// Probably we shouldn't do this when $wpcom_user_data is false, but we have been since 2016 so
+		// clients probably expect that by now.
+		if ( false === $wpcom_user_data ) {
+			$wpcom_user_data = array();
+		}
 		$wpcom_user_data['avatar'] = ( ! empty( $wpcom_user_data['email'] ) ?
 		get_avatar_url(
 			$wpcom_user_data['email'],
