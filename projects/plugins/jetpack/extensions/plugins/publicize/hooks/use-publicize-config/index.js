@@ -53,9 +53,8 @@ export default function usePublicizeConfig() {
 	 * Also, it's tied to the post status (draft, published, etc.).
 	 */
 	const isPublicizeEnabled =
-		( isPublicizeEnabledMeta &&
-			! ( isRePublicizeUpgradableViaUpsell && isRePublicizeFeatureEnabled ) ) ||
-		isPostPublished;
+		( isPostPublished && ! ( isRePublicizeUpgradableViaUpsell && isRePublicizeFeatureEnabled ) ) ||
+		isPublicizeEnabledMeta;
 
 	/*
 	 * isPublicizeDisabledBySitePlan:
