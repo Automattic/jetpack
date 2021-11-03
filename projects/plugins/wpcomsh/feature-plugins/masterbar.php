@@ -249,7 +249,7 @@ function wpcomsh_is_site_sticker_active( $sticker_name ) {
  * Forces the Add New (plugin install) link to be Calypso.
  * @return string
  */
-function wpcomsh_update_plugin_link_destinaion( $url, $path, $scheme ) {
+function wpcomsh_update_plugin_link_destination( $url, $path, $scheme ) {
 	// Run only for plugin-install.php links.
 	if ( ! strpos( $url, '/plugin-install.php' ) ) {
 		return $url;
@@ -260,8 +260,8 @@ function wpcomsh_update_plugin_link_destinaion( $url, $path, $scheme ) {
 
 /**
  * If `wpcom-marketplace` blog sticker exists,
- * changes Add New (plugin) menu to be Calypso and
- * adds filters to change Add New link to be Calypso.
+ * adds filters so that Add New menu & button
+ * redirect to Calypso.
  * @return void
  */
 function wpcomsh_update_plugin_add_filter() {
@@ -270,12 +270,12 @@ function wpcomsh_update_plugin_add_filter() {
 		return;
 	}
 
-	// Only for testing purposes.
-	global $submenu;
-	$submenu['plugins.php'][10][2] = 'https://wordpress.com/plugins/' . ( new Automattic\Jetpack\Status() )->get_site_suffix();
+	// Changes plugin-install.php destination to Calypso.
+	// Documented in https://github.com/Automattic/jetpack/blob/f04ffdb03421e16a513ccbe208fec1d7fef2354d/projects/plugins/jetpack/modules/masterbar/admin-menu/class-atomic-admin-menu.php#L116-L125
+	add_filter( 'wpcom_marketplace_enabled', '__return_true' );
 
 	// We also need to change the any plugin-install.php links appearing in /wp-admin/plugins.php or elsewhere.
-	add_filter( 'self_admin_url', 'wpcomsh_update_plugin_link_destinaion', 10, 3 );
+	add_filter( 'self_admin_url', 'wpcomsh_update_plugin_link_destination', 10, 3 );
 }
 add_action( 'admin_menu', 'wpcomsh_update_plugin_add_filter' );
 
