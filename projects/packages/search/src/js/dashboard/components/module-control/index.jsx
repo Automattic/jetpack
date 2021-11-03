@@ -72,7 +72,10 @@ export default function SearchModuleControl() {
 	const returnUrl = encodeURIComponent( siteAdminUrl + RETURN_PATH );
 
 	const toggleSearchModule = useCallback( () => {
-		const newOption = { search: ! isModuleEnabled, instant_search_enabled: isInstantSearchEnabled };
+		const newOption = {
+			module_active: ! isModuleEnabled,
+			instant_search_enabled: isInstantSearchEnabled,
+		};
 		if ( supportsInstantSearch && isInstantSearchEnabled !== ! isModuleEnabled ) {
 			newOption.instant_search_enabled = ! isModuleEnabled;
 		}
@@ -83,10 +86,10 @@ export default function SearchModuleControl() {
 	const toggleInstantSearch = useCallback( () => {
 		const newOption = {
 			instant_search_enabled: supportsInstantSearch && ! isInstantSearchEnabled,
-			search: isModuleEnabled,
+			module_active: isModuleEnabled,
 		};
 		if ( newOption.instant_search_enabled ) {
-			newOption.search = true;
+			newOption.module_active = true;
 		}
 		updateOptions( newOption );
 		analytics.tracks.recordEvent( 'jetpack_search_instant_toggle', newOption );

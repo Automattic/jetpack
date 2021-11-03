@@ -25,10 +25,10 @@ export const fetchSearchPlanInfo = () => {
 
 export default {
 	[ FETCH_JETPACK_SETTINGS ]: function () {
-		return restApi.fetchSettings();
+		return restApi.fetchSearchSettings();
 	},
 	[ UPDATE_JETPACK_SETTINGS ]: function ( action ) {
-		return restApi.updateSettings( action.settings );
+		return restApi.updateSearchSettings( action.settings );
 	},
 	[ FETCH_SEARCH_PLAN_INFO ]: function () {
 		return restApi.fetchSearchPlanInfo();

@@ -7,7 +7,7 @@ const jetpackSettings = ( state = {}, action ) => {
 				...state,
 				...action.options,
 				is_toggling_module:
-					state.jetpackSettings?.search !== action.options.search &&
+					state.jetpackSettings?.module_active !== action.options.module_active &&
 					action.options.isUpdatingOptions,
 				is_toggling_instant_search:
 					state.jetpackSettings?.instant_search_enabled !== action.options.instant_search_enabled &&

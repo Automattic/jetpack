@@ -422,7 +422,7 @@ function JetpackRestApiClient( root, nonce ) {
 			postRequest( `${ apiRoot }jetpack/v4/identity-crisis/confirm-safe-mode`, postParams ).then(
 				checkStatus
 			),
-
+		//--- Search APIs start, which require `jetpack-search` package.
 		fetchSearchPlanInfo: () =>
 			getRequest( `${ apiRoot }jetpack/v4/search/plan`, getParams )
 				.then( checkStatus )
@@ -431,10 +431,13 @@ function JetpackRestApiClient( root, nonce ) {
 			getRequest( `${ apiRoot }jetpack/v4/search/settings`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
-		updateSearchSettings: () =>
-			postRequest( `${ apiRoot }jetpack/v4/search/settings`, postParams )
+		updateSearchSettings: newSettings =>
+			postRequest( `${ apiRoot }jetpack/v4/search/settings`, postParams, {
+				body: JSON.stringify( newSettings ),
+			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
+		//--- Search APIs end.
 	};
 
 	/**

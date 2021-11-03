@@ -37,6 +37,8 @@ class Jetpack_Admin {
 		jetpack_require_lib( 'admin-pages/class-jetpack-about-page' );
 		$this->jetpack_about = new Jetpack_About_Page();
 
+		// This will not be necessary once rebased with newest search package.
+		require_once __DIR__ . '/modules/search/class.jetpack-search-helpers.php';
 		Automattic\Jetpack\Search\Jetpack_Search_Dashboard::instance();
 
 		add_action( 'admin_init', array( $this->jetpack_react, 'react_redirects' ), 0 );
