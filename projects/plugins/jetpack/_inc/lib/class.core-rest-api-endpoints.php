@@ -733,7 +733,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => __CLASS__ . '::get_user_license_counts',
-					'permission_callback' => __CLASS__ . '::unlink_user_permission_callback',
+					'permission_callback' => __CLASS__ . '::user_licensing_permission_check',
 				),
 			)
 		);
@@ -748,12 +748,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => __CLASS__ . '::get_licensing_activation_notice_dismiss',
-					'permission_callback' => __CLASS__ . '::unlink_user_permission_callback',
+					'permission_callback' => __CLASS__ . '::user_licensing_permission_check',
 				),
 				array(
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => __CLASS__ . '::update_licensing_activation_notice_dismiss',
-					'permission_callback' => __CLASS__ . '::unlink_user_permission_callback',
+					'permission_callback' => __CLASS__ . '::user_licensing_permission_check',
 					'args'                => array(
 						'last_detached_count' => array(
 							'required'          => true,
@@ -1439,6 +1439,22 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'invalid_permission_manage_purchase_token', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Verify that user can view and update user-licensing data.
+	 *
+	 * @return bool Whether the user is connection owner and is currently connected.
+	 */
+	public static function user_licensing_permission_check() {
+		$connection_manager = new Connection_Manager( 'jetpack' );
+		$user_id            = get_current_user_id();
+
+		if ( $connection_manager->get_connection_owner_id() === $user_id && $connection_manager->is_user_connected( $user_id ) ) {
+			return true;
+		}
+
+		return new WP_Error( 'invalid_permission_manage_user_licenses', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
 	}
 
 	/**
