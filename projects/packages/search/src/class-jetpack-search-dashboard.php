@@ -6,14 +6,13 @@
  */
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
-use Automattic\Jetpack\Connection\REST_Connector;
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Jetpack_Plan;
 use Jetpack;
-use Jetpack_Search_Helpers;
 use Jetpack_Options;
+use Jetpack_Plan;
+use Jetpack_Search_Helpers;
 use Jetpack_Search_Options;
 
 /**
@@ -115,9 +114,9 @@ class Jetpack_Search_Dashboard {
 	public function load_admin_styles() {
 		wp_enqueue_style(
 			'jp-search-dashboard',
-			plugins_url( 'vendor/automattic/jetpack-search/_inc/build/instant-search/jp-search-dashboard-main.min.css', JETPACK__PLUGIN_FILE ),
+			plugins_url( 'vendor/automattic/jetpack-search/build/instant-search/jp-search-dashboard-main.min.css', JETPACK__PLUGIN_FILE ),
 			array(),
-			Jetpack_Search_Helpers::get_asset_version( 'vendor/automattic/jetpack-search/_inc/build/instant-search/jp-search-dashboard-main.min.css' )
+			Jetpack_Search_Helpers::get_asset_version( 'vendor/automattic/jetpack-search/build/instant-search/jp-search-dashboard-main.min.css' )
 		);
 	}
 
@@ -125,7 +124,7 @@ class Jetpack_Search_Dashboard {
 	 * Enqueue admin scripts.
 	 */
 	public function load_admin_scripts() {
-		$script_deps_path    = JETPACK__PLUGIN_DIR . 'vendor/automattic/jetpack-search/_inc/build/instant-search/jp-search-dashboard-main.min.asset.php';
+		$script_deps_path    = JETPACK__PLUGIN_DIR . 'vendor/automattic/jetpack-search/build/instant-search/jp-search-dashboard-main.min.asset.php';
 		$script_dependencies = array( 'react', 'react-dom', 'wp-polyfill' );
 		if ( file_exists( $script_deps_path ) ) {
 			$asset_manifest      = include $script_deps_path;
@@ -139,9 +138,9 @@ class Jetpack_Search_Dashboard {
 
 		wp_enqueue_script(
 			'jp-search-dashboard',
-			plugins_url( 'vendor/automattic/jetpack-search/_inc/build/instant-search/jp-search-dashboard-main.min.js', JETPACK__PLUGIN_FILE ),
+			plugins_url( 'vendor/automattic/jetpack-search/build/instant-search/jp-search-dashboard-main.min.js', JETPACK__PLUGIN_FILE ),
 			$script_dependencies,
-			Jetpack_Search_Helpers::get_asset_version( 'vendor/automattic/jetpack-search/_inc/build/instant-search/jp-search-dashboard-main.min.js' ),
+			Jetpack_Search_Helpers::get_asset_version( 'vendor/automattic/jetpack-search/build/instant-search/jp-search-dashboard-main.min.js' ),
 			true
 		);
 

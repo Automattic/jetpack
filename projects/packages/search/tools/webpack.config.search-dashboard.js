@@ -15,7 +15,7 @@ const baseWebpackConfig = getBaseWebpackConfig(
 		},
 		'output-filename': 'jp-search-dashboard-[name].min.js',
 		'output-chunk-filename': 'jp-search-dashboard-[name].[contenthash].min.js',
-		'output-path': path.join( __dirname, '../_inc/build/instant-search' ),
+		'output-path': path.join( __dirname, '../build/instant-search' ),
 		// Calypso-build defaults this to "window", which breaks things if no library.name is set.
 		'output-library-target': '',
 	}

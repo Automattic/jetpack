@@ -424,9 +424,17 @@ function JetpackRestApiClient( root, nonce ) {
 			),
 
 		fetchSearchPlanInfo: () =>
-			getRequest(`${apiRoot}jetpack/v4/search/plan`, getParams)
-			.then(checkStatus)
-			.then(parseJsonResponse),
+			getRequest( `${ apiRoot }jetpack/v4/search/plan`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+		fetchSearchSettings: () =>
+			getRequest( `${ apiRoot }jetpack/v4/search/settings`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+		updateSearchSettings: () =>
+			postRequest( `${ apiRoot }jetpack/v4/search/settings`, postParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 	};
 
 	/**
