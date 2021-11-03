@@ -730,11 +730,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'jetpack/v4',
 			'licensing/user/counts',
 			array(
-				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => __CLASS__ . '::get_user_license_counts',
-					'permission_callback' => __CLASS__ . '::user_licensing_permission_check',
-				),
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_user_license_counts',
+				'permission_callback' => __CLASS__ . '::user_licensing_permission_check',
 			)
 		);
 
@@ -745,21 +743,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'jetpack/v4',
 			'licensing/user/activation-notice-dismiss',
 			array(
-				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => __CLASS__ . '::get_licensing_activation_notice_dismiss',
-					'permission_callback' => __CLASS__ . '::user_licensing_permission_check',
-				),
-				array(
-					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => __CLASS__ . '::update_licensing_activation_notice_dismiss',
-					'permission_callback' => __CLASS__ . '::user_licensing_permission_check',
-					'args'                => array(
-						'last_detached_count' => array(
-							'required'          => true,
-							'type'              => 'integer',
-							'validate_callback' => __CLASS__ . '::validate_non_neg_int',
-						),
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::update_licensing_activation_notice_dismiss',
+				'permission_callback' => __CLASS__ . '::user_licensing_permission_check',
+				'args'                => array(
+					'last_detached_count' => array(
+						'required'          => true,
+						'type'              => 'integer',
+						'validate_callback' => __CLASS__ . '::validate_non_neg_int',
 					),
 				),
 			)
@@ -1444,13 +1435,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Verify that user can view and update user-licensing data.
 	 *
-	 * @return bool Whether the user is connection owner and is currently connected.
+	 * @return bool Whether the user is currently connected and they are the connection owner.
 	 */
 	public static function user_licensing_permission_check() {
 		$connection_manager = new Connection_Manager( 'jetpack' );
-		$user_id            = get_current_user_id();
 
-		if ( $connection_manager->get_connection_owner_id() === $user_id && $connection_manager->is_user_connected( $user_id ) ) {
+		if ( $connection_manager->is_user_connected() && $connection_manager->is_connection_owner() ) {
 			return true;
 		}
 
