@@ -116,13 +116,7 @@ export default function UpsellNotice( { isPostPublished } ) {
 		? 'https://jetpack.com/support/publicize/#re-sharing-your-content'
 		: 'https://wordpress.com/support/publicize/#share-your-content-again';
 
-	const buttonText = planData?.formatted_price
-		? sprintf(
-				/* translators: placeholder is the price for upgrading. */
-				'Upgrade now for %s',
-				planData.formatted_price
-		  )
-		: __( 'Upgrade now', 'jetpack' );
+	const buttonText = __( 'Upgrade now', 'jetpack' );
 
 	/*
 	 * Render an info message when the feature is not available
