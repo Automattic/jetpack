@@ -13,7 +13,7 @@ In order to do that, we use the `externals` property:
 	}
 ```
 
-Note: Make sure `'output-library-target': ''` is also set. Otherwise, do `jetpackConfig: 'var ' + JSON.stringify(...`,
+Note: If Webpack's [`libraryTarget`](https://webpack.js.org/configuration/output/#outputlibrarytarget) is set, you may need to override the target for the external by doing `jetpackConfig: 'var ' + JSON.stringify(...`.
 
 ## Required configuration
 
