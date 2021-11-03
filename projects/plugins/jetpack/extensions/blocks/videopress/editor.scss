@@ -1,4 +1,4 @@
-@import 'variables.scss';
+@import '../../shared/styles/gutenberg-base-styles.scss';
 
 .no-videopress-media-placeholder {
 	.components-placeholder__fieldset {
@@ -65,7 +65,7 @@
 }
 
 .videopress-block-tracks-editor__single-track-editor-label {
-	color: #757575;
+	color: $gray-700;
 	text-transform: uppercase;
 	font-size: 11px;
 	font-weight: 500;
@@ -115,5 +115,5 @@
 
 .videopress-block-tracks-editor__single-track-editor-error {
 	padding: $grid-unit-15 0;
-	color: #cc1818;
+	color: $alert-red;
 }
