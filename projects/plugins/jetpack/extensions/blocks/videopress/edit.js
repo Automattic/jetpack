@@ -7,6 +7,7 @@ import {
 	BaseControl,
 	Button,
 	PanelBody,
+	ResizableBox,
 	SandBox,
 	SelectControl,
 	ToggleControl,
@@ -515,7 +516,7 @@ const VpBlock = props => {
 		setAttributes,
 	} = props;
 
-	const { align, className, videoPressClassNames } = attributes;
+	const { align, className, videoPressClassNames, maxWidth } = attributes;
 
 	const blockProps = useBlockProps( {
 		className: classnames( 'wp-block-video', className, videoPressClassNames, {
@@ -526,7 +527,33 @@ const VpBlock = props => {
 	return (
 		<figure { ...blockProps }>
 			<div className="wp-block-embed__wrapper">
-				<SandBox html={ html } scripts={ scripts } type={ videoPressClassNames } />
+				<ResizableBox
+					enable={ {
+						top: false,
+						bottom: false,
+						left: true,
+						right: true,
+					} }
+					maxWidth="100%"
+					size={ { width: maxWidth } }
+					style={ { margin: 'auto' } }
+					/* eslint-disable no-unused-vars */
+					onResizeStop={ ( event, direction, elem, delta ) => {
+						let newMaxWidth = getComputedStyle( elem ).width;
+						const parentElement = elem.parentElement;
+						if ( null !== parentElement ) {
+							const parentWidth = getComputedStyle( elem.parentElement ).width;
+							if ( newMaxWidth === parentWidth ) {
+								newMaxWidth = '100%';
+							}
+						}
+
+						setAttributes( { maxWidth: newMaxWidth } );
+					} }
+					/* eslint-enable no-unused-vars */
+				>
+					<SandBox html={ html } scripts={ scripts } type={ videoPressClassNames } />
+				</ResizableBox>
 			</div>
 
 			{
