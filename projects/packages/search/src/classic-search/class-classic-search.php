@@ -1,28 +1,36 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
-
+<?php
 /**
- * Jetpack Search: Main Jetpack_Search class
+ * Classic Search: Our original search experience with filtering capability.
  *
- * @package    Jetpack
- * @subpackage Jetpack Search
- * @since      5.0.0
+ * @package    @automattic/jetpack-search
  */
+
+namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Search\Helper;
+use Automattic\Jetpack\Search\Helper as Jetpack_Search_Helpers;
+use Automattic\Jetpack\Search\WPES\Query_Builder as Jetpack_WPES_Query_Builder;
+use Automattic\Jetpack\Search\WPES\Query_Parser as Jetpack_WPES_Search_Query_Parser;
+use WP_Error;
+use WP_Query;
+use WP_Tax_Query;
 
 /**
- * The main class for the Jetpack Search module.
- *
- * @since 5.0.0
+ * Class responsible for enabling the Classic Search experience on the site.
  */
-class Jetpack_Search {
+class Classic_Search {
+	/**
+	 * The singleton instance of this class.
+	 *
+	 * @since 5.0.0
+	 * @var Classic_Search
+	 */
+	protected static $instance;
 
 	/**
 	 * The number of found posts.
 	 *
 	 * @since 5.0.0
-	 *
 	 * @var int
 	 */
 	protected $found_posts = 0;
@@ -31,7 +39,6 @@ class Jetpack_Search {
 	 * The search result, as returned by the WordPress.com REST API.
 	 *
 	 * @since 5.0.0
-	 *
 	 * @var array
 	 */
 	protected $search_result;
@@ -40,7 +47,6 @@ class Jetpack_Search {
 	 * This site's blog ID on WordPress.com.
 	 *
 	 * @since 5.0.0
-	 *
 	 * @var int
 	 */
 	protected $jetpack_blog_id;
@@ -49,7 +55,6 @@ class Jetpack_Search {
 	 * The Elasticsearch aggregations (filters).
 	 *
 	 * @since 5.0.0
-	 *
 	 * @var array
 	 */
 	protected $aggregations = array();
@@ -58,7 +63,6 @@ class Jetpack_Search {
 	 * The maximum number of aggregations allowed.
 	 *
 	 * @since 5.0.0
-	 *
 	 * @var int
 	 */
 	protected $max_aggregations_count = 100;
@@ -67,7 +71,6 @@ class Jetpack_Search {
 	 * Statistics about the last Elasticsearch query.
 	 *
 	 * @since 5.6.0
-	 *
 	 * @var array
 	 */
 	protected $last_query_info = array();
@@ -76,37 +79,51 @@ class Jetpack_Search {
 	 * Statistics about the last Elasticsearch query failure.
 	 *
 	 * @since 5.6.0
-	 *
 	 * @var array
 	 */
 	protected $last_query_failure_info = array();
 
 	/**
-	 * The singleton instance of this class.
-	 *
-	 * @since 5.0.0
-	 *
-	 * @var Jetpack_Search
-	 */
-	protected static $instance;
-
-	/**
 	 * Languages with custom analyzers. Other languages are supported, but are analyzed with the default analyzer.
 	 *
 	 * @since 5.0.0
-	 *
 	 * @var array
 	 */
 	public static $analyzed_langs = array( 'ar', 'bg', 'ca', 'cs', 'da', 'de', 'el', 'en', 'es', 'eu', 'fa', 'fi', 'fr', 'he', 'hi', 'hu', 'hy', 'id', 'it', 'ja', 'ko', 'nl', 'no', 'pt', 'ro', 'ru', 'sv', 'tr', 'zh' );
 
 	/**
-	 * Jetpack_Search constructor.
-	 *
-	 * @since 5.0.0
-	 *
-	 * Doesn't do anything. This class needs to be initialized via the instance() method instead.
+	 * The constructor is not used for this singleton class.
 	 */
 	protected function __construct() {
+	}
+
+	/**
+	 * Returns the singleton of the class. Instantiates and sets up a singleton instance if necessary.
+	 *
+	 * @param string $blog_id Blog id.
+	 * @return static The class singleton.
+	 */
+	public static function instance( $blog_id ) {
+		if ( ! isset( self::$instance ) ) {
+			self::$instance = new static();
+			self::$instance->setup( $blog_id );
+		}
+
+		return self::$instance;
+	}
+
+	/**
+	 * Performs setup tasks for the singleton. To be used exclusively after singleton instantitaion.
+	 *
+	 * @param string $blog_id Blog id.
+	 */
+	public function setup( $blog_id ) {
+		if ( ! $blog_id ) {
+			return;
+		}
+
+		$this->jetpack_blog_id = $blog_id;
+		$this->init_hooks();
 	}
 
 	/**
@@ -125,81 +142,6 @@ class Jetpack_Search {
 	 */
 	public function __wakeup() {
 		wp_die( "Please don't __wakeup Jetpack_Search" );
-	}
-
-	/**
-	 * Get singleton instance of Jetpack_Search.
-	 *
-	 * Instantiates and sets up a new instance if needed, or returns the singleton.
-	 *
-	 * @since 5.0.0
-	 *
-	 * @return Jetpack_Search The Jetpack_Search singleton.
-	 */
-	public static function instance() {
-		if ( ! isset( self::$instance ) ) {
-			if ( Automattic\Jetpack\Search\Options::is_instant_enabled() ) {
-				require_once __DIR__ . '/class-jetpack-instant-search.php';
-				self::$instance = new Jetpack_Instant_Search();
-			} else {
-				self::$instance = new Jetpack_Search();
-			}
-
-			self::$instance->setup();
-		}
-
-		return self::$instance;
-	}
-
-	/**
-	 * Perform various setup tasks for the class.
-	 *
-	 * Checks various pre-requisites and adds hooks.
-	 *
-	 * @since 5.0.0
-	 */
-	public function setup() {
-		if ( ! Jetpack::is_connection_ready() || ! $this->is_search_supported() ) {
-			/**
-			 * Fires when the Jetpack Search fails and would fallback to MySQL.
-			 *
-			 * @module search
-			 * @since 7.9.0
-			 *
-			 * @param string $reason Reason for Search fallback.
-			 * @param mixed  $data   Data associated with the request, such as attempted search parameters.
-			 */
-			do_action( 'jetpack_search_abort', 'inactive', null );
-			return;
-		}
-
-		$this->jetpack_blog_id = Jetpack::get_option( 'id' );
-
-		if ( ! $this->jetpack_blog_id ) {
-			/** This action is documented in modules/search/class.jetpack-search.php */
-			do_action( 'jetpack_search_abort', 'no_blog_id', null );
-			return;
-		}
-
-		$this->load_php();
-		$this->init_hooks();
-	}
-
-	/**
-	 * Loads the php for this version of search
-	 *
-	 * @since 8.3.0
-	 */
-	public function load_php() {
-		$this->base_load_php();
-	}
-
-	/**
-	 * Loads the PHP common to all search. Should be called from extending classes.
-	 */
-	protected function base_load_php() {
-		require_once __DIR__ . '/class.jetpack-search-template-tags.php';
-		require_once JETPACK__PLUGIN_DIR . 'modules/widgets/search.php';
 	}
 
 	/**
@@ -224,19 +166,6 @@ class Jetpack_Search {
 		}
 
 		add_action( 'jetpack_deactivate_module_search', array( $this, 'move_search_widgets_to_inactive' ) );
-	}
-
-	/**
-	 * Is search supported on the current plan
-	 *
-	 * @since 6.0
-	 * Loads scripts for Tracks analytics library
-	 */
-	public function is_search_supported() {
-		if ( method_exists( 'Jetpack_Plan', 'supports' ) ) {
-			return Jetpack_Plan::supports( 'search' );
-		}
-		return false;
 	}
 
 	/**
@@ -340,12 +269,12 @@ class Jetpack_Search {
 	 * being defined at the code level.
 	 *
 	 * @since      5.7.0
-	 * @deprecated 5.8.0 Use Helper::are_filters_by_widget_disabled() directly.
+	 * @deprecated 5.8.0 Use Jetpack_Search_Helpers::are_filters_by_widget_disabled() directly.
 	 *
 	 * @return bool
 	 */
 	public function are_filters_by_widget_disabled() {
-		return Helper::are_filters_by_widget_disabled();
+		return Jetpack_Search_Helpers::are_filters_by_widget_disabled();
 	}
 
 	/**
@@ -355,11 +284,11 @@ class Jetpack_Search {
 	 * @since 5.7.0
 	 */
 	public function set_filters_from_widgets() {
-		if ( Helper::are_filters_by_widget_disabled() ) {
+		if ( Jetpack_Search_Helpers::are_filters_by_widget_disabled() ) {
 			return;
 		}
 
-		$filters = Helper::get_filters_from_widgets();
+		$filters = Jetpack_Search_Helpers::get_filters_from_widgets();
 
 		if ( ! empty( $filters ) ) {
 			$this->set_filters( $filters );
@@ -580,8 +509,8 @@ class Jetpack_Search {
 		$page = ( $query->get( 'paged' ) ) ? absint( $query->get( 'paged' ) ) : 1;
 
 		// Get maximum allowed offset and posts per page values for the API.
-		$max_offset         = Helper::get_max_offset();
-		$max_posts_per_page = Helper::get_max_posts_per_page();
+		$max_offset         = Jetpack_Search_Helpers::get_max_offset();
+		$max_posts_per_page = Jetpack_Search_Helpers::get_max_posts_per_page();
 
 		$posts_per_page = $query->get( 'posts_per_page' );
 		if ( $posts_per_page > $max_posts_per_page ) {
@@ -625,7 +554,7 @@ class Jetpack_Search {
 		$es_wp_query_args = apply_filters( 'jetpack_search_es_wp_query_args', $es_wp_query_args, $query );
 
 		// If page * posts_per_page is greater than our max offset, send a 404. This is necessary because the offset is
-		// capped at Helper::get_max_offset(), so a high page would always return the last page of results otherwise.
+		// capped at Jetpack_Search_Helpers::get_max_offset(), so a high page would always return the last page of results otherwise.
 		if ( ( $es_wp_query_args['paged'] * $es_wp_query_args['posts_per_page'] ) > $max_offset ) {
 			$query->set_404();
 
@@ -696,7 +625,7 @@ class Jetpack_Search {
 		}
 
 		$es_args = $this->last_query_info['args'];
-		$builder = new Automattic\Jetpack\Search\WPES\Query_Builder();
+		$builder = new Jetpack_WPES_Query_Builder();
 		$this->add_aggregations_to_es_query_builder( $this->aggregations, $builder );
 		$es_args['aggregations'] = $builder->build_aggregation();
 
@@ -905,7 +834,7 @@ class Jetpack_Search {
 
 		$args = wp_parse_args( $args, $defaults );
 
-		$parser = new Automattic\Jetpack\Search\WPES\Query_Parser(
+		$parser = new Jetpack_WPES_Search_Query_Parser(
 			$args['query'],
 			/**
 			 * Filter the languages used by Jetpack Search's Query Parser.
@@ -1087,7 +1016,7 @@ class Jetpack_Search {
 			$es_query_args['from'] = max( 0, ( absint( $args['paged'] ) - 1 ) * $es_query_args['size'] );
 		}
 
-		$es_query_args['from'] = min( $es_query_args['from'], Helper::get_max_offset() );
+		$es_query_args['from'] = min( $es_query_args['from'], Jetpack_Search_Helpers::get_max_offset() );
 
 		if ( ! is_array( $args['author_name'] ) ) {
 			$args['author_name'] = array( $args['author_name'] );
@@ -1269,14 +1198,14 @@ class Jetpack_Search {
 	}
 
 	/**
-	 * Given an array of aggregations, parse and add them onto the query builder object for use in Elasticsearch.
+	 * Given an array of aggregations, parse and add them onto the Jetpack_WPES_Query_Builder object for use in Elasticsearch.
 	 *
 	 * @since 5.0.0
 	 *
-	 * @param array                                        $aggregations Array of aggregations (filters) to add to the query builder.
-	 * @param Automattic\Jetpack\Search\WPES\Query_Builder $builder      The builder instance that is creating the Elasticsearch query.
+	 * @param array                      $aggregations Array of aggregations (filters) to add to the Jetpack_WPES_Query_Builder.
+	 * @param Jetpack_WPES_Query_Builder $builder      The builder instance that is creating the Elasticsearch query.
 	 */
-	public function add_aggregations_to_es_query_builder( array $aggregations, $builder ) {
+	public function add_aggregations_to_es_query_builder( array $aggregations, Jetpack_WPES_Query_Builder $builder ) {
 		foreach ( $aggregations as $label => $aggregation ) {
 			if ( ! isset( $aggregation['type'] ) ) {
 				continue;
@@ -1301,15 +1230,15 @@ class Jetpack_Search {
 	}
 
 	/**
-	 * Given an individual taxonomy aggregation, add it to the query builder object for use in Elasticsearch.
+	 * Given an individual taxonomy aggregation, add it to the Jetpack_WPES_Query_Builder object for use in Elasticsearch.
 	 *
 	 * @since 5.0.0
 	 *
-	 * @param array                                        $aggregation The aggregation to add to the query builder.
-	 * @param string                                       $label       The 'label' (unique id) for this aggregation.
-	 * @param Automattic\Jetpack\Search\WPES\Query_Builder $builder     The builder instance that is creating the Elasticsearch query.
+	 * @param array                      $aggregation The aggregation to add to the query builder.
+	 * @param string                     $label       The 'label' (unique id) for this aggregation.
+	 * @param Jetpack_WPES_Query_Builder $builder     The builder instance that is creating the Elasticsearch query.
 	 */
-	public function add_taxonomy_aggregation_to_es_query_builder( array $aggregation, $label, $builder ) {
+	public function add_taxonomy_aggregation_to_es_query_builder( array $aggregation, $label, Jetpack_WPES_Query_Builder $builder ) {
 		$field = null;
 
 		switch ( $aggregation['taxonomy'] ) {
@@ -1338,15 +1267,15 @@ class Jetpack_Search {
 	}
 
 	/**
-	 * Given an individual post_type aggregation, add it to the query builder object for use in Elasticsearch.
+	 * Given an individual post_type aggregation, add it to the Jetpack_WPES_Query_Builder object for use in Elasticsearch.
 	 *
 	 * @since 5.0.0
 	 *
-	 * @param array                                        $aggregation The aggregation to add to the query builder.
-	 * @param string                                       $label       The 'label' (unique id) for this aggregation.
-	 * @param Automattic\Jetpack\Search\WPES\Query_Builder $builder     The builder instance that is creating the Elasticsearch query.
+	 * @param array                      $aggregation The aggregation to add to the query builder.
+	 * @param string                     $label       The 'label' (unique id) for this aggregation.
+	 * @param Jetpack_WPES_Query_Builder $builder     The builder instance that is creating the Elasticsearch query.
 	 */
-	public function add_post_type_aggregation_to_es_query_builder( array $aggregation, $label, $builder ) {
+	public function add_post_type_aggregation_to_es_query_builder( array $aggregation, $label, Jetpack_WPES_Query_Builder $builder ) {
 		$builder->add_aggs(
 			$label,
 			array(
@@ -1359,15 +1288,15 @@ class Jetpack_Search {
 	}
 
 	/**
-	 * Given an individual date_histogram aggregation, add it to the query builder object for use in Elasticsearch.
+	 * Given an individual date_histogram aggregation, add it to the Jetpack_WPES_Query_Builder object for use in Elasticsearch.
 	 *
 	 * @since 5.0.0
 	 *
-	 * @param array                                        $aggregation The aggregation to add to the query builder.
-	 * @param string                                       $label       The 'label' (unique id) for this aggregation.
-	 * @param Automattic\Jetpack\Search\WPES\Query_Builder $builder     The builder instance that is creating the Elasticsearch query.
+	 * @param array                      $aggregation The aggregation to add to the query builder.
+	 * @param string                     $label       The 'label' (unique id) for this aggregation.
+	 * @param Jetpack_WPES_Query_Builder $builder     The builder instance that is creating the Elasticsearch query.
 	 */
-	public function add_date_histogram_aggregation_to_es_query_builder( array $aggregation, $label, $builder ) {
+	public function add_date_histogram_aggregation_to_es_query_builder( array $aggregation, $label, Jetpack_WPES_Query_Builder $builder ) {
 		$args = array(
 			'interval' => $aggregation['interval'],
 			'field'    => ( ! empty( $aggregation['field'] ) && 'post_date_gmt' === $aggregation['field'] ) ? 'date_gmt' : 'date',
@@ -1572,12 +1501,12 @@ class Jetpack_Search {
 							$slug_count = count( $existing_term_slugs );
 
 							if ( $slug_count > 1 ) {
-								$remove_url = Helper::add_query_arg(
+								$remove_url = Jetpack_Search_Helpers::add_query_arg(
 									$tax_query_var,
 									rawurlencode( implode( '+', array_diff( $existing_term_slugs, array( $item['key'] ) ) ) )
 								);
 							} else {
-								$remove_url = Helper::remove_query_arg( $tax_query_var );
+								$remove_url = Jetpack_Search_Helpers::remove_query_arg( $tax_query_var );
 							}
 						}
 
@@ -1610,12 +1539,12 @@ class Jetpack_Search {
 
 							// For the right 'remove filter' url, we need to remove the post type from the array, or remove the param entirely if it's the only one.
 							if ( $post_type_count > 1 ) {
-								$remove_url = Helper::add_query_arg(
+								$remove_url = Jetpack_Search_Helpers::add_query_arg(
 									'post_type',
 									rawurlencode( implode( ',', array_diff( $post_types, array( $item['key'] ) ) ) )
 								);
 							} else {
-								$remove_url = Helper::remove_query_arg( 'post_type' );
+								$remove_url = Jetpack_Search_Helpers::remove_query_arg( 'post_type' );
 							}
 						}
 
@@ -1644,7 +1573,7 @@ class Jetpack_Search {
 								if ( ! empty( $current_year ) && (int) $current_year === $year ) {
 									$active = true;
 
-									$remove_url = Helper::remove_query_arg( array( 'year', 'monthnum', 'day' ) );
+									$remove_url = Jetpack_Search_Helpers::remove_query_arg( array( 'year', 'monthnum', 'day' ) );
 								}
 
 								break;
@@ -1666,7 +1595,7 @@ class Jetpack_Search {
 									! empty( $current_month ) && (int) $current_month === $month ) {
 									$active = true;
 
-									$remove_url = Helper::remove_query_arg( array( 'year', 'monthnum' ) );
+									$remove_url = Jetpack_Search_Helpers::remove_query_arg( array( 'year', 'monthnum' ) );
 								}
 
 								break;
@@ -1690,7 +1619,7 @@ class Jetpack_Search {
 									! empty( $current_day ) && (int) $current_day === $day ) {
 									$active = true;
 
-									$remove_url = Helper::remove_query_arg( array( 'day' ) );
+									$remove_url = Jetpack_Search_Helpers::remove_query_arg( array( 'day' ) );
 								}
 
 								break;
@@ -1709,7 +1638,7 @@ class Jetpack_Search {
 				$url_params = urlencode_deep( $query_vars );
 
 				$aggregation_data[ $label ]['buckets'][] = array(
-					'url'        => Helper::add_query_arg( $url_params ),
+					'url'        => Jetpack_Search_Helpers::add_query_arg( $url_params ),
 					'query_vars' => $query_vars,
 					'name'       => $name,
 					'count'      => $item['doc_count'],
@@ -1842,12 +1771,12 @@ class Jetpack_Search {
 			return;
 		}
 
-		$event = Helper::get_widget_tracks_value( $old_value, $new_value );
+		$event = Jetpack_Search_Helpers::get_widget_tracks_value( $old_value, $new_value );
 		if ( ! $event ) {
 			return;
 		}
 
-		$tracking = new Automattic\Jetpack\Tracking();
+		$tracking = new \Automattic\Jetpack\Tracking();
 		$tracking->tracks_record_event(
 			wp_get_current_user(),
 			sprintf( 'jetpack_search_widget_%s', $event['action'] ),
@@ -1861,7 +1790,7 @@ class Jetpack_Search {
 	 * @since 5.9.0
 	 */
 	public function move_search_widgets_to_inactive() {
-		if ( ! is_active_widget( false, false, Helper::FILTER_WIDGET_BASE, true ) ) {
+		if ( ! is_active_widget( false, false, Jetpack_Search_Helpers::FILTER_WIDGET_BASE, true ) ) {
 			return;
 		}
 
@@ -1880,7 +1809,7 @@ class Jetpack_Search {
 
 			if ( is_array( $widgets ) ) {
 				foreach ( $widgets as $key => $widget ) {
-					if ( _get_widget_id_base( $widget ) === Helper::FILTER_WIDGET_BASE ) {
+					if ( _get_widget_id_base( $widget ) === Jetpack_Search_Helpers::FILTER_WIDGET_BASE ) {
 						$changed = true;
 
 						array_unshift( $sidebars_widgets['wp_inactive_widgets'], $widget );

@@ -1,28 +1,27 @@
 <?php
 /**
- * Jetpack Search: Instant Front-End Search and Filtering
+ * Instant Search: Our modern and customizable search experience.
  *
- * @since 8.3.0
- * @package automattic/jetpack
+ * @package automattic/jetpack-search
  */
 
-use Automattic\Jetpack\Search\Helper;
-use Automattic\Jetpack\Search\Options;
+namespace Automattic\Jetpack\Search;
+
+use Automattic\Jetpack\Search;
+use Automattic\Jetpack\Search\WPES\Query_Builder as Jetpack_WPES_Query_Builder;
+use WP_Error;
 
 /**
- * Class to load Instant Search experience on the site.
- *
- * @since 8.3.0
+ * Class responsible for enabling the Instant Search experience on the site.
  */
-class Jetpack_Instant_Search extends Jetpack_Search {
+class Instant_Search extends Classic_Search {
 	/**
 	 * The name of instant search sidebar
 	 *
 	 * @since 9.8.0
-	 *
 	 * @var string
 	 */
-	const JETPACK_INSTANT_SEARCH_SIDEBAR = 'jetpack-instant-search-sidebar';
+	const INSTANT_SEARCH_SIDEBAR = 'jetpack-instant-search-sidebar';
 
 	/**
 	 * Variable to save old sidebars_widgets value.
@@ -35,41 +34,6 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 * @var array
 	 */
 	protected $old_sidebars_widgets;
-
-	/**
-	 * Get singleton instance of Jetpack Instant Search.
-	 *
-	 * Instantiates and sets up a new instance if needed, or returns the singleton.
-	 *
-	 * @since 9.8.0
-	 *
-	 * @return Jetpack_Instant_Search The Jetpack_Instant_Search singleton.
-	 */
-	public static function instance() {
-		if ( ! isset( self::$instance ) ) {
-			self::$instance = new static();
-			self::$instance->setup();
-		}
-
-		return self::$instance;
-	}
-
-	/**
-	 * Loads the php for this version of search
-	 *
-	 * @since 8.3.0
-	 */
-	public function load_php() {
-		$this->base_load_php();
-
-		require_once __DIR__ . '/class-jetpack-search-settings.php';
-		new Jetpack_Search_Settings();
-
-		if ( class_exists( 'WP_Customize_Manager' ) ) {
-			require_once __DIR__ . '/class-jetpack-search-customize.php';
-			new Jetpack_Search_Customize();
-		}
-	}
 
 	/**
 	 * Setup the various hooks needed for the plugin to take over search duties.
@@ -108,27 +72,35 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 * Loads assets for Jetpack Instant Search Prototype featuring Search As You Type experience.
 	 */
 	public function load_assets() {
-		$this->load_assets_with_parameters( '', JETPACK__PLUGIN_FILE );
+
+		// TODO: Move this into the initializer.
+		/**
+		 * Location of built instant search assets, does not include trailing slash.
+		 *
+		 * @var string
+		 */
+		define( 'JETPACK_SEARCH_PLUGIN_DIRECTORY', dirname( dirname( __DIR__ ) ) );
+		define( 'JETPACK_SEARCH_BUILD_DIRECTORY', 'jetpack-search/build/instant-search' );
+
+		$this->load_assets_with_parameters(
+			defined( 'JETPACK_SEARCH_BUILD_DIRECTORY' ) ? constant( 'JETPACK_SEARCH_BUILD_DIRECTORY' ) : '',
+			defined( 'JETPACK_SEARCH_PLUGIN_DIRECTORY' ) ? constant( 'JETPACK_SEARCH_PLUGIN_DIRECTORY' ) : ''
+		);
 	}
 
 	/**
 	 * Loads assets according to parameters provided.
 	 *
 	 * @param string $path_prefix - Prefix for assets' relative paths.
-	 * @param string $plugin_base_path - Base path for use in plugins_url.
 	 */
-	public function load_assets_with_parameters( $path_prefix, $plugin_base_path ) {
+	public function load_assets_with_parameters( $path_prefix, $plugin_path ) {
 		// We added `.min` to the file names of all minimized assets, and there's a non-minimized version for each asset.
 		// For example, there is a `_inc/build/instant-search/jp-search-main.bundle.js` for `_inc/build/instant-search/jp-search-main.bundle.min.js`.
 		// which is for the extraction of strings for translations as `.min.js` files are omitted.
-		$script_relative_path = $path_prefix . '_inc/build/instant-search/jp-search-main.bundle.min.js';
+		$script_relative_path = $path_prefix . '/jp-search-main.bundle.min.js';
 
-		if ( ! file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) ) {
-			return;
-		}
-
-		$script_version = Helper::get_asset_version( $script_relative_path );
-		$script_path    = plugins_url( $script_relative_path, $plugin_base_path );
+		$script_version = Search\Helper::get_asset_version( $script_relative_path );
+		$script_path    = plugins_url( $script_relative_path, $plugin_path );
 		wp_enqueue_script( 'jetpack-instant-search', $script_path, array(), $script_version, true );
 		wp_set_script_translations( 'jetpack-instant-search', 'jetpack' );
 		$this->load_and_initialize_tracks();
@@ -138,10 +110,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		// The injected translations is actually for script `_inc/build/instant-search/jp-search.chunk-main-payload.[contentHash].min.js` lazy-loaded by `_inc/build/instant-search/jp-search-main.bundle.min.js`.
 		// The [contentHash] changes almost on every build, so we make the un-minimized file name fixed for the sake of loading translations.
 		$this->inject_translation_for_script(
-			plugins_url(
-				$path_prefix . '_inc/build/instant-search/jp-search.chunk-main-payload.js',
-				$plugin_base_path
-			)
+			plugins_url( $path_prefix . '/jp-search.chunk-main-payload.js', $plugin_path )
 		);
 	}
 
@@ -170,7 +139,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 * Passes all options to the JS app.
 	 */
 	protected function inject_javascript_options() {
-		$options = Helper::generate_initial_javascript_state();
+		$options = Search\Helper::generate_initial_javascript_state();
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
 		wp_add_inline_script( 'jetpack-instant-search', 'var JetpackInstantSearchOptions=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $options ) ) . '"));', 'before' );
 	}
@@ -244,7 +213,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			return;
 		}
 
-		$builder = new Automattic\Jetpack\Search\WPES\Query_Builder();
+		$builder = new Jetpack_WPES_Query_Builder();
 		$this->add_aggregations_to_es_query_builder( $this->aggregations, $builder );
 		$this->search_result = $this->instant_api(
 			array(
@@ -385,7 +354,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		}
 
 		// Set default result format to "expanded".
-		update_option( Options::OPTION_PREFIX . 'result_format', Options::RESULT_FORMAT_EXPANDED );
+		update_option( Search\Options::OPTION_PREFIX . 'result_format', Search\Options::RESULT_FORMAT_EXPANDED );
 
 		$this->auto_config_excluded_post_types();
 		$this->auto_config_overlay_sidebar_widgets();
@@ -400,7 +369,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	public function auto_config_overlay_sidebar_widgets() {
 		global $wp_registered_sidebars;
 		$sidebars = get_option( 'sidebars_widgets', array() );
-		$slug     = Helper::FILTER_WIDGET_BASE;
+		$slug     = Search\Helper::FILTER_WIDGET_BASE;
 
 		if ( isset( $sidebars['jetpack-instant-search-sidebar'] ) ) {
 			foreach ( (array) $sidebars['jetpack-instant-search-sidebar'] as $widget_id ) {
@@ -424,14 +393,14 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 					$sidebar_searchbox_idx = $idx;
 				}
 				if ( 0 === strpos( $widget_id, $slug ) ) {
-					$sidebar_id = (int) str_replace( Helper::FILTER_WIDGET_BASE . '-', '', $widget_id );
+					$sidebar_id = (int) str_replace( Search\Helper::FILTER_WIDGET_BASE . '-', '', $widget_id );
 					break;
 				}
 			}
 		}
 
 		$next_id         = 1;
-		$widget_opt_name = Helper::get_widget_option_name();
+		$widget_opt_name = Search\Helper::get_widget_option_name();
 		$widget_options  = get_option( $widget_opt_name, array() );
 		foreach ( $widget_options as $id => $w ) {
 			if ( $id >= $next_id ) {
@@ -447,7 +416,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			if ( ! isset( $sidebars['jetpack-instant-search-sidebar'] ) ) {
 				$sidebars['jetpack-instant-search-sidebar'] = array();
 			}
-			array_unshift( $sidebars['jetpack-instant-search-sidebar'], Helper::build_widget_id( $next_id ) );
+			array_unshift( $sidebars['jetpack-instant-search-sidebar'], Search\Helper::build_widget_id( $next_id ) );
 			update_option( 'sidebars_widgets', $sidebars );
 
 			return;
@@ -462,15 +431,15 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			$widget_options[ $next_id ] = $preconfig_opts;
 			if ( false !== $sidebar_searchbox_idx ) {
 				// Replace Core search box.
-				$sidebars['sidebar-1'][ $sidebar_searchbox_idx ] = Helper::build_widget_id( $next_id );
+				$sidebars['sidebar-1'][ $sidebar_searchbox_idx ] = Search\Helper::build_widget_id( $next_id );
 			} else {
 				// Add to top.
-				array_unshift( $sidebars['sidebar-1'], Helper::build_widget_id( $next_id ) );
+				array_unshift( $sidebars['sidebar-1'], Search\Helper::build_widget_id( $next_id ) );
 			}
 			$next_id++;
 		}
 		$widget_options[ $next_id ] = $preconfig_opts;
-		array_unshift( $sidebars['jetpack-instant-search-sidebar'], Helper::build_widget_id( $next_id ) );
+		array_unshift( $sidebars['jetpack-instant-search-sidebar'], Search\Helper::build_widget_id( $next_id ) );
 
 		update_option( $widget_opt_name, $widget_options );
 		update_option( 'sidebars_widgets', $sidebars );
@@ -563,7 +532,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			)
 		);
 		$enabled_post_types = array();
-		$widget_options     = get_option( Helper::get_widget_option_name(), array() );
+		$widget_options     = get_option( Search\Helper::get_widget_option_name(), array() );
 
 		// Prior to Jetpack 8.8, post types were enabled via Jetpack Search widgets rather than disabled via the Customizer.
 		// To continue supporting post types set up in the old way, we iterate through each Jetpack Search
@@ -578,7 +547,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 
 		if ( ! empty( $enabled_post_types ) ) {
 			$post_types_to_disable = array_diff( $post_types, $enabled_post_types );
-			update_option( Options::OPTION_PREFIX . 'excluded_post_types', join( ',', $post_types_to_disable ) );
+			update_option( Search\Options::OPTION_PREFIX . 'excluded_post_types', join( ',', $post_types_to_disable ) );
 		}
 	}
 
@@ -588,16 +557,16 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 * @since  9.6.0
 	 */
 	public function auto_config_woo_result_format() {
-		if ( ! method_exists( 'Jetpack', 'get_active_plugins' ) ) {
-			return false;
-		}
-
 		// Check if WooCommerce plugin is active (based on https://docs.woocommerce.com/document/create-a-plugin/).
-		if ( ! in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', Jetpack::get_active_plugins() ), true ) ) {
+		if ( ! in_array(
+			'woocommerce/woocommerce.php',
+			apply_filters( 'active_plugins', Search\Helper::get_active_plugins() ),
+			true
+		) ) {
 			return false;
 		}
 
-		update_option( Options::OPTION_PREFIX . 'result_format', Options::RESULT_FORMAT_PRODUCT );
+		update_option( Search\Options::OPTION_PREFIX . 'result_format', Search\Options::RESULT_FORMAT_PRODUCT );
 	}
 
 	/**
@@ -630,18 +599,18 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			empty( $this->old_sidebars_widgets )
 			|| ! is_array( $this->old_sidebars_widgets )
 			|| ! is_array( $sidebars_widgets )
-			|| ! array_key_exists( static::JETPACK_INSTANT_SEARCH_SIDEBAR, $sidebars_widgets )
-			|| ! array_key_exists( static::JETPACK_INSTANT_SEARCH_SIDEBAR, $this->old_sidebars_widgets )
+			|| ! array_key_exists( static::INSTANT_SEARCH_SIDEBAR, $sidebars_widgets )
+			|| ! array_key_exists( static::INSTANT_SEARCH_SIDEBAR, $this->old_sidebars_widgets )
 			// If the new Jetpack sidebar already has fewer widgets, skip execution.
 			// Uses less than comparison for defensive programming.
-			|| count( $sidebars_widgets[ static::JETPACK_INSTANT_SEARCH_SIDEBAR ] ) <= count( $this->old_sidebars_widgets[ static::JETPACK_INSTANT_SEARCH_SIDEBAR ] )
+			|| count( $sidebars_widgets[ static::INSTANT_SEARCH_SIDEBAR ] ) <= count( $this->old_sidebars_widgets[ static::INSTANT_SEARCH_SIDEBAR ] )
 		) {
 			return $sidebars_widgets;
 		}
 
-		$lost_widgets                            = array_diff( $sidebars_widgets[ static::JETPACK_INSTANT_SEARCH_SIDEBAR ], $this->old_sidebars_widgets[ static::JETPACK_INSTANT_SEARCH_SIDEBAR ] );
-		$sidebars_widgets['wp_inactive_widgets'] = array_merge( $lost_widgets, (array) $sidebars_widgets['wp_inactive_widgets'] );
-		$sidebars_widgets[ static::JETPACK_INSTANT_SEARCH_SIDEBAR ] = $this->old_sidebars_widgets[ static::JETPACK_INSTANT_SEARCH_SIDEBAR ];
+		$lost_widgets                                       = array_diff( $sidebars_widgets[ static::INSTANT_SEARCH_SIDEBAR ], $this->old_sidebars_widgets[ static::INSTANT_SEARCH_SIDEBAR ] );
+		$sidebars_widgets['wp_inactive_widgets']            = array_merge( $lost_widgets, (array) $sidebars_widgets['wp_inactive_widgets'] );
+		$sidebars_widgets[ static::INSTANT_SEARCH_SIDEBAR ] = $this->old_sidebars_widgets[ static::INSTANT_SEARCH_SIDEBAR ];
 
 		// Reset $this->old_sidebars_widgets because we want to run the function only once after theme switch.
 		$this->old_sidebars_widgets = null;
