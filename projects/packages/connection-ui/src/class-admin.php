@@ -20,6 +20,8 @@ class Admin {
 			add_action( 'admin_menu', array( $this, 'register_submenu_page' ), 1000 );
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
+			$this->maybe_init_idc();
+
 			/**
 			 * Action called after initializing Connection UI Admin resources.
 			 *
@@ -85,6 +87,16 @@ class Admin {
 	 */
 	private function get_initial_state() {
 		return ( new Initial_State() )->render();
+	}
+
+	/**
+	 * If this is the Connection Manager UI page, activate IDC.
+	 */
+	private function maybe_init_idc() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! empty( $_GET['page'] ) && 'wpcom-connection-manager' === $_GET['page'] ) {
+			add_action( 'plugins_loaded', array( 'Automattic\\Jetpack\\Identity_Crisis', 'init' ) );
+		}
 	}
 
 }
