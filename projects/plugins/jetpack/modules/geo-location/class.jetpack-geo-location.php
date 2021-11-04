@@ -376,7 +376,7 @@ class Jetpack_Geo_Location {
 			'is_public'    => (bool) $this->sanitize_public( $this->get_meta_value( $post_id, 'public' ) ),
 			'latitude'     => $this->sanitize_coordinate( $this->get_meta_value( $post_id, 'latitude' ) ),
 			'longitude'    => $this->sanitize_coordinate( $this->get_meta_value( $post_id, 'longitude' ) ),
-			'label'        => trim( $this->get_meta_value( $post_id, 'address' ) ),
+			'label'        => trim( (string) $this->get_meta_value( $post_id, 'address' ) ),
 			'is_populated' => false,
 		);
 

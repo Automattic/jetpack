@@ -222,4 +222,64 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 		$first_image_url = $post_info['img_urls'][0];
 		$this->assertEquals( $first_image_url, $chosen_image['src'] );
 	}
+
+	/**
+	 * Helper function to get default alt text.
+	 *
+	 * @return string
+	 */
+	public function get_default_alt_text() {
+		return 'Default alt text';
+	}
+
+	/**
+	 * Test if jetpack_og_get_image returns the correct default alt text.
+	 *
+	 * @author automattic
+	 * @covers ::jetpack_og_get_image
+	 * @since $$next-version$$
+	 */
+	public function test_jetpack_og_get_image_alt_text_default() {
+		$this->go_to( get_permalink( $this->icon_id ) );
+
+		$image = jetpack_og_get_image();
+
+		$this->assertEquals( $image['alt_text'], '' );
+	}
+
+	/**
+	 * Test if jetpack_og_get_image returns the correct filtered alt text.
+	 *
+	 * @author automattic
+	 * @covers ::jetpack_og_get_image
+	 * @since $$next-version$$
+	 */
+	public function test_jetpack_og_get_image_alt_text_filter() {
+		$this->go_to( get_permalink( $this->icon_id ) );
+
+		add_filter( 'jetpack_open_graph_image_default_alt_text', array( $this, 'get_default_alt_text' ) );
+		$image = jetpack_og_get_image();
+		remove_filter( 'jetpack_open_graph_image_default_alt_text', array( $this, 'get_default_alt_text' ) );
+
+		$this->assertEquals( $image['alt_text'], $this->get_default_alt_text() );
+	}
+
+	/**
+	 * Test if jetpack_og_get_image returns the correct alt text when set.
+	 *
+	 * @author automattic
+	 * @covers ::jetpack_og_get_image
+	 * @since $$next-version$$
+	 */
+	public function test_jetpack_og_get_image_alt_text_when_set() {
+		$this->go_to( get_permalink( $this->icon_id ) );
+
+		$alt_text = 'Example Alt Text';
+
+		update_post_meta( $this->icon_id, '_wp_attachment_image_alt', $alt_text );
+
+		$image = jetpack_og_get_image();
+
+		$this->assertEquals( $image['alt_text'], $alt_text );
+	}
 }

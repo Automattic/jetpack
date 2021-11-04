@@ -2,14 +2,32 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 10.3-beta - 2021-10-26
+## 10.4-a.1 - 2021-11-02
+### Enhancements
+- Publicize: update the interface and include a profile picture for each service.
+
+### Bug fixes
+- Image CDN: ensure that Wikipedia URLs are not served via our image CDN.
+- Publicize: make the default publicize social media message blank.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Allow /wp/v2/sites/1234/batch endpoint to process widget updates
+- E2E tests: update pnpm commands to use new tunnel wrapper script
+- Fix `@covers` directives in various tests.
+- Publicize: check feature chen hitting publicize endpoint
+- Publicize: show/hide main toggle control depending on post state (published)
+- Search: hide Calypso Jetpack Search menu item for Atomic sites.
+- Set `convertDeprecationsToExceptions` true in PHPUnit config.
+- Updated package dependencies.
+
+## 10.3 - 2021-11-02
 ### Enhancements
 - Dashboard: add a new screen to provide more information about the VideoPress feature.
 - Dashboard: optimize the size of all product images displayed in the dashboard, to improve overall performance.
 - Instagram Widget: improve the connection flow when the widget has not been connected to WordPress.com yet.
 - Map Block: Add address attribute to the block.
-- Stats: add information about the VideoPress feature at the bottom of the page.
 - Social Icons Widget: Added Strava icon to Social Icons Widget.
+- Stats: add information about the VideoPress feature at the bottom of the page.
 - VideoPress: add tooltips to video block settings in the block editor.
 - VideoPress: remove X-18 rating from the block settings.
 
@@ -20,7 +38,9 @@
 
 ### Bug fixes
 - Dashboard: ensure feature cards display the right information when the site uses Jetpack's Offline mode.
+- Dashboard: fix the display of currencies to be based on user WordPress.com preferences.
 - Markdown: add title attributes to footnotes to improve accessibility.
+- Publicize: fix visual issue when the panel shows in the pre publish step of the post.
 - Stats: remove extra request to WordPress.com that occurs when the stats feature is first activated.
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
