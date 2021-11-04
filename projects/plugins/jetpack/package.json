@@ -177,7 +177,6 @@
 		"css-loader": "6.2.0",
 		"enzyme": "3.11.0",
 		"eslint": "7.32.0",
-		"eslint-plugin-react-hooks": "4.2.0",
 		"fs-extra": "10.0.0",
 		"glob": "7.1.6",
 		"jest": "27.3.1",
