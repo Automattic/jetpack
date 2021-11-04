@@ -33,6 +33,7 @@ import {
 	getSitePurchases,
 	getVideoPressStorageUsed,
 	hasActiveVideoPressPurchase,
+	isFetchingSitePurchases,
 } from 'state/site';
 
 class Media extends React.Component {
@@ -49,6 +50,7 @@ class Media extends React.Component {
 			hasConnectedOwner,
 			hasVideoPressLegacySecurityPlan,
 			hasVideoPressPurchase,
+			isFetching,
 			isOffline,
 			upgradeUrl,
 			videoPressStorageUsed,
@@ -112,7 +114,8 @@ class Media extends React.Component {
 		);
 
 		const videoPressForcedInactive = 'inactive' === this.props.getModuleOverride( 'videopress' );
-		const shouldDisplayBanner = foundVideoPress && ! hasUpgrade && hasConnectedOwner && ! isOffline;
+		const shouldDisplayBanner =
+			foundVideoPress && ! hasUpgrade && hasConnectedOwner && ! isOffline && ! isFetching;
 
 		return (
 			<SettingsCard
@@ -150,6 +153,7 @@ export default connect( state => {
 		),
 		hasConnectedOwner: hasConnectedOwnerSelector( state ),
 		isOffline: isOfflineMode( state ),
+		isFetching: isFetchingSitePurchases( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		upgradeUrl: getUpgradeUrl( state, 'videopress-upgrade' ),
 		videoPressStorageUsed: getVideoPressStorageUsed( state ),
