@@ -418,8 +418,13 @@ export function containsBackupRealtime( planClass ) {
  */
 export const isVideoPressLegacySecurityPlan = purchase =>
 	purchase.active &&
-	( PLAN_JETPACK_SECURITY_DAILY_MONTHLY === purchase.product_slug ||
-		PLAN_JETPACK_SECURITY_DAILY === purchase.product_slug ||
-		PLAN_JETPACK_SECURITY_REALTIME_MONTHLY === purchase.product_slug ||
-		PLAN_JETPACK_SECURITY_REALTIME === purchase.product_slug ) &&
+	includes(
+		[
+			PLAN_JETPACK_SECURITY_DAILY_MONTHLY,
+			PLAN_JETPACK_SECURITY_DAILY,
+			PLAN_JETPACK_SECURITY_REALTIME_MONTHLY,
+			PLAN_JETPACK_SECURITY_REALTIME,
+		],
+		purchase.product_slug
+	) &&
 	moment( purchase.subscribed_date ).isBefore( moment.utc( '2021-10-07' ) );
