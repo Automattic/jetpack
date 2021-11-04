@@ -30,6 +30,7 @@ const Admin = props => {
 	const APINonce = useSelect( select => select( STORE_ID ).getAPINonce(), [] );
 	const APIRoot = useSelect( select => select( STORE_ID ).getAPIRoot(), [] );
 	const registrationNonce = useSelect( select => select( STORE_ID ).getRegistrationNonce(), [] );
+	const IDCData = useSelect( select => select( STORE_ID ).getIDCData(), [] );
 
 	const { connectionStatus } = props;
 
@@ -38,20 +39,14 @@ const Admin = props => {
 		restApi.setApiNonce( APINonce );
 	}, [ APIRoot, APINonce ] );
 
-	// Placeholder for testing purposes.
-	const hasIDC = false;
-	const IDCHomeUrl = 'https://site1.local/';
-	const currentUrl = 'https://site2.local/';
-	const redirectUri = 'tools.php?page=wpcom-connection-manager';
-
-	if ( hasIDC ) {
+	if ( IDCData.hasIDC ) {
 		return (
 			<IDCScreen
-				wpcomHomeUrl={ IDCHomeUrl }
-				currentUrl={ currentUrl }
+				wpcomHomeUrl={ IDCData.wpcomHomeUrl }
+				currentUrl={ IDCData.currentUrl }
 				apiRoot={ APIRoot }
 				apiNonce={ APINonce }
-				redirectUri={ redirectUri }
+				redirectUri={ IDCData.redirectUri }
 			/>
 		);
 	}
