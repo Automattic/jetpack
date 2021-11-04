@@ -2,7 +2,7 @@
 /**
  * Contains functions that need to be (conditionally) mocked.
  *
- * @package automattic/jetpa
+ * @package automattic/jetpack
  */
 
 if ( ! function_exists( 'wp_cache_is_enabled' ) ) {
