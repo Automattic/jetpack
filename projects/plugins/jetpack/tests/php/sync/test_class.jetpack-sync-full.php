@@ -530,7 +530,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$original_blog_id = get_current_blog_id();
 
-		$user_id = $this->factory->user->create();
+		$user_id = $this->factory->user->create( array( 'role' => 'contributor' ) );
 
 		// NOTE this is necessary because WPMU causes certain assumptions about transients
 		// to be wrong, and tests to explode. @see: https://github.com/sheabunge/WordPress/commit/ff4f1bb17095c6af8a0f35ac304f79074f3c3ff6
@@ -542,8 +542,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		// let's create some users on the other blog
 		switch_to_blog( $other_blog_id );
-		$mu_blog_user_id       = $this->factory->user->create();
-		$added_mu_blog_user_id = $this->factory->user->create();
+		$mu_blog_user_id       = $this->factory->user->create( array( 'role' => 'contributor' ) );
+		$added_mu_blog_user_id = $this->factory->user->create( array( 'role' => 'contributor' ) );
 		restore_current_blog();
 
 		// add one of the users to our current blog

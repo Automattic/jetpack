@@ -368,7 +368,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 
 		$original_blog_id = get_current_blog_id();
 
-		$user_id = $this->factory->user->create();
+		$user_id = $this->factory->user->create( array( 'role' => 'contributor' ) );
 
 		// NOTE this is necessary because WPMU causes certain assumptions about transients
 		// to be wrong, and tests to explode. @see: https://github.com/sheabunge/WordPress/commit/ff4f1bb17095c6af8a0f35ac304f79074f3c3ff6
