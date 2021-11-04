@@ -276,7 +276,7 @@ const Backups = () => {
 	};
 
 	return (
-		<div className="jp-wrap">
+		<div className="jp-wrap jp-content">
 			{ BACKUP_STATE.LOADING === backupState && renderLoading() }
 			{ BACKUP_STATE.NO_BACKUPS === backupState && renderInProgressBackup() }
 			{ BACKUP_STATE.IN_PROGRESS === backupState && renderInProgressBackup() }

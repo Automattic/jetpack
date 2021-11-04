@@ -56,7 +56,7 @@ const Admin = () => {
 
 	const renderNoBackupCapabilities = () => {
 		return (
-			<div className="jp-wrap">
+			<div className="jp-wrap jp-content">
 				<div className="jp-row">
 					<div class="lg-col-span-8 md-col-span-8 sm-col-span-4">
 						<h1>{ __( 'Your site does not have backups', 'jetpack-backup' ) }</h1>
@@ -126,7 +126,7 @@ const Admin = () => {
 	const renderHeader = () => {
 		if ( showHeaderFooter ) {
 			return (
-				<div className="jp-wrap">
+				<div className="jp-wrap jp-content">
 					<div className="jp-row">
 						<div class="lg-col-span-12 md-col-span-8 sm-col-span-4">
 							<div className="jp-masthead">
@@ -146,7 +146,7 @@ const Admin = () => {
 	const renderFooter = () => {
 		if ( showHeaderFooter ) {
 			return (
-				<div className="jp-wrap">
+				<div className="jp-wrap jp-content">
 					<div className="jp-row">
 						<div class="lg-col-span-12 md-col-span-8 sm-col-span-4">
 							<JetpackFooter
@@ -163,7 +163,7 @@ const Admin = () => {
 	// Renders additional segments under the jp-hero area condition on having a backup plan
 	const renderBackupSegments = () => {
 		return (
-			<div className="jp-row">
+			<div className="jp-row jp-content">
 				<div class="lg-col-span-6 md-col-span-4 sm-col-span-4">
 					<h2>{ __( 'Where are my backups stored?', 'jetpack-backup' ) }</h2>
 					<p>
@@ -226,7 +226,7 @@ const Admin = () => {
 	};
 
 	return (
-		<div id="jetpack-backup-admin-container" className="jp-content">
+		<div id="jetpack-backup-admin-container">
 			{ renderHeader() }
 			{ renderContent() }
 			{ renderFooter() }
