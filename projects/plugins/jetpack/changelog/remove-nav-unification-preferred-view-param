@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Nav Unification: Removes the `preferred-view` param from the URL after changing the preffered view. This fix only affects WP.com sites.

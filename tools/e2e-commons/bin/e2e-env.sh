@@ -52,6 +52,7 @@ configure_wp_env() {
 		done
 	fi
 	$BASE_CMD wp option set permalink_structure ""
+	$BASE_CMD wp jetpack module deactivate sso
 
 	echo
 	echo "WordPress is ready!"
