@@ -78,7 +78,6 @@ abstract class Base_Admin_Menu {
 			add_action( 'admin_head', array( $this, 'set_site_icon_inline_styles' ) );
 			add_filter( 'screen_settings', array( $this, 'register_dashboard_switcher' ), 99999 );
 			add_action( 'admin_menu', array( $this, 'handle_preferred_view' ), 99997 );
-			add_action( 'wp_ajax_set_preferred_view', array( $this, 'handle_preferred_view_ajax' ) );
 		}
 	}
 
@@ -274,14 +273,6 @@ abstract class Base_Admin_Menu {
 			array(),
 			JETPACK__VERSION,
 			true
-		);
-
-		wp_localize_script(
-			'jetpack-admin-menu',
-			'jpAdminMenu',
-			array(
-				'screen' => $this->get_current_screen(),
-			)
 		);
 	}
 
@@ -647,15 +638,22 @@ abstract class Base_Admin_Menu {
 		 * @param string The preferred view the user selected.
 		 */
 		\do_action( 'jetpack_dashboard_switcher_changed_view', $current_screen, $preferred_view );
-		// phpcs:enable WordPress.Security.NonceVerification
-	}
 
-	/**
-	 * Handles AJAX requests setting a preferred view for a given screen.
-	 */
-	public function handle_preferred_view_ajax() {
-		$this->handle_preferred_view();
-		wp_die();
+		if ( self::DEFAULT_VIEW === $preferred_view ) {
+			// Redirect to default view if that's the newly preferred view.
+			$menu_mappings = require __DIR__ . '/menu-mappings.php';
+			if ( isset( $menu_mappings[ $current_screen ] ) ) {
+				// Using `wp_redirect` intentionally because we're redirecting to Calypso.
+				wp_redirect( $menu_mappings[ $current_screen ] . $this->domain ); // phpcs:ignore WordPress.Security.SafeRedirect
+				exit;
+			}
+		} elseif ( self::CLASSIC_VIEW === $preferred_view ) {
+			// Removes the `preferred-view` param from the URL to avoid issues with
+			// screens that don't expect this param to be present in the URL.
+			wp_safe_redirect( remove_query_arg( 'preferred-view' ) );
+			exit;
+		}
+		// phpcs:enable WordPress.Security.NonceVerification
 	}
 
 	/**
