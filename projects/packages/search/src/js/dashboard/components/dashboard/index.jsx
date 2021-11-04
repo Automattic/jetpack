@@ -30,8 +30,8 @@ export default function SearchDashboard() {
 	const siteAdminUrl = select( STORE_ID ).getSiteAdminUrl();
 	const aboutPageUrl = siteAdminUrl + 'admin.php?page=jetpack_about';
 
-	useSelect( select => select( STORE_ID ).getSearchPlanInfo() );
-	useSelect( select => select( STORE_ID ).getSearchModuleStatus() );
+	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
+	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
 
 	const isLoading = useSelect(
 		select =>

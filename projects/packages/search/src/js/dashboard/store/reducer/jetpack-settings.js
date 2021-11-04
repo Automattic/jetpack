@@ -1,3 +1,6 @@
+/**
+ * Internal dependencies
+ */
 import { SET_JETPACK_SETTINGS } from '../actions/jetpack-settings';
 
 const jetpackSettings = ( state = {}, action ) => {
@@ -8,10 +11,10 @@ const jetpackSettings = ( state = {}, action ) => {
 				...action.options,
 				is_toggling_module:
 					state.jetpackSettings?.module_active !== action.options.module_active &&
-					action.options.isUpdatingOptions,
+					action.options.is_updating,
 				is_toggling_instant_search:
 					state.jetpackSettings?.instant_search_enabled !== action.options.instant_search_enabled &&
-					action.options.isUpdatingOptions,
+					action.options.is_updating,
 			};
 	}
 	return state;

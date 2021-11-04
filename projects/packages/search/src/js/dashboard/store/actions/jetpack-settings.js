@@ -1,28 +1,38 @@
 /**
  * Internal dependencies
  */
-import {
-	fetchJetpackSettings as fetchJetpackSettingsControl,
-	updateJetpackSettings as updateJetpackSettingsControl,
-} from '../controls';
+import { updateJetpackSettings as updateJetpackSettingsControl } from '../controls';
 
 export const SET_JETPACK_SETTINGS = 'SET_JETPACK_SETTINGS';
 export const TOGGLE_SEARCH_MODULE = 'TOGGLE_SEARCH_MODULE';
 
+/**
+ * Yield actions to update Search Settings
+ *
+ * @param {object} settings
+ * @returns object - yield an action object.
+ */
 function* updateJetpackSettings( settings ) {
 	yield setJetpackSettings( settings );
-	yield setJetpackSettingsNetworkBusy();
+	yield setUpdatingJetpackSettings();
 	const updatedSettings = yield updateJetpackSettingsControl( settings );
-	yield setJetpackSettingsNetworkFree();
+	yield setUpdatingJetpackSettingsDone();
 	return setJetpackSettings( updatedSettings );
 }
 
-function setJetpackSettingsNetworkBusy() {
-	return setJetpackSettings( { isUpdatingOptions: true } );
+/**
+ * @returns {object} - an action to set network busy.
+ */
+function setUpdatingJetpackSettings() {
+	return setJetpackSettings( { is_updating: true } );
 }
 
-function setJetpackSettingsNetworkFree() {
-	return setJetpackSettings( { isUpdatingOptions: false } );
+/**
+ *
+ * @returns {object} - an action to set network free.
+ */
+function setUpdatingJetpackSettingsDone() {
+	return setJetpackSettings( { is_updating: false } );
 }
 
 function setJetpackSettings( options ) {

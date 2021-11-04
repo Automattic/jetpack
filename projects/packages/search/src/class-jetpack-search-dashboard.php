@@ -179,6 +179,7 @@ class Jetpack_Search_Dashboard {
 				'adminUrl'          => esc_url( admin_url() ),
 				'blogId'            => Jetpack_Options::get_option( 'id', 0 ),
 				'version'           => defined( 'JETPACK_SEARCH_PACKAGE_VERSION' ) ? JETPACK_SEARCH_PACKAGE_VERSION : 'dev',
+				'calypsoSlug'       => ( new Status() )->get_site_suffix(),
 			),
 			// 'pluginBaseUrl'    => plugins_url( '', JETPACK__PLUGIN_FILE ),
 			// 'connectUrl'       => false == $current_user_data['isConnected'] // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
@@ -193,7 +194,6 @@ class Jetpack_Search_Dashboard {
 			'userData'        => array(
 				'currentUser' => $current_user_data,
 			),
-			'jetpackStatus'   => array(),
 			'jetpackSettings' => array(
 				'search'                 => Jetpack_Search_Options::is_module_enabled(),
 				'instant_search_enabled' => Jetpack_Search_Options::is_instant_enabled(),

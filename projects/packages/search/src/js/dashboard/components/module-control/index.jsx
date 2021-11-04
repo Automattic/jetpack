@@ -10,6 +10,7 @@ import classNames from 'classnames';
 /**
  * Internal dependencies
  */
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import CompactFormToggle from '../form-toggle/compact';
 import Card from 'components/card';
 import Button from '../button';
@@ -42,34 +43,46 @@ const WIDGETS_EDITOR_URL = 'customize.php?autofocus[panel]=widgets&return=%s';
  */
 export default function SearchModuleControl() {
 	const updateOptions = useDispatch( STORE_ID ).updateJetpackSettings;
-	// TODO add upgradeUrl
-	const upgradeUrl = '';
-
+	const siteAdminUrl = select( STORE_ID ).getSiteAdminUrl();
+	const returnUrl = encodeURIComponent( siteAdminUrl + RETURN_PATH );
 	const isInstantSearchPromotionActive = select( STORE_ID ).isInstantSearchPromotionActive();
 
-	const { isModuleEnabled, isInstantSearchEnabled } = useSelect(
-		select => select( STORE_ID ).getSearchModuleStatus(),
-		[]
+	const domain = select( STORE_ID ).getCalypsoSlug();
+	const upgradeBillPeriod = select( STORE_ID ).getUpgradeBillPeriod();
+	const upgradeUrl = getRedirectUrl(
+		upgradeBillPeriod === 'monthly' ? 'jetpack-search-monthly' : 'jetpack-search',
+		{ site: domain }
 	);
 
-	const isSavingEitherOption = useSelect( select => select( STORE_ID ).isUpdatingOptions(), [] );
+	const supportsOnlyClassicSearch = useSelect(
+		select => select( STORE_ID ).supportsOnlyClassicSearch,
+		[]
+	);
+	const supportsSearch = useSelect( select => select( STORE_ID ).supportsSearch(), [] );
+	const supportsInstantSearch = useSelect(
+		select => select( STORE_ID ).supportsInstantSearch(),
+		[]
+	);
+	const isModuleEnabled = useSelect( select => select( STORE_ID ).isModuleEnabled(), [] );
+	const isInstantSearchEnabled = useSelect(
+		select => select( STORE_ID ).isInstantSearchEnabled(),
+		[]
+	);
+	const isSavingEitherOption = useSelect(
+		select => select( STORE_ID ).isUpdatingJetpackSettings(),
+		[]
+	);
 	const isTogglingModule = useSelect( select => select( STORE_ID ).isTogglingModule(), [] );
 	const isTogglingInstantSearch = useSelect(
 		select => select( STORE_ID ).isTogglingInstantSearch(),
 		[]
 	);
-	const { supportsOnlyClassicSearch, supportsSearch, supportsInstantSearch } = useSelect( select =>
-		select( STORE_ID ).getSearchPlanInfo()
-	);
-
 	const isInstantSearchCustomizeButtonDisabled =
 		isSavingEitherOption ||
 		! isModuleEnabled ||
 		! isInstantSearchEnabled ||
 		! supportsInstantSearch;
 	const isWidgetsEditorButtonDisabled = isSavingEitherOption || ! isModuleEnabled;
-	const siteAdminUrl = select( STORE_ID ).getSiteAdminUrl();
-	const returnUrl = encodeURIComponent( siteAdminUrl + RETURN_PATH );
 
 	const toggleSearchModule = useCallback( () => {
 		const newOption = {
