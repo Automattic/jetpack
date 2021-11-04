@@ -31,7 +31,8 @@ class Helper {
 	 * @return string The search URL.
 	 */
 	public static function get_search_url() {
-		$query_args = stripslashes_deep( $_GET );
+		// WordPress search doesn't use nonces.
+		$query_args = stripslashes_deep( $_GET ); //phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		// Handle the case where a permastruct is being used, such as /search/{$query}.
 		if ( ! isset( $query_args['s'] ) ) {
@@ -347,6 +348,8 @@ class Helper {
 			return false;
 		}
 
+		// WordPress search doesn't use nonces.
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		if ( empty( $_GET['post_type'] ) ) {
 			$post_types_from_query = array();
 		} elseif ( is_array( $_GET['post_type'] ) ) {
@@ -354,6 +357,7 @@ class Helper {
 		} else {
 			$post_types_from_query = (array) explode( ',', $_GET['post_type'] );
 		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		$post_types_from_query = array_map( 'trim', $post_types_from_query );
 
