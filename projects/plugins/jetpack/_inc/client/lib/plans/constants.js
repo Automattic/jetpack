@@ -410,7 +410,7 @@ export function containsBackupRealtime( planClass ) {
 }
 
 /**
- * Security Daily/Realtime plan no longer includes VideoPress as of end of day Oct 7 2021 00:00 UTC.
+ * Security Daily/Realtime plan no longer includes VideoPress as of Oct 7 2021 00:00 UTC.
  * This check identifies purchases of Security Daily/Realtime purchased before or after that date.
  *
  * @param {*} purchase - The site purchase object.
