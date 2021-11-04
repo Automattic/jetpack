@@ -2,6 +2,24 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.5.0 - 2021-11-02
+### Added
+- Added docs and tests
+
+### Changed
+- Update PricingCard to accept children.
+
+## 0.4.0 - 2021-10-26
+### Added
+- Add PricingCard in RNA components.
+- New ActionButton component added
+
+### Changed
+- Updated package dependencies
+
+### Removed
+- Removing knobs from Storybook and using propTypes in components instead
+
 ## 0.3.2 - 2021-10-13
 ### Changed
 - Updated package dependencies.

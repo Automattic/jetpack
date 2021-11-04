@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Changed the class variable to a const

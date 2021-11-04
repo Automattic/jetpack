@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Dashboard: ensure feature cards display the right information when the site uses Jetpack's Offline mode.

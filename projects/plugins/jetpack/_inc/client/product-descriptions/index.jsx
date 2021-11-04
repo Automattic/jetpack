@@ -10,9 +10,9 @@ import { isEmpty } from 'lodash';
 /**
  * Internal dependencies
  */
-import QuerySiteProducts from 'components/data/query-site-products';
+import QueryProducts from 'components/data/query-products';
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
-import { isFetchingSiteProducts } from 'state/site-products';
+import { isFetchingProducts as isFetchingProductsSelector } from 'state/products';
 import { arePromotionsActive, getProductsForPurchase } from 'state/initial-state';
 import { PRODUCT_DESCRIPTION_PRODUCTS as SUPPORTED_PRODUCTS } from './constants';
 import ProductDescription from './product-description';
@@ -49,7 +49,7 @@ const ProductDescriptions = props => {
 
 	return (
 		<>
-			<QuerySiteProducts />
+			<QueryProducts />
 			{ isLoading ? (
 				<div className="jp-product-descriptions__loading">
 					<JetpackLoadingIcon />
@@ -70,6 +70,6 @@ ProductDescriptions.propTypes = {
 
 export default connect( state => ( {
 	arePromotionsActive: arePromotionsActive( state ),
-	isFetchingProducts: isFetchingSiteProducts( state ),
+	isFetchingProducts: isFetchingProductsSelector( state ),
 	products: getProductsForPurchase( state ),
 } ) )( ProductDescriptions );

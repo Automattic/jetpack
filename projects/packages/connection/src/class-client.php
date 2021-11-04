@@ -23,6 +23,17 @@ class Client {
 	 * @return array|WP_Error WP HTTP response on success
 	 */
 	public static function remote_request( $args, $body = null ) {
+		if ( isset( $args['url'] ) ) {
+			/**
+			 * Filters the remote request url.
+			 *
+			 * @since 1.30.12
+			 *
+			 * @param string The remote request url.
+			 */
+			$args['url'] = apply_filters( 'jetpack_remote_request_url', $args['url'] );
+		}
+
 		$result = self::build_signed_request( $args, $body );
 		if ( ! $result || is_wp_error( $result ) ) {
 			return $result;
