@@ -380,8 +380,8 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 
 		// let's create some users on the other blog
 		switch_to_blog( $other_blog_id );
-		$mu_blog_user_id       = $this->factory->user->create();
-		$added_mu_blog_user_id = $this->factory->user->create();
+		$mu_blog_user_id       = $this->factory->user->create( array( 'role' => 'contributor' ) );
+		$added_mu_blog_user_id = $this->factory->user->create( array( 'role' => 'contributor' ) );
 		restore_current_blog();
 
 		// add one of the users to our current blog
