@@ -1031,9 +1031,9 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_can_sync_individual_users() {
-		$sync_user_id    = $this->factory->user->create();
-		$sync_user_id_2  = $this->factory->user->create();
-		$no_sync_user_id = $this->factory->user->create();
+		$sync_user_id   = $this->factory->user->create( array( 'role' => 'editor' ) );
+		$sync_user_id_2 = $this->factory->user->create( array( 'role' => 'editor' ) );
+		$this->factory->user->create( array( 'role' => 'editor' ) );
 
 		$this->full_sync->start( array( 'users' => array( $sync_user_id, $sync_user_id_2 ) ) );
 		$this->sender->do_full_sync();
