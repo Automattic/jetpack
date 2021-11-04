@@ -292,7 +292,7 @@ importers:
   projects/js-packages/webpack-config:
     specifiers:
       '@automattic/calypso-build': 9.0.0
-      '@automattic/webpack-rtl-plugin': 5.0.0
+      '@automattic/webpack-rtl-plugin': 5.1.0
       '@babel/core': 7.15.0
       '@babel/plugin-proposal-class-properties': 7.14.5
       '@babel/plugin-transform-runtime': 7.15.0
@@ -313,7 +313,7 @@ importers:
       webpack-cli: 4.8.0
     dependencies:
       '@automattic/calypso-build': 9.0.0_webpack@5.51.1
-      '@automattic/webpack-rtl-plugin': 5.0.0_webpack@5.51.1
+      '@automattic/webpack-rtl-plugin': 5.1.0_webpack@5.51.1
       '@babel/plugin-proposal-class-properties': 7.14.5_@babel+core@7.15.0
       '@babel/plugin-transform-runtime': 7.15.0_@babel+core@7.15.0
       '@babel/preset-env': 7.15.0_@babel+core@7.15.0
@@ -341,7 +341,7 @@ importers:
     specifiers:
       '@automattic/jetpack-api': workspace:^0.5.0
       '@automattic/jetpack-connection': workspace:^0.9.0
-      '@automattic/jetpack-idc': workspace:^0.4.1
+      '@automattic/jetpack-idc': workspace:^0.4.2-alpha
       '@automattic/jetpack-webpack-config': workspace:^0.1.0-alpha
       '@babel/core': 7.15.0
       '@babel/preset-env': 7.15.0
@@ -953,6 +953,7 @@ importers:
       eslint-plugin-lodash: 7.3.0
       eslint-plugin-prettier: 3.4.1
       eslint-plugin-react: 7.26.1
+      eslint-plugin-react-hooks: 4.2.0
       eslint-plugin-wpcalypso: 5.0.0
       glob: 7.1.6
       ignore: 5.1.8
@@ -982,6 +983,7 @@ importers:
       eslint-plugin-lodash: 7.3.0_eslint@7.32.0
       eslint-plugin-prettier: 3.4.1_36d06c6b3c8f3f25d1a2220e3ee44ebd
       eslint-plugin-react: 7.26.1_eslint@7.32.0
+      eslint-plugin-react-hooks: 4.2.0_eslint@7.32.0
       eslint-plugin-wpcalypso: 5.0.0_eslint@7.32.0
       glob: 7.1.6
       ignore: 5.1.8
@@ -1025,7 +1027,7 @@ packages:
       react-dom: ^16.0.0
       webpack: ^5.46.0
     dependencies:
-      '@automattic/webpack-rtl-plugin': 5.0.0_webpack@5.51.1
+      '@automattic/webpack-rtl-plugin': 5.1.0_webpack@5.51.1
       '@babel/cli': 7.15.7_@babel+core@7.15.5
       '@babel/compat-data': 7.15.0
       '@babel/core': 7.15.5
@@ -1097,7 +1099,7 @@ packages:
       react-dom: ^16.0.0
       webpack: ^5.46.0
     dependencies:
-      '@automattic/webpack-rtl-plugin': 5.0.0_webpack@5.51.1
+      '@automattic/webpack-rtl-plugin': 5.1.0_webpack@5.51.1
       '@babel/cli': 7.15.7_@babel+core@7.15.5
       '@babel/compat-data': 7.15.0
       '@babel/core': 7.15.5
@@ -1222,13 +1224,12 @@ packages:
     resolution: {integrity: sha512-aSJRuZ80kds6kO+baIw8wK4nmlHG/e/sUPa7BDwalo8vBLtBnW07GsXm1zGgz9htgEogFuuxBdKR4IjO1z8phA==}
     dev: false
 
-  /@automattic/webpack-rtl-plugin/5.0.0_webpack@5.51.1:
-    resolution: {integrity: sha512-8EPzGq+v/AU3pg3JyAid2sVZ72YXrELwHLZEYtmnJZuU82zzd5ZThdS3VmvqbvHw+OEXDjAWIlxhhRdIalXyGg==}
+  /@automattic/webpack-rtl-plugin/5.1.0_webpack@5.51.1:
+    resolution: {integrity: sha512-Bl/kVKvQsw57qFQUBvtBuiq6ySt1OLlITOFHv1KWvO3zKgKRvEbYp0pzTUPIs/Xd3La4sMzCR3fKOpubw/StRw==}
     peerDependencies:
-      webpack: ^5.46.0
+      webpack: ^5.54.0
     dependencies:
       '@romainberger/css-diff': 1.0.3
-      async: 2.6.3
       rtlcss: 3.3.0
       webpack: 5.51.1_webpack-cli@4.8.0
     dev: false
@@ -9308,12 +9309,6 @@ packages:
     engines: {node: '>= 0.10'}
     dependencies:
       async-done: 1.3.2
-
-  /async/2.6.3:
-    resolution: {integrity: sha512-zflvls11DCy+dQWzTW2dzuilv8Z5X/pjfmZOWba6TNIVDm+2UDaJmXSOXlasHKfNBs8oo3M0aT50fDEWfKZjXg==}
-    dependencies:
-      lodash: 4.17.21
-    dev: false
 
   /asynckit/0.4.0:
     resolution: {integrity: sha1-x57Zf380y48robyXkLzDZkdLS3k=}
