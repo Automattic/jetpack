@@ -4,6 +4,7 @@
 import React, { useEffect } from 'react';
 import { useSelect, withSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import restApi from '@automattic/jetpack-api';
 import {
 	ConnectionStatusCard,
 	ConnectScreenRequiredPlan,
@@ -16,7 +17,6 @@ import { IDCScreen } from '@automattic/jetpack-idc';
  */
 import { STORE_ID } from '../../store';
 import Header from '../header';
-import restApi from '@automattic/jetpack-api';
 import './style.scss';
 
 /**

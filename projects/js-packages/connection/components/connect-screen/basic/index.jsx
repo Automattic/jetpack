@@ -3,6 +3,7 @@
  */
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
+import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -10,6 +11,7 @@ import { __ } from '@wordpress/i18n';
  */
 import ConnectButton from '../../connect-button';
 import ConnectScreenVisual from './visual';
+import { STORE_ID } from '../../../state/store';
 
 /**
  * The Connection Screen component.
@@ -30,8 +32,9 @@ const ConnectScreen = props => {
 		children,
 		assetBaseUrl,
 		autoTrigger,
-		connectionStatus,
 	} = props;
+
+	const connectionStatus = useSelect( select => select( STORE_ID ).getConnectionStatus(), [] );
 
 	const renderConnectBtn = useCallback(
 		( label, trigger ) => {
@@ -58,7 +61,7 @@ const ConnectScreen = props => {
 			buttonLabel={ buttonLabel }
 			images={ images }
 			assetBaseUrl={ assetBaseUrl }
-			connectionStatus={ connectionStatus }
+			isLoading={ ! connectionStatus.hasOwnProperty( 'isRegistered' ) }
 			renderConnectBtn={ renderConnectBtn }
 		>
 			{ children }
@@ -81,8 +84,6 @@ ConnectScreen.propTypes = {
 	from: PropTypes.string,
 	/** The redirect admin URI. */
 	redirectUri: PropTypes.string.isRequired,
-	/** Connection Status object */
-	connectionStatus: PropTypes.object.isRequired,
 	/** Whether to initiate the connection process automatically upon rendering the component. */
 	autoTrigger: PropTypes.bool,
 	/** Images to display on the right side. */
