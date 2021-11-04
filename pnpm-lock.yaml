@@ -669,6 +669,7 @@ importers:
       markdown-it: 12.0.4
       mocha: 8.4.0
       mockery: 2.1.0
+      moment: 2.29.1
       nock: 13.1.4
       node-polyfill-webpack-plugin: 1.1.4
       node-wp-i18n: 1.2.4
@@ -846,6 +847,7 @@ importers:
       lodash: 4.17.21
       mocha: 8.4.0
       mockery: 2.1.0
+      moment: 2.29.1
       nock: 13.1.4
       node-polyfill-webpack-plugin: 1.1.4_webpack@5.51.1
       node-wp-i18n: 1.2.4
@@ -1080,7 +1082,7 @@ packages:
       terser-webpack-plugin: 5.2.4_webpack@5.51.1
       thread-loader: 3.0.4_webpack@5.51.1
       typescript: 4.4.3
-      webpack: 5.51.1
+      webpack: 5.51.1_webpack-cli@4.8.0
       webpack-cli: 4.8.0_webpack@5.51.1
     transitivePeerDependencies:
       - '@swc/core'
@@ -9233,7 +9235,7 @@ packages:
     dependencies:
       call-bind: 1.0.2
       define-properties: 1.1.3
-      es-abstract: 1.18.6
+      es-abstract: 1.19.1
       es-array-method-boxes-properly: 1.0.0
       is-string: 1.0.7
 
@@ -15438,7 +15440,7 @@ packages:
     dependencies:
       available-typed-arrays: 1.0.5
       call-bind: 1.0.2
-      es-abstract: 1.18.6
+      es-abstract: 1.19.1
       foreach: 2.0.5
       has-tostringtag: 1.0.0
     dev: true
@@ -20193,7 +20195,7 @@ packages:
     dependencies:
       array.prototype.flat: 1.2.5
       global-cache: 1.2.1
-      react-with-styles: 3.2.3
+      react-with-styles: 3.2.3_react-dom@17.0.2+react@17.0.2
 
   /react-with-styles/3.2.3:
     resolution: {integrity: sha512-MTI1UOvMHABRLj5M4WpODfwnveHaip6X7QUMI2x6zovinJiBXxzhA9AJP7MZNaKqg1JRFtHPXZdroUC8KcXwlQ==}
@@ -22106,7 +22108,7 @@ packages:
     dependencies:
       loader-utils: 2.0.0
       schema-utils: 3.1.1
-      webpack: 5.51.1
+      webpack: 5.51.1_webpack-cli@4.8.0
     dev: true
 
   /style-to-object/0.3.0:
@@ -23672,7 +23674,7 @@ packages:
     dependencies:
       available-typed-arrays: 1.0.5
       call-bind: 1.0.2
-      es-abstract: 1.18.6
+      es-abstract: 1.19.1
       foreach: 2.0.5
       has-tostringtag: 1.0.0
       is-typed-array: 1.1.8
