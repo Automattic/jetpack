@@ -55,7 +55,7 @@ function PexelsMedia( props ) {
 	);
 
 	// Load initial results for the random example query.
-	useEffect( getNextPage, [ getNextPage ] );
+	useEffect( getNextPage, [] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	const searchFormEl = useRef( null );
 
