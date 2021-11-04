@@ -67,7 +67,7 @@ class DashVideoPress extends Component {
 		const planClass = getPlanClass( this.props.sitePlan.product_slug );
 		const {
 			hasConnectedOwner,
-			hasLegacySecurityDailyPlan,
+			hasVideoPressLegacySecurityPlan,
 			hasVideoPressPurchase,
 			isOffline,
 			upgradeUrl,
@@ -76,7 +76,7 @@ class DashVideoPress extends Component {
 
 		const hasUpgrade =
 			includes( [ 'is-premium-plan', 'is-business-plan', 'is-complete-plan' ], planClass ) ||
-			hasLegacySecurityDailyPlan ||
+			hasVideoPressLegacySecurityPlan ||
 			hasVideoPressPurchase;
 
 		const shouldDisplayStorage = hasVideoPressPurchase && null !== videoPressStorageUsed;
@@ -190,7 +190,9 @@ export default connect(
 	state => ( {
 		hasConnectedOwner: hasConnectedOwnerSelector( state ),
 		hasVideoPressPurchase: hasActiveVideoPressPurchase( state ),
-		hasLegacySecurityDailyPlan: getSitePurchases( state ).find( isVideoPressLegacySecurityPlan ),
+		hasVideoPressLegacySecurityPlan: getSitePurchases( state ).find(
+			isVideoPressLegacySecurityPlan
+		),
 		isModuleAvailable: isModuleAvailable( state, 'videopress' ),
 		isOffline: isOfflineMode( state ),
 		sitePlan: getSitePlan( state ),

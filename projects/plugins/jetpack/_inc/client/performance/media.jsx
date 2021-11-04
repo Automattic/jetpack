@@ -47,7 +47,7 @@ class Media extends React.Component {
 		const planClass = getPlanClass( this.props.sitePlan.product_slug );
 		const {
 			hasConnectedOwner,
-			hasLegacySecurityDailyPlan,
+			hasVideoPressLegacySecurityPlan,
 			hasVideoPressPurchase,
 			isOffline,
 			upgradeUrl,
@@ -58,7 +58,7 @@ class Media extends React.Component {
 
 		const hasUpgrade =
 			includes( [ 'is-premium-plan', 'is-business-plan', 'is-complete-plan' ], planClass ) ||
-			hasLegacySecurityDailyPlan ||
+			hasVideoPressLegacySecurityPlan ||
 			hasVideoPressPurchase;
 
 		const bannerText =
@@ -145,7 +145,9 @@ export default connect( state => {
 		isModuleFound: module_name => _isModuleFound( state, module_name ),
 		sitePlan: getSitePlan( state ),
 		hasVideoPressPurchase: hasActiveVideoPressPurchase( state ),
-		hasLegacySecurityDailyPlan: getSitePurchases( state ).find( isVideoPressLegacySecurityPlan ),
+		hasVideoPressLegacySecurityPlan: getSitePurchases( state ).find(
+			isVideoPressLegacySecurityPlan
+		),
 		hasConnectedOwner: hasConnectedOwnerSelector( state ),
 		isOffline: isOfflineMode( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
