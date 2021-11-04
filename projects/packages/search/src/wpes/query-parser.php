@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Parse a pure text query into WordPress Elasticsearch query. This builds on
  * the Query_Builder() to provide search query parsing.
@@ -13,6 +12,9 @@
  * if we are doing search as you type)
  *
  * This class only supports ES 2.x+
+ *
+ * Disables comment chehcks.
+ * phpcs:disable Squiz.Commenting
  *
  * This parser builds queries of the form:
  *   bool:
@@ -28,96 +30,24 @@
  *  - phrases
  *  - supports querying across multiple languages at once
  *
- * Example usage (from Search on Reader Manage):
- *
- *		$parser = new Query_Parser( $args['q'], array( $lang ) );
- *
- *		//author
- *		$parser->author_field_filter( array(
- *			'prefixes' => array( '@' ),
- *			'wpcom_id_field' => 'author_id',
- *			'must_query_fields' => array( 'author.engram', 'author_login.engram' ),
- *			'boost_query_fields' => array( 'author^2', 'author_login^2', 'title.default.engram' ),
- *		) );
- *
- *		//remainder of query
- *		$match_content_fields = $parser->merge_ml_fields(
- *			array(
- *				'all_content' => 0.1,
- *			),
- *			array(
- *				'all_content.default.engram^0.1',
- *			)
- *		);
- *		$boost_content_fields = $parser->merge_ml_fields(
- *			array(
- *				'title' => 2,
- *				'description' => 1,
- *				'tags' => 1,
- *			),
- *			array(
- *				'author_login^2',
- *				'author^2',
- *			)
- *		);
- *
- *		$parser->phrase_filter( array(
- *			'must_query_fields' => $match_content_fields,
- *			'boost_query_fields' => $boost_content_fields,
- *		) );
- *		$parser->remaining_query( array(
- *			'must_query_fields' => $match_content_fields,
- *			'boost_query_fields' => $boost_content_fields,
- *		) );
- *
- *		//Boost on phrases
- *		$parser->remaining_query( array(
- *			'boost_query_fields' => $boost_content_fields,
- *			'boost_query_type'   => 'phrase',
- *		) );
- *
- *		//boosting
- *		$parser->add_max_boost_to_functions( 20 );
- *		$parser->add_function( 'field_value_factor', array(
- *			'follower_count' => array(
- *				'modifier' => 'sqrt',
- *				'factor' => 1,
- *				'missing' => 0,
- *			) ) );
- *
- *		//Filtering
- *		$parser->add_filter( array(
- *			'exists' => array( 'field' => 'langs.' . $lang )
- *		) );
- *
- *		//run the query
- *		$es_query_args = array(
- *			'name' => 'feeds',
- *			'blog_id' => false,
- *			'security_strategy' => 'a8c',
- *			'type' => 'feed,blog',
- *			'fields' => array( 'blog_id', 'feed_id' ),
- *			'query' => $parser->build_query(),
- *			'filter' => $parser->build_filter(),
- *			'size' => $size,
- *			'from' => $from
- *		);
- *		$es_results = es_api_search_index( $es_query_args, 'api-feed-find' );
- *
+ * @package    automattic/jetpack-search
  */
 
 namespace Automattic\Jetpack\Search\WPES;
 
+/**
+ * Query parser class.
+ */
 class Query_Parser extends Query_Builder {
-	protected $orig_query = '';
+	protected $orig_query    = '';
 	protected $current_query = '';
 	protected $langs;
 	protected $avail_langs = array( 'ar', 'bg', 'ca', 'cs', 'da', 'de', 'el', 'en', 'es', 'eu', 'fa', 'fi', 'fr', 'he', 'hi', 'hu', 'hy', 'id', 'it', 'ja', 'ko', 'nl', 'no', 'pt', 'ro', 'ru', 'sv', 'tr', 'zh' );
 
 	public function __construct( $user_query, $langs ) {
-		$this->orig_query = $user_query;
+		$this->orig_query    = $user_query;
 		$this->current_query = $this->orig_query;
-		$this->langs = $this->norm_langs( $langs );
+		$this->langs         = $this->norm_langs( $langs );
 	}
 
 	protected $extracted_phrases = array();
@@ -138,10 +68,10 @@ class Query_Parser extends Query_Builder {
 	 */
 	public function norm_langs( $langs ) {
 		$lst = array();
-		foreach( $langs as $l ) {
+		foreach ( $langs as $l ) {
 			$l = strtok( $l, '-_' );
-			if ( in_array( $l, $this->avail_langs ) ) {
-				$lst[$l] = true;
+			if ( in_array( $l, $this->avail_langs, true ) ) {
+				$lst[ $l ] = true;
 			} else {
 				$lst['default'] = true;
 			}
@@ -164,12 +94,12 @@ class Query_Parser extends Query_Builder {
 	 */
 	public function merge_ml_fields( $fields2boosts, $additional_fields ) {
 		$flds = array();
-		foreach( $fields2boosts as $f => $b ) {
-			foreach( $this->langs as $l ) {
+		foreach ( $fields2boosts as $f => $b ) {
+			foreach ( $this->langs as $l ) {
 				$flds[] = $f . '.' . $l . '^' . $b;
 			}
 		}
-		foreach( $additional_fields as $f ) {
+		foreach ( $additional_fields as $f ) {
 			$flds[] = $f;
 		}
 		return $flds;
@@ -195,18 +125,18 @@ class Query_Parser extends Query_Builder {
 	 */
 	public function author_field_filter( $args ) {
 		$defaults = array(
-			'wpcom_id_field' => 'author_id',
-			'must_query_fields' => null,
+			'wpcom_id_field'     => 'author_id',
+			'must_query_fields'  => null,
 			'boost_query_fields' => null,
-			'prefixes' => array( '@' ),
+			'prefixes'           => array( '@' ),
 		);
-		$args = wp_parse_args( $args, $defaults );
+		$args     = wp_parse_args( $args, $defaults );
 
 		$names = array();
-		foreach( $args['prefixes'] as $p ) {
+		foreach ( $args['prefixes'] as $p ) {
 			$found = $this->get_fields( $p );
 			if ( $found ) {
-				foreach( $found as $f ) {
+				foreach ( $found as $f ) {
 					$names[] = $f;
 				}
 			}
@@ -216,60 +146,73 @@ class Query_Parser extends Query_Builder {
 			return false;
 		}
 
-		foreach( $args['prefixes'] as $p ) {
+		foreach ( $args['prefixes'] as $p ) {
 			$this->remove_fields( $p );
 		}
 
 		$user_ids = array();
-		$query_names = array();
 
 		//loop through the matches and separate into filters and queries
-		foreach( $names as $n ) {
+		foreach ( $names as $n ) {
 			//check for exact match on login
-			$userdata = get_user_by( 'login', strtolower( $n ) );
+			$userdata  = get_user_by( 'login', strtolower( $n ) );
 			$filtering = false;
 			if ( $userdata ) {
 				$user_ids[ $userdata->ID ] = true;
-				$filtering = true;
+				$filtering                 = true;
 			}
 
 			$is_phrase = false;
 			if ( preg_match( '/"/', $n ) ) {
 				$is_phrase = true;
-				$n = preg_replace( '/"/', '', $n );
+				$n         = preg_replace( '/"/', '', $n );
 			}
 
-			if ( !empty( $args['must_query_fields'] ) && !$filtering ) {
+			if ( ! empty( $args['must_query_fields'] ) && ! $filtering ) {
 				if ( $is_phrase ) {
-					$this->add_query( array(
-						'multi_match' => array(
-							'fields' => $args['must_query_fields'],
-							'query' => $n,
-							'type' => 'phrase',
-					) ) );
+					$this->add_query(
+						array(
+							'multi_match' => array(
+								'fields' => $args['must_query_fields'],
+								'query'  => $n,
+								'type'   => 'phrase',
+							),
+						)
+					);
 				} else {
-					$this->add_query( array(
-						'multi_match' => array(
-							'fields' => $args['must_query_fields'],
-							'query' => $n,
-					) ) );
+					$this->add_query(
+						array(
+							'multi_match' => array(
+								'fields' => $args['must_query_fields'],
+								'query'  => $n,
+							),
+						)
+					);
 				}
 			}
 
-			if ( !empty( $args['boost_query_fields'] ) ) {
+			if ( ! empty( $args['boost_query_fields'] ) ) {
 				if ( $is_phrase ) {
-					$this->add_query( array(
-						'multi_match' => array(
-							'fields' => $args['boost_query_fields'],
-							'query' => $n,
-							'type' => 'phrase',
-					) ), 'should' );
+					$this->add_query(
+						array(
+							'multi_match' => array(
+								'fields' => $args['boost_query_fields'],
+								'query'  => $n,
+								'type'   => 'phrase',
+							),
+						),
+						'should'
+					);
 				} else {
-					$this->add_query( array(
-						'multi_match' => array(
-							'fields' => $args['boost_query_fields'],
-							'query' => $n,
-					) ), 'should' );
+					$this->add_query(
+						array(
+							'multi_match' => array(
+								'fields' => $args['boost_query_fields'],
+								'query'  => $n,
+							),
+						),
+						'should'
+					);
 				}
 			}
 		}
@@ -298,17 +241,17 @@ class Query_Parser extends Query_Builder {
 	 */
 	public function text_field_filter( $args ) {
 		$defaults = array(
-			'must_query_fields' => array( 'tag.name' ),
+			'must_query_fields'  => array( 'tag.name' ),
 			'boost_query_fields' => array( 'tag.name' ),
-			'prefixes' => array( '#' ),
+			'prefixes'           => array( '#' ),
 		);
-		$args = wp_parse_args( $args, $defaults );
+		$args     = wp_parse_args( $args, $defaults );
 
 		$tags = array();
-		foreach( $args['prefixes'] as $p ) {
+		foreach ( $args['prefixes'] as $p ) {
 			$found = $this->get_fields( $p );
 			if ( $found ) {
-				foreach( $found as $f ) {
+				foreach ( $found as $f ) {
 					$tags[] = $f;
 				}
 			}
@@ -318,48 +261,62 @@ class Query_Parser extends Query_Builder {
 			return false;
 		}
 
-		foreach( $args['prefixes'] as $p ) {
+		foreach ( $args['prefixes'] as $p ) {
 			$this->remove_fields( $p );
 		}
 
-		foreach( $tags as $t ) {
+		foreach ( $tags as $t ) {
 			$is_phrase = false;
 			if ( preg_match( '/"/', $t ) ) {
 				$is_phrase = true;
-				$t = preg_replace( '/"/', '', $t );
+				$t         = preg_replace( '/"/', '', $t );
 			}
 
 			if ( ! empty( $args['must_query_fields'] ) ) {
 				if ( $is_phrase ) {
-					$this->add_query( array(
-						'multi_match' => array(
-							'fields' => $args['must_query_fields'],
-							'query' => $t,
-							'type' => 'phrase',
-					) ) );
+					$this->add_query(
+						array(
+							'multi_match' => array(
+								'fields' => $args['must_query_fields'],
+								'query'  => $t,
+								'type'   => 'phrase',
+							),
+						)
+					);
 				} else {
-					$this->add_query( array(
-						'multi_match' => array(
-							'fields' => $args['must_query_fields'],
-							'query' => $t,
-					) ) );
+					$this->add_query(
+						array(
+							'multi_match' => array(
+								'fields' => $args['must_query_fields'],
+								'query'  => $t,
+							),
+						)
+					);
 				}
 			}
 
 			if ( ! empty( $args['boost_query_fields'] ) ) {
 				if ( $is_phrase ) {
-					$this->add_query( array(
-						'multi_match' => array(
-							'fields' => $args['boost_query_fields'],
-							'query' => $t,
-							'type' => 'phrase',
-					) ), 'should' );
+					$this->add_query(
+						array(
+							'multi_match' => array(
+								'fields' => $args['boost_query_fields'],
+								'query'  => $t,
+								'type'   => 'phrase',
+							),
+						),
+						'should'
+					);
 				} else {
-					$this->add_query( array(
-						'multi_match' => array(
-							'fields' => $args['boost_query_fields'],
-							'query' => $t,
-					) ), 'should' );
+					$this->add_query(
+						array(
+							'multi_match' => array(
+								'fields' => $args['boost_query_fields'],
+								'query'  => $t,
+							),
+						),
+						'should'
+					);
 				}
 			}
 		}
@@ -381,10 +338,10 @@ class Query_Parser extends Query_Builder {
 	 */
 	public function phrase_filter( $args ) {
 		$defaults = array(
-			'must_query_fields' => array( 'all_content' ),
+			'must_query_fields'  => array( 'all_content' ),
 			'boost_query_fields' => array( 'title' ),
 		);
-		$args = wp_parse_args( $args, $defaults );
+		$args     = wp_parse_args( $args, $defaults );
 
 		$phrases = array();
 		if ( preg_match_all( '/"([^"]+)"/', $this->current_query, $matches ) ) {
@@ -404,11 +361,11 @@ class Query_Parser extends Query_Builder {
 		//look for a final, uncompleted phrase
 		$phrase_prefix = false;
 		if ( preg_match_all( '/"([^"]+)$/', $this->current_query, $matches ) ) {
-			$phrase_prefix = $matches[1][0];
+			$phrase_prefix       = $matches[1][0];
 			$this->current_query = preg_replace( '/"([^"]+)$/', '', $this->current_query );
 		}
 		if ( preg_match_all( "/(?:'\B|\B')([^']+)$/", $this->current_query, $matches ) ) {
-			$phrase_prefix = $matches[1][0];
+			$phrase_prefix       = $matches[1][0];
 			$this->current_query = preg_replace( "/(?:'\B|\B')([^']+)$/", '', $this->current_query );
 		}
 
@@ -420,20 +377,27 @@ class Query_Parser extends Query_Builder {
 		}
 
 		foreach ( $phrases as $p ) {
-			$this->add_query( array(
-				'multi_match' => array(
-					'fields' => $args['must_query_fields'],
-					'query' => $p,
-					'type' => 'phrase',
-				) ) );
+			$this->add_query(
+				array(
+					'multi_match' => array(
+						'fields' => $args['must_query_fields'],
+						'query'  => $p,
+						'type'   => 'phrase',
+					),
+				)
+			);
 
 			if ( ! empty( $args['boost_query_fields'] ) ) {
-				$this->add_query( array(
-					'multi_match' => array(
-						'fields' => $args['boost_query_fields'],
-						'query' => $p,
-						'operator' => 'and',
-				) ), 'should' );
+				$this->add_query(
+					array(
+						'multi_match' => array(
+							'fields'   => $args['boost_query_fields'],
+							'query'    => $p,
+							'operator' => 'and',
+						),
+					),
+					'should'
+				);
 			}
 		}
 
@@ -452,34 +416,41 @@ class Query_Parser extends Query_Builder {
 	 */
 	public function remaining_query( $args ) {
 		$defaults = array(
-			'must_query_fields' => null,
+			'must_query_fields'  => null,
 			'boost_query_fields' => null,
-			'boost_operator' => 'and',
-			'boost_query_type' => 'best_fields',
+			'boost_operator'     => 'and',
+			'boost_query_type'   => 'best_fields',
 		);
-		$args = wp_parse_args( $args, $defaults );
+		$args     = wp_parse_args( $args, $defaults );
 
 		if ( empty( $this->current_query ) || ctype_space( $this->current_query ) ) {
 			return;
 		}
 
 		if ( ! empty( $args['must_query_fields'] ) ) {
-			$this->add_query( array(
-				'multi_match' => array(
-					'fields' => $args['must_query_fields'],
-					'query' => $this->current_query,
-					'operator' => 'and',
-			) ) );
+			$this->add_query(
+				array(
+					'multi_match' => array(
+						'fields'   => $args['must_query_fields'],
+						'query'    => $this->current_query,
+						'operator' => 'and',
+					),
+				)
+			);
 		}
 
 		if ( ! empty( $args['boost_query_fields'] ) ) {
-			$this->add_query( array(
-				'multi_match' => array(
-					'fields' => $args['boost_query_fields'],
-					'query' => $this->current_query,
-					'operator' => $args['boost_operator'],
-					'type' => $args['boost_query_type'],
-			) ), 'should' );
+			$this->add_query(
+				array(
+					'multi_match' => array(
+						'fields'   => $args['boost_query_fields'],
+						'query'    => $this->current_query,
+						'operator' => $args['boost_operator'],
+						'type'     => $args['boost_query_type'],
+					),
+				),
+				'should'
+			);
 		}
 
 	}
@@ -497,12 +468,12 @@ class Query_Parser extends Query_Builder {
 	 */
 	public function remaining_prefix_query( $args ) {
 		$defaults = array(
-			'must_query_fields' => array( 'all_content' ),
+			'must_query_fields'  => array( 'all_content' ),
 			'boost_query_fields' => array( 'title' ),
-			'boost_operator' => 'and',
-			'boost_query_type' => 'best_fields',
+			'boost_operator'     => 'and',
+			'boost_query_type'   => 'best_fields',
 		);
-		$args = wp_parse_args( $args, $defaults );
+		$args     = wp_parse_args( $args, $defaults );
 
 		if ( empty( $this->current_query ) || ctype_space( $this->current_query ) ) {
 			return;
@@ -527,7 +498,7 @@ class Query_Parser extends Query_Builder {
 		// eg: "PREFIXREMAINDER PREFIXWORD"
 		//     "elasticsearch lucen"
 
-		$prefix_word = false;
+		$prefix_word      = false;
 		$prefix_remainder = false;
 		if ( preg_match_all( '/([^ ]+)$/', $this->current_query, $matches ) ) {
 			$prefix_word = $matches[1][0];
@@ -541,72 +512,96 @@ class Query_Parser extends Query_Builder {
 		if ( ! $prefix_word ) {
 			//Space at the end of the query, so skip using a prefix query
 			if ( ! empty( $args['must_query_fields'] ) ) {
-				$this->add_query( array(
-					'multi_match' => array(
-						'fields' => $args['must_query_fields'],
-						'query' => $this->current_query,
-						'operator' => 'and',
-					) ) );
+				$this->add_query(
+					array(
+						'multi_match' => array(
+							'fields'   => $args['must_query_fields'],
+							'query'    => $this->current_query,
+							'operator' => 'and',
+						),
+					)
+				);
 			}
 
 			if ( ! empty( $args['boost_query_fields'] ) ) {
-				$this->add_query( array(
-					'multi_match' => array(
-						'fields' => $args['boost_query_fields'],
-						'query' => $this->current_query,
-						'operator' => $args['boost_operator'],
-						'type' => $args['boost_query_type'],
-					) ), 'should' );
+				$this->add_query(
+					array(
+						'multi_match' => array(
+							'fields'   => $args['boost_query_fields'],
+							'query'    => $this->current_query,
+							'operator' => $args['boost_operator'],
+							'type'     => $args['boost_query_type'],
+						),
+					),
+					'should'
+				);
 			}
 		} else {
 
 			//must match the prefix word and the prefix remainder
 			if ( ! empty( $args['must_query_fields'] ) ) {
 				//need to do an OR across a few fields to handle all cases
-				$must_q = array( 'bool' => array( 'should' => array( ), 'minimum_should_match' => 1 ) );
+				$must_q = array(
+					'bool' => array(
+						'should'               => array(),
+						'minimum_should_match' => 1,
+					),
+				);
 
 				//treat all words as an exact search (boosts complete word like "news"
 				//from prefixes of "newspaper")
-				$must_q['bool']['should'][] = array( 'multi_match' => array(
-					'fields' => $this->all_fields,
-					'query' => $full_text,
-					'operator' => 'and',
-					'type' => 'cross_fields',
-				) );
+				$must_q['bool']['should'][] = array(
+					'multi_match' => array(
+						'fields'   => $this->all_fields,
+						// NOTE: This line has been disabled since $full_text is not available.
+						// 'query'    => $full_text,
+						'operator' => 'and',
+						'type'     => 'cross_fields',
+					),
+				);
 
 				//always optimistically try and match the full text as a phrase
 				//prefix "the futu" should try to match "the future"
 				//otherwise the first stopword kinda breaks
 				//This also works as the prefix match for a single word "elasticsea"
-				$must_q['bool']['should'][] = array( 'multi_match' => array(
-					'fields' => $this->phrase_fields,
-					'query' => $full_text,
-					'operator' => 'and',
-					'type' => 'phrase_prefix',
-					'max_expansions' => 100,
-				) );
+				$must_q['bool']['should'][] = array(
+					'multi_match' => array(
+						'fields'         => $this->phrase_fields,
+						// NOTE: This line has been disabled since $full_text is not available.
+						// 'query'          => $full_text,
+						'operator'       => 'and',
+						'type'           => 'phrase_prefix',
+						'max_expansions' => 100,
+					),
+				);
 
 				if ( $prefix_remainder ) {
 					//Multiple words found, so treat each word on its own and not just as
 					//a part of a phrase
 					//"elasticsearch lucen" => "elasticsearch" exact AND "lucen" prefix
-					$q['bool']['should'][] = array( 'bool' => array(
-						'must' => array(
-							array( 'multi_match' => array(
-								'fields' => $this->phrase_fields,
-								'query' => $prefix_word,
-								'operator' => 'and',
-								'type' => 'phrase_prefix',
-								'max_expansions' => 100,
-							) ),
-							array( 'multi_match' => array(
-								'fields' => $this->all_fields,
-								'query' => $prefix_remainder,
-								'operator' => 'and',
-								'type' => 'cross_fields',
-							) ),
-						)
-					) );
+					$must_q['bool']['should'][] = array(
+						'bool' => array(
+							'must' => array(
+								array(
+									'multi_match' => array(
+										'fields'         => $this->phrase_fields,
+										'query'          => $prefix_word,
+										'operator'       => 'and',
+										'type'           => 'phrase_prefix',
+										'max_expansions' => 100,
+									),
+								),
+								array(
+									'multi_match' => array(
+										'fields'   => $this->all_fields,
+										'query'    => $prefix_remainder,
+										'operator' => 'and',
+										'type'     => 'cross_fields',
+									),
+								),
+							),
+						),
+					);
 				}
 
 				$this->add_query( $must_q );
@@ -616,23 +611,30 @@ class Query_Parser extends Query_Builder {
 			if ( ! empty( $args['boost_query_fields'] ) ) {
 				//treat all words as an exact search (boosts complete word like "news"
 				//from prefixes of "newspaper")
-				$this->add_query( array(
-					'multi_match' => array(
-						'fields' => $args['boost_query_fields'],
-						'query' => $this->current_query,
-						'operator' => $args['boost_query_operator'],
-						'type' => $args['boost_query_type'],
-					) ), 'should' );
+				$this->add_query(
+					array(
+						'multi_match' => array(
+							'fields'   => $args['boost_query_fields'],
+							'query'    => $this->current_query,
+							'operator' => $args['boost_query_operator'],
+							'type'     => $args['boost_query_type'],
+						),
+					),
+					'should'
+				);
 
 				//optimistically boost the full phrase prefix match
-				$this->add_query( array(
-					'multi_match' => array(
-						'fields' => $args['boost_query_fields'],
-						'query' => $this->current_query,
-						'operator' => 'and',
-						'type' => 'phrase_prefix',
-						'max_expansions' => 100,
-					) ) );
+				$this->add_query(
+					array(
+						'multi_match' => array(
+							'fields'         => $args['boost_query_fields'],
+							'query'          => $this->current_query,
+							'operator'       => 'and',
+							'type'           => 'phrase_prefix',
+							'max_expansions' => 100,
+						),
+					)
+				);
 			}
 		}
 	}
@@ -644,12 +646,15 @@ class Query_Parser extends Query_Builder {
 	 *    langs2prob: list of languages to search in with associated boosts
 	 */
 	public function boost_lang_probs( $langs2prob ) {
-		foreach( $langs2prob as $l => $p ) {
-			$this->add_function( 'field_value_factor', array(
-				'modifier' => 'none',
-				'factor' => $p,
-				'missing' => 0.01, //1% chance doc did not have right lang detected
-			) );
+		foreach ( $langs2prob as $p ) {
+			$this->add_function(
+				'field_value_factor',
+				array(
+					'modifier' => 'none',
+					'factor'   => $p,
+					'missing'  => 0.01, //1% chance doc did not have right lang detected
+				)
+			);
 		}
 	}
 
@@ -667,21 +672,21 @@ class Query_Parser extends Query_Builder {
 
 	//Remove the prefix and text from the query
 	protected function remove_fields( $field_name ) {
-		$regex = '/' . $field_name . '(("[^"]+")|([^\\p{Z}]+))/';
+		$regex               = '/' . $field_name . '(("[^"]+")|([^\\p{Z}]+))/';
 		$this->current_query = preg_replace( $regex, '', $this->current_query );
 	}
 
 	//Best effort string truncation that splits on word breaks
-	protected function truncate_string( $string, $limit, $break=" " ) {
+	protected function truncate_string( $string, $limit, $break = ' ' ) {
 		if ( mb_strwidth( $string ) <= $limit ) {
 			return $string;
 		}
 
 		// walk backwards from $limit to find first break
 		$breakpoint = $limit;
-		$broken = false;
+		$broken     = false;
 		while ( $breakpoint > 0 ) {
-			if ( $break === mb_strimwidth( $string, $breakpoint, 1 ) ) {
+			if ( mb_strimwidth( $string, $breakpoint, 1 ) === $break ) {
 				$string = mb_strimwidth( $string, 0, $breakpoint );
 				$broken = true;
 				break;
@@ -689,7 +694,7 @@ class Query_Parser extends Query_Builder {
 			$breakpoint--;
 		}
 		// if we weren't able to find a break, need to chop mid-word
-		if ( !$broken ) {
+		if ( ! $broken ) {
 			$string = mb_strimwidth( $string, 0, $limit );
 		}
 		return $string;
