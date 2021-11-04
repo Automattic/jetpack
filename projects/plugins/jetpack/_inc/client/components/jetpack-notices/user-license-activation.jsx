@@ -54,6 +54,8 @@ const UserLicenseActivationNotice = props => {
 	const lastDismissedTime = new Date( lastDismissedDateTime ? lastDismissedDateTime : new Date() );
 	const daysNoticeHasBeenDismissed = ( now - lastDismissedTime ) / DAY_IN_MILLISECONDS;
 
+	// Send Tracks event on notice 'view'.
+	// Only runs once on first render
 	useEffect( () => {
 		if (
 			userHasDetachedLicenses &&
@@ -61,7 +63,7 @@ const UserLicenseActivationNotice = props => {
 		) {
 			analytics.tracks.recordEvent( 'jetpack_wpa_licensing_activation_notice_view' );
 		}
-	}, [] );
+	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	const trackClick = useCallback( () => {
 		analytics.tracks.recordJetpackClick( {
