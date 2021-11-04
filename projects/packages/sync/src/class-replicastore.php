@@ -1445,7 +1445,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @throws Exception Might throw an exception if any of the input parameters were invalid.
 	 */
 	public function get_table_checksum_instance( $table, $salt = null, $perform_text_conversion = false ) {
-		if ( 'user' === $table ) {
+		if ( 'users' === $table ) {
 			return new Table_Checksum_User( $table, $salt, $perform_text_conversion );
 		}
 		if ( 'usermeta' === $table ) {
