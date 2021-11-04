@@ -639,14 +639,19 @@ abstract class Base_Admin_Menu {
 		 */
 		\do_action( 'jetpack_dashboard_switcher_changed_view', $current_screen, $preferred_view );
 
-		// Redirect to default view if that's the newly preferred view.
 		if ( self::DEFAULT_VIEW === $preferred_view ) {
+			// Redirect to default view if that's the newly preferred view.
 			$menu_mappings = require __DIR__ . '/menu-mappings.php';
 			if ( isset( $menu_mappings[ $current_screen ] ) ) {
 				// Using `wp_redirect` intentionally because we're redirecting to Calypso.
 				wp_redirect( $menu_mappings[ $current_screen ] . $this->domain ); // phpcs:ignore WordPress.Security.SafeRedirect
 				exit;
 			}
+		} elseif ( self::CLASSIC_VIEW === $preferred_view ) {
+			// Removes the `preferred-view` param from the URL to avoid issues with
+			// screens that don't expect this param to be present in the URL.
+			wp_safe_redirect( remove_query_arg( 'preferred-view' ) );
+			exit;
 		}
 		// phpcs:enable WordPress.Security.NonceVerification
 	}
