@@ -1,194 +1,117 @@
-html {
-    /* No admin bar nor marketing bar on this page */
-    margin-top: 0 !important;
+.launch-banner {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
+	font-size: 16px;
+	height: 48px;
+	line-height: 48px;
+	background: #24282D;
+	position: relative;
+	z-index: 99998;
 }
 
-.body {
-    background: #117ac9;
-    color: #fff;
-    display: grid;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
-    grid-gap: 24px;
-    -ms-grid-columns: 1fr [1];
-    grid-template-columns: repeat(1, 1fr);
-    padding-right: 24px;
-    padding-left: 24px;
-    margin: 0;
+.launch-banner-content {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #fff;
 }
 
-.inner {
-    align-items: flex-end;
-    display: flex;
-    flex-wrap: wrap;
-    -ms-grid-column: 1;
-    grid-column-start: 1;
-    -ms-grid-column-span: 1;
-    grid-column-end: span 1;
-    height: 100vh;
-    justify-content: space-between;
+.launch-banner-content .my-home-button,
+.launch-banner-content .dismiss-button {
+	width: 120px;
 }
 
-.main,
-.marketing {
-    flex: 0 0 100%;
+.launch-banner-content .dismiss-button {
+	display: flex;
+	justify-content: flex-end;
 }
 
-.name {
-    color: #fff;
-    font-size: 19px;
-    line-height: 1.3;
-    margin-bottom: 8px;
-    padding: 0;
-    text-align: left;
+.launch-banner-content a,
+.launch-banner-content button {
+	background: none;
+	border: none;
+	height: 48px;
+	text-decoration: none !important;
+	color: #fff;
+	border-bottom: none;
+	font-size: 13px;
+	padding: 0 20px;
+	display: flex;
+	align-items: center;
+	outline: none;
 }
 
-.description {
-    color: #fff;
-    font-size: 40px;
-    line-height: 1.15;
-    padding: 0;
-    text-align: left;
+.launch-banner-content .dismiss-button svg {
+	margin-right: 0;
 }
 
-.description,
-.copy {
-    font-family: Georgia, "Times New Roman", Times, serif;
+.launch-banner-content a:hover,
+.launch-banner-content button:hover {
+	background: #34383D;
+	cursor: pointer;
 }
 
-.marketing {
-    padding-bottom: 8px;
+.launch-banner-section.bar-controls {
+	display: flex;
+	justify-content: center;
+	flex-grow: 1;
 }
 
-.marketing-copy {
-    display: flex;
-    align-items: center;
+.launch-banner-section.bar-controls a {
+	border-left: 1px solid #424446;
+	font-weight: 500;
 }
 
-.logo {
-    height: 32px;
-    margin-right: 16px;
-    width: 32px;
+.launch-banner-section.bar-controls a:last-child {
+	border-right: 1px solid #424446;
 }
 
-.copy {
-    line-height: 1.4;
-    margin: 0;
+.launch-banner-section .icon {
+	margin-right: 5px;
+	fill: none;
 }
 
-.marketing-buttons .button {
-    background: #fff;
-    border-radius: 2px;
-    border: 1px solid #fff;
-    box-sizing: border-box;
-    color: #117ac9;
-    display: block;
-    font-size: 16px;
-    font-weight: 700;
-    line-height: 21px;
-    padding: 13px;
-    text-align: center;
-    text-overflow: ellipsis;
-    text-decoration: none;
-    transition: opacity 0.15s ease-out;
-    white-space: nowrap;
-    width: 100%;
+.launch-banner-section .icon path,
+.launch-banner-section .icon rect {
+	stroke: #b0b2b3;
 }
 
-.marketing-buttons .button-secondary,
-.marketing-buttons .button-secondary:hover,
-.marketing-buttons .button-secondary:focus {
-    background: transparent;
-    color: #fff;
+.launch-banner-section .icon.icon-home path,
+.launch-banner-section .icon.icon-dismiss path {
+	stroke: #fff;
 }
 
-.marketing-buttons .button:hover,
-.marketing-buttons .button:focus {
-    opacity: 0.85;
+.launch-banner-section .icon.icon-edit path:first-child {
+	stroke: none;
+	fill: #b0b2b3;
 }
 
-@media screen and (min-width: 660px) {
-    .description,
-    .copy {
-        font-family: Recoleta, Georgia, "Times New Roman", Times, serif;
-    }
-
-    .name {
-        font-size: 23px;
-    }
-
-    .description {
-        font-size: 69px;
-    }
-
-    .marketing {
-        align-items: center;
-        display: flex;
-        justify-content: space-between;
-        padding-bottom: 24px;
-    }
-
-    .marketing-copy {
-        margin-right: 16px;
-    }
-
-    .marketing-buttons {
-        display: flex;
-    }
-
-    .marketing-buttons p {
-        margin: 0;
-    }
-
-    .marketing-buttons p:nth-child(2) {
-        margin-left: 8px;
-    }
-
-    .marketing-buttons .button {
-        font-size: 13px;
-        padding: 7px 13px;
-        min-width: 145px;
-    }
+.is-mobile {
+	display: none;
 }
-@media screen and (min-width: 661px) {
-    p, ul, ol {
-        font-size: 16px;
-        letter-spacing: 0;
-    }
-}
-@media screen and (min-width: 960px) {
-    .name {
-        font-size: 28px;
-        margin-bottom: 16px;
-    }
 
-    .description {
-        font-size: 99px;
-    }
+@media screen and (max-width: 620px) {
+	.is-desktop {
+		display: none;
+	}
 
-    .copy {
-        font-size: 19px;
-    }
-}
-@media screen and (min-width: 1040px) {
-    .body {
-        -ms-grid-columns: 1fr [12];
-        grid-template-columns: repeat(12, 1fr);
-    }
+	.is-mobile {
+		display: block;
+	}
 
-    .inner {
-        -ms-grid-column: 2;
-        grid-column-start: 2;
-        -ms-grid-column-span: 10;
-        grid-column-end: span 10;
-    }
+	.launch-banner-content .bar-controls a {
+		padding: 0 12px;
+	}
 
-    .marketing {
-        padding-bottom: 32px;
-    }
-}
-@media only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-resolution: 144dpi) {
-    *, *:before, *:after {
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-    }
+	.launch-banner-section.bar-controls a {
+		border-left: none;
+	}
+
+	.launch-banner-section.bar-controls a:last-child {
+		border-right: none;
+	}
+
+	.launch-banner-section.dismiss-link a {
+		padding-right: 18px;
+	}
 }
