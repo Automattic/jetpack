@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { chunk, drop, take } from 'lodash';
-import { Platform } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -22,10 +21,7 @@ export default function Square( { columns, renderedImages } ) {
 				...( remainder ? [ take( renderedImages, remainder ) ] : [] ),
 				...chunk( drop( renderedImages, remainder ), columnCount ),
 			].map( ( imagesInRow, rowIndex ) => (
-				<Row
-					key={ rowIndex }
-					className={ Platform.OS === 'web' ? `columns-${ imagesInRow.length }` : undefined }
-				>
+				<Row key={ rowIndex } className={ `columns-${ imagesInRow.length }` }>
 					{ imagesInRow.map( ( image, colIndex ) => (
 						<Column key={ colIndex }>{ image }</Column>
 					) ) }

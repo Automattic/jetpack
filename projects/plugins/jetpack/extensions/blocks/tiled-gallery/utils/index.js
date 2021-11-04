@@ -4,7 +4,6 @@
 import photon from 'photon';
 import { format as formatUrl, parse as parseUrl } from 'url';
 import { isBlobURL } from '@wordpress/blob';
-import { Platform } from '@wordpress/element';
 import { range } from 'lodash';
 
 /**
@@ -67,9 +66,8 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 	 * We don't know what the viewport size will be like. Use full size src.
 	 */
 
-	const isWeb = Platform.OS === 'web';
 	let src;
-	if ( isSquareishLayout( layoutStyle ) && width && height && isWeb ) {
+	if ( isSquareishLayout( layoutStyle ) && width && height ) {
 		// Layouts with 1:1 width/height ratio should be made square
 		const size = Math.min( PHOTON_MAX_RESIZE, width, height );
 		src = photonImplementation( url, {
