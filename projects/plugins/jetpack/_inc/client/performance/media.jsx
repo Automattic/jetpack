@@ -12,7 +12,7 @@ import { ProgressBar } from '@automattic/components';
  * Internal dependencies
  */
 import {
-	checkForLegacySecurityDailyPlan,
+	isVideoPressLegacySecurityPlan,
 	getPlanClass,
 	getJetpackProductUpsellByFeature,
 	FEATURE_VIDEOPRESS,
@@ -57,10 +57,7 @@ class Media extends React.Component {
 		const shouldDisplayStorage = hasVideoPressPurchase && null !== videoPressStorageUsed;
 
 		const hasUpgrade =
-			includes(
-				[ 'is-premium-plan', 'is-business-plan', 'is-realtime-security-plan', 'is-complete-plan' ],
-				planClass
-			) ||
+			includes( [ 'is-premium-plan', 'is-business-plan', 'is-complete-plan' ], planClass ) ||
 			hasLegacySecurityDailyPlan ||
 			hasVideoPressPurchase;
 
@@ -148,7 +145,7 @@ export default connect( state => {
 		isModuleFound: module_name => _isModuleFound( state, module_name ),
 		sitePlan: getSitePlan( state ),
 		hasVideoPressPurchase: hasActiveVideoPressPurchase( state ),
-		hasLegacySecurityDailyPlan: getSitePurchases( state ).find( checkForLegacySecurityDailyPlan ),
+		hasLegacySecurityDailyPlan: getSitePurchases( state ).find( isVideoPressLegacySecurityPlan ),
 		hasConnectedOwner: hasConnectedOwnerSelector( state ),
 		isOffline: isOfflineMode( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),

@@ -410,13 +410,13 @@ export function containsBackupRealtime( planClass ) {
 }
 
 /**
- * Security Daily/Realtime plan no longer includes VideoPress as of end of day Oct 6 2021 UTC.
- * This check enforces the upsell appears only for customers that purchased Security Daily after that date.
+ * Security Daily/Realtime plan no longer includes VideoPress as of end of day Oct 7 2021 00:00 UTC.
+ * This check identifies purchases of Security Daily/Realtime purchased before or after that date.
  *
  * @param {*} purchase - The site purchase object.
- * @returns {boolean} Whether or not the provided plan is a legacy Security Daily plan.
+ * @returns {boolean} Whether or not the provided plan is a legacy Security Daily/Realtime plan.
  */
-export const checkForLegacySecurityDailyPlan = purchase =>
+export const isVideoPressLegacySecurityPlan = purchase =>
 	purchase.active &&
 	( PLAN_JETPACK_SECURITY_DAILY_MONTHLY === purchase.product_slug ||
 		PLAN_JETPACK_SECURITY_DAILY === purchase.product_slug ||

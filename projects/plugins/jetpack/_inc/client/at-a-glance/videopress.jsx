@@ -18,7 +18,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
  */
 import DashItem from 'components/dash-item';
 import {
-	checkForLegacySecurityDailyPlan,
+	isVideoPressLegacySecurityPlan,
 	getPlanClass,
 	getJetpackProductUpsellByFeature,
 	FEATURE_VIDEOPRESS,
@@ -75,10 +75,7 @@ class DashVideoPress extends Component {
 		} = this.props;
 
 		const hasUpgrade =
-			includes(
-				[ 'is-premium-plan', 'is-business-plan', 'is-realtime-security-plan', 'is-complete-plan' ],
-				planClass
-			) ||
+			includes( [ 'is-premium-plan', 'is-business-plan', 'is-complete-plan' ], planClass ) ||
 			hasLegacySecurityDailyPlan ||
 			hasVideoPressPurchase;
 
@@ -193,7 +190,7 @@ export default connect(
 	state => ( {
 		hasConnectedOwner: hasConnectedOwnerSelector( state ),
 		hasVideoPressPurchase: hasActiveVideoPressPurchase( state ),
-		hasLegacySecurityDailyPlan: getSitePurchases( state ).find( checkForLegacySecurityDailyPlan ),
+		hasLegacySecurityDailyPlan: getSitePurchases( state ).find( isVideoPressLegacySecurityPlan ),
 		isModuleAvailable: isModuleAvailable( state, 'videopress' ),
 		isOffline: isOfflineMode( state ),
 		sitePlan: getSitePlan( state ),
