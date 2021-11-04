@@ -414,7 +414,7 @@ export function containsBackupRealtime( planClass ) {
  * This check identifies purchases of Security Daily/Realtime purchased before or after that date.
  *
  * @param {*} purchase - The site purchase object.
- * @returns {boolean} Whether or not the provided plan is a legacy Security Daily/Realtime plan.
+ * @returns {boolean} True if legacy plan (VideoPress is included), false otherwise.
  */
 export const isVideoPressLegacySecurityPlan = purchase =>
 	purchase.active &&
