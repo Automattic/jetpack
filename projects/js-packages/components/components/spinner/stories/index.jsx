@@ -12,6 +12,9 @@ import Spinner from '../index.jsx';
 export default {
 	title: 'Playground/Spinner',
 	component: Spinner,
+	argTypes: {
+		color: { control: 'color' },
+	},
 };
 
 const Template = args => <Spinner { ...args } />;
