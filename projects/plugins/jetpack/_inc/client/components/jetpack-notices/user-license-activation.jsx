@@ -2,7 +2,7 @@
  * External dependencies
  */
 import PropTypes from 'prop-types';
-import React, { createElement, useCallback } from 'react';
+import React, { createElement, useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -54,9 +54,26 @@ const UserLicenseActivationNotice = props => {
 	const lastDismissedTime = new Date( lastDismissedDateTime ? lastDismissedDateTime : new Date() );
 	const daysNoticeHasBeenDismissed = ( now - lastDismissedTime ) / DAY_IN_MILLISECONDS;
 
-	const trackClick = useCallback( () => {
-		analytics.tracks.recordJetpackClick( 'activate-user-license-notice-click' );
+	useEffect( () => {
+		if (
+			userHasDetachedLicenses &&
+			( userHasNewDetachedLicenses || daysNoticeHasBeenDismissed > MAX_DAYS_DISMISSED )
+		) {
+			analytics.tracks.recordEvent( 'jetpack_wpa_licensing_activation_notice_view' );
+		}
 	}, [] );
+
+	const trackClick = useCallback( () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'licensing_activation_notice',
+			path: 'licensing/activation',
+		} );
+	}, [] );
+
+	const onNoticeDismiss = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_wpa_licensing_activation_notice_dismiss' );
+		updateLicensingActivationNoticeDismiss();
+	}, [ updateLicensingActivationNoticeDismiss ] );
 
 	// Show the notice when the user acquires a new license, Or when the user has an available
 	// license(s), but has dismissed the notice and it's been over 2 weeks without activating it.
@@ -68,7 +85,7 @@ const UserLicenseActivationNotice = props => {
 			<SimpleNotice
 				className="jp-license-activation-notice"
 				showDismiss={ true }
-				onDismissClick={ updateLicensingActivationNoticeDismiss }
+				onDismissClick={ onNoticeDismiss }
 				text={ createInterpolateElement(
 					__( 'You have an inactive product. <a>Activate now</a>', 'jetpack' ),
 					{
