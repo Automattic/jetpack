@@ -312,10 +312,15 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		) );
 	}
 
+	/**
+	 * Full Sync is limited to contributor and above users based on wp_user_level.
+	 * This test verifies only contributors are sent.
+	 */
 	function test_full_sync_sends_all_users() {
-		$first_user_id = $this->factory->user->create();
+		$this->factory->user->create( array( 'role' => 'subscriber' ) );
+		$first_user_id = $this->factory->user->create( array( 'role' => 'contributor' ) );
 		for ( $i = 0; $i < 9; $i += 1 ) {
-			$user_id = $this->factory->user->create();
+			$user_id = $this->factory->user->create( array( 'role' => 'contributor' ) );
 		}
 
 		update_user_meta( $user_id, 'locale', 'en_GB' );
@@ -1049,8 +1054,8 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 	function test_full_sync_doesnt_send_deleted_posts() {
 		// previously, the behavior was to send false or throw errors - we
 		// should actively detect false values and remove them
-		$keep_post_id   = $this->factory->post->create();
-		$delete_post_id = $this->factory->post->create();
+		$keep_post_id   = $this->factory->post->create( array( 'role' => 'editor' ) );
+		$delete_post_id = $this->factory->post->create( array( 'role' => 'editor' ) );
 
 		$this->full_sync->start();
 
@@ -1090,8 +1095,8 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 
 		// previously, the behavior was to send false or throw errors - we
 		// should actively detect false values and remove them
-		$keep_user_id   = $this->factory->user->create();
-		$delete_user_id = $this->factory->user->create();
+		$keep_user_id   = $this->factory->user->create( array( 'role' => 'contributor' ) );
+		$delete_user_id = $this->factory->user->create( array( 'role' => 'contributor' ) );
 
 		$this->full_sync->start();
 
@@ -1147,7 +1152,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		}
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
-		$this->assertEquals( 13, $this->server_replica_storage->user_count() );
+		$this->assertEquals( 3, $this->server_replica_storage->user_count() );
 		$this->server_replica_storage->reset();
 		$this->assertEquals( 0, $this->server_replica_storage->user_count() );
 		$user_ids = Modules::get_module( 'users' )->get_initial_sync_user_config();
