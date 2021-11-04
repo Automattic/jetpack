@@ -16,9 +16,4 @@ export default {
 
 const Template = args => <Spinner { ...args } />;
 
-const DefaultArgs = {
-	moduleName: 'The Module Name',
-};
-
 export const _default = Template.bind( {} );
-_default.args = DefaultArgs;
