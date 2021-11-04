@@ -452,7 +452,7 @@ class Actions {
 				$error_log = array_slice( $error_log, -4, null, true );
 			}
 			// Add new error indexed to time.
-			$error_log[ microtime( true ) ] = $rpc->get_jetpack_error();
+			$error_log[ (string) microtime( true ) ] = $rpc->get_jetpack_error();
 			// Update the error log.
 			update_option( self::ERROR_LOG_PREFIX . $queue_id, $error_log );
 
@@ -838,7 +838,7 @@ class Actions {
 	 * @param string $new_version New version of the plugin.
 	 * @param string $old_version Old version of the plugin.
 	 */
-	public static function cleanup_on_upgrade( $new_version = null, $old_version = null ) {
+	public static function cleanup_on_upgrade( $new_version = '', $old_version = '' ) {
 		if ( wp_next_scheduled( 'jetpack_sync_send_db_checksum' ) ) {
 			wp_clear_scheduled_hook( 'jetpack_sync_send_db_checksum' );
 		}
