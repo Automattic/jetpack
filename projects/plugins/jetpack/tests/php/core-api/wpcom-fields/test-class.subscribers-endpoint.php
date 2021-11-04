@@ -1,7 +1,6 @@
 <?php
 
 require_once dirname( dirname( __DIR__ ) ) . '/lib/class-wp-test-jetpack-rest-testcase.php';
-require_once JETPACK__PLUGIN_DIR . '/modules/subscriptions.php';
 
 /**
  * @group publicize
@@ -13,16 +12,8 @@ class Test_WPCOM_REST_API_V2_Subscribers_Endpoint extends WP_Test_Jetpack_REST_T
 	static $subscriber_user_id;
 
 	public static function wpSetUpBeforeClass( $factory ) {
-		self::$editor_user_id = $factory->user->create( array( 'role' => 'editor' ) );
+		self::$editor_user_id     = $factory->user->create( array( 'role' => 'editor' ) );
 		self::$subscriber_user_id = $factory->user->create( array( 'role' => 'subscriber' ) );
-	}
-
-	/**
-	 * Set up.
-	 */
-	public function set_up() {
-		parent::set_up();
-		self::set_subscribers_count( 100 );
 	}
 
 	public static function set_subscribers_count( $count ) {
@@ -35,6 +26,7 @@ class Test_WPCOM_REST_API_V2_Subscribers_Endpoint extends WP_Test_Jetpack_REST_T
 
 	public function test_get_subscriber_count_with_edit_permission() {
 		wp_set_current_user( self::$editor_user_id );
+		self::set_subscribers_count( 100 );
 
 		$request  = wp_rest_request( WP_REST_Server::READABLE, '/wpcom/v2/subscribers/count' );
 		$response = $this->server->dispatch( $request );
