@@ -243,14 +243,14 @@ class Helper {
 					case 'year':
 						$name = self::get_date_filter_type_name(
 							'year',
-							in_array( $widget_filter['field'], $modified_fields )
+							in_array( $widget_filter['field'], $modified_fields, true )
 						);
 						break;
 					case 'month':
 					default:
 						$name = self::get_date_filter_type_name(
 							'month',
-							in_array( $widget_filter['field'], $modified_fields )
+							in_array( $widget_filter['field'], $modified_fields, true )
 						);
 						break;
 				}
@@ -424,8 +424,8 @@ class Helper {
 						break;
 					}
 
-					if ( 'filters' == $k ) {
-						if ( count( $new_instance['filters'] ) != count( $old_instance['filters'] ) ) {
+					if ( 'filters' === $k ) {
+						if ( count( $new_instance['filters'] ) !== count( $old_instance['filters'] ) ) {
 							$widget = $new_instance;
 							break;
 						}
@@ -465,7 +465,7 @@ class Helper {
 		$sanitized = array();
 
 		foreach ( (array) $widget as $key => $value ) {
-			if ( '_multiwidget' == $key ) {
+			if ( '_multiwidget' === $key ) {
 				continue;
 			}
 
@@ -530,7 +530,7 @@ class Helper {
 		$active_post_types = array();
 
 		foreach ( $filters as $item ) {
-			if ( ( 'post_type' == $item['type'] ) && isset( $item['query_vars']['post_type'] ) ) {
+			if ( ( 'post_type' === $item['type'] ) && isset( $item['query_vars']['post_type'] ) ) {
 				$active_post_types[] = $item['query_vars']['post_type'];
 			}
 		}
