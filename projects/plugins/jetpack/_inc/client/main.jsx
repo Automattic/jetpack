@@ -6,8 +6,9 @@ import { connect } from 'react-redux';
 import { withRouter, Prompt } from 'react-router-dom';
 import { __, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ConnectScreen } from '@automattic/jetpack-connection';
+import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { Dashicon } from '@wordpress/components';
+import { withDispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -100,6 +101,8 @@ class Main extends React.Component {
 		restApi.setApiRoot( this.props.apiRoot );
 		restApi.setApiNonce( this.props.apiNonce );
 		this.initializeAnalytics();
+
+		this.props.setConnectionStatus( this.props.connectionStatus );
 
 		// Handles refresh, closing and navigating away from Jetpack's Admin Page
 		// beforeunload can not handle confirm calls in most of the browsers, so just clean up the flag.
@@ -214,7 +217,6 @@ class Main extends React.Component {
 					}
 					buttonLabel={ __( 'Connect your user account', 'jetpack' ) }
 					redirectUri="admin.php?page=jetpack"
-					connectionStatus={ this.props.connectionStatus }
 				>
 					<ul>
 						<li>{ __( 'Receive instant downtime alerts', 'jetpack' ) }</li>
@@ -270,7 +272,6 @@ class Main extends React.Component {
 					assetBaseUrl={ this.props.pluginBaseUrl }
 					autoTrigger={ this.shouldAutoTriggerConnection() }
 					redirectUri="admin.php?page=jetpack"
-					connectionStatus={ this.props.connectionStatus }
 				>
 					<p>
 						{ __(
@@ -563,7 +564,17 @@ export default connect(
 			return dispatch( resetConnectUser() );
 		},
 	} )
-)( withRouter( Main ) );
+)(
+	withDispatch( dispatch => {
+		return {
+			setConnectionStatus: connectionStatus => {
+				dispatch( CONNECTION_STORE_ID ).startResolution( 'getConnectionStatus', [] );
+				dispatch( CONNECTION_STORE_ID ).setConnectionStatus( connectionStatus );
+				dispatch( CONNECTION_STORE_ID ).finishResolution( 'getConnectionStatus', [] );
+			},
+		};
+	} )( withRouter( Main ) )
+);
 
 /**
  * Manages changing the visuals of the sub-nav items on the left sidebar when the React app changes routes
