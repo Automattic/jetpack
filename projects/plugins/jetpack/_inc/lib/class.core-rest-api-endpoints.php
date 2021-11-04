@@ -1101,15 +1101,18 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$last_detached_count = ( '' === $request['last_detached_count'] )
 			? $default['last_detached_count']
 			: $request['last_detached_count'];
-		// Use UTC timezone and convert to ISO8601 format(DateTime::W3C) for best compatibility with JavaScript Date in all browsers.
-		$last_dismissed_time = ( new DateTime( 'NOW', new DateTimeZone( 'UTC' ) ) )->format( DateTime::W3C );
-		$notice_data         = array(
+		$last_dismissed_time = ( '' === $request['last_detached_count'] )
+			? $default['last_dismissed_time']
+			// Use UTC timezone and convert to ISO8601 format(DateTime::W3C) for best compatibility with JavaScript Date in all browsers.
+			: ( new DateTime( 'NOW', new DateTimeZone( 'UTC' ) ) )->format( DateTime::W3C );
+
+		$notice_data = array(
 			'last_detached_count' => $last_detached_count,
 			'last_dismissed_time' => $last_dismissed_time,
 		);
 
 		Jetpack_Options::update_option( 'licensing_activation_notice_dismiss', $notice_data, true );
-		return rest_ensure_response( Jetpack_Options::get_option( 'licensing_activation_notice_dismiss', $default ) );
+		return rest_ensure_response( $notice_data );
 	}
 
 	public static function submit_survey( $request ) {
