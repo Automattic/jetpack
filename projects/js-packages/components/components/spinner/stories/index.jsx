@@ -15,6 +15,11 @@ export default {
 	argTypes: {
 		color: { control: 'color' },
 	},
+	parameters: {
+		backgrounds: {
+			default: 'dark',
+		},
+	},
 };
 
 const Template = args => <Spinner { ...args } />;
