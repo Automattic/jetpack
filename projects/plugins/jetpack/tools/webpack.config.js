@@ -78,6 +78,12 @@ module.exports = [
 			pathinfo: true,
 			libraryTarget: 'commonjs2',
 		},
+		externals: {
+			// Normally externalized by DependencyExtractionWebpackPlugin, but
+			// we don't use that in the static build. The JS built here isn't run anyway,
+			// so it doesn't really matter what we define the external to.
+			moment: 'moment',
+		},
 		plugins: [
 			...sharedWebpackConfig.plugins,
 			new StaticSiteGeneratorPlugin( {
