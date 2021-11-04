@@ -83,7 +83,6 @@ module.exports = [
 			// we don't use that in the static build. The JS built here isn't run anyway,
 			// so it doesn't really matter what we define the external to.
 			moment: 'moment',
-			'eslint-plugin-react-hooks': 'eslint-plugin-react-hooks',
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,
