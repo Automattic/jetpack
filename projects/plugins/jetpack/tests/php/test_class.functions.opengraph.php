@@ -252,7 +252,7 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 	 *
 	 * @author automattic
 	 * @covers ::jetpack_og_get_image
-	 * @since  $$next-version$$
+	 * @since $$next-version$$
 	 */
 	public function test_jetpack_og_get_image_alt_text_filter() {
 		$this->go_to( get_permalink( $this->icon_id ) );
@@ -269,7 +269,7 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 	 *
 	 * @author automattic
 	 * @covers ::jetpack_og_get_image
-	 * @since  $$next-version$$
+	 * @since $$next-version$$
 	 */
 	public function test_jetpack_og_get_image_alt_text_when_set() {
 		$this->go_to( get_permalink( $this->icon_id ) );
