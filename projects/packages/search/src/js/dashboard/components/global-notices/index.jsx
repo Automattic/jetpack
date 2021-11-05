@@ -15,11 +15,13 @@ export default function NoticesList(
 	props = { handleLocalNoticeDismissClick: null, notices: Object.freeze( [] ) }
 ) {
 	let noticesList = props.notices.map( function ( notice, index ) {
-		const onDismissClick = notice => () =>
+		const onDismissClick = notice => () => {
+			console.log( notice );
 			notice && props.handleLocalNoticeDismissClick( notice.id );
+		};
 		return (
 			<SimpleNotice
-				key={ 'notice-' + index }
+				key={ 'notice-' + notice.id }
 				status={ notice.status }
 				duration={ notice.duration || null }
 				text={ notice.text }
