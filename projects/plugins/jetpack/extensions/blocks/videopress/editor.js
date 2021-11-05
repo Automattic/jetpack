@@ -94,7 +94,27 @@ const preventBlockClassOnDeprecations = ( props, blockType, attributes ) => {
 	return props;
 };
 
+// Remove the default "videopress" embed block from the selectable block (keep it for video block link)
+const hideCoreVideoPressEmbed = settings => {
+	if ( ! ( 'variations' in settings ) || 'object' !== typeof settings.variations ) {
+		return;
+	}
+
+	settings.variations.some( variation => {
+		if ( 'videopress' === variation.name ) {
+			variation.scope = [];
+			return true;
+		}
+		return false;
+	} );
+};
+
 const addVideoPressSupport = ( settings, name ) => {
+	if ( 'core/embed' === name ) {
+		hideCoreVideoPressEmbed( settings );
+		return settings;
+	}
+
 	// Bail if this is not the video block or if the hook has been triggered by a deprecation.
 	if ( 'core/video' !== name || settings.isDeprecation ) {
 		return settings;
