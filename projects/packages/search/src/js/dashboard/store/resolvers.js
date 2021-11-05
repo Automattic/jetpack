@@ -1,3 +1,6 @@
+/**
+ * Internal dependencies
+ */
 import { fetchJetpackSettings, fetchSearchPlanInfo } from './controls';
 import actions from './actions';
 

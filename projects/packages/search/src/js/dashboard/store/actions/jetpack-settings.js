@@ -2,6 +2,8 @@
  * Internal dependencies
  */
 import { updateJetpackSettings as updateJetpackSettingsControl } from '../controls';
+import noticeActions from 'components/global-notices/store/actions';
+import { removeUpdatingNotice, updatingNotice } from 'components/global-notices/store/actions';
 
 export const SET_JETPACK_SETTINGS = 'SET_JETPACK_SETTINGS';
 export const TOGGLE_SEARCH_MODULE = 'TOGGLE_SEARCH_MODULE';
@@ -12,18 +14,20 @@ export const TOGGLE_SEARCH_MODULE = 'TOGGLE_SEARCH_MODULE';
  * @param {object} settings
  * @returns object - yield an action object.
  */
-function* updateJetpackSettings( settings ) {
+export function* updateJetpackSettings( settings ) {
 	yield setJetpackSettings( settings );
 	yield setUpdatingJetpackSettings();
 	const updatedSettings = yield updateJetpackSettingsControl( settings );
 	yield setUpdatingJetpackSettingsDone();
-	return setJetpackSettings( updatedSettings );
+	yield setJetpackSettings( updatedSettings );
+	return noticeActions.successNotice( 'Update success' );
 }
 
 /**
  * @returns {object} - an action to set network busy.
  */
-function setUpdatingJetpackSettings() {
+export function* setUpdatingJetpackSettings() {
+	yield updatingNotice();
 	return setJetpackSettings( { is_updating: true } );
 }
 
@@ -31,11 +35,12 @@ function setUpdatingJetpackSettings() {
  *
  * @returns {object} - an action to set network free.
  */
-function setUpdatingJetpackSettingsDone() {
+export function* setUpdatingJetpackSettingsDone() {
+	yield removeUpdatingNotice();
 	return setJetpackSettings( { is_updating: false } );
 }
 
-function setJetpackSettings( options ) {
+export function setJetpackSettings( options ) {
 	return { type: SET_JETPACK_SETTINGS, options };
 }
 

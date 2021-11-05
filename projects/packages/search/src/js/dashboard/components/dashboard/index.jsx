@@ -7,7 +7,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * WordPress dependencies
  */
-import { useSelect, select } from '@wordpress/data';
+import { useSelect, select, useDispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -20,6 +20,7 @@ import MockedSearch from 'components/mocked-search';
 import { STORE_ID } from '../../store';
 import 'scss/rna-styles.scss';
 import './style.scss';
+import NoticesList from '../global-notices';
 
 /**
  * SearchDashboard component definition.
@@ -40,6 +41,9 @@ export default function SearchDashboard() {
 			select( STORE_ID ).isResolving( 'getSearchModuleStatus' ) ||
 			! select( STORE_ID ).hasStartedResolution( 'getSearchModuleStatus' )
 	);
+
+	const handleLocalNoticeDismissClick = useDispatch( STORE_ID ).removeNotice;
+	const notices = useSelect( select => select( STORE_ID ).getNotices(), [] );
 
 	const initializeAnalytics = () => {
 		const tracksUser = select( STORE_ID ).getWpcomUser();
@@ -140,6 +144,10 @@ export default function SearchDashboard() {
 					{ renderFooter() }
 				</Fragment>
 			) }
+			<NoticesList
+				notices={ notices }
+				handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
+			/>
 		</div>
 	);
 }
