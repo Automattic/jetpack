@@ -113,11 +113,7 @@ const hideCoreVideoPressEmbed = settings => {
 
 const addVideoPressSupport = ( settings, name ) => {
 	if ( 'core/embed' === name ) {
-		// If VideoPress is not available, don't modify the core blocks.
-		const { available } = getJetpackExtensionAvailability( 'videopress' );
-		if ( available ) {
-			hideCoreVideoPressEmbed( settings );
-		}
+		hideCoreVideoPressEmbed( settings );
 		return settings;
 	}
 
