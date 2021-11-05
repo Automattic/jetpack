@@ -485,7 +485,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 
 		if ( ! empty( $item['meta'] ) ) {
 			// Only allow meta properties defined in the schema.
-			// None of the validation or sanization functions are doing this for me.
+			// None of the validation or sanitization functions are doing this for me.
 			$meta_allowed  = array_keys( $this->media_schema['properties']['meta']['properties'] );
 			$meta_filtered = array_intersect_key( $item['meta'], array_flip( $meta_allowed ) );
 
