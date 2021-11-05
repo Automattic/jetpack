@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+General: Run all block fixtures through KSES, to help ensure they save correctly.
