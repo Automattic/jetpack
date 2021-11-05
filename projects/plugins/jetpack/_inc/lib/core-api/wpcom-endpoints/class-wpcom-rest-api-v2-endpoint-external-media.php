@@ -55,9 +55,6 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 					'vertical_id'   => array(
 						'type' => 'string',
 					),
-					'vertical_name' => array(
-						'type' => 'string',
-					),
 					'pexels_object' => array(
 						'type' => 'object',
 					),
