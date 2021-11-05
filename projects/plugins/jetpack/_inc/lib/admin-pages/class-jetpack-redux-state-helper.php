@@ -381,6 +381,11 @@ function jetpack_current_user_data() {
 	$dotcom_data       = $jetpack_connection->get_connected_user_data();
 
 	// Add connected user gravatar to the returned dotcom_data.
+	// Probably we shouldn't do this when $dotcom_data is false, but we have been since 2016 so
+	// clients probably expect that by now.
+	if ( false === $dotcom_data ) {
+		$dotcom_data = array();
+	}
 	$dotcom_data['avatar'] = ( ! empty( $dotcom_data['email'] ) ?
 		get_avatar_url(
 			$dotcom_data['email'],

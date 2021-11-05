@@ -401,12 +401,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection-ui",
-                "reference": "78d4e0857eef20ff5bf893fc198dee6614fb7572"
+                "reference": "e0c7007fad3cff796abc99004558176d343e7a3e"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.30",
                 "automattic/jetpack-constants": "^1.6",
-                "automattic/jetpack-device-detection": "^1.4"
+                "automattic/jetpack-device-detection": "^1.4",
+                "automattic/jetpack-identity-crisis": "^0.4"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0"

@@ -481,7 +481,7 @@ class Admin_Menu extends Base_Admin_Menu {
 			'<div id="dashboard-switcher"><h5>%s</h5><p class="dashboard-switcher-text">%s</p><a class="button button-primary dashboard-switcher-button" href="%s">%s</a></div>',
 			__( 'Screen features', 'jetpack' ),
 			__( 'Currently you are seeing the classic WP-Admin view of this page. Would you like to see the default WordPress.com view?', 'jetpack' ),
-			$menu_mappings[ $screen ] . $this->domain,
+			add_query_arg( 'preferred-view', 'default' ),
 			__( 'Use WordPress.com view', 'jetpack' )
 		);
 

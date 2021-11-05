@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Make the extract hostname tool remove trailing slash.

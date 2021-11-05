@@ -160,7 +160,7 @@ This provides a set of plugins for creating RTL versions of CSS files. You'll mo
 
 Options are:
 - `miniCssWithRtlOpts`: Options to pass to Calypso-build's [mini-css-with-rtl](https://github.com/Automattic/wp-calypso/blob/trunk/packages/calypso-build/webpack/mini-css-with-rtl.js) module.
-- `webpackRtlPluginOpts`: Options to pass to [@automattic/webpack-rtl-plugin](https://www.npmjs.com/package/@automattic/webpack-rtl-plugin). Note that, despite the documentation, it does not actually recognize options `filename` or `minify`.
+- `webpackRtlPluginOpts`: Options to pass to [@automattic/webpack-rtl-plugin](https://www.npmjs.com/package/@automattic/webpack-rtl-plugin).
 
 ##### `DuplicatePackageCheckerPlugin( options )`
 
