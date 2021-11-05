@@ -36,12 +36,12 @@
 
 	<Module slug={'render-blocking-js'}>
 		<h3 slot="title">
-			{__( 'Defer Non-Essential Javascript', 'jetpack-boost' )}
+			{__( 'Defer Non-Essential JavaScript', 'jetpack-boost' )}
 		</h3>
 		<p slot="description">
 			<TemplatedString
 				template={__(
-					`Run non-essential javascript after the page has loaded so
+					`Run non-essential JavaScript after the page has loaded so
 					that styles and images can load more quickly. Read more on
 					<link>web.dev</link>.`,
 					'jetpack-boost'
