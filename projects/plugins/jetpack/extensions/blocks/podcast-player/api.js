@@ -9,6 +9,15 @@ import { PODCAST_FEED, EMBED_BLOCK } from './constants';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 
+export const fetchTrackQuantity = async ( { url } ) => {
+	const trackQuantity = await apiFetch( {
+		path: addQueryArgs( '/wpcom/v2/podcast-player/track-quantity', {
+			url,
+		} ),
+	} );
+	return trackQuantity;
+};
+
 export const fetchPodcastFeed = async ( { url, guids = [], fetchEpisodeOptions = false } ) => {
 	// First try calling our endpoint for Podcast parsing.
 	let feedData, feedError;
