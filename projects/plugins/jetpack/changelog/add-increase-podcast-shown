@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Set php filter to change number of podcast items, rangeControlUI will also update in the front-end
