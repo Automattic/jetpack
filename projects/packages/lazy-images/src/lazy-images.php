@@ -33,16 +33,6 @@ namespace Automattic\Jetpack;
 class Jetpack_Lazy_Images {
 
 	/**
-	 * The assets version.
-	 *
-	 * @since 1.0.0
-	 * @since-jetpack 8.8.0
-	 *
-	 * @var string Assets version.
-	 */
-	const ASSETS_VERSION = '1.1.3';
-
-	/**
 	 * Class instance.
 	 *
 	 * @since 1.0.0
@@ -495,18 +485,31 @@ class Jetpack_Lazy_Images {
 	 * @return void
 	 */
 	public function enqueue_assets() {
+		$script_path       = Assets::get_file_url_for_environment( '../dist/intersection-observer.min.js', '../dist/intersection-observer.src.js', __FILE__ );
+		$script_asset_path = '../dist/intersection-observer.min.assets.php';
+		$script_asset      = file_exists( $script_asset_path ) ? require $script_asset_path : array(
+			'dependencies' => array(),
+			'version'      => filemtime( __DIR__ . '/../dist/intersection-observer.min.js' ),
+		);
 		wp_enqueue_script(
 			'jetpack-lazy-images-polyfill-intersectionobserver',
-			Assets::get_file_url_for_environment( '../dist/intersection-observer.js', '../dist/intersection-observer.src.js', __FILE__ ),
-			array(),
-			self::ASSETS_VERSION,
+			$script_path,
+			$script_asset['dependencies'],
+			$script_asset['version'],
 			true
+		);
+
+		$script_path       = Assets::get_file_url_for_environment( '../dist/lazy-images.min.js', 'js/lazy-images.js', __FILE__ );
+		$script_asset_path = '../dist/lazy-images.min.assets.php';
+		$script_asset      = file_exists( $script_asset_path ) ? require $script_asset_path : array(
+			'dependencies' => array(),
+			'version'      => filemtime( __DIR__ . '/../dist/lazy-images.min.js' ),
 		);
 		wp_enqueue_script(
 			'jetpack-lazy-images',
-			Assets::get_file_url_for_environment( '../dist/lazy-images.js', 'js/lazy-images.js', __FILE__ ),
-			array( 'jetpack-lazy-images-polyfill-intersectionobserver' ),
-			self::ASSETS_VERSION,
+			$script_path,
+			array_merge( $script_asset['dependencies'], array( 'jetpack-lazy-images-polyfill-intersectionobserver' ) ),
+			$script_asset['version'],
 			true
 		);
 		wp_localize_script(
