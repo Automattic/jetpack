@@ -81,7 +81,6 @@ jobs:
                 - '**.js'
                 - '**.jsx'
                 - '**.ts'
-                - '**.svelte'
             lockfiles:
               - 'composer.json'
               - 'composer.lock'
