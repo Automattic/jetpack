@@ -663,6 +663,7 @@ function stats_reports_page( $main_chart_only = false ) {
 		'comment_subscribers' => null,
 		'type'                => array( 'wpcom', 'email', 'pending' ),
 		'pagenum'             => 'int',
+		'masterbar'           => null,
 	);
 	foreach ( $args as $var => $vals ) {
 		if ( ! isset( $_REQUEST[ $var ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended

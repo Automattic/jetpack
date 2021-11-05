@@ -275,6 +275,46 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Adds Stats menu.
+	 */
+	public function add_stats_menu() {
+		$menu_title = __( 'Stats', 'jetpack' );
+
+		if ( ! $this->is_api_request ) {
+			$img_url = add_query_arg( 'page', 'stats', admin_url( 'admin.php' ) ); // no menu_page_url() blog-side.
+
+			$img_src    = esc_attr(
+				add_query_arg(
+					array(
+						'noheader'  => '',
+						'proxy'     => '',
+						'chart'     => 'admin-bar-hours-scale',
+						'masterbar' => '',
+					),
+					$img_url
+				)
+			);
+			$img_src_2x = esc_attr(
+				add_query_arg(
+					array(
+						'noheader'  => '',
+						'proxy'     => '',
+						'chart'     => 'admin-bar-hours-scale-2x',
+						'masterbar' => '',
+					),
+					$img_url
+				)
+			);
+
+			$alt = esc_attr__( 'Hourly views', 'jetpack' );
+
+			$menu_title .= "<img class='sidebar-unified__sparkline' src='$img_src' srcset='$img_src 1x, $img_src_2x 2x' width='80' height='20' alt='$alt'>";
+		}
+
+		add_menu_page( __( 'Stats', 'jetpack' ), $menu_title, 'edit_posts', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 3 );
+	}
+
+	/**
 	 * Adds Upgrades menu.
 	 *
 	 * @param string $plan The current WPCOM plan of the blog.
