@@ -15,7 +15,7 @@ module.exports = {
 	setupFilesAfterEnv: [
 		'expect-playwright',
 		'<rootDir>/lib/setupTests.js',
-		'<rootDir>/jest.setup.js',
+		require.resolve( 'jetpack-e2e-commons/jest.setup.js' ),
 	],
 	testRunner: 'jest-circus/runner',
 	runner: 'groups',
