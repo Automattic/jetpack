@@ -16,7 +16,7 @@ use WP_User_Query;
 /**
  * Class to handle Table Checksums for the User Meta table.
  */
-class Table_Checksum_Usermeta extends Table_Checksum_User {
+class Table_Checksum_Usermeta extends Table_Checksum_Users {
 	/**
 	 * Calculate the checksum based on provided range and filters.
 	 *

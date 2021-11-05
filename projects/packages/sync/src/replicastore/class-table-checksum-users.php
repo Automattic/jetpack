@@ -8,9 +8,9 @@
 namespace Automattic\Jetpack\Sync\Replicastore;
 
 /**
- * Class to handle Table Checksums for the User Meta table.
+ * Class to handle Table Checksums for the Users table.
  */
-class Table_Checksum_User extends Table_Checksum {
+class Table_Checksum_Users extends Table_Checksum {
 
 	/**
 	 * Returns the checksum query. All validation of fields and configurations are expected to occur prior to usage.
@@ -22,13 +22,13 @@ class Table_Checksum_User extends Table_Checksum {
 	 *
 	 * @return string
 	 *
-	 * @throws Exception Throws and exception if validation fails in the internal function calls.
+	 * @throws Exception Throws an exception if validation fails in the internal function calls.
 	 */
 	protected function build_checksum_query( $range_from = null, $range_to = null, $filter_values = null, $granular_result = false ) {
 		global $wpdb;
 
 		// Escape the salt.
-		$salt = $wpdb->prepare( '%s', $this->salt ); // TODO escape or prepare statement.
+		$salt = $wpdb->prepare( '%s', $this->salt );
 
 		// Prepare the compound key.
 		$key_fields = array();
@@ -120,18 +120,8 @@ class Table_Checksum_User extends Table_Checksum {
 
 		$this->validate_fields( array( $this->range_field ) );
 
-		// Performance :: When getting the postmeta range we do not want to filter by the whitelist.
-		// The reason for this is that it leads to a non-performant query that can timeout.
-		// Instead lets get the range based on posts regardless of meta.
-		$filter_values = $this->filter_values;
-
 		// `trim()` to make sure we don't add the statement if it's empty.
 		$filters = trim( $this->build_filter_statement( $range_from, $range_to ) );
-
-		// Reset Post meta filter.
-		if ( 'postmeta' === $this->table ) {
-			$this->filter_values = $filter_values;
-		}
 
 		$filter_statement = '';
 		if ( ! empty( $filters ) ) {
