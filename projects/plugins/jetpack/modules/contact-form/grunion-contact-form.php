@@ -2323,11 +2323,12 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		return "<script>
 			( function () {
 				const contact_forms = document.getElementsByClassName('contact-form');
-				const buttons = document.getElementsByTagName('button');
 
-				for ( form of contact_forms ) {
+				for ( const form of contact_forms ) {
 					form.onsubmit = function() {
-						for( button of buttons ) {
+						const buttons = form.getElementsByTagName('button');
+
+						for( const button of buttons ) {
 							button.setAttribute('disabled', true);
 						}
 					}
