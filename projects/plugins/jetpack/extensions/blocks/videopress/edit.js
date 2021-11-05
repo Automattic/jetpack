@@ -524,6 +524,19 @@ const VpBlock = props => {
 		} ),
 	} );
 
+	const onBlockResize = ( event, direction, elem ) => {
+		let newMaxWidth = getComputedStyle( elem ).width;
+		const parentElement = elem.parentElement;
+		if ( null !== parentElement ) {
+			const parentWidth = getComputedStyle( elem.parentElement ).width;
+			if ( newMaxWidth === parentWidth ) {
+				newMaxWidth = '100%';
+			}
+		}
+
+		setAttributes( { maxWidth: newMaxWidth } );
+	};
+
 	return (
 		<figure { ...blockProps }>
 			<div className="wp-block-embed__wrapper">
@@ -537,20 +550,7 @@ const VpBlock = props => {
 					maxWidth="100%"
 					size={ { width: maxWidth } }
 					style={ { margin: 'auto' } }
-					/* eslint-disable no-unused-vars */
-					onResizeStop={ ( event, direction, elem, delta ) => {
-						let newMaxWidth = getComputedStyle( elem ).width;
-						const parentElement = elem.parentElement;
-						if ( null !== parentElement ) {
-							const parentWidth = getComputedStyle( elem.parentElement ).width;
-							if ( newMaxWidth === parentWidth ) {
-								newMaxWidth = '100%';
-							}
-						}
-
-						setAttributes( { maxWidth: newMaxWidth } );
-					} }
-					/* eslint-enable no-unused-vars */
+					onResizeStop={ onBlockResize }
 				>
 					<SandBox html={ html } scripts={ scripts } type={ videoPressClassNames } />
 				</ResizableBox>
