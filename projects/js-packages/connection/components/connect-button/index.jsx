@@ -2,8 +2,9 @@
  * External dependencies
  */
 import React, { useEffect, useCallback, useState } from 'react';
-import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
+import { useSelect } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 import restApi from '@automattic/jetpack-api';
 import { ActionButton } from '@automattic/jetpack-components';
 
@@ -11,21 +12,12 @@ import { ActionButton } from '@automattic/jetpack-components';
  * Internal dependencies
  */
 import ConnectUser from '../connect-user';
+import { STORE_ID } from '../../state/store';
 
 /**
  * The RNA connection component.
  *
  * @param {object} props -- The properties.
- * @param {string} props.connectLabel -- The "Connect" button label.
- * @param {string} props.apiRoot -- API root URL, required.
- * @param {string} props.apiNonce -- API Nonce, required.
- * @param {string} props.registrationNonce -- Separate registration nonce, required.
- * @param {Function} props.onRegistered -- The callback to be called upon registration success.
- * @param {string} props.redirectUri -- The redirect admin URI.
- * @param {string} props.from -- Where the connection request is coming from.
- * @param {object} props.connectionStatus -- The connection status object.
- * @param {boolean} props.connectionStatusIsFetching -- The flag indicating that connection status is being fetched.
- * @param {boolean} props.autoTrigger -- Whether to initiate the connection process automatically upon rendering the component.
  * @returns {React.Component} The RNA connection component.
  */
 const ConnectButton = props => {
@@ -35,6 +27,11 @@ const ConnectButton = props => {
 
 	const [ authorizationUrl, setAuthorizationUrl ] = useState( null );
 
+	const { isRegistered, isUserConnected } = useSelect(
+		select => select( STORE_ID ).getConnectionStatus(),
+		[]
+	);
+
 	const {
 		apiRoot,
 		apiNonce,
@@ -43,8 +40,6 @@ const ConnectButton = props => {
 		registrationNonce,
 		redirectUri,
 		from,
-		connectionStatus,
-		connectionStatusIsFetching,
 		autoTrigger,
 	} = props;
 
@@ -65,7 +60,7 @@ const ConnectButton = props => {
 
 			setRegistrationError( false );
 
-			if ( connectionStatus.isRegistered ) {
+			if ( isRegistered ) {
 				setIsUserConnecting( true );
 				return;
 			}
@@ -93,7 +88,7 @@ const ConnectButton = props => {
 		[
 			setIsRegistering,
 			setAuthorizationUrl,
-			connectionStatus,
+			isRegistered,
 			onRegistered,
 			registrationNonce,
 			redirectUri,
@@ -111,17 +106,14 @@ const ConnectButton = props => {
 
 	return (
 		<>
-			{ connectionStatusIsFetching && `Loading...` }
-
-			{ ( ! connectionStatus.isRegistered || ! connectionStatus.isUserConnected ) &&
-				! connectionStatusIsFetching && (
-					<ActionButton
-						label={ connectLabel }
-						onClick={ registerSite }
-						displayError={ registrationError ? true : false }
-						isLoading={ isRegistering || isUserConnecting }
-					/>
-				) }
+			{ ( ! isRegistered || ! isUserConnected ) && (
+				<ActionButton
+					label={ connectLabel }
+					onClick={ registerSite }
+					displayError={ registrationError ? true : false }
+					isLoading={ isRegistering || isUserConnecting }
+				/>
+			) }
 
 			{ isUserConnecting && (
 				<ConnectUser connectUrl={ authorizationUrl } redirectUri={ redirectUri } from={ from } />
@@ -131,13 +123,21 @@ const ConnectButton = props => {
 };
 
 ConnectButton.propTypes = {
+	/** The "Connect" button label. */
 	connectLabel: PropTypes.string,
+	/** API root URL. */
 	apiRoot: PropTypes.string.isRequired,
+	/** API Nonce. */
 	apiNonce: PropTypes.string.isRequired,
+	/** The callback to be called upon registration success. */
 	onRegistered: PropTypes.func,
+	/** Where the connection request is coming from. */
 	from: PropTypes.string,
+	/** The redirect admin URI. */
 	redirectUri: PropTypes.string.isRequired,
+	/** Registration nonce. */
 	registrationNonce: PropTypes.string.isRequired,
+	/** Whether to initiate the connection process automatically upon rendering the component. */
 	autoTrigger: PropTypes.bool,
 };
 

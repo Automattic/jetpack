@@ -46,12 +46,11 @@ const ConnectScreen = props => {
 					registrationNonce={ registrationNonce }
 					from={ from }
 					redirectUri={ redirectUri }
-					connectionStatus={ connectionStatus }
 					connectLabel={ label }
 				/>
 			);
 		},
-		[ apiRoot, apiNonce, registrationNonce, from, redirectUri, connectionStatus ]
+		[ apiRoot, apiNonce, registrationNonce, from, redirectUri ]
 	);
 
 	return (
