@@ -16,7 +16,6 @@ export default function NoticesList(
 ) {
 	let noticesList = props.notices.map( function ( notice, index ) {
 		const onDismissClick = notice => () => {
-			console.log( notice );
 			notice && props.handleLocalNoticeDismissClick( notice.id );
 		};
 		return (
