@@ -121,6 +121,40 @@ The non-default options include:
 
 The options used may be accessed as `TerserPlugin.defaultOptions`. The filter functions used for comments may be accessed as `TerserPlugin.isTranslatorsComment()` and `TerserPlugin.isSomeComments()`. If you want to actually use these to override the default configuration, you may want to look at the hack used in the default configuration to get it to work with terser-webpack-plugin's parallel processing (or disable `parallel`).
 
+##### Minification and i18n translator comments
+
+To avoid the minifier dropping or misplacing the translator comments, it's best to keep the comment as close to the function call as possible. For example, in
+```js
+const a, b, c;
+
+/* translators: This is a bad example. */
+const example = __( 'Example', 'domain' );
+```
+the minifier will combine those into a single `const` statement and misplace the comment on the way. To fix it, move the comment to the variable declaration instead of the `const` statement:
+```js
+const a, b, c;
+
+const
+	/* translators: This is a bad example. */
+	example = __( 'Example', 'domain' );
+```
+Similarly in jsx, a comment placed like this may wind up misplaced:
+```js
+<Tag
+	/* translators: This is a bad example. */
+	property={ __( 'Here's another example', 'domain' ) }
+/>
+```
+Instead put it inside the property:
+```js
+<Tag
+	property={
+		/* translators: This is an example of how to do it right. */
+		__( 'Here's another example', 'domain' )
+	}
+/>
+```
+
 #### `CssMinimizerPlugin( options )`
 
 This provides an instance of [css-minimizer-webpack-plugin](https://www.npmjs.com/package/css-minimizer-webpack-plugin). Options are passed to the plugin.
