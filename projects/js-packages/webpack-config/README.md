@@ -104,16 +104,26 @@ This is an object suited for spreading some default values into Webpack's `outpu
 - `filename`: `[name].min.js`. The `.min.js` bit is required to avoid a broken auto-minifier on WordPress.com infrastructure.
 - `chunkFilename`: `[name]-[id].H[contenthash:20].min.js`. The content hash serves as a cache buster; while Webpack would accept something like `[name]-[id].min.js?ver=[contenthash]`, [some of the modules we use do not](https://github.com/Automattic/jetpack/issues/21349#issuecomment-940191828).
 
-#### `optimization`, `Minify()`
+#### `optimization`
 
-`optimization` is an object suitable for spreading some defaults into Webpack's `optimization` setting. It sets `minimize` based on the mode, configures a default `minimizer`, and sets `concatenateModules` to false as that setting [may mangle WordPress's i18n function names](https://github.com/Automattic/jetpack/issues/21204).
+`optimization` is an object suitable for spreading some defaults into Webpack's `optimization` setting. It sets `minimize` based on the mode, configures a default `minimizer` with `TerserPlugin` and `CssMinimizerPlugin`, and sets `concatenateModules` to false as that setting [may mangle WordPress's i18n function names](https://github.com/Automattic/jetpack/issues/21204).
 
-`Minify( options )` is a function to produce a tweaked version of the default `minimizer`. This comes from [@automattic/calypso-build](https://www.npmjs.com/package/@automattic/calypso-build). Options (as of calypso-build 9.0.0) are:
+#### `TerserPlugin( options )`
 
-- `terserOptions`: TerserPlugin's `terserOptions` option. Into this it will try to determine correct values for `.ecma`, `.ie8`, and `.safari10` based on the browserslist config. And we've also set the default `.mangle.reserved` to preserve WordPress's i18n functions.
-- `cssMinimizerOptions`: CssMinimizerPlugin's `cssMinimizerOptions` option. Into this it will set `.preset` to "default".
-- `extractComments`: TerserPlugin's `extractComments` option.
-- `parallel`: TerserPlugin's and CssMinimizerPlugin's `parallel` option.
+This provides an instance of [terser-webpack-plugin](https://www.npmjs.com/package/terser-webpack-plugin) configured to preserve WordPress i18n methods and translator comments. Options are passed to the plugin.
+
+The non-default options include:
+
+- `terserOptions.ecma`, `terserOptions.safari10`, and `terserOptions.ie8` are set based on the browserslist config if available, otherwise based on [@wordpress/browserslist-config](https://www.npmjs.com/package/@wordpress/browserslist-config).
+- `terserOptions.mangle.reserved` is set to preserve the `wp-i18n` methods.
+- `terserOptions.format.comments` is set to preserve "translators" comments.
+- `extractComments` is set to extract the comments normally preserved by terser to a LICENSE.txt file.
+
+The options used may be accessed as `TerserPlugin.defaultOptions`. The filter functions used for comments may be accessed as `TerserPlugin.isTranslatorsComment()` and `TerserPlugin.isSomeComments()`. If you want to actually use these to override the default configuration, you may want to look at the hack used in the default configuration to get it to work with terser-webpack-plugin's parallel processing (or disable `parallel`).
+
+#### `CssMinimizerPlugin( options )`
+
+This provides an instance of [css-minimizer-webpack-plugin](https://www.npmjs.com/package/css-minimizer-webpack-plugin). Options are passed to the plugin.
 
 #### `resolve`
 
