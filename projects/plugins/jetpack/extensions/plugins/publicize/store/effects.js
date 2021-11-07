@@ -23,39 +23,30 @@ export async function refreshConnectionTestResults() {
 
 		// Combine current connections with new connections.
 		const prevConnections = select( 'jetpack/publicize' ).getConnections();
-		const prevConnectionIds = prevConnections.map( connection => connection.id );
 		const freshConnections = results;
 		const connections = [];
+		const defaults = {
+			done: false,
+			enabled: true,
+			toggleable: true,
+		};
 
 		/*
 		 * Iterate connection by connection,
 		 * in order to refresh or update current connections.
 		 */
 		for ( const freshConnection of freshConnections ) {
-			let connection;
-			if ( prevConnectionIds.includes( freshConnection.id ) ) {
-				/*
-				 * The connection is already defined.
-				 * Do not overwrite the existing connection.
-				 */
-				connection = prevConnections.filter(
-					prevConnection => prevConnection.id === freshConnection.id
-				)[ 0 ];
-			} else {
-				/*
-				 * Here the connection is new.
-				 * Let's map it.
-				 */
-				connection = {
-					display_name: freshConnection.display_name,
-					service_name: freshConnection.service_name,
-					id: freshConnection.id,
-					done: false,
-					enabled: true,
-					toggleable: true,
-					profile_picture: freshConnection.profile_picture,
-				};
-			}
+			const prevConnection = prevConnections.find( conn => conn.id === freshConnection.id );
+			const { done, enabled, toggleable } = prevConnection ?? defaults;
+			const connection = {
+				display_name: freshConnection.display_name,
+				service_name: freshConnection.service_name,
+				id: freshConnection.id,
+				profile_picture: freshConnection.profile_picture,
+				done,
+				enabled,
+				toggleable,
+			};
 
 			connections.push( connection );
 		}
