@@ -117,7 +117,7 @@
 		"photon": "4.0.0",
 		"plugin-error": "1.0.1",
 		"postcss-custom-properties": "10.0.0",
-		"preact": "10.5.7",
+		"preact": "10.5.15",
 		"progress-event": "1.0.0",
 		"prop-types": "15.7.2",
 		"q-flat": "1.0.7",
