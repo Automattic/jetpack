@@ -142,6 +142,7 @@ class P2_Admin_Menu extends WPcom_Admin_Menu {
 		remove_menu_page( 'feedback' );
 		remove_menu_page( $this->plugins_slug );
 		remove_menu_page( 'https://wordpress.com/plugins/' . $this->domain );
+		remove_menu_page( 'https://wordpress.com/inbox/' . $this->domain );
 
 		remove_submenu_page( $this->tools_slug, 'https://wordpress.com/marketing/tools/' . $this->domain );
 		remove_submenu_page( $this->tools_slug, 'https://wordpress.com/earn/' . $this->domain );

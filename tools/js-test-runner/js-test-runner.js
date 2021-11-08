@@ -97,7 +97,7 @@ if ( program.args.length ) {
 		}
 	} );
 } else {
-	glob.sync( './!(node_modules)/**/test/*.{js,jsx,cjs,ts}' ).forEach( file => {
+	glob.sync( './!(node_modules)/**/test/*.{js,jsx,cjs,mjs,ts,tsx}' ).forEach( file => {
 		mocha.addFile( file );
 	} );
 }
