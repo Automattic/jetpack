@@ -667,7 +667,15 @@ class Critical_CSS extends Module {
 
 		// Convert stylesheets intended for screens.
 		if ( in_array( $media, $async_media, true ) ) {
-			$media_replacement = 'media="not all" onload="this.media=\'all\'"';
+			/**
+			 * Load stylesheets after window load event.
+			 *
+			 * @param string $handle The style's registered handle.
+			 * @todo  Retrieve settings from database, either via auto-configuration or UI option.
+			 */
+			$window_loaded_media = apply_filters( 'jetpack_boost_window_loaded_media', false, $handle );
+
+			$media_replacement = $window_loaded_media ? 'media="not all"' : 'media="not all" onload="this.media=\'all\'"';
 			$html              = preg_replace( '~media=[\'"]?[^\'"\s]+[\'"]?~', $media_replacement, $html );
 		}
 
