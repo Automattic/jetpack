@@ -179,13 +179,12 @@ export async function parseProj( argv ) {
 }
 
 /**
- * Handles creating a release branch.
+ * Prompts for and suggests a version number for the release branch.
  *
  * @param {object} argv - the arguments passed
  * @returns {object} argv
  */
 export async function getReleaseVersion( argv ) {
-	// Suggest the next version of the plugin, with `-beta` appended if necessary.
 	let potentialVersion = child_process
 		.execSync( `tools/plugin-version.sh ${ argv.project }` )
 		.toString()
@@ -193,6 +192,8 @@ export async function getReleaseVersion( argv ) {
 	potentialVersion = potentialVersion.split( '-' );
 	potentialVersion = potentialVersion[ 0 ].split( '.' ).splice( 0, 2 );
 	potentialVersion = potentialVersion.join( '.' );
+
+	// Append '-beta' if necessary.
 	if ( argv.b || argv.beta ) {
 		potentialVersion += '-beta';
 	}
