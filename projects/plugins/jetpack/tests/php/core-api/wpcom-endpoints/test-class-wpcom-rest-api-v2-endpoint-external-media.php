@@ -270,6 +270,56 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	}
 
 	/**
+	 * Tests copy response with pexels while setting metadata: Invalid meta 'orientation' values should fail.
+	 */
+	public function test_copy_image_meta_invalid_meta_orientation() {
+		$tmp_name = $this->get_temp_name( static::$image_path );
+		if ( file_exists( $tmp_name ) ) {
+			unlink( $tmp_name );
+		}
+
+		add_filter( 'pre_http_request', array( $this, 'mock_image_data' ), 10, 3 );
+		add_filter( 'wp_handle_sideload_prefilter', array( $this, 'copy_image' ) );
+		add_filter( 'wp_check_filetype_and_ext', array( $this, 'mock_extensions' ) );
+
+		$request = wp_rest_request( Requests::POST, '/wpcom/v2/external-media/copy/pexels' );
+		$request->set_body_params(
+			array(
+				'media' => array(
+					array(
+						'guid' => wp_json_encode(
+							array(
+								'url'  => static::$image_path,
+								'name' => $this->image_name,
+							)
+						),
+						'meta' => array(
+							'vertical_id'   => 'v1234',
+							'pexels_object' => array(
+								'information' => 'goes here',
+							),
+							'orientations'  => array(
+								'landscape',
+								'square',
+								'not_a_real_orientation',
+							),
+						),
+					),
+				),
+			)
+		);
+
+		$response = $this->server->dispatch( $request );
+
+		remove_filter( 'pre_http_request', array( $this, 'mock_image_data' ) );
+		remove_filter( 'wp_handle_sideload_prefilter', array( $this, 'copy_image' ) );
+		remove_filter( 'wp_check_filetype_and_ext', array( $this, 'mock_extensions' ) );
+
+		$this->assertEquals( $response->status, 400 );
+		$this->assertEquals( $response->data['data']['params']['media'], 'media[0][meta][orientations][2] is not one of landscape, portrait, and square.' );
+	}
+
+	/**
 	 * Tests connection response for Google Photos.
 	 */
 	public function test_connection_google_photos() {
