@@ -13,7 +13,7 @@ var jetpackLikesLookAhead = 2000; // pixels
 var jetpackCommentLikesLoadedWidgets = [];
 
 function JetpackLikesPostMessage( message, target ) {
-	if ( 'string' === typeof message ) {
+	if ( typeof message === 'string' ) {
 		try {
 			message = JSON.parse( message );
 		} catch ( e ) {
@@ -22,13 +22,16 @@ function JetpackLikesPostMessage( message, target ) {
 	}
 
 	if ( target && typeof target.postMessage === 'function' ) {
-		target.postMessage(
-			{
+		try {
+			var msg = JSON.stringify( {
 				type: 'likesMessage',
 				data: message,
-			},
-			'*'
-		);
+			} );
+			target.postMessage( msg, '*' );
+			message = JSON.stringify( message );
+		} catch ( e ) {
+			return;
+		}
 	}
 }
 
@@ -78,8 +81,17 @@ function JetpackLikesBatchHandler() {
 }
 
 function JetpackLikesMessageListener( event ) {
-	var type = event && event.data && event.data.type;
-	var data = event && event.data && event.data.data;
+	var message = event && event.data;
+	if ( typeof message === 'string' ) {
+		try {
+			message = JSON.parse( message );
+		} catch ( err ) {
+			return;
+		}
+	}
+
+	var type = message && message.type;
+	var data = message && message.data;
 
 	var allowedOrigin, $container, $list, offset, rowLength, height, scrollbarWidth;
 
