@@ -60,8 +60,14 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 						'type' => 'object',
 					),
 					'orientations'  => array(
-						'type' => 'array',
-						'enum' => array( 'landscape', 'portrait', 'square' ),
+						'type'        => 'array',
+						'items'       => array(
+							'type' => 'string',
+							'enum' => array( 'landscape', 'portrait', 'square' ),
+						),
+						'minItems'    => 1,
+						'maxItems'    => 3,
+						'uniqueItems' => true,
 					),
 				),
 			),
@@ -234,6 +240,16 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 	 */
 	public function validate_media( $param ) {
 		$param = $this->prepare_media_param( $param );
+
+		// Workaround: rest_validate_value_from_schema() only goes one level
+		// deep, so validate 'meta' separately.
+		$meta_schema = $this->media_schema['properties']['meta'];
+		foreach ( array_keys( $param ) as $i ) {
+			$param[ $i ]['meta'] = rest_validate_value_from_schema( $param[ $i ]['meta'], $meta_schema, 'meta' );
+			if ( $param[ $i ]['meta'] instanceof WP_Error ) {
+				return $param[ $i ]['meta'];
+			}
+		}
 
 		return rest_validate_value_from_schema( $param, $this->media_schema, 'media' );
 	}
