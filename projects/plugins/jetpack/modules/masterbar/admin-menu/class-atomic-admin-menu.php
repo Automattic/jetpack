@@ -280,18 +280,9 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function add_stats_menu() {
 		$menu_title = __( 'Stats', 'jetpack' );
 
-		if ( ! $this->is_api_request ) {
-			$img_url = add_query_arg( 'page', 'stats', admin_url( 'admin.php' ) );
+		if ( ! $this->is_api_request && \Jetpack::is_module_active( 'stats' ) ) {
 			$img_src = esc_attr(
-				add_query_arg(
-					array(
-						'noheader'  => '',
-						'proxy'     => '',
-						'chart'     => 'admin-bar-hours-scale-2x',
-						'masterbar' => '',
-					),
-					$img_url
-				)
+				stats_get_image_chart_src( 'admin-bar-hours-scale-2x', array( 'masterbar' => '' ) )
 			);
 			$alt     = esc_attr__( 'Hourly views', 'jetpack' );
 
