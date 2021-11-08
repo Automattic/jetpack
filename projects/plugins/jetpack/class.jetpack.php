@@ -6705,9 +6705,11 @@ endif;
 			'discount_percent'  => 40,
 			'included_in_plans' => array( 'security' ),
 			'features'          => array(
-				_x( 'Automated daily backups (off-site)', 'Backup Product Feature', 'jetpack' ),
-				_x( 'One-click restores', 'Backup Product Feature', 'jetpack' ),
-				_x( 'Unlimited backup storage', 'Backup Product Feature', 'jetpack' ),
+				_x( '10GB of backup storage', 'Backup Product Feature', 'jetpack' ),
+				_x( 'One-click restore from the last 30 days of backups', 'Backup Product Feature', 'jetpack' ),
+				_x( '30-day activity log', 'Backup Product Feature', 'jetpack' ),
+				_x( 'Real-time backups (as you edit)', 'Backup Product Feature', 'jetpack' ),
+				_x( 'Cloud-based, secure backups', 'Backup Product Feature', 'jetpack' ),
 			),
 		);
 
