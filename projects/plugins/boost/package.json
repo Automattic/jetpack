@@ -11,8 +11,8 @@
 		"jetpack-boost-critical-css-gen": "github:automattic/jetpack-boost-critical-css-gen#release-0.0.2"
 	},
 	"devDependencies": {
-		"@babel/core": "7.15.0",
-		"@babel/preset-env": "7.15.0",
+		"@babel/core": "7.16.0",
+		"@babel/preset-env": "7.16.0",
 		"@rollup/plugin-commonjs": "19.0.2",
 		"@rollup/plugin-node-resolve": "13.0.6",
 		"@rollup/plugin-typescript": "8.2.5",
