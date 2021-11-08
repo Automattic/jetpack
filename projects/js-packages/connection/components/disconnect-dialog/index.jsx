@@ -44,7 +44,6 @@ const DisconnectDialog = props => {
 		connectedUser,
 		isOpen,
 		onClose,
-		assetBaseUrl,
 	} = props;
 
 	/**
@@ -201,13 +200,12 @@ const DisconnectDialog = props => {
 				<StepDisconnectConfirm
 					onProvideFeedback={ handleProvideFeedback }
 					onExit={ backToWordpress }
-					assetBaseUrl={ assetBaseUrl }
 				/>
 			);
 		} else if ( isProvidingFeedback && ! isFeedbackProvided ) {
 			return <StepSurvey onFeedBackProvided={ handleSubmitSurvey } onExit={ backToWordpress } />;
 		} else if ( isFeedbackProvided ) {
-			return <StepThankYou onExit={ backToWordpress } assetBaseUrl={ assetBaseUrl } />;
+			return <StepThankYou onExit={ backToWordpress } />;
 		}
 	};
 
@@ -263,8 +261,6 @@ DisconnectDialog.propTypes = {
 	isOpen: PropTypes.bool,
 	/** Callback function for when the modal closes. */
 	onClose: PropTypes.func,
-	/** Base URL for where webpack-ed images will be stored for the consumer of this component. */
-	assetBaseUrl: PropTypes.string,
 };
 
 DisconnectDialog.defaultProps = {

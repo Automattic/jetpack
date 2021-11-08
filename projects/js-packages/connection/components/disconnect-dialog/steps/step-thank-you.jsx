@@ -20,11 +20,11 @@ import disconnectImage from '../images/disconnect-thanks.jpg';
  * @returns {React.Component} - The StepThankYou Component
  */
 const StepThankYou = props => {
-	const { onExit, assetBaseUrl } = props;
+	const { onExit } = props;
 
 	return (
 		<div className="jp-connection__disconnect-dialog__content">
-			<DecorativeCard format="vertical" imageUrl={ assetBaseUrl + disconnectImage } />
+			<DecorativeCard format="vertical" imageUrl={ disconnectImage } />
 
 			<div className="jp-connection__disconnect-dialog__copy">
 				<h1>{ __( 'Thank you!', 'jetpack' ) }</h1>
