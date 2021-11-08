@@ -75,8 +75,12 @@ export async function releaseCli( argv ) {
 		argv = await promptForScript( argv );
 	}
 
-	// Check if we're working with a beta version and only if generating changlog.
-	if ( ! argv.devRelease && typeof argv.beta === 'undefined' && argv.script === 'changelog' ) {
+	// Check if we're working with a beta version and only if generating changlog or release-branch.
+	if (
+		! argv.devRelease &&
+		typeof argv.beta === 'undefined' &&
+		( argv.script === 'changelog' || argv.script === 'release-branch' )
+	) {
 		argv = await promptBeta( argv );
 	}
 
@@ -136,6 +140,8 @@ export async function scriptRouter( argv ) {
 				      jetpack release ${ argv.project } release-branch \n`.replace( /^\t+/gm, '' );
 			break;
 		case 'release-branch':
+			argv = release_branch( argv );
+			break;
 		case 'append':
 			console.log( `${ argv.script } is not implemented yet!` );
 			process.exit( 1 );
@@ -163,6 +169,25 @@ export async function parseProj( argv ) {
 	return argv;
 }
 
+/**
+ * Handles creating a release branch.
+ *
+ * @param {object} argv - the arguments passed
+ * @returns {object} argv
+ */
+export async function release_branch( argv ) {
+	// Check if we're on master, bail if we're not and ask them to switch.
+	const currentBranch = child_process.execSync( 'git branch --show-current' ).toString().trim();
+	if ( currentBranch !== 'master' ) {
+		console.log( chalk.red( 'Must be standing on `master` to create release branch!' ) );
+		process.exit( 1 );
+	}
+
+	// Use `tools/plugin-version.sh argv.project` to get the next version of the plugin.
+	// Suggest the next version of the plugin, with `-beta` appended if necessary.
+	// Run tools/create-release-branch.sh jetpack <version>
+	// Exit.
+}
 /**
  * Checks the project we're releasing.
  *
