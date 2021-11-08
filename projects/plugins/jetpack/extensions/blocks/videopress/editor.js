@@ -134,6 +134,11 @@ const addVideoPressSupport = ( settings, name ) => {
 			`jetpack/videopress-with-has-warning-is-interactive-class-names`,
 			withHasWarningIsInteractiveClassNames( `core/video` )
 		);
+	} else {
+		settings.description = __(
+			'Embed a video from your media library or upload a new one with VideoPress.',
+			'jetpack'
+		);
 	}
 
 	addFilter(
