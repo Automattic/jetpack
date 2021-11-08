@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { includes } from 'lodash';
-import moment from 'moment';
 
 // plans constants
 export const PLAN_BUSINESS = 'business-bundle';
@@ -427,4 +426,4 @@ export const isVideoPressLegacySecurityPlan = purchase =>
 		],
 		purchase.product_slug
 	) &&
-	moment( purchase.subscribed_date ).isBefore( moment.utc( '2021-10-07' ) );
+	new Date( purchase.subscribed_date ) < new Date( '2021-10-07T00:00:00+00:00' );

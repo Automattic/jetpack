@@ -185,7 +185,6 @@
 		"lodash": "4.17.21",
 		"mocha": "8.4.0",
 		"mockery": "2.1.0",
-		"moment": "2.29.1",
 		"nock": "13.1.4",
 		"node-polyfill-webpack-plugin": "1.1.4",
 		"node-wp-i18n": "1.2.4",
