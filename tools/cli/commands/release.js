@@ -184,13 +184,6 @@ export async function parseProj( argv ) {
  * @returns {object} argv
  */
 export async function release_branch( argv ) {
-	// Check if we're on master, bail if we're not and ask them to switch.
-	const currentBranch = child_process.execSync( 'git branch --show-current' ).toString().trim();
-	if ( currentBranch !== 'master' ) {
-		console.log( chalk.red( 'Must be standing on `master` to create release branch!' ) );
-		//process.exit( 1 );
-	}
-
 	// Suggest the next version of the plugin, with `-beta` appended if necessary.
 	let potentialVersion = child_process
 		.execSync( `tools/plugin-version.sh ${ argv.project }` )
