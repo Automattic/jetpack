@@ -23,12 +23,13 @@ function JetpackLikesPostMessage( message, target ) {
 
 	if ( target && typeof target.postMessage === 'function' ) {
 		try {
-			var msg = JSON.stringify( {
-				type: 'likesMessage',
-				data: message,
-			} );
-			target.postMessage( msg, '*' );
-			message = JSON.stringify( message );
+			target.postMessage(
+				JSON.stringify( {
+					type: 'likesMessage',
+					data: message,
+				} ),
+				'*'
+			);
 		} catch ( e ) {
 			return;
 		}
