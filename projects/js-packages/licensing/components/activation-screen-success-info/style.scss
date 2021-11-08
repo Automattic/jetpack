@@ -1,0 +1,63 @@
+@import '../rna-styles';
+
+.jp-license-activation-screen-success-info {
+	background: var(--jp-white);
+	padding: 64px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+
+	h1 {
+		font-size: var(--font-title-large);
+		font-weight: 700;
+	}
+
+	p {
+		font-size: var(--font-body);
+	}
+
+	label {
+		font-weight: 600;
+		font-size: var(--font-body);
+	}
+}
+
+.jp-license-activation-screen-success-info--button {
+	font-size: var(--font-body);
+
+	background-color: var(--jp-green-primary);
+	border-color: var(--jp-green-primary);
+	border-radius: var(--jp-border-radius);
+	color: var(--jp-white);
+
+	padding: 13.5px 45px 13.5px 45px;
+	min-height: 48px;
+
+	margin-top: 24px;
+
+	&:hover {
+		background-color: #007117;
+		border-color: #007117;
+		color: var(--jp-white);
+	}
+
+	&:focus {
+		background-color: #005b18;
+		border-color: var(--jp-white);
+		box-shadow: 0 0 0 1px #005b18;
+		color: var(--jp-white);
+	}
+
+	&:active {
+		background: #007117;
+		border-color: #007117;
+		color: var(--jp-white);
+	}
+
+	&[disabled],
+	&:disabled {
+		background: #dcdcde;
+		color: #a7aaad;
+		border-color: #dcdcde;
+	}
+}

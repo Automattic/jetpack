@@ -66,6 +66,10 @@
 	max-width: rem( 1040px );
 	padding: rem( 24px );
 
+	&.jp-licensing-screen {
+		max-width: rem( 1128px );
+ 	}
+
 	&.jp-main-connect-screen,
 	&.jp-user-connect-screen, {
 		max-width: rem( 1128px );
