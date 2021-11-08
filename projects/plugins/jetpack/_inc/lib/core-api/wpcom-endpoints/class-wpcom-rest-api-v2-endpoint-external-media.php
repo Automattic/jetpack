@@ -53,13 +53,15 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 				'additionalProperties' => false,
 				'properties'           => array(
 					'vertical_id'   => array(
-						'type' => 'string',
+						'type'   => 'string',
+						'format' => 'text-field',
 					),
 					'pexels_object' => array(
 						'type' => 'object',
 					),
 					'orientations'  => array(
 						'type' => 'array',
+						'enum' => array( 'landscape', 'portrait', 'square' ),
 					),
 				),
 			),
