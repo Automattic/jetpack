@@ -223,7 +223,7 @@ importers:
     specifiers:
       '@automattic/jetpack-base-styles': workspace:^0.1.0-alpha
       '@automattic/jetpack-components': workspace:^0.6.0-alpha
-      '@automattic/jetpack-connection': workspace:^0.9.1-alpha
+      '@automattic/jetpack-connection': workspace:^0.10.0-alpha
       '@babel/core': 7.15.0
       '@babel/plugin-syntax-jsx': 7.14.5
       '@babel/runtime-corejs3': 7.15.3
@@ -348,7 +348,7 @@ importers:
   projects/packages/connection-ui:
     specifiers:
       '@automattic/jetpack-api': workspace:^0.5.0
-      '@automattic/jetpack-connection': workspace:^0.9.1-alpha
+      '@automattic/jetpack-connection': workspace:^0.10.0-alpha
       '@automattic/jetpack-idc': workspace:^0.4.2-alpha
       '@automattic/jetpack-webpack-config': workspace:^0.1.0-alpha
       '@babel/core': 7.15.0
@@ -449,7 +449,7 @@ importers:
     specifiers:
       '@automattic/jetpack-api': workspace:^0.5.0
       '@automattic/jetpack-components': workspace:^0.6.0-alpha
-      '@automattic/jetpack-connection': workspace:^0.9.1-alpha
+      '@automattic/jetpack-connection': workspace:^0.10.0-alpha
       '@automattic/jetpack-webpack-config': workspace:^0.1.0-alpha
       '@babel/core': 7.15.0
       '@babel/preset-env': 7.15.0
@@ -580,7 +580,7 @@ importers:
       '@automattic/jetpack-analytics': workspace:^0.1.2
       '@automattic/jetpack-api': workspace:^0.5.0
       '@automattic/jetpack-components': workspace:^0.6.0-alpha
-      '@automattic/jetpack-connection': workspace:^0.9.1-alpha
+      '@automattic/jetpack-connection': workspace:^0.10.0-alpha
       '@automattic/jetpack-webpack-config': workspace:^0.1.0-alpha
       '@automattic/popup-monitor': 1.0.0
       '@automattic/request-external-access': 1.0.0
