@@ -932,10 +932,8 @@ class Jetpack {
 
 	/**
 	 * This is ported over from the manage module, which has been deprecated and baked in here.
-	 *
-	 * @param $domains
 	 */
-	function add_wpcom_to_allowed_redirect_hosts( $domains ) {
+	public function add_wpcom_to_allowed_redirect_hosts() {
 		add_filter( 'allowed_redirect_hosts', array( $this, 'allow_wpcom_domain' ) );
 	}
 
@@ -3932,7 +3930,7 @@ p {
 	 * @return string
 	 */
 	public function login_url( $login_url, $redirect ) {
-		parse_str( wp_parse_url( $redirect, PHP_URL_QUERY ), $redirect_parts );
+		parse_str( (string) wp_parse_url( $redirect, PHP_URL_QUERY ), $redirect_parts );
 		if ( ! empty( $redirect_parts[ self::$jetpack_redirect_login ] ) ) {
 			$login_url = add_query_arg( self::$jetpack_redirect_login, 'true', $login_url );
 		}
@@ -6771,6 +6769,21 @@ endif;
 				_x( 'Automated real-time malware scan', 'Security Daily Plan Feature', 'jetpack' ),
 				_x( 'One-click fixes for most threats', 'Security Daily Plan Feature', 'jetpack' ),
 				_x( 'Comment & form spam protection', 'Security Daily Plan Feature', 'jetpack' ),
+			),
+		);
+
+		$products['videopress'] = array(
+			'title'             => __( 'Jetpack VideoPress', 'jetpack' ),
+			'slug'              => 'jetpack_videopress',
+			'description'       => __( 'High-quality, ad-free video built specifically for WordPress.', 'jetpack' ),
+			'show_promotion'    => true,
+			'discount_percent'  => 40,
+			'included_in_plans' => array(),
+			'features'          => array(
+				_x( '1TB of storage', 'VideoPress Product Feature', 'jetpack' ),
+				_x( 'Built into WordPress editor', 'VideoPress Product Feature', 'jetpack' ),
+				_x( 'Ad-free and brandable player', 'VideoPress Product Feature', 'jetpack' ),
+				_x( 'Unlimited users', 'VideoPress Product Feature', 'jetpack' ),
 			),
 		);
 

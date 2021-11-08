@@ -161,19 +161,7 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * Adds Inbox menu.
 	 */
 	public function add_inbox_menu() {
-		/**
-		 * Whether to show the WordPress.com Inbox menu under Upgrades menu.
-		 *
-		 * @use add_filter( 'jetpack_show_wpcom_inbox_menu', '__return_true' );
-		 * @module masterbar
-		 *
-		 * @since 9.7.0
-		 *
-		 * @param bool $jetpack_show_wpcom_inbox_menu Load the WordPress.com Inbox menu item. Default to false.
-		 */
-		if ( apply_filters( 'jetpack_show_wpcom_inbox_menu', false ) ) {
-			add_menu_page( __( 'Inbox', 'jetpack' ), __( 'Inbox', 'jetpack' ), 'edit_posts', 'https://wordpress.com/inbox/' . $this->domain, null, 'dashicons-email', '4.64424' );
-		}
+		add_menu_page( __( 'Inbox', 'jetpack' ), __( 'Inbox', 'jetpack' ), 'edit_posts', 'https://wordpress.com/inbox/' . $this->domain, null, 'dashicons-email', '4.64424' );
 	}
 
 	/**
@@ -493,7 +481,7 @@ class Admin_Menu extends Base_Admin_Menu {
 			'<div id="dashboard-switcher"><h5>%s</h5><p class="dashboard-switcher-text">%s</p><a class="button button-primary dashboard-switcher-button" href="%s">%s</a></div>',
 			__( 'Screen features', 'jetpack' ),
 			__( 'Currently you are seeing the classic WP-Admin view of this page. Would you like to see the default WordPress.com view?', 'jetpack' ),
-			$menu_mappings[ $screen ] . $this->domain,
+			add_query_arg( 'preferred-view', 'default' ),
 			__( 'Use WordPress.com view', 'jetpack' )
 		);
 
