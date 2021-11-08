@@ -20,11 +20,11 @@ import disconnectImage from '../images/disconnect-confirm.jpg';
  * @returns {React.Component} - StepDisconnectConfirm Component
  */
 const StepDisconnectConfirm = props => {
-	const { onExit, onProvideFeedback, assetBaseUrl } = props;
+	const { onExit, onProvideFeedback } = props;
 
 	return (
 		<div className="jp-connection__disconnect-dialog__content">
-			<DecorativeCard icon="unlink" imageUrl={ assetBaseUrl + disconnectImage } />
+			<DecorativeCard icon="unlink" imageUrl={ disconnectImage } />
 
 			<div className="jp-connection__disconnect-dialog__step-copy jp-connection__disconnect-dialog__step-copy--narrow">
 				<h1>
@@ -68,8 +68,6 @@ StepDisconnectConfirm.PropTypes = {
 	onExit: PropTypes.func,
 	/** Callback used to change the state if user would like to provide feedback. */
 	onProvideFeedback: PropTypes.func,
-	/** Base URL for where webpack-ed images will be stored for the consumer of this component. */
-	assetBaseUrl: PropTypes.string,
 };
 
 export default StepDisconnectConfirm;

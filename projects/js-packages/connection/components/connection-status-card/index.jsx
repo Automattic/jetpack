@@ -35,7 +35,6 @@ const ConnectionStatusCard = props => {
 		onDisconnected,
 		connectedPlugins,
 		currentPlugin,
-		assetBaseUrl,
 	} = props;
 
 	const [ isFetchingConnectionData, setIsFetchingConnectionData ] = useState( false );
@@ -154,7 +153,6 @@ const ConnectionStatusCard = props => {
 						connectedUser={ connectedUserData }
 						isOpen={ isDisconnectDialogOpen }
 						onClose={ closeDisconnectDialog }
-						assetBaseUrl={ assetBaseUrl }
 					/>
 				</li>
 
