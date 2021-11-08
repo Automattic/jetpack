@@ -5,6 +5,7 @@
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
+		"@automattic/jetpack-config": "workspace:^0.1.0-alpha",
 		"lodash": "4.17.21"
 	},
 	"devDependencies": {

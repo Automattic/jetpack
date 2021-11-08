@@ -78,12 +78,14 @@ importers:
 
   projects/js-packages/api:
     specifiers:
+      '@automattic/jetpack-config': workspace:^0.1.0-alpha
       chai-fetch-mock: 3.0.0
       fetch-mock: 9.11.0
       jetpack-js-test-runner: workspace:*
       lodash: 4.17.21
       nyc: 15.1.0
     dependencies:
+      '@automattic/jetpack-config': link:../config
       lodash: 4.17.21
     devDependencies:
       chai-fetch-mock: 3.0.0_fetch-mock@9.11.0
