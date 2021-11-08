@@ -6699,7 +6699,7 @@ endif;
 
 		$products['backup'] = array(
 			'title'             => __( 'Jetpack Backup', 'jetpack' ),
-			'slug'              => 'jetpack_backup_daily',
+			'slug'              => 'jetpack_backup_t1_yearly',
 			'description'       => __( 'Never lose a word, image, page, or time worrying about your site with automated backups & one-click restores.', 'jetpack' ),
 			'show_promotion'    => true,
 			'discount_percent'  => 40,
@@ -6757,7 +6757,7 @@ endif;
 
 		$products['security'] = array(
 			'title'             => __( 'Security Bundle', 'jetpack' ),
-			'slug'              => 'jetpack_security_daily',
+			'slug'              => 'jetpack_security_t1_yearly',
 			'description'       => __( 'Get all security products including backups, site scanning, and anti-spam.', 'jetpack' ),
 			'show_promotion'    => true,
 			'discount_percent'  => 40,
