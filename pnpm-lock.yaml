@@ -675,7 +675,7 @@ importers:
       postcss: 8.3.11
       postcss-custom-properties: 10.0.0
       postcss-loader: 6.2.0
-      preact: 10.5.7
+      preact: 10.5.15
       prettier: npm:wp-prettier@2.0.5
       progress-event: 1.0.0
       prop-types: 15.7.2
@@ -775,7 +775,7 @@ importers:
       photon: 4.0.0
       plugin-error: 1.0.1
       postcss-custom-properties: 10.0.0
-      preact: 10.5.7
+      preact: 10.5.15
       progress-event: 1.0.0
       prop-types: 15.7.2
       q-flat: 1.0.7
@@ -822,7 +822,7 @@ importers:
       '@babel/runtime': 7.15.3
       '@size-limit/preset-app': 4.10.2_size-limit@5.0.3
       '@testing-library/jest-dom': 5.14.1
-      '@testing-library/preact': 2.0.1_preact@10.5.7
+      '@testing-library/preact': 2.0.1_preact@10.5.15
       '@testing-library/react': 11.2.7_react-dom@17.0.2+react@17.0.2
       '@testing-library/react-hooks': 4.0.1_509016fd322278d497c1e58f6164ce1d
       '@testing-library/user-event': 12.8.3
@@ -5306,14 +5306,14 @@ packages:
       redent: 3.0.0
     dev: true
 
-  /@testing-library/preact/2.0.1_preact@10.5.7:
+  /@testing-library/preact/2.0.1_preact@10.5.15:
     resolution: {integrity: sha512-79kwVOY+3caoLgaPbiPzikjgY0Aya7Fc7TvGtR1upCnz2wrtmPDnN2t9vO7I7vDP2zoA+feSwOH5Q0BFErhaaQ==}
     engines: {node: '>= 10'}
     peerDependencies:
       preact: '>=10 || ^10.0.0-alpha.0 || ^10.0.0-beta.0'
     dependencies:
       '@testing-library/dom': 7.31.2
-      preact: 10.5.7
+      preact: 10.5.15
     dev: true
 
   /@testing-library/react-hooks/4.0.1_509016fd322278d497c1e58f6164ce1d:
@@ -17792,8 +17792,8 @@ packages:
     resolution: {integrity: sha512-choctRBIV9EMT9WGAZHn3V7t0Z2pMQyl0EZE6pFc/6ml3ssw7Dlf/oAOvFwjm1HVsqfQN8GfeFyJ+d8tRzqueQ==}
     dev: false
 
-  /preact/10.5.7:
-    resolution: {integrity: sha512-4oEpz75t/0UNcwmcsjk+BIcDdk68oao+7kxcpc1hQPNs2Oo3ZL9xFz8UBf350mxk/VEdD41L5b4l2dE3Ug3RYg==}
+  /preact/10.5.15:
+    resolution: {integrity: sha512-5chK29n6QcJc3m1lVrKQSQ+V7K1Gb8HeQY6FViQ5AxCAEGu3DaHffWNDkC9+miZgsLvbvU9rxbV1qinGHMHzqA==}
     dev: false
 
   /prelude-ls/1.1.2:
