@@ -140,12 +140,20 @@ export async function scriptRouter( argv ) {
 				      jetpack release ${ argv.project } release-branch \n`.replace( /^\t+/gm, '' );
 			break;
 		case 'release-branch':
-			argv = release_branch( argv );
+			argv = await release_branch( argv );
+			argv.script = `tools/create-release-branch.sh`;
+			argv.scriptArgs = [ argv.project, argv.version ];
+			argv.next = `Finished! Next: 
+				  - Once the branch is pushed, GitHub Actions will build and create a branch jetpack/branch-x.x over at: https://github.com/Automattic/jetpack-production
+				  - jetpack-production/branch-x.x is the built version for release, and will be the branch that is tagged in GitHub and pushed to svn in WordPress.org.
+				  - When changes are pushed to jetpack/branch-x.x, GitHub Actions takes care of building/mirroring to the jetpack-production repo.
+				  - You will likely want to start a new release cycle like so:
+				      jetpack release ${ argv.project } new-cycle \n`.replace( /^\t+/gm, '' );
 			break;
 		case 'append':
+		case 'new-cycle':
 			console.log( `${ argv.script } is not implemented yet!` );
 			process.exit( 1 );
-			break;
 	}
 }
 /**
@@ -180,16 +188,47 @@ export async function release_branch( argv ) {
 	const currentBranch = child_process.execSync( 'git branch --show-current' ).toString().trim();
 	if ( currentBranch !== 'master' ) {
 		console.log( chalk.red( 'Must be standing on `master` to create release branch!' ) );
-		process.exit( 1 );
+		//process.exit( 1 );
 	}
 
-	// Use `tools/plugin-version.sh argv.project` to get the next version of the plugin.
 	// Suggest the next version of the plugin, with `-beta` appended if necessary.
-	// Run tools/create-release-branch.sh jetpack <version>
-	// Exit.
+	let potentialVersion = child_process
+		.execSync( `tools/plugin-version.sh ${ argv.project }` )
+		.toString()
+		.trim();
+	potentialVersion = potentialVersion.split( '-' );
+	potentialVersion = potentialVersion[ 0 ].split( '.' ).splice( 0, 2 );
+	potentialVersion = potentialVersion.join( '.' );
+	if ( argv.b || argv.beta ) {
+		potentialVersion += '-beta';
+	}
+	argv = await promptForVersion( argv, potentialVersion );
+
+	return argv;
 }
+
 /**
- * Checks the project we're releasing.
+ * Prompts for what version we're releasing
+ *
+ * @param {object} argv - the arguments passed.
+ * @param {string} version - the version we think might be used.
+ * @returns {string} version
+ */
+export async function promptForVersion( argv, version ) {
+	const response = await inquirer.prompt( [
+		{
+			type: 'input',
+			name: 'version',
+			message: `What version are you releasing for ${ argv.project }?`,
+			default: version,
+		},
+	] );
+	argv.version = response.version;
+	return argv;
+}
+
+/**
+ * Prompt if we're releasing a beta.
  *
  * @param {object} argv - the arguments passed
  * @returns {object} argv
