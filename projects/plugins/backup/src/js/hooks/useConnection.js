@@ -61,7 +61,6 @@ export default function useConnection() {
 				currentPlugin="jetpack-backup"
 				connectedPlugins={ connectedPlugins }
 				redirectUri="admin.php?page=jetpack-backup"
-				assetBaseUrl={ assetBuildUrl }
 			/>
 		);
 	};
