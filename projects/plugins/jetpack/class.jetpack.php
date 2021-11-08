@@ -930,10 +930,8 @@ class Jetpack {
 
 	/**
 	 * This is ported over from the manage module, which has been deprecated and baked in here.
-	 *
-	 * @param $domains
 	 */
-	function add_wpcom_to_allowed_redirect_hosts( $domains ) {
+	public function add_wpcom_to_allowed_redirect_hosts() {
 		add_filter( 'allowed_redirect_hosts', array( $this, 'allow_wpcom_domain' ) );
 	}
 
@@ -3930,7 +3928,7 @@ p {
 	 * @return string
 	 */
 	public function login_url( $login_url, $redirect ) {
-		parse_str( wp_parse_url( $redirect, PHP_URL_QUERY ), $redirect_parts );
+		parse_str( (string) wp_parse_url( $redirect, PHP_URL_QUERY ), $redirect_parts );
 		if ( ! empty( $redirect_parts[ self::$jetpack_redirect_login ] ) ) {
 			$login_url = add_query_arg( self::$jetpack_redirect_login, 'true', $login_url );
 		}
