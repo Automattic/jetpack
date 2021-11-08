@@ -85,6 +85,10 @@ export default function SearchModuleControl() {
 	const isWidgetsEditorButtonDisabled = isSavingEitherOption || ! isModuleEnabled;
 
 	const toggleSearchModule = useCallback( () => {
+		const oldOption = {
+			module_active: isModuleEnabled,
+			instant_search_enabled: isInstantSearchEnabled,
+		};
 		const newOption = {
 			module_active: ! isModuleEnabled,
 			instant_search_enabled: isInstantSearchEnabled,
@@ -92,11 +96,15 @@ export default function SearchModuleControl() {
 		if ( supportsInstantSearch && isInstantSearchEnabled !== ! isModuleEnabled ) {
 			newOption.instant_search_enabled = ! isModuleEnabled;
 		}
-		updateOptions( newOption );
+		updateOptions( newOption, oldOption );
 		analytics.tracks.recordEvent( 'jetpack_search_module_toggle', newOption );
 	}, [ supportsInstantSearch, isModuleEnabled, updateOptions, isInstantSearchEnabled ] );
 
 	const toggleInstantSearch = useCallback( () => {
+		const oldOption = {
+			module_active: isModuleEnabled,
+			instant_search_enabled: isInstantSearchEnabled,
+		};
 		const newOption = {
 			instant_search_enabled: supportsInstantSearch && ! isInstantSearchEnabled,
 			module_active: isModuleEnabled,
@@ -104,7 +112,7 @@ export default function SearchModuleControl() {
 		if ( newOption.instant_search_enabled ) {
 			newOption.module_active = true;
 		}
-		updateOptions( newOption );
+		updateOptions( newOption, oldOption );
 		analytics.tracks.recordEvent( 'jetpack_search_instant_toggle', newOption );
 	}, [ supportsInstantSearch, isInstantSearchEnabled, isModuleEnabled, updateOptions ] );
 

@@ -77,7 +77,9 @@ class Gridicon extends Component {
 			case 'gridicons-video':
 				return <title>{ __( 'Has a video.', 'jetpack' ) }</title>;
 			case 'gridicons-checkmark':
-				return <title>{ __( 'Has a video.', 'jetpack' ) }</title>;
+				return <title>{ __( 'Checkmark', 'jetpack' ) }</title>;
+			case 'gridicons-notice':
+				return <title>{ __( 'Notice', 'jetpack' ) }</title>;
 		}
 	}
 
@@ -209,6 +211,12 @@ class Gridicon extends Component {
 				return (
 					<g>
 						<path d="M9 19.414l-6.707-6.707 1.414-1.414L9 16.586 20.293 5.293l1.414 1.414" />
+					</g>
+				);
+			case 'gridicons-notice':
+				return (
+					<g>
+						<path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 15h-2v-2h2v2zm0-4h-2l-.5-6h3l-.5 6z" />
 					</g>
 				);
 		}

@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { uniqueId } from 'lodash';
+import { __ } from '@wordpress/i18n';
 
 /**
  * @returns {object} - an action to set network busy.
@@ -30,7 +31,7 @@ export const successNotice = createNotice.bind( null, 'is-success' );
 export const errorNotice = createNotice.bind( null, 'is-error' );
 export const infoNotice = createNotice.bind( null, 'is-info' );
 export const warningNotice = createNotice.bind( null, 'is-warning' );
-export const updatingNotice = ( text = 'Update settings...' ) =>
+export const updatingNotice = ( text = __( 'Updating settings...' ) ) =>
 	createNotice( 'is-info', text, { duration: 2000, id: 'search-updating-settings' } );
 export const removeUpdatingNotice = () => removeNotice( 'search-updating-settings' );
 

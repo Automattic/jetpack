@@ -1,23 +1,36 @@
 /**
+ * External dependencies
+ */
+import { __ } from '@wordpress/i18n';
+
+/**
  * Internal dependencies
  */
 import { fetchJetpackSettings, fetchSearchPlanInfo } from './controls';
-import actions from './actions';
+import { setJetpackSettings } from './actions/jetpack-settings';
+import { setSearchPlanInfo } from './actions/site-plan';
+import { errorNotice } from '../components/global-notices/store/actions';
 
 export function* getSearchModuleStatus() {
-	const settings = yield fetchJetpackSettings();
-	if ( settings ) {
-		return actions.setJetpackSettings( settings );
+	try {
+		const settings = yield fetchJetpackSettings();
+		if ( settings ) {
+			return setJetpackSettings( settings );
+		}
+	} catch ( e ) {
+		return errorNotice( __( 'Error fetching settings...' ) );
 	}
-	return;
 }
 
 export function* getSearchPlanInfo() {
-	const planInfo = yield fetchSearchPlanInfo();
-	if ( planInfo ) {
-		return actions.setSearchPlanInfo( planInfo );
+	try {
+		const planInfo = yield fetchSearchPlanInfo();
+		if ( planInfo ) {
+			return setSearchPlanInfo( planInfo );
+		}
+	} catch ( e ) {
+		return errorNotice( __( 'Error fetching search plan...' ) );
 	}
-	return;
 }
 
 export default { getSearchModuleStatus, getSearchPlanInfo };
