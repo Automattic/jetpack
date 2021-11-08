@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Informs plugin_slug to the register endpoint using the JS Config package
