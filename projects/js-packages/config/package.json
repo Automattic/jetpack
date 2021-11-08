@@ -1,0 +1,34 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-config",
+	"version": "0.1.0-alpha",
+	"description": "Handles Jetpack global configuration shared across all packages",
+	"homepage": "https://jetpack.com",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom 'glob:./!(node_modules)/**/test/*.@(jsx|js)'"
+	},
+	"devDependencies": {
+		"jetpack-js-test-runner": "workspace:*"
+	},
+	"engines": {
+		"node": "^14.17.6 || ^16.7.0",
+		"pnpm": "^6.5.0",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	},
+	"exports": {
+		".": "./src/index.js"
+	},
+	"dependencies": {},
+	"jest": {
+		"automock": true
+	}
+}
