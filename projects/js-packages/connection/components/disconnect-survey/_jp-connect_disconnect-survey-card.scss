@@ -56,4 +56,5 @@ input.jp-connect__disconnect-survey-card__input {
 	color: var( --jp-black-80 );
 	flex-grow: 1;
 	padding-right: 40px;
+	max-width: calc( 100% - 40px );
 }
