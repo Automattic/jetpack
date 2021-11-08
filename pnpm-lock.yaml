@@ -126,6 +126,12 @@ importers:
       react-dom: 17.0.2_react@17.0.2
       react-test-renderer: 17.0.2_react@17.0.2
 
+  projects/js-packages/config:
+    specifiers:
+      jetpack-js-test-runner: workspace:*
+    devDependencies:
+      jetpack-js-test-runner: link:../../../tools/js-test-runner
+
   projects/js-packages/connection:
     specifiers:
       '@automattic/jetpack-api': workspace:^0.5.0
