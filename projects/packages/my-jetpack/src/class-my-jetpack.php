@@ -65,7 +65,7 @@ class My_Jetpack {
 	 */
 	public static function enqueue_scritps() {
 		$build_assets = require_once __DIR__ . '/../build/index.asset.php';
-			wp_enqueue_script( 'my_jetpack_main_app', plugin_dir_url( __DIR__ ) . 'build/index.js', $build_assets['dependencies'], $build_assets['version'], true );
+		wp_enqueue_script( 'my_jetpack_main_app', plugin_dir_url( __DIR__ ) . 'build/index.js', $build_assets['dependencies'], $build_assets['version'], true );
 	}
 
 	/**
