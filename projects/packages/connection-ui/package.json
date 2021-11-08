@@ -14,7 +14,7 @@
 		"watch": "pnpm run build && pnpx gulp watch"
 	},
 	"dependencies": {
-		"@automattic/jetpack-api": "workspace:^0.5.0",
+		"@automattic/jetpack-api": "workspace:^0.6.0-alpha",
 		"@automattic/jetpack-connection": "workspace:^0.9.1-alpha",
 		"@automattic/jetpack-idc": "workspace:^0.4.2-alpha",
 		"@wordpress/data": "6.1.2"
