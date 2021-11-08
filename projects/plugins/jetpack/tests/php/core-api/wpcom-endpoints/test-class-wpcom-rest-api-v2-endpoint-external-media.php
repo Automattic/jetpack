@@ -172,15 +172,14 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 							)
 						),
 						'meta' => array(
-							'vertical_id'     => 'v1234',
-							'pexels_object'   => array(
+							'vertical_id'   => 'v1234',
+							'pexels_object' => array(
 								'information' => 'goes here',
 							),
-							'orientations'    => array(
+							'orientations'  => array(
 								'landscape',
 								'square',
 							),
-							'not_allowed_key' => 'should not be saved to meta',
 						),
 					),
 				),
