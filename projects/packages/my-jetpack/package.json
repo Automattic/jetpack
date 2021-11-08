@@ -21,21 +21,20 @@
 		"watch": "pnpm run build && pnpm webpack watch"
 	},
 	"dependencies": {
-		"@automattic/jetpack-components": "workspace:^0.6.0-alpha",
-		"@babel/core": "7.15.0",
-		"@babel/helper-module-imports": "^7.13.12",
-		"@babel/preset-env": "7.15.0",
-		"@babel/register": "7.15.3",
-		"fancy-log": "1.3.3",
-		"react": "17.0.2",
-		"react-dom": "17.0.2",
-		"static-site-generator-webpack-plugin": "3.4.2"
+		"@automattic/jetpack-components": "workspace:^0.6.0-alpha"
 	},
 	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:^0.1.0-alpha",
+		"@babel/core": "7.15.0",
+		"@babel/preset-env": "7.15.0",
+		"@babel/register": "7.15.3",
 		"@babel/runtime": "7.15.3",
-		"@wordpress/dependency-extraction-webpack-plugin": "3.2.1",
 		"enzyme": "3.11.0",
 		"jest": "27.3.1",
+		"react": "17.0.2",
+		"react-dom": "17.0.2",
+		"sass": "1.43.3",
+		"sass-loader": "12.2.0",
 		"webpack": "5.51.1"
 	},
 	"engines": {
