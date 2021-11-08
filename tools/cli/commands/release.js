@@ -88,6 +88,7 @@ export async function releaseCli( argv ) {
 	await scriptRouter( argv );
 
 	// Run the script.
+
 	await runScript( argv );
 }
 
@@ -140,7 +141,7 @@ export async function scriptRouter( argv ) {
 				      jetpack release ${ argv.project } release-branch \n`.replace( /^\t+/gm, '' );
 			break;
 		case 'release-branch':
-			argv = await release_branch( argv );
+			argv = await getReleaseVersion( argv );
 			argv.script = `tools/create-release-branch.sh`;
 			argv.scriptArgs = [ argv.project, argv.version ];
 			argv.next = `Finished! Next: 
@@ -183,7 +184,7 @@ export async function parseProj( argv ) {
  * @param {object} argv - the arguments passed
  * @returns {object} argv
  */
-export async function release_branch( argv ) {
+export async function getReleaseVersion( argv ) {
 	// Suggest the next version of the plugin, with `-beta` appended if necessary.
 	let potentialVersion = child_process
 		.execSync( `tools/plugin-version.sh ${ argv.project }` )
