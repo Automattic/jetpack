@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "14127922f925d6137dfccc518fff32a8",
+    "content-hash": "9d9df1cad4cbb233d2d908ae5b21332e",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1117,7 +1117,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "c226017fd6b99c9904979c31edce1569eb38d6eb"
+                "reference": "3b301e45dfb1ce0e0e83e54797e868df1ea06790"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.1"
@@ -1149,11 +1149,13 @@
                     "@composer install",
                     "@composer phpunit"
                 ],
-                "build-production": [
-                    "echo 'Add your build step to composer.json, please!'"
-                ],
                 "build-development": [
-                    "echo 'Add your build step to composer.json, please!'"
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run build"
+                ],
+                "build-production": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run build"
                 ]
             },
             "license": [
