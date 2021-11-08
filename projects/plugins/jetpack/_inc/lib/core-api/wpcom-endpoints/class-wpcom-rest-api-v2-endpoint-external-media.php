@@ -51,8 +51,9 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 					'type' => 'string',
 				),
 				'meta'    => array(
-					'type'       => 'object',
-					'properties' => array(
+					'type'                 => 'object',
+					'additionalProperties' => false,
+					'properties'           => array(
 						'vertical_id'   => array(
 							'type'   => 'string',
 							'format' => 'text-field',
@@ -494,12 +495,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		);
 
 		if ( ! empty( $item['meta'] ) ) {
-			// Only allow meta properties defined in the schema.
-			// None of the validation or sanitization functions are doing this for me.
-			$meta_allowed  = array_keys( $this->media_schema['properties']['meta']['properties'] );
-			$meta_filtered = array_intersect_key( $item['meta'], array_flip( $meta_allowed ) );
-
-			foreach ( $meta_filtered as $meta_key => $meta_value ) {
+			foreach ( $item['meta'] as $meta_key => $meta_value ) {
 				update_post_meta( $id, $meta_key, $meta_value );
 			}
 		}
