@@ -39,7 +39,7 @@ class Jetpack_Admin {
 
 		// This will not be necessary once rebased with newest search package.
 		require_once __DIR__ . '/modules/search/class.jetpack-search-helpers.php';
-		Automattic\Jetpack\Search\Jetpack_Search_Dashboard::instance();
+		Automattic\Jetpack\Search\Dashboard::instance();
 
 		add_action( 'admin_init', array( $this->jetpack_react, 'react_redirects' ), 0 );
 		add_action( 'admin_menu', array( $this->jetpack_react, 'add_actions' ), 998 );

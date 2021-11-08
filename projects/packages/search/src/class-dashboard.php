@@ -20,7 +20,7 @@ use Jetpack_Search_Options;
  *
  * @package Automattic\Jetpack\Search
  */
-class Jetpack_Search_Dashboard {
+class Dashboard {
 	protected static $instance;
 
 	protected function __construct() {
