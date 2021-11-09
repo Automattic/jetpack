@@ -1,21 +1,18 @@
 <?php
 /**
- * Jetpack Search: Jetpack_Search_Options class
+ * Another helper class for parsing Jetpack Search options.
  *
- * @package    Jetpack
- * @subpackage Jetpack Search
- * @since      8.3.0
+ * @package    automattic/jetpack-search
  */
+
+namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Constants;
 
 /**
  * Helpers for parsing the various Search options
- *
- * @since 8.3.0
  */
-class Jetpack_Search_Options {
-
+class Options {
 	/**
 	 * The search widget's base ID.
 	 *
