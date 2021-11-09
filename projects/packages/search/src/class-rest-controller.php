@@ -110,6 +110,8 @@ class REST_Controller {
 			'2'
 		);
 
+		$this->maybe_update_search_plan_option( $response );
+
 		return $this->make_proper_response( $response );
 	}
 
@@ -210,6 +212,21 @@ class REST_Controller {
 	 */
 	protected function get_blog_id() {
 		return $this->is_wpcom ? get_current_blog_id() : Jetpack_Options::get_option( 'id' );
+	}
+
+	/**
+	 * Update `has_jetpack_search_product` regarding the plan information
+	 *
+	 * @param array|WP_Error $response - Resopnse from WPCOM.
+	 */
+	protected function maybe_update_search_plan_option( $response ) {
+		if ( is_wp_error( $response || ! isset( $response['supports_instant_search'] ) ) ) {
+			return null;
+		}
+		if ( get_option( 'has_jetpack_search_product' ) === (bool) $response['supports_instant_search'] ) {
+			return null;
+		}
+		return update_option( 'has_jetpack_search_product', (bool) $response['supports_instant_search'] );
 	}
 
 }
