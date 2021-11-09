@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Unit Tests : Update Full Sync tests to align with limitation on users that are synced.

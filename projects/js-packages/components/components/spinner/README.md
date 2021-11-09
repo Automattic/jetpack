@@ -19,6 +19,7 @@ export default class extends React.Component {
 
 The following props can be passed to the Spinner component:
 
-| PROPERTY | TYPE     | REQUIRED | DEFAULT | DESCRIPTION                                     |
-| -------- | -------- | -------- | ------- | ----------------------------------------------- |
-| **size** | _number_ | no       | `20`    | The width and height of the spinner, in pixels. |
+| PROPERTY  | TYPE     | REQUIRED | DEFAULT   | DESCRIPTION                                     |
+| --------- | -------- | -------- | --------- | ----------------------------------------------- |
+| **size**  | _number_ | no       | `20`      | The width and height of the spinner, in pixels. |
+| **color** | _strong_ | no       | `#000000` | The color of the spinner, in hex.               |

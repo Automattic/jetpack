@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Full Sync : limit included users to contributors and above (based on wp_user_limit)

@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Nav Unification: Replaces the AJAX request for changing the preferred view with a direct server request to bypass security restrictions enforced by some browsers. This fix only affects WP.com sites.
