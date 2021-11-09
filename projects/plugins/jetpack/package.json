@@ -1,6 +1,6 @@
 {
 	"name": "Jetpack",
-	"version": "10.4.0-a.2",
+	"version": "10.4.0-a.3",
 	"private": true,
 	"description": "[Jetpack](https://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of [WordPress.com](https://wordpress.com).",
 	"homepage": "https://jetpack.com",
@@ -64,8 +64,8 @@
 		"@automattic/format-currency": "1.0.0-alpha.0",
 		"@automattic/jetpack-analytics": "workspace:^0.1.2",
 		"@automattic/jetpack-api": "workspace:^0.5.0",
-		"@automattic/jetpack-components": "workspace:^0.6.0-alpha",
-		"@automattic/jetpack-connection": "workspace:^0.9.1-alpha",
+		"@automattic/jetpack-components": "workspace:^0.6.0",
+		"@automattic/jetpack-connection": "workspace:^0.9.1",
 		"@automattic/popup-monitor": "1.0.0",
 		"@automattic/request-external-access": "1.0.0",
 		"@automattic/social-previews": "1.1.1",
@@ -149,7 +149,7 @@
 		"webpack-cli": "4.8.0"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:^0.1.0-alpha",
+		"@automattic/jetpack-webpack-config": "workspace:^0.1.0",
 		"@automattic/color-studio": "2.5.0",
 		"@babel/core": "7.16.0",
 		"@babel/plugin-proposal-nullish-coalescing-operator": "7.16.0",

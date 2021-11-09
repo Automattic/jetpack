@@ -414,7 +414,7 @@ function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null )
 		/**
 		 * Filter the default Open Graph image alt text, used when the Open Graph image from the post does not have an alt text.
 		 *
-		 * @since $$next-version$$
+		 * @since 10.4
 		 *
 		 * @param string $str Default Open Graph image alt text.
 		 */
