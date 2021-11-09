@@ -145,10 +145,10 @@ export async function scriptRouter( argv ) {
 			argv.script = `tools/create-release-branch.sh`;
 			argv.scriptArgs = [ argv.project, argv.version ];
 			argv.next = `Finished! Next: 
-				  - Once the branch is pushed, GitHub Actions will build and create a branch jetpack/branch-x.x over at: https://github.com/Automattic/jetpack-production
-				  - jetpack-production/branch-x.x is the built version for release, and will be the branch that is tagged in GitHub and pushed to svn in WordPress.org.
-				  - When changes are pushed to jetpack/branch-x.x, GitHub Actions takes care of building/mirroring to the jetpack-production repo.
-				  - You will likely want to start a new release cycle like so:
+				  - Once the branch is pushed, GitHub Actions will build and create a branch on your plugin's mirror repo.
+				  - That mirror repo branch will be the branch that is tagged in GitHub and pushed to svn in WordPress.org.
+				  - When changes are pushed to the release branch that was just created, GitHub Actions takes care of building/mirroring to the jetpack-production repo.
+				  - You will now likely want to start a new release cycle like so:
 				      jetpack release ${ argv.project } new-cycle \n`.replace( /^\t+/gm, '' );
 			break;
 		case 'append':
