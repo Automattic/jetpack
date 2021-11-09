@@ -161,6 +161,7 @@ importers:
       '@automattic/jetpack-api': link:../api
       '@automattic/jetpack-components': link:../components
       '@wordpress/base-styles': 4.0.3
+      '@automattic/jetpack-config': link:../config
       '@wordpress/browserslist-config': 4.1.0
       '@wordpress/components': 19.0.3_react-dom@17.0.2+react@17.0.2
       '@wordpress/data': 6.1.4_react@17.0.2
