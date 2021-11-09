@@ -458,6 +458,12 @@ class Admin_Menu extends Base_Admin_Menu {
 		}
 
 		$this->update_menu( 'gutenberg-edit-site', 'https://wordpress.com/site-editor/' . $this->domain, null, null, null, 59 );
+
+		// Gutenberg 11.9 moves the Site Editor to an Appearance submenu as Editor.
+		$submenus_to_update = array(
+			'gutenberg-edit-site' => 'https://wordpress.com/site-editor/' . $this->domain,
+		);
+		$this->update_submenus( 'themes.php', $submenus_to_update );
 	}
 
 	/**
