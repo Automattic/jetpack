@@ -34,7 +34,7 @@ const DisconnectCard = props => {
 	);
 };
 
-DisconnectCard.PropTypes = {
+DisconnectCard.propTypes = {
 	/** The title to show on the disconnect card. */
 	title: PropTypes.string,
 	/** Optional value/ statistic to show. */
