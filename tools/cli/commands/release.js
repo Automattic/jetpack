@@ -88,7 +88,6 @@ export async function releaseCli( argv ) {
 	await scriptRouter( argv );
 
 	// Run the script.
-
 	await runScript( argv );
 }
 
