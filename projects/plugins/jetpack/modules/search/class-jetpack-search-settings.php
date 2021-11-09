@@ -10,8 +10,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require_once __DIR__ . '/class-jetpack-search-options.php';
-
 /**
  * Class to initialize search settings on the site.
  *
@@ -36,7 +34,7 @@ class Jetpack_Search_Settings {
 	 */
 	public function settings_register() {
 		// NOTE: This contains significant code overlap with class-jetpack-search-customize.
-		$setting_prefix = Jetpack_Search_Options::OPTION_PREFIX;
+		$setting_prefix = Automattic\Jetpack\Search\Options::OPTION_PREFIX;
 		$settings       = array(
 			array( $setting_prefix . 'color_theme', 'string', 'light' ),
 			array( $setting_prefix . 'result_format', 'string', 'minimal' ),
