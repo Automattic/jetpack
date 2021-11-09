@@ -93,7 +93,6 @@ const PluginDeactivation = props => {
 				apiRoot={ apiRoot }
 				apiNonce={ apiNonce }
 				connectedPlugins={ connectedPlugins }
-				disconnectingPlugin={ 'jetpack' }
 				context={ 'plugins' }
 				isOpen={ modalOpen }
 				onClose={ toggleVisibility }

@@ -243,7 +243,6 @@ export class ConnectButton extends React.Component {
 					isOpen={ this.state.showModal }
 					onClose={ this.toggleVisibility }
 					context={ 'jetpack' }
-					disconnectingPlugin={ 'jetpack' }
 					assetBaseUrl={ this.props.pluginUrl + '/_inc/build' }
 				/>
 			</div>

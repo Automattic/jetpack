@@ -32,6 +32,12 @@ const sharedWebpackConfig = {
 			DependencyExtractionPlugin: false,
 		} ),
 	],
+	externals: {
+		...jetpackWebpackConfig.externals,
+		jetpackConfig: JSON.stringify( {
+			consumer_slug: 'jetpack',
+		} ),
+	},
 	module: {
 		strictExportPresence: true,
 		rules: [
