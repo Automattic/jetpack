@@ -29,7 +29,7 @@ class Initial_State {
 			),
 			'connectedPlugins' => Connection_Plugin_Storage::get_all(),
 			'assets'           => array(
-				'buildUrl'         => plugins_url( 'build/', JETPACK_BACKUP_PLUGIN_ROOT_FILE ),
+				'buildUrl' => plugins_url( 'build/', JETPACK_BACKUP_PLUGIN_ROOT_FILE ),
 			),
 		);
 	}

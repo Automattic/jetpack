@@ -58,7 +58,6 @@ export default function useConnection() {
 				isUserConnected={ connectionStatus.isUserConnected }
 				apiRoot={ APIRoot }
 				apiNonce={ APINonce }
-				currentPlugin="jetpack-backup"
 				connectedPlugins={ connectedPlugins }
 				redirectUri="admin.php?page=jetpack-backup"
 			/>

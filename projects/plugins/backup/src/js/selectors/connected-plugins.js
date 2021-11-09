@@ -1,5 +1,5 @@
 const connectedPluginsSelectors = {
-	getConnectedPlugins: state => { console.log( state ); return state.connectedPlugins || [] },
+	getConnectedPlugins: state => state.connectedPlugins || [],
 };
 
 export default connectedPluginsSelectors;
