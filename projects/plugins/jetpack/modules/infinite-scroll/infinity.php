@@ -1498,8 +1498,9 @@ class The_Neverending_Home_Page {
 	function allowed_query_vars( $allowed_vars ) {
 		global $wp;
 
-		$taxonomy_vars = $this->get_taxonomy_vars();
-		$allowed_vars  = array_merge( $wp->public_query_vars, $wp->private_query_vars, $taxonomy_vars, $allowed_vars );
+		$allowed_vars += $wp->public_query_vars;
+		$allowed_vars += $wp->private_query_vars;
+		$allowed_vars += $this->get_taxonomy_vars();
 
 		foreach ( array_keys( $allowed_vars, 'paged' ) as $key ) {
 			unset( $allowed_vars[ $key ] );
