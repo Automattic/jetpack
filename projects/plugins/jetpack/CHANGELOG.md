@@ -22,7 +22,7 @@
 - E2E tests: update docs
 - Fixed Jetpack Dashboard submenu highlight for the Settings page for sites with Nav unification enabled.
 - Fix PHP 8.1 deprecation warnings.
-- Nav Unification: Removes the `preferred-view` param from the URL after changing the preffered view. This fix only affects WP.com sites.
+- Nav Unification: Removes the `preferred-view` param from the URL after changing the preferred view. This fix only affects WP.com sites.
 - Nav Unification: Replaces the AJAX request for changing the preferred view with a direct server request to bypass security restrictions enforced by some browsers. This fix only affects WP.com sites.
 - Publicize: handle plan upgrade considering feature availability, whether the nudge is enable, and post status
 - P2: Hide Inbox admin menu link on all P2s.
