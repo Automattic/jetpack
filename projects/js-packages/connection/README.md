@@ -27,10 +27,10 @@ import { ConnectScreen } from '@automattic/jetpack-connection';
 const [ connectionStatus, setConnectionStatus ] = useState( {} );
 
 const statusCallback = useCallback(
-		status => {
-			setConnectionStatus( status );
-		},
-		[ setConnectionStatus ]
+    status => {
+		setConnectionStatus( status );
+	},
+	[ setConnectionStatus ]
 );
 
 <ConnectScreen
@@ -188,7 +188,6 @@ const onDisconnectedCallback = useCallback( () => alert( 'Successfully Disconnec
 </DisconnectDialog>
 ```
 
-
 ## Component `ConnectionStatusCard`
 The `ConnectionStatusCard` component displays the current site and user connection status as well as the corresponding actions.
 This component is meant to be used when at least the site level connection has been established, aka there's a status to display.
@@ -231,30 +230,12 @@ const onDisconnectedCallback = useCallback( () => alert( 'Successfully Disconnec
 />
 ```
 
-## Helper `thirdPartyCookiesFallback`
-The helper encapsulates the redirect to the fallback URL you provide.
-
-### Parameters
-- *fallbackURL* - string (required), the URL to be redirected to (usually WP.com "authorize" URL)
-
-### Usage
-```jsx
-import InPlaceConnection from 'in-place-connection';
-import { thirdPartyCookiesFallbackHelper } from '@automattic/jetpack-connection/helpers';
-
-<InPlaceConnection
-	onThirdPartyCookiesBlocked={ () => thirdPartyCookiesFallbackHelper( 'https://example.org/fallback-url/' ) }
-	// Other properties.
-/>
-```
-
 ## Fetching connection status and other data from the store
-The package relies [controls](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-data/#controls-2)
+The package relies on [controls](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-data/#controls-2)
 and [resolvers](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-data/#resolvers)
-to pull some data from the API into the package state store.
-Other data is supposed to be provided via initial state, or generated on the fly and simply reflects the current state of the application.
+to pull connection status from the API, and put it into the package's Redux store.
 
-No matter where the data comes from, you can always pull it directly from the `jetpack-connection` store using `@wordpress/data` tooling.
+Once connection status is added to the store, consuming plugins can rely on it for the single source of truth regarding connection status. 
 
 ### Basic Usage
 
@@ -275,8 +256,8 @@ import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 
 // The component requires the `connectionStatus` parameter.
 const SampleComponent = props => {
-    const { connectionStatus } = props;
-    return <div>{ JSON.stringify( connectionStatus ) }</div>;
+	const { connectionStatus } = props;
+	return <div>{ JSON.stringify( connectionStatus ) }</div>;
 }
 
 // We wrap `SampleComponent` into the `withSelect` HOC,
@@ -288,4 +269,39 @@ export default withSelect( select => {
 		connectionStatus: select( CONNECTION_STORE_ID ).getConnectionStatus(),
 	}
 } )( SampleComponent );
+```
+
+### Reusing Connection Status 
+
+When the connection screen is loaded for the first time, it queries the API to load the current connection status.
+This request is often excessive, as the plugin can provide connection status from its own initial state.
+This will save one API request, so the connection screen will load a bit faster (significantly faster on slow connections). 
+
+To do that, you need to supply the RNA Connection package store with the data as early in the process as possible,
+before it requests the data from the API.
+
+Here's an example of how to do that:
+
+```jsx
+import { withDispatch } from '@wordpress/data';
+import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+
+const PluginDashboard = props => {
+	props.setConnectionStatus( props.connectionStatusFromInitialState );
+};
+
+export default withDispatch( dispatch => {
+	return {
+		setConnectionStatus: connectionStatus => {
+		    // Informing the store that we're starting the data resolution process (so it wouldn't send the API request).
+			dispatch( CONNECTION_STORE_ID ).startResolution( 'getConnectionStatus', [] );
+			
+			// Supplying the data to the store.
+			dispatch( CONNECTION_STORE_ID ).setConnectionStatus( connectionStatus );
+			
+			// Informing the store that resolving is complete, so it no longer needs to send that API request.
+			dispatch( CONNECTION_STORE_ID ).finishResolution( 'getConnectionStatus', [] );
+		},
+	};
+} )
 ```
