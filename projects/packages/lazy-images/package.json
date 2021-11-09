@@ -24,7 +24,7 @@
 		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:^0.1.0-alpha",
+		"@automattic/jetpack-webpack-config": "workspace:^0.1.0",
 		"copy-webpack-plugin": "9.0.1",
 		"intersection-observer": "0.12.0",
 		"webpack": "5.51.1"
