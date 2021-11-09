@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { BlockStyles, InspectorControls } from '@wordpress/block-editor';
+import { InspectorControls } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import { useEffect, useState } from '@wordpress/element';
 import {
@@ -18,6 +18,7 @@ import { usePreferredColorSchemeStyle } from '@wordpress/compose';
 import styles from './styles.scss';
 import { LAYOUT_CIRCLE, LAYOUT_STYLES } from './constants';
 import { getActiveStyleName } from '../../shared/block-styles';
+import LayoutPicker from './layout-picker.native';
 
 const MIN_COLUMNS = 1;
 export const MAX_COLUMNS = 8;
@@ -57,8 +58,9 @@ const TiledGallerySettings = props => {
 	return (
 		<InspectorControls>
 			<PanelBody title={ __( 'Tiled gallery settings', 'jetpack' ) } />
-			<PanelBody style={ styles.panelBody }>
-				<BlockStyles clientId={ clientId } url={ `https://placekitten.com/${ 300 }/${ 300 }` } />
+
+			<PanelBody>
+				<LayoutPicker clientId={ clientId } className={ className } />
 			</PanelBody>
 			<PanelBody>
 				<UnitControl

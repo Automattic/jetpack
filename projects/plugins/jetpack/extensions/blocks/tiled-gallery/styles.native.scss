@@ -16,8 +16,10 @@
 	aspect-ratio: 1;
 }
 
-.panelBody {
-	padding-left: 0;
-	padding-right: 0;
-	padding-bottom: $grid-unit;
+.cellRowStyles {
+	flex-shrink: 1;
+}
+
+.galleryLayoutTitle {
+	text-align: left;
 }
