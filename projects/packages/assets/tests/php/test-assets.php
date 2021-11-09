@@ -327,7 +327,6 @@ class AssetsTest extends TestCase {
 		);
 		foreach ( $expect as $func => $with ) {
 			Functions\expect( $func )
-				->once()
 				->with( ...$with );
 		}
 
@@ -345,8 +344,8 @@ class AssetsTest extends TestCase {
 			$obj = $this->getMockBuilder( \stdClass::class )
 				->setMethods( array( 'get_data' ) )
 				->getMock();
-			$obj->expects( $this->once() )->method( 'get_data' )->with( ...$extra['enqueue'][0] )->willReturn( $extra['enqueue'][1] );
-			Functions\expect( 'wp_scripts' )->once()->andReturn( $obj );
+			$obj->method( 'get_data' )->with( ...$extra['enqueue'][0] )->willReturn( $extra['enqueue'][1] );
+			Functions\expect( 'wp_scripts' )->andReturn( $obj );
 		}
 
 		Assets::register_script( ...$args );
