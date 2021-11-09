@@ -173,6 +173,8 @@ const TiledGalleryEdit = props => {
 				linkTo={ linkTo }
 				columns={ columns }
 				roundedCorners={ roundedCorners }
+				clientId={ clientId }
+				className={ props.attributes.className }
 			/>
 			<View { ...innerBlocksProps } />
 			<View style={ [ styles.galleryAppender ] }>{ mediaPlaceholder }</View>
