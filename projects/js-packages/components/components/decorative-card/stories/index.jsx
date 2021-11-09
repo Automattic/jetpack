@@ -14,3 +14,8 @@ const Template = args => <DecorativeCard { ...args } />;
 
 // Export Default story
 export const _default = Template.bind( {} );
+
+export const Unlink = Template.bind( {} );
+Unlink.args = {
+	icon: 'unlink',
+};
