@@ -729,7 +729,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => __CLASS__ . '::attach_jetpack_licenses',
-				'permission_callback' => __CLASS__ . '::set_jetpack_license_key_permission_check',
+				'permission_callback' => __CLASS__ . '::attach_jetpack_license_permission_check',
 				'args'                => array(
 					'licenses' => array(
 						'required' => true,
@@ -3952,6 +3952,22 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'invalid_user_permission_set_jetpack_license_key', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
+
+	}
+
+	/**
+	 * Verify that the user can attach a jetpack license
+	 *
+	 * @since 9.5.0
+	 *
+	 * @return bool|WP_Error True if user is able to set a Jetpack license key
+	 */
+	public static function attach_jetpack_license_permission_check() {
+		if ( current_user_can( 'jetpack_connect_user' ) ) {
+			return true;
+		}
+
+		return new WP_Error( 'invalid_user_permission_attach_jetpack_licenses', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
 
 	}
 
