@@ -252,6 +252,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 #### Bug fixes
 - Block Editor: avoid issues when searching for free Pexels images via Jetpack's External Media feature.
+- Contact Form: prevent multiple button clicks from submitting multiple form submissions.
 - VideoPress: display "File Name" in the Media Library.
 - VideoPress: display all video meta immediately after upload. A page refresh is no longer needed to view VideoPress-specific fields.
 - VideoPress: no longer play videos in the background when the Media Item modal is closed in the media library.
