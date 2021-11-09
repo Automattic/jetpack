@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Display Nav Unification Quick switcher in edit.php?post_type=post page for sites with Nav unification enabled.

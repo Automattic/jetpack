@@ -8,6 +8,7 @@ tools/docker/wordpress/
 
 # Ignored by default, but we should check it
 !.github/
+!.prettierrc.js
 
 ### Jetpack
 projects/plugins/jetpack/.size-limit.js
@@ -27,18 +28,13 @@ projects/plugins/jetpack/tests/e2e/output/
 projects/plugins/jetpack/vendor/
 
 ### Jetpack Boost
-projects/plugins/boost/.eslintrc.js
-projects/plugins/boost/.prettierrc.js
-projects/plugins/boost/babel.config.js
-projects/plugins/boost/jest-puppeteer.config.js
-projects/plugins/boost/jest.config.js
-projects/plugins/boost/rollup.config.js
 projects/plugins/boost/**/*.min.js
 projects/plugins/boost/node_modules/**
 projects/plugins/boost/vendor/**
 projects/plugins/boost/app/assets/dist/**
-projects/plugins/boost/tests/**
-projects/plugins/boost/docker/**
+projects/plugins/boost/tests/e2e/output/**
+projects/plugins/boost/tests/e2e/config/**
+projects/plugins/boost/tests/e2e/node_modules/**
 projects/plugins/boost/wordpress/**
 !projects/plugins/boost/app/assets/src/js/**/*.d.ts
 
