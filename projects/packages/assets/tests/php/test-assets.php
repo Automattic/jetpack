@@ -318,7 +318,7 @@ class AssetsTest extends TestCase {
 		Functions\stubs(
 			array(
 				'filemtime'   => function ( $v ) {
-					return crc32( $v );
+					return crc32( basename( $v ) );
 				},
 				'wp_style_is' => function ( $handle, $list = 'enqueued' ) {
 					return ( 'wp-components' === $handle && 'registered' === $list );
@@ -371,7 +371,7 @@ class AssetsTest extends TestCase {
 						'single-file',
 						"$url_base/single-js-file.js?minify=false",
 						array(),
-						231206287,
+						2883865438,
 						false,
 					),
 					'wp_script_add_data' => array( 'single-file', 'Jetpack::Assets::hascss', false ),
@@ -520,7 +520,7 @@ class AssetsTest extends TestCase {
 						'single-file',
 						"$url_base/single-js-file.js?minify=false",
 						array(),
-						231206287,
+						2883865438,
 						false,
 					),
 					'wp_script_add_data' => array( 'single-file', 'Jetpack::Assets::hascss', false ),
@@ -535,7 +535,7 @@ class AssetsTest extends TestCase {
 						'single-file',
 						"$url_base/single-js-file.js?minify=false",
 						array(),
-						231206287,
+						2883865438,
 						false,
 					),
 					'wp_script_add_data' => array( 'single-file', 'Jetpack::Assets::hascss', false ),
