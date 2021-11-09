@@ -1,6 +1,12 @@
 <script>
+	/**
+	 * External dependencies
+	 */
 	import { slide } from 'svelte/transition';
-	import { __, _n, sprintf } from '@wordpress/i18n';
+
+	/**
+	 * Internal dependencies
+	 */
 	import LeftArrow from '../../../svg/left-arrow.svg';
 	import { navigateTo } from '../../../stores/url-fragment';
 	import {
@@ -17,6 +23,11 @@
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import CriticalCssErrorDescription from '../elements/CriticalCssErrorDescription.svelte';
 	import { isFinished } from '../../../stores/critical-css-status';
+
+	/**
+	 * WordPress dependencies
+	 */
+	import { __, _n, sprintf } from '@wordpress/i18n';
 
 	function onRetry() {
 		generateCriticalCss();

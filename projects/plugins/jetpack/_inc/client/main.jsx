@@ -43,6 +43,7 @@ import {
 	getTracksUserData,
 	showRecommendations,
 	getPluginBaseUrl,
+	isWoASite,
 } from 'state/initial-state';
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
 import { getSearchTerm } from 'state/search';
@@ -379,7 +380,11 @@ class Main extends React.Component {
 				break;
 		}
 
-		window.wpNavMenuClassChange();
+		if ( this.props.isWoaSite ) {
+			window.wpNavMenuClassChange( { dashboard: 1, settings: 1 } );
+		} else {
+			window.wpNavMenuClassChange();
+		}
 
 		return (
 			<div aria-live="assertive" className={ `${ this.shouldBlurMainContent() ? 'blur' : '' }` }>
@@ -550,6 +555,7 @@ export default connect(
 			pluginBaseUrl: getPluginBaseUrl( state ),
 			connectUrl: getConnectUrl( state ),
 			connectingUserFeatureLabel: getConnectingUserFeatureLabel( state ),
+			isWoaSite: isWoASite( state ),
 		};
 	},
 	dispatch => ( {
