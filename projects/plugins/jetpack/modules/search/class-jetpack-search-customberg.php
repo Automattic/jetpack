@@ -11,7 +11,6 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
 use Jetpack;
 use Jetpack_Plan;
-use Jetpack_Search_Helpers;
 
 /**
  * Responsible for adding a search customization interface to wp-admin.
@@ -68,7 +67,7 @@ class Jetpack_Search_Customberg {
 		// Only load assets if Customberg is supported.
 		if ( $this->wp_supports_customberg() ) {
 			add_action( "admin_print_scripts-$hook", array( $this, 'load_assets' ) );
-			add_action( 'admin_footer', array( 'Jetpack_Search_Helpers', 'print_instant_search_sidebar' ) );
+			add_action( 'admin_footer', array( 'Automattic\Jetpack\Search\Helper', 'print_instant_search_sidebar' ) );
 		} else {
 			add_action( "admin_print_scripts-$hook", array( $this, 'add_redirect_if_necessary' ) );
 		}
@@ -160,7 +159,7 @@ class Jetpack_Search_Customberg {
 		wp_set_script_translations( 'jp-search-configure', 'jetpack' );
 
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
-		wp_add_inline_script( 'jp-search-configure', 'var JetpackInstantSearchOptions=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Jetpack_Search_Helpers::generate_initial_javascript_state() ) ) . '"));', 'before' );
+		wp_add_inline_script( 'jp-search-configure', 'var JetpackInstantSearchOptions=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Helper::generate_initial_javascript_state() ) ) . '"));', 'before' );
 		wp_add_inline_script(
 			'jp-search-configure',
 			"window.jetpackSearchConfigureInit( 'jp-search-configure' )"

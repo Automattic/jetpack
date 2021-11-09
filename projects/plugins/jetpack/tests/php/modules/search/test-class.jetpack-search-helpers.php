@@ -1,10 +1,10 @@
 <?php
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Search\Helper as Jetpack_Search_Helpers;
 
+// TODO: Migrate this test to the Search package once class.jetpack-search.php has also been ported.
 require_jetpack_file( 'modules/search/class.jetpack-search.php' );
-require_jetpack_file( 'modules/search/class.jetpack-search-helpers.php' );
-require_jetpack_file( 'modules/search/class-jetpack-search-options.php' );
 
 class WP_Test_Jetpack_Search_Helpers_Customize {
 	public $previewing = false;
@@ -428,7 +428,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 			add_filter( 'jetpack_search_has_vip_index', $filter );
 		}
 
-		$this->assertSame( $expected, Jetpack_Search_Options::site_has_vip_index() );
+		$this->assertSame( $expected, Automattic\Jetpack\Search\Options::site_has_vip_index() );
 	}
 
 	/**
