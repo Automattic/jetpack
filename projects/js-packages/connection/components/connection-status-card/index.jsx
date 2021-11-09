@@ -7,7 +7,6 @@ import { Button } from '@wordpress/components';
 import PropTypes from 'prop-types';
 import restApi from '@automattic/jetpack-api';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { jetpackConfigHas, jetpackConfigGet } from '@automattic/jetpack-config';
 
 /**
  * Internal dependencies
@@ -36,11 +35,6 @@ const ConnectionStatusCard = props => {
 		onDisconnected,
 		connectedPlugins,
 	} = props;
-
-	let currentPlugin = '';
-	if ( jetpackConfigHas( 'consumer_slug' ) ) {
-		currentPlugin = jetpackConfigGet( 'consumer_slug' );
-	}
 
 	const [ isFetchingConnectionData, setIsFetchingConnectionData ] = useState( false );
 	const [ connectedUserData, setConnectedUserData ] = useState( {} );
@@ -154,7 +148,6 @@ const ConnectionStatusCard = props => {
 						apiNonce={ apiNonce }
 						onDisconnected={ onDisconnectedCallback }
 						connectedPlugins={ connectedPlugins }
-						disconnectingPlugin={ currentPlugin }
 						connectedUser={ connectedUserData }
 						isOpen={ isDisconnectDialogOpen }
 						onClose={ closeDisconnectDialog }

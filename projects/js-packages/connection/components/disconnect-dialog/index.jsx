@@ -7,6 +7,7 @@ import { __ } from '@wordpress/i18n';
 import { Modal } from '@wordpress/components';
 import restApi from '@automattic/jetpack-api';
 import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { jetpackConfigHas, jetpackConfigGet } from '@automattic/jetpack-config';
 
 /**
  * Internal dependencies
@@ -40,11 +41,15 @@ const DisconnectDialog = props => {
 		onError,
 		disconnectStepComponent,
 		context,
-		disconnectingPlugin,
 		connectedUser,
 		isOpen,
 		onClose,
 	} = props;
+
+	let disconnectingPlugin = '';
+	if ( jetpackConfigHas( 'consumer_slug' ) ) {
+		disconnectingPlugin = jetpackConfigGet( 'consumer_slug' );
+	}
 
 	/**
 	 * Initialize the REST API.
@@ -249,8 +254,6 @@ DisconnectDialog.propTypes = {
 	context: PropTypes.string,
 	/** Plugins that are using the Jetpack connection. */
 	connectedPlugins: PropTypes.object,
-	/** The plugin where this component is being used that initiated the disconnect flow. */
-	disconnectingPlugin: PropTypes.string,
 	/** Callback function that is called just before the request to disconnect is made when the context is "plugins". */
 	pluginScreenDisconnectCallback: PropTypes.func,
 	/** A component to render as part of the disconnect step. */
