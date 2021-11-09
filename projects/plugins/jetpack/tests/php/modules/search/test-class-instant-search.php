@@ -1,6 +1,6 @@
 <?php
 /**
- * Test Instant Search Class
+ * Instant Search test cases
  *
  * @package automattic/jetpack
  */
@@ -9,15 +9,10 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	require_once WPMU_PLUGIN_DIR . '/jetpack-plugin/vendor/autoload_packages.php';
 }
 
-require_jetpack_file( 'modules/search/class.jetpack-search.php' );
-require_jetpack_file( 'modules/search/class-jetpack-instant-search.php' );
-
 /**
  * Jetpack_Instant_Search test cases
- *
- * @since 9.8.0
  */
-class WP_Test_Jetpack_Instant_Search extends WP_UnitTestCase {
+class WP_Test_Instant_Search extends WP_UnitTestCase {
 
 	/**
 	 * Jetpack Instant Search instance
@@ -31,7 +26,7 @@ class WP_Test_Jetpack_Instant_Search extends WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
-		static::$instant_search = Jetpack_Instant_Search::instance();
+		static::$instant_search = Automattic\Jetpack\Search\Instant_Search::instance( get_current_blog_id() );
 	}
 
 	/**
