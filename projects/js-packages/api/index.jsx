@@ -434,6 +434,12 @@ function JetpackRestApiClient( root, nonce ) {
 			postRequest( `${ apiRoot }jetpack/v4/identity-crisis/migrate`, postParams ).then(
 				checkStatus
 			),
+		attachLicenses: licenses =>
+			postRequest( `${ apiRoot }jetpack/v4/licensing/attach-licenses`, postParams, {
+				body: JSON.stringify( { licenses } ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 	};
 
 	/**
