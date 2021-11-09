@@ -732,9 +732,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'permission_callback' => __CLASS__ . '::set_jetpack_license_key_permission_check',
 				'args'                => array(
 					'licenses' => array(
-						'required'          => true,
-						'type'              => 'array',
-						'items'             => array(
+						'required' => true,
+						'type'     => 'array',
+						'items'    => array(
 							'type' => 'string',
 						),
 					),
