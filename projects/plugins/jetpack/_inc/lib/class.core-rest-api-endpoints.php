@@ -729,7 +729,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => __CLASS__ . '::attach_jetpack_licenses',
-				'permission_callback' => __CLASS__ . '::attach_jetpack_license_permission_check',
+				'permission_callback' => __CLASS__ . '::attach_jetpack_licenses_permission_check',
 				'args'                => array(
 					'licenses' => array(
 						'required' => true,
@@ -3871,7 +3871,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return WP_REST_Response|WP_Error A response object
 	 */
 	public static function attach_jetpack_licenses( $request ) {
-		$licenses = trim( sanitize_text_field( $request['license'] ) );
+		$licenses = array_map(
+			function( $license ) {
+				return trim( sanitize_text_field( $license ) );
+			},
+			$request['licenses']
+		);
 		return rest_ensure_response( Licensing::instance()->attach_licenses( $licenses ) );
 	}
 
@@ -3956,13 +3961,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Verify that the user can attach a jetpack license
+	 * Verify that the user can attach a jetpack licenses
 	 *
-	 * @since 9.5.0
+	 * @since 10.4.0
 	 *
-	 * @return bool|WP_Error True if user is able to set a Jetpack license key
+	 * @return bool|WP_Error True if user is able to attach Jetpack licenses
 	 */
-	public static function attach_jetpack_license_permission_check() {
+	public static function attach_jetpack_licenses_permission_check() {
 		if ( current_user_can( 'jetpack_connect_user' ) ) {
 			return true;
 		}
