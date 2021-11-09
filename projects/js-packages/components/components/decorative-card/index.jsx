@@ -52,13 +52,17 @@ const DecorativeCard = props => {
 	);
 };
 
-DecorativeCard.PropTypes = {
+DecorativeCard.propTypes = {
 	/** The format of the card (horizontal or vertical) */
-	format: PropTypes.string,
+	format: PropTypes.oneOf( [ 'horizontal', 'vertical' ] ),
 	/** An icon slug that can be used to show an icon (options are limited to what is in the stylesheet) */
-	icon: PropTypes.string,
+	icon: PropTypes.oneOf( [ 'unlink' ] ),
 	/** URL for an image to show in the card. */
 	imageUrl: PropTypes.string,
+};
+
+DecorativeCard.defaultProps = {
+	format: 'horizontal',
 };
 
 export default DecorativeCard;
