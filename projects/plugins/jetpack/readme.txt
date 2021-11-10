@@ -242,48 +242,20 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.3 - 2021-11-02
+### 10.4-a.3 - 2021-11-09
 #### Enhancements
-- Dashboard: add a new screen to provide more information about the VideoPress feature.
-- Dashboard: add a new view that shortly summarizes available Jetpack products and facilitates the purchase process.
-- Dashboard: optimize the size of all product images displayed in the dashboard, to improve overall performance.
-- Instagram Widget: improve the connection flow when the widget has not been connected to WordPress.com yet.
-- Instant Search: always show the save button on the mobile view of the Search Settings dashboard.
-- Map Block: Add address attribute to the block.
-- Publicize editor settings: refactor, improve layout and wording in preparation for the addition of RePublicize.
-- Secure Sign On: add new filter allowing one to customize the explanation displayed next to the SSO button.
-- Social Icons Widget: Added Strava icon to Social Icons Widget.
-- Stats: add information about the VideoPress feature at the bottom of the page.
-- Stats: remove some upgrade notifications.
-- VideoPress: add tooltips to video block settings in the block editor.
-- VideoPress: improve the display of upload errors in the Media Library and the block editor.
-- VideoPress: remove X-18 rating from the block settings.
-- WordAds: update handling and setting CCPA related cookies.
+- Publicize: always add an Open Graph image alt text if an Open Graph image is present.
+- VideoPress: do not display thumbnails in the media library, in the WordPress.com dashboard.
 
 #### Improved compatibility
-- Contact Info & Map widget: allow transforming this widget into a block in Block-based widget editor.
-- General: ensure that no notices are output when Jetpack is used alongside plugins that modify the output of core comments.
-- Jetpack Backup: improve the display of the different plugin menus when using both Jetpack and Jetpack Backup.
-- Subscriptions: add an option to transform the Legacy Subscription Widget into a Subscription Block in the new block-based Widget editor.
-- Social Icons Widget: deprecate widget and offer the option to transform into a Social Links block.
-- VideoPress: improve handling of Video files when using a third-party video player.
+- Contact Info and Map widget: hide widget from the block inserter and Legacy widget block drop-down menu.
 
 #### Bug fixes
-- Calendly block: fix the preview in the block inserter.
-- Dashboard: ensure feature cards display the right information when the site uses Jetpack's Offline mode.
-- Dashboard: fix the display of currencies to be based on user WordPress.com preferences.
-- Eventbrite Block: improve the event URL detection and avoid errors when using links without an event ID.
-- External Media block options: fix a bug where the external media modal collapsed on larger screens and did not leave enough whitespace.
-- General: avoid PHP notices that may happen when installing the plugin.
-- Instant Search: fix the display of filters when there are no results to display for a query.
-- Instant Search: fix the preview of the infinite scroll option in the Search Settings dashboard.
-- Instant Search: reduce browser history noise as search is being typed in the form.
-- Markdown: add title attributes to footnotes to improve accessibility.
-- Publicize: fix visual issue when the panel shows in the pre publish step of the post.
-- Publicize: refresh connections only when the post publishes.
-- Stats: remove extra request to WordPress.com that occurs when the stats feature is first activated.
-- VideoPress: add a "cover" option to the VideoPress iframe and shortcode to handle video resizing to its container.
-- Widgets: fix styles of the Milestone widget fields.
+- Block Editor: avoid issues when searching for free Pexels images via Jetpack's External Media feature.
+- Contact Form: prevent multiple button clicks from submitting multiple form submissions.
+- VideoPress: display "File Name" in the Media Library.
+- VideoPress: display all video meta immediately after upload. A page refresh is no longer needed to view VideoPress-specific fields.
+- VideoPress: no longer play videos in the background when the Media Item modal is closed in the media library.
 
 --------
 
