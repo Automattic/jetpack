@@ -1,6 +1,6 @@
 {
 	"name": "jetpack-connection-manager-ui",
-	"version": "2.0.0",
+	"version": "2.0.1-alpha",
 	"description": "Jetpack Connection Manager UI",
 	"main": "_inc/admin.jsx",
 	"repository": "https://github.com/Automattic/jetpack-connection-ui",
@@ -15,8 +15,8 @@
 	},
 	"dependencies": {
 		"@automattic/jetpack-api": "workspace:^0.5.1-alpha",
-		"@automattic/jetpack-connection": "workspace:^0.9.1",
-		"@automattic/jetpack-idc": "workspace:^0.4.2",
+		"@automattic/jetpack-connection": "workspace:^0.9.2-alpha",
+		"@automattic/jetpack-idc": "workspace:^0.4.3-alpha",
 		"@wordpress/data": "6.1.2"
 	},
 	"devDependencies": {
