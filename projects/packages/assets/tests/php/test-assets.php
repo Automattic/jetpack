@@ -36,7 +36,7 @@ class AssetsTest extends TestCase {
 				'add_query_arg' => function ( ...$args ) {
 					$this->assertCount( 3, $args );
 					list( $k, $v, $url ) = $args;
-					$url .= ( strpos( $url, '?' ) === false ? '?' : '&' ) . rawurlencode( $k ) . '=' . rawurlencode( $v );
+					$url .= ( strpos( $url, '?' ) === false ? '?' : '&' ) . "$k=$v";
 					return $url;
 				},
 				'plugins_url'   => function ( $path, $plugin_path ) use ( $plugin_dir ) {
