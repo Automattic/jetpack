@@ -264,6 +264,18 @@ class Config {
 	}
 
 	/**
+	 * Setup the Sync options.
+	 */
+	protected function ensure_options_sync() {
+		$options = $this->get_feature_options( 'sync' );
+		if ( method_exists( 'Automattic\Jetpack\Sync\Main', 'set_sync_data_options' ) ) {
+			Sync_Main::set_sync_data_options( $options );
+		}
+
+		return true;
+	}
+
+	/**
 	 * Temporary save initialization options for a feature.
 	 *
 	 * @param string $feature The feature slug.
