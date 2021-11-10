@@ -4014,7 +4014,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function attach_jetpack_licenses( $request ) {
 		$licenses = array_map(
-			function( $license ) {
+			function ( $license ) {
 				return trim( sanitize_text_field( $license ) );
 			},
 			$request['licenses']
