@@ -323,7 +323,7 @@ function createPackageJson( packageJson, answers ) {
 			test:
 				"NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.@(jsx|js)'",
 		};
-		packageJson.dependencies = { 'jetpack-js-test-runner': 'workspace:*' };
+		packageJson.devDependencies = { 'jetpack-js-test-runner': 'workspace:*' };
 	}
 }
 

@@ -9,17 +9,17 @@ describe( 'Homepage', () => {
 		await Homepage.visit( page, false );
 	} );
 
-	it( 'should display "HelloWord" text on page', async () => {
+	it( 'Should display "HelloWord" text on page', async () => {
 		await expect( page ).toHaveText( 'h1', 'HelloWord' );
 	} );
 
-	it( 'should include the jetpack boost meta tag(s)', async () => {
+	it( 'Should include the jetpack boost meta tag(s)', async () => {
 		const metaTag = await page.$$( "//meta[@name='jetpack-boost-ready']" );
 		expect( metaTag.length ).toBeGreaterThan( 0 );
 	} );
 
 	// We need to properly wait for local css generation to be complete before we can re-enable this test
-	it.skip( 'should be ready', async () => {
+	it.skip( 'Should be ready', async () => {
 		const metaTag = await page.$$( "//meta[@name='jetpack-boost-ready' and @content='true']" );
 		expect( metaTag.length ).toBeGreaterThan( 0 );
 	} );
