@@ -131,6 +131,7 @@ async function ensureCleanState( shouldReset ) {
 
 	if ( shouldReset ) {
 		logger.prerequisites( 'Resetting environment' );
+		await execWpCommand( 'jetpack disconnect blog' );
 		await resetWordpressInstall();
 	}
 }
