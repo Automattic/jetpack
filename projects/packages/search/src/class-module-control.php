@@ -15,6 +15,13 @@ use Jetpack_Options;
  */
 class Module_Control {
 	/**
+	 * Plan object
+	 *
+	 * @var Plan
+	 */
+	protected $plan;
+
+	/**
 	 * We use the same options as Jetpack the plugin to flag whether Search is active.
 	 */
 	const JETPACK_ACTIVE_MODULES_OPTION_KEY       = 'active_modules';
@@ -22,26 +29,12 @@ class Module_Control {
 	const SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY = 'instant_search_enabled';
 
 	/**
-	 * Singleton Instance
+	 * Contructor
 	 *
-	 * @var Module_Control
+	 * @param Plan|null $plan - Plan object.
 	 */
-	protected static $instance;
-
-	/**
-	 * Hide contruct
-	 */
-	protected function __construct() {
-	}
-
-	/**
-	 * Return the singleton
-	 */
-	public static function get_instance() {
-		if ( is_null( static::$instance ) ) {
-			static::$instance = new static();
-		}
-		return static::$instance;
+	public function __construct( $plan = null ) {
+		$this->plan = is_null( $plan ) ? new Plan() : $plan;
 	}
 
 	/**
@@ -50,7 +43,7 @@ class Module_Control {
 	 * @return bool
 	 */
 	public function is_active() {
-		return in_array( self::JETPACK_SEARCH_MODULE_SLUG, self::get_active_modules(), true );
+		return in_array( self::JETPACK_SEARCH_MODULE_SLUG, $this->get_active_modules(), true );
 	}
 
 	/**
@@ -81,15 +74,17 @@ class Module_Control {
 		if ( $this->is_active() ) {
 			return true;
 		}
-
+		// Not available for offline mode.
 		$is_offline_mode = ( new Status() )->is_offline_mode();
 		if ( $is_offline_mode ) {
 			return false;
 		}
+		// Return false if no plan supports search.
+		if ( ! $this->plan->supports_search() ) {
+			return false;
+		}
 
-		// TODO check Plan supports search.
-
-		$active_modules   = self::get_active_modules();
+		$active_modules   = $this->get_active_modules();
 		$active_modules[] = self::JETPACK_SEARCH_MODULE_SLUG;
 
 		$success = Jetpack_Options::update_option( self::JETPACK_ACTIVE_MODULES_OPTION_KEY, $active_modules );
@@ -129,7 +124,7 @@ class Module_Control {
 		 */
 		do_action( 'jetpack_pre_deactivate_module', self::JETPACK_SEARCH_MODULE_SLUG );
 
-		$active_modules = self::get_active_modules();
+		$active_modules = $this->get_active_modules();
 		$active_modules = array_values( array_diff( $active_modules, array( self::JETPACK_SEARCH_MODULE_SLUG ) ) );
 
 		$success = Jetpack_Options::update_option( self::JETPACK_ACTIVE_MODULES_OPTION_KEY, $active_modules );
@@ -173,7 +168,7 @@ class Module_Control {
 	/**
 	 * Get a list of activated modules as an array of module slugs.
 	 */
-	public static function get_active_modules() {
+	public function get_active_modules() {
 		$active_modules = Jetpack_Options::get_option( self::JETPACK_ACTIVE_MODULES_OPTION_KEY );
 
 		if ( ! is_array( $active_modules ) ) {

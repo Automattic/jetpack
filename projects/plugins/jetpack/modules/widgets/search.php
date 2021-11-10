@@ -9,7 +9,7 @@
 
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Search\Helper;
-use Automattic\Jetpack\Search\Options;
+use Automattic\Jetpack\Search\Module_Control as Search_Module_Control;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
 
@@ -42,6 +42,13 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * @var Jetpack_Search
 	 */
 	protected $jetpack_search;
+
+	/**
+	 * Module_Control object.
+	 *
+	 * @var Search_Module_Control
+	 */
+	protected $search_module;
 
 	/**
 	 * Number of aggregations (filters) to show by default.
@@ -90,9 +97,9 @@ class Jetpack_Search_Widget extends WP_Widget {
 		} else {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_scripts' ) );
 		}
-
+		$this->search_module = new Search_Module_Control();
 		add_action( 'jetpack_search_render_filters_widget_title', array( 'Jetpack_Search_Template_Tags', 'render_widget_title' ), 10, 3 );
-		if ( Options::is_instant_enabled() ) {
+		if ( $this->search_module->is_instant_search_enabled() ) {
 			add_action( 'jetpack_search_render_filters', array( 'Jetpack_Search_Template_Tags', 'render_instant_filters' ), 10, 2 );
 		} else {
 			add_action( 'jetpack_search_render_filters', array( 'Jetpack_Search_Template_Tags', 'render_available_filters' ), 10, 2 );
@@ -162,7 +169,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * @since 5.8.0
 	 */
 	public function enqueue_frontend_scripts() {
-		if ( ! is_active_widget( false, false, $this->id_base, true ) || Options::is_instant_enabled() ) {
+		if ( ! is_active_widget( false, false, $this->id_base, true ) || $this->search_module->is_instant_search_enabled() ) {
 			return;
 		}
 
@@ -294,7 +301,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 			return;
 		}
 
-		if ( Options::is_instant_enabled() ) {
+		if ( $this->search_module->is_instant_search_enabled() ) {
 			if ( array_key_exists( 'id', $args ) && 'jetpack-instant-search-sidebar' === $args['id'] ) {
 				$this->widget_empty_instant( $args, $instance );
 			} else {
@@ -538,7 +545,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * @param string $orderby  The orderby to initialize the select with.
 	 */
 	private function maybe_render_sort_javascript( $instance, $order, $orderby ) {
-		if ( Options::is_instant_enabled() ) {
+		if ( $this->search_module->is_instant_search_enabled() ) {
 			return;
 		}
 
@@ -711,7 +718,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * @param array $instance Previously saved values from database.
 	 */
 	public function form( $instance ) {
-		if ( Options::is_instant_enabled() ) {
+		if ( $this->search_module->is_instant_search_enabled() ) {
 			return $this->form_for_instant_search( $instance );
 		}
 
