@@ -139,7 +139,7 @@ abstract class Publicize_Base {
 	public $GLOBAL_CAP = 'publish_posts';
 
 	/**
-	 * Sets up the basics of Publicize
+	 * Sets up the basics of Publicize.
 	 */
 	public function __construct() {
 		$this->default_message = self::build_sprintf(
@@ -211,7 +211,7 @@ abstract class Publicize_Base {
 		add_action( 'save_post', array( $this, 'save_meta' ), 20, 2 );
 
 		// Default checkbox state for each Connection.
-		add_filter( 'publicize_checkbox_default', array( $this, 'publicize_checkbox_default' ), 10, 4 );
+		add_filter( 'publicize_checkbox_default', array( $this, 'publicize_checkbox_default' ), 10, 2 );
 
 		// Alter the "Post Publish" admin notice to mention the Connections we Publicized to.
 		add_filter( 'post_updated_messages', array( $this, 'update_published_message' ), 20, 1 );
@@ -436,13 +436,21 @@ abstract class Publicize_Base {
 			}
 
 			return $cmeta['connection_data']['meta']['link'];
-		} elseif ( 'facebook' === $service_name && isset( $cmeta['connection_data']['meta']['facebook_page'] ) ) {
+		}
+
+		if ( 'facebook' === $service_name && isset( $cmeta['connection_data']['meta']['facebook_page'] ) ) {
 			return 'https://facebook.com/' . $cmeta['connection_data']['meta']['facebook_page'];
-		} elseif ( 'tumblr' === $service_name && isset( $cmeta['connection_data']['meta']['tumblr_base_hostname'] ) ) {
+		}
+
+		if ( 'tumblr' === $service_name && isset( $cmeta['connection_data']['meta']['tumblr_base_hostname'] ) ) {
 			return 'https://' . $cmeta['connection_data']['meta']['tumblr_base_hostname'];
-		} elseif ( 'twitter' === $service_name ) {
+		}
+
+		if ( 'twitter' === $service_name ) {
 			return 'https://twitter.com/' . substr( $cmeta['external_display'], 1 ); // Has a leading '@'.
-		} elseif ( 'linkedin' === $service_name ) {
+		}
+
+		if ( 'linkedin' === $service_name ) {
 			if ( ! isset( $cmeta['connection_data']['meta']['profile_url'] ) ) {
 				return false;
 			}
@@ -478,17 +486,23 @@ abstract class Publicize_Base {
 
 		if ( isset( $cmeta['connection_data']['meta']['display_name'] ) ) {
 			return $cmeta['connection_data']['meta']['display_name'];
-		} elseif ( 'tumblr' === $service_name && isset( $cmeta['connection_data']['meta']['tumblr_base_hostname'] ) ) {
-			 return $cmeta['connection_data']['meta']['tumblr_base_hostname'];
-		} elseif ( 'twitter' === $service_name ) {
-			return $cmeta['external_display'];
-		} else {
-			$connection_display = $cmeta['external_display'];
-			if ( empty( $connection_display ) ) {
-				$connection_display = $cmeta['external_name'];
-			}
-			return $connection_display;
 		}
+
+		if ( 'tumblr' === $service_name && isset( $cmeta['connection_data']['meta']['tumblr_base_hostname'] ) ) {
+			return $cmeta['connection_data']['meta']['tumblr_base_hostname'];
+		}
+
+		if ( 'twitter' === $service_name ) {
+			return $cmeta['external_display'];
+		}
+
+		$connection_display = $cmeta['external_display'];
+
+		if ( empty( $connection_display ) ) {
+			$connection_display = $cmeta['external_name'];
+		}
+
+		return $connection_display;
 	}
 
 	/**
@@ -528,13 +542,18 @@ abstract class Publicize_Base {
 		}
 
 		// if we have the specific connection info..
-		if ( isset( $_GET['id'] ) ) {
-			if ( $cmeta['connection_data']['id'] === $_GET['id'] ) {
+		$id = filter_input( INPUT_GET, 'id', FILTER_SANITIZE_STRING );
+
+		if ( $id ) {
+			if ( $cmeta['connection_data']['id'] === $id ) {
 				return true;
 			}
 		} else {
-			// otherwise, just show if this is the completed step / first load.
-			if ( ! empty( $_GET['action'] ) && 'completed' === $_GET['action'] && ! empty( $_GET['service'] ) && $service_name === $_GET['service'] && ! in_array( $_GET['service'], array( 'facebook', 'tumblr' ) ) ) {
+			// Otherwise, just show if this is the completed step / first load.
+			$action  = filter_input( INPUT_GET, 'action', FILTER_SANITIZE_STRING );
+			$service = filter_input( INPUT_GET, 'service', FILTER_SANITIZE_STRING );
+
+			if ( ! empty( $action ) && 'completed' === $action && ! empty( $service ) && $service_name === $service && ! in_array( $service, array( 'facebook', 'tumblr' ), true ) ) {
 				return true;
 			}
 		}
@@ -1054,7 +1073,7 @@ abstract class Publicize_Base {
 	 * @param WP_Post $post Post object.
 	 */
 	public function save_meta( $post_id, $post ) {
-		$cron_user = null;
+		$cron_user   = null;
 		$submit_post = true;
 
 		if ( ! $this->post_type_is_publicizeable( $post->post_type ) ) {
@@ -1088,7 +1107,7 @@ abstract class Publicize_Base {
 		}
 
 		// - bulk edit
-		if ( isset( $_GET['bulk_edit'] ) ) {
+		if ( filter_input( INPUT_GET, 'bulk_edit', FILTER_VALIDATE_BOOL ) ) {
 			$submit_post = false;
 		}
 
@@ -1119,18 +1138,22 @@ abstract class Publicize_Base {
 			$submit_post = false;
 		}
 
+		$admin_page = filter_input( INPUT_POST, $this->ADMIN_PAGE );
+
 		// Did this request happen via wp-admin?
 		$from_web = isset( $_SERVER['REQUEST_METHOD'] )
 			&&
 			'post' === strtolower( $_SERVER['REQUEST_METHOD'] )
 			&&
-			isset( $_POST[ $this->ADMIN_PAGE ] );
+			! empty( $admin_page );
 
-		if ( ( $from_web || defined( 'POST_BY_EMAIL' ) ) && isset( $_POST['wpas_title'] ) ) {
-			if ( empty( $_POST['wpas_title'] ) ) {
+		$title = filter_input( INPUT_POST, 'wpas_title', FILTER_SANITIZE_STRING );
+
+		if ( ( $from_web || defined( 'POST_BY_EMAIL' ) ) && $title ) {
+			if ( empty( $title ) ) {
 				delete_post_meta( $post_id, $this->POST_MESS );
 			} else {
-				update_post_meta( $post_id, $this->POST_MESS, trim( stripslashes( $_POST['wpas_title'] ) ) );
+				update_post_meta( $post_id, $this->POST_MESS, trim( stripslashes( $title ) ) );
 			}
 		}
 
@@ -1172,11 +1195,11 @@ abstract class Publicize_Base {
 					delete_post_meta( $post_id, $this->POST_SKIP . $service_name );
 
 					// We *unchecked* this stream from the admin page, or it's set to readonly, or it's a new addition.
-					if ( empty( $_POST[ $this->ADMIN_PAGE ]['submit'][ $unique_id ] ) ) {
+					if ( empty( $admin_page['submit'][ $unique_id ] ) ) {
 						// Also make sure that the service-specific input isn't there.
 						// If the user connected to a new service 'in-page' then a hidden field with the service
 						// name is added, so we just assume they wanted to Publicize to that service.
-						if ( empty( $_POST[ $this->ADMIN_PAGE ]['submit'][ $service_name ] ) ) {
+						if ( empty( $admin_page['submit'][ $service_name ] ) ) {
 							// Nothing seems to be checked, so we're going to mark this one to be skipped.
 							update_post_meta( $post_id, $this->POST_SKIP . $unique_id, 1 );
 							continue;
@@ -1359,7 +1382,7 @@ abstract class Publicize_Base {
 	 * @return bool True if the post type can be Publicized.
 	 */
 	public function post_type_is_publicizeable( $post_type ) {
-		if ( 'post' == $post_type ) {
+		if ( 'post' === $post_type ) {
 			return true;
 		}
 
@@ -1372,14 +1395,12 @@ abstract class Publicize_Base {
 	 *
 	 * Attached to the `publicize_checkbox_default` filter
 	 *
-	 * @param bool         $checked True if checkbox is checked, false otherwise.
-	 * @param int          $post_id Post ID to set checkbox for.
-	 * @param string       $service_name 'facebook', 'twitter', etc.
-	 * @param object|array $connection The Connection object (WordPress.com) or array (Jetpack).
+	 * @param bool $checked True if checkbox is checked, false otherwise.
+	 * @param int  $post_id Post ID to set checkbox for.
 	 * @return bool
 	 */
-	public function publicize_checkbox_default( $checked, $post_id, $service_name, $connection ) {
-		if ( 'publish' == get_post_status( $post_id ) ) {
+	public function publicize_checkbox_default( $checked, $post_id ) {
+		if ( 'publish' === get_post_status( $post_id ) ) {
 			return false;
 		}
 
