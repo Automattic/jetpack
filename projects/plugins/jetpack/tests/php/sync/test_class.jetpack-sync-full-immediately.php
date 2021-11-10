@@ -1160,8 +1160,12 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$this->full_sync->start( array( 'users' => 'initial' ) );
 		$this->sender->do_full_sync();
 		$this->assertEquals( 3, $this->server_replica_storage->user_count() );
-		// finally, let's make sure that the initial sync method actually invokes our initial sync user config
-		delete_option( 'jetpack_sync_full_status' );
+
+		// Finally, let's make sure that the initial sync method actually invokes our initial sync user config.
+		global $wp_current_filter;
+		$original_wp_current_filter = $wp_current_filter;
+		$wp_current_filter[]        = 'jetpack_site_registered'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
 		Actions::do_initial_sync();
 		$current_user = wp_get_current_user();
 
@@ -1174,12 +1178,14 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		);
 
 		$full_sync_status = $this->full_sync->get_status();
+
+		$wp_current_filter = $original_wp_current_filter; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
 		$this->assertEquals(
 			$expected_sync_config,
 			$full_sync_status['config']
 		);
 	}
-
 
 	function test_full_sync_sends_previous_interval_end_on_posts() {
 		$this->factory->post->create_many( 25 );
