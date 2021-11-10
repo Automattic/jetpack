@@ -80,7 +80,7 @@ class Instant_Search extends Classic_Search {
 		 * @var string
 		 */
 		define( 'JETPACK_SEARCH_PLUGIN_DIRECTORY', dirname( dirname( __DIR__ ) ) );
-		define( 'JETPACK_SEARCH_BUILD_DIRECTORY', 'jetpack-search/build/instant-search' );
+		define( 'JETPACK_SEARCH_BUILD_DIRECTORY', 'jetpack-search/dist/instant-search' );
 
 		$this->load_assets_with_parameters(
 			defined( 'JETPACK_SEARCH_BUILD_DIRECTORY' ) ? constant( 'JETPACK_SEARCH_BUILD_DIRECTORY' ) : '',

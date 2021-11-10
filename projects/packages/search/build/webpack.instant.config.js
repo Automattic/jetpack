@@ -12,8 +12,8 @@ const webpack = jetpackWebpackConfig.webpack;
 /**
  * Internal dependencies
  */
-const definePaletteColorsAsStaticVariables = require( './define-palette-colors-as-static-variables' );
 const AddReadableJSAssetsPlugin = require( './add-readable-js-assets' );
+const definePaletteColorsAsStaticVariables = require( './define-palette-colors-as-static-variables' );
 
 /**
  * Used to determine if the module import request should be externalized.
@@ -42,7 +42,7 @@ module.exports = {
 		// @todo: Make the file naming regular.
 		filename: 'jp-search-[name].bundle.min.js',
 		chunkFilename: 'jp-search.chunk-[name].[contenthash:20].min.js',
-		path: path.join( __dirname, 'build/instant-search' ),
+		path: path.join( __dirname, '../dist/instant-search' ),
 	},
 	optimization: {
 		...jetpackWebpackConfig.optimization,
@@ -61,7 +61,7 @@ module.exports = {
 			'react-dom': 'preact/compat', // Must be aliased after test-utils
 			fs: false,
 		},
-		modules: [ path.resolve( __dirname, '../_inc/client' ), 'node_modules' ],
+		modules: [ 'node_modules' ],
 	},
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {
@@ -85,20 +85,20 @@ module.exports = {
 						path.resolve( __dirname, '../src/instant-search/lib/dummy-debug' )
 					),
 			  ] ),
-		definePaletteColorsAsStaticVariables(),
 		new AddReadableJSAssetsPlugin(),
+		definePaletteColorsAsStaticVariables(),
 	],
 	module: {
 		strictExportPresence: true,
 		rules: [
-			// Transpile JavaScript
+			// Transpile JavaScript except node modules.
 			jetpackWebpackConfig.TranspileRule( {
 				exclude: /node_modules\//,
 			} ),
 
 			// Transpile @automattic/jetpack-* in node_modules too.
 			jetpackWebpackConfig.TranspileRule( {
-				includeNodeModules: [ '@automattic/jetpack-', 'debug/', 'tiny-lru/' ],
+				includeNodeModules: [ '@automattic/jetpack-', 'tiny-lru/' ],
 			} ),
 
 			// Handle CSS.
@@ -125,5 +125,3 @@ module.exports = {
 		],
 	},
 };
-
-module.exports = instantSearchConfig;

@@ -863,7 +863,7 @@ class Helper {
 			'postsPerPage'          => $posts_per_page,
 			'siteId'                => class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'get_option' ) ? Jetpack::get_option( 'id' ) : get_current_blog_id(),
 			'postTypes'             => $post_type_labels,
-			'webpackPublicPath'     => plugins_url( '/build/instant-search/', __DIR__ ),
+			'webpackPublicPath'     => plugins_url( '/dist/instant-search/', __DIR__ ),
 			'isPhotonEnabled'       => ( $is_wpcom || $is_jetpack_photon_enabled ) && ! $is_private_site,
 
 			// config values related to private site support.
