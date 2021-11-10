@@ -149,7 +149,7 @@
 		"webpack-cli": "4.8.0"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:^0.1.0",
+		"@automattic/jetpack-webpack-config": "workspace:^0.1.1-alpha",
 		"@automattic/color-studio": "2.5.0",
 		"@babel/core": "7.16.0",
 		"@babel/plugin-proposal-nullish-coalescing-operator": "7.16.0",
@@ -173,7 +173,7 @@
 		"@wordpress/editor": "12.0.1",
 		"@wordpress/server-side-render": "3.0.4",
 		"chai": "4.3.4",
-		"chalk": "4.1.1",
+		"chalk": "4.1.2",
 		"commander": "7.2.0",
 		"concurrently": "6.0.2",
 		"css-loader": "6.2.0",
