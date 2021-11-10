@@ -146,7 +146,7 @@ export async function scriptRouter( argv ) {
 			argv.next = `Finished! Next: 
 				  - Once the branch is pushed, GitHub Actions will build and create a branch on your plugin's mirror repo.
 				  - That mirror repo branch will be the branch that is tagged in GitHub and pushed to svn in WordPress.org.
-				  - When changes are pushed to the release branch that was just created, GitHub Actions takes care of building/mirroring to the jetpack-production repo.
+				  - When changes are pushed to the release branch that was just created, GitHub Actions takes care of building/mirroring to the mirror repo.
 				  - You will now likely want to start a new release cycle like so:
 				      jetpack release ${ argv.project } new-cycle \n`.replace( /^\t+/gm, '' );
 			break;
