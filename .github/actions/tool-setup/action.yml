@@ -27,6 +27,27 @@ runs:
         echo " Pnpm: $PNPM_VERSION"
         echo "::set-output name=pnpm-version::$PNPM_VERSION"
 
+    - name: Remove disabled tools
+      shell: bash
+      if: steps.versions.outputs.php-version == 'false' || steps.versions.outputs.node-version == 'false'
+      env:
+        PHP: ${{ steps.versions.outputs.php-version }}
+        NODE: ${{ steps.versions.outputs.node-version }}
+      run: |
+        printf "\n\e[1mRemoving installed versions of disabled tools\e[0m\n"
+        torm=()
+        if [[ "$PHP" == "false" ]]; then
+          torm+=( php phpdbg composer )
+        fi
+        if [[ "$NODE" == "false" ]]; then
+          torm+=( node npm pnpm )
+        fi
+        for tool in "${torm[@]}"; do
+          while command -v "$tool" &>/dev/null; do
+            sudo rm -v "$(command -v "$tool")"
+          done
+        done
+
     - run: printf "\n\e[1mSetup PHP\e[0m\n"
       shell: bash
       if: steps.versions.outputs.php-version != 'false'
