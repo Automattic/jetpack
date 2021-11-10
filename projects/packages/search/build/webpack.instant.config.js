@@ -61,7 +61,7 @@ module.exports = {
 			'react-dom': 'preact/compat', // Must be aliased after test-utils
 			fs: false,
 		},
-		modules: [ 'node_modules' ],
+		modules: [ path.resolve( __dirname, '../src/instant-search' ), 'node_modules' ],
 	},
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {
