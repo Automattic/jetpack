@@ -3,7 +3,7 @@
  */
 import React, { useEffect, useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
-import { useSelect } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import restApi from '@automattic/jetpack-api';
 import { ActionButton } from '@automattic/jetpack-components';
@@ -21,16 +21,16 @@ import { STORE_ID } from '../../state/store';
  * @returns {React.Component} The RNA connection component.
  */
 const ConnectButton = props => {
-	const [ isRegistering, setIsRegistering ] = useState( false );
-	const [ isUserConnecting, setIsUserConnecting ] = useState( false );
 	const [ registrationError, setRegistrationError ] = useState( false );
-
 	const [ authorizationUrl, setAuthorizationUrl ] = useState( null );
 
 	const { isRegistered, isUserConnected } = useSelect(
 		select => select( STORE_ID ).getConnectionStatus(),
 		[]
 	);
+	const siteIsRegistering = useSelect( select => select( STORE_ID ).getSiteIsRegistering(), [] );
+	const userIsConnecting = useSelect( select => select( STORE_ID ).getUserIsConnecting(), [] );
+	const { setSiteIsRegistering, setUserIsConnecting } = useDispatch( STORE_ID );
 
 	const {
 		apiRoot,
@@ -61,32 +61,33 @@ const ConnectButton = props => {
 			setRegistrationError( false );
 
 			if ( isRegistered ) {
-				setIsUserConnecting( true );
+				setUserIsConnecting( true );
 				return;
 			}
 
-			setIsRegistering( true );
+			setSiteIsRegistering( true );
 
 			restApi
 				.registerSite( registrationNonce, redirectUri )
 				.then( response => {
-					setIsRegistering( false );
+					setSiteIsRegistering( false );
 
 					if ( onRegistered ) {
 						onRegistered( response );
 					}
 
 					setAuthorizationUrl( response.authorizeUrl );
-					setIsUserConnecting( true );
+					setUserIsConnecting( true );
 				} )
 				.catch( error => {
-					setIsRegistering( false );
+					setSiteIsRegistering( false );
 					setRegistrationError( error );
 					throw error;
 				} );
 		},
 		[
-			setIsRegistering,
+			setSiteIsRegistering,
+			setUserIsConnecting,
 			setAuthorizationUrl,
 			isRegistered,
 			onRegistered,
@@ -99,7 +100,7 @@ const ConnectButton = props => {
 	 * Auto-trigger the flow, only do it once.
 	 */
 	useEffect( () => {
-		if ( autoTrigger && ! isRegistering && ! isUserConnecting ) {
+		if ( autoTrigger && ! siteIsRegistering && ! userIsConnecting ) {
 			registerSite();
 		}
 	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
@@ -111,11 +112,11 @@ const ConnectButton = props => {
 					label={ connectLabel }
 					onClick={ registerSite }
 					displayError={ registrationError ? true : false }
-					isLoading={ isRegistering || isUserConnecting }
+					isLoading={ siteIsRegistering || userIsConnecting }
 				/>
 			) }
 
-			{ isUserConnecting && (
+			{ userIsConnecting && (
 				<ConnectUser connectUrl={ authorizationUrl } redirectUri={ redirectUri } from={ from } />
 			) }
 		</>

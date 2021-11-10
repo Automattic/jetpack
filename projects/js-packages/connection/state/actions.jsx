@@ -1,6 +1,8 @@
 const SET_CONNECTION_STATUS = 'SET_CONNECTION_STATUS';
 const SET_CONNECTION_STATUS_IS_FETCHING = 'SET_CONNECTION_STATUS_IS_FETCHING';
 const FETCH_CONNECTION_STATUS = 'FETCH_CONNECTION_STATUS';
+const SET_SITE_IS_REGISTERING = 'SET_SITE_IS_REGISTERING';
+const SET_USER_IS_CONNECTING = 'SET_USER_IS_CONNECTING';
 
 const connectionStatusActions = {
 	setConnectionStatus: connectionStatus => {
@@ -12,6 +14,12 @@ const connectionStatusActions = {
 	fetchConnectionStatus: () => {
 		return { type: FETCH_CONNECTION_STATUS };
 	},
+	setSiteIsRegistering: isRegistering => {
+		return { type: SET_SITE_IS_REGISTERING, isRegistering };
+	},
+	setUserIsConnecting: isConnecting => {
+		return { type: SET_USER_IS_CONNECTING, isConnecting };
+	},
 };
 
 const actions = {
@@ -22,5 +30,7 @@ export {
 	SET_CONNECTION_STATUS,
 	SET_CONNECTION_STATUS_IS_FETCHING,
 	FETCH_CONNECTION_STATUS,
+	SET_SITE_IS_REGISTERING,
+	SET_USER_IS_CONNECTING,
 	actions as default,
 };
