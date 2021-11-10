@@ -422,11 +422,12 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * @param array $instance The current widget instance.
 	 */
 	public function widget_instant( $args, $instance ) {
+		$blog_id = Jetpack::get_option( 'id' );
 		if ( Helper::should_rerun_search_in_customizer_preview() ) {
-			Jetpack_Search::instance()->update_search_results_aggregations();
+			Automattic\Jetpack\Search\Classic_Search::instance( $blog_id )->update_search_results_aggregations();
 		}
 
-		$filters = Jetpack_Search::instance()->get_filters();
+		$filters = Automattic\Jetpack\Search\Classic_Search::instance( $blog_id )->get_filters();
 		if ( ! Helper::are_filters_by_widget_disabled() && ! $this->should_display_sitewide_filters() ) {
 			$filters = array_filter( $filters, array( $this, 'is_for_current_widget' ) );
 		}
