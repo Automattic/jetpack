@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Jetpack Search: Jetpack_Search_Widget class
  *
@@ -91,11 +91,11 @@ class Jetpack_Search_Widget extends WP_Widget {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_scripts' ) );
 		}
 
-		add_action( 'jetpack_search_render_filters_widget_title', array( 'Jetpack_Search_Template_Tags', 'render_widget_title' ), 10, 3 );
+		add_action( 'jetpack_search_render_filters_widget_title', array( 'Automattic\Jetpack\Search\Template_Tags', 'render_widget_title' ), 10, 3 );
 		if ( Options::is_instant_enabled() ) {
-			add_action( 'jetpack_search_render_filters', array( 'Jetpack_Search_Template_Tags', 'render_instant_filters' ), 10, 2 );
+			add_action( 'jetpack_search_render_filters', array( 'Automattic\Jetpack\Search\Template_Tags', 'render_instant_filters' ), 10, 2 );
 		} else {
-			add_action( 'jetpack_search_render_filters', array( 'Jetpack_Search_Template_Tags', 'render_available_filters' ), 10, 2 );
+			add_action( 'jetpack_search_render_filters', array( 'Automattic\Jetpack\Search\Template_Tags', 'render_available_filters' ), 10, 2 );
 		}
 	}
 
@@ -368,7 +368,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 		// we need to dynamically inject the sort field into the search box when the search box is enabled, and display
 		// it separately when it's not.
 		if ( ! empty( $instance['search_box_enabled'] ) ) {
-			Jetpack_Search_Template_Tags::render_widget_search_form( $instance['post_types'], $orderby, $order );
+			Automattic\Jetpack\Search\Template_Tags::render_widget_search_form( $instance['post_types'], $orderby, $order );
 		}
 
 		if ( ! empty( $instance['search_box_enabled'] ) && ! empty( $instance['user_sort_enabled'] ) ) :
@@ -401,6 +401,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 			 */
 			do_action(
 				'jetpack_search_render_filters',
+				Jetpack::get_option( 'id' ),
 				$filters,
 				isset( $instance['post_types'] ) ? $instance['post_types'] : null
 			);
@@ -457,7 +458,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 			do_action( 'jetpack_search_render_filters_widget_title', $title, $args['before_title'], $args['after_title'] );
 		}
 
-		Jetpack_Search_Template_Tags::render_widget_search_form( array(), '', '' );
+		Automattic\Jetpack\Search\Template_Tags::render_widget_search_form( array(), '', '' );
 
 		if ( $display_filters ) {
 			/**
@@ -472,6 +473,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 			 */
 			do_action(
 				'jetpack_search_render_filters',
+				Jetpack::get_option( 'id' ),
 				$filters,
 				null
 			);
