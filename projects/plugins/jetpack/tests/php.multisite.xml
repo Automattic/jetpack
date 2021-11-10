@@ -49,7 +49,7 @@
 			<directory prefix="test_" suffix=".php">php/modules/sso</directory>
 		</testsuite>
 		<testsuite name="subscriptions">
-			<directory prefix="test_" suffix=".php">tests/php/modules/subscriptions</directory>
+			<directory prefix="test_" suffix=".php">php/modules/subscriptions</directory>
 		</testsuite>
 		<testsuite name="contact-form">
 			<directory prefix="test" suffix=".php">php/modules/contact-form</directory>
