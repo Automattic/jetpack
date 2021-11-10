@@ -169,14 +169,14 @@ importers:
 
   projects/js-packages/eslint-changed:
     specifiers:
-      chalk: 4.1.1
+      chalk: 4.1.2
       commander: 7.2.0
       eslint: 7.32.0
       jetpack-js-test-runner: workspace:*
       nyc: 15.1.0
       parse-diff: 0.8.1
     dependencies:
-      chalk: 4.1.1
+      chalk: 4.1.2
       commander: 7.2.0
       parse-diff: 0.8.1
     devDependencies:
@@ -615,7 +615,7 @@ importers:
       '@wordpress/viewport': 4.0.4
       bounding-client-rect: 1.0.5
       chai: 4.3.4
-      chalk: 4.1.1
+      chalk: 4.1.2
       classnames: 2.3.1
       click-outside: 2.0.2
       clipboard: 2.0.6
@@ -827,7 +827,7 @@ importers:
       '@wordpress/editor': 12.0.1_595f56c80e7e5fab2a648c0f724c83ea
       '@wordpress/server-side-render': 3.0.4_595f56c80e7e5fab2a648c0f724c83ea
       chai: 4.3.4
-      chalk: 4.1.1
+      chalk: 4.1.2
       commander: 7.2.0
       concurrently: 6.0.2
       css-loader: 6.2.0_webpack@5.51.1
@@ -867,7 +867,7 @@ importers:
       '@octokit/auth-token': 2.4.5
       '@octokit/rest': 18.6.7
       chai: 4.3.4
-      chalk: 4.1.1
+      chalk: 4.1.2
       configstore: 5.0.1
       envfile: 6.17.0
       esm: 3.2.25
@@ -887,7 +887,7 @@ importers:
     dependencies:
       '@octokit/auth-token': 2.4.5
       '@octokit/rest': 18.6.7
-      chalk: 4.1.1
+      chalk: 4.1.2
       configstore: 5.0.1
       envfile: 6.17.0
       esm: 3.2.25
@@ -953,7 +953,7 @@ importers:
       '@octokit/auth-token': 2.4.5
       '@octokit/rest': 18.6.7
       '@wordpress/eslint-plugin': 9.2.0
-      chalk: 4.1.1
+      chalk: 4.1.2
       eslint: 7.32.0
       eslint-config-prettier: 8.3.0
       eslint-config-wpcalypso: 6.1.0
@@ -984,7 +984,7 @@ importers:
       '@octokit/auth-token': 2.4.5
       '@octokit/rest': 18.6.7
       '@wordpress/eslint-plugin': 9.2.0_eslint@7.32.0
-      chalk: 4.1.1
+      chalk: 4.1.2
       eslint: 7.32.0
       eslint-config-prettier: 8.3.0_eslint@7.32.0
       eslint-config-wpcalypso: 6.1.0_3eb42fe7d0610a71481faeb55adacf83
@@ -3379,7 +3379,7 @@ packages:
       '@types/istanbul-reports': 3.0.1
       '@types/node': 16.11.6
       '@types/yargs': 16.0.4
-      chalk: 4.1.1
+      chalk: 4.1.2
 
   /@kwsites/file-exists/1.1.1:
     resolution: {integrity: sha512-m9/5YGR18lIwxSFDwfE3oA7bWuq9kdau6ugN4H2rJeyhFQZcG9AgSHkQtSD15a8WvTgfz9aikZMrKPHvbpqFiw==}
@@ -5036,7 +5036,7 @@ packages:
       '@babel/runtime': 7.16.0
       '@types/aria-query': 4.2.2
       aria-query: 4.2.2
-      chalk: 4.1.1
+      chalk: 4.1.2
       dom-accessibility-api: 0.5.10
       lz-string: 1.4.4
       pretty-format: 26.6.2
@@ -9272,13 +9272,6 @@ packages:
       ansi-styles: 4.3.0
       supports-color: 7.2.0
     dev: true
-
-  /chalk/4.1.1:
-    resolution: {integrity: sha512-diHzdDKxcU+bAsUboHLPEDQiw0qEe0qd7SYUn3HgcFlWgbDcfLGswOHYeGrHKzG9z6UYf01d9VFMfZxPM1xZSg==}
-    engines: {node: '>=10'}
-    dependencies:
-      ansi-styles: 4.3.0
-      supports-color: 7.2.0
 
   /chalk/4.1.2:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
@@ -13820,7 +13813,7 @@ packages:
     engines: {node: '>=8.0.0'}
     dependencies:
       ansi-escapes: 4.3.2
-      chalk: 4.1.1
+      chalk: 4.1.2
       cli-cursor: 3.1.0
       cli-width: 3.0.0
       external-editor: 3.1.0
@@ -14835,7 +14828,7 @@ packages:
       '@babel/code-frame': 7.16.0
       '@jest/types': 26.6.2
       '@types/stack-utils': 2.0.1
-      chalk: 4.1.1
+      chalk: 4.1.2
       graceful-fs: 4.2.8
       micromatch: 4.0.4
       pretty-format: 26.6.2
@@ -15044,7 +15037,7 @@ packages:
     dependencies:
       '@jest/types': 27.2.5
       '@types/node': 16.11.6
-      chalk: 4.1.1
+      chalk: 4.1.2
       ci-info: 3.2.0
       graceful-fs: 4.2.8
       picomatch: 2.3.0
@@ -15751,7 +15744,7 @@ packages:
     resolution: {integrity: sha512-FN8JBzLx6CzeMrB0tg6pqlGU1wCrXW+ZXGH481kfsBqer0hToTIiHdjH4Mq8xJUbvATujKCvaREGWpGUionraA==}
     engines: {node: '>=10'}
     dependencies:
-      chalk: 4.1.1
+      chalk: 4.1.2
 
   /log-update/2.3.0:
     resolution: {integrity: sha1-iDKP19HOeTiykoN0bwsbwSayRwg=}
