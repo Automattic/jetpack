@@ -297,6 +297,7 @@ importers:
 
   projects/js-packages/webpack-config:
     specifiers:
+      '@automattic/babel-plugin-preserve-i18n': 1.0.0
       '@automattic/calypso-build': 9.0.0
       '@automattic/webpack-rtl-plugin': 5.1.0
       '@babel/core': 7.16.0
@@ -318,6 +319,7 @@ importers:
       webpack: 5.51.1
       webpack-cli: 4.8.0
     dependencies:
+      '@automattic/babel-plugin-preserve-i18n': 1.0.0
       '@automattic/calypso-build': 9.0.0_webpack@5.51.1
       '@automattic/webpack-rtl-plugin': 5.1.0_webpack@5.51.1
       '@babel/plugin-proposal-class-properties': 7.16.0_@babel+core@7.16.0
@@ -1028,6 +1030,10 @@ packages:
     resolution: {integrity: sha512-VRYHGQV1rqnROJqdMvGUbY/Kn8vriQe/F9HR2AlYHzmKuM/p3kjNuXhmdBfcVgsvRWTz5C5XW5xvndZrVBuAYg==}
     dependencies:
       tunnel: 0.0.6
+    dev: false
+
+  /@automattic/babel-plugin-preserve-i18n/1.0.0:
+    resolution: {integrity: sha512-dRmLP0Ytf2oDNbUbO8MXLKYnPZfqhtFQ8v1hgDo2Fde1Y0bUz2Ll1UmUOHdyZudnrN/8Zt95cG/fIOJ0dxHi8Q==}
     dev: false
 
   /@automattic/calypso-build/9.0.0_webpack@5.51.1:

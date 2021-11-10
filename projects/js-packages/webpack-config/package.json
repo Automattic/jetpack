@@ -17,6 +17,7 @@
 		"test": "echo 'No tests yet'"
 	},
 	"dependencies": {
+		"@automattic/babel-plugin-preserve-i18n": "1.0.0",
 		"@automattic/calypso-build": "9.0.0",
 		"@automattic/webpack-rtl-plugin": "5.1.0",
 		"@babel/plugin-proposal-class-properties": "7.16.0",
