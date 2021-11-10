@@ -13,7 +13,7 @@
 	"author": "Automattic",
 	"scripts": {
 		"build": "pnpm run install-if-deps-outdated && pnpm run clean && pnpm run build-client && pnpm run build-php",
-		"build-client": "gulp",
+		"build-client": "pnpx webpack",
 		"build-concurrently": "pnpm run install-if-deps-outdated && pnpm run clean && pnpx concurrently 'pnpm:build-client' 'pnpm:build-php'",
 		"build-php": "composer install --ignore-platform-reqs",
 		"build-production-concurrently": "pnpm run clean-all && pnpm run install-if-deps-outdated && pnpx concurrently 'pnpm:build-production-php' 'NODE_ENV=production BABEL_ENV=production pnpm run build-client'",
@@ -21,7 +21,7 @@
 		"clean": "rm -rf build/",
 		"clean-all": "rm -rf build/ node_modules/ vendor/",
 		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
-		"watch": "pnpm run build && pnpx gulp watch"
+		"watch": "pnpm run build && pnpx webpack watch"
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
@@ -46,11 +46,10 @@
 		"@babel/runtime": "7.16.0",
 		"@wordpress/browserslist-config": "4.1.0",
 		"concurrently": "6.0.2",
-		"fancy-log": "1.3.3",
-		"gulp": "4.0.2",
 		"sass": "1.43.3",
 		"sass-loader": "12.2.0",
-		"webpack": "5.51.1"
+		"webpack": "5.51.1",
+		"webpack-cli": "4.8.0"
 	},
 	"engines": {
 		"node": "^14.17.6 || ^16.7.0",
