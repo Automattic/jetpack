@@ -6,7 +6,7 @@
 		"test": "tests"
 	},
 	"dependencies": {
-		"@wordpress/components": "19.0.0",
+		"@wordpress/components": "19.0.1",
 		"@wordpress/element": "4.0.3",
 		"jetpack-boost-critical-css-gen": "github:automattic/jetpack-boost-critical-css-gen#release-0.0.2"
 	},
@@ -20,7 +20,7 @@
 		"@tsconfig/svelte": "2.0.1",
 		"@typescript-eslint/eslint-plugin": "4.33.0",
 		"@typescript-eslint/parser": "4.33.0",
-		"@wordpress/e2e-test-utils": "5.4.5",
+		"@wordpress/e2e-test-utils": "5.4.6",
 		"@wordpress/eslint-plugin": "9.2.0",
 		"@wordpress/i18n": "4.2.3",
 		"eslint-plugin-import": "2.25.3",
