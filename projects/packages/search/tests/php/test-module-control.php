@@ -12,12 +12,24 @@ use WorDBless\Options as WorDBless_Options;
  */
 class Test_Module_Control extends TestCase {
 	/**
+	 * Module_Control object
+	 *
+	 * @var Module_Control
+	 */
+	protected static $search_module;
+
+	/**
 	 * Setting up the test.
 	 *
 	 * @before
 	 */
 	public function set_up() {
 		WorDBless_Options::init()->clear_options();
+
+		$plan = $this->createMock( Plan::class );
+		$plan->method( 'supports_search' )->willReturn( true );
+
+		static::$search_module = new Module_Control( $plan );
 	}
 
 	/**
@@ -30,74 +42,71 @@ class Test_Module_Control extends TestCase {
 	}
 
 	/**
-	 * Test Module_Control::is_active()
+	 * Test static::$search_module->is_active()
 	 */
 	public function test_is_module_active() {
 		add_filter( 'jetpack_options', '__return_false' );
-		$this->assertFalse( Module_Control::get_instance()->is_active() );
+		$this->assertFalse( static::$search_module->is_active() );
 		remove_filter( 'jetpack_options', '__return_false' );
 
 		add_filter( 'jetpack_options', array( $this, 'return_empty_array' ) );
-		$this->assertFalse( Module_Control::get_instance()->is_active() );
+		$this->assertFalse( static::$search_module->is_active() );
 		remove_filter( 'jetpack_options', array( $this, 'return_empty_array' ) );
 
 		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
-		$this->assertTrue( Module_Control::get_instance()->is_active() );
+		$this->assertTrue( static::$search_module->is_active() );
 		remove_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
 	}
 
 	/**
-	 * Test Module_Control::activate()
+	 * Test static::$search_module->activate()
 	 */
 	public function test_activate_module() {
-		Module_Control::get_instance()->activate();
-		$this->assertContains( 'search', get_option( 'jetpack_' . Module_Control::JETPACK_ACTIVE_MODULES_OPTION_KEY, array() ) );
-
 		add_filter( 'jetpack_options', array( $this, 'return_active_modules_array_without_search' ) );
-		Module_Control::get_instance()->activate();
+		static::$search_module->activate();
 		$this->assertEquals( array( 'some-module-1', 'some-module-2', 'some-module-3', Module_Control::JETPACK_SEARCH_MODULE_SLUG ), get_option( 'jetpack_' . Module_Control::JETPACK_ACTIVE_MODULES_OPTION_KEY, array() ) );
 		remove_filter( 'jetpack_options', array( $this, 'return_active_modules_array_without_search' ) );
 	}
 
 	/**
-	 * Test Module_Control::activate()
+	 * Test static::$search_module->activate()
 	 */
 	public function test_deactivate_module() {
 		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
-		Module_Control::get_instance()->deactivate();
+		static::$search_module->deactivate();
 		$this->assertNotContains( 'search', get_option( 'jetpack_' . Module_Control::JETPACK_ACTIVE_MODULES_OPTION_KEY, array() ) );
 		$this->assertEquals( array( 'some-module-1', 'some-module-2', 'some-module-3' ), get_option( 'jetpack_' . Module_Control::JETPACK_ACTIVE_MODULES_OPTION_KEY, array() ) );
 		remove_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
 	}
 
 	/**
-	 * Test Module_Control::is_instant_search_enabled()
+	 * Test static::$search_module->is_instant_search_enabled()
 	 */
 	public function test_is_instant_search_enabled() {
 		update_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY, false );
-		$this->assertFalse( Module_Control::get_instance()->is_instant_search_enabled() );
+		$this->assertFalse( static::$search_module->is_instant_search_enabled() );
 		delete_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY );
 
 		update_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY, true );
-		$this->assertTrue( Module_Control::get_instance()->is_instant_search_enabled() );
+		$this->assertTrue( static::$search_module->is_instant_search_enabled() );
 		delete_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY );
 	}
 
 	/**
-	 * Test Module_Control::enable_instant_search()
+	 * Test static::$search_module->enable_instant_search()
 	 */
 	public function test_enable_instant_search() {
 		delete_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY );
-		Module_Control::get_instance()->enable_instant_search();
+		static::$search_module->enable_instant_search();
 		$this->assertTrue( get_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY ) );
 	}
 
 	/**
-	 * Test Module_Control::disable_instant_search()
+	 * Test static::$search_module->disable_instant_search()
 	 */
 	public function test_disable_instant_search() {
 		update_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY, true );
-		Module_Control::get_instance()->disable_instant_search();
+		static::$search_module->disable_instant_search();
 		$this->assertFalse( get_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY ) );
 	}
 

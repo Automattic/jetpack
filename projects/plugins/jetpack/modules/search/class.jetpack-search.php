@@ -10,6 +10,7 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Search\Helper;
+use Automattic\Jetpack\Search\Module_Control as Search_Module_Control;
 
 /**
  * The main class for the Jetpack Search module.
@@ -138,7 +139,7 @@ class Jetpack_Search {
 	 */
 	public static function instance() {
 		if ( ! isset( self::$instance ) ) {
-			if ( Automattic\Jetpack\Search\Options::is_instant_enabled() ) {
+			if ( ( new Search_Module_Control() )->is_instant_search_enabled() ) {
 				require_once __DIR__ . '/class-jetpack-instant-search.php';
 				self::$instance = new Jetpack_Instant_Search();
 			} else {

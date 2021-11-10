@@ -26,12 +26,21 @@ class REST_Controller {
 	protected $is_wpcom;
 
 	/**
+	 * Module Control object.
+	 *
+	 * @var Module_Control
+	 */
+	protected $search_module;
+
+	/**
 	 * Constructor
 	 *
-	 * @param bool $is_wpcom - Whether it's run on WPCOM.
+	 * @param bool                $is_wpcom - Whether it's run on WPCOM.
+	 * @param Module_Control|null $module_control - Module_Control object if any.
 	 */
-	public function __construct( $is_wpcom = false ) {
-		$this->is_wpcom = $is_wpcom;
+	public function __construct( $is_wpcom = false, $module_control = null ) {
+		$this->is_wpcom      = $is_wpcom;
+		$this->search_module = is_null( $module_control ) ? new Module_Control() : $module_control;
 	}
 
 	/**
@@ -103,15 +112,7 @@ class REST_Controller {
 	 * GET `jetpack/v4/search/plan`
 	 */
 	public function get_search_plan() {
-		$blog_id = Jetpack_Options::get_option( 'id' );
-
-		$response = Client::wpcom_json_api_request_as_user(
-			'/sites/' . $blog_id . '/jetpack-search/plan',
-			'2'
-		);
-
-		$this->maybe_update_search_plan_option( $response );
-
+		$response = ( new Plan() )->get_plan_info_from_wpcom();
 		return $this->make_proper_response( $response );
 	}
 
@@ -136,19 +137,19 @@ class REST_Controller {
 			$module_active = true;
 		}
 
-		if ( ! is_null( $module_active ) && Module_Control::get_instance()->is_active() !== $module_active ) {
+		if ( ! is_null( $module_active ) && $this->search_module->is_active() !== $module_active ) {
 			if ( $module_active ) {
-				Module_Control::get_instance()->activate();
+				$this->search_module->activate();
 			} else {
-				Module_Control::get_instance()->deactivate();
+				$this->search_module->deactivate();
 			}
 		}
 
-		if ( ! is_null( $instant_search_enabled ) && Module_Control::get_instance()->is_instant_search_enabled() !== $instant_search_enabled ) {
-			if ( $instant_search_enabled ) {
-				Module_Control::get_instance()->enable_instant_search();
+		if ( ! is_null( $instant_search_enabled ) && $this->search_module->is_instant_search_enabled() !== $instant_search_enabled ) {
+			if ( $instant_search_enabled && $this->search_module->is_active() ) {
+				$this->search_module->enable_instant_search();
 			} else {
-				Module_Control::get_instance()->disable_instant_search();
+				$this->search_module->disable_instant_search();
 			}
 		}
 
@@ -160,8 +161,8 @@ class REST_Controller {
 	 */
 	public function get_settings() {
 		return array(
-			'module_active'          => Module_Control::get_instance()->is_active(),
-			'instant_search_enabled' => Module_Control::get_instance()->is_instant_search_enabled(),
+			'module_active'          => $this->search_module->is_active(),
+			'instant_search_enabled' => $this->search_module->is_instant_search_enabled(),
 		);
 	}
 
@@ -193,7 +194,7 @@ class REST_Controller {
 			return $response;
 		}
 
-		$body        = json_decode( wp_remote_retrieve_body( $response ) );
+		$body        = json_decode( wp_remote_retrieve_body( $response ), true );
 		$status_code = wp_remote_retrieve_response_code( $response );
 
 		if ( 200 === $status_code ) {
@@ -201,8 +202,8 @@ class REST_Controller {
 		}
 
 		return new WP_Error(
-			'remote-error-' . $body->error,
-			$body->message,
+			isset( $body['error'] ) ? 'remote-error-' . $body['error'] : 'remote-error',
+			isset( $body['message'] ) ? $body['message'] : 'unknown remote error',
 			array( 'status' => $status_code )
 		);
 	}
@@ -212,21 +213,6 @@ class REST_Controller {
 	 */
 	protected function get_blog_id() {
 		return $this->is_wpcom ? get_current_blog_id() : Jetpack_Options::get_option( 'id' );
-	}
-
-	/**
-	 * Update `has_jetpack_search_product` regarding the plan information
-	 *
-	 * @param array|WP_Error $response - Resopnse from WPCOM.
-	 */
-	protected function maybe_update_search_plan_option( $response ) {
-		if ( is_wp_error( $response || ! isset( $response['supports_instant_search'] ) ) ) {
-			return null;
-		}
-		if ( get_option( 'has_jetpack_search_product' ) === (bool) $response['supports_instant_search'] ) {
-			return null;
-		}
-		return update_option( 'has_jetpack_search_product', (bool) $response['supports_instant_search'] );
 	}
 
 }
