@@ -92,6 +92,7 @@ class Instant_Search extends Classic_Search {
 	 * Loads assets according to parameters provided.
 	 *
 	 * @param string $path_prefix - Prefix for assets' relative paths.
+	 * @param string $plugin_path - Plugin path, which is usually the dist folder within this package.
 	 */
 	public function load_assets_with_parameters( $path_prefix, $plugin_path ) {
 		// We added `.min` to the file names of all minimized assets, and there's a non-minimized version for each asset.
