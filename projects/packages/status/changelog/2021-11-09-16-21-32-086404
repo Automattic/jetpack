@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Add a function_exists check before calling wp_get_environment_type

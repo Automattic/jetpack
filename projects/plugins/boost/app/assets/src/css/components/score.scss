@@ -166,6 +166,7 @@ $no_boost_score_size: 28px;
 		position: relative;
 		@include breakpoint(xs) {
 			min-width: $bar_height + 1px;
+			border-radius: inherit;
 		}
 	}
 

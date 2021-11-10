@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Crop thumbnail images using the correct aspect ratio
