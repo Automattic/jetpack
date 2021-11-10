@@ -39,7 +39,7 @@
 		"react-dom": "17.0.2"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:^0.1.0",
+		"@automattic/jetpack-webpack-config": "workspace:^0.1.1-alpha",
 		"@babel/core": "7.16.0",
 		"@babel/preset-env": "7.16.0",
 		"@babel/register": "7.16.0",
