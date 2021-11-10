@@ -48,7 +48,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "0.1.x-dev"
+			"dev-master": "0.2.x-dev"
 		}
 	}
 }
