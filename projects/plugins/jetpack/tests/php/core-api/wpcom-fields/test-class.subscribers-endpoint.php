@@ -1,6 +1,9 @@
 <?php
 
 require_once dirname( dirname( __DIR__ ) ) . '/lib/class-wp-test-jetpack-rest-testcase.php';
+if ( ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) && defined( 'JETPACK__PLUGIN_DIR' ) && JETPACK__PLUGIN_DIR ) {
+	require_jetpack_file( 'modules/subscriptions.php' );
+}
 
 /**
  * @group publicize
