@@ -1,5 +1,14 @@
-.jp-idc-screen-base .jp-idc-safe-mode {
+.jp-idc-screen-base .jp-idc__safe-mode {
 	text-align: center;
+
+	.jp-idc__safe-mode__staying-safe {
+		display: flex;
+		justify-content: center;
+
+		.jp-components-spinner {
+			margin: 0 10px;
+		}
+	}
 
 	&, button {
 		font-size: 16px;
