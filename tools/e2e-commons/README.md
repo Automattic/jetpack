@@ -135,7 +135,7 @@ We use `localtunnel` library to expose `localhost:8889` via a public url.
 
 ```shell
 ## Decrypt default config file
-CONFIG_KEY=secret_key openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./node_modules/jetpack-e2e-commons/config/encrypted.enc -out config/local-test.js
+CONFIG_KEY=secret_key openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./node_modules/jetpack-e2e-commons/config/encrypted.enc -out config/local.cjs
 
 ## Start and the Docker environment and configure the WordPress installation
 pnpm e2e-env start

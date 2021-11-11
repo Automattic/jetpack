@@ -25,10 +25,10 @@
 		"tunnel-write-logs": "tunnel logs output/logs/tunnel.log",
 		"pretest-e2e": "pnpm run clean",
 		"test-e2e": ". ./node_modules/jetpack-e2e-commons/bin/app-password.sh && NODE_CONFIG_DIR='./config' playwright test --config=playwright.config.cjs -- ",
-		"test-decrypt-default-config": "openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./node_modules/jetpack-e2e-commons/config/encrypted.enc -out ./node_modules/jetpack-e2e-commons/config/local-test.cjs",
+		"test-decrypt-default-config": "openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./node_modules/jetpack-e2e-commons/config/encrypted.enc -out ./node_modules/jetpack-e2e-commons/config/local.cjs",
 		"test-decrypt-config": "openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./config/encrypted.enc -out config/local.cjs",
 		"test-decrypt-all-config": "pnpm test-decrypt-default-config && pnpm test-decrypt-config",
-		"test-encrypt-default-config": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in ./node_modules/jetpack-e2e-commons/config/local-test.cjs -out ./node_modules/jetpack-e2e-commons/config/encrypted.enc",
+		"test-encrypt-default-config": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in ./node_modules/jetpack-e2e-commons/config/local.cjs -out ./node_modules/jetpack-e2e-commons/config/encrypted.enc",
 		"test-encrypt-config": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in config/local.cjs -out ./config/encrypted.enc",
 		"slack": "NODE_ENV=test NODE_CONFIG_DIR='./config' slack",
 		"preinstall": "pnpm --prefix ../../../../../tools/e2e-commons install"

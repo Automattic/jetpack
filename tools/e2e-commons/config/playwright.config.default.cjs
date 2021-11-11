@@ -1,7 +1,6 @@
 const config = require( 'config' );
 
 const playwrightConfig = {
-	testDir: 'specs',
 	timeout: 300000,
 	retries: 0,
 	// workers: 2,

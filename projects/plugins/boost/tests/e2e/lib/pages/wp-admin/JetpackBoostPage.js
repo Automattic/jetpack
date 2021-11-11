@@ -1,7 +1,4 @@
-/**
- * Internal dependencies
- */
-import WpPage from 'jetpack-e2e-commons/pages/wp-page';
+import WpPage from 'jetpack-e2e-commons/pages/wp-page.js';
 import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
 
 const apiEndpointsRegex = {
@@ -16,7 +13,7 @@ export default class JetpackBoostPage extends WpPage {
 	}
 
 	async waitForApiResponse( apiEndpointId ) {
-		await page.waitForResponse(
+		await this.page.waitForResponse(
 			response =>
 				response.url().match( apiEndpointsRegex[ apiEndpointId ] ) && response.status() === 200,
 			{ timeout: 2 * 60 * 1000 }
@@ -37,8 +34,8 @@ export default class JetpackBoostPage extends WpPage {
 	}
 
 	async getSpeedScore( platform ) {
-		const speedBar = await page.$( `div.jb-score-bar--${ platform }  .jb-score-bar__filler` );
-		await page.waitForSelector( '.jb-score-bar__score', {
+		const speedBar = await this.page.$( `div.jb-score-bar--${ platform }  .jb-score-bar__filler` );
+		await this.page.waitForSelector( '.jb-score-bar__score', {
 			state: 'visible',
 		} );
 		return Number( await speedBar.textContent( 'div.jb-score-bar__score' ) );

@@ -1,8 +1,6 @@
-/**
- * Internal dependencies
- */
-import JetpackBoostPage from '../../lib/pages/wp-admin/JetpackBoostPage';
-import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites';
+import { test, expect } from '@playwright/test';
+import JetpackBoostPage from '../../lib/pages/wp-admin/JetpackBoostPage.js';
+import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 
 let jetpackBoostPage;
 
@@ -13,52 +11,45 @@ const modules = [
 	[ 'render-blocking-js', 'disabled' ],
 ];
 
-describe( 'Modules', () => {
-	beforeAll( async () => {
+test.describe( 'Modules', () => {
+	test.beforeAll( async () => {
 		await boostPrerequisitesBuilder()
 			.withInactiveModules( [ 'critical-css', 'render-blocking-js' ] )
 			.build();
 		await boostPrerequisitesBuilder().withActiveModules( [ 'lazy-images' ] ).build();
 	} );
 
-	beforeEach( async function () {
+	test.beforeEach( async ( { page } ) => {
 		jetpackBoostPage = await JetpackBoostPage.visit( page );
 	} );
 
-	test.each( modules )(
-		'The %s module should be %s by default',
-		async ( moduleSlug, moduleState ) => {
+	for ( const module in modules ) {
+		test( `The ${ module } module should be %s by default`, async () => {
 			let isModuleEnabled = false;
-			if ( moduleState === 'enabled' ) {
+			if ( module[ 1 ] === 'enabled' ) {
 				isModuleEnabled = true;
 			}
-			expect( await jetpackBoostPage.isModuleEnabled( moduleSlug ) ).toEqual( isModuleEnabled );
-		}
-	);
+			expect( await jetpackBoostPage.isModuleEnabled( module[ 0 ] ) ).toEqual( isModuleEnabled );
+		} );
 
-	test.each( modules )(
-		'The %s module state should toggle to an inverse state',
-		async ( moduleSlug, moduleState ) => {
+		test( `The ${ module } module state should toggle to an inverse state`, async () => {
 			let isModuleEnabled = true;
-			if ( moduleState === 'enabled' ) {
+			if ( module[ 1 ] === 'enabled' ) {
 				isModuleEnabled = false;
 			}
-			await jetpackBoostPage.toggleModule( moduleSlug );
-			await jetpackBoostPage.waitForApiResponse( `${ moduleSlug }-status` );
-			expect( await jetpackBoostPage.isModuleEnabled( moduleSlug ) ).toEqual( isModuleEnabled );
-		}
-	);
+			await jetpackBoostPage.toggleModule( module[ 0 ] );
+			await jetpackBoostPage.waitForApiResponse( `${ module[ 0 ] }-status` );
+			expect( await jetpackBoostPage.isModuleEnabled( module[ 0 ] ) ).toEqual( isModuleEnabled );
+		} );
 
-	test.each( modules )(
-		'The %s module state should revert back to original state',
-		async ( moduleSlug, moduleState ) => {
+		test( `The ${ module } module state should revert back to original state`, async () => {
 			let isModuleEnabled = false;
-			if ( moduleState === 'enabled' ) {
+			if ( module[ 1 ] === 'enabled' ) {
 				isModuleEnabled = true;
 			}
-			await jetpackBoostPage.toggleModule( moduleSlug );
-			await jetpackBoostPage.waitForApiResponse( `${ moduleSlug }-status` );
-			expect( await jetpackBoostPage.isModuleEnabled( moduleSlug ) ).toEqual( isModuleEnabled );
-		}
-	);
+			await jetpackBoostPage.toggleModule( module[ 0 ] );
+			await jetpackBoostPage.waitForApiResponse( `${ module[ 0 ] }-status` );
+			expect( await jetpackBoostPage.isModuleEnabled( module[ 0 ] ) ).toEqual( isModuleEnabled );
+		} );
+	}
 } );
