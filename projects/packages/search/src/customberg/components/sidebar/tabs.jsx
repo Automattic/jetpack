@@ -12,7 +12,7 @@ import { Button } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import { JP_SEARCH_TAB_IDENTIFIER, OPTIONS_TAB_IDENTIFIER } from '../../lib/constants';
+import { JP_SEARCH_TAB_IDENTIFIER, OPTIONS_TAB_IDENTIFIER } from 'lib/constants';
 
 /**
  * Sidebar tabs.

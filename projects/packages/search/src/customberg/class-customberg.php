@@ -2,7 +2,7 @@
 /**
  * A class that adds a search customization interface to wp-admin.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-search
  */
 
 namespace Automattic\Jetpack\Search;
@@ -17,11 +17,11 @@ use Jetpack_Plan;
  *
  * @package Automattic\Jetpack\Search
  */
-class Jetpack_Search_Customberg {
+class Customberg {
 	/**
 	 * The singleton instance of this class.
 	 *
-	 * @var Jetpack_Search_Customberg
+	 * @var Customberg
 	 */
 	protected static $instance;
 
@@ -111,7 +111,12 @@ class Jetpack_Search_Customberg {
 	 * Loads assets for the customization experience.
 	 */
 	public function load_assets() {
-		$this->load_assets_with_parameters( '', JETPACK__PLUGIN_FILE );
+		if ( defined( 'JETPACK_SEARCH_PLUGIN_DIRECTORY' ) ) {
+			$this->load_assets_with_parameters(
+				'jetpack-search/dist/customberg',
+				constant( 'JETPACK_SEARCH_PLUGIN_DIRECTORY' )
+			);
+		}
 	}
 
 	/**
@@ -121,9 +126,8 @@ class Jetpack_Search_Customberg {
 	 * @param string $plugin_base_path - Base path for plugin files.
 	 */
 	public function load_assets_with_parameters( $path_prefix, $plugin_base_path ) {
-		$style_relative_path    = $path_prefix . '_inc/build/instant-search/jp-search-configure-main.min.css';
-		$manifest_relative_path = $path_prefix . '_inc/build/instant-search/jp-search-configure-main.min.asset.php';
-		$script_relative_path   = $path_prefix . '_inc/build/instant-search/jp-search-configure-main.min.js';
+		$style_relative_path    = $path_prefix . '/jp-search-configure-main.min.css';
+		$script_relative_path   = $path_prefix . '/jp-search-configure-main.min.js';
 
 		//
 		// Load styles.
@@ -139,14 +143,33 @@ class Jetpack_Search_Customberg {
 		);
 
 		//
-		// Load scripts.
-		$manifest_path       = plugin_dir_path( $plugin_base_path ) . $manifest_relative_path;
+		// Load manifest.
+		$manifest_path       = $plugin_base_path . '/dist/customberg/jp-search-configure-main.min.asset.php';
 		$script_dependencies = array();
-		if ( file_exists( $manifest_path ) ) {
+		try {
 			$asset_manifest      = include $manifest_path;
 			$script_dependencies = $asset_manifest['dependencies'];
+		} catch ( \Exception $e ) { // phpcs:ignore
+			// If the manifest can't be read, use fallback dependencies instead.
+			$script_dependencies = array(
+				'lodash',
+				'react',
+				'react-dom',
+				'wp-block-editor',
+				'wp-components',
+				'wp-core-data',
+				'wp-data',
+				'wp-element',
+				'wp-i18n',
+				'wp-polyfill',
+				'wp-primitives',
+				'wp-url',
+				'wp-viewport',
+			);
 		}
 
+		//
+		// Load scripts.
 		Tracking::register_tracks_functions_scripts( true );
 
 		wp_enqueue_script(

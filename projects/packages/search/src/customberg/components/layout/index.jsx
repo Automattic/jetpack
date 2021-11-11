@@ -8,10 +8,10 @@ import { store as viewportStore } from '@wordpress/viewport';
 /**
  * Internal dependencies
  */
+import { SERVER_OBJECT_NAME } from 'instant-search/lib/constants';
+import { eventPrefix, initialize, identifySite, recordEvent } from 'lib/analytics';
+import { OPTIONS_TAB_IDENTIFIER } from 'lib/constants';
 import Interface from './interface';
-import { eventPrefix, initialize, identifySite, recordEvent } from '../../lib/analytics';
-import { OPTIONS_TAB_IDENTIFIER } from '../../lib/constants';
-import { SERVER_OBJECT_NAME } from '../../../instant-search/lib/constants';
 import './styles.scss';
 
 /**

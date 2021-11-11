@@ -8,7 +8,7 @@ import { Icon, cog } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import SaveButton from '../save-button';
+import SaveButton from 'components/save-button';
 import './styles.scss';
 
 /**

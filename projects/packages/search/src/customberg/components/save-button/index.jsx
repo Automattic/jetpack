@@ -7,9 +7,9 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { eventPrefix, recordEvent } from '../../lib/analytics';
-import useEntityRecordState from '../../hooks/use-entity-record-state';
-import { SERVER_OBJECT_NAME } from '../../../instant-search/lib/constants';
+import { SERVER_OBJECT_NAME } from 'instant-search/lib/constants';
+import { eventPrefix, recordEvent } from 'lib/analytics';
+import useEntityRecordState from 'hooks/use-entity-record-state';
 import './styles.scss';
 
 /**

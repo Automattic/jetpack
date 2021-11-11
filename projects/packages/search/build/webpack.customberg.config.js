@@ -7,23 +7,21 @@ const path = require( 'path' );
 /**
  * Internal dependencies
  */
-const {
-	definePaletteColorsAsStaticVariables,
-	defineReadableJSAssetsPluginForSearch,
-} = require( './webpack.helpers' );
+const AddReadableJSAssetsPlugin = require( './add-readable-js-assets' );
+const definePaletteColorsAsStaticVariables = require( './define-palette-colors-as-static-variables' );
 
 module.exports = {
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
 	entry: {
-		main: path.join( __dirname, '../modules/search/customberg/index.jsx' ),
+		main: path.join( __dirname, '../src/customberg/index.jsx' ),
 	},
 	output: {
 		...jetpackWebpackConfig.output,
 		// @todo: Make the file naming regular.
 		filename: 'jp-search-configure-[name].min.js',
 		chunkFilename: 'jp-search-configure-[name].[contenthash:20].min.js',
-		path: path.join( __dirname, '../_inc/build/instant-search' ),
+		path: path.join( __dirname, '../dist/customberg' ),
 	},
 	optimization: {
 		...jetpackWebpackConfig.optimization,
@@ -33,7 +31,9 @@ module.exports = {
 		alias: {
 			...jetpackWebpackConfig.resolve.alias,
 			fs: false,
+			'instant-search': path.join( __dirname, '../src/instant-search' ),
 		},
+		modules: [ path.resolve( __dirname, '../src/customberg' ), 'node_modules' ],
 	},
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {
@@ -43,8 +43,8 @@ module.exports = {
 				chunkFilename: 'jp-search-configure-[name].[contenthash:20].min.css',
 			},
 		} ),
+		new AddReadableJSAssetsPlugin(),
 		definePaletteColorsAsStaticVariables(),
-		defineReadableJSAssetsPluginForSearch(),
 	],
 	module: {
 		strictExportPresence: true,

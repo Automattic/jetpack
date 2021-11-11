@@ -5,7 +5,7 @@ import {
 	initializeTracks,
 	identifySite as identifySiteTracks,
 	recordEvent as recordEventTracks,
-} from '../../instant-search/lib/tracks';
+} from 'instant-search/lib/tracks';
 
 // Adhere to following:<source>_<context>_<optional subcontext>_<action>_<optional qualifier>
 // (e.g. full event name: "jetpack_search_customberg_save_button_click").

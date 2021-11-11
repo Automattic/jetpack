@@ -8,8 +8,8 @@ import { Icon, image } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { JP_SEARCH_TAB_IDENTIFIER, OPTIONS_TAB_IDENTIFIER } from '../../lib/constants';
-import SaveButton from '../save-button';
+import SaveButton from 'components/save-button';
+import { JP_SEARCH_TAB_IDENTIFIER, OPTIONS_TAB_IDENTIFIER } from 'lib/constants';
 import SidebarDescription from './sidebar-description';
 import SidebarOptions from './sidebar-options';
 import Tabs from './tabs';

@@ -6,9 +6,9 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import AppWrapper from '../app-wrapper';
-import Header from '../header';
-import Sidebar from '../sidebar';
+import AppWrapper from 'components/app-wrapper';
+import Header from 'components/header';
+import Sidebar from 'components/sidebar';
 import './styles.scss';
 
 /**

@@ -6,8 +6,8 @@ import { render } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import Layout from './components/layout';
-import './styles.scss';
+import Layout from 'components/layout';
+import 'styles.scss';
 
 /**
  * Collapses wp-admin's sidebar menu for additional space.

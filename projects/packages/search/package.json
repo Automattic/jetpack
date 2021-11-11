@@ -7,6 +7,7 @@
 		"test": "tests"
 	},
 	"scripts": {
+		"build-customberg": "webpack --config ./build/webpack.customberg.config.js",
 		"build-instant": "webpack --config ./build/webpack.instant.config.js",
 		"clean": "rm -rf dist/* .cache/*",
 		"test": "echo \"Error: no test specified\" && exit 1"
@@ -29,7 +30,11 @@
 	"dependencies": {
 		"@automattic/calypso-color-schemes": "2.1.1",
 		"@automattic/color-studio": "2.5.0",
+		"@wordpress/base-styles": "4.0.3",
+		"@wordpress/block-editor": "7.0.4",
 		"@wordpress/i18n": "4.2.2",
+		"@wordpress/icons": "6.1.0",
+		"classnames": "2.3.1",
 		"fast-json-stable-stringify": "2.1.0",
 		"lodash": "4.17.21",
 		"photon": "4.0.0",

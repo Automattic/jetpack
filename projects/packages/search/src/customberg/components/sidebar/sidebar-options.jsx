@@ -18,9 +18,9 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import useSiteLoadingState from '../../hooks/use-loading-state';
-import useEntityRecordState from '../../hooks/use-entity-record-state';
-import useSearchOptions from '../../hooks/use-search-options';
+import useSiteLoadingState from 'hooks/use-loading-state';
+import useEntityRecordState from 'hooks/use-entity-record-state';
+import useSearchOptions from 'hooks/use-search-options';
 import ColorControl from './color-control';
 import ExcludedPostTypesControl from './excluded-post-types-control';
 import ThemeControl from './theme-control';

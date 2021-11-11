@@ -4,8 +4,12 @@
 import { BlockIcon } from '@wordpress/block-editor';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { svg as jetpackColophonSvg } from '../../../instant-search/components/jetpack-colophon';
 import { addQueryArgs } from '@wordpress/url';
+
+/**
+ * Internal dependencies
+ */
+import { svg as jetpackColophonSvg } from 'instant-search/components/jetpack-colophon';
 
 /**
  * Description tab for the sidebar.

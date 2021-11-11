@@ -45,10 +45,8 @@ class Jetpack_Initializer extends Initializer {
 			// Register instant search configurables as WordPress settings.
 			new Settings();
 
-			// TODO: Port the Customberg class to the package.
 			// Instantiate "Customberg", the live search configuration interface.
-			require_once JETPACK__PLUGIN_DIR . 'modules/search/class-jetpack-search-customberg.php';
-			\Automattic\Jetpack\Search\Jetpack_Search_Customberg::instance();
+			Customberg::instance();
 
 			// Enable configuring instant search within the Customizer.
 			if ( class_exists( 'WP_Customize_Manager' ) ) {
