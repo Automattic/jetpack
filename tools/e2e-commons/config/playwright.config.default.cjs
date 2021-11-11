@@ -3,7 +3,7 @@ const config = require( 'config' );
 const playwrightConfig = {
 	timeout: 300000,
 	retries: 0,
-	// workers: 2,
+	workers: 1,
 	outputDir: config.get('dirs.output'),
 	reporter: [
 		['line'],
@@ -12,7 +12,7 @@ const playwrightConfig = {
 	use: {
 		browserName: 'chromium',
 		channel: '',
-		headless: false,
+		headless: true,
 		viewport: { width: 1280, height: 720 },
 		ignoreHTTPSErrors: true,
 		actionTimeout: 20000,
