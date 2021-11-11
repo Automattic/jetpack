@@ -167,7 +167,7 @@ class Data_Settings {
 
 		if ( in_array( $current_filter, self::ASSOCIATIVE_FILTERS, true ) ) {
 			foreach ( $filtered_values as $key => $item ) {
-				if ( ! in_array( $key, $this->get_default_value_for_filter( $current_filter ), true ) ) {
+				if ( ! array_key_exists( $key, $this->get_default_value_for_filter( $current_filter ) ) ) {
 					$this->add_associative_filter_setting( $current_filter, array( $key => $item ) );
 				}
 			}
