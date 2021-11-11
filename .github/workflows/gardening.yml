@@ -42,8 +42,6 @@ jobs:
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
-        with:
-          php: false
 
       - name: Building Action
         run: composer build-development
