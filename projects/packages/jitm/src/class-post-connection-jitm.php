@@ -162,6 +162,40 @@ class Post_Connection_JITM extends JITM {
 	}
 
 	/**
+	 * A special filter used in the CTA of a JITM offering to install the Creative Mail plugin.
+	 *
+	 * @return string The new CTA
+	 */
+	public static function jitm_jetpack_backup_install() {
+		return wp_nonce_url(
+			add_query_arg(
+				array(
+					'jetpack-backup-action' => 'install',
+				),
+				admin_url( 'admin.php?page=jetpack' )
+			),
+			'jetpack-backup-install'
+		);
+	}
+
+	/**
+	 * A special filter used in the CTA of a JITM offering to activate the Creative Mail plugin.
+	 *
+	 * @return string The new CTA
+	 */
+	public static function jitm_jetpack_backup_activate() {
+		return wp_nonce_url(
+			add_query_arg(
+				array(
+					'jetpack-backup-action' => 'activate',
+				),
+				admin_url( 'admin.php?page=jetpack' )
+			),
+			'jetpack-backup-install'
+		);
+	}
+
+	/**
 	 * This is an entire admin notice dedicated to messaging and handling of the case where a user is trying to delete
 	 * the connection owner.
 	 */
@@ -365,6 +399,10 @@ class Post_Connection_JITM extends JITM {
 		// Creative Mail.
 		add_filter( 'jitm_jetpack_creative_mail_install', array( $this, 'jitm_jetpack_creative_mail_install' ) );
 		add_filter( 'jitm_jetpack_creative_mail_activate', array( $this, 'jitm_jetpack_creative_mail_activate' ) );
+
+		// Jetpack Backups.
+		add_filter( 'jitm_jetpack_backup_install', array( $this, 'jitm_jetpack_backup_install' ) );
+		add_filter( 'jitm_jetpack_backup_activate', array( $this, 'jitm_jetpack_backup_activate' ) );
 
 		$user = wp_get_current_user();
 

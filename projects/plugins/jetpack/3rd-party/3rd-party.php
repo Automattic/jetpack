@@ -24,6 +24,7 @@ function load_3rd_party() {
 		'class-jetpack-crm-data.php',
 		'class-jetpack-modules-overrides.php', // Special case. Tools to be used to override module settings.
 		'creative-mail.php',
+		'jetpack-backup.php',
 		'debug-bar.php',
 		'class-domain-mapping.php',
 		'crowdsignal.php',
