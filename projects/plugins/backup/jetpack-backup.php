@@ -36,6 +36,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Constant definitions.
 define( 'JETPACK_BACKUP_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'JETPACK_BACKUP_PLUGIN_ROOT_FILE', __FILE__ );
+define( 'JETPACK_BACKUP_PLUGIN_ROOT_FILE_RELATIVE_PATH', plugin_basename( __FILE__ ) );
 define( 'JETPACK_BACKUP_PLUGIN_SLUG', 'jetpack-backup' );
 define( 'JETPACK_BACKUP_PLUGIN_NAME', 'Jetpack Backup' );
 define( 'JETPACK_BACKUP_PLUGIN_URI', 'https://jetpack.com/jetpack-backup' );
@@ -127,7 +128,10 @@ if ( is_readable( $jetpack_autoloader ) ) {
 
 	return;
 }
-register_deactivation_hook( __FILE__, array( 'Jetpack_Backup', 'plugin_deactivation' ) );
 
+// Redirect to plugin page when the plugin is activated.
+add_action( 'activated_plugin', array( 'Jetpack_Backup', 'plugin_activation' ) );
+
+register_deactivation_hook( __FILE__, array( 'Jetpack_Backup', 'plugin_deactivation' ) );
 // Main plugin class.
 new Jetpack_Backup();
