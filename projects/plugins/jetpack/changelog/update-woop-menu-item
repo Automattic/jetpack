@@ -1,0 +1,3 @@
+Significance: patch
+Type: other
+Comment: Moved WooCommerce installation menu item method from WPcom_Admin_Menu to Admin_Menu and started using the "features" endpoint in an effort to centralize gating logic.
