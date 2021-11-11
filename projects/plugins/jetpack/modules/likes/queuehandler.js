@@ -1,4 +1,4 @@
-/* global pm, wpcom_reblog, JSON */
+/* global wpcom_reblog, JSON */
 
 var jetpackLikesWidgetBatch = [];
 var jetpackLikesMasterReady = false;
@@ -13,7 +13,7 @@ var jetpackLikesLookAhead = 2000; // pixels
 var jetpackCommentLikesLoadedWidgets = [];
 
 function JetpackLikesPostMessage( message, target ) {
-	if ( 'string' === typeof message ) {
+	if ( typeof message === 'string' ) {
 		try {
 			message = JSON.parse( message );
 		} catch ( e ) {
@@ -21,12 +21,19 @@ function JetpackLikesPostMessage( message, target ) {
 		}
 	}
 
-	pm( {
-		target: target,
-		type: 'likesMessage',
-		data: message,
-		origin: '*',
-	} );
+	if ( target && typeof target.postMessage === 'function' ) {
+		try {
+			target.postMessage(
+				JSON.stringify( {
+					type: 'likesMessage',
+					data: message,
+				} ),
+				'*'
+			);
+		} catch ( e ) {
+			return;
+		}
+	}
 }
 
 function JetpackLikesBatchHandler() {
@@ -74,20 +81,32 @@ function JetpackLikesBatchHandler() {
 	}
 }
 
-function JetpackLikesMessageListener( event, message ) {
+function JetpackLikesMessageListener( event ) {
+	var message = event && event.data;
+	if ( typeof message === 'string' ) {
+		try {
+			message = JSON.parse( message );
+		} catch ( err ) {
+			return;
+		}
+	}
+
+	var type = message && message.type;
+	var data = message && message.data;
+
 	var allowedOrigin, $container, $list, offset, rowLength, height, scrollbarWidth;
 
-	if ( 'undefined' === typeof event.event ) {
+	if ( type !== 'likesMessage' || typeof data.event === 'undefined' ) {
 		return;
 	}
 
 	// We only allow messages from one origin
 	allowedOrigin = 'https://widgets.wp.com';
-	if ( allowedOrigin !== message.origin ) {
+	if ( allowedOrigin !== event.origin ) {
 		return;
 	}
 
-	switch ( event.event ) {
+	switch ( data.event ) {
 		case 'masterReady':
 			jQuery( document ).ready( function () {
 				jetpackLikesMasterReady = true;
@@ -140,11 +159,11 @@ function JetpackLikesMessageListener( event, message ) {
 			break;
 
 		case 'showLikeWidget':
-			jQuery( '#' + event.id + ' .likes-widget-placeholder' ).fadeOut( 'fast' );
+			jQuery( '#' + data.id + ' .likes-widget-placeholder' ).fadeOut( 'fast' );
 			break;
 
 		case 'showCommentLikeWidget':
-			jQuery( '#' + event.id + ' .likes-widget-placeholder' ).fadeOut( 'fast' );
+			jQuery( '#' + data.id + ' .likes-widget-placeholder' ).fadeOut( 'fast' );
 			break;
 
 		case 'killCommentLikes':
@@ -153,7 +172,7 @@ function JetpackLikesMessageListener( event, message ) {
 			break;
 
 		case 'clickReblogFlair':
-			wpcom_reblog.toggle_reblog_box_flair( event.obj_id );
+			wpcom_reblog.toggle_reblog_box_flair( data.obj_id );
 			break;
 
 		case 'showOtherGravatars':
@@ -163,9 +182,9 @@ function JetpackLikesMessageListener( event, message ) {
 			$container.hide();
 			$list.html( '' );
 
-			$container.find( '.likes-text span' ).text( event.total );
+			$container.find( '.likes-text span' ).text( data.total );
 
-			jQuery.each( event.likers, function ( i, liker ) {
+			jQuery.each( data.likers, function ( i, liker ) {
 				var element;
 
 				if ( 'http' !== liker.profile_URL.substr( 0, 4 ) ) {
@@ -201,14 +220,14 @@ function JetpackLikesMessageListener( event, message ) {
 			} );
 
 			offset = jQuery( 'body' )
-				.find( "[name='" + event.parent + "']" )
+				.find( "[name='" + data.parent + "']" )
 				.offset();
 
-			$container.css( 'left', offset.left + event.position.left - 10 + 'px' );
-			$container.css( 'top', offset.top + event.position.top - 33 + 'px' );
+			$container.css( 'left', offset.left + data.position.left - 10 + 'px' );
+			$container.css( 'top', offset.top + data.position.top - 33 + 'px' );
 
-			rowLength = Math.floor( event.width / 37 );
-			height = Math.ceil( event.likers.length / rowLength ) * 37 + 13;
+			rowLength = Math.floor( data.width / 37 );
+			height = Math.ceil( data.likers.length / rowLength ) * 37 + 13;
 			if ( height > 204 ) {
 				height = 204;
 			}
@@ -228,7 +247,7 @@ function JetpackLikesMessageListener( event, message ) {
 	}
 }
 
-pm.bind( 'likesMessage', JetpackLikesMessageListener );
+window.addEventListener( 'message', JetpackLikesMessageListener );
 
 jQuery( document ).click( function ( e ) {
 	var $container = jQuery( '#likes-other-gravatars' );
