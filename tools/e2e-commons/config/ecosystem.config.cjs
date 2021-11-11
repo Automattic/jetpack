@@ -7,9 +7,6 @@ module.exports = {
 			time: true,
 			wait_ready: true,
 			listen_timeout: 15000,
-			env: {
-				NODE_ENV: 'test',
-			},
 		},
 	],
 };
