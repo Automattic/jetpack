@@ -21,12 +21,10 @@ importers:
     specifiers:
       husky: 4.3.8
       jetpack-cli: workspace:1.0.0
-      jetpack-e2e-commons: link:tools/e2e-commons
       jetpack-js-tools: workspace:*
     devDependencies:
       husky: 4.3.8
       jetpack-cli: link:tools/cli
-      jetpack-e2e-commons: link:tools/e2e-commons
       jetpack-js-tools: link:tools/js-tools
 
   projects/github-actions/repo-gardening:

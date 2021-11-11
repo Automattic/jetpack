@@ -83,7 +83,6 @@
 	"devDependencies": {
 		"husky": "4.3.8",
 		"jetpack-cli": "workspace:1.0.0",
-		"jetpack-e2e-commons": "link:tools/e2e-commons",
 		"jetpack-js-tools": "workspace:*"
 	},
 	"engines": {
