@@ -8,7 +8,7 @@ test.describe( 'Homepage', () => {
 	} );
 
 	test( 'Should display "HelloWord" text on page', async ( { page } ) => {
-		await expect( page ).toHaveText( 'h1', 'HelloWord' );
+		await expect( page.locator( 'h1' ) ).toHaveText( 'HelloWord' );
 	} );
 
 	test( 'Should include the jetpack boost meta tag(s)', async ( { page } ) => {

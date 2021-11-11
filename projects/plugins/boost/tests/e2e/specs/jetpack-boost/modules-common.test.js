@@ -23,33 +23,33 @@ test.describe( 'Modules', () => {
 		jetpackBoostPage = await JetpackBoostPage.visit( page );
 	} );
 
-	for ( const module in modules ) {
-		test( `The ${ module } module should be %s by default`, async () => {
+	modules.forEach( ( [ moduleSlug, moduleState ] = module ) => {
+		test( `The ${ moduleSlug } module should be ${ moduleState } by default`, async () => {
 			let isModuleEnabled = false;
-			if ( module[ 1 ] === 'enabled' ) {
+			if ( moduleState === 'enabled' ) {
 				isModuleEnabled = true;
 			}
-			expect( await jetpackBoostPage.isModuleEnabled( module[ 0 ] ) ).toEqual( isModuleEnabled );
+			expect( await jetpackBoostPage.isModuleEnabled( moduleSlug ) ).toEqual( isModuleEnabled );
 		} );
 
-		test( `The ${ module } module state should toggle to an inverse state`, async () => {
+		test( `The ${ moduleSlug } module state should toggle to an inverse state`, async () => {
 			let isModuleEnabled = true;
-			if ( module[ 1 ] === 'enabled' ) {
+			if ( moduleState === 'enabled' ) {
 				isModuleEnabled = false;
 			}
-			await jetpackBoostPage.toggleModule( module[ 0 ] );
-			await jetpackBoostPage.waitForApiResponse( `${ module[ 0 ] }-status` );
-			expect( await jetpackBoostPage.isModuleEnabled( module[ 0 ] ) ).toEqual( isModuleEnabled );
+			await jetpackBoostPage.toggleModule( moduleSlug );
+			await jetpackBoostPage.waitForApiResponse( `${ moduleSlug }-status` );
+			expect( await jetpackBoostPage.isModuleEnabled( moduleSlug ) ).toEqual( isModuleEnabled );
 		} );
 
-		test( `The ${ module } module state should revert back to original state`, async () => {
+		test( `The ${ moduleSlug } module state should revert back to original state`, async () => {
 			let isModuleEnabled = false;
-			if ( module[ 1 ] === 'enabled' ) {
+			if ( moduleState === 'enabled' ) {
 				isModuleEnabled = true;
 			}
-			await jetpackBoostPage.toggleModule( module[ 0 ] );
-			await jetpackBoostPage.waitForApiResponse( `${ module[ 0 ] }-status` );
-			expect( await jetpackBoostPage.isModuleEnabled( module[ 0 ] ) ).toEqual( isModuleEnabled );
+			await jetpackBoostPage.toggleModule( moduleSlug );
+			await jetpackBoostPage.waitForApiResponse( `${ moduleSlug }-status` );
+			expect( await jetpackBoostPage.isModuleEnabled( moduleSlug ) ).toEqual( isModuleEnabled );
 		} );
-	}
+	} );
 } );

@@ -21,20 +21,21 @@ export default class JetpackBoostPage extends WpPage {
 	}
 
 	async toggleModule( moduleName ) {
-		const toggle = await this.page.$( `#jb-feature-toggle-${ moduleName }` );
-		await toggle.click();
+		this.page.click( `#jb-feature-toggle-${ moduleName }` );
 	}
 
 	async isModuleEnabled( moduleName ) {
-		const toggle = await this.page.$( `#jb-feature-toggle-${ moduleName }` );
-		const toggleParent = await toggle.$( 'xpath=..' );
+		const toggle = await this.page.waitForSelector( `#jb-feature-toggle-${ moduleName }` );
+		const toggleParent = await toggle.waitForSelector( 'xpath=..' );
 		const classNames = await toggleParent.getAttribute( 'class' );
 
 		return classNames.includes( 'is-checked' );
 	}
 
 	async getSpeedScore( platform ) {
-		const speedBar = await this.page.$( `div.jb-score-bar--${ platform }  .jb-score-bar__filler` );
+		const speedBar = await this.page.waitForSelector(
+			`div.jb-score-bar--${ platform }  .jb-score-bar__filler`
+		);
 		await this.page.waitForSelector( '.jb-score-bar__score', {
 			state: 'visible',
 		} );
