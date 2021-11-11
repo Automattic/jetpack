@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Search: fixed broken asset dependency file in build

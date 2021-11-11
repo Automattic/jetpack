@@ -58,7 +58,8 @@ function defineReadableJSAssetsPluginForSearch() {
 			for ( const [ file, source ] of compilation.unminifiedAssets ) {
 				await fs.promises.writeFile(
 					path.join( compilation.options.output.path, file ),
-					'/* eslint-disable */\n' + source.replace( /\r\n/g, '\n' )
+					( file.toLowerCase().endsWith( '.js' ) ? '/* eslint-disable */\n' : '' ) +
+						source.replace( /\r\n/g, '\n' )
 				);
 			}
 		}
