@@ -1,3 +1,3 @@
-export { default as JetpackSiteTopicPage } from './site-topic';
-export { default as JetpackSiteTypePage } from './site-type';
-export { default as JetpackUserTypePage } from './user-type';
+export { default as JetpackSiteTopicPage } from './site-topic.js';
+export { default as JetpackSiteTypePage } from './site-type.js';
+export { default as JetpackUserTypePage } from './user-type.js';

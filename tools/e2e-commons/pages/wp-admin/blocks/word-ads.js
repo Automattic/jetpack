@@ -1,4 +1,4 @@
-import PageActions from '../../page-actions';
+import PageActions from '../../page-actions.js';
 
 export default class WordAdsBlock extends PageActions {
 	constructor( blockId, page ) {

@@ -1,4 +1,4 @@
-import PageActions from '../../page-actions';
+import PageActions from '../../page-actions.js';
 
 export default class PinterestBlock extends PageActions {
 	constructor( blockId, page, pinId ) {
@@ -27,7 +27,10 @@ export default class PinterestBlock extends PageActions {
 
 		await this.fill( inputSelector, this.embedUrl() );
 		await this.click( descriptionSelector );
-		await this.waitForElementToBeVisible( '.wp-block-jetpack-pinterest .components-sandbox' );
+		await this.waitForElementToBeVisible(
+			'.wp-block-jetpack-pinterest .components-sandbox',
+			30000
+		);
 	}
 
 	getSelector( selector ) {

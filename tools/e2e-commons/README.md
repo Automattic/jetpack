@@ -100,13 +100,13 @@ describe( 'Quick start test suite', () => {
 
 Several configuration files are required, even though to begin with they will only export the default ones from this project. 
 
-Create the `config/default.js` and `config/playwright.config.js` files.
+Create the `config/default.cjs` and `config/playwright.config.cjs` files.
 
 ```shell
 mkdir config
-echo "module.exports = require( 'jetpack-e2e-commons/config/default' );" > config/default.js
+echo "module.exports = require( 'jetpack-e2e-commons/config/default' );" > config/default.cjs
 
-echo "module.exports = require( 'jetpack-e2e-commons/config/playwright.config.default' );" > config/playwright.config.js
+echo "module.exports = require( 'jetpack-e2e-commons/config/playwright.config.default' );" > config/playwright.config.cjs
 ```
 
 ### Run the tests

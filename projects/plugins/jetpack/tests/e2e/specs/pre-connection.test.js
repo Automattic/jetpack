@@ -1,26 +1,28 @@
+import { test, expect } from '@playwright/test';
 import {
 	Sidebar,
 	PluginsPage,
 	DashboardPage,
 	JetpackPage,
-} from 'jetpack-e2e-commons/pages/wp-admin';
-import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper';
-import { prerequisitesBuilder } from 'jetpack-e2e-commons/env';
+} from 'jetpack-e2e-commons/pages/wp-admin/index.js';
+import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
+import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
 
 /**
  *
  * @group pre-connection
  */
-describe( 'Jetpack pre-connection', () => {
-	beforeAll( async () => {
-		await prerequisitesBuilder().withCleanEnv().withLoggedIn( true ).build();
+test.describe( 'Jetpack pre-connection', () => {
+	test.beforeAll( async ( { browser } ) => {
+		const page = await browser.newPage();
+		await prerequisitesBuilder( page ).withCleanEnv().withLoggedIn( true ).build();
 	} );
 
-	beforeEach( async () => {
+	test.beforeEach( async ( { page } ) => {
 		await DashboardPage.visit( page );
 	} );
 
-	it( 'Can find connect button on plugins page', async () => {
+	test( 'Can find connect button on plugins page', async ( { page } ) => {
 		await ( await Sidebar.init( page ) ).selectInstalledPlugins();
 
 		const pluginsPage = await PluginsPage.init( page );
@@ -30,14 +32,14 @@ describe( 'Jetpack pre-connection', () => {
 		expect( await pluginsPage.isFullScreenPopupShown() ).toBeTruthy();
 	} );
 
-	it( 'Can find connect button on dashboard page', async () => {
+	test( 'Can find connect button on dashboard page', async ( { page } ) => {
 		await ( await Sidebar.init( page ) ).selectDashboard();
 
 		const dashboard = await DashboardPage.init( page );
 		expect( await dashboard.isConnectBannerVisible() ).toBeTruthy();
 	} );
 
-	it( 'Can find connect button on Jetpack page', async () => {
+	test( 'Can find connect button on Jetpack page', async ( { page } ) => {
 		await ( await Sidebar.init( page ) ).selectJetpack();
 
 		const jetpackPage = await JetpackPage.init( page );

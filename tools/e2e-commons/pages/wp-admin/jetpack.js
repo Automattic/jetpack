@@ -1,9 +1,10 @@
-import { WpPage } from '..';
-import logger from '../../logger';
+import WpPage from '../wp-page.js';
+import logger from '../../logger.cjs';
+import { resolveSiteUrl } from '../../helpers/utils-helper.cjs';
 
 export default class JetpackPage extends WpPage {
 	constructor( page ) {
-		const url = siteUrl + '/wp-admin/admin.php?page=jetpack#/dashboard';
+		const url = resolveSiteUrl() + '/wp-admin/admin.php?page=jetpack#/dashboard';
 		super( page, { expectedSelectors: [ '#jp-plugin-container' ], url } );
 	}
 

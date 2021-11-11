@@ -1,4 +1,3 @@
-import { takeScreenshot } from './screenshot';
-import { testStep } from './reporter';
+import { takeScreenshot } from './screenshot.cjs';
 
-export { takeScreenshot, testStep };
+export { takeScreenshot };

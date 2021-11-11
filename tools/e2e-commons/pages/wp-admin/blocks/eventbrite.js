@@ -1,4 +1,4 @@
-import PageActions from '../../page-actions';
+import PageActions from '../../page-actions.js';
 
 export default class EventbriteBlock extends PageActions {
 	constructor( blockId, page, eventId ) {
@@ -26,7 +26,10 @@ export default class EventbriteBlock extends PageActions {
 
 		await this.fill( inputSelector, this.embedUrl() );
 		await this.click( descriptionSelector );
-		await this.waitForElementToBeVisible( '.wp-block-jetpack-eventbrite .components-sandbox' );
+		await this.waitForElementToBeVisible(
+			'.wp-block-jetpack-eventbrite .components-sandbox',
+			30000
+		);
 	}
 
 	getSelector( selector ) {

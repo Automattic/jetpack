@@ -2,6 +2,7 @@
  * Internal dependencies
  */
 import WpPage from 'jetpack-e2e-commons/pages/wp-page';
+import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
 
 const apiEndpointsRegex = {
 	'critical-css-status': /jetpack-boost\/v1\/module\/critical-css\/status/,
@@ -10,7 +11,7 @@ const apiEndpointsRegex = {
 
 export default class JetpackBoostPage extends WpPage {
 	constructor( page ) {
-		const url = siteUrl + '/wp-admin/admin.php?page=jetpack-boost';
+		const url = resolveSiteUrl() + '/wp-admin/admin.php?page=jetpack-boost';
 		super( page, { expectedSelectors: [ '#jb-settings' ], url } );
 	}
 

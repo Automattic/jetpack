@@ -1,4 +1,4 @@
-import WpPage from '../wp-page';
+import WpPage from '../wp-page.js';
 
 export default class JetpackSiteTypePage extends WpPage {
 	constructor( page ) {

@@ -3,7 +3,7 @@
 const fs = require( 'fs' );
 const config = require( 'config' );
 const tunnelConfig = config.get( 'tunnel' );
-const { getReusableUrlFromFile } = require( '../helpers/utils-helper' );
+const { getReusableUrlFromFile } = require( '../helpers/utils-helper.cjs' );
 const axios = require( 'axios' );
 const yargs = require( 'yargs' );
 const localtunnel = require( 'localtunnel' );

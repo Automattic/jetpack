@@ -3,12 +3,11 @@ const config = require( 'config' );
 const fs = require( 'fs' );
 const path = require( 'path' );
 const shellescape = require( 'shell-escape' );
-const logger = require( '../logger' );
+const logger = require( '../logger.cjs' );
 const { join } = require( 'path' );
-const WordpressAPI = require( '../api/wp-api' );
+const WordpressAPI = require( '../api/wp-api.cjs' );
 const { E2E_DEBUG } = process.env;
 const BASE_DOCKER_CMD = 'pnpx jetpack docker --type e2e --name t1';
-
 /**
  * Executes a shell command and return it as a Promise.
  *
@@ -63,6 +62,7 @@ async function prepareUpdaterTest() {
 async function provisionJetpackStartConnection( userId, plan = 'free', user = 'wordpress' ) {
 	logger.info( `Provisioning Jetpack start connection [userId: ${ userId }, plan: ${ plan }]` );
 	const [ clientID, clientSecret ] = config.get( 'jetpackStartSecrets' );
+	const siteUrl = resolveSiteUrl();
 
 	const cmd = `sh ${ path.resolve(
 		__dirname,
@@ -111,7 +111,7 @@ async function activateModule( page, module ) {
 }
 
 async function execWpCommand( wpCmd, sendUrl = true ) {
-	const urlArgument = sendUrl ? `--url="${ siteUrl }"` : '';
+	const urlArgument = sendUrl ? `--url="${ resolveSiteUrl() }"` : '';
 	const cmd = `${ BASE_DOCKER_CMD } wp -- ${ wpCmd } ${ urlArgument }`;
 	const result = await execShellCommand( cmd );
 
