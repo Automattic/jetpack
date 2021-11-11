@@ -576,9 +576,7 @@ export default connect(
 	withDispatch( dispatch => {
 		return {
 			setConnectionStatus: connectionStatus => {
-				dispatch( CONNECTION_STORE_ID ).startResolution( 'getConnectionStatus', [] );
 				dispatch( CONNECTION_STORE_ID ).setConnectionStatus( connectionStatus );
-				dispatch( CONNECTION_STORE_ID ).finishResolution( 'getConnectionStatus', [] );
 			},
 		};
 	} )( withRouter( Main ) )
