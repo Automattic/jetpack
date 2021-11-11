@@ -125,7 +125,7 @@ class Data_Settings {
 	private function add_associative_filter_setting( $filter, $value ) {
 		foreach ( $value as $key => $item ) {
 			if ( ! array_key_exists( $key, static::$data_settings[ $filter ] ) ) {
-				static::$data_settings[ $filter ][ $key ] = $value;
+				static::$data_settings[ $filter ][ $key ] = $item;
 			}
 		}
 	}
@@ -180,5 +180,17 @@ class Data_Settings {
 		}
 
 		return static::$data_settings[ $current_filter ];
+	}
+
+	/**
+	 * Resets the $data_settings property to the default values.
+	 */
+	public function reset_data_settings_to_defaults() {
+		static::$data_settings = array();
+		foreach ( self::DATA_FILTER_DEFAULTS as $filter => $default_value ) {
+			// If the plugin didn't provide a data setting for this filter, use the default.
+			$setting = $this->get_default_value_for_filter( $filter );
+			$this->add_filter_setting( $filter, $setting );
+		}
 	}
 }

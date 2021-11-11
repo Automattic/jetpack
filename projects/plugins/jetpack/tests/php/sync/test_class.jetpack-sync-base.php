@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Sync\Modules\Callables;
+use Automattic\Jetpack\Sync\Data_Settings;
 use Automattic\Jetpack\Sync\Listener;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Main;
@@ -59,6 +60,7 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 		$this->server_event_storage = new Jetpack_Sync_Server_Eventstore();
 		$this->server_event_storage->init();
+		( new Data_Settings() )->reset_data_settings_to_defaults();
 	}
 
 	/**
