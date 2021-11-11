@@ -26,6 +26,14 @@ class Data_Settings {
 	);
 
 	/**
+	 * The data associated with these filters are associative arrays.
+	 */
+	const ASSOCIATIVE_FILTERS = array(
+		'jetpack_sync_callable_whitelist',
+		'jetpack_sync_multisite_callable_whitelist',
+	);
+
+	/**
 	 * A static property containing the Sync data settings.
 	 *
 	 * @var array
@@ -100,6 +108,36 @@ class Data_Settings {
 			return;
 		}
 
+		if ( in_array( $filter, self::ASSOCIATIVE_FILTERS, true ) ) {
+			$this->add_associative_filter_setting( $filter, $value );
+		} else {
+			$this->add_indexed_filter_setting( $filter, $value );
+		}
+	}
+
+	/**
+	 * Adds the provided data setting for the provided filter. This method handles
+	 * adding settings to data that is stored as an associative array.
+	 *
+	 * @param string $filter The filter name.
+	 * @param array  $value The data setting.
+	 */
+	private function add_associative_filter_setting( $filter, $value ) {
+		foreach ( $value as $key => $item ) {
+			if ( ! array_key_exists( $key, static::$data_settings[ $filter ] ) ) {
+				static::$data_settings[ $filter ][ $key ] = $value;
+			}
+		}
+	}
+
+	/**
+	 * Adds the provided data setting for the provided filter. This method handles
+	 * adding settings to data that is stored as an indexed array.
+	 *
+	 * @param string $filter The filter name.
+	 * @param array  $value The data setting.
+	 */
+	private function add_indexed_filter_setting( $filter, $value ) {
 		foreach ( $value as $item ) {
 			if ( ! in_array( $item, static::$data_settings[ $filter ], true ) ) {
 				static::$data_settings[ $filter ][] = $item;
@@ -113,26 +151,34 @@ class Data_Settings {
 	 */
 	public function set_sync_data_filters() {
 		foreach ( static::$data_settings as $filter => $value ) {
-			add_filter(
-				$filter,
-				function ( $filtered_values ) {
-					$current_filter = current_filter();
-
-					foreach ( $filtered_values as $filter_key => $filter_value ) {
-						if ( is_string( $filter_key ) ) {
-							if ( ! array_key_exists( $filter_key, $this->get_default_value_for_filter( $current_filter ) ) ) {
-								static::$data_settings[ $current_filter ][ $filter_key ] = $filter_value;
-							}
-						} else {
-							if ( ! in_array( $filter_value, $this->get_default_value_for_filter( $current_filter ), true ) ) {
-								static::$data_settings[ $current_filter ][] = $filter_value;
-							}
-						}
-					}
-
-					return static::$data_settings[ $current_filter ];
-				}
-			);
+			add_filter( $filter, array( $this, 'add_sync_data_settings' ), 999, 1 );
 		}
+	}
+
+	/**
+	 * The callback function added to the sync data filters.
+	 *
+	 * @param array $filtered_values The data revieved from the filter.
+	 *
+	 * @return array The data settings for the filter.
+	 */
+	public function add_sync_data_settings( $filtered_values ) {
+		$current_filter = current_filter();
+
+		if ( in_array( $current_filter, self::ASSOCIATIVE_FILTERS, true ) ) {
+			foreach ( $filtered_values as $key => $item ) {
+				if ( ! in_array( $key, $this->get_default_value_for_filter( $current_filter ), true ) ) {
+					$this->add_associative_filter_setting( $current_filter, array( $key => $item ) );
+				}
+			}
+		} else {
+			foreach ( $filtered_values as $item ) {
+				if ( ! in_array( $item, $this->get_default_value_for_filter( $current_filter ), true ) ) {
+					$this->add_indexed_filter_setting( $current_filter, array( $item ) );
+				}
+			}
+		}
+
+		return static::$data_settings[ $current_filter ];
 	}
 }
