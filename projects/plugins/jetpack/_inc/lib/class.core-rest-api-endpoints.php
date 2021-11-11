@@ -756,6 +756,28 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
+		/**
+		 * Attach licenses to user account
+		 */
+		register_rest_route(
+			'jetpack/v4',
+			'/licensing/attach-licenses',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::attach_jetpack_licenses',
+				'permission_callback' => __CLASS__ . ':user_licensing_permission_check'',
+				'args'                => array(
+					'licenses' => array(
+						'required'          => true,
+						'type'              => 'array',
+						'items'             => array(
+							'type' => 'string',
+						),
+					),
+				),
+			)
+		);
+
 		/*
 		 * Manage the Jetpack CRM plugin's integration with Jetpack contact forms.
 		 */
@@ -3979,6 +4001,20 @@ class Jetpack_Core_Json_Api_Endpoints {
 			esc_html__( 'Could not set this license key. Please try again.', 'jetpack' ),
 			array( 'status' => 500 )
 		);
+	}
+
+	/**
+	 * Attach Jetpack licenses
+	 *
+	 * @since 10.4.0
+	 *
+	 * @param WP_REST_Request $request The request.
+	 *
+	 * @return WP_REST_Response|WP_Error A response object
+	 */
+	public static function attach_jetpack_licenses( $request ) {
+		$licenses = trim( sanitize_text_field( $request['license'] ) );
+		return rest_ensure_response( Licensing::instance()->attach_licenses( $licenses ) );
 	}
 
 	/**
