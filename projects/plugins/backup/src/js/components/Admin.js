@@ -68,7 +68,7 @@ const Admin = () => {
 						</p>
 						<a
 							class="button"
-							href={ getRedirectUrl( 'backup-plugin-upgrade-daily', { site: domain } ) }
+							href={ getRedirectUrl( 'backup-plugin-upgrade-10gb', { site: domain } ) }
 							target="_blank"
 							rel="noreferrer"
 						>
