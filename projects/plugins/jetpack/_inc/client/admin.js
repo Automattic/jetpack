@@ -86,6 +86,9 @@ function render() {
 						<Route path="/sharing">
 							<Main routeName={ getRouteName( '/sharing' ) } />
 						</Route>
+						<Route path="/license/activation">
+							<Main routeName={ getRouteName( '/license/activation' ) } />
+						</Route>
 						<Route path="/wpbody-content" component={ Main } />
 						<Route path="/wp-toolbar" component={ Main } />
 						<Route path="/privacy" component={ Main } />
@@ -134,6 +137,8 @@ export function getRouteName( path ) {
 			return _x( 'Writing', 'Navigation item.', 'jetpack' );
 		case '/sharing':
 			return _x( 'Sharing', 'Navigation item.', 'jetpack' );
+		case '/license/activation':
+			 return _x( 'License', 'Navigation item.', 'jetpack' );
 		default:
 			return _x( 'At A Glance', 'Navigation item.', 'jetpack' );
 	}

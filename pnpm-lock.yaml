@@ -217,6 +217,22 @@ importers:
       react-dom: 17.0.2_react@17.0.2
       react-test-renderer: 17.0.2_react@17.0.2
 
+  projects/js-packages/licensing:
+    specifiers:
+      '@automattic/jetpack-api': workspace:^0.6.0-alpha
+      '@automattic/jetpack-components': workspace:^0.6.0-alpha
+      '@wordpress/components': 17.0.0
+      '@wordpress/element': 4.0.1
+      jetpack-js-test-runner: workspace:*
+      prop-types: 15.7.2
+    dependencies:
+      '@automattic/jetpack-api': link:../api
+      '@automattic/jetpack-components': link:../components
+      '@wordpress/components': 17.0.0
+      '@wordpress/element': 4.0.1
+      jetpack-js-test-runner: link:../../../tools/js-test-runner
+      prop-types: 15.7.2
+
   projects/js-packages/storybook:
     specifiers:
       '@automattic/jetpack-base-styles': workspace:^0.1.0-alpha
@@ -2603,7 +2619,7 @@ packages:
     dependencies:
       '@babel/helper-module-imports': 7.16.0
       '@babel/plugin-syntax-jsx': 7.16.0
-      '@babel/runtime': 7.16.0
+      '@babel/runtime': 7.16.3
       '@emotion/hash': 0.8.0
       '@emotion/memoize': 0.7.5
       '@emotion/serialize': 1.0.2
@@ -2623,7 +2639,7 @@ packages:
       '@babel/core': 7.16.0
       '@babel/helper-module-imports': 7.16.0
       '@babel/plugin-syntax-jsx': 7.16.0_@babel+core@7.16.0
-      '@babel/runtime': 7.16.0
+      '@babel/runtime': 7.16.3
       '@emotion/hash': 0.8.0
       '@emotion/memoize': 0.7.5
       '@emotion/serialize': 1.0.2
@@ -2843,6 +2859,27 @@ packages:
       react: 17.0.2
     dev: true
 
+  /@emotion/react/11.5.0:
+    resolution: {integrity: sha512-MYq/bzp3rYbee4EMBORCn4duPQfgpiEB5XzrZEBnUZAL80Qdfr7CEv/T80jwaTl/dnZmt9SnTa8NkTrwFNpLlw==}
+    peerDependencies:
+      '@babel/core': ^7.0.0
+      '@types/react': '*'
+      react: '>=16.8.0'
+    peerDependenciesMeta:
+      '@babel/core':
+        optional: true
+      '@types/react':
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.16.3
+      '@emotion/cache': 11.5.0
+      '@emotion/serialize': 1.0.2
+      '@emotion/sheet': 1.0.3
+      '@emotion/utils': 1.0.0
+      '@emotion/weak-memoize': 0.2.5
+      hoist-non-react-statics: 3.3.2
+    dev: false
+
   /@emotion/react/11.5.0_@babel+core@7.16.0:
     resolution: {integrity: sha512-MYq/bzp3rYbee4EMBORCn4duPQfgpiEB5XzrZEBnUZAL80Qdfr7CEv/T80jwaTl/dnZmt9SnTa8NkTrwFNpLlw==}
     peerDependencies:
@@ -2971,7 +3008,7 @@ packages:
         optional: true
     dependencies:
       '@babel/core': 7.16.0
-      '@babel/runtime': 7.16.0
+      '@babel/runtime': 7.16.3
       '@emotion/babel-plugin': 11.3.0_@babel+core@7.16.0
       '@emotion/is-prop-valid': 1.1.0
       '@emotion/react': 11.4.1_@babel+core@7.16.0+react@17.0.2
@@ -2979,6 +3016,27 @@ packages:
       '@emotion/utils': 1.0.0
       react: 17.0.2
     dev: true
+
+  /@emotion/styled/11.3.0_@emotion+react@11.5.0:
+    resolution: {integrity: sha512-fUoLcN3BfMiLlRhJ8CuPUMEyKkLEoM+n+UyAbnqGEsCd5IzKQ7VQFLtzpJOaCD2/VR2+1hXQTnSZXVJeiTNltA==}
+    peerDependencies:
+      '@babel/core': ^7.0.0
+      '@emotion/react': ^11.0.0-rc.0
+      '@types/react': '*'
+      react: '>=16.8.0'
+    peerDependenciesMeta:
+      '@babel/core':
+        optional: true
+      '@types/react':
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.16.3
+      '@emotion/babel-plugin': 11.3.0
+      '@emotion/is-prop-valid': 1.1.0
+      '@emotion/react': 11.5.0
+      '@emotion/serialize': 1.0.2
+      '@emotion/utils': 1.0.0
+    dev: false
 
   /@emotion/styled/11.3.0_a3ce58c1335df7ae302d472d57f59cc5:
     resolution: {integrity: sha512-fUoLcN3BfMiLlRhJ8CuPUMEyKkLEoM+n+UyAbnqGEsCd5IzKQ7VQFLtzpJOaCD2/VR2+1hXQTnSZXVJeiTNltA==}
@@ -2994,7 +3052,7 @@ packages:
         optional: true
     dependencies:
       '@babel/core': 7.16.0
-      '@babel/runtime': 7.16.0
+      '@babel/runtime': 7.16.3
       '@emotion/babel-plugin': 11.3.0_@babel+core@7.16.0
       '@emotion/is-prop-valid': 1.1.0
       '@emotion/react': 11.5.0_@babel+core@7.16.0+react@17.0.2
@@ -3015,7 +3073,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@babel/runtime': 7.16.0
+      '@babel/runtime': 7.16.3
       '@emotion/babel-plugin': 11.3.0
       '@emotion/is-prop-valid': 1.1.0
       '@emotion/react': 11.5.0_react@17.0.2
@@ -3038,7 +3096,7 @@ packages:
         optional: true
     dependencies:
       '@babel/core': 7.16.0
-      '@babel/runtime': 7.16.0
+      '@babel/runtime': 7.16.3
       '@emotion/babel-plugin': 11.3.0_@babel+core@7.16.0
       '@emotion/is-prop-valid': 1.1.0
       '@emotion/react': 11.5.0_@babel+core@7.16.0
@@ -6619,7 +6677,7 @@ packages:
     resolution: {integrity: sha512-sYcMvFwrVoYv5lL9NsYLVd29hfuqgf1L1WsIjDV8hMna1eqr9f8xCrZSLgBKkDBmVWiIcleYGP5uDdrKpu6EiA==}
     engines: {node: '>=12'}
     dependencies:
-      '@babel/runtime': 7.16.0
+      '@babel/runtime': 7.16.3
       moment: 2.29.1
       moment-timezone: 0.5.33
 
@@ -6748,11 +6806,24 @@ packages:
       react-dom: 16.14.0_react@16.14.0
     dev: false
 
+  /@wordpress/element/4.0.1:
+    resolution: {integrity: sha512-Woi8Vh6anJgCt0AHvhUexiL+3TrhUk1EiLCN9vRahd9k5gvNQ6FzrQr60TagONmQXbe0CHACmWksZaVvQmsA/g==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@babel/runtime': 7.16.3
+      '@types/react': 16.14.20
+      '@types/react-dom': 16.9.14
+      '@wordpress/escape-html': 2.2.2
+      lodash: 4.17.21
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+    dev: false
+
   /@wordpress/element/4.0.3:
     resolution: {integrity: sha512-uFL8Xx0Uq/C+nCL5aM4Fb6YVub//1wuHyQK9VDtKwYg9UBELrexSCHo1XaesYRiGUqVW0o837qC7RCP2NLUBJw==}
     engines: {node: '>=12'}
     dependencies:
-      '@babel/runtime': 7.16.0
+      '@babel/runtime': 7.16.3
       '@types/react': 16.14.20
       '@types/react-dom': 16.9.14
       '@wordpress/escape-html': 2.2.2
@@ -6770,7 +6841,7 @@ packages:
     resolution: {integrity: sha512-NuPury2dyaqF7zpDaUOKaoM0FrEuqaDE1c3j7rM6kceJ4ZFDHnCLf5NivwchOLo7Xs0oVtqBdDza/dcSQaLFGg==}
     engines: {node: '>=12'}
     dependencies:
-      '@babel/runtime': 7.16.0
+      '@babel/runtime': 7.16.3
 
   /@wordpress/eslint-plugin/9.2.0_eslint@7.32.0:
     resolution: {integrity: sha512-x0vI4EWeG20TyewXdiyUhGSJRqXR8vw47WZjzdmL8iuitDCoyWkKe73wtEs/mWLDrSNms8S0bTnp0dK6UAMXJw==}
@@ -6872,7 +6943,7 @@ packages:
     resolution: {integrity: sha512-yI8MHs6UsvgJdDsOnXGkY7/7hrOCEv/M7vwdEVA5r6nGzgJaJxf8pjBqzRkCq3nVaWqxoNZgCMHJSul6Q8RR2g==}
     engines: {node: '>=12'}
     dependencies:
-      '@babel/runtime': 7.16.0
+      '@babel/runtime': 7.16.3
 
   /@wordpress/html-entities/3.2.2:
     resolution: {integrity: sha512-MsmB1wtDMFfvNQiKMVMW+1ie2P3+tBZiHESkDPnXw34Dt4Tk0+QY7eYCR9krNcjJImWYJcxL+4n4M1OF9oQv0Q==}
@@ -6898,7 +6969,7 @@ packages:
     engines: {node: '>=12'}
     hasBin: true
     dependencies:
-      '@babel/runtime': 7.16.0
+      '@babel/runtime': 7.16.3
       '@wordpress/hooks': 3.2.1
       gettext-parser: 1.4.0
       lodash: 4.17.21
