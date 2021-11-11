@@ -4013,7 +4013,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return WP_REST_Response|WP_Error A response object
 	 */
 	public static function attach_jetpack_licenses( $request ) {
-		$licenses = trim( sanitize_text_field( $request['license'] ) );
+		$licenses = array_map(
+			function( $license ) {
+				return trim( sanitize_text_field( $license ) );
+			},
+			$request['licenses']
+		);
 		return rest_ensure_response( Licensing::instance()->attach_licenses( $licenses ) );
 	}
 
