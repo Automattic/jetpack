@@ -38,6 +38,11 @@ class Jetpack_Initializer extends Initializer {
 		// TODO: Port the search widget to package for milestone 2.
 		require_once JETPACK__PLUGIN_DIR . 'modules/widgets/search.php';
 
+		/**
+		 * Location of built instant search assets, does not include trailing slash.
+		 */
+		define( 'JETPACK_SEARCH_PLUGIN_DIRECTORY', dirname( dirname( __DIR__ ) ) );
+
 		if ( Options::is_instant_enabled() ) {
 			// Enable the instant search experience.
 			Instant_Search::instance( $blog_id );

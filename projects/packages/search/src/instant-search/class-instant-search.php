@@ -72,20 +72,12 @@ class Instant_Search extends Classic_Search {
 	 * Loads assets for Jetpack Instant Search Prototype featuring Search As You Type experience.
 	 */
 	public function load_assets() {
-
-		// TODO: Move this into the initializer.
-		/**
-		 * Location of built instant search assets, does not include trailing slash.
-		 *
-		 * @var string
-		 */
-		define( 'JETPACK_SEARCH_PLUGIN_DIRECTORY', dirname( dirname( __DIR__ ) ) );
-		define( 'JETPACK_SEARCH_BUILD_DIRECTORY', 'jetpack-search/dist/instant-search' );
-
-		$this->load_assets_with_parameters(
-			defined( 'JETPACK_SEARCH_BUILD_DIRECTORY' ) ? constant( 'JETPACK_SEARCH_BUILD_DIRECTORY' ) : '',
-			defined( 'JETPACK_SEARCH_PLUGIN_DIRECTORY' ) ? constant( 'JETPACK_SEARCH_PLUGIN_DIRECTORY' ) : ''
-		);
+		if ( defined( 'JETPACK_SEARCH_PLUGIN_DIRECTORY' ) ) {
+			$this->load_assets_with_parameters(
+				'jetpack-search/dist/instant-search',
+				constant( 'JETPACK_SEARCH_PLUGIN_DIRECTORY' )
+			);
+		}
 	}
 
 	/**
