@@ -59,6 +59,9 @@ function render() {
 						<Route path="/plans">
 							<Main routeName={ getRouteName( '/plans' ) } />
 						</Route>
+						<Route path="/recommendations">
+							<Main routeName={ getRouteName( '/recommendations' ) } />
+						</Route>
 						<Route path="/plans-prompt">
 							<Main routeName={ getRouteName( '/plans-prompt' ) } />
 						</Route>
@@ -113,6 +116,8 @@ export function getRouteName( path ) {
 			return _x( 'My Plan', 'Navigation item.', 'jetpack' );
 		case '/plans':
 			return _x( 'Plans', 'Navigation item.', 'jetpack' );
+		case '/recommendations':
+			return _x( 'Recommendations', 'Navigation item.', 'jetpack' );
 		case '/plans-prompt':
 			return _x( 'Plans', 'Navigation item.', 'jetpack' );
 		case '/settings':
