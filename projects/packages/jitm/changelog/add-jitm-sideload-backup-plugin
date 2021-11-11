@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Adds filters to allow sideloading of the Jetpack Backup plugin through JITMs.

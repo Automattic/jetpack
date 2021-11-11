@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Jetpack Backup: Add considtions that allow sideloading of Jetpack Backup plugin via JITMs.
