@@ -765,7 +765,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => __CLASS__ . '::attach_jetpack_licenses',
-				'permission_callback' => __CLASS__ . ':user_licensing_permission_check',
+				'permission_callback' => __CLASS__ . '::user_licensing_permission_check',
 				'args'                => array(
 					'licenses' => array(
 						'required' => true,
