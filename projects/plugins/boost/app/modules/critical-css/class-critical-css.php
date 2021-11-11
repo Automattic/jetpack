@@ -671,8 +671,8 @@ class Critical_CSS extends Module {
 			$html_no_script    = '<noscript>' . $html . '</noscript>';
 			$html              = preg_replace( '~media=[\'"]?[^\'"\s]+[\'"]?~', $media_replacement, $html );
 
-			// Append to the HTML stylesheet tag the same untouched HTML stylesheet tag within the noscript tag before
-			// to support the rendering of the style when JavaScript is disabled.
+			// Append to the HTML stylesheet tag the same untouched HTML stylesheet tag within the noscript tag
+			// to support the rendering of the stylesheet when JavaScript is disabled.
 			$html = $html_no_script . $html;
 		}
 
