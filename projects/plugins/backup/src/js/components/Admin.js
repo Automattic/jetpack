@@ -65,8 +65,6 @@ const Admin = () => {
 								'Get peace of mind knowing your work will be saved, add backups today.',
 								'jetpack-backup'
 							) }
-							<br />
-							{ __( 'Choose from real time or daily backups.', 'jetpack-backup' ) }
 						</p>
 						<a
 							class="button"
