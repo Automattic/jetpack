@@ -115,8 +115,22 @@ class Data_Settings {
 		foreach ( static::$data_settings as $filter => $value ) {
 			add_filter(
 				$filter,
-				function () use ( $value ) {
-					return $value;
+				function ( $filtered_values ) {
+					$current_filter = current_filter();
+
+					foreach ( $filtered_values as $filter_key => $filter_value ) {
+						if ( is_string( $filter_key ) ) {
+							if ( ! array_key_exists( $filter_key, $this->get_default_value_for_filter( $current_filter ) ) ) {
+								static::$data_settings[ $current_filter ][ $filter_key ] = $filter_value;
+							}
+						} else {
+							if ( ! in_array( $filter_value, $this->get_default_value_for_filter( $current_filter ), true ) ) {
+								static::$data_settings[ $current_filter ][] = $filter_value;
+							}
+						}
+					}
+
+					return static::$data_settings[ $current_filter ];
 				}
 			);
 		}
