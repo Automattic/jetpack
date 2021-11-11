@@ -117,6 +117,13 @@ class Critical_CSS extends Module {
 	protected $state;
 
 	/**
+	 * Critical CSS DOM manipulation class instance.
+	 *
+	 * @var Critical_CSS_Dom
+	 */
+	protected $dom;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -137,6 +144,7 @@ class Critical_CSS extends Module {
 		// for setting up the storage.
 		$this->storage = new Critical_CSS_Storage();
 		$this->state   = new Critical_CSS_State();
+		$this->dom     = new Critical_CSS_DOM( $this );
 		if ( $this->state->is_empty() && ! wp_doing_ajax() && ! wp_doing_cron() ) {
 			$this->state->create_request( $this->providers );
 		}
@@ -146,9 +154,7 @@ class Critical_CSS extends Module {
 
 		if ( $this->should_display_critical_css() ) {
 			Admin_Bar_Css_Compat::init();
-			add_action( 'wp_head', array( $this, 'display_critical_css' ), 0 );
-			add_filter( 'style_loader_tag', array( $this, 'asynchronize_stylesheets' ), 10, 4 );
-			add_action( 'wp_footer', array( $this, 'onload_flip_stylesheets' ) );
+			$this->dom->init();
 		}
 
 		// Check for the GET parameter indicating this is rendering for CSS generation.
@@ -641,48 +647,6 @@ class Critical_CSS extends Module {
 	}
 
 	/**
-	 * Converts existing screen CSS to be asynchronously loaded.
-	 *
-	 * @param string $html   The link tag for the enqueued style.
-	 * @param string $handle The style's registered handle.
-	 * @param string $href   The stylesheet's source URL.
-	 * @param string $media  The stylesheet's media attribute.
-	 *
-	 * @return string|string[]|null
-	 * @see style_loader_tag
-	 */
-	public function asynchronize_stylesheets( $html, $handle, $href, $media ) {
-		if ( function_exists( 'is_amp_endpoint' ) && is_amp_endpoint() ) {
-			return $html;
-		}
-
-		if ( false === $this->get_critical_css() ) {
-			return $html;
-		}
-
-		if ( ! apply_filters( 'jetpack_boost_async_style', true, $handle ) ) {
-			return $html;
-		}
-		$async_media = apply_filters( 'jetpack_boost_async_media', array( 'all', 'screen' ) );
-
-		// Convert stylesheets intended for screens.
-		if ( in_array( $media, $async_media, true ) ) {
-			/**
-			 * Load stylesheets after window load event.
-			 *
-			 * @param string $handle The style's registered handle.
-			 * @todo  Retrieve settings from database, either via auto-configuration or UI option.
-			 */
-			$window_loaded_media = apply_filters( 'jetpack_boost_window_loaded_media', false, $handle );
-
-			$media_replacement = $window_loaded_media ? 'media="not all"' : 'media="not all" onload="this.media=\'all\'"';
-			$html              = preg_replace( '~media=[\'"]?[^\'"\s]+[\'"]?~', $media_replacement, $html );
-		}
-
-		return $html;
-	}
-
-	/**
 	 * Returns true if the current page render should try to display Critical CSS.
 	 */
 	public function should_display_critical_css() {
@@ -697,29 +661,6 @@ class Critical_CSS extends Module {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Prints the critical CSS to the page.
-	 */
-	public function display_critical_css() {
-		if ( function_exists( 'is_amp_endpoint' ) && is_amp_endpoint() ) {
-			return false;
-		}
-
-		$critical_css = $this->get_critical_css();
-
-		if ( false === $critical_css ) {
-			return false;
-		}
-
-		echo '<style id="jetpack-boost-critical-css">';
-
-		// Ensure no </style> tag (or any HTML tags) in output.
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo wp_strip_all_tags( $critical_css );
-
-		echo '</style>';
 	}
 
 	/**
@@ -811,49 +752,6 @@ class Critical_CSS extends Module {
 		if ( ! $this->is_initialized() ) {
 			wp_send_json( array( 'status' => 'module-unavailable' ) );
 		}
-	}
-
-	/**
-	 * Add a small piece of JavaScript to the footer, which on load flips all
-	 * linked stylesheets from media="not all" to "all", and switches the
-	 * Critical CSS <style> block to media="not all" to deactivate it.
-	 */
-	public function onload_flip_stylesheets() {
-		/*
-			Unminified version of footer script.
-
-		?>
-			<script>
-				window.addEventListener( 'load', function() {
-
-					// Flip all media="not all" links to media="all".
-					document.querySelectorAll( 'link' ).forEach(
-						function( link ) {
-							if ( link.media === 'not all' ) {
-								link.media = 'all';
-							}
-						}
-					);
-
-					// Turn off Critical CSS style block with media="not all".
-					var element = document.getElementById( 'jetpack-boost-critical-css' );
-					if ( element ) {
-						element.media = 'not all';
-					}
-
-				} );
-			</script>
-		<?php
-		*/
-
-		// Minified version of footer script. See above comment for unminified version.
-		?>
-		<script>window.addEventListener('load', function() {
-				document.querySelectorAll('link').forEach(function(e) {'not all' === e.media && (e.media = 'all');});
-				var e = document.getElementById('jetpack-boost-critical-css');
-				e && (e.media = 'not all');
-			});</script>
-		<?php
 	}
 
 	/**
