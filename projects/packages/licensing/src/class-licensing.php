@@ -249,4 +249,24 @@ class Licensing {
 		 */
 		return apply_filters( 'jetpack_licensing_ui_enabled', false ) && current_user_can( 'jetpack_connect_user' );
 	}
+
+	/**
+	 * Gets the user-licensing activation notice dismissal info.
+	 *
+	 * @since 10.4.0
+	 * @return array
+	 */
+	public function get_license_activation_notice_dismiss() {
+
+		$default = array(
+			'last_detached_count' => null,
+			'last_dismissed_time' => null,
+		);
+
+		if ( $this->connection()->is_user_connected() && $this->connection()->is_connection_owner() ) {
+			return Jetpack_Options::get_option( 'licensing_activation_notice_dismiss', $default );
+		}
+
+		return $default;
+	}
 }
