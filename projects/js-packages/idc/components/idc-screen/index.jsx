@@ -30,7 +30,7 @@ import './style.scss';
 const IDCScreen = props => {
 	const { logo, headerText, wpcomHomeUrl, currentUrl, apiNonce, apiRoot, redirectUri } = props;
 
-	const [ isMigrated, setIsMigrated ] = useState( true );
+	const [ isMigrated, setIsMigrated ] = useState( false );
 
 	const onMigrated = useCallback( () => {
 		setIsMigrated( true );
@@ -45,7 +45,7 @@ const IDCScreen = props => {
 	}, [ apiRoot, apiNonce ] );
 
 	return (
-		<div className="jp-idc__idc-screen">
+		<div className={ 'jp-idc__idc-screen' + ( isMigrated ? ' jp-idc__idc-screen__success' : '' ) }>
 			<div className="jp-idc__idc-screen__header">
 				<div className="jp-idc__idc-screen__logo">{ logo }</div>
 				<div className="jp-idc__idc-screen__logo-label">{ headerText }</div>

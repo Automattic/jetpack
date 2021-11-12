@@ -12,6 +12,10 @@
 	box-sizing: border-box;
 	margin: 0 auto;
 
+	&.jp-idc__idc-screen__success {
+		border-color: #069e08;
+	}
+
 	@include break-small {
 		padding: 48px;
 	}
