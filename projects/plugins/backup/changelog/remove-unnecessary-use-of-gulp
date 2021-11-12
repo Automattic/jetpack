@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove use of `gulp` in build, all it was doing was wrapping `webpack`.

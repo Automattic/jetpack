@@ -1,6 +1,6 @@
 {
 	"name": "jetpack-identity-crisis",
-	"version": "0.4.0-alpha",
+	"version": "0.4.1-alpha",
 	"description": "Jetpack Identity Crisis",
 	"main": "_inc/admin.jsx",
 	"repository": "https://github.com/Automattic/jetpack-identity-crisis",
@@ -14,13 +14,13 @@
 		"watch": "pnpm run build && pnpx gulp watch"
 	},
 	"dependencies": {
-		"@wordpress/data": "6.1.2"
+		"@wordpress/data": "6.1.3"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:^0.1.0-alpha",
-		"@babel/core": "7.15.0",
-		"@babel/preset-env": "7.15.0",
-		"@babel/register": "7.15.3",
+		"@automattic/jetpack-webpack-config": "workspace:^0.1.1-alpha",
+		"@babel/core": "7.16.0",
+		"@babel/preset-env": "7.16.0",
+		"@babel/register": "7.16.0",
 		"fancy-log": "1.3.3",
 		"gulp": "4.0.2",
 		"gulp-append-prepend": "1.0.9",

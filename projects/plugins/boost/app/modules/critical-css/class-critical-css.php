@@ -697,8 +697,14 @@ class Critical_CSS extends Module {
 			return $html;
 		}
 
+		$html_no_script = '<noscript>' . $html . '</noscript>';
+
 		// Update the stylesheet markup for allowed methods.
-		return preg_replace( '~media=[\'"]?[^\'"\s]+[\'"]?~', $available_methods[ $method ], $html );
+		$html = preg_replace( '~media=[\'"]?[^\'"\s]+[\'"]?~', $available_methods[ $method ], $html );
+
+		// Append to the HTML stylesheet tag the same untouched HTML stylesheet tag within the noscript tag
+		// to support the rendering of the stylesheet when JavaScript is disabled.
+		return $html_no_script . $html;
 	}
 
 	/**
