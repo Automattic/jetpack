@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Actions: prevent an initial sync when not registering and an intial sync has already been started
+Actions: add the do_only_first_initial_sync method which starts an initial sync only when one hasn't already been done
