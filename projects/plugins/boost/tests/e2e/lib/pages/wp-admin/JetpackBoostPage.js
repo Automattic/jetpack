@@ -18,7 +18,7 @@ export default class JetpackBoostPage extends WpPage {
 		await page.waitForResponse(
 			response =>
 				response.url().match( apiEndpointsRegex[ apiEndpointId ] ) && response.status() === 200,
-			{ timeout: 60 * 1000 }
+			{ timeout: 2 * 60 * 1000 }
 		);
 	}
 

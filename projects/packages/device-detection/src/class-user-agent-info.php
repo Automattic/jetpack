@@ -206,7 +206,7 @@ class User_Agent_Info {
 		} elseif ( $this->is_Nintendo_3DS() ) {
 			return 'nintendo-3ds';
 		} else {
-			$agent       = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+			$agent       = $this->useragent;
 			$dumb_agents = $this->dumb_agents;
 			foreach ( $dumb_agents as $dumb_agent ) {
 				if ( false !== strpos( $agent, $dumb_agent ) ) {
@@ -1262,6 +1262,9 @@ class User_Agent_Info {
 	 * The is_blackberry_10() method can be used to check the User Agent for a BlackBerry 10 device.
 	 */
 	public static function is_blackberry_10() {
+		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			return false;
+		}
 		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 		return ( strpos( $agent, 'bb10' ) !== false ) && ( strpos( $agent, 'mobile' ) !== false );
 	}
@@ -1478,6 +1481,10 @@ class User_Agent_Info {
 	 */
 	public static function is_bot() {
 		static $is_bot = null;
+
+		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			return false;
+		}
 
 		if ( is_null( $is_bot ) ) {
 			$is_bot = self::is_bot_user_agent( $_SERVER['HTTP_USER_AGENT'] );

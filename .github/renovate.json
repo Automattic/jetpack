@@ -16,6 +16,7 @@
 				"@automattic/jetpack-api",
 				"@automattic/jetpack-base-styles",
 				"@automattic/jetpack-components",
+				"@automattic/jetpack-config",
 				"@automattic/jetpack-connection",
 				"@automattic/jetpack-idc",
 				"@automattic/jetpack-storybook",
