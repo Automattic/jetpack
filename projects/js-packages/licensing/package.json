@@ -16,7 +16,10 @@
 	"scripts": {
 		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.@(jsx|js)'"
 	},
-	"devDependencies": {},
+	"devDependencies": {
+		"react": "17.0.2",
+		"react-test-renderer": "17.0.2"
+	},
 	"engines": {
 		"node": "^14.17.6 || ^16.7.0",
 		"pnpm": "^6.5.0",
@@ -32,7 +35,7 @@
 		"@wordpress/i18n": "4.2.3",
 		"@wordpress/element": "4.0.3",
 		"jetpack-js-test-runner": "workspace:*",
-		"prop-types": "^15.7.2"
-		"@wordpress/components": "19.0.1",
+		"prop-types": "^15.7.2",
+		"@wordpress/components": "19.0.1"
 	}
 }
