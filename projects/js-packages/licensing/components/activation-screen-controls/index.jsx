@@ -26,7 +26,10 @@ import './style.scss';
  * @returns {React.Component} The `ActivationScreenControls` component.
  */
 const ActivationScreenControls = props => {
-	const { activateLicense, isSaving, license, licenseError, onLicenseChange, siteUrl } = props;
+	const { activateLicense, disabled, license, licenseError, onLicenseChange, siteUrl } = props;
+
+	const hasLicenseError = licenseError !== null && licenseError !== undefined;
+
 	return (
 		<div className="jp-license-activation-screen-controls">
 			<div className="jp-license-activation-screen-controls--content">
@@ -47,22 +50,30 @@ const ActivationScreenControls = props => {
 						}
 					) }
 				</p>
-				{ /* <TextControlWithErrorMessage */ }
 				<TextControl
-					className="jp-license-activation-screen-controls--license-field"
+					className={
+						! hasLicenseError
+							? 'jp-license-activation-screen-controls--license-field'
+							: 'jp-license-activation-screen-controls--license-field-with-error'
+					}
 					label={ __( 'License key', 'jetpack' ) }
 					placeholder="jp-Product34623432423423"
 					value={ license }
 					onChange={ onLicenseChange }
-					disabled={ isSaving }
-					errorMessage={ licenseError }
+					disabled={ disabled }
 				/>
+				{ hasLicenseError && (
+					<div className="jp-license-activation-screen-controls--license-field-error">
+						<ErrorGridicon />
+						<span>{ licenseError }</span>
+					</div>
+				) }
 			</div>
 			<div>
 				<Button
 					className="jp-license-activation-screen-controls--button"
 					onClick={ activateLicense }
-					disabled={ license.length <= 0 || isSaving }
+					disabled={ license.length <= 0 || disabled }
 				>
 					{ __( 'Activate', 'jetpack' ) }
 				</Button>
@@ -71,7 +82,7 @@ const ActivationScreenControls = props => {
 	);
 };
 
-ActivationScreenControls.PropTypes = {
+ActivationScreenControls.propTypes = {
 	activateLicense: PropTypes.func.isRequired,
 	disabled: PropTypes.bool.isRequired,
 	license: PropTypes.string.isRequired,

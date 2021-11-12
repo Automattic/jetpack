@@ -45,7 +45,6 @@ const ActivationScreen = props => {
 		setTimeout( () => {
 			setIsSaving( false );
 		}, 5000 );
-
 	}, [ isSaving, license ] );
 
 	const renderActivationSuccess = () => (
@@ -69,7 +68,7 @@ const ActivationScreen = props => {
 				activateLicense={ activateLicense }
 				siteUrl={ siteRawUrl }
 				licenseError={ licenseError }
-				isSaving={ isSaving }
+				disabled={ isSaving }
 			/>
 			<ActivationScreenIllustration imageUrl={ assetBaseUrl + lockImage } showSupportLink />
 		</div>

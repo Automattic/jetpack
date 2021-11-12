@@ -1,35 +1,35 @@
 @import '../rna-styles';
 
 .jp-license-activation-screen-controls {
-	background: var(--jp-white);
+	background: var( --jp-white );
 	padding: 64px;
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
 
 	h1 {
-		font-size: var(--font-title-large);
+		font-size: var( --font-title-large );
 		font-weight: 700;
 	}
 
 	p {
-		font-size: var(--font-body);
+		font-size: var( --font-body );
 	}
 
 	label {
 		font-weight: 600;
-		font-size: var(--font-body);
+		font-size: var( --font-body );
 	}
 }
 
 .jp-license-activation-screen-controls--license-field {
 	label {
 		font-weight: 600;
-		font-size: var(--font-body);
+		font-size: var( --font-body );
 	}
 
 	input.components-text-control__input {
-		border-radius: var(--jp-border-radius);
+		border-radius: var( --jp-border-radius );
 		border: 1px solid #787c82;
 		font-size: 18px;
 		line-height: 24px;
@@ -38,17 +38,17 @@
 	}
 
 	&.jp-components-error-message--has-error input.components-text-control__input {
-		border-color: var(--jp-red);
+		border-color: var( --jp-red );
 	}
 }
 
 .jp-license-activation-screen-controls--button {
-	font-size: var(--font-body);
+	font-size: var( --font-body );
 
-	background-color: var(--jp-green-primary);
-	border-color: var(--jp-green-primary);
-	border-radius: var(--jp-border-radius);
-	color: var(--jp-white);
+	background-color: var( --jp-green-primary );
+	border-color: var( --jp-green-primary );
+	border-radius: var( --jp-border-radius );
+	color: var( --jp-white );
 
 	padding: 13.5px 45px 13.5px 45px;
 	min-height: 48px;
@@ -58,20 +58,20 @@
 	&:hover {
 		background-color: #007117;
 		border-color: #007117;
-		color: var(--jp-white);
+		color: var( --jp-white );
 	}
 
 	&:focus {
 		background-color: #005b18;
-		border-color: var(--jp-white);
+		border-color: var( --jp-white );
 		box-shadow: 0 0 0 1px #005b18;
-		color: var(--jp-white);
+		color: var( --jp-white );
 	}
 
 	&:active {
 		background: #007117;
 		border-color: #007117;
-		color: var(--jp-white);
+		color: var( --jp-white );
 	}
 
 	&[disabled],

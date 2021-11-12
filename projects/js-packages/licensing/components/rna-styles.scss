@@ -6,17 +6,17 @@
 	--font-title-small: 24px;
 	--font-body: 16px;
 	--font-label: 12px;
-	
-	--jp-black:           #000000;
-	--jp-black-80:        #2C3338;
-	--jp-white:           #FFFFFF;
-	--jp-white-off:       #F9F9F6;
-	--jp-gray:            #DCDCDE;
-	--jp-gray-off:        #E2E2DF;
-	--jp-red:             #D63639;
 
-	--jp-green-primary:   #069E08;
-	--jp-green-secondary: #2FB41F;
+	--jp-black: #000000;
+	--jp-black-80: #2c3338;
+	--jp-white: #ffffff;
+	--jp-white-off: #f9f9f6;
+	--jp-gray: #dcdcde;
+	--jp-gray-off: #e2e2df;
+	--jp-red: #d63639;
+
+	--jp-green-primary: #069e08;
+	--jp-green-secondary: #2fb41f;
 
 	--jp-border-radius: 4px;
 	--jp-menu-border-height: 1px;
@@ -25,21 +25,29 @@
 
 /********* Mixins *********/
 @mixin for-phone-up {
-	@media (min-width: 600px) { @content; }
+	@media ( min-width: 600px ) {
+		@content;
+	}
 }
 @mixin for-tablet-up {
-	@media (min-width: 960px) { @content; }
+	@media ( min-width: 960px ) {
+		@content;
+	}
 }
 
 @mixin for-phone-down {
-	@media (max-width: 600px) { @content; }
+	@media ( max-width: 600px ) {
+		@content;
+	}
 }
 @mixin for-tablet-down {
-	@media (max-width: 960px) { @content; }
+	@media ( max-width: 960px ) {
+		@content;
+	}
 }
 
 /********* Generic styles *********/
-$wp-gray-dark: #23282D;
+$wp-gray-dark: #23282d;
 
 * {
 	box-sizing: border-box;
@@ -49,7 +57,8 @@ body {
 	min-height: 100%;
 	margin: 0;
 	padding: 0;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen-Sans', 'Ubuntu',
+		'Cantarell', 'Helvetica Neue', sans-serif;
 }
 .jp-wrap {
 	display: flex;
@@ -62,17 +71,17 @@ body {
 .jp-row {
 	display: grid;
 	grid-gap: 24px;
-	grid-template-columns: repeat(4, 1fr);
+	grid-template-columns: repeat( 4, 1fr );
 	width: 100%;
 	margin: 0 16px;
-	
+
 	@include for-phone-up {
-		grid-template-columns: repeat(8, 1fr);
+		grid-template-columns: repeat( 8, 1fr );
 		margin: 0 18px;
 	}
-	
+
 	@include for-tablet-up {
-		grid-template-columns: repeat(12, 1fr);
+		grid-template-columns: repeat( 12, 1fr );
 		max-width: 1128px;
 		margin: 0 24px;
 	}
@@ -123,17 +132,17 @@ body {
 .jp-row {
 	display: grid;
 	grid-gap: 24px;
-	grid-template-columns: repeat(4, 1fr);
+	grid-template-columns: repeat( 4, 1fr );
 	width: 100%;
 	margin: 0 16px;
-	
+
 	@include for-phone-up {
-		grid-template-columns: repeat(8, 1fr);
+		grid-template-columns: repeat( 8, 1fr );
 		margin: 0 18px;
 	}
-	
+
 	@include for-tablet-up {
-		grid-template-columns: repeat(12, 1fr);
+		grid-template-columns: repeat( 12, 1fr );
 		max-width: 1128px;
 		margin: 0 24px;
 	}
@@ -171,7 +180,7 @@ body {
 	}
 
 	&:after {
-		content: "→";
+		content: '→';
 		position: absolute;
 		top: 50%;
 		right: 24px;
