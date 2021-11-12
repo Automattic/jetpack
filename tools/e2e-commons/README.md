@@ -51,8 +51,8 @@ Add a `jest.config.js`
 ```js
 module.exports = {
     testEnvironment: require.resolve( 'jetpack-e2e-commons/env/playwright-environment.js' ),
-    globalSetup: require.resolve( 'jetpack-e2e-commons/env/global-setup.js' ),
-    globalTeardown: require.resolve( 'jetpack-e2e-commons/env/global-teardown.js' ),
+    globalSetup: require.resolve( 'jetpack-e2e-commons/env/global-setup.cjs' ),
+    globalTeardown: require.resolve( 'jetpack-e2e-commons/env/global-teardown.cjs' ),
     setupFilesAfterEnv: [ require.resolve( 'jetpack-e2e-commons/jest.setup.js' ), ],
 };
 ```
