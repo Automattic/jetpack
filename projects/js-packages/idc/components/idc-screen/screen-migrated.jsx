@@ -59,17 +59,20 @@ const ScreenMigrated = props => {
 				) }
 			</p>
 
-			<div className="jp-idc-card-migrated">
-				<div className="jp-idc-card-migrated-hostname">{ wpcomHostName }</div>
+			<div className="jp-idc__idc-screen__card-migrated">
+				<div className="jp-idc__idc-screen__card-migrated-hostname">{ wpcomHostName }</div>
 
-				<Dashicon icon="arrow-down-alt" className="jp-idc-card-migrated-separator" />
-				<Dashicon icon="arrow-right-alt" className="jp-idc-card-migrated-separator-wide" />
+				<Dashicon icon="arrow-down-alt" className="jp-idc__idc-screen__card-migrated-separator" />
+				<Dashicon
+					icon="arrow-right-alt"
+					className="jp-idc__idc-screen__card-migrated-separator-wide"
+				/>
 
-				<div className="jp-idc-card-migrated-hostname">{ currentHostName }</div>
+				<div className="jp-idc__idc-screen__card-migrated-hostname">{ currentHostName }</div>
 			</div>
 
 			<Button
-				className="jp-idc-card-action-button jp-idc-card-action-button-migrated"
+				className="jp-idc__idc-screen__card-action-button jp-idc__idc-screen__card-action-button-migrated"
 				onClick={ handleOkButton }
 				label={ buttonLabel }
 			>

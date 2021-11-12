@@ -1,9 +1,10 @@
-.jp-idc-screen-base .jp-idc__safe-mode {
+.jp-idc__idc-screen .jp-idc__safe-mode {
 	text-align: center;
 
 	.jp-idc__safe-mode__staying-safe {
 		display: flex;
 		justify-content: center;
+		padding: 6px;
 
 		.jp-components-spinner {
 			margin: 0 10px;
