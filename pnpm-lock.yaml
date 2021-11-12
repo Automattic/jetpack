@@ -377,7 +377,7 @@ importers:
     specifiers:
       '@automattic/jetpack-api': workspace:^0.5.1-alpha
       '@automattic/jetpack-connection': workspace:^0.10.0-alpha
-      '@automattic/jetpack-idc': workspace:^0.4.3-alpha
+      '@automattic/jetpack-idc': workspace:^0.5.0-alpha
       '@automattic/jetpack-webpack-config': workspace:^0.2.0-alpha
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.0
