@@ -146,6 +146,8 @@ class Critical_CSS extends Module {
 
 		if ( $this->should_display_critical_css() ) {
 			Admin_Bar_Css_Compat::init();
+			add_filter( 'jetpack_boost_async_style', array( $this, 'asynchronize_stylesheets_media' ), 10, 3 );
+
 			add_action( 'wp_head', array( $this, 'display_critical_css' ), 0 );
 			add_filter( 'style_loader_tag', array( $this, 'asynchronize_stylesheets' ), 10, 4 );
 			add_action( 'wp_footer', array( $this, 'onload_flip_stylesheets' ) );
@@ -652,34 +654,70 @@ class Critical_CSS extends Module {
 	 * @see style_loader_tag
 	 */
 	public function asynchronize_stylesheets( $html, $handle, $href, $media ) {
+		// If is AMP, do not alter the stylesheet loading.
 		if ( function_exists( 'is_amp_endpoint' ) && is_amp_endpoint() ) {
 			return $html;
 		}
 
+		// If there is no critical CSS, do not alter the stylesheet loading.
 		if ( false === $this->get_critical_css() ) {
 			return $html;
 		}
 
-		if ( ! apply_filters( 'jetpack_boost_async_style', true, $handle ) ) {
+		$available_methods = array(
+			'instant'  => 'media="' . $media . '"',
+			'async'    => 'media="not all" onload="this.media=\'all\'"',
+			'deferred' => 'media="not all"',
+		);
+
+		/**
+		 * Loading method for stylesheets.
+		 *
+		 * Filter the loading method for each stylesheet for the screen with following values:
+		 *     instant  - Stylesheet loading behaviour is not altered. Stylesheet loading is instant and the process blocks the page rendering.
+		 *     async    - Stylesheets are loaded asynchronously. Styles are applied once the stylesheet is loaded completely without render blocking.
+		 *     deferred - Loading of stylesheets are deferred till the window load event. Styles from all the stylesheets are applied at once after the page load.
+		 *
+		 * @see onload_flip_stylesheets for how stylesheets loading is deferred.
+		 *
+		 * @param string $handle The style's registered handle.
+		 * @param string $media  The stylesheet's media attribute.
+		 *
+		 * @todo  Retrieve settings from database, either via auto-configuration or UI option.
+		 */
+		$method = apply_filters( 'jetpack_boost_async_style', 'async', $handle, $media );
+
+		// If the method is explicitly false, do not load the specific stylesheet.
+		if ( ( false === $method ) ) {
+			return false;
+		}
+
+		// If the loading method is not allowed or 'instant', do not alter the stylesheet loading.
+		if ( ! isset( $available_methods[ $method ] ) || ( 'instant' === $method ) ) {
 			return $html;
 		}
-		$async_media = apply_filters( 'jetpack_boost_async_media', array( 'all', 'screen' ) );
 
-		// Convert stylesheets intended for screens.
-		if ( in_array( $media, $async_media, true ) ) {
-			/**
-			 * Load stylesheets after window load event.
-			 *
-			 * @param string $handle The style's registered handle.
-			 * @todo  Retrieve settings from database, either via auto-configuration or UI option.
-			 */
-			$window_loaded_media = apply_filters( 'jetpack_boost_window_loaded_media', false, $handle );
+		// Update the stylesheet markup for allowed methods.
+		return preg_replace( '~media=[\'"]?[^\'"\s]+[\'"]?~', $available_methods[ $method ], $html );
+	}
 
-			$media_replacement = $window_loaded_media ? 'media="not all"' : 'media="not all" onload="this.media=\'all\'"';
-			$html              = preg_replace( '~media=[\'"]?[^\'"\s]+[\'"]?~', $media_replacement, $html );
+	/**
+	 * Filter the stylesheet loading method for given media.
+	 *
+	 * If the stylesheet is not meant from screen, do not alter the stylesheet loading.
+	 *
+	 * @param string $method The stylesheet loading method.
+	 * @param string $handle The style's registered handle.
+	 * @param string $media  The stylesheet's media attribute.
+	 *
+	 * @return string Filtered loading method.
+	 */
+	public function asynchronize_stylesheets_media( $method, $handle, $media ) {
+		if ( ! in_array( $media, array( 'all', 'screen' ), true ) ) {
+			return 'instant';
 		}
 
-		return $html;
+		return $method;
 	}
 
 	/**
