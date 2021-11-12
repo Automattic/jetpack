@@ -10,7 +10,7 @@ import { find, isEmpty } from 'lodash';
  * WordPress dependencies
  */
 import { createInterpolateElement } from '@wordpress/element';
-import { __, _x, sprintf } from '@wordpress/i18n';
+import { __, _n, _x, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -31,8 +31,8 @@ import {
 import License from './license';
 import MyPlanCard from '../my-plan-card';
 
-const BACKUP_STORAGE_GB = 10;
-const BACKUP_PRO_STORAGE_TB = 1;
+const TIER_1_BACKUP_STORAGE_GB = 10;
+const TIER_2_BACKUP_STORAGE_TB = 1;
 
 class MyPlanHeader extends React.Component {
 	getProductProps( productSlug ) {
@@ -117,11 +117,42 @@ class MyPlanHeader extends React.Component {
 				};
 
 			case 'is-security-t1-plan':
+				return {
+					...productProps,
+					details: expiration,
+					tagLine: createInterpolateElement(
+						sprintf(
+							/* translators: %1$d is the number of gigabytes of storage space the site has. */
+							_n(
+								'Enjoy the peace of mind of complete site protection. You have <strong>%1$dGB</strong> of storage space.',
+								'Enjoy the peace of mind of complete site protection. You have <strong>%1$dGB</strong> of storage space.',
+								TIER_1_BACKUP_STORAGE_GB,
+								'jetpack'
+							),
+							TIER_1_BACKUP_STORAGE_GB
+						),
+						{ strong: <strong /> }
+					),
+					title: __( 'Jetpack Security', 'jetpack' ),
+				};
+
 			case 'is-security-t2-plan':
 				return {
 					...productProps,
 					details: expiration,
-					tagLine: __( 'Enjoy the peace of mind of complete site protection.', 'jetpack' ),
+					tagLine: createInterpolateElement(
+						sprintf(
+							/* translators: %1$d is the number of gigabytes of storage space the site has. */
+							_n(
+								'Enjoy the peace of mind of complete site protection. You have <strong>%1$dTB</strong> of storage space.',
+								'Enjoy the peace of mind of complete site protection. You have <strong>%1$dTB</strong> of storage space.',
+								TIER_2_BACKUP_STORAGE_TB,
+								'jetpack'
+							),
+							TIER_2_BACKUP_STORAGE_TB
+						),
+						{ strong: <strong /> }
+					),
 					title: __( 'Jetpack Security', 'jetpack' ),
 				};
 
@@ -140,13 +171,18 @@ class MyPlanHeader extends React.Component {
 				return {
 					...productProps,
 					details: expiration,
-					tagLine: sprintf(
-						/* translators: %1$d is the number of gigabytes of storage space the the site has. */
-						__(
-							'Your data is being securely backed up as you edit. You have %1$dGB of storage space.',
-							'jetpack'
+					tagLine: createInterpolateElement(
+						sprintf(
+							/* translators: %1$d is the number of gigabytes of storage space the site has. */
+							_n(
+								'Your data is being securely backed up as you edit. You have <strong>%1$dGB</strong> of storage space.',
+								'Your data is being securely backed up as you edit. You have <strong>%1$dGB</strong> of storage space.',
+								TIER_1_BACKUP_STORAGE_GB,
+								'jetpack'
+							),
+							TIER_1_BACKUP_STORAGE_GB
 						),
-						BACKUP_STORAGE_GB
+						{ strong: <strong /> }
 					),
 					title: __( 'Jetpack Backup', 'jetpack' ),
 				};
@@ -155,13 +191,18 @@ class MyPlanHeader extends React.Component {
 				return {
 					...productProps,
 					details: expiration,
-					tagLine: sprintf(
-						/* translators: %1$d is the number of terabytes of storage space the the site has. */
-						__(
-							'Your data is being securely backed up as you edit. You have %1$dTB of storage space.',
-							'jetpack'
+					tagLine: createInterpolateElement(
+						sprintf(
+							/* translators: %1$d is the number of terabytes of storage space the site has. */
+							_n(
+								'Your data is being securely backed up as you edit. You have <strong>%1$dTB</strong> of storage space.',
+								'Your data is being securely backed up as you edit. You have <strong>%1$dTB</strong> of storage space.',
+								TIER_2_BACKUP_STORAGE_TB,
+								'jetpack'
+							),
+							TIER_2_BACKUP_STORAGE_TB
 						),
-						BACKUP_PRO_STORAGE_TB
+						{ strong: <strong /> }
 					),
 					title: __( 'Jetpack Backup', 'jetpack' ),
 				};

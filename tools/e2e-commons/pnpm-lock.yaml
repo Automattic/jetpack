@@ -13,7 +13,7 @@ importers:
       chalk: 4.1.2
       config: 3.3.6
       eslint: 7.32.0
-      eslint-plugin-jest: 25.2.2
+      eslint-plugin-jest: 25.2.4
       jest: 27.3.1
       jest-circus-allure-environment: 1.1.0
       jetpack-cli: link:../cli
@@ -37,7 +37,7 @@ importers:
       chalk: 4.1.2
       config: 3.3.6
       eslint: 7.32.0
-      eslint-plugin-jest: 25.2.2_eslint@7.32.0
+      eslint-plugin-jest: 25.2.4_eslint@7.32.0+jest@27.3.1
       jest: 27.3.1
       jest-circus-allure-environment: 1.1.0
       jetpack-cli: link:../cli
@@ -3415,18 +3415,22 @@ packages:
       - typescript
     dev: true
 
-  /eslint-plugin-jest/25.2.2_eslint@7.32.0:
-    resolution: {integrity: sha512-frn5yhOF60U4kcqozO3zKTNZQUk+mfx037XOy2iiYL8FhorEkuCuL3/flzKcY1ECDP2WYT9ydmvlO3fRW9o4mg==}
+  /eslint-plugin-jest/25.2.4_eslint@7.32.0+jest@27.3.1:
+    resolution: {integrity: sha512-HRyinpgmEdkVr7pNPaYPHCoGqEzpgk79X8pg/xCeoAdurbyQjntJQ4pTzHl7BiVEBlam/F1Qsn+Dk0HtJO7Aaw==}
     engines: {node: ^12.13.0 || ^14.15.0 || >=16.0.0}
     peerDependencies:
       '@typescript-eslint/eslint-plugin': ^4.0.0 || ^5.0.0
       eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
+      jest: '*'
     peerDependenciesMeta:
       '@typescript-eslint/eslint-plugin':
+        optional: true
+      jest:
         optional: true
     dependencies:
       '@typescript-eslint/experimental-utils': 5.3.0_eslint@7.32.0
       eslint: 7.32.0
+      jest: 27.3.1
     transitivePeerDependencies:
       - supports-color
       - typescript
