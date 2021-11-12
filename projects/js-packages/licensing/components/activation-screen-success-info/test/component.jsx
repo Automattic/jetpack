@@ -25,8 +25,12 @@ describe( 'ActivationSuccessInfo', () => {
 		const wrapper = shallow( renderer.getRenderOutput() );
 
 		it( 'component exists', () => {
-				expect( wrapper.find( 'ActivationSuccessInfo' ) ).to.exist;
-			} );
+			expect( wrapper.find( 'ActivationSuccessInfo' ) ).to.exist;
+		} );
+
+		it( 'correct product class is used', () => {
+			expect( wrapper.find( 'JetpackBackupDailyProductDetails' ) ).to.exist;
+		} );
 
 
 	} );
