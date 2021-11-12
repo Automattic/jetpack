@@ -9,7 +9,7 @@ import {
 	getBlockWidgets,
 	setupBlockWidgets,
 	searchAPIRoute,
-} from '../helpers/search-helper.js';
+} from '../../helpers/search-helper.js';
 import { prerequisitesBuilder, Plans } from 'jetpack-e2e-commons/env/index.js';
 import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
 
@@ -39,6 +39,7 @@ test.describe( 'Search', () => {
 		await setupSidebarsWidgets();
 		await setupSearchWidget();
 		await setupBlockWidgets();
+		await page.close();
 	} );
 
 	test.afterAll( async () => {

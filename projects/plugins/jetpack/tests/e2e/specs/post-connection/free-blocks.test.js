@@ -28,6 +28,7 @@ test.describe.parallel( 'Free blocks', () => {
 			.withConnection( true )
 			.withPlan( Plans.Free )
 			.build();
+		await page.close();
 	} );
 
 	test.beforeEach( async ( { page } ) => {

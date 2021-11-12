@@ -27,6 +27,7 @@ test.describe( 'Paid blocks', () => {
 			.withConnection( true )
 			.withPlan( Plans.Complete )
 			.build();
+		await page.close();
 	} );
 
 	test.beforeEach( async ( { page } ) => {

@@ -16,6 +16,7 @@ test.describe( 'Jetpack pre-connection', () => {
 	test.beforeAll( async ( { browser } ) => {
 		const page = await browser.newPage();
 		await prerequisitesBuilder( page ).withCleanEnv().withLoggedIn( true ).build();
+		await page.close();
 	} );
 
 	test.beforeEach( async ( { page } ) => {

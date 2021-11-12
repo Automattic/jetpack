@@ -36,6 +36,7 @@ test.beforeAll( async ( { browser } ) => {
 	await execWpCommand(
 		`option set e2e_jetpack_upgrader_plugin_url ${ resolveSiteUrl() }/wp-content/uploads/jetpack.99.9.zip`
 	);
+	await page.close();
 } );
 
 test.afterAll( async () => {

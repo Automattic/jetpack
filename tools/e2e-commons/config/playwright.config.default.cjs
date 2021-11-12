@@ -3,8 +3,7 @@ const config = require( 'config' );
 const reporter = [
 	['list'],
 	['json', {  outputFile: `${ config.get('dirs.output') }/summary.json` }],
-	['allure-playwright'],
-	['html', { outputFolder: `${ config.get('dirs.reports') }/playwright-report` }]
+	['allure-playwright']
 ]
 
 if (process.env.CI) {

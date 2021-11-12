@@ -14,6 +14,7 @@ test.beforeAll( async ( { browser } ) => {
 		.withWpComLoggedIn( true )
 		.withConnection( true )
 		.build();
+	await page.close();
 } );
 
 test( 'Recommendations (Jetpack Assistant)', async ( { page } ) => {
