@@ -1,22 +1,15 @@
 const path = require( 'path' );
 const webpack = require( 'webpack' );
 
-const CalypsoMinify = require( '@automattic/calypso-build/webpack/minify' );
+const CssMinimizerPlugin = require( 'css-minimizer-webpack-plugin' );
+const TerserPlugin = require( './webpack/terser' );
 const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
 const DuplicatePackageCheckerWebpackPlugin = require( 'duplicate-package-checker-webpack-plugin' );
 const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
 const MiniCSSWithRTLPlugin = require( './webpack/mini-css-with-rtl' );
 const WebpackRTLPlugin = require( '@automattic/webpack-rtl-plugin' );
 
-// Calypso's Minify doesn't default to preserving the WordPress i18n functions. Sigh.
-const Minify = options =>
-	CalypsoMinify( {
-		...options,
-		terserOptions: {
-			mangle: { reserved: [ '__', '_n', '_nx', '_x' ] },
-			...options?.terserOptions,
-		},
-	} );
+const MyCssMinimizerPlugin = options => new CssMinimizerPlugin( options );
 
 // See README.md for explanations of all these settings.
 // If you change something here, you'll probably need to update README.md to match.
@@ -30,7 +23,7 @@ const output = {
 };
 const optimization = {
 	minimize: isProduction,
-	minimizer: Minify(),
+	minimizer: [ TerserPlugin(), MyCssMinimizerPlugin() ],
 	concatenateModules: false,
 };
 const resolve = {
@@ -112,8 +105,6 @@ const CssCacheLoader = options => ( {
 	},
 } );
 
-// TODO: SASS loader and CSS loaders
-
 // Note: For this cjs module to be used with named exports in an mjs context, modules.exports
 // needs to contain only simple variables like `a` or `a: b`. Define anything more complex
 // as a variable above, then use the variable here.
@@ -126,7 +117,8 @@ module.exports = {
 	devtool,
 	output,
 	optimization,
-	Minify,
+	TerserPlugin,
+	CssMinimizerPlugin: MyCssMinimizerPlugin,
 	resolve,
 	// Plugins.
 	StandardPlugins,
