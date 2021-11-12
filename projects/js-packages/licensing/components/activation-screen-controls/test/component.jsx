@@ -67,18 +67,19 @@ describe( 'ActivationScreenControls', () => {
 		const wrapper = shallow( <ActivationScreenControls { ...testProps } /> );
 
 		it( 'license field has error styling', () => {
-
-			const licenseFieldwithError = wrapper.find( '.jp-license-activation-screen-controls--license-field-with-error' );
+			const licenseFieldwithError = wrapper.find(
+				'.jp-license-activation-screen-controls--license-field-with-error'
+			);
 			expect( licenseFieldwithError ).to.have.lengthOf( 1 );
-
 		} );
 
 		it( 'license error is shown', () => {
-			const licenseErrorDisplay = wrapper.find( '.jp-license-activation-screen-controls--license-field-error' );
+			const licenseErrorDisplay = wrapper.find(
+				'.jp-license-activation-screen-controls--license-field-error'
+			);
 
 			expect( licenseErrorDisplay ).to.have.lengthOf( 1 );
 			expect( licenseErrorDisplay.text() ).to.equal( '<ErrorGridicon />' + testProps.licenseError );
 		} );
-
 	} );
 } );

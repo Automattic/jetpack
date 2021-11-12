@@ -8,14 +8,12 @@ import { sprintf, __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-
+/**
+ * Internal dependencies
+ */
+import ErrorGridicon from './error-gridicon';
 
 /**
-  * Internal dependencies
-  */
- import ErrorGridicon from './error-gridicon';
-
- /**
  * Style dependencies
  */
 import './style.scss';
