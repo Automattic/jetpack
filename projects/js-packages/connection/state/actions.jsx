@@ -51,6 +51,7 @@ const connectionStatusActions = {
 			.registerSite( registrationNonce, redirectUri )
 			.then( response => {
 				dispatch( STORE_ID ).setSiteIsRegistering( false );
+				dispatch( STORE_ID ).setConnectionStatus( { isRegistered: true } );
 				dispatch( STORE_ID ).setAuthorizationUrl( response.authorizeUrl );
 				dispatch( STORE_ID ).setUserIsConnecting( true );
 			} )
