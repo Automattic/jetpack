@@ -24,9 +24,9 @@ const ActivationScreenIllustration = props => {
 	const { imageUrl, showSupportLink = false } = props;
 	return (
 		<div className="jp-license-activation-screen-illustration">
-			<img src={ imageUrl } alt="" />
+			<img className="jp-license-activation-screen-illustration__img" src={ imageUrl } alt="" />
 			{ showSupportLink && (
-				<p>
+				<p className="jp-license-activation-screen-illustration__support-link" >
 					{ createInterpolateElement( __( 'Do you need help? <a>Contact us.</a>', 'jetpack' ), {
 						a: <a href={ getRedirectUrl( 'jetpack-support' ) } />,
 					} ) }
@@ -36,7 +36,7 @@ const ActivationScreenIllustration = props => {
 	);
 };
 
-ActivationScreenIllustration.PropTypes = {
+ActivationScreenIllustration.propTypes = {
 	imageUrl: PropTypes.string.isRequired,
 	showSupportLink: PropTypes.bool,
 };

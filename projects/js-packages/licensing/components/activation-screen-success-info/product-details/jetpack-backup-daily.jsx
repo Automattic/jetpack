@@ -37,7 +37,7 @@ const JetpackBackupDailyProductDetails = props => {
 	);
 };
 
-JetpackBackupDailyProductDetails.PropTypes = {
+JetpackBackupDailyProductDetails.propTypes = {
 	dashboardUrl: PropTypes.string,
 };
 

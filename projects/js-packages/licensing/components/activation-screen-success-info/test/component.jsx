@@ -4,12 +4,12 @@
 import React from 'react';
 import { expect } from 'chai';
 import { shallow } from 'enzyme';
-import ShallowRenderer from 'react-test-renderer/shallow';
 
 /**
  * Internal dependencies
  */
-import ActivationSuccessInfo from '../index';
+import ActivationSuccessInfo from '..';
+import { JetpackBackupDailyProductDetails } from '../product-details'
 
 describe( 'ActivationSuccessInfo', () => {
 
@@ -19,19 +19,12 @@ describe( 'ActivationSuccessInfo', () => {
 	};
 
 	describe( 'Render the ActivationSuccessInfo component', () => {
-		const renderer = new ShallowRenderer();
-		renderer.render( <ActivationSuccessInfo { ...testProps } /> );
 
-		const wrapper = shallow( renderer.getRenderOutput() );
-
-		it( 'component exists', () => {
-			expect( wrapper.find( 'ActivationSuccessInfo' ) ).to.exist;
-		} );
+		const wrapper = shallow( <ActivationSuccessInfo { ...testProps } /> );
 
 		it( 'correct product class is used', () => {
-			expect( wrapper.find( 'JetpackBackupDailyProductDetails' ) ).to.exist;
+			expect( wrapper.find( JetpackBackupDailyProductDetails ) ).to.have.lengthOf( 1 );
 		} );
-
 
 	} );
 

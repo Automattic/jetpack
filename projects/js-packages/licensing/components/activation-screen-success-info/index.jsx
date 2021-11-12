@@ -56,7 +56,7 @@ const ActivationSuccessInfo = props => {
 	);
 };
 
-ActivationSuccessInfo.PropTypes = {
+ActivationSuccessInfo.propTypes = {
 	productId: PropTypes.number,
 	dashboardUrl: PropTypes.string,
 };
