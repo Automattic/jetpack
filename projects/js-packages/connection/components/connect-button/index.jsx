@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -62,7 +62,7 @@ const ConnectButton = props => {
 			}
 			registerSite( registrationNonce, redirectUri );
 		},
-		[ isRegistered ]
+		[ isRegistered, registrationNonce, redirectUri, registerSite, setUserIsConnecting ]
 	);
 
 	/**
