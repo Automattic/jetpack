@@ -27,7 +27,7 @@ const ConnectScreenVisual = props => {
 		children,
 		assetBaseUrl,
 		autoTrigger,
-		connectionStatus,
+		isLoading,
 		renderConnectBtn,
 	} = props;
 
@@ -57,9 +57,7 @@ const ConnectScreenVisual = props => {
 			images={ images }
 			className={
 				'jp-connection__connect-screen' +
-				( connectionStatus.hasOwnProperty( 'isRegistered' )
-					? ''
-					: ' jp-connection__connect-screen__loading' )
+				( isLoading ? ' jp-connection__connect-screen__loading' : '' )
 			}
 		>
 			<div className="jp-connection__connect-screen__content">
@@ -78,8 +76,8 @@ ConnectScreenVisual.propTypes = {
 	title: PropTypes.string,
 	/** The Connect Button label. */
 	buttonLabel: PropTypes.string,
-	/** Connection Status object */
-	connectionStatus: PropTypes.object.isRequired,
+	/** Whether the connection status is still loading. */
+	isLoading: PropTypes.bool.isRequired,
 	/** Whether to initiate the connection process automatically upon rendering the component. */
 	autoTrigger: PropTypes.bool,
 	/** Connect button render function */
