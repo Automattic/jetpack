@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { dispatch, select } from '@wordpress/data';
+import { dispatch } from '@wordpress/data';
 import restApi from '@automattic/jetpack-api';
 
 /**
