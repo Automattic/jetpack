@@ -1,8 +1,18 @@
 /**
+ * External dependencies
+ */
+/*eslint lodash/import-scope: [2, "method"]*/
+import debounce from 'lodash/debounce';
+
+/**
  * Internal dependencies
  */
 import { search } from '../lib/api';
-import { SORT_DIRECTION_ASC, VALID_SORT_KEYS } from '../lib/constants';
+import {
+	DEBOUNCED_TIME_TO_SET_QUERY_MILLISECONDS,
+	SORT_DIRECTION_ASC,
+	VALID_SORT_KEYS,
+} from '../lib/constants';
 import { getFilterKeys, getStaticFilterKeys } from '../lib/filters';
 import { getQuery, setQuery } from '../lib/query-string';
 import {
@@ -17,6 +27,7 @@ import {
 
 let requestCounter = 0;
 let queryStringIntegrationEnabled = true;
+const debouncedSetQuery = debounce( setQuery, DEBOUNCED_TIME_TO_SET_QUERY_MILLISECONDS );
 
 /**
  * Effect handler which will fetch search results from the API.
@@ -118,7 +129,9 @@ function updateSearchQueryString( action ) {
 		delete queryObject.s;
 	}
 
-	setQuery( queryObject );
+	// Uses a debounced version of the setQuery, which ensures we're not spamming the user's browser history
+	// with partly typed queries.
+	debouncedSetQuery( queryObject );
 }
 
 /**

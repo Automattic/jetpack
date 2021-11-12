@@ -1,0 +1,32 @@
+{
+	"name": "automattic/eslint-config-target-es",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "^3.0"
+	},
+	"scripts": {
+		"test-js": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm install",
+			"pnpm run test"
+		],
+		"test-coverage": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm install",
+			"pnpm run test-coverage"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true
+}

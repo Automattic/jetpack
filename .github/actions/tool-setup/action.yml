@@ -17,16 +17,6 @@ runs:
       run: |
         . .github/versions.sh
 
-        # GH doesn't support "if" here. ☹️
-        if [[ "$INPUT_PHP" == "false" ]]; then
-          echo 'Cannot support `php: false`, GitHub does not support conditionals in composite actions yet. ☹️'
-          INPUT_PHP=
-        fi
-        if [[ "$INPUT_NODE" == "false" ]]; then
-          echo 'Cannot support `node: false`, GitHub does not support conditionals in composite actions yet. ☹️'
-          INPUT_NODE=
-        fi
-
         printf "\n\e[1mSelected tool versions\e[0m\n"
         echo " PHP: ${INPUT_PHP:-$PHP_VERSION}"
         echo "::set-output name=php-version::${INPUT_PHP:-$PHP_VERSION}"
@@ -37,11 +27,32 @@ runs:
         echo " Pnpm: $PNPM_VERSION"
         echo "::set-output name=pnpm-version::$PNPM_VERSION"
 
+    - name: Remove disabled tools
+      shell: bash
+      if: steps.versions.outputs.php-version == 'false' || steps.versions.outputs.node-version == 'false'
+      env:
+        PHP: ${{ steps.versions.outputs.php-version }}
+        NODE: ${{ steps.versions.outputs.node-version }}
+      run: |
+        printf "\n\e[1mRemoving installed versions of disabled tools\e[0m\n"
+        torm=()
+        if [[ "$PHP" == "false" ]]; then
+          torm+=( php phpdbg composer )
+        fi
+        if [[ "$NODE" == "false" ]]; then
+          torm+=( node npm pnpm )
+        fi
+        for tool in "${torm[@]}"; do
+          while command -v "$tool" &>/dev/null; do
+            sudo rm -v "$(command -v "$tool")"
+          done
+        done
+
     - run: printf "\n\e[1mSetup PHP\e[0m\n"
       shell: bash
-      #if: steps.versions.outputs.php-version != 'false'
+      if: steps.versions.outputs.php-version != 'false'
     - name: Setup PHP
-      #if: steps.versions.outputs.php-version != 'false'
+      if: steps.versions.outputs.php-version != 'false'
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ steps.versions.outputs.php-version }}
@@ -52,24 +63,24 @@ runs:
 
     - run: printf "\n\e[1mSetup Node\e[0m\n"
       shell: bash
-      #if: steps.versions.outputs.node-version != 'false'
+      if: steps.versions.outputs.node-version != 'false'
     - name: Setup Node
-      #if: steps.versions.outputs.node-version != 'false'
+      if: steps.versions.outputs.node-version != 'false'
       uses: actions/setup-node@v2
       with:
         node-version: ${{ steps.versions.outputs.node-version }}
 
     - run: printf "\n\e[1mSetup Composer cache\e[0m\n"
       shell: bash
-      #if: steps.versions.outputs.php-version != 'false'
+      if: steps.versions.outputs.php-version != 'false'
     - name: Get Composer cache directory
-      #if: steps.versions.outputs.php-version != 'false'
+      if: steps.versions.outputs.php-version != 'false'
       id: composer-cache
       shell: bash
       run: |
         echo "::set-output name=dir::$(composer config cache-files-dir)"
     - name: Use composer cache
-      #if: steps.versions.outputs.php-version != 'false'
+      if: steps.versions.outputs.php-version != 'false'
       uses: actions/cache@v2
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
@@ -79,9 +90,9 @@ runs:
 
     - run: printf "\n\e[1mSetup pnpm\e[0m\n"
       shell: bash
-      #if: steps.versions.outputs.node-version != 'false'
+      if: steps.versions.outputs.node-version != 'false'
     - name: Use pnpm cache
-      #if: steps.versions.outputs.node-version != 'false'
+      if: steps.versions.outputs.node-version != 'false'
       uses: actions/cache@v2
       with:
         path: ~/.pnpm-store
@@ -89,7 +100,7 @@ runs:
         restore-keys: |
           ${{ runner.os }}-pnpm-${{ steps.versions.outputs.node-version }}-
     - name: Setup pnpm
-      #if: steps.versions.outputs.node-version != 'false'
+      if: steps.versions.outputs.node-version != 'false'
       uses: pnpm/action-setup@v2.0.1
       with:
         version: ${{ steps.versions.outputs.pnpm-version }}
