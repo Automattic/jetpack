@@ -35,7 +35,7 @@ class Jetpack_Widget_Conditions {
 		// If action is posted and it's save-widget then it's relevant to widget conditions, otherwise it's something
 		// else and it's not worth registering hooks.
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		if ( isset( $_POST['action'] ) && ! in_array( $_POST['action'], array( 'save-widget', 'update-widget' ), true ) ) {
+		if ( isset( $_POST['action'] ) && ! isset( $_POST['customize_changeset_uuid'] ) && ! in_array( $_POST['action'], array( 'save-widget', 'update-widget' ), true ) ) {
 			return;
 		}
 
