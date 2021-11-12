@@ -103,7 +103,6 @@ module.exports = [
 		entry: { static: path.join( __dirname, '../_inc/client', 'static.jsx' ) },
 		output: {
 			...sharedWebpackConfig.output,
-			pathinfo: true,
 			libraryTarget: 'commonjs2',
 		},
 		plugins: [
