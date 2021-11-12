@@ -264,5 +264,4 @@ The options and corresponding components are:
   - `regenerator`: Set false.
   - `absoluteRuntime`: Set true, as otherwise transpilation of code symlinked in node_modules (i.e. everything when using pnpm) breaks.
   - `version`: Set to the version from `@babel/runtime`.
-- `pluginCalypsoOptimizeI18n`: Corresponds to Calypso's [babel-plugin-optimize-i18n](https://github.com/Automattic/wp-calypso/blob/trunk/packages/calypso-build/babel/babel-plugin-optimize-i18n.js) plugin.
-  It's not clear whether this is supposed to be an actual optimization, or just a way to better preserve the `__()` calls.
+- `pluginPreserveI18n`: Corresponds to [@automattic/babel-plugin-preserve-i18n](https://www.npmjs.com/package/@automattic/babel-plugin-preserve-i18n).
