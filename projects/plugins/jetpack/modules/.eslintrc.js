@@ -6,6 +6,8 @@ module.exports = {
 		es6: true,
 	},
 	globals: {
+		_: false,
+		Backbone: false,
 		wp: false,
 	},
 	parserOptions: {
