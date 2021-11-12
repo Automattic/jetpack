@@ -12,26 +12,20 @@ BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
 
 function usage {
 	cat <<-EOH
-		usage: $0 [options] <directory>
+		usage: $0 [project] [version 1] [version 2]
 
-		Most options accepted by \`composer require\` are accepted to pass on
-		to composer while updating dependencies.
+		* project   - the project you want to get the release branch for, e.g `jetpack`
+        * version 1 - the first version you want to compare contributors for. e.g. `10.1`
+        * version 2 - the second version you want to compare contributores for, e.g. `10.2` 
 	EOH
 	exit 1
 }
 
 if [[ -z $1 ]]; then
-    echo 'No branch detected'
-    exit
+    usage
+    exit 1
 fi
 
-git checkout jetpack/branch-$1 && git checkout master
-git checkout jetpack/branch-$2 && git checkout master 
-git log --format='%an' --no-merges jetpack/branch-$1..jetpack/branch-$2 |
-sort |
-uniq |
-sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/, /g' |
-pbcopy
-echo 'Copied to your clipboard!' 
+git log --format='%an' --no-merges $1/branch-$2..jetpack/branch-$3 | sort | uniq | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/, /g' | sed 's/renovate\[bot\], //'
 
 exit
