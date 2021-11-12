@@ -33,8 +33,6 @@ class Test_Actions extends BaseTestCase {
 	 * Tests the do_only_first_intitial_sync method when an initial sync has already been performed.
 	 */
 	public function test_do_only_first_intitial_sync_already_started() {
-		Constants::set_constant( 'JETPACK_DISABLE_RAW_OPTIONS', true );
-
 		$full_sync_option = array(
 			'started'  => time(),
 			'finished' => false,
