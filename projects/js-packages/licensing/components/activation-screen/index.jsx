@@ -44,6 +44,8 @@ const ActivationScreen = props => {
 		// TODO: unconnected, will connect via jetpack-api in separate PR
 		setTimeout( () => {
 			setIsSaving( false );
+			setLicenseError( null );
+			setActivatedProduct( 2100 );
 		}, 5000 );
 	}, [ isSaving, license ] );
 
