@@ -24,6 +24,7 @@ const playwrightConfig = {
 		viewport: { width: 1280, height: 720 },
 		ignoreHTTPSErrors: true,
 		actionTimeout: 20000,
+		screenshot: 'only-on-failure',
 		video: 'retain-on-failure',
 		trace: 'retain-on-failure',
 		storageState: config.get( 'temp.storage' ),
