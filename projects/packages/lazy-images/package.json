@@ -16,20 +16,17 @@
 	],
 	"scripts": {
 		"build": "pnpm run install-if-deps-outdated && pnpm run clean && pnpm run build-js",
-		"build-js": "calypso-build && cp ./node_modules/intersection-observer/intersection-observer.js ./dist/intersection-observer.src.js",
+		"build-js": "webpack",
 		"build-production": "pnpm run distclean && pnpm run install-if-deps-outdated && pnpm run build-production-js",
 		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm run build-js",
 		"clean": "rm -rf dist",
 		"distclean": "rm -rf node_modules && pnpm run clean",
 		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile"
 	},
-	"dependencies": {
-		"intersection-observer": "0.12.0"
-	},
 	"devDependencies": {
-		"@automattic/calypso-build": "9.0.0",
-		"@wordpress/browserslist-config": "4.1.0",
-		"eslint": "7.32.0",
+		"@automattic/jetpack-webpack-config": "workspace:^0.1.1-alpha",
+		"copy-webpack-plugin": "9.0.1",
+		"intersection-observer": "0.12.0",
 		"webpack": "5.51.1"
 	},
 	"engines": {
