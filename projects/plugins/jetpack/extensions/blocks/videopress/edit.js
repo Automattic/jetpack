@@ -196,14 +196,14 @@ const VideoPressEdit = CoreVideoEdit =>
 			return media;
 		};
 
-		setTracks = async guid => {
+		setTracks = guid => {
 			const { setAttributes } = this.props;
 
 			if ( ! guid ) {
 				return;
 			}
 
-			await apiFetch( {
+			apiFetch( {
 				url: `https://public-api.wordpress.com/rest/v1.1/videos/${ guid }`,
 				credentials: 'omit',
 				global: true,
