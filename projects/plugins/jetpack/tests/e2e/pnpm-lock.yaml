@@ -6,6 +6,7 @@ importers:
     specifiers:
       '@playwright/test': 1.16.3
       '@wordpress/eslint-plugin': 9.2.0
+      allure-playwright: 2.0.0-beta.14
       config: 3.3.6
       eslint: 7.32.0
       eslint-plugin-playwright: 0.6.0
@@ -15,6 +16,7 @@ importers:
     devDependencies:
       '@playwright/test': 1.16.3
       '@wordpress/eslint-plugin': 9.2.0_eslint@7.32.0
+      allure-playwright: 2.0.0-beta.14
       config: 3.3.6
       eslint: 7.32.0
       eslint-plugin-playwright: 0.6.0_eslint@7.32.0
@@ -904,6 +906,20 @@ packages:
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
       uri-js: 4.4.1
+    dev: true
+
+  /allure-js-commons/2.0.0-beta.14:
+    resolution: {integrity: sha512-5OlMp8kdc5FuxkquOV1ZXxJCAmFUwHnI5OqL2IlhJ65NKBeABpMwro6BbhlJqcV8iPQmh1w9bErTICSeB+Hj2A==}
+    dependencies:
+      mkdirp: 1.0.4
+      properties: 1.2.1
+      uuid: 8.3.2
+    dev: true
+
+  /allure-playwright/2.0.0-beta.14:
+    resolution: {integrity: sha512-UAhqPOxdFYL/YuoHvrKhdBKviEgHLJubGYdbVNyX04lbbqIx1ddTHE/xo9VmHhOQCiT3WOJDOc7jljuLKom34A==}
+    dependencies:
+      allure-js-commons: 2.0.0-beta.14
     dev: true
 
   /ansi-colors/4.1.1:
@@ -2254,6 +2270,12 @@ packages:
     resolution: {integrity: sha512-FM9nNUYrRBAELZQT3xeZQ7fmMOBg6nWNmJKTcgsJeaLstP/UODVpGsr5OhXhhXg6f+qtJ8uiZ+PUxkDWcgIXLw==}
     dev: true
 
+  /mkdirp/1.0.4:
+    resolution: {integrity: sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==}
+    engines: {node: '>=10'}
+    hasBin: true
+    dev: true
+
   /ms/2.0.0:
     resolution: {integrity: sha1-VgiurfwAvmwpAd9fmGF4jeDVl8g=}
     dev: true
@@ -2579,6 +2601,11 @@ packages:
       graceful-fs: 4.2.8
       retry: 0.12.0
       signal-exit: 3.0.5
+    dev: true
+
+  /properties/1.2.1:
+    resolution: {integrity: sha1-Dul6f8AgsaKlW4ZZ7aSqjYaQlL0=}
+    engines: {node: '>=0.10'}
     dev: true
 
   /proxy-from-env/1.1.0:
@@ -2975,6 +3002,11 @@ packages:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
     dependencies:
       punycode: 2.1.1
+    dev: true
+
+  /uuid/8.3.2:
+    resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
+    hasBin: true
     dev: true
 
   /v8-compile-cache/2.3.0:

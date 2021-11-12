@@ -1,14 +1,22 @@
 const config = require( 'config' );
 
+const reporter = [
+	['list'],
+	['json', {  outputFile: `${ config.get('dirs.output') }/summary.json` }],
+	['allure-playwright'],
+	['html', { outputFolder: `${ config.get('dirs.reports') }/playwright-report` }]
+]
+
+if (process.env.CI) {
+	reporter.push(['github'])
+}
+
 const playwrightConfig = {
 	timeout: 300000,
 	retries: 0,
 	workers: 1,
 	outputDir: config.get('dirs.output'),
-	reporter: [
-		['line'],
-		['json', {  outputFile: `${ config.get('dirs.output') }/summary.json` }]
-	],
+	reporter,
 	use: {
 		browserName: 'chromium',
 		channel: '',

@@ -7,6 +7,7 @@ importers:
       '@playwright/test': 1.16.3
       '@slack/web-api': 6.4.0
       '@wordpress/eslint-plugin': 9.2.0
+      allure-playwright: 2.0.0-beta.14
       axios: 0.24.0
       chalk: 4.1.2
       config: 3.3.6
@@ -25,6 +26,7 @@ importers:
       '@playwright/test': 1.16.3
       '@slack/web-api': 6.4.0
       '@wordpress/eslint-plugin': 9.2.0_eslint@7.32.0
+      allure-playwright: 2.0.0-beta.14
       axios: 0.24.0
       chalk: 4.1.2
       config: 3.3.6
@@ -1071,6 +1073,20 @@ packages:
       uri-js: 4.4.1
     dev: true
 
+  /allure-js-commons/2.0.0-beta.14:
+    resolution: {integrity: sha512-5OlMp8kdc5FuxkquOV1ZXxJCAmFUwHnI5OqL2IlhJ65NKBeABpMwro6BbhlJqcV8iPQmh1w9bErTICSeB+Hj2A==}
+    dependencies:
+      mkdirp: 1.0.4
+      properties: 1.2.1
+      uuid: 8.3.2
+    dev: true
+
+  /allure-playwright/2.0.0-beta.14:
+    resolution: {integrity: sha512-UAhqPOxdFYL/YuoHvrKhdBKviEgHLJubGYdbVNyX04lbbqIx1ddTHE/xo9VmHhOQCiT3WOJDOc7jljuLKom34A==}
+    dependencies:
+      allure-js-commons: 2.0.0-beta.14
+    dev: true
+
   /amp-message/0.1.2:
     resolution: {integrity: sha1-p48cmJlQh602GSpBKY5NtJ49/EU=}
     dependencies:
@@ -1228,7 +1244,7 @@ packages:
   /axios/0.24.0:
     resolution: {integrity: sha512-Q6cWsys88HoPgAaFAVUb0WpPk0O8iTeisR9IMqy9G8AbO4NlpVknrnQS03zzF9PGAWgO3cgletO3VjV/P7VztA==}
     dependencies:
-      follow-redirects: 1.14.5
+      follow-redirects: 1.14.5_debug@4.3.2
     transitivePeerDependencies:
       - debug
     dev: true
@@ -3475,6 +3491,11 @@ packages:
       signal-exit: 3.0.5
     dev: true
 
+  /properties/1.2.1:
+    resolution: {integrity: sha1-Dul6f8AgsaKlW4ZZ7aSqjYaQlL0=}
+    engines: {node: '>=0.10'}
+    dev: true
+
   /proxy-agent/5.0.0:
     resolution: {integrity: sha512-gkH7BkvLVkSfX9Dk27W6TyNOWWZWRilRfk1XxGNWOYJ2TuedAv1yFpCaU9QSBmBe716XOTNpYNOzhysyw8xn7g==}
     engines: {node: '>= 8'}
@@ -4121,6 +4142,11 @@ packages:
   /uuid/3.4.0:
     resolution: {integrity: sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==}
     deprecated: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circumstances, which is known to be problematic.  See https://v8.dev/blog/math-random for details.
+    hasBin: true
+    dev: true
+
+  /uuid/8.3.2:
+    resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
     hasBin: true
     dev: true
 
