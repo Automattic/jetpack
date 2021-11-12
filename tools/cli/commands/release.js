@@ -151,6 +151,11 @@ export async function scriptRouter( argv ) {
 				      jetpack release ${ argv.project } new-cycle \n`.replace( /^\t+/gm, '' );
 			break;
 		case 'append':
+			// Check if we're on the release branch
+			argv.script = `projects/plugins/jetpack/vendor/bin/changelogger`;
+			argv.scriptArgs = [ `write`, `--amend` ];
+			argv.next = `Finished! Next: `;
+			break;
 		case 'new-cycle':
 			console.log( `${ argv.script } is not implemented yet!` );
 			process.exit( 1 );
