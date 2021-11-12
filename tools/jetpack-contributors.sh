@@ -7,6 +7,8 @@ BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
 . "$BASE/tools/includes/chalk-lite.sh"
 
 # This script will obtain the contributor list between two Jetpack branches.
+# tldr, we need to run  git fetch origin master:jetpack/branch-$1 && git fetch origin master:jetpack/branch-$2
+# then run git log --all --format='%an' --no-merges jetpack/branch-10.2..jetpack/branch-10.3 | sort | uniq | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/, /g' | pbcopy
 
 function usage {
 	cat <<-EOH
@@ -23,10 +25,12 @@ if [[ -z $1 ]]; then
     exit
 fi
 
-git log --format='%an' --no-merges jetpack/branch-10.2..jetpack/branch-10.3
-sort
-uniq
-sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/, /g'
+git checkout jetpack/branch-$1 && git checkout master
+git checkout jetpack/branch-$2 && git checkout master 
+git log --format='%an' --no-merges jetpack/branch-$1..jetpack/branch-$2 |
+sort |
+uniq |
+sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/, /g' |
 pbcopy
 echo 'Copied to your clipboard!' 
 
