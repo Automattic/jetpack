@@ -5,7 +5,7 @@ const CalypsoMinify = require( '@automattic/calypso-build/webpack/minify' );
 const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
 const DuplicatePackageCheckerWebpackPlugin = require( 'duplicate-package-checker-webpack-plugin' );
 const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
-const MiniCSSWithRTLPlugin = require( '@automattic/calypso-build/webpack/mini-css-with-rtl' );
+const MiniCSSWithRTLPlugin = require( './webpack/mini-css-with-rtl' );
 const WebpackRTLPlugin = require( '@automattic/webpack-rtl-plugin' );
 
 // Calypso's Minify doesn't default to preserving the WordPress i18n functions. Sigh.
@@ -56,10 +56,9 @@ const MomentLocaleIgnorePlugin = () => [
 
 const MyMiniCssExtractPlugin = options => [ new MiniCssExtractPlugin( options ) ];
 
-const RtlCssPlugins = options => [
-	new MiniCSSWithRTLPlugin( options?.miniCssWithRtlOpts ),
-	new WebpackRTLPlugin( options?.webpackRtlPluginOpts ),
-];
+const MyMiniCssWithRtlPlugin = options => [ new MiniCSSWithRTLPlugin( options ) ];
+
+const MyWebpackRtlPlugin = options => [ new WebpackRTLPlugin( options ) ];
 
 const DuplicatePackageCheckerPlugin = options => [
 	new DuplicatePackageCheckerWebpackPlugin( options ),
@@ -76,7 +75,10 @@ const StandardPlugins = ( options = {} ) => {
 		...( options.MiniCssExtractPlugin === false
 			? []
 			: MyMiniCssExtractPlugin( options.MiniCssExtractPlugin ) ),
-		...( options.RtlCssPlugins === false ? [] : RtlCssPlugins( options.RtlCssPlugins ) ),
+		...( options.MiniCssWithRtlPlugin === false
+			? []
+			: MyMiniCssWithRtlPlugin( options.MiniCssWithRtlPlugin ) ),
+		...( options.WebpackRtlPlugin === false ? [] : MyWebpackRtlPlugin( options.WebpackRtlPlugin ) ),
 		...( options.DuplicatePackageCheckerPlugin === false
 			? []
 			: DuplicatePackageCheckerPlugin( options.DuplicatePackageCheckerPlugin ) ),
@@ -131,7 +133,8 @@ module.exports = {
 	DefinePlugin,
 	MomentLocaleIgnorePlugin,
 	MiniCssExtractPlugin: MyMiniCssExtractPlugin,
-	RtlCssPlugins,
+	MiniCssWithRtlPlugin: MyMiniCssWithRtlPlugin,
+	WebpackRtlPlugin: MyWebpackRtlPlugin,
 	DependencyExtractionPlugin,
 	DuplicatePackageCheckerPlugin,
 	// Module rules and loaders.
