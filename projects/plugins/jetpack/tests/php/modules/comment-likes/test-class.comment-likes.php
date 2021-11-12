@@ -26,7 +26,6 @@ class WP_Test_Comment_Likes extends WP_UnitTestCase {
 		$instance->load_styles_register_scripts();
 
 		$this->assertFalse( wp_style_is( 'jetpack_likes' ) );
-		$this->assertFalse( wp_script_is( 'postmessage' ) );
 	}
 
 	/**
@@ -40,6 +39,5 @@ class WP_Test_Comment_Likes extends WP_UnitTestCase {
 		$instance->load_styles_register_scripts();
 
 		$this->assertTrue( wp_style_is( 'jetpack_likes' ) );
-		$this->assertTrue( wp_script_is( 'postmessage' ) );
 	}
 }
