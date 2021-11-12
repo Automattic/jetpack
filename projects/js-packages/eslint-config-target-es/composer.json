@@ -28,5 +28,13 @@
 		}
 	],
 	"minimum-stability": "dev",
-	"prefer-stable": true
+	"prefer-stable": true,
+	"extra": {
+		"autotagger": true,
+		"npmjs-autopublish": true,
+		"mirror-repo": "Automattic/eslint-config-target-es",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/eslint-config-target-es/compare/${old}...${new}"
+		}
+	}
 }
