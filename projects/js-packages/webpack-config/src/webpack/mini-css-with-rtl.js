@@ -3,7 +3,7 @@
  * function with one that conditionally substitutes the rtl asset from
  * `@automattic/webpack-rtl-plugin`.
  *
- * Forked from @automattic/calyspo-build v9.0.0, then significantly cleaned up.
+ * Forked from @automattic/calypso-build v9.0.0, then significantly cleaned up.
  */
 const { validate } = require( 'schema-utils' );
 const webpack = require( 'webpack' );
