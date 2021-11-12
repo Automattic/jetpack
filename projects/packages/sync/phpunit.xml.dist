@@ -1,7 +1,4 @@
 <phpunit bootstrap="tests/php/bootstrap.php" backupGlobals="false" colors="true" convertDeprecationsToExceptions="true">
-	<php>
-		<const name="PHPUNIT_JETPACK_TESTSUITE" value="true"/>
-	</php>
 	<testsuites>
 		<testsuite name="main">
 			<directory prefix="test" suffix=".php">tests/php</directory>

@@ -510,13 +510,9 @@ class Actions {
 	/**
 	 * Do an initial full sync only if one has not already been started.
 	 *
-	 * @return bool|null False if the initial full sync was not started, otherwise null.
+	 * @return bool|null False if the initial full sync was already started, otherwise null.
 	 */
 	public static function do_only_first_initial_sync() {
-		if ( ! self::sync_allowed() ) {
-			return false;
-		}
-
 		$full_sync_module = Modules::get_module( 'full-sync' );
 		if ( $full_sync_module && $full_sync_module->is_started() ) {
 			return false;
