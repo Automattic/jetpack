@@ -12,10 +12,7 @@ const webpack = jetpackWebpackConfig.webpack;
 /**
  * Internal dependencies
  */
-const {
-	definePaletteColorsAsStaticVariables,
-	defineReadableJSAssetsPluginForSearch,
-} = require( './webpack.helpers' );
+const { definePaletteColorsAsStaticVariables } = require( './webpack.helpers' );
 
 /**
  * Determines if the module import request should be externalized.
@@ -35,13 +32,10 @@ module.exports = {
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
 	entry: {
-		main: path.join( __dirname, '../modules/search/instant-search/loader.js' ),
+		'jp-search-main': path.join( __dirname, '../modules/search/instant-search/loader.js' ),
 	},
 	output: {
 		...jetpackWebpackConfig.output,
-		// @todo: Make the file naming regular.
-		filename: 'jp-search-[name].bundle.min.js',
-		chunkFilename: 'jp-search.chunk-[name].[contenthash:20].min.js',
 		path: path.join( __dirname, '../_inc/build/instant-search' ),
 	},
 	optimization: {
@@ -71,10 +65,6 @@ module.exports = {
 				requestToExternal,
 				requestToHandle: defaultRequestToHandle,
 			},
-			MiniCssExtractPlugin: {
-				filename: 'jp-search-[name].bundle.min.css',
-				chunkFilename: 'jp-search.chunk-[name].[contenthash:20].min.css',
-			},
 		} ),
 		// Replace 'debug' module with a dummy implementation in production
 		...( jetpackWebpackConfig.isDevelopment
@@ -86,7 +76,6 @@ module.exports = {
 					),
 			  ] ),
 		definePaletteColorsAsStaticVariables(),
-		defineReadableJSAssetsPluginForSearch(),
 	],
 	module: {
 		strictExportPresence: true,

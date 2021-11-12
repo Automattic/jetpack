@@ -119,7 +119,7 @@ class Jetpack_Widget_Conditions {
 	public static function setup_block_controls() {
 		Assets::register_script(
 			'widget-visibility-editor',
-			'_inc/build/widget-visibility/editor/index.min.js',
+			'_inc/build/widget-visibility/editor/index.js',
 			JETPACK__PLUGIN_FILE,
 			array( 'in_footer' => true )
 		);

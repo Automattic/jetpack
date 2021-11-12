@@ -501,16 +501,17 @@ class Jetpack_Gutenberg {
 		}
 
 		// Enqueue styles.
-		$style_relative_path = self::get_blocks_directory() . $type . '/view.min' . ( is_rtl() ? '.rtl' : '' ) . '.css';
+		$style_relative_path = self::get_blocks_directory() . $type . '/view' . ( is_rtl() ? '.rtl' : '' ) . '.css';
 		if ( self::block_has_asset( $style_relative_path ) ) {
 			$style_version = self::get_asset_version( $style_relative_path );
 			$view_style    = plugins_url( $style_relative_path, JETPACK__PLUGIN_FILE );
+			$view_style    = add_query_arg( 'minify', 'false', $view_style );
 
 			// If this is a customizer preview, render the style directly to the preview after autosave.
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			if ( is_customize_preview() && ! empty( $_GET['customize_autosaved'] ) ) {
 				// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet
-				echo '<link rel="stylesheet" id="jetpack-block-' . esc_attr( $type ) . '" href="' . esc_attr( $view_style ) . '?ver=' . esc_attr( $style_version ) . '" media="all">';
+				echo '<link rel="stylesheet" id="jetpack-block-' . esc_attr( $type ) . '" href="' . esc_attr( $view_style ) . '&amp;ver=' . esc_attr( $style_version ) . '" media="all">';
 			} else {
 				wp_enqueue_style( 'jetpack-block-' . $type, $view_style, array(), $style_version );
 			}
@@ -536,8 +537,8 @@ class Jetpack_Gutenberg {
 		}
 
 		// Enqueue script.
-		$script_relative_path  = self::get_blocks_directory() . $type . '/view.min.js';
-		$script_deps_path      = JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $type . '/view.min.asset.php';
+		$script_relative_path  = self::get_blocks_directory() . $type . '/view.js';
+		$script_deps_path      = JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $type . '/view.asset.php';
 		$script_dependencies[] = 'wp-polyfill';
 		if ( file_exists( $script_deps_path ) ) {
 			$asset_manifest      = include $script_deps_path;
@@ -547,6 +548,7 @@ class Jetpack_Gutenberg {
 		if ( ! Blocks::is_amp_request() && self::block_has_asset( $script_relative_path ) ) {
 			$script_version = self::get_asset_version( $script_relative_path );
 			$view_script    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
+			$view_script    = add_query_arg( 'minify', 'false', $view_script );
 
 			// Enqueue dependencies.
 			wp_enqueue_script( 'jetpack-block-' . $type, $view_script, $script_dependencies, $script_version, false );
@@ -562,7 +564,7 @@ class Jetpack_Gutenberg {
 					echo 'Array.from(document.getElementsByClassName(\'wp-block-jetpack-map\')).forEach(function(element){element.style.display = \'none\';})';
 					echo '</script>';
 				} else {
-					echo '<script id="jetpack-block-' . esc_attr( $type ) . '" src="' . esc_attr( $view_script ) . '?ver=' . esc_attr( $script_version ) . '"></script>';
+					echo '<script id="jetpack-block-' . esc_attr( $type ) . '" src="' . esc_attr( $view_script ) . '&amp;ver=' . esc_attr( $script_version ) . '"></script>';
 				}
 			}
 		}
@@ -630,7 +632,7 @@ class Jetpack_Gutenberg {
 
 		Assets::register_script(
 			'jetpack-blocks-editor',
-			"{$blocks_dir}editor{$blocks_env}.min.js",
+			"{$blocks_dir}editor{$blocks_env}.js",
 			JETPACK__PLUGIN_FILE
 		);
 		Assets::enqueue_script( 'jetpack-blocks-editor' );

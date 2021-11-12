@@ -11,8 +11,6 @@ const sharedWebpackConfig = {
 	devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
 	output: {
 		...jetpackWebpackConfig.output,
-		filename: '[name].js',
-		chunkFilename: '[name].[contenthash].js',
 		path: path.join( __dirname, '../_inc/build' ),
 	},
 	optimization: {

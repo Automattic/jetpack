@@ -101,8 +101,8 @@ In production mode we choose no devtool, mainly because we don't currently distr
 
 This is an object suited for spreading some default values into Webpack's `output` configuration object. We currently set two of the settings:
 
-- `filename`: `[name].min.js`. The `.min.js` bit is required to avoid a broken auto-minifier on WordPress.com infrastructure.
-- `chunkFilename`: `[name]-[id].H[contenthash:20].min.js`. The content hash serves as a cache buster; while Webpack would accept something like `[name]-[id].min.js?ver=[contenthash]`, [some of the modules we use do not](https://github.com/Automattic/jetpack/issues/21349#issuecomment-940191828).
+- `filename`: `[name].js`.
+- `chunkFilename`: `[name].js?minify=false&ver=[contenthash]`. The content hash serves as a cache buster, while `minify=false` avoids a broken minifier in the WordPress.com environment.
 
 #### `optimization`
 
@@ -249,7 +249,7 @@ Options are:
 
 These are loaders that might be included in a CSS-related rule.
 
-* `MiniCssExtractLoader` is the loader for [mini-css-extract-plugin](https://www.npmjs.com/package/mini-css-extract-plugin). Options are passed to the loader.
+* `MiniCssExtractLoader` is the loader for [mini-css-extract-plugin](https://www.npmjs.com/package/mini-css-extract-plugin). Options are passed to the loader. The default options set `chunkFilename` to `[name].css?minify=false&ver=[contenthash]` as a cache buster.
 * `CssLoader` is the loader for [css-loader](https://www.npmjs.com/package/css-loader). Options are passed to the loader.
 * `CssCacheLoader` is an instance of [cache-loader](https://www.npmjs.com/package/cache-loader). Options are passed to the loader. The default options set `cacheDirectory` to `.cache/css-loader`.
 

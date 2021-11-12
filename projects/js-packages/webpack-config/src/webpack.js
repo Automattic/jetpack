@@ -18,8 +18,8 @@ const isDevelopment = ! isProduction;
 const mode = isProduction ? 'production' : 'development';
 const devtool = isProduction ? false : 'eval-cheap-module-source-map';
 const output = {
-	filename: '[name].min.js',
-	chunkFilename: '[name]-[id].H[contenthash:20].min.js',
+	filename: '[name].js',
+	chunkFilename: '[name].js?minify=false&ver=[contenthash]',
 };
 const optimization = {
 	minimize: isProduction,
@@ -47,7 +47,13 @@ const MomentLocaleIgnorePlugin = () => [
 	} ),
 ];
 
-const MyMiniCssExtractPlugin = options => [ new MiniCssExtractPlugin( options ) ];
+const MyMiniCssExtractPlugin = options => [
+	new MiniCssExtractPlugin( {
+		filename: '[name].css',
+		chunkFilename: '[name].css?minify=false&ver=[contenthash]',
+		...options,
+	} ),
+];
 
 const MyMiniCssWithRtlPlugin = options => [ new MiniCSSWithRTLPlugin( options ) ];
 

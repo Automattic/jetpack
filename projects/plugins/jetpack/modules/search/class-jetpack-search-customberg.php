@@ -127,7 +127,7 @@ class Jetpack_Search_Customberg {
 
 		Assets::register_script(
 			'jp-search-configure',
-			$path_prefix . '_inc/build/instant-search/jp-search-configure-main.min.js',
+			$path_prefix . '_inc/build/instant-search/jp-search-configure-main.js',
 			$plugin_base_path,
 			array( 'in_footer' => true )
 		);

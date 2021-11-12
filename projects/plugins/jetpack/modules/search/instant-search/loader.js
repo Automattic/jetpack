@@ -12,7 +12,7 @@ import { bindCustomizerChanges } from './lib/customize';
  * Loads and runs the main chunk for Instant Search.
  */
 function init() {
-	import( /* webpackChunkName: "main-payload" */ './index' ).then( instantSearch =>
+	import( /* webpackChunkName: "jp-search.chunk-main-payload" */ './index' ).then( instantSearch =>
 		instantSearch.initialize()
 	);
 }
