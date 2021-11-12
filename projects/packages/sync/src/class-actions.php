@@ -490,7 +490,9 @@ class Actions {
 			return false;
 		}
 
-		if ( ! self::should_do_initial_sync() ) {
+		// Don't start new sync if a full sync is in process.
+		$full_sync_module = Modules::get_module( 'full-sync' );
+		if ( $full_sync_module && $full_sync_module->is_started() && ! $full_sync_module->is_finished() ) {
 			return false;
 		}
 
@@ -506,32 +508,21 @@ class Actions {
 	}
 
 	/**
-	 * Whether the site should do an initial sync.
+	 * Do an initial full sync only if one has not already been started.
 	 *
-	 * An initial Sync should not be done under these circumstances:
-	 *  - A full sync is currently in progress.
-	 *  - The site is not registering and an initial sync has already been started.
-	 *
-	 * @return bool Whether to run an initial sync.
+	 * @return bool|null False if the initial full sync was not started, otherwise null.
 	 */
-	public static function should_do_initial_sync() {
+	public static function do_only_first_initial_sync() {
+		if ( ! self::sync_allowed() ) {
+			return false;
+		}
+
 		$full_sync_module = Modules::get_module( 'full-sync' );
-
-		if ( ! $full_sync_module ) {
+		if ( $full_sync_module && $full_sync_module->is_started() ) {
 			return false;
 		}
 
-		// Don't start a new sync if a full sync is in progress.
-		if ( $full_sync_module->is_started() && ! $full_sync_module->is_finished() ) {
-			return false;
-		}
-
-		// Don't start a new sync if the site isn't registering and an initial sync was already started.
-		if ( ! doing_action( 'jetpack_site_registered' ) && $full_sync_module->is_started() ) {
-			return false;
-		}
-
-		return true;
+		static::do_initial_sync();
 	}
 
 	/**
