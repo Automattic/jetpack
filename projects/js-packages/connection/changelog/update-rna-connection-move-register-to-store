@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+moved the registerSite logic into the store

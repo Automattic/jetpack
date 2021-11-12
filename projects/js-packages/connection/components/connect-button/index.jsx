@@ -21,22 +21,20 @@ import { STORE_ID } from '../../state/store';
  * @returns {React.Component} The RNA connection component.
  */
 const ConnectButton = props => {
-	const [ registrationError, setRegistrationError ] = useState( false );
-	const [ authorizationUrl, setAuthorizationUrl ] = useState( null );
-
 	const { isRegistered, isUserConnected } = useSelect(
 		select => select( STORE_ID ).getConnectionStatus(),
 		[]
 	);
 	const siteIsRegistering = useSelect( select => select( STORE_ID ).getSiteIsRegistering(), [] );
 	const userIsConnecting = useSelect( select => select( STORE_ID ).getUserIsConnecting(), [] );
-	const { setSiteIsRegistering, setUserIsConnecting } = useDispatch( STORE_ID );
+	const registrationError = useSelect( select => select( STORE_ID ).getRegistrationError(), [] );
+	const authorizationUrl = useSelect( select => select( STORE_ID ).getAuthorizationUrl(), [] );
+	const { setUserIsConnecting, registerSite } = useDispatch( STORE_ID );
 
 	const {
 		apiRoot,
 		apiNonce,
 		connectLabel,
-		onRegistered,
 		registrationNonce,
 		redirectUri,
 		from,
@@ -54,46 +52,17 @@ const ConnectButton = props => {
 	/**
 	 * Initialize the site registration process.
 	 */
-	const registerSite = useCallback(
+	const handleRegisterSite = useCallback(
 		e => {
 			e && e.preventDefault();
-
-			setRegistrationError( false );
 
 			if ( isRegistered ) {
 				setUserIsConnecting( true );
 				return;
 			}
-
-			setSiteIsRegistering( true );
-
-			restApi
-				.registerSite( registrationNonce, redirectUri )
-				.then( response => {
-					setSiteIsRegistering( false );
-
-					if ( onRegistered ) {
-						onRegistered( response );
-					}
-
-					setAuthorizationUrl( response.authorizeUrl );
-					setUserIsConnecting( true );
-				} )
-				.catch( error => {
-					setSiteIsRegistering( false );
-					setRegistrationError( error );
-					throw error;
-				} );
+			registerSite( registrationNonce, redirectUri );
 		},
-		[
-			setSiteIsRegistering,
-			setUserIsConnecting,
-			setAuthorizationUrl,
-			isRegistered,
-			onRegistered,
-			registrationNonce,
-			redirectUri,
-		]
+		[ isRegistered ]
 	);
 
 	/**
@@ -101,7 +70,7 @@ const ConnectButton = props => {
 	 */
 	useEffect( () => {
 		if ( autoTrigger && ! siteIsRegistering && ! userIsConnecting ) {
-			registerSite();
+			handleRegisterSite();
 		}
 	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -110,7 +79,7 @@ const ConnectButton = props => {
 			{ ( ! isRegistered || ! isUserConnected ) && (
 				<ActionButton
 					label={ connectLabel }
-					onClick={ registerSite }
+					onClick={ handleRegisterSite }
 					displayError={ registrationError ? true : false }
 					isLoading={ siteIsRegistering || userIsConnecting }
 				/>
@@ -130,8 +99,6 @@ ConnectButton.propTypes = {
 	apiRoot: PropTypes.string.isRequired,
 	/** API Nonce. */
 	apiNonce: PropTypes.string.isRequired,
-	/** The callback to be called upon registration success. */
-	onRegistered: PropTypes.func,
 	/** Where the connection request is coming from. */
 	from: PropTypes.string,
 	/** The redirect admin URI. */

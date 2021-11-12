@@ -53,7 +53,6 @@ The component displays the connection button and handles the connection process,
 - *apiRoot* - string (required), API root URL.
 - *apiNonce* - string (required), API Nonce.
 - *registrationNonce* - string (required), registration nonce.
-- *onRegistered* - callback, to be called upon registration success.
 - *from* - string, custom string parameter to identify where the request is coming from.
 - *redirectUrl* - string, wp-admin URI to redirect a user to after Calypso connection flow.
 - *statusCallback* - callback to pull connection status from the component.
@@ -66,14 +65,12 @@ The component displays the connection button and handles the connection process,
 import React, { useCallback } from 'react';
 import { ConnectButton } from '@automattic/jetpack-connection';
 
-const onRegistered = useCallback( () => alert( 'Site registered' ) );
 const onUserConnected = useCallback( () => alert( 'User Connected' ) );
 
 <ConnectButton
 	apiRoot="https://example.org/wp-json/" 
 	apiNonce="12345"
 	registrationNonce="54321"
-	onRegistered={ onRegistered }
 	from="connection-ui"
 	redirectUri="tools.php?page=wpcom-connection-manager"
 	connectionStatus={ connectionStatus }
