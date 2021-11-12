@@ -665,7 +665,6 @@ class Critical_CSS extends Module {
 		}
 
 		$available_methods = array(
-			'instant'  => 'media="' . $media . '"',
 			'async'    => 'media="not all" onload="this.media=\'all\'"',
 			'deferred' => 'media="not all"',
 		);
@@ -674,9 +673,14 @@ class Critical_CSS extends Module {
 		 * Loading method for stylesheets.
 		 *
 		 * Filter the loading method for each stylesheet for the screen with following values:
-		 *     instant  - Stylesheet loading behaviour is not altered. Stylesheet loading is instant and the process blocks the page rendering.
-		 *     async    - Stylesheets are loaded asynchronously. Styles are applied once the stylesheet is loaded completely without render blocking.
-		 *     deferred - Loading of stylesheets are deferred till the window load event. Styles from all the stylesheets are applied at once after the page load.
+		 *     async    - Stylesheets are loaded asynchronously.
+		 *                Styles are applied once the stylesheet is loaded completely without render blocking.
+		 *     deferred - Loading of stylesheets are deferred until the window load event.
+		 *                Styles from all the stylesheets are applied at once after the page load.
+		 *
+		 * Stylesheet loading behaviour is not altered for any other value such as false or 'default'.
+		 * Stylesheet loading is instant and the process blocks the page rendering.
+		 *     Eg: add_filter( 'jetpack_boost_async_style', '__return_false' );
 		 *
 		 * @see onload_flip_stylesheets for how stylesheets loading is deferred.
 		 *
@@ -687,13 +691,8 @@ class Critical_CSS extends Module {
 		 */
 		$method = apply_filters( 'jetpack_boost_async_style', 'async', $handle, $media );
 
-		// If the method is explicitly false, do not load the specific stylesheet.
-		if ( ( false === $method ) ) {
-			return false;
-		}
-
-		// If the loading method is not allowed or 'instant', do not alter the stylesheet loading.
-		if ( ! isset( $available_methods[ $method ] ) || ( 'instant' === $method ) ) {
+		// If the loading method is not allowed, do not alter the stylesheet loading.
+		if ( ! isset( $available_methods[ $method ] ) ) {
 			return $html;
 		}
 
@@ -720,7 +719,7 @@ class Critical_CSS extends Module {
 	 */
 	public function asynchronize_stylesheets_media( $method, $handle, $media ) {
 		if ( ! in_array( $media, array( 'all', 'screen' ), true ) ) {
-			return 'instant';
+			return false;
 		}
 
 		return $method;
