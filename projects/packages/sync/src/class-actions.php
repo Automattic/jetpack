@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
-use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Status;
@@ -384,24 +383,14 @@ class Actions {
 			'codec'      => $codec_name,
 			'timestamp'  => $sent_timestamp,
 			'queue'      => $queue_id,
-			'home'       => Urls::home_url(),  // Send home url option to check for Identity Crisis server-side.
-			'siteurl'    => Urls::site_url(),  // Send siteurl option to check for Identity Crisis server-side.
 			'cd'         => sprintf( '%.4f', $checkout_duration ),
 			'pd'         => sprintf( '%.4f', $preprocess_duration ),
 			'queue_size' => $queue_size,
 			'buffer_id'  => $buffer_id,
 		);
 
-		// Has the site opted in to IDC mitigation?
-		if ( Identity_Crisis::should_handle_idc() ) {
-			$query_args['idc'] = true;
-		}
-
-		if ( \Jetpack_Options::get_option( 'migrate_for_idc', false ) ) {
-			$query_args['migrate_for_idc'] = true;
-		}
-
 		$query_args['timeout'] = Settings::is_doing_cron() ? 30 : 20;
+
 		if ( 'immediate-send' === $queue_id ) {
 			$query_args['timeout'] = 30;
 		}
@@ -463,7 +452,7 @@ class Actions {
 				$error_log = array_slice( $error_log, -4, null, true );
 			}
 			// Add new error indexed to time.
-			$error_log[ microtime( true ) ] = $rpc->get_jetpack_error();
+			$error_log[ (string) microtime( true ) ] = $rpc->get_jetpack_error();
 			// Update the error log.
 			update_option( self::ERROR_LOG_PREFIX . $queue_id, $error_log );
 
@@ -496,7 +485,7 @@ class Actions {
 	 * @return bool|null False if sync is not allowed.
 	 */
 	public static function do_initial_sync() {
-		// Lets not sync if we are not suppose to.
+		// Let's not sync if we are not supposed to.
 		if ( ! self::sync_allowed() ) {
 			return false;
 		}
@@ -516,6 +505,20 @@ class Actions {
 		);
 
 		self::do_full_sync( $initial_sync_config );
+	}
+
+	/**
+	 * Do an initial full sync only if one has not already been started.
+	 *
+	 * @return bool|null False if the initial full sync was already started, otherwise null.
+	 */
+	public static function do_only_first_initial_sync() {
+		$full_sync_module = Modules::get_module( 'full-sync' );
+		if ( $full_sync_module && $full_sync_module->is_started() ) {
+			return false;
+		}
+
+		static::do_initial_sync();
 	}
 
 	/**
@@ -849,7 +852,7 @@ class Actions {
 	 * @param string $new_version New version of the plugin.
 	 * @param string $old_version Old version of the plugin.
 	 */
-	public static function cleanup_on_upgrade( $new_version = null, $old_version = null ) {
+	public static function cleanup_on_upgrade( $new_version = '', $old_version = '' ) {
 		if ( wp_next_scheduled( 'jetpack_sync_send_db_checksum' ) ) {
 			wp_clear_scheduled_hook( 'jetpack_sync_send_db_checksum' );
 		}

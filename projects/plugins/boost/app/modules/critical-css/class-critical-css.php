@@ -668,7 +668,12 @@ class Critical_CSS extends Module {
 		// Convert stylesheets intended for screens.
 		if ( in_array( $media, $async_media, true ) ) {
 			$media_replacement = 'media="not all" onload="this.media=\'all\'"';
+			$html_no_script    = '<noscript>' . $html . '</noscript>';
 			$html              = preg_replace( '~media=[\'"]?[^\'"\s]+[\'"]?~', $media_replacement, $html );
+
+			// Append to the HTML stylesheet tag the same untouched HTML stylesheet tag within the noscript tag
+			// to support the rendering of the stylesheet when JavaScript is disabled.
+			$html = $html_no_script . $html;
 		}
 
 		return $html;
@@ -748,6 +753,9 @@ class Critical_CSS extends Module {
 		if ( 0 !== $current_user_id ) {
 			// Force current user to 0 to ensure page is rendered as a non-logged-in user.
 			wp_set_current_user( 0 );
+
+			// Turn off display of admin bar.
+			add_filter( 'show_admin_bar', '__return_false', PHP_INT_MAX );
 		}
 	}
 

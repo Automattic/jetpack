@@ -422,7 +422,7 @@ class Jetpack_Likes_Settings {
 	function get_options() {
 		$setting             = array();
 		$setting['disabled'] = get_option( 'disabled_likes'  );
-		$sharing             = get_option( 'sharing-options' );
+		$sharing             = get_option( 'sharing-options', array() );
 
 		// Default visibility settings
 		if ( ! isset( $sharing['global']['show'] ) ) {

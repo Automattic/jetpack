@@ -2,6 +2,99 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 10.4-a.3 - 2021-11-09
+### Enhancements
+- Publicize: always add an Open Graph image alt text if an Open Graph image is present.
+- VideoPress: do not display thumbnails in the media library, in the WordPress.com dashboard.
+
+### Improved compatibility
+- Contact Info and Map widget: hide widget from the block inserter and Legacy widget block drop-down menu.
+
+### Bug fixes
+- Block Editor: avoid issues when searching for free Pexels images via Jetpack's External Media feature.
+- Contact Form: prevent multiple button clicks from submitting multiple form submissions.
+- VideoPress: display "File Name" in the Media Library.
+- VideoPress: display all video meta immediately after upload. A page refresh is no longer needed to view VideoPress-specific fields.
+- VideoPress: no longer play videos in the background when the Media Item modal is closed in the media library.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Display Nav Unification Quick switcher in edit.php?post_type=post page for sites with Nav unification enabled.
+- E2E tests: cleaned up some unused dependencies
+- E2E tests: remove jest setup in favor of e2e-commons setup file
+- E2E tests: update docs
+- Fixed Jetpack Dashboard submenu highlight for the Settings page for sites with Nav unification enabled.
+- Fix PHP 8.1 deprecation warnings.
+- Nav Unification: Removes the `preferred-view` param from the URL after changing the preferred view. This fix only affects WP.com sites.
+- Nav Unification: Replaces the AJAX request for changing the preferred view with a direct server request to bypass security restrictions enforced by some browsers. This fix only affects WP.com sites.
+- P2: Hide Inbox admin menu link on all P2s.
+- Publicize: handle plan upgrade considering feature availability, whether the nudge is enable, and post status
+- Search: Migrate helper classes to Search package
+- Unit Tests : Update Full Sync tests to align with limitation on users that are synced.
+- Updated package dependencies
+- Update webpack build config.
+
+## 10.4-a.1 - 2021-11-02
+### Enhancements
+- Publicize: update the interface and include a profile picture for each service.
+
+### Bug fixes
+- Image CDN: ensure that Wikipedia URLs are not served via our image CDN.
+- Publicize: make the default publicize social media message blank.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Allow /wp/v2/sites/1234/batch endpoint to process widget updates
+- E2E tests: update pnpm commands to use new tunnel wrapper script
+- Fix `@covers` directives in various tests.
+- Publicize: check feature chen hitting publicize endpoint
+- Publicize: show/hide main toggle control depending on post state (published)
+- Search: hide Calypso Jetpack Search menu item for Atomic sites.
+- Set `convertDeprecationsToExceptions` true in PHPUnit config.
+- Updated package dependencies.
+
+## 10.3 - 2021-11-02
+### Enhancements
+- Dashboard: add a new screen to provide more information about the VideoPress feature.
+- Dashboard: optimize the size of all product images displayed in the dashboard, to improve overall performance.
+- Instagram Widget: improve the connection flow when the widget has not been connected to WordPress.com yet.
+- Map Block: Add address attribute to the block.
+- Social Icons Widget: Added Strava icon to Social Icons Widget.
+- Stats: add information about the VideoPress feature at the bottom of the page.
+- VideoPress: add tooltips to video block settings in the block editor.
+- VideoPress: remove X-18 rating from the block settings.
+
+### Improved compatibility
+- Contact Info & Map widget: allow transforming this widget into a block in Block-based widget editor.
+- General: ensure that no notices are output when Jetpack is used alongside plugins that modify the output of core comments.
+- VideoPress: improve handling of Video files when using a third-party video player.
+
+### Bug fixes
+- Dashboard: ensure feature cards display the right information when the site uses Jetpack's Offline mode.
+- Dashboard: fix the display of currencies to be based on user WordPress.com preferences.
+- Markdown: add title attributes to footnotes to improve accessibility.
+- Publicize: fix visual issue when the panel shows in the pre publish step of the post.
+- Stats: remove extra request to WordPress.com that occurs when the stats feature is first activated.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add Tracks events when clicking or viewing upgrade buttons on the At a Glance page
+- Adjust test which relies on the "remoteRegister" XMLRPC method now being registered by the Connection package
+- Changed the class variable to a const
+- Deprecate `jetpack_is_atomic` for the new Automattic\Jetpack\Status\Host->is_woa_site() function.
+- Displays realtime backups in AAG for tiered backup products (Not yet user facing)
+- E2E tests: renamed test
+- Make the Backups only settings card show for tiered backup products (not yet user facing)
+- Moves Add New (plugin) submenu to the top (valid only for Atomic sites).
+- PHPUnit tests will now catch `exit` calls, instead of exiting PHPUnit.
+- Publicize: add useSharePost() hook
+- Publicize: clean and tidy code
+- Publicize: do not disable message text control when RePublicize is enabled
+- Publicize: Handle properly error handling when publizicing
+- Removed filters from Jetpack that were used to test the Inbox menu prior to its official release.
+- RePublicize: add Share Post button
+- RePublicize: enable/disable feature according to the site plan
+- Update "Appearance > Widgets" and "Appearance > Menus" links back to classic wp-admin destination for Atomic and Simple sites.
+- Updated package dependencies
+- Updates the display of Jetpack Backup storage amounts. (Not yet user facing.)
+
 ## 10.3-a.3 - 2021-10-19
 ### Enhancements
 - Dashboard: add a new view that shortly summarizes available Jetpack products and facilitates the purchase process.

@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 10.2
+Stable tag: 10.3
 Requires at least: 5.7
 Requires PHP: 5.6
 Tested up to: 5.8
@@ -242,23 +242,20 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.3-a.3 - 2021-10-19
+### 10.4-a.3 - 2021-11-09
 #### Enhancements
-- Dashboard: add a new view that shortly summarizes available Jetpack products and facilitates the purchase process.
-- Publicize editor settings: refactor, improve layout and wording in preparation for the addition of RePublicize.
-- Stats: remove some upgrade notifications.
-- Subscriptions: add an option to transform the Legacy Subscription Widget into a Subscription Block in the new block-based Widget editor.
-- WordAds: update handling and setting CCPA related cookies.
+- Publicize: always add an Open Graph image alt text if an Open Graph image is present.
+- VideoPress: do not display thumbnails in the media library, in the WordPress.com dashboard.
 
 #### Improved compatibility
-- VideoPress: avoid video upload issues when other plugins modify WordPress' API fetching features in the block editor.
+- Contact Info and Map widget: hide widget from the block inserter and Legacy widget block drop-down menu.
 
 #### Bug fixes
-- Dashboard: fix the connection flow for non-admin users.
-- External Media block options: fix a bug where the external media modal collapsed on larger screens and did not leave enough whitespace.
-- Instant Search: fix translations not available for minified Instant Search Modal assets.
-- Widgets: fix styles of the Milestone widget fields.
-- VideoPress: add a "cover" option to the VideoPress iframe and shortcode to handle video resizing to its container.
+- Block Editor: avoid issues when searching for free Pexels images via Jetpack's External Media feature.
+- Contact Form: prevent multiple button clicks from submitting multiple form submissions.
+- VideoPress: display "File Name" in the Media Library.
+- VideoPress: display all video meta immediately after upload. A page refresh is no longer needed to view VideoPress-specific fields.
+- VideoPress: no longer play videos in the background when the Media Item modal is closed in the media library.
 
 --------
 
