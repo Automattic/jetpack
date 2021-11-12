@@ -59,19 +59,26 @@ describe( 'ActivationScreenControls', () => {
 			activateLicense: () => null,
 			disabled: true,
 			license: 'test',
+			licenseError: 'Invalid license.',
 			onLicenseChange: () => null,
 			siteUrl: 'jetpack.com',
 		};
 
 		const wrapper = shallow( <ActivationScreenControls { ...testProps } /> );
 
-		{
-			/* 		it( 'correct license is shown', () => {
-			const licenseField = wrapper.find( '.jp-license-activation-screen-controls--license-field' );
+		it( 'license field has error styling', () => {
 
-			expect( licenseField ).to.have.lengthOf( 1 );
-			expect( licenseField.prop('value') ).to.equal( testProps.license );
-		} ); */
-		}
+			const licenseFieldwithError = wrapper.find( '.jp-license-activation-screen-controls--license-field-with-error' );
+			expect( licenseFieldwithError ).to.have.lengthOf( 1 );
+
+		} );
+
+		it( 'license error is shown', () => {
+			const licenseErrorDisplay = wrapper.find( '.jp-license-activation-screen-controls--license-field-error' );
+
+			expect( licenseErrorDisplay ).to.have.lengthOf( 1 );
+			expect( licenseErrorDisplay.text() ).to.equal( '<ErrorGridicon />' + testProps.licenseError );
+		} );
+
 	} );
 } );
