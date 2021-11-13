@@ -130,7 +130,7 @@ function jetpack_full_sync_immediately_off( $modules ) {
 }
 
 if ( '1' === getenv( 'LEGACY_FULL_SYNC' ) ) {
-	tests_add_filter( 'jetpack_sync_modules', 'jetpack_full_sync_immediately_off' );
+	tests_add_filter( 'jetpack_sync_modules', 'jetpack_full_sync_immediately_off', PHP_INT_MAX );
 }
 
 require $test_root . '/includes/bootstrap.php';
