@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-webpack-config",
-	"version": "0.1.0",
+	"version": "0.2.0-alpha",
 	"description": "Library of pieces for webpack config in Jetpack projects.",
 	"homepage": "https://jetpack.com",
 	"bugs": {
@@ -17,8 +17,10 @@
 		"test": "echo 'No tests yet'"
 	},
 	"dependencies": {
-		"@automattic/calypso-build": "9.0.0",
+		"@automattic/babel-plugin-preserve-i18n": "1.0.0",
 		"@automattic/webpack-rtl-plugin": "5.1.0",
+		"@babel/compat-data": "7.16.0",
+		"@babel/helper-compilation-targets": "7.16.0",
 		"@babel/plugin-proposal-class-properties": "7.16.0",
 		"@babel/plugin-transform-runtime": "7.16.0",
 		"@babel/preset-env": "7.16.0",
@@ -27,11 +29,14 @@
 		"@wordpress/browserslist-config": "4.1.0",
 		"@wordpress/dependency-extraction-webpack-plugin": "3.2.1",
 		"babel-loader": "8.2.3",
-		"browserslist": "4.17.4",
+		"browserslist": "4.17.6",
 		"cache-loader": "4.1.0",
 		"css-loader": "6.2.0",
+		"css-minimizer-webpack-plugin": "3.1.1",
 		"duplicate-package-checker-webpack-plugin": "3.0.0",
 		"mini-css-extract-plugin": "2.4.2",
+		"schema-utils": "3.1.1",
+		"terser-webpack-plugin": "5.2.5",
 		"thread-loader": "3.0.4"
 	},
 	"devDependencies": {

@@ -115,7 +115,7 @@ const Backups = () => {
 	const renderInProgressBackup = () => {
 		return (
 			<div class="jp-row">
-				<div class="lg-col-span-5 md-col-span-4 sm-col-span-4">
+				<div class="lg-col-span-5 md-col-span-8 sm-col-span-4">
 					<div class="backup__progress">
 						<div class="backup__progress-info">
 							<p>{ __( 'Backing up Your Groovy Site…', 'jetpack-backup' ) }</p>
