@@ -1601,7 +1601,7 @@ class Jetpack_Safe_CSS {
 		$csstidy->set_cfg( 'css_level', 'CSS3.0' );
 
 		// Turn off css shorthands and leading zero removal when in block editor context as it breaks block validation.
-		if ( true === isset( $_REQUEST['_gutenberg_nonce'] ) && wp_verify_nonce( $_REQUEST['_gutenberg_nonce'], 'gutenberg_request' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		if ( self::is_block_editor_screen() ) {
 			$csstidy->set_cfg( 'optimise_shorthands', 0 );
 			$csstidy->set_cfg( 'preserve_leading_zeros', true );
 		}
@@ -1620,6 +1620,15 @@ class Jetpack_Safe_CSS {
 			return '';
 
 		return $matches[1];
+	}
+	/**
+	 * Check if the current screen is the Block Editor.
+	 *
+	 * @return boolean
+	 */
+	private static function is_block_editor_screen() {
+		global $current_screen;
+		return ( $current_screen instanceof WP_Screen ) && $current_screen->is_block_editor();
 	}
 }
 
