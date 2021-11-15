@@ -11,6 +11,7 @@ $common_mappings = array(
 	'edit-comments.php'                      => 'https://wordpress.com/comments/',
 	'import.php'                             => 'https://wordpress.com/import/',
 	'edit.php?post_type=page'                => 'https://wordpress.com/pages/',
+	'edit.php?post_type=post'                => 'https://wordpress.com/posts/',
 	'users.php'                              => 'https://wordpress.com/people/team/',
 	'options-general.php'                    => 'https://wordpress.com/settings/general/',
 	'options-discussion.php'                 => 'https://wordpress.com/settings/discussion/',

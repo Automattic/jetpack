@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.9.1 - 2021-11-09
+### Changed
+- Updated package dependencies.
+
 ## 0.9.0 - 2021-11-02
 ### Added
 - Add ConnectScreenRequiredPlan component.

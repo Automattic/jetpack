@@ -104,16 +104,60 @@ This is an object suited for spreading some default values into Webpack's `outpu
 - `filename`: `[name].min.js`. The `.min.js` bit is required to avoid a broken auto-minifier on WordPress.com infrastructure.
 - `chunkFilename`: `[name]-[id].H[contenthash:20].min.js`. The content hash serves as a cache buster; while Webpack would accept something like `[name]-[id].min.js?ver=[contenthash]`, [some of the modules we use do not](https://github.com/Automattic/jetpack/issues/21349#issuecomment-940191828).
 
-#### `optimization`, `Minify()`
+#### `optimization`
 
-`optimization` is an object suitable for spreading some defaults into Webpack's `optimization` setting. It sets `minimize` based on the mode, configures a default `minimizer`, and sets `concatenateModules` to false as that setting [may mangle WordPress's i18n function names](https://github.com/Automattic/jetpack/issues/21204).
+`optimization` is an object suitable for spreading some defaults into Webpack's `optimization` setting. It sets `minimize` based on the mode, configures a default `minimizer` with `TerserPlugin` and `CssMinimizerPlugin`, and sets `concatenateModules` to false as that setting [may mangle WordPress's i18n function names](https://github.com/Automattic/jetpack/issues/21204).
 
-`Minify( options )` is a function to produce a tweaked version of the default `minimizer`. This comes from [@automattic/calypso-build](https://www.npmjs.com/package/@automattic/calypso-build). Options (as of calypso-build 9.0.0) are:
+#### `TerserPlugin( options )`
 
-- `terserOptions`: TerserPlugin's `terserOptions` option. Into this it will try to determine correct values for `.ecma`, `.ie8`, and `.safari10` based on the browserslist config. And we've also set the default `.mangle.reserved` to preserve WordPress's i18n functions.
-- `cssMinimizerOptions`: CssMinimizerPlugin's `cssMinimizerOptions` option. Into this it will set `.preset` to "default".
-- `extractComments`: TerserPlugin's `extractComments` option.
-- `parallel`: TerserPlugin's and CssMinimizerPlugin's `parallel` option.
+This provides an instance of [terser-webpack-plugin](https://www.npmjs.com/package/terser-webpack-plugin) configured to preserve WordPress i18n methods and translator comments. Options are passed to the plugin.
+
+The non-default options include:
+
+- `terserOptions.ecma`, `terserOptions.safari10`, and `terserOptions.ie8` are set based on the browserslist config if available, otherwise based on [@wordpress/browserslist-config](https://www.npmjs.com/package/@wordpress/browserslist-config).
+- `terserOptions.mangle.reserved` is set to preserve the `wp-i18n` methods.
+- `terserOptions.format.comments` is set to preserve "translators" comments.
+- `extractComments` is set to extract the comments normally preserved by terser to a LICENSE.txt file.
+
+The options used may be accessed as `TerserPlugin.defaultOptions`. The filter functions used for comments may be accessed as `TerserPlugin.isTranslatorsComment()` and `TerserPlugin.isSomeComments()`. If you want to actually use these to override the default configuration, you may want to look at the hack used in the default configuration to get it to work with terser-webpack-plugin's parallel processing (or disable `parallel`).
+
+##### Minification and i18n translator comments
+
+To avoid the minifier dropping or misplacing the translator comments, it's best to keep the comment as close to the function call as possible. For example, in
+```js
+const a, b, c;
+
+/* translators: This is a bad example. */
+const example = __( 'Example', 'domain' );
+```
+the minifier will combine those into a single `const` statement and misplace the comment on the way. To fix it, move the comment to the variable declaration instead of the `const` statement:
+```js
+const a, b, c;
+
+const
+	/* translators: This is a bad example. */
+	example = __( 'Example', 'domain' );
+```
+Similarly in jsx, a comment placed like this may wind up misplaced:
+```js
+<Tag
+	/* translators: This is a bad example. */
+	property={ __( 'Here's another example', 'domain' ) }
+/>
+```
+Instead put it inside the property:
+```js
+<Tag
+	property={
+		/* translators: This is an example of how to do it right. */
+		__( 'Here's another example', 'domain' )
+	}
+/>
+```
+
+#### `CssMinimizerPlugin( options )`
+
+This provides an instance of [css-minimizer-webpack-plugin](https://www.npmjs.com/package/css-minimizer-webpack-plugin). Options are passed to the plugin.
 
 #### `resolve`
 
@@ -154,13 +198,16 @@ This provides an instance of Webpack's `IgnorePlugin` configured to ignore momen
 
 This provides an instance of [mini-css-extract-plugin](https://www.npmjs.com/package/mini-css-extract-plugin). The `options` are passed to the plugin.
 
-##### `RtlCssPlugins( options )`
+##### `MiniCssWithRtlPlugin( options )`
 
-This provides a set of plugins for creating RTL versions of CSS files. You'll most likely want to use `MiniCssExtractPlugin` too.
+This is a plugin that adjusts `MiniCssExtractPlugin`'s asset loading to conditionally use RTL CSS as generated by `WebpackRtlPlugin`. You'll likely want to use both those plugins along with it.
 
 Options are:
-- `miniCssWithRtlOpts`: Options to pass to Calypso-build's [mini-css-with-rtl](https://github.com/Automattic/wp-calypso/blob/trunk/packages/calypso-build/webpack/mini-css-with-rtl.js) module.
-- `webpackRtlPluginOpts`: Options to pass to [@automattic/webpack-rtl-plugin](https://www.npmjs.com/package/@automattic/webpack-rtl-plugin). Note that, despite the documentation, it does not actually recognize options `filename` or `minify`.
+- `isRtlExpr`: String holding an expression that evaluates to a boolean, true if RTL CSS should be used. Default is `"document.dir === 'rtl'"`.
+
+##### `WebpackRtlPlugin( options )`
+
+This provides an instance of [@automattic/webpack-rtl-plugin](https://www.npmjs.com/package/@automattic/webpack-rtl-plugin). The `options` are passed to the plugin.
 
 ##### `DuplicatePackageCheckerPlugin( options )`
 
@@ -261,5 +308,4 @@ The options and corresponding components are:
   - `regenerator`: Set false.
   - `absoluteRuntime`: Set true, as otherwise transpilation of code symlinked in node_modules (i.e. everything when using pnpm) breaks.
   - `version`: Set to the version from `@babel/runtime`.
-- `pluginCalypsoOptimizeI18n`: Corresponds to Calypso's [babel-plugin-optimize-i18n](https://github.com/Automattic/wp-calypso/blob/trunk/packages/calypso-build/babel/babel-plugin-optimize-i18n.js) plugin.
-  It's not clear whether this is supposed to be an actual optimization, or just a way to better preserve the `__()` calls.
+- `pluginPreserveI18n`: Corresponds to [@automattic/babel-plugin-preserve-i18n](https://www.npmjs.com/package/@automattic/babel-plugin-preserve-i18n).

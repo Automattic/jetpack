@@ -4,12 +4,13 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
+		"automattic/jetpack-assets": "1.12.x-dev",
 		"automattic/jetpack-admin-ui": "0.1.x-dev",
 		"automattic/jetpack-autoloader": "2.10.x-dev",
 		"automattic/jetpack-backup": "1.1.x-dev",
 		"automattic/jetpack-config": "1.5.x-dev",
 		"automattic/jetpack-connection": "1.30.x-dev",
-		"automattic/jetpack-connection-ui": "1.6.x-dev",
+		"automattic/jetpack-connection-ui": "2.1.x-dev",
 		"automattic/jetpack-sync": "1.27.x-dev",
 		"automattic/jetpack-status": "1.9.x-dev"
 	},
@@ -44,7 +45,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
-		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_backupⓥ1_0_1_alpha"
+		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_backupⓥ1_1_0_alpha"
 	},
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-backup-plugin",

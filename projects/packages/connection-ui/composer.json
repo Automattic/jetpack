@@ -4,9 +4,11 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
+		"automattic/jetpack-assets": "^1.12",
 		"automattic/jetpack-connection": "^1.30",
 		"automattic/jetpack-constants": "^1.6",
-		"automattic/jetpack-device-detection": "^1.4"
+		"automattic/jetpack-device-detection": "^1.4",
+		"automattic/jetpack-identity-crisis": "^0.4"
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "^3.0"
@@ -44,7 +46,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-connection-ui/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.6.x-dev"
+			"dev-master": "2.1.x-dev"
 		}
 	}
 }
