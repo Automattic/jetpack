@@ -43,7 +43,7 @@ const ActivationScreenControls = props => {
 				<p>
 					{ createInterpolateElement(
 						sprintf(
-							/* translators: "%s" is the url of the site i.e. hopeful-weevil.jurassic.ninja . */
+							/* translators: "%s" is the url of the site i.e. hopeful-weevil.jurassic.ninja. */
 							__(
 								'Enter the license key we sent to your email to activate your product for <strong>%s</strong>',
 								'jetpack'

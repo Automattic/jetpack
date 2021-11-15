@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { sprintf, __ } from '@wordpress/i18n';
 import { createInterpolateElement } from '@wordpress/element';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -18,9 +18,13 @@ const JetpackBackupDailyProductDetails = props => {
 	return (
 		<div>
 			<h1>
-				{ __( 'Your Jetpack Daily Backup is active!', 'jetpack' ) }{ ' ' }
-				{ String.fromCodePoint( 0x1f389 ) }
-				{ /* Celebration emoji 🎉 */ }
+				{
+					sprintf(
+						/* translators: "%s" is a is Celebration emoji 🎉. */
+						__( 'Your Jetpack Daily Backup is active! %s', 'jetpack' ),
+						String.fromCodePoint( 0x1f389 )
+					)
+				}
 			</h1>
 			<p>
 				{ createInterpolateElement(
