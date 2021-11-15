@@ -44,7 +44,7 @@ const ActivationSuccessInfo = props => {
 	return (
 		<div className="jp-license-activation-screen-success-info">
 			<div className="jp-license-activation-screen-success-info--content">
-				<JetpackLogo showText={ false } height={ 48 } logoColor="#069E08" />
+				<JetpackLogo showText={ false } height={ 48 } />
 			</div>
 			{ productIdToDetails( productId, dashboardUrl ) }
 			<div>
