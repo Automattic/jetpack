@@ -663,6 +663,11 @@ class Critical_CSS extends Module {
 			return $html;
 		}
 
+		// If the stylesheet is not meant for screen, do not alter the stylesheet loading.
+		if ( ! in_array( $media, array( 'all', 'screen' ), true ) ) {
+			return $html;
+		}
+
 		$available_methods = array(
 			'async'    => 'media="not all" onload="this.media=\'all\'"',
 			'deferred' => 'media="not all"',
