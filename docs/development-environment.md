@@ -129,7 +129,7 @@ You'll need all the tools below to work in the Jetpack monorepo.
 		The latest composer in Homebrew at the time of writing is 2.1.x, but we currently require 2.0.x. If you need to downgrade to a specific version, we suggest these instructions:
 
 		```sh
-		composer self-update 2.0.14
+		composer self-update 2.1.8
 		```
 
 	 * ##### Installing Composer on other systems
