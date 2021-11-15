@@ -101,8 +101,8 @@
 
 	&[disabled],
 	&:disabled {
-		background: #dcdcde;
+		background: var( --jp-gray );
 		color: #a7aaad;
-		border-color: #dcdcde;
+		border-color: var( --jp-gray );
 	}
 }
