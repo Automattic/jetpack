@@ -81,21 +81,21 @@
 	margin-top: 24px;
 
 	&:hover {
-		background-color: #007117;
-		border-color: #007117;
+		background-color: var( --jp-green-60 );
+		border-color: var( --jp-green-60 );
 		color: var( --jp-white );
 	}
 
 	&:focus {
-		background-color: #005b18;
+		background-color: var( --jp-green-70 );
 		border-color: var( --jp-white );
-		box-shadow: 0 0 0 1px #005b18;
+		box-shadow: 0 0 0 1px var( --jp-green-70 );
 		color: var( --jp-white );
 	}
 
 	&:active {
-		background: #007117;
-		border-color: #007117;
+		background: var( --jp-green-60 );
+		border-color: var( --jp-green-60 );
 		color: var( --jp-white );
 	}
 
