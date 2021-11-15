@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Fetches the initial state from the global variable provided by the connection package

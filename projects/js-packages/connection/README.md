@@ -3,6 +3,30 @@ Connection Package
 
 The package encapsulates the Connection functionality.
 
+# Setting up
+
+## Initial State
+
+The Jetpack Connection composer package can provide the initial state for the connection components to save your application from having to do one additional API request to fetch information.
+
+In order to do that, make sure to attach the Initial State inline script to your app when you enqueue it.
+
+Example:
+
+```PHP
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
+
+// ...
+
+function my_app_enqueue_script() {
+	// ...
+	wp_enqueue_script( 'my-app-script' );
+	wp_add_inline_script( 'my-app-script', Connection_Initial_State::render(), 'before' );
+}
+```
+
+# Components
+
 ## Component `ConnectScreen`
 The component implements the connection screen page, and loads the `ConnectButton` component to handle the whole connection flow.
 
@@ -269,39 +293,4 @@ export default withSelect( select => {
 		connectionStatus: select( CONNECTION_STORE_ID ).getConnectionStatus(),
 	}
 } )( SampleComponent );
-```
-
-### Reusing Connection Status 
-
-When the connection screen is loaded for the first time, it queries the API to load the current connection status.
-This request is often excessive, as the plugin can provide connection status from its own initial state.
-This will save one API request, so the connection screen will load a bit faster (significantly faster on slow connections). 
-
-To do that, you need to supply the RNA Connection package store with the data as early in the process as possible,
-before it requests the data from the API.
-
-Here's an example of how to do that:
-
-```jsx
-import { withDispatch } from '@wordpress/data';
-import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
-
-const PluginDashboard = props => {
-	props.setConnectionStatus( props.connectionStatusFromInitialState );
-};
-
-export default withDispatch( dispatch => {
-	return {
-		setConnectionStatus: connectionStatus => {
-		    // Informing the store that we're starting the data resolution process (so it wouldn't send the API request).
-			dispatch( CONNECTION_STORE_ID ).startResolution( 'getConnectionStatus', [] );
-			
-			// Supplying the data to the store.
-			dispatch( CONNECTION_STORE_ID ).setConnectionStatus( connectionStatus );
-			
-			// Informing the store that resolving is complete, so it no longer needs to send that API request.
-			dispatch( CONNECTION_STORE_ID ).finishResolution( 'getConnectionStatus', [] );
-		},
-	};
-} )
 ```
