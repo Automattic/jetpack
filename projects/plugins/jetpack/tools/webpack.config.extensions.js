@@ -209,7 +209,6 @@ module.exports = [
 			...sharedWebpackConfig.output,
 			filename: '[name].js',
 			chunkFilename: '[name].[contenthash].js',
-			pathinfo: true,
 			libraryTarget: 'commonjs2',
 		},
 		plugins: [
