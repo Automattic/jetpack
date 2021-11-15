@@ -26,6 +26,6 @@ if [[ -z $1 ]]; then
     exit 1
 fi
 
-git log --format='%an' --no-merges $1/branch-$2..jetpack/branch-$3 | sort | uniq | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/, /g' | sed 's/renovate\[bot\], //'
+git log --format='%an' --no-merges $1/branch-$2..$1/branch-$3 | sort | uniq | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/, /g' | sed 's/renovate\[bot\], //'
 
 exit
