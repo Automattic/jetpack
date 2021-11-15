@@ -146,7 +146,6 @@ class Critical_CSS extends Module {
 
 		if ( $this->should_display_critical_css() ) {
 			Admin_Bar_Css_Compat::init();
-			add_filter( 'jetpack_boost_async_style', array( $this, 'asynchronize_stylesheets_media' ), 10, 3 );
 
 			add_action( 'wp_head', array( $this, 'display_critical_css' ), 0 );
 			add_filter( 'style_loader_tag', array( $this, 'asynchronize_stylesheets' ), 10, 4 );
@@ -704,25 +703,6 @@ class Critical_CSS extends Module {
 		// Append to the HTML stylesheet tag the same untouched HTML stylesheet tag within the noscript tag
 		// to support the rendering of the stylesheet when JavaScript is disabled.
 		return $html_no_script . $html;
-	}
-
-	/**
-	 * Filter the stylesheet loading method for given media.
-	 *
-	 * If the stylesheet is not meant from screen, do not alter the stylesheet loading.
-	 *
-	 * @param string $method The stylesheet loading method.
-	 * @param string $handle The style's registered handle.
-	 * @param string $media  The stylesheet's media attribute.
-	 *
-	 * @return string Filtered loading method.
-	 */
-	public function asynchronize_stylesheets_media( $method, $handle, $media ) {
-		if ( ! in_array( $media, array( 'all', 'screen' ), true ) ) {
-			return false;
-		}
-
-		return $method;
 	}
 
 	/**
