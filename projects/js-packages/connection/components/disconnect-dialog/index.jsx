@@ -30,6 +30,7 @@ const DisconnectDialog = props => {
 	const [ disconnectError, setDisconnectError ] = useState( false );
 	const [ isProvidingFeedback, setIsProvidingFeedback ] = useState( false );
 	const [ isFeedbackProvided, setIsFeedbackProvided ] = useState( false );
+	const [ isSubmittingFeedback, setIsSubmittingFeedback ] = useState( false );
 
 	const {
 		apiRoot,
@@ -101,7 +102,7 @@ const DisconnectDialog = props => {
 			const path = '/wpcom/v2/marketing/feedback-survey';
 			const method = 'POST';
 
-			setIsProvidingFeedback( true );
+			setIsSubmittingFeedback( true );
 
 			// We cannot use `@wordpress/api-fetch` here since it unconditionally sends
 			// the `X-WP-Nonce` header, which is disallowed by WordPress.com.
@@ -122,7 +123,7 @@ const DisconnectDialog = props => {
 					// Error in sending the data.
 					() => {
 						setIsFeedbackProvided( true );
-						setIsProvidingFeedback( false );
+						setIsSubmittingFeedback( false );
 						// Send a tracks event for an error in survey submission.
 						jetpackAnalytics.tracks.recordEvent(
 							'plugin_jetpack_disconnect_survey_error',
@@ -147,10 +148,10 @@ const DisconnectDialog = props => {
 					}
 
 					setIsFeedbackProvided( true );
-					setIsProvidingFeedback( false );
+					setIsSubmittingFeedback( false );
 				} );
 		},
-		[ setIsProvidingFeedback, setIsFeedbackProvided ]
+		[ setIsSubmittingFeedback, setIsFeedbackProvided ]
 	);
 
 	/**
@@ -300,7 +301,13 @@ const DisconnectDialog = props => {
 				/>
 			);
 		} else if ( isProvidingFeedback && ! isFeedbackProvided ) {
-			return <StepSurvey onFeedBackProvided={ handleSubmitSurvey } onExit={ backToWordpress } />;
+			return (
+				<StepSurvey
+					isSubmittingFeedback={ isSubmittingFeedback }
+					onFeedBackProvided={ handleSubmitSurvey }
+					onExit={ backToWordpress }
+				/>
+			);
 		} else if ( isFeedbackProvided ) {
 			return <StepThankYou onExit={ backToWordpress } />;
 		}

@@ -31,7 +31,7 @@ const StepThankYou = props => {
 				<p className="jp-connection__disconnect-dialog__large-text">
 					{ createInterpolateElement(
 						__(
-							'Your answer has been recorded. <br/>Thanks for your input on how we can improve Jetpack.',
+							'Your answer has been submitted. <br/>Thanks for your input on how we can improve Jetpack.',
 							'jetpack'
 						),
 						{
