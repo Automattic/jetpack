@@ -38,7 +38,7 @@ const ActivationScreenControls = props => {
 	return (
 		<div className="jp-license-activation-screen-controls">
 			<div className="jp-license-activation-screen-controls--content">
-				<JetpackLogo showText={ false } height={ 48 } logoColor="#069E08" />
+				<JetpackLogo showText={ false } height={ 48 } />
 				<h1>{ __( 'Activate a product', 'jetpack' ) }</h1>
 				<p>
 					{ createInterpolateElement(
