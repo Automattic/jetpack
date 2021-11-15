@@ -135,10 +135,17 @@ const addVideoPressSupport = ( settings, name ) => {
 			withHasWarningIsInteractiveClassNames( `core/video` )
 		);
 	} else {
+		// If VideoPress is available, we update the block description and example with VideoPress-specific content.
 		settings.description = __(
 			'Embed a video from your media library or upload a new one with VideoPress.',
 			'jetpack'
 		);
+		settings.example.attributes = {
+			caption: __( 'Upload or embed videos with VideoPress', 'jetpack' ),
+			isVideoPressExample: true,
+			src:
+				'https://s0.wp.com/wp-content/themes/a8c/jetpackme-new/images/2021/videopress/device-mashup-desktop.jpg',
+		};
 	}
 
 	addFilter(
@@ -179,6 +186,10 @@ const addVideoPressSupport = ( settings, name ) => {
 			},
 			loop: {
 				type: 'boolean',
+			},
+			isVideoPressExample: {
+				type: 'boolean',
+				default: false,
 			},
 			muted: {
 				type: 'boolean',
