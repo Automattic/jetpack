@@ -15,9 +15,22 @@
 	--jp-gray-off: #e2e2df;
 	--jp-red: #d63639;
 
-	--jp-green-primary: #069e08;
-	--jp-green-secondary: #2fb41f;
+	--jp-green-0: #f0f2eb;
+	--jp-green-5: #d0e6b8;
+	--jp-green-10: #9dd977;
+	--jp-green-20: #64ca43;
+	--jp-green-30: #2fb41f;
+	--jp-green-40: #069e08;
+	--jp-green-50: #008710;
+	--jp-green-60: #007117;
+	--jp-green-70: #005b18;
+	--jp-green-80: #004515;
+	--jp-green-90: #003010;
+	--jp-green-100: #001c09;
+	--jp-green: #069e08;
 
+	--jp-green-primary: var( --jp-green-40 );
+	--jp-green-secondary: var( --jp-green-30 );
 	--jp-border-radius: 4px;
 	--jp-menu-border-height: 1px;
 	--jp-underline-thickness: 2px;
