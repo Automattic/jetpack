@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add `Assets::register_script()` for easier loading of Webpack-built scripts.
