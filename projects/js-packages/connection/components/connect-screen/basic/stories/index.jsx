@@ -39,14 +39,9 @@ const Template = args => (
 	</ConnectScreenVisual>
 );
 
-const connectionStatus = {
-	isRegistered: false,
-	isUserConnected: false,
-};
-
 const DefaultArgs = {
 	title: 'Over 5 million WordPress sites are faster and more secure',
-	connectionStatus: connectionStatus,
+	isLoading: false,
 	buttonLabel: 'Set up Jetpack',
 	assetBaseUrl: '/',
 	images: [ 'connect-right.png' ],
