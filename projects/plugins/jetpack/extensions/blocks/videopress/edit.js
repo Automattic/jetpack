@@ -244,6 +244,7 @@ const VideoPressEdit = CoreVideoEdit =>
 		}
 
 		onChangeRating = rating => {
+			const { invalidateCachedEmbedPreview, url } = this.props;
 			const { id } = this.props.attributes;
 			const originalRating = this.state.rating;
 
@@ -280,7 +281,10 @@ const VideoPressEdit = CoreVideoEdit =>
 					}
 				} )
 				.catch( () => revertSetting() )
-				.finally( () => this.setState( { isUpdatingRating: false } ) );
+				.finally( () => {
+					this.setState( { isUpdatingRating: false } );
+					invalidateCachedEmbedPreview( url );
+				} );
 		};
 
 		render() {
