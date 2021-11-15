@@ -139,6 +139,7 @@ class Jetpack_Redux_State_Helper {
 				'currentUser' => $current_user_data,
 			),
 			'siteData'                    => array(
+				'blog_id'                    => Jetpack_Options::get_option( 'id', 0 ),
 				'icon'                       => has_site_icon()
 					? apply_filters( 'jetpack_photon_url', get_site_icon_url(), array( 'w' => 64 ) )
 					: '',

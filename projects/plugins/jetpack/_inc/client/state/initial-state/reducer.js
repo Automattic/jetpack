@@ -184,6 +184,16 @@ export function getUserWpComLogin( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, [ 'wpcomUser', 'login' ], '' );
 }
 
+/**
+ * Returns the WPCOM ID of the connected user.
+ *
+ * @param {object} state - Global state tree
+ * @returns {number}        the ID of the user
+ */
+export function getUserWpComId( state ) {
+	return get( state.jetpack.initialState.userData.currentUser, [ 'wpcomUser', 'ID' ], '' );
+}
+
 export function getUserWpComEmail( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, [ 'wpcomUser', 'email' ], '' );
 }
@@ -211,6 +221,16 @@ export function getUserId( state ) {
 
 export function userCanViewStats( state ) {
 	return get( state.jetpack.initialState.userData.currentUser.permissions, 'view_stats', false );
+}
+
+/**
+ * Returns the WPCOM ID of a connected site.
+ *
+ * @param {object} state - Global state tree
+ * @returns {number}        the ID of the site
+ */
+export function getSiteId( state ) {
+	return get( state.jetpack.initialState.siteData, [ 'blog_id' ] );
 }
 
 /**

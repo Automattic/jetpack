@@ -40,6 +40,9 @@ import {
 	getInitialStateConnectedPlugins,
 	getInitialStateJetpackBenefits,
 	getPluginBaseUrl,
+	getUserWpComLogin,
+	getUserWpComId,
+	getSiteId,
 } from 'state/initial-state';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 import './style.scss';
@@ -238,12 +241,16 @@ export class ConnectButton extends React.Component {
 					apiNonce={ this.props.apiNonce }
 					apiRoot={ this.props.apiRoot }
 					connectedPlugins={ this.props.connectedPlugins }
+					connectedUser={ {
+						ID: this.props.userWpComId,
+						login: this.props.userWpComLogin,
+					} }
+					connectedSiteId={ this.props.connectedSiteId }
 					disconnectStepComponent={ <JetpackBenefits siteBenefits={ this.props.siteBenefits } /> }
 					onDisconnected={ this.handleDisconnected } // On disconnect, need to update the connection status in the app state.
 					isOpen={ this.state.showModal }
 					onClose={ this.toggleVisibility }
 					context={ 'jetpack' }
-					assetBaseUrl={ this.props.pluginUrl + '/_inc/build' }
 				/>
 			</div>
 		);
@@ -268,6 +275,9 @@ export default connect(
 			connectedPlugins: getInitialStateConnectedPlugins( state ),
 			siteBenefits: getInitialStateJetpackBenefits( state ),
 			pluginUrl: getPluginBaseUrl( state ),
+			userWpComLogin: getUserWpComLogin( state ),
+			userWpComId: getUserWpComId( state ),
+			connectedSiteId: getSiteId( state ),
 		};
 	},
 	dispatch => {
