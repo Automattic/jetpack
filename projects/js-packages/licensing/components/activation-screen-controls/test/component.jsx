@@ -79,7 +79,7 @@ describe( 'ActivationScreenControls', () => {
 			);
 
 			expect( licenseErrorDisplay ).to.have.lengthOf( 1 );
-			expect( licenseErrorDisplay.text() ).to.equal( '<ErrorGridicon />' + testProps.licenseError );
+			expect( licenseErrorDisplay.text() ).to.equal( '<Icon />' + testProps.licenseError );
 		} );
 	} );
 } );

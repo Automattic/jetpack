@@ -243,6 +243,7 @@ importers:
       '@wordpress/components': 19.0.1
       '@wordpress/element': 4.0.3
       '@wordpress/i18n': 4.2.3
+      '@wordpress/icons': 6.1.0
       jetpack-js-test-runner: workspace:*
       prop-types: ^15.7.2
       react: 17.0.2
@@ -252,6 +253,7 @@ importers:
       '@wordpress/components': 19.0.1_react@17.0.2
       '@wordpress/element': 4.0.3
       '@wordpress/i18n': 4.2.3
+      '@wordpress/icons': 6.1.0
       jetpack-js-test-runner: link:../../../tools/js-test-runner
       prop-types: 15.7.2
     devDependencies:

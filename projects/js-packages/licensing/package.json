@@ -36,6 +36,7 @@
 		"@wordpress/element": "4.0.3",
 		"jetpack-js-test-runner": "workspace:*",
 		"prop-types": "^15.7.2",
-		"@wordpress/components": "19.0.1"
+		"@wordpress/components": "19.0.1",
+		"@wordpress/icons": "6.1.0"
 	}
 }

@@ -7,11 +7,7 @@ import { JetpackLogo } from '@automattic/jetpack-components';
 import { sprintf, __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import React from 'react';
-
-/**
- * Internal dependencies
- */
-import ErrorGridicon from './error-gridicon';
+import { Icon, warning } from '@wordpress/icons';
 
 /**
  * Style dependencies
@@ -69,7 +65,7 @@ const ActivationScreenControls = props => {
 				/>
 				{ hasLicenseError && (
 					<div className="jp-license-activation-screen-controls--license-field-error">
-						<ErrorGridicon />
+						<Icon icon='warning' />
 						<span>{ licenseError }</span>
 					</div>
 				) }
