@@ -6449,7 +6449,7 @@ endif;
 					height: 20px;
 				}
 				.jp-emblem-user-admin path {
-					fill: #00BE28;
+					fill: #069e08;
 				}
 			</style>
 			<?php
