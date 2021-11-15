@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+WPCOM will no longer force home_urls to be http
