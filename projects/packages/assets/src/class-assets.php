@@ -227,7 +227,7 @@ class Assets {
 	/**
 	 * Resolve '.' and '..' components in a path or URL.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.12.0
 	 * @param string $path Path or URL.
 	 * @return string Normalized path or URL.
 	 */
@@ -281,7 +281,7 @@ class Assets {
 	 *
 	 * This wrapper handles all of that.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.12.0
 	 * @param string $handle      Name of the script. Should be unique across both scripts and styles.
 	 * @param string $path        Minimized script path.
 	 * @param string $relative_to File that `$path` is relative to. Pass `__FILE__`.
@@ -380,7 +380,7 @@ class Assets {
 	/**
 	 * Enqueue a script registered with `Assets::register_script`.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.12.0
 	 * @param string $handle       Name of the script. Should be unique across both scripts and styles.
 	 */
 	public static function enqueue_script( $handle ) {
