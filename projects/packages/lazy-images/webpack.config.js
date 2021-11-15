@@ -1,25 +1,43 @@
-// @todo Remove this, use calypso-build instead. See https://github.com/Automattic/jetpack/pull/17571.
-// That should also allow us to remove webpack from package.json.
+const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const path = require( 'path' );
-const packagesFolder = path.resolve( __dirname, 'src/js' );
+const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
 
 module.exports = [
 	{
-		mode: 'production',
-		context: packagesFolder,
-		entry: './lazy-images.js',
-		output: {
-			path: packagesFolder,
-			filename: 'lazy-images.min.js',
+		entry: {
+			'lazy-images': './src/js/lazy-images.js',
+			'intersection-observer': require.resolve( 'intersection-observer/intersection-observer.js' ),
 		},
-	},
-	{
-		mode: 'production',
-		context: packagesFolder,
-		entry: './intersectionobserver-polyfill.js',
+		mode: jetpackWebpackConfig.mode,
+		devtool: jetpackWebpackConfig.devtool,
 		output: {
-			path: packagesFolder,
-			filename: 'intersectionobserver-polyfill.min.js',
+			...jetpackWebpackConfig.output,
+			path: path.resolve( './dist' ),
+		},
+		optimization: {
+			...jetpackWebpackConfig.optimization,
+		},
+		resolve: {
+			...jetpackWebpackConfig.resolve,
+		},
+		node: false,
+		plugins: [
+			...jetpackWebpackConfig.StandardPlugins(),
+			new CopyWebpackPlugin( {
+				patterns: [
+					{
+						from: require.resolve( 'intersection-observer/intersection-observer.js' ),
+						to: 'intersection-observer.src.js',
+					},
+				],
+			} ),
+		],
+		module: {
+			strictExportPresence: true,
+			rules: [
+				// Transpile JavaScript, including node_modules.
+				jetpackWebpackConfig.TranspileRule(),
+			],
 		},
 	},
 ];

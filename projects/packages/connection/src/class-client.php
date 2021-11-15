@@ -23,11 +23,34 @@ class Client {
 	 * @return array|WP_Error WP HTTP response on success
 	 */
 	public static function remote_request( $args, $body = null ) {
+		if ( isset( $args['url'] ) ) {
+			/**
+			 * Filters the remote request url.
+			 *
+			 * @since 1.30.12
+			 *
+			 * @param string The remote request url.
+			 */
+			$args['url'] = apply_filters( 'jetpack_remote_request_url', $args['url'] );
+		}
+
 		$result = self::build_signed_request( $args, $body );
 		if ( ! $result || is_wp_error( $result ) ) {
 			return $result;
 		}
-		return self::_wp_remote_request( $result['url'], $result['request'] );
+
+		$response = self::_wp_remote_request( $result['url'], $result['request'] );
+
+		/**
+		 * Fired when the remote request response has been received.
+		 *
+		 * @since 1.30.8
+		 *
+		 * @param array|WP_Error The HTTP response.
+		 */
+		do_action( 'jetpack_received_remote_request_response', $response );
+
+		return $response;
 	}
 
 	/**
@@ -215,7 +238,8 @@ class Client {
 		 * Return `true` to ENABLE SSL verification, return `false`
 		 * to DISABLE SSL verification.
 		 *
-		 * @since 3.6.0
+		 * @since 1.7.0
+		 * @since-jetpack 3.6.0
 		 *
 		 * @param bool Whether to force `sslverify` or not.
 		 */
@@ -460,18 +484,5 @@ class Client {
 		}
 
 		return $data;
-	}
-
-	/**
-	 * Gets protocol string.
-	 *
-	 * @return string Always 'https'.
-	 *
-	 * @deprecated 9.1.0 WP.com API no longer supports requests using `http://`.
-	 */
-	public static function protocol() {
-		_deprecated_function( __METHOD__, 'jetpack-9.1.0' );
-
-		return 'https';
 	}
 }

@@ -1,0 +1,55 @@
+.jb-settings .jb-tips {
+	margin: 0 auto;
+
+	&__title {
+		margin-bottom: $padding;
+	}
+
+	&__items {
+		@include breakpoint(md) {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			grid-gap: 2em;		}
+	}
+
+	.item {
+		@include breakpoint(sm) {
+			display: grid;
+			grid-template-columns: 80px 1fr;
+			grid-gap: 1em;
+
+		}
+
+		margin-bottom: 2em;
+
+
+		&__rate {
+			font-size: 24px;
+			font-weight: 400;
+			line-height: 30px;
+			color: $primary-black;
+
+			@include breakpoint(md) {
+				flex-basis: 20%;
+				font-size: 36px;
+				line-height: 43px;
+			}
+		}
+
+		&__description {
+			flex-basis: 70%;
+			font-weight: 400;
+			line-height: 24px;
+			color: $primary-grey;
+
+			@include breakpoint(md) {
+				flex-basis: 80%;
+			}
+
+			a {
+				color: $gray_90;
+				text-decoration: underline;
+			}
+		}
+	}
+}

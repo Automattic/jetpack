@@ -20,7 +20,7 @@ async function assignIssues( payload, octokit ) {
 
 		debug( `assign-issues: Assigning issue #${ issue } to @${ payload.pull_request.user.login }` );
 
-		await octokit.issues.addAssignees( {
+		await octokit.rest.issues.addAssignees( {
 			owner: payload.repository.owner.login,
 			repo: payload.repository.name,
 			issue_number: +issue,
@@ -29,7 +29,7 @@ async function assignIssues( payload, octokit ) {
 
 		debug( `assign-issues: Applying '[Status] In Progress' label to issue #${ issue }` );
 
-		await octokit.issues.addLabels( {
+		await octokit.rest.issues.addLabels( {
 			owner: payload.repository.owner.login,
 			repo: payload.repository.name,
 			issue_number: +issue,

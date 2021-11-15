@@ -12,22 +12,22 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "yarn install-if-deps-outdated && yarn clean && yarn build-js",
+		"build": "pnpm run install-if-deps-outdated && pnpm run clean && pnpm run build-js",
 		"build-js": "webpack --config ./webpack.config.js",
-		"build-production": "yarn distclean && yarn install --production=false && yarn build-production-js",
-		"build-production-js": "NODE_ENV=production BABEL_ENV=production yarn build-js && yarn validate-es5 ./src/",
+		"build-production": "pnpm run distclean && pnpm run install-if-deps-outdated && pnpm run build-production-js",
+		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm run build-js",
 		"clean": "true",
-		"distclean": "rm -rf node_modules && yarn clean",
-		"install-if-deps-outdated": "yarn install --check-files --production=false --frozen-lockfile",
-		"validate-es5": "eslint --parser-options=ecmaVersion:5 --no-eslintrc --no-ignore"
+		"distclean": "rm -rf node_modules && pnpm run clean",
+		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile"
 	},
 	"devDependencies": {
-		"eslint": "7.23.0",
-		"webpack": "4.46.0",
-		"webpack-cli": "4.5.0"
+		"@automattic/jetpack-webpack-config": "workspace:^0.2.0-alpha",
+		"webpack": "5.51.1",
+		"webpack-cli": "4.8.0"
 	},
 	"engines": {
-		"node": "^14.16.0",
-		"yarn": "^1.3.2"
+		"node": "^14.17.6 || ^16.7.0",
+		"pnpm": "^6.5.0",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

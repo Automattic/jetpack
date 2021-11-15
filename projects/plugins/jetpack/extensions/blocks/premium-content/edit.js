@@ -7,7 +7,7 @@ import { BlockControls } from '@wordpress/block-editor';
 import { __, sprintf } from '@wordpress/i18n';
 import { compose } from '@wordpress/compose';
 import { withSelect, withDispatch } from '@wordpress/data';
-import { addQueryArgs, getQueryArg, isURL } from '@wordpress/url';
+import { addQueryArgs, getQueryArg } from '@wordpress/url';
 import formatCurrency from '@automattic/format-currency';
 import apiFetch from '@wordpress/api-fetch';
 
@@ -20,7 +20,9 @@ import Inspector from './_inc/inspector';
 import Context from './_inc/context';
 import { flashIcon } from '../../shared/icons';
 import { isPriceValid, minimumTransactionAmountForCurrency } from '../../shared/currencies';
+import getConnectUrl from '../../shared/get-connect-url';
 import './editor.scss';
+import useAutosaveAndRedirect from '../../shared/use-autosave-and-redirect';
 
 /**
  * @typedef { import('./plan').Plan } Plan
@@ -74,9 +76,7 @@ const defaultString = null;
  * @property { (attributes: object<Attributes>) => void } setAttributes
  * @property { number } postId
  * @property { () => void } selectBlock
- *
  * @typedef { OwnProps } Props
- *
  * @param { Props } props
  */
 
@@ -172,7 +172,6 @@ function Edit( props ) {
 
 	/**
 	 * @param {Plan} plan - plan whose description will be retrieved
-	 *
 	 * @returns {?string} Plan description with price.
 	 */
 	function getPlanDescription( plan ) {
@@ -236,7 +235,7 @@ function Edit( props ) {
 					return;
 				}
 
-				setConnectURL( result.connect_url );
+				setConnectURL( getConnectUrl( props.postId, result.connect_url ) );
 				setShouldUpgrade( result.should_upgrade_to_access_memberships );
 				setSiteSlug( result.site_slug );
 
@@ -282,8 +281,13 @@ function Edit( props ) {
 		// Execution delayed with setTimeout to ensure it runs after any block auto-selection performed by inner blocks
 		// (such as the Recurring Payments block)
 		setTimeout( () => props.selectBlock(), 1000 );
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
+
+	const shouldShowConnectButton = () =>
+		! shouldUpgrade && apiState !== API_STATE_CONNECTED && connectURL;
+
+	const { autosaveAndRedirect } = useAutosaveAndRedirect( connectURL );
 
 	if ( apiState === API_STATE_LOADING && ! isPreview ) {
 		return (
@@ -299,14 +303,6 @@ function Edit( props ) {
 		);
 	}
 
-	const shouldShowConnectButton = () => {
-		if ( ! shouldUpgrade && apiState !== API_STATE_CONNECTED && connectURL ) {
-			return true;
-		}
-
-		return false;
-	};
-
 	return (
 		<>
 			<BlockControls>
@@ -314,9 +310,7 @@ function Edit( props ) {
 					<ToolbarGroup>
 						<ToolbarButton
 							icon={ flashIcon }
-							onClick={ e => {
-								props.autosaveAndRedirect( e, getConnectUrl( props, connectURL ) );
-							} }
+							onClick={ autosaveAndRedirect }
 							className="connect-stripe components-tab-button"
 						>
 							{ __( 'Connect Stripe', 'jetpack' ) }
@@ -424,40 +418,6 @@ function onSuccess( props, message ) {
 	props.createSuccessNotice( message, { type: 'snackbar' } );
 }
 
-/**
- * @param { Props } props - properties
- * @param { string } connectURL - Stripe connect URL
- * @returns { null | string } URL
- */
-function getConnectUrl( props, connectURL ) {
-	const { postId } = props;
-
-	if ( ! isURL( connectURL ) ) {
-		return null;
-	}
-
-	if ( ! postId ) {
-		return connectURL;
-	}
-
-	let decodedState;
-	try {
-		const state = getQueryArg( connectURL, 'state' );
-		if ( typeof state === 'string' ) {
-			decodedState = JSON.parse( window.atob( state ) );
-		}
-	} catch ( err ) {
-		if ( process.env.NODE_ENV !== 'production' ) {
-			console.error( err ); // eslint-disable-line no-console
-		}
-		return connectURL;
-	}
-
-	decodedState.from_editor_post_id = postId;
-
-	return addQueryArgs( connectURL, { state: window.btoa( JSON.stringify( decodedState ) ) } );
-}
-
 function MaybeDisabledEdit( props ) {
 	// The block transformations menu renders a block preview popover using real blocks
 	// for transformation. The block previews do not play nicely with useEffect and
@@ -466,7 +426,7 @@ function MaybeDisabledEdit( props ) {
 	// the isPreview flag accordingly.
 	return (
 		<Disabled.Consumer>
-			{ ( isDisabled ) => {
+			{ isDisabled => {
 				return (
 					<Edit
 						{ ...props }
@@ -495,12 +455,6 @@ export default compose( [
 			selectBlock() {
 				// @ts-ignore difficult to type via JSDoc
 				blockEditor.selectBlock( ownProps.clientId );
-			},
-			autosaveAndRedirect: async ( event, stripeConnectUrl ) => {
-				event.preventDefault(); // Don't follow the href before autosaving
-				await dispatch( 'core/editor' ).savePost();
-				// Using window.top to escape from the editor iframe on WordPress.com
-				window.top.location.href = stripeConnectUrl;
 			},
 			createErrorNotice: notices.createErrorNotice,
 			createSuccessNotice: notices.createSuccessNotice,

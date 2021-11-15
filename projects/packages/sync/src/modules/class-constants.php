@@ -124,7 +124,8 @@ class Constants extends Module {
 		 *
 		 * @param boolean Whether to expand constants (should always be true)
 		 *
-		 * @since 4.2.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
 		 */
 		do_action( 'jetpack_full_sync_constants', true );
 
@@ -204,7 +205,8 @@ class Constants extends Module {
 				 * @param string The name of the constant
 				 * @param mixed The value of the constant
 				 *
-				 * @since 4.2.0
+				 * @since 1.6.3
+				 * @since-jetpack 4.2.0
 				 */
 				do_action( 'jetpack_sync_constant', $name, $value );
 				$constants_checksums[ $name ] = $checksum;
@@ -282,4 +284,56 @@ class Constants extends Module {
 	public function total( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return count( $this->get_constants_whitelist() );
 	}
+
+	/**
+	 * Retrieve a set of constants by their IDs.
+	 *
+	 * @access public
+	 *
+	 * @param string $object_type Object type.
+	 * @param array  $ids         Object IDs.
+	 * @return array Array of objects.
+	 */
+	public function get_objects_by_id( $object_type, $ids ) {
+		if ( empty( $ids ) || empty( $object_type ) || 'constant' !== $object_type ) {
+			return array();
+		}
+
+		$objects = array();
+		foreach ( (array) $ids as $id ) {
+			$object = $this->get_object_by_id( $object_type, $id );
+
+			if ( 'all' === $id ) {
+				// If all was requested it contains all options and can simply be returned.
+				return $object;
+			}
+			$objects[ $id ] = $object;
+		}
+
+		return $objects;
+	}
+
+	/**
+	 * Retrieve a constant by its name.
+	 *
+	 * @access public
+	 *
+	 * @param string $object_type Type of the sync object.
+	 * @param string $id          ID of the sync object.
+	 * @return mixed              Value of Constant.
+	 */
+	public function get_object_by_id( $object_type, $id ) {
+		if ( 'constant' === $object_type ) {
+
+			// Only whitelisted constants can be returned.
+			if ( in_array( $id, $this->get_constants_whitelist(), true ) ) {
+				return $this->get_constant( $id );
+			} elseif ( 'all' === $id ) {
+				return $this->get_all_constants();
+			}
+		}
+
+		return false;
+	}
+
 }

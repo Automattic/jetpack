@@ -5,6 +5,49 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.6] - 2021-11-02
+### Changed
+- Set `convertDeprecationsToExceptions` true in PHPUnit config.
+- Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
+
+## [1.7.5] - 2021-10-26
+### Changed
+- Updated package dependencies.
+
+## [1.7.4] - 2021-10-13
+### Changed
+- Updated package dependencies.
+
+## [1.7.3] - 2021-10-12
+### Changed
+- Updated package dependencies
+
+## [1.7.2] - 2021-09-28
+### Changed
+- Updated package dependencies.
+
+## [1.7.1] - 2021-08-30
+### Changed
+- Run composer update on test-php command instead of phpunit
+- Tests: update PHPUnit polyfills dependency (yoast/phpunit-polyfills).
+
+## [1.7.0] - 2021-06-29
+### Changed
+- Allow any argument to be passed.
+- Improve documentation.
+
+## [1.6.1] - 2021-06-15
+### Changed
+- Updated package dependencies.
+
+## [1.6.0] - 2021-05-25
+### Removed
+- Removed filter from the final Redirect URL
+
+## [1.5.5] - 2021-04-27
+### Changed
+- Updated package dependencies.
+
 ## [1.5.4] - 2021-03-30
 ### Added
 - Composer alias for dev-master, to improve dependencies
@@ -62,6 +105,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Create Jetpack Redirect package
 
+[1.7.6]: https://github.com/Automattic/jetpack-redirect/compare/v1.7.5...v1.7.6
+[1.7.5]: https://github.com/Automattic/jetpack-redirect/compare/v1.7.4...v1.7.5
+[1.7.4]: https://github.com/Automattic/jetpack-redirect/compare/v1.7.3...v1.7.4
+[1.7.3]: https://github.com/Automattic/jetpack-redirect/compare/v1.7.2...v1.7.3
+[1.7.2]: https://github.com/Automattic/jetpack-redirect/compare/v1.7.1...v1.7.2
+[1.7.1]: https://github.com/Automattic/jetpack-redirect/compare/v1.7.0...v1.7.1
+[1.7.0]: https://github.com/Automattic/jetpack-redirect/compare/v1.6.1...v1.7.0
+[1.6.1]: https://github.com/Automattic/jetpack-redirect/compare/v1.6.0...v1.6.1
+[1.6.0]: https://github.com/Automattic/jetpack-redirect/compare/v1.5.5...v1.6.0
+[1.5.5]: https://github.com/Automattic/jetpack-redirect/compare/v1.5.4...v1.5.5
 [1.5.4]: https://github.com/Automattic/jetpack-redirect/compare/v1.5.3...v1.5.4
 [1.5.3]: https://github.com/Automattic/jetpack-redirect/compare/v1.5.2...v1.5.3
 [1.5.2]: https://github.com/Automattic/jetpack-redirect/compare/v1.5.1...v1.5.2

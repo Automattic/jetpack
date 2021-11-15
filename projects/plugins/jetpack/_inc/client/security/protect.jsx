@@ -4,6 +4,7 @@
 import React, { Component } from 'react';
 import { includes } from 'lodash';
 import { __, _x, sprintf } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -13,7 +14,6 @@ import Button from 'components/button';
 import Textarea from 'components/textarea';
 import FoldableCard from 'components/foldable-card';
 import { FormFieldset, FormLegend, FormLabel } from 'components/forms';
-import getRedirectUrl from 'lib/jp-redirect';
 import { ModuleToggle } from 'components/module-toggle';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
@@ -100,7 +100,7 @@ export const Protect = withModuleSettingsFormHelpers(
 					<SettingsGroup
 						hasChild
 						disableInOfflineMode
-						disableInUserlessMode
+						disableInSiteConnectionMode
 						module={ this.props.getModule( 'protect' ) }
 						className="foldable-wrapper"
 					>
@@ -176,7 +176,7 @@ export const Protect = withModuleSettingsFormHelpers(
 						<ConnectUserBar
 							feature="protect"
 							featureLabel={ __( 'Protect', 'jetpack' ) }
-							text={ __( 'Sign in to set up brute force attack protection.', 'jetpack' ) }
+							text={ __( 'Connect to set up brute force attack protection.', 'jetpack' ) }
 						/>
 					) }
 				</SettingsCard>

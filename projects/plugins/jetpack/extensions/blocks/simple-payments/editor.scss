@@ -2,6 +2,7 @@
 
 .wp-block-jetpack-simple-payments {
 	font-family: $default-font;
+	font-size: $default-font-size;
 	display: grid;
 	grid-template-columns: 200px auto;
 	grid-column-gap: 10px;
@@ -16,13 +17,24 @@
 		}
 	}
 
+	.simple-payments__field {
+		input,
+		textarea {
+			font: inherit;
+		}
+	}
+
+	img {
+		max-width: 100%;
+	}
+
 	// Hide some labels from the form.
 	.simple-payments__field.simple-payments__field-title,
 	.simple-payments__field.simple-payments__field-content,
 	.simple-payments__field.simple-payments__field-email {
 		.components-base-control__label {
-			clip: rect(0 0 0 0);
-			clip-path: inset(50%);
+			clip: rect( 0 0 0 0 );
+			clip-path: inset( 50% );
 			height: 1px;
 			overflow: hidden;
 			position: absolute;
@@ -45,22 +57,21 @@
 
 		.components-input-control__label,
 		.components-base-control__label {
-			height: 27px;
-			line-height: 27px;
-			margin: 0;
+			margin: 0 0 4px 0;
 			font-weight: 400;
 			display: block;
 		}
 
-		.components-select-control__input,
-		.components-text-control__input {
-			max-width: 90px;
-			margin: 0;
+		select.components-select-control__input {
+			-webkit-appearance: none;
+			-moz-appearance: none;
+			max-width: none;
+			height: auto;
+			padding: 3px 8px 1px;
+		}
 
-			@media screen and (max-width: 782px) {
-				min-height: 30px;
-				height: 30px;
-			}
+		div.components-input-control__container {
+			position: relative;
 		}
 
 		.simple-payments__field-currency {
@@ -79,6 +90,19 @@
 			flex: 1 1 100%;
 			margin-top: 0;
 		}
+
+		.components-input-control__suffix > div {
+			-webkit-box-align: center;
+			align-items: center;
+			bottom: 0px;
+			box-sizing: border-box;
+			display: flex;
+			padding: 0px 4px;
+			pointer-events: none;
+			position: absolute;
+			top: 0px;
+			right: 0px;
+		}
 	}
 
 	.simple-payments__field-email {
@@ -95,6 +119,8 @@
 
 	.simple-payments__field-content .components-textarea-control__input {
 		min-height: 32px;
+		width: 100%;
+		padding: 8px;
 	}
 }
 

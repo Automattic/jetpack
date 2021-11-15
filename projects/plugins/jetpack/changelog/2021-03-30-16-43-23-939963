@@ -1,5 +1,0 @@
-Significance: patch
-Type: compat
-Comment: Updated composer.json (and composer.lock) for all packages to enable auto-tagging
-
-

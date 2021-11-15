@@ -13,24 +13,6 @@ require_once __DIR__ . '/class-admin-menu.php';
  * Class Jetpack_Admin_Menu.
  */
 class Jetpack_Admin_Menu extends Admin_Menu {
-
-	/**
-	 * Jetpack_Admin_Menu constructor.
-	 */
-	public function __construct() {
-		parent::__construct();
-
-		add_action( 'wp_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
-		add_action( 'admin_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
-	}
-
-	/**
-	 * Dequeues unnecessary scripts.
-	 */
-	public function dequeue_scripts() {
-		wp_dequeue_script( 'a8c_wpcom_masterbar_overrides' ); // Initially loaded in modules/masterbar/masterbar/class-masterbar.php.
-	}
-
 	/**
 	 * Determines whether the current locale is right-to-left (RTL).
 	 *
@@ -47,56 +29,51 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	public function reregister_menu_items() {
 		global $menu, $submenu;
 
-		// Change the menu only when rendered in Calypso.
-		if ( $this->is_api_request || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
-			// Reset menus so there are no third-party plugin items.
-			$menu    = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-			$submenu = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		// Reset menus so there are no third-party plugin items.
+		$menu    = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$submenu = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
-			parent::reregister_menu_items();
+		parent::reregister_menu_items();
 
-			$this->add_feedback_menu();
-			$this->add_wp_admin_menu();
+		$this->add_feedback_menu();
+		$this->add_wp_admin_menu();
 
-			ksort( $GLOBALS['menu'] );
-		}
+		ksort( $GLOBALS['menu'] );
 	}
 
 	/**
-	 * Whether to use wp-admin pages rather than Calypso.
+	 * Get the preferred view for the given screen.
 	 *
-	 * @return bool
+	 * @param string $screen Screen identifier.
+	 * @param bool   $fallback_global_preference (Optional) Whether the global preference for all screens should be used
+	 *                                           as fallback if there is no specific preference for the given screen.
+	 *                                           Default: true.
+	 * @return string
 	 */
-	public function should_link_to_wp_admin() {
-		// Force Calypso links on Jetpack sites since Nav Unification is disabled on WP Admin.
-		return false;
+	public function get_preferred_view( $screen, $fallback_global_preference = true ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// Force default views (Calypso) on Jetpack sites since Nav Unification is disabled on WP Admin.
+		return self::DEFAULT_VIEW;
 	}
 
 	/**
 	 * Adds Posts menu.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_posts_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function add_posts_menu() {
 		$post = get_post_type_object( 'post' );
 		add_menu_page( esc_attr( $post->labels->menu_name ), $post->labels->menu_name, $post->cap->edit_posts, 'https://wordpress.com/posts/' . $this->domain, null, 'dashicons-admin-post' );
 	}
 
 	/**
 	 * Adds Media menu.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_media_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function add_media_menu() {
 		add_menu_page( __( 'Media', 'jetpack' ), __( 'Media', 'jetpack' ), 'upload_files', 'https://wordpress.com/media/' . $this->domain, null, 'dashicons-admin-media' );
 	}
 
 	/**
 	 * Adds Page menu.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_page_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function add_page_menu() {
 		$page = get_post_type_object( 'page' );
 		add_menu_page( esc_attr( $page->labels->menu_name ), $page->labels->menu_name, $page->cap->edit_posts, 'https://wordpress.com/pages/' . $this->domain, null, 'dashicons-admin-page' );
 	}
@@ -105,9 +82,8 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	 * Adds a custom post type menu.
 	 *
 	 * @param string $post_type Custom post type.
-	 * @param bool   $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_custom_post_type_menu( $post_type, $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function add_custom_post_type_menu( $post_type ) {
 		$ptype_obj = get_post_type_object( $post_type );
 		if ( empty( $ptype_obj ) ) {
 			return;
@@ -131,10 +107,8 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 
 	/**
 	 * Adds Comments menu.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_comments_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function add_comments_menu() {
 		add_menu_page( esc_attr__( 'Comments', 'jetpack' ), __( 'Comments', 'jetpack' ), 'edit_posts', 'https://wordpress.com/comments/all/' . $this->domain, null, 'dashicons-admin-comments' );
 	}
 
@@ -150,7 +124,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		}
 
 		$slug       = 'edit.php?post_type=' . $post_type;
-		$name       = $ptype_obj->labels->menu_name;
+		$name       = __( 'Feedback', 'jetpack' );
 		$capability = $ptype_obj->cap->edit_posts;
 		$icon       = $ptype_obj->menu_icon;
 		$position   = 45; // Before Jetpack.
@@ -179,31 +153,31 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	/**
 	 * Adds Appearance menu.
 	 *
-	 * @param bool $wp_admin_themes Optional. Whether Themes link should point to Calypso or wp-admin. Default false (Calypso).
-	 * @param bool $wp_admin_customize Optional. Whether Customize link should point to Calypso or wp-admin. Default false (Calypso).
+	 * @return string The Customizer URL.
 	 */
-	public function add_appearance_menu( $wp_admin_themes = false, $wp_admin_customize = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		add_menu_page( esc_attr__( 'Appearance', 'jetpack' ), __( 'Appearance', 'jetpack' ), 'switch_themes', 'https://wordpress.com/themes/' . $this->domain, null, 'dashicons-admin-appearance', 60 );
-		add_submenu_page( 'themes.php', esc_attr__( 'Themes', 'jetpack' ), __( 'Themes', 'jetpack' ), 'switch_themes', 'https://wordpress.com/themes/' . $this->domain );
+	public function add_appearance_menu() {
+		$themes_url = 'https://wordpress.com/themes/' . $this->domain;
 		// Customize on Jetpack sites is always done on WP Admin (unsupported by Calypso).
-		add_submenu_page( 'themes.php', esc_attr__( 'Customize', 'jetpack' ), __( 'Customize', 'jetpack' ), 'customize', 'customize.php' );
+		$customize_url = 'customize.php';
+
+		add_menu_page( esc_attr__( 'Appearance', 'jetpack' ), __( 'Appearance', 'jetpack' ), 'switch_themes', $themes_url, null, 'dashicons-admin-appearance', 60 );
+		add_submenu_page( $themes_url, esc_attr__( 'Themes', 'jetpack' ), __( 'Themes', 'jetpack' ), 'switch_themes', 'https://wordpress.com/themes/' . $this->domain );
+		add_submenu_page( $themes_url, esc_attr__( 'Customize', 'jetpack' ), __( 'Customize', 'jetpack' ), 'customize', $customize_url );
+
+		return $customize_url;
 	}
 
 	/**
 	 * Adds Plugins menu.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_plugins_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function add_plugins_menu() {
 		add_menu_page( esc_attr__( 'Plugins', 'jetpack' ), __( 'Plugins', 'jetpack' ), 'activate_plugins', 'https://wordpress.com/plugins/' . $this->domain, null, 'dashicons-admin-plugins', 65 );
 	}
 
 	/**
 	 * Adds Users menu.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_users_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function add_users_menu() {
 		if ( current_user_can( 'list_users' ) ) {
 			add_menu_page( esc_attr__( 'Users', 'jetpack' ), __( 'Users', 'jetpack' ), 'list_users', 'https://wordpress.com/people/team/' . $this->domain, null, 'dashicons-admin-users', 70 );
 		} else {
@@ -213,11 +187,8 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 
 	/**
 	 * Adds Tools menu.
-	 *
-	 * @param bool $wp_admin_import Optional. Whether Import link should point to Calypso or wp-admin. Default false (Calypso).
-	 * @param bool $wp_admin_export Optional. Whether Export link should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_tools_menu( $wp_admin_import = false, $wp_admin_export = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function add_tools_menu() {
 		add_menu_page( esc_attr__( 'Tools', 'jetpack' ), __( 'Tools', 'jetpack' ), 'publish_posts', 'tools.php', null, 'dashicons-admin-tools', 75 );
 
 		add_submenu_page( 'tools.php', esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'publish_posts', 'https://wordpress.com/marketing/tools/' . $this->domain );
@@ -233,11 +204,22 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 
 	/**
 	 * Adds Settings menu.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_options_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		add_menu_page( esc_attr__( 'Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/general/' . $this->domain, null, 'dashicons-admin-settings', 80 );
+	public function add_options_menu() {
+		$slug = 'https://wordpress.com/settings/general/' . $this->domain;
+		add_menu_page( esc_attr__( 'Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'manage_options', $slug, null, 'dashicons-admin-settings', 80 );
+		add_submenu_page( $slug, esc_attr__( 'General', 'jetpack' ), __( 'General', 'jetpack' ), 'manage_options', $slug );
+		add_submenu_page( $slug, esc_attr__( 'Security', 'jetpack' ), __( 'Security', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/security/' . $this->domain );
+		add_submenu_page( $slug, esc_attr__( 'Performance', 'jetpack' ), __( 'Performance', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/performance/' . $this->domain );
+		add_submenu_page( $slug, esc_attr__( 'Writing', 'jetpack' ), __( 'Writing', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/writing/' . $this->domain );
+		add_submenu_page( $slug, esc_attr__( 'Discussion', 'jetpack' ), __( 'Discussion', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/discussion/' . $this->domain );
+
+		$has_scan     = \Jetpack_Plan::supports( 'scan' );
+		$rewind_state = get_transient( 'jetpack_rewind_state' );
+		$has_backup   = $rewind_state && in_array( $rewind_state->state, array( 'awaiting_credentials', 'provisioning', 'active' ), true );
+		if ( $has_scan || $has_backup ) {
+			add_submenu_page( $slug, esc_attr__( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/jetpack/' . $this->domain );
+		}
 	}
 
 	/**

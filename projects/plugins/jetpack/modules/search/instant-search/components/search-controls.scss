@@ -11,7 +11,7 @@
 	margin-left: $results-margin-lg;
 	margin-right: $results-margin-lg;
 
-	@include break-large-down() {
+	@include multiple-breaks-for-customberg( '<l', '<xl' ) {
 		margin-left: $results-margin-md;
 		margin-right: $results-margin-md;
 
@@ -27,7 +27,7 @@
 		margin-right: $results-margin-sm;
 	}
 
-	@include break-large-up() {
+	@include multiple-breaks-for-customberg( '>l', '>xl' ) {
 		position: absolute;
 		right: $sidebar-width;
 	}

@@ -10,11 +10,11 @@ import classNames from 'classnames';
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
-import getRedirectUrl from 'lib/jp-redirect';
 import JetpackBanner from 'components/jetpack-banner';
 
 import './style.scss';

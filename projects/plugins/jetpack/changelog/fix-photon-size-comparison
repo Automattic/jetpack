@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Photon: correct image URLs in srcset in certain cases.

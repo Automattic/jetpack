@@ -1,0 +1,57 @@
+{
+	"name": "automattic/jetpack-backup-plugin",
+	"description": "Easily restore or download a backup of your site from a specific moment in time.",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-admin-ui": "0.1.x-dev",
+		"automattic/jetpack-autoloader": "2.10.x-dev",
+		"automattic/jetpack-backup": "1.1.x-dev",
+		"automattic/jetpack-config": "1.5.x-dev",
+		"automattic/jetpack-connection": "1.30.x-dev",
+		"automattic/jetpack-connection-ui": "2.1.x-dev",
+		"automattic/jetpack-sync": "1.27.x-dev",
+		"automattic/jetpack-status": "1.9.x-dev"
+	},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "1.0.2",
+		"automattic/jetpack-changelogger": "^3.0"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"build-development": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run build"
+		],
+		"build-production": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run build-production-concurrently"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"config": {
+		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_backupⓥ1_1_0_alpha"
+	},
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-backup-plugin",
+		"release-branch-prefix": "backup",
+		"wp-plugin-slug": "jetpack-backup"
+	},
+	"changelogger": {
+		"versioning": "wordpress"
+	}
+}

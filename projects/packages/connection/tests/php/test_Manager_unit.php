@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\TestCase;
+use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
 use WP_Error;
 
@@ -40,11 +41,11 @@ class ManagerTest extends TestCase {
 	 */
 	public function set_up() {
 		$this->manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
-			->setMethods( array( 'get_tokens', 'get_connection_owner_id' ) )
+			->setMethods( array( 'get_tokens', 'get_connection_owner_id', 'unlink_user_from_wpcom', 'update_connection_owner_wpcom', 'disconnect_site_wpcom' ) )
 			->getMock();
 
 		$this->tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
-			->setMethods( array( 'get_access_token' ) )
+			->setMethods( array( 'get_access_token', 'disconnect_user' ) )
 			->getMock();
 
 		$this->manager->method( 'get_tokens' )->will( $this->returnValue( $this->tokens ) );
@@ -66,6 +67,7 @@ class ManagerTest extends TestCase {
 	public function tear_down() {
 		wp_set_current_user( 0 );
 		WorDBless_Users::init()->clear_all_users();
+		WorDBless_Options::init()->clear_options();
 		unset( $this->manager );
 		unset( $this->tokens );
 		Constants::clear_constants();
@@ -353,6 +355,226 @@ class ManagerTest extends TestCase {
 		$this->assertTrue( strpos( $signed_token, 'timestamp' ) !== false );
 		$this->assertTrue( strpos( $signed_token, 'nonce' ) !== false );
 		$this->assertTrue( strpos( $signed_token, 'signature' ) !== false );
+	}
+
+	/**
+	 * Test disconnecting a user from WordPress.com.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::disconnect_user
+	 * @dataProvider get_disconnect_user_scenarios
+	 *
+	 * @param bool $remote   Was the remote disconnection successful.
+	 * @param bool $local    Was the remote disconnection successful.
+	 * @param bool $expected Expected outcome.
+	 */
+	public function test_disconnect_user( $remote, $local, $expected ) {
+		$editor_id = wp_insert_user(
+			array(
+				'user_login' => 'editor',
+				'user_pass'  => 'pass',
+				'user_email' => 'editor@editor.com',
+				'role'       => 'editor',
+			)
+		);
+		( new Tokens() )->update_user_token( $editor_id, sprintf( '%s.%s.%d', 'key', 'private', $editor_id ), false );
+
+		$this->manager->method( 'unlink_user_from_wpcom' )
+			->will( $this->returnValue( $remote ) );
+
+		$this->tokens->method( 'disconnect_user' )
+			->will( $this->returnValue( $local ) );
+
+		$result = $this->manager->disconnect_user( $editor_id );
+
+		$this->assertEquals( $expected, $result );
+	}
+
+	/**
+	 * Test data for test_disconnect_user
+	 *
+	 * @return array
+	 */
+	public function get_disconnect_user_scenarios() {
+		return array(
+			'Successful remote and local disconnection' => array(
+				true,
+				true,
+				true,
+			),
+			'Failed remote and successful local disconnection' => array(
+				false,
+				true,
+				false,
+			),
+			'Successful remote and failed local disconnection' => array(
+				true,
+				false,
+				false,
+			),
+		);
+	}
+
+	/**
+	 * Test updating the connection owner to a non-admin user.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::update_connection_owner
+	 */
+	public function test_update_connection_owner_non_admin() {
+		$editor_id = wp_insert_user(
+			array(
+				'user_login' => 'editor',
+				'user_pass'  => 'pass',
+				'user_email' => 'editor@editor.com',
+				'role'       => 'editor',
+			)
+		);
+
+		$expected = new WP_Error( 'new_owner_not_admin', __( 'New owner is not admin', 'jetpack' ), array( 'status' => 400 ) );
+
+		$result = $this->manager->update_connection_owner( $editor_id );
+
+		$this->assertEquals( $expected, $result );
+	}
+
+	/**
+	 * Test updating the connection owner to the existing owner.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::update_connection_owner
+	 */
+	public function test_update_connection_owner_same_owner() {
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'admin',
+				'user_pass'  => 'pass',
+				'user_email' => 'admin@admin.com',
+				'role'       => 'administrator',
+			)
+		);
+
+		$this->manager->method( 'get_connection_owner_id' )
+			->withAnyParameters()
+			->willReturn( $admin_id );
+
+		$expected = new WP_Error( 'new_owner_is_existing_owner', __( 'New owner is same as existing owner', 'jetpack' ), array( 'status' => 400 ) );
+
+		$result = $this->manager->update_connection_owner( $admin_id );
+
+		$this->assertEquals( $expected, $result );
+	}
+
+	/**
+	 * Test updating the connection owner to a not connected admin.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::update_connection_owner
+	 */
+	public function test_update_connection_owner_not_connected() {
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'admin',
+				'user_pass'  => 'pass',
+				'user_email' => 'admin@admin.com',
+				'role'       => 'administrator',
+			)
+		);
+
+		$expected = new WP_Error( 'new_owner_not_connected', __( 'New owner is not connected', 'jetpack' ), array( 'status' => 400 ) );
+
+		$result = $this->manager->update_connection_owner( $admin_id );
+
+		$this->assertEquals( $expected, $result );
+	}
+
+	/**
+	 * Test updating the connection owner when remote call to wpcom fails.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::update_connection_owner
+	 */
+	public function test_update_connection_owner_with_failed_wpcom_request() {
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'admin',
+				'user_pass'  => 'pass',
+				'user_email' => 'admin@admin.com',
+				'role'       => 'administrator',
+			)
+		);
+
+		$access_token = (object) array(
+			'secret'           => 'abcd1234',
+			'external_user_id' => $admin_id,
+		);
+		$this->tokens->expects( $this->once() )
+			->method( 'get_access_token' )
+			->will( $this->returnValue( $access_token ) );
+
+		$this->manager->method( 'get_connection_owner_id' )
+			->withAnyParameters()
+			->willReturn( $this->user_id );
+		$this->manager->method( 'update_connection_owner_wpcom' )
+			->willReturn( false );
+
+		$expected = new WP_Error( 'error_setting_new_owner', __( 'Could not confirm new owner.', 'jetpack' ), array( 'status' => 500 ) );
+
+		$result = $this->manager->update_connection_owner( $admin_id );
+
+		$this->assertEquals( $expected, $result );
+	}
+
+	/**
+	 * Test updating the connection owner when remote call to wpcom succeeds.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::update_connection_owner
+	 */
+	public function test_update_connection_owner_with_successful_wpcom_request() {
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'admin',
+				'user_pass'  => 'pass',
+				'user_email' => 'admin@admin.com',
+				'role'       => 'administrator',
+			)
+		);
+
+		$access_token = (object) array(
+			'secret'           => 'abcd1234',
+			'external_user_id' => $admin_id,
+		);
+		$this->tokens->expects( $this->once() )
+			->method( 'get_access_token' )
+			->will( $this->returnValue( $access_token ) );
+
+		$this->manager->method( 'get_connection_owner_id' )
+			->withAnyParameters()
+			->willReturn( $this->user_id );
+		$this->manager->method( 'update_connection_owner_wpcom' )
+			->willReturn( true );
+
+		$result = $this->manager->update_connection_owner( $admin_id );
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Test disconnecting the site will remove tracked package verions.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::disconnect_site
+	 */
+	public function test_disconnect_site_will_remove_tracked_package_versions() {
+		$this->manager->method( 'disconnect_site_wpcom' )
+			->willReturn( true );
+
+		$existing_tracked_versions = array(
+			'connection' => '1.0',
+			'backup'     => '2.0',
+			'sync'       => '3.0',
+		);
+		update_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION, $existing_tracked_versions );
+
+		$this->manager->disconnect_site();
+
+		$tracked_versions_after_disconnect = get_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION );
+
+		$this->assertFalse( $tracked_versions_after_disconnect );
 	}
 
 	/**

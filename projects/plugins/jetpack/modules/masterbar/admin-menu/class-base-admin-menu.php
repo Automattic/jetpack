@@ -42,26 +42,42 @@ abstract class Base_Admin_Menu {
 	const HIDE_CSS_CLASS = 'hide-if-js';
 
 	/**
+	 * Identifier denoting that the default WordPress.com view should be used for a certain screen.
+	 *
+	 * @var string
+	 */
+	const DEFAULT_VIEW = 'default';
+
+	/**
+	 * Identifier denoting that the classic WP Admin view should be used for a certain screen.
+	 *
+	 * @var string
+	 */
+	const CLASSIC_VIEW = 'classic';
+
+	/**
+	 * Identifier denoting no preferred view has been set for a certain screen.
+	 *
+	 * @var string
+	 */
+	const UNKNOWN_VIEW = 'unknown';
+
+	/**
 	 * Base_Admin_Menu constructor.
 	 */
 	protected function __construct() {
-		add_action( 'admin_menu', array( $this, 'set_is_api_request' ), 99997 );
+		$this->is_api_request = defined( 'REST_REQUEST' ) && REST_REQUEST || 0 === strpos( $_SERVER['REQUEST_URI'], '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' );
+		$this->domain         = ( new Status() )->get_site_suffix();
+
 		add_action( 'admin_menu', array( $this, 'reregister_menu_items' ), 99998 );
-		add_filter( 'admin_menu', array( $this, 'override_svg_icons' ), 99999 );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
-		add_action( 'admin_head', array( $this, 'set_site_icon_inline_styles' ) );
-		add_filter( 'rest_request_before_callbacks', array( $this, 'rest_api_init' ), 11 );
+		add_action( 'admin_menu', array( $this, 'hide_parent_of_hidden_submenus' ), 99999 );
 
-		$this->domain = ( new Status() )->get_site_suffix();
-	}
-
-	/**
-	 * Determine if the current request is from API
-	 */
-	public function set_is_api_request() {
-		// Constant is not defined until parse_request.
 		if ( ! $this->is_api_request ) {
-			$this->is_api_request = defined( 'REST_REQUEST' ) && REST_REQUEST;
+			add_filter( 'admin_menu', array( $this, 'override_svg_icons' ), 99999 );
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ), 11 );
+			add_action( 'admin_head', array( $this, 'set_site_icon_inline_styles' ) );
+			add_filter( 'screen_settings', array( $this, 'register_dashboard_switcher' ), 99999 );
+			add_action( 'admin_menu', array( $this, 'handle_preferred_view' ), 99997 );
 		}
 	}
 
@@ -71,24 +87,13 @@ abstract class Base_Admin_Menu {
 	 * @return Admin_Menu
 	 */
 	public static function get_instance() {
-		$class = get_called_class();
+		$class = static::class;
 
 		if ( empty( static::$instances[ $class ] ) ) {
 			static::$instances[ $class ] = new $class();
 		}
 
 		return static::$instances[ $class ];
-	}
-
-	/**
-	 * Sets up class properties for REST API requests.
-	 *
-	 * @param \WP_REST_Response $response Response from the endpoint.
-	 */
-	public function rest_api_init( $response ) {
-		$this->is_api_request = true;
-
-		return $response;
 	}
 
 	/**
@@ -133,7 +138,7 @@ abstract class Base_Admin_Menu {
 		if ( $url ) {
 			$this->hide_submenu_page( $slug, $slug );
 
-			if ( ! $this->has_visible_items( $submenu[ $slug ] ) ) {
+			if ( ! isset( $submenu[ $slug ] ) || ! $this->has_visible_items( $submenu[ $slug ] ) ) {
 				$menu_item[2] = $url;
 			}
 		}
@@ -151,7 +156,7 @@ abstract class Base_Admin_Menu {
 		$this->set_menu_item( $menu_item, $menu_position );
 
 		// Only add submenu when there are other submenu items.
-		if ( $url && $this->has_visible_items( $submenu[ $slug ] ) ) {
+		if ( $url && isset( $submenu[ $slug ] ) && $this->has_visible_items( $submenu[ $slug ] ) ) {
 			add_submenu_page( $slug, $menu_item[3], $menu_item[0], $menu_item[1], $url, null, 0 );
 		}
 
@@ -212,7 +217,7 @@ abstract class Base_Admin_Menu {
 				isset( $submenu_item[1] ) ? $submenu_item[1] : 'read',
 				$submenus_to_update[ $submenu_item[2] ],
 				'',
-				$i
+				0 === $i ? 0 : $i + 1
 			);
 		}
 	}
@@ -259,6 +264,9 @@ abstract class Base_Admin_Menu {
 			JETPACK__VERSION
 		);
 
+		wp_style_add_data( 'jetpack-admin-menu', 'rtl', $this->is_rtl() );
+		$this->configure_colors_for_rtl_stylesheets();
+
 		wp_enqueue_script(
 			'jetpack-admin-menu',
 			plugins_url( 'admin-menu.js', __FILE__ ),
@@ -266,6 +274,15 @@ abstract class Base_Admin_Menu {
 			JETPACK__VERSION,
 			true
 		);
+	}
+
+	/**
+	 * Mark the core colors stylesheets as RTL depending on the value from the environment.
+	 * This fixes a core issue where the extra RTL data is not added to the colors stylesheet.
+	 * https://core.trac.wordpress.org/ticket/53090
+	 */
+	public function configure_colors_for_rtl_stylesheets() {
+		wp_style_add_data( 'colors', 'rtl', $this->is_rtl() );
 	}
 
 	/**
@@ -339,12 +356,26 @@ abstract class Base_Admin_Menu {
 	public function has_visible_items( $submenu_items ) {
 		$visible_items = array_filter(
 			$submenu_items,
-			static function ( $item ) {
-				return empty( $item[4] ) || strpos( $item[4], self::HIDE_CSS_CLASS ) === false;
-			}
+			array( $this, 'is_item_visible' )
 		);
 
 		return array() !== $visible_items;
+	}
+
+	/**
+	 * Return the number of existing submenu items under the supplied parent slug.
+	 *
+	 * @param string $parent_slug The slug of the parent menu.
+	 * @return int The number of submenu items under $parent_slug.
+	 */
+	public function get_submenu_item_count( $parent_slug ) {
+		global $submenu;
+
+		if ( empty( $parent_slug ) || empty( $submenu[ $parent_slug ] ) || ! is_array( $submenu[ $parent_slug ] ) ) {
+			return 0;
+		}
+
+		return count( $submenu[ $parent_slug ] );
 	}
 
 	/**
@@ -382,23 +413,30 @@ abstract class Base_Admin_Menu {
 	public function override_svg_icons() {
 		global $menu;
 
-		// Only do this if we're not in an API request, as we override the $menu global.
-		if ( $this->is_api_request ) {
-			return;
-		}
-
 		$svg_items = array();
 		foreach ( $menu as $idx => $menu_item ) {
-			if ( count( $menu_item ) > 6 && 0 === strpos( $menu_item[6], 'data:image/svg+xml' ) && 'site-card' !== $menu_item[3] ) {
-				$svg_items[] = array(
-					'icon' => $menu[ $idx ][6],
-					'id'   => $menu[ $idx ][5],
-				);
-				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-				$menu[ $idx ][6] = 'none';
-				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-				$menu[ $idx ][4] .= ' menu-svg-icon';
+			// Menu items that don't have icons, for example separators, have less than 7
+			// elements, partly because the 7th is the icon. So, if we have less than 7,
+			// let's skip it.
+			if ( count( $menu_item ) < 7 ) {
+				continue;
 			}
+
+			// If the hookname contain a URL than sanitize it by replacing invalid characters.
+			if ( false !== strpos( $menu_item[5], '://' ) ) {
+				$menu_item[5] = preg_replace( '![:/.]+!', '_', $menu_item[5] );
+			}
+
+			if ( 0 === strpos( $menu_item[6], 'data:image/svg+xml' ) && 'site-card' !== $menu_item[3] ) {
+				$svg_items[]   = array(
+					'icon' => $menu_item[6],
+					'id'   => $menu_item[5],
+				);
+				$menu_item[4] .= ' menu-svg-icon';
+				$menu_item[6]  = 'none';
+			}
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			$menu[ $idx ] = $menu_item;
 		}
 		if ( count( $svg_items ) > 0 ) {
 			$styles = '.menu-svg-icon .wp-menu-image { background-repeat: no-repeat; background-position: center center } ';
@@ -428,6 +466,197 @@ abstract class Base_Admin_Menu {
 	}
 
 	/**
+	 * Hide menus that are unauthorized and don't have visible submenus and cases when the menu has the same slug
+	 * as the first submenu item.
+	 *
+	 * This must be done at the end of menu and submenu manipulation in order to avoid performing this check each time
+	 * the submenus are altered.
+	 */
+	public function hide_parent_of_hidden_submenus() {
+		global $menu, $submenu;
+
+		$this->sort_hidden_submenus();
+
+		foreach ( $menu as $menu_index => $menu_item ) {
+			$has_submenus = isset( $submenu[ $menu_item[2] ] );
+
+			// Skip if the menu doesn't have submenus.
+			if ( ! $has_submenus ) {
+				continue;
+			}
+
+			// If the first submenu item is hidden then we should also hide the parent.
+			// Since the submenus are ordered by self::HIDE_CSS_CLASS (hidden submenus should be at the end of the array),
+			// we can say that if the first submenu is hidden then we should also hide the menu.
+			$first_submenu_item       = array_values( $submenu[ $menu_item[2] ] )[0];
+			$is_first_submenu_visible = $this->is_item_visible( $first_submenu_item );
+
+			// if the user does not have access to the menu and the first submenu is hidden, then hide the menu.
+			if ( ! current_user_can( $menu_item[1] ) && ! $is_first_submenu_visible ) {
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$menu[ $menu_index ][4] = self::HIDE_CSS_CLASS;
+			}
+
+			// if the menu has the same slug as the first submenu then hide the submenu.
+			if ( $menu_item[2] === $first_submenu_item[2] && ! $is_first_submenu_visible ) {
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$menu[ $menu_index ][4] = self::HIDE_CSS_CLASS;
+			}
+		}
+	}
+
+	/**
+	 * Sort the hidden submenus by moving them at the end of the array in order to avoid WP using them as default URLs.
+	 *
+	 * This operation has to be done at the end of submenu manipulation in order to guarantee that the hidden submenus
+	 * are at the end of the array.
+	 */
+	public function sort_hidden_submenus() {
+		global $submenu;
+
+		foreach ( $submenu as $menu_slug => $submenu_items ) {
+			foreach ( $submenu_items as $submenu_index => $submenu_item ) {
+				if ( $this->is_item_visible( $submenu_item ) ) {
+					continue;
+				}
+
+				unset( $submenu[ $menu_slug ][ $submenu_index ] );
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$submenu[ $menu_slug ][] = $submenu_item;
+			}
+		}
+	}
+
+	/**
+	 * Check if the given item is visible or not in the admin menu.
+	 *
+	 * @param array $item A menu or submenu array.
+	 */
+	public function is_item_visible( $item ) {
+		return ! isset( $item[4] ) || false === strpos( $item[4], self::HIDE_CSS_CLASS );
+	}
+
+	/**
+	 * Sets the given view as preferred for the givens screen.
+	 *
+	 * @param string $screen Screen identifier.
+	 * @param string $view Preferred view.
+	 */
+	public function set_preferred_view( $screen, $view ) {
+		$preferred_views            = $this->get_preferred_views();
+		$preferred_views[ $screen ] = $view;
+		update_user_option( get_current_user_id(), 'jetpack_admin_menu_preferred_views', $preferred_views );
+	}
+
+	/**
+	 * Get the preferred views for all screens.
+	 *
+	 * @return array
+	 */
+	public function get_preferred_views() {
+		$preferred_views = get_user_option( 'jetpack_admin_menu_preferred_views' );
+
+		if ( ! $preferred_views ) {
+			return array();
+		}
+
+		return $preferred_views;
+	}
+
+	/**
+	 * Get the preferred view for the given screen.
+	 *
+	 * @param string $screen Screen identifier.
+	 * @param bool   $fallback_global_preference (Optional) Whether the global preference for all screens should be used
+	 *                                           as fallback if there is no specific preference for the given screen.
+	 *                                           Default: true.
+	 * @return string
+	 */
+	public function get_preferred_view( $screen, $fallback_global_preference = true ) {
+		$preferred_views = $this->get_preferred_views();
+
+		if ( ! isset( $preferred_views[ $screen ] ) ) {
+			if ( ! $fallback_global_preference ) {
+				return self::UNKNOWN_VIEW;
+			}
+			return $this->should_link_to_wp_admin() ? self::CLASSIC_VIEW : self::DEFAULT_VIEW;
+		}
+
+		return $preferred_views[ $screen ];
+	}
+
+	/**
+	 * Gets the identifier of the current screen.
+	 *
+	 * @return string
+	 */
+	public function get_current_screen() {
+		// phpcs:disable WordPress.Security.NonceVerification
+		global $pagenow;
+		$screen = isset( $_REQUEST['screen'] ) ? $_REQUEST['screen'] : $pagenow;
+		if ( isset( $_GET['post_type'] ) ) {
+			$screen = add_query_arg( 'post_type', $_GET['post_type'], $screen );
+		}
+		if ( isset( $_GET['taxonomy'] ) ) {
+			$screen = add_query_arg( 'taxonomy', $_GET['taxonomy'], $screen );
+		}
+		if ( isset( $_GET['page'] ) ) {
+			$screen = add_query_arg( 'page', $_GET['page'], $screen );
+		}
+		return sanitize_text_field( wp_unslash( $screen ) );
+		// phpcs:enable WordPress.Security.NonceVerification
+	}
+
+	/**
+	 * Stores the preferred view for the current screen.
+	 */
+	public function handle_preferred_view() {
+		// phpcs:disable WordPress.Security.NonceVerification
+		if ( ! isset( $_GET['preferred-view'] ) ) {
+			return;
+		}
+
+		// phpcs:disable WordPress.Security.NonceVerification
+		$preferred_view = $_GET['preferred-view'];
+
+		if ( ! in_array( $preferred_view, array( self::DEFAULT_VIEW, self::CLASSIC_VIEW ), true ) ) {
+			return;
+		}
+
+		$current_screen = $this->get_current_screen();
+
+		$this->set_preferred_view( $current_screen, $preferred_view );
+
+		/**
+		 * Dashboard Quick switcher action triggered when a user switches to a different view.
+		 *
+		 * @module masterbar
+		 *
+		 * @since 9.9.1
+		 *
+		 * @param string The current screen of the user.
+		 * @param string The preferred view the user selected.
+		 */
+		\do_action( 'jetpack_dashboard_switcher_changed_view', $current_screen, $preferred_view );
+
+		if ( self::DEFAULT_VIEW === $preferred_view ) {
+			// Redirect to default view if that's the newly preferred view.
+			$menu_mappings = require __DIR__ . '/menu-mappings.php';
+			if ( isset( $menu_mappings[ $current_screen ] ) ) {
+				// Using `wp_redirect` intentionally because we're redirecting to Calypso.
+				wp_redirect( $menu_mappings[ $current_screen ] . $this->domain ); // phpcs:ignore WordPress.Security.SafeRedirect
+				exit;
+			}
+		} elseif ( self::CLASSIC_VIEW === $preferred_view ) {
+			// Removes the `preferred-view` param from the URL to avoid issues with
+			// screens that don't expect this param to be present in the URL.
+			wp_safe_redirect( remove_query_arg( 'preferred-view' ) );
+			exit;
+		}
+		// phpcs:enable WordPress.Security.NonceVerification
+	}
+
+	/**
 	 * Whether to use wp-admin pages rather than Calypso.
 	 *
 	 * Options:
@@ -436,7 +665,9 @@ abstract class Base_Admin_Menu {
 	 *
 	 * @return bool
 	 */
-	abstract public function should_link_to_wp_admin();
+	public function should_link_to_wp_admin() {
+		return get_user_option( 'jetpack_admin_menu_link_destination' );
+	}
 
 	/**
 	 * Create the desired menu output.

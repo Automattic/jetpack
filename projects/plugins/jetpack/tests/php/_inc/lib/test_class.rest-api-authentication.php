@@ -24,8 +24,11 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		) );
 	}
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 		foreach ( self::$SAVE_SERVER_KEYS as $key ) {
 			if ( isset( $_SERVER[ $key ] ) ) {
 				$this->server_values[ $key ] = $_SERVER[ $key ];
@@ -37,8 +40,11 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		add_filter( 'rest_pre_dispatch', array( $this, 'rest_pre_dispatch' ), 100, 2 );
 	}
 
-	public function tearDown() {
-		parent::tearDown();
+	/**
+	 * Tear down.
+	 */
+	public function tear_down() {
+		parent::tear_down();
 		unset(
 			$_SERVER['HTTP_CONTENT_TYPE'],
 			$_GET['_for'],
@@ -168,6 +174,57 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		$data = $response->get_data();
 		$this->assertEquals( 'Protect', $data['name'] );
 		$this->assertEquals( self::$admin_id, get_current_user_id() );
+	}
+
+	/**
+	 * Test Core REST API Authentication with blog token.
+	 *
+	 * @author fgiannar
+	 */
+	public function test_jetpack_rest_api_get_authentication_success_with_blog_token() {
+		add_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10, 2 );
+		$token     = 'pretend_this_is_valid_blog_token:1:0';
+		$timestamp = (string) time();
+		$nonce     = 'testing123';
+		$body_hash = '';
+
+		$_GET['token']     = $token;
+		$_GET['timestamp'] = $timestamp;
+		$_GET['nonce']     = $nonce;
+		$_GET['body-hash'] = $body_hash;
+		// This is intentionally using base64_encode().
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		$_GET['signature'] = base64_encode(
+			hash_hmac(
+				'sha1',
+				implode(
+					"\n",
+					array(
+						$token,
+						$timestamp,
+						$nonce,
+						$body_hash,
+						'GET',
+						'example.org',
+						'80',
+						'/jetpack/v4/purchase-token',
+						'qstest=yep',
+					)
+				) . "\n",
+				'secret_blog',
+				true
+			)
+		);
+
+		$this->request = new WP_REST_Request( 'GET', '/jetpack/v4/purchase-token' );
+		$response      = $this->server->dispatch( $this->request );
+		// "Success" here is a 500, since the site is not registered.
+		// Check error code and params info to make sure we've made it through
+		// the auth code.
+		$this->assertEquals( 500, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertEquals( 'site_not_registered', $data['code'] );
+		$this->assertEquals( 0, get_current_user_id() );
 	}
 
 	/**
@@ -358,6 +415,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		$user_tokens[ self::$admin_id ] = 'pretend_this_is_valid.secret.' . self::$admin_id;
 		return array(
 			'user_tokens' => $user_tokens,
+			'blog_token'  => 'pretend_this_is_valid_blog_token.secret_blog',
 		);
 	}
 

@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import { __ } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -11,7 +12,6 @@ import analytics from 'lib/analytics';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import Card from 'components/card';
 import { FormFieldset } from 'components/forms';
-import getRedirectUrl from 'lib/jp-redirect';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
@@ -91,7 +91,7 @@ class SubscriptionsComponent extends React.Component {
 				<SettingsGroup
 					hasChild
 					disableInOfflineMode
-					disableInUserlessMode
+					disableInSiteConnectionMode
 					module={ subscriptions }
 					support={ {
 						text: __(
@@ -150,7 +150,7 @@ class SubscriptionsComponent extends React.Component {
 					<ConnectUserBar
 						feature="subscriptions"
 						featureLabel={ __( 'Subscriptions', 'jetpack' ) }
-						text={ __( 'Sign in to manage your subscriptions settings.', 'jetpack' ) }
+						text={ __( 'Connect to manage your subscriptions settings.', 'jetpack' ) }
 					/>
 				) }
 			</SettingsCard>

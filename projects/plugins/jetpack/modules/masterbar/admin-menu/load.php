@@ -7,6 +7,37 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
+use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Tracking;
+
+/**
+ * Checks whether the navigation customizations should be performed for the given class.
+ *
+ * @param string $admin_menu_class Class name.
+ *
+ * @return bool
+ */
+function should_customize_nav( $admin_menu_class ) {
+	// Make sure the class extends the base admin menu class.
+	if ( ! is_subclass_of( $admin_menu_class, Base_Admin_Menu::class ) ) {
+		return false;
+	}
+
+	$is_api_request = defined( 'REST_REQUEST' ) && REST_REQUEST || 0 === strpos( $_SERVER['REQUEST_URI'], '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' );
+
+	// No nav customizations on WP Admin of Atomic sites when SSO is disabled.
+	if ( is_a( $admin_menu_class, Atomic_Admin_Menu::class, true ) && ! $is_api_request && ! \Jetpack::is_module_active( 'sso' ) ) {
+		return false;
+	}
+
+	// No nav customizations on WP Admin of Jetpack sites.
+	if ( is_a( $admin_menu_class, Jetpack_Admin_Menu::class, true ) && ! $is_api_request ) {
+		return false;
+	}
+
+	return true;
+}
+
 /**
  * Gets the name of the class that customizes the admin menu.
  *
@@ -14,7 +45,7 @@ namespace Automattic\Jetpack\Dashboard_Customizations;
  */
 function get_admin_menu_class() {
 	// WordPress.com Atomic sites.
-	if ( jetpack_is_atomic_site() ) {
+	if ( ( new Host() )->is_woa_site() ) {
 		require_once __DIR__ . '/class-atomic-admin-menu.php';
 		return Atomic_Admin_Menu::class;
 	}
@@ -58,6 +89,29 @@ function get_admin_menu_class() {
  * @param string $admin_menu_class Class name.
  */
 $admin_menu_class = apply_filters( 'jetpack_admin_menu_class', get_admin_menu_class() );
-if ( is_subclass_of( $admin_menu_class, Base_Admin_Menu::class ) ) {
+if ( should_customize_nav( $admin_menu_class ) ) {
+	/** The admin menu singleton instance. @var Base_Admin_Menu $instance */
 	$admin_menu_class::get_instance();
+
+	/**
+	 * Trigger an event when the user uses the dashboard quick switcher.
+	 *
+	 * @param string $screen The current screen.
+	 * @param string $view The view the user choosed to go to.
+	 */
+	function dashboard_quick_switcher_record_usage( $screen, $view ) {
+		require_once __DIR__ . '/class-dashboard-switcher-tracking.php';
+
+		$tracking = new Dashboard_Switcher_Tracking(
+			new Tracking( Dashboard_Switcher_Tracking::get_jetpack_tracking_product() ),
+			array( Dashboard_Switcher_Tracking::class, 'wpcom_tracks_record_event' ),
+			Dashboard_Switcher_Tracking::get_plan()
+		);
+
+		$tracking->record_switch_event( $screen, $view );
+	}
+
+	\add_action( 'jetpack_dashboard_switcher_changed_view', __NAMESPACE__ . '\dashboard_quick_switcher_record_usage', 10, 2 );
+} else {
+	\add_filter( 'jetpack_load_admin_menu_class', '__return_false' );
 }

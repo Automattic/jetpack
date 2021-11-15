@@ -3,7 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { combineReducers } from 'redux';
-import { assign, difference, get, mergeWith, union } from 'lodash';
+import { assign, difference, get, isArray, isEmpty, mergeWith, union } from 'lodash';
 
 /**
  * Internal dependencies
@@ -16,8 +16,10 @@ import {
 	JETPACK_RECOMMENDATIONS_DATA_FETCH_RECEIVE,
 	JETPACK_RECOMMENDATIONS_DATA_FETCH_FAIL,
 	JETPACK_RECOMMENDATIONS_DATA_UPDATE,
-	JETPACK_RECOMMENDATIONS_STEP_FETCH_RECEIVE,
 	JETPACK_RECOMMENDATIONS_STEP_UPDATE,
+	JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH,
+	JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH_RECEIVE,
+	JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH_FAIL,
 	JETPACK_RECOMMENDATIONS_UPSELL_FETCH,
 	JETPACK_RECOMMENDATIONS_UPSELL_FETCH_RECEIVE,
 	JETPACK_RECOMMENDATIONS_UPSELL_FETCH_FAIL,
@@ -85,6 +87,11 @@ const requests = ( state = {}, action ) => {
 			} );
 		case JETPACK_RECOMMENDATIONS_DATA_FETCH_FAIL:
 			return assign( {}, state, { isFetchingRecommendationsData: false } );
+		case JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH:
+			return assign( {}, state, { isFetchingRecommendationsProductSuggestions: true } );
+		case JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH_RECEIVE:
+		case JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH_FAIL:
+			return assign( {}, state, { isFetchingRecommendationsProductSuggestions: false } );
 		case JETPACK_RECOMMENDATIONS_UPSELL_FETCH:
 			return assign( {}, state, { isFetchingRecommendationsUpsell: true } );
 		case JETPACK_RECOMMENDATIONS_UPSELL_FETCH_RECEIVE:
@@ -97,13 +104,25 @@ const requests = ( state = {}, action ) => {
 
 const stepReducer = ( state = '', action ) => {
 	switch ( action.type ) {
-		case JETPACK_RECOMMENDATIONS_STEP_FETCH_RECEIVE:
 		case JETPACK_RECOMMENDATIONS_STEP_UPDATE:
 			return action.step;
 		default:
 			return state;
 	}
 };
+
+const productSuggestions = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH_RECEIVE:
+		case JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH_FAIL:
+			return action.productSuggestions;
+		default:
+			return state;
+	}
+};
+
+export const getProductSuggestions = state =>
+	get( state.jetpack, [ 'recommendations', 'productSuggestions' ], [] );
 
 const upsell = ( state = {}, action ) => {
 	switch ( action.type ) {
@@ -115,7 +134,13 @@ const upsell = ( state = {}, action ) => {
 	}
 };
 
-export const reducer = combineReducers( { data, requests, step: stepReducer, upsell } );
+export const reducer = combineReducers( {
+	data,
+	requests,
+	step: stepReducer,
+	upsell,
+	productSuggestions,
+} );
 
 export const isFetchingRecommendationsData = state => {
 	return !! state.jetpack.recommendations.requests.isFetchingRecommendationsData;
@@ -123,6 +148,10 @@ export const isFetchingRecommendationsData = state => {
 
 export const isRecommendationsDataLoaded = state => {
 	return !! state.jetpack.recommendations.requests.isRecommendationsDataLoaded;
+};
+
+export const isFetchingRecommendationsProductSuggestions = state => {
+	return !! state.jetpack.recommendations.requests.isFetchingRecommendationsProductSuggestions;
 };
 
 export const isFetchingRecommendationsUpsell = state => {
@@ -137,7 +166,8 @@ const stepToNextStep = {
 	'setup-wizard-completed': 'summary',
 	'banner-completed': 'woocommerce',
 	'not-started': 'site-type-question',
-	'site-type-question': 'woocommerce',
+	'site-type-question': 'product-suggestions',
+	'product-suggestions': 'woocommerce',
 	woocommerce: 'monitor',
 	monitor: 'related-posts',
 	'related-posts': 'creative-mail',
@@ -149,6 +179,7 @@ const stepToNextStep = {
 const stepToRoute = {
 	'not-started': '#/recommendations/site-type',
 	'site-type-question': '#/recommendations/site-type',
+	'product-suggestions': '#/recommendations/product-suggestions',
 	woocommerce: '#/recommendations/woocommerce',
 	monitor: '#/recommendations/monitor',
 	'related-posts': '#/recommendations/related-posts',
@@ -177,6 +208,22 @@ export const isFeatureActive = ( state, featureSlug ) => {
 	}
 };
 
+const isSiteEligibleForUpsell = state => {
+	const sitePlan = getSitePlan( state );
+
+	return 'jetpack_free' === sitePlan.product_slug && ! hasActiveProductPurchase( state );
+};
+
+export const isProductSuggestionsAvailable = state => {
+	if ( ! isSiteEligibleForUpsell( state ) ) {
+		return false;
+	}
+
+	const suggestionsResult = getProductSuggestions( state );
+
+	return isArray( suggestionsResult ) && ! isEmpty( suggestionsResult );
+};
+
 const isStepEligibleToShow = ( state, step ) => {
 	switch ( step ) {
 		case 'setup-wizard-completed':
@@ -186,6 +233,8 @@ const isStepEligibleToShow = ( state, step ) => {
 		case 'site-type-question':
 		case 'summary':
 			return true;
+		case 'product-suggestions':
+			return isProductSuggestionsAvailable( state );
 		case 'woocommerce':
 			return getDataByKey( state, 'site-type-store' ) ? ! isFeatureActive( state, step ) : false;
 		case 'monitor':
@@ -299,14 +348,13 @@ export const getSidebarCardSlug = state => {
 	const sitePlan = getSitePlan( state );
 	const rewindStatus = getRewindStatus( state );
 
-	const planSlug = sitePlan.product_slug;
 	const rewindState = rewindStatus.state;
 
 	if ( ! sitePlan.product_slug || ! rewindState ) {
 		return 'loading';
 	}
 
-	if ( 'jetpack_free' === planSlug && ! hasActiveProductPurchase( state ) ) {
+	if ( isSiteEligibleForUpsell( state ) ) {
 		return 'upsell';
 	}
 

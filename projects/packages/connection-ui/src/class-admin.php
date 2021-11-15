@@ -16,20 +16,26 @@ class Admin {
 	 * Construction.
 	 */
 	public function __construct() {
-		add_action( 'admin_menu', array( $this, 'register_submenu_page' ), 1000 );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		if ( ! did_action( 'jetpack_on_connection_ui_init' ) ) {
+			add_action( 'admin_menu', array( $this, 'register_submenu_page' ), 1000 );
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+
+			$this->maybe_init_idc();
+
+			/**
+			 * Action called after initializing Connection UI Admin resources.
+			 *
+			 * @since 1.1.0
+			 */
+			do_action( 'jetpack_on_connection_ui_init' );
+		}
 	}
 
 	/**
 	 * Initialize the UI.
 	 */
 	public static function init() {
-		add_action(
-			'plugins_loaded',
-			function () {
-				new static();
-			}
-		);
+		new static();
 	}
 
 	/**
@@ -59,6 +65,9 @@ class Admin {
 
 			wp_set_script_translations( 'react-jetpack_connection_ui_script', 'jetpack' );
 			wp_add_inline_script( 'jetpack_connection_ui_script', $this->get_initial_state(), 'before' );
+
+			wp_enqueue_style( 'jetpack_connection_ui_style', plugin_dir_url( __DIR__ ) . 'build/index.css', array( 'wp-components' ), $build_assets['version'] );
+			wp_style_add_data( 'jetpack_connection_ui_style', 'rtl', plugin_dir_url( __DIR__ ) . 'build/index.rtl.css' );
 		}
 	}
 
@@ -78,6 +87,16 @@ class Admin {
 	 */
 	private function get_initial_state() {
 		return ( new Initial_State() )->render();
+	}
+
+	/**
+	 * If this is the Connection Manager UI page, activate IDC.
+	 */
+	private function maybe_init_idc() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! empty( $_GET['page'] ) && 'wpcom-connection-manager' === $_GET['page'] ) {
+			add_action( 'plugins_loaded', array( 'Automattic\\Jetpack\\Identity_Crisis', 'init' ) );
+		}
 	}
 
 }

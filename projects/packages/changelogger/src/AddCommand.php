@@ -77,6 +77,7 @@ class AddCommand extends Command {
 
 		$this->setDescription( 'Adds a change file' )
 			->addOption( 'filename', 'f', InputOption::VALUE_REQUIRED, 'Name for the change file. If not provided, a default will be determined from the current timestamp or git branch name.' )
+			->addOption( 'filename-auto-suffix', null, InputOption::VALUE_NONE, 'If the specified file already exists in non-interactive mode, add a numeric suffix so the new entry can be created.' )
 			->addOption( 'significance', 's', InputOption::VALUE_REQUIRED, "Significance of the change, in the style of semantic versioning. One of the following:\n" . $joiner( self::$significances ) )
 			->addOption( 'type', 't', InputOption::VALUE_REQUIRED, Config::types() ? "Type of change. One of the following:\n" . $joiner( Config::types() ) : 'Normally this would be used to indicate the type of change, but this project does not use types. Do not use.' )
 			->addOption( 'comment', 'c', InputOption::VALUE_REQUIRED, 'Optional comment to include in the file.' )
@@ -191,6 +192,14 @@ EOF
 				if ( null === $input->getOption( 'filename' ) ) {
 					$output->writeln( "Using default filename \"$filename\".", OutputInterface::VERBOSITY_VERBOSE );
 				}
+				if ( file_exists( "$dir/$filename" ) && $input->getOption( 'filename-auto-suffix' ) ) {
+					$i = 2;
+					while ( file_exists( "$dir/$filename#$i" ) ) {
+						$i++;
+					}
+					$output->writeln( "File \"$filename\" already exists. Creating \"$filename#$i\" instead.", OutputInterface::VERBOSITY_VERBOSE );
+					$filename = "$filename#$i";
+				}
 				try {
 					$this->validateFilename( $filename );
 				} catch ( \RuntimeException $ex ) {
@@ -263,7 +272,7 @@ EOF
 					$question = new Question( "Changelog entry. May not be empty.\n > ", $entry );
 					$question->setValidator(
 						function ( $v ) {
-							if ( trim( $v ) === '' ) {
+							if ( trim( (string) $v ) === '' ) {
 								throw new \RuntimeException( 'An empty changelog entry is only allowed when the significance is "patch".' );
 							}
 							return $v;

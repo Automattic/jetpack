@@ -9,8 +9,8 @@
 	},
 	"require-dev": {
 		"automattic/wordbless": "dev-master",
-		"yoast/phpunit-polyfills": "0.2.0",
-		"automattic/jetpack-changelogger": "^1.1"
+		"yoast/phpunit-polyfills": "1.0.2",
+		"automattic/jetpack-changelogger": "^3.0"
 	},
 	"autoload": {
 		"classmap": [
@@ -20,14 +20,13 @@
 	"scripts": {
 		"build-production": [
 			"Composer\\Config::disableProcessTimeout",
-			"yarn build-production"
+			"pnpm run build-production"
 		],
 		"build-development": [
 			"Composer\\Config::disableProcessTimeout",
-			"yarn build"
+			"pnpm run build"
 		],
 		"phpunit": [
-			"@composer update",
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
 		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\"",
@@ -36,6 +35,7 @@
 			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
+			"@composer update",
 			"@composer phpunit"
 		]
 	},
@@ -57,7 +57,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-lazy-images/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.4.x-dev"
+			"dev-master": "2.0.x-dev"
 		}
 	}
 }

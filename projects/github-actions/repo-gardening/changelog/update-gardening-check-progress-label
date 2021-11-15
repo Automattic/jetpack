@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Description task: do not add the "Needs Author Reply" label if the PR is still being worked on (the "In Progress" label is in use).

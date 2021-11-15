@@ -14,10 +14,12 @@ import {
 	setSearchQuery,
 	setSort,
 	setFilter,
+	setStaticFilter,
 	initializeQueryValues,
 } from '../actions';
 import {
 	filters,
+	staticFilters,
 	hasError,
 	isHistoryNavigation,
 	isLoading,
@@ -25,6 +27,7 @@ import {
 	searchQuery,
 	sort,
 } from '../reducer';
+import { SERVER_OBJECT_NAME } from '../../lib/constants';
 
 describe( 'hasError Reducer', () => {
 	test( 'defaults to false', () => {
@@ -142,6 +145,34 @@ describe( 'response Reducer', () => {
 			aggregations: { taxonomy_1: { buckets: [] } },
 			results: [ { id: 2, result_type: 'page' } ],
 		} );
+
+		// A response with total value bigger than stored total value.
+		const biggerResponse = {
+			total: 3,
+			aggregations: {},
+			results: [
+				{ id: 1, result_type: 'page' },
+				{ id: 3, result_type: 'page' },
+			],
+		};
+		expect(
+			response(
+				{
+					total: 1,
+					aggregations: { taxonomy_1: { buckets: [] } },
+					results: [ { id: 2, result_type: 'page' } ],
+				},
+				recordSuccessfulSearchRequest( { options: actionOptions, response: biggerResponse } )
+			)
+		).toEqual( {
+			total: 3,
+			aggregations: { taxonomy_1: { buckets: [] } },
+			results: [
+				{ id: 2, result_type: 'page' },
+				{ id: 1, result_type: 'page' },
+				{ id: 3, result_type: 'page' },
+			],
+		} );
 	} );
 	test( 'ignores responses older than the current response', () => {
 		const initialState = {
@@ -157,6 +188,31 @@ describe( 'response Reducer', () => {
 			} )
 		);
 		expect( state ).toEqual( initialState );
+	} );
+	test( 'returns cached aggregations when no search results are available', () => {
+		let state = response(
+			undefined,
+			recordSuccessfulSearchRequest( {
+				options: { pageHandle: false },
+				response: {
+					requestId: 2,
+					aggregations: { taxonomy_1: { buckets: [ { key: 'weekly/weekly', doc_count: 1 } ] } },
+					results: [ { id: 1, result_type: 'post' } ],
+				},
+			} )
+		);
+		state = response(
+			state,
+			recordSuccessfulSearchRequest( {
+				options: { pageHandle: false },
+				response: { requestId: 3, aggregations: {}, results: [] },
+			} )
+		);
+		expect( state ).toEqual( {
+			requestId: 3,
+			aggregations: { taxonomy_1: { buckets: [ { key: 'weekly/weekly', doc_count: 0 } ] } },
+			results: [],
+		} );
 	} );
 } );
 
@@ -222,6 +278,63 @@ describe( 'filters Reducer', () => {
 	test( 'is reset by a clear query values action', () => {
 		const state = filters( { post_types: [ 'post' ] }, clearQueryValues() );
 		expect( state ).toEqual( {} );
+	} );
+} );
+
+describe( 'staticFilters Reducer', () => {
+	test( 'defaults to empty object', () => {
+		const state = staticFilters( undefined, {} );
+		expect( state ).toEqual( {} );
+	} );
+
+	test( 'is set to empty object by a clear query values action', () => {
+		expect( staticFilters( undefined, clearQueryValues() ) ).toEqual( {} );
+		expect( staticFilters( 'newest', clearQueryValues() ) ).toEqual( {} );
+	} );
+
+	test( 'is updated by a set filter action with a string value', () => {
+		const mockStaticFilters = [
+			{
+				filter_id: 'group_id',
+				name: 'example',
+				selected: null,
+				type: 'group',
+				values: [
+					{ name: 'All P2', value: 'p2' },
+					{ name: 'Lighthouse', value: 'lighthouse' },
+				],
+			},
+		];
+		const windowSpy = jest.spyOn( window, 'window', 'get' );
+		windowSpy.mockImplementation( () => ( {
+			[ SERVER_OBJECT_NAME ]: { staticFilters: mockStaticFilters },
+		} ) );
+		const state = staticFilters( undefined, setStaticFilter( 'group_id', 'p2' ) );
+		expect( state ).toEqual( {
+			group_id: 'p2',
+		} );
+		windowSpy.mockRestore();
+	} );
+	test( 'ignores set filter actions with invalid filter names', () => {
+		const mockStaticFilters = [
+			{
+				filter_id: 'group_id',
+				name: 'example',
+				selected: null,
+				type: 'group',
+				values: [
+					{ name: 'All P2', value: 'p2' },
+					{ name: 'Lighthouse', value: 'lighthouse' },
+				],
+			},
+		];
+		const windowSpy = jest.spyOn( window, 'window', 'get' );
+		windowSpy.mockImplementation( () => ( {
+			[ SERVER_OBJECT_NAME ]: { staticFilters: mockStaticFilters },
+		} ) );
+		const state = staticFilters( undefined, setStaticFilter( 'what', 'how' ) );
+		expect( state ).toEqual( {} );
+		windowSpy.mockRestore();
 	} );
 } );
 

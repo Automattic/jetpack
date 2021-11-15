@@ -6,7 +6,7 @@ Register and manage blocks within a plugin. Used to manage block registration, e
 
 ## Development
 
-Running tests requires working `svn`, `composer` and `yarn` commands.
+Running tests requires working `svn`, `composer` and `pnpm` commands.
 
 Once these are installed, you install the composer dependencies by running:
 

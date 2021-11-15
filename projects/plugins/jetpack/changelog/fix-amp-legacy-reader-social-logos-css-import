@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-Sharing: avoid broken sharing icons when using IE11 and the legacy AMP  plugin's theme.

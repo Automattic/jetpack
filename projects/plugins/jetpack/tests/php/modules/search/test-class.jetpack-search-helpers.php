@@ -1,14 +1,10 @@
 <?php
 
-if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-	require_once WPMU_PLUGIN_DIR . '/jetpack-plugin/vendor/autoload_packages.php';
-}
-
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Search\Helper as Jetpack_Search_Helpers;
 
+// TODO: Migrate this test to the Search package once class.jetpack-search.php has also been ported.
 require_jetpack_file( 'modules/search/class.jetpack-search.php' );
-require_jetpack_file( 'modules/search/class.jetpack-search-helpers.php' );
-require_jetpack_file( 'modules/search/class-jetpack-search-options.php' );
 
 class WP_Test_Jetpack_Search_Helpers_Customize {
 	public $previewing = false;
@@ -26,6 +22,7 @@ class WP_Test_Jetpack_Search_Helpers_Query {
 }
 
 class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
+
 	protected $request_uri;
 	protected $get;
 	protected $post;
@@ -33,7 +30,12 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	protected $query;
 	protected $post_types;
 
-	function setup() {
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
+
 		$GLOBALS['wp_customize'] = new WP_Test_Jetpack_Search_Helpers_Customize();
 
 		$this->request_uri = $_SERVER['REQUEST_URI'];
@@ -45,7 +47,10 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		delete_option( Jetpack_Search_Helpers::get_widget_option_name() );
 	}
 
-	function tearDown() {
+	/**
+	 * Tear down.
+	 */
+	public function tear_down() {
 		$_SERVER['REQUEST_URI'] = $this->request_uri;
 		$_GET = $this->get;
 		$_POST = $this->post;
@@ -58,6 +63,8 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 
 		Constants::clear_constants();
 		remove_all_filters( 'jetpack_search_has_vip_index' );
+
+		parent::tear_down();
 	}
 
 	function test_get_search_url_removes_page_when_no_query_s() {
@@ -66,9 +73,9 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 
 		$url = Jetpack_Search_Helpers::get_search_url();
 
-		$this->assertNotContains( '/search/test/', $url );
-		$this->assertNotContains( '/page/', $url );
-		$this->assertContains( 's=test', $url );
+		$this->assertStringNotContainsString( '/search/test/', $url );
+		$this->assertStringNotContainsString( '/page/', $url );
+		$this->assertStringContainsString( 's=test', $url );
 	}
 
 	function test_get_search_url_removes_page() {
@@ -77,8 +84,8 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 
 		$url = Jetpack_Search_Helpers::get_search_url();
 
-		$this->assertNotContains( '/page/', $url );
-		$this->assertContains( 's=test', $url );
+		$this->assertStringNotContainsString( '/page/', $url );
+		$this->assertStringContainsString( 's=test', $url );
 	}
 
 	function test_get_search_url_removes_paged_query_arg() {
@@ -88,8 +95,8 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 
 		$url = Jetpack_Search_Helpers::get_search_url();
 
-		$this->assertNotContains( 'paged=', $url );
-		$this->assertContains( 's=test', $url );
+		$this->assertStringNotContainsString( 'paged=', $url );
+		$this->assertStringContainsString( 's=test', $url );
 	}
 
 	function test_add_query_arg_works_when_sending_array_of_args() {
@@ -101,9 +108,9 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 			'category' => 'uncategorized',
 		) );
 
-		$this->assertContains( 's=test', $url );
-		$this->assertContains( 'post_type=page', $url );
-		$this->assertContains( 'category=uncategorized', $url );
+		$this->assertStringContainsString( 's=test', $url );
+		$this->assertStringContainsString( 'post_type=page', $url );
+		$this->assertStringContainsString( 'category=uncategorized', $url );
 	}
 
 	function test_add_query_arg_does_not_persist_page() {
@@ -112,8 +119,8 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 
 		$url = Jetpack_Search_Helpers::add_query_arg( 'post_type', 'page' );
 
-		$this->assertNotContains( '/page/', $url );
-		$this->assertContains( 's=test', $url );
+		$this->assertStringNotContainsString( '/page/', $url );
+		$this->assertStringContainsString( 's=test', $url );
 	}
 
 	function test_remove_query_arg_does_not_persist_page() {
@@ -122,9 +129,9 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 
 		$url = Jetpack_Search_Helpers::remove_query_arg( 'post_type' );
 
-		$this->assertNotContains( '/page/', $url );
-		$this->assertContains( 's=test', $url );
-		$this->assertNotContains( 'post_type=', $url );
+		$this->assertStringNotContainsString( '/page/', $url );
+		$this->assertStringContainsString( 's=test', $url );
+		$this->assertStringNotContainsString( 'post_type=', $url );
 	}
 
 	function test_add_query_arg_respects_url_passed() {
@@ -421,7 +428,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 			add_filter( 'jetpack_search_has_vip_index', $filter );
 		}
 
-		$this->assertSame( $expected, Jetpack_Search_Options::site_has_vip_index() );
+		$this->assertSame( $expected, Automattic\Jetpack\Search\Options::site_has_vip_index() );
 	}
 
 	/**

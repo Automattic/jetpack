@@ -74,8 +74,12 @@ const InstagramGalleryEdit = props => {
 		`wp-block-jetpack-instagram-gallery__grid-columns-${ columns }`,
 		{ 'is-stacked-on-mobile': isStackedOnMobile }
 	);
-	const gridStyle = { gridGap: spacing };
-	const photoStyle = { padding: spacing };
+	const gridStyle = {
+		gridGap: spacing,
+		// Used to only apply padding when stacked in mobile viewport.
+		[ `--latest-instagram-posts-spacing` ]: spacing ? `${ spacing }px` : undefined,
+	};
+	const photoStyle = { padding: spacing }; // Needed so the updates to the grid gap render when changed.
 
 	const shouldRenderSidebarNotice = () =>
 		showSidebar && ! showLoadingSpinner && images.length < count;
@@ -88,6 +92,7 @@ const InstagramGalleryEdit = props => {
 					alt={ image.title || image.url }
 					src={ image.url }
 					attributes={ attributes }
+					spacing={ spacing }
 				/>
 			);
 		}

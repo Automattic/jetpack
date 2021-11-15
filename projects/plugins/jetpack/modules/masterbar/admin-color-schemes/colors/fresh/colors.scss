@@ -17,8 +17,16 @@ $color-primary-light: $studio-gray-30; // Calypso --color-primary-light
 $color-surface: $studio-white; // Calypso --color-surface
 $color-neutral-100-rgb: $studio-gray-100-rgb; // Calypso --color-neutral-100-rgb
 
+// Sidebar Nudges
+$menu-nudge-background: $studio-white;
+$menu-nudge-text-color: $studio-black;
+$menu-nudge-cta-background: $studio-pink;
+$menu-nudge-cta-color: $studio-white;
+$menu-nudge-cta-background-hover: $studio-pink-60;
+
 @import "../_core-overrides";
 @import "../_inline-help";
+@import "../_upsell-banner";
 
 // Fresh theme specifics
 #wpadminbar .ab-top-menu > #wp-admin-bar-blog.my-sites > .ab-item {

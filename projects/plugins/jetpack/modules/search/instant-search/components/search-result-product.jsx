@@ -1,9 +1,7 @@
-/** @jsx h */
-
 /**
  * External dependencies
  */
-import { h, Component } from 'preact';
+import React, { Component } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 
 /**
@@ -61,7 +59,7 @@ class SearchResultProduct extends Component {
 					>
 						{ firstImage ? (
 							<PhotonImage
-								alt={ title }
+								alt={ fields[ 'title.default' ] }
 								className="jetpack-instant-search__search-result-product-img"
 								isPhotonEnabled={ this.props.isPhotonEnabled }
 								src={ `//${ firstImage }` }

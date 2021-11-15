@@ -1,0 +1,17 @@
+module.exports = {
+	useTabs: true,
+	tabWidth: 2,
+	printWidth: 100,
+	singleQuote: true,
+	trailingComma: 'es5',
+	bracketSpacing: true,
+	parenSpacing: true,
+	jsxBracketSameLine: false,
+	semi: true,
+	arrowParens: 'avoid',
+	plugins: [ 'prettier-plugin-svelte' ],
+	svelteStrictMode: false,
+	svelteBracketNewLine: true,
+	svelteIndentScriptAndStyle: true,
+	svelteSortOrder: 'options-scripts-styles-markup',
+};

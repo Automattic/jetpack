@@ -1,0 +1,23 @@
+@import '_inc/client/scss/variables/_colors.scss';
+@import '../../scss/functions/rem';
+
+.jetpack-money-back-guarantee {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	color: $wpui-header-dark;
+	font-size: rem( 14px );
+	line-height: 1.5;
+}
+
+.jetpack-money-back-guarantee__icon svg {
+	display: block;
+
+	height: 23px;
+	width: 23px;
+}
+
+.jetpack-money-back-guarantee__text {
+	margin-left: 8px;
+}

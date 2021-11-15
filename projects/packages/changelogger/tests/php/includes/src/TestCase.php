@@ -128,7 +128,7 @@ class TestCase extends PHPUnit_TestCase {
 		$w->config = array();
 		$w->cache  = array();
 		$w->loaded = false;
-		$w->out    = null;
+		Config::setComposerJsonPath( null );
 	}
 
 }

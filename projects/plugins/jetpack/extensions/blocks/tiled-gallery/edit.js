@@ -66,7 +66,11 @@ export const pickRelevantMediaFiles = image => {
 class TiledGalleryEdit extends Component {
 	state = {
 		selectedImage: null,
-		changed: 'undefined' === typeof this.props.attributes.columnWidths ? true : false,
+		changed:
+			'undefined' === typeof this.props.attributes.columnWidths ||
+			this.props.attributes.columnWidths?.length === 0
+				? true
+				: false,
 	};
 
 	static getDerivedStateFromProps( props, state ) {
@@ -331,7 +335,6 @@ class TiledGalleryEdit extends Component {
 						<div className="tiled-gallery__add-item">
 							<FormFileUpload
 								multiple
-								isLarge
 								className="tiled-gallery__add-item-button"
 								onChange={ this.uploadFromFiles }
 								accept="image/*"

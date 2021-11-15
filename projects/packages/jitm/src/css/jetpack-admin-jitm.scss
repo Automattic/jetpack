@@ -75,6 +75,7 @@ $blue-medium-dark:       #2271b1;
 		font-size: 11px;
 		line-height: 1;
 		text-transform: uppercase;
+		white-space: nowrap;
 
 		&:disabled {
 			color: lighten( $gray, 30% );

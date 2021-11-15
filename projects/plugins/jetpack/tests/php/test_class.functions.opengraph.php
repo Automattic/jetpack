@@ -11,8 +11,8 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 	 *
 	 * @since 3.9.2
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 
 		$this->icon_id = self::_create_upload_object( dirname( __FILE__ ) . '/jetpack-icon.jpg', 0, true ); // 500 x 500
 		require_once JETPACK__PLUGIN_DIR . 'functions.opengraph.php';
@@ -21,8 +21,8 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 	/**
 	 * Include Open Graph functions after each test.
 	 */
-	public function tearDown() {
-		parent::tearDown();
+	public function tear_down() {
+		parent::tear_down();
 
 		// Restoring global variables.
 		global $wp_the_query;
@@ -50,7 +50,7 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 		$default_url = jetpack_og_get_image();
 
 		// Test Jetpack's Site Logo
-		update_option( 'site_logo', array( 'id' => $this->icon_id, 'url' => wp_get_attachment_url( $this->icon_id ) ) );
+		update_option( 'site_logo', $this->icon_id );
 		require_once JETPACK__PLUGIN_DIR . 'modules/theme-tools/site-logo/inc/functions.php';
 		require_once JETPACK__PLUGIN_DIR . 'modules/theme-tools/site-logo/inc/class-site-logo.php';
 
@@ -221,5 +221,65 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 		// We expect jetpack_og_get_image to return the first of the images in the post.
 		$first_image_url = $post_info['img_urls'][0];
 		$this->assertEquals( $first_image_url, $chosen_image['src'] );
+	}
+
+	/**
+	 * Helper function to get default alt text.
+	 *
+	 * @return string
+	 */
+	public function get_default_alt_text() {
+		return 'Default alt text';
+	}
+
+	/**
+	 * Test if jetpack_og_get_image returns the correct default alt text.
+	 *
+	 * @author automattic
+	 * @covers ::jetpack_og_get_image
+	 * @since 10.4
+	 */
+	public function test_jetpack_og_get_image_alt_text_default() {
+		$this->go_to( get_permalink( $this->icon_id ) );
+
+		$image = jetpack_og_get_image();
+
+		$this->assertEquals( $image['alt_text'], '' );
+	}
+
+	/**
+	 * Test if jetpack_og_get_image returns the correct filtered alt text.
+	 *
+	 * @author automattic
+	 * @covers ::jetpack_og_get_image
+	 * @since 10.4
+	 */
+	public function test_jetpack_og_get_image_alt_text_filter() {
+		$this->go_to( get_permalink( $this->icon_id ) );
+
+		add_filter( 'jetpack_open_graph_image_default_alt_text', array( $this, 'get_default_alt_text' ) );
+		$image = jetpack_og_get_image();
+		remove_filter( 'jetpack_open_graph_image_default_alt_text', array( $this, 'get_default_alt_text' ) );
+
+		$this->assertEquals( $image['alt_text'], $this->get_default_alt_text() );
+	}
+
+	/**
+	 * Test if jetpack_og_get_image returns the correct alt text when set.
+	 *
+	 * @author automattic
+	 * @covers ::jetpack_og_get_image
+	 * @since 10.4
+	 */
+	public function test_jetpack_og_get_image_alt_text_when_set() {
+		$this->go_to( get_permalink( $this->icon_id ) );
+
+		$alt_text = 'Example Alt Text';
+
+		update_post_meta( $this->icon_id, '_wp_attachment_image_alt', $alt_text );
+
+		$image = jetpack_og_get_image();
+
+		$this->assertEquals( $image['alt_text'], $alt_text );
 	}
 }

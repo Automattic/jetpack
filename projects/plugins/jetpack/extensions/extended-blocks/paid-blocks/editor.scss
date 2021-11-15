@@ -23,6 +23,7 @@ $icon-background-color: #fff;
 		.banner-title,
 		.banner-description {
 			color: $studio-white;
+			margin-right: 10px;
 		}
 
 		.jetpack-upgrade-plan-banner__title,
@@ -68,7 +69,7 @@ $icon-background-color: #fff;
 }
 
 .jetpack-upgrade-plan__hidden {
-	visibility: hidden;
+	display: none;
 }
 
 // Tweak Banner depending on the context.
@@ -83,7 +84,7 @@ $icon-background-color: #fff;
 // Banner height minus half the toolbar padding to center it.
 .block-editor-block-list__layout .jetpack-upgrade-plan-banner {
 	position: relative;
-	top: $banner-height - ( $grid-unit-15 / 2 );
+	top: $banner-height - ( $grid-unit-15 * 0.5 );
 	z-index: 10;
 }
 

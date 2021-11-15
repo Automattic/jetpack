@@ -26,7 +26,7 @@ class Pre_Connection_JITM extends JITM {
 		 * This filter allows plugins to add pre-connection JITMs that will be
 		 * displayed by the JITM package.
 		 *
-		 * @since 9.6.0
+		 * @since 1.14.1
 		 *
 		 * @param array An array of pre-connection messages.
 		 */
@@ -53,7 +53,7 @@ class Pre_Connection_JITM extends JITM {
 				'message'     => $message['message'],
 				'description' => $message['description'],
 				'list'        => array(),
-				'icon'        => 'jetpack',
+				'icon'        => $this->get_message_icon( $message ),
 			);
 
 			$formatted_messages[] = $obj;
@@ -93,6 +93,34 @@ class Pre_Connection_JITM extends JITM {
 	}
 
 	/**
+	 * Get the icon for the message.
+	 *
+	 * The message may contain an 'icon' key. If the value of the 'icon' key matches a supported icon (or empty string), the value is used.
+	 * If the message does not contain an icon key or if the value does not match a supported icon, the Jetpack icon is used by default.
+	 *
+	 * @param array $message A pre-connection JITM.
+	 *
+	 * @return string The icon to use in the JITM.
+	 */
+	private function get_message_icon( $message ) {
+		// Default to the Jetpack icon.
+		$icon = 'jetpack';
+
+		if ( ! isset( $message['icon'] ) ) {
+			return $icon;
+		}
+
+		$supported_icons = $this->get_supported_icons();
+
+		if ( in_array( $message['icon'], $supported_icons, true ) ) {
+			// Only use the message icon if it's a supported icon or an empty string (for no icon).
+			$icon = $message['icon'];
+		}
+
+		return $icon;
+	}
+
+	/**
 	 * Retrieve the current message to display keyed on query string and message path
 	 *
 	 * @param string $message_path The message path to ask for.
@@ -102,12 +130,6 @@ class Pre_Connection_JITM extends JITM {
 	 * @return array The JITMs to show, or an empty array if there is nothing to show
 	 */
 	public function get_messages( $message_path, $query, $full_jp_logo_exists ) {
-		/** This filter is documented in  class.jetpack-connection-banner.php */
-		if ( ! apply_filters( 'jetpack_pre_connection_prompt_helpers', false ) ) {
-			// If filter jetpack_pre_connection_prompt_helpers is not set, return an empty array.
-			return array();
-		}
-
 		if ( ! current_user_can( 'install_plugins' ) ) {
 			return array();
 		}

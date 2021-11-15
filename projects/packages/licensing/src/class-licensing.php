@@ -16,7 +16,7 @@ use WP_Error;
  * Class Licensing.
  * Helper class that is responsible for attaching licenses to the current site.
  *
- * @since 9.0.0
+ * @since 1.1.1
  */
 class Licensing {
 	/**
@@ -236,17 +236,37 @@ class Licensing {
 	/**
 	 * Is the current user allowed to use the Licensing Input UI?
 	 *
-	 * @since 9.6.0
+	 * @since 1.4.0
 	 * @return bool
 	 */
 	public static function is_licensing_input_enabled() {
 		/**
 		 * Filter that checks if the user is allowed to see the Licensing UI. `true` enables it.
 		 *
-		 * @since 9.6.0
+		 * @since 1.4.0
 		 *
 		 * @param bool False by default.
 		 */
 		return apply_filters( 'jetpack_licensing_ui_enabled', false ) && current_user_can( 'jetpack_connect_user' );
+	}
+
+	/**
+	 * Gets the user-licensing activation notice dismissal info.
+	 *
+	 * @since 10.4.0
+	 * @return array
+	 */
+	public function get_license_activation_notice_dismiss() {
+
+		$default = array(
+			'last_detached_count' => null,
+			'last_dismissed_time' => null,
+		);
+
+		if ( $this->connection()->is_user_connected() && $this->connection()->is_connection_owner() ) {
+			return Jetpack_Options::get_option( 'licensing_activation_notice_dismiss', $default );
+		}
+
+		return $default;
 	}
 }

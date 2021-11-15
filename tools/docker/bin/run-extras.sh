@@ -2,7 +2,7 @@
 
 # This file is run in two cases:
 # 1. The container is being built, so it's included into the `docker/bin/run.sh`
-# 2. Using the command `yarn docker:run-extras` when something was added to the initialization process,
+# 2. Using the command `jetpack docker run-extras` when something was added to the initialization process,
 #    but you don't want to rebuild the whole container.
 #
 # Considering the above, the file should not contain any initialization-only code so it could be run inside an already running container.

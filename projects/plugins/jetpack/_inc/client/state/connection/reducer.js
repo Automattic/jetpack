@@ -19,8 +19,8 @@ import {
 	DISCONNECT_SITE,
 	DISCONNECT_SITE_FAIL,
 	DISCONNECT_SITE_SUCCESS,
-	AUTH_USER_IN_PLACE,
-	AUTH_USER_IN_PLACE_SUCCESS,
+	CONNECT_USER,
+	RESET_CONNECT_USER,
 	UNLINK_USER,
 	UNLINK_USER_FAIL,
 	UNLINK_USER_SUCCESS,
@@ -43,6 +43,10 @@ export const status = (
 			return assign( {}, state, { siteConnected: action.siteConnected } );
 		case DISCONNECT_SITE_SUCCESS:
 			return assign( {}, state, { siteConnected: action.siteConnected } );
+		case UNLINK_USER_SUCCESS:
+			return assign( {}, state, {
+				siteConnected: { ...state.siteConnected, isUserConnected: false },
+			} );
 		case USER_CONNECTION_DATA_FETCH_SUCCESS:
 			if ( true === action.userConnectionData?.currentUser?.isConnected ) {
 				return assign( {}, state, {
@@ -89,7 +93,7 @@ export const user = ( state = window.Initial_State.userData, action ) => {
 
 export const connectionRequests = {
 	disconnectingSite: false,
-	authorizingUserInPlace: false,
+	connectingUser: false,
 	unlinkingUser: false,
 	fetchingConnectUrl: false,
 	fetchingUserData: false,
@@ -102,10 +106,13 @@ export const requests = ( state = connectionRequests, action ) => {
 			return assign( {}, state, { disconnectingSite: true } );
 		case UNLINK_USER:
 			return assign( {}, state, { unlinkingUser: true } );
-		case AUTH_USER_IN_PLACE:
-			return assign( {}, state, { authorizingUserInPlace: true } );
-		case AUTH_USER_IN_PLACE_SUCCESS:
-			return assign( {}, state, { authorizingUserInPlace: false } );
+		case CONNECT_USER:
+			return assign( {}, state, {
+				connectingUser: true,
+				connectingUserFeatureLabel: action.featureLabel,
+			} );
+		case RESET_CONNECT_USER:
+			return assign( {}, state, { connectingUser: false } );
 		case CONNECT_URL_FETCH:
 			return assign( {}, state, { fetchingConnectUrl: true } );
 		case USER_CONNECTION_DATA_FETCH:
@@ -143,6 +150,18 @@ export const reducer = combineReducers( {
 	user,
 	requests,
 } );
+
+/**
+ * Get the whole connection status object.
+ *
+ * @param  {object} state - Global state tree
+ * @returns {object} Connection status object.
+ */
+export function getConnectionStatus( state ) {
+	return 'object' === typeof state.jetpack.connection.status.siteConnected
+		? state.jetpack.connection.status.siteConnected
+		: false;
+}
 
 /**
  * Returns true if site is connected to WordPress.com
@@ -258,11 +277,23 @@ export function isUnlinkingUser( state ) {
 /**
  * Returns true if currently linking the user
  *
- * @param  {Object} state Global state tree
- * @return {bool} true if currently linking a user, false otherwise
+ * @param  {object} state - Global state tree
+ * @returns {bool} true if currently linking a user, false otherwise
  */
-export function isAuthorizingUserInPlace( state ) {
-	return !! state.jetpack.connection.requests.authorizingUserInPlace;
+export function isConnectingUser( state ) {
+	return !! state.jetpack.connection.requests.connectingUser;
+}
+
+/**
+ * Returns the feature label the user connection where initiated from, if any.
+ *
+ * @param  {object} state - Global state tree
+ * @returns {string|null} string if feature label exists, false otherwise.
+ */
+export function getConnectingUserFeatureLabel( state ) {
+	return state.jetpack.connection.requests.hasOwnProperty( 'connectingUserFeatureLabel' )
+		? state.jetpack.connection.requests.connectingUserFeatureLabel
+		: null;
 }
 
 /**
@@ -369,13 +400,13 @@ export function requiresUserConnection( state, slug ) {
 }
 
 /**
- * Checks if the current module is unavailable in userless mode.
+ * Checks if the current module is unavailable in Site Connection mode.
  *
  * @param  {object} state - Global state tree
  * @param  {string} module - Module slug.
- * @returns {boolean} True if site is in userless mode and module requires connection. False otherwise.
+ * @returns {boolean} True if site is in Site Connection mode and module requires connection. False otherwise.
  */
-export function isUnavailableInUserlessMode( state, module ) {
+export function isUnavailableInSiteConnectionMode( state, module ) {
 	return ! hasConnectedOwner( state ) && requiresUserConnection( state, module );
 }
 

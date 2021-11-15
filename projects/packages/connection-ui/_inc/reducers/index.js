@@ -3,8 +3,17 @@
  */
 import { combineReducers } from '@wordpress/data';
 
+/**
+ * Internal dependencies
+ */
+import API from './api';
+import assets from './assets';
+import IDC from './idc';
+
 const reducer = combineReducers( {
-	// We'll use it to combine selectors imported from other files in this directory.
+	API,
+	assets,
+	IDC,
 } );
 
 export default reducer;

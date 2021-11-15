@@ -15,16 +15,13 @@ import NewPlan from './new-plan';
 
 /**
  * @typedef { import('./plans').Plan } Plan
- *
  * @typedef {object} Props
  * @property { number } selectedPlanId
  * @property { (plan: Plan) => void } onSelected
  * @property { (plan: Plan) => string } formatPrice
  * @property { string } className
  * @property { Plan[] } plans
- *
  * @param { Props } props
- *
  * @returns {object} Block controls.
  */
 export default function Controls( props ) {

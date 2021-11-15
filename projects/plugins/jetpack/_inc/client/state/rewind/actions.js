@@ -6,7 +6,7 @@ import {
 	REWIND_STATUS_FETCH_RECEIVE,
 	REWIND_STATUS_FETCH_FAIL,
 } from 'state/action-types';
-import restApi from 'rest-api';
+import restApi from '@automattic/jetpack-api';
 
 export const fetchRewindStatus = () => {
 	return dispatch => {

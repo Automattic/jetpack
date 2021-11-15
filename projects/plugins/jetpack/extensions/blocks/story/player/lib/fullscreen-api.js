@@ -10,13 +10,24 @@ export const element = () =>
 	document.mozFullScreenElement ||
 	document.msFullScreenElement;
 
-export const launch = rootElement => {
+export const launch = ( rootElement, onFullscreenExit ) => {
 	const requestFullscreen =
 		rootElement.requestFullscreen ||
 		rootElement.webkitRequestFullScreen ||
 		rootElement.mozRequestFullScreen ||
 		rootElement.msRequestFullscreen;
-	return requestFullscreen.call( rootElement );
+
+	requestFullscreen.call( rootElement );
+
+	if ( onFullscreenExit ) {
+		const onFullscreenChange = () => {
+			if ( ! document.fullscreenElement ) {
+				document.removeEventListener( 'fullscreenchange', onFullscreenChange );
+				onFullscreenExit();
+			}
+		};
+		document.addEventListener( 'fullscreenchange', onFullscreenChange );
+	}
 };
 
 export const exit = () => {

@@ -1,26 +1,54 @@
 const config = {
-	presets: [ require.resolve( '@automattic/calypso-build/babel/default' ) ],
+	presets: [ '@automattic/jetpack-webpack-config/babel/preset' ],
+	plugins: [ '@babel/plugin-proposal-nullish-coalescing-operator' ],
 	overrides: [
 		{
 			test: './extensions/',
-			presets: [ require.resolve( '@automattic/calypso-build/babel/wordpress-element' ) ],
+			presets: [],
+			plugins: [
+				[
+					require.resolve( '@wordpress/babel-plugin-import-jsx-pragma' ),
+					{
+						scopeVariable: 'createElement',
+						scopeVariableFrag: 'Fragment',
+						source: '@wordpress/element',
+						isDefault: false,
+					},
+				],
+				[
+					require.resolve( '@babel/plugin-transform-react-jsx' ),
+					{
+						pragma: 'createElement',
+						pragmaFrag: 'Fragment',
+					},
+				],
+			],
 		},
 		{
 			// Transpile ES Modules syntax (`import`) in config files (but not elsewhere)
 			test: [ './gulpfile.babel.js', './tools/webpack.config.js', './tools/builder/' ],
 			presets: [
-				[ require.resolve( '@automattic/calypso-build/babel/default' ), { modules: 'commonjs' } ],
+				[
+					'@automattic/jetpack-webpack-config/babel/preset',
+					{ presetEnv: { modules: 'commonjs' } },
+				],
 			],
 		},
 		{
 			test: './modules/search/instant-search',
-			presets: [ require.resolve( './modules/search/instant-search/babel.config.js' ) ],
+			presets: [ './modules/search/instant-search/babel.config.js' ],
+		},
+		{
+			test: './modules/search/customberg',
+			presets: [ './modules/search/customberg/babel.config.js' ],
 		},
 	],
 	env: {
 		test: {
-			presets: [ [ '@babel/preset-env', { targets: { node: 'current' } } ] ],
-			plugins: [ '@babel/plugin-transform-runtime' ],
+			presets: [ [ require.resolve( '@babel/preset-env' ), { targets: { node: 'current' } } ] ],
+			plugins: [
+				[ require.resolve( '@babel/plugin-transform-runtime' ), { absoluteRuntime: true } ],
+			],
 		},
 	},
 };

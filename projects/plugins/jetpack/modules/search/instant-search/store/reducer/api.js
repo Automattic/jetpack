@@ -1,9 +1,14 @@
 /**
+ * Internal dependencies
+ */
+import { setDocumentCountsToZero } from '../../lib/api';
+
+let cachedAggregations = {};
+/**
  * Reducer for recording if the previous search request yielded an error.
  *
  * @param {object} state - Current state.
  * @param {object} action - Dispatched action.
- *
  * @returns {object} Updated state.
  */
 export function hasError( state = false, action ) {
@@ -23,7 +28,6 @@ export function hasError( state = false, action ) {
  *
  * @param {object} state - Current state.
  * @param {object} action - Dispatched action.
- *
  * @returns {object} Updated state.
  */
 export function isLoading( state = false, action ) {
@@ -43,7 +47,6 @@ export function isLoading( state = false, action ) {
  *
  * @param {object} state - Current state.
  * @param {object} action - Dispatched action.
- *
  * @returns {object} Updated state.
  */
 export function response( state = {}, action ) {
@@ -66,14 +69,28 @@ export function response( state = {}, action ) {
 					...( ! Array.isArray( newState.aggregations ) ? newState.aggregations : {} ),
 				};
 				newState.results = [ ...( 'results' in state ? state.results : [] ), ...newState.results ];
+				cachedAggregations = {};
 			}
 
-			// NOTE: There's a bug in the API where paginating to the next page can return an empty response.
-			//       This is most likely caused by setting excluded post types. Since `response.total` is unreliable
-			//       in this instance, manually set it to the length of the results array.
-			if ( Array.isArray( newState.results ) && newState.results.length !== newState.total ) {
+			// To prevent our interface from erroneously rendering a "no result" search results page when
+			// we actually have results, override the total if the size of our results exceed the `response.total` value.
+			if ( Array.isArray( newState.results ) && newState.results.length > newState.total ) {
 				newState.total = newState.results.length;
 			}
+
+			// For a new search requests (i.e. not pagination requests):
+			// - Cache aggregations if query yields results
+			// - Show previously cached aggregations if query does not yield any results
+			if ( ! action.options.pageHandle ) {
+				if ( newState.results?.length > 0 ) {
+					// cachedAggregations is used to cache the most recent aggregations object when results is not empty.
+					cachedAggregations = setDocumentCountsToZero( newState.aggregations );
+				} else {
+					// If there is no result to show, we show the cached aggregations.
+					newState.aggregations = cachedAggregations;
+				}
+			}
+
 			return newState;
 		}
 	}

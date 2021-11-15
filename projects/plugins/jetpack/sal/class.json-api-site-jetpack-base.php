@@ -26,6 +26,11 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 
 	abstract protected function file_system_write_access();
 
+	/**
+	 * Fetch a list of active plugins that are using Jetpack Connection.
+	 */
+	abstract protected function get_connection_active_plugins();
+
 	function before_render() {
 	}
 
@@ -86,6 +91,8 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 		) ) );
 
 		$options['file_mod_disabled'] = empty( $file_mod_disabled_reasons ) ? false : $file_mod_disabled_reasons;
+
+		$options['jetpack_connection_active_plugins'] = $this->get_connection_active_plugins();
 	}
 
 	function get_jetpack_modules() {

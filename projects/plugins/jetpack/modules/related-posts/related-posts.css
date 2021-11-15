@@ -236,6 +236,7 @@
 
 #jp-relatedposts .jp-relatedposts-items-visual .jp-relatedposts-post img.jp-relatedposts-post-img,
 #jp-relatedposts .jp-relatedposts-items-visual .jp-relatedposts-post span {
+	height: auto;
 	max-width: 100%;
 }
 

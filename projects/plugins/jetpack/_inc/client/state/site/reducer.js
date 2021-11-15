@@ -14,6 +14,7 @@ import {
 	isJetpackBackup,
 	isJetpackScan,
 	isJetpackSearch,
+	isJetpackVideoPress,
 } from 'lib/plans/constants';
 import {
 	JETPACK_SITE_DATA_FETCH,
@@ -137,10 +138,10 @@ export const errors = ( state = {}, action ) => {
 					);
 					break;
 				case 'JsonParseError':
-					// We only display the error using `SimpleNotice`, reconnecting will not help here.
-					resolveAction = 'display';
+					// We offer a link to support to help them fix the issue.
+					resolveAction = 'support';
 					defaultErrorMessage = __(
-						"Jetpack Dashboard was unable to properly communicate with your website. Please check your website's error logs to see what's wrong.",
+						'Jetpack encountered an error and was unable to display the Dashboard. Please try refreshing the page.',
 						'jetpack'
 					);
 					break;
@@ -247,6 +248,16 @@ export function getSitePlan( state ) {
 }
 
 /**
+ * Returns the VideoPress storage used for this site.
+ *
+ * @param {object} state - Argv object for an install command. Must contain project and root at least.
+ * @returns {number|null} - Storage used in megabytes or null if not found.
+ */
+export function getVideoPressStorageUsed( state ) {
+	return get( state.jetpack.siteData, [ 'data', 'options', 'videopress_storage_used' ], null );
+}
+
+/**
  * Returns benefits provided to the site by Jetpack.
  * @param  {Object}  state Global state tree
  * @return {Object}  Benefits
@@ -333,6 +344,28 @@ export function hasActiveSearchPurchase( state ) {
 		!! getActiveSearchPurchase( state ) ||
 		'is-complete-plan' === getPlanClass( getSitePlan( state ).product_slug )
 	);
+}
+
+/**
+ * Searches active products for an active VideoPress product.
+ *
+ * @param {*} state - Global state tree
+ * @returns {boolean} True if the an active VideoPress plan was found, false otherwise.
+ */
+export function getActiveVideoPressPurchase( state ) {
+	return find( getActiveProductPurchases( state ), product =>
+		isJetpackVideoPress( product.product_slug )
+	);
+}
+
+/**
+ * Determines if the site has an active VideoPress product purchase
+ *
+ * @param {*} state - Global state tree
+ * @returns {boolean} True if the site has an active VideoPress product purchase, false otherwise.
+ */
+export function hasActiveVideoPressPurchase( state ) {
+	return !! getActiveVideoPressPurchase( state );
 }
 
 export function getSiteID( state ) {

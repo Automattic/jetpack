@@ -390,6 +390,12 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 				return $terms;
 			}
 
+			// WordPress defines the parameter as `array`, but it passes null if `get_terms( $args )` was called
+			// without a 'taxonomy' in $args.
+			if ( ! is_array( $taxonomies ) ) {
+				return $terms;
+			}
+
 			// We only want to hide the featured tag.
 			if ( ! in_array( 'post_tag', $taxonomies ) ) {
 				return $terms;

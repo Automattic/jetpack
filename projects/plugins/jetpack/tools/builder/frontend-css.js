@@ -22,7 +22,8 @@ import { transformRelativePath } from './transform-relative-paths';
  *
  * When making changes to that list, you must also update $concatenated_style_handles in class.jetpack.php.
  */
-const concat_list = [
+export const frontendCSSSeparateFilesList = [
+	'modules/carousel/swiper-bundle.css',
 	'modules/carousel/jetpack-carousel.css',
 	'modules/contact-form/css/grunion.css',
 	'modules/infinite-scroll/infinity.css',
@@ -57,7 +58,7 @@ const concat_list = [
  * Front end CSS that needs separate minified and RTL styles.
  * This list will need to have files added as we move to the add_style RTL approach.
  */
-const separate_list = [
+export const frontendCSSConcatFilesList = [
 	'modules/carousel/jetpack-carousel.css',
 	'modules/contact-form/css/grunion.css',
 	'modules/related-posts/related-posts.css',
@@ -79,7 +80,7 @@ const pathModifier = function ( url, filePath ) {
 // Frontend CSS.  Auto-prefix and minimize.
 gulp.task( 'frontendcss', function () {
 	return gulp
-		.src( concat_list )
+		.src( frontendCSSSeparateFilesList )
 		.pipe( modifyCssUrls( { modify: pathModifier } ) )
 		.pipe( autoprefixer() )
 		.pipe( cleanCSS() )
@@ -102,7 +103,7 @@ gulp.task( 'frontendcss', function () {
 
 gulp.task( 'frontendcss:separate', function () {
 	return gulp
-		.src( separate_list )
+		.src( frontendCSSConcatFilesList )
 		.pipe( modifyCssUrls( { modify: pathModifier } ) )
 		.pipe( autoprefixer() )
 		.pipe( cleanCSS() )

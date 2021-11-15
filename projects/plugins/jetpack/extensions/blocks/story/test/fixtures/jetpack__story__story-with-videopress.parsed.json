@@ -1,0 +1,23 @@
+[
+    {
+        "blockName": "jetpack/story",
+        "attrs": {
+            "mediaFiles": [
+                {
+                    "alt": "",
+                    "caption": "",
+                    "id": "14",
+                    "link": "http://localhost/wp_story1617917626641_0-mp4/",
+                    "mime": "video/mp4",
+                    "type": "video",
+                    "url": "http://localhost/wp_story1617917626641_0-mp4/"
+                }
+            ]
+        },
+        "innerBlocks": [],
+        "innerHTML": "\n<div class=\"wp-block-jetpack-story wp-story\"></div>\n",
+        "innerContent": [
+            "\n<div class=\"wp-block-jetpack-story wp-story\"></div>\n"
+        ]
+    }
+]

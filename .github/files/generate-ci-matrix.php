@@ -11,8 +11,15 @@
 chdir( __DIR__ . '/../../' );
 
 // Default versions for PHP and Node.
-$default_php  = trim( file_get_contents( '.github/php-version' ) );
-$default_node = trim( file_get_contents( '.nvmrc' ) );
+$versions = array();
+foreach ( file( '.github/versions.sh' ) as $line ) {
+	$line = trim( $line );
+	if ( '' === $line || '#' === $line[0] ) {
+		continue;
+	}
+	list( $k, $v )  = explode( '=', $line, 2 );
+	$versions[ $k ] = $v;
+}
 
 // Default matrix variables. See inline for docs.
 $default_matrix_vars = array(
@@ -23,10 +30,10 @@ $default_matrix_vars = array(
 	'script'       => null,
 
 	// {string} PHP version to use.
-	'php'          => $default_php,
+	'php'          => $versions['PHP_VERSION'],
 
 	// {string} Node version to use.
-	'node'         => $default_node,
+	'node'         => $versions['NODE_VERSION'],
 
 	// {string} WordPress version to check out: 'latest', 'previous', 'master', or 'none'.
 	'wp'           => 'none',
@@ -54,11 +61,20 @@ foreach ( array( '5.6', '7.0', '7.2', '7.3', '7.4', '8.0' ) as $php ) {
 		'timeout' => 15, // 2021-01-18: Successful runs seem to take ~8 minutes for PHP 5.6 and for the 7.4 master run, ~5.5-6 for 7.x and 8.0.
 	);
 }
+// Merge this into the above once we decide PHP 8.1 is stable and WP latest works with 8.1.
+$matrix[] = array(
+	'name'         => 'PHP tests: PHP 8.1 WP master',
+	'script'       => 'test-php',
+	'php'          => '8.1',
+	'wp'           => 'master',
+	'timeout'      => 15,
+	'experimental' => true,
+);
 foreach ( array( 'previous', 'master' ) as $wp ) {
 	$matrix[] = array(
-		'name'    => "PHP tests: PHP $default_php WP $wp",
+		'name'    => "PHP tests: PHP {$versions['PHP_VERSION']} WP $wp",
 		'script'  => 'test-php',
-		'php'     => $default_php,
+		'php'     => $versions['PHP_VERSION'],
 		'wp'      => $wp,
 		'timeout' => 15, // 2021-01-18: Successful runs seem to take ~8 minutes for PHP 5.6 and for the 7.4 master run, ~5.5-6 for 7.x and 8.0.
 	);

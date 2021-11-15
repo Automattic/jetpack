@@ -1,0 +1,39 @@
+{
+	"name": "automattic/eslint-changed",
+	"description": "description",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "^3.0"
+	},
+	"scripts": {
+		"test-coverage": [
+			"pnpx nyc --report-dir=\"$COVERAGE_DIR\" pnpm run test"
+		],
+		"test-js": [
+			"pnpm run test"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autotagger": true,
+		"npmjs-autopublish": true,
+		"mirror-repo": "Automattic/eslint-changed",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/eslint-changed/compare/${old}...${new}"
+		},
+		"version-constants": {
+			"::APP_VERSION": "bin/eslint-changed.js"
+		}
+	}
+}

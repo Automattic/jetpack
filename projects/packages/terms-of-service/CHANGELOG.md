@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.14] - 2021-11-02
+### Changed
+- Set `convertDeprecationsToExceptions` true in PHPUnit config.
+- Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
+
+## [1.9.13] - 2021-10-26
+### Changed
+- Updated package dependencies.
+
+## [1.9.12] - 2021-10-13
+### Changed
+- Updated package dependencies.
+
+## [1.9.11] - 2021-10-12
+### Changed
+- Updated package dependencies
+
+## [1.9.10] - 2021-09-28
+### Changed
+- Updated package dependencies.
+
+## [1.9.9] - 2021-08-30
+### Changed
+- Run composer update on test-php command instead of phpunit
+- Tests: update PHPUnit polyfills dependency (yoast/phpunit-polyfills).
+- update annotations versions
+
+## [1.9.8] - 2021-06-15
+
+- Updated package dependencies.
+
+## [1.9.7] - 2021-05-25
+### Changed
+- Updated package dependencies.
+
+## [1.9.6] - 2021-04-27
+### Changed
+- Updated package dependencies.
+
 ## [1.9.5] - 2021-04-08
 ### Changed
 - Packaging and build changes, no change to the package itself.
@@ -126,6 +165,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Package: Create new TOS package
 
+[1.9.14]: https://github.com/Automattic/jetpack-terms-of-service/compare/v1.9.13...v1.9.14
+[1.9.13]: https://github.com/Automattic/jetpack-terms-of-service/compare/v1.9.12...v1.9.13
+[1.9.12]: https://github.com/Automattic/jetpack-terms-of-service/compare/v1.9.11...v1.9.12
+[1.9.11]: https://github.com/Automattic/jetpack-terms-of-service/compare/v1.9.10...v1.9.11
+[1.9.10]: https://github.com/Automattic/jetpack-terms-of-service/compare/v1.9.9...v1.9.10
+[1.9.9]: https://github.com/Automattic/jetpack-terms-of-service/compare/v1.9.8...v1.9.9
+[1.9.8]: https://github.com/Automattic/jetpack-terms-of-service/compare/v1.9.7...v1.9.8
+[1.9.7]: https://github.com/Automattic/jetpack-terms-of-service/compare/v1.9.6...v1.9.7
+[1.9.6]: https://github.com/Automattic/jetpack-terms-of-service/compare/v1.9.5...v1.9.6
 [1.9.5]: https://github.com/Automattic/jetpack-terms-of-service/compare/v1.9.4...v1.9.5
 [1.9.4]: https://github.com/Automattic/jetpack-terms-of-service/compare/v1.9.3...v1.9.4
 [1.9.3]: https://github.com/Automattic/jetpack-terms-of-service/compare/v1.9.2...v1.9.3

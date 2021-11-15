@@ -44,9 +44,9 @@ function getPlanUrl() {
  */
 ( async () => {
 	if ( undefined !== typeof window && window.location ) {
-		const { query } = parseUrl( window.location.href, true );
+		const queryParams = new URLSearchParams( window.location.search );
 
-		if ( query.plan_upgraded ) {
+		if ( queryParams.get( 'plan_upgraded' ) ) {
 			let planName = null;
 
 			getPlanNameFromApi: try {

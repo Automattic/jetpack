@@ -17,6 +17,8 @@ function Edit( { hasInnerBlocks, parentClientId, isSelected } ) {
 
 	useEffect( () => {
 		if ( isSelected ) {
+			// The subscriber view is managed by the parent premium-content/container block,
+			// so here we ensure that the parent block is selected instead.
 			selectBlock( parentClientId );
 		}
 	}, [ selectBlock, isSelected, parentClientId ] );
@@ -53,12 +55,14 @@ function Edit( { hasInnerBlocks, parentClientId, isSelected } ) {
 
 export default compose( [
 	withSelect( ( select, props ) => {
-		const { getSelectedBlockClientId, getBlockHierarchyRootClientId } = select(
-			'core/block-editor'
-		);
+		const { getBlockParents, getSelectedBlockClientId } = select( 'core/block-editor' );
+
 		const selectedBlockClientId = getSelectedBlockClientId();
+		const parents = getBlockParents( selectedBlockClientId );
+		const parentClientId = parents.length ? parents[ parents.length - 1 ] : undefined;
+
 		return {
-			parentClientId: getBlockHierarchyRootClientId( selectedBlockClientId ),
+			parentClientId,
 			// @ts-ignore difficult to type with JSDoc
 			hasInnerBlocks: !! select( 'core/block-editor' ).getBlocksByClientId( props.clientId )[ 0 ]
 				.innerBlocks.length,

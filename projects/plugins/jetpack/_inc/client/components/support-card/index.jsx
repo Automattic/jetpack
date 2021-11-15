@@ -6,6 +6,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { __ } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -14,8 +15,13 @@ import analytics from 'lib/analytics';
 import Card from 'components/card';
 import Button from 'components/button';
 import { getSitePlan, isFetchingSiteData } from 'state/site';
-import { getSiteConnectionStatus, isCurrentUserLinked, isConnectionOwner } from 'state/connection';
-import getRedirectUrl from 'lib/jp-redirect';
+import {
+	getSiteConnectionStatus,
+	hasConnectedOwner,
+	isCurrentUserLinked,
+	isConnectionOwner,
+	connectUser,
+} from 'state/connection';
 import { isAtomicSite, isDevVersion as _isDevVersion, getUpgradeUrl } from 'state/initial-state';
 import JetpackBanner from 'components/jetpack-banner';
 import { JETPACK_CONTACT_SUPPORT, JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
@@ -40,6 +46,14 @@ class SupportCard extends React.Component {
 			is_user_wpcom_connected: this.props.isCurrentUserLinked ? 'yes' : 'no',
 			is_connection_owner: this.props.isConnectionOwner ? 'yes' : 'no',
 		} );
+	};
+
+	/**
+	 * Track the click and show the user connection screen.
+	 */
+	handleConnectClick = () => {
+		this.trackBannerClick();
+		this.props.connectUser();
 	};
 
 	shouldComponentUpdate( nextProps ) {
@@ -119,7 +133,7 @@ class SupportCard extends React.Component {
 						</p>
 					</div>
 				</Card>
-				{ this.props.siteConnectionStatus && noPrioritySupport && (
+				{ this.props.siteConnectionStatus && noPrioritySupport && this.props.hasConnectedOwner && (
 					<JetpackBanner
 						title={ __( 'Get a faster resolution to your support questions.', 'jetpack' ) }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_PRIORITY_SUPPORT_JETPACK ) }
@@ -128,6 +142,19 @@ class SupportCard extends React.Component {
 						href={ this.props.supportUpgradeUrl }
 					/>
 				) }
+				{ this.props.siteConnectionStatus &&
+					noPrioritySupport &&
+					! this.props.hasConnectedOwner && (
+						<JetpackBanner
+							title={ __(
+								'Connect your WordPress.com account and upgrade to get a faster resolution to your support questions.',
+								'jetpack'
+							) }
+							plan={ getJetpackProductUpsellByFeature( FEATURE_PRIORITY_SUPPORT_JETPACK ) }
+							callToAction={ __( 'Connect', 'jetpack' ) }
+							onClick={ this.handleConnectClick }
+						/>
+					) }
 			</div>
 		);
 	}
@@ -140,15 +167,23 @@ SupportCard.propTypes = {
 	isConnectionOwner: PropTypes.bool,
 };
 
-export default connect( state => {
-	return {
-		sitePlan: getSitePlan( state ),
-		siteConnectionStatus: getSiteConnectionStatus( state ),
-		isFetchingSiteData: isFetchingSiteData( state ),
-		isAtomicSite: isAtomicSite( state ),
-		isDevVersion: _isDevVersion( state ),
-		supportUpgradeUrl: getUpgradeUrl( state, 'support' ),
-		isCurrentUserLinked: isCurrentUserLinked( state ),
-		isConnectionOwner: isConnectionOwner( state ),
-	};
-} )( SupportCard );
+export default connect(
+	state => {
+		return {
+			sitePlan: getSitePlan( state ),
+			siteConnectionStatus: getSiteConnectionStatus( state ),
+			isFetchingSiteData: isFetchingSiteData( state ),
+			isAtomicSite: isAtomicSite( state ),
+			isDevVersion: _isDevVersion( state ),
+			supportUpgradeUrl: getUpgradeUrl( state, 'support' ),
+			isCurrentUserLinked: isCurrentUserLinked( state ),
+			isConnectionOwner: isConnectionOwner( state ),
+			hasConnectedOwner: hasConnectedOwner( state ),
+		};
+	},
+	dispatch => ( {
+		connectUser: () => {
+			return dispatch( connectUser() );
+		},
+	} )
+)( SupportCard );

@@ -1,21 +1,26 @@
 {
 	"name": "required-review",
-	"version": "2.0.1-alpha",
+	"version": "2.2.1",
 	"description": "Check that a PR has reviews from required teams.",
 	"main": "index.js",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
-		"@actions/core": "1.2.6",
-		"@actions/github": "4.0.0",
+		"@actions/core": "1.4.0",
+		"@actions/github": "5.0.0",
 		"error": "10.4.0",
-		"js-yaml": "4.0.0",
-		"picomatch": "2.2.2"
+		"js-yaml": "4.1.0",
+		"picomatch": "2.2.3"
 	},
 	"devDependencies": {
-		"@vercel/ncc": "0.27.0"
+		"@vercel/ncc": "0.28.5"
 	},
 	"scripts": {
 		"build": "ncc build src/main.js -o dist --source-map --license licenses.txt"
+	},
+	"engines": {
+		"node": "^14.17.6 || ^16.7.0",
+		"pnpm": "^6.5.0",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

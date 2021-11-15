@@ -1,0 +1,67 @@
+{
+	"name": "automattic/vaultpress",
+	"description": "VaultPress is a subscription service offering real-time backup, automated security scanning, and support from WordPress experts.",
+	"homepage": "https://vaultpress.com/",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"support": {
+		"issues": "https://github.com/Automattic/jetpack/issues"
+	},
+	"require": {
+		"automattic/jetpack-logo": "1.5.x-dev",
+		"automattic/jetpack-autoloader": "2.10.x-dev"
+	},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "1.0.2",
+		"automattic/jetpack-changelogger": "^3.0"
+	},
+	"scripts": {
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"@composer install",
+			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+		],
+		"test-php": [
+			"@composer install",
+			"@composer phpunit"
+		],
+		"build-development": [
+			"Composer\\Config::disableProcessTimeout",
+			"@clean",
+			"@composer install"
+		],
+		"build-production": [
+			"Composer\\Config::disableProcessTimeout",
+			"@clean",
+			"@putenv COMPOSER_MIRROR_PATH_REPOS=1",
+			"@composer install -o --no-dev --classmap-authoritative --prefer-dist"
+		],
+		"clean": [
+			"rm -rf vendor/"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"config": {
+		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_vaultpressⓥ2_2_1_alpha"
+	},
+	"extra": {
+		"mirror-repo": "Automattic/vaultpress",
+		"release-branch-prefix": "vaultpress",
+		"version-constants": {
+			"VAULTPRESS__VERSION": "vaultpress.php"
+		},
+		"wp-plugin-slug": "vaultpress"
+	}
+}

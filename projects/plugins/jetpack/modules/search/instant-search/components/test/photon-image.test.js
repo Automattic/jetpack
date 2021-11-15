@@ -1,4 +1,4 @@
-/** @jsx h
+/**
  * @jest-environment jsdom
  */
 /* global expect */
@@ -6,8 +6,8 @@
 /**
  * External dependencies
  */
-import { h } from 'preact';
-import { render } from '@testing-library/preact';
+import React from 'react';
+import { render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 /**
@@ -25,5 +25,11 @@ test( 'returns a Photon URL for a site with Photon enabled', () => {
 test( 'returns the original URL for a private site', () => {
 	const imageUrl = 'http://example.com/okapi.jpg';
 	const { getByRole } = render( <PhotonImage src={ imageUrl } isPhotonEnabled={ false } /> );
+	expect( getByRole( 'img' ).src ).toEqual( imageUrl );
+} );
+
+test( 'returns the original URL for a SVG image', () => {
+	const imageUrl = 'http://example.com/okapi.svg';
+	const { getByRole } = render( <PhotonImage src={ imageUrl } isPhotonEnabled={ true } /> );
 	expect( getByRole( 'img' ).src ).toEqual( imageUrl );
 } );

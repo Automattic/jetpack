@@ -234,15 +234,22 @@ class Jetpack_Carousel {
 					'_inc/build/carousel/jetpack-carousel.min.js',
 					'modules/carousel/jetpack-carousel.js'
 				),
-				array( 'jquery' ),
+				array(),
 				$this->asset_version( JETPACK__VERSION ),
 				true
 			);
 
+			$swiper_library_path = array(
+				'url' => Assets::get_file_url_for_environment(
+					'_inc/build/carousel/swiper-bundle.min.js',
+					'modules/carousel/swiper-bundle.js'
+				),
+			);
+			wp_localize_script( 'jetpack-carousel', 'jetpackSwiperLibraryPath', $swiper_library_path );
+
 			// Note: using  home_url() instead of admin_url() for ajaxurl to be sure  to get same domain on wpcom when using mapped domains (also works on self-hosted)
 			// Also: not hardcoding path since there is no guarantee site is running on site root in self-hosted context.
 			$is_logged_in         = is_user_logged_in();
-			$current_user         = wp_get_current_user();
 			$comment_registration = (int) get_option( 'comment_registration' );
 			$require_name_email   = (int) get_option( 'require_name_email' );
 			$localize_strings     = array(
@@ -280,27 +287,6 @@ class Jetpack_Carousel {
 				'blog_id'                         => (int) get_current_blog_id(),
 				'meta_data'                       => array( 'camera', 'aperture', 'shutter_speed', 'focal_length', 'copyright' ),
 			);
-
-			if ( ! isset( $localize_strings['jetpack_comments_iframe_src'] ) || empty( $localize_strings['jetpack_comments_iframe_src'] ) ) {
-				// We're not using Comments after all, so fallback to standard local comments.
-
-				if ( $is_logged_in ) {
-					$localize_strings['local_comments_commenting_as'] = '<p id="jp-carousel-commenting-as">' . sprintf( __( 'Commenting as %s', 'jetpack' ), $current_user->data->display_name ) . '</p>';
-				} else {
-					if ( $comment_registration ) {
-						$localize_strings['local_comments_commenting_as'] = '<p id="jp-carousel-commenting-as">' . __( 'You must be <a href="#" class="jp-carousel-comment-login">logged in</a> to post a comment.', 'jetpack' ) . '</p>';
-					} else {
-						$required = ( $require_name_email ) ? __( '%s (Required)', 'jetpack' ) : '%s';
-						$localize_strings['local_comments_commenting_as'] = ''
-							. '<fieldset><label for="email">' . sprintf( $required, __( 'Email', 'jetpack' ) ) . '</label> '
-							. '<input type="text" name="email" class="jp-carousel-comment-form-field jp-carousel-comment-form-text-field" id="jp-carousel-comment-form-email-field" /></fieldset>'
-							. '<fieldset><label for="author">' . sprintf( $required, __( 'Name', 'jetpack' ) ) . '</label> '
-							. '<input type="text" name="author" class="jp-carousel-comment-form-field jp-carousel-comment-form-text-field" id="jp-carousel-comment-form-author-field" /></fieldset>'
-							. '<fieldset><label for="url">' . __( 'Website', 'jetpack' ) . '</label> '
-							. '<input type="text" name="url" class="jp-carousel-comment-form-field jp-carousel-comment-form-text-field" id="jp-carousel-comment-form-url-field" /></fieldset>';
-					}
-				}
-			}
 
 			/**
 			 * Handle WP stats for images in full-screen.
@@ -341,6 +327,12 @@ class Jetpack_Carousel {
 			 */
 			$localize_strings = apply_filters( 'jp_carousel_localize_strings', $localize_strings );
 			wp_localize_script( 'jetpack-carousel', 'jetpackCarouselStrings', $localize_strings );
+			wp_enqueue_style(
+				'jetpack-carousel-swiper-css',
+				plugins_url( 'swiper-bundle.css', __FILE__ ),
+				array(),
+				$this->asset_version( JETPACK__VERSION )
+			);
 			wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ), array(), $this->asset_version( JETPACK__VERSION ) );
 			wp_style_add_data( 'jetpack-carousel', 'rtl', 'replace' );
 
@@ -357,8 +349,223 @@ class Jetpack_Carousel {
 			 */
 			do_action( 'jp_carousel_enqueue_assets', $this->first_run, $localize_strings );
 
+			// Add the carousel skeleton to the page.
+			$this->localize_strings = $localize_strings;
+			add_action( 'wp_footer', array( $this, 'add_carousel_skeleton' ) );
+
 			$this->first_run = false;
 		}
+	}
+
+	/**
+	 * Generate the HTML skeleton that will be picked up by the Carousel JS and used for showing the carousel.
+	 */
+	public function add_carousel_skeleton() {
+		$localize_strings = $this->localize_strings;
+		$is_light         = ( 'white' === $localize_strings['background_color'] );
+		// Determine whether to fall back to standard local comments.
+		$use_local_comments = ! isset( $localize_strings['jetpack_comments_iframe_src'] ) || empty( $localize_strings['jetpack_comments_iframe_src'] );
+		$current_user       = wp_get_current_user();
+		$require_name_email = (int) get_option( 'require_name_email' );
+		/* translators: %s is replaced with a field name in the form, e.g. "Email" */
+		$required = ( $require_name_email ) ? __( '%s (Required)', 'jetpack' ) : '%s';
+		?>
+		<div id="jp-carousel-loading-overlay">
+			<div id="jp-carousel-loading-wrapper">
+				<span id="jp-carousel-library-loading">&nbsp;</span>
+			</div>
+		</div>
+		<div class="jp-carousel-overlay<?php echo( $is_light ? ' jp-carousel-light' : '' ); ?>" style="display: none;">
+
+		<div class="jp-carousel-container<?php echo( $is_light ? ' jp-carousel-light' : '' ); ?>">
+			<!-- The Carousel Swiper -->
+			<div
+				class="jp-carousel-wrap swiper-container jp-carousel-swiper-container jp-carousel-transitions"
+				itemscope
+				itemtype="https://schema.org/ImageGallery">
+				<div class="jp-carousel swiper-wrapper"></div>
+				<div class="jp-swiper-button-prev swiper-button-prev">
+					<svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<mask id="maskPrev" mask-type="alpha" maskUnits="userSpaceOnUse" x="8" y="6" width="9" height="12">
+							<path d="M16.2072 16.59L11.6496 12L16.2072 7.41L14.8041 6L8.8335 12L14.8041 18L16.2072 16.59Z" fill="white"/>
+						</mask>
+						<g mask="url(#maskPrev)">
+							<rect x="0.579102" width="23.8823" height="24" fill="#FFFFFF"/>
+						</g>
+					</svg>
+				</div>
+				<div class="jp-swiper-button-next swiper-button-next">
+					<svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<mask id="maskNext" mask-type="alpha" maskUnits="userSpaceOnUse" x="8" y="6" width="8" height="12">
+							<path d="M8.59814 16.59L13.1557 12L8.59814 7.41L10.0012 6L15.9718 12L10.0012 18L8.59814 16.59Z" fill="white"/>
+						</mask>
+						<g mask="url(#maskNext)">
+							<rect x="0.34375" width="23.8822" height="24" fill="#FFFFFF"/>
+						</g>
+					</svg>
+				</div>
+			</div>
+			<!-- The main close buton -->
+			<div class="jp-carousel-close-hint">
+				<svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<mask id="maskClose" mask-type="alpha" maskUnits="userSpaceOnUse" x="5" y="5" width="15" height="14">
+						<path d="M19.3166 6.41L17.9135 5L12.3509 10.59L6.78834 5L5.38525 6.41L10.9478 12L5.38525 17.59L6.78834 19L12.3509 13.41L17.9135 19L19.3166 17.59L13.754 12L19.3166 6.41Z" fill="white"/>
+					</mask>
+					<g mask="url(#maskClose)">
+						<rect x="0.409668" width="23.8823" height="24" fill="#FFFFFF"/>
+					</g>
+				</svg>
+			</div>
+			<!-- Image info, comments and meta -->
+			<div class="jp-carousel-info">
+				<div class="jp-carousel-info-footer">
+					<div class="jp-carousel-pagination-container">
+						<div class="jp-swiper-pagination swiper-pagination"></div>
+						<div class="jp-carousel-pagination"></div>
+					</div>
+					<div class="jp-carousel-photo-title-container">
+						<h2 class="jp-carousel-photo-caption"></h2>
+					</div>
+					<div class="jp-carousel-photo-icons-container">
+						<a href="#" class="jp-carousel-icon-btn jp-carousel-icon-info" aria-label="<?php esc_attr_e( 'Toggle photo metadata visibility', 'jetpack' ); ?>">
+							<span class="jp-carousel-icon">
+								<svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<mask id="maskInfo" mask-type="alpha" maskUnits="userSpaceOnUse" x="2" y="2" width="21" height="20">
+										<path fill-rule="evenodd" clip-rule="evenodd" d="M12.7537 2C7.26076 2 2.80273 6.48 2.80273 12C2.80273 17.52 7.26076 22 12.7537 22C18.2466 22 22.7046 17.52 22.7046 12C22.7046 6.48 18.2466 2 12.7537 2ZM11.7586 7V9H13.7488V7H11.7586ZM11.7586 11V17H13.7488V11H11.7586ZM4.79292 12C4.79292 16.41 8.36531 20 12.7537 20C17.142 20 20.7144 16.41 20.7144 12C20.7144 7.59 17.142 4 12.7537 4C8.36531 4 4.79292 7.59 4.79292 12Z" fill="white"/>
+									</mask>
+									<g mask="url(#maskInfo)">
+										<rect x="0.8125" width="23.8823" height="24" fill="#FFFFFF"/>
+									</g>
+								</svg>
+							</span>
+						</a>
+						<?php if ( $localize_strings['display_comments'] ) : ?>
+						<a href="#" class="jp-carousel-icon-btn jp-carousel-icon-comments" aria-label="<?php esc_attr_e( 'Toggle photo comments visibility', 'jetpack' ); ?>">
+							<span class="jp-carousel-icon">
+								<svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<mask id="maskComments" mask-type="alpha" maskUnits="userSpaceOnUse" x="2" y="2" width="21" height="20">
+										<path fill-rule="evenodd" clip-rule="evenodd" d="M4.3271 2H20.2486C21.3432 2 22.2388 2.9 22.2388 4V16C22.2388 17.1 21.3432 18 20.2486 18H6.31729L2.33691 22V4C2.33691 2.9 3.2325 2 4.3271 2ZM6.31729 16H20.2486V4H4.3271V18L6.31729 16Z" fill="white"/>
+									</mask>
+									<g mask="url(#maskComments)">
+										<rect x="0.34668" width="23.8823" height="24" fill="#FFFFFF"/>
+									</g>
+								</svg>
+
+								<span class="jp-carousel-has-comments-indicator" aria-label="<?php esc_attr_e( 'This image has comments.', 'jetpack' ); ?>"></span>
+							</span>
+						</a>
+						<?php endif; ?>
+					</div>
+				</div>
+				<div class="jp-carousel-info-extra">
+					<div class="jp-carousel-info-content-wrapper">
+						<div class="jp-carousel-photo-title-container">
+							<h2 class="jp-carousel-photo-title"></h2>
+						</div>
+						<div class="jp-carousel-comments-wrapper">
+							<?php if ( $localize_strings['display_comments'] ) : ?>
+								<div id="jp-carousel-comments-loading">
+									<span><?php echo esc_html( $localize_strings['loading_comments'] ); ?></span>
+								</div>
+								<div class="jp-carousel-comments"></div>
+								<div id="jp-carousel-comment-form-container">
+									<span id="jp-carousel-comment-form-spinner">&nbsp;</span>
+									<div id="jp-carousel-comment-post-results"></div>
+									<?php if ( $use_local_comments ) : ?>
+										<?php if ( ! $localize_strings['is_logged_in'] && $localize_strings['comment_registration'] ) : ?>
+											<div id="jp-carousel-comment-form-commenting-as">
+												<p id="jp-carousel-commenting-as">
+													<?php
+														echo wp_kses(
+															__( 'You must be <a href="#" class="jp-carousel-comment-login">logged in</a> to post a comment.', 'jetpack' ),
+															array(
+																'a' => array(
+																	'href'  => array(),
+																	'class' => array(),
+																),
+															)
+														);
+													?>
+												</p>
+											</div>
+										<?php else : ?>
+											<form id="jp-carousel-comment-form">
+												<label for="jp-carousel-comment-form-comment-field" class="screen-reader-text"><?php echo esc_attr( $localize_strings['write_comment'] ); ?></label>
+												<textarea
+													name="comment"
+													class="jp-carousel-comment-form-field jp-carousel-comment-form-textarea"
+													id="jp-carousel-comment-form-comment-field"
+													placeholder="<?php echo esc_attr( $localize_strings['write_comment'] ); ?>"
+												></textarea>
+												<div id="jp-carousel-comment-form-submit-and-info-wrapper">
+													<div id="jp-carousel-comment-form-commenting-as">
+														<?php if ( $localize_strings['is_logged_in'] ) : ?>
+															<p id="jp-carousel-commenting-as">
+																<?php
+																	printf(
+																		/* translators: %s is replaced with the user's display name */
+																		esc_html__( 'Commenting as %s', 'jetpack' ),
+																		esc_html( $current_user->data->display_name )
+																	);
+																?>
+															</p>
+														<?php else : ?>
+															<fieldset>
+																<label for="jp-carousel-comment-form-email-field"><?php echo esc_html( sprintf( $required, __( 'Email', 'jetpack' ) ) ); ?></label>
+																<input type="text" name="email" class="jp-carousel-comment-form-field jp-carousel-comment-form-text-field" id="jp-carousel-comment-form-email-field" />
+															</fieldset>
+															<fieldset>
+																<label for="jp-carousel-comment-form-author-field"><?php echo esc_html( sprintf( $required, __( 'Name', 'jetpack' ) ) ); ?></label>
+																<input type="text" name="author" class="jp-carousel-comment-form-field jp-carousel-comment-form-text-field" id="jp-carousel-comment-form-author-field" />
+															</fieldset>
+															<fieldset>
+																<label for="jp-carousel-comment-form-url-field"><?php esc_html_e( 'Website', 'jetpack' ); ?></label>
+																<input type="text" name="url" class="jp-carousel-comment-form-field jp-carousel-comment-form-text-field" id="jp-carousel-comment-form-url-field" />
+															</fieldset>
+														<?php endif ?>
+													</div>
+													<input
+														type="submit"
+														name="submit"
+														class="jp-carousel-comment-form-button"
+														id="jp-carousel-comment-form-button-submit"
+														value="<?php echo esc_attr( $localize_strings['post_comment'] ); ?>" />
+												</div>
+											</form>
+										<?php endif ?>
+									<?php endif ?>
+								</div>
+							<?php endif ?>
+						</div>
+						<div class="jp-carousel-image-meta">
+							<div class="jp-carousel-title-and-caption">
+								<div class="jp-carousel-photo-info">
+									<h3 class="jp-carousel-caption" itemprop="caption description"></h3>
+								</div>
+
+								<div class="jp-carousel-photo-description"></div>
+							</div>
+							<ul class="jp-carousel-image-exif" style="display: none;"></ul>
+							<a class="jp-carousel-image-download" target="_blank" style="display: none;">
+								<svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<mask id="mask0" mask-type="alpha" maskUnits="userSpaceOnUse" x="3" y="3" width="19" height="18">
+										<path fill-rule="evenodd" clip-rule="evenodd" d="M5.84615 5V19H19.7775V12H21.7677V19C21.7677 20.1 20.8721 21 19.7775 21H5.84615C4.74159 21 3.85596 20.1 3.85596 19V5C3.85596 3.9 4.74159 3 5.84615 3H12.8118V5H5.84615ZM14.802 5V3H21.7677V10H19.7775V6.41L9.99569 16.24L8.59261 14.83L18.3744 5H14.802Z" fill="white"/>
+									</mask>
+									<g mask="url(#mask0)">
+										<rect x="0.870605" width="23.8823" height="24" fill="#FFFFFF"/>
+									</g>
+								</svg>
+								<span class="jp-carousel-download-text"></span>
+							</a>
+							<div class="jp-carousel-image-map" style="display: none;"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		</div>
+		<?php
 	}
 
 	function set_in_gallery( $output ) {
@@ -399,10 +606,12 @@ class Jetpack_Carousel {
 				! preg_match( '/wp-block-jetpack-slideshow_image/', $image_html ) ) {
 				$attachment_id = absint( $class_id[2] );
 				/**
-				 * If exactly the same image tag is used more than once, overwrite it.
-				 * All identical tags will be replaced later with 'str_replace()'.
+				 * The same image tag may be used more than once but with different attribs,
+				 * so save each of them against the attachment id.
 				 */
-				$selected_images[ $attachment_id  ] = $image_html;
+				if ( ! isset( $selected_images[ $attachment_id ] ) || ! in_array( $image_html, $selected_images[ $attachment_id ], true ) ) {
+					$selected_images[ $attachment_id ][] = $image_html;
+				}
 			}
 		}
 
@@ -422,16 +631,17 @@ class Jetpack_Carousel {
 		);
 
 		foreach ( $attachments as $attachment ) {
-			$image_html = $selected_images[ $attachment->ID ];
+			$image_elements = $selected_images[ $attachment->ID ];
 
 			$attributes      = $this->add_data_to_images( array(), $attachment );
 			$attributes_html = '';
 			foreach ( $attributes as $k => $v ) {
 				$attributes_html .= esc_attr( $k ) . '="' . esc_attr( $v ) . '" ';
 			}
-
-			$find[]    = $image_html;
-			$replace[] = str_replace( '<img ', "<img $attributes_html", $image_html );
+			foreach ( $image_elements as $image_html ) {
+				$find[]    = $image_html;
+				$replace[] = str_replace( '<img ', "<img $attributes_html", $image_html );
+			}
 		}
 
 		$content = str_replace( $find, $replace, $content );
@@ -480,9 +690,11 @@ class Jetpack_Carousel {
 		$large_file_info = wp_get_attachment_image_src( $attachment_id, 'large' );
 		$large_file      = isset( $large_file_info[0] ) ? $large_file_info[0] : '';
 
-		$attachment       = get_post( $attachment_id );
-		$attachment_title = wptexturize( $attachment->post_title );
-		$attachment_desc  = wpautop( wptexturize( $attachment->post_content ) );
+		$attachment         = get_post( $attachment_id );
+		$attachment_title   = ! empty( $attachment ) ? wptexturize( $attachment->post_title ) : '';
+		$attachment_desc    = ! empty( $attachment ) ? wpautop( wptexturize( $attachment->post_content ) ) : '';
+		$attachment_caption = ! empty( $attachment ) ? wpautop( wptexturize( $attachment->post_excerpt ) ) : '';
+
 		// Not yet providing geo-data, need to "fuzzify" for privacy
 		if ( ! empty( $img_meta ) ) {
 			foreach ( $img_meta as $k => $v ) {
@@ -500,13 +712,14 @@ class Jetpack_Carousel {
 		$img_meta = json_encode( array_map( 'strval', array_filter( $img_meta, 'is_scalar' ) ) );
 
 		$attr['data-attachment-id']     = $attachment_id;
-		$attr['data-permalink']         = esc_attr( get_permalink( $attachment->ID ) );
+		$attr['data-permalink']         = esc_attr( get_permalink( $attachment_id ) );
 		$attr['data-orig-file']         = esc_attr( $orig_file );
 		$attr['data-orig-size']         = $size;
 		$attr['data-comments-opened']   = $comments_opened;
 		$attr['data-image-meta']        = esc_attr( $img_meta );
 		$attr['data-image-title']       = esc_attr( htmlspecialchars( $attachment_title ) );
 		$attr['data-image-description'] = esc_attr( htmlspecialchars( $attachment_desc ) );
+		$attr['data-image-caption']     = esc_attr( htmlspecialchars( $attachment_caption ) );
 		$attr['data-medium-file']       = esc_attr( $medium_file );
 		$attr['data-large-file']        = esc_attr( $large_file );
 
@@ -546,7 +759,7 @@ class Jetpack_Carousel {
 				$html = str_replace( '<div ', '<div ' . esc_attr( $data_key ) . "='" . wp_json_encode( $data_values ) . "' ", $html );
 				$html = str_replace( '<ul class="wp-block-gallery', '<ul ' . esc_attr( $data_key ) . "='" . wp_json_encode( $data_values ) . "' class=\"wp-block-gallery", $html );
 				$html = str_replace( '<ul class="blocks-gallery-grid', '<ul ' . esc_attr( $data_key ) . "='" . wp_json_encode( $data_values ) . "' class=\"blocks-gallery-grid", $html );
-				$html = str_replace( '<figure class="wp-block-gallery blocks-gallery-grid', '<figure ' . esc_attr( $data_key ) . "='" . wp_json_encode( $data_values ) . "' class=\"wp-block-gallery  blocks-gallery-grid", $html );
+				$html = preg_replace( '/\<figure([^>]*)class="(wp-block-gallery[^"]*?has-nested-images.*?)"/', '<figure ' . esc_attr( $data_key ) . "='" . wp_json_encode( $data_values ) . "' $1 class=\"$2\"", $html );
 			}
 		}
 
@@ -610,8 +823,69 @@ class Jetpack_Carousel {
 		$offset        = ( isset( $_REQUEST['offset'] ) ) ? (int) $_REQUEST['offset'] : 0;
 
 		if ( ! $attachment_id ) {
-			echo json_encode( __( 'Missing attachment ID.', 'jetpack' ) );
-			die();
+			wp_send_json_error(
+				__( 'Missing attachment ID.', 'jetpack' ),
+				403
+			);
+			return;
+		}
+
+		$attachment_post = get_post( $attachment_id );
+		// If we have no info about that attachment, bail.
+		if ( ! ( $attachment_post instanceof WP_Post ) ) {
+			wp_send_json_error(
+				__( 'Missing attachment info.', 'jetpack' ),
+				403
+			);
+			return;
+		}
+
+		// This AJAX call should only be used to fetch comments of attachments.
+		if ( 'attachment' !== $attachment_post->post_type ) {
+			wp_send_json_error(
+				__( 'You aren’t authorized to do that.', 'jetpack' ),
+				403
+			);
+			return;
+		}
+
+		$parent_post = get_post_parent( $attachment_id );
+
+		/*
+		 * If we have no info about that parent post, no extra checks.
+		 * The attachment doesn't have a parent post, so is public.
+		 * If we have a parent post, let's ensure the user has access to it.
+		 */
+		if ( $parent_post instanceof WP_Post ) {
+			/*
+			 * Fetch info about user making the request.
+			 * If we have no info, bail.
+			 * Even logged out users should get a WP_User user with id 0.
+			 */
+			$current_user = wp_get_current_user();
+			if ( ! ( $current_user instanceof WP_User ) ) {
+				wp_send_json_error(
+					__( 'Missing user info.', 'jetpack' ),
+					403
+				);
+				return;
+			}
+
+			/*
+			 * If a post is private / draft
+			 * and the current user doesn't have access to it,
+			 * bail.
+			 */
+			if (
+				'publish' !== $parent_post->post_status
+				&& ! current_user_can( 'read_post', $parent_post->ID )
+			) {
+				wp_send_json_error(
+					__( 'You aren’t authorized to do that.', 'jetpack' ),
+					403
+				);
+				return;
+			}
 		}
 
 		if ( $offset < 1 ) {

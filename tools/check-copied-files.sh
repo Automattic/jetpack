@@ -6,6 +6,7 @@ cd "$( dirname "${BASH_SOURCE[0]}" )/.."
 . tools/includes/chalk-lite.sh
 
 EXIT=0
+JQWARNED=false
 
 # Compare two files, with optional delimiters.
 # $1 - First file.
@@ -13,7 +14,8 @@ EXIT=0
 # $3 - (optional) Starting delimiter. If empty, comparison starts at the start of the files.
 # $4 - (optional) Ending delimiter. If empty, comparison runs to the end of the files.
 compare () {
-	FAIL=
+	local FAIL=
+	local F D
 	for F in "$1" "$2"; do
 		for D in "$3" "$4"; do
 			if [[ -n "$D" ]] && ! grep -q "$D" "$F"; then
@@ -31,6 +33,7 @@ compare () {
 		return
 	fi
 
+	local LA LB
 	if [[ -n "$CI" && -n "$3" ]]; then
 		LA=$(grep --line-number --max-count=1 "$3" "$1")
 		LB=$(grep --line-number --max-count=1 "$3" "$2")
@@ -39,6 +42,7 @@ compare () {
 		LB=1
 	fi
 
+	local MSG A B
 	if [[ -n "$3" && -n "$4" ]]; then
 		MSG="Files $1 and $2 must be identical between \`$3\` and \`$4\`."
 		A=$(sed -n -e "/$3/,/$4/p" "$1")
@@ -72,7 +76,7 @@ compare () {
 }
 
 compare readme.md projects/plugins/jetpack/readme.md '^## Security' '^<!-- end sync section -->$'
-compare LICENSE.txt projects/plugins/jetpack/LICENSE.txt
-compare SECURITY.md projects/plugins/jetpack/SECURITY.md
+compare projects/packages/identity-crisis/src/scss/functions/colors.scss projects/plugins/jetpack/_inc/client/scss/functions/colors.scss
+compare projects/packages/identity-crisis/src/scss/variables/_colors.scss projects/plugins/jetpack/_inc/client/scss/variables/_colors.scss
 
 exit $EXIT

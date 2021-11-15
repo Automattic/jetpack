@@ -12,6 +12,7 @@ import {
 	ToggleControl,
 	ToolbarButton,
 	ToolbarGroup,
+	Tooltip,
 } from '@wordpress/components';
 import { compose, createHigherOrderComponent, withInstanceId } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
@@ -21,10 +22,11 @@ import {
 	MediaUpload,
 	MediaUploadCheck,
 	RichText,
-	__experimentalBlock as Block,
+	useBlockProps,
 } from '@wordpress/block-editor';
 import { Component, createRef, Fragment } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
+import { Icon, pencil } from '@wordpress/icons';
 import classnames from 'classnames';
 import { get, indexOf } from 'lodash';
 
@@ -37,12 +39,6 @@ import { getClassNames } from './utils';
 import SeekbarColorSettings from './seekbar-color-settings';
 
 const VIDEO_POSTER_ALLOWED_MEDIA_TYPES = [ 'image' ];
-
-// For Gutenberg versions that support it, use the figure block wrapper (from '@wordpress/block-editor')
-// to wrap the VideoPress component the same way the underlying `core/video` block is wrapped.
-// (Otherwise there's an issue with Gutenberg >= 8.1 where the VideoPress block becomes unselectable,
-// see https://github.com/Automattic/jetpack/issues/15922.)
-const BlockFigureWrapper = Block ? Block.figure : 'figure';
 
 const VideoPressEdit = CoreVideoEdit =>
 	class extends Component {
@@ -92,9 +88,13 @@ const VideoPressEdit = CoreVideoEdit =>
 		setRating = async () => {
 			const id = get( this.props, 'attributes.id' );
 			const media = await this.requestMedia( id );
-			const rating = get( media, 'jetpack_videopress.rating' );
+			let rating = get( media, 'jetpack_videopress.rating' );
 
 			if ( rating ) {
+				// X-18 was previously supported but is now removed to better comply with our TOS.
+				if ( 'X-18' === rating ) {
+					rating = 'R-17';
+				}
 				this.setState( { rating } );
 			}
 		};
@@ -119,7 +119,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				const sandboxClassnames = getClassNames(
 					preview.html,
 					classnames( 'wp-block-embed', 'is-type-video', 'is-provider-videopress' ),
-					true
+					false
 				);
 
 				// We set videoPressClassNames attribute to be used in ./save.js
@@ -225,6 +225,24 @@ const VideoPressEdit = CoreVideoEdit =>
 				: null;
 		};
 
+		getPreloadHelp() {
+			const { attributes } = this.props;
+			return 'auto' === attributes.preload
+				? __(
+						'Note: Automatically downloading videos may cause issues if there are many videos displayed on the same page.',
+						'jetpack'
+				  )
+				: null;
+		}
+
+		renderControlLabelWithTooltip( label, tooltipText ) {
+			return (
+				<Tooltip text={ tooltipText } position="top">
+					<span>{ label }</span>
+				</Tooltip>
+			);
+		}
+
 		onChangeRating = rating => {
 			const { id } = this.props.attributes;
 			const originalRating = this.state.rating;
@@ -233,7 +251,12 @@ const VideoPressEdit = CoreVideoEdit =>
 				return;
 			}
 
-			if ( -1 === indexOf( [ 'G', 'PG-13', 'R-17', 'X-18' ], rating ) ) {
+			// X-18 was previously supported but is now removed to better comply with our TOS.
+			if ( 'X-18' === rating ) {
+				rating = 'R-17';
+			}
+
+			if ( -1 === indexOf( [ 'G', 'PG-13', 'R-17' ], rating ) ) {
 				return;
 			}
 
@@ -265,25 +288,12 @@ const VideoPressEdit = CoreVideoEdit =>
 				attributes,
 				instanceId,
 				isFetchingPreview,
-				isSelected,
 				isUploading,
 				preview,
 				setAttributes,
 			} = this.props;
 			const { fallback, isFetchingMedia, isUpdatingRating, interactive, rating } = this.state;
-			const {
-				align,
-				autoplay,
-				caption,
-				className,
-				controls,
-				loop,
-				muted,
-				playsinline,
-				poster,
-				preload,
-				videoPressClassNames,
-			} = attributes;
+			const { autoplay, caption, controls, loop, muted, playsinline, poster, preload } = attributes;
 
 			const videoPosterDescription = `video-block__poster-image-description-${ instanceId }`;
 
@@ -295,20 +305,28 @@ const VideoPressEdit = CoreVideoEdit =>
 								className="components-icon-button components-toolbar__control"
 								label={ __( 'Edit video', 'jetpack' ) }
 								onClick={ this.switchToEditing }
-								icon="edit"
+								icon={ <Icon icon={ pencil } /> }
 							/>
 						</ToolbarGroup>
 					</BlockControls>
 					<InspectorControls>
 						<PanelBody title={ __( 'Video Settings', 'jetpack' ) }>
 							<ToggleControl
-								label={ __( 'Autoplay', 'jetpack' ) }
+								label={ this.renderControlLabelWithTooltip(
+									__( 'Autoplay', 'jetpack' ),
+									/* translators: Tooltip describing the "autoplay" option for the VideoPress player */
+									__( 'Start playing the video as soon as the page loads', 'jetpack' )
+								) }
 								onChange={ this.toggleAttribute( 'autoplay' ) }
 								checked={ autoplay }
 								help={ this.getAutoplayHelp }
 							/>
 							<ToggleControl
-								label={ __( 'Loop', 'jetpack' ) }
+								label={ this.renderControlLabelWithTooltip(
+									__( 'Loop', 'jetpack' ),
+									/* translators: Tooltip describing the "loop" option for the VideoPress player */
+									__( 'Restarts the video when it reaches the end', 'jetpack' )
+								) }
 								onChange={ this.toggleAttribute( 'loop' ) }
 								checked={ loop }
 							/>
@@ -318,17 +336,29 @@ const VideoPressEdit = CoreVideoEdit =>
 								checked={ muted }
 							/>
 							<ToggleControl
-								label={ __( 'Playback Controls', 'jetpack' ) }
+								label={ this.renderControlLabelWithTooltip(
+									__( 'Playback Controls', 'jetpack' ),
+									/* translators: Tooltip describing the "controls" option for the VideoPress player */
+									__( 'Display the video playback controls', 'jetpack' )
+								) }
 								onChange={ this.toggleAttribute( 'controls' ) }
 								checked={ controls }
 							/>
 							<ToggleControl
-								label={ __( 'Play Inline', 'jetpack' ) }
+								label={ this.renderControlLabelWithTooltip(
+									__( 'Play Inline', 'jetpack' ),
+									/* translators: Tooltip describing the "playsinline" option for the VideoPress player */
+									__( 'Play the video inline instead of full-screen on mobile devices', 'jetpack' )
+								) }
 								onChange={ this.toggleAttribute( 'playsinline' ) }
 								checked={ playsinline }
 							/>
 							<SelectControl
-								label={ __( 'Preload', 'jetpack' ) }
+								label={ this.renderControlLabelWithTooltip(
+									__( 'Preload', 'jetpack' ),
+									/* translators: Tooltip describing the "preload" option for the VideoPress player */
+									__( 'Content to dowload before the video is played', 'jetpack' )
+								) }
 								value={ preload }
 								onChange={ value => setAttributes( { preload: value } ) }
 								options={ [
@@ -339,6 +369,7 @@ const VideoPressEdit = CoreVideoEdit =>
 									},
 									{ value: 'none', label: _x( 'None', 'VideoPress preload setting', 'jetpack' ) },
 								] }
+								help={ this.getPreloadHelp() }
 							/>
 							<MediaUploadCheck>
 								<BaseControl
@@ -408,10 +439,6 @@ const VideoPressEdit = CoreVideoEdit =>
 										),
 										value: 'R-17',
 									},
-									{
-										label: _x( 'X', 'Video rating for "Explicit" content.', 'jetpack' ),
-										value: 'X-18',
-									},
 								] }
 								onChange={ this.onChangeRating }
 							/>
@@ -420,26 +447,36 @@ const VideoPressEdit = CoreVideoEdit =>
 				</Fragment>
 			);
 
-			if ( isUploading ) {
+			// If we're fetching the video, we need to display the "Generate preview..." message in the Loading block.
+			const isFetchingVideo = isFetchingMedia || isFetchingPreview;
+			const isVideoFallbackOrNotPreview = fallback || ! preview;
+			// If the video is uploading or fetching, we should display the Loading component.
+			const displayLoadingBlock = isUploading || isFetchingVideo;
+			// If the component is in fallback mode or not in preview mode, and we don't need to display the loading block,
+			// then we should display the CoreVideoEdit block
+			const displayCoreVideoBlock = isVideoFallbackOrNotPreview && ! displayLoadingBlock;
+			// If we need to display the CoreVideoEdit or Loading block, then we need to render them in the tree.
+			const renderCoreVideoAndLoadingBlocks = displayLoadingBlock || displayCoreVideoBlock;
+
+			// In order for the media placeholder to keep its state for error messages, we need to keep the CoreVideoEdit component in the tree during file uploads.
+			if ( renderCoreVideoAndLoadingBlocks ) {
 				return (
 					<Fragment>
-						{ blockSettings }
-						<Loading text={ __( 'Uploading…', 'jetpack' ) } />
+						<div className={ ! isUploading && ! isFetchingVideo ? 'videopress-block-hide' : '' }>
+							{ blockSettings }
+							<Loading
+								text={
+									isUploading
+										? __( 'Uploading…', 'jetpack' )
+										: __( 'Generating preview…', 'jetpack' )
+								}
+							/>
+						</div>
+						<div className={ ! displayCoreVideoBlock ? 'videopress-block-hide' : '' }>
+							<CoreVideoEdit { ...this.props } />
+						</div>
 					</Fragment>
 				);
-			}
-
-			if ( isFetchingMedia || isFetchingPreview ) {
-				return (
-					<Fragment>
-						{ blockSettings }
-						<Loading text={ __( 'Generating preview…', 'jetpack' ) } />
-					</Fragment>
-				);
-			}
-
-			if ( fallback || ! preview ) {
-				return <CoreVideoEdit { ...this.props } />;
 			}
 
 			const { html, scripts } = preview;
@@ -451,42 +488,69 @@ const VideoPressEdit = CoreVideoEdit =>
 			return (
 				<Fragment>
 					{ blockSettings }
-					<BlockFigureWrapper
-						className={ classnames( 'wp-block-video', className, videoPressClassNames, {
-							[ `align${ align }` ]: align,
-						} ) }
-					>
-						<div className="wp-block-embed__wrapper">
-							<SandBox html={ html } scripts={ scripts } type={ videoPressClassNames } />
-						</div>
-
-						{
-							/*
-							Disable the video player when the block isn't selected,
-							so the user clicking on it won't play the
-							video when the controls are enabled.
-						*/
-							! interactive && (
-								<div
-									className="block-library-embed__interactive-overlay"
-									onMouseUp={ this.hideOverlay }
-								/>
-							)
-						}
-						{ ( ! RichText.isEmpty( caption ) || isSelected ) && (
-							<RichText
-								tagName="figcaption"
-								placeholder={ __( 'Write caption…', 'jetpack' ) }
-								value={ caption }
-								onChange={ value => setAttributes( { caption: value } ) }
-								inlineToolbar
-							/>
-						) }
-					</BlockFigureWrapper>
+					<VpBlock
+						{ ...this.props }
+						hideOverlay={ this.hideOverlay }
+						html={ html }
+						scripts={ scripts }
+						interactive={ interactive }
+						caption={ caption }
+					/>
 				</Fragment>
 			);
 		}
 	};
+
+// The actual, final rendered video player markup
+// In a separate function component so that `useBlockProps` could be called.
+const VpBlock = props => {
+	const {
+		html,
+		scripts,
+		interactive,
+		caption,
+		isSelected,
+		hideOverlay,
+		attributes,
+		setAttributes,
+	} = props;
+
+	const { align, className, videoPressClassNames } = attributes;
+
+	const blockProps = useBlockProps( {
+		className: classnames( 'wp-block-video', className, videoPressClassNames, {
+			[ `align${ align }` ]: align,
+		} ),
+	} );
+
+	return (
+		<figure { ...blockProps }>
+			<div className="wp-block-embed__wrapper">
+				<SandBox html={ html } scripts={ scripts } type={ videoPressClassNames } />
+			</div>
+
+			{
+				/*
+					Disable the video player when the block isn't selected,
+					so the user clicking on it won't play the
+					video when the controls are enabled.
+				*/
+				! interactive && (
+					<div className="block-library-embed__interactive-overlay" onMouseUp={ hideOverlay } />
+				)
+			}
+			{ ( ! RichText.isEmpty( caption ) || isSelected ) && (
+				<RichText
+					tagName="figcaption"
+					placeholder={ __( 'Write caption…', 'jetpack' ) }
+					value={ caption }
+					onChange={ value => setAttributes( { caption: value } ) }
+					inlineToolbar
+				/>
+			) }
+		</figure>
+	);
+};
 
 export default createHigherOrderComponent(
 	compose( [

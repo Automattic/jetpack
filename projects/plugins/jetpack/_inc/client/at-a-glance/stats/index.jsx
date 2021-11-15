@@ -13,6 +13,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { Spinner } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -25,7 +26,6 @@ import DashSectionHeader from 'components/dash-section-header';
 import DashStatsBottom from './dash-stats-bottom';
 import { emptyStatsCardDismissed } from 'state/settings';
 import { getInitialStateStatsData, getDateFormat } from 'state/initial-state';
-import getRedirectUrl from 'lib/jp-redirect';
 import { getStatsData, statsSwitchTab, fetchStatsData, getActiveStatsTab } from 'state/at-a-glance';
 import { imagePath } from 'constants/urls';
 import { isOfflineMode, isCurrentUserLinked, getConnectUrl } from 'state/connection';
@@ -63,14 +63,12 @@ export class DashStats extends Component {
 
 		let totalViews = 0;
 
-		/* translators: short date format, such as: Jan 12. */
-		const shortMonthFormat = __( 'M j', 'jetpack' );
-
-		/* translators: long date format, such as: January 12th. */
-		const longMonthFormat = __( 'F jS', 'jetpack' );
-
-		/* translators: long month/year format, such as: January, 2021. */
-		const longMonthYearFormat = __( 'F Y', 'jetpack' );
+		const /* translators: short date format, such as: Jan 12. */
+			shortMonthFormat = __( 'M j', 'jetpack' ),
+			/* translators: long date format, such as: January 12th. */
+			longMonthFormat = __( 'F jS', 'jetpack' ),
+			/* translators: long month/year format, such as: January, 2021. */
+			longMonthYearFormat = __( 'F Y', 'jetpack' );
 
 		if ( 'object' !== typeof props.statsData[ unit ] ) {
 			return { chartData: s, totalViews: false };

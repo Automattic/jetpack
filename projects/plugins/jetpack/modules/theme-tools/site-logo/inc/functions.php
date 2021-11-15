@@ -15,18 +15,19 @@
  * @since 1.0
  */
 function jetpack_get_site_logo( $show = 'url' ) {
-	$logo = site_logo()->logo;
+	$logo_id = site_logo()->logo;
 
 	// Return false if no logo is set
-	if ( ! isset( $logo['id'] ) || 0 == $logo['id'] ) {
+	if ( ! $logo_id ) {
 		return false;
 	}
 
 	// Return the ID if specified, otherwise return the URL by default
-	if ( 'id' == $show ) {
-		return $logo['id'];
+	if ( 'id' === $show ) {
+		return $logo_id;
 	} else {
-		return esc_url_raw( set_url_scheme( $logo['url'] ) );
+		$logo_url = wp_get_attachment_url( $logo_id );
+		return esc_url_raw( set_url_scheme( $logo_url ) );
 	}
 }
 
@@ -128,12 +129,13 @@ function jetpack_the_site_logo() {
 	}
 
 	// Check for WP 4.5 Site Logo and Jetpack logo.
-	$logo_id      = get_theme_mod( 'custom_logo' );
-	$jetpack_logo = site_logo()->logo;
+	$logo_id = get_theme_mod( 'custom_logo' );
+	// Get the option directly so the updated logo can be injected into customizer previews.
+	$jetpack_logo_id = get_option( 'site_logo' );
 
-	// Use WP Core logo if present, otherwise use Jetpack's.
-	if ( ! $logo_id && isset( $jetpack_logo['id'] ) ) {
-		$logo_id = $jetpack_logo['id'];
+	// Use WP Core logo if present and is an id (of an attachment), otherwise use Jetpack's.
+	if ( ! is_numeric( $logo_id ) && $jetpack_logo_id ) {
+		$logo_id = $jetpack_logo_id;
 	}
 
 	/*
@@ -167,7 +169,12 @@ function jetpack_the_site_logo() {
 				)
 			)
 		),
-		$jetpack_logo,
+		// Return array format in filter for back compatibility.
+		array(
+			'id'    => $jetpack_logo_id,
+			'url'   => wp_get_attachment_url( $jetpack_logo_id ),
+			'sizes' => array(),
+		),
 		$size
 	);
 	/* phpcs:enable WordPress.Security.EscapeOutput */

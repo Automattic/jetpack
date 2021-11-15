@@ -17,10 +17,30 @@
 			max-width: 500px;
 			p {
 				font-size: 13px;
-				margin: 0 0 10px;
+				margin: 20px 0 10px;
+			}
+
+			p:first-child {
+				margin-top: 0;
 			}
 		}
+
+		&__instructions {
+			.components-select-control__input {
+				padding: 0 24px 0 8px;
+			}
+		}
+
+		// Increased specificity to override placeholder styling.
+		.components-placeholder__instructions {
+			display: block;
+		}
+
+		label {
+			font-size: 13px;
+		}
 	}
+
 
 	.editor-rich-text__inline-toolbar {
 		pointer-events: none;
@@ -55,13 +75,24 @@
 		}
 
 		&__field-price {
-			margin: 0 0 0 5%;
 			width: 65%;
 		}
 
 		&__price-container {
 			display: flex;
 			flex-wrap: wrap;
+
+			.components-input-control__container {
+				top: 4px;
+			}
+
+			div.membership-button__field-currency {
+				border-right: 10px solid transparent;
+			}
+
+			p {
+				margin-top: 0;
+			}
 		}
 	}
 

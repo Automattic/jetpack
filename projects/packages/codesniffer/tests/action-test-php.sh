@@ -5,4 +5,5 @@ if php -r 'exit( version_compare( PHP_VERSION, "7.2.0", "<" ) ? 0 : 1 );'; then
 	exit 0
 fi
 
+composer update
 composer phpunit

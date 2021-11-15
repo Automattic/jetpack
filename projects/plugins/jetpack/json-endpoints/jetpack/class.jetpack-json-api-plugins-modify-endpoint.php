@@ -4,68 +4,70 @@ use Automattic\Jetpack\Constants;
 
 new Jetpack_JSON_API_Plugins_Modify_Endpoint(
 	array(
-		'description'          => 'Activate/Deactivate a Plugin on your Jetpack Site, or set automatic updates',
-		'min_version'          => '1',
-		'max_version'          => '1.1',
-		'method'               => 'POST',
-		'path'                 => '/sites/%s/plugins/%s',
-		'stat'                 => 'plugins:1:modify',
-		'path_labels'          => array(
+		'description'             => 'Activate/Deactivate a Plugin on your Jetpack Site, or set automatic updates',
+		'min_version'             => '1',
+		'max_version'             => '1.1',
+		'method'                  => 'POST',
+		'path'                    => '/sites/%s/plugins/%s',
+		'stat'                    => 'plugins:1:modify',
+		'path_labels'             => array(
 			'$site'   => '(int|string) The site ID, The site domain',
 			'$plugin' => '(string) The plugin ID',
 		),
-		'request_format'       => array(
+		'allow_jetpack_site_auth' => true,
+		'request_format'          => array(
 			'action'       => '(string) Possible values are \'update\'',
 			'autoupdate'   => '(bool) Whether or not to automatically update the plugin',
 			'active'       => '(bool) Activate or deactivate the plugin',
 			'network_wide' => '(bool) Do action network wide (default value: false)',
 		),
-		'query_parameters'     => array(
+		'query_parameters'        => array(
 			'autoupdate' => '(bool=false) If the update is happening as a result of autoupdate event',
 		),
-		'response_format'      => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
-		'example_request_data' => array(
+		'response_format'         => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
+		'example_request_data'    => array(
 			'headers' => array(
-				'authorization' => 'Bearer YOUR_API_TOKEN'
+				'authorization' => 'Bearer YOUR_API_TOKEN',
 			),
 			'body'    => array(
 				'action' => 'update',
-			)
+			),
 		),
-		'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/hello-dolly%20hello'
+		'example_request'         => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/hello-dolly%20hello',
 	)
 );
 
 new Jetpack_JSON_API_Plugins_Modify_Endpoint(
 	array(
-		'description'          => 'Activate/Deactivate a list of plugins on your Jetpack Site, or set automatic updates',
-		'min_version'          => '1',
-		'max_version'          => '1.1',
-		'method'               => 'POST',
-		'path'                 => '/sites/%s/plugins',
-		'stat'                 => 'plugins:modify',
-		'path_labels'          => array(
+		'description'             => 'Activate/Deactivate a list of plugins on your Jetpack Site, or set automatic updates',
+		'min_version'             => '1',
+		'max_version'             => '1.1',
+		'method'                  => 'POST',
+		'path'                    => '/sites/%s/plugins',
+		'stat'                    => 'plugins:modify',
+		'path_labels'             => array(
 			'$site' => '(int|string) The site ID, The site domain',
 		),
-		'request_format'       => array(
+		'request_format'          => array(
 			'action'       => '(string) Possible values are \'update\'',
 			'autoupdate'   => '(bool) Whether or not to automatically update the plugin',
 			'active'       => '(bool) Activate or deactivate the plugin',
 			'network_wide' => '(bool) Do action network wide (default value: false)',
 			'plugins'      => '(array) A list of plugin ids to modify',
 		),
-		'query_parameters'     => array(
+		'allow_jetpack_site_auth' => true,
+		'query_parameters'        => array(
 			'autoupdate' => '(bool=false) If the update is happening as a result of autoupdate event',
 		),
-		'response_format'      => array(
+		'response_format'         => array(
 			'plugins'     => '(array:plugin) An array of plugin objects.',
 			'updated'     => '(array) A list of plugin ids that were updated. Only present if action is update.',
 			'not_updated' => '(array) A list of plugin ids that were not updated. Only present if action is update.',
 			'log'         => '(array) Update log. Only present if action is update.',
 		),
-		'example_request_data' => array(
+		'example_request_data'    => array(
 			'headers' => array(
-				'authorization' => 'Bearer YOUR_API_TOKEN'
+				'authorization' => 'Bearer YOUR_API_TOKEN',
 			),
 			'body'    => array(
 				'active'  => true,
@@ -73,34 +75,35 @@ new Jetpack_JSON_API_Plugins_Modify_Endpoint(
 					'jetpack/jetpack',
 					'akismet/akismet',
 				),
-			)
+			),
 		),
-		'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins'
+		'example_request'         => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins',
 	)
 );
 
 new Jetpack_JSON_API_Plugins_Modify_Endpoint(
 	array(
-		'description'          => 'Update a Plugin on your Jetpack Site',
-		'min_version'          => '1',
-		'max_version'          => '1.1',
-		'method'               => 'POST',
-		'path'                 => '/sites/%s/plugins/%s/update/',
-		'stat'                 => 'plugins:1:update',
-		'path_labels'          => array(
+		'description'             => 'Update a Plugin on your Jetpack Site',
+		'min_version'             => '1',
+		'max_version'             => '1.1',
+		'method'                  => 'POST',
+		'path'                    => '/sites/%s/plugins/%s/update/',
+		'stat'                    => 'plugins:1:update',
+		'path_labels'             => array(
 			'$site'   => '(int|string) The site ID, The site domain',
 			'$plugin' => '(string) The plugin ID',
 		),
-		'query_parameters'     => array(
+		'allow_jetpack_site_auth' => true,
+		'query_parameters'        => array(
 			'autoupdate' => '(bool=false) If the update is happening as a result of autoupdate event',
 		),
-		'response_format'      => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
-		'example_request_data' => array(
+		'response_format'         => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
+		'example_request_data'    => array(
 			'headers' => array(
-				'authorization' => 'Bearer YOUR_API_TOKEN'
+				'authorization' => 'Bearer YOUR_API_TOKEN',
 			),
 		),
-		'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/hello-dolly%20hello/update'
+		'example_request'         => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/hello-dolly%20hello/update',
 	)
 );
 
@@ -248,6 +251,10 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	}
 
 	protected function current_user_can( $capability, $plugin = null ) {
+		// If this endpoint accepts site based authentication and a blog token is used, skip capabilities check.
+		if ( $this->accepts_site_based_authentication() ) {
+			return true;
+		}
 		if ( $plugin ) {
 			return current_user_can( $capability, $plugin );
 		}
@@ -292,6 +299,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	}
 
 	protected function update() {
+
 		$query_args = $this->query_args();
 		if ( isset( $query_args['autoupdate'] ) && $query_args['autoupdate'] ) {
 			Constants::set_constant( 'JETPACK_PLUGIN_AUTOUPDATE', true );
@@ -318,6 +326,12 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		remove_action( 'upgrader_process_complete', 'wp_version_check' );
 		remove_action( 'upgrader_process_complete', 'wp_update_themes' );
 
+		// Early return if unable to obtain auto_updater lock.
+		// @see https://github.com/WordPress/wordpress-develop/blob/66469efa99e7978c8824e287834135aa9842e84f/src/wp-admin/includes/class-wp-automatic-updater.php#L453.
+		if ( Constants::get_constant( 'JETPACK_PLUGIN_AUTOUPDATE' ) && ! WP_Upgrader::create_lock( 'auto_updater' ) ) {
+			return new WP_Error( 'update_fail', __( 'Updates are already in progress.', 'jetpack' ), 400 );
+		}
+
 		$result = false;
 
 		foreach ( $this->plugins as $plugin ) {
@@ -327,8 +341,14 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 				continue;
 			}
 
-			// Rely on WP_Automatic_Updater class to check if a plugin item should be updated.
-			if ( ! ( new WP_Automatic_Updater() )->should_update( 'plugin', $update_plugins->response[ $plugin ], WP_PLUGIN_DIR ) ) {
+			// Rely on WP_Automatic_Updater class to check if a plugin item should be updated if it is a Jetpack autoupdate request.
+			if ( Constants::get_constant( 'JETPACK_PLUGIN_AUTOUPDATE' ) && ! ( new WP_Automatic_Updater() )->should_update( 'plugin', $update_plugins->response[ $plugin ], WP_PLUGIN_DIR ) ) {
+				continue;
+			}
+
+			// Establish per plugin lock.
+			$plugin_slug = Jetpack_Autoupdate::get_plugin_slug( $plugin );
+			if ( ! WP_Upgrader::create_lock( 'jetpack_' . $plugin_slug ) ) {
 				continue;
 			}
 
@@ -356,9 +376,17 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			$errors             = $upgrader->skin->get_errors();
 			$this->log[$plugin] = $upgrader->skin->get_upgrade_messages();
 
+			// release individual plugin lock.
+			WP_Upgrader::release_lock( 'jetpack_' . $plugin_slug );
+
 			if ( is_wp_error( $errors ) && $errors->get_error_code() ) {
 				return $errors;
 			}
+		}
+
+		// release auto_udpate lock.
+		if ( Constants::get_constant( 'JETPACK_PLUGIN_AUTOUPDATE' ) ) {
+			WP_Upgrader::release_lock( 'auto_updater' );
 		}
 
 		if ( ! $this->bulk && ! $result && $update_attempted ) {

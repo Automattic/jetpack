@@ -11,6 +11,7 @@ use Automattic\Jetpack\Sync\Settings;
  * @group legacy-full-sync
  */
 class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
+
 	private $full_sync;
 
 	private $full_sync_end_checksum;
@@ -20,8 +21,11 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	private $test_posts_count    = 20;
 	private $test_comments_count = 11;
 
-	public function setUp() {
-		parent::setUp();
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
 		Settings::reset_data();
 		Settings::update_settings( array( 'full_sync_send_immediately' => 0 ) );
 
@@ -441,9 +445,10 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_sends_all_users() {
-		$first_user_id = $this->factory->user->create();
+		$this->factory->user->create( array( 'role' => 'subscriber' ) );
+		$first_user_id = $this->factory->user->create( array( 'role' => 'contributor' ) );
 		for ( $i = 0; $i < 9; $i += 1 ) {
-			$user_id = $this->factory->user->create();
+			$user_id = $this->factory->user->create( array( 'role' => 'contributor' ) );
 		}
 
 		update_user_meta( $user_id, 'locale', 'en_GB' );
@@ -470,7 +475,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		Settings::update_settings( array( 'max_queue_size_full_sync' => 1, 'max_enqueue_full_sync' => 10 ) );
 
 		for ( $i = 0; $i < 45; $i += 1 ) {
-			$user_ids[] = $this->factory->user->create();
+			$this->factory->user->create( array( 'role' => 'contributor' ) );
 		}
 
 		// The first event is for full sync start.
@@ -525,7 +530,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$original_blog_id = get_current_blog_id();
 
-		$user_id = $this->factory->user->create();
+		$user_id = $this->factory->user->create( array( 'role' => 'contributor' ) );
 
 		// NOTE this is necessary because WPMU causes certain assumptions about transients
 		// to be wrong, and tests to explode. @see: https://github.com/sheabunge/WordPress/commit/ff4f1bb17095c6af8a0f35ac304f79074f3c3ff6
@@ -537,8 +542,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		// let's create some users on the other blog
 		switch_to_blog( $other_blog_id );
-		$mu_blog_user_id       = $this->factory->user->create();
-		$added_mu_blog_user_id = $this->factory->user->create();
+		$mu_blog_user_id       = $this->factory->user->create( array( 'role' => 'contributor' ) );
+		$added_mu_blog_user_id = $this->factory->user->create( array( 'role' => 'contributor' ) );
 		restore_current_blog();
 
 		// add one of the users to our current blog
@@ -1127,12 +1132,12 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( $should_be_status['queue'], $full_sync_status['queue'] );
 		$this->assertEquals( $should_be_status['config'], $full_sync_status['config'] );
-		$this->assertInternalType( 'int', $full_sync_status['started'] );
-		$this->assertInternalType( 'int', $full_sync_status['queue_finished'] );
+		$this->assertIsInt( $full_sync_status['started'] );
+		$this->assertIsInt( $full_sync_status['queue_finished'] );
 		$this->assertNull( $full_sync_status['send_started'] );
 		$this->assertNull( $full_sync_status['finished'] );
-		$this->assertInternalType( 'array', $full_sync_status['sent'] );
-		$this->assertInternalType( 'array', $full_sync_status['sent_total'] );
+		$this->assertIsArray( $full_sync_status['sent'] );
+		$this->assertIsArray( $full_sync_status['sent_total'] );
 	}
 
 	function test_full_sync_status_after_end() {
@@ -1188,10 +1193,10 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $full_sync_status['queue'], $should_be_status['queue'] );
 		$this->assertEquals( $full_sync_status['sent'], $should_be_status['sent'] );
 		$this->assertEquals( $full_sync_status['sent_total'], $should_be_status['sent_total'] );
-		$this->assertInternalType( 'int', $full_sync_status['started'] );
-		$this->assertInternalType( 'int', $full_sync_status['queue_finished'] );
-		$this->assertInternalType( 'int', $full_sync_status['send_started'] );
-		$this->assertInternalType( 'int', $full_sync_status['finished'] );
+		$this->assertIsInt( $full_sync_status['started'] );
+		$this->assertIsInt( $full_sync_status['queue_finished'] );
+		$this->assertIsInt( $full_sync_status['send_started'] );
+		$this->assertIsInt( $full_sync_status['finished'] );
 	}
 
 	function test_full_sync_respects_post_and_comment_filters() {
@@ -1262,19 +1267,19 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$comments = $synced_comments_event->args[0];
 
 		$this->assertEquals( 2, count( $comments ) );
-		$comment_IDs = array( $comments[0]->comment_ID, $comments[1]->comment_ID );
+		$comment_ids = array( $comments[0]->comment_ID, $comments[1]->comment_ID );
 
-		$this->assertContains( $sync_comment_id, $comment_IDs );
-		$this->assertContains( $sync_comment_id_2, $comment_IDs );
+		$this->assertContains( $sync_comment_id, $comment_ids );
+		$this->assertContains( $sync_comment_id_2, $comment_ids );
 
 		$sync_status = $this->full_sync->get_status();
 		$this->assertEquals( array( $sync_comment_id, $sync_comment_id_2 ), $sync_status['config']['comments'] );
 	}
 
 	function test_full_sync_can_sync_individual_users() {
-		$sync_user_id = $this->factory->user->create();
-		$sync_user_id_2 = $this->factory->user->create();
-		$no_sync_user_id = $this->factory->user->create();
+		$sync_user_id   = $this->factory->user->create( array( 'role' => 'editor' ) );
+		$sync_user_id_2 = $this->factory->user->create( array( 'role' => 'editor' ) );
+		$this->factory->user->create( array( 'role' => 'editor' ) );
 
 		$this->full_sync->start( array( 'users' => array( $sync_user_id, $sync_user_id_2) ) );
 		$this->sender->do_full_sync();
@@ -1334,13 +1339,13 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	function test_full_sync_doesnt_send_deleted_users() {
 
-		$user_counts = count_users();
+		$user_counts         = count_users();
 		$existing_user_count = $user_counts['total_users'];
 
 		// previously, the behavior was to send false or throw errors - we
 		// should actively detect false values and remove them
-		$keep_user_id = $this->factory->user->create();
-		$delete_user_id = $this->factory->user->create();
+		$keep_user_id   = $this->factory->user->create( array( 'role' => 'contributor' ) );
+		$delete_user_id = $this->factory->user->create( array( 'role' => 'contributor' ) );
 
 		$this->full_sync->start();
 
@@ -1450,10 +1455,10 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $full_sync_status['queue'], $should_be_status['queue'] );
 		$this->assertEquals( $full_sync_status['sent'], $should_be_status['sent'] );
 		$this->assertEquals( $full_sync_status['total'], $should_be_status['total'] );
-		$this->assertInternalType( 'int', $full_sync_status['started'], 'Started is not an integer' );
-		$this->assertInternalType( 'int', $full_sync_status['queue_finished'], 'Queue finished is not an integer' );
-		$this->assertInternalType( 'int', $full_sync_status['send_started'], 'Send started is not an integer' );
-		$this->assertInternalType( 'int', $full_sync_status['finished'], 'Finished is not an integer' );
+		$this->assertIsInt( $full_sync_status['started'], 'Started is not an integer' );
+		$this->assertIsInt( $full_sync_status['queue_finished'], 'Queue finished is not an integer' );
+		$this->assertIsInt( $full_sync_status['send_started'], 'Send started is not an integer' );
+		$this->assertIsInt( $full_sync_status['finished'], 'Finished is not an integer' );
 
 		// Reset all the defaults
 		$this->setSyncClientDefaults();
@@ -1495,7 +1500,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		}
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
-		$this->assertEquals( 13, $this->server_replica_storage->user_count() );
+		$this->assertEquals( 3, $this->server_replica_storage->user_count() );
 		$this->server_replica_storage->reset();
 		$this->assertEquals( 0, $this->server_replica_storage->user_count() );
 		$user_ids = Modules::get_module( 'users' )->get_initial_sync_user_config();

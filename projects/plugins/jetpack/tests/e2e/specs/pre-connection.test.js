@@ -1,43 +1,30 @@
+import {
+	Sidebar,
+	PluginsPage,
+	DashboardPage,
+	JetpackPage,
+} from 'jetpack-e2e-commons/pages/wp-admin';
+import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper';
+import { prerequisitesBuilder } from 'jetpack-e2e-commons/env';
+
 /**
- * Internal dependencies
+ *
+ * @group pre-connection
  */
-import Sidebar from '../lib/pages/wp-admin/sidebar';
-import PluginsPage from '../lib/pages/wp-admin/plugins';
-import DashboardPage from '../lib/pages/wp-admin/dashboard';
-import JetpackPage from '../lib/pages/wp-admin/jetpack';
-import { execMultipleWpCommands, execWpCommand } from '../lib/utils-helper';
-import path from 'path';
-import config from 'config';
-
-// Disable pre-connect for this test suite
-process.env.SKIP_CONNECT = true;
-
 describe( 'Jetpack pre-connection', () => {
 	beforeAll( async () => {
-		await execMultipleWpCommands(
-			'wp option delete jetpack_private_options',
-			'wp option delete jetpack_sync_error_idc'
-		);
-		await page.reload();
+		await prerequisitesBuilder().withCleanEnv().withLoggedIn( true ).build();
 	} );
 
 	beforeEach( async () => {
 		await DashboardPage.visit( page );
 	} );
 
-	afterAll( async () => {
-		await execWpCommand(
-			`wp option update jetpack_private_options --format=json < ${ path.resolve(
-				config.get( 'temp.jetpackPrivateOptions' )
-			) }`
-		);
-	} );
-
 	it( 'Can find connect button on plugins page', async () => {
 		await ( await Sidebar.init( page ) ).selectInstalledPlugins();
 
 		const pluginsPage = await PluginsPage.init( page );
-		await execWpCommand( 'wp transient set activated_jetpack true 120' );
+		await execWpCommand( 'transient set activated_jetpack true 120' );
 		await pluginsPage.reload();
 
 		expect( await pluginsPage.isFullScreenPopupShown() ).toBeTruthy();
@@ -54,6 +41,6 @@ describe( 'Jetpack pre-connection', () => {
 		await ( await Sidebar.init( page ) ).selectJetpack();
 
 		const jetpackPage = await JetpackPage.init( page );
-		expect( await jetpackPage.isConnectBannerVisible() ).toBeTruthy();
+		expect( await jetpackPage.isConnectScreenVisible() ).toBeTruthy();
 	} );
 } );

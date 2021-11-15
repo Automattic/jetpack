@@ -50,6 +50,9 @@ function register_block() {
 				),
 			),
 			'render_callback' => __NAMESPACE__ . '\render_block',
+			// Since Gutenberg #31873.
+			'style'           => 'wp-mediaelement',
+
 		)
 	);
 }
@@ -294,18 +297,6 @@ function render( $name, $template_props = array(), $print = true ) {
 
 	if ( ! file_exists( $template_path ) ) {
 		return '';
-	}
-
-	/*
-	 * Optionally provided an assoc array of data to pass to template.
-	 * IMPORTANT: It will be extracted into variables.
-	 */
-	if ( is_array( $template_props ) ) {
-		/*
-		 * It ignores the `discouraging` sniffer rule for extract, since it's needed
-		 * to make the templating system works.
-		 */
-		extract( $template_props ); // phpcs:ignore WordPress.PHP.DontExtract.extract_extract
 	}
 
 	if ( $print ) {

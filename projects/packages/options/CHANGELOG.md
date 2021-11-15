@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.13.4] - 2021-10-13
+### Changed
+- Updated package dependencies.
+
+## [1.13.3] - 2021-10-12
+### Changed
+- Updated package dependencies
+
+## [1.13.2] - 2021-09-28
+### Changed
+- Updated package dependencies.
+
+## [1.13.1] - 2021-08-30
+### Changed
+- Tests: update PHPUnit polyfills dependency (yoast/phpunit-polyfills).
+- update annotations versions
+
+## [1.13.0] - 2021-06-15
+### Changed
+- Added 'purchaseToken' option for logged out user purchases on WordPress.com.
+
+## [1.12.1] - 2021-05-25
+### Changed
+- Updated package dependencies.
+
+## [1.12.0] - 2021-04-27
+### Added
+- Added unique_registrations option
+
 ## [1.11.4] - 2021-04-08
 ### Changed
 - Packaging and build changes, no change to the package itself.
@@ -99,6 +128,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
+[1.13.4]: https://github.com/Automattic/jetpack-options/compare/v1.13.3...v1.13.4
+[1.13.3]: https://github.com/Automattic/jetpack-options/compare/v1.13.2...v1.13.3
+[1.13.2]: https://github.com/Automattic/jetpack-options/compare/v1.13.1...v1.13.2
+[1.13.1]: https://github.com/Automattic/jetpack-options/compare/v1.13.0...v1.13.1
+[1.13.0]: https://github.com/Automattic/jetpack-options/compare/v1.12.1...v1.13.0
+[1.12.1]: https://github.com/Automattic/jetpack-options/compare/v1.12.0...v1.12.1
+[1.12.0]: https://github.com/Automattic/jetpack-options/compare/v1.11.4...v1.12.0
 [1.11.4]: https://github.com/Automattic/jetpack-options/compare/v1.11.3...v1.11.4
 [1.11.3]: https://github.com/Automattic/jetpack-options/compare/v1.11.2...v1.11.3
 [1.11.2]: https://github.com/Automattic/jetpack-options/compare/v1.11.1...v1.11.2

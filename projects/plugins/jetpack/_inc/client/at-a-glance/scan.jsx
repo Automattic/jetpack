@@ -4,18 +4,20 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { get, isArray, noop } from 'lodash';
 
 /**
  * WordPress dependencies
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import Card from 'components/card';
-import restApi from 'rest-api';
+import restApi from '@automattic/jetpack-api';
 import analytics from 'lib/analytics';
 import { getSitePlan, isFetchingSiteData } from 'state/site';
 import { getScanStatus, isFetchingScanStatus } from 'state/scan';
@@ -25,10 +27,14 @@ import {
 	getVaultPressScanThreatCount,
 	getVaultPressData,
 } from 'state/at-a-glance';
-import { isOfflineMode } from 'state/connection';
+import {
+	hasConnectedOwner as hasConnectedOwnerSelector,
+	isOfflineMode,
+	connectUser,
+} from 'state/connection';
 import DashItem from 'components/dash-item';
-import { get, isArray } from 'lodash';
-import { getUpgradeUrl, showBackups } from 'state/initial-state';
+import { isAtomicSite, showBackups } from 'state/initial-state';
+import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import JetpackBanner from 'components/jetpack-banner';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import {
@@ -36,7 +42,6 @@ import {
 	getJetpackProductUpsellByFeature,
 	FEATURE_SECURITY_SCANNING_JETPACK,
 } from 'lib/plans/constants';
-import getRedirectUrl from 'lib/jp-redirect';
 import { numberFormat } from 'components/number-format';
 
 /**
@@ -69,19 +74,6 @@ const renderCard = props => (
 	</DashItem>
 );
 
-const renderAction = ( url, message ) => (
-	<Card
-		compact
-		key="manage-scan"
-		className="jp-dash-item__manage-in-wpcom"
-		href={ url }
-		target="_blank"
-		rel="noopener noreferrer"
-	>
-		{ message }
-	</Card>
-);
-
 const renderActiveCard = message => {
 	return renderCard( {
 		className: 'jp-dash-item__is-active',
@@ -94,6 +86,7 @@ class DashScan extends Component {
 	static propTypes = {
 		siteRawUrl: PropTypes.string.isRequired,
 		siteAdminUrl: PropTypes.string.isRequired,
+		trackUpgradeButtonView: PropTypes.func,
 
 		// Connected props
 		vaultPressData: PropTypes.any.isRequired,
@@ -103,6 +96,7 @@ class DashScan extends Component {
 		isVaultPressInstalled: PropTypes.bool.isRequired,
 		fetchingSiteData: PropTypes.bool.isRequired,
 		upgradeUrl: PropTypes.string.isRequired,
+		hasConnectedOwner: PropTypes.bool.isRequired,
 	};
 
 	static defaultProps = {
@@ -114,6 +108,7 @@ class DashScan extends Component {
 		isOfflineMode: false,
 		isVaultPressInstalled: false,
 		fetchingSiteData: false,
+		trackUpgradeButtonView: noop,
 	};
 
 	onActivateVaultPressClick = () => {
@@ -144,7 +139,7 @@ class DashScan extends Component {
 	};
 
 	getVPContent() {
-		const { vaultPressData } = this.props;
+		const { vaultPressData, hasConnectedOwner } = this.props;
 
 		// The VaultPress plugin is active but not registered, or we can't connect
 		if ( vaultPressData?.code === 'not_registered' ) {
@@ -202,7 +197,7 @@ class DashScan extends Component {
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
 				status: 'no-pro-uninstalled-or-inactive',
-				overrideContent: this.getUpgradeBanner(),
+				overrideContent: hasConnectedOwner ? this.getUpgradeBanner() : this.getConnectBanner(),
 			} );
 		}
 
@@ -267,7 +262,44 @@ class DashScan extends Component {
 				eventFeature="scan"
 				path="dashboard"
 				plan={ getJetpackProductUpsellByFeature( FEATURE_SECURITY_SCANNING_JETPACK ) }
+				trackBannerDisplay={ this.props.trackUpgradeButtonView }
 			/>
+		);
+	}
+
+	getConnectBanner() {
+		return (
+			<JetpackBanner
+				callToAction={ __( 'Connect', 'jetpack' ) }
+				title={ __(
+					'Connect your WordPress.com account to upgrade to Jetpack Scan and protect your site from security threats with automated scanning.',
+					'jetpack'
+				) }
+				disableHref="false"
+				onClick={ this.props.connectUser }
+				eventFeature="scan"
+				path="dashboard"
+				plan={ getJetpackProductUpsellByFeature( FEATURE_SECURITY_SCANNING_JETPACK ) }
+			/>
+		);
+	}
+
+	renderAction( url, message ) {
+		if ( this.props.isAtomicSite ) {
+			return null;
+		}
+
+		return (
+			<Card
+				compact
+				key="manage-scan"
+				className="jp-dash-item__manage-in-wpcom"
+				href={ url }
+				target="_blank"
+				rel="noopener noreferrer"
+			>
+				{ message }
+			</Card>
 		);
 	}
 
@@ -290,7 +322,7 @@ class DashScan extends Component {
 						) }
 					</p>,
 				] ) }
-				{ renderAction( dashboardUrl, __( 'View security scan details', 'jetpack' ) ) }
+				{ this.renderAction( dashboardUrl, __( 'View security scan details', 'jetpack' ) ) }
 			</>
 		);
 	}
@@ -312,7 +344,7 @@ class DashScan extends Component {
 					{ renderActiveCard(
 						__( 'Please finish your setup by entering your server’s credentials.', 'jetpack' )
 					) }
-					{ renderAction(
+					{ this.renderAction(
 						getRedirectUrl( 'jetpack-scan-dash-credentials', { site: siteRawUrl } ),
 						__( 'Enter credentials', 'jetpack' )
 					) }
@@ -335,7 +367,7 @@ class DashScan extends Component {
 								'jetpack'
 							)
 						) }
-						{ renderAction(
+						{ this.renderAction(
 							getRedirectUrl( 'calypso-scanner', { site: siteRawUrl } ),
 							__( 'View security scan details', 'jetpack' )
 						) }
@@ -347,9 +379,11 @@ class DashScan extends Component {
 	}
 
 	getUpgradeContent() {
+		const { hasConnectedOwner } = this.props;
+
 		return renderCard( {
 			className: 'jp-dash-item__is-inactive',
-			overrideContent: this.getUpgradeBanner(),
+			overrideContent: hasConnectedOwner ? this.getUpgradeBanner() : this.getConnectBanner(),
 		} );
 	}
 
@@ -402,6 +436,7 @@ export default connect(
 		const sitePlan = getSitePlan( state );
 
 		return {
+			isAtomicSite: isAtomicSite( state ),
 			isOfflineMode: isOfflineMode( state ),
 			scanStatus: getScanStatus( state ),
 			fetchingScanStatus: isFetchingScanStatus( state ),
@@ -413,11 +448,15 @@ export default connect(
 			sitePlan,
 			planClass: getPlanClass( get( sitePlan, 'product_slug', '' ) ),
 			showBackups: showBackups( state ),
-			upgradeUrl: getUpgradeUrl( state, 'aag-scan' ),
+			upgradeUrl: getProductDescriptionUrl( state, 'scan' ),
+			hasConnectedOwner: hasConnectedOwnerSelector( state ),
 		};
 	},
-	{
+	dispatch => ( {
 		createNotice,
 		removeNotice,
-	}
+		connectUser: () => {
+			return dispatch( connectUser() );
+		},
+	} )
 )( DashScan );

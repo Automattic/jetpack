@@ -64,6 +64,9 @@ function stats_load() {
 	add_filter( 'manage_pages_columns', 'jetpack_stats_post_table' );
 	add_action( 'manage_posts_custom_column', 'jetpack_stats_post_table_cell', 10, 2 );
 	add_action( 'manage_pages_custom_column', 'jetpack_stats_post_table_cell', 10, 2 );
+
+	require_once __DIR__ . '/stats/class-jetpack-stats-upgrade-nudges.php';
+	add_action( 'updating_jetpack_version', array( 'Jetpack_Stats_Upgrade_Nudges', 'unset_nudges_setting' ) );
 }
 
 /**
@@ -392,8 +395,6 @@ function stats_upgrade_options( $options ) {
 		return false;
 	}
 
-	stats_update_blog();
-
 	return $new_options;
 }
 
@@ -464,6 +465,9 @@ function stats_admin_path() {
  * @return void
  */
 function stats_reports_load() {
+	require_once __DIR__ . '/stats/class-jetpack-stats-upgrade-nudges.php';
+	Jetpack_Stats_Upgrade_Nudges::init();
+
 	wp_enqueue_script( 'jquery' );
 	wp_enqueue_script( 'postbox' );
 	wp_enqueue_script( 'underscore' );
@@ -495,7 +499,7 @@ function stats_reports_load() {
 function stats_reports_css() {
 	?>
 <style type="text/css">
-#jp-stats-wrap {
+#jp-stats-wrap, #jp-stats-report-bottom {
 	max-width: 1040px;
 	margin: 0 auto;
 	overflow: hidden;
@@ -543,6 +547,7 @@ if ( -1 == document.location.href.indexOf( 'noheader' ) ) {
 	jQuery( function( $ ) {
 		$.get( document.location.href + '&noheader', function( responseText ) {
 			$( '#stats-loading-wrap' ).replaceWith( responseText );
+			$( '#jp-stats-wrap' )[0].dispatchEvent( new Event( 'stats-loaded' ) );
 		} );
 	} );
 }
@@ -658,6 +663,7 @@ function stats_reports_page( $main_chart_only = false ) {
 		'comment_subscribers' => null,
 		'type'                => array( 'wpcom', 'email', 'pending' ),
 		'pagenum'             => 'int',
+		'masterbar'           => null,
 	);
 	foreach ( $args as $var => $vals ) {
 		if ( ! isset( $_REQUEST[ $var ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -892,6 +898,29 @@ function stats_admin_bar_head() {
 }
 
 /**
+ * Gets the image source of the given stats chart.
+ *
+ * @param string $chart Name of the chart.
+ * @param array  $args Extra list of argument to use in the image source.
+ * @return string An image source.
+ */
+function stats_get_image_chart_src( $chart, $args = array() ) {
+	$url = add_query_arg( 'page', 'stats', admin_url( 'admin.php' ) );
+
+	return add_query_arg(
+		array_merge(
+			array(
+				'noheader' => '',
+				'proxy'    => '',
+				'chart'    => $chart,
+			),
+			$args
+		),
+		$url
+	);
+}
+
+/**
  * Stats AdminBar.
  *
  * @access public
@@ -899,36 +928,14 @@ function stats_admin_bar_head() {
  * @return void
  */
 function stats_admin_bar_menu( &$wp_admin_bar ) {
-	$url = add_query_arg( 'page', 'stats', admin_url( 'admin.php' ) ); // no menu_page_url() blog-side.
-
-	$img_src    = esc_attr(
-		add_query_arg(
-			array(
-				'noheader' => '',
-				'proxy'    => '',
-				'chart'    => 'admin-bar-hours-scale',
-			),
-			$url
-		)
-	);
-	$img_src_2x = esc_attr(
-		add_query_arg(
-			array(
-				'noheader' => '',
-				'proxy'    => '',
-				'chart'    => 'admin-bar-hours-scale-2x',
-			),
-			$url
-		)
-	);
-
-	$alt = esc_attr( __( 'Stats', 'jetpack' ) );
-
-	$title = esc_attr( __( 'Views over 48 hours. Click for more Site Stats.', 'jetpack' ) );
+	$img_src    = esc_attr( stats_get_image_chart_src( 'admin-bar-hours-scale' ) );
+	$img_src_2x = esc_attr( stats_get_image_chart_src( 'admin-bar-hours-scale-2x' ) );
+	$alt        = esc_attr( __( 'Stats', 'jetpack' ) );
+	$title      = esc_attr( __( 'Views over 48 hours. Click for more Site Stats.', 'jetpack' ) );
 
 	$menu = array(
 		'id'    => 'stats',
-		'href'  => $url,
+		'href'  => add_query_arg( 'page', 'stats', admin_url( 'admin.php' ) ), // no menu_page_url() blog-side.
 		'title' => "<div><img src='$img_src' srcset='$img_src 1x, $img_src_2x 2x' width='112' height='24' alt='$alt' title='$title'></div>",
 	);
 
@@ -936,12 +943,18 @@ function stats_admin_bar_menu( &$wp_admin_bar ) {
 }
 
 /**
+ *
+ * Deprecated. The stats module should not update blog details. This is handled by Sync.
+ *
  * Stats Update Blog.
  *
  * @access public
  * @return void
+ *
+ * @deprecated since 10.3.
  */
 function stats_update_blog() {
+	deprecated_function( __METHOD__, 'jetpack-10.3' );
 	XMLRPC_Async_Call::add_call( 'jetpack.updateBlog', 0, stats_get_blog() );
 }
 
@@ -1258,7 +1271,7 @@ function stats_dashboard_widget_content() {
 
 	$post_ids = array();
 
-	$csv_end_date = gmdate( 'Y-m-d' );
+	$csv_end_date = current_time( 'Y-m-d' );
 	$csv_args     = array(
 		'top'    => "&limit=8&end=$csv_end_date",
 		'search' => "&limit=5&end=$csv_end_date",
@@ -1304,8 +1317,10 @@ function stats_dashboard_widget_content() {
 				<p>
 				<?php
 				printf(
-					/* Translators: Stats dashboard widget postviews list: "$post_title $views Views". */
-					esc_html__( '%1$s %2$s Views', 'jetpack' ),
+					esc_html(
+						/* Translators: Stats dashboard widget Post list with view count: "Post Title 1 View (or Views if plural)". */
+						_n( '%1$s %2$s View', '%1$s %2$s Views', $post['views'], 'jetpack' )
+					),
 					'<a href="' . esc_url( get_permalink( $post['post_id'] ) ) . '">' . esc_html( get_the_title( $post['post_id'] ) ) . '</a>',
 					esc_html( number_format_i18n( $post['views'] ) )
 				);

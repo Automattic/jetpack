@@ -195,6 +195,7 @@ class Highlander_Comments_Base {
 		}
 
 		add_filter( 'pre_option_comment_registration', '__return_zero' );
+		add_filter( 'pre_option_require_name_email', '__return_zero' );
 	}
 
 	/**

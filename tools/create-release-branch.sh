@@ -16,7 +16,7 @@ function usage {
 
 		Create a new release branch for the specified plugin. The <plugin> may be
 		either the name of a directory in projects/plugins/, or a path to a plugin
-		directorty or file.
+		directory or file.
 
 		Options:
 		  --non-interactive  Exit instead of prompting for questionable cases.
@@ -66,7 +66,7 @@ if [[ ! "$NORMALIZED_VERSION" =~ ^[0-9]+(\.[0-9]+)+(-.*)?$ ]]; then
 	die "\"$NORMALIZED_VERSION\" does not appear to be a valid version number."
 fi
 CUR_VERSION=$("$BASE/tools/plugin-version.sh" "$PLUGIN_DIR")
-if "$BASE/tools/version-compare.php" "$CUR_VERSION" "$NORMALIZED_VERSION" '>='; then
+if pnpx semver --range "<= $("$BASE/tools/plugin-version.sh" -n 3 -v "$CUR_VERSION")" "$("$BASE/tools/plugin-version.sh" -n 3 -v "$NORMALIZED_VERSION")" &>/dev/null; then
 	proceed_p "Version $NORMALIZED_VERSION <= $CUR_VERSION."
 fi
 

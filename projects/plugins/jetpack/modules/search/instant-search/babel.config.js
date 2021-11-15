@@ -1,25 +1,16 @@
-const defaultConfig = require( '@automattic/calypso-build/babel/default' )();
-const browserTargets = require( '@wordpress/browserslist-config' );
-
-// Drop IE 11 from Babel bundle; IE 11 support added separately via PHP.
-const targets = [ ...browserTargets.filter( target => ! target.includes( 'ie' ) ), 'not ie > 0' ];
-
-module.exports = () => ( {
-	presets: [
-		[
-			require.resolve( '@babel/preset-env' ),
-			{
-				corejs: '3.8.3',
-				ignoreBrowserslistConfig: true,
-				modules: false,
-				targets,
-				useBuiltIns: 'usage',
-				// Exclude transforms that make all code slower, see https://github.com/facebook/create-react-app/pull/5278
-				exclude: [ 'transform-typeof-symbol' ],
-			},
+module.exports = () => {
+	return {
+		presets: [
+			[
+				'@automattic/jetpack-webpack-config/babel/preset',
+				{
+					presetEnv: {
+						corejs: '3.8.3',
+						modules: false,
+						useBuiltIns: 'usage',
+					},
+				},
+			],
 		],
-		require.resolve( '@babel/preset-react' ),
-		require.resolve( '@babel/preset-typescript' ),
-	],
-	plugins: defaultConfig.plugins,
-} );
+	};
+};

@@ -22,31 +22,40 @@ runs:
   steps:
     - name: "Deepen"
       shell: bash
+      env:
+        DEPTH: ${{ inputs.initial-depth }}
+        HEAD: ${{ inputs.head }}
+        BRANCH: ${{ inputs.branch }}
       run: |
-        depth=${{ inputs.initial-depth }}
+        depth=$DEPTH
         echo "::group::Initial fetch to $depth"
-        echo "/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --progress --no-recurse-submodules --depth=$depth origin ${{ inputs.head }} ${{ inputs.branch }}"
-        /usr/bin/git -c protocol.version=2 fetch --no-tags --prune --progress --no-recurse-submodules --depth=$depth origin ${{ inputs.head }} ${{ inputs.branch }}
+        echo "/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --progress --no-recurse-submodules --depth=$depth origin $HEAD $BRANCH"
+        /usr/bin/git -c protocol.version=2 fetch --no-tags --prune --progress --no-recurse-submodules --depth=$depth origin "$HEAD" "$BRANCH"
         echo "::endgroup::"
-        while ! /usr/bin/git merge-base ${{ inputs.head }} ${{ inputs.branch }} >/dev/null 2>&1; do
+        while ! /usr/bin/git merge-base "$HEAD" "$BRANCH" >/dev/null 2>&1; do
           depth=$((depth * 2))
           echo "::group::Deepen to $depth"
-          echo "/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --progress --no-recurse-submodules --depth=$depth origin ${{ inputs.head }} ${{ inputs.branch }}"
-          /usr/bin/git -c protocol.version=2 fetch --no-tags --prune --progress --no-recurse-submodules --depth=$depth origin ${{ inputs.head }} ${{ inputs.branch }}
+          echo "/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --progress --no-recurse-submodules --depth=$depth origin $HEAD $BRANCH"
+          /usr/bin/git -c protocol.version=2 fetch --no-tags --prune --progress --no-recurse-submodules --depth=$depth origin "$HEAD" "$BRANCH"
           echo "::endgroup::"
         done
     - name: "Check out new head"
       shell: bash
+      env:
+        CHECKOUT: ${{ inputs.checkout }}
+        HEAD: ${{ inputs.head }}
       run: |
-        if [[ "${{ inputs.checkout }}" == "true" ]]; then
-          echo "/usr/bin/git checkout ${{ inputs.head }}"
-          /usr/bin/git checkout ${{ inputs.head }}
+        if [[ "$CHECKOUT" == "true" ]]; then
+          echo "/usr/bin/git checkout $HEAD"
+          /usr/bin/git checkout "$HEAD"
         fi
     - name: "Output"
       id: end
       shell: bash
+      env:
+        BRANCH: ${{ inputs.branch }}
       run: |
-        MERGE_BASE=$( /usr/bin/git merge-base HEAD ${{ inputs.branch }} )
+        MERGE_BASE=$( /usr/bin/git merge-base HEAD "$BRANCH" )
         echo "Merge base is $MERGE_BASE"
         echo "::set-output name=merge-base::$MERGE_BASE"
 

@@ -19,7 +19,7 @@ import withVideoPressSave from './save';
 import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
 import deprecatedV1 from './deprecated/v1';
 import deprecatedV2 from './deprecated/v2';
-import { isSimpleSite } from '../../shared/site-type-utils';
+import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import withHasWarningIsInteractiveClassNames from '../../shared/with-has-warning-is-interactive-class-names';
 import './editor.scss';
 
@@ -103,7 +103,10 @@ const addVideoPressSupport = ( settings, name ) => {
 	const { available, unavailableReason } = getJetpackExtensionAvailability( 'videopress' );
 
 	// Check if VideoPress is unavailable and filter the mediaplaceholder to limit options
-	if ( isSimpleSite() && [ 'missing_plan', 'unknown' ].includes( unavailableReason ) ) {
+	if (
+		( isSimpleSite() || isAtomicSite() ) &&
+		[ 'missing_plan', 'unknown' ].includes( unavailableReason )
+	) {
 		addFilter( 'editor.MediaPlaceholder', 'jetpack/videopress', videoPressNoPlanMediaPlaceholder );
 		addFilter(
 			'editor.BlockListBlock',

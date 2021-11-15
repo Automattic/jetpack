@@ -44,4 +44,4 @@ runs:
         SOURCE_DIR: ${{ inputs.source-directory }}
         USER_EMAIL: ${{ inputs.user-email }}
         USER_NAME: ${{ inputs.username }}
-      run: ${{ github.action_path }}/push-to-mirrors.sh
+      run: $GITHUB_ACTION_PATH/push-to-mirrors.sh

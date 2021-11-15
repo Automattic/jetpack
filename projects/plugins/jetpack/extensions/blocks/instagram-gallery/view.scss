@@ -41,17 +41,9 @@
 		@media ( max-width: $break-small ) {
 			&.is-stacked-on-mobile {
 				display: block;
-			}
-			&:not( .is-stacked-on-mobile ) {
 				.wp-block-jetpack-instagram-gallery__grid-post {
-					padding: 0 !important; // Overrides the block style
+					padding: var( --latest-instagram-posts-spacing );
 				}
-			}
-		}
-
-		@media ( min-width: $break-small ) {
-			.wp-block-jetpack-instagram-gallery__grid-post {
-				padding: 0 !important; // Overrides the block style
 			}
 		}
 

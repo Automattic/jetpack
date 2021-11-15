@@ -17,6 +17,8 @@ function Edit( { parentClientId, isSelected } ) {
 
 	useEffect( () => {
 		if ( isSelected ) {
+			// The logged-out view is managed by the parent premium-content/container block,
+			// so here we ensure that the parent block is selected instead.
 			selectBlock( parentClientId );
 		}
 	}, [ selectBlock, isSelected, parentClientId ] );
@@ -50,12 +52,14 @@ function Edit( { parentClientId, isSelected } ) {
 
 export default compose(
 	withSelect( select => {
-		const { getSelectedBlockClientId, getBlockHierarchyRootClientId } = select(
-			'core/block-editor'
-		);
+		const { getBlockParents, getSelectedBlockClientId } = select( 'core/block-editor' );
+
 		const selectedBlockClientId = getSelectedBlockClientId();
+		const parents = getBlockParents( selectedBlockClientId );
+		const parentClientId = parents.length ? parents[ parents.length - 1 ] : undefined;
+
 		return {
-			parentClientId: getBlockHierarchyRootClientId( selectedBlockClientId ),
+			parentClientId,
 		};
 	} )
 )( Edit );

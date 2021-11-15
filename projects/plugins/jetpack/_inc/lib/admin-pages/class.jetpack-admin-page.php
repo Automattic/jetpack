@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
@@ -47,7 +48,7 @@ abstract class Jetpack_Admin_Page {
 		$this->jetpack = $jetpack;
 
 		self::$block_page_rendering_for_idc = (
-			Jetpack::validate_sync_error_idc_option() && ! Jetpack_Options::get_option( 'safe_mode_confirmed' )
+			Identity_Crisis::validate_sync_error_idc_option() && ! Jetpack_Options::get_option( 'safe_mode_confirmed' )
 		);
 	}
 
@@ -203,7 +204,7 @@ abstract class Jetpack_Admin_Page {
 				case 'jetpack_free':
 				case 'jetpack_personal':
 				case 'jetpack_personal_monthly':
-					$to_deactivate = array( 'videopress', 'google-analytics', 'wordads', 'search' );
+					$to_deactivate = array( 'google-analytics', 'wordads', 'search' );
 					break;
 				case 'jetpack_premium':
 				case 'jetpack_premium_monthly':
@@ -240,6 +241,12 @@ abstract class Jetpack_Admin_Page {
 			}
 			#wpbody-content {
 				background-color: #f6f6f6;
+			}
+
+			@media (max-width: 782px) {
+				#wpbody-content {
+					padding-bottom: 50px;
+				}
 			}
 
 			#jp-plugin-container .wrap {
@@ -352,6 +359,22 @@ abstract class Jetpack_Admin_Page {
 			echo $callback_ui;
 			?>
 			<!-- END OF CALLBACK -->
+
+			<div id="jp-stats-report-bottom">
+				<div class="wrap">
+					<?php
+					/**
+					 * Fires at the bottom of the Jetpack admin page template, after the dynamic content section.
+					 *
+					 * @since 10.0.0
+					 *
+					 * @param string $callback The callback sent to the Jetpack_Admin_Page::wrap_ui method.
+					 * @param array  $args The arguments sent to the Jetpack_Admin_Page::wrap_ui method.
+					 */
+					do_action( 'jetpack_admin_pages_wrap_ui_after_callback', $callback, $args );
+					?>
+				</div>
+			</div>
 
 			<div class="jp-footer">
 				<div class="jp-footer__a8c-attr-container">

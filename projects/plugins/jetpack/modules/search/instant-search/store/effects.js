@@ -1,20 +1,33 @@
 /**
+ * External dependencies
+ */
+/*eslint lodash/import-scope: [2, "method"]*/
+import debounce from 'lodash/debounce';
+
+/**
  * Internal dependencies
  */
 import { search } from '../lib/api';
-import { SORT_DIRECTION_ASC, VALID_SORT_KEYS } from '../lib/constants';
-import { getFilterKeys } from '../lib/filters';
+import {
+	DEBOUNCED_TIME_TO_SET_QUERY_MILLISECONDS,
+	SORT_DIRECTION_ASC,
+	VALID_SORT_KEYS,
+} from '../lib/constants';
+import { getFilterKeys, getStaticFilterKeys } from '../lib/filters';
 import { getQuery, setQuery } from '../lib/query-string';
 import {
 	clearFilters,
 	recordFailedSearchRequest,
 	recordSuccessfulSearchRequest,
 	setFilter,
+	setStaticFilter,
 	setSearchQuery,
 	setSort,
 } from './actions';
 
 let requestCounter = 0;
+let queryStringIntegrationEnabled = true;
+const debouncedSetQuery = debounce( setQuery, DEBOUNCED_TIME_TO_SET_QUERY_MILLISECONDS );
 
 /**
  * Effect handler which will fetch search results from the API.
@@ -87,6 +100,15 @@ function initializeQueryValues( action, store ) {
 		.forEach( filterKey =>
 			store.dispatch( setFilter( filterKey, queryObject[ filterKey ], false ) )
 		);
+
+	//
+	// Initialize static filters
+	//
+	getStaticFilterKeys()
+		.filter( filterKey => filterKey in queryObject )
+		.forEach( filterKey =>
+			store.dispatch( setStaticFilter( filterKey, queryObject[ filterKey ], false ) )
+		);
 }
 
 /**
@@ -95,7 +117,7 @@ function initializeQueryValues( action, store ) {
  * @param {object} action - Action which had initiated the effect handler.
  */
 function updateSearchQueryString( action ) {
-	if ( action.propagateToWindow === false ) {
+	if ( action.propagateToWindow === false || ! queryStringIntegrationEnabled ) {
 		return;
 	}
 
@@ -107,7 +129,9 @@ function updateSearchQueryString( action ) {
 		delete queryObject.s;
 	}
 
-	setQuery( queryObject );
+	// Uses a debounced version of the setQuery, which ensures we're not spamming the user's browser history
+	// with partly typed queries.
+	debouncedSetQuery( queryObject );
 }
 
 /**
@@ -116,7 +140,7 @@ function updateSearchQueryString( action ) {
  * @param {object} action - Action which had initiated the effect handler.
  */
 function updateSortQueryString( action ) {
-	if ( action.propagateToWindow === false ) {
+	if ( action.propagateToWindow === false || ! queryStringIntegrationEnabled ) {
 		return;
 	}
 	if ( ! VALID_SORT_KEYS.includes( action.sort ) ) {
@@ -139,10 +163,28 @@ function updateSortQueryString( action ) {
  * @param {object} action - Action which had initiated the effect handler.
  */
 function updateFilterQueryString( action ) {
-	if ( action.propagateToWindow === false ) {
+	if ( action.propagateToWindow === false || ! queryStringIntegrationEnabled ) {
 		return;
 	}
 	if ( ! getFilterKeys().includes( action.name ) ) {
+		return;
+	}
+
+	const queryObject = getQuery();
+	queryObject[ action.name ] = action.value;
+	setQuery( queryObject );
+}
+
+/**
+ * Effect handler which will update the location bar's static filter query string
+ *
+ * @param {object} action - Action which had initiated the effect handler.
+ */
+function updateStaticFilterQueryString( action ) {
+	if ( action.propagateToWindow === false ) {
+		return;
+	}
+	if ( ! getStaticFilterKeys().includes( action.name ) ) {
 		return;
 	}
 
@@ -157,20 +199,30 @@ function updateFilterQueryString( action ) {
  * @param {object} action - Action which had initiated the effect handler.
  */
 function clearFilterQueryString( action ) {
-	if ( action.propagateToWindow === false ) {
+	if ( action.propagateToWindow === false || ! queryStringIntegrationEnabled ) {
 		return;
 	}
 
 	const queryObject = getQuery();
 	getFilterKeys().forEach( key => delete queryObject[ key ] );
+	getStaticFilterKeys().forEach( key => delete queryObject[ key ] );
 	setQuery( queryObject );
+}
+
+/**
+ * Effect handler to disable query string integration for all effects.
+ */
+function disableQueryStringIntegration() {
+	queryStringIntegrationEnabled = false;
 }
 
 export default {
 	CLEAR_FILTERS: clearFilterQueryString,
+	DISABLE_QUERY_STRING_INTEGRATION: disableQueryStringIntegration,
 	INITIALIZE_QUERY_VALUES: initializeQueryValues,
 	MAKE_SEARCH_REQUEST: makeSearchAPIRequest,
 	SET_FILTER: updateFilterQueryString,
+	SET_STATIC_FILTER: updateStaticFilterQueryString,
 	SET_SEARCH_QUERY: updateSearchQueryString,
 	SET_SORT: updateSortQueryString,
 };

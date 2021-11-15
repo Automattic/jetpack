@@ -469,7 +469,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 								if ( iframe_url.replace( /^http:\/\//i, 'https://' ) !== origin ) {
 									return;
 								}
-								jQuery( frame ).height( event.data );
+								frame.style.height = event.data + 'px';
 							});
 						} else if ( document.attachEvent ) {
 							window.attachEvent( 'message', function ( event ) {
@@ -477,7 +477,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 								if ( iframe_url.replace( /^http:\/\//i, 'https://' ) !== origin ) {
 									return;
 								}
-								jQuery( frame ).height( event.data );
+								frame.style.height = event.data + 'px';
 							});
 						}
 					}

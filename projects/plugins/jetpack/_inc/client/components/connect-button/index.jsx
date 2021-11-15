@@ -10,13 +10,14 @@ import { connect } from 'react-redux';
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { getFragment } from '@wordpress/url';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
 import Button from 'components/button';
-import getRedirectUrl from 'lib/jp-redirect';
 import {
 	getSiteConnectionStatus as _getSiteConnectionStatus,
 	disconnectSite,
@@ -24,10 +25,10 @@ import {
 	isFetchingConnectUrl as _isFetchingConnectUrl,
 	getConnectUrl as _getConnectUrl,
 	unlinkUser,
-	authorizeUserInPlace,
+	connectUser as _connectUser,
 	isCurrentUserLinked as _isCurrentUserLinked,
 	isUnlinkingUser as _isUnlinkingUser,
-	isAuthorizingUserInPlace as _isAuthorizingUserInPlace,
+	isConnectingUser as _isConnectingUser,
 } from 'state/connection';
 import { getSiteRawUrl, isSafari, doNotUseConnectionIframe } from 'state/initial-state';
 import onKeyDownCallback from 'utils/onkeydown-callback';
@@ -45,6 +46,7 @@ export class ConnectButton extends React.Component {
 		connectLegend: PropTypes.string,
 		connectInPlace: PropTypes.bool,
 		customConnect: PropTypes.func,
+		autoOpenInDisconnectRoute: PropTypes.bool,
 	};
 
 	static defaultProps = {
@@ -52,11 +54,16 @@ export class ConnectButton extends React.Component {
 		from: '',
 		asLink: false,
 		connectInPlace: true,
+		autoOpenInDisconnectRoute: false,
 	};
 
-	state = {
-		showModal: false,
-	};
+	constructor( props ) {
+		super( props );
+		this.state = {
+			showModal:
+				props.autoOpenInDisconnectRoute && '#/disconnect' === getFragment( window.location.href ),
+		};
+	}
 
 	handleOpenModal = e => {
 		analytics.tracks.recordJetpackClick( 'manage_site_connection' );
@@ -87,7 +94,7 @@ export class ConnectButton extends React.Component {
 			this.props.customConnect();
 		} else {
 			// Dispatch user in place authorization.
-			this.props.authorizeUserInPlace();
+			this.props.doConnectUser();
 		}
 	};
 
@@ -104,7 +111,7 @@ export class ConnectButton extends React.Component {
 						onClick={ this.props.unlinkUser }
 						disabled={ this.props.isUnlinking }
 					>
-						{ this.props.connectLegend || __( 'Unlink me from WordPress.com', 'jetpack' ) }
+						{ this.props.connectLegend || __( 'Disconnect your WordPress.com account', 'jetpack' ) }
 					</a>
 				</div>
 			);
@@ -121,7 +128,8 @@ export class ConnectButton extends React.Component {
 				href: connectUrl,
 				disabled: this.props.fetchingConnectUrl || this.props.isAuthorizing,
 			},
-			connectLegend = this.props.connectLegend || __( 'Link to WordPress.com', 'jetpack' );
+			connectLegend =
+				this.props.connectLegend || __( 'Connect your WordPress.com account', 'jetpack' );
 
 		// Secondary users in-place connection flow
 
@@ -236,7 +244,7 @@ export default connect(
 			connectUrl: _getConnectUrl( state ),
 			isLinked: _isCurrentUserLinked( state ),
 			isUnlinking: _isUnlinkingUser( state ),
-			isAuthorizing: _isAuthorizingUserInPlace( state ),
+			isAuthorizing: _isConnectingUser( state ),
 			isSafari: isSafari( state ),
 			doNotUseConnectionIframe: doNotUseConnectionIframe( state ),
 		};
@@ -249,8 +257,8 @@ export default connect(
 			unlinkUser: () => {
 				return dispatch( unlinkUser() );
 			},
-			authorizeUserInPlace: () => {
-				return dispatch( authorizeUserInPlace() );
+			doConnectUser: () => {
+				return dispatch( _connectUser() );
 			},
 		};
 	}

@@ -35,4 +35,8 @@ done
 cd "$BASE"
 git diff --exit-code --name-only HEAD^..HEAD "${FILES[@]}" || update_tag
 
+# If this commit changed tool versions, update the tag so PRs get rechecked with the new versions.
+echo "Checking for changes to .github/versions.sh..."
+git diff --exit-code --name-only HEAD^..HEAD .github/versions.sh || update_tag
+
 echo 'Done, no tag update needed.'

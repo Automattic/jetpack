@@ -1,49 +1,48 @@
+import { doSiteLevelConnection, doClassicConnection } from 'jetpack-e2e-commons/flows';
+import { Sidebar, JetpackPage, DashboardPage } from 'jetpack-e2e-commons/pages/wp-admin';
+import { testStep } from 'jetpack-e2e-commons/reporters';
+import { prerequisitesBuilder } from 'jetpack-e2e-commons/env';
+
 /**
- * Internal dependencies
+ *
+ * @group connection
  */
-import { step } from '../lib/env/test-setup';
-import { doInPlaceConnection } from '../lib/flows/jetpack-connect';
-import { execMultipleWpCommands, execWpCommand } from '../lib/utils-helper';
-import Sidebar from '../lib/pages/wp-admin/sidebar';
-import JetpackPage from '../lib/pages/wp-admin/jetpack';
-import path from 'path';
-import config from 'config';
-import DashboardPage from '../lib/pages/wp-admin/dashboard';
-
-// Disable pre-connect for this test suite
-process.env.SKIP_CONNECT = true;
-
 describe( 'Connection', () => {
-	beforeAll( async () => {
-		await execMultipleWpCommands(
-			'wp option delete e2e_jetpack_plan_data',
-			'wp option delete jetpack_active_plan',
-			'wp option delete jetpack_private_options',
-			'wp option delete jetpack_sync_error_idc'
-		);
-		await page.reload();
-		await page.reload();
-	} );
-
 	beforeEach( async () => {
+		await prerequisitesBuilder()
+			.withLoggedIn( true )
+			.withWpComLoggedIn( true )
+			.withConnection( false )
+			.build();
 		await DashboardPage.visit( page );
+		await ( await Sidebar.init( page ) ).selectJetpack();
 	} );
 
-	afterAll( async () => {
-		await execWpCommand(
-			`'wp option update jetpack_private_options --format=json < ${ path.resolve(
-				config.get( 'temp.jetpackPrivateOptions' )
-			) }'`
-		);
+	afterEach( async () => {
+		await prerequisitesBuilder().withCleanEnv().build();
 	} );
 
-	it( 'In-place', async () => {
-		await step( 'Can start in-place connection', async () => {
-			await ( await Sidebar.init( page ) ).selectJetpack();
-			await doInPlaceConnection();
+	it( 'Site only', async () => {
+		await testStep( 'Can clean up WPCOM cookie', async () => {
+			await ( await Sidebar.init( page ) ).removeCookieByName( 'wordpress_logged_in' );
 		} );
 
-		await step( 'Can assert that site is connected', async () => {
+		await testStep( 'Can start Site Level connection', async () => {
+			await doSiteLevelConnection();
+		} );
+
+		await testStep( 'Can assert that site is connected', async () => {
+			const jetpackPage = await JetpackPage.init( page );
+			expect( await jetpackPage.isConnected() ).toBeTruthy();
+		} );
+	} );
+
+	it( 'Classic', async () => {
+		await testStep( 'Can start classic connection', async () => {
+			await doClassicConnection( true );
+		} );
+
+		await testStep( 'Can assert that site is connected', async () => {
 			const jetpackPage = await JetpackPage.init( page );
 			expect( await jetpackPage.isConnected() ).toBeTruthy();
 		} );

@@ -31,8 +31,8 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	/**
 	 * Setup the environment for a test.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 
 		wp_set_current_user( static::$user_id );
 		add_action( 'admin_menu', array( $this, 'add_orphan_submenu' ) );
@@ -253,6 +253,44 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	}
 
 	/**
+	 * Check if the menu URL is properly generated from the first submenu slug.
+	 */
+	public function test_if_the_first_submenu_url_is_used_for_menu_url() {
+		global $menu;
+
+		add_menu_page( '', 'Foo', 'read', 'foo' );
+		$fnc = function () { }; /// needed for the slug to register as a page.
+		add_submenu_page( 'foo', 'title', 'title', 'read', 'sharing', $fnc, 0 );
+
+		$foo_item = array();
+
+		foreach ( $menu as $menu_item ) {
+			if ( 'foo' === $menu_item[2] ) {
+				$foo_item = $menu_item;
+				break;
+			}
+		}
+
+		$class = new ReflectionClass( 'WPCOM_REST_API_V2_Endpoint_Admin_Menu' );
+
+		$prepare_menu_item = $class->getMethod( 'prepare_menu_item' );
+		$prepare_menu_item->setAccessible( true );
+
+		$expected = array(
+			'icon'  => 'dashicons-admin-generic',
+			'slug'  => 'foo',
+			'title' => 'Foo',
+			'type'  => 'menu-item',
+			'url'   => 'http://example.org/wp-admin/admin.php?page=sharing',
+		);
+
+		$this->assertSame(
+			$expected,
+			$prepare_menu_item->invokeArgs( new WPCOM_REST_API_V2_Endpoint_Admin_Menu(), array( $foo_item ) )
+		);
+	}
+
+	/**
 	 * Tests preparing a menu item icon.
 	 *
 	 * @param string $icon     Menu item icon as generated in wp-admin/menu.php.
@@ -397,7 +435,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				'https://jetpack.com/redirect/?source=calypso-backups&#038;site=example.org',
 				'jetpack',
 				null,
-				'https://jetpack.com/redirect/?source=calypso-backups&#038;site=example.org',
+				'https://jetpack.com/redirect/?source=calypso-backups&site=example.org',
 			),
 			// WooCommerce URLs.
 			array(
@@ -410,13 +448,13 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				'wc-admin&amp;path=/analytics/products',
 				'wc-admin&amp;path=/analytics/overview',
 				'__return_true',
-				admin_url( 'admin.php?page=wc-admin&amp;path=/analytics/products' ),
+				admin_url( 'admin.php?page=wc-admin&path=/analytics/products' ),
 			),
 			array(
 				'wc-admin&amp;path=customers',
 				'woocommerce',
 				'__return_true',
-				admin_url( 'admin.php?page=wc-admin&amp;path=customers' ),
+				admin_url( 'admin.php?page=wc-admin&path=customers' ),
 			),
 			// Disallowed URLs.
 			array(
@@ -530,9 +568,16 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				),
 			),
 			array(
-				'<span class="unexpected-classname">badge name</span> Unexpected <font style="vertical-align: inherit;"><font style="vertical-align: inherit;">markup</font></font><span class="awaiting-mod"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;"></font></font></span> <span class="unexpected-classname">badge name</span>',
+				'<span class="unexpected-classname">badge name</span> Unexpected <font style="vertical-align: inherit;"><font style="vertical-align: inherit;">markup</font></font><font style="vertical-align: inherit;"><font style="vertical-align: inherit;"></font></font> <span class="unexpected-classname">badge name</span>',
 				array(
 					'title' => 'Badge name Unexpected markup badge name',
+				),
+			),
+			array(
+				'Comments <span class="awaiting-mod">new feature</span>more title',
+				array(
+					'badge' => 'new feature',
+					'title' => 'Comments more title',
 				),
 			),
 		);

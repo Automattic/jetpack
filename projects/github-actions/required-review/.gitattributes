@@ -3,4 +3,3 @@
 /.gitattributes  production-exclude
 /.gitignore      production-exclude
 /test.sh         production-exclude
-/yarn.lock       production-exclude export-ignore

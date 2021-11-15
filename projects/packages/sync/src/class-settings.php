@@ -317,6 +317,27 @@ class Settings {
 	}
 
 	/**
+	 * Returns structured SQL clause for allowed taxonomies.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return array taxonomies filter values
+	 */
+	public static function get_allowed_taxonomies_structured() {
+		global $wp_taxonomies;
+
+		$allowed_taxonomies = array_keys( $wp_taxonomies );
+		$allowed_taxonomies = array_diff( $allowed_taxonomies, self::get_setting( 'taxonomies_blacklist' ) );
+		return array(
+			'taxonomy' => array(
+				'operator' => 'IN',
+				'values'   => array_map( 'esc_sql', $allowed_taxonomies ),
+			),
+		);
+	}
+
+	/**
 	 * Returns escaped SQL for blacklisted comment meta.
 	 * Can be injected directly into a WHERE clause.
 	 *
@@ -342,6 +363,30 @@ class Settings {
 			'meta_key' => array(
 				'operator' => 'IN',
 				'values'   => array_map( 'esc_sql', self::get_setting( 'comment_meta_whitelist' ) ),
+			),
+		);
+	}
+
+	/**
+	 * Returns SQL-escaped values for allowed order_item meta keys.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return array Meta keys filter values
+	 */
+	public static function get_allowed_order_itemmeta_structured() {
+		// Make sure that we only try to add the properties when the class exists.
+		if ( ! class_exists( '\Automattic\Jetpack\Sync\Modules\WooCommerce' ) ) {
+			return array();
+		}
+
+		$values = \Automattic\Jetpack\Sync\Modules\WooCommerce::$order_item_meta_whitelist;
+
+		return array(
+			'meta_key' => array(
+				'operator' => 'IN',
+				'values'   => array_map( 'esc_sql', $values ),
 			),
 		);
 	}

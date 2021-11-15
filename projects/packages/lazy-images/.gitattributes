@@ -2,14 +2,12 @@
 .gitattributes    export-ignore
 .github/          export-ignore
 package.json      export-ignore
-webpack.config.js export-ignore
 
 # Files to include in the mirror repo
-/src/js/intersectionobserver-polyfill.min.js  production-include
-/src/js/lazy-images.min.js                    production-include
+/dist/**          production-include
 
 # Files to exclude from the mirror repo
-/changelog/**    production-exclude
+/changelog/**     production-exclude
 .eslintrc.js      production-exclude
 .gitignore        production-exclude
 phpunit.xml.dist  production-exclude

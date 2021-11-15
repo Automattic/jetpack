@@ -11,8 +11,7 @@ import { shallow } from 'enzyme';
 import { NavigationSettings } from '../index';
 
 describe( 'NavigationSettings', () => {
-	let wrapper,
-		testProps;
+	let wrapper, testProps;
 
 	before( () => {
 		testProps = {
@@ -22,11 +21,11 @@ describe( 'NavigationSettings', () => {
 			userCanManageModules: false,
 			isSubscriber: true,
 			location: {
-				pathname: '/settings'
+				pathname: '/settings',
 			},
 			routeName: 'General',
 			history: {
-				listen: () => {}
+				listen: () => {},
 			},
 			isModuleActivated: () => true,
 			isSiteConnected: true,
@@ -34,8 +33,33 @@ describe( 'NavigationSettings', () => {
 			siteAdminUrl: 'https://example.org/wp-admin/',
 			searchForTerm: () => {},
 			isLinked: true,
-			moduleList: { sitemaps: true, carousel: true, 'custom-content-types': true, 'verification-tools': true, markdown: true, 'infinite-scroll': true, 'gravatar-hovercards': true, sharedaddy: true, sso: true, 'related-posts': true, monitor: true, vaultpress: true, stats: true, masterbar: true, 'google-analytics': true, 'seo-tools': true, wordads: true, videopress: true, subscriptions: true, comments: true, 'post-by-email': true, photon: true, publicize: true, likes: true },
-			isPluginActive: () => true
+			moduleList: {
+				sitemaps: true,
+				carousel: true,
+				'custom-content-types': true,
+				'verification-tools': true,
+				markdown: true,
+				'infinite-scroll': true,
+				'gravatar-hovercards': true,
+				sharedaddy: true,
+				sso: true,
+				'related-posts': true,
+				monitor: true,
+				vaultpress: true,
+				stats: true,
+				masterbar: true,
+				'google-analytics': true,
+				'seo-tools': true,
+				wordads: true,
+				videopress: true,
+				subscriptions: true,
+				comments: true,
+				'post-by-email': true,
+				photon: true,
+				publicize: true,
+				likes: true,
+			},
+			isPluginActive: () => true,
 		};
 
 		window.location.hash = '#settings';
@@ -65,11 +89,10 @@ describe( 'NavigationSettings', () => {
 	} );
 
 	describe( 'for Editor, Author and Contributor users', () => {
-
 		before( () => {
 			Object.assign( testProps, {
 				userCanManageModules: false,
-				isSubscriber: false
+				isSubscriber: false,
 			} );
 
 			wrapper = shallow( <NavigationSettings { ...testProps } /> );
@@ -91,7 +114,7 @@ describe( 'NavigationSettings', () => {
 				userCanManageModules: false,
 				isSubscriber: false,
 				userCanPublish: true,
-				isModuleActivated: m => 'sharedaddy' === m
+				isModuleActivated: m => 'sharedaddy' === m,
 			} );
 			expect(
 				shallow( <NavigationSettings { ...publicizeProps } /> )
@@ -103,9 +126,40 @@ describe( 'NavigationSettings', () => {
 			).to.be.true;
 		} );
 
-		it( 'has /writing as selected navigation item, accessing through /settings', () => {
-			expect( wrapper.find( 'NavItem' ).get( 0 ).props.selected ).to.be.true;
-			expect( wrapper.find( 'NavItem' ).get( 0 ).props.path ).to.equal( '#writing' );
+		it( 'show only Sharing if Post By Email is disabled', () => {
+			const pbeProps = Object.assign( {}, testProps, {
+				userCanManageModules: false,
+				isSubscriber: false,
+				userCanPublish: true,
+				isModuleActivated: m => 'post-by-email' === m,
+			} );
+			expect(
+				shallow( <NavigationSettings { ...pbeProps } /> )
+					.find( 'NavItem' )
+					.children()
+					.getElements()
+					.filter( item => 'string' === typeof item )
+					.every( item => [ 'Sharing' ].includes( item ) )
+			).to.be.true;
+		} );
+
+		it( 'has /sharing as selected navigation item, accessing through /settings, even when both PBE and Publicize are active', () => {
+			const allActivatedProps = Object.assign( {}, testProps, {
+				userCanManageModules: false,
+				isSubscriber: false,
+				userCanPublish: true,
+				isModuleActivated: m => true,
+			} );
+			expect(
+				shallow( <NavigationSettings { ...allActivatedProps } /> )
+					.find( 'NavItem' )
+					.get( 1 ).props.selected
+			).to.be.true;
+			expect(
+				shallow( <NavigationSettings { ...allActivatedProps } /> )
+					.find( 'NavItem' )
+					.get( 1 ).props.path
+			).to.equal( '#sharing' );
 		} );
 
 		it( 'does not display Search', () => {
@@ -117,7 +171,7 @@ describe( 'NavigationSettings', () => {
 				userCanManageModules: false,
 				isSubscriber: false,
 				isContributor: true,
-				isModuleActivated: m => 'sharedaddy' === m
+				isModuleActivated: m => 'sharedaddy' === m,
 			} );
 			expect(
 				shallow( <NavigationSettings { ...publicizeProps } /> )
@@ -136,10 +190,10 @@ describe( 'NavigationSettings', () => {
 					isSubscriber: false,
 					userCanPublish: true,
 					location: {
-						pathname: '/settings'
+						pathname: '/settings',
 					},
 					routeName: 'General',
-					isModuleActivated: m => 'publicize' === m
+					isModuleActivated: m => 'publicize' === m,
 				} );
 				it( 'show Sharing if user is linked', () => {
 					expect(
@@ -159,7 +213,7 @@ describe( 'NavigationSettings', () => {
 		before( () => {
 			Object.assign( testProps, {
 				userCanManageModules: true,
-				isSubscriber: false
+				isSubscriber: false,
 			} );
 
 			wrapper = shallow( <NavigationSettings { ...testProps } /> );
@@ -172,14 +226,8 @@ describe( 'NavigationSettings', () => {
 					.children()
 					.getElements()
 					.filter( item => 'string' === typeof item )
-					.every(
-						item => [
-							'Writing',
-							'Discussion',
-							'Traffic',
-							'Security',
-							'Sharing'
-						].includes( item )
+					.every( item =>
+						[ 'Writing', 'Discussion', 'Traffic', 'Security', 'Sharing' ].includes( item )
 					)
 			).to.be.true;
 		} );
@@ -212,13 +260,12 @@ describe( 'NavigationSettings', () => {
 					} );
 				} );
 			} );
-
 		} );
 
 		it( 'switches to Security when the tab is clicked', () => {
 			Object.assign( testProps, {
 				location: {
-					pathname: '/security'
+					pathname: '/security',
 				},
 				routeName: 'Security',
 			} );

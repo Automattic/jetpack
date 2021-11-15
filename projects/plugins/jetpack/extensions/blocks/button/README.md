@@ -52,7 +52,8 @@ Useful for targeting the element with CSS or JS, or to be replaced in PHP.
 
 ### passthroughAttributes
 
-A map of "Button attributes" - "parent attributes" to keep some Button attributes in sync with some parent block attributes.<br />
+A map of "Button attributes" - "parent attributes" to keep specified Button attributes in sync with its **immediate** parent's block attributes.<br />
+The parent attributes are checked using`getBlockRootClientId` [See docs](https://developer.wordpress.org/block-editor/reference-guides/data/data-core-block-editor/#getBlockRootClientId).
 The sync is one-way: changing the parent attribute value will update the Button attribute, while the opposite won't work.
 
 - Type: `object`

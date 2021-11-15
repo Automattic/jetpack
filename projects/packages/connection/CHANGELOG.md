@@ -5,6 +5,134 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.30.13] - 2021-11-09
+### Fixed
+- Fix PHP 8.1 deprecation warning.
+
+## [1.30.12] - 2021-11-02
+### Added
+- Client: add IDC query args to remote requests
+
+### Changed
+- Set `convertDeprecationsToExceptions` true in PHPUnit config.
+- Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
+
+## [1.30.11] - 2021-10-26
+### Changed
+- Change the error code returned when a remoteRegister XMLRPC call is executed to the more helpful "already_registered" when the blog is already registered
+- Updated package dependencies.
+
+## [1.30.10] - 2021-10-19
+### Deprecated
+- General: remove numerous long-deprecated functions.
+
+### Fixed
+- Fix permission check for authorization_url endpoint.
+
+## [1.30.9] - 2021-10-13
+### Changed
+- Updated package dependencies.
+
+## [1.30.8] - 2021-10-12
+### Added
+- Add a new action to the Client::remote_request method, jetpack_received_remote_request_response
+
+### Changed
+- Updated package dependencies
+
+## [1.30.7] - 2021-10-04
+### Added
+- Sandbox Server: add the sandbox-server class to the connection package.
+
+## [1.30.6] - 2021-09-30
+### Changed
+- Moved the Package Tracker execution to the shutdown hook for performance improvement.
+
+## [1.30.5] - 2021-09-28
+### Changed
+- Package Version Tracker: send package versions to wpcom on the init hook instead of plugins_loaded
+- Updated package dependencies.
+
+### Fixed
+- Load WordPress's IXR classes on demand.
+
+## [1.30.4] - 2021-09-02
+### Fixed
+- Remove invalid user token before reconnect.
+
+## [1.30.3] - 2021-08-30
+### Added
+- Limit repeated failed attempts to update remote DNA package versions.
+
+### Changed
+- Make sure generated secrets have the required length
+- Remove tracked package versions when disconnecting the site.
+- Run composer update on test-php command instead of phpunit
+- Tests: update PHPUnit polyfills dependency (yoast/phpunit-polyfills).
+- update annotations versions
+
+## [1.30.2] - 2021-08-12
+### Added
+- Add package version tracking.
+
+## [1.30.1] - 2021-07-27
+### Added
+- Add a package version constant.
+
+### Changed
+- Move connection/data endpoint to Connection package.
+- Move site disconnection endpoint to Connection package.
+
+### Fixed
+- Fix `@covers` directives in tests.
+
+## [1.30.0] - 2021-07-13
+### Added
+- Added second parameter to Tokens::get_connected_users to allow any connected user to be returned.
+
+### Changed
+- Moved the get_connected_users logic back to the Manager class
+
+## [1.29.0] - 2021-06-29
+### Changed
+- Implement disconnect_site function.
+- Updated package dependencies.
+
+## [1.28.0] - 2021-06-15
+### Added
+- Added Urls class, migrated from Sync Functions.
+- Adding new REST endpoint /jetpack/v4/user-token that allows us to add/update user tokens remotely.
+- Add new 'connection/authorize_url' endpoint.
+- Adds information received from the server to the register_site REST response.
+- Enable site-level authentication (blog token) for REST API endpoints.
+- Move 'connection/owner' endpoint to Connection package.
+
+## [1.27.0] - 2021-05-25
+### Added
+- Add "isUserConnected" to the connection status data.
+- Connection: add the default value of JETPACK__WPCOM_JSON_API_BASE to the Connection Utils class.
+
+### Changed
+- Connection package independence: Move a Jetpack specfic connection routine out of the package and into the plugin
+- Package Independence: Add a filter to the remote_uri returned by remote_register XMLRPC method
+
+### Removed
+- Removed "user-less" jargon from code
+- Remove do_post_authorization routine and add a hook instead
+- Remove onboarding_token logic in the Remote provision XMLRPC method from the Connection package and add it to the Jetpack plugin
+
+### Fixed
+- Disconnection flow: disconnect users from WordPress.com before to delete data locally.
+
+## [1.26.0] - 2021-04-27
+### Added
+- Adds segmentation "from" parameter to the registration flow
+- Connection: moving the registration REST endpoint to the package.
+
+### Changed
+- Added "userless" parameter to the authorization URL.
+- Updated package dependencies.
+
 ## [1.25.2] - 2021-04-13
 ### Fixed
 - Connection: nonce cleanup safeguard against accidental option removal.
@@ -335,6 +463,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[1.30.13]: https://github.com/Automattic/jetpack-connection/compare/v1.30.12...v1.30.13
+[1.30.12]: https://github.com/Automattic/jetpack-connection/compare/v1.30.11...v1.30.12
+[1.30.11]: https://github.com/Automattic/jetpack-connection/compare/v1.30.10...v1.30.11
+[1.30.10]: https://github.com/Automattic/jetpack-connection/compare/v1.30.9...v1.30.10
+[1.30.9]: https://github.com/Automattic/jetpack-connection/compare/v1.30.8...v1.30.9
+[1.30.8]: https://github.com/Automattic/jetpack-connection/compare/v1.30.7...v1.30.8
+[1.30.7]: https://github.com/Automattic/jetpack-connection/compare/v1.30.6...v1.30.7
+[1.30.6]: https://github.com/Automattic/jetpack-connection/compare/v1.30.5...v1.30.6
+[1.30.5]: https://github.com/Automattic/jetpack-connection/compare/v1.30.4...v1.30.5
+[1.30.4]: https://github.com/Automattic/jetpack-connection/compare/v1.30.3...v1.30.4
+[1.30.3]: https://github.com/Automattic/jetpack-connection/compare/v1.30.2...v1.30.3
+[1.30.2]: https://github.com/Automattic/jetpack-connection/compare/v1.30.1...v1.30.2
+[1.30.1]: https://github.com/Automattic/jetpack-connection/compare/v1.30.0...v1.30.1
+[1.30.0]: https://github.com/Automattic/jetpack-connection/compare/v1.29.0...v1.30.0
+[1.29.0]: https://github.com/Automattic/jetpack-connection/compare/v1.28.0...v1.29.0
+[1.28.0]: https://github.com/Automattic/jetpack-connection/compare/v1.27.0...v1.28.0
+[1.27.0]: https://github.com/Automattic/jetpack-connection/compare/v1.26.0...v1.27.0
+[1.26.0]: https://github.com/Automattic/jetpack-connection/compare/v1.25.2...v1.26.0
 [1.25.2]: https://github.com/Automattic/jetpack-connection/compare/v1.25.1...v1.25.2
 [1.25.1]: https://github.com/Automattic/jetpack-connection/compare/v1.25.0...v1.25.1
 [1.25.0]: https://github.com/Automattic/jetpack-connection/compare/v1.24.0...v1.25.0

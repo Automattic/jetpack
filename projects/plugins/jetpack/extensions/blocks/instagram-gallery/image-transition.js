@@ -8,7 +8,7 @@ import classnames from 'classnames';
  */
 import { useEffect, useState, useRef } from '@wordpress/element';
 
-export default function ImageTransition( { src, alt } ) {
+export default function ImageTransition( { src, alt, spacing } ) {
 	const [ loaded, setLoaded ] = useState( false );
 	const [ containerHeight, setContainerHeight ] = useState( 'auto' );
 
@@ -33,10 +33,21 @@ export default function ImageTransition( { src, alt } ) {
 		}
 	}, [ src ] );
 
+	// The following offset is required to counter the padding needed on the
+	// parent elements so that resizing the grid gap spacing in the editor works
+	// across browsers and between FSE and post editor.
+	// Negative margin used as `padding: 0 !important` prevents redraw in Safari.
+	const containerOffset = spacing * -1;
+
 	const containerClasses = classnames( 'wp-block-jetpack-instagram-gallery__placeholder', {
 		'is-loaded': loaded,
 	} );
-	const containerStyles = loaded ? {} : { height: containerHeight };
+	const containerStyles = loaded
+		? { margin: containerOffset }
+		: {
+				margin: containerOffset,
+				height: containerHeight,
+		  };
 	const imageClasses = classnames( { 'is-loaded': loaded } );
 
 	return (

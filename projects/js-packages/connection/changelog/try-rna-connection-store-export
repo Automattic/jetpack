@@ -1,0 +1,4 @@
+Significance: major
+Type: added
+
+Remove the withConnectionStatus HOC, export the store.

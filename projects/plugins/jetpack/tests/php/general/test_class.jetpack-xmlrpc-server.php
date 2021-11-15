@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Connection\Tokens;
 
 class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
+
 	static $xmlrpc_admin = 0;
 
 	public static function wpSetupBeforeClass( $factory ) {
@@ -59,7 +60,7 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		$response = $server->remote_provision( array( 'nonce' => '12345' ) );
 		$this->assertInstanceOf( 'IXR_Error', $response );
 		$this->assertEquals( 400, $response->code );
-		$this->assertContains( '[local_user_missing]', $response->message );
+		$this->assertStringContainsString( '[local_user_missing]', $response->message );
 	}
 
 	/**
@@ -70,7 +71,7 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		$response = $server->remote_provision( array() );
 
 		$this->assertInstanceOf( 'IXR_Error', $response );
-		$this->assertContains( 'local_user_missing', $response->message );
+		$this->assertStringContainsString( 'local_user_missing', $response->message );
 
 		$response = $server->remote_provision( array( 'local_user' => 'nonexistent' ) );
 
@@ -85,7 +86,7 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		$server   = new Jetpack_XMLRPC_Server();
 		$response = $server->remote_provision( array( 'local_user' => 1 ) );
 
-		$this->assertInternalType( 'array', $response );
+		$this->assertIsArray( $response );
 
 		$expected_keys = array(
 			'jp_version',
@@ -101,6 +102,109 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		foreach ( $expected_keys as $key ) {
 			$this->assertArrayHasKey( $key, $response );
 		}
+	}
+
+	/**
+	 * Test remote_provision filter is working and adding the onboarding token.
+	 */
+	public function test_remote_provision_onboarding_filter() {
+		$request  = array(
+			'local_user' => 1,
+			'onboarding' => 1,
+		);
+		$response = ( new Jetpack_XMLRPC_Server() )->remote_provision( $request );
+
+		$this->assertArrayHasKey( 'onboarding_token', $response, 'onboard_token should be present in the response.' );
+		$this->assertNotEmpty( $response['onboarding_token'], 'onboard_token should not be empty.' );
+	}
+
+	/**
+	 * Test remote_provision filter is not adding onboard_token when it is not supposed to
+	 */
+	public function test_remote_provision_onboarding_filter_unchanged() {
+		$request  = array(
+			'local_user' => 1,
+		);
+		$response = ( new Jetpack_XMLRPC_Server() )->remote_provision( $request );
+
+		$this->assertArrayNotHasKey( 'onboarding_token', $response, 'onboard_token should not be present in the response.' );
+	}
+
+	/**
+	 * Asserts that the jetpack_remote_connect_end is properly hooked
+	 */
+	public function test_remote_connect_hook() {
+
+		$xml = $this->getMockBuilder( 'Jetpack_IXR_Client' )
+			->setMethods(
+				array(
+					'query',
+					'isError',
+					'getResponse',
+				)
+			)
+			->getMock();
+
+		$xml->expects( $this->exactly( 1 ) )
+			->method( 'query' )
+			->will( $this->returnValue( 'sadlkjdasd.sadlikdj' ) );
+
+		$xml->expects( $this->exactly( 1 ) )
+			->method( 'isError' )
+			->will( $this->returnValue( empty( $error ) ? false : true ) );
+
+		$xml->expects( $this->exactly( 1 ) )
+			->method( 'getResponse' )
+			->will( $this->returnValue( 'asdadsasd' ) );
+
+		$server = new Jetpack_XMLRPC_Server();
+
+		$this->assertSame( 10, has_action( 'jetpack_remote_connect_end', array( 'Jetpack_XMLRPC_Methods', 'remote_connect_end' ) ), 'Action jetpack_remote_connect_end not hooked' );
+
+		$server->remote_connect(
+			array(
+				'nonce'      => '1234',
+				'local_user' => self::$xmlrpc_admin,
+			),
+			$xml
+		);
+
+		$this->assertSame( 1, did_action( 'jetpack_remote_connect_end' ), 'Action was not fired' );
+
+	}
+
+	/**
+	 * Tests if the remote_register redirect uri is being filtered
+	 */
+	public function test_remote_register_redirect_uri_filter() {
+		$request = array(
+			'local_user' => 1,
+		);
+
+		// The filter should modify the URI because there's no Connection owner.  (see conditions in Jetpack_XMLRPC_Methods::remote_register_redirect_uri).
+		$response     = ( new Jetpack_XMLRPC_Server() )->remote_provision( $request );
+		$expected_uri = Jetpack_XMLRPC_Methods::remote_register_redirect_uri( 'dummy' );
+
+		$this->assertNotSame( 'dummy', $expected_uri );
+		$this->assertSame( $expected_uri, $response['redirect_uri'] );
+	}
+
+	/**
+	 * Tests if the remote_register redirect uri is not being filtered when conditions do not apply
+	 */
+	public function test_remote_register_redirect_uri_filter_not_applied() {
+		$request = array(
+			'local_user' => 1,
+		);
+
+		( new Tokens() )->update_user_token( 1, 'asd.qwe.1', true );
+
+		// The filter should not modify the URI because there's a Connection owner and sso is not enabled. (see conditions in Jetpack_XMLRPC_Methods::remote_register_redirect_uri).
+		$response         = ( new Jetpack_XMLRPC_Server() )->remote_provision( $request );
+		$not_expected_uri = Jetpack_XMLRPC_Methods::remote_register_redirect_uri( 'dummy' );
+
+		$this->assertSame( 'dummy', $not_expected_uri );
+		$this->assertNotSame( $not_expected_uri, $response['redirect_uri'] );
 	}
 
 }

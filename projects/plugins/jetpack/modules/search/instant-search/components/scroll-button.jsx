@@ -1,11 +1,9 @@
-/** @jsx h */
-
 /**
  * External dependencies
  */
-import { h, Component } from 'preact';
+import React, { Component } from 'react';
 import { __ } from '@wordpress/i18n';
-// NOTE: We only import the debounce package here for to reduced bundle size.
+// NOTE: We only import the debounce function here for reduced bundle size.
 //       Do not import the entire lodash library!
 // eslint-disable-next-line lodash/import-scope
 import debounce from 'lodash/debounce';
@@ -28,7 +26,7 @@ class ScrollButton extends Component {
 	checkScroll = debounce( () => {
 		if (
 			this.props.enableLoadOnScroll &&
-			window.innerHeight + this.overlayElement.scrollTop === this.overlayElement.scrollHeight
+			window.innerHeight + this.overlayElement.scrollTop >= this.overlayElement.scrollHeight
 		) {
 			this.props.onLoadNextPage();
 		}

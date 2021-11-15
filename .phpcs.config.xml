@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <ruleset>
-	<config name="minimum_supported_wp_version" value="5.6" />
+	<config name="minimum_supported_wp_version" value="5.7" />
 	<config name="testVersion" value="5.6-"/>
 
 	<!-- Check all PHP files in directory tree by default. -->
@@ -20,6 +20,7 @@
 	<exclude-pattern>/vendor/*</exclude-pattern>
 
 	<!-- Ignore WordPress and such checked out for Docker -->
+	<exclude-pattern>/tools/docker/data/*</exclude-pattern>
 	<exclude-pattern>/tools/docker/mu-plugins/0-sandbox.php</exclude-pattern>
 	<exclude-pattern>/tools/docker/wordpress-develop/*</exclude-pattern>
 	<exclude-pattern>/tools/docker/wordpress/*</exclude-pattern>
@@ -27,9 +28,17 @@
 	<!-- Ignore WordPress included in packages -->
 	<exclude-pattern>/projects/packages/*/wordpress/*</exclude-pattern>
 
+	<!-- Ignore WordPress included in plugins -->
+	<exclude-pattern>/projects/plugins/*/wordpress/*</exclude-pattern>
+
 	<!-- Ignore built files -->
+	<exclude-pattern>/projects/packages/connection-ui/build/*</exclude-pattern>
+	<exclude-pattern>/projects/packages/identity-crisis/build/*</exclude-pattern>
+	<exclude-pattern>/projects/packages/lazy-images/dist/*</exclude-pattern>
+	<exclude-pattern>/projects/plugins/backup/build/*</exclude-pattern>
 	<exclude-pattern>/projects/plugins/jetpack/_inc/blocks/*</exclude-pattern>
 	<exclude-pattern>/projects/plugins/jetpack/_inc/build/*</exclude-pattern>
+	<exclude-pattern>/projects/plugins/jetpack/modules/module-headings.php</exclude-pattern>
 	<exclude-pattern>/projects/plugins/jetpack/modules/photon-cdn/jetpack-manifest.php</exclude-pattern>
 
 </ruleset>

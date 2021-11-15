@@ -24,6 +24,8 @@ $jetpack_seo_conflicting_plugins = array(
 	'seo-by-rank-math/rank-math.php',
 	'autodescription/autodescription.php',
 	'slim-seo/slim-seo.php',
+	'wp-seopress/seopress.php',
+	'wp-seopress-pro/seopress-pro.php',
 );
 
 foreach ( $jetpack_seo_conflicting_plugins as $seo_plugin ) {

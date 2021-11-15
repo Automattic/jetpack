@@ -1,8 +1,12 @@
 name: Build
 on:
   push:
-    branches: [ '**' ]
+    branches: [ 'master', '**/branch-**' ]
   pull_request:
+concurrency:
+  # Cancel concurrent jobs on pull_request but not push, by including the run_id in the concurrency group for the latter.
+  group: build-${{ github.event_name == 'push' && github.run_id || 'pr' }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   COMPOSER_ROOT_VERSION: "dev-master"
@@ -11,68 +15,13 @@ jobs:
   build:
     name: Build all projects
     runs-on: ubuntu-latest
-    timeout-minutes: 15  # 2021-03-16: Successful runs seem to take 9-10 minutes now.
-
-    # Push also covers pull requests for non-forked repos. So only run on PR for forked PRs.
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
+    timeout-minutes: 20  # 2021-08-13: Seems to take a tad over 15 minutes. Should figure out how to improve this...
 
     steps:
       - uses: actions/checkout@v2
 
-      - name: Read PHP and Node versions
-        id: versions
-        run: |
-          echo "::set-output name=php-version::$(<.github/php-version)"
-          echo "::set-output name=node-version::$(<.nvmrc)"
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ steps.versions.outputs.php-version }}
-          tools: composer
-          extensions: mysql, imagick
-          coverage: none
-
-      - name: Setup Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ steps.versions.outputs.node-version }}
-
-      - name: Get Composer cache directory
-        id: composer-cache
-        run: |
-          echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - name: Use composer cache
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
-
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-      - name: Use yarn cache
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      - name: Tool versions
-        run: |
-          which php
-          php --version
-          which composer
-          composer --version
-          which node
-          node --version
-          which yarn
-          yarn --version
-          which jq
-          jq --version
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
 
       - name: Build all projects
         id: build
@@ -85,7 +34,9 @@ jobs:
       # This is the official workaround: https://github.com/actions/upload-artifact#maintaining-file-permissions-and-case-sensitive-files
       # It'll also make it faster to upload and download though, so maybe it's a win anyway.
       - name: Create archive
-        run: tar --owner=0 --group=0 --xz -cvvf build.tar.xz -C "${{ steps.build.outputs.build-base }}" --transform 's,^\.,build,' .
+        env:
+          BUILD_BASE: ${{ steps.build.outputs.build-base }}
+        run: tar --owner=0 --group=0 --xz -cvvf build.tar.xz -C "$BUILD_BASE" --transform 's,^\.,build,' .
 
       - name: Store build as artifact
         uses: actions/upload-artifact@v2
@@ -99,8 +50,8 @@ jobs:
     name: Create artifact for Jetpack Beta plugin
     runs-on: ubuntu-latest
     needs: build
-    if: github.event_name == 'push' && github.repository == 'Automattic/jetpack'
-    timeout-minutes: 15  # 2021-01-18: Successful runs seem to usually take ~2 minutes, but sometimes the upload is slow and it takes 12.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'Automattic/jetpack'
+    timeout-minutes: 10  # 2021-06-24: Successful runs should take just a few seconds now. But sometimes the upload is slow.
     steps:
       - uses: actions/checkout@v2
         with:
@@ -113,59 +64,109 @@ jobs:
       - name: Extract build archive
         run: tar --xz -xvvf build.tar.xz
 
-      # The beta plugin needs the base directory name to be "jetpack-dev"
-      - name: Extract Jetpack
-        run: |
-          mkdir -p to-upload
-          mv "build/Automattic/jetpack-production" to-upload/jetpack-dev
+      - name: Filter mirror list for release branch
+        if: contains( github.ref, '/branch-' )
+        working-directory: monorepo
+        env:
+          BUILD_BASE: ${{ github.workspace }}/build
+        run: .github/files/filter-mirrors-for-release-branch.sh
 
-      - name: Add test files and version
-        id: version
+      - name: Determine plugins to publish
         run: |
-          for file in to-test.md docs/testing/testing-tips.md; do
-            mkdir -p "$(dirname "to-upload/jetpack-dev/$file")"
-            cp "monorepo/$file" "to-upload/jetpack-dev/$file"
-          done
+          jq -r 'if .extra["mirror-repo"] and ( .extra["beta-plugin-slug"] // .extra["wp-plugin-slug"] ) then [ ( input_filename | sub( "/composer\\.json$"; "" ) ), .extra["mirror-repo"], .extra["beta-plugin-slug"] // .extra["wp-plugin-slug"] ] else empty end | @tsv' monorepo/projects/plugins/*/composer.json > plugins.tsv
+          cat plugins.tsv
+          if [[ ! -s plugins.tsv ]]; then
+            echo "No plugins were detected?!"
+            exit 1
+          fi
+
+      - name: Prepare plugin zips
+        id: prepare
+        run: |
+          mkdir work
+          mkdir zips
 
           # Current version must compare greather than any previously used current version for this PR.
           # Assume GH run IDs are monotonic.
-          CURRENT_VERSION=$(monorepo/tools/plugin-version.sh to-upload/jetpack-dev/)-${GITHUB_RUN_ID}-g$(cd monorepo && git rev-parse --short HEAD)
-          echo "Using version $CURRENT_VERSION"
-          echo "::set-output name=version::$CURRENT_VERSION"
-          echo "$CURRENT_VERSION" > to-upload/jetpack-dev/version.txt
-          # Don't use plugin-version.sh here, updating JETPACK__VERSION would clutter stats.
-          sed -i -e 's/Version: .*$/Version: '"$CURRENT_VERSION"'/' to-upload/jetpack-dev/jetpack.php
+          VERSUFFIX="${GITHUB_RUN_ID}-g$(cd monorepo && git rev-parse --short HEAD)"
 
-      - name: Upload Jetpack build
+          # Plugin data is passed as a JSON object.
+          PLUGIN_DATA="{}"
+
+          while IFS=$'\t' read -r SRC MIRROR SLUG; do
+            echo "::group::$MIRROR (src=$SRC slug=$SLUG)"
+
+            if [[ ! -e "build/$MIRROR" ]]; then
+              echo "Plugin was not built, skipping."
+              echo "::endgroup::"
+              continue
+            fi
+
+            if ! grep -q --fixed-strings --line-regexp "$MIRROR" build/mirrors.txt; then
+              echo "Plugin is not being mirrored in this build, skipping."
+              echo "::endgroup::"
+              continue
+            fi
+
+            # The Jetpack Beta Tester plugin needs the base directory name to be like "${SLUG}-dev", so copy it over.
+            mv "build/$MIRROR" "work/${SLUG}-dev"
+
+            # Copy testing docs that are not included in the mirror.
+            if [[ -e "$SRC/to-test.md" ]]; then
+              cp "$SRC/to-test.md" "work/${SLUG}-dev/"
+            fi
+            mkdir -p "work/${SLUG}-dev/docs/testing/"
+            cp monorepo/docs/testing/testing-tips.md "work/${SLUG}-dev/docs/testing/"
+
+            # Extract and update version.
+            CURRENT_VERSION=$(monorepo/tools/plugin-version.sh "work/${SLUG}-dev/")-$VERSUFFIX
+            echo "Using version $CURRENT_VERSION"
+            echo "$CURRENT_VERSION" > "work/${SLUG}-dev/version.txt"
+            # Don't use plugin-version.sh here, updating JETPACK__VERSION would clutter stats.
+            sed -i -e 's/Version: .*$/Version: '"$CURRENT_VERSION"'/' "work/${SLUG}-dev"/*.php
+
+            # Zip the plugin
+            ( cd work && zip -9 -r "../zips/${SLUG}-dev.zip" "${SLUG}-dev" )
+
+            # Record plugin data.
+            PLUGIN_DATA=$( jq -c --arg slug "$SLUG" --arg ver "$CURRENT_VERSION" '.[ $slug ] = { version: $ver }' <<<"$PLUGIN_DATA" )
+
+            echo "::endgroup::"
+          done < plugins.tsv
+          if [[ "$PLUGIN_DATA" == "{}" ]]; then
+            echo "No plugins were built"
+          fi
+          echo "::set-output name=plugin-data::$PLUGIN_DATA"
+
+      - name: Create plugins artifact
         uses: actions/upload-artifact@v2
+        if: steps.prepare.outputs.plugin-data != '{}'
         with:
-          name: jetpack-dev
-          path: to-upload
+          name: plugins
+          path: zips
           # Only need to retain for a day since the beta builder slurps it up to distribute.
           retention-days: 1
 
-      # Find the PR associated with this push, if there is one.
-      - uses: jwalton/gh-find-current-pr@v1
-        id: findPr
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Inform beta builder
+      - name: Inform Beta Download webhook
+        if: steps.prepare.outputs.plugin-data != '{}'
+        env:
+          SECRET: ${{ secrets.JPBETA_SECRET }}
+          PLUGIN_DATA: ${{ steps.prepare.outputs.plugin-data }}
+          PR: ${{ github.event.number }}
         run: |
-          BRANCH=${GITHUB_REF:11}
-          curl -L "https://betadownload.jetpack.me/gh-action.php?run_id=$GITHUB_RUN_ID&branch=$BRANCH&pr=${{ steps.findPr.outputs.pr }}&repo=$GITHUB_REPOSITORY&commit=$GITHUB_SHA&version=${{ steps.version.outputs.version }}"
+          curl -v --fail -L \
+            --url "https://betadownload.jetpack.me/gh-action.php?run_id=$GITHUB_RUN_ID&pr=$PR&commit=$GITHUB_SHA" \
+            --form-string "repo=$GITHUB_REPOSITORY" \
+            --form-string "branch=${GITHUB_REF#refs/heads/}" \
+            --form-string "plugins=$PLUGIN_DATA" \
+            --form-string "secret=$SECRET"
 
   update_mirrors:
     name: Push to mirror repos
     runs-on: ubuntu-latest
     needs: build
 
-    # Mirror master and any branch matching "*/branch-*". But note the latter is special cased
-    # in .github/files/push-all-projects.sh.
-    # Keep this in sync with the corresponding condition in cancel-dups.yml.
-    if: >
-      ( github.ref == 'refs/heads/master' || contains( github.ref, '/branch-' ) ) &&
-      github.event_name == 'push'  && github.repository == 'Automattic/jetpack'
+    if: github.event_name == 'push' && github.repository == 'Automattic/jetpack'
 
     # Not setting a job-level timeout because it would be kind of pointless with the blocking step. Set a step timeout for all other steps instead.
     steps:

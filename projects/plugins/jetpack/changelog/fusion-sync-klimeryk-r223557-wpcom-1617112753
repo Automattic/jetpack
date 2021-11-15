@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: WordPress.com API: Prevent deleting or removing a user when they have active WPCOM subs. Not worthy of a changelog entry, it only impacts wpcom customers.
-
-

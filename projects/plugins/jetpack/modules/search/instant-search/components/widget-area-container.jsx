@@ -1,19 +1,18 @@
-/** @jsx h */
-
 /**
  * External dependencies
  */
-import { h, Component, createRef } from 'preact';
+import React, { Component, createRef } from 'react';
+
+/**
+ * Internal dependencies
+ */
+import './widget-area-container.scss';
 
 // NOTE:
 //
 // We use Preact.Component instead of a Hooks based component because
 // we need to set shouldComponentUpdate to always return false.
 //
-// We could implement such in a Hooks based component using React.memo,
-// but doing so would require importing (and bloating the bundle with)
-// preact/compat.
-
 export default class WidgetAreaContainer extends Component {
 	container = createRef();
 

@@ -2,10 +2,11 @@
 /**
  * Bootstrap the plugin unit testing environment.
  *
- * Edit 'active_plugins' setting below to point to your main plugin file.
- *
- * @package wordpress-plugin-tests
+ * @package automattic/jetpack
  */
+
+// Catch `exit()` and `die()` so they won't make PHPUnit exit.
+require __DIR__ . '/redefine-exit.php';
 
 /**
  * For tests that should be skipped in Jetpack but run in WPCOM (or vice versa), test against this constant.
@@ -16,46 +17,25 @@
  */
 define( 'TESTING_IN_JETPACK', true );
 
-// Support for:
-// 1. `WP_DEVELOP_DIR` environment variable
-// 2. Plugin installed inside of WordPress.org developer checkout
-// 3. Tests checked out to /tmp
-if( false !== getenv( 'WP_DEVELOP_DIR' ) ) {
-	// Defined on command line
-	$test_root = getenv( 'WP_DEVELOP_DIR' );
-	if ( file_exists( "$test_root/tests/phpunit/" ) ) {
-		$test_root .= '/tests/phpunit/';
-	}
-} else if ( file_exists( '../../../../tests/phpunit/includes/bootstrap.php' ) ) {
-	// Installed inside wordpress-develop
-	$test_root = '../../../../tests/phpunit';
-} else if ( file_exists( '/vagrant/www/wordpress-develop/public_html/tests/phpunit/includes/bootstrap.php' ) ) {
-	// VVV
-	$test_root = '/vagrant/www/wordpress-develop/public_html/tests/phpunit';
-} else if ( file_exists( '/srv/www/wordpress-trunk/public_html/tests/phpunit/includes/bootstrap.php' ) ) {
-	// VVV 3.0
-	$test_root = '/srv/www/wordpress-trunk/public_html/tests/phpunit';
-} else if ( file_exists( '/tmp/wordpress-develop/tests/phpunit/includes/bootstrap.php' ) ) {
-	// Manual checkout & Jetpack's docker environment
-	$test_root = '/tmp/wordpress-develop/tests/phpunit';
-} else if ( file_exists( '/tmp/wordpress-tests-lib/includes/bootstrap.php' ) ) {
-	// Legacy tests
-	$test_root = '/tmp/wordpress-tests-lib';
-}
+$test_root = require __DIR__ . '/find-test-root.php';
+echo "Using test root $test_root\n";
 
-if ( ! isset( $test_root ) || ! file_exists( $test_root . '/includes/bootstrap.php' ) ) {
-	echo 'Failed to automatically locate WordPress or wordpress-develop to run tests.' . PHP_EOL;
+$jp_autoloader = __DIR__ . '/../../vendor/autoload.php';
+
+if ( ! is_readable( $jp_autoloader ) || ! is_readable( __DIR__ . '/../../modules/module-headings.php' ) ) {
+	echo 'Jetpack is not ready for testing.' . PHP_EOL;
 	echo PHP_EOL;
-	echo 'Set the WP_DEVELOP_DIR environment variable to point to a copy of WordPress' . PHP_EOL;
-	echo 'or wordpress-develop.' . PHP_EOL;
+	echo 'Jetpack must have Composer dependencies installed and be built.' . PHP_EOL;
+	echo 'If developing in the Jetpack monorepo, try running: jetpack build plugins/jetpack' . PHP_EOL;
 	exit( 1 );
 }
 
-echo "Using test root $test_root\n";
+require $jp_autoloader;
 
-// WordPress requires PHPUnit 7.5 or earlier and hacks around a few things to
+// WordPress until recently required PHPUnit 7.5 or earlier and hacks around a few things to
 // make it work with PHP 8. Unfortunately for MockObjects they do it via
 // composer.json rather than bootstrap.php, so we have to manually do it here.
+// @todo: Remove this once either WP backports their bootstrap changes to 5.8.1 or they release 5.8.2.
 if ( version_compare( PHP_VERSION, '8.0', '>=' ) &&
 	( ! class_exists( PHPUnit\Runner\Version::class ) || version_compare( PHPUnit\Runner\Version::id(), '9.3', '<' ) )
 ) {
@@ -78,10 +58,9 @@ if ( version_compare( PHP_VERSION, '8.0', '>=' ) &&
 	}
 }
 
-if ( '1' != getenv( 'WP_MULTISITE' ) &&
- ( defined( 'WP_TESTS_MULTISITE') && ! WP_TESTS_MULTISITE ) ) {
- echo "To run Jetpack multisite, use -c tests/php.multisite.xml" . PHP_EOL;
- echo "Disregard Core's -c tests/phpunit/multisite.xml notice below." . PHP_EOL;
+if ( '1' !== getenv( 'WP_MULTISITE' ) && ( defined( 'WP_TESTS_MULTISITE' ) && ! WP_TESTS_MULTISITE ) ) {
+	echo 'To run Jetpack multisite, use -c tests/php.multisite.xml' . PHP_EOL;
+	echo "Disregard Core's -c tests/phpunit/multisite.xml notice below." . PHP_EOL;
 }
 
 if ( '1' != getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
@@ -95,7 +74,6 @@ if ( false === function_exists( 'wp_cache_is_enabled' ) ) {
 	 * "Mocking" function so that it exists and Automattic\Jetpack\Sync\Actions will load Automattic\Jetpack\Sync\Modules\WP_Super_Cache
 	 */
 	function wp_cache_is_enabled() {
-
 	}
 }
 
@@ -106,7 +84,7 @@ function _manually_load_plugin() {
 	if ( '1' == getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 		require JETPACK_WOOCOMMERCE_INSTALL_DIR . '/woocommerce.php';
 	}
-	require dirname( __FILE__ ) . '/../../jetpack.php';
+	require __DIR__ . '/../../jetpack.php';
 	$jetpack = Jetpack::init();
 	$jetpack->configure();
 }
@@ -175,9 +153,3 @@ function in_running_uninstall_group() {
 	global  $argv;
 	return is_array( $argv ) && in_array( '--group=uninstall', $argv );
 }
-
-require __DIR__ . '/../../vendor/autoload.php';
-
-// Using the Speed Trap Listener provided by WordPress Core testing suite to expose
-// slowest running tests. See the configuration in phpunit.xml.dist
-require $test_root . '/includes/listener-loader.php';

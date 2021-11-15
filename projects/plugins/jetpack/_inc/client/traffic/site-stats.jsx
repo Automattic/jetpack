@@ -10,6 +10,7 @@ import classNames from 'classnames';
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -19,7 +20,6 @@ import Button from 'components/button';
 import Card from 'components/card';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import FoldableCard from 'components/foldable-card';
-import getRedirectUrl from 'lib/jp-redirect';
 import { imagePath } from 'constants/urls';
 import { FormFieldset, FormLegend } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';

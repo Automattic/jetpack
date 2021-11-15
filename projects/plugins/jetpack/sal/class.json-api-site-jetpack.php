@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Sync\Functions;
 
 require_once dirname( __FILE__ ) . '/class.json-api-site-jetpack-base.php';
@@ -68,6 +69,17 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 		return get_theme_support( $feature_name );
 	}
 
+	/**
+	 * Fetch a list of active plugins that are using Jetpack Connection.
+	 *
+	 * @return array An array of active plugins (by slug) that are using Jetpack Connection.
+	 */
+	protected function get_connection_active_plugins() {
+		$plugins = $this->get_mock_option( 'connection_active_plugins' );
+
+		return is_array( $plugins ) ? array_keys( $plugins ) : array();
+	}
+
 	public function get_updates() {
 		return (array) Jetpack::get_updates();
 	}
@@ -105,6 +117,15 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 
 	function is_following() {
 		return false;
+	}
+
+	/**
+	 * Points to the user ID of the site owner
+	 *
+	 * @return null for Jetpack sites
+	 */
+	public function get_site_owner() {
+		return null;
 	}
 
 	function has_wordads() {
@@ -166,7 +187,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	}
 
 	function get_atomic_cloud_site_option( $option ) {
-		if ( ! jetpack_is_atomic_site() ) {
+		if ( ! ( new Host() )->is_woa_site() ) {
 			return false;
 		}
 

@@ -2,11 +2,14 @@ name: "CodeQL Code Scanning Analysis"
 
 on:
   push:
-    branches: [master, master-built]
+    branches: [ master ]
   pull_request:
-    branches: [master, master-built]
+    branches: [ master ]
   schedule:
     - cron: '0 19 * * 0'
+concurrency:
+  group: codeql-analysis-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   analyze:

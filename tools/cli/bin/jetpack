@@ -13,8 +13,8 @@ try {
 	require = require( 'esm' )( module /*, options*/ );
 	require( '../cliRouter' ).cli();
 } catch ( error ) {
-	if ( error.code === "MODULE_NOT_FOUND" ) { // if yarn install hasn't been run, esm require will fail here.
-		console.error( 'Something is missing from your install. Please run `yarn install` and try again.' );
+	if ( error.code === "MODULE_NOT_FOUND" ) { // if pnpm install hasn't been run, esm require will fail here.
+		console.error( 'Something is missing from your install. Please run `pnpm install` and try again.' );
 	} else {
 		console.error( error );
 		console.error( 'Something unexpected happened. See error above.' );

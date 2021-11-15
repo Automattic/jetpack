@@ -68,7 +68,7 @@ body.jp-dialogue-modern-showing {
 		}
 	}
 
-	a {
+	a :not(.wp-block-button__link) {
 		text-decoration: underline;
 	}
 }

@@ -46,8 +46,8 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	/**
 	 * Setup the environment for a test.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 
 		wp_set_current_user( static::$user_id );
 
@@ -57,10 +57,10 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	/**
 	 * Reset the environment to its original state after the test.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		remove_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ) );
 
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**
@@ -102,7 +102,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	}
 
 	/**
-	 * Tests list response with unauthenticated Google Photos.
+	 * Tests copy response with pexels while not setting metadata.
 	 */
 	public function test_copy_image() {
 		$tmp_name = $this->get_temp_name( static::$image_path );
@@ -142,9 +142,181 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 		$this->assertArrayHasKey( 'type', $data );
 		$this->assertArrayHasKey( 'url', $data );
 		$this->assertEquals( 'image', $data['type'] );
-		$this->assertInternalType( 'int', $data['id'] );
+		$this->assertIsInt( $data['id'] );
 		$this->assertEmpty( $data['caption'] );
 		$this->assertEmpty( $data['alt'] );
+	}
+
+	/**
+	 * Tests copy response with pexels while setting metadata.
+	 */
+	public function test_copy_image_meta() {
+		$tmp_name = $this->get_temp_name( static::$image_path );
+		if ( file_exists( $tmp_name ) ) {
+			unlink( $tmp_name );
+		}
+
+		add_filter( 'pre_http_request', array( $this, 'mock_image_data' ), 10, 3 );
+		add_filter( 'wp_handle_sideload_prefilter', array( $this, 'copy_image' ) );
+		add_filter( 'wp_check_filetype_and_ext', array( $this, 'mock_extensions' ) );
+
+		$request = wp_rest_request( Requests::POST, '/wpcom/v2/external-media/copy/pexels' );
+		$request->set_body_params(
+			array(
+				'media' => array(
+					array(
+						'guid' => wp_json_encode(
+							array(
+								'url'  => static::$image_path,
+								'name' => $this->image_name,
+							)
+						),
+						'meta' => array(
+							'vertical_id'   => 'v1234',
+							'pexels_object' => array(
+								'information' => 'goes here',
+							),
+							'orientations'  => array(
+								'landscape',
+								'square',
+							),
+						),
+					),
+				),
+			)
+		);
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data()[0];
+
+		remove_filter( 'pre_http_request', array( $this, 'mock_image_data' ) );
+		remove_filter( 'wp_handle_sideload_prefilter', array( $this, 'copy_image' ) );
+		remove_filter( 'wp_check_filetype_and_ext', array( $this, 'mock_extensions' ) );
+
+		// Check API response.
+		$this->assertArrayHasKey( 'id', $data );
+		$this->assertArrayHasKey( 'caption', $data );
+		$this->assertArrayHasKey( 'alt', $data );
+		$this->assertArrayHasKey( 'type', $data );
+		$this->assertArrayHasKey( 'url', $data );
+		$this->assertEquals( 'image', $data['type'] );
+		$this->assertIsInt( $data['id'] );
+		$this->assertEmpty( $data['caption'] );
+		$this->assertEmpty( $data['alt'] );
+
+		// Look inside the post_meta of the post added.
+		$meta = get_post_meta( $data['id'] );
+		$this->assertArrayHasKey( 'vertical_id', $meta );
+		$this->assertArrayHasKey( 'pexels_object', $meta );
+		$this->assertArrayHasKey( 'orientations', $meta );
+		$this->assertArrayNotHasKey( 'not_allowed_key', $meta );
+		$this->assertEquals( $meta['vertical_id'][0], 'v1234' );
+
+		$orientations = maybe_unserialize( $meta['orientations'][0] );
+		$this->assertEquals( $orientations[0], 'landscape' );
+		$this->assertEquals( $orientations[1], 'square' );
+
+		$pexels_object = maybe_unserialize( $meta['pexels_object'][0] );
+		$this->assertEquals( $pexels_object['information'], 'goes here' );
+	}
+
+	/**
+	 * Tests copy response with pexels while setting metadata: Invalid meta keys should fail.
+	 */
+	public function test_copy_image_meta_invalid_meta_key() {
+		$tmp_name = $this->get_temp_name( static::$image_path );
+		if ( file_exists( $tmp_name ) ) {
+			unlink( $tmp_name );
+		}
+
+		add_filter( 'pre_http_request', array( $this, 'mock_image_data' ), 10, 3 );
+		add_filter( 'wp_handle_sideload_prefilter', array( $this, 'copy_image' ) );
+		add_filter( 'wp_check_filetype_and_ext', array( $this, 'mock_extensions' ) );
+
+		$request = wp_rest_request( Requests::POST, '/wpcom/v2/external-media/copy/pexels' );
+		$request->set_body_params(
+			array(
+				'media' => array(
+					array(
+						'guid' => wp_json_encode(
+							array(
+								'url'  => static::$image_path,
+								'name' => $this->image_name,
+							)
+						),
+						'meta' => array(
+							'vertical_id'   => 'v1234',
+							'pexels_object' => array(
+								'information' => 'goes here',
+							),
+							'orientations'  => array(
+								'landscape',
+								'square',
+							),
+							'this_meta_key' => 'is_not_allowed',
+						),
+					),
+				),
+			)
+		);
+
+		$response = $this->server->dispatch( $request );
+
+		remove_filter( 'pre_http_request', array( $this, 'mock_image_data' ) );
+		remove_filter( 'wp_handle_sideload_prefilter', array( $this, 'copy_image' ) );
+		remove_filter( 'wp_check_filetype_and_ext', array( $this, 'mock_extensions' ) );
+
+		$this->assertEquals( $response->status, 400 );
+		$this->assertEquals( $response->data['data']['params']['media'], 'this_meta_key is not a valid property of Object.' );
+	}
+
+	/**
+	 * Tests copy response with pexels while setting metadata: Invalid meta 'orientation' values should fail.
+	 */
+	public function test_copy_image_meta_invalid_meta_orientation() {
+		$tmp_name = $this->get_temp_name( static::$image_path );
+		if ( file_exists( $tmp_name ) ) {
+			unlink( $tmp_name );
+		}
+
+		add_filter( 'pre_http_request', array( $this, 'mock_image_data' ), 10, 3 );
+		add_filter( 'wp_handle_sideload_prefilter', array( $this, 'copy_image' ) );
+		add_filter( 'wp_check_filetype_and_ext', array( $this, 'mock_extensions' ) );
+
+		$request = wp_rest_request( Requests::POST, '/wpcom/v2/external-media/copy/pexels' );
+		$request->set_body_params(
+			array(
+				'media' => array(
+					array(
+						'guid' => wp_json_encode(
+							array(
+								'url'  => static::$image_path,
+								'name' => $this->image_name,
+							)
+						),
+						'meta' => array(
+							'vertical_id'   => 'v1234',
+							'pexels_object' => array(
+								'information' => 'goes here',
+							),
+							'orientations'  => array(
+								'landscape',
+								'square',
+								'not_a_real_orientation',
+							),
+						),
+					),
+				),
+			)
+		);
+
+		$response = $this->server->dispatch( $request );
+
+		remove_filter( 'pre_http_request', array( $this, 'mock_image_data' ) );
+		remove_filter( 'wp_handle_sideload_prefilter', array( $this, 'copy_image' ) );
+		remove_filter( 'wp_check_filetype_and_ext', array( $this, 'mock_extensions' ) );
+
+		$this->assertEquals( $response->status, 400 );
+		$this->assertEquals( $response->data['data']['params']['media'], 'media[0][meta][orientations][2] is not one of landscape, portrait, and square.' );
 	}
 
 	/**
@@ -313,7 +485,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	 */
 	public function mock_wpcom_api_response_connection_google_photos( $response, $args, $url ) {
 		$this->assertEquals( WP_REST_Server::READABLE, $args['method'] );
-		$this->assertEquals( 'https://public-api.wordpress.com/wpcom/v2/meta/external-media/connection/google_photos', $url );
+		$this->assertStringStartsWith( 'https://public-api.wordpress.com/wpcom/v2/meta/external-media/connection/google_photos', $url );
 
 		return array(
 			'headers'  => array(
@@ -338,7 +510,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	 */
 	public function mock_wpcom_api_response_delete_connection_google_photos( $response, $args, $url ) {
 		$this->assertEquals( WP_REST_Server::DELETABLE, $args['method'] );
-		$this->assertEquals( 'https://public-api.wordpress.com/wpcom/v2/meta/external-media/connection/google_photos', $url );
+		$this->assertStringStartsWith( 'https://public-api.wordpress.com/wpcom/v2/meta/external-media/connection/google_photos', $url );
 
 		return array(
 			'headers'  => array(
@@ -362,7 +534,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	 * @return array
 	 */
 	public function mock_wpcom_api_external_media_connection_response_with_error( $response, $args, $url ) {
-		$this->assertEquals( 'https://public-api.wordpress.com/wpcom/v2/meta/external-media/connection/google_photos', $url );
+		$this->assertStringStartsWith( 'https://public-api.wordpress.com/wpcom/v2/meta/external-media/connection/google_photos', $url );
 
 		return array(
 			'headers'  => array(
@@ -433,6 +605,10 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	 */
 	public function copy_image( $file ) {
 		copy( static::$image_path, $file['tmp_name'] );
+
+		// Stream wrappers like Patchwork probably resulted in an incorrect stat
+		// cache entry for the file. So clear it.
+		clearstatcache();
 
 		return $file;
 	}

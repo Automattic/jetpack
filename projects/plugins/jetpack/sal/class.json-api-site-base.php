@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Status\Host;
+
 require_once dirname( __FILE__ ) . '/class.json-api-date.php';
 require_once dirname( __FILE__ ) . '/class.json-api-post-base.php';
 
@@ -101,6 +103,13 @@ abstract class SAL_Site {
 
 	abstract public function is_multisite();
 
+	/**
+	 * Points to the user ID of the site owner
+	 *
+	 * @return int for WP.com, null for Jetpack
+	 */
+	abstract public function get_site_owner();
+
 	abstract public function is_single_user_site();
 
 	abstract public function get_plan();
@@ -150,6 +159,15 @@ abstract class SAL_Site {
 	abstract protected function is_wpforteams_site();
 
 	/**
+	 * Get hub blog id for P2 sites.
+	 *
+	 * @return null
+	 */
+	public function get_p2_hub_blog_id() {
+		return null;
+	}
+
+	/**
 	 * Getter for the p2 organization ID.
 	 *
 	 * @return int
@@ -158,8 +176,13 @@ abstract class SAL_Site {
 		return 0; // WPForTeams\Constants\NO_ORG_ID not loaded.
 	}
 
+	/**
+	 * Detect whether a site is a WordPress.com on Atomic site.
+	 *
+	 * @return bool
+	 */
 	public function is_wpcom_atomic() {
-		return false;
+		return ( new Host() )->is_woa_site();
 	}
 
 	public function is_wpcom_store() {
@@ -461,7 +484,8 @@ abstract class SAL_Site {
 			 * @param bool $view_hosting Can site access Hosting section. Default to false.
 			 */
 			'view_hosting'        => apply_filters( 'jetpack_json_api_site_can_view_hosting', false ),
-			'view_stats'          => stats_is_blog_user( $this->blog_id )
+			'view_stats'          => stats_is_blog_user( $this->blog_id ),
+			'activate_plugins'    => current_user_can( 'activate_plugins' ),
 		);
 	}
 
@@ -483,7 +507,6 @@ abstract class SAL_Site {
 	}
 
 	function get_logo() {
-
 		// Set an empty response array.
 		$logo_setting = array(
 			'id'    => (int) 0,
@@ -492,16 +515,12 @@ abstract class SAL_Site {
 		);
 
 		// Get current site logo values.
-		$logo = get_option( 'site_logo' );
+		$logo_id = get_option( 'site_logo' );
 
 		// Update the response array if there's a site logo currenty active.
-		if ( $logo && 0 != $logo['id'] ) {
-			$logo_setting['id']  = $logo['id'];
-			$logo_setting['url'] = $logo['url'];
-
-			foreach ( $logo['sizes'] as $size => $properties ) {
-				$logo_setting['sizes'][ $size ] = $properties;
-			}
+		if ( $logo_id ) {
+			$logo_setting['id']  = $logo_id;
+			$logo_setting['url'] = wp_get_attachment_url( $logo_id );
 		}
 
 		return $logo_setting;

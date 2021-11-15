@@ -1,6 +1,8 @@
 @import '../../shared/styles/gutenberg-base-styles.scss';
 
 .wp-block-jetpack-contact-form {
+	box-sizing: border-box;
+
 	.block-editor-block-variation-picker__variations > li {
 		max-width: none;
 		width: 84px;
@@ -28,6 +30,12 @@
 			border-right: 15px solid transparent;
 			border-bottom: 15px solid transparent;
 
+			&.jetpack-field__width-25,
+			&.jetpack-field__width-50,
+			&.jetpack-field__width-75 {
+				box-sizing: border-box;
+			}
+
 			&.jetpack-field__width-25 {
 				flex: 0 0 25%;
 
@@ -44,7 +52,8 @@
 				flex: 0 0 75%;
 			}
 
-			&[data-type="jetpack/field-checkbox"], &[data-type="jetpack/field-consent"] {
+			&[data-type='jetpack/field-checkbox'],
+			&[data-type='jetpack/field-consent'] {
 				align-self: center;
 			}
 		}
@@ -92,7 +101,7 @@
 	width: 100%;
 }
 
-.jetpack-contact-form__thankyou-redirect-url input[type="text"] {
+.jetpack-contact-form__thankyou-redirect-url input[type='text'] {
 	width: 100%;
 }
 
@@ -156,8 +165,8 @@ input.components-text-control__input {
 	textarea.components-textarea-control__input {
 		color: #787c82;
 		padding: 12px 8px;
-		border-color: rgba( 0, 0, 0, 0.4 );
 		box-shadow: unset;
+		width: 100%;
 	}
 
 	textarea.components-textarea-control__input {
@@ -250,13 +259,14 @@ input.components-text-control__input {
 	display: block;
 }
 
-.jetpack-field-checkbox, .jetpack-field-consent {
+.jetpack-field-checkbox,
+.jetpack-field-consent {
 	.components-base-control__label {
 		display: flex;
 		align-items: center;
 
-  		.jetpack-field-label {
-			flex-grow:1;
+		.jetpack-field-label {
+			flex-grow: 1;
 		}
 
 		.jetpack-field-label__input {

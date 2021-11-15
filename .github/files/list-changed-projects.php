@@ -15,13 +15,13 @@ ob_end_clean();
 // Files that mean all tests should be run.
 // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 $infrastructure_files = array(
+	'.github/actions/tool-setup/action.yml',
 	'.github/files/list-changed-projects.php',
 	'.github/files/generate-ci-matrix.php',
 	'.github/files/process-coverage.sh',
 	'.github/files/setup-wordpress-env.sh',
-	'.github/php-version',
+	'.github/versions.sh',
 	'.github/workflows/tests.yml',
-	'.nvmrc',
 );
 
 // Globs that should be ignored. Supports `*`, `**`, and `?`.
@@ -114,7 +114,7 @@ function get_changed_projects() {
 
 	$pipes = null;
 	$p     = proc_open(
-		sprintf( 'git diff --no-renames --name-only %s...%s', escapeshellarg( $base ), escapeshellarg( $head ) ),
+		sprintf( 'git -c core.quotepath=off diff --no-renames --name-only %s...%s', escapeshellarg( $base ), escapeshellarg( $head ) ),
 		array( array( 'pipe', 'r' ), array( 'pipe', 'w' ), STDERR ),
 		$pipes
 	);

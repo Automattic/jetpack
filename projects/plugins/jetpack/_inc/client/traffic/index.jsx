@@ -4,13 +4,13 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { __ } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import Card from 'components/card';
 import { getModule, getModuleOverride } from 'state/modules';
-import getRedirectUrl from 'lib/jp-redirect';
 import { getSettings } from 'state/settings';
 import {
 	isSiteConnected,

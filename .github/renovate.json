@@ -2,19 +2,28 @@
 	"extends": [ "config:base" ],
 	"labels": [ "[Type] Janitorial", "[Status] Needs Review" ],
 	"prHourlyLimit": 1,
-	"supportPolicy": [ "lts_latest" ],
 	"timezone": "UTC",
 	"schedule": [ "before 3am on the first day of the month" ],
 	"updateNotScheduled": false,
 	"gitIgnoredAuthors": [ "matticbot@users.noreply.github.com" ],
-	"ignoreDeps": [ "mockery/mockery", "php-mock/php-mock", "phpunit/phpunit" ],
 	"packageRules": [
 		{
 			"groupName": "Monorepo packages",
 			"matchPackageNames": [
+				"@automattic/eslint-changed",
+				"@automattic/eslint-config-target-es",
+				"@automattic/jetpack-analytics",
+				"@automattic/jetpack-api",
+				"@automattic/jetpack-base-styles",
+				"@automattic/jetpack-components",
+				"@automattic/jetpack-config",
 				"@automattic/jetpack-connection",
+				"@automattic/jetpack-idc",
+				"@automattic/jetpack-storybook",
+				"@automattic/jetpack-webpack-config",
 				"automattic/jetpack-a8c-mc-stats",
 				"automattic/jetpack-abtest",
+				"automattic/jetpack-admin-ui",
 				"automattic/jetpack-analyzer",
 				"automattic/jetpack-assets",
 				"automattic/jetpack-autoloader",
@@ -30,6 +39,7 @@
 				"automattic/jetpack-device-detection",
 				"automattic/jetpack-error",
 				"automattic/jetpack-heartbeat",
+				"automattic/jetpack-identity-crisis",
 				"automattic/jetpack-jitm",
 				"automattic/jetpack-lazy-images",
 				"automattic/jetpack-licensing",
@@ -37,8 +47,10 @@
 				"automattic/jetpack-options",
 				"automattic/jetpack-partner",
 				"automattic/jetpack-password-checker",
+				"automattic/jetpack-post-list",
 				"automattic/jetpack-redirect",
 				"automattic/jetpack-roles",
+				"automattic/jetpack-search",
 				"automattic/jetpack-status",
 				"automattic/jetpack-sync",
 				"automattic/jetpack-terms-of-service",
@@ -47,7 +59,7 @@
 			"enabled": false
 		},
 		{
-			"extends": "monorepo:wordpress",
+			"extends": [ "monorepo:wordpress" ],
 			"separateMajorMinor": false,
 			"prPriority": 1
 		},
@@ -56,8 +68,20 @@
 			"matchDepTypes": [ "monorepo:wordpress", "monorepo:react" ]
 		},
 		{
+			"extends": [ "packages:eslint" ],
+			"groupName": "Eslint packages"
+		},
+		{
+			"extends": [ "packages:jsUnitTest" ],
+			"groupName": "JS unit testing packages"
+		},
+		{
 			"matchPaths": [ "packages/codesniffer/composer.json" ],
 			"rangeStrategy": "replace"
+		},
+		{
+			"matchPackageNames": [ "johnkary/phpunit-speedtrap" ],
+			"rangeStrategy": "widen"
 		},
 		{
 			"groupName": "Instant Search Dependency Updates",
@@ -75,6 +99,11 @@
 			"labels": [ "Search", "Instant Search" ]
 		}
 	],
+	"lockFileMaintenance": {
+		"enabled": true,
+		"schedule": [ "before 3:00 am on Monday on the 7th through 13th day of the month" ]
+	},
 	"dependencyDashboard": true,
-	"dependencyDashboardTitle": "Renovate Dependency Updates"
+	"dependencyDashboardTitle": "Renovate Dependency Updates",
+	"dependencyDashboardLabels": [ "Primary Issue", "[Type] Janitorial" ]
 }

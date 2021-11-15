@@ -1,7 +1,6 @@
 <?php
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
@@ -499,12 +498,24 @@ class Jetpack_SSO {
 				<?php else : ?>
 					<p>
 						<?php
-							echo esc_html(
+							/**
+							 * Filter the messeage displayed below the SSO button.
+							 *
+							 * @module sso
+							 *
+							 * @since 10.3.0
+							 *
+							 * @param string $sso_explanation Message displayed below the SSO button.
+							 */
+							$sso_explanation = apply_filters(
+								'jetpack_sso_login_form_explanation_text',
 								sprintf(
+									/* Translators: %s is the name of the site. */
 									__( 'You can now save time spent logging in by connecting your WordPress.com account to %s.', 'jetpack' ),
 									esc_html( $site_name )
 								)
 							);
+							echo esc_html( $sso_explanation );
 						?>
 					</p>
 				<?php endif; ?>
@@ -952,7 +963,7 @@ class Jetpack_SSO {
 	 */
 	public function build_sso_url( $args = array() ) {
 		$sso_nonce = ! empty( $args['sso_nonce'] ) ? $args['sso_nonce'] : self::request_initial_nonce();
-		$defaults = array(
+		$defaults  = array(
 			'action'       => 'jetpack-sso',
 			'site_id'      => Jetpack_Options::get_option( 'id' ),
 			'sso_nonce'    => $sso_nonce,
@@ -965,17 +976,7 @@ class Jetpack_SSO {
 			return $args['sso_nonce'];
 		}
 
-		$query = add_query_arg( $args, '' );
-		$query = trim( $query, '?' );
-
-		$url = Redirect::get_url(
-			'wpcom-login',
-			array(
-				'query' => $query,
-			)
-		);
-
-		return $url;
+		return add_query_arg( $args, 'https://wordpress.com/wp-login.php' );
 	}
 
 	/**
@@ -1009,17 +1010,7 @@ class Jetpack_SSO {
 			return $args['sso_nonce'];
 		}
 
-		$query = add_query_arg( $args, '' );
-		$query = trim( $query, '?' );
-
-		$url = Redirect::get_url(
-			'wpcom-login',
-			array(
-				'query' => $query,
-			)
-		);
-
-		return $url;
+		return add_query_arg( $args, 'https://wordpress.com/wp-login.php' );
 	}
 
 	/**

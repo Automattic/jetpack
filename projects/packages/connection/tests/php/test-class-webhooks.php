@@ -84,7 +84,7 @@ class Test_Webhooks extends TestCase {
 		remove_action( 'jetpack_client_authorize_processing', $processing_handler );
 
 		static::assertInstanceOf( WP_Error::class, $error_result );
-		static::assertEquals( array( '/wp-admin/' ), $this->redirect_stack );
+		static::assertEquals( array( 'http://example.org/wp-admin/' ), $this->redirect_stack );
 
 		static::assertTrue( $processing_started, 'The `jetpack_client_authorize_processing` hook was not executed.' );
 	}

@@ -24,16 +24,6 @@ $modal-max-width-lg: 95%;
 		color: $color-text;
 		background: $color-mark-background-default;
 	}
-
-	// Animations
-	animation-delay: 0s;
-	animation-duration: $search-results-slide-in-time;
-	.jetpack-instant-search__overlay.is-hidden & {
-		animation-name: jetpack-search-slide-out-down;
-	}
-	.jetpack-instant-search__overlay:not( .is-hidden ) & {
-		animation-name: jetpack-search-slide-in-up;
-	}
 }
 
 .jetpack-instant-search__search-results-controls {
@@ -67,8 +57,16 @@ $modal-max-width-lg: 95%;
 		font-size: 13px;
 	}
 
-	@include break-large-up() {
+	@include break( '>l' ) {
 		display: none;
+	}
+	#{$customberg-container-selector } & {
+		@include break( '>l' ) {
+			display: flex;
+		}
+		@include break( '>xl' ) {
+			display: none;
+		}
 	}
 
 	&:hover,
@@ -90,34 +88,34 @@ $modal-max-width-lg: 95%;
 		max-width: 100%;
 	}
 
-	@include break-large-down() {
+	@include multiple-breaks-for-customberg( '<l', '<xl' ) {
 		max-width: 100%;
 	}
 }
 
 .jetpack-instant-search__search-results-secondary {
-	display: none;
+	background: none;
+	border-left: 1px solid $color-layout-borders;
+	border-radius: 0;
+	bottom: 0;
+	box-shadow: none;
 	color: $color-text;
+	display: block;
+	flex: none;
+	padding: 0 32px;
+	position: static;
+	width: $sidebar-width;
 
-	@include break-large-up() {
-		background: none;
-		border-left: 1px solid $color-layout-borders;
-		border-radius: 0;
-		bottom: 0;
-		box-shadow: none;
-		display: block;
-		flex: none;
-		padding: 0 32px;
-		position: static;
-		width: $sidebar-width;
+	.jetpack-instant-search__overlay--no-sidebar & {
+		display: none;
+	}
 
-		.jetpack-instant-search__overlay--no-sidebar & {
-			display: none;
-		}
+	@include multiple-breaks-for-customberg( '<l', '<xl' ) {
+		display: none;
 	}
 
 	&.jetpack-instant-search__search-results-secondary--show-as-modal {
-		@include break-large-down() {
+		@include multiple-breaks-for-customberg( '<l', '<xl' ) {
 			position: absolute;
 			top: 0;
 			right: 1em;
@@ -135,7 +133,7 @@ $modal-max-width-lg: 95%;
 			max-height: 70vh;
 			overflow-y: scroll;
 
-			@include break-small-down() {
+			@include break( '<s' ) {
 				max-height: 80vh;
 			}
 
@@ -166,19 +164,19 @@ $modal-max-width-lg: 95%;
 	margin: 1em $results-margin-lg 1.5em;
 	padding: 0;
 
-	@include break-large-down() {
+	@include multiple-breaks-for-customberg( '<l', '<xl' ) {
 		margin-left: $results-margin-md;
 		margin-right: $results-margin-md;
 		margin-bottom: 1em;
 	}
-	@include break-medium-down() {
+	@include break( '<m' ) {
 		margin-left: $results-margin-sm;
 		margin-right: $results-margin-sm;
 	}
 }
 
 .jetpack-instant-search__search-results-title {
-	@include break-large-up() {
+	@include multiple-breaks-for-customberg( '>l', '>xl' ) {
 		// Account for .jetpack-instant-search__search-form-controls.
 		padding-right: 210px;
 	}
@@ -191,11 +189,11 @@ $modal-max-width-lg: 95%;
 	margin-right: $results-margin-lg;
 	padding: 0;
 
-	@include break-large-down() {
+	@include multiple-breaks-for-customberg( '<l', '<xl' ) {
 		margin-left: $results-margin-md;
 		margin-right: $results-margin-md;
 	}
-	@include break-medium-down() {
+	@include break( '<m' ) {
 		margin-left: $results-margin-sm;
 		margin-right: $results-margin-sm;
 	}
@@ -217,7 +215,8 @@ $modal-max-width-lg: 95%;
 	width: 100%;
 }
 
-.jetpack-instant-search__overlay-close {
+// Applied to button. so we override any generic button styles from the theme
+button.jetpack-instant-search__overlay-close {
 	@include remove-button-styling();
 	align-items: center;
 	cursor: pointer;
@@ -227,13 +226,7 @@ $modal-max-width-lg: 95%;
 	line-height: 1;
 	width: 60px;
 	border-bottom: 1px solid $color-layout-borders;
-
-	// Override 2021 styling
-	.theme-twentytwentyone & {
-		&:not( :hover ):not( :active ):not( .has-background ) {
-			background-color: transparent;
-		}
-	}
+	background-color: transparent !important;
 
 	&:focus {
 		outline: 1px dotted;
@@ -243,8 +236,10 @@ $modal-max-width-lg: 95%;
 		fill: $color-text-lighter;
 	}
 	&:focus,
-	&:hover {
+	&:hover,
+	&:active {
 		border-color: $color-layout-borders;
+		background-color: transparent !important;
 		svg.gridicon {
 			fill: $color-text-light;
 		}

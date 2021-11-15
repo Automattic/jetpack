@@ -4,10 +4,13 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-connection": "^1.25"
+		"automattic/jetpack-connection": "^1.30",
+		"automattic/jetpack-constants": "^1.6",
+		"automattic/jetpack-device-detection": "^1.4",
+		"automattic/jetpack-identity-crisis": "^0.4"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^1.1"
+		"automattic/jetpack-changelogger": "^3.0"
 	},
 	"autoload": {
 		"classmap": [
@@ -26,11 +29,11 @@
 	"scripts": {
 		"build-development": [
 			"Composer\\Config::disableProcessTimeout",
-			"yarn build"
+			"pnpm run build"
 		],
 		"build-production": [
 			"Composer\\Config::disableProcessTimeout",
-			"yarn build"
+			"pnpm run build"
 		]
 	},
 	"minimum-stability": "dev",
@@ -42,7 +45,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-connection-ui/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.0.x-dev"
+			"dev-master": "2.1.x-dev"
 		}
 	}
 }

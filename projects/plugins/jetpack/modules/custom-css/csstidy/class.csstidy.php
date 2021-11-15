@@ -280,6 +280,8 @@ class csstidy {
 		$this->settings['timestamp'] = false;
 		$this->settings['template'] = ''; // say that propertie exist
 		$this->set_cfg('template','default'); // call load_template
+		/* Tells csstidy_optimise to keep leading zeros on decimal numbers, e.g., 0.7 */
+		$this->settings['preserve_leading_zeros'] = false;
 		$this->optimise = new csstidy_optimise($this);
 
 		$this->tokens_list = & $GLOBALS['csstidy']['tokens'];

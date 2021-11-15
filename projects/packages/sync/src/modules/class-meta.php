@@ -80,30 +80,33 @@ class Meta extends Module {
 		$object_id_column = $object_type . '_id';
 
 		// Sanitize so that the array only has integer values.
-		$meta = $wpdb->get_row(
+		$meta = $wpdb->get_results(
 			$wpdb->prepare(
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				"SELECT * FROM {$table} WHERE {$object_id_column} = %d AND meta_key = %s",
 				$id,
 				$meta_key
-			)
+			),
+			ARRAY_A
 		);
 
-		$meta_object = null;
-		if ( ! is_null( $meta ) ) {
-			$meta_object = (array) $meta;
-			if ( 'post' === $object_type && strlen( $meta_object['meta_value'] ) >= Posts::MAX_POST_META_LENGTH ) {
-				$meta_object['meta_value'] = '';
+		$meta_objects = null;
+
+		if ( ! is_wp_error( $meta ) && ! empty( $meta ) ) {
+			foreach ( $meta as $meta_entry ) {
+				if ( 'post' === $object_type && strlen( $meta_entry['meta_value'] ) >= Posts::MAX_POST_META_LENGTH ) {
+					$meta_entry['meta_value'] = '';
+				}
+				$meta_objects[] = array(
+					'meta_type'  => $object_type,
+					'meta_id'    => $meta_entry['meta_id'],
+					'meta_key'   => $meta_key,
+					'meta_value' => $meta_entry['meta_value'],
+					'object_id'  => $meta_entry[ $object_id_column ],
+				);
 			}
-			$meta_object = array(
-				'meta_type'  => $object_type,
-				'meta_id'    => $meta_object['meta_id'],
-				'meta_key'   => $meta_key,
-				'meta_value' => $meta_object['meta_value'],
-				'object_id'  => $meta_object[ $object_id_column ],
-			);
 		}
 
-		return $meta_object;
+		return $meta_objects;
 	}
 }

@@ -8,8 +8,8 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 	/**
 	 * Runs on every test.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 
 		$this->pre_http_req_function = function( $preempt, $parsed_args, $url ) {
 			if ( 'https://embedr.flickr.com/photos/49931239842' === $url ) {
@@ -50,9 +50,9 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 	/**
 	 * Runs on every test.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		remove_filter( 'pre_http_request', $this->pre_http_req_function );
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**
@@ -89,7 +89,7 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( $photo_link, $shortcode_content );
+		$this->assertStringContainsString( $photo_link, $shortcode_content );
 	}
 
 	/**
@@ -105,7 +105,7 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( $video_link, $shortcode_content );
+		$this->assertStringContainsString( $video_link, $shortcode_content );
 	}
 
 	/**
@@ -119,7 +119,7 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( $video_id, $shortcode_content );
+		$this->assertStringContainsString( $video_id, $shortcode_content );
 	}
 
 	/**
@@ -135,9 +135,9 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( $video_id, $shortcode_content );
-		$this->assertContains( "width: $width", $shortcode_content );
-		$this->assertContains( "height: $height", $shortcode_content );
+		$this->assertStringContainsString( $video_id, $shortcode_content );
+		$this->assertStringContainsString( "width: $width", $shortcode_content );
+		$this->assertStringContainsString( "height: $height", $shortcode_content );
 	}
 
 	/**
@@ -211,7 +211,7 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 
 		$shortcode_content = wp_kses_post( $content );
 
-		$this->assertEquals( $shortcode_content, '[flickr photo="http://www.flickr.com/photos/batmoo/5265478228/" w=375 h=500]' );
+		$this->assertEquals( '[flickr photo="http://www.flickr.com/photos/batmoo/5265478228/" w=375 h=500]', $shortcode_content );
 	}
 
 	/**
@@ -222,6 +222,6 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 
 		$shortcode_content = wp_kses_post( $content );
 
-		$this->assertEquals( $shortcode_content, '[flickr video="https://www.flickr.com/photos/kalakeli/49931239842/" w=500 h=300 controls="yes" autoplay="yes"]' );
+		$this->assertEquals( '[flickr video="https://www.flickr.com/photos/kalakeli/49931239842/" w=500 h=300 controls="yes" autoplay="yes"]', $shortcode_content );
 	}
 }

@@ -1,9 +1,7 @@
-/** @jsx h */
-
 /**
  * External dependencies
  */
-import { h, Component, Fragment } from 'preact';
+import React, { Component, Fragment } from 'react';
 
 /**
  * Style dependencies

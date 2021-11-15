@@ -5,7 +5,7 @@ wp --allow-root db reset --yes
 
 # Ensure we have single-site htaccess instead of multisite,
 # just like we would have in fresh container.
-cp -f /tmp/htaccess /var/www/html/.htaccess
+cp -f /var/lib/jetpack-config/htaccess /var/www/html/.htaccess
 
 # Remove "uploads" and "upgrade" folders
 rm -fr /var/www/html/wp-content/uploads /var/www/html/wp-content/upgrade
@@ -29,5 +29,5 @@ wp --allow-root config delete BLOG_ID_CURRENT_SITE
 echo
 echo "WordPress uninstalled. To install it again, run:"
 echo
-echo "  yarn docker:install"
+echo "  jetpack docker install"
 echo

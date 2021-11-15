@@ -1,9 +1,7 @@
-/** @jsx h */
-
 /**
  * External dependencies
  */
-import { h, createRef, Component } from 'preact';
+import React, { createRef, Component } from 'react';
 import strip from 'strip';
 // eslint-disable-next-line lodash/import-scope
 import uniqueId from 'lodash/uniqueId';
@@ -27,9 +25,9 @@ function getDateOptions( interval ) {
 
 // TODO: Fix this in the API
 // TODO: Remove once format is fixed in the API
-function fixDateFormat( dateString ) {
+export const fixDateFormat = dateString => {
 	return dateString.split( ' ' ).join( 'T' );
-}
+};
 
 export default class SearchFilter extends Component {
 	filtersList = createRef();
@@ -44,6 +42,8 @@ export default class SearchFilter extends Component {
 			return `${ this.props.configuration.interval }_${ this.props.configuration.field }`;
 		} else if ( this.props.type === 'taxonomy' ) {
 			return this.props.configuration.taxonomy;
+		} else if ( this.props.type === 'group' ) {
+			return this.props.configuration.filter_id;
 		}
 	}
 
@@ -57,12 +57,17 @@ export default class SearchFilter extends Component {
 		this.props.onChange( this.getIdentifier(), getCheckedInputNames( this.filtersList.current ) );
 	};
 
+	toggleStaticFilter = event => {
+		this.props.onChange( this.getIdentifier(), event.target.value );
+	};
+
 	renderDate = ( { key_as_string: key, doc_count: count } ) => {
 		const { locale = 'en-US' } = this.props;
 		return (
 			<div>
 				<input
 					checked={ this.isChecked( key ) }
+					disabled={ ! this.isChecked( key ) && count === 0 }
 					id={ `${ this.idPrefix }-dates-${ this.getIdentifier() }-${ key }` }
 					name={ key }
 					onChange={ this.toggleFilter }
@@ -89,6 +94,7 @@ export default class SearchFilter extends Component {
 			<div>
 				<input
 					checked={ this.isChecked( key ) }
+					disabled={ ! this.isChecked( key ) && count === 0 }
 					id={ `${ this.idPrefix }-post-types-${ key }` }
 					name={ key }
 					onChange={ this.toggleFilter }
@@ -113,6 +119,7 @@ export default class SearchFilter extends Component {
 			<div>
 				<input
 					checked={ this.isChecked( slug ) }
+					disabled={ ! this.isChecked( slug ) && count === 0 }
 					id={ `${ this.idPrefix }-taxonomies-${ slug }` }
 					name={ slug }
 					onChange={ this.toggleFilter }
@@ -130,14 +137,31 @@ export default class SearchFilter extends Component {
 		);
 	};
 
+	renderGroup = group => {
+		return (
+			<div>
+				<input
+					checked={ this.isChecked( group.value ) }
+					id={ `${ this.idPrefix }-groups-${ group.value }` }
+					name={ this.props.configuration.filter_id }
+					onChange={ this.toggleStaticFilter }
+					value={ group.value }
+					type="radio"
+					className="jetpack-instant-search__search-filter-list-input"
+				/>
+				<label
+					htmlFor={ `${ this.idPrefix }-groups-${ group.value }` }
+					className="jetpack-instant-search__search-filter-list-label"
+				>
+					{ group.name }
+				</label>
+			</div>
+		);
+	};
+
 	renderDates() {
 		return (
-			[
-				...this.props.aggregation.buckets
-					// TODO: Remove this filter; API should only be sending buckets with document counts.
-					.filter( bucket => !! bucket && bucket.doc_count > 0 )
-					.map( this.renderDate ),
-			]
+			[ ...this.props.aggregation.buckets.filter( bucket => !! bucket ).map( this.renderDate ) ]
 				// TODO: Remove this reverse & slice when API adds filter count support
 				.reverse()
 				.slice( 0, this.props.configuration.count )
@@ -152,19 +176,30 @@ export default class SearchFilter extends Component {
 		return this.props.aggregation.buckets.map( this.renderTaxonomy );
 	}
 
+	renderGroups() {
+		return this.props.configuration.values.map( this.renderGroup );
+	}
+
 	render() {
 		return (
 			<div>
 				<h4 className="jetpack-instant-search__search-filter-sub-heading">
 					{ this.props.configuration.name }
 				</h4>
-				{ this.props.aggregation && 'buckets' in this.props.aggregation && (
-					<div className="jetpack-instant-search__search-filter-list" ref={ this.filtersList }>
-						{ this.props.type === 'date' && this.renderDates() }
-						{ this.props.type === 'postType' && this.renderPostTypes() }
-						{ this.props.type === 'taxonomy' && this.renderTaxonomies() }
+
+				<div ref={ this.filtersList }>
+					<div className="jetpack-instant-search__search-filter-list jetpack-instant-search__search-static-filter-list">
+						{ this.props.type === 'group' && this.renderGroups() }
 					</div>
-				) }
+
+					{ this.props.aggregation && 'buckets' in this.props.aggregation && (
+						<div className="jetpack-instant-search__search-filter-list">
+							{ this.props.type === 'date' && this.renderDates() }
+							{ this.props.type === 'postType' && this.renderPostTypes() }
+							{ this.props.type === 'taxonomy' && this.renderTaxonomies() }
+						</div>
+					) }
+				</div>
 			</div>
 		);
 	}

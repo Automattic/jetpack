@@ -1,7 +1,7 @@
 # Jetpack Monorepo
 
 [![License](https://poser.pugx.org/automattic/jetpack/license.svg)](https://www.gnu.org/licenses/gpl-2.0.html)
-[![Code Climate](https://codeclimate.com/github/Automattic/jetpack/badges/gpa.svg)](https://codeclimate.com/github/Automattic/jetpack)
+[![codecov](https://codecov.io/gh/Automattic/jetpack/branch/master/graph/badge.svg?token=GmiI6Xl10U)](https://codecov.io/gh/Automattic/jetpack)
 
 This is the Jetpack Monorepo. It contains source code for the Jetpack plugin, the Jetpack composer packages, and other things.
 
@@ -16,9 +16,11 @@ To run the Jetpack plugin from the monorepo, you'll first need to build the JS a
 If you're using the [Docker development environment](./docs/development-environment.md#docker-supported-recommended), you should then be all set.
 
 If not, you'll need to create a link to the Jetpack plugin from your WordPress `wp-content/plugins` folder. You'll need to know the filesystem path to the monorepo checkout and to your WordPress installation. Then, on Linux or Mac OS X, open a terminal and use `ln -s` to create the link, something like
+
 ```
 ln -s /path/to/jetpack-monorepo/projects/plugins/jetpack /path/to/wordpress/wp-content/plugins/jetpack
 ```
+
 On Windows (Vista and later), open an Administrator Command Prompt window and use `mklink /D` similarly.
 
 ## Contribute
@@ -26,7 +28,7 @@ On Windows (Vista and later), open an Administrator Command Prompt window and us
 Thank you for thinking about contributing to Jetpack! If you're unsure of anything, feel free to submit an issue or pull request on any topic. The worst that can happen is that you'll be politely directed to the best location to ask your question or to change something in your pull request. There are a variety of options for how you can help:
 
 - [Write and submit patches](./docs/CONTRIBUTING.md#write-and-submit-a-patch).
-- If you found a bug, [file a report here](https://github.com/Automattic/jetpack/issues/new). You can [check our recommendations to create great bug reports here](./docs/guides/report-bugs.md).
+- If you found a bug, [file a report here](https://github.com/Automattic/jetpack/issues/new?assignees=&labels=%5BType%5D+Bug&template=bug-report.yml). You can [check our recommendations to create great bug reports here](./docs/guides/report-bugs.md).
 - [Join our Jetpack Beta program](./docs/testing/beta-testing.md) and help us test new releases.
 - [Translate Jetpack in your language](./docs/translations.md).
 
@@ -41,6 +43,7 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 Jetpack is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt).
 
 <!-- end sync section -->
+
 ## Team
 
 Jetpack is developed and maintained by various teams at Automattic. The Jetpack Crew responsible for coordinating everything is comprised of @adimoldovan, @anomiex, @bisko, @brbrr, @briancolinger, @dereksmart, @fgiannar, @jeherve, @kbrown9, @kraftbj, @leogermani, @mdbitz, @samiff, @sdixon194, @sergeymitr and @zinigor.

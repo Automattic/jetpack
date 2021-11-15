@@ -1,0 +1,5 @@
+{
+	"extensions": [".js", ".jsx"],
+	"exclude": "**/test/*.jsx",
+	"reporter": "clover"
+}

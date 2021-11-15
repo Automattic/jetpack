@@ -14,6 +14,8 @@ Here is the current list of tasks handled by this action:
 - WordPress.com Commit Reminder (`wpcomCommitReminder`): Posts a comment on merged PRs to remind Automatticians to commit the matching WordPress.com change.
 - Notify Design (`notifyDesign`): Sends a Slack Notification to the Design team to request feedback, based on labels applied to a PR.
 - Notify Editorial (`notifyEditorial`): Sends a Slack Notification to the Editorial team to request feedback, based on labels applied to a PR.
+- Flag OSS (`flagOss`): flags entries by external contributors, adds an "OSS Citizen" label to the PR, and sends a Slack message.
+- Triage New Issues (`triageNewIssues`): Adds labels to new issues based on issue content.
 
 Some of the tasks are may not satisfy your needs. If that's the case, you can use the `tasks` option to limit the action to the list of tasks you need in your repo. See the example below to find out more.
 
@@ -30,13 +32,14 @@ on:
   # We need to listen to all these events to catch all scenarios
   # where notifying the Design team or cleaning labels may be necessary.
   # Refer to src/index.js to see a list of all events each task needs to be listen to.
-  pull_request:
+  pull_request_target:
     types: ['closed', 'labeled']
 
 jobs:
   repo-gardening:
     name: 'Clean up labels, and notify Design when necessary'
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request_target' || github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
     timeout-minutes: 10  # 2021-03-12: Successful runs seem to take a few seconds, but can sometimes take a lot longer since we wait for previous runs to complete.
 
     steps:
@@ -46,7 +49,7 @@ jobs:
      - name: Setup Node
        uses: actions/setup-node@v2
         with:
-          node-version: 12
+          node-version: lts
 
      - name: Wait for prior instances of the workflow to finish
        uses: softprops/turnstyle@v1
@@ -54,7 +57,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
      - name: 'Run gardening action'
-       uses: automattic/action-repo-gardening@v1
+       uses: automattic/action-repo-gardening@v2
        with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           slack_token: ${{ secrets.SLACK_TOKEN }}
@@ -71,6 +74,7 @@ The action relies on the following parameters.
 - (Optional) `slack_token` is the Auth token of a bot that is installed on your Slack workspace. The token should be stored in a [secret](https://docs.github.com/en/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-a-repository).
 - (Optional) `slack_design_channel` is the Slack public channel ID where messages for the design team will be posted. Again, the value should be stored in a secret.
 - (Optional) `slack_editorial_channel` is the Slack public channel ID where messages for the Editorial team will be posted. Again, the value should be stored in a secret.
+- (Optional) `slack_team_channel` is the Slack public channel ID where general notifications about your repo should be posted. Again, the value should be stored in a secret.
 
 To create a bot and get your `SLACK_TOKEN`, follow [the general instructions here](https://slack.com/intl/en-hu/help/articles/115005265703-Create-a-bot-for-your-workspace):
 
@@ -81,6 +85,33 @@ To create a bot and get your `SLACK_TOKEN`, follow [the general instructions her
 - Go to "OAuth & Permissions" in your app settings, and copy the `Bot User OAuth Token` value.
 
 To get the channel ID of the channel where you'd like to post, copy one of the messages posted in the channel, and copy the first ID that appears in that URL.
+
+### PR Checkout
+
+Certain tasks require filesystem access to the PR, which `pull_request_target` does not provide. To accommodate this, you'll need to include a step to check the PR out in a subdirectory, like
+
+```yaml
+     - name: Checkout the PR
+       if: github.event_name == 'pull_request_target'
+       uses: actions/checkout@v2
+       with:
+         ref: ${{ github.event.pull_request.head.ref }}
+         repository: ${{ github.event.pull_request.head.repo.full_name }}
+         # DO NOT run any code in this checkout. Not even an `npm install`.
+         path: ./pr-checkout
+```
+As the comment says, **do not** run any code in that checkout, not even an `npm install` or the like. Read [this article](https://securitylab.github.com/research/github-actions-preventing-pwn-requests/) to learn why.
+
+Then pass the path as environment variable to the repo-gardening action, like
+```yaml
+     - name: 'Run gardening action'
+       uses: automattic/action-repo-gardening@v2
+       env:
+         PR_WORKSPACE: ${{ github.workspace }}${{ github.event_name == 'pull_request_target' && '/pr-checkout' || '' }}
+       with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          ...
+```
 
 ## Credits
 

@@ -36,12 +36,20 @@ describe( 'getSort', () => {
 
 describe( 'hasActiveQuery', () => {
 	test( 'returns false if reducers are at their initial values', () => {
-		expect( hasActiveQuery( { searchQuery: null, filters: {}, sort: null } ) ).toEqual( false );
+		expect(
+			hasActiveQuery( { searchQuery: null, filters: {}, staticFilters: {}, sort: null } )
+		).toEqual( false );
 	} );
 	test( 'returns true if there is a defined search query', () => {
-		expect( hasActiveQuery( { searchQuery: '', filters: {}, sort: null } ) ).toEqual( true );
-		expect( hasActiveQuery( { searchQuery: 'hello', filters: {}, sort: null } ) ).toEqual( true );
-		expect( hasActiveQuery( { searchQuery: null, filters: {}, sort: null } ) ).toEqual( false );
+		expect(
+			hasActiveQuery( { searchQuery: '', filters: {}, staticFilters: {}, sort: null } )
+		).toEqual( true );
+		expect(
+			hasActiveQuery( { searchQuery: 'hello', filters: {}, staticFilters: {}, sort: null } )
+		).toEqual( true );
+		expect(
+			hasActiveQuery( { searchQuery: null, filters: {}, staticFilters: {}, sort: null } )
+		).toEqual( false );
 	} );
 	test( 'returns true if there are defined filters', () => {
 		expect(
@@ -51,13 +59,17 @@ describe( 'hasActiveQuery', () => {
 				sort: null,
 			} )
 		).toEqual( true );
-		expect( hasActiveQuery( { searchQuery: null, filters: {}, sort: null } ) ).toEqual( false );
+		expect(
+			hasActiveQuery( { searchQuery: null, filters: {}, staticFilters: {}, sort: null } )
+		).toEqual( false );
 	} );
 	test( 'returns true if there is a defined sort value', () => {
-		expect( hasActiveQuery( { searchQuery: null, filters: {}, sort: 'relevance' } ) ).toEqual(
-			true
-		);
-		expect( hasActiveQuery( { searchQuery: null, filters: {}, sort: null } ) ).toEqual( false );
+		expect(
+			hasActiveQuery( { searchQuery: null, filters: {}, staticFilters: {}, sort: 'relevance' } )
+		).toEqual( true );
+		expect(
+			hasActiveQuery( { searchQuery: null, filters: {}, staticFilters: {}, sort: null } )
+		).toEqual( false );
 	} );
 } );
 

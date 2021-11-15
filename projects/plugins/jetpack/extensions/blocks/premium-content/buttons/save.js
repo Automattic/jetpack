@@ -1,13 +1,15 @@
 /**
  * WordPress dependencies
  */
-// eslint-disable-next-line wpcalypso/import-docblock
-import { InnerBlocks } from '@wordpress/block-editor';
+import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 
 export default function save() {
+	const blockProps = useBlockProps.save( {
+		className: 'wp-block-buttons',
+	} );
+
 	return (
-		// eslint-disable-next-line wpcalypso/jsx-classname-namespace
-		<div className="wp-block-buttons">
+		<div { ...blockProps }>
 			<InnerBlocks.Content />
 		</div>
 	);

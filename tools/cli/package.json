@@ -20,23 +20,32 @@
 		"test": "mocha tests/runner.js --require esm"
 	},
 	"dependencies": {
-		"@octokit/auth": "3.0.3",
-		"@octokit/rest": "18.5.2",
-		"chalk": "4.1.0",
+		"@octokit/auth-token": "2.4.5",
+		"@octokit/rest": "18.6.7",
+		"chalk": "4.1.2",
 		"configstore": "5.0.1",
+		"envfile": "6.17.0",
 		"esm": "3.2.25",
 		"execa": "5.0.0",
 		"inquirer": "7.3.3",
+		"js-yaml": "4.1.0",
 		"listr": "0.14.3",
 		"listr-update-renderer": "0.5.0",
 		"listr-verbose-renderer": "0.6.0",
+		"path-name": "1.0.0",
 		"pluralize": "8.0.0",
 		"process": "0.11.10",
+		"simple-git": "2.37.0",
 		"yargs": "16.2.0"
 	},
 	"devDependencies": {
 		"chai": "4.3.4",
-		"mocha": "8.2.1",
+		"mocha": "8.4.0",
 		"yargs-parser": "20.2.4"
+	},
+	"engines": {
+		"node": "^14.17.6 || ^16.7.0",
+		"pnpm": "^6.5.0",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

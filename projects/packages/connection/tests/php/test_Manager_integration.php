@@ -7,10 +7,19 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Constants;
+
 /**
  * Connection Manager functionality testing.
  */
 class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
+
+	/**
+	 * The connection manager.
+	 *
+	 * @var Manager
+	 */
+	private $manager;
 
 	/**
 	 * Initialize the object before running the test method.
@@ -95,9 +104,11 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 
 		$all_users = $this->manager->get_connected_users();
 		$admins    = $this->manager->get_connected_users( 'manage_options' );
+		$limited   = $this->manager->get_connected_users( 'any', 1 );
 
 		$this->assertCount( 2, $all_users );
 		$this->assertCount( 1, $admins );
+		$this->assertCount( 1, $limited );
 		$this->assertSame( $id_admin, $admins[0]->ID );
 	}
 
@@ -454,17 +465,17 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test the `is_userless' method.
+	 * Test the `is_site_connection' method.
 	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::is_userless
-	 * @dataProvider data_provider_for_test_is_userless
+	 * @covers Automattic\Jetpack\Connection\Manager::is_site_connection
+	 * @dataProvider data_provider_for_test_is_site_connection
 	 *
 	 * @param boolean $is_connected              If the blog is connected.
 	 * @param boolean $has_connected_user        If the blog has a connected user.
 	 * @param boolean $master_user_option_is_set If the master_user option is set.
 	 * @param boolean $expected                  The expected output.
 	 */
-	public function test_is_userless( $is_connected, $has_connected_user, $master_user_option_is_set, $expected ) {
+	public function test_is_site_connection( $is_connected, $has_connected_user, $master_user_option_is_set, $expected ) {
 		$id_admin = wp_insert_user(
 			array(
 				'user_login' => 'admin',
@@ -498,19 +509,19 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 			\Jetpack_Options::delete_option( 'master_user' );
 		}
 
-		$this->assertEquals( $expected, $this->manager->is_userless() );
+		$this->assertEquals( $expected, $this->manager->is_site_connection() );
 	}
 
 	/**
-	 * Data provider for test_is_userless.
+	 * Data provider for test_is_site_connection.
 	 *
 	 * Structure of the test data arrays:
 	 *     [0] => 'is_connected'              boolean If the blog is connected.
 	 *     [1] => 'has_connected_user'        boolean If the blog has a connected user.
 	 *     [2] => 'master_user_option_is_set' boolean If the master_user option is set.
-	 *     [3] => 'expected'                  boolean The expected output of the call to is_userless.
+	 *     [3] => 'expected'                  boolean The expected output of the call to is_site_connection.
 	 */
-	public function data_provider_for_test_is_userless() {
+	public function data_provider_for_test_is_site_connection() {
 
 		return array(
 			'connected, has connected_user, master_user option is set'         => array( true, true, true, false ),
@@ -524,4 +535,164 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 		);
 	}
 
+	/**
+	 * Test the `try_registration()` method.
+	 *
+	 * @see Manager::try_registration()
+	 */
+	public function test_try_registration() {
+		add_filter( 'pre_http_request', array( Test_REST_Endpoints::class, 'intercept_register_request' ), 10, 3 );
+		set_transient( 'jetpack_assumed_site_creation_date', '2021-01-01 01:01:01' );
+		Constants::$set_constants['JETPACK__API_BASE'] = 'https://jetpack.wordpress.com/jetpack.';
+
+		$result = $this->manager->try_registration();
+
+		remove_filter( 'pre_http_request', array( Test_REST_Endpoints::class, 'intercept_register_request' ), 10 );
+		delete_transient( 'jetpack_assumed_site_creation_date' );
+
+		static::assertTrue( $result );
+	}
+
+	/**
+	 * Test that User tokens behave according to expectations after attempting to disconnect a user.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::disconnect_user
+	 * @dataProvider get_disconnect_user_outcomes
+	 *
+	 * @param bool $remote_response           Response from the unlink_user XML-RPC request.
+	 * @param int  $expected_user_token_count Number of user tokens left on site after Manager::disconnect_user has completed.
+	 */
+	public function test_disconnect_user( $remote_response, $expected_user_token_count ) {
+		$master_user_id = wp_insert_user(
+			array(
+				'user_login' => 'sample_user',
+				'user_pass'  => 'asdqwe',
+				'role'       => 'administrator',
+			)
+		);
+		$editor_id      = wp_insert_user(
+			array(
+				'user_login' => 'editor',
+				'user_pass'  => 'pass',
+				'user_email' => 'editor@editor.com',
+				'role'       => 'editor',
+			)
+		);
+
+		if ( $remote_response ) {
+			$callback = 'intercept_disconnect_success';
+		} else {
+			$callback = 'intercept_disconnect_failure';
+		}
+
+		add_filter(
+			'pre_http_request',
+			array(
+				$this,
+				$callback,
+			),
+			10,
+			3
+		);
+
+		\Jetpack_Options::update_option(
+			'user_tokens',
+			array(
+				$master_user_id => sprintf( '%s.%s.%d', 'masterkey', 'private', $master_user_id ),
+				$editor_id      => sprintf( '%s.%s.%d', 'editorkey', 'private', $editor_id ),
+			)
+		);
+
+		$this->manager->disconnect_user( $editor_id );
+
+		remove_filter(
+			'pre_http_request',
+			array(
+				$this,
+				$callback,
+			),
+			10,
+			3
+		);
+
+		$this->assertCount( $expected_user_token_count, $this->manager->get_connected_users() );
+	}
+
+	/**
+	 * Intercept the disconnect user API request sent to WP.com, and mock success response.
+	 *
+	 * @param bool|array $response The existing response.
+	 * @param array      $args The request arguments.
+	 * @param string     $url The request URL.
+	 *
+	 * @return array
+	 */
+	public function intercept_disconnect_success( $response, $args, $url ) {
+		if ( strpos( $url, 'https://jetpack.wordpress.com/xmlrpc.php' ) !== false ) {
+			$response = array();
+
+			$response['body'] = '
+				<methodResponse>
+					<params>
+						<param>
+							<value>1</value>
+						</param>
+					</params>
+				</methodResponse>
+			';
+
+			$response['response']['code'] = 200;
+			return $response;
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Intercept the disconnect user API request sent to WP.com, and mock failure response.
+	 *
+	 * @param bool|array $response The existing response.
+	 * @param array      $args The request arguments.
+	 * @param string     $url The request URL.
+	 *
+	 * @return array
+	 */
+	public function intercept_disconnect_failure( $response, $args, $url ) {
+		if ( strpos( $url, 'https://jetpack.wordpress.com/xmlrpc.php' ) !== false ) {
+			$response = array();
+
+			$response['body'] = '
+				<methodResponse>
+					<params>
+						<param>
+							<value>1</value>
+						</param>
+					</params>
+				</methodResponse>
+			';
+
+			$response['response']['code'] = 500;
+			return $response;
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Data for test_disconnect_user
+	 *
+	 * @return array
+	 */
+	public function get_disconnect_user_outcomes() {
+		return array(
+			'success' => array(
+				true,
+				1,
+			),
+			'failure' => array(
+				false,
+				2,
+			),
+		);
+	}
 }

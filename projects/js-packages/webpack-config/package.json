@@ -1,0 +1,72 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-webpack-config",
+	"version": "0.2.0-alpha",
+	"description": "Library of pieces for webpack config in Jetpack projects.",
+	"homepage": "https://jetpack.com",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"test": "echo 'No tests yet'"
+	},
+	"dependencies": {
+		"@automattic/babel-plugin-preserve-i18n": "1.0.0",
+		"@automattic/webpack-rtl-plugin": "5.1.0",
+		"@babel/compat-data": "7.16.0",
+		"@babel/helper-compilation-targets": "7.16.0",
+		"@babel/plugin-proposal-class-properties": "7.16.0",
+		"@babel/plugin-transform-runtime": "7.16.0",
+		"@babel/preset-env": "7.16.0",
+		"@babel/preset-react": "7.16.0",
+		"@babel/preset-typescript": "7.16.0",
+		"@wordpress/browserslist-config": "4.1.0",
+		"@wordpress/dependency-extraction-webpack-plugin": "3.2.1",
+		"babel-loader": "8.2.3",
+		"browserslist": "4.17.6",
+		"cache-loader": "4.1.0",
+		"css-loader": "6.2.0",
+		"css-minimizer-webpack-plugin": "3.1.1",
+		"duplicate-package-checker-webpack-plugin": "3.0.0",
+		"mini-css-extract-plugin": "2.4.2",
+		"schema-utils": "3.1.1",
+		"terser-webpack-plugin": "5.2.5",
+		"thread-loader": "3.0.4"
+	},
+	"devDependencies": {
+		"@babel/core": "7.16.0",
+		"@babel/runtime": "7.16.0",
+		"webpack": "5.51.1",
+		"webpack-cli": "4.8.0"
+	},
+	"peerDependencies": {
+		"@babel/core": "^7.0.0",
+		"@babel/runtime": "7.16.0",
+		"webpack": "^5.51.1"
+	},
+	"peerDependenciesMeta": {
+		"@babel/core": {
+			"optional": true
+		},
+		"@babel/runtime": {
+			"optional": true
+		}
+	},
+	"exports": {
+		".": "./src/index.js",
+		"./webpack": "./src/webpack.js",
+		"./babel": "./src/babel.js",
+		"./babel/preset": "./src/babel-preset.js"
+	},
+	"engines": {
+		"node": "^14.17.6 || ^16.7.0",
+		"pnpm": "^6.5.0",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	}
+}

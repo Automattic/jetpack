@@ -1,38 +1,21 @@
 /**
  * External dependencies
  */
-const getBaseWebpackConfig = require( '@automattic/calypso-build/webpack.config.js' );
-const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
+const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const {
 	defaultRequestToExternal,
 	defaultRequestToHandle,
-} = require( '@wordpress/dependency-extraction-webpack-plugin/util' );
+} = require( '@wordpress/dependency-extraction-webpack-plugin/lib/util' );
 const path = require( 'path' );
-const webpack = require( 'webpack' );
+const webpack = jetpackWebpackConfig.webpack;
 
-const isDevelopment = process.env.NODE_ENV !== 'production';
-
-const baseWebpackConfig = getBaseWebpackConfig(
-	{ WP: false },
-	{
-		entry: {
-			main: path.join( __dirname, '../modules/search/instant-search/loader.js' ),
-			'ie11-polyfill-loader': path.join(
-				__dirname,
-				'../modules/search/instant-search/ie11-polyfill.js'
-			),
-			'ie11-polyfill-payload': [
-				'core-js',
-				'regenerator-runtime/runtime',
-				'whatwg-fetch',
-				'abortcontroller-polyfill/dist/polyfill-patch-fetch',
-			],
-		},
-		'output-chunk-filename': 'jp-search.chunk-[name]-[hash].js',
-		'output-filename': 'jp-search-[name].bundle.js',
-		'output-path': path.join( __dirname, '../_inc/build/instant-search' ),
-	}
-);
+/**
+ * Internal dependencies
+ */
+const {
+	definePaletteColorsAsStaticVariables,
+	defineReadableJSAssetsPluginForSearch,
+} = require( './webpack.helpers' );
 
 /**
  * Determines if the module import request should be externalized.
@@ -48,49 +31,53 @@ function requestToExternal( request ) {
 	return defaultRequestToExternal( request );
 }
 
-const moduleConfig = { ...baseWebpackConfig.module };
-// NOTE: tiny-lru publishes non-ES5 as a browser target. It's necessary to let babel-loader transpile this module.
-moduleConfig.rules[ 0 ].exclude = /[\\/]node_modules[\\/](?!(tiny-lru)[\\/])/;
-
 module.exports = {
-	...baseWebpackConfig,
-	module: moduleConfig,
+	mode: jetpackWebpackConfig.mode,
+	devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
+	entry: {
+		main: path.join( __dirname, '../modules/search/instant-search/loader.js' ),
+	},
+	output: {
+		...jetpackWebpackConfig.output,
+		// @todo: Make the file naming regular.
+		filename: 'jp-search-[name].bundle.min.js',
+		chunkFilename: 'jp-search.chunk-[name].[contenthash:20].min.js',
+		path: path.join( __dirname, '../_inc/build/instant-search' ),
+	},
+	optimization: {
+		...jetpackWebpackConfig.optimization,
+		splitChunks: {
+			cacheGroups: {
+				vendors: false,
+			},
+		},
+	},
 	resolve: {
-		...baseWebpackConfig.resolve,
+		...jetpackWebpackConfig.resolve,
 		alias: {
-			...baseWebpackConfig.resolve.alias,
+			...jetpackWebpackConfig.resolve.alias,
 			react: 'preact/compat',
 			'react-dom/test-utils': 'preact/test-utils',
 			'react-dom': 'preact/compat', // Must be aliased after test-utils
+			fs: false,
 		},
-		modules: [
-			path.resolve( __dirname, '../_inc/client' ),
-			path.resolve( __dirname, '../node_modules' ),
-		],
+		modules: [ path.resolve( __dirname, '../_inc/client' ), 'node_modules' ],
 	},
-	node: {
-		fs: 'empty',
-	},
-	devtool: isDevelopment ? 'source-map' : false,
 	plugins: [
-		new webpack.DefinePlugin( {
-			// Replace palette colors as individual literals in the bundle.
-			PALETTE: ( () => {
-				const colors = require( '@automattic/color-studio' ).colors;
-				const stringifiedColors = {};
-
-				// DefinePlugin replaces the values as unescaped text.
-				// We therefore need to double-quote each value, to ensure it ends up as a string.
-				for ( const color in colors ) {
-					stringifiedColors[ color ] = `"${ colors[ color ] }"`;
-				}
-
-				return stringifiedColors;
-			} )(),
+		...jetpackWebpackConfig.StandardPlugins( {
+			DependencyExtractionPlugin: {
+				injectPolyfill: true,
+				useDefaults: false,
+				requestToExternal,
+				requestToHandle: defaultRequestToHandle,
+			},
+			MiniCssExtractPlugin: {
+				filename: 'jp-search-[name].bundle.min.css',
+				chunkFilename: 'jp-search.chunk-[name].[contenthash:20].min.css',
+			},
 		} ),
-		...baseWebpackConfig.plugins,
 		// Replace 'debug' module with a dummy implementation in production
-		...( isDevelopment
+		...( jetpackWebpackConfig.isDevelopment
 			? []
 			: [
 					new webpack.NormalModuleReplacementPlugin(
@@ -98,18 +85,43 @@ module.exports = {
 						path.resolve( __dirname, '../modules/search/instant-search/lib/dummy-debug' )
 					),
 			  ] ),
-		new DependencyExtractionWebpackPlugin( {
-			injectPolyfill: true,
-			useDefaults: false,
-			requestToExternal,
-			requestToHandle: defaultRequestToHandle,
-		} ),
+		definePaletteColorsAsStaticVariables(),
+		defineReadableJSAssetsPluginForSearch(),
 	],
-	optimization: {
-		splitChunks: {
-			cacheGroups: {
-				vendors: false,
+	module: {
+		strictExportPresence: true,
+		rules: [
+			// Transpile JavaScript
+			jetpackWebpackConfig.TranspileRule( {
+				exclude: /node_modules\//,
+			} ),
+
+			// Transpile @automattic/jetpack-* in node_modules too.
+			jetpackWebpackConfig.TranspileRule( {
+				includeNodeModules: [ '@automattic/jetpack-', 'debug/', 'tiny-lru/' ],
+			} ),
+
+			// Handle CSS.
+			{
+				test: /\.(?:css|s[ac]ss)$/,
+				use: [
+					jetpackWebpackConfig.MiniCssExtractLoader(),
+					jetpackWebpackConfig.CssCacheLoader(),
+					jetpackWebpackConfig.CssLoader( {
+						importLoaders: 2, // Set to the number of loaders after this one in the array, e.g. 2 if you use both postcss-loader and sass-loader.
+					} ),
+					{
+						loader: 'postcss-loader',
+						options: {
+							postcssOptions: { config: path.join( __dirname, '../postcss.config.js' ) },
+						},
+					},
+					'sass-loader',
+				],
 			},
-		},
+
+			// Handle images.
+			jetpackWebpackConfig.FileRule(),
+		],
 	},
 };

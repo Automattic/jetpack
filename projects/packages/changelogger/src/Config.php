@@ -60,31 +60,38 @@ class Config {
 	private static $loaded = false;
 
 	/**
-	 * OutputInterface.
+	 * Location of composer.json, overriding any COMPOSER environment variable.
 	 *
-	 * @var OutputInterface|null
+	 * @var string|null
 	 */
-	private static $out;
+	private static $composerJsonPath;
 
 	/**
-	 * Set the OutputInterface.
+	 * Set the location of composer.json, overriding auto-detection.
 	 *
-	 * @param OutputInterface $out OutputInterface.
+	 * @since 1.2.0
+	 * @param string|null $path Path to composer.json, or null to re-enable auto-detection.
 	 */
-	public static function setOutput( OutputInterface $out ) {
-		self::$out = $out;
+	public static function setComposerJsonPath( $path ) {
+		self::$composerJsonPath = $path;
+	}
+
+	/**
+	 * Former method used to set an OutputInterface. No longer used.
+	 *
+	 * @deprecated since 1.2.0, no longer needed.
+	 * @param OutputInterface $out Ignored.
+	 */
+	public static function setOutput( OutputInterface $out ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	}
 
 	/**
 	 * Load the configuration.
 	 *
-	 * @throws \LogicException If called before `setOutput()`.
 	 * @throws \DomainException If the path to composer.json exists but can't be `realpath`-ed.
+	 * @throws ConfigException If composer.json is not found or is invalid (since 1.2.0).
 	 */
 	private static function load() {
-		if ( ! self::$out ) {
-			throw new \LogicException( 'Must call Config::setOutput() before Config::load()' );
-		}
 		if ( self::$loaded ) {
 			return;
 		}
@@ -93,21 +100,23 @@ class Config {
 		self::$config         = self::$defaultConfig;
 		self::$config['base'] = getcwd();
 
-		$composer = getenv( 'COMPOSER' );
-		if ( $composer ) {
-			$from = ' (as specified by the COMPOSER environment variable)'; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$from = '';
+		if ( null !== self::$composerJsonPath ) {
+			$composer = self::$composerJsonPath;
 		} else {
-			$composer = 'composer.json';
-			$from     = ''; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			$composer = getenv( 'COMPOSER' );
+			if ( $composer ) {
+				$from = ' (as specified by the COMPOSER environment variable)';
+			} else {
+				$composer = getcwd() . DIRECTORY_SEPARATOR . 'composer.json';
+			}
 		}
 		if ( ! file_exists( $composer ) ) {
-			self::$out->writeln( "<error>File {$composer}{$from} is not found.</>" );
-			return;
+			throw new ConfigException( "File {$composer}{$from} is not found." );
 		}
 		$data = json_decode( file_get_contents( $composer ), true );
 		if ( ! is_array( $data ) ) {
-			self::$out->writeln( "<error>File {$composer}{$from} could not be parsed.</>" );
-			return;
+			throw new ConfigException( "File {$composer}{$from} could not be parsed." );
 		}
 
 		$dir = realpath( $composer );

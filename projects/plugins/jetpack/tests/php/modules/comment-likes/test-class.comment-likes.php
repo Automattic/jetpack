@@ -7,7 +7,7 @@
  */
 
 /** Include comment-likes.php module */
-require dirname( __FILE__ ) . '/../../../../modules/comment-likes.php';
+require __DIR__ . '/../../../../modules/comment-likes.php';
 
 /**
  * Test class for Jetpack_Comment_Likes.
@@ -26,7 +26,6 @@ class WP_Test_Comment_Likes extends WP_UnitTestCase {
 		$instance->load_styles_register_scripts();
 
 		$this->assertFalse( wp_style_is( 'jetpack_likes' ) );
-		$this->assertFalse( wp_script_is( 'postmessage' ) );
 	}
 
 	/**
@@ -40,6 +39,5 @@ class WP_Test_Comment_Likes extends WP_UnitTestCase {
 		$instance->load_styles_register_scripts();
 
 		$this->assertTrue( wp_style_is( 'jetpack_likes' ) );
-		$this->assertTrue( wp_script_is( 'postmessage' ) );
 	}
 }

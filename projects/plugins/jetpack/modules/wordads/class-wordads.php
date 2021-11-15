@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Status\Host;
+
 define( 'WORDADS_ROOT', __DIR__ );
 define( 'WORDADS_BASENAME', plugin_basename( __FILE__ ) );
 define( 'WORDADS_FILE_PATH', WORDADS_ROOT . '/' . basename( __FILE__ ) );
@@ -360,14 +362,14 @@ class WordAds {
 		if ( self::is_amp() ) {
 			return;
 		}
-		$hosting_type = jetpack_is_atomic_site() ? 1 : 2; // 1 = WPCOM, 2 = Jetpack.
+		$hosting_type = ( new Host() )->is_woa_site() ? 1 : 2; // 1 = WPCOM, 2 = Jetpack.
 		$pagetype     = (int) $this->params->get_page_type_ipw();
 		$data_tags    = ( $this->params->cloudflare ) ? ' data-cfasync="false"' : '';
 		$site_id      = $this->params->blog_id;
 		$consent      = (int) isset( $_COOKIE['personalized-ads-consent'] );
 		?>
 		<script<?php echo esc_attr( $data_tags ); ?> type="text/javascript">
-			var __ATA_PP = { pt: <?php echo esc_js( $pagetype ); ?>, ht: <?php echo esc_js( $hosting_type ); ?>, tn: '<?php echo esc_js( get_stylesheet() ); ?>', amp: false, siteid: <?php echo esc_js( $site_id ); ?>, consent: <?php echo esc_js( $consent ); ?> };
+			var __ATA_PP = { pt: <?php echo esc_js( $pagetype ); ?>, ht: <?php echo esc_js( $hosting_type ); ?>, tn: '<?php echo esc_js( get_stylesheet() ); ?>', amp: false, siteid: <?php echo esc_js( $site_id ); ?>, consent: <?php echo esc_js( $consent ); ?>, ad: { label: { text: '<?php echo esc_js( __( 'Advertisements', 'jetpack' ) ); ?>' }, reportAd: { text: '<?php echo esc_js( __( 'Report this ad', 'jetpack' ) ); ?>' } } };
 			var __ATA = __ATA || {};
 			__ATA.cmd = __ATA.cmd || [];
 			__ATA.criteo = __ATA.criteo || {};
@@ -583,8 +585,8 @@ class WordAds {
 				$snippet    = $this->get_dynamic_ad_snippet( $section_id, 'square', $spot );
 			} elseif ( 'top_amp' === $spot ) {
 				// Ad unit which can safely be inserted below title, above content in a variety of themes.
-				$width   = $this->params->mobile_device ? 320 : 300;
-				$height  = $this->params->mobile_device ? 50 : 250;
+				$width   = 300;
+				$height  = 250;
 				$snippet = $this->get_ad_div( $spot, $this->get_amp_snippet( $height, $width ) );
 			}
 		} elseif ( 'house' === $type ) {

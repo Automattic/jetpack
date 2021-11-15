@@ -10,14 +10,14 @@ import { connect } from 'react-redux';
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
-import getRedirectUrl from 'lib/jp-redirect';
 import { isModuleAvailable } from 'state/modules';
-import { isOfflineMode, hasConnectedOwner, authorizeUserInPlace } from 'state/connection';
+import { isOfflineMode, hasConnectedOwner, connectUser } from 'state/connection';
 import DashItem from 'components/dash-item';
 
 class DashMonitor extends Component {
@@ -36,7 +36,7 @@ class DashMonitor extends Component {
 		this.props.updateOptions( { monitor: true } );
 	};
 
-	connect = () => this.props.authorizeUserInPlace();
+	connect = () => this.props.connectUser();
 
 	getContent() {
 		const labelName = __( 'Downtime monitoring', 'jetpack' );
@@ -121,8 +121,8 @@ export default connect(
 		hasConnectedOwner: hasConnectedOwner( state ),
 	} ),
 	dispatch => ( {
-		authorizeUserInPlace: () => {
-			return dispatch( authorizeUserInPlace() );
+		connectUser: () => {
+			return dispatch( connectUser() );
 		},
 	} )
 )( DashMonitor );

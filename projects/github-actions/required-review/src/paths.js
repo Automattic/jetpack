@@ -15,7 +15,7 @@ async function fetchPaths() {
 
 	const paths = {};
 	try {
-		for await ( const res of octokit.paginate.iterator( octokit.pulls.listFiles, {
+		for await ( const res of octokit.paginate.iterator( octokit.rest.pulls.listFiles, {
 			owner: owner,
 			repo: repo,
 			pull_number: pr,

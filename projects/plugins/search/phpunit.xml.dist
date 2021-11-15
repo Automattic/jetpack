@@ -1,0 +1,13 @@
+<phpunit bootstrap="tests/php/bootstrap.php" backupGlobals="false" colors="true" convertDeprecationsToExceptions="true">
+	<testsuites>
+		<testsuite name="main">
+			<directory prefix="test" suffix=".php">tests/php</directory>
+		</testsuite>
+	</testsuites>
+	<filter>
+		<whitelist processUncoveredFilesFromWhitelist="false">
+			<directory suffix=".php">src</directory>
+			<file>jetpack-search.php</file>
+		</whitelist>
+	</filter>
+</phpunit>

@@ -64,94 +64,92 @@ function load_assets( $attr, $content ) {
 	?>
 
 	<div class="<?php echo esc_attr( $classes ); ?>" data-blog-id="<?php echo esc_attr( $blog_id ); ?>">
-		<div class="components-placeholder">
-			<form
-				aria-describedby="wp-block-jetpack-mailchimp_consent-text"
-				<?php if ( $is_amp_request ) : ?>
-					action-xhr="<?php echo esc_url( $amp_form_action ); ?>"
-					method="post"
-					id="mailchimp_form"
-					target="_top"
-					on="submit-success:AMP.setState( { mailing_list_status: 'subscribed', mailing_list_email: event.response.email } )"
-				<?php endif; ?>
-			>
-				<p>
-					<input
-						aria-label="<?php echo esc_attr( $values['emailPlaceholder'] ); ?>"
-						placeholder="<?php echo esc_attr( $values['emailPlaceholder'] ); ?>"
-						required
-						title="<?php echo esc_attr( $values['emailPlaceholder'] ); ?>"
-						type="email"
-						name="email"
-					/>
-				</p>
-				<?php foreach ( is_array( $values['interests'] ) ? $values['interests'] : array() as $interest ) : ?>
-					<input
-						name="interests[<?php echo esc_attr( $interest ); ?>]"
-						type="hidden"
-						class="mc-submit-param"
-						value="1"
-					/>
-				<?php endforeach; ?>
-				<?php
-				if (
-					! empty( $values['signupFieldTag'] )
-					&& ! empty( $values['signupFieldValue'] )
-					) :
-					?>
-					<input
-						name="merge_fields[<?php echo esc_attr( $values['signupFieldTag'] ); ?>]"
-						type="hidden"
-						class="mc-submit-param"
-						value="<?php echo esc_attr( $values['signupFieldValue'] ); ?>"
-					/>
-				<?php endif; ?>
-				<?php echo render_button( $attr, $content ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				<p id="wp-block-jetpack-mailchimp_consent-text">
-					<?php echo wp_kses_post( $values['consentText'] ); ?>
-				</p>
+		<form
+			aria-describedby="wp-block-jetpack-mailchimp_consent-text"
+			<?php if ( $is_amp_request ) : ?>
+				action-xhr="<?php echo esc_url( $amp_form_action ); ?>"
+				method="post"
+				id="mailchimp_form"
+				target="_top"
+				on="submit-success:AMP.setState( { mailing_list_status: 'subscribed', mailing_list_email: event.response.email } )"
+			<?php endif; ?>
+		>
+			<p>
+				<input
+					aria-label="<?php echo esc_attr( $values['emailPlaceholder'] ); ?>"
+					placeholder="<?php echo esc_attr( $values['emailPlaceholder'] ); ?>"
+					required
+					title="<?php echo esc_attr( $values['emailPlaceholder'] ); ?>"
+					type="email"
+					name="email"
+				/>
+			</p>
+			<?php foreach ( is_array( $values['interests'] ) ? $values['interests'] : array() as $interest ) : ?>
+				<input
+					name="interests[<?php echo esc_attr( $interest ); ?>]"
+					type="hidden"
+					class="mc-submit-param"
+					value="1"
+				/>
+			<?php endforeach; ?>
+			<?php
+			if (
+				! empty( $values['signupFieldTag'] )
+				&& ! empty( $values['signupFieldValue'] )
+				) :
+				?>
+				<input
+					name="merge_fields[<?php echo esc_attr( $values['signupFieldTag'] ); ?>]"
+					type="hidden"
+					class="mc-submit-param"
+					value="<?php echo esc_attr( $values['signupFieldValue'] ); ?>"
+				/>
+			<?php endif; ?>
+			<?php echo render_button( $attr, $content ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+			<p id="wp-block-jetpack-mailchimp_consent-text">
+				<?php echo wp_kses_post( $values['consentText'] ); ?>
+			</p>
 
-				<?php if ( $is_amp_request ) : ?>
+			<?php if ( $is_amp_request ) : ?>
 
-					<div submit-success>
-						<template type="amp-mustache">
-							<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_success wp-block-jetpack-mailchimp__is-amp">
-								<?php echo esc_html( $values['successLabel'] ); ?>
-							</div>
-						</template>
-					</div>
-					<div submit-error>
-						<template type="amp-mustache">
-							<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_error wp-block-jetpack-mailchimp__is-amp">
-								<?php echo esc_html( $values['errorLabel'] ); ?>
-							</div>
-						</template>
-					</div>
-					<div submitting>
-						<template type="amp-mustache">
-							<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_processing wp-block-jetpack-mailchimp__is-amp" role="status">
-								<?php echo esc_html( $values['processingLabel'] ); ?>
-							</div>
-						</template>
-					</div>
-
-				<?php endif; ?>
-
-			</form>
-			<?php if ( ! $is_amp_request ) : ?>
-
-				<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_processing" role="status">
-					<?php echo esc_html( $values['processingLabel'] ); ?>
+				<div submit-success>
+					<template type="amp-mustache">
+						<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_success wp-block-jetpack-mailchimp__is-amp">
+							<?php echo esc_html( $values['successLabel'] ); ?>
+						</div>
+					</template>
 				</div>
-				<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_success" role="status">
-					<?php echo esc_html( $values['successLabel'] ); ?>
+				<div submit-error>
+					<template type="amp-mustache">
+						<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_error wp-block-jetpack-mailchimp__is-amp">
+							<?php echo esc_html( $values['errorLabel'] ); ?>
+						</div>
+					</template>
 				</div>
-				<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_error" role="alert">
-					<?php echo esc_html( $values['errorLabel'] ); ?>
+				<div submitting>
+					<template type="amp-mustache">
+						<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_processing wp-block-jetpack-mailchimp__is-amp" role="status">
+							<?php echo esc_html( $values['processingLabel'] ); ?>
+						</div>
+					</template>
 				</div>
 
 			<?php endif; ?>
-		</div>
+
+		</form>
+		<?php if ( ! $is_amp_request ) : ?>
+
+			<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_processing" role="status">
+				<?php echo esc_html( $values['processingLabel'] ); ?>
+			</div>
+			<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_success" role="status">
+				<?php echo esc_html( $values['successLabel'] ); ?>
+			</div>
+			<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_error" role="alert">
+				<?php echo esc_html( $values['errorLabel'] ); ?>
+			</div>
+
+		<?php endif; ?>
 	</div>
 	<?php
 	$html = ob_get_clean();

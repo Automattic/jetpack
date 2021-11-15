@@ -9,9 +9,7 @@ namespace Automattic\Jetpack\Changelogger\Tests;
 
 use Automattic\Jetpack\Changelogger\AddCommand;
 use Automattic\Jetpack\Changelogger\CommandLoader;
-use Automattic\Jetpack\Changelogger\Config;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
-use Symfony\Component\Console\Output\BufferedOutput;
 
 /**
  * Tests for the changelogger CommandLoader class.
@@ -34,9 +32,6 @@ class CommandLoaderTest extends TestCase {
 	 * Test `get()`.
 	 */
 	public function testGet() {
-		$out = new BufferedOutput();
-		Config::setOutput( $out );
-
 		$loader = new CommandLoader();
 		$this->assertInstanceOf( AddCommand::class, $loader->get( 'add' ) );
 	}
@@ -56,7 +51,7 @@ class CommandLoaderTest extends TestCase {
 	public function testGetNames() {
 		$loader = new CommandLoader();
 		$this->assertSame(
-			array( 'add', 'validate', 'version', 'write' ),
+			array( 'add', 'squash', 'validate', 'version', 'write' ),
 			$loader->getNames()
 		);
 	}

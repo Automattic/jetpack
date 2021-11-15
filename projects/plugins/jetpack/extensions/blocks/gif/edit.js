@@ -16,12 +16,7 @@ import SearchForm from './components/search-form';
 import Controls from './controls';
 import useFetchGiphyData from './hooks/use-fetch-giphy-data';
 
-function GifEdit( {
-	attributes,
-	setAttributes,
-	className,
-	isSelected,
-} ) {
+function GifEdit( { attributes, setAttributes, className, isSelected } ) {
 	const { align, caption, giphyUrl, searchText, paddingTop } = attributes;
 	const classes = classNames( className, `align${ align }` );
 	const [ captionFocus, setCaptionFocus ] = useState( false );
@@ -39,7 +34,7 @@ function GifEdit( {
 		}
 	}, [ giphyData, setAttributes ] );
 
-	const onSubmit = ( event ) => {
+	const onSubmit = event => {
 		event.preventDefault();
 
 		if ( ! attributes.searchText || isFetching ) {
@@ -49,8 +44,8 @@ function GifEdit( {
 		fetchGiphyData( getUrl( attributes.searchText ) );
 	};
 
-	const onChange = ( event ) => setAttributes( { searchText: event.target.value } );
-	const onSelectThumbnail = ( thumbnail ) => setAttributes( getSelectedGiphyAttributes( thumbnail ) );
+	const onChange = event => setAttributes( { searchText: event.target.value } );
+	const onSelectThumbnail = thumbnail => setAttributes( getSelectedGiphyAttributes( thumbnail ) );
 
 	return (
 		<div className={ classes }>
@@ -89,7 +84,10 @@ function GifEdit( {
 									<button
 										className="wp-block-jetpack-gif_thumbnail-container"
 										key={ thumbnail.id }
-										onClick={ () => onSelectThumbnail( thumbnail ) }
+										onClick={ e => {
+											e.preventDefault();
+											onSelectThumbnail( thumbnail );
+										} }
 										style={ thumbnailStyle }
 									/>
 								);

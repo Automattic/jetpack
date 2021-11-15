@@ -21,6 +21,10 @@ class Jetpack_XMLRPC_Methods {
 	public static function init() {
 		add_filter( 'jetpack_xmlrpc_unauthenticated_methods', array( __CLASS__, 'xmlrpc_methods' ) );
 		add_filter( 'jetpack_xmlrpc_test_connection_response', array( __CLASS__, 'test_connection' ) );
+		add_filter( 'jetpack_remote_xmlrpc_provision_response', array( __CLASS__, 'remote_provision_response' ), 10, 2 );
+		add_action( 'jetpack_xmlrpc_server_event', array( __CLASS__, 'jetpack_xmlrpc_server_event' ), 10, 4 );
+		add_action( 'jetpack_remote_connect_end', array( __CLASS__, 'remote_connect_end' ) );
+		add_filter( 'jetpack_xmlrpc_remote_register_redirect_uri', array( __CLASS__, 'remote_register_redirect_uri' ) );
 	}
 
 	/**
@@ -193,5 +197,74 @@ class Jetpack_XMLRPC_Methods {
 			(string) $nonce,
 			(string) $hmac,
 		);
+	}
+
+	/**
+	 * Filters the response of the remote_provision XMLRPC method
+	 *
+	 * @param array $response The response.
+	 * @param array $request An array containing at minimum a nonce key and a local_username key.
+	 *
+	 * @since 9.8.0
+	 * @return array
+	 */
+	public static function remote_provision_response( $response, $request ) {
+		if ( ! empty( $request['onboarding'] ) ) {
+			Jetpack::create_onboarding_token();
+			$response['onboarding_token'] = Jetpack_Options::get_option( 'onboarding' );
+		}
+		return $response;
+	}
+
+	/**
+	 * Runs Jetpack specific action in xmlrpc server events
+	 *
+	 * @param String  $action the action name, i.e., 'remote_authorize'.
+	 * @param String  $stage  the execution stage, can be 'begin', 'success', 'error', etc.
+	 * @param array   $parameters extra parameters from the event.
+	 * @param WP_User $user the acting user.
+	 * @return void
+	 */
+	public static function jetpack_xmlrpc_server_event( $action, $stage, $parameters = array(), $user = null ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( 'remote_register' === $action && 'begin' === $stage ) {
+			Jetpack::maybe_set_version_option();
+		}
+	}
+
+	/**
+	 * Hooks into the remote_connect XMLRPC endpoint and triggers Jetpack::handle_post_authorization_actions
+	 *
+	 * @since 9.8.0
+	 * @return void
+	 */
+	public static function remote_connect_end() {
+		/** This filter is documented in class.jetpack-cli.php */
+		$enable_sso = apply_filters( 'jetpack_start_enable_sso', true );
+		Jetpack::handle_post_authorization_actions( $enable_sso, false, false );
+	}
+
+	/**
+	 * Filters the Redirect URI returned by the remote_register XMLRPC method
+	 *
+	 * @since 9.8.0
+	 *
+	 * @param string $redirect_uri The Redirect URI.
+	 * @return string
+	 */
+	public static function remote_register_redirect_uri( $redirect_uri ) {
+		$auto_enable_sso = ( ! ( new Connection_Manager() )->has_connected_owner() || Jetpack::is_module_active( 'sso' ) );
+
+		/** This filter is documented in class.jetpack-cli.php */
+		if ( apply_filters( 'jetpack_start_enable_sso', $auto_enable_sso ) ) {
+			$redirect_uri = add_query_arg(
+				array(
+					'action'      => 'jetpack-sso',
+					'redirect_to' => rawurlencode( admin_url() ),
+				),
+				wp_login_url() // TODO: come back to Jetpack dashboard?
+			);
+		}
+
+		return $redirect_uri;
 	}
 }

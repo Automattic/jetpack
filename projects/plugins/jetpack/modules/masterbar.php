@@ -9,12 +9,14 @@
  * Requires User Connection: Yes
  * Auto Activate: No
  * Module Tags: General
- * Additional Search Queries: adminbar, masterbar, colorschemes
+ * Additional Search Queries: adminbar, masterbar, colorschemes, profile-edit
  *
  * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
+
+use Automattic\Jetpack\Status\Host;
 
 require __DIR__ . '/masterbar/masterbar/class-masterbar.php';
 require __DIR__ . '/masterbar/admin-color-schemes/class-admin-color-schemes.php';
@@ -23,8 +25,11 @@ require __DIR__ . '/masterbar/inline-help/class-inline-help.php';
 new Masterbar();
 new Admin_Color_Schemes();
 
-if ( jetpack_is_atomic_site() ) {
+if ( ( new Host() )->is_woa_site() ) {
 	new Inline_Help();
+	require_once __DIR__ . '/masterbar/wp-posts-list/bootstrap.php';
+	require_once __DIR__ . '/masterbar/profile-edit/bootstrap.php';
+	require_once __DIR__ . '/masterbar/nudges/bootstrap.php';
 }
 
 /**

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { RichText } from '@wordpress/block-editor';
+import { RichText, useBlockProps } from '@wordpress/block-editor';
 import classnames from 'classnames';
 
 /**
@@ -31,6 +31,12 @@ const VideoPressSave = CoreVideoSave => props => {
 		} = {},
 	} = props;
 
+	const blockProps = useBlockProps.save( {
+		className: classnames( 'wp-block-video', className, videoPressClassNames, {
+			[ `align${ align }` ]: align,
+		} ),
+	} );
+
 	if ( ! guid ) {
 		/**
 		 * We return the element produced by the render so Gutenberg can add the block class when cloning the element.
@@ -58,11 +64,7 @@ const VideoPressSave = CoreVideoSave => props => {
 	} );
 
 	return (
-		<figure
-			className={ classnames( 'wp-block-video', className, videoPressClassNames, {
-				[ `align${ align }` ]: align,
-			} ) }
-		>
+		<figure { ...blockProps }>
 			<div className="wp-block-embed__wrapper">
 				{ `\n${ url }\n` /* URL needs to be on its own line. */ }
 			</div>

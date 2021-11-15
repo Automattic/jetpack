@@ -5,9 +5,9 @@
  * @package jetpack
  */
 
-use PHPUnit\Framework\TestCase;
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
-require_once dirname( __FILE__ ) . '/../../../class-jetpack-pre-connection-jitms.php';
+require_once __DIR__ . '/../../../class-jetpack-pre-connection-jitms.php';
 
 /**
  * Class WP_Test_Jetpack_Pre_Connection_JITMs.
@@ -62,7 +62,7 @@ class WP_Test_Jetpack_Pre_Connection_JITMs extends TestCase {
 		$jitms    = new Jetpack_Pre_Connection_JITMs();
 		$messages = $jitms->add_pre_connection_jitms( array() );
 
-		$query = 'admin.php?page=jetpack&#/setup';
+		$query = 'admin.php?page=jetpack#/setup&from=pre-connection-jitm-jpsetup-upload';
 
 		// Verify that the `jpsetup-upload` JITM is in the list of JITMs.
 		$index = array_search( 'jpsetup-upload', array_column( $messages, 'id' ), true );

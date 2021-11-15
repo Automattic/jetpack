@@ -1,20 +1,21 @@
 {
 	"name": "automattic/js-connection",
 	"description": "Jetpack Connection Component.",
+	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "1.1.x-dev"
+		"automattic/jetpack-changelogger": "3.0.x-dev"
 	},
 	"scripts": {
 		"test-js": [
 			"Composer\\Config::disableProcessTimeout",
-			"yarn install",
-			"yarn test"
+			"pnpm install",
+			"pnpm run test"
 		],
 		"test-coverage": [
 			"Composer\\Config::disableProcessTimeout",
-			"yarn install",
-			"yarn nyc --report-dir=\"$COVERAGE_DIR\" yarn test"
+			"pnpm install",
+			"pnpx nyc --report-dir=\"$COVERAGE_DIR\" pnpm run test"
 		]
 	},
 	"repositories": [

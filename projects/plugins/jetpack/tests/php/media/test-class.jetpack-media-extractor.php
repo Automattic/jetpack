@@ -16,7 +16,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 		$extract = Jetpack_Media_Meta_Extractor::extract( Jetpack_Options::get_option( 'id' ), $post_id );
 
-		$this->assertInternalType( 'array', $extract );
+		$this->assertIsArray( $extract );
 		$this->assertEmpty( $extract );
 	}
 
@@ -34,7 +34,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 		$extract = Jetpack_Media_Meta_Extractor::extract( Jetpack_Options::get_option( 'id' ), $post_id );
 
-		$this->assertInternalType( 'array', $extract );
+		$this->assertIsArray( $extract );
 		$this->assertArrayHasKey( 'image', $extract );
 		$this->assertEquals( $extract[ 'image' ][ 0 ][ 'url' ], $img_title );
 	}
@@ -57,7 +57,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 		$extract = Jetpack_Media_Meta_Extractor::extract( Jetpack_Options::get_option( 'id' ), $post_id );
 
-		$this->assertInternalType( 'array', $extract );
+		$this->assertIsArray( $extract );
 		$this->assertArrayHasKey( 'shortcode', $extract );
 		$this->assertArrayHasKey( $shortcode, $extract[ 'shortcode' ] );
 		$this->assertEquals( $extract[ 'shortcode_types' ][ 0 ], $shortcode );
@@ -78,7 +78,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 		$extract = Jetpack_Media_Meta_Extractor::extract( Jetpack_Options::get_option( 'id' ), $post_id );
 
-		$this->assertInternalType( 'array', $extract );
+		$this->assertIsArray( $extract );
 		$this->assertArrayHasKey( 'link', $extract );
 		$this->assertEquals( $extract[ 'link' ][ 0 ][ 'url' ], $url_link );
 	}
@@ -97,7 +97,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 		$extract = Jetpack_Media_Meta_Extractor::extract( Jetpack_Options::get_option( 'id' ), $post_id );
 
-		$this->assertInternalType( 'array', $extract );
+		$this->assertIsArray( $extract );
 		$this->assertArrayHasKey( 'mention', $extract );
 		$this->assertEquals( $extract[ 'mention' ][ 'name' ][ 0 ], $mention );
 	}
@@ -117,7 +117,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 		$extract = Jetpack_Media_Meta_Extractor::extract( Jetpack_Options::get_option( 'id' ), $post_id );
 
-		$this->assertInternalType( 'array', $extract );
+		$this->assertIsArray( $extract );
 		$this->assertArrayHasKey( 'embed', $extract );
 		$this->assertEquals( $extract[ 'embed' ][ 'url' ][ 0 ], $embed_link );
 	}
@@ -132,7 +132,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 		$image_struct = Jetpack_Media_Meta_Extractor::extract_images_from_content( $content, array() );
 
-		$this->assertInternalType( 'array', $image_struct );
+		$this->assertIsArray( $image_struct );
 		$this->assertEmpty( $image_struct );
 	}
 
@@ -147,12 +147,12 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 		$image_struct = Jetpack_Media_Meta_Extractor::extract_images_from_content( $content, array() );
 
-		$this->assertInternalType( 'array', $image_struct );
+		$this->assertIsArray( $image_struct );
 		$this->assertArrayHasKey( 'has', $image_struct );
 		$this->assertArrayHasKey( 'image', $image_struct );
 		$this->assertCount( 1, $image_struct[ 'image' ] );
 		$this->assertEquals( $image_struct[ 'image' ][ 0 ][ 'url' ], $img_name );
-		$this->assertEquals( $image_struct[ 'has' ][ 'image' ], 1 );
+		$this->assertSame( 1, $image_struct['has']['image'] );
 	}
 
 	/**
@@ -165,7 +165,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 		$image_list = Jetpack_Media_Meta_Extractor::get_images_from_html( $content, array() );
 
-		$this->assertInternalType( 'array', $image_list );
+		$this->assertIsArray( $image_list );
 		$this->assertEmpty( $image_list );
 	}
 
@@ -180,7 +180,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 		$image_list = Jetpack_Media_Meta_Extractor::get_images_from_html( $content, $images_extracted );
 
-		$this->assertInternalType( 'array', $image_list );
+		$this->assertIsArray( $image_list );
 		$this->assertEquals( $image_list, $images_extracted );
 	}
 
@@ -195,7 +195,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 		$image_list = Jetpack_Media_Meta_Extractor::get_images_from_html( $content, $images_extracted );
 
-		$this->assertInternalType( 'array', $image_list );
+		$this->assertIsArray( $image_list );
 		$this->assertEquals( $image_list, $images_extracted );
 	}
 

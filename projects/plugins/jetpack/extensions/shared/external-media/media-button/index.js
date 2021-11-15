@@ -41,6 +41,7 @@ function MediaButton( props ) {
 				setSelectedSource={ setSelectedSource }
 				isReplace={ isReplaceMenu( mediaProps ) }
 				isFeatured={ isFeaturedImage( mediaProps ) }
+				hasImage={ mediaProps.value > 0 }
 			/>
 
 			{ ExternalLibrary && <ExternalLibrary onClose={ closeLibrary } { ...mediaProps } /> }

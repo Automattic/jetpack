@@ -1,12 +1,12 @@
 <?php
 /**
- * Test get_modules methods in Jetpack class
+ * Test module related methods in Jetpack and Jetpack_Admin class.
  *
  * @package jetpack
  */
 
 /**
- * Test get_modules
+ * Test module related methods in Jetpack and Jetpack_Admin class.
  */
 class WP_Test_Get_Modules extends WP_UnitTestCase {
 
@@ -20,7 +20,8 @@ class WP_Test_Get_Modules extends WP_UnitTestCase {
 	/**
 	 * This is an expensive operation so let's make it only once
 	 */
-	public static function setUpBeforeClass() {
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
 		self::$all_modules = Jetpack::get_available_modules();
 	}
 
@@ -165,4 +166,82 @@ class WP_Test_Get_Modules extends WP_UnitTestCase {
 		);
 	}
 
+	/**
+	 * Test_get_module_unavailable_reason
+	 *
+	 * @covers Jetpack_Admin::get_module_unavailable_reason()
+	 */
+	public function test_get_module_unavailable_reason() {
+		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
+		// Inalid input.
+		$this->assertFalse( Jetpack_Admin::get_module_unavailable_reason( array() ) );
+
+		$dummy_module = array(
+			'module'                   => 'dummy',
+			'requires_connection'      => true,
+			'requires_user_connection' => true,
+		);
+
+		$this->assertSame( 'Jetpack is not connected', Jetpack_Admin::get_module_unavailable_reason( $dummy_module ) );
+
+		// Mock site connection.
+		Jetpack_Options::update_option( 'blog_token', 'dummy.blogtoken' );
+		Jetpack_Options::update_option( 'id', '123' );
+
+		add_filter( 'jetpack_no_user_testing_mode', '__return_true' );
+		$this->assertSame( 'Requires a connected WordPress.com account', Jetpack_Admin::get_module_unavailable_reason( $dummy_module ) );
+		remove_filter( 'jetpack_no_user_testing_mode', '__return_true' );
+		// Mock a user connection.
+		$user = $this->factory->user->create_and_get(
+			array(
+				'role' => 'administrator',
+			)
+		);
+		Jetpack_Options::update_option( 'master_user', $user->ID );
+		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "dummy.usertoken.$user->ID" ) );
+
+		$this->assertSame( 'Not supported by current plan', Jetpack_Admin::get_module_unavailable_reason( $dummy_module ) );
+
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		$this->assertSame( 'Offline mode', Jetpack_Admin::get_module_unavailable_reason( $dummy_module ) );
+		remove_filter( 'jetpack_offline_mode', '__return_true' );
+
+		$dummy_module['module'] = 'woocommerce-analytics';
+		$this->assertSame( 'Requires WooCommerce 3+ plugin', Jetpack_Admin::get_module_unavailable_reason( $dummy_module ) );
+
+		$dummy_module['module'] = 'vaultpress';
+		$this->assertSame( '', Jetpack_Admin::get_module_unavailable_reason( $dummy_module ) );
+	}
+
+	/**
+	 * Test get_module with a valid module name that has module info.
+	 */
+	public function test_get_module_valid_module() {
+		$module_info = array(
+			'name'                      => 'Secure Sign On',
+			'description'               => 'Allow users to log in to this site using WordPress.com accounts',
+			'sort'                      => 30,
+			'recommendation_order'      => 5,
+			'introduced'                => '2.6',
+			'changed'                   => '',
+			'deactivate'                => true,
+			'free'                      => true,
+			'requires_connection'       => true,
+			'requires_user_connection'  => true,
+			'auto_activate'             => 'No',
+			'module_tags'               => array( 'Developers' ),
+			'feature'                   => array( 'Security' ),
+			'additional_search_queries' => 'sso, single sign on, login, log in, 2fa, two-factor',
+			'plan_classes'              => array( 'free' ),
+		);
+
+		$this->assertSame( $module_info, Jetpack::get_module( 'sso' ) );
+	}
+
+	/**
+	 * Test get_module with a module slug that doesn't have module info.
+	 */
+	public function test_get_module_module_no_info() {
+		$this->assertFalse( Jetpack::get_module( 'module-extras' ) );
+	}
 }

@@ -1,0 +1,12 @@
+[
+    {
+        "clientId": "_clientId_0",
+        "name": "jetpack/pinterest",
+        "isValid": true,
+        "attributes": {
+            "url": "https://www.pinterest.com.au/jeanette1952/meat-pies/"
+        },
+        "innerBlocks": [],
+        "originalContent": "<a href=\"https://www.pinterest.com.au/jeanette1952/meat-pies/\" class=\"wp-block-jetpack-pinterest\">https://www.pinterest.com.au/jeanette1952/meat-pies/</a>"
+    }
+]
