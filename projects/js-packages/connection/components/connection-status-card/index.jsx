@@ -37,6 +37,7 @@ const ConnectionStatusCard = props => {
 	} = props;
 
 	const [ isFetchingConnectionData, setIsFetchingConnectionData ] = useState( false );
+	const [ connectedSiteData, setConnectedSiteData ] = useState( {} );
 	const [ connectedUserData, setConnectedUserData ] = useState( {} );
 	const [ isUserConnecting, setIsUserConnecting ] = useState( false );
 	const [ isDisconnectDialogOpen, setIsDisconnectDialogOpen ] = useState( false );
@@ -74,6 +75,22 @@ const ConnectionStatusCard = props => {
 				throw error;
 			} );
 	}, [ setIsFetchingConnectionData, setConnectedUserData ] );
+
+	/**
+	 * Fetch the site data on mount.
+	 * To be only run once.
+	 * Site ID is used in the disconnection flow for the optional user survey.
+	 */
+	useEffect( () => {
+		restApi
+			.fetchSiteData()
+			.then( response => {
+				setConnectedSiteData( response );
+			} )
+			.catch( error => {
+				throw error;
+			} );
+	}, [ setConnectedSiteData ] );
 
 	/**
 	 * Open the Disconnect Dialog.
@@ -148,6 +165,7 @@ const ConnectionStatusCard = props => {
 						apiNonce={ apiNonce }
 						onDisconnected={ onDisconnectedCallback }
 						connectedPlugins={ connectedPlugins }
+						connectedSiteId={ connectedSiteData.ID ? connectedSiteData.ID : null }
 						connectedUser={ connectedUserData }
 						isOpen={ isDisconnectDialogOpen }
 						onClose={ closeDisconnectDialog }

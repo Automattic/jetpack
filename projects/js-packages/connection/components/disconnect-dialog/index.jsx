@@ -42,6 +42,7 @@ const DisconnectDialog = props => {
 		disconnectStepComponent,
 		context,
 		connectedUser,
+		connectedSiteId,
 		isOpen,
 		onClose,
 	} = props;
@@ -93,12 +94,64 @@ const DisconnectDialog = props => {
 	/**
 	 * Submit the optional survey following disconnection.
 	 */
-	const _submitSurvey = useCallback( surveyData => {
-		// Use tracks to record the survey response.
-		// This requires analytics scripts to be loaded.
-		jetpackAnalytics.tracks.recordEvent( 'plugin_jetpack_disconnect_survey', surveyData );
-		setIsFeedbackProvided( true );
-	}, [] );
+	const _submitSurvey = useCallback(
+		( surveyData, tracksSurveyData ) => {
+			// Send survey response to wpcom
+			const base = 'https://public-api.wordpress.com';
+			const path = '/wpcom/v2/marketing/feedback-survey';
+			const method = 'POST';
+
+			setIsProvidingFeedback( true );
+
+			// We cannot use `@wordpress/api-fetch` here since it unconditionally sends
+			// the `X-WP-Nonce` header, which is disallowed by WordPress.com.
+			// If the submission receives an error, there's not really anything the user is able to do to fix it.
+			// In these cases, just go ahead and show the last survey step.
+			fetch( base + path, {
+				method: method,
+				headers: {
+					'Content-Type': 'application/json',
+					Accept: 'application/json',
+				},
+				body: JSON.stringify( surveyData ),
+			} )
+				.then(
+					result => {
+						return result.json();
+					},
+					// Error in sending the data.
+					() => {
+						setIsFeedbackProvided( true );
+						setIsProvidingFeedback( false );
+						// Send a tracks event for an error in survey submission.
+						jetpackAnalytics.tracks.recordEvent(
+							'plugin_jetpack_disconnect_survey_error',
+							tracksSurveyData
+						);
+					}
+				)
+				.then( jsonResponse => {
+					// response received
+					if ( true === jsonResponse.success ) {
+						// Send a tracks event for survey submission.
+						jetpackAnalytics.tracks.recordEvent(
+							'plugin_jetpack_disconnect_survey',
+							tracksSurveyData
+						);
+					} else {
+						// Send a tracks event for an error in survey submission.
+						jetpackAnalytics.tracks.recordEvent(
+							'plugin_jetpack_disconnect_survey_error',
+							tracksSurveyData
+						);
+					}
+
+					setIsFeedbackProvided( true );
+					setIsProvidingFeedback( false );
+				} );
+		},
+		[ setIsProvidingFeedback, setIsFeedbackProvided ]
+	);
 
 	/**
 	 * Disconnect - Triggered upon clicking the 'Disconnect' button.
@@ -128,6 +181,14 @@ const DisconnectDialog = props => {
 	);
 
 	/**
+	 * Do we have the necessary data to be able to submit a survey?
+	 * Need to have the ID of the connected user and the ID of the connected site.
+	 */
+	const canProvideFeedback = useCallback( () => {
+		return connectedUser.ID && connectedSiteId;
+	}, [ connectedUser, connectedSiteId ] );
+
+	/**
 	 * Submit Survey - triggered by clicking on the "Submit Feedback" button.
 	 * Assembles the survey response.
 	 */
@@ -135,18 +196,48 @@ const DisconnectDialog = props => {
 		( surveyAnswerId, surveyAnswerText, e ) => {
 			e && e.preventDefault();
 
+			// We do not have the information needed to record the response.
+			// return early and move to the last step in the flow anyway.
+			if ( ! canProvideFeedback() ) {
+				setIsFeedbackProvided( true );
+				return;
+			}
+
+			// Format the survey data for submission.
 			const surveyData = {
+				site_id: connectedSiteId,
+				user_id: connectedUser.ID,
+				survey_id: 'jetpack-plugin-disconnect',
+				survey_responses: {
+					'why-cancel': {
+						response: surveyAnswerId,
+						text: surveyAnswerText ? surveyAnswerText : null,
+					},
+				},
+			};
+
+			// Additional data for analytics to see where disconnections happened from.
+			const tracksSurveyData = {
 				disconnect_reason: surveyAnswerId,
 				plugin: disconnectingPlugin,
+				context: context,
 			};
 
 			if ( surveyAnswerText ) {
 				surveyData.disconnect_reason_text = surveyAnswerText;
 			}
 
-			_submitSurvey( surveyData );
+			_submitSurvey( surveyData, tracksSurveyData );
 		},
-		[ disconnectingPlugin, _submitSurvey ]
+		[
+			disconnectingPlugin,
+			context,
+			_submitSurvey,
+			setIsFeedbackProvided,
+			canProvideFeedback,
+			connectedSiteId,
+			connectedUser,
+		]
 	);
 
 	/**
@@ -203,6 +294,7 @@ const DisconnectDialog = props => {
 			// Confirm the disconnection, ask user about providing feedback.
 			return (
 				<StepDisconnectConfirm
+					canProvideFeedback={ canProvideFeedback() }
 					onProvideFeedback={ handleProvideFeedback }
 					onExit={ backToWordpress }
 				/>
@@ -260,6 +352,8 @@ DisconnectDialog.propTypes = {
 	disconnectStepComponent: PropTypes.element,
 	/** An object representing the connected user. */
 	connectedUser: PropTypes.object,
+	/** ID of the currently connected site. */
+	connectedSiteId: PropTypes.number,
 	/** Whether or not the dialog modal should be open. */
 	isOpen: PropTypes.bool,
 	/** Callback function for when the modal closes. */
