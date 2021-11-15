@@ -216,7 +216,7 @@ export class DevCard extends React.Component {
 								checked={ 'is-security-t1-plan' === planClass }
 								onChange={ this.onPlanChange }
 							/>
-							Security (Tier 1)
+							Security (10 GB)
 						</label>
 					</li>
 					<li>
@@ -229,7 +229,7 @@ export class DevCard extends React.Component {
 								checked={ 'is-security-t2-plan' === planClass }
 								onChange={ this.onPlanChange }
 							/>
-							Security (Tier 2)
+							Security (1 TB)
 						</label>
 					</li>
 					<li>
@@ -255,7 +255,7 @@ export class DevCard extends React.Component {
 								checked={ 'is-backup-t1-plan' === planClass }
 								onChange={ this.onPlanChange }
 							/>
-							Backup (Tier 1)
+							Backup (10 GB)
 						</label>
 					</li>
 					<li>
@@ -268,7 +268,7 @@ export class DevCard extends React.Component {
 								checked={ 'is-backup-t2-plan' === planClass }
 								onChange={ this.onPlanChange }
 							/>
-							Backup (Tier 2)
+							Backup (1 TB)
 						</label>
 					</li>
 					<li className="jp-dev-card__deprecated-plans-list-header">&mdash; DEPRECATED &mdash;</li>

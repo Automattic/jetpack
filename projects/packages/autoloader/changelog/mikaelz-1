@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Soft return if autoloader chain is not available.

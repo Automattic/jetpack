@@ -25,9 +25,13 @@ export { default as ConnectUser } from './components/connect-user';
 export { default as ConnectionStatusCard } from './components/connection-status-card';
 export { default as DisconnectDialog } from './components/disconnect-dialog';
 export { default as DisconnectCard } from './components/disconnect-card';
-export { default as withConnectionStatus } from './components/with-connection-status';
 
 /**
  * Helpers.
  */
 export { default as thirdPartyCookiesFallbackHelper } from './helpers/third-party-cookies-fallback';
+
+/**
+ * Store
+ */
+export { STORE_ID as CONNECTION_STORE_ID } from './state/store';
