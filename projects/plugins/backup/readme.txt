@@ -104,7 +104,7 @@ Jetpack’s off-site backup storage allows you to restore a clean version of you
 
 = How do I create a WordPress backup for my site? =
 
-If you don’t have Backups as part of your Jetpack plan, visit Jetpack.com to learn more and purchase.
+If you don’t have Backups as part of your Jetpack plan, [visit Jetpack.com to learn more and purchase](https://jetpack.com/upgrade/backup).
 
 As soon as you purchase Jetpack Backup, it will be activated, and the first backup will be completed. There are barely any settings to configure, and you don’t need coding experience.
 
