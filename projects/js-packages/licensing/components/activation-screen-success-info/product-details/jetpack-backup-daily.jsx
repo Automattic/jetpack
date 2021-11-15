@@ -18,13 +18,11 @@ const JetpackBackupDailyProductDetails = props => {
 	return (
 		<div>
 			<h1>
-				{
-					sprintf(
-						/* translators: "%s" is a is Celebration emoji 🎉. */
-						__( 'Your Jetpack Daily Backup is active! %s', 'jetpack' ),
-						String.fromCodePoint( 0x1f389 )
-					)
-				}
+				{ sprintf(
+					/* translators: "%s" is a is Celebration emoji 🎉. */
+					__( 'Your Jetpack Daily Backup is active! %s', 'jetpack' ),
+					String.fromCodePoint( 0x1f389 )
+				) }
 			</h1>
 			<p>
 				{ createInterpolateElement(

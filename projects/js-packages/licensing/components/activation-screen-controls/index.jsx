@@ -65,7 +65,7 @@ const ActivationScreenControls = props => {
 				/>
 				{ hasLicenseError && (
 					<div className="jp-license-activation-screen-controls--license-field-error">
-						<Icon icon='warning' />
+						<Icon icon={ warning } />
 						<span>{ licenseError }</span>
 					</div>
 				) }
