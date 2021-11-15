@@ -223,4 +223,171 @@ class Assets {
 
 		return preg_replace( '|://[^/]+?/|', "://s$static_counter.wp.com/", $url );
 	}
+
+	/**
+	 * Resolve '.' and '..' components in a path or URL.
+	 *
+	 * @since $$next-version$$
+	 * @param string $path Path or URL.
+	 * @return string Normalized path or URL.
+	 */
+	public static function normalize_path( $path ) {
+		$parts = wp_parse_url( $path );
+		if ( ! isset( $parts['path'] ) ) {
+			return $path;
+		}
+
+		$ret  = '';
+		$ret .= isset( $parts['scheme'] ) ? $parts['scheme'] . '://' : '';
+		if ( isset( $parts['user'] ) || isset( $parts['pass'] ) ) {
+			$ret .= isset( $parts['user'] ) ? $parts['user'] : '';
+			$ret .= isset( $parts['pass'] ) ? ':' . $parts['pass'] : '';
+			$ret .= '@';
+		}
+		$ret .= isset( $parts['host'] ) ? $parts['host'] : '';
+		$ret .= isset( $parts['port'] ) ? ':' . $parts['port'] : '';
+
+		$pp = explode( '/', $parts['path'] );
+		if ( '' === $pp[0] ) {
+			$ret .= '/';
+			array_shift( $pp );
+		}
+		$i = 0;
+		while ( $i < count( $pp ) ) { // phpcs:ignore Squiz.PHP.DisallowSizeFunctionsInLoops.Found
+			if ( '' === $pp[ $i ] || '.' === $pp[ $i ] || 0 === $i && '..' === $pp[ $i ] ) {
+				array_splice( $pp, $i, 1 );
+			} elseif ( '..' === $pp[ $i ] ) {
+				array_splice( $pp, --$i, 2 );
+			} else {
+				$i++;
+			}
+		}
+		$ret .= join( '/', $pp );
+
+		$ret .= isset( $parts['query'] ) ? '?' . $parts['query'] : '';
+		$ret .= isset( $parts['fragment'] ) ? '#' . $parts['fragment'] : '';
+
+		return $ret;
+	}
+
+	/**
+	 * Register a Webpack-built script.
+	 *
+	 * Our Webpack-built scripts tend to need a bunch of boilerplate:
+	 *  - A call to `Assets::get_file_url_for_environment()` for possible debugging.
+	 *  - A call to `wp_register_style()` for extracted CSS, possibly with detection of RTL.
+	 *  - Loading of dependencies and version provided by `@wordpress/dependency-extraction-webpack-plugin`.
+	 *  - Avoiding WPCom's broken minifier.
+	 *
+	 * This wrapper handles all of that.
+	 *
+	 * @since $$next-version$$
+	 * @param string $handle      Name of the script. Should be unique across both scripts and styles.
+	 * @param string $path        Minimized script path.
+	 * @param string $relative_to File that `$path` is relative to. Pass `__FILE__`.
+	 * @param array  $options     Additional options:
+	 *  - `nonmin_path`:  (string) Non-minified script path.
+	 *  - `asset_path`:   (string|null) `.asset.php` to load. Default is to base it on `$path`.
+	 *  - `css_path`:     (string|null) `.css` to load. Default is to base it on `$path`.
+	 *  - `dependencies`: (string[]) Additional dependencies to queue.
+	 *  - `version`:      (string) Override the version from the `asset_path` file.
+	 *  - `minify`:       (bool|null) Set true to pass `minify=true` in the query string, or `null` to suppress the normal `minify=false`.
+	 *  - `enqueue`:      (bool) Set true to enqueue the script immediately.
+	 *  - `async`:        (bool) Set true to register the script as async, like `Assets::enqueue_async_script()`
+	 *  - `in_footer`:    (bool) Set true to register script for the footer.
+	 *  - `media`:        (string) Media for the css file. Default 'all'.
+	 * @throws \InvalidArgumentException If arguments are invalid.
+	 */
+	public static function register_script( $handle, $path, $relative_to, array $options = array() ) {
+		if ( substr( $path, -3 ) !== '.js' ) {
+			throw new \InvalidArgumentException( '$path must end in ".js"' );
+		}
+
+		$dir      = dirname( $relative_to );
+		$base     = substr( $path, 0, -3 );
+		$options += array(
+			'asset_path'       => "$base.asset.php",
+			'css_path'         => "$base.css",
+			'css_dependencies' => array(),
+			'dependencies'     => array(),
+			'minify'           => false,
+			'enqueue'          => false,
+			'async'            => false,
+			'in_footer'        => false,
+			'media'            => 'all',
+		);
+
+		if ( $options['css_path'] && substr( $options['css_path'], -4 ) !== '.css' ) {
+			throw new \InvalidArgumentException( '$options[\'css_path\'] must end in ".css"' );
+		}
+
+		if ( isset( $options['nonmin_path'] ) ) {
+			$url = self::get_file_url_for_environment( $path, $options['nonmin_path'], $relative_to );
+		} else {
+			$url = plugins_url( $path, $relative_to );
+		}
+		$url = self::normalize_path( $url );
+		if ( null !== $options['minify'] ) {
+			$url = add_query_arg( 'minify', $options['minify'] ? 'true' : 'false', $url );
+		}
+
+		if ( $options['asset_path'] && file_exists( "$dir/{$options['asset_path']}" ) ) {
+			$asset                       = require "$dir/{$options['asset_path']}";
+			$options['dependencies']     = array_merge( $asset['dependencies'], $options['dependencies'] );
+			$options['css_dependencies'] = array_merge(
+				array_filter(
+					$asset['dependencies'],
+					function ( $d ) {
+						return wp_style_is( $d, 'registered' );
+					}
+				),
+				$options['css_dependencies']
+			);
+			$ver                         = isset( $options['version'] ) ? $options['version'] : $asset['version'];
+		} else {
+			$ver = isset( $options['version'] ) ? $options['version'] : filemtime( "$dir/$path" );
+		}
+
+		wp_register_script( $handle, $url, $options['dependencies'], $ver, $options['in_footer'] );
+		if ( $options['async'] ) {
+			self::instance()->add_async_script( $handle );
+		}
+
+		if ( $options['css_path'] && file_exists( "$dir/{$options['css_path']}" ) ) {
+			$csspath = $options['css_path'];
+			if ( is_rtl() ) {
+				$rtlcsspath = substr( $csspath, 0, -4 ) . '.rtl.css';
+				if ( file_exists( "$dir/$rtlcsspath" ) ) {
+					$csspath = $rtlcsspath;
+				}
+			}
+
+			$url = self::normalize_path( plugins_url( $csspath, $relative_to ) );
+			if ( null !== $options['minify'] ) {
+				$url = add_query_arg( 'minify', $options['minify'] ? 'true' : 'false', $url );
+			}
+			wp_register_style( $handle, $url, $options['css_dependencies'], $ver, $options['media'] );
+			wp_script_add_data( $handle, 'Jetpack::Assets::hascss', true );
+		} else {
+			wp_script_add_data( $handle, 'Jetpack::Assets::hascss', false );
+		}
+
+		if ( $options['enqueue'] ) {
+			self::enqueue_script( $handle );
+		}
+	}
+
+	/**
+	 * Enqueue a script registered with `Assets::register_script`.
+	 *
+	 * @since $$next-version$$
+	 * @param string $handle       Name of the script. Should be unique across both scripts and styles.
+	 */
+	public static function enqueue_script( $handle ) {
+		wp_enqueue_script( $handle );
+		if ( wp_scripts()->get_data( $handle, 'Jetpack::Assets::hascss' ) ) {
+			wp_enqueue_style( $handle );
+		}
+	}
+
 }
