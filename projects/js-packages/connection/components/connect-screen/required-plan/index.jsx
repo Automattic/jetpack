@@ -3,6 +3,7 @@
  */
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
+import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -10,6 +11,7 @@ import { __ } from '@wordpress/i18n';
  */
 import ConnectButton from '../../connect-button';
 import ConnectScreenRequiredPlanVisual from './visual';
+import { STORE_ID } from '../../../state/store';
 
 /**
  * The Connection Screen Visual component for consumers that require a Plan.
@@ -28,13 +30,14 @@ const ConnectScreenRequiredPlan = props => {
 		from,
 		redirectUri,
 		children,
-		connectionStatus,
 		priceBefore,
 		priceAfter,
 		pricingIcon,
 		pricingTitle,
 		pricingCurrencyCode,
 	} = props;
+
+	const connectionStatus = useSelect( select => select( STORE_ID ).getConnectionStatus(), [] );
 
 	const renderConnectBtn = useCallback(
 		( label, trigger ) => {
@@ -46,12 +49,11 @@ const ConnectScreenRequiredPlan = props => {
 					registrationNonce={ registrationNonce }
 					from={ from }
 					redirectUri={ redirectUri }
-					connectionStatus={ connectionStatus }
 					connectLabel={ label }
 				/>
 			);
 		},
-		[ apiRoot, apiNonce, registrationNonce, from, redirectUri, connectionStatus ]
+		[ apiRoot, apiNonce, registrationNonce, from, redirectUri ]
 	);
 
 	return (
@@ -64,7 +66,7 @@ const ConnectScreenRequiredPlan = props => {
 			pricingIcon={ pricingIcon }
 			pricingTitle={ pricingTitle }
 			pricingCurrencyCode={ pricingCurrencyCode }
-			connectionStatus={ connectionStatus }
+			isLoading={ ! connectionStatus.hasOwnProperty( 'isRegistered' ) }
 			renderConnectBtn={ renderConnectBtn }
 		>
 			{ children }
@@ -87,8 +89,6 @@ ConnectScreenRequiredPlan.propTypes = {
 	from: PropTypes.string,
 	/** The redirect admin URI. */
 	redirectUri: PropTypes.string.isRequired,
-	/** Connection Status object */
-	connectionStatus: PropTypes.object.isRequired,
 	/** Whether to initiate the connection process automatically upon rendering the component. */
 	autoTrigger: PropTypes.bool,
 	/** The Pricing Card Title. */
