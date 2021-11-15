@@ -18,7 +18,7 @@ import SurveyChoice from './survey-choice';
  * @returns {React.Component} - DisconnectSurvey component.
  */
 const DisconnectSurvey = props => {
-	const { onSubmit } = props;
+	const { onSubmit, isSubmittingFeedback } = props;
 	const [ selectedAnswer, setSelectedAnswer ] = useState();
 	const [ customResponse, setCustomResponse ] = useState();
 
@@ -163,12 +163,14 @@ const DisconnectSurvey = props => {
 			</div>
 			<p>
 				<Button
-					disabled={ ! selectedAnswer }
+					disabled={ ! selectedAnswer || isSubmittingFeedback }
 					isPrimary
 					onClick={ handleSurveySubmit }
 					className="jp-connection__disconnect-dialog__btn-back-to-wp"
 				>
-					{ __( 'Submit Feedback', 'jetpack' ) }
+					{ isSubmittingFeedback
+						? __( 'Submitting…', 'jetpack' )
+						: __( 'Submit Feedback', 'jetpack' ) }
 				</Button>
 			</p>
 		</React.Fragment>
@@ -178,6 +180,8 @@ const DisconnectSurvey = props => {
 DisconnectSurvey.PropTypes = {
 	/** Callback handler function for when the survey response is submitted. */
 	onSubmit: PropTypes.func,
+	/** If the survey feedback is currently being saved/ submitted */
+	isSubmittingFeedback: PropTypes.bool,
 };
 
 export default DisconnectSurvey;

@@ -20,7 +20,7 @@ import DisconnectSurvey from '../../disconnect-survey';
  * @returns {React.Component} The StepSurvey Component
  */
 const StepSurvey = props => {
-	const { onExit, onFeedBackProvided } = props;
+	const { onExit, onFeedBackProvided, isSubmittingFeedback } = props;
 
 	return (
 		<div className="jp-connection__disconnect-dialog__content">
@@ -28,7 +28,10 @@ const StepSurvey = props => {
 			<p className="jp-connection__disconnect-dialog__large-text">
 				{ __( 'Let us know what didn‘t work for you', 'jetpack' ) }
 			</p>
-			<DisconnectSurvey onSubmit={ onFeedBackProvided } />
+			<DisconnectSurvey
+				onSubmit={ onFeedBackProvided }
+				isSubmittingFeedback={ isSubmittingFeedback }
+			/>
 			<a
 				className="jp-connection__disconnect-dialog__link jp-connection__disconnect-dialog__link--bold"
 				href="#"
@@ -45,6 +48,8 @@ StepSurvey.PropTypes = {
 	onExit: PropTypes.func,
 	/** Callback function to handle submission of survey response. */
 	onFeedBackProvided: PropTypes.func,
+	/** If the survey feedback is currently being saved/ submitted */
+	isSubmittingFeedback: PropTypes.bool,
 };
 
 export default StepSurvey;
