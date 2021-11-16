@@ -1,4 +1,0 @@
-Significance: major
-Type: changed
-
-Use `@automattic/babel-plugin-preserve-i18n` now that it has been split from calypso-build.
