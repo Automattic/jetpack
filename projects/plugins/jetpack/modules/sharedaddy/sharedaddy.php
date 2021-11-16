@@ -269,11 +269,11 @@ function sharing_global_resources_save() {
  * @return string
  */
 function sharing_recaptcha_site_key() {
-	if( ! defined( 'RECAPTCHA_PUBLIC_KEY' ) && ! defined ( 'RECAPTCHA_SITE_KEY' ) ) {
+	if ( ! defined( 'RECAPTCHA_PUBLIC_KEY' ) && ! defined ( 'RECAPTCHA_SITE_KEY' ) ) {
 		return '';
 	}
 
-	if( defined( 'RECAPTCHA_PUBLIC_KEY' ) && ! defined ( 'RECAPTCHA_SITE_KEY' ) ) {
+	if ( defined( 'RECAPTCHA_PUBLIC_KEY' ) && ! defined ( 'RECAPTCHA_SITE_KEY' ) ) {
 		define( 'RECAPTCHA_SITE_KEY', RECAPTCHA_PUBLIC_KEY );
 	}
 
@@ -288,11 +288,11 @@ function sharing_recaptcha_site_key() {
  * @return string
  */
 function sharing_recaptcha_secret_key() {
-	if( ! defined( 'RECAPTCHA_PRIVATE_KEY' ) && ! defined ( 'RECAPTCHA_SECRET_KEY' ) ) {
+	if ( ! defined( 'RECAPTCHA_PRIVATE_KEY' ) && ! defined ( 'RECAPTCHA_SECRET_KEY' ) ) {
 		return '';
 	}
 
-	if( defined( 'RECAPTCHA_PRIVATE_KEY' ) && ! defined ( 'RECAPTCHA_SECRET_KEY' ) ) {
+	if ( defined( 'RECAPTCHA_PRIVATE_KEY' ) && ! defined ( 'RECAPTCHA_SECRET_KEY' ) ) {
 		define( 'RECAPTCHA_SECRET_KEY', RECAPTCHA_PRIVATE_KEY );
 	}
 
