@@ -34,7 +34,7 @@ export default function useConnection() {
 	const [ priceAfter, setPriceAfter ] = useState( null );
 
 	useEffect( () => {
-		apiFetch( { path: '/jetpack/v4/backup-product-info' } ).then( res => {
+		apiFetch( { path: '/jetpack/v4/backup-promoted-product-info' } ).then( res => {
 			setPrice( res.cost / 12 );
 			if ( res.introductory_offer ) {
 				setPriceAfter( res.introductory_offer.cost_per_interval / 12 );

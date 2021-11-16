@@ -143,10 +143,10 @@ class Jetpack_Backup {
 
 		register_rest_route(
 			'jetpack/v4',
-			'/backup-product-info',
+			'/backup-promoted-product-info',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_backup_product_info',
+				'callback'            => __CLASS__ . '::get_backup_promoted_product_info',
 				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
 			)
 		);
@@ -229,8 +229,8 @@ class Jetpack_Backup {
 	 *
 	 * @return string|WP_Error A JSON object of the current backup product being promoted if the request was successful, or a WP_Error otherwise.
 	 */
-	public static function get_backup_product_info() {
-		$request_url   = 'https://public-api.wordpress.com/rest/v1.1/products?type=jetpack';
+	public static function get_backup_promoted_product_info() {
+		$request_url   = 'https://public-api.wordpress.com/rest/v1.1/products?_locale=' . get_user_locale() . '&type=jetpack';
 		$wpcom_request = wp_remote_get( esc_url_raw( $request_url ) );
 		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
 		if ( 200 === $response_code ) {
