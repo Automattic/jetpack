@@ -328,7 +328,7 @@ add_action( 'sharing_admin_update', 'sharing_global_resources_save' );
 add_action( 'plugin_action_links_'.basename( dirname( __FILE__ ) ).'/'.basename( __FILE__ ), 'sharing_plugin_settings', 10, 4 );
 add_filter( 'plugin_row_meta', 'sharing_add_plugin_settings', 10, 2 );
 
-if ( defined( 'RECAPTCHA_PUBLIC_KEY' ) && defined( 'RECAPTCHA_PRIVATE_KEY' ) ) {
+if ( sharing_recaptcha_site_key() && sharing_recaptcha_secret_key() ) {
 	add_action( 'sharing_email_dialog', 'sharing_email_dialog' );
 	add_filter( 'sharing_email_check', 'sharing_email_check', 10, 3 );
 }
