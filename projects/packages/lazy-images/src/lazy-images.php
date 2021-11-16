@@ -485,26 +485,33 @@ class Jetpack_Lazy_Images {
 	 * @return void
 	 */
 	public function enqueue_assets() {
-		Assets::register_script(
+		$script_path       = Assets::get_file_url_for_environment( '../dist/intersection-observer.min.js', '../dist/intersection-observer.src.js', __FILE__ );
+		$script_asset_path = '../dist/intersection-observer.min.assets.php';
+		$script_asset      = file_exists( $script_asset_path ) ? require $script_asset_path : array(
+			'dependencies' => array(),
+			'version'      => filemtime( __DIR__ . '/../dist/intersection-observer.min.js' ),
+		);
+		wp_enqueue_script(
 			'jetpack-lazy-images-polyfill-intersectionobserver',
-			'../dist/intersection-observer.min.js',
-			__FILE__,
-			array(
-				'nonmin_path' => '../dist/intersection-observer.src.js',
-				'in_footer'   => true,
-			)
+			$script_path,
+			$script_asset['dependencies'],
+			$script_asset['version'],
+			true
 		);
-		Assets::register_script(
+
+		$script_path       = Assets::get_file_url_for_environment( '../dist/lazy-images.min.js', 'js/lazy-images.js', __FILE__ );
+		$script_asset_path = '../dist/lazy-images.min.assets.php';
+		$script_asset      = file_exists( $script_asset_path ) ? require $script_asset_path : array(
+			'dependencies' => array(),
+			'version'      => filemtime( __DIR__ . '/../dist/lazy-images.min.js' ),
+		);
+		wp_enqueue_script(
 			'jetpack-lazy-images',
-			'../dist/lazy-images.min.js',
-			__FILE__,
-			array(
-				'nonmin_path'  => 'js/lazy-images.js',
-				'dependencies' => array( 'jetpack-lazy-images-polyfill-intersectionobserver' ),
-				'in_footer'    => true,
-			)
+			$script_path,
+			array_merge( $script_asset['dependencies'], array( 'jetpack-lazy-images-polyfill-intersectionobserver' ) ),
+			$script_asset['version'],
+			true
 		);
-		Assets::enqueue_script( 'jetpack-lazy-images' );
 		wp_localize_script(
 			'jetpack-lazy-images',
 			'jetpackLazyImagesL10n',
