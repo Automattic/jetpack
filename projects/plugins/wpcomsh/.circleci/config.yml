@@ -40,6 +40,7 @@ job-references:
           name: "Run Tests"
           command: |
             composer global require "phpunit/phpunit=^7.5" --ignore-platform-reqs
+            composer global require "yoast/phpunit-polyfills=^1.0.1" --ignore-platform-reqs
             rm -rf $WP_TESTS_DIR $WP_CORE_DIR
             bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1 latest
             echo "Building wpcomsh"
