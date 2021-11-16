@@ -77,12 +77,14 @@ importers:
 
   projects/js-packages/api:
     specifiers:
+      '@wordpress/url': 3.3.1
       chai-fetch-mock: 3.0.0
       fetch-mock: 9.11.0
       jetpack-js-test-runner: workspace:*
       lodash: 4.17.21
       nyc: 15.1.0
     dependencies:
+      '@wordpress/url': 3.3.1
       lodash: 4.17.21
     devDependencies:
       chai-fetch-mock: 3.0.0_fetch-mock@9.11.0
@@ -7408,6 +7410,14 @@ packages:
     dependencies:
       '@babel/runtime': 7.16.3
       lodash: 4.17.21
+
+  /@wordpress/url/3.3.1:
+    resolution: {integrity: sha512-lEuvkNjPoVuzYy0zn6n9gfMdNlHJW36EsPI2yDzMICjIAV5lRv1/uOg2Ls3lbDaRR2vm1FAiMpB2RAMzfR8Nfg==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@babel/runtime': 7.16.3
+      lodash: 4.17.21
+    dev: false
 
   /@wordpress/viewport/4.0.5_react@17.0.2:
     resolution: {integrity: sha512-/MdCHRL7AP4E9JR7CL1yOx+NJU/x81hL3/YeQwxvGkN/tTTCzU0ydChAI7q8MY8z2BAweYAgEg8VeC7R8EjCPw==}

@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { assign } from 'lodash';
+import { addQueryArgs } from '@wordpress/url';
 
 /**
  * Helps create new custom error classes to better notify upper layers.
@@ -92,10 +93,10 @@ function JetpackRestApiClient( root, nonce ) {
 
 		fetchAuthorizationUrl: redirectUri =>
 			getRequest(
-				addQueryString(
-					`${ apiRoot }jetpack/v4/connection/authorize_url`,
-					`no_iframe=1&redirect_uri=${ encodeURIComponent( redirectUri ) }`
-				),
+				addQueryArgs( `${ apiRoot }jetpack/v4/connection/authorize_url`, {
+					no_iframe: '1',
+					redirect_uri: redirectUri,
+				} ),
 				getParams
 			)
 				.then( checkStatus )
@@ -469,18 +470,6 @@ function JetpackRestApiClient( root, nonce ) {
 		args.push( '_cacheBuster=' + new Date().getTime() );
 
 		return parts[ 0 ] + '?' + args.join( '&' );
-	}
-
-	/**
-	 * Add query string to the route
-	 *
-	 * @param {string} route - The route.
-	 * @param {string} queryString - The query string to add to the route.
-	 * @returns {string} - The route with the query string added.
-	 */
-	function addQueryString( route, queryString ) {
-		const separator = route.split( '?' ).length > 1 ? '&' : '?';
-		return route + separator + queryString;
 	}
 
 	/**
