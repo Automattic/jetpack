@@ -127,16 +127,12 @@ class Customberg {
 	 * @param string $plugin_base_path - Base path for plugin files.
 	 */
 	public function load_assets_with_parameters( $path_prefix, $plugin_base_path ) {
-		$style_relative_path    = $path_prefix . '/jp-search-configure-main.min.css';
-		$script_relative_path   = $path_prefix . '/jp-search-configure-main.min.js';
-
 		//
 		// Load styles.
-		// TODO: Replace this with a plugin-independent function.
-		\Jetpack_Admin_Page::load_wrapper_styles();
+		\Jetpack_Admin_Page::load_wrapper_styles(); // TODO: Replace this with a plugin-independent function.
 		wp_enqueue_style(
 			'jp-search-configure',
-			plugins_url( $style_relative_path, $plugin_base_path ),
+			plugins_url( $path_prefix . '/jp-search-configure-main.min.css', $plugin_base_path ),
 			array(
 				'wp-components',
 				'wp-block-editor',
@@ -176,9 +172,12 @@ class Customberg {
 
 		Assets::register_script(
 			'jp-search-configure',
-			$path_prefix . '_inc/build/instant-search/jp-search-configure-main.min.js',
+			$path_prefix . '/jp-search-configure-main.min.js',
 			$plugin_base_path,
-			array( 'in_footer' => true )
+			array(
+				'dependencies' => $script_dependencies,
+				'in_footer'    => true,
+			)
 		);
 		Assets::enqueue_script( 'jp-search-configure' );
 		wp_set_script_translations( 'jp-search-configure', 'jetpack' );
