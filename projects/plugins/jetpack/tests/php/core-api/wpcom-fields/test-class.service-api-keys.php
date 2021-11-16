@@ -11,7 +11,7 @@ class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_R
 	static $editor_user_id;
 	static $subscriber_user_id;
 	public static function wpSetUpBeforeClass( $factory ) {
-		self::$editor_user_id = $factory->user->create( array( 'role' => 'editor' ) );
+		self::$editor_user_id     = $factory->user->create( array( 'role' => 'editor' ) );
 		self::$subscriber_user_id = $factory->user->create( array( 'role' => 'subscriber' ) );
 		Jetpack_Options::update_option( 'mapbox_api_key', 'ABC' );
 
@@ -44,10 +44,12 @@ class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_R
 	// UPDATE
 	public function test_update_services_api_key_mapbox_with_permission() {
 		wp_set_current_user( self::$editor_user_id );
-		$request  = wp_rest_request( 'POST', '/wpcom/v2/service-api-keys/mapbox' );
-		$request->set_body_params( array(
-			'service_api_key' => 'ABC'
-		) );
+		$request = wp_rest_request( 'POST', '/wpcom/v2/service-api-keys/mapbox' );
+		$request->set_body_params(
+			array(
+				'service_api_key' => 'ABC',
+			)
+		);
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
@@ -57,10 +59,12 @@ class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_R
 
 	public function test_update_services_api_key_mapbox_without_permission() {
 		wp_set_current_user( self::$subscriber_user_id );
-		$request  = wp_rest_request( 'POST', '/wpcom/v2/service-api-keys/mapbox' );
-		$request->set_body_params( array(
-			'service_api_key' => 'ABC'
-		) );
+		$request = wp_rest_request( 'POST', '/wpcom/v2/service-api-keys/mapbox' );
+		$request->set_body_params(
+			array(
+				'service_api_key' => 'ABC',
+			)
+		);
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
@@ -70,10 +74,12 @@ class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_R
 
 	public function test_update_404_update_services_api_key_unknow_service_with_permission() {
 		wp_set_current_user( self::$editor_user_id );
-		$request  = wp_rest_request( 'POST', '/wpcom/v2/service-api-keys/foo' );
-		$request->set_body_params( array(
-			'service_api_key' => 'ABC'
-		) );
+		$request = wp_rest_request( 'POST', '/wpcom/v2/service-api-keys/foo' );
+		$request->set_body_params(
+			array(
+				'service_api_key' => 'ABC',
+			)
+		);
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
@@ -83,10 +89,12 @@ class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_R
 
 	public function test_update_404_services_api_key_unknow_service_without_permission() {
 		wp_set_current_user( self::$subscriber_user_id );
-		$request  = wp_rest_request( 'POST', '/wpcom/v2/service-api-keys/foo' );
-		$request->set_body_params( array(
-			'service_api_key' => 'ABC'
-		) );
+		$request = wp_rest_request( 'POST', '/wpcom/v2/service-api-keys/foo' );
+		$request->set_body_params(
+			array(
+				'service_api_key' => 'ABC',
+			)
+		);
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
@@ -128,8 +136,8 @@ class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_R
 	}
 
 	public static function do_not_verify_mapbox( $return, $r, $url ) {
-		//  shortcut the api call...
-		if( $url === 'https://api.mapbox.com?ABC' ) {
+		// shortcut the api call...
+		if ( 'https://api.mapbox.com?ABC' === $url ) {
 			return true;
 		}
 		return $return;
