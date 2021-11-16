@@ -2,29 +2,37 @@ name: Jetpack Boost E2E Tests
 
 on:
   pull_request:
-    paths:
-      - 'projects/plugins/boost/**'
-      - '!projects/plugins/boost/**.md'
-      - '!projects/plugins/boost/**.txt'
-      - '!projects/plugins/boost/docs/**'
-      - '!projects/plugins/boost/changelog/**'
-  push:
-    branches: [master]
-    paths:
-      - 'projects/plugins/boost/**'
-      - '!projects/plugins/boost/**.md'
-      - '!projects/plugins/boost/**.txt'
-      - '!projects/plugins/boost/docs/**'
-      - '!projects/plugins/boost/changelog/**'
+    push:
+      branches: [ master ]
 concurrency:
   group: e2e-tests-boost-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  check:
+    name: "Check if Boost E2E tests should run"
+    runs-on: ubuntu-latest
+    timeout-minutes: 1  # 2021-11-12: Should only take a second.
+    outputs:
+      boost: ${{ steps.check.outputs.boost }}
+    steps:
+      - uses: actions/checkout@v2
+      # For pull requests, list-changed-projects.php needs the merge base.
+      - name: Deepen to merge base
+        if: github.event_name == 'pull_request'
+        uses: ./.github/actions/deepen-to-merge-base
+      - id: check
+        run: |
+          CHANGED="$(.github/files/list-changed-projects.php --debug)"
+          BOOST="$(jq '.["plugins/boost"]' <<<"$CHANGED")"
+          echo "::set-output name=boost::${BOOST}"
+
   e2e-tests:
     name: "Boost E2E tests"
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    needs: check
+    if: needs.check.outputs.boost == 'true'
 
     steps:
       - uses: actions/checkout@v2
