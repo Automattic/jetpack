@@ -17,21 +17,21 @@ First, you'll probably want to set up a [browserslist] configuration.
 Then you can use this like any other sharable config in your `.eslintrc.*` file. Three configurations are offered.
 
 To check only for language features, such as nullish coalescing, your eslintrc might look like
-```json
+```js
 {
 	extends: [ '@automattic/eslint-config-target-es/language' ],
 }
 ```
 
 To check only for builtins, such as Promise, WeakRef, and various features of RegExp, your eslintrc might look like
-```json
+```js
 {
 	extends: [ '@automattic/eslint-config-target-es/builtins' ],
 }
 ```
 
 To check both, your eslintrc might look like
-```json
+```js
 {
 	extends: [ '@automattic/eslint-config-target-es/all' ],
 }

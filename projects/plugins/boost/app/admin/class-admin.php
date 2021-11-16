@@ -138,7 +138,7 @@ class Admin {
 			'config'              => $this->jetpack_boost->config()->get_data(),
 			'locale'              => get_locale(),
 			'site'                => array(
-				'url'       => get_site_url(),
+				'url'       => get_home_url(),
 				'online'    => ! ( new Status() )->is_offline_mode(),
 				'assetPath' => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
 			),
