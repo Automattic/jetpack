@@ -7,10 +7,12 @@
 		"eslint-changed": "eslint-changed",
 		"prettier": "prettier",
 		"semver": "semver",
-		"sort-package-json": "sort-package-json"
+		"sort-package-json": "sort-package-json",
+		"validate-es": "validate-es"
 	},
 	"devDependencies": {
 		"@automattic/eslint-changed": "workspace:*",
+		"@automattic/eslint-config-target-es": "workspace:*",
 		"@babel/core": "7.16.0",
 		"@babel/eslint-parser": "7.16.0",
 		"@octokit/auth-token": "2.4.5",
@@ -20,6 +22,7 @@
 		"eslint": "7.32.0",
 		"eslint-config-prettier": "8.3.0",
 		"eslint-config-wpcalypso": "6.1.0",
+		"eslint-plugin-es": "4.1.0",
 		"eslint-plugin-es5": "1.5.0",
 		"eslint-plugin-inclusive-language": "1.2.1",
 		"eslint-plugin-jest": "24.7.0",
