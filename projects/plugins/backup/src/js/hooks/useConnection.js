@@ -60,6 +60,7 @@ export default function useConnection() {
 				apiNonce={ APINonce }
 				connectedPlugins={ connectedPlugins }
 				redirectUri="admin.php?page=jetpack-backup"
+				context="jetpack-backup-page"
 			/>
 		);
 	};
