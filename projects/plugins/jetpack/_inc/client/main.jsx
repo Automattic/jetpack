@@ -6,8 +6,9 @@ import { connect } from 'react-redux';
 import { withRouter, Prompt } from 'react-router-dom';
 import { __, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ConnectScreen } from '@automattic/jetpack-connection';
+import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { Dashicon } from '@wordpress/components';
+import { withDispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -102,6 +103,8 @@ class Main extends React.Component {
 		restApi.setApiNonce( this.props.apiNonce );
 		this.initializeAnalytics();
 
+		this.props.setConnectionStatus( this.props.connectionStatus );
+
 		// Handles refresh, closing and navigating away from Jetpack's Admin Page
 		// beforeunload can not handle confirm calls in most of the browsers, so just clean up the flag.
 		window.addEventListener( 'beforeunload', this.props.clearUnsavedSettingsFlag );
@@ -190,6 +193,8 @@ class Main extends React.Component {
 			$items.find( 'a[href$="admin.php?page=stats"]' ).hide();
 			$items.find( 'a[href$="admin.php?page=jetpack-search"]' ).hide();
 		}
+
+		this.props.setConnectionStatus( this.props.connectionStatus );
 	}
 
 	renderMainContent = route => {
@@ -567,7 +572,15 @@ export default connect(
 			return dispatch( resetConnectUser() );
 		},
 	} )
-)( withRouter( Main ) );
+)(
+	withDispatch( dispatch => {
+		return {
+			setConnectionStatus: connectionStatus => {
+				dispatch( CONNECTION_STORE_ID ).setConnectionStatus( connectionStatus );
+			},
+		};
+	} )( withRouter( Main ) )
+);
 
 /**
  * Manages changing the visuals of the sub-nav items on the left sidebar when the React app changes routes
