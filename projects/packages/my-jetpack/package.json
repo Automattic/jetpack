@@ -21,10 +21,10 @@
 		"watch": "pnpm run build && pnpm webpack watch"
 	},
 	"dependencies": {
-		"@automattic/jetpack-components": "workspace:^0.6.0-alpha"
+		"@automattic/jetpack-components": "workspace:^0.6.1-alpha"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:^0.1.0-alpha",
+		"@automattic/jetpack-webpack-config": "workspace:^0.2.0-alpha",
 		"@babel/core": "7.15.0",
 		"@babel/preset-env": "7.15.0",
 		"@babel/register": "7.15.3",

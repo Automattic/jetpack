@@ -7,7 +7,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import MyJetpack from './components/my-jetpack';
+import MyJetpackScreen from './components/my-jetpack-screen';
 
 /**
  * The initial renderer function.
@@ -19,7 +19,7 @@ function render() {
 		return;
 	}
 
-	ReactDOM.render( <MyJetpack />, container );
+	ReactDOM.render( <MyJetpackScreen />, container );
 }
 
 render();

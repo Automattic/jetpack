@@ -6,19 +6,19 @@ import { __ } from '@wordpress/i18n';
 import { JetpackFooter, JetpackLogo } from '@automattic/jetpack-components';
 
 /**
- * The My Jetpack App.
+ * The My Jetpack App Main Screen.
  *
- * @returns {object} The MyJetpack component.
+ * @returns {object} The MyJetpackScreen component.
  */
-export default function MyJetpack() {
+export default function MyJetpackScreen() {
 	return (
-		<React.Fragment>
+		<div className="jp-my-jetpack-screen">
 			<JetpackLogo />
 			<p>Hello Jetpack</p>
 			<JetpackFooter
 				moduleName={ __( 'Jetpack', 'jetpack' ) }
 				a8cLogoHref="https://www.jetpack.com"
 			/>
-		</React.Fragment>
+		</div>
 	);
 }
