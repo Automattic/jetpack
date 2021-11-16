@@ -34,6 +34,7 @@ const ConnectionStatusCard = props => {
 		connectionInfoText,
 		onDisconnected,
 		connectedPlugins,
+		context,
 	} = props;
 
 	const [ isFetchingConnectionData, setIsFetchingConnectionData ] = useState( false );
@@ -169,6 +170,7 @@ const ConnectionStatusCard = props => {
 						connectedUser={ connectedUserData }
 						isOpen={ isDisconnectDialogOpen }
 						onClose={ closeDisconnectDialog }
+						context={ context }
 					/>
 				</li>
 
@@ -222,6 +224,8 @@ ConnectionStatusCard.propTypes = {
 	onDisconnected: PropTypes.func,
 	/** The base URL of the asset folder for the plugin using this component ( needed for inclusion of images ). */
 	assetBaseUrl: PropTypes.string,
+	/** The context in which this component is being used */
+	context: PropTypes.string,
 };
 
 ConnectionStatusCard.defaultProps = {
