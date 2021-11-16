@@ -10,43 +10,31 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import {
-	JetpackBackupDailyProductDetails,
-	JetpackSecurityDailyProductDetails,
-} from './product-details';
+import { getJetpackProductDashboardUrl } from '../activation-screen/utils';
+import JetpackProductDetails from './product-details';
 
 /**
  * Style dependencies
  */
 import './style.scss';
 
-const productIdToDetails = ( productId, dashboardUrl ) => {
-	switch ( productId ) {
-		case 2100:
-			return <JetpackBackupDailyProductDetails dashboardUrl={ dashboardUrl } />;
-		case 2010:
-			return <JetpackSecurityDailyProductDetails dashboardUrl={ dashboardUrl } />;
-		default:
-			return null;
-	}
-};
-
 /**
  * The Activation Screen Illustration component.
  *
  * @param {object} props -- The properties.
  * @param {number} props.productId -- The id of the product activated
- * @param {number} props.dashboardUrl -- The url that links to the site dashboard
+ * @param {string} props.siteRawUrl -- The url of the site
  * @returns {React.Component} The `ActivationSuccessInfo` component.
  */
 const ActivationSuccessInfo = props => {
-	const { dashboardUrl, productId } = props;
+	const { productId, siteRawUrl } = props;
+	const dashboardUrl = getJetpackProductDashboardUrl( productId, siteRawUrl );
 	return (
 		<div className="jp-license-activation-screen-success-info">
 			<div className="jp-license-activation-screen-success-info--content">
 				<JetpackLogo showText={ false } height={ 48 } />
 			</div>
-			{ productIdToDetails( productId, dashboardUrl ) }
+			<JetpackProductDetails siteRawUrl={ siteRawUrl } productId={ productId } />
 			<div>
 				<Button className="jp-license-activation-screen-success-info--button" href={ dashboardUrl }>
 					{ __( 'Go to Dashboard', 'jetpack' ) }
@@ -57,8 +45,8 @@ const ActivationSuccessInfo = props => {
 };
 
 ActivationSuccessInfo.propTypes = {
+	siteRawUrl: PropTypes.string,
 	productId: PropTypes.number,
-	dashboardUrl: PropTypes.string,
 };
 
 export default ActivationSuccessInfo;
