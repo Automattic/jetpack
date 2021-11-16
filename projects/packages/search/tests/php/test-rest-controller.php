@@ -247,7 +247,7 @@ class Test_REST_Controller extends Search_Test_Case {
 	}
 
 	/**
-	 * Testing the `GET /jetpack/v4/search` endpoint with editor user.
+	 * Testing the `GET /jetpack/v4/search` endpoint with no user.
 	 */
 	public function test_get_search_results_unauthorized() {
 		wp_set_current_user( 0 );
@@ -261,8 +261,21 @@ class Test_REST_Controller extends Search_Test_Case {
 	/**
 	 * Testing the `GET /jetpack/v4/search` endpoint with editor user.
 	 */
-	public function test_get_search_results_success() {
+	public function test_get_search_results_success_editor() {
 		wp_set_current_user( $this->editor_id );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/search' );
+		$request->set_header( 'content-type', 'application/json' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( 6, $response->get_data()['total'] );
+	}
+
+	/**
+	 * Testing the `GET /jetpack/v4/search` endpoint with admin user.
+	 */
+	public function test_get_search_results_success_admin() {
+		wp_set_current_user( $this->admin_id );
 
 		$request = new WP_REST_Request( 'GET', '/jetpack/v4/search' );
 		$request->set_header( 'content-type', 'application/json' );
