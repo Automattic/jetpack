@@ -10,7 +10,7 @@ Require this package and initialize it:
 
 ```PHP
 add_action( 'init', function() {
-	Automattc\Jetpack\My_Jetpack\My_Jetpack::init();
+	Automattc\Jetpack\My_Jetpack\Initializer::init();
 });
 ```
 
