@@ -2,6 +2,29 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 10.4-a.5 - 2021-11-16
+### Enhancements
+- Dashboard: display a notice when you have unactivated product licence keys linked to your WordPress.com account.
+- Likes: refactor Likes in posts to improve performance and avoid loading additional libraries.
+- VideoPress: add handles to resize the Video Block in the editor.
+
+### Bug fixes
+- Dashboard: fix some layout and display issues in the Recommendations panel.
+- Dashboard: ensure plan information is properly displayed when using Backup and Security plans.
+- Instant Search: restore filter query string functionality.
+- VideoPress: reload block when updating video rating in the editor, and ensure rating meta data is updated.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Allow /sites/$site/external-media/copy/pexels to insert post meta data
+- Change the way we interact with RNA Connection Screen.
+- Don't set Webpack's `output.pathinfo` in production builds.
+- Fix some code where the minifier loses the translator comments.
+- Nav Unification: map new Site Editor location from Gutenberg 11.9 to Calypso
+- Nav Unification: Display the stats sparkline on WP Admin for Atomic sites. This fix only affects WP.com sites.
+- Updated package dependencies.
+- Update link for Backup and Security product cards to point to checkout for new real-time products
+- Use monorepo `validate-es` script to validate Webpack builds.
+
 ## 10.4-a.3 - 2021-11-09
 ### Enhancements
 - Publicize: always add an Open Graph image alt text if an Open Graph image is present.
