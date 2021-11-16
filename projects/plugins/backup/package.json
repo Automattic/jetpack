@@ -16,18 +16,19 @@
 		"build-client": "pnpx webpack",
 		"build-concurrently": "pnpm run install-if-deps-outdated && pnpm run clean && pnpx concurrently 'pnpm:build-client' 'pnpm:build-php'",
 		"build-php": "composer install --ignore-platform-reqs",
-		"build-production-concurrently": "pnpm run clean-all && pnpm run install-if-deps-outdated && pnpx concurrently 'pnpm:build-production-php' 'NODE_ENV=production BABEL_ENV=production pnpm run build-client'",
+		"build-production-concurrently": "pnpm run clean-all && pnpm run install-if-deps-outdated && pnpx concurrently 'pnpm:build-production-php' 'NODE_ENV=production BABEL_ENV=production pnpm run build-client' && pnpm run validate",
 		"build-production-php": "COMPOSER_MIRROR_PATH_REPOS=1 COMPOSER_ROOT_VERSION=dev-master composer install -o --no-dev --classmap-authoritative --prefer-dist",
 		"clean": "rm -rf build/",
 		"clean-all": "rm -rf build/ node_modules/ vendor/",
 		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
+		"validate": "pnpm exec validate-es build/",
 		"watch": "pnpm run build && pnpx webpack watch"
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
-		"@automattic/jetpack-api": "workspace:^0.5.1-alpha",
+		"@automattic/jetpack-api": "workspace:^0.6.0-alpha",
 		"@automattic/jetpack-components": "workspace:^0.6.1-alpha",
 		"@automattic/jetpack-connection": "workspace:^0.10.0-alpha",
 		"@wordpress/api-fetch": "5.2.5",

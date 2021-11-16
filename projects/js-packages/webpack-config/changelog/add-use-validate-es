@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix browserslist defaulting to `@wordpress/browserslist-config`.
