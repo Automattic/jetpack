@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Assets;
 
 /**
  * The main Initializer class that registers the admin menu and eneuque the assets.
@@ -64,8 +65,15 @@ class Initializer {
 	 * @return void
 	 */
 	public static function enqueue_scritps() {
-		$build_assets = require_once __DIR__ . '/../build/index.asset.php';
-		wp_enqueue_script( 'my_jetpack_main_app', plugin_dir_url( __DIR__ ) . 'build/index.js', $build_assets['dependencies'], $build_assets['version'], true );
+		Assets::register_script(
+			'my_jetpack_main_app',
+			'../build/index.js',
+			__FILE__,
+			array(
+				'enqueue'   => true,
+				'in_footer' => true,
+			)
+		);
 	}
 
 	/**
