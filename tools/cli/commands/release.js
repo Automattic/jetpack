@@ -11,6 +11,7 @@ import inquirer from 'inquirer';
 import promptForProject from '../helpers/promptForProject';
 import { chalkJetpackGreen } from '../helpers/styling';
 import { allProjects } from '../helpers/projectHelpers';
+import { readComposerJson } from '../helpers/json';
 
 /**
  * Command definition for the release subcommand.
@@ -177,8 +178,8 @@ export async function scriptRouter( argv ) {
  */
 export async function checkBranchValid( argv ) {
 	const currentBranch = child_process.execSync( 'git branch --show-current' ).toString().trim();
-	const proj = argv.project.split( '/' )[ 1 ]; // get project without project type attached.
-	if ( ! currentBranch.match( `${ proj }/branch-` ) ) {
+	const branchPrefix = await readComposerJson( argv.project ).extra[ 'release-branch-prefix' ];
+	if ( ! currentBranch.match( `${ branchPrefix }/branch-` ) ) {
 		console.log(
 			chalk.red(
 				`Doesn't look like you're on a release branch! Please check out the release branch before amending the changelog.`
