@@ -1,10 +1,8 @@
 <?php
 /**
- * Jetpack Search: Template_Tags class
+ * Template tags class used primarily for rendering widget-related HTML.
  *
- * @package    Jetpack
- * @subpackage Jetpack Search
- * @since      5.8.0
+ * @package    automattic/jetpack-search
  */
 
 namespace Automattic\Jetpack\Search;
