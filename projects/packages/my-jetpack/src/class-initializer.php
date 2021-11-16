@@ -10,9 +10,9 @@ namespace Automattic\Jetpack\My_Jetpack;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 
 /**
- * The main My_Jetpack class that registers the admin menu and eneuque the assets.
+ * The main Initializer class that registers the admin menu and eneuque the assets.
  */
-class My_Jetpack {
+class Initializer {
 
 	/**
 	 * Whether My Jetpack was already initialized.
