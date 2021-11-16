@@ -117,13 +117,22 @@ class Jetpack_Widget_Conditions {
 	 * Enqueue the block-based widget visibility scripts.
 	 */
 	public static function setup_block_controls() {
-		Assets::register_script(
+		$manifest_path       = JETPACK__PLUGIN_DIR . '_inc/build/widget-visibility/editor/index.min.asset.php';
+		$script_path         = plugins_url( '_inc/build/widget-visibility/editor/index.min.js', JETPACK__PLUGIN_FILE );
+		$script_dependencies = array( 'wp-polyfill' );
+		if ( file_exists( $manifest_path ) ) {
+			$asset_manifest      = include $manifest_path;
+			$script_dependencies = $asset_manifest['dependencies'];
+		}
+
+		// Enqueue built script.
+		wp_enqueue_script(
 			'widget-visibility-editor',
-			'_inc/build/widget-visibility/editor/index.min.js',
-			JETPACK__PLUGIN_FILE,
-			array( 'in_footer' => true )
+			$script_path,
+			$script_dependencies,
+			JETPACK__VERSION,
+			true
 		);
-		Assets::enqueue_script( 'widget-visibility-editor' );
 		wp_set_script_translations( 'widget-visibility-editor', 'jetpack' );
 	}
 
