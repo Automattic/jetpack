@@ -113,9 +113,23 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			if ( ! empty( $submenu[ $menu_item[2] ] ) ) {
 				$submenu_items = array_values( $submenu[ $menu_item[2] ] );
 
+				/**
+				 * Logic extracted from _wp_menu_output() core function
+				 * Based $admin_is_parent we determine if the submenu items should be pointing to the admin.php
+				 */
+				$menu_hook = get_plugin_page_hook( $menu_item[2], 'admin.php' );
+				$menu_file = $menu_item[2];
+				$pos       = strpos( $menu_file, '?' );
+
+				if ( false !== $pos ) {
+					$menu_file = substr( $menu_file, 0, $pos );
+				}
+
+				$admin_is_parent = ! empty( $menu_hook ) || ( ( 'index.php' !== $item[2] ) && file_exists( WP_PLUGIN_DIR . "/$menu_file" ) && ! file_exists( ABSPATH . "/wp-admin/$menu_file" ) );
+
 				// Add submenu items.
 				foreach ( $submenu_items as $submenu_item ) {
-					$submenu_item = $this->prepare_submenu_item( $submenu_item, $menu_item );
+					$submenu_item = $this->prepare_submenu_item( $submenu_item, $menu_item, $admin_is_parent );
 					if ( ! empty( $submenu_item ) ) {
 						$item['children'][] = $submenu_item;
 					}
@@ -276,11 +290,13 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	/**
 	 * Sets up a submenu item for consumption by Calypso.
 	 *
-	 * @param array $submenu_item Submenu item.
-	 * @param array $menu_item    Menu item.
+	 * @param array $submenu_item    Submenu item.
+	 * @param array $menu_item       Menu item.
+	 * @param bool  $admin_is_parent Check if the parent menu.
+	 *
 	 * @return array Prepared submenu item.
 	 */
-	private function prepare_submenu_item( array $submenu_item, array $menu_item ) {
+	private function prepare_submenu_item( array $submenu_item, array $menu_item, $admin_is_parent ) {
 		// Exclude unauthorized submenu items.
 		if ( ! current_user_can( $submenu_item[1] ) ) {
 			return array();
@@ -296,7 +312,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			'slug'   => sanitize_title_with_dashes( $submenu_item[2] ),
 			'title'  => $submenu_item[0],
 			'type'   => 'submenu-item',
-			'url'    => $this->prepare_menu_item_url( $submenu_item[2], $menu_item[2] ),
+			'url'    => $this->prepare_menu_item_url( $submenu_item[2], $menu_item[2], $admin_is_parent ),
 		);
 
 		$parsed_item = $this->parse_menu_item( $item['title'] );
@@ -332,11 +348,13 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	/**
 	 * Prepares a menu item url for consumption by Calypso.
 	 *
-	 * @param string $url         Menu slug.
-	 * @param string $parent_slug Optional. Parent menu item slug. Default empty string.
+	 * @param string    $url             Menu slug.
+	 * @param string    $parent_slug     Optional. Parent menu item slug. Default empty string.
+	 * @param null|bool $admin_is_parent Check if the parent menu is admin.php.
+	 *
 	 * @return string
 	 */
-	private function prepare_menu_item_url( $url, $parent_slug = '' ) {
+	private function prepare_menu_item_url( $url, $parent_slug = '', $admin_is_parent = null ) {
 		// External URLS.
 		if ( preg_match( '/^https?:\/\//', $url ) ) {
 			// Allow URLs pointing to WordPress.com.
@@ -371,7 +389,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			)
 		) {
 			if (
-				( 'admin.php' !== $parent_file && file_exists( WP_PLUGIN_DIR . "/$parent_file" ) && ! is_dir( WP_PLUGIN_DIR . "/$parent_file" ) ) ||
+				( ( false === $admin_is_parent || null === $admin_is_parent ) && 'admin.php' !== $parent_file && file_exists( WP_PLUGIN_DIR . "/$parent_file" ) && ! is_dir( WP_PLUGIN_DIR . "/$parent_file" ) ) ||
 				( file_exists( ABSPATH . "/wp-admin/$parent_file" ) && ! is_dir( ABSPATH . "/wp-admin/$parent_file" ) )
 			) {
 				$url = add_query_arg( array( 'page' => $url ), admin_url( $parent_slug ) );
