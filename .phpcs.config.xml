@@ -41,4 +41,7 @@
 	<exclude-pattern>/projects/plugins/jetpack/modules/module-headings.php</exclude-pattern>
 	<exclude-pattern>/projects/plugins/jetpack/modules/photon-cdn/jetpack-manifest.php</exclude-pattern>
 
+	<!-- Ignore test fixture files -->
+	<exclude-pattern>/projects/packages/assets/tests/php/test-assets-files/*</exclude-pattern>
+
 </ruleset>

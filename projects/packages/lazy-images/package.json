@@ -17,14 +17,15 @@
 	"scripts": {
 		"build": "pnpm run install-if-deps-outdated && pnpm run clean && pnpm run build-js",
 		"build-js": "webpack",
-		"build-production": "pnpm run distclean && pnpm run install-if-deps-outdated && pnpm run build-production-js",
+		"build-production": "pnpm run distclean && pnpm run install-if-deps-outdated && pnpm run build-production-js && pnpm run validate",
 		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm run build-js",
 		"clean": "rm -rf dist",
 		"distclean": "rm -rf node_modules && pnpm run clean",
-		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile"
+		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
+		"validate": "pnpm exec validate-es dist/"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:^0.1.1-alpha",
+		"@automattic/jetpack-webpack-config": "workspace:^0.2.0-alpha",
 		"copy-webpack-plugin": "9.0.1",
 		"intersection-observer": "0.12.0",
 		"webpack": "5.51.1"
