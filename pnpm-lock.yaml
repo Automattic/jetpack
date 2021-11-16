@@ -253,7 +253,7 @@ importers:
     specifiers:
       '@automattic/jetpack-api': workspace:^0.7.1-alpha
       '@automattic/jetpack-base-styles': workspace:^0.1.0
-      '@automattic/jetpack-components': workspace:^0.6.4-alpha
+      '@automattic/jetpack-components': workspace:^0.7.0-alpha
       '@wordpress/components': 19.0.3
       '@wordpress/element': 4.0.4
       '@wordpress/i18n': 4.2.4
