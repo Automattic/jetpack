@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Sharing: update to use Recaptcha's modern key names.
