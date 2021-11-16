@@ -33,7 +33,7 @@ export function releaseDefine( yargs ) {
 					alias: 's',
 					describe: 'The release script to run',
 					type: 'string',
-					choices: [ 'changelog', 'readme', 'release-branch', 'amend' ],
+					choices: [ 'changelog', 'readme', 'release-branch', 'amend', 'version' ],
 				} )
 				.option( 'dev-release', {
 					alias: 'a',
@@ -97,10 +97,15 @@ export async function releaseCli( argv ) {
  * @param {object} argv - the arguments passed
  */
 export async function runScript( argv ) {
-	console.log( chalkJetpackGreen( `Running ${ argv.script }! Just a moment...` ) );
+	console.log(
+		chalkJetpackGreen(
+			`Running ${ argv.script } ${ argv.scriptArgs.join( ' ' ) }! Just a moment...`
+		)
+	);
 
 	const scriptProcess = child_process.spawnSync( argv.script, [ ...argv.scriptArgs ], {
 		stdio: 'inherit',
+		cwd: argv.workingDir ? argv.workingDir : './',
 	} );
 
 	if ( scriptProcess.status !== 0 ) {
@@ -113,7 +118,7 @@ export async function runScript( argv ) {
 }
 
 /**
- * Determine which script to run.
+ * Set the argument variables depending on which script we're runnning.
  *
  * @param {object} argv - the arguments passed
  */
@@ -150,17 +155,39 @@ export async function scriptRouter( argv ) {
 				  - You will now likely want to start a new release cycle like so:
 				      jetpack release ${ argv.project } new-cycle \n`.replace( /^\t+/gm, '' );
 			break;
-		case 'append':
-			// Check if we're on the release branch
-			argv.script = `projects/plugins/jetpack/vendor/bin/changelogger`;
+		case 'amend':
+			await checkBranchValid( argv );
+			argv.script = `vendor/bin/changelogger`;
 			argv.scriptArgs = [ `write`, `--amend` ];
-			argv.next = `Finished! Next: `;
+			argv.workingDir = `projects/${ argv.project }`;
+			argv.next = `Finished! Next:  
+				  	- You will now likely want to update readme.txt again, then commit to the release branch:
+				    	jetpack release ${ argv.project } readme \n`.replace( /^\t+/gm, '' );
 			break;
-		case 'new-cycle':
+		case 'version':
 			console.log( `${ argv.script } is not implemented yet!` );
 			process.exit( 1 );
 	}
 }
+
+/**
+ * Checks and makes sure we're on a release branch before we run the `amend` script.
+ *
+ * @param {object} argv - the arguments passed.
+ */
+export async function checkBranchValid( argv ) {
+	const currentBranch = child_process.execSync( 'git branch --show-current' ).toString().trim();
+	const proj = argv.project.split( '/' )[ 1 ]; // get project without project type attached.
+	if ( ! currentBranch.match( `${ proj }/branch-` ) ) {
+		console.log(
+			chalk.red(
+				`Doesn't look like you're on a release branch! Please check out the release branch before amending the changelog.`
+			)
+		);
+		process.exit( 1 );
+	}
+}
+
 /**
  * Checks the project we're releasing.
  *
