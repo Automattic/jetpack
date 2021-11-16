@@ -688,7 +688,7 @@ class Critical_CSS extends Module {
 		 *
 		 * @todo  Retrieve settings from database, either via auto-configuration or UI option.
 		 */
-		$method = apply_filters( 'jetpack_boost_async_style', 'deferred', $handle, $media );
+		$method = apply_filters( 'jetpack_boost_async_style', 'async', $handle, $media );
 
 		// If the loading method is not allowed, do not alter the stylesheet loading.
 		if ( ! isset( $available_methods[ $method ] ) ) {
