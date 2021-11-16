@@ -69,7 +69,20 @@ class Test_Module_Control extends TestCase {
 	}
 
 	/**
-	 * Test static::$search_module->activate()
+	 * Test static::$search_module->activate() when search is not supported
+	 */
+	public function test_activate_module_not_supported() {
+		$plan = $this->createMock( Plan::class );
+		$plan->method( 'supports_search' )->willReturn( false );
+
+		$search_module = new Module_Control( $plan );
+		$search_module->activate();
+		// Cannot activate search if not supported.
+		$this->assertEquals( array(), get_option( 'jetpack_' . Module_Control::JETPACK_ACTIVE_MODULES_OPTION_KEY, array() ) );
+	}
+
+	/**
+	 * Test static::$search_module->deactivate()
 	 */
 	public function test_deactivate_module() {
 		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
