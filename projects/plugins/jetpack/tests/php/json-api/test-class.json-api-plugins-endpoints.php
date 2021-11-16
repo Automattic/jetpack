@@ -26,7 +26,7 @@ class WP_Test_Jetpack_Json_Api_Plugins_Endpoints extends WP_UnitTestCase {
 		$this->set_globals();
 
 		// Force direct method. Running the upgrade via PHPUnit can't detect the correct filesystem method.
-		add_filter( 'filesystem_method', array( $this,  'filesystem_method_direct' ) );
+		add_filter( 'filesystem_method', array( $this, 'filesystem_method_direct' ) );
 	}
 
 	/**
@@ -35,39 +35,41 @@ class WP_Test_Jetpack_Json_Api_Plugins_Endpoints extends WP_UnitTestCase {
 	 * @group external-http
 	 */
 	public function test_Jetpack_JSON_API_Plugins_Modify_Endpoint() {
-		$endpoint = new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
-			'description'     => 'Update a Plugin on your Jetpack Site',
-			'group'           => 'plugins',
-			'stat'            => 'plugins:1:update',
-			'method'          => 'GET',
-			'path'            => '/sites/%s/plugins/%s/update/',
-			'path_labels' => array(
-				'$site'   => '(int|string) The site ID, The site domain',
-				'$plugin' => '(string) The plugin file name',
-			),
-			'response_format' => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
-			'example_request_data' => array(
-				'headers' => array(
-					'authorization' => 'Bearer YOUR_API_TOKEN'
+		$endpoint = new Jetpack_JSON_API_Plugins_Modify_Endpoint(
+			array(
+				'description'          => 'Update a Plugin on your Jetpack Site',
+				'group'                => 'plugins',
+				'stat'                 => 'plugins:1:update',
+				'method'               => 'GET',
+				'path'                 => '/sites/%s/plugins/%s/update/',
+				'path_labels'          => array(
+					'$site'   => '(int|string) The site ID, The site domain',
+					'$plugin' => '(string) The plugin file name',
 				),
-			),
-			'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/hello/update'
-		) );
+				'response_format'      => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
+				'example_request_data' => array(
+					'headers' => array(
+						'authorization' => 'Bearer YOUR_API_TOKEN',
+					),
+				),
+				'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/hello/update',
+			)
+		);
 
 		/**
 		 * Changes the Accessibility of the protected upgrade_plugin method.
 		 */
-		$class = new ReflectionClass('Jetpack_JSON_API_Plugins_Modify_Endpoint');
+		$class                = new ReflectionClass( 'Jetpack_JSON_API_Plugins_Modify_Endpoint' );
 		$update_plugin_method = $class->getMethod( 'update' );
 		$update_plugin_method->setAccessible( true );
 
 		$plugin_property = $class->getProperty( 'plugins' );
 		$plugin_property->setAccessible( true );
-		$plugin_property->setValue ( $endpoint , array( 'the/the.php' ) );
+		$plugin_property->setValue( $endpoint, array( 'the/the.php' ) );
 
 		$the_plugin_file = 'the/the.php';
 		$the_real_folder = WP_PLUGIN_DIR . '/the';
-		$the_real_file = WP_PLUGIN_DIR . '/' . $the_plugin_file;
+		$the_real_file   = WP_PLUGIN_DIR . '/' . $the_plugin_file;
 
 		/*
 		 * Create an oudated version of 'The' plugin
@@ -78,8 +80,9 @@ class WP_Test_Jetpack_Json_Api_Plugins_Endpoints extends WP_UnitTestCase {
 			mkdir( $the_real_folder );
 			$clean = true;
 		}
-
-		file_put_contents( $the_real_file,
+// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
+		file_put_contents(
+			$the_real_file,
 			'<?php
 			/*
 			 * Plugin Name: The
@@ -275,31 +278,31 @@ class WP_Test_Jetpack_Json_Api_Plugins_Endpoints extends WP_UnitTestCase {
 			wp_set_current_user( self::$super_admin_user_id );
 		}
 
-		$endpoint = new Jetpack_JSON_API_Plugins_Install_Endpoint( array(
-			'stat'            => 'plugins:1:new',
-			'method'          => 'POST',
-			'path'            => '/sites/%s/plugins/new',
-			'path_labels' => array(
-				'$site'   => '(int|string) The site ID, The site domain',
-			),
-			'request_format' => array(
-				'plugin'       => '(string) The plugin slug.'
-			),
-			'response_format' => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
-			'example_request_data' => array(
-				'headers' => array(
-					'authorization' => 'Bearer YOUR_API_TOKEN'
+		$endpoint = new Jetpack_JSON_API_Plugins_Install_Endpoint(
+			array(
+				'stat'                 => 'plugins:1:new',
+				'method'               => 'POST',
+				'path'                 => '/sites/%s/plugins/new',
+				'path_labels'          => array(
+					'$site' => '(int|string) The site ID, The site domain',
 				),
-				'body' => array(
-					'plugin' => 'buddypress'
-				)
-			),
-			'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/new'
-		) );
+				'request_format'       => array(
+					'plugin' => '(string) The plugin slug.',
+				),
+				'response_format'      => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
+				'example_request_data' => array(
+					'headers' => array(
+						'authorization' => 'Bearer YOUR_API_TOKEN',
+					),
+					'body'    => array(
+						'plugin' => 'buddypress',
+					),
+				),
+				'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/new',
+			)
+		);
 
-		$the_plugin_file = 'the/the.php';
 		$the_real_folder = WP_PLUGIN_DIR . '/the';
-		$the_real_file = WP_PLUGIN_DIR . '/' . $the_plugin_file;
 		$the_plugin_slug = 'the';
 
 		// Check if 'The' plugin folder is already there.
@@ -307,11 +310,11 @@ class WP_Test_Jetpack_Json_Api_Plugins_Endpoints extends WP_UnitTestCase {
 			$this->markTestSkipped( 'The plugin the test tries to install (the) is already installed. Skipping.' );
 		}
 
-		$class = new ReflectionClass('Jetpack_JSON_API_Plugins_Install_Endpoint');
+		$class = new ReflectionClass( 'Jetpack_JSON_API_Plugins_Install_Endpoint' );
 
 		$plugins_property = $class->getProperty( 'plugins' );
 		$plugins_property->setAccessible( true );
-		$plugins_property->setValue ( $endpoint , array( $the_plugin_slug ) );
+		$plugins_property->setValue( $endpoint, array( $the_plugin_slug ) );
 
 		$validate_plugins_method = $class->getMethod( 'validate_plugins' );
 		$validate_plugins_method->setAccessible( true );
@@ -336,9 +339,11 @@ class WP_Test_Jetpack_Json_Api_Plugins_Endpoints extends WP_UnitTestCase {
 
 	function rmdir( $dir ) {
 		foreach ( scandir( $dir ) as $file ) {
-			if ( is_dir( $file ) )
+			if ( is_dir( $file ) ) {
 				continue;
-			else unlink( "$dir/$file" );
+			} else {
+				unlink( "$dir/$file" );
+			}
 		}
 		rmdir( $dir );
 	}
