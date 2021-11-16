@@ -261,9 +261,16 @@ function sharing_global_resources_save() {
 	update_option( 'sharedaddy_disable_resources', isset( $_POST['disable_resources'] ) ? 1 : 0 );
 }
 
+/**
+ * Returns the Recaptcha site/public key.
+ *
+ * Supports legacy RECAPTCHA_PUBLIC_KEY or RECAPTCHA_SITE_KEY.
+ *
+ * @return string
+ */
 function sharing_recaptcha_site_key() {
 	if( ! defined( 'RECAPTCHA_PUBLIC_KEY' ) && ! defined ( 'RECAPTCHA_SITE_KEY' ) ) {
-		return;
+		return '';
 	}
 
 	if( defined( 'RECAPTCHA_PUBLIC_KEY' ) && ! defined ( 'RECAPTCHA_SITE_KEY' ) ) {
@@ -273,9 +280,16 @@ function sharing_recaptcha_site_key() {
 	return RECAPTCHA_SITE_KEY;
 }
 
+/**
+ * Returns the Recaptcha private/secret key.
+ *
+ * Supports legacy RECAPTCHA_PRIVATE_KEY or RECAPTCHA_SECRET_KEY.
+ *
+ * @return string
+ */
 function sharing_recaptcha_secret_key() {
 	if( ! defined( 'RECAPTCHA_PRIVATE_KEY' ) && ! defined ( 'RECAPTCHA_SECRET_KEY' ) ) {
-		return;
+		return '';
 	}
 
 	if( defined( 'RECAPTCHA_PRIVATE_KEY' ) && ! defined ( 'RECAPTCHA_SECRET_KEY' ) ) {
