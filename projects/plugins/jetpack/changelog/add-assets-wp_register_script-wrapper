@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Use `Assets::register_script()` to load (most) Webpack-built scripts.

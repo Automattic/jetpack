@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Use monorepo `validate-es` script to validate Webpack builds.
