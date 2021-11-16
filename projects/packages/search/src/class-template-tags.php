@@ -1,13 +1,15 @@
 <?php
 /**
- * Jetpack Search: Jetpack_Search_Template_Tags class
+ * Jetpack Search: Template_Tags class
  *
  * @package    Jetpack
  * @subpackage Jetpack Search
  * @since      5.8.0
  */
 
-use Automattic\Jetpack\Search\Helper;
+namespace Automattic\Jetpack\Search;
+
+use Automattic\Jetpack\Search\Classic_Search as Jetpack_Search;
 
 /**
  * Class that has various methods for outputting functionality into a theme that doesn't support widgets.
@@ -15,19 +17,20 @@ use Automattic\Jetpack\Search\Helper;
  *
  * @since 5.8.0
  */
-class Jetpack_Search_Template_Tags {
+class Template_Tags {
 
 	/**
 	 * Renders all available filters that can be used to filter down search results on the frontend.
 	 *
 	 * @since 5.8.0
 	 *
-	 * @param array $filters    The available filters for the current query.
-	 * @param array $post_types An array of post types to make filterable
+	 * @param string $blog_id    Blog id.
+	 * @param array  $filters    The available filters for the current query.
+	 * @param array  $post_types An array of post types to make filterable.
 	 */
-	public static function render_available_filters( $filters = null, $post_types = null ) {
+	public static function render_available_filters( $blog_id, $filters = null, $post_types = null ) {
 		if ( is_null( $filters ) ) {
-			$filters = Jetpack_Search::instance()->get_filters();
+			$filters = Jetpack_Search::instance( $blog_id )->get_filters();
 		}
 
 		if ( is_null( $post_types ) ) {
@@ -40,12 +43,12 @@ class Jetpack_Search_Template_Tags {
 		 */
 		$active_post_types = array();
 		if ( Helper::post_types_differ_searchable( $post_types ) ) {
-			// get the active filter buckets from the query
-			$active_buckets          = Jetpack_Search::instance()->get_active_filter_buckets();
+			// get the active filter buckets from the query.
+			$active_buckets          = Jetpack_Search::instance( $blog_id )->get_active_filter_buckets();
 			$post_types_differ_query = Helper::post_types_differ_query( $post_types );
 
 			// remove any post_type filters from display if the current query
-			// already specifies to match all post types
+			// already specifies to match all post types.
 			if ( ! $post_types_differ_query ) {
 				$active_buckets = array_filter( $active_buckets, array( __CLASS__, 'is_not_post_type_filter' ) );
 			}
@@ -65,7 +68,7 @@ class Jetpack_Search_Template_Tags {
 		}
 
 		foreach ( (array) $filters as $filter ) {
-			if ( 'post_type' == $filter['type'] ) {
+			if ( 'post_type' === $filter['type'] ) {
 				self::render_filter( $filter, $post_types );
 			} else {
 				self::render_filter( $filter, $active_post_types );
@@ -76,14 +79,12 @@ class Jetpack_Search_Template_Tags {
 	/**
 	 * Renders filters for instant search.
 	 *
-	 * @since 8.3.0
-	 *
-	 * @param array $filters    The available filters for the current query.
-	 * @param array $post_types An array of post types (ignored).
+	 * @param string $blog_id    Blog id.
+	 * @param array  $filters    The available filters for the current query.
 	 */
-	public static function render_instant_filters( $filters = null, $post_types = null ) {
+	public static function render_instant_filters( $blog_id, $filters = null ) {
 		if ( is_null( $filters ) ) {
-			$filters = Jetpack_Search::instance()->get_filters();
+			$filters = Jetpack_Search::instance( $blog_id )->get_filters();
 		}
 
 		foreach ( (array) $filters as $filter ) {
@@ -133,7 +134,7 @@ class Jetpack_Search_Template_Tags {
 		<ul class="jetpack-search-filters-widget__filter-list">
 			<?php
 			foreach ( $filter['buckets'] as $item ) :
-				$url = ( empty( $item['active'] ) ) ?  $item['url'] : $item['remove_url'];
+				$url = ( empty( $item['active'] ) ) ? $item['url'] : $item['remove_url'];
 				?>
 				<li>
 					<label>
@@ -142,10 +143,12 @@ class Jetpack_Search_Template_Tags {
 							<?php
 								echo esc_html( $item['name'] );
 								echo '&nbsp;';
-								echo esc_html( sprintf(
-									'(%s)',
-									number_format_i18n( absint( $item['count'] ) )
-								) );
+								echo esc_html(
+									sprintf(
+										'(%s)',
+										number_format_i18n( absint( $item['count'] ) )
+									)
+								);
 							?>
 						</a>
 					</label>
@@ -220,14 +223,17 @@ class Jetpack_Search_Template_Tags {
 				}
 				?>
 				<li>
-				<a href="#" class="jetpack-search-filter__link" <?php echo $data_str; ?>>
+				<?php // TODO: Figure out how to properly escape $data_str below. ?>
+				<a href="#" class="jetpack-search-filter__link" <?php echo $data_str; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>> 
 						<?php
 							echo esc_html( $item['name'] );
 							echo '&nbsp;';
-							echo esc_html( sprintf(
-								'(%s)',
-								number_format_i18n( absint( $item['count'] ) )
-							) );
+							echo esc_html(
+								sprintf(
+									'(%s)',
+									number_format_i18n( absint( $item['count'] ) )
+								)
+							);
 						?>
 					</a>
 				</li>
@@ -241,12 +247,13 @@ class Jetpack_Search_Template_Tags {
 	 *
 	 * @since 5.8.0
 	 *
-	 * @param string $title        The widget's title
-	 * @param string $before_title The HTML tag to display before the title
-	 * @param string $after_title  The HTML tag to display after the title
+	 * @param string $title        The widget's title.
+	 * @param string $before_title The HTML tag to display before the title.
+	 * @param string $after_title  The HTML tag to display after the title.
 	 */
 	public static function render_widget_title( $title, $before_title, $after_title ) {
-		echo $before_title . esc_html( $title ) . $after_title;
+		// TODO: figure out how to properly escape this.
+		echo $before_title . esc_html( $title ) . $after_title; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
@@ -263,7 +270,7 @@ class Jetpack_Search_Template_Tags {
 
 		$fields_to_inject = array(
 			'orderby' => $orderby,
-			'order'   => $order
+			'order'   => $order,
 		);
 
 		// If the widget has specified post types to search within and IF the post types differ
@@ -276,7 +283,8 @@ class Jetpack_Search_Template_Tags {
 		$form = self::inject_hidden_form_fields( $form, $fields_to_inject );
 
 		echo '<div class="jetpack-search-form">';
-		echo $form;
+		// TODO: Figure out how to properly escape this.
+		echo $form; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '</div>';
 	}
 
@@ -301,7 +309,7 @@ class Jetpack_Search_Template_Tags {
 			);
 		}
 
-		// This shouldn't need to be escaped since we've escaped above as we built $form_injection
+		// This shouldn't need to be escaped since we've escaped above as we built $form_injection.
 		$form = str_replace(
 			'</form>',
 			$form_injection . '</form>',
@@ -316,7 +324,7 @@ class Jetpack_Search_Template_Tags {
 	 *
 	 * @since 5.8.0
 	 *
-	 * @param array $filter
+	 * @param array $filter Filter object.
 	 *
 	 * @return bool
 	 */

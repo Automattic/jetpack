@@ -198,7 +198,6 @@ class Jetpack_Search {
 	 * Loads the PHP common to all search. Should be called from extending classes.
 	 */
 	protected function base_load_php() {
-		require_once __DIR__ . '/class.jetpack-search-template-tags.php';
 		require_once JETPACK__PLUGIN_DIR . 'modules/widgets/search.php';
 	}
 
