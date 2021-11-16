@@ -10,7 +10,7 @@ describe( 'Speed Score feature', () => {
 		jetpackBoostPage = await JetpackBoostPage.visit( page );
 	} );
 
-	it( 'should display a mobile and desktop speed score greater than zero', async () => {
+	it( 'Should display a mobile and desktop speed score greater than zero', async () => {
 		await expect( await jetpackBoostPage.getSpeedScore( 'mobile' ) ).toBeGreaterThan( 0 );
 		await expect( await jetpackBoostPage.getSpeedScore( 'desktop' ) ).toBeGreaterThan( 0 );
 	} );

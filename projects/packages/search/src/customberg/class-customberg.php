@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
 use Jetpack;
@@ -131,6 +132,7 @@ class Customberg {
 
 		//
 		// Load styles.
+		// TODO: Replace this with a plugin-independent function.
 		\Jetpack_Admin_Page::load_wrapper_styles();
 		wp_enqueue_style(
 			'jp-search-configure',
@@ -172,13 +174,13 @@ class Customberg {
 		// Load scripts.
 		Tracking::register_tracks_functions_scripts( true );
 
-		wp_enqueue_script(
+		Assets::register_script(
 			'jp-search-configure',
-			plugins_url( $script_relative_path, $plugin_base_path ),
-			$script_dependencies,
-			JETPACK__VERSION,
-			true
+			$path_prefix . '_inc/build/instant-search/jp-search-configure-main.min.js',
+			$plugin_base_path,
+			array( 'in_footer' => true )
 		);
+		Assets::enqueue_script( 'jp-search-configure' );
 		wp_set_script_translations( 'jp-search-configure', 'jetpack' );
 
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
