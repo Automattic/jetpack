@@ -82,4 +82,28 @@ describe( 'PricingCard', () => {
 			);
 		} );
 	} );
+
+	describe( 'When price before and price after match', () => {
+		const renderer = new ShallowRenderer();
+		renderer.render( <PricingCard { ...testProps } priceAfter={ 9 } /> );
+
+		const wrapper = shallow( renderer.getRenderOutput() );
+
+		it( "doesn't render the price before", () => {
+			expect(
+				wrapper.find(
+					'.jp-components__pricing-card__price-before .jp-components__pricing-card__price'
+				)
+			).to.have.length( 0 );
+		} );
+
+		it( 'renders the price after', () => {
+			expect(
+				wrapper
+					.find( '.jp-components__pricing-card__price-after .jp-components__pricing-card__price' )
+					.render()
+					.text()
+			).to.be.equal( '9' );
+		} );
+	} );
 } );
