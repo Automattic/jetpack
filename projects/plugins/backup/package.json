@@ -13,7 +13,7 @@
 	"author": "Automattic",
 	"scripts": {
 		"build": "pnpm run install-if-deps-outdated && pnpm run clean && pnpm run build-client && pnpm run build-php",
-		"build-client": "gulp",
+		"build-client": "pnpx webpack",
 		"build-concurrently": "pnpm run install-if-deps-outdated && pnpm run clean && pnpx concurrently 'pnpm:build-client' 'pnpm:build-php'",
 		"build-php": "composer install --ignore-platform-reqs",
 		"build-production-concurrently": "pnpm run clean-all && pnpm run install-if-deps-outdated && pnpx concurrently 'pnpm:build-production-php' 'NODE_ENV=production BABEL_ENV=production pnpm run build-client'",
@@ -21,17 +21,17 @@
 		"clean": "rm -rf build/",
 		"clean-all": "rm -rf build/ node_modules/ vendor/",
 		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
-		"watch": "pnpm run build && pnpx gulp watch"
+		"watch": "pnpm run build && pnpx webpack watch"
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
-		"@automattic/jetpack-api": "workspace:^0.5.0",
-		"@automattic/jetpack-components": "workspace:^0.6.0-alpha",
-		"@automattic/jetpack-connection": "workspace:^0.9.1-alpha",
-		"@wordpress/api-fetch": "5.2.4",
-		"@wordpress/data": "6.1.2",
+		"@automattic/jetpack-api": "workspace:^0.5.1-alpha",
+		"@automattic/jetpack-components": "workspace:^0.6.1-alpha",
+		"@automattic/jetpack-connection": "workspace:^0.10.0-alpha",
+		"@wordpress/api-fetch": "5.2.5",
+		"@wordpress/data": "6.1.3",
 		"@wordpress/date": "4.2.2",
 		"@wordpress/element": "4.0.3",
 		"@wordpress/i18n": "4.2.3",
@@ -39,18 +39,17 @@
 		"react-dom": "17.0.2"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:^0.1.0-alpha",
-		"@babel/core": "7.15.0",
-		"@babel/preset-env": "7.15.0",
-		"@babel/register": "7.15.3",
-		"@babel/runtime": "7.15.3",
+		"@automattic/jetpack-webpack-config": "workspace:^0.2.0-alpha",
+		"@babel/core": "7.16.0",
+		"@babel/preset-env": "7.16.0",
+		"@babel/register": "7.16.0",
+		"@babel/runtime": "7.16.0",
 		"@wordpress/browserslist-config": "4.1.0",
 		"concurrently": "6.0.2",
-		"fancy-log": "1.3.3",
-		"gulp": "4.0.2",
 		"sass": "1.43.3",
 		"sass-loader": "12.2.0",
-		"webpack": "5.51.1"
+		"webpack": "5.51.1",
+		"webpack-cli": "4.8.0"
 	},
 	"engines": {
 		"node": "^14.17.6 || ^16.7.0",
