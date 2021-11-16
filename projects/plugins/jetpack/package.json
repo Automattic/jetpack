@@ -63,7 +63,7 @@
 		"@automattic/components": "1.0.0-alpha.3",
 		"@automattic/format-currency": "1.0.0-alpha.0",
 		"@automattic/jetpack-analytics": "workspace:^0.1.2",
-		"@automattic/jetpack-api": "workspace:^0.5.1-alpha",
+		"@automattic/jetpack-api": "workspace:^0.6.0-alpha",
 		"@automattic/jetpack-components": "workspace:^0.6.1-alpha",
 		"@automattic/jetpack-connection": "workspace:^0.10.0-alpha",
 		"@automattic/popup-monitor": "1.0.0",
