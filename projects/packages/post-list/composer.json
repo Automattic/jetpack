@@ -4,7 +4,7 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-assets": "^1.11"
+		"automattic/jetpack-assets": "^1.12"
 	},
 	"require-dev": {
 		"automattic/wordbless": "@dev",

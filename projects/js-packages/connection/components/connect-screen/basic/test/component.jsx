@@ -17,10 +17,6 @@ describe( 'ConnectScreen', () => {
 		apiRoot: 'https://example.org/wp-json/',
 		registrationNonce: 'test2',
 		redirectUri: 'https://example.org',
-		connectionStatus: {
-			isRegistered: false,
-			isUserConnected: false,
-		},
 	};
 
 	describe( 'Render the ConnectScreen component', () => {

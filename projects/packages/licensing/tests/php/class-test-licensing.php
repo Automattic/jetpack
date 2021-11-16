@@ -234,6 +234,41 @@ class Test_Licensing extends BaseTestCase {
 	}
 
 	/**
+	 * Test attach_licenses() with correct response.
+	 */
+	public function test_attach_licenses__returns_product_ids_on_success() {
+		$licenses = array( 'foo' );
+
+		$connection = $this->createMock( Connection_Manager::class );
+
+		$connection->method( 'has_connected_owner' )->willReturn( true );
+
+		$licensing = $this->createPartialMock(
+			Licensing::class,
+			array( 'connection', 'attach_licenses_request' )
+		);
+
+		$licensing->expects( $this->once() )
+			->method( 'connection' )
+			->willReturn( $connection );
+
+		$ixr_client = $this->createMock( Jetpack_IXR_ClientMulticall::class );
+		$ixr_client->method( 'isError' )->willReturn( false );
+		$ixr_client->method( 'query' )->willReturn( null );
+		$ixr_client->method( 'getResponse' )->willReturn( array( array( 'activatedProductId' => 1 ) ) );
+
+		$licensing->expects( $this->once() )
+			->method( 'attach_licenses_request' )
+			->with( $licenses )
+			->willReturn( $ixr_client );
+
+		$result = $licensing->attach_licenses( $licenses );
+
+		$this->assertCount( 1, $result );
+		$this->assertSame( 1, $result[0]['activatedProductId'] );
+	}
+
+	/**
 	 * Test attach_stored_licenses().
 	 */
 	public function test_attach_stored_licenses() {
@@ -383,4 +418,5 @@ class Test_Licensing extends BaseTestCase {
 
 		$licensing->attach_stored_licenses_on_connection();
 	}
+
 }
