@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.12.0] - 2021-11-15
+### Added
+- Add `Assets::register_script()` for easier loading of Webpack-built scripts.
+
 ## [1.11.10] - 2021-11-02
 ### Changed
 - Set `convertDeprecationsToExceptions` true in PHPUnit config.
@@ -127,6 +131,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Statically access asset tools
 
+[1.12.0]: https://github.com/Automattic/jetpack-assets/compare/v1.11.10...v1.12.0
 [1.11.10]: https://github.com/Automattic/jetpack-assets/compare/v1.11.9...v1.11.10
 [1.11.9]: https://github.com/Automattic/jetpack-assets/compare/v1.11.8...v1.11.9
 [1.11.8]: https://github.com/Automattic/jetpack-assets/compare/v1.11.7...v1.11.8

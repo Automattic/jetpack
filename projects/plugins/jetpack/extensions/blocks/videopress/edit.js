@@ -7,6 +7,7 @@ import {
 	BaseControl,
 	Button,
 	PanelBody,
+	ResizableBox,
 	SandBox,
 	SelectControl,
 	ToggleControl,
@@ -244,6 +245,7 @@ const VideoPressEdit = CoreVideoEdit =>
 		}
 
 		onChangeRating = rating => {
+			const { invalidateCachedEmbedPreview, url } = this.props;
 			const { id } = this.props.attributes;
 			const originalRating = this.state.rating;
 
@@ -280,7 +282,10 @@ const VideoPressEdit = CoreVideoEdit =>
 					}
 				} )
 				.catch( () => revertSetting() )
-				.finally( () => this.setState( { isUpdatingRating: false } ) );
+				.finally( () => {
+					this.setState( { isUpdatingRating: false } );
+					invalidateCachedEmbedPreview( url );
+				} );
 		};
 
 		render() {
@@ -515,7 +520,7 @@ const VpBlock = props => {
 		setAttributes,
 	} = props;
 
-	const { align, className, videoPressClassNames } = attributes;
+	const { align, className, videoPressClassNames, maxWidth } = attributes;
 
 	const blockProps = useBlockProps( {
 		className: classnames( 'wp-block-video', className, videoPressClassNames, {
@@ -523,10 +528,36 @@ const VpBlock = props => {
 		} ),
 	} );
 
+	const onBlockResize = ( event, direction, elem ) => {
+		let newMaxWidth = getComputedStyle( elem ).width;
+		const parentElement = elem.parentElement;
+		if ( null !== parentElement ) {
+			const parentWidth = getComputedStyle( elem.parentElement ).width;
+			if ( newMaxWidth === parentWidth ) {
+				newMaxWidth = '100%';
+			}
+		}
+
+		setAttributes( { maxWidth: newMaxWidth } );
+	};
+
 	return (
 		<figure { ...blockProps }>
 			<div className="wp-block-embed__wrapper">
-				<SandBox html={ html } scripts={ scripts } type={ videoPressClassNames } />
+				<ResizableBox
+					enable={ {
+						top: false,
+						bottom: false,
+						left: true,
+						right: true,
+					} }
+					maxWidth="100%"
+					size={ { width: maxWidth } }
+					style={ { margin: 'auto' } }
+					onResizeStop={ onBlockResize }
+				>
+					<SandBox html={ html } scripts={ scripts } type={ videoPressClassNames } />
+				</ResizableBox>
 			</div>
 
 			{

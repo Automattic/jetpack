@@ -1,26 +1,29 @@
 {
 	"name": "jetpack-identity-crisis",
-	"version": "0.4.0-alpha",
+	"version": "0.4.1",
 	"description": "Jetpack Identity Crisis",
 	"main": "_inc/admin.jsx",
 	"repository": "https://github.com/Automattic/jetpack-identity-crisis",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"scripts": {
-		"build": "pnpm run install-if-deps-outdated && pnpm clean && pnpm build-client",
+		"build": "pnpm run install-if-deps-outdated && pnpm clean && pnpm build-client && pnpm run validate",
 		"build-client": "gulp",
 		"clean": "rm -rf build/",
 		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
+		"validate": "pnpm exec validate-es build/",
 		"watch": "pnpm run build && pnpx gulp watch"
 	},
+	"browserslist": "extends @wordpress/browserslist-config",
 	"dependencies": {
-		"@wordpress/data": "6.1.2"
+		"@wordpress/data": "6.1.3"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:^0.1.0-alpha",
-		"@babel/core": "7.15.0",
-		"@babel/preset-env": "7.15.0",
-		"@babel/register": "7.15.3",
+		"@automattic/jetpack-webpack-config": "workspace:^0.2.0",
+		"@babel/core": "7.16.0",
+		"@babel/preset-env": "7.16.0",
+		"@babel/register": "7.16.0",
+		"@wordpress/browserslist-config": "4.1.0",
 		"fancy-log": "1.3.3",
 		"gulp": "4.0.2",
 		"gulp-append-prepend": "1.0.9",

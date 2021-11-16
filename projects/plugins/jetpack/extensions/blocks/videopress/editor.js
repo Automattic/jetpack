@@ -144,6 +144,10 @@ const addVideoPressSupport = ( settings, name ) => {
 					type: 'boolean',
 					default: true,
 				},
+				maxWidth: {
+					type: 'string',
+					default: '100%',
+				},
 				guid: {
 					type: 'string',
 				},

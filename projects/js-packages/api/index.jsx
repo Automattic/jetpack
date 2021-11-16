@@ -418,6 +418,18 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
+		getUserLicensesCounts: () =>
+			getRequest( `${ apiRoot }jetpack/v4/licensing/user/counts`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		updateLicensingActivationNoticeDismiss: lastDetachedCount =>
+			postRequest( `${ apiRoot }jetpack/v4/licensing/user/activation-notice-dismiss`, postParams, {
+				body: JSON.stringify( { last_detached_count: lastDetachedCount } ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		updateRecommendationsStep: step =>
 			postRequest( `${ apiRoot }jetpack/v4/recommendations/step`, postParams, {
 				body: JSON.stringify( { step } ),
@@ -439,6 +451,12 @@ function JetpackRestApiClient( root, nonce ) {
 			postRequest( `${ apiRoot }jetpack/v4/identity-crisis/migrate`, postParams ).then(
 				checkStatus
 			),
+		attachLicenses: licenses =>
+			postRequest( `${ apiRoot }jetpack/v4/licensing/attach-licenses`, postParams, {
+				body: JSON.stringify( { licenses } ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 	};
 
 	/**

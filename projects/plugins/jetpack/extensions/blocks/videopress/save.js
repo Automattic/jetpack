@@ -28,6 +28,7 @@ const VideoPressSave = CoreVideoSave => props => {
 			seekbarColor,
 			seekbarPlayedColor,
 			seekbarLoadingColor,
+			maxWidth,
 		} = {},
 	} = props;
 
@@ -63,9 +64,17 @@ const VideoPressSave = CoreVideoSave => props => {
 		seekbarLoadingColor,
 	} );
 
+	let embedWrapperStyle = {};
+	if ( maxWidth.length > 0 && '100%' !== maxWidth ) {
+		embedWrapperStyle = {
+			maxWidth,
+			margin: 'auto',
+		};
+	}
+
 	return (
 		<figure { ...blockProps }>
-			<div className="wp-block-embed__wrapper">
+			<div className="wp-block-embed__wrapper" style={ embedWrapperStyle }>
 				{ `\n${ url }\n` /* URL needs to be on its own line. */ }
 			</div>
 			{ ! RichText.isEmpty( caption ) && (

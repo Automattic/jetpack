@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2021-11-16
+### Added
+- Use monorepo `validate-es` script to validate Webpack builds.
+
+### Changed
+- Replace the withConnectionStatus HOC with withSelect HOC.
+- Updated package dependencies
+
+### Removed
+- Remove use of `gulp` in build, all it was doing was wrapping `webpack`.
+
+## [2.0.0] - 2021-11-09
+### Added
+- Initialize IDC package, properly display the RNA IDC screen.
+
+### Changed
+- Updated package dependencies.
+- Update webpack build config. Removes IE 11 support in the JavaScript.
+
 ## [1.6.0] - 2021-11-02
 ### Changed
 - Updated package dependencies
@@ -110,6 +129,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Connection UI: Building the Framework
 
+[2.1.0]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.0.0...v2.1.0
+[2.0.0]: https://github.com/Automattic/jetpack-connection-ui/compare/v1.6.0...v2.0.0
 [1.6.0]: https://github.com/Automattic/jetpack-connection-ui/compare/v1.5.3...v1.6.0
 [1.5.3]: https://github.com/Automattic/jetpack-connection-ui/compare/v1.5.2...v1.5.3
 [1.5.2]: https://github.com/Automattic/jetpack-connection-ui/compare/v1.5.1...v1.5.2

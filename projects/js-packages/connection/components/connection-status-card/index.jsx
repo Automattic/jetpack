@@ -6,7 +6,7 @@ import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
 import PropTypes from 'prop-types';
 import restApi from '@automattic/jetpack-api';
-import { useDispatch } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -45,8 +45,8 @@ const ConnectionStatusCard = props => {
 
 	const [ isFetchingConnectionData, setIsFetchingConnectionData ] = useState( false );
 	const [ connectedUserData, setConnectedUserData ] = useState( {} );
-	const [ isUserConnecting, setIsUserConnecting ] = useState( false );
-	const { setConnectionStatus } = useDispatch( STORE_ID );
+	const userIsConnecting = useSelect( select => select( STORE_ID ).getUserIsConnecting(), [] );
+	const { setConnectionStatus, setUserIsConnecting } = useDispatch( STORE_ID );
 
 	const avatarRef = useRef();
 
@@ -149,15 +149,15 @@ const ConnectionStatusCard = props => {
 			{ ! isUserConnected && ! isFetchingConnectionData && (
 				<Button
 					isPrimary
-					disabled={ isUserConnecting }
-					onClick={ setIsUserConnecting }
+					disabled={ userIsConnecting }
+					onClick={ setUserIsConnecting }
 					className="jp-connection-status-card--btn-connect-user"
 				>
 					{ __( 'Connect your WordPress.com account', 'jetpack' ) }
 				</Button>
 			) }
 
-			{ isUserConnecting && <ConnectUser redirectUri={ redirectUri } /> }
+			{ userIsConnecting && <ConnectUser redirectUri={ redirectUri } /> }
 		</div>
 	);
 };

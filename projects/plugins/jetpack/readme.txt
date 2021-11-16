@@ -242,13 +242,17 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.4-a.1 - 2021-11-02
+### 10.4-a.5 - 2021-11-16
 #### Enhancements
-- Publicize: update the interface and include a profile picture for each service.
+- Dashboard: display a notice when you have unactivated product licence keys linked to your WordPress.com account.
+- Likes: refactor Likes in posts to improve performance and avoid loading additional libraries.
+- VideoPress: add handles to resize the Video Block in the editor.
 
 #### Bug fixes
-- Image CDN: ensure that Wikipedia URLs are not served via our image CDN.
-- Publicize: make the default publicize social media message blank.
+- Dashboard: fix some layout and display issues in the Recommendations panel.
+- Dashboard: ensure plan information is properly displayed when using Backup and Security plans.
+- Instant Search: restore filter query string functionality.
+- VideoPress: reload block when updating video rating in the editor, and ensure rating meta data is updated.
 
 --------
 
