@@ -50,21 +50,23 @@ const PricingCard = props => {
 			) }
 			<h1 className="jp-components__pricing-card__title">{ props.title }</h1>
 			<div className="jp-components__pricing-card__pricing">
-				<div className="jp-components__pricing-card__price-before">
-					<span className="jp-components__pricing-card__currency">
-						{ currencyObjectBefore.symbol }
-					</span>
-					<span className="jp-components__pricing-card__price">
-						{ currencyObjectBefore.integer }
-					</span>
-					{ showPriceDecimals( currencyObjectBefore ) && (
-						<span className="jp-components__pricing-card__price-decimal">
-							{ ' ' }
-							{ currencyObjectBefore.fraction }
+				{ props.priceBefore !== props.priceAfter && (
+					<div className="jp-components__pricing-card__price-before">
+						<span className="jp-components__pricing-card__currency">
+							{ currencyObjectBefore.symbol }
 						</span>
-					) }
-					<div className="jp-components__pricing-card__price-strikethrough"></div>
-				</div>
+						<span className="jp-components__pricing-card__price">
+							{ currencyObjectBefore.integer }
+						</span>
+						{ showPriceDecimals( currencyObjectBefore ) && (
+							<span className="jp-components__pricing-card__price-decimal">
+								{ ' ' }
+								{ currencyObjectBefore.fraction }
+							</span>
+						) }
+						<div className="jp-components__pricing-card__price-strikethrough"></div>
+					</div>
+				) }
 				<div className="jp-components__pricing-card__price-after">
 					<span className="jp-components__pricing-card__currency">
 						{ currencyObjectAfter.symbol }
