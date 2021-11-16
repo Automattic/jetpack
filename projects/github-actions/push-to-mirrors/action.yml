@@ -1,0 +1,47 @@
+name: Push to mirrors
+description: Push built versions of projects from a monorepo to mirror repos.
+inputs:
+  commit-message:
+    description: >
+      Commit message to use for the mirror commits. If omitted, it will be read
+      from the monorepo checkout pointed at by `source-directory`.
+    required: false
+  source-directory:
+    description: >
+      Directory containing a checkout of the commit being mirrored. Only used
+      if `commit-message` is not specified.
+    required: false
+    default: ${{ github.workspace }}
+  token:
+    description: >
+      GitHub Access Token. This token must allow for pushing to all relevant
+      branches of all relevant mirror repos.
+    required: true
+  username:
+    description: Name of the user the token belongs to.
+    required: true
+  user-email:
+    description: >
+      Email address of the user the token belongs to. If omitted, defaults to
+      `${username}@users.noreply.github.com`.
+    required: false
+  working-directory:
+    description: >
+      Directory containing the contents of the mirror repositories to push.
+      This directory must contain a file `mirrors.txt` that contains, one per
+      line, the GitHub repository names (with owner) of the mirrors to push to.
+      The contents of each mirror must be in identically-named subdirectories.
+    required: true
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        API_TOKEN_GITHUB: ${{ inputs.token }}
+        BUILD_BASE: ${{ inputs.working-directory }}
+        COMMIT_MESSAGE: ${{ inputs.commit-message }}
+        DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        SOURCE_DIR: ${{ inputs.source-directory }}
+        USER_EMAIL: ${{ inputs.user-email }}
+        USER_NAME: ${{ inputs.username }}
+      run: $GITHUB_ACTION_PATH/push-to-mirrors.sh

@@ -1,0 +1,30 @@
+@import '@wordpress/base-styles/breakpoints';
+@import '@wordpress/base-styles/mixins';
+
+.jp-connection__connect-screen {
+
+	&__loading {
+		display: none;
+	}
+
+	&__tos {
+		margin-top: 28px;
+		max-width: 360px;
+	}
+
+	.jp-action-button {
+		margin-top: 40px;
+
+		button {
+			max-width: 100%;
+
+			&:not( :disabled ) {
+				width: auto;
+			}
+
+			&:disabled {
+				color: hsla(0,0%,100%,.4);
+			}
+		}
+	}
+}

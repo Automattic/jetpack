@@ -1,0 +1,8 @@
+// These vars are consumed within `modules/masterbar/inline-help/inline-help.css`
+.a8c-faux-inline-help {
+    --color-primary: #{$color-primary};
+    --color-primary-dark: #{$color-primary-dark};
+    --color-primary-light: #{$color-primary-light};
+    --color-surface: #{$color-surface};
+    --color-neutral-100-rgb: #{$color-neutral-100-rgb};
+}

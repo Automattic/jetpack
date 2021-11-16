@@ -1,0 +1,14 @@
+[
+    {
+        "blockName": "jetpack/eventbrite",
+        "attrs": {
+            "url": "https://www.eventbrite.com.au/e/2021-nsw-open-championship-tickets-122642642445",
+            "eventId": 122642642445
+        },
+        "innerBlocks": [],
+        "innerHTML": "\n<a class=\"wp-block-jetpack-eventbrite eventbrite__direct-link\" href=\"https://www.eventbrite.com.au/e/2021-nsw-open-championship-tickets-122642642445\">https://www.eventbrite.com.au/e/2021-nsw-open-championship-tickets-122642642445</a>\n",
+        "innerContent": [
+            "\n<a class=\"wp-block-jetpack-eventbrite eventbrite__direct-link\" href=\"https://www.eventbrite.com.au/e/2021-nsw-open-championship-tickets-122642642445\">https://www.eventbrite.com.au/e/2021-nsw-open-championship-tickets-122642642445</a>\n"
+        ]
+    }
+]

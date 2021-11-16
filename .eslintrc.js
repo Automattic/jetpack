@@ -1,20 +1,24 @@
 module.exports = {
-	parser: 'babel-eslint',
-	extends: [ 'wpcalypso/react', 'plugin:jsx-a11y/recommended', 'prettier', 'prettier/react' ],
+	root: true,
+	parser: '@babel/eslint-parser',
+	extends: [ 'wpcalypso', 'plugin:jsx-a11y/recommended', 'prettier' ],
 	env: {
 		browser: true,
 		es6: true,
 		mocha: true,
 		node: true,
 		jquery: true,
+		jest: true,
 	},
 	parserOptions: {
 		ecmaVersion: 2019,
 		ecmaFeatures: {
 			jsx: true,
 		},
+		requireConfigFile: false,
 	},
-	plugins: [ 'jsx-a11y', 'lodash' ],
+	settings: {},
+	plugins: [ 'jsx-a11y', 'lodash', 'jsdoc' ],
 	rules: {
 		// REST API objects include underscores
 		camelcase: 0,
@@ -39,7 +43,6 @@ module.exports = {
 		'no-trailing-spaces': 2,
 		// Allows Chai `expect` expressions
 		'no-unused-expressions': 0,
-		'no-unused-vars': 2,
 		'no-var': 2,
 		'object-curly-spacing': [ 2, 'always' ],
 		'operator-linebreak': [
@@ -54,14 +57,6 @@ module.exports = {
 		],
 		'padded-blocks': [ 2, 'never' ],
 		'prefer-const': 2,
-		'react/jsx-curly-spacing': [ 2, 'always' ],
-		'react/jsx-no-bind': 2,
-		'react/jsx-space-before-closing': 2,
-		'react/no-danger': 2,
-		'react/no-did-mount-set-state': 2,
-		'react/no-did-update-set-state': 2,
-		'react/no-is-mounted': 2,
-		'react/prefer-es6-class': 1,
 		semi: 2,
 		'semi-spacing': 2,
 		'space-before-blocks': [ 2, 'always' ],
@@ -75,8 +70,6 @@ module.exports = {
 				},
 			},
 		],
-		'template-curly-spacing': [ 2, 'always' ],
-		'valid-jsdoc': [ 2, { requireReturn: false } ],
 		'wpcalypso/i18n-ellipsis': 2,
 		'wpcalypso/i18n-no-collapsible-whitespace': 2,
 		'wpcalypso/i18n-no-this-translate': 2,
@@ -98,33 +91,45 @@ module.exports = {
 		'jsx-a11y/anchor-has-content': 0,
 		'react/no-string-refs': 0,
 		'jsx-a11y/anchor-is-valid': 0,
+
+		// JSDoc plugin overrides
+		'jsdoc/check-alignment': 1, // Recommended
+		'jsdoc/check-examples': 1,
+		'jsdoc/check-indentation': 1,
+		'jsdoc/check-param-names': 1, // Recommended
+		'jsdoc/check-syntax': 1,
+		'jsdoc/check-tag-names': 1, // Recommended
+		'jsdoc/check-types': 1, // Recommended
+		'jsdoc/implements-on-classes': 1, // Recommended
+		'jsdoc/newline-after-description': 1, // Recommended
+		'jsdoc/no-undefined-types': 1, // Recommended
+		'jsdoc/require-description': 1,
+		'jsdoc/require-hyphen-before-param-description': 1,
+		'jsdoc/require-jsdoc': 1, // Recommended
+		'jsdoc/require-param': 1, // Recommended
+		'jsdoc/require-param-description': 1, // Recommended
+		'jsdoc/require-param-name': 1, // Recommended
+		'jsdoc/require-param-type': 1, // Recommended
+		'jsdoc/require-returns': 1, // Recommended
+		'jsdoc/require-returns-check': 1, // Recommended
+		'jsdoc/require-returns-description': 1, // Recommended
+		'jsdoc/require-returns-type': 1, // Recommended
+		'jsdoc/valid-types': 1, // Recommended
+		'jsdoc/check-values': 1,
+
+		// eslint 6.x migration
+		'no-unused-vars': 1,
+		'no-useless-escape': 1,
+		'no-extra-boolean-cast': 1,
+		'no-case-declarations': 1,
+		'no-class-assign': 1,
+		'no-redeclare': 1,
+
+		// Workaround for ESLint failing to parse files with template literals
+		// with this error: "TypeError: Cannot read property 'range' of null"
+		'template-curly-spacing': 'off',
+
+		// Disabled pending #16099.
+		'inclusive-language/use-inclusive-words': 0,
 	},
-	overrides: [
-		{
-			files: [ 'extensions/**/*', 'webpack.config.extensions.js' ],
-			rules: {
-				'react/forbid-elements': [
-					'error',
-					{
-						forbid: [
-							[ 'circle', 'Circle' ],
-							[ 'g', 'G' ],
-							[ 'path', 'Path' ],
-							[ 'polygon', 'Polygon' ],
-							[ 'rect', 'Rect' ],
-							[ 'svg', 'SVG' ],
-						].map( ( [ element, componentName ] ) => ( {
-							element,
-							message: `use <${ componentName }> from @wordpress/components`,
-						} ) ),
-					},
-				],
-				'react/jsx-no-bind': 0,
-				'react/react-in-jsx-scope': 0,
-				'space-unary-ops': 0,
-				'space-before-function-paren': 0,
-				'wpcalypso/jsx-classname-namespace': 0,
-			},
-		},
-	],
 };

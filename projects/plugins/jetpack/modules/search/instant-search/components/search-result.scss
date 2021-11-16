@@ -1,0 +1,26 @@
+@import '../lib/styles/_helper.scss';
+
+//
+// Only add styles here that should be shared across different result types (minimal, expanded, product).
+// NOTE: Due to Webpack import order, these styles will apply AFTER minimal/expanded/product styles.
+//
+.jetpack-instant-search__search-result {
+	margin: 0 0 2em;
+}
+
+.jetpack-instant-search__search-result-title {
+	font-size: 1.6em;
+	font-weight: normal;
+	line-height: 1.35;
+	margin: 0;
+	overflow-wrap: break-word;
+
+	.jetpack-instant-search__search-result-title-link {
+		text-decoration: none;
+
+		&:hover,
+		&:focus {
+			text-decoration: underline;
+		}
+	}
+}

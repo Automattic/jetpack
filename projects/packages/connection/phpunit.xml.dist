@@ -1,0 +1,13 @@
+<phpunit bootstrap="tests/php/bootstrap.php" backupGlobals="false" colors="true" convertDeprecationsToExceptions="true">
+	<testsuites>
+		<testsuite name="general">
+			<directory prefix="test" suffix=".php">tests/php</directory>
+		</testsuite>
+	</testsuites>
+	<filter>
+		<whitelist processUncoveredFilesFromWhitelist="false">
+			<directory suffix=".php">src</directory>
+			<directory suffix=".php">legacy</directory>
+		</whitelist>
+	</filter>
+</phpunit>

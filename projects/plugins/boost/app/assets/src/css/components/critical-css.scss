@@ -1,0 +1,197 @@
+.jb-critical-css__error-description {
+	line-height: 1.5rem;
+	color: $primary-black;
+
+	a, h5, a.action {
+		color: inherit;
+	}
+
+	button.foldable-element-control {
+		color: $primary-black;
+		font-size: 16px;
+		margin-bottom: 24px;
+	}
+
+	button.foldable-element-control.visible {
+		margin-bottom: 0;
+	}
+
+	ul {
+		margin-top: 4px;
+	}
+
+	h5 {
+		font-size: 16px;
+		margin-top: 24px;
+		margin-bottom: 8px;
+		font-weight: bold;
+	}
+
+	.problem {
+		img {
+			margin-top: 20px;
+			display: block;
+		}
+	}
+
+	p.suggestion, p.suggestion-closing, p.raw-error {
+		color: $primary-black;
+		margin-top: 8px;
+		margin-bottom: 24px;
+	}
+
+	pre {
+		background-color: #f1f1f1;
+		padding: 25px;
+		margin: 20px 0;
+		text-align: left;
+		white-space: pre-wrap;
+		color: #0f0f0f;
+		border-radius: 6px;
+	}
+}
+
+.jb-critical-css__advanced {
+	.panel {
+		margin-top: 24px;
+		position: relative;
+		border: 1px solid $gray_5;
+		border-radius: 4px;
+		padding: 24px 69px 0 27px;
+
+		li {
+			@include word-wrap();
+		}
+
+		h4 {
+			font-size: 20px;
+			margin-bottom: 1rem;
+			font-weight: bold;
+
+			svg {
+				vertical-align: sub;
+				margin: 4px 4px 2px 0;
+				height: 20px;
+				fill: $color_warning;
+			}
+		}
+	}
+
+	button {
+		color: $gray_90;
+
+		&.components-button.is-link {
+			margin-left: auto;
+		}
+
+		&.components-button.is-link:hover {
+			color: $gray_90;
+		}
+
+		svg {
+			margin: 4px 4px 2px 0;
+			height: 1.5rem;
+		}
+
+		&.close {
+			font-size: 14pt;
+			text-decoration: none;
+			margin-bottom: 20px;
+
+			svg {
+				margin-right: 20px;
+			}
+		}
+	}
+}
+
+.jb-critical-css__meta {
+	font-size: 14px;
+	line-height: 22px;
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start;
+
+	@include breakpoint(xs) {
+		display: block;
+	}
+
+	.summary {
+		margin-right: 5px;
+		flex-grow: 1;
+		position: relative;
+
+		.successes {
+			color: $gray_40;
+		}
+
+		.failures {
+			color: $gray_100;
+			max-width: 25em;
+
+			svg {
+				position: absolute;
+				width: 1.4rem;
+				height: 1.4rem;
+				left: -60px;
+			}
+		}
+	}
+
+	button {
+		font-size: 14px;
+		color: $gray_90;
+
+		&.components-button.is-link {
+			margin-left: 8px;
+
+			&:hover {
+				color: $gray_90;
+			}
+
+			@include breakpoint(xs) {
+				margin-left: 0;
+			}
+		}
+
+		svg {
+			margin: 4px 4px 2px 0;
+			fill: $jetpack-green;
+		}
+	}
+}
+
+.url-container {
+	margin-top: 20px;
+	display: flex;
+	margin-bottom: 24px;
+
+	.segment {
+		font-size: 24px;
+		line-height: 28px;
+		font-weight: bold;
+		align-self: flex-end;
+	}
+
+	.label {
+		font-size: 10px;
+		color: gray;
+		position: relative;
+		left: 8px;
+		line-height: 12px;
+		margin-bottom: 4px;
+		font-weight: normal;
+	}
+
+	.arrows {
+		border-image: url( '../static/images/arrows.png' );
+		border-image-slice: 22;
+		border-bottom: solid 16px transparent;
+		border-left: solid 16px transparent;
+		border-right: solid 16px transparent;
+		margin-bottom: 2px;
+		min-width: 48px;
+	}
+}
+
+

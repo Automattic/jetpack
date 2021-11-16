@@ -1,0 +1,35 @@
+{
+	"name": "automattic/jetpack-base-styles",
+	"description": "Jetpack components Base Styles",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "1.0.2",
+		"automattic/jetpack-changelogger": "^3.0"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autotagger": true,
+		"npmjs-autopublish": true,
+		"mirror-repo": "Automattic/jetpack-base-styles",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-base-styles/compare/${old}...${new}"
+		}
+	}
+}

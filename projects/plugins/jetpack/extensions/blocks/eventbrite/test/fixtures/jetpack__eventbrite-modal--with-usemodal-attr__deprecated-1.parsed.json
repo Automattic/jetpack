@@ -1,0 +1,19 @@
+[
+    {
+        "blockName": "jetpack/eventbrite",
+        "attrs": {
+            "url": "https://www.eventbrite.com.au/e/food-hub-unsw-tickets-144144099883",
+            "eventId": 144144099883,
+            "useModal": true,
+            "borderRadius": 0,
+            "backgroundColor": "black",
+            "textColor": "white",
+            "text": "Smash that button"
+        },
+        "innerBlocks": [],
+        "innerHTML": "\n<div class=\"wp-block-jetpack-eventbrite wp-block-button\"><a class=\"wp-block-button__link has-text-color has-white-color has-background has-black-background-color no-border-radius\" href=\"https://www.eventbrite.com.au/e/food-hub-unsw-tickets-144144099883\" id=\"eventbrite-widget-144144099883\" rel=\"noopener noreferrer\" role=\"button\" target=\"_blank\">Smash that button</a></div>\n",
+        "innerContent": [
+            "\n<div class=\"wp-block-jetpack-eventbrite wp-block-button\"><a class=\"wp-block-button__link has-text-color has-white-color has-background has-black-background-color no-border-radius\" href=\"https://www.eventbrite.com.au/e/food-hub-unsw-tickets-144144099883\" id=\"eventbrite-widget-144144099883\" rel=\"noopener noreferrer\" role=\"button\" target=\"_blank\">Smash that button</a></div>\n"
+        ]
+    }
+]

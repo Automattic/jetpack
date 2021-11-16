@@ -1,0 +1,28 @@
+[
+    {
+        "clientId": "_clientId_0",
+        "name": "jetpack/recurring-payments",
+        "isValid": true,
+        "attributes": {
+            "planId": 228,
+            "align": "center"
+        },
+        "innerBlocks": [
+            {
+                "clientId": "_clientId_0",
+                "name": "jetpack/button",
+                "isValid": true,
+                "attributes": {
+                    "element": "a",
+                    "saveInPostContent": false,
+                    "uniqueId": "recurring-payments-id",
+                    "text": "$0.50 Contribution",
+                    "customTextColor": "#1010d0",
+                    "customBackgroundColor": "#1f97c3"
+                },
+                "innerBlocks": []
+            }
+        ],
+        "originalContent": ""
+    }
+]

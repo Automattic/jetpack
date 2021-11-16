@@ -1,0 +1,32 @@
+[
+    {
+        "clientId": "_clientId_0",
+        "name": "jetpack/mailchimp",
+        "isValid": true,
+        "attributes": {
+            "emailPlaceholder": "Enter your email",
+            "consentText": "By clicking submit, you agree to share your email address with the site owner and Mailchimp to receive marketing, updates, and other emails from the site owner. Use the unsubscribe link in those emails to opt out at any time.",
+            "interests": [],
+            "processingLabel": "Processing…",
+            "successLabel": "Success! You're on the list.",
+            "errorLabel": "Whoops! There was an error and we couldn't process your subscription. Please reload the page and try again.",
+            "preview": false
+        },
+        "innerBlocks": [
+            {
+                "clientId": "_clientId_0",
+                "name": "jetpack/button",
+                "isValid": true,
+                "attributes": {
+                    "element": "button",
+                    "saveInPostContent": false,
+                    "uniqueId": "mailchimp-widget-id",
+                    "text": "Join my email list"
+                },
+                "innerBlocks": [],
+                "originalContent": ""
+            }
+        ],
+        "originalContent": ""
+    }
+]

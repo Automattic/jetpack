@@ -1,0 +1,48 @@
+<?php
+/**
+ * A dummy file to test the MediaWiki.PHPUnit imports into the Jetpack phpcs standard.
+ *
+ * @package automattic/jetpack-codesniffer
+ */
+
+/**
+ * A dummy test class.
+ */
+class Dummy_Test extends TestCase {
+
+	/**
+	 * A bogus test
+	 */
+	public function test_bogus() {
+		global $u;
+
+		// MediaWiki.PHPUnit.AssertCount.
+		$this->assertCount( 1, $u->var );
+		$this->assertCount( 3, $u->var );
+
+		// MediaWiki.PHPUnit.AssertEquals.
+		$this->assertNull( $u->var );
+		$this->assertTrue( $u->var );
+		$this->assertFalse( $u->var );
+		$this->assertSame( 0, $u->var );
+		$this->assertSame( 0.0, $u->var );
+		$this->assertSame( 1, $u->var );
+		$this->assertSame( 1.0, $u->var );
+		$this->assertSame( '0', $u->var );
+		$this->assertSame( '123.45', $u->var );
+
+		// MediaWiki.PHPUnit.AssertionOrder.
+		$this->assertSame( 1, $u->var );
+		$this->assertSame( 1, $u->var );
+
+		// MediaWiki.PHPUnit.SpecificAssertions.
+		$this->assertArrayHasKey( 'foo', $u->var );
+		$this->assertArrayNotHasKey( 'foo', $u->var );
+		$this->assertContains( 'foo', $u->var );
+		$this->assertNotContains( 'foo', $u->var );
+		$this->assertStringNotContainsString( 'foo', $u->var );
+		$this->assertStringContainsString( 'foo', $u->var );
+		$this->assertStringContainsString( 'foo', $u->var );
+	}
+
+}

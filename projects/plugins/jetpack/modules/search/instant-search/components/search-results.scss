@@ -1,0 +1,253 @@
+@import '../lib/styles/_helper.scss';
+
+$modal-max-width: 1080px;
+$modal-max-width-lg: 95%;
+
+.jetpack-instant-search__search-results {
+	background: $color-modal-background;
+	border-radius: 3px;
+	min-height: 100%;
+	margin: 0 auto;
+	max-width: $modal-max-width;
+	position: relative;
+	z-index: 10;
+
+	@include break-small-down() {
+		border-radius: 0;
+	}
+
+	@include break-large-up() {
+		max-width: $modal-max-width-lg;
+	}
+
+	mark {
+		color: $color-text;
+		background: $color-mark-background-default;
+	}
+}
+
+.jetpack-instant-search__search-results-controls {
+	display: flex;
+}
+
+.jetpack-instant-search__search-results-content {
+	display: flex;
+	position: relative;
+}
+
+.jetpack-instant-search__search-results-filter-button {
+	align-items: center;
+	border: 0;
+	color: $color-text-lighter;
+	cursor: pointer;
+	display: flex;
+	flex-shrink: 0;
+	font-size: 12px;
+	margin: 0;
+	padding: 8px;
+	text-decoration: none;
+	transition: background-color 0.25s ease-in-out;
+
+	.jetpack-instant-search__overlay--no-sidebar & {
+		visibility: hidden;
+	}
+
+	@include break-small-up() {
+		padding: 10px 14px;
+		font-size: 13px;
+	}
+
+	@include break( '>l' ) {
+		display: none;
+	}
+	#{$customberg-container-selector } & {
+		@include break( '>l' ) {
+			display: flex;
+		}
+		@include break( '>xl' ) {
+			display: none;
+		}
+	}
+
+	&:hover,
+	&:focus {
+		color: $color-text;
+	}
+
+	.gridicon {
+		margin-left: 4px;
+	}
+}
+
+.jetpack-instant-search__search-results-primary {
+	margin: 0;
+	max-width: calc( 100% - #{$sidebar-width} );
+	width: 100%;
+
+	.jetpack-instant-search__overlay--no-sidebar & {
+		max-width: 100%;
+	}
+
+	@include multiple-breaks-for-customberg( '<l', '<xl' ) {
+		max-width: 100%;
+	}
+}
+
+.jetpack-instant-search__search-results-secondary {
+	background: none;
+	border-left: 1px solid $color-layout-borders;
+	border-radius: 0;
+	bottom: 0;
+	box-shadow: none;
+	color: $color-text;
+	display: block;
+	flex: none;
+	padding: 0 32px;
+	position: static;
+	width: $sidebar-width;
+
+	.jetpack-instant-search__overlay--no-sidebar & {
+		display: none;
+	}
+
+	@include multiple-breaks-for-customberg( '<l', '<xl' ) {
+		display: none;
+	}
+
+	&.jetpack-instant-search__search-results-secondary--show-as-modal {
+		@include multiple-breaks-for-customberg( '<l', '<xl' ) {
+			position: absolute;
+			top: 0;
+			right: 1em;
+			left: 1em;
+
+			background: $color-modal-background;
+			border-radius: 6px;
+			border: 1px solid rgba( 0, 0, 0, 0.1 );
+			box-shadow: 0 2px 3px rgba( 0, 0, 0, 0.1 );
+			display: block;
+			min-width: 360px;
+			padding: 16px 24px;
+			width: auto;
+			z-index: 10;
+			max-height: 70vh;
+			overflow-y: scroll;
+
+			@include break( '<s' ) {
+				max-height: 80vh;
+			}
+
+			.jetpack-instant-search__jetpack-colophon {
+				margin-bottom: 1em;
+			}
+
+			.jetpack-instant-search__jetpack-colophon-text {
+				font-size: 0.8em;
+			}
+
+			.jetpack-instant-search__overlay--no-sidebar & {
+				display: none;
+			}
+		}
+	}
+}
+
+.jetpack-instant-search__search-results-title,
+.jetpack-instant-search__search-results-unused-query {
+	color: $color-text;
+	font-size: 1em;
+	font-weight: 700;
+	font-weight: bold;
+	line-height: 1.3;
+	word-break: break-word;
+
+	margin: 1em $results-margin-lg 1.5em;
+	padding: 0;
+
+	@include multiple-breaks-for-customberg( '<l', '<xl' ) {
+		margin-left: $results-margin-md;
+		margin-right: $results-margin-md;
+		margin-bottom: 1em;
+	}
+	@include break( '<m' ) {
+		margin-left: $results-margin-sm;
+		margin-right: $results-margin-sm;
+	}
+}
+
+.jetpack-instant-search__search-results-title {
+	@include multiple-breaks-for-customberg( '>l', '>xl' ) {
+		// Account for .jetpack-instant-search__search-form-controls.
+		padding-right: 210px;
+	}
+}
+
+.jetpack-instant-search__search-results-list {
+	color: $color-text;
+	list-style: none;
+	margin-left: $results-margin-lg;
+	margin-right: $results-margin-lg;
+	padding: 0;
+
+	@include multiple-breaks-for-customberg( '<l', '<xl' ) {
+		margin-left: $results-margin-md;
+		margin-right: $results-margin-md;
+	}
+	@include break( '<m' ) {
+		margin-left: $results-margin-sm;
+		margin-right: $results-margin-sm;
+	}
+
+	// Accessibility improvement for VoiceOVer
+	// https://developer.mozilla.org/en-US/docs/Web/CSS/list-style-type#Accessibility_concerns
+	li:before {
+		content: '\200B';
+		position: absolute;
+		height: 1px;
+		width: 1px;
+	}
+}
+
+.jetpack-instant-search__search-results-search-form {
+	font-size: 0.8em;
+	margin: 0;
+	top: 0;
+	width: 100%;
+}
+
+// Applied to button. so we override any generic button styles from the theme
+button.jetpack-instant-search__overlay-close {
+	@include remove-button-styling();
+	align-items: center;
+	cursor: pointer;
+	display: flex;
+	height: 61px;
+	justify-content: center;
+	line-height: 1;
+	width: 60px;
+	border-bottom: 1px solid $color-layout-borders;
+	background-color: transparent !important;
+
+	&:focus {
+		outline: 1px dotted;
+	}
+
+	svg.gridicon {
+		fill: $color-text-lighter;
+	}
+	&:focus,
+	&:hover,
+	&:active {
+		border-color: $color-layout-borders;
+		background-color: transparent !important;
+		svg.gridicon {
+			fill: $color-text-light;
+		}
+	}
+}
+
+.jetpack-instant-search__search-results-pagination {
+	margin: 50px;
+	display: block;
+	flex: none;
+}

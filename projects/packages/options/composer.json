@@ -1,0 +1,39 @@
+{
+	"name": "automattic/jetpack-options",
+	"description": "A wrapper for wp-options to manage specific Jetpack options.",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-constants": "^1.6"
+	},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "1.0.2",
+		"automattic/jetpack-changelogger": "^3.0"
+	},
+	"autoload": {
+		"classmap": [
+			"legacy"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autotagger": true,
+		"mirror-repo": "Automattic/jetpack-options",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-options/compare/v${old}...v${new}"
+		},
+		"branch-alias": {
+			"dev-master": "1.13.x-dev"
+		}
+	}
+}

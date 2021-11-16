@@ -1,0 +1,57 @@
+{
+	"name": "automattic/jetpack-tracking",
+	"description": "Tracking for Jetpack",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-assets": "^1.12",
+		"automattic/jetpack-options": "^1.13",
+		"automattic/jetpack-status": "^1.9",
+		"automattic/jetpack-terms-of-service": "^1.9"
+	},
+	"require-dev": {
+		"brain/monkey": "2.6.0",
+		"yoast/phpunit-polyfills": "1.0.2",
+		"automattic/jetpack-changelogger": "^3.0"
+	},
+	"autoload": {
+		"classmap": [
+			"legacy",
+			"src/"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"scripts": {
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"@composer update",
+			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+		],
+		"test-php": [
+			"@composer update",
+			"@composer phpunit"
+		]
+	},
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autotagger": true,
+		"mirror-repo": "Automattic/jetpack-tracking",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-tracking/compare/v${old}...v${new}"
+		},
+		"branch-alias": {
+			"dev-master": "1.13.x-dev"
+		}
+	}
+}

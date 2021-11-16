@@ -1,0 +1,243 @@
+@import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
+@import '../_inc/client/scss/calypso-colors';
+@import '../_inc/client/scss/mixin_breakpoint';
+
+.jp-recommendations-banner-main {
+	position: relative;
+	display: grid;
+	grid-template-columns: 55% 45%;
+	max-width: 1600px;
+	min-height: 480px;
+	background: linear-gradient(
+		120deg,
+		rgba( 255, 255, 255, 1 ) 0%,
+		rgba( 255, 255, 255, 1 ) 55%,
+		rgba( 197, 217, 237, 1 ) 55%
+	);
+	box-shadow: 0px 2px 6px rgba( 0, 0, 0, 0.03 ), 0px 1px 2px rgba( 0, 0, 0, 0.03 );
+	border: 1px solid $gray-lighten-20;
+
+	margin: 3rem 1.25rem 1.25rem 0;
+
+	@media (max-width: 1152px) {
+		margin: 4rem 1.25rem 1.25rem 0;
+		grid-template-columns: 100% 0%;
+	}
+
+	@media (min-width: 1688px) {
+		grid-template-columns: 65% 35%;
+	}
+
+	.notice-dismiss {
+		@include breakpoint( '<480px' ) {
+			padding: 16px;
+		}
+	}
+}
+
+.jp-recommendations-banner__content {
+	display: flex;
+	flex-direction: column;
+
+	padding-right: 48px;
+
+	@media (min-width: 1688px) {
+		max-width: 600px;
+	}
+
+	@include breakpoint( '<660px' ) {
+		padding-right: 32px;
+	}
+
+	@include breakpoint( '<480px' ) {
+		padding-right: 16px;
+	}
+}
+
+.jp-recommendations-banner__logo {
+	margin: 32px 32px 0 32px;
+
+	@include breakpoint( '<480px' ) {
+		margin: 16px 16px 32px 16px;
+	}
+}
+
+.jp-recommendations-banner__question {
+	font-size: 1.5rem;
+	line-height: 1.4;
+	margin: 32px 32px 0 32px;
+
+	@include breakpoint( '<480px' ) {
+		margin: 0 16px 32px 16px;
+	}
+}
+
+.jp-recommendations-banner__description {
+	font-size: 16px;
+	margin: 32px 0 24px 32px;
+
+	@media (min-width: 1152px) {
+		max-width: 600px;
+	}
+
+	@include breakpoint( '<660px' ) {
+		margin: 32px 32px 24px 32px;
+	}
+
+	@include breakpoint( '<480px' ) {
+		margin: 0 16px 16px 16px;
+	}
+}
+
+.jp-recommendations-banner__answer {
+	max-width: 600px;
+	text-align: center;
+	margin: 0 0 32px 32px;
+
+	@include breakpoint( '<480px' ) {
+		margin: 0 0 16px 16px;
+	}
+}
+
+.jp-recommendations-banner__checkboxes {
+	display: grid;
+	gap: 16px;
+	grid-template-rows: auto auto;
+	grid-template-columns: auto auto;
+
+	@include breakpoint( '<480px' ) {
+		grid-template-rows: auto auto auto auto;
+		grid-template-columns: auto;
+	}
+}
+
+.jp-recommendations-answer__checkbox-label {
+	display: flex;
+	align-items: center;
+	box-sizing: border-box;
+	border: 1px solid #d5d5d5;
+	border-radius: 4px;
+	cursor: pointer;
+	background: white;
+
+	&.checked {
+		background: #f8fbff;
+		border: 1px solid $blue-medium;
+	}
+
+	input {
+		margin: 16px 8px 16px 16px;
+	}
+}
+
+.jp-recommendations-answer__title {
+	margin-right: 8px;
+	padding: 15px 0;
+	text-align: left;
+}
+
+.jp-recommendations-banner__form {
+	margin-bottom: 16px;
+}
+
+.jp-recommendations-banner__continue-button {
+	background: $blue-medium-dark;
+	border-color: $blue-medium-dark;
+	color: white;
+	border-style: solid;
+	border-width: 1px;
+	cursor: pointer;
+	display: inline-block;
+	margin: 0 0 8px 0;
+	outline: 0;
+	overflow: hidden;
+	font-size: 0.875rem;
+	text-overflow: ellipsis;
+	vertical-align: top;
+	box-sizing: border-box;
+	border-radius: 3px;
+	padding: 7px 14px 9px;
+
+	@include breakpoint( '<480px' ) {
+		width: 100%;
+	}
+
+	&:hover {
+		background: $blue-grey-dark;
+		border-color: $blue-grey-dark;
+		color: white;
+	}
+}
+
+.jp-recommendations-banner__continue-description {
+	color: #646970;
+	margin: 24px auto 0 auto;
+	max-width: 300px;
+
+	@include breakpoint( '<480px' ) {
+		display: none;
+	}
+}
+
+.jp-recommendations-banner__illustration-container {
+	width: 100%;
+	position: relative;
+
+	img {
+		position: absolute;
+		bottom: 0;
+		right: 0;
+	}
+
+	@media (min-width: 1152px) {
+		overflow: hidden;
+	}
+
+	@media (max-width: 1688px) {
+		img {
+			bottom: -24px;
+		}
+	}
+
+	@media (max-width: 1600px) {
+		img {
+			bottom: 0;
+		}
+	}
+}
+
+.jp-recommendations-banner__illustration-background {
+	width: 100%;
+	max-height: 480px;
+}
+
+.jp-recommendations-banner__illustration-foreground {
+	width: 75%;
+	margin: 10%;
+}
+
+.jp-recommendations-banner__notice-dismiss {
+	background: 0 0;
+	border: none;
+	color: $studio-gray-70;
+	cursor: pointer;
+	display: flex;
+	font-size: 16px;
+	line-height: 1.5;
+	margin: 0;
+	padding: 32px 32px 32px 0;
+	float: right;
+
+	&:hover, &:active {
+		color: $studio-gray-100;
+
+		.jp-recommendations-banner__svg-dismiss {
+			fill: $studio-gray-100;
+		}
+	}
+
+	.jp-recommendations-banner__svg-dismiss {
+		fill: $studio-gray-70;
+		margin-right: 4px;
+	}
+}

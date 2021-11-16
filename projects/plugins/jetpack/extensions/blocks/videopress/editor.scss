@@ -1,0 +1,24 @@
+.no-videopress-media-placeholder {
+	.components-placeholder__fieldset {
+		flex-direction: row-reverse;
+		align-items: flex-start;
+		justify-content: flex-end;
+
+		button {
+			display: none;
+		}
+
+		.block-editor-media-placeholder__url-input-container button,
+		.no-videopress-disabled-button {
+			display: inline-flex;
+		}
+
+		.no-videopress-disabled-button:last-child {
+			margin-right: 12px;
+		}
+	}
+}
+
+.videopress-block-hide {
+	display: none;
+}

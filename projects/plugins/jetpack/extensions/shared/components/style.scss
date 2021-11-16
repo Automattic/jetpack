@@ -1,0 +1,22 @@
+@import '../styles/gutenberg-base-styles.scss';
+
+// Styling copied from Gutenberg's `@wordpress/block-editor` styling for the Warning component
+// so we can use it on the frontend.
+.block-editor-warning {
+	border: $border-width solid $gray-200;
+	padding: 10px 14px;
+
+	.block-editor-warning__message {
+		line-height: $default-line-height;
+		font-family: $default-font;
+		font-size: $default-font-size;
+	}
+
+	.block-editor-warning__actions {
+		.components-button {
+			font-family: $default-font;
+			font-weight: inherit;
+			text-decoration: none;
+		}
+	}
+}

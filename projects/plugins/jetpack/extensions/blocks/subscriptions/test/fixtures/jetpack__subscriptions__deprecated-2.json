@@ -1,0 +1,19 @@
+[
+    {
+        "clientId": "_clientId_0",
+        "name": "jetpack/subscriptions",
+        "isValid": true,
+        "attributes": {
+            "subscribePlaceholder": "Email Address",
+            "showSubscribersTotal": false,
+            "buttonOnNewLine": true,
+            "submitButtonText": "Subscribe",
+            "buttonBackgroundColor": "primary",
+            "customButtonBackgroundColor": "#ffffff",
+            "textColor": "background",
+            "customTextColor": "#000000"
+        },
+        "innerBlocks": [],
+        "originalContent": "<div class=\"wp-block-jetpack-subscriptions\">[jetpack_subscription_form show_only_email_and_button=\"true\" custom_background_button_color=\"#ffffff\" custom_text_button_color=\"#000000\" submit_button_text=\"Subscribe\" submit_button_classes=\"\" show_subscribers_total=\"false\" ]</div>"
+    }
+]

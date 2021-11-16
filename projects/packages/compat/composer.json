@@ -1,0 +1,39 @@
+{
+	"name": "automattic/jetpack-compat",
+	"description": "Compatibility layer with previous versions of Jetpack",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "^3.0"
+	},
+	"autoload": {
+		"files": [
+			"functions.php"
+		],
+		"classmap": [
+			"legacy"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autotagger": true,
+		"mirror-repo": "Automattic/jetpack-compat",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-compat/compare/v${old}...v${new}"
+		},
+		"branch-alias": {
+			"dev-master": "1.6.x-dev"
+		}
+	}
+}

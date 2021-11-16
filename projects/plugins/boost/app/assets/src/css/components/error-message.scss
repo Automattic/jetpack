@@ -1,0 +1,90 @@
+.jb-error {
+	position: relative;
+	color: #d63638;
+	display: block;
+	margin: 0;
+	padding: 0;
+
+	@include breakpoint(sm) {
+		display: flex;
+		align-items: flex-start;
+		justify-content: left;
+	}
+
+	p {
+		margin: .25em 0;
+		color: $red_50;
+	}
+
+	.jb-error__main-action:not( :empty ) {
+		margin-left: auto;
+		button {
+			margin-left: 0;
+			@include breakpoint(sm) {
+				margin-left: 20px;
+			}
+		}
+	}
+
+	svg.icon {
+		color: inherit;
+		height: 20px;
+		width: 20px;
+		position: absolute;
+		left: -65px;
+		top: 0;
+		line-height: 0;
+	}
+
+	.jb-error__description {
+		color: $red_50;
+		font-weight: bold;
+		margin-bottom: .5em;
+	}
+
+	.jb-error__message {
+		list-style-type: disc;
+		color: $red_50;
+
+		.status-error {
+			color: $primary-black;
+		}
+
+		button {
+			color: $primary-black;
+			font-size: 16px;
+			margin: 16px auto;
+		}
+
+		li {
+			@include word-wrap();
+		}
+	}
+
+	.raw-error {
+		color: $primary-black;
+	}
+
+	.action {
+		color: $gray_90;
+		font-weight: bold;
+	}
+
+	pre {
+		background-color: #f1f1f1;
+		padding: 25px;
+		margin: 20px 0;
+		text-align: left;
+		white-space: pre-wrap;
+		color: #0f0f0f;
+		border-radius: 6px;
+	}
+}
+
+.jb-error--offset {
+	padding-left: 2em;
+
+	&:before {
+		left: 0;
+	}
+}

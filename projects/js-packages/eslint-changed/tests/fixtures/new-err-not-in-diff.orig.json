@@ -1,0 +1,26 @@
+[
+	{
+		"filePath": "/tmp/x/t/foo.js",
+		"messages": [
+			{
+				"ruleId": "semi",
+				"severity": 2,
+				"message": "Missing semicolon.",
+				"line": 25,
+				"column": 17,
+				"nodeType": "ExpressionStatement",
+				"messageId": "missingSemi",
+				"endLine": 26,
+				"endColumn": 1,
+				"fix": { "range": [ 178, 178 ], "text": ";" }
+			}
+		],
+		"errorCount": 1,
+		"fatalErrorCount": 0,
+		"warningCount": 0,
+		"fixableErrorCount": 1,
+		"fixableWarningCount": 0,
+		"source": "var x = 123;\n\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n\nconsole.log( x )\n",
+		"usedDeprecatedRules": []
+	}
+]

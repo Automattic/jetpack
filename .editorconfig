@@ -17,8 +17,8 @@ indent_style = tab
 indent_style = space
 indent_size = 2
 
-[*.txt]
-end_of_line = lf
+[*.md]
+trim_trailing_whitespace = false
 
-[wp-config-sample.php]
+[{*.txt,wp-config-sample.php}]
 end_of_line = crlf

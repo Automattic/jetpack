@@ -1,0 +1,47 @@
+@import './view.scss';
+
+.wp-block-jetpack-mailchimp {
+
+	.components-placeholder__label svg {
+		margin-right: 1ch;
+	}
+
+	.wp-block-jetpack-mailchimp_notification {
+		display: block;
+	}
+
+	.editor-rich-text__inline-toolbar {
+		pointer-events: none;
+		.components-toolbar {
+			pointer-events: all;
+		}
+	}
+
+	&-recheck {
+		margin-top: 1em;
+	}
+
+	// Hide everything else except notification when modifying notification labels
+	&.wp-block-jetpack-mailchimp_notication-audition > *:not( .wp-block-jetpack-mailchimp_notification ) {
+		display: none;
+	}
+
+	.wp-block-jetpack-mailchimp_text-input, .jetpack-submit-button {
+		margin-bottom: 1.5rem;
+	}
+
+	.wp-block-button .wp-block-button__link {
+		margin-top: 0;
+	}
+
+	.components-placeholder__fieldset {
+		display: block;
+		flex-direction: unset;
+		flex-wrap: unset;
+
+		.components-button {
+			margin-bottom: 0;
+		}
+	}
+
+}

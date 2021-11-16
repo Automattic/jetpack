@@ -1,0 +1,58 @@
+[
+    {
+        "blockName": "jetpack/business-hours",
+        "attrs": {
+            "days": [
+                {
+                    "name": "Sun",
+                    "hours": [
+                        {
+                            "opening": "10:00",
+                            "closing": "14:00"
+                        },
+                        {
+                            "opening": "15:00",
+                            "closing": "16:00"
+                        }
+                    ]
+                },
+                {
+                    "name": "Mon",
+                    "hours": []
+                },
+                {
+                    "name": "Tue",
+                    "hours": []
+                },
+                {
+                    "name": "Wed",
+                    "hours": []
+                },
+                {
+                    "name": "Thu",
+                    "hours": []
+                },
+                {
+                    "name": "Fri",
+                    "hours": []
+                },
+                {
+                    "name": "Sat",
+                    "hours": [
+                        {
+                            "opening": "10:00",
+                            "closing": "14:00"
+                        },
+                        {
+                            "opening": "15:00",
+                            "closing": "16:00"
+                        }
+                    ]
+                }
+            ]
+        },
+        "innerBlocks": [],
+        "innerHTML": "",
+        "innerContent": []
+    }
+]

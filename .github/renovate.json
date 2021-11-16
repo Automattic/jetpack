@@ -1,0 +1,110 @@
+{
+	"extends": [ "config:base" ],
+	"labels": [ "[Type] Janitorial", "[Status] Needs Review" ],
+	"prHourlyLimit": 1,
+	"timezone": "UTC",
+	"schedule": [ "before 3am on the first day of the month" ],
+	"updateNotScheduled": false,
+	"gitIgnoredAuthors": [ "matticbot@users.noreply.github.com" ],
+	"packageRules": [
+		{
+			"groupName": "Monorepo packages",
+			"matchPackageNames": [
+				"@automattic/eslint-changed",
+				"@automattic/eslint-config-target-es",
+				"@automattic/jetpack-analytics",
+				"@automattic/jetpack-api",
+				"@automattic/jetpack-base-styles",
+				"@automattic/jetpack-components",
+				"@automattic/jetpack-config",
+				"@automattic/jetpack-connection",
+				"@automattic/jetpack-idc",
+				"@automattic/jetpack-licensing",
+				"@automattic/jetpack-storybook",
+				"@automattic/jetpack-webpack-config",
+				"automattic/jetpack-a8c-mc-stats",
+				"automattic/jetpack-abtest",
+				"automattic/jetpack-admin-ui",
+				"automattic/jetpack-analyzer",
+				"automattic/jetpack-assets",
+				"automattic/jetpack-autoloader",
+				"automattic/jetpack-backup",
+				"automattic/jetpack-blocks",
+				"automattic/jetpack-changelogger",
+				"automattic/jetpack-codesniffer",
+				"automattic/jetpack-compat",
+				"automattic/jetpack-config",
+				"automattic/jetpack-connection",
+				"automattic/jetpack-connection-ui",
+				"automattic/jetpack-constants",
+				"automattic/jetpack-device-detection",
+				"automattic/jetpack-error",
+				"automattic/jetpack-heartbeat",
+				"automattic/jetpack-identity-crisis",
+				"automattic/jetpack-jitm",
+				"automattic/jetpack-lazy-images",
+				"automattic/jetpack-licensing",
+				"automattic/jetpack-logo",
+				"automattic/jetpack-options",
+				"automattic/jetpack-partner",
+				"automattic/jetpack-password-checker",
+				"automattic/jetpack-post-list",
+				"automattic/jetpack-redirect",
+				"automattic/jetpack-roles",
+				"automattic/jetpack-search",
+				"automattic/jetpack-status",
+				"automattic/jetpack-sync",
+				"automattic/jetpack-terms-of-service",
+				"automattic/jetpack-tracking"
+			],
+			"enabled": false
+		},
+		{
+			"extends": [ "monorepo:wordpress" ],
+			"separateMajorMinor": false,
+			"prPriority": 1
+		},
+		{
+			"groupName": "React and WordPress monorepos",
+			"matchDepTypes": [ "monorepo:wordpress", "monorepo:react" ]
+		},
+		{
+			"extends": [ "packages:eslint" ],
+			"groupName": "Eslint packages"
+		},
+		{
+			"extends": [ "packages:jsUnitTest" ],
+			"groupName": "JS unit testing packages"
+		},
+		{
+			"matchPaths": [ "packages/codesniffer/composer.json" ],
+			"rangeStrategy": "replace"
+		},
+		{
+			"matchPackageNames": [ "johnkary/phpunit-speedtrap" ],
+			"rangeStrategy": "widen"
+		},
+		{
+			"groupName": "Instant Search Dependency Updates",
+			"matchPackageNames": [
+				"cache",
+				"preact",
+				"progress-event",
+				"q-flat",
+				"qss",
+				"strip",
+				"uuid",
+				"@testing-library/preact"
+			],
+			"reviewers": [ "team:jetpack-search" ],
+			"labels": [ "Search", "Instant Search" ]
+		}
+	],
+	"lockFileMaintenance": {
+		"enabled": true,
+		"schedule": [ "before 3:00 am on Monday on the 7th through 13th day of the month" ]
+	},
+	"dependencyDashboard": true,
+	"dependencyDashboardTitle": "Renovate Dependency Updates",
+	"dependencyDashboardLabels": [ "Primary Issue", "[Type] Janitorial" ]
+}

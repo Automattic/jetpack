@@ -1,0 +1,27 @@
+name: Renovate
+on:
+  pull_request:
+    branches: [ 'master' ]
+concurrency:
+  group: renovate-helper-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  COMPOSER_ROOT_VERSION: "dev-master"
+
+jobs:
+  cleanup:
+    name: Amend Renovate PR
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.user.login == 'renovate[bot]'
+    timeout-minutes: 5  # 2021-03-25: Guess.
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+
+      - run: .github/files/renovate-helper.sh
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}

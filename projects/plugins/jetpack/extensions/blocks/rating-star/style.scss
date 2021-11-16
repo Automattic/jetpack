@@ -1,0 +1,95 @@
+@import '../../shared/styles/jetpack-variables';
+@import '../../shared/styles/gutenberg-base-styles';
+
+// Editor and View styles
+.wp-block-jetpack-rating-star {
+	margin-bottom: $jetpack-block-margin-bottom;
+	line-height: 0;
+	stroke-width: 0;
+
+	.is-rating-unfilled {
+		fill-opacity: 0.33;
+	}
+
+	.jetpack-ratings-button {
+		display: inline-flex;
+		margin-right: 0.3em;
+
+		// Mimic core focus style.
+		border-radius: $radius-block-ui;
+
+		&:focus {
+			box-shadow: 0 0 0 1px currentColor;
+
+			// Provide focus style for Windows 10 High Contrast mode.
+			outline: 2px solid transparent;
+		}
+	}
+
+	// In order for ratings to work in both low-fidelity non-CSS environments (email, AMP), we output emoji fallbacks and hide the SVGs by default.
+	// When this CSS file loads, however, we know that we're in a high-fidelity environment, so we hide the fallback and unhide the SVGs.
+	> p {
+		// These rules hide the element visually, but not to screen readers.
+		border: 0;
+		clip: rect(1px,1px,1px,1px);
+		-webkit-clip-path: inset(50%);
+		clip-path: inset(50%);
+		height: 1px;
+		margin: -1px;
+		overflow: hidden;
+		padding: 0;
+		position: absolute;
+		width: 1px;
+		word-wrap: normal !important;
+	}
+
+	// The !important is necessary to override the inline style.
+	> span {
+		display: inline-flex !important;
+	}
+
+	// Put the star together.
+	// This immediate span is a whole star.
+	> span { // Frontend.
+		margin-right: 0.3em;
+	}
+
+	// There are two stars in every whole stars, but they should be cropped as halves.
+	> span span, // Frontend.
+	.jetpack-ratings-button span { // Editor.
+		flex-shrink: 0;
+		width: 12px;
+		overflow: hidden;
+		display: inline-flex;
+	}
+
+	> span span svg,
+	.jetpack-ratings-button span svg {
+		flex-shrink: 0;
+	}
+
+	// Tweak 2nd half.
+	> span span:nth-child(even),
+	.jetpack-ratings-button span:nth-child(even) {
+		justify-content: flex-end;
+	}
+
+	// Some themes change the display, so make it explicit here.
+	// !important added because these should never be unset.
+	svg {
+		display: inline-block !important;
+		max-width: none !important
+	}
+
+	&.is-style-outlined {
+		stroke-width: 2px;
+
+		.is-rating-unfilled {
+			fill: transparent;
+		}
+	}
+
+	.jetpack-ratings-button {
+		margin-right: 0.3em;
+	}
+}

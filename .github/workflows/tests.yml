@@ -1,0 +1,162 @@
+name: Tests
+
+on:
+  pull_request:
+  push:
+    branches: [ 'master', '*/branch-*' ]
+concurrency:
+  group: tests-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  COMPOSER_ROOT_VERSION: "dev-master"
+
+jobs:
+  create-matrix:
+    name: "Determine tests matrix"
+    runs-on: ubuntu-latest
+    timeout-minutes: 1  # 2021-02-03: Should only take a second.
+    outputs:
+      matrix: ${{ steps.create-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v2
+      - id: create-matrix
+        run: |
+          MATRIX="$(.github/files/generate-ci-matrix.php)"
+          echo "::set-output name=matrix::$MATRIX"
+
+  run-tests:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    needs: create-matrix
+    services:
+      database:
+        image: mysql:5.6
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
+    continue-on-error: ${{ matrix.experimental }}
+    timeout-minutes: ${{ matrix.timeout }}
+    env:
+      TEST_SCRIPT: ${{ matrix.script }}
+      WP_BRANCH: ${{ matrix.wp }}
+      PHP_VERSION: ${{ matrix.php }}
+      NODE_VERSION: ${{ matrix.node }}
+      MONOREPO_BASE: ${{ github.workspace }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson( needs.create-matrix.outputs.matrix ) }}
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          # codecov.io requires a fetch depth > 1.
+          fetch-depth: 2
+
+      # For pull requests, list-changed-projects.php needs the merge base.
+      # But it doesn't have to be checked out, and codecov.io requires it not be.
+      - name: Deepen to merge base
+        if: github.event_name == 'pull_request'
+        uses: ./.github/actions/deepen-to-merge-base
+        with:
+          checkout: false
+
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+        with:
+          php: ${{ matrix.php }}
+          node: ${{ matrix.node }}
+
+      - name: Detect changed projects
+        id: changed
+        run: |
+          CHANGED="$(.github/files/list-changed-projects.php --debug)"
+          ANY_PLUGINS="$(jq --argjson changed "$CHANGED" -n '$changed | with_entries( select( .key | startswith( "plugins/" ) ) ) | any')"
+          echo "::set-output name=projects::${CHANGED}"
+          echo "::set-output name=any-plugins::${ANY_PLUGINS}"
+
+      - name: Setup WordPress environment for plugin tests
+        if: steps.changed.outputs.any-plugins == 'true' && matrix.wp != 'none'
+        run: .github/files/setup-wordpress-env.sh
+
+      - name: Monorepo install
+        run: |
+          echo "::group::Pnpm"
+          pnpm install
+          echo "::endgroup::"
+
+      - name: Run project tests
+        env:
+          EXPERIMENTAL: ${{ matrix.experimental && 'true' || 'false' }}
+          CHANGED: ${{ steps.changed.outputs.projects }}
+        run: |
+          EXIT=0
+          mkdir artifacts
+          [[ "$TEST_SCRIPT" == "test-coverage" ]] && mkdir coverage
+          for P in composer.json projects/*/*/composer.json; do
+            if [[ "$P" == "composer.json" ]]; then
+              DIR="."
+              SLUG="monorepo"
+            else
+              DIR="${P%/composer.json}"
+              SLUG="${DIR#projects/}"
+            fi
+
+            if [[ "${SLUG%%/*}" == "plugins" ]]; then
+              # Plugins run from the WordPress checkout, not the monorepo checkout.
+              if [[ "$WP_BRANCH" != 'none' ]]; then
+                DIR="/tmp/wordpress-$WP_BRANCH/src/wp-content/$SLUG"
+              fi
+            elif [[ "$WP_BRANCH" != 'latest' && "$WP_BRANCH" != 'none' && "$EXPERIMENTAL" != "true" ]]; then
+              echo "Skipping $SLUG, only plugins run for WP_BRANCH = $WP_BRANCH"
+              continue
+            fi
+
+            if ! jq --argjson changed "$CHANGED" --arg p "$SLUG" -ne '$changed[$p] // false' > /dev/null; then
+              echo "Skipping $SLUG, no changes in it or its dependencies"
+            elif ! jq --arg script "$TEST_SCRIPT" -e '.scripts[$script] // false' "$P" > /dev/null; then
+              echo "Skipping $SLUG, no test script is defined in composer.json"
+            else
+              echo "::group::Running tests for $SLUG"
+              mkdir -p "artifacts/$SLUG"
+              export ARTIFACTS_DIR="$GITHUB_WORKSPACE/artifacts/$SLUG"
+              if [[ "$TEST_SCRIPT" == "test-coverage" ]]; then
+                mkdir -p "coverage/$SLUG"
+                export COVERAGE_DIR="$GITHUB_WORKSPACE/coverage/$SLUG"
+              fi
+              FAIL=false
+              if ! composer run --timeout=0 --working-dir="$DIR" "$TEST_SCRIPT"; then
+                FAIL=true
+                EXIT=1
+              fi
+              echo "::endgroup::"
+              $FAIL && echo "::error::Tests for $SLUG failed!"
+            fi
+          done
+          exit $EXIT
+
+      - name: Process coverage results
+        if: matrix.script == 'test-coverage'
+        run: .github/files/process-coverage.sh
+
+      - name: Check for artifacts
+        id: check-artifacts
+        # Default for `if` is `success()`, we want this to run always.
+        if: always()
+        run: |
+          [[ -d artifacts ]] && find artifacts -type d -empty -delete
+          if [[ -d artifacts ]]; then
+            echo "::set-output name=any::true"
+          else
+            echo "::set-output name=any::false"
+          fi
+      - name: Upload artifacts
+        if: always() && steps.check-artifacts.outputs.any == 'true'
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.artifact }}
+          path: artifacts
+          retention-days: 7

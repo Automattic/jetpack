@@ -1,0 +1,21 @@
+[
+    {
+        "clientId": "_clientId_0",
+        "name": "jetpack/contact-info",
+        "isValid": true,
+        "attributes": {},
+        "innerBlocks": [
+            {
+                "clientId": "_clientId_0",
+                "name": "jetpack/phone",
+                "isValid": true,
+                "attributes": {
+                    "phone": "123-456-7890"
+                },
+                "innerBlocks": [],
+                "originalContent": "<div class=\"wp-block-jetpack-phone\"><a href=\"tel:1234567890\">123-456-7890</a></div>"
+            }
+        ],
+        "originalContent": "<div class=\"wp-block-jetpack-contact-info\"></div>"
+    }
+]

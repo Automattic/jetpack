@@ -1,0 +1,54 @@
+{
+	"name": "automattic/jetpack-terms-of-service",
+	"description": "Everything need to manage the terms of service state",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-options": "^1.13",
+		"automattic/jetpack-status": "^1.9"
+	},
+	"require-dev": {
+		"brain/monkey": "2.6.0",
+		"yoast/phpunit-polyfills": "1.0.2",
+		"automattic/jetpack-changelogger": "^3.0"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"@composer update",
+			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+		],
+		"test-php": [
+			"@composer update",
+			"@composer phpunit"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autotagger": true,
+		"mirror-repo": "Automattic/jetpack-terms-of-service",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-terms-of-service/compare/v${old}...v${new}"
+		},
+		"branch-alias": {
+			"dev-master": "1.9.x-dev"
+		}
+	}
+}

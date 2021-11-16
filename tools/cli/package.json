@@ -1,0 +1,51 @@
+{
+	"name": "jetpack-cli",
+	"version": "1.0.0",
+	"private": true,
+	"description": "[Jetpack](https://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of [WordPress.com](https://wordpress.com).",
+	"homepage": "https://jetpack.com",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"bin": {
+		"jetpack": "bin/jetpack"
+	},
+	"scripts": {
+		"test": "mocha tests/runner.js --require esm"
+	},
+	"dependencies": {
+		"@octokit/auth-token": "2.4.5",
+		"@octokit/rest": "18.6.7",
+		"chalk": "4.1.2",
+		"configstore": "5.0.1",
+		"envfile": "6.17.0",
+		"esm": "3.2.25",
+		"execa": "5.0.0",
+		"inquirer": "7.3.3",
+		"js-yaml": "4.1.0",
+		"listr": "0.14.3",
+		"listr-update-renderer": "0.5.0",
+		"listr-verbose-renderer": "0.6.0",
+		"path-name": "1.0.0",
+		"pluralize": "8.0.0",
+		"process": "0.11.10",
+		"simple-git": "2.37.0",
+		"yargs": "16.2.0"
+	},
+	"devDependencies": {
+		"chai": "4.3.4",
+		"mocha": "8.4.0",
+		"yargs-parser": "20.2.4"
+	},
+	"engines": {
+		"node": "^14.17.6 || ^16.7.0",
+		"pnpm": "^6.5.0",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	}
+}

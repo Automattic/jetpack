@@ -1,0 +1,53 @@
+{
+	"name": "jetpack-e2e-tests",
+	"private": true,
+	"description": "[Jetpack](https://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of [WordPress.com](https://wordpress.com).",
+	"homepage": "https://jetpack.com",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"clean": "rm -rf output",
+		"distclean": "rm -rf node_modules",
+		"env-start": "e2e-env start",
+		"env-stop": "e2e-env stop",
+		"env-reset": "e2e-env reset",
+		"tunnel-on": "tunnel up",
+		"tunnel-reset": "tunnel reset",
+		"tunnel-off": "tunnel down",
+		"tunnel-write-logs": "tunnel logs output/logs/tunnel.log",
+		"pretest-e2e": "pnpm run clean",
+		"test-e2e": ". ./node_modules/jetpack-e2e-commons/bin/app-password.sh && NODE_CONFIG_DIR='./config' jest --config jest.config.js --runInBand --verbose --detectOpenHandles --json --outputFile=output/summary.json",
+		"test-decrypt-default-config": "openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./node_modules/jetpack-e2e-commons/config/encrypted.enc -out ./node_modules/jetpack-e2e-commons/config/local-test.js",
+		"test-decrypt-config": "openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./config/encrypted.enc -out ./config/local-test.js",
+		"test-decrypt-all-config": "pnpm test-decrypt-default-config && pnpm test-decrypt-config",
+		"test-encrypt-default-config": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in ./node_modules/jetpack-e2e-commons/config/local-test.js -out ./node_modules/jetpack-e2e-commons/config/encrypted.enc",
+		"test-encrypt-config": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in ./config/local-test.js -out ./config/encrypted.enc",
+		"slack": "NODE_ENV=test NODE_CONFIG_DIR='./config' slack",
+		"preinstall": "pnpm --prefix ../../../../../tools/e2e-commons install"
+	},
+	"devDependencies": {
+		"@babel/core": "7.16.0",
+		"@babel/preset-env": "7.16.0",
+		"@wordpress/eslint-plugin": "9.2.0",
+		"config": "3.3.6",
+		"eslint": "7.32.0",
+		"eslint-plugin-jest": "25.2.2",
+		"jest": "27.3.1",
+		"jest-runner-groups": "2.1.0",
+		"jetpack-cli": "link:../../../../../tools/cli",
+		"jetpack-e2e-commons": "link:../../../../../tools/e2e-commons"
+	},
+	"engines": {
+		"node": "^14.17.6 || ^16.7.0",
+		"pnpm": "^6.5.0",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	},
+	"browserslist": []
+}

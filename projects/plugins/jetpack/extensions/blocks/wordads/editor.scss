@@ -1,0 +1,44 @@
+@import '../../shared/styles/gutenberg-base-styles.scss';
+
+[data-type='jetpack/wordads'][data-align='center'] .jetpack-wordads__ad {
+	margin: 0 auto;
+}
+
+.jetpack-wordads__ad {
+	display: flex;
+	overflow: hidden;
+	flex-direction: column;
+	max-width: 100%;
+
+	.components-placeholder {
+		flex-grow: 2;
+	}
+
+	.components-toggle-control__label {
+		line-height: 1.4em;
+	}
+
+	.components-base-control__field {
+		padding: 7px;
+	}
+}
+
+.wp-block-jetpack-wordads__format-picker {
+	$active-item-outline-width: 2px;
+
+	padding: 7px;
+
+	// Leave space between elements for active state styling
+	.components-menu-item__button + .components-menu-item__button {
+		margin-top: $active-item-outline-width;
+	}
+
+	.components-menu-item__button.is-active {
+		color: $gray-900;
+		box-shadow: 0 0 0 $active-item-outline-width $gray-600 !important;
+	}
+}
+
+.jetpack-wordads__mobile-visibility {
+	margin-top: 20px;
+}

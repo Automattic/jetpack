@@ -1,31 +1,43 @@
 <?xml version="1.0"?>
-<ruleset name="Jetpack">
-	<config name="minimum_supported_wp_version" value="5.0" />
-	<config name="testVersion" value="5.2-"/>
+<ruleset>
 
-	<rule ref="PHPCompatibilityWP"/>
-	<rule ref="WordPress-Core" />
-	<rule ref="WordPress-Docs" />
-	<rule ref="WordPress-Extra" />
-	<rule ref="VariableAnalysis" />
+	<!-- Load configuration. -->
+	<rule ref="./.phpcs.config.xml" />
 
+	<!-- Default ruleset. -->
+	<rule ref="Jetpack" />
+
+	<rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis">
+		<!-- Template files use extracted variables. -->
+		<exclude-pattern>/projects/plugins/jetpack/extensions/blocks/podcast-player/templates/*</exclude-pattern>
+	</rule>
+
+<!-- Can't be more specific pending the request https://github.com/WordPress/WordPress-Coding-Standards/issues/1650. -->
 	<rule ref="WordPress.WP.I18n">
 		<properties>
-			<property name="text_domain" type="array" value="jetpack" />
+			<property name="text_domain" type="array">
+				<!-- Core Jetpack -->
+				<element value="jetpack"/>
+				<!-- Jetpack Beta plugin -->
+				<element value="jetpack-beta"/>
+				<!-- Jetpack Standalone Plugins -->
+				<element value="jetpack-backup"/>
+				<element value="jetpack-boost"/>
+				<element value="jetpack-search"/>
+			</property>
 		</properties>
 	</rule>
 
-	<!-- Check all PHP files in directory tree by default. -->
-	<arg name="extensions" value="php"/>
-	<file>.</file>
+	<rule ref="WordPress.Utils.I18nTextDomainFixer">
+		<properties>
+			<property name="old_text_domain" type="array" />
+			<property name="new_text_domain" value="jetpack" />
+		</properties>
+	</rule>
 
-	<!-- Show sniff codes in all reports -->
-	<arg value="s"/>
+	<!-- WordPress-Extra pulls this in. But PHP linting can be run more efficiently via bin/parallel-lint.sh than by having phpcs shell out to `php -l`. -->
+	<rule ref="Generic.PHP.Syntax">
+		<exclude name="Generic.PHP.Syntax" />
+	</rule>
 
-	<arg name="colors"/>
-
-	<exclude-pattern>/docker/*</exclude-pattern>
-	<exclude-pattern>/node_modules/*</exclude-pattern>
-	<exclude-pattern>/tests/*</exclude-pattern>
-	<exclude-pattern>/vendor/*</exclude-pattern>
 </ruleset>

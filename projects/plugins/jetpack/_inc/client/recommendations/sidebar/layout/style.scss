@@ -1,0 +1,49 @@
+@import '../../../scss/variables/colors';
+
+.jp-recommendations-sidebar-card {
+	width: 100%;
+
+	background: linear-gradient( to bottom, #c5d9ed 115px, white 115px );
+	border-radius: 8px;
+
+	.dops-button {
+		width: 100%;
+		background: $color-plan;
+		border-color: $color-plan;
+		text-align: center;
+	}
+}
+
+.jp-recommendations-sidebar-card__illustration-container {
+	text-align: center;
+}
+
+.jp-recommendations-sidebar-card__illustration {
+	display: inline-flex;
+	justify-content: center;
+	width: 220px;
+	height: 115px;
+	margin-top: 24px;
+	padding: 8px;
+	background: $white;
+	border-radius: 3px;
+	box-shadow: 0px 0px 24px rgba( 0, 0, 0, 0.16 );
+}
+
+.jp-recommendations-sidebar-card__content {
+	padding: 0 24px 24px 24px;
+}
+
+.jp-recommendations-sidebar-card__features {
+	margin: 32px 0 8px 0;
+
+	li {
+		display: flex;
+		align-items: center;
+	}
+
+	.gridicons-checkmark-circle {
+		fill: $green-primary;
+		margin-right: 8px;
+	}
+}

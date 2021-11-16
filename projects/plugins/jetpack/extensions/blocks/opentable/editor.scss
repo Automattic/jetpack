@@ -1,0 +1,152 @@
+@import '../../shared/styles/gutenberg-base-styles.scss';
+
+/**
+ * Editor styles for OpenTable
+ */
+
+.wp-block-jetpack-opentable {
+	// needed so that the block preview doesn't have empty space
+	display: inline-block;
+	position: relative;
+
+	&.is-style-wide,
+	&.is-placeholder {
+		display: block;
+	}
+
+	.components-base-control {
+		width: 100%;
+	}
+
+	.components-placeholder__fieldset {
+		p {
+			font-size: 13px;
+			margin: 0 0 1em;
+		}
+
+		form {
+			flex-direction: row;
+			@media screen and ( max-width: 479px ) {
+				display: block;
+			}
+
+			.components-form-token-field__label {
+				display: none;
+			}
+
+			p {
+				margin-top: 1em;
+			}
+
+			.components-form-token-field__input-container {
+				width: 100%;
+				@media screen and ( min-width: 480px ) {
+					input[type='text'].components-form-token-field__input {
+						min-height: 32px;
+					}
+				}
+			}
+
+			> .components-button {
+				padding-bottom: 0px;
+				padding-top: 0px;
+				padding-right: 8px;
+				padding-left: 8px;
+				height: 42px;
+				align-items: center;
+				line-height: normal;
+
+				@media screen and ( min-width: 480px ) {
+					margin: 0 0 0 4px;
+					position: relative;
+				}
+			}
+
+			.components-form-token-field__remove-token {
+				padding: 2px 6px;
+			}
+		}
+	}
+
+	iframe {
+		height: 100%;
+		width: 100%;
+	}
+
+	&-overlay {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		z-index: 10;
+	}
+
+	&-restaurant-picker {
+		margin-bottom: 1em;
+		position: relative;
+		width: 100%;
+
+		.components-form-token-field__token-text {
+			display: inline-flex;
+			align-items: center;
+		}
+	}
+
+	&-placeholder-links {
+		display: flex;
+		flex-direction: column;
+		@media screen and ( min-width: 480px ) {
+			display: block;
+		}
+
+		a {
+			@media screen and ( min-width: 480px ) {
+				form > button {
+					height: 50px;
+				}
+			}
+			padding: 0.25em 1em 0.25em 0;
+			&:last-child {
+				padding-right: 0;
+				padding-left: 1em;
+			}
+		}
+	}
+
+	&.is-style-button {
+		&.has-no-margin {
+			iframe {
+				margin: -14px;
+			}
+		}
+	}
+
+	.editor-styles-wrapper & .components-form-token-field__suggestions-list {
+		font-family: $default-font;
+		text-align: left;
+		padding: 0;
+		margin: 0;
+	}
+
+	.wp-block > &.is-style-wide {
+		&.alignright {
+			left: auto;
+			right: 0;
+		}
+	}
+}
+
+.wp-block[data-type='jetpack/opentable'] {
+	.components-notice__content {
+		text-align: left;
+	}
+}
+
+.components-toggle-control.is-opentable {
+	padding-top: 6px;
+}
+
+.is-opentable {
+	button.is-active {
+		font-weight: bold;
+	}
+}

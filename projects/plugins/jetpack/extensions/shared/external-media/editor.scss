@@ -1,0 +1,424 @@
+/**
+ * External Media
+ */
+@import '../styles/gutenberg-base-styles.scss';
+
+$grid-size: 8px;
+
+@keyframes jetpack-external-media-loading-fade {
+	0% {
+		opacity: 0.5;
+	}
+	50% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0.5;
+	}
+}
+
+.jetpack-external-media-browser--visually-hidden {
+	position: absolute !important;
+	height: 1px;
+	width: 1px;
+	overflow: hidden;
+	clip: rect( 1px, 1px, 1px, 1px );
+	white-space: nowrap; /* added line */
+}
+
+/**
+ * Media button menu
+ */
+
+/**
+ * Hide the menu when the modal is open. Hacky, but necessary to allow the focus
+ * to return to selected option when modal is closed. This is how it's currenly
+ * also implemented in Gutenberg's MediaReplaceFlow.
+ */
+.modal-open .jetpack-external-media-button-menu__options {
+	display: none;
+}
+
+/**
+ * Media item container
+ */
+
+.jetpack-external-media-browser {
+	.is-error {
+		margin-bottom: 1em;
+		margin-left: 0;
+		margin-right: 0;
+	}
+
+	.components-placeholder {
+		background-color: transparent;
+	}
+
+	.components-modal__content {
+		overflow: auto;
+		padding-bottom: 0;
+		width: 100%;
+
+		@media ( min-width: 600px ) {
+			width: 90vw;
+			height: 90vh;
+		}
+	}
+}
+
+.jetpack-external-media-browser--is-copying {
+	pointer-events: none;
+}
+
+.jetpack-external-media-browser {
+	background: white;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+
+	.jetpack-external-media-browser__media {
+		width: 100%;
+	}
+
+	// Individual Thumbnails
+	.jetpack-external-media-browser__media__item {
+		height: 0;
+		width: 50%;
+		padding-top: 50%;
+		display: inline-flex;
+		position: relative;
+
+		// Unset button appearance.
+		border: 0;
+		background: transparent;
+
+		img {
+			display: block;
+			position: absolute;
+			top: $grid-size;
+			left: $grid-size;
+			width: calc( 100% - #{$grid-size * 2} );
+			height: calc( 100% - #{$grid-size * 2} );
+			object-fit: contain;
+		}
+
+		&.is-transient img {
+			opacity: 0.3;
+		}
+	}
+
+	.jetpack-external-media-browser__media__copying_indicator {
+		display: flex;
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		text-align: center;
+
+		.components-spinner {
+			margin-bottom: $grid-size;
+		}
+	}
+
+	.jetpack-external-media-browser__media__copying_indicator__label {
+		font-size: 12px;
+	}
+
+	.jetpack-external-media-browser__media__folder {
+		float: left;
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		align-items: center;
+		align-content: flex-start;
+		margin-bottom: 36px;
+	}
+
+	.jetpack-external-media-browser__media__info {
+		font-size: 12px;
+		font-weight: bold;
+		width: 100%;
+		display: flex;
+		justify-content: space-between;
+		padding: 3px;
+	}
+
+	.jetpack-external-media-browser__media__count {
+		background-color: #dcdcde;
+		padding: 3px 4px;
+		border-radius: 8px;
+		margin-bottom: auto;
+	}
+
+	// Resting, focus and selected.
+	$border-width: 8px;
+
+	.jetpack-external-media-browser__media__item {
+		border: $border-width solid transparent;
+
+		&:focus {
+			outline: none;
+			box-shadow: inset 0 0 0 2px var(--wp-admin-theme-color);
+			border-radius: 2px + $border-width; // Add the 4px from the transparent.
+		}
+
+		&__selected {
+			box-shadow: inset 0 0 0 6px var(--wp-admin-theme-color);
+			border-radius: 2px + $border-width; // Add the 4px from the transparent.
+		}
+
+		&__selected:focus {
+			box-shadow: inset 0 0 0 2px var(--wp-admin-theme-color), inset 0 0 0 3px white,
+				inset 0 0 0 6px var(--wp-admin-theme-color);
+		}
+	}
+
+	// Transient placeholder when media are loading.
+	.jetpack-external-media-browser__media__placeholder {
+		width: 100px;
+		height: 100px;
+		margin: $grid-size * 2;
+		animation: jetpack-external-media-loading-fade 1.6s ease-in-out infinite;
+		background-color: $gray-400;
+		border: 0;
+	}
+
+	// Toolbar for "insert" and pagination button.
+	.jetpack-external-media-browser__media__toolbar {
+		position: fixed;
+		position: sticky;
+		bottom: 0;
+		left: 0;
+		width: 100%;
+		background: white;
+		padding: 20px 0;
+		display: flex;
+		justify-content: flex-end;
+	}
+
+	.jetpack-external-media-browser__loadmore {
+		clear: both;
+		display: block;
+		margin: 24px auto 48px auto;
+	}
+}
+
+// Show more thumbs beyond mobile.
+@media only screen and ( min-width: 600px ) {
+	.jetpack-external-media-browser .jetpack-external-media-browser__media__item {
+		width: 20%;
+		padding-top: 20%;
+	}
+}
+
+/**
+ * The specific wrappers for Google and Pexels.
+ */
+
+.jetpack-external-media-header__view {
+	display: flex;
+	align-items: flex-start;
+	justify-content: flex-start;
+	margin-bottom: 48px;
+	flex-direction: column;
+
+	@media only screen and ( min-width: 600px ) {
+		flex-direction: row;
+		align-items: center;
+	}
+
+	select {
+		max-width: 200px !important;
+	}
+
+	.components-base-control__field {
+		display: flex;
+		flex-direction: column;
+	}
+}
+
+.jetpack-external-media-header__filter,
+.jetpack-external-media-header__view {
+	label {
+		margin-right: 10px;
+	}
+
+	.components-base-control {
+		padding-right: $grid-size;
+		margin-bottom: 0;
+	}
+}
+
+.jetpack-external-media-header__filter {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	flex-grow: 1;
+	justify-content: flex-start;
+
+	@media only screen and ( min-width: 600px ) {
+		border-left: 1px solid $gray-400;
+		margin-left: $grid-size * 2;
+		padding-left: $grid-size * 2;
+	}
+
+	.jetpack-external-media-date-filter {
+		display: flex;
+		flex-wrap: wrap;
+
+		button {
+			// Adjust button to match the size and position of inputs.
+			margin-top: 27px;
+			height: 40px;
+
+			@media only screen and ( min-width: 783px ) {
+				height: 30px;
+			}
+		}
+
+		.components-base-control {
+			.components-input-control__label {
+				margin-bottom: 3px;
+			}
+
+			.components-input-control__backdrop {
+				border-color: $gray-200;
+				border-radius: 3px;
+			}
+
+			.components-input-control__input {
+				height: 40px;
+				width: 70px; // This input holds only years, so 4 digits width is enough.
+
+				@media only screen and ( min-width: 783px ) {
+					height: 30px;
+				}
+			}
+		}
+	}
+}
+
+.jetpack-external-media-header__account {
+	display: flex;
+	flex-direction: column;
+
+	.jetpack-external-media-header__account-info {
+		display: flex;
+		margin-bottom: 8px;
+	}
+
+	.jetpack-external-media-header__account-image {
+		margin-right: 8px;
+	}
+
+	.jetpack-external-media-header__account-name {
+		height: 18px;
+		max-width: 190px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.jetpack-external-media-browser__disconnect {
+		height: 40px;
+		margin: 1px 1px 9px 0;
+
+		@media only screen and ( min-width: 783px ) {
+			height: 30px;
+		}
+	}
+}
+
+.jetpack-external-media-header__pexels {
+	display: flex;
+	margin-bottom: 48px;
+
+	.components-base-control {
+		flex: 1;
+		margin-right: 12px;
+	}
+
+	.components-base-control__field {
+		margin-bottom: 0;
+	}
+
+	.components-base-control__field,
+	.components-text-control__input {
+		height: 100%;
+	}
+}
+
+/**
+ * Basic Responsiveness
+ */
+
+.jetpack-external-media-placeholder__open-modal {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 0;
+	position: absolute;
+	right: 0;
+	margin-top: -48px;
+	z-index: 1;
+
+	.components-button {
+		margin: 0;
+		padding: 12px;
+		background: none;
+
+		&::before {
+			content: none;
+		}
+
+		svg {
+			display: block;
+			fill: currentColor;
+		}
+	}
+}
+
+.jetpack-external-media-browsing
+	> div.components-placeholder:not( .jetpack-external-media-replacedholder ) {
+	display: none;
+}
+
+.jetpack-external-media-browser__empty {
+	width: 100%;
+	text-align: center;
+	padding-top: 2em;
+}
+
+.jetpack-external-media-auth {
+	max-width: 340px;
+	margin: 0 auto;
+	padding-bottom: 80px;
+	text-align: center;
+
+	p {
+		margin: 2em 0;
+	}
+}
+
+.jetpack-external-media-filters {
+	display: flex;
+	justify-content: space-between;
+}
+
+// Reset placeholder button margin.
+.components-placeholder__fieldset,
+.editor-post-featured-image {
+	.components-dropdown .jetpack-external-media-button-menu {
+		margin-right: 8px;
+		margin-bottom: 1em;
+	}
+}
+
+// Override DropDown component styles when warpping the "Set featured image" button.
+.editor-post-featured-image .components-dropdown {
+	display: initial;
+}

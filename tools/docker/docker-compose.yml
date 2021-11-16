@@ -1,0 +1,53 @@
+version: '3.3'
+
+volumes:
+  ## Kludge for not having the ./docker directory bound recursively
+  dockerdirectory:
+
+services:
+  ## A default mysql image
+  ## We map a local directory (data/mysql) so we can have the mysql data locally
+  ## and reuse it if we need to remove containers and images for rebuilding from scratch.
+  db:
+    image: mariadb:latest
+    volumes:
+      - ./data/${COMPOSE_PROJECT_NAME}_mysql:/var/lib/mysql
+      - ./logs/${COMPOSE_PROJECT_NAME}/mysql:/var/log/mysql
+      - ./config/mysql.conf:/etc/mysql/conf.d/docker.cnf
+      - ./bin:/var/scripts
+    env_file:
+      - default.env
+      - .env
+    entrypoint: [ '/bin/bash', '/var/scripts/docker-db-start-and-autoupgrade.sh' ]
+    command: [ 'mysqld' ]
+
+  ## - The container wordpress is a very basic but custom container with WordPress and all of the tools we need
+  ##   for development.
+  ## - The container will be named jetpack_wordpress for easy reference when running docker/docker-compose commands
+  ##
+  ## Here we map the following:
+  ##  - The docker/wordpress-develop directory where we'll get WordPress source code with unit tests
+  ##  - The docker/wordpress directory so we can have WordPress source code modifiable from the host file system
+  ##  - The docker/logs/apache2 directory so we can access Apache log files directly from the host file system
+  ##  - The docker/logs/php directory so we can access PHP log files directly from the host file system
+  ##  - The docker/bin directory for provisioning scripts
+  wordpress:
+    depends_on:
+      - db
+    image: automattic/jetpack-wordpress-dev:latest
+    volumes:
+      ## WordPress and its plugins and themes should be defined in volumeMappings in jetpack-docker-config-default.yml or jetpack-docker-config.yml, not here!
+      ## That avoids having to define them both here and in the "sftp" service.
+      - dockerdirectory:/usr/local/src/jetpack-monorepo/tools/docker
+      - ./wordpress-develop:/tmp/wordpress-develop
+      - ./logs/${COMPOSE_PROJECT_NAME}/apache2/:/var/log/apache2
+      - ./logs/${COMPOSE_PROJECT_NAME}/php:/var/log/php
+      - ./bin:/var/scripts
+    ports:
+      - '${PORT_WORDPRESS:-80}:80'
+    env_file:
+      - default.env
+      - .env
+    environment:
+      - HOST_PORT=${PORT_WORDPRESS:-80}
+      - COMPOSE_PROJECT_NAME=$COMPOSE_PROJECT_NAME

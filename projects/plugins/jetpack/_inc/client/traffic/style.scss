@@ -1,0 +1,202 @@
+@import "../scss/variables/_colors";
+@import "../scss/mixin_breakpoint";
+
+.jp-form-google-label-unverified {
+	.dops-button {
+		margin: 0 15px;
+
+		@include breakpoint( '<660px' ) {
+			margin-top: 10px;
+			width: 40%;
+		}
+	}
+
+	.jp-form-google-separator {
+		padding: .5rem 0;
+
+		@include breakpoint( '<660px' ) {
+			margin: 25px 0 0;
+			display: inline-block;
+		}
+	}
+}
+
+.jp-sitemap-row {
+	display: flex;
+	align-items: center;
+	margin-top: 1rem;
+
+	.dops-clipboard-button-input {
+		flex-grow: 1;
+	}
+}
+
+// we want to place.jp-form-input-with-prefix's margin after this element
+.jp-form-input-with-prefix-bottom-message {
+	top: rem( -20px );
+	position: relative;
+	line-height: 2em;
+	margin-top: 5px;
+}
+
+.jp-form-site-verification-verified {
+	background-color: $white;
+	color: $green-primary;
+	box-sizing: border-box;
+	margin: 0;
+	padding: 7px 14px;
+	font-size: 16px;
+	line-height: 1.5;
+	border: 1px solid #c8d7e1;
+	width: 100%;
+	display: flex;
+	flex-direction: row;
+	justify-content: left;
+	align-items: center;
+
+	.gridicon:first-child {
+		margin-right: 5px;
+	}
+
+	@include breakpoint( '>660px' ) {
+		border-left: 0;
+	}
+
+	@include breakpoint( '<660px' ) {
+		border-top: 0;
+	}
+}
+
+.jp-form-site-verification-edit-button {
+	margin-left: 10px;
+	overflow: visible;
+
+	@include breakpoint( '<660px' ) {
+		margin-left: 0;
+		margin-right: 5px;
+		margin-top: 5px;
+	}
+}
+
+.jp-form-site-verification-buttons {
+	flex: 0 1 20em;
+	display: inline-flex;
+}
+
+.jp-form-site-verification-verified-note {
+	font-size: 0.7em;
+}
+
+.jp-form-google-label-unverified-actions {
+	display: flex;
+	align-content: center;
+
+	.dops-button {
+		margin-left: 10px;
+		margin-right: 10px;
+		padding-left: 7px;
+		padding-right: 7px;
+	}
+}
+
+#jp-seo-front-page-description {
+	min-height: 96px;
+}
+
+.jp-seo-front-page-description {
+	&-card {
+		margin-bottom: 0 !important;
+	}
+
+	&-container {
+		background: $gray-light;
+		border-radius: 4px;
+	}
+
+	&-count {
+		padding: 0.25rem;
+	}
+
+	&-count-warn {
+		background-color: $alert-yellow;
+		font-weight: $bold;
+		border-radius: 4px;
+	}
+
+	&-count-max {
+		background-color: $alert-red;
+		font-weight: $bold;
+		border-radius: 4px;
+		color: white;
+	}
+
+	&-save-button {
+		float: right;
+		margin-top: 0.75rem;
+	}
+}
+
+.jp-seo-social-previews {
+	.search-preview,
+	.facebook-preview,
+	.twitter-preview {
+		margin-top: 1rem;
+		margin-bottom: 1rem;
+	}
+
+	&-container {
+		display: flex;
+		align-items: center;
+		margin-top: 1rem;
+	}
+
+	&-label {
+		font-weight: 600;
+		margin-left: 0.5rem;
+	}
+}
+
+.jp-seo-custom-titles {
+	&-card {
+		margin-bottom: 0 !important;
+	}
+
+	&-input[type="text"] {
+		margin-top: 0.25rem;
+	}
+
+	&-input-controls {
+		display: flex;
+		align-items: flex-end;
+		flex-wrap: wrap;
+		margin-top: 0.5rem;
+
+		.jp-form-label {
+			margin-bottom: 0;
+			font-weight: 600;
+		}
+	}
+
+	&-input-label {
+		margin-right: auto;
+	}
+
+	&-input-button::before {
+		content: "+";
+		margin-right: 4px;
+	}
+
+	&-input-button:not(:first-of-type) {
+		margin-left: 0.5rem;
+	}
+
+	&-input-preview {
+		margin-top: 0.25rem;
+		font-style: italic;
+	}
+
+	&-save-button {
+		float: right;
+		margin-top: 0.75rem;
+	}
+}

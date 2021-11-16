@@ -1,0 +1,52 @@
+/**
+ * Editor styles for Send A Message
+ */
+
+.jetpack-whatsapp-button__phonenumber {
+	.components-base-control {
+		margin-bottom: 0;
+	}
+
+	input.components-text-control__input {
+		margin-bottom: 5px;
+	}
+
+	select.components-select-control__input {
+		width: 105px;
+		min-height: 30px;
+		padding-left: 10px;
+	}
+
+	.components-placeholder__label svg {
+		margin-right: 6px;
+	}
+}
+
+.jetpack-whatsapp-error {
+	display: inline-flex;
+	margin-bottom: 10px;
+
+	svg, span {
+		color: red;
+		fill: red;
+		vertical-align: middle;
+	}
+
+	svg {
+		margin: -3px 5px 0 0;
+	}
+}
+
+// Make sure form settings dropdown looks good on older Gutenberg versions
+.jetpack-whatsapp-button__popover {
+	.components-popover__content {
+		padding: 12px;
+		min-width: 260px;
+	}
+}
+
+.wp-block[data-align="center"] {
+	.wp-block-jetpack-whatsapp-button {
+		justify-content: center;
+	}
+}

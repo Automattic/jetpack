@@ -1,0 +1,11 @@
+########
+#
+# This file is deprecated. Please use `jetpack-docker-config.yml` config for any custom mappings
+#
+########
+
+version: '3.3'
+#services:
+#  wordpress:
+#    ## Note WordPress and its plugins and themes should be defined in docker/compose-volumes.yml, not here!
+#    ## That avoids having to define them for both the "wordpress" and "sftp" services.

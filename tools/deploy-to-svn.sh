@@ -1,90 +1,191 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-if [ $# -eq 0 ]; then
-	echo 'Usage: `./deploy-to-svn.sh <tag | HEAD>`'
+set -eo pipefail
+
+BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
+. "$BASE/tools/includes/check-osx-bash-version.sh"
+. "$BASE/tools/includes/chalk-lite.sh"
+. "$BASE/tools/includes/plugin-functions.sh"
+. "$BASE/tools/includes/proceed_p.sh"
+
+# Instructions
+function usage {
+	cat <<-EOH
+		usage: $0 [options] <plugin> <tag>
+
+		Clone a plugin mirror repository in preparation for deploying it to
+		WordPress.org SVN.
+
+		The <plugin> may be either the name of a directory in projects/plugins/,
+		or a path to a plugin directorty or file.
+
+		The <tag> is the tag or branch name in the GitHub mirror repo to be
+		deployed.
+
+		Options:
+		  --non-interactive  Exit instead of prompting for questionable cases.
+		  --dir <dir>        Use the specified directory for the SVN checkout,
+		                     instead of creating a random directory in TMPDIR.
+	EOH
 	exit 1
+}
+
+# Process args.
+ARGS=()
+BUILD_DIR=
+INTERACTIVE=true
+while [[ $# -gt 0 ]]; do
+	arg="$1"
+	shift
+	case $arg in
+		--non-interactive)
+			INTERACTIVE=false
+			;;
+		--dir)
+			BUILD_DIR="$1"
+			shift
+			;;
+		--dir=*)
+			BUILD_DIR="${arg#--dir=}"
+			;;
+		--help)
+			usage
+			;;
+		*)
+			ARGS+=( "$arg" )
+			;;
+	esac
+done
+
+if $INTERACTIVE && [[ ! -t 0 ]]; then
+	debug "Input is not a terminal, forcing --non-interactive."
+	INTERACTIVE=false
+fi
+if [[ ${#ARGS[@]} -ne 2 ]]; then
+	usage
 fi
 
-JETPACK_GIT_DIR=$(dirname "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" )
-JETPACK_SVN_DIR="/tmp/jetpack"
-TARGET=$1
+TAG="${ARGS[1]}"
 
-cd $JETPACK_GIT_DIR
-
-# Make sure we don't have uncommitted changes.
-if [[ -n $( git status -s --porcelain ) ]]; then
-	echo "Uncommitted changes found."
-	echo "Please deal with them and try again clean."
-	exit 1
+# Check plugin.
+process_plugin_arg "${ARGS[0]}"
+PLUGIN_NAME=$(jq --arg n "${ARGS[0]}" -r '.name // $n' "$PLUGIN_DIR/composer.json")
+MIRROR=$(jq -r '.extra["mirror-repo"] // ""' "$PLUGIN_DIR/composer.json")
+WPSLUG=$(jq -r '.extra["wp-plugin-slug"] // ""' "$PLUGIN_DIR/composer.json")
+FAIL=false
+if [[ -z "$MIRROR" ]]; then
+	FAIL=true
+	error "Plugin $PLUGIN_NAME has no mirror repo. Cannot deploy."
 fi
+if [[ -z "$WPSLUG" ]]; then
+	FAIL=true
+	error "Plugin $PLUGIN_NAME has no WordPress.org plugin slug. Cannot deploy." >&2
+fi
+$FAIL && exit 1
 
-if [ "$1" != "HEAD" ]; then
-
-	# Make sure we're trying to deploy something that's been tagged. Don't deploy non-tagged.
-	if [ -z $( git tag | grep "^$TARGET$" ) ]; then
-		echo "Tag $TARGET not found in git repository."
-		echo "Please try again with a valid tag."
-		exit 1
-	fi
+# Check build dir.
+if [[ -z "$BUILD_DIR" ]]; then
+	TMPDIR="${TMPDIR:-/tmp}"
+	BUILD_DIR=$(mktemp -d "${TMPDIR%/}/deploy-to-svn.XXXXXXXX")
+elif [[ ! -e "$BUILD_DIR" ]]; then
+	mkdir -p "$BUILD_DIR"
 else
-	read -p "You are about to deploy a change from an unstable state 'HEAD'. This should only be done to update string typos for translators. Are you sure? [y/N]" -n 1 -r
-	if [[ $REPLY != "y" && $REPLY != "Y" ]]
-	then
-		exit 1
+	if [[ ! -d "$BUILD_DIR" ]]; then
+		proceed_p "$BUILD_DIR already exists, and is not a directory." "Delete it?"
+	elif [[ $(ls -A -- "$BUILD_DIR") ]]; then
+		proceed_p "Directory $BUILD_DIR already exists, and is not empty." "Delete it?"
 	fi
+	rm -rf "$BUILD_DIR"
+	mkdir -p "$BUILD_DIR"
+fi
+cd "$BUILD_DIR"
+DIR=$(pwd)
+debug "Using build dir $DIR"
+
+info "Checking mirror repo"
+git init -q .
+git remote add origin "https://github.com/${MIRROR}.git"
+if [[ "$(git ls-remote --tags origin "$TAG" 2>/dev/null)" ]]; then
+	: # Tag exists
+elif [[ "$(git ls-remote --heads origin "$TAG" 2>/dev/null)" ]]; then
+	proceed_p "You are about to deploy a change from an unstable state 'HEAD'. This should only be done to update string typos for translators."
+else
+	die "Tag $TAG not found in git repository. Please try again with a valid tag."
 fi
 
-git checkout $TARGET
+info "Checking out SVN shallowly to $DIR"
+svn -q checkout "https://plugins.svn.wordpress.org/$WPSLUG/" --depth=empty "$DIR"
+success "Done!"
 
-# Prep a home to drop our new files in. Just make it in /tmp so we can start fresh each time.
-rm -rf $JETPACK_SVN_DIR
+info "Checking out SVN trunk to $DIR/trunk"
+svn up trunk | while IFS= read -r LINE; do printf "\r\e[K%s" $LINE; done
+printf "\r\e[K"
+success "Done!"
 
-echo "Checking out SVN shallowly to $JETPACK_SVN_DIR"
-svn -q checkout https://plugins.svn.wordpress.org/jetpack/ --depth=empty $JETPACK_SVN_DIR
-echo "Done!"
-
-cd $JETPACK_SVN_DIR
-
-echo "Checking out SVN trunk to $JETPACK_SVN_DIR/trunk"
-svn -q up trunk
-echo "Done!"
-
-echo "Checking out SVN tags shallowly to $JETPACK_SVN_DIR/tags"
+info "Checking out SVN tags shallowly to $DIR/tags"
 svn -q up tags --depth=empty
-echo "Done!"
+success "Done!"
 
-echo "Deleting everything in trunk except for .svn directories"
-for file in $(find $JETPACK_SVN_DIR/trunk/* -not -path "*.svn*"); do
-	rm $file 2>/dev/null
-done
-echo "Done!"
+info "Deleting everything in trunk except for .svn directories"
+find trunk ! \( -path '*/.svn/*' -o -path "*/.svn" \) \( ! -type d -o -empty \) -delete
+[[ -e trunk ]] || mkdir -p trunk # If there were no .svn directories, trunk itself might have been removed.
+success "Done!"
 
-echo "Rsync'ing everything over from Git except for .git stuffs"
-rsync -r --exclude='*.git*' $JETPACK_GIT_DIR/* $JETPACK_SVN_DIR/trunk
-echo "Done!"
+info "Checking out $MIRROR $TAG into trunk"
+mv .git trunk/
+cd trunk
+git fetch --depth=1 origin "$TAG"
+git checkout -q FETCH_HEAD
+success "Done!"
 
-echo "Purging .po files"
-rm -f $JETPACK_SVN_DIR/trunk/languages/*.po
-echo "Done!"
+info "Removing .git files and empty directories"
+find . -name '.git*' -print -exec rm -rf {} +
+find . -type d -empty -print -delete
+success "Done!"
 
-echo "Purging paths included in .svnignore"
-# check .svnignore
-for file in $( cat "$JETPACK_GIT_DIR/.svnignore" 2>/dev/null ); do
-	rm -rf $JETPACK_SVN_DIR/trunk/$file
-done
-echo "Done!"
+info "Checking for added and removed files"
+ANY=false
+while IFS=" " read -r FLAG FILE; do
+	if [[ "$FLAG" == '!' ]]; then
+		svn rm "$FILE"
+		ANY=true
+	elif [[ "$FLAG" == "?" ]]; then
+		svn add "$FILE"
+		ANY=true
+	fi
+done < <( svn status )
+if $ANY; then
+	proceed_p "Files were added and/or removed."
+else
+	success "None found!"
+fi
 
-echo "Generating Jetpack CDN Manifest"
-php ./trunk/bin/build-asset-cdn-json.php
-echo "Done!"
+cd "$DIR"
 
-# Tag the release.
-# svn cp trunk tags/$TARGET
+STABLE_TAG="$(sed -n -E -e 's/^Stable tag: +([^ ]+) *$/\1/p' trunk/readme.txt)"
+if [[ "$TAG" == "$STABLE_TAG" ]]; then
+	warn "The stable tag in trunk/readme.txt is already $STABLE_TAG!"
+	echo "Usually we wait until a final, manual step to update the stable tag."
+	proceed_p ""
+else
+	debug "Stable tag in trunk/readme.txt is $STABLE_TAG. Good, that's !== $TAG."
+fi
 
-# Change stable tag in the tag itself, and commit (tags shouldn't be modified after comitted)
-# perl -pi -e "s/Stable tag: .*/Stable tag: $TARGET/" tags/$TARGET/readme.txt
-# svn ci
-
-# Update trunk to point to the freshly tagged and shipped release.
-# perl -pi -e "s/Stable tag: .*/Stable tag: $TARGET/" trunk/readme.txt
-# svn ci
+proceed_p "We're ready to update trunk and tag $TAG!" "Do it?"
+info "Updating trunk"
+svn commit -m "Updating trunk to version $TAG"
+success "Done!"
+info "Tagging $TAG"
+svn cp ^/$WPSLUG/trunk ^/$WPSLUG/tags/$TAG -m "Creating the $TAG tag"
+success "Done!"
+if [[ "$TAG" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
+	info "Updating stable tag in readme.txt in SVN tags/$TAG"
+	svn up tags/$TAG | while IFS= read -r LINE; do printf "\r\e[K%s" $LINE; done
+	printf "\r\e[K"
+	sed -i.bak -e "s/Stable tag: .*/Stable tag: $TAG/" "tags/$TAG/readme.txt"
+	rm "tags/$TAG/readme.txt.bak"
+	svn commit -m "Updating stable tag in version $TAG"
+	success "Done!"
+else
+	debug "As $TAG appears to be a prerelease version, skipping update of stable tag in readme.txt in SVN tags/$TAG"
+fi

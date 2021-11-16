@@ -1,0 +1,17 @@
+{
+	"slug": "participant-0",
+	"list": [
+		{
+			"slug": "participant-0",
+			"label": "Speaker 1"
+		},
+		{
+			"slug": "participant-1",
+			"label": "Speaker 2"
+		},
+		{
+			"slug": "participant-2",
+			"label": "Speaker 3"
+		}
+	]
+}

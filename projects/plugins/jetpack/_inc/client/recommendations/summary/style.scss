@@ -1,0 +1,82 @@
+@import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
+@import '../../scss/mixin_breakpoint.scss';
+@import '../../scss/calypso-colors';
+
+.jp-recommendations-summary {
+	display: grid;
+	grid-template-columns: 57% 43%;
+
+	background: #e9eff5;
+
+	box-shadow: 0px 2px 6px rgba( 0, 0, 0, 0.03 ), 0px 1px 2px rgba( 0, 0, 0, 0.03 );
+	border: 1px solid $gray-lighten-20;
+
+	@include breakpoint( '<660px' ) {
+		display: flex;
+		flex-direction: column;
+	}
+}
+
+.jp-recommendations-summary__content {
+	background: $white;
+
+	&.isLoading {
+		min-height: 730px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+}
+
+.jp-recommendations-summary__configuration {
+	margin: 48px 48px 32px 48px;
+
+	@include breakpoint( '<480px' ) {
+		margin: 16px 16px 0 16px;
+	}
+
+	h2 {
+		margin: 32px 0 16px 0;
+	}
+}
+
+.jp-recommendations-summary__sidebar {
+	border-left: 1px solid #d5d5d5;
+	padding: 24px;
+
+	@include breakpoint( '<660px' ) {
+		padding: 0;
+	}
+
+	&.isLoading {
+		min-height: 430px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+}
+
+.jp-recommendations-summary__more-features {
+	display: flex;
+	align-items: flex-start;
+	border-top: 1px solid $studio-gray-5;
+	padding: 40px 48px;
+
+	@include breakpoint( '<480px' ) {
+		padding: 40px 16px;
+	}
+
+	.gridicons-info-outline {
+		fill: $studio-gray-40;
+		margin-right: 18px;
+		flex: 0 0 24px;
+	}
+
+	.gridicons-external {
+		margin-left: 0.25rem;
+	}
+
+	> p {
+		margin: 1px 0 0 0;
+	}
+}

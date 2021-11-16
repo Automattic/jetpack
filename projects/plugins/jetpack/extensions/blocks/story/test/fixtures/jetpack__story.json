@@ -1,0 +1,12 @@
+[
+    {
+        "clientId": "_clientId_0",
+        "name": "jetpack/story",
+        "isValid": true,
+        "attributes": {
+            "mediaFiles": []
+        },
+        "innerBlocks": [],
+        "originalContent": "<div class=\"wp-block-jetpack-story wp-story\"></div>"
+    }
+]

@@ -1,0 +1,34 @@
+{
+	"name": "automattic/action-repo-gardening",
+	"description": "GitHub Action to push built versions of projects from a monorepo to mirror repos.",
+	"type": "project",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "3.0.x-dev"
+	},
+	"scripts": {
+		"build-development": [
+			"pnpm install",
+			"pnpm run build"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"extra": {
+		"autotagger": {
+			"major": true
+		},
+		"mirror-repo": "Automattic/action-repo-gardening",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/action-repo-gardening/compare/v${old}...v${new}"
+		}
+	}
+}

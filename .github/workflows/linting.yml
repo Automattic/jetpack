@@ -1,0 +1,499 @@
+# This workflow holds jobs for linting, currently PHP and JavaScript.
+#
+# The jobs are all set up to only run if appropriate files have changed; the
+# `changed_files` job is used to determine whether files have changed in
+# various categories so the rest of the jobs can know whether to run or not.
+
+name: Linting
+
+on: pull_request
+concurrency:
+  group: linting-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  COMPOSER_ROOT_VERSION: "dev-master"
+
+jobs:
+
+  ### Job to categorize changed files. Other jobs depend on this to know when they should run.
+  changed_files:
+    name: detect changed files
+    runs-on: ubuntu-latest
+    timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
+    outputs:
+      # Whether any PHP files have changed.
+      php: ${{ steps.filter.outputs.php }}
+
+      # Whether any JavaScript files have changed.
+      js: ${{ steps.filter.outputs.js }}
+
+      # Whether any lock files have changed.
+      lockfiles: ${{ steps.filter.outputs.lockfiles }}
+
+      # Whether any GitHub Actions yaml files have changed.
+      ghactionsfiles: ${{ steps.filter.outputs.ghactionsfiles }}
+
+      # Whether any miscellaneous files related to linting have changed.
+      misc: ${{ steps.filter.outputs.misc }}
+
+      # Whether any miscellaneous files related to PHP linting have changed.
+      misc_php: ${{ steps.filter.outputs.misc == 'true' || steps.filter.outputs.misc_php == 'true' }}
+
+      # Whether any miscellaneous files related to JS linting have changed.
+      misc_js: ${{ steps.filter.outputs.misc == 'true' || steps.filter.outputs.misc_js == 'true' }}
+
+      # JSON string holding an array of files in phpcs-excludelist.json that have changed.
+      php_excluded_files: ${{ steps.filterPHP.outputs.php_excluded_files }}
+
+      # JSON string holding an array of files in eslint-excludelist.json that have changed.
+      js_excluded_files: ${{ steps.filterJS.outputs.js_excluded_files }}
+
+      # Whether any excluded files were modified or deleted.
+      excludelist: ${{ steps.filterExcludeList.outputs.excluded_files != '[]' || steps.filter.outputs.misc == 'true' || steps.filter.outputs.misc_php == 'true' || steps.filter.outputs.misc_js == 'true' || steps.filter.outputs.misc_excludelist == 'true' }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          list-files: json
+          filters: |
+            php:
+              # If any PHP file changed, they need checking.
+              - added|modified:
+                - '**.php'
+            js:
+              # If any JS file changed, they need checking.
+              - added|modified:
+                - '**.cjs'
+                - '**.js'
+                - '**.jsx'
+                - '**.mjs'
+                - '**.ts'
+                - '**.tsx'
+                - '**.svelte'
+            excludelist:
+              # If any PHP or JS file changed or was deleted, we need to check the excludelist.
+              - modified|deleted:
+                - '**.php'
+                - '**.js'
+                - '**.jsx'
+                - '**.ts'
+            lockfiles:
+              - 'composer.json'
+              - 'composer.lock'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - '**/composer.json'
+              - '**/composer.lock'
+              - '**/package.json'
+            ghactionsfiles:
+              - '.github/workflows/*.{yml,yaml}'
+              - '.github/actions/*/action.{yml,yaml}'
+              - 'projects/github-actions/*/action.{yml,yaml}'
+            misc_php:
+              # If composer or phpcs config changed, there may be a new standard.
+              - 'composer.json'
+              - 'composer.lock'
+              - '.phpcs.config.xml'
+              - '.phpcs.xml.dist'
+              # If the excludelist changed, run to ensure newly non-excluded files pass.
+              - 'tools/phpcs-excludelist.json'
+              # If other files used by this workflow changed, run it to test those changes.
+              - 'tools/parallel-lint.sh'
+              - '.github/files/php-linting-phpcs.xml'
+              - '.github/matchers/phpcs-problem-matcher.json'
+              - '.github/matchers/php-lint-problem-matcher.json'
+            misc_js:
+              # If package or eslint config changed, there may be new checks
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - '.eslintignore'
+              - '.eslintrc'
+              - '**/.eslintrc'
+              # If the excludelist changed, run to ensure newly non-excluded files pass.
+              - 'tools/eslint-excludelist.json'
+            misc_excludelist:
+              - 'tools/cleanup-excludelists.sh'
+              - 'tools/js-tools/check-excludelist-diff.js'
+            misc:
+              # If the workflow itself changed, everything should re-run.
+              - '.github/workflows/linting.yml'
+
+      - id: filterPHP
+        shell: bash
+        env:
+          PHP_FILES: ${{ steps.filter.outputs.php_files }}
+        run: |
+          EXCLUDED_FILES=$(jq --argjson files "$PHP_FILES" --slurpfile excludes tools/phpcs-excludelist.json -nc '$files - ($files - $excludes[0])')
+          echo "::set-output name=php_excluded_files::$EXCLUDED_FILES"
+          echo "Excluded files:"
+          jq --argjson files "$EXCLUDED_FILES" -nr '" - " + $files[]'
+
+      - id: filterJS
+        shell: bash
+        env:
+          JS_FILES: ${{ steps.filter.outputs.js_files }}
+        run: |
+          EXCLUDED_FILES=$(jq --argjson files "$JS_FILES" --slurpfile excludes tools/eslint-excludelist.json -nc '$files - ($files - $excludes[0])')
+          echo "::set-output name=js_excluded_files::$EXCLUDED_FILES"
+          echo "Excluded files:"
+          jq --argjson files "$EXCLUDED_FILES" -nr '" - " + $files[]'
+
+      - id: filterExcludeList
+        shell: bash
+        env:
+          FILES: ${{ steps.filter.outputs.excludelist_files }}
+        run: |
+          EXCLUDED_FILES=$(jq --argjson files "$FILES" --slurpfile phpexcludes tools/phpcs-excludelist.json --slurpfile jsexcludes tools/eslint-excludelist.json -nc '$files - ($files - $phpexcludes[0] - $jsexcludes[0])')
+          echo "::set-output name=excluded_files::$EXCLUDED_FILES"
+          echo "Excluded files:"
+          jq --argjson files "$EXCLUDED_FILES" -nr '" - " + $files[]'
+
+  ### Runs `php -l` over all PHP files, in all relevant PHP versions
+  # Local equivalent: `composer php:lint`
+  php_lint:
+    name: PHP lint (${{ matrix.php-versions }})
+    runs-on: ubuntu-latest
+    needs: changed_files
+    continue-on-error: ${{ matrix.experimental }}
+    timeout-minutes: 3  # 2021-01-18: Successful runs seem to take ~1 minute
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php-versions: [ '5.6', '7.0', '7.4', '8.0', '8.1' ]
+        experimental: [ false ]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+        with:
+          php: ${{ matrix.php-versions }}
+          node: false
+
+      - name: Install dependencies
+        run: |
+          # Install stuff ignoring platform reqs.
+          composer install --ignore-platform-reqs
+          # Remove stuff we don't need here that fails some platform reqs.
+          # This will complain if we missed any.
+          composer remove --dev sirbrillig/phpcs-changed automattic/jetpack-codesniffer
+
+      - name: Run linter
+        run: |
+          echo "::add-matcher::.github/matchers/php-lint-problem-matcher.json"
+          composer php:lint -- --checkstyle
+          echo "::remove-matcher owner=php-lint"
+
+  ### Runs phpcs on all PHP files not listed in phpcs-excludelist.json.
+  # Local equivalent: `composer phpcs:lint:required`
+  phpcs:
+    name: PHP Code Sniffer (non-excluded files only)
+    runs-on: ubuntu-latest
+    needs: changed_files
+    if: needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_php == 'true'
+    timeout-minutes: 5  # 2021-01-18: Successful runs seem to take ~1 minute. Leaving some extra for future expansion.
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+        with:
+          node: false
+
+      - name: Install dependencies
+        run: composer install
+
+      - name: Run phpcs
+        run: |
+          echo "::add-matcher::.github/matchers/phpcs-problem-matcher.json"
+          composer phpcs:lint:required -- --report=emacs --standard=.github/files/php-linting-phpcs.xml
+          echo "::remove-matcher owner=phpcs"
+
+  ### Runs PHPCompatibility over all PHP files.
+  # Local equivalent: `composer phpcs:compatibility`
+  phpcompatibility:
+    name: PHP Compatibility
+    runs-on: ubuntu-latest
+    needs: changed_files
+    if: needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_php == 'true'
+    timeout-minutes: 5  # 2021-01-18: Successful runs seem to take ~1 minute. Leaving some extra for future expansion.
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+        with:
+          node: false
+
+      - name: Install dependencies
+        run: composer install
+
+      - name: Run phpcs for PHPCompatibility
+        run: |
+          echo "::add-matcher::.github/matchers/phpcs-problem-matcher.json"
+          composer phpcs:compatibility -- --report=emacs .
+          echo "::remove-matcher owner=phpcs"
+
+  ### Runs phpcs-changed on PHP files listed in phpcs-excludelist.json.
+  # Local equivalent: `composer phpcs:changed -- --git-base=<base> <files...>`
+  # `<base>` is the branch this PR is to be merged into, probably `origin/master`.
+  #
+  # Pre-commit, you might also `git add` the relevant files and run `composer phpcs:changed`
+  phpcs_changed:
+    name: PHP Code Sniffer (changes to excluded files only)
+    runs-on: ubuntu-latest
+    needs: changed_files
+    if: needs.changed_files.outputs.php_excluded_files != '[]'
+    continue-on-error: true
+    timeout-minutes: 5  # 2021-01-18: Successful runs seem to take ~1 minute. Leaving some extra for future expansion.
+
+    steps:
+      # We don't need full git history, but phpcs-changed does need everything up to the merge-base.
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 10
+      - uses: ./.github/actions/deepen-to-merge-base
+
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+        with:
+          node: false
+
+      - name: Install dependencies
+        run: composer install
+
+      - name: Run phpcs-changed
+        shell: bash
+        env:
+          SHA: ${{ github.event.pull_request.base.sha }}
+          FILES: ${{ needs.changed_files.outputs.php_excluded_files }}
+        run: |
+          echo "::add-matcher::.github/matchers/phpcs-problem-matcher.json"
+          composer phpcs:changed -- --report=json --standard=.github/files/php-linting-phpcs.xml --git-base=$SHA $(jq -rn --argjson files "$FILES" '$files[]') |
+            jq -r '.files | to_entries | .[] | .key as $key | .value.messages[] | [ $key, ":", .line, ":", .column, ": ", .type, " - ", .message, " (", .source, ")" ] | map(tostring) | join("")'
+          echo "::remove-matcher owner=phpcs"
+
+  ### Runs eslint on JS files not listed in eslint-excludelist.json
+  # Local equivalent: `pnpm run lint-required`
+  eslint:
+    name: ESLint (non-excluded files only)
+    runs-on: ubuntu-latest
+    needs: changed_files
+    if: needs.changed_files.outputs.js == 'true' || needs.changed_files.outputs.misc_js == 'true'
+    timeout-minutes: 10  # 2021-03-05: Runs now take ~5 minutes due to now installing all php/js deps to ensure valid linting.
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+
+      - name: Monorepo pnpm install
+        run: pnpm install
+      - name: Jetpack E2E tests pnpm install
+        working-directory: projects/plugins/jetpack/tests/e2e
+        run: pnpm install
+      - name: Jetpack Boost E2E tests pnpm install
+        working-directory: projects/plugins/boost/tests/e2e
+        run: pnpm install
+      - run: pnpx jetpack install --all -v # Ensure there are no unresolved import errors.
+      - run: pnpm run lint-required
+
+  ### Runs eslint-changed on JS files listed in eslint-excludelist.json.
+  # Local equivalent: `pnpm run lint-changed -- --git-base=<base>`
+  # `<base>` is the branch this PR is to be merged into, probably `origin/master`.
+  #
+  # Pre-commit, you might also `git add` the relevant files and run `pnpm run lint-changed`
+  eslint_changed:
+    name: ESLint (changes to excluded files only)
+    runs-on: ubuntu-latest
+    needs: changed_files
+    if: needs.changed_files.outputs.js_excluded_files != '[]'
+    continue-on-error: true
+    timeout-minutes: 10  # 2021-03-05: Taking ~4:30 now due to now installing all php/js deps to ensure valid linting.
+
+    steps:
+      # We don't need full git history, but eslint-changed does need everything up to the merge-base.
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 10
+      - uses: ./.github/actions/deepen-to-merge-base
+
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+
+      - name: Monorepo pnpm install
+        run: pnpm install
+      - name: Jetpack E2E tests pnpm install
+        working-directory: projects/plugins/jetpack/tests/e2e
+        run: pnpm install
+      - name: Jetpack E2E tests pnpm install
+        working-directory: projects/plugins/boost/tests/e2e
+        run: pnpm install
+      - run: pnpx jetpack install --all -v # Ensure there are no unresolved import errors.
+      - name: Run eslint-changed
+        env:
+          SHA: ${{ github.event.pull_request.base.sha }}
+          FILES: ${{ needs.changed_files.outputs.js_excluded_files }}
+        run: pnpm run lint-changed -- --git-base=$SHA $(jq -rn --argjson files "$FILES" '$files[]')
+
+  ### Lints GitHub Actions yaml files.
+  # Local equivalent: `./tools/js-tools/lint-gh-actions.js <files>`
+  lint_gh_actions:
+    name: Lint GitHub Actions yaml files
+    runs-on: ubuntu-latest
+    needs: changed_files
+    if: needs.changed_files.outputs.ghactionsfiles == 'true' || needs.changed_files.outputs.misc == 'true'
+    timeout-minutes: 5  # 2021-03-24: Pnpm stuff takes about a minute.
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+        with:
+          php: false
+
+      - run: pnpm install
+      - name: Run lint
+        run: ./tools/js-tools/lint-gh-actions.js -v '.github/workflows/*.{yml,yaml}' '.github/actions/*/action.{yml,yaml}' 'projects/github-actions/*/action.{yml,yaml}'
+
+  ### Checks that copied files (e.g. readme, license) are in sync
+  # Local equivalent: `./tools/check-copied-files.sh`
+  copied_files:
+    name: Copied files are in sync
+    runs-on: ubuntu-latest
+    timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds.
+
+    steps:
+      - uses: actions/checkout@v2
+      - run: ./tools/check-copied-files.sh
+
+  ### Runs tools/cleanup-excludelists.sh and checks for any changes
+  # Local equivalent: `tools/cleanup-excludelists.sh`
+  check_excludelists:
+    name: Check linter exclude lists
+    runs-on: ubuntu-latest
+    needs: changed_files
+    if: needs.changed_files.outputs.excludelist == 'true'
+    timeout-minutes: 15  # 2021-05-06: The "install --all" step sometimes takes 4+ minutes, then the check itself takes another 4.
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+
+      - run: composer install
+      - name: Monorepo pnpm install
+        run: pnpm install
+      - name: Jetpack E2E tests pnpm install
+        working-directory: projects/plugins/jetpack/tests/e2e
+        run: pnpm install
+      - run: pnpx jetpack install --all -v # Ensure there are no unresolved import errors.
+
+      - name: Cleanup excludelists
+        run: tools/cleanup-excludelists.sh
+      - name: Check for changes to exclude lists
+        run: tools/js-tools/check-excludelist-diff.js
+
+  ### Checks that changelogger change files are being created.
+  # Local equivalent: Probably `tools/check-changelogger-use.php origin/master HEAD`
+  changelogger_used:
+    name: Changelogger use
+    runs-on: ubuntu-latest
+    timeout-minutes: 5  # 2021-03-24: Takes about a minute.
+    steps:
+      # We don't need full git history, but tools/check-changelogger-use.php does need everything up to the merge-base.
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 10
+      - uses: ./.github/actions/deepen-to-merge-base
+
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+        with:
+          node: false
+
+      - name: Check change files are touched for touched projects
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: tools/check-changelogger-use.php --debug "$BASE" "$HEAD"
+
+  ### Checks that changelogger change files are valid.
+  # Local equivalent: `./tools/changelogger-validate-all.sh`
+  changelogger_valid:
+    name: Changelogger validity
+    runs-on: ubuntu-latest
+    timeout-minutes: 5  # 2021-03-24: Takes about a minute
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+        with:
+          node: false
+
+      - name: Check change file validity
+        run: tools/changelogger-validate-all.sh -vv
+
+  ### Checks that lock files are up to date.
+  # Local equivalent: .github/files/check-lock-files.sh
+  # Note that may modify lock files in your working tree!
+  lock_files:
+    name: "Lock files are up to date"
+    runs-on: ubuntu-latest
+    needs: changed_files
+    if: needs.changed_files.outputs.lockfiles == 'true' || needs.changed_files.outputs.misc == 'true'
+    timeout-minutes: 7  # 2021-03-17: Successful runs seem to take 3+ minutes, thanks to pnpm building stuff.
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+
+      - run: .github/files/check-lock-files.sh
+
+  ### Check that monorepo packages are correctly referenced.
+  # Local equivalent: tools/check-intra-monorepo-deps.sh -v && .github/files/check-monorepo-package-repos.sh
+  monorepo_package_refs:
+    name: Monorepo package version refs
+    runs-on: ubuntu-latest
+    needs: changed_files
+    if: needs.changed_files.outputs.lockfiles == 'true' || needs.changed_files.outputs.misc == 'true'
+    timeout-minutes: 1  # 2021-01-18: Successful runs take just a few seconds
+    steps:
+      - uses: actions/checkout@v2
+      - name: Tool versions
+        run: |
+          which jq
+          jq --version
+      - run: tools/check-intra-monorepo-deps.sh -v
+      - run: .github/files/check-monorepo-package-repos.sh
+
+  ### Checks against project structure, e.g. that composer.json exists.
+  # Local equivalent: `./.github/files/lint-project-structure.sh`
+  project_structure:
+    name: Project structure
+    runs-on: ubuntu-latest
+    timeout-minutes: 5  # 2021-03-24: Pnpm stuff takes about a minute.
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+        with:
+          php: false
+
+      - run: pnpm install
+      - run: .github/files/lint-project-structure.sh

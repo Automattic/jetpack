@@ -1,0 +1,40 @@
+
+.jetpack-mdc-icon-button {
+	display: inline-flex;
+	position: relative;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	border: 0;
+	padding: 0;
+	fill: currentColor;
+	cursor: pointer;
+	user-select: none;
+	appearance: none;
+	overflow: hidden;
+	background-color: transparent;
+	text-decoration: none !important;
+	color: #fff;
+
+	&.outlined {
+		background-color: rgba(0,0,0,0.5);
+		&:hover {
+			background-color: rgba(0,0,0,0.3);
+		}
+	}
+
+	&.outlined-w {
+		background-color: rgba(255,255,255,0.2);
+		&:hover {
+			background-color: rgba(255,255,255,0.3);
+		}
+	}
+
+	&.bordered {
+		border: 2px solid #fff;
+	}
+
+	&.circle-icon {
+		border-radius: 50%;
+	}
+}

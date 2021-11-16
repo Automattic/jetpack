@@ -1,0 +1,110 @@
+@import './view.scss';
+
+.wp-block-jetpack-instagram-gallery .components-placeholder {
+	.components-radio-control {
+		margin-bottom: $default-block-margin;
+		label {
+			font-weight: normal;
+		}
+	}
+
+	.wp-block-jetpack-instagram-gallery__new-account-instructions {
+		font-family: $default-font;
+		font-size: $default-font-size;
+	}
+}
+
+.wp-block-jetpack-instagram-gallery__count-notice {
+	.components-notice {
+		margin: 0 0 15px 0;
+	}
+
+	.components-notice__content {
+		margin: 0;
+		line-height: inherit;
+		padding-right: 0;
+	}
+}
+
+.wp-block-jetpack-instagram-gallery__disconnection-warning {
+	font-style: italic;
+	margin-bottom: 0;
+}
+
+.wp-block-jetpack-instagram-gallery__placeholder {
+	animation-name: fadeIn, pulse;
+	animation-duration: 300ms, 1.6s;
+	animation-delay: 0ms, 300ms; /* add this */
+	animation-timing-function: ease-out, ease-out;
+	animation-iteration-count: 1, infinite;
+	background-color: #a7a79f;
+	display: flex;
+	opacity: 1;
+
+	&.is-loaded {
+		animation: none;
+		height: auto;
+	}
+
+	img {
+		opacity: 0;
+		transition: opacity 0.5s ease-in-out;
+
+		&.is-loaded {
+			opacity: 1;
+		}
+	}
+}
+
+@keyframes fadeIn {
+	0% {
+		opacity: 0;
+	}
+	50% {
+		opacity: 0.5;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+@keyframes pulse {
+	0% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.5;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+
+@supports ( object-fit: cover ) {
+	.wp-block-jetpack-instagram-gallery__placeholder.is-loaded {
+		display: flex;
+		flex-direction: column;
+		flex-grow: 1;
+		img {
+			height: auto;
+			object-fit: cover;
+			flex-grow: 1;
+		}
+	}
+}
+
+.wp-block-jetpack-instagram-gallery__grid {
+	.wp-block-jetpack-instagram-gallery__grid-post {
+		display: flex;
+		flex-direction: column;
+	}
+}
+
+@supports ( display: grid ) {
+	@media ( max-width: $break-small ) {
+		.wp-block-jetpack-instagram-gallery__grid.is-stacked-on-mobile {
+			.wp-block-jetpack-instagram-gallery__placeholder {
+				margin: 0 !important;
+			}
+		}
+	}
+}
