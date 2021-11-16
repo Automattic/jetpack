@@ -79,7 +79,7 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 			array(
 				array(
 					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'get_track_quantity' ),
+					'callback'            => array( $this, 'get_tracks_quantity' ),
 					'permission_callback' => function () {
 						return current_user_can( 'edit_posts' );
 					},
@@ -89,14 +89,14 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 	}
 
 	/**
-	 * Retrieves track quantity
+	 * Retrieves tracks quantity
 	 *
 	 * @param WP_REST_Request $request The REST API request data.
 	 * @return Integer number of tracks.
 	 * */
-	public function get_track_quantity( $request ) {
+	public function get_tracks_quantity( $request ) {
 		$helper = new Jetpack_Podcast_Helper( $request['url'] );
-		return $helper->get_track_quantity();
+		return $helper->get_tracks_quantity();
 	}
 
 	/**
