@@ -63,8 +63,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	public function load_php() {
 		$this->base_load_php();
 
-		require_once __DIR__ . '/class-jetpack-search-settings.php';
-		new Jetpack_Search_Settings();
+		new Automattic\Jetpack\Search\Settings();
 
 		if ( class_exists( 'WP_Customize_Manager' ) ) {
 			require_once __DIR__ . '/class-jetpack-search-customize.php';
