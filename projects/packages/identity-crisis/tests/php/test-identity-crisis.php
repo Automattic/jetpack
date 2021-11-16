@@ -806,13 +806,49 @@ class Test_Identity_Crisis extends BaseTestCase {
 				'idc_error'       => array(),
 				'expected_result' => false,
 			),
-			'no error+code key'       => array(
+			'no error_code key'       => array(
 				'idc_error'       => array(
 					'no_error_code' => 'test',
 					'wpcom_siteurl' => 'example.com/wpcom_siteurl',
 					'wpcom_home'    => 'example.com/wpcom_home',
 					'siteurl'       => 'example.com/remote_siteurl',
 					'home'          => 'example.com/remote_home',
+				),
+				'expected_result' => false,
+			),
+			'no wpcom_siteurl key'    => array(
+				'idc_error'       => array(
+					'error_code' => 'jetpack_url_mismatch',
+					'wpcom_home' => 'example.com/wpcom_home',
+					'siteurl'    => 'example.com/remote_siteurl',
+					'home'       => 'example.com/remote_home',
+				),
+				'expected_result' => false,
+			),
+			'no wpcom_home key'       => array(
+				'idc_error'       => array(
+					'error_code'    => 'jetpack_url_mismatch',
+					'wpcom_siteurl' => 'example.com/wpcom_siteurl',
+					'siteurl'       => 'example.com/remote_siteurl',
+					'home'          => 'example.com/remote_home',
+				),
+				'expected_result' => false,
+			),
+			'no siteurl key'          => array(
+				'idc_error'       => array(
+					'error_code'    => 'jetpack_url_mismatch',
+					'wpcom_siteurl' => 'example.com/wpcom_siteurl',
+					'wpcom_home'    => 'example.com/wpcom_home',
+					'home'          => 'example.com/remote_home',
+				),
+				'expected_result' => false,
+			),
+			'no home key'             => array(
+				'idc_error'       => array(
+					'error_code'    => 'jetpack_url_mismatch',
+					'wpcom_siteurl' => 'example.com/wpcom_siteurl',
+					'wpcom_home'    => 'example.com/wpcom_home',
+					'siteurl'       => 'example.com/remote_siteurl',
 				),
 				'expected_result' => false,
 			),
