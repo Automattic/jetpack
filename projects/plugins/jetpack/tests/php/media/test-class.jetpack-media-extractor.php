@@ -10,9 +10,11 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_extract_empty_array() {
-		$post_id = $this->factory->post->create( array(
-			'post_content' => '',
-		) );
+		$post_id = $this->factory->post->create(
+			array(
+				'post_content' => '',
+			)
+		);
 
 		$extract = Jetpack_Media_Meta_Extractor::extract( Jetpack_Options::get_option( 'id' ), $post_id );
 
@@ -28,15 +30,17 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	public function test_mediaextractor_extract_image() {
 		$img_title = 'title.jpg';
 
-		$post_id = $this->factory->post->create( array(
-			'post_content' => "<img src='$img_title' width='200' height='200'>",
-		) );
+		$post_id = $this->factory->post->create(
+			array(
+				'post_content' => "<img src='$img_title' width='200' height='200'>",
+			)
+		);
 
 		$extract = Jetpack_Media_Meta_Extractor::extract( Jetpack_Options::get_option( 'id' ), $post_id );
 
 		$this->assertIsArray( $extract );
 		$this->assertArrayHasKey( 'image', $extract );
-		$this->assertEquals( $extract[ 'image' ][ 0 ][ 'url' ], $img_title );
+		$this->assertEquals( $extract['image'][0]['url'], $img_title );
 	}
 
 	public function shortcode_nop() {
@@ -51,16 +55,18 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 		$shortcode = 'test_mediaextractor_shortcode';
 		add_shortcode( $shortcode, array( $this, 'shortcode_nop' ) );
 
-		$post_id = $this->factory->post->create( array(
-			'post_content' => "[$shortcode]",
-		) );
+		$post_id = $this->factory->post->create(
+			array(
+				'post_content' => "[$shortcode]",
+			)
+		);
 
 		$extract = Jetpack_Media_Meta_Extractor::extract( Jetpack_Options::get_option( 'id' ), $post_id );
 
 		$this->assertIsArray( $extract );
 		$this->assertArrayHasKey( 'shortcode', $extract );
-		$this->assertArrayHasKey( $shortcode, $extract[ 'shortcode' ] );
-		$this->assertEquals( $extract[ 'shortcode_types' ][ 0 ], $shortcode );
+		$this->assertArrayHasKey( $shortcode, $extract['shortcode'] );
+		$this->assertEquals( $extract['shortcode_types'][0], $shortcode );
 	}
 
 	/**
@@ -70,17 +76,19 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	 */
 	public function test_mediaextractor_extract_link() {
 		$url_link = WP_TESTS_DOMAIN;
-		$url = "<a href='http://$url_link'>";
+		$url      = "<a href='http://$url_link'>";
 
-		$post_id = $this->factory->post->create( array(
-			'post_content' => "$url",
-		) );
+		$post_id = $this->factory->post->create(
+			array(
+				'post_content' => "$url",
+			)
+		);
 
 		$extract = Jetpack_Media_Meta_Extractor::extract( Jetpack_Options::get_option( 'id' ), $post_id );
 
 		$this->assertIsArray( $extract );
 		$this->assertArrayHasKey( 'link', $extract );
-		$this->assertEquals( $extract[ 'link' ][ 0 ][ 'url' ], $url_link );
+		$this->assertEquals( $extract['link'][0]['url'], $url_link );
 	}
 
 	/**
@@ -91,15 +99,17 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	public function test_mediaextractor_extract_mention() {
 		$mention = 'user';
 
-		$post_id = $this->factory->post->create( array(
-			'post_content' => "@$mention",
-		) );
+		$post_id = $this->factory->post->create(
+			array(
+				'post_content' => "@$mention",
+			)
+		);
 
 		$extract = Jetpack_Media_Meta_Extractor::extract( Jetpack_Options::get_option( 'id' ), $post_id );
 
 		$this->assertIsArray( $extract );
 		$this->assertArrayHasKey( 'mention', $extract );
-		$this->assertEquals( $extract[ 'mention' ][ 'name' ][ 0 ], $mention );
+		$this->assertEquals( $extract['mention']['name'][0], $mention );
 	}
 
 	/**
@@ -109,17 +119,19 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	 */
 	public function test_mediaextractor_extract_embed() {
 		$embed_link = 'wordpress.tv/embed';
-		$embed = "\nhttp://$embed_link\n";
+		$embed      = "\nhttp://$embed_link\n";
 
-		$post_id = $this->factory->post->create( array(
-			'post_content' => "$embed",
-		) );
+		$post_id = $this->factory->post->create(
+			array(
+				'post_content' => "$embed",
+			)
+		);
 
 		$extract = Jetpack_Media_Meta_Extractor::extract( Jetpack_Options::get_option( 'id' ), $post_id );
 
 		$this->assertIsArray( $extract );
 		$this->assertArrayHasKey( 'embed', $extract );
-		$this->assertEquals( $extract[ 'embed' ][ 'url' ][ 0 ], $embed_link );
+		$this->assertEquals( $extract['embed']['url'][0], $embed_link );
 	}
 
 	/**
@@ -143,15 +155,15 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	 */
 	public function test_mediaextractor_extract_images_from_content_return_correct_image_struct() {
 		$img_name = 'image.jpg';
-		$content = "<img src='$img_name' width='200' height='200'>";
+		$content  = "<img src='$img_name' width='200' height='200'>";
 
 		$image_struct = Jetpack_Media_Meta_Extractor::extract_images_from_content( $content, array() );
 
 		$this->assertIsArray( $image_struct );
 		$this->assertArrayHasKey( 'has', $image_struct );
 		$this->assertArrayHasKey( 'image', $image_struct );
-		$this->assertCount( 1, $image_struct[ 'image' ] );
-		$this->assertEquals( $image_struct[ 'image' ][ 0 ][ 'url' ], $img_name );
+		$this->assertCount( 1, $image_struct['image'] );
+		$this->assertEquals( $image_struct['image'][0]['url'], $img_name );
 		$this->assertSame( 1, $image_struct['has']['image'] );
 	}
 
@@ -175,7 +187,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_get_images_from_html_already_extracted() {
-		$content = '';
+		$content          = '';
 		$images_extracted = array( 'http://' . WP_TESTS_DOMAIN . '/image.jpg' );
 
 		$image_list = Jetpack_Media_Meta_Extractor::get_images_from_html( $content, $images_extracted );
@@ -190,7 +202,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_get_images_from_html_duplicate_in_already_extracted() {
-		$content = 'http://' . WP_TESTS_DOMAIN . '/image.jpg';
+		$content          = 'http://' . WP_TESTS_DOMAIN . '/image.jpg';
 		$images_extracted = array( 'http://' . WP_TESTS_DOMAIN . '/image.jpg' );
 
 		$image_list = Jetpack_Media_Meta_Extractor::get_images_from_html( $content, $images_extracted );
@@ -200,11 +212,12 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	}
 
 	private function add_test_post() {
-		$post_id = $this->factory->post->create( array(
-			'post_author' => '1046316',
-			'post_date' => '2013-03-15 22:55:05',
-			'post_date_gmt' => '2013-03-15 22:55:05',
-			'post_content' => 'Test of embedded things, like @mremypub mentions, http://alink.com links and other stuff:
+		$post_id = $this->factory->post->create(
+			array(
+				'post_author'           => '1046316',
+				'post_date'             => '2013-03-15 22:55:05',
+				'post_date_gmt'         => '2013-03-15 22:55:05',
+				'post_content'          => 'Test of embedded things, like @mremypub mentions, http://alink.com links and other stuff:
 
 			Yo, #hashtags123 are now being extracted, too.
 
@@ -268,26 +281,27 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 			http://twitter.com/mremy
 
 			',
-			'post_title' => 'Test of embedded things like @mremypub mentions http...',
-			'post_excerpt' => '',
-			'post_status' => 'publish',
-			'comment_status' => 'open',
-			'ping_status' => 'open',
-			'post_password' => '',
-			'post_name' => 'test-of-embedded-things-like-mentions-http-alink',
-			'to_ping' => '',
-			'pinged' => '',
-			'post_modified' => '2013-04-17 02:39:15',
-			'post_modified_gmt' => '2013-04-17 02:39:15',
-			'post_content_filtered' => '',
-			'post_parent' => 0,
-			'guid' => 'http://mrwpsandbox.wordpress.com/2013/03/15/test-of-embedded-things-like-mentions-http-alink/',
-			'menu_order' => 0,
-			'post_type' => 'post',
-			'post_mime_type' => '',
-			'comment_count' => '0',
-			'filter' => 'raw',
-		) );
+				'post_title'            => 'Test of embedded things like @mremypub mentions http...',
+				'post_excerpt'          => '',
+				'post_status'           => 'publish',
+				'comment_status'        => 'open',
+				'ping_status'           => 'open',
+				'post_password'         => '',
+				'post_name'             => 'test-of-embedded-things-like-mentions-http-alink',
+				'to_ping'               => '',
+				'pinged'                => '',
+				'post_modified'         => '2013-04-17 02:39:15',
+				'post_modified_gmt'     => '2013-04-17 02:39:15',
+				'post_content_filtered' => '',
+				'post_parent'           => 0,
+				'guid'                  => 'http://mrwpsandbox.wordpress.com/2013/03/15/test-of-embedded-things-like-mentions-http-alink/',
+				'menu_order'            => 0,
+				'post_type'             => 'post',
+				'post_mime_type'        => '',
+				'comment_count'         => '0',
+				'filter'                => 'raw',
+			)
+		);
 
 		return $post_id;
 	}
@@ -301,49 +315,49 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 		$post_id = $this->add_test_post();
 
 		$expected = array(
-			'has' => array( 'link' => 8 ),
+			'has'  => array( 'link' => 8 ),
 			'link' => array(
 				array(
-					'url' => 'alink.com',
+					'url'           => 'alink.com',
 					'host_reversed' => 'com.alink',
-					'host' => 'alink.com',
+					'host'          => 'alink.com',
 				),
 				array(
-					'url' => 'www.youtube.com/watch?v=r0cN_bpLrxk',
-					'host' => 'www.youtube.com',
+					'url'           => 'www.youtube.com/watch?v=r0cN_bpLrxk',
+					'host'          => 'www.youtube.com',
 					'host_reversed' => 'com.youtube.www',
 				),
 				array(
-					'url' => 'vimeo.com/44633289',
-					'host' => 'vimeo.com',
+					'url'           => 'vimeo.com/44633289',
+					'host'          => 'vimeo.com',
 					'host_reversed' => 'com.vimeo',
 				),
 				array(
-					'url' => 'make.wordpress.org/core/2013/04/08/audio-video-support-in-core/',
-					'host' => 'make.wordpress.org',
+					'url'           => 'make.wordpress.org/core/2013/04/08/audio-video-support-in-core/',
+					'host'          => 'make.wordpress.org',
 					'host_reversed' => 'org.wordpress.make',
 				),
 				array(
-					'url' => 'anotherlink.com/this/is/a/path/script.php?queryarg=queryval&amp;anotherart=anotherval#anchorhere',
-					'host' => 'anotherlink.com',
+					'url'           => 'anotherlink.com/this/is/a/path/script.php?queryarg=queryval&amp;anotherart=anotherval#anchorhere',
+					'host'          => 'anotherlink.com',
 					'host_reversed' => 'com.anotherlink',
 				),
 				array(
-					'url' => 'mrwpsandbox.files.wordpress.com/2013/03/screen-shot-2013-03-15-at-1-27-05-pm.png',
+					'url'           => 'mrwpsandbox.files.wordpress.com/2013/03/screen-shot-2013-03-15-at-1-27-05-pm.png',
 					'host_reversed' => 'com.wordpress.files.mrwpsandbox',
-					'host' => 'mrwpsandbox.files.wordpress.com',
+					'host'          => 'mrwpsandbox.files.wordpress.com',
 				),
 				array(
-					'url' => 'mrwpsandbox.files.wordpress.com/2013/03/screen-shot-2013-03-15-at-1-27-05-pm.png?w=519',
+					'url'           => 'mrwpsandbox.files.wordpress.com/2013/03/screen-shot-2013-03-15-at-1-27-05-pm.png?w=519',
 					'host_reversed' => 'com.wordpress.files.mrwpsandbox',
-					'host' => 'mrwpsandbox.files.wordpress.com',
+					'host'          => 'mrwpsandbox.files.wordpress.com',
 				),
 				array(
 					'host_reversed' => 'com.twitter',
-					'host' => 'twitter.com',
-					'url' => 'twitter.com/mremy',
-				)
-			)
+					'host'          => 'twitter.com',
+					'url'           => 'twitter.com/mremy',
+				),
+			),
 		);
 
 		$result = Jetpack_Media_Meta_Extractor::extract( get_current_blog_id(), $post_id, Jetpack_Media_Meta_Extractor::LINKS );
@@ -363,10 +377,10 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 			'image' => array(
 				0 => array( 'url' => 'http://mrwpsandbox.files.wordpress.com/2013/03/screen-shot-2013-03-15-at-1-27-05-pm.png' ),
 			),
-			'has' => array(
-				'image' => 1,
+			'has'   => array(
+				'image'   => 1,
 				'gallery' => 0,
-			)
+			),
 		);
 
 		$result = Jetpack_Media_Meta_Extractor::extract( get_current_blog_id(), $post_id, Jetpack_Media_Meta_Extractor::IMAGES );
@@ -387,9 +401,9 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 				'name' => array(
 					0 => 'mremypub',
 					1 => 'martinremy',
-				)
+				),
 			),
-			'has' => array( 'mention' => 2 ),
+			'has'     => array( 'mention' => 2 ),
 		);
 
 		$result = Jetpack_Media_Meta_Extractor::extract( get_current_blog_id(), $post_id, Jetpack_Media_Meta_Extractor::MENTIONS );
@@ -406,37 +420,37 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 		$post_id = $this->add_test_post();
 
 		$expected = array(
-			'has' => array( 'shortcode' => 8 ),
-			'shortcode' => array(
+			'has'             => array( 'shortcode' => 8 ),
+			'shortcode'       => array(
 				'youtube' => array(
 					'count' => 2,
-					'id' => array(
+					'id'    => array(
 						'r0cN_bpLrxk',
 					),
 				),
-				'vimeo' => array(
+				'vimeo'   => array(
 					'count' => 2,
-					'id' => array(
+					'id'    => array(
 						44633289,
 					),
 				),
-				'ted' => array(
+				'ted'     => array(
 					'count' => 1,
-					'id' => array(
+					'id'    => array(
 						'981',
 					),
 				),
 				'wpvideo' => array(
 					'count' => 1,
-					'id' => array(
+					'id'    => array(
 						'6nd4Jsq7',
 					),
 				),
-				'video' => array(
-					'count' => 1
+				'video'   => array(
+					'count' => 1,
 				),
 				'gallery' => array(
-					'count' => 1
+					'count' => 1,
 				),
 			),
 			'shortcode_types' => array(
@@ -518,43 +532,45 @@ EOT;
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_exclude_video_links() {
-		$post_id = $this->factory->post->create( array(
-			'post_author' => '23314024',
-			'post_date' => '2013-10-25 16:43:34',
-			'post_date_gmt' => '2013-10-25 16:43:34',
-			'post_content' => 'Sed dapibus ut mauris imperdiet volutpat. http://vimeo.com/77120044/ Nullam in dolor vel nulla pulvinar accumsan facilisis quis lorem.
+		$post_id = $this->factory->post->create(
+			array(
+				'post_author'           => '23314024',
+				'post_date'             => '2013-10-25 16:43:34',
+				'post_date_gmt'         => '2013-10-25 16:43:34',
+				'post_content'          => 'Sed dapibus ut mauris imperdiet volutpat. http://vimeo.com/77120044/ Nullam in dolor vel nulla pulvinar accumsan facilisis quis lorem.
 			',
-			'post_title' => 'Sed dapibus ut mauris imperdiet volutpat http vimeo...',
-			'post_excerpt' => '',
-			'post_status' => 'publish',
-			'comment_status' => 'open',
-			'ping_status' => 'open',
-			'post_password' => '',
-			'post_name' => 'sed-dapibus-ut-mauris-imperdiet-volutpat-http-vimeo',
-			'to_ping' => '',
-			'pinged' => '
+				'post_title'            => 'Sed dapibus ut mauris imperdiet volutpat http vimeo...',
+				'post_excerpt'          => '',
+				'post_status'           => 'publish',
+				'comment_status'        => 'open',
+				'ping_status'           => 'open',
+				'post_password'         => '',
+				'post_name'             => 'sed-dapibus-ut-mauris-imperdiet-volutpat-http-vimeo',
+				'to_ping'               => '',
+				'pinged'                => '
 			http://vimeo.com/77120044/',
-			'post_modified' => '2013-10-28 22:54:50',
-			'post_modified_gmt' => '2013-10-28 22:54:50',
-			'post_content_filtered' => '',
-			'post_parent' => 0,
-			'guid' => 'http://breakmyblog.wordpress.com/2013/10/25/sed-dapibus-ut-mauris-imperdiet-volutpat-http-vimeo/',
-			'menu_order' => 0,
-			'post_type' => 'post',
-			'post_mime_type' => '',
-			'comment_count' => '0',
-			'filter' => 'raw',
-		) );
+				'post_modified'         => '2013-10-28 22:54:50',
+				'post_modified_gmt'     => '2013-10-28 22:54:50',
+				'post_content_filtered' => '',
+				'post_parent'           => 0,
+				'guid'                  => 'http://breakmyblog.wordpress.com/2013/10/25/sed-dapibus-ut-mauris-imperdiet-volutpat-http-vimeo/',
+				'menu_order'            => 0,
+				'post_type'             => 'post',
+				'post_mime_type'        => '',
+				'comment_count'         => '0',
+				'filter'                => 'raw',
+			)
+		);
 
 		$expected = array(
-			'has' => array( 'link' => 1 ),
+			'has'  => array( 'link' => 1 ),
 			'link' => array(
 				array(
-					'url' => 'vimeo.com/77120044/',
+					'url'           => 'vimeo.com/77120044/',
 					'host_reversed' => 'com.vimeo',
-					'host' => 'vimeo.com',
-				)
-			)
+					'host'          => 'vimeo.com',
+				),
+			),
 		);
 
 		$result = Jetpack_Media_Meta_Extractor::extract( get_current_blog_id(), $post_id, Jetpack_Media_Meta_Extractor::ALL );
