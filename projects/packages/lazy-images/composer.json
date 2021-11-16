@@ -5,7 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-constants": "^1.6",
-		"automattic/jetpack-assets": "^1.12"
+		"automattic/jetpack-assets": "^1.11"
 	},
 	"require-dev": {
 		"automattic/wordbless": "dev-master",

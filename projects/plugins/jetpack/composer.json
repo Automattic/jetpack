@@ -13,7 +13,7 @@
 		"ext-openssl": "*",
 		"automattic/jetpack-a8c-mc-stats": "1.4.x-dev",
 		"automattic/jetpack-abtest": "1.9.x-dev",
-		"automattic/jetpack-assets": "1.12.x-dev",
+		"automattic/jetpack-assets": "1.11.x-dev",
 		"automattic/jetpack-autoloader": "2.10.x-dev",
 		"automattic/jetpack-backup": "1.1.x-dev",
 		"automattic/jetpack-blocks": "1.4.x-dev",
