@@ -12,7 +12,7 @@ export default class LoginPage extends WpPage {
 	}
 
 	async login( credentials = getDotComCredentials(), { retry = true } = {} ) {
-		logger.step( 'Log in to Wordpress.com' );
+		logger.step( 'Log in to WordPress.com' );
 
 		const usernameSelector = '#usernameOrEmail';
 		const passwordSelector = '#password';

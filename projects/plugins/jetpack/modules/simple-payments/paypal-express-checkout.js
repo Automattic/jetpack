@@ -4,7 +4,7 @@
  * of simple-payments module.
  */
 
-/* global paypal, jQuery */
+/* global paypal */
 /* exported PaypalExpressCheckout */
 var PaypalExpressCheckout = {
 	primaryCssClassName: 'jetpack-simple-payments',

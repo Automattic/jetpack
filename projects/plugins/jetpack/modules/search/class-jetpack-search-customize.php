@@ -5,13 +5,12 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Search\Options;
+
 // Exit if file is accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-
-require_once __DIR__ . '/class.jetpack-search-helpers.php';
-require_once __DIR__ . '/class-jetpack-search-options.php';
 
 /**
  * Class to customize search on the site.
@@ -41,7 +40,7 @@ class Jetpack_Search_Customize {
 		require_once dirname( JETPACK__PLUGIN_FILE ) . '/modules/search/customize-controls/class-label-control.php';
 		require_once dirname( JETPACK__PLUGIN_FILE ) . '/modules/search/customize-controls/class-excluded-post-types-control.php';
 		$section_id     = 'jetpack_search';
-		$setting_prefix = Jetpack_Search_Options::OPTION_PREFIX;
+		$setting_prefix = Options::OPTION_PREFIX;
 
 		$wp_customize->add_section(
 			$section_id,
@@ -126,7 +125,7 @@ class Jetpack_Search_Customize {
 		$wp_customize->add_setting(
 			$id,
 			array(
-				'default'   => Jetpack_Search_Options::OVERLAY_TRIGGER_IMMEDIATE,
+				'default'   => Options::OVERLAY_TRIGGER_IMMEDIATE,
 				'transport' => 'postMessage',
 				'type'      => 'option',
 			)
@@ -139,9 +138,9 @@ class Jetpack_Search_Customize {
 				'section'     => $section_id,
 				'type'        => 'select',
 				'choices'     => array(
-					Jetpack_Search_Options::OVERLAY_TRIGGER_IMMEDIATE => __( 'Open when user starts typing', 'jetpack' ),
-					Jetpack_Search_Options::OVERLAY_TRIGGER_RESULTS   => __( 'Open when results are available', 'jetpack' ),
-					Jetpack_Search_Options::OVERLAY_TRIGGER_SUBMIT    => __( 'Open when user submits the form', 'jetpack' ),
+					Options::OVERLAY_TRIGGER_IMMEDIATE => __( 'Open when user starts typing', 'jetpack' ),
+					Options::OVERLAY_TRIGGER_RESULTS   => __( 'Open when results are available', 'jetpack' ),
+					Options::OVERLAY_TRIGGER_SUBMIT    => __( 'Open when user submits the form', 'jetpack' ),
 				),
 			)
 		);
@@ -208,8 +207,8 @@ class Jetpack_Search_Customize {
 			$id,
 			array(
 				'default'              => '1',
-				'sanitize_callback'    => array( 'Jetpack_Search_Helpers', 'sanitize_checkbox_value' ),
-				'sanitize_js_callback' => array( 'Jetpack_Search_Helpers', 'sanitize_checkbox_value_for_js' ),
+				'sanitize_callback'    => array( 'Automattic\Jetpack\Search\Helper', 'sanitize_checkbox_value' ),
+				'sanitize_js_callback' => array( 'Automattic\Jetpack\Search\Helper', 'sanitize_checkbox_value_for_js' ),
 				'transport'            => 'postMessage',
 				'type'                 => 'option',
 			)
@@ -228,8 +227,8 @@ class Jetpack_Search_Customize {
 			$id,
 			array(
 				'default'              => '1',
-				'sanitize_callback'    => array( 'Jetpack_Search_Helpers', 'sanitize_checkbox_value' ),
-				'sanitize_js_callback' => array( 'Jetpack_Search_Helpers', 'sanitize_checkbox_value_for_js' ),
+				'sanitize_callback'    => array( 'Automattic\Jetpack\Search\Helper', 'sanitize_checkbox_value' ),
+				'sanitize_js_callback' => array( 'Automattic\Jetpack\Search\Helper', 'sanitize_checkbox_value_for_js' ),
 				'transport'            => 'postMessage',
 				'type'                 => 'option',
 			)
@@ -248,8 +247,8 @@ class Jetpack_Search_Customize {
 			$id,
 			array(
 				'default'              => '1',
-				'sanitize_callback'    => array( 'Jetpack_Search_Helpers', 'sanitize_checkbox_value' ),
-				'sanitize_js_callback' => array( 'Jetpack_Search_Helpers', 'sanitize_checkbox_value_for_js' ),
+				'sanitize_callback'    => array( 'Automattic\Jetpack\Search\Helper', 'sanitize_checkbox_value' ),
+				'sanitize_js_callback' => array( 'Automattic\Jetpack\Search\Helper', 'sanitize_checkbox_value_for_js' ),
 				'transport'            => 'postMessage',
 				'type'                 => 'option',
 			)
@@ -271,7 +270,7 @@ class Jetpack_Search_Customize {
 	 */
 	public function customize_controls_enqueue_scripts() {
 		$script_relative_path = 'modules/search/customize-controls/customize-controls.js';
-		$script_version       = Jetpack_Search_Helpers::get_asset_version( $script_relative_path );
+		$script_version       = Automattic\Jetpack\Search\Helper::get_asset_version( $script_relative_path );
 		$script_path          = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
 		wp_enqueue_script(
 			'jetpack-instant-search-customizer',

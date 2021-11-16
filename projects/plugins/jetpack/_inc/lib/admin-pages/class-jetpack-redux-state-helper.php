@@ -175,8 +175,10 @@ class Jetpack_Redux_State_Helper {
 			'isSafari'                    => $is_safari || User_Agent_Info::is_opera_desktop(), // @todo Rename isSafari everywhere.
 			'doNotUseConnectionIframe'    => Constants::is_true( 'JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME' ),
 			'licensing'                   => array(
-				'error'           => Licensing::instance()->last_error(),
-				'showLicensingUi' => Licensing::instance()->is_licensing_input_enabled(),
+				'error'                   => Licensing::instance()->last_error(),
+				'showLicensingUi'         => Licensing::instance()->is_licensing_input_enabled(),
+				'userCounts'              => Jetpack_Core_Json_Api_Endpoints::get_user_license_counts(),
+				'activationNoticeDismiss' => Licensing::instance()->get_license_activation_notice_dismiss(),
 			),
 		);
 	}
@@ -381,6 +383,11 @@ function jetpack_current_user_data() {
 	$dotcom_data       = $jetpack_connection->get_connected_user_data();
 
 	// Add connected user gravatar to the returned dotcom_data.
+	// Probably we shouldn't do this when $dotcom_data is false, but we have been since 2016 so
+	// clients probably expect that by now.
+	if ( false === $dotcom_data ) {
+		$dotcom_data = array();
+	}
 	$dotcom_data['avatar'] = ( ! empty( $dotcom_data['email'] ) ?
 		get_avatar_url(
 			$dotcom_data['email'],

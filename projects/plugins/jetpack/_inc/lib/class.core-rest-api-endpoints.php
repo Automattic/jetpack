@@ -723,6 +723,61 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
+		/**
+		 * Get Jetpack user license counts.
+		 */
+		register_rest_route(
+			'jetpack/v4',
+			'licensing/user/counts',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_user_license_counts',
+				'permission_callback' => __CLASS__ . '::user_licensing_permission_check',
+			)
+		);
+
+		/**
+		 * Update user-licensing activation notice dismiss info.
+		 */
+		register_rest_route(
+			'jetpack/v4',
+			'licensing/user/activation-notice-dismiss',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::update_licensing_activation_notice_dismiss',
+				'permission_callback' => __CLASS__ . '::user_licensing_permission_check',
+				'args'                => array(
+					'last_detached_count' => array(
+						'required'          => true,
+						'type'              => 'integer',
+						'validate_callback' => __CLASS__ . '::validate_non_neg_int',
+					),
+				),
+			)
+		);
+
+		/**
+		 * Attach licenses to user account
+		 */
+		register_rest_route(
+			'jetpack/v4',
+			'/licensing/attach-licenses',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::attach_jetpack_licenses',
+				'permission_callback' => __CLASS__ . '::user_licensing_permission_check',
+				'args'                => array(
+					'licenses' => array(
+						'required' => true,
+						'type'     => 'array',
+						'items'    => array(
+							'type' => 'string',
+						),
+					),
+				),
+			)
+		);
+
 		/*
 		 * Manage the Jetpack CRM plugin's integration with Jetpack contact forms.
 		 */
@@ -1011,6 +1066,75 @@ class Jetpack_Core_Json_Api_Endpoints {
 				array( 'status' => $response_code )
 			);
 		}
+	}
+
+	/**
+	 * Gets the users licenses counts.
+	 *
+	 * @since 10.4.0
+	 *
+	 * @return string|WP_Error A JSON object of user license counts if the request was successful, or a WP_Error otherwise.
+	 */
+	public static function get_user_license_counts() {
+		$wpcom_request = Client::wpcom_json_api_request_as_user(
+			'/jetpack-licensing/user/licenses/counts',
+			'2',
+			array(
+				'method'  => 'GET',
+				'headers' => array(
+					'Content-Type'    => 'application/json',
+					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+				),
+			)
+		);
+
+		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
+		if ( 200 === $response_code ) {
+			$license_counts = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
+			return $license_counts;
+		} else {
+			return new WP_Error(
+				'failed_to_fetch_data',
+				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
+				array( 'status' => $response_code )
+			);
+		}
+	}
+
+	/**
+	 * Update the user-licenses activation notice dismissal data.
+	 *
+	 * @since 10.4.0
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return array|WP_Error
+	 */
+	public static function update_licensing_activation_notice_dismiss( $request ) {
+
+		if ( ! isset( $request['last_detached_count'] ) ) {
+			return new WP_Error( 'invalid_param', esc_html__( 'Missing parameter "last_detached_count".', 'jetpack' ), array( 'status' => 404 ) );
+		}
+
+		$default             = array(
+			'last_detached_count' => null,
+			'last_dismissed_time' => null,
+		);
+		$last_detached_count = ( '' === $request['last_detached_count'] )
+			? $default['last_detached_count']
+			: $request['last_detached_count'];
+		$last_dismissed_time = ( '' === $request['last_detached_count'] )
+			? $default['last_dismissed_time']
+			// Use UTC timezone and convert to ISO8601 format(DateTime::W3C) for best compatibility with JavaScript Date in all browsers.
+			: ( new DateTime( 'NOW', new DateTimeZone( 'UTC' ) ) )->format( DateTime::W3C );
+
+		$notice_data = array(
+			'last_detached_count' => $last_detached_count,
+			'last_dismissed_time' => $last_dismissed_time,
+		);
+
+		Jetpack_Options::update_option( 'licensing_activation_notice_dismiss', $notice_data, true );
+		return rest_ensure_response( $notice_data );
 	}
 
 	public static function submit_survey( $request ) {
@@ -1331,6 +1455,21 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'invalid_permission_manage_purchase_token', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Verify that user can view and update user-licensing data.
+	 *
+	 * @return bool Whether the user is currently connected and they are the connection owner.
+	 */
+	public static function user_licensing_permission_check() {
+		$connection_manager = new Connection_Manager( 'jetpack' );
+
+		if ( $connection_manager->is_user_connected() && $connection_manager->is_connection_owner() ) {
+			return true;
+		}
+
+		return new WP_Error( 'invalid_permission_manage_user_licenses', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
 	}
 
 	/**
@@ -2815,7 +2954,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error
 	 */
 	public static function validate_boolean( $value, $request, $param ) {
-		if ( ! is_bool( $value ) && ! ( ( ctype_digit( $value ) || is_numeric( $value ) ) && in_array( $value, array( 0, 1 ) ) ) ) {
+		// phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict -- Other code depends on loose comparison here.
+		if ( ! is_bool( $value ) && ! ( ctype_digit( (string) $value ) && in_array( $value, array( 0, 1 ) ) ) ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be true, false, 0 or 1.', 'jetpack' ), $param ) );
 		}
 		return true;
@@ -2835,6 +2975,28 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function validate_posint( $value, $request, $param ) {
 		if ( ! is_numeric( $value ) || $value <= 0 ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be a positive integer.', 'jetpack' ), $param ) );
+		}
+		return true;
+	}
+
+	/**
+	 * Validates that the parameter is a non-negative integer (includes 0).
+	 *
+	 * @since 10.4.0
+	 *
+	 * @param int             $value Value to check.
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @param string          $param Name of the parameter passed to endpoint holding $value.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function validate_non_neg_int( $value, $request, $param ) {
+		if ( ! is_numeric( $value ) || $value < 0 ) {
+			return new WP_Error(
+				'invalid_param',
+				/* translators: %s: The literal parameter name. Should not be translated. */
+				sprintf( esc_html__( '%s must be a non-negative integer.', 'jetpack' ), $param )
+			);
 		}
 		return true;
 	}
@@ -3839,6 +4001,25 @@ class Jetpack_Core_Json_Api_Endpoints {
 			esc_html__( 'Could not set this license key. Please try again.', 'jetpack' ),
 			array( 'status' => 500 )
 		);
+	}
+
+	/**
+	 * Attach Jetpack licenses
+	 *
+	 * @since 10.4.0
+	 *
+	 * @param WP_REST_Request $request The request.
+	 *
+	 * @return WP_REST_Response|WP_Error A response object
+	 */
+	public static function attach_jetpack_licenses( $request ) {
+		$licenses = array_map(
+			function ( $license ) {
+				return trim( sanitize_text_field( $license ) );
+			},
+			$request['licenses']
+		);
+		return rest_ensure_response( Licensing::instance()->attach_licenses( $licenses ) );
 	}
 
 	/**

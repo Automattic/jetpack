@@ -7,11 +7,11 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
 use Jetpack;
 use Jetpack_Plan;
-use Jetpack_Search_Helpers;
 
 /**
  * Responsible for adding a search customization interface to wp-admin.
@@ -68,7 +68,7 @@ class Jetpack_Search_Customberg {
 		// Only load assets if Customberg is supported.
 		if ( $this->wp_supports_customberg() ) {
 			add_action( "admin_print_scripts-$hook", array( $this, 'load_assets' ) );
-			add_action( 'admin_footer', array( 'Jetpack_Search_Helpers', 'print_instant_search_sidebar' ) );
+			add_action( 'admin_footer', array( 'Automattic\Jetpack\Search\Helper', 'print_instant_search_sidebar' ) );
 		} else {
 			add_action( "admin_print_scripts-$hook", array( $this, 'add_redirect_if_necessary' ) );
 		}
@@ -122,45 +122,20 @@ class Jetpack_Search_Customberg {
 	 * @param string $plugin_base_path - Base path for plugin files.
 	 */
 	public function load_assets_with_parameters( $path_prefix, $plugin_base_path ) {
-		$style_relative_path    = $path_prefix . '_inc/build/instant-search/jp-search-configure-main.min.css';
-		$manifest_relative_path = $path_prefix . '_inc/build/instant-search/jp-search-configure-main.min.asset.php';
-		$script_relative_path   = $path_prefix . '_inc/build/instant-search/jp-search-configure-main.min.js';
-
-		//
-		// Load styles.
 		\Jetpack_Admin_Page::load_wrapper_styles();
-		wp_enqueue_style(
-			'jp-search-configure',
-			plugins_url( $style_relative_path, $plugin_base_path ),
-			array(
-				'wp-components',
-				'wp-block-editor',
-			),
-			JETPACK__VERSION
-		);
-
-		//
-		// Load scripts.
-		$manifest_path       = plugin_dir_path( $plugin_base_path ) . $manifest_relative_path;
-		$script_dependencies = array();
-		if ( file_exists( $manifest_path ) ) {
-			$asset_manifest      = include $manifest_path;
-			$script_dependencies = $asset_manifest['dependencies'];
-		}
-
 		Tracking::register_tracks_functions_scripts( true );
 
-		wp_enqueue_script(
+		Assets::register_script(
 			'jp-search-configure',
-			plugins_url( $script_relative_path, $plugin_base_path ),
-			$script_dependencies,
-			JETPACK__VERSION,
-			true
+			$path_prefix . '_inc/build/instant-search/jp-search-configure-main.min.js',
+			$plugin_base_path,
+			array( 'in_footer' => true )
 		);
+		Assets::enqueue_script( 'jp-search-configure' );
 		wp_set_script_translations( 'jp-search-configure', 'jetpack' );
 
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
-		wp_add_inline_script( 'jp-search-configure', 'var JetpackInstantSearchOptions=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Jetpack_Search_Helpers::generate_initial_javascript_state() ) ) . '"));', 'before' );
+		wp_add_inline_script( 'jp-search-configure', 'var JetpackInstantSearchOptions=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Helper::generate_initial_javascript_state() ) ) . '"));', 'before' );
 		wp_add_inline_script(
 			'jp-search-configure',
 			"window.jetpackSearchConfigureInit( 'jp-search-configure' )"

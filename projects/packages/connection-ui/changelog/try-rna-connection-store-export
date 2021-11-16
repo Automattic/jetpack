@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Replace the withConnectionStatus HOC with withSelect HOC.
