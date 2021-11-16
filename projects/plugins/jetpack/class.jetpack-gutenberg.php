@@ -6,7 +6,6 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
@@ -619,6 +618,7 @@ class Jetpack_Gutenberg {
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
 
+		$rtl              = is_rtl() ? '.rtl' : '';
 		$blocks_dir       = self::get_blocks_directory();
 		$blocks_variation = self::blocks_variation();
 
@@ -628,12 +628,27 @@ class Jetpack_Gutenberg {
 			$blocks_env = '';
 		}
 
-		Assets::register_script(
+		$editor_script = plugins_url( "{$blocks_dir}editor{$blocks_env}.min.js", JETPACK__PLUGIN_FILE );
+		$editor_style  = plugins_url( "{$blocks_dir}editor{$blocks_env}.min{$rtl}.css", JETPACK__PLUGIN_FILE );
+
+		$editor_deps_path = JETPACK__PLUGIN_DIR . $blocks_dir . "editor{$blocks_env}.min.asset.php";
+		$editor_deps      = array( 'wp-polyfill' );
+		if ( file_exists( $editor_deps_path ) ) {
+			$asset_manifest = include $editor_deps_path;
+			$editor_deps    = $asset_manifest['dependencies'];
+		}
+
+		$version = Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . $blocks_dir . 'editor.min.js' )
+			? filemtime( JETPACK__PLUGIN_DIR . $blocks_dir . 'editor.min.js' )
+			: JETPACK__VERSION;
+
+		wp_enqueue_script(
 			'jetpack-blocks-editor',
-			"{$blocks_dir}editor{$blocks_env}.min.js",
-			JETPACK__PLUGIN_FILE
+			$editor_script,
+			$editor_deps,
+			$version,
+			false
 		);
-		Assets::enqueue_script( 'jetpack-blocks-editor' );
 
 		wp_localize_script(
 			'jetpack-blocks-editor',
@@ -689,6 +704,8 @@ class Jetpack_Gutenberg {
 		);
 
 		wp_set_script_translations( 'jetpack-blocks-editor', 'jetpack' );
+
+		wp_enqueue_style( 'jetpack-blocks-editor', $editor_style, array(), $version );
 	}
 
 	/**

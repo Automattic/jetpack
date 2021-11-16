@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-VideoPress: reload block when updating video rating in Gutenberg and fix rating meta update in API
