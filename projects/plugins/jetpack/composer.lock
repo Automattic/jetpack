@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b82bb2d6bb705435d63c6baea3b56318",
+    "content-hash": "531899d573b92415694dff26362b284c",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -496,9 +496,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection-ui",
-                "reference": "1b57e6e0d38e737e3b2c74e4ae39c9cf917edde9"
+                "reference": "bdf9662722f29e7393500b9ccc2d4ab4568bd61f"
             },
             "require": {
+                "automattic/jetpack-assets": "^1.12",
                 "automattic/jetpack-connection": "^1.31",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-device-detection": "^1.4",
@@ -812,11 +813,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "7cd22361f13ed69dfaeec11e640bc34fccd2a354"
+                "reference": "8292e0618760d062cbf021922fda6d7a8947575d"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
-                "automattic/jetpack-assets": "^1.11",
+                "automattic/jetpack-assets": "^1.12",
                 "automattic/jetpack-connection": "^1.31",
                 "automattic/jetpack-device-detection": "^1.4",
                 "automattic/jetpack-logo": "^1.5",
@@ -952,7 +953,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/licensing",
-                "reference": "6a121d9253da9cc6321550970dedac5f5e00eed4"
+                "reference": "58056130e6d31556ab453a3bc4bbf335b8d05439"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.31",
