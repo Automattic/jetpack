@@ -667,7 +667,7 @@ class Critical_CSS extends Module {
 
 		// Convert stylesheets intended for screens.
 		if ( in_array( $media, $async_media, true ) ) {
-			$media_replacement = 'media="not all" onload="this.media=\'all\'"';
+			$media_replacement = 'media="not all" onload="this.media=\'' . $media . '\'"';
 			$html_no_script    = '<noscript>' . $html . '</noscript>';
 			$html              = preg_replace( '~media=[\'"]?[^\'"\s]+[\'"]?~', $media_replacement, $html );
 
