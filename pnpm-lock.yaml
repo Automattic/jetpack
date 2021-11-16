@@ -134,9 +134,9 @@ importers:
   projects/js-packages/connection:
     specifiers:
       '@automattic/jetpack-analytics': workspace:^0.1.2
+      '@automattic/jetpack-api': workspace:^0.6.0-alpha
       '@automattic/jetpack-components': workspace:^0.7.0-alpha
       '@automattic/jetpack-config': workspace:^0.1.0-alpha
-      '@automattic/jetpack-api': workspace:^0.6.0-alpha
       '@wordpress/base-styles': 4.0.3
       '@wordpress/browserslist-config': 4.1.0
       '@wordpress/components': 19.0.1
@@ -210,8 +210,8 @@ importers:
 
   projects/js-packages/idc:
     specifiers:
-      '@automattic/jetpack-components': workspace:^0.7.0-alpha
       '@automattic/jetpack-api': workspace:^0.6.0-alpha
+      '@automattic/jetpack-components': workspace:^0.7.0-alpha
       '@wordpress/base-styles': 4.0.3
       '@wordpress/components': 19.0.1
       '@wordpress/compose': 5.0.5
@@ -243,7 +243,7 @@ importers:
 
   projects/js-packages/licensing:
     specifiers:
-      '@automattic/jetpack-components': workspace:^0.6.1-alpha
+      '@automattic/jetpack-components': workspace:^0.7.0-alpha
       '@wordpress/components': 19.0.1
       '@wordpress/element': 4.0.3
       '@wordpress/i18n': 4.2.3
@@ -402,8 +402,8 @@ importers:
 
   projects/packages/connection-ui:
     specifiers:
-      '@automattic/jetpack-connection': workspace:^0.11.0-alpha
       '@automattic/jetpack-api': workspace:^0.6.0-alpha
+      '@automattic/jetpack-connection': workspace:^0.11.0-alpha
       '@automattic/jetpack-idc': workspace:^0.4.3-alpha
       '@automattic/jetpack-webpack-config': workspace:^0.2.0-alpha
       '@babel/core': 7.16.0
@@ -508,9 +508,9 @@ importers:
 
   projects/plugins/backup:
     specifiers:
+      '@automattic/jetpack-api': workspace:^0.6.0-alpha
       '@automattic/jetpack-components': workspace:^0.7.0-alpha
       '@automattic/jetpack-connection': workspace:^0.11.0-alpha
-      '@automattic/jetpack-api': workspace:^0.6.0-alpha
       '@automattic/jetpack-webpack-config': workspace:^0.2.0-alpha
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.0
@@ -631,9 +631,9 @@ importers:
       '@automattic/components': 1.0.0-alpha.3
       '@automattic/format-currency': 1.0.0-alpha.0
       '@automattic/jetpack-analytics': workspace:^0.1.2
+      '@automattic/jetpack-api': workspace:^0.6.0-alpha
       '@automattic/jetpack-components': workspace:^0.7.0-alpha
       '@automattic/jetpack-connection': workspace:^0.11.0-alpha
-      '@automattic/jetpack-api': workspace:^0.6.0-alpha
       '@automattic/jetpack-webpack-config': workspace:^0.2.0-alpha
       '@automattic/popup-monitor': 1.0.0
       '@automattic/request-external-access': 1.0.0
