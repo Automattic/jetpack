@@ -1,5 +1,5 @@
 <?php
-require dirname( __FILE__ ) . '/../../../../modules/infinite-scroll/infinity.php';
+require __DIR__ . '/../../../../modules/infinite-scroll/infinity.php';
 
 /**
  * Tests for The_Neverending_Home_Page.
@@ -14,7 +14,7 @@ class WP_Test_The_Neverending_Home_Page extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
-		$this->infinite_scroll = new The_Neverending_Home_Page;
+		$this->infinite_scroll = new The_Neverending_Home_Page();
 	}
 
 	public function test_body_class() {

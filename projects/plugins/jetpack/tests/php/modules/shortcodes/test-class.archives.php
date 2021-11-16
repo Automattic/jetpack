@@ -35,7 +35,7 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 	public function test_shortcodes_archives_type_default() {
 		$archives = archives_shortcode( array() );
 
-		$this->assertEquals( $archives, '<p>' . __( 'Your blog does not currently have any published posts.' , 'jetpack' ) . '</p>' );
+		$this->assertEquals( $archives, '<p>' . __( 'Your blog does not currently have any published posts.', 'jetpack' ) . '</p>' );
 	}
 
 	/**
@@ -95,7 +95,7 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 	public function test_shortcodes_archives_format_html() {
 		$this->factory->post->create( array() );
 		$attr = array(
-			'format' => 'html'
+			'format' => 'html',
 		);
 
 		$archives = archives_shortcode( $attr );
@@ -109,11 +109,13 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_type_yearly() {
-		$this->factory->post->create( array(
-			'post_date' => '2014-01-01 01:00:00'
-		) );
+		$this->factory->post->create(
+			array(
+				'post_date' => '2014-01-01 01:00:00',
+			)
+		);
 		$attr = array(
-			'type' => 'yearly'
+			'type' => 'yearly',
 		);
 
 		$archives = archives_shortcode( $attr );
@@ -127,11 +129,13 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_type_monthly() {
-		$this->factory->post->create( array(
-			'post_date' => '2014-01-01 01:00:00'
-		) );
+		$this->factory->post->create(
+			array(
+				'post_date' => '2014-01-01 01:00:00',
+			)
+		);
 		$attr = array(
-			'type' => 'monthly'
+			'type' => 'monthly',
 		);
 
 		$archives = archives_shortcode( $attr );
@@ -145,11 +149,13 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_type_weekly() {
-		$this->factory->post->create( array(
-			'post_date' => '2014-01-01 01:00:00'
-		) );
+		$this->factory->post->create(
+			array(
+				'post_date' => '2014-01-01 01:00:00',
+			)
+		);
 		$attr = array(
-			'type' => 'weekly'
+			'type' => 'weekly',
 		);
 
 		$archives = archives_shortcode( $attr );
@@ -163,11 +169,13 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_type_daily() {
-		$this->factory->post->create( array(
-			'post_date' => '2014-01-01 01:00:00'
-		) );
+		$this->factory->post->create(
+			array(
+				'post_date' => '2014-01-01 01:00:00',
+			)
+		);
 		$attr = array(
-			'type' => 'daily'
+			'type' => 'daily',
 		);
 
 		$archives = archives_shortcode( $attr );
@@ -185,12 +193,12 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 		$this->factory->post->create( array() );
 		$attr = array(
 			'format' => 'html',
-			'limit' => '1'
+			'limit'  => '1',
 		);
 
 		$archives = archives_shortcode( $attr );
 
-		$this->assertEquals( 1, substr_count( $archives, '<li>' ) );
+		$this->assertSame( 1, substr_count( $archives, '<li>' ) );
 	}
 
 	/**
@@ -203,7 +211,7 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 		$this->factory->post->create( array() );
 		$attr = array(
 			'format' => 'html',
-			'limit' => '0'
+			'limit'  => '0',
 		);
 
 		$archives = archives_shortcode( $attr );
@@ -217,15 +225,19 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_showcount() {
-		$this->factory->post->create( array(
-			'post_date' => '2014-01-01 01:00:00'
-		) );
-		$this->factory->post->create( array(
-			'post_date' => '2014-01-01 01:00:00'
-		) );
+		$this->factory->post->create(
+			array(
+				'post_date' => '2014-01-01 01:00:00',
+			)
+		);
+		$this->factory->post->create(
+			array(
+				'post_date' => '2014-01-01 01:00:00',
+			)
+		);
 		$attr = array(
 			'showcount' => 'true',
-			'type' => 'yearly'
+			'type'      => 'yearly',
 		);
 
 		$archives = archives_shortcode( $attr );
@@ -244,7 +256,7 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 		$this->factory->post->create( array() );
 		$attr = array(
 			'format' => 'html',
-			'before' => $content
+			'before' => $content,
 		);
 
 		$archives = archives_shortcode( $attr );
@@ -263,7 +275,7 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 		$this->factory->post->create( array() );
 		$attr = array(
 			'format' => 'html',
-			'after' => $content
+			'after'  => $content,
 		);
 
 		$archives = archives_shortcode( $attr );
@@ -277,16 +289,20 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_order_asc() {
-		$this->factory->post->create( array(
-			'post_title' => 'first',
-			'post_date' => '2014-01-01 01:00:00'
-		) );
-		$this->factory->post->create( array(
-			'post_title' => 'last',
-			'post_date' => '2014-01-01 02:00:00'
-		) );
+		$this->factory->post->create(
+			array(
+				'post_title' => 'first',
+				'post_date'  => '2014-01-01 01:00:00',
+			)
+		);
+		$this->factory->post->create(
+			array(
+				'post_title' => 'last',
+				'post_date'  => '2014-01-01 02:00:00',
+			)
+		);
 		$attr = array(
-			'order' => 'asc'
+			'order' => 'asc',
 		);
 
 		$archives = archives_shortcode( $attr );
@@ -300,16 +316,20 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_order_desc() {
-		$this->factory->post->create( array(
-			'post_title' => 'first',
-			'post_date' => '2014-01-01 01:00:00'
-		) );
-		$this->factory->post->create( array(
-			'post_title' => 'last',
-			'post_date' => '2014-01-01 02:00:00'
-		) );
+		$this->factory->post->create(
+			array(
+				'post_title' => 'first',
+				'post_date'  => '2014-01-01 01:00:00',
+			)
+		);
+		$this->factory->post->create(
+			array(
+				'post_title' => 'last',
+				'post_date'  => '2014-01-01 02:00:00',
+			)
+		);
 		$attr = array(
-			'order' => 'desc'
+			'order' => 'desc',
 		);
 
 		$archives = archives_shortcode( $attr );

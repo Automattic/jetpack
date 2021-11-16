@@ -159,10 +159,10 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	 * @since 4.0.0
 	 */
 	public function test_replace_in_comments() {
-		$video_id = '141358';
-		$player = '<iframe src="https://player.vimeo.com/video/' . $video_id . '"';
+		$video_id  = '141358';
+		$player    = '<iframe src="https://player.vimeo.com/video/' . $video_id . '"';
 		$text_link = 'Vimeo <a href="https://vimeo.com/123456">link</a>';
-		$url_link = 'Link <a href="https://vimeo.com/123456">https://vimeo.com/123456</a>';
+		$url_link  = 'Link <a href="https://vimeo.com/123456">https://vimeo.com/123456</a>';
 
 		$this->assertStringContainsString( $player, vimeo_link( "[vimeo $video_id]" ) );
 		$this->assertStringContainsString( $player, vimeo_link( "[vimeo http://vimeo.com/$video_id]" ) );
@@ -281,7 +281,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 			),
 			'no_width_or_height_in_attr' => array(
 				array( 'id' => '24246' ),
-				'<amp-vimeo data-videoid="24246" layout="responsive" width="600" height="338"></amp-vimeo>'
+				'<amp-vimeo data-videoid="24246" layout="responsive" width="600" height="338"></amp-vimeo>',
 			),
 			'normal_attributes_present'  => array(
 				array(
@@ -289,7 +289,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 					'width'  => '900',
 					'height' => '1200',
 				),
-				'<amp-vimeo data-videoid="623422" layout="responsive" width="900" height="1200"></amp-vimeo>'
+				'<amp-vimeo data-videoid="623422" layout="responsive" width="900" height="1200"></amp-vimeo>',
 			),
 		);
 	}
@@ -333,7 +333,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 		$GLOBALS['content_width'] = $content_width;
 
 		$this->assertEquals(
-			'<amp-vimeo data-videoid="' . $video_id .'" layout="responsive" width="' . $content_width . '" height="' . $expected_height .'"></amp-vimeo>',
+			'<amp-vimeo data-videoid="' . $video_id . '" layout="responsive" width="' . $content_width . '" height="' . $expected_height . '"></amp-vimeo>',
 			vimeo_shortcode( array( 'id' => $video_id ) )
 		);
 	}
@@ -380,8 +380,8 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	 * @dataProvider get_vimeo_dimensions_data
 	 * @covers ::jetpack_shortcode_get_vimeo_dimensions()
 	 *
-	* @param array $attr The shortcode attributes.
-	* @param array $expected The expected dimensions.
+	 * @param array $attr The shortcode attributes.
+	 * @param array $expected The expected dimensions.
 	 */
 	function test_jetpack_shortcode_get_vimeo_dimensions_no_global_content_width( $attr, $expected ) {
 		unset( $GLOBALS['content_width'] );

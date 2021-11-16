@@ -25,7 +25,7 @@ class WP_Test_Jetpack_Shortcodes_Sitemap extends WP_UnitTestCase {
 		$shortcode_content = do_shortcode( $content );
 
 		$this->assertNotEquals( $content, $shortcode_content );
-		$this->assertEquals( '', $shortcode_content );
+		$this->assertSame( '', $shortcode_content );
 	}
 
 	/**
@@ -36,18 +36,22 @@ class WP_Test_Jetpack_Shortcodes_Sitemap extends WP_UnitTestCase {
 	public function test_shortcodes_sitemap_image() {
 		$content = '[sitemap]';
 
-		$page_1_id = $this->factory->post->create( array(
-			'post_type'    => 'page',
-			'post_title'   => 'Jetpack Parent',
-			'post_content' => 'This is a parent page',
-		) );
+		$page_1_id = $this->factory->post->create(
+			array(
+				'post_type'    => 'page',
+				'post_title'   => 'Jetpack Parent',
+				'post_content' => 'This is a parent page',
+			)
+		);
 
-		$page_1_1_id = $this->factory->post->create( array(
-			'post_type'    => 'page',
-			'post_title'   => 'Jetpack Child',
-			'post_content' => 'This is another page, whose parent is ' . $page_1_id,
-			'post_parent'  => $page_1_id
-		) );
+		$page_1_1_id = $this->factory->post->create(
+			array(
+				'post_type'    => 'page',
+				'post_title'   => 'Jetpack Child',
+				'post_content' => 'This is another page, whose parent is ' . $page_1_id,
+				'post_parent'  => $page_1_id,
+			)
+		);
 
 		$shortcode_content = do_shortcode( $content );
 

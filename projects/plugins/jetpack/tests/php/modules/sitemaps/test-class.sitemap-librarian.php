@@ -36,7 +36,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	 */
 	public function test_sitemap_librarian_get_unset_row_is_null() {
 		$librarian = new Jetpack_Sitemap_Librarian();
-		$row = $librarian->read_sitemap_data( 'unset', 'unset' );
+		$row       = $librarian->read_sitemap_data( 'unset', 'unset' );
 		$this->assertTrue( is_null( $row ) );
 	}
 
@@ -48,8 +48,8 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	 */
 	public function test_sitemap_librarian_delete_unset_row_returns_false() {
 		$librarian = new Jetpack_Sitemap_Librarian();
-		$result = $librarian->delete_sitemap_data( 'unset', 'unset' );
-		$this->assertEquals( false, $result );
+		$result    = $librarian->delete_sitemap_data( 'unset', 'unset' );
+		$this->assertFalse( $result );
 	}
 
 	/**
@@ -62,7 +62,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 		$librarian = new Jetpack_Sitemap_Librarian();
 		$librarian->store_sitemap_data( 0, JP_MASTER_SITEMAP_TYPE, 'contents', '1970-01-01 00:00:00' );
 		$result = $librarian->delete_sitemap_data( jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE, 0 ), JP_MASTER_SITEMAP_TYPE );
-		$this->assertEquals( true, $result );
+		$this->assertTrue( $result );
 	}
 
 	/**
@@ -73,7 +73,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	 */
 	public function test_sitemap_librarian_set_then_get_is_identity() {
 		$librarian = new Jetpack_Sitemap_Librarian();
-		$contents = '<wrapper>These are the times that try men\'s <a href="http://example.com/soul">souls</a>.</wrapper>';
+		$contents  = '<wrapper>These are the times that try men\'s <a href="http://example.com/soul">souls</a>.</wrapper>';
 
 		// Store a sitemap.
 		$librarian->store_sitemap_data( 0, JP_MASTER_SITEMAP_TYPE, $contents, '1970-01-01 00:00:00' );
@@ -94,7 +94,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	 * @since 4.7.0
 	 */
 	public function test_sitemap_librarian_set_then_set_overwrites_data() {
-		$librarian = new Jetpack_Sitemap_Librarian();
+		$librarian    = new Jetpack_Sitemap_Librarian();
 		$old_contents = esc_html( 'It was the best of times,' );
 		$new_contents = esc_html( 'It was the worst of times.' );
 
@@ -118,7 +118,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	 */
 	public function test_sitemap_librarian_set_then_get_text_is_identity() {
 		$librarian = new Jetpack_Sitemap_Librarian();
-		$contents = 'These are the times that try men\'s souls.';
+		$contents  = 'These are the times that try men\'s souls.';
 
 		// Store a sitemap.
 		$librarian->store_sitemap_data( 0, JP_MASTER_SITEMAP_TYPE, $contents, '1970-01-01 00:00:00' );
