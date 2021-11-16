@@ -504,7 +504,7 @@ importers:
 
   projects/packages/my-jetpack:
     specifiers:
-      '@automattic/jetpack-components': workspace:^0.6.1-alpha
+      '@automattic/jetpack-components': workspace:^0.6.2-alpha
       '@automattic/jetpack-webpack-config': workspace:^0.2.0-alpha
       '@babel/core': 7.15.0
       '@babel/preset-env': 7.15.0
@@ -20261,7 +20261,7 @@ packages:
       klona: 2.0.5
       neo-async: 2.6.2
       sass: 1.43.3
-      webpack: 5.51.1_webpack-cli@4.8.0
+      webpack: 5.51.1
     dev: true
 
   /sass/1.38.1:
