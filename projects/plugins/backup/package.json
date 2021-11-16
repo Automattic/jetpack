@@ -28,7 +28,7 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
-		"@automattic/jetpack-api": "workspace:^0.6.0",
+		"@automattic/jetpack-api": "workspace:^0.6.1-alpha",
 		"@automattic/jetpack-components": "workspace:^0.6.2-alpha",
 		"@automattic/jetpack-connection": "workspace:^0.10.1-alpha",
 		"@wordpress/api-fetch": "5.2.5",
