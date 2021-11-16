@@ -228,7 +228,7 @@ export const settings = {
 		align: [ 'center', 'wide', 'full' ],
 		customClassName: false,
 		html: false,
-		__experimentalExposeControlsToChildren: false,
+		__experimentalHideChildBlockControls: true,
 	},
 	title: __( 'Tiled Gallery', 'jetpack' ),
 	transforms: {
