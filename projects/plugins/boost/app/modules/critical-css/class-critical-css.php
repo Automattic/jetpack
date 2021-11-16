@@ -664,7 +664,7 @@ class Critical_CSS extends Module {
 		}
 
 		$available_methods = array(
-			'async'    => 'media="not all" data-media="' . $media . '" onload="this.media=\'' . $media . '\'; delete this.dataset.media; this.removeAttribute( \'onload\' );"',
+			'async'    => 'media="not all" data-media="' . $media . '" onload="this.media=this.dataset.media; delete this.dataset.media; this.removeAttribute( \'onload\' );"',
 			'deferred' => 'media="not all" data-media="' . $media . '"',
 		);
 
@@ -698,7 +698,7 @@ class Critical_CSS extends Module {
 		$html_no_script = '<noscript>' . $html . '</noscript>';
 
 		// Update the stylesheet markup for allowed methods.
-		$html = preg_replace( '~media=[\'"]?([^"]*)[\'"]~', $available_methods[ $method ], $html );
+		$html = preg_replace( '~media=(\'[^\']+\')|("[^"]+")~', $available_methods[ $method ], $html );
 
 		// Append to the HTML stylesheet tag the same untouched HTML stylesheet tag within the noscript tag
 		// to support the rendering of the stylesheet when JavaScript is disabled.
