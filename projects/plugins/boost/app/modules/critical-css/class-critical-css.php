@@ -663,14 +663,9 @@ class Critical_CSS extends Module {
 			return $html;
 		}
 
-		// If the stylesheet is not meant for screen, do not alter the stylesheet loading.
-		if ( ! in_array( $media, array( 'all', 'screen' ), true ) ) {
-			return $html;
-		}
-
 		$available_methods = array(
-			'async'    => 'media="not all" onload="this.media=\'all\'"',
-			'deferred' => 'media="not all"',
+			'async'    => 'media="not all" data-media="' . $media . '" onload="this.media=\'' . $media . '\'; delete this.dataset.media; this.removeAttribute( \'onload\' );"',
+			'deferred' => 'media="not all" data-media="' . $media . '"',
 		);
 
 		/**
@@ -693,7 +688,7 @@ class Critical_CSS extends Module {
 		 *
 		 * @todo  Retrieve settings from database, either via auto-configuration or UI option.
 		 */
-		$method = apply_filters( 'jetpack_boost_async_style', 'async', $handle, $media );
+		$method = apply_filters( 'jetpack_boost_async_style', 'deferred', $handle, $media );
 
 		// If the loading method is not allowed, do not alter the stylesheet loading.
 		if ( ! isset( $available_methods[ $method ] ) ) {
@@ -703,7 +698,7 @@ class Critical_CSS extends Module {
 		$html_no_script = '<noscript>' . $html . '</noscript>';
 
 		// Update the stylesheet markup for allowed methods.
-		$html = preg_replace( '~media=[\'"]?[^\'"\s]+[\'"]?~', $available_methods[ $method ], $html );
+		$html = preg_replace( '~media=[\'"]?([^"]*)[\'"]~', $available_methods[ $method ], $html );
 
 		// Append to the HTML stylesheet tag the same untouched HTML stylesheet tag within the noscript tag
 		// to support the rendering of the stylesheet when JavaScript is disabled.
@@ -857,8 +852,9 @@ class Critical_CSS extends Module {
 					// Flip all media="not all" links to media="all".
 					document.querySelectorAll( 'link' ).forEach(
 						function( link ) {
-							if ( link.media === 'not all' ) {
-								link.media = 'all';
+							if ( link.media === 'not all' && link.dataset.media ) {
+								link.media = link.dataset.media;
+								delete link.dataset.media;
 							}
 						}
 					);
@@ -877,7 +873,7 @@ class Critical_CSS extends Module {
 		// Minified version of footer script. See above comment for unminified version.
 		?>
 		<script>window.addEventListener('load', function() {
-				document.querySelectorAll('link').forEach(function(e) {'not all' === e.media && (e.media = 'all');});
+				document.querySelectorAll('link').forEach(function(e) {'not all' === e.media && e.dataset.media && (e.media=e.dataset.media,delete e.dataset.media)});
 				var e = document.getElementById('jetpack-boost-critical-css');
 				e && (e.media = 'not all');
 			});</script>
