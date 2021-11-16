@@ -36,11 +36,7 @@ describe( 'restApi', () => {
 	describe( 'GET requests', () => {
 		before( () => {
 			fetchMock.mock(
-				{
-					method: 'POST',
-					url: /\/jetpack\/v4\/licensing\/attach-licenses/,
-					name: 'attach-licenses',
-				},
+				{ method: 'POST', url: /\/jetpack\/v4\/licensing\/attach-licenses/, name: 'attach-licenses' },
 				JSON.stringify( [ { activatedProductId: 1 } ] )
 			);
 			fetchMock.mock(
