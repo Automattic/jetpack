@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Don't set Webpack's `output.pathinfo` in production builds.
