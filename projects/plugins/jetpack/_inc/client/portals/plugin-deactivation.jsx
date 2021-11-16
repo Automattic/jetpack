@@ -13,7 +13,6 @@ import {
 	getApiNonce,
 	getInitialStateConnectedPlugins,
 	getInitialStateJetpackBenefits,
-	getPluginBaseUrl,
 	getTracksUserData,
 } from '../state/initial-state';
 import restApi from '@automattic/jetpack-api';
@@ -32,7 +31,7 @@ import JetpackBenefits from '../components/jetpack-benefits';
  * @returns {React.Component} - The PluginDeactivation component.
  */
 const PluginDeactivation = props => {
-	const { apiRoot, apiNonce, connectedPlugins, siteBenefits, pluginUrl, tracksUserData } = props;
+	const { apiRoot, apiNonce, connectedPlugins, siteBenefits, tracksUserData } = props;
 	const [ modalOpen, setModalOpen ] = useState( false );
 
 	// Modify the deactivation link.
@@ -103,7 +102,6 @@ const PluginDeactivation = props => {
 				onClose={ toggleVisibility }
 				pluginScreenDisconnectCallback={ handleDeactivate }
 				disconnectStepComponent={ <JetpackBenefits siteBenefits={ siteBenefits } /> }
-				assetBaseUrl={ pluginUrl + '/_inc/build' }
 			/>
 		</PortalSidecar>
 	);
@@ -115,7 +113,6 @@ export default connect( state => {
 		apiNonce: getApiNonce( state ),
 		connectedPlugins: getInitialStateConnectedPlugins( state ),
 		siteBenefits: getInitialStateJetpackBenefits( state ),
-		pluginUrl: getPluginBaseUrl( state ),
 		tracksUserData: getTracksUserData( state ),
 	};
 } )( PluginDeactivation );
