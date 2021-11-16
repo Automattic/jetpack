@@ -2,6 +2,11 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.6.0 - 2021-11-16
+### Added
+- Add new `attach-licences`api method.
+- Add updateUserLicensesCounts API method
+
 ## 0.5.0 - 2021-10-26
 ### Added
 - Add the IDC Start Fresh API method.
