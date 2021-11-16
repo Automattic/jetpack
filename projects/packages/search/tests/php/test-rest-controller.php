@@ -64,7 +64,7 @@ class Test_REST_Controller extends Search_Test_Case {
 	}
 
 	/**
-	 * Testing the `POST /jetpack/v4/search/plan` endpoint with editor user.
+	 * Testing the `POST /jetpack/v4/search/plan` endpoint with an editor user.
 	 */
 	public function test_search_plan_unauthorized() {
 		wp_set_current_user( $this->editor_id );
@@ -77,7 +77,7 @@ class Test_REST_Controller extends Search_Test_Case {
 	}
 
 	/**
-	 * Testing the `POST /jetpack/v4/search/plan` endpoint with editor user.
+	 * Testing the `POST /jetpack/v4/search/plan` endpoint with an admin user.
 	 */
 	public function test_search_plan_successful_authorization() {
 		wp_set_current_user( $this->admin_id );
@@ -90,7 +90,7 @@ class Test_REST_Controller extends Search_Test_Case {
 	}
 
 	/**
-	 * Testing the `POST /jetpack/v4/search/settings` endpoint with editor user.
+	 * Testing the `POST /jetpack/v4/search/settings` endpoint with an editor user.
 	 */
 	public function test_update_search_settings_unauthorized() {
 		wp_set_current_user( $this->editor_id );
@@ -111,7 +111,7 @@ class Test_REST_Controller extends Search_Test_Case {
 	}
 
 	/**
-	 * Testing the `POST /jetpack/v4/search/settings` endpoint with editor user.
+	 * Testing the `POST /jetpack/v4/search/settings` endpoint with an admin user.
 	 */
 	public function test_update_search_settings_success_both_enable() {
 		wp_set_current_user( $this->admin_id );
@@ -129,7 +129,7 @@ class Test_REST_Controller extends Search_Test_Case {
 	}
 
 	/**
-	 * Testing the `POST /jetpack/v4/search/settings` endpoint with editor user.
+	 * Testing the `POST /jetpack/v4/search/settings` endpoint with an admin user.
 	 */
 	public function test_update_search_settings_invalid_request_1() {
 		wp_set_current_user( $this->admin_id );
@@ -146,7 +146,7 @@ class Test_REST_Controller extends Search_Test_Case {
 	}
 
 		/**
-		 * Testing the `POST /jetpack/v4/search/settings` endpoint with editor user.
+		 * Testing the `POST /jetpack/v4/search/settings` endpoint with an admin user.
 		 */
 	public function test_update_search_settings_invalid_request_2() {
 		wp_set_current_user( $this->admin_id );
@@ -160,7 +160,7 @@ class Test_REST_Controller extends Search_Test_Case {
 	}
 
 	/**
-	 * Testing the `POST /jetpack/v4/search/settings` endpoint with editor user.
+	 * Testing the `POST /jetpack/v4/search/settings` endpoint with an admin user.
 	 */
 	public function test_update_search_settings_success_both_disable() {
 		wp_set_current_user( $this->admin_id );
@@ -178,7 +178,7 @@ class Test_REST_Controller extends Search_Test_Case {
 	}
 
 	/**
-	 * Testing the `POST /jetpack/v4/search/settings` endpoint with editor user.
+	 * Testing the `POST /jetpack/v4/search/settings` endpoint with an admin user.
 	 */
 	public function test_update_search_settings_success_disable_module_only() {
 		wp_set_current_user( $this->admin_id );
@@ -199,7 +199,7 @@ class Test_REST_Controller extends Search_Test_Case {
 	}
 
 	/**
-	 * Testing the `POST /jetpack/v4/search/settings` endpoint with editor user.
+	 * Testing the `POST /jetpack/v4/search/settings` endpoint with an admin user.
 	 */
 	public function test_update_search_settings_success_disable_instant_only() {
 		wp_set_current_user( $this->admin_id );
@@ -220,7 +220,7 @@ class Test_REST_Controller extends Search_Test_Case {
 	}
 
 	/**
-	 * Testing the `GET /jetpack/v4/search/settings` endpoint with editor user.
+	 * Testing the `GET /jetpack/v4/search/settings` endpoint with an editor user.
 	 */
 	public function test_get_search_settings_unauthorized() {
 		wp_set_current_user( $this->editor_id );
@@ -233,7 +233,7 @@ class Test_REST_Controller extends Search_Test_Case {
 	}
 
 	/**
-	 * Testing the `POST /jetpack/v4/search/settings` endpoint with editor user.
+	 * Testing the `POST /jetpack/v4/search/settings` endpoint with an admin user.
 	 */
 	public function test_get_search_settings_success() {
 		wp_set_current_user( $this->admin_id );
@@ -247,7 +247,7 @@ class Test_REST_Controller extends Search_Test_Case {
 	}
 
 	/**
-	 * Testing the `GET /jetpack/v4/search` endpoint with no user.
+	 * Testing the `GET /jetpack/v4/search` endpoint with no logged-in user.
 	 */
 	public function test_get_search_results_unauthorized() {
 		wp_set_current_user( 0 );
