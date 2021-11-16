@@ -11,7 +11,7 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 	 */
 	public static function set_up_before_class() {
 		parent::set_up_before_class();
-		self::$ignore_files = TRUE;
+		self::$ignore_files = true;
 	}
 
 	/**
@@ -19,7 +19,7 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_jetpack_client_server_initialize() {
-		$client_server = new Jetpack_Client_Server;
+		$client_server = new Jetpack_Client_Server();
 
 		$this->assertNotNull( $client_server );
 	}
@@ -29,9 +29,11 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_jetpack_client_server_authorize_role_cap() {
-		$author_id = $this->factory->user->create( array(
-			'role' => 'administrator',
-		) );
+		$author_id = $this->factory->user->create(
+			array(
+				'role' => 'administrator',
+			)
+		);
 		wp_set_current_user( $author_id );
 
 		$client_server = $this->getMockBuilder( 'Jetpack_Client_Server' )
@@ -49,9 +51,11 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_jetpack_client_server_authorize_no_role() {
-		$author_id = $this->factory->user->create( array(
-			'role' => 'imagination_mover',
-		) );
+		$author_id = $this->factory->user->create(
+			array(
+				'role' => 'imagination_mover',
+			)
+		);
 		wp_set_current_user( $author_id );
 
 		$client_server = $this->getMockBuilder( 'Jetpack_Client_Server' )
@@ -68,9 +72,11 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_jetpack_client_server_authorize_data_error() {
-		$author_id = $this->factory->user->create( array(
-			'role' => 'administrator',
-		) );
+		$author_id = $this->factory->user->create(
+			array(
+				'role' => 'administrator',
+			)
+		);
 		wp_set_current_user( $author_id );
 
 		$client_server = $this->getMockBuilder( 'Jetpack_Client_Server' )
@@ -87,7 +93,7 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_jetpack_client_server_deactivate_plugin() {
-		$client_server = new Jetpack_Client_Server;
+		$client_server = new Jetpack_Client_Server();
 
 		$return_value = $client_server->deactivate_plugin( 'herp', 'derp' );
 

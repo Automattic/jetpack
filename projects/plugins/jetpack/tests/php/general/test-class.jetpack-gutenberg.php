@@ -70,7 +70,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 			// Our "Plugins" :)
 			'onion',
 			'potato',
-			'tomato'
+			'tomato',
 		);
 	}
 
@@ -78,10 +78,10 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 	 * This test will throw an exception/fail if blocks register twice upon repeat calls to get_availability()
 	 */
 	function test_does_calling_get_availability_twice_result_in_notice() {
-		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_block') );
+		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_block' ) );
 		Jetpack_Gutenberg::get_availability();
 		Jetpack_Gutenberg::get_availability();
-		$result = remove_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_block') );
+		$result = remove_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_block' ) );
 		$this->assertTrue( $result );
 	}
 
@@ -167,7 +167,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 			),
 			'gated_block'
 		);
-		$this->assertEquals( false, $version_gated );
+		$this->assertFalse( $version_gated );
 	}
 
 	/**
@@ -181,7 +181,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 			),
 			'ungated_block'
 		);
-		$this->assertEquals( true, $version_gated );
+		$this->assertTrue( $version_gated );
 	}
 
 	/**
