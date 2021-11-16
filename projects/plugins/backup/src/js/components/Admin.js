@@ -165,26 +165,23 @@ const Admin = () => {
 		return (
 			<div className="jp-row">
 				<div class="lg-col-span-6 md-col-span-4 sm-col-span-4">
-					<h2>{ __( 'Where are my backups stored?', 'jetpack-backup' ) }</h2>
+					<h2>{ __( 'Your cloud backups', 'jetpack-backup' ) }</h2>
 					<p>
 						{ __(
 							'All the backups are safely stored in the cloud and available for you at any time on Jetpack.com, with full details about status and content.',
 							'jetpack-backup'
 						) }
 					</p>
-					{ hasBackupPlan() && ! capabilities.includes( 'backup-realtime' ) && (
-						<a
-							class="jp-cut"
-							href={ getRedirectUrl( 'backup-plugin-realtime-upgrade', { site: domain } ) }
-						>
-							<span>
-								{ __(
-									'Your site is updated with new content several times a day',
-									'jetpack-backup'
-								) }
-							</span>
-							<span>{ __( 'Consider upgrading to real-time protection', 'jetpack-backup' ) }</span>
-						</a>
+					{ hasBackupPlan() && (
+						<p>
+							<a
+								href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
+								target="_blank"
+								rel="noreferrer"
+							>
+								{ __( 'See all your backups', 'jetpack-backup' ) }
+							</a>
+						</p>
 					) }
 				</div>
 				<div class="lg-col-span-1 md-col-span-1 sm-col-span-0"></div>
