@@ -92,7 +92,6 @@
 	},
 	"pnpm": {
 		"overrides": {
-			"@automattic/calypso-build>enzyme-adapter-react-16@*": "npm:@wojtekmaj/enzyme-adapter-react-17@0.6.3",
 			"@storybook/addon-docs>@storybook/builder-webpack4": "npm:@storybook/builder-webpack5",
 			"@storybook/core-common>webpack@4": ">= 4",
 			"@storybook/core-server>webpack@4": ">= 4",

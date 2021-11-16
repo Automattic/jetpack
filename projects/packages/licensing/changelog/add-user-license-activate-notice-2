@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added get_license_activation_notice_dismiss() function.

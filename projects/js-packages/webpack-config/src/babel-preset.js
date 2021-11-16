@@ -2,8 +2,9 @@ const PresetEnv = ( options = {} ) => {
 	if ( typeof options.targets === 'undefined' ) {
 		const browserslist = require( 'browserslist' );
 		const localBrowserslistConfig = browserslist.findConfig( '.' ) || {};
-		options.targets =
-			localBrowserslistConfig.defaults || require( '@wordpress/browserslist-config' );
+		options.targets = browserslist(
+			localBrowserslistConfig.defaults || require( '@wordpress/browserslist-config' )
+		);
 	}
 
 	return [
@@ -51,10 +52,10 @@ module.exports = ( api, opts = {} ) => {
 			},
 		] );
 	}
-	if ( opts.pluginCalypsoOptimmizeI18n !== false ) {
+	if ( opts.pluginCalypsoOptimizeI18n !== false ) {
 		ret.plugins.push( [
-			require.resolve( '@automattic/calypso-build/babel/babel-plugin-optimize-i18n' ),
-			opts.pluginCalypsoOptimmizeI18n,
+			require.resolve( '@automattic/babel-plugin-preserve-i18n' ),
+			opts.pluginPreserveI18n,
 		] );
 	}
 
