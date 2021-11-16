@@ -529,7 +529,7 @@ export function dockerDefine( yargs ) {
 					},
 				} )
 
-				// Wordpress exec commands
+				// WordPress exec commands
 				.command( {
 					command: 'exec',
 					description: 'Execute arbitrary shell command inside docker container',
@@ -557,7 +557,7 @@ export function dockerDefine( yargs ) {
 				} )
 				.command( {
 					command: 'sh',
-					description: 'Access shell on Wordpress container',
+					description: 'Access shell on WordPress container',
 					builder: yargExec => defaultOpts( yargExec ),
 					handler: argv => execDockerCmdHandler( argv ),
 				} )

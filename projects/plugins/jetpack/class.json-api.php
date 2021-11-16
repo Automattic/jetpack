@@ -184,13 +184,6 @@ class WPCOM_JSON_API {
 
 		$this->exit = (bool) $exit;
 
-		// This was causing problems with Jetpack, but is necessary for wpcom
-		// @see https://github.com/Automattic/jetpack/pull/2603
-		// @see r124548-wpcom
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			add_filter( 'home_url', array( $this, 'ensure_http_scheme_of_home_url' ), 10, 3 );
-		}
-
 		add_filter( 'user_can_richedit', '__return_true' );
 
 		add_filter( 'comment_edit_pre', array( $this, 'comment_edit_pre' ) );
@@ -588,14 +581,6 @@ class WPCOM_JSON_API {
 		}
 
 		return $response;
-	}
-
-	function ensure_http_scheme_of_home_url( $url, $path, $original_scheme ) {
-		if ( $original_scheme ) {
-			return $url;
-		}
-
-		return preg_replace( '#^https:#', 'http:', $url );
 	}
 
 	function comment_edit_pre( $comment_content ) {

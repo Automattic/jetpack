@@ -633,6 +633,13 @@ class Jetpack_Gutenberg {
 			"{$blocks_dir}editor{$blocks_env}.min.js",
 			JETPACK__PLUGIN_FILE
 		);
+
+		// Hack around #20357 (specifically, that the editor bundle depends on
+		// wp-edit-post but wp-edit-post's styles break the Widget Editor and
+		// Site Editor) until a real fix gets unblocked.
+		// @todo Remove this once #20357 is properly fixed.
+		wp_styles()->query( 'jetpack-blocks-editor', 'registered' )->deps = array();
+
 		Assets::enqueue_script( 'jetpack-blocks-editor' );
 
 		wp_localize_script(
