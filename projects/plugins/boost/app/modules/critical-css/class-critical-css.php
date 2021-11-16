@@ -667,7 +667,7 @@ class Critical_CSS extends Module {
 
 		// Convert stylesheets intended for screens.
 		if ( in_array( $media, $async_media, true ) ) {
-			$media_replacement = 'media="not all" onload="this.media=\'' . $media . '\'"';
+			$media_replacement = 'media="not all" data-media="' . $media . '" onload="this.media=\'' . $media . '\'; delete this.dataset.media;"';
 			$html_no_script    = '<noscript>' . $html . '</noscript>';
 			$html              = preg_replace( '~media=[\'"]?[^\'"\s]+[\'"]?~', $media_replacement, $html );
 
@@ -826,8 +826,9 @@ class Critical_CSS extends Module {
 					// Flip all media="not all" links to media="all".
 					document.querySelectorAll( 'link' ).forEach(
 						function( link ) {
-							if ( link.media === 'not all' ) {
-								link.media = 'all';
+							if ( link.media === 'not all' && link.dataset.media ) {
+								link.media = link.dataset.media;
+								delete link.dataset.media;
 							}
 						}
 					);
@@ -846,7 +847,7 @@ class Critical_CSS extends Module {
 		// Minified version of footer script. See above comment for unminified version.
 		?>
 		<script>window.addEventListener('load', function() {
-				document.querySelectorAll('link').forEach(function(e) {'not all' === e.media && (e.media = 'all');});
+				document.querySelectorAll('link').forEach(function(e) {'not all' === e.media && e.dataset.media && (e.media=e.dataset.media,delete e.dataset.media)});
 				var e = document.getElementById('jetpack-boost-critical-css');
 				e && (e.media = 'not all');
 			});</script>
