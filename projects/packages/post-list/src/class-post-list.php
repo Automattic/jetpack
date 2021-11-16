@@ -40,8 +40,8 @@ class Post_List {
 			add_action( 'current_screen', array( $this, 'add_filters_and_actions_for_screen' ) );
 			add_filter( 'default_hidden_columns', array( $this, 'adjust_default_columns' ), 10, 2 );
 
-			if ( wp_doing_ajax() && ! empty( $_POST['action'] ) && 'inline-save' === $_POST['action'] && wp_verify_nonce( 'inlineeditnonce', '_inline_edit' ) ) {
-				add_action( 'admin_init', array( $this, 'add_filters_and_actions_quick_edit' ) );
+			if ( wp_doing_ajax() && ! empty( $_POST['action'] ) && 'inline-save' === $_POST['action'] && check_ajax_referer( 'inlineeditnonce', '_inline_edit' ) ) {
+				$this->add_filters_and_actions_quick_edit();
 			}
 
 			/**
@@ -141,7 +141,7 @@ class Post_List {
 	 * the methods to register the actions.
 	 */
 	public function add_filters_and_actions_quick_edit() {
-		// We've alread verified the nonce in the register method above, and we're not performing
+		// We've already verified the nonce in the register method above, and we're not performing
 		// any action on these POST arguments.
 		// phpcs:disable WordPress.Security.NonceVerification.Missing
 		if ( ! empty( $_POST['screen'] ) && 'edit-' === substr( $_POST['screen'], 0, 5 ) && ! empty( $_POST['post_type'] ) ) {
@@ -240,4 +240,3 @@ class Post_List {
 		return $cols;
 	}
 }
-
