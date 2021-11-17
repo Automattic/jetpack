@@ -196,7 +196,7 @@ class Jetpack_Podcast_Helper {
 		/**
 		 * Allow requesting a specific number of tracks from SimplePie's `get_items` call.
 		 * The default number of tracks is ten.
-		 * Deprecated. Use jetpack_podcast_tracks_quantity filter instead, which takes one less parameter.
+		 * Deprecated. Use jetpack_podcast_helper_tracks_quantity filter instead, which takes one less parameter.
 		 *
 		 * @since 9.5.0
 		 * @deprecated 10.4.0
