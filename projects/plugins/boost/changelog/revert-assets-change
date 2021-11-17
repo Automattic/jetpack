@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Assets: revert use of the new method added to register scripts
