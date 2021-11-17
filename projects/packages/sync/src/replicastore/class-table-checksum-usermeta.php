@@ -204,7 +204,7 @@ class Table_Checksum_Usermeta extends Table_Checksum_Users {
 			$user_object->roles = array_map( 'sanitize_text_field', $user_object->roles );
 		}
 
-		//Sanitize display name
+		// Sanitize display name.
 		if ( ! empty( $user_object->name ) ) {
 			$user_object->name = wp_strip_all_tags( (string) $user_object->name, false );
 		}
