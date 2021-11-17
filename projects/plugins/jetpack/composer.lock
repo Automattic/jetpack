@@ -1118,10 +1118,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "3b301e45dfb1ce0e0e83e54797e868df1ea06790"
+                "reference": "1bdc7980067947d6ba4ccc6deaf751fb98b0e5ec"
             },
             "require": {
-                "automattic/jetpack-admin-ui": "^0.1"
+                "automattic/jetpack-admin-ui": "^0.1",
+                "automattic/jetpack-assets": "^1.12"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",

@@ -24,7 +24,7 @@
 		"@automattic/jetpack-components": "workspace:^0.6.2-alpha"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:^0.2.0-alpha",
+		"@automattic/jetpack-webpack-config": "workspace:^0.2.0",
 		"@babel/core": "7.15.0",
 		"@babel/preset-env": "7.15.0",
 		"@babel/register": "7.15.3",
