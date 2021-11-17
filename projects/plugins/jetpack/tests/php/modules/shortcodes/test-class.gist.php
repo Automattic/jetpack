@@ -5,6 +5,7 @@
  * @package automattic/jetpack
  */
 
+// cache HTTP requests.
 require_once __DIR__ . '/trait.http-request-cache.php';
 
 /**
@@ -48,27 +49,28 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Verify that content with a full Gist URL on its own line gets replaced by the embed.
+	 * Test gist embeds (links in content transformed into embeds).
 	 *
 	 * @covers ::github_gist_shortcode
+	 * @dataProvider gist_embed_data
 	 *
-	 * @since 6.6.0
+	 * @since 10.4.0
+	 *
+	 * @param string $content      Content added to post editor.
+	 * @param string $expected     Expected returned output.
+	 * @param string $expected_amp Expected returned output for AMP.
 	 */
-	public function test_shortcodes_gist_oembed_to_embed() {
+	public function test_gist_embeds( $content, $expected, $expected_amp ) {
 		global $post;
 
-		$gist_id = '57cc50246aab776e110060926a2face2';
-		$url     = 'https://gist.github.com/' . $gist_id;
-		$post    = $this->factory()->post->create_and_get( array( 'post_content' => $url ) );
-
-		do_action( 'init' );
+		$post = $this->factory()->post->create_and_get( array( 'post_content' => $content ) );
 		setup_postdata( $post );
 
 		// Test HTML version.
 		ob_start();
 		the_content();
 		$actual = ob_get_clean();
-		$this->assertStringContainsString( '<div style="tab-size: 8" id="gist', $actual );
+		$this->assertStringContainsString( $expected, $actual );
 
 		// Test AMP version.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -76,77 +78,45 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 		the_content();
 		$actual = ob_get_clean();
 		$this->assertEquals(
-			wpautop( sprintf( '<amp-gist layout="fixed-height" data-gistid="%s" height="240"></amp-gist>', basename( $gist_id ) ) ),
+			wpautop( $expected_amp ),
 			$actual
 		);
 	}
 
 	/**
-	 * Verify that content with a Gist URL pointing to a specific file gets replaced by the embed to that file.
+	 * Test data for the gist embeds
+	 *
+	 * @since 10.4.0
 	 *
 	 * @covers ::github_gist_shortcode
-	 *
-	 * @since 6.6.0
 	 */
-	public function test_shortcodes_gist_file_to_embed() {
-		global $post;
-
-		$gist_id = 'jeherve/57cc50246aab776e110060926a2face2';
-		$file    = 'wp-config-php';
-		$url     = 'https://gist.github.com/' . $gist_id . '#file-' . $file;
-		$post    = $this->factory()->post->create_and_get( array( 'post_content' => $url ) );
-
-		do_action( 'init' );
-		setup_postdata( $post );
-
-		// Test HTML version.
-		ob_start();
-		the_content();
-		$actual = ob_get_clean();
-		$this->assertStringContainsString( '<div style="tab-size: 8" id="gist', $actual );
-
-		// Test AMP version.
-		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		ob_start();
-		the_content();
-		$actual = ob_get_clean();
-		$this->assertEquals(
-			wpautop( sprintf( '<amp-gist layout="fixed-height" data-gistid="%s" height="240" data-file="wp-config.php"></amp-gist>', basename( $gist_id ) ) ),
-			$actual
+	public function gist_embed_data() {
+		$public_id                  = '57cc50246aab776e110060926a2face2';
+		$expected_html_markup       = '<div style="tab-size: 8" id="gist';
+		$expected_public_amp_markup = sprintf(
+			'<amp-gist layout="fixed-height" data-gistid="%s" height="240"></amp-gist>',
+			basename( $public_id )
 		);
-	}
 
-	/**
-	 * Verify that content with a full Gist URL on its own line preserves tab spacing.
-	 *
-	 * @covers ::github_gist_shortcode
-	 *
-	 * @since 7.9.0
-	 */
-	public function test_shortcodes_gist_oembed_with_tab_size() {
-		global $post;
-
-		$gist_id = '57cc50246aab776e110060926a2face2';
-		$url     = 'https://gist.github.com/' . $gist_id . '/?ts=4';
-		$post    = $this->factory()->post->create_and_get( array( 'post_content' => $url ) );
-
-		do_action( 'init' );
-		setup_postdata( $post );
-
-		// Test HTML version.
-		ob_start();
-		the_content();
-		$actual = ob_get_clean();
-		$this->assertStringContainsString( '<div style="tab-size: 4" id="gist', $actual );
-
-		// Test AMP version *lacks* tab size.
-		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		ob_start();
-		the_content();
-		$actual = ob_get_clean();
-		$this->assertEquals(
-			wpautop( sprintf( '<amp-gist layout="fixed-height" data-gistid="%s" height="240"></amp-gist>', basename( $gist_id ) ) ),
-			$actual
+		return array(
+			'oembed'          => array(
+				sprintf( 'https://gist.github.com/%s/', $public_id ),
+				$expected_html_markup,
+				$expected_public_amp_markup,
+			),
+			'file to embed'   => array(
+				sprintf( 'https://gist.github.com/jeherve/%s#file-wp-config-php', $public_id ),
+				$expected_html_markup,
+				sprintf(
+					'<amp-gist layout="fixed-height" data-gistid="%1$s" height="240" data-file="wp-config.php"></amp-gist>',
+					basename( $public_id )
+				),
+			),
+			'custom tab size' => array(
+				sprintf( 'https://gist.github.com/%s/?ts=4', $public_id ),
+				'<div style="tab-size: 4" id="gist',
+				$expected_public_amp_markup,
+			),
 		);
 	}
 
@@ -154,10 +124,9 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 	 * Test the different potential ways to embed a gist.
 	 *
 	 * @covers ::github_gist_shortcode
+	 * @dataProvider gist_shortcode_data
 	 *
 	 * @since 10.4.0
-	 *
-	 * @dataProvider gist_shortcode_data
 	 *
 	 * @param string $content      Content added to post editor.
 	 * @param string $expected     Expected returned output.
