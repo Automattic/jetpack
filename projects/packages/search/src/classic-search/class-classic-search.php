@@ -95,12 +95,21 @@ class Classic_Search {
 	}
 
 	/**
-	 * Returns the singleton of the class. Instantiates and sets up a singleton instance if necessary.
+	 * Returns the singleton of the class. Does not perform any instantiation.
+	 *
+	 * @return static The class singleton.
+	 */
+	public static function instance() {
+		return self::$instance;
+	}
+
+	/**
+	 * Instantiate and initialize a singleton instance of the class.
 	 *
 	 * @param string $blog_id Blog id.
 	 * @return static The class singleton.
 	 */
-	public static function instance( $blog_id ) {
+	public static function initialize( $blog_id ) {
 		if ( ! isset( self::$instance ) ) {
 			self::$instance = new static();
 			self::$instance->setup( $blog_id );

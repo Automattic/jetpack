@@ -9,8 +9,6 @@
 
 namespace Automattic\Jetpack\Search;
 
-use Automattic\Jetpack\Search\Classic_Search as Jetpack_Search;
-
 /**
  * Class that has various methods for outputting functionality into a theme that doesn't support widgets.
  * Additionally the widget itself makes use of these class.
@@ -24,13 +22,12 @@ class Template_Tags {
 	 *
 	 * @since 5.8.0
 	 *
-	 * @param string $blog_id    Blog id.
-	 * @param array  $filters    The available filters for the current query.
-	 * @param array  $post_types An array of post types to make filterable.
+	 * @param array $filters    The available filters for the current query.
+	 * @param array $post_types An array of post types to make filterable.
 	 */
-	public static function render_available_filters( $blog_id, $filters = null, $post_types = null ) {
+	public static function render_available_filters( $filters = null, $post_types = null ) {
 		if ( is_null( $filters ) ) {
-			$filters = Jetpack_Search::instance( $blog_id )->get_filters();
+			$filters = Classic_Search::instance()->get_filters();
 		}
 
 		if ( is_null( $post_types ) ) {
@@ -44,7 +41,7 @@ class Template_Tags {
 		$active_post_types = array();
 		if ( Helper::post_types_differ_searchable( $post_types ) ) {
 			// get the active filter buckets from the query.
-			$active_buckets          = Jetpack_Search::instance( $blog_id )->get_active_filter_buckets();
+			$active_buckets          = Classic_Search::instance()->get_active_filter_buckets();
 			$post_types_differ_query = Helper::post_types_differ_query( $post_types );
 
 			// remove any post_type filters from display if the current query
@@ -79,12 +76,11 @@ class Template_Tags {
 	/**
 	 * Renders filters for instant search.
 	 *
-	 * @param string $blog_id    Blog id.
-	 * @param array  $filters    The available filters for the current query.
+	 * @param array $filters    The available filters for the current query.
 	 */
-	public static function render_instant_filters( $blog_id, $filters = null ) {
+	public static function render_instant_filters( $filters = null ) {
 		if ( is_null( $filters ) ) {
-			$filters = Jetpack_Search::instance( $blog_id )->get_filters();
+			$filters = Classic_Search::instance()->get_filters();
 		}
 
 		foreach ( (array) $filters as $filter ) {

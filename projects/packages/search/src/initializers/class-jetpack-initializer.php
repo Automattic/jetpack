@@ -45,7 +45,7 @@ class Jetpack_Initializer extends Initializer {
 
 		if ( Options::is_instant_enabled() ) {
 			// Enable the instant search experience.
-			Instant_Search::instance( $blog_id );
+			Instant_Search::initialize( $blog_id );
 
 			// Register instant search configurables as WordPress settings.
 			new Settings();
@@ -61,7 +61,7 @@ class Jetpack_Initializer extends Initializer {
 			}
 		} else {
 			// Enable the classic search experience.
-			Classic_Search::instance( $blog_id );
+			Classic_Search::initialize( $blog_id );
 		}
 	}
 
