@@ -16,22 +16,14 @@ use Automattic\Jetpack\Assets;
 class Initializer {
 
 	/**
-	 * Whether My Jetpack was already initialized.
-	 *
-	 * @var boolean
-	 */
-	private static $initialized = false;
-
-	/**
 	 * Initialize My Jetapack
 	 *
 	 * @return void
 	 */
 	public static function init() {
-		if ( self::$initialized ) {
+		if ( did_action( 'my_jetpack_init' ) ) {
 			return;
 		}
-		self::$initialized = true;
 
 		// Feature flag while we are developing it.
 		if ( ! defined( 'JETPACK_ENABLE_MY_JETPACK' ) || ! JETPACK_ENABLE_MY_JETPACK ) {
@@ -48,6 +40,13 @@ class Initializer {
 		);
 
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+
+		/**
+		 * Fires after the My Jetpack package is initialized
+		 *
+		 * @since $$next_version$$
+		 */
+		do_action( 'my_jetpack_init' );
 	}
 
 	/**
