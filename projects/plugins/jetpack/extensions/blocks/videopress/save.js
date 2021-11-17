@@ -65,7 +65,7 @@ const VideoPressSave = CoreVideoSave => props => {
 	} );
 
 	let embedWrapperStyle = {};
-	if ( maxWidth.length > 0 && '100%' !== maxWidth ) {
+	if ( maxWidth && maxWidth.length > 0 && '100%' !== maxWidth ) {
 		embedWrapperStyle = {
 			maxWidth,
 			margin: 'auto',
