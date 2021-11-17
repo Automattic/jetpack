@@ -29,7 +29,6 @@
 	],
 	"dependencies": {
 		"@automattic/jetpack-api": "workspace:^0.6.0",
-		"@automattic/jetpack-base-styles": "workspace:^0.1.0-alpha",
 		"@automattic/jetpack-components": "workspace:^0.6.2-alpha",
 		"@automattic/jetpack-connection": "workspace:^0.10.1-alpha",
 		"@wordpress/api-fetch": "5.2.5",
@@ -41,6 +40,7 @@
 		"react-dom": "17.0.2"
 	},
 	"devDependencies": {
+		"@automattic/jetpack-base-styles": "workspace:^0.1.0-alpha",
 		"@automattic/jetpack-webpack-config": "workspace:^0.2.0",
 		"@babel/core": "7.16.0",
 		"@babel/preset-env": "7.16.0",
