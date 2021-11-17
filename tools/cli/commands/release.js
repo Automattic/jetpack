@@ -179,7 +179,16 @@ export async function scriptRouter( argv ) {
 export async function checkBranchValid( argv ) {
 	const currentBranch = child_process.execSync( 'git branch --show-current' ).toString().trim();
 	const branchPrefix = await readComposerJson( argv.project ).extra[ 'release-branch-prefix' ];
-	if ( ! currentBranch.match( `${ branchPrefix }/branch-` ) ) {
+	if ( ! branchPrefix ) {
+		console.log(
+			chalk.red(
+				`No release branch prefix for ${ argv.project } specified in its composer.json file. Can't amend project changelog.`
+			)
+		);
+		process.exit( 1 );
+	}
+
+	if ( ! currentBranch.startsWith( `${ branchPrefix }/branch-` ) ) {
 		console.log(
 			chalk.red(
 				`Doesn't look like you're on a release branch! Please check out the release branch before amending the changelog.`
