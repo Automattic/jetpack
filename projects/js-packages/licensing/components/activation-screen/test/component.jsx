@@ -4,9 +4,6 @@
 import React from 'react';
 import { expect } from 'chai';
 import { shallow } from 'enzyme';
-import restApi from '@automattic/jetpack-api';
-
-jest.mock( 'restApi' );
 
 /**
  * Internal dependencies
