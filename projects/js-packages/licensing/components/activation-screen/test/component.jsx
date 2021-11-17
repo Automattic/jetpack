@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { expect } from 'chai';
-import { shallow, mount } from 'enzyme';
+import { shallow } from 'enzyme';
 import restApi from '@automattic/jetpack-api';
 import sinon from 'sinon';
 
