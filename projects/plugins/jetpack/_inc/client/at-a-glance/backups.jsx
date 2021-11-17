@@ -65,6 +65,7 @@ class DashBackups extends Component {
 		getOptionValue: PropTypes.func.isRequired,
 		rewindStatus: PropTypes.string.isRequired,
 		rewindStatusReason: PropTypes.string.isRequired,
+		trackUpgradeButtonView: PropTypes.func,
 
 		// Connected props
 		vaultPressData: PropTypes.any.isRequired,
@@ -83,6 +84,7 @@ class DashBackups extends Component {
 		isOfflineMode: false,
 		isVaultPressInstalled: false,
 		rewindStatus: '',
+		trackUpgradeButtonView: noop,
 	};
 
 	getVPContent() {
@@ -158,6 +160,7 @@ class DashBackups extends Component {
 						eventFeature="backups"
 						path="dashboard"
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SITE_BACKUPS_JETPACK ) }
+						trackBannerDisplay={ this.props.trackUpgradeButtonView }
 					/>
 				) : (
 					<JetpackBanner

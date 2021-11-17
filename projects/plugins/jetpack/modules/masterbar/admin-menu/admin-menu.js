@@ -1,11 +1,10 @@
-/* global ajaxurl, jpAdminMenu */
+/* global ajaxurl */
 
 ( function () {
 	function init() {
 		var adminbar = document.querySelector( '#wpadminbar' );
 		var wpwrap = document.querySelector( '#wpwrap' );
 		var adminMenu = document.querySelector( '#adminmenu' );
-		var switcher = document.querySelector( '#dashboard-switcher .dashboard-switcher-button' );
 
 		if ( ! adminbar ) {
 			return;
@@ -60,10 +59,6 @@
 				} );
 			}
 		}
-
-		if ( switcher ) {
-			switcher.addEventListener( 'click', setDefaultViewAsPreferred );
-		}
 	}
 
 	function makeAjaxRequest( method, url, contentType, body ) {
@@ -83,16 +78,6 @@
 			ajaxurl,
 			'application/x-www-form-urlencoded; charset=UTF-8',
 			'action=sidebar_state&expanded=' + expanded
-		);
-	}
-
-	function setDefaultViewAsPreferred() {
-		makeAjaxRequest(
-			'GET',
-			ajaxurl +
-				'?action=set_preferred_view&screen=' +
-				jpAdminMenu.screen +
-				'&preferred-view=default'
 		);
 	}
 

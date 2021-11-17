@@ -258,8 +258,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 	// Get POST body data
 	function input( $return_default_values = true, $cast_and_filter = true ) {
-		$input        = trim( $this->api->post_body );
-		$content_type = $this->api->content_type;
+		$input        = trim( (string) $this->api->post_body );
+		$content_type = (string) $this->api->content_type;
 		if ( $content_type ) {
 			list ( $content_type ) = explode( ';', $content_type );
 		}

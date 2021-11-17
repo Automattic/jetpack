@@ -100,7 +100,8 @@ class Speed_Score {
 		$score_request = $this->get_score_request_by_url( $url );
 		if ( empty( $score_request ) || ! $score_request->is_pending() ) {
 			// Create and store the Speed Score request.
-			$score_request = new Speed_Score_Request( $url );
+			$active_modules = array_keys( $this->jetpack_boost->get_active_modules() );
+			$score_request  = new Speed_Score_Request( $url, $active_modules );
 			$score_request->store( 1800 ); // Keep the request for 30 minutes even if no one access the results.
 
 			// Send the request.

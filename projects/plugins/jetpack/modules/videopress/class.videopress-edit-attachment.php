@@ -284,13 +284,18 @@ HTML;
 			'G'     => 'G',
 			'PG-13' => 'PG-13',
 			'R-17'  => 'R',
-			'X-18'  => 'X',
 		);
+
+		$displayed_rating = $info->rating;
+		// X-18 was previously supported but is now removed to better comply with our TOS.
+		if ( 'X-18' === $displayed_rating ) {
+			$displayed_rating = 'R-17';
+		}
 
 		foreach ( $ratings as $r => $label ) {
 			$id   = "attachments-{$info->post_id}-rating-$r";
 			$out .= "<label for=\"$id\"><input type=\"radio\" name=\"attachments[{$info->post_id}][rating]\" id=\"$id\" value=\"$r\"";
-			if ( $info->rating == $r ) {
+			if ( $displayed_rating === $r ) {
 				$out .= ' checked="checked"';
 			}
 

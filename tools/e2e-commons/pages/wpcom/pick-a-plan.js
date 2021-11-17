@@ -1,4 +1,5 @@
 import { WpPage } from '..';
+import logger from '../../logger';
 
 export default class PickAPlanPage extends WpPage {
 	constructor( page ) {
@@ -25,6 +26,8 @@ export default class PickAPlanPage extends WpPage {
 
 	async selectFreePlan() {
 		const freePlanButton = '[data-e2e-product-slug="free"] a';
+		const href = await this.page.getAttribute( freePlanButton, 'href' );
+		logger.debug( `Free plan button href: ${ href }` );
 		await this.waitForTimeout( 500 );
 		return await this.click( freePlanButton );
 	}

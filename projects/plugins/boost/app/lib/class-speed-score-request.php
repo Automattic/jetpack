@@ -26,6 +26,13 @@ class Speed_Score_Request extends Cacheable {
 	private $url;
 
 	/**
+	 * Active Jetpack Boost modules.
+	 *
+	 * @var array $active_modules Active modules.
+	 */
+	private $active_modules;
+
+	/**
 	 * When the Speed Scores request was created, in seconds since epoch.
 	 *
 	 * @var float $created Speed Scores request creation timestamp.
@@ -50,17 +57,19 @@ class Speed_Score_Request extends Cacheable {
 	 * Constructor.
 	 *
 	 * @param string $url The URL to get the Speed Scores for.
+	 * @param array  $active_modules Active modules.
 	 * @param null   $created When the Speed Scores request was created, in seconds since epoch.
 	 * @param string $status Status of the Speed Scores request.
 	 * @param null   $error The Speed Scores error.
 	 */
-	public function __construct( $url, $created = null, $status = 'pending', $error = null ) {
+	public function __construct( $url, $active_modules = array(), $created = null, $status = 'pending', $error = null ) {
 		$this->set_cache_id( self::generate_cache_id_from_url( $url ) );
 
-		$this->url     = $url;
-		$this->created = is_null( $created ) ? microtime( true ) : $created;
-		$this->status  = $status;
-		$this->error   = $error;
+		$this->url            = $url;
+		$this->active_modules = $active_modules;
+		$this->created        = is_null( $created ) ? microtime( true ) : $created;
+		$this->status         = $status;
+		$this->error          = $error;
 	}
 
 	/**
@@ -81,11 +90,12 @@ class Speed_Score_Request extends Cacheable {
 	 */
 	public function jsonSerialize() {
 		return array(
-			'id'      => $this->get_cache_id(),
-			'url'     => $this->url,
-			'created' => $this->created,
-			'status'  => $this->status,
-			'error'   => $this->error,
+			'id'             => $this->get_cache_id(),
+			'url'            => $this->url,
+			'active_modules' => $this->active_modules,
+			'created'        => $this->created,
+			'status'         => $this->status,
+			'error'          => $this->error,
 		);
 	}
 
@@ -99,6 +109,7 @@ class Speed_Score_Request extends Cacheable {
 	public static function jsonUnserialize( $data ) {
 		$object = new Speed_Score_Request(
 			$data['url'],
+			$data['active_modules'],
 			$data['created'],
 			$data['status'],
 			$data['error']
@@ -133,8 +144,9 @@ class Speed_Score_Request extends Cacheable {
 			sprintf( '/sites/%d/jetpack-boost/speed-scores', $blog_id ),
 			null,
 			array(
-				'request_id' => $this->get_cache_id(),
-				'url'        => Url::normalize( $this->url ),
+				'request_id'     => $this->get_cache_id(),
+				'url'            => Url::normalize( $this->url ),
+				'active_modules' => $this->active_modules,
 			)
 		);
 

@@ -22,12 +22,13 @@ import './style.scss';
  * @param {string} props.headerText - The header text, 'Safe Mode' by default.
  * @param {string} props.wpcomHomeUrl - The original site URL.
  * @param {string} props.currentUrl - The current site URL.
+ * @param {string} props.redirectUri - The redirect URI to redirect users back to after connecting.
  * @param {string} props.apiRoot - API root URL, required.
  * @param {string} props.apiNonce - API Nonce, required.
  * @returns {React.Component} The `ConnectScreen` component.
  */
 const IDCScreen = props => {
-	const { logo, headerText, wpcomHomeUrl, currentUrl, apiNonce, apiRoot } = props;
+	const { logo, headerText, wpcomHomeUrl, currentUrl, apiNonce, apiRoot, redirectUri } = props;
 
 	const [ isMigrated, setIsMigrated ] = useState( false );
 
@@ -57,6 +58,7 @@ const IDCScreen = props => {
 					wpcomHomeUrl={ wpcomHomeUrl }
 					currentUrl={ currentUrl }
 					onMigrated={ onMigrated }
+					redirectUri={ redirectUri }
 				/>
 			) }
 		</div>
@@ -68,6 +70,7 @@ IDCScreen.propTypes = {
 	headerText: PropTypes.string.isRequired,
 	wpcomHomeUrl: PropTypes.string.isRequired,
 	currentUrl: PropTypes.string.isRequired,
+	redirectUri: PropTypes.string.isRequired,
 	apiRoot: PropTypes.string.isRequired,
 	apiNonce: PropTypes.string.isRequired,
 };

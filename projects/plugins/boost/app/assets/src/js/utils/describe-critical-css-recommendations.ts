@@ -2,6 +2,10 @@
  * External dependencies
  */
 import type { SvelteComponent } from 'svelte';
+
+/**
+ * WordPress dependencies
+ */
 import { __, _n, sprintf } from '@wordpress/i18n';
 
 /**

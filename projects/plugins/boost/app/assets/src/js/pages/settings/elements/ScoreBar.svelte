@@ -1,5 +1,9 @@
 <script>
+	/**
+	 * Internal dependencies
+	 */
 	import Spinner from '../../../svg/spinner.svg';
+
 	export let score = 0;
 	export let isLoading = true;
 	export let showPrevScores = false;

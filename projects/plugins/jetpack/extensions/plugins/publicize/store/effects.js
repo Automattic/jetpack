@@ -53,12 +53,8 @@ export async function refreshConnectionTestResults() {
 					done: false,
 					enabled: true,
 					toggleable: true,
+					profile_picture: freshConnection.profile_picture,
 				};
-			}
-
-			// Populate the connection with extra fresh data.
-			if ( freshConnection.profile_picture ) {
-				connection.profile_picture = freshConnection.profile_picture;
 			}
 
 			connections.push( connection );

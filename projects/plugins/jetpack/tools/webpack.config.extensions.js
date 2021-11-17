@@ -1,17 +1,15 @@
 /**
  *WARNING: No ES6 modules here. Not transpiled! ****
  */
-/* eslint-disable lodash/import-scope */
 
 /**
  * External dependencies
  */
-const _ = require( 'lodash' );
 const fs = require( 'fs' );
 const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
-const getBaseWebpackConfig = require( '@automattic/calypso-build/webpack.config.js' );
+const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const path = require( 'path' );
-const webpack = require( 'webpack' );
+const webpack = jetpackWebpackConfig.webpack;
 const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
 const jsdom = require( 'jsdom' );
 
@@ -19,14 +17,14 @@ const jsdom = require( 'jsdom' );
  * Internal dependencies
  */
 const CopyBlockEditorAssetsPlugin = require( './copy-block-editor-assets' );
-// const { workerCount } = require( './webpack.common' ); // todo: shard...
 
 /**
  * Internal variables
  */
-const editorSetup = path.join( path.dirname( __dirname ), 'extensions', 'editor' );
-const viewSetup = path.join( path.dirname( __dirname ), 'extensions', 'view' );
+const editorSetup = path.join( __dirname, '../extensions', 'editor' );
+const viewSetup = path.join( __dirname, '../extensions', 'view' );
 const blockEditorDirectories = [ 'plugins', 'blocks' ];
+const noop = function () {};
 
 /**
  * Filters block editor scripts
@@ -37,34 +35,28 @@ const blockEditorDirectories = [ 'plugins', 'blocks' ];
  * @returns {Array} list of block scripts
  */
 function presetProductionExtensions( type, inputDir, presetBlocks ) {
-	return blockEditorDirectories
-		.flatMap( dir =>
-			presetBlocks.map( block => path.join( inputDir, dir, block, `${ type }.js` ) )
+	return presetBlocks
+		.flatMap( block =>
+			blockEditorDirectories.map( dir => path.join( inputDir, dir, block, `${ type }.js` ) )
 		)
 		.filter( fs.existsSync );
 }
 
-const presetPath = path.join( path.dirname( __dirname ), 'extensions', 'index.json' );
+const presetPath = path.join( __dirname, '../extensions', 'index.json' );
 const presetIndex = require( presetPath );
-const presetProductionBlocks = _.get( presetIndex, [ 'production' ], [] );
-const presetNoPostEditorBlocks = _.get( presetIndex, [ 'no-post-editor' ], [] );
+const presetProductionBlocks = presetIndex.production || [];
+const presetNoPostEditorBlocks = presetIndex[ 'no-post-editor' ] || [];
 
 const presetExperimentalBlocks = [
 	...presetProductionBlocks,
-	..._.get( presetIndex, [ 'experimental' ], [] ),
+	...( presetIndex.experimental || [] ),
 ];
 // Beta Blocks include all blocks: beta, experimental, and production blocks.
-const presetBetaBlocks = [ ...presetExperimentalBlocks, ..._.get( presetIndex, [ 'beta' ], [] ) ];
+const presetBetaBlocks = [ ...presetExperimentalBlocks, ...( presetIndex.beta || [] ) ];
 
 // Helps split up each block into its own folder view script
 const viewBlocksScripts = presetBetaBlocks.reduce( ( viewBlocks, block ) => {
-	const viewScriptPath = path.join(
-		path.dirname( __dirname ),
-		'extensions',
-		'blocks',
-		block,
-		'view.js'
-	);
+	const viewScriptPath = path.join( __dirname, '../extensions/blocks', block, 'view.js' );
 	if ( fs.existsSync( viewScriptPath ) ) {
 		viewBlocks[ block + '/view' ] = [ viewSetup, ...[ viewScriptPath ] ];
 	}
@@ -76,7 +68,7 @@ const editorScript = [
 	editorSetup,
 	...presetProductionExtensions(
 		'editor',
-		path.join( path.dirname( __dirname ), 'extensions' ),
+		path.join( __dirname, '../extensions' ),
 		presetProductionBlocks
 	),
 ];
@@ -86,7 +78,7 @@ const editorExperimentalScript = [
 	editorSetup,
 	...presetProductionExtensions(
 		'editor',
-		path.join( path.dirname( __dirname ), 'extensions' ),
+		path.join( __dirname, '../extensions' ),
 		presetExperimentalBlocks
 	),
 ];
@@ -96,7 +88,7 @@ const editorBetaScript = [
 	editorSetup,
 	...presetProductionExtensions(
 		'editor',
-		path.join( path.dirname( __dirname ), 'extensions' ),
+		path.join( __dirname, '../extensions' ),
 		presetBetaBlocks
 	),
 ];
@@ -105,14 +97,84 @@ const editorNoPostEditorScript = [
 	editorSetup,
 	...presetProductionExtensions(
 		'editor',
-		path.join( path.dirname( __dirname ), 'extensions' ),
+		path.join( __dirname, '../extensions' ),
 		presetNoPostEditorBlocks
 	),
 ];
 
-const extensionsWebpackConfig = getBaseWebpackConfig(
-	{ WP: true },
+const sharedWebpackConfig = {
+	mode: jetpackWebpackConfig.mode,
+	devtool: jetpackWebpackConfig.devtool,
+	output: {
+		...jetpackWebpackConfig.output,
+		filename: '[name].min.js',
+		chunkFilename: '[name].[contenthash].js',
+		path: path.join( __dirname, '../_inc/blocks' ),
+	},
+	optimization: {
+		...jetpackWebpackConfig.optimization,
+	},
+	resolve: {
+		...jetpackWebpackConfig.resolve,
+	},
+	node: {},
+	plugins: [
+		...jetpackWebpackConfig.StandardPlugins( {
+			MiniCssExtractPlugin: false, // Needs different configs, sigh.
+			DependencyExtractionPlugin: false,
+		} ),
+	],
+	module: {
+		strictExportPresence: true,
+		rules: [
+			// Transpile JavaScript
+			jetpackWebpackConfig.TranspileRule( {
+				exclude: /node_modules\//,
+			} ),
+
+			// Transpile @automattic/jetpack-* in node_modules too.
+			jetpackWebpackConfig.TranspileRule( {
+				includeNodeModules: [
+					'@automattic/jetpack-',
+					'debug/',
+					'gridicons/',
+					'punycode/',
+					'query-string/',
+					'split-on-first/',
+					'strict-uri-encode/',
+				],
+			} ),
+
+			// Handle CSS.
+			{
+				test: /\.(?:css|s[ac]ss)$/,
+				use: [
+					jetpackWebpackConfig.MiniCssExtractLoader(),
+					jetpackWebpackConfig.CssCacheLoader(),
+					jetpackWebpackConfig.CssLoader( {
+						importLoaders: 2, // Set to the number of loaders after this one in the array, e.g. 2 if you use both postcss-loader and sass-loader.
+					} ),
+					{
+						loader: 'postcss-loader',
+						options: {
+							postcssOptions: { config: path.join( __dirname, '../postcss.config.js' ) },
+						},
+					},
+					'sass-loader',
+				],
+			},
+
+			// Handle images.
+			jetpackWebpackConfig.FileRule(),
+		],
+	},
+};
+
+// We export two configuration files: One for admin.js, and one for components.jsx.
+// The latter produces pre-rendered components HTML.
+module.exports = [
 	{
+		...sharedWebpackConfig,
 		entry: {
 			editor: editorScript,
 			'editor-experimental': editorExperimentalScript,
@@ -120,67 +182,13 @@ const extensionsWebpackConfig = getBaseWebpackConfig(
 			'editor-no-post-editor': editorNoPostEditorScript,
 			...viewBlocksScripts,
 		},
-		'output-filename': '[name].min.js',
-		'output-chunk-filename': '[name].[contenthash].js',
-		'output-path': path.join( path.dirname( __dirname ), '_inc', 'blocks' ),
-		'output-jsonp-function': 'webpackJsonpJetpack',
-		// Calypso-build defaults this to "window", which breaks things if no library.name is set.
-		'output-library-target': '',
-	}
-);
-
-const componentsWebpackConfig = getBaseWebpackConfig(
-	{ WP: false },
-	{
-		entry: {
-			components: path.join(
-				path.dirname( __dirname ),
-				'./extensions/shared/components/index.jsx'
-			),
-		},
-		'output-chunk-filename': '[name].[contenthash].js',
-		'output-library-target': 'commonjs2',
-		'output-path': path.join( path.dirname( __dirname ), '_inc', 'blocks' ),
-		'output-pathinfo': true,
-	}
-);
-
-/**
- * Calyso Build sets publicPath to '/' instead of the default '__webpack_public_path__'
- * This workaround removes the custom set publicPath from Calypso build until a long term solution is fixed.
- *
- * @param {object} config - the configuration file we're checking and editing.
- * @todo remove once we switch away from Calypso Build, or if this is addressed later.
- */
-function overrideCalypsoBuildFileConfig( config ) {
-	config.module.rules.forEach( v => {
-		if ( v.type === 'asset/resource' ) {
-			delete v.generator.publicPath;
-		}
-	} );
-}
-overrideCalypsoBuildFileConfig( extensionsWebpackConfig );
-overrideCalypsoBuildFileConfig( componentsWebpackConfig );
-
-// We export two configuration files: One for admin.js, and one for components.jsx.
-// The latter produces pre-rendered components HTML.
-module.exports = [
-	{
-		...extensionsWebpackConfig,
-		optimization: {
-			...extensionsWebpackConfig.optimization,
-			// This optimization sometimes causes webpack to drop `__()` and such.
-			concatenateModules: false,
-		},
-		resolve: {
-			...extensionsWebpackConfig.resolve,
-			// We want the compiled version, not the "calypso:src" sources.
-			mainFields: extensionsWebpackConfig.resolve.mainFields.filter(
-				entry => 'calypso:src' !== entry
-			),
-		},
 		plugins: [
-			...extensionsWebpackConfig.plugins,
+			...sharedWebpackConfig.plugins,
+			...jetpackWebpackConfig.MiniCssExtractPlugin( {
+				filename: '[name].min.css',
+				chunkFilename: '[name].[contenthash].css',
+			} ),
+			...jetpackWebpackConfig.DependencyExtractionPlugin( { injectPolyfill: true } ),
 			new CopyWebpackPlugin( {
 				patterns: [
 					{
@@ -193,21 +201,22 @@ module.exports = [
 		],
 	},
 	{
-		...componentsWebpackConfig,
-		optimization: {
-			...extensionsWebpackConfig.optimization,
-			// This optimization sometimes causes webpack to drop `__()` and such.
-			concatenateModules: false,
+		...sharedWebpackConfig,
+		entry: {
+			components: path.join( __dirname, '../extensions/shared/components/index.jsx' ),
 		},
-		resolve: {
-			...componentsWebpackConfig.resolve,
-			// We want the compiled version, not the "calypso:src" sources.
-			mainFields: componentsWebpackConfig.resolve.mainFields.filter(
-				entry => 'calypso:src' !== entry
-			),
+		output: {
+			...sharedWebpackConfig.output,
+			filename: '[name].js',
+			chunkFilename: '[name].[contenthash].js',
+			libraryTarget: 'commonjs2',
 		},
 		plugins: [
-			...componentsWebpackConfig.plugins,
+			...sharedWebpackConfig.plugins,
+			...jetpackWebpackConfig.MiniCssExtractPlugin( {
+				filename: '[name].css',
+				chunkFilename: '[name].[contenthash].css',
+			} ),
 			new webpack.NormalModuleReplacementPlugin(
 				/^@wordpress\/i18n$/,
 				// We want to exclude extensions/shared/i18n-to-php so we can import and re-export
@@ -230,13 +239,17 @@ module.exports = [
 				// Hopefully, most of them can be dropped once https://github.com/WordPress/gutenberg/pull/16227 lands.
 				globals: {
 					Mousetrap: {
-						init: _.noop,
+						init: noop,
 						prototype: {},
 					},
 					document: new jsdom.JSDOM().window.document,
 					navigator: {},
 					window: {
-						addEventListener: _.noop,
+						addEventListener: noop,
+						console: {
+							error: noop,
+							warn: noop,
+						},
 						// See https://github.com/WordPress/gutenberg/blob/f3b6379327ce3fb48a97cb52ffb7bf9e00e10130/packages/jest-preset-default/scripts/setup-globals.js
 						matchMedia: () => ( {
 							addListener: () => {},
@@ -248,7 +261,7 @@ module.exports = [
 							DOCUMENT_POSITION_PRECEDING: '',
 							DOCUMENT_POSITION_FOLLOWING: '',
 						},
-						removeEventListener: _.noop,
+						removeEventListener: noop,
 						URL: {},
 					},
 					CSS: {

@@ -4,6 +4,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { get, isArray, noop } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -32,7 +33,6 @@ import {
 	connectUser,
 } from 'state/connection';
 import DashItem from 'components/dash-item';
-import { get, isArray } from 'lodash';
 import { isAtomicSite, showBackups } from 'state/initial-state';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import JetpackBanner from 'components/jetpack-banner';
@@ -86,6 +86,7 @@ class DashScan extends Component {
 	static propTypes = {
 		siteRawUrl: PropTypes.string.isRequired,
 		siteAdminUrl: PropTypes.string.isRequired,
+		trackUpgradeButtonView: PropTypes.func,
 
 		// Connected props
 		vaultPressData: PropTypes.any.isRequired,
@@ -107,6 +108,7 @@ class DashScan extends Component {
 		isOfflineMode: false,
 		isVaultPressInstalled: false,
 		fetchingSiteData: false,
+		trackUpgradeButtonView: noop,
 	};
 
 	onActivateVaultPressClick = () => {
@@ -260,6 +262,7 @@ class DashScan extends Component {
 				eventFeature="scan"
 				path="dashboard"
 				plan={ getJetpackProductUpsellByFeature( FEATURE_SECURITY_SCANNING_JETPACK ) }
+				trackBannerDisplay={ this.props.trackUpgradeButtonView }
 			/>
 		);
 	}

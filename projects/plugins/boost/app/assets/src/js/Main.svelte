@@ -1,4 +1,7 @@
 <script>
+	/**
+	 * Internal dependencies
+	 */
 	import Connection from './pages/connection/Connection.svelte';
 	import Settings from './pages/settings/Settings.svelte';
 	import Footer from './sections/Footer.svelte';

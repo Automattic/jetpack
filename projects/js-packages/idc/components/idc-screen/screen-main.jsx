@@ -20,11 +20,12 @@ import SafeMode from '../safe-mode';
  * @param {object} props - The properties.
  * @param {string} props.wpcomHomeUrl - The original site URL.
  * @param {string} props.currentUrl - The current site URL.
+ * @param {string} props.redirectUri - The redirect URI to redirect users back to after connecting.
  * @param {Function} props.onMigrated - The callback to be called when migration has completed.
  * @returns {React.Component} The ScreenMain component.
  */
 const ScreenMain = props => {
-	const { wpcomHomeUrl, currentUrl, onMigrated } = props;
+	const { wpcomHomeUrl, currentUrl, onMigrated, redirectUri } = props;
 
 	return (
 		<React.Fragment>
@@ -58,7 +59,11 @@ const ScreenMain = props => {
 					onMigrated={ onMigrated }
 				/>
 				<div className="jp-idc-cards-separator">or</div>
-				<CardFresh wpcomHomeUrl={ wpcomHomeUrl } currentUrl={ currentUrl } />
+				<CardFresh
+					wpcomHomeUrl={ wpcomHomeUrl }
+					currentUrl={ currentUrl }
+					redirectUri={ redirectUri }
+				/>
 			</div>
 
 			<SafeMode />
@@ -69,6 +74,7 @@ const ScreenMain = props => {
 ScreenMain.propTypes = {
 	wpcomHomeUrl: PropTypes.string.isRequired,
 	currentUrl: PropTypes.string.isRequired,
+	redirectUri: PropTypes.string.isRequired,
 	onMigrated: PropTypes.func,
 };
 

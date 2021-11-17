@@ -9,7 +9,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
  */
 import { JETPACK_SET_INITIAL_STATE, MOCK_SWITCH_USER_PERMISSIONS } from 'state/action-types';
 import { getPlanDuration } from 'state/plans/reducer';
-import { getSiteProducts } from 'state/site-products';
+import { getProducts } from 'state/products';
 import { isCurrentUserLinked } from 'state/connection';
 
 export const initialState = ( state = window.Initial_State, action ) => {
@@ -298,12 +298,33 @@ export function arePromotionsActive( state ) {
 /**
  * Check if the site is an Automated Transfer site.
  *
- * @param {Object} state   Global state tree.
+ * @todo Deprecated soon for isWoASite();
+ * @param {object} state - Global state tree.
  *
- * @return {boolean} True if this is an Atomic site, false otherwise.
+ * @returns {boolean} True if this is an WoA site, false otherwise.
  */
 export function isAtomicSite( state ) {
 	return get( state.jetpack.initialState.siteData, 'isAtomicSite', false );
+}
+
+/**
+ * Check if the site is a WordPress.com-on-Atomic site.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if this is an WoA site, false otherwise.
+ */
+export function isWoASite( state ) {
+	return get( state.jetpack.initialState.siteData, 'isWoASite', false );
+}
+
+/**
+ * Check if the site is an Atomic-hosted site.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if this is an Atomic-hosted site, false otherwise.
+ */
+export function isAtomicPlatform( state ) {
+	return get( state.jetpack.initialState.siteData, 'isAtomicPlatform', false );
 }
 
 /**
@@ -453,7 +474,7 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
  */
 export function getProductsForPurchase( state ) {
 	const staticProducts = get( state.jetpack.initialState, 'products', {} );
-	const siteProducts = getSiteProducts( state );
+	const jetpackProducts = getProducts( state );
 	const products = {};
 
 	for ( const [ key, product ] of Object.entries( staticProducts ) ) {
@@ -463,12 +484,12 @@ export function getProductsForPurchase( state ) {
 			key: key,
 			description: product.description,
 			features: product.features,
-			available: get( siteProducts, [ product.slug, 'available' ], false ),
-			currencyCode: get( siteProducts, [ product.slug, 'currency_code' ], '' ),
+			available: get( jetpackProducts, [ product.slug, 'available' ], false ),
+			currencyCode: get( jetpackProducts, [ product.slug, 'currency_code' ], '' ),
 			showPromotion: product.show_promotion,
 			promotionPercentage: product.discount_percent,
 			includedInPlans: product.included_in_plans,
-			fullPrice: get( siteProducts, [ product.slug, 'cost' ], '' ),
+			fullPrice: get( jetpackProducts, [ product.slug, 'cost' ], '' ),
 			upgradeUrl: getRedirectUrl( 'jetpack-product-description-checkout', {
 				path: product.slug,
 			} ),

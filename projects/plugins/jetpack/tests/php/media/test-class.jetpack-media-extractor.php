@@ -152,7 +152,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'image', $image_struct );
 		$this->assertCount( 1, $image_struct[ 'image' ] );
 		$this->assertEquals( $image_struct[ 'image' ][ 0 ][ 'url' ], $img_name );
-		$this->assertEquals( $image_struct[ 'has' ][ 'image' ], 1 );
+		$this->assertSame( 1, $image_struct['has']['image'] );
 	}
 
 	/**

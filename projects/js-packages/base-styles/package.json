@@ -23,7 +23,7 @@
 		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile"
 	},
 	"devDependencies": {
-		"@wordpress/base-styles": "4.0.0"
+		"@wordpress/base-styles": "4.0.3"
 	},
 	"engines": {
 		"node": "^14.17.6 || ^16.7.0",

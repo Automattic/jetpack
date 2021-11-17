@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Increase send timeout to 20 seconds allowing capture of WP.com 408 responses.

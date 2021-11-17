@@ -2,6 +2,33 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.10.0 - 2021-11-16
+### Added
+- Remove the withConnectionStatus HOC, export the store.
+
+### Changed
+- Updated package dependencies
+
+### Fixed
+- Button styles: ensure the button can accomodate longer text.
+
+## 0.9.1 - 2021-11-09
+### Changed
+- Updated package dependencies.
+
+## 0.9.0 - 2021-11-02
+### Added
+- Add ConnectScreenRequiredPlan component.
+
+### Changed
+- Updated package dependencies.
+
+## 0.8.0 - 2021-10-26
+### Changed
+- ConnectButton now uses ActionButton component
+- Package version bump.
+- Updated package dependencies
+
 ## 0.7.2 - 2021-10-19
 ### Changed
 - Bump the RNA API version.

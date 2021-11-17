@@ -1,4 +1,4 @@
-name: E2E Tests
+name: Jetpack E2E Tests
 
 on:
   pull_request:
@@ -11,7 +11,7 @@ on:
   schedule:
     - cron:  '0 */12 * * *'
 concurrency:
-  group: e2e-${{ github.event_name }}-${{ github.ref }}
+  group: e2e-tests-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:

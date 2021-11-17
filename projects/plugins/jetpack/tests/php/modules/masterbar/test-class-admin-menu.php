@@ -573,7 +573,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 				'<div id="dashboard-switcher"><h5>%s</h5><p class="dashboard-switcher-text">%s</p><a class="button button-primary dashboard-switcher-button" href="%s">%s</a></div>',
 				__( 'Screen features', 'jetpack' ),
 				__( 'Currently you are seeing the classic WP-Admin view of this page. Would you like to see the default WordPress.com view?', 'jetpack' ),
-				$mapping . static::$domain,
+				'?preferred-view=default',
 				__( 'Use WordPress.com view', 'jetpack' )
 			);
 

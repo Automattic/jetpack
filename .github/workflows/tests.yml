@@ -90,6 +90,7 @@ jobs:
 
       - name: Run project tests
         env:
+          EXPERIMENTAL: ${{ matrix.experimental && 'true' || 'false' }}
           CHANGED: ${{ steps.changed.outputs.projects }}
         run: |
           EXIT=0
@@ -109,7 +110,7 @@ jobs:
               if [[ "$WP_BRANCH" != 'none' ]]; then
                 DIR="/tmp/wordpress-$WP_BRANCH/src/wp-content/$SLUG"
               fi
-            elif [[ "$WP_BRANCH" != 'latest' && "$WP_BRANCH" != 'none' ]]; then
+            elif [[ "$WP_BRANCH" != 'latest' && "$WP_BRANCH" != 'none' && "$EXPERIMENTAL" != "true" ]]; then
               echo "Skipping $SLUG, only plugins run for WP_BRANCH = $WP_BRANCH"
               continue
             fi

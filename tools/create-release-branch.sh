@@ -16,7 +16,7 @@ function usage {
 
 		Create a new release branch for the specified plugin. The <plugin> may be
 		either the name of a directory in projects/plugins/, or a path to a plugin
-		directorty or file.
+		directory or file.
 
 		Options:
 		  --non-interactive  Exit instead of prompting for questionable cases.

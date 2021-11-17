@@ -8,6 +8,7 @@ import { compose } from '@wordpress/compose';
 import { withSelect, withDispatch } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import restApi from '@automattic/jetpack-api';
 import { Spinner } from '@automattic/jetpack-components';
 
 /**
@@ -22,6 +23,7 @@ import extractHostname from '../../tools/extract-hostname';
  * @param {object} props - The properties.
  * @param {string} props.wpcomHomeUrl - The original site URL.
  * @param {string} props.currentUrl - The current site URL.
+ * @param {string} props.redirectUri - The redirect URI to redirect users back to after connecting.
  * @param {boolean} props.isActionInProgress - Whether there's already an action in progress.
  * @param {Function} props.setIsActionInProgress - Function to set the "action in progress" flag.
  * @returns {React.Component} The `ConnectScreen` component.
@@ -29,6 +31,8 @@ import extractHostname from '../../tools/extract-hostname';
 const CardFresh = props => {
 	const wpcomHostName = extractHostname( props.wpcomHomeUrl );
 	const currentHostName = extractHostname( props.currentUrl );
+	const redirectUri = props.redirectUri;
+
 	const { isActionInProgress, setIsActionInProgress } = props;
 
 	const buttonLabel = __( 'Create a fresh connection', 'jetpack' );
@@ -46,12 +50,18 @@ const CardFresh = props => {
 			setIsActionInProgress( true );
 			setIsStartingFresh( true );
 
-			setTimeout( () => {
-				setIsActionInProgress( false );
-				setIsStartingFresh( false );
-			}, 3000 );
+			restApi
+				.startIDCFresh( redirectUri )
+				.then( connectUrl => {
+					window.location.href = connectUrl + '&from=idc-notice';
+				} )
+				.catch( error => {
+					setIsActionInProgress( false );
+					setIsStartingFresh( false );
+					throw error;
+				} );
 		}
-	}, [ setIsStartingFresh, isActionInProgress, setIsActionInProgress ] );
+	}, [ setIsStartingFresh, isActionInProgress, setIsActionInProgress, redirectUri ] );
 
 	return (
 		<div className="jp-idc-card-action-base">
@@ -97,6 +107,7 @@ const CardFresh = props => {
 CardFresh.propTypes = {
 	wpcomHomeUrl: PropTypes.string.isRequired,
 	currentUrl: PropTypes.string.isRequired,
+	redirectUri: PropTypes.string.isRequired,
 	isActionInProgress: PropTypes.bool,
 	setIsActionInProgress: PropTypes.func.isRequired,
 };

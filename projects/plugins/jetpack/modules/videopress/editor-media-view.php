@@ -170,7 +170,7 @@ function add_videopress_media_overrides() {
 function videopress_override_media_templates() {
 	?>
 	<script type="text/html" id="tmpl-videopress_iframe_vnext">
-		<iframe style="display: block; max-width: 100%; max-height: 100%;" width="{{ data.width }}" height="{{ data.height }}" src="https://videopress.com/embed/{{ data.guid }}?{{ data.urlargs }}" frameborder='0' allowfullscreen></iframe>
+		<iframe class="videopress-iframe" style="display: block; max-width: 100%; max-height: 100%;" width="{{ data.width }}" height="{{ data.height }}" src="https://videopress.com/embed/{{ data.guid }}?{{ data.urlargs }}" frameborder='0' allowfullscreen></iframe>
 	</script>
 	<script>
 		(function( media ){
@@ -210,6 +210,16 @@ function videopress_override_media_templates() {
 				};
 			} else { /* console.log( 'media.video undefined' ); */ }
 
+			// override the media modal in order to extend the escape method to unload the player on hide
+			var BaseMediaModal = wp.media.view.Modal;
+
+			wp.media.view.Modal = BaseMediaModal.extend( {
+				escape: function () {
+					BaseMediaModal.prototype.escape.apply( this );
+					var playerIframe = document.getElementsByClassName( "videopress-iframe" )[0];
+					playerIframe.parentElement.removeChild( playerIframe );
+				}
+			} );
 		})( wp.media );
 	</script>
 	<?php

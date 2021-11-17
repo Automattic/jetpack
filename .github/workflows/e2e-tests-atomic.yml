@@ -1,4 +1,4 @@
-name: E2E Tests on Atomic sites
+name: Jetpack E2E Tests on Atomic sites
 
 on:
   schedule:

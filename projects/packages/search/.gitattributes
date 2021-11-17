@@ -1,0 +1,9 @@
+# Files not needed to be distributed.
+.gitattributes   export-ignore
+.github/         export-ignore
+.gitignore       export-ignore
+phpunit.xml.dist export-ignore
+tests/           export-ignore
+
+# Files not needed in the production build.
+/changelog/**    production-exclude

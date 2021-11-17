@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.13.16] - 2021-11-16
+### Changed
+- Updated package dependencies.
+
+## [1.13.15] - 2021-11-02
+### Changed
+- Set `convertDeprecationsToExceptions` true in PHPUnit config.
+- Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
+
+## [1.13.14] - 2021-10-26
+### Changed
+- Updated package dependencies.
+
 ## [1.13.13] - 2021-10-13
 ### Changed
 - Updated package dependencies.
@@ -175,6 +188,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Create package for Jetpack Tracking
 
+[1.13.16]: https://github.com/Automattic/jetpack-tracking/compare/v1.13.15...v1.13.16
+[1.13.15]: https://github.com/Automattic/jetpack-tracking/compare/v1.13.14...v1.13.15
+[1.13.14]: https://github.com/Automattic/jetpack-tracking/compare/v1.13.13...v1.13.14
 [1.13.13]: https://github.com/Automattic/jetpack-tracking/compare/v1.13.12...v1.13.13
 [1.13.12]: https://github.com/Automattic/jetpack-tracking/compare/v1.13.11...v1.13.12
 [1.13.11]: https://github.com/Automattic/jetpack-tracking/compare/v1.13.10...v1.13.11

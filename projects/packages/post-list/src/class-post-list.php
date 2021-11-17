@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Post_List;
  */
 class Post_List {
 
-	const PACKAGE_VERSION = '0.2.3-alpha';
+	const PACKAGE_VERSION = '0.2.4-alpha';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
@@ -79,16 +79,22 @@ class Post_List {
 		if ( 'edit' !== $current_screen->base ) {
 			return;
 		}
-		// Add the thumbnail column to the "Posts" admin table.
-		add_filter( 'manage_posts_columns', array( $this, 'add_thumbnail_column' ), 10, 2 );
-		add_action( 'manage_posts_custom_column', array( $this, 'populate_thumbnail_rows' ), 10, 2 );
 
-		// Add the thumbnail column to the "Pages" admin table.
-		add_filter( 'manage_pages_columns', array( $this, 'add_thumbnail_column' ) );
-		add_action( 'manage_pages_custom_column', array( $this, 'populate_thumbnail_rows' ), 10, 2 );
+		// Add the thumbnail column if this is specifically "Posts" or "Pages".
+		if ( in_array( $current_screen->post_type, array( 'post', 'page' ), true ) ) {
+			// Add the thumbnail column to the "Posts" admin table.
+			add_filter( 'manage_posts_columns', array( $this, 'add_thumbnail_column' ), 10, 2 );
+			add_action( 'manage_posts_custom_column', array( $this, 'populate_thumbnail_rows' ), 10, 2 );
 
+			// Add the thumbnail column to the "Pages" admin table.
+			add_filter( 'manage_pages_columns', array( $this, 'add_thumbnail_column' ) );
+			add_action( 'manage_pages_custom_column', array( $this, 'populate_thumbnail_rows' ), 10, 2 );
+		}
+
+		// Add Share action if post type supports 'publicize', uses the 'block editor', and the feature flag is true.
 		if (
-			in_array( $current_screen->post_type, array( 'post', 'page' ), true ) &&
+			post_type_supports( $current_screen->post_type, 'publicize' ) &&
+			use_block_editor_for_post_type( $current_screen->post_type ) &&
 			/**
 			 * Determine whether we should show the share action for this post type.
 			 * The default is false.

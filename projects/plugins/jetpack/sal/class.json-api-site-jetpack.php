@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Sync\Functions;
 
 require_once dirname( __FILE__ ) . '/class.json-api-site-jetpack-base.php';
@@ -186,7 +187,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	}
 
 	function get_atomic_cloud_site_option( $option ) {
-		if ( ! jetpack_is_atomic_site() ) {
+		if ( ! ( new Host() )->is_woa_site() ) {
 			return false;
 		}
 
