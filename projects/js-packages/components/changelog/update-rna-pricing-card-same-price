@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Pricing Card: Fix case where price before and after match.

@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA IDC package releases.
 
+## 0.4.3 - 2021-11-16
+### Changed
+- Updated package dependencies.
+
 ## 0.4.2 - 2021-11-09
 ### Fixed
 - Make the extract hostname tool remove trailing slash.
