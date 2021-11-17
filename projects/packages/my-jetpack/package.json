@@ -1,0 +1,45 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-my-jetpack",
+	"version": "0.1.0-alpha",
+	"description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
+	"homepage": "https://jetpack.com",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "pnpm run install-if-deps-outdated && pnpm run clean && pnpm run build-client",
+		"build-client": "pnpm webpack --config webpack.config.js",
+		"clean": "rm -rf build/",
+		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
+		"watch": "pnpm run build && pnpm webpack watch"
+	},
+	"dependencies": {
+		"@automattic/jetpack-components": "workspace:^0.6.2-alpha"
+	},
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:^0.2.0",
+		"@babel/core": "7.15.0",
+		"@babel/preset-env": "7.15.0",
+		"@babel/register": "7.15.3",
+		"@babel/runtime": "7.15.3",
+		"enzyme": "3.11.0",
+		"jest": "27.3.1",
+		"react": "17.0.2",
+		"react-dom": "17.0.2",
+		"sass": "1.43.3",
+		"sass-loader": "12.2.0",
+		"webpack": "5.51.1"
+	},
+	"engines": {
+		"node": "^14.17.6 || ^16.7.0",
+		"pnpm": "^6.5.0",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	}
+}

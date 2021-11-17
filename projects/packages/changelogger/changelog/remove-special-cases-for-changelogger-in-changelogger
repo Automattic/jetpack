@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Change to the local environment only, to have `vendor/bin/changelogger` exist within packages/changelogger itself.
+
+

@@ -28,7 +28,7 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.4.1';
+	const PACKAGE_VERSION = '0.4.2-alpha';
 
 	/**
 	 * Instance of the object.
@@ -1226,7 +1226,14 @@ class Identity_Crisis {
 
 		$data = static::check_identity_crisis();
 
-		if ( ! $data ) {
+		if ( ! $data ||
+			! isset( $data['error_code'] ) ||
+			! isset( $data['wpcom_home'] ) ||
+			! isset( $data['home'] ) ||
+			! isset( $data['wpcom_siteurl'] ) ||
+			! isset( $data['siteurl'] )
+			) {
+			// The jetpack_sync_error_idc option is missing a key.
 			return false;
 		}
 
