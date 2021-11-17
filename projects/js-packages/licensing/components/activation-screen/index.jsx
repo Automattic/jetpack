@@ -131,4 +131,4 @@ ActivationScreen.propTypes = {
 	successImage: PropTypes.string.isRequired,
 };
 
-export { ActivationScreen as default, parseAttachLicenseResult };
+export default ActivationScreen;
