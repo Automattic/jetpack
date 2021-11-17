@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Podcast Player block: add 'jetpack_podcast_helper_tracks_quantity' filter to control number of tracks fetched. Deprecate the 'jetpack_podcast_helper_list_quantity' filter.
