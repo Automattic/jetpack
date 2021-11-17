@@ -98,9 +98,6 @@ for SLUG in "${SLUGS[@]}"; do
 	# Update the changelog, if applicable.
 	if [[ -x 'vendor/bin/changelogger' ]]; then
 		CHANGELOGGER=vendor/bin/changelogger
-	elif [[ -x 'bin/changelogger' ]]; then
-		# Changelogger itself doesn't have itself in vendor/.
-		CHANGELOGGER=bin/changelogger
 	elif jq -e '.["require-dev"]["automattic/jetpack-changelogger"] // false' composer.json > /dev/null; then
 		# Some plugins might build with `composer install --no-dev`.
 		CHANGELOGGER="$BASE/projects/packages/changelogger/bin/changelogger"
