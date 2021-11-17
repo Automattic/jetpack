@@ -401,7 +401,6 @@ class Jetpack_Search_Widget extends WP_Widget {
 			 */
 			do_action(
 				'jetpack_search_render_filters',
-				Jetpack::get_option( 'id' ),
 				$filters,
 				isset( $instance['post_types'] ) ? $instance['post_types'] : null
 			);
@@ -473,7 +472,6 @@ class Jetpack_Search_Widget extends WP_Widget {
 			 */
 			do_action(
 				'jetpack_search_render_filters',
-				Jetpack::get_option( 'id' ),
 				$filters,
 				null
 			);

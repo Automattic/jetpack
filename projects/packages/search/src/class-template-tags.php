@@ -24,11 +24,10 @@ class Template_Tags {
 	 *
 	 * @since 5.8.0
 	 *
-	 * @param string $blog_id    Blog id.
-	 * @param array  $filters    The available filters for the current query.
-	 * @param array  $post_types An array of post types to make filterable.
+	 * @param array $filters    The available filters for the current query.
+	 * @param array $post_types An array of post types to make filterable.
 	 */
-	public static function render_available_filters( $blog_id, $filters = null, $post_types = null ) {
+	public static function render_available_filters( $filters = null, $post_types = null ) {
 		if ( is_null( $filters ) ) {
 			// TODO: Must be migrated to use Classic_Search once the migration is underway.
 			$filters = \Jetpack_Search::instance()->get_filters();
@@ -81,10 +80,9 @@ class Template_Tags {
 	/**
 	 * Renders filters for instant search.
 	 *
-	 * @param string $blog_id    Blog id.
-	 * @param array  $filters    The available filters for the current query.
+	 * @param array $filters    The available filters for the current query.
 	 */
-	public static function render_instant_filters( $blog_id, $filters = null ) {
+	public static function render_instant_filters( $filters = null ) {
 		if ( is_null( $filters ) ) {
 			// TODO: Must be migrated to use Classic_Search once the migration is underway.
 			$filters = \Jetpack_Search::instance()->get_filters();
