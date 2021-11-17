@@ -39,29 +39,34 @@ define( 'JETPACK_DEBUG_HELPER_VERSION', '1.2.1-alpha' );
  * Include file names from the modules directory here.
  */
 $jetpack_dev_debug_modules = array(
-	'broken-token'    => array(
+	'broken-token'       => array(
 		'file'        => 'class-broken-token.php',
 		'name'        => 'Broken token Utilities',
 		'description' => '',
 	),
-	'idc-simulator'   => array(
+	'idc-simulator'      => array(
 		'file'        => 'class-idc-simulator.php',
 		'name'        => 'Identity Crisis Simulation Utility',
 		'description' => '',
 	),
-	'sync-debug'      => array(
+	'sync-debug'         => array(
 		'file'        => 'class-jetpack-sync-debug-helper.php',
 		'name'        => 'Sync Debug Utilities',
 		'description' => '',
 	),
-	'rest-api-tester' => array(
+	'rest-api-tester'    => array(
 		'file'        => 'class-rest-api-tester.php',
 		'name'        => 'REST API Tester',
 		'description' => '',
 	),
-	'mocker'          => array(
+	'mocker'             => array(
 		'file'        => 'class-mocker.php',
 		'name'        => 'Mocker',
+		'description' => '',
+	),
+	'sync-data-settings' => array(
+		'file'        => 'class-sync-data-settings-tester.php',
+		'name'        => 'Sync Data Settings Utility',
 		'description' => '',
 	),
 );
