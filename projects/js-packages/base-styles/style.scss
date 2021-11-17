@@ -6,11 +6,20 @@
 
 	--jp-black: #000000;
 	--jp-black-80: #2c3338;
+	
 	--jp-white: #ffffff;
 	--jp-white-off: #f9f9f6;
+	
 	--jp-gray: #dcdcde;
+	--jp-gray-20: #A7AAAD;
+    --jp-gray-40: #787C82;
+    --jp-gray-50: #646970;
+    --jp-gray-60: #50575E;
 	--jp-gray-off: #e2e2df;
+	
 	--jp-red: #d63639;
+
+	--jp-pink: #C9356E;
 
 	--jp-green-0: #f0f2eb;
 	--jp-green-5: #d0e6b8;
@@ -28,6 +37,7 @@
 
 	--jp-green-primary: var( --jp-green-40 );
 	--jp-green-secondary: var( --jp-green-30 );
+	
 	--jp-border-radius: 4px;
 	--jp-menu-border-height: 1px;
 	--jp-underline-thickness: 2px;
