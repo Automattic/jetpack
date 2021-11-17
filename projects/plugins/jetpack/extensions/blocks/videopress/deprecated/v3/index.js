@@ -66,7 +66,9 @@ export default {
 	support: {
 		reusable: false,
 	},
-	isEligible: ( attrs, innerBlock ) => attrs.guid && ! innerBlock.contains( 'cover=true' ),
+	isEligible: attrs => {
+		return attrs.guid && ! attrs.cover;
+	},
 	migrate: attributes => {
 		return [ attributes, [ createBlock( 'core/video', attributes ) ] ];
 	},

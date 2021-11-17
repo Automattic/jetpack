@@ -189,6 +189,10 @@ const addVideoPressSupport = ( settings, name ) => {
 				videoPressClassNames: {
 					type: 'string',
 				},
+				cover: {
+					type: 'boolean',
+					default: true,
+				},
 			},
 
 			transforms: {
