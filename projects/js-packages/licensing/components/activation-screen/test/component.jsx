@@ -71,7 +71,7 @@ describe( 'ActivationScreen', () => {
 		const wrapper = shallow( <ActivationScreen { ...testProps } startingLicense={ 'a' } /> );
 		const activationScreenControls = wrapper.find( ActivationScreenControls );
 
-		// stub the api to return an activated product id
+		// stub the api to return a malformed response
 		apiStub.returns( Promise.resolve( [ { bug: 'an error' } ] ) );
 
 		activationScreenControls
