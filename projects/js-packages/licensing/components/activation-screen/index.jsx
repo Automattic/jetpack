@@ -25,7 +25,7 @@ import './style.scss';
  * @returns {number} The activatedProductId from the result
  * @throws Errors either from the API response or from any issues parsing the response
  */
-const parseAttachLicenseResult = result => {
+const parseAttachLicensesResult = result => {
 	let currentResult = result;
 
 	while ( Array.isArray( currentResult ) && currentResult.length > 0 ) {
@@ -83,7 +83,7 @@ const ActivationScreen = props => {
 		return restApi
 			.attachLicenses( [ license ] )
 			.then( result => {
-				const activatedProductId = parseAttachLicenseResult( result );
+				const activatedProductId = parseAttachLicensesResult( result );
 				setActivatedProduct( activatedProductId );
 				onActivationSuccess( activatedProductId );
 			} )
