@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Gist unit tests: refactor to simplify and make future maintenance easier.
