@@ -260,6 +260,19 @@ importers:
       react: 17.0.2
       react-test-renderer: 17.0.2_react@17.0.2
 
+  projects/js-packages/remove-asset-webpack-plugin:
+    specifiers:
+      debug: ^4.3.2
+      jest: 27.3.1
+      schema-utils: 3.1.1
+      webpack: 5.51.1
+    dependencies:
+      debug: 4.3.2
+      schema-utils: 3.1.1
+    devDependencies:
+      jest: 27.3.1
+      webpack: 5.51.1
+
   projects/js-packages/storybook:
     specifiers:
       '@automattic/jetpack-base-styles': workspace:^0.1.0-alpha
@@ -663,6 +676,7 @@ importers:
       '@automattic/jetpack-connection': workspace:^0.10.1-alpha
       '@automattic/jetpack-webpack-config': workspace:^0.2.0
       '@automattic/popup-monitor': 1.0.0
+      '@automattic/remove-asset-webpack-plugin': workspace:^0.1.0-alpha
       '@automattic/request-external-access': 1.0.0
       '@automattic/social-previews': 1.1.1
       '@automattic/viewport': 1.0.0
@@ -893,6 +907,7 @@ importers:
     devDependencies:
       '@automattic/color-studio': 2.5.0
       '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
+      '@automattic/remove-asset-webpack-plugin': link:../../js-packages/remove-asset-webpack-plugin
       '@babel/core': 7.16.0
       '@babel/plugin-proposal-nullish-coalescing-operator': 7.16.0_@babel+core@7.16.0
       '@babel/plugin-transform-react-jsx': 7.16.0_@babel+core@7.16.0
@@ -9159,7 +9174,7 @@ packages:
       '@types/babel__core': 7.1.16
       babel-plugin-istanbul: 6.1.1
       babel-preset-jest: 27.2.0_@babel+core@7.16.0
-      chalk: 4.1.1
+      chalk: 4.1.2
       graceful-fs: 4.2.8
       slash: 3.0.0
     transitivePeerDependencies:
@@ -21364,7 +21379,7 @@ packages:
       serialize-javascript: 6.0.0
       source-map: 0.6.1
       terser: 5.9.0
-      webpack: 5.51.1_webpack-cli@4.8.0
+      webpack: 5.51.1
 
   /terser/3.17.0:
     resolution: {integrity: sha512-/FQzzPJmCpjAH9Xvk2paiWrFq+5M6aVOf+2KRbwhByISDX/EujxsK+BAvrhb6H+2rtrLCHK9N01wO014vrIwVQ==}
