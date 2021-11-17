@@ -40,14 +40,16 @@ const ActivationScreen = props => {
 			return;
 		}
 		setIsSaving( true );
-		restApi.attachLicenses( [ license ] ).then( ( results ) =>{
-			if ( results.length > 0 ) {
-				if ( results[0].errors ) {
-					for ( let errorCode in results[0].errors ) {
-						if ( results[0].errors[errorCode].length > 0 ) {
-							setLicenseError( results[0].errors[errorCode][0] );
+		restApi.attachLicenses( [ license ] ).then( ( [ result ] ) =>{
+			if ( result ) {
+				if ( result.errors ) {
+					for ( let errorCode in result.errors ) {
+						if ( result.errors[errorCode].length > 0 ) {
+							setLicenseError( result.errors[errorCode][0] );
 						}
 					}
+				} else if ( Array.isArray( result ) && result.length > 0 && result[0].activatedProductId ) {
+					setActivatedProduct( result.activatedProductId )
 				}
 			}
 		} ).finally( () => {
