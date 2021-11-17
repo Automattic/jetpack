@@ -7,7 +7,7 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import Gridicon from 'components/gridicon';
+import Gridicon from 'gridicons';
 import TextRowPlaceHolder from './placeholder';
 import './mocked-instant-search.scss';
 

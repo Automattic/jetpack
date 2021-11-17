@@ -7,44 +7,71 @@
 
 namespace Automattic\Jetpack\Search;
 
-use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Status;
-
-/**
- * Requires files needed.
- */
-require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-admin-page.php';
-require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-redux-state-helper.php';
-
+use Automattic\Jetpack\Tracking;
+use Jetpack;
+use Jetpack_Plan;
 /**
  * Responsible for adding a search dashboard to wp-admin.
  *
  * @package Automattic\Jetpack\Search
  */
-class Dashboard extends Jetpack_Admin_Page {
+class Dashboard {
 	/**
-	 * Show the settings page only when Jetpack is connected or in dev mode.
+	 * Holding the singleton
 	 *
-	 * @var bool If the page should be shown.
+	 * @var Dashboard
 	 */
-	protected $dont_show_if_not_active = true;
+	protected static $instance;
 
 	/**
-	 * Add page specific actions given the page hook.
-	 *
-	 * @param {object} $hook The page hook.
+	 * Get the singleton
 	 */
-	public function add_page_actions( $hook ) {}// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public static function instance() {
+		if ( is_null( static::$instance ) ) {
+			static::$instance = new static();
+			static::$instance->init_hooks();
+		}
+		return static::$instance;
+	}
 
 	/**
-	 * Create a menu item for the page and returns the hook.
+	 * Initialise hooks
 	 */
-	public function get_page_hook() {
+	protected function init_hooks() {
+		add_action( 'admin_menu', array( $this, 'add_wp_admin_page' ), 999 );
+	}
 
-		if ( ! $this->should_add_sub_menu() ) {
+	/**
+	 * The page to be added to submenu
+	 */
+	public function add_wp_admin_page() {
+		$is_offline_mode = ( new Status() )->is_offline_mode();
+
+		// If user is not an admin and site is in Offline Mode or not connected yet then don't do anything.
+		if ( ! current_user_can( 'manage_options' ) && ( $is_offline_mode || ! Jetpack::is_connection_ready() ) ) {
 			return;
 		}
-		return add_submenu_page(
+
+		// Is Jetpack not connected and not offline?
+		// True means that Jetpack is NOT connected and NOT in offline mode.
+		// If Jetpack is connected OR in offline mode, this will be false.
+		$connectable = ! Jetpack::is_connection_ready() && ! $is_offline_mode;
+
+		// Don't add in the modules page unless modules are available!
+		if ( $connectable ) {
+			return;
+		}
+
+		// Check if the site plan changed and deactivate modules accordingly.
+		// add_action( 'current_screen', array( $this, 'check_plan_deactivate_modules' ) );.
+
+		if ( ! $this->supports_search() ) {
+			return;
+		}
+
+		// Attach page specific actions in addition to the above.
+		$hook = add_submenu_page(
 			'jetpack',
 			__( 'Search Settings', 'jetpack' ),
 			_x( 'Search', 'product name shown in menu', 'jetpack' ),
@@ -53,26 +80,15 @@ class Dashboard extends Jetpack_Admin_Page {
 			array( $this, 'render' ),
 			$this->get_link_offset()
 		);
-	}
 
-	/**
-	 * Enqueue and localize page specific scripts
-	 */
-	public function page_admin_scripts() {
-		$this->load_admin_scripts();
+		add_action( "admin_print_styles-$hook", array( $this, 'load_admin_styles' ) );
+		add_action( "admin_print_scripts-$hook", array( $this, 'load_admin_scripts' ) );
 	}
 
 	/**
 	 * Override render funtion
 	 */
 	public function render() {
-		$this->page_render();
-	}
-
-	/**
-	 * Render Search setting elements
-	 */
-	public function page_render() {
 		?>
 		<div id="jp-search-dashboard" class="jp-search-dashboard">
 			<div class="hide-if-js"><?php esc_html_e( 'Your Search dashboard requires JavaScript to function properly.', 'jetpack' ); ?></div>
@@ -85,7 +101,7 @@ class Dashboard extends Jetpack_Admin_Page {
 	 *
 	 * @return {boolean} Show search sub menu or not.
 	 */
-	protected function should_add_sub_menu() {
+	protected function supports_search() {
 		return method_exists( 'Jetpack_Plan', 'supports' ) && Jetpack_Plan::supports( 'search' );
 	}
 
@@ -103,36 +119,47 @@ class Dashboard extends Jetpack_Admin_Page {
 	 * Enqueue admin styles.
 	 */
 	public function load_admin_styles() {
-		$this->load_admin_scripts();
+		wp_enqueue_style(
+			'jp-search-dashboard',
+			plugins_url( 'vendor/automattic/jetpack-search/dist/instant-search/jp-search-dashboard-main.min.css', JETPACK__PLUGIN_FILE ),
+			array(),
+			Helper::get_asset_version( 'vendor/automattic/jetpack-search/dist/instant-search/jp-search-dashboard-main.min.css' )
+		);
 	}
 
 	/**
 	 * Enqueue admin scripts.
 	 */
 	public function load_admin_scripts() {
-		\Jetpack_Admin_Page::load_wrapper_styles();
+		$script_deps_path    = JETPACK__PLUGIN_DIR . 'vendor/automattic/jetpack-search/dist/instant-search/jp-search-dashboard-main.min.asset.php';
+		$script_dependencies = array( 'react', 'react-dom', 'wp-polyfill' );
+		if ( file_exists( $script_deps_path ) ) {
+			$asset_manifest      = include $script_deps_path;
+			$script_dependencies = $asset_manifest['dependencies'];
+		}
 
 		if ( ! ( new Status() )->is_offline_mode() && Jetpack::is_connection_ready() ) {
 			// Required for Analytics.
-			Automattic\Jetpack\Tracking::register_tracks_functions_scripts( true );
+			Tracking::register_tracks_functions_scripts( true );
 		}
 
-		Assets::register_script(
+		wp_enqueue_script(
 			'jp-search-dashboard',
-			'_inc/build/search-dashboard.js',
-			JETPACK__PLUGIN_FILE,
-			array( 'in_footer' => true )
+			plugins_url( 'vendor/automattic/jetpack-search/dist/instant-search/jp-search-dashboard-main.min.js', JETPACK__PLUGIN_FILE ),
+			$script_dependencies,
+			Helper::get_asset_version( 'vendor/automattic/jetpack-search/dist/instant-search/jp-search-dashboard-main.min.js' ),
+			true
 		);
-		Assets::enqueue_script( 'jp-search-dashboard' );
 
 		// Add objects to be passed to the initial state of the app.
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
 		wp_add_inline_script(
 			'jp-search-dashboard',
-			'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( \Jetpack_Redux_State_Helper::get_initial_state() ) ) . '"));',
+			( new Initial_State() )->render(),
 			'before'
 		);
 
 		wp_set_script_translations( 'jp-search-dashboard', 'jetpack' );
 	}
+
 }
