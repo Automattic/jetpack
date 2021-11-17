@@ -196,7 +196,7 @@ const PodcastPlayerEdit = ( {
 		return () => cancellableFetch?.current?.cancel?.();
 	}, [ fetchFeed, checkUrl, selectedGuid ] );
 
-	// Retrieve tracks quantity on initial load
+	// Retrieve tracks quantity to fetch; the jetpack_podcast_helper_tracks_quantity filter value.
 	useEffect( () => {
 		fetchTrackQuantity().then( response => {
 			setDefaultMaxItems( response );
