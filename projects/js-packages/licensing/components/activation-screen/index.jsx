@@ -24,11 +24,10 @@ import './style.scss';
  * @param { attachLicenses } result 
  */
 const parseAttachLicenseResult = ( result ) => {
-
 	let currentResult = result;
 
-	while ( Array.isArray( currentResult ) ) {
-		let [ currentResult ] = currentResult;
+	while ( Array.isArray( currentResult ) && currentResult.length > 0 ) {
+		currentResult = currentResult[0];
 	}
 
 	if ( currentResult?.activatedProductId ) {
@@ -50,26 +49,30 @@ const parseAttachLicenseResult = ( result ) => {
  * @param {object} props -- The properties.
  * @param {string} props.assetBaseUrl -- The assets base URL.
  * @param {string} props.lockImage -- Image to display within the illustration.
+ * @param {function?} props.onActivationSuccess -- A function to call on success.
  * @param {string} props.siteRawUrl -- url of the Jetpack Site
+ * @param {string?} props.startingLicense -- pre-fill the license value
  * @param {string} props.successImage -- Image to display within the illustration.
  * @returns {React.Component} The `ActivationScreen` component.
  */
 const ActivationScreen = props => {
-	const { assetBaseUrl, lockImage, siteRawUrl, successImage } = props;
+	const { assetBaseUrl, lockImage, onActivationSuccess = () => null, siteRawUrl, startingLicense, successImage } = props;
 
-	const [ license, setLicense ] = useState( '' );
+	const [ license, setLicense ] = useState( startingLicense ?? '' );
 	const [ licenseError, setLicenseError ] = useState( null );
 	const [ isSaving, setIsSaving ] = useState( false );
 	const [ activatedProduct, setActivatedProduct ] = useState( null );
 
 	const activateLicense = useCallback( () => {
 		if ( ! license || isSaving ) {
-			return;
+			return Promise.resolve();
 		}
 		setIsSaving( true );
-		restApi.attachLicenses( [ license ] ).then( result =>{
+		// returning our promise chain makes testing a bit easier ( see ./test/components.jsx - "should render an error from API" )
+		return restApi.attachLicenses( [ license ] ).then( result => {
 			const activatedProductId = parseAttachLicenseResult( result );
 			setActivatedProduct( activatedProductId );
+			onActivationSuccess();
 		} ).catch( ( error ) => {
 			setLicenseError( error.message );
 		} ).finally( () => {
@@ -105,10 +108,12 @@ const ActivationScreen = props => {
 };
 
 ActivationScreen.propTypes = {
-	assetBaseUrl: PropTypes.string,
-	lockImage: PropTypes.string,
-	siteRawUrl: PropTypes.string,
-	successImage: PropTypes.string,
+	assetBaseUrl: PropTypes.string.isRequired,
+	lockImage: PropTypes.string.isRequired,
+	onActivationSuccess: PropTypes.func,
+	siteRawUrl: PropTypes.string.isRequired,
+	startingLicense: PropTypes.string,
+	successImage: PropTypes.string.isRequired,
 };
 
 export { ActivationScreen as default, parseAttachLicenseResult };
