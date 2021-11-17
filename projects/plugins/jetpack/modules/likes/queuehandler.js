@@ -140,6 +140,11 @@ function JetpackLikesMessageListener( event ) {
 					};
 				}
 
+				// enable reblogs if we're on a single post page
+				if ( document.body.classList.contains( 'single' ) ) {
+					JetpackLikesPostMessage( { event: 'reblogsEnabled' }, window.frames[ 'likes-master' ] );
+				}
+
 				stylesData.textStyles = {
 					color: sdTextColorStyles[ 'color' ],
 					fontFamily: sdTextColorStyles[ 'font-family' ],
