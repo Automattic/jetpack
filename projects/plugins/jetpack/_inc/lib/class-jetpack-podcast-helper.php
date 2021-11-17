@@ -30,7 +30,7 @@ class Jetpack_Podcast_Helper {
 	 *
 	 * @returns int number of tracks
 	 */
-	public function get_tracks_quantity() {
+	public static function get_tracks_quantity() {
 		/**
 		 * Allow requesting a specific number of tracks from SimplePie's `get_items` call.
 		 * The default number of tracks is ten.
