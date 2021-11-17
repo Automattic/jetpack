@@ -162,8 +162,8 @@ export async function scriptRouter( argv ) {
 			argv.scriptArgs = [ `write`, `--amend` ];
 			argv.workingDir = `projects/${ argv.project }`;
 			argv.next = `Finished! Next:  
-				  	- You will now likely want to update readme.txt again, then commit to the release branch:
-				    	jetpack release ${ argv.project } readme \n`.replace( /^\t+/gm, '' );
+				  - You will now likely want to update readme.txt again, then commit to the release branch:
+				    jetpack release ${ argv.project } readme \n`.replace( /^\t+/gm, '' );
 			break;
 		case 'version':
 			console.log( `${ argv.script } is not implemented yet!` );
