@@ -193,14 +193,15 @@ const PodcastPlayerEdit = ( {
 			guids: selectedGuid ? [ selectedGuid ] : [],
 		} );
 
-		fetchTrackQuantity( {
-			url: checkUrl,
-		} ).then( response => {
-			setDefaultMaxItems( response );
-		} );
-
 		return () => cancellableFetch?.current?.cancel?.();
 	}, [ fetchFeed, checkUrl, selectedGuid ] );
+
+	// Retrieve tracks quantity on initial load
+	useEffect( () => {
+		fetchTrackQuantity().then( response => {
+			setDefaultMaxItems( response );
+		} );
+	}, [] );
 
 	// Make sure itemsToShow is 1 when we have a selected episode
 	useEffect( () => {
