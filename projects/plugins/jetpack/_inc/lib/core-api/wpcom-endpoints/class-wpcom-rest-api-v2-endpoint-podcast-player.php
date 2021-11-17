@@ -91,12 +91,10 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 	/**
 	 * Retrieves tracks quantity
 	 *
-	 * @param WP_REST_Request $request The REST API request data.
 	 * @return Integer number of tracks.
 	 * */
-	public function get_tracks_quantity( $request ) {
-		$helper = new Jetpack_Podcast_Helper( $request['url'] );
-		return rest_ensure_response( $helper->get_tracks_quantity() );
+	public function get_tracks_quantity() {
+		return rest_ensure_response( Jetpack_Podcast_Helper::get_tracks_quantity() );
 	}
 
 	/**
