@@ -21,7 +21,9 @@ import './style.scss';
 /**
  * attachLicenses has a particular result, which we reduce to the parts we care about here
  *
- * @param { attachLicenses } result
+ * @param {(object|array)} result -- the result from the attachLicenses request
+ * @returns {number} The activatedProductId from the result
+ * @throws Errors either from the API response or from any issues parsing the response
  */
 const parseAttachLicenseResult = result => {
 	let currentResult = result;
@@ -31,9 +33,9 @@ const parseAttachLicenseResult = result => {
 	}
 
 	if ( currentResult?.activatedProductId ) {
-		return activatedProductId;
+		return currentResult.activatedProductId;
 	} else if ( currentResult?.errors ) {
-		for ( let errorCode in currentResult.errors ) {
+		for ( const errorCode in currentResult.errors ) {
 			if ( currentResult.errors[ errorCode ].length > 0 ) {
 				throw new Error( currentResult.errors[ errorCode ][ 0 ] );
 			}
@@ -51,7 +53,7 @@ const parseAttachLicenseResult = result => {
  * @param {object} props -- The properties.
  * @param {string} props.assetBaseUrl -- The assets base URL.
  * @param {string} props.lockImage -- Image to display within the illustration.
- * @param {function?} props.onActivationSuccess -- A function to call on success.
+ * @param {Function?} props.onActivationSuccess -- A function to call on success.
  * @param {string} props.siteRawUrl -- url of the Jetpack Site
  * @param {string?} props.startingLicense -- pre-fill the license value
  * @param {string} props.successImage -- Image to display within the illustration.
@@ -83,7 +85,7 @@ const ActivationScreen = props => {
 			.then( result => {
 				const activatedProductId = parseAttachLicenseResult( result );
 				setActivatedProduct( activatedProductId );
-				onActivationSuccess();
+				onActivationSuccess( activatedProductId );
 			} )
 			.catch( error => {
 				setLicenseError( error.message );
@@ -91,7 +93,7 @@ const ActivationScreen = props => {
 			.finally( () => {
 				setIsSaving( false );
 			} );
-	}, [ isSaving, license ] );
+	}, [ isSaving, license, onActivationSuccess ] );
 
 	const renderActivationSuccess = () => (
 		<div className="jp-license-activation-screen">
