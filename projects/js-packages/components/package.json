@@ -14,6 +14,7 @@
 		"prop-types": "^15.7.2"
 	},
 	"devDependencies": {
+		"@automattic/jetpack-base-styles": "workspace:^0.1.0-alpha",
 		"jetpack-js-test-runner": "workspace:*",
 		"nyc": "15.1.0",
 		"react": "17.0.2",

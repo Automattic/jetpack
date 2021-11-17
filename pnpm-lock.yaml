@@ -99,6 +99,7 @@ importers:
   projects/js-packages/components:
     specifiers:
       '@automattic/format-currency': 1.0.0-alpha.0
+      '@automattic/jetpack-base-styles': workspace:^0.1.0-alpha
       '@wordpress/browserslist-config': 4.1.0
       '@wordpress/components': 19.0.1
       '@wordpress/i18n': 4.2.3
@@ -119,6 +120,7 @@ importers:
       lodash: 4.17.21
       prop-types: 15.7.2
     devDependencies:
+      '@automattic/jetpack-base-styles': link:../base-styles
       jetpack-js-test-runner: link:../../../tools/js-test-runner
       nyc: 15.1.0
       react: 17.0.2
@@ -134,6 +136,7 @@ importers:
   projects/js-packages/connection:
     specifiers:
       '@automattic/jetpack-api': workspace:^0.6.0
+      '@automattic/jetpack-base-styles': workspace:^0.1.0-alpha
       '@automattic/jetpack-components': workspace:^0.6.2-alpha
       '@wordpress/base-styles': 4.0.3
       '@wordpress/browserslist-config': 4.1.0
@@ -160,6 +163,7 @@ importers:
       lodash: 4.17.21
       prop-types: 15.7.2
     devDependencies:
+      '@automattic/jetpack-base-styles': link:../base-styles
       jetpack-js-test-runner: link:../../../tools/js-test-runner
       nyc: 15.1.0
       react: 17.0.2
@@ -239,6 +243,7 @@ importers:
 
   projects/js-packages/licensing:
     specifiers:
+      '@automattic/jetpack-base-styles': workspace:^0.1.0-alpha
       '@automattic/jetpack-components': workspace:^0.6.2-alpha
       '@wordpress/components': 19.0.1
       '@wordpress/element': 4.0.3
@@ -257,6 +262,7 @@ importers:
       jetpack-js-test-runner: link:../../../tools/js-test-runner
       prop-types: 15.7.2
     devDependencies:
+      '@automattic/jetpack-base-styles': link:../base-styles
       react: 17.0.2
       react-test-renderer: 17.0.2_react@17.0.2
 
@@ -505,6 +511,7 @@ importers:
   projects/plugins/backup:
     specifiers:
       '@automattic/jetpack-api': workspace:^0.6.0
+      '@automattic/jetpack-base-styles': workspace:^0.1.0-alpha
       '@automattic/jetpack-components': workspace:^0.6.2-alpha
       '@automattic/jetpack-connection': workspace:^0.10.1-alpha
       '@automattic/jetpack-webpack-config': workspace:^0.2.0
@@ -527,6 +534,7 @@ importers:
       webpack-cli: 4.8.0
     dependencies:
       '@automattic/jetpack-api': link:../../js-packages/api
+      '@automattic/jetpack-base-styles': link:../../js-packages/base-styles
       '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
       '@wordpress/api-fetch': 5.2.5

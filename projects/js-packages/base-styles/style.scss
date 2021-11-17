@@ -1,23 +1,33 @@
-/********* RNA styles *********/
-// We should extract this into a package
-
 :root {
 	--font-title-large: 36px;
 	--font-title-small: 24px;
 	--font-body: 16px;
 	--font-label: 12px;
-	
-	--jp-black:           #000000;
-	--jp-black-80:        #2C3338;
-	--jp-white:           #FFFFFF;
-	--jp-white-off:       #F9F9F6;
-	--jp-gray:            #DCDCDE;
-	--jp-gray-off:        #E2E2DF;
-	--jp-red:             #D63639;
 
-	--jp-green-primary:   #069E08;
-	--jp-green-secondary: #2FB41F;
+	--jp-black: #000000;
+	--jp-black-80: #2c3338;
+	--jp-white: #ffffff;
+	--jp-white-off: #f9f9f6;
+	--jp-gray: #dcdcde;
+	--jp-gray-off: #e2e2df;
+	--jp-red: #d63639;
 
+	--jp-green-0: #f0f2eb;
+	--jp-green-5: #d0e6b8;
+	--jp-green-10: #9dd977;
+	--jp-green-20: #64ca43;
+	--jp-green-30: #2fb41f;
+	--jp-green-40: #069e08;
+	--jp-green-50: #008710;
+	--jp-green-60: #007117;
+	--jp-green-70: #005b18;
+	--jp-green-80: #004515;
+	--jp-green-90: #003010;
+	--jp-green-100: #001c09;
+	--jp-green: #069e08;
+
+	--jp-green-primary: var( --jp-green-40 );
+	--jp-green-secondary: var( --jp-green-30 );
 	--jp-border-radius: 4px;
 	--jp-menu-border-height: 1px;
 	--jp-underline-thickness: 2px;
@@ -25,21 +35,29 @@
 
 /********* Mixins *********/
 @mixin for-phone-up {
-	@media (min-width: 600px) { @content; }
+	@media ( min-width: 600px ) {
+		@content;
+	}
 }
 @mixin for-tablet-up {
-	@media (min-width: 960px) { @content; }
+	@media ( min-width: 960px ) {
+		@content;
+	}
 }
 
 @mixin for-phone-down {
-	@media (max-width: 600px) { @content; }
+	@media ( max-width: 600px ) {
+		@content;
+	}
 }
 @mixin for-tablet-down {
-	@media (max-width: 960px) { @content; }
+	@media ( max-width: 960px ) {
+		@content;
+	}
 }
 
 /********* Generic styles *********/
-$wp-gray-dark: #23282D;
+$wp-gray-dark: #23282d;
 
 * {
 	box-sizing: border-box;
@@ -49,7 +67,8 @@ body {
 	min-height: 100%;
 	margin: 0;
 	padding: 0;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen-Sans', 'Ubuntu',
+		'Cantarell', 'Helvetica Neue', sans-serif;
 }
 .jp-wrap {
 	display: flex;
@@ -62,17 +81,17 @@ body {
 .jp-row {
 	display: grid;
 	grid-gap: 24px;
-	grid-template-columns: repeat(4, 1fr);
+	grid-template-columns: repeat( 4, 1fr );
 	width: 100%;
 	margin: 0 16px;
-	
+
 	@include for-phone-up {
-		grid-template-columns: repeat(8, 1fr);
+		grid-template-columns: repeat( 8, 1fr );
 		margin: 0 18px;
 	}
-	
+
 	@include for-tablet-up {
-		grid-template-columns: repeat(12, 1fr);
+		grid-template-columns: repeat( 12, 1fr );
 		max-width: 1128px;
 		margin: 0 24px;
 	}
@@ -112,33 +131,6 @@ body {
 	}
 }
 
-.jp-wrap {
-	display: flex;
-	align-items: center;
-	flex-wrap: wrap;
-	max-width: 1128px;
-	margin: 0 auto;
-}
-
-.jp-row {
-	display: grid;
-	grid-gap: 24px;
-	grid-template-columns: repeat(4, 1fr);
-	width: 100%;
-	margin: 0 16px;
-	
-	@include for-phone-up {
-		grid-template-columns: repeat(8, 1fr);
-		margin: 0 18px;
-	}
-	
-	@include for-tablet-up {
-		grid-template-columns: repeat(12, 1fr);
-		max-width: 1128px;
-		margin: 0 24px;
-	}
-}
-
 .jp-cut {
 	position: relative;
 	display: block;
@@ -171,7 +163,7 @@ body {
 	}
 
 	&:after {
-		content: "→";
+		content: '→';
 		position: absolute;
 		top: 50%;
 		right: 24px;
