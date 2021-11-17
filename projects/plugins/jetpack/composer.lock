@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "04cc8999b3ab2b55209651b9087b72c3",
+    "content-hash": "b0dd51a210862ace7493ba553f2f0468",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -109,6 +109,63 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Provides an interface to the WP.com A/B tests.",
+            "transport-options": {
+                "monorepo": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-admin-ui",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/admin-ui",
+                "reference": "7f51620d80a931c94e60f286dad541ff15836ef1"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "^3.0",
+                "automattic/wordbless": "dev-master",
+                "yoast/phpunit-polyfills": "1.0.2"
+            },
+            "type": "library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-admin-ui",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-admin-ui/compare/${old}...${new}"
+                },
+                "branch-alias": {
+                    "dev-master": "0.1.x-dev"
+                },
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-admin-menu.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer install",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer install",
+                    "@composer phpunit"
+                ],
+                "post-update-cmd": [
+                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Generic Jetpack wp-admin UI elements",
             "transport-options": {
                 "monorepo": true,
                 "relative": true
@@ -1050,6 +1107,63 @@
                 "GPL-2.0-or-later"
             ],
             "description": "A logo for Jetpack",
+            "transport-options": {
+                "monorepo": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-my-jetpack",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/my-jetpack",
+                "reference": "1bdc7980067947d6ba4ccc6deaf751fb98b0e5ec"
+            },
+            "require": {
+                "automattic/jetpack-admin-ui": "^0.1",
+                "automattic/jetpack-assets": "^1.12"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "^3.0",
+                "yoast/phpunit-polyfills": "1.0.2"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.1.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer install",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer install",
+                    "@composer phpunit"
+                ],
+                "build-development": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run build"
+                ],
+                "build-production": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run build"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
             "transport-options": {
                 "monorepo": true,
                 "relative": true
@@ -3682,6 +3796,7 @@
                     "type": "github"
                 }
             ],
+            "abandoned": true,
             "time": "2020-09-28T06:45:17+00:00"
         },
         {
@@ -4916,6 +5031,7 @@
         "automattic/jetpack-lazy-images": 20,
         "automattic/jetpack-licensing": 20,
         "automattic/jetpack-logo": 20,
+        "automattic/jetpack-my-jetpack": 20,
         "automattic/jetpack-options": 20,
         "automattic/jetpack-partner": 20,
         "automattic/jetpack-redirect": 20,
