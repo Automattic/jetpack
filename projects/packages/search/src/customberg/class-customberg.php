@@ -129,7 +129,6 @@ class Customberg {
 	public function load_assets_with_parameters( $path_prefix, $plugin_base_path ) {
 		//
 		// Load styles.
-		\Jetpack_Admin_Page::load_wrapper_styles(); // TODO: Replace this with a plugin-independent function.
 		wp_enqueue_style(
 			'jp-search-configure',
 			plugins_url( $path_prefix . '/jp-search-configure-main.min.css', $plugin_base_path ),
