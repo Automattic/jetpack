@@ -4,6 +4,7 @@
 import React, { useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
 import restApi from '@automattic/jetpack-api';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -16,6 +17,32 @@ import ActivationScreenSuccessInfo from '../activation-screen-success-info';
  * Style dependencies
  */
 import './style.scss';
+
+/**
+ * attachLicenses has a particular result, which we reduce to the parts we care about here
+ * 
+ * @param { attachLicenses } result 
+ */
+const parseAttachLicenseResult = ( result ) => {
+
+	let currentResult = result;
+
+	while ( Array.isArray( currentResult ) ) {
+		let [ currentResult ] = currentResult;
+	}
+
+	if ( currentResult?.activatedProductId ) {
+		return activatedProductId;
+	} else if ( currentResult?.errors ) {
+		for ( let errorCode in currentResult.errors ) {
+			if ( currentResult.errors[errorCode].length > 0 ) {
+				throw new Error( currentResult.errors[errorCode][0] );
+			}
+		}
+	}
+
+	throw new Error( __( 'An unknown error occurred during license activation. Please try again.', 'jetpack' ) );
+}
 
 /**
  * The Activation Screen component.
@@ -40,18 +67,11 @@ const ActivationScreen = props => {
 			return;
 		}
 		setIsSaving( true );
-		restApi.attachLicenses( [ license ] ).then( ( [ result ] ) =>{
-			if ( result ) {
-				if ( result.errors ) {
-					for ( let errorCode in result.errors ) {
-						if ( result.errors[errorCode].length > 0 ) {
-							setLicenseError( result.errors[errorCode][0] );
-						}
-					}
-				} else if ( Array.isArray( result ) && result.length > 0 && result[0].activatedProductId ) {
-					setActivatedProduct( result[0].activatedProductId )
-				}
-			}
+		restApi.attachLicenses( [ license ] ).then( result =>{
+			const activatedProductId = parseAttachLicenseResult( result );
+			setActivatedProduct( activatedProductId );
+		} ).catch( ( error ) => {
+			setLicenseError( error.message );
 		} ).finally( () => {
 			setIsSaving( false );
 		} );
@@ -91,4 +111,4 @@ ActivationScreen.propTypes = {
 	successImage: PropTypes.string,
 };
 
-export default ActivationScreen;
+export { ActivationScreen as default, parseAttachLicenseResult };
