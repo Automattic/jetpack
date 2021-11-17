@@ -23,7 +23,7 @@
 	},
 	"browserslist": "extends @wordpress/browserslist-config",
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:^0.2.0",
+		"@automattic/jetpack-webpack-config": "workspace:^0.3.0-alpha",
 		"@wordpress/browserslist-config": "4.1.0",
 		"webpack": "5.51.1",
 		"webpack-cli": "4.8.0"
