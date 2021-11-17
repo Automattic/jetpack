@@ -508,10 +508,6 @@ function validatePath( argv, dir ) {
 	if ( ! fs.existsSync( dir ) ) {
 		throw new Error( chalk.red( `Project doesn't exist! Typo?` ) );
 	}
-	if ( argv.project === 'packages/changelogger' ) {
-		argv.cmdPath = 'bin/changelogger';
-		return;
-	}
 	if ( fs.existsSync( dir + `/vendor/bin/changelogger` ) ) {
 		argv.cmdPath = 'vendor/bin/changelogger';
 		return;
