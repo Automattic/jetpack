@@ -256,7 +256,6 @@
 	"projects/plugins/jetpack/modules/related-posts.php",
 	"projects/plugins/jetpack/modules/related-posts/class.related-posts-customize.php",
 	"projects/plugins/jetpack/modules/related-posts/jetpack-related-posts.php",
-	"projects/plugins/jetpack/modules/search/class.jetpack-search-template-tags.php",
 	"projects/plugins/jetpack/modules/seo-tools/jetpack-seo-posts.php",
 	"projects/plugins/jetpack/modules/seo-tools/jetpack-seo-titles.php",
 	"projects/plugins/jetpack/modules/seo-tools/jetpack-seo-utils.php",
