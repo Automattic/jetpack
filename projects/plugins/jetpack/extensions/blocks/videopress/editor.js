@@ -19,6 +19,7 @@ import withVideoPressSave from './save';
 import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
 import deprecatedV1 from './deprecated/v1';
 import deprecatedV2 from './deprecated/v2';
+import deprecatedV3 from './deprecated/v3';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import withHasWarningIsInteractiveClassNames from '../../shared/with-has-warning-is-interactive-class-names';
 import './editor.scss';
@@ -238,6 +239,7 @@ const addVideoPressSupport = ( settings, name ) => {
 					supports,
 					isDeprecation: true,
 				},
+				deprecatedV3,
 				deprecatedV2,
 				deprecatedV1,
 			],
