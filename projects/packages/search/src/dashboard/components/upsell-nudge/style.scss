@@ -1,0 +1,15 @@
+@import '../../scss/_variables.scss';
+
+$color-nudget-text: $black;
+
+.jp-instant-search-upsell-nudge {
+	color: $color-nudget-text;
+
+	font-size: 1em;
+	text-decoration: none;
+	&:hover {
+		color: $color-nudget-text;
+	}
+
+	cursor: pointer;
+}
