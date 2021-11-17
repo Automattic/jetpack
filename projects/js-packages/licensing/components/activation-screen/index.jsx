@@ -21,7 +21,7 @@ import './style.scss';
 /**
  * attachLicenses has a particular result, which we reduce to the parts we care about here
  *
- * @param {(object|array)} result -- the result from the attachLicenses request
+ * @param {(object|Array)} result -- the result from the attachLicenses request
  * @returns {number} The activatedProductId from the result
  * @throws Errors either from the API response or from any issues parsing the response
  */
