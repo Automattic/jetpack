@@ -143,8 +143,7 @@ const addVideoPressSupport = ( settings, name ) => {
 		settings.example.attributes = {
 			caption: __( 'Upload or embed videos with VideoPress', 'jetpack' ),
 			isVideoPressExample: true,
-			src:
-				'https://s0.wp.com/wp-content/themes/a8c/jetpackme-new/images/2021/videopress/device-mashup-desktop.jpg',
+			src: 'https://videopress2.files.wordpress.com/2021/11/videopress-devices.jpg',
 		};
 	}
 
