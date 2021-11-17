@@ -132,6 +132,10 @@ If you add a feature to wpcomsh, please add it to the following list:
 - Replaces any footer credit in our themes with "POWERED BY WORDPRESS.COM."
 - Allows for customization of that message
 
+### WP.com Block Theme Footer Credit
+
+- Footer credits that work on block based themes.
+
 ### Removal of VaultPress wp-admin notices
 
 Removal of activation notice, connection notice and error notices. Users should not have to manage VaultPress, report its issues, etc -- that’s why we are hiding those notices.
