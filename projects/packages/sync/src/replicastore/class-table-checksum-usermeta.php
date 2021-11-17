@@ -117,6 +117,19 @@ class Table_Checksum_Usermeta extends Table_Checksum_Users {
 							)
 						);
 					}
+
+					if ( ! empty( $user_object->name ) ) {
+						$checksum_entry += crc32(
+							implode(
+								'#',
+								array(
+									$this->salt,
+									'name',
+									maybe_serialize( $user_object->name ),
+								)
+							)
+						);
+					}
 				}
 
 				$checksum_entries[ $user_object->ID ] = '' . $checksum_entry;
@@ -190,6 +203,12 @@ class Table_Checksum_Usermeta extends Table_Checksum_Users {
 		if ( is_array( $user_object->roles ) ) {
 			$user_object->roles = array_map( 'sanitize_text_field', $user_object->roles );
 		}
+
+		//Sanitize display name
+		if ( ! empty( $user_object->name ) ) {
+			$user_object->name = wp_strip_all_tags( (string) $user_object->name, false );
+		}
+
 		return $user_object;
 	}
 

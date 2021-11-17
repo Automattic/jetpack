@@ -605,6 +605,10 @@ class Users extends Module {
 			$this->add_flags( $user_id, array( 'capabilities_changed' => true ) );
 		}
 
+		if ( isset( $user->name ) && $meta_key === $user->name ) {
+			$this->add_flags( $user_id, array( 'display_name_changed' => true ) );
+		}
+
 		if ( $this->is_create_user() || $this->is_add_user_to_blog() || $this->is_delete_user() ) {
 			return;
 		}
