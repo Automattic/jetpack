@@ -49,7 +49,7 @@ const ActivationScreen = props => {
 						}
 					}
 				} else if ( Array.isArray( result ) && result.length > 0 && result[0].activatedProductId ) {
-					setActivatedProduct( result.activatedProductId )
+					setActivatedProduct( result[0].activatedProductId )
 				}
 			}
 		} ).finally( () => {
