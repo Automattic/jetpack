@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Search\WPES\Query_Builder as Jetpack_WPES_Query_Builder;
 use WP_Error;
 
 /**
@@ -208,7 +207,7 @@ class Instant_Search extends Classic_Search {
 			return;
 		}
 
-		$builder = new Jetpack_WPES_Query_Builder();
+		$builder = new WPES\Query_Builder();
 		$this->add_aggregations_to_es_query_builder( $this->aggregations, $builder );
 		$this->search_result = $this->instant_api(
 			array(
