@@ -250,7 +250,7 @@ importers:
       '@wordpress/i18n': 4.2.3
       '@wordpress/icons': 6.1.0
       jetpack-js-test-runner: workspace:*
-      prop-types: ^15.7.2
+      prop-types: 15.7.2
       react: 17.0.2
       react-test-renderer: 17.0.2
     dependencies:
@@ -766,7 +766,7 @@ importers:
       postcss-custom-properties: 10.0.0
       postcss-loader: 6.2.0
       preact: 10.5.15
-      prettier: npm:wp-prettier@^2.0.5
+      prettier: npm:wp-prettier@2.0.5
       progress-event: 1.0.0
       prop-types: 15.7.2
       q-flat: 1.0.7

@@ -195,7 +195,7 @@
 		"nyc": "15.1.0",
 		"postcss": "8.3.11",
 		"postcss-loader": "6.2.0",
-		"prettier": "npm:wp-prettier@^2.0.5",
+		"prettier": "npm:wp-prettier@2.0.5",
 		"react-click-outside": "3.0.1",
 		"react-test-renderer": "17.0.2",
 		"sass-loader": "10.1.1",
