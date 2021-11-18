@@ -1,4 +1,0 @@
-Significance: major
-Type: changed
-
-Update webpack build config. Removes IE 11 support in the JavaScript.

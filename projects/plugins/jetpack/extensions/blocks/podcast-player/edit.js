@@ -46,15 +46,13 @@ import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import attributesValidation from './attributes';
 import PodcastPlayer from './components/podcast-player';
 import { makeCancellable } from './utils';
-import { fetchPodcastFeed } from './api';
+import { fetchPodcastFeed, fetchTrackQuantity } from './api';
 import { podcastPlayerReducer, actions } from './state';
 import { applyFallbackStyles } from '../../shared/apply-fallback-styles';
 import { PODCAST_FEED, EMBED_BLOCK } from './constants';
 import { maybeCopyElementsToSiteEditorContext } from '../../shared/block-editor-asset-loader';
 
 const DEFAULT_MIN_ITEMS = 1;
-const DEFAULT_MAX_ITEMS = 10;
-
 const debug = debugFactory( 'jetpack:podcast-player:edit' );
 
 // Support page link.
@@ -96,6 +94,7 @@ const PodcastPlayerEdit = ( {
 	const playerId = `jetpack-podcast-player-block-${ instanceId }`;
 
 	const [ hasMigratedStyles, setHasMigratedStyles ] = useState( false );
+	const [ defaultMaxItems, setDefaultMaxItems ] = useState( 10 );
 
 	// State.
 	const cancellableFetch = useRef();
@@ -196,6 +195,13 @@ const PodcastPlayerEdit = ( {
 
 		return () => cancellableFetch?.current?.cancel?.();
 	}, [ fetchFeed, checkUrl, selectedGuid ] );
+
+	// Retrieve tracks quantity to fetch; the jetpack_podcast_helper_tracks_quantity filter value.
+	useEffect( () => {
+		fetchTrackQuantity().then( response => {
+			setDefaultMaxItems( response );
+		} );
+	}, [] );
 
 	// Make sure itemsToShow is 1 when we have a selected episode
 	useEffect( () => {
@@ -331,7 +337,7 @@ const PodcastPlayerEdit = ( {
 							value={ itemsToShow }
 							onChange={ value => setAttributes( { itemsToShow: selectedGuid ? 1 : value } ) }
 							min={ DEFAULT_MIN_ITEMS }
-							max={ DEFAULT_MAX_ITEMS }
+							max={ defaultMaxItems }
 							required
 							disabled={ !! selectedGuid }
 						/>

@@ -1,9 +1,8 @@
 /**
  * External dependencies
  */
+const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const path = require( 'path' );
-const getBaseWebpackConfig = require( '@automattic/calypso-build/webpack.config.js' );
-const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
 
 /**
  * Internal dependencies
@@ -13,45 +12,74 @@ const {
 	defineReadableJSAssetsPluginForSearch,
 } = require( './webpack.helpers' );
 
-const isDevelopment = process.env.NODE_ENV !== 'production';
-
-const baseWebpackConfig = getBaseWebpackConfig(
-	{ WP: false },
-	{
-		entry: {
-			main: path.join( __dirname, '../modules/search/customberg/index.jsx' ),
-		},
-		'output-filename': 'jp-search-configure-[name].min.js',
-		'output-chunk-filename': 'jp-search-configure-[name].[contenthash:20].min.js',
-		'output-path': path.join( __dirname, '../_inc/build/instant-search' ),
-		// Calypso-build defaults this to "window", which breaks things if no library.name is set.
-		'output-library-target': '',
-	}
-);
-
 module.exports = {
-	...baseWebpackConfig,
+	mode: jetpackWebpackConfig.mode,
+	devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
+	entry: {
+		main: path.join( __dirname, '../modules/search/customberg/index.jsx' ),
+	},
+	output: {
+		...jetpackWebpackConfig.output,
+		// @todo: Make the file naming regular.
+		filename: 'jp-search-configure-[name].min.js',
+		chunkFilename: 'jp-search-configure-[name].[contenthash:20].min.js',
+		path: path.join( __dirname, '../_inc/build/instant-search' ),
+	},
 	optimization: {
-		...baseWebpackConfig.optimization,
-		// This optimization sometimes causes webpack to drop `__()` and such.
-		concatenateModules: false,
+		...jetpackWebpackConfig.optimization,
 	},
 	resolve: {
-		...baseWebpackConfig.resolve,
-		modules: [
-			// Allow importing from instant search path
-			path.resolve( __dirname, '../node_modules' ),
-			'node_modules',
-		],
+		...jetpackWebpackConfig.resolve,
 		alias: {
+			...jetpackWebpackConfig.resolve.alias,
 			fs: false,
 		},
 	},
-	devtool: isDevelopment ? 'source-map' : false,
 	plugins: [
-		...baseWebpackConfig.plugins,
-		new DependencyExtractionWebpackPlugin( { injectPolyfill: true } ),
+		...jetpackWebpackConfig.StandardPlugins( {
+			DependencyExtractionPlugin: { injectPolyfill: true },
+			MiniCssExtractPlugin: {
+				filename: 'jp-search-configure-[name].min.css',
+				chunkFilename: 'jp-search-configure-[name].[contenthash:20].min.css',
+			},
+		} ),
 		definePaletteColorsAsStaticVariables(),
 		defineReadableJSAssetsPluginForSearch(),
 	],
+	module: {
+		strictExportPresence: true,
+		rules: [
+			// Transpile JavaScript
+			jetpackWebpackConfig.TranspileRule( {
+				exclude: /node_modules\//,
+			} ),
+
+			// Transpile @automattic/jetpack-* in node_modules too.
+			jetpackWebpackConfig.TranspileRule( {
+				includeNodeModules: [ '@automattic/jetpack-', 'debug/', 'tiny-lru/' ],
+			} ),
+
+			// Handle CSS.
+			{
+				test: /\.(?:css|s[ac]ss)$/,
+				use: [
+					jetpackWebpackConfig.MiniCssExtractLoader(),
+					jetpackWebpackConfig.CssCacheLoader(),
+					jetpackWebpackConfig.CssLoader( {
+						importLoaders: 2, // Set to the number of loaders after this one in the array, e.g. 2 if you use both postcss-loader and sass-loader.
+					} ),
+					{
+						loader: 'postcss-loader',
+						options: {
+							postcssOptions: { config: path.join( __dirname, '../postcss.config.js' ) },
+						},
+					},
+					'sass-loader',
+				],
+			},
+
+			// Handle images.
+			jetpackWebpackConfig.FileRule(),
+		],
+	},
 };

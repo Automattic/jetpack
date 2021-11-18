@@ -200,7 +200,13 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 	 * @return {Promise<void>}
 	 */
 	async onFailure( eventFullName, parentName, eventName, error ) {
-		logger.error( chalk.red( `FAILURE: ${ error }` ) );
+		let url = 'unknown';
+
+		if ( this.global.page ) {
+			url = this.global.page.url();
+		}
+
+		logger.error( chalk.red( `FAILURE: \n\t url: ${ url } \n\t error: ${ error }` ) );
 
 		await this.saveScreenshots( eventFullName );
 		await this.logHTML( eventFullName );

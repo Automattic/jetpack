@@ -10,8 +10,6 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 }
 
 require_jetpack_file( 'modules/search/class.jetpack-search.php' );
-require_jetpack_file( 'modules/search/class.jetpack-search-helpers.php' );
-require_jetpack_file( 'modules/search/class-jetpack-search-options.php' );
 require_jetpack_file( 'modules/search/class-jetpack-instant-search.php' );
 
 /**

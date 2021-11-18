@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-VideoPress videos in the Media Library will now stop playing in the background when the Media Item modal is closed.

@@ -242,13 +242,13 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.4-a.1 - 2021-11-02
+### 10.4-a.7 - 2021-11-17
 #### Enhancements
-- Publicize: update the interface and include a profile picture for each service.
+- Podcast Player block: add 'jetpack_podcast_helper_tracks_quantity' filter to control number of tracks fetched. Deprecate the 'jetpack_podcast_helper_list_quantity' filter.
 
 #### Bug fixes
-- Image CDN: ensure that Wikipedia URLs are not served via our image CDN.
-- Publicize: make the default publicize social media message blank.
+- VideoPress: fix VideoPress load for old videos in Gutenberg
+- SSO: fix button content alignment for small screens
 
 --------
 

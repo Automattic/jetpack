@@ -2,17 +2,11 @@
  * External dependencies
  */
 import { encode } from 'qss';
-/*eslint lodash/import-scope: [2, "method"]*/
-import debounce from 'lodash/debounce';
 
 /**
  * Internal dependencies
  */
-import {
-	SERVER_OBJECT_NAME,
-	VALID_RESULT_FORMAT_KEYS,
-	DEBOUNCED_TIME_TO_SET_QUERY_MILLISECONDS,
-} from './constants';
+import { SERVER_OBJECT_NAME, VALID_RESULT_FORMAT_KEYS } from './constants';
 import { getFilterKeys, getStaticFilterKeys } from './filters';
 import { decode } from '../external/query-string-decode';
 
@@ -31,16 +25,9 @@ export function getQuery( search = window.location.search ) {
  *
  * @param {object|null} queryObject - a query object.
  */
-function setQuery( queryObject ) {
+export function setQuery( queryObject ) {
 	pushQueryString( encode( queryObject ) );
 }
-
-// Create debounced function.
-// Uses a longer delay to ensure we're not filling up the user's browser history with part-typed queries.
-const setQueryDebounced = debounce( setQuery, DEBOUNCED_TIME_TO_SET_QUERY_MILLISECONDS );
-
-// Export debounced function with original function name.
-export { setQueryDebounced as setQuery };
 
 /**
  * Updates the browser's query string via an encoded query string.

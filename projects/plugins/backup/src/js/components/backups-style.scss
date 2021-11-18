@@ -1,8 +1,9 @@
 @import 'rna-styles';
+@import 'masthead/calypso-mixins';
 
 .backup__card {
 	padding: 24px;
-	background:var( --jp-white );
+	background: var( --jp-white );
 	box-shadow: 0px 0px 40px rgba( 0, 0, 0, 0.08 );
 	border-radius: var( --jp-border-radius );
 }
@@ -56,7 +57,8 @@
 	align-items: center;
 	margin-bottom: 8px;
 
-	svg, img {
+	svg,
+	img {
 		min-width: 32px;
 		min-height: 32px;
 	}
@@ -74,6 +76,10 @@
 
 .backup__animation {
 	position: relative;
+
+	@include responsive( full-width ) {
+		display: none;
+	}
 }
 
 .backup__animation-el-1,
@@ -123,7 +129,7 @@
 	}
 	100% {
 		opacity: 0;
-		transform: translateY( -96px );	
+		transform: translateY( -96px );
 	}
 }
 
@@ -146,7 +152,7 @@
 	}
 	100% {
 		opacity: 0;
-		transform: translateY( -96px );	
+		transform: translateY( -96px );
 	}
 }
 
@@ -169,6 +175,6 @@
 	}
 	100% {
 		opacity: 0;
-		transform: translateY( -84px );	
+		transform: translateY( -84px );
 	}
 }

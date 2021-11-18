@@ -1,4 +1,4 @@
-name: E2E Tests
+name: Jetpack E2E Tests
 
 on:
   pull_request:

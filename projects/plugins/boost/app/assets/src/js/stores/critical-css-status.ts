@@ -1,12 +1,12 @@
 /**
  * External dependencies
  */
-import api from '../api/api';
 import { derived, writable } from 'svelte/store';
 
 /**
  * Internal dependencies
  */
+import api from '../api/api';
 import type { JSONObject } from '../utils/json-types';
 import type { ProviderKeyUrls, ProvidersSuccessRatio } from '../utils/generate-critical-css';
 import type { Viewport } from '../utils/types';
