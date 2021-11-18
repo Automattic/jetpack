@@ -898,6 +898,34 @@ class Test_REST_Endpoints extends TestCase {
 	}
 
 	/**
+	 * Testing the `connection/seen-wc-connection-modal` endpoint fails.
+	 */
+	public function test_get_user_connection_seen_wc_connection_modal_with_invalid_user_permissions() {
+		// Invalid user permissions.
+		$user = wp_get_current_user();
+		$user->remove_cap( 'read' );
+		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/seen-wc-connection-modal' );
+
+		$response = $this->server->dispatch( $this->request );
+
+		$this->assertEquals( 403, $response->get_status() );
+		$this->assertEquals( REST_Connector::get_user_permissions_error_msg(), $response->get_data()['message'] );
+	}
+
+	/**
+	 * Testing the `connection/seen-wc-connection-modal` endpoint succeeds.
+	 */
+	public function test_get_user_connection_seen_wc_connection_modal_success() {
+		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/seen-wc-connection-modal' );
+
+		$response = $this->server->dispatch( $this->request );
+		$data     = $response->get_data();
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertTrue( $data['success'] );
+	}
+
+	/**
 	 * This filter callback allows us to skip the database query by `Jetpack_Options` to retrieve the option.
 	 *
 	 * @param array $options List of options already skipping the database request.

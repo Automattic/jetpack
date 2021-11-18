@@ -121,6 +121,7 @@ class Jetpack_Options {
 			'recommendations_data',                // (array)  The user choice and other data for the recommendations.
 			'recommendations_step',                // (string) The current step of the recommendations.
 			'licensing_activation_notice_dismiss', // (array) The `last_detached_count` and the `last_dismissed_time` for the user-license activation notice.
+			'has_seen_wc_connection_modal',        // (bool) Whether the site has displayed the WooCommerce Connection modal
 		);
 	}
 

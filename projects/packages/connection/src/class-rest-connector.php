@@ -252,6 +252,17 @@ class REST_Connector {
 				),
 			)
 		);
+
+		// Set the connection owner.
+		register_rest_route(
+			'jetpack/v4',
+			'/connection/seen-wc-connection-modal',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( static::class, 'set_has_seen_wc_connection_modal' ),
+				'permission_callback' => array( static::class, 'set_has_seen_wc_connection_modal_check' ),
+			)
+		);
 	}
 
 	/**
@@ -558,6 +569,39 @@ class REST_Connector {
 		}
 
 		return new WP_Error( 'invalid_user_permission_jetpack_disconnect', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Set hasSeenWCConnectionModal to true when the site has displayed it
+	 *
+	 * @since 10.4.0
+	 *
+	 * @return bool
+	 */
+	public static function set_has_seen_wc_connection_modal() {
+		$updated_option = \Jetpack_Options::update_option( 'has_seen_wc_connection_modal', true );
+
+		return rest_ensure_response( array( 'success' => $updated_option ) );
+	}
+
+	/**
+	 * Permission check for the connection/seen-wc-connection-modal endpoint
+	 *
+	 * @since 10.4.0
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function set_has_seen_wc_connection_modal_check() {
+		if ( current_user_can( 'read' ) ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'invalid_user_permission_user_connection_seen_wc_connection_modal',
+			self::get_user_permissions_error_msg(),
+			array( 'status' => rest_authorization_required_code() )
+		);
+
 	}
 
 	/**
