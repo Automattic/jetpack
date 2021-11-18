@@ -243,7 +243,7 @@ importers:
 
   projects/js-packages/licensing:
     specifiers:
-      '@automattic/jetpack-api': workspace:^0.6.0
+      '@automattic/jetpack-api': workspace:^0.6.1-alpha
       '@automattic/jetpack-base-styles': workspace:^0.1.0-alpha
       '@automattic/jetpack-components': workspace:^0.6.3-alpha
       '@wordpress/components': 19.0.1
