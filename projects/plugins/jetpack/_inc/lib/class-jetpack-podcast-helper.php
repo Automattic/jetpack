@@ -26,6 +26,23 @@ class Jetpack_Podcast_Helper {
 	}
 
 	/**
+	 * Retrieves tracks quantity.
+	 *
+	 * @returns int number of tracks
+	 */
+	public static function get_tracks_quantity() {
+		/**
+		 * Allow requesting a specific number of tracks from SimplePie's `get_items` call.
+		 * The default number of tracks is ten.
+		 *
+		 * @since 10.4.0
+		 *
+		 * @param int $number Number of tracks fetched. Default is 10.
+		 */
+		return (int) apply_filters( 'jetpack_podcast_helper_tracks_quantity', 10 );
+	}
+
+	/**
 	 * Gets podcast data formatted to be used by the Podcast Player block in both server-side
 	 * block rendering and in API `WPCOM_REST_API_V2_Endpoint_Podcast_Player`.
 	 *
@@ -174,16 +191,20 @@ class Jetpack_Podcast_Helper {
 			return $rss;
 		}
 
+		$tracks_quantity = $this->get_tracks_quantity();
+
 		/**
 		 * Allow requesting a specific number of tracks from SimplePie's `get_items` call.
 		 * The default number of tracks is ten.
+		 * Deprecated. Use jetpack_podcast_helper_tracks_quantity filter instead, which takes one less parameter.
 		 *
 		 * @since 9.5.0
+		 * @deprecated 10.4.0
 		 *
-		 * @param int    $number Number of tracks fetched. Default is 10.
-		 * @param object $rss    The SimplePie object built from core's `fetch_feed` call.
+		 * @param int    $tracks_quantity Number of tracks fetched. Default is 10.
+		 * @param object $rss             The SimplePie object built from core's `fetch_feed` call.
 		 */
-		$tracks_quantity = apply_filters( 'jetpack_podcast_helper_list_quantity', 10, $rss );
+		$tracks_quantity = apply_filters_deprecated( 'jetpack_podcast_helper_list_quantity', array( $tracks_quantity, $rss ), '10.4.0', 'jetpack_podcast_helper_tracks_quantity' );
 
 		// Process the requested number of items from our feed.
 		$track_list = array_map( array( __CLASS__, 'setup_tracks_callback' ), $rss->get_items( 0, $tracks_quantity ) );
