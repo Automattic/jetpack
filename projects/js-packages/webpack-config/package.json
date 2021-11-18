@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-webpack-config",
-	"version": "0.2.0",
+	"version": "0.2.1-alpha",
 	"description": "Library of pieces for webpack config in Jetpack projects.",
 	"homepage": "https://jetpack.com",
 	"bugs": {
@@ -42,7 +42,7 @@
 	"devDependencies": {
 		"@babel/core": "7.16.0",
 		"@babel/runtime": "7.16.0",
-		"webpack": "5.51.1",
+		"webpack": "5.64.1",
 		"webpack-cli": "4.8.0"
 	},
 	"peerDependencies": {
