@@ -259,17 +259,11 @@ function wpcomsh_update_plugin_link_destination( $url, $path, $scheme ) {
 }
 
 /**
- * If `wpcom-marketplace` blog sticker exists,
- * adds filters so that Add New menu & button
+ * Adds filters so that Add New menu & button
  * redirect to Calypso.
  * @return void
  */
 function wpcomsh_update_plugin_add_filter() {
-	// Run only for sites with `wpcom-marketplace` blog sticker.
-	if ( ! wpcomsh_is_site_sticker_active( 'wpcom-marketplace' ) || ! class_exists( 'Automattic\Jetpack\Status' ) ) {
-		return;
-	}
-
 	// Changes plugin-install.php destination to Calypso.
 	// Documented in https://github.com/Automattic/jetpack/blob/f04ffdb03421e16a513ccbe208fec1d7fef2354d/projects/plugins/jetpack/modules/masterbar/admin-menu/class-atomic-admin-menu.php#L116-L125
 	add_filter( 'wpcom_marketplace_enabled', '__return_true' );
