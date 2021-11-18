@@ -506,13 +506,15 @@ importers:
     specifiers:
       '@automattic/calypso-color-schemes': 2.1.1
       '@automattic/color-studio': 2.5.0
-      '@automattic/jetpack-webpack-config': workspace:^0.2.0-alpha
+      '@automattic/jetpack-webpack-config': workspace:^0.2.0
       '@babel/core': 7.15.8
       '@babel/plugin-proposal-nullish-coalescing-operator': 7.14.5
       '@babel/preset-env': 7.15.8
       '@babel/preset-react': 7.14.5
       '@babel/preset-typescript': 7.15.0
       '@size-limit/preset-app': 6.0.3
+      '@testing-library/jest-dom': 5.14.1
+      '@testing-library/preact': 2.0.1
       '@wordpress/base-styles': 4.0.3
       '@wordpress/block-editor': 7.0.4
       '@wordpress/dependency-extraction-webpack-plugin': 3.2.1
@@ -520,6 +522,8 @@ importers:
       '@wordpress/icons': 6.1.0
       classnames: 2.3.1
       fast-json-stable-stringify: 2.1.0
+      jest: 27.3.1
+      jest-environment-jsdom: 27.3.1
       lodash: 4.17.21
       photon: 4.0.0
       postcss: 8.3.11
@@ -563,7 +567,11 @@ importers:
       '@babel/preset-react': 7.14.5_@babel+core@7.15.8
       '@babel/preset-typescript': 7.15.0_@babel+core@7.15.8
       '@size-limit/preset-app': 6.0.3_size-limit@6.0.3
+      '@testing-library/jest-dom': 5.14.1
+      '@testing-library/preact': 2.0.1_preact@10.5.15
       '@wordpress/dependency-extraction-webpack-plugin': 3.2.1_webpack@5.51.1
+      jest: 27.3.1
+      jest-environment-jsdom: 27.3.1
       postcss: 8.3.11
       postcss-loader: 6.2.0_postcss@8.3.11+webpack@5.51.1
       prettier: /wp-prettier/2.0.5
@@ -3862,6 +3870,7 @@ packages:
 
   /@emotion/is-prop-valid/0.8.8:
     resolution: {integrity: sha512-u5WtneEAr5IDG2Wv65yhunPSMLIpuKsbuOktRojfrEiEvRyC85LgPMZI63cr7NUqT8ZIGdSVg8ZKGxIug4lXcA==}
+    requiresBuild: true
     dependencies:
       '@emotion/memoize': 0.7.4
 
@@ -4116,7 +4125,7 @@ packages:
         optional: true
     dependencies:
       '@babel/core': 7.15.8
-      '@babel/runtime': 7.16.0
+      '@babel/runtime': 7.16.3
       '@emotion/babel-plugin': 11.3.0_@babel+core@7.15.8
       '@emotion/is-prop-valid': 1.1.0
       '@emotion/react': 11.5.0_@babel+core@7.15.8
@@ -4539,7 +4548,7 @@ packages:
       '@types/istanbul-reports': 3.0.1
       '@types/node': 16.11.7
       '@types/yargs': 15.0.14
-      chalk: 4.1.1
+      chalk: 4.1.2
     dev: true
 
   /@jest/types/27.2.5:
@@ -6269,10 +6278,10 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       '@babel/code-frame': 7.16.0
-      '@babel/runtime': 7.16.0
+      '@babel/runtime': 7.16.3
       '@types/aria-query': 4.2.2
       aria-query: 4.2.2
-      chalk: 4.1.1
+      chalk: 4.1.2
       dom-accessibility-api: 0.5.10
       lz-string: 1.4.4
       pretty-format: 26.6.2
@@ -6282,7 +6291,7 @@ packages:
     resolution: {integrity: sha512-dfB7HVIgTNCxH22M1+KU6viG5of2ldoA5ly8Ar8xkezKHKXjRvznCdbMbqjYGgO2xjRbwnR+rR8MLUIqF3kKbQ==}
     engines: {node: '>=8', npm: '>=6', yarn: '>=1'}
     dependencies:
-      '@babel/runtime': 7.16.0
+      '@babel/runtime': 7.16.3
       '@types/testing-library__jest-dom': 5.14.1
       aria-query: 4.2.2
       chalk: 3.0.0
@@ -8107,7 +8116,7 @@ packages:
       webpack: ^4.8.3 || ^5.0.0
     dependencies:
       json2php: 0.0.4
-      webpack: 5.51.1_webpack-cli@4.8.0
+      webpack: 5.51.1
       webpack-sources: 2.3.1
 
   /@wordpress/deprecated/2.12.3:
@@ -9707,7 +9716,7 @@ packages:
       '@types/babel__core': 7.1.16
       babel-plugin-istanbul: 6.1.1
       babel-preset-jest: 27.2.0_@babel+core@7.16.0
-      chalk: 4.1.1
+      chalk: 4.1.2
       graceful-fs: 4.2.8
       slash: 3.0.0
     transitivePeerDependencies:
@@ -14689,7 +14698,7 @@ packages:
     dependencies:
       '@tootallnate/once': 1.1.2
       agent-base: 6.0.2
-      debug: 4.3.1
+      debug: 4.3.2
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -22000,7 +22009,7 @@ packages:
       serialize-javascript: 6.0.0
       source-map: 0.6.1
       terser: 5.9.0
-      webpack: 5.51.1_webpack-cli@4.8.0
+      webpack: 5.51.1
 
   /terser/3.17.0:
     resolution: {integrity: sha512-/FQzzPJmCpjAH9Xvk2paiWrFq+5M6aVOf+2KRbwhByISDX/EujxsK+BAvrhb6H+2rtrLCHK9N01wO014vrIwVQ==}
@@ -23419,7 +23428,7 @@ packages:
       require-directory: 2.1.1
       string-width: 4.2.3
       y18n: 5.0.8
-      yargs-parser: 20.2.4
+      yargs-parser: 20.2.9
 
   /yargs/17.2.1:
     resolution: {integrity: sha512-XfR8du6ua4K6uLGm5S6fA+FIJom/MdJcFNVY8geLlp2v8GYbOXD4EB1tPNZsRn4vBzKGMgb5DRZMeWuFc2GO8Q==}
