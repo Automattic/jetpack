@@ -148,7 +148,7 @@ const DisconnectSurvey = props => {
 						type="text"
 						value={ customResponse }
 						onChange={ handleCustomResponse }
-						max={ 1000 } // Limit response length.
+						maxLength={ 1000 } // Limit response length.
 					/>
 				</p>
 			</SurveyChoice>
