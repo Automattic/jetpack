@@ -7,10 +7,13 @@
 		"test": "tests"
 	},
 	"scripts": {
-		"build-customberg": "webpack --config ./build/webpack.customberg.config.js",
-		"build-instant": "webpack --config ./build/webpack.instant.config.js",
-		"clean": "rm -rf dist/* .cache/*",
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"build": "pnpm build-customberg && pnpm build-instant",
+		"build-customberg": "pnpm clean-customberg && webpack --config ./build/webpack.customberg.config.js",
+		"build-instant": "pnpm clean-instant && webpack --config ./build/webpack.instant.config.js",
+		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm exec validate-es -- ./dist",
+		"clean-all": "rm -rf dist/* .cache/* node_modules/* vendor/*",
+		"clean-customberg": "rm -rf dist/customberg/*",
+		"clean-instant": "rm -rf dist/instant-search/*",
 		"test": "pnpx concurrently 'pnpm:test-scripts' 'pnpm:test-size'",
 		"test-scripts": "jest src",
 		"test-size": "NODE_ENV=production BABEL_ENV=production pnpm run build-instant && size-limit"
