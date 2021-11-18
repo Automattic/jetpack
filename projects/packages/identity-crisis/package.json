@@ -34,7 +34,7 @@
 		"gulp-sass": "5.0.0",
 		"gulp-sourcemaps": "3.0.0",
 		"sass": "1.43.3",
-		"webpack": "5.51.1"
+		"webpack": "5.64.1"
 	},
 	"engines": {
 		"node": "^14.17.6 || ^16.7.0",
