@@ -46,15 +46,12 @@ const ActivationScreen = props => {
 			setIsSaving( false );
 			setLicenseError( null );
 			setActivatedProduct( 2100 );
-		}, 5000 );
+		}, 1000 );
 	}, [ isSaving, license ] );
 
 	const renderActivationSuccess = () => (
 		<div className="jp-license-activation-screen">
-			<ActivationScreenSuccessInfo
-				dashboardUrl={ 'https://cloud.jetpack.com/landing/' + siteRawUrl }
-				productId={ activatedProduct }
-			/>
+			<ActivationScreenSuccessInfo siteRawUrl={ siteRawUrl } productId={ activatedProduct } />
 			<ActivationScreenIllustration
 				imageUrl={ assetBaseUrl + successImage }
 				showSupportLink={ false }
