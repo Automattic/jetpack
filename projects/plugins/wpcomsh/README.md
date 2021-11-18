@@ -105,11 +105,14 @@ In order for WordPress to load the test site correctly, you'll need to access th
 
 - Make sure there are no uncommitted changes
 - Run `bin/update-version.sh` and provide the new version. This will update the versions in `package.json`, `package-lock.json`, and `wpcomsh.php`. Make sure there are no other changes. Commit these changes and create a PR.
-- Wait for the PR to be approved and merged
-- Checkout latest `master`
-- Tag the release with `make tag`
-- Build a new release zip and create a GH release with `bin/create-github-release.sh`. This reads the version number to use for the build from `wpcomsh.php`, which is set in the first step.
-- New version will be deployed when our monitoring detects it has been released.
+- Once your PR has been reviewed and approved, “Squash and merge” your PR.
+- Now checkout the latest master branch with `git checkout master` and `git pull`.
+- Tag the release with the command `make tag`.
+- Run the git push command suggested by make tag.
+- Run `bin/create-github-release.sh` to build a new release zip and create a GitHub release. This reads the version number to use for the build from `wpcomsh.php`, which is set in the first step.
+  - Note: This command may ask for a GitHub password. Use a [Personal Access Token](https://github.com/settings/tokens/) (with at least repo scope) instead. If your previous token has expired, update it locally in `~/.config/hub`. 
+- You can view your [successful release here](https://github.com/Automattic/wpcomsh/releases).
+- New versions are deployed when our monitoring detects its release.
 
 ### Deploying new languages (optional, and mostly Atomic team)
 
