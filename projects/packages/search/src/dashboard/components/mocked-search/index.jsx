@@ -20,10 +20,10 @@ import MockedLegacySearch from './mocked-legacy-search';
  * @returns {React.Component} Mocked Search interface component.
  */
 export default function MockedSearch( props ) {
-	const { hasActiveSearchPurchase, isBusinessPlan } = props;
+	const { supportsInstantSearch, supportsOnlyClassicSearch } = props;
 	// We only want to show the legacy search mock to users with bussiness plan but no search subscription.
 	// For all other cases, we show our Instant Search experience mock.
-	const shouldShowMockedLegacySearch = isBusinessPlan && ! hasActiveSearchPurchase;
+	const shouldShowMockedLegacySearch = supportsOnlyClassicSearch && ! supportsInstantSearch;
 
 	return (
 		<Fragment>

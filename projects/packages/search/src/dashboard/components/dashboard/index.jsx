@@ -28,11 +28,32 @@ import NoticesList from '../global-notices';
  * @returns {React.Component} Search dashboard component.
  */
 export default function SearchDashboard() {
+	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
+	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
+
 	const siteAdminUrl = syncSelect( STORE_ID ).getSiteAdminUrl();
 	const aboutPageUrl = siteAdminUrl + 'admin.php?page=jetpack_about';
 
-	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
-	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
+	const updateOptions = useDispatch( STORE_ID ).updateJetpackSettings;
+	const isInstantSearchPromotionActive = syncSelect( STORE_ID ).isInstantSearchPromotionActive();
+
+	const domain = syncSelect( STORE_ID ).getCalypsoSlug();
+	const upgradeBillPeriod = syncSelect( STORE_ID ).getUpgradeBillPeriod();
+
+	const supportsOnlyClassicSearch = useSelect(
+		select => select( STORE_ID ).supportsOnlyClassicSearch
+	);
+	const supportsSearch = useSelect( select => select( STORE_ID ).supportsSearch() );
+	const supportsInstantSearch = useSelect( select => select( STORE_ID ).supportsInstantSearch() );
+	const isModuleEnabled = useSelect( select => select( STORE_ID ).isModuleEnabled() );
+	const isInstantSearchEnabled = useSelect( select => select( STORE_ID ).isInstantSearchEnabled() );
+	const isSavingEitherOption = useSelect( select =>
+		select( STORE_ID ).isUpdatingJetpackSettings()
+	);
+	const isTogglingModule = useSelect( select => select( STORE_ID ).isTogglingModule() );
+	const isTogglingInstantSearch = useSelect( select =>
+		select( STORE_ID ).isTogglingInstantSearch()
+	);
 
 	const isLoading = useSelect(
 		select =>
@@ -95,7 +116,10 @@ export default function SearchDashboard() {
 				<div className="jp-search-dashboard-row" aria-hidden="true">
 					<div className="lg-col-span-1 md-col-span-1 sm-col-span-0"></div>
 					<div className="jp-search-dashboard-top__mocked-search-interface lg-col-span-10 md-col-span-6 sm-col-span-4">
-						<MockedSearch />
+						<MockedSearch
+							supportsInstantSearch={ supportsInstantSearch }
+							supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
+						/>
 					</div>
 					<div className="lg-col-span-1 md-col-span-1 sm-col-span-0"></div>
 				</div>
@@ -106,7 +130,21 @@ export default function SearchDashboard() {
 	const renderModuleControl = () => {
 		return (
 			<div className="jp-search-dashboard-bottom">
-				<ModuleControl />
+				<ModuleControl
+					siteAdminUrl={ siteAdminUrl }
+					updateOptions={ updateOptions }
+					domain={ domain }
+					isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
+					upgradeBillPeriod={ upgradeBillPeriod }
+					supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
+					supportsSearch={ supportsSearch }
+					supportsInstantSearch={ supportsInstantSearch }
+					isModuleEnabled={ isModuleEnabled }
+					isInstantSearchEnabled={ isInstantSearchEnabled }
+					isSavingEitherOption={ isSavingEitherOption }
+					isTogglingModule={ isTogglingModule }
+					isTogglingInstantSearch={ isTogglingInstantSearch }
+				/>
 			</div>
 		);
 	};

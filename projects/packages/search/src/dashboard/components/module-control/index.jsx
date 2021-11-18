@@ -4,7 +4,6 @@
 import React, { Fragment, useCallback } from 'react';
 import { sprintf, __ } from '@wordpress/i18n';
 import { createInterpolateElement } from '@wordpress/element';
-import { useDispatch, useSelect, select as syncSelect } from '@wordpress/data';
 import classNames from 'classnames';
 
 /**
@@ -18,11 +17,6 @@ import InstantSearchUpsellNudge from '../upsell-nudge';
 import analytics from '@automattic/jetpack-analytics';
 import 'scss/rna-styles.scss';
 import './style.scss';
-
-/**
- * State dependencies
- */
-import { STORE_ID } from '../../store';
 
 const SEARCH_DESCRIPTION = __(
 	'Jetpack Search is an incredibly powerful and customizable replacement for the search capability built into WordPress that helps your visitors find the right content.',
@@ -39,41 +33,37 @@ const WIDGETS_EDITOR_URL = 'customize.php?autofocus[panel]=widgets&return=%s';
 /**
  * Search settings component to be used within the Performance section.
  *
+ * @param {object} props - Component properties.
  * @returns {React.Component}	Search settings component.
  */
-export default function SearchModuleControl() {
-	const updateOptions = useDispatch( STORE_ID ).updateJetpackSettings;
-	const siteAdminUrl = syncSelect( STORE_ID ).getSiteAdminUrl();
-	const returnUrl = encodeURIComponent( siteAdminUrl + RETURN_PATH );
-	const isInstantSearchPromotionActive = syncSelect( STORE_ID ).isInstantSearchPromotionActive();
+export default function SearchModuleControl( props ) {
+	const {
+		siteAdminUrl,
+		updateOptions,
+		domain,
+		isSavingEitherOption,
+		isModuleEnabled,
+		isInstantSearchEnabled,
+		isInstantSearchPromotionActive,
+		upgradeBillPeriod,
+		supportsOnlyClassicSearch,
+		supportsSearch,
+		supportsInstantSearch,
+		isTogglingModule,
+		isTogglingInstantSearch,
+	} = props;
 
-	const domain = syncSelect( STORE_ID ).getCalypsoSlug();
-	const upgradeBillPeriod = syncSelect( STORE_ID ).getUpgradeBillPeriod();
-	const upgradeUrl = getRedirectUrl(
-		upgradeBillPeriod === 'monthly' ? 'jetpack-search-monthly' : 'jetpack-search',
-		{ site: domain }
-	);
-
-	const supportsOnlyClassicSearch = useSelect(
-		select => select( STORE_ID ).supportsOnlyClassicSearch
-	);
-	const supportsSearch = useSelect( select => select( STORE_ID ).supportsSearch() );
-	const supportsInstantSearch = useSelect( select => select( STORE_ID ).supportsInstantSearch() );
-	const isModuleEnabled = useSelect( select => select( STORE_ID ).isModuleEnabled() );
-	const isInstantSearchEnabled = useSelect( select => select( STORE_ID ).isInstantSearchEnabled() );
-	const isSavingEitherOption = useSelect( select =>
-		select( STORE_ID ).isUpdatingJetpackSettings()
-	);
-	const isTogglingModule = useSelect( select => select( STORE_ID ).isTogglingModule() );
-	const isTogglingInstantSearch = useSelect( select =>
-		select( STORE_ID ).isTogglingInstantSearch()
-	);
 	const isInstantSearchCustomizeButtonDisabled =
 		isSavingEitherOption ||
 		! isModuleEnabled ||
 		! isInstantSearchEnabled ||
 		! supportsInstantSearch;
 	const isWidgetsEditorButtonDisabled = isSavingEitherOption || ! isModuleEnabled;
+	const returnUrl = encodeURIComponent( siteAdminUrl + RETURN_PATH );
+	const upgradeUrl = getRedirectUrl(
+		upgradeBillPeriod === 'monthly' ? 'jetpack-search-monthly' : 'jetpack-search',
+		{ site: domain }
+	);
 
 	const toggleSearchModule = useCallback( () => {
 		const oldOption = {
