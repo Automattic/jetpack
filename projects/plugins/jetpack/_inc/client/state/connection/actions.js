@@ -291,11 +291,13 @@ export const reconnectSite = () => {
 	};
 };
 
-export const setHasSeenWCConnectionModal = () => {
+export const setHasSeenWCConnectionModal = ( { immediately = true } = {} ) => {
 	return dispatch => {
-		dispatch( {
-			type: JETPACK_CONNECTION_HAS_SEEN_WC_CONNECTION_MODAL,
-		} );
+		if ( immediately ) {
+			dispatch( {
+				type: JETPACK_CONNECTION_HAS_SEEN_WC_CONNECTION_MODAL,
+			} );
+		}
 
 		return restApi.hasSeenWCConnectionModal();
 	};

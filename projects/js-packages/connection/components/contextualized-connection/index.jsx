@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { JetpackLogo } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
@@ -36,6 +36,10 @@ const ContextualizedConnection = props => {
 		setHasSeenWCConnectionModal,
 	} = props;
 
+	const onConnectionRegistered = useCallback( () => {
+		setHasSeenWCConnectionModal( { immediately: false } );
+	}, [ setHasSeenWCConnectionModal ] );
+
 	return (
 		<div className={ 'jp-contextualized-connection' + ( className ? ' ' + className : '' ) }>
 			<div className="jp-contextualized-connection__content">
@@ -66,7 +70,7 @@ const ContextualizedConnection = props => {
 							registrationNonce={ registrationNonce }
 							redirectUri={ redirectUri }
 							connectLabel={ buttonLabel }
-							onRegistered={ setHasSeenWCConnectionModal }
+							onRegistered={ onConnectionRegistered }
 						/>
 						<div className="jp-contextualized-connection__tos">{ ToS }</div>
 					</>
