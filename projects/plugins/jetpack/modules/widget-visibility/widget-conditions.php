@@ -74,7 +74,8 @@ class Jetpack_Widget_Conditions {
 			}
 
 			// Batch API is usually saving but could be anything.
-			if ( false !== strpos( $_SERVER['REQUEST_URI'], '/wp-json/batch/v1' ) ) {
+			$current_url = ! empty( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+			if ( false !== strpos( $current_url, '/wp-json/batch/v1' ) || 1 === preg_match( '/^\/wp\/v2\/sites\/\d+\/batch\/v1/', $current_url ) ) {
 				$handle_widget_updates = true;
 				$add_html_to_form      = true;
 			}
@@ -116,22 +117,13 @@ class Jetpack_Widget_Conditions {
 	 * Enqueue the block-based widget visibility scripts.
 	 */
 	public static function setup_block_controls() {
-		$manifest_path       = JETPACK__PLUGIN_DIR . '_inc/build/widget-visibility/editor/index.min.asset.php';
-		$script_path         = plugins_url( '_inc/build/widget-visibility/editor/index.min.js', JETPACK__PLUGIN_FILE );
-		$script_dependencies = array( 'wp-polyfill' );
-		if ( file_exists( $manifest_path ) ) {
-			$asset_manifest      = include $manifest_path;
-			$script_dependencies = $asset_manifest['dependencies'];
-		}
-
-		// Enqueue built script.
-		wp_enqueue_script(
+		Assets::register_script(
 			'widget-visibility-editor',
-			$script_path,
-			$script_dependencies,
-			JETPACK__VERSION,
-			true
+			'_inc/build/widget-visibility/editor/index.min.js',
+			JETPACK__PLUGIN_FILE,
+			array( 'in_footer' => true )
 		);
+		Assets::enqueue_script( 'widget-visibility-editor' );
 		wp_set_script_translations( 'widget-visibility-editor', 'jetpack' );
 	}
 
@@ -780,89 +772,22 @@ class Jetpack_Widget_Conditions {
 			}
 			return false;
 		} elseif ( ! empty( $instance['content'] ) && has_blocks( $instance['content'] ) ) {
-			// Block-Based widgets: We have gutenberg blocks that could have the 'conditions' attribute
-			// Note: These blocks can be nested, and we would have to apply these conditions at any level.
+			// Block-Based widgets: We have gutenberg blocks that could have the 'conditions' attribute.
 			$blocks = parse_blocks( $instance['content'] );
-			$blocks = self::recursively_filter_blocks( $blocks )[0];
-			if ( empty( $blocks ) ) {
-				return false;
+			if ( empty( $blocks[0]['attrs']['conditions']['rules'] ) ) {
+				// No Rules: Display widget.
+				return $instance;
 			}
-
-			$output = '';
-			foreach ( $blocks as $block ) {
-				if ( ! empty( $block ) ) {
-					$output .= render_block( $block );
-				}
+			if ( self::filter_widget_check_conditions( $blocks[0]['attrs']['conditions'] ) ) {
+				// Rules passed checks: Display widget.
+				return $instance;
 			}
-			$instance['content'] = $output;
-
-			return $instance;
+			// Rules failed checks: Hide widget.
+			return false;
 		}
 
 		// No visibility found.
 		return $instance;
-	}
-
-	/**
-	 * Recursively check the visibility conditions in blocks' attr.conditions.rules.
-	 * Any that fail the check will be removed.
-	 *
-	 * @param array $blocks (By reference; will be modified).
-	 * @return array [$blocks, $indexes_removed]
-	 */
-	public static function recursively_filter_blocks( &$blocks ) {
-		$indexes_removed = array();
-
-		foreach ( $blocks as $i => $block ) {
-			$keep = true;
-			if ( ! empty( $block['attrs']['conditions']['rules'] ) ) {
-				$keep = self::filter_widget_check_conditions( $block['attrs']['conditions'] );
-			}
-
-			if ( ! $keep ) {
-				unset( $blocks[ $i ] );
-				array_push( $indexes_removed, $i );
-			} elseif ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
-				$result                      = self::recursively_filter_blocks( $blocks[ $i ]['innerBlocks'] );
-				$blocks[ $i ]['innerBlocks'] = $result[0];
-
-				// For each block we removed in innerBlocks, we must remove a corresponding 'null' in innerContent
-				// if $sub_indexes_removed = [0, 2], we removed the 0th and 2nd innerBlocks, and need to remove
-				// the 0th and 2nd nulls in innerContent.
-				$sub_indexes_removed = $result[1];
-				if ( ! empty( $sub_indexes_removed ) ) {
-					$null_locations = array_keys( $blocks[ $i ]['innerContent'], null, true );
-					$null_count     = count( $null_locations );
-
-					// phpcs:disable Squiz.PHP.CommentedOutCode.Found
-
-					/*
-					Example:
-					null_locations = [ 1, 3, 5 ]    "Nulls exist at j=1, j=3, j=5".
-					null_count = 3.                 "There are 3 nulls".
-					sub_indexes_removed = [ 0, 2 ]. "We want to remove the 0th and 2nd null".
-					We need to remove the 0th null (at j = 1) and the 2nd null (at j = 5).
-					[ 'abc', null, 'def', null, 'ghi', null ].
-					..........^ j = 1, k = 0              ^.
-					.......................^ j = 3, k = 1 ^.
-					......................................^ j = 5, k = 2.
-					*/
-
-					// phpcs:enable Squiz.PHP.CommentedOutCode.Found
-
-					$k = $null_count - 1;
-					// Work backwards so as we delete items, then the other indexes don't change.
-					foreach ( array_reverse( $null_locations ) as $j ) {
-						// We are looking at a null, which is the $j index of the array and the $kth null in total (k is also 0 indexed).
-						if ( in_array( $k, $sub_indexes_removed, true ) ) {
-							array_splice( $blocks[ $i ]['innerContent'], $j, 1 );
-						}
-						$k--;
-					}
-				}
-			}
-		}
-		return array( $blocks, $indexes_removed );
 	}
 
 	/**

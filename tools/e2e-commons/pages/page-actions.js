@@ -3,7 +3,9 @@ import fs from 'fs';
 import chalk from 'chalk';
 import config from 'config';
 import path from 'path';
-const pwConfig = require( `${ path.resolve( process.env.NODE_CONFIG_DIR ) }/playwright.config` );
+const pwConfig = require( `${ path.resolve(
+	process.env.NODE_CONFIG_DIR ? process.env.NODE_CONFIG_DIR : 'config'
+) }/playwright.config` );
 
 /**
  * This is an abstraction for most important page actions

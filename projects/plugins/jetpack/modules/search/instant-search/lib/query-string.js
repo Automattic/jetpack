@@ -21,9 +21,9 @@ export function getQuery( search = window.location.search ) {
 }
 
 /**
- * Updates the browser's query string via a query object.
+ * Change the query string.
  *
- * @param {object} queryObject - a query object.
+ * @param {object|null} queryObject - a query object.
  */
 export function setQuery( queryObject ) {
 	pushQueryString( encode( queryObject ) );

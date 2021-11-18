@@ -58,6 +58,56 @@ EOF
 	}
 
 	/**
+	 * Get the next version based on the changelog.
+	 *
+	 * @param string[]      $versions Existing versions from the changelog.
+	 * @param ChangeEntry[] $changes Changes.
+	 * @param array         $extra Extra components for the version.
+	 * @return string $version
+	 * @throws InvalidArgumentException If something is wrong.
+	 */
+	public static function getNextVersion( array $versions, array $changes, array $extra ) {
+		$versioning = Config::versioningPlugin();
+
+		$curversion     = $versions[0];
+		$releaseversion = null;
+		foreach ( $versions as $v ) {
+			try {
+				$parsed = $versioning->parseVersion( $v );
+			} catch ( \Exception $ex ) {
+				break;
+			}
+			if ( null === $parsed['prerelease'] ) {
+				$releaseversion = $parsed['version'];
+				break;
+			}
+		}
+
+		// Simple case, current version is a release version.
+		if ( $curversion === $releaseversion ) {
+			return $versioning->nextVersion( $curversion, $changes, $extra );
+		}
+
+		// Some DWIM going on here, when the current version is a prerelease:
+		// 1. First, find the most recent non-prerelease version and calculate "next" based on that.
+		// 2. If the above returned a version earlier than the most recent version, re-normalize with the new $extra.
+		// This handles the situation where you're going from 1.2.3-alpha to 1.2.3-beta.
+		// 3. If that returned an earlier version too, bump to the next version from the most recent version.
+		// This handles the situation where you have 1.2.3-beta to eventually make 1.2.3 while meanwhile you're looking at the following -alpha version.
+		if ( null !== $releaseversion ) {
+			$newversion = $versioning->nextVersion( $releaseversion, $changes, $extra );
+			if ( $versioning->compareVersions( $curversion, $newversion ) < 0 ) {
+				return $newversion;
+			}
+		}
+		$newversion = $versioning->normalizeVersion( $curversion, $extra );
+		if ( $versioning->compareVersions( $curversion, $newversion ) < 0 ) {
+			return $newversion;
+		}
+		return $versioning->nextVersion( $curversion, $changes, $extra );
+	}
+
+	/**
 	 * Executes the command.
 	 *
 	 * @param InputInterface  $input InputInterface.
@@ -134,11 +184,9 @@ EOF
 
 		// For current and next, if the changelog was empty of versions (and it didn't error out
 		// earlier) then guess the first version.
-		$extra = array_filter(
-			array(
-				'prerelease' => $input->getOption( 'prerelease' ),
-				'buildinfo'  => $input->getOption( 'buildinfo' ),
-			)
+		$extra = array(
+			'prerelease' => $input->getOption( 'prerelease' ),
+			'buildinfo'  => $input->getOption( 'buildinfo' ),
 		);
 		if ( ! $versions ) {
 			try {
@@ -181,7 +229,7 @@ EOF
 			}
 		}
 		try {
-			$output->writeln( $versioning->nextVersion( $versions[0], $changes, $extra ), OutputInterface::VERBOSITY_QUIET );
+			$output->writeln( self::getNextVersion( $versions, $changes, $extra ), OutputInterface::VERBOSITY_QUIET );
 			return 0;
 		} catch ( \Exception $ex ) {
 			$output->writeln( "<error>{$ex->getMessage()}</>" );

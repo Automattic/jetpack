@@ -97,13 +97,7 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 	 *
 	 * @return array
 	 */
-	function provider_deprecated_file_paths() {
-		return array(
-			array(
-				'class.jetpack-ixr-client.php',
-				'',
-			),
-		);
+	public function provider_deprecated_file_paths() {
+		return array();
 	}
-
 }

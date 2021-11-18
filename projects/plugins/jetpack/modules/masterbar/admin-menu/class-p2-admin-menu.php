@@ -83,8 +83,6 @@ class P2_Admin_Menu extends WPcom_Admin_Menu {
 
 		if ( ! $this->is_hub ) {
 			$this->remove_menus_for_p2_space();
-			// Only add the P2 Editor menu on non-hubs.
-			$this->add_p2_editor_menu();
 		} else {
 			$this->remove_menus_for_hub();
 		}
@@ -142,9 +140,9 @@ class P2_Admin_Menu extends WPcom_Admin_Menu {
 		// The following menu items are hidden for both hubs and P2 sites.
 		remove_menu_page( 'link-manager.php' );
 		remove_menu_page( 'feedback' );
-		remove_menu_page( 'https://wordpress.com/beta-testing/' . $this->domain );
 		remove_menu_page( $this->plugins_slug );
 		remove_menu_page( 'https://wordpress.com/plugins/' . $this->domain );
+		remove_menu_page( 'https://wordpress.com/inbox/' . $this->domain );
 
 		remove_submenu_page( $this->tools_slug, 'https://wordpress.com/marketing/tools/' . $this->domain );
 		remove_submenu_page( $this->tools_slug, 'https://wordpress.com/earn/' . $this->domain );
@@ -160,28 +158,19 @@ class P2_Admin_Menu extends WPcom_Admin_Menu {
 			'https://wordpress.com/settings/general/' . $this->domain,
 			'https://wordpress.com/marketing/sharing-buttons/' . $this->domain
 		);
+
+		/** This action is documented in `wp-content/plugins/p2-editor/classes/p2-editor-admin.php` */
+		if ( apply_filters( 'p2tenberg_admin_patterns', apply_filters( 'p2editor_admin_patterns', true ) ) !== true ) {
+			remove_menu_page( 'edit.php?post_type=p2_pattern' );
+		}
+		remove_submenu_page(
+			'edit.php?post_type=p2_pattern',
+			'edit-tags.php?taxonomy=post_tag&amp;post_type=p2_pattern'
+		);
 	}
 
 	/**
-	 * Adds the P2 Editor menu.
+	 * Override, don't add the woocommerce installation menu on any p2s.
 	 */
-	private function add_p2_editor_menu() {
-		/** This action is documented in `wp-content/plugins/p2-editor/classes/p2-editor-admin.php` */
-		if ( apply_filters( 'p2tenberg_admin_patterns', apply_filters( 'p2editor_admin_patterns', true ) ) !== true ) {
-			return;
-		}
-
-		// Add the menu only in Calypso (it already exists in WP Admin).
-		if ( $this->is_api_request ) {
-			add_menu_page(
-				esc_attr__( 'P2 Editor', 'jetpack' ),
-				__( 'P2 Editor', 'jetpack' ),
-				'manage_options',
-				'p2editor',
-				'',
-				'dashicons-admin-multisite'
-			);
-		}
-	}
-
+	public function add_woocommerce_installation_menu() {}
 }

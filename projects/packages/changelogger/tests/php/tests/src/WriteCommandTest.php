@@ -1014,6 +1014,40 @@ class WriteCommandTest extends CommandTestCase {
 				true,
 				'changelog' => "# Changelog\n\n## 1.0.1 - $date\n### Fixed\n- Fixed a thing.\n\n## 1.0 - 2021-02-24\n\n- Initial release\n",
 			),
+
+			'Writing a new prerelease based on an old one' => array(
+				array( '--prerelease' => 'beta.2' ),
+				array(
+					'changelog' => "# Changelog\n\n## 1.0.1-beta - 2021-10-12\n\n- Beta\n\n## 1.0.0 - 2021-02-24\n\n- Initial release\n",
+				),
+				array(),
+				0,
+				array( '{^$}' ),
+				true,
+				'changelog' => "# Changelog\n\n## 1.0.1-beta.2 - $date\n### Fixed\n- Fixed a thing.\n\n## 1.0.1-beta - 2021-10-12\n\n- Beta\n\n## 1.0.0 - 2021-02-24\n\n- Initial release\n",
+			),
+			'Writing a new prerelease based on an old one (2)' => array(
+				array( '--prerelease' => 'beta.2' ),
+				array(
+					'changelog' => "# Changelog\n\n## 2.0.0-beta - 2021-10-12\n\n- Beta\n\n## 1.0.0 - 2021-02-24\n\n- Initial release\n",
+				),
+				array(),
+				0,
+				array( '{^$}' ),
+				true,
+				'changelog' => "# Changelog\n\n## 2.0.0-beta.2 - $date\n### Fixed\n- Fixed a thing.\n\n## 2.0.0-beta - 2021-10-12\n\n- Beta\n\n## 1.0.0 - 2021-02-24\n\n- Initial release\n",
+			),
+			'Writing a new prerelease based on an old one (3)' => array(
+				array( '--prerelease' => 'alpha' ),
+				array(
+					'changelog' => "# Changelog\n\n## 1.0.1-beta - 2021-10-12\n\n- Beta\n\n## 1.0.0 - 2021-02-24\n\n- Initial release\n",
+				),
+				array(),
+				0,
+				array( '{^$}' ),
+				true,
+				'changelog' => "# Changelog\n\n## 1.0.2-alpha - $date\n### Fixed\n- Fixed a thing.\n\n## 1.0.1-beta - 2021-10-12\n\n- Beta\n\n## 1.0.0 - 2021-02-24\n\n- Initial release\n",
+			),
 		);
 	}
 

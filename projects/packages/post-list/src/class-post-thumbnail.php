@@ -21,8 +21,8 @@ class Post_Thumbnail {
 	public static function get_post_thumbnail( $post ) {
 		$image_id    = null;
 		$image_url   = null;
-		$image_thumb = null;
 		$image_alt   = null;
+		$image_thumb = false;
 
 		$post_id = $post->ID;
 
@@ -45,7 +45,7 @@ class Post_Thumbnail {
 		}
 
 		// If no thumbnail is found return null.
-		if ( null === $image_thumb ) {
+		if ( false === $image_thumb ) {
 			return null;
 		}
 

@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Use the Admin UI package and register the menu under the Jetpack top level menu

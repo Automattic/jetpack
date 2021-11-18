@@ -44,6 +44,28 @@ export function buildFilterAggregations( widgets = [] ) {
 }
 
 /**
+ * The function set the aggregation count to zero which is just meant for users to uncheck.
+ * Tried to merge the buckets, but which ended up showing too many filters.
+ *
+ * @param {object} newAggregations - New aggregations to operate on.
+ * @returns {object} - Aggregations with doc_count set to 0.
+ */
+export function setDocumentCountsToZero( newAggregations ) {
+	newAggregations = newAggregations ?? {};
+	return Object.fromEntries(
+		Object.entries( newAggregations )
+			.filter( ( [ , aggregation ] ) => aggregation?.buckets?.length > 0 )
+			.map( ( [ aggregationKey, aggregation ] ) => {
+				const buckets = aggregation.buckets.map( bucket => ( {
+					...bucket,
+					doc_count: 0,
+				} ) );
+				return [ aggregationKey, { ...aggregation, buckets } ];
+			} )
+	);
+}
+
+/**
  * Builds ElasticSearch aggregations for a given filter.
  *
  * @param {object[]} filter - a filter object from a widget configuration object.

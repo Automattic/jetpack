@@ -25,6 +25,7 @@ class Critical_CSS extends Module {
 
 	const MODULE_SLUG                           = 'critical-css';
 	const GENERATE_QUERY_ACTION                 = 'jb-generate-critical-css';
+	const GENERATE_PROXY_NONCE                  = 'jb-generate-proxy-nonce';
 	const CSS_CALLBACK_ACTION                   = 'jb-critical-css-callback';
 	const RESET_REASON_STORAGE_KEY              = 'jb-generate-critical-css-reset-reason';
 	const DISMISSED_RECOMMENDATIONS_STORAGE_KEY = 'jb-critical-css-dismissed-recommendations';
@@ -102,14 +103,6 @@ class Critical_CSS extends Module {
 	protected $request_cached_css;
 
 	/**
-	 * Used to track real admin user id when generating Critical CSS,
-	 * to ensure all nonces belong to the correct user.
-	 *
-	 * @var int
-	 */
-	protected $nonce_admin_user_id;
-
-	/**
 	 * Critical CSS storage class instance.
 	 *
 	 * @var Critical_CSS_Storage
@@ -122,6 +115,15 @@ class Critical_CSS extends Module {
 	 * @var Critical_CSS_State
 	 */
 	protected $state;
+
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		parent::__construct();
+
+		add_filter( 'jetpack_boost_js_constants', array( $this, 'always_add_critical_css_constants' ) );
+	}
 
 	/**
 	 * This is only run if Critical CSS module has been activated.
@@ -142,11 +144,9 @@ class Critical_CSS extends Module {
 		// Update ready flag used to indicate Boost optimizations are warmed up in metatag.
 		add_filter( 'jetpack_boost_url_ready', array( $this, 'is_ready_filter' ), 10, 1 );
 
-		// Check for the appropriate GET parameters to act as a CSS proxy and handle them.
-		$this->handle_css_proxy();
-
 		if ( $this->should_display_critical_css() ) {
 			Admin_Bar_Css_Compat::init();
+
 			add_action( 'wp_head', array( $this, 'display_critical_css' ), 0 );
 			add_filter( 'style_loader_tag', array( $this, 'asynchronize_stylesheets' ), 10, 4 );
 			add_action( 'wp_footer', array( $this, 'onload_flip_stylesheets' ) );
@@ -156,9 +156,7 @@ class Critical_CSS extends Module {
 		$this->generating_critical_css = $this->check_generate_query();
 
 		if ( $this->generating_critical_css ) {
-			add_filter( 'style_loader_src', array( $this, 'force_proxied_css' ), 10, 4 );
 			add_action( 'wp_head', array( $this, 'display_generate_meta' ), 0 );
-
 			$this->force_logged_out_render();
 		}
 
@@ -169,6 +167,7 @@ class Critical_CSS extends Module {
 		if ( is_admin() ) {
 			add_action( 'wp_ajax_dismiss_recommendations', array( $this, 'dismiss_recommendations' ) );
 			add_action( 'wp_ajax_reset_dismissed_recommendations', array( $this, 'reset_dismissed_recommendations' ) );
+			add_action( 'wp_ajax_boost_proxy_css', array( $this, 'handle_css_proxy' ) );
 		}
 
 		return true;
@@ -480,7 +479,20 @@ class Critical_CSS extends Module {
 	// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 	/**
-	 * Add Critical CSS related constants to be passed to JavaScript.
+	 * Add Critical CSS related constants to be passed to JavaScript whether or not the module is enabled.
+	 *
+	 * @param array $constants Constants to be passed to JavaScript.
+	 *
+	 * @return array
+	 */
+	public function always_add_critical_css_constants( $constants ) {
+		$constants['criticalCssDismissRecommendationsNonce'] = wp_create_nonce( self::DISMISS_CSS_RECOMMENDATIONS_NONCE );
+
+		return $constants;
+	}
+
+	/**
+	 * Add Critical CSS related constants to be passed to JavaScript only if the module is enabled.
 	 *
 	 * @param array $constants Constants to be passed to JavaScript.
 	 *
@@ -488,9 +500,8 @@ class Critical_CSS extends Module {
 	 */
 	public function add_critical_css_constants( $constants ) {
 		// Information about the current status of Critical CSS / generation.
-		$constants['criticalCssStatus']                      = $this->get_local_critical_css_generation_info();
-		$constants['criticalCssDismissRecommendationsNonce'] = wp_create_nonce( self::DISMISS_CSS_RECOMMENDATIONS_NONCE );
-		$constants['criticalCssDismissedRecommendations']    = \get_option( self::DISMISSED_RECOMMENDATIONS_STORAGE_KEY, array() );
+		$constants['criticalCssStatus']                   = $this->get_local_critical_css_generation_info();
+		$constants['criticalCssDismissedRecommendations'] = \get_option( self::DISMISSED_RECOMMENDATIONS_STORAGE_KEY, array() );
 
 		return $constants;
 	}
@@ -506,8 +517,11 @@ class Critical_CSS extends Module {
 		// Add viewport sizes.
 		$status['viewports'] = self::VIEWPORT_SIZES;
 
-		// Add a nonce to use when requesting pages for Critical CSS generation (i.e.: To turn off admin features).
+		// Add a userless nonce to use when requesting pages for Critical CSS generation (i.e.: To turn off admin features).
 		$status['generation_nonce'] = Nonce::create( self::GENERATE_QUERY_ACTION );
+
+		// Add a user-bound nonce to use when proxying CSS for Critical CSS generation.
+		$status['proxy_nonce'] = wp_create_nonce( self::GENERATE_PROXY_NONCE );
 
 		// Add a passthrough block to include in all response callbacks.
 		$status['callback_passthrough'] = array(
@@ -639,26 +653,56 @@ class Critical_CSS extends Module {
 	 * @see style_loader_tag
 	 */
 	public function asynchronize_stylesheets( $html, $handle, $href, $media ) {
+		// If is AMP, do not alter the stylesheet loading.
 		if ( function_exists( 'is_amp_endpoint' ) && is_amp_endpoint() ) {
 			return $html;
 		}
 
+		// If there is no critical CSS, do not alter the stylesheet loading.
 		if ( false === $this->get_critical_css() ) {
 			return $html;
 		}
 
-		if ( ! apply_filters( 'jetpack_boost_async_style', true, $handle ) ) {
+		$available_methods = array(
+			'async'    => 'media="not all" data-media="' . $media . '" onload="this.media=this.dataset.media; delete this.dataset.media; this.removeAttribute( \'onload\' );"',
+			'deferred' => 'media="not all" data-media="' . $media . '"',
+		);
+
+		/**
+		 * Loading method for stylesheets.
+		 *
+		 * Filter the loading method for each stylesheet for the screen with following values:
+		 *     async    - Stylesheets are loaded asynchronously.
+		 *                Styles are applied once the stylesheet is loaded completely without render blocking.
+		 *     deferred - Loading of stylesheets are deferred until the window load event.
+		 *                Styles from all the stylesheets are applied at once after the page load.
+		 *
+		 * Stylesheet loading behaviour is not altered for any other value such as false or 'default'.
+		 * Stylesheet loading is instant and the process blocks the page rendering.
+		 *     Eg: add_filter( 'jetpack_boost_async_style', '__return_false' );
+		 *
+		 * @see onload_flip_stylesheets for how stylesheets loading is deferred.
+		 *
+		 * @param string $handle The style's registered handle.
+		 * @param string $media  The stylesheet's media attribute.
+		 *
+		 * @todo  Retrieve settings from database, either via auto-configuration or UI option.
+		 */
+		$method = apply_filters( 'jetpack_boost_async_style', 'async', $handle, $media );
+
+		// If the loading method is not allowed, do not alter the stylesheet loading.
+		if ( ! isset( $available_methods[ $method ] ) ) {
 			return $html;
 		}
-		$async_media = apply_filters( 'jetpack_boost_async_media', array( 'all', 'screen' ) );
 
-		// Convert stylesheets intended for screens.
-		if ( in_array( $media, $async_media, true ) ) {
-			$media_replacement = 'media="not all" onload="this.media=\'all\'"';
-			$html              = preg_replace( '~media=[\'"]?[^\'"\s]+[\'"]?~', $media_replacement, $html );
-		}
+		$html_no_script = '<noscript>' . $html . '</noscript>';
 
-		return $html;
+		// Update the stylesheet markup for allowed methods.
+		$html = preg_replace( '~media=(\'[^\']+\')|("[^"]+")~', $available_methods[ $method ], $html );
+
+		// Append to the HTML stylesheet tag the same untouched HTML stylesheet tag within the noscript tag
+		// to support the rendering of the stylesheet when JavaScript is disabled.
+		return $html_no_script . $html;
 	}
 
 	/**
@@ -733,92 +777,40 @@ class Critical_CSS extends Module {
 		$current_user_id = get_current_user_id();
 
 		if ( 0 !== $current_user_id ) {
-			// Add a filter to force all nonces generated to belong to the current user (if any).
-			$this->nonce_admin_user_id = $current_user_id;
-			add_filter( 'nonce_user_logged_out', array( $this, 'force_nonce_admin_user' ), 10, 2 );
-
 			// Force current user to 0 to ensure page is rendered as a non-logged-in user.
 			wp_set_current_user( 0 );
+
+			// Turn off display of admin bar.
+			add_filter( 'show_admin_bar', '__return_false', PHP_INT_MAX );
 		}
 	}
 
 	/**
-	 * Filter to force nonces created during Critical CSS render to belong to the correct admin user.
-	 * Only affects 'jb-proxy-*' nonces used for proxying external CSS resources.
-	 *
-	 * @param int    $uid    ID of the nonce-owning user.
-	 * @param string $action The nonce action.
-	 *
-	 * @return int
+	 * AJAX handler to handle proxying of external CSS resources.
 	 */
-	public function force_nonce_admin_user( $uid, $action ) {
-		if ( strncmp( $action, 'jb-proxy-', 9 ) === 0 ) {
-			return $this->nonce_admin_user_id;
+	public function handle_css_proxy() {
+		// Verify valid nonce.
+		if ( empty( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_key( $_POST['nonce'] ), self::GENERATE_PROXY_NONCE ) ) {
+			wp_die( '', 400 );
 		}
 
-		return $uid;
-	}
-
-	/**
-	 * Filter used during local critical CSS generation to replace external CSS references with
-	 * proxied URLs.
-	 *
-	 * @param string $src - URL of external CSS resource.
-	 *
-	 * @return string - Proxied URL for external resources, or unaltered $src for local.
-	 */
-	public function force_proxied_css( $src ) {
-		global $wp;
-
-		$parsed = wp_parse_url( $src );
-
-		// Build the resource origin host the requested asset belongs to.
-		$resource_origin = '';
-		if ( isset( $parsed['host'] ) ) {
-			$resource_origin = $parsed['host'];
-		}
-		if ( isset( $parsed['port'] ) ) {
-			$resource_origin .= ':' . $parsed['port'];
+		// Make sure currently logged in as admin.
+		if ( ! $this->current_user_can_modify_critical_css() ) {
+			wp_die( '', 400 );
 		}
 
-		// Skip proxy in certain cases, i.e. if no origin specified, or origin matches current, no need to proxy.
-		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-		$skipped_origins = array( '', $_SERVER['HTTP_HOST'] );
-		if ( in_array( $resource_origin, $skipped_origins, true ) ) {
-			return $src;
+		// Reject any request made when not generating.
+		if ( ! $this->state->is_pending() ) {
+			wp_die( '', 400 );
 		}
 
-		// Copy the scheme in from the current URL if missing.
-		if ( empty( $parsed['scheme'] ) ) {
-			$scheme = empty( $_SERVER['HTTPS'] ) ? 'http://' : 'https://';
-			$src    = $scheme . ltrim( $src, ':/' );
-		}
-
-		// Prepare a proxied URL to allow the JavaScript to access this.
-		$nonce       = wp_create_nonce( 'jb-proxy-' . sanitize_key( $src ) );
-		$proxied_url = add_query_arg(
-			array(
-				'jb-critical-css-render-proxy' => rawurlencode( $src ),
-				'nonce'                        => $nonce,
-			),
-			home_url( $wp->request )
-		);
-
-		return $proxied_url;
-	}
-
-	/**
-	 * Proxy external CSS script - used when jb-critical-css-render-proxy and an appropriate
-	 * nonce are supplied. Useful while generating critical CSS locally.
-	 *
-	 * @param string $src_url - External CSS URL to proxy.
-	 */
-	private function proxy_css( $src_url ) {
-		if ( ! wp_http_validate_url( $src_url ) ) {
+		// Validate URL and fetch.
+		$proxy_url = filter_var( wp_unslash( $_POST['proxy_url'] ), FILTER_VALIDATE_URL );
+		if ( ! wp_http_validate_url( $proxy_url ) ) {
 			die( 'Invalid URL' );
 		}
 
-		$response = wp_remote_get( $src_url );
+		$response = wp_remote_get( $proxy_url );
 		if ( is_wp_error( $response ) ) {
 			// TODO: Nicer error handling.
 			die( 'error' );
@@ -832,35 +824,6 @@ class Critical_CSS extends Module {
 
 		die();
 	}
-
-	/**
-	 * Check for a special GET parameter used to proxy CSS requests while generating new Critical CSS.
-	 * Requires admin permission to use, and is verified by nonce.
-	 *
-	 * phpcs:disable WordPress.Security.NonceVerification.Recommended
-	 */
-	private function handle_css_proxy() {
-		// Exit as early as possible if not trying to proxy.
-		if ( empty( $_GET['jb-critical-css-render-proxy'] ) ) {
-			return;
-		}
-
-		$proxy_url = filter_var( wp_unslash( $_GET['jb-critical-css-render-proxy'] ), FILTER_VALIDATE_URL );
-
-		// Verify valid nonce.
-		if ( empty( $_GET['nonce'] ) || ! wp_verify_nonce( sanitize_key( $_GET['nonce'] ), 'jb-proxy-' . sanitize_key( $proxy_url ) ) ) {
-			wp_die( '', 400 );
-		}
-
-		// Make sure currently logged in as admin.
-		if ( ! $this->current_user_can_modify_critical_css() ) {
-			wp_die( '', 400 );
-		}
-
-		$this->proxy_css( $proxy_url );
-	}
-
-	// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 	/**
 	 * API helper for ensuring this module is enabled before allowing an API
@@ -889,8 +852,9 @@ class Critical_CSS extends Module {
 					// Flip all media="not all" links to media="all".
 					document.querySelectorAll( 'link' ).forEach(
 						function( link ) {
-							if ( link.media === 'not all' ) {
-								link.media = 'all';
+							if ( link.media === 'not all' && link.dataset.media ) {
+								link.media = link.dataset.media;
+								delete link.dataset.media;
 							}
 						}
 					);
@@ -909,7 +873,7 @@ class Critical_CSS extends Module {
 		// Minified version of footer script. See above comment for unminified version.
 		?>
 		<script>window.addEventListener('load', function() {
-				document.querySelectorAll('link').forEach(function(e) {'not all' === e.media && (e.media = 'all');});
+				document.querySelectorAll('link').forEach(function(e) {'not all' === e.media && e.dataset.media && (e.media=e.dataset.media,delete e.dataset.media)});
 				var e = document.getElementById('jetpack-boost-critical-css');
 				e && (e.media = 'not all');
 			});</script>

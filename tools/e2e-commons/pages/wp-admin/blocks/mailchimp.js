@@ -1,5 +1,4 @@
-import LoginPage from '../../wpcom/login';
-import ConnectionsPage from '../../wpcom/connections';
+import { LoginPage, ConnectionsPage } from '../../wpcom';
 import logger from '../../../logger';
 import PageActions from '../../page-actions';
 import axios from 'axios';

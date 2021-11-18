@@ -6,8 +6,9 @@ import { connect } from 'react-redux';
 import { withRouter, Prompt } from 'react-router-dom';
 import { __, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ConnectScreen } from '@automattic/jetpack-connection';
+import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { Dashicon } from '@wordpress/components';
+import { withDispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -27,6 +28,7 @@ import {
 	getConnectUrl,
 	getConnectingUserFeatureLabel,
 	getConnectionStatus,
+	hasConnectedOwner,
 } from 'state/connection';
 import {
 	setInitialState,
@@ -41,10 +43,13 @@ import {
 	getTracksUserData,
 	showRecommendations,
 	getPluginBaseUrl,
+	isWoASite,
 } from 'state/initial-state';
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
 import { getSearchTerm } from 'state/search';
 import { Recommendations } from 'recommendations';
+import ProductDescriptions from 'product-descriptions';
+import { productDescriptionRoutes } from 'product-descriptions/constants';
 import AtAGlance from 'at-a-glance/index.jsx';
 import MyPlan from 'my-plan/index.jsx';
 import Footer from 'components/footer';
@@ -97,6 +102,8 @@ class Main extends React.Component {
 		restApi.setApiRoot( this.props.apiRoot );
 		restApi.setApiNonce( this.props.apiNonce );
 		this.initializeAnalytics();
+
+		this.props.setConnectionStatus( this.props.connectionStatus );
 
 		// Handles refresh, closing and navigating away from Jetpack's Admin Page
 		// beforeunload can not handle confirm calls in most of the browsers, so just clean up the flag.
@@ -186,51 +193,15 @@ class Main extends React.Component {
 			$items.find( 'a[href$="admin.php?page=stats"]' ).hide();
 			$items.find( 'a[href$="admin.php?page=jetpack-search"]' ).hide();
 		}
+
+		this.props.setConnectionStatus( this.props.connectionStatus );
 	}
 
 	renderMainContent = route => {
-		if ( ! this.props.userCanManageModules ) {
-			if ( ! this.props.siteConnectionStatus ) {
-				return false;
-			}
-			return (
-				<div aria-live="assertive">
-					<NonAdminView { ...this.props } />
-				</div>
-			);
-		}
-
-		if ( this.isMainConnectScreen() ) {
-			return (
-				<ConnectScreen
-					apiNonce={ this.props.apiNonce }
-					registrationNonce={ this.props.registrationNonce }
-					apiRoot={ this.props.apiRoot }
-					images={ [ '/images/connect-right.jpg' ] }
-					assetBaseUrl={ this.props.pluginBaseUrl }
-					autoTrigger={ this.shouldAutoTriggerConnection() }
-					redirectUri="admin.php?page=jetpack"
-					connectionStatus={ this.props.connectionStatus }
-				>
-					<p>
-						{ __(
-							"Secure and speed up your site for free with Jetpack's powerful WordPress tools.",
-							'jetpack'
-						) }
-					</p>
-
-					<ul>
-						<li>{ __( 'Measure your impact with beautiful stats', 'jetpack' ) }</li>
-						<li>{ __( 'Speed up your site with optimized images', 'jetpack' ) }</li>
-						<li>{ __( 'Protect your site against bot attacks', 'jetpack' ) }</li>
-						<li>{ __( 'Get notifications if your site goes offline', 'jetpack' ) }</li>
-						<li>{ __( 'Enhance your site with dozens of other features', 'jetpack' ) }</li>
-					</ul>
-				</ConnectScreen>
-			);
-		}
-
-		if ( this.isUserConnectScreen() ) {
+		if (
+			this.isUserConnectScreen() &&
+			( this.props.userCanManageModules || this.props.hasConnectedOwner )
+		) {
 			return (
 				<ConnectScreen
 					apiNonce={ this.props.apiNonce }
@@ -249,7 +220,6 @@ class Main extends React.Component {
 					}
 					buttonLabel={ __( 'Connect your user account', 'jetpack' ) }
 					redirectUri="admin.php?page=jetpack"
-					connectionStatus={ this.props.connectionStatus }
 				>
 					<ul>
 						<li>{ __( 'Receive instant downtime alerts', 'jetpack' ) }</li>
@@ -279,6 +249,46 @@ class Main extends React.Component {
 								<Dashicon icon="external" />
 							</a>
 						</li>
+					</ul>
+				</ConnectScreen>
+			);
+		}
+
+		if ( ! this.props.userCanManageModules ) {
+			if ( ! this.props.siteConnectionStatus ) {
+				return false;
+			}
+			return (
+				<div aria-live="assertive">
+					<NonAdminView { ...this.props } />
+				</div>
+			);
+		}
+
+		if ( this.isMainConnectScreen() ) {
+			return (
+				<ConnectScreen
+					apiNonce={ this.props.apiNonce }
+					registrationNonce={ this.props.registrationNonce }
+					apiRoot={ this.props.apiRoot }
+					images={ [ '/images/connect-right.jpg' ] }
+					assetBaseUrl={ this.props.pluginBaseUrl }
+					autoTrigger={ this.shouldAutoTriggerConnection() }
+					redirectUri="admin.php?page=jetpack"
+				>
+					<p>
+						{ __(
+							"Secure and speed up your site for free with Jetpack's powerful WordPress tools.",
+							'jetpack'
+						) }
+					</p>
+
+					<ul>
+						<li>{ __( 'Measure your impact with beautiful stats', 'jetpack' ) }</li>
+						<li>{ __( 'Speed up your site with optimized images', 'jetpack' ) }</li>
+						<li>{ __( 'Protect your site against bot attacks', 'jetpack' ) }</li>
+						<li>{ __( 'Get notifications if your site goes offline', 'jetpack' ) }</li>
+						<li>{ __( 'Enhance your site with dozens of other features', 'jetpack' ) }</li>
 					</ul>
 				</ConnectScreen>
 			);
@@ -360,12 +370,21 @@ class Main extends React.Component {
 				}
 				break;
 			default:
+				if ( productDescriptionRoutes.includes( route ) ) {
+					pageComponent = <ProductDescriptions />;
+					break;
+				}
+
 				this.props.history.replace( '/dashboard' );
 				pageComponent = this.getAtAGlance();
 				break;
 		}
 
-		window.wpNavMenuClassChange();
+		if ( this.props.isWoaSite ) {
+			window.wpNavMenuClassChange( { dashboard: 1, settings: 1 } );
+		} else {
+			window.wpNavMenuClassChange();
+		}
 
 		return (
 			<div aria-live="assertive" className={ `${ this.shouldBlurMainContent() ? 'blur' : '' }` }>
@@ -409,9 +428,12 @@ class Main extends React.Component {
 
 	shouldShowFooter() {
 		// Only show on the dashboard, settings, and recommendations pages
-		return [ ...dashboardRoutes, ...settingsRoutes, ...recommendationsRoutes ].includes(
-			this.props.location.pathname
-		);
+		return [
+			...dashboardRoutes,
+			...settingsRoutes,
+			...recommendationsRoutes,
+			...productDescriptionRoutes,
+		].includes( this.props.location.pathname );
 	}
 
 	shouldBlurMainContent() {
@@ -514,6 +536,7 @@ export default connect(
 			siteConnectionStatus: getSiteConnectionStatus( state ),
 			isLinked: isCurrentUserLinked( state ),
 			isConnectingUser: isConnectingUser( state ),
+			hasConnectedOwner: hasConnectedOwner( state ),
 			siteRawUrl: getSiteRawUrl( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
 			searchTerm: getSearchTerm( state ),
@@ -532,6 +555,7 @@ export default connect(
 			pluginBaseUrl: getPluginBaseUrl( state ),
 			connectUrl: getConnectUrl( state ),
 			connectingUserFeatureLabel: getConnectingUserFeatureLabel( state ),
+			isWoaSite: isWoASite( state ),
 		};
 	},
 	dispatch => ( {
@@ -548,7 +572,17 @@ export default connect(
 			return dispatch( resetConnectUser() );
 		},
 	} )
-)( withRouter( Main ) );
+)(
+	withDispatch( dispatch => {
+		return {
+			setConnectionStatus: connectionStatus => {
+				dispatch( CONNECTION_STORE_ID ).startResolution( 'getConnectionStatus', [] );
+				dispatch( CONNECTION_STORE_ID ).setConnectionStatus( connectionStatus );
+				dispatch( CONNECTION_STORE_ID ).finishResolution( 'getConnectionStatus', [] );
+			},
+		};
+	} )( withRouter( Main ) )
+);
 
 /**
  * Manages changing the visuals of the sub-nav items on the left sidebar when the React app changes routes
@@ -573,7 +607,11 @@ window.wpNavMenuClassChange = function ( pageOrder = { dashboard: 1, settings: 2
 
 	// Set the current sub-nav item according to the current hash route
 	hash = hash.split( '?' )[ 0 ].replace( /#/, '' );
-	if ( dashboardRoutes.includes( hash ) || recommendationsRoutes.includes( hash ) ) {
+	if (
+		dashboardRoutes.includes( hash ) ||
+		recommendationsRoutes.includes( hash ) ||
+		productDescriptionRoutes.includes( hash )
+	) {
 		getJetpackSubNavItem( pageOrder.dashboard ).classList.add( 'current' );
 	} else if ( settingsRoutes.includes( hash ) ) {
 		getJetpackSubNavItem( pageOrder.settings ).classList.add( 'current' );

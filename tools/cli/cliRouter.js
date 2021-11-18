@@ -17,6 +17,7 @@ import { draftDefine } from './commands/draft';
 import { changelogDefine } from './commands/changelog';
 import { dockerDefine } from './commands/docker';
 import { testDefine } from './commands/test';
+import { releaseDefine } from './commands/release';
 
 /**
  * The main CLI router function.
@@ -41,6 +42,7 @@ export async function cli() {
 	argv = draftDefine( argv );
 	argv = generateDefine( argv );
 	argv = installDefine( argv );
+	argv = releaseDefine( argv );
 	argv = testDefine( argv );
 	argv = watchDefine( argv );
 

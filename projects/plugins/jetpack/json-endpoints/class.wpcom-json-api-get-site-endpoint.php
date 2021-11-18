@@ -38,6 +38,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'jetpack'                     => '(bool) Whether the site is a Jetpack site or not',
 		'jetpack_connection'          => '(bool) Whether the site is connected to WP.com via `jetpack-connection`',
 		'is_multisite'                => '(bool) Whether the site is a Multisite site or not. Always true for WP.com sites.',
+		'site_owner'                  => '(int) User ID of the site owner',
 		'post_count'                  => '(int) The number of posts the site has',
 		'subscribers_count'           => '(int) The number of subscribers the site has',
 		'lang'                        => '(string) Primary language code of the site',
@@ -398,7 +399,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'is_multisite' :
 				$response[ $key ] = $this->site->is_multisite();
 				break;
-
+			case 'site_owner':
+				$response[ $key ] = $this->site->get_site_owner();
+				break;
 			case 'organization_id':
 				$response[ $key ] = $this->site->get_p2_organization_id();
 				break;
@@ -719,6 +722,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			unset( $response->lang );
 			unset( $response->user_can_manage );
 			unset( $response->is_multisite );
+			unset( $response->site_owner );
 			unset( $response->plan );
 			unset( $response->products );
 			unset( $response->zendesk_site_meta );

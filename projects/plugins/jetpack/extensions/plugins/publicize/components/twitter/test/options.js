@@ -26,7 +26,7 @@ describe( 'PublicizeTwitterOptions', () => {
 		const connections = [ { service_name: 'facebook' }, { service_name: 'instagram' } ];
 		const wrapper = mount( <PublicizeTwitterOptions connections={ connections } /> );
 
-		expect( wrapper.find( 'h3' ) ).toHaveLength( 0 );
+		expect( wrapper.find( 'label' ) ).toHaveLength( 0 );
 		expect( wrapper.find( 'input' ) ).toHaveLength( 0 );
 	} );
 
@@ -34,7 +34,7 @@ describe( 'PublicizeTwitterOptions', () => {
 		const connections = [ { service_name: 'twitter', enabled: false } ];
 		const wrapper = mount( <PublicizeTwitterOptions connections={ connections } /> );
 
-		expect( wrapper.find( 'h3' ) ).toHaveLength( 0 );
+		expect( wrapper.find( 'label' ) ).toHaveLength( 0 );
 		expect( wrapper.find( 'input' ) ).toHaveLength( 0 );
 	} );
 
@@ -42,7 +42,7 @@ describe( 'PublicizeTwitterOptions', () => {
 		const connections = [ { service_name: 'twitter', enabled: true } ];
 		const wrapper = mount( <PublicizeTwitterOptions connections={ connections } /> );
 
-		expect( wrapper.find( 'h3' ) ).toHaveLength( 1 );
+		expect( wrapper.find( 'label' ) ).toHaveLength( 3 );
 		expect( wrapper.find( 'input' ) ).toHaveLength( 2 );
 		expect( wrapper.find( 'input' ).at( 0 ).props().checked ).toBeTruthy();
 		expect( wrapper.find( 'input' ).at( 1 ).props().checked ).toBeFalsy();

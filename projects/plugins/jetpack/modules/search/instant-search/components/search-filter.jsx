@@ -67,6 +67,7 @@ export default class SearchFilter extends Component {
 			<div>
 				<input
 					checked={ this.isChecked( key ) }
+					disabled={ ! this.isChecked( key ) && count === 0 }
 					id={ `${ this.idPrefix }-dates-${ this.getIdentifier() }-${ key }` }
 					name={ key }
 					onChange={ this.toggleFilter }
@@ -93,6 +94,7 @@ export default class SearchFilter extends Component {
 			<div>
 				<input
 					checked={ this.isChecked( key ) }
+					disabled={ ! this.isChecked( key ) && count === 0 }
 					id={ `${ this.idPrefix }-post-types-${ key }` }
 					name={ key }
 					onChange={ this.toggleFilter }
@@ -117,6 +119,7 @@ export default class SearchFilter extends Component {
 			<div>
 				<input
 					checked={ this.isChecked( slug ) }
+					disabled={ ! this.isChecked( slug ) && count === 0 }
 					id={ `${ this.idPrefix }-taxonomies-${ slug }` }
 					name={ slug }
 					onChange={ this.toggleFilter }
@@ -158,12 +161,7 @@ export default class SearchFilter extends Component {
 
 	renderDates() {
 		return (
-			[
-				...this.props.aggregation.buckets
-					// TODO: Remove this filter; API should only be sending buckets with document counts.
-					.filter( bucket => !! bucket && bucket.doc_count > 0 )
-					.map( this.renderDate ),
-			]
+			[ ...this.props.aggregation.buckets.filter( bucket => !! bucket ).map( this.renderDate ) ]
 				// TODO: Remove this reverse & slice when API adds filter count support
 				.reverse()
 				.slice( 0, this.props.configuration.count )

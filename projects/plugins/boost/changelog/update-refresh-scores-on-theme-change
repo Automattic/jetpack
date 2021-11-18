@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Refresh speed score if theme has changed since last score

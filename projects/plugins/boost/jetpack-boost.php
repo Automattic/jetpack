@@ -9,7 +9,7 @@
  * Plugin Name:       Jetpack Boost
  * Plugin URI:        https://jetpack.com/boost
  * Description:       Boost your WordPress site's performance, from the creators of Jetpack
- * Version: 1.3.0-alpha
+ * Version: 1.4.0-alpha
  * Author:            Automattic
  * Author URI:        https://automattic.com
  * License:           GPL-2.0+
@@ -29,7 +29,7 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-define( 'JETPACK_BOOST_VERSION', '1.3.0-alpha' );
+define( 'JETPACK_BOOST_VERSION', '1.4.0-alpha' );
 define( 'JETPACK_BOOST_SLUG', 'jetpack-boost' );
 
 if ( ! defined( 'JETPACK_BOOST_CLIENT_NAME' ) ) {
@@ -134,6 +134,10 @@ function include_compatibility_files() {
 
 	if ( class_exists( '\Google\Web_Stories\Plugin' ) ) {
 		require_once __DIR__ . '/compatibility/web-stories.php';
+	}
+
+	if ( class_exists( '\Elementor\TemplateLibrary\Source_Local' ) ) {
+		require_once __DIR__ . '/compatibility/elementor.php';
 	}
 }
 

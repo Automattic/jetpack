@@ -6,9 +6,10 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { NoticeList, RadioControl } from '@wordpress/components';
+import { NoticeList, RadioControl, PanelRow } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
+
 // Because the wp-annotations script isn't loaded by default in the block editor, importing
 // it here tells webpack to add it as a dependency to be loaded before Jetpack blocks.
 import '@wordpress/annotations';
@@ -81,12 +82,9 @@ export const PublicizeTwitterOptions = ( {
 	}
 
 	return (
-		<>
-			<h3 className="jetpack-publicize-twitter-options__heading">
-				{ __( 'Twitter settings', 'jetpack' ) }
-			</h3>
+		<PanelRow>
 			<RadioControl
-				className="jetpack-publicize-twitter-options__type"
+				label={ __( 'Twitter settings', 'jetpack' ) }
 				selected={ isTweetStorm ? 'tweetstorm' : 'single' }
 				options={ [
 					{
@@ -109,7 +107,7 @@ export const PublicizeTwitterOptions = ( {
 			{ isTweetStorm && (
 				<NoticeList className="jetpack-publicize-twitter-options__notices" notices={ notices } />
 			) }
-		</>
+		</PanelRow>
 	);
 };
 

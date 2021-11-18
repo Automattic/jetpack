@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Critical CSS: Move CSS file proxying to client-side, to catch WAF-based CDN URLs

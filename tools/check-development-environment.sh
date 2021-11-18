@@ -261,7 +261,7 @@ if [[ -z "$BIN" ]]; then
 	failure "no php found" 'php'
 else
 	VER="$(php -r 'echo PHP_VERSION;')"
-	if php -r "exit( version_compare( PHP_VERSION, '$MAX_PHP_VERSION', '>=' ) ? 0 : 1 );"; then
+	if php -r "exit( version_compare( PHP_VERSION, '$MAX_PHP_VERSION.9999999', '>=' ) ? 0 : 1 );"; then
 		warning "ok (version $VER)" 'php' "PHP at $BIN is version $VER. We've only tested with PHP up to $MAX_PHP_VERSION."
 	elif php -r "exit( version_compare( PHP_VERSION, '$PHP_VERSION', '>=' ) ? 0 : 1 );"; then
 		success "ok (version $VER)"

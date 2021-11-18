@@ -2,6 +2,8 @@
 
 set -eo pipefail
 
+. tools/includes/alpha-tag.sh
+
 function die {
 	echo "::error::$*"
 	exit 1
@@ -107,7 +109,8 @@ for DIR in $(git -c core.quotepath=off diff --name-only "$BASE_REF"..."$HEAD_REF
 		"$CL" "${ARGS[@]}"
 		echo "::endgroup::"
 		echo "::group::Updating version for $SLUG"
-		VER=$("$CL" version next --default-first-version --prerelease=alpha) || { echo "$VER"; exit 1; }
+		PRERELEASE=$(alpha_tag "$CL" composer.json 0)
+		VER=$("$CL" version next --default-first-version --prerelease=$PRERELEASE) || { echo "$VER"; exit 1; }
 		"$BASE/tools/project-version.sh" -v -u "$VER" "$SLUG"
 		echo "::endgroup::"
 	fi

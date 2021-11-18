@@ -311,6 +311,82 @@ class VersionCommandTest extends CommandTestCase {
 				1,
 				'Changelog file contains no previous version',
 			),
+
+			'Next, changelog has a prerelease version, no --prerelease' => array(
+				array( 'which' => 'next' ),
+				array(
+					'CHANGELOG.md'  => "## 1.0.1-alpha - 2021-10-12\n## 1.0.0 - 2021-10-11",
+					'significances' => array( 'patch' ),
+				),
+				0,
+				'1.0.1',
+			),
+			'Next, changelog has a prerelease version, no --prerelease, major' => array(
+				array( 'which' => 'next' ),
+				array(
+					'CHANGELOG.md'  => "## 1.0.1-alpha - 2021-10-12\n## 1.0.0 - 2021-10-11",
+					'significances' => array( 'major' ),
+				),
+				0,
+				'2.0.0',
+			),
+			'Next, changelog has a prerelease version, --prerelease is later' => array(
+				array(
+					'which'        => 'next',
+					'--prerelease' => 'beta',
+				),
+				array(
+					'CHANGELOG.md'  => "## 1.0.1-alpha - 2021-10-12\n## 1.0.0 - 2021-10-11",
+					'significances' => array( 'patch' ),
+				),
+				0,
+				'1.0.1-beta',
+			),
+			'Next, changelog has a prerelease version, --prerelease is later, major' => array(
+				array(
+					'which'        => 'next',
+					'--prerelease' => 'beta',
+				),
+				array(
+					'CHANGELOG.md'  => "## 2.0.0-alpha - 2021-10-12\n## 1.0.0 - 2021-10-11",
+					'significances' => array( 'major' ),
+				),
+				0,
+				'2.0.0-beta',
+			),
+			'Next, changelog has a prerelease version, --prerelease is earlier' => array(
+				array(
+					'which'        => 'next',
+					'--prerelease' => 'alpha',
+				),
+				array(
+					'CHANGELOG.md'  => "## 1.0.1-beta - 2021-10-12\n## 1.0.0 - 2021-10-11",
+					'significances' => array( 'patch' ),
+				),
+				0,
+				'1.0.2-alpha',
+			),
+			'Next, changelog has a prerelease version, --prerelease is earlier, major' => array(
+				array(
+					'which'        => 'next',
+					'--prerelease' => 'alpha',
+				),
+				array(
+					'CHANGELOG.md'  => "## 2.0.0-beta - 2021-10-12\n## 1.0.0 - 2021-10-11",
+					'significances' => array( 'major' ),
+				),
+				0,
+				'3.0.0-alpha',
+			),
+			'Next, changelog has a prerelease version, no --prerelease but current is later anyway' => array(
+				array( 'which' => 'next' ),
+				array(
+					'CHANGELOG.md'  => "## 2.0.0-alpha - 2021-10-12\n## 1.0.0 - 2021-10-11",
+					'significances' => array( 'patch' ),
+				),
+				0,
+				'2.0.0',
+			),
 		);
 	}
 

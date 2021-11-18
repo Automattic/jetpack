@@ -1,4 +1,4 @@
-Significance: patch
-Type: fixed
+Significance: minor
+Type: removed
 
-Remove obsolete Docker setup, update commands supporting development workflow and update documentation
+Cleanup left over Jest framework setup and setting and fix link in the README file

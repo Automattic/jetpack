@@ -323,7 +323,7 @@ function createPackageJson( packageJson, answers ) {
 			test:
 				"NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.@(jsx|js)'",
 		};
-		packageJson.dependencies = { 'jetpack-js-test-runner': 'workspace:*' };
+		packageJson.devDependencies = { 'jetpack-js-test-runner': 'workspace:*' };
 	}
 }
 
@@ -385,7 +385,6 @@ async function createComposerJson( composerJson, answers ) {
 			composerJson.type = 'wordpress-plugin';
 			break;
 		case 'js-package':
-			composerJson[ 'require-dev ' ] = { 'automattic/jetpack-changelogger': '^1.1' };
 			composerJson.scripts = {
 				'test-js': [ 'Composer\\Config::disableProcessTimeout', 'pnpm install', 'pnpm run test' ],
 				'test-coverage': [

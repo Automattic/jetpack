@@ -3,12 +3,16 @@
  */
 
 /**
+ * External dependencies
+ */
+import type { BrowserInterfaceIframe, generateCriticalCSS } from 'jetpack-boost-critical-css-gen';
+
+/**
  * Internal dependencies
  */
 import type { ConnectionStatus } from './stores/connection';
 import type { CriticalCssStatus } from './stores/critical-css-status';
 import type { ModulesState } from './stores/modules';
-import type { BrowserInterfaceIframe, generateCriticalCSS } from 'jetpack-boost-critical-css-gen';
 
 declare global {
 	const wpApiSettings: {
@@ -46,6 +50,17 @@ declare global {
 	const CriticalCSSGenerator: {
 		generateCriticalCSS: typeof generateCriticalCSS;
 		BrowserInterfaceIframe: typeof BrowserInterfaceIframe;
+	};
+
+	type TracksEventProperties = { [ key: string ]: string | number };
+
+	const jpTracksAJAX: {
+		// eslint-disable-next-line camelcase
+		record_ajax_event(
+			eventName: string,
+			eventType: string,
+			eventProp: TracksEventProperites
+		): void;
 	};
 }
 

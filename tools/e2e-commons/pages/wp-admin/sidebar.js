@@ -1,7 +1,4 @@
-/**
- * Internal dependencies
- */
-import WpPage from '../wp-page';
+import { WpPage } from '..';
 
 export default class Sidebar extends WpPage {
 	constructor( page ) {

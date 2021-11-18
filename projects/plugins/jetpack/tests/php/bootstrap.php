@@ -5,6 +5,9 @@
  * @package automattic/jetpack
  */
 
+// Catch `exit()` and `die()` so they won't make PHPUnit exit.
+require __DIR__ . '/redefine-exit.php';
+
 /**
  * For tests that should be skipped in Jetpack but run in WPCOM (or vice versa), test against this constant.
  *
@@ -66,14 +69,7 @@ if ( '1' != getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 	define( 'JETPACK_WOOCOMMERCE_INSTALL_DIR', dirname( __FILE__ ) . '/../../../woocommerce' );
 }
 
-if ( false === function_exists( 'wp_cache_is_enabled' ) ) {
-	/**
-	 * "Mocking" function so that it exists and Automattic\Jetpack\Sync\Actions will load Automattic\Jetpack\Sync\Modules\WP_Super_Cache
-	 */
-	function wp_cache_is_enabled() {
-	}
-}
-
+require __DIR__ . '/lib/mock-functions.php';
 require $test_root . '/includes/functions.php';
 
 // Activates this plugin in WordPress so it can be tested.
@@ -100,7 +96,7 @@ function _manually_install_woocommerce() {
 	echo "Installing WooCommerce..." . PHP_EOL;
 }
 
-// If we are running the uninstall tests don't load jepack.
+// If we are running the uninstall tests don't load jetpack.
 if ( ! ( in_running_uninstall_group() ) ) {
 	tests_add_filter( 'plugins_loaded', '_manually_load_plugin', 1 );
 	if ( '1' == getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {

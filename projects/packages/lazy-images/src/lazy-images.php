@@ -33,16 +33,6 @@ namespace Automattic\Jetpack;
 class Jetpack_Lazy_Images {
 
 	/**
-	 * The assets version.
-	 *
-	 * @since 1.0.0
-	 * @since-jetpack 8.8.0
-	 *
-	 * @var string Assets version.
-	 */
-	const ASSETS_VERSION = '1.1.3';
-
-	/**
 	 * Class instance.
 	 *
 	 * @since 1.0.0
@@ -238,19 +228,6 @@ class Jetpack_Lazy_Images {
 			'skip-lazy',
 			'gazette-featured-content-thumbnail',
 		);
-
-		/**
-		 * Allow plugins and themes to tell lazy images to skip an image with a given class.
-		 *
-		 * @package automattic/jetpack-lazy-images
-		 *
-		 * @since 1.0.0
-		 * @since-jetpack 5.9.0
-		 * @deprecated-jetpack 8.7.0 Use jetpack_lazy_images_blocked_classes
-		 *
-		 * @param array An array of strings where each string is a class.
-		 */
-		$blocked_classes = apply_filters_deprecated( 'jetpack_lazy_images_blacklisted_classes', array( $blocked_classes ), 'Jetpack 8.7.0', 'jetpack_lazy_images_blocked_classes' );
 
 		/**
 		 * Allow plugins and themes to tell lazy images to skip an image with a given class.
@@ -508,20 +485,26 @@ class Jetpack_Lazy_Images {
 	 * @return void
 	 */
 	public function enqueue_assets() {
-		wp_enqueue_script(
+		Assets::register_script(
 			'jetpack-lazy-images-polyfill-intersectionobserver',
-			Assets::get_file_url_for_environment( '../dist/intersection-observer.js', '../dist/intersection-observer.src.js', __FILE__ ),
-			array(),
-			self::ASSETS_VERSION,
-			true
+			'../dist/intersection-observer.min.js',
+			__FILE__,
+			array(
+				'nonmin_path' => '../dist/intersection-observer.src.js',
+				'in_footer'   => true,
+			)
 		);
-		wp_enqueue_script(
+		Assets::register_script(
 			'jetpack-lazy-images',
-			Assets::get_file_url_for_environment( '../dist/lazy-images.js', 'js/lazy-images.js', __FILE__ ),
-			array( 'jetpack-lazy-images-polyfill-intersectionobserver' ),
-			self::ASSETS_VERSION,
-			true
+			'../dist/lazy-images.min.js',
+			__FILE__,
+			array(
+				'nonmin_path'  => 'js/lazy-images.js',
+				'dependencies' => array( 'jetpack-lazy-images-polyfill-intersectionobserver' ),
+				'in_footer'    => true,
+			)
 		);
+		Assets::enqueue_script( 'jetpack-lazy-images' );
 		wp_localize_script(
 			'jetpack-lazy-images',
 			'jetpackLazyImagesL10n',

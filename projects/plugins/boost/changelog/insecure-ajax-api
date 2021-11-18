@@ -1,4 +1,0 @@
-Significance: patch
-Type: security
-
-Verify valid ajax request and current user capabilities to dismiss critical css recommendation

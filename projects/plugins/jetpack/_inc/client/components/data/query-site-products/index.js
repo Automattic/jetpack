@@ -3,20 +3,42 @@
  */
 import { useEffect } from 'react';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+import { isEmpty } from 'lodash';
 
 /**
  * Internal dependencies
  */
-import { fetchSiteProducts, isFetchingSiteProducts } from 'state/site-products';
+import {
+	fetchSiteProducts as fetchSiteProductsAction,
+	isFetchingSiteProducts as isFetchingSiteProductsReducer,
+	getSiteProducts,
+} from 'state/site-products';
 
-export function QuerySiteProducts( props ) {
+const QuerySiteProducts = ( { fetchSiteProducts, isFetchingSiteProducts, products } ) => {
 	useEffect( () => {
-		! props.isFetchingSiteProducts && props.fetchSiteProducts();
-	}, [] );
+		if ( ! isFetchingSiteProducts && isEmpty( products ) ) {
+			fetchSiteProducts();
+		}
+	}, [ fetchSiteProducts, isFetchingSiteProducts, products ] );
+
 	return null;
-}
+};
+
+QuerySiteProducts.propTypes = {
+	isFetchingSiteProducts: PropTypes.bool,
+};
+
+QuerySiteProducts.defaultProps = {
+	isFetchingSiteProducts: false,
+};
 
 export default connect(
-	state => ( { isFetchingSiteProducts: isFetchingSiteProducts( state ) } ),
-	dispatch => ( { fetchSiteProducts: () => dispatch( fetchSiteProducts() ) } )
+	state => ( {
+		isFetchingSiteProducts: isFetchingSiteProductsReducer( state ),
+		products: getSiteProducts( state ),
+	} ),
+	dispatch => ( {
+		fetchSiteProducts: () => dispatch( fetchSiteProductsAction() ),
+	} )
 )( QuerySiteProducts );

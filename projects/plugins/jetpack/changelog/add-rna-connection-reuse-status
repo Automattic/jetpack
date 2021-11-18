@@ -1,5 +1,0 @@
-Significance: patch
-Type: enhancement
-Comment: Pass connection status to the RNA Connection Screen, refresh connection status after disconnect.
-
-

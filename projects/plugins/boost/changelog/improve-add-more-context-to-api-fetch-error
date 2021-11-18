@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Catch API fetch error early and add more context to it so it can be more useful when reported by usersCatch API fetch error early and add more context to it so it can be more useful when reported by users

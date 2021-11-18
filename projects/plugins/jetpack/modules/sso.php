@@ -498,12 +498,24 @@ class Jetpack_SSO {
 				<?php else : ?>
 					<p>
 						<?php
-							echo esc_html(
+							/**
+							 * Filter the messeage displayed below the SSO button.
+							 *
+							 * @module sso
+							 *
+							 * @since 10.3.0
+							 *
+							 * @param string $sso_explanation Message displayed below the SSO button.
+							 */
+							$sso_explanation = apply_filters(
+								'jetpack_sso_login_form_explanation_text',
 								sprintf(
+									/* Translators: %s is the name of the site. */
 									__( 'You can now save time spent logging in by connecting your WordPress.com account to %s.', 'jetpack' ),
 									esc_html( $site_name )
 								)
 							);
+							echo esc_html( $sso_explanation );
 						?>
 					</p>
 				<?php endif; ?>
@@ -880,7 +892,7 @@ class Jetpack_SSO {
 			: 'jetpack-sso button';
 
 		return sprintf(
-			'<a rel="nofollow" href="%1$s" class="%2$s"><span>%3$s %4$s</span></a>',
+			'<a rel="nofollow" href="%1$s" class="%2$s">%3$s %4$s</a>',
 			esc_url( $url ),
 			$classes,
 			'<span class="genericon genericon-wordpress"></span>',

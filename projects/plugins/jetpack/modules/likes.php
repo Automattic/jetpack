@@ -159,32 +159,6 @@ class Jetpack_Likes {
 	}
 
 	/**
-	 * Stub for is_post_likeable, since some wpcom functions call this directly on the class
-	 * Are likes enabled for this post?
-	 *
-	 * @param int $post_id id of the post.
-	 * @return bool
-	 */
-	public static function is_post_likeable( $post_id = 0 ) {
-		_deprecated_function( __METHOD__, 'jetpack-5.4', 'Jetpack_Likes_Settings()->is_post_likeable' );
-		$settings = new Jetpack_Likes_Settings();
-		return $settings->is_post_likeable( $post_id );
-	}
-
-	/**
-	 * Stub for is_likes_visible, since some themes were calling it directly from this class
-	 *
-	 * @deprecated 5.4
-	 * @return bool
-	 */
-	public function is_likes_visible() {
-		_deprecated_function( __METHOD__, 'jetpack-5.4', 'Jetpack_Likes_Settings()->is_likes_visible' );
-
-		$settings = new Jetpack_Likes_Settings();
-		return $settings->is_likes_visible();
-	}
-
-	/**
 	 * Adds in the jetpack-targetable class so when we visit sharing#likes our like settings get highlighted by a yellow box
 	 *
 	 * @param string $html row heading for the sharedaddy "which page" setting.
@@ -276,7 +250,12 @@ class Jetpack_Likes {
 
 	/** Initialize action */
 	public function action_init() {
-		if ( is_admin() || ! $this->settings->is_likes_visible() ) {
+		/*
+		 * Only check if the module is enabled here because
+		 * we are not currently in The Loop and do not yet have access to check
+		 * the switch_like_status post meta flag for the post to be loaded.
+		 */
+		if ( is_admin() || ! $this->settings->is_likes_module_enabled() ) {
 			return;
 		}
 
@@ -303,9 +282,7 @@ class Jetpack_Likes {
 			add_filter( 'post_flair', array( $this, 'post_likes' ), 30, 1 );
 			add_filter( 'post_flair_block_css', array( $this, 'post_flair_service_enabled_like' ) );
 
-			wp_enqueue_script( 'postmessage', '/wp-content/js/postmessage.js', array(), JETPACK__VERSION, true );
-			wp_enqueue_script( 'jetpack_resize', '/wp-content/js/jquery/jquery.jetpack-resize.js', array( 'jquery' ), JETPACK__VERSION, true );
-			wp_enqueue_script( 'jetpack_likes_queuehandler', plugins_url( 'queuehandler.js', __FILE__ ), array( 'jquery', 'postmessage', 'jetpack_resize' ), JETPACK__VERSION, true );
+			wp_enqueue_script( 'jetpack_likes_queuehandler', plugins_url( 'queuehandler.js', __FILE__ ), array(), JETPACK__VERSION, true );
 			wp_enqueue_style( 'jetpack_likes', plugins_url( 'jetpack-likes.css', __FILE__ ), array(), JETPACK__VERSION );
 		}
 	}
@@ -315,29 +292,12 @@ class Jetpack_Likes {
 	 */
 	public function register_scripts() {
 		wp_register_script(
-			'postmessage',
-			Assets::get_file_url_for_environment( '_inc/build/postmessage.min.js', '_inc/postmessage.js' ),
-			array(),
-			JETPACK__VERSION,
-			true
-		);
-		wp_register_script(
-			'jetpack_resize',
-			Assets::get_file_url_for_environment(
-				'_inc/build/jquery.jetpack-resize.min.js',
-				'_inc/jquery.jetpack-resize.js'
-			),
-			array( 'jquery' ),
-			JETPACK__VERSION,
-			true
-		);
-		wp_register_script(
 			'jetpack_likes_queuehandler',
 			Assets::get_file_url_for_environment(
 				'_inc/build/likes/queuehandler.min.js',
 				'modules/likes/queuehandler.js'
 			),
-			array( 'jquery', 'postmessage', 'jetpack_resize' ),
+			array(),
 			JETPACK__VERSION,
 			true
 		);

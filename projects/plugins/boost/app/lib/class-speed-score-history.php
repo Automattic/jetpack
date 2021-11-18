@@ -111,7 +111,7 @@ class Speed_Score_History {
 	/**
 	 * Remove all speed score history.
 	 */
-	public function clear_all() {
+	public static function clear_all() {
 		global $wpdb;
 
 		/**

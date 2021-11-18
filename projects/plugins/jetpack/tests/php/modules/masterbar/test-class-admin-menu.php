@@ -102,24 +102,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Shim wpcomsh fallback site icon.
-	 *
-	 * @return string
-	 */
-	public function wpcomsh_site_icon_url() {
-		return 'https://s0.wp.com/i/webclip.png';
-	}
-
-	/**
-	 * Custom site icon.
-	 *
-	 * @return string
-	 */
-	public function custom_site_icon_url() {
-		return 'https://s0.wp.com/i/jetpack.png';
-	}
-
-	/**
 	 * Tests get_preferred_view
 	 *
 	 * @covers ::get_preferred_view
@@ -212,7 +194,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_upgrades_menu( 'Test Plan' );
 
 		$this->assertSame( 'Upgrades<span class="inline-text" style="display:none">Test Plan</span>', $submenu['paid-upgrades.php'][0][0] );
-		$this->assertSame( 'https://wordpress.com/plans/my-plan/' . static::$domain, $submenu['paid-upgrades.php'][1][2] );
+		$this->assertSame( 'https://wordpress.com/plans/' . static::$domain, $submenu['paid-upgrades.php'][1][2] );
 		$this->assertSame( 'https://wordpress.com/purchases/subscriptions/' . static::$domain, $submenu['paid-upgrades.php'][2][2] );
 	}
 
@@ -330,16 +312,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		$this->assertSame( 'https://wordpress.com/plugins/' . static::$domain, $menu[65][2] );
 		$this->assertFalse( self::$admin_menu->has_visible_items( $submenu['plugins.php'] ) );
-
-		// Reset.
-		$menu    = static::$menu_data;
-		$submenu = static::$submenu_data;
-
-		// Check submenu are kept when using WP Admin links.
-		static::$admin_menu->set_preferred_view( 'plugins.php', 'classic' );
-		static::$admin_menu->add_plugins_menu();
-		$this->assertSame( 'plugins.php', $menu[65][2] );
-		$this->assertTrue( self::$admin_menu->has_visible_items( $submenu['plugins.php'] ) );
 	}
 
 	/**
@@ -381,12 +353,19 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		// On multisite the administrator is not allowed to create users.
 		grant_super_admin( self::$user_id );
+		$account_key = 5;
+
 		static::$admin_menu->add_users_menu();
 
+		// On WP.com users can only invite other users, not create them (missing create_users cap).
+		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+			$this->assertSame( 'https://wordpress.com/people/new/' . static::$domain, $submenu['users.php'][2][2] );
+			$account_key = 6;
+		}
+
 		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, $submenu['users.php'][0][2] );
-		$this->assertSame( 'https://wordpress.com/people/new/' . static::$domain, $submenu['users.php'][2][2] );
 		$this->assertSame( 'https://wordpress.com/me', $submenu['users.php'][3][2] );
-		$this->assertSame( 'https://wordpress.com/me/account', $submenu['users.php'][6][2] );
+		$this->assertSame( 'https://wordpress.com/me/account', $submenu['users.php'][ $account_key ][2] );
 	}
 
 	/**
@@ -583,7 +562,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 				'<div id="dashboard-switcher"><h5>%s</h5><p class="dashboard-switcher-text">%s</p><a class="button button-primary dashboard-switcher-button" href="%s">%s</a></div>',
 				__( 'Screen features', 'jetpack' ),
 				__( 'Currently you are seeing the classic WP-Admin view of this page. Would you like to see the default WordPress.com view?', 'jetpack' ),
-				$mapping . static::$domain,
+				'?preferred-view=default',
 				__( 'Use WordPress.com view', 'jetpack' )
 			);
 

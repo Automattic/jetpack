@@ -1,4 +1,10 @@
 /**
+ * Internal dependencies
+ */
+import { setDocumentCountsToZero } from '../../lib/api';
+
+let cachedAggregations = {};
+/**
  * Reducer for recording if the previous search request yielded an error.
  *
  * @param {object} state - Current state.
@@ -63,6 +69,7 @@ export function response( state = {}, action ) {
 					...( ! Array.isArray( newState.aggregations ) ? newState.aggregations : {} ),
 				};
 				newState.results = [ ...( 'results' in state ? state.results : [] ), ...newState.results ];
+				cachedAggregations = {};
 			}
 
 			// To prevent our interface from erroneously rendering a "no result" search results page when
@@ -70,6 +77,20 @@ export function response( state = {}, action ) {
 			if ( Array.isArray( newState.results ) && newState.results.length > newState.total ) {
 				newState.total = newState.results.length;
 			}
+
+			// For a new search requests (i.e. not pagination requests):
+			// - Cache aggregations if query yields results
+			// - Show previously cached aggregations if query does not yield any results
+			if ( ! action.options.pageHandle ) {
+				if ( newState.results?.length > 0 ) {
+					// cachedAggregations is used to cache the most recent aggregations object when results is not empty.
+					cachedAggregations = setDocumentCountsToZero( newState.aggregations );
+				} else {
+					// If there is no result to show, we show the cached aggregations.
+					newState.aggregations = cachedAggregations;
+				}
+			}
+
 			return newState;
 		}
 	}

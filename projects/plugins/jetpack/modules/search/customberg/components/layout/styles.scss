@@ -20,3 +20,9 @@
 		background-color: $white;
 	}
 }
+
+.jp-search-configure-layout__body {
+	display: flex;
+	flex-grow: 1;
+	overflow: auto;
+}

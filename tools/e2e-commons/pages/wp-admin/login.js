@@ -1,6 +1,6 @@
-import WpPage from '../wp-page';
+import { WpPage } from '..';
 import logger from '../../logger';
-import { takeScreenshot } from '../../reporters/screenshot';
+import { takeScreenshot } from '../../reporters';
 import PageActions from '../page-actions';
 import { getSiteCredentials } from '../../helpers/utils-helper';
 

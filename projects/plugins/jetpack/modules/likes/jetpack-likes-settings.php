@@ -246,22 +246,56 @@ class Jetpack_Likes_Settings {
 		$sitewide_likes_enabled = (bool) $this->is_enabled_sitewide();
 		$post_likes_switched    = get_post_meta( $post->ID, 'switch_like_status', true );
 
-		// on WPCOM, we need to look at post edit date so we don't break old posts
-		// if post edit date predates this code, stick with the former (buggy) behavior
-		// see: p7DVsv-64H-p2
+		/*
+		 * On WPCOM, headstart was inserting bad data for post_likes_switched.
+		 * it was wrapping the boolean value in an array. The array is always truthy regardless of its contents.
+		 * There was another bug where truthy values were ignored if the global like setting was false.
+		 * So in effect, the values for headstart never had an inpact.
+		 * Delete the $post_likes_switched flag in this case in order to keep the behaviour as it was.
+		 */
+		if ( is_array( $post_likes_switched ) ) {
+			$post_likes_switched = null;
+		}
+
+		/*
+		 * on WPCOM, we need to look at post edit date so we don't break old posts
+		 * if post edit date predates this code, stick with the former (buggy) behavior
+		 * see: p7DVsv-64H-p2
+		 */
 		$last_modified_time = strtotime( $post->post_modified_gmt );
 
 		$behavior_was_changed_at = strtotime( "2019-02-22 00:40:42" );
 
 		if ( $this->in_jetpack || $last_modified_time > $behavior_was_changed_at ) {
-			// the new and improved behavior on Jetpack and recent WPCOM posts:
-			// $post_likes_switched is empty to follow site setting,
-			// 0 if we want likes disabled, 1 if we want likes enabled
+			/*
+			 * the new and improved behavior on Jetpack and recent WPCOM posts:
+			 * $post_likes_switched is empty to follow site setting,
+			 * 0 if we want likes disabled, 1 if we want likes enabled.
+			 */
 			return $post_likes_switched || ( $sitewide_likes_enabled && $post_likes_switched !== '0' );
 		}
 
-		// implicit else (old behavior): $post_likes_switched simply inverts the global setting
+		// implicit else (old behavior): $post_likes_switched simply inverts the global setting.
 		return ( (bool) $post_likes_switched ) xor $sitewide_likes_enabled;
+	}
+
+	/**
+	 * Is the like button itself visible (as opposed to the reblog button)
+	 *
+	 * If called from within The Loop or if called with a $post_id set, then the post will be checked.
+	 * Otherwise the sitewide setting will be used.
+	 *
+	 * @param int $post_id The ID of the post being rendered. Defaults to the current post if called from within The Loop.
+	 * @return bool
+	 */
+	public function is_likes_button_visible( $post_id = 0 ) {
+		if ( in_the_loop() || $post_id ) {
+			// If in The Loop, is_post_likeable will check the current post.
+			return $this->is_post_likeable( $post_id );
+		} else {
+			// Otherwise, check and see if likes are enabled sitewide.
+			return $this->is_enabled_sitewide();
+		}
 	}
 
 	/**
@@ -275,53 +309,52 @@ class Jetpack_Likes_Settings {
 			return false;
 		}
 
-		global $wp_current_filter; // Used to apply 'sharing_show' filter
+		return $this->is_likes_button_visible() && $this->is_likes_module_enabled();
+	}
 
-		$post = get_post();
+	/**
+	 * Apply filters to determine if the likes module itself is enabled
+	 *
+	 * @return bool
+	 */
+	public function is_likes_module_enabled() {
+		global $wp_current_filter; // Used to apply 'sharing_show' filter.
 
-		// Never show on feeds or previews
+		$post    = get_post();
+		$enabled = true;
+
+		// Never show on feeds or previews.
 		if ( is_feed() || is_preview() ) {
 			$enabled = false;
-
 			// Not a feed or preview, so what is it?
 		} else {
-
-			if ( in_the_loop() ) {
-				// If in the loop, check if the current post is likeable
-				$enabled = $this->is_post_likeable();
-			} else {
-				// Otherwise, check and see if likes are enabled sitewide
-				$enabled = $this->is_enabled_sitewide();
-			}
-
-			if ( post_password_required() )
+			if ( post_password_required() ) {
 				$enabled = false;
+			}
 
 			if ( in_array( 'get_the_excerpt', (array) $wp_current_filter ) ) {
 				$enabled = false;
 			}
-
 			// Sharing Setting Overrides ****************************************
-
-			// Single post including custom post types
+			// Single post including custom post types.
 			if ( is_single() ) {
 				if ( ! $this->is_single_post_enabled( ( $post instanceof WP_Post ) ? $post->post_type : 'post' ) ) {
 					$enabled = false;
 				}
 
-				// Single page
+				// Single page.
 			} elseif ( is_page() && ! is_front_page() ) {
 				if ( ! $this->is_single_page_enabled() ) {
 					$enabled = false;
 				}
 
-				// Attachment
+				// Attachment.
 			} elseif ( is_attachment() ) {
 				if ( ! $this->is_attachment_enabled() ) {
 					$enabled = false;
 				}
 
-				// All other loops
+				// All other loops.
 			} elseif ( ! $this->is_index_enabled() ) {
 				$enabled = false;
 			}
@@ -339,7 +372,7 @@ class Jetpack_Likes_Settings {
 			}
 		}
 
-		// Run through the sharing filters
+		// Run through the sharing filters.
 		/** This filter is documented in modules/sharedaddy/sharing-service.php */
 		$enabled = apply_filters( 'sharing_show', $enabled, $post );
 
@@ -389,7 +422,7 @@ class Jetpack_Likes_Settings {
 	function get_options() {
 		$setting             = array();
 		$setting['disabled'] = get_option( 'disabled_likes'  );
-		$sharing             = get_option( 'sharing-options' );
+		$sharing             = get_option( 'sharing-options', array() );
 
 		// Default visibility settings
 		if ( ! isset( $sharing['global']['show'] ) ) {

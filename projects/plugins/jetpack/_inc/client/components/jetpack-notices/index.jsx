@@ -4,6 +4,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 
 /**
  * WordPress dependencies
@@ -17,6 +18,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
  */
 import ConnectionBanner from 'components/connection-banner';
 import DismissableNotices from './dismissable';
+import UserLicenseActivationNotice from './user-license-activation';
 import {
 	getSiteConnectionStatus,
 	getSiteOfflineMode,
@@ -217,6 +219,8 @@ class JetpackNotices extends React.Component {
 			error.hasOwnProperty( 'action' )
 		);
 
+		const isUserConnectScreen = '/connect-user' === this.props.location.pathname;
+
 		return (
 			<div aria-live="polite">
 				<NoticesList />
@@ -247,7 +251,8 @@ class JetpackNotices extends React.Component {
 					this.props.userCanConnectAccount &&
 					this.props.hasConnectedOwner &&
 					! siteDataErrors.length &&
-					! this.props.connectionErrors.length && (
+					! this.props.connectionErrors.length &&
+					! isUserConnectScreen && (
 						<UserUnlinked
 							connectUrl={ this.props.connectUrl }
 							siteConnected={ true === this.props.siteConnectionStatus }
@@ -272,6 +277,7 @@ class JetpackNotices extends React.Component {
 						onDismissClick={ this.props.clearLicensingError }
 					/>
 				) }
+				<UserLicenseActivationNotice />
 			</div>
 		);
 	}
@@ -304,4 +310,4 @@ export default connect(
 			},
 		};
 	}
-)( JetpackNotices );
+)( withRouter( JetpackNotices ) );

@@ -64,7 +64,10 @@ async function provisionJetpackStartConnection( userId, plan = 'free', user = 'w
 	logger.info( `Provisioning Jetpack start connection [userId: ${ userId }, plan: ${ plan }]` );
 	const [ clientID, clientSecret ] = config.get( 'jetpackStartSecrets' );
 
-	const cmd = `sh ../../../../../tools/partner-provision.sh --partner_id=${ clientID } --partner_secret=${ clientSecret } --user=${ user } --plan=${ plan } --url=${ siteUrl } --wpcom_user_id=${ userId }`;
+	const cmd = `sh ${ path.resolve(
+		__dirname,
+		'../../partner-provision.sh'
+	) } --partner_id=${ clientID } --partner_secret=${ clientSecret } --user=${ user } --plan=${ plan } --url=${ siteUrl } --wpcom_user_id=${ userId }`;
 
 	const response = execSyncShellCommand( cmd );
 	logger.cli( response );

@@ -10,7 +10,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
-import { Disabled, FormToggle, Notice, ExternalLink } from '@wordpress/components';
+import { Disabled, Notice, ExternalLink } from '@wordpress/components';
 import { withSelect } from '@wordpress/data';
 import { includes } from 'lodash';
 
@@ -18,7 +18,7 @@ import { includes } from 'lodash';
  * Internal dependencies
  */
 import getSiteFragment from '../../../../shared/get-site-fragment';
-import { SocialServiceIcon } from '../../../../shared/icons';
+import ConnectionToggle from '../connection-toggle';
 
 class PublicizeConnection extends Component {
 	/**
@@ -61,17 +61,21 @@ class PublicizeConnection extends Component {
 	}
 
 	render() {
-		const { disabled, enabled, id, label, name } = this.props;
+		const { disabled, enabled, id, label, name, profilePicture } = this.props;
 		const fieldId = 'connection-' + name + '-' + id;
 		// Genericon names are dash separated
 		const serviceName = name.replace( '_', '-' );
 
 		let toggle = (
-			<FormToggle
+			<ConnectionToggle
 				id={ fieldId }
 				className="jetpack-publicize-connection-toggle"
 				checked={ enabled }
 				onChange={ this.onConnectionChange }
+				disabled={ disabled }
+				serviceName={ serviceName }
+				label={ label }
+				profilePicture={ profilePicture }
 			/>
 		);
 
@@ -82,16 +86,7 @@ class PublicizeConnection extends Component {
 		return (
 			<li>
 				{ this.maybeDisplayLinkedInNotice() }
-				<div className="publicize-jetpack-connection-container">
-					<label htmlFor={ fieldId } className="jetpack-publicize-connection-label">
-						<SocialServiceIcon
-							serviceName={ serviceName }
-							className="jetpack-publicize-gutenberg-social-icon"
-						/>
-						<span className="jetpack-publicize-connection-label-copy">{ label }</span>
-					</label>
-					{ toggle }
-				</div>
+				<div className="publicize-jetpack-connection-container">{ toggle }</div>
 			</li>
 		);
 	}

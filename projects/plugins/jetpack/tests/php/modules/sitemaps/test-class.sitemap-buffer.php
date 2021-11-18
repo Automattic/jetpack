@@ -36,11 +36,11 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	/**
 	 * Add items to a buffer.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer::try_to_add_item
+	 * @covers Jetpack_Sitemap_Buffer::append
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
-	public function test_sitemap_buffer_try_to_add_item() {
+	public function test_sitemap_buffer_append() {
 		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 2, 128, '1970-01-01 00:00:00' );
 		$buffer->append( 'foo' );
 		$buffer->append( 'bar' );
@@ -70,7 +70,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	/**
 	 * Try to add an item to a buffer at item capacity.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer::try_to_add_item
+	 * @covers Jetpack_Sitemap_Buffer::append
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -90,7 +90,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	/**
 	 * Try to add an item to a buffer at byte capacity.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer::try_to_add_item
+	 * @covers Jetpack_Sitemap_Buffer::append
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -110,7 +110,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	/**
 	 * Try to add an item to a buffer which is below byte capacity, but item is too large.
 	 *
-	 * @covers Jetpack_Sitemap_Buffer::try_to_add_item
+	 * @covers Jetpack_Sitemap_Buffer::append
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -137,11 +137,11 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	public function test_sitemap_buffer_is_full_item_capacity() {
 		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 2, 1024, '1970-01-01 00:00:00' );
 		$buffer->append( 'foo' );
-		$this->assertEquals( $buffer->is_full(), false );
+		$this->assertFalse( $buffer->is_full() );
 		$buffer->append( 'bar' );
-		$this->assertEquals( $buffer->is_full(), false );
+		$this->assertFalse( $buffer->is_full() );
 		$buffer->append( 'baz' );
-		$this->assertEquals( $buffer->is_full(), true );
+		$this->assertTrue( $buffer->is_full() );
 	}
 
 	/**
@@ -154,11 +154,11 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	public function test_sitemap_buffer_is_full_byte_capacity() {
 		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 10, 44, '1970-01-01 00:00:00' );
 		$buffer->append( 'foo' );
-		$this->assertEquals( $buffer->is_full(), false );
+		$this->assertFalse( $buffer->is_full() );
 		$buffer->append( 'bar' );
-		$this->assertEquals( $buffer->is_full(), false );
+		$this->assertFalse( $buffer->is_full() );
 		$buffer->append( 'baz' );
-		$this->assertEquals( $buffer->is_full(), true );
+		$this->assertTrue( $buffer->is_full() );
 	}
 
 	/**
@@ -170,7 +170,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 */
 	public function test_sitemap_buffer_last_modified() {
 		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 2, 16, '1970-01-01 00:00:00' );
-		$this->assertEquals( $buffer->last_modified(), '1970-01-01 00:00:00' );
+		$this->assertEquals( '1970-01-01 00:00:00', $buffer->last_modified() );
 	}
 
 	/**
@@ -183,7 +183,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	public function test_sitemap_buffer_view_time_update() {
 		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 2, 16, '1970-01-01 00:00:00' );
 		$buffer->view_time( '1971-01-01 00:00:00' );
-		$this->assertEquals( $buffer->last_modified(), '1971-01-01 00:00:00' );
+		$this->assertEquals( '1971-01-01 00:00:00', $buffer->last_modified() );
 	}
 
 	/**
@@ -196,7 +196,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	public function test_sitemap_buffer_view_time_do_not_update() {
 		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 2, 16, '1971-01-01 00:00:00' );
 		$buffer->view_time( '1970-01-01 00:00:00' );
-		$this->assertEquals( $buffer->last_modified(), '1971-01-01 00:00:00' );
+		$this->assertEquals( '1971-01-01 00:00:00', $buffer->last_modified() );
 	}
 
 	/**

@@ -5,7 +5,8 @@ use Automattic\Jetpack\Sync\Settings;
 class WP_Test_Jetpack_Sync_Settings extends WP_Test_Jetpack_Sync_Base {
 	function test_can_write_settings() {
 		$settings = Settings::get_settings();
-
+		// store original value.
+		$dequeue_max_bytes = $settings['dequeue_max_bytes'];
 		foreach (
 			array(
 				'dequeue_max_bytes',
@@ -25,6 +26,10 @@ class WP_Test_Jetpack_Sync_Settings extends WP_Test_Jetpack_Sync_Base {
 		Settings::update_settings( $settings );
 
 		$updated_settings = Settings::get_settings();
+
+		// reset original value.
+		$settings['dequeue_max_bytes'] = $dequeue_max_bytes;
+		Settings::update_settings( $settings );
 
 		$this->assertSame( 50, $updated_settings['dequeue_max_bytes'] );
 	}

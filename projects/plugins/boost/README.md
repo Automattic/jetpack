@@ -20,4 +20,4 @@ Please refer to the [Security](https://github.com/Automattic/jetpack/blob/master
 
 ## License
 
-Jetpack Boost is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
+Jetpack Boost is licensed under [GNU General Public License v2 (or later)](../../../LICENSE.txt)

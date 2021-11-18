@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Check whether Manager::is_site_connection method exists before calling it
-
-

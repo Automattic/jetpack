@@ -178,7 +178,7 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Gets the test data for jetpack_amp_youtube_shortcode().
+	 * Gets the test data for youtube_id().
 	 *
 	 * @return array[] The test data.
 	 */
@@ -237,7 +237,7 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test jetpack_amp_youtube_shortcode.
+	 * Test youtube_id.
 	 *
 	 * @dataProvider get_amp_youtube_data
 	 * @covers ::youtube_id
@@ -246,7 +246,7 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 	 * @param string $expected_amp    The expected shortcode returned from the function on AMP pages.
 	 * @param string $expected_nonamp The expected shortcode returned from the function on non-AMP pages.
 	 */
-	public function test_jetpack_amp_youtube_shortcode( $url, $expected_amp, $expected_nonamp ) {
+	public function test_youtube_id( $url, $expected_amp, $expected_nonamp ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			self::markTestSkipped( 'WordPress.com does not run the latest version of the AMP plugin yet.' );
 			return;
@@ -289,7 +289,7 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test jetpack_amp_youtube_shortcode.
+	 * Test youtube_id.
 	 *
 	 * @dataProvider get_amp_youtube_shortcode_data
 	 * @covers ::jetpack_shortcode_youtube_dimensions

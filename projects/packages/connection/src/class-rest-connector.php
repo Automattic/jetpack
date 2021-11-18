@@ -198,7 +198,7 @@ class REST_Connector {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'connection_authorize_url' ),
-				'permission_callback' => __CLASS__ . '::jetpack_register_permission_check',
+				'permission_callback' => __CLASS__ . '::user_connection_data_permission_check',
 				'args'                => array(
 					'no_iframe'    => array(
 						'description' => __( 'Disable In-Place connection flow and go straight to Calypso', 'jetpack' ),
@@ -438,6 +438,11 @@ class REST_Connector {
 		$wpcom_user_data   = $connection->get_connected_user_data();
 
 		// Add connected user gravatar to the returned wpcom_user_data.
+		// Probably we shouldn't do this when $wpcom_user_data is false, but we have been since 2016 so
+		// clients probably expect that by now.
+		if ( false === $wpcom_user_data ) {
+			$wpcom_user_data = array();
+		}
 		$wpcom_user_data['avatar'] = ( ! empty( $wpcom_user_data['email'] ) ?
 		get_avatar_url(
 			$wpcom_user_data['email'],

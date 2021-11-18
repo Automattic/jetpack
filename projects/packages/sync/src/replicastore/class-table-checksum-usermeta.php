@@ -16,7 +16,7 @@ use WP_User_Query;
 /**
  * Class to handle Table Checksums for the User Meta table.
  */
-class Table_Checksum_Usermeta extends Table_Checksum {
+class Table_Checksum_Usermeta extends Table_Checksum_Users {
 	/**
 	 * Calculate the checksum based on provided range and filters.
 	 *
@@ -47,11 +47,14 @@ class Table_Checksum_Usermeta extends Table_Checksum {
 
 		$query = "
 			SELECT
-				DISTINCT {$this->range_field}
+				DISTINCT {$this->table}.{$this->range_field}
 			FROM
 				{$this->table}
+			JOIN {$wpdb->usermeta} as um_table ON um_table.user_id = {$this->table}.ID
 			WHERE
 				{$range_filter_statement}
+				AND um_table.meta_key = '{$wpdb->prefix}user_level'
+			  	AND um_table.meta_value > 0
 		";
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
@@ -89,7 +92,8 @@ class Table_Checksum_Usermeta extends Table_Checksum {
 							)
 						);
 					}
-					if ( ! empty( $user_object->locale ) ) {
+					// Explicitly check that locale is not same as site locale.
+					if ( ! empty( $user_object->locale ) && get_locale() !== $user_object->locale ) {
 						$checksum_entry += crc32(
 							implode(
 								'#',

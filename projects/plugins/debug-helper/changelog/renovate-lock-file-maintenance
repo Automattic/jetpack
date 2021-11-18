@@ -1,4 +1,4 @@
 Significance: patch
-Type: fixed
+Type: changed
 
-Set `prefer-stable: true` in composer.json.
+Updated package dependencies

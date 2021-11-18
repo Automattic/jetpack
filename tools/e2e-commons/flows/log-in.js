@@ -1,7 +1,6 @@
 import config from 'config';
-import DashboardPage from '../pages/wp-admin/dashboard';
-import LoginPage from '../pages/wpcom/login';
-import WPLoginPage from '../pages/wp-admin/login';
+import { DashboardPage, WPLoginPage } from '../pages/wp-admin';
+import { LoginPage } from '../pages/wpcom';
 import logger from '../logger';
 
 const cookie = config.get( 'storeSandboxCookieValue' );

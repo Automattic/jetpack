@@ -28,7 +28,7 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.2.6';
+	const PACKAGE_VERSION = '0.4.3-alpha';
 
 	/**
 	 * Instance of the object.
@@ -80,8 +80,11 @@ class Identity_Crisis {
 		add_action( 'jetpack_sync_processed_actions', array( $this, 'maybe_clear_migrate_option' ) );
 		add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\IdentityCrisis\\REST_Endpoints', 'initialize_rest_api' ) );
 		add_action( 'jetpack_idc_disconnect', array( __CLASS__, 'do_jetpack_idc_disconnect' ) );
+		add_action( 'jetpack_received_remote_request_response', array( $this, 'check_http_response_for_idc_detected' ) );
 
 		add_filter( 'jetpack_connection_disconnect_site_wpcom', array( __CLASS__, 'jetpack_connection_disconnect_site_wpcom_filter' ) );
+
+		add_filter( 'jetpack_remote_request_url', array( $this, 'add_idc_query_args_to_url' ) );
 
 		$urls_in_crisis = self::check_identity_crisis();
 		if ( false === $urls_in_crisis ) {
@@ -191,6 +194,32 @@ class Identity_Crisis {
 	}
 
 	/**
+	 * Add the idc query arguments to the url.
+	 *
+	 * @param string $url The remote request url.
+	 */
+	public function add_idc_query_args_to_url( $url ) {
+		if ( ! is_string( $url ) || self::validate_sync_error_idc_option() ) {
+			return $url;
+		}
+
+		$query_args = array(
+			'home'    => Urls::home_url(),
+			'siteurl' => Urls::site_url(),
+		);
+
+		if ( self::should_handle_idc() ) {
+			$query_args['idc'] = true;
+		}
+
+		if ( \Jetpack_Options::get_option( 'migrate_for_idc', false ) ) {
+			$query_args['migrate_for_idc'] = true;
+		}
+
+		return add_query_arg( $query_args, $url );
+	}
+
+	/**
 	 * Non-admins current screen check.
 	 *
 	 * @param object $current_screen Current screen.
@@ -265,6 +294,65 @@ class Identity_Crisis {
 	}
 
 	/**
+	 * Checks the HTTP response body for the 'idc_detected' key. If the key exists,
+	 * checks the idc_detected value for a valid idc error.
+	 *
+	 * @param array|WP_Error $http_response The HTTP response.
+	 *
+	 * @return bool Whether the site is in an identity crisis.
+	 */
+	public function check_http_response_for_idc_detected( $http_response ) {
+		if ( ! is_array( $http_response ) ) {
+			return false;
+		}
+		$response_body = json_decode( wp_remote_retrieve_body( $http_response ), true );
+
+		if ( isset( $response_body['idc_detected'] ) ) {
+			return $this->check_response_for_idc( $response_body['idc_detected'] );
+		}
+
+		if ( isset( $response_body['migrated_for_idc'] ) ) {
+			Jetpack_Options::delete_option( 'migrate_for_idc' );
+		}
+
+		return false;
+	}
+
+	/**
+	 * Checks the WPCOM response to determine if the site is in an identity crisis. Updates the
+	 * sync_error_idc option if it is.
+	 *
+	 * @param array $response The response data.
+	 *
+	 * @return bool Whether the site is in an identity crisis.
+	 */
+	public function check_response_for_idc( $response ) {
+		if ( ! is_array( $response ) ) {
+			return false;
+		}
+
+		if ( is_array( $response ) && isset( $response['error_code'] ) ) {
+			$error_code              = $response['error_code'];
+			$allowed_idc_error_codes = array(
+				'jetpack_url_mismatch',
+				'jetpack_home_url_mismatch',
+				'jetpack_site_url_mismatch',
+			);
+
+			if ( in_array( $error_code, $allowed_idc_error_codes, true ) ) {
+				\Jetpack_Options::update_option(
+					'sync_error_idc',
+					self::get_sync_error_idc_option( $response )
+				);
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Prepare URL for display.
 	 *
 	 * @param string $url URL to display.
@@ -314,6 +402,7 @@ class Identity_Crisis {
 		$sync_error = Jetpack_Options::get_option( 'sync_error_idc' );
 		if ( $sync_error && self::should_handle_idc() ) {
 			$local_options = self::get_sync_error_idc_option();
+
 			// Ensure all values are set.
 			if ( isset( $sync_error['home'] ) && isset( $local_options['home'] ) && isset( $sync_error['siteurl'] ) && isset( $local_options['siteurl'] ) ) {
 				// If the WP.com expected home and siteurl match local home and siteurl it is not valid IDC.
@@ -419,8 +508,6 @@ class Identity_Crisis {
 
 			$returned_values[ $key ] = $normalized_url;
 		}
-
-		set_transient( 'jetpack_idc_option', $returned_values, MINUTE_IN_SECONDS );
 
 		return $returned_values;
 	}
@@ -1116,5 +1203,50 @@ class Identity_Crisis {
 		 * @since-jetpack 4.4.0
 		 */
 		return apply_filters( 'jetpack_idc_non_admin_contact_admin_text', $string );
+	}
+
+	/**
+	 * Whether the site is undergoing identity crisis.
+	 *
+	 * @return bool
+	 */
+	public static function has_identity_crisis() {
+		return false !== static::check_identity_crisis() && ! static::$is_safe_mode_confirmed;
+	}
+
+	/**
+	 * Returns the mismatched URLs.
+	 *
+	 * @return array|bool The mismatched urls, or false if the site is not connected, offline, in safe mode, or the IDC error is not valid.
+	 */
+	public static function get_mismatched_urls() {
+		if ( ! static::has_identity_crisis() ) {
+			return false;
+		}
+
+		$data = static::check_identity_crisis();
+
+		if ( ! $data ||
+			! isset( $data['error_code'] ) ||
+			! isset( $data['wpcom_home'] ) ||
+			! isset( $data['home'] ) ||
+			! isset( $data['wpcom_siteurl'] ) ||
+			! isset( $data['siteurl'] )
+			) {
+			// The jetpack_sync_error_idc option is missing a key.
+			return false;
+		}
+
+		if ( 'jetpack_site_url_mismatch' === $data['error_code'] ) {
+			return array(
+				'wpcom_url'   => $data['wpcom_siteurl'],
+				'current_url' => $data['siteurl'],
+			);
+		}
+
+		return array(
+			'wpcom_url'   => $data['wpcom_home'],
+			'current_url' => $data['home'],
+		);
 	}
 }

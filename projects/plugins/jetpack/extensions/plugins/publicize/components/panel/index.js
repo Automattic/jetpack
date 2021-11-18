@@ -10,6 +10,9 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { PanelBody, PanelRow, ToggleControl, Disabled } from '@wordpress/components';
+import { store as editorStore } from '@wordpress/editor';
+import { useSelect } from '@wordpress/data';
 import { Fragment } from '@wordpress/element';
 
 /**
@@ -19,13 +22,28 @@ import PublicizeConnectionVerify from '../connection-verify';
 import PublicizeForm from '../form';
 import PublicizeTwitterOptions from '../twitter/options';
 import useSelectSocialMediaConnections from '../../hooks/use-social-media-connections';
-import usePostJustSave from '../../hooks/use-post-just-saved';
+import { usePostJustPublished } from '../../hooks/use-saving-post';
+import usePublicizeConfig from '../../hooks/use-publicize-config';
+
+import { SharePostRow } from '../../components/share-post';
+import UpsellNotice from '../upsell';
 
 const PublicizePanel = ( { prePublish } ) => {
-	const { refresh, hasEnabledConnections } = useSelectSocialMediaConnections();
+	const { refresh, hasConnections, hasEnabledConnections } = useSelectSocialMediaConnections();
+	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
-	// Refresh connections when the post is just saved.
-	usePostJustSave(
+	const {
+		isRePublicizeFeatureEnabled,
+		isPublicizeEnabled: isPublicizeEnabledFromConfig, // <- usually handled by the UI
+		togglePublicizeFeature,
+		isPublicizeDisabledBySitePlan,
+		hideRePublicizeFeature,
+	} = usePublicizeConfig();
+
+	const isPublicizeEnabled = isPublicizeEnabledFromConfig && ! isPublicizeDisabledBySitePlan;
+
+	// Refresh connections when the post is just published.
+	usePostJustPublished(
 		function () {
 			if ( ! hasEnabledConnections ) {
 				return;
@@ -36,18 +54,54 @@ const PublicizePanel = ( { prePublish } ) => {
 		[ hasEnabledConnections, refresh ]
 	);
 
+	// Disable the panel when no proper site plan is available.
+	const PanelRowWithDisabled = isPublicizeDisabledBySitePlan ? Disabled : PanelRow;
+
+	// Panel wrapper.
+	const PanelWrapper = prePublish ? Fragment : PanelBody;
+	const wrapperProps = prePublish
+		? {}
+		: {
+				title: __( 'Share this post', 'jetpack' ),
+				className: isPublicizeDisabledBySitePlan ? 'jetpack-publicize-disabled' : '',
+		  };
+
 	return (
-		<Fragment>
-			<PublicizeConnectionVerify />
+		<PanelWrapper { ...wrapperProps }>
+			<UpsellNotice isPostPublished={ isPostPublished } />
 
-			<div>
-				{ __( "Connect and select the accounts where you'd like to share your post.", 'jetpack' ) }
-			</div>
+			{ ! hideRePublicizeFeature && (
+				<Fragment>
+					{ isRePublicizeFeatureEnabled && ! isPostPublished && (
+						<PanelRowWithDisabled>
+							<ToggleControl
+								className="jetpack-publicize-toggle"
+								label={
+									isPublicizeEnabled && ! isPublicizeDisabledBySitePlan
+										? __( 'Share when publishing', 'jetpack' )
+										: __( 'Sharing is disabled', 'jetpack' )
+								}
+								onChange={ togglePublicizeFeature }
+								checked={ isPublicizeEnabled }
+								disabled={ ! hasConnections }
+							/>
+						</PanelRowWithDisabled>
+					) }
 
-			<PublicizeForm />
+					<PublicizeConnectionVerify />
+					<PublicizeForm
+						isPublicizeEnabled={ isPublicizeEnabled }
+						isRePublicizeFeatureEnabled={ isRePublicizeFeatureEnabled }
+						isPublicizeDisabledBySitePlan={ isPublicizeDisabledBySitePlan }
+					/>
+					{ ! isPublicizeDisabledBySitePlan && (
+						<PublicizeTwitterOptions prePublish={ prePublish } />
+					) }
 
-			<PublicizeTwitterOptions prePublish={ prePublish } />
-		</Fragment>
+					<SharePostRow />
+				</Fragment>
+			) }
+		</PanelWrapper>
 	);
 };
 

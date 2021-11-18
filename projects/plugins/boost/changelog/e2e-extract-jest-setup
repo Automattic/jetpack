@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+E2E tests: remove jest setup in favor of e2e-commons setup file

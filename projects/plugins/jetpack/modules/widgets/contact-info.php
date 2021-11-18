@@ -31,6 +31,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				'classname'                   => 'widget_contact_info',
 				'description'                 => __( 'Display a map with your location, hours, and contact information.', 'jetpack' ),
 				'customize_selective_refresh' => true,
+				'show_instance_in_rest'       => true,
 			);
 			parent::__construct(
 				'widget_contact_info',
@@ -47,6 +48,18 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			}
 
 			add_action( 'wp_ajax_customize-contact-info-api-key', array( $this, 'ajax_check_api_key' ) );
+			add_filter( 'widget_types_to_hide_from_legacy_widget_block', array( $this, 'hide_widget_in_block_editor' ) );
+		}
+
+		/**
+		 * Remove "Contact info and Map" widget from Legacy Widget block.
+		 *
+		 * @param array $widget_types Widget type data.
+		 * This only applies to new blocks being added.
+		 */
+		public function hide_widget_in_block_editor( $widget_types ) {
+			$widget_types[] = 'widget_contact_info';
+			return $widget_types;
 		}
 
 		/**

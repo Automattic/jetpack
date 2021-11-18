@@ -14,11 +14,11 @@ import analytics from 'lib/analytics';
 import { canDisplayDevCard, enableDevCard, resetOptions } from 'state/dev-version';
 import DevCard from 'components/dev-card';
 import {
-	isAtomicSite,
 	isDevVersion as _isDevVersion,
 	getCurrentVersion,
 	userCanManageOptions,
 	getSiteAdminUrl,
+	isAtomicPlatform,
 } from 'state/initial-state';
 import { isInIdentityCrisis, getSiteConnectionStatus } from 'state/connection';
 import onKeyDownCallback from 'utils/onkeydown-callback';
@@ -178,7 +178,7 @@ export class Footer extends React.Component {
 		};
 
 		const maybeShowVersionNumber = () => {
-			if ( ! this.props.isAtomicSite ) {
+			if ( ! this.props.isAtomicPlatform ) {
 				return (
 					<li className="jp-footer__link-item">
 						<a
@@ -266,7 +266,7 @@ export default connect(
 		return {
 			currentVersion: getCurrentVersion( state ),
 			displayDevCard: canDisplayDevCard( state ),
-			isAtomicSite: isAtomicSite( state ),
+			isAtomicPlatform: isAtomicPlatform( state ),
 			isDevVersion: _isDevVersion( state ),
 			isInIdentityCrisis: isInIdentityCrisis( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
