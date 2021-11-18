@@ -146,12 +146,12 @@ export const requests = ( state = connectionRequests, action ) => {
 };
 
 export const hasSeenWCConnectionModalReducer = (
-	state = window.Initial_State.hasSeenWCConnectionModal,
+	state = window.Initial_State.hasSeenWCConnectionModal || false,
 	action
 ) => {
 	switch ( action.type ) {
 		case JETPACK_CONNECTION_HAS_SEEN_WC_CONNECTION_MODAL:
-			return assign( {}, state, true );
+			return true;
 
 		default:
 			return state;
