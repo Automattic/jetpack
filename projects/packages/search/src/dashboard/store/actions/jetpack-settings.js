@@ -26,8 +26,8 @@ export const TOGGLE_SEARCH_MODULE = 'TOGGLE_SEARCH_MODULE';
  */
 export function* updateJetpackSettings( settings, oldSettings ) {
 	try {
-		yield setJetpackSettings( settings );
 		yield setUpdatingJetpackSettings();
+		yield setJetpackSettings( settings );
 		yield updateJetpackSettingsControl( settings );
 		const updatedSettings = yield fetchJetpackSettings();
 		yield setJetpackSettings( updatedSettings );
