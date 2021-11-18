@@ -34,25 +34,36 @@ const WIDGETS_EDITOR_URL = 'customize.php?autofocus[panel]=widgets&return=%s';
  * Search settings component to be used within the Performance section.
  *
  * @param {object} props - Component properties.
+ * @param {string} props.domain - Calypso slug.
+ * @param {string} props.siteAdminUrl - site admin URL.
+ * @param {string} props.upgradeBillPeriod - billing cycle for upgrades.
+ * @param {Function} props.updateOptions - function to update settings.
+ * @param {boolean} props.isSavingEitherOption - true if Saving options.
+ * @param {boolean} props.isModuleEnabled - true if Search module is enabled.
+ * @param {boolean} props.isInstantSearchEnabled - true if Instant Search is enabled.
+ * @param {boolean} props.isInstantSearchPromotionActive - true if search promotion is active.
+ * @param {boolean} props.supportsOnlyClassicSearch - true if site has plan that supports only Classic Search.
+ * @param {boolean} props.supportsSearch - true if site has plan that supports either Classic or Instant Search.
+ * @param {boolean} props.supportsInstantSearch - true if site has plan that supports Instant Search.
+ * @param {boolean} props.isTogglingModule - true if toggling Search module.
+ * @param {boolean} props.isTogglingInstantSearch - true if toggling Instant Search option.
  * @returns {React.Component}	Search settings component.
  */
-export default function SearchModuleControl( props ) {
-	const {
-		siteAdminUrl,
-		updateOptions,
-		domain,
-		isSavingEitherOption,
-		isModuleEnabled,
-		isInstantSearchEnabled,
-		isInstantSearchPromotionActive,
-		upgradeBillPeriod,
-		supportsOnlyClassicSearch,
-		supportsSearch,
-		supportsInstantSearch,
-		isTogglingModule,
-		isTogglingInstantSearch,
-	} = props;
-
+export default function SearchModuleControl( {
+	siteAdminUrl,
+	updateOptions,
+	domain,
+	isSavingEitherOption,
+	isModuleEnabled,
+	isInstantSearchEnabled,
+	isInstantSearchPromotionActive,
+	upgradeBillPeriod,
+	supportsOnlyClassicSearch,
+	supportsSearch,
+	supportsInstantSearch,
+	isTogglingModule,
+	isTogglingInstantSearch,
+} ) {
 	const isInstantSearchCustomizeButtonDisabled =
 		isSavingEitherOption ||
 		! isModuleEnabled ||
