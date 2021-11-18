@@ -2,6 +2,18 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 10.4-a.7 - 2021-11-17
+### Enhancements
+- Podcast Player block: add 'jetpack_podcast_helper_tracks_quantity' filter to control number of tracks fetched. Deprecate the 'jetpack_podcast_helper_list_quantity' filter.
+
+### Bug fixes
+- VideoPress: fix VideoPress load for old videos in Gutenberg
+- SSO: fix button content alignment for small screens
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Adding My Jetpack
+- Update phpunit tests so they can be executed again on wpcom without fatal errors.
+
 ## 10.4-a.5 - 2021-11-16
 ### Enhancements
 - Dashboard: display a notice when you have unactivated product licence keys linked to your WordPress.com account.
