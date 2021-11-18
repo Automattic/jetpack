@@ -63,7 +63,6 @@ export default {
 		return {
 			...attributes,
 			...filterVideoPressClasses( className, videoPressClassNames ),
-			cover: true,
 		};
 	},
 	save,
