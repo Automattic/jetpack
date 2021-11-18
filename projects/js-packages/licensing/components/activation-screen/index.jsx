@@ -3,6 +3,7 @@
  */
 import React, { useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
+import restApi from '@automattic/jetpack-api';
 
 /**
  * Internal dependencies
@@ -38,15 +39,20 @@ const ActivationScreen = props => {
 		if ( ! license || isSaving ) {
 			return;
 		}
-
 		setIsSaving( true );
-
-		// TODO: unconnected, will connect via jetpack-api in separate PR
-		setTimeout( () => {
+		restApi.attachLicenses( [ license ] ).then( ( results ) =>{
+			if ( results.length > 0 ) {
+				if ( results[0].errors ) {
+					for ( let errorCode in results[0].errors ) {
+						if ( results[0].errors[errorCode].length > 0 ) {
+							setLicenseError( results[0].errors[errorCode][0] );
+						}
+					}
+				}
+			}
+		} ).finally( () => {
 			setIsSaving( false );
-			setLicenseError( null );
-			setActivatedProduct( 2100 );
-		}, 1000 );
+		} );
 	}, [ isSaving, license ] );
 
 	const renderActivationSuccess = () => (
