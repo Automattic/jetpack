@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\Debug_Helper;
 
 /**
- * REST_API_Tester to test REST API endpoints.
+ * Sync_Data_Settings_Tester to test the Sync data settings.
  */
 class Sync_Data_Settings_Tester {
 
