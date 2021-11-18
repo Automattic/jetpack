@@ -299,7 +299,7 @@ importers:
       '@wordpress/postcss-plugins-preset': 3.2.4
       babel-plugin-inline-json-import: 0.3.2
       concurrently: 6.0.2
-      css-loader: 6.2.0
+      css-loader: 6.5.1
       postcss-loader: 4.3.0
       react: 17.0.2
       sass-loader: 10.2.0
@@ -337,7 +337,7 @@ importers:
       '@wordpress/postcss-plugins-preset': 3.2.4
       babel-plugin-inline-json-import: 0.3.2
       concurrently: 6.0.2
-      css-loader: 6.2.0_webpack@5.64.1
+      css-loader: 6.5.1_webpack@5.64.1
       postcss-loader: 4.3.0_webpack@5.64.1
       react: 17.0.2
       sass-loader: 10.2.0_webpack@5.64.1
@@ -362,7 +362,7 @@ importers:
       babel-loader: 8.2.3
       browserslist: 4.17.6
       cache-loader: 4.1.0
-      css-loader: 6.2.0
+      css-loader: 6.5.1
       css-minimizer-webpack-plugin: 3.1.4
       duplicate-package-checker-webpack-plugin: 3.0.0
       mini-css-extract-plugin: 2.4.5
@@ -386,7 +386,7 @@ importers:
       babel-loader: 8.2.3_fda98f9ff70e0481a7d2271d8792a29b
       browserslist: 4.17.6
       cache-loader: 4.1.0_webpack@5.64.1
-      css-loader: 6.2.0_webpack@5.64.1
+      css-loader: 6.5.1_webpack@5.64.1
       css-minimizer-webpack-plugin: 3.1.4_webpack@5.64.1
       duplicate-package-checker-webpack-plugin: 3.0.0
       mini-css-extract-plugin: 2.4.5_webpack@5.64.1
@@ -722,7 +722,7 @@ importers:
       copy-webpack-plugin: 9.0.1
       core-js: 3.11.1
       create-react-class: 15.7.0
-      css-loader: 6.2.0
+      css-loader: 6.5.1
       debug: 4.3.2
       email-validator: 2.0.4
       enzyme: 3.11.0
@@ -926,7 +926,7 @@ importers:
       chalk: 4.1.2
       commander: 7.2.0
       concurrently: 6.0.2
-      css-loader: 6.2.0_webpack@5.64.1
+      css-loader: 6.5.1_webpack@5.64.1
       enzyme: 3.11.0
       enzyme-to-json: 3.6.2_enzyme@3.11.0
       eslint: 7.32.0
@@ -9983,8 +9983,8 @@ packages:
       webpack: 5.64.1
     dev: true
 
-  /css-loader/6.2.0_webpack@5.64.1:
-    resolution: {integrity: sha512-/rvHfYRjIpymZblf49w8jYcRo2y9gj6rV8UroHGmBxKrIyGLokpycyKzp9OkitvqT29ZSpzJ0Ic7SpnJX3sC8g==}
+  /css-loader/6.5.1_webpack@5.64.1:
+    resolution: {integrity: sha512-gEy2w9AnJNnD9Kuo4XAP9VflW/ujKoS9c/syO+uWMlm5igc7LysKzPXaDoR2vroROkSwsTS2tGr1yGGEbZOYZQ==}
     engines: {node: '>= 12.13.0'}
     peerDependencies:
       webpack: ^5.0.0
