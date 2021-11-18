@@ -64,13 +64,7 @@ export default {
 		reusable: false,
 	},
 	isEligible: attrs => {
-		return attrs.guid && ! attrs.cover;
-	},
-	migrate: attributes => {
-		return {
-			...attributes,
-			cover: true,
-		};
+		return attrs.guid;
 	},
 	save,
 	isDeprecation: true,
