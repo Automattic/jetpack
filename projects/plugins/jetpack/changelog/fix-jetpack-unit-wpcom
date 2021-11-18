@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Update phpunit tests so they can be executed again on wpcom without fatal errors.
