@@ -236,6 +236,7 @@ const addVideoPressSupport = ( settings, name ) => {
 
 			deprecated: [
 				...( deprecated || [] ),
+				deprecatedV3,
 				{
 					attributes,
 					isEligible: attrs => ! attrs.guid,
@@ -243,7 +244,6 @@ const addVideoPressSupport = ( settings, name ) => {
 					supports,
 					isDeprecation: true,
 				},
-				deprecatedV3,
 				deprecatedV2,
 				deprecatedV1,
 			],

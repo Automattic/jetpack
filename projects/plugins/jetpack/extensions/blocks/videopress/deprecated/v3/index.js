@@ -1,9 +1,4 @@
 /**
- * External dependencies
- */
-import { createBlock } from '@wordpress/blocks';
-
-/**
  * Internal dependencies
  */
 import save from './save';
@@ -72,7 +67,10 @@ export default {
 		return attrs.guid && ! attrs.cover;
 	},
 	migrate: attributes => {
-		return [ attributes, [ createBlock( 'core/video', attributes ) ] ];
+		return {
+			...attributes,
+			cover: true,
+		};
 	},
 	save,
 	isDeprecation: true,
