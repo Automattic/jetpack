@@ -174,7 +174,7 @@ export async function scriptRouter( argv ) {
 			} else if ( argv.beta ) {
 				argv.scriptArgs.unshift( '-b' );
 			}
-			process.exit( 1 );
+			break;
 		default:
 			console.log( 'Not a valid release command!' );
 			process.exit( 1 );
@@ -240,24 +240,59 @@ export async function getReleaseVersion( argv ) {
 		.execSync( `tools/plugin-version.sh ${ argv.project }` )
 		.toString()
 		.trim();
-	potentialVersion = potentialVersion.split( '-' );
-	potentialVersion = potentialVersion[ 0 ].split( '.' ).splice( 0, 2 );
-	potentialVersion = potentialVersion.join( '.' );
+	potentialVersion = potentialVersion.split( '-' ); // e.g., split 10.4-a.8 into [10.4, a.8]
 
 	// Append '-beta' if necessary.
 	if ( argv.b || argv.beta ) {
+		potentialVersion = potentialVersion[ 0 ].split( '.' ).splice( 0, 2 );
+		potentialVersion = potentialVersion.join( '.' );
 		potentialVersion += '-beta';
 	}
 
 	// Append '-alpha' if necessary.
 	if ( argv.a || argv[ 'dev-version' ] ) {
-		potentialVersion += '-alpha';
+		// Jetpack uses additional versioning for dev/atomic in the form of x.y-a.z
+		if ( argv.project === 'plugins/jetpack' ) {
+			const versionToBump = potentialVersion[ 1 ]
+				? potentialVersion[ 1 ].split( '.' )
+				: potentialVersion[ 0 ].split( '.' ); // if first alpha after stable, potentialVersion[1] should be undefined.
+			const potentialVersionBump = potentialVersion[ 1 ] ? parseInt( versionToBump[ 1 ] ) + 1 : '0';
+			potentialVersion = `${ potentialVersion[ 0 ] }-a.${ potentialVersionBump }`;
+		} else {
+			const versionToBump = potentialVersion[ 0 ].split( '.' ).splice( 0, 2 );
+			potentialVersion = await getVersionBump( versionToBump );
+			potentialVersion = potentialVersion.join( '.' );
+			potentialVersion += '-alpha';
+		}
 	}
-	argv = await promptForVersion( argv, potentialVersion );
 
+	if ( argv.stable ) {
+		potentialVersion = potentialVersion[ 0 ].split( '.' ).splice( 0, 2 );
+		potentialVersion = potentialVersion.join( '.' );
+	}
+
+	argv = await promptForVersion( argv, potentialVersion );
+	process.exit( 1 );
 	return argv;
 }
 
+/**
+ * Bumps the correct number.
+ *
+ * @param {Array} version - the arguments passed
+ * @returns {Array} the bumped version.
+ */
+export async function getVersionBump( version ) {
+	if ( version[ 1 ] === '9' ) {
+		// e.g, if the current version is 10.9 and we want 11.0
+		version[ 0 ] = parseInt( version[ 0 ] ) + 1;
+		version[ 1 ] = '0';
+	} else {
+		version[ 1 ] = parseInt( version[ 1 ] ) + 1;
+	}
+
+	return version;
+}
 /**
  * Prompts for what version we're releasing
  *
@@ -287,30 +322,25 @@ export async function promptForVersion( argv, version ) {
 export async function promptDevBeta( argv ) {
 	const response = await inquirer.prompt( [
 		{
-			type: 'confirm',
-			name: 'beta',
-			message: `Are you releasing a beta version of ${ argv.project }?`,
-			default: false,
-		},
-		{
-			type: 'confirm',
-			name: 'alpha',
-			message: `Is this a dev-release version version ${ argv.project }? (yes if doing an Atomic release)`,
-			default: false,
-			when: e => ! e.beta,
+			type: 'list',
+			name: 'version_type',
+			message: `What kind of release is this?`,
+			choices: [ 'alpha (including Atomic)', 'beta', 'stable' ],
 		},
 	] );
 
-	if ( response.beta ) {
-		argv.beta = response.beta;
-		argv.b = response.beta;
+	switch ( response.version_type ) {
+		case 'beta':
+			argv.b = true;
+			argv.beta = true;
+			break;
+		case 'alpha (including Atomic)':
+			argv[ 'dev-version' ] = true;
+			argv.a = true;
+			break;
+		default:
+			argv.stable = true;
 	}
-
-	if ( response.alpha ) {
-		argv[ 'dev-release' ] = response.alpha;
-		argv.a = response.alpha;
-	}
-
 	return argv;
 }
 
