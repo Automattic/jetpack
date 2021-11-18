@@ -5,7 +5,8 @@ import {
 	status as statusReducer,
 	user as userReducer,
 	requests as requestsReducer,
-	connectionRequests
+	connectionRequests,
+	hasSeenWCConnectionModalReducer
 } from '../reducer';
 
 describe( 'status reducer', () => {
@@ -224,5 +225,16 @@ describe( 'requests reducer', () => {
 			let stateOut = requestsReducer( stateIn, action );
 			expect( stateOut.reconnectingSite ).to.be.false;
 		} );
+	} );
+} );
+
+describe( '#hasSeenWCConnectionModalReducer', () => {
+	it( 'should set hasSeenWCConnectionModalReducer to true when ', () => {
+		const stateIn = {};
+		const action = {
+			type: 'JETPACK_CONNECTION_HAS_SEEN_WC_CONNECTION_MODAL'
+		};
+		let stateOut = hasSeenWCConnectionModalReducer( stateIn, action );
+		expect( stateOut ).to.be.true;
 	} );
 } );

@@ -10,6 +10,7 @@ import {
 	isCurrentUserLinked,
 	isConnectingUser,
 	isReconnectingSite,
+	hasSeenWCConnectionModal,
 } from '../reducer';
 
 let state = {
@@ -36,7 +37,8 @@ let state = {
 				currentUser: {
 					isConnected: true
 				}
-			}
+			},
+			hasSeenWCConnectionModal: false,
 		},
 	}
 };
@@ -117,6 +119,16 @@ describe( 'user selectors', () => {
 			const stateIn = state;
 			const output = isCurrentUserLinked( stateIn );
 			expect( output ).to.be.equal( state.jetpack.connection.user.currentUser.isConnected );
+		} );
+	} );
+} );
+
+describe( 'hasSeenWCConnectionModal selector', () => {
+	describe( '#hasSeenWCConnectionModal', () => {
+		it( 'should return state.jetpack.connection.hasSeenWCConnectionModal', () => {
+			const stateIn = state;
+			const output = hasSeenWCConnectionModal( stateIn );
+			expect( output ).to.be.equal( state.jetpack.connection.hasSeenWCConnectionModal );
 		} );
 	} );
 } );
