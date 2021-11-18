@@ -1,9 +1,13 @@
 .jp-license-activation-screen {
 	box-shadow: 0px 4px 24px 0px #00000026;
 	display: flex;
-	flex-direction: row;
+	flex-direction: column;
 	// this clips our children to our border radius
 	border-radius: 4px;
 	overflow: hidden;
 	min-height: 540px;
+
+	@media screen and ( min-width: 780px ) {
+		flex-direction: row;
+	}
 }

@@ -80,6 +80,10 @@
 
 	margin-top: 24px;
 
+	display: flex;
+	justify-content: center;
+	width: 100%;
+
 	&:hover {
 		background-color: var( --jp-green-60 );
 		border-color: var( --jp-green-60 );
@@ -104,5 +108,10 @@
 		background: var( --jp-gray );
 		color: #a7aaad;
 		border-color: var( --jp-gray );
+	}
+
+	@media screen and ( min-width: 480px ) {
+		justify-content: flex-start;
+		width: auto;
 	}
 }
