@@ -242,17 +242,13 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.4-a.5 - 2021-11-16
+### 10.4-a.7 - 2021-11-17
 #### Enhancements
-- Dashboard: display a notice when you have unactivated product licence keys linked to your WordPress.com account.
-- Likes: refactor Likes in posts to improve performance and avoid loading additional libraries.
-- VideoPress: add handles to resize the Video Block in the editor.
+- Podcast Player block: add 'jetpack_podcast_helper_tracks_quantity' filter to control number of tracks fetched. Deprecate the 'jetpack_podcast_helper_list_quantity' filter.
 
 #### Bug fixes
-- Dashboard: fix some layout and display issues in the Recommendations panel.
-- Dashboard: ensure plan information is properly displayed when using Backup and Security plans.
-- Instant Search: restore filter query string functionality.
-- VideoPress: reload block when updating video rating in the editor, and ensure rating meta data is updated.
+- VideoPress: fix VideoPress load for old videos in Gutenberg
+- SSO: fix button content alignment for small screens
 
 --------
 
