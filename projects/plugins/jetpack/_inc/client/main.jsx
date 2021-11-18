@@ -6,7 +6,11 @@ import { connect } from 'react-redux';
 import { withRouter, Prompt } from 'react-router-dom';
 import { __, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import {
+	ConnectScreen,
+	ContextualizedConnection,
+	CONNECTION_STORE_ID,
+} from '@automattic/jetpack-connection';
 import { Dashicon } from '@wordpress/components';
 import { withDispatch } from '@wordpress/data';
 
@@ -29,6 +33,8 @@ import {
 	getConnectingUserFeatureLabel,
 	getConnectionStatus,
 	hasConnectedOwner,
+	hasSeenWCConnectionModal,
+	setHasSeenWCConnectionModal,
 } from 'state/connection';
 import {
 	setInitialState,
@@ -44,6 +50,7 @@ import {
 	showRecommendations,
 	getPluginBaseUrl,
 	isWoASite,
+	isWooCommerceActive,
 } from 'state/initial-state';
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
 import { getSearchTerm } from 'state/search';
@@ -199,6 +206,34 @@ class Main extends React.Component {
 
 	renderMainContent = route => {
 		if (
+			this.isWooConnectScreen() ||
+			( this.props.isWooCommerceActive && ! this.props.hasSeenWCConnectionModal )
+		) {
+			return (
+				<ContextualizedConnection
+					apiNonce={ this.props.apiNonce }
+					registrationNonce={ this.props.registrationNonce }
+					apiRoot={ this.props.apiRoot }
+					title={ __(
+						'Activate essential WordPress Security, Performance, and Growth tools for your store',
+						'jetpack'
+					) }
+					buttonLabel={ __( 'Set up Jetpack', 'jetpack' ) }
+					redirectUri="admin.php?page=jetpack"
+					isSiteConnected={ this.props.isSiteConnected }
+					setHasSeenWCConnectionModal={ this.props.setHasSeenWCConnectionModal }
+				>
+					<p>
+						{ __(
+							'Jetpack is the perfect companion plugin for WooCommerce made by WordPress experts to make your store faster, safer and to help grow your business.',
+							'jetpack'
+						) }
+					</p>
+				</ContextualizedConnection>
+			);
+		}
+
+		if (
 			this.isUserConnectScreen() &&
 			( this.props.userCanManageModules || this.props.hasConnectedOwner )
 		) {
@@ -309,6 +344,7 @@ class Main extends React.Component {
 			case '/reconnect':
 			case '/disconnect':
 			case '/connect-user':
+			case '/woo-setup':
 			case '/setup':
 				pageComponent = (
 					<AtAGlance
@@ -467,6 +503,15 @@ class Main extends React.Component {
 	}
 
 	/**
+	 * Checks if this is the Woo connection screen page.
+	 *
+	 * @returns {boolean} Whether this is the Woo connection screen page.
+	 */
+	isWooConnectScreen() {
+		return '/woo-setup' === this.props.location.pathname;
+	}
+
+	/**
 	 * Check if the user connection has been triggered.
 	 *
 	 * @returns {boolean} Whether the user connection has been triggered.
@@ -556,6 +601,8 @@ export default connect(
 			connectUrl: getConnectUrl( state ),
 			connectingUserFeatureLabel: getConnectingUserFeatureLabel( state ),
 			isWoaSite: isWoASite( state ),
+			isWooCommerceActive: isWooCommerceActive( state ),
+			hasSeenWCConnectionModal: hasSeenWCConnectionModal( state ),
 		};
 	},
 	dispatch => ( {
@@ -567,6 +614,9 @@ export default connect(
 		},
 		reconnectSite: () => {
 			return dispatch( reconnectSite() );
+		},
+		setHasSeenWCConnectionModal: () => {
+			return dispatch( setHasSeenWCConnectionModal() );
 		},
 		resetConnectUser: () => {
 			return dispatch( resetConnectUser() );

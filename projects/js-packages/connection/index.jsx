@@ -23,6 +23,7 @@ export { default as ConnectButton } from './components/connect-button';
 export { default as InPlaceConnection } from './components/in-place-connection';
 export { default as ConnectUser } from './components/connect-user';
 export { default as ConnectionStatusCard } from './components/connection-status-card';
+export { default as ContextualizedConnection } from './components/contextualized-connection';
 export { default as DisconnectDialog } from './components/disconnect-dialog';
 
 /**

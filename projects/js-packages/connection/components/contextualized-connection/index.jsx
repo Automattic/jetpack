@@ -33,9 +33,12 @@ const ContextualizedConnection = props => {
 		redirectUri,
 		autoTrigger,
 		isSiteConnected,
+		setHasSeenWCConnectionModal,
 	} = props;
 
-	const continueToJetpack = useCallback( () => {}, [] );
+	const continueToJetpack = useCallback( setHasSeenWCConnectionModal, [
+		setHasSeenWCConnectionModal,
+	] );
 
 	return (
 		<div className={ 'jp-contextualized-connection' + ( className ? ' ' + className : '' ) }>
@@ -67,6 +70,7 @@ const ContextualizedConnection = props => {
 							registrationNonce={ registrationNonce }
 							redirectUri={ redirectUri }
 							connectLabel={ buttonLabel }
+							onRegistered={ setHasSeenWCConnectionModal }
 						/>
 						<div className="jp-contextualized-connection__tos">{ ToS }</div>
 					</>
