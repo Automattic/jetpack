@@ -5,7 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { withRouter, Prompt } from 'react-router-dom';
 import { __, sprintf } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ActionButton, getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { Dashicon } from '@wordpress/components';
 import { withDispatch } from '@wordpress/data';
@@ -43,6 +43,7 @@ import {
 	getTracksUserData,
 	showRecommendations,
 	getPluginBaseUrl,
+	getPartnerCoupon,
 	isWoASite,
 } from 'state/initial-state';
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
@@ -198,6 +199,61 @@ class Main extends React.Component {
 	}
 
 	renderMainContent = route => {
+		/**
+		 * There are two conditions (groups of conditions, really) where we would want to
+		 * show the partner connection screen.
+		 *
+		 * 1. The site is not yet connected to WPCOM, but has the jetpack_partner_coupon
+		 * option set in the database (this.props.partnerCoupon in redux). This is likely a
+		 * partner-user who has just arrived here from a CTA within a partner's dashboard
+		 * or other ecosystem.
+		 *
+		 * 2. The site is already connected to WPCOM, but the jetpack_partner_coupon option
+		 * is still set in the database. This means the user connected their site, but never
+		 * redeemed the coupon. If this is the case, we don't want to override the dashboard
+		 * or at a glance pages with the redemption screen. Instead, we'll catch a URL
+		 * parameter that JITMs will set (showCouponRedemption=true), and show the screen only
+		 * when the user came from a a JITM.
+		 */
+		if ( this.props.partnerCoupon ) {
+			const forceShow = new URLSearchParams( window.location.search ).get( 'showCouponRedemption' );
+
+			if ( ! this.props.isSiteConnected || forceShow ) {
+				return (
+					<ConnectScreen
+						apiNonce={ this.props.apiNonce }
+						registrationNonce={ this.props.registrationNonce }
+						apiRoot={ this.props.apiRoot }
+						images={ [ '/images/connect-right-partner.png' ] }
+						assetBaseUrl={ this.props.pluginBaseUrl }
+						title={ __( 'Welcome to Jetpack IONOS traveler!', 'jetpack' ) }
+						buttonLabel={ __( 'Set up & redeem Jetpack Backup', 'jetpack' ) }
+						redirectUri={ `admin.php?page=jetpack&partnerCoupon=${ this.props.partnerCoupon }` }
+						connectionStatus={ this.props.connectionStatus }
+					>
+						<p>
+							{ __(
+								'Redeem your coupon and get started with Jetpack Backup for free the first year!',
+								'jetpack'
+							) }
+						</p>
+						<ul>
+							<li>{ __( 'Real-time cloud backups', 'jetpack' ) }</li>
+							<li>{ __( '10GB of backup storage', 'jetpack' ) }</li>
+							<li>{ __( '30-day archive & activity log', 'jetpack' ) }</li>
+							<li>{ __( 'One-click restores', 'jetpack' ) }</li>
+						</ul>
+						{ this.props.connectionStatus.hasConnectedOwner && (
+							<ActionButton
+								label={ __( 'Redeem coupon', 'jetpack' ) }
+								href={ `https://wordpress.com/checkout/${ this.props.siteRawUrl }/jetpack_backup_daily?coupon=${ this.props.partnerCoupon }` }
+							/>
+						) }
+					</ConnectScreen>
+				);
+			}
+		}
+
 		if (
 			this.isUserConnectScreen() &&
 			( this.props.userCanManageModules || this.props.hasConnectedOwner )
@@ -556,6 +612,7 @@ export default connect(
 			connectUrl: getConnectUrl( state ),
 			connectingUserFeatureLabel: getConnectingUserFeatureLabel( state ),
 			isWoaSite: isWoASite( state ),
+			partnerCoupon: getPartnerCoupon( state ),
 		};
 	},
 	dispatch => ( {

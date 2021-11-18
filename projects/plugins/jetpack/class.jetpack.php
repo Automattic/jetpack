@@ -3468,6 +3468,17 @@ p {
 		add_filter( 'manage_users_columns', array( $this, 'jetpack_icon_user_connected' ) );
 		add_action( 'manage_users_custom_column', array( $this, 'jetpack_show_user_connected_icon' ), 10, 3 );
 		add_action( 'admin_print_styles', array( $this, 'jetpack_user_col_style' ) );
+
+		// Accept and store a partner coupon if present, and redirect to Jetpack connection screen
+		if ( isset( $_GET['jetpack-partner-coupon'] ) ) {
+			update_option( 'jetpack_partner_coupon', sanitize_text_field( $_GET['jetpack-partner-coupon'] ) );
+			
+			if ( static::connection()->is_connected() ) {
+				wp_safe_redirect( self::admin_url( 'showCouponRedemption=1' ) );
+			} else {
+				wp_safe_redirect( self::admin_url() );
+			}
+		}
 	}
 
 	function admin_body_class( $admin_body_class = '' ) {

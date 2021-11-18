@@ -101,6 +101,7 @@ class Jetpack_Redux_State_Helper {
 			'WP_API_nonce'                => wp_create_nonce( 'wp_rest' ),
 			'registrationNonce'           => wp_create_nonce( 'jetpack-registration-nonce' ),
 			'purchaseToken'               => self::get_purchase_token(),
+			'partnerCoupon'               => get_option( 'jetpack_partner_coupon' ),
 			'pluginBaseUrl'               => plugins_url( '', JETPACK__PLUGIN_FILE ),
 			'connectionStatus'            => $connection_status,
 			'connectUrl'                  => false == $current_user_data['isConnected'] // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
