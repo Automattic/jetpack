@@ -4,6 +4,11 @@
 import save from './save';
 import { filterVideoPressClasses } from './utils';
 
+/**
+ * External dependencies
+ */
+import { createBlock } from '@wordpress/blocks';
+
 // This deprecation is a result of:
 // - fixing regression from Gutenberg update forcing `wp-block-video` class,
 // - bug introduced when VideoPress aspect ratio classes were added,
@@ -60,10 +65,13 @@ export default {
 	isEligible: ( { videoPressClassNames, guid } ) => guid && videoPressClassNames === undefined,
 	migrate: attributes => {
 		const { className, videoPressClassNames } = attributes;
-		return {
-			...attributes,
-			...filterVideoPressClasses( className, videoPressClassNames ),
-		};
+		return [
+			{
+				...attributes,
+				...filterVideoPressClasses( className, videoPressClassNames ),
+			},
+			[ createBlock( 'core/video', attributes ) ],
+		];
 	},
 	save,
 	isDeprecation: true,

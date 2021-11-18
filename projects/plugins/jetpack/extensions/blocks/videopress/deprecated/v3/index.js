@@ -1,13 +1,15 @@
 /**
- * Internal dependencies
+ * External dependencies
  */
 import { createBlock } from '@wordpress/blocks';
+
+/**
+ * Internal dependencies
+ */
 import save from './save';
 
 // This deprecation is a result of:
-// - fixing regression from Gutenberg update forcing `wp-block-video` class,
-// - bug introduced when VideoPress aspect ratio classes were added,
-// - fixing inclusion of alignment classes that were omitted previously.
+// - Adding cover=true to all video blocks resulting in old blocks not passing validation.
 export default {
 	attributes: {
 		autoplay: {
