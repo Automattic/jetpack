@@ -13,7 +13,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "636f2cdc240ff78935b7b0f26b5834691bfa0bd9"
+                "reference": "d219e673c8cb1b6b9ce85dac0f6df570a2af4af8"
             },
             "require": {
                 "php": ">=5.6",
@@ -65,6 +65,12 @@
                 "test-php": [
                     "@composer update",
                     "@composer phpunit"
+                ],
+                "post-install-cmd": [
+                    "[ -e vendor/bin/changelogger ] || { cd vendor/bin && ln -s ../../bin/changelogger; }"
+                ],
+                "post-update-cmd": [
+                    "[ -e vendor/bin/changelogger ] || { cd vendor/bin && ln -s ../../bin/changelogger; }"
                 ]
             },
             "license": [

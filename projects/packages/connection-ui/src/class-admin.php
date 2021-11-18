@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\ConnectionUI;
 
+use Automattic\Jetpack\Assets;
+
 /**
  * The Connection UI Admin Area
  */
@@ -60,14 +62,17 @@ class Admin {
 	 */
 	public function enqueue_scripts( $hook ) {
 		if ( strpos( $hook, 'tools_page_wpcom-connection-manager' ) === 0 ) {
-			$build_assets = require_once __DIR__ . '/../build/index.asset.php';
-			wp_enqueue_script( 'jetpack_connection_ui_script', plugin_dir_url( __DIR__ ) . 'build/index.js', $build_assets['dependencies'], $build_assets['version'], true );
-
-			wp_set_script_translations( 'react-jetpack_connection_ui_script', 'jetpack' );
-			wp_add_inline_script( 'jetpack_connection_ui_script', $this->get_initial_state(), 'before' );
-
-			wp_enqueue_style( 'jetpack_connection_ui_style', plugin_dir_url( __DIR__ ) . 'build/index.css', array( 'wp-components' ), $build_assets['version'] );
-			wp_style_add_data( 'jetpack_connection_ui_style', 'rtl', plugin_dir_url( __DIR__ ) . 'build/index.rtl.css' );
+			Assets::register_script(
+				'jetpack_connection_ui',
+				'../build/index.js',
+				__FILE__,
+				array(
+					'in_footer' => true,
+				)
+			);
+			Assets::enqueue_script( 'jetpack_connection_ui' );
+			wp_add_inline_script( 'jetpack_connection_ui', $this->get_initial_state(), 'before' );
+			wp_set_script_translations( 'jetpack_connection_ui', 'jetpack' );
 		}
 	}
 

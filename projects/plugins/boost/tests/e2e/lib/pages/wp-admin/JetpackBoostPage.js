@@ -36,10 +36,10 @@ export default class JetpackBoostPage extends WpPage {
 	}
 
 	async getSpeedScore( platform ) {
-		const speedBar = await page.$( `div.jb-score-bar--${ platform }  .jb-score-bar__filler` );
+		const speedBar = await page.$( `div.jb-score-bar--${ platform } .jb-score-bar__filler` );
 		await page.waitForSelector( '.jb-score-bar__score', {
 			state: 'visible',
 		} );
-		return Number( await speedBar.textContent( 'div.jb-score-bar__score' ) );
+		return Number( await speedBar.$eval( '.jb-score-bar__score', e => e.textContent ) );
 	}
 }

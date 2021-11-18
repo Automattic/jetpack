@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e503c3889c256c4cddc0ec4ddc2b315b",
+    "content-hash": "b0dd51a210862ace7493ba553f2f0468",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -115,12 +115,69 @@
             }
         },
         {
+            "name": "automattic/jetpack-admin-ui",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/admin-ui",
+                "reference": "7f51620d80a931c94e60f286dad541ff15836ef1"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "^3.0",
+                "automattic/wordbless": "dev-master",
+                "yoast/phpunit-polyfills": "1.0.2"
+            },
+            "type": "library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-admin-ui",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-admin-ui/compare/${old}...${new}"
+                },
+                "branch-alias": {
+                    "dev-master": "0.1.x-dev"
+                },
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-admin-menu.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer install",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer install",
+                    "@composer phpunit"
+                ],
+                "post-update-cmd": [
+                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Generic Jetpack wp-admin UI elements",
+            "transport-options": {
+                "monorepo": true,
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-assets",
             "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "f1b9fef14fee62909dfb58dcb87296730e6ebf8c"
+                "reference": "1345a808c43cb75b46b5b22eb27eca725c0551c4"
             },
             "require": {
                 "automattic/jetpack-constants": "^1.6"
@@ -138,7 +195,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-assets/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.11.x-dev"
+                    "dev-master": "1.12.x-dev"
                 }
             },
             "autoload": {
@@ -496,9 +553,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection-ui",
-                "reference": "aa00d91d3efb13ff48b6a71cd0cfe0c276db48c4"
+                "reference": "251c3511dadb5d4a7fb8c1e04253233ac759ef26"
             },
             "require": {
+                "automattic/jetpack-assets": "^1.12",
                 "automattic/jetpack-connection": "^1.30",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-device-detection": "^1.4",
@@ -812,11 +870,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "73ca1269c3a0af8af8c7810947c7f51c9ffc45f4"
+                "reference": "11761eb6a9b0b3af2487c75c1504e2eb89a65656"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
-                "automattic/jetpack-assets": "^1.11",
+                "automattic/jetpack-assets": "^1.12",
                 "automattic/jetpack-connection": "^1.30",
                 "automattic/jetpack-device-detection": "^1.4",
                 "automattic/jetpack-logo": "^1.5",
@@ -886,10 +944,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/lazy-images",
-                "reference": "7df08e53a8e8930213a648e40cc126a751cbd0c4"
+                "reference": "513a8e80ea5bacf9ada94e2bbc5503b5b21dc789"
             },
             "require": {
-                "automattic/jetpack-assets": "^1.11",
+                "automattic/jetpack-assets": "^1.12",
                 "automattic/jetpack-constants": "^1.6"
             },
             "require-dev": {
@@ -1049,6 +1107,63 @@
                 "GPL-2.0-or-later"
             ],
             "description": "A logo for Jetpack",
+            "transport-options": {
+                "monorepo": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-my-jetpack",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/my-jetpack",
+                "reference": "1bdc7980067947d6ba4ccc6deaf751fb98b0e5ec"
+            },
+            "require": {
+                "automattic/jetpack-admin-ui": "^0.1",
+                "automattic/jetpack-assets": "^1.12"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "^3.0",
+                "yoast/phpunit-polyfills": "1.0.2"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.1.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer install",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer install",
+                    "@composer phpunit"
+                ],
+                "build-development": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run build"
+                ],
+                "build-production": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run build"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
             "transport-options": {
                 "monorepo": true,
                 "relative": true
@@ -1539,10 +1654,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/tracking",
-                "reference": "a9ed9bde1de5ab89483369ef2e76d06376efc695"
+                "reference": "d98a6ed848403f0be212d3fff96412e5f23e740a"
             },
             "require": {
-                "automattic/jetpack-assets": "^1.11",
+                "automattic/jetpack-assets": "^1.12",
                 "automattic/jetpack-options": "^1.13",
                 "automattic/jetpack-status": "^1.9",
                 "automattic/jetpack-terms-of-service": "^1.9"
@@ -1717,7 +1832,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "636f2cdc240ff78935b7b0f26b5834691bfa0bd9"
+                "reference": "d219e673c8cb1b6b9ce85dac0f6df570a2af4af8"
             },
             "require": {
                 "php": ">=5.6",
@@ -1769,6 +1884,12 @@
                 "test-php": [
                     "@composer update",
                     "@composer phpunit"
+                ],
+                "post-install-cmd": [
+                    "[ -e vendor/bin/changelogger ] || { cd vendor/bin && ln -s ../../bin/changelogger; }"
+                ],
+                "post-update-cmd": [
+                    "[ -e vendor/bin/changelogger ] || { cd vendor/bin && ln -s ../../bin/changelogger; }"
                 ]
             },
             "license": [
@@ -2776,20 +2897,20 @@
         },
         {
             "name": "psr/container",
-            "version": "1.1.1",
+            "version": "1.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/container.git",
-                "reference": "8622567409010282b7aeebe4bb841fe98b58dcaf"
+                "reference": "513e0666f7216c7459170d56df27dfcefe1689ea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/container/zipball/8622567409010282b7aeebe4bb841fe98b58dcaf",
-                "reference": "8622567409010282b7aeebe4bb841fe98b58dcaf",
+                "url": "https://api.github.com/repos/php-fig/container/zipball/513e0666f7216c7459170d56df27dfcefe1689ea",
+                "reference": "513e0666f7216c7459170d56df27dfcefe1689ea",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.2.0"
+                "php": ">=7.4.0"
             },
             "type": "library",
             "autoload": {
@@ -2818,9 +2939,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-fig/container/issues",
-                "source": "https://github.com/php-fig/container/tree/1.1.1"
+                "source": "https://github.com/php-fig/container/tree/1.1.2"
             },
-            "time": "2021-03-05T17:36:06+00:00"
+            "time": "2021-11-05T16:50:12+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -3675,6 +3796,7 @@
                     "type": "github"
                 }
             ],
+            "abandoned": true,
             "time": "2020-09-28T06:45:17+00:00"
         },
         {
@@ -4909,6 +5031,7 @@
         "automattic/jetpack-lazy-images": 20,
         "automattic/jetpack-licensing": 20,
         "automattic/jetpack-logo": 20,
+        "automattic/jetpack-my-jetpack": 20,
         "automattic/jetpack-options": 20,
         "automattic/jetpack-partner": 20,
         "automattic/jetpack-redirect": 20,

@@ -3,8 +3,9 @@ const browserslist = require( 'browserslist' );
 const TerserPlugin = require( 'terser-webpack-plugin' );
 
 // We want @wordpress/browserslist-config rather than browserslist's own defaults.
-const browsers =
-	( browserslist.findConfig( '.' ) || {} ).defaults || require( '@wordpress/browserslist-config' );
+const browsers = browserslist(
+	( browserslist.findConfig( '.' ) || {} ).defaults || require( '@wordpress/browserslist-config' )
+);
 
 /**
  * Terser's function to decide which comments to preserve.

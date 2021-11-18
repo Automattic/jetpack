@@ -113,31 +113,18 @@
 	text-transform: uppercase
 }
 
-.jetpack-sso.button {
+#jetpack-sso-wrap .button {
+	display: flex;
+	justify-content: center;
+	align-items: center;
 	height: 36px;
-	line-height: 34px;
-	float: none;
 	margin-bottom: 16px;
-	position: relative;
 	width: 100%;
 }
 
-.jetpack-sso.button > span {
-	position: relative;
-	padding-left: 30px;
-}
-
-.jetpack-sso.button .genericon-wordpress {
-	position: absolute;
-		left: 0;
-		top: -3px;
+#jetpack-sso-wrap .button .genericon-wordpress {
 	font-size: 24px;
-}
-
-@media screen and ( max-width: 782px ) {
-	.jetpack-sso.button {
-		line-height: 22px;
-	}
+	margin-right: 4px;
 }
 
 #jetpack-sso-wrap__user img {
