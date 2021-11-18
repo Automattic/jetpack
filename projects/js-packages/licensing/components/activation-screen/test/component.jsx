@@ -1,8 +1,4 @@
 /**
- * @jest-environment jsdom
- */
-
-/**
  * External dependencies
  */
 import React from 'react';
@@ -19,7 +15,6 @@ import ActivationScreenSuccessInfo from '../../activation-screen-success-info';
 import ActivationScreenControls from '../../activation-screen-controls';
 
 describe( 'ActivationScreen', () => {
-
 	describe( 'Render the ActivationScreen with fresh props', () => {
 		const testProps = {
 			assetBaseUrl: 'jetpack.com',
@@ -49,10 +44,11 @@ describe( 'ActivationScreen', () => {
 			apiStub.returns( Promise.resolve( [ { errors: { 400: [ 'an error' ] } } ] ) );
 
 			// an alternative to a full render and stimulating a click of the activate button
-			activationScreenControls.invoke( 'activateLicense' )().then( () => {
-				expect( activationScreenControls.prop( 'licenseError') ).to.equal( 'an error' );
-			});
-
+			activationScreenControls
+				.invoke( 'activateLicense' )()
+				.then( () => {
+					expect( activationScreenControls.prop( 'licenseError' ) ).to.equal( 'an error' );
+				} );
 		} );
 
 		it( 'should render success with an activated product id from API', () => {
@@ -62,13 +58,14 @@ describe( 'ActivationScreen', () => {
 			// stub the api to return an activated product id
 			apiStub.returns( Promise.resolve( [ [ { activatedProductId: 3000 } ] ] ) );
 
-			activationScreenControls.invoke( 'activateLicense' )().then( () => {
-				const activationScreenSuccessInfo = wrapper.find( ActivationScreenSuccessInfo );
+			activationScreenControls
+				.invoke( 'activateLicense' )()
+				.then( () => {
+					const activationScreenSuccessInfo = wrapper.find( ActivationScreenSuccessInfo );
 
-				expect( activationScreenSuccessInfo.length ).to.have.lengthOf( 1 );
-				expect( activationScreenSuccessInfo.prop( 'productId') ).to.equal( 3000 );
-			});
-
+					expect( activationScreenSuccessInfo.length ).to.have.lengthOf( 1 );
+					expect( activationScreenSuccessInfo.prop( 'productId' ) ).to.equal( 3000 );
+				} );
 		} );
 
 		it( 'should render a generic error for malformed response', () => {
@@ -78,26 +75,34 @@ describe( 'ActivationScreen', () => {
 			// stub the api to return an activated product id
 			apiStub.returns( Promise.resolve( [ { bug: 'an error' } ] ) );
 
-			activationScreenControls.invoke( 'activateLicense' )().then( () => {
-				expect( activationScreenControls.prop( 'licenseError') ).to.equal( 'An unknown error occurred during license activation. Please try again.' );
-			});
-
+			activationScreenControls
+				.invoke( 'activateLicense' )()
+				.then( () => {
+					expect( activationScreenControls.prop( 'licenseError' ) ).to.equal(
+						'An unknown error occurred during license activation. Please try again.'
+					);
+				} );
 		} );
 
 		it( 'should call onActivationSuccess if activation successful', () => {
-
-			const onActivationSuccessSpy = sinon.spy()
-			const wrapper = shallow( <ActivationScreen { ...testProps } startingLicense={ 'a' } onActivationSuccess={ onActivationSuccessSpy } /> );
+			const onActivationSuccessSpy = sinon.spy();
+			const wrapper = shallow(
+				<ActivationScreen
+					{ ...testProps }
+					startingLicense={ 'a' }
+					onActivationSuccess={ onActivationSuccessSpy }
+				/>
+			);
 			const activationScreenControls = wrapper.find( ActivationScreenControls );
 
 			// stub the api to return an activated product id
 			apiStub.returns( Promise.resolve( [ [ { activatedProductId: 3000 } ] ] ) );
 
-			activationScreenControls.invoke( 'activateLicense' )().then( () => {
-				expect( onActivationSuccessSpy.calledOnce ).to.be.true;
-			});
-
+			activationScreenControls
+				.invoke( 'activateLicense' )()
+				.then( () => {
+					expect( onActivationSuccessSpy.calledOnce ).to.be.true;
+				} );
 		} );
-
 	} );
 } );

@@ -20,28 +20,30 @@ import './style.scss';
 
 /**
  * attachLicenses has a particular result, which we reduce to the parts we care about here
- * 
- * @param { attachLicenses } result 
+ *
+ * @param { attachLicenses } result
  */
-const parseAttachLicenseResult = ( result ) => {
+const parseAttachLicenseResult = result => {
 	let currentResult = result;
 
 	while ( Array.isArray( currentResult ) && currentResult.length > 0 ) {
-		currentResult = currentResult[0];
+		currentResult = currentResult[ 0 ];
 	}
 
 	if ( currentResult?.activatedProductId ) {
 		return activatedProductId;
 	} else if ( currentResult?.errors ) {
 		for ( let errorCode in currentResult.errors ) {
-			if ( currentResult.errors[errorCode].length > 0 ) {
-				throw new Error( currentResult.errors[errorCode][0] );
+			if ( currentResult.errors[ errorCode ].length > 0 ) {
+				throw new Error( currentResult.errors[ errorCode ][ 0 ] );
 			}
 		}
 	}
 
-	throw new Error( __( 'An unknown error occurred during license activation. Please try again.', 'jetpack' ) );
-}
+	throw new Error(
+		__( 'An unknown error occurred during license activation. Please try again.', 'jetpack' )
+	);
+};
 
 /**
  * The Activation Screen component.
@@ -56,7 +58,14 @@ const parseAttachLicenseResult = ( result ) => {
  * @returns {React.Component} The `ActivationScreen` component.
  */
 const ActivationScreen = props => {
-	const { assetBaseUrl, lockImage, onActivationSuccess = () => null, siteRawUrl, startingLicense, successImage } = props;
+	const {
+		assetBaseUrl,
+		lockImage,
+		onActivationSuccess = () => null,
+		siteRawUrl,
+		startingLicense,
+		successImage,
+	} = props;
 
 	const [ license, setLicense ] = useState( startingLicense ?? '' );
 	const [ licenseError, setLicenseError ] = useState( null );
@@ -69,15 +78,19 @@ const ActivationScreen = props => {
 		}
 		setIsSaving( true );
 		// returning our promise chain makes testing a bit easier ( see ./test/components.jsx - "should render an error from API" )
-		return restApi.attachLicenses( [ license ] ).then( result => {
-			const activatedProductId = parseAttachLicenseResult( result );
-			setActivatedProduct( activatedProductId );
-			onActivationSuccess();
-		} ).catch( ( error ) => {
-			setLicenseError( error.message );
-		} ).finally( () => {
-			setIsSaving( false );
-		} );
+		return restApi
+			.attachLicenses( [ license ] )
+			.then( result => {
+				const activatedProductId = parseAttachLicenseResult( result );
+				setActivatedProduct( activatedProductId );
+				onActivationSuccess();
+			} )
+			.catch( error => {
+				setLicenseError( error.message );
+			} )
+			.finally( () => {
+				setIsSaving( false );
+			} );
 	}, [ isSaving, license ] );
 
 	const renderActivationSuccess = () => (
