@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-webpack-config",
-	"version": "0.2.0-alpha",
+	"version": "0.2.0",
 	"description": "Library of pieces for webpack config in Jetpack projects.",
 	"homepage": "https://jetpack.com",
 	"bugs": {
