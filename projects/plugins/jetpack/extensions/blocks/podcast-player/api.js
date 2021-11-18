@@ -11,7 +11,7 @@ import { addQueryArgs } from '@wordpress/url';
 
 export const fetchTrackQuantity = async () => {
 	const trackQuantity = await apiFetch( {
-		path: '/wpcom/v2/podcast-player/track-quantity',
+		path: '/wpcom/v2/podcast-player/track-quantity'
 	} );
 	return trackQuantity;
 };
