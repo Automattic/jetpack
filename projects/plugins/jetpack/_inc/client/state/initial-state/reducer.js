@@ -543,3 +543,13 @@ export function isSafari( state ) {
 export function doNotUseConnectionIframe( state ) {
 	return !! state.jetpack.initialState.doNotUseConnectionIframe;
 }
+
+/**
+ * Check if the WooCommerce is currently installed and active
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True, the plugin is installed and active
+ */
+export function isWooCommerceActive( state ) {
+	return !! state.jetpack.initialState.isWooCommerceActive;
+}

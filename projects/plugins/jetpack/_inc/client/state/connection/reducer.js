@@ -28,6 +28,7 @@ import {
 	SITE_RECONNECT,
 	SITE_RECONNECT_FAIL,
 	SITE_RECONNECT_SUCCESS,
+	JETPACK_CONNECTION_HAS_SEEN_WC_CONNECTION_MODAL,
 } from 'state/action-types';
 import {
 	getModulesThatRequireConnection,
@@ -144,11 +145,25 @@ export const requests = ( state = connectionRequests, action ) => {
 	}
 };
 
+export const hasSeenWCConnectionModalReducer = (
+	state = window.Initial_State.hasSeenWCConnectionModal,
+	action
+) => {
+	switch ( action.type ) {
+		case JETPACK_CONNECTION_HAS_SEEN_WC_CONNECTION_MODAL:
+			return assign( {}, state, true );
+
+		default:
+			return state;
+	}
+};
+
 export const reducer = combineReducers( {
 	connectUrl,
 	status,
 	user,
 	requests,
+	hasSeenWCConnectionModal: hasSeenWCConnectionModalReducer,
 } );
 
 /**
@@ -428,4 +443,14 @@ export function getSandboxDomain( state ) {
  */
 export function isReconnectingSite( state ) {
 	return !! state.jetpack.connection.requests.reconnectingSite;
+}
+
+/**
+ * Check if the Jetpack option `hasSeenWCConnectionModal` is true.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} If true, the site has already displayed the WooCommerce Connection Modal.
+ */
+export function hasSeenWCConnectionModal( state ) {
+	return !! state.jetpack.connection.hasSeenWCConnectionModal;
 }
