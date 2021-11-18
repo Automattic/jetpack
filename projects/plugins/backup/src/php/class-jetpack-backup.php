@@ -10,6 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 
@@ -82,36 +83,16 @@ class Jetpack_Backup {
 	 * Enqueue plugin admin scripts and styles.
 	 */
 	public function enqueue_admin_scripts() {
-		$build_assets = require_once JETPACK_BACKUP_PLUGIN_DIR . '/build/index.asset.php';
-
-		// Main JS file.
-		wp_register_script(
-			'jetpack-backup-script',
-			plugins_url( 'build/index.js', JETPACK_BACKUP_PLUGIN_ROOT_FILE ),
-			$build_assets['dependencies'],
-			$build_assets['version'],
-			true
+		Assets::register_script(
+			'jetpack-backup',
+			'build/index.js',
+			JETPACK_BACKUP_PLUGIN_ROOT_FILE,
+			array( 'in_footer' => true )
 		);
-		wp_enqueue_script( 'jetpack-backup-script' );
+		Assets::enqueue_script( 'jetpack-backup' );
 		// Initial JS state including JP Connection data.
-		wp_add_inline_script( 'jetpack-backup-script', $this->get_initial_state(), 'before' );
-
-		// Translation assets.
-		wp_set_script_translations( 'jetpack-backup-script-translations', 'jetpack-backup' );
-
-		// Main CSS file.
-		wp_enqueue_style(
-			'jetpack-backup-style',
-			plugins_url( 'build/index.css', JETPACK_BACKUP_PLUGIN_ROOT_FILE ),
-			array( 'wp-components' ),
-			$build_assets['version']
-		);
-		// RTL CSS file.
-		wp_style_add_data(
-			'jetpack-backup-style',
-			'rtl',
-			plugins_url( 'build/index.rtl.css', JETPACK_BACKUP_PLUGIN_ROOT_FILE )
-		);
+		wp_add_inline_script( 'jetpack-backup', $this->get_initial_state(), 'before' );
+		wp_set_script_translations( 'jetpack-backup', 'jetpack-backup' );
 	}
 
 	/**
