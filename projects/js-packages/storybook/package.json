@@ -57,7 +57,7 @@
 		"@wordpress/postcss-plugins-preset": "3.2.4",
 		"babel-plugin-inline-json-import": "0.3.2",
 		"concurrently": "6.0.2",
-		"css-loader": "6.2.0",
+		"css-loader": "6.5.1",
 		"postcss-loader": "4.3.0",
 		"react": "17.0.2",
 		"sass-loader": "10.2.0",
