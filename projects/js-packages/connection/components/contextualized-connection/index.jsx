@@ -24,6 +24,7 @@ import './style.scss';
 const ContextualizedConnection = props => {
 	const {
 		title,
+		logo,
 		children,
 		className,
 		buttonLabel,
@@ -43,7 +44,7 @@ const ContextualizedConnection = props => {
 	return (
 		<div className={ 'jp-contextualized-connection' + ( className ? ' ' + className : '' ) }>
 			<div className="jp-contextualized-connection__content">
-				<JetpackLogo />
+				{ logo || <JetpackLogo /> }
 
 				<h2>{ title }</h2>
 
@@ -169,6 +170,10 @@ ContextualizedConnection.propTypes = {
 	autoTrigger: PropTypes.bool,
 	/** Whether the site is connected to Jetpack or not. */
 	isSiteConnected: PropTypes.bool.isRequired,
+	/** The logo to display above the title */
+	logo: PropTypes.shape( {
+		type: PropTypes.oneOf( [ 'img', 'svg' ] ),
+	} ),
 };
 
 export default ContextualizedConnection;

@@ -72,6 +72,7 @@ import QueryRewindStatus from 'components/data/query-rewind-status';
 import { getRewindStatus } from 'state/rewind';
 import ReconnectModal from 'components/reconnect-modal';
 import { createInterpolateElement } from '@wordpress/element';
+import { imagePath } from 'constants/urls';
 
 const recommendationsRoutes = [
 	'/recommendations',
@@ -218,6 +219,12 @@ class Main extends React.Component {
 						'Activate essential WordPress Security, Performance, and Growth tools for your store',
 						'jetpack'
 					) }
+					logo={
+						<img
+							src={ imagePath + '/jetpack-woocommerce-logo.svg' }
+							alt={ __( 'Jetpack and WooCommerce', 'jetpack' ) }
+						/>
+					}
 					buttonLabel={ __( 'Set up Jetpack', 'jetpack' ) }
 					redirectUri="admin.php?page=jetpack"
 					isSiteConnected={ this.props.isSiteConnected }
