@@ -11,6 +11,9 @@
 		"build-instant": "webpack --config ./build/webpack.instant.config.js",
 		"clean": "rm -rf dist/* .cache/*",
 		"test": "echo \"Error: no test specified\" && exit 1"
+		"test": "pnpx concurrently 'pnpm:test-scripts' 'pnpm:test-size'",
+		"test-scripts": "jest src",
+		"test-size": "NODE_ENV=production BABEL_ENV=production pnpm run build-instant && size-limit"
 	},
 	"repository": {
 		"type": "git",
@@ -55,7 +58,11 @@
 		"@babel/preset-react": "7.14.5",
 		"@babel/preset-typescript": "7.15.0",
 		"@size-limit/preset-app": "6.0.3",
+		"@testing-library/jest-dom": "5.14.1",
+		"@testing-library/preact": "2.0.1",
 		"@wordpress/dependency-extraction-webpack-plugin": "3.2.1",
+		"jest": "27.3.1",
+		"jest-environment-jsdom": "27.3.1",
 		"postcss": "8.3.11",
 		"postcss-loader": "6.2.0",
 		"prettier": "npm:wp-prettier@2.0.5",

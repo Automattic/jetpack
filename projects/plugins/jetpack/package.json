@@ -44,9 +44,6 @@
 		"test-gui": "NODE_ENV=test NODE_PATH=tests:_inc/client js-test-runner --jsdom --initfile=_inc/client/test/init.js _inc/client/test/main.js glob:_inc/client/**/test/component.js",
 		"test-lib": "NODE_ENV=test NODE_PATH=tests:_inc/client js-test-runner --jsdom glob:_inc/client/lib/**/test/*.js",
 		"test-modules": "NODE_ENV=test NODE_PATH=tests:_inc/client js-test-runner --jsdom glob:modules/**/test-*.js",
-		"test-search": "pnpx concurrently 'pnpm:test-search-scripts' 'pnpm:test-search-size'",
-		"test-search-scripts": "jest modules/search",
-		"test-search-size": "NODE_ENV=production BABEL_ENV=production pnpm run build-search && size-limit",
 		"watch": "pnpm run build && pnpx gulp watch",
 		"watch-search": "pnpm run build-search && gulp search-app:watch search-configure:watch"
 	},
