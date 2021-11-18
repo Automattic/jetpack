@@ -76,13 +76,13 @@ export async function releaseCli( argv ) {
 		argv = await promptForScript( argv );
 	}
 
-	// Check if we're working with a beta version and only if generating changlog or release-branch.
+	// Check if we're working with a beta/alpha version when necessary.
 	if (
 		! argv.devRelease &&
 		typeof argv.beta === 'undefined' &&
-		( argv.script === 'changelog' || argv.script === 'release-branch' )
+		( argv.script !== 'readme' || argv.script !== 'amend' )
 	) {
-		argv = await promptBeta( argv );
+		argv = await promptDevBeta( argv );
 	}
 
 	// Get the info we need for the script.
@@ -166,7 +166,17 @@ export async function scriptRouter( argv ) {
 				    jetpack release ${ argv.project } readme \n`.replace( /^\t+/gm, '' );
 			break;
 		case 'version':
-			console.log( `${ argv.script } is not implemented yet!` );
+			argv = await getReleaseVersion( argv );
+			argv.script = 'tools/project-version.sh';
+			argv.scriptArgs = [ '-u', argv.version, argv.project ];
+			if ( argv.devRelease ) {
+				argv.scriptArgs.unshift( '-a' );
+			} else if ( argv.beta ) {
+				argv.scriptArgs.unshift( '-b' );
+			}
+			process.exit( 1 );
+		default:
+			console.log( 'Not a valid release command!' );
 			process.exit( 1 );
 	}
 }
@@ -238,6 +248,11 @@ export async function getReleaseVersion( argv ) {
 	if ( argv.b || argv.beta ) {
 		potentialVersion += '-beta';
 	}
+
+	// Append '-alpha' if necessary.
+	if ( argv.a || argv[ 'dev-version' ] ) {
+		potentialVersion += '-alpha';
+	}
 	argv = await promptForVersion( argv, potentialVersion );
 
 	return argv;
@@ -269,7 +284,7 @@ export async function promptForVersion( argv, version ) {
  * @param {object} argv - the arguments passed
  * @returns {object} argv
  */
-export async function promptBeta( argv ) {
+export async function promptDevBeta( argv ) {
 	const response = await inquirer.prompt( [
 		{
 			type: 'confirm',
@@ -277,9 +292,25 @@ export async function promptBeta( argv ) {
 			message: `Are you releasing a beta version of ${ argv.project }?`,
 			default: false,
 		},
+		{
+			type: 'confirm',
+			name: 'alpha',
+			message: `Is this a dev-release version version ${ argv.project }? (yes if doing an Atomic release)`,
+			default: false,
+			when: e => ! e.beta,
+		},
 	] );
-	argv.beta = response.beta;
-	argv.b = response.beta;
+
+	if ( response.beta ) {
+		argv.beta = response.beta;
+		argv.b = response.beta;
+	}
+
+	if ( response.alpha ) {
+		argv[ 'dev-release' ] = response.alpha;
+		argv.a = response.alpha;
+	}
+
 	return argv;
 }
 
