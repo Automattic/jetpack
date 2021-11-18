@@ -37,7 +37,7 @@ describe( 'restApi', () => {
 		before( () => {
 			fetchMock.mock(
 				{
-					method: 'POST', 
+					method: 'POST',
 					url: /\/jetpack\/v4\/licensing\/attach-licenses/,
 					name: 'attach-licenses',
 				},
