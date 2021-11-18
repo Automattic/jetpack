@@ -24,9 +24,9 @@
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:^0.2.1-alpha",
 		"@babel/core": "7.16.0",
-		"@babel/preset-env": "7.16.0",
+		"@babel/preset-env": "7.16.4",
 		"@babel/register": "7.16.0",
-		"@babel/runtime": "7.16.0",
+		"@babel/runtime": "7.16.3",
 		"@wordpress/browserslist-config": "4.1.0",
 		"@wordpress/data": "6.1.2",
 		"@wordpress/i18n": "4.2.3",
