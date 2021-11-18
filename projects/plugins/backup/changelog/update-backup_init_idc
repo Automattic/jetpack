@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix a bug that prevented the IDC UI from displaying when the site is in an identity crisis.
