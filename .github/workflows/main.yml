@@ -1,0 +1,20 @@
+# Add issues labelled "[Plugin] Boost" to the Jetpack Boost Project Board
+
+name: Add to Jetpack Boost Project board
+
+on:
+  issues:
+    types: [ opened, edited, reopened, labeled ]
+
+jobs:
+  insert:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: monry/actions-add-issue-to-project@v1
+        if: contains(github.event.issue.labels.*.name, '[Plugin] Boost')
+        with:
+          github-token: ${{ secrets.API_TOKEN_GITHUB }}
+          project-owner: 'automattic'
+          project-number: 322
+          issue-id: ${{ github.event.issue.node_id }}
