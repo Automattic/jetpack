@@ -222,8 +222,6 @@ ConnectionStatusCard.propTypes = {
 	connectionInfoText: PropTypes.string,
 	/** The callback to be called upon disconnection success. */
 	onDisconnected: PropTypes.func,
-	/** The base URL of the asset folder for the plugin using this component ( needed for inclusion of images ). */
-	assetBaseUrl: PropTypes.string,
 	/** The context in which this component is being used */
 	context: PropTypes.string,
 };
