@@ -91,23 +91,33 @@ const DisconnectDialog = props => {
 	 * Keep track of the steps that are presented
 	 */
 	useEffect( () => {
-		if ( isDisconnected && ! isProvidingFeedback && ! isFeedbackProvided ) {
+		// Don't do anything if the dialog is not open.
+		if ( ! isOpen ) {
+			return;
+		}
+
+		if ( ! isDisconnected ) {
 			jetpackAnalytics.tracks.recordEvent(
-				'jetpack_disconnect_dialog_disconnect_confirm_step',
-				defaultTracksArgs
+				'jetpack_disconnect_dialog_step',
+				Object.assign( {}, { step: 'disconnect' }, defaultTracksArgs )
+			);
+		} else if ( isDisconnected && ! isProvidingFeedback && ! isFeedbackProvided ) {
+			jetpackAnalytics.tracks.recordEvent(
+				'jetpack_disconnect_dialog_step',
+				Object.assign( {}, { step: 'disconnect_confirm' }, defaultTracksArgs )
 			);
 		} else if ( isProvidingFeedback && ! isFeedbackProvided ) {
 			jetpackAnalytics.tracks.recordEvent(
-				'jetpack_disconnect_dialog_survey_step',
-				defaultTracksArgs
+				'jetpack_disconnect_dialog_step',
+				Object.assign( {}, { step: 'survey' }, defaultTracksArgs )
 			);
 		} else if ( isFeedbackProvided ) {
 			jetpackAnalytics.tracks.recordEvent(
-				'jetpack_disconnect_dialog_thank_you_step',
-				defaultTracksArgs
+				'jetpack_disconnect_dialog_step',
+				Object.assign( {}, { step: 'thank_you' }, defaultTracksArgs )
 			);
 		}
-	}, [ isDisconnected, isProvidingFeedback, isFeedbackProvided, defaultTracksArgs ] );
+	}, [ isOpen, isDisconnected, isProvidingFeedback, isFeedbackProvided, defaultTracksArgs ] );
 
 	/**
 	 * Disconnect the site.
@@ -154,21 +164,7 @@ const DisconnectDialog = props => {
 				},
 				body: JSON.stringify( surveyData ),
 			} )
-				.then(
-					result => {
-						return result.json();
-					},
-					// Error in sending the data.
-					() => {
-						setIsFeedbackProvided( true );
-						setIsSubmittingFeedback( false );
-						// Send a tracks event for an error in survey submission.
-						jetpackAnalytics.tracks.recordEvent(
-							'jetpack_disconnect_survey_error',
-							tracksSurveyData
-						);
-					}
-				)
+				.then( result => result.json() )
 				.then( jsonResponse => {
 					// response received
 					if ( true === jsonResponse.success ) {
@@ -177,13 +173,18 @@ const DisconnectDialog = props => {
 							'jetpack_disconnect_survey_submit',
 							tracksSurveyData
 						);
+
+						setIsFeedbackProvided( true );
+						setIsSubmittingFeedback( false );
 					} else {
-						// Send a tracks event for an error in survey submission.
-						jetpackAnalytics.tracks.recordEvent(
-							'jetpack_disconnect_survey_error',
-							tracksSurveyData
-						);
+						throw new Error( 'Survey endpoint returned error code ' + jsonResponse.code );
 					}
+				} )
+				.catch( error => {
+					jetpackAnalytics.tracks.recordEvent(
+						'jetpack_disconnect_survey_error',
+						Object.assign( {}, { error: error.message }, tracksSurveyData )
+					);
 
 					setIsFeedbackProvided( true );
 					setIsSubmittingFeedback( false );
@@ -259,10 +260,6 @@ const DisconnectDialog = props => {
 			const tracksSurveyData = Object.assign( {}, defaultTracksArgs, {
 				disconnect_reason: surveyAnswerId,
 			} );
-
-			if ( surveyAnswerText ) {
-				surveyData.disconnect_reason_text = surveyAnswerText;
-			}
 
 			_submitSurvey( surveyData, tracksSurveyData );
 		},
