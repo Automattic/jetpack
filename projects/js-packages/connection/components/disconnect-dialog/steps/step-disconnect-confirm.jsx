@@ -87,6 +87,8 @@ StepDisconnectConfirm.PropTypes = {
 	onExit: PropTypes.func,
 	/** Callback used to change the state if user would like to provide feedback. */
 	onProvideFeedback: PropTypes.func,
+	/** Does the app have the necessary information to collect a survey response? */
+	canProvideFeedback: PropTypes.bool,
 };
 
 export default StepDisconnectConfirm;
