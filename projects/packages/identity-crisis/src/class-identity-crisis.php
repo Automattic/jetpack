@@ -11,6 +11,7 @@ use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Constants as Constants;
+use Automattic\Jetpack\IdentityCrisis\UI;
 use Automattic\Jetpack\Status as Status;
 use Automattic\Jetpack\Tracking as Tracking;
 use Jetpack_Options;
@@ -93,6 +94,8 @@ class Identity_Crisis {
 
 		self::$wpcom_home_url = $urls_in_crisis['wpcom_home'];
 		add_action( 'init', array( $this, 'wordpress_init' ) );
+
+		UI::init();
 	}
 
 	/**
@@ -167,7 +170,7 @@ class Identity_Crisis {
 	public function wordpress_init() {
 		if ( ! current_user_can( 'jetpack_disconnect' ) && is_admin() ) {
 			add_action( 'admin_notices', array( $this, 'display_non_admin_idc_notice' ) );
-			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_idc_notice_files' ) );
+			// add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_idc_notice_files' ) );
 			add_action( 'current_screen', array( $this, 'non_admins_current_screen_check' ) );
 
 			return;
@@ -179,17 +182,19 @@ class Identity_Crisis {
 		) {
 			Jetpack_Options::delete_option( 'safe_mode_confirmed' );
 			self::$is_safe_mode_confirmed = false;
+			wp_safe_redirect( remove_query_arg( array( 'jetpack_idc_clear_confirmation', '_wpnonce' ) ) );
+			die();
 		} else {
 			self::$is_safe_mode_confirmed = (bool) Jetpack_Options::get_option( 'safe_mode_confirmed' );
 		}
 
 		// 121 Priority so that it's the most inner Jetpack item in the admin bar.
 		add_action( 'admin_bar_menu', array( $this, 'display_admin_bar_button' ), 121 );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_bar_css' ) );
+		// add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_bar_css' ) );
 
 		if ( is_admin() && ! self::$is_safe_mode_confirmed ) {
-			add_action( 'admin_notices', array( $this, 'display_idc_notice' ) );
-			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_idc_notice_files' ) );
+			// add_action( 'admin_notices', array( $this, 'display_idc_notice' ) );
+			// add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_idc_notice_files' ) );
 		}
 	}
 
@@ -236,7 +241,7 @@ class Identity_Crisis {
 		// then do not show the non-admin notice.
 		if ( isset( $_COOKIE, $_COOKIE['jetpack_idc_dismiss_notice'] ) ) {
 			remove_action( 'admin_notices', array( $this, 'display_non_admin_idc_notice' ) );
-			remove_action( 'admin_enqueue_scripts', array( $this, 'enqueue_idc_notice_files' ) );
+			// remove_action( 'admin_enqueue_scripts', array( $this, 'enqueue_idc_notice_files' ) );
 		}
 
 		return null;
