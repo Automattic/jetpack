@@ -407,7 +407,7 @@ importers:
       '@automattic/jetpack-api': workspace:^0.6.1-alpha
       '@automattic/jetpack-connection': workspace:^0.10.2-alpha
       '@automattic/jetpack-idc': workspace:^0.5.0-alpha
-      '@automattic/jetpack-webpack-config': workspace:^0.2.1-alpha
+      '@automattic/jetpack-webpack-config': workspace:^0.2.1
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
       '@babel/register': 7.16.0
@@ -447,7 +447,7 @@ importers:
 
   projects/packages/identity-crisis:
     specifiers:
-      '@automattic/jetpack-webpack-config': workspace:^0.2.1-alpha
+      '@automattic/jetpack-webpack-config': workspace:^0.2.1
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
       '@babel/register': 7.16.0
@@ -486,7 +486,7 @@ importers:
 
   projects/packages/jitm:
     specifiers:
-      '@automattic/jetpack-webpack-config': workspace:^0.2.1-alpha
+      '@automattic/jetpack-webpack-config': workspace:^0.2.1
       '@wordpress/browserslist-config': 4.1.0
       webpack: 5.64.1
       webpack-cli: 4.8.0
@@ -498,7 +498,7 @@ importers:
 
   projects/packages/lazy-images:
     specifiers:
-      '@automattic/jetpack-webpack-config': workspace:^0.2.1-alpha
+      '@automattic/jetpack-webpack-config': workspace:^0.2.1
       copy-webpack-plugin: 9.0.1
       intersection-observer: 0.12.0
       webpack: 5.64.1
@@ -511,7 +511,7 @@ importers:
   projects/packages/my-jetpack:
     specifiers:
       '@automattic/jetpack-components': workspace:^0.6.3-alpha
-      '@automattic/jetpack-webpack-config': workspace:^0.2.1-alpha
+      '@automattic/jetpack-webpack-config': workspace:^0.2.1
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
       '@babel/register': 7.16.0
@@ -545,7 +545,7 @@ importers:
       '@automattic/jetpack-base-styles': workspace:^0.1.0-alpha
       '@automattic/jetpack-components': workspace:^0.6.3-alpha
       '@automattic/jetpack-connection': workspace:^0.10.2-alpha
-      '@automattic/jetpack-webpack-config': workspace:^0.2.1-alpha
+      '@automattic/jetpack-webpack-config': workspace:^0.2.1
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
       '@babel/register': 7.16.0
@@ -669,7 +669,7 @@ importers:
       '@automattic/jetpack-api': workspace:^0.6.1-alpha
       '@automattic/jetpack-components': workspace:^0.6.3-alpha
       '@automattic/jetpack-connection': workspace:^0.10.2-alpha
-      '@automattic/jetpack-webpack-config': workspace:^0.2.1-alpha
+      '@automattic/jetpack-webpack-config': workspace:^0.2.1
       '@automattic/popup-monitor': 1.0.0
       '@automattic/request-external-access': 1.0.0
       '@automattic/social-previews': 1.1.1
