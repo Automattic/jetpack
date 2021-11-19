@@ -54,6 +54,9 @@ class Jetpack_Backup {
 				// Sync package.
 				$config->ensure( 'sync' );
 
+				// Identity crisis package.
+				$config->ensure( 'identity_crisis' );
+
 				// Connection Manager UI.
 				Automattic\Jetpack\ConnectionUI\Admin::init();
 			},
@@ -213,6 +216,21 @@ class Jetpack_Backup {
 		return rest_ensure_response(
 			json_decode( $response['body'], true )
 		);
+	}
+
+	/**
+	 * Redirects to plugin page when the plugin is activated
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param string $plugin Path to the plugin file relative to the plugins directory.
+	 */
+	public static function plugin_activation( $plugin ) {
+		if ( JETPACK_BACKUP_PLUGIN_ROOT_FILE_RELATIVE_PATH === $plugin ) {
+			wp_safe_redirect( esc_url( admin_url( 'admin.php?page=jetpack-backup' ) ) );
+			exit;
+		}
 	}
 
 	/**

@@ -286,16 +286,17 @@ class Assets {
 	 * @param string $path        Minimized script path.
 	 * @param string $relative_to File that `$path` is relative to. Pass `__FILE__`.
 	 * @param array  $options     Additional options:
-	 *  - `nonmin_path`:  (string) Non-minified script path.
-	 *  - `asset_path`:   (string|null) `.asset.php` to load. Default is to base it on `$path`.
-	 *  - `css_path`:     (string|null) `.css` to load. Default is to base it on `$path`.
-	 *  - `dependencies`: (string[]) Additional dependencies to queue.
-	 *  - `version`:      (string) Override the version from the `asset_path` file.
-	 *  - `minify`:       (bool|null) Set true to pass `minify=true` in the query string, or `null` to suppress the normal `minify=false`.
-	 *  - `enqueue`:      (bool) Set true to enqueue the script immediately.
-	 *  - `async`:        (bool) Set true to register the script as async, like `Assets::enqueue_async_script()`
-	 *  - `in_footer`:    (bool) Set true to register script for the footer.
-	 *  - `media`:        (string) Media for the css file. Default 'all'.
+	 *  - `nonmin_path`:      (string) Non-minified script path.
+	 *  - `asset_path`:       (string|null) `.asset.php` to load. Default is to base it on `$path`.
+	 *  - `css_path`:         (string|null) `.css` to load. Default is to base it on `$path`.
+	 *  - `dependencies`:     (string[]) Additional script dependencies to queue.
+	 *  - `css_dependencies`: (string[]) Additional style dependencies to queue.
+	 *  - `version`:          (string) Override the version from the `asset_path` file.
+	 *  - `minify`:           (bool|null) Set true to pass `minify=true` in the query string, or `null` to suppress the normal `minify=false`.
+	 *  - `enqueue`:          (bool) Set true to enqueue the script immediately.
+	 *  - `async`:            (bool) Set true to register the script as async, like `Assets::enqueue_async_script()`
+	 *  - `in_footer`:        (bool) Set true to register script for the footer.
+	 *  - `media`:            (string) Media for the css file. Default 'all'.
 	 * @throws \InvalidArgumentException If arguments are invalid.
 	 */
 	public static function register_script( $handle, $path, $relative_to, array $options = array() ) {
