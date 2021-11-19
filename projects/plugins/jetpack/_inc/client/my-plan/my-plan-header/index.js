@@ -19,6 +19,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import analytics from 'lib/analytics';
 import Button from 'components/button';
 import Card from 'components/card';
+import ExternalLink from 'components/external-link';
 import ProductExpiration from 'components/product-expiration';
 import UpgradeLink from 'components/upgrade-link';
 import { getPlanClass } from 'lib/plans/constants';
@@ -367,15 +368,15 @@ class MyPlanHeader extends React.Component {
 				<div className="jp-landing__card-footer">
 					{ showPurchasesLink && (
 						<div className="jp-landing__card-footer-item">
-							<a
+							<ExternalLink
 								className="all-purchases__link"
 								href={ getRedirectUrl( 'calypso-purchases' ) }
 								onClick={ this.trackAllPurchasesClick }
-								role="button"
-								tabIndex="0"
+								target="_blank"
+								icon={ true }
 							>
 								{ __( 'View all purchases', 'jetpack' ) }
-							</a>
+							</ExternalLink>
 						</div>
 					) }
 					<div className="jp-landing__card-footer-item align-right">

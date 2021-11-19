@@ -36,7 +36,11 @@
 .all-purchases__link {
 	display: inline-block;
 	box-sizing: border-box;
-	padding: 7px 14px 9px;
+	padding: 7px 14px 9px 0;
+	@include breakpoint( "<480px" ) {
+		padding-left: 14px;
+		margin-bottom: 15px;
+	}
 }
 
 .jp-landing__plan-features-header-recommendations-cta-container {
