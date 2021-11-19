@@ -7,8 +7,7 @@ import save from './save';
 /**
  * Deprecation reason
  *
- * Gutenberg's font size selector changed to use values including CSS units.
- * This changed the resulting values in the generated shortcode.
+ * Added a new input field successMessage.
  */
 export default {
 	attributes: definedAttributes,
