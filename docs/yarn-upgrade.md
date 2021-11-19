@@ -64,7 +64,7 @@ while your own code will not see it unless you declare that dependency yourself.
 
 If transpiling with `@babel/plugin-transform-runtime` and using other JS modules from the monorepo, note that you'll want to set the `absoluteRuntime` option
 to `@babel/plugin-transform-runtime` so it can find `@babel/runtime` (and you'll need to include that as a dependency in your package.json). This also applies
-when using calypso-build; currently a hack is needed (see [projects/plugins/jetpack/babel.config.js]) to get that set as calyspo-build doesn't yet support the
+when using calypso-build; currently a hack is needed (see [projects/plugins/jetpack/babel.config.js]) to get that set as calypso-build doesn't yet support the
 option directly.
 
 
