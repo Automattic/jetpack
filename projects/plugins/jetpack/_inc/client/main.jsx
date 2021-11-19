@@ -354,8 +354,8 @@ class Main extends React.Component {
 				);
 				break;
 			case '/license/activation':
-				 navComponent = null;
-				 pageComponent = (
+				navComponent = null;
+				pageComponent = (
 					<ActivationScreen
 						assetBaseUrl={ this.props.pluginBaseUrl }
 						lockImage="/images/jetpack-license-activation-with-lock.png"
