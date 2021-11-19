@@ -5,7 +5,8 @@ const path = require( 'path' );
 
 module.exports = {
 	testMatch: [ '<rootDir>/**/test/*.[jt]s?(x)', '!**/.eslintrc.*' ],
-	roots: [ '<rootDir>/src/instant-search' ],
+	// TODO: Enable once instant search has been migrated.
+	// roots: [ '<rootDir>/src/instant-search' ],
 	transform: {
 		'\\.[jt]sx?$': path.join(
 			__dirname,

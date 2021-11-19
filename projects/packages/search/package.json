@@ -9,7 +9,7 @@
 	"scripts": {
 		"clean-all": "rm -rf build/* .cache/* node_modules/* vendor/*",
 		"test": "pnpx concurrently 'pnpm:test-scripts' 'pnpm:test-size'",
-		"test-scripts": "jest src",
+		"test-scripts": "echo 'Not yet implemented. Use jest src once instant search has been migrated.'",
 		"test-size": "echo 'Not yet implemented.'"
 	},
 	"repository": {
@@ -58,6 +58,7 @@
 		"@testing-library/jest-dom": "5.14.1",
 		"@testing-library/preact": "2.0.1",
 		"@wordpress/dependency-extraction-webpack-plugin": "3.2.1",
+		"concurrently": "6.4.0",
 		"jest": "27.3.1",
 		"jest-environment-jsdom": "27.3.1",
 		"postcss": "8.3.11",
