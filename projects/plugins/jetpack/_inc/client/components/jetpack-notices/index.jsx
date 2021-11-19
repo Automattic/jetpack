@@ -18,6 +18,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
  */
 import ConnectionBanner from 'components/connection-banner';
 import DismissableNotices from './dismissable';
+import UserLicenseActivationNotice from './user-license-activation';
 import {
 	getSiteConnectionStatus,
 	getSiteOfflineMode,
@@ -276,6 +277,7 @@ class JetpackNotices extends React.Component {
 						onDismissClick={ this.props.clearLicensingError }
 					/>
 				) }
+				<UserLicenseActivationNotice />
 			</div>
 		);
 	}

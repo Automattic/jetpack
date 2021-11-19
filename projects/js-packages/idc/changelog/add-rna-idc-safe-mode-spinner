@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Add "Staying in safe mode" spinner, rename CSS classes according to the CSS guidelines.

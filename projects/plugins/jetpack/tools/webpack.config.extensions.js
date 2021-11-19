@@ -146,14 +146,9 @@ const sharedWebpackConfig = {
 			} ),
 
 			// Handle CSS.
-			{
-				test: /\.(?:css|s[ac]ss)$/,
-				use: [
-					jetpackWebpackConfig.MiniCssExtractLoader(),
-					jetpackWebpackConfig.CssCacheLoader(),
-					jetpackWebpackConfig.CssLoader( {
-						importLoaders: 2, // Set to the number of loaders after this one in the array, e.g. 2 if you use both postcss-loader and sass-loader.
-					} ),
+			jetpackWebpackConfig.CssRule( {
+				extensions: [ 'css', 'sass', 'scss' ],
+				extraLoaders: [
 					{
 						loader: 'postcss-loader',
 						options: {
@@ -162,7 +157,7 @@ const sharedWebpackConfig = {
 					},
 					'sass-loader',
 				],
-			},
+			} ),
 
 			// Handle images.
 			jetpackWebpackConfig.FileRule(),
@@ -209,7 +204,6 @@ module.exports = [
 			...sharedWebpackConfig.output,
 			filename: '[name].js',
 			chunkFilename: '[name].[contenthash].js',
-			pathinfo: true,
 			libraryTarget: 'commonjs2',
 		},
 		plugins: [
