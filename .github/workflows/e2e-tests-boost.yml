@@ -2,8 +2,8 @@ name: Jetpack Boost E2E Tests
 
 on:
   pull_request:
-    push:
-      branches: [ master ]
+  push:
+    branches: [ master ]
 concurrency:
   group: e2e-tests-boost-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
@@ -111,8 +111,8 @@ jobs:
   test-reports:
     name: "Trigger test report workflow"
     runs-on: ubuntu-latest
-    if: ${{ ! cancelled() }}
     needs: e2e-tests
+    if: ${{ ! cancelled() && needs.e2e-tests.result != 'skipped' }}
 
     steps:
       - uses: actions/checkout@v2

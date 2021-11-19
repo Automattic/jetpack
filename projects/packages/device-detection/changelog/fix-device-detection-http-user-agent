@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Verify $_SERVER['HTTP_USER_AGENT'] exists before use.
