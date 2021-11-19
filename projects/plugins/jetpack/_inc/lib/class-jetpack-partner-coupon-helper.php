@@ -20,6 +20,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Jetpack_Partner_Coupon_Helper {
 
 	/**
+	 * Name of the Jetpack_Option coupon option.
+	 *
+	 * @var string
+	 */
+	private static $coupon_option = 'partner_coupon';
+
+	/**
+	 * Name of the Jetpack_Option added option.
+	 *
+	 * @var string
+	 */
+	private static $added_option = 'partner_coupon_added';
+
+	/**
 	 * Jetpack_Partner_Coupon_Helper
 	 *
 	 * @var Jetpack_Partner_Coupon_Helper|null
@@ -60,6 +74,7 @@ class Jetpack_Partner_Coupon_Helper {
 	 */
 	private function __construct() {
 		add_action( 'admin_init', array( $this, 'catch_coupon' ) );
+		add_action( 'admin_init', array( $this, 'purge_coupon' ) );
 	}
 
 	/**
@@ -69,7 +84,12 @@ class Jetpack_Partner_Coupon_Helper {
 		// Accept and store a partner coupon if present, and redirect to Jetpack connection screen.
 		$partner_coupon = isset( $_GET['jetpack-partner-coupon'] ) ? sanitize_text_field( $_GET['jetpack-partner-coupon'] ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( $partner_coupon ) {
-			update_option( 'jetpack_partner_coupon', $partner_coupon );
+			Jetpack_Options::update_options(
+				array(
+					self::$coupon_option => $partner_coupon,
+					self::$added_option  => gmdate( 'Y-m-d H:i:s' ),
+				)
+			);
 
 			if ( Jetpack::connection()->is_connected() ) {
 				wp_safe_redirect( Jetpack::admin_url( 'showCouponRedemption=1' ) );
@@ -80,12 +100,34 @@ class Jetpack_Partner_Coupon_Helper {
 	}
 
 	/**
+	 * Purge partner coupon.
+	 *
+	 * We automatically purge partner coupons after a certain amount of time to prevent
+	 * us from unnecessarily promoting a product for months or years in the future.
+	 */
+	public function purge_coupon() {
+		$date = Jetpack_Options::get_option( self::$added_option, '' );
+
+		if ( empty( $date ) ) {
+			return;
+		}
+
+		$date        = strtotime( $date );
+		$purge_after = strtotime( '+1 month' );
+
+		if ( $date > $purge_after ) {
+			Jetpack_Options::delete_option( self::$coupon_option );
+			Jetpack_Options::delete_option( self::$added_option );
+		}
+	}
+
+	/**
 	 * Get partner coupon data.
 	 *
 	 * @return array|bool
 	 */
 	public static function get_coupon() {
-		$coupon_code = get_option( 'jetpack_partner_coupon', '' );
+		$coupon_code = Jetpack_Options::get_option( self::$coupon_option, '' );
 
 		if ( ! is_string( $coupon_code ) || empty( $coupon_code ) ) {
 			return false;
