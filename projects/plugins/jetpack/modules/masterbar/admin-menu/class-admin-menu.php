@@ -129,7 +129,12 @@ class Admin_Menu extends Base_Admin_Menu {
 			wp_kses( $nudge['cta'], array() )
 		);
 
-		add_menu_page( 'site-notices', $message, 'read', 'https://wordpress.com' . $nudge['link'], null, null, 1 );
+		$menu_slug = $nudge['link'];
+		if ( wp_startswith( $menu_slug, '/' ) ) {
+			$menu_slug = 'https://wordpress.com' . $menu_slug;
+		}
+
+		add_menu_page( 'site-notices', $message, 'read', $menu_slug, null, null, 1 );
 		add_filter( 'add_menu_classes', array( $this, 'set_site_notices_menu_class' ) );
 	}
 
