@@ -23,16 +23,7 @@ class Visitor extends NodeVisitorAbstract {
 	}
 
 	public function enterNode( Node $node ) {
-
-		// if ( $node instanceof Node\Expr ) {
-		// try {
-		// $newCode = $this->printer->prettyPrintExpr( $node );
-		// } catch ( $th ) {
-		// prettyPrintExpr throws for unsupported nodes. Lets ignore these.
-		// }
-		// }.
-
-		$out = '';
+		$out = null;
 		if ( $node instanceof Node\Expr\New_ ) {
 			$out = new New_( $this->file_path, $node->getLine(), Utils::node_to_class_name( $node->class ) );
 		} elseif ( $node instanceof Node\Expr\StaticCall ) {
@@ -42,9 +33,6 @@ class Visitor extends NodeVisitorAbstract {
 			if ( ! $node->name instanceof Node\Expr\BinaryOp\Concat ) {
 				$out = new Static_Property( $this->file_path, $node->getLine(), Utils::node_to_class_name( $node->class ), $node->name->name );
 			}
-			// else {
-			// // handle case like `self::${ 'prev_' . $taxonomy }`.
-			// }.
 		} elseif ( $node instanceof Node\Expr\FuncCall ) {
 			// TODO - args.
 			if ( $node->name instanceof Node\Expr\Variable ) {
