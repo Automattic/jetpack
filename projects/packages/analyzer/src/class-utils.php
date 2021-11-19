@@ -46,9 +46,9 @@ class Utils {
 			$class_name = '\\' . implode( '\\', $node->parts );
 		} elseif ( $node instanceof Node\Expr\PropertyFetch ) {
 			$class_name =
-			'$'
-			. self::maybe_stringify( $node->var->name )
-			. '->' . self::maybe_stringify( $node->name->name );
+				'$'
+				. self::maybe_stringify( $node->var->name )
+				. '->' . self::maybe_stringify( $node->name->name );
 		} elseif ( $node instanceof Node\Expr\ArrayDimFetch ) {
 
 			$dim_val = '';
@@ -77,12 +77,12 @@ class Utils {
 		return $class_name;
 	}
 
-		/**
-		 * Get string representation of a passed object
-		 *
-		 * @param any $object Any object type.
-		 * @return string
-		 */
+	/**
+	 * Get string representation of a passed object
+	 *
+	 * @param any $object Any object type.
+	 * @return string
+	 */
 	public static function maybe_stringify( $object ) {
 		$is_stringifiable = (
 			is_numeric( $object )

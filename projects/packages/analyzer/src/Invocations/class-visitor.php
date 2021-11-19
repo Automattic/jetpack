@@ -79,12 +79,12 @@ class Visitor extends NodeVisitorAbstract {
 	public function leaveNode( Node $node ) {
 	}
 
-		/**
-		 * Recursively generates a (multidimentional) array invocation token.
-		 *
-		 * @param Node $node node object.
-		 * @return string
-		 */
+	/**
+	 * Recursively generates a (multidimentional) array invocation token.
+	 *
+	 * @param Node $node node object.
+	 * @return string
+	 */
 	private function getArrayToken( Node $node ) {
 		$dimension = false;
 		$name      = null;
