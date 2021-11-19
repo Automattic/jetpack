@@ -560,6 +560,7 @@ importers:
       '@wordpress/i18n': 4.2.2
       '@wordpress/icons': 6.1.0
       classnames: 2.3.1
+      concurrently: 6.4.0
       fast-json-stable-stringify: 2.1.0
       jest: 27.3.1
       jest-environment-jsdom: 27.3.1
@@ -609,6 +610,7 @@ importers:
       '@testing-library/jest-dom': 5.14.1
       '@testing-library/preact': 2.0.1_preact@10.5.15
       '@wordpress/dependency-extraction-webpack-plugin': 3.2.1_webpack@5.51.1
+      concurrently: 6.4.0
       jest: 27.3.1
       jest-environment-jsdom: 27.3.1
       postcss: 8.3.11
@@ -10945,6 +10947,21 @@ packages:
       date-fns: 2.25.0
       lodash: 4.17.21
       read-pkg: 5.2.0
+      rxjs: 6.6.7
+      spawn-command: 0.0.2-1
+      supports-color: 8.1.1
+      tree-kill: 1.2.2
+      yargs: 16.2.0
+    dev: true
+
+  /concurrently/6.4.0:
+    resolution: {integrity: sha512-HZ3D0RTQMH3oS4gvtYj1P+NBc6PzE2McEra6yEFcQKrUQ9HvtTGU4Dbne083F034p+LRb7kWU0tPRNvSGs1UCQ==}
+    engines: {node: '>=10.0.0'}
+    hasBin: true
+    dependencies:
+      chalk: 4.1.2
+      date-fns: 2.25.0
+      lodash: 4.17.21
       rxjs: 6.6.7
       spawn-command: 0.0.2-1
       supports-color: 8.1.1
@@ -23503,7 +23520,7 @@ packages:
       require-directory: 2.1.1
       string-width: 4.2.3
       y18n: 5.0.8
-      yargs-parser: 20.2.4
+      yargs-parser: 20.2.9
 
   /yargs/17.2.1:
     resolution: {integrity: sha512-XfR8du6ua4K6uLGm5S6fA+FIJom/MdJcFNVY8geLlp2v8GYbOXD4EB1tPNZsRn4vBzKGMgb5DRZMeWuFc2GO8Q==}
