@@ -21,7 +21,7 @@
 	},
 	"devDependencies": {
 		"@babel/core": "7.16.0",
-		"@babel/preset-env": "7.16.0",
+		"@babel/preset-env": "7.16.4",
 		"@babel/node": "7.16.0",
 		"@slack/web-api": "6.4.0",
 		"@wordpress/eslint-plugin": "9.2.0",
