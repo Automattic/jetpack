@@ -18,17 +18,19 @@ function wpcomsh_post_list_init() {
 	if ( ! wpcomsh_is_site_sticker_active( 'wpcom-post-list-enhancements' ) ) {
 		return;
 	}
-	$config = new Config();
-	$config->ensure( 'post_list' );
+
 
 	if ( wpcomsh_is_site_sticker_active( 'wpcom-gutenberg-republicize' ) ) {
 		add_filter( 'jetpack_block_editor_republicize_feature', '__return_true' );
-		add_action( 'admin_init', 'wpcomsh_maybe_enable_share_action' );
+		wpcomsh_maybe_enable_share_action();
 	}
 
+	$config = new Config();
+	$config->ensure( 'post_list' );
+	$config->on_plugins_loaded();
 }
 
-add_action( 'plugins_loaded', 'wpcomsh_post_list_init', 1 );
+add_action( 'admin_init', 'wpcomsh_post_list_init', 1 );
 
 /**
  * Checks if Republicize is available and that the classic editor plugin
