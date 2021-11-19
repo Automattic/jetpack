@@ -5,12 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.2.3] - 2021-11-02
+## [0.2.4] - 2021-11-19
 ### Changed
 - Set `convertDeprecationsToExceptions` true in PHPUnit config.
 - Thumbnails only available on "Pages" and "Posts". Share action only when publicize and block-editor supported.
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
+
+## [0.2.3] - 2021-11-02
+### Fixed
+- Fixed the stretched thumbnails when using a non-square image.
+- Fixed the broken layout after making a quick edit.
+
+### Changed
+- Updated package dependencies
 
 ## [0.2.2] - 2021-10-08
 ### Fixed
@@ -36,6 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated the default columns displayed on the post and page list screens
 - Refactored thumbnail preview to function server side. All javascript removed.
 
+[0.2.4]: https://github.com/automattic/jetpack-post-list/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/automattic/jetpack-post-list/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/automattic/jetpack-post-list/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/automattic/jetpack-post-list/compare/v0.2.0...v0.2.1
