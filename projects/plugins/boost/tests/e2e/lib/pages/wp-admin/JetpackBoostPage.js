@@ -14,6 +14,27 @@ export default class JetpackBoostPage extends WpPage {
 		super( page, { expectedSelectors: [ '#jb-settings' ], url } );
 	}
 
+	async connect() {
+		const button = await this.page.$( '.jb-connection button' );
+		await button.click();
+	}
+
+	async isFreshlyConnected() {
+		await this.connect();
+		await this.waitForApiResponse( 'connection' );
+		return await this.isSiteScoreLoading();
+	}
+
+	async isOverallScoreHeaderShown() {
+		return await this.isElementVisible( '.jb-site-score' );
+	}
+
+	async isSiteScoreLoading() {
+		const scoreSiteContainer = await this.page.$( '.jb-site-score' );
+		const classNames = await scoreSiteContainer.getAttribute( 'class' );
+		return classNames.includes( 'loading' );
+	}
+
 	async waitForApiResponse( apiEndpointId ) {
 		await page.waitForResponse(
 			response =>

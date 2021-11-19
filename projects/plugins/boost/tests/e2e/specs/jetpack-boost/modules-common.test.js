@@ -16,9 +16,10 @@ const modules = [
 describe( 'Modules', () => {
 	beforeAll( async () => {
 		await boostPrerequisitesBuilder()
+			.withConnection( true )
 			.withInactiveModules( [ 'critical-css', 'render-blocking-js' ] )
+			.withActiveModules( [ 'lazy-images' ] )
 			.build();
-		await boostPrerequisitesBuilder().withActiveModules( [ 'lazy-images' ] ).build();
 	} );
 
 	beforeEach( async function () {

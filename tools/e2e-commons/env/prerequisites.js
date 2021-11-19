@@ -19,6 +19,7 @@ export function prerequisitesBuilder() {
 		connected: undefined,
 		plan: undefined,
 		modules: { active: undefined, inactive: undefined },
+		plugins: { active: undefined, inactive: undefined },
 	};
 
 	return {
@@ -46,6 +47,14 @@ export function prerequisitesBuilder() {
 			state.modules.inactive = modules;
 			return this;
 		},
+		withActivePlugins( plugins = [] ) {
+			state.plugins.active = plugins;
+			return this;
+		},
+		withInactivePlugins( plugins = [] ) {
+			state.plugins.inactive = plugins;
+			return this;
+		},
 		withCleanEnv() {
 			state.clean = true;
 			return this;
@@ -63,6 +72,7 @@ async function buildPrerequisites( state ) {
 		connected: () => ensureConnectedState( state.connected ),
 		plan: () => ensurePlan( state.plan ),
 		modules: () => ensureModulesState( state.modules ),
+		plugins: () => ensurePluginsState( state.plugins ),
 		clean: () => ensureCleanState( state.clean ),
 	};
 
@@ -194,6 +204,52 @@ export async function deactivateModules( modulesList ) {
 		const result = await execWpCommand( `jetpack module deactivate ${ module }` );
 		assert.match( result, new RegExp( `Success: .* has been deactivated.`, 'i' ) );
 	}
+}
+
+export async function ensurePluginsState( plugins ) {
+	if ( plugins.active ) {
+		await activatePlugins( plugins.active );
+	} else {
+		logger.prerequisites( 'Cannot find list of plugins to activate!' );
+	}
+
+	if ( plugins.inactive ) {
+		await deactivatePlugins( plugins.inactive );
+	} else {
+		logger.prerequisites( 'Cannot find list of plugins to deactivate!' );
+	}
+}
+
+export async function activatePlugins( pluginsList ) {
+	const activatedPlugins = [];
+	for ( const plugin of pluginsList ) {
+		logger.prerequisites( `Activating plugin ${ plugin }` );
+		const result = await execWpCommand( `plugin activate ${ plugin }` );
+		const txt = result.toString();
+		if (
+			txt.includes( `Plugin '${ plugin }' activated.` ) ||
+			txt.includes( `Plugin '${ plugin }' is already active.` )
+		) {
+			activatedPlugins.push( plugin );
+		}
+	}
+	assert.equal( pluginsList.length, activatedPlugins.length );
+}
+
+export async function deactivatePlugins( pluginsList ) {
+	const deactivatedPlugins = [];
+	for ( const plugin of pluginsList ) {
+		logger.prerequisites( `Deactivating module ${ plugin }` );
+		const result = await execWpCommand( `plugin deactivate ${ plugin }` );
+		const txt = result.toString();
+		if (
+			txt.includes( `Plugin '${ plugin }' deactivated.` ) ||
+			txt.includes( `Plugin '${ plugin }' isn't active.` )
+		) {
+			deactivatedPlugins.push( plugin );
+		}
+	}
+	assert.equal( pluginsList.length, deactivatedPlugins.length );
 }
 
 export async function isBlogTokenSet() {
