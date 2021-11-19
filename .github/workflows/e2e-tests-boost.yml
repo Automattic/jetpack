@@ -112,7 +112,7 @@ jobs:
     name: "Trigger test report workflow"
     runs-on: ubuntu-latest
     needs: e2e-tests
-    if: ${{ ! cancelled() }}
+    if: ${{ ! cancelled() && needs.e2e-tests.result != 'skipped' }}
 
     steps:
       - uses: actions/checkout@v2
