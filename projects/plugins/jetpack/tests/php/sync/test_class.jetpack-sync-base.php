@@ -60,7 +60,10 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 		$this->server_event_storage = new Jetpack_Sync_Server_Eventstore();
 		$this->server_event_storage->init();
-		( new Data_Settings() )->reset_data_settings_to_defaults();
+
+		$data_settings = new Data_Settings();
+		$data_settings->empty_data_settings();
+		$data_settings->add_settings_list( array() );
 	}
 
 	/**
