@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Ensured that the thumbnail and Share action are included in the quick edit response.
