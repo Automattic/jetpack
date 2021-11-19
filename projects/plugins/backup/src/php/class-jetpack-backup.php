@@ -88,8 +88,8 @@ class Jetpack_Backup {
 	 * Enqueue plugin admin scripts and styles.
 	 */
 	public function enqueue_admin_scripts() {
-		$status       = new Status();
-		$manager      = new Connection_Manager( 'jetpack-backup' );
+		$status  = new Status();
+		$manager = new Connection_Manager( 'jetpack-backup' );
 
 		Assets::register_script(
 			'jetpack-backup',
