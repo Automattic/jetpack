@@ -1170,7 +1170,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$ip_address = isset( $author->comment_author_IP ) ? $author->comment_author_IP : '';
 
 		if ( isset( $author->comment_author_email ) ) {
-			$ID          = 0;
+			$ID          = ( isset( $author->user_id ) && $author->user_id ) ? $author->user_id : 0;
 			$login       = '';
 			$email       = $author->comment_author_email;
 			$name        = $author->comment_author;
