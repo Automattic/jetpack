@@ -55,7 +55,7 @@ class Utils {
 			if ( $node->dim instanceof Node\Expr\Variable ) {
 				$dim_val = '[$' . self::maybe_stringify( $node->dim->name ) . ']';
 			} elseif ( $node->dim instanceof Node\Expr\PropertyFetch ) {
-				$dim_val = '[$' . self::maybe_stringify( $node->dim->var->name ) . ']';
+				$dim_val = '[$' . self::maybe_stringify( $node->dim->var->name ) . '->' . self::maybe_stringify( $node->dim->name->name ) . ']';
 			} elseif ( $node->dim instanceof Node\Expr\ArrayDimFetch ) {
 				$dim_val = '[$' . self::maybe_stringify( $node->dim->var->name ) . '["' . self::maybe_stringify( $node->dim->dim->value ) . '"]]';
 			} else {
