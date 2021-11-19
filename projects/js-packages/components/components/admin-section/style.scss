@@ -1,0 +1,22 @@
+@import '~@automattic/jetpack-base-styles/style';
+
+// This should go to base styles?
+#wpcontent {
+	padding-left: 0
+}
+#wpwrap {
+	background-color: white;
+}
+
+.jp-admin-section {
+	padding: 64px 0px;
+	background-color: white;
+
+	&.jp-hero {
+		background: var( --jp-white-off );
+	}
+
+	&.jp-admin-section--padding-small {
+		padding: 40px 0px;
+	}
+}

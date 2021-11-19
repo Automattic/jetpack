@@ -510,6 +510,7 @@ importers:
 
   projects/packages/my-jetpack:
     specifiers:
+      '@automattic/jetpack-base-styles': workspace:^0.1.0-alpha
       '@automattic/jetpack-components': workspace:^0.6.3-alpha
       '@automattic/jetpack-webpack-config': workspace:^0.2.1-alpha
       '@babel/core': 7.16.0
@@ -526,6 +527,7 @@ importers:
     dependencies:
       '@automattic/jetpack-components': link:../../js-packages/components
     devDependencies:
+      '@automattic/jetpack-base-styles': link:../../js-packages/base-styles
       '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4_@babel+core@7.16.0
