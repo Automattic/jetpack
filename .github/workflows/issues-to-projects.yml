@@ -1,6 +1,6 @@
-# Add issues labelled "[Plugin] Boost" to the Jetpack Boost Project Board
+# Add issues to project board(s) based on their labels.
 
-name: Add to Jetpack Boost Project board
+name: Add issues to Project Boards
 
 on:
   issues:
@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Jetpack Boost: Push to Boost Maintenance Board if labelled "[Plugin] Boost"
       - uses: monry/actions-add-issue-to-project@v1
         if: contains(github.event.issue.labels.*.name, '[Plugin] Boost')
         with:
