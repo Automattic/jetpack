@@ -61,7 +61,7 @@ module.exports = [
 		externals: {
 			...jetpackWebpackConfig.externals,
 			jetpackConfig: JSON.stringify( {
-				consumer_slug: 'backup',
+				consumer_slug: 'jetpack-backup',
 			} ),
 		},
 	},
