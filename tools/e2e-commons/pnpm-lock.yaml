@@ -8,7 +8,7 @@ importers:
       '@babel/node': 7.16.0
       '@babel/preset-env': 7.16.4
       '@slack/web-api': 6.4.0
-      '@wordpress/eslint-plugin': 9.2.0
+      '@wordpress/eslint-plugin': 9.3.0
       axios: 0.24.0
       chalk: 4.1.2
       config: 3.3.6
@@ -32,7 +32,7 @@ importers:
       '@babel/node': 7.16.0_@babel+core@7.16.0
       '@babel/preset-env': 7.16.4_@babel+core@7.16.0
       '@slack/web-api': 6.4.0
-      '@wordpress/eslint-plugin': 9.2.0_eslint@7.32.0
+      '@wordpress/eslint-plugin': 9.3.0_@babel+core@7.16.0+eslint@7.32.0
       axios: 0.24.0
       chalk: 4.1.2
       config: 3.3.6
@@ -93,6 +93,20 @@ packages:
       source-map: 0.5.7
     transitivePeerDependencies:
       - supports-color
+    dev: true
+
+  /@babel/eslint-parser/7.16.3_@babel+core@7.16.0+eslint@7.32.0:
+    resolution: {integrity: sha512-iB4ElZT0jAt7PKVaeVulOECdGe6UnmA/O0P9jlF5g5GBOwDVbna8AXhHRu4s27xQf6OkveyA8iTDv1jHdDejgQ==}
+    engines: {node: ^10.13.0 || ^12.13.0 || >=14.0.0}
+    peerDependencies:
+      '@babel/core': '>=7.11.0'
+      eslint: ^7.5.0 || ^8.0.0
+    dependencies:
+      '@babel/core': 7.16.0
+      eslint: 7.32.0
+      eslint-scope: 5.1.1
+      eslint-visitor-keys: 2.1.0
+      semver: 6.3.0
     dev: true
 
   /@babel/generator/7.16.0:
@@ -2111,8 +2125,8 @@ packages:
       eslint-visitor-keys: 3.1.0
     dev: true
 
-  /@wordpress/eslint-plugin/9.2.0_eslint@7.32.0:
-    resolution: {integrity: sha512-x0vI4EWeG20TyewXdiyUhGSJRqXR8vw47WZjzdmL8iuitDCoyWkKe73wtEs/mWLDrSNms8S0bTnp0dK6UAMXJw==}
+  /@wordpress/eslint-plugin/9.3.0_@babel+core@7.16.0+eslint@7.32.0:
+    resolution: {integrity: sha512-9F7B60gHAjiTIi9vBw5ZoH0MZW3UnmbuKols4kWpJVdgsvG4X1Wj6XXTLmQKrzh/Em7mD1CCIbCSyWknEzIOLw==}
     engines: {node: '>=12', npm: '>=6.9'}
     peerDependencies:
       eslint: ^6 || ^7
@@ -2121,10 +2135,10 @@ packages:
       typescript:
         optional: true
     dependencies:
+      '@babel/eslint-parser': 7.16.3_@babel+core@7.16.0+eslint@7.32.0
       '@typescript-eslint/eslint-plugin': 4.33.0_2951ba233cd46bb4e0f2f0a3f7fe108e
       '@typescript-eslint/parser': 4.33.0_eslint@7.32.0
       '@wordpress/prettier-config': 1.1.1
-      babel-eslint: 10.1.0_eslint@7.32.0
       cosmiconfig: 7.0.1
       eslint: 7.32.0
       eslint-config-prettier: 7.2.0_eslint@7.32.0
@@ -2139,6 +2153,7 @@ packages:
       prettier: /wp-prettier/2.2.1-beta-1
       requireindex: 1.2.0
     transitivePeerDependencies:
+      - '@babel/core'
       - supports-color
     dev: true
 
@@ -2431,24 +2446,6 @@ packages:
 
   /axobject-query/2.2.0:
     resolution: {integrity: sha512-Td525n+iPOOyUQIeBfcASuG6uJsDOITl7Mds5gFyerkWiX7qhUTdYUBlSgNMyVqtSJqwpt1kXGLdUt6SykLMRA==}
-    dev: true
-
-  /babel-eslint/10.1.0_eslint@7.32.0:
-    resolution: {integrity: sha512-ifWaTHQ0ce+448CYop8AdrQiBsGrnC+bMgfyKFdi6EsPLTAWG+QfyDeM6OH+FmWnKvEq5NnBMLvlBUPKQZoDSg==}
-    engines: {node: '>=6'}
-    deprecated: babel-eslint is now @babel/eslint-parser. This package will no longer receive updates.
-    peerDependencies:
-      eslint: '>= 4.12.1'
-    dependencies:
-      '@babel/code-frame': 7.16.0
-      '@babel/parser': 7.16.2
-      '@babel/traverse': 7.16.0
-      '@babel/types': 7.16.0
-      eslint: 7.32.0
-      eslint-visitor-keys: 1.3.0
-      resolve: 1.20.0
-    transitivePeerDependencies:
-      - supports-color
     dev: true
 
   /babel-jest/26.6.3_@babel+core@7.16.0:
