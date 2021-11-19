@@ -597,7 +597,7 @@ class REST_Connector {
 		}
 
 		return new WP_Error(
-			'invalid_user_permission_user_connection_seen_wc_connection_modal',
+			'invalid_user_permission_seen_wc_connection_modal',
 			self::get_user_permissions_error_msg(),
 			array( 'status' => rest_authorization_required_code() )
 		);

@@ -900,22 +900,21 @@ class Test_REST_Endpoints extends TestCase {
 	/**
 	 * Testing the `connection/seen-wc-connection-modal` endpoint fails.
 	 */
-	public function test_get_user_connection_seen_wc_connection_modal_with_invalid_user_permissions() {
+	public function test_post_seen_wc_connection_modal_with_invalid_user_permissions() {
 		// Invalid user permissions.
-		$user = wp_get_current_user();
-		$user->remove_cap( 'read' );
+		wp_set_current_user( 0 );
 		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/seen-wc-connection-modal' );
 
 		$response = $this->server->dispatch( $this->request );
 
-		$this->assertEquals( 403, $response->get_status() );
+		$this->assertEquals( 401, $response->get_status() );
 		$this->assertEquals( REST_Connector::get_user_permissions_error_msg(), $response->get_data()['message'] );
 	}
 
 	/**
 	 * Testing the `connection/seen-wc-connection-modal` endpoint succeeds.
 	 */
-	public function test_get_user_connection_seen_wc_connection_modal_success() {
+	public function test_post_seen_wc_connection_modal_success() {
 		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/seen-wc-connection-modal' );
 
 		$response = $this->server->dispatch( $this->request );
