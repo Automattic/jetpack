@@ -59,29 +59,17 @@ const PluginDeactivation = props => {
 		[ toggleVisibility ]
 	);
 
-	const handleLinkKeyDown = useCallback(
-		e => {
-			if ( [ 'Enter', 'Space', 'Spacebar', ' ' ].indexOf( e.key ) > -1 ) {
-				e.preventDefault();
-				toggleVisibility();
-			}
-		},
-		[ toggleVisibility ]
-	);
-
 	/**
 	 * Manage event listeners on the deactivation link.
 	 * The link is set to open the deactivation dialog.
 	 */
 	useEffect( () => {
 		deactivationLink.addEventListener( 'click', handleLinkClick );
-		deactivationLink.addEventListener( 'keydown', handleLinkKeyDown );
 
 		return () => {
 			deactivationLink.removeEventListener( 'click', handleLinkClick );
-			deactivationLink.removeEventListener( 'keydown', handleLinkKeyDown );
 		};
-	}, [ deactivationLink, handleLinkClick, handleLinkKeyDown ] );
+	}, [ deactivationLink, handleLinkClick ] );
 
 	const handleDeactivate = useCallback( () => {
 		window.location.href = deactivationLink.getAttribute( 'href' );
