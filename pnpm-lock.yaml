@@ -300,6 +300,7 @@ importers:
       babel-plugin-inline-json-import: 0.3.2
       concurrently: 6.0.2
       css-loader: 6.5.1
+      normalize.css: 8.0.1
       postcss-loader: 4.3.0
       react: 17.0.2
       sass-loader: 10.2.0
@@ -338,6 +339,7 @@ importers:
       babel-plugin-inline-json-import: 0.3.2
       concurrently: 6.0.2
       css-loader: 6.5.1_webpack@5.64.1
+      normalize.css: 8.0.1
       postcss-loader: 4.3.0_webpack@5.64.1
       react: 17.0.2
       sass-loader: 10.2.0_webpack@5.64.1
@@ -16198,6 +16200,10 @@ packages:
 
   /normalize-wheel/1.0.1:
     resolution: {integrity: sha1-rsiGr/2wRQcNhWRH32Ls+GFG7EU=}
+
+  /normalize.css/8.0.1:
+    resolution: {integrity: sha512-qizSNPO93t1YUuUhP22btGOo3chcvDFqFaj2TRybP0DMxkHOCTYwp3n34fel4a31ORXy4m1Xq0Gyqpb5m33qIg==}
+    dev: true
 
   /now-and-later/2.0.1:
     resolution: {integrity: sha512-KGvQ0cB70AQfg107Xvs/Fbu+dGmZoTRJp2TaPwcwQm3/7PteUyN2BCgk8KBMPGBUXZdVwyWS8fDCGFygBm19UQ==}
