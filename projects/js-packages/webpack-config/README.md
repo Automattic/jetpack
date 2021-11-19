@@ -43,17 +43,7 @@ modules.exports = {
 			} ),
 
 			// Handle CSS.
-			{
-				test: /\.css$/,
-				use: [
-					jetpackWebpackConfig.MiniCssExtractLoader(),
-					jetpackWebpackConfig.CssCacheLoader(),
-					jetpackWebpackConfig.CssLoader( {
-						importLoaders: 0, // Set to the number of loaders after this one in the array, e.g. 2 if you use both postcss-loader and sass-loader.
-					} ),
-					// Any other CSS-related loaders, such as 'postcss-loader' or 'sass-loader'.
-				],
-			},
+			jetpackWebpackConfig.CssRule(),
 
 			// Handle images.
 			jetpackWebpackConfig.FileRule(),
@@ -219,7 +209,7 @@ This provides an instance of [@wordpress/dependency-extraction-webpack-plugin](h
 
 #### Module rules and loaders
 
-Note all rule sets and loaders are provided as factory functions returning a single rule or use-entry.
+Note all rule sets are provided as factory functions returning a single rule.
 
 ##### `TranspileRule( options )`
 
@@ -236,6 +226,21 @@ Options are:
   - `cacheCompression`: `true`.
   - If `path.resolve( 'babel.config.js' )` exists, `configFile` will default to that. Otherwise, `presets` will default to set some appropriate defaults (which will require the peer dependencies on [@babel/core](https://www.npmjs.com/package/@babel/core) and [@babel/runtime](https://www.npmjs.com/package/@babel/runtime)).
 
+##### `CssRule( options )`
+
+Handles CSS using [mini-css-extract-plugin](https://www.npmjs.com/package/mini-css-extract-plugin) and [css-loader](https://www.npmjs.com/package/css-loader)
+
+Note we intentionally don't supply [sass-loader](https://www.npmjs.com/package/sass-loader) or [postcss-loader](https://www.npmjs.com/package/postcss-loader). These need extra dependencies and configuration making it better to let you include them yourself (e.g. via the `extraLoaders` option) if you need them.
+
+Options are:
+- `extensions`: Array of extensions to handle. Default is to only handle `css`.
+  You'll likely need to set this if you use `extraLoaders` to include [sass-loader](https://www.npmjs.com/package/sass-loader) or something like that.
+- `MiniCssExtractLoader`: Options for `mini-css-extract-plugin`'s loader.
+- `CssLoader`: Options for `css-loader`. Note its `importLoaders` option is handled automatically based on the length of `extraLoaders`.
+- `extraLoaders`: An array of additional loaders, to run before the provided loaders.
+
+The individual loaders may be created via `CssRule.MiniCssExtractLoader( options )` and `CssRule.CssLoader( options )`, in case you'd rather construct a CSS-handling rule manually while still using the bundled versions of these dependencies.
+
 ##### `FileRule( options )`
 
 This is a simple [asset module](https://webpack.js.org/guides/asset-modules/) rule for bundling files. If you want anything more complicated, don't try to extend this. Asset module rules are simple enough that you can just write one,
@@ -244,30 +249,6 @@ Options are:
 - `filename`: Output filename pattern. Default is `images/[name]-[contenthash][ext]`.
 - `extensions`: Array of extensions to handle. Default is `[ 'gif', 'jpg', 'jpeg', 'png', 'svg' ]`.
 - `maxInlineSize`: If set to a number greater than 0, files will be inlined if they are smaller than this. Default is 0.
-
-##### `MiniCssExtractLoader( options )`, `CssLoader( options )`, `CssCacheLoader( options )`
-
-These are loaders that might be included in a CSS-related rule.
-
-* `MiniCssExtractLoader` is the loader for [mini-css-extract-plugin](https://www.npmjs.com/package/mini-css-extract-plugin). Options are passed to the loader.
-* `CssLoader` is the loader for [css-loader](https://www.npmjs.com/package/css-loader). Options are passed to the loader.
-* `CssCacheLoader` is an instance of [cache-loader](https://www.npmjs.com/package/cache-loader). Options are passed to the loader. The default options set `cacheDirectory` to `.cache/css-loader`.
-
-Note we intentionally don't supply [sass-loader](https://www.npmjs.com/package/sass-loader) or [postcss-loader](https://www.npmjs.com/package/postcss-loader). These need extra dependencies and configuration making it better to let you include them yourself if you need them.
-
-```json
-{
-	test: /\.css$/,
-	use: [
-		jetpackWebpackConfig.MiniCssExtractLoader(),
-		jetpackWebpackConfig.CssCacheLoader(),
-		jetpackWebpackConfig.CssLoader( {
-			importLoaders: 0, // Set to the number of loaders after this one in the array, e.g. 2 if you use both postcss-loader and sass-loader.
-		} ),
-		// Any other CSS-related loaders, such as 'postcss-loader' or 'sass-loader'.
-	],
-}
-```
 
 ### Babel
 
