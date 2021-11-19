@@ -66,7 +66,7 @@ class Visitor extends NodeVisitorAbstract {
 			// print_r( $node );
 		}
 
-		if ( '' !== $out ) {
+		if ( null !== $out ) {
 			$this->invocations->add( $out );
 		}
 	}
