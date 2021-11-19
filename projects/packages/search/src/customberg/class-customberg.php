@@ -29,7 +29,7 @@ class Customberg {
 	/**
 	 * Get the singleton instance of the class.
 	 *
-	 * @return Jetpack_Search_Customberg
+	 * @return Customberg
 	 */
 	public static function instance() {
 		if ( ! isset( self::$instance ) ) {
