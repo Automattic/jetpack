@@ -18,7 +18,7 @@ describe( 'ContextualizedConnection', () => {
 		redirectUri: 'https://example.org',
 		isSiteConnected: false,
 		title: 'Test title',
-		buttonLabel: 'Test Connect Label',
+		buttonLabel: 'Set up Jetpack',
 	};
 
 	describe( 'The contextualized connection screen', () => {
@@ -47,9 +47,9 @@ describe( 'ContextualizedConnection', () => {
 		const wrapper = shallow( <ContextualizedConnection { ...testProps } /> );
 
 		it( 'renders the "Set up Jetpack" button', () => {
-			expect(
-				wrapper.find( '.jp-contextualized-connection__button' ).first().render().text()
-			).to.be.equal( testProps.buttonLabel );
+			expect( wrapper.find( '.jp-action-button--button' ).first().render().text() ).to.be.equal(
+				testProps.buttonLabel
+			);
 		} );
 
 		it( 'renders the TOS', () => {
@@ -58,7 +58,7 @@ describe( 'ContextualizedConnection', () => {
 	} );
 
 	describe( 'When the user has connected their WordPress.com account', () => {
-		const disconnectedProps = { ...testProps, isSiteConnected: false };
+		const disconnectedProps = { ...testProps, isSiteConnected: true };
 		const wrapper = shallow( <ContextualizedConnection { ...disconnectedProps } /> );
 
 		it( 'renders the "Continue to Jetpack" button', () => {
