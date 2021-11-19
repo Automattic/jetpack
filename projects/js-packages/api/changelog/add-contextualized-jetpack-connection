@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added jetpack/v4/connection/seen-wc-connection-modal endpoint

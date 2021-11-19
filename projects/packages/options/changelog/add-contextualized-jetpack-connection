@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added has_seen_wc_connection_modal option to the list of available options
