@@ -219,6 +219,21 @@ class Jetpack_Backup {
 	}
 
 	/**
+	 * Redirects to plugin page when the plugin is activated
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param string $plugin Path to the plugin file relative to the plugins directory.
+	 */
+	public static function plugin_activation( $plugin ) {
+		if ( JETPACK_BACKUP_PLUGIN_ROOT_FILE_RELATIVE_PATH === $plugin ) {
+			wp_safe_redirect( esc_url( admin_url( 'admin.php?page=jetpack-backup' ) ) );
+			exit;
+		}
+	}
+
+	/**
 	 * Removes plugin from the connection manager
 	 * If it's the last plugin using the connection, the site will be disconnected.
 	 *
