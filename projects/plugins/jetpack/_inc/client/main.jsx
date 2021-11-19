@@ -217,6 +217,7 @@ class Main extends React.Component {
 		 */
 		if ( this.props.partnerCoupon ) {
 			const forceShow = new URLSearchParams( window.location.search ).get( 'showCouponRedemption' );
+			const partnerCoupon = this.props.partnerCoupon;
 
 			if ( ! this.props.isSiteConnected || forceShow ) {
 				return (
@@ -226,27 +227,40 @@ class Main extends React.Component {
 						apiRoot={ this.props.apiRoot }
 						images={ [ '/images/connect-right-partner.png' ] }
 						assetBaseUrl={ this.props.pluginBaseUrl }
-						title={ __( 'Welcome to Jetpack IONOS traveler!', 'jetpack' ) }
-						buttonLabel={ __( 'Set up & redeem Jetpack Backup', 'jetpack' ) }
-						redirectUri={ `admin.php?page=jetpack&partnerCoupon=${ this.props.partnerCoupon }` }
+						title={ sprintf(
+							/* translators: %s: Jetpack partner name. */
+							__( 'Welcome to Jetpack %s traveler!', 'jetpack' ),
+							partnerCoupon.partner
+						) }
+						buttonLabel={ sprintf(
+							/* translators: %s: Name of a Jetpack product. */
+							__( 'Set up & redeem %s', 'jetpack' ),
+							partnerCoupon.product.title
+						) }
+						redirectUri={ `admin.php?page=jetpack&partnerCoupon=${ partnerCoupon.coupon_code }` }
 						connectionStatus={ this.props.connectionStatus }
 					>
 						<p>
-							{ __(
-								'Redeem your coupon and get started with Jetpack Backup for free the first year!',
-								'jetpack'
+							{ sprintf(
+								/* translators: %s: Name of a Jetpack product. */
+								__(
+									'Redeem your coupon and get started with %s for free the first year!',
+									'jetpack'
+								),
+								partnerCoupon.product.title
 							) }
 						</p>
 						<ul>
-							<li>{ __( 'Real-time cloud backups', 'jetpack' ) }</li>
-							<li>{ __( '10GB of backup storage', 'jetpack' ) }</li>
-							<li>{ __( '30-day archive & activity log', 'jetpack' ) }</li>
-							<li>{ __( 'One-click restores', 'jetpack' ) }</li>
+							{ partnerCoupon.product.features.map( ( feature, key ) => (
+								<li className="jp-recommendations-product-purchased__feature" key={ key }>
+									{ feature }
+								</li>
+							) ) }
 						</ul>
 						{ this.props.connectionStatus.hasConnectedOwner && (
 							<ActionButton
 								label={ __( 'Redeem coupon', 'jetpack' ) }
-								href={ `https://wordpress.com/checkout/${ this.props.siteRawUrl }/jetpack_backup_daily?coupon=${ this.props.partnerCoupon }` }
+								href={ `https://wordpress.com/checkout/${ this.props.siteRawUrl }/${ partnerCoupon.product.slug }?coupon=${ partnerCoupon.coupon_code }` }
 							/>
 						) }
 					</ConnectScreen>

@@ -3470,18 +3470,6 @@ p {
 		add_filter( 'manage_users_columns', array( $this, 'jetpack_icon_user_connected' ) );
 		add_action( 'manage_users_custom_column', array( $this, 'jetpack_show_user_connected_icon' ), 10, 3 );
 		add_action( 'admin_print_styles', array( $this, 'jetpack_user_col_style' ) );
-
-		// Accept and store a partner coupon if present, and redirect to Jetpack connection screen.
-		$partner_coupon = isset( $_GET['jetpack-partner-coupon'] ) ? sanitize_text_field( $_GET['jetpack-partner-coupon'] ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( $partner_coupon ) {
-			update_option( 'jetpack_partner_coupon', $partner_coupon );
-
-			if ( static::connection()->is_connected() ) {
-				wp_safe_redirect( self::admin_url( 'showCouponRedemption=1' ) );
-			} else {
-				wp_safe_redirect( self::admin_url() );
-			}
-		}
 	}
 
 	function admin_body_class( $admin_body_class = '' ) {
@@ -6707,8 +6695,11 @@ endif;
 	 * This method will not take current purchases or upgrades into account
 	 * but is instead a static list of products Jetpack offers with some
 	 * corresponding sales text/materials.
+	 *
+	 * @param bool $show_legacy Determine if we should include legacy product/plan details.
+	 * @return array
 	 */
-	public static function get_products_for_purchase() {
+	public static function get_products_for_purchase( $show_legacy = false ) {
 		$products = array();
 
 		$products['backup'] = array(
@@ -6801,7 +6792,32 @@ endif;
 			),
 		);
 
-		return $products;
+		if ( $show_legacy ) {
+			$products['jetpack_backup_daily'] = array(
+				'title'             => __( 'Jetpack Backup', 'jetpack' ),
+				'slug'              => 'jetpack_backup_daily',
+				'description'       => __( 'Never lose a word, image, page, or time worrying about your site with automated backups & one-click restores.', 'jetpack' ),
+				'show_promotion'    => false,
+				'discount_percent'  => 0,
+				'included_in_plans' => array(),
+				'features'          => array(
+					_x( 'Automated daily backups (off-site)', 'Backup Product Feature', 'jetpack' ),
+					_x( 'One-click restores', 'Backup Product Feature', 'jetpack' ),
+					_x( 'Unlimited backup storage', 'Backup Product Feature', 'jetpack' ),
+				),
+			);
+		}
+
+		/**
+		 * Allow for product details modifications.
+		 *
+		 * @since 10.4.0
+		 *
+		 * @param array $products A list of product details.
+		 * @param array $show_legacy Determine if the list should include legacy plans/products.
+		 * @return array
+		 */
+		return apply_filters( 'jetpack_get_products_for_purchase', $products, $show_legacy );
 	}
 
 	/**

@@ -420,7 +420,7 @@ export function getPartnerSubsidiaryId( state ) {
  * Returns the partner coupon associated with this site, if any.
  *
  * @param {object} state - Global state tree
- * @returns {string|boolean} partner coupon if exists or false.
+ * @returns {object|boolean} partner coupon if exists or false.
  */
 export function getPartnerCoupon( state ) {
 	return get( state.jetpack.initialState, 'partnerCoupon' );
