@@ -286,17 +286,18 @@ class Assets {
 	 * @param string $path        Minimized script path.
 	 * @param string $relative_to File that `$path` is relative to. Pass `__FILE__`.
 	 * @param array  $options     Additional options:
-	 *  - `nonmin_path`:      (string) Non-minified script path.
 	 *  - `asset_path`:       (string|null) `.asset.php` to load. Default is to base it on `$path`.
+	 *  - `async`:            (bool) Set true to register the script as async, like `Assets::enqueue_async_script()`
+	 *  - `css_dependencies`: (string[]) Additional style dependencies to queue.
 	 *  - `css_path`:         (string|null) `.css` to load. Default is to base it on `$path`.
 	 *  - `dependencies`:     (string[]) Additional script dependencies to queue.
-	 *  - `css_dependencies`: (string[]) Additional style dependencies to queue.
-	 *  - `version`:          (string) Override the version from the `asset_path` file.
-	 *  - `minify`:           (bool|null) Set true to pass `minify=true` in the query string, or `null` to suppress the normal `minify=false`.
 	 *  - `enqueue`:          (bool) Set true to enqueue the script immediately.
-	 *  - `async`:            (bool) Set true to register the script as async, like `Assets::enqueue_async_script()`
 	 *  - `in_footer`:        (bool) Set true to register script for the footer.
 	 *  - `media`:            (string) Media for the css file. Default 'all'.
+	 *  - `minify`:           (bool|null) Set true to pass `minify=true` in the query string, or `null` to suppress the normal `minify=false`.
+	 *  - `nonmin_path`:      (string) Non-minified script path.
+	 *  - `textdomain`:       (string) Text domain for the script. Required if the script depends on wp-i18n.
+	 *  - `version`:          (string) Override the version from the `asset_path` file.
 	 * @throws \InvalidArgumentException If arguments are invalid.
 	 */
 	public static function register_script( $handle, $path, $relative_to, array $options = array() ) {
@@ -308,14 +309,15 @@ class Assets {
 		$base     = substr( $path, 0, -3 );
 		$options += array(
 			'asset_path'       => "$base.asset.php",
-			'css_path'         => "$base.css",
-			'css_dependencies' => array(),
-			'dependencies'     => array(),
-			'minify'           => false,
-			'enqueue'          => false,
 			'async'            => false,
+			'css_dependencies' => array(),
+			'css_path'         => "$base.css",
+			'dependencies'     => array(),
+			'enqueue'          => false,
 			'in_footer'        => false,
 			'media'            => 'all',
+			'minify'           => false,
+			'textdomain'       => null,
 		);
 
 		if ( $options['css_path'] && substr( $options['css_path'], -4 ) !== '.css' ) {
@@ -352,6 +354,15 @@ class Assets {
 		wp_register_script( $handle, $url, $options['dependencies'], $ver, $options['in_footer'] );
 		if ( $options['async'] ) {
 			self::instance()->add_async_script( $handle );
+		}
+		if ( $options['textdomain'] ) {
+			wp_set_script_translations( $handle, $options['textdomain'] );
+		} elseif ( in_array( 'wp-i18n', $options['dependencies'], true ) ) {
+			_doing_it_wrong(
+				__METHOD__,
+				/* translators: %s is the script handle. */
+				esc_html( sprintf( __( 'Script "%s" depends on wp-i18n but does not specify "textdomain"', 'jetpack' ), $handle ) )
+			);
 		}
 
 		if ( $options['css_path'] && file_exists( "$dir/{$options['css_path']}" ) ) {
