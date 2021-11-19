@@ -99,6 +99,53 @@ class Jetpack_Pre_Connection_JITMs {
 	}
 
 	/**
+	 * Determine if we should display partnership related messages.
+	 *
+	 * @since 10.4
+	 *
+	 * @return bool
+	 */
+	private function maybe_display_partnership_messages() {
+		// Check if we store a partner coupon.
+		// @todo Copy logic over from pre-connection screen PR.
+		return ! empty( get_option( 'jetpack_partner_coupon', '' ) );
+	}
+
+	/**
+	 * Returns partnership related pre-connection messages.
+	 *
+	 * @since 10.4
+	 *
+	 * @return array An array containing the pre-connection JITM messages.
+	 */
+	private function get_raw_partnership_messages() {
+		// @todo Add better way to fetch the partner + product
+		// @todo Copy logic over from pre-connection screen PR.
+		$partner = 'IONOS';
+		$product = array(
+			'name'        => esc_html__( 'Jetpack Backup', 'jetpack' ),
+			'description' => esc_html__( 'Protect your site with backups and restores by Jetpack.', 'jetpack' ),
+		);
+
+		return array(
+			array(
+				'id'             => 'jpsetup-partner-coupon',
+				'message_path'   => '/wp:(plugin-install|themes|update-core|upload|users|tools|options-general):admin_notices/',
+				/* Translators: 1: Product name, 2: Partner name. */
+				'message'        => sprintf( esc_html__( 'Get %1$s. Free with your %2$s account for the first year', 'jetpack' ), $product['name'], $partner ),
+				'description'    => $product['description'],
+				'button_caption' => esc_html__( 'Redeem coupon', 'jetpack' ),
+				'button_link'    => $this->generate_admin_url(
+					array(
+						'page' => 'jetpack#/dashboard',
+						'from' => 'pre-connection-jitm--jpsetup-partner-coupon',
+					)
+				),
+			),
+		);
+	}
+
+	/**
 	 * Adds the input query arguments to the admin url.
 	 *
 	 * @param array $args The query arguments.
@@ -119,6 +166,10 @@ class Jetpack_Pre_Connection_JITMs {
 	 */
 	public function add_pre_connection_jitms( $pre_connection_messages ) {
 		$jetpack_messages = $this->get_raw_messages();
+
+		if ( $this->maybe_display_partnership_messages() ) {
+			$jetpack_messages = array_merge( $jetpack_messages, $this->get_raw_partnership_messages() );
+		}
 
 		if ( ! is_array( $pre_connection_messages ) ) {
 			// The incoming messages aren't an array, so just return Jetpack's messages.
