@@ -22,7 +22,7 @@
 	},
 	"devDependencies": {
 		"jest": "27.3.1",
-		"webpack": "5.51.1"
+		"webpack": "5.64.1"
 	},
 	"peerDependencies": {
 		"webpack": "^5.8.0"
