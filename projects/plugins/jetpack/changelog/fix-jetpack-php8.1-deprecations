@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Fix PHP 8.1 deprecation warnings.

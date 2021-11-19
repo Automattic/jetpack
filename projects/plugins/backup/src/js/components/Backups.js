@@ -37,8 +37,6 @@ const Backups = () => {
 	} );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 
-	const assetBuildUrl = useSelect( select => select( STORE_ID ).getAssetBuildUrl(), [] );
-
 	const BACKUP_STATE = {
 		LOADING: 0,
 		IN_PROGRESS: 1,
@@ -117,7 +115,7 @@ const Backups = () => {
 	const renderInProgressBackup = () => {
 		return (
 			<div class="jp-row">
-				<div class="lg-col-span-5 md-col-span-4 sm-col-span-4">
+				<div class="lg-col-span-5 md-col-span-8 sm-col-span-4">
 					<div class="backup__progress">
 						<div class="backup__progress-info">
 							<p>{ __( 'Backing up Your Groovy Site…', 'jetpack-backup' ) }</p>
@@ -154,9 +152,9 @@ const Backups = () => {
 				</div>
 				<div class="lg-col-span-1 md-col-span-4 sm-col-span-0"></div>
 				<div class="backup__animation lg-col-span-6 md-col-span-2 sm-col-span-2">
-					<img className="backup__animation-el-1" src={ assetBuildUrl + BackupAnim1 } alt="" />
-					<img className="backup__animation-el-2" src={ assetBuildUrl + BackupAnim2 } alt="" />
-					<img className="backup__animation-el-3" src={ assetBuildUrl + BackupAnim3 } alt="" />
+					<img className="backup__animation-el-1" src={ BackupAnim1 } alt="" />
+					<img className="backup__animation-el-2" src={ BackupAnim2 } alt="" />
+					<img className="backup__animation-el-3" src={ BackupAnim3 } alt="" />
 				</div>
 			</div>
 		);
@@ -179,7 +177,7 @@ const Backups = () => {
 			<div className="jp-row">
 				<div className="lg-col-span-3 md-col-span-4 sm-col-span-4">
 					<div className="backup__latest">
-						<img src={ assetBuildUrl + CloudIcon } alt="" />
+						<img src={ CloudIcon } alt="" />
 						<h2>{ __( 'Latest Backup', 'jetpack-backup' ) }</h2>
 					</div>
 					<h1>{ formatDateString( latestTime ) }</h1>
@@ -195,28 +193,28 @@ const Backups = () => {
 				<div className="lg-col-span-1 md-col-span-4 sm-col-span-0"></div>
 				<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
 					<StatBlock
-						icon={ assetBuildUrl + PostsIcon }
+						icon={ PostsIcon }
 						label={ __( 'Posts', 'jetpack-backup' ) }
 						value={ stats.posts }
 					/>
 				</div>
 				<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
 					<StatBlock
-						icon={ assetBuildUrl + UploadsIcon }
+						icon={ UploadsIcon }
 						label={ __( 'Uploads', 'jetpack-backup' ) }
 						value={ stats.uploads }
 					/>
 				</div>
 				<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
 					<StatBlock
-						icon={ assetBuildUrl + PluginsIcon }
+						icon={ PluginsIcon }
 						label={ __( 'Plugins', 'jetpack-backup' ) }
 						value={ stats.plugins }
 					/>
 				</div>
 				<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
 					<StatBlock
-						icon={ assetBuildUrl + ThemesIcon }
+						icon={ ThemesIcon }
 						label={ __( 'Themes', 'jetpack-backup' ) }
 						value={ stats.themes }
 					/>

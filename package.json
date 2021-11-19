@@ -62,13 +62,13 @@
 		"docker:wp": "printf '\\e[30;43m`pnpm run docker:wp` is deprecated. Use the Jetpack CLI instead.\\e[0m\\n'; jetpack docker wp",
 		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
 		"lint": "pnpm run lint-file -- .",
-		"lint-changed": "eslint-changed --ext .js,.jsx,.cjs,.mjs,.ts,.tsx --git",
-		"lint-file": "eslint --ext .js,.jsx,.cjs,.mjs,.ts,.tsx",
+		"lint-changed": "eslint-changed --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.svelte --git",
+		"lint-file": "eslint --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.svelte",
 		"lint-required": "node -e \"const fs = require('fs'); fs.copyFileSync('.eslintignore','.eslintignore-required'); const w=fs.createWriteStream('.eslintignore-required',{flags:'a'}); w.write('\\n# tools/eslint-excludelist.json\\n'); w.end(JSON.parse(fs.readFileSync('tools/eslint-excludelist.json','utf8')).join('\\n')+'\\n')\" && pnpm run lint -- --max-warnings=0 --ignore-path .eslintignore-required",
 		"php:autofix": "composer phpcs:fix",
 		"php:compatibility": "composer phpcs:compatibility",
 		"php:lint": "composer phpcs:lint",
-		"reformat-files": "prettier --ignore-path .eslintignore --write \"**/*.{js,jsx,cjs,mjs,ts,tsx,json}\"",
+		"reformat-files": "prettier --ignore-path .eslintignore --write \"**/*.{js,jsx,cjs,mjs,ts,tsx,svelte,json}\"",
 		"version-packages": "bash ./tools/version-packages.sh"
 	},
 	"husky": {
@@ -92,7 +92,6 @@
 	},
 	"pnpm": {
 		"overrides": {
-			"@automattic/calypso-build>enzyme-adapter-react-16@*": "npm:@wojtekmaj/enzyme-adapter-react-17@0.6.3",
 			"@storybook/addon-docs>@storybook/builder-webpack4": "npm:@storybook/builder-webpack5",
 			"@storybook/core-common>webpack@4": ">= 4",
 			"@storybook/core-server>webpack@4": ">= 4",

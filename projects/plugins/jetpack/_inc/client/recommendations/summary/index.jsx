@@ -103,7 +103,7 @@ const SummaryComponent = props => {
 				) }
 			</div>
 			<div className="jp-recommendations-summary__more-features">
-				<Gridicon icon="info-outline" size={ 28 } />
+				<Gridicon icon="info-outline" />
 				<p>
 					{ createInterpolateElement(
 						__(

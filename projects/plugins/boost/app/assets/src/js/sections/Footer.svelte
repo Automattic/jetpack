@@ -1,7 +1,14 @@
 <script>
+	/**
+	 * WordPress dependencies
+	 */
+	import { __ } from '@wordpress/i18n';
+
+	/**
+	 * Internal dependencies
+	 */
 	import AutomatticLogo from '../svg/automattic.svg';
 	import JetpackIcon from '../svg/jetpack.svg';
-	import { __ } from '@wordpress/i18n';
 </script>
 
 <footer class="jb-settings-footer">

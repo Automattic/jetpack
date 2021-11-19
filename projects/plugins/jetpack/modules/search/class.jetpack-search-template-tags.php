@@ -7,6 +7,8 @@
  * @since      5.8.0
  */
 
+use Automattic\Jetpack\Search\Helper;
+
 /**
  * Class that has various methods for outputting functionality into a theme that doesn't support widgets.
  * Additionally the widget itself makes use of these class.
@@ -37,10 +39,10 @@ class Jetpack_Search_Template_Tags {
 		 * then we need to track their state.
 		 */
 		$active_post_types = array();
-		if ( Jetpack_Search_Helpers::post_types_differ_searchable( $post_types ) ) {
+		if ( Helper::post_types_differ_searchable( $post_types ) ) {
 			// get the active filter buckets from the query
 			$active_buckets          = Jetpack_Search::instance()->get_active_filter_buckets();
-			$post_types_differ_query = Jetpack_Search_Helpers::post_types_differ_query( $post_types );
+			$post_types_differ_query = Helper::post_types_differ_query( $post_types );
 
 			// remove any post_type filters from display if the current query
 			// already specifies to match all post types
@@ -48,15 +50,15 @@ class Jetpack_Search_Template_Tags {
 				$active_buckets = array_filter( $active_buckets, array( __CLASS__, 'is_not_post_type_filter' ) );
 			}
 
-			$active_post_types = Jetpack_Search_Helpers::get_active_post_types( $active_buckets );
+			$active_post_types = Helper::get_active_post_types( $active_buckets );
 			if ( empty( $active_post_types ) ) {
 				$active_post_types = $post_types;
 			}
 
 			if ( $post_types_differ_query ) {
-				$filters = Jetpack_Search_Helpers::ensure_post_types_on_remove_url( $filters, $post_types );
+				$filters = Helper::ensure_post_types_on_remove_url( $filters, $post_types );
 			} else {
-				$filters = Jetpack_Search_Helpers::remove_active_from_post_type_buckets( $filters );
+				$filters = Helper::remove_active_from_post_type_buckets( $filters );
 			}
 		} else {
 			$post_types = array();
@@ -111,9 +113,9 @@ class Jetpack_Search_Template_Tags {
 		}
 		$clear_url = null;
 		if ( ! empty( $query_vars ) ) {
-			$clear_url = Jetpack_Search_Helpers::remove_query_arg( $query_vars );
+			$clear_url = Helper::remove_query_arg( $query_vars );
 			if ( ! empty( $default_post_types ) ) {
-				$clear_url = Jetpack_Search_Helpers::add_post_types_to_url( $clear_url, $default_post_types );
+				$clear_url = Helper::add_post_types_to_url( $clear_url, $default_post_types );
 			}
 		}
 
@@ -267,7 +269,7 @@ class Jetpack_Search_Template_Tags {
 		// If the widget has specified post types to search within and IF the post types differ
 		// from the default post types that would have been searched, set the selected post
 		// types via hidden inputs.
-		if ( Jetpack_Search_Helpers::post_types_differ_searchable( $post_types ) ) {
+		if ( Helper::post_types_differ_searchable( $post_types ) ) {
 			$fields_to_inject['post_type'] = implode( ',', $post_types );
 		}
 

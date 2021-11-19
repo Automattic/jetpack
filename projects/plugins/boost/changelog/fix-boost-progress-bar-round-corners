@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Boost: make progress bar corners round on small screens

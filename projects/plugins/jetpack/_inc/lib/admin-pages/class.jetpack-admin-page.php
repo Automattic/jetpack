@@ -243,6 +243,12 @@ abstract class Jetpack_Admin_Page {
 				background-color: #f6f6f6;
 			}
 
+			@media (max-width: 782px) {
+				#wpbody-content {
+					padding-bottom: 50px;
+				}
+			}
+
 			#jp-plugin-container .wrap {
 				margin: 0 auto;
 				max-width:45rem;

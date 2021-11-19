@@ -3,7 +3,14 @@
 	the past. Mouseover to show the exact time.
 -->
 <script>
+	/**
+	 * External dependencies
+	 */
 	import { readable } from 'svelte/store';
+
+	/**
+	 * Internal dependencies
+	 */
 	import describeTimeAgo from '../utils/describe-time-ago.ts';
 
 	export let time;

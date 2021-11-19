@@ -22,16 +22,5 @@ module.exports = {
 	testEnvironmentOptions: {
 		resultsDir: 'output/allure-results',
 	},
-	reporters: [
-		'default',
-		[
-			'jest-junit',
-			{
-				suiteName: 'Jetpack Boost E2E tests',
-				outputDirectory: 'output/reports',
-				outputName: 'junit-results.xml',
-				uniqueOutputName: 'true',
-			},
-		],
-	],
+	reporters: [],
 };

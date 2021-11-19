@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-VideoPress Media Items now contain all video meta immediately after upload. A page refresh is no longer needed to view VideoPress specific fields.

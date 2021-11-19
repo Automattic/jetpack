@@ -1,35 +1,42 @@
 /**
  * External dependencies
  */
-const getBaseWebpackConfig = require( '@automattic/calypso-build/webpack.config.js' );
-const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
-const MinifyPlugin = require( 'babel-minify-webpack-plugin' );
+const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const path = require( 'path' );
 
-const isDevelopment = process.env.NODE_ENV !== 'production';
-
-const baseConfig = getBaseWebpackConfig(
-	{ WP: false },
+module.exports = [
 	{
-		entry: {}, // We'll override later
-		'output-filename': '[name].js',
-		'output-path': path.join( __dirname, './build' ),
-	}
-);
+		entry: {
+			index: './src/_inc/idc-notice.js',
+		},
+		mode: jetpackWebpackConfig.mode,
+		devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
+		output: {
+			...jetpackWebpackConfig.output,
+			filename: '[name].js',
+			path: path.resolve( './build' ),
+		},
+		optimization: {
+			...jetpackWebpackConfig.optimization,
+		},
+		resolve: {
+			...jetpackWebpackConfig.resolve,
+		},
+		node: false,
+		plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
+		module: {
+			strictExportPresence: true,
+			rules: [
+				// Transpile JavaScript
+				jetpackWebpackConfig.TranspileRule( {
+					exclude: /node_modules\//,
+				} ),
 
-const plugins = [ ...baseConfig.plugins, new DependencyExtractionWebpackPlugin() ];
-
-if ( ! isDevelopment ) {
-	plugins.push( new MinifyPlugin() );
-}
-
-module.exports = {
-	...baseConfig,
-	resolve: {
-		...baseConfig.resolve,
-		modules: [ 'node_modules' ],
+				// Transpile @automattic/jetpack-* in node_modules too.
+				jetpackWebpackConfig.TranspileRule( {
+					includeNodeModules: [ '@automattic/jetpack-' ],
+				} ),
+			],
+		},
 	},
-	devtool: isDevelopment ? 'source-map' : false,
-	entry: { index: path.join( __dirname, 'src/_inc/idc-notice.js' ) },
-	plugins,
-};
+];

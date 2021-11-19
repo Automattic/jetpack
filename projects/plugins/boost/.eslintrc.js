@@ -19,29 +19,19 @@ module.exports = {
 	},
 	overrides: [
 		{
+			files: [ '*.js' ],
+			parser: 'babel-eslint',
+			extends: [ '../../../.eslintrc.js' ],
+		},
+		{
 			files: [ '*.svelte' ],
 			processor: 'svelte3/svelte3',
 		},
 	],
 	settings: {
 		'svelte3/typescript': true,
-
-		// named-blocks is required for interoperability between
-		// eslint-plugin-prettier and eslint-plugin-svelte3.
-		// Ref: https://github.com/sveltejs/eslint-plugin-svelte3/issues/16#issuecomment-847622683
-		'svelte3/named-blocks': true,
 	},
 	plugins: [ 'svelte3', '@typescript-eslint' ],
-	ignorePatterns: [
-		'node_modules',
-		'.eslintrc.js',
-		'rollup.config.js',
-		'babel.config.js',
-		'wordpress',
-		'vendor',
-		'tests',
-		'app/assets/dist',
-	],
 	rules: {
 		// Enforce the use of the jetpack-boost textdomain.
 		'@wordpress/i18n-text-domain': [
@@ -68,5 +58,14 @@ module.exports = {
 		// relevant in a svelte project.
 		// Ref: https://github.com/WordPress/gutenberg/pull/26810
 		'@wordpress/no-global-event-listener': 0,
+
+		'jsdoc/no-undefined-types': [
+			1,
+			{
+				definedTypes: [ 'TemplateVars', 'ErrorSet', 'Readable' ],
+			},
+		],
+
+		'prettier/prettier': 0,
 	},
 };
