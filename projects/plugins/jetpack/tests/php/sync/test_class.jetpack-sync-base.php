@@ -66,6 +66,9 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 		\Jetpack_Options::update_option( 'id', 1234 );
 
 		( new Data_Settings() )->reset_data_settings_to_defaults();
+		$data_settings = new Data_Settings();
+		$data_settings->empty_data_settings();
+		$data_settings->add_settings_list( array() );
 	}
 
 	/**

@@ -74,6 +74,19 @@ class Data_Settings {
 	);
 
 	/**
+	 * The data that must be synced for every synced site.
+	 */
+	const MUST_SYNC_DATA_SETTINGS = array(
+		'jetpack_sync_modules'            => array(
+			'Automattic\\Jetpack\\Sync\\Modules\\Callables',
+		),
+		'jetpack_sync_callable_whitelist' => array(
+			'site_url' => array( 'Automattic\\Jetpack\\Connection\\Urls', 'site_url' ),
+			'home_url' => array( 'Automattic\\Jetpack\\Connection\\Urls', 'home_url' ),
+		),
+	);
+
+	/**
 	 * A static property containing the Sync data settings.
 	 *
 	 * @var array
@@ -86,7 +99,7 @@ class Data_Settings {
 	 * @param array $plugin_settings The array provided by the plugin. The array must use filters
 	 *                               from the DATA_FILTER_DEFAULTS list as keys.
 	 */
-	public function add_settings_list( $plugin_settings ) {
+	public function add_settings_list( $plugin_settings = array() ) {
 		foreach ( self::DATA_FILTER_DEFAULTS as $filter => $default_value ) {
 
 			if ( isset( $plugin_settings[ $filter ] ) && is_array( $plugin_settings[ $filter ] ) ) {
@@ -107,9 +120,19 @@ class Data_Settings {
 		}
 
 		if ( ! did_action( 'jetpack_sync_set_data_filters' ) ) {
+			$this->add_required_settings();
 			// Set the sync data filters only once.
 			add_action( 'plugins_loaded', array( $this, 'set_sync_data_filters' ) );
 			do_action( 'jetpack_sync_set_data_filters' );
+		}
+	}
+
+	/**
+	 * Adds the data settings that are always required.
+	 */
+	private function add_required_settings() {
+		foreach ( static::MUST_SYNC_DATA_SETTINGS as $filter => $setting ) {
+			$this->add_filter_setting( $filter, $setting );
 		}
 	}
 
