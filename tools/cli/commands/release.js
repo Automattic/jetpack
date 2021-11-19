@@ -146,8 +146,7 @@ export async function scriptRouter( argv ) {
 				      jetpack release ${ argv.project } release-branch \n`.replace( /^\t+/gm, '' );
 			break;
 		case 'release-branch':
-			argv.version = await getReleaseVersion( argv );
-			argv = await promptForVersion( argv );
+			argv = await getReleaseVersion( argv );
 			argv.script = `tools/create-release-branch.sh`;
 			argv.scriptArgs = [ argv.project, argv.version ];
 			argv.next = `Finished! Next: 
@@ -167,15 +166,14 @@ export async function scriptRouter( argv ) {
 				    jetpack release ${ argv.project } readme \n`.replace( /^\t+/gm, '' );
 			break;
 		case 'version':
-			argv.version = await getReleaseVersion( argv );
-			argv = await promptForVersion( argv );
+			argv = await getReleaseVersion( argv );
 			argv.script = 'tools/project-version.sh';
 			argv.scriptArgs = [ '-u', argv.version, argv.project ];
-			argv.next = `Finished! Next, you will likely want to check the following project files to make sure versions were updated correctly:  
-				- The main php file
-				- package.json
-				- composer.json (the autoloader-suffix filed)
-				- changelog.md and the changelog part of readme.txt`.replace( /^\t+/gm, '' );
+			if ( argv.devRelease ) {
+				argv.scriptArgs.unshift( '-a' );
+			} else if ( argv.beta ) {
+				argv.scriptArgs.unshift( '-b' );
+			}
 			break;
 		default:
 			console.log( 'Not a valid release command!' );
@@ -243,45 +241,39 @@ export async function getReleaseVersion( argv ) {
 		.toString()
 		.trim();
 	potentialVersion = potentialVersion.split( '-' ); // e.g., split 10.4-a.8 into [10.4, a.8]
-	const stableVersion = potentialVersion[ 0 ];
-	const alphaVersion = potentialVersion[ 1 ];
 
 	// Append '-beta' if necessary.
 	if ( argv.b || argv.beta ) {
-		potentialVersion = stableVersion.split( '.' ).splice( 0, 2 ).join( '.' );
+		potentialVersion = potentialVersion[ 0 ].split( '.' ).splice( 0, 2 );
+		potentialVersion = potentialVersion.join( '.' );
 		potentialVersion += '-beta';
-		return potentialVersion;
 	}
 
 	// Append '-alpha' if necessary.
 	if ( argv.a || argv[ 'dev-version' ] ) {
 		// Jetpack uses additional versioning for dev/atomic in the form of x.y-a.z
 		if ( argv.project === 'plugins/jetpack' ) {
-			// Next time - replace potentialVersion with alphaVersion. If there is no alpha version, we just bump stableVersion.
-			const versionToBump = alphaVersion
+			const versionToBump = potentialVersion[ 1 ]
 				? potentialVersion[ 1 ].split( '.' )
 				: potentialVersion[ 0 ].split( '.' ); // if first alpha after stable, potentialVersion[1] should be undefined.
-			console.log( versionToBump );
 			const potentialVersionBump = potentialVersion[ 1 ] ? parseInt( versionToBump[ 1 ] ) + 1 : '0';
-			if ( potentialVersionBump === '0' ) {
-				potentialVersion = await getVersionBump( versionToBump );
-				potentialVersion = potentialVersion.join( '.' );
-				console.log( potentialVersion );
-			}
-			potentialVersion = `${ potentialVersion }-a.${ potentialVersionBump }`;
+			potentialVersion = `${ potentialVersion[ 0 ] }-a.${ potentialVersionBump }`;
 		} else {
-			const versionToBump = stableVersion.split( '.' ).splice( 0, 2 );
+			const versionToBump = potentialVersion[ 0 ].split( '.' ).splice( 0, 2 );
 			potentialVersion = await getVersionBump( versionToBump );
 			potentialVersion = potentialVersion.join( '.' );
 			potentialVersion += '-alpha';
 		}
-		return potentialVersion;
 	}
 
 	if ( argv.stable ) {
-		potentialVersion = stableVersion.split( '.' ).splice( 0, 2 ).join( '.' );
-		return potentialVersion;
+		potentialVersion = potentialVersion[ 0 ].split( '.' ).splice( 0, 2 );
+		potentialVersion = potentialVersion.join( '.' );
 	}
+
+	argv = await promptForVersion( argv, potentialVersion );
+	process.exit( 1 );
+	return argv;
 }
 
 /**
@@ -299,21 +291,22 @@ export async function getVersionBump( version ) {
 		version[ 1 ] = parseInt( version[ 1 ] ) + 1;
 	}
 
-	return version; //maybe return version.join('.')?
+	return version;
 }
 /**
  * Prompts for what version we're releasing
  *
  * @param {object} argv - the arguments passed.
+ * @param {string} version - the version we think might be used.
  * @returns {string} version
  */
-export async function promptForVersion( argv ) {
+export async function promptForVersion( argv, version ) {
 	const response = await inquirer.prompt( [
 		{
 			type: 'input',
 			name: 'version',
 			message: `What version are you releasing for ${ argv.project }?`,
-			default: argv.version,
+			default: version,
 		},
 	] );
 	argv.version = response.version;
