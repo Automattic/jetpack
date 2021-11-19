@@ -3469,10 +3469,11 @@ p {
 		add_action( 'manage_users_custom_column', array( $this, 'jetpack_show_user_connected_icon' ), 10, 3 );
 		add_action( 'admin_print_styles', array( $this, 'jetpack_user_col_style' ) );
 
-		// Accept and store a partner coupon if present, and redirect to Jetpack connection screen
-		if ( isset( $_GET['jetpack-partner-coupon'] ) ) {
-			update_option( 'jetpack_partner_coupon', sanitize_text_field( $_GET['jetpack-partner-coupon'] ) );
-			
+		// Accept and store a partner coupon if present, and redirect to Jetpack connection screen.
+		$partner_coupon = isset( $_GET['jetpack-partner-coupon'] ) ? sanitize_text_field( $_GET['jetpack-partner-coupon'] ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( $partner_coupon ) {
+			update_option( 'jetpack_partner_coupon', $partner_coupon );
+
 			if ( static::connection()->is_connected() ) {
 				wp_safe_redirect( self::admin_url( 'showCouponRedemption=1' ) );
 			} else {
