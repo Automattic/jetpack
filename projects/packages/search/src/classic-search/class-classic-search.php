@@ -138,7 +138,7 @@ class Classic_Search {
 	 * @since 5.0.0
 	 */
 	public function __clone() {
-		wp_die( "Please don't __clone Jetpack_Search" );
+		wp_die( "Please don't __clone Classic_Search" );
 	}
 
 	/**
@@ -147,7 +147,7 @@ class Classic_Search {
 	 * @since 5.0.0
 	 */
 	public function __wakeup() {
-		wp_die( "Please don't __wakeup Jetpack_Search" );
+		wp_die( "Please don't __wakeup Classic_Search" );
 	}
 
 	/**
@@ -285,7 +285,7 @@ class Classic_Search {
 
 	/**
 	 * Retrieves a list of known Jetpack search filters widget IDs, gets the filters for each widget,
-	 * and applies those filters to this Jetpack_Search object.
+	 * and applies those filters to this Classic_Search object.
 	 *
 	 * @since 5.7.0
 	 */
@@ -738,6 +738,7 @@ class Classic_Search {
 	 * @module search
 	 */
 	public function action__widgets_init() {
+		// TODO: Migrate this to WPCOM! This class doesn't exist in the package.
 		require_once __DIR__ . '/class.jetpack-search-widget-filters.php';
 
 		register_widget( 'Jetpack_Search_Widget_Filters' );
@@ -1399,11 +1400,11 @@ class Classic_Search {
 	/**
 	 * Get the results of the Filters performed, including the number of matching documents.
 	 *
-	 * Returns an array of Filters (keyed by $label, as passed to Jetpack_Search::set_filters()), containing the Filter and all resulting
+	 * Returns an array of Filters (keyed by $label, as passed to Classic_Search::set_filters()), containing the Filter and all resulting
 	 * matching buckets, the url for applying/removing each bucket, etc.
 	 *
 	 * NOTE - if this is called before the search is performed, an empty array will be returned. Use the $aggregations class
-	 * member if you need to access the raw filters set in Jetpack_Search::set_filters().
+	 * member if you need to access the raw filters set in Classic_Search::set_filters().
 	 *
 	 * @since 5.0.0
 	 *

@@ -650,7 +650,7 @@ class Helper {
 	public static function are_filters_by_widget_disabled() {
 		/**
 		 * Allows developers to disable filters being set by widget, in favor of manually
-		 * setting filters via `Jetpack_Search::set_filters()`.
+		 * setting filters via `Classic_Search::set_filters()`.
 		 *
 		 * @module search
 		 *
