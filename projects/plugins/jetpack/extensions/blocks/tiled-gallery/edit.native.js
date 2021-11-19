@@ -37,6 +37,7 @@ export function defaultColumnsNumber( images ) {
 const TiledGalleryEdit = props => {
 	const [ resizeObserver, sizes ] = useResizeObserver();
 	const [ maxWidth, setMaxWidth ] = useState( 0 );
+	const { width } = sizes || {};
 
 	const {
 		className,
@@ -50,7 +51,6 @@ const TiledGalleryEdit = props => {
 	const { replaceInnerBlocks, updateBlockAttributes } = useDispatch( blockEditorStore );
 
 	useEffect( () => {
-		const { width } = sizes || {};
 		if ( width ) {
 			setMaxWidth( width );
 
@@ -59,7 +59,7 @@ const TiledGalleryEdit = props => {
 				setAttributes( { columnWidths: [ columnWidths ] } );
 			}
 		}
-	}, [ sizes, columns, setAttributes ] );
+	}, [ width, columns, setAttributes ] );
 
 	const innerBlockImages = useSelect(
 		select => {
