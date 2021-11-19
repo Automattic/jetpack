@@ -81,8 +81,10 @@ class Data_Settings {
 			'Automattic\\Jetpack\\Sync\\Modules\\Callables',
 		),
 		'jetpack_sync_callable_whitelist' => array(
-			'site_url' => array( 'Automattic\\Jetpack\\Connection\\Urls', 'site_url' ),
-			'home_url' => array( 'Automattic\\Jetpack\\Connection\\Urls', 'home_url' ),
+			'site_url'       => array( 'Automattic\\Jetpack\\Connection\\Urls', 'site_url' ),
+			'home_url'       => array( 'Automattic\\Jetpack\\Connection\\Urls', 'home_url' ),
+			'paused_plugins' => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_plugins' ),
+			'paused_themes'  => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_themes' ),
 		),
 	);
 
