@@ -14,11 +14,11 @@ import ContextualizedConnection from '../index';
 describe( 'ContextualizedConnection', () => {
 	const testProps = {
 		apiNonce: 'test',
+		registrationNonce: 'test',
 		apiRoot: 'https://example.org/wp-json/',
 		redirectUri: 'https://example.org',
 		isSiteConnected: false,
 		title: 'Test title',
-		buttonLabel: 'Set up Jetpack',
 	};
 
 	describe( 'The contextualized connection screen', () => {
@@ -47,13 +47,11 @@ describe( 'ContextualizedConnection', () => {
 		const wrapper = shallow( <ContextualizedConnection { ...testProps } /> );
 
 		it( 'renders the "Set up Jetpack" button', () => {
-			expect( wrapper.find( '.jp-action-button--button' ).first().render().text() ).to.be.equal(
-				testProps.buttonLabel
-			);
+			expect( wrapper.find( 'ConnectButton' ) ).to.exist;
 		} );
 
 		it( 'renders the TOS', () => {
-			expect( wrapper.find( '.jp-contextualized-connection__tos' ) ).to.have.lengthOf( 1 );
+			expect( wrapper.find( '.jp-contextualized-connection__tos' ) ).to.exist;
 		} );
 	} );
 
@@ -62,9 +60,7 @@ describe( 'ContextualizedConnection', () => {
 		const wrapper = shallow( <ContextualizedConnection { ...disconnectedProps } /> );
 
 		it( 'renders the "Continue to Jetpack" button', () => {
-			expect(
-				wrapper.find( '.jp-contextualized-connection__button' ).first().render().text()
-			).to.be.equal( 'Continue to Jetpack' );
+			expect( wrapper.find( '.jp-contextualized-connection__button' ) ).to.exist;
 		} );
 	} );
 } );
