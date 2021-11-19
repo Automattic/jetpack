@@ -73,7 +73,7 @@ class Instant_Search extends Classic_Search {
 	public function load_assets() {
 		if ( defined( 'JETPACK_SEARCH_PLUGIN_DIRECTORY' ) ) {
 			$this->load_assets_with_parameters(
-				'jetpack-search/dist/instant-search',
+				'jetpack-search/build/instant-search',
 				constant( 'JETPACK_SEARCH_PLUGIN_DIRECTORY' )
 			);
 		}
@@ -83,7 +83,7 @@ class Instant_Search extends Classic_Search {
 	 * Loads assets according to parameters provided.
 	 *
 	 * @param string $path_prefix - Prefix for assets' relative paths.
-	 * @param string $plugin_path - Plugin path, which is usually the dist folder within this package.
+	 * @param string $plugin_path - Plugin path, which is usually the build folder within this package.
 	 */
 	public function load_assets_with_parameters( $path_prefix, $plugin_path ) {
 		Assets::register_script(

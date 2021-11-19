@@ -114,7 +114,7 @@ class Customberg {
 	public function load_assets() {
 		if ( defined( 'JETPACK_SEARCH_PLUGIN_DIRECTORY' ) ) {
 			$this->load_assets_with_parameters(
-				'jetpack-search/dist/customberg',
+				'jetpack-search/build/customberg',
 				constant( 'JETPACK_SEARCH_PLUGIN_DIRECTORY' )
 			);
 		}
@@ -141,7 +141,7 @@ class Customberg {
 
 		//
 		// Load manifest.
-		$manifest_path       = $plugin_base_path . '/dist/customberg/jp-search-configure-main.min.asset.php';
+		$manifest_path       = $plugin_base_path . '/build/customberg/jp-search-configure-main.min.asset.php';
 		$script_dependencies = array();
 		try {
 			$asset_manifest      = include $manifest_path;
