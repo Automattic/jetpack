@@ -34,11 +34,11 @@ const ConnectionStatusCard = props => {
 		connectionInfoText,
 		onDisconnected,
 		connectedPlugins,
+		connectedSiteId,
 		context,
 	} = props;
 
 	const [ isFetchingConnectionData, setIsFetchingConnectionData ] = useState( false );
-	const [ connectedSiteData, setConnectedSiteData ] = useState( {} );
 	const [ connectedUserData, setConnectedUserData ] = useState( {} );
 	const userIsConnecting = useSelect( select => select( STORE_ID ).getUserIsConnecting(), [] );
 	const { setConnectionStatus, setUserIsConnecting } = useDispatch( STORE_ID );
@@ -76,22 +76,6 @@ const ConnectionStatusCard = props => {
 				throw error;
 			} );
 	}, [ setIsFetchingConnectionData, setConnectedUserData ] );
-
-	/**
-	 * Fetch the site data on mount.
-	 * To be only run once.
-	 * Site ID is used in the disconnection flow for the optional user survey.
-	 */
-	useEffect( () => {
-		restApi
-			.fetchSiteData()
-			.then( response => {
-				setConnectedSiteData( response );
-			} )
-			.catch( error => {
-				throw error;
-			} );
-	}, [ setConnectedSiteData ] );
 
 	/**
 	 * Open the Disconnect Dialog.
@@ -166,7 +150,7 @@ const ConnectionStatusCard = props => {
 						apiNonce={ apiNonce }
 						onDisconnected={ onDisconnectedCallback }
 						connectedPlugins={ connectedPlugins }
-						connectedSiteId={ connectedSiteData.ID ? connectedSiteData.ID : null }
+						connectedSiteId={ connectedSiteId }
 						connectedUser={ connectedUserData }
 						isOpen={ isDisconnectDialogOpen }
 						onClose={ closeDisconnectDialog }
@@ -216,6 +200,8 @@ ConnectionStatusCard.propTypes = {
 	redirectUri: PropTypes.string.isRequired,
 	/** An object of the plugins currently using the Jetpack connection. */
 	connectedPlugins: PropTypes.object,
+	/** ID of the currently connected site. */
+	connectedSiteId: PropTypes.number,
 	/** The Card title. */
 	title: PropTypes.string,
 	/** The text that will be displayed under the title, containing info how to leverage the connection. */
