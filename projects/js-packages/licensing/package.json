@@ -34,10 +34,11 @@
 	},
 	"dependencies": {
 		"@automattic/jetpack-components": "workspace:^0.7.0-alpha",
-		"@wordpress/i18n": "4.2.3",
-		"@wordpress/element": "4.0.3",
-		"prop-types": "^15.7.2",
-		"@wordpress/components": "19.0.1",
-		"@wordpress/icons": "6.1.0"
+		"@automattic/jetpack-api": "workspace:^0.6.1-alpha",
+		"@wordpress/i18n": "4.2.4",
+		"@wordpress/element": "4.0.4",
+		"prop-types": "15.7.2",
+		"@wordpress/components": "19.0.3",
+		"@wordpress/icons": "6.1.1"
 	}
 }
