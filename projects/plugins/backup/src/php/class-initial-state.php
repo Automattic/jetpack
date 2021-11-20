@@ -28,6 +28,9 @@ class Initial_State {
 				'calypsoSlug' => ( new Status() )->get_site_suffix(),
 			),
 			'connectedPlugins' => Connection_Plugin_Storage::get_all(),
+			'siteData'         => array(
+				'id' => \Jetpack_Options::get_option( 'id' ),
+			),
 			'assets'           => array(
 				'buildUrl' => plugins_url( 'build/', JETPACK_BACKUP_PLUGIN_ROOT_FILE ),
 			),

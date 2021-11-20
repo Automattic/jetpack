@@ -25,6 +25,7 @@ export default function useConnection() {
 	const APINonce = useSelect( select => select( STORE_ID ).getAPINonce(), [] );
 	const APIRoot = useSelect( select => select( STORE_ID ).getAPIRoot(), [] );
 	const connectedPlugins = useSelect( select => select( STORE_ID ).getConnectedPlugins(), [] );
+	const connectedSiteData = useSelect( select => select( STORE_ID ).getSiteData(), [] );
 	const registrationNonce = useSelect( select => select( STORE_ID ).getRegistrationNonce(), [] );
 	const connectionStatus = useSelect(
 		select => select( CONNECTION_STORE_ID ).getConnectionStatus(),
@@ -59,6 +60,7 @@ export default function useConnection() {
 				apiRoot={ APIRoot }
 				apiNonce={ APINonce }
 				connectedPlugins={ connectedPlugins }
+				connectedSiteId={ connectedSiteData ? connectedSiteData.id : null }
 				redirectUri="admin.php?page=jetpack-backup"
 				context="jetpack-backup-page"
 			/>
