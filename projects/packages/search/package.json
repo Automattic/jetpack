@@ -7,7 +7,7 @@
 		"test": "tests"
 	},
 	"scripts": {
-		"clean-all": "rm -rf build/* .cache/* node_modules/* vendor/*",
+		"clean-all": "rm -rf build/* .cache/* node_modules/* node_modules/.[!.]* vendor/*",
 		"build": "echo 'Not yet implemented.'",
 		"test": "pnpx concurrently 'pnpm:test-scripts' 'pnpm:test-size'",
 		"test-scripts": "jest",
