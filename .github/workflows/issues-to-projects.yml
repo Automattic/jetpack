@@ -1,5 +1,12 @@
 # Add issues to project board(s) based on their labels.
 
+#
+# Requires a Personal Access Token with the following permissions in a secret PUSH_ISSUES_TO_PROJECTS:
+# - repo
+# - write:org
+# - read:org
+#
+
 name: Add issues to Project Boards
 
 on:
@@ -15,7 +22,7 @@ jobs:
       - uses: monry/actions-add-issue-to-project@v1
         if: contains(github.event.issue.labels.*.name, '[Plugin] Boost')
         with:
-          github-token: ${{ secrets.API_TOKEN_GITHUB }}
+          github-token: ${{ secrets.PUSH_ISSUES_TO_PROJECTS }}
           project-owner: 'automattic'
           project-number: 322
           issue-id: ${{ github.event.issue.node_id }}
