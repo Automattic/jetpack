@@ -1425,7 +1425,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "8b3cf6895223e44cb728fc1c89fd5b26b390b1ea"
+                "reference": "ebe75217a2b4c6523e9889f47128af590a8b9daf"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -1439,7 +1439,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "0.1.x-dev"
+                    "dev-master": "0.2.x-dev"
                 }
             },
             "autoload": {
@@ -1448,6 +1448,10 @@
                 ]
             },
             "scripts": {
+                "build": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run build"
+                ],
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
