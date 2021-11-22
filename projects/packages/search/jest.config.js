@@ -16,5 +16,5 @@ module.exports = {
 	moduleNameMapper: {
 		'tiny-lru/lib/tiny-lru.esm$': '<rootDir>/src/instant-search/lib/test-helpers/tiny-lru.mock.js',
 	},
-	moduleDirectories: [ 'node_modules' ],
+	moduleDirectories: [ 'node_modules', '<rootDir>/src/dashboard' ],
 };
