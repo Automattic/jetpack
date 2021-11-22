@@ -24,6 +24,7 @@ class Class_Const extends Declaration {
 			$this->const_name,
 			'',
 			'',
+			'',
 		);
 	}
 
