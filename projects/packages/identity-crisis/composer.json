@@ -10,7 +10,7 @@
 		"automattic/jetpack-status": "^1.9",
 		"automattic/jetpack-tracking": "^1.13",
 		"automattic/jetpack-logo": "^1.5",
-		"automattic/jetpack-assets": "1.12.x-dev"
+		"automattic/jetpack-assets": "^1.13"
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "^3.0",
@@ -65,7 +65,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-identity-crisis/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "0.4.x-dev"
+			"dev-master": "0.5.x-dev"
 		}
 	}
 }

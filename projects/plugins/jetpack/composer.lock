@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2145ecdbbd72d981d6667cd908f08e30",
+    "content-hash": "c925292ace6bbd3597f54756489414ba",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -553,14 +553,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection-ui",
-                "reference": "154e91a32120ae2764c0d6fbeba9d12fa96ee6aa"
+                "reference": "c1fce6bf2a93a31d03fbfc7ce47d44034194b4b2"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.13",
                 "automattic/jetpack-connection": "^1.31",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-device-detection": "^1.4",
-                "automattic/jetpack-identity-crisis": "^0.4"
+                "automattic/jetpack-identity-crisis": "^0.5"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0"
@@ -797,9 +797,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "842bdd21f1d97db8bf3680d41eadc750c557fe3b"
+                "reference": "9924e308d4429afcf0266fda05f15e00fde4410b"
             },
             "require": {
+                "automattic/jetpack-assets": "^1.13",
                 "automattic/jetpack-connection": "^1.31",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-logo": "^1.5",
@@ -823,7 +824,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-identity-crisis/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "0.4.x-dev"
+                    "dev-master": "0.5.x-dev"
                 }
             },
             "autoload": {
@@ -1532,13 +1533,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "04ca2d421ee1c356756baede7a19b30c93798f59"
+                "reference": "dd9e9cfc06e612c0a12006b21596cb836067e54f"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.31",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-heartbeat": "^1.3",
-                "automattic/jetpack-identity-crisis": "^0.4",
+                "automattic/jetpack-identity-crisis": "^0.5",
                 "automattic/jetpack-options": "^1.13",
                 "automattic/jetpack-password-checker": "^0.1",
                 "automattic/jetpack-roles": "^1.4",
