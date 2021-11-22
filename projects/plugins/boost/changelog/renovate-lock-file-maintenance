@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix lint errors reported by updated `@sveltejs/eslint-config` version.
