@@ -16,6 +16,7 @@ import StatBlock from './StatBlock';
 import './backups-style.scss';
 import PostsIcon from './icons/posts.svg';
 import CloudIcon from './icons/cloud.svg';
+import CloudAlertIcon from './icons/cloud-alert.svg';
 import UploadsIcon from './icons/uploads.svg';
 import PluginsIcon from './icons/plugins.svg';
 import ThemesIcon from './icons/themes.svg';
@@ -41,10 +42,10 @@ const Backups = () => {
 		LOADING: 0,
 		IN_PROGRESS: 1,
 		NO_BACKUPS: 2,
-		NO_GOOD_BACKUPS: 3,
-		COMPLETE: 4,
+		NO_BACKUPS_RETRY: 3,
+		NO_GOOD_BACKUPS: 4,
+		COMPLETE: 5,
 	};
-
 	const [ backupState, setBackupState ] = useState( BACKUP_STATE.LOADING );
 
 	const progressInterval = 1 * 1000; // How often to poll for backup progress updates.
@@ -55,9 +56,10 @@ const Backups = () => {
 			res => {
 				// If we have no backups don't load up stats.
 				let latestBackup = null;
-
 				if ( res.length === 0 ) {
 					setBackupState( BACKUP_STATE.NO_BACKUPS );
+				} else if ( res.length === 1 && 'error-will-retry' === res[ 0 ].status ) {
+					setBackupState( BACKUP_STATE.NO_BACKUPS_RETRY );
 				} else {
 					// Check for the first completed backups.
 					res.forEach( backup => {
@@ -112,19 +114,21 @@ const Backups = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ trackProgress ] );
 
-	const renderInProgressBackup = () => {
+	const renderInProgressBackup = ( showProgressBar = true ) => {
 		return (
 			<div class="jp-row">
 				<div class="lg-col-span-5 md-col-span-8 sm-col-span-4">
-					<div class="backup__progress">
-						<div class="backup__progress-info">
-							<p>{ __( 'Backing up Your Groovy Site…', 'jetpack-backup' ) }</p>
-							<p class="backup__progress-info-percentage">{ progress }%</p>
+					{ showProgressBar && (
+						<div class="backup__progress">
+							<div class="backup__progress-info">
+								<p>{ __( 'Backing up Your Groovy Site…', 'jetpack-backup' ) }</p>
+								<p class="backup__progress-info-percentage">{ progress }%</p>
+							</div>
+							<div class="backup__progress-bar">
+								<div class="backup__progress-bar-actual" style={ { width: progress + '%' } }></div>
+							</div>
 						</div>
-						<div class="backup__progress-bar">
-							<div class="backup__progress-bar-actual" style={ { width: progress + '%' } }></div>
-						</div>
-					</div>
+					) }
 					<h1>{ __( 'Your first cloud backup will be ready soon', 'jetpack-backup' ) }</h1>
 					<p>
 						{ __(
@@ -227,34 +231,19 @@ const Backups = () => {
 		return (
 			<div class="jp-row">
 				<div class="lg-col-span-5 md-col-span-4 sm-col-span-4">
+					<img src={ CloudAlertIcon } alt="" />
 					<h1>{ __( "We're having trouble backing up your site", 'jetpack-backup' ) }</h1>
 					<p>
 						{ createInterpolateElement(
 							__(
-								'Check that your Jetpack Connection is healthy with the <a>Jetpack Debugger</a>.',
+								' <a>Get in touch with us</a> to get your site backups going again.',
 								'jetpack-backup'
 							),
 							{
 								a: (
 									<a
-										href={ getRedirectUrl( 'backup-plugin-debug', { site: domain } ) }
-										target="_blank"
-										rel="noreferrer"
-									/>
-								),
-							}
-						) }
-					</p>
-					<p>
-						{ createInterpolateElement(
-							__(
-								'You can also find more information in your <a>backup management on Jetpack.com</a>.',
-								'jetpack-backup'
-							),
-							{
-								a: (
-									<a
-										href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
+										//TODO: we may want to add a specific redirect for Backup plugin related issues
+										href={ getRedirectUrl( 'jetpack-contact-support', { site: domain } ) }
 										target="_blank"
 										rel="noreferrer"
 									/>
@@ -277,6 +266,7 @@ const Backups = () => {
 		<div className="jp-wrap">
 			{ BACKUP_STATE.LOADING === backupState && renderLoading() }
 			{ BACKUP_STATE.NO_BACKUPS === backupState && renderInProgressBackup() }
+			{ BACKUP_STATE.NO_BACKUPS_RETRY === backupState && renderInProgressBackup( false ) }
 			{ BACKUP_STATE.IN_PROGRESS === backupState && renderInProgressBackup() }
 			{ BACKUP_STATE.COMPLETE === backupState && renderCompleteBackup() }
 			{ BACKUP_STATE.NO_GOOD_BACKUPS === backupState && renderNoGoodBackups() }

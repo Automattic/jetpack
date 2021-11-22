@@ -1,0 +1,4 @@
+Significance: major
+Type: removed
+
+Removed the `CssCacheLoader` loader (turns out `cache-loader` is deprecated), and moved the other CSS loaders to sub-properties of `CssRule`.
