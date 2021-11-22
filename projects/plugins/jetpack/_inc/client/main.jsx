@@ -260,7 +260,11 @@ class Main extends React.Component {
 						</ul>
 						{ this.props.connectionStatus.hasConnectedOwner && (
 							<ActionButton
-								label={ __( 'Redeem coupon', 'jetpack' ) }
+								label={ sprintf(
+									/* translators: %s: Name of a Jetpack product. */
+									__( 'Redeem %s', 'jetpack' ),
+									partnerCoupon.product.title
+								) }
 								href={ `https://wordpress.com/checkout/${ this.props.siteRawUrl }/${ partnerCoupon.product.slug }?coupon=${ partnerCoupon.coupon_code }` }
 							/>
 						) }
