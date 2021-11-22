@@ -121,10 +121,12 @@ class Jetpack_Widget_Conditions {
 			'widget-visibility-editor',
 			'_inc/build/widget-visibility/editor/index.min.js',
 			JETPACK__PLUGIN_FILE,
-			array( 'in_footer' => true )
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack',
+			)
 		);
 		Assets::enqueue_script( 'widget-visibility-editor' );
-		wp_set_script_translations( 'widget-visibility-editor', 'jetpack' );
 	}
 
 	/**

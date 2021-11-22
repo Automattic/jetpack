@@ -123,10 +123,12 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			'jetpack-instant-search',
 			$path_prefix . '_inc/build/instant-search/jp-search-main.bundle.min.js',
 			$plugin_base_path,
-			array( 'in_footer' => true )
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack',
+			)
 		);
 		Assets::enqueue_script( 'jetpack-instant-search' );
-		wp_set_script_translations( 'jetpack-instant-search', 'jetpack' );
 		$this->load_and_initialize_tracks();
 		$this->inject_javascript_options();
 
