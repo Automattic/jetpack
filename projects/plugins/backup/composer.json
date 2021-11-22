@@ -36,7 +36,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
-		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_backupⓥ1_0_0"
+		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_backupⓥ1_0_1"
 	},
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-backup-plugin",
