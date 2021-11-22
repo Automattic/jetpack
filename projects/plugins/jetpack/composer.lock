@@ -1425,10 +1425,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "f95fc26f276e8301ba09fd2599d33ed905efcd1a"
+                "reference": "843f50db3f7a8f3397112b3ec8620a280e0d9852"
             },
             "require": {
-                "automattic/jetpack-connection": "^1.30"
+                "automattic/jetpack-connection": "^1.31"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
