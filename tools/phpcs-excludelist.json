@@ -443,7 +443,6 @@
 	"projects/plugins/jetpack/tests/php/modules/shortcodes/test-class.facebook.php",
 	"projects/plugins/jetpack/tests/php/modules/shortcodes/test-class.flickr.php",
 	"projects/plugins/jetpack/tests/php/modules/shortcodes/test-class.getty.php",
-	"projects/plugins/jetpack/tests/php/modules/shortcodes/test-class.gist.php",
 	"projects/plugins/jetpack/tests/php/modules/shortcodes/test-class.googleapps.php",
 	"projects/plugins/jetpack/tests/php/modules/shortcodes/test-class.googlemaps.php",
 	"projects/plugins/jetpack/tests/php/modules/shortcodes/test-class.gravatar.php",

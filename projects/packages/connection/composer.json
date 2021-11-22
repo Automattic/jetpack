@@ -61,7 +61,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.30.x-dev"
+			"dev-master": "1.31.x-dev"
 		}
 	}
 }
