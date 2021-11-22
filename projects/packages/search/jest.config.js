@@ -4,7 +4,7 @@
 const path = require( 'path' );
 
 module.exports = {
-	testMatch: [ '<rootDir>/**/test/*.[jt]s?(x)', '!**/.eslintrc.*' ],
+	testMatch: [ '<rootDir>/**/test/*.test.[jt]s?(x)', '!**/.eslintrc.*' ],
 	roots: [ '<rootDir>/src' ],
 	transform: {
 		'\\.[jt]sx?$': path.join( __dirname, 'tests/jest-extensions-babel-transform' ),

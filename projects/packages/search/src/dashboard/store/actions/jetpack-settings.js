@@ -26,6 +26,7 @@ export const TOGGLE_SEARCH_MODULE = 'TOGGLE_SEARCH_MODULE';
  */
 export function* updateJetpackSettings( settings, oldSettings ) {
 	try {
+		yield updatingNotice();
 		yield setJetpackSettings( settings );
 		yield setUpdatingJetpackSettings();
 		yield updateJetpackSettingsControl( settings );
@@ -33,10 +34,10 @@ export function* updateJetpackSettings( settings, oldSettings ) {
 		yield setJetpackSettings( updatedSettings );
 		return successNotice( __( 'Updated settings.' ) );
 	} catch ( e ) {
-		// TODO toggle back
 		yield setJetpackSettings( oldSettings );
 		return errorNotice( __( 'Error Update settings…' ) );
 	} finally {
+		yield removeUpdatingNotice();
 		yield setUpdatingJetpackSettingsDone();
 	}
 }
@@ -44,22 +45,18 @@ export function* updateJetpackSettings( settings, oldSettings ) {
 /**
  * Set state updating action
  *
- * @yields {object} - an action object.
  * @returns {object} - an action object.
  */
-export function* setUpdatingJetpackSettings() {
-	yield updatingNotice();
+export function setUpdatingJetpackSettings() {
 	return setJetpackSettings( { is_updating: true } );
 }
 
 /**
  * Set state updating finished
  *
- * @yields {object} - an action object.
  * @returns {object} - an action object.
  */
-export function* setUpdatingJetpackSettingsDone() {
-	yield removeUpdatingNotice();
+export function setUpdatingJetpackSettingsDone() {
 	return setJetpackSettings( { is_updating: false } );
 }
 
