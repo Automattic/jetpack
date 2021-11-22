@@ -49,6 +49,10 @@ import {
 	getPluginBaseUrl,
 	isWoASite,
 } from 'state/initial-state';
+import {
+	fetchSiteData as fetchSiteDataAction,
+	fetchSitePurchases as fetchSitePurchasesAction,
+} from 'state/site';
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
 import { getSearchTerm } from 'state/search';
 import { Recommendations } from 'recommendations';
@@ -528,6 +532,10 @@ class Main extends React.Component {
 			// Manually dismiss the userLicenseActivationNotice.
 			this.props.updateLicensingActivationNoticeDismiss();
 		} );
+		// Update site plan.
+		this.props.fetchSiteData();
+		// Update site products.
+		this.props.fetchSitePurchases();
 	}
 
 	render() {
@@ -618,6 +626,12 @@ export default connect(
 		},
 		updateUserLicensesCounts: () => {
 			return dispatch( updateUserLicensesCountsAction() );
+		},
+		fetchSiteData: () => {
+			return dispatch( fetchSiteDataAction() );
+		},
+		fetchSitePurchases: () => {
+			return dispatch( fetchSitePurchasesAction() );
 		},
 	} )
 )(
