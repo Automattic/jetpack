@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Have `Assets::register_script()` accept a textdomain for `wp_set_script_translations` (and complain if no textdomain is passed when `wp-i18n` is depended on).

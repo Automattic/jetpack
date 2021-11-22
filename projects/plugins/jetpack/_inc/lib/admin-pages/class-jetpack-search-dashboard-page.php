@@ -119,7 +119,10 @@ class Jetpack_Search_Dashboard_Page extends Jetpack_Admin_Page {
 			'jp-search-dashboard',
 			'_inc/build/search-dashboard.js',
 			JETPACK__PLUGIN_FILE,
-			array( 'in_footer' => true )
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack',
+			)
 		);
 		Assets::enqueue_script( 'jp-search-dashboard' );
 
@@ -130,7 +133,5 @@ class Jetpack_Search_Dashboard_Page extends Jetpack_Admin_Page {
 			'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( \Jetpack_Redux_State_Helper::get_initial_state() ) ) . '"));',
 			'before'
 		);
-
-		wp_set_script_translations( 'jp-search-dashboard', 'jetpack' );
 	}
 }

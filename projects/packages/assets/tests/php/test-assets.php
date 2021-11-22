@@ -33,6 +33,12 @@ class AssetsTest extends TestCase {
 		Functions\stubs(
 			array(
 				'wp_parse_url'  => 'parse_url',
+				'__'            => function ( $text ) {
+					return $text;
+				},
+				'esc_html'      => function ( $text ) {
+					return htmlspecialchars( $text, ENT_QUOTES );
+				},
 				'add_query_arg' => function ( ...$args ) {
 					$this->assertCount( 3, $args );
 					list( $k, $v, $url ) = $args;
@@ -385,17 +391,19 @@ class AssetsTest extends TestCase {
 					array(
 						'version'      => 'foobar',
 						'dependencies' => array( 'xyz' ),
+						'textdomain'   => 'foobaz',
 					),
 				),
 				array(
-					'wp_register_script' => array(
+					'wp_register_script'         => array(
 						'single-file',
 						"$url_base/single-js-file.js?minify=false",
 						array( 'xyz' ),
 						'foobar',
 						false,
 					),
-					'wp_script_add_data' => array( 'single-file', 'Jetpack::Assets::hascss', false ),
+					'wp_set_script_translations' => array( 'single-file', 'foobaz' ),
+					'wp_script_add_data'         => array( 'single-file', 'Jetpack::Assets::hascss', false ),
 				),
 			),
 
@@ -443,17 +451,26 @@ class AssetsTest extends TestCase {
 			),
 
 			'Everything'                                => array(
-				array( 'handle', 'test-assets-files/everything.js', __FILE__, array( 'nonmin_path' => 'test-assets-files/everything.src.js' ) ),
 				array(
-					'wp_register_script' => array(
+					'handle',
+					'test-assets-files/everything.js',
+					__FILE__,
+					array(
+						'nonmin_path' => 'test-assets-files/everything.src.js',
+						'textdomain'  => 'foobar',
+					),
+				),
+				array(
+					'wp_register_script'         => array(
 						'handle',
 						"$url_base/everything.js?minify=false",
 						array( 'wp-polyfill', 'wp-components', 'wp-i18n' ),
 						'ver-from-everything',
 						false,
 					),
-					'wp_register_style'  => array( 'handle', "$url_base/everything.css?minify=false", array( 'wp-components' ), 'ver-from-everything', 'all' ),
-					'wp_script_add_data' => array( 'handle', 'Jetpack::Assets::hascss', true ),
+					'wp_set_script_translations' => array( 'handle', 'foobar' ),
+					'wp_register_style'          => array( 'handle', "$url_base/everything.css?minify=false", array( 'wp-components' ), 'ver-from-everything', 'all' ),
+					'wp_script_add_data'         => array( 'handle', 'Jetpack::Assets::hascss', true ),
 				),
 				array( 'is_rtl' => false ),
 			),
@@ -470,18 +487,20 @@ class AssetsTest extends TestCase {
 						'media'            => 'screen',
 						'dependencies'     => array( 'qwerty', 'uiop' ),
 						'css_dependencies' => array( 'asdf' ),
+						'textdomain'       => 'foobar',
 					),
 				),
 				array(
-					'wp_register_script' => array(
+					'wp_register_script'         => array(
 						'handle',
 						"$url_base/everything.src.js?minify=true",
 						array( 'wp-polyfill', 'wp-components', 'wp-i18n', 'qwerty', 'uiop' ),
 						'foobaz',
 						true,
 					),
-					'wp_register_style'  => array( 'handle', "$url_base/everything.rtl.css?minify=true", array( 'wp-components', 'asdf' ), 'foobaz', 'screen' ),
-					'wp_script_add_data' => array( 'handle', 'Jetpack::Assets::hascss', true ),
+					'wp_set_script_translations' => array( 'handle', 'foobar' ),
+					'wp_register_style'          => array( 'handle', "$url_base/everything.rtl.css?minify=true", array( 'wp-components', 'asdf' ), 'foobaz', 'screen' ),
+					'wp_script_add_data'         => array( 'handle', 'Jetpack::Assets::hascss', true ),
 				),
 				array(
 					'is_script_debug' => true,
@@ -544,19 +563,28 @@ class AssetsTest extends TestCase {
 				array( 'enqueue' => array( array( 'single-file', 'Jetpack::Assets::hascss' ), false ) ),
 			),
 			'Enqueue, with CSS'                         => array(
-				array( 'everything', 'test-assets-files/everything.js', __FILE__, array( 'enqueue' => true ) ),
 				array(
-					'wp_register_script' => array(
+					'everything',
+					'test-assets-files/everything.js',
+					__FILE__,
+					array(
+						'enqueue'    => true,
+						'textdomain' => 'foobar',
+					),
+				),
+				array(
+					'wp_register_script'         => array(
 						'everything',
 						"$url_base/everything.js?minify=false",
 						array( 'wp-polyfill', 'wp-components', 'wp-i18n' ),
 						'ver-from-everything',
 						false,
 					),
-					'wp_register_style'  => array( 'everything', "$url_base/everything.css?minify=false", array( 'wp-components' ), 'ver-from-everything', 'all' ),
-					'wp_script_add_data' => array( 'everything', 'Jetpack::Assets::hascss', true ),
-					'wp_enqueue_script'  => array( 'everything' ),
-					'wp_enqueue_style'   => array( 'everything' ),
+					'wp_set_script_translations' => array( 'everything', 'foobar' ),
+					'wp_register_style'          => array( 'everything', "$url_base/everything.css?minify=false", array( 'wp-components' ), 'ver-from-everything', 'all' ),
+					'wp_script_add_data'         => array( 'everything', 'Jetpack::Assets::hascss', true ),
+					'wp_enqueue_script'          => array( 'everything' ),
+					'wp_enqueue_style'           => array( 'everything' ),
 				),
 				array(
 					'is_rtl'  => false,
@@ -573,6 +601,24 @@ class AssetsTest extends TestCase {
 				array( 'single-file', 'test-assets-files/single-js-file.js', __FILE__, array( 'css_path' => 'foo.js' ) ),
 				array(),
 				array( 'exception' => new \InvalidArgumentException( '$options[\'css_path\'] must end in ".css"' ) ),
+			),
+			'wp-i18n without textdomain'                => array(
+				array( 'everything', 'test-assets-files/everything.js', __FILE__, array() ),
+				array(
+					'wp_register_script' => array(
+						'everything',
+						"$url_base/everything.js?minify=false",
+						array( 'wp-polyfill', 'wp-components', 'wp-i18n' ),
+						'ver-from-everything',
+						false,
+					),
+					'_doing_it_wrong'    => array( Assets::class . '::register_script', 'Script &quot;everything&quot; depends on wp-i18n but does not specify &quot;textdomain&quot;' ),
+					'wp_register_style'  => array( 'everything', "$url_base/everything.css?minify=false", array( 'wp-components' ), 'ver-from-everything', 'all' ),
+					'wp_script_add_data' => array( 'everything', 'Jetpack::Assets::hascss', true ),
+				),
+				array(
+					'is_rtl' => false,
+				),
 			),
 		);
 	}
