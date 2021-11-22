@@ -56,9 +56,6 @@ class Jetpack_Backup {
 
 				// Identity crisis package.
 				$config->ensure( 'identity_crisis' );
-
-				// Connection Manager UI.
-				Automattic\Jetpack\ConnectionUI\Admin::init();
 			},
 			1
 		);
