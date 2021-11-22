@@ -221,6 +221,14 @@ class Main extends React.Component {
 			const partnerCoupon = this.props.partnerCoupon;
 
 			if ( ! this.props.isSiteConnected || forceShow ) {
+				this.partnerCouponHandleClick = () => {
+					window.location.href = getRedirectUrl( 'jetpack-plugin-partner-coupon-checkout', {
+						path: partnerCoupon.product.slug,
+						site: this.props.siteRawUrl,
+						query: `coupon=${ partnerCoupon.coupon_code }`,
+					} );
+				};
+
 				return (
 					<ConnectScreen
 						apiNonce={ this.props.apiNonce }
@@ -265,7 +273,7 @@ class Main extends React.Component {
 									__( 'Redeem %s', 'jetpack' ),
 									partnerCoupon.product.title
 								) }
-								href={ `https://wordpress.com/checkout/${ this.props.siteRawUrl }/${ partnerCoupon.product.slug }?coupon=${ partnerCoupon.coupon_code }` }
+								onClick={ this.partnerCouponHandleClick }
 							/>
 						) }
 					</ConnectScreen>
