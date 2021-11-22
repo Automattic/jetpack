@@ -89,11 +89,10 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
 			// Go through each test of the spec
 			spec.tests.forEach( t => {
 				t.results.forEach( r => {
-					// (Slack max allowed: 3001  - a buffer, just in case) - test name length - extra formatting characters
-					const maxLength = 2900 - t.title - 10;
+					const content = `*${ spec.title }*\n\n\`\`\`${ r.error.message }\`\`\``;
 					failureDetails.push( {
 						type: 'stacktrace',
-						content: `*${ t.title }*\n\n\`\`\`${ r.error.message.substring( 0, maxLength ) }\`\`\``,
+						content: content.substr( 0, 3000 ), //Slack max allowed
 					} );
 
 					r.attachments.forEach( attachment => {
@@ -108,6 +107,8 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
 			} );
 		}
 	} );
+
+	console.log( failureDetails );
 
 	// build the notification blocks
 	const mainMsgBlocks = await buildDefaultMessage( result.success );
