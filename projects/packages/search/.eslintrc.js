@@ -9,7 +9,7 @@ module.exports = {
 		},
 	},
 	rules: {
-		'jsdoc/check-tag-names': [ 1, { definedTags: [ 'jsx' ] } ],
+		'jsdoc/check-tag-names': [ 1, { definedTags: [ 'jsx', 'jest-environment' ] } ],
 		'react/jsx-no-bind': 0,
 	},
 	overrides: [
