@@ -1,9 +1,9 @@
-@import '../../../scss/calypso-colors';
+@import '../../scss/calypso-colors';
 // ==========================================================================
 // FormToggle
 // ==========================================================================
 
-.form-toggle[type="checkbox"] {
+.form-toggle[type='checkbox'] {
 	display: none;
 }
 
@@ -19,13 +19,13 @@
 	vertical-align: middle;
 	outline: 0;
 	cursor: pointer;
-	transition: all .4s ease, box-shadow 0s;
+	transition: all 0.4s ease, box-shadow 0s;
 
 	&:before,
 	&:after {
 		position: relative;
 		display: block;
-		content: "";
+		content: '';
 		width: 20px;
 		height: 20px;
 	}
@@ -33,12 +33,12 @@
 		left: 0;
 		border-radius: 50%;
 		background: $white;
-		transition: all .2s ease;
+		transition: all 0.2s ease;
 	}
 	&:before {
 		display: none;
 	}
-	.dops-accessible-focus &:focus{
+	.dops-accessible-focus &:focus {
 		box-shadow: 0 0 0 2px $blue-medium;
 	}
 }
@@ -52,8 +52,8 @@
 	}
 
 	.form-toggle__label-content {
-		flex: 0 1 100%;
-		margin-left: 12px;
+		// flex: 0 1 100%;
+		// margin-left: 12px;
 	}
 }
 
@@ -72,12 +72,12 @@
 	}
 
 	&:not( :disabled ) {
-		+ .form-toggle__label:hover .form-toggle__switch {
+		+ .form-toggle__switch:hover {
 			background: lighten( $gray, 20% );
 		}
 	}
 
-	&:checked{
+	&:checked {
 		+ .form-toggle__label .form-toggle__switch {
 			background: $blue-medium;
 
@@ -88,13 +88,13 @@
 	}
 
 	&:checked:not( :disabled ) {
-		+ .form-toggle__label:hover .form-toggle__switch {
+		+ .form-toggle__switch:hover {
 			background: $blue-light;
 		}
 	}
 
 	&:disabled {
-		+ label.form-toggle__label span.form-toggle__switch {
+		+ span.form-toggle__switch {
 			opacity: 0.25;
 			cursor: default;
 		}
@@ -103,18 +103,18 @@
 
 // Classes for toggle state before action is complete (updating plugin or something)
 .form-toggle.is-toggling {
-	+ .form-toggle__label .form-toggle__switch {
+	+ .form-toggle__switch {
 		background: $blue-medium;
 	}
 	&:checked {
-		+ .form-toggle__label .form-toggle__switch {
+		+ .form-toggle__switch {
 			background: lighten( $gray, 20% );
 		}
 	}
 }
 
 .form-toggle.is-compact {
-	+ .form-toggle__label .form-toggle__switch {
+	+ .form-toggle__switch {
 		border-radius: 8px;
 		width: 24px;
 		height: 16px;
@@ -126,8 +126,8 @@
 		}
 	}
 	&:checked {
-		+ .form-toggle__label .form-toggle__switch {
-			&:after{
+		+ .form-toggle__switch {
+			&:after {
 				left: 8px;
 			}
 		}

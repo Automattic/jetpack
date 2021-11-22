@@ -561,6 +561,7 @@ importers:
       '@wordpress/icons': 6.1.0
       classnames: 2.3.1
       concurrently: 6.4.0
+      eslint-plugin-jest: 24.7.0
       fast-json-stable-stringify: 2.1.0
       jest: 27.3.1
       jest-environment-jsdom: 27.3.1
@@ -615,6 +616,7 @@ importers:
       '@testing-library/preact': 2.0.1_preact@10.5.15
       '@wordpress/dependency-extraction-webpack-plugin': 3.2.1_webpack@5.51.1
       concurrently: 6.4.0
+      eslint-plugin-jest: 24.7.0
       jest: 27.3.1
       jest-environment-jsdom: 27.3.1
       postcss: 8.3.11
@@ -6890,6 +6892,23 @@ packages:
       - supports-color
     dev: true
 
+  /@typescript-eslint/experimental-utils/4.33.0:
+    resolution: {integrity: sha512-zeQjOoES5JFjTnAhI5QY7ZviczMzDptls15GFsI6jyUOq0kOf9+WonkhtlIhh0RgHRnqj5gdNxW5j1EvAyYg6Q==}
+    engines: {node: ^10.12.0 || >=12.0.0}
+    peerDependencies:
+      eslint: '*'
+    dependencies:
+      '@types/json-schema': 7.0.9
+      '@typescript-eslint/scope-manager': 4.33.0
+      '@typescript-eslint/types': 4.33.0
+      '@typescript-eslint/typescript-estree': 4.33.0
+      eslint-scope: 5.1.1
+      eslint-utils: 3.0.0
+    transitivePeerDependencies:
+      - supports-color
+      - typescript
+    dev: true
+
   /@typescript-eslint/experimental-utils/4.33.0_eslint@7.32.0:
     resolution: {integrity: sha512-zeQjOoES5JFjTnAhI5QY7ZviczMzDptls15GFsI6jyUOq0kOf9+WonkhtlIhh0RgHRnqj5gdNxW5j1EvAyYg6Q==}
     engines: {node: ^10.12.0 || >=12.0.0}
@@ -12654,6 +12673,22 @@ packages:
 
   /eslint-plugin-inclusive-language/1.2.1:
     resolution: {integrity: sha512-WFXME2g/rEm/ex9HCfptZXJVm6/IrBks4+0rZft24zve4RH196PPuCFvd36aidc2IaHrvVAZHeyahODc7ueoNw==}
+    dev: true
+
+  /eslint-plugin-jest/24.7.0:
+    resolution: {integrity: sha512-wUxdF2bAZiYSKBclsUMrYHH6WxiBreNjyDxbRv345TIvPeoCEgPNEn3Sa+ZrSqsf1Dl9SqqSREXMHExlMMu1DA==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      '@typescript-eslint/eslint-plugin': '>= 4'
+      eslint: '>=5'
+    peerDependenciesMeta:
+      '@typescript-eslint/eslint-plugin':
+        optional: true
+    dependencies:
+      '@typescript-eslint/experimental-utils': 4.33.0
+    transitivePeerDependencies:
+      - supports-color
+      - typescript
     dev: true
 
   /eslint-plugin-jest/24.7.0_d3b4c2d4ac51f4275548d5d796aee5d5:
@@ -19953,7 +19988,7 @@ packages:
     dependencies:
       array.prototype.flat: 1.2.5
       global-cache: 1.2.1
-      react-with-styles: 3.2.3
+      react-with-styles: 3.2.3_react@17.0.2
 
   /react-with-styles/3.2.3:
     resolution: {integrity: sha512-MTI1UOvMHABRLj5M4WpODfwnveHaip6X7QUMI2x6zovinJiBXxzhA9AJP7MZNaKqg1JRFtHPXZdroUC8KcXwlQ==}

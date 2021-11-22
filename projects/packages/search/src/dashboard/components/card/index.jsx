@@ -9,7 +9,7 @@ import { assign, omit } from 'lodash';
 /**
  * Internal dependencies
  */
-import Gridicon from '../gridicon';
+import Gridicon from 'gridicons';
 
 import './style.scss';
 
