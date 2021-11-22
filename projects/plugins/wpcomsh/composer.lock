@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ac8c4c77965414ff7faa963149a974ca",
+    "content-hash": "b63017d7abecf9d38ef162d4160aa5dc",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
-            "version": "v1.2.6",
+            "version": "v1.2.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/automattic/at-pressable-podcasting.git",
-                "reference": "c25d485fb6f98d565200416b5a466b716afe7838"
+                "reference": "835b895cd4d578b7cd2ca089bd365c8a0d9fdd27"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/c25d485fb6f98d565200416b5a466b716afe7838",
-                "reference": "c25d485fb6f98d565200416b5a466b716afe7838",
+                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/835b895cd4d578b7cd2ca089bd365c8a0d9fdd27",
+                "reference": "835b895cd4d578b7cd2ca089bd365c8a0d9fdd27",
                 "shasum": ""
             },
             "type": "library",
@@ -26,7 +26,7 @@
                     "podcasting.php"
                 ]
             },
-            "time": "2020-11-25T19:33:21+00:00"
+            "time": "2021-11-21T02:36:14+00:00"
         },
         {
             "name": "automattic/custom-fonts",
@@ -81,16 +81,16 @@
         },
         {
             "name": "automattic/jetpack-assets",
-            "version": "v1.11.9",
+            "version": "v1.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-assets.git",
-                "reference": "7e2fc169af1b3dfce5ea70e0b225aaf6ad49b77a"
+                "reference": "61d49116e1008be9de29f7079acb8b84fcee7f50"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-assets/zipball/7e2fc169af1b3dfce5ea70e0b225aaf6ad49b77a",
-                "reference": "7e2fc169af1b3dfce5ea70e0b225aaf6ad49b77a",
+                "url": "https://api.github.com/repos/Automattic/jetpack-assets/zipball/61d49116e1008be9de29f7079acb8b84fcee7f50",
+                "reference": "61d49116e1008be9de29f7079acb8b84fcee7f50",
                 "shasum": ""
             },
             "require": {
@@ -109,7 +109,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-assets/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.11.x-dev"
+                    "dev-master": "1.12.x-dev"
                 }
             },
             "autoload": {
@@ -122,7 +122,10 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Asset management utilities for Jetpack ecosystem packages",
-            "time": "2021-10-13T17:11:16+00:00"
+            "support": {
+                "source": "https://github.com/Automattic/jetpack-assets/tree/v1.12.0"
+            },
+            "time": "2021-11-15T18:50:31+00:00"
         },
         {
             "name": "automattic/jetpack-config",
@@ -162,20 +165,23 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Jetpack configuration package that initializes other packages and configures Jetpack's functionality. Can be used as a base for all variants of Jetpack package usage.",
+            "support": {
+                "source": "https://github.com/Automattic/jetpack-config/tree/v1.5.3"
+            },
             "time": "2021-10-13T17:10:55+00:00"
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "v1.6.9",
+            "version": "v1.6.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-constants.git",
-                "reference": "b4764b5050367692f173d62220cf1e69f4f7af0b"
+                "reference": "96edcfa7e81d30a72e6c7f926dec37874821f963"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-constants/zipball/b4764b5050367692f173d62220cf1e69f4f7af0b",
-                "reference": "b4764b5050367692f173d62220cf1e69f4f7af0b",
+                "url": "https://api.github.com/repos/Automattic/jetpack-constants/zipball/96edcfa7e81d30a72e6c7f926dec37874821f963",
+                "reference": "96edcfa7e81d30a72e6c7f926dec37874821f963",
                 "shasum": ""
             },
             "require-dev": {
@@ -204,7 +210,10 @@
                 "GPL-2.0-or-later"
             ],
             "description": "A wrapper for defining constants in a more testable way.",
-            "time": "2021-10-13T17:10:57+00:00"
+            "support": {
+                "source": "https://github.com/Automattic/jetpack-constants/tree/v1.6.11"
+            },
+            "time": "2021-11-02T14:07:02+00:00"
         },
         {
             "name": "automattic/jetpack-post-list",
@@ -461,6 +470,10 @@
                 "zend",
                 "zikula"
             ],
+            "support": {
+                "issues": "https://github.com/composer/installers/issues",
+                "source": "https://github.com/composer/installers/tree/v1.12.0"
+            },
             "funding": [
                 {
                     "url": "https://packagist.com",
@@ -505,5 +518,5 @@
     "platform-dev": {
         "php": ">=7.0.0"
     },
-    "plugin-api-version": "1.1.0"
+    "plugin-api-version": "2.1.0"
 }
