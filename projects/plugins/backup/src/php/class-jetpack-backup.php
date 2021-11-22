@@ -90,12 +90,14 @@ class Jetpack_Backup {
 			'jetpack-backup',
 			'build/index.js',
 			JETPACK_BACKUP_PLUGIN_ROOT_FILE,
-			array( 'in_footer' => true )
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-backup',
+			)
 		);
 		Assets::enqueue_script( 'jetpack-backup' );
 		// Initial JS state including JP Connection data.
 		wp_add_inline_script( 'jetpack-backup', $this->get_initial_state(), 'before' );
-		wp_set_script_translations( 'jetpack-backup', 'jetpack-backup' );
 	}
 
 	/**
