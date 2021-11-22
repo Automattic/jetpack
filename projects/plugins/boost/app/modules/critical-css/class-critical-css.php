@@ -86,12 +86,6 @@ class Critical_CSS extends Module {
 		Archive_Provider::class,
 		Taxonomy_Provider::class,
 	);
-	/**
-	 * Stores the Critical CSS key used for rendering the current page if any.
-	 *
-	 * @var null|string
-	 */
-	protected $current_critical_css_key;
 
 	/**
 	 * Variable used to cache the CSS string during the page request.
@@ -117,6 +111,20 @@ class Critical_CSS extends Module {
 	protected $state;
 
 	/**
+	 * Critical CSS manager class instance.
+	 *
+	 * @var Critical_CSS_Manager
+	 */
+	protected $manager;
+
+	/**
+	 * Critical CSS DOM class instance.
+	 *
+	 * @var Critical_CSS_DOM
+	 */
+	protected $dom;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -137,19 +145,17 @@ class Critical_CSS extends Module {
 		// for setting up the storage.
 		$this->storage = new Critical_CSS_Storage();
 		$this->state   = new Critical_CSS_State();
+		$this->manager = new Critical_CSS_Manager( $this->providers );
+		$this->dom     = new Critical_CSS_DOM();
 		if ( $this->state->is_empty() && ! wp_doing_ajax() && ! wp_doing_cron() ) {
 			$this->state->create_request( $this->providers );
 		}
 
-		// Update ready flag used to indicate Boost optimizations are warmed up in metatag.
-		add_filter( 'jetpack_boost_url_ready', array( $this, 'is_ready_filter' ), 10, 1 );
+		add_action( 'wp_head', array( $this, 'set_dom_critical_css' ), 0 );
 
 		if ( $this->should_display_critical_css() ) {
 			Admin_Bar_Css_Compat::init();
-
-			add_action( 'wp_head', array( $this, 'display_critical_css' ), 0 );
-			add_filter( 'style_loader_tag', array( $this, 'asynchronize_stylesheets' ), 10, 4 );
-			add_action( 'wp_footer', array( $this, 'onload_flip_stylesheets' ) );
+			$this->dom->init_dom_update();
 		}
 
 		// Check for the GET parameter indicating this is rendering for CSS generation.
@@ -179,6 +185,14 @@ class Critical_CSS extends Module {
 	public function on_uninstall() {
 		self::clear_reset_reason();
 		self::clear_dismissed_recommendations();
+	}
+
+	/**
+	 * Prepare DOM manipulator with critical CSS.
+	 */
+	public function set_dom_critical_css() {
+		$critical_css = $this->manager->get_critical_css();
+		$this->dom->set_critical_css( $critical_css );
 	}
 
 	/**
@@ -416,31 +430,6 @@ class Critical_CSS extends Module {
 	}
 
 	/**
-	 * Get all critical CSS storage keys that are available for the current request.
-	 * Caches the result.
-	 *
-	 * @return array
-	 */
-	public function get_current_request_css_keys() {
-		static $keys = null;
-		if ( null !== $keys ) {
-			return $keys;
-		}
-
-		$keys = array();
-
-		foreach ( $this->providers as $provider ) {
-			$provider_keys = $provider::get_current_storage_keys();
-			if ( empty( $provider_keys ) ) {
-				continue;
-			}
-			$keys = array_merge( $keys, $provider_keys );
-		}
-
-		return $keys;
-	}
-
-	/**
 	 * Renders a <meta> tag used to verify this is a valid page to generate Critical CSS with.
 	 */
 	public function display_generate_meta() {
@@ -621,91 +610,6 @@ class Critical_CSS extends Module {
 	}
 
 	/**
-	 * Get critical CSS for the current request.
-	 *
-	 * @return string|false
-	 */
-	public function get_critical_css() {
-		if ( null !== $this->request_cached_css ) {
-			return $this->request_cached_css;
-		}
-
-		$data = $this->storage->get_css( $this->get_current_request_css_keys() );
-		if ( false === $data ) {
-			return false;
-		}
-
-		$this->request_cached_css       = $data['css'];
-		$this->current_critical_css_key = $data['key'];
-
-		return $this->request_cached_css;
-	}
-
-	/**
-	 * Converts existing screen CSS to be asynchronously loaded.
-	 *
-	 * @param string $html   The link tag for the enqueued style.
-	 * @param string $handle The style's registered handle.
-	 * @param string $href   The stylesheet's source URL.
-	 * @param string $media  The stylesheet's media attribute.
-	 *
-	 * @return string|string[]|null
-	 * @see style_loader_tag
-	 */
-	public function asynchronize_stylesheets( $html, $handle, $href, $media ) {
-		// If is AMP, do not alter the stylesheet loading.
-		if ( function_exists( 'is_amp_endpoint' ) && is_amp_endpoint() ) {
-			return $html;
-		}
-
-		// If there is no critical CSS, do not alter the stylesheet loading.
-		if ( false === $this->get_critical_css() ) {
-			return $html;
-		}
-
-		$available_methods = array(
-			'async'    => 'media="not all" data-media="' . $media . '" onload="this.media=this.dataset.media; delete this.dataset.media; this.removeAttribute( \'onload\' );"',
-			'deferred' => 'media="not all" data-media="' . $media . '"',
-		);
-
-		/**
-		 * Loading method for stylesheets.
-		 *
-		 * Filter the loading method for each stylesheet for the screen with following values:
-		 *     async    - Stylesheets are loaded asynchronously.
-		 *                Styles are applied once the stylesheet is loaded completely without render blocking.
-		 *     deferred - Loading of stylesheets are deferred until the window load event.
-		 *                Styles from all the stylesheets are applied at once after the page load.
-		 *
-		 * Stylesheet loading behaviour is not altered for any other value such as false or 'default'.
-		 * Stylesheet loading is instant and the process blocks the page rendering.
-		 *     Eg: add_filter( 'jetpack_boost_async_style', '__return_false' );
-		 *
-		 * @see onload_flip_stylesheets for how stylesheets loading is deferred.
-		 *
-		 * @param string $handle The style's registered handle.
-		 * @param string $media  The stylesheet's media attribute.
-		 *
-		 * @todo  Retrieve settings from database, either via auto-configuration or UI option.
-		 */
-		$method = apply_filters( 'jetpack_boost_async_style', 'async', $handle, $media );
-
-		// If the loading method is not allowed, do not alter the stylesheet loading.
-		if ( ! isset( $available_methods[ $method ] ) ) {
-			return $html;
-		}
-
-		$html_no_script = '<noscript>' . $html . '</noscript>';
-
-		// Update the stylesheet markup for allowed methods.
-		$html = preg_replace( '~media=(\'[^\']+\')|("[^"]+")~', $available_methods[ $method ], $html );
-
-		// Append to the HTML stylesheet tag the same untouched HTML stylesheet tag within the noscript tag
-		// to support the rendering of the stylesheet when JavaScript is disabled.
-		return $html_no_script . $html;
-	}
-
-	/**
 	 * Returns true if the current page render should try to display Critical CSS.
 	 */
 	public function should_display_critical_css() {
@@ -720,53 +624,6 @@ class Critical_CSS extends Module {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Prints the critical CSS to the page.
-	 */
-	public function display_critical_css() {
-		if ( function_exists( 'is_amp_endpoint' ) && is_amp_endpoint() ) {
-			return false;
-		}
-
-		$critical_css = $this->get_critical_css();
-
-		if ( false === $critical_css ) {
-			return false;
-		}
-
-		echo '<style id="jetpack-boost-critical-css">';
-
-		// Ensure no </style> tag (or any HTML tags) in output.
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo wp_strip_all_tags( $critical_css );
-
-		echo '</style>';
-	}
-
-	/**
-	 * Check if the current URL is warmed up. For this module, "warmed up" means that
-	 * either Critical CSS has been generated for this page, or this page is not
-	 * eligible to have Critical CSS generated for it.
-	 *
-	 * @param bool $ready Injected filter value.
-	 *
-	 * @return bool
-	 */
-	public function is_ready_filter( $ready ) {
-		if ( ! $ready ) {
-			return $ready;
-		}
-
-		// If this page has no provider keys, it is ineligible for Critical CSS.
-		$keys = $this->get_current_request_css_keys();
-		if ( count( $keys ) === 0 ) {
-			return true;
-		}
-
-		// Return "ready" if Critical CSS has been generated.
-		return ! empty( $this->get_critical_css() );
 	}
 
 	/**
@@ -834,50 +691,6 @@ class Critical_CSS extends Module {
 		if ( ! $this->is_initialized() ) {
 			wp_send_json( array( 'status' => 'module-unavailable' ) );
 		}
-	}
-
-	/**
-	 * Add a small piece of JavaScript to the footer, which on load flips all
-	 * linked stylesheets from media="not all" to "all", and switches the
-	 * Critical CSS <style> block to media="not all" to deactivate it.
-	 */
-	public function onload_flip_stylesheets() {
-		/*
-			Unminified version of footer script.
-
-		?>
-			<script>
-				window.addEventListener( 'load', function() {
-
-					// Flip all media="not all" links to media="all".
-					document.querySelectorAll( 'link' ).forEach(
-						function( link ) {
-							if ( link.media === 'not all' && link.dataset.media ) {
-								link.media = link.dataset.media;
-								delete link.dataset.media;
-							}
-						}
-					);
-
-					// Turn off Critical CSS style block with media="not all".
-					var element = document.getElementById( 'jetpack-boost-critical-css' );
-					if ( element ) {
-						element.media = 'not all';
-					}
-
-				} );
-			</script>
-		<?php
-		*/
-
-		// Minified version of footer script. See above comment for unminified version.
-		?>
-		<script>window.addEventListener('load', function() {
-				document.querySelectorAll('link').forEach(function(e) {'not all' === e.media && e.dataset.media && (e.media=e.dataset.media,delete e.dataset.media)});
-				var e = document.getElementById('jetpack-boost-critical-css');
-				e && (e.media = 'not all');
-			});</script>
-		<?php
 	}
 
 	/**
