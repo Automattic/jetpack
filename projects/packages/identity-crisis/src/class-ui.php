@@ -55,7 +55,8 @@ class UI {
 				'../build/index.js',
 				__FILE__,
 				array(
-					'in_footer' => true,
+					'in_footer'  => true,
+					'textdomain' => 'jetpack',
 				)
 			);
 			Assets::enqueue_script( 'jp_identity_crisis_banner' );
