@@ -42,17 +42,10 @@ module.exports = [
 				} ),
 
 				// Handle CSS.
-				{
-					test: /\.(?:css|s[ac]ss)$/,
-					use: [
-						jetpackWebpackConfig.MiniCssExtractLoader(),
-						jetpackWebpackConfig.CssCacheLoader(),
-						jetpackWebpackConfig.CssLoader( {
-							importLoaders: 1, // Set to the number of loaders after this one in the array, e.g. 2 if you use both postcss-loader and sass-loader.
-						} ),
-						'sass-loader',
-					],
-				},
+				jetpackWebpackConfig.CssRule( {
+					extensions: [ 'css', 'sass', 'scss' ],
+					extraLoaders: [ 'sass-loader' ],
+				} ),
 
 				// Handle images.
 				jetpackWebpackConfig.FileRule(),

@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.1] - 2021-11-17
+### Changed
+- Updated package dependencies.
+
 ## [2.1.0] - 2021-11-16
 ### Added
 - Use monorepo `validate-es` script to validate Webpack builds.
@@ -129,6 +133,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Connection UI: Building the Framework
 
+[2.1.1]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/Automattic/jetpack-connection-ui/compare/v1.6.0...v2.0.0
 [1.6.0]: https://github.com/Automattic/jetpack-connection-ui/compare/v1.5.3...v1.6.0
