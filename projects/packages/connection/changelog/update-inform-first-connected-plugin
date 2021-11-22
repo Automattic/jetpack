@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added plugin_slug parameter to the v4/register endpoint

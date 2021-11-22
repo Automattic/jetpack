@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Pass textdomain to `Assets::register_script()`
+
+
