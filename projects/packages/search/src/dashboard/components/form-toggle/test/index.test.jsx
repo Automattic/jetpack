@@ -1,4 +1,3 @@
-/*eslint-disable jsdoc/check-tag-names */
 /**
  * @jest-environment jsdom
  */
