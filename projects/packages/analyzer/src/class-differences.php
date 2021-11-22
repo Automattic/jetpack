@@ -72,10 +72,10 @@ class Differences extends PersistentList {
 			if ( $deprecated ) {
 				switch ( $new_declaration->type() ) {
 					case 'method':
-						$this->add( new Differences\Class_Method_Deprecated( $prev_declaration, $new_declaration ) );
+						$this->add( new Differences\Class_Method_Deprecated( $prev_declaration ) );
 						break;
 					case 'function':
-						$this->add( new Differences\Function_Deprecated( $prev_declaration, $new_declaration ) );
+						$this->add( new Differences\Function_Deprecated( $prev_declaration ) );
 						break;
 					default:
 						echo 'Unknown deprecated type ' . $new_declaration->type() . "\n";

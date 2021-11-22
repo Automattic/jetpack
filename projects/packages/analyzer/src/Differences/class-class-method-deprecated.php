@@ -20,22 +20,14 @@ class Class_Method_Deprecated extends Differences_List_Item implements Invocatio
 	 * @var object
 	 */
 	public $old_declaration;
-	/**
-	 * New declaration.
-	 *
-	 * @var object
-	 */
-	public $new_declaration;
 
 	/**
 	 * Class_Method_Deprecated constructor.
 	 *
 	 * @param object $old_declaration Old declaration.
-	 * @param object $new_declaration New declaration.
 	 */
-	public function __construct( $old_declaration, $new_declaration ) {
+	public function __construct( $old_declaration ) {
 		$this->old_declaration = $old_declaration;
-		$this->new_declaration = $new_declaration;
 	}
 
 	/**

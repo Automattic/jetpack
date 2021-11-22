@@ -22,21 +22,12 @@ class Function_Deprecated extends Differences_List_Item implements Invocation_Wa
 	public $old_declaration;
 
 	/**
-	 * New declaration.
-	 *
-	 * @var object
-	 */
-	public $new_declaration;
-
-	/**
 	 * Function_Moved constructor.
 	 *
 	 * @param object $old_declaration Old declaration.
-	 * @param object $new_declaration New declaration.
 	 */
-	public function __construct( $old_declaration, $new_declaration ) {
+	public function __construct( $old_declaration ) {
 		$this->old_declaration = $old_declaration;
-		$this->new_declaration = $new_declaration;
 	}
 
 	/**
