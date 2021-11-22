@@ -7,10 +7,11 @@ import {
 import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
 import { test, expect } from '../../fixtures/base-test.js';
+import playwrightConfig from '../../playwright.config.cjs';
 
 test.describe( 'Jetpack pre-connection', () => {
 	test.beforeAll( async ( { browser } ) => {
-		const page = await browser.newPage();
+		const page = ( await browser.newContext( playwrightConfig.use ) ).newPage();
 		await prerequisitesBuilder( page ).withCleanEnv().withLoggedIn( true ).build();
 		await page.close();
 	} );

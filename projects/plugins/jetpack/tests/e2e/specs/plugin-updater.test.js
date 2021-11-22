@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/base-test.js';
+import { test as baseTest, expect } from '../fixtures/base-test.js';
 import { doClassicConnection } from 'jetpack-e2e-commons/flows/index.js';
 import {
 	execShellCommand,
@@ -15,38 +15,35 @@ import {
 } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
 
-test.beforeAll( async ( { browser } ) => {
-	const page = browser.newPage();
+const test = baseTest.extend( {
+	page: async ( { page }, use ) => {
+		await prepareUpdaterTest();
 
-	await prepareUpdaterTest();
+		await prerequisitesBuilder( page )
+			.withCleanEnv()
+			.withLoggedIn( true )
+			.withWpComLoggedIn( true )
+			.build();
 
-	await prerequisitesBuilder( page )
-		.withCleanEnv()
-		.withLoggedIn( true )
-		.withWpComLoggedIn( true )
-		.build();
+		await execWpCommand( `plugin activate e2e-plugin-updater` );
+		await execWpCommand( `option set e2e_jetpack_upgrader_update_version 99.9-alpha` );
+		await execWpCommand(
+			`option set e2e_jetpack_upgrader_plugin_url ${ resolveSiteUrl() }/wp-content/uploads/jetpack.99.9.zip`
+		);
 
-	await execWpCommand( `plugin activate e2e-plugin-updater` );
-	await execWpCommand( `option set e2e_jetpack_upgrader_update_version 99.9-alpha` );
-	await execWpCommand(
-		`option set e2e_jetpack_upgrader_plugin_url ${ resolveSiteUrl() }/wp-content/uploads/jetpack.99.9.zip`
-	);
-	await page.close();
-} );
+		await DashboardPage.visit( page );
+		await use( page );
 
-test.afterAll( async () => {
-	await execWpCommand( 'plugin uninstall --deactivate jetpack' );
-	await execShellCommand(
-		'pnpx jetpack docker --type e2e --name t1 -v exec-silent -- rm /var/www/html/wp-content/plugins/jetpack'
-	);
-	execSyncShellCommand(
-		'pnpx jetpack docker --type e2e --name t1 -v exec-silent -- ln -s /usr/local/src/jetpack-monorepo/projects/plugins/jetpack/ /var/www/html/wp-content/plugins/jetpack'
-	);
-	await prerequisitesBuilder().withCleanEnv().build();
-} );
-
-test.beforeEach( async ( { page } ) => {
-	await DashboardPage.visit( page );
+		//cleanup
+		await execWpCommand( 'plugin uninstall --deactivate jetpack' );
+		await execShellCommand(
+			'pnpx jetpack docker --type e2e --name t1 -v exec-silent -- rm /var/www/html/wp-content/plugins/jetpack'
+		);
+		execSyncShellCommand(
+			'pnpx jetpack docker --type e2e --name t1 -v exec-silent -- ln -s /usr/local/src/jetpack-monorepo/projects/plugins/jetpack/ /var/www/html/wp-content/plugins/jetpack'
+		);
+		await prerequisitesBuilder().withCleanEnv().build();
+	},
 } );
 
 test.skip( 'Plugin updater', async ( { page } ) => {
