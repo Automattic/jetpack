@@ -225,7 +225,7 @@ class Main extends React.Component {
 						apiNonce={ this.props.apiNonce }
 						registrationNonce={ this.props.registrationNonce }
 						apiRoot={ this.props.apiRoot }
-						images={ [ '/images/connect-right-partner.png' ] }
+						images={ [ '/images/products/illustration-backup.png' ] }
 						assetBaseUrl={ this.props.pluginBaseUrl }
 						title={ sprintf(
 							/* translators: %s: Jetpack partner name. */
