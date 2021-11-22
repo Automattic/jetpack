@@ -1425,7 +1425,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "f95fc26f276e8301ba09fd2599d33ed905efcd1a"
+                "reference": "31a1578c1eb4f003559afeb3c44e10f1372fb3c5"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.30"
