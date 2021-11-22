@@ -53,8 +53,8 @@ class Jetpack_Backup {
 				// Sync package.
 				$config->ensure( 'sync' );
 
-				// Connection Manager UI.
-				Automattic\Jetpack\ConnectionUI\Admin::init();
+				// Identity crisis package.
+				$config->ensure( 'identity_crisis' );
 			},
 			1
 		);
