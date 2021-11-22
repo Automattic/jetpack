@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix increase of CLS score on stylesheets loading with the help of appropriate filter.
