@@ -10,7 +10,7 @@
 		"clean-all": "rm -rf build/* .cache/* node_modules/* node_modules/.[!.]* vendor/*",
 		"build": "echo 'Not yet implemented.'",
 		"test": "pnpx concurrently 'pnpm:test-scripts' 'pnpm:test-size'",
-		"test-scripts": "jest",
+		"test-scripts": "jest --passWithNoTests",
 		"test-size": "echo 'Not yet implemented.'"
 	},
 	"repository": {
