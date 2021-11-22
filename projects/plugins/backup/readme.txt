@@ -154,21 +154,12 @@ No, Jetpack Backup does not currently support split site or split home URLs.
 2. Your site backups are stored in multiple locations on our world-class cloud infrastructure so you can recover them at any moment.
 
 == Changelog ==
-### 1.0.0 - 2021-10-13
-#### Added
-- Added link to the plugins list table for "Settings" to match other Jetpack plugins.
-- Plugin now disconnects Jetpack on deactivation if it's the last plugin using the connection.
-- Updated Backup plugin readme text and remove dummy tag.
-- Updated readme.md installation instructions.
-- Updated plugin menu structure.
-
-#### Changed
-- Changed menu label.
-- Updated package dependencies.
-- Updated styles for buttons in backup panel and spacing for sections below.
+### 1.0.1 - 2021-11-22
+#### Removed
+- Remove the Connection UI activation.
 
 #### Fixed
-- Adjust dashboard styling.
+- Fix a bug that prevented the IDC UI from displaying when the site is in an identity crisis.
 
 --------
 
