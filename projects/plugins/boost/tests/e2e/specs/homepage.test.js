@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures/base-test.js';
 import Homepage from '../lib/pages/Homepage.js';
 
 // TODO: This is for illustrative purpose only. It will need refactoring and improving.

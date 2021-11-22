@@ -1,4 +1,3 @@
-import { test, expect } from '@playwright/test';
 import {
 	Sidebar,
 	PluginsPage,
@@ -7,6 +6,7 @@ import {
 } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
+import { test, expect } from '../../fixtures/base-test.js';
 
 test.describe( 'Jetpack pre-connection', () => {
 	test.beforeAll( async ( { browser } ) => {

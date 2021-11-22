@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures/base-test.js';
 import { doClassicConnection } from 'jetpack-e2e-commons/flows/index.js';
 import {
 	execShellCommand,

@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../../fixtures/base-test.js';
 import { SearchHomepage } from 'jetpack-e2e-commons/pages/index.js';
 import {
 	enableInstantSearch,
