@@ -7,12 +7,13 @@ import {
 import { PostFrontendPage } from 'jetpack-e2e-commons/pages/index.js';
 import config from 'config';
 import { prerequisitesBuilder, Plans } from 'jetpack-e2e-commons/env/index.js';
+import playwrightConfig from '../../playwright.config.cjs';
 
 test.describe.parallel( 'Free blocks', () => {
 	let blockEditor;
 
 	test.beforeAll( async ( { browser } ) => {
-		const page = await browser.newPage();
+		const page = await browser.newPage( playwrightConfig.use );
 		await prerequisitesBuilder( page )
 			.withWpComLoggedIn( true )
 			.withLoggedIn( true )

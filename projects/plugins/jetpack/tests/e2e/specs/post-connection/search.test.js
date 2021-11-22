@@ -12,6 +12,7 @@ import {
 } from '../../helpers/search-helper.js';
 import { prerequisitesBuilder, Plans } from 'jetpack-e2e-commons/env/index.js';
 import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
+import playwrightConfig from '../../playwright.config.cjs';
 
 test.describe( 'Search', () => {
 	let homepage;
@@ -20,7 +21,7 @@ test.describe( 'Search', () => {
 	const siteUrl = resolveSiteUrl();
 
 	test.beforeAll( async ( { browser } ) => {
-		const page = await browser.newPage();
+		const page = ( await browser.newContext( playwrightConfig.use ) ).newPage();
 		await prerequisitesBuilder( page )
 			.withLoggedIn( true )
 			.withConnection( true )

@@ -1,9 +1,10 @@
 import { test, expect } from '../../fixtures/base-test.js';
 import { RecommendationsPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
+import playwrightConfig from '../../playwright.config.cjs';
 
 test.beforeAll( async ( { browser } ) => {
-	const page = await browser.newPage();
+	const page = ( await browser.newContext( playwrightConfig.use ) ).newPage();
 	await prerequisitesBuilder( page )
 		.withLoggedIn( true )
 		.withWpComLoggedIn( true )

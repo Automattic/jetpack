@@ -7,12 +7,13 @@ import {
 } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { PostFrontendPage } from 'jetpack-e2e-commons/pages/index.js';
 import { prerequisitesBuilder, Plans } from 'jetpack-e2e-commons/env/index.js';
+import playwrightConfig from '../../playwright.config.cjs';
 
 test.describe( 'Paid blocks', () => {
 	let blockEditor;
 
 	test.beforeAll( async ( { browser } ) => {
-		const page = await browser.newPage();
+		const page = ( await browser.newContext( playwrightConfig.use ) ).newPage();
 		await prerequisitesBuilder( page )
 			.withWpComLoggedIn( true )
 			.withLoggedIn( true )
