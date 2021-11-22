@@ -558,7 +558,6 @@ importers:
       '@wordpress/block-editor': 7.0.4
       '@wordpress/data': 6.1.3
       '@wordpress/dependency-extraction-webpack-plugin': 3.2.1
-      '@wordpress/element': 4.0.3
       '@wordpress/i18n': 4.2.2
       '@wordpress/icons': 6.1.0
       classnames: 2.3.1
@@ -591,7 +590,6 @@ importers:
       '@wordpress/base-styles': 4.0.3
       '@wordpress/block-editor': 7.0.4_61f1be2883aff2880bc1124ccbc48d42
       '@wordpress/data': 6.1.3_react@17.0.2+redux@4.1.1
-      '@wordpress/element': 4.0.3
       '@wordpress/i18n': 4.2.2
       '@wordpress/icons': 6.1.0
       classnames: 2.3.1
@@ -8256,19 +8254,6 @@ packages:
       lodash: 4.17.21
       react: 16.14.0
       react-dom: 16.14.0_react@16.14.0
-    dev: false
-
-  /@wordpress/element/4.0.3:
-    resolution: {integrity: sha512-uFL8Xx0Uq/C+nCL5aM4Fb6YVub//1wuHyQK9VDtKwYg9UBELrexSCHo1XaesYRiGUqVW0o837qC7RCP2NLUBJw==}
-    engines: {node: '>=12'}
-    dependencies:
-      '@babel/runtime': 7.16.3
-      '@types/react': 16.14.20
-      '@types/react-dom': 16.9.14
-      '@wordpress/escape-html': 2.2.3
-      lodash: 4.17.21
-      react: 17.0.2
-      react-dom: 17.0.2_react@17.0.2
     dev: false
 
   /@wordpress/element/4.0.4:
