@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Added missing option doc for `Assets::register_script()`.
