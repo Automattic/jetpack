@@ -71,6 +71,6 @@
 		"prettier": "npm:wp-prettier@2.0.5",
 		"sass-loader": "12.3.0",
 		"size-limit": "6.0.3",
-		"webpack": "5.51.1"
+		"webpack": "5.64.1"
 	}
 }
