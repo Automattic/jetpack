@@ -243,12 +243,12 @@ export async function getReleaseVersion( argv ) {
 		.toString()
 		.trim();
 	potentialVersion = potentialVersion.split( '-' ); // e.g., split 10.4-a.8 into [10.4, a.8]
-	const stableVersion = potentialVersion[ 0 ];
-	const alphaVersion = potentialVersion[ 1 ];
+	let stableVersion = potentialVersion[ 0 ].split( '.' );
+	let alphaVersion = potentialVersion[ 1 ];
 
 	// Append '-beta' if necessary.
 	if ( argv.b || argv.beta ) {
-		potentialVersion = stableVersion.split( '.' ).splice( 0, 2 ).join( '.' );
+		potentialVersion = stableVersion.splice( 0, 2 ).join( '.' );
 		potentialVersion += '-beta';
 		return potentialVersion;
 	}
@@ -257,20 +257,16 @@ export async function getReleaseVersion( argv ) {
 	if ( argv.a || argv[ 'dev-version' ] ) {
 		// Jetpack uses additional versioning for dev/atomic in the form of x.y-a.z
 		if ( argv.project === 'plugins/jetpack' ) {
-			// Next time - replace potentialVersion with alphaVersion. If there is no alpha version, we just bump stableVersion.
-			const versionToBump = alphaVersion
-				? potentialVersion[ 1 ].split( '.' )
-				: potentialVersion[ 0 ].split( '.' ); // if first alpha after stable, potentialVersion[1] should be undefined.
-			console.log( versionToBump );
-			const potentialVersionBump = potentialVersion[ 1 ] ? parseInt( versionToBump[ 1 ] ) + 1 : '0';
-			if ( potentialVersionBump === '0' ) {
-				potentialVersion = await getVersionBump( versionToBump );
-				potentialVersion = potentialVersion.join( '.' );
-				console.log( potentialVersion );
+			if ( alphaVersion ) {
+				alphaVersion = alphaVersion.split( '.' ); // ['a', x];
+				alphaVersion[ 1 ] = parseInt( alphaVersion[ 1 ] ) + 1; // ['a', x + 1];
+			} else {
+				stableVersion = await getVersionBump( stableVersion );
+				alphaVersion = [ 'a', '0' ];
 			}
-			potentialVersion = `${ potentialVersion }-a.${ potentialVersionBump }`;
+			potentialVersion = `${ stableVersion.join( '.' ) }-${ alphaVersion.join( '.' ) }`;
 		} else {
-			const versionToBump = stableVersion.split( '.' ).splice( 0, 2 );
+			const versionToBump = stableVersion.splice( 0, 2 );
 			potentialVersion = await getVersionBump( versionToBump );
 			potentialVersion = potentialVersion.join( '.' );
 			potentialVersion += '-alpha';
@@ -279,7 +275,7 @@ export async function getReleaseVersion( argv ) {
 	}
 
 	if ( argv.stable ) {
-		potentialVersion = stableVersion.split( '.' ).splice( 0, 2 ).join( '.' );
+		potentialVersion = stableVersion.splice( 0, 2 ).join( '.' );
 		return potentialVersion;
 	}
 }
