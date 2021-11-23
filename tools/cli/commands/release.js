@@ -31,7 +31,6 @@ export function releaseDefine( yargs ) {
 					type: 'string',
 				} )
 				.positional( 'script', {
-					alias: 's',
 					describe: 'The release script to run',
 					type: 'string',
 					choices: [ 'changelog', 'readme', 'release-branch', 'amend', 'version' ],
@@ -44,6 +43,11 @@ export function releaseDefine( yargs ) {
 				.option( 'beta', {
 					alias: 'b',
 					describe: 'Is this a beta?',
+					type: 'boolean',
+				} )
+				.option( 'stable', {
+					alias: 's',
+					describe: 'Is this a stable release?',
 					type: 'boolean',
 				} );
 		},
@@ -80,6 +84,7 @@ export async function releaseCli( argv ) {
 	if (
 		! argv.devRelease &&
 		typeof argv.beta === 'undefined' &&
+		typeof argv.stable === 'undefined' &&
 		( argv.script !== 'readme' || argv.script !== 'amend' )
 	) {
 		argv = await promptDevBeta( argv );
@@ -274,7 +279,7 @@ export async function getReleaseVersion( argv ) {
 		return potentialVersion;
 	}
 
-	if ( argv.stable ) {
+	if ( argv.stable || argv.s ) {
 		potentialVersion = stableVersion.splice( 0, 2 ).join( '.' );
 		return potentialVersion;
 	}
@@ -343,6 +348,7 @@ export async function promptDevBeta( argv ) {
 			break;
 		default:
 			argv.stable = true;
+			argv.s = true;
 	}
 	return argv;
 }
@@ -369,11 +375,15 @@ export async function promptForScript( argv ) {
 					value: 'readme',
 				},
 				{
-					name: `[Create Release Branch] - Create a release branch for  ${ argv.project }`,
+					name: `[Create Release Branch] - Create a release branch for ${ argv.project }`,
 					value: 'release-branch',
 				},
 				{
 					name: `[Amend Changelog.md   ] - Updates changelog.md with any files cherry picked to release branch prior to release.`,
+					value: 'amend',
+				},
+				{
+					name: `[Update Version       ] - Update version number for ${ argv.project }.`,
 					value: 'amend',
 				},
 			],
