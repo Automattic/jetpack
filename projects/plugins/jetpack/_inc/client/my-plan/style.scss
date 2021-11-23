@@ -16,6 +16,33 @@
 	color: $gray-darken-20;
 }
 
+.jp-landing__card-footer {
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+	> div {
+		flex: 1
+	}
+	@include breakpoint( ">480px" ) {
+		flex-direction: row;
+	}
+	.jp-landing__card-footer-item {
+		&.align-right {
+			text-align: right;
+		}
+	}
+}
+
+.all-purchases__link {
+	display: inline-block;
+	box-sizing: border-box;
+	padding: 7px 14px 9px 0;
+	@include breakpoint( "<480px" ) {
+		padding-left: 14px;
+		margin-bottom: 15px;
+	}
+}
+
 .jp-landing__plan-features-header-recommendations-cta-container {
 	order: 30;
 	align-self: center;
