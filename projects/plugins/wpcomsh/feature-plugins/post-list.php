@@ -15,15 +15,8 @@ use Automattic\Jetpack\Config;
  * Main function to setup the package
  */
 function wpcomsh_post_list_init() {
-	if ( ! wpcomsh_is_site_sticker_active( 'wpcom-post-list-enhancements' ) ) {
-		return;
-	}
-
-
-	if ( wpcomsh_is_site_sticker_active( 'wpcom-gutenberg-republicize' ) ) {
-		add_filter( 'jetpack_block_editor_republicize_feature', '__return_true' );
-		wpcomsh_maybe_enable_share_action();
-	}
+	add_filter( 'jetpack_block_editor_republicize_feature', '__return_true' );
+	wpcomsh_maybe_enable_share_action();
 
 	$config = new Config();
 	$config->ensure( 'post_list' );
@@ -50,7 +43,7 @@ function wpcomsh_maybe_enable_share_action() {
 
 	// Needed to ensure that the jetpack_register_gutenberg_extensions action has fired.
 	Jetpack_Gutenberg::get_cached_availability();
-	if ( wpcomsh_is_site_sticker_active( 'wpcom-gutenberg-republicize' ) && Jetpack_Gutenberg::is_available( 'republicize' ) ) {
+	if ( Jetpack_Gutenberg::is_available( 'republicize' ) ) {
 		add_filter( 'jetpack_post_list_display_share_action', '__return_true' );
 	}
 }

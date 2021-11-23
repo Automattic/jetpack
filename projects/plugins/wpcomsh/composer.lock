@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b63017d7abecf9d38ef162d4160aa5dc",
+    "content-hash": "4eca610cc342e050e5ce1b061b6c9623",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -217,20 +217,20 @@
         },
         {
             "name": "automattic/jetpack-post-list",
-            "version": "v0.2.3",
+            "version": "v0.2.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-post-list.git",
-                "reference": "7804ad7e9cb023e181ed4ad549943b501a893985"
+                "reference": "bc8d679028aab5c4b267b32583fc4c5588c32931"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-post-list/zipball/7804ad7e9cb023e181ed4ad549943b501a893985",
-                "reference": "7804ad7e9cb023e181ed4ad549943b501a893985",
+                "url": "https://api.github.com/repos/Automattic/jetpack-post-list/zipball/bc8d679028aab5c4b267b32583fc4c5588c32931",
+                "reference": "bc8d679028aab5c4b267b32583fc4c5588c32931",
                 "shasum": ""
             },
             "require": {
-                "automattic/jetpack-assets": "^1.11"
+                "automattic/jetpack-assets": "^1.12"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -262,9 +262,9 @@
             ],
             "description": "Enhance the classic view of the Admin section of your WordPress site",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-post-list/tree/v0.2.3"
+                "source": "https://github.com/Automattic/jetpack-post-list/tree/v0.2.4"
             },
-            "time": "2021-11-02T17:18:42+00:00"
+            "time": "2021-11-22T09:43:36+00:00"
         },
         {
             "name": "automattic/text-media-widget-styles",
