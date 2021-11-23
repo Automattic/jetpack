@@ -5,7 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { withRouter, Prompt } from 'react-router-dom';
 import { __, sprintf } from '@wordpress/i18n';
-import { ActionButton, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { Dashicon } from '@wordpress/components';
 import { withDispatch } from '@wordpress/data';
@@ -60,6 +60,7 @@ import NonAdminView from 'components/non-admin-view';
 import JetpackNotices from 'components/jetpack-notices';
 import AdminNotices from 'components/admin-notices';
 import Tracker from 'components/tracker';
+import PartnerCouponRedeem from 'components/partner-coupon';
 import analytics from 'lib/analytics';
 import restApi from '@automattic/jetpack-api';
 import QueryRewindStatus from 'components/data/query-rewind-status';
@@ -200,84 +201,30 @@ class Main extends React.Component {
 	}
 
 	renderMainContent = route => {
-		/**
-		 * There are two conditions (groups of conditions, really) where we would want to
-		 * show the partner connection screen.
-		 *
-		 * 1. The site is not yet connected to WPCOM, but has the jetpack_partner_coupon
-		 * option set in the database (this.props.partnerCoupon in redux). This is likely a
-		 * partner-user who has just arrived here from a CTA within a partner's dashboard
-		 * or other ecosystem.
-		 *
-		 * 2. The site is already connected to WPCOM, but the jetpack_partner_coupon option
-		 * is still set in the database. This means the user connected their site, but never
-		 * redeemed the coupon. If this is the case, we don't want to override the dashboard
-		 * or at a glance pages with the redemption screen. Instead, we'll catch a URL
-		 * parameter that JITMs will set (showCouponRedemption=true), and show the screen only
-		 * when the user came from a a JITM.
+		/*
+		 * Show "Partner Coupon Redeem" screen instead of regular main content/pre-connection.
 		 */
 		if ( this.props.partnerCoupon ) {
 			const forceShow = new URLSearchParams( window.location.search ).get( 'showCouponRedemption' );
-			const partnerCoupon = this.props.partnerCoupon;
 
+			/*
+			 * There are two conditions (groups of conditions, really) where we would want to
+			 * show the partner coupon redeem screen:
+			 *
+			 * 1. The site is not yet connected to WPCOM, but has the jetpack_partner_coupon
+			 * option set in the database (this.props.partnerCoupon in redux). This is likely a
+			 * partner-user who has just arrived here from a CTA within a partner's dashboard
+			 * or other ecosystem.
+			 *
+			 * 2. The site is already connected to WPCOM, but the jetpack_partner_coupon option
+			 * is still set in the database. This means the user connected their site, but never
+			 * redeemed the coupon. If this is the case, we don't want to override the dashboard
+			 * or at a glance pages with the redemption screen. Instead, we'll catch a URL
+			 * parameter that JITMs will set (showCouponRedemption=true), and show the screen only
+			 * when the user came from a a JITM.
+			 */
 			if ( ! this.props.isSiteConnected || forceShow ) {
-				this.partnerCouponHandleClick = () => {
-					window.location.href = getRedirectUrl( 'jetpack-plugin-partner-coupon-checkout', {
-						path: partnerCoupon.product.slug,
-						site: this.props.siteRawUrl,
-						query: `coupon=${ partnerCoupon.coupon_code }`,
-					} );
-				};
-
-				return (
-					<ConnectScreen
-						apiNonce={ this.props.apiNonce }
-						registrationNonce={ this.props.registrationNonce }
-						apiRoot={ this.props.apiRoot }
-						images={ [ '/images/products/illustration-backup.png' ] }
-						assetBaseUrl={ this.props.pluginBaseUrl }
-						title={ sprintf(
-							/* translators: %s: Jetpack partner name. */
-							__( 'Welcome to Jetpack %s traveler!', 'jetpack' ),
-							partnerCoupon.partner
-						) }
-						buttonLabel={ sprintf(
-							/* translators: %s: Name of a Jetpack product. */
-							__( 'Set up & redeem %s', 'jetpack' ),
-							partnerCoupon.product.title
-						) }
-						redirectUri={ `admin.php?page=jetpack&partnerCoupon=${ partnerCoupon.coupon_code }` }
-						connectionStatus={ this.props.connectionStatus }
-					>
-						<p>
-							{ sprintf(
-								/* translators: %s: Name of a Jetpack product. */
-								__(
-									'Redeem your coupon and get started with %s for free the first year!',
-									'jetpack'
-								),
-								partnerCoupon.product.title
-							) }
-						</p>
-						<ul>
-							{ partnerCoupon.product.features.map( ( feature, key ) => (
-								<li className="jp-recommendations-product-purchased__feature" key={ key }>
-									{ feature }
-								</li>
-							) ) }
-						</ul>
-						{ this.props.connectionStatus.hasConnectedOwner && (
-							<ActionButton
-								label={ sprintf(
-									/* translators: %s: Name of a Jetpack product. */
-									__( 'Redeem %s', 'jetpack' ),
-									partnerCoupon.product.title
-								) }
-								onClick={ this.partnerCouponHandleClick }
-							/>
-						) }
-					</ConnectScreen>
-				);
+				return <PartnerCouponRedeem />;
 			}
 		}
 
