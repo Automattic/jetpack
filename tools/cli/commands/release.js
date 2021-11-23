@@ -384,7 +384,7 @@ export async function promptForScript( argv ) {
 				},
 				{
 					name: `[Update Version       ] - Update version number for ${ argv.project }.`,
-					value: 'amend',
+					value: 'version',
 				},
 			],
 		},
