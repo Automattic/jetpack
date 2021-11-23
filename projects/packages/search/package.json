@@ -7,21 +7,21 @@
 		"test": "tests"
 	},
 	"scripts": {
-		"build": "pnpm run build-development",
-		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run clean-all && pnpm run build-production-instant && pnpm run build-production-customberg && pnpm run build-production-dashboard && pnpm run build-production-php",
-		"build-production-instant": "echo 'Not yet implemented.'",
-		"build-production-customberg": "echo 'Not yet implemented.'",
-		"build-production-dashboard": "echo 'Not yet implemented.'",
-		"build-production-php": "COMPOSER_MIRROR_PATH_REPOS=1 COMPOSER_ROOT_VERSION=dev-master composer install -o --no-dev --classmap-authoritative --prefer-dist",
-		"build-development": "NODE_ENV=development BABEL_ENV=development pnpm run clean-all && pnpm run build-instant && pnpm run build-customberg && pnpm run build-dashboard && pnpm run build-php",
+		"build": "pnpm run clean && pnpm run install-if-deps-outdated && pnpm run build-instant && pnpm run build-customberg && pnpm run build-dashboard",
+		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run validate && pnpm run build-production-php",
+		"build-development": "NODE_ENV=development BABEL_ENV=development pnpm run build && pnpm run build-php",
 		"build-instant": "echo 'Not yet implemented.'",
 		"build-customberg": "echo 'Not yet implemented.'",
 		"build-dashboard": "echo 'Not yet implemented.'",
 		"build-php": "composer install --ignore-platform-reqs",
+		"build-production-php": "COMPOSER_MIRROR_PATH_REPOS=1 COMPOSER_ROOT_VERSION=dev-master composer install -o --no-dev --classmap-authoritative --prefer-dist",
+		"clean": "rm -rf build/ .cache/",
 		"clean-all": "rm -rf build/ .cache/ node_modules/ vendor/",
+		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
 		"test": "pnpx concurrently 'pnpm:test-scripts' 'pnpm:test-size'",
 		"test-scripts": "jest --passWithNoTests",
-		"test-size": "echo 'Not yet implemented.'"
+		"test-size": "echo 'Not yet implemented.'",
+		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/"
 	},
 	"repository": {
 		"type": "git",
