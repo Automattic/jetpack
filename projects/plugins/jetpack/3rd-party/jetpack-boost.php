@@ -37,7 +37,7 @@ function try_install() {
 	$redirect_on_error = admin_url( 'plugin-install.php?s=jetpack-boost&tab=search&type=term' );
 
 	// Attempt to install and activate the plugin.
-	if ( false && current_user_can( 'activate_plugins' ) ) {
+	if ( current_user_can( 'activate_plugins' ) ) {
 		switch ( $_GET['jetpack-boost-action'] ) {
 			case 'install':
 				$result = install_and_activate();
