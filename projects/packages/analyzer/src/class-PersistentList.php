@@ -41,6 +41,10 @@ class PersistentList {
 			return '';
 		}
 
+		if ( ! file_exists( dirname( $file_path ) ) ) {
+			mkdir( dirname( $file_path ), 0777, true );
+		}
+
 		$handle = fopen( $file_path, 'w+' );
 		foreach ( $this->items as $item ) {
 			fputcsv( $handle, $item->to_csv_array() );

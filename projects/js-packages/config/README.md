@@ -17,14 +17,16 @@ Note: If Webpack's [`libraryTarget`](https://webpack.js.org/configuration/output
 
 ## Required configuration
 
-We only have one required configuration so far, which is `consumer_slug`. Use the same slug you used when you invoke `Config.ensure` PHP method to require that your plugin used the connection (if you did so).
+We only have one required configuration so far: 
+
+* **`consumer_slug`**: The identifier of the app that's consuming the RNA packages. In most of the cases, this will be the plugin slug. Use the same slug you used when you invoke `Config.ensure` PHP method to require that your plugin used the connection (if you did so). This is used by the `jetpack-api` package to identify what plugin is making the requests.
 
 ## Usage
 
 Once registered in webpack config file, all values will be available to all modules in the bundle. Use the provided function to access them:
 
 ```JS
-import { jetpackConfigHas, jetpackConfigGet } from 'jetpackConfig';
+import { jetpackConfigHas, jetpackConfigGet } from '@automattic/jetpack-config';
 
 const consumer_slug = jetpackConfigGet( 'consumer_slug' );
 ```

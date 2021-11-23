@@ -6,6 +6,9 @@ module.exports = {
 		jest: true,
 		browser: true,
 	},
+	parserOptions: {
+		requireConfigFile: false,
+	},
 	globals: {
 		browser: true,
 		page: true,
