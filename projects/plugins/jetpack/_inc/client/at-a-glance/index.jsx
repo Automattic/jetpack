@@ -13,6 +13,7 @@ import analytics from 'lib/analytics';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import DashSectionHeader from 'components/dash-section-header';
 import DashActivity from './activity';
+import DashBoost from './boost';
 import DashStats from './stats/index.jsx';
 import DashProtect from './protect';
 import DashMonitor from './monitor';
@@ -171,6 +172,11 @@ class AtAGlance extends Component {
 					/>
 				);
 			}
+
+			performanceCards.push(
+				<DashBoost />
+			);
+
 			if ( performanceCards.length ) {
 				pairs.push( {
 					header: (
