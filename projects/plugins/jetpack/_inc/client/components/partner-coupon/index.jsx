@@ -98,9 +98,7 @@ const PartnerCouponRedeem = props => {
 			</p>
 			<ul>
 				{ partnerCoupon.product.features.map( ( feature, key ) => (
-					<li className="jp-recommendations-product-purchased__feature" key={ key }>
-						{ feature }
-					</li>
+					<li key={ key }>{ feature }</li>
 				) ) }
 			</ul>
 			{ connectionStatus.hasConnectedOwner && (
