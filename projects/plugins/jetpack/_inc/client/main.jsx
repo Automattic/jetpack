@@ -113,8 +113,6 @@ class Main extends React.Component {
 		restApi.setApiNonce( this.props.apiNonce );
 		this.initializeAnalytics();
 
-		this.props.setConnectionStatus( this.props.connectionStatus );
-
 		// Handles refresh, closing and navigating away from Jetpack's Admin Page
 		// beforeunload can not handle confirm calls in most of the browsers, so just clean up the flag.
 		window.addEventListener( 'beforeunload', this.props.clearUnsavedSettingsFlag );
@@ -638,9 +636,7 @@ export default connect(
 	withDispatch( dispatch => {
 		return {
 			setConnectionStatus: connectionStatus => {
-				dispatch( CONNECTION_STORE_ID ).startResolution( 'getConnectionStatus', [] );
 				dispatch( CONNECTION_STORE_ID ).setConnectionStatus( connectionStatus );
-				dispatch( CONNECTION_STORE_ID ).finishResolution( 'getConnectionStatus', [] );
 			},
 		};
 	} )( withRouter( Main ) )
