@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { assign } from 'lodash';
+import { jetpackConfigGet, jetpackConfigHas } from '@automattic/jetpack-config';
 
 /**
  * Helps create new custom error classes to better notify upper layers.
@@ -78,6 +79,10 @@ function JetpackRestApiClient( root, nonce ) {
 				registration_nonce: registrationNonce,
 				no_iframe: true,
 			};
+
+			if ( jetpackConfigHas( 'consumer_slug' ) ) {
+				params.plugin_slug = jetpackConfigGet( 'consumer_slug' );
+			}
 
 			if ( null !== redirectUri ) {
 				params.redirect_uri = redirectUri;
@@ -446,6 +451,12 @@ function JetpackRestApiClient( root, nonce ) {
 			postRequest( `${ apiRoot }jetpack/v4/identity-crisis/migrate`, postParams ).then(
 				checkStatus
 			),
+		attachLicenses: licenses =>
+			postRequest( `${ apiRoot }jetpack/v4/licensing/attach-licenses`, postParams, {
+				body: JSON.stringify( { licenses } ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 	};
 
 	/**

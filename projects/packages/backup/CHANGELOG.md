@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.9] - 2021-11-23
+### Changed
+- Updated package dependencies.
+
 ## [1.1.8] - 2021-11-02
 ### Changed
 - Set `convertDeprecationsToExceptions` true in PHPUnit config.
@@ -76,6 +80,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[1.1.9]: https://github.com/Automattic/jetpack-backup/compare/v1.1.8...v1.1.9
 [1.1.8]: https://github.com/Automattic/jetpack-backup/compare/v1.1.7...v1.1.8
 [1.1.7]: https://github.com/Automattic/jetpack-backup/compare/v1.1.6...v1.1.7
 [1.1.6]: https://github.com/Automattic/jetpack-backup/compare/v1.1.5...v1.1.6

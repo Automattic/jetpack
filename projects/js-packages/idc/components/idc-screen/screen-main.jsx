@@ -52,13 +52,13 @@ const ScreenMain = props => {
 
 			<h3>{ __( 'Please select an option', 'jetpack' ) }</h3>
 
-			<div className="jp-idc-cards">
+			<div className="jp-idc__idc-screen__cards">
 				<CardMigrate
 					wpcomHomeUrl={ wpcomHomeUrl }
 					currentUrl={ currentUrl }
 					onMigrated={ onMigrated }
 				/>
-				<div className="jp-idc-cards-separator">or</div>
+				<div className="jp-idc__idc-screen__cards-separator">or</div>
 				<CardFresh
 					wpcomHomeUrl={ wpcomHomeUrl }
 					currentUrl={ currentUrl }
