@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0be3edf262cfcfe2d899e5a136e8415a",
+    "content-hash": "db5a979ad40d90b8d35d887a36e372d2",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1430,7 +1430,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "ebe75217a2b4c6523e9889f47128af590a8b9daf"
+                "reference": "d0a1c2fe85caaafe6fa7613285ac31cc7fbb9092"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -1456,6 +1456,14 @@
                 "build": [
                     "Composer\\Config::disableProcessTimeout",
                     "pnpm run build"
+                ],
+                "build-development": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run build-development"
+                ],
+                "build-production": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run build-production"
                 ],
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
