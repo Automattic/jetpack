@@ -246,7 +246,7 @@ class Main extends React.Component {
 					apiNonce={ this.props.apiNonce }
 					registrationNonce={ this.props.registrationNonce }
 					apiRoot={ this.props.apiRoot }
-					images={ [ '/images/connect-right-secondary.png' ] }
+					images={ [ '/images/connect-right-partner-backup.png' ] }
 					assetBaseUrl={ this.props.pluginBaseUrl }
 					title={
 						this.props.connectingUserFeatureLabel
