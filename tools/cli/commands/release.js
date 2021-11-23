@@ -177,10 +177,10 @@ export async function scriptRouter( argv ) {
 			argv.script = 'tools/project-version.sh';
 			argv.scriptArgs = [ '-u', argv.version, argv.project ];
 			argv.next = `Finished! Next, you will likely want to check the following project files to make sure versions were updated correctly:  
-				- The main php file
-				- package.json
-				- composer.json (the autoloader-suffix filed)
-				- changelog.md and the changelog part of readme.txt`.replace( /^\t+/gm, '' );
+				 - The main php file
+				 - package.json
+				 - composer.json (the autoloader-suffix filed)
+				 - changelog.md and the changelog part of readme.txt \n`.replace( /^\t+/gm, '' );
 			break;
 		default:
 			console.log( 'Not a valid release command!' );
