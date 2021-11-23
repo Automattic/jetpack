@@ -242,17 +242,13 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.4-a.5 - 2021-11-16
+### 10.4-a.9 - 2021-11-23
 #### Enhancements
-- Dashboard: display a notice when you have unactivated product licence keys linked to your WordPress.com account.
-- Likes: refactor Likes in posts to improve performance and avoid loading additional libraries.
-- VideoPress: add handles to resize the Video Block in the editor.
+- Dashboard: add option to add a license key via the Jetpack dashboard.
+- Verification tools: remove old interface in the Tools menu, in favor of the newer settings in the Jetpack dashboard.
 
 #### Bug fixes
-- Dashboard: fix some layout and display issues in the Recommendations panel.
-- Dashboard: ensure plan information is properly displayed when using Backup and Security plans.
-- Instant Search: restore filter query string functionality.
-- VideoPress: reload block when updating video rating in the editor, and ensure rating meta data is updated.
+- Stats: remove ASCII art from the tracking pixel's alt attribute, to improve accessibility.
 
 --------
 
