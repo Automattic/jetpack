@@ -77,7 +77,7 @@ const ActivationScreenControls = props => {
 					disabled={ license.length <= 0 || isActivating }
 					isBusy={ isActivating }
 				>
-					{ isActivating ? __( 'Working...', 'jetpack' ) : __( 'Activate', 'jetpack' ) }
+					{ isActivating ? __( 'Working… 'jetpack' ) : __( 'Activate', 'jetpack' ) }
 				</Button>
 			</div>
 		</div>
