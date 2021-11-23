@@ -34,12 +34,20 @@ restApi.setCacheBusterCallback( route => {
 
 describe( 'restApi', () => {
 	describe( 'GET requests', () => {
-		before( () =>
+		before( () => {
+			fetchMock.mock(
+				{
+					method: 'POST',
+					url: /\/jetpack\/v4\/licensing\/attach-licenses/,
+					name: 'attach-licenses',
+				},
+				JSON.stringify( [ { activatedProductId: 1 } ] )
+			);
 			fetchMock.mock(
 				{ method: 'GET', url: /\/jetpack\/v4\/connection/, name: 'connection' },
 				JSON.stringify( 'the body' )
-			)
-		);
+			);
+		} );
 		after( () => fetchMock.restore() );
 
 		it( 'returns an object with methods', () => {
@@ -51,6 +59,11 @@ describe( 'restApi', () => {
 			const connectionStatus = await restApi.fetchSiteConnectionStatus();
 			// expect(fetchMock).route('connection').to.have.been.called;
 			expect( connectionStatus ).to.equal( 'the body' );
+		} );
+
+		it( 'can post attachLicenses', async () => {
+			const results = await restApi.attachLicenses();
+			expect( results ).to.deep.equal( [ { activatedProductId: 1 } ] );
 		} );
 	} );
 } );

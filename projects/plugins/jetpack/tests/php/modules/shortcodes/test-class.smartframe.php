@@ -15,7 +15,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
 /**
  * Implements unit tests for smartframe embedding
  *
- * @covers ::shortcode_smartframe
+ * @covers ::jetpack_smartframe_shortcode
  */
 class WP_Test_Jetpack_Shortcodes_SmartFrame extends WP_UnitTestCase {
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;

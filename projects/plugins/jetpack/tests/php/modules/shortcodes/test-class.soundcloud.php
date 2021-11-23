@@ -105,7 +105,7 @@ class WP_Test_Jetpack_Shortcodes_Soundcloud extends WP_UnitTestCase {
 		$shortcode_content = jetpack_soundcloud_embed_reversal( $content );
 		$shortcode_content = str_replace( "\n", '', $shortcode_content );
 
-		$this->assertEquals( $shortcode_content, '[soundcloud url="https://api.soundcloud.com/playlists/4142297" params="auto_play=false&amp;hide_related=false&amp;show_comments=true&amp;show_user=true&amp;show_reposts=false&amp;visual=true" width="100%" height="450" iframe="true" /]' );
+		$this->assertEquals( '[soundcloud url="https://api.soundcloud.com/playlists/4142297" params="auto_play=false&amp;hide_related=false&amp;show_comments=true&amp;show_user=true&amp;show_reposts=false&amp;visual=true" width="100%" height="450" iframe="true" /]', $shortcode_content );
 	}
 
 	public function test_shortcodes_soundcloud_reversal_embed() {
@@ -117,7 +117,7 @@ class WP_Test_Jetpack_Shortcodes_Soundcloud extends WP_UnitTestCase {
 
 		$shortcode_content = wp_kses_post( $content );
 
-		$this->assertEquals( $shortcode_content, '<a href="https://player.soundcloud.com/player.swf?url=http://api.soundcloud.com/tracks/70198773">https://player.soundcloud.com/player.swf?url=http://api.soundcloud.com/tracks/70198773</a>' );
+		$this->assertEquals( '<a href="https://player.soundcloud.com/player.swf?url=http://api.soundcloud.com/tracks/70198773">https://player.soundcloud.com/player.swf?url=http://api.soundcloud.com/tracks/70198773</a>', $shortcode_content );
 	}
 
 	/**

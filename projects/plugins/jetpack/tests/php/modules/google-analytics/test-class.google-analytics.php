@@ -38,6 +38,9 @@ class WP_Test_Jetpack_Google_Analytics extends WP_UnitTestCase {
 		add_filter(
 			'pre_option_jetpack_wga',
 			function( $option ) {
+				if ( false === $option ) {
+					$option = array();
+				}
 				$option['code'] = self::UA_ID;
 				return $option;
 			}

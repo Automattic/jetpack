@@ -22,12 +22,13 @@ import './style.scss';
  * @param {string} props.headerText - The header text, 'Safe Mode' by default.
  * @param {string} props.wpcomHomeUrl - The original site URL.
  * @param {string} props.currentUrl - The current site URL.
+ * @param {string} props.redirectUri - The redirect URI to redirect users back to after connecting.
  * @param {string} props.apiRoot - API root URL, required.
  * @param {string} props.apiNonce - API Nonce, required.
  * @returns {React.Component} The `ConnectScreen` component.
  */
 const IDCScreen = props => {
-	const { logo, headerText, wpcomHomeUrl, currentUrl, apiNonce, apiRoot } = props;
+	const { logo, headerText, wpcomHomeUrl, currentUrl, apiNonce, apiRoot, redirectUri } = props;
 
 	const [ isMigrated, setIsMigrated ] = useState( false );
 
@@ -44,10 +45,10 @@ const IDCScreen = props => {
 	}, [ apiRoot, apiNonce ] );
 
 	return (
-		<div className="jp-idc-screen-base">
-			<div className="jp-idc-header">
-				<div className="jp-idc-logo">{ logo }</div>
-				<div className="jp-idc-logo-label">{ headerText }</div>
+		<div className={ 'jp-idc__idc-screen' + ( isMigrated ? ' jp-idc__idc-screen__success' : '' ) }>
+			<div className="jp-idc__idc-screen__header">
+				<div className="jp-idc__idc-screen__logo">{ logo }</div>
+				<div className="jp-idc__idc-screen__logo-label">{ headerText }</div>
 			</div>
 
 			{ isMigrated ? (
@@ -57,6 +58,7 @@ const IDCScreen = props => {
 					wpcomHomeUrl={ wpcomHomeUrl }
 					currentUrl={ currentUrl }
 					onMigrated={ onMigrated }
+					redirectUri={ redirectUri }
 				/>
 			) }
 		</div>
@@ -68,6 +70,7 @@ IDCScreen.propTypes = {
 	headerText: PropTypes.string.isRequired,
 	wpcomHomeUrl: PropTypes.string.isRequired,
 	currentUrl: PropTypes.string.isRequired,
+	redirectUri: PropTypes.string.isRequired,
 	apiRoot: PropTypes.string.isRequired,
 	apiNonce: PropTypes.string.isRequired,
 };

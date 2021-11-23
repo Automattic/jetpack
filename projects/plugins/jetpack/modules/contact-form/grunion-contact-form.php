@@ -114,7 +114,7 @@ class Grunion_Contact_Form_Plugin {
 				$data_without_tags[ $index ] = $value;
 			}
 		} else {
-			$data_without_tags = wp_kses( $data_with_tags, array() );
+			$data_without_tags = wp_kses( (string) $data_with_tags, array() );
 			$data_without_tags = str_replace( '&amp;', '&', $data_without_tags ); // undo damage done by wp_kses_normalize_entities()
 		}
 
@@ -657,7 +657,10 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	static function sanitize_value( $value ) {
-		return preg_replace( '=((<CR>|<LF>|0x0A/%0A|0x0D/%0D|\\n|\\r)\S).*=i', null, $value );
+		if ( null === $value ) {
+			return '';
+		}
+		return preg_replace( '=((<CR>|<LF>|0x0A/%0A|0x0D/%0D|\\n|\\r)\S).*=i', '', $value );
 	}
 
 	/**
@@ -1811,9 +1814,9 @@ class Crunion_Contact_Form_Shortcode {
 	function parse_content( $content ) {
 		if ( is_null( $content ) ) {
 			$this->body = null;
+		} else {
+			$this->body = do_shortcode( $content );
 		}
-
-		$this->body = do_shortcode( $content );
 	}
 
 	/**
@@ -1857,7 +1860,8 @@ class Crunion_Contact_Form_Shortcode {
 		// For back-compat with old Grunion encoding
 		// Also, unencode commas
 		$value = strtr(
-			$value, array(
+			(string) $value,
+			array(
 				'%26' => '&',
 				'%25' => '%',
 			)
@@ -2206,6 +2210,8 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			}
 
 			$r .= "<form action='" . esc_url( $url ) . "' method='post' class='" . esc_attr( $form_classes ) . "'>\n";
+			$r .= self::get_script_for_form();
+
 			$r .= $form->body;
 
 			// In new versions of the contact form block the button is an inner block
@@ -2310,6 +2316,29 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				'p'          => array(),
 			)
 		);
+	}
+
+	/**
+	 * Returns a script that disables the contact form button after a form submission.
+	 *
+	 * @return string The script.
+	 */
+	private static function get_script_for_form() {
+		return "<script>
+			( function () {
+				const contact_forms = document.getElementsByClassName('contact-form');
+
+				for ( const form of contact_forms ) {
+					form.onsubmit = function() {
+						const buttons = form.getElementsByTagName('button');
+
+						for( const button of buttons ) {
+							button.setAttribute('disabled', true);
+						}
+					}
+				}
+			} )();
+		</script>";
 	}
 
 	/**
@@ -2806,7 +2835,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		$vars = array( 'comment_author', 'comment_author_email', 'comment_author_url', 'contact_form_subject', 'comment_author_IP' );
 		foreach ( $vars as $var ) {
-			$$var = str_replace( array( "\n", "\r" ), '', $$var );
+			$$var = str_replace( array( "\n", "\r" ), '', (string) $$var );
 		}
 
 		// Ensure that Akismet gets all of the relevant information from the contact form,

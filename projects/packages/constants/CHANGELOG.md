@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.12] - 2021-11-22
+### Changed
+- Updated package dependencies
+
+## [1.6.11] - 2021-11-02
+### Changed
+- Set `convertDeprecationsToExceptions` true in PHPUnit config.
+- Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
+
+## [1.6.10] - 2021-10-26
+### Fixed
+- Updated is_true docblock to be more accurate.
+
 ## [1.6.9] - 2021-10-13
 ### Changed
 - Updated package dependencies.
@@ -96,6 +109,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Finish the constants package
 
+[1.6.12]: https://github.com/Automattic/jetpack-constants/compare/v1.6.11...v1.6.12
+[1.6.11]: https://github.com/Automattic/jetpack-constants/compare/v1.6.10...v1.6.11
+[1.6.10]: https://github.com/Automattic/jetpack-constants/compare/v1.6.9...v1.6.10
 [1.6.9]: https://github.com/Automattic/jetpack-constants/compare/v1.6.8...v1.6.9
 [1.6.8]: https://github.com/Automattic/jetpack-constants/compare/v1.6.7...v1.6.8
 [1.6.7]: https://github.com/Automattic/jetpack-constants/compare/v1.6.6...v1.6.7

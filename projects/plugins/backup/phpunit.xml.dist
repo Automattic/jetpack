@@ -1,4 +1,4 @@
-<phpunit bootstrap="tests/php/bootstrap.php" backupGlobals="false" colors="true">
+<phpunit bootstrap="tests/php/bootstrap.php" backupGlobals="false" colors="true" convertDeprecationsToExceptions="true">
 	<testsuites>
 		<testsuite name="main">
 			<directory prefix="test" suffix=".php">tests/php</directory>
@@ -6,12 +6,8 @@
 	</testsuites>
 	<filter>
 		<whitelist processUncoveredFilesFromWhitelist="false">
-			<directory suffix=".php">.</directory>
-			<exclude>
-				<directory suffix=".php">tests</directory>
-				<directory suffix=".php">vendor</directory>
-				<directory suffix=".php">wordpress</directory>
-			</exclude>
+			<directory suffix=".php">src</directory>
+			<file>jetpack-backup.php</file>
 		</whitelist>
 	</filter>
 </phpunit>

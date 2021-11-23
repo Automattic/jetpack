@@ -9,7 +9,6 @@ import type { TemplateVars } from './copy-dom-template';
  *
  * @param {string} href        for the link to use
  * @param {string} templateKey template key to use for this link. Default: 'link'
- * @return {TemplateVars} Template var which can be sent to TemplatedString.
  */
 export default function externalLinkTemplateVar(
 	href: string,

@@ -16,6 +16,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Licensing;
+use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Redirect;
@@ -845,18 +846,6 @@ class Jetpack {
 
 		if ( ! $this->connection_manager ) {
 			$this->connection_manager = new Connection_Manager( 'jetpack' );
-
-			/**
-			 * Filter to activate Jetpack Connection UI.
-			 * INTERNAL USE ONLY.
-			 *
-			 * @since 9.5.0
-			 *
-			 * @param bool false Whether to activate the Connection UI.
-			 */
-			if ( apply_filters( 'jetpack_connection_ui_active', false ) ) {
-				Automattic\Jetpack\ConnectionUI\Admin::init();
-			}
 		}
 
 		/*
@@ -914,6 +903,7 @@ class Jetpack {
 		add_action( 'plugins_loaded', array( 'Jetpack', 'load_modules' ), 100 );
 
 		Partner::init();
+		My_Jetpack_Initializer::init();
 
 		/**
 		 * Fires when Jetpack is fully loaded and ready. This is the point where it's safe
@@ -930,10 +920,8 @@ class Jetpack {
 
 	/**
 	 * This is ported over from the manage module, which has been deprecated and baked in here.
-	 *
-	 * @param $domains
 	 */
-	function add_wpcom_to_allowed_redirect_hosts( $domains ) {
+	public function add_wpcom_to_allowed_redirect_hosts() {
 		add_filter( 'allowed_redirect_hosts', array( $this, 'allow_wpcom_domain' ) );
 	}
 
@@ -3930,7 +3918,7 @@ p {
 	 * @return string
 	 */
 	public function login_url( $login_url, $redirect ) {
-		parse_str( wp_parse_url( $redirect, PHP_URL_QUERY ), $redirect_parts );
+		parse_str( (string) wp_parse_url( $redirect, PHP_URL_QUERY ), $redirect_parts );
 		if ( ! empty( $redirect_parts[ self::$jetpack_redirect_login ] ) ) {
 			$login_url = add_query_arg( self::$jetpack_redirect_login, 'true', $login_url );
 		}
@@ -6695,21 +6683,26 @@ endif;
 	 * This method will not take current purchases or upgrades into account
 	 * but is instead a static list of products Jetpack offers with some
 	 * corresponding sales text/materials.
+	 *
+	 * @param bool $show_legacy Determine if we should include legacy product/plan details.
+	 * @return array
 	 */
-	public static function get_products_for_purchase() {
+	public static function get_products_for_purchase( $show_legacy = false ) {
 		$products = array();
 
 		$products['backup'] = array(
 			'title'             => __( 'Jetpack Backup', 'jetpack' ),
-			'slug'              => 'jetpack_backup_daily',
+			'slug'              => 'jetpack_backup_t1_yearly',
 			'description'       => __( 'Never lose a word, image, page, or time worrying about your site with automated backups & one-click restores.', 'jetpack' ),
 			'show_promotion'    => true,
 			'discount_percent'  => 40,
 			'included_in_plans' => array( 'security' ),
 			'features'          => array(
-				_x( 'Automated daily backups (off-site)', 'Backup Product Feature', 'jetpack' ),
-				_x( 'One-click restores', 'Backup Product Feature', 'jetpack' ),
-				_x( 'Unlimited backup storage', 'Backup Product Feature', 'jetpack' ),
+				_x( '10GB of backup storage', 'Backup Product Feature', 'jetpack' ),
+				_x( 'One-click restore from the last 30 days of backups', 'Backup Product Feature', 'jetpack' ),
+				_x( '30-day activity log', 'Backup Product Feature', 'jetpack' ),
+				_x( 'Real-time backups (as you edit)', 'Backup Product Feature', 'jetpack' ),
+				_x( 'Cloud-based, secure backups', 'Backup Product Feature', 'jetpack' ),
 			),
 		);
 
@@ -6759,7 +6752,7 @@ endif;
 
 		$products['security'] = array(
 			'title'             => __( 'Security Bundle', 'jetpack' ),
-			'slug'              => 'jetpack_security_daily',
+			'slug'              => 'jetpack_security_t1_yearly',
 			'description'       => __( 'Get all security products including backups, site scanning, and anti-spam.', 'jetpack' ),
 			'show_promotion'    => true,
 			'discount_percent'  => 40,
@@ -6772,7 +6765,47 @@ endif;
 			),
 		);
 
-		return $products;
+		$products['videopress'] = array(
+			'title'             => __( 'Jetpack VideoPress', 'jetpack' ),
+			'slug'              => 'jetpack_videopress',
+			'description'       => __( 'High-quality, ad-free video built specifically for WordPress.', 'jetpack' ),
+			'show_promotion'    => true,
+			'discount_percent'  => 40,
+			'included_in_plans' => array(),
+			'features'          => array(
+				_x( '1TB of storage', 'VideoPress Product Feature', 'jetpack' ),
+				_x( 'Built into WordPress editor', 'VideoPress Product Feature', 'jetpack' ),
+				_x( 'Ad-free and brandable player', 'VideoPress Product Feature', 'jetpack' ),
+				_x( 'Unlimited users', 'VideoPress Product Feature', 'jetpack' ),
+			),
+		);
+
+		if ( $show_legacy ) {
+			$products['jetpack_backup_daily'] = array(
+				'title'             => __( 'Jetpack Backup', 'jetpack' ),
+				'slug'              => 'jetpack_backup_daily',
+				'description'       => __( 'Never lose a word, image, page, or time worrying about your site with automated backups & one-click restores.', 'jetpack' ),
+				'show_promotion'    => false,
+				'discount_percent'  => 0,
+				'included_in_plans' => array(),
+				'features'          => array(
+					_x( 'Automated daily backups (off-site)', 'Backup Product Feature', 'jetpack' ),
+					_x( 'One-click restores', 'Backup Product Feature', 'jetpack' ),
+					_x( 'Unlimited backup storage', 'Backup Product Feature', 'jetpack' ),
+				),
+			);
+		}
+
+		/**
+		 * Allow for product details modifications.
+		 *
+		 * @since 10.4.0
+		 *
+		 * @param array $products A list of product details.
+		 * @param array $show_legacy Determine if the list should include legacy plans/products.
+		 * @return array
+		 */
+		return apply_filters( 'jetpack_get_products_for_purchase', $products, $show_legacy );
 	}
 
 	/**

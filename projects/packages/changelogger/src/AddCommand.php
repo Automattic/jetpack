@@ -272,7 +272,7 @@ EOF
 					$question = new Question( "Changelog entry. May not be empty.\n > ", $entry );
 					$question->setValidator(
 						function ( $v ) {
-							if ( trim( $v ) === '' ) {
+							if ( trim( (string) $v ) === '' ) {
 								throw new \RuntimeException( 'An empty changelog entry is only allowed when the significance is "patch".' );
 							}
 							return $v;

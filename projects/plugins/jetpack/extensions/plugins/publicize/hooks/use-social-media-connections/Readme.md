@@ -25,6 +25,10 @@ function ToggleConnectionControl() {
 
 The connections list for the site.
 
+### skippedConnections
+
+The connections list, disabled by the user.
+
 ### hasConnections
 
 Boolean value that is True when there are available connections. Otherwise, False.

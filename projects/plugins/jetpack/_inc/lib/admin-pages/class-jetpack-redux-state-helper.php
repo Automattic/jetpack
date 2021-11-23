@@ -14,6 +14,7 @@ use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Responsible for populating the initial Redux state.
@@ -93,11 +94,14 @@ class Jetpack_Redux_State_Helper {
 
 		$connection_status = array_merge( REST_Connector::connection_status( false ), $connection_status );
 
+		$host = new Host();
+
 		return array(
 			'WP_API_root'                 => esc_url_raw( rest_url() ),
 			'WP_API_nonce'                => wp_create_nonce( 'wp_rest' ),
 			'registrationNonce'           => wp_create_nonce( 'jetpack-registration-nonce' ),
 			'purchaseToken'               => self::get_purchase_token(),
+			'partnerCoupon'               => Jetpack_Partner_Coupon_Helper::get_coupon(),
 			'pluginBaseUrl'               => plugins_url( '', JETPACK__PLUGIN_FILE ),
 			'connectionStatus'            => $connection_status,
 			'connectUrl'                  => false == $current_user_data['isConnected'] // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
@@ -140,7 +144,9 @@ class Jetpack_Redux_State_Helper {
 				 * @param bool $are_promotions_active Status of promotions visibility. True by default.
 				 */
 				'showPromotions'             => apply_filters( 'jetpack_show_promotions', true ),
-				'isAtomicSite'               => jetpack_is_atomic_site(),
+				'isAtomicSite'               => $host->is_woa_site(),
+				'isWoASite'                  => $host->is_woa_site(),
+				'isAtomicPlatform'           => $host->is_atomic_platform(),
 				'plan'                       => Jetpack_Plan::get(),
 				'showBackups'                => Jetpack::show_backups_ui(),
 				'showRecommendations'        => Jetpack_Recommendations::is_enabled(),
@@ -170,8 +176,10 @@ class Jetpack_Redux_State_Helper {
 			'isSafari'                    => $is_safari || User_Agent_Info::is_opera_desktop(), // @todo Rename isSafari everywhere.
 			'doNotUseConnectionIframe'    => Constants::is_true( 'JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME' ),
 			'licensing'                   => array(
-				'error'           => Licensing::instance()->last_error(),
-				'showLicensingUi' => Licensing::instance()->is_licensing_input_enabled(),
+				'error'                   => Licensing::instance()->last_error(),
+				'showLicensingUi'         => Licensing::instance()->is_licensing_input_enabled(),
+				'userCounts'              => Jetpack_Core_Json_Api_Endpoints::get_user_license_counts(),
+				'activationNoticeDismiss' => Licensing::instance()->get_license_activation_notice_dismiss(),
 			),
 		);
 	}
@@ -376,6 +384,11 @@ function jetpack_current_user_data() {
 	$dotcom_data       = $jetpack_connection->get_connected_user_data();
 
 	// Add connected user gravatar to the returned dotcom_data.
+	// Probably we shouldn't do this when $dotcom_data is false, but we have been since 2016 so
+	// clients probably expect that by now.
+	if ( false === $dotcom_data ) {
+		$dotcom_data = array();
+	}
 	$dotcom_data['avatar'] = ( ! empty( $dotcom_data['email'] ) ?
 		get_avatar_url(
 			$dotcom_data['email'],

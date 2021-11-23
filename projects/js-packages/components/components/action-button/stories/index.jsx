@@ -24,7 +24,7 @@ const DefaultArgs = {
 	label: 'Action!',
 };
 
-// Export Default story using knobs
+// Export Default story
 export const _default = Template.bind( {} );
 _default.args = DefaultArgs;
 

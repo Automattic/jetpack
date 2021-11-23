@@ -1,16 +1,37 @@
-// @todo Remove this, use calypso-build instead. See https://github.com/Automattic/jetpack/pull/17571.
-// That should also allow us to remove webpack from package.json.
+const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const path = require( 'path' );
 const packagesFolder = path.resolve( __dirname, 'src/js' );
 
 module.exports = [
 	{
-		mode: 'production',
+		entry: {
+			'jetpack-jitm': './jetpack-jitm.js',
+		},
 		context: packagesFolder,
-		entry: './jetpack-jitm.js',
+		mode: jetpackWebpackConfig.mode,
+		devtool: jetpackWebpackConfig.devtool,
 		output: {
+			...jetpackWebpackConfig.output,
 			path: packagesFolder,
-			filename: 'jetpack-jitm.min.js',
+		},
+		optimization: {
+			...jetpackWebpackConfig.optimization,
+		},
+		resolve: {
+			...jetpackWebpackConfig.resolve,
+		},
+		node: false,
+		plugins: [
+			...jetpackWebpackConfig.StandardPlugins( {
+				DependencyExtractionPlugin: false,
+			} ),
+		],
+		module: {
+			strictExportPresence: true,
+			rules: [
+				// Transpile JavaScript, including node_modules.
+				jetpackWebpackConfig.TranspileRule(),
+			],
 		},
 	},
 ];

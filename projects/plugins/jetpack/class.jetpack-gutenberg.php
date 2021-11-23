@@ -6,10 +6,12 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Wrapper function to safely register a gutenberg block type
@@ -617,7 +619,6 @@ class Jetpack_Gutenberg {
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
 
-		$rtl              = is_rtl() ? '.rtl' : '';
 		$blocks_dir       = self::get_blocks_directory();
 		$blocks_variation = self::blocks_variation();
 
@@ -627,27 +628,20 @@ class Jetpack_Gutenberg {
 			$blocks_env = '';
 		}
 
-		$editor_script = plugins_url( "{$blocks_dir}editor{$blocks_env}.min.js", JETPACK__PLUGIN_FILE );
-		$editor_style  = plugins_url( "{$blocks_dir}editor{$blocks_env}.min{$rtl}.css", JETPACK__PLUGIN_FILE );
-
-		$editor_deps_path = JETPACK__PLUGIN_DIR . $blocks_dir . "editor{$blocks_env}.min.asset.php";
-		$editor_deps      = array( 'wp-polyfill' );
-		if ( file_exists( $editor_deps_path ) ) {
-			$asset_manifest = include $editor_deps_path;
-			$editor_deps    = $asset_manifest['dependencies'];
-		}
-
-		$version = Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . $blocks_dir . 'editor.min.js' )
-			? filemtime( JETPACK__PLUGIN_DIR . $blocks_dir . 'editor.min.js' )
-			: JETPACK__VERSION;
-
-		wp_enqueue_script(
+		Assets::register_script(
 			'jetpack-blocks-editor',
-			$editor_script,
-			$editor_deps,
-			$version,
-			false
+			"{$blocks_dir}editor{$blocks_env}.min.js",
+			JETPACK__PLUGIN_FILE,
+			array( 'textdomain' => 'jetpack' )
 		);
+
+		// Hack around #20357 (specifically, that the editor bundle depends on
+		// wp-edit-post but wp-edit-post's styles break the Widget Editor and
+		// Site Editor) until a real fix gets unblocked.
+		// @todo Remove this once #20357 is properly fixed.
+		wp_styles()->query( 'jetpack-blocks-editor', 'registered' )->deps = array();
+
+		Assets::enqueue_script( 'jetpack-blocks-editor' );
 
 		wp_localize_script(
 			'jetpack-blocks-editor',
@@ -683,6 +677,15 @@ class Jetpack_Gutenberg {
 					'enable_upgrade_nudge'      => apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ),
 					'is_private_site'           => '-1' === get_option( 'blog_public' ),
 					'is_offline_mode'           => $status->is_offline_mode(),
+					/**
+					 * Enable the RePublicize UI in the block editor context.
+					 *
+					 * @module publicize
+					 *
+					 * @since 10.3.0
+					 *
+					 * @param bool false Enable the RePublicize UI in the block editor context. Defaults to false.
+					 */
 					'republicize_enabled'       => apply_filters( 'jetpack_block_editor_republicize_feature', false ),
 				),
 				'siteFragment'     => $status->get_site_suffix(),
@@ -692,10 +695,6 @@ class Jetpack_Gutenberg {
 				'allowedMimeTypes' => wp_get_mime_types(),
 			)
 		);
-
-		wp_set_script_translations( 'jetpack-blocks-editor', 'jetpack' );
-
-		wp_enqueue_style( 'jetpack-blocks-editor', $editor_style, array(), $version );
 	}
 
 	/**
@@ -1014,7 +1013,7 @@ class Jetpack_Gutenberg {
 		$slug           = self::remove_extension_prefix( $slug );
 		$features_data  = array();
 		$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
-		$is_atomic_site = jetpack_is_atomic_site();
+		$is_atomic_site = ( new Host() )->is_woa_site();
 
 		// Check feature availability for Simple and Atomic sites.
 		if ( $is_simple_site || $is_atomic_site ) {
@@ -1099,6 +1098,6 @@ class Jetpack_Gutenberg {
  *
  * More doc: https://github.com/Automattic/jetpack/tree/master/projects/plugins/jetpack/extensions#upgrades-for-blocks
  */
-if ( jetpack_is_atomic_site() ) {
+if ( ( new Host() )->is_woa_site() ) {
 	add_filter( 'jetpack_block_editor_enable_upgrade_nudge', '__return_true' );
 }

@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Status\Host;
+
 require_once dirname( __FILE__ ) . '/class.json-api-date.php';
 require_once dirname( __FILE__ ) . '/class.json-api-post-base.php';
 
@@ -180,7 +182,7 @@ abstract class SAL_Site {
 	 * @return bool
 	 */
 	public function is_wpcom_atomic() {
-		return jetpack_is_atomic_site();
+		return ( new Host() )->is_woa_site();
 	}
 
 	public function is_wpcom_store() {

@@ -4,6 +4,7 @@
  * @param {string} url - The URL to extract hostname from.
  * @returns {string} The hostname extracted from the URL.
  */
-const extractHostname = url => ( /^https?:\/\//.test( url ) ? new URL( url ).hostname : url );
+const extractHostname = url =>
+	/^https?:\/\//.test( url ) ? new URL( url ).hostname : url.replace( /\/$/, '' );
 
 export default extractHostname;

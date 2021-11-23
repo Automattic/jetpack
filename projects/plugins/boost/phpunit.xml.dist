@@ -5,6 +5,7 @@
 	convertErrorsToExceptions="true"
 	convertNoticesToExceptions="true"
 	convertWarningsToExceptions="true"
+	convertDeprecationsToExceptions="true"
 	>
 
 	<testsuites>
@@ -15,16 +16,8 @@
 
 	<filter>
 		<whitelist processUncoveredFilesFromWhitelist="false">
-			<directory suffix=".php">./</directory>
-			<exclude>
-				<file>./index.php</file>
-                <file>./jetpack-boost.php</file>
-				<directory suffix=".php">./node_modules</directory>
-				<directory suffix=".php">./tests</directory>
-				<directory suffix=".php">./vendor</directory>
-				<directory suffix=".php">./package</directory>
-                <directory suffix=".php">./.github</directory>
-			</exclude>
+			<directory suffix=".php">app</directory>
+			<directory suffix=".php">compatibility</directory>
 		</whitelist>
 	</filter>
 </phpunit>

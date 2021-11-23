@@ -1,65 +1,47 @@
-## 10.2
+## 10.3
 
 ### Before you start
 
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://codex.wordpress.org/Using_Your_Browser_to_Diagnose_JavaScript_Errors#Step_3:_Diagnosis) and see if there are any errors reported by Jetpack there.**
 - Use "Debug Bar" or "Query Monitor" to help make PHP notices and warnings more noticeable and report anything you see.
 
-### Widget Visibility
+### Likes
 
-Widget visibility controls have been added for blocks when using the block-based widget editor. To test:
+We've made some changes to some of the Likes' settings. To test this out, try the following:
 
-* In Jetpack writing settings `/wp-admin/admin.php?page=jetpack#/writing`, make sure the `Enable widget visibility controls to display widgets only on particular posts or pages` setting under "Widgets" is enabled.
-* Then access the block-based widget editor, `/wp-admin/widgets.php`.
-* Add any block widget, a Paragraph block will work for example.
-* With that block selected, navigate to the block settings panel and open the `Advanced` options.
-* Under `Visibility`, try adding new visibility rules.
-* Visit the frontend of the site to verify your rules are working.
+- Test different setups (Likes & Sharing enabled, only Likes enabled, etc.) in Jetpack > Settings > Sharing.
+- For each setup, test different settings for the Likes under Settings > Sharing: enabled for all posts, enabled per post.
+- For each setup, publish some posts and change the different toggles in the Jetpack plugin sidebar in the block editor.
+- Make sure the Likes and sharing buttons are appropriately displayed on the front end.
+
+### Publicize
+
+We've made a lot of changes to the Publicize interface in this release, to prepare for the addition of the RePublicize feature in the block editor.
+
+Try activating the Publicize feature under Jetpack > Settings > Sharing, then go to Posts > Add New. You should be able to connect new social networks to your site from there, and Publicize should be triggered when you publish new posts. The interface should remain as you know it.
 
 ### VideoPress
 
-VideoPress is being added as a standalone Jetpack product. This is best tested on a Jetpack connected site without a paid Jetpack plan:
+We're continuously improving the experience with VideoPress. In this Beta release, you can try the following:
 
-* The VideoPress module can now be activated from the Modules page (even for sites without a paid plan): `/wp-admin/admin.php?page=jetpack_modules`
-* Once VideoPress is activated, on the Jetpack dashboard `/wp-admin/admin.php?page=jetpack#/dashboard` you will see a VideoPress card that will mention the status such as `1 free video available. Upgrade now to unlock more videos and 1TB of storage`. You can toggle the VideoPress module on/off from this card.
-* If VideoPress is enabled on a site without a paid Jetpack plan, you are able to upload one free video to VideoPress.
-* For uploading videos to VideoPress there are two methods:
-  1. From WordPress.com, go to My Site(s) → Media. Drag the video file from your computer into the media library, or click Add New and select the video file from your computer.
-  2. From the WP Admin dashboard, go to Media → Library and drag the video file from your computer into the media library. Note: Clicking Media → Add New and selecting the video file in WP Admin will not upload the video to Jetpack. In order to upload video, make sure the grid view (Grid View) in media library is selected, and then you can drag the file into the WP Admin media library, or you can click Add New. Clicking Add New in the list view (List View) in media library will not upload the video to Jetpack.
+1. On your site, go to Jetpack > Dashboard or Jetpack > Site Stats, and search for the "VideoPress" card. Follow the steps from there, and take note of anything in the flow that seems out of place or not working.
+2. Once you've purchased a Jetpack VideoPress plan, go back to Jetpack > Settings > Performance in wp-admin, and ensure that the VideoPress card is nicely displayed, with no more prompts to upgrade.
+3. Go to Posts > Add New and try to upload a video.
+4. Play with the different block settings.
 
-### Contact Form Custom Email Headers
+Let us know what you think!
 
-There is a new filter available for customizing the email headers for Jetpack contact forms. For testing, try:
+### Widget Deprecations
 
-* Add a new Jetpack contact form to a test page.
-* Add the following snippet to your site using a functionality plugin:
+We've made changes to multiple widgets in this release, to allow folks using those widgets to switch to using blocks instead.
 
-```php
-add_filter(
-	'jetpack_contact_form_email_headers',
-	function ( $headers, $comment_author, $reply_to_addr, $to ) {
-		$headers .= 'Bcc: ' . $reply_to_addr . "\r\n";
-		return $headers;
-	},
-	10,
-	4
-);
-```
+To test this, try the following:
 
-* Make a test submission to the form you created.
-* An email should be sent to the email address specified in the added snippet.
-* Warning: DO NOT add headers or header data from the form submission without proper escaping and validation, or you're liable to allow abusers to use your site to send spam. Especially DO NOT take email addresses from the form data to add as CC or BCC headers without strictly validating each address against a list of allowed addresses.
-
-### SEO Tools Archive Title
-
-For custom Archive page titles a new `Archive Title` option replaces the `Date` option. To test:
-
-* At `/wp-admin/admin.php?page=jetpack#/traffic` make sure `Customize your SEO settings` is enabled.
-* Click on `Expand to customize the page title structures of your site`.
-* For `Archives` use the buttons to insert each token presented (Site Title, Tagline, and Archive Title).
-* The live preview should show "Example Archive Title/Date" for the inserted `Archive Title`
-* Save the SEO settings.
-* Check a custom post type archive page. For example you can enable Jetpack's custom Portfolio type, then view that archive at `example.com/portfolio/`. In the `<title>` you should see "Projects" replacing the `Archive Title"` inserted via button.
-* Check a date archive (e.g. `example.com/2019/09`). You should see the appropriate date replacing the `Archive Title` inserted via button.
+1. Go to Jetpack > Settings, and enable the Extra widgets as well as the subscriptions feature.
+2. Install [the Classic Widgets plugin](https://wordpress.org/plugins/classic-widgets/).
+3. Go to Appearance > Widgets.
+4. Set up the following widgets: Contact Info & Map widget, Subscriptions, Social Icons.
+5. Deactivate the Classic Widgets plugin.
+6. Go back to Appearance > Widgets and attempt to transform the legacy widgets you set up earlier. You should be offered the option to transform them into blocks.
 
 **Thank you for all your help!**

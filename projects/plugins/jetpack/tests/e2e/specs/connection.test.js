@@ -22,7 +22,7 @@ describe( 'Connection', () => {
 		await prerequisitesBuilder().withCleanEnv().build();
 	} );
 
-	it( 'User-less', async () => {
+	it( 'Site only', async () => {
 		await testStep( 'Can clean up WPCOM cookie', async () => {
 			await ( await Sidebar.init( page ) ).removeCookieByName( 'wordpress_logged_in' );
 		} );

@@ -1,5 +1,5 @@
 {
-	"name": "automattic/jetpack-search",
+	"name": "automattic/jetpack-search-plugin",
 	"description": "A cloud-powered replacement for WordPress' search.",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
@@ -40,11 +40,11 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"mirror-repo": "Automattic/jetpack-search",
+		"mirror-repo": "Automattic/jetpack-search-plugin",
 		"release-branch-prefix": "search",
 		"wp-plugin-slug": "jetpack-search",
 		"changelogger": {
-			"link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
+			"link-template": "https://github.com/Automattic/jetpack-search-plugin/compare/v${old}...v${new}"
 		},
 		"autotagger": true
 	}

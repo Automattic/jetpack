@@ -105,8 +105,8 @@ describe( 'Inspector settings', () => {
 			render( <ButtonControls { ...defaultProps } isGradientAvailable={ true } /> );
 			const backgroundSection = screen.getByText( 'Background' ).closest( 'fieldset' );
 
-			expect( within( backgroundSection ).getByText( 'Solid' ) ).toBeInTheDocument();
-			expect(within(backgroundSection).getByText('Gradient')).toBeInTheDocument();
+			expect( within( backgroundSection ).getByText( 'Solid', { ignore: '[aria-hidden=true]' } ) ).toBeInTheDocument();
+			expect(within(backgroundSection).getByText('Gradient', { ignore: '[aria-hidden=true]' } )).toBeInTheDocument();
 		});
 
 		test( 'sets text color attribute', () => {
@@ -123,7 +123,7 @@ describe( 'Inspector settings', () => {
 
 			const backgroundSection = screen.getByText( 'Background' ).closest( 'fieldset' );
 
-			userEvent.click(within(backgroundSection).getByText('Solid'));
+			userEvent.click(within(backgroundSection).getByText('Solid', { ignore: '[aria-hidden=true]' } ));
 			userEvent.click(within(backgroundSection).getAllByLabelText('Color: ', { exact: false })[0]);
 
 			expect( setBackgroundColor.mock.calls[ 0 ] [ 0 ] ).toMatch( /#[a-z0-9]{6,6}/ );
@@ -133,7 +133,7 @@ describe( 'Inspector settings', () => {
 			render( <ButtonControls { ...defaultProps } isGradientAvailable={ true } /> );
 
 			const backgroundSection = screen.getByText( 'Background' ).closest( 'fieldset' );
-			userEvent.click( within( backgroundSection ).getByText( 'Gradient' ) );
+			userEvent.click( within( backgroundSection ).getByText( 'Gradient', { ignore: '[aria-hidden=true]' } ) );
 			userEvent.click( within( backgroundSection ).getAllByLabelText( 'Gradient: ', { exact: false } )[ 0 ] );
 
 			expect( setGradient.mock.calls[ 0 ][ 0 ] ).toMatch( /linear\-gradient\((.+)\)/ );
