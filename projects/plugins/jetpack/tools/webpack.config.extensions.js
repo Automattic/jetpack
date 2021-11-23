@@ -11,6 +11,7 @@ const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpac
 const path = require( 'path' );
 const webpack = jetpackWebpackConfig.webpack;
 const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
+const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
 const jsdom = require( 'jsdom' );
 
 /**
@@ -250,6 +251,9 @@ module.exports = [
 						supports: () => false,
 					},
 				},
+			} ),
+			new RemoveAssetWebpackPlugin( {
+				assets: [ 'components.js', 'components.js.map' ],
 			} ),
 		],
 	},
