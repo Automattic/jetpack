@@ -288,7 +288,6 @@ export function getPlanClass( plan ) {
 		case PLAN_BUSINESS_MONTHLY:
 		case PLAN_JETPACK_BUSINESS:
 		case PLAN_JETPACK_BUSINESS_MONTHLY:
-		case PLAN_VIP:
 		case PLAN_ECOMMERCE:
 		case PLAN_ECOMMERCE_2_YEARS:
 		case PLAN_ECOMMERCE_MONTHLY:
@@ -301,6 +300,7 @@ export function getPlanClass( plan ) {
 			return 'is-security-t2-plan';
 		case PLAN_JETPACK_COMPLETE:
 		case PLAN_JETPACK_COMPLETE_MONTHLY:
+		case PLAN_VIP:
 			return 'is-complete-plan';
 		case PLAN_JETPACK_BACKUP_T1_YEARLY:
 		case PLAN_JETPACK_BACKUP_T1_MONTHLY:
