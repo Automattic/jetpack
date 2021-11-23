@@ -21,7 +21,7 @@ test.describe( 'Search', () => {
 	const siteUrl = resolveSiteUrl();
 
 	test.beforeAll( async ( { browser } ) => {
-		const page = ( await browser.newContext( playwrightConfig.use ) ).newPage();
+		const page = await browser.newPage( playwrightConfig.use );
 		await prerequisitesBuilder( page )
 			.withLoggedIn( true )
 			.withConnection( true )

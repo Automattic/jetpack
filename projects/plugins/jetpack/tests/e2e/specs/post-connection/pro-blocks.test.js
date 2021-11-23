@@ -13,7 +13,7 @@ test.describe( 'Paid blocks', () => {
 	let blockEditor;
 
 	test.beforeAll( async ( { browser } ) => {
-		const page = ( await browser.newContext( playwrightConfig.use ) ).newPage();
+		const page = await browser.newPage( playwrightConfig.use );
 		await prerequisitesBuilder( page )
 			.withWpComLoggedIn( true )
 			.withLoggedIn( true )

@@ -11,7 +11,7 @@ import playwrightConfig from '../../playwright.config.cjs';
 
 test.describe( 'Jetpack pre-connection', () => {
 	test.beforeAll( async ( { browser } ) => {
-		const page = ( await browser.newContext( playwrightConfig.use ) ).newPage();
+		const page = await browser.newPage( playwrightConfig.use );
 		await prerequisitesBuilder( page ).withCleanEnv().withLoggedIn( true ).build();
 		await page.close();
 	} );
