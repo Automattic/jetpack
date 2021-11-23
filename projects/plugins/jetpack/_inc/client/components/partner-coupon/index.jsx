@@ -75,48 +75,50 @@ const PartnerCouponRedeem = props => {
 	}, [ connectionStatus, partnerCoupon, siteRawUrl, tracksUserData ] );
 
 	return (
-		<ConnectScreen
-			apiNonce={ apiNonce }
-			registrationNonce={ registrationNonce }
-			apiRoot={ apiRoot }
-			images={ [ '/images/products/illustration-backup.png' ] }
-			assetBaseUrl={ pluginBaseUrl }
-			title={ sprintf(
-				/* translators: %s: Jetpack partner name. */
-				__( 'Welcome to Jetpack %s traveler!', 'jetpack' ),
-				partnerCoupon.partner.name
-			) }
-			buttonLabel={ sprintf(
-				/* translators: %s: Name of a Jetpack product. */
-				__( 'Set up & redeem %s', 'jetpack' ),
-				partnerCoupon.product.title
-			) }
-			redirectUri={ `admin.php?page=jetpack&partnerCoupon=${ partnerCoupon.coupon_code }` }
-			connectionStatus={ connectionStatus }
-		>
-			<p>
-				{ sprintf(
+		<div className="jetpack-partner-coupon-redeem">
+			<ConnectScreen
+				apiNonce={ apiNonce }
+				registrationNonce={ registrationNonce }
+				apiRoot={ apiRoot }
+				images={ [ '/images/products/illustration-backup.png' ] }
+				assetBaseUrl={ pluginBaseUrl }
+				title={ sprintf(
+					/* translators: %s: Jetpack partner name. */
+					__( 'Welcome to Jetpack %s traveler!', 'jetpack' ),
+					partnerCoupon.partner.name
+				) }
+				buttonLabel={ sprintf(
 					/* translators: %s: Name of a Jetpack product. */
-					__( 'Redeem your coupon and get started with %s for free the first year!', 'jetpack' ),
+					__( 'Set up & redeem %s', 'jetpack' ),
 					partnerCoupon.product.title
 				) }
-			</p>
-			<ul>
-				{ partnerCoupon.product.features.map( ( feature, key ) => (
-					<li key={ key }>{ feature }</li>
-				) ) }
-			</ul>
-			{ connectionStatus.hasConnectedOwner && (
-				<ActionButton
-					label={ sprintf(
+				redirectUri={ `admin.php?page=jetpack&partnerCoupon=${ partnerCoupon.coupon_code }` }
+				connectionStatus={ connectionStatus }
+			>
+				<p>
+					{ sprintf(
 						/* translators: %s: Name of a Jetpack product. */
-						__( 'Redeem %s', 'jetpack' ),
+						__( 'Redeem your coupon and get started with %s for free the first year!', 'jetpack' ),
 						partnerCoupon.product.title
 					) }
-					onClick={ partnerCouponHandleClick }
-				/>
-			) }
-		</ConnectScreen>
+				</p>
+				<ul>
+					{ partnerCoupon.product.features.map( ( feature, key ) => (
+						<li key={ key }>{ feature }</li>
+					) ) }
+				</ul>
+				{ connectionStatus.hasConnectedOwner && (
+					<ActionButton
+						label={ sprintf(
+							/* translators: %s: Name of a Jetpack product. */
+							__( 'Redeem %s', 'jetpack' ),
+							partnerCoupon.product.title
+						) }
+						onClick={ partnerCouponHandleClick }
+					/>
+				) }
+			</ConnectScreen>
+		</div>
 	);
 };
 
