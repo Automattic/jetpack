@@ -3885,20 +3885,19 @@ p {
 			Tracking::register_tracks_functions_scripts( true );
 
 			// add a deactivation script that will pick up deactivation actions for the Jetpack plugin.
-			$script_deps_path    = JETPACK__PLUGIN_DIR . '_inc/build/plugins-page.asset.php';
-			$script_dependencies = array( 'wp-polyfill' );
-			if ( file_exists( $script_deps_path ) ) {
-				$asset_manifest      = include $script_deps_path;
-				$script_dependencies = $asset_manifest['dependencies'];
-			}
-
-			wp_enqueue_script(
+			Assets::register_script(
 				'jetpack-plugins-page-js',
-				plugins_url( '_inc/build/plugins-page.js', JETPACK__PLUGIN_FILE ),
-				$script_dependencies,
-				JETPACK__VERSION,
-				true
+				'_inc/build/plugins-page.js',
+				JETPACK__PLUGIN_FILE,
+				array(
+					'in_footer'    => true,
+					'dependencies' => array(
+						'wp-polyfill',
+						'wp-components',
+					),
+				)
 			);
+			Assets::enqueue_script( 'jetpack-plugins-page-js' );
 
 			// load this on pages where needed.
 			wp_localize_script(
@@ -3910,20 +3909,11 @@ p {
 				)
 			);
 
-			wp_set_script_translations( 'jetpack-plugins-page-js', 'jetpack' );
-
 			// Add objects to be passed to the initial state of the app.
 			// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
 			wp_add_inline_script( 'jetpack-plugins-page-js', 'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Jetpack_Redux_State_Helper::get_initial_state() ) ) . '"));', 'before' );
+			wp_set_script_translations( 'jetpack-plugins-page-js', 'jetpack' );
 
-			// Include styles for WP Components ( Includes the modal used for disconnection ).
-			wp_enqueue_style( 'wp-components' );
-			wp_enqueue_style(
-				'jetpack-plugins-page-css',
-				plugins_url( '_inc/build/plugins-page.css', JETPACK__PLUGIN_FILE ),
-				array(),
-				JETPACK__VERSION
-			);
 			add_action( 'admin_footer', array( $this, 'jetpack_plugin_portal_containers' ) );
 		}
 	}

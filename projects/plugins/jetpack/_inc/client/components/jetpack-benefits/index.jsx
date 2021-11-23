@@ -8,6 +8,7 @@ import React from 'react';
  */
 import { DisconnectCard } from '@automattic/jetpack-connection';
 import { createInterpolateElement } from '@wordpress/element';
+import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import './style.scss';
@@ -53,16 +54,16 @@ const JetpackBenefits = props => {
 						<li key="reason-cdn">
 							{ createInterpolateElement(
 								__(
-									'Speed up your site and provide mobile-ready images with <a>our CDN</a>',
+									'Speed up your site and provide mobile-ready images with <ExternalLink>our CDN</ExternalLink>',
 									'jetpack'
 								),
 								{
-									a: (
-										<a
+									ExternalLink: (
+										<ExternalLink
 											href={ getRedirectUrl( 'jetpack-features-design-content-delivery-network' ) }
 											rel="noopener noreferrer"
 											target="_blank"
-										/>
+										></ExternalLink>
 									),
 								}
 							) }
@@ -70,16 +71,16 @@ const JetpackBenefits = props => {
 						<li key="reason-brute-force">
 							{ createInterpolateElement(
 								__(
-									'Block <a>brute force attacks</a> and get immediate notifications if your site is down',
+									'Block <ExternalLink>brute force attacks</ExternalLink> and get immediate notifications if your site is down',
 									'jetpack'
 								),
 								{
-									a: (
-										<a
+									ExternalLink: (
+										<ExternalLink
 											href={ getRedirectUrl( 'jetpack-features-security' ) }
 											rel="noopener noreferrer"
 											target="_blank"
-										/>
+										></ExternalLink>
 									),
 								}
 							) }
@@ -87,16 +88,16 @@ const JetpackBenefits = props => {
 						<li key="reason-social">
 							{ createInterpolateElement(
 								__(
-									'Grow your traffic with automated social <a>publishing and sharing</a>',
+									'Grow your traffic with automated social <ExternalLink>publishing and sharing</ExternalLink>',
 									'jetpack'
 								),
 								{
-									a: (
-										<a
+									ExternalLink: (
+										<ExternalLink
 											href={ getRedirectUrl( 'jetpack-support-social' ) }
 											rel="noopener noreferrer"
 											target="_blank"
-										/>
+										></ExternalLink>
 									),
 								}
 							) }
