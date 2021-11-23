@@ -1,0 +1,3 @@
+Significance: patch
+Type: other
+Comment: Moved add_woocommerce_installation_menu method to parent Admin_Menu class so it can be referenced in both Atomic_Admin_Menu and WPcom_Admin_Menu.
