@@ -1119,7 +1119,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "84d83b3ef58c34555b17bf1af26e21ea252e4d62"
+                "reference": "0d8294d4dcc0c4865663c2fca80ccf1e88467c53"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.1",
@@ -1131,6 +1131,11 @@
             },
             "type": "library",
             "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-my-jetpack",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
+                },
                 "branch-alias": {
                     "dev-master": "0.1.x-dev"
                 }

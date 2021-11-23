@@ -684,9 +684,9 @@ class Jetpack_Gutenberg {
 					 *
 					 * @since 10.3.0
 					 *
-					 * @param bool false Enable the RePublicize UI in the block editor context. Defaults to false.
+					 * @param bool true Enable the RePublicize UI in the block editor context. Defaults to true.
 					 */
-					'republicize_enabled'       => apply_filters( 'jetpack_block_editor_republicize_feature', false ),
+					'republicize_enabled'       => apply_filters( 'jetpack_block_editor_republicize_feature', true ),
 				),
 				'siteFragment'     => $status->get_site_suffix(),
 				'adminUrl'         => esc_url( admin_url() ),
