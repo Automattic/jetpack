@@ -2,6 +2,11 @@
 
 ### This is a list detailing changes for the Jetpack RNA IDC package releases.
 
+## 0.5.0 - 2021-11-23
+### Changed
+- Add "Staying in safe mode" spinner, rename CSS classes according to the CSS guidelines.
+- Updated package dependencies
+
 ## 0.4.4 - 2021-11-17
 ### Changed
 - Updated package dependencies.
