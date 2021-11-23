@@ -676,7 +676,7 @@ importers:
       '@automattic/jetpack-api': workspace:^0.7.0
       '@automattic/jetpack-components': workspace:^0.6.3
       '@automattic/jetpack-connection': workspace:^0.10.2
-      '@automattic/jetpack-licensing': workspace:^0.1.0
+      '@automattic/jetpack-licensing': workspace:^0.1.1-alpha
       '@automattic/jetpack-webpack-config': workspace:^0.3.0
       '@automattic/popup-monitor': 1.0.0
       '@automattic/remove-asset-webpack-plugin': workspace:^0.1.0-alpha
