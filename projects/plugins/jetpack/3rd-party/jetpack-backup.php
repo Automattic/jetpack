@@ -22,7 +22,7 @@ add_action( 'admin_init', __NAMESPACE__ . '\try_install' );
 add_action( 'jetpack_activated_plugin', __NAMESPACE__ . '\configure_plugin', 10, 2 );
 
 /**
- * Verify the intent to install Jetpack Backupl, and kick off installation.
+ * Verify the intent to install Jetpack Backup, and kick off installation.
  *
  * This works in tandem with a JITM set up in the JITM package.
  */
@@ -34,10 +34,10 @@ function try_install() {
 	check_admin_referer( 'jetpack-backup-install' );
 
 	$result   = false;
-	$redirect = admin_url( 'edit.php?post_type=feedback' );
+	$redirect = admin_url( 'admin.php?page=jetpack' );
 
 	// Attempt to install and activate the plugin.
-	if ( current_user_can( 'activate_plugins' ) ) {
+	if ( false && current_user_can( 'activate_plugins' ) ) {
 		switch ( $_GET['jetpack-backup-action'] ) {
 			case 'install':
 				$result = install_and_activate();
