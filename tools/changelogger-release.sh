@@ -109,8 +109,6 @@ function releaseProject {
 	local CL
 	if [[ -x vendor/bin/changelogger ]]; then
 		CL=vendor/bin/changelogger
-	elif [[ -x bin/changelogger ]]; then
-		CL=bin/changelogger
 	else
 		yellow "${I}No changelogger! Skipping."
 		return
@@ -191,8 +189,6 @@ if [[ "$SLUG" == plugins/* ]]; then
 	VER=
 	if [[ -x "projects/$SLUG/vendor/bin/changelogger" ]]; then
 		VER=$(cd "projects/$SLUG" && vendor/bin/changelogger version current)
-	elif [[ -x "projects/$SLUG/bin/changelogger" ]]; then
-		VER=$(cd "projects/$SLUG" && bin/changelogger version current)
 	fi
 	if [[ -n "$VER" ]]; then
 		cat <<-EOM

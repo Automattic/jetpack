@@ -25,13 +25,13 @@ const ConnectScreenRequiredPlanVisual = props => {
 		autoTrigger,
 		buttonLabel,
 		children,
-		connectionStatus,
 		priceBefore,
 		priceAfter,
 		pricingIcon,
 		pricingTitle,
 		pricingCurrencyCode,
 		renderConnectBtn,
+		isLoading,
 	} = props;
 
 	const tos = createInterpolateElement(
@@ -65,9 +65,7 @@ const ConnectScreenRequiredPlanVisual = props => {
 			title={ title }
 			className={
 				'jp-connection__connect-screen-required-plan' +
-				( connectionStatus.hasOwnProperty( 'isRegistered' )
-					? ''
-					: ' jp-connection__connect-screen-required-plan__loading' )
+				( isLoading ? ' jp-connection__connect-screen-required-plan__loading' : '' )
 			}
 		>
 			<div className="jp-connection__connect-screen-required-plan__content">
@@ -107,14 +105,14 @@ ConnectScreenRequiredPlanVisual.propTypes = {
 	title: PropTypes.string,
 	/** The Connect Button label. */
 	buttonLabel: PropTypes.string,
-	/** Connection Status object */
-	connectionStatus: PropTypes.object.isRequired,
 	/** Whether to initiate the connection process automatically upon rendering the component. */
 	autoTrigger: PropTypes.bool,
 	/** The Pricing Card Icon. */
 	pricingIcon: PropTypes.string,
 	/** Connect button render function */
 	renderConnectBtn: PropTypes.func.isRequired,
+	/** Whether the connection status is still loading. */
+	isLoading: PropTypes.bool.isRequired,
 };
 
 ConnectScreenRequiredPlanVisual.defaultProps = {

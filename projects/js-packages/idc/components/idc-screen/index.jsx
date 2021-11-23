@@ -45,10 +45,10 @@ const IDCScreen = props => {
 	}, [ apiRoot, apiNonce ] );
 
 	return (
-		<div className="jp-idc-screen-base">
-			<div className="jp-idc-header">
-				<div className="jp-idc-logo">{ logo }</div>
-				<div className="jp-idc-logo-label">{ headerText }</div>
+		<div className={ 'jp-idc__idc-screen' + ( isMigrated ? ' jp-idc__idc-screen__success' : '' ) }>
+			<div className="jp-idc__idc-screen__header">
+				<div className="jp-idc__idc-screen__logo">{ logo }</div>
+				<div className="jp-idc__idc-screen__logo-label">{ headerText }</div>
 			</div>
 
 			{ isMigrated ? (
