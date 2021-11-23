@@ -29,7 +29,7 @@ export function* getSearchModuleStatus() {
 }
 
 /**
- * Yield actions to ge tSearch Plan Info
+ * Yield actions to getSearch Plan Info
  *
  * @yields {object} - an action object.
  * @returns {object} - an action object.
