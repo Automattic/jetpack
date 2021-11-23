@@ -50,5 +50,11 @@ module.exports = [
 				jetpackWebpackConfig.FileRule(),
 			],
 		},
+		externals: {
+			...jetpackWebpackConfig.externals,
+			jetpackConfig: JSON.stringify( {
+				consumer_slug: 'jetpack-backup',
+			} ),
+		},
 	},
 ];

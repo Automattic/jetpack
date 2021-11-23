@@ -87,6 +87,12 @@ module.exports = [
 			...jetpackWebpackConfig.DependencyExtractionPlugin( { injectPolyfill: true } ),
 			new NodePolyfillPlugin(),
 		],
+		externals: {
+			...sharedWebpackConfig.externals,
+			jetpackConfig: JSON.stringify( {
+				consumer_slug: 'jetpack',
+			} ),
+		},
 	},
 	{
 		...sharedWebpackConfig,
