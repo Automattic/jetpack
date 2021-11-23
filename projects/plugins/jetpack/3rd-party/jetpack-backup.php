@@ -33,7 +33,7 @@ function try_install() {
 
 	check_admin_referer( 'jetpack-backup-install' );
 
-	$result   = false;
+	$result = false;
 	// If the plugin install fails, redirect to plugin install page pre-populated with jetpack-backup search term.
 	$redirect_on_error = admin_url( 'plugin-install.php?s=jetpack-backup&tab=search&type=term' );
 
@@ -49,11 +49,14 @@ function try_install() {
 		}
 	}
 
+	$jetpack = \Jetpack::init();
 	if ( $result ) {
 		/** This action is already documented in _inc/lib/class.core-rest-api-endpoints.php */
 		do_action( 'jetpack_activated_plugin', PLUGIN_FILE, 'jitm' );
+		$jetpack->stat( 'jitm-plugin-install', 'jetpack-backup-success' );
 		$redirect = admin_url( 'admin.php?page=jetpack-backup' );
 	} else {
+		$jetpack->stat( 'jitm-plugin-install', 'jetpack-backup-fail' );
 		$redirect = add_query_arg( 'jetpack-backup-install-error', true, $redirect_on_error );
 	}
 
@@ -100,7 +103,7 @@ function error_notice() {
 
 	?>
 	<div class="notice notice-error is-dismissible">
-		<p><?php esc_html_e( 'There was an error installing Jetpack Backup.', 'jetpack' ); ?></p>
+		<p><?php esc_html_e( 'There was an error installing Jetpack Backup. Please try again.', 'jetpack' ); ?></p>
 	</div>
 	<?php
 }
