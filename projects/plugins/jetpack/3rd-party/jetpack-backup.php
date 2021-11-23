@@ -34,10 +34,11 @@ function try_install() {
 	check_admin_referer( 'jetpack-backup-install' );
 
 	$result   = false;
-	$redirect = admin_url( 'admin.php?page=jetpack' );
+	// If the plugin install fails, redirect to plugin install page pre-populated with jetpack-backup search term.
+	$redirect_on_error = admin_url( 'plugin-install.php?s=jetpack-backup&tab=search&type=term' );
 
 	// Attempt to install and activate the plugin.
-	if ( false && current_user_can( 'activate_plugins' ) ) {
+	if ( current_user_can( 'activate_plugins' ) ) {
 		switch ( $_GET['jetpack-backup-action'] ) {
 			case 'install':
 				$result = install_and_activate();
@@ -53,7 +54,7 @@ function try_install() {
 		do_action( 'jetpack_activated_plugin', PLUGIN_FILE, 'jitm' );
 		$redirect = admin_url( 'admin.php?page=jetpack-backup' );
 	} else {
-		$redirect = add_query_arg( 'jetpack-backup-install-error', true, $redirect );
+		$redirect = add_query_arg( 'jetpack-backup-install-error', true, $redirect_on_error );
 	}
 
 	wp_safe_redirect( $redirect );
