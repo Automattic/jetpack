@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Likes: replace usage of postmessage.js with native window.postMessage
