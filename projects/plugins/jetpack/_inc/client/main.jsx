@@ -18,6 +18,10 @@ import Navigation from 'components/navigation';
 import NavigationSettings from 'components/navigation-settings';
 import SearchableSettings from 'settings/index.jsx';
 import {
+	updateLicensingActivationNoticeDismiss as updateLicensingActivationNoticeDismissAction,
+	updateUserLicensesCounts as updateUserLicensesCountsAction,
+} from 'state/licensing';
+import {
 	getSiteConnectionStatus,
 	isCurrentUserLinked,
 	isSiteConnected,
@@ -45,6 +49,10 @@ import {
 	getPluginBaseUrl,
 	isWoASite,
 } from 'state/initial-state';
+import {
+	fetchSiteData as fetchSiteDataAction,
+	fetchSitePurchases as fetchSitePurchasesAction,
+} from 'state/site';
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
 import { getSearchTerm } from 'state/search';
 import { Recommendations } from 'recommendations';
@@ -96,6 +104,7 @@ class Main extends React.Component {
 	constructor( props ) {
 		super( props );
 		this.closeReconnectModal = this.closeReconnectModal.bind( this );
+		this.onLicenseActivationSuccess = this.onLicenseActivationSuccess.bind( this );
 	}
 
 	UNSAFE_componentWillMount() {
@@ -361,6 +370,7 @@ class Main extends React.Component {
 						lockImage="/images/jetpack-license-activation-with-lock.png"
 						siteRawUrl={ this.props.siteRawUrl }
 						successImage="/images/jetpack-license-activation-with-success.png"
+						onActivationSuccess={ this.onLicenseActivationSuccess }
 					/>
 				);
 				break;
@@ -513,6 +523,21 @@ class Main extends React.Component {
 		return this.props.location.pathname.startsWith( '/setup' );
 	}
 
+	/**
+	 * Fires after a user(not partner) product license key has been sucessfully activated.
+	 */
+	onLicenseActivationSuccess() {
+		// First update state.jetpack.licensing.userCounts before dismissing the license activation notice.
+		this.props.updateUserLicensesCounts().then( () => {
+			// Manually dismiss the userLicenseActivationNotice.
+			this.props.updateLicensingActivationNoticeDismiss();
+		} );
+		// Update site plan.
+		this.props.fetchSiteData();
+		// Update site products.
+		this.props.fetchSitePurchases();
+	}
+
 	render() {
 		const jpClasses = [ 'jp-lower' ];
 
@@ -595,6 +620,18 @@ export default connect(
 		},
 		resetConnectUser: () => {
 			return dispatch( resetConnectUser() );
+		},
+		updateLicensingActivationNoticeDismiss: () => {
+			return dispatch( updateLicensingActivationNoticeDismissAction() );
+		},
+		updateUserLicensesCounts: () => {
+			return dispatch( updateUserLicensesCountsAction() );
+		},
+		fetchSiteData: () => {
+			return dispatch( fetchSiteDataAction() );
+		},
+		fetchSitePurchases: () => {
+			return dispatch( fetchSitePurchasesAction() );
 		},
 	} )
 )(
