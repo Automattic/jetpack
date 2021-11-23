@@ -264,6 +264,11 @@ function wpcomsh_update_plugin_link_destination( $url, $path, $scheme ) {
  * @return void
  */
 function wpcomsh_update_plugin_add_filter() {
+	// If site is not connected, return early.
+	if ( ! class_exists( 'Automattic\Jetpack\Status' ) ) {
+		return;
+	}
+
 	// Changes plugin-install.php destination to Calypso.
 	// Documented in https://github.com/Automattic/jetpack/blob/f04ffdb03421e16a513ccbe208fec1d7fef2354d/projects/plugins/jetpack/modules/masterbar/admin-menu/class-atomic-admin-menu.php#L116-L125
 	add_filter( 'wpcom_marketplace_enabled', '__return_true' );
