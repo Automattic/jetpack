@@ -19,7 +19,6 @@ const PLUGIN_FILE = 'jetpack-backup/jetpack-backup.php';
 
 add_action( 'admin_notices', __NAMESPACE__ . '\error_notice' );
 add_action( 'admin_init', __NAMESPACE__ . '\try_install' );
-add_action( 'jetpack_activated_plugin', __NAMESPACE__ . '\configure_plugin', 10, 2 );
 
 /**
  * Verify the intent to install Jetpack Backup, and kick off installation.
@@ -103,27 +102,4 @@ function error_notice() {
 		<p><?php esc_html_e( 'There was an error installing Jetpack Backup. Please try again.', 'jetpack' ); ?></p>
 	</div>
 	<?php
-}
-
-/**
- * Set some options when first activating the plugin via Jetpack.
- *
- * @since 10.4.0
- *
- * @param string $plugin_file Plugin file.
- * @param string $source      Where did the plugin installation originate.
- */
-function configure_plugin( $plugin_file, $source ) {
-	if ( PLUGIN_FILE !== $plugin_file ) {
-		return;
-	}
-
-	$plugin_info = array(
-		'plugin'  => 'jetpack',
-		'version' => JETPACK__VERSION,
-		'time'    => time(),
-		'source'  => esc_attr( $source ),
-	);
-
-	\Jetpack_Options::update_option( 'jetpack_backup_referred_by', $plugin_info );
 }
