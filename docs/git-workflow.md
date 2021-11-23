@@ -73,3 +73,21 @@ $ git rebase jetpack/master
 # Then push your changes to your forked version of Jetpack
 $ git push -f origin update/my-changes
 ```
+
+### Tips for common issues when merging
+
+#### Dealing with lock files
+
+It's seldom worth manually merging changes to lock files. It's usually better to regenerate the changes instead. Assuming you've just done a `git merge origin/master`,
+
+* For `composer.lock`, you can do something like `git checkout origin/master projects/x/y/composer.lock && tools/composer-update-monorepo.sh --root-reqs projects/x/y/`.
+* For `pnpm-lock.yaml`, you can do `git checkout origin/master pnpm-lock.yaml && pnpm install`.
+
+For the pnpm lock file in particular, it's easy for a `git merge` or `git rebase` to do weird things resulting in a diff with unnecessary changes or outdated versions of indirect dependencies.
+
+#### Project version updates
+
+If the merged changes include a release of one or more projects, you may run into merge conflicts or CI complaints around project versions.
+This is particularly common in `package.json` files, as the dependencies there tend to be more specific.
+
+You should first resolve any merge conflicts as best you can. You can then run `tools/fixup-project-versions.sh` to check for and fix version update issues that CI would otherwise complain about.

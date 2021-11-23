@@ -631,7 +631,8 @@ class Jetpack_Gutenberg {
 		Assets::register_script(
 			'jetpack-blocks-editor',
 			"{$blocks_dir}editor{$blocks_env}.min.js",
-			JETPACK__PLUGIN_FILE
+			JETPACK__PLUGIN_FILE,
+			array( 'textdomain' => 'jetpack' )
 		);
 
 		// Hack around #20357 (specifically, that the editor bundle depends on
@@ -694,8 +695,6 @@ class Jetpack_Gutenberg {
 				'allowedMimeTypes' => wp_get_mime_types(),
 			)
 		);
-
-		wp_set_script_translations( 'jetpack-blocks-editor', 'jetpack' );
 	}
 
 	/**
