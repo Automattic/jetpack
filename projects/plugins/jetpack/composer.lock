@@ -797,7 +797,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "9924e308d4429afcf0266fda05f15e00fde4410b"
+                "reference": "c30fd1de3bbde7c03f411f3e2e33f97c758b9d60"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.13",
@@ -854,6 +854,10 @@
                 ],
                 "post-update-cmd": [
                     "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
                 ]
             },
             "license": [
