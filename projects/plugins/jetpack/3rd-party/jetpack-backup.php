@@ -49,14 +49,11 @@ function try_install() {
 		}
 	}
 
-	$jetpack = \Jetpack::init();
 	if ( $result ) {
 		/** This action is already documented in _inc/lib/class.core-rest-api-endpoints.php */
 		do_action( 'jetpack_activated_plugin', PLUGIN_FILE, 'jitm' );
-		$jetpack->stat( 'jitm-plugin-install', 'jetpack-backup-success' );
 		$redirect = admin_url( 'admin.php?page=jetpack-backup' );
 	} else {
-		$jetpack->stat( 'jitm-plugin-install', 'jetpack-backup-fail' );
 		$redirect = add_query_arg( 'jetpack-backup-install-error', true, $redirect_on_error );
 	}
 
