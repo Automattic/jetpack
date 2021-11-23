@@ -22,6 +22,7 @@
 				"@automattic/jetpack-licensing",
 				"@automattic/jetpack-storybook",
 				"@automattic/jetpack-webpack-config",
+				"@automattic/remove-asset-webpack-plugin",
 				"automattic/jetpack-a8c-mc-stats",
 				"automattic/jetpack-abtest",
 				"automattic/jetpack-admin-ui",

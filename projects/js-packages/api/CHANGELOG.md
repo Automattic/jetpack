@@ -2,6 +2,11 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.7.0 - 2021-11-23
+### Changed
+- Auto-formatting of the unit test.
+- Informs plugin_slug to the register endpoint using the JS Config package
+
 ## 0.6.0 - 2021-11-16
 ### Added
 - Add new `attach-licences`api method.
