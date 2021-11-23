@@ -108,7 +108,7 @@ function error_notice() {
 /**
  * Set some options when first activating the plugin via Jetpack.
  *
- * @since 8.9.0
+ * @since 10.4.0
  *
  * @param string $plugin_file Plugin file.
  * @param string $source      Where did the plugin installation originate.
@@ -125,5 +125,5 @@ function configure_plugin( $plugin_file, $source ) {
 		'source'  => esc_attr( $source ),
 	);
 
-	update_option( 'jetpack_backup_referred_by', $plugin_info );
+	\Jetpack_Options::update_option( 'jetpack_backup_referred_by', $plugin_info );
 }
