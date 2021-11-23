@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Fixes the URL of JITMs rendered in the unified sidebar when an absolute URL is given. This only affects WP.com sites.
