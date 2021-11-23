@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Add consumer_slug config to webpack

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a Sync Data Settings page, which displays the data settings provided by each Sync data filter.

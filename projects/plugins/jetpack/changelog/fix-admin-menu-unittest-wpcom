@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Skips redirect tests for admin menu in wpcom environment.
