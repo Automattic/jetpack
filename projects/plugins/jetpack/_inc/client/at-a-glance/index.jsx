@@ -181,7 +181,7 @@ class AtAGlance extends Component {
 			if ( performanceCards.length ) {
 				pairs.push( {
 					header: (
-						<DashSectionHeader key="performanceHeader" label={ __( 'Performance', 'jetpack' ) } />
+						<DashSectionHeader key="performanceHeader" label={ __( 'Performance & Growth', 'jetpack' ) } />
 					),
 					cards: performanceCards,
 				} );
