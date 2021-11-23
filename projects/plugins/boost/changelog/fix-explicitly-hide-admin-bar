@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Explicitly hide admin_bar during Critical CSS render
