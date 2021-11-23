@@ -31,7 +31,7 @@ class PluginDashItem extends Component {
 		siteAdminUrl: PropTypes.string,
 	};
 
-	activatePlugin = () => {
+	activateOrInstallPlugin = () => {
 		apiFetch( {
 			path: '/jetpack/v4/plugins',
 			method: 'POST',
@@ -42,15 +42,6 @@ class PluginDashItem extends Component {
 		} ).then( () => {} );
 	};
 
-	installPlugin = () => {
-		apiFetch( {
-			path: `/jetpack/v4/plugins/${ this.props.pluginFile }`,
-			method: 'POST',
-			data: {
-				status: 'active',
-			},
-		} ).then( () => {} );
-	};
 
 	// wp_nonce_url( self_admin_url( 'update.php?action=install-plugin&plugin=' . $plugin_slug ), 'install-plugin_' . $plugin_slug );
 	// wp_nonce_url( 'plugins.php?action=activate&amp;plugin=' . rawurlencode( $plugin_file ) . '&amp;plugin_status=all&amp;paged=1', 'activate-plugin_' . $plugin_file );
@@ -76,14 +67,14 @@ class PluginDashItem extends Component {
 				// 		br: <br />,
 				// 	}
 				// ) }
-				disableHref="false"
+				// disableHref="false"
 				// href={ getRedirectUrl( 'calypso-plugins-setup', {
 				// 	site: this.props.siteRawUrl,
 				// 	query: 'only=backups',
 				// } ) }
 				// href={ site }
-				eventFeature="boost"
-				onClick={ this.installPlugin }
+				// eventFeature="boost"
+				onClick={ this.activateOrInstallPlugin }
 				// path="dashboard"
 				// icon="plans"
 				// trackBannerDisplay={ this.props.trackUpgradeButtonView }
@@ -114,9 +105,9 @@ class PluginDashItem extends Component {
 				// 		br: <br />,
 				// 	}
 				// ) }
-				disableHref="false"
-				eventFeature="boost"
-				onClick={ this.activatePlugin }
+				// disableHref="false"
+				// eventFeature="boost"
+				onClick={ this.activateOrInstallPlugin }
 				// path="dashboard"
 				// icon="plans"
 				// trackBannerDisplay={ this.props.trackUpgradeButtonView }

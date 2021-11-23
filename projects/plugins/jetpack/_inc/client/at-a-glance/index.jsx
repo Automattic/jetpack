@@ -14,6 +14,7 @@ import { withModuleSettingsFormHelpers } from 'components/module-settings/with-m
 import DashSectionHeader from 'components/dash-section-header';
 import DashActivity from './activity';
 import DashBoost from './boost';
+import DashCRM from './crm';
 import DashStats from './stats/index.jsx';
 import DashProtect from './protect';
 import DashMonitor from './monitor';
@@ -174,7 +175,7 @@ class AtAGlance extends Component {
 			}
 
 			performanceCards.push(
-				<DashBoost />
+				<DashBoost />, <DashCRM />
 			);
 
 			if ( performanceCards.length ) {

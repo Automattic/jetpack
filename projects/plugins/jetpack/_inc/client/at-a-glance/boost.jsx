@@ -19,7 +19,6 @@ class DashBoost extends Component {
 				label={ __( 'Boost', 'jetpack' ) }
 				pluginFile={ BOOST_PLUGIN_FILE }
 				pluginSlug={ BOOST_PLUGIN_SLUG }
-				activatePlugin={ () => {} }
 			/>
 		);
 	}
