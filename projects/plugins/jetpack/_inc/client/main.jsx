@@ -113,8 +113,6 @@ class Main extends React.Component {
 		restApi.setApiNonce( this.props.apiNonce );
 		this.initializeAnalytics();
 
-		this.props.setConnectionStatus( this.props.connectionStatus );
-
 		// Handles refresh, closing and navigating away from Jetpack's Admin Page
 		// beforeunload can not handle confirm calls in most of the browsers, so just clean up the flag.
 		window.addEventListener( 'beforeunload', this.props.clearUnsavedSettingsFlag );
