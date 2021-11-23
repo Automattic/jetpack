@@ -168,6 +168,17 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		$this->assertSame( $markup, $menu[1][0] );
 		$this->assertSame( $link, $menu[1][2] );
+
+		// Reset.
+		$menu = static::$menu_data;
+
+		$nudge = array(
+			'content' => 'Some content',
+			'cta'     => '<b>CTA</b>',
+			'link'    => 'https://wordpress.org',
+		);
+		static::$admin_menu->add_upsell_nudge( $nudge );
+		$this->assertSame( 'https://wordpress.org', $menu[1][2] );
 	}
 
 	/**
