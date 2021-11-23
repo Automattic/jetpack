@@ -22,10 +22,14 @@ import LayoutPicker from './layout-picker.native';
 
 const MIN_COLUMNS = 1;
 export const MAX_COLUMNS = 8;
-export const DEFAULT_COLUMNS = 2;
+const DEFAULT_COLUMNS_PORTRAIT = 2;
+const DEFAULT_COLUMNS_LANDSCAPE = 4;
 const MIN_ROUNDED_CORNERS = 0;
 const MAX_ROUNDED_CORNERS = 20;
 const DEFAULT_ROUNDED_CORNERS = 2;
+
+export const dynamicColumnsNumber = window =>
+	window.width >= window.height ? DEFAULT_COLUMNS_LANDSCAPE : DEFAULT_COLUMNS_PORTRAIT;
 
 const TiledGallerySettings = props => {
 	const horizontalSettingsDivider = usePreferredColorSchemeStyle(
@@ -33,8 +37,17 @@ const TiledGallerySettings = props => {
 		styles.horizontalBorderDark
 	);
 
-	const { setAttributes, linkTo, columns, roundedCorners, clientId, className } = props;
-	const [ columnNumber, setColumnNumber ] = useState( columns ?? DEFAULT_COLUMNS );
+	const {
+		setAttributes,
+		numImages,
+		linkTo,
+		columns,
+		roundedCorners,
+		clientId,
+		className,
+		window,
+	} = props;
+	const [ columnNumber, setColumnNumber ] = useState( columns ?? dynamicColumnsNumber( window ) );
 	useEffect( () => {
 		setColumnNumber( columns );
 	}, [ columns ] );
@@ -66,8 +79,8 @@ const TiledGallerySettings = props => {
 				<UnitControl
 					label={ __( 'Columns', 'jetpack' ) }
 					min={ MIN_COLUMNS }
-					max={ MAX_COLUMNS }
-					value={ columnNumber }
+					max={ numImages }
+					value={ Math.min( columnNumber, numImages ) }
 					onChange={ value => {
 						setColumnNumber( value );
 						setAttributes( { columns: value } );

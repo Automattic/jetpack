@@ -1,7 +1,7 @@
 /**
  * External Dependencies
  */
-import { View } from 'react-native';
+import { useWindowDimensions, View } from 'react-native';
 import { concat } from 'lodash';
 
 /**
@@ -26,7 +26,7 @@ import { useResizeObserver } from '@wordpress/compose';
 import { ALLOWED_MEDIA_TYPES } from './constants';
 import { icon } from '.';
 import styles from './styles.scss';
-import TiledGallerySettings, { DEFAULT_COLUMNS, MAX_COLUMNS } from './settings';
+import TiledGallerySettings, { dynamicColumnsNumber, MAX_COLUMNS } from './settings';
 
 const TILE_SPACING = 8;
 
@@ -37,6 +37,8 @@ export function defaultColumnsNumber( images ) {
 const TiledGalleryEdit = props => {
 	const [ resizeObserver, sizes ] = useResizeObserver();
 	const [ maxWidth, setMaxWidth ] = useState( 0 );
+
+	const window = useWindowDimensions();
 
 	const {
 		className,
@@ -94,7 +96,7 @@ const TiledGalleryEdit = props => {
 
 	useEffect( () => {
 		if ( ! columns ) {
-			const col = Math.min( images.length, DEFAULT_COLUMNS );
+			const col = Math.min( images.length, dynamicColumnsNumber( window ) );
 			setAttributes( { columns: Math.max( col, 1 ) } );
 		}
 	}, [ columns, images, setAttributes ] );
@@ -115,7 +117,7 @@ const TiledGalleryEdit = props => {
 
 	useEffect( () => {
 		if ( ! columns ) {
-			setAttributes( { columns: DEFAULT_COLUMNS } );
+			setAttributes( { columns: dynamicColumnsNumber( window ) } );
 		}
 	}, [ columns, setAttributes ] );
 
@@ -175,6 +177,8 @@ const TiledGalleryEdit = props => {
 				roundedCorners={ roundedCorners }
 				clientId={ clientId }
 				className={ props.attributes.className }
+				window={ window }
+				numImages={ images.length }
 			/>
 			<View { ...innerBlocksProps } />
 			<View style={ [ styles.galleryAppender ] }>{ mediaPlaceholder }</View>
