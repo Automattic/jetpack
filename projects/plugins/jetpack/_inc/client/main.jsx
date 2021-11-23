@@ -216,10 +216,7 @@ class Main extends React.Component {
 	}
 
 	renderMainContent = route => {
-		if (
-			this.isWooConnectScreen() ||
-			( this.props.isWooCommerceActive && ! this.props.hasSeenWCConnectionModal )
-		) {
+		if ( this.shouldShowWooConnectionScreen() ) {
 			return (
 				<ContextualizedConnection
 					apiNonce={ this.props.apiNonce }
@@ -471,12 +468,20 @@ class Main extends React.Component {
 
 	shouldShowAppsCard() {
 		// Only show on the dashboard
-		return this.props.isSiteConnected && dashboardRoutes.includes( this.props.location.pathname );
+		return (
+			this.props.isSiteConnected &&
+			! this.shouldShowWooConnectionScreen() &&
+			dashboardRoutes.includes( this.props.location.pathname )
+		);
 	}
 
 	shouldShowSupportCard() {
 		// Only show on the dashboard
-		return this.props.isSiteConnected && dashboardRoutes.includes( this.props.location.pathname );
+		return (
+			this.props.isSiteConnected &&
+			! this.shouldShowWooConnectionScreen() &&
+			dashboardRoutes.includes( this.props.location.pathname )
+		);
 	}
 
 	shouldShowRewindStatus() {
@@ -532,12 +537,15 @@ class Main extends React.Component {
 	}
 
 	/**
-	 * Checks if this is the Woo connection screen page.
+	 * Checks whether we should show the Woo Connection screen page.
 	 *
-	 * @returns {boolean} Whether this is the Woo connection screen page.
+	 * @returns {boolean} Whether we should show the Woo connection screen page.
 	 */
-	isWooConnectScreen() {
-		return '/woo-setup' === this.props.location.pathname;
+	shouldShowWooConnectionScreen() {
+		return (
+			'/woo-setup' === this.props.location.pathname ||
+			( this.props.isWooCommerceActive && ! this.props.hasSeenWCConnectionModal )
+		);
 	}
 
 	/**
