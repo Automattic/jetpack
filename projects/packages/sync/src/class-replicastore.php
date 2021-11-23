@@ -1188,13 +1188,18 @@ class Replicastore implements Replicastore_Interface {
 		if ( false !== Modules::get_module( 'posts' ) ) {
 			$result['posts']     = $this->summarize_checksum_histogram( $this->checksum_histogram( 'posts', null, null, null, null, true, '', false, false, $perform_text_conversion ) );
 			$result['post_meta'] = $this->summarize_checksum_histogram( $this->checksum_histogram( 'postmeta', null, null, null, null, true, '', false, false, $perform_text_conversion ) );
-
+		} else {
+			$result['posts']     = 0;
+			$result['post_meta'] = 0;
 		}
 
 		// is comments modules enabled?
 		if ( false !== Modules::get_module( 'comments' ) ) {
 			$result['comments']     = $this->summarize_checksum_histogram( $this->checksum_histogram( 'comments', null, null, null, null, true, '', false, false, $perform_text_conversion ) );
 			$result['comment_meta'] = $this->summarize_checksum_histogram( $this->checksum_histogram( 'commentmeta', null, null, null, null, true, '', false, false, $perform_text_conversion ) );
+		} else {
+			$result['comments']     = 0;
+			$result['comment_meta'] = 0;
 		}
 
 		// is terms module enabled?
@@ -1202,6 +1207,10 @@ class Replicastore implements Replicastore_Interface {
 			$result['terms']              = $this->summarize_checksum_histogram( $this->checksum_histogram( 'terms', null, null, null, null, true, '', false, false, $perform_text_conversion ) );
 			$result['term_relationships'] = $this->summarize_checksum_histogram( $this->checksum_histogram( 'term_relationships', null, null, null, null, true, '', false, false, $perform_text_conversion ) );
 			$result['term_taxonomy']      = $this->summarize_checksum_histogram( $this->checksum_histogram( 'term_taxonomy', null, null, null, null, true, '', false, false, $perform_text_conversion ) );
+		} else {
+			$result['terms']              = 0;
+			$result['term_relationships'] = 0;
+			$result['term_taxonomy']      = 0;
 		}
 
 		/**
