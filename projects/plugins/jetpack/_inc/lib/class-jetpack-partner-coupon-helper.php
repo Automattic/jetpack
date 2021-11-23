@@ -133,13 +133,19 @@ class Jetpack_Partner_Coupon_Helper {
 			return false;
 		}
 
-		$partner = self::$instance->get_coupon_partner_name( $coupon_code );
+		$partner = self::$instance->get_coupon_partner( $coupon_code );
 
 		if ( ! $partner ) {
 			return false;
 		}
 
-		$product = self::$instance->get_coupon_product( $coupon_code );
+		$preset = self::$instance->get_coupon_preset( $coupon_code );
+
+		if ( ! $preset ) {
+			return false;
+		}
+
+		$product = self::$instance->get_coupon_product( $preset );
 
 		if ( ! $product ) {
 			return false;
@@ -148,37 +154,43 @@ class Jetpack_Partner_Coupon_Helper {
 		return array(
 			'coupon_code' => $coupon_code,
 			'partner'     => $partner,
+			'preset'      => $preset,
 			'product'     => $product,
 		);
 	}
 
 	/**
-	 * Get coupon partner name.
+	 * Get coupon partner.
 	 *
 	 * @param string $coupon_code Coupon code to go through.
-	 * @return string|bool
+	 * @return array|bool
 	 */
-	private function get_coupon_partner_name( $coupon_code ) {
+	private function get_coupon_partner( $coupon_code ) {
 		if ( ! is_string( $coupon_code ) || false === strpos( $coupon_code, '_' ) ) {
 			return false;
 		}
 
-		$partner            = strtok( $coupon_code, '_' );
+		$prefix             = strtok( $coupon_code, '_' );
 		$supported_partners = $this->get_supported_partners();
 
-		return isset( $supported_partners[ $partner ] ) ? $supported_partners[ $partner ] : false;
+		if ( ! isset( $supported_partners[ $prefix ] ) ) {
+			return false;
+		}
+
+		return array(
+			'name'   => $supported_partners[ $prefix ],
+			'prefix' => $prefix,
+		);
 	}
 
 	/**
 	 * Get coupon product.
 	 *
-	 * @param string $coupon_code Coupon code to go through.
+	 * @param string $coupon_preset The preset we wish to find a product for.
 	 * @return array|bool
 	 */
-	private function get_coupon_product( $coupon_code ) {
-		$coupon_preset = $this->get_coupon_preset( $coupon_code );
-
-		if ( ! $coupon_preset ) {
+	private function get_coupon_product( $coupon_preset ) {
+		if ( ! is_string( $coupon_preset ) ) {
 			return false;
 		}
 
