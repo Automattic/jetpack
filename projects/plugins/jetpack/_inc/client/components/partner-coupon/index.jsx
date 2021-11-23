@@ -23,6 +23,11 @@ import {
 	getTracksUserData,
 } from 'state/initial-state';
 
+/**
+ * Import styles
+ */
+import './style.scss';
+
 const PartnerCouponRedeem = props => {
 	const {
 		apiNonce,
