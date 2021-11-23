@@ -16,6 +16,7 @@ import { Spinner } from '@automattic/jetpack-components';
  */
 import { STORE_ID } from '../../state/store';
 import extractHostname from '../../tools/extract-hostname';
+import trackAndBumpMCStats from '../../tools/tracking';
 
 /**
  * The "migrate" card.
@@ -47,6 +48,8 @@ const CardFresh = props => {
 	 */
 	const doStartFresh = useCallback( () => {
 		if ( ! isActionInProgress ) {
+			trackAndBumpMCStats( 'start_fresh' );
+
 			setIsActionInProgress( true );
 			setIsStartingFresh( true );
 

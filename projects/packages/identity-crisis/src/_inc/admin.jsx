@@ -8,7 +8,7 @@ import { IDCScreen } from '@automattic/jetpack-idc';
 /**
  * Internal dependencies
  */
-import '../scss/jetpack-idc-admin-bar.scss';
+import './admin-bar.scss';
 import './style.scss';
 
 /**
@@ -27,18 +27,25 @@ function render() {
 		wpcomHomeUrl,
 		currentUrl,
 		redirectUri,
+		tracksUserData,
+		tracksEventData,
+		isSafeModeConfirmed,
 	} = window.JP_IDENTITY_CRISIS__INITIAL_STATE;
 
-	ReactDOM.render(
-		<IDCScreen
-			wpcomHomeUrl={ wpcomHomeUrl }
-			currentUrl={ currentUrl }
-			apiRoot={ WP_API_root }
-			apiNonce={ WP_API_nonce }
-			redirectUri={ redirectUri }
-		/>,
-		container
-	);
+	if ( ! isSafeModeConfirmed ) {
+		ReactDOM.render(
+			<IDCScreen
+				wpcomHomeUrl={ wpcomHomeUrl }
+				currentUrl={ currentUrl }
+				apiRoot={ WP_API_root }
+				apiNonce={ WP_API_nonce }
+				redirectUri={ redirectUri }
+				tracksUserData={ tracksUserData }
+				tracksEventData={ tracksEventData }
+			/>,
+			container
+		);
+	}
 }
 
 render();

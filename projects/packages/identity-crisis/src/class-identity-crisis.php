@@ -94,8 +94,6 @@ class Identity_Crisis {
 
 		self::$wpcom_home_url = $urls_in_crisis['wpcom_home'];
 		add_action( 'init', array( $this, 'wordpress_init' ) );
-
-		UI::init();
 	}
 
 	/**
@@ -169,10 +167,6 @@ class Identity_Crisis {
 	 */
 	public function wordpress_init() {
 		if ( ! current_user_can( 'jetpack_disconnect' ) && is_admin() ) {
-			add_action( 'admin_notices', array( $this, 'display_non_admin_idc_notice' ) );
-			// add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_idc_notice_files' ) );
-			add_action( 'current_screen', array( $this, 'non_admins_current_screen_check' ) );
-
 			return;
 		}
 
@@ -190,12 +184,8 @@ class Identity_Crisis {
 
 		// 121 Priority so that it's the most inner Jetpack item in the admin bar.
 		add_action( 'admin_bar_menu', array( $this, 'display_admin_bar_button' ), 121 );
-		// add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_bar_css' ) );
 
-		if ( is_admin() && ! self::$is_safe_mode_confirmed ) {
-			// add_action( 'admin_notices', array( $this, 'display_idc_notice' ) );
-			// add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_idc_notice_files' ) );
-		}
+		UI::init();
 	}
 
 	/**
@@ -230,18 +220,14 @@ class Identity_Crisis {
 	 * @param object $current_screen Current screen.
 	 *
 	 * @return null
+	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
 	 */
 	public function non_admins_current_screen_check( $current_screen ) {
+		_deprecated_function( __METHOD__, '0.5.0' );
+
 		self::$current_screen = $current_screen;
 		if ( isset( $current_screen->id ) && 'toplevel_page_jetpack' === $current_screen->id ) {
 			return null;
-		}
-
-		// If the user has dismissed the notice, and we're not currently on a Jetpack page,
-		// then do not show the non-admin notice.
-		if ( isset( $_COOKIE, $_COOKIE['jetpack_idc_dismiss_notice'] ) ) {
-			remove_action( 'admin_notices', array( $this, 'display_non_admin_idc_notice' ) );
-			// remove_action( 'admin_enqueue_scripts', array( $this, 'enqueue_idc_notice_files' ) );
 		}
 
 		return null;
@@ -595,8 +581,11 @@ class Identity_Crisis {
 	 * Does the current admin page have help tabs?
 	 *
 	 * @return bool
+	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
 	 */
 	public function admin_page_has_help_tabs() {
+		_deprecated_function( __METHOD__, '0.5.0' );
+
 		if ( ! function_exists( 'get_current_screen' ) ) {
 			return false;
 		}
@@ -611,8 +600,11 @@ class Identity_Crisis {
 	 * Renders the non-admin IDC notice.
 	 *
 	 * @return void
+	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
 	 */
 	public function display_non_admin_idc_notice() {
+		_deprecated_function( __METHOD__, '0.5.0' );
+
 		$classes = 'jp-idc-notice inline is-non-admin notice notice-warning';
 		if ( isset( self::$current_screen ) && 'toplevel_page_jetpack' !== self::$current_screen->id ) {
 			$classes .= ' is-dismissible';
@@ -644,8 +636,11 @@ class Identity_Crisis {
 	 * "Fix Jetpack Connection" - Will disconnect the site and start the mitigation...
 	 *
 	 * @return void
+	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
 	 */
 	public function display_idc_notice() {
+		_deprecated_function( __METHOD__, '0.5.0' );
+
 		$classes = 'jp-idc-notice inline notice notice-warning';
 		if ( $this->admin_page_has_help_tabs() ) {
 			$classes .= ' has-help-tabs';
@@ -663,35 +658,21 @@ class Identity_Crisis {
 	 * Enqueue CSS for the admin bar.
 	 *
 	 * @return void
+	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
 	 */
 	public function enqueue_admin_bar_css() {
-
-		$build_assets = require __DIR__ . '/../build/index.asset.php';
-
-		wp_enqueue_style(
-			'jetpack-idc-admin-bar-css',
-			plugin_dir_url( __DIR__ ) . 'build/css/jetpack-idc-admin-bar.css',
-			array( 'dashicons' ),
-			$build_assets['version']
-		);
+		_deprecated_function( __METHOD__, '0.5.0' );
 	}
 
 	/**
 	 * Enqueue scripts for the notice.
 	 *
 	 * @return void
+	 *
+	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
 	 */
 	public function enqueue_idc_notice_files() {
-		$build_assets                   = require __DIR__ . '/../build/index.asset.php';
-		$build_assets['dependencies'][] = 'jquery';
-
-		wp_enqueue_script(
-			'jetpack-idc-js',
-			plugin_dir_url( __DIR__ ) . 'build/index.js',
-			$build_assets['dependencies'],
-			$build_assets['version'],
-			true
-		);
+		_deprecated_function( __METHOD__, '0.5.0' );
 
 		wp_localize_script(
 			'jetpack-idc-js',
@@ -708,28 +689,6 @@ class Identity_Crisis {
 			)
 		);
 
-		if ( ! wp_style_is( 'jetpack-dops-style', 'registered' ) ) {
-			wp_register_style(
-				'jetpack-dops-style',
-				plugin_dir_url( __DIR__ ) . 'src/_inc/admin.css', // TODO Detangle style depenedencies instead of copying whole css file.
-				array(),
-				self::PACKAGE_VERSION
-			);
-		}
-
-		wp_enqueue_style(
-			'jetpack-idc-admin-bar-css',
-			plugin_dir_url( __DIR__ ) . 'build/css/jetpack-idc-admin-bar.css',
-			array( 'jetpack-dops-style' ),
-			self::PACKAGE_VERSION
-		);
-		wp_enqueue_style(
-			'jetpack-idc-css',
-			plugin_dir_url( __DIR__ ) . 'build/css/jetpack-idc.css',
-			array( 'jetpack-dops-style' ),
-			self::PACKAGE_VERSION
-		);
-
 		// Register and Enqueue jp-tracks-functions.
 		Tracking::register_tracks_functions_scripts( true );
 	}
@@ -738,8 +697,11 @@ class Identity_Crisis {
 	 * Renders the notice header.
 	 *
 	 * @return void
+	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
 	 */
 	public function render_notice_header() {
+		_deprecated_function( __METHOD__, '0.5.0' );
+
 		?>
 		<div class="jp-idc-notice__header">
 			<div class="jp-idc-notice__header__emblem">
@@ -1169,8 +1131,11 @@ class Identity_Crisis {
 	 * Returns the non-admin notice text.
 	 *
 	 * @return string
+	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
 	 */
 	public function get_non_admin_notice_text() {
+		_deprecated_function( __METHOD__, '0.5.0' );
+
 		$html = wp_kses(
 			sprintf(
 			/* translators: %s: Safe mode docs URL. */
@@ -1195,8 +1160,11 @@ class Identity_Crisis {
 	 * Returns the non-admin contact admin text.
 	 *
 	 * @return string
+	 * @deprecated 0.5.0 Use `@automattic/jetpack-idc` instead.
 	 */
 	public function get_non_admin_contact_admin_text() {
+		_deprecated_function( __METHOD__, '0.5.0' );
+
 		$string = esc_html__( 'An administrator of this site can take Jetpack out of Safe Mode.', 'jetpack' );
 
 		/**

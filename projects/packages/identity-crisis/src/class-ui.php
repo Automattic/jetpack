@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\IdentityCrisis;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Identity_Crisis;
+use Automattic\Jetpack\Tracking as Tracking;
+use Jetpack_Tracks_Client;
 
 /**
  * The Identity Crisis UI handling.
@@ -16,39 +18,38 @@ use Automattic\Jetpack\Identity_Crisis;
 class UI {
 
 	/**
-	 * Construction.
+	 * Initialization.
 	 */
 	public static function init() {
-		if ( ! did_action( 'jetpack_identity_crisis_ui_init' ) ) {
-			/**
-			 * Action called after initializing Connection UI Admin resources.
-			 *
-			 * @since 1.1.0
-			 */
-			do_action( 'jetpack_identity_crisis_ui_init' );
-
-			$has_idc = Identity_Crisis::has_identity_crisis();
-
-			// TODO: replace the `jetpack_disconnect` check with a non-admin IDC screen.
-			if ( ! $has_idc || ! current_user_can( 'jetpack_disconnect' ) ) {
-				return;
-			}
-
-			$idc_data = Identity_Crisis::check_identity_crisis();
-			$idc_urls = Identity_Crisis::get_mismatched_urls();
-
-			if ( ! $idc_data || ! $idc_urls ) {
-				return;
-			}
-
-			add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_scripts' ) );
+		if ( did_action( 'jetpack_identity_crisis_ui_init' ) ) {
+			return;
 		}
+
+		/**
+		 * Action called after initializing Connection UI Admin resources.
+		 *
+		 * @since 1.1.0
+		 */
+		do_action( 'jetpack_identity_crisis_ui_init' );
+
+		$idc_data = Identity_Crisis::check_identity_crisis();
+
+		// TODO: replace the `jetpack_disconnect` check with a non-admin IDC screen.
+		if ( false === $idc_data || ! current_user_can( 'jetpack_disconnect' ) ) {
+			return;
+		}
+
+		$idc_data = Identity_Crisis::check_identity_crisis();
+
+		add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_scripts' ) );
+
+		Tracking::register_tracks_functions_scripts( true );
 	}
 
 	/**
 	 * Enqueue scripts!
 	 */
-	public function enqueue_scripts() {
+	public static function enqueue_scripts() {
 		if ( is_admin() ) {
 			Assets::register_script(
 				'jp_identity_crisis_banner',
@@ -91,16 +92,22 @@ class UI {
 	 * @return array
 	 */
 	private static function get_initial_state_data() {
-		$idc_urls = Identity_Crisis::get_mismatched_urls();
+		$idc_urls       = Identity_Crisis::get_mismatched_urls();
+		$current_screen = get_current_screen();
 
 		return array(
-			'WP_API_root'  => esc_url_raw( rest_url() ),
-			'WP_API_nonce' => wp_create_nonce( 'wp_rest' ),
-			'wpcomHomeUrl' => $idc_urls['wpcom_url'],
-			'currentUrl'   => $idc_urls['current_url'],
-
+			'WP_API_root'         => esc_url_raw( rest_url() ),
+			'WP_API_nonce'        => wp_create_nonce( 'wp_rest' ),
+			'wpcomHomeUrl'        => $idc_urls['wpcom_url'],
+			'currentUrl'          => $idc_urls['current_url'],
 			// TODO: find a better way to get the redirect URL.
-			'redirectUri'  => str_replace( '/wp-admin/', '/', $_SERVER['REQUEST_URI'] ),
+			'redirectUri'         => str_replace( '/wp-admin/', '/', $_SERVER['REQUEST_URI'] ),
+			'tracksUserData'      => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
+			'tracksEventData'     => array(
+				'isAdmin'       => current_user_can( 'jetpack_disconnect' ),
+				'currentScreen' => $current_screen ? $current_screen->id : false,
+			),
+			'isSafeModeConfirmed' => Identity_Crisis::$is_safe_mode_confirmed,
 		);
 	}
 
