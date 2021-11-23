@@ -237,7 +237,7 @@ export async function parseProj( argv ) {
 }
 
 /**
- * Get a potential version that we might need when creating a release branch or bumping versions.
+ * Prompts for and suggests a version number for the release branch.
  *
  * @param {object} argv - the arguments passed
  * @returns {object} argv
@@ -248,16 +248,14 @@ export async function getReleaseVersion( argv ) {
 		.toString()
 		.trim();
 	potentialVersion = potentialVersion.split( '-' ); // e.g., split 10.4-a.8 into [10.4, a.8]
-	let stableVersion = potentialVersion[ 0 ];
+	let stableVersion = potentialVersion[ 0 ].split( '.' );
 	let alphaVersion = potentialVersion[ 1 ];
-
-	if ( argv.stable || argv.s ) {
-		return stableVersion;
-	}
 
 	// Append '-beta' if necessary.
 	if ( argv.b || argv.beta ) {
-		return `${ stableVersion }-beta`;
+		potentialVersion = stableVersion.splice( 0, 2 ).join( '.' );
+		potentialVersion += '-beta';
+		return potentialVersion;
 	}
 
 	// Append '-alpha' if necessary.
@@ -265,16 +263,24 @@ export async function getReleaseVersion( argv ) {
 		// Jetpack uses additional versioning for dev/atomic in the form of x.y-a.z
 		if ( argv.project === 'plugins/jetpack' ) {
 			if ( alphaVersion ) {
-				alphaVersion = await getVersionBump( alphaVersion );
-				potentialVersion = `${ stableVersion }-${ alphaVersion }`;
+				alphaVersion = alphaVersion.split( '.' ); // ['a', x];
+				alphaVersion[ 1 ] = parseInt( alphaVersion[ 1 ] ) + 1; // ['a', x + 1];
 			} else {
 				stableVersion = await getVersionBump( stableVersion );
-				potentialVersion = `${ stableVersion }-a.0`;
+				alphaVersion = [ 'a', '0' ];
 			}
+			potentialVersion = `${ stableVersion.join( '.' ) }-${ alphaVersion.join( '.' ) }`;
 		} else {
-			stableVersion = await getVersionBump( stableVersion );
-			potentialVersion = `${ stableVersion }-alpha`;
+			const versionToBump = stableVersion.splice( 0, 2 );
+			potentialVersion = await getVersionBump( versionToBump );
+			potentialVersion = potentialVersion.join( '.' );
+			potentialVersion += '-alpha';
 		}
+		return potentialVersion;
+	}
+
+	if ( argv.stable || argv.s ) {
+		potentialVersion = stableVersion.splice( 0, 2 ).join( '.' );
 		return potentialVersion;
 	}
 }
@@ -286,22 +292,15 @@ export async function getReleaseVersion( argv ) {
  * @returns {Array} the bumped version.
  */
 export async function getVersionBump( version ) {
-	version = version.split( '.' );
-
-	if ( version[ 0 ] === 'a' ) {
-		version[ 1 ] = parseInt( version[ 1 ] ) + 1;
-		return version.join( '.' );
-	}
-
 	if ( version[ 1 ] === '9' ) {
 		// e.g, if the current version is 10.9 and we want 11.0
 		version[ 0 ] = parseInt( version[ 0 ] ) + 1;
 		version[ 1 ] = '0';
 	} else {
-		// e.g, if the current version is 10.8 and we want 10.9
 		version[ 1 ] = parseInt( version[ 1 ] ) + 1;
 	}
-	return version.join( '.' );
+
+	return version; //maybe return version.join('.')?
 }
 /**
  * Prompts for what version we're releasing
