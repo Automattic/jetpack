@@ -288,6 +288,11 @@ export async function getReleaseVersion( argv ) {
 export async function getVersionBump( version ) {
 	version = version.split( '.' );
 
+	// If there was a point release, remove the last number before bumping.
+	if ( version[ 2 ] ) {
+		version.pop();
+	}
+
 	if ( version[ 0 ] === 'a' ) {
 		version[ 1 ] = parseInt( version[ 1 ] ) + 1;
 		return version.join( '.' );
