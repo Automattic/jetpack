@@ -19,7 +19,7 @@ import './style.scss';
  *
  * @param {object} props -- The properties.
  * @param {Function} props.activateLicense -- function to handle submitting a license
- * @param {boolean} props.disabled -- should the controls be disabled
+ * @param {boolean} props.isActivating -- should the controls be disabled
  * @param {string} props.license -- the license code to edit or submit
  * @param {?string} props.licenseError -- any error that occurred while activating a license
  * @param {Function} props.onLicenseChange -- function to handle changes to license
@@ -27,7 +27,7 @@ import './style.scss';
  * @returns {React.Component} The `ActivationScreenControls` component.
  */
 const ActivationScreenControls = props => {
-	const { activateLicense, disabled, license, licenseError, onLicenseChange, siteUrl } = props;
+	const { activateLicense, isActivating, license, licenseError, onLicenseChange, siteUrl } = props;
 
 	const hasLicenseError = licenseError !== null && licenseError !== undefined;
 
@@ -61,7 +61,7 @@ const ActivationScreenControls = props => {
 					placeholder="jp-Product34623432423423"
 					value={ license }
 					onChange={ onLicenseChange }
-					disabled={ disabled }
+					disabled={ isActivating }
 				/>
 				{ hasLicenseError && (
 					<div className="jp-license-activation-screen-controls--license-field-error">
@@ -74,9 +74,10 @@ const ActivationScreenControls = props => {
 				<Button
 					className="jp-license-activation-screen-controls--button"
 					onClick={ activateLicense }
-					disabled={ license.length <= 0 || disabled }
+					disabled={ license.length <= 0 || isActivating }
+					isBusy={ isActivating }
 				>
-					{ __( 'Activate', 'jetpack' ) }
+					{ isActivating ? __( 'Working...', 'jetpack' ) : __( 'Activate', 'jetpack' ) }
 				</Button>
 			</div>
 		</div>
@@ -85,7 +86,7 @@ const ActivationScreenControls = props => {
 
 ActivationScreenControls.propTypes = {
 	activateLicense: PropTypes.func.isRequired,
-	disabled: PropTypes.bool.isRequired,
+	isActivating: PropTypes.bool.isRequired,
 	license: PropTypes.string.isRequired,
 	licenseError: PropTypes.string,
 	onLicenseChange: PropTypes.func.isRequired,
