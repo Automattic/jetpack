@@ -22,6 +22,10 @@ import Navigation from 'components/navigation';
 import NavigationSettings from 'components/navigation-settings';
 import SearchableSettings from 'settings/index.jsx';
 import {
+	updateLicensingActivationNoticeDismiss as updateLicensingActivationNoticeDismissAction,
+	updateUserLicensesCounts as updateUserLicensesCountsAction,
+} from 'state/licensing';
+import {
 	getSiteConnectionStatus,
 	isCurrentUserLinked,
 	isSiteConnected,
@@ -52,6 +56,10 @@ import {
 	isWoASite,
 	isWooCommerceActive,
 } from 'state/initial-state';
+import {
+	fetchSiteData as fetchSiteDataAction,
+	fetchSitePurchases as fetchSitePurchasesAction,
+} from 'state/site';
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
 import { getSearchTerm } from 'state/search';
 import { Recommendations } from 'recommendations';
@@ -73,6 +81,7 @@ import { getRewindStatus } from 'state/rewind';
 import ReconnectModal from 'components/reconnect-modal';
 import { createInterpolateElement } from '@wordpress/element';
 import { imagePath } from 'constants/urls';
+import { ActivationScreen } from '@automattic/jetpack-licensing';
 
 const recommendationsRoutes = [
 	'/recommendations',
@@ -103,6 +112,7 @@ class Main extends React.Component {
 	constructor( props ) {
 		super( props );
 		this.closeReconnectModal = this.closeReconnectModal.bind( this );
+		this.onLicenseActivationSuccess = this.onLicenseActivationSuccess.bind( this );
 	}
 
 	UNSAFE_componentWillMount() {
@@ -395,6 +405,18 @@ class Main extends React.Component {
 					/>
 				);
 				break;
+			case '/license/activation':
+				navComponent = null;
+				pageComponent = (
+					<ActivationScreen
+						assetBaseUrl={ this.props.pluginBaseUrl }
+						lockImage="/images/jetpack-license-activation-with-lock.png"
+						siteRawUrl={ this.props.siteRawUrl }
+						successImage="/images/jetpack-license-activation-with-success.png"
+						onActivationSuccess={ this.onLicenseActivationSuccess }
+					/>
+				);
+				break;
 			case '/recommendations':
 			case '/recommendations/site-type':
 			case '/recommendations/product-suggestions':
@@ -536,12 +558,36 @@ class Main extends React.Component {
 	}
 
 	/**
+	 * Checks if this is a licensing screen page.
+	 *
+	 * @returns {boolean} Whether this is a licensing screen page.
+	 */
+	isLicensingScreen() {
+		return this.props.location.pathname.startsWith( '/license' );
+	}
+
+	/**
 	 * Check if the connection flow should get triggered automatically.
 	 *
 	 * @returns {boolean} Whether to trigger the connection flow automatically.
 	 */
 	shouldAutoTriggerConnection() {
 		return this.props.location.pathname.startsWith( '/setup' );
+	}
+
+	/**
+	 * Fires after a user(not partner) product license key has been sucessfully activated.
+	 */
+	onLicenseActivationSuccess() {
+		// First update state.jetpack.licensing.userCounts before dismissing the license activation notice.
+		this.props.updateUserLicensesCounts().then( () => {
+			// Manually dismiss the userLicenseActivationNotice.
+			this.props.updateLicensingActivationNoticeDismiss();
+		} );
+		// Update site plan.
+		this.props.fetchSiteData();
+		// Update site products.
+		this.props.fetchSitePurchases();
 	}
 
 	render() {
@@ -553,6 +599,10 @@ class Main extends React.Component {
 
 		if ( this.isUserConnectScreen() ) {
 			jpClasses.push( 'jp-user-connect-screen' );
+		}
+
+		if ( this.isLicensingScreen() ) {
+			jpClasses.push( 'jp-licensing-screen' );
 		}
 
 		return (
@@ -627,6 +677,18 @@ export default connect(
 		},
 		resetConnectUser: () => {
 			return dispatch( resetConnectUser() );
+		},
+		updateLicensingActivationNoticeDismiss: () => {
+			return dispatch( updateLicensingActivationNoticeDismissAction() );
+		},
+		updateUserLicensesCounts: () => {
+			return dispatch( updateUserLicensesCountsAction() );
+		},
+		fetchSiteData: () => {
+			return dispatch( fetchSiteDataAction() );
+		},
+		fetchSitePurchases: () => {
+			return dispatch( fetchSitePurchasesAction() );
 		},
 	} )
 )(
