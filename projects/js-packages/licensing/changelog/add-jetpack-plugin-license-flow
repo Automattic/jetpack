@@ -1,4 +1,0 @@
-Significance: major
-Type: added
-
-Add api package dependency and add attachLicense API request to ActivationScreen
