@@ -82,5 +82,10 @@
 		"sass-loader": "12.3.0",
 		"size-limit": "6.0.3",
 		"webpack": "5.64.1"
-	}
+	},
+	"browserslist": [
+		"defaults",
+		"not IE 11",
+		"maintained node versions"
+	]
 }
