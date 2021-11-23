@@ -361,7 +361,8 @@ class Assets {
 			_doing_it_wrong(
 				__METHOD__,
 				/* translators: %s is the script handle. */
-				esc_html( sprintf( __( 'Script "%s" depends on wp-i18n but does not specify "textdomain"', 'jetpack' ), $handle ) )
+				esc_html( sprintf( __( 'Script "%s" depends on wp-i18n but does not specify "textdomain"', 'jetpack' ), $handle ) ),
+				''
 			);
 		}
 
