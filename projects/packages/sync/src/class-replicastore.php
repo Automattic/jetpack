@@ -1180,23 +1180,29 @@ class Replicastore implements Replicastore_Interface {
 	 * @return array Checksums.
 	 */
 	public function checksum_all( $perform_text_conversion = false ) {
-		$post_checksum               = $this->checksum_histogram( 'posts', null, null, null, null, true, '', false, false, $perform_text_conversion );
-		$comments_checksum           = $this->checksum_histogram( 'comments', null, null, null, null, true, '', false, false, $perform_text_conversion );
-		$post_meta_checksum          = $this->checksum_histogram( 'postmeta', null, null, null, null, true, '', false, false, $perform_text_conversion );
-		$comment_meta_checksum       = $this->checksum_histogram( 'commentmeta', null, null, null, null, true, '', false, false, $perform_text_conversion );
-		$terms_checksum              = $this->checksum_histogram( 'terms', null, null, null, null, true, '', false, false, $perform_text_conversion );
-		$term_relationships_checksum = $this->checksum_histogram( 'term_relationships', null, null, null, null, true, '', false, false, $perform_text_conversion );
-		$term_taxonomy_checksum      = $this->checksum_histogram( 'term_taxonomy', null, null, null, null, true, '', false, false, $perform_text_conversion );
 
-		$result = array(
-			'posts'              => $this->summarize_checksum_histogram( $post_checksum ),
-			'comments'           => $this->summarize_checksum_histogram( $comments_checksum ),
-			'post_meta'          => $this->summarize_checksum_histogram( $post_meta_checksum ),
-			'comment_meta'       => $this->summarize_checksum_histogram( $comment_meta_checksum ),
-			'terms'              => $this->summarize_checksum_histogram( $terms_checksum ),
-			'term_relationships' => $this->summarize_checksum_histogram( $term_relationships_checksum ),
-			'term_taxonomy'      => $this->summarize_checksum_histogram( $term_taxonomy_checksum ),
-		);
+		// initialize result array.
+		$result = array();
+
+		// is posts module enabled?
+		if ( false !== Modules::get_module( 'posts' ) ) {
+			$result['posts']     = $this->summarize_checksum_histogram( $this->checksum_histogram( 'posts', null, null, null, null, true, '', false, false, $perform_text_conversion ) );
+			$result['post_meta'] = $this->summarize_checksum_histogram( $this->checksum_histogram( 'postmeta', null, null, null, null, true, '', false, false, $perform_text_conversion ) );
+
+		}
+
+		// is comments modules enabled?
+		if ( false !== Modules::get_module( 'comments' ) ) {
+			$result['comments']     = $this->summarize_checksum_histogram( $this->checksum_histogram( 'comments', null, null, null, null, true, '', false, false, $perform_text_conversion ) );
+			$result['comment_meta'] = $this->summarize_checksum_histogram( $this->checksum_histogram( 'commentmeta', null, null, null, null, true, '', false, false, $perform_text_conversion ) );
+		}
+
+		// is terms module enabled?
+		if ( false !== Modules::get_module( 'terms' ) ) {
+			$result['terms']              = $this->summarize_checksum_histogram( $this->checksum_histogram( 'terms', null, null, null, null, true, '', false, false, $perform_text_conversion ) );
+			$result['term_relationships'] = $this->summarize_checksum_histogram( $this->checksum_histogram( 'term_relationships', null, null, null, null, true, '', false, false, $perform_text_conversion ) );
+			$result['term_taxonomy']      = $this->summarize_checksum_histogram( $this->checksum_histogram( 'term_taxonomy', null, null, null, null, true, '', false, false, $perform_text_conversion ) );
+		}
 
 		/**
 		 * WooCommerce tables

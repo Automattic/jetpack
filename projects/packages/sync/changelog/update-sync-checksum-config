@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Only run checksums for enabled Sync modules.
