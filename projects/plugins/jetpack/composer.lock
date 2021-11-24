@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0952b0fbf0581d58509057bbdad8cf5e",
+    "content-hash": "836a5963399f39021b96c066c2f7672c",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1435,7 +1435,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "8b3cf6895223e44cb728fc1c89fd5b26b390b1ea"
+                "reference": "d0a1c2fe85caaafe6fa7613285ac31cc7fbb9092"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -1449,7 +1449,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "0.1.x-dev"
+                    "dev-master": "0.2.x-dev"
                 }
             },
             "autoload": {
@@ -1458,6 +1458,18 @@
                 ]
             },
             "scripts": {
+                "build": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run build"
+                ],
+                "build-development": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run build-development"
+                ],
+                "build-production": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run build-production"
+                ],
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
@@ -3806,7 +3818,6 @@
                     "type": "github"
                 }
             ],
-            "abandoned": true,
             "time": "2020-09-28T06:45:17+00:00"
         },
         {
