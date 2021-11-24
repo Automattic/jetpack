@@ -1430,7 +1430,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "843f50db3f7a8f3397112b3ec8620a280e0d9852"
+                "reference": "de5b408483f1094942ec0e9eb60cdc594a3ed8d9"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.31"
@@ -1457,6 +1457,18 @@
                 ]
             },
             "scripts": {
+                "build": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run build"
+                ],
+                "build-development": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run build-development"
+                ],
+                "build-production": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run build-production"
+                ],
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],

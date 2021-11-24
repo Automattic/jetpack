@@ -17,6 +17,18 @@
 		]
 	},
 	"scripts": {
+		"build": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run build"
+		],
+		"build-development": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run build-development"
+		],
+		"build-production": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run build-production"
+		],
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],

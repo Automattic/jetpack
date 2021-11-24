@@ -33,7 +33,7 @@ describe( 'ActivationScreenControls', () => {
 	describe( 'Render the ActivationScreenControls disabled', () => {
 		const testProps = {
 			activateLicense: () => null,
-			disabled: true,
+			isActivating: true,
 			license: 'test',
 			onLicenseChange: () => null,
 			siteUrl: 'jetpack.com',
