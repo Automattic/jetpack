@@ -19,14 +19,14 @@ describe( 'SimpleNotice', function () {
 		className: 'test-class',
 	};
 	describe( 'rendering', function () {
-		it( 'should render', () => {
+		it( 'can render', () => {
 			const { container } = render( <SimpleNotice id="1" status="success" /> );
 			expect(
 				container.getElementsByClassName( 'dops-notice__icon-wrapper' ).length
 			).toBeGreaterThan( 0 );
 		} );
 
-		it( 'should render class name passed in', () => {
+		it( 'can render with class name passed in', () => {
 			const { container } = render( <SimpleNotice { ...testProps }>Toggle Label</SimpleNotice> );
 			expect( container.firstChild.className ).toContain( 'test-class' );
 		} );

@@ -19,13 +19,13 @@ describe( 'CompactFormToggle', function () {
 		className: 'test-class',
 	};
 	describe( 'rendering', function () {
-		it( 'should render', () => {
+		it( 'can render', () => {
 			render( <CompactFormToggle>Toggle Label</CompactFormToggle> );
 			expect( screen.queryByText( 'Toggle Label' ) ).toBeInTheDocument();
 			expect( screen.getAllByRole( 'checkbox' )[ 0 ].className ).toContain( 'is-compact' );
 		} );
 
-		it( 'should render class name passed in', () => {
+		it( 'can render with class name passed in', () => {
 			render( <CompactFormToggle { ...testProps }>Toggle Label</CompactFormToggle> );
 			expect( screen.getAllByRole( 'checkbox' )[ 0 ].className ).toContain( 'test-class' );
 		} );

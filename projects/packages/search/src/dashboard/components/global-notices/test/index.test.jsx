@@ -16,7 +16,7 @@ import GlobalNotices from 'components/global-notices';
 
 describe( 'GlobalNotices', function () {
 	describe( 'rendering', function () {
-		it( 'should render', () => {
+		it( 'can render', () => {
 			const { container } = render(
 				<GlobalNotices notices={ [ { id: 1, status: 'success' } ] } />
 			);

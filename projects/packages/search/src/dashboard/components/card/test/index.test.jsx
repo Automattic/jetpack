@@ -15,10 +15,8 @@ import '@testing-library/jest-dom';
 import Card from 'components/card';
 
 describe( 'Card', function () {
-	describe( 'rendering', function () {
-		it( 'should render', () => {
-			render( <Card title="Title" /> );
-			expect( screen.queryByRole( 'heading' ) ).toBeInTheDocument();
-		} );
+	it( 'can render', () => {
+		render( <Card title="Title" /> );
+		expect( screen.queryByRole( 'heading' ) ).toBeInTheDocument();
 	} );
 } );
