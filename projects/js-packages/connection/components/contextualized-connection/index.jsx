@@ -44,7 +44,7 @@ const ContextualizedConnection = props => {
 	return (
 		<div className={ 'jp-contextualized-connection' + ( className ? ' ' + className : '' ) }>
 			<div className="jp-contextualized-connection__content">
-				{ logo || <JetpackLogo /> }
+				<div className="jp-contextualized-connection__logo">{ logo || <JetpackLogo /> }</div>
 
 				<h2>{ title }</h2>
 
