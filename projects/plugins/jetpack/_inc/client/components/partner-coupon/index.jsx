@@ -80,7 +80,7 @@ const PartnerCouponRedeem = props => {
 				apiNonce={ apiNonce }
 				registrationNonce={ registrationNonce }
 				apiRoot={ apiRoot }
-				images={ [ '/images/products/illustration-backup.png' ] }
+				images={ [ '/images/connect-right-partner-backup.png' ] }
 				assetBaseUrl={ pluginBaseUrl }
 				title={ sprintf(
 					/* translators: %s: Jetpack partner name. */
