@@ -90,7 +90,7 @@ const ContextualizedConnection = props => {
 						</li>
 						<li>
 							{ createInterpolateElement(
-								__( '<strong>Free</strong>  brute force attack prevention', 'jetpack' ),
+								__( '<strong>Free</strong> brute force attack prevention', 'jetpack' ),
 								{ strong: <strong /> }
 							) }
 						</li>
