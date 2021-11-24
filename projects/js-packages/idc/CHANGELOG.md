@@ -2,6 +2,27 @@
 
 ### This is a list detailing changes for the Jetpack RNA IDC package releases.
 
+## 0.5.0 - 2021-11-23
+### Changed
+- Add "Staying in safe mode" spinner, rename CSS classes according to the CSS guidelines.
+- Updated package dependencies
+
+## 0.4.4 - 2021-11-17
+### Changed
+- Updated package dependencies.
+
+## 0.4.3 - 2021-11-16
+### Changed
+- Updated package dependencies.
+
+## 0.4.2 - 2021-11-09
+### Fixed
+- Make the extract hostname tool remove trailing slash.
+
+## 0.4.1 - 2021-11-02
+### Changed
+- Updated package dependencies.
+
 ## 0.4.0 - 2021-10-26
 ### Added
 - Add the Start Fresh functionality.

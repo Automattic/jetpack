@@ -102,24 +102,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Shim wpcomsh fallback site icon.
-	 *
-	 * @return string
-	 */
-	public function wpcomsh_site_icon_url() {
-		return 'https://s0.wp.com/i/webclip.png';
-	}
-
-	/**
-	 * Custom site icon.
-	 *
-	 * @return string
-	 */
-	public function custom_site_icon_url() {
-		return 'https://s0.wp.com/i/jetpack.png';
-	}
-
-	/**
 	 * Tests get_preferred_view
 	 *
 	 * @covers ::get_preferred_view
@@ -186,6 +168,17 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		$this->assertSame( $markup, $menu[1][0] );
 		$this->assertSame( $link, $menu[1][2] );
+
+		// Reset.
+		$menu = static::$menu_data;
+
+		$nudge = array(
+			'content' => 'Some content',
+			'cta'     => '<b>CTA</b>',
+			'link'    => 'https://wordpress.org',
+		);
+		static::$admin_menu->add_upsell_nudge( $nudge );
+		$this->assertSame( 'https://wordpress.org', $menu[1][2] );
 	}
 
 	/**
@@ -371,12 +364,19 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		// On multisite the administrator is not allowed to create users.
 		grant_super_admin( self::$user_id );
+		$account_key = 5;
+
 		static::$admin_menu->add_users_menu();
 
+		// On WP.com users can only invite other users, not create them (missing create_users cap).
+		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+			$this->assertSame( 'https://wordpress.com/people/new/' . static::$domain, $submenu['users.php'][2][2] );
+			$account_key = 6;
+		}
+
 		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, $submenu['users.php'][0][2] );
-		$this->assertSame( 'https://wordpress.com/people/new/' . static::$domain, $submenu['users.php'][2][2] );
 		$this->assertSame( 'https://wordpress.com/me', $submenu['users.php'][3][2] );
-		$this->assertSame( 'https://wordpress.com/me/account', $submenu['users.php'][6][2] );
+		$this->assertSame( 'https://wordpress.com/me/account', $submenu['users.php'][ $account_key ][2] );
 	}
 
 	/**
@@ -573,7 +573,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 				'<div id="dashboard-switcher"><h5>%s</h5><p class="dashboard-switcher-text">%s</p><a class="button button-primary dashboard-switcher-button" href="%s">%s</a></div>',
 				__( 'Screen features', 'jetpack' ),
 				__( 'Currently you are seeing the classic WP-Admin view of this page. Would you like to see the default WordPress.com view?', 'jetpack' ),
-				$mapping . static::$domain,
+				'?preferred-view=default',
 				__( 'Use WordPress.com view', 'jetpack' )
 			);
 

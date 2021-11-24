@@ -2,7 +2,14 @@
 	This component shows a prompt to rate Boost if scores improved after enabling a feature.
 -->
 <script>
+	/**
+	 * WordPress dependencies
+	 */
 	import { __, sprintf } from '@wordpress/i18n';
+
+	/**
+	 * Internal dependencies
+	 */
 	import CloseButton from '../../../elements/CloseButton.svelte';
 	import { createEventDispatcher } from 'svelte';
 	import slideRightTransition from '../../../utils/slide-right-transition';
@@ -28,10 +35,18 @@
 <div class="jb-rating-card" transition:slideRightTransition>
 	<CloseButton on:click={() => dispatch( 'dismiss' )} />
 	<h3 class="jb-rating-card__headline">
-		{#if improvement >= 5}
-			{sprintf( __( 'Faster by %d%%', 'jetpack-boost' ), improvement )}
+		{#if improvement > 5}
+			{sprintf(
+				/* translators: %d is the speed score improvement percentage */
+				__( 'Faster by %1$d%%', 'jetpack-boost' ),
+				improvement
+			)}
 		{:else}
-			{sprintf( __( 'You achieved a score of %d!' ), currentPercentage )}
+			{sprintf(
+				/* translators: %d is the speed score number */
+				__( 'You achieved a score of %d!', 'jetpack-boost' ),
+				currentPercentage
+			)}
 		{/if}
 	</h3>
 	<p class="jb-rating-card__paragraph">

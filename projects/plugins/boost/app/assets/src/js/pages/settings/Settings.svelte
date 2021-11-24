@@ -1,10 +1,17 @@
 <script>
+	/**
+	 * External dependencies
+	 */
+	import { derived } from 'svelte/store';
+
+	/**
+	 * Internal dependencies
+	 */
 	import Tips from './sections/Tips.svelte';
 	import Score from './sections/Score.svelte';
 	import urlFragment from '../../stores/url-fragment';
 	import AdvancedCriticalCss from './sections/AdvancedCriticalCss.svelte';
 	import Modules from './sections/Modules.svelte';
-	import { derived } from 'svelte/store';
 
 	// Map of sub-pages to display for each URL fragment.
 	const subPages = {

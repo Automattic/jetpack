@@ -452,7 +452,7 @@ class Actions {
 				$error_log = array_slice( $error_log, -4, null, true );
 			}
 			// Add new error indexed to time.
-			$error_log[ microtime( true ) ] = $rpc->get_jetpack_error();
+			$error_log[ (string) microtime( true ) ] = $rpc->get_jetpack_error();
 			// Update the error log.
 			update_option( self::ERROR_LOG_PREFIX . $queue_id, $error_log );
 
@@ -485,7 +485,7 @@ class Actions {
 	 * @return bool|null False if sync is not allowed.
 	 */
 	public static function do_initial_sync() {
-		// Lets not sync if we are not suppose to.
+		// Let's not sync if we are not supposed to.
 		if ( ! self::sync_allowed() ) {
 			return false;
 		}
@@ -505,6 +505,20 @@ class Actions {
 		);
 
 		self::do_full_sync( $initial_sync_config );
+	}
+
+	/**
+	 * Do an initial full sync only if one has not already been started.
+	 *
+	 * @return bool|null False if the initial full sync was already started, otherwise null.
+	 */
+	public static function do_only_first_initial_sync() {
+		$full_sync_module = Modules::get_module( 'full-sync' );
+		if ( $full_sync_module && $full_sync_module->is_started() ) {
+			return false;
+		}
+
+		static::do_initial_sync();
 	}
 
 	/**
@@ -838,7 +852,7 @@ class Actions {
 	 * @param string $new_version New version of the plugin.
 	 * @param string $old_version Old version of the plugin.
 	 */
-	public static function cleanup_on_upgrade( $new_version = null, $old_version = null ) {
+	public static function cleanup_on_upgrade( $new_version = '', $old_version = '' ) {
 		if ( wp_next_scheduled( 'jetpack_sync_send_db_checksum' ) ) {
 			wp_clear_scheduled_hook( 'jetpack_sync_send_db_checksum' );
 		}

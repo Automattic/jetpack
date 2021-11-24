@@ -45,17 +45,20 @@ export default function PublicizeForm( {
 			{ hasConnections && (
 				<PanelRow>
 					<ul className="jetpack-publicize__connections-list">
-						{ connections.map( ( { display_name, enabled, id, service_name, toggleable } ) => (
-							<PublicizeConnection
-								disabled={ isRePublicizeFeatureEnabled ? ! isPublicizeEnabled : ! toggleable }
-								enabled={ enabled && ! isPublicizeDisabledBySitePlan }
-								key={ id }
-								id={ id }
-								label={ display_name }
-								name={ service_name }
-								toggleConnection={ toggleById }
-							/>
-						) ) }
+						{ connections.map(
+							( { display_name, enabled, id, service_name, toggleable, profile_picture } ) => (
+								<PublicizeConnection
+									disabled={ isRePublicizeFeatureEnabled ? ! isPublicizeEnabled : ! toggleable }
+									enabled={ enabled && ! isPublicizeDisabledBySitePlan }
+									key={ id }
+									id={ id }
+									label={ display_name }
+									name={ service_name }
+									toggleConnection={ toggleById }
+									profilePicture={ profile_picture }
+								/>
+							)
+						) }
 					</ul>
 				</PanelRow>
 			) }

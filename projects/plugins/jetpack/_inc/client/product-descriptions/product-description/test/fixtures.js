@@ -79,7 +79,7 @@ export function buildInitialState() {
 					}
 				}
 			},
-			siteProducts: {
+			products: {
 				"items": {
 					"jetpack_security_daily": {
 						"product_slug": "jetpack_security_daily",

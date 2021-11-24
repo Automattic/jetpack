@@ -20,10 +20,6 @@ describe( 'ConnectScreenRequiredPlan', () => {
 		priceBefore: 9,
 		priceAfter: 4.5,
 		pricingTitle: 'Dummy',
-		connectionStatus: {
-			isRegistered: false,
-			isUserConnected: false,
-		},
 	};
 
 	describe( 'Render the ConnectScreenRequiredPlan component', () => {

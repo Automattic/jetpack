@@ -187,6 +187,10 @@ class REST_Connector {
 						'description' => __( 'URI of the admin page where the user should be redirected after connection flow', 'jetpack' ),
 						'type'        => 'string',
 					),
+					'plugin_slug'        => array(
+						'description' => __( 'Indicates from what plugin the request is coming from', 'jetpack' ),
+						'type'        => 'string',
+					),
 				),
 			)
 		);
@@ -438,6 +442,11 @@ class REST_Connector {
 		$wpcom_user_data   = $connection->get_connected_user_data();
 
 		// Add connected user gravatar to the returned wpcom_user_data.
+		// Probably we shouldn't do this when $wpcom_user_data is false, but we have been since 2016 so
+		// clients probably expect that by now.
+		if ( false === $wpcom_user_data ) {
+			$wpcom_user_data = array();
+		}
 		$wpcom_user_data['avatar'] = ( ! empty( $wpcom_user_data['email'] ) ?
 		get_avatar_url(
 			$wpcom_user_data['email'],
@@ -641,6 +650,15 @@ class REST_Connector {
 		if ( isset( $request['from'] ) ) {
 			$this->connection->add_register_request_param( 'from', (string) $request['from'] );
 		}
+
+		if ( ! empty( $request['plugin_slug'] ) ) {
+			// If `plugin_slug` matches a plugin using the connection, let's inform the plugin that is establishing the connection.
+			$connected_plugin = Plugin_Storage::get_one( (string) $request['plugin_slug'] );
+			if ( ! is_wp_error( $connected_plugin ) && ! empty( $connected_plugin ) ) {
+				$this->connection->set_plugin_instance( new Plugin( (string) $request['plugin_slug'] ) );
+			}
+		}
+
 		$result = $this->connection->try_registration();
 
 		if ( is_wp_error( $result ) ) {
