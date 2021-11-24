@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Avoid generating unused assets in the static-site-generator builds.

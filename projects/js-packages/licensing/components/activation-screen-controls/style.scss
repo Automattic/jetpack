@@ -2,7 +2,7 @@
 
 .jp-license-activation-screen-controls {
 	background: var( --jp-white );
-	padding: 64px;
+	padding: 32px;
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
@@ -20,6 +20,11 @@
 		font-weight: 600;
 		font-size: var( --font-body );
 	}
+
+	@media screen and ( min-width: 780px ) {
+		padding: 64px;
+	}
+
 }
 
 .jp-license-activation-screen-controls--license-field,
@@ -80,6 +85,10 @@
 
 	margin-top: 24px;
 
+	display: flex;
+	justify-content: center;
+	width: 100%;
+
 	&:hover {
 		background-color: var( --jp-green-60 );
 		border-color: var( --jp-green-60 );
@@ -104,5 +113,10 @@
 		background: var( --jp-gray );
 		color: #a7aaad;
 		border-color: var( --jp-gray );
+	}
+
+	@media screen and ( min-width: 480px ) {
+		justify-content: flex-start;
+		width: auto;
 	}
 }

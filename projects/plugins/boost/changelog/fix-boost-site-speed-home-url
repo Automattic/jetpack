@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Replace the site url by the home url to cater for sub directory WordPress install
