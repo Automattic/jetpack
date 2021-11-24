@@ -196,6 +196,40 @@ class Post_Connection_JITM extends JITM {
 	}
 
 	/**
+	 * A special filter used in the CTA of a JITM offering to install the Jetpack Boost plugin.
+	 *
+	 * @return string The new CTA
+	 */
+	public static function jitm_jetpack_boost_install() {
+		return wp_nonce_url(
+			add_query_arg(
+				array(
+					'jetpack-boost-action' => 'install',
+				),
+				admin_url( 'admin.php?page=jetpack' )
+			),
+			'jetpack-boost-install'
+		);
+	}
+
+	/**
+	 * A special filter used in the CTA of a JITM offering to activate the Jetpack Boost plugin.
+	 *
+	 * @return string The new CTA
+	 */
+	public static function jitm_jetpack_boost_activate() {
+		return wp_nonce_url(
+			add_query_arg(
+				array(
+					'jetpack-boost-action' => 'activate',
+				),
+				admin_url( 'admin.php?page=jetpack' )
+			),
+			'jetpack-boost-install'
+		);
+	}
+
+	/**
 	 * This is an entire admin notice dedicated to messaging and handling of the case where a user is trying to delete
 	 * the connection owner.
 	 */
@@ -403,6 +437,10 @@ class Post_Connection_JITM extends JITM {
 		// Jetpack Backup.
 		add_filter( 'jitm_jetpack_backup_install', array( $this, 'jitm_jetpack_backup_install' ) );
 		add_filter( 'jitm_jetpack_backup_activate', array( $this, 'jitm_jetpack_backup_activate' ) );
+
+		// Jetpack Boost.
+		add_filter( 'jitm_jetpack_boost_install', array( $this, 'jitm_jetpack_boost_install' ) );
+		add_filter( 'jitm_jetpack_boost_activate', array( $this, 'jitm_jetpack_boost_activate' ) );
 
 		$user = wp_get_current_user();
 
