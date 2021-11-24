@@ -1,18 +1,20 @@
+/**
+ * External dependencies
+ */
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const path = require( 'path' );
-const packagesFolder = path.resolve( __dirname, 'src/js' );
 
 module.exports = [
 	{
 		entry: {
-			'jetpack-jitm': './jetpack-jitm.js',
+			index: './src/js/jetpack-jitm.js',
 		},
-		context: packagesFolder,
 		mode: jetpackWebpackConfig.mode,
-		devtool: jetpackWebpackConfig.devtool,
+		devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
 		output: {
 			...jetpackWebpackConfig.output,
-			path: packagesFolder,
+			filename: '[name].js',
+			path: path.resolve( './build' ),
 		},
 		optimization: {
 			...jetpackWebpackConfig.optimization,
@@ -23,14 +25,30 @@ module.exports = [
 		node: false,
 		plugins: [
 			...jetpackWebpackConfig.StandardPlugins( {
-				DependencyExtractionPlugin: false,
+				DependencyExtractionPlugin: { injectPolyfill: true },
 			} ),
 		],
 		module: {
 			strictExportPresence: true,
 			rules: [
-				// Transpile JavaScript, including node_modules.
-				jetpackWebpackConfig.TranspileRule(),
+				// Transpile JavaScript
+				jetpackWebpackConfig.TranspileRule( {
+					exclude: /node_modules\//,
+				} ),
+
+				// Transpile @automattic/jetpack-* in node_modules too.
+				jetpackWebpackConfig.TranspileRule( {
+					includeNodeModules: [ '@automattic/jetpack-' ],
+				} ),
+
+				// Handle CSS.
+				jetpackWebpackConfig.CssRule( {
+					extensions: [ 'css', 'sass', 'scss' ],
+					extraLoaders: [ 'sass-loader' ],
+				} ),
+
+				// Handle images.
+				jetpackWebpackConfig.FileRule(),
 			],
 		},
 	},

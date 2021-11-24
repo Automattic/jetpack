@@ -137,36 +137,17 @@ class JITM {
 		if ( $this->is_gutenberg_page() ) {
 			return;
 		}
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
-		wp_register_style(
-			'jetpack-jitm-css',
-			plugins_url( "css/jetpack-admin-jitm{$min}.css", __FILE__ ),
-			false,
-			self::PACKAGE_VERSION .
-			'-201243242'
-		);
-		wp_style_add_data( 'jetpack-jitm-css', 'rtl', 'replace' );
-		wp_style_add_data( 'jetpack-jitm-css', 'suffix', $min );
-		wp_enqueue_style( 'jetpack-jitm-css' );
 
-		wp_enqueue_script(
-			'jetpack-jitm-new',
-			Assets::get_file_url_for_environment( 'js/jetpack-jitm.min.js', 'js/jetpack-jitm.js', __FILE__ ),
-			array( 'jquery' ),
-			self::PACKAGE_VERSION,
-			true
-		);
-		wp_localize_script(
-			'jetpack-jitm-new',
-			'jitm_config',
+		Assets::register_script(
+			'jetpack-jitm-css',
+			'../build/index.js',
+			__FILE__,
 			array(
-				'api_root'               => esc_url_raw( rest_url() ),
-				'activate_module_text'   => esc_html__( 'Activate', 'jetpack' ),
-				'activated_module_text'  => esc_html__( 'Activated', 'jetpack' ),
-				'activating_module_text' => esc_html__( 'Activating', 'jetpack' ),
-				'nonce'                  => wp_create_nonce( 'wp_rest' ),
+				'in_footer'  => true,
+				'textdomain' => 'jetpack',
 			)
 		);
+		Assets::enqueue_script( 'jetpack-jitm-css' );
 	}
 
 	/**
