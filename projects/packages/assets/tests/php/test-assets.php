@@ -612,7 +612,7 @@ class AssetsTest extends TestCase {
 						'ver-from-everything',
 						false,
 					),
-					'_doing_it_wrong'    => array( Assets::class . '::register_script', 'Script &quot;everything&quot; depends on wp-i18n but does not specify &quot;textdomain&quot;' ),
+					'_doing_it_wrong'    => array( Assets::class . '::register_script', 'Script &quot;everything&quot; depends on wp-i18n but does not specify &quot;textdomain&quot;', '' ),
 					'wp_register_style'  => array( 'everything', "$url_base/everything.css?minify=false", array( 'wp-components' ), 'ver-from-everything', 'all' ),
 					'wp_script_add_data' => array( 'everything', 'Jetpack::Assets::hascss', true ),
 				),
