@@ -62,7 +62,6 @@ class UI {
 			);
 			Assets::enqueue_script( 'jp_identity_crisis_banner' );
 			wp_add_inline_script( 'jp_identity_crisis_banner', static::get_initial_state(), 'before' );
-			wp_set_script_translations( 'jp_identity_crisis_banner', 'jetpack' );
 
 			add_action( 'admin_notices', array( static::class, 'render_container' ) );
 		}
