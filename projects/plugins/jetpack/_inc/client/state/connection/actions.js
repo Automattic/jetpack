@@ -299,6 +299,6 @@ export const setHasSeenWCConnectionModal = ( { immediately = true } = {} ) => {
 			} );
 		}
 
-		return restApi.hasSeenWCConnectionModal();
+		return restApi.setHasSeenWCConnectionModal();
 	};
 };
