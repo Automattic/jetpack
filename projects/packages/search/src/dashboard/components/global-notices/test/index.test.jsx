@@ -20,7 +20,7 @@ describe( 'GlobalNotices', function () {
 			const { container } = render(
 				<GlobalNotices notices={ [ { id: 1, status: 'success' } ] } />
 			);
-			expect( container.getElementsByClassName( 'global-notices' ).length ).toBeGreaterThan( 0 );
+			expect( container.firstChild.className ).toContain( 'global-notices' );
 		} );
 	} );
 } );
