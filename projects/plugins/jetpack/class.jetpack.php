@@ -829,7 +829,6 @@ class Jetpack {
 			array(
 				'sync',
 				'jitm',
-				'identity_crisis',
 			)
 			as $feature
 		) {
@@ -841,6 +840,14 @@ class Jetpack {
 			array(
 				'slug' => 'jetpack',
 				'name' => 'Jetpack',
+			)
+		);
+
+		$config->ensure(
+			'identity_crisis',
+			array(
+				'slug'     => 'jetpack',
+				'priority' => '10',
 			)
 		);
 

@@ -55,7 +55,13 @@ class Jetpack_Backup {
 				$config->ensure( 'sync' );
 
 				// Identity crisis package.
-				$config->ensure( 'identity_crisis' );
+				$config->ensure(
+					'identity_crisis',
+					array(
+						'slug'     => JETPACK_BACKUP_PLUGIN_SLUG,
+						'priority' => '20',
+					)
+				);
 			},
 			1
 		);

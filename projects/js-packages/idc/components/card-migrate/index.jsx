@@ -27,19 +27,38 @@ import trackAndBumpMCStats from '../../tools/tracking';
  * @param {Function} props.onMigrated - The callback to be called when migration has completed.
  * @param {boolean} props.isActionInProgress - Whether there's already an action in progress.
  * @param {Function} props.setIsActionInProgress - Function to set the "action in progress" flag.
+ * @param {string} props.title - The card title.
+ * @param {string} props.bodyText - The body text.
  * @returns {React.Component} The `ConnectScreen` component.
  */
 const CardMigrate = props => {
 	const wpcomHostName = extractHostname( props.wpcomHomeUrl );
 	const currentHostName = extractHostname( props.currentUrl );
 
-	const { isActionInProgress, setIsActionInProgress } = props;
+	const { isActionInProgress, setIsActionInProgress, title } = props;
 
 	const { onMigrated } = props;
 
 	const buttonLabel = __( 'Move your settings', 'jetpack' );
 
 	const [ isMigrating, setIsMigrating ] = useState( false );
+
+	const bodyText =
+		props.bodyText ||
+		createInterpolateElement(
+			sprintf(
+				/* translators: %1$s: The current site domain name. %2$s: The original site domain name. */
+				__(
+					'Move all your settings, stats and subscribers to your other <hostname>%1$s</hostname>. <hostname>%2$s</hostname> will be disconnected from Jetpack.',
+					'jetpack'
+				),
+				currentHostName,
+				wpcomHostName
+			),
+			{
+				hostname: <strong />,
+			}
+		);
 
 	/**
 	 * Initiate the migration.
@@ -74,24 +93,9 @@ const CardMigrate = props => {
 	return (
 		<div className="jp-idc__idc-screen__card-action-base">
 			<div className="jp-idc__idc-screen__card-action-top">
-				<h4>{ __( 'Move Jetpack data', 'jetpack' ) }</h4>
+				<h4>{ title }</h4>
 
-				<p>
-					{ createInterpolateElement(
-						sprintf(
-							/* translators: %1$s: The current site domain name. %2$s: The original site domain name. */
-							__(
-								'Move all your settings, stats and subscribers to your other <hostname>%1$s</hostname>. <hostname>%2$s</hostname> will be disconnected from Jetpack.',
-								'jetpack'
-							),
-							currentHostName,
-							wpcomHostName
-						),
-						{
-							hostname: <strong />,
-						}
-					) }
-				</p>
+				<p>{ bodyText }</p>
 			</div>
 
 			<div className="jp-idc__idc-screen__card-action-bottom">
@@ -118,6 +122,12 @@ CardMigrate.propTypes = {
 	onMigrated: PropTypes.func,
 	isActionInProgress: PropTypes.bool,
 	setIsActionInProgress: PropTypes.func.isRequired,
+	title: PropTypes.string.isRequired,
+	bodyText: PropTypes.string,
+};
+
+CardMigrate.defaultProps = {
+	title: __( 'Move Jetpack data', 'jetpack' ),
 };
 
 export default compose( [

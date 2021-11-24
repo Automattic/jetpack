@@ -22,6 +22,8 @@ import './style.scss';
  * @param {object} props - The properties.
  * @param {React.Component} props.logo - The screen logo, Jetpack by default.
  * @param {string} props.headerText - The header text, 'Safe Mode' by default.
+ * @param {string} props.title - The main screen title.
+ * @param {string} props.mainBodyText - The main screen body text.
  * @param {string} props.wpcomHomeUrl - The original site URL.
  * @param {string} props.currentUrl - The current site URL.
  * @param {string} props.redirectUri - The redirect URI to redirect users back to after connecting.
@@ -35,6 +37,8 @@ const IDCScreen = props => {
 	const {
 		logo,
 		headerText,
+		title,
+		mainBodyText,
 		wpcomHomeUrl,
 		currentUrl,
 		apiNonce,
@@ -93,6 +97,8 @@ const IDCScreen = props => {
 					currentUrl={ currentUrl }
 					onMigrated={ onMigrated }
 					redirectUri={ redirectUri }
+					title={ title }
+					mainBodyText={ mainBodyText }
 				/>
 			) }
 		</div>

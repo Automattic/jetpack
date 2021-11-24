@@ -19,7 +19,7 @@ import extractHostname from '../../tools/extract-hostname';
 import trackAndBumpMCStats from '../../tools/tracking';
 
 /**
- * The "migrate" card.
+ * The "start fresh" card.
  *
  * @param {object} props - The properties.
  * @param {string} props.wpcomHomeUrl - The original site URL.
@@ -27,6 +27,8 @@ import trackAndBumpMCStats from '../../tools/tracking';
  * @param {string} props.redirectUri - The redirect URI to redirect users back to after connecting.
  * @param {boolean} props.isActionInProgress - Whether there's already an action in progress.
  * @param {Function} props.setIsActionInProgress - Function to set the "action in progress" flag.
+ * @param {string} props.title - The card title.
+ * @param {string} props.bodyText - The body text.
  * @returns {React.Component} The `ConnectScreen` component.
  */
 const CardFresh = props => {
@@ -34,11 +36,28 @@ const CardFresh = props => {
 	const currentHostName = extractHostname( props.currentUrl );
 	const redirectUri = props.redirectUri;
 
-	const { isActionInProgress, setIsActionInProgress } = props;
+	const { isActionInProgress, setIsActionInProgress, title } = props;
 
 	const buttonLabel = __( 'Create a fresh connection', 'jetpack' );
 
 	const [ isStartingFresh, setIsStartingFresh ] = useState( false );
+
+	const bodyText =
+		props.bodyText ||
+		createInterpolateElement(
+			sprintf(
+				/* translators: %1$s: The current site domain name. %2$s: The original site domain name. */
+				__(
+					'Move all your settings, stats and subscribers to your other <hostname>%1$s</hostname>. <hostname>%2$s</hostname> will be disconnected from Jetpack.',
+					'jetpack'
+				),
+				currentHostName,
+				wpcomHostName
+			),
+			{
+				hostname: <strong />,
+			}
+		);
 
 	/**
 	 * Initiate the migration.
@@ -69,24 +88,9 @@ const CardFresh = props => {
 	return (
 		<div className="jp-idc__idc-screen__card-action-base">
 			<div className="jp-idc__idc-screen__card-action-top">
-				<h4>{ __( 'Treat each site as independent sites', 'jetpack' ) }</h4>
+				<h4>{ title }</h4>
 
-				<p>
-					{ createInterpolateElement(
-						sprintf(
-							/* translators: %1$s: The current site domain name. %2$s: The original site domain name. */
-							__(
-								'<hostname>%1$s</hostname> settings, stats, and subscribers will start fresh. <hostname>%2$s</hostname> will keep its data as is.',
-								'jetpack'
-							),
-							currentHostName,
-							wpcomHostName
-						),
-						{
-							hostname: <strong />,
-						}
-					) }
-				</p>
+				<p>{ bodyText }</p>
 			</div>
 
 			<div className="jp-idc__idc-screen__card-action-bottom">
@@ -113,6 +117,12 @@ CardFresh.propTypes = {
 	redirectUri: PropTypes.string.isRequired,
 	isActionInProgress: PropTypes.bool,
 	setIsActionInProgress: PropTypes.func.isRequired,
+	title: PropTypes.string.isRequired,
+	bodyText: PropTypes.string,
+};
+
+CardFresh.defaultProps = {
+	title: __( 'Treat each site as independent sites', 'jetpack' ),
 };
 
 export default compose( [
