@@ -10,7 +10,7 @@ import {
 	isCurrentUserLinked,
 	isConnectingUser,
 	isReconnectingSite,
-	hasSeenWCConnectionModal,
+	getHasSeenWCConnectionModal,
 } from '../reducer';
 
 let state = {
@@ -123,11 +123,11 @@ describe( 'user selectors', () => {
 	} );
 } );
 
-describe( 'hasSeenWCConnectionModal selector', () => {
-	describe( '#hasSeenWCConnectionModal', () => {
+describe( 'getHasSeenWCConnectionModal selector', () => {
+	describe( '#getHasSeenWCConnectionModal', () => {
 		it( 'should return state.jetpack.connection.hasSeenWCConnectionModal', () => {
 			const stateIn = state;
-			const output = hasSeenWCConnectionModal( stateIn );
+			const output = getHasSeenWCConnectionModal( stateIn );
 			expect( output ).to.be.equal( state.jetpack.connection.hasSeenWCConnectionModal );
 		} );
 	} );

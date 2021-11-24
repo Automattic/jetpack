@@ -6,7 +6,7 @@ import {
 	user as userReducer,
 	requests as requestsReducer,
 	connectionRequests,
-	hasSeenWCConnectionModalReducer
+	hasSeenWCConnectionModal
 } from '../reducer';
 
 describe( 'status reducer', () => {
@@ -228,13 +228,13 @@ describe( 'requests reducer', () => {
 	} );
 } );
 
-describe( '#hasSeenWCConnectionModalReducer', () => {
-	it( 'should set hasSeenWCConnectionModalReducer to true when ', () => {
+describe( '#hasSeenWCConnectionModal', () => {
+	it( 'should set hasSeenWCConnectionModal to true when ', () => {
 		const stateIn = {};
 		const action = {
 			type: 'JETPACK_CONNECTION_HAS_SEEN_WC_CONNECTION_MODAL'
 		};
-		let stateOut = hasSeenWCConnectionModalReducer( stateIn, action );
+		let stateOut = hasSeenWCConnectionModal( stateIn, action );
 		expect( stateOut ).to.be.true;
 	} );
 } );

@@ -37,7 +37,7 @@ import {
 	getConnectingUserFeatureLabel,
 	getConnectionStatus,
 	hasConnectedOwner,
-	hasSeenWCConnectionModal,
+	getHasSeenWCConnectionModal,
 	setHasSeenWCConnectionModal,
 } from 'state/connection';
 import {
@@ -667,7 +667,7 @@ export default connect(
 			connectingUserFeatureLabel: getConnectingUserFeatureLabel( state ),
 			isWoaSite: isWoASite( state ),
 			isWooCommerceActive: isWooCommerceActive( state ),
-			hasSeenWCConnectionModal: hasSeenWCConnectionModal( state ),
+			hasSeenWCConnectionModal: getHasSeenWCConnectionModal( state ),
 		};
 	},
 	dispatch => ( {

@@ -145,7 +145,7 @@ export const requests = ( state = connectionRequests, action ) => {
 	}
 };
 
-export const hasSeenWCConnectionModalReducer = (
+export const hasSeenWCConnectionModal = (
 	state = window.Initial_State.hasSeenWCConnectionModal || false,
 	action
 ) => {
@@ -163,7 +163,7 @@ export const reducer = combineReducers( {
 	status,
 	user,
 	requests,
-	hasSeenWCConnectionModal: hasSeenWCConnectionModalReducer,
+	hasSeenWCConnectionModal,
 } );
 
 /**
@@ -446,11 +446,11 @@ export function isReconnectingSite( state ) {
 }
 
 /**
- * Check if the Jetpack option `hasSeenWCConnectionModal` is true.
+ * Check if `hasSeenWCConnectionModal` (Jetpack option) is true.
  *
  * @param {object} state - Global state tree.
  * @returns {boolean} If true, the site has already displayed the WooCommerce Connection Modal.
  */
-export function hasSeenWCConnectionModal( state ) {
+export function getHasSeenWCConnectionModal( state ) {
 	return !! state.jetpack.connection.hasSeenWCConnectionModal;
 }
