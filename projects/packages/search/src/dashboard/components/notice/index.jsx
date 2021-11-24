@@ -9,6 +9,7 @@ import { noop } from 'lodash';
 /**
  * Internal dependencies
  */
+// TODO change to our own gridicon component, when instant search is migrated.
 import Gridicon from 'gridicons';
 import './style.scss';
 
