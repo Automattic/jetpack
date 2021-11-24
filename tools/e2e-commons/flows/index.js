@@ -3,9 +3,9 @@ import {
 	doClassicConnection,
 	doSiteLevelConnection,
 	syncJetpackPlanData,
-} from './jetpack-connect';
+} from './jetpack-connect.js';
 
-import { loginToWpSite, loginToWpCom } from './log-in';
+import { loginToWpSite, loginToWpCom } from './log-in.js';
 
 export {
 	connectThroughWPAdmin,

@@ -51,8 +51,8 @@ Add a `jest.config.js`
 ```js
 module.exports = {
     testEnvironment: require.resolve( 'jetpack-e2e-commons/env/playwright-environment.js' ),
-    globalSetup: require.resolve( 'jetpack-e2e-commons/env/global-setup.js' ),
-    globalTeardown: require.resolve( 'jetpack-e2e-commons/env/global-teardown.js' ),
+    globalSetup: require.resolve( 'jetpack-e2e-commons/env/global-setup.cjs' ),
+    globalTeardown: require.resolve( 'jetpack-e2e-commons/env/global-teardown.cjs' ),
     setupFilesAfterEnv: [ require.resolve( 'jetpack-e2e-commons/jest.setup.js' ), ],
 };
 ```
@@ -100,13 +100,13 @@ describe( 'Quick start test suite', () => {
 
 Several configuration files are required, even though to begin with they will only export the default ones from this project. 
 
-Create the `config/default.js` and `config/playwright.config.js` files.
+Create the `config/default.cjs` and `playwright.config.cjs` files.
 
 ```shell
 mkdir config
-echo "module.exports = require( 'jetpack-e2e-commons/config/default' );" > config/default.js
+echo "module.exports = require( 'jetpack-e2e-commons/config/default' );" > config/default.cjs
 
-echo "module.exports = require( 'jetpack-e2e-commons/config/playwright.config.default' );" > config/playwright.config.js
+echo "module.exports = require( 'jetpack-e2e-commons/config/playwright.config.default' );" > playwright.config.cjs
 ```
 
 ### Run the tests
@@ -135,7 +135,7 @@ We use `localtunnel` library to expose `localhost:8889` via a public url.
 
 ```shell
 ## Decrypt default config file
-CONFIG_KEY=secret_key openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./node_modules/jetpack-e2e-commons/config/encrypted.enc -out config/local-test.js
+CONFIG_KEY=secret_key openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./node_modules/jetpack-e2e-commons/config/encrypted.enc -out config/local.cjs
 
 ## Start and the Docker environment and configure the WordPress installation
 pnpm e2e-env start

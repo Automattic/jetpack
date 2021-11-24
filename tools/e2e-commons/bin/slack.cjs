@@ -5,7 +5,7 @@ const fs = require( 'fs' );
 const config = require( 'config' );
 const path = require( 'path' );
 const yargs = require( 'yargs' );
-const { fileNameFormatter, getJetpackVersion } = require( '../helpers/utils-helper' );
+const { getJetpackVersion } = require( '../helpers/utils-helper.cjs' );
 const slackClient = new WebClient( config.get( 'slack.token' ), {
 	retryConfig: retryPolicies.rapidRetryPolicy,
 	logLevel: LogLevel.ERROR,
@@ -72,65 +72,51 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
 		return;
 	}
 
+	const flatSuites = flattenSuites( result.suites );
+	let specs = [];
+	flatSuites.forEach( s => ( specs = specs.concat( s.specs ) ) );
+
 	const detailLines = [];
 	const failureDetails = [];
-	let screenshots = [];
-	const screenshotsPath = path.join( rootPath, config.get( 'dirs.screenshots' ) );
-	if ( fs.existsSync( screenshotsPath ) ) {
-		screenshots = fs.readdirSync( screenshotsPath );
-	}
 
-	const matchedScreenshots = [];
+	// Go through each specs, check tests and results and extract failure details
+	// Expected structure spec: {tests: [{results: [{}]}]}
+	specs.forEach( spec => {
+		if ( ! spec.ok ) {
+			console.log( `${ spec.title } failed` );
+			detailLines.push( `- ${ spec.title }` );
 
-	// Go through all test results and extract failure details
-	for ( const tr of result.testResults ) {
-		for ( const ar of tr.assertionResults ) {
-			if ( ar.status === 'failed' ) {
-				detailLines.push( `- ${ ar.fullName }` );
-				for ( const failureMessage of ar.failureMessages ) {
-					// (Slack max allowed: 3001  - a buffer, just in case) - test name length - extra formatting characters
-					const maxLength = 2900 - ar.fullName.length - 10;
+			// Go through each test of the spec
+			spec.tests.forEach( t => {
+				t.results.forEach( r => {
+					const content = `*${ spec.title }*\n\n\`\`\`${ r.error.message }\`\`\``;
 					failureDetails.push( {
 						type: 'stacktrace',
-						content: `*${ ar.fullName }*\n\n\`\`\`${ failureMessage.substring(
-							0,
-							maxLength
-						) }\`\`\``,
+						content: content.substr( 0, 3000 ), //Slack max allowed
 					} );
-				}
 
-				// try to find a screenshot for this failed test
-				const expectedScreenshotName = fileNameFormatter( ar.title, false );
-
-				for ( const screenshot of screenshots ) {
-					if ( screenshot.indexOf( expectedScreenshotName ) > -1 ) {
-						failureDetails.push( {
-							type: 'file',
-							content: path.resolve( rootPath, config.get( 'dirs.screenshots' ), screenshot ),
-						} );
-						matchedScreenshots.push( screenshot );
-					}
-				}
-			}
+					r.attachments.forEach( attachment => {
+						if ( attachment.contentType === 'image/png' ) {
+							failureDetails.push( {
+								type: 'file',
+								content: attachment.path,
+							} );
+						}
+					} );
+				} );
+			} );
 		}
-	}
+	} );
 
-	// Add any remaining screenshots (not matching any test name)
-	const remainingScreenshots = screenshots.filter( s => matchedScreenshots.indexOf( s ) === -1 );
-	for ( const screenshot of remainingScreenshots ) {
-		failureDetails.push( {
-			type: 'file',
-			content: path.resolve( rootPath, config.get( 'dirs.screenshots' ), screenshot ),
-		} );
-	}
+	console.log( failureDetails );
 
 	// build the notification blocks
 	const mainMsgBlocks = await buildDefaultMessage( result.success );
 
 	// Add a header line
-	let testListHeader = `*${ result.numTotalTests } ${ suite }* tests ran successfully`;
+	let testListHeader = `*${ specs.length } ${ suite }* tests ran successfully`;
 	if ( detailLines.length > 0 ) {
-		testListHeader = `*${ detailLines.length }/${ result.numTotalTests } \`${ suite }\`* tests failed:`;
+		testListHeader = `*${ detailLines.length }/${ specs.length } \`${ suite }\`* tests failed:`;
 		detailLines.push( '\nmore details in :thread:' );
 	}
 
@@ -429,6 +415,18 @@ async function sendRequestToSlack( fn ) {
 			console.log( `ERROR: ${ error }` );
 		}
 	}
+}
+
+function flattenSuites( suites ) {
+	return suites.reduce( ( all, curr ) => {
+		curr = Object.assign( {}, curr );
+		all = all.concat( curr );
+		if ( curr.suites ) {
+			all = all.concat( flattenSuites( curr.suites ) );
+			curr.suites = [];
+		}
+		return all;
+	}, [] );
 }
 
 //endregion
