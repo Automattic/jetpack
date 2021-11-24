@@ -24,6 +24,7 @@ class PluginDashItem extends Component {
 		label: PropTypes.string.isRequired,
 		pluginFile: PropTypes.string.isRequired,
 		pluginSlug: PropTypes.string.isRequired,
+		installOrActivatePrompt: PropTypes.element.isRequired,
 
 		// connected properties
 		pluginIsActive: PropTypes.bool,
@@ -50,23 +51,7 @@ class PluginDashItem extends Component {
 		return (
 			<JetpackBanner
 				callToAction={ __( 'Install', 'jetpack' ) }
-				// title={ createInterpolateElement(
-				// 	__(
-				// 		'Improve your site’s performance and SEO in a few clicks with the free Jetpack Boost plugin.<br /><a>Learn more.</a>',
-				// 		'jetpack'
-				// 	),
-				// 	{
-				// 		a: (
-				// 			<a
-				// 				href={
-				// 					'https://jetpack.com/redirect/?source=stats-nudges-boost-learn&site=' +
-				// 					this.props.siteRawUrl
-				// 				}
-				// 			/>
-				// 		),
-				// 		br: <br />,
-				// 	}
-				// ) }
+				title={ this.props.installOrActivatePrompt }
 				// disableHref="false"
 				// href={ getRedirectUrl( 'calypso-plugins-setup', {
 				// 	site: this.props.siteRawUrl,
@@ -83,28 +68,12 @@ class PluginDashItem extends Component {
 	}
 
 	renderNotActivated() {
-		const { siteAdminUrl, pluginFile } = this.props;
+		const { installOrActivatePrompt } = this.props;
 
 		return (
 			<JetpackBanner
 				callToAction={ __( 'Activate', 'jetpack' ) }
-				// title={ createInterpolateElement(
-				// 	__(
-				// 		'Improve your site’s performance and SEO in a few clicks with the free Jetpack Boost plugin.<br /><a>Learn more.</a>',
-				// 		'jetpack'
-				// 	),
-				// 	{
-				// 		a: (
-				// 			<a
-				// 				href={
-				// 					'https://jetpack.com/redirect/?source=stats-nudges-boost-learn&site=' +
-				// 					this.props.siteRawUrl
-				// 				}
-				// 			/>
-				// 		),
-				// 		br: <br />,
-				// 	}
-				// ) }
+				title={ installOrActivatePrompt }
 				// disableHref="false"
 				// eventFeature="boost"
 				onClick={ this.activateOrInstallPlugin }
