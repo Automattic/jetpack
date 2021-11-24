@@ -1,9 +1,8 @@
 const path = require( 'path' );
 const config = require( 'config' );
-const logger = require( '../logger' );
+const logger = require( '../logger.cjs' );
 const fs = require( 'fs' );
-const { ContentType } = require( 'jest-circus-allure-environment' );
-const { fileNameFormatter } = require( '../helpers/utils-helper' );
+const { fileNameFormatter } = require( '../helpers/utils-helper.cjs' );
 
 /**
  * Takes a screenshot of the given page
@@ -25,7 +24,7 @@ async function takeScreenshot( page, fileName, allure ) {
 		logger.debug( `Screenshot saved: ${ filePath }` );
 
 		if ( allure ) {
-			await allure.attachment( fileName, fs.readFileSync( filePath ), ContentType.PNG );
+			await allure.attachment( fileName, fs.readFileSync( filePath ), 'png' );
 		}
 	} catch ( error ) {
 		logger.error( `Failed to save screenshot: ${ error }` );
