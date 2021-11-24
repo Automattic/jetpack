@@ -1,17 +1,17 @@
-import logger from '../logger';
-import { syncJetpackPlanData, loginToWpCom, loginToWpSite } from '../flows';
+import logger from '../logger.cjs';
+import { syncJetpackPlanData, loginToWpCom, loginToWpSite } from '../flows/index.js';
 import {
 	execWpCommand,
 	getDotComCredentials,
 	isLocalSite,
 	provisionJetpackStartConnection,
 	resetWordpressInstall,
-} from '../helpers/utils-helper';
+} from '../helpers/utils-helper.cjs';
 import fs from 'fs';
 import config from 'config';
 import assert from 'assert';
 
-export function prerequisitesBuilder() {
+export function prerequisitesBuilder( page ) {
 	const state = {
 		clean: undefined,
 		loggedIn: undefined,
@@ -51,17 +51,17 @@ export function prerequisitesBuilder() {
 			return this;
 		},
 		async build() {
-			await buildPrerequisites( state );
+			await buildPrerequisites( state, page );
 		},
 	};
 }
 
-async function buildPrerequisites( state ) {
+async function buildPrerequisites( state, page ) {
 	const functions = {
-		loggedIn: () => ensureUserIsLoggedIn( state.loggedIn ),
-		wpComLoggedIn: () => ensureWpComUserIsLoggedIn( state.wpComLoggedIn ),
+		loggedIn: () => ensureUserIsLoggedIn( page ),
+		wpComLoggedIn: () => ensureWpComUserIsLoggedIn( page ),
 		connected: () => ensureConnectedState( state.connected ),
-		plan: () => ensurePlan( state.plan ),
+		plan: () => ensurePlan( state.plan, page ),
 		modules: () => ensureModulesState( state.modules ),
 		clean: () => ensureCleanState( state.clean ),
 	};
@@ -107,7 +107,7 @@ async function connect() {
 	const creds = getDotComCredentials();
 	await execWpCommand( `user update wordpress --user_email=${ creds.email }` );
 
-	await provisionJetpackStartConnection( creds.userId, 'free' );
+	provisionJetpackStartConnection( creds.userId, 'free' );
 
 	assert.ok( await isBlogTokenSet() );
 
@@ -136,7 +136,7 @@ async function ensureCleanState( shouldReset ) {
 	}
 }
 
-export async function ensurePlan( plan = undefined ) {
+export async function ensurePlan( plan = undefined, page ) {
 	if ( ! isLocalSite() ) {
 		logger.prerequisites(
 			'Site is not local, skipping plan setup. Assuming required plan is already in place.'
@@ -148,15 +148,15 @@ export async function ensurePlan( plan = undefined ) {
 		throw new Error( `Unsupported plan ${ plan }` );
 	}
 
-	await syncJetpackPlanData( plan, true );
+	await syncJetpackPlanData( page, plan, true );
 }
 
-export async function ensureUserIsLoggedIn() {
-	await loginToWpSite( true );
+export async function ensureUserIsLoggedIn( page ) {
+	await loginToWpSite( page, true );
 }
 
-export async function ensureWpComUserIsLoggedIn() {
-	await loginToWpCom( true );
+export async function ensureWpComUserIsLoggedIn( page ) {
+	await loginToWpCom( page, true );
 }
 
 export async function ensureModulesState( modules ) {
