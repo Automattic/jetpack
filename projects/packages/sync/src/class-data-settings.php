@@ -89,6 +89,21 @@ class Data_Settings {
 	);
 
 	/**
+	 * Map of filters to modules.
+	 */
+	const FILTER_MODULE_MAPPING = array(
+		'jetpack_sync_options_whitelist'            => 'Automattic\\Jetpack\\Sync\\Modules\\Options',
+		'jetpack_sync_options_contentless'          => 'Automattic\\Jetpack\\Sync\\Modules\\Options',
+		'jetpack_sync_constants_whitelist'          => 'Automattic\\Jetpack\\Sync\\Modules\\Constants',
+		'jetpack_sync_callable_whitelist'           => 'Automattic\\Jetpack\\Sync\\Modules\\Callables',
+		'jetpack_sync_multisite_callable_whitelist' => 'Automattic\\Jetpack\\Sync\\Modules\\Callables',
+		'jetpack_sync_post_meta_whitelist'          => 'Automattic\\Jetpack\\Sync\\Modules\\Posts',
+		'jetpack_sync_comment_meta_whitelist'       => 'Automattic\\Jetpack\\Sync\\Modules\\Comments',
+		'jetpack_sync_capabilities_whitelist'       => 'Automattic\\Jetpack\\Sync\\Modules\\Users',
+		'jetpack_sync_known_importers'              => 'Automattic\\Jetpack\\Sync\\Modules\\Import',
+	);
+
+	/**
 	 * A static property containing the Sync data settings.
 	 *
 	 * @var array
@@ -103,6 +118,10 @@ class Data_Settings {
 	 */
 	public function add_settings_list( $plugin_settings = array() ) {
 		foreach ( self::DATA_FILTER_DEFAULTS as $filter => $default_value ) {
+			if ( 'jetpack_sync_modules' !== $filter && ! $this->is_valid_filter_setting( $plugin_settings, $filter ) ) {
+				// The consumer didn't enable the module associated with this filter, so skip it.
+				continue;
+			}
 
 			if ( isset( $plugin_settings[ $filter ] ) && is_array( $plugin_settings[ $filter ] ) ) {
 				// If the plugin provided a data setting for this filter, use it.
@@ -127,6 +146,30 @@ class Data_Settings {
 			add_action( 'plugins_loaded', array( $this, 'set_sync_data_filters' ) );
 			do_action( 'jetpack_sync_set_data_filters' );
 		}
+	}
+
+	/**
+	 * Determines whether the module assocated with the filter has been enabled by this consumer.
+	 *
+	 * @param array  $plugin_settings The array provided by the plugin. The array must use filters
+	 *                               from the DATA_FILTER_DEFAULTS list as keys.
+	 *
+	 * @param string $filter The filter to check.
+	 *
+	 * @return bool Whether the filter settings can be used.
+	 */
+	private function is_valid_filter_setting( $plugin_settings, $filter ) {
+		if ( ! isset( $plugin_settings['jetpack_sync_modules'] ) ) {
+			// All modules are active.
+			return true;
+		}
+
+		$expected_module = self::FILTER_MODULE_MAPPING[ $filter ];
+		if ( in_array( $expected_module, $plugin_settings['jetpack_sync_modules'], true ) ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
