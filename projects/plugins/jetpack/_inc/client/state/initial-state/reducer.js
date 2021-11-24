@@ -545,7 +545,7 @@ export function doNotUseConnectionIframe( state ) {
 }
 
 /**
- * Check if the WooCommerce is currently installed and active
+ * Check if WooCommerce is currently installed and active
  *
  * @param {object} state - Global state tree.
  * @returns {boolean} True, the plugin is installed and active
