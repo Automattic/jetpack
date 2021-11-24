@@ -3891,6 +3891,7 @@ p {
 				JETPACK__PLUGIN_FILE,
 				array(
 					'in_footer'    => true,
+					'textdomain'   => 'jetpack',
 					'dependencies' => array(
 						'wp-polyfill',
 						'wp-components',
@@ -3898,16 +3899,6 @@ p {
 				)
 			);
 			Assets::enqueue_script( 'jetpack-plugins-page-js' );
-
-			// load this on pages where needed.
-			wp_localize_script(
-				'jetpack-plugins-page-js',
-				'deactivate_dialog',
-				array(
-					'title'            => __( 'Deactivate Jetpack', 'jetpack' ),
-					'deactivate_label' => __( 'Disconnect and Deactivate', 'jetpack' ),
-				)
-			);
 
 			// Add objects to be passed to the initial state of the app.
 			// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.

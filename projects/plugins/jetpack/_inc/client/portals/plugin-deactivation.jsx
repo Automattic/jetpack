@@ -5,6 +5,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { connect } from 'react-redux';
 
 /**
+ * WordPress dependencies
+ */
+import { __ } from '@wordpress/i18n';
+
+/**
  * Internal dependencies
  */
 import PortalSidecar from './utilities/portal-sidecar';
@@ -35,12 +40,10 @@ const PluginDeactivation = props => {
 	const [ modalOpen, setModalOpen ] = useState( false );
 
 	// Modify the deactivation link.
-	// deactivate_dialog is a localized variable.
-	const deactivate_dialog = window.deactivate_dialog;
 	const deactivationLink = document.querySelector( '#deactivate-jetpack, #deactivate-jetpack-dev' ); // ID set by WP on the deactivation link.
 
-	deactivationLink.setAttribute( 'title', deactivate_dialog.title );
-	deactivationLink.textContent = deactivate_dialog.deactivate_label;
+	deactivationLink.setAttribute( 'title', __( 'Deactivate Jetpack', 'jetpack' ) );
+	deactivationLink.textContent = __( 'Disconnect and Deactivate', 'jetpack' );
 
 	useEffect( () => {
 		restApi.setApiRoot( apiRoot );
