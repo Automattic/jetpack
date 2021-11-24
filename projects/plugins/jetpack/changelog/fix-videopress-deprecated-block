@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix old VideoPress blocks triggering a validation error by adding some deprecations/migrations.
