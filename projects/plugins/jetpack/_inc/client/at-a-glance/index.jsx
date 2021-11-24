@@ -175,13 +175,13 @@ class AtAGlance extends Component {
 			}
 
 			performanceCards.push(
-				<DashBoost siteRawUrl={ this.props.siteRawUrl } />, <DashCRM />
+				<DashBoost siteRawUrl={ this.props.siteRawUrl } />, <DashCRM siteRawUrl={ this.props.siteRawUrl }  />
 			);
 
 			if ( performanceCards.length ) {
 				pairs.push( {
 					header: (
-						<DashSectionHeader key="performanceHeader" label={ __( 'Performance & Growth', 'jetpack' ) } />
+						<DashSectionHeader key="performanceHeader" label={ __( 'Performance and Growth', 'jetpack' ) } />
 					),
 					cards: performanceCards,
 				} );

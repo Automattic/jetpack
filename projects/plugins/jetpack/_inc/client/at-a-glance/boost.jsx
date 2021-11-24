@@ -23,7 +23,7 @@ class DashBoost extends Component {
 	render() {
 		return (
 			<PluginDashItem
-				label={ __( 'Boost', 'jetpack' ) }
+				pluginName={ __( 'Boost', 'jetpack' ) }
 				pluginFile={ BOOST_PLUGIN_FILE }
 				pluginSlug={ BOOST_PLUGIN_SLUG }
 				installOrActivatePrompt={

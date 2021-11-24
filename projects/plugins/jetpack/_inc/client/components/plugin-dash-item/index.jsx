@@ -21,9 +21,10 @@ import { getSiteAdminUrl } from 'state/initial-state';
 
 class PluginDashItem extends Component {
 	static propTypes = {
-		label: PropTypes.string.isRequired,
+		pluginName: PropTypes.string.isRequired,
 		pluginFile: PropTypes.string.isRequired,
 		pluginSlug: PropTypes.string.isRequired,
+		icon: PropTypes.string.isRequired,
 		installOrActivatePrompt: PropTypes.element.isRequired,
 
 		// connected properties
@@ -44,42 +45,33 @@ class PluginDashItem extends Component {
 	};
 
 
-	// wp_nonce_url( self_admin_url( 'update.php?action=install-plugin&plugin=' . $plugin_slug ), 'install-plugin_' . $plugin_slug );
-	// wp_nonce_url( 'plugins.php?action=activate&amp;plugin=' . rawurlencode( $plugin_file ) . '&amp;plugin_status=all&amp;paged=1', 'activate-plugin_' . $plugin_file );
 
 	renderNotInstalled() {
+		const { installOrActivatePrompt, pluginName } = this.props;
+
 		return (
 			<JetpackBanner
-				callToAction={ __( 'Install', 'jetpack' ) }
-				title={ this.props.installOrActivatePrompt }
-				// disableHref="false"
-				// href={ getRedirectUrl( 'calypso-plugins-setup', {
-				// 	site: this.props.siteRawUrl,
-				// 	query: 'only=backups',
-				// } ) }
-				// href={ site }
-				// eventFeature="boost"
+				callToAction={ 
+					/* translators: "%s" is the name of the plugin. i.e. Boost, CRM, etc. */
+					sprintf( __( 'Install %s', 'jetpack' ), pluginName )
+				}
+				title={ installOrActivatePrompt }
 				onClick={ this.activateOrInstallPlugin }
-				// path="dashboard"
-				// icon="plans"
-				// trackBannerDisplay={ this.props.trackUpgradeButtonView }
 			/>
 		);
 	}
 
 	renderNotActivated() {
-		const { installOrActivatePrompt } = this.props;
+		const { installOrActivatePrompt, pluginName } = this.props;
 
 		return (
 			<JetpackBanner
-				callToAction={ __( 'Activate', 'jetpack' ) }
+				callToAction={ 
+					/* translators: "%s" is the name of the plugin. i.e. Boost, CRM, etc. */
+					sprintf( __( 'Activate %s', 'jetpack' ), pluginName )
+				}
 				title={ installOrActivatePrompt }
-				// disableHref="false"
-				// eventFeature="boost"
 				onClick={ this.activateOrInstallPlugin }
-				// path="dashboard"
-				// icon="plans"
-				// trackBannerDisplay={ this.props.trackUpgradeButtonView }
 			/>
 		);
 	}
@@ -97,9 +89,9 @@ class PluginDashItem extends Component {
 	}
 
 	render() {
-		const { label } = this.props;
+		const { pluginName } = this.props;
 
-		return <DashItem label={ label } isModule={ false } overrideContent={ this.renderContent() } />;
+		return <DashItem label={ pluginName } isModule={ false } overrideContent={ this.renderContent() } />;
 	}
 }
 
