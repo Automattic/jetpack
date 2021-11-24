@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { assign } from 'lodash';
+import { addQueryArgs } from '@wordpress/url';
 import { jetpackConfigGet, jetpackConfigHas } from '@automattic/jetpack-config';
 
 /**
@@ -97,9 +98,10 @@ function JetpackRestApiClient( root, nonce ) {
 
 		fetchAuthorizationUrl: redirectUri =>
 			getRequest(
-				`${ apiRoot }jetpack/v4/connection/authorize_url?no_iframe=1&redirect_uri=${ encodeURIComponent(
-					redirectUri
-				) }`,
+				addQueryArgs( `${ apiRoot }jetpack/v4/connection/authorize_url`, {
+					no_iframe: '1',
+					redirect_uri: redirectUri,
+				} ),
 				getParams
 			)
 				.then( checkStatus )

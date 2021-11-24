@@ -1,11 +1,12 @@
 import config from 'config';
-import { DashboardPage, WPLoginPage } from '../pages/wp-admin';
-import { LoginPage } from '../pages/wpcom';
-import logger from '../logger';
+import { DashboardPage, WPLoginPage } from '../pages/wp-admin/index.js';
+import { LoginPage } from '../pages/wpcom/index.js';
+import logger from '../logger.cjs';
+import { resolveSiteUrl } from '../helpers/utils-helper.cjs';
 
 const cookie = config.get( 'storeSandboxCookieValue' );
 
-export async function loginToWpSite( mockPlanData ) {
+export async function loginToWpSite( page, mockPlanData ) {
 	// Navigating to login url will always display the login form even if the user is already logged in
 	// To prevent unnecessary log in we navigate to Dashboard and check if logged in
 	await DashboardPage.visit( page, false );
@@ -19,12 +20,12 @@ export async function loginToWpSite( mockPlanData ) {
 	if ( ! mockPlanData ) {
 		await ( await DashboardPage.init( page ) ).setSandboxModeForPayments(
 			cookie,
-			new URL( siteUrl ).host
+			new URL( resolveSiteUrl() ).host
 		);
 	}
 }
 
-export async function loginToWpCom( mockPlanData ) {
+export async function loginToWpCom( page, mockPlanData ) {
 	const login = await LoginPage.visit( page );
 	if ( ! mockPlanData ) {
 		await login.setSandboxModeForPayments( cookie );
