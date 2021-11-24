@@ -243,6 +243,7 @@ importers:
 
   projects/js-packages/licensing:
     specifiers:
+      '@automattic/jetpack-api': workspace:^0.6.1-alpha
       '@automattic/jetpack-base-styles': workspace:^0.1.0-alpha
       '@automattic/jetpack-components': workspace:^0.6.3-alpha
       '@wordpress/components': 19.0.3
@@ -254,6 +255,7 @@ importers:
       react: 17.0.2
       react-test-renderer: 17.0.2
     dependencies:
+      '@automattic/jetpack-api': link:../api
       '@automattic/jetpack-components': link:../components
       '@wordpress/components': 19.0.3_react@17.0.2
       '@wordpress/element': 4.0.4
@@ -756,6 +758,7 @@ importers:
       '@automattic/jetpack-api': workspace:^0.6.1-alpha
       '@automattic/jetpack-components': workspace:^0.6.3-alpha
       '@automattic/jetpack-connection': workspace:^0.10.2-alpha
+      '@automattic/jetpack-licensing': workspace:^0.1.0-alpha
       '@automattic/jetpack-webpack-config': workspace:^0.3.0-alpha
       '@automattic/popup-monitor': 1.0.0
       '@automattic/request-external-access': 1.0.0
@@ -901,6 +904,7 @@ importers:
       '@automattic/jetpack-api': link:../../js-packages/api
       '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
+      '@automattic/jetpack-licensing': link:../../js-packages/licensing
       '@automattic/popup-monitor': 1.0.0
       '@automattic/request-external-access': 1.0.0
       '@automattic/social-previews': 1.1.1_9eb696fbc005b4df4ed8729db2f11119
