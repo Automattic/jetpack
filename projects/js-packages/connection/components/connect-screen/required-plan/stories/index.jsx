@@ -39,11 +39,6 @@ const Template = args => (
 	</ConnectScreenRequiredPlanVisual>
 );
 
-const connectionStatus = {
-	isRegistered: false,
-	isUserConnected: false,
-};
-
 const DefaultArgs = {
 	title: 'The best real‑time WordPress backups',
 	pricingIcon:
@@ -52,7 +47,7 @@ const DefaultArgs = {
 	priceAfter: 4.5,
 	pricingTitle: 'Jetpack Backup',
 	buttonLabel: 'Get Jetpack Backup',
-	connectionStatus: connectionStatus,
+	isLoading: false,
 	renderConnectBtn: ( label, autoTrigger ) => (
 		<ActionButton
 			label={ label }

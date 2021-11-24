@@ -16,6 +16,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Licensing;
+use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Redirect;
@@ -845,18 +846,6 @@ class Jetpack {
 
 		if ( ! $this->connection_manager ) {
 			$this->connection_manager = new Connection_Manager( 'jetpack' );
-
-			/**
-			 * Filter to activate Jetpack Connection UI.
-			 * INTERNAL USE ONLY.
-			 *
-			 * @since 9.5.0
-			 *
-			 * @param bool false Whether to activate the Connection UI.
-			 */
-			if ( apply_filters( 'jetpack_connection_ui_active', false ) ) {
-				Automattic\Jetpack\ConnectionUI\Admin::init();
-			}
 		}
 
 		/*
@@ -914,6 +903,7 @@ class Jetpack {
 		add_action( 'plugins_loaded', array( 'Jetpack', 'load_modules' ), 100 );
 
 		Partner::init();
+		My_Jetpack_Initializer::init();
 
 		/**
 		 * Fires when Jetpack is fully loaded and ready. This is the point where it's safe

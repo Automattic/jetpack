@@ -63,14 +63,12 @@ export class DashStats extends Component {
 
 		let totalViews = 0;
 
-		/* translators: short date format, such as: Jan 12. */
-		const shortMonthFormat = __( 'M j', 'jetpack' );
-
-		/* translators: long date format, such as: January 12th. */
-		const longMonthFormat = __( 'F jS', 'jetpack' );
-
-		/* translators: long month/year format, such as: January, 2021. */
-		const longMonthYearFormat = __( 'F Y', 'jetpack' );
+		const /* translators: short date format, such as: Jan 12. */
+			shortMonthFormat = __( 'M j', 'jetpack' ),
+			/* translators: long date format, such as: January 12th. */
+			longMonthFormat = __( 'F jS', 'jetpack' ),
+			/* translators: long month/year format, such as: January, 2021. */
+			longMonthYearFormat = __( 'F Y', 'jetpack' );
 
 		if ( 'object' !== typeof props.statsData[ unit ] ) {
 			return { chartData: s, totalViews: false };
