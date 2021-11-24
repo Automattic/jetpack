@@ -6,7 +6,7 @@ This component is used to implement toggle switches
 #### How to use:
 
 ```js
-var FormToggle = require( 'components/forms/form-toggle' );
+var FormToggle = require( 'components/form-toggle' );
 
 render: function() {
 	return (

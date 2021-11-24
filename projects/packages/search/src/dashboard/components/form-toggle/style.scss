@@ -1,4 +1,4 @@
-@import '../../../scss/calypso-colors';
+@import '../../scss/calypso-colors';
 // ==========================================================================
 // FormToggle
 // ==========================================================================
@@ -50,11 +50,6 @@
 	.is-disabled & {
 		cursor: default;
 	}
-
-	.form-toggle__label-content {
-		flex: 0 1 100%;
-		margin-left: 12px;
-	}
 }
 
 .form-toggle {
@@ -72,7 +67,7 @@
 	}
 
 	&:not( :disabled ) {
-		+ .form-toggle__label:hover .form-toggle__switch {
+		+ .form-toggle__switch:hover {
 			background: lighten( $gray, 20% );
 		}
 	}
@@ -88,13 +83,13 @@
 	}
 
 	&:checked:not( :disabled ) {
-		+ .form-toggle__label:hover .form-toggle__switch {
+		+ .form-toggle__switch:hover {
 			background: $blue-light;
 		}
 	}
 
 	&:disabled {
-		+ label.form-toggle__label span.form-toggle__switch {
+		+ span.form-toggle__switch {
 			opacity: 0.25;
 			cursor: default;
 		}
@@ -103,18 +98,18 @@
 
 // Classes for toggle state before action is complete (updating plugin or something)
 .form-toggle.is-toggling {
-	+ .form-toggle__label .form-toggle__switch {
+	+ .form-toggle__switch {
 		background: $blue-medium;
 	}
 	&:checked {
-		+ .form-toggle__label .form-toggle__switch {
+		+ .form-toggle__switch {
 			background: lighten( $gray, 20% );
 		}
 	}
 }
 
 .form-toggle.is-compact {
-	+ .form-toggle__label .form-toggle__switch {
+	+ .form-toggle__switch {
 		border-radius: 8px;
 		width: 24px;
 		height: 16px;
@@ -126,8 +121,8 @@
 		}
 	}
 	&:checked {
-		+ .form-toggle__label .form-toggle__switch {
-			&:after{
+		+ .form-toggle__switch {
+			&:after {
 				left: 8px;
 			}
 		}
