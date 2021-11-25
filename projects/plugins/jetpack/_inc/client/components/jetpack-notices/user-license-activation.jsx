@@ -39,7 +39,7 @@ const UserLicenseActivationNotice = props => {
 		detachedLicensesCount,
 		activationNoticeDismissInfo,
 		updateLicensingActivationNoticeDismiss,
-        pathname,
+		pathname,
 		siteAdminUrl,
 	} = props;
 
