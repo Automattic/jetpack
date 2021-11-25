@@ -6,11 +6,7 @@ import { connect } from 'react-redux';
 import { withRouter, Prompt } from 'react-router-dom';
 import { __, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import {
-	ConnectScreen,
-	ContextualizedConnection,
-	CONNECTION_STORE_ID,
-} from '@automattic/jetpack-connection';
+import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { Dashicon } from '@wordpress/components';
 import { withDispatch } from '@wordpress/data';
 
@@ -82,6 +78,7 @@ import ReconnectModal from 'components/reconnect-modal';
 import { createInterpolateElement } from '@wordpress/element';
 import { imagePath } from 'constants/urls';
 import { ActivationScreen } from '@automattic/jetpack-licensing';
+import ContextualizedConnection from 'components/contextualized-connection';
 
 const recommendationsRoutes = [
 	'/recommendations',

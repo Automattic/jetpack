@@ -6,13 +6,12 @@ import PropTypes from 'prop-types';
 import { JetpackLogo } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
+import { ConnectButton, ToS } from '@automattic/jetpack-connection';
 
 /**
  * Internal dependencies
  */
-import { createInterpolateElement } from '@wordpress/element';
-import ConnectButton from '../connect-button';
-import { ToS } from '../connect-screen/basic/visual';
 import './style.scss';
 
 /**
@@ -80,7 +79,7 @@ const ContextualizedConnection = props => {
 
 			<footer className="jp-contextualized-connection__footer">
 				<div className="jp-contextualized-connection__footer-column">
-					<h3>{ __( 'Security tools' ) }</h3>
+					<h3>{ __( 'Security tools', 'jetpack' ) }</h3>
 					<ul className="jp-contextualized-connection__feature-list">
 						<li>
 							{ createInterpolateElement(
@@ -100,7 +99,7 @@ const ContextualizedConnection = props => {
 					</ul>
 				</div>
 				<div className="jp-contextualized-connection__footer-column">
-					<h3>{ __( 'Performance tools' ) }</h3>
+					<h3>{ __( 'Performance tools', 'jetpack' ) }</h3>
 					<ul className="jp-contextualized-connection__feature-list">
 						<li>
 							{ createInterpolateElement(
@@ -119,12 +118,12 @@ const ContextualizedConnection = props => {
 								strong: <strong />,
 							} ) }
 						</li>
-						<li>{ __( 'Instant site search' ) }</li>
-						<li>{ __( 'Ad-free WordPress video hosting' ) }</li>
+						<li>{ __( 'Instant site search', 'jetpack' ) }</li>
+						<li>{ __( 'Ad-free WordPress video hosting', 'jetpack' ) }</li>
 					</ul>
 				</div>
 				<div className="jp-contextualized-connection__footer-column">
-					<h3>{ __( 'Growth tools' ) }</h3>
+					<h3>{ __( 'Growth tools', 'jetpack' ) }</h3>
 					<ul className="jp-contextualized-connection__feature-list">
 						<li>
 							{ createInterpolateElement( __( '<strong>Free</strong> site stats', 'jetpack' ), {
@@ -142,8 +141,8 @@ const ContextualizedConnection = props => {
 								strong: <strong />,
 							} ) }
 						</li>
-						<li>{ __( 'Accept payments' ) }</li>
-						<li>{ __( 'Ad network access' ) }</li>
+						<li>{ __( 'Accept payments', 'jetpack' ) }</li>
+						<li>{ __( 'Ad network access', 'jetpack' ) }</li>
 					</ul>
 				</div>
 			</footer>
