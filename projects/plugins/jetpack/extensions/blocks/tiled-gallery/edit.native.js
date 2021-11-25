@@ -23,10 +23,11 @@ import { useResizeObserver } from '@wordpress/compose';
 /**
  * Internal dependencies
  */
-import { ALLOWED_MEDIA_TYPES } from './constants';
+import { ALLOWED_MEDIA_TYPES, LAYOUT_STYLES } from './constants';
 import { icon } from '.';
 import styles from './styles.scss';
 import TiledGallerySettings, { DEFAULT_COLUMNS, MAX_COLUMNS } from './settings';
+import { getActiveStyleName } from '../../shared/block-styles';
 
 const TILE_SPACING = 8;
 
@@ -100,13 +101,15 @@ const TiledGalleryEdit = props => {
 	}, [ columns, images, setAttributes ] );
 
 	const populateInnerBlocksWithImages = ( imgs, replace = false ) => {
+		const layoutStyle = getActiveStyleName( LAYOUT_STYLES, className );
+
 		const newBlocks = imgs.map( image => {
 			return createBlock( 'core/image', {
 				id: image.id,
 				url: image.url,
 				caption: image.caption,
 				alt: image.alt,
-				className: styles[ 'is-style-squared' ],
+				className: styles[ `is-style-${ layoutStyle }` ],
 			} );
 		} );
 

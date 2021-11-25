@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fixed nav-unification on lower resolutions for wp-admin.

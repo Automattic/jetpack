@@ -2,6 +2,22 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.6.3 - 2021-11-23
+### Changed
+- Import RNA styles from base styles package.
+- Updated package dependencies
+
+### Fixed
+- Action button supports larger labels
+
+## 0.6.2 - 2021-11-17
+### Fixed
+- Pricing Card: Fix case where price before and after match.
+
+## 0.6.1 - 2021-11-16
+### Changed
+- Updated package dependencies
+
 ## 0.6.0 - 2021-11-09
 ### Added
 - Add Spinner in RNA components.

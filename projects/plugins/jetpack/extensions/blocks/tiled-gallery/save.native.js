@@ -3,6 +3,8 @@
  */
 import Layout from './layout';
 import { defaultColumnsNumber } from './edit';
+import { getActiveStyleName } from '../../shared/block-styles';
+import { LAYOUT_STYLES } from './constants';
 
 export default function TiledGallerySave( { attributes, innerBlocks } ) {
 	if ( ! attributes.images.length && ! innerBlocks.length ) {
@@ -31,6 +33,8 @@ export default function TiledGallerySave( { attributes, innerBlocks } ) {
 		ids,
 	} = attributes;
 
+	const layoutStyle = getActiveStyleName( LAYOUT_STYLES, className );
+
 	return (
 		<Layout
 			align={ align }
@@ -38,7 +42,7 @@ export default function TiledGallerySave( { attributes, innerBlocks } ) {
 			columns={ columns }
 			images={ images }
 			isSave
-			layoutStyle={ 'square' }
+			layoutStyle={ layoutStyle }
 			linkTo={ linkTo }
 			roundedCorners={ roundedCorners }
 			columnWidths={ columnWidths }
