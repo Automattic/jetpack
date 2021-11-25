@@ -6,10 +6,12 @@ import React, { createElement, useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
+import ExternalLink from 'components/external-link';
 import analytics from 'lib/analytics';
 import { getSiteAdminUrl } from 'state/initial-state';
 import {
@@ -45,7 +47,6 @@ const UserLicenseActivationNotice = props => {
 	} = activationNoticeDismissInfo;
 
 	const USER_LICENSE_ACTIVATION_ROUTE = `${ siteAdminUrl }admin.php?page=jetpack#/license/activation`;
-    const USER_PURCHASES_URL = 'https://wordpress.com/me/purchases';
 
 	const userHasDetachedLicenses = !! detachedLicensesCount;
 	const userHasNewDetachedLicenses = detachedLicensesCount > ( lastDetachedCount || 0 );
@@ -73,7 +74,10 @@ const UserLicenseActivationNotice = props => {
 	}, [] );
 
 	const trackUserPurchasesClick = useCallback( () => {
-		analytics.tracks.recordJetpackClick( 'licensing_activation_notice_user_purchases' );
+		analytics.tracks.recordJetpackClick( {
+			target: 'calypso_purchases_link',
+			page: 'my-plan',
+        } );
 	}, [] );
 
 	const onNoticeDismiss = useCallback( () => {
@@ -93,15 +97,18 @@ const UserLicenseActivationNotice = props => {
 				showDismiss={ true }
 				onDismissClick={ onNoticeDismiss }
 				text={ createInterpolateElement(
-					__( 'You have an available product license key. <activateLink>Activate it now</activateLink> or <purchasesLink>view all your purchases</purchasesLink>.', 'jetpack' ),
+					__( 'You have an available product license key. <activateLink>Activate it now</activateLink> or <purchasesLink>view all your purchases</purchasesLink>', 'jetpack' ),
 					{
 						activateLink: createElement( 'a', {
 							href: USER_LICENSE_ACTIVATION_ROUTE,
 							onClick: trackLicenseActivationClick,
 						} ),
-						purchasesLink: createElement( 'a', {
-							href: USER_PURCHASES_URL,
+						purchasesLink: createElement( ExternalLink, {
+                            className: 'jp-license-activation-notice__external-link',
+							href: getRedirectUrl( 'calypso-purchases' ),
 							onClick: trackUserPurchasesClick,
+							target: '_blank',
+							icon: true,
 						} ),
 					}
 				) }
