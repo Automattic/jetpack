@@ -20,7 +20,7 @@ module.exports = {
 	overrides: [
 		{
 			files: [ '*.js' ],
-			parser: 'babel-eslint',
+			parser: '@babel/eslint-parser',
 			extends: [ '../../../.eslintrc.js' ],
 		},
 		{

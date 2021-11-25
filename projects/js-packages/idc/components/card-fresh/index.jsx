@@ -64,8 +64,8 @@ const CardFresh = props => {
 	}, [ setIsStartingFresh, isActionInProgress, setIsActionInProgress, redirectUri ] );
 
 	return (
-		<div className="jp-idc-card-action-base">
-			<div className="jp-idc-card-action-top">
+		<div className="jp-idc__idc-screen__card-action-base">
+			<div className="jp-idc__idc-screen__card-action-top">
 				<h4>{ __( 'Treat each site as independent sites', 'jetpack' ) }</h4>
 
 				<p>
@@ -86,13 +86,13 @@ const CardFresh = props => {
 				</p>
 			</div>
 
-			<div className="jp-idc-card-action-bottom">
-				<div className="jp-idc-card-action-sitename">{ wpcomHostName }</div>
-				<Dashicon icon="minus" className="jp-idc-card-action-separator" />
-				<div className="jp-idc-card-action-sitename">{ currentHostName }</div>
+			<div className="jp-idc__idc-screen__card-action-bottom">
+				<div className="jp-idc__idc-screen__card-action-sitename">{ wpcomHostName }</div>
+				<Dashicon icon="minus" className="jp-idc__idc-screen__card-action-separator" />
+				<div className="jp-idc__idc-screen__card-action-sitename">{ currentHostName }</div>
 
 				<Button
-					className="jp-idc-card-action-button"
+					className="jp-idc__idc-screen__card-action-button"
 					label={ buttonLabel }
 					onClick={ doStartFresh }
 					disabled={ isActionInProgress }

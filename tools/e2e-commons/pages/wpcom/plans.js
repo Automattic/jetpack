@@ -1,4 +1,4 @@
-import { WpPage } from '..';
+import WpPage from '../wp-page.js';
 
 export default class PlansPage extends WpPage {
 	constructor( page ) {

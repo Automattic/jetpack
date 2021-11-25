@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Fix some code where the minifier loses the translator comments.
