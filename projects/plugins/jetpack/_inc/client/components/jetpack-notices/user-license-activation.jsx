@@ -77,7 +77,7 @@ const UserLicenseActivationNotice = props => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'calypso_purchases_link',
 			page: 'my-plan',
-        } );
+		} );
 	}, [] );
 
 	const onNoticeDismiss = useCallback( () => {
@@ -104,7 +104,7 @@ const UserLicenseActivationNotice = props => {
 							onClick: trackLicenseActivationClick,
 						} ),
 						purchasesLink: createElement( ExternalLink, {
-                            className: 'jp-license-activation-notice__external-link',
+							className: 'jp-license-activation-notice__external-link',
 							href: getRedirectUrl( 'calypso-purchases' ),
 							onClick: trackUserPurchasesClick,
 							target: '_blank',
