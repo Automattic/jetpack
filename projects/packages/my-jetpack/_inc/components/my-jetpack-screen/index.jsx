@@ -2,8 +2,7 @@
  * External dependencies
  */
 import React from 'react';
-import { __ } from '@wordpress/i18n';
-import { JetpackAdminSection, JetpackFooter, JetpackLogo } from '@automattic/jetpack-components';
+import { JetpackAdminSection, JetpackAdminPage } from '@automattic/jetpack-components';
 
 import './style.scss';
 
@@ -15,18 +14,11 @@ import './style.scss';
 export default function MyJetpackScreen() {
 	return (
 		<div className="jp-my-jetpack-screen">
-			<JetpackAdminSection padding="header">
-				<JetpackLogo />
-			</JetpackAdminSection>
+			<JetpackAdminPage>
+				<JetpackAdminSection bgColor="grey">Lorem Ipsum</JetpackAdminSection>
 
-			<JetpackAdminSection jpHero>Lorem Ipsum</JetpackAdminSection>
-
-			<JetpackAdminSection padding="footer">
-				<JetpackFooter
-					moduleName={ __( 'Jetpack', 'jetpack' ) }
-					a8cLogoHref="https://www.jetpack.com"
-				/>
-			</JetpackAdminSection>
+				<JetpackAdminSection>Lorem Ipsum</JetpackAdminSection>
+			</JetpackAdminPage>
 		</div>
 	);
 }

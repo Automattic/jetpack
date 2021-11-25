@@ -2,7 +2,6 @@
  * External dependencies
  */
 import React from 'react';
-import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 
 /**
@@ -11,19 +10,16 @@ import PropTypes from 'prop-types';
 import './style.scss';
 
 /**
- * asd
+ * This is the wrapper component to build sections within your admin page.
  *
  * @param {object} props - Component properties.
  * @returns {React.Component} JetpackAdminSection component.
  */
 const JetpackAdminSection = props => {
-	const { children, jpHero, padding } = props;
+	const { children, bgColor } = props;
 	let mainClassName = 'jp-admin-section';
-	if ( jpHero ) {
-		mainClassName += ' jp-hero';
-	}
-	if ( padding === 'header' || padding === 'footer' ) {
-		mainClassName += ' jp-admin-section--padding-small';
+	if ( bgColor === 'grey' ) {
+		mainClassName += ' jp-admin-section--bg-grey';
 	}
 	return (
 		<div className={ mainClassName }>
@@ -37,18 +33,12 @@ const JetpackAdminSection = props => {
 };
 
 JetpackAdminSection.defaultProps = {
-	a8cLogoHref: 'https://jetpack.com',
-	moduleName: __( 'Jetpack', 'jetpack' ),
-	className: '',
+	bgColor: 'white',
 };
 
 JetpackAdminSection.propTypes = {
-	/** Link for 'An Automattic Airline'. */
-	a8cLogoHref: PropTypes.string,
-	/** Name of the module, e.g. 'Jetpack Search'. */
-	moduleName: PropTypes.string,
-	/** additional className of the wrapper, `jp-dashboard-footer` always included. */
-	className: PropTypes.string,
+	/** The background color of the section */
+	bgColor: PropTypes.oneOf( [ 'white', 'grey' ] ),
 };
 
 export default JetpackAdminSection;

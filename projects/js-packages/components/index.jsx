@@ -22,3 +22,4 @@ export { default as Spinner } from './components/spinner';
 export { default as ActionButton } from './components/action-button';
 export { default as PricingCard } from './components/pricing-card';
 export { default as JetpackAdminSection } from './components/admin-section';
+export { default as JetpackAdminPage } from './components/admin-page';

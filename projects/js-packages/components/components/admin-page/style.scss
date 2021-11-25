@@ -8,11 +8,7 @@
 	background-color: white;
 }
 
-.jp-admin-section {
-	padding: 64px 0px;
+.jp-admin-page-section {
+	padding: 40px 0px;
 	background-color: white;
-
-	&.jp-admin-section--bg-grey {
-		background: var( --jp-white-off );
-	}
 }
