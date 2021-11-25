@@ -1003,28 +1003,4 @@ function get_base_recaptcha_lang_code() {
 	return 'en';
 }
 
-/**
- * Ask search engines to not index nor follow sharing links.
- *
- * @since $$next_version$$
- *
- * @param array $robots Associative array of directives.
- */
-function jetpack_sharing_noindex_nofollow_links( $robots ) {
-	if (
-		is_singular()
-		&& isset( $_GET['share'] ) && is_string( $_GET['share'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	) {
-		$sharer  = new Sharing_Service();
-		$service = $sharer->get_service( $_GET['share'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( $service ) {
-			$robots['noindex']  = true;
-			$robots['nofollow'] = true;
-		}
-	}
-
-	return $robots;
-}
-add_filter( 'wp_robots', 'jetpack_sharing_noindex_nofollow_links' );
-
 Sharing_Service::init();
