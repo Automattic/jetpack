@@ -4,7 +4,7 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-connection": "^1.30"
+		"automattic/jetpack-connection": "^1.31"
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "^3.0",
@@ -20,6 +20,14 @@
 		"build": [
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run build"
+		],
+		"build-development": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run build-development"
+		],
+		"build-production": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run build-production"
 		],
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"

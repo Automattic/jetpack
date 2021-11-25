@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add busy state to activation button when disabled for license request.

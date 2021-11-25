@@ -21,5 +21,4 @@ module.exports = {
 			},
 		},
 	],
-	plugins: [ 'jest' ],
 };
