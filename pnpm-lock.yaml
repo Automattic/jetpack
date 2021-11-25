@@ -141,7 +141,7 @@ importers:
     specifiers:
       '@automattic/jetpack-api': workspace:^0.7.1-alpha
       '@automattic/jetpack-base-styles': workspace:^0.1.0
-      '@automattic/jetpack-components': workspace:^0.6.3
+      '@automattic/jetpack-components': workspace:^0.6.4-alpha
       '@wordpress/base-styles': 4.0.3
       '@wordpress/browserslist-config': 4.1.0
       '@wordpress/components': 19.0.3
@@ -215,7 +215,7 @@ importers:
   projects/js-packages/idc:
     specifiers:
       '@automattic/jetpack-api': workspace:^0.7.1-alpha
-      '@automattic/jetpack-components': workspace:^0.6.3
+      '@automattic/jetpack-components': workspace:^0.6.4-alpha
       '@wordpress/base-styles': 4.0.3
       '@wordpress/components': 19.0.3
       '@wordpress/compose': 5.0.6
@@ -249,7 +249,7 @@ importers:
     specifiers:
       '@automattic/jetpack-api': workspace:^0.7.1-alpha
       '@automattic/jetpack-base-styles': workspace:^0.1.0
-      '@automattic/jetpack-components': workspace:^0.6.3
+      '@automattic/jetpack-components': workspace:^0.6.4-alpha
       '@wordpress/components': 19.0.3
       '@wordpress/element': 4.0.4
       '@wordpress/i18n': 4.2.4
@@ -288,8 +288,8 @@ importers:
   projects/js-packages/storybook:
     specifiers:
       '@automattic/jetpack-base-styles': workspace:^0.1.0
-      '@automattic/jetpack-components': workspace:^0.6.3
-      '@automattic/jetpack-connection': workspace:^0.10.3-alpha
+      '@automattic/jetpack-components': workspace:^0.6.4-alpha
+      '@automattic/jetpack-connection': workspace:^0.11.0-alpha
       '@babel/core': 7.16.0
       '@babel/plugin-syntax-jsx': 7.16.0
       '@babel/runtime-corejs3': 7.16.3
@@ -422,7 +422,7 @@ importers:
   projects/packages/connection-ui:
     specifiers:
       '@automattic/jetpack-api': workspace:^0.7.1-alpha
-      '@automattic/jetpack-connection': workspace:^0.10.3-alpha
+      '@automattic/jetpack-connection': workspace:^0.11.0-alpha
       '@automattic/jetpack-idc': workspace:^0.5.1-alpha
       '@automattic/jetpack-webpack-config': workspace:^0.3.0
       '@babel/core': 7.16.0
@@ -527,7 +527,7 @@ importers:
 
   projects/packages/my-jetpack:
     specifiers:
-      '@automattic/jetpack-components': workspace:^0.6.3
+      '@automattic/jetpack-components': workspace:^0.6.4-alpha
       '@automattic/jetpack-webpack-config': workspace:^0.3.0
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
@@ -556,12 +556,99 @@ importers:
       sass-loader: 12.2.0_sass@1.43.3+webpack@5.64.1
       webpack: 5.64.1
 
+  projects/packages/search:
+    specifiers:
+      '@automattic/calypso-color-schemes': 2.1.1
+      '@automattic/color-studio': 2.5.0
+      '@automattic/jetpack-analytics': workspace:^0.1.3
+      '@automattic/jetpack-api': workspace:^0.7.1-alpha
+      '@automattic/jetpack-components': workspace:^0.6.4-alpha
+      '@automattic/jetpack-webpack-config': workspace:^0.3.0
+      '@babel/core': 7.16.0
+      '@babel/plugin-proposal-nullish-coalescing-operator': 7.16.0
+      '@babel/preset-env': 7.16.4
+      '@babel/preset-react': 7.16.0
+      '@babel/preset-typescript': 7.16.0
+      '@size-limit/preset-app': 6.0.3
+      '@testing-library/jest-dom': 5.14.1
+      '@testing-library/preact': 2.0.1
+      '@wordpress/base-styles': 4.0.3
+      '@wordpress/block-editor': 8.0.3
+      '@wordpress/data': 6.1.4
+      '@wordpress/dependency-extraction-webpack-plugin': 3.2.1
+      '@wordpress/i18n': 4.2.4
+      '@wordpress/icons': 6.1.1
+      classnames: 2.3.1
+      concurrently: 6.4.0
+      fast-json-stable-stringify: 2.1.0
+      jest: 27.3.1
+      jest-environment-jsdom: 27.3.1
+      lodash: 4.17.21
+      photon: 4.0.0
+      postcss: 8.3.11
+      postcss-loader: 6.2.0
+      preact: 10.5.15
+      prettier: npm:wp-prettier@2.0.5
+      q-flat: 1.0.7
+      qss: 2.0.3
+      react: 17.0.2
+      redux: 4.1.1
+      refx: 3.1.1
+      sass-loader: 12.3.0
+      size-limit: 6.0.3
+      strip: 3.0.0
+      tiny-lru: 7.0.6
+      webpack: 5.64.1
+    dependencies:
+      '@automattic/calypso-color-schemes': 2.1.1
+      '@automattic/color-studio': 2.5.0
+      '@automattic/jetpack-analytics': link:../../js-packages/analytics
+      '@automattic/jetpack-api': link:../../js-packages/api
+      '@automattic/jetpack-components': link:../../js-packages/components
+      '@wordpress/base-styles': 4.0.3
+      '@wordpress/block-editor': 8.0.3_efc3d4d01738abf51a8b92e12766d65f
+      '@wordpress/data': 6.1.4_react@17.0.2+redux@4.1.1
+      '@wordpress/i18n': 4.2.4
+      '@wordpress/icons': 6.1.1
+      classnames: 2.3.1
+      fast-json-stable-stringify: 2.1.0
+      lodash: 4.17.21
+      photon: 4.0.0
+      preact: 10.5.15
+      q-flat: 1.0.7
+      qss: 2.0.3
+      react: 17.0.2
+      redux: 4.1.1
+      refx: 3.1.1
+      strip: 3.0.0
+      tiny-lru: 7.0.6
+    devDependencies:
+      '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
+      '@babel/core': 7.16.0
+      '@babel/plugin-proposal-nullish-coalescing-operator': 7.16.0_@babel+core@7.16.0
+      '@babel/preset-env': 7.16.4_@babel+core@7.16.0
+      '@babel/preset-react': 7.16.0_@babel+core@7.16.0
+      '@babel/preset-typescript': 7.16.0_@babel+core@7.16.0
+      '@size-limit/preset-app': 6.0.3_size-limit@6.0.3
+      '@testing-library/jest-dom': 5.14.1
+      '@testing-library/preact': 2.0.1_preact@10.5.15
+      '@wordpress/dependency-extraction-webpack-plugin': 3.2.1_webpack@5.64.1
+      concurrently: 6.4.0
+      jest: 27.3.1
+      jest-environment-jsdom: 27.3.1
+      postcss: 8.3.11
+      postcss-loader: 6.2.0_postcss@8.3.11+webpack@5.64.1
+      prettier: /wp-prettier/2.0.5
+      sass-loader: 12.3.0_webpack@5.64.1
+      size-limit: 6.0.3
+      webpack: 5.64.1
+
   projects/plugins/backup:
     specifiers:
       '@automattic/jetpack-api': workspace:^0.7.1-alpha
       '@automattic/jetpack-base-styles': workspace:^0.1.0
-      '@automattic/jetpack-components': workspace:^0.6.3
-      '@automattic/jetpack-connection': workspace:^0.10.3-alpha
+      '@automattic/jetpack-components': workspace:^0.6.4-alpha
+      '@automattic/jetpack-connection': workspace:^0.11.0-alpha
       '@automattic/jetpack-webpack-config': workspace:^0.3.0
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4
@@ -684,9 +771,9 @@ importers:
       '@automattic/format-currency': 1.0.0-alpha.0
       '@automattic/jetpack-analytics': workspace:^0.1.3
       '@automattic/jetpack-api': workspace:^0.7.1-alpha
-      '@automattic/jetpack-components': workspace:^0.6.3
-      '@automattic/jetpack-connection': workspace:^0.10.3-alpha
-      '@automattic/jetpack-licensing': workspace:^0.1.1-alpha
+      '@automattic/jetpack-components': workspace:^0.6.4-alpha
+      '@automattic/jetpack-connection': workspace:^0.11.0-alpha
+      '@automattic/jetpack-licensing': workspace:^0.2.0-alpha
       '@automattic/jetpack-webpack-config': workspace:^0.3.0
       '@automattic/popup-monitor': 1.0.0
       '@automattic/remove-asset-webpack-plugin': workspace:^0.1.0-alpha
@@ -1161,7 +1248,6 @@ packages:
 
   /@automattic/color-studio/2.5.0:
     resolution: {integrity: sha512-gZWaJbx3p1oennAIoJtMGluTmoM95Efk4rc44TSBxWSZZ8gH3Am2eh1o3i1NhrZmg2Zt3AiVFeZZ4AJccIpBKQ==}
-    dev: true
 
   /@automattic/components/1.0.0-alpha.3_react-dom@17.0.2+react@17.0.2:
     resolution: {integrity: sha512-6PgogtcbvKEM7dQDXMUBbnGkwhf+0h29p/6sd8jfNoDlSxJJylcfZCio0yWuVKiSLAm9KWozeY5cqgI0nRcuzg==}
@@ -3980,7 +4066,6 @@ packages:
       '@react-spring/shared': 9.3.0_react@17.0.2
       '@react-spring/types': 9.3.0
       react: 17.0.2
-    dev: true
 
   /@rollup/plugin-commonjs/19.0.2_rollup@2.56.3:
     resolution: {integrity: sha512-gBjarfqlC7qs0AutpRW/hrFNm+cd2/QKxhwyFa+srbg1oX7rDsEU3l+W7LAUhsAp9mPJMAkXDhLbQaVwEaE8bA==}
@@ -4116,6 +4201,16 @@ packages:
       size-limit: 5.0.3
     dev: true
 
+  /@size-limit/file/6.0.3_size-limit@6.0.3:
+    resolution: {integrity: sha512-OfDrkJBB7OAWtnedz6jpmL1pjlha1MpgtvYwUSP2442qB96nwMN5Ig78XR3ldPj2cbxq1FVoNnc2vfWMi40vQA==}
+    engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
+    peerDependencies:
+      size-limit: 6.0.3
+    dependencies:
+      semver: 7.3.5
+      size-limit: 6.0.3
+    dev: true
+
   /@size-limit/preset-app/4.10.2_size-limit@5.0.3:
     resolution: {integrity: sha512-B/+okE4Jn/N4rqIhy+ZpgdQ72BMQwpkxIHp+rCdFDib1H7VVbgLwyei9mfIco4cKNzk/EkQ6wd4Hyit6OsY0pQ==}
     peerDependencies:
@@ -4130,6 +4225,20 @@ packages:
       - utf-8-validate
     dev: true
 
+  /@size-limit/preset-app/6.0.3_size-limit@6.0.3:
+    resolution: {integrity: sha512-pfCJNmQsqDHYdaxRXI/LtTuUpElHVjFH5COkRoDhokCoazhZVvSRT6rvWsNbk9ONM8vg2n5vVOpzWe2vp2yYwg==}
+    peerDependencies:
+      size-limit: 6.0.3
+    dependencies:
+      '@size-limit/file': 6.0.3_size-limit@6.0.3
+      '@size-limit/time': 6.0.3_size-limit@6.0.3
+      size-limit: 6.0.3
+    transitivePeerDependencies:
+      - bufferutil
+      - supports-color
+      - utf-8-validate
+    dev: true
+
   /@size-limit/time/4.10.2_size-limit@5.0.3:
     resolution: {integrity: sha512-zvpCDojR0+B1gHCAiLWCm4eLlapLMZYuNLE+SVOn0QR1/L9UwERFvXy5/sIJO62qX/MNusyhBmC2NkqB9gOtjg==}
     peerDependencies:
@@ -4138,6 +4247,21 @@ packages:
       estimo: 2.2.9
       react: 17.0.2
       size-limit: 5.0.3
+    transitivePeerDependencies:
+      - bufferutil
+      - supports-color
+      - utf-8-validate
+    dev: true
+
+  /@size-limit/time/6.0.3_size-limit@6.0.3:
+    resolution: {integrity: sha512-p6JpZg1wUr7e4ja9NozXo7IqdodcPEHswr4TeiruvhcMILGkUbSu8+fQ0kDTZt1Gju8BrsFvIWAiC+TWd07pqw==}
+    engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
+    peerDependencies:
+      size-limit: 6.0.3
+    dependencies:
+      estimo: 2.2.9
+      react: 17.0.2
+      size-limit: 6.0.3
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -5327,7 +5451,7 @@ packages:
       '@babel/runtime': 7.16.0
       '@types/aria-query': 4.2.2
       aria-query: 4.2.2
-      chalk: 4.1.1
+      chalk: 4.1.2
       dom-accessibility-api: 0.5.10
       lz-string: 1.4.4
       pretty-format: 26.6.2
@@ -6196,7 +6320,7 @@ packages:
       '@wordpress/blob': 3.2.2
       '@wordpress/block-serialization-default-parser': 4.2.3
       '@wordpress/blocks': 11.1.4_react@17.0.2+redux@4.0.5
-      '@wordpress/components': 19.0.3_595f56c80e7e5fab2a648c0f724c83ea
+      '@wordpress/components': 19.0.4_595f56c80e7e5fab2a648c0f724c83ea
       '@wordpress/compose': 5.0.6_react@17.0.2
       '@wordpress/data': 6.1.4_react@17.0.2+redux@4.0.5
       '@wordpress/deprecated': 3.2.3
@@ -6248,7 +6372,7 @@ packages:
       '@wordpress/blob': 3.2.2
       '@wordpress/block-serialization-default-parser': 4.2.3
       '@wordpress/blocks': 11.1.4_react@17.0.2
-      '@wordpress/components': 19.0.3_@babel+core@7.16.0+react@17.0.2
+      '@wordpress/components': 19.0.4_@babel+core@7.16.0+react@17.0.2
       '@wordpress/compose': 5.0.6_react@17.0.2
       '@wordpress/data': 6.1.4_react@17.0.2
       '@wordpress/deprecated': 3.2.3
@@ -6289,6 +6413,59 @@ packages:
       - reakit-utils
       - redux
     dev: true
+
+  /@wordpress/block-editor/8.0.3_efc3d4d01738abf51a8b92e12766d65f:
+    resolution: {integrity: sha512-7/FeCK0KFUnWGmUEDoZqdGCOeIaIpD4qyI88WZQnwgaQ3Nsu02L6/kRGD5HXUatFjqGUcz4OGy2dOxrmBNH/6A==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@babel/runtime': 7.16.3
+      '@react-spring/web': 9.3.0_react@17.0.2
+      '@wordpress/a11y': 3.2.4
+      '@wordpress/api-fetch': 5.2.6
+      '@wordpress/blob': 3.2.2
+      '@wordpress/block-serialization-default-parser': 4.2.3
+      '@wordpress/blocks': 11.1.4_react@17.0.2+redux@4.1.1
+      '@wordpress/components': 19.0.4_efc3d4d01738abf51a8b92e12766d65f
+      '@wordpress/compose': 5.0.6_react@17.0.2
+      '@wordpress/data': 6.1.4_react@17.0.2+redux@4.1.1
+      '@wordpress/deprecated': 3.2.3
+      '@wordpress/dom': 3.2.7
+      '@wordpress/element': 4.0.4
+      '@wordpress/hooks': 3.2.2
+      '@wordpress/html-entities': 3.2.3
+      '@wordpress/i18n': 4.2.4
+      '@wordpress/icons': 6.1.1
+      '@wordpress/is-shallow-equal': 4.2.1
+      '@wordpress/keyboard-shortcuts': 3.0.6_react@17.0.2+redux@4.1.1
+      '@wordpress/keycodes': 3.2.4
+      '@wordpress/notices': 3.2.7_react@17.0.2+redux@4.1.1
+      '@wordpress/rich-text': 5.0.6_react@17.0.2+redux@4.1.1
+      '@wordpress/shortcode': 3.2.3
+      '@wordpress/token-list': 2.2.2
+      '@wordpress/url': 3.3.1
+      '@wordpress/warning': 2.2.2
+      '@wordpress/wordcount': 3.2.3
+      classnames: 2.3.1
+      colord: 2.9.1
+      css-mediaquery: 0.1.2
+      diff: 4.0.2
+      dom-scroll-into-view: 1.2.1
+      inherits: 2.0.4
+      lodash: 4.17.21
+      memize: 1.1.0
+      react-autosize-textarea: 7.1.0_react@17.0.2
+      react-easy-crop: 3.5.3_react@17.0.2
+      redux-multi: 0.1.12
+      rememo: 3.0.0
+      traverse: 0.6.6
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@types/react'
+      - react
+      - react-dom
+      - reakit-utils
+      - redux
+    dev: false
 
   /@wordpress/block-editor/8.0.4_595f56c80e7e5fab2a648c0f724c83ea:
     resolution: {integrity: sha512-YJZWJekBQxHh8eU+Di+Bm383U+3wgXgtI9XlJp14QxoiC4ZWjniXotPiycvfwZ9gPBs84aMcFFmkr074dNSIlA==}
@@ -6511,6 +6688,36 @@ packages:
       - react
       - redux
 
+  /@wordpress/blocks/11.1.4_react@17.0.2+redux@4.1.1:
+    resolution: {integrity: sha512-iTmkALp7diiP83ICsqQmtCvekOVEa1GCgbybfMS+eniVSXmMIgfZB69eYvf22XqQa68r9nCTIYuP2maPwPid3A==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@babel/runtime': 7.16.3
+      '@wordpress/autop': 3.2.3
+      '@wordpress/blob': 3.2.2
+      '@wordpress/block-serialization-default-parser': 4.2.3
+      '@wordpress/compose': 5.0.6_react@17.0.2
+      '@wordpress/data': 6.1.4_react@17.0.2+redux@4.1.1
+      '@wordpress/deprecated': 3.2.3
+      '@wordpress/dom': 3.2.7
+      '@wordpress/element': 4.0.4
+      '@wordpress/hooks': 3.2.2
+      '@wordpress/html-entities': 3.2.3
+      '@wordpress/i18n': 4.2.4
+      '@wordpress/is-shallow-equal': 4.2.1
+      '@wordpress/shortcode': 3.2.3
+      colord: 2.9.1
+      hpq: 1.3.0
+      lodash: 4.17.21
+      rememo: 3.0.0
+      showdown: 1.9.1
+      simple-html-tokenizer: 0.5.11
+      uuid: 8.3.2
+    transitivePeerDependencies:
+      - react
+      - redux
+    dev: false
+
   /@wordpress/browserslist-config/4.1.0:
     resolution: {integrity: sha512-RSJhgY2xmz6yAdDNhz/NvAO6JS+91vv9cVL7VDG2CftbyjTXBef05vWt3FzZhfeF0xUrYdpZL1PVpxmJiKvbEg==}
     engines: {node: '>=12'}
@@ -6617,6 +6824,7 @@ packages:
       - react
       - react-dom
       - redux
+    dev: true
 
   /@wordpress/components/19.0.3_@babel+core@7.16.0:
     resolution: {integrity: sha512-A8Y1rIpqBXEpc53IZ0TztEkdAaboMyaLY6PxYXniiI1KUSUrybQIBqcPe6uuCZIBCQNNh2uG3uvHisnuC1HWFQ==}
@@ -6876,7 +7084,6 @@ packages:
       - react
       - react-dom
       - redux
-    dev: true
 
   /@wordpress/components/19.0.4_@babel+core@7.16.0+react@17.0.2:
     resolution: {integrity: sha512-TTvvsrjhyt8CVDaDh5e6SswsXfvgxhDVcgOQoez+LcyAueCfBidNnDRV1OkgFqYU4Djx6UKWfBTsmnGQa+EBWw==}
@@ -6929,6 +7136,58 @@ packages:
       - react-dom
       - redux
     dev: true
+
+  /@wordpress/components/19.0.4_efc3d4d01738abf51a8b92e12766d65f:
+    resolution: {integrity: sha512-TTvvsrjhyt8CVDaDh5e6SswsXfvgxhDVcgOQoez+LcyAueCfBidNnDRV1OkgFqYU4Djx6UKWfBTsmnGQa+EBWw==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      reakit-utils: ^0.15.1
+    dependencies:
+      '@babel/runtime': 7.16.3
+      '@emotion/cache': 11.5.0
+      '@emotion/css': 11.5.0_@babel+core@7.16.0
+      '@emotion/react': 11.5.0_@babel+core@7.16.0+react@17.0.2
+      '@emotion/styled': 11.3.0_a3ce58c1335df7ae302d472d57f59cc5
+      '@emotion/utils': 1.0.0
+      '@wordpress/a11y': 3.2.4
+      '@wordpress/compose': 5.0.6_react@17.0.2
+      '@wordpress/date': 4.2.3
+      '@wordpress/deprecated': 3.2.3
+      '@wordpress/dom': 3.2.7
+      '@wordpress/element': 4.0.4
+      '@wordpress/hooks': 3.2.2
+      '@wordpress/i18n': 4.2.4
+      '@wordpress/icons': 6.1.1
+      '@wordpress/is-shallow-equal': 4.2.1
+      '@wordpress/keycodes': 3.2.4
+      '@wordpress/primitives': 3.0.4
+      '@wordpress/rich-text': 5.0.6_react@17.0.2+redux@4.1.1
+      '@wordpress/warning': 2.2.2
+      classnames: 2.3.1
+      colord: 2.9.1
+      dom-scroll-into-view: 1.2.1
+      downshift: 6.1.7_react@17.0.2
+      framer-motion: 4.1.17_react@17.0.2
+      gradient-parser: 0.1.5
+      highlight-words-core: 1.2.2
+      lodash: 4.17.21
+      memize: 1.1.0
+      moment: 2.29.1
+      re-resizable: 6.9.1_react@17.0.2
+      react-colorful: 5.5.0_react@17.0.2
+      react-dates: 17.2.0_moment@2.29.1+react@17.0.2
+      react-resize-aware: 3.1.1_react@17.0.2
+      react-use-gesture: 9.1.3_react@17.0.2
+      reakit: 1.3.10_react@17.0.2
+      rememo: 3.0.0
+      uuid: 8.3.2
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@types/react'
+      - react
+      - react-dom
+      - redux
+    dev: false
 
   /@wordpress/compose/3.25.3_react@16.14.0:
     resolution: {integrity: sha512-tCO2EnJCkCH548OqA0uU8V1k/1skz2QwBlHs8ZQSpimqUS4OWWsAlndCEFe4U4vDTqFt2ow7tzAir+05Cw8MAg==}
@@ -7160,6 +7419,30 @@ packages:
       use-memo-one: 1.1.2_react@17.0.2
     transitivePeerDependencies:
       - react
+
+  /@wordpress/data/6.1.4_react@17.0.2+redux@4.1.1:
+    resolution: {integrity: sha512-8kjLchELZCxjETPHnFrb2VaeIOEUAYrsO9moDUkhUnQ7SnCWGxhOYUKSMm0QknWjoAIBuJkuejTB98uqkREZWA==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      redux: ^4.1.0
+    dependencies:
+      '@babel/runtime': 7.16.3
+      '@wordpress/compose': 5.0.6_react@17.0.2
+      '@wordpress/deprecated': 3.2.3
+      '@wordpress/element': 4.0.4
+      '@wordpress/is-shallow-equal': 4.2.1
+      '@wordpress/priority-queue': 2.2.3
+      '@wordpress/redux-routine': 4.2.2
+      equivalent-key-map: 0.2.2
+      is-promise: 4.0.0
+      lodash: 4.17.21
+      memize: 1.1.0
+      redux: 4.1.1
+      turbo-combine-reducers: 1.0.2
+      use-memo-one: 1.1.2_react@17.0.2
+    transitivePeerDependencies:
+      - react
+    dev: false
 
   /@wordpress/date/3.15.1:
     resolution: {integrity: sha512-SuHiObvjbegL8RpaSQ6JqFnG+QyGP+oUhx1FZDMdt1nOQA9HE7D5ssVlZFlMEAdo6iS8xMuW+4SgJN3Eo1fb4w==}
@@ -7547,6 +7830,22 @@ packages:
       - react
       - redux
 
+  /@wordpress/keyboard-shortcuts/3.0.6_react@17.0.2+redux@4.1.1:
+    resolution: {integrity: sha512-JOmWcmlSADYl+xihCO3a516WKRULmYXQ7a3/fmoGQDauwIOteFjtpNFMn7lstprNiU6e8WIUHiVL5nWwZiyvig==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@babel/runtime': 7.16.3
+      '@wordpress/compose': 5.0.6_react@17.0.2
+      '@wordpress/data': 6.1.4_react@17.0.2+redux@4.1.1
+      '@wordpress/element': 4.0.4
+      '@wordpress/keycodes': 3.2.4
+      lodash: 4.17.21
+      rememo: 3.0.0
+    transitivePeerDependencies:
+      - react
+      - redux
+    dev: false
+
   /@wordpress/keycodes/2.19.3:
     resolution: {integrity: sha512-8rNdmP5M1ifTgLIL0dt/N1uTGsq/Rx1ydCXy+gg24WdxBRhyu5sudNVCtascVXo26aIfOH9OJRdqRZZTEORhog==}
     dependencies:
@@ -7599,6 +7898,19 @@ packages:
     transitivePeerDependencies:
       - react
       - redux
+
+  /@wordpress/notices/3.2.7_react@17.0.2+redux@4.1.1:
+    resolution: {integrity: sha512-1VmnJznby96jjUbcTaT1WOiR4aCh8rrCHy3nTyAjHcJmJNvDGLLj4TgChlMk5Sw8j9K4x9kxmSiEA/IlrSPGkQ==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@babel/runtime': 7.16.3
+      '@wordpress/a11y': 3.2.4
+      '@wordpress/data': 6.1.4_react@17.0.2+redux@4.1.1
+      lodash: 4.17.21
+    transitivePeerDependencies:
+      - react
+      - redux
+    dev: false
 
   /@wordpress/plugins/4.0.6_react@17.0.2:
     resolution: {integrity: sha512-aM1fw04WD4MPpwPtJzlkxQ3Re/w1scja9ybGQ0TkKT8lQxBUHRq/9g/IcKOVEEgWSTIn+ThT+FmWkX1Dk+iflg==}
@@ -7812,6 +8124,29 @@ packages:
     transitivePeerDependencies:
       - react
       - redux
+
+  /@wordpress/rich-text/5.0.6_react@17.0.2+redux@4.1.1:
+    resolution: {integrity: sha512-9Myj6UQ3fYZERaUoVXRjq2rq7G77Tfe7XrQAntfW7El7/NWDkB/TddgsuOkFd8NG8E7/jEih7d7G9erm4y6adg==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@babel/runtime': 7.16.3
+      '@wordpress/a11y': 3.2.4
+      '@wordpress/compose': 5.0.6_react@17.0.2
+      '@wordpress/data': 6.1.4_react@17.0.2+redux@4.1.1
+      '@wordpress/dom': 3.2.7
+      '@wordpress/element': 4.0.4
+      '@wordpress/escape-html': 2.2.3
+      '@wordpress/i18n': 4.2.4
+      '@wordpress/is-shallow-equal': 4.2.1
+      '@wordpress/keycodes': 3.2.4
+      classnames: 2.3.1
+      lodash: 4.17.21
+      memize: 1.1.0
+      rememo: 3.0.0
+    transitivePeerDependencies:
+      - react
+      - redux
+    dev: false
 
   /@wordpress/server-side-render/3.0.7_595f56c80e7e5fab2a648c0f724c83ea:
     resolution: {integrity: sha512-rEvcKVrhgXKVwzt6A1goneIpkhcIrBqeYtRYMDkv+6SSWMMzkXRCqEGnPwPJ+/P1KEc1mLWdvJiIG70CrUIlVA==}
@@ -8846,7 +9181,7 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0-0
     dependencies:
-      '@babel/compat-data': 7.16.0
+      '@babel/compat-data': 7.16.4
       '@babel/core': 7.16.0
       '@babel/helper-define-polyfill-provider': 0.2.4_@babel+core@7.16.0
       semver: 6.3.0
@@ -9931,6 +10266,21 @@ packages:
       date-fns: 2.25.0
       lodash: 4.17.21
       read-pkg: 5.2.0
+      rxjs: 6.6.7
+      spawn-command: 0.0.2-1
+      supports-color: 8.1.1
+      tree-kill: 1.2.2
+      yargs: 16.2.0
+    dev: true
+
+  /concurrently/6.4.0:
+    resolution: {integrity: sha512-HZ3D0RTQMH3oS4gvtYj1P+NBc6PzE2McEra6yEFcQKrUQ9HvtTGU4Dbne083F034p+LRb7kWU0tPRNvSGs1UCQ==}
+    engines: {node: '>=10.0.0'}
+    hasBin: true
+    dependencies:
+      chalk: 4.1.2
+      date-fns: 2.25.0
+      lodash: 4.17.21
       rxjs: 6.6.7
       spawn-command: 0.0.2-1
       supports-color: 8.1.1
@@ -16257,6 +16607,12 @@ packages:
       snapdragon: 0.8.2
       to-regex: 3.0.2
 
+  /nanospinner/0.3.2:
+    resolution: {integrity: sha512-ToZuxmiRuuNe3McB7CVzP7PCOhzWAy4qx6ndb5QWxJFp6INdg3n0mVm8f7HR6Fz8raRg3/vzglIZYrOSna8vkg==}
+    dependencies:
+      picocolors: 1.0.0
+    dev: true
+
   /native-url/0.2.6:
     resolution: {integrity: sha512-k4bDC87WtgrdD362gZz6zoiXQrl40kYlBmpfmSjwRO1VU0V5ccwJTlxuE72F6m3V0vc1xOf6n3UCP9QyerRqmA==}
     dependencies:
@@ -17349,7 +17705,7 @@ packages:
       klona: 2.0.5
       postcss: 8.3.11
       semver: 7.3.5
-      webpack: 5.64.1_webpack-cli@4.8.0
+      webpack: 5.64.1
     dev: true
 
   /postcss-merge-longhand/5.0.3_postcss@8.3.11:
@@ -18094,7 +18450,6 @@ packages:
       line-height: 0.3.1
       prop-types: 15.7.2
       react: 17.0.2
-    dev: true
 
   /react-click-outside/3.0.1:
     resolution: {integrity: sha512-d0KWFvBt+esoZUF15rL2UBB7jkeAqLU8L/Ny35oLK6fW6mIbOv/ChD+ExF4sR9PD26kVx+9hNfD0FTIqRZEyRQ==}
@@ -18314,7 +18669,6 @@ packages:
       normalize-wheel: 1.0.1
       react: 17.0.2
       tslib: 2.0.1
-    dev: true
 
   /react-element-to-jsx-string/14.3.4_react@17.0.2:
     resolution: {integrity: sha512-t4ZwvV6vwNxzujDQ+37bspnLwA4JlgUPWhLjBJWsNIDceAf6ZKUTCjdm08cN6WeZ5pTMKiCJkmAYnpmR4Bm+dg==}
@@ -19105,6 +19459,12 @@ packages:
       symbol-observable: 1.2.0
     dev: false
 
+  /redux/4.1.1:
+    resolution: {integrity: sha512-hZQZdDEM25UY2P493kPYuKqviVwZ58lEmGQNeQ+gXa+U0gYPUBf7NKYazbe3m+bs/DzM/ahN12DbF+NG8i0CWw==}
+    dependencies:
+      '@babel/runtime': 7.16.3
+    dev: false
+
   /redux/4.1.2:
     resolution: {integrity: sha512-SH8PglcebESbd/shgf6mii6EIoRM0zrQyjcuQ+ojmfxjTtE0z9Y8pa62iA/OJ58qjP6j27uyW4kUF4jl/jd6sw==}
     dependencies:
@@ -19794,6 +20154,27 @@ packages:
       webpack: 5.64.1
     dev: true
 
+  /sass-loader/12.3.0_webpack@5.64.1:
+    resolution: {integrity: sha512-6l9qwhdOb7qSrtOu96QQ81LVl8v6Dp9j1w3akOm0aWHyrTYtagDt5+kS32N4yq4hHk3M+rdqoRMH+lIdqvW6HA==}
+    engines: {node: '>= 12.13.0'}
+    peerDependencies:
+      fibers: '>= 3.1.0'
+      node-sass: ^4.0.0 || ^5.0.0 || ^6.0.0
+      sass: ^1.3.0
+      webpack: ^5.0.0
+    peerDependenciesMeta:
+      fibers:
+        optional: true
+      node-sass:
+        optional: true
+      sass:
+        optional: true
+    dependencies:
+      klona: 2.0.5
+      neo-async: 2.6.2
+      webpack: 5.64.1
+    dev: true
+
   /sass/1.38.1:
     resolution: {integrity: sha512-Lj8nPaSYOuRhgqdyShV50fY5jKnvaRmikUNalMPmbH+tKMGgEKVkltI/lP30PEfO2T1t6R9yc2QIBLgOc3uaFw==}
     engines: {node: '>=8.9.0'}
@@ -20100,6 +20481,20 @@ packages:
       globby: 11.0.4
       lilconfig: 2.0.4
       mico-spinner: 1.4.0
+    dev: true
+
+  /size-limit/6.0.3:
+    resolution: {integrity: sha512-bvZuNG1dPJ8GTkFq3lXkW8H1+ybVV3D7GecowAGlfbNO2T1Mcvy8kCoCpwVOWnq1wV+TraRUtExnQzIyyV94NQ==}
+    engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
+    hasBin: true
+    dependencies:
+      bytes-iec: 3.1.1
+      chokidar: 3.5.2
+      ci-job-number: 1.2.2
+      globby: 11.0.4
+      lilconfig: 2.0.4
+      nanospinner: 0.3.2
+      picocolors: 0.2.1
     dev: true
 
   /slash/2.0.0:
