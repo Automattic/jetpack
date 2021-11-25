@@ -2,7 +2,7 @@
 /**
  * Jetpack Search: Module_Control class
  *
- * @package    jetpack-search
+ * @package automattic/jetpack-search
  */
 
 namespace Automattic\Jetpack\Search;
