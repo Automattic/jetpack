@@ -19,6 +19,7 @@
 		"clean": "true",
 		"distclean": "rm -rf node_modules && pnpm run clean",
 		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
+		"validate": "pnpm exec validate-es build/",
 		"watch": "pnpm run build && pnpx webpack watch"
 	},
 	"browserslist": "extends @wordpress/browserslist-config",
