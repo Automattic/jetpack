@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2145ecdbbd72d981d6667cd908f08e30",
+    "content-hash": "db5a979ad40d90b8d35d887a36e372d2",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -870,7 +870,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "f72b99550e4c894841a5b070a518e677cd162a1f"
+                "reference": "54ee594e9f467dd332ed584d435cf2c0d4e42a6b"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -900,7 +900,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-jitm/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "2.0.x-dev"
+                    "dev-master": "2.1.x-dev"
                 }
             },
             "autoload": {
@@ -1118,7 +1118,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "84d83b3ef58c34555b17bf1af26e21ea252e4d62"
+                "reference": "0d8294d4dcc0c4865663c2fca80ccf1e88467c53"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.1",
@@ -1130,6 +1130,11 @@
             },
             "type": "library",
             "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-my-jetpack",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
+                },
                 "branch-alias": {
                     "dev-master": "0.1.x-dev"
                 }
@@ -1425,7 +1430,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "8b3cf6895223e44cb728fc1c89fd5b26b390b1ea"
+                "reference": "d0a1c2fe85caaafe6fa7613285ac31cc7fbb9092"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -1439,7 +1444,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "0.1.x-dev"
+                    "dev-master": "0.2.x-dev"
                 }
             },
             "autoload": {
@@ -1448,6 +1453,18 @@
                 ]
             },
             "scripts": {
+                "build": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run build"
+                ],
+                "build-development": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run build-development"
+                ],
+                "build-production": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run build-production"
+                ],
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],

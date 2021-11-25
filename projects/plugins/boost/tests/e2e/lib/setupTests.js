@@ -1,7 +1,13 @@
-import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites';
-import { boostPrerequisitesBuilder } from './env/prerequisites';
+import { chromium } from '@playwright/test';
+import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites.js';
+import { boostPrerequisitesBuilder } from './env/prerequisites.js';
 
-global.beforeAll( async () => {
-	await prerequisitesBuilder().withLoggedIn( true ).withInactivePlugins( [ 'jetpack' ] ).build();
-	await boostPrerequisitesBuilder().withConnection( true ).build();
-} );
+export default async function () {
+	const browser = await chromium.launch();
+	const page = await browser.newPage();
+	await prerequisitesBuilder( page )
+		.withLoggedIn( true )
+		.withInactivePlugins( [ 'jetpack' ] )
+		.build();
+	await boostPrerequisitesBuilder( page ).withConnection( true ).build();
+}

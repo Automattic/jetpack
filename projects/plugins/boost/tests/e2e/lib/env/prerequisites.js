@@ -1,9 +1,9 @@
-import logger from 'jetpack-e2e-commons/logger';
-import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper';
-import assert from 'assert';
+import logger from 'jetpack-e2e-commons/logger.cjs';
+import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
+import { expect } from '@playwright/test';
 import JetpackBoostPage from '../pages/wp-admin/JetpackBoostPage';
 
-export function boostPrerequisitesBuilder() {
+export function boostPrerequisitesBuilder( page ) {
 	const state = {
 		clean: undefined,
 		modules: { active: undefined, inactive: undefined },
@@ -29,15 +29,15 @@ export function boostPrerequisitesBuilder() {
 			return this;
 		},
 		async build() {
-			await buildPrerequisites( state );
+			await buildPrerequisites( state, page );
 		},
 	};
 }
 
-async function buildPrerequisites( state ) {
+async function buildPrerequisites( state, page ) {
 	const functions = {
 		modules: () => ensureModulesState( state.modules ),
-		connected: () => ensureConnectedState( state.connected ),
+		connected: () => ensureConnectedState( state.connected, page ),
 		clean: () => ensureCleanState( state.clean ),
 	};
 
@@ -85,14 +85,14 @@ export async function deactivateModules( modulesList ) {
 	}
 }
 
-export async function ensureConnectedState( requiredConnected = undefined ) {
+export async function ensureConnectedState( requiredConnected = undefined, page ) {
 	const isConnected = await checkIfConnected();
 
 	if ( requiredConnected && isConnected ) {
 		logger.prerequisites( 'Jetpack Boost is already connected, moving on' );
 	} else if ( requiredConnected && ! isConnected ) {
 		logger.prerequisites( 'Connecting Jetpack Boost' );
-		await connect();
+		await connect( page );
 	} else if ( ! requiredConnected && isConnected ) {
 		logger.prerequisites( 'Disconnecting Jetpack Boost' );
 		await disconnect();
@@ -101,7 +101,7 @@ export async function ensureConnectedState( requiredConnected = undefined ) {
 	}
 }
 
-export async function connect() {
+export async function connect( page ) {
 	logger.prerequisites( `Connecting Boost plugin to WP.com` );
 	// Boost cannot be connected to WP.com using the WP-CLI because the site is considered
 	// as a localhost site. The only solution is to do it via the site itself running under the localtunnel.
@@ -115,7 +115,7 @@ export async function disconnect() {
 	logger.prerequisites( `Disconnecting Boost plugin to WP.com` );
 	const cliCmd = 'jetpack-boost connection deactivate';
 	const result = await execWpCommand( cliCmd );
-	assert.equal( result, 'Success: Boost is disconnected from WP.com' );
+	expect( result ).toEqual( 'Success: Boost is disconnected from WP.com' );
 }
 
 export async function checkIfConnected() {
