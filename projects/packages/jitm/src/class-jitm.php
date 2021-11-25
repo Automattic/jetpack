@@ -139,16 +139,26 @@ class JITM {
 		}
 
 		Assets::register_script(
-			'jetpack-jitm-css',
+			'jetpack-jitm-new',
 			'../build/index.js',
 			__FILE__,
 			array(
 				'in_footer'    => true,
-				'textdomain'   => 'jetpack',
 				'dependencies' => array( 'jquery' ),
 			)
 		);
-		Assets::enqueue_script( 'jetpack-jitm-css' );
+		Assets::enqueue_script( 'jetpack-jitm-new' );
+		wp_localize_script(
+			'jetpack-jitm-new',
+			'jitm_config',
+			array(
+				'api_root'               => esc_url_raw( rest_url() ),
+				'activate_module_text'   => esc_html__( 'Activate', 'jetpack' ),
+				'activated_module_text'  => esc_html__( 'Activated', 'jetpack' ),
+				'activating_module_text' => esc_html__( 'Activating', 'jetpack' ),
+				'nonce'                  => wp_create_nonce( 'wp_rest' ),
+			)
+		);
 	}
 
 	/**
