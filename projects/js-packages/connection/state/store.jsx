@@ -16,6 +16,7 @@ storeHolder.mayBeInit( STORE_ID, {
 	selectors,
 	resolvers,
 	controls,
+	initialState: window.JP_CONNECTION_INITIAL_STATE || {},
 } );
 
 export { STORE_ID };
