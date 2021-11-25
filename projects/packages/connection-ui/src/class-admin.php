@@ -67,12 +67,12 @@ class Admin {
 				'../build/index.js',
 				__FILE__,
 				array(
-					'in_footer' => true,
+					'in_footer'  => true,
+					'textdomain' => 'jetpack',
 				)
 			);
 			Assets::enqueue_script( 'jetpack_connection_ui' );
 			wp_add_inline_script( 'jetpack_connection_ui', $this->get_initial_state(), 'before' );
-			wp_set_script_translations( 'jetpack_connection_ui', 'jetpack' );
 		}
 	}
 
