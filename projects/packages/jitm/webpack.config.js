@@ -13,7 +13,7 @@ module.exports = [
 		devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
 		output: {
 			...jetpackWebpackConfig.output,
-			filename: '[name].js',
+			filename: '[name].min.js',
 			path: path.resolve( './build' ),
 		},
 		optimization: {

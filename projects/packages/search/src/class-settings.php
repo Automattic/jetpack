@@ -2,8 +2,10 @@
 /**
  * Jetpack Search Overlay Settings
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-search
  */
+
+namespace Automattic\Jetpack\Search;
 
 // Exit if file is accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -12,15 +14,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Class to initialize search settings on the site.
- *
- * @since 8.3.0
  */
-class Jetpack_Search_Settings {
+class Settings {
 
 	/**
 	 * Class initialization.
-	 *
-	 * @since 8.3.0
 	 */
 	public function __construct() {
 		add_action( 'admin_init', array( $this, 'settings_register' ) );
@@ -34,7 +32,7 @@ class Jetpack_Search_Settings {
 	 */
 	public function settings_register() {
 		// NOTE: This contains significant code overlap with class-jetpack-search-customize.
-		$setting_prefix = Automattic\Jetpack\Search\Options::OPTION_PREFIX;
+		$setting_prefix = Options::OPTION_PREFIX;
 		$settings       = array(
 			array( $setting_prefix . 'color_theme', 'string', 'light' ),
 			array( $setting_prefix . 'result_format', 'string', 'minimal' ),
