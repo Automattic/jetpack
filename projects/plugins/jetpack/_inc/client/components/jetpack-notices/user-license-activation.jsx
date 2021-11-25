@@ -45,7 +45,7 @@ const UserLicenseActivationNotice = props => {
 	} = activationNoticeDismissInfo;
 
 	// TODO: Update this link to point to the user-license activation route.
-	const USER_LICENSE_ACTIVATION_ROUTE = `${ siteAdminUrl }admin.php?page=jetpack#/my-plan`;
+	const USER_LICENSE_ACTIVATION_ROUTE = `${ siteAdminUrl }admin.php?page=jetpack#/license/activation`;
 
 	const userHasDetachedLicenses = !! detachedLicensesCount;
 	const userHasNewDetachedLicenses = detachedLicensesCount > ( lastDetachedCount || 0 );

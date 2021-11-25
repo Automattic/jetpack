@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Ensure that a new object references are created after the API request.
