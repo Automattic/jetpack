@@ -44,8 +44,8 @@ const UserLicenseActivationNotice = props => {
 		last_dismissed_time: lastDismissedDateTime,
 	} = activationNoticeDismissInfo;
 
-	// TODO: Update this link to point to the user-license activation route.
 	const USER_LICENSE_ACTIVATION_ROUTE = `${ siteAdminUrl }admin.php?page=jetpack#/license/activation`;
+    const USER_PURCHASES_URL = 'https://wordpress.com/me/purchases';
 
 	const userHasDetachedLicenses = !! detachedLicensesCount;
 	const userHasNewDetachedLicenses = detachedLicensesCount > ( lastDetachedCount || 0 );
@@ -65,11 +65,15 @@ const UserLicenseActivationNotice = props => {
 		}
 	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
 
-	const trackClick = useCallback( () => {
+	const trackLicenseActivationClick = useCallback( () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'licensing_activation_notice',
 			path: 'licensing/activation',
 		} );
+	}, [] );
+
+	const trackUserPurchasesClick = useCallback( () => {
+		analytics.tracks.recordJetpackClick( 'licensing_activation_notice_user_purchases' );
 	}, [] );
 
 	const onNoticeDismiss = useCallback( () => {
@@ -89,11 +93,15 @@ const UserLicenseActivationNotice = props => {
 				showDismiss={ true }
 				onDismissClick={ onNoticeDismiss }
 				text={ createInterpolateElement(
-					__( 'You have an inactive product. <a>Activate now</a>', 'jetpack' ),
+					__( 'You have an available product license key. <activateLink>Activate it now</activateLink> or <purchasesLink>view all your purchases</purchasesLink>.', 'jetpack' ),
 					{
-						a: createElement( 'a', {
+						activateLink: createElement( 'a', {
 							href: USER_LICENSE_ACTIVATION_ROUTE,
-							onClick: trackClick,
+							onClick: trackLicenseActivationClick,
+						} ),
+						purchasesLink: createElement( 'a', {
+							href: USER_PURCHASES_URL,
+							onClick: trackUserPurchasesClick,
 						} ),
 					}
 				) }
