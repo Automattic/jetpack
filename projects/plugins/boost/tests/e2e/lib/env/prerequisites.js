@@ -1,7 +1,7 @@
 import logger from 'jetpack-e2e-commons/logger.cjs';
 import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
 import { expect } from '@playwright/test';
-import JetpackBoostPage from '../pages/wp-admin/JetpackBoostPage';
+import { JetpackBoostPage } from '../pages/index.js';
 
 export function boostPrerequisitesBuilder( page ) {
 	const state = {

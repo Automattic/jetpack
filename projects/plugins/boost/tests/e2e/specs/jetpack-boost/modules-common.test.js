@@ -1,5 +1,5 @@
 import { test, expect } from '../../fixtures/base-test.js';
-import JetpackBoostPage from '../../lib/pages/wp-admin/JetpackBoostPage.js';
+import { JetpackBoostPage } from '../../lib/pages/index.js';
 import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 
 let jetpackBoostPage;

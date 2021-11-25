@@ -14,15 +14,23 @@ import assert from 'assert';
 export function prerequisitesBuilder( page ) {
 	const state = {
 		clean: undefined,
+		plugins: { active: undefined, inactive: undefined },
 		loggedIn: undefined,
 		wpComLoggedIn: undefined,
 		connected: undefined,
 		plan: undefined,
 		modules: { active: undefined, inactive: undefined },
-		plugins: { active: undefined, inactive: undefined },
 	};
 
 	return {
+		withActivePlugins( plugins = [] ) {
+			state.plugins.active = plugins;
+			return this;
+		},
+		withInactivePlugins( plugins = [] ) {
+			state.plugins.inactive = plugins;
+			return this;
+		},
 		withLoggedIn( shouldBeLoggedIn ) {
 			state.loggedIn = shouldBeLoggedIn;
 			return this;
@@ -47,14 +55,6 @@ export function prerequisitesBuilder( page ) {
 			state.modules.inactive = modules;
 			return this;
 		},
-		withActivePlugins( plugins = [] ) {
-			state.plugins.active = plugins;
-			return this;
-		},
-		withInactivePlugins( plugins = [] ) {
-			state.plugins.inactive = plugins;
-			return this;
-		},
 		withCleanEnv() {
 			state.clean = true;
 			return this;
@@ -67,12 +67,12 @@ export function prerequisitesBuilder( page ) {
 
 async function buildPrerequisites( state, page ) {
 	const functions = {
+		plugins: () => ensurePluginsState( state.plugins ),
 		loggedIn: () => ensureUserIsLoggedIn( page ),
 		wpComLoggedIn: () => ensureWpComUserIsLoggedIn( page ),
 		connected: () => ensureConnectedState( state.connected ),
 		plan: () => ensurePlan( state.plan, page ),
 		modules: () => ensureModulesState( state.modules ),
-		plugins: () => ensurePluginsState( state.plugins ),
 		clean: () => ensureCleanState( state.clean ),
 	};
 
