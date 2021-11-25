@@ -13,6 +13,7 @@ use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Partner;
+use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -74,6 +75,9 @@ class Jetpack_Redux_State_Helper {
 
 		$current_user_data = jetpack_current_user_data();
 
+		// Register product descriptions for partner coupon usage.
+		add_filter( 'jetpack_partner_coupon_products', array( self::class, 'get_partner_coupon_product_descriptions' ) );
+
 		/**
 		 * Adds information to the `connectionStatus` API field that is unique to the Jetpack React dashboard.
 		 */
@@ -101,7 +105,7 @@ class Jetpack_Redux_State_Helper {
 			'WP_API_nonce'                => wp_create_nonce( 'wp_rest' ),
 			'registrationNonce'           => wp_create_nonce( 'jetpack-registration-nonce' ),
 			'purchaseToken'               => self::get_purchase_token(),
-			'partnerCoupon'               => Jetpack_Partner_Coupon_Helper::get_coupon(),
+			'partnerCoupon'               => Jetpack_Partner_Coupon::get_coupon(),
 			'pluginBaseUrl'               => plugins_url( '', JETPACK__PLUGIN_FILE ),
 			'connectionStatus'            => $connection_status,
 			'connectUrl'                  => false == $current_user_data['isConnected'] // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
@@ -366,6 +370,18 @@ class Jetpack_Redux_State_Helper {
 	public static function generate_purchase_token() {
 		return wp_generate_password( 12, false );
 	}
+
+	/**
+	 * Register product descriptions for partner coupon usage.
+	 *
+	 * @since $$next_version$$
+	 *
+	 * @return array
+	 */
+	public static function get_partner_coupon_product_descriptions() {
+		return Jetpack::get_products_for_purchase( true );
+	}
+
 }
 
 /**

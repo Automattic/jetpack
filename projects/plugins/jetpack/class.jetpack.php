@@ -6795,16 +6795,7 @@ endif;
 			);
 		}
 
-		/**
-		 * Allow for product details modifications.
-		 *
-		 * @since 10.4.0
-		 *
-		 * @param array $products A list of product details.
-		 * @param array $show_legacy Determine if the list should include legacy plans/products.
-		 * @return array
-		 */
-		return apply_filters( 'jetpack_get_products_for_purchase', $products, $show_legacy );
+		return $products;
 	}
 
 	/**

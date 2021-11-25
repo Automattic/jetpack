@@ -71,9 +71,6 @@ Jetpack_Connection_Status::init();
 jetpack_require_lib( 'class-jetpack-recommendations' );
 require_once JETPACK__PLUGIN_DIR . 'class-jetpack-recommendations-banner.php';
 
-jetpack_require_lib( 'class-jetpack-partner-coupon-helper' );
-Jetpack_Partner_Coupon_Helper::init();
-
 if ( is_admin() ) {
 	require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
 	jetpack_require_lib( 'debugger' );

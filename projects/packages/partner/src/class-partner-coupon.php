@@ -2,8 +2,13 @@
 /**
  * Class for the Jetpack partner coupon logic.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-partner
  */
+
+namespace Automattic\Jetpack;
+
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Jetpack_Options;
 
 /**
  * Disable direct access.
@@ -13,11 +18,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class Jetpack_Partner_Coupon_Helper
+ * Class Jetpack_Partner_Coupon
  *
- * @since 10.4.0
+ * @since $$next_version$$
  */
-class Jetpack_Partner_Coupon_Helper {
+class Partner_Coupon {
 
 	/**
 	 * Name of the Jetpack_Option coupon option.
@@ -34,9 +39,9 @@ class Jetpack_Partner_Coupon_Helper {
 	private static $added_option = 'partner_coupon_added';
 
 	/**
-	 * Jetpack_Partner_Coupon_Helper
+	 * Jetpack_Partner_Coupon
 	 *
-	 * @var Jetpack_Partner_Coupon_Helper|null
+	 * @var Partner_Coupon|null
 	 **/
 	private static $instance = null;
 
@@ -59,28 +64,46 @@ class Jetpack_Partner_Coupon_Helper {
 	);
 
 	/**
-	 * Initialize class.
+	 * Get singleton instance of class.
 	 */
-	public static function init() {
+	public static function get_instance() {
 		if ( is_null( self::$instance ) ) {
-			self::$instance = new Jetpack_Partner_Coupon_Helper();
+			self::$instance = new Partner_Coupon();
 		}
 
 		return self::$instance;
 	}
 
 	/**
-	 * Constructor.
+	 * Register hooks to catch and purge coupon.
+	 *
+	 * @param string $plugin_slug The plugin slug to differentiate between Jetpack connections.
+	 * @param string $redirect_location The location we should redirect to after catching the coupon.
 	 */
-	private function __construct() {
-		add_action( 'admin_init', array( $this, 'catch_coupon' ) );
-		add_action( 'admin_init', array( $this, 'purge_coupon' ) );
+	public static function register_coupon_admin_hooks( $plugin_slug, $redirect_location ) {
+		$instance = self::get_instance();
+
+		add_action( 'admin_init', array( $instance, 'purge_coupon' ) );
+
+		// We have to use an anonymous function, so we can pass along relevant information
+		// and not have to hardcode values for a single plugin.
+		// This open up the opportunity for e.g. the "all-in-one" and backup plugins
+		// to both implement partner coupon logic.
+		add_action(
+			'admin_init',
+			function () use ( $plugin_slug, $redirect_location, $instance ) {
+				$instance->catch_coupon( $plugin_slug, $redirect_location );
+			}
+		);
 	}
 
 	/**
 	 * Catch partner coupon and redirect to claim component.
+	 *
+	 * @param string $plugin_slug The plugin slug to differentiate between Jetpack connections.
+	 * @param string $redirect_location The location we should redirect to after catching the coupon.
 	 */
-	public function catch_coupon() {
+	public function catch_coupon( $plugin_slug, $redirect_location ) {
 		// Accept and store a partner coupon if present, and redirect to Jetpack connection screen.
 		$partner_coupon = isset( $_GET['jetpack-partner-coupon'] ) ? sanitize_text_field( $_GET['jetpack-partner-coupon'] ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( $partner_coupon ) {
@@ -91,10 +114,12 @@ class Jetpack_Partner_Coupon_Helper {
 				)
 			);
 
-			if ( Jetpack::connection()->is_connected() ) {
-				wp_safe_redirect( Jetpack::admin_url( 'showCouponRedemption=1' ) );
+			$connection = new Connection_Manager( $plugin_slug );
+			if ( $connection->is_connected() ) {
+				$redirect_location = add_query_arg( array( 'showCouponRedemption' => 1 ), $redirect_location );
+				wp_safe_redirect( $redirect_location );
 			} else {
-				wp_safe_redirect( Jetpack::admin_url() );
+				wp_safe_redirect( $redirect_location );
 			}
 		}
 	}
@@ -133,19 +158,20 @@ class Jetpack_Partner_Coupon_Helper {
 			return false;
 		}
 
-		$partner = self::$instance->get_coupon_partner( $coupon_code );
+		$instance = self::get_instance();
+		$partner  = $instance->get_coupon_partner( $coupon_code );
 
 		if ( ! $partner ) {
 			return false;
 		}
 
-		$preset = self::$instance->get_coupon_preset( $coupon_code );
+		$preset = $instance->get_coupon_preset( $coupon_code );
 
 		if ( ! $preset ) {
 			return false;
 		}
 
-		$product = self::$instance->get_coupon_product( $preset );
+		$product = $instance->get_coupon_product( $preset );
 
 		if ( ! $product ) {
 			return false;
@@ -194,16 +220,46 @@ class Jetpack_Partner_Coupon_Helper {
 			return false;
 		}
 
-		$product_details = Jetpack::get_products_for_purchase( true );
+		/**
+		 * Allow for plugins to register supported products.
+		 *
+		 * @since $$next_version$$
+		 *
+		 * @param array A list of product details.
+		 * @return array
+		 */
+		$product_details = apply_filters( 'jetpack_partner_coupon_products', array() );
 		$product_slug    = $this->get_supported_presets()[ $coupon_preset ];
 
 		foreach ( $product_details as $product ) {
+			if ( ! $this->array_keys_exist( array( 'title', 'slug', 'description', 'features' ), $product ) ) {
+				continue;
+			}
+
 			if ( $product_slug === $product['slug'] ) {
 				return $product;
 			}
 		}
 
 		return false;
+	}
+
+	/**
+	 * Checks if multiple keys are present in an array.
+	 *
+	 * @param array $needles The keys we wish to check for.
+	 * @param array $haystack The array we want to compare keys against.
+	 *
+	 * @return bool
+	 */
+	private function array_keys_exist( $needles, $haystack ) {
+		foreach ( $needles as $needle ) {
+			if ( ! isset( $haystack[ $needle ] ) ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**
@@ -236,7 +292,7 @@ class Jetpack_Partner_Coupon_Helper {
 		/**
 		 * Allow external code to add additional supported partners.
 		 *
-		 * @since 10.4.0
+		 * @since $$next_version$$
 		 *
 		 * @param array $supported_partners A list of supported partners.
 		 * @return array
@@ -253,7 +309,7 @@ class Jetpack_Partner_Coupon_Helper {
 		/**
 		 * Allow external code to add additional supported presets.
 		 *
-		 * @since 10.4.0
+		 * @since $$next_version$$
 		 *
 		 * @param array $supported_presets A list of supported presets.
 		 * @return array
