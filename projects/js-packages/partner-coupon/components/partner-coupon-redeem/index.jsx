@@ -2,26 +2,10 @@
  * External dependencies
  */
 import React, { useCallback, useEffect } from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { ActionButton, getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectScreen } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
-import { getConnectionStatus } from 'state/connection';
-import {
-	getApiNonce,
-	getApiRootUrl,
-	getPartnerCoupon,
-	getPluginBaseUrl,
-	getRegistrationNonce,
-	getSiteRawUrl,
-	getTracksUserData,
-} from 'state/initial-state';
 
 /**
  * Import styles
@@ -34,14 +18,15 @@ const PartnerCouponRedeem = props => {
 		apiRoot,
 		connectionStatus,
 		partnerCoupon,
-		pluginBaseUrl,
+		assetBaseUrl,
 		registrationNonce,
 		siteRawUrl,
 		tracksUserData,
+		analytics,
 	} = props;
 
 	useEffect( () => {
-		if ( tracksUserData ) {
+		if ( tracksUserData && 'object' === typeof analytics ) {
 			analytics.tracks.recordEvent( 'jetpack_partner_coupon_redeem_view', {
 				coupon: partnerCoupon.coupon_code,
 				partner: partnerCoupon.partner.prefix,
@@ -52,10 +37,10 @@ const PartnerCouponRedeem = props => {
 				connected: connectionStatus.isRegistered ? 'yes' : 'no',
 			} );
 		}
-	}, [ connectionStatus, partnerCoupon, tracksUserData ] );
+	}, [ analytics, connectionStatus, partnerCoupon, tracksUserData ] );
 
 	const partnerCouponHandleClick = useCallback( () => {
-		if ( tracksUserData ) {
+		if ( tracksUserData && 'object' === typeof analytics ) {
 			analytics.tracks.recordEvent( 'jetpack_partner_coupon_redeem_click', {
 				coupon: partnerCoupon.coupon_code,
 				partner: partnerCoupon.partner.prefix,
@@ -72,7 +57,7 @@ const PartnerCouponRedeem = props => {
 			site: siteRawUrl,
 			query: `coupon=${ partnerCoupon.coupon_code }`,
 		} );
-	}, [ connectionStatus, partnerCoupon, siteRawUrl, tracksUserData ] );
+	}, [ analytics, connectionStatus, partnerCoupon, siteRawUrl, tracksUserData ] );
 
 	return (
 		<div className="jetpack-partner-coupon-redeem">
@@ -81,7 +66,7 @@ const PartnerCouponRedeem = props => {
 				registrationNonce={ registrationNonce }
 				apiRoot={ apiRoot }
 				images={ [ '/images/connect-right-partner-backup.png' ] }
-				assetBaseUrl={ pluginBaseUrl }
+				assetBaseUrl={ assetBaseUrl }
 				title={ sprintf(
 					/* translators: %s: Jetpack partner name. */
 					__( 'Welcome to Jetpack %s traveler!', 'jetpack' ),
@@ -123,24 +108,15 @@ const PartnerCouponRedeem = props => {
 };
 
 PartnerCouponRedeem.propTypes = {
-	// From connect HoC.
-	apiRoot: PropTypes.string,
-	apiNonce: PropTypes.string,
-	connectionStatus: PropTypes.object,
-	partnerCoupon: PropTypes.object,
-	pluginBaseUrl: PropTypes.string,
-	registrationNonce: PropTypes.string,
-	siteRawUrl: PropTypes.string,
-	tracksUserData: PropTypes.oneOfType( [ PropTypes.object, PropTypes.bool ] ),
+	apiRoot: PropTypes.string.isRequired,
+	apiNonce: PropTypes.string.isRequired,
+	assetBaseUrl: PropTypes.string.isRequired,
+	connectionStatus: PropTypes.object.isRequired,
+	partnerCoupon: PropTypes.object.isRequired,
+	registrationNonce: PropTypes.string.isRequired,
+	siteRawUrl: PropTypes.string.isRequired,
+	tracksUserData: PropTypes.bool.isRequired,
+	analytics: PropTypes.object,
 };
 
-export default connect( state => ( {
-	apiRoot: getApiRootUrl( state ),
-	apiNonce: getApiNonce( state ),
-	connectionStatus: getConnectionStatus( state ),
-	partnerCoupon: getPartnerCoupon( state ),
-	pluginBaseUrl: getPluginBaseUrl( state ),
-	registrationNonce: getRegistrationNonce( state ),
-	siteRawUrl: getSiteRawUrl( state ),
-	tracksUserData: getTracksUserData( state ),
-} ) )( PartnerCouponRedeem );
+export default PartnerCouponRedeem;

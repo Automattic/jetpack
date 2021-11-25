@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { withRouter, Prompt } from 'react-router-dom';
 import { __, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
 import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { Dashicon } from '@wordpress/components';
 import { withDispatch } from '@wordpress/data';
@@ -68,7 +69,6 @@ import NonAdminView from 'components/non-admin-view';
 import JetpackNotices from 'components/jetpack-notices';
 import AdminNotices from 'components/admin-notices';
 import Tracker from 'components/tracker';
-import PartnerCouponRedeem from 'components/partner-coupon';
 import analytics from 'lib/analytics';
 import restApi from '@automattic/jetpack-api';
 import QueryRewindStatus from 'components/data/query-rewind-status';
@@ -231,7 +231,20 @@ class Main extends React.Component {
 			 * when the user came from a a JITM.
 			 */
 			if ( ! this.props.isSiteConnected || forceShow ) {
-				return <PartnerCouponRedeem />;
+				return (
+					<PartnerCouponRedeem
+						apiNonce={ this.props.apiNonce }
+						registrationNonce={ this.props.registrationNonce }
+						apiRoot={ this.props.apiRoot }
+						images={ [ '/images/connect-right-partner-backup.png' ] }
+						assetBaseUrl={ this.props.pluginBaseUrl }
+						connectionStatus={ this.props.connectionStatus }
+						partnerCoupon={ this.props.partnerCoupon }
+						siteRawUrl={ this.props.siteRawUrl }
+						tracksUserData={ !! this.props.tracksUserData }
+						analytics={ analytics }
+					/>
+				);
 			}
 		}
 
