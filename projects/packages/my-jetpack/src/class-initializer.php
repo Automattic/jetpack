@@ -69,8 +69,9 @@ class Initializer {
 			'../build/index.js',
 			__FILE__,
 			array(
-				'enqueue'   => true,
-				'in_footer' => true,
+				'enqueue'    => true,
+				'in_footer'  => true,
+				'textdomain' => 'jetpack',
 			)
 		);
 	}

@@ -2,6 +2,25 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 10.4-a.9 - 2021-11-23
+### Enhancements
+- Dashboard: add option to add a license key via the Jetpack dashboard.
+- Verification tools: remove old interface in the Tools menu, in favor of the newer settings in the Jetpack dashboard.
+
+### Bug fixes
+- Stats: remove ASCII art from the tracking pixel's alt attribute, to improve accessibility.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add consumer_slug config to webpack
+- Ensure that a new object references are created after the API request.
+- Fixed admin menu tests on WP.com
+- Gist unit tests: refactor to simplify and make future maintenance easier.
+- Manually dismiss license activation notice when license activated.
+- Remove the Connection UI activation.
+- REST API Return user ID for comment author if present
+- Skips redirect tests for admin menu in wpcom environment.
+- Updated package dependencies.
+
 ## 10.4-a.7 - 2021-11-17
 ### Enhancements
 - Podcast Player block: add 'jetpack_podcast_helper_tracks_quantity' filter to control number of tracks fetched. Deprecate the 'jetpack_podcast_helper_list_quantity' filter.

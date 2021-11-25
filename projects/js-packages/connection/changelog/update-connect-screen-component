@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+ConnectScreen: Fix custom grid and background color.
