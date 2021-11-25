@@ -242,13 +242,13 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.4-a.7 - 2021-11-17
+### 10.4-a.9 - 2021-11-23
 #### Enhancements
-- Podcast Player block: add 'jetpack_podcast_helper_tracks_quantity' filter to control number of tracks fetched. Deprecate the 'jetpack_podcast_helper_list_quantity' filter.
+- Dashboard: add option to add a license key via the Jetpack dashboard.
+- Verification tools: remove old interface in the Tools menu, in favor of the newer settings in the Jetpack dashboard.
 
 #### Bug fixes
-- VideoPress: fix VideoPress load for old videos in Gutenberg
-- SSO: fix button content alignment for small screens
+- Stats: remove ASCII art from the tracking pixel's alt attribute, to improve accessibility.
 
 --------
 

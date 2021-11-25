@@ -12,6 +12,7 @@ module.exports = [
 		devtool: jetpackWebpackConfig.devtool,
 		output: {
 			...jetpackWebpackConfig.output,
+			filename: '[name].min.js',
 			path: packagesFolder,
 		},
 		optimization: {
