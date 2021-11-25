@@ -100,10 +100,7 @@ const UserLicenseActivationNotice = props => {
 				showDismiss={ true }
 				onDismissClick={ onNoticeDismiss }
 				text={ createInterpolateElement(
-					__(
-						'You have an available product license key. <activateLink>Activate it now</activateLink> or <purchasesLink>view all your purchases</purchasesLink>',
-						'jetpack'
-					),
+					__( 'You have an available product license key. <activateLink>Activate it now</activateLink> or <purchasesLink>view all your purchases</purchasesLink>', 'jetpack' ),
 					{
 						activateLink: createElement( 'a', {
 							href: USER_LICENSE_ACTIVATION_ROUTE,
