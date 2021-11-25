@@ -1,4 +1,80 @@
 /* globals wp, lodash */
+window.videoPressUploadTrack = function ( guid, kind, srcLang, label, vttFile ) {
+	// eslint-disable-next-line no-undef
+	return new Promise( function ( resolve, reject ) {
+		wp.media
+			.ajax( 'videopress-get-upload-token', { async: true, data: { filename: vttFile.name } } )
+			.done( function ( response ) {
+				// Set auth header with upload token.
+				var headers = {},
+					options = {};
+				var body = new FormData();
+				headers[ 'Authorization' ] =
+					'X_UPLOAD_TOKEN token="' +
+					response.upload_token +
+					'" blog_id="' +
+					response.upload_blog_id +
+					'"';
+				options.headers = headers;
+				options.method = 'POST';
+				options.url = 'https://public-api.wordpress.com/rest/v1.1/videos/' + guid + '/tracks';
+
+				// Handle CORS.
+				options.credentials = 'omit';
+
+				body.append( 'kind', kind );
+				body.append( 'srclang', srcLang );
+				body.append( 'label', label );
+				body.append( 'vtt', vttFile );
+
+				options.body = body;
+
+				wp.apiFetch( options )
+					.then( function ( res ) {
+						resolve( res );
+					} )
+					.catch( function ( error ) {
+						reject( error );
+					} );
+			} );
+	} );
+};
+
+window.videoPressDeleteTrack = function ( guid, kind, srcLang ) {
+	// eslint-disable-next-line no-undef
+	return new Promise( function ( resolve, reject ) {
+		wp.media.ajax( 'videopress-get-upload-token', { async: true } ).done( function ( response ) {
+			// Set auth header with upload token.
+			var headers = {},
+				options = {};
+			var body = new FormData();
+			headers[ 'Authorization' ] =
+				'X_UPLOAD_TOKEN token="' +
+				response.upload_token +
+				'" blog_id="' +
+				response.upload_blog_id +
+				'"';
+			options.headers = headers;
+			options.method = 'POST';
+			options.url = 'https://public-api.wordpress.com/rest/v1.1/videos/' + guid + '/tracks/delete';
+
+			// Handle CORS.
+			options.credentials = 'omit';
+
+			body.append( 'kind', kind );
+			body.append( 'srclang', srcLang );
+			options.body = body;
+
+			wp.apiFetch( options )
+				.then( function ( res ) {
+					resolve( res );
+				} )
+				.catch( function ( error ) {
+					reject( error );
+				} );
+		} );
+	} );
+};
 
 wp.apiFetch.use( function ( options, next ) {
 	var path = options.path;

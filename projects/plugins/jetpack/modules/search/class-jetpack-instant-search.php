@@ -63,8 +63,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	public function load_php() {
 		$this->base_load_php();
 
-		require_once __DIR__ . '/class-jetpack-search-settings.php';
-		new Jetpack_Search_Settings();
+		new Automattic\Jetpack\Search\Settings();
 
 		if ( class_exists( 'WP_Customize_Manager' ) ) {
 			require_once __DIR__ . '/class-jetpack-search-customize.php';
@@ -123,10 +122,12 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			'jetpack-instant-search',
 			$path_prefix . '_inc/build/instant-search/jp-search-main.bundle.min.js',
 			$plugin_base_path,
-			array( 'in_footer' => true )
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack',
+			)
 		);
 		Assets::enqueue_script( 'jetpack-instant-search' );
-		wp_set_script_translations( 'jetpack-instant-search', 'jetpack' );
 		$this->load_and_initialize_tracks();
 		$this->inject_javascript_options();
 

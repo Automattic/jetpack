@@ -2,6 +2,8 @@
  * External dependencies
  */
 import { assign } from 'lodash';
+import { addQueryArgs } from '@wordpress/url';
+import { jetpackConfigGet, jetpackConfigHas } from '@automattic/jetpack-config';
 
 /**
  * Helps create new custom error classes to better notify upper layers.
@@ -79,6 +81,10 @@ function JetpackRestApiClient( root, nonce ) {
 				no_iframe: true,
 			};
 
+			if ( jetpackConfigHas( 'consumer_slug' ) ) {
+				params.plugin_slug = jetpackConfigGet( 'consumer_slug' );
+			}
+
 			if ( null !== redirectUri ) {
 				params.redirect_uri = redirectUri;
 			}
@@ -92,9 +98,10 @@ function JetpackRestApiClient( root, nonce ) {
 
 		fetchAuthorizationUrl: redirectUri =>
 			getRequest(
-				`${ apiRoot }jetpack/v4/connection/authorize_url?no_iframe=1&redirect_uri=${ encodeURIComponent(
-					redirectUri
-				) }`,
+				addQueryArgs( `${ apiRoot }jetpack/v4/connection/authorize_url`, {
+					no_iframe: '1',
+					redirect_uri: redirectUri,
+				} ),
 				getParams
 			)
 				.then( checkStatus )

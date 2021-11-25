@@ -4,6 +4,7 @@
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const path = require( 'path' );
 const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
+const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
 const NodePolyfillPlugin = require( 'node-polyfill-webpack-plugin' );
 
 const sharedWebpackConfig = {
@@ -89,6 +90,12 @@ module.exports = [
 			...jetpackWebpackConfig.DependencyExtractionPlugin( { injectPolyfill: true } ),
 			new NodePolyfillPlugin(),
 		],
+		externals: {
+			...sharedWebpackConfig.externals,
+			jetpackConfig: JSON.stringify( {
+				consumer_slug: 'jetpack',
+			} ),
+		},
 	},
 	{
 		...sharedWebpackConfig,
@@ -123,6 +130,9 @@ module.exports = [
 						},
 					},
 				},
+			} ),
+			new RemoveAssetWebpackPlugin( {
+				assets: /\.(css|js)(\.map)?$/,
 			} ),
 		],
 	},

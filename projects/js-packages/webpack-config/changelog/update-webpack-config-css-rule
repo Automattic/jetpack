@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Added a `CssRule` in place of making everyone construct their own from a bunch of loaders.
