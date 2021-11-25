@@ -25,6 +25,7 @@ import SimpleNotice from 'components/notice';
  * Jetpack "user"-licenses activation notice. (a license key is available for activation)
  *
  * @param {object} props - The properties.
+ * @param {number} props.pathname - The path of a URL.
  * @param {number} props.detachedLicensesCount - The user's number of "detached" licenses.
  * @param {object} props.activationNoticeDismissInfo - Object containing `last_detached_count` and `last_dismissed_time`.
  * @param {Function} props.updateLicensingActivationNoticeDismiss - Function to update the notification dismiss info.
@@ -38,6 +39,7 @@ const UserLicenseActivationNotice = props => {
 		detachedLicensesCount,
 		activationNoticeDismissInfo,
 		updateLicensingActivationNoticeDismiss,
+        pathname,
 		siteAdminUrl,
 	} = props;
 
@@ -69,16 +71,17 @@ const UserLicenseActivationNotice = props => {
 	const trackLicenseActivationClick = useCallback( () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'licensing_activation_notice',
+			page: pathname,
 			path: 'licensing/activation',
 		} );
-	}, [] );
+	}, [ pathname ] );
 
 	const trackUserPurchasesClick = useCallback( () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'calypso_purchases_link',
-			page: 'my-plan',
+			page: pathname,
 		} );
-	}, [] );
+	}, [ pathname ] );
 
 	const onNoticeDismiss = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_wpa_licensing_activation_notice_dismiss' );
@@ -124,6 +127,7 @@ UserLicenseActivationNotice.propTypes = {
 		last_detached_count: PropTypes.number.isRequired,
 		last_dismiss_time: PropTypes.string.isRequired,
 	} ),
+	pathname: PropTypes.string.isRequired,
 	siteAdminUrl: PropTypes.string.isRequired,
 };
 
