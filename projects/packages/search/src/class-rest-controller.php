@@ -128,7 +128,11 @@ class REST_Controller {
 		$instant_search_enabled = isset( $request_body['instant_search_enabled'] ) ? $request_body['instant_search_enabled'] : null;
 
 		if ( ( true === $instant_search_enabled && false === $module_active ) || ( is_null( $module_active ) && is_null( $instant_search_enabled ) ) ) {
-			return new WP_Error( 'rest_invalid_arguments', 'The arguments passed in are invalid.', array( 'status' => 400 ) );
+			return new WP_Error(
+				'rest_invalid_arguments',
+				esc_html__( 'The arguments passed in are invalid.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
 		}
 
 		if ( false === $module_active ) {
