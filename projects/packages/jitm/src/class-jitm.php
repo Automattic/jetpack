@@ -143,8 +143,9 @@ class JITM {
 			'../build/index.js',
 			__FILE__,
 			array(
-				'in_footer'  => true,
-				'textdomain' => 'jetpack',
+				'in_footer'    => true,
+				'textdomain'   => 'jetpack',
+				'dependencies' => array( 'jquery' ),
 			)
 		);
 		Assets::enqueue_script( 'jetpack-jitm-css' );
