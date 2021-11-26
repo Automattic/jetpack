@@ -22,13 +22,12 @@ import JetpackAdminPageFooter from './footer';
  */
 const JetpackAdminPage = props => {
 	const { children, moduleName, a8cLogoHref } = props;
-	const footerProps = { moduleName, a8cLogoHref };
 
 	return (
 		<>
 			<JetpackAdminPageHeader />
 			{ children }
-			<JetpackAdminPageFooter { ...footerProps } />
+			<JetpackAdminPageFooter moduleName={ moduleName } a8cLogoHref={ a8cLogoHref } />
 		</>
 	);
 };
