@@ -70,28 +70,52 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	}
 
 	/**
+	 * Basically just a data provider to other tests that rely on a successful response.
+	 *
+	 * Since the API endpoint relies on file inclusion to create its response,
+	 * it can't be run multiple times within the same "request". This test
+	 * makes that request once and then passes it on so other tests can depend
+	 * on it.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function test_successful_request() {
+		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/admin-menu' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+
+		return $response;
+	}
+
+	/**
 	 * Tests get item.
 	 *
 	 * @covers ::get_item_permissions_check
 	 * @covers ::get_item
 	 * @covers ::prepare_menu_for_response
+	 * @depends test_successful_request
+	 *
+	 * @param WP_REST_Response $response Admin Menu API response.
 	 */
-	public function test_get_item() {
-		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/admin-menu' );
-		$response = $this->server->dispatch( $request );
-
-		$this->assertTrue( rest_validate_value_from_schema( $response->get_data(), ( new WPCOM_REST_API_V2_Endpoint_Admin_Menu() )->get_public_item_schema() ) );
+	public function test_get_item( WP_REST_Response $response ) {
+		$this->assertTrue(
+			rest_validate_value_from_schema(
+				$response->get_data(),
+				( new WPCOM_REST_API_V2_Endpoint_Admin_Menu() )->get_public_item_schema()
+			)
+		);
 	}
 
 	/**
 	 * Tests that submenu items get promoted when the user doesn't have the caps for the top-level menu item.
 	 *
 	 * @covers ::prepare_menu_for_response
+	 * @depends test_successful_request
+	 *
+	 * @param WP_REST_Response $response Admin Menu API response.
 	 */
-	public function test_parent_menu_item_always_exists() {
-		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/admin-menu' );
-		$response = $this->server->dispatch( $request );
-
+	public function test_parent_menu_item_always_exists( WP_REST_Response $response ) {
 		$menu      = wp_list_filter( $response->get_data(), array( 'title' => 'Settings' ) );
 		$menu_item = array_pop( $menu );
 
@@ -227,7 +251,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 					'slug'   => 'upload-php',
 					'title'  => 'Library\'s',
 					'type'   => 'submenu-item',
-					'url'    => 'http://example.org/wp-admin/upload.php',
+					'url'    => admin_url( 'upload.php' ),
 				),
 			),
 			// Submenu item with update count.
@@ -305,7 +329,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 			'slug'  => 'foo',
 			'title' => 'Foo',
 			'type'  => 'menu-item',
-			'url'   => 'http://example.org/wp-admin/admin.php?page=sharing',
+			'url'   => admin_url( 'admin.php?page=sharing' ),
 		);
 
 		$this->assertSame(
