@@ -75,9 +75,6 @@ class Jetpack_Redux_State_Helper {
 
 		$current_user_data = jetpack_current_user_data();
 
-		// Register product descriptions for partner coupon usage.
-		add_filter( 'jetpack_partner_coupon_products', array( self::class, 'get_partner_coupon_product_descriptions' ) );
-
 		/**
 		 * Adds information to the `connectionStatus` API field that is unique to the Jetpack React dashboard.
 		 */
@@ -369,17 +366,6 @@ class Jetpack_Redux_State_Helper {
 	 */
 	public static function generate_purchase_token() {
 		return wp_generate_password( 12, false );
-	}
-
-	/**
-	 * Register product descriptions for partner coupon usage.
-	 *
-	 * @since $$next_version$$
-	 *
-	 * @return array
-	 */
-	public static function get_partner_coupon_product_descriptions() {
-		return Jetpack::get_products_for_purchase( true );
 	}
 
 }

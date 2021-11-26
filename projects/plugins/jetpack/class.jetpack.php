@@ -816,6 +816,9 @@ class Jetpack {
 
 		// Validate the domain names in Jetpack development versions.
 		add_action( 'jetpack_pre_register', array( get_called_class(), 'registration_check_domains' ) );
+
+		// Register product descriptions for partner coupon usage.
+		add_filter( 'jetpack_partner_coupon_products', array( $this, 'get_partner_coupon_product_descriptions' ) );
 	}
 
 	/**
@@ -6796,6 +6799,19 @@ endif;
 		}
 
 		return $products;
+	}
+
+	/**
+	 * Register product descriptions for partner coupon usage.
+	 *
+	 * @since $$next_version$$
+	 *
+	 * @param array $products An array of registered products.
+	 *
+	 * @return array
+	 */
+	public function get_partner_coupon_product_descriptions( $products ) {
+		return array_merge( $products, self::get_products_for_purchase( true ) );
 	}
 
 	/**

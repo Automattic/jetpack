@@ -5,6 +5,7 @@
  * @package jetpack
  */
 
+use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
 use Automattic\Jetpack\Redirect;
 
 /**
@@ -106,7 +107,7 @@ class Jetpack_Pre_Connection_JITMs {
 	 * @return array An array containing the pre-connection JITM messages.
 	 */
 	private function maybe_get_raw_partnership_messages() {
-		$partner_coupon = Jetpack_Partner_Coupon_Helper::get_coupon();
+		$partner_coupon = Jetpack_Partner_Coupon::get_coupon();
 
 		if ( ! $partner_coupon ) {
 			return array();
