@@ -8,7 +8,7 @@
 		"automattic/jetpack-constants": "^1.6",
 		"automattic/jetpack-heartbeat": "^1.3",
 		"automattic/jetpack-identity-crisis": "^0.4",
-		"automattic/jetpack-options": "^1.13",
+		"automattic/jetpack-options": "^1.14",
 		"automattic/jetpack-password-checker": "^0.1",
 		"automattic/jetpack-roles": "^1.4",
 		"automattic/jetpack-status": "^1.9"
