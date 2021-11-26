@@ -726,4 +726,11 @@ abstract class SAL_Site {
 	public function get_anchor_podcast() {
 		return get_option( 'anchor_podcast' );
 	}
+
+	/**
+	 * Get the option of site intent which value is coming from the Hero Flow
+	 */
+	public function get_site_intent() {
+		return get_option( 'site_intent', '' );
+	}
 }

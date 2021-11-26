@@ -157,6 +157,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_cloud_eligible',
 		'selected_features',
 		'anchor_podcast',
+		'site_intent',
 	);
 
 	protected static $jetpack_response_field_additions = array(
@@ -668,6 +669,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'anchor_podcast':
 					$options[ $key ] = $site->get_anchor_podcast();
+					break;
+				case 'site_intent':
+					$options[ $key ] = $site->get_site_intent();
 					break;
 			}
 		}
