@@ -70,17 +70,29 @@ class Test_Jetpack_JITM extends TestCase {
 		// mock the static method and return a dummy value
 		$mockAssets
 			->shouldReceive( 'register_script' )
-			->withSomeOfArgs( 'jetpack-jitm-css', '../build/index.js' )
+			->withSomeOfArgs( 'jetpack-jitm', '../build/index.js' )
 			->once();
 
 		$mockAssets
 			->shouldReceive( 'enqueue_script' )
-			->withArgs( array( 'jetpack-jitm-css' ) )
+			->withArgs( array( 'jetpack-jitm' ) )
 			->once();
 
 		$jitm = new JITM();
 		$screen = (object) array( 'id' => 'jetpack_foo' ); // fake screen object
 		$jitm->prepare_jitms( $screen );
+
+		// Set up mocks for a bunch of methods called by the hook.
+		Functions\when( 'esc_url_raw' )->justReturn( '' );
+		Functions\when( 'esc_html__' )->justReturn( '' );
+		Functions\when( 'wp_create_nonce' )->justReturn( '' );
+		Functions\when( 'rest_url' )->justReturn( '' );
+
+		Functions\expect( 'wp_localize_script' )->once()->with(
+			'jetpack-jitm',
+			'jitm_config',
+			\Mockery::type( 'array' )
+		);
 
 		// Do the action that we asserted was added.
 		$jitm->jitm_enqueue_files();

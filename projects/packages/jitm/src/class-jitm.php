@@ -139,7 +139,7 @@ class JITM {
 		}
 
 		Assets::register_script(
-			'jetpack-jitm-new',
+			'jetpack-jitm',
 			'../build/index.js',
 			__FILE__,
 			array(
@@ -147,9 +147,9 @@ class JITM {
 				'dependencies' => array( 'jquery' ),
 			)
 		);
-		Assets::enqueue_script( 'jetpack-jitm-new' );
+		Assets::enqueue_script( 'jetpack-jitm' );
 		wp_localize_script(
-			'jetpack-jitm-new',
+			'jetpack-jitm',
 			'jitm_config',
 			array(
 				'api_root'               => esc_url_raw( rest_url() ),
