@@ -2,8 +2,10 @@
 /**
  * A class that adds a search dashboard to wp-admin.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-search
  */
+
+namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Status;
@@ -19,7 +21,7 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-redux-sta
  *
  * @package Automattic\Jetpack\Search
  */
-class Jetpack_Search_Dashboard_Page extends Jetpack_Admin_Page {
+class Dashboard {
 	/**
 	 * Show the settings page only when Jetpack is connected or in dev mode.
 	 *
