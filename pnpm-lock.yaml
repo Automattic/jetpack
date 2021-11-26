@@ -1119,6 +1119,7 @@ importers:
       '@babel/preset-react': 7.16.0
       '@babel/register': 7.16.0
       '@babel/runtime': 7.16.3
+      '@testing-library/react-hooks': 4.0.1
       '@wojtekmaj/enzyme-adapter-react-17': 0.6.3
       chai: 4.3.4
       commander: 7.2.0
@@ -1137,6 +1138,7 @@ importers:
       '@babel/preset-react': 7.16.0_@babel+core@7.16.0
       '@babel/register': 7.16.0_@babel+core@7.16.0
       '@babel/runtime': 7.16.3
+      '@testing-library/react-hooks': 4.0.1
       '@wojtekmaj/enzyme-adapter-react-17': 0.6.3_enzyme@3.11.0
       chai: 4.3.4
       commander: 7.2.0
@@ -5482,6 +5484,17 @@ packages:
       preact: 10.5.15
     dev: true
 
+  /@testing-library/react-hooks/4.0.1:
+    resolution: {integrity: sha512-DufI8Q2GOM7W2yFEEfz85VNVNaHZL0tPZyBT6ytV7HK+1A4frL1ty+W5NBE0u0K3EFV/Pg5O28HGNEtp9D5EyA==}
+    peerDependencies:
+      react: '>=16.9.0'
+      react-test-renderer: '>=16.9.0'
+    dependencies:
+      '@babel/runtime': 7.16.3
+      '@types/react': 17.0.34
+      '@types/react-test-renderer': 17.0.1
+    dev: false
+
   /@testing-library/react-hooks/4.0.1_509016fd322278d497c1e58f6164ce1d:
     resolution: {integrity: sha512-DufI8Q2GOM7W2yFEEfz85VNVNaHZL0tPZyBT6ytV7HK+1A4frL1ty+W5NBE0u0K3EFV/Pg5O28HGNEtp9D5EyA==}
     peerDependencies:
@@ -5775,7 +5788,6 @@ packages:
     resolution: {integrity: sha512-3Fi2O6Zzq/f3QR9dRnlnHso9bMl7weKCviFmfF6B4LS1Uat6Hkm15k0ZAQuDz+UBq6B3+g+NM6IT2nr5QgPzCw==}
     dependencies:
       '@types/react': 17.0.34
-    dev: true
 
   /@types/react/16.14.20:
     resolution: {integrity: sha512-SV7TaVc8e9E/5Xuv6TIyJ5VhQpZoVFJqX6IZgj5HZoFCtIDCArE3qXkcHlc6O/Ud4UwcMoX+tlvDA95YrKdLgA==}
@@ -5790,7 +5802,6 @@ packages:
       '@types/prop-types': 15.7.4
       '@types/scheduler': 0.16.2
       csstype: 3.0.9
-    dev: true
 
   /@types/resolve/1.17.1:
     resolution: {integrity: sha512-yy7HuzQhj0dhGpD8RLXSZWEkLsV9ibvxvi6EiJ3bkqLAO1RGo0WbkWQiwpRlSFymTJRz0d3k5LM3kkx8ArDbLw==}
