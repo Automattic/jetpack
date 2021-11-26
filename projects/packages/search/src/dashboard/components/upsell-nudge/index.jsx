@@ -7,9 +7,15 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import './instant-search-upsell-nudge.scss';
+import './style.scss';
 
-const InstantSearchUpsellNudge = ( props = { upgrade: true } ) => {
+/**
+ * Upsell nudge component
+ *
+ * @param {object} props - Props
+ * @returns {React.Component}	- Upsell nudge component.
+ */
+export default function InstantSearchUpsellNudge( props = { upgrade: true } ) {
 	return (
 		<a className="jp-instant-search-upsell-nudge jp-search-dashboard-cut" href={ props.href }>
 			<span>
@@ -24,6 +30,4 @@ const InstantSearchUpsellNudge = ( props = { upgrade: true } ) => {
 			</span>
 		</a>
 	);
-};
-
-export default InstantSearchUpsellNudge;
+}

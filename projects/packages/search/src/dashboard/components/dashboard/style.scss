@@ -1,4 +1,4 @@
-@import './_variables.scss';
+@import '../../scss/_variables';
 
 * {
 	box-sizing: border-box;
@@ -12,6 +12,10 @@ body {
 		'Cantarell', 'Helvetica Neue', sans-serif;
 }
 
+#wpcontent {
+	padding-left: 0 !important;
+}
+
 #screen-meta,
 #screen-meta-links {
 	display: none;
@@ -22,6 +26,14 @@ body {
 
 	color: $black;
 	font-size: 16px;
+	background-color: $white;
+
+	.jp-search-dashboard-page-loading-spinner {
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		transform: translate( -50%, -50% );
+	}
 
 	.jp-masthead__logo-link {
 		pointer-events: none;

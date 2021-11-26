@@ -2,76 +2,92 @@
  * External dependencies
  */
 import React, { Fragment, useMemo } from 'react';
-import { connect } from 'react-redux';
+
+/**
+ * WordPress dependencies
+ */
+import { useSelect, useDispatch, select as syncSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-
-import { JetpackFooter, JetpackLogo } from '@automattic/jetpack-components';
+import analytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
-import LoadingPlaceHolder from 'components/loading-placeholder';
-import ModuleControl from './module-control';
-import MockedSearch from './mocked-search';
-import analytics from '../../lib/analytics';
-import './rna-styles.scss';
+import { JetpackFooter, JetpackLogo } from '@automattic/jetpack-components';
+import ModuleControl from 'components/module-control';
+import MockedSearch from 'components/mocked-search';
+import { STORE_ID } from 'store';
+import NoticesList from 'components/global-notices';
+
+import 'scss/rna-styles.scss';
 import './style.scss';
-
-/**
- * State dependencies
- */
-import { isFetchingSitePurchases } from 'state/site';
-import {
-	setInitialState,
-	getApiNonce,
-	getApiRootUrl,
-	getSiteAdminUrl,
-	getTracksUserData,
-	getCurrentVersion,
-} from 'state/initial-state';
-
-const useComponentWillMount = func => {
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	useMemo( func, [] );
-};
 
 /**
  * SearchDashboard component definition.
  *
- * @param {object} props - Component properties.
  * @returns {React.Component} Search dashboard component.
  */
-function SearchDashboard( props ) {
-	// NOTE: API root and nonce must be set before any components are mounted!
-	const {
-		apiRootUrl,
-		apiNonce,
-		setInitialState: setSearchDashboardInitialState,
-		siteAdminUrl,
-	} = props;
+export default function SearchDashboard() {
+	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
+	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
+
+	const siteAdminUrl = syncSelect( STORE_ID ).getSiteAdminUrl();
+	const aboutPageUrl = siteAdminUrl + 'admin.php?page=jetpack_about';
+
+	const updateOptions = useDispatch( STORE_ID ).updateJetpackSettings;
+	const isInstantSearchPromotionActive = syncSelect( STORE_ID ).isInstantSearchPromotionActive();
+
+	const domain = syncSelect( STORE_ID ).getCalypsoSlug();
+	const upgradeBillPeriod = syncSelect( STORE_ID ).getUpgradeBillPeriod();
+
+	const supportsOnlyClassicSearch = useSelect(
+		select => select( STORE_ID ).supportsOnlyClassicSearch
+	);
+	const supportsSearch = useSelect( select => select( STORE_ID ).supportsSearch() );
+	const supportsInstantSearch = useSelect( select => select( STORE_ID ).supportsInstantSearch() );
+	const isModuleEnabled = useSelect( select => select( STORE_ID ).isModuleEnabled() );
+	const isInstantSearchEnabled = useSelect( select => select( STORE_ID ).isInstantSearchEnabled() );
+	const isSavingEitherOption = useSelect( select =>
+		select( STORE_ID ).isUpdatingJetpackSettings()
+	);
+	const isTogglingModule = useSelect( select => select( STORE_ID ).isTogglingModule() );
+	const isTogglingInstantSearch = useSelect( select =>
+		select( STORE_ID ).isTogglingInstantSearch()
+	);
+
+	const isLoading = useSelect(
+		select =>
+			select( STORE_ID ).isResolving( 'getSearchPlanInfo' ) ||
+			! select( STORE_ID ).hasStartedResolution( 'getSearchPlanInfo' ) ||
+			select( STORE_ID ).isResolving( 'getSearchModuleStatus' ) ||
+			! select( STORE_ID ).hasStartedResolution( 'getSearchModuleStatus' )
+	);
+
+	const handleLocalNoticeDismissClick = useDispatch( STORE_ID ).removeNotice;
+	const notices = useSelect( select => select( STORE_ID ).getNotices(), [] );
 
 	const initializeAnalytics = () => {
-		const tracksUser = props.tracksUserData;
+		const tracksUser = syncSelect( STORE_ID ).getWpcomUser();
+		const blogId = syncSelect( STORE_ID ).getBlogId();
 
 		if ( tracksUser ) {
-			analytics.initialize( tracksUser.userid, tracksUser.username, {
-				blog_id: tracksUser.blogid,
+			analytics.initialize( tracksUser.ID, tracksUser.login, {
+				blog_id: blogId,
 			} );
 		}
 	};
 
-	useComponentWillMount( () => {
+	useMemo( () => {
+		const apiRootUrl = syncSelect( STORE_ID ).getAPIRootUrl();
+		const apiNonce = syncSelect( STORE_ID ).getAPINonce();
 		apiRootUrl && restApi.setApiRoot( apiRootUrl );
 		apiNonce && restApi.setApiNonce( apiNonce );
-		setSearchDashboardInitialState && setSearchDashboardInitialState();
 		initializeAnalytics();
 		analytics.tracks.recordEvent( 'jetpack_search_admin_page_view', {
-			current_version: props.currentVersion,
+			current_version: syncSelect( STORE_ID ).getVersion(),
 		} );
-	} );
-
-	const aboutPageUrl = siteAdminUrl + 'admin.php?page=jetpack_about';
+	}, [] );
 
 	const renderHeader = () => {
 		return (
@@ -101,7 +117,10 @@ function SearchDashboard( props ) {
 				<div className="jp-search-dashboard-row" aria-hidden="true">
 					<div className="lg-col-span-1 md-col-span-1 sm-col-span-0"></div>
 					<div className="jp-search-dashboard-top__mocked-search-interface lg-col-span-10 md-col-span-6 sm-col-span-4">
-						<MockedSearch />
+						<MockedSearch
+							supportsInstantSearch={ supportsInstantSearch }
+							supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
+						/>
 					</div>
 					<div className="lg-col-span-1 md-col-span-1 sm-col-span-0"></div>
 				</div>
@@ -109,10 +128,24 @@ function SearchDashboard( props ) {
 		);
 	};
 
-	const renderAdminSection = () => {
+	const renderModuleControl = () => {
 		return (
 			<div className="jp-search-dashboard-bottom">
-				<ModuleControl />
+				<ModuleControl
+					siteAdminUrl={ siteAdminUrl }
+					updateOptions={ updateOptions }
+					domain={ domain }
+					isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
+					upgradeBillPeriod={ upgradeBillPeriod }
+					supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
+					supportsSearch={ supportsSearch }
+					supportsInstantSearch={ supportsInstantSearch }
+					isModuleEnabled={ isModuleEnabled }
+					isInstantSearchEnabled={ isInstantSearchEnabled }
+					isSavingEitherOption={ isSavingEitherOption }
+					isTogglingModule={ isTogglingModule }
+					isTogglingInstantSearch={ isTogglingInstantSearch }
+				/>
 			</div>
 		);
 	};
@@ -133,29 +166,27 @@ function SearchDashboard( props ) {
 
 	return (
 		<div className="jp-search-dashboard-page">
-			{ props.isLoading && <LoadingPlaceHolder /> }
-			{ ! props.isLoading && (
+			{ isLoading && (
+				<img
+					className="jp-search-dashboard-page-loading-spinner"
+					width="32"
+					height="32"
+					alt={ __( 'Loading', 'jetpack' ) }
+					src="//en.wordpress.com/i/loading/loading-64.gif"
+				/>
+			) }
+			{ ! isLoading && (
 				<Fragment>
 					{ renderHeader() }
 					{ renderMockedSearchInterface() }
-					{ renderAdminSection() }
+					{ renderModuleControl() }
 					{ renderFooter() }
 				</Fragment>
 			) }
+			<NoticesList
+				notices={ notices }
+				handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
+			/>
 		</div>
 	);
 }
-
-export default connect(
-	state => {
-		return {
-			apiRootUrl: getApiRootUrl( state ),
-			apiNonce: getApiNonce( state ),
-			isLoading: isFetchingSitePurchases( state ),
-			siteAdminUrl: getSiteAdminUrl( state ),
-			tracksUserData: getTracksUserData( state ),
-			currentVersion: getCurrentVersion( state ),
-		};
-	},
-	{ setInitialState }
-)( SearchDashboard );
