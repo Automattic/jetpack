@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import classnames from 'classnames';
 
 /**
  * Internal dependencies
@@ -17,10 +18,9 @@ import './style.scss';
  */
 const JetpackAdminSection = props => {
 	const { children, bgColor } = props;
-	let mainClassName = 'jp-admin-section';
-	if ( bgColor === 'grey' ) {
-		mainClassName += ' jp-admin-section--bg-grey';
-	}
+	const mainClassName = classnames( 'jp-admin-section', {
+		'jp-admin-section--bg-grey': bgColor === 'grey',
+	} );
 	return (
 		<div className={ mainClassName }>
 			<div className="jp-wrap">
