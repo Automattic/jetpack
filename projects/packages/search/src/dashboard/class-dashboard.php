@@ -145,9 +145,9 @@ class Dashboard {
 	public function load_admin_styles() {
 		wp_enqueue_style(
 			'jp-search-dashboard',
-			plugins_url( 'vendor/automattic/jetpack-search/dist/instant-search/jp-search-dashboard-main.min.css', JETPACK__PLUGIN_FILE ),
+			plugins_url( 'vendor/automattic/jetpack-search/build/instant-search/jp-search-dashboard.css', JETPACK__PLUGIN_FILE ),
 			array(),
-			Helper::get_asset_version( 'vendor/automattic/jetpack-search/dist/instant-search/jp-search-dashboard-main.min.css' )
+			Helper::get_asset_version( 'vendor/automattic/jetpack-search/build/instant-search/jp-search-dashboard.css' )
 		);
 	}
 
@@ -155,7 +155,7 @@ class Dashboard {
 	 * Enqueue admin scripts.
 	 */
 	public function load_admin_scripts() {
-		$script_deps_path    = JETPACK__PLUGIN_DIR . 'vendor/automattic/jetpack-search/dist/instant-search/jp-search-dashboard-main.min.asset.php';
+		$script_deps_path    = JETPACK__PLUGIN_DIR . 'vendor/automattic/jetpack-search/build/instant-search/jp-search-dashboard.asset.php';
 		$script_dependencies = array( 'react', 'react-dom', 'wp-polyfill' );
 		if ( file_exists( $script_deps_path ) ) {
 			$asset_manifest      = include $script_deps_path;
@@ -169,9 +169,9 @@ class Dashboard {
 
 		wp_enqueue_script(
 			'jp-search-dashboard',
-			plugins_url( 'vendor/automattic/jetpack-search/dist/instant-search/jp-search-dashboard-main.min.js', JETPACK__PLUGIN_FILE ),
+			plugins_url( 'vendor/automattic/jetpack-search/build/instant-search/jp-search-dashboard.js', JETPACK__PLUGIN_FILE ),
 			$script_dependencies,
-			Helper::get_asset_version( 'vendor/automattic/jetpack-search/dist/instant-search/jp-search-dashboard-main.min.js' ),
+			Helper::get_asset_version( 'vendor/automattic/jetpack-search/build/instant-search/jp-search-dashboard.js' ),
 			true
 		);
 

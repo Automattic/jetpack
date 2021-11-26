@@ -81,7 +81,6 @@ module.exports = [
 					export: 'getRouteName',
 				},
 			},
-			'search-dashboard': path.join( __dirname, '../_inc/client', 'search-dashboard-entry.js' ),
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,

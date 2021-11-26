@@ -12,7 +12,7 @@
 		"build-development": "NODE_ENV=development BABEL_ENV=development pnpm run build && pnpm run build-php",
 		"build-instant": "echo 'Not yet implemented.'",
 		"build-customberg": "echo 'Not yet implemented.'",
-		"build-dashboard": "echo 'Not yet implemented.'",
+		"build-dashboard": "webpack --config ./tools/webpack.dashboard.config.js",
 		"build-php": "composer install --ignore-platform-reqs",
 		"build-production-php": "COMPOSER_MIRROR_PATH_REPOS=1 COMPOSER_ROOT_VERSION=dev-master composer install -o --no-dev --classmap-authoritative --prefer-dist",
 		"clean": "rm -rf build/ .cache/",
@@ -47,16 +47,20 @@
 		"@wordpress/base-styles": "4.0.3",
 		"@wordpress/block-editor": "8.0.3",
 		"@wordpress/data": "6.1.4",
+		"@wordpress/element": "4.0.4",
 		"@wordpress/i18n": "4.2.4",
 		"@wordpress/icons": "6.1.1",
 		"classnames": "2.3.1",
 		"fast-json-stable-stringify": "2.1.0",
+		"gridicons": "3.3.1",
 		"lodash": "4.17.21",
 		"photon": "4.0.0",
 		"preact": "10.5.15",
+		"prop-types": "15.7.2",
 		"q-flat": "1.0.7",
 		"qss": "2.0.3",
 		"react": "17.0.2",
+		"react-dom": "17.0.2",
 		"redux": "4.1.1",
 		"refx": "3.1.1",
 		"strip": "3.0.0",
@@ -81,11 +85,12 @@
 		"prettier": "npm:wp-prettier@2.0.5",
 		"sass-loader": "12.3.0",
 		"size-limit": "6.0.3",
-		"webpack": "5.64.1"
+		"webpack": "5.64.1",
+		"webpack-cli": "4.8.0"
 	},
 	"browserslist": [
 		"defaults",
-		"not IE 11",
-		"maintained node versions"
-	]
+		"not IE 11"
+	],
+	"target": "web"
 }
