@@ -87,7 +87,7 @@ class Partner_Coupon_Test extends BaseTestCase {
 		$coupon_code    = $this->setup_coupon();
 		$partner_coupon = Partner_Coupon::get_coupon();
 
-		$this->assertIsArray( $partner_coupon );
+		$this->assertTrue( is_array( $partner_coupon ) );
 		$this->assertSame( $partner_coupon['coupon_code'], $coupon_code );
 		$this->assertSame( $partner_coupon['partner'], self::PARTNER );
 		$this->assertSame( $partner_coupon['preset'], self::PRESET['code'] );
@@ -102,7 +102,7 @@ class Partner_Coupon_Test extends BaseTestCase {
 
 		// First we establish that the preset worked before.
 		$partner_coupon = Partner_Coupon::get_coupon();
-		$this->assertIsArray( $partner_coupon );
+		$this->assertTrue( is_array( $partner_coupon ) );
 
 		// Override supported partners with incorrect data.
 		add_filter(
@@ -125,7 +125,7 @@ class Partner_Coupon_Test extends BaseTestCase {
 
 		// First we establish that the preset worked before.
 		$partner_coupon = Partner_Coupon::get_coupon();
-		$this->assertIsArray( $partner_coupon );
+		$this->assertTrue( is_array( $partner_coupon ) );
 
 		// Override supported presets with incorrect data.
 		add_filter(
@@ -151,7 +151,7 @@ class Partner_Coupon_Test extends BaseTestCase {
 
 		// First we establish that the product worked before.
 		$partner_coupon = Partner_Coupon::get_coupon();
-		$this->assertIsArray( $partner_coupon );
+		$this->assertTrue( is_array( $partner_coupon ) );
 
 		// Modify the product slug so it doesn't match the preset anymore.
 		add_filter(
@@ -189,7 +189,7 @@ class Partner_Coupon_Test extends BaseTestCase {
 
 		// Verify that the coupon was correctly added.
 		$partner_coupon = Partner_Coupon::get_coupon();
-		$this->assertIsArray( $partner_coupon );
+		$this->assertTrue( is_array( $partner_coupon ) );
 
 		// Maybe purge the coupon.
 		$instance = Partner_Coupon::get_instance();
@@ -203,7 +203,7 @@ class Partner_Coupon_Test extends BaseTestCase {
 			$this->assertFalse( Jetpack_Options::get_option( Partner_Coupon::$coupon_option, false ) );
 			$this->assertFalse( Jetpack_Options::get_option( Partner_Coupon::$added_option, false ) );
 		} else {
-			$this->assertIsArray( $partner_coupon );
+			$this->assertTrue( is_array( $partner_coupon ) );
 		}
 	}
 
