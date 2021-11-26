@@ -29,14 +29,14 @@ class Partner_Coupon {
 	 *
 	 * @var string
 	 */
-	private static $coupon_option = 'partner_coupon';
+	public static $coupon_option = 'partner_coupon';
 
 	/**
 	 * Name of the Jetpack_Option added option.
 	 *
 	 * @var string
 	 */
-	private static $added_option = 'partner_coupon_added';
+	public static $added_option = 'partner_coupon_added';
 
 	/**
 	 * Jetpack_Partner_Coupon
@@ -110,7 +110,7 @@ class Partner_Coupon {
 			Jetpack_Options::update_options(
 				array(
 					self::$coupon_option => $partner_coupon,
-					self::$added_option  => gmdate( 'Y-m-d H:i:s' ),
+					self::$added_option  => time(),
 				)
 			);
 
@@ -137,12 +137,16 @@ class Partner_Coupon {
 			return;
 		}
 
-		$date        = strtotime( $date );
-		$purge_after = strtotime( '+1 month' );
+		$expire_date = strtotime( '+30 days', $date );
+		$today       = time();
 
-		if ( $date > $purge_after ) {
-			Jetpack_Options::delete_option( self::$coupon_option );
-			Jetpack_Options::delete_option( self::$added_option );
+		if ( $today >= $expire_date ) {
+			Jetpack_Options::delete_option(
+				array(
+					self::$coupon_option,
+					self::$added_option,
+				)
+			);
 		}
 	}
 
