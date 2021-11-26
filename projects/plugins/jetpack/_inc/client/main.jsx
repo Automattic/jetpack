@@ -218,7 +218,7 @@ class Main extends React.Component {
 					registrationNonce={ this.props.registrationNonce }
 					apiRoot={ this.props.apiRoot }
 					title={ __(
-						'Activate essential WordPress Security, Performance, and Growth tools for your store',
+						'Welcome to Jetpack! Security, Growth, & Performance tools for WordPress businesses',
 						'jetpack'
 					) }
 					logo={
@@ -234,7 +234,7 @@ class Main extends React.Component {
 				>
 					<p>
 						{ __(
-							'Jetpack is the perfect companion plugin for WooCommerce made by WordPress experts to make your store faster, safer and to help grow your business.',
+							'Jetpack is the perfect companion plugin for WooCommerce - made by WordPress experts to make your store faster, safer, and to help grow your business.',
 							'jetpack'
 						) }
 					</p>
