@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
@@ -143,37 +144,30 @@ class Dashboard {
 	 * Enqueue admin styles.
 	 */
 	public function load_admin_styles() {
-		wp_enqueue_style(
-			'jp-search-dashboard',
-			plugins_url( 'vendor/automattic/jetpack-search/build/instant-search/jp-search-dashboard.css', JETPACK__PLUGIN_FILE ),
-			array(),
-			Helper::get_asset_version( 'vendor/automattic/jetpack-search/build/instant-search/jp-search-dashboard.css' )
-		);
+		$this->load_admin_scripts();
 	}
 
 	/**
 	 * Enqueue admin scripts.
 	 */
 	public function load_admin_scripts() {
-		$script_deps_path    = JETPACK__PLUGIN_DIR . 'vendor/automattic/jetpack-search/build/instant-search/jp-search-dashboard.asset.php';
-		$script_dependencies = array( 'react', 'react-dom', 'wp-polyfill' );
-		if ( file_exists( $script_deps_path ) ) {
-			$asset_manifest      = include $script_deps_path;
-			$script_dependencies = $asset_manifest['dependencies'];
-		}
+		\Jetpack_Admin_Page::load_wrapper_styles();
 
 		if ( ! ( new Status() )->is_offline_mode() && $this->connection_manager->is_connected() ) {
 			// Required for Analytics.
 			Tracking::register_tracks_functions_scripts( true );
 		}
 
-		wp_enqueue_script(
+		Assets::register_script(
 			'jp-search-dashboard',
-			plugins_url( 'vendor/automattic/jetpack-search/build/instant-search/jp-search-dashboard.js', JETPACK__PLUGIN_FILE ),
-			$script_dependencies,
-			Helper::get_asset_version( 'vendor/automattic/jetpack-search/build/instant-search/jp-search-dashboard.js' ),
-			true
+			'vendor/automattic/jetpack-search/build/instant-search/jp-search-dashboard.js',
+			JETPACK__PLUGIN_FILE,
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack',
+			)
 		);
+		Assets::enqueue_script( 'jp-search-dashboard' );
 
 		// Add objects to be passed to the initial state of the app.
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
@@ -182,8 +176,5 @@ class Dashboard {
 			( new Initial_State() )->render(),
 			'before'
 		);
-
-		wp_set_script_translations( 'jp-search-dashboard', 'jetpack' );
 	}
-
 }
