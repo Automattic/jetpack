@@ -1,4 +1,4 @@
-/* global jQuery, jp_banner */
+/* global jp_banner */
 
 ( function ( $ ) {
 	var nav = $( '.jp-wpcom-connect__vertical-nav-container' ),

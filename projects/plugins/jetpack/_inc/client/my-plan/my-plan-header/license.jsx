@@ -15,8 +15,9 @@ import {
 	errorNotice as errorNoticeAction,
 } from 'components/global-notices/state/notices/actions';
 import restApi from '@automattic/jetpack-api';
+import { updateUserLicensesCounts as updateUserLicensesCountsAction } from 'state/licensing';
 
-const License = ( { errorNotice, successNotice } ) => {
+const License = ( { errorNotice, successNotice, updateUserLicensesCounts } ) => {
 	const [ isSaving, setIsSaving ] = useState( false );
 	const [ licenseKeyText, setLicenseKeyText ] = useState( '' );
 
@@ -34,6 +35,7 @@ const License = ( { errorNotice, successNotice } ) => {
 		restApi
 			.updateLicenseKey( licenseKeyText )
 			.then( () => {
+				updateUserLicensesCounts();
 				successNotice(
 					__(
 						'Jetpack license key added. It may take a minute for the license to be processed.',
@@ -48,7 +50,7 @@ const License = ( { errorNotice, successNotice } ) => {
 				errorNotice( __( 'Error adding Jetpack license key.', 'jetpack' ) );
 				setIsSaving( false );
 			} );
-	}, [ errorNotice, successNotice, isSaving, licenseKeyText ] );
+	}, [ errorNotice, successNotice, isSaving, licenseKeyText, updateUserLicensesCounts ] );
 
 	return (
 		<div className="jp-landing__plan-features-header-jetpack-license">
@@ -79,4 +81,5 @@ const License = ( { errorNotice, successNotice } ) => {
 export default connect( null, {
 	errorNotice: errorNoticeAction,
 	successNotice: successNoticeAction,
+	updateUserLicensesCounts: updateUserLicensesCountsAction,
 } )( License );

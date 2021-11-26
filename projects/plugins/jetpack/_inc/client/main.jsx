@@ -6,8 +6,9 @@ import { connect } from 'react-redux';
 import { withRouter, Prompt } from 'react-router-dom';
 import { __, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ConnectScreen } from '@automattic/jetpack-connection';
+import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { Dashicon } from '@wordpress/components';
+import { withDispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -16,6 +17,10 @@ import Masthead from 'components/masthead';
 import Navigation from 'components/navigation';
 import NavigationSettings from 'components/navigation-settings';
 import SearchableSettings from 'settings/index.jsx';
+import {
+	updateLicensingActivationNoticeDismiss as updateLicensingActivationNoticeDismissAction,
+	updateUserLicensesCounts as updateUserLicensesCountsAction,
+} from 'state/licensing';
 import {
 	getSiteConnectionStatus,
 	isCurrentUserLinked,
@@ -44,6 +49,10 @@ import {
 	getPluginBaseUrl,
 	isWoASite,
 } from 'state/initial-state';
+import {
+	fetchSiteData as fetchSiteDataAction,
+	fetchSitePurchases as fetchSitePurchasesAction,
+} from 'state/site';
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
 import { getSearchTerm } from 'state/search';
 import { Recommendations } from 'recommendations';
@@ -64,6 +73,7 @@ import QueryRewindStatus from 'components/data/query-rewind-status';
 import { getRewindStatus } from 'state/rewind';
 import ReconnectModal from 'components/reconnect-modal';
 import { createInterpolateElement } from '@wordpress/element';
+import { ActivationScreen } from '@automattic/jetpack-licensing';
 
 const recommendationsRoutes = [
 	'/recommendations',
@@ -94,6 +104,7 @@ class Main extends React.Component {
 	constructor( props ) {
 		super( props );
 		this.closeReconnectModal = this.closeReconnectModal.bind( this );
+		this.onLicenseActivationSuccess = this.onLicenseActivationSuccess.bind( this );
 	}
 
 	UNSAFE_componentWillMount() {
@@ -190,6 +201,8 @@ class Main extends React.Component {
 			$items.find( 'a[href$="admin.php?page=stats"]' ).hide();
 			$items.find( 'a[href$="admin.php?page=jetpack-search"]' ).hide();
 		}
+
+		this.props.setConnectionStatus( this.props.connectionStatus );
 	}
 
 	renderMainContent = route => {
@@ -215,7 +228,6 @@ class Main extends React.Component {
 					}
 					buttonLabel={ __( 'Connect your user account', 'jetpack' ) }
 					redirectUri="admin.php?page=jetpack"
-					connectionStatus={ this.props.connectionStatus }
 				>
 					<ul>
 						<li>{ __( 'Receive instant downtime alerts', 'jetpack' ) }</li>
@@ -271,7 +283,6 @@ class Main extends React.Component {
 					assetBaseUrl={ this.props.pluginBaseUrl }
 					autoTrigger={ this.shouldAutoTriggerConnection() }
 					redirectUri="admin.php?page=jetpack"
-					connectionStatus={ this.props.connectionStatus }
 				>
 					<p>
 						{ __(
@@ -346,6 +357,18 @@ class Main extends React.Component {
 						searchTerm={ this.props.searchTerm }
 						rewindStatus={ this.props.rewindStatus }
 						userCanManageModules={ this.props.userCanManageModules }
+					/>
+				);
+				break;
+			case '/license/activation':
+				navComponent = null;
+				pageComponent = (
+					<ActivationScreen
+						assetBaseUrl={ this.props.pluginBaseUrl }
+						lockImage="/images/jetpack-license-activation-with-lock.png"
+						siteRawUrl={ this.props.siteRawUrl }
+						successImage="/images/jetpack-license-activation-with-success.png"
+						onActivationSuccess={ this.onLicenseActivationSuccess }
 					/>
 				);
 				break;
@@ -481,12 +504,36 @@ class Main extends React.Component {
 	}
 
 	/**
+	 * Checks if this is a licensing screen page.
+	 *
+	 * @returns {boolean} Whether this is a licensing screen page.
+	 */
+	isLicensingScreen() {
+		return this.props.location.pathname.startsWith( '/license' );
+	}
+
+	/**
 	 * Check if the connection flow should get triggered automatically.
 	 *
 	 * @returns {boolean} Whether to trigger the connection flow automatically.
 	 */
 	shouldAutoTriggerConnection() {
 		return this.props.location.pathname.startsWith( '/setup' );
+	}
+
+	/**
+	 * Fires after a user(not partner) product license key has been sucessfully activated.
+	 */
+	onLicenseActivationSuccess() {
+		// First update state.jetpack.licensing.userCounts before dismissing the license activation notice.
+		this.props.updateUserLicensesCounts().then( () => {
+			// Manually dismiss the userLicenseActivationNotice.
+			this.props.updateLicensingActivationNoticeDismiss();
+		} );
+		// Update site plan.
+		this.props.fetchSiteData();
+		// Update site products.
+		this.props.fetchSitePurchases();
 	}
 
 	render() {
@@ -498,6 +545,10 @@ class Main extends React.Component {
 
 		if ( this.isUserConnectScreen() ) {
 			jpClasses.push( 'jp-user-connect-screen' );
+		}
+
+		if ( this.isLicensingScreen() ) {
+			jpClasses.push( 'jp-licensing-screen' );
 		}
 
 		return (
@@ -568,8 +619,28 @@ export default connect(
 		resetConnectUser: () => {
 			return dispatch( resetConnectUser() );
 		},
+		updateLicensingActivationNoticeDismiss: () => {
+			return dispatch( updateLicensingActivationNoticeDismissAction() );
+		},
+		updateUserLicensesCounts: () => {
+			return dispatch( updateUserLicensesCountsAction() );
+		},
+		fetchSiteData: () => {
+			return dispatch( fetchSiteDataAction() );
+		},
+		fetchSitePurchases: () => {
+			return dispatch( fetchSitePurchasesAction() );
+		},
 	} )
-)( withRouter( Main ) );
+)(
+	withDispatch( dispatch => {
+		return {
+			setConnectionStatus: connectionStatus => {
+				dispatch( CONNECTION_STORE_ID ).setConnectionStatus( connectionStatus );
+			},
+		};
+	} )( withRouter( Main ) )
+);
 
 /**
  * Manages changing the visuals of the sub-nav items on the left sidebar when the React app changes routes

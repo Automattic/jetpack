@@ -39,7 +39,9 @@
 		"test-php": [
 			"@composer update",
 			"@composer phpunit"
-		]
+		],
+		"post-install-cmd": "[ -e vendor/bin/changelogger ] || { cd vendor/bin && ln -s ../../bin/changelogger; }",
+		"post-update-cmd": "[ -e vendor/bin/changelogger ] || { cd vendor/bin && ln -s ../../bin/changelogger; }"
 	},
 	"repositories": [
 		{

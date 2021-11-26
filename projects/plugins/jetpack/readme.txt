@@ -242,20 +242,13 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.4-a.3 - 2021-11-09
+### 10.4-a.9 - 2021-11-23
 #### Enhancements
-- Publicize: always add an Open Graph image alt text if an Open Graph image is present.
-- VideoPress: do not display thumbnails in the media library, in the WordPress.com dashboard.
-
-#### Improved compatibility
-- Contact Info and Map widget: hide widget from the block inserter and Legacy widget block drop-down menu.
+- Dashboard: add option to add a license key via the Jetpack dashboard.
+- Verification tools: remove old interface in the Tools menu, in favor of the newer settings in the Jetpack dashboard.
 
 #### Bug fixes
-- Block Editor: avoid issues when searching for free Pexels images via Jetpack's External Media feature.
-- Contact Form: prevent multiple button clicks from submitting multiple form submissions.
-- VideoPress: display "File Name" in the Media Library.
-- VideoPress: display all video meta immediately after upload. A page refresh is no longer needed to view VideoPress-specific fields.
-- VideoPress: no longer play videos in the background when the Media Item modal is closed in the media library.
+- Stats: remove ASCII art from the tracking pixel's alt attribute, to improve accessibility.
 
 --------
 

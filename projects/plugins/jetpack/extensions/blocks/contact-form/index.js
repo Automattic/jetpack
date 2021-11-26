@@ -48,7 +48,7 @@ export const settings = {
 	},
 	attributes: defaultAttributes,
 	edit,
-	save: InnerBlocks.Content,
+	save: () => <InnerBlocks.Content />,
 	variations,
 	category: 'grow',
 	transforms,

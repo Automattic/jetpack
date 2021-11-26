@@ -7,7 +7,7 @@
 		"automattic/jetpack-constants": "^1.6"
 	},
 	"require-dev": {
-		"brain/monkey": "2.6.0",
+		"brain/monkey": "2.6.1",
 		"yoast/phpunit-polyfills": "1.0.2",
 		"automattic/jetpack-changelogger": "^3.0"
 	},

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Backup: removed backup-in-progress animation on small viewports
