@@ -67,6 +67,7 @@ const PartnerCouponRedeem = props => {
 				apiRoot={ apiRoot }
 				images={ [ '/images/connect-right-partner-backup.png' ] }
 				assetBaseUrl={ assetBaseUrl }
+				from={ 'jetpack-partner-coupon' }
 				title={ sprintf(
 					/* translators: %s: Jetpack partner name. */
 					__( 'Welcome to Jetpack %s traveler!', 'jetpack' ),
