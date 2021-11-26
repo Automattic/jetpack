@@ -38,7 +38,7 @@ const ContextualizedConnection = props => {
 
 	useEffect( () => {
 		setHasSeenWCConnectionModal();
-	} );
+	}, [ setHasSeenWCConnectionModal ] );
 
 	return (
 		<div className={ 'jp-contextualized-connection' + ( className ? ' ' + className : '' ) }>
