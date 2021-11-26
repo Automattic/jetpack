@@ -13,6 +13,7 @@ import { ActionButton } from '@automattic/jetpack-components';
  */
 import ConnectUser from '../connect-user';
 import { STORE_ID } from '../../state/store';
+import useConnect from '../connect-screen/hooks/use-connect';
 
 /**
  * The RNA connection component.
@@ -21,16 +22,6 @@ import { STORE_ID } from '../../state/store';
  * @returns {React.Component} The RNA connection component.
  */
 const ConnectButton = props => {
-	const { isRegistered, isUserConnected } = useSelect(
-		select => select( STORE_ID ).getConnectionStatus(),
-		[]
-	);
-	const siteIsRegistering = useSelect( select => select( STORE_ID ).getSiteIsRegistering(), [] );
-	const userIsConnecting = useSelect( select => select( STORE_ID ).getUserIsConnecting(), [] );
-	const registrationError = useSelect( select => select( STORE_ID ).getRegistrationError(), [] );
-	const authorizationUrl = useSelect( select => select( STORE_ID ).getAuthorizationUrl(), [] );
-	const { setUserIsConnecting, registerSite } = useDispatch( STORE_ID );
-
 	const {
 		apiRoot,
 		apiNonce,
@@ -41,38 +32,62 @@ const ConnectButton = props => {
 		autoTrigger,
 	} = props;
 
+	const {
+		handleRegisterSite,
+		isRegistered,
+		isUserConnected,
+		siteIsRegistering,
+		userIsConnecting,
+	} = useConnect( {
+		registrationNonce,
+		redirectUri,
+		apiRoot,
+		apiNonce,
+		autoTrigger,
+	} );
+
+	// const { isRegistered, isUserConnected } = useSelect(
+	// select => select( STORE_ID ).getConnectionStatus(),
+	// []
+	// );
+	// const siteIsRegistering = useSelect( select => select( STORE_ID ).getSiteIsRegistering(), [] );
+	// const userIsConnecting = useSelect( select => select( STORE_ID ).getUserIsConnecting(), [] );
+	const registrationError = useSelect( select => select( STORE_ID ).getRegistrationError(), [] );
+	const authorizationUrl = useSelect( select => select( STORE_ID ).getAuthorizationUrl(), [] );
+	// const { setUserIsConnecting, registerSite } = useDispatch( STORE_ID );
+
 	/**
 	 * Initialize the REST API.
 	 */
-	useEffect( () => {
-		restApi.setApiRoot( apiRoot );
-		restApi.setApiNonce( apiNonce );
-	}, [ apiRoot, apiNonce ] );
+	// useEffect( () => {
+	// restApi.setApiRoot( apiRoot );
+	// restApi.setApiNonce( apiNonce );
+	// }, [ apiRoot, apiNonce ] );
 
 	/**
 	 * Initialize the site registration process.
 	 */
-	const handleRegisterSite = useCallback(
-		e => {
-			e && e.preventDefault();
+	// const handleRegisterSite = useCallback(
+	// e => {
+	// e && e.preventDefault();
 
-			if ( isRegistered ) {
-				setUserIsConnecting( true );
-				return;
-			}
-			registerSite( registrationNonce, redirectUri );
-		},
-		[ isRegistered, registrationNonce, redirectUri, registerSite, setUserIsConnecting ]
-	);
+	// if ( isRegistered ) {
+	// setUserIsConnecting( true );
+	// return;
+	// }
+	// registerSite( registrationNonce, redirectUri );
+	// },
+	// [ isRegistered, registrationNonce, redirectUri, registerSite, setUserIsConnecting ]
+	// );
 
 	/**
 	 * Auto-trigger the flow, only do it once.
 	 */
-	useEffect( () => {
-		if ( autoTrigger && ! siteIsRegistering && ! userIsConnecting ) {
-			handleRegisterSite();
-		}
-	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
+	// useEffect( () => {
+	// if ( autoTrigger && ! siteIsRegistering && ! userIsConnecting ) {
+	// handleRegisterSite();
+	// }
+	// }, [] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	return (
 		<>
