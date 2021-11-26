@@ -76,23 +76,33 @@
 	}
 
 	&__footer {
-		display: grid;
-		grid-gap: 4rem;
-		grid-template-columns: auto;
 		width: 100%;
 		padding: 4rem;
 		background-color: var( --jp-white-off );
 		font-size: var( --font-body );
 
-		@include break-medium {
-			grid-template-columns: repeat(3, 1fr);
-			grid-gap: 3rem;
+		&-row {
+			display: grid;
+			grid-gap: 4rem;
+			grid-template-columns: auto;
+
+			@include break-medium {
+				grid-template-columns: repeat(3, 1fr);
+				grid-gap: 3rem;
+			}
 		}
 
 		&-column {
 			h3 {
 				margin-top: 0;
 			}
+		}
+
+		&-bottom-title {
+			margin-top: 4rem;
+			color: var( --jp-black );
+			font-size: 20px;
+			text-align: center;
 		}
 	}
 

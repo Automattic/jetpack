@@ -78,72 +78,83 @@ const ContextualizedConnection = props => {
 			</div>
 
 			<footer className="jp-contextualized-connection__footer">
-				<div className="jp-contextualized-connection__footer-column">
-					<h3>{ __( 'Security tools', 'jetpack' ) }</h3>
-					<ul className="jp-contextualized-connection__feature-list">
-						<li>
-							{ createInterpolateElement(
-								__( '<strong>Free</strong> store downtime monitoring', 'jetpack' ),
-								{ strong: <strong /> }
-							) }
-						</li>
-						<li>
-							{ createInterpolateElement(
-								__( '<strong>Free</strong> brute force attack prevention', 'jetpack' ),
-								{ strong: <strong /> }
-							) }
-						</li>
-						<li>{ __( 'Full store & order backups', 'jetpack' ) }</li>
-						<li>{ __( 'Automated malware scanning', 'jetpack' ) }</li>
-						<li>{ __( 'Comment and form spam protection', 'jetpack' ) }</li>
-					</ul>
+				<div className="jp-contextualized-connection__footer-row">
+					<div className="jp-contextualized-connection__footer-column">
+						<h3>{ __( 'Security tools', 'jetpack' ) }</h3>
+						<ul className="jp-contextualized-connection__feature-list">
+							<li>
+								{ createInterpolateElement(
+									__( '<strong>Free</strong> store downtime monitoring', 'jetpack' ),
+									{ strong: <strong /> }
+								) }
+							</li>
+							<li>
+								{ createInterpolateElement(
+									__( '<strong>Free</strong> brute force attack prevention', 'jetpack' ),
+									{ strong: <strong /> }
+								) }
+							</li>
+							<li>{ __( 'Full store & order backups', 'jetpack' ) }</li>
+							<li>{ __( 'Automated malware scanning', 'jetpack' ) }</li>
+							<li>{ __( 'Comment and form spam protection', 'jetpack' ) }</li>
+						</ul>
+					</div>
+					<div className="jp-contextualized-connection__footer-column">
+						<h3>{ __( 'Performance tools', 'jetpack' ) }</h3>
+						<ul className="jp-contextualized-connection__feature-list">
+							<li>
+								{ createInterpolateElement(
+									__( '<strong>Free</strong> Content Delivery Network (CDN)', 'jetpack' ),
+									{ strong: <strong /> }
+								) }
+							</li>
+							<li>
+								{ createInterpolateElement(
+									__( '<strong>Free</strong> lazy image loading', 'jetpack' ),
+									{ strong: <strong /> }
+								) }
+							</li>
+							<li>
+								{ createInterpolateElement( __( '<strong>Free</strong> SEO tools', 'jetpack' ), {
+									strong: <strong />,
+								} ) }
+							</li>
+							<li>{ __( 'Instant site search', 'jetpack' ) }</li>
+							<li>{ __( 'Ad-free WordPress video hosting', 'jetpack' ) }</li>
+						</ul>
+					</div>
+					<div className="jp-contextualized-connection__footer-column">
+						<h3>{ __( 'Growth tools', 'jetpack' ) }</h3>
+						<ul className="jp-contextualized-connection__feature-list">
+							<li>
+								{ createInterpolateElement( __( '<strong>Free</strong> site stats', 'jetpack' ), {
+									strong: <strong />,
+								} ) }
+							</li>
+							<li>
+								{ createInterpolateElement(
+									__( '<strong>Free</strong> social media tools', 'jetpack' ),
+									{ strong: <strong /> }
+								) }
+							</li>
+							<li>
+								{ createInterpolateElement(
+									__( '<strong>Free</strong> related posts', 'jetpack' ),
+									{
+										strong: <strong />,
+									}
+								) }
+							</li>
+							<li>{ __( 'Accept payments', 'jetpack' ) }</li>
+							<li>{ __( 'Ad network access', 'jetpack' ) }</li>
+						</ul>
+					</div>
 				</div>
-				<div className="jp-contextualized-connection__footer-column">
-					<h3>{ __( 'Performance tools', 'jetpack' ) }</h3>
-					<ul className="jp-contextualized-connection__feature-list">
-						<li>
-							{ createInterpolateElement(
-								__( '<strong>Free</strong> Content Delivery Network (CDN)', 'jetpack' ),
-								{ strong: <strong /> }
-							) }
-						</li>
-						<li>
-							{ createInterpolateElement(
-								__( '<strong>Free</strong> lazy image loading', 'jetpack' ),
-								{ strong: <strong /> }
-							) }
-						</li>
-						<li>
-							{ createInterpolateElement( __( '<strong>Free</strong> SEO tools', 'jetpack' ), {
-								strong: <strong />,
-							} ) }
-						</li>
-						<li>{ __( 'Instant site search', 'jetpack' ) }</li>
-						<li>{ __( 'Ad-free WordPress video hosting', 'jetpack' ) }</li>
-					</ul>
-				</div>
-				<div className="jp-contextualized-connection__footer-column">
-					<h3>{ __( 'Growth tools', 'jetpack' ) }</h3>
-					<ul className="jp-contextualized-connection__feature-list">
-						<li>
-							{ createInterpolateElement( __( '<strong>Free</strong> site stats', 'jetpack' ), {
-								strong: <strong />,
-							} ) }
-						</li>
-						<li>
-							{ createInterpolateElement(
-								__( '<strong>Free</strong> social media tools', 'jetpack' ),
-								{ strong: <strong /> }
-							) }
-						</li>
-						<li>
-							{ createInterpolateElement( __( '<strong>Free</strong> related posts', 'jetpack' ), {
-								strong: <strong />,
-							} ) }
-						</li>
-						<li>{ __( 'Accept payments', 'jetpack' ) }</li>
-						<li>{ __( 'Ad network access', 'jetpack' ) }</li>
-					</ul>
+				<div className="jp-contextualized-connection__footer-bottom-title">
+					{ __(
+						'More than 5 million WordPress sites trust Jetpack for their website security and performance.',
+						'jetpack'
+					) }
 				</div>
 			</footer>
 		</div>
