@@ -125,7 +125,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 					$menu_file = substr( $menu_file, 0, $pos );
 				}
 
-				$admin_is_parent = ! empty( $menu_hook ) || ( ( 'index.php' !== $item[2] ) && file_exists( WP_PLUGIN_DIR . "/$menu_file" ) && ! file_exists( ABSPATH . "/wp-admin/$menu_file" ) );
+				$admin_is_parent = ! empty( $menu_hook ) || ( ( 'index.php' !== $menu_item[2] ) && file_exists( WP_PLUGIN_DIR . "/$menu_file" ) && ! file_exists( ABSPATH . "/wp-admin/$menu_file" ) );
 
 				// Add submenu items.
 				foreach ( $submenu_items as $submenu_item ) {

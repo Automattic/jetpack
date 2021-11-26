@@ -200,7 +200,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 
 		$this->assertSame(
 			$expected,
-			$prepare_submenu_item->invokeArgs( new WPCOM_REST_API_V2_Endpoint_Admin_Menu(), array( $submenu_item, $menu_item ) )
+			$prepare_submenu_item->invokeArgs( new WPCOM_REST_API_V2_Endpoint_Admin_Menu(), array( $submenu_item, $menu_item, true ) )
 		);
 	}
 
@@ -248,6 +248,30 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				array( 'Hidden', 'read', 'hidden', 'Hidden', 'hide-if-js' ),
 				array( 'My Plugin', 'read', 'my-plugin', 'My Plugin', '', '', '' ),
 				array(),
+			),
+			array(
+				array(
+					0 => 'MYML',
+					1 => 'read',
+					2 => 'jetpack/modules/masterbar/admin-menu/class-admin-menu.php',
+					3 => 'MYML',
+					4 => 'menu-top toplevel_page_my-multilingual-cms/menu/languages',
+					5 => 'toplevel_page_my-multilingual-cms/menu/languages',
+					6 => 'https://example.org/wp-content/plugins/my-multilingual-cms/icon16.png',
+				),
+				array(
+					0 => 'Troubleshooting',
+					1 => 'read',
+					2 => 'jetpack/modules/masterbar/admin-menu/class-atomic-admin-menu.php',
+					3 => 'Troubleshooting',
+				),
+				array(
+					'parent' => 'jetpackmodulesmasterbaradmin-menuclass-atomic-admin-menu-php',
+					'slug'   => 'jetpackmodulesmasterbaradmin-menuclass-admin-menu-php',
+					'title'  => 'MYML',
+					'type'   => 'submenu-item',
+					'url'    => 'http://example.org/wp-admin/admin.php?page=jetpack/modules/masterbar/admin-menu/class-admin-menu.php',
+				),
 			),
 		);
 	}
