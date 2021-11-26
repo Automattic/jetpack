@@ -22,7 +22,6 @@ import {
 	updateUserLicensesCounts as updateUserLicensesCountsAction,
 } from 'state/licensing';
 import { fetchModules as fetchModulesAction } from 'state/modules';
-import { fetchSettings as fetchSettingsAction } from 'state/settings';
 import {
 	getSiteConnectionStatus,
 	isCurrentUserLinked,
@@ -55,7 +54,11 @@ import {
 	fetchSiteData as fetchSiteDataAction,
 	fetchSitePurchases as fetchSitePurchasesAction,
 } from 'state/site';
-import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
+import {
+    areThereUnsavedSettings,
+    clearUnsavedSettingsFlag,
+    fetchSettings as fetchSettingsAction
+} from 'state/settings';
 import { getSearchTerm } from 'state/search';
 import { Recommendations } from 'recommendations';
 import ProductDescriptions from 'product-descriptions';
