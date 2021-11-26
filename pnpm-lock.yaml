@@ -277,6 +277,7 @@ importers:
       '@automattic/jetpack-components': workspace:^0.6.4-alpha
       '@automattic/jetpack-connection': workspace:^0.11.0-alpha
       '@wordpress/i18n': 4.2.4
+      classnames: 2.3.1
       jetpack-js-test-runner: workspace:*
       prop-types: 15.7.2
       react: 17.0.2
@@ -284,6 +285,7 @@ importers:
       '@automattic/jetpack-components': link:../components
       '@automattic/jetpack-connection': link:../connection
       '@wordpress/i18n': 4.2.4
+      classnames: 2.3.1
       prop-types: 15.7.2
     devDependencies:
       jetpack-js-test-runner: link:../../../tools/js-test-runner

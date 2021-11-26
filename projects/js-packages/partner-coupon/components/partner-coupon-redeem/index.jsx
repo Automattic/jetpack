@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import classNames from 'classnames';
 import React, { useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { ActionButton, getRedirectUrl } from '@automattic/jetpack-components';
@@ -59,8 +60,12 @@ const PartnerCouponRedeem = props => {
 		} );
 	}, [ analytics, connectionStatus, partnerCoupon, siteRawUrl, tracksUserData ] );
 
+	const classes = classNames( 'jetpack-partner-coupon-redeem', {
+		'jetpack-partner-coupon-redeem--connected': !! connectionStatus.hasConnectedOwner,
+	} );
+
 	return (
-		<div className="jetpack-partner-coupon-redeem">
+		<div className={ classes }>
 			<ConnectScreen
 				apiNonce={ apiNonce }
 				registrationNonce={ registrationNonce }

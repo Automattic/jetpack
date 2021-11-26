@@ -14,6 +14,6 @@
  * We shouldn't display the ToS again since the customer
  * already agreed to them.
  */
-.jetpack-partner-coupon-redeem .jp-connection__connect-screen__tos {
+.jetpack-partner-coupon-redeem--connected .jp-connection__connect-screen__tos {
 	display: none !important;
 }
