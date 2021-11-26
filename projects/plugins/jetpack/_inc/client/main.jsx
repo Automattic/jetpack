@@ -138,6 +138,12 @@ class Main extends React.Component {
 		if ( connectReactContainer && fullScreenContainer.length > 0 ) {
 			fullScreenContainer.prependTo( connectReactContainer );
 		}
+
+		// Redirects the user to the Woo Connection/Welcome Screen if they have Woo installed and active,
+		// and have never seen this screen before.
+		if ( this.props.isWooCommerceActive && ! this.props.hasSeenWCConnectionModal ) {
+			this.props.history.replace( '/woo-setup' );
+		}
 	}
 
 	/*
@@ -537,10 +543,7 @@ class Main extends React.Component {
 	 * @returns {boolean} Whether we should show the Woo connection screen page.
 	 */
 	shouldShowWooConnectionScreen() {
-		return (
-			'/woo-setup' === this.props.location.pathname ||
-			( this.props.isWooCommerceActive && ! this.props.hasSeenWCConnectionModal )
-		);
+		return '/woo-setup' === this.props.location.pathname;
 	}
 
 	/**
