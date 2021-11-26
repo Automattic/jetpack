@@ -63,8 +63,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	public function load_php() {
 		$this->base_load_php();
 
-		require_once __DIR__ . '/class-jetpack-search-settings.php';
-		new Jetpack_Search_Settings();
+		new Automattic\Jetpack\Search\Settings();
 
 		if ( class_exists( 'WP_Customize_Manager' ) ) {
 			require_once __DIR__ . '/class-jetpack-search-customize.php';
@@ -121,7 +120,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	public function load_assets_with_parameters( $path_prefix, $plugin_base_path ) {
 		Assets::register_script(
 			'jetpack-instant-search',
-			$path_prefix . '_inc/build/instant-search/jp-search-main.bundle.min.js',
+			$path_prefix . '_inc/build/instant-search/jp-search-main.js',
 			$plugin_base_path,
 			array(
 				'in_footer'  => true,
@@ -133,8 +132,6 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		$this->inject_javascript_options();
 
 		// It only inlines the translations for the script, but does not actually load the script.
-		// The injected translations is actually for script `_inc/build/instant-search/jp-search.chunk-main-payload.[contentHash].min.js` lazy-loaded by `_inc/build/instant-search/jp-search-main.bundle.min.js`.
-		// The [contentHash] changes almost on every build, so we make the un-minimized file name fixed for the sake of loading translations.
 		$this->inject_translation_for_script(
 			plugins_url(
 				$path_prefix . '_inc/build/instant-search/jp-search.chunk-main-payload.js',
