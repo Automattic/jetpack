@@ -1220,10 +1220,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/partner",
-                "reference": "fdaa70fa4506bdb5e770de72f881713a8876dc89"
+                "reference": "132dc8b76a9965ca84b956ba4cf877f21c6dcf2a"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
+                "automattic/jetpack-options": "^1.14",
+                "automattic/wordbless": "@dev",
                 "brain/monkey": "2.6.1",
                 "yoast/phpunit-polyfills": "1.0.2"
             },
@@ -1246,6 +1248,9 @@
             "scripts": {
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "post-update-cmd": [
+                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
                 ],
                 "test-coverage": [
                     "@composer update",
