@@ -9,8 +9,8 @@ import PropTypes from 'prop-types';
  * Internal dependencies
  */
 import './style.scss';
-import JetpackLogo from '../jetpack-logo';
-import JetpackFooter from '../jetpack-footer';
+import JetpackAdminPageHeader from './header';
+import JetpackAdminPageFooter from './footer';
 
 /**
  * This is the base structure for any admin page. It comes with Header and Footer.
@@ -22,28 +22,13 @@ import JetpackFooter from '../jetpack-footer';
  */
 const JetpackAdminPage = props => {
 	const { children, moduleName, a8cLogoHref } = props;
+	const footerProps = { moduleName, a8cLogoHref };
 
 	return (
 		<>
-			<div className="jp-admin-page-section">
-				<div className="jp-wrap">
-					<div class="jp-row">
-						<div class="lg-col-span-12 md-col-span-8 sm-col-span-4">
-							<JetpackLogo />
-						</div>
-					</div>
-				</div>
-			</div>
+			<JetpackAdminPageHeader />
 			{ children }
-			<div className="jp-admin-page-section">
-				<div className="jp-wrap">
-					<div class="jp-row">
-						<div class="lg-col-span-12 md-col-span-8 sm-col-span-4">
-							<JetpackFooter moduleName={ moduleName } a8cLogoHref={ a8cLogoHref } />
-						</div>
-					</div>
-				</div>
-			</div>
+			<JetpackAdminPageFooter { ...footerProps } />
 		</>
 	);
 };
