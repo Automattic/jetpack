@@ -39,14 +39,23 @@ class Dashboard {
 	protected $connection_manager;
 
 	/**
+	 * Module_Control instance
+	 *
+	 * @var Automattic\Jetpack\Search\Module_Control
+	 */
+	protected $module_control;
+
+	/**
 	 * Contructor
 	 *
-	 * @param Automattic\Jetpack\Search\Plan        $plan - Plan instance.
-	 * @param Automattic\Jetpack\Connection\Manager $connection_manager - Connection Manager instance.
+	 * @param Automattic\Jetpack\Search\Plan           $plan - Plan instance.
+	 * @param Automattic\Jetpack\Connection\Manager    $connection_manager - Connection Manager instance.
+	 * @param Automattic\Jetpack\Search\Module_Control $module_control - Module_Control instance.
 	 */
-	public function __construct( $plan = null, $connection_manager = null ) {
+	public function __construct( $plan = null, $connection_manager = null, $module_control = null ) {
 		$this->plan               = $plan ? $plan : new Plan();
 		$this->connection_manager = $connection_manager ? $connection_manager : new Connection_Manager( 'jetpack-search' );
+		$this->module_control     = $module_control ? $module_control : new Module_Control( $this->plan );
 	}
 
 	/**
@@ -88,8 +97,8 @@ class Dashboard {
 			return;
 		}
 
-		// Check if the site plan changed and deactivate modules accordingly.
-		// add_action( 'current_screen', array( $this, 'check_plan_deactivate_modules' ) );.
+		// Check if the site plan changed and deactivate module accordingly.
+		add_action( 'current_screen', array( $this, 'check_plan_deactivate_search_module' ) );
 
 		if ( ! $this->supports_search() ) {
 			return;
@@ -177,4 +186,14 @@ class Dashboard {
 			'before'
 		);
 	}
+
+	/**
+	 * Deactivate search module if plan doesn't support search.
+	 */
+	public function check_plan_deactivate_search_module() {
+		if ( ! $this->supports_search() ) {
+			$this->module_control->deactivate();
+		}
+	}
+
 }
