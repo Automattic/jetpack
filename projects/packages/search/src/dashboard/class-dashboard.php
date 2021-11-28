@@ -18,13 +18,6 @@ use Automattic\Jetpack\Tracking;
  */
 class Dashboard {
 	/**
-	 * Holding the singleton
-	 *
-	 * @var Dashboard
-	 */
-	protected static $instance;
-
-	/**
 	 * Plan instance
 	 *
 	 * @var Automattic\Jetpack\Search\Plan
@@ -59,20 +52,9 @@ class Dashboard {
 	}
 
 	/**
-	 * Get the singleton
-	 */
-	public static function instance() {
-		if ( is_null( static::$instance ) ) {
-			static::$instance = new static();
-			static::$instance->init_hooks();
-		}
-		return static::$instance;
-	}
-
-	/**
 	 * Initialise hooks
 	 */
-	protected function init_hooks() {
+	public function init_hooks() {
 		add_action( 'admin_menu', array( $this, 'add_wp_admin_page' ), 999 );
 	}
 

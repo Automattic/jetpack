@@ -38,7 +38,7 @@ class Jetpack_Admin {
 		$this->jetpack_about = new Jetpack_About_Page();
 
 		// The dashboard has to be initialized outside the module, otherwise which wouldn't load if module disabled.
-		Automattic\Jetpack\Search\Dashboard::instance();
+		( new Automattic\Jetpack\Search\Dashboard() )->init_hooks();
 
 		add_action( 'admin_init', array( $this->jetpack_react, 'react_redirects' ), 0 );
 		add_action( 'admin_menu', array( $this->jetpack_react, 'add_actions' ), 998 );
