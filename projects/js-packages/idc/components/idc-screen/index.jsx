@@ -3,34 +3,19 @@
  */
 import React, { useEffect, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { __ } from '@wordpress/i18n';
 import analytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
-import { JetpackLogo } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
-import ScreenMain from './screen-main';
-import ScreenMigrated from './screen-migrated';
+import IDCScreenVisual from './visual';
 import trackAndBumpMCStats from '../../tools/tracking';
-import './style.scss';
 
 /**
  * The IDC screen component.
  *
  * @param {object} props - The properties.
- * @param {React.Component} props.logo - The screen logo, Jetpack by default.
- * @param {string} props.headerText - The header text, 'Safe Mode' by default.
- * @param {string} props.title - The main screen title.
- * @param {string} props.mainBodyText - The main screen body text.
- * @param {string} props.wpcomHomeUrl - The original site URL.
- * @param {string} props.currentUrl - The current site URL.
- * @param {string} props.redirectUri - The redirect URI to redirect users back to after connecting.
- * @param {string} props.apiRoot - API root URL, required.
- * @param {string} props.apiNonce - API Nonce, required.
- * @param {string} props.tracksUserData - WordPress.com user's Tracks identity.
- * @param {string} props.tracksEventData - WordPress.com event tracking information
  * @returns {React.Component} The `ConnectScreen` component.
  */
 const IDCScreen = props => {
@@ -83,41 +68,43 @@ const IDCScreen = props => {
 	}, [ apiRoot, apiNonce, tracksUserData, tracksEventData ] );
 
 	return (
-		<div className={ 'jp-idc__idc-screen' + ( isMigrated ? ' jp-idc__idc-screen__success' : '' ) }>
-			<div className="jp-idc__idc-screen__header">
-				<div className="jp-idc__idc-screen__logo">{ logo }</div>
-				<div className="jp-idc__idc-screen__logo-label">{ headerText }</div>
-			</div>
-
-			{ isMigrated ? (
-				<ScreenMigrated wpcomHomeUrl={ wpcomHomeUrl } currentUrl={ currentUrl } />
-			) : (
-				<ScreenMain
-					wpcomHomeUrl={ wpcomHomeUrl }
-					currentUrl={ currentUrl }
-					onMigrated={ onMigrated }
-					redirectUri={ redirectUri }
-					title={ title }
-					mainBodyText={ mainBodyText }
-				/>
-			) }
-		</div>
+		<IDCScreenVisual
+			logo={ logo }
+			headerText={ headerText }
+			wpcomHomeUrl={ wpcomHomeUrl }
+			currentUrl={ currentUrl }
+			redirectUri={ redirectUri }
+			title={ title }
+			mainBodyText={ mainBodyText }
+			isMigrated={ isMigrated }
+			onMigrated={ onMigrated }
+		/>
 	);
 };
 
 IDCScreen.propTypes = {
-	logo: PropTypes.object.isRequired,
-	headerText: PropTypes.string.isRequired,
+	/** The screen logo. */
+	logo: PropTypes.object,
+	/** The header text. */
+	headerText: PropTypes.string,
+	/** The original site URL. */
 	wpcomHomeUrl: PropTypes.string.isRequired,
+	/** The current site URL. */
 	currentUrl: PropTypes.string.isRequired,
+	/** The redirect URI to redirect users back to after connecting. */
 	redirectUri: PropTypes.string.isRequired,
+	/** API root URL. */
 	apiRoot: PropTypes.string.isRequired,
+	/** API Nonce. */
 	apiNonce: PropTypes.string.isRequired,
-};
-
-IDCScreen.defaultProps = {
-	logo: <JetpackLogo height={ 24 } />,
-	headerText: __( 'Safe Mode', 'jetpack' ),
+	/** The main screen title. */
+	title: PropTypes.string,
+	/** The main screen body text. */
+	mainBodyText: PropTypes.string,
+	/** WordPress.com user's Tracks identity. */
+	tracksUserData: PropTypes.object,
+	/** WordPress.com event tracking information. */
+	tracksEventData: PropTypes.object,
 };
 
 export default IDCScreen;

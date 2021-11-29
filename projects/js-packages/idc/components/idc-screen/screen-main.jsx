@@ -3,9 +3,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -18,16 +16,6 @@ import SafeMode from '../safe-mode';
  * Retrieve the main screen body.
  *
  * @param {object} props - The properties.
- * @param {string} props.wpcomHomeUrl - The original site URL.
- * @param {string} props.currentUrl - The current site URL.
- * @param {string} props.redirectUri - The redirect URI to redirect users back to after connecting.
- * @param {Function} props.onMigrated - The callback to be called when migration has completed.
- * @param {string} props.title - The main screen title.
- * @param {string} props.mainBodyText - The main screen body text.
- * @param {string} props.migrateCardTitle - The "Migrate" card title.
- * @param {string} props.migrateCardBodyText - The "Migrate" card body text.
- * @param {string} props.freshCardTitle - The "Start Fresh" card title.
- * @param {string} props.freshCardBodyText - The "Start Fresh" card body text.
  * @returns {React.Component} The ScreenMain component.
  */
 const ScreenMain = props => {
@@ -76,36 +64,26 @@ const ScreenMain = props => {
 };
 
 ScreenMain.propTypes = {
+	/** The original site URL. */
 	wpcomHomeUrl: PropTypes.string.isRequired,
+	/** The current site URL */
 	currentUrl: PropTypes.string.isRequired,
+	/** The redirect URI to redirect users back to after connecting. */
 	redirectUri: PropTypes.string.isRequired,
+	/** The callback to be called when migration has completed. */
 	onMigrated: PropTypes.func,
+	/** The main screen title. */
 	title: PropTypes.string.isRequired,
+	/** The main screen body text. */
 	mainBodyText: PropTypes.string.isRequired,
+	/** The "Migrate" card title. */
 	migrateCardTitle: PropTypes.string,
+	/** The "Migrate" card body text. */
 	migrateCardBodyText: PropTypes.string,
+	/** The "Start Fresh" card title. */
 	freshCardTitle: PropTypes.string,
+	/** The "Start Fresh" card body text. */
 	freshCardBodyText: PropTypes.string,
-};
-
-ScreenMain.defaultProps = {
-	title: __( 'Safe Mode has been activated', 'jetpack' ),
-	mainBodyText: createInterpolateElement(
-		__(
-			'Your site is in Safe Mode because you have 2 Jetpack-powered sites that appear to be duplicates. ' +
-				'2 sites that are telling Jetpack they’re the same site. <safeModeLink>Learn more about safe mode.</safeModeLink>',
-			'jetpack'
-		),
-		{
-			safeModeLink: (
-				<a
-					href={ getRedirectUrl( 'jetpack-support-safe-mode' ) }
-					rel="noopener noreferrer"
-					target="_blank"
-				/>
-			),
-		}
-	),
 };
 
 export default ScreenMain;
