@@ -1,0 +1,4 @@
+Significance: minor
+Type: bugfix
+
+Custom CSS: disable CSSTidy shorthand optimizations to prevent block validation issues.

@@ -2,6 +2,18 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.10.2 - 2021-11-23
+### Changed
+- Import RNA styles from base styles package.
+- Updated package dependencies
+
+### Fixed
+- revert button width change in favor of the fix in the visual element
+
+## 0.10.1 - 2021-11-17
+### Changed
+- Updated package dependencies.
+
 ## 0.10.0 - 2021-11-16
 ### Added
 - Remove the withConnectionStatus HOC, export the store.
