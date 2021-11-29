@@ -53,7 +53,7 @@ class SeekbarColorSettings extends Component {
 			>
 				<ToggleControl
 					label={ __( 'Match video', 'jetpack' ) }
-					help={ __( 'Colors adapt to the video as it plays' ) }
+					help={ __( 'Colors adapt to the video as it plays', 'jetpack' ) }
 					onChange={ toggleAttribute( 'useAverageColor' ) }
 					checked={ useAverageColor }
 				/>
