@@ -32,15 +32,19 @@ class Plugin implements PluginInterface {
 
 	/**
 	 * Deactivates the installer plugin.
+	 *
+	 * @param Composer    $composer the Composer global instance.
+	 * @param IOInterface $io the IO interface global instance.
 	 */
-	public function deactivate() {
-		// TODO: implement.
+	public function deactivate( Composer $composer, IOInterface $io ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	}
 
 	/**
 	 * Uninstalls the installer plugin.
+	 *
+	 * @param Composer    $composer the Composer global instance.
+	 * @param IOInterface $io the IO interface global instance.
 	 */
-	public function uninstall() {
-		// TODO: implement.
+	public function uninstall( Composer $composer, IOInterface $io ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	}
 }
