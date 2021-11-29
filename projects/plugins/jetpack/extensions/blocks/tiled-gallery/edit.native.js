@@ -45,7 +45,7 @@ const TiledGalleryEdit = props => {
 		noticeUI,
 		onFocus,
 		setAttributes,
-		attributes: { columns, images: attributeImages, linkTo, roundedCorners },
+		attributes: { columns, images: attributeImages, roundedCorners },
 	} = props;
 
 	const { replaceInnerBlocks, updateBlockAttributes } = useDispatch( blockEditorStore );
@@ -173,7 +173,6 @@ const TiledGalleryEdit = props => {
 			{ resizeObserver }
 			<TiledGallerySettings
 				setAttributes={ props.setAttributes }
-				linkTo={ linkTo }
 				columns={ columns }
 				roundedCorners={ roundedCorners }
 				clientId={ clientId }

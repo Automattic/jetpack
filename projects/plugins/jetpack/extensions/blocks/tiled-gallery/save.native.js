@@ -27,7 +27,6 @@ export default function TiledGallerySave( { attributes, innerBlocks } ) {
 		align,
 		className,
 		columns = defaultColumnsNumber( images ),
-		linkTo,
 		roundedCorners,
 		columnWidths,
 		ids,
@@ -43,7 +42,6 @@ export default function TiledGallerySave( { attributes, innerBlocks } ) {
 			images={ images }
 			isSave
 			layoutStyle={ layoutStyle }
-			linkTo={ linkTo }
 			roundedCorners={ roundedCorners }
 			columnWidths={ columnWidths }
 			ids={ ids }
