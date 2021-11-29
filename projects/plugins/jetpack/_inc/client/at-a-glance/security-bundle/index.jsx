@@ -2,24 +2,40 @@
  * External dependencies
  */
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+
 
 /**
  * WordPress dependencies
  */
- import { createInterpolateElement } from '@wordpress/element';
- import { __, _x } from '@wordpress/i18n';
+ import { __ } from '@wordpress/i18n';
+ import { Button } from '@wordpress/components';
+ import { getProductDescriptionUrl } from 'product-descriptions/utils';
+
+
+
+
+
+/**
+ * Internal dependencies
+ */
+ import Card from 'components/card';
 
 
 
 class DashSecurityBundle extends Component {
 
 	render() {
-		return ( <div>
+		return ( <Card>
 			<h2>{ __(  'Comprehensive Site Security', 'jetpacl') }</h2>
-		</div>
+			<Button href={ this.props.productDescriptionUrl }>{ __( 'Upgrade', 'jetpack' ) }</Button>
+		</Card>
 		);
 	}
-
 }
 
-export default DashSecurityBundle;
+
+
+export default connect(
+	state => ( { productDescriptionUrl:  getProductDescriptionUrl( state, 'security' ), } )
+)( DashSecurityBundle );
