@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Uses the Connection Initial State for the React app
