@@ -26,9 +26,9 @@ class UI {
 		}
 
 		/**
-		 * Action called after initializing Connection UI Admin resources.
+		 * Action called after initializing Identity Crisis UI.
 		 *
-		 * @since 1.1.0
+		 * @since $$next-version$$
 		 */
 		do_action( 'jetpack_identity_crisis_ui_init' );
 
