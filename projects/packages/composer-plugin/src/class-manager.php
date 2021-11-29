@@ -21,19 +21,9 @@ class Manager extends LibraryInstaller {
 	 * Receives a supported package instance and modifies its installation path.
 	 *
 	 * @param PackageInterface $package the installed package object.
-	 * @throws \InvalidArgumentException $exception When the package is not the expected type.
 	 * @return String modified installation path.
 	 */
 	public function getInstallPath( PackageInterface $package ) {
-		$prefix = substr( $package->getPrettyName(), 0, 19 );
-		if ( 'automattic/jetpack-' !== $prefix ) {
-			throw new \InvalidArgumentException(
-				'Unable to install package: the Jetpack installer '
-				. 'plugin only supports packages from the Jetpack monorepo '
-				. '"automattic/jetpack-"'
-			);
-		}
-
 		return 'jetpack_vendor/' . $package->getPrettyName();
 	}
 
