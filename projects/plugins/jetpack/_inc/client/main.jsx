@@ -139,9 +139,16 @@ class Main extends React.Component {
 			fullScreenContainer.prependTo( connectReactContainer );
 		}
 
-		// Redirects the user to the Woo Connection/Welcome Screen if they have Woo installed and active,
-		// and have never seen this screen before.
-		if ( this.props.isWooCommerceActive && ! this.props.hasSeenWCConnectionModal ) {
+		/* Redirects the user to the Woo Connection/Welcome Screen if:
+		 * 1. They have Woo installed and active AND
+		 * 2. they have never seen this screen before AND
+		 * 3. they have the right permissions.
+		 */
+		if (
+			this.props.isWooCommerceActive &&
+			! this.props.hasSeenWCConnectionModal &&
+			this.userCanManageModules
+		) {
 			this.props.history.replace( '/woo-setup' );
 		}
 	}
