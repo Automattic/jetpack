@@ -1,18 +1,15 @@
 /**
  * External dependencies
  */
-import React, { useEffect, useCallback } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import restApi from '@automattic/jetpack-api';
 import { ActionButton } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import ConnectUser from '../connect-user';
-import { STORE_ID } from '../../state/store';
 import useConnect from '../connect-screen/hooks/use-connect';
 
 /**
@@ -38,6 +35,8 @@ const ConnectButton = props => {
 		isUserConnected,
 		siteIsRegistering,
 		userIsConnecting,
+		registrationError,
+		authorizationUrl,
 	} = useConnect( {
 		registrationNonce,
 		redirectUri,
@@ -45,49 +44,6 @@ const ConnectButton = props => {
 		apiNonce,
 		autoTrigger,
 	} );
-
-	// const { isRegistered, isUserConnected } = useSelect(
-	// select => select( STORE_ID ).getConnectionStatus(),
-	// []
-	// );
-	// const siteIsRegistering = useSelect( select => select( STORE_ID ).getSiteIsRegistering(), [] );
-	// const userIsConnecting = useSelect( select => select( STORE_ID ).getUserIsConnecting(), [] );
-	const registrationError = useSelect( select => select( STORE_ID ).getRegistrationError(), [] );
-	const authorizationUrl = useSelect( select => select( STORE_ID ).getAuthorizationUrl(), [] );
-	// const { setUserIsConnecting, registerSite } = useDispatch( STORE_ID );
-
-	/**
-	 * Initialize the REST API.
-	 */
-	// useEffect( () => {
-	// restApi.setApiRoot( apiRoot );
-	// restApi.setApiNonce( apiNonce );
-	// }, [ apiRoot, apiNonce ] );
-
-	/**
-	 * Initialize the site registration process.
-	 */
-	// const handleRegisterSite = useCallback(
-	// e => {
-	// e && e.preventDefault();
-
-	// if ( isRegistered ) {
-	// setUserIsConnecting( true );
-	// return;
-	// }
-	// registerSite( registrationNonce, redirectUri );
-	// },
-	// [ isRegistered, registrationNonce, redirectUri, registerSite, setUserIsConnecting ]
-	// );
-
-	/**
-	 * Auto-trigger the flow, only do it once.
-	 */
-	// useEffect( () => {
-	// if ( autoTrigger && ! siteIsRegistering && ! userIsConnecting ) {
-	// handleRegisterSite();
-	// }
-	// }, [] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	return (
 		<>

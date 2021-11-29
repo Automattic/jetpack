@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useEffect, useCallback, useState } from 'react';
+import { useEffect } from 'react';
 import { useSelect, useDispatch } from '@wordpress/data';
 import restApi from '@automattic/jetpack-api';
 
@@ -14,6 +14,8 @@ export default ( { registrationNonce, redirectUri, apiRoot, apiNonce, autoTrigge
 	const { setUserIsConnecting, registerSite } = useDispatch( STORE_ID );
 	const siteIsRegistering = useSelect( select => select( STORE_ID ).getSiteIsRegistering(), [] );
 	const userIsConnecting = useSelect( select => select( STORE_ID ).getUserIsConnecting(), [] );
+	const registrationError = useSelect( select => select( STORE_ID ).getRegistrationError(), [] );
+	const authorizationUrl = useSelect( select => select( STORE_ID ).getAuthorizationUrl(), [] );
 	const { isRegistered, isUserConnected } = useSelect(
 		select => select( STORE_ID ).getConnectionStatus(),
 		[]
@@ -22,7 +24,7 @@ export default ( { registrationNonce, redirectUri, apiRoot, apiNonce, autoTrigge
 	/**
 	 * Initialize the site registration process.
 	 *
-	 * @param e
+	 * @param {Event} [e] - Event that dispatched handleRegisterSite
 	 */
 	const handleRegisterSite = e => {
 		e && e.preventDefault();
@@ -57,5 +59,7 @@ export default ( { registrationNonce, redirectUri, apiRoot, apiNonce, autoTrigge
 		isUserConnected,
 		siteIsRegistering,
 		userIsConnecting,
+		registrationError,
+		authorizationUrl,
 	};
 };
