@@ -4,10 +4,10 @@
  * packages.
  *
  * @see https://getcomposer.org/doc/articles/custom-installers.md
- * @package automattic/jetpack-installer
+ * @package automattic/jetpack-composer-plugin
  * */
 
-namespace Automattic\Jetpack\Installer;
+namespace Automattic\Jetpack\Composer;
 
 use Composer\Composer;
 use Composer\IO\IOInterface;

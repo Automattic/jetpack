@@ -2,10 +2,10 @@
 /**
  * The installer manager class file.
  *
- * @package automattic/jetpack-installer
+ * @package automattic/jetpack-composer-plugin
  */
 
-namespace Automattic\Jetpack\Installer;
+namespace Automattic\Jetpack\Composer;
 
 use Composer\Installer\LibraryInstaller;
 use Composer\Package\PackageInterface;
