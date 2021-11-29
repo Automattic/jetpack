@@ -4,6 +4,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import classnames from 'classnames';
 import { find, isEmpty } from 'lodash';
 
 /**
@@ -369,19 +370,17 @@ class MyPlanHeader extends React.Component {
 					{ hasDetachedUserLicenses && (
 						<span>{ __( 'Got a license key? Activate it here.', 'jetpack' ) }</span>
 					) }
-					<div className="jp-landing__card-footer-item">
+					<div className={ classnames( 'jp-landing__card-footer-item', { 'no-licenses': ! hasDetachedUserLicenses, 'no-purchases': ! showPurchasesLink } ) }>
 						{ showPurchasesLink && (
-							<div className="jp-landing__card-footer-item">
-								<ExternalLink
-									className="all-purchases__link"
-									href={ getRedirectUrl( 'calypso-purchases' ) }
-									onClick={ this.trackAllPurchasesClick }
-									target="_blank"
-									icon={ true }
-								>
-									{ __( 'View all purchases', 'jetpack' ) }
-								</ExternalLink>
-							</div>
+							<ExternalLink
+								className="all-purchases__link"
+								href={ getRedirectUrl( 'calypso-purchases' ) }
+								onClick={ this.trackAllPurchasesClick }
+								target="_blank"
+								icon={ true }
+							>
+								{ __( 'View all purchases', 'jetpack' ) }
+							</ExternalLink>
 						) }
 						{ hasDetachedUserLicenses ? (
 							<Button

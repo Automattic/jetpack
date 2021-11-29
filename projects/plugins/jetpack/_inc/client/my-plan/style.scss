@@ -33,8 +33,9 @@
 
 	.jp-landing__card-footer-item {
 		display: flex;
-		align-items: center;
 		flex-direction: column;
+		align-items: center;
+
 
 		text-align: center;
 
@@ -50,6 +51,15 @@
 		.dops-button {
 			margin-right: 0;
 		}
+	}
+
+	.jp-landing__card-footer-item.no-licenses {
+		justify-content: space-between;
+		flex: 1;
+	}
+
+	.jp-landing__card-footer-item.no-purchases.no-licenses {
+		justify-content: flex-end;
 	}
 }
 
