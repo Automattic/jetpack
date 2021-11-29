@@ -1259,8 +1259,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		$response = $this->create_and_get_request( 'seen-wc-connection-modal', array(), 'POST' );
 
-		$this->assertResponseStatus( 401, $response );
-		$this->assertResponseData( array( 'message' => REST_Connector::get_user_permissions_error_msg() ), $response );
+		$this->assertResponseStatus( rest_authorization_required_code(), $response );
 	}
 
 	/**
@@ -1270,9 +1269,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 */
 	public function test_post_seen_wc_connection_modal_success() {
 		// Create a user and set it up as current.
-		$user = $this->create_and_get_user();
-		// Add read capability.
-		$user->add_cap( 'read' );
+		$user = $this->create_and_get_user( 'administrator' );
 		wp_set_current_user( $user->ID );
 
 		$response = $this->create_and_get_request( 'seen-wc-connection-modal', array(), 'POST' );
