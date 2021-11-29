@@ -20,6 +20,13 @@ use Composer\Plugin\PluginInterface;
 class Plugin implements PluginInterface {
 
 	/**
+	 * Installer instance.
+	 *
+	 * @var Manager|null
+	 */
+	private $installer;
+
+	/**
 	 * Activates the installer plugin at installation time.
 	 *
 	 * @param Composer    $composer the Composer global instance.
