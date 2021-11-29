@@ -417,6 +417,16 @@ export function getPartnerSubsidiaryId( state ) {
 }
 
 /**
+ * Returns the partner coupon associated with this site, if any.
+ *
+ * @param {object} state - Global state tree
+ * @returns {object|boolean} partner coupon if exists or false.
+ */
+export function getPartnerCoupon( state ) {
+	return get( state.jetpack.initialState, 'partnerCoupon' );
+}
+
+/**
  * Return an upgrade URL
  *
  * @param {object} state - Global state tree
