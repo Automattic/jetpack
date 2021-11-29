@@ -16,6 +16,7 @@ import DashActivity from './activity';
 import DashBoost from './boost';
 import DashCRM from './crm';
 import DashStats from './stats/index.jsx';
+import DashSecurityBundle from './security-bundle';
 import DashProtect from './protect';
 import DashMonitor from './monitor';
 import DashScan from './scan';
@@ -96,6 +97,13 @@ class AtAGlance extends Component {
 		const rewindStatus = get( this.props.rewindStatus, [ 'state' ], '' );
 		const rewindStatusReason = get( this.props.rewindStatus, [ 'reason' ], '' );
 		const securityCards = [];
+
+		// Since Scan & Backup don't work with multi-site, this seems like a fair compromise
+		if ( ! this.props.multisite ) {
+			securityCards.push(
+				<DashSecurityBundle />
+			);
+		}	
 
 		// Backup won't work with multi-sites, but Scan does if VaultPress is enabled
 		const hasVaultPressScanning =
