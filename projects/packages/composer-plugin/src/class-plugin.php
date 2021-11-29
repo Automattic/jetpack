@@ -44,6 +44,7 @@ class Plugin implements PluginInterface {
 	 * @param IOInterface $io the IO interface global instance.
 	 */
 	public function deactivate( Composer $composer, IOInterface $io ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$composer->getInstallationManager()->removeInstaller( $this->installer );
 	}
 
 	/**
@@ -53,6 +54,5 @@ class Plugin implements PluginInterface {
 	 * @param IOInterface $io the IO interface global instance.
 	 */
 	public function uninstall( Composer $composer, IOInterface $io ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$composer->getInstallationManager()->removeInstaller( $this->installer );
 	}
 }
