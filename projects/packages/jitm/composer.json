@@ -9,8 +9,8 @@
 		"automattic/jetpack-connection": "^1.32",
 		"automattic/jetpack-device-detection": "^1.4",
 		"automattic/jetpack-logo": "^1.5",
-		"automattic/jetpack-options": "^1.13",
-		"automattic/jetpack-partner": "^1.5",
+		"automattic/jetpack-options": "^1.14",
+		"automattic/jetpack-partner": "^1.6",
 		"automattic/jetpack-redirect": "^1.7",
 		"automattic/jetpack-status": "^1.9",
 		"automattic/jetpack-tracking": "^1.13"

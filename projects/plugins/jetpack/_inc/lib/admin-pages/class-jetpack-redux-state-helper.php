@@ -13,6 +13,7 @@ use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Partner;
+use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -101,6 +102,7 @@ class Jetpack_Redux_State_Helper {
 			'WP_API_nonce'                => wp_create_nonce( 'wp_rest' ),
 			'registrationNonce'           => wp_create_nonce( 'jetpack-registration-nonce' ),
 			'purchaseToken'               => self::get_purchase_token(),
+			'partnerCoupon'               => Jetpack_Partner_Coupon::get_coupon(),
 			'pluginBaseUrl'               => plugins_url( '', JETPACK__PLUGIN_FILE ),
 			'connectionStatus'            => $connection_status,
 			'connectUrl'                  => false == $current_user_data['isConnected'] // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
@@ -365,6 +367,7 @@ class Jetpack_Redux_State_Helper {
 	public static function generate_purchase_token() {
 		return wp_generate_password( 12, false );
 	}
+
 }
 
 /**
