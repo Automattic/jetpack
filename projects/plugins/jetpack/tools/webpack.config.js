@@ -31,6 +31,12 @@ const sharedWebpackConfig = {
 			DependencyExtractionPlugin: false,
 		} ),
 	],
+	externals: {
+		...jetpackWebpackConfig.externals,
+		jetpackConfig: JSON.stringify( {
+			consumer_slug: 'jetpack',
+		} ),
+	},
 	module: {
 		strictExportPresence: true,
 		rules: [
@@ -81,6 +87,7 @@ module.exports = [
 					export: 'getRouteName',
 				},
 			},
+			'plugins-page': path.join( __dirname, '../_inc/client', 'plugins-entry.js' ),
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,

@@ -121,6 +121,8 @@ class Jetpack_Options {
 			'recommendations_data',                // (array)  The user choice and other data for the recommendations.
 			'recommendations_step',                // (string) The current step of the recommendations.
 			'licensing_activation_notice_dismiss', // (array) The `last_detached_count` and the `last_dismissed_time` for the user-license activation notice.
+			'partner_coupon',                      // (string) A Jetpack partner issued coupon to promote a sale together with Jetpack.
+			'partner_coupon_added',                // (string) A date for when `partner_coupon` was added, so we can auto-purge after a certain time interval.
 		);
 	}
 
