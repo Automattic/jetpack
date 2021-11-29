@@ -1,17 +1,22 @@
 /**
  * External dependencies
  */
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { JetpackLogo } from '@automattic/jetpack-components';
+import { ConnectButton, ToS } from '@automattic/jetpack-connection';
+
+/**
+ * WordPress dependencies
+ */
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
-import { ConnectButton, ToS } from '@automattic/jetpack-connection';
 
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
 import './style.scss';
 
 /**
@@ -31,6 +36,7 @@ const ContextualizedConnection = props => {
 		apiNonce,
 		registrationNonce,
 		redirectUri,
+		redirectTo,
 		autoTrigger,
 		isSiteConnected,
 		setHasSeenWCConnectionModal,
@@ -39,6 +45,10 @@ const ContextualizedConnection = props => {
 	useEffect( () => {
 		setHasSeenWCConnectionModal();
 	}, [ setHasSeenWCConnectionModal ] );
+
+	const onContinueClick = useCallback( () => {
+		analytics.tracks.recordJetpackClick( 'contextualized_connection_continue_button' );
+	}, [] );
 
 	return (
 		<div className={ 'jp-contextualized-connection' + ( className ? ' ' + className : '' ) }>
@@ -54,7 +64,8 @@ const ContextualizedConnection = props => {
 						isPrimary
 						className="jp-contextualized-connection__button"
 						label={ __( 'Continue to Jetpack', 'jetpack' ) }
-						href="#/dashboard"
+						href={ redirectTo }
+						onClick={ onContinueClick }
 					>
 						{ __( 'Continue to Jetpack', 'jetpack' ) }
 					</Button>
@@ -174,6 +185,8 @@ ContextualizedConnection.propTypes = {
 	registrationNonce: PropTypes.string.isRequired,
 	/** The redirect admin URI. */
 	redirectUri: PropTypes.string.isRequired,
+	/** Where the user will be redirected to after clicking to continue to Jetpack */
+	redirectTo: PropTypes.string.isRequired,
 	/** Whether to initiate the connection process automatically upon rendering the component. */
 	autoTrigger: PropTypes.bool,
 	/** Whether the site is connected to Jetpack or not. */

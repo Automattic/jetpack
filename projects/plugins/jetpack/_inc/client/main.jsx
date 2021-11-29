@@ -218,6 +218,11 @@ class Main extends React.Component {
 
 	renderMainContent = route => {
 		if ( this.shouldShowWooConnectionScreen() ) {
+			const redirectTo =
+				this.props.location.pathname === '/woo-setup'
+					? '#/dashboard'
+					: `#${ this.props.location.pathname }`;
+
 			return (
 				<ContextualizedConnection
 					apiNonce={ this.props.apiNonce }
@@ -235,6 +240,8 @@ class Main extends React.Component {
 					}
 					buttonLabel={ __( 'Set up Jetpack', 'jetpack' ) }
 					redirectUri="admin.php?page=jetpack"
+					redirectTo={ redirectTo }
+					from={ this.props.location.pathname }
 					isSiteConnected={ this.props.isSiteConnected }
 					setHasSeenWCConnectionModal={ this.props.setHasSeenWCConnectionModal }
 				>
