@@ -15,33 +15,52 @@ import useConnect from '../use-connect';
 
 let spySetApiRoot,
 	spyRegisterSite,
+	spySetUserIsConnecting,
 	spySetApiNonce,
 	storeSelect,
 	stubGetSiteIsRegistering,
-	stubGetUserIsConnecting;
+	stubGetUserIsConnecting,
+	stubGetConnectionStatus;
 
 describe( 'useConnect', () => {
 	before( () => {
 		const { result: dispatch } = renderHook( () => useDispatch( STORE_ID ) );
 		renderHook( () => useSelect( select => ( storeSelect = select( STORE_ID ) ) ) );
-		spyRegisterSite = sinon.spy( dispatch.current, 'registerSite' );
-		spySetApiRoot = sinon.spy( restApi, 'setApiRoot' );
-		spySetApiNonce = sinon.spy( restApi, 'setApiNonce' );
+
+		// stubs
 		stubGetSiteIsRegistering = sinon.stub( storeSelect, 'getSiteIsRegistering' );
 		stubGetUserIsConnecting = sinon.stub( storeSelect, 'getUserIsConnecting' );
+		stubGetConnectionStatus = sinon.stub( storeSelect, 'getConnectionStatus' );
+
+		// spies
+		spyRegisterSite = sinon.spy( dispatch.current, 'registerSite' );
+		spySetUserIsConnecting = sinon.spy( dispatch.current, 'setUserIsConnecting' );
+		spySetApiRoot = sinon.spy( restApi, 'setApiRoot' );
+		spySetApiNonce = sinon.spy( restApi, 'setApiNonce' );
 	} );
 
 	beforeEach( () => {
+		// stubs
+		stubGetSiteIsRegistering.reset();
+		stubGetSiteIsRegistering.returns( false );
+
+		stubGetUserIsConnecting.reset();
+		stubGetUserIsConnecting.returns( false );
+
+		stubGetConnectionStatus.reset();
+		stubGetConnectionStatus.returns( {} );
+
+		// spies
 		spyRegisterSite.resetHistory();
+		spySetUserIsConnecting.resetHistory();
 		spySetApiRoot.resetHistory();
 		spySetApiNonce.resetHistory();
-		stubGetSiteIsRegistering.reset();
-		stubGetUserIsConnecting.reset();
 	} );
 
 	it( 'set api root and nonce on start', () => {
 		const initialProps = { apiRoot: 'API_ROOT', apiNonce: 'API_NONCE' };
-		renderHook( props => useConnect( props ), { initialProps } );
+		const { result } = renderHook( props => useConnect( props ), { initialProps } );
+		result.current.handleRegisterSite();
 		expect( spySetApiRoot.calledOnce ).to.be.true;
 		expect( spySetApiNonce.calledOnce ).to.be.true;
 	} );
@@ -67,5 +86,13 @@ describe( 'useConnect', () => {
 		const initialProps = { autoTrigger: true };
 		renderHook( props => useConnect( props ), { initialProps } );
 		expect( spyRegisterSite.called ).to.be.false;
+	} );
+
+	it( 'set user is connecting to true and do not call registerSite', () => {
+		stubGetConnectionStatus.returns( { isRegistered: true } );
+		const { result } = renderHook( props => useConnect( props ), { initialProps: {} } );
+		result.current.handleRegisterSite();
+		expect( spySetUserIsConnecting.calledOnce ).to.be.true;
+		expect( spyRegisterSite.calledOnce ).to.be.false;
 	} );
 } );
