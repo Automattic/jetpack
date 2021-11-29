@@ -29,15 +29,11 @@ class Jetpack_Plugins {
 	 */
 	public static function install_and_activate_plugin( $slug ) {
 		$plugin_id = self::get_plugin_id_by_slug( $slug );
-		$mc_stats  = new A8c_Mc_Stats();
 
 		if ( ! $plugin_id ) {
 			$installed = self::install_plugin( $slug );
 			if ( is_wp_error( $installed ) ) {
-				$mc_stats->add( 'install-plugin', "fail-$slug" );
 				return $installed;
-			} else {
-				$mc_stats->add( 'install-plugin', "success-$slug" );
 			}
 			$plugin_id = self::get_plugin_id_by_slug( $slug );
 		} elseif ( is_plugin_active( $plugin_id ) ) {
@@ -49,10 +45,7 @@ class Jetpack_Plugins {
 		}
 		$activated = activate_plugin( $plugin_id );
 		if ( is_wp_error( $activated ) ) {
-			$mc_stats->add( 'activate-plugin', "fail-$slug" );
 			return $activated;
-		} else {
-			$mc_stats->add( 'activate-plugin', "success-$slug" );
 		}
 
 		return true;
@@ -75,10 +68,12 @@ class Jetpack_Plugins {
 		$skin     = new Jetpack_Automatic_Install_Skin();
 		$upgrader = new Plugin_Upgrader( $skin );
 		$zip_url  = self::generate_wordpress_org_plugin_download_link( $slug );
+		$mc_stats = new A8c_Mc_Stats();
 
 		$result = $upgrader->install( $zip_url );
 
 		if ( is_wp_error( $result ) ) {
+			$mc_stats->add( 'install-plugin', "fail-$slug" );
 			return $result;
 		}
 
@@ -100,9 +95,11 @@ class Jetpack_Plugins {
 				$error_code = 'no_package';
 			}
 
+			$mc_stats->add( 'install-plugin', "fail-$slug" );
 			return new WP_Error( $error_code, $error, 400 );
 		}
 
+		$mc_stats->add( 'install-plugin', "success-$slug" );
 		return (array) $upgrader->skin->get_upgrade_messages();
 	}
 
