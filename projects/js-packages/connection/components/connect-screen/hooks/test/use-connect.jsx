@@ -65,10 +65,10 @@ describe( 'useConnect', () => {
 		expect( spySetApiNonce.calledOnce ).to.be.true;
 	} );
 
-	it( 'calls registerSite automatically based on autoTrigger', () => {
-		const initialProps = { autoTrigger: true };
+	it( 'calls registerSite automatically based on autoTrigger with correct params', () => {
+		const initialProps = { autoTrigger: true, registrationNonce: 'REGISTRATION', redirectUri: 'REDIRECT' };
 		const { rerender } = renderHook( props => useConnect( props ), { initialProps } );
-		expect( spyRegisterSite.called ).to.be.true;
+		expect( spyRegisterSite.calledOnceWith( 'REGISTRATION', 'REDIRECT' ) ).to.be.true;
 		spyRegisterSite.resetHistory();
 		rerender( { autoTrigger: false } );
 		expect( spyRegisterSite.called ).to.be.false;
