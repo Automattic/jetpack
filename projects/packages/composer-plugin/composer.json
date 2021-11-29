@@ -1,5 +1,5 @@
 {
-	"name": "automattic/jetpack-installer",
+	"name": "automattic/jetpack-composer-plugin",
 	"description": "A custom installer plugin for Composer to move Jetpack packages out of `vendor/` so WordPress's translation infrastructure will find their strings.",
 	"type": "composer-plugin",
 	"license": "GPL-2.0-or-later",
@@ -41,10 +41,10 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"class": "Automattic\\Jetpack\\Installer\\Plugin",
-		"mirror-repo": "Automattic/jetpack-installer",
+		"class": "Automattic\\Jetpack\\Composer\\Plugin",
+		"mirror-repo": "Automattic/jetpack-composer-plugin",
 		"changelogger": {
-			"link-template": "https://github.com/Automattic/jetpack-installer/compare/v${old}...v${new}"
+			"link-template": "https://github.com/Automattic/jetpack-composer-plugin/compare/v${old}...v${new}"
 		},
 		"autotagger": true,
 		"branch-alias": {

@@ -1,6 +1,6 @@
 {
 	"private": true,
-	"name": "@automattic/jetpack-installer",
+	"name": "@automattic/jetpack-composer-plugin",
 	"version": "0.1.0-alpha",
 	"description": "The custom installer plugin for Composer.",
 	"homepage": "https://jetpack.com",
