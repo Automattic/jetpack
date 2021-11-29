@@ -366,20 +366,23 @@ class MyPlanHeader extends React.Component {
 		return (
 			<Card compact>
 				<div className="jp-landing__card-footer">
-					{ showPurchasesLink && (
-						<div className="jp-landing__card-footer-item">
-							<ExternalLink
-								className="all-purchases__link"
-								href={ getRedirectUrl( 'calypso-purchases' ) }
-								onClick={ this.trackAllPurchasesClick }
-								target="_blank"
-								icon={ true }
-							>
-								{ __( 'View all purchases', 'jetpack' ) }
-							</ExternalLink>
-						</div>
+					{ hasDetachedUserLicenses && (
+						<span>{ __( 'Got a license key? Activate it here.', 'jetpack' ) }</span>
 					) }
-					<div className="jp-landing__card-footer-item align-right">
+					<div className="jp-landing__card-footer-item">
+						{ showPurchasesLink && (
+							<div className="jp-landing__card-footer-item">
+								<ExternalLink
+									className="all-purchases__link"
+									href={ getRedirectUrl( 'calypso-purchases' ) }
+									onClick={ this.trackAllPurchasesClick }
+									target="_blank"
+									icon={ true }
+								>
+									{ __( 'View all purchases', 'jetpack' ) }
+								</ExternalLink>
+							</div>
+						) }
 						{ hasDetachedUserLicenses ? (
 							<Button
 								href={ siteAdminUrl + 'admin.php?page=jetpack#/license/activation' }
