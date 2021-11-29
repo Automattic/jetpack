@@ -1,11 +1,7 @@
 @import '~@automattic/jetpack-base-styles/style';
 
-// This should go to base styles?
-#wpcontent {
-	padding-left: 0
-}
-#wpwrap {
-	background-color: white;
+.jp-admin-page {
+	margin-left: -20px; // to neutralize the padding of #wpcontent.
 }
 
 .jp-admin-page-section {

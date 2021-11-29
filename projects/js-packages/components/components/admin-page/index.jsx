@@ -24,11 +24,11 @@ const JetpackAdminPage = props => {
 	const { children, moduleName, a8cLogoHref } = props;
 
 	return (
-		<>
+		<div class="jp-admin-page">
 			<JetpackAdminPageHeader />
 			{ children }
 			<JetpackAdminPageFooter moduleName={ moduleName } a8cLogoHref={ a8cLogoHref } />
-		</>
+		</div>
 	);
 };
 
