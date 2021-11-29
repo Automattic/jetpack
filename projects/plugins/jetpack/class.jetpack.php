@@ -816,6 +816,9 @@ class Jetpack {
 
 		// Validate the domain names in Jetpack development versions.
 		add_action( 'jetpack_pre_register', array( get_called_class(), 'registration_check_domains' ) );
+
+		// Register product descriptions for partner coupon usage.
+		add_filter( 'jetpack_partner_coupon_products', array( $this, 'get_partner_coupon_product_descriptions' ) );
 	}
 
 	/**
@@ -6683,8 +6686,11 @@ endif;
 	 * This method will not take current purchases or upgrades into account
 	 * but is instead a static list of products Jetpack offers with some
 	 * corresponding sales text/materials.
+	 *
+	 * @param bool $show_legacy Determine if we should include legacy product/plan details.
+	 * @return array
 	 */
-	public static function get_products_for_purchase() {
+	public static function get_products_for_purchase( $show_legacy = false ) {
 		$products = array();
 
 		$products['backup'] = array(
@@ -6776,7 +6782,36 @@ endif;
 			),
 		);
 
+		if ( $show_legacy ) {
+			$products['jetpack_backup_daily'] = array(
+				'title'             => __( 'Jetpack Backup', 'jetpack' ),
+				'slug'              => 'jetpack_backup_daily',
+				'description'       => __( 'Never lose a word, image, page, or time worrying about your site with automated backups & one-click restores.', 'jetpack' ),
+				'show_promotion'    => false,
+				'discount_percent'  => 0,
+				'included_in_plans' => array(),
+				'features'          => array(
+					_x( 'Automated daily backups (off-site)', 'Backup Product Feature', 'jetpack' ),
+					_x( 'One-click restores', 'Backup Product Feature', 'jetpack' ),
+					_x( 'Unlimited backup storage', 'Backup Product Feature', 'jetpack' ),
+				),
+			);
+		}
+
 		return $products;
+	}
+
+	/**
+	 * Register product descriptions for partner coupon usage.
+	 *
+	 * @since $$next_version$$
+	 *
+	 * @param array $products An array of registered products.
+	 *
+	 * @return array
+	 */
+	public function get_partner_coupon_product_descriptions( $products ) {
+		return array_merge( $products, self::get_products_for_purchase( true ) );
 	}
 
 	/**

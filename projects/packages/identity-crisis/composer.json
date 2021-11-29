@@ -6,7 +6,7 @@
 	"require": {
 		"automattic/jetpack-connection": "^1.32",
 		"automattic/jetpack-constants": "^1.6",
-		"automattic/jetpack-options": "^1.13",
+		"automattic/jetpack-options": "^1.14",
 		"automattic/jetpack-status": "^1.9",
 		"automattic/jetpack-tracking": "^1.13",
 		"automattic/jetpack-logo": "^1.5"
