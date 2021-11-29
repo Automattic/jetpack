@@ -82,7 +82,7 @@ const ContextualizedConnection = props => {
 						<ul className="jp-contextualized-connection__feature-list">
 							<li>
 								{ createInterpolateElement(
-									__( '<strong>Free</strong> store downtime monitoring', 'jetpack' ),
+									__( '<strong>Free</strong> downtime monitoring', 'jetpack' ),
 									{ strong: <strong /> }
 								) }
 							</li>
