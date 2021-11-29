@@ -22,3 +22,13 @@
 .videopress-block-hide {
 	display: none;
 }
+
+.seekbar-color-settings__panel {
+  .components-panel__body.is-opened {
+	padding: 0;
+  }
+
+  .components-panel__body {
+	border-top: none;
+  }
+}

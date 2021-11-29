@@ -298,7 +298,18 @@ const VideoPressEdit = CoreVideoEdit =>
 				setAttributes,
 			} = this.props;
 			const { fallback, isFetchingMedia, isUpdatingRating, interactive, rating } = this.state;
-			const { autoplay, caption, controls, loop, muted, playsinline, poster, preload } = attributes;
+			const {
+				autoplay,
+				caption,
+				controls,
+				loop,
+				muted,
+				playsinline,
+				poster,
+				preload,
+				useAverageColor,
+			} = attributes;
+			const toggleAttribute = this.toggleAttribute;
 
 			const videoPosterDescription = `video-block__poster-image-description-${ instanceId }`;
 
@@ -416,7 +427,10 @@ const VideoPressEdit = CoreVideoEdit =>
 							</MediaUploadCheck>
 						</PanelBody>
 
-						<SeekbarColorSettings { ...{ attributes, setAttributes } } />
+						<SeekbarColorSettings
+							{ ...{ attributes, setAttributes, useAverageColor } }
+							toggleAttribute={ this.toggleAttribute }
+						/>
 
 						<PanelBody title={ __( 'Video File Settings', 'jetpack' ) }>
 							<SelectControl
@@ -599,6 +613,7 @@ export default createHigherOrderComponent(
 				seekbarLoadingColor,
 				seekbarPlayedColor,
 				src,
+				useAverageColor,
 			} = ownProps.attributes;
 			const { getEmbedPreview, isRequestingEmbedPreview } = select( 'core' );
 
@@ -613,6 +628,7 @@ export default createHigherOrderComponent(
 				seekbarColor,
 				seekbarLoadingColor,
 				seekbarPlayedColor,
+				useAverageColor
 			} );
 			const preview = !! url && getEmbedPreview( url );
 
