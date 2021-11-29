@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { withRouter, Prompt } from 'react-router-dom';
 import { __, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
 import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { Dashicon } from '@wordpress/components';
 import { withDispatch } from '@wordpress/data';
@@ -49,6 +50,7 @@ import {
 	getTracksUserData,
 	showRecommendations,
 	getPluginBaseUrl,
+	getPartnerCoupon,
 	isWoASite,
 	isWooCommerceActive,
 } from 'state/initial-state';
@@ -260,6 +262,46 @@ class Main extends React.Component {
 					</p>
 				</ContextualizedConnection>
 			);
+		}
+
+		/*
+		 * Show "Partner Coupon Redeem" screen instead of regular main content/pre-connection.
+		 */
+		if ( this.props.partnerCoupon ) {
+			const forceShow = new URLSearchParams( window.location.search ).get( 'showCouponRedemption' );
+
+			/*
+			 * There are two conditions (groups of conditions, really) where we would want to
+			 * show the partner coupon redeem screen:
+			 *
+			 * 1. The site is not yet connected to WPCOM, but has the jetpack_partner_coupon
+			 * option set in the database (this.props.partnerCoupon in redux). This is likely a
+			 * partner-user who has just arrived here from a CTA within a partner's dashboard
+			 * or other ecosystem.
+			 *
+			 * 2. The site is already connected to WPCOM, but the jetpack_partner_coupon option
+			 * is still set in the database. This means the user connected their site, but never
+			 * redeemed the coupon. If this is the case, we don't want to override the dashboard
+			 * or at a glance pages with the redemption screen. Instead, we'll catch a URL
+			 * parameter that JITMs will set (showCouponRedemption=true), and show the screen only
+			 * when the user came from a a JITM.
+			 */
+			if ( ! this.props.isSiteConnected || forceShow ) {
+				return (
+					<PartnerCouponRedeem
+						apiNonce={ this.props.apiNonce }
+						registrationNonce={ this.props.registrationNonce }
+						apiRoot={ this.props.apiRoot }
+						images={ [ '/images/connect-right-partner-backup.png' ] }
+						assetBaseUrl={ this.props.pluginBaseUrl }
+						connectionStatus={ this.props.connectionStatus }
+						partnerCoupon={ this.props.partnerCoupon }
+						siteRawUrl={ this.props.siteRawUrl }
+						tracksUserData={ !! this.props.tracksUserData }
+						analytics={ analytics }
+					/>
+				);
+			}
 		}
 
 		if (
@@ -680,6 +722,7 @@ export default connect(
 			isWoaSite: isWoASite( state ),
 			isWooCommerceActive: isWooCommerceActive( state ),
 			hasSeenWCConnectionModal: getHasSeenWCConnectionModal( state ),
+			partnerCoupon: getPartnerCoupon( state ),
 		};
 	},
 	dispatch => ( {
