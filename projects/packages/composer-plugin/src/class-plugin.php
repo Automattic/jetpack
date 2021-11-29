@@ -26,8 +26,8 @@ class Plugin implements PluginInterface {
 	 * @param IOInterface $io the IO interface global instance.
 	 */
 	public function activate( Composer $composer, IOInterface $io ) {
-		$installer = new Manager( $io, $composer );
-		$composer->getInstallationManager()->addInstaller( $installer );
+		$this->installer = new Manager( $io, $composer );
+		$composer->getInstallationManager()->addInstaller( $this->installer );
 	}
 
 	/**
@@ -46,5 +46,6 @@ class Plugin implements PluginInterface {
 	 * @param IOInterface $io the IO interface global instance.
 	 */
 	public function uninstall( Composer $composer, IOInterface $io ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$composer->getInstallationManager()->removeInstaller( $this->installer );
 	}
 }
