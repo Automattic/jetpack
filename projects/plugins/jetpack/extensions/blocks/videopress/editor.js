@@ -186,6 +186,9 @@ const addVideoPressSupport = ( settings, name ) => {
 				src: {
 					type: 'string',
 				},
+				useAverageColor: {
+					type: 'boolean',
+				},
 				videoPressTracks: {
 					type: 'array',
 					items: {

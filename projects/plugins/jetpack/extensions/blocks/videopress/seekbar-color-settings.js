@@ -50,6 +50,7 @@ class SeekbarColorSettings extends Component {
 			<PanelBody
 				className="seekbar-color-settings__panel"
 				title={ __( 'Progress Bar Colors', 'jetpack' ) }
+				initialOpen={ false }
 			>
 				<ToggleControl
 					label={ __( 'Match video', 'jetpack' ) }
