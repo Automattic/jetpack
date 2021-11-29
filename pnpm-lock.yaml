@@ -276,6 +276,25 @@ importers:
       react: 17.0.2
       react-test-renderer: 17.0.2_react@17.0.2
 
+  projects/js-packages/partner-coupon:
+    specifiers:
+      '@automattic/jetpack-components': workspace:^0.6.4-alpha
+      '@automattic/jetpack-connection': workspace:^0.11.0-alpha
+      '@wordpress/i18n': 4.2.4
+      classnames: 2.3.1
+      jetpack-js-test-runner: workspace:*
+      prop-types: 15.7.2
+      react: 17.0.2
+    dependencies:
+      '@automattic/jetpack-components': link:../components
+      '@automattic/jetpack-connection': link:../connection
+      '@wordpress/i18n': 4.2.4
+      classnames: 2.3.1
+      prop-types: 15.7.2
+    devDependencies:
+      jetpack-js-test-runner: link:../../../tools/js-test-runner
+      react: 17.0.2
+
   projects/js-packages/remove-asset-webpack-plugin:
     specifiers:
       debug: ^4.3.2
@@ -782,6 +801,7 @@ importers:
       '@automattic/jetpack-components': workspace:^0.7.0-alpha
       '@automattic/jetpack-connection': workspace:^0.11.0-alpha
       '@automattic/jetpack-licensing': workspace:^0.2.0-alpha
+      '@automattic/jetpack-partner-coupon': workspace:^0.1.0-alpha
       '@automattic/jetpack-webpack-config': workspace:^0.4.0-alpha
       '@automattic/popup-monitor': 1.0.0
       '@automattic/remove-asset-webpack-plugin': workspace:^0.1.0-alpha
@@ -929,6 +949,7 @@ importers:
       '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
       '@automattic/jetpack-licensing': link:../../js-packages/licensing
+      '@automattic/jetpack-partner-coupon': link:../../js-packages/partner-coupon
       '@automattic/popup-monitor': 1.0.0
       '@automattic/request-external-access': 1.0.0
       '@automattic/social-previews': 1.1.1_9eb696fbc005b4df4ed8729db2f11119
