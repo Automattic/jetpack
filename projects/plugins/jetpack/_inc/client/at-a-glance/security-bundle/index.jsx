@@ -4,7 +4,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
-
 /**
  * WordPress dependencies
  */
@@ -12,24 +11,24 @@ import { connect } from 'react-redux';
  import { Button } from '@wordpress/components';
  import { getProductDescriptionUrl } from 'product-descriptions/utils';
 
-
-
-
-
 /**
  * Internal dependencies
  */
  import Card from 'components/card';
 
-
+/**
+ * Style dependencies
+ */
+import './style.scss'
 
 class DashSecurityBundle extends Component {
 
 	render() {
-		return ( <Card>
-			<h2>{ __(  'Comprehensive Site Security', 'jetpacl') }</h2>
-			<Button href={ this.props.productDescriptionUrl }>{ __( 'Upgrade', 'jetpack' ) }</Button>
-		</Card>
+		return ( 
+			<Card>
+				<h2>{ __( 'Comprehensive Site Security', 'jetpack' ) }</h2>
+				<Button href={ this.props.productDescriptionUrl }>{ __( 'Upgrade', 'jetpack' ) }</Button>
+			</Card>
 		);
 	}
 }

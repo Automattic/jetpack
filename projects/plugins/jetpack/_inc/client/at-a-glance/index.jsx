@@ -43,7 +43,7 @@ import { getScanStatus, isFetchingScanStatus } from 'state/scan';
 const renderPairs = layout =>
 	layout.map( ( item, layoutIndex ) => [
 		item.header,
-		item.pinnedBundle,
+		item.pinnedBundle ? item.pinnedBundle : null,
 		chunk( item.cards, 2 ).map( ( [ left, right ], cardIndex ) => (
 			<div className="jp-at-a-glance__item-grid" key={ `card-${ layoutIndex }-${ cardIndex }` }>
 				<div className="jp-at-a-glance__left">{ left }</div>
@@ -97,13 +97,6 @@ class AtAGlance extends Component {
 		const rewindStatus = get( this.props.rewindStatus, [ 'state' ], '' );
 		const rewindStatusReason = get( this.props.rewindStatus, [ 'reason' ], '' );
 		const securityCards = [];
-
-		// Since Scan & Backup don't work with multi-site, this seems like a fair compromise
-		if ( ! this.props.multisite ) {
-			securityCards.push(
-				<DashSecurityBundle />
-			);
-		}	
 
 		// Backup won't work with multi-sites, but Scan does if VaultPress is enabled
 		const hasVaultPressScanning =
@@ -160,6 +153,11 @@ class AtAGlance extends Component {
 					pinnedBundle: canDisplaybundleCard ? <DashSecurityBundle /> : null,
 				},
 			];
+
+			if ( ! this.props.multisite ) {
+				pairs[0].pinnedBundle = <DashSecurityBundle />;
+			}
+
 
 			const performanceCards = [];
 			if ( 'inactive' !== this.props.getModuleOverride( 'photon' ) ) {
