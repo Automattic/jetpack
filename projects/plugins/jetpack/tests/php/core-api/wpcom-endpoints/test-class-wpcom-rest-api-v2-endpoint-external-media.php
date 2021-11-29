@@ -323,16 +323,16 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	 * Tests connection response for Google Photos.
 	 */
 	public function test_connection_google_photos() {
-		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_api_response_connection_google_photos' ), 10, 3 );
+		add_filter( 'rest_pre_dispatch', array( $this, 'mock_wpcom_api_response_connection_google_photos' ), 10, 3 );
 
 		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/external-media/connection/google_photos' );
 		$response = $this->server->dispatch( $request );
-		$data     = $response->get_data();
+		$data     = json_decode( wp_remote_retrieve_body( $response->get_data() ) );
 
-		$this->assertEquals( 'google_photos', $data['ID'] );
-		$this->assertNotEmpty( $data['connect_URL'] );
+		$this->assertEquals( 'google_photos', $data->ID );
+		$this->assertNotEmpty( $data->connect_URL ); //phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-		remove_filter( 'pre_http_request', array( $this, 'mock_wpcom_api_response_connection_google_photos' ) );
+		remove_filter( 'rest_pre_dispatch', array( $this, 'mock_wpcom_api_response_connection_google_photos' ) );
 	}
 
 	/**
@@ -341,16 +341,16 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	 * @covers ::delete_connection
 	 */
 	public function test_delete_connection_google_photos() {
-		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_api_response_delete_connection_google_photos' ), 10, 3 );
+		add_filter( 'rest_pre_dispatch', array( $this, 'mock_wpcom_api_response_delete_connection_google_photos' ), 10, 3 );
 
 		$request  = wp_rest_request( Requests::DELETE, '/wpcom/v2/external-media/connection/google_photos' );
 		$response = $this->server->dispatch( $request );
-		$data     = $response->get_data();
+		$data     = json_decode( wp_remote_retrieve_body( $response->get_data() ) );
 
-		$this->assertNotEmpty( $data['ID'] );
-		$this->assertTrue( $data['deleted'] );
+		$this->assertNotEmpty( $data->ID );
+		$this->assertTrue( $data->deleted );
 
-		remove_filter( 'pre_http_request', array( $this, 'mock_wpcom_api_response_delete_connection_google_photos' ) );
+		remove_filter( 'rest_pre_dispatch', array( $this, 'mock_wpcom_api_response_delete_connection_google_photos' ) );
 	}
 
 	/**
@@ -362,19 +362,19 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	 * @param string $method Request method.
 	 */
 	public function test_connection_google_photos_with_error( $method ) {
-		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_api_external_media_connection_response_with_error' ), 10, 3 );
+		add_filter( 'rest_pre_dispatch', array( $this, 'mock_wpcom_api_external_media_connection_response_with_error' ), 10, 3 );
 
 		$request  = wp_rest_request( $method, '/wpcom/v2/external-media/connection/google_photos' );
 		$response = $this->server->dispatch( $request );
-		$data     = $response->get_data();
+		$data     = json_decode( wp_remote_retrieve_body( $response->get_data() ) );
 
-		$this->assertNotEmpty( $data['code'] );
-		$this->assertSame( 'rest_not_found', $data['code'] );
-		$this->assertSame( 'Connection with this ID not found.', $data['message'] );
-		$this->assertArrayHasKey( 'status', $data['data'] );
-		$this->assertSame( 404, $data['data']['status'] );
+		$this->assertNotEmpty( $data->code );
+		$this->assertSame( 'rest_not_found', $data->code );
+		$this->assertSame( 'Connection with this ID not found.', $data->message );
+		$this->assertObjectHasAttribute( 'status', $data->data );
+		$this->assertSame( 404, $data->data->status );
 
-		remove_filter( 'pre_http_request', array( $this, 'mock_wpcom_api_external_media_connection_response_with_error' ) );
+		remove_filter( 'rest_pre_dispatch', array( $this, 'mock_wpcom_api_external_media_connection_response_with_error' ) );
 	}
 
 	/**
@@ -384,8 +384,8 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	 */
 	public function google_photos_request_methods() {
 		return array(
-			array( Requests::GET ),
-			array( Requests::DELETE ),
+			'GET'    => array( Requests::GET ),
+			'DELETE' => array( Requests::DELETE ),
 		);
 	}
 
@@ -478,14 +478,15 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	/**
 	 * Validate the "connection" Jetpack API request for Google Photos and mock the response.
 	 *
-	 * @param bool   $response Whether to preempt an HTTP request's return value. Default false.
-	 * @param array  $args     HTTP request arguments.
-	 * @param string $url      The request URL.
+	 * @param mixed           $result  Response to replace the requested version with. Can be anything
+	 *                                 a normal endpoint can return, or null to not hijack the request.
+	 * @param WP_REST_Server  $server  Server instance.
+	 * @param WP_REST_Request $request Request used to generate the response.
 	 * @return array
 	 */
-	public function mock_wpcom_api_response_connection_google_photos( $response, $args, $url ) {
-		$this->assertEquals( WP_REST_Server::READABLE, $args['method'] );
-		$this->assertStringStartsWith( 'https://public-api.wordpress.com/wpcom/v2/meta/external-media/connection/google_photos', $url );
+	public function mock_wpcom_api_response_connection_google_photos( $result, $server, $request ) {
+		$this->assertEquals( WP_REST_Server::READABLE, $request->get_method() );
+		$this->assertStringEndsWith( '/external-media/connection/google_photos', $request->get_route() );
 
 		return array(
 			'headers'  => array(
@@ -503,14 +504,15 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	/**
 	 * Validate the "delete connection" Jetpack API request for Google Photos and mock the response.
 	 *
-	 * @param bool   $response Whether to preempt an HTTP request's return value. Default false.
-	 * @param array  $args     HTTP request arguments.
-	 * @param string $url      The request URL.
+	 * @param mixed           $result  Response to replace the requested version with. Can be anything
+	 *                                 a normal endpoint can return, or null to not hijack the request.
+	 * @param WP_REST_Server  $server  Server instance.
+	 * @param WP_REST_Request $request Request used to generate the response.
 	 * @return array
 	 */
-	public function mock_wpcom_api_response_delete_connection_google_photos( $response, $args, $url ) {
-		$this->assertEquals( WP_REST_Server::DELETABLE, $args['method'] );
-		$this->assertStringStartsWith( 'https://public-api.wordpress.com/wpcom/v2/meta/external-media/connection/google_photos', $url );
+	public function mock_wpcom_api_response_delete_connection_google_photos( $result, $server, $request ) {
+		$this->assertEquals( WP_REST_Server::DELETABLE, $request->get_method() );
+		$this->assertStringEndsWith( '/external-media/connection/google_photos', $request->get_route() );
 
 		return array(
 			'headers'  => array(
@@ -528,13 +530,14 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	/**
 	 * Validate the "delete connection" Jetpack API request for Google Photos and mock the response.
 	 *
-	 * @param bool   $response Whether to preempt an HTTP request's return value. Default false.
-	 * @param array  $args     HTTP request arguments.
-	 * @param string $url      The request URL.
+	 * @param mixed           $result  Response to replace the requested version with. Can be anything
+	 *                                 a normal endpoint can return, or null to not hijack the request.
+	 * @param WP_REST_Server  $server  Server instance.
+	 * @param WP_REST_Request $request Request used to generate the response.
 	 * @return array
 	 */
-	public function mock_wpcom_api_external_media_connection_response_with_error( $response, $args, $url ) {
-		$this->assertStringStartsWith( 'https://public-api.wordpress.com/wpcom/v2/meta/external-media/connection/google_photos', $url );
+	public function mock_wpcom_api_external_media_connection_response_with_error( $result, $server, $request ) {
+		$this->assertStringEndsWith( '/external-media/connection/google_photos', $request->get_route() );
 
 		return array(
 			'headers'  => array(

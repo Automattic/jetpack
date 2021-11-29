@@ -1,0 +1,41 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-partner-coupon",
+	"version": "0.1.0-alpha",
+	"description": "This package aims to add components to make it easier to redeem partner coupons",
+	"homepage": "https://jetpack.com",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.@(jsx|js)'"
+	},
+	"devDependencies": {
+		"jetpack-js-test-runner": "workspace:*",
+		"react": "17.0.2"
+	},
+	"peerDependencies": {
+		"react": "^17.0.2"
+	},
+	"dependencies": {
+		"@automattic/jetpack-connection": "workspace:^0.11.0-alpha",
+		"@automattic/jetpack-components": "workspace:^0.7.0-alpha",
+		"@wordpress/i18n": "4.2.4",
+		"classnames": "2.3.1",
+		"prop-types": "15.7.2"
+	},
+	"engines": {
+		"node": "^14.17.6 || ^16.7.0",
+		"pnpm": "^6.5.0",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	},
+	"exports": {
+		".": "./index.jsx"
+	}
+}
