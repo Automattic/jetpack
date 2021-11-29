@@ -6,10 +6,12 @@ import React, { createElement, useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
+import ExternalLink from 'components/external-link';
 import analytics from 'lib/analytics';
 import { getSiteAdminUrl } from 'state/initial-state';
 import {
@@ -23,6 +25,7 @@ import SimpleNotice from 'components/notice';
  * Jetpack "user"-licenses activation notice. (a license key is available for activation)
  *
  * @param {object} props - The properties.
+ * @param {number} props.pathname - The path of a URL.
  * @param {number} props.detachedLicensesCount - The user's number of "detached" licenses.
  * @param {object} props.activationNoticeDismissInfo - Object containing `last_detached_count` and `last_dismissed_time`.
  * @param {Function} props.updateLicensingActivationNoticeDismiss - Function to update the notification dismiss info.
@@ -36,6 +39,7 @@ const UserLicenseActivationNotice = props => {
 		detachedLicensesCount,
 		activationNoticeDismissInfo,
 		updateLicensingActivationNoticeDismiss,
+		pathname,
 		siteAdminUrl,
 	} = props;
 
@@ -44,7 +48,6 @@ const UserLicenseActivationNotice = props => {
 		last_dismissed_time: lastDismissedDateTime,
 	} = activationNoticeDismissInfo;
 
-	// TODO: Update this link to point to the user-license activation route.
 	const USER_LICENSE_ACTIVATION_ROUTE = `${ siteAdminUrl }admin.php?page=jetpack#/license/activation`;
 
 	const userHasDetachedLicenses = !! detachedLicensesCount;
@@ -65,12 +68,20 @@ const UserLicenseActivationNotice = props => {
 		}
 	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
 
-	const trackClick = useCallback( () => {
+	const trackLicenseActivationClick = useCallback( () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'licensing_activation_notice',
+			page: pathname,
 			path: 'licensing/activation',
 		} );
-	}, [] );
+	}, [ pathname ] );
+
+	const trackUserPurchasesClick = useCallback( () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'calypso_purchases_link',
+			page: pathname,
+		} );
+	}, [ pathname ] );
 
 	const onNoticeDismiss = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_wpa_licensing_activation_notice_dismiss' );
@@ -89,11 +100,21 @@ const UserLicenseActivationNotice = props => {
 				showDismiss={ true }
 				onDismissClick={ onNoticeDismiss }
 				text={ createInterpolateElement(
-					__( 'You have an inactive product. <a>Activate now</a>', 'jetpack' ),
+					__(
+						'You have an available product license key. <activateLink>Activate it now</activateLink> or <purchasesLink>view all your purchases</purchasesLink>',
+						'jetpack'
+					),
 					{
-						a: createElement( 'a', {
+						activateLink: createElement( 'a', {
 							href: USER_LICENSE_ACTIVATION_ROUTE,
-							onClick: trackClick,
+							onClick: trackLicenseActivationClick,
+						} ),
+						purchasesLink: createElement( ExternalLink, {
+							className: 'jp-license-activation-notice__external-link',
+							href: getRedirectUrl( 'calypso-purchases' ),
+							onClick: trackUserPurchasesClick,
+							target: '_blank',
+							icon: true,
 						} ),
 					}
 				) }
@@ -109,6 +130,7 @@ UserLicenseActivationNotice.propTypes = {
 		last_detached_count: PropTypes.number.isRequired,
 		last_dismiss_time: PropTypes.string.isRequired,
 	} ),
+	pathname: PropTypes.string.isRequired,
 	siteAdminUrl: PropTypes.string.isRequired,
 };
 

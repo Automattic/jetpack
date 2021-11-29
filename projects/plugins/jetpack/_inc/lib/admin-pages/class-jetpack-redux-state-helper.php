@@ -7,6 +7,7 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
@@ -29,6 +30,8 @@ class Jetpack_Redux_State_Helper {
 		// Load API endpoint base classes and endpoints for getting the module list fed into the JS Admin Page.
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-xmlrpc-consumer-endpoint.php';
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-module-endpoints.php';
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-site-endpoints.php';
+
 		$module_list_endpoint = new Jetpack_Core_API_Module_List_Endpoint();
 		$modules              = $module_list_endpoint->get_modules();
 
@@ -96,6 +99,10 @@ class Jetpack_Redux_State_Helper {
 
 		$host = new Host();
 
+		// Get Jetpack benefits for this site.
+		$jetpack_benefits_response = Jetpack_Core_API_Site_Endpoint::get_benefits();
+		$jetpack_benefits          = 200 === $jetpack_benefits_response->status ? json_decode( $jetpack_benefits_response->data['data'] ) : array();
+
 		return array(
 			'WP_API_root'                 => esc_url_raw( rest_url() ),
 			'WP_API_nonce'                => wp_create_nonce( 'wp_rest' ),
@@ -103,6 +110,7 @@ class Jetpack_Redux_State_Helper {
 			'purchaseToken'               => self::get_purchase_token(),
 			'pluginBaseUrl'               => plugins_url( '', JETPACK__PLUGIN_FILE ),
 			'connectionStatus'            => $connection_status,
+			'connectedPlugins'            => Connection_Plugin_Storage::get_all(),
 			'connectUrl'                  => false == $current_user_data['isConnected'] // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 				? Jetpack::init()->build_connect_url( true, false, false )
 				: '',
@@ -131,6 +139,7 @@ class Jetpack_Redux_State_Helper {
 				'currentUser' => $current_user_data,
 			),
 			'siteData'                    => array(
+				'blog_id'                    => Jetpack_Options::get_option( 'id', 0 ),
 				'icon'                       => has_site_icon()
 					? apply_filters( 'jetpack_photon_url', get_site_icon_url(), array( 'w' => 64 ) )
 					: '',
@@ -159,6 +168,7 @@ class Jetpack_Redux_State_Helper {
 					'infinite-scroll' => current_theme_supports( 'infinite-scroll' ) || in_array( $current_theme->get_stylesheet(), $inf_scr_support_themes, true ),
 				),
 			),
+			'jetpackBenefits'             => $jetpack_benefits,
 			'jetpackStateNotices'         => array(
 				'messageCode'      => Jetpack::state( 'message' ),
 				'errorCode'        => Jetpack::state( 'error' ),

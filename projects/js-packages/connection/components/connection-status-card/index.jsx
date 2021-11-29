@@ -43,7 +43,6 @@ const ConnectionStatusCard = props => {
 	const [ isDisconnectDialogOpen, setIsDisconnectDialogOpen ] = useState( false );
 	const userIsConnecting = useSelect( select => select( STORE_ID ).getUserIsConnecting(), [] );
 	const { setConnectionStatus, setUserIsConnecting } = useDispatch( STORE_ID );
-
 	const avatarRef = useRef();
 
 	/**
