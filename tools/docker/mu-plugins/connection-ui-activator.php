@@ -14,11 +14,11 @@ namespace Jetpack\Docker\MuPlugin\ConnectionUIActivator;
 
 /**
  * Activate the Jetpack Connection UI.
- *
- * @return bool
  */
 function jetpack_docker_connection_ui_activator() {
-	return true;
+	if ( class_exists( '\Automattic\Jetpack\ConnectionUI\Admin' ) ) {
+		\Automattic\Jetpack\ConnectionUI\Admin::init();
+	}
 }
 
-add_filter( 'jetpack_connection_ui_active', __NAMESPACE__ . '\jetpack_docker_connection_ui_activator' );
+add_action( 'plugins_loaded', __NAMESPACE__ . '\jetpack_docker_connection_ui_activator' );

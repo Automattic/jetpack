@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Switched external media API tests to short-circuit API calls before they're being dispatched.

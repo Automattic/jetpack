@@ -13,7 +13,6 @@ module.exports = [
 		devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
 		output: {
 			...jetpackWebpackConfig.output,
-			filename: '[name].js',
 			path: path.resolve( './build' ),
 		},
 		optimization: {
@@ -56,6 +55,12 @@ module.exports = [
 				// Handle images.
 				jetpackWebpackConfig.FileRule(),
 			],
+		},
+		externals: {
+			...jetpackWebpackConfig.externals,
+			jetpackConfig: JSON.stringify( {
+				consumer_slug: 'jetpack-backup',
+			} ),
 		},
 	},
 ];

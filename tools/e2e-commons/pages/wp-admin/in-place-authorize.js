@@ -1,4 +1,4 @@
-import { WpPage } from '..';
+import WpPage from '../wp-page.js';
 
 export default class InPlaceAuthorizeFrame extends WpPage {
 	constructor( page ) {

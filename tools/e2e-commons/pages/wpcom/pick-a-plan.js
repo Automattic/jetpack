@@ -1,5 +1,5 @@
-import { WpPage } from '..';
-import logger from '../../logger';
+import WpPage from '../wp-page.js';
+import logger from '../../logger.cjs';
 
 export default class PickAPlanPage extends WpPage {
 	constructor( page ) {
