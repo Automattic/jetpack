@@ -2,28 +2,41 @@
  * External dependencies
  */
 import React from 'react';
-import JetpackAdminSection from '../index.jsx';
+import JetpackAdminSection from '../basic';
+import JetpackAdminSectionHero from '../hero';
 import JetpackAdminPage from '../../admin-page';
 
 export default {
-	title: 'Playground/Admin Section',
-	component: JetpackAdminSection,
+	title: 'Playground/Admin Sections',
 };
 
 // Export additional stories using pre-defined values
-const Template = args => (
+const Template = () => (
 	<JetpackAdminPage>
-		<JetpackAdminSection { ...args }>
-			Sample Section 1 - Controls will apply to this section
+		<JetpackAdminSectionHero>
+			<h1>Sample Hero section</h1>
+			<p>This is a sample Hero section</p>
+		</JetpackAdminSectionHero>
+		<JetpackAdminSection>
+			<h2>Sample Section</h2>
+			<p>This is a sample section</p>
 		</JetpackAdminSection>
-		<JetpackAdminSection>Sample Section 2</JetpackAdminSection>
 	</JetpackAdminPage>
 );
 
-const DefaultArgs = {
-	bgColor: 'grey',
-};
-
 // Export Default story
 export const _default = Template.bind( {} );
-_default.args = DefaultArgs;
+
+export const onlyBasic = () => (
+	<JetpackAdminSection>
+		<h2>Sample Section</h2>
+		<p>This is a sample section</p>
+	</JetpackAdminSection>
+);
+
+export const onlyHero = () => (
+	<JetpackAdminSectionHero>
+		<h1>Sample Hero section</h1>
+		<p>This is a sample Hero section</p>
+	</JetpackAdminSectionHero>
+);
