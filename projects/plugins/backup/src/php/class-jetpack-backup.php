@@ -102,7 +102,6 @@ class Jetpack_Backup {
 		// Initial JS state including JP Connection data.
 		wp_add_inline_script( 'jetpack-backup', $this->get_initial_state(), 'before' );
 		wp_add_inline_script( 'jetpack-backup', Connection_Initial_State::render(), 'before' );
-		wp_set_script_translations( 'jetpack-backup', 'jetpack-backup' );
 
 		// Load script for analytics.
 		if ( ! $status->is_offline_mode() && $manager->is_connected() ) {
