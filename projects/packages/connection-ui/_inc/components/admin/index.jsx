@@ -34,6 +34,8 @@ const Admin = props => {
 
 	const { connectionStatus } = props;
 
+	const { tracksUserData, tracksEventData } = window.CUI_INITIAL_STATE;
+
 	useEffect( () => {
 		restApi.setApiRoot( APIRoot );
 		restApi.setApiNonce( APINonce );
@@ -47,6 +49,8 @@ const Admin = props => {
 				apiRoot={ APIRoot }
 				apiNonce={ APINonce }
 				redirectUri={ IDCData.redirectUri }
+				tracksUserData={ tracksUserData }
+				tracksEventData={ tracksEventData }
 			/>
 		);
 	}
