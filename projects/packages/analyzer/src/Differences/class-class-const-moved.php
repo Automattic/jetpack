@@ -43,10 +43,13 @@ class Class_Const_Moved extends Differences_List_Item implements Invocation_Warn
 	/**
 	 * Returns serializable object.
 	 *
-	 * @return object
+	 * @return array
 	 */
 	protected function get_serializable() {
-		return $this->old_declaration;
+		return array(
+			'old_declaration' => $this->old_declaration->to_map(),
+			'new_declaration' => $this->new_declaration->to_map(),
+		);
 	}
 
 	/**

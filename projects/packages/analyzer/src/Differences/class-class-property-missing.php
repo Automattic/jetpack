@@ -36,7 +36,7 @@ class Class_Property_Missing extends Differences_List_Item implements Invocation
 	 * @return object
 	 */
 	protected function get_serializable() {
-		return $this->declaration;
+		return array( 'old_declaration' => $this->declaration );
 	}
 
 	/**

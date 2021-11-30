@@ -36,7 +36,7 @@ class Function_Deprecated extends Differences_List_Item implements Invocation_Wa
 	 * @return object
 	 */
 	protected function get_serializable() {
-		return $this->old_declaration;
+		return array( 'old_declaration' => $this->old_declaration );
 	}
 
 	/**

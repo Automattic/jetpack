@@ -33,10 +33,10 @@ class Function_Missing extends Differences_List_Item implements Invocation_Warne
 	/**
 	 * Returns serializable object.
 	 *
-	 * @return object
+	 * @return array
 	 */
 	protected function get_serializable() {
-		return $this->declaration;
+		return array( 'old_declaration' => $this->declaration );
 	}
 
 	/**
