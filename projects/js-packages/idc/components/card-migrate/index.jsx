@@ -38,9 +38,6 @@ const CardMigrate = props => {
 
 	/**
 	 * Initiate the migration.
-	 * Placeholder for now.
-	 *
-	 * @todo Add the actual migration functionality.
 	 */
 	const doMigrate = useCallback( () => {
 		if ( ! isActionInProgress ) {

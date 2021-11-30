@@ -11,6 +11,7 @@ import restApi from '@automattic/jetpack-api';
  */
 import IDCScreenVisual from './visual';
 import trackAndBumpMCStats from '../../tools/tracking';
+import useMigrationFinished from '../../hooks/use-migration-finished';
 
 /**
  * The IDC screen component.
@@ -36,6 +37,8 @@ const IDCScreen = props => {
 	const onMigrated = useCallback( () => {
 		setIsMigrated( true );
 	}, [ setIsMigrated ] );
+
+	const { isFinishingMigration, finishMigrationCallback } = useMigrationFinished();
 
 	/**
 	 * Initialize the REST API and analytics.
@@ -65,18 +68,6 @@ const IDCScreen = props => {
 		}
 	}, [ apiRoot, apiNonce, tracksUserData, tracksEventData ] );
 
-	const [ isFinishingMigration, setIsFinishingMigration ] = useState( false );
-
-	/**
-	 * Handle the "Got It" click after the migration has completed.
-	 */
-	const finishMigration = useCallback( () => {
-		if ( ! isFinishingMigration ) {
-			setIsFinishingMigration( true );
-			window.location.reload();
-		}
-	}, [ isFinishingMigration, setIsFinishingMigration ] );
-
 	return (
 		<IDCScreenVisual
 			logo={ logo }
@@ -86,8 +77,8 @@ const IDCScreen = props => {
 			redirectUri={ redirectUri }
 			isMigrated={ isMigrated }
 			onMigrated={ onMigrated }
-			finishCallback={ finishMigration }
-			isFinishing={ isFinishingMigration }
+			finishMigrationCallback={ finishMigrationCallback }
+			isFinishingMigration={ isFinishingMigration }
 		/>
 	);
 };

@@ -25,7 +25,7 @@ const IDCScreenVisual = props => {
 		redirectUri,
 		isMigrated,
 		onMigrated,
-		finishMigration,
+		finishMigrationCallback,
 		isFinishingMigration,
 	} = props;
 
@@ -40,7 +40,7 @@ const IDCScreenVisual = props => {
 				<ScreenMigrated
 					wpcomHomeUrl={ wpcomHomeUrl }
 					currentUrl={ currentUrl }
-					finishCallback={ finishMigration }
+					finishCallback={ finishMigrationCallback }
 					isFinishing={ isFinishingMigration }
 				/>
 			) : (
@@ -77,9 +77,9 @@ IDCScreenVisual.propTypes = {
 	/** Callback to be called when migration gets completed. */
 	onMigrated: PropTypes.func,
 	/** Callback to be called when migration is complete, and user clicks the OK button. */
-	finishMigration: PropTypes.func,
+	finishMigrationCallback: PropTypes.func,
 	/** Whether the migration finishing process is in progress. */
-	isFinishingMigration: PropTypes.bool,
+	isFinishingMigration: PropTypes.bool.isRequired,
 };
 
 IDCScreenVisual.defaultProps = {
@@ -103,6 +103,7 @@ IDCScreenVisual.defaultProps = {
 		}
 	).toString(),
 	isMigrated: false,
+	isFinishingMigration: false,
 };
 
 export default IDCScreenVisual;
