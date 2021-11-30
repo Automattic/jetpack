@@ -1248,4 +1248,33 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertResponseStatus( 500, $response );
 		$this->assertResponseData( array( 'code' => 'site_not_registered' ), $response );
 	}
+
+	/**
+	 * Test the `/seen-wc-connection-modal` endpoint fails.
+	 *
+	 * @since 10.4.0
+	 */
+	public function test_post_seen_wc_connection_modal_with_invalid_user_permissions() {
+		wp_set_current_user( 0 );
+
+		$response = $this->create_and_get_request( 'seen-wc-connection-modal', array(), 'POST' );
+
+		$this->assertResponseStatus( rest_authorization_required_code(), $response );
+	}
+
+	/**
+	 * Test the `/seen-wc-connection-modal` endpoint succeeds.
+	 *
+	 * @since 10.4.0
+	 */
+	public function test_post_seen_wc_connection_modal_success() {
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
+		wp_set_current_user( $user->ID );
+
+		$response = $this->create_and_get_request( 'seen-wc-connection-modal', array(), 'POST' );
+
+		$this->assertResponseStatus( 200, $response );
+		$this->assertResponseData( array( 'success' => true ), $response );
+	}
 } // class end
