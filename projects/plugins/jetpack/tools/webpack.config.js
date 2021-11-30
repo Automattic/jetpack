@@ -12,8 +12,6 @@ const sharedWebpackConfig = {
 	devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
 	output: {
 		...jetpackWebpackConfig.output,
-		filename: '[name].js',
-		chunkFilename: '[name].[contenthash].js',
 		path: path.join( __dirname, '../_inc/build' ),
 	},
 	optimization: {
@@ -33,6 +31,12 @@ const sharedWebpackConfig = {
 			DependencyExtractionPlugin: false,
 		} ),
 	],
+	externals: {
+		...jetpackWebpackConfig.externals,
+		jetpackConfig: JSON.stringify( {
+			consumer_slug: 'jetpack',
+		} ),
+	},
 	module: {
 		strictExportPresence: true,
 		rules: [
@@ -84,6 +88,7 @@ module.exports = [
 				},
 			},
 			'search-dashboard': path.join( __dirname, '../_inc/client', 'search-dashboard-entry.js' ),
+			'plugins-page': path.join( __dirname, '../_inc/client', 'plugins-entry.js' ),
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,
