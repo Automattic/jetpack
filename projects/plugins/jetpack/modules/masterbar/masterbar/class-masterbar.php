@@ -169,8 +169,6 @@ class Masterbar {
 		Assets::add_resource_hint(
 			array(
 				'//s0.wp.com',
-				'//s1.wp.com',
-				'//s2.wp.com',
 				'//0.gravatar.com',
 				'//1.gravatar.com',
 				'//2.gravatar.com',
@@ -337,8 +335,7 @@ class Masterbar {
 			return set_url_scheme( $this->sandbox_url . $file, 'https' );
 		}
 
-		$i   = hexdec( substr( md5( $file ), - 1 ) ) % 2;
-		$url = 'https://s' . $i . '.wp.com' . $file;
+		$url = 'https://s0.wp.com' . $file;
 
 		return set_url_scheme( $url, 'https' );
 	}
