@@ -25,9 +25,6 @@ $toggle-width: 3em;
 	&.is-instant-search {
 		margin-top: 4em;
 	}
-	.form-toggle__label-content {
-		// display: none;
-	}
 	.jp-form-search-settings-group__toggle-container {
 		display: flex;
 		@include for-tablet-down {
