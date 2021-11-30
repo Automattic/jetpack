@@ -242,13 +242,19 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.4-a.9 - 2021-11-23
+### 10.4-beta - 2021-11-30
 #### Enhancements
-- Dashboard: add option to add a license key via the Jetpack dashboard.
-- Verification tools: remove old interface in the Tools menu, in favor of the newer settings in the Jetpack dashboard.
+- Connection: additional messaging for both connection and disconnection flows.
+- Dashboard: add option to add Jetpack product using a license key.
+- Publicize: enable the RePublicize UI in the block editor.
+- VideoPress: adds captions and subtitle support.
 
 #### Bug fixes
-- Stats: remove ASCII art from the tracking pixel's alt attribute, to improve accessibility.
+- Custom CSS: disable CSSTidy shorthand optimizations to prevent block validation issues.
+- Search: avoid fatal errors when the feature is inactive, but Extra Sidebar Widgets are active.
+- Sharing: ask search engines to not index pages with sharing query string.
+- VideoPress: fix various validation errors.
+- Widgets: allow customizer preview to show widget visibility rules properly.
 
 --------
 
