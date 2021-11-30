@@ -22,6 +22,7 @@ import cloudImageUrl from './cloud.svg';
 import shieldImageUrl from './shield.svg';
 import removeBugImageUrl from './remove-bug.svg';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
+import { hasActiveSecurityPurchase as getHasActiveSecurityPurchase } from 'state/site';
 
 /**
  * Style dependencies
@@ -72,6 +73,12 @@ class DashSecurityBundle extends Component {
 	}
 
 	render() {
+		const { hasActiveSecurityPurchase } = this.props;
+
+		if ( hasActiveSecurityPurchase ) {
+			return null;
+		}
+
 		return ( 
 			<Card className="dash-security-bundle" >
 				<div className="dash-security-bundle--icon" >
@@ -120,5 +127,8 @@ class DashSecurityBundle extends Component {
 
 
 export default connect(
-	state => ( { productDescriptionUrl:  getProductDescriptionUrl( state, 'security' ), } )
+	state => ( { 
+		productDescriptionUrl:  getProductDescriptionUrl( state, 'security' ), 
+		hasActiveSecurityPurchase: getHasActiveSecurityPurchase( state ),
+	} )
 )( DashSecurityBundle );

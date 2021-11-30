@@ -14,6 +14,7 @@ import {
 	isJetpackBackup,
 	isJetpackScan,
 	isJetpackSearch,
+	isJetpackBundle,
 	isJetpackVideoPress,
 } from 'lib/plans/constants';
 import {
@@ -331,6 +332,19 @@ export function getActiveScanPurchase( state ) {
 
 export function hasActiveScanPurchase( state ) {
 	return !! getActiveScanPurchase( state );
+}
+
+export function getActiveSecurityPurchase( state ) {
+	return find( getActiveSitePurchases( state ), purchase => 
+		isJetpackBundle( purchase.product_slug )
+	);
+}
+
+export function hasActiveSecurityPurchase( state ) {
+	return (
+		!! getActiveSecurityPurchase( state ) ||
+		'is-complete-plan' === getPlanClass( getSitePlan( state ).product_slug )
+	);
 }
 
 export function getActiveSearchPurchase( state ) {
