@@ -338,7 +338,7 @@ export function hasActiveScanPurchase( state ) {
  * Return any active security bundles on the site
  *
  * @param {*} state - Global state tree
- * @returns {Object} A active security bundle on the site, undefined otherwise
+ * @returns {object} A active security bundle on the site, undefined otherwise
  */
 export function getActiveSecurityPurchase( state ) {
 	return find( getActiveSitePurchases( state ), purchase =>
