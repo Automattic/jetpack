@@ -7,7 +7,7 @@
 - Connection: additional messaging for both connection and disconnection flows.
 - Dashboard: add option to add Jetpack product using a license key.
 - Publicize: enable the RePublicize UI in the block editor.
-- VideoPress: adds captions and subtitle support.
+- VideoPress: add captions and subtitle support.
 
 ### Bug fixes
 - Custom CSS: disable CSSTidy shorthand optimizations to prevent block validation issues.
