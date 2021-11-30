@@ -114,6 +114,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * Adds Plugins menu.
 	 */
 	public function add_plugins_menu() {
+		global $submenu;
 		/**
 		 * Whether to enable the marketplace feature entrypoint.
 		 * This filter is specific to WPCOM, that's why there is no
@@ -124,8 +125,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		 * @since 10.3
 		 * @param bool $wpcom_marketplace_enabled Load the WordPress.com Marketplace feature. Default to false.
 		 */
-		if ( apply_filters( 'wpcom_marketplace_enabled', false ) ) {
-			global $submenu;
+		if ( isset( $submenu['plugins.php'] ) && apply_filters( 'wpcom_marketplace_enabled', false ) ) {
 			$plugins_submenu = $submenu['plugins.php'];
 			$slug_to_update  = 'plugin-install.php';
 
