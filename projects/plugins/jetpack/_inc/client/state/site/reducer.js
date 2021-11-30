@@ -335,7 +335,7 @@ export function hasActiveScanPurchase( state ) {
 }
 
 export function getActiveSecurityPurchase( state ) {
-	return find( getActiveSitePurchases( state ), purchase => 
+	return find( getActiveSitePurchases( state ), purchase =>
 		isJetpackBundle( purchase.product_slug )
 	);
 }

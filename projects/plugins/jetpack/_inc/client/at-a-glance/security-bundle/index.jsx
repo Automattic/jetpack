@@ -27,10 +27,9 @@ import { hasActiveSecurityPurchase as getHasActiveSecurityPurchase } from 'state
 /**
  * Style dependencies
  */
-import './style.scss'
+import './style.scss';
 
 class DashSecurityBundle extends Component {
-
 	trackUpgradeClick = () => {
 		analytics.tracks.recordJetpackClick( {
 			page: 'aag',
@@ -44,30 +43,28 @@ class DashSecurityBundle extends Component {
 			{
 				id: 'backup',
 				imageUrl: cloudImageUrl,
-				text: __( 'Backup', 'jetpack' )
+				text: __( 'Backup', 'jetpack' ),
 			},
 			{
 				id: 'scan',
 				imageUrl: shieldImageUrl,
-				text: __( 'Scan', 'jetpack' )
+				text: __( 'Scan', 'jetpack' ),
 			},
 			{
 				id: 'antispam',
 				imageUrl: removeBugImageUrl,
-				text: __( 'Anti-spam', 'jetpack' )
+				text: __( 'Anti-spam', 'jetpack' ),
 			},
 		];
 
 		return (
 			<div className="dash-security-bundle--content-info-features">
-				{
-					features.map( ( { id, imageUrl, text } ) => (
-						<div id={ id } className="dash-security-bundle--content-info-features-single-feature" >
-							<img src={ imageUrl } />
-							<p>{ text }</p>
-						</div>
-					) )
-				}
+				{ features.map( ( { id, imageUrl, text } ) => (
+					<div id={ id } className="dash-security-bundle--content-info-features-single-feature">
+						<img src={ imageUrl } />
+						<p>{ text }</p>
+					</div>
+				) ) }
 			</div>
 		);
 	}
@@ -79,15 +76,15 @@ class DashSecurityBundle extends Component {
 			return null;
 		}
 
-		return ( 
-			<Card className="dash-security-bundle" >
-				<div className="dash-security-bundle--icon" >
+		return (
+			<Card className="dash-security-bundle">
+				<div className="dash-security-bundle--icon">
 					<img src={ bundleImageUrl } />
 				</div>
-				<div className="dash-security-bundle--content" >
-					<div className="dash-security-bundle--content-info" >
+				<div className="dash-security-bundle--content">
+					<div className="dash-security-bundle--content-info">
 						<h2>{ __( 'Comprehensive Site Security', 'jetpack' ) }</h2>
-						
+
 						<p>
 							{ createInterpolateElement(
 								__(
@@ -107,8 +104,8 @@ class DashSecurityBundle extends Component {
 						</p>
 						{ this.renderFeatures() }
 					</div>
-					<div className="dash-security-bundle--content-cta" >
-						<Button 
+					<div className="dash-security-bundle--content-cta">
+						<Button
 							className="dash-security-bundle--content-cta-button"
 							href={ this.props.productDescriptionUrl }
 							onClick={ this.trackUpgradeClick }
@@ -124,11 +121,7 @@ class DashSecurityBundle extends Component {
 	}
 }
 
-
-
-export default connect(
-	state => ( { 
-		productDescriptionUrl:  getProductDescriptionUrl( state, 'security' ), 
-		hasActiveSecurityPurchase: getHasActiveSecurityPurchase( state ),
-	} )
-)( DashSecurityBundle );
+export default connect( state => ( {
+	productDescriptionUrl: getProductDescriptionUrl( state, 'security' ),
+	hasActiveSecurityPurchase: getHasActiveSecurityPurchase( state ),
+} ) )( DashSecurityBundle );
