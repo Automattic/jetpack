@@ -110,13 +110,14 @@ class Plugin {
 	/**
 	 * Get instances for all known plugins.
 	 *
-	 * @param bool $no_cache Set true to bypass the transients cache.
+	 * @param bool $bypass_cache Set true to bypass the transients cache.
+	 *
 	 * @return Plugin[]
 	 * @throws PluginDataException If the plugin data cannot be fetched or is invalid.
 	 */
-	public static function get_all_plugins( $no_cache = false ) {
+	public static function get_all_plugins( $bypass_cache = false ) {
 		if ( null === self::$instances ) {
-			$data = Utils::get_remote_data( JETPACK_BETA_PLUGINS_URL, 'plugins_json', $no_cache );
+			$data = Utils::get_remote_data( JETPACK_BETA_PLUGINS_URL, 'plugins_json', $bypass_cache );
 			if ( ! is_object( $data ) ) {
 				throw new PluginDataException( __( 'Failed to download list of plugins. Check your Internet connection.', 'jetpack-beta' ) );
 			}
