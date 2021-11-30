@@ -16,16 +16,12 @@ import { Spinner } from '@automattic/jetpack-components';
  */
 import { STORE_ID } from '../../state/store';
 import extractHostname from '../../tools/extract-hostname';
+import trackAndBumpMCStats from '../../tools/tracking';
 
 /**
  * The "migrate" card.
  *
  * @param {object} props - The properties.
- * @param {string} props.wpcomHomeUrl - The original site URL.
- * @param {string} props.currentUrl - The current site URL.
- * @param {Function} props.onMigrated - The callback to be called when migration has completed.
- * @param {boolean} props.isActionInProgress - Whether there's already an action in progress.
- * @param {Function} props.setIsActionInProgress - Function to set the "action in progress" flag.
  * @returns {React.Component} The `ConnectScreen` component.
  */
 const CardMigrate = props => {
@@ -48,6 +44,8 @@ const CardMigrate = props => {
 	 */
 	const doMigrate = useCallback( () => {
 		if ( ! isActionInProgress ) {
+			trackAndBumpMCStats( 'migrate' );
+
 			setIsActionInProgress( true );
 			setIsMigrating( true );
 
