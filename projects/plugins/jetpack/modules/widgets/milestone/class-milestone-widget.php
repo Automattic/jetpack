@@ -51,10 +51,6 @@ class Milestone_Widget extends WP_Widget {
 		add_action( 'wp_enqueue_scripts', array( __class__, 'enqueue_template' ) );
 		add_action( 'admin_enqueue_scripts', array( __class__, 'enqueue_admin' ) );
 		add_action( 'wp_footer', array( $this, 'localize_script' ) );
-
-		if ( is_active_widget( false, false, $this->id_base, true ) || is_active_widget( false, false, 'monster', true ) || is_customize_preview() ) {
-			add_action( 'wp_head', array( __class__, 'styles_template' ) );
-		}
 	}
 
 	/**
@@ -96,66 +92,6 @@ class Milestone_Widget extends WP_Widget {
 			'20201113',
 			true
 		);
-	}
-
-	/**
-	 * Output the frontend styling.
-	 */
-	public static function styles_template() {
-		global $themecolors;
-		$colors = wp_parse_args(
-			$themecolors,
-			array(
-				'bg'     => 'ffffff',
-				'border' => 'cccccc',
-				'text'   => '333333',
-			)
-		);
-		?>
-<style>
-.milestone-widget {
-	margin-bottom: 1em;
-}
-.milestone-content {
-	line-height: 2;
-	margin-top: 5px;
-	max-width: 100%;
-	padding: 0;
-	text-align: center;
-}
-.milestone-header {
-	background-color: <?php echo self::sanitize_color_hex( $colors['text'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
-	color: <?php echo self::sanitize_color_hex( $colors['bg'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
-	line-height: 1.3;
-	margin: 0;
-	padding: .8em;
-}
-.milestone-header .event,
-.milestone-header .date {
-	display: block;
-}
-.milestone-header .event {
-	font-size: 120%;
-}
-.milestone-countdown .difference {
-	display: block;
-	font-size: 500%;
-	font-weight: bold;
-	line-height: 1.2;
-}
-.milestone-countdown,
-.milestone-message {
-	background-color: <?php echo self::sanitize_color_hex( $colors['bg'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
-	border: 1px solid <?php echo self::sanitize_color_hex( $colors['border'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
-	border-top: 0;
-	color: <?php echo self::sanitize_color_hex( $colors['text'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
-	padding-bottom: 1em;
-}
-.milestone-message {
-	padding-top: 1em
-}
-</style>
-		<?php
 	}
 
 	/**
@@ -241,6 +177,7 @@ class Milestone_Widget extends WP_Widget {
 	public function widget( $args, $instance ) {
 		$instance = wp_parse_args( $instance, $this->defaults() );
 
+		$this->enqueue_scripts();
 		echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		/** This filter is documented in wp-includes/widgets/class-wp-widget-pages.php */
@@ -281,6 +218,18 @@ class Milestone_Widget extends WP_Widget {
 
 		/** This action is documented in modules/widgets/gravatar-profile.php */
 		do_action( 'jetpack_stats_extra', 'widget_view', 'milestone' );
+	}
+
+	/**
+	 * Enqueue widget styles
+	 */
+	public function enqueue_scripts() {
+		wp_enqueue_style(
+			'milestone-widget',
+			plugins_url( 'milestone-widget.css', __FILE__ ),
+			array(),
+			JETPACK__VERSION
+		);
 	}
 
 	/**
