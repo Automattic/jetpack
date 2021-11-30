@@ -22,6 +22,7 @@ import {
 	updateLicensingActivationNoticeDismiss as updateLicensingActivationNoticeDismissAction,
 	updateUserLicensesCounts as updateUserLicensesCountsAction,
 } from 'state/licensing';
+import { fetchModules as fetchModulesAction } from 'state/modules';
 import {
 	getSiteConnectionStatus,
 	isCurrentUserLinked,
@@ -55,7 +56,11 @@ import {
 	fetchSiteData as fetchSiteDataAction,
 	fetchSitePurchases as fetchSitePurchasesAction,
 } from 'state/site';
-import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
+import {
+    areThereUnsavedSettings,
+    clearUnsavedSettingsFlag,
+    fetchSettings as fetchSettingsAction
+} from 'state/settings';
 import { getSearchTerm } from 'state/search';
 import { Recommendations } from 'recommendations';
 import ProductDescriptions from 'product-descriptions';
@@ -576,6 +581,10 @@ class Main extends React.Component {
 		this.props.fetchSiteData();
 		// Update site products.
 		this.props.fetchSitePurchases();
+        // Update site modules (search, wordads, google-analytics, etc.)
+        this.props.fetchModules();
+        // Update site settings (i.e. search, instant search, etc.)
+        this.props.fetchSettings();
 	}
 
 	render() {
@@ -674,6 +683,12 @@ export default connect(
 		fetchSitePurchases: () => {
 			return dispatch( fetchSitePurchasesAction() );
 		},
+        fetchModules: () => {
+			return dispatch( fetchModulesAction() );
+        },
+        fetchSettings: () => {
+			return dispatch( fetchSettingsAction() );
+        },
 	} )
 )(
 	withDispatch( dispatch => {
