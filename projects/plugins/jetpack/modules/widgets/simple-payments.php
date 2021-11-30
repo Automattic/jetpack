@@ -66,6 +66,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				array(
 					'classname'                   => 'jetpack-simple-payments',
 					'description'                 => __( 'Add a Pay with PayPal button as a Widget.', 'jetpack' ),
+					'show_instance_in_rest'       => true,
 					'customize_selective_refresh' => true,
 				)
 			);
@@ -88,6 +89,21 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			if ( is_active_widget( false, false, $this->id_base ) || is_customize_preview() ) {
 				add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
 			}
+
+			add_filter( 'widget_types_to_hide_from_legacy_widget_block', array( $this, 'hide_simple_payment_widget' ) );
+		}
+
+		/**
+		 * Return an array of the widgets hidden from the Legacy Widget block.
+		 *
+		 * This is used to hide the Pay with PayPal from the Legacy Widget block.
+		 *
+		 * @param array $widget_types the widget types that are currently hidden.
+		 * @return array Widget types hidden from the Legacy Widget block
+		 */
+		public function hide_simple_payment_widget( $widget_types ) {
+			$widget_types[] = 'jetpack_simple_payments_widget';
+			return $widget_types;
 		}
 
 		/**
