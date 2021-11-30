@@ -9,13 +9,13 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
+import Button from 'components/button';
 import Card from 'components/card';
 import bundleImageUrl from './shield-with-check.svg';
 import cloudImageUrl from './cloud.svg';
@@ -105,6 +105,8 @@ class DashSecurityBundle extends Component {
 							className="dash-security-bundle--content-cta-button"
 							href={ this.props.productDescriptionUrl }
 							onClick={ this.trackUpgradeClick }
+							compact
+							primary
 						>
 							{ __( 'Upgrade', 'jetpack' ) }
 						</Button>
