@@ -19,7 +19,7 @@ import extractHostname from '../../tools/extract-hostname';
 import trackAndBumpMCStats from '../../tools/tracking';
 
 /**
- * The "migrate" card.
+ * The "start fresh" card.
  *
  * @param {object} props - The properties.
  * @returns {React.Component} The `ConnectScreen` component.
