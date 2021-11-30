@@ -217,3 +217,10 @@ div.sharedaddy.sd-like-enabled .sd-like .post-likes-widget {
 .sd-gplus .sd-title {
 	display: none;
 }
+
+/* Hide the share this section in the post print view */
+@media print {
+	div.sharedaddy.sd-sharing-enabled {
+	   visibility: hidden;
+	}
+ }
