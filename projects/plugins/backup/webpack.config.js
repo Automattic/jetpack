@@ -27,12 +27,6 @@ module.exports = [
 				DependencyExtractionPlugin: { injectPolyfill: true },
 			} ),
 		],
-		externals: {
-			...jetpackWebpackConfig.externals,
-			jetpackConfig: JSON.stringify( {
-				consumer_slug: 'jetpack-backup',
-			} ),
-		},
 		module: {
 			strictExportPresence: true,
 			rules: [
