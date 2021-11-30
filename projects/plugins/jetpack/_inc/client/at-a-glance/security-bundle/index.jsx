@@ -44,24 +44,27 @@ class DashSecurityBundle extends Component {
 				id: 'backup',
 				imageUrl: cloudImageUrl,
 				text: __( 'Backup', 'jetpack' ),
+				imgAlt: __( 'A cloud representing Jetpack Backup', 'jetpack' ),
 			},
 			{
 				id: 'scan',
 				imageUrl: shieldImageUrl,
 				text: __( 'Scan', 'jetpack' ),
+				imgAlt: __( 'A shield representing Jetpack Scan', 'jetpack' ),
 			},
 			{
 				id: 'antispam',
 				imageUrl: removeBugImageUrl,
 				text: __( 'Anti-spam', 'jetpack' ),
+				imgAlt: __( 'A crossed-out bug representing Jetpack Anti-spam', 'jetpack' ),
 			},
 		];
 
 		return (
 			<div className="dash-security-bundle--content-info-features">
-				{ features.map( ( { id, imageUrl, text } ) => (
+				{ features.map( ( { id, imageUrl, text, imgAlt } ) => (
 					<div id={ id } className="dash-security-bundle--content-info-features-single-feature">
-						<img src={ imageUrl } />
+						<img src={ imageUrl } alt={ imgAlt } />
 						<p>{ text }</p>
 					</div>
 				) ) }
@@ -79,7 +82,7 @@ class DashSecurityBundle extends Component {
 		return (
 			<Card className="dash-security-bundle">
 				<div className="dash-security-bundle--icon">
-					<img src={ bundleImageUrl } />
+					<img src={ bundleImageUrl } alt={ __( 'A shield and check mark representing the Jetpack Security Bundle', 'jetpack' ) } />
 				</div>
 				<div className="dash-security-bundle--content">
 					<div className="dash-security-bundle--content-info">
