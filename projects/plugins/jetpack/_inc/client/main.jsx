@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { withRouter, Prompt } from 'react-router-dom';
 import { __, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
 import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { Dashicon } from '@wordpress/components';
 import { withDispatch } from '@wordpress/data';
@@ -21,6 +22,7 @@ import {
 	updateLicensingActivationNoticeDismiss as updateLicensingActivationNoticeDismissAction,
 	updateUserLicensesCounts as updateUserLicensesCountsAction,
 } from 'state/licensing';
+import { fetchModules as fetchModulesAction } from 'state/modules';
 import {
 	getSiteConnectionStatus,
 	isCurrentUserLinked,
@@ -47,13 +49,18 @@ import {
 	getTracksUserData,
 	showRecommendations,
 	getPluginBaseUrl,
+	getPartnerCoupon,
 	isWoASite,
 } from 'state/initial-state';
 import {
 	fetchSiteData as fetchSiteDataAction,
 	fetchSitePurchases as fetchSitePurchasesAction,
 } from 'state/site';
-import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
+import {
+    areThereUnsavedSettings,
+    clearUnsavedSettingsFlag,
+    fetchSettings as fetchSettingsAction
+} from 'state/settings';
 import { getSearchTerm } from 'state/search';
 import { Recommendations } from 'recommendations';
 import ProductDescriptions from 'product-descriptions';
@@ -206,6 +213,46 @@ class Main extends React.Component {
 	}
 
 	renderMainContent = route => {
+		/*
+		 * Show "Partner Coupon Redeem" screen instead of regular main content/pre-connection.
+		 */
+		if ( this.props.partnerCoupon ) {
+			const forceShow = new URLSearchParams( window.location.search ).get( 'showCouponRedemption' );
+
+			/*
+			 * There are two conditions (groups of conditions, really) where we would want to
+			 * show the partner coupon redeem screen:
+			 *
+			 * 1. The site is not yet connected to WPCOM, but has the jetpack_partner_coupon
+			 * option set in the database (this.props.partnerCoupon in redux). This is likely a
+			 * partner-user who has just arrived here from a CTA within a partner's dashboard
+			 * or other ecosystem.
+			 *
+			 * 2. The site is already connected to WPCOM, but the jetpack_partner_coupon option
+			 * is still set in the database. This means the user connected their site, but never
+			 * redeemed the coupon. If this is the case, we don't want to override the dashboard
+			 * or at a glance pages with the redemption screen. Instead, we'll catch a URL
+			 * parameter that JITMs will set (showCouponRedemption=true), and show the screen only
+			 * when the user came from a a JITM.
+			 */
+			if ( ! this.props.isSiteConnected || forceShow ) {
+				return (
+					<PartnerCouponRedeem
+						apiNonce={ this.props.apiNonce }
+						registrationNonce={ this.props.registrationNonce }
+						apiRoot={ this.props.apiRoot }
+						images={ [ '/images/connect-right-partner-backup.png' ] }
+						assetBaseUrl={ this.props.pluginBaseUrl }
+						connectionStatus={ this.props.connectionStatus }
+						partnerCoupon={ this.props.partnerCoupon }
+						siteRawUrl={ this.props.siteRawUrl }
+						tracksUserData={ !! this.props.tracksUserData }
+						analytics={ analytics }
+					/>
+				);
+			}
+		}
+
 		if (
 			this.isUserConnectScreen() &&
 			( this.props.userCanManageModules || this.props.hasConnectedOwner )
@@ -534,6 +581,10 @@ class Main extends React.Component {
 		this.props.fetchSiteData();
 		// Update site products.
 		this.props.fetchSitePurchases();
+        // Update site modules (search, wordads, google-analytics, etc.)
+        this.props.fetchModules();
+        // Update site settings (i.e. search, instant search, etc.)
+        this.props.fetchSettings();
 	}
 
 	render() {
@@ -604,6 +655,7 @@ export default connect(
 			connectUrl: getConnectUrl( state ),
 			connectingUserFeatureLabel: getConnectingUserFeatureLabel( state ),
 			isWoaSite: isWoASite( state ),
+			partnerCoupon: getPartnerCoupon( state ),
 		};
 	},
 	dispatch => ( {
@@ -631,6 +683,12 @@ export default connect(
 		fetchSitePurchases: () => {
 			return dispatch( fetchSitePurchasesAction() );
 		},
+        fetchModules: () => {
+			return dispatch( fetchModulesAction() );
+        },
+        fetchSettings: () => {
+			return dispatch( fetchSettingsAction() );
+        },
 	} )
 )(
 	withDispatch( dispatch => {
