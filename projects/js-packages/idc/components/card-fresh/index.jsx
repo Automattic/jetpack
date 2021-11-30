@@ -103,10 +103,15 @@ const CardFresh = props => {
 };
 
 CardFresh.propTypes = {
+	/** The original site URL. */
 	wpcomHomeUrl: PropTypes.string.isRequired,
+	/** The current site URL. */
 	currentUrl: PropTypes.string.isRequired,
+	/** The redirect URI to redirect users back to after connecting. */
 	redirectUri: PropTypes.string.isRequired,
+	/** Whether there's already an action in progress. */
 	isActionInProgress: PropTypes.bool,
+	/** Function to set the "action in progress" flag. */
 	setIsActionInProgress: PropTypes.func.isRequired,
 };
 

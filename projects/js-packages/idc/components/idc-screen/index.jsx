@@ -20,17 +20,20 @@ import './style.scss';
  * The IDC screen component.
  *
  * @param {object} props - The properties.
- * @param {React.Component} props.logo - The screen logo, Jetpack by default.
- * @param {string} props.headerText - The header text, 'Safe Mode' by default.
- * @param {string} props.wpcomHomeUrl - The original site URL.
- * @param {string} props.currentUrl - The current site URL.
- * @param {string} props.redirectUri - The redirect URI to redirect users back to after connecting.
- * @param {string} props.apiRoot - API root URL, required.
- * @param {string} props.apiNonce - API Nonce, required.
  * @returns {React.Component} The `ConnectScreen` component.
  */
 const IDCScreen = props => {
-	const { logo, headerText, wpcomHomeUrl, currentUrl, apiNonce, apiRoot, redirectUri, tracksUserData, tracksEventData } = props;
+	const {
+		logo,
+		headerText,
+		wpcomHomeUrl,
+		currentUrl,
+		apiNonce,
+		apiRoot,
+		redirectUri,
+		tracksUserData,
+		tracksEventData,
+	} = props;
 
 	const [ isMigrated, setIsMigrated ] = useState( false );
 
@@ -88,12 +91,19 @@ const IDCScreen = props => {
 };
 
 IDCScreen.propTypes = {
+	/** The screen logo. */
 	logo: PropTypes.object.isRequired,
+	/** The header text. */
 	headerText: PropTypes.string.isRequired,
+	/** The original site URL. */
 	wpcomHomeUrl: PropTypes.string.isRequired,
+	/** The current site URL. */
 	currentUrl: PropTypes.string.isRequired,
+	/** The redirect URI to redirect users back to after connecting. */
 	redirectUri: PropTypes.string.isRequired,
+	/** API root URL. */
 	apiRoot: PropTypes.string.isRequired,
+	/** API Nonce. */
 	apiNonce: PropTypes.string.isRequired,
 	/** WordPress.com user's Tracks identity. */
 	tracksUserData: PropTypes.object,

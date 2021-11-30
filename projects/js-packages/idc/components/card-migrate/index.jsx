@@ -108,10 +108,15 @@ const CardMigrate = props => {
 };
 
 CardMigrate.propTypes = {
+	/** The original site URL. */
 	wpcomHomeUrl: PropTypes.string.isRequired,
+	/** The current site URL. */
 	currentUrl: PropTypes.string.isRequired,
+	/** The callback to be called when migration has completed. */
 	onMigrated: PropTypes.func,
+	/** Whether there's already an action in progress. */
 	isActionInProgress: PropTypes.bool,
+	/** Function to set the "action in progress" flag. */
 	setIsActionInProgress: PropTypes.func.isRequired,
 };
 
