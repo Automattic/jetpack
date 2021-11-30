@@ -170,13 +170,16 @@ class Plugin {
 	 * Get a map of plugin files.
 	 *
 	 * @return string[] Map from dev to non-dev plugin files, and vice versa.
-	 * @throws PluginDataException If the plugin data cannot be fetched or is invalid.
 	 */
 	public static function get_plugin_file_map() {
 		if ( null === self::$file_map ) {
 			self::$file_map = get_option( 'jetpack_beta_plugin_file_map', null );
 			if ( null === self::$file_map ) {
-				self::get_all_plugins();
+				try {
+					self::get_all_plugins();
+				} catch ( PluginDataException $ex ) {
+					return array();
+				}
 			}
 		}
 		return self::$file_map;
