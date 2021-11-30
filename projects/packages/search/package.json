@@ -1,0 +1,91 @@
+{
+	"name": "jetpack-search",
+	"version": "0.2.0",
+	"description": "Package for Jetpack Search products",
+	"main": "main.js",
+	"directories": {
+		"test": "tests"
+	},
+	"scripts": {
+		"build": "pnpm run clean && pnpm run install-if-deps-outdated && pnpm run build-instant && pnpm run build-customberg && pnpm run build-dashboard",
+		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run validate && pnpm run build-production-php",
+		"build-development": "NODE_ENV=development BABEL_ENV=development pnpm run build && pnpm run build-php",
+		"build-instant": "echo 'Not yet implemented.'",
+		"build-customberg": "echo 'Not yet implemented.'",
+		"build-dashboard": "echo 'Not yet implemented.'",
+		"build-php": "composer install --ignore-platform-reqs",
+		"build-production-php": "COMPOSER_MIRROR_PATH_REPOS=1 COMPOSER_ROOT_VERSION=dev-master composer install -o --no-dev --classmap-authoritative --prefer-dist",
+		"clean": "rm -rf build/ .cache/",
+		"clean-all": "rm -rf build/ .cache/ node_modules/ vendor/",
+		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
+		"test": "pnpx concurrently 'pnpm:test-scripts' 'pnpm:test-size'",
+		"test-scripts": "jest --passWithNoTests",
+		"test-size": "echo 'Not yet implemented.'",
+		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Automattic/jetpack-search.git"
+	},
+	"author": "Automattic",
+	"license": "GPL-2.0-or-later",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack-search/issues"
+	},
+	"homepage": "https://github.com/Automattic/jetpack-search#readme",
+	"engines": {
+		"node": "^14.17.6 || ^16.7.0",
+		"pnpm": "^6.5.0",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	},
+	"dependencies": {
+		"@automattic/calypso-color-schemes": "2.1.1",
+		"@automattic/color-studio": "2.5.0",
+		"@automattic/jetpack-analytics": "workspace:^0.1.3",
+		"@automattic/jetpack-api": "workspace:^0.8.0",
+		"@automattic/jetpack-components": "workspace:^0.7.0",
+		"@wordpress/base-styles": "4.0.3",
+		"@wordpress/block-editor": "8.0.3",
+		"@wordpress/data": "6.1.4",
+		"@wordpress/i18n": "4.2.4",
+		"@wordpress/icons": "6.1.1",
+		"classnames": "2.3.1",
+		"fast-json-stable-stringify": "2.1.0",
+		"lodash": "4.17.21",
+		"photon": "4.0.0",
+		"preact": "10.5.15",
+		"q-flat": "1.0.7",
+		"qss": "2.0.3",
+		"react": "17.0.2",
+		"redux": "4.1.1",
+		"refx": "3.1.1",
+		"strip": "3.0.0",
+		"tiny-lru": "7.0.6"
+	},
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:^0.4.0",
+		"@babel/core": "7.16.0",
+		"@babel/plugin-proposal-nullish-coalescing-operator": "7.16.0",
+		"@babel/preset-env": "7.16.4",
+		"@babel/preset-react": "7.16.0",
+		"@babel/preset-typescript": "7.16.0",
+		"@size-limit/preset-app": "6.0.3",
+		"@testing-library/jest-dom": "5.14.1",
+		"@testing-library/preact": "2.0.1",
+		"@wordpress/dependency-extraction-webpack-plugin": "3.2.1",
+		"concurrently": "6.4.0",
+		"jest": "27.3.1",
+		"jest-environment-jsdom": "27.3.1",
+		"postcss": "8.3.11",
+		"postcss-loader": "6.2.0",
+		"prettier": "npm:wp-prettier@2.0.5",
+		"sass-loader": "12.3.0",
+		"size-limit": "6.0.3",
+		"webpack": "5.64.1"
+	},
+	"browserslist": [
+		"defaults",
+		"not IE 11",
+		"maintained node versions"
+	]
+}

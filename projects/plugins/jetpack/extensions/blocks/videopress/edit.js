@@ -7,6 +7,7 @@ import {
 	BaseControl,
 	Button,
 	PanelBody,
+	ResizableBox,
 	SandBox,
 	SelectControl,
 	ToggleControl,
@@ -37,6 +38,7 @@ import Loading from './loading';
 import { getVideoPressUrl } from './url';
 import { getClassNames } from './utils';
 import SeekbarColorSettings from './seekbar-color-settings';
+import TracksEditor from './tracks-editor';
 
 const VIDEO_POSTER_ALLOWED_MEDIA_TYPES = [ 'image' ];
 
@@ -80,6 +82,8 @@ const VideoPressEdit = CoreVideoEdit =>
 			const { guid } = this.props.attributes;
 			if ( ! guid ) {
 				await this.setGuid();
+			} else {
+				this.setTracks( guid );
 			}
 
 			this.setRating();
@@ -151,6 +155,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				const guid = get( media, 'jetpack_videopress.guid' );
 				if ( guid ) {
 					setAttributes( { guid } );
+					this.setTracks( guid );
 				} else {
 					this.fallbackToCore();
 				}
@@ -190,6 +195,35 @@ const VideoPressEdit = CoreVideoEdit =>
 
 			this.setState( { media, lastRequestedMediaId: id } );
 			return media;
+		};
+
+		setTracks = guid => {
+			const { setAttributes } = this.props;
+
+			if ( ! guid ) {
+				return;
+			}
+
+			apiFetch( {
+				url: `https://public-api.wordpress.com/rest/v1.1/videos/${ guid }`,
+				credentials: 'omit',
+				global: true,
+			} ).then( videoInfo => {
+				// Convert API object response to an array that works better with the tracks editor component
+				const tracks = [];
+				Object.keys( videoInfo.tracks ).forEach( kind => {
+					for ( const srcLang in videoInfo.tracks[ kind ] ) {
+						const track = videoInfo.tracks[ kind ][ srcLang ];
+						tracks.push( {
+							src: track.src,
+							kind,
+							srcLang,
+							label: track.label,
+						} );
+					}
+				} );
+				setAttributes( { videoPressTracks: tracks } );
+			} );
 		};
 
 		switchToEditing = () => {
@@ -244,6 +278,7 @@ const VideoPressEdit = CoreVideoEdit =>
 		}
 
 		onChangeRating = rating => {
+			const { invalidateCachedEmbedPreview, url } = this.props;
 			const { id } = this.props.attributes;
 			const originalRating = this.state.rating;
 
@@ -280,7 +315,10 @@ const VideoPressEdit = CoreVideoEdit =>
 					}
 				} )
 				.catch( () => revertSetting() )
-				.finally( () => this.setState( { isUpdatingRating: false } ) );
+				.finally( () => {
+					this.setState( { isUpdatingRating: false } );
+					invalidateCachedEmbedPreview( url );
+				} );
 		};
 
 		render() {
@@ -293,12 +331,32 @@ const VideoPressEdit = CoreVideoEdit =>
 				setAttributes,
 			} = this.props;
 			const { fallback, isFetchingMedia, isUpdatingRating, interactive, rating } = this.state;
-			const { autoplay, caption, controls, loop, muted, playsinline, poster, preload } = attributes;
+			const {
+				autoplay,
+				caption,
+				controls,
+				guid,
+				loop,
+				muted,
+				playsinline,
+				poster,
+				preload,
+				videoPressTracks,
+			} = attributes;
 
 			const videoPosterDescription = `video-block__poster-image-description-${ instanceId }`;
 
 			const blockSettings = (
 				<Fragment>
+					<BlockControls group="block">
+						<TracksEditor
+							tracks={ videoPressTracks }
+							onChange={ newTracks => {
+								setAttributes( { videoPressTracks: newTracks } );
+							} }
+							guid={ guid }
+						/>
+					</BlockControls>
 					<BlockControls>
 						<ToolbarGroup>
 							<ToolbarButton
@@ -515,7 +573,7 @@ const VpBlock = props => {
 		setAttributes,
 	} = props;
 
-	const { align, className, videoPressClassNames } = attributes;
+	const { align, className, videoPressClassNames, maxWidth } = attributes;
 
 	const blockProps = useBlockProps( {
 		className: classnames( 'wp-block-video', className, videoPressClassNames, {
@@ -523,10 +581,36 @@ const VpBlock = props => {
 		} ),
 	} );
 
+	const onBlockResize = ( event, direction, elem ) => {
+		let newMaxWidth = getComputedStyle( elem ).width;
+		const parentElement = elem.parentElement;
+		if ( null !== parentElement ) {
+			const parentWidth = getComputedStyle( elem.parentElement ).width;
+			if ( newMaxWidth === parentWidth ) {
+				newMaxWidth = '100%';
+			}
+		}
+
+		setAttributes( { maxWidth: newMaxWidth } );
+	};
+
 	return (
 		<figure { ...blockProps }>
 			<div className="wp-block-embed__wrapper">
-				<SandBox html={ html } scripts={ scripts } type={ videoPressClassNames } />
+				<ResizableBox
+					enable={ {
+						top: false,
+						bottom: false,
+						left: true,
+						right: true,
+					} }
+					maxWidth="100%"
+					size={ { width: maxWidth } }
+					style={ { margin: 'auto' } }
+					onResizeStop={ onBlockResize }
+				>
+					<SandBox html={ html } scripts={ scripts } type={ videoPressClassNames } />
+				</ResizableBox>
 			</div>
 
 			{

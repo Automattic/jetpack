@@ -65,13 +65,6 @@ class Critical_CSS extends Module {
 	);
 
 	/**
-	 * True if this pageload is generating Critical CSS.
-	 *
-	 * @var bool
-	 */
-	public $generating_critical_css;
-
-	/**
 	 * List of all the Critical CSS Types.
 	 *
 	 * The order is important because searching for critical CSS will stop as soon as a value is found.
@@ -146,15 +139,13 @@ class Critical_CSS extends Module {
 
 		if ( $this->should_display_critical_css() ) {
 			Admin_Bar_Css_Compat::init();
+
 			add_action( 'wp_head', array( $this, 'display_critical_css' ), 0 );
 			add_filter( 'style_loader_tag', array( $this, 'asynchronize_stylesheets' ), 10, 4 );
 			add_action( 'wp_footer', array( $this, 'onload_flip_stylesheets' ) );
 		}
 
-		// Check for the GET parameter indicating this is rendering for CSS generation.
-		$this->generating_critical_css = $this->check_generate_query();
-
-		if ( $this->generating_critical_css ) {
+		if ( $this->is_generating_critical_css() ) {
 			add_action( 'wp_head', array( $this, 'display_generate_meta' ), 0 );
 			$this->force_logged_out_render();
 		}
@@ -449,11 +440,18 @@ class Critical_CSS extends Module {
 	}
 
 	/**
-	 * Check for GET parameters or Headers indicating the current request is
-	 * generating Critical CSS.
+	 * Returns true if this pageload is generating Critical CSS, based on GET
+	 * parameters and headers.
+	 *
 	 * phpcs:disable WordPress.Security.NonceVerification.Recommended
 	 */
-	public function check_generate_query() {
+	public function is_generating_critical_css() {
+		static $is_generating = null;
+		if ( null !== $is_generating ) {
+			return $is_generating;
+		}
+
+		// Accept nonce via HTTP headers or GET parameters.
 		$generate_nonce = null;
 		if ( ! empty( $_GET[ self::GENERATE_QUERY_ACTION ] ) ) {
 			$generate_nonce = sanitize_key(
@@ -465,15 +463,15 @@ class Critical_CSS extends Module {
 			);
 		}
 
-		if ( empty( $generate_nonce ) ) {
-			return false;
-		}
+		// If GET parameter or header set, we are trying to generate.
+		$is_generating = ! empty( $generate_nonce );
 
-		if ( ! Nonce::verify( $generate_nonce, self::GENERATE_QUERY_ACTION ) ) {
+		// Die if the nonce is invalid.
+		if ( $is_generating && ! Nonce::verify( $generate_nonce, self::GENERATE_QUERY_ACTION ) ) {
 			die();
 		}
 
-		return true;
+		return $is_generating;
 	}
 	// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
@@ -652,31 +650,56 @@ class Critical_CSS extends Module {
 	 * @see style_loader_tag
 	 */
 	public function asynchronize_stylesheets( $html, $handle, $href, $media ) {
+		// If is AMP, do not alter the stylesheet loading.
 		if ( function_exists( 'is_amp_endpoint' ) && is_amp_endpoint() ) {
 			return $html;
 		}
 
+		// If there is no critical CSS, do not alter the stylesheet loading.
 		if ( false === $this->get_critical_css() ) {
 			return $html;
 		}
 
-		if ( ! apply_filters( 'jetpack_boost_async_style', true, $handle ) ) {
+		$available_methods = array(
+			'async'    => 'media="not all" data-media="' . $media . '" onload="this.media=this.dataset.media; delete this.dataset.media; this.removeAttribute( \'onload\' );"',
+			'deferred' => 'media="not all" data-media="' . $media . '"',
+		);
+
+		/**
+		 * Loading method for stylesheets.
+		 *
+		 * Filter the loading method for each stylesheet for the screen with following values:
+		 *     async    - Stylesheets are loaded asynchronously.
+		 *                Styles are applied once the stylesheet is loaded completely without render blocking.
+		 *     deferred - Loading of stylesheets are deferred until the window load event.
+		 *                Styles from all the stylesheets are applied at once after the page load.
+		 *
+		 * Stylesheet loading behaviour is not altered for any other value such as false or 'default'.
+		 * Stylesheet loading is instant and the process blocks the page rendering.
+		 *     Eg: add_filter( 'jetpack_boost_async_style', '__return_false' );
+		 *
+		 * @see onload_flip_stylesheets for how stylesheets loading is deferred.
+		 *
+		 * @param string $handle The style's registered handle.
+		 * @param string $media  The stylesheet's media attribute.
+		 *
+		 * @todo  Retrieve settings from database, either via auto-configuration or UI option.
+		 */
+		$method = apply_filters( 'jetpack_boost_async_style', 'async', $handle, $media );
+
+		// If the loading method is not allowed, do not alter the stylesheet loading.
+		if ( ! isset( $available_methods[ $method ] ) ) {
 			return $html;
 		}
-		$async_media = apply_filters( 'jetpack_boost_async_media', array( 'all', 'screen' ) );
 
-		// Convert stylesheets intended for screens.
-		if ( in_array( $media, $async_media, true ) ) {
-			$media_replacement = 'media="not all" onload="this.media=\'all\'"';
-			$html_no_script    = '<noscript>' . $html . '</noscript>';
-			$html              = preg_replace( '~media=[\'"]?[^\'"\s]+[\'"]?~', $media_replacement, $html );
+		$html_no_script = '<noscript>' . $html . '</noscript>';
 
-			// Append to the HTML stylesheet tag the same untouched HTML stylesheet tag within the noscript tag
-			// to support the rendering of the stylesheet when JavaScript is disabled.
-			$html = $html_no_script . $html;
-		}
+		// Update the stylesheet markup for allowed methods.
+		$html = preg_replace( '~media=(\'[^\']+\')|("[^"]+")~', $available_methods[ $method ], $html );
 
-		return $html;
+		// Append to the HTML stylesheet tag the same untouched HTML stylesheet tag within the noscript tag
+		// to support the rendering of the stylesheet when JavaScript is disabled.
+		return $html_no_script . $html;
 	}
 
 	/**
@@ -684,7 +707,7 @@ class Critical_CSS extends Module {
 	 */
 	public function should_display_critical_css() {
 		// Don't display Critical CSS when generating Critical CSS.
-		if ( $this->generating_critical_css ) {
+		if ( $this->is_generating_critical_css() ) {
 			return false;
 		}
 
@@ -826,8 +849,9 @@ class Critical_CSS extends Module {
 					// Flip all media="not all" links to media="all".
 					document.querySelectorAll( 'link' ).forEach(
 						function( link ) {
-							if ( link.media === 'not all' ) {
-								link.media = 'all';
+							if ( link.media === 'not all' && link.dataset.media ) {
+								link.media = link.dataset.media;
+								delete link.dataset.media;
 							}
 						}
 					);
@@ -846,7 +870,7 @@ class Critical_CSS extends Module {
 		// Minified version of footer script. See above comment for unminified version.
 		?>
 		<script>window.addEventListener('load', function() {
-				document.querySelectorAll('link').forEach(function(e) {'not all' === e.media && (e.media = 'all');});
+				document.querySelectorAll('link').forEach(function(e) {'not all' === e.media && e.dataset.media && (e.media=e.dataset.media,delete e.dataset.media)});
 				var e = document.getElementById('jetpack-boost-critical-css');
 				e && (e.media = 'not all');
 			});</script>

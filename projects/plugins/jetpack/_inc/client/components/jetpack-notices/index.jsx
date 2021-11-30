@@ -30,6 +30,7 @@ import {
 	hasConnectedOwner,
 } from 'state/connection';
 import {
+	isAtomicSite,
 	isDevVersion,
 	userCanConnectAccount,
 	userCanConnectSite,
@@ -220,6 +221,7 @@ class JetpackNotices extends React.Component {
 		);
 
 		const isUserConnectScreen = '/connect-user' === this.props.location.pathname;
+		const isUserLicenseActivationScreen = this.props.location.pathname.startsWith( '/license' );
 
 		return (
 			<div aria-live="polite">
@@ -277,7 +279,9 @@ class JetpackNotices extends React.Component {
 						onDismissClick={ this.props.clearLicensingError }
 					/>
 				) }
-				<UserLicenseActivationNotice />
+				{ ! isUserLicenseActivationScreen && ! this.props.isAtomicSite && (
+					<UserLicenseActivationNotice pathname={ this.props.location.pathname } />
+				) }
 			</div>
 		);
 	}
@@ -293,6 +297,7 @@ export default connect(
 			userIsSubscriber: userIsSubscriber( state ),
 			isLinked: isCurrentUserLinked( state ),
 			isDevVersion: isDevVersion( state ),
+			isAtomicSite: isAtomicSite( state ),
 			siteOfflineMode: getSiteOfflineMode( state ),
 			isStaging: isStaging( state ),
 			isInIdentityCrisis: isInIdentityCrisis( state ),
