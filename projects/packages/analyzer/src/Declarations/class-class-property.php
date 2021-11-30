@@ -26,7 +26,6 @@ class Class_Property extends Declaration {
 			$this->prop_name,
 			$this->static,
 			'',
-			'',
 		);
 	}
 

@@ -16,10 +16,6 @@ class Class_ extends Declaration {
 			$this->path,
 			$this->line,
 			$this->class_name,
-			'',
-			'',
-			'',
-			'',
 		);
 	}
 
