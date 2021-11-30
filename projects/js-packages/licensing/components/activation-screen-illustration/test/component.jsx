@@ -20,7 +20,7 @@ describe( 'ActivationScreenIllustration', () => {
 		const wrapper = shallow( <ActivationScreenIllustration { ...testProps } /> );
 
 		it( 'correct images src is used', () => {
-			const image = wrapper.find( '.jp-license-activation-screen-illustration__img' );
+			const image = wrapper.find( '.jp-license-activation-screen-illustration--img' );
 
 			expect( image ).to.have.lengthOf( 1 );
 			expect( image.prop( 'src' ) ).to.equal( testProps.imageUrl );
@@ -28,7 +28,7 @@ describe( 'ActivationScreenIllustration', () => {
 
 		it( 'support link rendered', () => {
 			expect(
-				wrapper.find( '.jp-license-activation-screen-illustration__support-link' )
+				wrapper.find( '.jp-license-activation-screen-illustration--support-link' )
 			).to.have.lengthOf( 1 );
 		} );
 	} );

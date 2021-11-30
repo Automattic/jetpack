@@ -4,6 +4,7 @@
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const path = require( 'path' );
 const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
+const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
 const NodePolyfillPlugin = require( 'node-polyfill-webpack-plugin' );
 
 const sharedWebpackConfig = {
@@ -11,8 +12,6 @@ const sharedWebpackConfig = {
 	devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
 	output: {
 		...jetpackWebpackConfig.output,
-		filename: '[name].js',
-		chunkFilename: '[name].[contenthash].js',
 		path: path.join( __dirname, '../_inc/build' ),
 	},
 	optimization: {
@@ -32,6 +31,12 @@ const sharedWebpackConfig = {
 			DependencyExtractionPlugin: false,
 		} ),
 	],
+	externals: {
+		...jetpackWebpackConfig.externals,
+		jetpackConfig: JSON.stringify( {
+			consumer_slug: 'jetpack',
+		} ),
+	},
 	module: {
 		strictExportPresence: true,
 		rules: [
@@ -83,6 +88,7 @@ module.exports = [
 				},
 			},
 			'search-dashboard': path.join( __dirname, '../_inc/client', 'search-dashboard-entry.js' ),
+			'plugins-page': path.join( __dirname, '../_inc/client', 'plugins-entry.js' ),
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,
@@ -129,6 +135,9 @@ module.exports = [
 						},
 					},
 				},
+			} ),
+			new RemoveAssetWebpackPlugin( {
+				assets: /\.(css|js)(\.map)?$/,
 			} ),
 		],
 	},

@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 
@@ -56,9 +57,6 @@ class Jetpack_Backup {
 
 				// Identity crisis package.
 				$config->ensure( 'identity_crisis' );
-
-				// Connection Manager UI.
-				Automattic\Jetpack\ConnectionUI\Admin::init();
 			},
 			1
 		);
@@ -90,12 +88,15 @@ class Jetpack_Backup {
 			'jetpack-backup',
 			'build/index.js',
 			JETPACK_BACKUP_PLUGIN_ROOT_FILE,
-			array( 'in_footer' => true )
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-backup',
+			)
 		);
 		Assets::enqueue_script( 'jetpack-backup' );
 		// Initial JS state including JP Connection data.
 		wp_add_inline_script( 'jetpack-backup', $this->get_initial_state(), 'before' );
-		wp_set_script_translations( 'jetpack-backup', 'jetpack-backup' );
+		wp_add_inline_script( 'jetpack-backup', Connection_Initial_State::render(), 'before' );
 	}
 
 	/**
