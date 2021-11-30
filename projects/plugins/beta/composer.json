@@ -28,7 +28,7 @@
 			"@composer install -o --no-dev --classmap-authoritative --prefer-dist"
 		],
 		"clean": [
-			"rm -rf vendor/"
+			"rm -rf vendor/ jetpack_vendor/"
 		]
 	},
 	"autoload": {
