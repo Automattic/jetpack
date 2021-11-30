@@ -142,8 +142,6 @@ class Dashboard {
 	 * Enqueue admin scripts.
 	 */
 	public function load_admin_scripts() {
-		\Jetpack_Admin_Page::load_wrapper_styles();
-
 		if ( ! ( new Status() )->is_offline_mode() && $this->connection_manager->is_connected() ) {
 			// Required for Analytics.
 			Tracking::register_tracks_functions_scripts( true );
