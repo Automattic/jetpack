@@ -21,6 +21,7 @@ import DashAkismet from './akismet';
 import DashBackups from './backups';
 import DashPhoton from './photon';
 import DashSearch from './search';
+import DashSecurityBundle from './security-bundle';
 import DashVideoPress from './videopress';
 import DashConnections from './connections';
 import QuerySitePlugins from 'components/data/query-site-plugins';
@@ -39,6 +40,7 @@ import { getScanStatus, isFetchingScanStatus } from 'state/scan';
 const renderPairs = layout =>
 	layout.map( ( item, layoutIndex ) => [
 		item.header,
+		item.pinnedBundle,
 		chunk( item.cards, 2 ).map( ( [ left, right ], cardIndex ) => (
 			<div className="jp-at-a-glance__item-grid" key={ `card-${ layoutIndex }-${ cardIndex }` }>
 				<div className="jp-at-a-glance__left">{ left }</div>
@@ -143,6 +145,7 @@ class AtAGlance extends Component {
 				{
 					header: securityHeader,
 					cards: securityCards,
+					pinnedBundle: ! this.props.multisite ? <DashSecurityBundle /> : null,
 				},
 			];
 
