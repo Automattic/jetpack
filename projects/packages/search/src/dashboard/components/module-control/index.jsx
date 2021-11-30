@@ -88,10 +88,9 @@ export default function SearchModuleControl( {
 		};
 		const newOption = {
 			module_active: ! isModuleEnabled,
-			instant_search_enabled: isInstantSearchEnabled,
 		};
-		if ( supportsInstantSearch && isInstantSearchEnabled !== ! isModuleEnabled ) {
-			newOption.instant_search_enabled = ! isModuleEnabled;
+		if ( isInstantSearchEnabled !== ! isModuleEnabled ) {
+			newOption.instant_search_enabled = ! isModuleEnabled && supportsInstantSearch;
 		}
 		updateOptions( newOption, oldOption );
 		analytics.tracks.recordEvent( 'jetpack_search_module_toggle', newOption );
@@ -104,7 +103,6 @@ export default function SearchModuleControl( {
 		};
 		const newOption = {
 			instant_search_enabled: supportsInstantSearch && ! isInstantSearchEnabled,
-			module_active: isModuleEnabled,
 		};
 		if ( newOption.instant_search_enabled ) {
 			newOption.module_active = true;

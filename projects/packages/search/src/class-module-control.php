@@ -148,13 +148,27 @@ class Module_Control {
 		 */
 		do_action( 'jetpack_deactivate_module_' . self::JETPACK_SEARCH_MODULE_SLUG );
 
+		$this->disable_instant_search();
+
 		return $success;
+	}
+
+	/**
+	 * Update module status
+	 *
+	 * @param boolean $active - true to activate, false to deactivate.
+	 */
+	public function update_status( $active ) {
+		return $active ? $this->activate() : $this->deactivate();
 	}
 
 	/**
 	 * Disable Instant Search Experience
 	 */
 	public function disable_instant_search() {
+		if ( ! $this->is_instant_search_enabled() ) {
+			return true;
+		}
 		return update_option( self::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY, false );
 	}
 
@@ -162,7 +176,19 @@ class Module_Control {
 	 * Enable Instant Search Experience
 	 */
 	public function enable_instant_search() {
+		if ( ! $this->is_active() || $this->is_instant_search_enabled() ) {
+			return true;
+		}
 		return update_option( self::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY, true );
+	}
+
+	/**
+	 * Update instant search status
+	 *
+	 * @param boolean $enabled - true to enable, false to disable.
+	 */
+	public function update_instant_search_status( $enabled ) {
+		return $enabled ? $this->enable_instant_search() : $this->disable_instant_search();
 	}
 
 	/**
