@@ -370,12 +370,7 @@ class MyPlanHeader extends React.Component {
 					{ hasDetachedUserLicenses && (
 						<span>{ __( 'Got a license key? Activate it here.', 'jetpack' ) }</span>
 					) }
-					<div
-						className={ classnames( 'jp-landing__card-footer-item', {
-							'no-licenses': ! hasDetachedUserLicenses,
-							'no-purchases': ! showPurchasesLink,
-						} ) }
-					>
+					<div className={ classnames( 'jp-landing__card-footer-item', { 'no-licenses': ! hasDetachedUserLicenses, 'no-purchases': ! showPurchasesLink } ) }>
 						{ showPurchasesLink && (
 							<ExternalLink
 								className="all-purchases__link"

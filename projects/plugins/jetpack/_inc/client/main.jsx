@@ -57,9 +57,9 @@ import {
 	fetchSitePurchases as fetchSitePurchasesAction,
 } from 'state/site';
 import {
-	areThereUnsavedSettings,
-	clearUnsavedSettingsFlag,
-	fetchSettings as fetchSettingsAction,
+    areThereUnsavedSettings,
+    clearUnsavedSettingsFlag,
+    fetchSettings as fetchSettingsAction
 } from 'state/settings';
 import { getSearchTerm } from 'state/search';
 import { Recommendations } from 'recommendations';
@@ -581,10 +581,10 @@ class Main extends React.Component {
 		this.props.fetchSiteData();
 		// Update site products.
 		this.props.fetchSitePurchases();
-		// Update site modules (search, wordads, google-analytics, etc.)
-		this.props.fetchModules();
-		// Update site settings (i.e. search, instant search, etc.)
-		this.props.fetchSettings();
+        // Update site modules (search, wordads, google-analytics, etc.)
+        this.props.fetchModules();
+        // Update site settings (i.e. search, instant search, etc.)
+        this.props.fetchSettings();
 	}
 
 	render() {
@@ -683,12 +683,12 @@ export default connect(
 		fetchSitePurchases: () => {
 			return dispatch( fetchSitePurchasesAction() );
 		},
-		fetchModules: () => {
+        fetchModules: () => {
 			return dispatch( fetchModulesAction() );
-		},
-		fetchSettings: () => {
+        },
+        fetchSettings: () => {
 			return dispatch( fetchSettingsAction() );
-		},
+        },
 	} )
 )(
 	withDispatch( dispatch => {
