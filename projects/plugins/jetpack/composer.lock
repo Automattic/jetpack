@@ -1435,13 +1435,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "0fa28ce135b50c6dddc82dc5449c332e6ede152a"
+                "reference": "073c90d0cc93066233ae7a59f2be93b58961356b"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.13",
                 "automattic/jetpack-connection": "^1.32",
                 "automattic/jetpack-constants": "^1.6",
-                "automattic/jetpack-options": "^1.13",
+                "automattic/jetpack-options": "^1.14",
                 "automattic/jetpack-status": "^1.9",
                 "automattic/jetpack-tracking": "^1.13"
             },
