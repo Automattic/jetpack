@@ -46,8 +46,6 @@ const ConnectScreenLayout = props => {
 					<ImageSlider images={ images } assetBaseUrl={ assetBaseUrl } />
 				</div>
 			) : null }
-
-			<div className="jp-connection__connect-screen-layout__clearfix"></div>
 		</div>
 	);
 };

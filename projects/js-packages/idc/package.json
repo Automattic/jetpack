@@ -5,8 +5,8 @@
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
-		"@automattic/jetpack-api": "workspace:^0.7.1-alpha",
-		"@automattic/jetpack-components": "workspace:^0.6.3",
+		"@automattic/jetpack-api": "workspace:^0.8.0-alpha",
+		"@automattic/jetpack-components": "workspace:^0.7.0-alpha",
 		"@wordpress/base-styles": "4.0.3",
 		"@wordpress/components": "19.0.3",
 		"@wordpress/compose": "5.0.6",
