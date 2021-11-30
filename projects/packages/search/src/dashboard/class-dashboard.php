@@ -80,7 +80,7 @@ class Dashboard {
 		}
 
 		// Check if the site plan changed and deactivate module accordingly.
-		// add_action( 'current_screen', array( $this, 'check_plan_deactivate_search_module' ) );.
+		add_action( 'current_screen', array( $this, 'check_plan_deactivate_search_module' ) );
 
 		if ( ! $this->supports_search() ) {
 			return;
