@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Properly add GET-parameters for the `fetchAuthorizationUrl` API call.

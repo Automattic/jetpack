@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.11] - 2021-11-30
+### Changed
+- Colors: update Jetpack Primary color to match latest brand book.
+
 ## [1.5.10] - 2021-11-02
 ### Changed
 - Set `convertDeprecationsToExceptions` true in PHPUnit config.
@@ -97,6 +101,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Add a basic Jetpack Logo package
 
+[1.5.11]: https://github.com/Automattic/jetpack-logo/compare/v1.5.10...v1.5.11
 [1.5.10]: https://github.com/Automattic/jetpack-logo/compare/v1.5.9...v1.5.10
 [1.5.9]: https://github.com/Automattic/jetpack-logo/compare/v1.5.8...v1.5.9
 [1.5.8]: https://github.com/Automattic/jetpack-logo/compare/v1.5.7...v1.5.8

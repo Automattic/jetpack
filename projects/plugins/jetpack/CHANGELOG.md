@@ -2,6 +2,42 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 10.4-beta - 2021-11-30
+### Enhancements
+- Connection: additional messaging for both connection and disconnection flows.
+- Dashboard: add option to add Jetpack product using a license key.
+- Publicize: enable the RePublicize UI in the block editor.
+- VideoPress: add captions and subtitle support.
+
+### Bug fixes
+- Custom CSS: disable CSSTidy shorthand optimizations to prevent block validation issues.
+- Search: avoid fatal errors when the feature is inactive, but Extra Sidebar Widgets are active.
+- Sharing: ask search engines to not index pages with sharing query string.
+- VideoPress: fix various validation errors.
+- Widgets: allow customizer preview to show widget visibility rules properly.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Avoid generating unused assets in the static-site-generator builds.
+- Build: remove obsolete package gulp task.
+- Bump stat on plugin installs.
+- Colors: update Jetpack Primary color reference to match latest brand book.
+- E2E tests: Migrate from Jest to Playwright test runner.
+- Expose site intent from get site API to show different content in the future.
+- Fixes the URL of JITMs rendered in the unified sidebar when an absolute URL is given. This only affects WP.com sites.
+- Fixed an issue with the mobile nav unification menu caused by fixing the collapse.
+- Fixed nav-unification on lower resolutions for wp-admin.
+- JITM: Add ability to sideload Jetpack Boost and Backup plugins.
+- Made admin menu API tests compatible with WPCOM environment.
+- Refresh the site's modules and settings after successful product activation.
+- Search: forward wpcom/v2/search request to search package rest controller.
+- Search: Migrate more helper classes to package.
+- Search: update jetpack-search and search package versions
+- Sharing: update to use Recaptcha's modern key names.
+- Switched external media API tests to short-circuit API calls before they're being dispatched.
+- Update filenames of Webpack-built files.
+- Use correct user capability for the Inbox menu item in Nav Unification
+- Uses the Connection Initial State for the React app
+
 ## 10.4-a.9 - 2021-11-23
 ### Enhancements
 - Dashboard: add option to add a license key via the Jetpack dashboard.
