@@ -78,6 +78,15 @@ We've extended the disconnect dialog component so that it can show more informat
 4. Follow the steps there, and let us know what you think of the flow.
 5. After reconnecting your site to WordPress.com, you can follow the same process to disconnect from WordPress.com, starting in the Plugins screen in wp-admin.
 
+### Instant Search
+
+We're continously improving the Instant Search feature, and fixed some more bugs in this release. You can try the following:
+
+1. Start by adding a Jetpack Search plan on your site.
+2. Go to Jetpack > Search, and ensure everything looks good there.
+3. On that page, click on the link to customize search results, and ensure the different settings work, and get reflected on the front end when you save your changes.
+4. Try playing with the different filters on the front end of your site, and ensure everything still works.
+
 ### Publicize
 
 In this release, we've made some changes to the Publicize panel that is displayed on the right hand side of the block editor. The panel could previously only be used before you hit the Publish button. Now, you can **re-share** posts that have already been published, if you use a paid plan on your site. To test this, try the following steps:
