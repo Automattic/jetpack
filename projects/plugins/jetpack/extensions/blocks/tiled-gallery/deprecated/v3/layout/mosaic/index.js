@@ -35,7 +35,7 @@ export default class Mosaic extends Component {
 							return (
 								<Column
 									key={ colIndex }
-									width={ columnWidths ? columnWidths[ rowIndex ][ colIndex ] : undefined }
+									width={ columnWidths?.[ rowIndex ]?.[ colIndex ] }
 								>
 									{ columnImages }
 								</Column>
