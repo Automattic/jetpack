@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\ConnectionUI;
 
 use Automattic\Jetpack\Identity_Crisis;
+use Jetpack_Tracks_Client;
 
 /**
  * The React initial state.
@@ -59,9 +60,16 @@ class Initial_State {
 			return $return_data;
 		}
 
-		$return_data['wpcomHomeUrl'] = $idc_urls['wpcom_url'];
-		$return_data['currentUrl']   = $idc_urls['current_url'];
-		$return_data['redirectUri']  = static::CONNECTION_MANAGER_URI;
+		$current_screen = get_current_screen();
+
+		$return_data['wpcomHomeUrl']    = $idc_urls['wpcom_url'];
+		$return_data['currentUrl']      = $idc_urls['current_url'];
+		$return_data['redirectUri']     = static::CONNECTION_MANAGER_URI;
+		$return_data['tracksUserData']  = Jetpack_Tracks_Client::get_connected_user_tracks_identity();
+		$return_data['tracksEventData'] = array(
+			'isAdmin'       => current_user_can( 'jetpack_disconnect' ),
+			'currentScreen' => $current_screen ? $current_screen->id : false,
+		);
 
 		return $return_data;
 	}
