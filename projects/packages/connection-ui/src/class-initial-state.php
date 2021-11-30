@@ -23,16 +23,23 @@ class Initial_State {
 	 * @return array
 	 */
 	private function get_data() {
+		$current_screen = get_current_screen();
+
 		return array(
-			'API'    => array(
+			'API'             => array(
 				'WP_API_root'       => esc_url_raw( rest_url() ),
 				'WP_API_nonce'      => wp_create_nonce( 'wp_rest' ),
 				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
 			),
-			'assets' => array(
+			'assets'          => array(
 				'buildUrl' => plugins_url( 'build/', __DIR__ ),
 			),
-			'IDC'    => $this->get_idc_data(),
+			'IDC'             => $this->get_idc_data(),
+			'tracksUserData'  => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
+			'tracksEventData' => array(
+				'isAdmin'       => current_user_can( 'jetpack_disconnect' ),
+				'currentScreen' => $current_screen ? $current_screen->id : false,
+			),
 		);
 	}
 
@@ -60,16 +67,9 @@ class Initial_State {
 			return $return_data;
 		}
 
-		$current_screen = get_current_screen();
-
-		$return_data['wpcomHomeUrl']    = $idc_urls['wpcom_url'];
-		$return_data['currentUrl']      = $idc_urls['current_url'];
-		$return_data['redirectUri']     = static::CONNECTION_MANAGER_URI;
-		$return_data['tracksUserData']  = Jetpack_Tracks_Client::get_connected_user_tracks_identity();
-		$return_data['tracksEventData'] = array(
-			'isAdmin'       => current_user_can( 'jetpack_disconnect' ),
-			'currentScreen' => $current_screen ? $current_screen->id : false,
-		);
+		$return_data['wpcomHomeUrl'] = $idc_urls['wpcom_url'];
+		$return_data['currentUrl']   = $idc_urls['current_url'];
+		$return_data['redirectUri']  = static::CONNECTION_MANAGER_URI;
 
 		return $return_data;
 	}
