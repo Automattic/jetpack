@@ -22,6 +22,7 @@ import {
 	updateLicensingActivationNoticeDismiss as updateLicensingActivationNoticeDismissAction,
 	updateUserLicensesCounts as updateUserLicensesCountsAction,
 } from 'state/licensing';
+import { fetchModules as fetchModulesAction } from 'state/modules';
 import {
 	getSiteConnectionStatus,
 	isCurrentUserLinked,
@@ -34,6 +35,8 @@ import {
 	getConnectingUserFeatureLabel,
 	getConnectionStatus,
 	hasConnectedOwner,
+	getHasSeenWCConnectionModal,
+	setHasSeenWCConnectionModal,
 } from 'state/connection';
 import {
 	setInitialState,
@@ -50,12 +53,17 @@ import {
 	getPluginBaseUrl,
 	getPartnerCoupon,
 	isWoASite,
+	isWooCommerceActive,
 } from 'state/initial-state';
 import {
 	fetchSiteData as fetchSiteDataAction,
 	fetchSitePurchases as fetchSitePurchasesAction,
 } from 'state/site';
-import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
+import {
+	areThereUnsavedSettings,
+	clearUnsavedSettingsFlag,
+	fetchSettings as fetchSettingsAction,
+} from 'state/settings';
 import { getSearchTerm } from 'state/search';
 import { Recommendations } from 'recommendations';
 import ProductDescriptions from 'product-descriptions';
@@ -75,7 +83,9 @@ import QueryRewindStatus from 'components/data/query-rewind-status';
 import { getRewindStatus } from 'state/rewind';
 import ReconnectModal from 'components/reconnect-modal';
 import { createInterpolateElement } from '@wordpress/element';
+import { imagePath } from 'constants/urls';
 import { ActivationScreen } from '@automattic/jetpack-licensing';
+import ContextualizedConnection from 'components/contextualized-connection';
 
 const recommendationsRoutes = [
 	'/recommendations',
@@ -134,6 +144,22 @@ class Main extends React.Component {
 		const fullScreenContainer = jQuery( '.jp-connect-full__container' );
 		if ( connectReactContainer && fullScreenContainer.length > 0 ) {
 			fullScreenContainer.prependTo( connectReactContainer );
+		}
+
+		/* Redirects the user to the Woo Connection/Welcome Screen if:
+		 * 1. They have Woo installed and active AND
+		 * 2. they have never seen this screen before AND
+		 * 3. they have the right permissions.
+		 */
+		if (
+			this.props.isWooCommerceActive &&
+			! this.props.hasSeenWCConnectionModal &&
+			this.props.userCanManageModules
+		) {
+			this.props.history.replace( {
+				pathname: '/woo-setup',
+				state: { previousPath: this.props.location.pathname },
+			} );
 		}
 	}
 
@@ -208,6 +234,43 @@ class Main extends React.Component {
 	}
 
 	renderMainContent = route => {
+		if ( this.shouldShowWooConnectionScreen() ) {
+			const previousPath = this.props.location.state?.previousPath;
+			const redirectTo =
+				previousPath && previousPath !== '/woo-setup' ? `#${ previousPath }` : '#/dashboard';
+
+			return (
+				<ContextualizedConnection
+					apiNonce={ this.props.apiNonce }
+					registrationNonce={ this.props.registrationNonce }
+					apiRoot={ this.props.apiRoot }
+					title={ __(
+						'Welcome to Jetpack! Security, Growth, & Performance tools for WordPress businesses',
+						'jetpack'
+					) }
+					logo={
+						<img
+							src={ imagePath + '/jetpack-woocommerce-logo.svg' }
+							alt={ __( 'Jetpack and WooCommerce', 'jetpack' ) }
+						/>
+					}
+					buttonLabel={ __( 'Set up Jetpack', 'jetpack' ) }
+					redirectUri="admin.php?page=jetpack"
+					redirectTo={ redirectTo }
+					from={ this.props.location.pathname }
+					isSiteConnected={ this.props.isSiteConnected }
+					setHasSeenWCConnectionModal={ this.props.setHasSeenWCConnectionModal }
+				>
+					<p>
+						{ __(
+							'Jetpack is the perfect companion plugin for WooCommerce - made by WordPress experts to make your store faster, safer, and to help grow your business.',
+							'jetpack'
+						) }
+					</p>
+				</ContextualizedConnection>
+			);
+		}
+
 		/*
 		 * Show "Partner Coupon Redeem" screen instead of regular main content/pre-connection.
 		 */
@@ -359,6 +422,7 @@ class Main extends React.Component {
 			case '/reconnect':
 			case '/disconnect':
 			case '/connect-user':
+			case '/woo-setup':
 			case '/setup':
 				pageComponent = (
 					<AtAGlance
@@ -468,12 +532,20 @@ class Main extends React.Component {
 
 	shouldShowAppsCard() {
 		// Only show on the dashboard
-		return this.props.isSiteConnected && dashboardRoutes.includes( this.props.location.pathname );
+		return (
+			this.props.isSiteConnected &&
+			! this.shouldShowWooConnectionScreen() &&
+			dashboardRoutes.includes( this.props.location.pathname )
+		);
 	}
 
 	shouldShowSupportCard() {
 		// Only show on the dashboard
-		return this.props.isSiteConnected && dashboardRoutes.includes( this.props.location.pathname );
+		return (
+			this.props.isSiteConnected &&
+			! this.shouldShowWooConnectionScreen() &&
+			dashboardRoutes.includes( this.props.location.pathname )
+		);
 	}
 
 	shouldShowRewindStatus() {
@@ -529,6 +601,15 @@ class Main extends React.Component {
 	}
 
 	/**
+	 * Checks whether we should show the Woo Connection screen page.
+	 *
+	 * @returns {boolean} Whether we should show the Woo connection screen page.
+	 */
+	shouldShowWooConnectionScreen() {
+		return '/woo-setup' === this.props.location.pathname;
+	}
+
+	/**
 	 * Check if the user connection has been triggered.
 	 *
 	 * @returns {boolean} Whether the user connection has been triggered.
@@ -576,6 +657,10 @@ class Main extends React.Component {
 		this.props.fetchSiteData();
 		// Update site products.
 		this.props.fetchSitePurchases();
+		// Update site modules (search, wordads, google-analytics, etc.)
+		this.props.fetchModules();
+		// Update site settings (i.e. search, instant search, etc.)
+		this.props.fetchSettings();
 	}
 
 	render() {
@@ -646,6 +731,8 @@ export default connect(
 			connectUrl: getConnectUrl( state ),
 			connectingUserFeatureLabel: getConnectingUserFeatureLabel( state ),
 			isWoaSite: isWoASite( state ),
+			isWooCommerceActive: isWooCommerceActive( state ),
+			hasSeenWCConnectionModal: getHasSeenWCConnectionModal( state ),
 			partnerCoupon: getPartnerCoupon( state ),
 		};
 	},
@@ -658,6 +745,9 @@ export default connect(
 		},
 		reconnectSite: () => {
 			return dispatch( reconnectSite() );
+		},
+		setHasSeenWCConnectionModal: () => {
+			return dispatch( setHasSeenWCConnectionModal() );
 		},
 		resetConnectUser: () => {
 			return dispatch( resetConnectUser() );
@@ -673,6 +763,12 @@ export default connect(
 		},
 		fetchSitePurchases: () => {
 			return dispatch( fetchSitePurchasesAction() );
+		},
+		fetchModules: () => {
+			return dispatch( fetchModulesAction() );
+		},
+		fetchSettings: () => {
+			return dispatch( fetchSettingsAction() );
 		},
 	} )
 )(

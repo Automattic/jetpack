@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-my-jetpack",
-	"version": "0.1.2-alpha",
+	"version": "0.1.2",
 	"description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
 	"homepage": "https://jetpack.com",
 	"bugs": {
@@ -21,10 +21,10 @@
 		"watch": "pnpm run build && pnpm webpack watch"
 	},
 	"dependencies": {
-		"@automattic/jetpack-components": "workspace:^0.7.0-alpha"
+		"@automattic/jetpack-components": "workspace:^0.7.0"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:^0.4.0-alpha",
+		"@automattic/jetpack-webpack-config": "workspace:^0.4.0",
 		"@babel/core": "7.16.0",
 		"@babel/preset-env": "7.16.4",
 		"@babel/register": "7.16.0",
