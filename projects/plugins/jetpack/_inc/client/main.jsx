@@ -154,7 +154,7 @@ class Main extends React.Component {
 		if (
 			this.props.isWooCommerceActive &&
 			! this.props.hasSeenWCConnectionModal &&
-			this.userCanManageModules
+			this.props.userCanManageModules
 		) {
 			this.props.history.replace( '/woo-setup' );
 		}
