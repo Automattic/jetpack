@@ -334,12 +334,24 @@ export function hasActiveScanPurchase( state ) {
 	return !! getActiveScanPurchase( state );
 }
 
+/**
+ * Return any active security bundles on the site
+ *
+ * @param {*} state - Global state tree
+ * @returns {Object} A active security bundle on the site, undefined otherwise
+ */
 export function getActiveSecurityPurchase( state ) {
 	return find( getActiveSitePurchases( state ), purchase =>
 		isJetpackBundle( purchase.product_slug )
 	);
 }
 
+/**
+ * Determines if the site has an active security or complete plan
+ *
+ * @param {*} state - Global state tree
+ * @returns {boolean} True if the site has an active security or complete plan, false otherwise.
+ */
 export function hasActiveSecurityPurchase( state ) {
 	return (
 		!! getActiveSecurityPurchase( state ) ||
