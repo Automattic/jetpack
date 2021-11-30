@@ -1,7 +1,8 @@
 <?php
 
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
+use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
+use Automattic\Jetpack\Status;
 
 // Build the Jetpack admin menu as a whole
 class Jetpack_Admin {
@@ -82,6 +83,9 @@ class Jetpack_Admin {
 		}
 
 		add_filter( 'jetpack_display_jitms_on_screen', array( $this, 'should_display_jitms_on_screen' ), 10, 2 );
+
+		// Register Jetpack partner coupon hooks.
+		Jetpack_Partner_Coupon::register_coupon_admin_hooks( 'jetpack', Jetpack::admin_url() );
 	}
 
 	/**
