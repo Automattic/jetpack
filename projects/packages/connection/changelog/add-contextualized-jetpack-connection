@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Added a way to set the has_seen_wc_connection_modal option from the API

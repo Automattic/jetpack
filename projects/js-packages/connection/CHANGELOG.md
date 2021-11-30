@@ -2,6 +2,20 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.11.0 - 2021-11-30
+### Added
+- Added a ContextualizedConnection component to display a connection screen that can be used to give context to the user why Jetpack would benefit them.
+- Fetches the initial state from the global variable provided by the connection package
+
+### Changed
+- Extend functionality of the disconnect modal to allow it to be used in more contexts
+- moved the registerSite logic into the store
+- Updated package dependencies.
+
+### Fixed
+- ConnectScreen: Fix custom grid and background color.
+- ConnectScreen: make button full width on small viewports
+
 ## 0.10.2 - 2021-11-23
 ### Changed
 - Import RNA styles from base styles package.
