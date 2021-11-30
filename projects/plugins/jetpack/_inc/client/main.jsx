@@ -156,7 +156,10 @@ class Main extends React.Component {
 			! this.props.hasSeenWCConnectionModal &&
 			this.props.userCanManageModules
 		) {
-			this.props.history.replace( '/woo-setup' );
+			this.props.history.replace( {
+				pathname: '/woo-setup',
+				state: { previousPath: this.props.location.pathname },
+			} );
 		}
 	}
 
@@ -232,10 +235,9 @@ class Main extends React.Component {
 
 	renderMainContent = route => {
 		if ( this.shouldShowWooConnectionScreen() ) {
+			const previousPath = this.props.location.state?.previousPath;
 			const redirectTo =
-				this.props.location.pathname === '/woo-setup'
-					? '#/dashboard'
-					: `#${ this.props.location.pathname }`;
+				previousPath && previousPath !== '/woo-setup' ? `#${ previousPath }` : '#/dashboard';
 
 			return (
 				<ContextualizedConnection
