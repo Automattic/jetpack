@@ -13,6 +13,7 @@ import IDCScreenVisual from './visual';
 import trackAndBumpMCStats from '../../tools/tracking';
 import useMigration from '../../hooks/use-migration';
 import useMigrationFinished from '../../hooks/use-migration-finished';
+import useStartFresh from '../../hooks/use-start-fresh';
 
 /**
  * The IDC screen component.
@@ -41,6 +42,7 @@ const IDCScreen = props => {
 		}, [ setIsMigrated ] )
 	);
 
+	const { isStartingFresh, startFreshCallback } = useStartFresh( redirectUri );
 	const { isFinishingMigration, finishMigrationCallback } = useMigrationFinished();
 
 	/**
@@ -83,6 +85,8 @@ const IDCScreen = props => {
 			isMigrated={ isMigrated }
 			finishMigrationCallback={ finishMigrationCallback }
 			isFinishingMigration={ isFinishingMigration }
+			isStartingFresh={ isStartingFresh }
+			startFreshCallback={ startFreshCallback }
 		/>
 	);
 };

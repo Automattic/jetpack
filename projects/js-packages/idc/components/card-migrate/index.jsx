@@ -87,4 +87,5 @@ CardMigrate.defaultProps = {
 	isMigrating: false,
 	migrateCallback: () => {},
 };
+
 export default CardMigrate;

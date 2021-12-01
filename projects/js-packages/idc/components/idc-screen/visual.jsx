@@ -28,6 +28,8 @@ const IDCScreenVisual = props => {
 		isMigrated,
 		finishMigrationCallback,
 		isFinishingMigration,
+		isStartingFresh,
+		startFreshCallback,
 	} = props;
 
 	return (
@@ -53,6 +55,8 @@ const IDCScreenVisual = props => {
 					mainBodyText={ mainBodyText }
 					isMigrating={ isMigrating }
 					migrateCallback={ migrateCallback }
+					isStartingFresh={ isStartingFresh }
+					startFreshCallback={ startFreshCallback }
 				/>
 			) }
 		</div>
@@ -84,6 +88,10 @@ IDCScreenVisual.propTypes = {
 	finishMigrationCallback: PropTypes.func,
 	/** Whether the migration finishing process is in progress. */
 	isFinishingMigration: PropTypes.bool.isRequired,
+	/** Whether starting fresh is in progress. */
+	isStartingFresh: PropTypes.bool.isRequired,
+	/** "Start Fresh" callback. */
+	startFreshCallback: PropTypes.func,
 };
 
 IDCScreenVisual.defaultProps = {
@@ -109,6 +117,7 @@ IDCScreenVisual.defaultProps = {
 	isMigrated: false,
 	isFinishingMigration: false,
 	isMigrating: false,
+	isStartingFresh: false,
 };
 
 export default IDCScreenVisual;

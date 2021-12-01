@@ -18,6 +18,7 @@ export default {
 		redirectUri: { table: { disable: true } },
 		migrateCallback: { table: { disable: true } },
 		finishMigrationCallback: { table: { disable: true } },
+		startFreshCallback: { table: { disable: true } },
 	},
 };
 
@@ -30,6 +31,7 @@ const DefaultArgs = {
 	isMigrated: false,
 	isFinishingMigration: false,
 	isMigrating: false,
+	isStartingFresh: false,
 };
 
 export const _default = Template.bind( {} );

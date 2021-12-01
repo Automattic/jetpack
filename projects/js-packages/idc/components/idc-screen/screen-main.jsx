@@ -21,7 +21,15 @@ import SafeMode from '../safe-mode';
  * @returns {React.Component} The ScreenMain component.
  */
 const ScreenMain = props => {
-	const { wpcomHomeUrl, currentUrl, redirectUri, isMigrating, migrateCallback } = props;
+	const {
+		wpcomHomeUrl,
+		currentUrl,
+		redirectUri,
+		isMigrating,
+		migrateCallback,
+		isStartingFresh,
+		startFreshCallback,
+	} = props;
 
 	return (
 		<React.Fragment>
@@ -60,6 +68,8 @@ const ScreenMain = props => {
 					wpcomHomeUrl={ wpcomHomeUrl }
 					currentUrl={ currentUrl }
 					redirectUri={ redirectUri }
+					isStartingFresh={ isStartingFresh }
+					startFreshCallback={ startFreshCallback }
 				/>
 			</div>
 
@@ -79,10 +89,15 @@ ScreenMain.propTypes = {
 	isMigrating: PropTypes.bool.isRequired,
 	/** Migration callback. */
 	migrateCallback: PropTypes.func,
+	/** Whether starting fresh is in progress. */
+	isStartingFresh: PropTypes.bool.isRequired,
+	/** "Start Fresh" callback. */
+	startFreshCallback: PropTypes.func,
 };
 
 ScreenMain.defaultProps = {
 	isMigrating: false,
+	isStartingFresh: false,
 };
 
 export default ScreenMain;
