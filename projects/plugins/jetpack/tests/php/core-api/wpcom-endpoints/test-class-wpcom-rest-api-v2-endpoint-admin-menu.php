@@ -523,6 +523,12 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				null,
 				'',
 			),
+			array(
+				'jetpack/modules/masterbar/admin-menu/class-admin-menu.php',
+				'',
+				null,
+				admin_url( 'admin.php?page=jetpack/modules/masterbar/admin-menu/class-admin-menu.php' ),
+			),
 		);
 	}
 
