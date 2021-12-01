@@ -5,6 +5,7 @@ const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpac
 const glob = require( 'glob' );
 const path = require( 'path' );
 const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
+const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
 const NodePolyfillPlugin = require( 'node-polyfill-webpack-plugin' );
 
 const sharedWebpackConfig = {
@@ -12,8 +13,6 @@ const sharedWebpackConfig = {
 	devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
 	output: {
 		...jetpackWebpackConfig.output,
-		filename: '[name].js',
-		chunkFilename: '[name].[contenthash].js',
 		path: path.join( __dirname, '../_inc/build' ),
 	},
 	optimization: {
@@ -33,6 +32,12 @@ const sharedWebpackConfig = {
 			DependencyExtractionPlugin: false,
 		} ),
 	],
+	externals: {
+		...jetpackWebpackConfig.externals,
+		jetpackConfig: JSON.stringify( {
+			consumer_slug: 'jetpack',
+		} ),
+	},
 	module: {
 		strictExportPresence: true,
 		rules: [
@@ -47,14 +52,9 @@ const sharedWebpackConfig = {
 			} ),
 
 			// Handle CSS.
-			{
-				test: /\.(?:css|s[ac]ss)$/,
-				use: [
-					jetpackWebpackConfig.MiniCssExtractLoader(),
-					jetpackWebpackConfig.CssCacheLoader(),
-					jetpackWebpackConfig.CssLoader( {
-						importLoaders: 2, // Set to the number of loaders after this one in the array, e.g. 2 if you use both postcss-loader and sass-loader.
-					} ),
+			jetpackWebpackConfig.CssRule( {
+				extensions: [ 'css', 'sass', 'scss' ],
+				extraLoaders: [
 					{
 						loader: 'postcss-loader',
 						options: {
@@ -63,7 +63,7 @@ const sharedWebpackConfig = {
 					},
 					'sass-loader',
 				],
-			},
+			} ),
 
 			// Handle images.
 			jetpackWebpackConfig.FileRule(),
@@ -149,12 +149,19 @@ module.exports = [
 				},
 			},
 			'search-dashboard': path.join( __dirname, '../_inc/client', 'search-dashboard-entry.js' ),
+			'plugins-page': path.join( __dirname, '../_inc/client', 'plugins-entry.js' ),
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,
 			...jetpackWebpackConfig.DependencyExtractionPlugin( { injectPolyfill: true } ),
 			new NodePolyfillPlugin(),
 		],
+		externals: {
+			...sharedWebpackConfig.externals,
+			jetpackConfig: JSON.stringify( {
+				consumer_slug: 'jetpack',
+			} ),
+		},
 	},
 	{
 		...sharedWebpackConfig,
@@ -186,6 +193,9 @@ module.exports = [
 						},
 					},
 				},
+			} ),
+			new RemoveAssetWebpackPlugin( {
+				assets: /\.(css|js)(\.map)?$/,
 			} ),
 		],
 	},
