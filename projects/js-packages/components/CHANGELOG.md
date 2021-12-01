@@ -2,6 +2,11 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.7.0 - 2021-11-30
+### Changed
+- Add a new DecorativeCard component to the components package.
+- Colors: update Jetpack Primary color to match latest brand book.
+
 ## 0.6.3 - 2021-11-23
 ### Changed
 - Import RNA styles from base styles package.
