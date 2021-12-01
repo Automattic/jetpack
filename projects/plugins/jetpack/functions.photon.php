@@ -156,14 +156,9 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	/*
 	 * Figure out which CDN subdomain to use.
 	 *
-	 * The goal is to have the same subdomain for any particular image to prevent multiple runs resulting in multiple
-	 * images needing to be downloaded by the browser.
-	 *
-	 * We are providing our own generated value by taking the modulus of the crc32 value of the URL.
-	 *
-	 * Valid values are 0, 1, and 2.
+	 * We are now yielding 0 for all requests, since using multiple subdomains is no longer a best practice.
 	 */
-	$subdomain = abs( crc32( $image_host_path ) % 3 );
+	$subdomain = 0;
 
 	/**
 	 * Filters the domain used by the Photon module.
@@ -172,7 +167,7 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	 *
 	 * @since 3.4.2
 	 *
-	 * @param string https://i{$subdomain}.wp.com Domain used by Photon. $subdomain is a random number between 0 and 2.
+	 * @param string https://i{$subdomain}.wp.com Domain used by Photon. $subdomain is always 0, currently.
 	 * @param string $image_url URL of the image to be photonized.
 	 */
 	$photon_domain = apply_filters( 'jetpack_photon_domain', "https://i{$subdomain}.wp.com", $image_url );
