@@ -2,15 +2,15 @@
  * External dependencies
  */
 import React from 'react';
-import JetpackAdminPage from '../index.jsx';
+import AdminPage from '../index.jsx';
 
 export default {
 	title: 'Playground/Admin Page',
-	component: JetpackAdminPage,
+	component: AdminPage,
 };
 
 // Export additional stories using pre-defined values
-const Template = args => <JetpackAdminPage { ...args } />;
+const Template = args => <AdminPage { ...args } />;
 
 // Export Default story
 export const _default = Template.bind( {} );

@@ -12,9 +12,9 @@ import JetpackLogo from '../jetpack-logo';
 /**
  * Header for the AdminPage component
  *
- * @returns {React.Component} JetpackAdminPage component.
+ * @returns {React.Component} AdminPage component.
  */
-const JetpackAdminPageHeader = () => (
+const AdminPageHeader = () => (
 	<div className="jp-admin-page-section">
 		<div className="jp-wrap">
 			<div class="jp-row">
@@ -26,4 +26,4 @@ const JetpackAdminPageHeader = () => (
 	</div>
 );
 
-export default JetpackAdminPageHeader;
+export default AdminPageHeader;

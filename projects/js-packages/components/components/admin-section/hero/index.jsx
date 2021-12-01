@@ -12,9 +12,9 @@ import './style.scss';
  * The wrapper component for a Hero Section to be used in admin pages.
  *
  * @param {object} props - Component properties.
- * @returns {React.Component} JetpackAdminSectionHero component.
+ * @returns {React.Component} AdminSectionHero component.
  */
-const JetpackAdminSectionHero = props => {
+const AdminSectionHero = props => {
 	const { children } = props;
 	return (
 		<div className="jp-admin-section-hero">
@@ -27,4 +27,4 @@ const JetpackAdminSectionHero = props => {
 	);
 };
 
-export default JetpackAdminSectionHero;
+export default AdminSectionHero;

@@ -9,39 +9,39 @@ import PropTypes from 'prop-types';
  * Internal dependencies
  */
 import './style.scss';
-import JetpackAdminPageHeader from './header';
-import JetpackAdminPageFooter from './footer';
+import AdminPageHeader from './header';
+import AdminPageFooter from './footer';
 
 /**
  * This is the base structure for any admin page. It comes with Header and Footer.
  *
- * All content must be passed as children wrapped in as many <JetpackAdminSection> elements as needed.
+ * All content must be passed as children wrapped in as many <AdminSection> elements as needed.
  *
  * @param {object} props - Component properties.
- * @returns {React.Component} JetpackAdminPage component.
+ * @returns {React.Component} AdminPage component.
  */
-const JetpackAdminPage = props => {
+const AdminPage = props => {
 	const { children, moduleName, a8cLogoHref } = props;
 
 	return (
 		<div class="jp-admin-page">
-			<JetpackAdminPageHeader />
+			<AdminPageHeader />
 			{ children }
-			<JetpackAdminPageFooter moduleName={ moduleName } a8cLogoHref={ a8cLogoHref } />
+			<AdminPageFooter moduleName={ moduleName } a8cLogoHref={ a8cLogoHref } />
 		</div>
 	);
 };
 
-JetpackAdminPage.defaultProps = {
+AdminPage.defaultProps = {
 	a8cLogoHref: 'https://jetpack.com',
 	moduleName: __( 'Jetpack', 'jetpack' ),
 };
 
-JetpackAdminPage.propTypes = {
+AdminPage.propTypes = {
 	/** Link for 'An Automattic Airline' in the footer. */
 	a8cLogoHref: PropTypes.string,
 	/** Name of the module, e.g. 'Jetpack Search' that will be displayed in the footer. */
 	moduleName: PropTypes.string,
 };
 
-export default JetpackAdminPage;
+export default AdminPage;

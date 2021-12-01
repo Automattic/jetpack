@@ -12,12 +12,12 @@ import './style.scss';
 import JetpackFooter from '../jetpack-footer';
 
 /**
- * Footer for the JetpackAdminPage component
+ * Footer for the AdminPage component
  *
  * @param {object} props - Component properties.
- * @returns {React.Component} JetpackAdminPage component.
+ * @returns {React.Component} AdminPage component.
  */
-const JetpackAdminPageFooter = props => {
+const AdminPageFooter = props => {
 	const { moduleName, a8cLogoHref } = props;
 
 	return (
@@ -33,16 +33,16 @@ const JetpackAdminPageFooter = props => {
 	);
 };
 
-JetpackAdminPageFooter.defaultProps = {
+AdminPageFooter.defaultProps = {
 	a8cLogoHref: 'https://jetpack.com',
 	moduleName: __( 'Jetpack', 'jetpack' ),
 };
 
-JetpackAdminPageFooter.propTypes = {
+AdminPageFooter.propTypes = {
 	/** Link for 'An Automattic Airline' in the footer. */
 	a8cLogoHref: PropTypes.string,
 	/** Name of the module, e.g. 'Jetpack Search' that will be displayed in the footer. */
 	moduleName: PropTypes.string,
 };
 
-export default JetpackAdminPageFooter;
+export default AdminPageFooter;
