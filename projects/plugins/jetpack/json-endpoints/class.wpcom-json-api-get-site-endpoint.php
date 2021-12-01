@@ -157,6 +157,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_cloud_eligible',
 		'selected_features',
 		'anchor_podcast',
+		'is_difm_lite_in_progress',
 		'site_intent',
 	);
 
