@@ -14,7 +14,7 @@ import { __ } from '@wordpress/i18n';
  */
 import analytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
-import { JetpackFooter, JetpackLogo } from '@automattic/jetpack-components';
+import { JetpackFooter, JetpackLogo, Spinner } from '@automattic/jetpack-components';
 import ModuleControl from 'components/module-control';
 import MockedSearch from 'components/mocked-search';
 import { STORE_ID } from 'store';
@@ -167,13 +167,7 @@ export default function SearchDashboard() {
 	return (
 		<div className="jp-search-dashboard-page">
 			{ isLoading && (
-				<img
-					className="jp-search-dashboard-page-loading-spinner"
-					width="32"
-					height="32"
-					alt={ __( 'Loading', 'jetpack' ) }
-					src="//en.wordpress.com/i/loading/loading-64.gif"
-				/>
+				<Spinner className="jp-search-dashboard-page-loading-spinner" color="#000" size={ 32 } />
 			) }
 			{ ! isLoading && (
 				<Fragment>
