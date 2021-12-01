@@ -553,7 +553,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection-ui",
-                "reference": "fc0c19cfa8aabf75bcc3c9bb07c934e4c403f850"
+                "reference": "1f39529a135ed326ff592413631fb778890eb688"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.13",
@@ -589,6 +589,10 @@
                 "build-production": [
                     "Composer\\Config::disableProcessTimeout",
                     "pnpm run build"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
                 ]
             },
             "license": [
