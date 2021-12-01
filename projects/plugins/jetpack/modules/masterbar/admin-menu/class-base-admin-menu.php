@@ -658,7 +658,7 @@ abstract class Base_Admin_Menu {
 	}
 
 	/**
-	 * Adds the jetpack-admin-menu CSS class to the admin body class.
+	 * Adds the necessary CSS class to the admin body class.
 	 *
 	 * @param string $admin_body_classes Contains all the admin body classes.
 	 *
