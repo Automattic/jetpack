@@ -4,8 +4,8 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-options": "^1.13",
-		"automattic/jetpack-connection": "^1.30"
+		"automattic/jetpack-options": "^1.14",
+		"automattic/jetpack-connection": "^1.32"
 	},
 	"require-dev": {
 		"automattic/wordbless": "@dev",
@@ -49,7 +49,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-licensing/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.4.x-dev"
+			"dev-master": "1.5.x-dev"
 		}
 	}
 }

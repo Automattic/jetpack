@@ -81,28 +81,4 @@ class WP_Test_The_Neverending_Home_Page extends WP_UnitTestCase {
 			),
 		);
 	}
-
-	/**
-	 *  Test to verify allowed_query_vars method which is used to combine the public and
-	 *  private query vars using array_merge function adds all the array values instead of
-	 *  replacing them.
-	 */
-	public function test_infinite_scroll_allowed_query_vars_combined_output() {
-		global $wp;
-		$expected_vars      = array();
-		$public_query_vars  = $wp->public_query_vars;
-		$private_query_vars = $wp->private_query_vars;
-		$taxanomy_vars      = $this->infinite_scroll->get_taxonomy_vars();
-
-		$expected_vars = array_merge( $public_query_vars, $private_query_vars, $taxanomy_vars, $expected_vars );
-
-		foreach ( array_keys( $expected_vars, 'paged', true ) as $key ) {
-			unset( $expected_vars[ $key ] );
-		}
-
-		$expected_vars = array_unique( $expected_vars );
-
-		$actual_allowed_vars = apply_filters( 'infinite_scroll_allowed_vars', array() );
-		$this->assertSame( $expected_vars, $actual_allowed_vars );
-	}
 }

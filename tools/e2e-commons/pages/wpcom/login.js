@@ -1,6 +1,6 @@
-import { WpPage } from '..';
-import logger from '../../logger';
-import { getDotComCredentials } from '../../helpers/utils-helper';
+import WpPage from '../wp-page.js';
+import logger from '../../logger.cjs';
+import { getDotComCredentials } from '../../helpers/utils-helper.cjs';
 
 export default class LoginPage extends WpPage {
 	constructor( page ) {
@@ -12,7 +12,7 @@ export default class LoginPage extends WpPage {
 	}
 
 	async login( credentials = getDotComCredentials(), { retry = true } = {} ) {
-		logger.step( 'Log in to Wordpress.com' );
+		logger.step( 'Log in to WordPress.com' );
 
 		const usernameSelector = '#usernameOrEmail';
 		const passwordSelector = '#password';

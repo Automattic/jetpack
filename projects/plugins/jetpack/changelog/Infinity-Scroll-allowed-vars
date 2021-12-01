@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Replacing addition operation to calling array_merge function to give correct output

@@ -13,6 +13,23 @@ import { createInterpolateElement } from '@wordpress/element';
 import ConnectScreenLayout from '../layout';
 import './style.scss';
 
+export const ToS = createInterpolateElement(
+	__(
+		'By clicking the button above, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with WordPress.com.',
+		'jetpack'
+	),
+	{
+		tosLink: <a href={ getRedirectUrl( 'wpcom-tos' ) } rel="noopener noreferrer" target="_blank" />,
+		shareDetailsLink: (
+			<a
+				href={ getRedirectUrl( 'jetpack-support-what-data-does-jetpack-sync' ) }
+				rel="noopener noreferrer"
+				target="_blank"
+			/>
+		),
+	}
+);
+
 /**
  * The Connection Screen Visual component..
  *
@@ -27,28 +44,9 @@ const ConnectScreenVisual = props => {
 		children,
 		assetBaseUrl,
 		autoTrigger,
-		connectionStatus,
+		isLoading,
 		renderConnectBtn,
 	} = props;
-
-	const tos = createInterpolateElement(
-		__(
-			'By clicking the button above, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with WordPress.com.',
-			'jetpack'
-		),
-		{
-			tosLink: (
-				<a href={ getRedirectUrl( 'wpcom-tos' ) } rel="noopener noreferrer" target="_blank" />
-			),
-			shareDetailsLink: (
-				<a
-					href={ getRedirectUrl( 'jetpack-support-what-data-does-jetpack-sync' ) }
-					rel="noopener noreferrer"
-					target="_blank"
-				/>
-			),
-		}
-	);
 
 	return (
 		<ConnectScreenLayout
@@ -57,9 +55,7 @@ const ConnectScreenVisual = props => {
 			images={ images }
 			className={
 				'jp-connection__connect-screen' +
-				( connectionStatus.hasOwnProperty( 'isRegistered' )
-					? ''
-					: ' jp-connection__connect-screen__loading' )
+				( isLoading ? ' jp-connection__connect-screen__loading' : '' )
 			}
 		>
 			<div className="jp-connection__connect-screen__content">
@@ -67,7 +63,7 @@ const ConnectScreenVisual = props => {
 
 				{ renderConnectBtn( buttonLabel, autoTrigger ) }
 
-				<div className="jp-connection__connect-screen__tos">{ tos }</div>
+				<div className="jp-connection__connect-screen__tos">{ ToS }</div>
 			</div>
 		</ConnectScreenLayout>
 	);
@@ -78,8 +74,8 @@ ConnectScreenVisual.propTypes = {
 	title: PropTypes.string,
 	/** The Connect Button label. */
 	buttonLabel: PropTypes.string,
-	/** Connection Status object */
-	connectionStatus: PropTypes.object.isRequired,
+	/** Whether the connection status is still loading. */
+	isLoading: PropTypes.bool.isRequired,
 	/** Whether to initiate the connection process automatically upon rendering the component. */
 	autoTrigger: PropTypes.bool,
 	/** Connect button render function */

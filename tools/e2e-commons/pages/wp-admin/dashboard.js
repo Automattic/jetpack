@@ -1,8 +1,9 @@
-import { WpPage } from '..';
+import WpPage from '../wp-page.js';
+import { resolveSiteUrl } from '../../helpers/utils-helper.cjs';
 
 export default class DashboardPage extends WpPage {
 	constructor( page ) {
-		const url = `${ siteUrl }/wp-admin`;
+		const url = `${ resolveSiteUrl() }/wp-admin`;
 		super( page, { expectedSelectors: [ '#dashboard-widgets-wrap' ], url } );
 	}
 

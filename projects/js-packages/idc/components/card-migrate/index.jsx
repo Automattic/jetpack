@@ -16,16 +16,12 @@ import { Spinner } from '@automattic/jetpack-components';
  */
 import { STORE_ID } from '../../state/store';
 import extractHostname from '../../tools/extract-hostname';
+import trackAndBumpMCStats from '../../tools/tracking';
 
 /**
  * The "migrate" card.
  *
  * @param {object} props - The properties.
- * @param {string} props.wpcomHomeUrl - The original site URL.
- * @param {string} props.currentUrl - The current site URL.
- * @param {Function} props.onMigrated - The callback to be called when migration has completed.
- * @param {boolean} props.isActionInProgress - Whether there's already an action in progress.
- * @param {Function} props.setIsActionInProgress - Function to set the "action in progress" flag.
  * @returns {React.Component} The `ConnectScreen` component.
  */
 const CardMigrate = props => {
@@ -48,6 +44,8 @@ const CardMigrate = props => {
 	 */
 	const doMigrate = useCallback( () => {
 		if ( ! isActionInProgress ) {
+			trackAndBumpMCStats( 'migrate' );
+
 			setIsActionInProgress( true );
 			setIsMigrating( true );
 
@@ -69,8 +67,8 @@ const CardMigrate = props => {
 	}, [ setIsMigrating, onMigrated, isActionInProgress, setIsActionInProgress ] );
 
 	return (
-		<div className="jp-idc-card-action-base">
-			<div className="jp-idc-card-action-top">
+		<div className="jp-idc__idc-screen__card-action-base">
+			<div className="jp-idc__idc-screen__card-action-top">
 				<h4>{ __( 'Move Jetpack data', 'jetpack' ) }</h4>
 
 				<p>
@@ -91,13 +89,13 @@ const CardMigrate = props => {
 				</p>
 			</div>
 
-			<div className="jp-idc-card-action-bottom">
-				<div className="jp-idc-card-action-sitename">{ wpcomHostName }</div>
-				<Dashicon icon="arrow-down-alt" className="jp-idc-card-action-separator" />
-				<div className="jp-idc-card-action-sitename">{ currentHostName }</div>
+			<div className="jp-idc__idc-screen__card-action-bottom">
+				<div className="jp-idc__idc-screen__card-action-sitename">{ wpcomHostName }</div>
+				<Dashicon icon="arrow-down-alt" className="jp-idc__idc-screen__card-action-separator" />
+				<div className="jp-idc__idc-screen__card-action-sitename">{ currentHostName }</div>
 
 				<Button
-					className="jp-idc-card-action-button"
+					className="jp-idc__idc-screen__card-action-button"
 					label={ buttonLabel }
 					onClick={ doMigrate }
 					disabled={ isActionInProgress }
@@ -110,10 +108,15 @@ const CardMigrate = props => {
 };
 
 CardMigrate.propTypes = {
+	/** The original site URL. */
 	wpcomHomeUrl: PropTypes.string.isRequired,
+	/** The current site URL. */
 	currentUrl: PropTypes.string.isRequired,
+	/** The callback to be called when migration has completed. */
 	onMigrated: PropTypes.func,
+	/** Whether there's already an action in progress. */
 	isActionInProgress: PropTypes.bool,
+	/** Function to set the "action in progress" flag. */
 	setIsActionInProgress: PropTypes.func.isRequired,
 };
 
