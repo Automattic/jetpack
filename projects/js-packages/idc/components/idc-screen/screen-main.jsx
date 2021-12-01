@@ -18,10 +18,6 @@ import SafeMode from '../safe-mode';
  * Retrieve the main screen body.
  *
  * @param {object} props - The properties.
- * @param {string} props.wpcomHomeUrl - The original site URL.
- * @param {string} props.currentUrl - The current site URL.
- * @param {string} props.redirectUri - The redirect URI to redirect users back to after connecting.
- * @param {Function} props.onMigrated - The callback to be called when migration has completed.
  * @returns {React.Component} The ScreenMain component.
  */
 const ScreenMain = props => {
@@ -72,9 +68,13 @@ const ScreenMain = props => {
 };
 
 ScreenMain.propTypes = {
+	/** The original site URL. */
 	wpcomHomeUrl: PropTypes.string.isRequired,
+	/** The current site URL */
 	currentUrl: PropTypes.string.isRequired,
+	/** The redirect URI to redirect users back to after connecting. */
 	redirectUri: PropTypes.string.isRequired,
+	/** The callback to be called when migration has completed. */
 	onMigrated: PropTypes.func,
 };
 

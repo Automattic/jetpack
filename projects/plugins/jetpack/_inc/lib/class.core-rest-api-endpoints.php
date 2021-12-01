@@ -6,6 +6,7 @@ use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Licensing;
+use Automattic\Jetpack\Search\REST_Controller as Search_REST_Controller;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -29,6 +30,9 @@ add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'register
 // Load API endpoints that are synced with WP.com
 // Each of these is a class that will register its own routes on 'rest_api_init'.
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/load-wpcom-endpoints.php';
+
+// Load Search endpoints when WP REST API is initialized.
+add_action( 'rest_api_init', array( new Search_REST_Controller(), 'register_rest_routes' ) );
 
 /**
  * Class Jetpack_Core_Json_Api_Endpoints
@@ -818,6 +822,19 @@ class Jetpack_Core_Json_Api_Endpoints {
 					'callback'            => __CLASS__ . '::delete_purchase_token',
 					'permission_callback' => __CLASS__ . '::purchase_token_permission_check',
 				),
+			)
+		);
+
+		/*
+		 * Set the Jetpack Option `has_see_wc_connection_modal` to true
+		 */
+		register_rest_route(
+			'jetpack/v4',
+			'seen-wc-connection-modal',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::set_has_seen_wc_connection_modal',
+				'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
 			)
 		);
 	}
@@ -4100,6 +4117,19 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		return new WP_Error( 'invalid_user_permission_set_jetpack_license_key', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
 
+	}
+
+	/**
+	 * Set hasSeenWCConnectionModal to true when the site has displayed it
+	 *
+	 * @since 10.4.0
+	 *
+	 * @return bool
+	 */
+	public static function set_has_seen_wc_connection_modal() {
+		$updated_option = Jetpack_Options::update_option( 'has_seen_wc_connection_modal', true );
+
+		return rest_ensure_response( array( 'success' => $updated_option ) );
 	}
 
 } // class end

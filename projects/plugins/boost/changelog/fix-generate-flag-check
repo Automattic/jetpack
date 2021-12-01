@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed issue with re-serving Critical CSS during generation process
