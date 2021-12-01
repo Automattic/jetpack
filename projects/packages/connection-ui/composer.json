@@ -35,6 +35,10 @@
 		"build-production": [
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run build"
+		],
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
 		]
 	},
 	"minimum-stability": "dev",
