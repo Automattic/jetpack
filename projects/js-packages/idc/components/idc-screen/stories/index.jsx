@@ -16,8 +16,8 @@ export default {
 	},
 	argTypes: {
 		redirectUri: { table: { disable: true } },
-		onMigrated: { table: { disable: true } },
-		finishMigration: { table: { disable: true } },
+		migrateCallback: { table: { disable: true } },
+		finishMigrationCallback: { table: { disable: true } },
 	},
 };
 
@@ -28,6 +28,8 @@ const DefaultArgs = {
 	currentUrl: 'https://site2.example.org',
 	redirectUri: '',
 	isMigrated: false,
+	isFinishingMigration: false,
+	isMigrating: false,
 };
 
 export const _default = Template.bind( {} );

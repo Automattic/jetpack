@@ -76,7 +76,7 @@ ScreenMigrated.propTypes = {
 	/** The current site URL. */
 	currentUrl: PropTypes.string.isRequired,
 	/** Callback to be called when migration is complete, and user clicks the OK button. */
-	finishCallback: PropTypes.object,
+	finishCallback: PropTypes.func,
 	/** Whether the migration finishing process is in progress. */
 	isFinishing: PropTypes.bool.isRequired,
 };

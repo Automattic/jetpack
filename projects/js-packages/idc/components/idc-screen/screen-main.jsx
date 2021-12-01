@@ -21,7 +21,7 @@ import SafeMode from '../safe-mode';
  * @returns {React.Component} The ScreenMain component.
  */
 const ScreenMain = props => {
-	const { wpcomHomeUrl, currentUrl, onMigrated, redirectUri } = props;
+	const { wpcomHomeUrl, currentUrl, redirectUri, isMigrating, migrateCallback } = props;
 
 	return (
 		<React.Fragment>
@@ -52,7 +52,8 @@ const ScreenMain = props => {
 				<CardMigrate
 					wpcomHomeUrl={ wpcomHomeUrl }
 					currentUrl={ currentUrl }
-					onMigrated={ onMigrated }
+					isMigrating={ isMigrating }
+					migrateCallback={ migrateCallback }
 				/>
 				<div className="jp-idc__idc-screen__cards-separator">or</div>
 				<CardFresh
@@ -74,8 +75,14 @@ ScreenMain.propTypes = {
 	currentUrl: PropTypes.string.isRequired,
 	/** The redirect URI to redirect users back to after connecting. */
 	redirectUri: PropTypes.string.isRequired,
-	/** The callback to be called when migration has completed. */
-	onMigrated: PropTypes.func,
+	/** Whether the migration is in progress. */
+	isMigrating: PropTypes.bool.isRequired,
+	/** Migration callback. */
+	migrateCallback: PropTypes.func,
+};
+
+ScreenMain.defaultProps = {
+	isMigrating: false,
 };
 
 export default ScreenMain;

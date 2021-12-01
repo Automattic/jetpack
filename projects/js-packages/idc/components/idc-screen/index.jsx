@@ -11,6 +11,7 @@ import restApi from '@automattic/jetpack-api';
  */
 import IDCScreenVisual from './visual';
 import trackAndBumpMCStats from '../../tools/tracking';
+import useMigration from '../../hooks/use-migration';
 import useMigrationFinished from '../../hooks/use-migration-finished';
 
 /**
@@ -34,9 +35,11 @@ const IDCScreen = props => {
 
 	const [ isMigrated, setIsMigrated ] = useState( false );
 
-	const onMigrated = useCallback( () => {
-		setIsMigrated( true );
-	}, [ setIsMigrated ] );
+	const { isMigrating, migrateCallback } = useMigration(
+		useCallback( () => {
+			setIsMigrated( true );
+		}, [ setIsMigrated ] )
+	);
 
 	const { isFinishingMigration, finishMigrationCallback } = useMigrationFinished();
 
@@ -75,8 +78,9 @@ const IDCScreen = props => {
 			wpcomHomeUrl={ wpcomHomeUrl }
 			currentUrl={ currentUrl }
 			redirectUri={ redirectUri }
+			isMigrating={ isMigrating }
+			migrateCallback={ migrateCallback }
 			isMigrated={ isMigrated }
-			onMigrated={ onMigrated }
 			finishMigrationCallback={ finishMigrationCallback }
 			isFinishingMigration={ isFinishingMigration }
 		/>
