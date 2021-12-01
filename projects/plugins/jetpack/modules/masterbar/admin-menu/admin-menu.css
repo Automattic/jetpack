@@ -358,6 +358,10 @@
 		z-index: 171;
 	}
 
+	.wp-responsive-open #wpcontent {
+		margin-left: 0;
+	}
+
 	ul#adminmenu a.wp-has-current-submenu:after,
 	ul#adminmenu>li.current>a.current:after,
 	ul#adminmenu li:hover a.wp-has-current-submenu:after,

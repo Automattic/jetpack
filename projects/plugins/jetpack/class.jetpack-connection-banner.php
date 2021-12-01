@@ -146,7 +146,14 @@ class Jetpack_Connection_Banner {
 
 		// Only fires immediately after plugin activation
 		if ( get_transient( 'activated_jetpack' ) ) {
-			add_action( 'admin_notices', array( $this, 'render_connect_prompt_full_screen' ) );
+			if (
+				! \Jetpack_Options::get_option( 'has_seen_wc_connection_modal', false )
+				&& in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', Jetpack::get_active_plugins() ), true )
+			) {
+				wp_safe_redirect( Jetpack::admin_url( 'page=jetpack#/woo-setup' ) );
+			} else {
+				add_action( 'admin_notices', array( $this, 'render_connect_prompt_full_screen' ) );
+			}
 			delete_transient( 'activated_jetpack' );
 		}
 	}

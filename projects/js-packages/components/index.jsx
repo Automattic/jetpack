@@ -24,3 +24,4 @@ export { default as PricingCard } from './components/pricing-card';
 export { default as JetpackAdminSection } from './components/admin-section/basic';
 export { default as JetpackAdminSectionHero } from './components/admin-section/hero';
 export { default as JetpackAdminPage } from './components/admin-page';
+export { default as DecorativeCard } from './components/decorative-card';

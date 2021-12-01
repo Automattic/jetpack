@@ -171,13 +171,21 @@ function JetpackLikesMessageListener( event ) {
 
 			break;
 
-		case 'showLikeWidget':
-			document.querySelector( `#${ data.id } .likes-widget-placeholder` ).style.display = 'none';
+		case 'showLikeWidget': {
+			const placeholder = document.querySelector( `#${ data.id } .likes-widget-placeholder` );
+			if ( placeholder ) {
+				placeholder.style.display = 'none';
+			}
 			break;
+		}
 
-		case 'showCommentLikeWidget':
-			document.querySelector( `#${ data.id } .likes-widget-placeholder` ).style.display = 'none';
+		case 'showCommentLikeWidget': {
+			const placeholder = document.querySelector( `#${ data.id } .likes-widget-placeholder` );
+			if ( placeholder ) {
+				placeholder.style.display = 'none';
+			}
 			break;
+		}
 
 		case 'killCommentLikes':
 			// If kill switch for comment likes is enabled remove all widgets wrappers and `Loading...` placeholders.
@@ -269,7 +277,7 @@ window.addEventListener( 'message', JetpackLikesMessageListener );
 document.addEventListener( 'click', e => {
 	const container = document.querySelector( '#likes-other-gravatars' );
 
-	if ( ! container.contains( e.target ) ) {
+	if ( container && ! container.contains( e.target ) ) {
 		container.style.display = 'none';
 	}
 } );

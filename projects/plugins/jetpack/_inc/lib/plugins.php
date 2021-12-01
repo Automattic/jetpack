@@ -11,6 +11,8 @@
 
 require_once 'class.jetpack-automatic-install-skin.php';
 
+use Automattic\Jetpack\A8c_Mc_Stats;
+
 /**
  * Plugins management tools.
  */
@@ -41,7 +43,6 @@ class Jetpack_Plugins {
 		if ( ! current_user_can( 'activate_plugins' ) ) {
 			return new WP_Error( 'not_allowed', __( 'You are not allowed to activate plugins on this site.', 'jetpack' ) );
 		}
-
 		$activated = activate_plugin( $plugin_id );
 		if ( is_wp_error( $activated ) ) {
 			return $activated;
@@ -67,10 +68,12 @@ class Jetpack_Plugins {
 		$skin     = new Jetpack_Automatic_Install_Skin();
 		$upgrader = new Plugin_Upgrader( $skin );
 		$zip_url  = self::generate_wordpress_org_plugin_download_link( $slug );
+		$mc_stats = new A8c_Mc_Stats();
 
 		$result = $upgrader->install( $zip_url );
 
 		if ( is_wp_error( $result ) ) {
+			$mc_stats->add( 'install-plugin', "fail-$slug" );
 			return $result;
 		}
 
@@ -92,9 +95,11 @@ class Jetpack_Plugins {
 				$error_code = 'no_package';
 			}
 
+			$mc_stats->add( 'install-plugin', "fail-$slug" );
 			return new WP_Error( $error_code, $error, 400 );
 		}
 
+		$mc_stats->add( 'install-plugin', "success-$slug" );
 		return (array) $upgrader->skin->get_upgrade_messages();
 	}
 
