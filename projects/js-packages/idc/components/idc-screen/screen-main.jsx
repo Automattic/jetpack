@@ -24,35 +24,19 @@ const ScreenMain = props => {
 	const {
 		wpcomHomeUrl,
 		currentUrl,
-		redirectUri,
 		isMigrating,
 		migrateCallback,
 		isStartingFresh,
 		startFreshCallback,
+		title,
+		mainBodyText,
 	} = props;
 
 	return (
 		<React.Fragment>
-			<h2>{ __( 'Safe Mode has been activated', 'jetpack' ) }</h2>
+			<h2>{ title }</h2>
 
-			<p>
-				{ createInterpolateElement(
-					__(
-						'Your site is in Safe Mode because you have 2 Jetpack-powered sites that appear to be duplicates. ' +
-							'2 sites that are telling Jetpack they’re the same site. <safeModeLink>Learn more about safe mode.</safeModeLink>',
-						'jetpack'
-					),
-					{
-						safeModeLink: (
-							<a
-								href={ getRedirectUrl( 'jetpack-support-safe-mode' ) }
-								rel="noopener noreferrer"
-								target="_blank"
-							/>
-						),
-					}
-				) }
-			</p>
+			<p>{ mainBodyText }</p>
 
 			<h3>{ __( 'Please select an option', 'jetpack' ) }</h3>
 
@@ -67,7 +51,6 @@ const ScreenMain = props => {
 				<CardFresh
 					wpcomHomeUrl={ wpcomHomeUrl }
 					currentUrl={ currentUrl }
-					redirectUri={ redirectUri }
 					isStartingFresh={ isStartingFresh }
 					startFreshCallback={ startFreshCallback }
 				/>
@@ -83,8 +66,6 @@ ScreenMain.propTypes = {
 	wpcomHomeUrl: PropTypes.string.isRequired,
 	/** The current site URL */
 	currentUrl: PropTypes.string.isRequired,
-	/** The redirect URI to redirect users back to after connecting. */
-	redirectUri: PropTypes.string.isRequired,
 	/** Whether the migration is in progress. */
 	isMigrating: PropTypes.bool.isRequired,
 	/** Migration callback. */
@@ -93,11 +74,32 @@ ScreenMain.propTypes = {
 	isStartingFresh: PropTypes.bool.isRequired,
 	/** "Start Fresh" callback. */
 	startFreshCallback: PropTypes.func,
+	/** The main screen title. */
+	title: PropTypes.string.isRequired,
+	/** The main screen body text. */
+	mainBodyText: PropTypes.oneOfType( [ PropTypes.string, PropTypes.object ] ).isRequired,
 };
 
 ScreenMain.defaultProps = {
 	isMigrating: false,
 	isStartingFresh: false,
+	title: __( 'Safe Mode has been activated', 'jetpack' ),
+	mainBodyText: createInterpolateElement(
+		__(
+			'Your site is in Safe Mode because you have 2 Jetpack-powered sites that appear to be duplicates. ' +
+				'2 sites that are telling Jetpack they’re the same site. <safeModeLink>Learn more about safe mode.</safeModeLink>',
+			'jetpack'
+		),
+		{
+			safeModeLink: (
+				<a
+					href={ getRedirectUrl( 'jetpack-support-safe-mode' ) }
+					rel="noopener noreferrer"
+					target="_blank"
+				/>
+			),
+		}
+	),
 };
 
 export default ScreenMain;

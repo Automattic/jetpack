@@ -3,9 +3,8 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { getRedirectUrl, JetpackLogo } from '@automattic/jetpack-components';
+import { JetpackLogo } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -75,9 +74,9 @@ IDCScreenVisual.propTypes = {
 	/** The redirect URI to redirect users back to after connecting. */
 	redirectUri: PropTypes.string.isRequired,
 	/** The main screen title. */
-	title: PropTypes.string.isRequired,
+	title: PropTypes.string,
 	/** The main screen body text. */
-	mainBodyText: PropTypes.string.isRequired,
+	mainBodyText: PropTypes.string,
 	/** Whether the migration is in progress. */
 	isMigrating: PropTypes.bool.isRequired,
 	/** Migration callback. */
@@ -97,23 +96,6 @@ IDCScreenVisual.propTypes = {
 IDCScreenVisual.defaultProps = {
 	logo: <JetpackLogo height={ 24 } />,
 	headerText: __( 'Safe Mode', 'jetpack' ),
-	title: __( 'Safe Mode has been activated', 'jetpack' ),
-	mainBodyText: createInterpolateElement(
-		__(
-			'Your site is in Safe Mode because you have 2 Jetpack-powered sites that appear to be duplicates. ' +
-				'2 sites that are telling Jetpack they’re the same site. <safeModeLink>Learn more about safe mode.</safeModeLink>',
-			'jetpack'
-		),
-		{
-			safeModeLink: (
-				<a
-					href={ getRedirectUrl( 'jetpack-support-safe-mode' ) }
-					rel="noopener noreferrer"
-					target="_blank"
-				/>
-			),
-		}
-	).toString(),
 	isMigrated: false,
 	isFinishingMigration: false,
 	isMigrating: false,
