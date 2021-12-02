@@ -2,6 +2,7 @@
 /.sass-cache/
 /node_modules
 vendor/
+jetpack_vendor/
 /.nova/
 /.vscode/
 /logs
