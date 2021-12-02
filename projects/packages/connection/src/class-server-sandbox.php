@@ -72,16 +72,16 @@ class Server_Sandbox {
 					1
 				);
 
-			if ( defined( 'JETPACK__SANDBOX_PROFILE' ) && JETPACK__SANDBOX_PROFILE ) {
-				$query = wp_parse_url( $url, PHP_URL_QUERY );
+				if ( defined( 'JETPACK__SANDBOX_PROFILE' ) && JETPACK__SANDBOX_PROFILE ) {
+					$query = wp_parse_url( $url, PHP_URL_QUERY );
 
-				// The parse_url function returns a string if the URL has parameters or NULL if not.
-				if ( $query ) {
-					$url .= '&XDEBUG_PROFILE=1';
-				} else {
-					$url .= '?XDEBUG_PROFILE=1';
+					// The parse_url function returns a string if the URL has parameters or NULL if not.
+					if ( $query ) {
+						$url .= '&XDEBUG_PROFILE=1';
+					} else {
+						$url .= '?XDEBUG_PROFILE=1';
+					}
 				}
-			}
 		}
 
 		return compact( 'url', 'host' );

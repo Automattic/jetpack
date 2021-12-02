@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Debugging: pass XDEBUG_PROFILE when the JETPACK__SANDBOX_PROFILE constant is set.
