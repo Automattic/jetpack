@@ -45,8 +45,8 @@ class Class_Property_Moved extends Differences_List_Item implements Invocation_W
 	 */
 	protected function get_serializable() {
 		return array(
-			'old_declaration' => $this->old_declaration->to_map(),
-			'new_declaration' => $this->new_declaration->to_map(),
+			'old_declaration' => $this->old_declaration,
+			'new_declaration' => $this->new_declaration,
 		);
 	}
 
