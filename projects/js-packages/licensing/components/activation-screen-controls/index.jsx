@@ -73,10 +73,8 @@ const ActivationScreenControls = props => {
 				<Button
 					className="jp-license-activation-screen-controls--button"
 					onClick={ activateLicense }
-					disabled={ isActivating }
-					isBusy={ isActivating }
 				>
-					{ isActivating ? __( 'Working…', 'jetpack' ) : __( 'Activate', 'jetpack' ) }
+					{ __( 'Activate', 'jetpack' ) }
 				</Button>
 			</div>
 		</div>
