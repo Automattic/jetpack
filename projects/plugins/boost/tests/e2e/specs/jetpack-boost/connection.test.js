@@ -7,7 +7,7 @@ test.describe.serial( 'Settings Page', () => {
 	test( 'Should connect to WP.com on a fresh install with Jetpack plugin activated and Jetpack already connected', async ( {
 		page,
 	} ) => {
-		await prerequisitesBuilder().withActivePlugins( [ 'jetpack' ] ).withConnection( true ).build();
+		await prerequisitesBuilder().withConnection( true ).build();
 		await boostPrerequisitesBuilder().withConnection( false ).build();
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 		expect( await jetpackBoostPage.isFreshlyConnected() ).toEqual( true );
@@ -20,7 +20,6 @@ test.describe.serial( 'Settings Page', () => {
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 		expect( await jetpackBoostPage.isFreshlyConnected() ).toEqual( true );
 	} );
-
 	test( 'Should connect to WP.com on a fresh install without Jetpack plugin activated', async ( {
 		page,
 	} ) => {
