@@ -9,5 +9,5 @@ export default async function () {
 		.withLoggedIn( true )
 		.withInactivePlugins( [ 'jetpack' ] )
 		.build();
-	await boostPrerequisitesBuilder( page ).withConnection( true ).build();
+	await boostPrerequisitesBuilder( page ).withPackages( [ 'jitm' ] ).withConnection( true ).build();
 }
