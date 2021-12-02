@@ -29,7 +29,7 @@ test.describe.serial( 'Lazy Images module', () => {
 		expect( await page.locator( '.jetpack-lazy-image' ).count() ).toBeGreaterThan( 0 );
 	} );
 
-	test( 'Images on a post should not be Lazy loaded when the module is active', async () => {
+	test( 'Images on a post should not be Lazy loaded when the module is inactive', async () => {
 		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'lazy-images' ] ).build();
 		await TestContentPage.visitByTitle( testPostTitle, page );
 		expect( await page.locator( '.jetpack-lazy-image' ).count() ).toBeLessThanOrEqual( 0 );
