@@ -18,6 +18,7 @@
 	},
 	"dependencies": {
 		"@automattic/babel-plugin-preserve-i18n": "1.0.0",
+		"@automattic/i18n-loader-webpack-plugin": "workspace:^0.1.0-alpha",
 		"@automattic/webpack-rtl-plugin": "5.1.0",
 		"@babel/compat-data": "7.16.4",
 		"@babel/helper-compilation-targets": "7.16.3",

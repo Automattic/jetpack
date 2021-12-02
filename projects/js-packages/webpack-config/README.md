@@ -207,6 +207,12 @@ This provides an instance of [duplicate-package-checker-webpack-plugin](https://
 
 This provides an instance of [@wordpress/dependency-extraction-webpack-plugin](https://www.npmjs.com/package/@wordpress/dependency-extraction-webpack-plugin). The `options` are passed to the plugin.
 
+##### `I18nLoaderPlugin( options )`
+
+This provides an instance of [@automattic/i18n-loader-webpack-plugin](https://www.npmjs.com/package/@automattic/i18n-loader-webpack-plugin). The `options` are passed to the plugin.
+
+Note that if the plugin actually does anything in your build, you'll need to specify at least the `domain` option for it.
+
 #### Module rules and loaders
 
 Note all rule sets are provided as factory functions returning a single rule.
