@@ -9,7 +9,6 @@ import { ActionButton } from '@automattic/jetpack-components';
 /**
  * Internal dependencies
  */
-import ConnectUser from '../connect-user';
 import useConnect from '../connect-screen/hooks/use-connect';
 
 /**
@@ -36,13 +35,13 @@ const ConnectButton = props => {
 		siteIsRegistering,
 		userIsConnecting,
 		registrationError,
-		authorizationUrl,
 	} = useConnect( {
 		registrationNonce,
 		redirectUri,
 		apiRoot,
 		apiNonce,
 		autoTrigger,
+		from,
 	} );
 
 	return (
@@ -54,10 +53,6 @@ const ConnectButton = props => {
 					displayError={ registrationError ? true : false }
 					isLoading={ siteIsRegistering || userIsConnecting }
 				/>
-			) }
-
-			{ userIsConnecting && (
-				<ConnectUser connectUrl={ authorizationUrl } redirectUri={ redirectUri } from={ from } />
 			) }
 		</>
 	);

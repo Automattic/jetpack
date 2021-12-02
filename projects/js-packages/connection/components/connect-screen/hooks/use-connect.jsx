@@ -10,8 +10,8 @@ import restApi from '@automattic/jetpack-api';
  */
 import { STORE_ID } from '../../../state/store';
 
-export default ( { registrationNonce, redirectUri, apiRoot, apiNonce, autoTrigger } ) => {
-	const { setUserIsConnecting, registerSite } = useDispatch( STORE_ID );
+export default ( { registrationNonce, redirectUri, apiRoot, apiNonce, autoTrigger, from } ) => {
+	const { fetchAuthorizationUrl, registerSite, connectUser } = useDispatch( STORE_ID );
 	const siteIsRegistering = useSelect( select => select( STORE_ID ).getSiteIsRegistering(), [] );
 	const userIsConnecting = useSelect( select => select( STORE_ID ).getUserIsConnecting(), [] );
 	const registrationError = useSelect( select => select( STORE_ID ).getRegistrationError(), [] );
@@ -29,11 +29,11 @@ export default ( { registrationNonce, redirectUri, apiRoot, apiNonce, autoTrigge
 	const handleRegisterSite = e => {
 		e && e.preventDefault();
 
-		if ( isRegistered ) {
-			setUserIsConnecting( true );
-			return;
-		}
-		registerSite( registrationNonce, redirectUri );
+		const action = isRegistered
+			? fetchAuthorizationUrl( redirectUri )
+			: registerSite( { registrationNonce, redirectUri } );
+
+		action.then( () => connectUser( { from } ) );
 	};
 
 	/**
