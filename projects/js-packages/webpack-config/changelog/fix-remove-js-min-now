@@ -1,4 +1,0 @@
-Significance: major
-Type: changed
-
-Change default output filenames: remove `.min`, move hashes to chunk query strings, and add `minify=false` to chunk query strings.
