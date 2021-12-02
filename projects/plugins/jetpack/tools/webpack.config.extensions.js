@@ -120,6 +120,7 @@ const sharedWebpackConfig = {
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {
 			DependencyExtractionPlugin: false,
+			I18nLoaderPlugin: false,
 		} ),
 	],
 	module: {
@@ -178,6 +179,7 @@ module.exports = [
 		plugins: [
 			...sharedWebpackConfig.plugins,
 			...jetpackWebpackConfig.DependencyExtractionPlugin( { injectPolyfill: true } ),
+			...jetpackWebpackConfig.I18nLoaderPlugin( { textdomain: 'jetpack' } ),
 			new CopyWebpackPlugin( {
 				patterns: [
 					{
