@@ -83,6 +83,7 @@ const ActivationScreen = props => {
 			return Promise.resolve();
 		}
 
+		setLicenseError( null );
 		setIsSaving( true );
 		// returning our promise chain makes testing a bit easier ( see ./test/components.jsx - "should render an error from API" )
 		return restApi
