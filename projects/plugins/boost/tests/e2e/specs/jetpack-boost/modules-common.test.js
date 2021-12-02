@@ -11,15 +11,19 @@ const modules = [
 	[ 'render-blocking-js', 'disabled' ],
 ];
 
-test.describe( 'Modules', () => {
-	test.beforeAll( async () => {
-		await boostPrerequisitesBuilder()
+test.describe.serial( 'Modules', () => {
+	let page;
+
+	test.beforeAll( async ( { browser } ) => {
+		page = await browser.newPage();
+
+		await boostPrerequisitesBuilder( page )
 			.withConnection( true )
 			.withInactiveModules( [ 'critical-css', 'lazy-images', 'render-blocking-js' ] )
 			.build();
 	} );
 
-	test.beforeEach( async ( { page } ) => {
+	test.beforeEach( async () => {
 		jetpackBoostPage = await JetpackBoostPage.visit( page );
 	} );
 

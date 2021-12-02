@@ -1,12 +1,15 @@
 import logger from 'jetpack-e2e-commons/logger.cjs';
-import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
+import { execWpCommand, buildPackage } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
+
 import { expect } from '@playwright/test';
 import { JetpackBoostPage } from '../pages/index.js';
 
 export function boostPrerequisitesBuilder( page ) {
 	const state = {
+		testPostTitles: [],
 		clean: undefined,
 		modules: { active: undefined, inactive: undefined },
+		packages: [],
 		connected: undefined,
 		jetpackDeactivated: undefined,
 	};
@@ -20,8 +23,16 @@ export function boostPrerequisitesBuilder( page ) {
 			state.modules.inactive = modules;
 			return this;
 		},
+		withPackages( packages = [] ) {
+			state.packages = packages;
+			return this;
+		},
 		withConnection( shouldBeConnected ) {
 			state.connected = shouldBeConnected;
+			return this;
+		},
+		withTestContent( testPostTitles = [] ) {
+			state.testPostTitles = testPostTitles;
 			return this;
 		},
 		withCleanEnv() {
@@ -37,7 +48,9 @@ export function boostPrerequisitesBuilder( page ) {
 async function buildPrerequisites( state, page ) {
 	const functions = {
 		modules: () => ensureModulesState( state.modules ),
+		packages: () => ensurePackages( state.packages ),
 		connected: () => ensureConnectedState( state.connected, page ),
+		testPostTitles: () => ensureTestPosts( state.testPostTitles ),
 		clean: () => ensureCleanState( state.clean ),
 	};
 
@@ -68,20 +81,26 @@ export async function ensureModulesState( modules ) {
 		logger.prerequisites( 'Cannot find list of modules to deactivate!' );
 	}
 }
-
-export async function activateModules( modulesList ) {
-	for ( const module of modulesList ) {
+export async function activateModules( modules ) {
+	for ( const module of modules ) {
 		logger.prerequisites( `Activating module ${ module }` );
 		const result = await execWpCommand( `jetpack-boost module activate ${ module }` );
 		expect( result ).toMatch( new RegExp( `Success: .* has been activated.`, 'i' ) );
 	}
 }
 
-export async function deactivateModules( modulesList ) {
-	for ( const module of modulesList ) {
+export async function deactivateModules( modules ) {
+	for ( const module of modules ) {
 		logger.prerequisites( `Deactivating module ${ module }` );
 		const result = await execWpCommand( `jetpack-boost module deactivate ${ module }` );
 		expect( result ).toMatch( new RegExp( `Success: .* has been deactivated.`, 'i' ) );
+	}
+}
+
+export async function ensurePackages( packages ) {
+	for ( const jetpackPackage of packages ) {
+		logger.prerequisites( `Installing package ${ jetpackPackage }` );
+		await buildPackage( jetpackPackage );
 	}
 }
 
@@ -129,6 +148,24 @@ export async function checkIfConnected() {
 		return false;
 	}
 	throw result;
+}
+
+async function ensureTestPosts( testPostTitles ) {
+	const testPostTitlesCommands = {
+		'Hello World with image!':
+			"post create --post_status='publish' --post_title='Hello World with image!' --post_content='<h1>Hello World with Image!</h1><div><p>This is just a test post with an image</p><img src=\"https://picsum.photos/seed/picsum/600/600\" alt=\"placeholder Image\"></div>'",
+	};
+	for ( const testPostTitle of testPostTitles ) {
+		if ( testPostTitle in testPostTitlesCommands ) {
+			const result = await execWpCommand( 'post list --fields=post_title' );
+			if ( result.includes( testPostTitle ) ) {
+				logger.prerequisites( 'The test content post already exists' );
+			} else {
+				logger.prerequisites( 'Creating test content post...' );
+				await execWpCommand( testPostTitlesCommands[ testPostTitle ] );
+			}
+		}
+	}
 }
 
 async function ensureCleanState( shouldReset ) {

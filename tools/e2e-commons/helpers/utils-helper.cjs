@@ -335,6 +335,11 @@ async function getJetpackVersion() {
 	return version;
 }
 
+async function buildPackage( jetpackPackage ) {
+	const cmd = `pnpx jetpack install packages/${ jetpackPackage } && pnpx jetpack build packages/${ jetpackPackage }`;
+	await execShellCommand( cmd );
+}
+
 module.exports = {
 	execShellCommand,
 	execSyncShellCommand,
@@ -355,4 +360,5 @@ module.exports = {
 	getMailchimpCredentials,
 	logEnvironment,
 	getJetpackVersion,
+	buildPackage,
 };
