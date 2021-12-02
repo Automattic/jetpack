@@ -509,7 +509,8 @@ const VideoPressEdit = CoreVideoEdit =>
 			const isFetchingVideo = isFetchingMedia || isFetchingPreview;
 			const isVideoFallbackOrNotPreview = fallback || ! preview;
 			// If the video is uploading or fetching, we should display the Loading component.
-			const displayLoadingBlock = isUploading || isFetchingVideo;
+			// Once we have a preview, we'll bypass the following return to make sure we can keep blockSettings rendered.
+			const displayLoadingBlock = ( isUploading || isFetchingVideo ) && ! preview;
 			// If the component is in fallback mode or not in preview mode, and we don't need to display the loading block,
 			// then we should display the CoreVideoEdit block
 			const displayCoreVideoBlock = isVideoFallbackOrNotPreview && ! displayLoadingBlock;
@@ -517,11 +518,12 @@ const VideoPressEdit = CoreVideoEdit =>
 			const renderCoreVideoAndLoadingBlocks = displayLoadingBlock || displayCoreVideoBlock;
 
 			// In order for the media placeholder to keep its state for error messages, we need to keep the CoreVideoEdit component in the tree during file uploads.
+			// Keep this section separate so the CoreVideoEdit stays in the tree, once we have a video, we don't need it anymore.
 			if ( renderCoreVideoAndLoadingBlocks ) {
 				return (
 					<Fragment>
+						{ blockSettings }
 						<div className={ ! isUploading && ! isFetchingVideo ? 'videopress-block-hide' : '' }>
-							{ blockSettings }
 							<Loading
 								text={
 									isUploading
@@ -539,6 +541,10 @@ const VideoPressEdit = CoreVideoEdit =>
 
 			const { html, scripts } = preview;
 
+			// Render logic note :
+			// We make sure to exclude the VpBlock from the tree on preview reload so the HTML gets reloaded
+			// as we may receive the exact same HTML after the preview is resolved.
+			// Eslint disable note :
 			// Disabled because the overlay div doesn't actually have a role or functionality
 			// as far as the user is concerned. We're just catching the first click so that
 			// the block can be selected without interacting with the embed preview that the overlay covers.
@@ -546,14 +552,23 @@ const VideoPressEdit = CoreVideoEdit =>
 			return (
 				<Fragment>
 					{ blockSettings }
-					<VpBlock
-						{ ...this.props }
-						hideOverlay={ this.hideOverlay }
-						html={ html }
-						scripts={ scripts }
-						interactive={ interactive }
-						caption={ caption }
-					/>
+					{ ( isUploading || isFetchingVideo ) && (
+						<Loading
+							text={
+								isUploading ? __( 'Uploading…', 'jetpack' ) : __( 'Generating preview…', 'jetpack' )
+							}
+						/>
+					) }
+					{ ! isUploading && ! isFetchingVideo && (
+						<VpBlock
+							{ ...this.props }
+							hideOverlay={ this.hideOverlay }
+							html={ html }
+							scripts={ scripts }
+							interactive={ interactive }
+							caption={ caption }
+						/>
+					) }
 				</Fragment>
 			);
 		}
