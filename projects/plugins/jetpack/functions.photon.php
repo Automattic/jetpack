@@ -163,7 +163,7 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	 * @param string https://i0.wp.com Domain used by Photon.
 	 * @param string $image_url URL of the image to be photonized.
 	 */
-	$photon_domain = apply_filters( 'jetpack_photon_domain', "https://i0.wp.com", $image_url );
+	$photon_domain = apply_filters( 'jetpack_photon_domain', 'https://i0.wp.com', $image_url );
 	$photon_domain = trailingslashit( esc_url( $photon_domain ) );
 	$photon_url    = $photon_domain . $image_host_path;
 
