@@ -312,7 +312,7 @@ class Masterbar {
 				'_inc/build/masterbar/masterbar/tracks-events.min.js',
 				'modules/masterbar/masterbar/tracks-events.js'
 			),
-			array( 'jquery' ),
+			array(),
 			JETPACK__VERSION,
 			false
 		);
