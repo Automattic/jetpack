@@ -82,7 +82,7 @@ class SeekbarColorSettings extends Component {
 						},
 					] }
 				>
-					<Button isDefault onClick={ this.saveColors }>
+					<Button variant="secondary" onClick={ this.saveColors }>
 						{ __( 'Save colors', 'jetpack' ) }
 					</Button>
 				</PanelColorSettings>
