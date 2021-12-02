@@ -349,7 +349,7 @@ export async function promptDevBeta( argv ) {
 			argv.beta = true;
 			break;
 		case 'alpha (including Atomic)':
-			argv[ 'dev-version' ] = true;
+			argv.devRelease = true;
 			argv.a = true;
 			break;
 		default:
