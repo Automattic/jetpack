@@ -863,7 +863,7 @@ You'll need to add @wordpress/dependency-extraction-webpack-plugin or an appropr
   "warnings": Array [
     Object {
       "loc": "",
-      "message": "Module not found: Error: Can't resolve '@wordpress/jp-i18n-state' in '/usr/local/src/automattic/jetpack/projects/js-packages/i18n-loader-webpack-plugin/tests/fixtures/missing-externals'",
+      "message": "Module not found: Error: Can't resolve '@wordpress/jp-i18n-state' in '/path/to/i18n-loader-webpack-plugin/tests/fixtures/missing-externals'",
     },
   ],
 }

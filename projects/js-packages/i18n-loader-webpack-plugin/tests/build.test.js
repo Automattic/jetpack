@@ -76,9 +76,24 @@ describe.each( configFixtures )( 'Webpack `%s`', fixture => {
 
 	test( 'Build results', () => {
 		expect( err ).toMatchSnapshot( 'Webpack build error' );
-		expect( stats.toJson( { all: false, errors: true, warnings: true } ) ).toMatchSnapshot(
-			'Webpack build stats'
-		);
+
+		// Webpack's error messages may contain full paths. Munge those.
+		const mungePaths = x => {
+			if ( typeof x === 'string' ) {
+				return x.replace( __dirname, '/path/to/i18n-loader-webpack-plugin/tests' );
+			}
+			if ( Array.isArray( x ) ) {
+				return x.map( mungePaths );
+			}
+			if ( typeof x === 'object' && Object.getPrototypeOf( x ) === Object.prototype ) {
+				return Object.fromEntries(
+					Object.entries( x ).map( ( [ k, v ] ) => [ k, mungePaths( v ) ] )
+				);
+			}
+			return x;
+		};
+		const statsOut = mungePaths( stats.toJson( { all: false, errors: true, warnings: true } ) );
+		expect( statsOut ).toMatchSnapshot( 'Webpack build stats' );
 
 		if ( err !== null || stats.hasErrors() ) {
 			return;
