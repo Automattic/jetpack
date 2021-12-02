@@ -7,7 +7,7 @@ let jetpackBoostPage;
 const modules = [
 	// ['MODULE_NAME', 'DEFAULT STATE'],
 	[ 'critical-css', 'disabled' ],
-	[ 'lazy-images', 'enabled' ],
+	[ 'lazy-images', 'disabled' ],
 	[ 'render-blocking-js', 'disabled' ],
 ];
 
@@ -15,8 +15,7 @@ test.describe( 'Modules', () => {
 	test.beforeAll( async () => {
 		await boostPrerequisitesBuilder()
 			.withConnection( true )
-			.withInactiveModules( [ 'critical-css', 'render-blocking-js' ] )
-			.withActiveModules( [ 'lazy-images' ] )
+			.withInactiveModules( [ 'critical-css', 'lazy-images', 'render-blocking-js' ] )
 			.build();
 	} );
 
