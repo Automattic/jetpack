@@ -212,15 +212,14 @@ div.sharedaddy.sd-like-enabled .sd-like .post-likes-widget {
 	display: block !important;
 }
 
-
 /* Hide G+ title */
 .sd-gplus .sd-title {
 	display: none;
+	
 }
 
-/* Hide the share this section in the post print view */
 @media print {
-	div.sharedaddy.sd-sharing-enabled {
-	   visibility: hidden;
+	.sharedaddy.sd-sharing-enabled{
+		display: none;
 	}
- }
+}
