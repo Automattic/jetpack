@@ -1,0 +1,10 @@
+@import '~@automattic/jetpack-base-styles/style';
+
+.jp-admin-page {
+	margin-left: -20px; // to neutralize the padding of #wpcontent.
+}
+
+.jp-admin-page-section {
+	padding: 40px 0px;
+	background-color: white;
+}
