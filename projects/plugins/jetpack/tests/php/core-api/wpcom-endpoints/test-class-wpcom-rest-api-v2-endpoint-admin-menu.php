@@ -151,7 +151,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 
 		$this->assertEquals(
 			$expected,
-			$prepare_menu_item->invokeArgs( new WPCOM_REST_API_V2_Endpoint_Admin_Menu(), array( $menu_item ) )
+			$prepare_menu_item->invokeArgs( new WPCOM_REST_API_V2_Endpoint_Admin_Menu(), array( $menu_item, true ) )
 		);
 	}
 
@@ -334,7 +334,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 
 		$this->assertSame(
 			$expected,
-			$prepare_menu_item->invokeArgs( new WPCOM_REST_API_V2_Endpoint_Admin_Menu(), array( $foo_item ) )
+			$prepare_menu_item->invokeArgs( new WPCOM_REST_API_V2_Endpoint_Admin_Menu(), array( $foo_item, true ) )
 		);
 	}
 
@@ -426,7 +426,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 
 		$this->assertEquals(
 			$expected,
-			$prepare_menu_item_url->invokeArgs( new WPCOM_REST_API_V2_Endpoint_Admin_Menu(), array( $url, $parent_slug ) )
+			$prepare_menu_item_url->invokeArgs( new WPCOM_REST_API_V2_Endpoint_Admin_Menu(), array( $url, $parent_slug, true ) )
 		);
 
 		if ( empty( $parent_slug ) ) {
@@ -550,7 +550,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 
 		$this->assertSame(
 			$expected,
-			$prepare_menu_item_url->invokeArgs( new WPCOM_REST_API_V2_Endpoint_Admin_Menu(), array( $menu_item ) )
+			$prepare_menu_item_url->invokeArgs( new WPCOM_REST_API_V2_Endpoint_Admin_Menu(), array( $menu_item, true ) )
 		);
 	}
 
