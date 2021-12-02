@@ -20,6 +20,7 @@ test.describe.serial( 'Settings Page', () => {
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 		expect( await jetpackBoostPage.isFreshlyConnected() ).toEqual( true );
 	} );
+
 	test( 'Should connect to WP.com on a fresh install without Jetpack plugin activated', async ( {
 		page,
 	} ) => {
