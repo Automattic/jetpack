@@ -116,6 +116,9 @@ class Milestone_Widget extends WP_Widget {
 <style>
 .milestone-widget {
 	margin-bottom: 1em;
+	--milestone-text-color: <?php echo self::sanitize_color_hex( $colors['text'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
+	--milestone-bg-color: <?php echo self::sanitize_color_hex( $colors['bg'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
+	--milestone-border-color:<?php echo self::sanitize_color_hex( $colors['border'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
 }
 .milestone-content {
 	line-height: 2;
@@ -125,8 +128,8 @@ class Milestone_Widget extends WP_Widget {
 	text-align: center;
 }
 .milestone-header {
-	background-color: <?php echo self::sanitize_color_hex( $colors['text'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
-	color: <?php echo self::sanitize_color_hex( $colors['bg'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
+	background-color: var(--milestone-text-color);
+	color: var(--milestone-bg-color);
 	line-height: 1.3;
 	margin: 0;
 	padding: .8em;
@@ -146,10 +149,10 @@ class Milestone_Widget extends WP_Widget {
 }
 .milestone-countdown,
 .milestone-message {
-	background-color: <?php echo self::sanitize_color_hex( $colors['bg'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
-	border: 1px solid <?php echo self::sanitize_color_hex( $colors['border'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
+	background-color: var(--milestone-bg-color);
+	border: 1px solid var(--milestone-border-color);
 	border-top: 0;
-	color: <?php echo self::sanitize_color_hex( $colors['text'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
+	color: var(--milestone-text-color);
 	padding-bottom: 1em;
 }
 .milestone-message {
