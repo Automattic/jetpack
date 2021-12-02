@@ -66,7 +66,6 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				array(
 					'classname'                   => 'jetpack-simple-payments',
 					'description'                 => __( 'Add a Pay with PayPal button as a Widget.', 'jetpack' ),
-					'show_instance_in_rest'       => true,
 					'customize_selective_refresh' => true,
 				)
 			);
