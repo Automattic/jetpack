@@ -249,7 +249,7 @@ export async function getReleaseVersion( argv ) {
 		.trim();
 	potentialVersion = potentialVersion.split( '-' ); // e.g., split 10.4-a.8 into [10.4, a.8]
 	let stableVersion = potentialVersion[ 0 ];
-	let alphaVersion = potentialVersion[ 1 ];
+	let devReleaseVersion = potentialVersion[ 1 ];
 
 	if ( argv.stable || argv.s ) {
 		return stableVersion;
@@ -260,19 +260,20 @@ export async function getReleaseVersion( argv ) {
 		return `${ stableVersion }-beta`;
 	}
 
-	// Append '-alpha' if necessary.
+	// Handle alpha/dev-release version if necessary.
 	if ( argv.a || argv.devRelease ) {
-		// Jetpack uses additional versioning for dev/atomic in the form of x.y-a.z
-		if ( argv.project === 'plugins/jetpack' ) {
-			if ( alphaVersion ) {
-				alphaVersion = await getVersionBump( alphaVersion );
-				potentialVersion = `${ stableVersion }-${ alphaVersion }`;
+		// Check if dev-releases is specified in project's composer.json
+		const hasDevReleases = await readComposerJson( argv.project ).extra[ 'dev-releases' ];
+		if ( hasDevReleases ) {
+			if ( devReleaseVersion ) {
+				devReleaseVersion = await getVersionBump( devReleaseVersion, argv.project );
+				potentialVersion = `${ stableVersion }-${ devReleaseVersion }`;
 			} else {
-				stableVersion = await getVersionBump( stableVersion );
+				stableVersion = await getVersionBump( stableVersion, argv.project );
 				potentialVersion = `${ stableVersion }-a.0`;
 			}
 		} else {
-			stableVersion = await getVersionBump( stableVersion );
+			stableVersion = await getVersionBump( stableVersion, argv.project );
 			potentialVersion = `${ stableVersion }-alpha`;
 		}
 		return potentialVersion;
@@ -283,31 +284,43 @@ export async function getReleaseVersion( argv ) {
  * Bumps the correct number.
  *
  * @param {Array} version - the arguments passed
+ * @param {string} project - the project we're working with.
  * @returns {Array} the bumped version.
  */
-export async function getVersionBump( version ) {
+export async function getVersionBump( version, project ) {
 	version = version.split( '.' );
 
-	// If there was a point release, remove the last number before bumping.
-	if ( version[ 2 ] ) {
-		version.pop();
-	}
-
+	// If we we're bumping just a dev-release version, e.g. x.y-a.z
 	if ( version[ 0 ] === 'a' ) {
 		version[ 1 ] = parseInt( version[ 1 ] ) + 1;
 		return version.join( '.' );
 	}
 
-	if ( version[ 1 ] === '9' ) {
-		// e.g, if the current version is 10.9 and we want 11.0
-		version[ 0 ] = parseInt( version[ 0 ] ) + 1;
-		version[ 1 ] = '0';
-	} else {
-		// e.g, if the current version is 10.8 and we want 10.9
-		version[ 1 ] = parseInt( version[ 1 ] ) + 1;
+	const versioningType = await readComposerJson( project ).extra.changelogger;
+
+	// If WordPress versioning, i.e. x.(y+1) or (x+1).0
+	if ( versioningType && versioningType.versioning === 'wordpress' ) {
+		// If there was a point release, remove the last number before bumping.
+		if ( version[ 2 ] ) {
+			version.pop();
+		}
+
+		if ( version[ 1 ] === '9' ) {
+			// e.g, if the current version is 10.9 and we want 11.0
+			version[ 0 ] = parseInt( version[ 0 ] ) + 1;
+			version[ 1 ] = '0';
+		} else {
+			// e.g, if the current version is 10.8 and we want 10.9
+			version[ 1 ] = parseInt( version[ 1 ] ) + 1;
+		}
+		return version.join( '.' );
 	}
+
+	// Default semver, bumping a minor patch, i.e. x.y.(z+1)
+	version[ 2 ] = parseInt( version[ 2 ] ) + 1;
 	return version.join( '.' );
 }
+
 /**
  * Prompts for what version we're releasing
  *
