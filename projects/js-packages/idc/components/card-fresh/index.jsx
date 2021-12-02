@@ -16,16 +16,12 @@ import { Spinner } from '@automattic/jetpack-components';
  */
 import { STORE_ID } from '../../state/store';
 import extractHostname from '../../tools/extract-hostname';
+import trackAndBumpMCStats from '../../tools/tracking';
 
 /**
  * The "migrate" card.
  *
  * @param {object} props - The properties.
- * @param {string} props.wpcomHomeUrl - The original site URL.
- * @param {string} props.currentUrl - The current site URL.
- * @param {string} props.redirectUri - The redirect URI to redirect users back to after connecting.
- * @param {boolean} props.isActionInProgress - Whether there's already an action in progress.
- * @param {Function} props.setIsActionInProgress - Function to set the "action in progress" flag.
  * @returns {React.Component} The `ConnectScreen` component.
  */
 const CardFresh = props => {
@@ -47,6 +43,8 @@ const CardFresh = props => {
 	 */
 	const doStartFresh = useCallback( () => {
 		if ( ! isActionInProgress ) {
+			trackAndBumpMCStats( 'start_fresh' );
+
 			setIsActionInProgress( true );
 			setIsStartingFresh( true );
 
@@ -64,8 +62,8 @@ const CardFresh = props => {
 	}, [ setIsStartingFresh, isActionInProgress, setIsActionInProgress, redirectUri ] );
 
 	return (
-		<div className="jp-idc-card-action-base">
-			<div className="jp-idc-card-action-top">
+		<div className="jp-idc__idc-screen__card-action-base">
+			<div className="jp-idc__idc-screen__card-action-top">
 				<h4>{ __( 'Treat each site as independent sites', 'jetpack' ) }</h4>
 
 				<p>
@@ -86,13 +84,13 @@ const CardFresh = props => {
 				</p>
 			</div>
 
-			<div className="jp-idc-card-action-bottom">
-				<div className="jp-idc-card-action-sitename">{ wpcomHostName }</div>
-				<Dashicon icon="minus" className="jp-idc-card-action-separator" />
-				<div className="jp-idc-card-action-sitename">{ currentHostName }</div>
+			<div className="jp-idc__idc-screen__card-action-bottom">
+				<div className="jp-idc__idc-screen__card-action-sitename">{ wpcomHostName }</div>
+				<Dashicon icon="minus" className="jp-idc__idc-screen__card-action-separator" />
+				<div className="jp-idc__idc-screen__card-action-sitename">{ currentHostName }</div>
 
 				<Button
-					className="jp-idc-card-action-button"
+					className="jp-idc__idc-screen__card-action-button"
 					label={ buttonLabel }
 					onClick={ doStartFresh }
 					disabled={ isActionInProgress }
@@ -105,10 +103,15 @@ const CardFresh = props => {
 };
 
 CardFresh.propTypes = {
+	/** The original site URL. */
 	wpcomHomeUrl: PropTypes.string.isRequired,
+	/** The current site URL. */
 	currentUrl: PropTypes.string.isRequired,
+	/** The redirect URI to redirect users back to after connecting. */
 	redirectUri: PropTypes.string.isRequired,
+	/** Whether there's already an action in progress. */
 	isActionInProgress: PropTypes.bool,
+	/** Function to set the "action in progress" flag. */
 	setIsActionInProgress: PropTypes.func.isRequired,
 };
 

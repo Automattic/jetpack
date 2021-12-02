@@ -12,7 +12,6 @@ const webpack = jetpackWebpackConfig.webpack;
 /**
  * Internal dependencies
  */
-const AddReadableJSAssetsPlugin = require( './add-readable-js-assets' );
 const definePaletteColorsAsStaticVariables = require( './define-palette-colors-as-static-variables' );
 
 /**
@@ -39,9 +38,6 @@ module.exports = {
 	},
 	output: {
 		...jetpackWebpackConfig.output,
-		// @todo: Make the file naming regular.
-		filename: 'jp-search-[name].bundle.min.js',
-		chunkFilename: 'jp-search.chunk-[name].[contenthash:20].min.js',
 		path: path.join( __dirname, '../dist/instant-search' ),
 	},
 	optimization: {
@@ -71,10 +67,6 @@ module.exports = {
 				requestToExternal,
 				requestToHandle: defaultRequestToHandle,
 			},
-			MiniCssExtractPlugin: {
-				filename: 'jp-search-[name].bundle.min.css',
-				chunkFilename: 'jp-search.chunk-[name].[contenthash:20].min.css',
-			},
 		} ),
 		// Replace 'debug' module with a dummy implementation in production
 		...( jetpackWebpackConfig.isDevelopment
@@ -102,14 +94,9 @@ module.exports = {
 			} ),
 
 			// Handle CSS.
-			{
-				test: /\.(?:css|s[ac]ss)$/,
-				use: [
-					jetpackWebpackConfig.MiniCssExtractLoader(),
-					jetpackWebpackConfig.CssCacheLoader(),
-					jetpackWebpackConfig.CssLoader( {
-						importLoaders: 2, // Set to the number of loaders after this one in the array, e.g. 2 if you use both postcss-loader and sass-loader.
-					} ),
+			jetpackWebpackConfig.CssRule( {
+				extensions: [ 'css', 'sass', 'scss' ],
+				extraLoaders: [
 					{
 						loader: 'postcss-loader',
 						options: {
@@ -118,7 +105,7 @@ module.exports = {
 					},
 					'sass-loader',
 				],
-			},
+			} ),
 
 			// Handle images.
 			jetpackWebpackConfig.FileRule(),

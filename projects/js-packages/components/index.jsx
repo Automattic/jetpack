@@ -21,3 +21,4 @@ export { default as JetpackFooter } from './components/jetpack-footer';
 export { default as Spinner } from './components/spinner';
 export { default as ActionButton } from './components/action-button';
 export { default as PricingCard } from './components/pricing-card';
+export { default as DecorativeCard } from './components/decorative-card';

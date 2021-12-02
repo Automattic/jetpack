@@ -1,10 +1,12 @@
 <?php
 /**
- * Jetpack Search: Template_Tags class
+ * Template tags class used primarily for rendering widget-related HTML.
  *
- * @package    Jetpack
- * @subpackage Jetpack Search
- * @since      5.8.0
+ * Currently, this package can only run in the Jetpack plugin due to its usage of Jetpack_Search.
+ * Once Jetpack_Search has been migrated to the package as Classic_Search,
+ * this library will be independent from the Jetpack plugin.
+ *
+ * @package    automattic/jetpack-search
  */
 
 namespace Automattic\Jetpack\Search;

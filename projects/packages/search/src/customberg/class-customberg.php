@@ -171,15 +171,15 @@ class Customberg {
 
 		Assets::register_script(
 			'jp-search-configure',
-			$path_prefix . '/jp-search-configure-main.min.js',
+			$path_prefix . '/jp-search-configure-main.js',
 			$plugin_base_path,
 			array(
 				'dependencies' => $script_dependencies,
 				'in_footer'    => true,
+				'textdomain' => 'jetpack',
 			)
 		);
 		Assets::enqueue_script( 'jp-search-configure' );
-		wp_set_script_translations( 'jp-search-configure', 'jetpack' );
 
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
 		wp_add_inline_script( 'jp-search-configure', 'var JetpackInstantSearchOptions=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Helper::generate_initial_javascript_state() ) ) . '"));', 'before' );

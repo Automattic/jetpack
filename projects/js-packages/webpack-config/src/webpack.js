@@ -1,4 +1,3 @@
-const path = require( 'path' );
 const webpack = require( 'webpack' );
 
 const CssMinimizerPlugin = require( 'css-minimizer-webpack-plugin' );
@@ -18,8 +17,8 @@ const isDevelopment = ! isProduction;
 const mode = isProduction ? 'production' : 'development';
 const devtool = isProduction ? false : 'eval-cheap-module-source-map';
 const output = {
-	filename: '[name].min.js',
-	chunkFilename: '[name]-[id].H[contenthash:20].min.js',
+	filename: '[name].js',
+	chunkFilename: '[name].js?minify=false&ver=[contenthash]',
 };
 const optimization = {
 	minimize: isProduction,
@@ -47,7 +46,13 @@ const MomentLocaleIgnorePlugin = () => [
 	} ),
 ];
 
-const MyMiniCssExtractPlugin = options => [ new MiniCssExtractPlugin( options ) ];
+const MyMiniCssExtractPlugin = options => [
+	new MiniCssExtractPlugin( {
+		filename: '[name].css',
+		chunkFilename: '[name].css?minify=false&ver=[contenthash]',
+		...options,
+	} ),
+];
 
 const MyMiniCssWithRtlPlugin = options => [ new MiniCSSWithRTLPlugin( options ) ];
 
@@ -81,29 +86,11 @@ const StandardPlugins = ( options = {} ) => {
 	];
 };
 
-/****** Module rules and loaders ******/
+/****** Module rules ******/
 
 const TranspileRule = require( './webpack/transpile-rule' );
+const CssRule = require( './webpack/css-rule' );
 const FileRule = require( './webpack/file-rule' );
-const MiniCssExtractLoader = options => ( {
-	loader: MiniCssExtractPlugin.loader,
-	options: options,
-} );
-const CssLoader = options => ( {
-	loader: require.resolve( 'css-loader' ),
-	options: {
-		// By default we do not want css-loader to try to handle absolute paths.
-		url: { filter: urlpath => ! urlpath.startsWith( '/' ) },
-		...options,
-	},
-} );
-const CssCacheLoader = options => ( {
-	loader: require.resolve( 'cache-loader' ),
-	options: {
-		cacheDirectory: path.resolve( '.cache/css-loader' ),
-		...options,
-	},
-} );
 
 // Note: For this cjs module to be used with named exports in an mjs context, modules.exports
 // needs to contain only simple variables like `a` or `a: b`. Define anything more complex
@@ -131,8 +118,6 @@ module.exports = {
 	DuplicatePackageCheckerPlugin,
 	// Module rules and loaders.
 	TranspileRule,
+	CssRule,
 	FileRule,
-	MiniCssExtractLoader,
-	CssLoader,
-	CssCacheLoader,
 };
