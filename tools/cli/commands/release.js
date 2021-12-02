@@ -261,7 +261,7 @@ export async function getReleaseVersion( argv ) {
 	}
 
 	// Append '-alpha' if necessary.
-	if ( argv.a || argv[ 'dev-version' ] ) {
+	if ( argv.a || argv.devRelease ) {
 		// Jetpack uses additional versioning for dev/atomic in the form of x.y-a.z
 		if ( argv.project === 'plugins/jetpack' ) {
 			if ( alphaVersion ) {
