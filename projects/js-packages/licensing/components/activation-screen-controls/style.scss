@@ -76,7 +76,6 @@
 .jp-license-activation-screen-controls--button:active {
 	font-size: var(--font-body);
 
-
 	/* Black & White / Black */
 	background-color: #000000;
 	border-radius: 4px;
@@ -89,12 +88,6 @@
 
 	/* Black & White / White */
 	color: #FFFFFF;
-
-
-	// background-color: var(--jp-green-primary);
-	// border-color: var(--jp-green-primary);
-	// border-radius: var(--jp-border-radius);
-	// color: var(--jp-white);
 
 	padding: 13.5px 45px 13.5px 45px;
 	min-height: 48px;
@@ -133,21 +126,4 @@
 		color: #A7AAAD;
 	}
 
-	// &.is-busy,
-	// &.is-busy:disabled,
-	// &.is-busy[aria-disabled='true'] {
-	// 	color: var(--jp-white);
-	// 	background-size: 100px 100%;
-	// 	// Disable reason: This function call looks nicer when each argument is on its own line.
-	// 	/* stylelint-disable */
-	// 	background-image: linear-gradient(
-	// 		-45deg,
-	// 		var(--jp-green-60) 33%,
-	// 		var(--jp-green-80) 33%,
-	// 		var(--jp-green-80) 70%,
-	// 		var(--jp-green-60) 70%
-	// 	);
-	// 	/* stylelint-enable */
-	// 	border-color: var(--jp-green);
-	// }
 }
