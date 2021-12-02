@@ -32,6 +32,6 @@ test.describe.serial( 'Lazy Images module', () => {
 	test( 'Images on a post should not be Lazy loaded when the module is inactive', async () => {
 		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'lazy-images' ] ).build();
 		await TestContentPage.visitByTitle( testPostTitle, page );
-		expect( await page.locator( '.jetpack-lazy-image' ).count() ).toBeLessThanOrEqual( 0 );
+		expect( await page.locator( '.jetpack-lazy-image' ).count() ).toBe( 0 );
 	} );
 } );
