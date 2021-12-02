@@ -58,7 +58,6 @@ const ActivationScreenControls = props => {
 							: 'jp-license-activation-screen-controls--license-field-with-error'
 					}
 					label={ __( 'License key', 'jetpack' ) }
-					placeholder="jp-Product34623432423423"
 					value={ license }
 					onChange={ onLicenseChange }
 					disabled={ isActivating }
