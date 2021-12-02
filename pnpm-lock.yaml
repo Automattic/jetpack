@@ -878,8 +878,6 @@ importers:
       gulp-autoprefixer: 7.0.1
       gulp-clean-css: 4.3.0
       gulp-concat: 2.6.1
-      gulp-if: 3.0.0
-      gulp-minify: 3.1.0
       gulp-modify-css-urls: 2.0.0
       gulp-rename: 2.0.0
       gulp-rtlcss: 1.4.1
@@ -938,7 +936,6 @@ importers:
       swiper: 6.7.0
       tiny-lru: 7.0.6
       tinycolor2: 1.4.2
-      uglify-save-license: 0.4.1
       url: 0.11.0
       url-loader: 4.1.1
       url-polyfill: 1.1.12
@@ -993,8 +990,6 @@ importers:
       gulp-autoprefixer: 7.0.1_gulp@4.0.2
       gulp-clean-css: 4.3.0
       gulp-concat: 2.6.1
-      gulp-if: 3.0.0
-      gulp-minify: 3.1.0
       gulp-modify-css-urls: 2.0.0
       gulp-rename: 2.0.0
       gulp-rtlcss: 1.4.1
@@ -1030,7 +1025,6 @@ importers:
       swiper: 6.7.0
       tiny-lru: 7.0.6
       tinycolor2: 1.4.2
-      uglify-save-license: 0.4.1
       url: 0.11.0
       url-polyfill: 1.1.12
       uuid: 8.3.2
@@ -8790,13 +8784,6 @@ packages:
     resolution: {integrity: sha512-JoX0apGbHaUJBNl6yF+p6JAFYZ666/hhCGKN5t9QFjbJQKUU/g8MNbFDbvfrgKXvI1QpZplPOnwIo99lX/AAmA==}
     engines: {node: '>=6'}
 
-  /ansi-cyan/0.1.1:
-    resolution: {integrity: sha1-U4rlKK+JgvKK4w2G8vF0VtJgmHM=}
-    engines: {node: '>=0.10.0'}
-    dependencies:
-      ansi-wrap: 0.1.0
-    dev: false
-
   /ansi-escapes/3.2.0:
     resolution: {integrity: sha512-cBhpre4ma+U0T1oM5fXg7Dy1Jw7zzwv7lt/GoCpr+hDQJoYnKVPLL4dCvSEFMmQurOQvSrwT7SL/DAlhBI97RQ==}
     engines: {node: '>=4'}
@@ -8819,13 +8806,6 @@ packages:
     engines: {'0': node >= 0.8.0}
     hasBin: true
     dev: true
-
-  /ansi-red/0.1.1:
-    resolution: {integrity: sha1-jGOPnRCAgAo1PJwoyKgcpHBdlGw=}
-    engines: {node: '>=0.10.0'}
-    dependencies:
-      ansi-wrap: 0.1.0
-    dev: false
 
   /ansi-regex/2.1.1:
     resolution: {integrity: sha1-w7M6te42DYbg5ijwRorn7yfWVN8=}
@@ -8944,14 +8924,6 @@ packages:
       '@babel/runtime-corejs3': 7.16.3
     dev: true
 
-  /arr-diff/1.1.0:
-    resolution: {integrity: sha1-aHwydYFjWI/vfeezb6vklesaOZo=}
-    engines: {node: '>=0.10.0'}
-    dependencies:
-      arr-flatten: 1.1.0
-      array-slice: 0.2.3
-    dev: false
-
   /arr-diff/4.0.0:
     resolution: {integrity: sha1-1kYQdP6/7HHn4VI1dhoyml3HxSA=}
     engines: {node: '>=0.10.0'}
@@ -8971,11 +8943,6 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       make-iterator: 1.0.1
-
-  /arr-union/2.1.0:
-    resolution: {integrity: sha1-IPnqtexw9cfSFbEHexw5Fh0pLH0=}
-    engines: {node: '>=0.10.0'}
-    dev: false
 
   /arr-union/3.1.0:
     resolution: {integrity: sha1-45sJrqne+Gao8gbiiK9jkZuuOcQ=}
@@ -9012,11 +8979,6 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       is-number: 4.0.0
-
-  /array-slice/0.2.3:
-    resolution: {integrity: sha1-3Tz7gO15c6dRF82sabC5nshhhvU=}
-    engines: {node: '>=0.10.0'}
-    dev: false
 
   /array-slice/1.1.0:
     resolution: {integrity: sha512-B1qMD3RBP7O8o0H2KbrXDyB0IccejMF15+87Lvlor12ONPRHP6gTjXMNkt/d3ZuOGbAe66hFmaCfECI24Ufp6w==}
@@ -11413,15 +11375,6 @@ packages:
       readable-stream: 2.3.7
       stream-shift: 1.0.1
 
-  /duplexify/4.1.2:
-    resolution: {integrity: sha512-fz3OjcNCHmRP12MJoZMPglx8m4rrFP8rovnk4vT8Fs+aonZoCwGg10dSsQsfP/E62eZcPTMSMP6686fu9Qlqtw==}
-    dependencies:
-      end-of-stream: 1.4.4
-      inherits: 2.0.4
-      readable-stream: 3.6.0
-      stream-shift: 1.0.1
-    dev: false
-
   /duplicate-package-checker-webpack-plugin/3.0.0:
     resolution: {integrity: sha512-aO50/qPC7X2ChjRFniRiscxBLT/K01bALqfcDaf8Ih5OqQ1N4iT/Abx9Ofu3/ms446vHTm46FACIuJUmgUQcDQ==}
     dependencies:
@@ -12537,13 +12490,6 @@ packages:
     dependencies:
       type: 2.5.0
 
-  /extend-shallow/1.1.4:
-    resolution: {integrity: sha1-Gda/lN/AnXa6cR85uHLSH/TdkHE=}
-    engines: {node: '>=0.10.0'}
-    dependencies:
-      kind-of: 1.1.0
-    dev: false
-
   /extend-shallow/2.0.1:
     resolution: {integrity: sha1-Ua99YUrZqfYQ6huvu5idaxxWiQ8=}
     engines: {node: '>=0.10.0'}
@@ -12948,10 +12894,6 @@ packages:
 
   /forever-agent/0.6.1:
     resolution: {integrity: sha1-+8cfDEGt6zf5bFd60e1C2P2sypE=}
-    dev: false
-
-  /fork-stream/0.0.4:
-    resolution: {integrity: sha1-24Sfznf2cIpfjzhq5TOgkHtUrnA=}
     dev: false
 
   /fork-ts-checker-webpack-plugin/4.1.6:
@@ -13672,31 +13614,6 @@ packages:
     engines: {node: '>= 0.10'}
     dependencies:
       concat-with-sourcemaps: 1.1.0
-      through2: 2.0.5
-      vinyl: 2.2.1
-    dev: false
-
-  /gulp-if/3.0.0:
-    resolution: {integrity: sha512-fCUEngzNiEZEK2YuPm+sdMpO6ukb8+/qzbGfJBXyNOXz85bCG7yBI+pPSl+N90d7gnLvMsarthsAImx0qy7BAw==}
-    dependencies:
-      gulp-match: 1.1.0
-      ternary-stream: 3.0.0
-      through2: 3.0.2
-    dev: false
-
-  /gulp-match/1.1.0:
-    resolution: {integrity: sha512-DlyVxa1Gj24DitY2OjEsS+X6tDpretuxD6wTfhXE/Rw2hweqc1f6D/XtsJmoiCwLWfXgR87W9ozEityPCVzGtQ==}
-    dependencies:
-      minimatch: 3.0.4
-    dev: false
-
-  /gulp-minify/3.1.0:
-    resolution: {integrity: sha512-ixF41aYg+NQikI8hpoHdEclYcQkbGdXQu1CBdHaU7Epg8H6e8d2jWXw1+rBPgYwl/XpKgjHj7NI6gkhoSNSSAg==}
-    dependencies:
-      ansi-colors: 1.1.0
-      minimatch: 3.0.4
-      plugin-error: 0.1.2
-      terser: 3.17.0
       through2: 2.0.5
       vinyl: 2.2.1
     dev: false
@@ -15749,11 +15666,6 @@ packages:
     resolution: {integrity: sha512-hRkd6/XW4HTsA9vjVpY9tuXJYLSlelnkTmVFu4M9/7MIYQtFcHpbugAU7UbOfjOiVSVYl2fqgBuJ32JUmRo5Ew==}
     dev: false
 
-  /kind-of/1.1.0:
-    resolution: {integrity: sha1-FAo9LUGjbS78+pN3tiwk+ElaXEQ=}
-    engines: {node: '>=0.10.0'}
-    dev: false
-
   /kind-of/3.2.2:
     resolution: {integrity: sha1-MeohpzS6ubuw8yRm2JOupR5KPGQ=}
     engines: {node: '>=0.10.0'}
@@ -17621,17 +17533,6 @@ packages:
     dependencies:
       semver-compare: 1.0.0
     dev: true
-
-  /plugin-error/0.1.2:
-    resolution: {integrity: sha1-O5uzM1zPAPQl4HQ34ZJ2ln2kes4=}
-    engines: {node: '>=0.10.0'}
-    dependencies:
-      ansi-cyan: 0.1.1
-      ansi-red: 0.1.1
-      arr-diff: 1.1.0
-      arr-union: 2.1.0
-      extend-shallow: 1.1.4
-    dev: false
 
   /plugin-error/1.0.1:
     resolution: {integrity: sha512-L1zP0dk7vGweZME2i+EeakvUNqSrdiI3F91TwEoYiGrAfUXmVv6fJIq4g82PAXxNsWOp0J7ZqQy/3Szz0ajTxA==}
@@ -21346,15 +21247,6 @@ packages:
       supports-hyperlinks: 2.2.0
     dev: true
 
-  /ternary-stream/3.0.0:
-    resolution: {integrity: sha512-oIzdi+UL/JdktkT+7KU5tSIQjj8pbShj3OASuvDEhm0NT5lppsm7aXWAmAq4/QMaBIyfuEcNLbAQA+HpaISobQ==}
-    dependencies:
-      duplexify: 4.1.2
-      fork-stream: 0.0.4
-      merge-stream: 2.0.0
-      through2: 3.0.2
-    dev: false
-
   /terser-webpack-plugin/5.2.5_webpack@5.64.1:
     resolution: {integrity: sha512-3luOVHku5l0QBeYS8r4CdHYWEGMmIj3H1U64jgkdZzECcSOJAyJ9TjuqcQZvw1Y+4AOBN9SeYJPJmFn2cM4/2g==}
     engines: {node: '>= 10.13.0'}
@@ -21377,16 +21269,6 @@ packages:
       source-map: 0.6.1
       terser: 5.9.0
       webpack: 5.64.1
-
-  /terser/3.17.0:
-    resolution: {integrity: sha512-/FQzzPJmCpjAH9Xvk2paiWrFq+5M6aVOf+2KRbwhByISDX/EujxsK+BAvrhb6H+2rtrLCHK9N01wO014vrIwVQ==}
-    engines: {node: '>=6.0.0'}
-    hasBin: true
-    dependencies:
-      commander: 2.20.3
-      source-map: 0.6.1
-      source-map-support: 0.5.20
-    dev: false
 
   /terser/5.9.0:
     resolution: {integrity: sha512-h5hxa23sCdpzcye/7b8YqbE5OwKca/ni0RQz1uRX3tGh8haaGHqcuSqbGRybuAKNdntZ0mDgFNXPJ48xQ2RXKQ==}
@@ -21795,10 +21677,6 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
-
-  /uglify-save-license/0.4.1:
-    resolution: {integrity: sha1-lXJsF8xv0XHDYX479NjYKqjEzOE=}
-    dev: false
 
   /unbox-primitive/1.0.1:
     resolution: {integrity: sha512-tZU/3NqK3dA5gpE1KtyiJUrEB0lxnGkMFHptJ7q6ewdZ8s12QrODwNbhIJStmJkd1QDXa1NRA8aF2A1zk/Ypyw==}
