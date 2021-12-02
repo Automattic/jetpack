@@ -4,7 +4,7 @@ import { TestContentPage } from '../../lib/pages/index.js';
 import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites.js';
 
-const testPostTitle = 'Hello World with image!';
+const testPostTitle = 'Hello World with image';
 
 test.describe.serial( 'Lazy Images module', () => {
 	let page;
@@ -23,15 +23,15 @@ test.describe.serial( 'Lazy Images module', () => {
 		await page.close();
 	} );
 
-	test( 'Images on a post should be Lazy loaded when the module is active', async () => {
-		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'lazy-images' ] ).build();
-		await TestContentPage.visitByTitle( testPostTitle, page );
-		expect( await page.locator( '.jetpack-lazy-image' ).count() ).toBeGreaterThan( 0 );
-	} );
-
 	test( 'Images on a post should not be Lazy loaded when the module is inactive', async () => {
 		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'lazy-images' ] ).build();
 		await TestContentPage.visitByTitle( testPostTitle, page );
 		expect( await page.locator( '.jetpack-lazy-image' ).count() ).toBe( 0 );
+	} );
+
+	test( 'Images on a post should be Lazy loaded when the module is active', async () => {
+		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'lazy-images' ] ).build();
+		await TestContentPage.visitByTitle( testPostTitle, page );
+		expect( await page.locator( '.jetpack-lazy-image' ).count() ).toBeGreaterThan( 0 );
 	} );
 } );
