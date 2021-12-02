@@ -1439,14 +1439,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "19923aec60f93498335bb2f97855fe69f07561de"
+                "reference": "5dc357a61cf1d9f89bc23e1ccd7de5e1a62cc69e"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.32"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
-                "automattic/wordbless": "^0.3.1",
+                "automattic/wordbless": "0.3.1",
                 "yoast/phpunit-polyfills": "1.0.2"
             },
             "type": "library",
