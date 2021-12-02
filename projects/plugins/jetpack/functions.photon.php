@@ -153,13 +153,6 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 
 	$image_host_path = $image_url_parts['host'] . $image_url_parts['path'];
 
-	/*
-	 * Figure out which CDN subdomain to use.
-	 *
-	 * We are now yielding 0 for all requests, since using multiple subdomains is no longer a best practice.
-	 */
-	$subdomain = 0;
-
 	/**
 	 * Filters the domain used by the Photon module.
 	 *
