@@ -91,11 +91,13 @@
 
 	padding: 13.5px 45px 13.5px 45px;
 	min-height: 48px;
+	min-width: 158px;
 
 	margin-top: 24px;
 
 	display: flex;
 	justify-content: center;
+	align-items: center;
 	width: 100%;
 
 	@media screen and (min-width: 480px) {
@@ -124,6 +126,10 @@
 		background-color: #DCDCDE;
 		/* Gray / Gray 20 */
 		color: #A7AAAD;
+	}
+
+	.jp-components-spinner {
+		width: 100%;
 	}
 
 }

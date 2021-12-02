@@ -3,7 +3,7 @@
  */
 import { Button, TextControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
-import { JetpackLogo } from '@automattic/jetpack-components';
+import { JetpackLogo, Spinner } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -70,7 +70,7 @@ const ActivationScreenControls = props => {
 					className="jp-license-activation-screen-controls--button"
 					onClick={ activateLicense }
 				>
-					{ __( 'Activate', 'jetpack' ) }
+					{ isActivating ? <Spinner /> : __( 'Activate', 'jetpack' ) }
 				</Button>
 			</div>
 		</div>
