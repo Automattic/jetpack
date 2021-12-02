@@ -522,7 +522,6 @@ const VideoPressEdit = CoreVideoEdit =>
 			if ( renderCoreVideoAndLoadingBlocks ) {
 				return (
 					<Fragment>
-						{ blockSettings }
 						<div className={ ! isUploading && ! isFetchingVideo ? 'videopress-block-hide' : '' }>
 							<Loading
 								text={
