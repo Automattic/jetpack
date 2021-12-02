@@ -219,7 +219,7 @@ div.sharedaddy.sd-like-enabled .sd-like .post-likes-widget {
 }
 
 @media print {
-	.sharedaddy.sd-sharing-enabled{
+	.sharedaddy.sd-sharing-enabled {
 		display: none;
 	}
 }
