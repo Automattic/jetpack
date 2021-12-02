@@ -65,7 +65,11 @@ class CliCommand extends WP_CLI_Command {
 		$this->validation_checks();
 
 		if ( ! $args ) {
-			$plugins = Plugin::get_all_plugins( true );
+			try {
+				$plugins = Plugin::get_all_plugins( true );
+			} catch ( PluginDataException $ex ) {
+				WP_CLI::error( $ex->getMessage() );
+			}
 			if ( ! $plugins ) {
 				WP_CLI::error( __( 'No plugins are available', 'jetpack-beta' ) );
 			}
