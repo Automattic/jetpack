@@ -1,0 +1,6 @@
+## Ignore composer.lock and vendor folders for our library packages
+/**/composer.lock
+/**/vendor/
+
+## Test package added through unit testing. Maybe temporary.
+/test/

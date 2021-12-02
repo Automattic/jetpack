@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Added skeleton PHP file to prevent errors upon composer install

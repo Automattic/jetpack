@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Improved exception handling when network access to a8c servers is impaired.

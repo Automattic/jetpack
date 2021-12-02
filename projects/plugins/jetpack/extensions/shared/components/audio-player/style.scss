@@ -1,0 +1,216 @@
+@import '../../styles/gutenberg-base-styles.scss';
+
+//Set the default values
+$jetpack-audio-player-primary: $black;
+$jetpack-audio-player-secondary: $gray-400;
+$jetpack-audio-player-background: $white;
+
+//Bit of a hack to check for the existence of the podcast player values
+$jetpack-podcast-player-primary: false !default;
+@if $jetpack-podcast-player-primary {
+	$jetpack-audio-player-primary: $jetpack-podcast-player-primary;
+	$jetpack-audio-player-secondary: $jetpack-podcast-player-secondary;
+	$jetpack-audio-player-background: $jetpack-podcast-player-background;
+}
+
+$gutter-l: 24px !default;
+$gutter-m: 15px !default;
+
+@mixin focus-outline() {
+	outline: 1px solid;
+	outline-color: $jetpack-audio-player-secondary;
+	outline-color: var( --jetpack-audio-player-secondary );
+	outline-offset: 2px;
+}
+
+//TODO: Check if this is used
+.jetpack-audio-player-loading {
+	height: 10px; // mirroring .mejs-time-total
+	background: $jetpack-audio-player-secondary;
+	background: var( --jetpack-audio-player-secondary );
+	margin: $gutter-m $gutter-l; // simulating spacing of .mejs-container
+}
+
+.jetpack-audio-player {
+	/**
+	 * Set default values for our CSS variables.
+	 */
+	--jetpack-audio-player-primary: var( --jetpack-podcast-player-primary, #{$jetpack-audio-player-primary} );
+	--jetpack-audio-player-secondary: var( --jetpack-podcast-player-secondary, #{$jetpack-audio-player-secondary} );
+	--jetpack-audio-player-background: var( --jetpack-podcast-player-background, #{$jetpack-audio-player-background} );
+
+	height: 40px; // mirroring .mejs-container
+
+	/**
+	 * Style player by overriding mejs default styles
+	 */
+	.mejs-container,
+	.mejs-container .mejs-controls,
+	.mejs-embed,
+	.mejs-embed body,
+	.mejs-mediaelement {
+		background-color: transparent;
+	}
+
+	.mejs-container:focus {
+		@include focus-outline();
+		box-shadow: none; // Reset the editor canvas box-shadow focus indicator for mejs-container.
+	}
+
+	.mejs-controls {
+		position: static;
+		padding: 0;
+		/**
+		* Lines up the mejs player padding with our wrapper spacing.
+		* Magic numbers are due to needing to line-up the player spacing with buttons
+		* and fixed widths inside of the mediaplayer.
+		*/
+		.jetpack-podcast-player__header & {
+			padding-left: $gutter-l - 9px;
+			padding-right: $gutter-l - 6px;
+		}
+	}
+
+	.mejs-time {
+		color: $jetpack-audio-player-secondary;
+		color: var( --jetpack-audio-player-secondary );
+	}
+
+	.mejs-time-float {
+		color: $jetpack-audio-player-background;
+		color: var( --jetpack-audio-player-background );
+	}
+
+	.mejs-time-float {
+		background: $jetpack-audio-player-primary;
+		background: var( --jetpack-audio-player-primary );
+		border-color: $jetpack-audio-player-primary;
+		border-color: var( --jetpack-audio-player-primary );
+	}
+
+	.mejs-time-float-corner {
+		border-top-color: $jetpack-audio-player-primary;
+		border-top-color: var( --jetpack-audio-player-primary );
+	}
+
+	.mejs-controls .mejs-time-rail .mejs-time-total,
+	.mejs-controls .mejs-horizontal-volume-slider .mejs-horizontal-volume-total {
+		background-color: $jetpack-audio-player-secondary;
+		background-color: var( --jetpack-audio-player-secondary );
+	}
+
+	.mejs-controls .mejs-time-rail .mejs-time-loaded {
+		opacity: 0.5;
+		background-color: $jetpack-audio-player-primary;
+		background-color: var( --jetpack-audio-player-primary );
+	}
+
+	.mejs-controls .mejs-time-rail .mejs-time-current,
+	.mejs-controls .mejs-horizontal-volume-slider .mejs-horizontal-volume-current {
+		background-color: $jetpack-audio-player-primary;
+		background-color: var( --jetpack-audio-player-primary );
+	}
+
+	.mejs-controls .mejs-time-rail .mejs-time-slider:focus {
+		@include focus-outline();
+	}
+	/**
+	 * Helper function that escapes the value of the color variable in the SVG.
+	 * This way we can change the value in one place and easily add style
+	 * variations.
+	 */
+	@function encodecolor( $string ) {
+		@if type-of( $string ) == 'color' {
+			$hex: str-slice( ie-hex-str( $string ), 4 );
+			$string: unquote( '#{$hex}' );
+		}
+		$string: '%23' + $string;
+		@return $string;
+	}
+
+	/**
+	 * For the buttons mejs is using an external SVG that's linked to via CSS.
+	 * This is the same SVG but inlined in the CSS using a color variable. We're
+	 * using this as a fallback for IE11 where the mask property is not supported.
+	 */
+	.mejs-button > button {
+		background-image: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='120'%3E%3Cstyle%3E.st0%7Bfill:#{encodecolor($jetpack-audio-player-primary)};width:16px;height:16px%7D.st1%7Bfill:none;stroke:#{encodecolor($jetpack-audio-player-primary)};stroke-width:1.5;stroke-linecap:round%7D%3C/style%3E%3Cpath class='st0' d='M16.5 8.5c.3.1.4.5.2.8-.1.1-.1.2-.2.2l-11.4 7c-.5.3-.8.1-.8-.5V2c0-.5.4-.8.8-.5l11.4 7zM24 1h2.2c.6 0 1 .4 1 1v14c0 .6-.4 1-1 1H24c-.6 0-1-.4-1-1V2c0-.5.4-1 1-1zm9.8 0H36c.6 0 1 .4 1 1v14c0 .6-.4 1-1 1h-2.2c-.6 0-1-.4-1-1V2c0-.5.4-1 1-1zM81 1.4c0-.6.4-1 1-1h5.4c.6 0 .7.3.3.7l-6 6c-.4.4-.7.3-.7-.3V1.4zm0 15.8c0 .6.4 1 1 1h5.4c.6 0 .7-.3.3-.7l-6-6c-.4-.4-.7-.3-.7.3v5.4zM98.8 1.4c0-.6-.4-1-1-1h-5.4c-.6 0-.7.3-.3.7l6 6c.4.4.7.3.7-.3V1.4zm0 15.8c0 .6-.4 1-1 1h-5.4c-.6 0-.7-.3-.3-.7l6-6c.4-.4.7-.3.7.3v5.4zM112.7 5c0 .6.4 1 1 1h4.1c.6 0 .7-.3.3-.7L113.4.6c-.4-.4-.7-.3-.7.3V5zm-7.1 1c.6 0 1-.4 1-1V.9c0-.6-.3-.7-.7-.3l-4.7 4.7c-.4.4-.3.7.3.7h4.1zm1 7.1c0-.6-.4-1-1-1h-4.1c-.6 0-.7.3-.3.7l4.7 4.7c.4.4.7.3.7-.3v-4.1zm7.1-1c-.6 0-1 .4-1 1v4.1c0 .5.3.7.7.3l4.7-4.7c.4-.4.3-.7-.3-.7h-4.1zM67 5.8c-.5.4-1.2.6-1.8.6H62c-.6 0-1 .4-1 1v5.7c0 .6.4 1 1 1h4.2c.3.2.5.4.8.6l3.5 2.6c.4.3.8.1.8-.4V3.5c0-.5-.4-.7-.8-.4L67 5.8z'/%3E%3Cpath class='st1' d='M73.9 2.5s3.9-.8 3.9 7.7-3.9 7.8-3.9 7.8'/%3E%3Cpath class='st1' d='M72.6 6.4s2.6-.4 2.6 3.8-2.6 3.9-2.6 3.9'/%3E%3Cpath class='st0' d='M47 5.8c-.5.4-1.2.6-1.8.6H42c-.6 0-1 .4-1 1v5.7c0 .6.4 1 1 1h4.2c.3.2.5.4.8.6l3.5 2.6c.4.3.8.1.8-.4V3.5c0-.5-.4-.7-.8-.4L47 5.8z'/%3E%3Cpath d='M52.8 7l5.4 5.4m-5.4 0L58.2 7' fill='none' stroke='#{encodecolor($jetpack-audio-player-primary)}' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M128.7 8.6c-6.2-4.2-6.5 7.8 0 3.9m6.5-3.9c-6.2-4.2-6.5 7.8 0 3.9' fill='none' stroke='#{encodecolor($jetpack-audio-player-primary)}'/%3E%3Cpath class='st0' d='M122.2 3.4h15.7v13.1h-15.7V3.4zM120.8 2v15.7h18.3V2h-18.3zM143.2 3h14c1.1 0 2 .9 2 2v10c0 1.1-.9 2-2 2h-14c-1.1 0-2-.9-2-2V5c0-1.1.9-2 2-2z'/%3E%3Cpath d='M146.4 13.8c-.8 0-1.6-.4-2.1-1-1.1-1.4-1-3.4.1-4.8.5-.6 2-1.7 4.6.2l-.6.8c-1.4-1-2.6-1.1-3.3-.3-.8 1-.8 2.4-.1 3.5.7.9 1.9.8 3.4-.1l.5.9c-.7.5-1.6.7-2.5.8zm7.5 0c-.8 0-1.6-.4-2.1-1-1.1-1.4-1-3.4.1-4.8.5-.6 2-1.7 4.6.2l-.5.8c-1.4-1-2.6-1.1-3.3-.3-.8 1-.8 2.4-.1 3.5.7.9 1.9.8 3.4-.1l.5.9c-.8.5-1.7.7-2.6.8z' fill='%23231f20'/%3E%3Cpath class='st0' d='M60.3 77c.6.2.8.8.6 1.4-.1.3-.3.5-.6.6L30 96.5c-1 .6-1.7.1-1.7-1v-35c0-1.1.8-1.5 1.7-1L60.3 77z'/%3E%3Cpath d='M2.5 79c0-20.7 16.8-37.5 37.5-37.5S77.5 58.3 77.5 79 60.7 116.5 40 116.5 2.5 99.7 2.5 79z' opacity='.75' fill='none' stroke='#{encodecolor($jetpack-audio-player-primary)}' stroke-width='5'/%3E%3Cpath class='st0' d='M140.3 77c.6.2.8.8.6 1.4-.1.3-.3.5-.6.6L110 96.5c-1 .6-1.7.1-1.7-1v-35c0-1.1.8-1.5 1.7-1L140.3 77z'/%3E%3Cpath d='M82.5 79c0-20.7 16.8-37.5 37.5-37.5s37.5 16.8 37.5 37.5-16.8 37.5-37.5 37.5S82.5 99.7 82.5 79z' fill='none' stroke='#{encodecolor($jetpack-audio-player-primary)}' stroke-width='5'/%3E%3Ccircle class='st0' cx='201.9' cy='47.1' r='8.1'/%3E%3Ccircle cx='233.9' cy='79' r='5' opacity='.4' fill='#{encodecolor($jetpack-audio-player-primary)}'/%3E%3Ccircle cx='201.9' cy='110.9' r='6' opacity='.6' fill='#{encodecolor($jetpack-audio-player-primary)}'/%3E%3Ccircle cx='170.1' cy='79' r='7' opacity='.8' fill='#{encodecolor($jetpack-audio-player-primary)}'/%3E%3Ccircle cx='178.2' cy='56.3' r='7.5' opacity='.9' fill='#{encodecolor($jetpack-audio-player-primary)}'/%3E%3Ccircle cx='226.3' cy='56.1' r='4.5' opacity='.3' fill='#{encodecolor($jetpack-audio-player-primary)}'/%3E%3Ccircle cx='225.8' cy='102.8' r='5.5' opacity='.5' fill='#{encodecolor($jetpack-audio-player-primary)}'/%3E%3Ccircle cx='178.2' cy='102.8' r='6.5' opacity='.7' fill='#{encodecolor($jetpack-audio-player-primary)}'/%3E%3Cpath class='st0' d='M178 9.4c0 .4-.4.7-.9.7-.1 0-.2 0-.2-.1L172 8.2c-.5-.2-.6-.6-.1-.8l6.2-3.6c.5-.3.8-.1.7.5l-.8 5.1z'/%3E%3Cpath class='st0' d='M169.4 15.9c-1 0-2-.2-2.9-.7-2-1-3.2-3-3.2-5.2.1-3.4 2.9-6 6.3-6 2.5.1 4.8 1.7 5.6 4.1l.1-.1 2.1 1.1c-.6-4.4-4.7-7.5-9.1-6.9-3.9.6-6.9 3.9-7 7.9 0 2.9 1.7 5.6 4.3 7 1.2.6 2.5.9 3.8 1 2.6 0 5-1.2 6.6-3.3l-1.8-.9c-1.2 1.2-3 2-4.8 2zM183.4 3.2c.8 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5-1.5-.7-1.5-1.5c0-.9.7-1.5 1.5-1.5zm5.1 0h8.5c.9 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5h-8.5c-.9 0-1.5-.7-1.5-1.5-.1-.9.6-1.5 1.5-1.5zm-5.1 5c.8 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5-1.5-.7-1.5-1.5c0-.9.7-1.5 1.5-1.5zm5.1 0h8.5c.9 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5h-8.5c-.9 0-1.5-.7-1.5-1.5-.1-.9.6-1.5 1.5-1.5zm-5.1 5c.8 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5-1.5-.7-1.5-1.5c0-.9.7-1.5 1.5-1.5zm5.1 0h8.5c.9 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5h-8.5c-.9 0-1.5-.7-1.5-1.5-.1-.9.6-1.5 1.5-1.5z'/%3E%3C/svg%3E" );
+	}
+
+	.mejs-button.mejs-jump-button > button {
+		background-image: url( 'data:image/svg+xml;utf8,%3Csvg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60.78 35.3"%3E%3Cdefs%3E%3Cstyle%3E.cls-1{fill-rule:evenodd;}%3C/style%3E%3C/defs%3E%3Ctitle%3Etestsprite%3C/title%3E%3Cg id="layer1"%3E%3Cg id="mask0"%3E%3Cpath id="path44" class="cls-1" d="M42.49,6.27v3.87a7.72,7.72,0,1,1-7.68,7.72h1.92a5.77,5.77,0,1,0,5.76-5.79v3.86l-4.8-4.83Zm-1,10.36-.24,2.1.65.15,0,0a.46.46,0,0,1,.07-.07s0,0,.06,0l.06,0,.14-.05.19,0a.79.79,0,0,1,.29.05.48.48,0,0,1,.2.14.65.65,0,0,1,.13.23,1,1,0,0,1,0,.3h0a1,1,0,0,1,0,.3.9.9,0,0,1-.11.24.46.46,0,0,1-.17.17.5.5,0,0,1-.26.06.6.6,0,0,1-.4-.15.56.56,0,0,1-.19-.39h-.8a1.2,1.2,0,0,0,.12.51,1.12,1.12,0,0,0,.31.37,1.45,1.45,0,0,0,.44.24,2.24,2.24,0,0,0,.51.07,1.91,1.91,0,0,0,.62-.11,1.33,1.33,0,0,0,.43-.3,1.39,1.39,0,0,0,.26-.44,1.46,1.46,0,0,0,.08-.52,2.14,2.14,0,0,0-.08-.58,1.05,1.05,0,0,0-.64-.7,1.21,1.21,0,0,0-.52-.1l-.2,0-.08,0-.09,0a.38.38,0,0,0-.14.05l0,0s0,0-.06,0l.11-.89h1.63v-.69Z"/%3E%3C/g%3E%3Cg id="g34"%3E%3Cg id="g32"%3E%3Cpath id="path26" d="M23.81,17.58a6,6,0,1,1-6-6v4l5-5-5-5v4a8,8,0,1,0,8,8Z"/%3E%3Cpath id="path28" d="M15.87,20a.57.57,0,0,1-.62-.54H14.4a1.3,1.3,0,0,0,1.45,1.23c.87,0,1.51-.46,1.51-1.25a1,1,0,0,0-.71-1,1.06,1.06,0,0,0,.65-.92c0-.21-.05-1.22-1.44-1.22a1.27,1.27,0,0,0-1.4,1.16h.85a.58.58,0,0,1,1.15.06.56.56,0,0,1-.63.59h-.46v.66h.45c.65,0,.7.42.7.64A.58.58,0,0,1,15.87,20Z"/%3E%3Cpath id="path30" d="M19.66,16.26c-.14,0-1.44-.08-1.44,1.82v.74c0,1.9,1.31,1.82,1.44,1.82s1.44.09,1.44-1.82v-.74C21.11,16.17,19.8,16.26,19.66,16.26Zm.6,2.67c0,.77-.21,1-.59,1s-.6-.26-.6-1V18c0-.75.22-1,.59-1s.6.26.6,1Z"/%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E' );
+		background-size: 60.78px 35.296px;
+	}
+
+	.mejs-button.mejs-jump-backward-button > button {
+		background-position: -32px -6px;
+	}
+
+	.mejs-button.mejs-skip-forward-button > button {
+		background-position: -9px -6px;
+	}
+
+	/**
+	 * Make the controls SVGs color customizable via the background-color property.
+	 * This is possible thanks to the mask property, which is now supported in all
+	 * major browsers. We're using the original sprite for creating the mask and
+	 * then define a background-color for the actual color of the icon. This
+	 * approach will allow us to customize colors via CSS variables.
+	 */
+	@supports ( mask-image: none ) or ( -webkit-mask-image: none ) {
+		.mejs-button > button {
+			background-image: none;
+
+			// Using mask on the :before pseudo to prevent it from covering the outline
+			&:before {
+				display: block;
+				content: '';
+				width: 100%;
+				height: 100%;
+				background-color: var( --jetpack-audio-player-primary );
+				background-image: none;
+				mask: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='120' viewBox='0 0 400 120'%3E%3Cstyle%3E.st0%7Bfill:%23FFFFFF;width:16px;height:16px%7D .st1%7Bfill:none;stroke:%23FFFFFF;stroke-width:1.5;stroke-linecap:round;%7D .st2%7Bfill:none;stroke:%23FFFFFF;stroke-width:2;stroke-linecap:round;%7D .st3%7Bfill:none;stroke:%23FFFFFF;%7D .st4%7Bfill:%23231F20;%7D .st5%7Bopacity:0.75;fill:none;stroke:%23FFFFFF;stroke-width:5;enable-background:new;%7D .st6%7Bfill:none;stroke:%23FFFFFF;stroke-width:5;%7D .st7%7Bopacity:0.4;fill:%23FFFFFF;enable-background:new;%7D .st8%7Bopacity:0.6;fill:%23FFFFFF;enable-background:new;%7D .st9%7Bopacity:0.8;fill:%23FFFFFF;enable-background:new;%7D .st10%7Bopacity:0.9;fill:%23FFFFFF;enable-background:new;%7D .st11%7Bopacity:0.3;fill:%23FFFFFF;enable-background:new;%7D .st12%7Bopacity:0.5;fill:%23FFFFFF;enable-background:new;%7D .st13%7Bopacity:0.7;fill:%23FFFFFF;enable-background:new;%7D%3C/style%3E%3Cpath class='st0' d='M16.5 8.5c.3.1.4.5.2.8-.1.1-.1.2-.2.2l-11.4 7c-.5.3-.8.1-.8-.5V2c0-.5.4-.8.8-.5l11.4 7z'/%3E%3Cpath class='st0' d='M24 1h2.2c.6 0 1 .4 1 1v14c0 .6-.4 1-1 1H24c-.6 0-1-.4-1-1V2c0-.5.4-1 1-1zm9.8 0H36c.6 0 1 .4 1 1v14c0 .6-.4 1-1 1h-2.2c-.6 0-1-.4-1-1V2c0-.5.4-1 1-1z'/%3E%3Cpath class='st0' d='M81 1.4c0-.6.4-1 1-1h5.4c.6 0 .7.3.3.7l-6 6c-.4.4-.7.3-.7-.3V1.4zm0 15.8c0 .6.4 1 1 1h5.4c.6 0 .7-.3.3-.7l-6-6c-.4-.4-.7-.3-.7.3v5.4zM98.8 1.4c0-.6-.4-1-1-1h-5.4c-.6 0-.7.3-.3.7l6 6c.4.4.7.3.7-.3V1.4zm0 15.8c0 .6-.4 1-1 1h-5.4c-.6 0-.7-.3-.3-.7l6-6c.4-.4.7-.3.7.3v5.4z'/%3E%3Cpath class='st0' d='M112.7 5c0 .6.4 1 1 1h4.1c.6 0 .7-.3.3-.7L113.4.6c-.4-.4-.7-.3-.7.3V5zm-7.1 1c.6 0 1-.4 1-1V.9c0-.6-.3-.7-.7-.3l-4.7 4.7c-.4.4-.3.7.3.7h4.1zm1 7.1c0-.6-.4-1-1-1h-4.1c-.6 0-.7.3-.3.7l4.7 4.7c.4.4.7.3.7-.3v-4.1zm7.1-1c-.6 0-1 .4-1 1v4.1c0 .5.3.7.7.3l4.7-4.7c.4-.4.3-.7-.3-.7h-4.1z'/%3E%3Cpath class='st0' d='M67 5.8c-.5.4-1.2.6-1.8.6H62c-.6 0-1 .4-1 1v5.7c0 .6.4 1 1 1h4.2c.3.2.5.4.8.6l3.5 2.6c.4.3.8.1.8-.4V3.5c0-.5-.4-.7-.8-.4L67 5.8z'/%3E%3Cpath class='st1' d='M73.9 2.5s3.9-.8 3.9 7.7-3.9 7.8-3.9 7.8'/%3E%3Cpath class='st1' d='M72.6 6.4s2.6-.4 2.6 3.8-2.6 3.9-2.6 3.9'/%3E%3Cpath class='st0' d='M47 5.8c-.5.4-1.2.6-1.8.6H42c-.6 0-1 .4-1 1v5.7c0 .6.4 1 1 1h4.2c.3.2.5.4.8.6l3.5 2.6c.4.3.8.1.8-.4V3.5c0-.5-.4-.7-.8-.4L47 5.8z'/%3E%3Cpath class='st2' d='M52.8 7l5.4 5.4m-5.4 0L58.2 7'/%3E%3Cpath class='st3' d='M128.7 8.6c-6.2-4.2-6.5 7.8 0 3.9m6.5-3.9c-6.2-4.2-6.5 7.8 0 3.9'/%3E%3Cpath class='st0' d='M122.2 3.4h15.7v13.1h-15.7V3.4zM120.8 2v15.7h18.3V2h-18.3z'/%3E%3Cpath class='st0' d='M143.2 3h14c1.1 0 2 .9 2 2v10c0 1.1-.9 2-2 2h-14c-1.1 0-2-.9-2-2V5c0-1.1.9-2 2-2z'/%3E%3Cpath class='st4' d='M146.4 13.8c-.8 0-1.6-.4-2.1-1-1.1-1.4-1-3.4.1-4.8.5-.6 2-1.7 4.6.2l-.6.8c-1.4-1-2.6-1.1-3.3-.3-.8 1-.8 2.4-.1 3.5.7.9 1.9.8 3.4-.1l.5.9c-.7.5-1.6.7-2.5.8zm7.5 0c-.8 0-1.6-.4-2.1-1-1.1-1.4-1-3.4.1-4.8.5-.6 2-1.7 4.6.2l-.5.8c-1.4-1-2.6-1.1-3.3-.3-.8 1-.8 2.4-.1 3.5.7.9 1.9.8 3.4-.1l.5.9c-.8.5-1.7.7-2.6.8z'/%3E%3Cpath class='st0' d='M60.3 77c.6.2.8.8.6 1.4-.1.3-.3.5-.6.6L30 96.5c-1 .6-1.7.1-1.7-1v-35c0-1.1.8-1.5 1.7-1L60.3 77z'/%3E%3Cpath class='st5' d='M2.5 79c0-20.7 16.8-37.5 37.5-37.5S77.5 58.3 77.5 79 60.7 116.5 40 116.5 2.5 99.7 2.5 79z'/%3E%3Cpath class='st0' d='M140.3 77c.6.2.8.8.6 1.4-.1.3-.3.5-.6.6L110 96.5c-1 .6-1.7.1-1.7-1v-35c0-1.1.8-1.5 1.7-1L140.3 77z'/%3E%3Cpath class='st6' d='M82.5 79c0-20.7 16.8-37.5 37.5-37.5s37.5 16.8 37.5 37.5-16.8 37.5-37.5 37.5S82.5 99.7 82.5 79z'/%3E%3Ccircle class='st0' cx='201.9' cy='47.1' r='8.1'/%3E%3Ccircle class='st7' cx='233.9' cy='79' r='5'/%3E%3Ccircle class='st8' cx='201.9' cy='110.9' r='6'/%3E%3Ccircle class='st9' cx='170.1' cy='79' r='7'/%3E%3Ccircle class='st10' cx='178.2' cy='56.3' r='7.5'/%3E%3Ccircle class='st11' cx='226.3' cy='56.1' r='4.5'/%3E%3Ccircle class='st12' cx='225.8' cy='102.8' r='5.5'/%3E%3Ccircle class='st13' cx='178.2' cy='102.8' r='6.5'/%3E%3Cpath class='st0' d='M178 9.4c0 .4-.4.7-.9.7-.1 0-.2 0-.2-.1L172 8.2c-.5-.2-.6-.6-.1-.8l6.2-3.6c.5-.3.8-.1.7.5l-.8 5.1z'/%3E%3Cpath class='st0' d='M169.4 15.9c-1 0-2-.2-2.9-.7-2-1-3.2-3-3.2-5.2.1-3.4 2.9-6 6.3-6 2.5.1 4.8 1.7 5.6 4.1l.1-.1 2.1 1.1c-.6-4.4-4.7-7.5-9.1-6.9-3.9.6-6.9 3.9-7 7.9 0 2.9 1.7 5.6 4.3 7 1.2.6 2.5.9 3.8 1 2.6 0 5-1.2 6.6-3.3l-1.8-.9c-1.2 1.2-3 2-4.8 2z'/%3E%3Cpath class='st0' d='M183.4 3.2c.8 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5-1.5-.7-1.5-1.5c0-.9.7-1.5 1.5-1.5zm5.1 0h8.5c.9 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5h-8.5c-.9 0-1.5-.7-1.5-1.5-.1-.9.6-1.5 1.5-1.5zm-5.1 5c.8 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5-1.5-.7-1.5-1.5c0-.9.7-1.5 1.5-1.5zm5.1 0h8.5c.9 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5h-8.5c-.9 0-1.5-.7-1.5-1.5-.1-.9.6-1.5 1.5-1.5zm-5.1 5c.8 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5-1.5-.7-1.5-1.5c0-.9.7-1.5 1.5-1.5zm5.1 0h8.5c.9 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5h-8.5c-.9 0-1.5-.7-1.5-1.5-.1-.9.6-1.5 1.5-1.5z'/%3E%3C/svg%3E%0A" );
+			}
+		}
+
+		.mejs-button.mejs-jump-button > button {
+			background-image:none;
+			&:before {
+				background-image: none;
+				mask: url( 'data:image/svg+xml;utf8,%3Csvg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60.78 35.3"%3E%3Cdefs%3E%3Cstyle%3E.cls-1{fill-rule:evenodd;}%3C/style%3E%3C/defs%3E%3Ctitle%3Etestsprite%3C/title%3E%3Cg id="layer1"%3E%3Cg id="mask0"%3E%3Cpath id="path44" class="cls-1" d="M42.49,6.27v3.87a7.72,7.72,0,1,1-7.68,7.72h1.92a5.77,5.77,0,1,0,5.76-5.79v3.86l-4.8-4.83Zm-1,10.36-.24,2.1.65.15,0,0a.46.46,0,0,1,.07-.07s0,0,.06,0l.06,0,.14-.05.19,0a.79.79,0,0,1,.29.05.48.48,0,0,1,.2.14.65.65,0,0,1,.13.23,1,1,0,0,1,0,.3h0a1,1,0,0,1,0,.3.9.9,0,0,1-.11.24.46.46,0,0,1-.17.17.5.5,0,0,1-.26.06.6.6,0,0,1-.4-.15.56.56,0,0,1-.19-.39h-.8a1.2,1.2,0,0,0,.12.51,1.12,1.12,0,0,0,.31.37,1.45,1.45,0,0,0,.44.24,2.24,2.24,0,0,0,.51.07,1.91,1.91,0,0,0,.62-.11,1.33,1.33,0,0,0,.43-.3,1.39,1.39,0,0,0,.26-.44,1.46,1.46,0,0,0,.08-.52,2.14,2.14,0,0,0-.08-.58,1.05,1.05,0,0,0-.64-.7,1.21,1.21,0,0,0-.52-.1l-.2,0-.08,0-.09,0a.38.38,0,0,0-.14.05l0,0s0,0-.06,0l.11-.89h1.63v-.69Z"/%3E%3C/g%3E%3Cg id="g34"%3E%3Cg id="g32"%3E%3Cpath id="path26" d="M23.81,17.58a6,6,0,1,1-6-6v4l5-5-5-5v4a8,8,0,1,0,8,8Z"/%3E%3Cpath id="path28" d="M15.87,20a.57.57,0,0,1-.62-.54H14.4a1.3,1.3,0,0,0,1.45,1.23c.87,0,1.51-.46,1.51-1.25a1,1,0,0,0-.71-1,1.06,1.06,0,0,0,.65-.92c0-.21-.05-1.22-1.44-1.22a1.27,1.27,0,0,0-1.4,1.16h.85a.58.58,0,0,1,1.15.06.56.56,0,0,1-.63.59h-.46v.66h.45c.65,0,.7.42.7.64A.58.58,0,0,1,15.87,20Z"/%3E%3Cpath id="path30" d="M19.66,16.26c-.14,0-1.44-.08-1.44,1.82v.74c0,1.9,1.31,1.82,1.44,1.82s1.44.09,1.44-1.82v-.74C21.11,16.17,19.8,16.26,19.66,16.26Zm.6,2.67c0,.77-.21,1-.59,1s-.6-.26-.6-1V18c0-.75.22-1,.59-1s.6.26.6,1Z"/%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E' ) 0px 0px/60.78px 35.296px;
+			}
+		}
+
+		.mejs-button.mejs-jump-backward-button > button:before {
+			mask-position: -32px -6px;
+		}
+
+		.mejs-button.mejs-skip-forward-button > button:before {
+			mask-position: -9px -6px;
+		}
+
+		.mejs-button > button:focus {
+			@include focus-outline();
+		}
+
+		.mejs-play > button:before {
+			mask-position: 0 0;
+		}
+
+		.mejs-pause > button:before {
+			mask-position: -20px 0;
+		}
+
+		.mejs-replay > button:before {
+			mask-position: -160px 0;
+		}
+
+		.mejs-mute > button:before {
+			mask-position: -60px 0;
+		}
+
+		.mejs-unmute > button:before {
+			mask-position: -40px 0;
+		}
+	}
+}

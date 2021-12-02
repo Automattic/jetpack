@@ -1,0 +1,29 @@
+// make use of color studio variables for consistency across products
+@import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
+@import 'node_modules/@automattic/color-studio/dist/color-variables-rgb.scss';
+
+$masterbar-background: #59524c;
+$menu-submenu-background: #46403c;
+$text-color: #fff;
+$highlight-color: #c7a589;
+$base-color-rgb: rgb(89, 82, 76);
+$nav-unification-sidebar-text-alternative: #f6f7f7;
+$menu-highlight-text: #fff;
+
+// Calypso color variables used in e.g. inline help
+$color-primary: #c7a589; // Calypso --color-primary
+$color-primary-dark: $studio-orange-70; // Calypso --color-primary-dark
+$color-primary-light: $studio-orange-30; // Calypso --color-primary-light
+$color-surface: $studio-white; // Calypso --color-surface
+$color-neutral-100-rgb: $studio-gray-100-rgb; // Calypso --color-neutral-100-rgb
+
+// Sidebar Nudges
+$menu-nudge-background: $studio-white;
+$menu-nudge-text-color: $studio-black;
+$menu-nudge-cta-background: $highlight-color;
+$menu-nudge-cta-color: $studio-white;
+$menu-nudge-cta-background-hover: $studio-orange-60;
+
+@import "../_core-overrides";
+@import "../_inline-help";
+@import "../_upsell-banner";

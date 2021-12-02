@@ -1,0 +1,25 @@
+name: Enforce read-only repo status
+
+on:
+  issues:
+    types: opened
+  pull_request_target:
+    types: opened
+
+jobs:
+  lockdown:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: dessant/repo-lockdown@v2
+        with:
+          github-token: ${{ github.token }}
+          issue-comment: |
+            Thank you for your interest!
+
+            Issues should be filed at https://github.com/Automattic/jetpack/issues. Be sure to mention the product that the issue is regarding.
+          skip-closed-issue-comment: true
+          pr-comment: |
+            Thank you for your interest!
+
+            Pull requests should be made against the monorepo at https://github.com/Automattic/jetpack.
+          skip-closed-pr-comment: true

@@ -1,0 +1,66 @@
+import { Meta, Source, Story, Canvas } from '@storybook/addon-docs';
+import dedent from 'ts-dedent';
+
+<Meta title="Docs/HowTo" />
+
+# How to use this tool
+
+The Jetpack Components Library allows you to discover, test and live-edit Jetpack visual component.
+
+## Publish component stories
+
+Anywhere in a supported package, create one or more directories called `stories` (e.g. src/components/my-component/stories).
+
+In that directory, create an index.js or index.jsx file, like this:
+
+<Source
+	language='jsx'
+	code={dedent`
+		/**
+		 * Internal dependencies
+		 */
+		import MyComponent from '../index.jsx';
+		// the default export is metadata about the component
+		export default {
+			title: 'Components/My Component',
+		};
+		// the export called __default is the default state of the component
+		export const _default = () => {
+			return <MyComponent foo="bar"/>;
+		};
+	`}
+/>
+
+Or, create a file in MDX format, which combines docbook and "live" code:
+
+<Source
+	language='jsx'
+	code={dedent`
+		import { Meta, Source, Story, Canvas } from '@storybook/addon-docs';
+		import MyComponent from '../index.jsx';
+		<Meta title="Components/My Component"/>
+		# Some Title
+		export const Template = (args) => <MyComponent {...args} />
+		<Canvas>
+			<Story name="Example 1" args={{ label: 'foo' }}>
+				{Template.bind({})}
+			</Story>
+			<Story name="Example 2" args={{ label: 'bar' }}>
+				{Template.bind({})}
+			</Story>
+		</Canvas>
+	`}
+/>
+
+You can read more about writing stories in the [Storybook JS docs](https://storybook.js.org/docs/react/writing-stories/introduction)
+
+## Edit components live
+
+To run this locally, just run:
+
+```
+pnpm run storybook:dev
+```
+
+Any edits to SCSS, HTML, JSX or other files should be hot-loaded so you can see changes to styles or components.
+

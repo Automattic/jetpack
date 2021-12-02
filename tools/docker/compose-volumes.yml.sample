@@ -1,0 +1,21 @@
+########
+#
+# This file is deprecated. Please use `jetpack-docker-config.yml` config for any custom mappings
+#
+########
+
+## List volumes for plugins, themes, and so on here. Format is a sequence as appropriate for
+## docker-compose's service.volumes. In brief,
+##  - Begin each line with a "-" followed by a space.
+##  - Line consists of two fields, local path and docker path, separated by a colon.
+##  - Local path may be absolute, or relative to this file by beginning with "./" or "../".
+##  - Remote path must be absolute, and should be inside a WordPress install path at /var/www/html.
+
+## WordPress itself. You probably don't want to delete this.
+- ./wordpress:/var/www/html
+
+## The Monorepo. Don't delete this. Think of it as the flux capacitor—it makes time travel possible.
+- ../..:/usr/local/src/jetpack-monorepo
+
+## Must Use Plugins directory. See tools/docker/README.md
+- ./mu-plugins:/var/www/html/wp-content/mu-plugins

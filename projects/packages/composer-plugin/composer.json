@@ -1,0 +1,54 @@
+{
+	"name": "automattic/jetpack-composer-plugin",
+	"description": "A custom installer plugin for Composer to move Jetpack packages out of `vendor/` so WordPress's translation infrastructure will find their strings.",
+	"type": "composer-plugin",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"composer-plugin-api": "^2.1.0"
+	},
+	"require-dev": {
+		"composer/composer": "^2.1",
+		"yoast/phpunit-polyfills": "1.0.2",
+		"automattic/jetpack-changelogger": "^3.0"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"@composer install",
+			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+		],
+		"test-php": [
+			"@composer install",
+			"@composer phpunit"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"class": "Automattic\\Jetpack\\Composer\\Plugin",
+		"mirror-repo": "Automattic/jetpack-composer-plugin",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-composer-plugin/compare/v${old}...v${new}"
+		},
+		"autotagger": true,
+		"branch-alias": {
+			"dev-master": "0.1.x-dev"
+		}
+	}
+}

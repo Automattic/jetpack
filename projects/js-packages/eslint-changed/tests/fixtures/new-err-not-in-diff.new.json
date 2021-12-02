@@ -1,0 +1,37 @@
+[
+	{
+		"filePath": "/tmp/x/t/foo.js",
+		"messages": [
+			{
+				"ruleId": "no-undef",
+				"severity": 2,
+				"message": "'x' is not defined.",
+				"line": 23,
+				"column": 14,
+				"nodeType": "Identifier",
+				"messageId": "undef",
+				"endLine": 23,
+				"endColumn": 15
+			},
+			{
+				"ruleId": "semi",
+				"severity": 2,
+				"message": "Missing semicolon.",
+				"line": 23,
+				"column": 17,
+				"nodeType": "ExpressionStatement",
+				"messageId": "missingSemi",
+				"endLine": 24,
+				"endColumn": 1,
+				"fix": { "range": [ 164, 164 ], "text": ";" }
+			}
+		],
+		"errorCount": 2,
+		"fatalErrorCount": 0,
+		"warningCount": 0,
+		"fixableErrorCount": 1,
+		"fixableWarningCount": 0,
+		"source": "// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n// ...\n\nconsole.log( x )\n",
+		"usedDeprecatedRules": []
+	}
+]

@@ -1,0 +1,120 @@
+@import '../../../scss/mixin_breakpoint.scss';
+
+.jp-recommendations-question__content {
+	display: flex;
+	flex-direction: column;
+}
+
+.jp-recommendations-question__main--with-illustration .jp-recommendations-question__content {
+	@include breakpoint( '>660px' ) {
+		padding-right: 48px;
+	}
+}
+
+.jp-recommendations-question__progress-bar {
+	.progress-bar {
+		width: 70px;
+	}
+
+	margin: 32px 32px 0 32px;
+
+	@include breakpoint( '<480px' ) {
+		margin: 16px 16px 32px 16px;
+	}
+}
+
+.jp-recommendations-question__question {
+	font-size: 1.5rem;
+	margin: 32px 32px 0 32px;
+
+	@include breakpoint( '<480px' ) {
+		margin: 0 16px 32px 16px;
+	}
+}
+
+.jp-recommendations-question__description {
+	font-size: 16px;
+
+	margin: 32px 32px 24px 32px;
+
+	@include breakpoint( '<480px' ) {
+		margin: 0 16px 16px 16px;
+	}
+
+	.gridicons-external {
+		margin-left: 0.25rem;
+	}
+
+	a {
+		white-space: nowrap;
+	}
+}
+
+.jp-recommendations-question__main--with-illustration .jp-recommendations-question__description {
+	margin-right: 0;
+
+	@include breakpoint( '<660px' ) {
+		margin-right: 32px;
+	}
+}
+
+.jp-recommendations-question__answer {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+}
+
+.jp-recommendations-question__illustration-container {
+	width: 100%;
+	position: relative;
+
+	img {
+		position: absolute;
+		bottom: 0;
+		right: 0;
+	}
+
+	@include breakpoint( '<660px' ) {
+		display: none;
+	}
+}
+
+.jp-recommendations-question__illustration-background {
+	width: 100%;
+}
+
+.jp-recommendations-question__illustration-foreground {
+	width: 75%;
+	margin: 10%;
+}
+
+.jp-recommendations-question__install-section {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-end;
+
+	button {
+		margin-top: auto;
+		margin-bottom: 16px;
+		min-width: 172px;
+	}
+
+	a {
+		margin-bottom: 32px;
+
+		&.dops-button {
+			margin-bottom: 16px;
+			text-align: center;
+
+			@include breakpoint( '<480px' ) {
+				width: 100%;
+			}
+		}
+	}
+
+	@include breakpoint( '<480px' ) {
+		padding: 64px 16px 0 16px;
+	}
+}

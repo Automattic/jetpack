@@ -1,0 +1,116 @@
+name: Jetpack block performance
+
+on:
+  schedule:
+    - cron:  '0 */12 * * *'
+
+jobs:
+  block-performance:
+    name: "Performance tests"
+    runs-on: ubuntu-latest
+    timeout-minutes: 25  # 2021-10-7: Successful runs seem to take 15 minutes
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+        with:
+          node: 14
+
+      - uses: actions/checkout@v2
+        with:
+          repository: 'WordPress/gutenberg'
+          path: 'gutenberg'
+
+      - name: Build Gutenberg
+        working-directory: gutenberg
+        run: |
+          npm ci
+          npm run build
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('gutenberg/**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Build Production Jetpack
+        run: |
+          pnpm install
+          pnpx jetpack build plugins/jetpack -v --production
+
+      - name: Environment set-up
+        working-directory: tools/e2e-commons
+        env:
+          CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
+        run: |
+          # Gutenberg Performance tests require disable-animations.php test plugin to be available on a site. Below we inject the mapping for that plugin into a Docker config file
+
+          echo "e2e:" >> ../docker/jetpack-docker-config.yml
+          echo "  volumeMappings:" >> ../docker/jetpack-docker-config.yml
+          echo "    gutenberg/packages/e2e-tests/plugins/disable-animations.php: /var/www/html/wp-content/plugins/disable-animations.php" >> ../docker/jetpack-docker-config.yml
+
+          mkdir results
+          pnpm install
+          pnpm config:decrypt
+          pnpm env:start
+
+          pnpm tunnel:on
+          pnpx jetpack docker --type e2e --name t1 wp plugin deactivate jetpack
+          pnpx jetpack docker --type e2e --name t1 wp -- user create admin admin@example.com --role=administrator --user_pass=password
+
+      - name: Run performance base test
+        working-directory: gutenberg
+        run: |
+          export WP_BASE_URL=$(cat ../tools/e2e-commons/config/tmp/e2e-tunnels.txt)
+
+          npm run test-performance packages/e2e-tests/specs/performance/post-editor.test.js
+          mv packages/e2e-tests/specs/performance/post-editor.test.results.json ../tools/e2e-commons/results/base.test.results.json
+
+      - name: Set up Jetpack connection
+        working-directory: tools/e2e-commons
+        run: |
+          pnpm env:reset
+          pnpm tunnel:reset
+          pnpm jetpack-connect
+          pnpx jetpack docker --type e2e --name t1 wp jetpack module deactivate sso
+          pnpx jetpack docker --type e2e --name t1 wp -- user create admin admin@example.com --role=administrator --user_pass=password
+
+      - name: Run performance Jetpack test
+        working-directory: gutenberg
+        run: |
+          export WP_BASE_URL=$(cat ../tools/e2e-commons/config/tmp/e2e-tunnels.txt)
+
+          npm run test-performance packages/e2e-tests/specs/performance/post-editor.test.js
+          mv packages/e2e-tests/specs/performance/post-editor.test.results.json ../tools/e2e-commons/results/jetpack.test.results.json
+
+      - name: Environment tear-down
+        if: ${{ always() }}
+        working-directory: tools/e2e-commons
+        continue-on-error: true
+        run: |
+          pnpm run tunnel-off
+
+      - name: Upload test artifacts
+        if: ${{ always() }}
+        continue-on-error: true
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-output-block-perf
+          path: tools/e2e-commons/results
+
+  test-reports:
+    name: "Trigger test report workflow"
+    runs-on: ubuntu-latest
+    if: ${{ ! cancelled() }}
+    needs: block-performance
+
+    steps:
+      - name: Repository Dispatch
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
+          repository: automattic/jetpack-e2e-reports
+          event-type: block-perf
+          client-payload: '{"run_id": "${{github.run_id}}", "repository": "${{github.repository}}"}'

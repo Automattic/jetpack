@@ -1,0 +1,32 @@
+[
+    {
+        "blockName": "jetpack/calendly",
+        "attrs": {
+            "style": "link",
+            "url": "https://calendly.com/username"
+        },
+        "innerBlocks": [
+            {
+                "blockName": "jetpack/button",
+                "attrs": {
+                    "element": "a",
+                    "uniqueId": "calendly-widget-id",
+                    "passthroughAttributes": {
+                        "url": "url"
+                    },
+                    "text": "Schedule time with me",
+                    "url": "https://calendly.com/username"
+                },
+                "innerBlocks": [],
+                "innerHTML": "",
+                "innerContent": []
+            }
+        ],
+        "innerHTML": "\n<div class=\"wp-block-jetpack-calendly\"></div>\n",
+        "innerContent": [
+            "\n<div class=\"wp-block-jetpack-calendly\">",
+            null,
+            "</div>\n"
+        ]
+    }
+]

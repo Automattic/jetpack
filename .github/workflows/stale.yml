@@ -1,0 +1,54 @@
+
+name: 'Mark stale issues'
+on:
+  schedule:
+    - cron: '30 0 * * *'
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
+    steps:
+      - uses: actions/stale@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          # Get issues in ascending (oldest first) order.
+          ascending: true
+          # Do not auto-close issues marked as stale.
+          days-before-close: -1
+          # After 6 months, mark issue as stale.
+          days-before-issue-stale: 180
+          # After 3 months, mark PR as stale.
+          days-before-pr-stale: 90
+          # Issues and PRs with these labels will never be considered stale.
+          exempt-issue-labels: '[Pri] High,[Pri] BLOCKER,[Type] Good For Community,[Type] Good First Bug,FixTheFlows'
+          exempt-pr-labels: '[Pri] High,[Pri] BLOCKER,[Type] Good For Community,[Type] Good First Bug,FixTheFlows'
+          # Label to use when marking an issue / PR as stale
+          stale-pr-label: '[Status] Stale'
+          stale-issue-label: '[Status] Stale'
+          # Messages to display.
+          stale-issue-message: |
+            <p>This issue has been marked as stale. This happened because:</p>
+
+            <ul>
+              <li>It has been inactive in the past 6 months.</li>
+              <li>It hasn’t been labeled `[Pri] Blocker`, `[Pri] High`, etc.</li>
+            </ul>
+
+            <p>No further action is needed. But it's worth checking if this ticket has clear
+            reproduction steps and it is still reproducible. Feel free to close this issue
+            if you think it's not valid anymore — if you do, please add a brief
+            explanation.</p>
+          stale-pr-message: |
+            <p>This PR has been marked as stale. This happened because:</p>
+
+            <ul>
+              <li>It has been inactive in the past 3 months.</li>
+              <li>It hasn’t been labeled `[Pri] Blocker`, `[Pri] High`, etc.</li>
+            </ul>
+
+            <p>No further action is needed. But it's worth checking if this PR has clear
+            testing instructions, is it up to date with master, and it is still valid.
+            Feel free to close this PR if you think it's not valid anymore — if you
+            do, please add a brief explanation.</p>
+          operations-per-run: 2

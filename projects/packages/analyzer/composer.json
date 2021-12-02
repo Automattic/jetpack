@@ -1,0 +1,50 @@
+{
+	"name": "automattic/jetpack-analyzer",
+	"description": "Analyze differences between Jetpack versions",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"nikic/php-parser": "^4.2"
+	},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "^3.0"
+	},
+	"autoload": {
+		"classmap": [
+			"src/",
+			"scripts"
+		]
+	},
+	"scripts": {
+		"example": [
+			"php ./scripts/example.php"
+		],
+		"core-calls": [
+			"Automattic\\Jetpack\\Analyzer\\CoreCalls::callback"
+		],
+		"core-definitions": [
+			"Automattic\\Jetpack\\Analyzer\\CoreDefinitions::callback"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autotagger": true,
+		"mirror-repo": "Automattic/jetpack-analyzer",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-analyzer/compare/v${old}...v${new}"
+		},
+		"branch-alias": {
+			"dev-master": "1.6.x-dev"
+		}
+	}
+}

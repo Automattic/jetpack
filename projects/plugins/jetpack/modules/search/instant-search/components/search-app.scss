@@ -1,0 +1,175 @@
+@import '../lib/styles/_helper.scss';
+
+.jetpack-instant-search,
+// Extra specific to override in some themes
+.jetpack-instant-search .widget,
+.jetpack-instant-search .widget.widget_archive ul li {
+	a {
+		color: $color-link;
+		text-decoration: none;
+
+		&:hover,
+		&:focus {
+			color: $color-link-alt;
+			text-decoration: underline;
+		}
+	}
+}
+
+.jetpack-search-filters-widget__filter-list {
+	list-style-type: none;
+}
+
+// Hide the search modal in the TwentyTwenty theme
+body.enable-search-modal .cover-modal.show-modal.search-modal.active {
+	display: none;
+}
+
+// Text meant only for screen readers
+// https://make.wordpress.org/accessibility/handbook/markup/the-css-class-screen-reader-text/
+.screen-reader-text {
+	border: 0;
+	clip: rect( 1px, 1px, 1px, 1px );
+	clip-path: inset( 50% );
+	height: 1px;
+	margin: -1px;
+	overflow: hidden;
+	padding: 0;
+	position: absolute;
+	width: 1px;
+	word-wrap: normal !important;
+}
+
+//
+// Dark theme styling
+//
+.jetpack-instant-search__overlay.jetpack-instant-search__overlay--dark {
+	background: $color-dark-modal-backdrop-background;
+	color: $color-dark-text;
+
+	&,
+	.widget,
+	.widget.widget_archive ul li {
+		a {
+			color: $color-dark-link;
+
+			&:hover,
+			&:focus {
+				color: $color-dark-link-alt;
+			}
+		}
+	}
+
+	.jetpack-instant-search__search-filters-title,
+	.jetpack-instant-search__search-result-expanded__content,
+	.jetpack-instant-search__search-results-list,
+	.jetpack-instant-search__search-results-title,
+	.jetpack-instant-search__search-results-unused-query {
+		color: $color-dark-text;
+	}
+
+	.jetpack-instant-search__jetpack-colophon-text,
+	.jetpack-instant-search__path-breadcrumb-link,
+	.jetpack-instant-search__path-breadcrumb {
+		color: $color-dark-text-light;
+	}
+
+	.jetpack-instant-search__search-filter-sub-heading,
+	.jetpack-instant-search__search-result-expanded__path {
+		color: $color-dark-text-lighter;
+	}
+
+	.jetpack-instant-search__box,
+	button.jetpack-instant-search__overlay-close {
+		border-color: $color-dark-layout-borders;
+	}
+
+	.jetpack-instant-search__box-gridicon svg,
+	button.jetpack-instant-search__overlay-close svg.gridicon {
+		fill: $color-dark-text-lighter;
+	}
+
+	button.jetpack-instant-search__overlay-close {
+		border-color: $color-dark-layout-borders;
+		&:focus,
+		&:hover {
+			svg.gridicon {
+				fill: $color-dark-text-light;
+			}
+		}
+	}
+
+	.jetpack-instant-search__box input[type='button'] {
+		color: $color-dark-text-lighter;
+
+		&:hover,
+		&:focus {
+			color: $color-dark-text-light;
+		}
+	}
+
+	input.jetpack-instant-search__box-input.search-field {
+		background: $color-dark-modal-background;
+		color: $color-dark-text-light;
+
+		&:hover,
+		&:focus {
+			background: $color-dark-modal-background; // necessary to override theme styles
+			color: $color-dark-text;
+		}
+	}
+
+	.jetpack-instant-search__search-results {
+		background: $color-dark-modal-background;
+
+		mark {
+			color: $color-dark-text;
+		}
+	}
+
+	.jetpack-instant-search__search-results-filter-button {
+		color: $color-dark-text-lighter;
+
+		&:hover,
+		&:focus {
+			color: $color-dark-text;
+		}
+	}
+
+	.jetpack-instant-search__search-results-secondary {
+		color: $color-dark-text;
+
+		@include break-large-up() {
+			border-color: $color-dark-layout-borders;
+		}
+
+		&.jetpack-instant-search__search-results-secondary--show-as-modal {
+			@include break-large-down() {
+				background: $color-dark-modal-background;
+				border-color: $color-dark-layout-borders;
+				box-shadow: 0 2px 3px $color-dark-layout-borders;
+			}
+		}
+	}
+
+	.jetpack-instant-search__search-sort-option {
+		color: $color-dark-text-lighter;
+
+		&::after {
+			color: $color-dark-text-lighter;
+		}
+		&.is-selected {
+			color: $color-dark-link-alt;
+		}
+	}
+
+	.jetpack-instant-search__search-result-product-img--placeholder {
+		color: $studio-gray-80;
+	}
+
+	#jetpack-instant-search__search-sort-select {
+		background: $color-dark-modal-background;
+		border-color: $color-dark-layout-borders;
+		color: $color-dark-text;
+	}
+}

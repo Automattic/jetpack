@@ -1,0 +1,58 @@
+@import '../lib/styles/_helper.scss';
+
+$overlay-vertical-padding-sm: 0;
+$overlay-vertical-padding-md: 3em;
+$overlay-vertical-padding-lg: $overlay-vertical-padding-md;
+$overlay-horizontal-padding-sm: 0;
+$overlay-horizontal-padding-md: 1em;
+$overlay-horizontal-padding-lg: 3em;
+
+.jetpack-instant-search__overlay {
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+
+	background: $color-modal-backdrop-background;
+	box-sizing: border-box;
+	color: $color-text;
+	font-size: 16px;
+	opacity: 1;
+	overflow-x: hidden;
+	overflow-y: auto;
+
+	transition: opacity 0.1s ease-in;
+
+	z-index: 9999999999999;
+
+	// Override font for Argent theme.
+	body.jps-theme-argent & * {
+		font-family: Helvetica, sans-serif; // "Cabin" looks ridiculous in the overlay.
+	}
+
+	@include break-medium-down() {
+		padding: $overlay-vertical-padding-md $overlay-horizontal-padding-md;
+	}
+
+	// Order matters
+	@include break-small-down() {
+		padding: $overlay-vertical-padding-sm $overlay-horizontal-padding-sm;
+	}
+
+	@include break-medium-up() {
+		padding: $overlay-vertical-padding-lg $overlay-horizontal-padding-lg;
+	}
+
+	&.is-hidden {
+		background: transparent;
+		opacity: 0;
+		visibility: hidden;
+	}
+
+	*,
+	*:before,
+	*:after {
+		box-sizing: inherit;
+	}
+}

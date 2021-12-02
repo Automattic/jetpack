@@ -1,0 +1,135 @@
+@import '../lib/styles/_helper.scss';
+$image-square-size: 128px;
+
+.jetpack-instant-search__search-result-expanded {
+	display: flex;
+	flex-flow: column;
+
+	&:last-child {
+		margin-right: 0;
+	}
+
+	.jetpack-instant-search__search-result-expanded__title {
+		width: 100%;
+	}
+}
+
+.jetpack-instant-search__search-result-expanded__path {
+	color: $color-text-lighter;
+	font-size: 0.9375em;
+	margin: 0 0 0.4em;
+}
+
+.jetpack-instant-search__search-result-expanded__copy-container {
+	max-width: 100%;
+
+	@include break-small-up() {
+		width: calc(100% - #{$image-square-size} - 1em);
+	}
+
+	.jetpack-instant-search__search-result-expanded--no-image & {
+		width: initial;
+	}
+}
+
+.jetpack-instant-search__search-result-expanded__content {
+	font-size: 0.9375em;
+	color: $color-text;
+}
+
+.jetpack-instant-search__search-result-expanded__image-link {
+	margin-left: 1em;
+	@include break-small-down() {
+		order: -1;
+		margin: 0 auto 0.5em auto;
+	}
+}
+
+.jetpack-instant-search__search-result-expanded__image-container {
+	width: $image-square-size;
+
+	@include break-small-down() {
+		width: 2 * $image-square-size;
+	}
+
+	.jetpack-instant-search__search-result-expanded--no-image & {
+		display: none;
+	}
+}
+
+// Aspect ratio box trick
+// See https://css-tricks.com/aspect-ratio-boxes/
+.jetpack-instant-search__search-result-expanded__image-container {
+	position: relative;
+	&:before {
+		display: block;
+		content: '';
+		width: 100%;
+		padding-top: 100%;
+	}
+}
+.jetpack-instant-search__search-result-expanded__image {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	height: 100%;
+	object-fit: cover;
+	width: 100%;
+}
+
+.jetpack-instant-search__search-result-expanded__image {
+	border-radius: 5px;
+}
+
+.jetpack-instant-search__search-result-expanded__content-container {
+	display: flex;
+	flex-flow: column;
+
+	@include break-small-up() {
+		flex-flow: row nowrap;
+	}
+}
+
+.jetpack-instant-search__search-result-expanded__footer {
+	list-style-type: none;
+	margin-top: 10px;
+	margin-left: 0;
+	padding-left: 0;
+	display: flex;
+
+	li {
+		margin-right: 10px;
+	}
+}
+
+.jetpack-instant-search__search-result-expanded__footer-blog-image {
+	border-radius: 2px;
+	vertical-align: middle;
+	margin-right: 3px;
+}
+
+.jetpack-instant-search__search-result-expanded__footer-blog {
+	font-style: normal;
+	font-weight: 600;
+	font-size: 13px;
+	line-height: 180%;
+}
+
+.jetpack-instant-search__search-result-expanded__footer-blog,
+.jetpack-instant-search__search-result-expanded__footer-author {
+	&:after {
+		content: '·';
+		margin-left: 10px;
+		color: #636363;
+	}
+}
+
+.jetpack-instant-search__search-result-expanded__footer-author,
+.jetpack-instant-search__search-result-expanded__footer-date {
+	font-style: normal;
+	font-weight: 400;
+	font-size: 13px;
+	color: #636363;
+}

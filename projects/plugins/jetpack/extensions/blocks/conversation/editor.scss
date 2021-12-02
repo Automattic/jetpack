@@ -1,0 +1,16 @@
+// Settings sidebar.
+$participant-height: 30px;
+
+.wp-block-jetpack-conversation__participant {
+	display: flex;
+	height: $participant-height;
+	line-height: $participant-height;
+}
+
+.wp-block-jetpack-conversation__participant-label {
+	flex-grow: 2;
+}
+
+.wp-block-jetpack-conversation__placeholder {
+	display: flex;
+}

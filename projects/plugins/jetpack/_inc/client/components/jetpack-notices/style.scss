@@ -1,0 +1,13 @@
+.dops-notice {
+	ul {
+		@include breakpoint( "<480px" ) {
+			font-size: rem( 12px );
+		}
+	}
+}
+
+.jp-license-activation-notice__external-link {
+	svg.gridicons-external {
+		margin-left: 0.25rem;
+	}
+}

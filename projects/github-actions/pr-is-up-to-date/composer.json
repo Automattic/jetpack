@@ -1,0 +1,28 @@
+{
+	"name": "automattic/action-pr-is-up-to-date",
+	"description": "GitHub Action to check that PRs are up to date with respect to a tag.",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "3.0.x-dev"
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"extra": {
+		"autotagger": {
+			"major": true
+		},
+		"mirror-repo": "Automattic/action-pr-is-up-to-date",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/action-pr-is-up-to-date/compare/v${old}...v${new}"
+		}
+	}
+}

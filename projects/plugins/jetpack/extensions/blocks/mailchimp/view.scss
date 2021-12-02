@@ -1,0 +1,64 @@
+@import '../../shared/styles/gutenberg-base-styles.scss';
+@import '../../shared/styles/jetpack-variables.scss';
+
+.wp-block-jetpack-mailchimp {
+	&.is-processing {
+		form {
+			display: none;
+		}
+	}
+
+	.wp-block-jetpack-button, p {
+		margin-bottom: 1em;
+	}
+
+	input {
+		box-sizing: border-box;
+		width: 100%;
+	}
+
+	.error,
+	.error:focus {
+		outline: 1px;
+		outline-offset: -2px;
+		outline-style: auto;
+		outline-color: var( --color-error );
+	}
+
+	.wp-block-jetpack-mailchimp_notification {
+		display: none;
+		margin-bottom: $jetpack-block-margin-bottom;
+		padding: 0.75em;
+		&.is-visible {
+			display: block;
+		}
+
+		&.wp-block-jetpack-mailchimp_error {
+			background-color: var( --color-error );
+			color: $white;
+		}
+
+		&.wp-block-jetpack-mailchimp_processing {
+			background-color: rgba(
+				0,
+				0,
+				0,
+				0.025
+			); // This would be "dark-opacity-light-50" which doesn't exist in Gutenberg
+		}
+
+		&.wp-block-jetpack-mailchimp_success {
+			background-color: var( --color-success );
+			color: $white;
+		}
+	}
+	/* AMP Related classes */
+	.wp-block-jetpack-mailchimp_notification.wp-block-jetpack-mailchimp__is-amp {
+		display: block;
+	}
+	form.amp-form-submitting > p,
+	form.amp-form-submit-success > p,
+	form.amp-form-submit-error > p {
+		display: none;
+	}
+}

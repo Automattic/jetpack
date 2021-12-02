@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix tests for addition of `fatalErrorCount` in eslint 7.32.

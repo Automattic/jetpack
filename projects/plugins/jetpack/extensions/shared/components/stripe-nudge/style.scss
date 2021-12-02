@@ -1,0 +1,17 @@
+@import '../../styles/gutenberg-base-styles.scss';
+
+.jetpack-stripe-nudge__banner .block-editor-warning__contents {
+	align-items: center;
+}
+
+.jetpack-stripe-nudge__icon {
+	align-self: center;
+	background: var( --color-primary );
+	border-radius: 50%;
+	box-sizing: content-box;
+	color: $white;
+	fill: $white;
+	flex-shrink: 0;
+	margin-right: 16px;
+	padding: 6px;
+}

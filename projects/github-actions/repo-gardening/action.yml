@@ -1,0 +1,30 @@
+name: "Repo Gardening"
+description: "Assign, manage milestones, for issues and PRs."
+inputs:
+  github_token:
+    description: "GitHub access token"
+    required: true
+    default: ${{ github.token }}
+  slack_token:
+    description: "Slack Bot access token"
+    required: false
+    default: ""
+  slack_design_channel:
+    description: "Slack channel ID where messages for the Design team will be sent"
+    required: false
+    default: ""
+  slack_editorial_channel:
+    description: "Slack channel ID where messages for the Editorial team will be sent"
+    required: false
+    default: ""
+  slack_team_channel:
+    description: "Slack channel ID where general notifications should be sent"
+    required: false
+    default: ""
+  tasks:
+    description: "Comma-separated selection of task names (function name, camelCase) this action should run. e.g. addLabels,cleanLabels"
+    required: false
+    default: "all"
+runs:
+  using: node12
+  main: "dist/index.js"

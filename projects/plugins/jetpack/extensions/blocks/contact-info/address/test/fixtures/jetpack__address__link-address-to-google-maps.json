@@ -1,0 +1,28 @@
+[
+    {
+        "clientId": "_clientId_0",
+        "name": "jetpack/contact-info",
+        "isValid": true,
+        "attributes": {},
+        "innerBlocks": [
+            {
+                "clientId": "_clientId_0",
+                "name": "jetpack/address",
+                "isValid": true,
+                "attributes": {
+                    "address": "987  Photon Drive",
+                    "addressLine2": "Apartment 5",
+                    "addressLine3": "",
+                    "city": "Speedyville",
+                    "region": "CA",
+                    "postal": "12345",
+                    "country": "USA",
+                    "linkToGoogleMaps": true
+                },
+                "innerBlocks": [],
+                "originalContent": "<div class=\"wp-block-jetpack-address\"><a href=\"https://www.google.com/maps/search/987+ Photon Drive,Apartment 5,+Speedyville,+CA,+12345+USA\" target=\"_blank\" rel=\"noopener noreferrer\" title=\"Open address in Google Maps\"><div class=\"jetpack-address__address jetpack-address__address1\">987  Photon Drive</div><div class=\"jetpack-address__address jetpack-address__address2\">Apartment 5</div><div><span class=\"jetpack-address__city\">Speedyville</span>, <span class=\"jetpack-address__region\">CA</span> <span class=\"jetpack-address__postal\">12345</span></div><div class=\"jetpack-address__country\">USA</div></a></div>"
+            }
+        ],
+        "originalContent": "<div class=\"wp-block-jetpack-contact-info\"></div>"
+    }
+]

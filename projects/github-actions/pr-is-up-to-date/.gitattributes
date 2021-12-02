@@ -1,0 +1,2 @@
+# Files to exclude from the mirror repo, but included in the monorepo.
+changelog/**      production-exclude

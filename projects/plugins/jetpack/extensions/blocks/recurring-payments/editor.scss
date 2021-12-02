@@ -1,0 +1,118 @@
+@import './view.scss';
+@import '../../shared/styles/gutenberg-base-styles.scss';
+
+.wp-block-jetpack-recurring-payments {
+	font-family: $default-font;
+	width: 100%;
+
+	.components-base-control__label {
+		text-align: left;
+	}
+
+	.components-placeholder {
+		min-height: 150px;
+		padding: 24px;
+
+		&__fieldset {
+			max-width: 500px;
+			p {
+				font-size: 13px;
+				margin: 20px 0 10px;
+			}
+
+			p:first-child {
+				margin-top: 0;
+			}
+		}
+
+		&__instructions {
+			.components-select-control__input {
+				padding: 0 24px 0 8px;
+			}
+		}
+
+		// Increased specificity to override placeholder styling.
+		.components-placeholder__instructions {
+			display: block;
+		}
+
+		label {
+			font-size: 13px;
+		}
+	}
+
+
+	.editor-rich-text__inline-toolbar {
+		pointer-events: none;
+		.components-toolbar {
+			pointer-events: all;
+		}
+	}
+
+	.membership-button {
+		&__add-amount {
+			margin-right: 4px;
+		}
+
+		&__disclaimer {
+			color: var( --color-gray-200 );
+			flex-basis: 100%;
+			margin: 0;
+			font-style: italic;
+			a {
+				color: var( --color-gray-400 );
+				line-height: 36px;
+			}
+		}
+
+		&__field-button {
+			margin-right: 4px;
+		}
+
+		&__field-error .components-text-control__input {
+			border: 1px solid;
+			border-color: var( --color-error );
+		}
+
+		&__field-price {
+			width: 65%;
+		}
+
+		&__price-container {
+			display: flex;
+			flex-wrap: wrap;
+
+			.components-input-control__container {
+				top: 4px;
+			}
+
+			div.membership-button__field-currency {
+				border-right: 10px solid transparent;
+			}
+
+			p {
+				margin-top: 0;
+			}
+		}
+	}
+
+	&.disclaimer-only {
+		box-sizing: content-box;
+		font-size: 13px;
+		margin: 0 -14px;
+		padding: 14px;
+		text-align: center;
+		transform: translateY( 14px );
+
+		// Use opacity to work in various editor styles.
+		background: $dark-gray-placeholder;
+
+		.is-dark-theme & {
+			background: $light-gray-placeholder;
+		}
+	}
+
+	.wp-block-jetpack-membership-button_notification {
+		display: block;
+	}
+}

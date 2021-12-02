@@ -1,0 +1,9 @@
+diff -urN a/foo.js b/foo.js
+--- a/foo.js	2021-06-16 14:00:16.244119980 -0400
++++ b/foo.js	2021-06-16 14:02:24.600650825 -0400
+@@ -1,4 +1,5 @@
+ var x = 123;
+ 
+ console.log( "This is a thing" )
++console.log( "Really!" )
+ console.log( "x = ", x )

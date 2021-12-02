@@ -1,0 +1,13 @@
+// This adds CSS styling for the ExternalLink component, so that
+// it receives styles when used in the Site Editor. Many Jetpack
+// blocks use this component in the placeholder state, so this ensures
+// support in the Site Editor until a fix lands in Gutenberg.
+// See: https://github.com/WordPress/gutenberg/issues/30553
+
+.components-external-link__icon {
+	width: 1.4em;
+	height: 1.4em;
+	margin: -0.2em 0.1em 0;
+	vertical-align: middle;
+	fill: currentColor;
+}

@@ -1,0 +1,207 @@
+name: Build
+on:
+  push:
+    branches: [ 'master', '**/branch-**' ]
+  pull_request:
+concurrency:
+  # Cancel concurrent jobs on pull_request but not push, by including the run_id in the concurrency group for the latter.
+  group: build-${{ github.event_name == 'push' && github.run_id || 'pr' }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  COMPOSER_ROOT_VERSION: "dev-master"
+
+jobs:
+  build:
+    name: Build all projects
+    runs-on: ubuntu-latest
+    timeout-minutes: 20  # 2021-08-13: Seems to take a tad over 15 minutes. Should figure out how to improve this...
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+
+      - name: Build all projects
+        id: build
+        env:
+          # Hard-code a specific directory to avoid paths in vendor/composer/installed.json changing every build.
+          BUILD_BASE: /tmp/jetpack-build
+        run: .github/files/build-all-projects.sh
+
+      # GitHub's artifact stuff doesn't preserve permissions or file case. Sigh.
+      # This is the official workaround: https://github.com/actions/upload-artifact#maintaining-file-permissions-and-case-sensitive-files
+      # It'll also make it faster to upload and download though, so maybe it's a win anyway.
+      - name: Create archive
+        env:
+          BUILD_BASE: ${{ steps.build.outputs.build-base }}
+        run: tar --owner=0 --group=0 --xz -cvvf build.tar.xz -C "$BUILD_BASE" --transform 's,^\.,build,' .
+
+      - name: Store build as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: jetpack-build
+          path: build.tar.xz
+          # Only need to retain for a day since the beta builder slurps it up to distribute.
+          retention-days: 1
+
+  jetpack_beta:
+    name: Create artifact for Jetpack Beta plugin
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'Automattic/jetpack'
+    timeout-minutes: 10  # 2021-06-24: Successful runs should take just a few seconds now. But sometimes the upload is slow.
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: monorepo
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: jetpack-build
+      - name: Extract build archive
+        run: tar --xz -xvvf build.tar.xz
+
+      - name: Filter mirror list for release branch
+        if: contains( github.ref, '/branch-' )
+        working-directory: monorepo
+        env:
+          BUILD_BASE: ${{ github.workspace }}/build
+        run: .github/files/filter-mirrors-for-release-branch.sh
+
+      - name: Determine plugins to publish
+        run: |
+          jq -r 'if .extra["mirror-repo"] and ( .extra["beta-plugin-slug"] // .extra["wp-plugin-slug"] ) then [ ( input_filename | sub( "/composer\\.json$"; "" ) ), .extra["mirror-repo"], .extra["beta-plugin-slug"] // .extra["wp-plugin-slug"] ] else empty end | @tsv' monorepo/projects/plugins/*/composer.json > plugins.tsv
+          cat plugins.tsv
+          if [[ ! -s plugins.tsv ]]; then
+            echo "No plugins were detected?!"
+            exit 1
+          fi
+
+      - name: Prepare plugin zips
+        id: prepare
+        run: |
+          mkdir work
+          mkdir zips
+
+          # Current version must compare greather than any previously used current version for this PR.
+          # Assume GH run IDs are monotonic.
+          VERSUFFIX="${GITHUB_RUN_ID}-g$(cd monorepo && git rev-parse --short HEAD)"
+
+          # Plugin data is passed as a JSON object.
+          PLUGIN_DATA="{}"
+
+          while IFS=$'\t' read -r SRC MIRROR SLUG; do
+            echo "::group::$MIRROR (src=$SRC slug=$SLUG)"
+
+            if [[ ! -e "build/$MIRROR" ]]; then
+              echo "Plugin was not built, skipping."
+              echo "::endgroup::"
+              continue
+            fi
+
+            if ! grep -q --fixed-strings --line-regexp "$MIRROR" build/mirrors.txt; then
+              echo "Plugin is not being mirrored in this build, skipping."
+              echo "::endgroup::"
+              continue
+            fi
+
+            # The Jetpack Beta Tester plugin needs the base directory name to be like "${SLUG}-dev", so copy it over.
+            mv "build/$MIRROR" "work/${SLUG}-dev"
+
+            # Copy testing docs that are not included in the mirror.
+            if [[ -e "$SRC/to-test.md" ]]; then
+              cp "$SRC/to-test.md" "work/${SLUG}-dev/"
+            fi
+            mkdir -p "work/${SLUG}-dev/docs/testing/"
+            cp monorepo/docs/testing/testing-tips.md "work/${SLUG}-dev/docs/testing/"
+
+            # Extract and update version.
+            CURRENT_VERSION=$(monorepo/tools/plugin-version.sh "work/${SLUG}-dev/")-$VERSUFFIX
+            echo "Using version $CURRENT_VERSION"
+            echo "$CURRENT_VERSION" > "work/${SLUG}-dev/version.txt"
+            # Don't use plugin-version.sh here, updating JETPACK__VERSION would clutter stats.
+            sed -i -e 's/Version: .*$/Version: '"$CURRENT_VERSION"'/' "work/${SLUG}-dev"/*.php
+
+            # Zip the plugin
+            ( cd work && zip -9 -r "../zips/${SLUG}-dev.zip" "${SLUG}-dev" )
+
+            # Record plugin data.
+            PLUGIN_DATA=$( jq -c --arg slug "$SLUG" --arg ver "$CURRENT_VERSION" '.[ $slug ] = { version: $ver }' <<<"$PLUGIN_DATA" )
+
+            echo "::endgroup::"
+          done < plugins.tsv
+          if [[ "$PLUGIN_DATA" == "{}" ]]; then
+            echo "No plugins were built"
+          fi
+          echo "::set-output name=plugin-data::$PLUGIN_DATA"
+
+      - name: Create plugins artifact
+        uses: actions/upload-artifact@v2
+        if: steps.prepare.outputs.plugin-data != '{}'
+        with:
+          name: plugins
+          path: zips
+          # Only need to retain for a day since the beta builder slurps it up to distribute.
+          retention-days: 1
+
+      - name: Inform Beta Download webhook
+        if: steps.prepare.outputs.plugin-data != '{}'
+        env:
+          SECRET: ${{ secrets.JPBETA_SECRET }}
+          PLUGIN_DATA: ${{ steps.prepare.outputs.plugin-data }}
+          PR: ${{ github.event.number }}
+        run: |
+          curl -v --fail -L \
+            --url "https://betadownload.jetpack.me/gh-action.php?run_id=$GITHUB_RUN_ID&pr=$PR&commit=$GITHUB_SHA" \
+            --form-string "repo=$GITHUB_REPOSITORY" \
+            --form-string "branch=${GITHUB_REF#refs/heads/}" \
+            --form-string "plugins=$PLUGIN_DATA" \
+            --form-string "secret=$SECRET"
+
+  update_mirrors:
+    name: Push to mirror repos
+    runs-on: ubuntu-latest
+    needs: build
+
+    if: github.event_name == 'push' && github.repository == 'Automattic/jetpack'
+
+    # Not setting a job-level timeout because it would be kind of pointless with the blocking step. Set a step timeout for all other steps instead.
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: monorepo
+        timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: jetpack-build
+        timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
+      - name: Extract build archive
+        run: tar --xz -xvvf build.tar.xz
+        timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
+
+      - name: Filter mirror list for release branch
+        if: contains( github.ref, '/branch-' )
+        working-directory: monorepo
+        env:
+          BUILD_BASE: ${{ github.workspace }}/build
+        run: .github/files/filter-mirrors-for-release-branch.sh
+        timeout-minutes: 1  # 2021-01-29: Guessing a successful run should only take a few seconds
+
+      - name: Wait for prior instances of the workflow to finish
+        uses: softprops/turnstyle@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push changed projects
+        uses: ./monorepo/projects/github-actions/push-to-mirrors
+        with:
+          source-directory: ${{ github.workspace }}/monorepo
+          token: ${{ secrets.API_TOKEN_GITHUB }}
+          username: matticbot
+          working-directory: ${{ github.workspace }}/build
+        timeout-minutes: 5  # 2021-01-18: Successful runs seem to take about half a minute.

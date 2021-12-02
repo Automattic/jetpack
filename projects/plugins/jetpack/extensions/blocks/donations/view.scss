@@ -1,0 +1,108 @@
+@use "sass:math";
+
+@import '../../shared/styles/gutenberg-base-styles.scss';
+@import './common';
+@import '../../shared/memberships';
+
+.wp-block-jetpack-donations {
+	@keyframes spinner {
+		from {
+			transform: rotate( 0deg );
+		}
+		to {
+			transform: rotate( 360deg );
+		}
+	}
+
+	.donations__container:not( .loaded ) {
+		width: 100%;
+		height: 200px;
+		position: relative;
+
+		* {
+			display: none;
+		}
+
+		&::before {
+			content: '';
+			background-color: $gray-600;
+			width: $spinner-size;
+			height: $spinner-size;
+			opacity: 0.7;
+			border-radius: 100%;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate( -50%, -50% );
+		}
+
+		&::after {
+			content: '';
+			background-color: $white;
+			width: math.div($spinner-size, 4.5);
+			height: math.div($spinner-size, 4.5);
+			border-radius: 100%;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			margin-left: math.div(-$spinner-size, 3);
+			margin-top: math.div(-$spinner-size, 3);
+			transform-origin: math.div($spinner-size, 3) math.div($spinner-size, 3);
+			animation: spinner 1s infinite linear;
+		}
+	}
+
+	.donations__tab.is-one-time {
+		.donations__monthly-item,
+		.donations__annual-item {
+			display: none;
+		}
+	}
+
+	.donations__tab.is-monthly {
+		.donations__one-time-item,
+		.donations__annual-item {
+			display: none;
+		}
+	}
+	.donations__tab.is-annual {
+		.donations__one-time-item,
+		.donations__monthly-item {
+			display: none;
+		}
+	}
+
+	.donations__amount {
+		cursor: pointer;
+
+		&.is-selected {
+			box-shadow: 0 0 0 1px $white, 0 0 0 3px var( --wp-admin-theme-color );
+			outline: 2px solid transparent;
+			outline-offset: -2px;
+		}
+	}
+
+	.donations__custom-amount {
+		cursor: text;
+
+		.donations__amount-value {
+			white-space: pre-wrap;
+			display: inline-block;
+			text-align: left;
+
+			&:empty::after {
+				content: attr( data-empty-text );
+				color: $gray-400;
+			}
+
+			&:focus {
+				outline: none;
+			}
+		}
+	}
+
+	.donations__donate-button.is-disabled {
+		pointer-events: none;
+		opacity: 0.2;
+	}
+}

@@ -1,0 +1,126 @@
+.jb-settings {
+	&, p {
+		font-size: 16px;
+	}
+
+	min-height: calc(100vh - 60px);
+	display: flex;
+	flex-direction: column;
+  	position: relative;
+  	overflow-x: hidden;
+}
+
+.jb-section {
+	margin-bottom: $padding;
+}
+
+.jb-section--alt {
+	@extend .jb-section;
+	padding-top: $padding;
+	padding-bottom: $padding;
+	background-color: $alt_white;
+}
+
+.jb-section--scores {
+	margin-bottom: $halfling;
+  	position: relative;
+}
+
+.jb-section--main {
+	margin-top: $halfling;
+}
+
+.jb-section--subpage {
+	/* Shrink margin-top on sub-pages to bring <- go back button up */
+	margin-top: 8px;
+}
+
+.jb-container {
+	width: 80%;
+	margin-left: auto;
+	margin-right: auto;
+
+	&--narrow {
+		@extend .jb-container;
+		max-width: 744px;
+	}
+}
+
+.jb-settings-header {
+	display: flex;
+	justify-content: space-between;
+	height: 120px;
+	align-items: center;
+	position: relative;
+
+	&__logo {
+		display: flex;
+		height: 27px;
+
+		@include breakpoint(md) {
+			height: 32px;
+		}
+	}
+}
+
+.jb-settings-footer {
+	@extend .jb-container;
+
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-top: auto;
+	@include breakpoint( xs ) {
+		flex-direction: column;
+		justify-content: flex-start;
+	}
+}
+
+.jb-signature--jetpack {
+	margin-left: 7px;
+	font-weight: 600;
+	font-size: 12px;
+	color: #23282D;
+
+	display: flex;
+	align-items: center;
+
+	svg {
+		margin-right: .5em;
+	}
+}
+
+.jb-signature--automattic {
+	// align the baseline with Jetpack Boost text
+	transform: translateY(-2px)
+}
+
+
+.jb-warning-modal {
+	&__actions {
+		display: flex;
+		justify-content: flex-end;
+
+	  	> div {
+		  	display: flex;
+			flex-direction: column;
+
+		  	> div {
+				display: flex;
+			}
+		}
+
+	  	button {
+		  	margin-left: auto;
+
+		  	&.confirm {
+				margin-left: 10px;
+			}
+		}
+
+	  	.checkbox {
+			font-size: 12px;
+			margin-top: 10px;
+		}
+	}
+}

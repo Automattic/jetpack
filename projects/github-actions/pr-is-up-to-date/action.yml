@@ -1,0 +1,40 @@
+name: pr-is-up-to-date
+description: Check that PRs are up to date with respect to a tag.
+inputs:
+  branch:
+    description: Only check PRs being merged into this branch. Defaults to the repo's default branch.
+    required: false
+    default: ${{ github.event.repository.default_branch }}
+  status:
+    description: Status context for the status check. Default is "PR is up to date with $TAG".
+    required: false
+  description-fail:
+    description: Description field for the status check when the PR is out of date. Default is "This PR needs a $BRANCH merge or rebase."
+    required: false
+  description-ok:
+    description: Description field for the status check when the PR is up to date. Default is empty.
+    required: false
+  tag:
+    description: Tag that PRs must be up to date with.
+    required: true
+  token:
+    description: >
+      GitHub Access Token. The user associated with this token will show up
+      as the "creator" of the status check.
+    required: false
+    default: ${{ github.token }}
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        API_TOKEN: ${{ inputs.token }}
+        BRANCH: ${{ inputs.branch }}
+        CONTEXT: ${{ inputs.status }}
+        DESCRIPTION_FAIL: ${{ inputs.description-fail }}
+        DESCRIPTION_OK: ${{ inputs.description-ok }}
+        TAG: ${{ inputs.tag }}
+      run: $GITHUB_ACTION_PATH/run.sh
+branding:
+  color: green
+  icon: clock

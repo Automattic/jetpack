@@ -1,0 +1,16 @@
+[
+    {
+        "blockName": "jetpack/rating-star",
+        "attrs": {
+            "rating": 3,
+            "maxRating": 7,
+            "color": "#39414D",
+            "className": "is-style-outlined"
+        },
+        "innerBlocks": [],
+        "innerHTML": "\n<figure class=\"wp-block-jetpack-rating-star is-style-outlined\" style=\"text-align:left\"><span style=\"color:#39414D\">★</span><span style=\"color:#39414D\">★</span><span style=\"color:#39414D\">★</span></figure>\n",
+        "innerContent": [
+            "\n<figure class=\"wp-block-jetpack-rating-star is-style-outlined\" style=\"text-align:left\"><span style=\"color:#39414D\">★</span><span style=\"color:#39414D\">★</span><span style=\"color:#39414D\">★</span></figure>\n"
+        ]
+    }
+]

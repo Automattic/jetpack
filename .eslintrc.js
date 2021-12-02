@@ -1,25 +1,23 @@
 module.exports = {
 	root: true,
-	parser: 'babel-eslint',
-	extends: [ 'wpcalypso/react', 'plugin:jsx-a11y/recommended', 'prettier', 'prettier/react' ],
+	parser: '@babel/eslint-parser',
+	extends: [ 'wpcalypso', 'plugin:jsx-a11y/recommended', 'prettier' ],
 	env: {
 		browser: true,
 		es6: true,
 		mocha: true,
 		node: true,
 		jquery: true,
+		jest: true,
 	},
 	parserOptions: {
 		ecmaVersion: 2019,
 		ecmaFeatures: {
 			jsx: true,
 		},
+		requireConfigFile: false,
 	},
-	settings: {
-		react: {
-			version: 'detect', // React version. "detect" automatically picks the version you have installed.
-		},
-	},
+	settings: {},
 	plugins: [ 'jsx-a11y', 'lodash', 'jsdoc' ],
 	rules: {
 		// REST API objects include underscores
@@ -59,15 +57,6 @@ module.exports = {
 		],
 		'padded-blocks': [ 2, 'never' ],
 		'prefer-const': 2,
-		'react/jsx-curly-spacing': [ 2, 'always' ],
-		'react/jsx-no-bind': 2,
-		// 'react/jsx-space-before-closing': 2,
-		'react/jsx-tag-spacing': [ 2, { beforeSelfClosing: 'always' } ],
-		'react/no-danger': 2,
-		'react/no-did-mount-set-state': 2,
-		'react/no-did-update-set-state': 2,
-		'react/no-is-mounted': 2,
-		'react/prefer-es6-class': 1,
 		semi: 2,
 		'semi-spacing': 2,
 		'space-before-blocks': [ 2, 'always' ],
@@ -139,5 +128,8 @@ module.exports = {
 		// Workaround for ESLint failing to parse files with template literals
 		// with this error: "TypeError: Cannot read property 'range' of null"
 		'template-curly-spacing': 'off',
+
+		// Disabled pending #16099.
+		'inclusive-language/use-inclusive-words': 0,
 	},
 };
