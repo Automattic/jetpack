@@ -36,14 +36,14 @@ export default function useConnection() {
 				apiRoot={ APIRoot }
 				apiNonce={ APINonce }
 				registrationNonce={ registrationNonce }
-				from="jetpack-backup"
-				redirectUri="admin.php?page=jetpack-backup"
+				from="jetpack-social"
+				redirectUri="admin.php?page=jetpack-social"
 				images={ [ ConnectRight ] }
 			>
 				<p>
 					{ __(
-						'Jetpack Backup requires a user connection to WordPress.com to be able to backup your website.',
-						'jetpack-backup'
+						'Jetpack Social requires a user connection to WordPress.com.',
+						'jetpack-social'
 					) }
 				</p>
 			</ConnectScreen>
@@ -57,7 +57,7 @@ export default function useConnection() {
 				isUserConnected={ connectionStatus.isUserConnected }
 				apiRoot={ APIRoot }
 				apiNonce={ APINonce }
-				redirectUri="admin.php?page=jetpack-backup"
+				redirectUri="admin.php?page=jetpack-social"
 			/>
 		);
 	};

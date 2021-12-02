@@ -51,7 +51,7 @@ const Admin = () => {
 	};
 
 	const hasBackupPlan = () => {
-		return capabilities.includes( 'backup' );
+		return true;
 	};
 
 	const renderNoBackupCapabilities = () => {

@@ -1072,6 +1072,7 @@ importers:
 
   projects/plugins/social:
     specifiers:
+      '@automattic/color-studio': 2.5.0
       '@automattic/jetpack-api': workspace:^0.8.0-alpha
       '@automattic/jetpack-base-styles': workspace:^0.1.0
       '@automattic/jetpack-components': workspace:^0.6.4-alpha
@@ -1082,14 +1083,21 @@ importers:
       '@babel/register': 7.16.0
       '@babel/runtime': 7.16.3
       '@wordpress/api-fetch': 5.2.6
+      '@wordpress/base-styles': 4.0.3
       '@wordpress/browserslist-config': 4.1.0
       '@wordpress/data': 6.1.4
       '@wordpress/date': 4.2.3
       '@wordpress/element': 4.0.4
       '@wordpress/i18n': 4.2.4
+      '@wordpress/icons': 6.1.1
+      classnames: 2.3.1
       concurrently: 6.0.2
+      prop-types: 15.7.2
       react: 17.0.2
       react-dom: 17.0.2
+      react-page-visibility: 6.4.0
+      refx: 3.1.1
+      rememo: 3.0.0
       sass: 1.43.3
       sass-loader: 12.2.0
       webpack: 5.64.1
@@ -1106,14 +1114,22 @@ importers:
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
     devDependencies:
+      '@automattic/color-studio': 2.5.0
       '@automattic/jetpack-base-styles': link:../../js-packages/base-styles
       '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
       '@babel/core': 7.16.0
       '@babel/preset-env': 7.16.4_@babel+core@7.16.0
       '@babel/register': 7.16.0_@babel+core@7.16.0
       '@babel/runtime': 7.16.3
+      '@wordpress/base-styles': 4.0.3
       '@wordpress/browserslist-config': 4.1.0
+      '@wordpress/icons': 6.1.1
+      classnames: 2.3.1
       concurrently: 6.0.2
+      prop-types: 15.7.2
+      react-page-visibility: 6.4.0_react@17.0.2
+      refx: 3.1.1
+      rememo: 3.0.0
       sass: 1.43.3
       sass-loader: 12.2.0_sass@1.43.3+webpack@5.64.1
       webpack: 5.64.1_webpack-cli@4.8.0
@@ -19505,7 +19521,6 @@ packages:
     dependencies:
       prop-types: 15.7.2
       react: 17.0.2
-    dev: false
 
   /react-popper-tooltip/3.1.1_react@17.0.2:
     resolution: {integrity: sha512-EnERAnnKRptQBJyaee5GJScWNUKQPDD2ywvzZyUjst/wj5U64C8/CnSYLNEmP2hG0IJ3ZhtDxE8oDN+KOyavXQ==}
@@ -20212,7 +20227,6 @@ packages:
 
   /refx/3.1.1:
     resolution: {integrity: sha512-lwN27W5iYyagpCxxYDYDl0IIiKh0Vgi3wvafqfthbzTfBgLOYAstcftp+G2X612xVaB8rhn5wDxd4er4KEeb8A==}
-    dev: false
 
   /regenerate-unicode-properties/9.0.0:
     resolution: {integrity: sha512-3E12UeNSPfjrgwjkR81m5J7Aw/T55Tu7nUyZVQYCKEOs+2dkxEY+DpPtZzO4YruuiPb7NkYLVcyJC4+zCbk5pA==}
@@ -22067,7 +22081,7 @@ packages:
       serialize-javascript: 6.0.0
       source-map: 0.6.1
       terser: 5.9.0
-      webpack: 5.64.1
+      webpack: 5.64.1_webpack-cli@4.8.0
 
   /terser/3.17.0:
     resolution: {integrity: sha512-/FQzzPJmCpjAH9Xvk2paiWrFq+5M6aVOf+2KRbwhByISDX/EujxsK+BAvrhb6H+2rtrLCHK9N01wO014vrIwVQ==}

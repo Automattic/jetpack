@@ -25,8 +25,6 @@ class Jetpack_Social {
 	public function __construct() {
 		Connection_Rest_Authentication::init();
 
-		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
-
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'Jetpack Social', 'jetpack-social' ),
 			_x( 'Social', 'The Jetpack Social product name, without the Jetpack prefix', 'jetpack-social' ),
@@ -36,6 +34,7 @@ class Jetpack_Social {
 			99
 		);
 		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
+		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_scripts' ) );
 
 		// Init Jetpack packages and ConnectionUI.
 		add_action(
@@ -91,6 +90,22 @@ class Jetpack_Social {
 		// Initial JS state including JP Connection data.
 		wp_add_inline_script( 'jetpack-social', $this->get_initial_state(), 'before' );
 		wp_add_inline_script( 'jetpack-social', Connection_Initial_State::render(), 'before' );
+	}
+
+	/**
+	 * Enqueue plugin block editor scripts and styles.
+	 */
+	public function enqueue_block_editor_scripts() {
+		Assets::register_script(
+			'jetpack-social-editor',
+			'build/editor.js',
+			JETPACK_SOCIAL_PLUGIN_ROOT_FILE,
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-social',
+			)
+		);
+		Assets::enqueue_script( 'jetpack-social-editor' );
 	}
 
 	/**
