@@ -1,7 +1,7 @@
 {
 	"name": "automattic/jetpack-licensing",
 	"description": "Everything needed to manage Jetpack licenses client-side.",
-	"type": "library",
+	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-options": "^1.14",

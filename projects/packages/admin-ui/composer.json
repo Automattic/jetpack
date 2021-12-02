@@ -1,7 +1,7 @@
 {
 	"name": "automattic/jetpack-admin-ui",
 	"description": "Generic Jetpack wp-admin UI elements",
-	"type": "library",
+	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
