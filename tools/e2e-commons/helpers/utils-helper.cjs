@@ -336,7 +336,7 @@ async function getJetpackVersion() {
 }
 
 async function buildPackage( jetpackPackage ) {
-	const cmd = `pnpx jetpack install packages/${ jetpackPackage } && pnpx jetpack build packages/${ jetpackPackage }`;
+	const cmd = `pnpx jetpack build packages/${ jetpackPackage } -v --production`;
 	await execShellCommand( cmd );
 }
 
