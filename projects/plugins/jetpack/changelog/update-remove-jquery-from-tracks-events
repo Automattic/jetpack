@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Rewrote tracks-events.js without jQuery.

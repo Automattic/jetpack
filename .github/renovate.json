@@ -35,6 +35,7 @@
 				"automattic/jetpack-changelogger",
 				"automattic/jetpack-codesniffer",
 				"automattic/jetpack-compat",
+				"automattic/jetpack-composer-plugin",
 				"automattic/jetpack-config",
 				"automattic/jetpack-connection",
 				"automattic/jetpack-connection-ui",
