@@ -35,13 +35,13 @@ const ActivationScreenControls = props => {
 		<div className="jp-license-activation-screen-controls">
 			<div className="jp-license-activation-screen-controls--content">
 				<JetpackLogo showText={ false } height={ 48 } />
-				<h1>{ __( 'Activate a product', 'jetpack' ) }</h1>
+				<h1>{ __( 'Add a license key', 'jetpack' ) }</h1>
 				<p>
 					{ createInterpolateElement(
 						sprintf(
 							/* translators: "%s" is the url of the site i.e. hopeful-weevil.jurassic.ninja. */
 							__(
-								'Enter the license key we sent to your email to activate your product for <strong>%s</strong>',
+								'<strong>Check your email</strong> for your license key. You should have received it after making your purchase.',
 								'jetpack'
 							),
 							siteUrl
