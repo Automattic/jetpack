@@ -10,6 +10,9 @@ import PropTypes from 'prop-types';
  */
 import './style.scss';
 import JetpackFooter from '../jetpack-footer';
+import Row from '../layout/row';
+import Wrap from '../layout/wrap';
+import Grid from '../layout/grid';
 
 /**
  * Footer for the AdminPage component
@@ -22,13 +25,13 @@ const AdminPageFooter = props => {
 
 	return (
 		<div className="jp-admin-page-section">
-			<div className="jp-wrap">
-				<div class="jp-row">
-					<div class="lg-col-span-12 md-col-span-8 sm-col-span-4">
+			<Wrap>
+				<Row>
+					<Grid lg="12" md="8" sm="4">
 						<JetpackFooter moduleName={ moduleName } a8cLogoHref={ a8cLogoHref } />
-					</div>
-				</div>
-			</div>
+					</Grid>
+				</Row>
+			</Wrap>
 		</div>
 	);
 };

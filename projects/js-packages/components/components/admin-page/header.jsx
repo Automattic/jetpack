@@ -8,6 +8,9 @@ import React from 'react';
  */
 import './style.scss';
 import JetpackLogo from '../jetpack-logo';
+import Row from '../layout/row';
+import Wrap from '../layout/wrap';
+import Grid from '../layout/grid';
 
 /**
  * Header for the AdminPage component
@@ -16,13 +19,13 @@ import JetpackLogo from '../jetpack-logo';
  */
 const AdminPageHeader = () => (
 	<div className="jp-admin-page-section">
-		<div className="jp-wrap">
-			<div class="jp-row">
-				<div class="lg-col-span-12 md-col-span-8 sm-col-span-4">
+		<Wrap>
+			<Row>
+				<Grid lg="12" md="8" sm="4">
 					<JetpackLogo />
-				</div>
-			</div>
-		</div>
+				</Grid>
+			</Row>
+		</Wrap>
 	</div>
 );
 
