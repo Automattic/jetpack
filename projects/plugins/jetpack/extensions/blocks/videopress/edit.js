@@ -510,12 +510,12 @@ const VideoPressEdit = CoreVideoEdit =>
 			const isVideoFallbackOrNotPreview = fallback || ! preview;
 			// If the video is uploading or fetching, we should display the Loading component.
 			// Once we have a preview, we'll bypass the following return to make sure we can keep blockSettings rendered.
-			const displayLoadingBlock = ( isUploading || isFetchingVideo ) && ! preview;
+			const displayNoPreviewLoadingBlock = isUploading || ( isFetchingVideo && ! preview );
 			// If the component is in fallback mode or not in preview mode, and we don't need to display the loading block,
 			// then we should display the CoreVideoEdit block
-			const displayCoreVideoBlock = isVideoFallbackOrNotPreview && ! displayLoadingBlock;
+			const displayCoreVideoBlock = isVideoFallbackOrNotPreview && ! displayNoPreviewLoadingBlock;
 			// If we need to display the CoreVideoEdit or Loading block, then we need to render them in the tree.
-			const renderCoreVideoAndLoadingBlocks = displayLoadingBlock || displayCoreVideoBlock;
+			const renderCoreVideoAndLoadingBlocks = displayNoPreviewLoadingBlock || displayCoreVideoBlock;
 
 			// In order for the media placeholder to keep its state for error messages, we need to keep the CoreVideoEdit component in the tree during file uploads.
 			// Keep this section separate so the CoreVideoEdit stays in the tree, once we have a video, we don't need it anymore.
@@ -552,14 +552,14 @@ const VideoPressEdit = CoreVideoEdit =>
 			return (
 				<Fragment>
 					{ blockSettings }
-					{ ( isUploading || isFetchingVideo ) && (
+					{ isFetchingVideo && (
 						<Loading
 							text={
 								isUploading ? __( 'Uploading…', 'jetpack' ) : __( 'Generating preview…', 'jetpack' )
 							}
 						/>
 					) }
-					{ ! isUploading && ! isFetchingVideo && (
+					{ ! isFetchingVideo && (
 						<VpBlock
 							{ ...this.props }
 							hideOverlay={ this.hideOverlay }
