@@ -32,7 +32,7 @@ class Jetpack_Monitor {
 	/**
 	 * Constructor.
 	 */
-	function __construct() {
+	public function __construct() {
 		add_action( 'jetpack_modules_loaded', array( $this, 'jetpack_modules_loaded' ) );
 		add_action( 'jetpack_activate_module_monitor', array( $this, 'activate_module' ) );
 	}
@@ -92,7 +92,7 @@ class Jetpack_Monitor {
 	 *
 	 * @return boolean|WP_Error
 	 */
-	static function user_receives_notifications( $die_on_error = true ) {
+	public static function user_receives_notifications( $die_on_error = true ) {
 		$xml = new Jetpack_IXR_Client(
 			array(
 				'user_id' => get_current_user_id(),
