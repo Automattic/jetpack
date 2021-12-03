@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Added a ContextualizedConnection component to display a connection screen that can be used to give context to the user why Jetpack would benefit them.
