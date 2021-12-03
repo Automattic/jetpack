@@ -38,6 +38,7 @@ import Loading from './loading';
 import { getVideoPressUrl } from './url';
 import { getClassNames } from './utils';
 import SeekbarColorSettings from './seekbar-color-settings';
+import TracksEditor from './tracks-editor';
 
 const VIDEO_POSTER_ALLOWED_MEDIA_TYPES = [ 'image' ];
 
@@ -81,6 +82,8 @@ const VideoPressEdit = CoreVideoEdit =>
 			const { guid } = this.props.attributes;
 			if ( ! guid ) {
 				await this.setGuid();
+			} else {
+				this.setTracks( guid );
 			}
 
 			this.setRating();
@@ -152,6 +155,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				const guid = get( media, 'jetpack_videopress.guid' );
 				if ( guid ) {
 					setAttributes( { guid } );
+					this.setTracks( guid );
 				} else {
 					this.fallbackToCore();
 				}
@@ -191,6 +195,35 @@ const VideoPressEdit = CoreVideoEdit =>
 
 			this.setState( { media, lastRequestedMediaId: id } );
 			return media;
+		};
+
+		setTracks = guid => {
+			const { setAttributes } = this.props;
+
+			if ( ! guid ) {
+				return;
+			}
+
+			apiFetch( {
+				url: `https://public-api.wordpress.com/rest/v1.1/videos/${ guid }`,
+				credentials: 'omit',
+				global: true,
+			} ).then( videoInfo => {
+				// Convert API object response to an array that works better with the tracks editor component
+				const tracks = [];
+				Object.keys( videoInfo.tracks ).forEach( kind => {
+					for ( const srcLang in videoInfo.tracks[ kind ] ) {
+						const track = videoInfo.tracks[ kind ][ srcLang ];
+						tracks.push( {
+							src: track.src,
+							kind,
+							srcLang,
+							label: track.label,
+						} );
+					}
+				} );
+				setAttributes( { videoPressTracks: tracks } );
+			} );
 		};
 
 		switchToEditing = () => {
@@ -298,12 +331,33 @@ const VideoPressEdit = CoreVideoEdit =>
 				setAttributes,
 			} = this.props;
 			const { fallback, isFetchingMedia, isUpdatingRating, interactive, rating } = this.state;
-			const { autoplay, caption, controls, loop, muted, playsinline, poster, preload } = attributes;
+			const {
+				autoplay,
+				caption,
+				controls,
+				guid,
+				loop,
+				muted,
+				playsinline,
+				poster,
+				preload,
+				useAverageColor,
+				videoPressTracks,
+			} = attributes;
 
 			const videoPosterDescription = `video-block__poster-image-description-${ instanceId }`;
 
 			const blockSettings = (
 				<Fragment>
+					<BlockControls group="block">
+						<TracksEditor
+							tracks={ videoPressTracks }
+							onChange={ newTracks => {
+								setAttributes( { videoPressTracks: newTracks } );
+							} }
+							guid={ guid }
+						/>
+					</BlockControls>
 					<BlockControls>
 						<ToolbarGroup>
 							<ToolbarButton
@@ -416,7 +470,10 @@ const VideoPressEdit = CoreVideoEdit =>
 							</MediaUploadCheck>
 						</PanelBody>
 
-						<SeekbarColorSettings { ...{ attributes, setAttributes } } />
+						<SeekbarColorSettings
+							{ ...{ attributes, setAttributes, useAverageColor } }
+							toggleAttribute={ this.toggleAttribute }
+						/>
 
 						<PanelBody title={ __( 'Video File Settings', 'jetpack' ) }>
 							<SelectControl
@@ -599,6 +656,7 @@ export default createHigherOrderComponent(
 				seekbarLoadingColor,
 				seekbarPlayedColor,
 				src,
+				useAverageColor,
 			} = ownProps.attributes;
 			const { getEmbedPreview, isRequestingEmbedPreview } = select( 'core' );
 
@@ -613,6 +671,7 @@ export default createHigherOrderComponent(
 				seekbarColor,
 				seekbarLoadingColor,
 				seekbarPlayedColor,
+				useAverageColor
 			} );
 			const preview = !! url && getEmbedPreview( url );
 

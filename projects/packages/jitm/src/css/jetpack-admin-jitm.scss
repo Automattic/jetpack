@@ -1,9 +1,10 @@
 // Just in Time Messaging - message prompts
 
-@import '_inc/client/scss/functions/rem';
-@import '_inc/client/scss/variables/colors';
-@import '_inc/client/scss/mixins/breakpoints';
-@import '_inc/client/scss/calypso-colors';
+// TODO: Switch to using the `@automattic/jetpack-base-styles` package when its ready.
+@import '../../plugins/jetpack/_inc/client/scss/functions/rem';
+@import '../../plugins/jetpack/_inc/client/scss/variables/colors';
+@import '../../plugins/jetpack/_inc/client/scss/mixins/breakpoints';
+@import '../../plugins/jetpack/_inc/client/scss/calypso-colors';
 
 @mixin clear-fix {
 	&:after {
@@ -196,6 +197,8 @@ $blue-medium-dark:       #2271b1;
 
 	@include breakpoint( "<480px" ) {
 		display: flex;
+		padding: rem( 12px );
+		flex-direction: column;
 	}
 
 	&.is-card-link {
@@ -338,6 +341,10 @@ $blue-medium-dark:       #2271b1;
 	flex-grow: 1;
 	flex-wrap: wrap;
 
+	@include breakpoint( "<480px" ) {
+		margin-right: 0;
+	}
+
 	@include breakpoint( ">480px" ) {
 		flex-wrap: nowrap;
 	}
@@ -417,6 +424,10 @@ $blue-medium-dark:       #2271b1;
 		}
 	}
 
+	@include breakpoint( "<480px" ) {
+		margin-top: 1rem;
+	}
+
 	@include breakpoint( ">480px" ) {
 		margin: 0 rem( 4px ) 0 rem( 8px );
 		text-align: center;
@@ -452,8 +463,17 @@ $blue-medium-dark:       #2271b1;
 
 	@include breakpoint( "<480px" ) {
 		position: absolute;
-		top: rem( 14px );
-		right: rem( 14px );
+		top: 0;
+		right: 0;
+
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		margin: 0;
+
+		// Minimum touch area
+		width: 48px;
+		height: 48px;
 	}
 }
 

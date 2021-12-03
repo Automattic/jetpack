@@ -2,8 +2,10 @@
  * External dependencies
  */
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
+const glob = require( 'glob' );
 const path = require( 'path' );
 const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
+const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
 const NodePolyfillPlugin = require( 'node-polyfill-webpack-plugin' );
 
 const sharedWebpackConfig = {
@@ -11,8 +13,6 @@ const sharedWebpackConfig = {
 	devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
 	output: {
 		...jetpackWebpackConfig.output,
-		filename: '[name].js',
-		chunkFilename: '[name].[contenthash].js',
 		path: path.join( __dirname, '../_inc/build' ),
 	},
 	optimization: {
@@ -32,6 +32,12 @@ const sharedWebpackConfig = {
 			DependencyExtractionPlugin: false,
 		} ),
 	],
+	externals: {
+		...jetpackWebpackConfig.externals,
+		jetpackConfig: JSON.stringify( {
+			consumer_slug: 'jetpack',
+		} ),
+	},
 	module: {
 		strictExportPresence: true,
 		rules: [
@@ -46,14 +52,9 @@ const sharedWebpackConfig = {
 			} ),
 
 			// Handle CSS.
-			{
-				test: /\.(?:css|s[ac]ss)$/,
-				use: [
-					jetpackWebpackConfig.MiniCssExtractLoader(),
-					jetpackWebpackConfig.CssCacheLoader(),
-					jetpackWebpackConfig.CssLoader( {
-						importLoaders: 2, // Set to the number of loaders after this one in the array, e.g. 2 if you use both postcss-loader and sass-loader.
-					} ),
+			jetpackWebpackConfig.CssRule( {
+				extensions: [ 'css', 'sass', 'scss' ],
+				extraLoaders: [
 					{
 						loader: 'postcss-loader',
 						options: {
@@ -62,7 +63,7 @@ const sharedWebpackConfig = {
 					},
 					'sass-loader',
 				],
-			},
+			} ),
 
 			// Handle images.
 			jetpackWebpackConfig.FileRule(),
@@ -70,13 +71,73 @@ const sharedWebpackConfig = {
 	},
 };
 
-// We export two configuration files: One for admin.js, and one for static.jsx. The latter produces pre-rendered HTML.
+const supportedModules = [
+	'shortcodes',
+	'widgets',
+	'widget-visibility',
+	'custom-css',
+	'publicize',
+	'custom-post-types',
+	'sharedaddy',
+	'contact-form',
+	'photon',
+	'carousel',
+	'related-posts',
+	'tiled-gallery',
+	'likes',
+	'infinite-scroll',
+	'masterbar',
+	'videopress',
+	'comment-likes',
+	'lazy-images',
+	'scan',
+	'wordads',
+];
+
+const moduleSources = [
+	...glob.sync( '_inc/*.js' ),
+	...glob.sync( `modules/@(${ supportedModules.join( '|' ) })/**/*.js` ),
+].filter( name => ! name.endsWith( '.min.js' ) && ! /\/test-[^/]\.js$/.test( name ) );
+
+// Library definitions for certain modules.
+const libraryDefs = {
+	'carousel/swiper-bundle': {
+		name: 'Swiper670',
+		type: 'umd',
+	},
+	'widgets/google-translate/google-translate': {
+		name: 'googleTranslateElementInit',
+		type: 'assign',
+	},
+};
+
+const moduleEntries = {};
+for ( const module of moduleSources ) {
+	const name = module.slice( 0, -3 ).replace( /^(_inc|modules)\//, '' );
+	moduleEntries[ name ] = {
+		import: './' + module,
+	};
+	if ( libraryDefs[ name ] ) {
+		moduleEntries[ name ].library = libraryDefs[ name ];
+	}
+}
+
+// We export three configuration files: One for modules, one for admin.js, and one for static.jsx (which produces pre-rendered HTML).
 module.exports = [
 	{
 		...sharedWebpackConfig,
-		// Entry points point to the javascript module
-		// that is used to generate the script file.
-		// The key is used as the name of the script.
+		entry: moduleEntries,
+		plugins: [
+			...sharedWebpackConfig.plugins,
+			...jetpackWebpackConfig.DependencyExtractionPlugin(),
+		],
+		output: {
+			...sharedWebpackConfig.output,
+			filename: '[name].min.js', // @todo: Fix this.
+		},
+	},
+	{
+		...sharedWebpackConfig,
 		entry: {
 			admin: {
 				import: path.join( __dirname, '../_inc/client', 'admin.js' ),
@@ -88,18 +149,22 @@ module.exports = [
 				},
 			},
 			'search-dashboard': path.join( __dirname, '../_inc/client', 'search-dashboard-entry.js' ),
+			'plugins-page': path.join( __dirname, '../_inc/client', 'plugins-entry.js' ),
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,
 			...jetpackWebpackConfig.DependencyExtractionPlugin( { injectPolyfill: true } ),
 			new NodePolyfillPlugin(),
 		],
+		externals: {
+			...sharedWebpackConfig.externals,
+			jetpackConfig: JSON.stringify( {
+				consumer_slug: 'jetpack',
+			} ),
+		},
 	},
 	{
 		...sharedWebpackConfig,
-		// Entry points point to the javascript module
-		// that is used to generate the script file.
-		// The key is used as the name of the script.
 		entry: { static: path.join( __dirname, '../_inc/client', 'static.jsx' ) },
 		output: {
 			...sharedWebpackConfig.output,
@@ -128,6 +193,9 @@ module.exports = [
 						},
 					},
 				},
+			} ),
+			new RemoveAssetWebpackPlugin( {
+				assets: /\.(css|js)(\.map)?$/,
 			} ),
 		],
 	},

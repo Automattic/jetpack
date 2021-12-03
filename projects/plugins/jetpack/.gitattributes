@@ -3,6 +3,7 @@
 /_inc/blocks/**                                          production-include
 /_inc/build/**                                           production-include
 /css/**                                                  production-include
+/jetpack_vendor/**                                       production-include
 /modules/**/*-rtl.css                                    production-include
 /modules/**/*.min.css                                    production-include
 /modules/**/*/block.js                                   production-include

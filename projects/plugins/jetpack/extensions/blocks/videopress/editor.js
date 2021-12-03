@@ -19,6 +19,7 @@ import withVideoPressSave from './save';
 import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
 import deprecatedV1 from './deprecated/v1';
 import deprecatedV2 from './deprecated/v2';
+import deprecatedV3 from './deprecated/v3';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import withHasWarningIsInteractiveClassNames from '../../shared/with-has-warning-is-interactive-class-names';
 import './editor.scss';
@@ -99,7 +100,7 @@ const addVideoPressSupport = ( settings, name ) => {
 		return settings;
 	}
 
-	const { attributes, deprecated, edit, save, supports, transforms } = settings;
+	const { deprecated, edit, save, supports, transforms } = settings;
 	const { available, unavailableReason } = getJetpackExtensionAvailability( 'videopress' );
 
 	// Check if VideoPress is unavailable and filter the mediaplaceholder to limit options
@@ -128,67 +129,78 @@ const addVideoPressSupport = ( settings, name ) => {
 		available ||
 		[ 'missing_plan', 'missing_module', 'unknown' ].includes( unavailableReason )
 	) {
+		const attributesDefinition = {
+			autoplay: {
+				type: 'boolean',
+			},
+			caption: {
+				type: 'string',
+				source: 'html',
+				selector: 'figcaption',
+			},
+			controls: {
+				type: 'boolean',
+				default: true,
+			},
+			maxWidth: {
+				type: 'string',
+				default: '100%',
+			},
+			guid: {
+				type: 'string',
+			},
+			id: {
+				type: 'number',
+			},
+			loop: {
+				type: 'boolean',
+			},
+			muted: {
+				type: 'boolean',
+			},
+			playsinline: {
+				type: 'boolean',
+			},
+			poster: {
+				type: 'string',
+			},
+			preload: {
+				type: 'string',
+				default: 'metadata',
+			},
+			seekbarPlayedColor: {
+				type: 'string',
+				default: '',
+			},
+			seekbarLoadingColor: {
+				type: 'string',
+				default: '',
+			},
+			seekbarColor: {
+				type: 'string',
+				default: '',
+			},
+			src: {
+				type: 'string',
+			},
+			useAverageColor: {
+				type: 'boolean',
+			},
+			videoPressTracks: {
+				type: 'array',
+				items: {
+					type: 'object',
+				},
+				default: [],
+			},
+			videoPressClassNames: {
+				type: 'string',
+			},
+		};
+
 		return {
 			...settings,
-
-			attributes: {
-				autoplay: {
-					type: 'boolean',
-				},
-				caption: {
-					type: 'string',
-					source: 'html',
-					selector: 'figcaption',
-				},
-				controls: {
-					type: 'boolean',
-					default: true,
-				},
-				maxWidth: {
-					type: 'string',
-					default: '100%',
-				},
-				guid: {
-					type: 'string',
-				},
-				id: {
-					type: 'number',
-				},
-				loop: {
-					type: 'boolean',
-				},
-				muted: {
-					type: 'boolean',
-				},
-				playsinline: {
-					type: 'boolean',
-				},
-				poster: {
-					type: 'string',
-				},
-				preload: {
-					type: 'string',
-					default: 'metadata',
-				},
-				seekbarPlayedColor: {
-					type: 'string',
-					default: '',
-				},
-				seekbarLoadingColor: {
-					type: 'string',
-					default: '',
-				},
-				seekbarColor: {
-					type: 'string',
-					default: '',
-				},
-				src: {
-					type: 'string',
-				},
-				videoPressClassNames: {
-					type: 'string',
-				},
-			},
+			attributes: attributesDefinition,
 
 			transforms: {
 				...transforms,
@@ -231,8 +243,9 @@ const addVideoPressSupport = ( settings, name ) => {
 
 			deprecated: [
 				...( deprecated || [] ),
+				deprecatedV3,
 				{
-					attributes,
+					attributes: attributesDefinition,
 					isEligible: attrs => ! attrs.guid,
 					save,
 					supports,
