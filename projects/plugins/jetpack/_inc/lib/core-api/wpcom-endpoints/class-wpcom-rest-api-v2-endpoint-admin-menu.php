@@ -109,8 +109,10 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		foreach ( $menu as $menu_item ) {
 
 			/**
-			 * Logic extracted from _wp_menu_output() core function
-			 * Based $admin_is_parent we determine if the submenu items should be pointing to the admin.php
+			 * Logic extracted from _wp_menu_output() core function.
+			 * Based $admin_is_parent we determine if the submenu items should be pointing to the admin.php or not.
+			 *
+			 * @see https://core.trac.wordpress.org/browser/trunk/src/wp-admin/menu-header.php?rev=49193#L173
 			 */
 			$menu_hook = get_plugin_page_hook( $menu_item[2], 'admin.php' );
 			$menu_file = $menu_item[2];
@@ -228,7 +230,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	 *
 	 * @return array Prepared menu item.
 	 */
-	private function prepare_menu_item( array $menu_item, $admin_is_parent ) {
+	private function prepare_menu_item( array $menu_item, $admin_is_parent = false ) {
 		global $submenu;
 
 		$current_user_can_access_menu = current_user_can( $menu_item[1] );
@@ -298,7 +300,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	 *
 	 * @return array Prepared submenu item.
 	 */
-	private function prepare_submenu_item( array $submenu_item, array $menu_item, $admin_is_parent ) {
+	private function prepare_submenu_item( array $submenu_item, array $menu_item, $admin_is_parent = false ) {
 		// Exclude unauthorized submenu items.
 		if ( ! current_user_can( $submenu_item[1] ) ) {
 			return array();
@@ -391,7 +393,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			)
 		) {
 			if (
-				( ( false === $admin_is_parent || null === $admin_is_parent ) && 'admin.php' !== $parent_file && file_exists( WP_PLUGIN_DIR . "/$parent_file" ) && ! is_dir( WP_PLUGIN_DIR . "/$parent_file" ) ) ||
+				( false === $admin_is_parent && 'admin.php' !== $parent_file && file_exists( WP_PLUGIN_DIR . "/$parent_file" ) && ! is_dir( WP_PLUGIN_DIR . "/$parent_file" ) ) ||
 				( file_exists( ABSPATH . "/wp-admin/$parent_file" ) && ! is_dir( ABSPATH . "/wp-admin/$parent_file" ) )
 			) {
 				$url = add_query_arg( array( 'page' => $url ), admin_url( $parent_slug ) );
