@@ -13,7 +13,7 @@ module.exports = {
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
 	entry: {
-		main: path.join( __dirname, '../src/customberg/index.jsx' ),
+		'jp-search-configure-main': path.join( __dirname, '../src/customberg/index.jsx' ),
 	},
 	output: {
 		...jetpackWebpackConfig.output,

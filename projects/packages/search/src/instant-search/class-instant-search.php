@@ -88,7 +88,7 @@ class Instant_Search extends Classic_Search {
 	public function load_assets_with_parameters( $path_prefix, $plugin_path ) {
 		Assets::register_script(
 			'jetpack-instant-search',
-			$path_prefix . '/jp-search-main.js',
+			$path_prefix . '/jp-search.js',
 			$plugin_path,
 			array(
 				'dependencies' => array( 'wp-i18n' ),

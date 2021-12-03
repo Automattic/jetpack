@@ -131,7 +131,7 @@ class Customberg {
 		// Load styles.
 		wp_enqueue_style(
 			'jp-search-configure',
-			plugins_url( $path_prefix . '/jp-search-configure-main.min.css', $plugin_base_path ),
+			plugins_url( $path_prefix . '/jp-search-configure-main.css', $plugin_base_path ),
 			array(
 				'wp-components',
 				'wp-block-editor',
@@ -141,7 +141,7 @@ class Customberg {
 
 		//
 		// Load manifest.
-		$manifest_path       = $plugin_base_path . '/build/customberg/jp-search-configure-main.min.asset.php';
+		$manifest_path       = $plugin_base_path . '/build/customberg/jp-search-configure-main.asset.php';
 		$script_dependencies = array();
 		try {
 			$asset_manifest      = include $manifest_path;
