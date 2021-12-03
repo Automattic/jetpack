@@ -45,7 +45,6 @@ export default function Save( { className, attributes } ) {
 		customBorderColor,
 		padding,
 		spacing,
-		successMessage,
 	} = attributes;
 
 	const isGradientAvailable = !! getGradientClass;
@@ -127,7 +126,6 @@ export default function Save( { className, attributes } ) {
 		submit_button_classes: submitButtonClasses,
 		email_field_classes: emailFieldClasses,
 		show_only_email_and_button: true,
-		success_message: successMessage,
 	};
 
 	const shortcodeAttributesStringified = reduce(
