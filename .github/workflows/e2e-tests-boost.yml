@@ -45,8 +45,6 @@ jobs:
           pnpm install
           pnpx jetpack build plugins/jetpack -v --production
           pnpx jetpack build plugins/boost -v --production
-          pnpx jetpack build packages/lazy-images -v --production
-          pnpx jetpack build packages/jitm -v --production
 
       - name: Environment set-up
         working-directory: projects/plugins/boost/tests/e2e

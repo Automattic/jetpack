@@ -11,7 +11,10 @@ test.describe.serial( 'Lazy Images module', () => {
 
 	test.beforeAll( async ( { browser } ) => {
 		page = await browser.newPage();
-		await boostPrerequisitesBuilder( page ).withTestContent( [ testPostTitle ] ).build();
+		await boostPrerequisitesBuilder( page )
+			.withTestContent( [ testPostTitle ] )
+			.withPackages( [ 'lazy-images' ] )
+			.build();
 		await execWpCommand( 'user session destroy wordpress --all' );
 	} );
 
