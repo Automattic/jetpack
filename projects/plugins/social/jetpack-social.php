@@ -49,4 +49,6 @@ add_action( 'activated_plugin', array( 'Jetpack_Social', 'plugin_activation' ) )
 
 register_deactivation_hook( __FILE__, array( 'Jetpack_Social', 'plugin_deactivation' ) );
 
+require_once __DIR__ . '/src/php/publicize.php';
+
 new Jetpack_Social();
