@@ -212,14 +212,8 @@ div.sharedaddy.sd-like-enabled .sd-like .post-likes-widget {
 	display: block !important;
 }
 
+
 /* Hide G+ title */
 .sd-gplus .sd-title {
 	display: none;
-	
-}
-
-@media print {
-	.sharedaddy.sd-sharing-enabled {
-		display: none;
-	}
 }
