@@ -10,6 +10,7 @@
 		{
 			"groupName": "Monorepo packages",
 			"matchPackageNames": [
+				"@automattic/babel-plugin-replace-textdomain",
 				"@automattic/eslint-changed",
 				"@automattic/eslint-config-target-es",
 				"@automattic/jetpack-analytics",
