@@ -280,7 +280,7 @@ class JetpackNotices extends React.Component {
 					/>
 				) }
 				{ ! isUserLicenseActivationScreen && ! this.props.isAtomicSite && (
-					<UserLicenseActivationNotice />
+					<UserLicenseActivationNotice pathname={ this.props.location.pathname } />
 				) }
 			</div>
 		);

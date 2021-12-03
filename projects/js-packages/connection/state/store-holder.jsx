@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { createReduxStore, register } from '@wordpress/data';
+import { createReduxStore, register, dispatch } from '@wordpress/data';
 
 class storeHolder {
 	static store = null;
@@ -10,6 +10,16 @@ class storeHolder {
 		if ( null === storeHolder.store ) {
 			storeHolder.store = createReduxStore( storeId, storeConfig );
 			register( storeHolder.store );
+			storeHolder.resolveResolvers( storeId, storeConfig.initialState );
+		}
+	}
+
+	static resolveResolvers( storeId, initialState ) {
+		if (
+			initialState.connectionStatus &&
+			initialState.connectionStatus.hasOwnProperty( 'isRegistered' )
+		) {
+			dispatch( storeId ).finishResolution( 'getConnectionStatus', [] );
 		}
 	}
 }

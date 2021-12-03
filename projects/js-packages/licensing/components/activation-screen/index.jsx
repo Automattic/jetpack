@@ -113,7 +113,7 @@ const ActivationScreen = props => {
 				activateLicense={ activateLicense }
 				siteUrl={ siteRawUrl }
 				licenseError={ licenseError }
-				disabled={ isSaving }
+				isActivating={ isSaving }
 			/>
 			<ActivationScreenIllustration imageUrl={ assetBaseUrl + lockImage } showSupportLink />
 		</div>

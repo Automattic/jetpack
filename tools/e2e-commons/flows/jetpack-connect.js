@@ -1,5 +1,5 @@
 import config from 'config';
-import { Sidebar, JetpackPage, RecommendationsPage } from '../pages/wp-admin';
+import { Sidebar, JetpackPage, RecommendationsPage } from '../pages/wp-admin/index.js';
 import {
 	AuthorizePage,
 	PickAPlanPage,
@@ -7,21 +7,26 @@ import {
 	ThankYouPage,
 	MyPlanPage,
 	LoginPage,
-} from '../pages/wpcom';
-import { execWpCommand } from '../helpers/utils-helper';
-import { persistPlanData, syncPlanData } from '../helpers/plan-helper';
-import logger from '../logger';
+} from '../pages/wpcom/index.js';
+import { execWpCommand } from '../helpers/utils-helper.cjs';
+import { persistPlanData, syncPlanData } from '../helpers/plan-helper.js';
+import logger from '../logger.cjs';
+import { expect } from '@playwright/test';
 
 const cardCredentials = config.get( 'testCardCredentials' );
 
 /**
  * Goes through connection flow via classic (calypso) flow
  *
+ * @param {Object}  page           page instance of Playwright page
  * @param {Object}  o              Optional object with params such as `plan` and `mockPlanData`
  * @param {string}  o.plan
  * @param {boolean} o.mockPlanData
  */
-export async function connectThroughWPAdmin( { plan = 'complete', mockPlanData = false } = {} ) {
+export async function connectThroughWPAdmin(
+	page,
+	{ plan = 'complete', mockPlanData = false } = {}
+) {
 	await ( await Sidebar.init( page ) ).selectJetpack();
 
 	const jetpackPage = await JetpackPage.init( page );
@@ -34,11 +39,11 @@ export async function connectThroughWPAdmin( { plan = 'complete', mockPlanData =
 		}
 	}
 
-	await doClassicConnection( mockPlanData );
-	await syncJetpackPlanData( plan, mockPlanData );
+	await doClassicConnection( page, mockPlanData );
+	await syncJetpackPlanData( page, plan, mockPlanData );
 }
 
-export async function doClassicConnection( mockPlanData ) {
+export async function doClassicConnection( page, mockPlanData ) {
 	const jetpackPage = await JetpackPage.init( page );
 	await jetpackPage.forceVariation( 'original' );
 	await jetpackPage.connect();
@@ -54,7 +59,7 @@ export async function doClassicConnection( mockPlanData ) {
 	return await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
 }
 
-export async function doSiteLevelConnection() {
+export async function doSiteLevelConnection( page ) {
 	const jetpackPage = await JetpackPage.init( page );
 	await jetpackPage.forceVariation( 'original' );
 	await jetpackPage.connect();
@@ -68,7 +73,7 @@ export async function doSiteLevelConnection() {
 	await ( await Sidebar.init( page ) ).selectJetpack();
 }
 
-export async function syncJetpackPlanData( plan, mockPlanData = true ) {
+export async function syncJetpackPlanData( page, plan, mockPlanData = true ) {
 	logger.step( `Sync plan data. { plan: ${ plan }, mock: ${ mockPlanData } }` );
 	const planType = plan === 'free' ? 'jetpack_free' : 'jetpack_complete';
 	await persistPlanData( planType );
