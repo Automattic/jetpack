@@ -11,7 +11,7 @@ import { withRouter } from 'react-router-dom';
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl, JetpackLogo } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -194,7 +194,7 @@ export class UserUnlinked extends React.Component {
 						) }
 						callToAction={ __( 'Create account', 'jetpack' ) }
 						href={ `${ this.props.connectUrl }&from=unlinked-user-connect` }
-						icon="my-sites"
+						icon={ <JetpackLogo height={ 32 } showText={ false } /> }
 						className="is-jetpack-info"
 						from="unlinked-user-connect"
 						connectUser={ true }
