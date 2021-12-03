@@ -13,10 +13,10 @@
 
 add_filter( 'pre_get_shortlink', 'wpme_get_shortlink_handler', 1, 4 );
 
-if ( !function_exists( 'wpme_dec2sixtwo' ) ) {
+if ( ! function_exists( 'wpme_dec2sixtwo' ) ) {
 	function wpme_dec2sixtwo( $num ) {
 		$index = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-		$out = "";
+		$out   = '';
 
 		if ( $num < 0 ) {
 			$out = '-';
@@ -24,7 +24,7 @@ if ( !function_exists( 'wpme_dec2sixtwo' ) ) {
 		}
 
 		for ( $t = floor( log10( $num ) / log10( 62 ) ); $t >= 0; $t-- ) {
-			$a = floor( $num / pow( 62, $t ) );
+			$a   = floor( $num / pow( 62, $t ) );
 			$out = $out . substr( $index, $a, 1 );
 			$num = $num - ( $a * pow( 62, $t ) );
 		}
@@ -40,7 +40,7 @@ function wpme_get_shortlink( $id = 0, $context = 'post', $allow_slugs = true ) {
 
 	if ( 'query' == $context ) {
 		if ( is_singular() ) {
-			$id = $wp_query->get_queried_object_id();
+			$id      = $wp_query->get_queried_object_id();
 			$context = 'post';
 		} elseif ( is_front_page() ) {
 			$context = 'blog';
@@ -50,36 +50,40 @@ function wpme_get_shortlink( $id = 0, $context = 'post', $allow_slugs = true ) {
 	}
 
 	if ( 'blog' == $context ) {
-		if ( empty( $id ) )
+		if ( empty( $id ) ) {
 			$id = $blog_id;
+		}
 
 		return 'https://wp.me/' . wpme_dec2sixtwo( $id );
 	}
 
 	$post = get_post( $id );
 
-	if ( empty( $post ) )
+	if ( empty( $post ) ) {
 			return '';
+	}
 
 	$post_id = $post->ID;
-	$type = '';
+	$type    = '';
 
 	if ( $allow_slugs && 'publish' == $post->post_status && 'post' == $post->post_type && strlen( $post->post_name ) <= 8 && false === strpos( $post->post_name, '%' )
 		&& false === strpos( $post->post_name, '-' ) ) {
-		$id = $post->post_name;
+		$id   = $post->post_name;
 		$type = 's';
 	} else {
 		$id = wpme_dec2sixtwo( $post_id );
-		if ( 'page' == $post->post_type )
+		if ( 'page' == $post->post_type ) {
 			$type = 'P';
-		elseif ( 'post' == $post->post_type || post_type_supports( $post->post_type, 'shortlinks' ) )
-			$type= 'p';
-		elseif ( 'attachment' == $post->post_type )
+		} elseif ( 'post' == $post->post_type || post_type_supports( $post->post_type, 'shortlinks' ) ) {
+			$type = 'p';
+		} elseif ( 'attachment' == $post->post_type ) {
 			$type = 'a';
+		}
 	}
 
-	if ( empty( $type ) )
+	if ( empty( $type ) ) {
 		return '';
+	}
 
 	return 'https://wp.me/' . $type . wpme_dec2sixtwo( $blog_id ) . '-' . $id;
 }
