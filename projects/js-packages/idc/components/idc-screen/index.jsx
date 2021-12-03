@@ -14,6 +14,7 @@ import trackAndBumpMCStats from '../../tools/tracking';
 import useMigration from '../../hooks/use-migration';
 import useMigrationFinished from '../../hooks/use-migration-finished';
 import useStartFresh from '../../hooks/use-start-fresh';
+import customContentShape from '../../tools/custom-content-shape';
 
 /**
  * The IDC screen component.
@@ -24,7 +25,7 @@ import useStartFresh from '../../hooks/use-start-fresh';
 const IDCScreen = props => {
 	const {
 		logo,
-		headerText,
+		customContent,
 		wpcomHomeUrl,
 		currentUrl,
 		apiNonce,
@@ -76,7 +77,7 @@ const IDCScreen = props => {
 	return (
 		<IDCScreenVisual
 			logo={ logo }
-			headerText={ headerText }
+			customContent={ customContent }
 			wpcomHomeUrl={ wpcomHomeUrl }
 			currentUrl={ currentUrl }
 			redirectUri={ redirectUri }
@@ -94,8 +95,8 @@ const IDCScreen = props => {
 IDCScreen.propTypes = {
 	/** The screen logo. */
 	logo: PropTypes.object,
-	/** The header text. */
-	headerText: PropTypes.string,
+	/** Custom text content. */
+	customContent: PropTypes.shape( customContentShape ),
 	/** The original site URL. */
 	wpcomHomeUrl: PropTypes.string.isRequired,
 	/** The current site URL. */
@@ -110,6 +111,10 @@ IDCScreen.propTypes = {
 	tracksUserData: PropTypes.object,
 	/** WordPress.com event tracking information. */
 	tracksEventData: PropTypes.object,
+};
+
+IDCScreen.defaultProps = {
+	customContent: {},
 };
 
 export default IDCScreen;
