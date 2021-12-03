@@ -1,5 +1,6 @@
-/*globals jQuery, JSON */
-( function ( $ ) {
+( function () {
+	'use strict';
+
 	var eventName = 'masterbar_click';
 
 	var linksTracksEvents = {
@@ -92,70 +93,126 @@
 		}
 	}
 
-	$( document ).ready( function () {
-		var trackableLinks =
-			'.mb-trackable .ab-item:not(div),' +
-			'#wp-admin-bar-notes .ab-item,' +
-			'#wp-admin-bar-user-info .ab-item,' +
-			'.mb-trackable .ab-secondary';
+	// Element.prototype.matches as a standalone function, with old browser fallback
+	function matches( node, selector ) {
+		if ( ! node ) {
+			return undefined;
+		}
 
-		$( trackableLinks ).on( 'click touchstart', function ( e ) {
-			if ( ! window.jpTracksAJAX || 'function' !== typeof window.jpTracksAJAX.record_ajax_event ) {
+		if ( ! Element.prototype.matches && ! Element.prototype.msMatchesSelector ) {
+			throw new Error( 'Unsupported browser' );
+		}
+
+		return Element.prototype.matches
+			? node.matches( selector )
+			: node.msMatchesSelector( selector );
+	}
+
+	// Element.prototype.closest as a standalone function, with old browser fallback
+	function closest( node, selector ) {
+		if ( ! node ) {
+			return undefined;
+		}
+
+		if ( Element.prototype.closest ) {
+			return node.closest( selector );
+		}
+
+		do {
+			if ( matches( node, selector ) ) {
+				return node;
+			}
+
+			node = node.parentElement || node.parentNode;
+		} while ( node !== null && node.nodeType === 1 );
+
+		return null;
+	}
+
+	function createTrackableLinkEventHandler() {
+		return function ( e ) {
+			if ( ! window.jpTracksAJAX || typeof window.jpTracksAJAX.record_ajax_event !== 'function' ) {
 				return;
 			}
 
-			var $target = $( e.target ),
-				$parent = $target.closest( 'li' );
+			var target = e.target;
+			var parent = closest( target, 'li' );
 
-			if ( ! $target.is( 'a' ) ) {
-				$target = $target.closest( 'a' );
+			if ( ! matches( target, 'a' ) ) {
+				target = closest( target, 'a' );
 			}
 
-			if ( ! $parent || ! $target ) {
+			if ( ! parent || ! target ) {
 				return;
 			}
 
-			var trackingId = $target.attr( 'ID' ) || $parent.attr( 'ID' );
+			var trackingId = target.getAttribute( 'ID' ) || parent.getAttribute( 'ID' );
 
-			if ( ! linksTracksEvents.hasOwnProperty( trackingId ) ) {
+			if ( ! Object.prototype.hasOwnProperty.call( linksTracksEvents, trackingId ) ) {
 				return;
 			}
 			var eventProps = { clicked: linksTracksEvents[ trackingId ] };
 
-			if ( $parent.hasClass( 'menupop' ) ) {
+			if ( parent.classList.contains( 'menupop' ) ) {
 				window.jpTracksAJAX.record_ajax_event( eventName, 'click', eventProps );
 			} else {
 				e.preventDefault();
 				window.jpTracksAJAX
 					.record_ajax_event( eventName, 'click', eventProps )
 					.always( function () {
-						window.location = $target.attr( 'href' );
+						window.location = target.getAttribute( 'href' );
 					} );
 			}
-		} );
-	} );
+		};
+	}
+
+	function init() {
+		var trackableLinkSelector =
+			'.mb-trackable .ab-item:not(div),' +
+			'#wp-admin-bar-notes .ab-item,' +
+			'#wp-admin-bar-user-info .ab-item,' +
+			'.mb-trackable .ab-secondary';
+
+		var trackableLinks = document.querySelectorAll( trackableLinkSelector );
+		for ( var i = 0; i < trackableLinks.length; i++ ) {
+			var link = trackableLinks[ i ];
+			var handler = createTrackableLinkEventHandler();
+
+			link.addEventListener( 'click', handler );
+			link.addEventListener( 'touchstart', handler );
+		}
+	}
+
+	if ( document.readyState === 'loading' ) {
+		document.addEventListener( 'DOMContentLoaded', init );
+	} else {
+		init();
+	}
 
 	// listen for postMessage events from the notifications iframe
-	$( window ).on( 'message', function ( e ) {
-		if ( ! window.jpTracksAJAX || 'function' !== typeof window.jpTracksAJAX.record_ajax_event ) {
-			return;
-		}
+	window.addEventListener(
+		'message',
+		function ( event ) {
+			if ( ! window.jpTracksAJAX || typeof window.jpTracksAJAX.record_ajax_event !== 'function' ) {
+				return;
+			}
 
-		var event = ! e.data && e.originalEvent.data ? e.originalEvent : e;
-		if ( event.origin !== 'https://widgets.wp.com' ) {
-			return;
-		}
+			if ( event.origin !== 'https://widgets.wp.com' ) {
+				return;
+			}
 
-		var data = 'string' === typeof event.data ? parseJson( event.data, {} ) : event.data;
-		if ( 'notesIframeMessage' !== data.type ) {
-			return;
-		}
+			var data = typeof event.data === 'string' ? parseJson( event.data, {} ) : event.data;
+			if ( data.type !== 'notesIframeMessage' ) {
+				return;
+			}
 
-		var eventData = notesTracksEvents[ data.action ];
-		if ( ! eventData ) {
-			return;
-		}
+			var eventData = notesTracksEvents[ data.action ];
+			if ( ! eventData ) {
+				return;
+			}
 
-		window.jpTracksAJAX.record_ajax_event( eventName, 'click', eventData( data ) );
-	} );
-} )( jQuery );
+			window.jpTracksAJAX.record_ajax_event( eventName, 'click', eventData( data ) );
+		},
+		false
+	);
+} )();
