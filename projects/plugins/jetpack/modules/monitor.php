@@ -73,7 +73,7 @@ class Jetpack_Monitor {
 		$xml->query( 'jetpack.monitor.setNotifications', (bool) $value );
 
 		if ( $xml->isError() ) {
-			wp_die( sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() ) );
+			wp_die( esc_html( $xml->getErrorMessage() ), esc_html( (string) $xml->getErrorCode() ) );
 		}
 
 		// To be used only in Jetpack_Core_Json_Api_Endpoints::get_remote_value.
@@ -102,7 +102,7 @@ class Jetpack_Monitor {
 
 		if ( $xml->isError() ) {
 			if ( $die_on_error ) {
-				wp_die( sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() ) );
+				wp_die( esc_html( $xml->getErrorMessage() ), esc_html( (string) $xml->getErrorCode() ) );
 			} else {
 				return new WP_Error( $xml->getErrorCode(), $xml->getErrorMessage(), array( 'status' => 400 ) );
 			}
