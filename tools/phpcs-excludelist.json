@@ -268,7 +268,6 @@
 	"projects/plugins/jetpack/modules/shortcodes.php",
 	"projects/plugins/jetpack/modules/shortlinks.php",
 	"projects/plugins/jetpack/modules/simple-payments/simple-payments.php",
-	"projects/plugins/jetpack/modules/site-icon/site-icon-functions.php",
 	"projects/plugins/jetpack/modules/sitemaps.php",
 	"projects/plugins/jetpack/modules/sitemaps/sitemap-buffer-fallback.php",
 	"projects/plugins/jetpack/modules/sitemaps/sitemap-buffer-image-fallback.php",
