@@ -1,6 +1,20 @@
 <?php
+/**
+ * Provides the jetpack_site_icon_url function is not available.
+ *
+ * @package automattic/jetpack
+ */
 
 if ( ! function_exists( 'jetpack_site_icon_url' ) ) :
+	/**
+	 * Returns the Jetpack Site Icon URL.
+	 *
+	 * @param null|int $blog_id Blog ID.
+	 * @param string   $size Site icon size in pixels.
+	 * @param bool     $default If value from `SITE_ICON_DEFAULT_URL` should be used if no site icon is provided.
+	 *
+	 * @return false|string URL of site icon, or false if none.
+	 */
 	function jetpack_site_icon_url( $blog_id = null, $size = '512', $default = false ) {
 		$url = '';
 		if ( ! is_int( $blog_id ) ) {

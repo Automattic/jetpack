@@ -9,11 +9,20 @@
  * Module Tags: Social
  * Feature: Writing
  * Additional Search Queries: shortlinks, wp.me
+ *
+ * @package automattic/jetpack
  */
 
 add_filter( 'pre_get_shortlink', 'wpme_get_shortlink_handler', 1, 4 );
 
 if ( ! function_exists( 'wpme_dec2sixtwo' ) ) {
+	/**
+	 * Converts number to base 62.
+	 *
+	 * @param int $num Number.
+	 *
+	 * @return string Value in base 62.
+	 */
 	function wpme_dec2sixtwo( $num ) {
 		$index = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 		$out   = '';
@@ -33,6 +42,15 @@ if ( ! function_exists( 'wpme_dec2sixtwo' ) ) {
 	}
 }
 
+/**
+ * Returns the WP.me shortlink.
+ *
+ * @param int    $id Post ID, or 0 for the current post.
+ * @param string $context The context for the link. One of 'post' or 'query'.
+ * @param bool   $allow_slugs Whether to allow post slugs in the shortlink.
+ *
+ * @return string
+ */
 function wpme_get_shortlink( $id = 0, $context = 'post', $allow_slugs = true ) {
 	global $wp_query;
 
@@ -88,6 +106,18 @@ function wpme_get_shortlink( $id = 0, $context = 'post', $allow_slugs = true ) {
 	return 'https://wp.me/' . $type . wpme_dec2sixtwo( $blog_id ) . '-' . $id;
 }
 
+/**
+ * Get the shortlink handler.
+ *
+ * Used with the Core pre_get_shortlink hook.
+ *
+ * @param string $shortlink Shortlink value from the action. Ignored.
+ * @param int    $id Post ID (0 for the current post).
+ * @param string $context The context for the link. One of 'post' or 'query'.
+ * @param bool   $allow_slugs Whether to allow post slugs in the shortlink.
+ *
+ * @return string
+ */
 function wpme_get_shortlink_handler( $shortlink, $id, $context, $allow_slugs ) {
 	return wpme_get_shortlink( $id, $context, $allow_slugs );
 }
