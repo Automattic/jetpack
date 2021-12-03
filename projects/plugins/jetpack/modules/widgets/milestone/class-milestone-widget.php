@@ -120,44 +120,6 @@ class Milestone_Widget extends WP_Widget {
 	--milestone-bg-color: <?php echo self::sanitize_color_hex( $colors['bg'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
 	--milestone-border-color:<?php echo self::sanitize_color_hex( $colors['border'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
 }
-.milestone-content {
-	line-height: 2;
-	margin-top: 5px;
-	max-width: 100%;
-	padding: 0;
-	text-align: center;
-}
-.milestone-header {
-	background-color: var(--milestone-text-color);
-	color: var(--milestone-bg-color);
-	line-height: 1.3;
-	margin: 0;
-	padding: .8em;
-}
-.milestone-header .event,
-.milestone-header .date {
-	display: block;
-}
-.milestone-header .event {
-	font-size: 120%;
-}
-.milestone-countdown .difference {
-	display: block;
-	font-size: 500%;
-	font-weight: bold;
-	line-height: 1.2;
-}
-.milestone-countdown,
-.milestone-message {
-	background-color: var(--milestone-bg-color);
-	border: 1px solid var(--milestone-border-color);
-	border-top: 0;
-	color: var(--milestone-text-color);
-	padding-bottom: 1em;
-}
-.milestone-message {
-	padding-top: 1em
-}
 </style>
 		<?php
 	}
