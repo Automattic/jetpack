@@ -13,6 +13,7 @@ const includePaths = [
 	path.join( __dirname, '../../base-styles/stories' ),
 	path.join( __dirname, '../../components/components' ),
 	path.join( __dirname, '../../connection/components' ),
+	path.join( __dirname, '../../idc/components' ),
 ];
 
 module.exports = ( { config } ) => {

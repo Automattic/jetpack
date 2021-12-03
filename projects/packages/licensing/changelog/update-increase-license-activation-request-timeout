@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Increases the timeout of the license activation request from 10 to 30 seconds.
