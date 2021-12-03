@@ -26,7 +26,7 @@ if ( ! function_exists( 'jetpack_site_icon_url' ) ) :
 			$site_icon_id = Jetpack_Options::get_option( 'site_icon_id' );
 		}
 		if ( ! $site_icon_id ) {
-			if ( $default === false && defined( 'SITE_ICON_DEFAULT_URL' ) ) {
+			if ( false === $default && defined( 'SITE_ICON_DEFAULT_URL' ) ) {
 				$url = SITE_ICON_DEFAULT_URL;
 			} else {
 				$url = $default;
