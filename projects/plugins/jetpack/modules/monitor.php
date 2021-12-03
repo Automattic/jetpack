@@ -11,6 +11,8 @@
  * Module Tags: Recommended
  * Feature: Security
  * Additional Search Queries: monitor, uptime, downtime, monitoring, maintenance, maintenance mode, offline, site is down, site down, down, repair, error
+ *
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
@@ -20,19 +22,37 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
  */
 class Jetpack_Monitor {
 
+	/**
+	 * Name of the module.
+	 *
+	 * @var string Name of module.
+	 */
 	public $module = 'monitor';
 
+	/**
+	 * Constructor.
+	 */
 	function __construct() {
 		add_action( 'jetpack_modules_loaded', array( $this, 'jetpack_modules_loaded' ) );
 		add_action( 'jetpack_activate_module_monitor', array( $this, 'activate_module' ) );
 	}
 
+	/**
+	 * Runs upon module activation.
+	 *
+	 * @return void
+	 */
 	public function activate_module() {
 		if ( ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ) {
 			self::update_option_receive_jetpack_monitor_notification( true );
 		}
 	}
 
+	/**
+	 * Runs on the jetpack_modules_loaded hook to enable configuation.
+	 *
+	 * @return void
+	 */
 	public function jetpack_modules_loaded() {
 		Jetpack::enable_module_configurable( $this->module );
 	}
@@ -90,7 +110,7 @@ class Jetpack_Monitor {
 		return $xml->getResponse();
 	}
 
-	/*
+	/**
 	 * Returns date of the last downtime.
 	 *
 	 * @since 4.0.0
