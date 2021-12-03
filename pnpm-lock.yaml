@@ -603,6 +603,7 @@ importers:
       '@testing-library/preact': 2.0.1
       '@wordpress/base-styles': 4.0.4
       '@wordpress/block-editor': 8.0.7
+      '@wordpress/browserslist-config': 4.1.0
       '@wordpress/data': 6.1.4
       '@wordpress/dependency-extraction-webpack-plugin': 3.2.1
       '@wordpress/i18n': 4.2.4
@@ -663,6 +664,7 @@ importers:
       '@size-limit/preset-app': 6.0.3_size-limit@6.0.3
       '@testing-library/jest-dom': 5.14.1
       '@testing-library/preact': 2.0.1_preact@10.5.15
+      '@wordpress/browserslist-config': 4.1.0
       '@wordpress/dependency-extraction-webpack-plugin': 3.2.1_webpack@5.64.1
       concurrently: 6.4.0
       jest: 27.3.1
@@ -7678,7 +7680,7 @@ packages:
       webpack: ^4.8.3 || ^5.0.0
     dependencies:
       json2php: 0.0.4
-      webpack: 5.64.1_webpack-cli@4.8.0
+      webpack: 5.64.1
       webpack-sources: 2.3.1
 
   /@wordpress/deprecated/2.12.3:
@@ -19202,7 +19204,7 @@ packages:
     dependencies:
       array.prototype.flat: 1.2.5
       global-cache: 1.2.1
-      react-with-styles: 3.2.3
+      react-with-styles: 3.2.3_react@17.0.2
 
   /react-with-styles/3.2.3:
     resolution: {integrity: sha512-MTI1UOvMHABRLj5M4WpODfwnveHaip6X7QUMI2x6zovinJiBXxzhA9AJP7MZNaKqg1JRFtHPXZdroUC8KcXwlQ==}
