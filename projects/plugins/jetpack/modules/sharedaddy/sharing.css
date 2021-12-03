@@ -765,3 +765,9 @@ div.sharedaddy.sharedaddy-dark #sharing_email {
 	font-size: 11px;
 	font-family: "Open Sans", sans-serif;
 }
+
+@media print {
+	.sharedaddy.sd-sharing-enabled {
+		display: none;
+	}
+}
