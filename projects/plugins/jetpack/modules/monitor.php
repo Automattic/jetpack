@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Module Name: Monitor
  * Module Description: Jetpack’s downtime monitoring will continuously watch your site and alert you the moment that downtime is detected.
