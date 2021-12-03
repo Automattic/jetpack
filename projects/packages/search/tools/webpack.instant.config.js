@@ -38,7 +38,7 @@ module.exports = {
 	},
 	output: {
 		...jetpackWebpackConfig.output,
-		path: path.join( __dirname, '../dist/instant-search' ),
+		path: path.join( __dirname, '../build/instant-search' ),
 	},
 	optimization: {
 		...jetpackWebpackConfig.optimization,
@@ -77,7 +77,6 @@ module.exports = {
 						path.resolve( __dirname, '../src/instant-search/lib/dummy-debug' )
 					),
 			  ] ),
-		new AddReadableJSAssetsPlugin(),
 		definePaletteColorsAsStaticVariables(),
 	],
 	module: {

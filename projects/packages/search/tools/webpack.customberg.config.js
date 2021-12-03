@@ -17,9 +17,7 @@ module.exports = {
 	},
 	output: {
 		...jetpackWebpackConfig.output,
-		path: path.join( __dirname, '../dist/customberg' ),
-		...jetpackWebpackConfig.output,
-		path: path.join( __dirname, '../_inc/build/instant-search' ),
+		path: path.join( __dirname, '../build/customberg' ),
 	},
 	optimization: {
 		...jetpackWebpackConfig.optimization,
@@ -37,7 +35,6 @@ module.exports = {
 		...jetpackWebpackConfig.StandardPlugins( {
 			DependencyExtractionPlugin: { injectPolyfill: true },
 		} ),
-		new AddReadableJSAssetsPlugin(),
 		definePaletteColorsAsStaticVariables(),
 	],
 	module: {
