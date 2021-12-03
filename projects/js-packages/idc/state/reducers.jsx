@@ -8,7 +8,7 @@ import { combineReducers } from '@wordpress/data';
  */
 import { SET_IS_ACTION_IN_PROGRESS } from './actions';
 
-const isActionInProgress = ( state = {}, action ) => {
+const isActionInProgress = ( state = false, action ) => {
 	switch ( action.type ) {
 		case SET_IS_ACTION_IN_PROGRESS:
 			return action.isInProgress;
