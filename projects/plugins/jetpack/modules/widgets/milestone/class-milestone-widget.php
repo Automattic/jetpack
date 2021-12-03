@@ -115,7 +115,6 @@ class Milestone_Widget extends WP_Widget {
 		?>
 <style>
 .milestone-widget {
-	margin-bottom: 1em;
 	--milestone-text-color: <?php echo self::sanitize_color_hex( $colors['text'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
 	--milestone-bg-color: <?php echo self::sanitize_color_hex( $colors['bg'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
 	--milestone-border-color:<?php echo self::sanitize_color_hex( $colors['border'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
