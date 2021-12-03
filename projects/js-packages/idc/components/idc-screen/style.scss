@@ -87,6 +87,7 @@
 			border-radius: 4px;
 			padding: 10px;
 			margin: 24px 0;
+			box-sizing: border-box;
 
 			@include break-small {
 				padding: 24px;
@@ -114,6 +115,7 @@
 				text-align: center;
 				padding: 16px;
 				overflow-wrap: anywhere;
+				box-sizing: border-box;
 			}
 
 			.jp-idc__idc-screen__card-action-separator {
