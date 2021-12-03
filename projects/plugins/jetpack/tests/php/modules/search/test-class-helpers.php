@@ -34,13 +34,15 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		parent::set_up();
 
 		$GLOBALS['wp_customize'] = new WP_Test_Jetpack_Search_Helpers_Customize();
-
+		// phpcs:disable WordPress.Security.NonceVerification
 		$this->request_uri        = $_SERVER['REQUEST_URI'];
 		$this->get                = $_GET;
+		$this->get                = $_POST;
 		$this->registered_widgets = $GLOBALS['wp_registered_widgets'];
 		$this->query              = $GLOBALS['wp_query'];
 		$this->post_types         = $GLOBALS['wp_post_types'];
 		delete_option( Jetpack_Search_Helpers::get_widget_option_name() );
+		// phpcs:enable
 	}
 
 	/**
@@ -48,10 +50,12 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		$_SERVER['REQUEST_URI']           = $this->request_uri;
+		$_GET                             = $this->get;
+		$_POST                            = $this->post;
 		$GLOBALS['wp_registered_widgets'] = $this->registered_widgets;
 		$GLOBALS['wp_query']              = $this->query;
 		$GLOBALS['wp_post_types']         = $this->post_types;
-		remove_filter( 'sidebars_widgets', array( $this, 'fake_out_search_widget' ) );
+		remove_filter( 'sidebars_widgets', array( $this, '_fake_out_search_widget' ) );
 
 		unset( $GLOBALS['wp_customize'] );
 
@@ -61,6 +65,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		parent::tear_down();
 	}
 
+	function test_get_search_url_removes_page_when_no_query_s() {
 	public function test_get_search_url_removes_page_when_no_query_s() {
 		$_SERVER['REQUEST_URI'] = 'http://example.com/search/test/page/2/';
 		set_query_var( 's', 'test' );
