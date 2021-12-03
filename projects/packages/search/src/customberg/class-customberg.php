@@ -176,7 +176,7 @@ class Customberg {
 			array(
 				'dependencies' => $script_dependencies,
 				'in_footer'    => true,
-				'textdomain' => 'jetpack',
+				'textdomain'   => 'jetpack',
 			)
 		);
 		Assets::enqueue_script( 'jp-search-configure' );
