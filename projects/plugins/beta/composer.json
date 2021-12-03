@@ -28,7 +28,7 @@
 			"@composer install -o --no-dev --classmap-authoritative --prefer-dist"
 		],
 		"clean": [
-			"rm -rf vendor/"
+			"rm -rf vendor/ jetpack_vendor/"
 		]
 	},
 	"autoload": {
@@ -49,7 +49,7 @@
 	"prefer-stable": true,
 	"config": {
 		"sort-packages": true,
-		"autoloader-suffix": "567fa3f555de8fd218dfdc1688bb97b5_betaⓥ3_0_4_alpha"
+		"autoloader-suffix": "567fa3f555de8fd218dfdc1688bb97b5_betaⓥ3_1_0_alpha"
 	},
 	"extra": {
 		"autotagger": true,

@@ -162,6 +162,11 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
+		setHasSeenWCConnectionModal: () =>
+			postRequest( `${ apiRoot }jetpack/v4/seen-wc-connection-modal`, postParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		fetchModules: () =>
 			getRequest( `${ apiRoot }jetpack/v4/module/all`, getParams )
 				.then( checkStatus )
