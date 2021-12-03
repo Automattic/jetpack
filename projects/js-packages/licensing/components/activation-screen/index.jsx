@@ -75,7 +75,6 @@ const ActivationScreen = props => {
 	const [ activatedProduct, setActivatedProduct ] = useState( null );
 
 	const activateLicense = useCallback( () => {
-
 		if ( isSaving ) {
 			return Promise.resolve();
 		}
