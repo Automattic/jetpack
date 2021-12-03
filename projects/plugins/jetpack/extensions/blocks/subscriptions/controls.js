@@ -247,7 +247,11 @@ export default function SubscriptionControls( {
 				/>
 			</PanelBody>
 
-			<PanelBody title={ __( 'Success Message Text', 'jetpack' ) }>
+			<PanelBody
+				title={ __( 'Success Message Text', 'jetpack' ) }
+				initialOpen={ false }
+				className="wp-block-jetpack-subscriptions__successpanel"
+			>
 				<TextareaControl
 					value={ successMessage }
 					label={ __( 'Success Message Text', 'jetpack' ) }
