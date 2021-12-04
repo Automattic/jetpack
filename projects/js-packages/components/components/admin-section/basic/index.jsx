@@ -18,11 +18,7 @@ const AdminSection = props => {
 	const { children } = props;
 	return (
 		<div className="jp-admin-section">
-			<div className="jp-wrap">
-				<div class="jp-row">
-					<div class="lg-col-span-12 md-col-span-8 sm-col-span-4">{ children }</div>
-				</div>
-			</div>
+			<div className="jp-wrap">{ children }</div>
 		</div>
 	);
 };
