@@ -21,13 +21,13 @@ import AdminPageFooter from './footer';
  * @returns {React.Component} AdminPage component.
  */
 const AdminPage = props => {
-	const { children, moduleName, a8cLogoHref } = props;
+	const { children, moduleName, a8cLogoHref, withHeader = true, withFooter = true } = props;
 
 	return (
 		<div class="jp-admin-page">
-			<AdminPageHeader />
+			{ withHeader && <AdminPageHeader /> }
 			{ children }
-			<AdminPageFooter moduleName={ moduleName } a8cLogoHref={ a8cLogoHref } />
+			{ withFooter && <AdminPageFooter moduleName={ moduleName } a8cLogoHref={ a8cLogoHref } /> }
 		</div>
 	);
 };
@@ -42,6 +42,8 @@ AdminPage.propTypes = {
 	a8cLogoHref: PropTypes.string,
 	/** Name of the module, e.g. 'Jetpack Search' that will be displayed in the footer. */
 	moduleName: PropTypes.string,
+	withHeader: PropTypes.boolean,
+	withFooter: PropTypes.boolean,
 };
 
 export default AdminPage;
