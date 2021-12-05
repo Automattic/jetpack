@@ -27,6 +27,7 @@ import {
 	getSiteConnectionStatus,
 	isCurrentUserLinked,
 	isSiteConnected,
+	isConnectionOwner,
 	isConnectingUser,
 	resetConnectUser,
 	isReconnectingSite,
@@ -467,16 +468,21 @@ class Main extends React.Component {
 				);
 				break;
 			case '/license/activation':
-				navComponent = null;
-				pageComponent = (
-					<ActivationScreen
-						assetBaseUrl={ this.props.pluginBaseUrl }
-						lockImage="/images/jetpack-license-activation-with-lock.png"
-						siteRawUrl={ this.props.siteRawUrl }
-						successImage="/images/jetpack-license-activation-with-success.png"
-						onActivationSuccess={ this.onLicenseActivationSuccess }
-					/>
-				);
+				if ( this.props.isLinked && this.props.isConnectionOwner ) {
+					navComponent = null;
+					pageComponent = (
+						<ActivationScreen
+							assetBaseUrl={ this.props.pluginBaseUrl }
+							lockImage="/images/jetpack-license-activation-with-lock.png"
+							siteRawUrl={ this.props.siteRawUrl }
+							successImage="/images/jetpack-license-activation-with-success.png"
+							onActivationSuccess={ this.onLicenseActivationSuccess }
+						/>
+					);
+				} else {
+					this.props.history.replace( '/dashboard' );
+					pageComponent = this.getAtAGlance();
+				}
 				break;
 			case '/recommendations':
 			case '/recommendations/site-type':
@@ -712,6 +718,7 @@ export default connect(
 			isLinked: isCurrentUserLinked( state ),
 			isConnectingUser: isConnectingUser( state ),
 			hasConnectedOwner: hasConnectedOwner( state ),
+			isConnectionOwner: isConnectionOwner( state ),
 			siteRawUrl: getSiteRawUrl( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
 			searchTerm: getSearchTerm( state ),

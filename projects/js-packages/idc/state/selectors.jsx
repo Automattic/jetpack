@@ -1,5 +1,5 @@
 const selectors = {
-	getIsActionInProgress: state => state.isActionInProgress | {},
+	getIsActionInProgress: state => state.isActionInProgress || false,
 };
 
 export default selectors;

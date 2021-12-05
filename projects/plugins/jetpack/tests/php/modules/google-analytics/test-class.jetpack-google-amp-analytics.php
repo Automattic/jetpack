@@ -36,7 +36,7 @@ class WP_Test_Jetpack_Google_AMP_Analytics extends WP_UnitTestCase {
 
 		self::$woo_enabled = true;
 
-		$woo_tests_dir = dirname( __FILE__ ) . '/../../../../woocommerce/tests';
+		$woo_tests_dir = __DIR__ . '/../../../../woocommerce/tests';
 
 		if ( ! file_exists( $woo_tests_dir ) ) {
 			error_log( 'PLEASE RUN THE GIT VERSION OF WooCommerce that has the tests folder. Found at github.com/WooCommerce/woocommerce' );

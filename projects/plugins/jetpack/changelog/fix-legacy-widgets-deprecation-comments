@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Fix the comment block on the `hide_widget_in_block_editor()` to follow the DocBlock standards
