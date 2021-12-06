@@ -86,7 +86,7 @@ class WP_Test_Jetpack_Shortcodes_Getty extends WP_UnitTestCase {
 		$doc->loadHTML( $parsed );
 		$links = $doc->getElementsByTagName( 'a' );
 
-		foreach( $links as $link ) {
+		foreach ( $links as $link ) {
 			$this->assertTrue( $link->hasAttribute( 'href' ) );
 			$this->assertStringContainsString( self::GETTY_IDENTIFIER, $link->getAttribute( 'href' ) );
 		}
@@ -128,10 +128,10 @@ class WP_Test_Jetpack_Shortcodes_Getty extends WP_UnitTestCase {
 	}
 
 	function test_getty_reverse_shortcode_doesnt_remove_too_much() {
-		$before = '<div class="something else">test<div class=\'something\'>another div';
-		$after = 'blah</div></div>';
+		$before    = '<div class="something else">test<div class=\'something\'>another div';
+		$after     = 'blah</div></div>';
 		$shortcode = wpcom_shortcodereverse_getty( $before . self::GETTY_EMBED . $after );
-		$expected = $before . self::GETTY_SHORTCODE . $after;
+		$expected  = $before . self::GETTY_SHORTCODE . $after;
 		$this->assertEquals( $expected, $shortcode );
 	}
 
@@ -156,7 +156,7 @@ class WP_Test_Jetpack_Shortcodes_Getty extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_getty_image() {
 		$image_id = '82278805';
-		$content = "[getty src='$image_id']";
+		$content  = "[getty src='$image_id']";
 
 		$shortcode_content = do_shortcode( $content );
 
@@ -173,7 +173,7 @@ class WP_Test_Jetpack_Shortcodes_Getty extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_getty_image_via_oembed_http_request() {
 		$image_id = '82278805';
-		$content = "[getty src='$image_id']";
+		$content  = "[getty src='$image_id']";
 
 		$shortcode_content = do_shortcode( $content );
 

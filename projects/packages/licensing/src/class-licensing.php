@@ -134,7 +134,7 @@ class Licensing {
 	 * @return Jetpack_IXR_ClientMulticall
 	 */
 	protected function attach_licenses_request( array $licenses ) {
-		$xml = new Jetpack_IXR_ClientMulticall();
+		$xml = new Jetpack_IXR_ClientMulticall( array( 'timeout' => 30 ) );
 
 		foreach ( $licenses as $license ) {
 			$xml->addCall( 'jetpack.attachLicense', $license );
