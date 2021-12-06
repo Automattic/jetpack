@@ -28,6 +28,7 @@ const VideoPressSave = CoreVideoSave => props => {
 			seekbarColor,
 			seekbarPlayedColor,
 			seekbarLoadingColor,
+			useAverageColor,
 			maxWidth,
 		} = {},
 	} = props;
@@ -62,6 +63,7 @@ const VideoPressSave = CoreVideoSave => props => {
 		seekbarColor,
 		seekbarPlayedColor,
 		seekbarLoadingColor,
+		useAverageColor,
 	} );
 
 	let embedWrapperStyle = {};

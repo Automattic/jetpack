@@ -32,7 +32,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 	public function test_photonizing_https_image_adds_ssl_query_arg() {
 		$url = jetpack_photon_url( 'https://example.com/images/photon.jpg' );
 		parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $args );
-		$this->assertEquals( '1', $args['ssl'], 'HTTPS image sources should have a ?ssl=1 query string.' );
+		$this->assertSame( '1', $args['ssl'], 'HTTPS image sources should have a ?ssl=1 query string.' );
 	}
 
 	/**
@@ -53,7 +53,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 	 * @group  jetpack_photon_no_filter
 	 */
 	public function test_photon_url_no_filter_http() {
-		$url = jetpack_photon_url( 'http://example.com/img.jpg' );
+		$url        = jetpack_photon_url( 'http://example.com/img.jpg' );
 		$parsed_url = wp_parse_url( $url );
 
 		$this->assertEquals( 'https', $parsed_url['scheme'] );
@@ -68,7 +68,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 	 * @group  jetpack_photon_no_filter
 	 */
 	public function test_photon_url_no_filter_http_to_http() {
-		$url = jetpack_photon_url( 'http://example.com/img.jpg', array(), 'http' );
+		$url        = jetpack_photon_url( 'http://example.com/img.jpg', array(), 'http' );
 		$parsed_url = wp_parse_url( $url );
 
 		$this->assertEquals( 'http', $parsed_url['scheme'] );
