@@ -1,16 +1,16 @@
 lockfileVersion: 5.3
 
 overrides:
-  '@storybook/addon-docs>@storybook/builder-webpack4': npm:@storybook/builder-webpack5
+  '@automattic/format-currency>i18n-calypso': ^5
+  '@storybook/addon-docs>@storybook/builder-webpack4': npm:@storybook/builder-webpack5@^6
   '@storybook/core-common>webpack@4': '>= 4'
   '@storybook/core-server>webpack@4': '>= 4'
-  '@storybook/core-server>@storybook/builder-webpack4': npm:@storybook/builder-webpack5
-  '@storybook/core-server>@storybook/manager-webpack4': npm:@storybook/manager-webpack5
+  '@storybook/core-server>@storybook/builder-webpack4': npm:@storybook/builder-webpack5@^6
+  '@storybook/core-server>@storybook/manager-webpack4': npm:@storybook/manager-webpack5@^6
   '@storybook/react>webpack@4': '>= 4'
-  isomorphic-fetch>node-fetch@^1.0.1: ^2.6.1
-  jest-environment-jsdom@^24.0.0: ^26.0.1
+  i18n-calypso>interpolate-components: npm:@automattic/interpolate-components@^1.2.0
+  jest-environment-enzyme>jest-environment-jsdom@^24.0.0: ^27
   react-dev-utils>browserslist@^4: ^4
-  terser-webpack-plugin>serialize-javascript@^4.0.0: ^5.0.0
   trim@0.0.1: ^0.0.3
   yargs>yargs-parser@^5.0.1: ^20.0.0
 
@@ -116,7 +116,7 @@ importers:
       react-dom: 17.0.2
       react-test-renderer: 17.0.2
     dependencies:
-      '@automattic/format-currency': 1.0.0-alpha.0
+      '@automattic/format-currency': 1.0.0-alpha.0_react@17.0.2
       '@wordpress/browserslist-config': 4.1.0
       '@wordpress/components': 19.1.1_react-dom@17.0.2+react@17.0.2
       '@wordpress/i18n': 4.2.4
@@ -947,7 +947,7 @@ importers:
     dependencies:
       '@automattic/calypso-color-schemes': 2.1.1
       '@automattic/components': 1.0.0-alpha.3_react-dom@17.0.2+react@17.0.2
-      '@automattic/format-currency': 1.0.0-alpha.0
+      '@automattic/format-currency': 1.0.0-alpha.0_react@17.0.2
       '@automattic/jetpack-analytics': link:../../js-packages/analytics
       '@automattic/jetpack-api': link:../../js-packages/api
       '@automattic/jetpack-components': link:../../js-packages/components
@@ -1296,12 +1296,26 @@ packages:
       react-modal: 3.14.3_react-dom@17.0.2+react@17.0.2
     dev: false
 
-  /@automattic/format-currency/1.0.0-alpha.0:
+  /@automattic/format-currency/1.0.0-alpha.0_react@17.0.2:
     resolution: {integrity: sha512-Y5An5nsNtskdLN3mbh5UWKvsS3C5PHbOcBU5D58dmjc96z5WAa99gSNYkN87FjqrJKGM4J2JhE5d1gIadYU++A==}
     dependencies:
-      i18n-calypso: 4.1.0
+      i18n-calypso: 5.0.0_react@17.0.2
     transitivePeerDependencies:
+      - '@types/react'
+      - react
       - supports-color
+    dev: false
+
+  /@automattic/interpolate-components/1.2.0_react@17.0.2:
+    resolution: {integrity: sha512-qpprRrFddOnGEgLy74Eyno0tz9sHyTE+6grtKuTsasjOnfzzNlKv57sFlJU/1WlfQ7kDncRgaxM1iH247EBfyQ==}
+    peerDependencies:
+      '@types/react': '>=16.1.0'
+      react: '>=16.2.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+    dependencies:
+      react: 17.0.2
     dev: false
 
   /@automattic/popup-monitor/1.0.0:
@@ -3376,16 +3390,6 @@ packages:
       - utf-8-validate
     dev: true
 
-  /@jest/environment/26.6.2:
-    resolution: {integrity: sha512-nFy+fHl28zUrRsCeMB61VDThV1pVTtlEokBRgqPrcT1JNq4yRNIyTHfyht6PqtUvY9IsuLGTrbG8kPXjSZIZwA==}
-    engines: {node: '>= 10.14.2'}
-    dependencies:
-      '@jest/fake-timers': 26.6.2
-      '@jest/types': 26.6.2
-      '@types/node': 16.11.7
-      jest-mock: 26.6.2
-    dev: true
-
   /@jest/environment/27.3.1:
     resolution: {integrity: sha512-BCKCj4mOVLme6Tanoyc9k0ultp3pnmuyHw73UHRPeeZxirsU/7E3HC4le/VDb/SMzE1JcPnto+XBKFOcoiJzVw==}
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
@@ -3394,18 +3398,6 @@ packages:
       '@jest/types': 27.2.5
       '@types/node': 16.11.7
       jest-mock: 27.3.0
-    dev: true
-
-  /@jest/fake-timers/26.6.2:
-    resolution: {integrity: sha512-14Uleatt7jdzefLPYM3KLcnUl1ZNikaKq34enpb5XG9i81JpppDb5muZvonvKyrl7ftEHkKS5L5/eB/kxJ+bvA==}
-    engines: {node: '>= 10.14.2'}
-    dependencies:
-      '@jest/types': 26.6.2
-      '@sinonjs/fake-timers': 6.0.1
-      '@types/node': 16.11.7
-      jest-message-util: 26.6.2
-      jest-mock: 26.6.2
-      jest-util: 26.6.2
     dev: true
 
   /@jest/fake-timers/27.3.1:
@@ -7395,30 +7387,10 @@ packages:
       - redux
     dev: false
 
-  /@wordpress/compose/3.25.3_react@16.14.0:
-    resolution: {integrity: sha512-tCO2EnJCkCH548OqA0uU8V1k/1skz2QwBlHs8ZQSpimqUS4OWWsAlndCEFe4U4vDTqFt2ow7tzAir+05Cw8MAg==}
-    dependencies:
-      '@babel/runtime': 7.16.0
-      '@wordpress/deprecated': 2.12.3
-      '@wordpress/dom': 2.18.0
-      '@wordpress/element': 2.20.3
-      '@wordpress/is-shallow-equal': 3.1.3
-      '@wordpress/keycodes': 2.19.3
-      '@wordpress/priority-queue': 1.11.2
-      clipboard: 2.0.8
-      lodash: 4.17.21
-      memize: 1.1.0
-      mousetrap: 1.6.5
-      react-resize-aware: 3.1.1_react@16.14.0
-      use-memo-one: 1.1.2_react@16.14.0
-    transitivePeerDependencies:
-      - react
-    dev: false
-
   /@wordpress/compose/3.25.3_react@17.0.2:
     resolution: {integrity: sha512-tCO2EnJCkCH548OqA0uU8V1k/1skz2QwBlHs8ZQSpimqUS4OWWsAlndCEFe4U4vDTqFt2ow7tzAir+05Cw8MAg==}
     dependencies:
-      '@babel/runtime': 7.16.0
+      '@babel/runtime': 7.16.3
       '@wordpress/deprecated': 2.12.3
       '@wordpress/dom': 2.18.0
       '@wordpress/element': 2.20.3
@@ -9065,10 +9037,6 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /asap/2.0.6:
-    resolution: {integrity: sha1-5QNHYR1+aQlDIIu9r+vLwvuGbUY=}
-    dev: false
-
   /asn1.js/5.4.1:
     resolution: {integrity: sha512-+I//4cYPccV8LdmBLiX8CYvf9Sp3vQsrqu2QNXRcrbiWvcx/UdlFiqUJJzxRQxgsZmvhXhn4cSKeSmoFjVdupA==}
     dependencies:
@@ -10507,11 +10475,6 @@ packages:
     resolution: {integrity: sha512-Q0Knr8Es84vtv62ei6/6jXH/7izKmOrtrxH9WJTHLCMAVeU+8TF8z8Nr08CsH4Ot0oJKzBzJJL9SJBYIv7WlfQ==}
     requiresBuild: true
     dev: true
-
-  /core-js/1.2.7:
-    resolution: {integrity: sha1-ZSKUwUZR2yj6k70tX/KYOk8IxjY=}
-    deprecated: core-js@<3.3 is no longer maintained and not recommended for usage due to the number of issues. Because of the V8 engine whims, feature detection in old core-js versions could cause a slowdown up to 100x even if nothing is polyfilled. Please, upgrade your dependencies to the actual version of core-js.
-    dev: false
 
   /core-js/2.6.12:
     resolution: {integrity: sha512-Kb2wC0fvsWfQrgk8HU5lW6U/Lcs8+9aaYcy4ZFc6DDlo4nZ7n70dEgE5rtR0oG6ufKDUnrwfWL1mXR5ljDatrQ==}
@@ -12628,18 +12591,6 @@ packages:
       bser: 2.1.1
     dev: true
 
-  /fbjs/0.8.18:
-    resolution: {integrity: sha512-EQaWFK+fEPSoibjNy8IxUtaFOMXcWsY0JaVrQoZR9zC8N2Ygf9iDITPWjUTVIax95b6I742JFLqASHfsag/vKA==}
-    dependencies:
-      core-js: 1.2.7
-      isomorphic-fetch: 2.2.1
-      loose-envify: 1.4.0
-      object-assign: 4.1.1
-      promise: 7.3.1
-      setimmediate: 1.0.5
-      ua-parser-js: 0.7.31
-    dev: false
-
   /fd-slicer/1.1.0:
     resolution: {integrity: sha1-JcfInLH5B3+IkbvmHY85Dq4lbx4=}
     dependencies:
@@ -14107,21 +14058,25 @@ packages:
       which-pm-runs: 1.0.0
     dev: true
 
-  /i18n-calypso/4.1.0:
-    resolution: {integrity: sha512-ynS9sLdpN0TgZ2Zb3GI1psI06yrvV6u/7EOiJDySEgUDmugbUmy9TgAmFnLo0vNWyGEcBtji1zRk5ZJuNiXmhQ==}
+  /i18n-calypso/5.0.0_react@17.0.2:
+    resolution: {integrity: sha512-YgqLgshNiBOiifWxr4s33ODWQ4JIaHoBPWtgFyqcRy0+WGMX2CmTDbXaeZHkHxuIjzsGP+YrVTPNp7lfbiot4g==}
+    peerDependencies:
+      react: ^16.8
     dependencies:
+      '@babel/runtime': 7.16.3
       '@tannin/sprintf': 1.2.0
-      '@wordpress/compose': 3.25.3_react@16.14.0
-      debug: 4.3.1
+      '@wordpress/compose': 3.25.3_react@17.0.2
+      debug: 4.3.2
       events: 3.3.0
       hash.js: 1.1.7
-      interpolate-components: 1.1.1
+      interpolate-components: /@automattic/interpolate-components/1.2.0_react@17.0.2
       lodash: 4.17.21
       lru: 3.1.0
-      react: 16.14.0
+      react: 17.0.2
       tannin: 1.2.0
-      use-subscription: 1.5.1_react@16.14.0
+      use-subscription: 1.5.1_react@17.0.2
     transitivePeerDependencies:
+      - '@types/react'
       - supports-color
     dev: false
 
@@ -14240,15 +14195,6 @@ packages:
       get-intrinsic: 1.1.1
       has: 1.0.3
       side-channel: 1.0.4
-
-  /interpolate-components/1.1.1:
-    resolution: {integrity: sha1-aZ//RdFSXpjHzntxWVkdmStd1t8=}
-    deprecated: This package has been renamed to @automattic/interpolate-components
-    dependencies:
-      react: 16.14.0
-      react-addons-create-fragment: 15.6.2
-      react-dom: 16.14.0_react@16.14.0
-    dev: false
 
   /interpret/1.4.0:
     resolution: {integrity: sha512-agE4QfB2Lkp9uICn7BAqoscw4SZP9kTE2hxiFI3jBPmXJfdqiahTbUuKGsMoN2GtqL9AxhYioAcVvgsb1HvRbA==}
@@ -14731,13 +14677,6 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /isomorphic-fetch/2.2.1:
-    resolution: {integrity: sha1-YRrhrPFPXoH3KVB0coGf6XM1WKk=}
-    dependencies:
-      node-fetch: 2.6.6
-      whatwg-fetch: 3.6.2
-    dev: false
-
   /isstream/0.1.2:
     resolution: {integrity: sha1-R+Y/evVa+m+S4VAOaQ64uFKcCZo=}
     dev: false
@@ -14971,26 +14910,8 @@ packages:
     dependencies:
       enzyme: 3.11.0
       jest: 27.3.1
-      jest-environment-jsdom: 26.6.2
+      jest-environment-jsdom: 27.3.1
       react: 17.0.2
-    transitivePeerDependencies:
-      - bufferutil
-      - canvas
-      - supports-color
-      - utf-8-validate
-    dev: true
-
-  /jest-environment-jsdom/26.6.2:
-    resolution: {integrity: sha512-jgPqCruTlt3Kwqg5/WVFyHIOJHsiAvhcp2qiR2QQstuG9yWox5+iHpU3ZrcBxW14T4fe5Z68jAfLRh7joCSP2Q==}
-    engines: {node: '>= 10.14.2'}
-    dependencies:
-      '@jest/environment': 26.6.2
-      '@jest/fake-timers': 26.6.2
-      '@jest/types': 26.6.2
-      '@types/node': 16.11.7
-      jest-mock: 26.6.2
-      jest-util: 26.6.2
-      jsdom: 16.7.0
     transitivePeerDependencies:
       - bufferutil
       - canvas
@@ -15137,21 +15058,6 @@ packages:
       pretty-format: 27.3.1
     dev: true
 
-  /jest-message-util/26.6.2:
-    resolution: {integrity: sha512-rGiLePzQ3AzwUshu2+Rn+UMFk0pHN58sOG+IaJbk5Jxuqo3NYO1U2/MIR4S1sKgsoYSXSzdtSa0TgrmtUwEbmA==}
-    engines: {node: '>= 10.14.2'}
-    dependencies:
-      '@babel/code-frame': 7.16.0
-      '@jest/types': 26.6.2
-      '@types/stack-utils': 2.0.1
-      chalk: 4.1.1
-      graceful-fs: 4.2.8
-      micromatch: 4.0.4
-      pretty-format: 26.6.2
-      slash: 3.0.0
-      stack-utils: 2.0.5
-    dev: true
-
   /jest-message-util/27.3.1:
     resolution: {integrity: sha512-bh3JEmxsTZ/9rTm0jQrPElbY2+y48Rw2t47uMfByNyUVR+OfPh4anuyKsGqsNkXk/TI4JbLRZx+7p7Hdt6q1yg==}
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
@@ -15165,14 +15071,6 @@ packages:
       pretty-format: 27.3.1
       slash: 3.0.0
       stack-utils: 2.0.5
-    dev: true
-
-  /jest-mock/26.6.2:
-    resolution: {integrity: sha512-YyFjePHHp1LzpzYcmgqkJ0nm0gg/lJx2aZFzFy1S6eUqNjXsOqTK10zNRff2dNfssgokjkG65OlWNcIlgd3zew==}
-    engines: {node: '>= 10.14.2'}
-    dependencies:
-      '@jest/types': 26.6.2
-      '@types/node': 16.11.7
     dev: true
 
   /jest-mock/27.3.0:
@@ -18134,12 +18032,6 @@ packages:
       es-abstract: 1.19.1
     dev: true
 
-  /promise/7.3.1:
-    resolution: {integrity: sha512-nolQXZ/4L+bP/UGlkfaIujX9BKxGwmQ9OT4mOt5yvy8iK1h3wqTEJCijzGANTCCl9nWjY41juyAn2K3Q1hLLTg==}
-    dependencies:
-      asap: 2.0.6
-    dev: false
-
   /prompts/2.4.0:
     resolution: {integrity: sha512-awZAKrk3vN6CroQukBL+R9051a4R3zCZBlJm/HBfrSZ8iTpYix3VX1vU4mveiLpiwmOJT4wokTF9m6HUk4KqWQ==}
     engines: {node: '>= 6'}
@@ -18391,14 +18283,6 @@ packages:
     dependencies:
       fast-memoize: 2.5.2
       react: 17.0.2
-
-  /react-addons-create-fragment/15.6.2:
-    resolution: {integrity: sha1-o5TefCx77Na1R1uhuXrEcs58dPg=}
-    dependencies:
-      fbjs: 0.8.18
-      loose-envify: 1.4.0
-      object-assign: 4.1.1
-    dev: false
 
   /react-addons-shallow-compare/15.6.3:
     resolution: {integrity: sha512-EDJbgKTtGRLhr3wiGDXK/+AEJ59yqGS+tKE6mue0aNXT6ZMR7VJbbzIiT6akotmHg1BLj46ElJSb+NBMp80XBg==}
@@ -18845,14 +18729,6 @@ packages:
     resolution: {integrity: sha512-M8IyVLBN8D6tEUss+bxQlWte3ZYtNEGhg7rBxtCVG8yEBjUlZwUo5EFLq6tnvTZXcgAbCLjsQn+NCoTJKumRYg==}
     peerDependencies:
       react: ^16.8.0 || 17.x
-    dev: false
-
-  /react-resize-aware/3.1.1_react@16.14.0:
-    resolution: {integrity: sha512-M8IyVLBN8D6tEUss+bxQlWte3ZYtNEGhg7rBxtCVG8yEBjUlZwUo5EFLq6tnvTZXcgAbCLjsQn+NCoTJKumRYg==}
-    peerDependencies:
-      react: ^16.8.0 || 17.x
-    dependencies:
-      react: 16.14.0
     dev: false
 
   /react-resize-aware/3.1.1_react@17.0.2:
@@ -20362,6 +20238,7 @@ packages:
 
   /setimmediate/1.0.5:
     resolution: {integrity: sha1-KQy7Iy4waULX1+qbg3Mqt4VvgoU=}
+    dev: true
 
   /setprototypeof/1.1.1:
     resolution: {integrity: sha512-JvdAWfbXeIGaZ9cILp38HntZSFSo3mWg6xGcJJsd+d4aRMOqauag1C63dJfDw7OaMYwEbHMOxEZ1lqVRYP2OAw==}
@@ -21665,10 +21542,6 @@ packages:
     hasBin: true
     dev: true
 
-  /ua-parser-js/0.7.31:
-    resolution: {integrity: sha512-qLK/Xe9E2uzmYI3qLeOmI0tEOt+TBBQyUIAh4aAgU05FVYzeZrKUdkAZfBNVGRaHVgV0TDkdEngJSw/SyQchkQ==}
-    dev: false
-
   /uc.micro/1.0.6:
     resolution: {integrity: sha512-8Y75pvTYkLJW2hWQHXxoqRgV7qb9B+9vFEtidML+7koHUFapnVJAZ6cKs+Qjz5Aw3aZWHMC6u0wJE3At+nSGwA==}
     dev: false
@@ -21946,14 +21819,6 @@ packages:
       react: ^16.8.0 || ^17.0.0
     dev: false
 
-  /use-memo-one/1.1.2_react@16.14.0:
-    resolution: {integrity: sha512-u2qFKtxLsia/r8qG0ZKkbytbztzRb317XCkT7yP8wxL0tZ/CzK2G+WWie5vWvpyeP7+YoPIwbJoIHJ4Ba4k0oQ==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0
-    dependencies:
-      react: 16.14.0
-    dev: false
-
   /use-memo-one/1.1.2_react@17.0.2:
     resolution: {integrity: sha512-u2qFKtxLsia/r8qG0ZKkbytbztzRb317XCkT7yP8wxL0tZ/CzK2G+WWie5vWvpyeP7+YoPIwbJoIHJ4Ba4k0oQ==}
     peerDependencies:
@@ -21961,13 +21826,13 @@ packages:
     dependencies:
       react: 17.0.2
 
-  /use-subscription/1.5.1_react@16.14.0:
+  /use-subscription/1.5.1_react@17.0.2:
     resolution: {integrity: sha512-Xv2a1P/yReAjAbhylMfFplFKj9GssgTwN7RlcTxBujFQcloStWNDQdc4g4NRWH9xS4i/FDk04vQBptAXoF3VcA==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0
     dependencies:
       object-assign: 4.1.1
-      react: 16.14.0
+      react: 17.0.2
     dev: false
 
   /use/3.1.1:
@@ -22362,10 +22227,6 @@ packages:
     resolution: {integrity: sha512-b5lim54JOPN9HtzvK9HFXvBma/rnfFeqsic0hSpjtDbVxR3dJKLc+KB4V6GgiGOvl7CY/KNh8rxSo9DKQrnUEw==}
     dependencies:
       iconv-lite: 0.4.24
-
-  /whatwg-fetch/3.6.2:
-    resolution: {integrity: sha512-bJlen0FcuU/0EMLrdbJ7zOnW6ITZLrZMIarMUVmdKtsGvZna8vxKYaexICWPfZ8qwf9fzNq+UEIZrnSaApt6RA==}
-    dev: false
 
   /whatwg-mimetype/2.3.0:
     resolution: {integrity: sha512-M4yMwr6mAnQz76TbJm914+gPpB/nCwvZbJU28cUD6dR004SAxDLOOSUaB1JDRqLtaOV/vi0IC5lEAGFgrjGv/g==}
