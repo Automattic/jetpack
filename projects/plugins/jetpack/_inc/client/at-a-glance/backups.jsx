@@ -27,7 +27,14 @@ import {
 	FEATURE_SITE_BACKUPS_JETPACK,
 } from 'lib/plans/constants';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
-import { getActiveBackupPurchase, getSitePlan, hasActiveBackupPurchase } from 'state/site';
+import {
+	getActiveBackupPurchase,
+	getSitePlan,
+	getSiteProducts,
+	hasActiveBackupPurchase,
+	siteHasBackup,
+	isFetchingSiteData,
+} from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import { getVaultPressData } from 'state/at-a-glance';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
@@ -179,11 +186,7 @@ class DashBackups extends Component {
 			} );
 		}
 
-		return renderCard( {
-			className: '',
-			status: '',
-			content: __( 'Loading…', 'jetpack' ),
-		} );
+		return this.renderLoading();
 	}
 
 	getRewindContent() {
@@ -239,8 +242,17 @@ class DashBackups extends Component {
 		return false;
 	}
 
+	renderLoading() {
+		return renderCard( {
+			className: '',
+			status: '',
+			content: __( 'Loading…', 'jetpack' ),
+		} );
+	}
+
 	renderFromRewindStatus() {
 		if (
+			this.props.hasBackup &&
 			'unavailable' === this.props.rewindStatus &&
 			'site_new' === this.props.rewindStatusReason
 		) {
@@ -276,6 +288,10 @@ class DashBackups extends Component {
 			);
 		}
 
+		if ( this.props.isFetchingSite ) {
+			this.renderLoading();
+		}
+
 		return (
 			<div>
 				<QueryVaultPressData />
@@ -300,6 +316,8 @@ export default connect(
 			showBackups: showBackups( state ),
 			upgradeUrl: getProductDescriptionUrl( state, 'backup' ),
 			hasConnectedOwner: hasConnectedOwner( state ),
+			isFetchingSite: isFetchingSiteData( state ),
+			hasBackup: siteHasBackup( state ),
 		};
 	},
 	dispatch => ( {

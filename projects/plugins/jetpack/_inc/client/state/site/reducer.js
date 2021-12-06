@@ -12,6 +12,7 @@ import {
 	getPlanClass,
 	isJetpackProduct,
 	isJetpackBackup,
+	isJetpackPlanWithBackup,
 	isJetpackScan,
 	isJetpackSearch,
 	isJetpackVideoPress,
@@ -239,9 +240,18 @@ export function isFetchingSitePurchases( state ) {
 }
 
 /**
+ * Returns the products of this site.
+ * @param  {Object}  state Global state tree
+ * @return {Array}  Site products
+ */
+export function getSiteProducts( state ) {
+	return get( state.jetpack.siteData, [ 'data', 'products' ], {} );
+}
+
+/**
  * Returns the plan of this site.
  * @param  {Object}  state Global state tree
- * @return {Object|Boolean}  Site plan
+ * @return {Object}  Site plan
  */
 export function getSitePlan( state ) {
 	return get( state.jetpack.siteData, [ 'data', 'plan' ], {} );
@@ -385,4 +395,27 @@ export function getConnectedPlugins( state ) {
 
 	const plugins = get( state.jetpack.siteData, [ 'data', 'site', 'connectedPlugins' ], [] );
 	return plugins.filter( plugin => 'jetpack' !== plugin.slug );
+}
+
+/**
+ * Returns true if the site has a subscription to a Backup product or to a plan that includes Backup
+ *
+ * @param  {Object} state Global state tree
+ * @return {boolean}      True if the site does have Backup
+ */
+export function siteHasBackup( state ) {
+	const sitePlan = getSitePlan( state );
+	const siteProducts = getSiteProducts( state );
+
+	let hasBackup = false;
+
+	if ( sitePlan && sitePlan.product_slug ) {
+		hasBackup = hasBackup || isJetpackPlanWithBackup( sitePlan.product_slug );
+	}
+
+	if ( Array.isArray( siteProducts ) ) {
+		hasBackup = hasBackup || siteProducts.some( p => isJetpackProduct( p.product_slug ) );
+	}
+
+	return hasBackup;
 }
