@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Style updates to improve disconnect flow appearance when Gutenberg plugin is active
