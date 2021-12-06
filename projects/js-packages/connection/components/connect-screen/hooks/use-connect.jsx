@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useEffect } from 'react';
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useSelect, useDispatch, resolveSelect } from '@wordpress/data';
 import restApi from '@automattic/jetpack-api';
 
 /**
@@ -11,15 +11,19 @@ import restApi from '@automattic/jetpack-api';
 import { STORE_ID } from '../../../state/store';
 
 export default ( { registrationNonce, redirectUri, apiRoot, apiNonce, autoTrigger, from } ) => {
-	const { fetchAuthorizationUrl, registerSite, connectUser } = useDispatch( STORE_ID );
-	const siteIsRegistering = useSelect( select => select( STORE_ID ).getSiteIsRegistering(), [] );
-	const userIsConnecting = useSelect( select => select( STORE_ID ).getUserIsConnecting(), [] );
-	const registrationError = useSelect( select => select( STORE_ID ).getRegistrationError(), [] );
-	const authorizationUrl = useSelect( select => select( STORE_ID ).getAuthorizationUrl(), [] );
-	const { isRegistered, isUserConnected } = useSelect(
-		select => select( STORE_ID ).getConnectionStatus(),
-		[]
-	);
+	const getAuthorizationUrl = resolveSelect( STORE_ID ).getAuthorizationUrl;
+	const { registerSite, connectUser } = useDispatch( STORE_ID );
+	const {
+		getSiteIsRegistering,
+		getUserIsConnecting,
+		getRegistrationError,
+		getConnectionStatus,
+	} = useSelect( STORE_ID );
+
+	const { isRegistered, isUserConnected } = getConnectionStatus();
+	const siteIsRegistering = getSiteIsRegistering();
+	const userIsConnecting = getUserIsConnecting();
+	const registrationError = getRegistrationError();
 
 	/**
 	 * Initialize the site registration process.
@@ -30,7 +34,7 @@ export default ( { registrationNonce, redirectUri, apiRoot, apiNonce, autoTrigge
 		e && e.preventDefault();
 
 		const action = isRegistered
-			? fetchAuthorizationUrl( redirectUri )
+			? getAuthorizationUrl()
 			: registerSite( { registrationNonce, redirectUri } );
 
 		action.then( () => connectUser( { from } ) );
@@ -60,6 +64,5 @@ export default ( { registrationNonce, redirectUri, apiRoot, apiNonce, autoTrigge
 		siteIsRegistering,
 		userIsConnecting,
 		registrationError,
-		authorizationUrl,
 	};
 };
