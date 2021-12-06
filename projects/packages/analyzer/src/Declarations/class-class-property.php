@@ -29,6 +29,31 @@ class Class_Property extends Declaration {
 		);
 	}
 
+	/**
+	 * Returns a serializable representation of the object.
+	 *
+	 * @return array
+	 */
+	public function to_map() {
+		return array(
+			'decl_type'   => $this->type(),
+			'file_path'   => $this->path,
+			'file_line'   => $this->line,
+			'class_name'  => $this->class_name,
+			'member_name' => $this->prop_name,
+			'is_static'   => $this->static,
+		);
+	}
+
+	/**
+	 * Create object from deserialized JSON object
+	 *
+	 * @param object $obj deserialized JSON object.
+	 */
+	public static function from_map( $obj ) {
+		return new Class_Property( $obj->file_path, $obj->file_line, $obj->class_name, $obj->member_name, $obj->is_static );
+	}
+
 	function type() {
 		return 'property';
 	}
