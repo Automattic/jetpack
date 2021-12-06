@@ -119,7 +119,7 @@ class Dashboard {
 	 * @return {boolean} Show search sub menu or not.
 	 */
 	protected function supports_search() {
-		return $this->plan->supports_search();
+		return $this->plan->ever_supported_search();
 	}
 
 	/**

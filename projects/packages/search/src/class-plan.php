@@ -16,7 +16,8 @@ use WP_Error;
  * Registers the REST routes for Search.
  */
 class Plan {
-	const JETPACK_SEARCH_PLAN_INFO_OPTION_KEY = 'jetpack_search_plan_info';
+	const JETPACK_SEARCH_PLAN_INFO_OPTION_KEY  = 'jetpack_search_plan_info';
+	const JETPACK_SEARCH_EVER_SUPPORTED_SEARCH = 'jetpack_search_ever_supported_search';
 
 	/**
 	 * Whether we have hooked the actions.
@@ -103,6 +104,13 @@ class Plan {
 	}
 
 	/**
+	 * Whether the plan(s) ever supported search.
+	 */
+	public function ever_supported_search() {
+		return (bool) get_option( self::JETPACK_SEARCH_EVER_SUPPORTED_SEARCH ) || $this->supports_search();
+	}
+
+	/**
 	 * Update `has_jetpack_search_product` regarding the plan information
 	 *
 	 * @param array|WP_Error $response - Resopnse from WPCOM.
@@ -120,6 +128,11 @@ class Plan {
 		// set option whether has Jetpack Search plan for capability reason.
 		if ( get_option( 'has_jetpack_search_product' ) !== (bool) $body['supports_instant_search'] ) {
 			update_option( 'has_jetpack_search_product', (bool) $body['supports_instant_search'] );
+		}
+		// We use this option to determine the visibility of search submenu.
+		// If the site ever had search subscription, then we record it and show the menu after.
+		if ( $body['supports_instant_search'] ) {
+			update_option( self::JETPACK_SEARCH_EVER_SUPPORTED_SEARCH, true );
 		}
 		update_option( self::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY, $body );
 	}
