@@ -140,6 +140,11 @@ class Test_Base_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::handle_preferred_view
 	 */
 	public function test_handle_preferred_view() {
+		// @see p9dueE-3LL-p2#comment-6669
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$this->markTestSkipped( 'Does not work on WP.com as handle_preferred_view() performs a redirect and then terminates the execution.' );
+		}
+
 		global $pagenow;
 		$pagenow                = 'test.php';
 		$_GET['preferred-view'] = 'classic';

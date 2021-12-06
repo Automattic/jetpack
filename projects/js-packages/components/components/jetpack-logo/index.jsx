@@ -23,7 +23,7 @@ class JetpackLogo extends React.Component {
 		className: '',
 		height: 32,
 		showText: true,
-		logoColor: '#00BE28',
+		logoColor: '#069e08',
 	};
 
 	render() {

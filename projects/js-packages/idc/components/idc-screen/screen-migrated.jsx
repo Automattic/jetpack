@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useState, useCallback } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Dashicon } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
@@ -17,27 +17,15 @@ import extractHostname from '../../tools/extract-hostname';
  * Retrieve the migrated screen body.
  *
  * @param {object} props - The properties.
- * @param {string} props.wpcomHomeUrl - The original site URL.
- * @param {string} props.currentUrl - The current site URL.
  * @returns {React.Component} The ScreenMigrated component.
  */
 const ScreenMigrated = props => {
+	const { finishCallback, isFinishing } = props;
+
 	const wpcomHostName = extractHostname( props.wpcomHomeUrl );
 	const currentHostName = extractHostname( props.currentUrl );
 
 	const buttonLabel = __( 'Got it, thanks', 'jetpack' );
-
-	const [ isHandlingOk, setIsHandlingOk ] = useState( false );
-
-	/**
-	 * Handle the "Got It" click after the migration has completed.
-	 */
-	const handleOkButton = useCallback( () => {
-		if ( ! isHandlingOk ) {
-			setIsHandlingOk( true );
-			window.location.reload();
-		}
-	}, [ isHandlingOk, setIsHandlingOk ] );
 
 	return (
 		<React.Fragment>
@@ -59,29 +47,43 @@ const ScreenMigrated = props => {
 				) }
 			</p>
 
-			<div className="jp-idc-card-migrated">
-				<div className="jp-idc-card-migrated-hostname">{ wpcomHostName }</div>
+			<div className="jp-idc__idc-screen__card-migrated">
+				<div className="jp-idc__idc-screen__card-migrated-hostname">{ wpcomHostName }</div>
 
-				<Dashicon icon="arrow-down-alt" className="jp-idc-card-migrated-separator" />
-				<Dashicon icon="arrow-right-alt" className="jp-idc-card-migrated-separator-wide" />
+				<Dashicon icon="arrow-down-alt" className="jp-idc__idc-screen__card-migrated-separator" />
+				<Dashicon
+					icon="arrow-right-alt"
+					className="jp-idc__idc-screen__card-migrated-separator-wide"
+				/>
 
-				<div className="jp-idc-card-migrated-hostname">{ currentHostName }</div>
+				<div className="jp-idc__idc-screen__card-migrated-hostname">{ currentHostName }</div>
 			</div>
 
 			<Button
-				className="jp-idc-card-action-button jp-idc-card-action-button-migrated"
-				onClick={ handleOkButton }
+				className="jp-idc__idc-screen__card-action-button jp-idc__idc-screen__card-action-button-migrated"
+				onClick={ finishCallback }
 				label={ buttonLabel }
 			>
-				{ isHandlingOk ? <Spinner /> : buttonLabel }
+				{ isFinishing ? <Spinner /> : buttonLabel }
 			</Button>
 		</React.Fragment>
 	);
 };
 
 ScreenMigrated.propTypes = {
+	/** The original site URL. */
 	wpcomHomeUrl: PropTypes.string.isRequired,
+	/** The current site URL. */
 	currentUrl: PropTypes.string.isRequired,
+	/** Callback to be called when migration is complete, and user clicks the OK button. */
+	finishCallback: PropTypes.func,
+	/** Whether the migration finishing process is in progress. */
+	isFinishing: PropTypes.bool.isRequired,
+};
+
+ScreenMigrated.defaultProps = {
+	finishCallback: () => {},
+	isFinishing: false,
 };
 
 export default ScreenMigrated;

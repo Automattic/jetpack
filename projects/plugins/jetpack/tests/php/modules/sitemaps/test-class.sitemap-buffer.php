@@ -29,7 +29,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 		$this->assertEquals(
 			'<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL
 			. '<dummy/>' . PHP_EOL,
-			 $buffer->contents()
+			$buffer->contents()
 		);
 	}
 
@@ -208,12 +208,12 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 */
 	public function test_news_sitemap_item_to_xml() {
 		$timestamp = date( 'r' );
-		$array = array(
+		$array     = array(
 			'url' => array(
-				'loc' => 'http://example.com/blog-url-about-stuff',
-				'lastmod' => $timestamp,
+				'loc'       => 'http://example.com/blog-url-about-stuff',
+				'lastmod'   => $timestamp,
 				'news:news' => array(
-					'news:publication' => array(
+					'news:publication'      => array(
 						'news:name'     => 'Blog about stuff',
 						'news:language' => 'en',
 					),
@@ -239,10 +239,10 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 			 . '</news:news>'
 			 . '</url></dummy>' . PHP_EOL;
 
-		foreach(
+		foreach (
 			array(
 				new Jetpack_Sitemap_Buffer_Dummy( JP_SITEMAP_MAX_ITEMS, JP_SITEMAP_MAX_BYTES, $timestamp ),
-				new Jetpack_Sitemap_Buffer_Fallback_Dummy( JP_SITEMAP_MAX_ITEMS, JP_SITEMAP_MAX_BYTES, $timestamp )
+				new Jetpack_Sitemap_Buffer_Fallback_Dummy( JP_SITEMAP_MAX_ITEMS, JP_SITEMAP_MAX_BYTES, $timestamp ),
 			) as $buffer
 		) {
 			$buffer->append( $array );
@@ -261,7 +261,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
  */
 class Jetpack_Sitemap_Buffer_Dummy extends Jetpack_Sitemap_Buffer {
 	public function get_root_element() {
-		if ( ! isset ( $this->root ) ) {
+		if ( ! isset( $this->root ) ) {
 			$this->root = $this->doc->createElement( 'dummy' );
 			$this->doc->appendChild( $this->root );
 		}
@@ -275,7 +275,7 @@ class Jetpack_Sitemap_Buffer_Dummy extends Jetpack_Sitemap_Buffer {
  */
 class Jetpack_Sitemap_Buffer_Fallback_Dummy extends Jetpack_Sitemap_Buffer_Fallback {
 	public function get_root_element() {
-		if ( ! isset ( $this->root ) ) {
+		if ( ! isset( $this->root ) ) {
 			$this->root = array( '<dummy>', '</dummy>' );
 		}
 

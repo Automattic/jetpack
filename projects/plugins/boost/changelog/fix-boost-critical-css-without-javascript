@@ -1,4 +1,0 @@
-Significance: minor
-Type: fixed
-
-Implement support for loading stylesheets when JavaScript is disabled in the context Critical CSS being enabled

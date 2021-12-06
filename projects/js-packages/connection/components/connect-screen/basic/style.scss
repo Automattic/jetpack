@@ -2,7 +2,6 @@
 @import '@wordpress/base-styles/mixins';
 
 .jp-connection__connect-screen {
-
 	&__loading {
 		display: none;
 	}
@@ -18,12 +17,13 @@
 		button {
 			max-width: 100%;
 
-			&:not( :disabled ) {
-				width: auto;
+			&:disabled {
+				color: hsla( 0, 0%, 100%, 0.4 );
 			}
 
-			&:disabled {
-				color: hsla(0,0%,100%,.4);
+			@media ( max-width: $break-medium ) {
+				max-width: none;
+				width: 100%;
 			}
 		}
 	}
