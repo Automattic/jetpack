@@ -166,10 +166,13 @@
 }
 
 @media (min-width: 600px){
-	.jp-connection__disconnect-dialog {
+	.jp-connection__disconnect-dialog,
+	.jp-connection__disconnect-dialog.components-modal__frame {
 		width: 100%;
 		max-width: calc( 100% - 32px );
+	}
 
+	.jp-connection__disconnect-dialog {
 		&__content {
 			padding: 2rem;
 		}
@@ -182,12 +185,15 @@
 
 
 @media (min-width: 960px){
-	.jp-connection__disconnect-dialog{
+	.jp-connection__disconnect-dialog,
+	.jp-connection__disconnect-dialog.components-modal__frame {
 		width: 1200px;
 		height: 900px;
 		display: flex;
 		flex-direction: column;
+	}
 
+	.jp-connection__disconnect-dialog {
 		h1 {
 			font-size: var( --font-title-large );
 		}
