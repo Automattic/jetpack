@@ -5,7 +5,12 @@ import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect } from '@wordpress/data';
-import { JetpackFooter, JetpackLogo, getRedirectUrl } from '@automattic/jetpack-components';
+import {
+	AdminSection,
+	AdminSectionHero,
+	AdminPage,
+	getRedirectUrl,
+} from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -56,26 +61,23 @@ const Admin = () => {
 
 	const renderNoBackupCapabilities = () => {
 		return (
-			<div className="jp-wrap">
-				<div className="jp-row">
-					<div class="lg-col-span-8 md-col-span-8 sm-col-span-4">
-						<h1>{ __( 'Your site does not have backups', 'jetpack-backup' ) }</h1>
-						<p>
-							{ __(
-								'Get peace of mind knowing your work will be saved, add backups today.',
-								'jetpack-backup'
-							) }
-						</p>
-						<a
-							class="button"
-							href={ getRedirectUrl( 'backup-plugin-upgrade-10gb', { site: domain } ) }
-							target="_blank"
-							rel="noreferrer"
-						>
-							{ __( 'Upgrade now', 'jetpack-backup' ) }
-						</a>
-					</div>
-					<div class="lg-col-span-4 md-col-span-0 sm-col-span-0"></div>
+			<div className="jp-row">
+				<div className="lg-col-span-8 md-col-span-8 sm-col-span-4">
+					<h1>{ __( 'Your site does not have backups', 'jetpack-backup' ) }</h1>
+					<p>
+						{ __(
+							'Get peace of mind knowing your work will be saved, add backups today.',
+							'jetpack-backup'
+						) }
+					</p>
+					<a
+						class="button"
+						href={ getRedirectUrl( 'backup-plugin-upgrade-10gb', { site: domain } ) }
+						target="_blank"
+						rel="noreferrer"
+					>
+						{ __( 'Upgrade now', 'jetpack-backup' ) }
+					</a>
 				</div>
 			</div>
 		);
@@ -92,10 +94,8 @@ const Admin = () => {
 			}
 
 			return (
-				<div className="jp-wrap">
-					<div className="jp-row">
-						<div class="lg-col-span-12 md-col-span-8 sm-col-span-4">{ renderConnectScreen() }</div>
-					</div>
+				<div className="jp-row">
+					<div class="lg-col-span-12 md-col-span-8 sm-col-span-4">{ renderConnectScreen() }</div>
 				</div>
 			);
 		}
@@ -119,43 +119,6 @@ const Admin = () => {
 		}
 
 		return renderNoBackupCapabilities();
-	};
-
-	const renderHeader = () => {
-		if ( showHeaderFooter ) {
-			return (
-				<div className="jp-wrap">
-					<div className="jp-row">
-						<div class="lg-col-span-12 md-col-span-8 sm-col-span-4">
-							<div className="jp-masthead">
-								<div className="jp-masthead__inside-container">
-									<div className="jp-masthead__logo-container">
-										<JetpackLogo className="jetpack-logo__masthead" />
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			);
-		}
-	};
-
-	const renderFooter = () => {
-		if ( showHeaderFooter ) {
-			return (
-				<div className="jp-wrap">
-					<div className="jp-row">
-						<div class="lg-col-span-12 md-col-span-8 sm-col-span-4">
-							<JetpackFooter
-								moduleName={ __( 'Jetpack Backup', 'jetpack-backup' ) }
-								a8cLogoHref="https://www.jetpack.com"
-							/>
-						</div>
-					</div>
-				</div>
-			);
-		}
 	};
 
 	// Renders additional segments under the jp-hero area condition on having a backup plan
@@ -215,20 +178,23 @@ const Admin = () => {
 	const renderContent = () => {
 		return (
 			<div className="content">
-				<div className="jp-hero">{ renderLoadedState() }</div>
-				<div className="jp-section">
-					<div className="jp-wrap">{ isFullyConnected() && renderBackupSegments() }</div>
-				</div>
+				<AdminSectionHero>{ renderLoadedState() }</AdminSectionHero>
+				<AdminSection>{ isFullyConnected() && renderBackupSegments() }</AdminSection>
 			</div>
 		);
 	};
 
 	return (
-		<div id="jetpack-backup-admin-container" className="jp-content">
-			{ renderHeader() }
-			{ renderContent() }
-			{ renderFooter() }
-		</div>
+		<AdminPage
+			withHeader={ showHeaderFooter }
+			withFooter={ showHeaderFooter }
+			moduleName={ __( 'Jetpack Backup', 'jetpack-backup' ) }
+			a8cLogoHref="https://www.jetpack.com"
+		>
+			<div id="jetpack-backup-admin-container" className="jp-content">
+				{ renderContent() }
+			</div>
+		</AdminPage>
 	);
 };
 
