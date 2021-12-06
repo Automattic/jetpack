@@ -47,7 +47,9 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			$this->add_new_site_link();
 		}
 
-		$this->add_woocommerce_installation_menu();
+		if ( $this->current_product_is_business_or_higher() ) {
+			$this->add_woocommerce_installation_menu();
+		}
 
 		ksort( $GLOBALS['menu'] );
 	}
@@ -251,17 +253,48 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Holds the current product set by get_current_product().
+	 *
+	 * @var string
+	 */
+	private $cached_product = null;
+	/**
+	 * Gets the current product and stores it in $cached_product so the database is only called once per request.
+	 *
+	 * @return array
+	 */
+	private function get_current_product() {
+		if ( null === $this->cached_product && class_exists( 'WPCOM_Store_API' ) ) {
+			$this->cached_product = \WPCOM_Store_API::get_current_plan( get_current_blog_id() );
+		}
+		return $this->cached_product;
+	}
+
+	/**
+	 * Is the current product a business plan or higher? Used to by WooCommerce Installation menu item.
+	 *
+	 * @return bool
+	 */
+	private function current_product_is_business_or_higher() {
+		if ( class_exists( 'WPCOM_Store' ) ) {
+			$products = \WPCOM_Store::get_wpcom_business_and_higher_plans();
+			$product  = $this->get_current_product();
+			return in_array( $product['product_id'], $products, true );
+		}
+		return false;
+	}
+
+	/**
 	 * Adds Upgrades menu.
 	 *
 	 * @param string $plan The current WPCOM plan of the blog.
 	 */
 	public function add_upgrades_menu( $plan = null ) {
-		if ( class_exists( 'WPCOM_Store_API' ) ) {
-			$products = \WPCOM_Store_API::get_current_plan( get_current_blog_id() );
-			if ( array_key_exists( 'product_name_short', $products ) ) {
-				$plan = $products['product_name_short'];
-			}
+		$product = $this->get_current_product();
+		if ( array_key_exists( 'product_name_short', $product ) ) {
+			$plan = $product['product_name_short'];
 		}
+
 		parent::add_upgrades_menu( $plan );
 
 		$last_upgrade_submenu_position = $this->get_submenu_item_count( 'paid-upgrades.php' );
