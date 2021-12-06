@@ -84,7 +84,7 @@ class Plan {
 	 */
 	public function supports_instant_search() {
 		$plan_info = $this->get_plan_info();
-		return isset( $plan_info['supports_instant_search'] ) && $plan_info['supports_instant_search'];
+		return ( isset( $plan_info['supports_instant_search'] ) && $plan_info['supports_instant_search'] ) || $this->has_jetpack_search_product();
 	}
 
 	/**
@@ -92,7 +92,7 @@ class Plan {
 	 */
 	public function supports_search() {
 		$plan_info = $this->get_plan_info();
-		return isset( $plan_info['supports_search'] ) && $plan_info['supports_search'];
+		return ( isset( $plan_info['supports_search'] ) && $plan_info['supports_search'] ) || $this->has_jetpack_search_product();
 	}
 
 	/**
