@@ -19,6 +19,25 @@ class Plan {
 	const JETPACK_SEARCH_PLAN_INFO_OPTION_KEY = 'jetpack_search_plan_info';
 
 	/**
+	 * Whether we have hooked the actions.
+	 *
+	 * @var boolean
+	 */
+	protected static $hooks_inited = false;
+
+	/**
+	 * Init hooks for updating plan info
+	 */
+	public function init_hooks() {
+		// Update plan info from WPCOM on Jetpack heartbeat.
+		// TODO: implement heartbeart for search.
+		if ( ! static::$hooks_inited ) {
+			add_action( 'jetpack_heartbeat', array( $this, 'get_plan_info_from_wpcom' ) );
+			static::$hooks_inited = true;
+		}
+	}
+
+	/**
 	 * Refresh plan info stored in options
 	 */
 	public function get_plan_info_from_wpcom() {

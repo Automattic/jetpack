@@ -49,6 +49,7 @@ class Dashboard {
 		$this->plan               = $plan ? $plan : new Plan();
 		$this->connection_manager = $connection_manager ? $connection_manager : new Connection_Manager( 'jetpack-search' );
 		$this->module_control     = $module_control ? $module_control : new Module_Control( $this->plan );
+		$this->plan->init_hooks();
 	}
 
 	/**
