@@ -23,7 +23,13 @@ class Test_WPCOM_REST_API_V2_Subscribers_Endpoint extends WP_Test_Jetpack_REST_T
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			wp_cache_set( 'wpcom_blog_reach_total_' . get_current_blog_id(), $count, 'subs' );
 		} else {
-			set_transient( 'wpcom_subscribers_total', array('value' => $count, 'status' => 'success' ) );
+			set_transient(
+				'wpcom_subscribers_total',
+				array(
+					'value'  => $count,
+					'status' => 'success',
+				)
+			);
 		}
 	}
 

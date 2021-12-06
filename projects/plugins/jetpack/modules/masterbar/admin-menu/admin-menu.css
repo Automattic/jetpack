@@ -328,6 +328,14 @@
 		padding-left: 42px;
 	}
 
+	.wp-responsive-open #wpbody {
+		right: inherit;
+	}
+
+	.wp-responsive-open #wpcontent {
+		margin-left: 272px;
+	}
+
 	.auto-fold #adminmenu, .auto-fold #adminmenuback, .auto-fold #adminmenuwrap {
 		width: 272px;
 	}
@@ -348,6 +356,10 @@
 	.auto-fold #adminmenuwrap {
 		width: 100%;
 		z-index: 171;
+	}
+
+	.wp-responsive-open #wpcontent {
+		margin-left: 0;
 	}
 
 	ul#adminmenu a.wp-has-current-submenu:after,

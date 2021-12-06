@@ -24,7 +24,7 @@ const ActivationScreenIllustration = props => {
 	const { imageUrl, showSupportLink = false } = props;
 	return (
 		<div className="jp-license-activation-screen-illustration">
-			<div className="jp-license-activation-screen-illustration--wrapper" >
+			<div className="jp-license-activation-screen-illustration--wrapper">
 				<img className="jp-license-activation-screen-illustration--img" src={ imageUrl } alt="" />
 			</div>
 			{ showSupportLink && (

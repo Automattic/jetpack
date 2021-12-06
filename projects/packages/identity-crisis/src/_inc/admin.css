@@ -1493,11 +1493,11 @@ https://github.com/thoughtbot/bourbon
   .dops-banner.dops-card .dops-banner__icon-circle {
     background-color: #0087be; }
   .dops-banner.dops-card.is-jetpack-info {
-    border-left-color: #00be28; }
+    border-left-color: #069e08; }
     .dops-banner.dops-card.is-jetpack-info .dops-banner__icon {
-      color: #00be28; }
+      color: #069e08; }
     .dops-banner.dops-card.is-jetpack-info .dops-banner__icon-circle {
-      background-color: #00be28; }
+      background-color: #069e08; }
   .dops-banner.dops-card.is-product {
     border-left-color: #3895ba; }
     .dops-banner.dops-card.is-product .dops-banner__icon {
@@ -1876,7 +1876,7 @@ https://github.com/thoughtbot/bourbon
   justify-content: space-between;
   padding: 0 13px 0 13px; }
   .jetpack-termination-dialog__feature-header .gridicon {
-    color: #00be28; }
+    color: #069e08; }
 
 .jetpack-termination-dialog__feature-body {
   padding: 0 13px 0 13px; }
@@ -3447,7 +3447,7 @@ https://github.com/thoughtbot/bourbon
   .jp-recommendations-feature-summary.is-feature-enabled {
     grid-template-columns: 30px auto 120px; }
   .jp-recommendations-feature-summary .gridicons-checkmark-circle {
-    fill: #00be28; }
+    fill: #069e08; }
   .jp-recommendations-feature-summary:last-child {
     border-bottom: none; }
 
@@ -3532,7 +3532,7 @@ https://github.com/thoughtbot/bourbon
     display: flex;
     align-items: center; }
   .jp-recommendations-sidebar-card__features .gridicons-checkmark-circle {
-    fill: #00be28;
+    fill: #069e08;
     margin-right: 8px; }
 
 .jp-recommendations-one-click-restores h2 {
@@ -3601,7 +3601,7 @@ https://github.com/thoughtbot/bourbon
   .jp-recommendations-product-card-upsell-no-price p {
     margin: 0; }
   .jp-recommendations-product-card-upsell-no-price .gridicons-checkmark-circle {
-    fill: #00be28;
+    fill: #069e08;
     margin-right: 8px; }
   .jp-recommendations-product-card-upsell-no-price .dops-button {
     margin: 32px 0 0 0;

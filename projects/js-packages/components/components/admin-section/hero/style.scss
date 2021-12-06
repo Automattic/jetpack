@@ -1,0 +1,11 @@
+@import '~@automattic/jetpack-base-styles/style';
+
+.jp-admin-section-hero {
+	padding: 48px 0px 64px 0px;
+	background: var( --jp-white-off );
+
+	h1, h2, h3, h4, h5, h6 {
+		margin-top: 0px;
+		line-height: 1.2;
+	}
+}
