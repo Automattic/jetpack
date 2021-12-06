@@ -94,7 +94,7 @@ jobs:
         working-directory: tools/e2e-commons
         continue-on-error: true
         run: |
-          pnpm run tunnel-off
+          pnpm run tunnel:off
 
       - name: Upload test artifacts
         if: ${{ always() }}
