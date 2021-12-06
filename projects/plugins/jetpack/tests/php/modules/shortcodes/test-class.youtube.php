@@ -51,8 +51,8 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_youtube_url() {
 		$youtube_id = 'JaNH56Vpg-A';
-		$url = 'http://www.youtube.com/watch?v=' . $youtube_id;
-		$content = '[youtube=' . $url . ']';
+		$url        = 'http://www.youtube.com/watch?v=' . $youtube_id;
+		$content    = '[youtube=' . $url . ']';
 
 		$shortcode_content = do_shortcode( $content );
 
@@ -101,8 +101,8 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 		global $post;
 
 		$youtube_id = 'JaNH56Vpg-A';
-		$url = 'http://www.youtube.com/watch?v=' . $youtube_id;
-		$post = $this->factory->post->create_and_get( array( 'post_content' => $url ) );
+		$url        = 'http://www.youtube.com/watch?v=' . $youtube_id;
+		$post       = $this->factory->post->create_and_get( array( 'post_content' => $url ) );
 
 		wpcom_youtube_embed_crazy_url_init();
 		setup_postdata( $post );
@@ -136,7 +136,7 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 					'foo'  => 'baz',
 					'bar'  => 'example',
 					'even' => 'more',
-				)
+				),
 			),
 			'only_in_fragment'                 => array(
 				array( 'fragment' => 'example=shown&additional=here' ),
@@ -152,14 +152,14 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 					'example' => 'more',
 					'add'     => 'another',
 					'there'   => 'more',
-				)
+				),
 			),
 			'query_and_fragment_have_same_key' => array(
 				array(
 					'query'    => 'foo=inquery',
 					'fragment' => 'foo=infragment',
 				),
-				array( 'foo' => 'inquery' )
+				array( 'foo' => 'inquery' ),
 			),
 		);
 	}

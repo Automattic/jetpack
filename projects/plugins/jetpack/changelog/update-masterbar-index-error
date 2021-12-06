@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Atomic Menu: prevent notice for users without access to the plugins menu item.

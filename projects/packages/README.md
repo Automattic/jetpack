@@ -61,26 +61,6 @@ use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 $logo = new Jetpack_Logo();
 ```
 
-### Package textdomains
-
-Jetpack's packages use the 'jetpack' textdomain for translatable strings. Plugins that use these packages must change the textdomains in the packages when preparing the plugin for release. A few tools that can help automate this process are [node-wp-i18n](https://github.com/cedaro/node-wp-i18n) and [wp-textdomain](https://github.com/timelsass/wp-textdomain).
-
-For example, a plugin could change the textdomain during the Composer `post-autoload-dump` event with the following script in the plugin's `composer.json` file:
-
-`"post-autoload-dump": "node  {path_to_script}/update_textdomain.js"`
-
-where the `update_textdomain.js` file contains something like:
-
-```
-const wpTextdomain = require( 'wp-textdomain' );
-
-wpTextdomain( './vendor/automattic/**/*.php', {
-	domain: 'plugin-textdomain',
-	fix: true,
-	glob: { follow: true },
-} );
-```
-
 ## Deploying packages
 
 While the script we use to deploy the package takes care of everything, we might need to setup some stuff online in GitHub and Packagist. Let's use the Autoloader package as an example. 

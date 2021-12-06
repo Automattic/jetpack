@@ -66,7 +66,7 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 			$this->setExpectedDeprecated( "$class::$method" );
 		}
 
-		$class = new ReflectionClass( $class );
+		$class  = new ReflectionClass( $class );
 		$method = $class->getMethod( $method );
 
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
