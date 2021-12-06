@@ -253,7 +253,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Holds the current product set by get_current_product().
+	 * Holds the current product, set by get_current_product().
 	 *
 	 * @var string
 	 */
@@ -291,7 +291,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 */
 	public function add_upgrades_menu( $plan = null ) {
 		$product = $this->get_current_product();
-		if ( array_key_exists( 'product_name_short', $product ) ) {
+		if ( is_array( $product ) && array_key_exists( 'product_name_short', $product ) ) {
 			$plan = $product['product_name_short'];
 		}
 
