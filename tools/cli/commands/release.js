@@ -296,10 +296,10 @@ export async function getVersionBump( version, project ) {
 		return version.join( '.' );
 	}
 
-	const versioningType = await readComposerJson( project ).extra.changelogger;
+	const changeloggerConfig = await readComposerJson( project ).extra.changelogger;
 
 	// If WordPress versioning, i.e. x.(y+1) or (x+1).0
-	if ( versioningType && versioningType.versioning === 'wordpress' ) {
+	if ( changeloggerConfig && changeloggerConfig.versioning === 'wordpress' ) {
 		// If there was a point release, remove the last number before bumping.
 		if ( version[ 2 ] ) {
 			version.pop();
