@@ -510,7 +510,7 @@ const VideoPressEdit = CoreVideoEdit =>
 			 *     - We don't have a video GUID
 			 *     - Or we're uploading a video
 			 *     - Or we're in fallback mode (to display a video hosted locally for instance)
-			 * In all other cases, we should be able to safely display a VpBlock.
+			 * In all other cases, we should be able to safely display the Loading/VpBlock branch.
 			 */
 			const isFetchingVideo = isFetchingMedia || isFetchingPreview;
 			const renderCoreVideoAndLoadingBlocks = fallback || isUploading || ! guid;
