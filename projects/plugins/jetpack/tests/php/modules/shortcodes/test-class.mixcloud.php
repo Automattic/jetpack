@@ -73,7 +73,7 @@ class WP_Test_Jetpack_Shortcodes_Mixcloud extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_mixcloud_remote_get_wp_error() {
 
-		$http_request_filter = function() {
+		$http_request_filter = function () {
 			return new WP_Error( 'error' );
 		};
 
@@ -95,7 +95,7 @@ class WP_Test_Jetpack_Shortcodes_Mixcloud extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_mixcloud_no_sandbox() {
 
-		$http_request_filter = function() {
+		$http_request_filter = function () {
 
 			$body_object = array(
 				'html' => '<iframe width="500" height="60" src="https://www.mixcloud.com/widget/iframe/?feed=https%3A%2F%2Fwww.mixcloud.com%2FDJOneF%2Fdjonef-mashup-mix-june-2020%2F&amp;hide_artwork=1&amp;hide_cover=1&amp;light=1&amp;mini=1" frameborder="0" sandbox="allow-popups"></iframe>',
@@ -128,7 +128,7 @@ class WP_Test_Jetpack_Shortcodes_Mixcloud extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_mixcloud_sandbox_have_allow_popups() {
 
-		$http_request_filter = function() {
+		$http_request_filter = function () {
 
 			$body_object = array(
 				'html' => '<iframe width="500" height="60" src="https://www.mixcloud.com/widget/iframe/?feed=https%3A%2F%2Fwww.mixcloud.com%2FDJOneF%2Fdjonef-mashup-mix-june-2020%2F&amp;hide_artwork=1&amp;hide_cover=1&amp;light=1&amp;mini=1" frameborder="0" sandbox="allow-popups"></iframe>',

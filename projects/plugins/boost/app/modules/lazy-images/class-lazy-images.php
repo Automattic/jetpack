@@ -62,7 +62,7 @@ class Lazy_Images extends Module {
 	 * Allow enabling Jetpack Lazy Images module if the module is already enabled by Jetpack Boost.
 	 */
 	public function enable_jetpack_lazy_images_module() {
-		if ( $this->jetpack_boost_plugin->is_module_enabled( 'false', self::MODULE_SLUG ) && ! self::is_jetpack_lazy_images_module_enabled() ) {
+		if ( $this->jetpack_boost_plugin->is_module_enabled( false, self::MODULE_SLUG ) && ! self::is_jetpack_lazy_images_module_enabled() ) {
 			Jetpack::activate_module( self::MODULE_SLUG, false, false );
 		}
 	}

@@ -9,7 +9,7 @@
 	"require-dev": {
 		"automattic/jetpack-changelogger": "^3.0",
 		"yoast/phpunit-polyfills": "1.0.2",
-		"automattic/wordbless": "^0.3.1"
+		"automattic/wordbless": "0.3.1"
 	},
 	"autoload": {
 		"classmap": [
