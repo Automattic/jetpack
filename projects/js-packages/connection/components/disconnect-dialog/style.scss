@@ -61,6 +61,11 @@
 			display: flex;
 			flex-direction: column;
 			flex-grow: 1;
+			margin: 0;
+
+			&::before {
+				display: none;
+			}
 		}
 
 		&__header{
@@ -182,7 +187,6 @@
 		height: 900px;
 		display: flex;
 		flex-direction: column;
-		flex-grow: 1;
 
 		h1 {
 			font-size: var( --font-title-large );
