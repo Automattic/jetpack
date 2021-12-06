@@ -20,6 +20,7 @@ use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Sync\Actions as Sync_Actions;
 use Automattic\Jetpack\Sync\Health;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Terms_Of_Service;
@@ -3026,6 +3027,10 @@ p {
 		update_option( 'jetpack_activation_source', self::get_activation_source( wp_get_referer() ) );
 
 		Health::on_jetpack_activated();
+
+		if ( self::is_connection_ready() ) {
+			Sync_Actions::do_only_first_initial_sync();
+		}
 
 		self::plugin_initialize();
 	}
