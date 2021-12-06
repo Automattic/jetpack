@@ -174,11 +174,23 @@ class Jetpack_SSO_Notices {
 	 * @return string
 	 */
 	public static function cant_find_user( $message ) {
-		$error = esc_html__(
+		$error = __(
 			"We couldn't find your account. If you already have an account, make sure you have connected to WordPress.com.",
 			'jetpack'
 		);
-		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $error );
+
+		/**
+		 * Filters the "couldn't find your account" notice after an attempted SSO.
+		 *
+		 * @module sso
+		 *
+		 * @since 10.5.0
+		 *
+		 * @param string $error Error text.
+		 */
+		$error = apply_filters( 'jetpack_sso_unknown_user_notice', $error );
+
+		$message .= sprintf( '<p class="message" id="login_error">%s</p>', esc_html( $error ) );
 
 		return $message;
 	}
@@ -193,11 +205,22 @@ class Jetpack_SSO_Notices {
 	 * @return string
 	 */
 	public static function sso_not_allowed_in_staging( $message ) {
-		$error = esc_html__(
+		$error = __(
 			'Logging in with WordPress.com is disabled for sites that are in staging mode.',
 			'jetpack'
 		);
-		$message .= sprintf( '<p class="message">%s</p>', $error );
+
+		/**
+		 * Filters the disallowed notice for staging sites attempting SSO.
+		 *
+		 * @module sso
+		 *
+		 * @since 10.5.0
+		 *
+		 * @param string $error Error text.
+		 */
+		$error = apply_filters( 'jetpack_sso_disallowed_staging_notice', $error );
+		$message .= sprintf( '<p class="message">%s</p>', esc_html( $error ) );
 		return $message;
 	}
 }
