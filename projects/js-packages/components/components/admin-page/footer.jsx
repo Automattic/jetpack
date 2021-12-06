@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 /**
  * Internal dependencies
  */
-import './style.scss';
+import styles from './style.module.scss';
 import JetpackFooter from '../jetpack-footer';
 import Row from '../layout/row';
 import Wrap from '../layout/wrap';
@@ -24,7 +24,7 @@ const AdminPageFooter = props => {
 	const { moduleName, a8cLogoHref } = props;
 
 	return (
-		<div className="jp-admin-page-section">
+		<div className={ styles[ 'jp-admin-page-section' ] }>
 			<Wrap>
 				<Row>
 					<Grid lg="12" md="8" sm="4">

@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 /**
  * Internal dependencies
  */
-import './style.scss';
+import styles from './style.module.scss';
 import AdminPageHeader from './header';
 import AdminPageFooter from './footer';
 
@@ -24,7 +24,7 @@ const AdminPage = props => {
 	const { children, moduleName, a8cLogoHref } = props;
 
 	return (
-		<div class="jp-admin-page">
+		<div className={ styles[ 'jp-admin-page' ] }>
 			<AdminPageHeader />
 			{ children }
 			<AdminPageFooter moduleName={ moduleName } a8cLogoHref={ a8cLogoHref } />
