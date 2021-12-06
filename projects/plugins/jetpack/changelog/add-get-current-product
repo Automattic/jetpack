@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Add get_current_product() and current_product_is_business_or_higher() to the WPcom_Admin_Menu.
