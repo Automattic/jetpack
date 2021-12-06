@@ -215,18 +215,14 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		add_submenu_page( $slug, esc_attr__( 'Discussion', 'jetpack' ), __( 'Discussion', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/discussion/' . $this->domain );
 
 		$plan_supports_scan = \Jetpack_Plan::supports( 'scan' );
+		$products           = \Jetpack_Plan::get_products();
+		$has_scan_product   = false;
 
-		if ( ! $plan_supports_scan ) {
-			$products = \Jetpack_Plan::get_products();
-
-			if ( is_array( $products ) ) {
-				$has_scan_product = false;
-
-				foreach ( $products as $product ) {
-					if ( strpos( $product['product_slug'], 'jetpack_scan' ) === 0 ) {
-						$has_scan_product = true;
-						break;
-					}
+		if ( is_array( $products ) ) {
+			foreach ( $products as $product ) {
+				if ( strpos( $product['product_slug'], 'jetpack_scan' ) === 0 ) {
+					$has_scan_product = true;
+					break;
 				}
 			}
 		}
