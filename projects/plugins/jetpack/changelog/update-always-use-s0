@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Switched Jetpack plugin to always use `s0.wp.com` and `i0.wp.com` for external resources
