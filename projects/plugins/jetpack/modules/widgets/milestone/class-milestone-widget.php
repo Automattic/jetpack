@@ -49,7 +49,6 @@ class Milestone_Widget extends WP_Widget {
 		);
 
 		add_action( 'wp_enqueue_scripts', array( __class__, 'enqueue_template' ) );
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( __class__, 'enqueue_admin' ) );
 		add_action( 'wp_footer', array( $this, 'localize_script' ) );
 
@@ -205,6 +204,8 @@ class Milestone_Widget extends WP_Widget {
 	 */
 	public function widget( $args, $instance ) {
 		$instance = wp_parse_args( $instance, $this->defaults() );
+
+		$this->enqueue_scripts();
 
 		echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
