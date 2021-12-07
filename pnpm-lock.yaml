@@ -648,11 +648,12 @@ importers:
       '@wordpress/base-styles': 4.0.4
       '@wordpress/block-editor': 8.0.7_5504c151bbbfaddcc2bdb2cfb0ea7d7d
       '@wordpress/data': 6.1.4_react@16.14.0+redux@4.1.1
+      '@wordpress/element': 4.0.4
       '@wordpress/i18n': 4.2.4
       '@wordpress/icons': 6.1.1
       classnames: 2.3.1
       fast-json-stable-stringify: 2.1.0
-      gridicons: 3.3.1_react@17.0.2
+      gridicons: 3.3.1_react@16.14.0
       lodash: 4.17.21
       photon: 4.0.0
       preact: 10.5.15
@@ -3225,7 +3226,7 @@ packages:
         optional: true
     dependencies:
       '@babel/core': 7.16.0
-      '@babel/runtime': 7.16.3
+      '@babel/runtime': 7.16.0
       '@emotion/babel-plugin': 11.3.0_@babel+core@7.16.0
       '@emotion/is-prop-valid': 1.1.0
       '@emotion/react': 11.5.0_@babel+core@7.16.0+react@17.0.2
@@ -3604,7 +3605,7 @@ packages:
       '@types/istanbul-reports': 3.0.1
       '@types/node': 16.11.7
       '@types/yargs': 15.0.14
-      chalk: 4.1.1
+      chalk: 4.1.2
     dev: true
 
   /@jest/types/27.2.5:
@@ -7486,18 +7487,18 @@ packages:
       colord: 2.9.1
       dom-scroll-into-view: 1.2.1
       downshift: 6.1.7_react@17.0.2
-      framer-motion: 4.1.17_react-dom@17.0.2+react@17.0.2
+      framer-motion: 4.1.17_react@17.0.2
       gradient-parser: 0.1.5
       highlight-words-core: 1.2.2
       lodash: 4.17.21
       memize: 1.1.0
       moment: 2.29.1
-      re-resizable: 6.9.1_react-dom@17.0.2+react@17.0.2
-      react-colorful: 5.5.0_react-dom@17.0.2+react@17.0.2
-      react-dates: 17.2.0_d0804d3726ad84366bcc42e494508e1e
+      re-resizable: 6.9.1_react@17.0.2
+      react-colorful: 5.5.0_react@17.0.2
+      react-dates: 17.2.0_moment@2.29.1+react@17.0.2
       react-resize-aware: 3.1.1_react@17.0.2
       react-use-gesture: 9.1.3_react@17.0.2
-      reakit: 1.3.10_react-dom@17.0.2+react@17.0.2
+      reakit: 1.3.10_react@17.0.2
       rememo: 3.0.0
       uuid: 8.3.2
     transitivePeerDependencies:
@@ -13673,6 +13674,15 @@ packages:
     resolution: {integrity: sha512-HZRwumpOGUrHyxO5bqKZL0B0GlUpwtCAzZ42sgxUPniu33R1LSFH5yrIcBCHjkctCAh3mtWKcKd9J4vDDdeVHA==}
     dev: false
 
+  /gridicons/3.3.1_react@16.14.0:
+    resolution: {integrity: sha512-eQsmujjLptLtyhGuu31US3mXkcptYHkgEE/s277HWv+j6c3Z2gYyjoHcBKwSFbQwxbfhToRd5uzYimR2ExWJdQ==}
+    peerDependencies:
+      react: "^15.3.0 ||\_^16.0.0 "
+    dependencies:
+      prop-types: 15.7.2
+      react: 16.14.0
+    dev: false
+
   /gridicons/3.3.1_react@17.0.2:
     resolution: {integrity: sha512-eQsmujjLptLtyhGuu31US3mXkcptYHkgEE/s277HWv+j6c3Z2gYyjoHcBKwSFbQwxbfhToRd5uzYimR2ExWJdQ==}
     peerDependencies:
@@ -15441,7 +15451,7 @@ packages:
     dependencies:
       '@jest/types': 26.6.2
       '@types/node': 16.11.7
-      chalk: 4.1.1
+      chalk: 4.1.2
       graceful-fs: 4.2.8
       is-ci: 2.0.0
       micromatch: 4.0.4
@@ -19303,7 +19313,7 @@ packages:
     dependencies:
       array.prototype.flat: 1.2.5
       global-cache: 1.2.1
-      react-with-styles: 3.2.3_react-dom@17.0.2+react@17.0.2
+      react-with-styles: 3.2.3
 
   /react-with-styles/3.2.3:
     resolution: {integrity: sha512-MTI1UOvMHABRLj5M4WpODfwnveHaip6X7QUMI2x6zovinJiBXxzhA9AJP7MZNaKqg1JRFtHPXZdroUC8KcXwlQ==}
@@ -21553,7 +21563,7 @@ packages:
       serialize-javascript: 6.0.0
       source-map: 0.6.1
       terser: 5.9.0
-      webpack: 5.64.1_webpack-cli@4.8.0
+      webpack: 5.64.1
 
   /terser/5.9.0:
     resolution: {integrity: sha512-h5hxa23sCdpzcye/7b8YqbE5OwKca/ni0RQz1uRX3tGh8haaGHqcuSqbGRybuAKNdntZ0mDgFNXPJ48xQ2RXKQ==}
