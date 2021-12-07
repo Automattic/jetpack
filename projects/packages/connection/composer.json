@@ -1,7 +1,7 @@
 {
 	"name": "automattic/jetpack-connection",
 	"description": "Everything needed to connect to the Jetpack infrastructure",
-	"type": "library",
+	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-a8c-mc-stats": "^1.4",
