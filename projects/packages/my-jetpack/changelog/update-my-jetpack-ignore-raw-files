@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Build: do not ship scss and jsx files in production build.
