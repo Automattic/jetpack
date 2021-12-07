@@ -1,7 +1,7 @@
 {
 	"name": "automattic/jetpack-search",
 	"description": "Tools to assist with enabling cloud search for Jetpack sites.",
-	"type": "library",
+	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-connection": "^1.32"

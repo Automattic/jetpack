@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-VideoPress: keep expanded/collapsed state of settings panel when reloading video preview.
