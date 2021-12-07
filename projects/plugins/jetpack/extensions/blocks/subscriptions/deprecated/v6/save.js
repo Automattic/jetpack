@@ -13,7 +13,7 @@ import { reduce } from 'lodash';
 /**
  * Internal dependencies
  */
-import definedAttributes from '../v3/attributes';
+import definedAttributes from './attributes';
 
 export const DEFAULT_BORDER_RADIUS_VALUE = 0;
 export const DEFAULT_BORDER_WEIGHT_VALUE = 1;
