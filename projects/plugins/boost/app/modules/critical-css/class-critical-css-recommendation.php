@@ -10,6 +10,7 @@ class Critical_CSS_Recommendation {
 
 	public function __construct() {
 		add_filter( 'jetpack_boost_js_constants', array( $this, 'always_add_critical_css_constants' ) );
+		add_action( 'jetpack_boost_uninstall', array( __CLASS__, 'on_uninstall' ) );
 	}
 
 	public function on_initialize() {

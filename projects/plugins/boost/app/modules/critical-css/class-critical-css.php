@@ -173,7 +173,6 @@ class Critical_CSS extends Module {
 	 */
 	public function on_uninstall() {
 		self::clear_reset_reason();
-		Critical_CSS_Recommendation::on_uninstall();
 	}
 
 	/**
