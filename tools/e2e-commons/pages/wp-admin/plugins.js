@@ -5,15 +5,15 @@ export default class PluginsPage extends WpPage {
 		super( page, { expectedSelectors: [ '.search-box' ] } );
 	}
 
-	async deactivateJetpack() {
-		const selector = "tr[data-slug='jetpack'] a[href*='=deactivate']";
+	async deactivatePlugin( pluginSlug ) {
+		const selector = `tr[data-slug='${ pluginSlug }'] a[href*='=deactivate']`;
 		const navigationPromise = this.waitForLoad();
 		await this.click( selector );
 		await navigationPromise;
 	}
 
-	async activateJetpack() {
-		const selector = "tr[data-slug='jetpack'] a[href*='=activate']";
+	async activatePlugin( pluginSlug ) {
+		const selector = `tr[data-slug='${ pluginSlug }'] a[href*='=activate']`;
 		const navigationPromise = this.waitForLoad();
 		await this.click( selector );
 		await navigationPromise;

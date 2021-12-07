@@ -13,6 +13,13 @@ export default class Sidebar extends WpPage {
 		return await this._selectMenuItem( jetpackMenuSelector, menuItemSelector );
 	}
 
+	async selectJetpackBoost() {
+		const jetpackMenuSelector = '#toplevel_page_jetpack';
+		const menuItemSelector = '#toplevel_page_jetpack a[href$="jetpack-boost"]';
+
+		return await this._selectMenuItem( jetpackMenuSelector, menuItemSelector );
+	}
+
 	async selectNewPost() {
 		const postsSelector = '#menu-posts';
 		const itemSelector = '#menu-posts a[href*="post-new"]';
