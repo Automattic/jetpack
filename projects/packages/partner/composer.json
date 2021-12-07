@@ -1,7 +1,7 @@
 {
 	"name": "automattic/jetpack-partner",
 	"description": "Support functions for Jetpack hosting partners.",
-	"type": "library",
+	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {

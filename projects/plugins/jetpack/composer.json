@@ -18,6 +18,7 @@
 		"automattic/jetpack-backup": "1.1.x-dev",
 		"automattic/jetpack-blocks": "1.4.x-dev",
 		"automattic/jetpack-compat": "1.6.x-dev",
+		"automattic/jetpack-composer-plugin": "0.1.x-dev",
 		"automattic/jetpack-config": "1.5.x-dev",
 		"automattic/jetpack-connection": "1.32.x-dev",
 		"automattic/jetpack-connection-ui": "2.1.x-dev",
