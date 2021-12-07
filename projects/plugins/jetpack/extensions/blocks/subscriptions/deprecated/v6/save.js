@@ -14,13 +14,12 @@ import { reduce } from 'lodash';
  * Internal dependencies
  */
 import defaultAttributes from './attributes';
-import {
-	DEFAULT_BORDER_RADIUS_VALUE,
-	DEFAULT_BORDER_WEIGHT_VALUE,
-	DEFAULT_PADDING_VALUE,
-	DEFAULT_SPACING_VALUE,
-	DEFAULT_FONTSIZE_VALUE,
-} from './constants';
+
+const DEFAULT_BORDER_RADIUS_VALUE = 0;
+const DEFAULT_BORDER_WEIGHT_VALUE = 1;
+const DEFAULT_PADDING_VALUE = 15;
+const DEFAULT_SPACING_VALUE = 10;
+const DEFAULT_FONTSIZE_VALUE = '16px';
 
 export default function Save( { className, attributes } ) {
 	const {
@@ -47,7 +46,6 @@ export default function Save( { className, attributes } ) {
 		padding,
 		spacing,
 		buttonWidth,
-		successMessage,
 	} = attributes;
 
 	const isGradientAvailable = !! getGradientClass;
@@ -132,7 +130,6 @@ export default function Save( { className, attributes } ) {
 		submit_button_classes: submitButtonClasses,
 		email_field_classes: emailFieldClasses,
 		show_only_email_and_button: true,
-		success_message: successMessage,
 	};
 
 	const shortcodeAttributesStringified = reduce(
