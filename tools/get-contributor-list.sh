@@ -26,7 +26,7 @@ fi
 
 if [[ -z $2 ]]; then
 	info "What version do you want to get contributors for?"
-	read CURRENT_VERSION
+	read -r CURRENT_VERSION
 else 
 	CURRENT_VERSION="$2"
 fi
