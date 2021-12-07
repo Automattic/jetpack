@@ -241,8 +241,9 @@ export function isFetchingSitePurchases( state ) {
 
 /**
  * Returns the products of this site.
- * @param  {Object}  state Global state tree
- * @return {Array}  Site products
+ *
+ * @param   {object} state - Global state tree
+ * @returns {Array} Site products
  */
 export function getSiteProducts( state ) {
 	return get( state.jetpack.siteData, [ 'data', 'products' ], {} );
@@ -398,10 +399,10 @@ export function getConnectedPlugins( state ) {
 }
 
 /**
- * Returns true if the site has a subscription to a Backup product or to a plan that includes Backup
+ * Returns true if the site has a subscription to a Backup product or to a plan that includes Backup.
  *
- * @param  {Object} state Global state tree
- * @return {boolean}      True if the site does have Backup
+ * @param   {object} state - Global state tree
+ * @returns {boolean} True if the site does have Backup
  */
 export function siteHasBackup( state ) {
 	const sitePlan = getSitePlan( state );

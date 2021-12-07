@@ -232,10 +232,22 @@ export function isNew( plan ) {
 	return includes( NEW_PLANS, plan );
 }
 
+/**
+ * Determines if a plan includes Jetpack Backup.
+ *
+ * @param {string} plan - The plan slug
+ * @returns {boolean} True if the plan includes Jetpack Backup
+ */
 export function isJetpackPlanWithBackup( plan ) {
 	return includes( JETPACK_PLANS_WITH_BACKUP, plan );
 }
 
+/**
+ * Determines if a product is Jetpack Backup.
+ *
+ * @param {string} product - The product slug
+ * @returns {boolean} True if the product is Jetpack Backup
+ */
 export function isJetpackBackup( product ) {
 	return includes( JETPACK_BACKUP_PRODUCTS, product );
 }

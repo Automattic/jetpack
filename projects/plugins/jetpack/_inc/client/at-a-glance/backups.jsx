@@ -30,7 +30,6 @@ import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import {
 	getActiveBackupPurchase,
 	getSitePlan,
-	getSiteProducts,
 	hasActiveBackupPurchase,
 	siteHasBackup,
 	isFetchingSiteData,
