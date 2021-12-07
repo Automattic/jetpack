@@ -20,7 +20,7 @@ BASE_CMD='jetpack docker --type e2e --name t1'
 
 start_env() {
 	$BASE_CMD up -d
-	$BASE_CMD install
+	$BASE_CMD install || true
 	configure_wp_env "$@"
 }
 
@@ -30,7 +30,7 @@ stop_env() {
 
 reset_env() {
 	$BASE_CMD wp -- db reset --yes
-	$BASE_CMD install
+	$BASE_CMD install || true
 	configure_wp_env "$@"
 }
 

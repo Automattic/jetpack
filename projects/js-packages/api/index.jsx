@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { assign } from 'lodash';
+import { addQueryArgs } from '@wordpress/url';
 import { jetpackConfigGet, jetpackConfigHas } from '@automattic/jetpack-config';
 
 /**
@@ -97,9 +98,10 @@ function JetpackRestApiClient( root, nonce ) {
 
 		fetchAuthorizationUrl: redirectUri =>
 			getRequest(
-				`${ apiRoot }jetpack/v4/connection/authorize_url?no_iframe=1&redirect_uri=${ encodeURIComponent(
-					redirectUri
-				) }`,
+				addQueryArgs( `${ apiRoot }jetpack/v4/connection/authorize_url`, {
+					no_iframe: '1',
+					redirect_uri: redirectUri,
+				} ),
 				getParams
 			)
 				.then( checkStatus )
@@ -157,6 +159,11 @@ function JetpackRestApiClient( root, nonce ) {
 
 		fetchConnectedPlugins: () =>
 			getRequest( `${ apiRoot }jetpack/v4/connection/plugins`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		setHasSeenWCConnectionModal: () =>
+			postRequest( `${ apiRoot }jetpack/v4/seen-wc-connection-modal`, postParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
@@ -454,6 +461,20 @@ function JetpackRestApiClient( root, nonce ) {
 		attachLicenses: licenses =>
 			postRequest( `${ apiRoot }jetpack/v4/licensing/attach-licenses`, postParams, {
 				body: JSON.stringify( { licenses } ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+		fetchSearchPlanInfo: () =>
+			getRequest( `${ apiRoot }jetpack/v4/search/plan`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+		fetchSearchSettings: () =>
+			getRequest( `${ apiRoot }jetpack/v4/search/settings`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+		updateSearchSettings: newSettings =>
+			postRequest( `${ apiRoot }jetpack/v4/search/settings`, postParams, {
+				body: JSON.stringify( newSettings ),
 			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),

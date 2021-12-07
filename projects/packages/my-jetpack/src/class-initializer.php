@@ -69,8 +69,9 @@ class Initializer {
 			'../build/index.js',
 			__FILE__,
 			array(
-				'enqueue'   => true,
-				'in_footer' => true,
+				'enqueue'    => true,
+				'in_footer'  => true,
+				'textdomain' => 'jetpack',
 			)
 		);
 	}
@@ -81,6 +82,6 @@ class Initializer {
 	 * @return void
 	 */
 	public static function admin_page() {
-		echo '<div id="my-jetpack-container" class="wrap"></div>';
+		echo '<div id="my-jetpack-container"></div>';
 	}
 }

@@ -1,12 +1,12 @@
 {
 	"name": "jetpack-boost",
-	"version": "1.4.0-alpha",
+	"version": "2.0.0-alpha",
 	"description": "Boost your WordPress site's performance, from the creators of Jetpack",
 	"directories": {
 		"test": "tests"
 	},
 	"dependencies": {
-		"@wordpress/components": "19.0.3",
+		"@wordpress/components": "19.1.1",
 		"@wordpress/element": "4.0.4",
 		"jetpack-boost-critical-css-gen": "github:automattic/jetpack-boost-critical-css-gen#release-0.0.2"
 	},
@@ -47,7 +47,7 @@
 		"build-development": "pnpm run clear-dist && pnpm run build-php && rollup -c",
 		"build-production": "pnpm run clear-dist && pnpm run install-if-deps-outdated && pnpm run build-production-php && NODE_ENV=production BABEL_ENV=production rollup -c",
 		"build-php": "composer install --ignore-platform-reqs",
-		"build-production-php": "rm -rf vendor/ && COMPOSER_MIRROR_PATH_REPOS=1 COMPOSER_ROOT_VERSION=dev-master composer install -o --no-dev --classmap-authoritative --prefer-dist",
+		"build-production-php": "rm -rf vendor/ jetpack_vendor/ && COMPOSER_MIRROR_PATH_REPOS=1 COMPOSER_ROOT_VERSION=dev-master composer install -o --no-dev --classmap-authoritative --prefer-dist",
 		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
 		"dev-serve": "rollup -c -w --environment SERVE",
 		"dev": "pnpm run clear-dist && rollup -c -w",

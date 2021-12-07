@@ -75,9 +75,15 @@ const ActivationScreen = props => {
 	const [ activatedProduct, setActivatedProduct ] = useState( null );
 
 	const activateLicense = useCallback( () => {
-		if ( ! license || isSaving ) {
+		if ( isSaving ) {
 			return Promise.resolve();
 		}
+		if ( license.length < 1 ) {
+			setLicenseError( __( 'This is not a valid license key. Please try again.', 'jetpack' ) );
+			return Promise.resolve();
+		}
+
+		setLicenseError( null );
 		setIsSaving( true );
 		// returning our promise chain makes testing a bit easier ( see ./test/components.jsx - "should render an error from API" )
 		return restApi
@@ -113,7 +119,7 @@ const ActivationScreen = props => {
 				activateLicense={ activateLicense }
 				siteUrl={ siteRawUrl }
 				licenseError={ licenseError }
-				disabled={ isSaving }
+				isActivating={ isSaving }
 			/>
 			<ActivationScreenIllustration imageUrl={ assetBaseUrl + lockImage } showSupportLink />
 		</div>
