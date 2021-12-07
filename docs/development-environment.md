@@ -110,7 +110,7 @@ You'll need all the tools below to work in the Jetpack monorepo.
 
 	Composer is a PHP package manager and it's used to install packages that are required to run development tools and build projects.
 
-	The monorepo requires version 2.0.x.
+	The monorepo requires version 2.1.x.
 
 	 * ##### Installing Composer on macOS
 
@@ -124,12 +124,6 @@ You'll need all the tools below to work in the Jetpack monorepo.
 
 		```sh
 		brew install composer
-		```
-
-		The latest composer in Homebrew at the time of writing is 2.1.x, but we currently require 2.0.x. If you need to downgrade to a specific version, we suggest these instructions:
-
-		```sh
-		composer self-update 2.0.14
 		```
 
 	 * ##### Installing Composer on other systems
