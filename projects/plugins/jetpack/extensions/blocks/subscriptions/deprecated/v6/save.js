@@ -13,13 +13,13 @@ import { reduce } from 'lodash';
 /**
  * Internal dependencies
  */
-import definedAttributes from './attributes';
+import defaultAttributes from './attributes';
 
-export const DEFAULT_BORDER_RADIUS_VALUE = 0;
-export const DEFAULT_BORDER_WEIGHT_VALUE = 1;
-export const DEFAULT_PADDING_VALUE = 15;
-export const DEFAULT_SPACING_VALUE = 10;
-export const DEFAULT_FONTSIZE_VALUE = 16;
+const DEFAULT_BORDER_RADIUS_VALUE = 0;
+const DEFAULT_BORDER_WEIGHT_VALUE = 1;
+const DEFAULT_PADDING_VALUE = 15;
+const DEFAULT_SPACING_VALUE = 10;
+const DEFAULT_FONTSIZE_VALUE = '16px';
 
 export default function Save( { className, attributes } ) {
 	const {
@@ -45,6 +45,7 @@ export default function Save( { className, attributes } ) {
 		customBorderColor,
 		padding,
 		spacing,
+		buttonWidth,
 	} = attributes;
 
 	const isGradientAvailable = !! getGradientClass;
@@ -94,6 +95,8 @@ export default function Save( { className, attributes } ) {
 			? customButtonGradient
 			: customButtonBackgroundColor;
 
+	const buttonWidthStyle = buttonWidth ? buttonWidth : undefined;
+
 	const getBlockClassName = () => {
 		return classnames(
 			className,
@@ -105,13 +108,13 @@ export default function Save( { className, attributes } ) {
 
 	const shortcodeAttributes = {
 		subscribe_placeholder:
-			subscribePlaceholder !== definedAttributes.subscribePlaceholder.default
+			subscribePlaceholder !== defaultAttributes.subscribePlaceholder.default
 				? subscribePlaceholder
 				: undefined,
 		show_subscribers_total: showSubscribersTotal,
 		button_on_newline: buttonOnNewLine,
 		submit_button_text:
-			submitButtonText !== definedAttributes.submitButtonText.default
+			submitButtonText !== defaultAttributes.submitButtonText.default
 				? submitButtonText
 				: undefined,
 		custom_background_emailfield_color: emailFieldBackgroundStyle,
@@ -121,6 +124,7 @@ export default function Save( { className, attributes } ) {
 		custom_border_radius: borderRadius || DEFAULT_BORDER_RADIUS_VALUE,
 		custom_border_weight: borderWeight || DEFAULT_BORDER_WEIGHT_VALUE,
 		custom_border_color: customBorderColor,
+		custom_button_width: buttonWidthStyle,
 		custom_padding: padding || DEFAULT_PADDING_VALUE,
 		custom_spacing: spacing || DEFAULT_SPACING_VALUE,
 		submit_button_classes: submitButtonClasses,
