@@ -349,7 +349,19 @@ class Hooks {
 
 		// Add child items for each active plugin.
 		$any_dev = false;
-		foreach ( Plugin::get_all_plugins() as $slug => $plugin ) {
+		try {
+			$plugins = Plugin::get_all_plugins();
+		} catch ( PluginDataException $ex ) {
+			$plugins = array();
+			// Add a child item to our parent item.
+			$args = array(
+				'id'     => 'jetpack-beta_version_error',
+				'title'  => $ex->getMessage(),
+				'parent' => 'jetpack-beta_admin_bar',
+			);
+			$wp_admin_bar->add_node( $args );
+		}
+		foreach ( $plugins as $slug => $plugin ) {
 			if ( is_plugin_active( $plugin->plugin_file() ) ) {
 				$is_dev   = false;
 				$version  = $plugin->stable_pretty_version();

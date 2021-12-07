@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+DIFM: Conditionally hide admin menu and expose is_difm_lite_in_progress in the get site API

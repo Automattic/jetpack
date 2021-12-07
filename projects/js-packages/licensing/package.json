@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-licensing",
-	"version": "0.2.1-alpha",
+	"version": "0.3.1-alpha",
 	"description": "Jetpack licensing flow",
 	"homepage": "https://jetpack.com",
 	"bugs": {
@@ -34,7 +34,7 @@
 	},
 	"dependencies": {
 		"@automattic/jetpack-api": "workspace:^0.8.0",
-		"@automattic/jetpack-components": "workspace:^0.7.1-alpha",
+		"@automattic/jetpack-components": "workspace:^0.8.0-alpha",
 		"@wordpress/i18n": "4.2.4",
 		"@wordpress/element": "4.0.4",
 		"prop-types": "15.7.2",
