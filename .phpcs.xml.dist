@@ -5,7 +5,10 @@
 	<rule ref="./.phpcs.config.xml" />
 
 	<!-- Default ruleset. -->
-	<rule ref="Jetpack" />
+	<rule ref="Jetpack">
+		<!-- Ignore Analyzer. Does not follow WPCS -->
+    	<exclude-pattern>/projects/packages/analyzer/*</exclude-pattern>
+	</rule>
 
 	<rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis">
 		<!-- Template files use extracted variables. -->
@@ -39,5 +42,9 @@
 	<rule ref="Generic.PHP.Syntax">
 		<exclude name="Generic.PHP.Syntax" />
 	</rule>
+
+		<rule ref="PSR12">
+    		<include-pattern>/projects/packages/analyzer/*</include-pattern>
+    	</rule>
 
 </ruleset>
